@@ -107,7 +107,7 @@ def macro_lines(info_a, info_b):
             if name == "A":
                 add = (1 << c_b.size) - 1
                 add <<= c_b.position
-                ops[name] = (0, 0, add)
+                ops[name] = (0, 0, add, 0, 0, 0)
             continue
         c_a = info_a.components[name]
         mask = (1 << c_b.size) - 1
@@ -124,15 +124,15 @@ def macro_lines(info_a, info_b):
 
         mask <<= mask_pos
         shift = shift_left - shift_right
-        ops[name] = (mask, shift, 0)
+        ops[name] = (mask, shift, 0, c_a.size, c_b.size, mask_pos)
 
     # Collapse multiple components if possible.
     common_shifts = {}
-    for name, (mask, shift, add) in ops.items():
+    for name, (mask, shift, add, size_a, size_b, mask_pos) in ops.items():
         if not add:
             if shift in common_shifts: common_shifts[shift].append(name)
             else: common_shifts[shift] = [name]
-    for shift, colors in common_shifts.items():
+    for newshift, colors in common_shifts.items():
         if len(colors) == 1: continue
         newname = ""
         newmask = 0
@@ -142,7 +142,7 @@ def macro_lines(info_a, info_b):
             newname += name
             newmask |= ops[name][0]
         names.append(newname)
-        ops[newname] = (newmask, shift, 0)
+        ops[newname] = (newmask, shift, 0, size_a, size_b, mask_pos)
 
     # Write out a line for each remaining operation.
     lines = []
@@ -150,28 +150,41 @@ def macro_lines(info_a, info_b):
     mask_format = "0x%0" + str(info_a.size >> 2) + "x"
     for name in names:
         if not name in ops: continue
-        mask, shift, add = ops[name]
+        mask, shift, add, size_a, size_b, mask_pos = ops[name]
         if add:
             line = "(" + (add_format % add) + ")"
-            lines.append((line, name))
+            lines.append((line, name, 0, size_a, size_b, mask_pos))
             continue
         mask_string = "((x) & " + (mask_format % mask) + ")"
-        if shift > 0:
-            line = mask_string + " << %2d" % shift
-        elif shift < 0:
-            line = mask_string + " >> %2d" % -shift
-        else:
-            line = mask_string + "      "
-        lines.append((line, name))
+	if (size_a != 8 and size_b == 8):
+        	line = "(_al_rgb_scale_" + str(size_a) + "[" + mask_string + " >> %2d" % mask_pos + "]"
+	else:
+		if (shift > 0):
+			line = "(" + mask_string + " << %2d" % shift + ")"
+		elif (shift < 0):
+			line = "(" + mask_string + " >> %2d" % -shift + ")"
+		else:
+			line = mask_string + "      "
+        lines.append((line, name, shift, size_a, size_b, mask_pos))
 
     # Concoct the macro.
     for i in range(len(lines)):
-        line, name = lines[i]
+        line, name, shift, size_a, size_b, mask_pos = lines[i]
         if i == 0: start = "   ("
         else: start = "    "
         if i == len(lines) - 1: cont = ")   "
         else: cont = " | \\"
-        r += start + "(" + line + ")" + " /* " + name + " */" + cont + "\n"
+	if (size_a != 8 and size_b == 8):
+		shift = shift+(mask_pos-(8-size_a))
+		if (shift > 0):
+			backshift = " << %2d)" % shift
+		elif (shift < 0):
+			backshift = " >> %2d)" % -shift
+		else:
+			backshift = "       )"
+	else:
+		backshift = "       "
+        r += start + line + backshift + " /* " + name + " */" + cont + "\n"
     return r
 
 

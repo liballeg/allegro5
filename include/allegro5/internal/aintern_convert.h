@@ -5,57 +5,57 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern_pixels.h"
 #define ALLEGRO_CONVERT_ARGB_8888_TO_RGBA_8888(x) \
-   ((((x) & 0xff000000) >> 24) /* A */ | \
-    (((x) & 0x00ffffff) <<  8) /* BGR */)   
+   ((((x) & 0xff000000) >> 24)        /* A */ | \
+    (((x) & 0x00ffffff) <<  8)        /* BGR */)   
 #define ALLEGRO_CONVERT_ARGB_8888_TO_ARGB_4444(x) \
-   ((((x) & 0xf0000000) >> 16) /* A */ | \
-    (((x) & 0x000000f0) >>  4) /* B */ | \
-    (((x) & 0x0000f000) >>  8) /* G */ | \
-    (((x) & 0x00f00000) >> 12) /* R */)   
+   ((((x) & 0xf0000000) >> 16)        /* A */ | \
+    (((x) & 0x000000f0) >>  4)        /* B */ | \
+    (((x) & 0x0000f000) >>  8)        /* G */ | \
+    (((x) & 0x00f00000) >> 12)        /* R */)   
 #define ALLEGRO_CONVERT_ARGB_8888_TO_RGB_888(x) \
-   ((((x) & 0x00ffffff)      ) /* BGR */)   
+   (((x) & 0x00ffffff)              /* BGR */)   
 #define ALLEGRO_CONVERT_ARGB_8888_TO_RGB_565(x) \
-   ((((x) & 0x000000f8) >>  3) /* B */ | \
-    (((x) & 0x0000fc00) >>  5) /* G */ | \
-    (((x) & 0x00f80000) >>  8) /* R */)   
+   ((((x) & 0x000000f8) >>  3)        /* B */ | \
+    (((x) & 0x0000fc00) >>  5)        /* G */ | \
+    (((x) & 0x00f80000) >>  8)        /* R */)   
 #define ALLEGRO_CONVERT_ARGB_8888_TO_RGB_555(x) \
-   ((((x) & 0x000000f8) >>  3) /* B */ | \
-    (((x) & 0x0000f800) >>  6) /* G */ | \
-    (((x) & 0x00f80000) >>  9) /* R */)   
+   ((((x) & 0x000000f8) >>  3)        /* B */ | \
+    (((x) & 0x0000f800) >>  6)        /* G */ | \
+    (((x) & 0x00f80000) >>  9)        /* R */)   
 #define ALLEGRO_CONVERT_ARGB_8888_TO_RGBA_5551(x) \
-   ((((x) & 0x80000000) >> 31) /* A */ | \
-    (((x) & 0x000000f8) >>  2) /* B */ | \
-    (((x) & 0x0000f800) >>  5) /* G */ | \
-    (((x) & 0x00f80000) >>  8) /* R */)   
+   ((((x) & 0x80000000) >> 31)        /* A */ | \
+    (((x) & 0x000000f8) >>  2)        /* B */ | \
+    (((x) & 0x0000f800) >>  5)        /* G */ | \
+    (((x) & 0x00f80000) >>  8)        /* R */)   
 #define ALLEGRO_CONVERT_ARGB_8888_TO_ARGB_1555(x) \
-   ((((x) & 0x80000000) >> 16) /* A */ | \
-    (((x) & 0x000000f8) >>  3) /* B */ | \
-    (((x) & 0x0000f800) >>  6) /* G */ | \
-    (((x) & 0x00f80000) >>  9) /* R */)   
+   ((((x) & 0x80000000) >> 16)        /* A */ | \
+    (((x) & 0x000000f8) >>  3)        /* B */ | \
+    (((x) & 0x0000f800) >>  6)        /* G */ | \
+    (((x) & 0x00f80000) >>  9)        /* R */)   
 #define ALLEGRO_CONVERT_ARGB_8888_TO_ABGR_8888(x) \
-   ((((x) & 0x000000ff) << 16) /* B */ | \
-    (((x) & 0x00ff0000) >> 16) /* R */ | \
-    (((x) & 0xff00ff00)      ) /* AG */)   
+   ((((x) & 0x000000ff) << 16)        /* B */ | \
+    (((x) & 0x00ff0000) >> 16)        /* R */ | \
+    ((x) & 0xff00ff00)              /* AG */)   
 #define ALLEGRO_CONVERT_ARGB_8888_TO_XBGR_8888(x) \
-   ((((x) & 0x000000ff) << 16) /* B */ | \
-    (((x) & 0x0000ff00)      ) /* G */ | \
-    (((x) & 0x00ff0000) >> 16) /* R */)   
+   ((((x) & 0x000000ff) << 16)        /* B */ | \
+    ((x) & 0x0000ff00)              /* G */ | \
+    (((x) & 0x00ff0000) >> 16)        /* R */)   
 #define ALLEGRO_CONVERT_ARGB_8888_TO_BGR_888(x) \
-   ((((x) & 0x000000ff) << 16) /* B */ | \
-    (((x) & 0x0000ff00)      ) /* G */ | \
-    (((x) & 0x00ff0000) >> 16) /* R */)   
+   ((((x) & 0x000000ff) << 16)        /* B */ | \
+    ((x) & 0x0000ff00)              /* G */ | \
+    (((x) & 0x00ff0000) >> 16)        /* R */)   
 #define ALLEGRO_CONVERT_ARGB_8888_TO_BGR_565(x) \
-   ((((x) & 0x000000f8) <<  8) /* B */ | \
-    (((x) & 0x0000fc00) >>  5) /* G */ | \
-    (((x) & 0x00f80000) >> 19) /* R */)   
+   ((((x) & 0x000000f8) <<  8)        /* B */ | \
+    (((x) & 0x0000fc00) >>  5)        /* G */ | \
+    (((x) & 0x00f80000) >> 19)        /* R */)   
 #define ALLEGRO_CONVERT_ARGB_8888_TO_BGR_555(x) \
-   ((((x) & 0x000000f8) <<  7) /* B */ | \
-    (((x) & 0x0000f800) >>  6) /* G */ | \
-    (((x) & 0x00f80000) >> 19) /* R */)   
+   ((((x) & 0x000000f8) <<  7)        /* B */ | \
+    (((x) & 0x0000f800) >>  6)        /* G */ | \
+    (((x) & 0x00f80000) >> 19)        /* R */)   
 #define ALLEGRO_CONVERT_ARGB_8888_TO_RGBX_8888(x) \
-   ((((x) & 0x00ffffff) <<  8) /* BGR */)   
+   ((((x) & 0x00ffffff) <<  8)        /* BGR */)   
 #define ALLEGRO_CONVERT_ARGB_8888_TO_XRGB_8888(x) \
-   ((((x) & 0x00ffffff)      ) /* BGR */)   
+   (((x) & 0x00ffffff)              /* BGR */)   
 #define ALLEGRO_CONVERT_ARGB_8888_TO_ABGR_F32(x) \
    al_map_rgba(((x) >> 16) & 255,\
    ((x) >> 8) & 255,\
@@ -63,72 +63,72 @@
    ((x) >> 24) & 255)
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ARGB_8888_TO_ABGR_8888_LE(x) \
-   ((((x) & 0xff000000) >> 24) /* A */ | \
-    (((x) & 0x00ffffff) <<  8) /* BGR */)   
+   ((((x) & 0xff000000) >> 24)        /* A */ | \
+    (((x) & 0x00ffffff) <<  8)        /* BGR */)   
 #else
 #define ALLEGRO_CONVERT_ARGB_8888_TO_ABGR_8888_LE(x) \
-   ((((x) & 0x000000ff) << 16) /* B */ | \
-    (((x) & 0x00ff0000) >> 16) /* R */ | \
-    (((x) & 0xff00ff00)      ) /* AG */)   
+   ((((x) & 0x000000ff) << 16)        /* B */ | \
+    (((x) & 0x00ff0000) >> 16)        /* R */ | \
+    ((x) & 0xff00ff00)              /* AG */)   
 #endif
 #define ALLEGRO_CONVERT_ARGB_8888_TO_RGBA_4444(x) \
-   ((((x) & 0xf0000000) >> 28) /* A */ | \
-    (((x) & 0x000000f0)      ) /* B */ | \
-    (((x) & 0x0000f000) >>  4) /* G */ | \
-    (((x) & 0x00f00000) >>  8) /* R */)   
+   ((((x) & 0xf0000000) >> 28)        /* A */ | \
+    ((x) & 0x000000f0)              /* B */ | \
+    (((x) & 0x0000f000) >>  4)        /* G */ | \
+    (((x) & 0x00f00000) >>  8)        /* R */)   
 #define ALLEGRO_CONVERT_RGBA_8888_TO_ARGB_8888(x) \
-   ((((x) & 0x000000ff) << 24) /* A */ | \
-    (((x) & 0xffffff00) >>  8) /* BGR */)   
+   ((((x) & 0x000000ff) << 24)        /* A */ | \
+    (((x) & 0xffffff00) >>  8)        /* BGR */)   
 #define ALLEGRO_CONVERT_RGBA_8888_TO_ARGB_4444(x) \
-   ((((x) & 0x000000f0) <<  8) /* A */ | \
-    (((x) & 0x0000f000) >> 12) /* B */ | \
-    (((x) & 0x00f00000) >> 16) /* G */ | \
-    (((x) & 0xf0000000) >> 20) /* R */)   
+   ((((x) & 0x000000f0) <<  8)        /* A */ | \
+    (((x) & 0x0000f000) >> 12)        /* B */ | \
+    (((x) & 0x00f00000) >> 16)        /* G */ | \
+    (((x) & 0xf0000000) >> 20)        /* R */)   
 #define ALLEGRO_CONVERT_RGBA_8888_TO_RGB_888(x) \
-   ((((x) & 0xffffff00) >>  8) /* BGR */)   
+   ((((x) & 0xffffff00) >>  8)        /* BGR */)   
 #define ALLEGRO_CONVERT_RGBA_8888_TO_RGB_565(x) \
-   ((((x) & 0x0000f800) >> 11) /* B */ | \
-    (((x) & 0x00fc0000) >> 13) /* G */ | \
-    (((x) & 0xf8000000) >> 16) /* R */)   
+   ((((x) & 0x0000f800) >> 11)        /* B */ | \
+    (((x) & 0x00fc0000) >> 13)        /* G */ | \
+    (((x) & 0xf8000000) >> 16)        /* R */)   
 #define ALLEGRO_CONVERT_RGBA_8888_TO_RGB_555(x) \
-   ((((x) & 0x0000f800) >> 11) /* B */ | \
-    (((x) & 0x00f80000) >> 14) /* G */ | \
-    (((x) & 0xf8000000) >> 17) /* R */)   
+   ((((x) & 0x0000f800) >> 11)        /* B */ | \
+    (((x) & 0x00f80000) >> 14)        /* G */ | \
+    (((x) & 0xf8000000) >> 17)        /* R */)   
 #define ALLEGRO_CONVERT_RGBA_8888_TO_RGBA_5551(x) \
-   ((((x) & 0x00000080) >>  7) /* A */ | \
-    (((x) & 0x0000f800) >> 10) /* B */ | \
-    (((x) & 0x00f80000) >> 13) /* G */ | \
-    (((x) & 0xf8000000) >> 16) /* R */)   
+   ((((x) & 0x00000080) >>  7)        /* A */ | \
+    (((x) & 0x0000f800) >> 10)        /* B */ | \
+    (((x) & 0x00f80000) >> 13)        /* G */ | \
+    (((x) & 0xf8000000) >> 16)        /* R */)   
 #define ALLEGRO_CONVERT_RGBA_8888_TO_ARGB_1555(x) \
-   ((((x) & 0x00000080) <<  8) /* A */ | \
-    (((x) & 0x0000f800) >> 11) /* B */ | \
-    (((x) & 0x00f80000) >> 14) /* G */ | \
-    (((x) & 0xf8000000) >> 17) /* R */)   
+   ((((x) & 0x00000080) <<  8)        /* A */ | \
+    (((x) & 0x0000f800) >> 11)        /* B */ | \
+    (((x) & 0x00f80000) >> 14)        /* G */ | \
+    (((x) & 0xf8000000) >> 17)        /* R */)   
 #define ALLEGRO_CONVERT_RGBA_8888_TO_ABGR_8888(x) \
-   ((((x) & 0x000000ff) << 24) /* A */ | \
-    (((x) & 0x0000ff00) <<  8) /* B */ | \
-    (((x) & 0x00ff0000) >>  8) /* G */ | \
-    (((x) & 0xff000000) >> 24) /* R */)   
+   ((((x) & 0x000000ff) << 24)        /* A */ | \
+    (((x) & 0x0000ff00) <<  8)        /* B */ | \
+    (((x) & 0x00ff0000) >>  8)        /* G */ | \
+    (((x) & 0xff000000) >> 24)        /* R */)   
 #define ALLEGRO_CONVERT_RGBA_8888_TO_XBGR_8888(x) \
-   ((((x) & 0x0000ff00) <<  8) /* B */ | \
-    (((x) & 0x00ff0000) >>  8) /* G */ | \
-    (((x) & 0xff000000) >> 24) /* R */)   
+   ((((x) & 0x0000ff00) <<  8)        /* B */ | \
+    (((x) & 0x00ff0000) >>  8)        /* G */ | \
+    (((x) & 0xff000000) >> 24)        /* R */)   
 #define ALLEGRO_CONVERT_RGBA_8888_TO_BGR_888(x) \
-   ((((x) & 0x0000ff00) <<  8) /* B */ | \
-    (((x) & 0x00ff0000) >>  8) /* G */ | \
-    (((x) & 0xff000000) >> 24) /* R */)   
+   ((((x) & 0x0000ff00) <<  8)        /* B */ | \
+    (((x) & 0x00ff0000) >>  8)        /* G */ | \
+    (((x) & 0xff000000) >> 24)        /* R */)   
 #define ALLEGRO_CONVERT_RGBA_8888_TO_BGR_565(x) \
-   ((((x) & 0x0000f800)      ) /* B */ | \
-    (((x) & 0x00fc0000) >> 13) /* G */ | \
-    (((x) & 0xf8000000) >> 27) /* R */)   
+   (((x) & 0x0000f800)              /* B */ | \
+    (((x) & 0x00fc0000) >> 13)        /* G */ | \
+    (((x) & 0xf8000000) >> 27)        /* R */)   
 #define ALLEGRO_CONVERT_RGBA_8888_TO_BGR_555(x) \
-   ((((x) & 0x0000f800) >>  1) /* B */ | \
-    (((x) & 0x00f80000) >> 14) /* G */ | \
-    (((x) & 0xf8000000) >> 27) /* R */)   
+   ((((x) & 0x0000f800) >>  1)        /* B */ | \
+    (((x) & 0x00f80000) >> 14)        /* G */ | \
+    (((x) & 0xf8000000) >> 27)        /* R */)   
 #define ALLEGRO_CONVERT_RGBA_8888_TO_RGBX_8888(x) \
-   ((((x) & 0xffffff00)      ) /* BGR */)   
+   (((x) & 0xffffff00)              /* BGR */)   
 #define ALLEGRO_CONVERT_RGBA_8888_TO_XRGB_8888(x) \
-   ((((x) & 0xffffff00) >>  8) /* BGR */)   
+   ((((x) & 0xffffff00) >>  8)        /* BGR */)   
 #define ALLEGRO_CONVERT_RGBA_8888_TO_ABGR_F32(x) \
    al_map_rgba(((x) >> 24) & 255,\
    ((x) >> 16) & 255,\
@@ -136,80 +136,80 @@
    ((x) >> 0) & 255)
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_RGBA_8888_TO_ABGR_8888_LE(x) \
-   ((((x) & 0xffffffff)      ) /* ABGR */)   
+   (((x) & 0xffffffff)              /* ABGR */)   
 #else
 #define ALLEGRO_CONVERT_RGBA_8888_TO_ABGR_8888_LE(x) \
-   ((((x) & 0x000000ff) << 24) /* A */ | \
-    (((x) & 0x0000ff00) <<  8) /* B */ | \
-    (((x) & 0x00ff0000) >>  8) /* G */ | \
-    (((x) & 0xff000000) >> 24) /* R */)   
+   ((((x) & 0x000000ff) << 24)        /* A */ | \
+    (((x) & 0x0000ff00) <<  8)        /* B */ | \
+    (((x) & 0x00ff0000) >>  8)        /* G */ | \
+    (((x) & 0xff000000) >> 24)        /* R */)   
 #endif
 #define ALLEGRO_CONVERT_RGBA_8888_TO_RGBA_4444(x) \
-   ((((x) & 0x000000f0) >>  4) /* A */ | \
-    (((x) & 0x0000f000) >>  8) /* B */ | \
-    (((x) & 0x00f00000) >> 12) /* G */ | \
-    (((x) & 0xf0000000) >> 16) /* R */)   
+   ((((x) & 0x000000f0) >>  4)        /* A */ | \
+    (((x) & 0x0000f000) >>  8)        /* B */ | \
+    (((x) & 0x00f00000) >> 12)        /* G */ | \
+    (((x) & 0xf0000000) >> 16)        /* R */)   
 #define ALLEGRO_CONVERT_ARGB_4444_TO_ARGB_8888(x) \
-   ((((x) & 0xf000) << 16) /* A */ | \
-    (((x) & 0x000f) <<  4) /* B */ | \
-    (((x) & 0x00f0) <<  8) /* G */ | \
-    (((x) & 0x0f00) << 12) /* R */)   
+   ((_al_rgb_scale_4[((x) & 0xf000) >> 12] << 24) /* A */ | \
+    (_al_rgb_scale_4[((x) & 0x000f) >>  0]       ) /* B */ | \
+    (_al_rgb_scale_4[((x) & 0x00f0) >>  4] <<  8) /* G */ | \
+    (_al_rgb_scale_4[((x) & 0x0f00) >>  8] << 16) /* R */)   
 #define ALLEGRO_CONVERT_ARGB_4444_TO_RGBA_8888(x) \
-   ((((x) & 0xf000) >>  8) /* A */ | \
-    (((x) & 0x000f) << 12) /* B */ | \
-    (((x) & 0x00f0) << 16) /* G */ | \
-    (((x) & 0x0f00) << 20) /* R */)   
+   ((_al_rgb_scale_4[((x) & 0xf000) >> 12]       ) /* A */ | \
+    (_al_rgb_scale_4[((x) & 0x000f) >>  0] <<  8) /* B */ | \
+    (_al_rgb_scale_4[((x) & 0x00f0) >>  4] << 16) /* G */ | \
+    (_al_rgb_scale_4[((x) & 0x0f00) >>  8] << 24) /* R */)   
 #define ALLEGRO_CONVERT_ARGB_4444_TO_RGB_888(x) \
-   ((((x) & 0x000f) <<  4) /* B */ | \
-    (((x) & 0x00f0) <<  8) /* G */ | \
-    (((x) & 0x0f00) << 12) /* R */)   
+   ((_al_rgb_scale_4[((x) & 0x000f) >>  0]       ) /* B */ | \
+    (_al_rgb_scale_4[((x) & 0x00f0) >>  4] <<  8) /* G */ | \
+    (_al_rgb_scale_4[((x) & 0x0f00) >>  8] << 16) /* R */)   
 #define ALLEGRO_CONVERT_ARGB_4444_TO_RGB_565(x) \
-   ((((x) & 0x000f) <<  1) /* B */ | \
-    (((x) & 0x00f0) <<  3) /* G */ | \
-    (((x) & 0x0f00) <<  4) /* R */)   
+   ((((x) & 0x000f) <<  1)        /* B */ | \
+    (((x) & 0x00f0) <<  3)        /* G */ | \
+    (((x) & 0x0f00) <<  4)        /* R */)   
 #define ALLEGRO_CONVERT_ARGB_4444_TO_RGB_555(x) \
-   ((((x) & 0x000f) <<  1) /* B */ | \
-    (((x) & 0x00f0) <<  2) /* G */ | \
-    (((x) & 0x0f00) <<  3) /* R */)   
+   ((((x) & 0x000f) <<  1)        /* B */ | \
+    (((x) & 0x00f0) <<  2)        /* G */ | \
+    (((x) & 0x0f00) <<  3)        /* R */)   
 #define ALLEGRO_CONVERT_ARGB_4444_TO_RGBA_5551(x) \
-   ((((x) & 0x8000) >> 15) /* A */ | \
-    (((x) & 0x000f) <<  2) /* B */ | \
-    (((x) & 0x00f0) <<  3) /* G */ | \
-    (((x) & 0x0f00) <<  4) /* R */)   
+   ((((x) & 0x8000) >> 15)        /* A */ | \
+    (((x) & 0x000f) <<  2)        /* B */ | \
+    (((x) & 0x00f0) <<  3)        /* G */ | \
+    (((x) & 0x0f00) <<  4)        /* R */)   
 #define ALLEGRO_CONVERT_ARGB_4444_TO_ARGB_1555(x) \
-   ((((x) & 0x8000)      ) /* A */ | \
-    (((x) & 0x000f) <<  1) /* B */ | \
-    (((x) & 0x00f0) <<  2) /* G */ | \
-    (((x) & 0x0f00) <<  3) /* R */)   
+   (((x) & 0x8000)              /* A */ | \
+    (((x) & 0x000f) <<  1)        /* B */ | \
+    (((x) & 0x00f0) <<  2)        /* G */ | \
+    (((x) & 0x0f00) <<  3)        /* R */)   
 #define ALLEGRO_CONVERT_ARGB_4444_TO_ABGR_8888(x) \
-   ((((x) & 0xf000) << 16) /* A */ | \
-    (((x) & 0x000f) << 20) /* B */ | \
-    (((x) & 0x00f0) <<  8) /* G */ | \
-    (((x) & 0x0f00) >>  4) /* R */)   
+   ((_al_rgb_scale_4[((x) & 0xf000) >> 12] << 24) /* A */ | \
+    (_al_rgb_scale_4[((x) & 0x000f) >>  0] << 16) /* B */ | \
+    (_al_rgb_scale_4[((x) & 0x00f0) >>  4] <<  8) /* G */ | \
+    (_al_rgb_scale_4[((x) & 0x0f00) >>  8]       ) /* R */)   
 #define ALLEGRO_CONVERT_ARGB_4444_TO_XBGR_8888(x) \
-   ((((x) & 0x000f) << 20) /* B */ | \
-    (((x) & 0x00f0) <<  8) /* G */ | \
-    (((x) & 0x0f00) >>  4) /* R */)   
+   ((_al_rgb_scale_4[((x) & 0x000f) >>  0] << 16) /* B */ | \
+    (_al_rgb_scale_4[((x) & 0x00f0) >>  4] <<  8) /* G */ | \
+    (_al_rgb_scale_4[((x) & 0x0f00) >>  8]       ) /* R */)   
 #define ALLEGRO_CONVERT_ARGB_4444_TO_BGR_888(x) \
-   ((((x) & 0x000f) << 20) /* B */ | \
-    (((x) & 0x00f0) <<  8) /* G */ | \
-    (((x) & 0x0f00) >>  4) /* R */)   
+   ((_al_rgb_scale_4[((x) & 0x000f) >>  0] << 16) /* B */ | \
+    (_al_rgb_scale_4[((x) & 0x00f0) >>  4] <<  8) /* G */ | \
+    (_al_rgb_scale_4[((x) & 0x0f00) >>  8]       ) /* R */)   
 #define ALLEGRO_CONVERT_ARGB_4444_TO_BGR_565(x) \
-   ((((x) & 0x000f) << 12) /* B */ | \
-    (((x) & 0x00f0) <<  3) /* G */ | \
-    (((x) & 0x0f00) >>  7) /* R */)   
+   ((((x) & 0x000f) << 12)        /* B */ | \
+    (((x) & 0x00f0) <<  3)        /* G */ | \
+    (((x) & 0x0f00) >>  7)        /* R */)   
 #define ALLEGRO_CONVERT_ARGB_4444_TO_BGR_555(x) \
-   ((((x) & 0x000f) << 11) /* B */ | \
-    (((x) & 0x00f0) <<  2) /* G */ | \
-    (((x) & 0x0f00) >>  7) /* R */)   
+   ((((x) & 0x000f) << 11)        /* B */ | \
+    (((x) & 0x00f0) <<  2)        /* G */ | \
+    (((x) & 0x0f00) >>  7)        /* R */)   
 #define ALLEGRO_CONVERT_ARGB_4444_TO_RGBX_8888(x) \
-   ((((x) & 0x000f) << 12) /* B */ | \
-    (((x) & 0x00f0) << 16) /* G */ | \
-    (((x) & 0x0f00) << 20) /* R */)   
+   ((_al_rgb_scale_4[((x) & 0x000f) >>  0] <<  8) /* B */ | \
+    (_al_rgb_scale_4[((x) & 0x00f0) >>  4] << 16) /* G */ | \
+    (_al_rgb_scale_4[((x) & 0x0f00) >>  8] << 24) /* R */)   
 #define ALLEGRO_CONVERT_ARGB_4444_TO_XRGB_8888(x) \
-   ((((x) & 0x000f) <<  4) /* B */ | \
-    (((x) & 0x00f0) <<  8) /* G */ | \
-    (((x) & 0x0f00) << 12) /* R */)   
+   ((_al_rgb_scale_4[((x) & 0x000f) >>  0]       ) /* B */ | \
+    (_al_rgb_scale_4[((x) & 0x00f0) >>  4] <<  8) /* G */ | \
+    (_al_rgb_scale_4[((x) & 0x0f00) >>  8] << 16) /* R */)   
 #define ALLEGRO_CONVERT_ARGB_4444_TO_ABGR_F32(x) \
    al_map_rgba(_al_rgb_scale_4[((x) >> 8) & 15],\
    _al_rgb_scale_4[((x) >> 4) & 15],\
@@ -217,310 +217,310 @@
    _al_rgb_scale_4[((x) >> 12) & 15])
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ARGB_4444_TO_ABGR_8888_LE(x) \
-   ((((x) & 0xf000) >>  8) /* A */ | \
-    (((x) & 0x000f) << 12) /* B */ | \
-    (((x) & 0x00f0) << 16) /* G */ | \
-    (((x) & 0x0f00) << 20) /* R */)   
+   ((_al_rgb_scale_4[((x) & 0xf000) >> 12]       ) /* A */ | \
+    (_al_rgb_scale_4[((x) & 0x000f) >>  0] <<  8) /* B */ | \
+    (_al_rgb_scale_4[((x) & 0x00f0) >>  4] << 16) /* G */ | \
+    (_al_rgb_scale_4[((x) & 0x0f00) >>  8] << 24) /* R */)   
 #else
 #define ALLEGRO_CONVERT_ARGB_4444_TO_ABGR_8888_LE(x) \
-   ((((x) & 0xf000) << 16) /* A */ | \
-    (((x) & 0x000f) << 20) /* B */ | \
-    (((x) & 0x00f0) <<  8) /* G */ | \
-    (((x) & 0x0f00) >>  4) /* R */)   
+   ((_al_rgb_scale_4[((x) & 0xf000) >> 12] << 24) /* A */ | \
+    (_al_rgb_scale_4[((x) & 0x000f) >>  0] << 16) /* B */ | \
+    (_al_rgb_scale_4[((x) & 0x00f0) >>  4] <<  8) /* G */ | \
+    (_al_rgb_scale_4[((x) & 0x0f00) >>  8]       ) /* R */)   
 #endif
 #define ALLEGRO_CONVERT_ARGB_4444_TO_RGBA_4444(x) \
-   ((((x) & 0xf000) >> 12) /* A */ | \
-    (((x) & 0x0fff) <<  4) /* BGR */)   
+   ((((x) & 0xf000) >> 12)        /* A */ | \
+    (((x) & 0x0fff) <<  4)        /* BGR */)   
 #define ALLEGRO_CONVERT_RGB_888_TO_ARGB_8888(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0xffffff)      ) /* BGR */)   
+   ((0xff000000)        /* A */ | \
+    ((x) & 0xffffff)              /* BGR */)   
 #define ALLEGRO_CONVERT_RGB_888_TO_RGBA_8888(x) \
-   (((0x000000ff)) /* A */ | \
-    (((x) & 0xffffff) <<  8) /* BGR */)   
+   ((0x000000ff)        /* A */ | \
+    (((x) & 0xffffff) <<  8)        /* BGR */)   
 #define ALLEGRO_CONVERT_RGB_888_TO_ARGB_4444(x) \
-   (((0xf000)) /* A */ | \
-    (((x) & 0x0000f0) >>  4) /* B */ | \
-    (((x) & 0x00f000) >>  8) /* G */ | \
-    (((x) & 0xf00000) >> 12) /* R */)   
+   ((0xf000)        /* A */ | \
+    (((x) & 0x0000f0) >>  4)        /* B */ | \
+    (((x) & 0x00f000) >>  8)        /* G */ | \
+    (((x) & 0xf00000) >> 12)        /* R */)   
 #define ALLEGRO_CONVERT_RGB_888_TO_RGB_565(x) \
-   ((((x) & 0x0000f8) >>  3) /* B */ | \
-    (((x) & 0x00fc00) >>  5) /* G */ | \
-    (((x) & 0xf80000) >>  8) /* R */)   
+   ((((x) & 0x0000f8) >>  3)        /* B */ | \
+    (((x) & 0x00fc00) >>  5)        /* G */ | \
+    (((x) & 0xf80000) >>  8)        /* R */)   
 #define ALLEGRO_CONVERT_RGB_888_TO_RGB_555(x) \
-   ((((x) & 0x0000f8) >>  3) /* B */ | \
-    (((x) & 0x00f800) >>  6) /* G */ | \
-    (((x) & 0xf80000) >>  9) /* R */)   
+   ((((x) & 0x0000f8) >>  3)        /* B */ | \
+    (((x) & 0x00f800) >>  6)        /* G */ | \
+    (((x) & 0xf80000) >>  9)        /* R */)   
 #define ALLEGRO_CONVERT_RGB_888_TO_RGBA_5551(x) \
-   (((0x0001)) /* A */ | \
-    (((x) & 0x0000f8) >>  2) /* B */ | \
-    (((x) & 0x00f800) >>  5) /* G */ | \
-    (((x) & 0xf80000) >>  8) /* R */)   
+   ((0x0001)        /* A */ | \
+    (((x) & 0x0000f8) >>  2)        /* B */ | \
+    (((x) & 0x00f800) >>  5)        /* G */ | \
+    (((x) & 0xf80000) >>  8)        /* R */)   
 #define ALLEGRO_CONVERT_RGB_888_TO_ARGB_1555(x) \
-   (((0x8000)) /* A */ | \
-    (((x) & 0x0000f8) >>  3) /* B */ | \
-    (((x) & 0x00f800) >>  6) /* G */ | \
-    (((x) & 0xf80000) >>  9) /* R */)   
+   ((0x8000)        /* A */ | \
+    (((x) & 0x0000f8) >>  3)        /* B */ | \
+    (((x) & 0x00f800) >>  6)        /* G */ | \
+    (((x) & 0xf80000) >>  9)        /* R */)   
 #define ALLEGRO_CONVERT_RGB_888_TO_ABGR_8888(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0x0000ff) << 16) /* B */ | \
-    (((x) & 0x00ff00)      ) /* G */ | \
-    (((x) & 0xff0000) >> 16) /* R */)   
+   ((0xff000000)        /* A */ | \
+    (((x) & 0x0000ff) << 16)        /* B */ | \
+    ((x) & 0x00ff00)              /* G */ | \
+    (((x) & 0xff0000) >> 16)        /* R */)   
 #define ALLEGRO_CONVERT_RGB_888_TO_XBGR_8888(x) \
-   ((((x) & 0x0000ff) << 16) /* B */ | \
-    (((x) & 0x00ff00)      ) /* G */ | \
-    (((x) & 0xff0000) >> 16) /* R */)   
+   ((((x) & 0x0000ff) << 16)        /* B */ | \
+    ((x) & 0x00ff00)              /* G */ | \
+    (((x) & 0xff0000) >> 16)        /* R */)   
 #define ALLEGRO_CONVERT_RGB_888_TO_BGR_888(x) \
-   ((((x) & 0x0000ff) << 16) /* B */ | \
-    (((x) & 0x00ff00)      ) /* G */ | \
-    (((x) & 0xff0000) >> 16) /* R */)   
+   ((((x) & 0x0000ff) << 16)        /* B */ | \
+    ((x) & 0x00ff00)              /* G */ | \
+    (((x) & 0xff0000) >> 16)        /* R */)   
 #define ALLEGRO_CONVERT_RGB_888_TO_BGR_565(x) \
-   ((((x) & 0x0000f8) <<  8) /* B */ | \
-    (((x) & 0x00fc00) >>  5) /* G */ | \
-    (((x) & 0xf80000) >> 19) /* R */)   
+   ((((x) & 0x0000f8) <<  8)        /* B */ | \
+    (((x) & 0x00fc00) >>  5)        /* G */ | \
+    (((x) & 0xf80000) >> 19)        /* R */)   
 #define ALLEGRO_CONVERT_RGB_888_TO_BGR_555(x) \
-   ((((x) & 0x0000f8) <<  7) /* B */ | \
-    (((x) & 0x00f800) >>  6) /* G */ | \
-    (((x) & 0xf80000) >> 19) /* R */)   
+   ((((x) & 0x0000f8) <<  7)        /* B */ | \
+    (((x) & 0x00f800) >>  6)        /* G */ | \
+    (((x) & 0xf80000) >> 19)        /* R */)   
 #define ALLEGRO_CONVERT_RGB_888_TO_RGBX_8888(x) \
-   ((((x) & 0xffffff) <<  8) /* BGR */)   
+   ((((x) & 0xffffff) <<  8)        /* BGR */)   
 #define ALLEGRO_CONVERT_RGB_888_TO_XRGB_8888(x) \
-   ((((x) & 0xffffff)      ) /* BGR */)   
+   (((x) & 0xffffff)              /* BGR */)   
 #define ALLEGRO_CONVERT_RGB_888_TO_ABGR_F32(x) \
    al_map_rgb(((x) >> 16) & 255,\
    ((x) >> 8) & 255,\
    ((x) >> 0) & 255)
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_RGB_888_TO_ABGR_8888_LE(x) \
-   (((0x000000ff)) /* A */ | \
-    (((x) & 0xffffff) <<  8) /* BGR */)   
+   ((0x000000ff)        /* A */ | \
+    (((x) & 0xffffff) <<  8)        /* BGR */)   
 #else
 #define ALLEGRO_CONVERT_RGB_888_TO_ABGR_8888_LE(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0x0000ff) << 16) /* B */ | \
-    (((x) & 0x00ff00)      ) /* G */ | \
-    (((x) & 0xff0000) >> 16) /* R */)   
+   ((0xff000000)        /* A */ | \
+    (((x) & 0x0000ff) << 16)        /* B */ | \
+    ((x) & 0x00ff00)              /* G */ | \
+    (((x) & 0xff0000) >> 16)        /* R */)   
 #endif
 #define ALLEGRO_CONVERT_RGB_888_TO_RGBA_4444(x) \
-   (((0x000f)) /* A */ | \
-    (((x) & 0x0000f0)      ) /* B */ | \
-    (((x) & 0x00f000) >>  4) /* G */ | \
-    (((x) & 0xf00000) >>  8) /* R */)   
+   ((0x000f)        /* A */ | \
+    ((x) & 0x0000f0)              /* B */ | \
+    (((x) & 0x00f000) >>  4)        /* G */ | \
+    (((x) & 0xf00000) >>  8)        /* R */)   
 #define ALLEGRO_CONVERT_RGB_565_TO_ARGB_8888(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0x001f) <<  3) /* B */ | \
-    (((x) & 0x07e0) <<  5) /* G */ | \
-    (((x) & 0xf800) <<  8) /* R */)   
+   ((0xff000000)        /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x001f) >>  0]       ) /* B */ | \
+    (_al_rgb_scale_6[((x) & 0x07e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11] << 16) /* R */)   
 #define ALLEGRO_CONVERT_RGB_565_TO_RGBA_8888(x) \
-   (((0x000000ff)) /* A */ | \
-    (((x) & 0x001f) << 11) /* B */ | \
-    (((x) & 0x07e0) << 13) /* G */ | \
-    (((x) & 0xf800) << 16) /* R */)   
+   ((0x000000ff)        /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x001f) >>  0] <<  8) /* B */ | \
+    (_al_rgb_scale_6[((x) & 0x07e0) >>  5] << 16) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11] << 24) /* R */)   
 #define ALLEGRO_CONVERT_RGB_565_TO_ARGB_4444(x) \
-   (((0xf000)) /* A */ | \
-    (((x) & 0x001e) >>  1) /* B */ | \
-    (((x) & 0x0780) >>  3) /* G */ | \
-    (((x) & 0xf000) >>  4) /* R */)   
+   ((0xf000)        /* A */ | \
+    (((x) & 0x001e) >>  1)        /* B */ | \
+    (((x) & 0x0780) >>  3)        /* G */ | \
+    (((x) & 0xf000) >>  4)        /* R */)   
 #define ALLEGRO_CONVERT_RGB_565_TO_RGB_888(x) \
-   ((((x) & 0x001f) <<  3) /* B */ | \
-    (((x) & 0x07e0) <<  5) /* G */ | \
-    (((x) & 0xf800) <<  8) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x001f) >>  0]       ) /* B */ | \
+    (_al_rgb_scale_6[((x) & 0x07e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11] << 16) /* R */)   
 #define ALLEGRO_CONVERT_RGB_565_TO_RGB_555(x) \
-   ((((x) & 0x001f)      ) /* B */ | \
-    (((x) & 0xffc0) >>  1) /* GR */)   
+   (((x) & 0x001f)              /* B */ | \
+    (((x) & 0xffc0) >>  1)        /* GR */)   
 #define ALLEGRO_CONVERT_RGB_565_TO_RGBA_5551(x) \
-   (((0x0001)) /* A */ | \
-    (((x) & 0x001f) <<  1) /* B */ | \
-    (((x) & 0xffc0)      ) /* GR */)   
+   ((0x0001)        /* A */ | \
+    (((x) & 0x001f) <<  1)        /* B */ | \
+    ((x) & 0xffc0)              /* GR */)   
 #define ALLEGRO_CONVERT_RGB_565_TO_ARGB_1555(x) \
-   (((0x8000)) /* A */ | \
-    (((x) & 0x001f)      ) /* B */ | \
-    (((x) & 0xffc0) >>  1) /* GR */)   
+   ((0x8000)        /* A */ | \
+    ((x) & 0x001f)              /* B */ | \
+    (((x) & 0xffc0) >>  1)        /* GR */)   
 #define ALLEGRO_CONVERT_RGB_565_TO_ABGR_8888(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0x001f) << 19) /* B */ | \
-    (((x) & 0x07e0) <<  5) /* G */ | \
-    (((x) & 0xf800) >>  8) /* R */)   
+   ((0xff000000)        /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x001f) >>  0] << 16) /* B */ | \
+    (_al_rgb_scale_6[((x) & 0x07e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11]       ) /* R */)   
 #define ALLEGRO_CONVERT_RGB_565_TO_XBGR_8888(x) \
-   ((((x) & 0x001f) << 19) /* B */ | \
-    (((x) & 0x07e0) <<  5) /* G */ | \
-    (((x) & 0xf800) >>  8) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x001f) >>  0] << 16) /* B */ | \
+    (_al_rgb_scale_6[((x) & 0x07e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11]       ) /* R */)   
 #define ALLEGRO_CONVERT_RGB_565_TO_BGR_888(x) \
-   ((((x) & 0x001f) << 19) /* B */ | \
-    (((x) & 0x07e0) <<  5) /* G */ | \
-    (((x) & 0xf800) >>  8) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x001f) >>  0] << 16) /* B */ | \
+    (_al_rgb_scale_6[((x) & 0x07e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11]       ) /* R */)   
 #define ALLEGRO_CONVERT_RGB_565_TO_BGR_565(x) \
-   ((((x) & 0x001f) << 11) /* B */ | \
-    (((x) & 0x07e0)      ) /* G */ | \
-    (((x) & 0xf800) >> 11) /* R */)   
+   ((((x) & 0x001f) << 11)        /* B */ | \
+    ((x) & 0x07e0)              /* G */ | \
+    (((x) & 0xf800) >> 11)        /* R */)   
 #define ALLEGRO_CONVERT_RGB_565_TO_BGR_555(x) \
-   ((((x) & 0x001f) << 10) /* B */ | \
-    (((x) & 0x07c0) >>  1) /* G */ | \
-    (((x) & 0xf800) >> 11) /* R */)   
+   ((((x) & 0x001f) << 10)        /* B */ | \
+    (((x) & 0x07c0) >>  1)        /* G */ | \
+    (((x) & 0xf800) >> 11)        /* R */)   
 #define ALLEGRO_CONVERT_RGB_565_TO_RGBX_8888(x) \
-   ((((x) & 0x001f) << 11) /* B */ | \
-    (((x) & 0x07e0) << 13) /* G */ | \
-    (((x) & 0xf800) << 16) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x001f) >>  0] <<  8) /* B */ | \
+    (_al_rgb_scale_6[((x) & 0x07e0) >>  5] << 16) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11] << 24) /* R */)   
 #define ALLEGRO_CONVERT_RGB_565_TO_XRGB_8888(x) \
-   ((((x) & 0x001f) <<  3) /* B */ | \
-    (((x) & 0x07e0) <<  5) /* G */ | \
-    (((x) & 0xf800) <<  8) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x001f) >>  0]       ) /* B */ | \
+    (_al_rgb_scale_6[((x) & 0x07e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11] << 16) /* R */)   
 #define ALLEGRO_CONVERT_RGB_565_TO_ABGR_F32(x) \
    al_map_rgb(_al_rgb_scale_5[((x) >> 11) & 31],\
    _al_rgb_scale_6[((x) >> 5) & 63],\
    _al_rgb_scale_5[((x) >> 0) & 31])
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_RGB_565_TO_ABGR_8888_LE(x) \
-   (((0x000000ff)) /* A */ | \
-    (((x) & 0x001f) << 11) /* B */ | \
-    (((x) & 0x07e0) << 13) /* G */ | \
-    (((x) & 0xf800) << 16) /* R */)   
+   ((0x000000ff)        /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x001f) >>  0] <<  8) /* B */ | \
+    (_al_rgb_scale_6[((x) & 0x07e0) >>  5] << 16) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11] << 24) /* R */)   
 #else
 #define ALLEGRO_CONVERT_RGB_565_TO_ABGR_8888_LE(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0x001f) << 19) /* B */ | \
-    (((x) & 0x07e0) <<  5) /* G */ | \
-    (((x) & 0xf800) >>  8) /* R */)   
+   ((0xff000000)        /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x001f) >>  0] << 16) /* B */ | \
+    (_al_rgb_scale_6[((x) & 0x07e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11]       ) /* R */)   
 #endif
 #define ALLEGRO_CONVERT_RGB_565_TO_RGBA_4444(x) \
-   (((0x000f)) /* A */ | \
-    (((x) & 0x001e) <<  3) /* B */ | \
-    (((x) & 0x0780) <<  1) /* G */ | \
-    (((x) & 0xf000)      ) /* R */)   
+   ((0x000f)        /* A */ | \
+    (((x) & 0x001e) <<  3)        /* B */ | \
+    (((x) & 0x0780) <<  1)        /* G */ | \
+    ((x) & 0xf000)              /* R */)   
 #define ALLEGRO_CONVERT_RGB_555_TO_ARGB_8888(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0x01f) <<  3) /* B */ | \
-    (((x) & 0x3e0) <<  6) /* G */ | \
-    (((x) & 0x7c00) <<  9) /* R */)   
+   ((0xff000000)        /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x01f) >>  0]       ) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x3e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10] << 16) /* R */)   
 #define ALLEGRO_CONVERT_RGB_555_TO_RGBA_8888(x) \
-   (((0x000000ff)) /* A */ | \
-    (((x) & 0x01f) << 11) /* B */ | \
-    (((x) & 0x3e0) << 14) /* G */ | \
-    (((x) & 0x7c00) << 17) /* R */)   
+   ((0x000000ff)        /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x01f) >>  0] <<  8) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x3e0) >>  5] << 16) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10] << 24) /* R */)   
 #define ALLEGRO_CONVERT_RGB_555_TO_ARGB_4444(x) \
-   (((0xf000)) /* A */ | \
-    (((x) & 0x01e) >>  1) /* B */ | \
-    (((x) & 0x3c0) >>  2) /* G */ | \
-    (((x) & 0x7800) >>  3) /* R */)   
+   ((0xf000)        /* A */ | \
+    (((x) & 0x01e) >>  1)        /* B */ | \
+    (((x) & 0x3c0) >>  2)        /* G */ | \
+    (((x) & 0x7800) >>  3)        /* R */)   
 #define ALLEGRO_CONVERT_RGB_555_TO_RGB_888(x) \
-   ((((x) & 0x01f) <<  3) /* B */ | \
-    (((x) & 0x3e0) <<  6) /* G */ | \
-    (((x) & 0x7c00) <<  9) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x01f) >>  0]       ) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x3e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10] << 16) /* R */)   
 #define ALLEGRO_CONVERT_RGB_555_TO_RGB_565(x) \
-   ((((x) & 0x01f)      ) /* B */ | \
-    (((x) & 0x7fe0) <<  1) /* GR */)   
+   (((x) & 0x01f)              /* B */ | \
+    (((x) & 0x7fe0) <<  1)        /* GR */)   
 #define ALLEGRO_CONVERT_RGB_555_TO_RGBA_5551(x) \
-   (((0x0001)) /* A */ | \
-    (((x) & 0x7fff) <<  1) /* BGR */)   
+   ((0x0001)        /* A */ | \
+    (((x) & 0x7fff) <<  1)        /* BGR */)   
 #define ALLEGRO_CONVERT_RGB_555_TO_ARGB_1555(x) \
-   (((0x8000)) /* A */ | \
-    (((x) & 0x7fff)      ) /* BGR */)   
+   ((0x8000)        /* A */ | \
+    ((x) & 0x7fff)              /* BGR */)   
 #define ALLEGRO_CONVERT_RGB_555_TO_ABGR_8888(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0x01f) << 19) /* B */ | \
-    (((x) & 0x3e0) <<  6) /* G */ | \
-    (((x) & 0x7c00) >>  7) /* R */)   
+   ((0xff000000)        /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x01f) >>  0] << 16) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x3e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10]       ) /* R */)   
 #define ALLEGRO_CONVERT_RGB_555_TO_XBGR_8888(x) \
-   ((((x) & 0x01f) << 19) /* B */ | \
-    (((x) & 0x3e0) <<  6) /* G */ | \
-    (((x) & 0x7c00) >>  7) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x01f) >>  0] << 16) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x3e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10]       ) /* R */)   
 #define ALLEGRO_CONVERT_RGB_555_TO_BGR_888(x) \
-   ((((x) & 0x01f) << 19) /* B */ | \
-    (((x) & 0x3e0) <<  6) /* G */ | \
-    (((x) & 0x7c00) >>  7) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x01f) >>  0] << 16) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x3e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10]       ) /* R */)   
 #define ALLEGRO_CONVERT_RGB_555_TO_BGR_565(x) \
-   ((((x) & 0x01f) << 11) /* B */ | \
-    (((x) & 0x3e0) <<  1) /* G */ | \
-    (((x) & 0x7c00) >> 10) /* R */)   
+   ((((x) & 0x01f) << 11)        /* B */ | \
+    (((x) & 0x3e0) <<  1)        /* G */ | \
+    (((x) & 0x7c00) >> 10)        /* R */)   
 #define ALLEGRO_CONVERT_RGB_555_TO_BGR_555(x) \
-   ((((x) & 0x01f) << 10) /* B */ | \
-    (((x) & 0x3e0)      ) /* G */ | \
-    (((x) & 0x7c00) >> 10) /* R */)   
+   ((((x) & 0x01f) << 10)        /* B */ | \
+    ((x) & 0x3e0)              /* G */ | \
+    (((x) & 0x7c00) >> 10)        /* R */)   
 #define ALLEGRO_CONVERT_RGB_555_TO_RGBX_8888(x) \
-   ((((x) & 0x01f) << 11) /* B */ | \
-    (((x) & 0x3e0) << 14) /* G */ | \
-    (((x) & 0x7c00) << 17) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x01f) >>  0] <<  8) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x3e0) >>  5] << 16) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10] << 24) /* R */)   
 #define ALLEGRO_CONVERT_RGB_555_TO_XRGB_8888(x) \
-   ((((x) & 0x01f) <<  3) /* B */ | \
-    (((x) & 0x3e0) <<  6) /* G */ | \
-    (((x) & 0x7c00) <<  9) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x01f) >>  0]       ) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x3e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10] << 16) /* R */)   
 #define ALLEGRO_CONVERT_RGB_555_TO_ABGR_F32(x) \
    al_map_rgb(_al_rgb_scale_5[((x) >> 10) & 31],\
    _al_rgb_scale_5[((x) >> 5) & 31],\
    _al_rgb_scale_5[((x) >> 0) & 31])
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_RGB_555_TO_ABGR_8888_LE(x) \
-   (((0x000000ff)) /* A */ | \
-    (((x) & 0x01f) << 11) /* B */ | \
-    (((x) & 0x3e0) << 14) /* G */ | \
-    (((x) & 0x7c00) << 17) /* R */)   
+   ((0x000000ff)        /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x01f) >>  0] <<  8) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x3e0) >>  5] << 16) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10] << 24) /* R */)   
 #else
 #define ALLEGRO_CONVERT_RGB_555_TO_ABGR_8888_LE(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0x01f) << 19) /* B */ | \
-    (((x) & 0x3e0) <<  6) /* G */ | \
-    (((x) & 0x7c00) >>  7) /* R */)   
+   ((0xff000000)        /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x01f) >>  0] << 16) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x3e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10]       ) /* R */)   
 #endif
 #define ALLEGRO_CONVERT_RGB_555_TO_RGBA_4444(x) \
-   (((0x000f)) /* A */ | \
-    (((x) & 0x01e) <<  3) /* B */ | \
-    (((x) & 0x3c0) <<  2) /* G */ | \
-    (((x) & 0x7800) <<  1) /* R */)   
+   ((0x000f)        /* A */ | \
+    (((x) & 0x01e) <<  3)        /* B */ | \
+    (((x) & 0x3c0) <<  2)        /* G */ | \
+    (((x) & 0x7800) <<  1)        /* R */)   
 #define ALLEGRO_CONVERT_RGBA_5551_TO_ARGB_8888(x) \
-   ((((x) & 0x0001) << 31) /* A */ | \
-    (((x) & 0x003e) <<  2) /* B */ | \
-    (((x) & 0x07c0) <<  5) /* G */ | \
-    (((x) & 0xf800) <<  8) /* R */)   
+   ((_al_rgb_scale_1[((x) & 0x0001) >>  0] << 24) /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x003e) >>  1]       ) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x07c0) >>  6] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11] << 16) /* R */)   
 #define ALLEGRO_CONVERT_RGBA_5551_TO_RGBA_8888(x) \
-   ((((x) & 0x0001) <<  7) /* A */ | \
-    (((x) & 0x003e) << 10) /* B */ | \
-    (((x) & 0x07c0) << 13) /* G */ | \
-    (((x) & 0xf800) << 16) /* R */)   
+   ((_al_rgb_scale_1[((x) & 0x0001) >>  0]       ) /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x003e) >>  1] <<  8) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x07c0) >>  6] << 16) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11] << 24) /* R */)   
 #define ALLEGRO_CONVERT_RGBA_5551_TO_ARGB_4444(x) \
-   ((((x) & 0x0001) << 15) /* A */ | \
-    (((x) & 0x003c) >>  2) /* B */ | \
-    (((x) & 0x0780) >>  3) /* G */ | \
-    (((x) & 0xf000) >>  4) /* R */)   
+   ((((x) & 0x0001) << 15)        /* A */ | \
+    (((x) & 0x003c) >>  2)        /* B */ | \
+    (((x) & 0x0780) >>  3)        /* G */ | \
+    (((x) & 0xf000) >>  4)        /* R */)   
 #define ALLEGRO_CONVERT_RGBA_5551_TO_RGB_888(x) \
-   ((((x) & 0x003e) <<  2) /* B */ | \
-    (((x) & 0x07c0) <<  5) /* G */ | \
-    (((x) & 0xf800) <<  8) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x003e) >>  1]       ) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x07c0) >>  6] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11] << 16) /* R */)   
 #define ALLEGRO_CONVERT_RGBA_5551_TO_RGB_565(x) \
-   ((((x) & 0x003e) >>  1) /* B */ | \
-    (((x) & 0xffc0)      ) /* GR */)   
+   ((((x) & 0x003e) >>  1)        /* B */ | \
+    ((x) & 0xffc0)              /* GR */)   
 #define ALLEGRO_CONVERT_RGBA_5551_TO_RGB_555(x) \
-   ((((x) & 0xfffe) >>  1) /* BGR */)   
+   ((((x) & 0xfffe) >>  1)        /* BGR */)   
 #define ALLEGRO_CONVERT_RGBA_5551_TO_ARGB_1555(x) \
-   ((((x) & 0x0001) << 15) /* A */ | \
-    (((x) & 0xfffe) >>  1) /* BGR */)   
+   ((((x) & 0x0001) << 15)        /* A */ | \
+    (((x) & 0xfffe) >>  1)        /* BGR */)   
 #define ALLEGRO_CONVERT_RGBA_5551_TO_ABGR_8888(x) \
-   ((((x) & 0x0001) << 31) /* A */ | \
-    (((x) & 0x003e) << 18) /* B */ | \
-    (((x) & 0x07c0) <<  5) /* G */ | \
-    (((x) & 0xf800) >>  8) /* R */)   
+   ((_al_rgb_scale_1[((x) & 0x0001) >>  0] << 24) /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x003e) >>  1] << 16) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x07c0) >>  6] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11]       ) /* R */)   
 #define ALLEGRO_CONVERT_RGBA_5551_TO_XBGR_8888(x) \
-   ((((x) & 0x003e) << 18) /* B */ | \
-    (((x) & 0x07c0) <<  5) /* G */ | \
-    (((x) & 0xf800) >>  8) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x003e) >>  1] << 16) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x07c0) >>  6] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11]       ) /* R */)   
 #define ALLEGRO_CONVERT_RGBA_5551_TO_BGR_888(x) \
-   ((((x) & 0x003e) << 18) /* B */ | \
-    (((x) & 0x07c0) <<  5) /* G */ | \
-    (((x) & 0xf800) >>  8) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x003e) >>  1] << 16) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x07c0) >>  6] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11]       ) /* R */)   
 #define ALLEGRO_CONVERT_RGBA_5551_TO_BGR_565(x) \
-   ((((x) & 0x003e) << 10) /* B */ | \
-    (((x) & 0x07c0)      ) /* G */ | \
-    (((x) & 0xf800) >> 11) /* R */)   
+   ((((x) & 0x003e) << 10)        /* B */ | \
+    ((x) & 0x07c0)              /* G */ | \
+    (((x) & 0xf800) >> 11)        /* R */)   
 #define ALLEGRO_CONVERT_RGBA_5551_TO_BGR_555(x) \
-   ((((x) & 0x003e) <<  9) /* B */ | \
-    (((x) & 0x07c0) >>  1) /* G */ | \
-    (((x) & 0xf800) >> 11) /* R */)   
+   ((((x) & 0x003e) <<  9)        /* B */ | \
+    (((x) & 0x07c0) >>  1)        /* G */ | \
+    (((x) & 0xf800) >> 11)        /* R */)   
 #define ALLEGRO_CONVERT_RGBA_5551_TO_RGBX_8888(x) \
-   ((((x) & 0x003e) << 10) /* B */ | \
-    (((x) & 0x07c0) << 13) /* G */ | \
-    (((x) & 0xf800) << 16) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x003e) >>  1] <<  8) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x07c0) >>  6] << 16) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11] << 24) /* R */)   
 #define ALLEGRO_CONVERT_RGBA_5551_TO_XRGB_8888(x) \
-   ((((x) & 0x003e) <<  2) /* B */ | \
-    (((x) & 0x07c0) <<  5) /* G */ | \
-    (((x) & 0xf800) <<  8) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x003e) >>  1]       ) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x07c0) >>  6] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11] << 16) /* R */)   
 #define ALLEGRO_CONVERT_RGBA_5551_TO_ABGR_F32(x) \
    al_map_rgba(_al_rgb_scale_5[((x) >> 11) & 31],\
    _al_rgb_scale_5[((x) >> 6) & 31],\
@@ -528,78 +528,78 @@
    _al_rgb_scale_1[((x) >> 0) & 1])
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_RGBA_5551_TO_ABGR_8888_LE(x) \
-   ((((x) & 0x0001) <<  7) /* A */ | \
-    (((x) & 0x003e) << 10) /* B */ | \
-    (((x) & 0x07c0) << 13) /* G */ | \
-    (((x) & 0xf800) << 16) /* R */)   
+   ((_al_rgb_scale_1[((x) & 0x0001) >>  0]       ) /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x003e) >>  1] <<  8) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x07c0) >>  6] << 16) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11] << 24) /* R */)   
 #else
 #define ALLEGRO_CONVERT_RGBA_5551_TO_ABGR_8888_LE(x) \
-   ((((x) & 0x0001) << 31) /* A */ | \
-    (((x) & 0x003e) << 18) /* B */ | \
-    (((x) & 0x07c0) <<  5) /* G */ | \
-    (((x) & 0xf800) >>  8) /* R */)   
+   ((_al_rgb_scale_1[((x) & 0x0001) >>  0] << 24) /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x003e) >>  1] << 16) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x07c0) >>  6] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11]       ) /* R */)   
 #endif
 #define ALLEGRO_CONVERT_RGBA_5551_TO_RGBA_4444(x) \
-   ((((x) & 0x0001) <<  3) /* A */ | \
-    (((x) & 0x003c) <<  2) /* B */ | \
-    (((x) & 0x0780) <<  1) /* G */ | \
-    (((x) & 0xf000)      ) /* R */)   
+   ((((x) & 0x0001) <<  3)        /* A */ | \
+    (((x) & 0x003c) <<  2)        /* B */ | \
+    (((x) & 0x0780) <<  1)        /* G */ | \
+    ((x) & 0xf000)              /* R */)   
 #define ALLEGRO_CONVERT_ARGB_1555_TO_ARGB_8888(x) \
-   ((((x) & 0x8000) << 16) /* A */ | \
-    (((x) & 0x001f) <<  3) /* B */ | \
-    (((x) & 0x03e0) <<  6) /* G */ | \
-    (((x) & 0x7c00) <<  9) /* R */)   
+   ((_al_rgb_scale_1[((x) & 0x8000) >> 15] << 24) /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x001f) >>  0]       ) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x03e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10] << 16) /* R */)   
 #define ALLEGRO_CONVERT_ARGB_1555_TO_RGBA_8888(x) \
-   ((((x) & 0x8000) >>  8) /* A */ | \
-    (((x) & 0x001f) << 11) /* B */ | \
-    (((x) & 0x03e0) << 14) /* G */ | \
-    (((x) & 0x7c00) << 17) /* R */)   
+   ((_al_rgb_scale_1[((x) & 0x8000) >> 15]       ) /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x001f) >>  0] <<  8) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x03e0) >>  5] << 16) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10] << 24) /* R */)   
 #define ALLEGRO_CONVERT_ARGB_1555_TO_ARGB_4444(x) \
-   ((((x) & 0x8000)      ) /* A */ | \
-    (((x) & 0x001e) >>  1) /* B */ | \
-    (((x) & 0x03c0) >>  2) /* G */ | \
-    (((x) & 0x7800) >>  3) /* R */)   
+   (((x) & 0x8000)              /* A */ | \
+    (((x) & 0x001e) >>  1)        /* B */ | \
+    (((x) & 0x03c0) >>  2)        /* G */ | \
+    (((x) & 0x7800) >>  3)        /* R */)   
 #define ALLEGRO_CONVERT_ARGB_1555_TO_RGB_888(x) \
-   ((((x) & 0x001f) <<  3) /* B */ | \
-    (((x) & 0x03e0) <<  6) /* G */ | \
-    (((x) & 0x7c00) <<  9) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x001f) >>  0]       ) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x03e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10] << 16) /* R */)   
 #define ALLEGRO_CONVERT_ARGB_1555_TO_RGB_565(x) \
-   ((((x) & 0x001f)      ) /* B */ | \
-    (((x) & 0x7fe0) <<  1) /* GR */)   
+   (((x) & 0x001f)              /* B */ | \
+    (((x) & 0x7fe0) <<  1)        /* GR */)   
 #define ALLEGRO_CONVERT_ARGB_1555_TO_RGB_555(x) \
-   ((((x) & 0x7fff)      ) /* BGR */)   
+   (((x) & 0x7fff)              /* BGR */)   
 #define ALLEGRO_CONVERT_ARGB_1555_TO_RGBA_5551(x) \
-   ((((x) & 0x8000) >> 15) /* A */ | \
-    (((x) & 0x7fff) <<  1) /* BGR */)   
+   ((((x) & 0x8000) >> 15)        /* A */ | \
+    (((x) & 0x7fff) <<  1)        /* BGR */)   
 #define ALLEGRO_CONVERT_ARGB_1555_TO_ABGR_8888(x) \
-   ((((x) & 0x8000) << 16) /* A */ | \
-    (((x) & 0x001f) << 19) /* B */ | \
-    (((x) & 0x03e0) <<  6) /* G */ | \
-    (((x) & 0x7c00) >>  7) /* R */)   
+   ((_al_rgb_scale_1[((x) & 0x8000) >> 15] << 24) /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x001f) >>  0] << 16) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x03e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10]       ) /* R */)   
 #define ALLEGRO_CONVERT_ARGB_1555_TO_XBGR_8888(x) \
-   ((((x) & 0x001f) << 19) /* B */ | \
-    (((x) & 0x03e0) <<  6) /* G */ | \
-    (((x) & 0x7c00) >>  7) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x001f) >>  0] << 16) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x03e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10]       ) /* R */)   
 #define ALLEGRO_CONVERT_ARGB_1555_TO_BGR_888(x) \
-   ((((x) & 0x001f) << 19) /* B */ | \
-    (((x) & 0x03e0) <<  6) /* G */ | \
-    (((x) & 0x7c00) >>  7) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x001f) >>  0] << 16) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x03e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10]       ) /* R */)   
 #define ALLEGRO_CONVERT_ARGB_1555_TO_BGR_565(x) \
-   ((((x) & 0x001f) << 11) /* B */ | \
-    (((x) & 0x03e0) <<  1) /* G */ | \
-    (((x) & 0x7c00) >> 10) /* R */)   
+   ((((x) & 0x001f) << 11)        /* B */ | \
+    (((x) & 0x03e0) <<  1)        /* G */ | \
+    (((x) & 0x7c00) >> 10)        /* R */)   
 #define ALLEGRO_CONVERT_ARGB_1555_TO_BGR_555(x) \
-   ((((x) & 0x001f) << 10) /* B */ | \
-    (((x) & 0x03e0)      ) /* G */ | \
-    (((x) & 0x7c00) >> 10) /* R */)   
+   ((((x) & 0x001f) << 10)        /* B */ | \
+    ((x) & 0x03e0)              /* G */ | \
+    (((x) & 0x7c00) >> 10)        /* R */)   
 #define ALLEGRO_CONVERT_ARGB_1555_TO_RGBX_8888(x) \
-   ((((x) & 0x001f) << 11) /* B */ | \
-    (((x) & 0x03e0) << 14) /* G */ | \
-    (((x) & 0x7c00) << 17) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x001f) >>  0] <<  8) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x03e0) >>  5] << 16) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10] << 24) /* R */)   
 #define ALLEGRO_CONVERT_ARGB_1555_TO_XRGB_8888(x) \
-   ((((x) & 0x001f) <<  3) /* B */ | \
-    (((x) & 0x03e0) <<  6) /* G */ | \
-    (((x) & 0x7c00) <<  9) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x001f) >>  0]       ) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x03e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10] << 16) /* R */)   
 #define ALLEGRO_CONVERT_ARGB_1555_TO_ABGR_F32(x) \
    al_map_rgba(_al_rgb_scale_5[((x) >> 10) & 31],\
    _al_rgb_scale_5[((x) >> 5) & 31],\
@@ -607,78 +607,78 @@
    _al_rgb_scale_1[((x) >> 15) & 1])
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ARGB_1555_TO_ABGR_8888_LE(x) \
-   ((((x) & 0x8000) >>  8) /* A */ | \
-    (((x) & 0x001f) << 11) /* B */ | \
-    (((x) & 0x03e0) << 14) /* G */ | \
-    (((x) & 0x7c00) << 17) /* R */)   
+   ((_al_rgb_scale_1[((x) & 0x8000) >> 15]       ) /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x001f) >>  0] <<  8) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x03e0) >>  5] << 16) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10] << 24) /* R */)   
 #else
 #define ALLEGRO_CONVERT_ARGB_1555_TO_ABGR_8888_LE(x) \
-   ((((x) & 0x8000) << 16) /* A */ | \
-    (((x) & 0x001f) << 19) /* B */ | \
-    (((x) & 0x03e0) <<  6) /* G */ | \
-    (((x) & 0x7c00) >>  7) /* R */)   
+   ((_al_rgb_scale_1[((x) & 0x8000) >> 15] << 24) /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x001f) >>  0] << 16) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x03e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10]       ) /* R */)   
 #endif
 #define ALLEGRO_CONVERT_ARGB_1555_TO_RGBA_4444(x) \
-   ((((x) & 0x8000) >> 12) /* A */ | \
-    (((x) & 0x001e) <<  3) /* B */ | \
-    (((x) & 0x03c0) <<  2) /* G */ | \
-    (((x) & 0x7800) <<  1) /* R */)   
+   ((((x) & 0x8000) >> 12)        /* A */ | \
+    (((x) & 0x001e) <<  3)        /* B */ | \
+    (((x) & 0x03c0) <<  2)        /* G */ | \
+    (((x) & 0x7800) <<  1)        /* R */)   
 #define ALLEGRO_CONVERT_ABGR_8888_TO_ARGB_8888(x) \
-   ((((x) & 0x00ff0000) >> 16) /* B */ | \
-    (((x) & 0x000000ff) << 16) /* R */ | \
-    (((x) & 0xff00ff00)      ) /* AG */)   
+   ((((x) & 0x00ff0000) >> 16)        /* B */ | \
+    (((x) & 0x000000ff) << 16)        /* R */ | \
+    ((x) & 0xff00ff00)              /* AG */)   
 #define ALLEGRO_CONVERT_ABGR_8888_TO_RGBA_8888(x) \
-   ((((x) & 0xff000000) >> 24) /* A */ | \
-    (((x) & 0x00ff0000) >>  8) /* B */ | \
-    (((x) & 0x0000ff00) <<  8) /* G */ | \
-    (((x) & 0x000000ff) << 24) /* R */)   
+   ((((x) & 0xff000000) >> 24)        /* A */ | \
+    (((x) & 0x00ff0000) >>  8)        /* B */ | \
+    (((x) & 0x0000ff00) <<  8)        /* G */ | \
+    (((x) & 0x000000ff) << 24)        /* R */)   
 #define ALLEGRO_CONVERT_ABGR_8888_TO_ARGB_4444(x) \
-   ((((x) & 0xf0000000) >> 16) /* A */ | \
-    (((x) & 0x00f00000) >> 20) /* B */ | \
-    (((x) & 0x0000f000) >>  8) /* G */ | \
-    (((x) & 0x000000f0) <<  4) /* R */)   
+   ((((x) & 0xf0000000) >> 16)        /* A */ | \
+    (((x) & 0x00f00000) >> 20)        /* B */ | \
+    (((x) & 0x0000f000) >>  8)        /* G */ | \
+    (((x) & 0x000000f0) <<  4)        /* R */)   
 #define ALLEGRO_CONVERT_ABGR_8888_TO_RGB_888(x) \
-   ((((x) & 0x00ff0000) >> 16) /* B */ | \
-    (((x) & 0x0000ff00)      ) /* G */ | \
-    (((x) & 0x000000ff) << 16) /* R */)   
+   ((((x) & 0x00ff0000) >> 16)        /* B */ | \
+    ((x) & 0x0000ff00)              /* G */ | \
+    (((x) & 0x000000ff) << 16)        /* R */)   
 #define ALLEGRO_CONVERT_ABGR_8888_TO_RGB_565(x) \
-   ((((x) & 0x00f80000) >> 19) /* B */ | \
-    (((x) & 0x0000fc00) >>  5) /* G */ | \
-    (((x) & 0x000000f8) <<  8) /* R */)   
+   ((((x) & 0x00f80000) >> 19)        /* B */ | \
+    (((x) & 0x0000fc00) >>  5)        /* G */ | \
+    (((x) & 0x000000f8) <<  8)        /* R */)   
 #define ALLEGRO_CONVERT_ABGR_8888_TO_RGB_555(x) \
-   ((((x) & 0x00f80000) >> 19) /* B */ | \
-    (((x) & 0x0000f800) >>  6) /* G */ | \
-    (((x) & 0x000000f8) <<  7) /* R */)   
+   ((((x) & 0x00f80000) >> 19)        /* B */ | \
+    (((x) & 0x0000f800) >>  6)        /* G */ | \
+    (((x) & 0x000000f8) <<  7)        /* R */)   
 #define ALLEGRO_CONVERT_ABGR_8888_TO_RGBA_5551(x) \
-   ((((x) & 0x80000000) >> 31) /* A */ | \
-    (((x) & 0x00f80000) >> 18) /* B */ | \
-    (((x) & 0x0000f800) >>  5) /* G */ | \
-    (((x) & 0x000000f8) <<  8) /* R */)   
+   ((((x) & 0x80000000) >> 31)        /* A */ | \
+    (((x) & 0x00f80000) >> 18)        /* B */ | \
+    (((x) & 0x0000f800) >>  5)        /* G */ | \
+    (((x) & 0x000000f8) <<  8)        /* R */)   
 #define ALLEGRO_CONVERT_ABGR_8888_TO_ARGB_1555(x) \
-   ((((x) & 0x80000000) >> 16) /* A */ | \
-    (((x) & 0x00f80000) >> 19) /* B */ | \
-    (((x) & 0x0000f800) >>  6) /* G */ | \
-    (((x) & 0x000000f8) <<  7) /* R */)   
+   ((((x) & 0x80000000) >> 16)        /* A */ | \
+    (((x) & 0x00f80000) >> 19)        /* B */ | \
+    (((x) & 0x0000f800) >>  6)        /* G */ | \
+    (((x) & 0x000000f8) <<  7)        /* R */)   
 #define ALLEGRO_CONVERT_ABGR_8888_TO_XBGR_8888(x) \
-   ((((x) & 0x00ffffff)      ) /* BGR */)   
+   (((x) & 0x00ffffff)              /* BGR */)   
 #define ALLEGRO_CONVERT_ABGR_8888_TO_BGR_888(x) \
-   ((((x) & 0x00ffffff)      ) /* BGR */)   
+   (((x) & 0x00ffffff)              /* BGR */)   
 #define ALLEGRO_CONVERT_ABGR_8888_TO_BGR_565(x) \
-   ((((x) & 0x00f80000) >>  8) /* B */ | \
-    (((x) & 0x0000fc00) >>  5) /* G */ | \
-    (((x) & 0x000000f8) >>  3) /* R */)   
+   ((((x) & 0x00f80000) >>  8)        /* B */ | \
+    (((x) & 0x0000fc00) >>  5)        /* G */ | \
+    (((x) & 0x000000f8) >>  3)        /* R */)   
 #define ALLEGRO_CONVERT_ABGR_8888_TO_BGR_555(x) \
-   ((((x) & 0x00f80000) >>  9) /* B */ | \
-    (((x) & 0x0000f800) >>  6) /* G */ | \
-    (((x) & 0x000000f8) >>  3) /* R */)   
+   ((((x) & 0x00f80000) >>  9)        /* B */ | \
+    (((x) & 0x0000f800) >>  6)        /* G */ | \
+    (((x) & 0x000000f8) >>  3)        /* R */)   
 #define ALLEGRO_CONVERT_ABGR_8888_TO_RGBX_8888(x) \
-   ((((x) & 0x00ff0000) >>  8) /* B */ | \
-    (((x) & 0x0000ff00) <<  8) /* G */ | \
-    (((x) & 0x000000ff) << 24) /* R */)   
+   ((((x) & 0x00ff0000) >>  8)        /* B */ | \
+    (((x) & 0x0000ff00) <<  8)        /* G */ | \
+    (((x) & 0x000000ff) << 24)        /* R */)   
 #define ALLEGRO_CONVERT_ABGR_8888_TO_XRGB_8888(x) \
-   ((((x) & 0x00ff0000) >> 16) /* B */ | \
-    (((x) & 0x0000ff00)      ) /* G */ | \
-    (((x) & 0x000000ff) << 16) /* R */)   
+   ((((x) & 0x00ff0000) >> 16)        /* B */ | \
+    ((x) & 0x0000ff00)              /* G */ | \
+    (((x) & 0x000000ff) << 16)        /* R */)   
 #define ALLEGRO_CONVERT_ABGR_8888_TO_ABGR_F32(x) \
    al_map_rgba(((x) >> 0) & 255,\
    ((x) >> 8) & 255,\
@@ -686,489 +686,489 @@
    ((x) >> 24) & 255)
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ABGR_8888_TO_ABGR_8888_LE(x) \
-   ((((x) & 0xff000000) >> 24) /* A */ | \
-    (((x) & 0x00ff0000) >>  8) /* B */ | \
-    (((x) & 0x0000ff00) <<  8) /* G */ | \
-    (((x) & 0x000000ff) << 24) /* R */)   
+   ((((x) & 0xff000000) >> 24)        /* A */ | \
+    (((x) & 0x00ff0000) >>  8)        /* B */ | \
+    (((x) & 0x0000ff00) <<  8)        /* G */ | \
+    (((x) & 0x000000ff) << 24)        /* R */)   
 #else
 #define ALLEGRO_CONVERT_ABGR_8888_TO_ABGR_8888_LE(x) \
-   ((((x) & 0xffffffff)      ) /* ABGR */)   
+   (((x) & 0xffffffff)              /* ABGR */)   
 #endif
 #define ALLEGRO_CONVERT_ABGR_8888_TO_RGBA_4444(x) \
-   ((((x) & 0xf0000000) >> 28) /* A */ | \
-    (((x) & 0x00f00000) >> 16) /* B */ | \
-    (((x) & 0x0000f000) >>  4) /* G */ | \
-    (((x) & 0x000000f0) <<  8) /* R */)   
+   ((((x) & 0xf0000000) >> 28)        /* A */ | \
+    (((x) & 0x00f00000) >> 16)        /* B */ | \
+    (((x) & 0x0000f000) >>  4)        /* G */ | \
+    (((x) & 0x000000f0) <<  8)        /* R */)   
 #define ALLEGRO_CONVERT_XBGR_8888_TO_ARGB_8888(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0x00ff0000) >> 16) /* B */ | \
-    (((x) & 0x0000ff00)      ) /* G */ | \
-    (((x) & 0x000000ff) << 16) /* R */)   
+   ((0xff000000)        /* A */ | \
+    (((x) & 0x00ff0000) >> 16)        /* B */ | \
+    ((x) & 0x0000ff00)              /* G */ | \
+    (((x) & 0x000000ff) << 16)        /* R */)   
 #define ALLEGRO_CONVERT_XBGR_8888_TO_RGBA_8888(x) \
-   (((0x000000ff)) /* A */ | \
-    (((x) & 0x00ff0000) >>  8) /* B */ | \
-    (((x) & 0x0000ff00) <<  8) /* G */ | \
-    (((x) & 0x000000ff) << 24) /* R */)   
+   ((0x000000ff)        /* A */ | \
+    (((x) & 0x00ff0000) >>  8)        /* B */ | \
+    (((x) & 0x0000ff00) <<  8)        /* G */ | \
+    (((x) & 0x000000ff) << 24)        /* R */)   
 #define ALLEGRO_CONVERT_XBGR_8888_TO_ARGB_4444(x) \
-   (((0xf000)) /* A */ | \
-    (((x) & 0x00f00000) >> 20) /* B */ | \
-    (((x) & 0x0000f000) >>  8) /* G */ | \
-    (((x) & 0x000000f0) <<  4) /* R */)   
+   ((0xf000)        /* A */ | \
+    (((x) & 0x00f00000) >> 20)        /* B */ | \
+    (((x) & 0x0000f000) >>  8)        /* G */ | \
+    (((x) & 0x000000f0) <<  4)        /* R */)   
 #define ALLEGRO_CONVERT_XBGR_8888_TO_RGB_888(x) \
-   ((((x) & 0x00ff0000) >> 16) /* B */ | \
-    (((x) & 0x0000ff00)      ) /* G */ | \
-    (((x) & 0x000000ff) << 16) /* R */)   
+   ((((x) & 0x00ff0000) >> 16)        /* B */ | \
+    ((x) & 0x0000ff00)              /* G */ | \
+    (((x) & 0x000000ff) << 16)        /* R */)   
 #define ALLEGRO_CONVERT_XBGR_8888_TO_RGB_565(x) \
-   ((((x) & 0x00f80000) >> 19) /* B */ | \
-    (((x) & 0x0000fc00) >>  5) /* G */ | \
-    (((x) & 0x000000f8) <<  8) /* R */)   
+   ((((x) & 0x00f80000) >> 19)        /* B */ | \
+    (((x) & 0x0000fc00) >>  5)        /* G */ | \
+    (((x) & 0x000000f8) <<  8)        /* R */)   
 #define ALLEGRO_CONVERT_XBGR_8888_TO_RGB_555(x) \
-   ((((x) & 0x00f80000) >> 19) /* B */ | \
-    (((x) & 0x0000f800) >>  6) /* G */ | \
-    (((x) & 0x000000f8) <<  7) /* R */)   
+   ((((x) & 0x00f80000) >> 19)        /* B */ | \
+    (((x) & 0x0000f800) >>  6)        /* G */ | \
+    (((x) & 0x000000f8) <<  7)        /* R */)   
 #define ALLEGRO_CONVERT_XBGR_8888_TO_RGBA_5551(x) \
-   (((0x0001)) /* A */ | \
-    (((x) & 0x00f80000) >> 18) /* B */ | \
-    (((x) & 0x0000f800) >>  5) /* G */ | \
-    (((x) & 0x000000f8) <<  8) /* R */)   
+   ((0x0001)        /* A */ | \
+    (((x) & 0x00f80000) >> 18)        /* B */ | \
+    (((x) & 0x0000f800) >>  5)        /* G */ | \
+    (((x) & 0x000000f8) <<  8)        /* R */)   
 #define ALLEGRO_CONVERT_XBGR_8888_TO_ARGB_1555(x) \
-   (((0x8000)) /* A */ | \
-    (((x) & 0x00f80000) >> 19) /* B */ | \
-    (((x) & 0x0000f800) >>  6) /* G */ | \
-    (((x) & 0x000000f8) <<  7) /* R */)   
+   ((0x8000)        /* A */ | \
+    (((x) & 0x00f80000) >> 19)        /* B */ | \
+    (((x) & 0x0000f800) >>  6)        /* G */ | \
+    (((x) & 0x000000f8) <<  7)        /* R */)   
 #define ALLEGRO_CONVERT_XBGR_8888_TO_ABGR_8888(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0x00ffffff)      ) /* BGR */)   
+   ((0xff000000)        /* A */ | \
+    ((x) & 0x00ffffff)              /* BGR */)   
 #define ALLEGRO_CONVERT_XBGR_8888_TO_BGR_888(x) \
-   ((((x) & 0x00ffffff)      ) /* BGR */)   
+   (((x) & 0x00ffffff)              /* BGR */)   
 #define ALLEGRO_CONVERT_XBGR_8888_TO_BGR_565(x) \
-   ((((x) & 0x00f80000) >>  8) /* B */ | \
-    (((x) & 0x0000fc00) >>  5) /* G */ | \
-    (((x) & 0x000000f8) >>  3) /* R */)   
+   ((((x) & 0x00f80000) >>  8)        /* B */ | \
+    (((x) & 0x0000fc00) >>  5)        /* G */ | \
+    (((x) & 0x000000f8) >>  3)        /* R */)   
 #define ALLEGRO_CONVERT_XBGR_8888_TO_BGR_555(x) \
-   ((((x) & 0x00f80000) >>  9) /* B */ | \
-    (((x) & 0x0000f800) >>  6) /* G */ | \
-    (((x) & 0x000000f8) >>  3) /* R */)   
+   ((((x) & 0x00f80000) >>  9)        /* B */ | \
+    (((x) & 0x0000f800) >>  6)        /* G */ | \
+    (((x) & 0x000000f8) >>  3)        /* R */)   
 #define ALLEGRO_CONVERT_XBGR_8888_TO_RGBX_8888(x) \
-   ((((x) & 0x00ff0000) >>  8) /* B */ | \
-    (((x) & 0x0000ff00) <<  8) /* G */ | \
-    (((x) & 0x000000ff) << 24) /* R */)   
+   ((((x) & 0x00ff0000) >>  8)        /* B */ | \
+    (((x) & 0x0000ff00) <<  8)        /* G */ | \
+    (((x) & 0x000000ff) << 24)        /* R */)   
 #define ALLEGRO_CONVERT_XBGR_8888_TO_XRGB_8888(x) \
-   ((((x) & 0x00ff0000) >> 16) /* B */ | \
-    (((x) & 0x0000ff00)      ) /* G */ | \
-    (((x) & 0x000000ff) << 16) /* R */)   
+   ((((x) & 0x00ff0000) >> 16)        /* B */ | \
+    ((x) & 0x0000ff00)              /* G */ | \
+    (((x) & 0x000000ff) << 16)        /* R */)   
 #define ALLEGRO_CONVERT_XBGR_8888_TO_ABGR_F32(x) \
    al_map_rgb(((x) >> 0) & 255,\
    ((x) >> 8) & 255,\
    ((x) >> 16) & 255)
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_XBGR_8888_TO_ABGR_8888_LE(x) \
-   (((0x000000ff)) /* A */ | \
-    (((x) & 0x00ff0000) >>  8) /* B */ | \
-    (((x) & 0x0000ff00) <<  8) /* G */ | \
-    (((x) & 0x000000ff) << 24) /* R */)   
+   ((0x000000ff)        /* A */ | \
+    (((x) & 0x00ff0000) >>  8)        /* B */ | \
+    (((x) & 0x0000ff00) <<  8)        /* G */ | \
+    (((x) & 0x000000ff) << 24)        /* R */)   
 #else
 #define ALLEGRO_CONVERT_XBGR_8888_TO_ABGR_8888_LE(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0x00ffffff)      ) /* BGR */)   
+   ((0xff000000)        /* A */ | \
+    ((x) & 0x00ffffff)              /* BGR */)   
 #endif
 #define ALLEGRO_CONVERT_XBGR_8888_TO_RGBA_4444(x) \
-   (((0x000f)) /* A */ | \
-    (((x) & 0x00f00000) >> 16) /* B */ | \
-    (((x) & 0x0000f000) >>  4) /* G */ | \
-    (((x) & 0x000000f0) <<  8) /* R */)   
+   ((0x000f)        /* A */ | \
+    (((x) & 0x00f00000) >> 16)        /* B */ | \
+    (((x) & 0x0000f000) >>  4)        /* G */ | \
+    (((x) & 0x000000f0) <<  8)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_888_TO_ARGB_8888(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0xff0000) >> 16) /* B */ | \
-    (((x) & 0x00ff00)      ) /* G */ | \
-    (((x) & 0x0000ff) << 16) /* R */)   
+   ((0xff000000)        /* A */ | \
+    (((x) & 0xff0000) >> 16)        /* B */ | \
+    ((x) & 0x00ff00)              /* G */ | \
+    (((x) & 0x0000ff) << 16)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_888_TO_RGBA_8888(x) \
-   (((0x000000ff)) /* A */ | \
-    (((x) & 0xff0000) >>  8) /* B */ | \
-    (((x) & 0x00ff00) <<  8) /* G */ | \
-    (((x) & 0x0000ff) << 24) /* R */)   
+   ((0x000000ff)        /* A */ | \
+    (((x) & 0xff0000) >>  8)        /* B */ | \
+    (((x) & 0x00ff00) <<  8)        /* G */ | \
+    (((x) & 0x0000ff) << 24)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_888_TO_ARGB_4444(x) \
-   (((0xf000)) /* A */ | \
-    (((x) & 0xf00000) >> 20) /* B */ | \
-    (((x) & 0x00f000) >>  8) /* G */ | \
-    (((x) & 0x0000f0) <<  4) /* R */)   
+   ((0xf000)        /* A */ | \
+    (((x) & 0xf00000) >> 20)        /* B */ | \
+    (((x) & 0x00f000) >>  8)        /* G */ | \
+    (((x) & 0x0000f0) <<  4)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_888_TO_RGB_888(x) \
-   ((((x) & 0xff0000) >> 16) /* B */ | \
-    (((x) & 0x00ff00)      ) /* G */ | \
-    (((x) & 0x0000ff) << 16) /* R */)   
+   ((((x) & 0xff0000) >> 16)        /* B */ | \
+    ((x) & 0x00ff00)              /* G */ | \
+    (((x) & 0x0000ff) << 16)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_888_TO_RGB_565(x) \
-   ((((x) & 0xf80000) >> 19) /* B */ | \
-    (((x) & 0x00fc00) >>  5) /* G */ | \
-    (((x) & 0x0000f8) <<  8) /* R */)   
+   ((((x) & 0xf80000) >> 19)        /* B */ | \
+    (((x) & 0x00fc00) >>  5)        /* G */ | \
+    (((x) & 0x0000f8) <<  8)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_888_TO_RGB_555(x) \
-   ((((x) & 0xf80000) >> 19) /* B */ | \
-    (((x) & 0x00f800) >>  6) /* G */ | \
-    (((x) & 0x0000f8) <<  7) /* R */)   
+   ((((x) & 0xf80000) >> 19)        /* B */ | \
+    (((x) & 0x00f800) >>  6)        /* G */ | \
+    (((x) & 0x0000f8) <<  7)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_888_TO_RGBA_5551(x) \
-   (((0x0001)) /* A */ | \
-    (((x) & 0xf80000) >> 18) /* B */ | \
-    (((x) & 0x00f800) >>  5) /* G */ | \
-    (((x) & 0x0000f8) <<  8) /* R */)   
+   ((0x0001)        /* A */ | \
+    (((x) & 0xf80000) >> 18)        /* B */ | \
+    (((x) & 0x00f800) >>  5)        /* G */ | \
+    (((x) & 0x0000f8) <<  8)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_888_TO_ARGB_1555(x) \
-   (((0x8000)) /* A */ | \
-    (((x) & 0xf80000) >> 19) /* B */ | \
-    (((x) & 0x00f800) >>  6) /* G */ | \
-    (((x) & 0x0000f8) <<  7) /* R */)   
+   ((0x8000)        /* A */ | \
+    (((x) & 0xf80000) >> 19)        /* B */ | \
+    (((x) & 0x00f800) >>  6)        /* G */ | \
+    (((x) & 0x0000f8) <<  7)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_888_TO_ABGR_8888(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0xffffff)      ) /* BGR */)   
+   ((0xff000000)        /* A */ | \
+    ((x) & 0xffffff)              /* BGR */)   
 #define ALLEGRO_CONVERT_BGR_888_TO_XBGR_8888(x) \
-   ((((x) & 0xffffff)      ) /* BGR */)   
+   (((x) & 0xffffff)              /* BGR */)   
 #define ALLEGRO_CONVERT_BGR_888_TO_BGR_565(x) \
-   ((((x) & 0xf80000) >>  8) /* B */ | \
-    (((x) & 0x00fc00) >>  5) /* G */ | \
-    (((x) & 0x0000f8) >>  3) /* R */)   
+   ((((x) & 0xf80000) >>  8)        /* B */ | \
+    (((x) & 0x00fc00) >>  5)        /* G */ | \
+    (((x) & 0x0000f8) >>  3)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_888_TO_BGR_555(x) \
-   ((((x) & 0xf80000) >>  9) /* B */ | \
-    (((x) & 0x00f800) >>  6) /* G */ | \
-    (((x) & 0x0000f8) >>  3) /* R */)   
+   ((((x) & 0xf80000) >>  9)        /* B */ | \
+    (((x) & 0x00f800) >>  6)        /* G */ | \
+    (((x) & 0x0000f8) >>  3)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_888_TO_RGBX_8888(x) \
-   ((((x) & 0xff0000) >>  8) /* B */ | \
-    (((x) & 0x00ff00) <<  8) /* G */ | \
-    (((x) & 0x0000ff) << 24) /* R */)   
+   ((((x) & 0xff0000) >>  8)        /* B */ | \
+    (((x) & 0x00ff00) <<  8)        /* G */ | \
+    (((x) & 0x0000ff) << 24)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_888_TO_XRGB_8888(x) \
-   ((((x) & 0xff0000) >> 16) /* B */ | \
-    (((x) & 0x00ff00)      ) /* G */ | \
-    (((x) & 0x0000ff) << 16) /* R */)   
+   ((((x) & 0xff0000) >> 16)        /* B */ | \
+    ((x) & 0x00ff00)              /* G */ | \
+    (((x) & 0x0000ff) << 16)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_888_TO_ABGR_F32(x) \
    al_map_rgb(((x) >> 0) & 255,\
    ((x) >> 8) & 255,\
    ((x) >> 16) & 255)
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_BGR_888_TO_ABGR_8888_LE(x) \
-   (((0x000000ff)) /* A */ | \
-    (((x) & 0xff0000) >>  8) /* B */ | \
-    (((x) & 0x00ff00) <<  8) /* G */ | \
-    (((x) & 0x0000ff) << 24) /* R */)   
+   ((0x000000ff)        /* A */ | \
+    (((x) & 0xff0000) >>  8)        /* B */ | \
+    (((x) & 0x00ff00) <<  8)        /* G */ | \
+    (((x) & 0x0000ff) << 24)        /* R */)   
 #else
 #define ALLEGRO_CONVERT_BGR_888_TO_ABGR_8888_LE(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0xffffff)      ) /* BGR */)   
+   ((0xff000000)        /* A */ | \
+    ((x) & 0xffffff)              /* BGR */)   
 #endif
 #define ALLEGRO_CONVERT_BGR_888_TO_RGBA_4444(x) \
-   (((0x000f)) /* A */ | \
-    (((x) & 0xf00000) >> 16) /* B */ | \
-    (((x) & 0x00f000) >>  4) /* G */ | \
-    (((x) & 0x0000f0) <<  8) /* R */)   
+   ((0x000f)        /* A */ | \
+    (((x) & 0xf00000) >> 16)        /* B */ | \
+    (((x) & 0x00f000) >>  4)        /* G */ | \
+    (((x) & 0x0000f0) <<  8)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_565_TO_ARGB_8888(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0xf800) >>  8) /* B */ | \
-    (((x) & 0x07e0) <<  5) /* G */ | \
-    (((x) & 0x001f) << 19) /* R */)   
+   ((0xff000000)        /* A */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11]       ) /* B */ | \
+    (_al_rgb_scale_6[((x) & 0x07e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x001f) >>  0] << 16) /* R */)   
 #define ALLEGRO_CONVERT_BGR_565_TO_RGBA_8888(x) \
-   (((0x000000ff)) /* A */ | \
-    (((x) & 0xf800)      ) /* B */ | \
-    (((x) & 0x07e0) << 13) /* G */ | \
-    (((x) & 0x001f) << 27) /* R */)   
+   ((0x000000ff)        /* A */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11] <<  8) /* B */ | \
+    (_al_rgb_scale_6[((x) & 0x07e0) >>  5] << 16) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x001f) >>  0] << 24) /* R */)   
 #define ALLEGRO_CONVERT_BGR_565_TO_ARGB_4444(x) \
-   (((0xf000)) /* A */ | \
-    (((x) & 0xf000) >> 12) /* B */ | \
-    (((x) & 0x0780) >>  3) /* G */ | \
-    (((x) & 0x001e) <<  7) /* R */)   
+   ((0xf000)        /* A */ | \
+    (((x) & 0xf000) >> 12)        /* B */ | \
+    (((x) & 0x0780) >>  3)        /* G */ | \
+    (((x) & 0x001e) <<  7)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_565_TO_RGB_888(x) \
-   ((((x) & 0xf800) >>  8) /* B */ | \
-    (((x) & 0x07e0) <<  5) /* G */ | \
-    (((x) & 0x001f) << 19) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0xf800) >> 11]       ) /* B */ | \
+    (_al_rgb_scale_6[((x) & 0x07e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x001f) >>  0] << 16) /* R */)   
 #define ALLEGRO_CONVERT_BGR_565_TO_RGB_565(x) \
-   ((((x) & 0xf800) >> 11) /* B */ | \
-    (((x) & 0x07e0)      ) /* G */ | \
-    (((x) & 0x001f) << 11) /* R */)   
+   ((((x) & 0xf800) >> 11)        /* B */ | \
+    ((x) & 0x07e0)              /* G */ | \
+    (((x) & 0x001f) << 11)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_565_TO_RGB_555(x) \
-   ((((x) & 0xf800) >> 11) /* B */ | \
-    (((x) & 0x07c0) >>  1) /* G */ | \
-    (((x) & 0x001f) << 10) /* R */)   
+   ((((x) & 0xf800) >> 11)        /* B */ | \
+    (((x) & 0x07c0) >>  1)        /* G */ | \
+    (((x) & 0x001f) << 10)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_565_TO_RGBA_5551(x) \
-   (((0x0001)) /* A */ | \
-    (((x) & 0xf800) >> 10) /* B */ | \
-    (((x) & 0x07c0)      ) /* G */ | \
-    (((x) & 0x001f) << 11) /* R */)   
+   ((0x0001)        /* A */ | \
+    (((x) & 0xf800) >> 10)        /* B */ | \
+    ((x) & 0x07c0)              /* G */ | \
+    (((x) & 0x001f) << 11)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_565_TO_ARGB_1555(x) \
-   (((0x8000)) /* A */ | \
-    (((x) & 0xf800) >> 11) /* B */ | \
-    (((x) & 0x07c0) >>  1) /* G */ | \
-    (((x) & 0x001f) << 10) /* R */)   
+   ((0x8000)        /* A */ | \
+    (((x) & 0xf800) >> 11)        /* B */ | \
+    (((x) & 0x07c0) >>  1)        /* G */ | \
+    (((x) & 0x001f) << 10)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_565_TO_ABGR_8888(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0xf800) <<  8) /* B */ | \
-    (((x) & 0x07e0) <<  5) /* G */ | \
-    (((x) & 0x001f) <<  3) /* R */)   
+   ((0xff000000)        /* A */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11] << 16) /* B */ | \
+    (_al_rgb_scale_6[((x) & 0x07e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x001f) >>  0]       ) /* R */)   
 #define ALLEGRO_CONVERT_BGR_565_TO_XBGR_8888(x) \
-   ((((x) & 0xf800) <<  8) /* B */ | \
-    (((x) & 0x07e0) <<  5) /* G */ | \
-    (((x) & 0x001f) <<  3) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0xf800) >> 11] << 16) /* B */ | \
+    (_al_rgb_scale_6[((x) & 0x07e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x001f) >>  0]       ) /* R */)   
 #define ALLEGRO_CONVERT_BGR_565_TO_BGR_888(x) \
-   ((((x) & 0xf800) <<  8) /* B */ | \
-    (((x) & 0x07e0) <<  5) /* G */ | \
-    (((x) & 0x001f) <<  3) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0xf800) >> 11] << 16) /* B */ | \
+    (_al_rgb_scale_6[((x) & 0x07e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x001f) >>  0]       ) /* R */)   
 #define ALLEGRO_CONVERT_BGR_565_TO_BGR_555(x) \
-   ((((x) & 0x001f)      ) /* R */ | \
-    (((x) & 0xffc0) >>  1) /* BG */)   
+   (((x) & 0x001f)              /* R */ | \
+    (((x) & 0xffc0) >>  1)        /* BG */)   
 #define ALLEGRO_CONVERT_BGR_565_TO_RGBX_8888(x) \
-   ((((x) & 0xf800)      ) /* B */ | \
-    (((x) & 0x07e0) << 13) /* G */ | \
-    (((x) & 0x001f) << 27) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0xf800) >> 11] <<  8) /* B */ | \
+    (_al_rgb_scale_6[((x) & 0x07e0) >>  5] << 16) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x001f) >>  0] << 24) /* R */)   
 #define ALLEGRO_CONVERT_BGR_565_TO_XRGB_8888(x) \
-   ((((x) & 0xf800) >>  8) /* B */ | \
-    (((x) & 0x07e0) <<  5) /* G */ | \
-    (((x) & 0x001f) << 19) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0xf800) >> 11]       ) /* B */ | \
+    (_al_rgb_scale_6[((x) & 0x07e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x001f) >>  0] << 16) /* R */)   
 #define ALLEGRO_CONVERT_BGR_565_TO_ABGR_F32(x) \
    al_map_rgb(_al_rgb_scale_5[((x) >> 0) & 31],\
    _al_rgb_scale_6[((x) >> 5) & 63],\
    _al_rgb_scale_5[((x) >> 11) & 31])
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_BGR_565_TO_ABGR_8888_LE(x) \
-   (((0x000000ff)) /* A */ | \
-    (((x) & 0xf800)      ) /* B */ | \
-    (((x) & 0x07e0) << 13) /* G */ | \
-    (((x) & 0x001f) << 27) /* R */)   
+   ((0x000000ff)        /* A */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11] <<  8) /* B */ | \
+    (_al_rgb_scale_6[((x) & 0x07e0) >>  5] << 16) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x001f) >>  0] << 24) /* R */)   
 #else
 #define ALLEGRO_CONVERT_BGR_565_TO_ABGR_8888_LE(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0xf800) <<  8) /* B */ | \
-    (((x) & 0x07e0) <<  5) /* G */ | \
-    (((x) & 0x001f) <<  3) /* R */)   
+   ((0xff000000)        /* A */ | \
+    (_al_rgb_scale_5[((x) & 0xf800) >> 11] << 16) /* B */ | \
+    (_al_rgb_scale_6[((x) & 0x07e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x001f) >>  0]       ) /* R */)   
 #endif
 #define ALLEGRO_CONVERT_BGR_565_TO_RGBA_4444(x) \
-   (((0x000f)) /* A */ | \
-    (((x) & 0xf000) >>  8) /* B */ | \
-    (((x) & 0x0780) <<  1) /* G */ | \
-    (((x) & 0x001e) << 11) /* R */)   
+   ((0x000f)        /* A */ | \
+    (((x) & 0xf000) >>  8)        /* B */ | \
+    (((x) & 0x0780) <<  1)        /* G */ | \
+    (((x) & 0x001e) << 11)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_555_TO_ARGB_8888(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0x7c00) >>  7) /* B */ | \
-    (((x) & 0x3e0) <<  6) /* G */ | \
-    (((x) & 0x01f) << 19) /* R */)   
+   ((0xff000000)        /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10]       ) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x3e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x01f) >>  0] << 16) /* R */)   
 #define ALLEGRO_CONVERT_BGR_555_TO_RGBA_8888(x) \
-   (((0x000000ff)) /* A */ | \
-    (((x) & 0x7c00) <<  1) /* B */ | \
-    (((x) & 0x3e0) << 14) /* G */ | \
-    (((x) & 0x01f) << 27) /* R */)   
+   ((0x000000ff)        /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10] <<  8) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x3e0) >>  5] << 16) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x01f) >>  0] << 24) /* R */)   
 #define ALLEGRO_CONVERT_BGR_555_TO_ARGB_4444(x) \
-   (((0xf000)) /* A */ | \
-    (((x) & 0x7800) >> 11) /* B */ | \
-    (((x) & 0x3c0) >>  2) /* G */ | \
-    (((x) & 0x01e) <<  7) /* R */)   
+   ((0xf000)        /* A */ | \
+    (((x) & 0x7800) >> 11)        /* B */ | \
+    (((x) & 0x3c0) >>  2)        /* G */ | \
+    (((x) & 0x01e) <<  7)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_555_TO_RGB_888(x) \
-   ((((x) & 0x7c00) >>  7) /* B */ | \
-    (((x) & 0x3e0) <<  6) /* G */ | \
-    (((x) & 0x01f) << 19) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x7c00) >> 10]       ) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x3e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x01f) >>  0] << 16) /* R */)   
 #define ALLEGRO_CONVERT_BGR_555_TO_RGB_565(x) \
-   ((((x) & 0x7c00) >> 10) /* B */ | \
-    (((x) & 0x3e0) <<  1) /* G */ | \
-    (((x) & 0x01f) << 11) /* R */)   
+   ((((x) & 0x7c00) >> 10)        /* B */ | \
+    (((x) & 0x3e0) <<  1)        /* G */ | \
+    (((x) & 0x01f) << 11)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_555_TO_RGB_555(x) \
-   ((((x) & 0x7c00) >> 10) /* B */ | \
-    (((x) & 0x3e0)      ) /* G */ | \
-    (((x) & 0x01f) << 10) /* R */)   
+   ((((x) & 0x7c00) >> 10)        /* B */ | \
+    ((x) & 0x3e0)              /* G */ | \
+    (((x) & 0x01f) << 10)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_555_TO_RGBA_5551(x) \
-   (((0x0001)) /* A */ | \
-    (((x) & 0x7c00) >>  9) /* B */ | \
-    (((x) & 0x3e0) <<  1) /* G */ | \
-    (((x) & 0x01f) << 11) /* R */)   
+   ((0x0001)        /* A */ | \
+    (((x) & 0x7c00) >>  9)        /* B */ | \
+    (((x) & 0x3e0) <<  1)        /* G */ | \
+    (((x) & 0x01f) << 11)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_555_TO_ARGB_1555(x) \
-   (((0x8000)) /* A */ | \
-    (((x) & 0x7c00) >> 10) /* B */ | \
-    (((x) & 0x3e0)      ) /* G */ | \
-    (((x) & 0x01f) << 10) /* R */)   
+   ((0x8000)        /* A */ | \
+    (((x) & 0x7c00) >> 10)        /* B */ | \
+    ((x) & 0x3e0)              /* G */ | \
+    (((x) & 0x01f) << 10)        /* R */)   
 #define ALLEGRO_CONVERT_BGR_555_TO_ABGR_8888(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0x7c00) <<  9) /* B */ | \
-    (((x) & 0x3e0) <<  6) /* G */ | \
-    (((x) & 0x01f) <<  3) /* R */)   
+   ((0xff000000)        /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10] << 16) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x3e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x01f) >>  0]       ) /* R */)   
 #define ALLEGRO_CONVERT_BGR_555_TO_XBGR_8888(x) \
-   ((((x) & 0x7c00) <<  9) /* B */ | \
-    (((x) & 0x3e0) <<  6) /* G */ | \
-    (((x) & 0x01f) <<  3) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x7c00) >> 10] << 16) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x3e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x01f) >>  0]       ) /* R */)   
 #define ALLEGRO_CONVERT_BGR_555_TO_BGR_888(x) \
-   ((((x) & 0x7c00) <<  9) /* B */ | \
-    (((x) & 0x3e0) <<  6) /* G */ | \
-    (((x) & 0x01f) <<  3) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x7c00) >> 10] << 16) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x3e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x01f) >>  0]       ) /* R */)   
 #define ALLEGRO_CONVERT_BGR_555_TO_BGR_565(x) \
-   ((((x) & 0x01f)      ) /* R */ | \
-    (((x) & 0x7fe0) <<  1) /* BG */)   
+   (((x) & 0x01f)              /* R */ | \
+    (((x) & 0x7fe0) <<  1)        /* BG */)   
 #define ALLEGRO_CONVERT_BGR_555_TO_RGBX_8888(x) \
-   ((((x) & 0x7c00) <<  1) /* B */ | \
-    (((x) & 0x3e0) << 14) /* G */ | \
-    (((x) & 0x01f) << 27) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x7c00) >> 10] <<  8) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x3e0) >>  5] << 16) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x01f) >>  0] << 24) /* R */)   
 #define ALLEGRO_CONVERT_BGR_555_TO_XRGB_8888(x) \
-   ((((x) & 0x7c00) >>  7) /* B */ | \
-    (((x) & 0x3e0) <<  6) /* G */ | \
-    (((x) & 0x01f) << 19) /* R */)   
+   ((_al_rgb_scale_5[((x) & 0x7c00) >> 10]       ) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x3e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x01f) >>  0] << 16) /* R */)   
 #define ALLEGRO_CONVERT_BGR_555_TO_ABGR_F32(x) \
    al_map_rgb(_al_rgb_scale_5[((x) >> 0) & 31],\
    _al_rgb_scale_5[((x) >> 5) & 31],\
    _al_rgb_scale_5[((x) >> 10) & 31])
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_BGR_555_TO_ABGR_8888_LE(x) \
-   (((0x000000ff)) /* A */ | \
-    (((x) & 0x7c00) <<  1) /* B */ | \
-    (((x) & 0x3e0) << 14) /* G */ | \
-    (((x) & 0x01f) << 27) /* R */)   
+   ((0x000000ff)        /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10] <<  8) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x3e0) >>  5] << 16) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x01f) >>  0] << 24) /* R */)   
 #else
 #define ALLEGRO_CONVERT_BGR_555_TO_ABGR_8888_LE(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0x7c00) <<  9) /* B */ | \
-    (((x) & 0x3e0) <<  6) /* G */ | \
-    (((x) & 0x01f) <<  3) /* R */)   
+   ((0xff000000)        /* A */ | \
+    (_al_rgb_scale_5[((x) & 0x7c00) >> 10] << 16) /* B */ | \
+    (_al_rgb_scale_5[((x) & 0x3e0) >>  5] <<  8) /* G */ | \
+    (_al_rgb_scale_5[((x) & 0x01f) >>  0]       ) /* R */)   
 #endif
 #define ALLEGRO_CONVERT_BGR_555_TO_RGBA_4444(x) \
-   (((0x000f)) /* A */ | \
-    (((x) & 0x7800) >>  7) /* B */ | \
-    (((x) & 0x3c0) <<  2) /* G */ | \
-    (((x) & 0x01e) << 11) /* R */)   
+   ((0x000f)        /* A */ | \
+    (((x) & 0x7800) >>  7)        /* B */ | \
+    (((x) & 0x3c0) <<  2)        /* G */ | \
+    (((x) & 0x01e) << 11)        /* R */)   
 #define ALLEGRO_CONVERT_RGBX_8888_TO_ARGB_8888(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0xffffff00) >>  8) /* BGR */)   
+   ((0xff000000)        /* A */ | \
+    (((x) & 0xffffff00) >>  8)        /* BGR */)   
 #define ALLEGRO_CONVERT_RGBX_8888_TO_RGBA_8888(x) \
-   (((0x000000ff)) /* A */ | \
-    (((x) & 0xffffff00)      ) /* BGR */)   
+   ((0x000000ff)        /* A */ | \
+    ((x) & 0xffffff00)              /* BGR */)   
 #define ALLEGRO_CONVERT_RGBX_8888_TO_ARGB_4444(x) \
-   (((0xf000)) /* A */ | \
-    (((x) & 0x0000f000) >> 12) /* B */ | \
-    (((x) & 0x00f00000) >> 16) /* G */ | \
-    (((x) & 0xf0000000) >> 20) /* R */)   
+   ((0xf000)        /* A */ | \
+    (((x) & 0x0000f000) >> 12)        /* B */ | \
+    (((x) & 0x00f00000) >> 16)        /* G */ | \
+    (((x) & 0xf0000000) >> 20)        /* R */)   
 #define ALLEGRO_CONVERT_RGBX_8888_TO_RGB_888(x) \
-   ((((x) & 0xffffff00) >>  8) /* BGR */)   
+   ((((x) & 0xffffff00) >>  8)        /* BGR */)   
 #define ALLEGRO_CONVERT_RGBX_8888_TO_RGB_565(x) \
-   ((((x) & 0x0000f800) >> 11) /* B */ | \
-    (((x) & 0x00fc0000) >> 13) /* G */ | \
-    (((x) & 0xf8000000) >> 16) /* R */)   
+   ((((x) & 0x0000f800) >> 11)        /* B */ | \
+    (((x) & 0x00fc0000) >> 13)        /* G */ | \
+    (((x) & 0xf8000000) >> 16)        /* R */)   
 #define ALLEGRO_CONVERT_RGBX_8888_TO_RGB_555(x) \
-   ((((x) & 0x0000f800) >> 11) /* B */ | \
-    (((x) & 0x00f80000) >> 14) /* G */ | \
-    (((x) & 0xf8000000) >> 17) /* R */)   
+   ((((x) & 0x0000f800) >> 11)        /* B */ | \
+    (((x) & 0x00f80000) >> 14)        /* G */ | \
+    (((x) & 0xf8000000) >> 17)        /* R */)   
 #define ALLEGRO_CONVERT_RGBX_8888_TO_RGBA_5551(x) \
-   (((0x0001)) /* A */ | \
-    (((x) & 0x0000f800) >> 10) /* B */ | \
-    (((x) & 0x00f80000) >> 13) /* G */ | \
-    (((x) & 0xf8000000) >> 16) /* R */)   
+   ((0x0001)        /* A */ | \
+    (((x) & 0x0000f800) >> 10)        /* B */ | \
+    (((x) & 0x00f80000) >> 13)        /* G */ | \
+    (((x) & 0xf8000000) >> 16)        /* R */)   
 #define ALLEGRO_CONVERT_RGBX_8888_TO_ARGB_1555(x) \
-   (((0x8000)) /* A */ | \
-    (((x) & 0x0000f800) >> 11) /* B */ | \
-    (((x) & 0x00f80000) >> 14) /* G */ | \
-    (((x) & 0xf8000000) >> 17) /* R */)   
+   ((0x8000)        /* A */ | \
+    (((x) & 0x0000f800) >> 11)        /* B */ | \
+    (((x) & 0x00f80000) >> 14)        /* G */ | \
+    (((x) & 0xf8000000) >> 17)        /* R */)   
 #define ALLEGRO_CONVERT_RGBX_8888_TO_ABGR_8888(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0x0000ff00) <<  8) /* B */ | \
-    (((x) & 0x00ff0000) >>  8) /* G */ | \
-    (((x) & 0xff000000) >> 24) /* R */)   
+   ((0xff000000)        /* A */ | \
+    (((x) & 0x0000ff00) <<  8)        /* B */ | \
+    (((x) & 0x00ff0000) >>  8)        /* G */ | \
+    (((x) & 0xff000000) >> 24)        /* R */)   
 #define ALLEGRO_CONVERT_RGBX_8888_TO_XBGR_8888(x) \
-   ((((x) & 0x0000ff00) <<  8) /* B */ | \
-    (((x) & 0x00ff0000) >>  8) /* G */ | \
-    (((x) & 0xff000000) >> 24) /* R */)   
+   ((((x) & 0x0000ff00) <<  8)        /* B */ | \
+    (((x) & 0x00ff0000) >>  8)        /* G */ | \
+    (((x) & 0xff000000) >> 24)        /* R */)   
 #define ALLEGRO_CONVERT_RGBX_8888_TO_BGR_888(x) \
-   ((((x) & 0x0000ff00) <<  8) /* B */ | \
-    (((x) & 0x00ff0000) >>  8) /* G */ | \
-    (((x) & 0xff000000) >> 24) /* R */)   
+   ((((x) & 0x0000ff00) <<  8)        /* B */ | \
+    (((x) & 0x00ff0000) >>  8)        /* G */ | \
+    (((x) & 0xff000000) >> 24)        /* R */)   
 #define ALLEGRO_CONVERT_RGBX_8888_TO_BGR_565(x) \
-   ((((x) & 0x0000f800)      ) /* B */ | \
-    (((x) & 0x00fc0000) >> 13) /* G */ | \
-    (((x) & 0xf8000000) >> 27) /* R */)   
+   (((x) & 0x0000f800)              /* B */ | \
+    (((x) & 0x00fc0000) >> 13)        /* G */ | \
+    (((x) & 0xf8000000) >> 27)        /* R */)   
 #define ALLEGRO_CONVERT_RGBX_8888_TO_BGR_555(x) \
-   ((((x) & 0x0000f800) >>  1) /* B */ | \
-    (((x) & 0x00f80000) >> 14) /* G */ | \
-    (((x) & 0xf8000000) >> 27) /* R */)   
+   ((((x) & 0x0000f800) >>  1)        /* B */ | \
+    (((x) & 0x00f80000) >> 14)        /* G */ | \
+    (((x) & 0xf8000000) >> 27)        /* R */)   
 #define ALLEGRO_CONVERT_RGBX_8888_TO_XRGB_8888(x) \
-   ((((x) & 0xffffff00) >>  8) /* BGR */)   
+   ((((x) & 0xffffff00) >>  8)        /* BGR */)   
 #define ALLEGRO_CONVERT_RGBX_8888_TO_ABGR_F32(x) \
    al_map_rgb(((x) >> 24) & 255,\
    ((x) >> 16) & 255,\
    ((x) >> 8) & 255)
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_RGBX_8888_TO_ABGR_8888_LE(x) \
-   (((0x000000ff)) /* A */ | \
-    (((x) & 0xffffff00)      ) /* BGR */)   
+   ((0x000000ff)        /* A */ | \
+    ((x) & 0xffffff00)              /* BGR */)   
 #else
 #define ALLEGRO_CONVERT_RGBX_8888_TO_ABGR_8888_LE(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0x0000ff00) <<  8) /* B */ | \
-    (((x) & 0x00ff0000) >>  8) /* G */ | \
-    (((x) & 0xff000000) >> 24) /* R */)   
+   ((0xff000000)        /* A */ | \
+    (((x) & 0x0000ff00) <<  8)        /* B */ | \
+    (((x) & 0x00ff0000) >>  8)        /* G */ | \
+    (((x) & 0xff000000) >> 24)        /* R */)   
 #endif
 #define ALLEGRO_CONVERT_RGBX_8888_TO_RGBA_4444(x) \
-   (((0x000f)) /* A */ | \
-    (((x) & 0x0000f000) >>  8) /* B */ | \
-    (((x) & 0x00f00000) >> 12) /* G */ | \
-    (((x) & 0xf0000000) >> 16) /* R */)   
+   ((0x000f)        /* A */ | \
+    (((x) & 0x0000f000) >>  8)        /* B */ | \
+    (((x) & 0x00f00000) >> 12)        /* G */ | \
+    (((x) & 0xf0000000) >> 16)        /* R */)   
 #define ALLEGRO_CONVERT_XRGB_8888_TO_ARGB_8888(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0x00ffffff)      ) /* BGR */)   
+   ((0xff000000)        /* A */ | \
+    ((x) & 0x00ffffff)              /* BGR */)   
 #define ALLEGRO_CONVERT_XRGB_8888_TO_RGBA_8888(x) \
-   (((0x000000ff)) /* A */ | \
-    (((x) & 0x00ffffff) <<  8) /* BGR */)   
+   ((0x000000ff)        /* A */ | \
+    (((x) & 0x00ffffff) <<  8)        /* BGR */)   
 #define ALLEGRO_CONVERT_XRGB_8888_TO_ARGB_4444(x) \
-   (((0xf000)) /* A */ | \
-    (((x) & 0x000000f0) >>  4) /* B */ | \
-    (((x) & 0x0000f000) >>  8) /* G */ | \
-    (((x) & 0x00f00000) >> 12) /* R */)   
+   ((0xf000)        /* A */ | \
+    (((x) & 0x000000f0) >>  4)        /* B */ | \
+    (((x) & 0x0000f000) >>  8)        /* G */ | \
+    (((x) & 0x00f00000) >> 12)        /* R */)   
 #define ALLEGRO_CONVERT_XRGB_8888_TO_RGB_888(x) \
-   ((((x) & 0x00ffffff)      ) /* BGR */)   
+   (((x) & 0x00ffffff)              /* BGR */)   
 #define ALLEGRO_CONVERT_XRGB_8888_TO_RGB_565(x) \
-   ((((x) & 0x000000f8) >>  3) /* B */ | \
-    (((x) & 0x0000fc00) >>  5) /* G */ | \
-    (((x) & 0x00f80000) >>  8) /* R */)   
+   ((((x) & 0x000000f8) >>  3)        /* B */ | \
+    (((x) & 0x0000fc00) >>  5)        /* G */ | \
+    (((x) & 0x00f80000) >>  8)        /* R */)   
 #define ALLEGRO_CONVERT_XRGB_8888_TO_RGB_555(x) \
-   ((((x) & 0x000000f8) >>  3) /* B */ | \
-    (((x) & 0x0000f800) >>  6) /* G */ | \
-    (((x) & 0x00f80000) >>  9) /* R */)   
+   ((((x) & 0x000000f8) >>  3)        /* B */ | \
+    (((x) & 0x0000f800) >>  6)        /* G */ | \
+    (((x) & 0x00f80000) >>  9)        /* R */)   
 #define ALLEGRO_CONVERT_XRGB_8888_TO_RGBA_5551(x) \
-   (((0x0001)) /* A */ | \
-    (((x) & 0x000000f8) >>  2) /* B */ | \
-    (((x) & 0x0000f800) >>  5) /* G */ | \
-    (((x) & 0x00f80000) >>  8) /* R */)   
+   ((0x0001)        /* A */ | \
+    (((x) & 0x000000f8) >>  2)        /* B */ | \
+    (((x) & 0x0000f800) >>  5)        /* G */ | \
+    (((x) & 0x00f80000) >>  8)        /* R */)   
 #define ALLEGRO_CONVERT_XRGB_8888_TO_ARGB_1555(x) \
-   (((0x8000)) /* A */ | \
-    (((x) & 0x000000f8) >>  3) /* B */ | \
-    (((x) & 0x0000f800) >>  6) /* G */ | \
-    (((x) & 0x00f80000) >>  9) /* R */)   
+   ((0x8000)        /* A */ | \
+    (((x) & 0x000000f8) >>  3)        /* B */ | \
+    (((x) & 0x0000f800) >>  6)        /* G */ | \
+    (((x) & 0x00f80000) >>  9)        /* R */)   
 #define ALLEGRO_CONVERT_XRGB_8888_TO_ABGR_8888(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0x000000ff) << 16) /* B */ | \
-    (((x) & 0x0000ff00)      ) /* G */ | \
-    (((x) & 0x00ff0000) >> 16) /* R */)   
+   ((0xff000000)        /* A */ | \
+    (((x) & 0x000000ff) << 16)        /* B */ | \
+    ((x) & 0x0000ff00)              /* G */ | \
+    (((x) & 0x00ff0000) >> 16)        /* R */)   
 #define ALLEGRO_CONVERT_XRGB_8888_TO_XBGR_8888(x) \
-   ((((x) & 0x000000ff) << 16) /* B */ | \
-    (((x) & 0x0000ff00)      ) /* G */ | \
-    (((x) & 0x00ff0000) >> 16) /* R */)   
+   ((((x) & 0x000000ff) << 16)        /* B */ | \
+    ((x) & 0x0000ff00)              /* G */ | \
+    (((x) & 0x00ff0000) >> 16)        /* R */)   
 #define ALLEGRO_CONVERT_XRGB_8888_TO_BGR_888(x) \
-   ((((x) & 0x000000ff) << 16) /* B */ | \
-    (((x) & 0x0000ff00)      ) /* G */ | \
-    (((x) & 0x00ff0000) >> 16) /* R */)   
+   ((((x) & 0x000000ff) << 16)        /* B */ | \
+    ((x) & 0x0000ff00)              /* G */ | \
+    (((x) & 0x00ff0000) >> 16)        /* R */)   
 #define ALLEGRO_CONVERT_XRGB_8888_TO_BGR_565(x) \
-   ((((x) & 0x000000f8) <<  8) /* B */ | \
-    (((x) & 0x0000fc00) >>  5) /* G */ | \
-    (((x) & 0x00f80000) >> 19) /* R */)   
+   ((((x) & 0x000000f8) <<  8)        /* B */ | \
+    (((x) & 0x0000fc00) >>  5)        /* G */ | \
+    (((x) & 0x00f80000) >> 19)        /* R */)   
 #define ALLEGRO_CONVERT_XRGB_8888_TO_BGR_555(x) \
-   ((((x) & 0x000000f8) <<  7) /* B */ | \
-    (((x) & 0x0000f800) >>  6) /* G */ | \
-    (((x) & 0x00f80000) >> 19) /* R */)   
+   ((((x) & 0x000000f8) <<  7)        /* B */ | \
+    (((x) & 0x0000f800) >>  6)        /* G */ | \
+    (((x) & 0x00f80000) >> 19)        /* R */)   
 #define ALLEGRO_CONVERT_XRGB_8888_TO_RGBX_8888(x) \
-   ((((x) & 0x00ffffff) <<  8) /* BGR */)   
+   ((((x) & 0x00ffffff) <<  8)        /* BGR */)   
 #define ALLEGRO_CONVERT_XRGB_8888_TO_ABGR_F32(x) \
    al_map_rgb(((x) >> 16) & 255,\
    ((x) >> 8) & 255,\
    ((x) >> 0) & 255)
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_XRGB_8888_TO_ABGR_8888_LE(x) \
-   (((0x000000ff)) /* A */ | \
-    (((x) & 0x00ffffff) <<  8) /* BGR */)   
+   ((0x000000ff)        /* A */ | \
+    (((x) & 0x00ffffff) <<  8)        /* BGR */)   
 #else
 #define ALLEGRO_CONVERT_XRGB_8888_TO_ABGR_8888_LE(x) \
-   (((0xff000000)) /* A */ | \
-    (((x) & 0x000000ff) << 16) /* B */ | \
-    (((x) & 0x0000ff00)      ) /* G */ | \
-    (((x) & 0x00ff0000) >> 16) /* R */)   
+   ((0xff000000)        /* A */ | \
+    (((x) & 0x000000ff) << 16)        /* B */ | \
+    ((x) & 0x0000ff00)              /* G */ | \
+    (((x) & 0x00ff0000) >> 16)        /* R */)   
 #endif
 #define ALLEGRO_CONVERT_XRGB_8888_TO_RGBA_4444(x) \
-   (((0x000f)) /* A */ | \
-    (((x) & 0x000000f0)      ) /* B */ | \
-    (((x) & 0x0000f000) >>  4) /* G */ | \
-    (((x) & 0x00f00000) >>  8) /* R */)   
+   ((0x000f)        /* A */ | \
+    ((x) & 0x000000f0)              /* B */ | \
+    (((x) & 0x0000f000) >>  4)        /* G */ | \
+    (((x) & 0x00f00000) >>  8)        /* R */)   
 #define ALLEGRO_CONVERT_ABGR_F32_TO_ARGB_8888(x) \
    (((uint32_t)((x).a * 255) << 24) | \
     ((uint32_t)((x).b * 255) << 0) | \
@@ -1255,161 +1255,161 @@
     ((uint32_t)((x).r * 15) << 12))
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_ARGB_8888(x) \
-   ((((x) & 0x000000ff) << 24) /* A */ | \
-    (((x) & 0xffffff00) >>  8) /* BGR */)   
+   ((((x) & 0x000000ff) << 24)        /* A */ | \
+    (((x) & 0xffffff00) >>  8)        /* BGR */)   
 #else
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_ARGB_8888(x) \
-   ((((x) & 0x00ff0000) >> 16) /* B */ | \
-    (((x) & 0x000000ff) << 16) /* R */ | \
-    (((x) & 0xff00ff00)      ) /* AG */)   
+   ((((x) & 0x00ff0000) >> 16)        /* B */ | \
+    (((x) & 0x000000ff) << 16)        /* R */ | \
+    ((x) & 0xff00ff00)              /* AG */)   
 #endif
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_RGBA_8888(x) \
-   ((((x) & 0xffffffff)      ) /* ABGR */)   
+   (((x) & 0xffffffff)              /* ABGR */)   
 #else
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_RGBA_8888(x) \
-   ((((x) & 0xff000000) >> 24) /* A */ | \
-    (((x) & 0x00ff0000) >>  8) /* B */ | \
-    (((x) & 0x0000ff00) <<  8) /* G */ | \
-    (((x) & 0x000000ff) << 24) /* R */)   
+   ((((x) & 0xff000000) >> 24)        /* A */ | \
+    (((x) & 0x00ff0000) >>  8)        /* B */ | \
+    (((x) & 0x0000ff00) <<  8)        /* G */ | \
+    (((x) & 0x000000ff) << 24)        /* R */)   
 #endif
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_ARGB_4444(x) \
-   ((((x) & 0x000000f0) <<  8) /* A */ | \
-    (((x) & 0x0000f000) >> 12) /* B */ | \
-    (((x) & 0x00f00000) >> 16) /* G */ | \
-    (((x) & 0xf0000000) >> 20) /* R */)   
+   ((((x) & 0x000000f0) <<  8)        /* A */ | \
+    (((x) & 0x0000f000) >> 12)        /* B */ | \
+    (((x) & 0x00f00000) >> 16)        /* G */ | \
+    (((x) & 0xf0000000) >> 20)        /* R */)   
 #else
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_ARGB_4444(x) \
-   ((((x) & 0xf0000000) >> 16) /* A */ | \
-    (((x) & 0x00f00000) >> 20) /* B */ | \
-    (((x) & 0x0000f000) >>  8) /* G */ | \
-    (((x) & 0x000000f0) <<  4) /* R */)   
+   ((((x) & 0xf0000000) >> 16)        /* A */ | \
+    (((x) & 0x00f00000) >> 20)        /* B */ | \
+    (((x) & 0x0000f000) >>  8)        /* G */ | \
+    (((x) & 0x000000f0) <<  4)        /* R */)   
 #endif
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_RGB_888(x) \
-   ((((x) & 0xffffff00) >>  8) /* BGR */)   
+   ((((x) & 0xffffff00) >>  8)        /* BGR */)   
 #else
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_RGB_888(x) \
-   ((((x) & 0x00ff0000) >> 16) /* B */ | \
-    (((x) & 0x0000ff00)      ) /* G */ | \
-    (((x) & 0x000000ff) << 16) /* R */)   
+   ((((x) & 0x00ff0000) >> 16)        /* B */ | \
+    ((x) & 0x0000ff00)              /* G */ | \
+    (((x) & 0x000000ff) << 16)        /* R */)   
 #endif
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_RGB_565(x) \
-   ((((x) & 0x0000f800) >> 11) /* B */ | \
-    (((x) & 0x00fc0000) >> 13) /* G */ | \
-    (((x) & 0xf8000000) >> 16) /* R */)   
+   ((((x) & 0x0000f800) >> 11)        /* B */ | \
+    (((x) & 0x00fc0000) >> 13)        /* G */ | \
+    (((x) & 0xf8000000) >> 16)        /* R */)   
 #else
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_RGB_565(x) \
-   ((((x) & 0x00f80000) >> 19) /* B */ | \
-    (((x) & 0x0000fc00) >>  5) /* G */ | \
-    (((x) & 0x000000f8) <<  8) /* R */)   
+   ((((x) & 0x00f80000) >> 19)        /* B */ | \
+    (((x) & 0x0000fc00) >>  5)        /* G */ | \
+    (((x) & 0x000000f8) <<  8)        /* R */)   
 #endif
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_RGB_555(x) \
-   ((((x) & 0x0000f800) >> 11) /* B */ | \
-    (((x) & 0x00f80000) >> 14) /* G */ | \
-    (((x) & 0xf8000000) >> 17) /* R */)   
+   ((((x) & 0x0000f800) >> 11)        /* B */ | \
+    (((x) & 0x00f80000) >> 14)        /* G */ | \
+    (((x) & 0xf8000000) >> 17)        /* R */)   
 #else
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_RGB_555(x) \
-   ((((x) & 0x00f80000) >> 19) /* B */ | \
-    (((x) & 0x0000f800) >>  6) /* G */ | \
-    (((x) & 0x000000f8) <<  7) /* R */)   
+   ((((x) & 0x00f80000) >> 19)        /* B */ | \
+    (((x) & 0x0000f800) >>  6)        /* G */ | \
+    (((x) & 0x000000f8) <<  7)        /* R */)   
 #endif
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_RGBA_5551(x) \
-   ((((x) & 0x00000080) >>  7) /* A */ | \
-    (((x) & 0x0000f800) >> 10) /* B */ | \
-    (((x) & 0x00f80000) >> 13) /* G */ | \
-    (((x) & 0xf8000000) >> 16) /* R */)   
+   ((((x) & 0x00000080) >>  7)        /* A */ | \
+    (((x) & 0x0000f800) >> 10)        /* B */ | \
+    (((x) & 0x00f80000) >> 13)        /* G */ | \
+    (((x) & 0xf8000000) >> 16)        /* R */)   
 #else
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_RGBA_5551(x) \
-   ((((x) & 0x80000000) >> 31) /* A */ | \
-    (((x) & 0x00f80000) >> 18) /* B */ | \
-    (((x) & 0x0000f800) >>  5) /* G */ | \
-    (((x) & 0x000000f8) <<  8) /* R */)   
+   ((((x) & 0x80000000) >> 31)        /* A */ | \
+    (((x) & 0x00f80000) >> 18)        /* B */ | \
+    (((x) & 0x0000f800) >>  5)        /* G */ | \
+    (((x) & 0x000000f8) <<  8)        /* R */)   
 #endif
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_ARGB_1555(x) \
-   ((((x) & 0x00000080) <<  8) /* A */ | \
-    (((x) & 0x0000f800) >> 11) /* B */ | \
-    (((x) & 0x00f80000) >> 14) /* G */ | \
-    (((x) & 0xf8000000) >> 17) /* R */)   
+   ((((x) & 0x00000080) <<  8)        /* A */ | \
+    (((x) & 0x0000f800) >> 11)        /* B */ | \
+    (((x) & 0x00f80000) >> 14)        /* G */ | \
+    (((x) & 0xf8000000) >> 17)        /* R */)   
 #else
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_ARGB_1555(x) \
-   ((((x) & 0x80000000) >> 16) /* A */ | \
-    (((x) & 0x00f80000) >> 19) /* B */ | \
-    (((x) & 0x0000f800) >>  6) /* G */ | \
-    (((x) & 0x000000f8) <<  7) /* R */)   
+   ((((x) & 0x80000000) >> 16)        /* A */ | \
+    (((x) & 0x00f80000) >> 19)        /* B */ | \
+    (((x) & 0x0000f800) >>  6)        /* G */ | \
+    (((x) & 0x000000f8) <<  7)        /* R */)   
 #endif
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_ABGR_8888(x) \
-   ((((x) & 0x000000ff) << 24) /* A */ | \
-    (((x) & 0x0000ff00) <<  8) /* B */ | \
-    (((x) & 0x00ff0000) >>  8) /* G */ | \
-    (((x) & 0xff000000) >> 24) /* R */)   
+   ((((x) & 0x000000ff) << 24)        /* A */ | \
+    (((x) & 0x0000ff00) <<  8)        /* B */ | \
+    (((x) & 0x00ff0000) >>  8)        /* G */ | \
+    (((x) & 0xff000000) >> 24)        /* R */)   
 #else
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_ABGR_8888(x) \
-   ((((x) & 0xffffffff)      ) /* ABGR */)   
+   (((x) & 0xffffffff)              /* ABGR */)   
 #endif
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_XBGR_8888(x) \
-   ((((x) & 0x0000ff00) <<  8) /* B */ | \
-    (((x) & 0x00ff0000) >>  8) /* G */ | \
-    (((x) & 0xff000000) >> 24) /* R */)   
+   ((((x) & 0x0000ff00) <<  8)        /* B */ | \
+    (((x) & 0x00ff0000) >>  8)        /* G */ | \
+    (((x) & 0xff000000) >> 24)        /* R */)   
 #else
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_XBGR_8888(x) \
-   ((((x) & 0x00ffffff)      ) /* BGR */)   
+   (((x) & 0x00ffffff)              /* BGR */)   
 #endif
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_BGR_888(x) \
-   ((((x) & 0x0000ff00) <<  8) /* B */ | \
-    (((x) & 0x00ff0000) >>  8) /* G */ | \
-    (((x) & 0xff000000) >> 24) /* R */)   
+   ((((x) & 0x0000ff00) <<  8)        /* B */ | \
+    (((x) & 0x00ff0000) >>  8)        /* G */ | \
+    (((x) & 0xff000000) >> 24)        /* R */)   
 #else
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_BGR_888(x) \
-   ((((x) & 0x00ffffff)      ) /* BGR */)   
+   (((x) & 0x00ffffff)              /* BGR */)   
 #endif
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_BGR_565(x) \
-   ((((x) & 0x0000f800)      ) /* B */ | \
-    (((x) & 0x00fc0000) >> 13) /* G */ | \
-    (((x) & 0xf8000000) >> 27) /* R */)   
+   (((x) & 0x0000f800)              /* B */ | \
+    (((x) & 0x00fc0000) >> 13)        /* G */ | \
+    (((x) & 0xf8000000) >> 27)        /* R */)   
 #else
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_BGR_565(x) \
-   ((((x) & 0x00f80000) >>  8) /* B */ | \
-    (((x) & 0x0000fc00) >>  5) /* G */ | \
-    (((x) & 0x000000f8) >>  3) /* R */)   
+   ((((x) & 0x00f80000) >>  8)        /* B */ | \
+    (((x) & 0x0000fc00) >>  5)        /* G */ | \
+    (((x) & 0x000000f8) >>  3)        /* R */)   
 #endif
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_BGR_555(x) \
-   ((((x) & 0x0000f800) >>  1) /* B */ | \
-    (((x) & 0x00f80000) >> 14) /* G */ | \
-    (((x) & 0xf8000000) >> 27) /* R */)   
+   ((((x) & 0x0000f800) >>  1)        /* B */ | \
+    (((x) & 0x00f80000) >> 14)        /* G */ | \
+    (((x) & 0xf8000000) >> 27)        /* R */)   
 #else
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_BGR_555(x) \
-   ((((x) & 0x00f80000) >>  9) /* B */ | \
-    (((x) & 0x0000f800) >>  6) /* G */ | \
-    (((x) & 0x000000f8) >>  3) /* R */)   
+   ((((x) & 0x00f80000) >>  9)        /* B */ | \
+    (((x) & 0x0000f800) >>  6)        /* G */ | \
+    (((x) & 0x000000f8) >>  3)        /* R */)   
 #endif
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_RGBX_8888(x) \
-   ((((x) & 0xffffff00)      ) /* BGR */)   
+   (((x) & 0xffffff00)              /* BGR */)   
 #else
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_RGBX_8888(x) \
-   ((((x) & 0x00ff0000) >>  8) /* B */ | \
-    (((x) & 0x0000ff00) <<  8) /* G */ | \
-    (((x) & 0x000000ff) << 24) /* R */)   
+   ((((x) & 0x00ff0000) >>  8)        /* B */ | \
+    (((x) & 0x0000ff00) <<  8)        /* G */ | \
+    (((x) & 0x000000ff) << 24)        /* R */)   
 #endif
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_XRGB_8888(x) \
-   ((((x) & 0xffffff00) >>  8) /* BGR */)   
+   ((((x) & 0xffffff00) >>  8)        /* BGR */)   
 #else
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_XRGB_8888(x) \
-   ((((x) & 0x00ff0000) >> 16) /* B */ | \
-    (((x) & 0x0000ff00)      ) /* G */ | \
-    (((x) & 0x000000ff) << 16) /* R */)   
+   ((((x) & 0x00ff0000) >> 16)        /* B */ | \
+    ((x) & 0x0000ff00)              /* G */ | \
+    (((x) & 0x000000ff) << 16)        /* R */)   
 #endif
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_ABGR_F32(x) \
@@ -1426,81 +1426,81 @@
 #endif
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_RGBA_4444(x) \
-   ((((x) & 0x000000f0) >>  4) /* A */ | \
-    (((x) & 0x0000f000) >>  8) /* B */ | \
-    (((x) & 0x00f00000) >> 12) /* G */ | \
-    (((x) & 0xf0000000) >> 16) /* R */)   
+   ((((x) & 0x000000f0) >>  4)        /* A */ | \
+    (((x) & 0x0000f000) >>  8)        /* B */ | \
+    (((x) & 0x00f00000) >> 12)        /* G */ | \
+    (((x) & 0xf0000000) >> 16)        /* R */)   
 #else
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_RGBA_4444(x) \
-   ((((x) & 0xf0000000) >> 28) /* A */ | \
-    (((x) & 0x00f00000) >> 16) /* B */ | \
-    (((x) & 0x0000f000) >>  4) /* G */ | \
-    (((x) & 0x000000f0) <<  8) /* R */)   
+   ((((x) & 0xf0000000) >> 28)        /* A */ | \
+    (((x) & 0x00f00000) >> 16)        /* B */ | \
+    (((x) & 0x0000f000) >>  4)        /* G */ | \
+    (((x) & 0x000000f0) <<  8)        /* R */)   
 #endif
 #define ALLEGRO_CONVERT_RGBA_4444_TO_ARGB_8888(x) \
-   ((((x) & 0x000f) << 28) /* A */ | \
-    (((x) & 0x00f0)      ) /* B */ | \
-    (((x) & 0x0f00) <<  4) /* G */ | \
-    (((x) & 0xf000) <<  8) /* R */)   
+   ((_al_rgb_scale_4[((x) & 0x000f) >>  0] << 24) /* A */ | \
+    (_al_rgb_scale_4[((x) & 0x00f0) >>  4]       ) /* B */ | \
+    (_al_rgb_scale_4[((x) & 0x0f00) >>  8] <<  8) /* G */ | \
+    (_al_rgb_scale_4[((x) & 0xf000) >> 12] << 16) /* R */)   
 #define ALLEGRO_CONVERT_RGBA_4444_TO_RGBA_8888(x) \
-   ((((x) & 0x000f) <<  4) /* A */ | \
-    (((x) & 0x00f0) <<  8) /* B */ | \
-    (((x) & 0x0f00) << 12) /* G */ | \
-    (((x) & 0xf000) << 16) /* R */)   
+   ((_al_rgb_scale_4[((x) & 0x000f) >>  0]       ) /* A */ | \
+    (_al_rgb_scale_4[((x) & 0x00f0) >>  4] <<  8) /* B */ | \
+    (_al_rgb_scale_4[((x) & 0x0f00) >>  8] << 16) /* G */ | \
+    (_al_rgb_scale_4[((x) & 0xf000) >> 12] << 24) /* R */)   
 #define ALLEGRO_CONVERT_RGBA_4444_TO_ARGB_4444(x) \
-   ((((x) & 0x000f) << 12) /* A */ | \
-    (((x) & 0xfff0) >>  4) /* BGR */)   
+   ((((x) & 0x000f) << 12)        /* A */ | \
+    (((x) & 0xfff0) >>  4)        /* BGR */)   
 #define ALLEGRO_CONVERT_RGBA_4444_TO_RGB_888(x) \
-   ((((x) & 0x00f0)      ) /* B */ | \
-    (((x) & 0x0f00) <<  4) /* G */ | \
-    (((x) & 0xf000) <<  8) /* R */)   
+   ((_al_rgb_scale_4[((x) & 0x00f0) >>  4]       ) /* B */ | \
+    (_al_rgb_scale_4[((x) & 0x0f00) >>  8] <<  8) /* G */ | \
+    (_al_rgb_scale_4[((x) & 0xf000) >> 12] << 16) /* R */)   
 #define ALLEGRO_CONVERT_RGBA_4444_TO_RGB_565(x) \
-   ((((x) & 0x00f0) >>  3) /* B */ | \
-    (((x) & 0x0f00) >>  1) /* G */ | \
-    (((x) & 0xf000)      ) /* R */)   
+   ((((x) & 0x00f0) >>  3)        /* B */ | \
+    (((x) & 0x0f00) >>  1)        /* G */ | \
+    ((x) & 0xf000)              /* R */)   
 #define ALLEGRO_CONVERT_RGBA_4444_TO_RGB_555(x) \
-   ((((x) & 0x00f0) >>  3) /* B */ | \
-    (((x) & 0x0f00) >>  2) /* G */ | \
-    (((x) & 0xf000) >>  1) /* R */)   
+   ((((x) & 0x00f0) >>  3)        /* B */ | \
+    (((x) & 0x0f00) >>  2)        /* G */ | \
+    (((x) & 0xf000) >>  1)        /* R */)   
 #define ALLEGRO_CONVERT_RGBA_4444_TO_RGBA_5551(x) \
-   ((((x) & 0x0008) >>  3) /* A */ | \
-    (((x) & 0x00f0) >>  2) /* B */ | \
-    (((x) & 0x0f00) >>  1) /* G */ | \
-    (((x) & 0xf000)      ) /* R */)   
+   ((((x) & 0x0008) >>  3)        /* A */ | \
+    (((x) & 0x00f0) >>  2)        /* B */ | \
+    (((x) & 0x0f00) >>  1)        /* G */ | \
+    ((x) & 0xf000)              /* R */)   
 #define ALLEGRO_CONVERT_RGBA_4444_TO_ARGB_1555(x) \
-   ((((x) & 0x0008) << 12) /* A */ | \
-    (((x) & 0x00f0) >>  3) /* B */ | \
-    (((x) & 0x0f00) >>  2) /* G */ | \
-    (((x) & 0xf000) >>  1) /* R */)   
+   ((((x) & 0x0008) << 12)        /* A */ | \
+    (((x) & 0x00f0) >>  3)        /* B */ | \
+    (((x) & 0x0f00) >>  2)        /* G */ | \
+    (((x) & 0xf000) >>  1)        /* R */)   
 #define ALLEGRO_CONVERT_RGBA_4444_TO_ABGR_8888(x) \
-   ((((x) & 0x000f) << 28) /* A */ | \
-    (((x) & 0x00f0) << 16) /* B */ | \
-    (((x) & 0x0f00) <<  4) /* G */ | \
-    (((x) & 0xf000) >>  8) /* R */)   
+   ((_al_rgb_scale_4[((x) & 0x000f) >>  0] << 24) /* A */ | \
+    (_al_rgb_scale_4[((x) & 0x00f0) >>  4] << 16) /* B */ | \
+    (_al_rgb_scale_4[((x) & 0x0f00) >>  8] <<  8) /* G */ | \
+    (_al_rgb_scale_4[((x) & 0xf000) >> 12]       ) /* R */)   
 #define ALLEGRO_CONVERT_RGBA_4444_TO_XBGR_8888(x) \
-   ((((x) & 0x00f0) << 16) /* B */ | \
-    (((x) & 0x0f00) <<  4) /* G */ | \
-    (((x) & 0xf000) >>  8) /* R */)   
+   ((_al_rgb_scale_4[((x) & 0x00f0) >>  4] << 16) /* B */ | \
+    (_al_rgb_scale_4[((x) & 0x0f00) >>  8] <<  8) /* G */ | \
+    (_al_rgb_scale_4[((x) & 0xf000) >> 12]       ) /* R */)   
 #define ALLEGRO_CONVERT_RGBA_4444_TO_BGR_888(x) \
-   ((((x) & 0x00f0) << 16) /* B */ | \
-    (((x) & 0x0f00) <<  4) /* G */ | \
-    (((x) & 0xf000) >>  8) /* R */)   
+   ((_al_rgb_scale_4[((x) & 0x00f0) >>  4] << 16) /* B */ | \
+    (_al_rgb_scale_4[((x) & 0x0f00) >>  8] <<  8) /* G */ | \
+    (_al_rgb_scale_4[((x) & 0xf000) >> 12]       ) /* R */)   
 #define ALLEGRO_CONVERT_RGBA_4444_TO_BGR_565(x) \
-   ((((x) & 0x00f0) <<  8) /* B */ | \
-    (((x) & 0x0f00) >>  1) /* G */ | \
-    (((x) & 0xf000) >> 11) /* R */)   
+   ((((x) & 0x00f0) <<  8)        /* B */ | \
+    (((x) & 0x0f00) >>  1)        /* G */ | \
+    (((x) & 0xf000) >> 11)        /* R */)   
 #define ALLEGRO_CONVERT_RGBA_4444_TO_BGR_555(x) \
-   ((((x) & 0x00f0) <<  7) /* B */ | \
-    (((x) & 0x0f00) >>  2) /* G */ | \
-    (((x) & 0xf000) >> 11) /* R */)   
+   ((((x) & 0x00f0) <<  7)        /* B */ | \
+    (((x) & 0x0f00) >>  2)        /* G */ | \
+    (((x) & 0xf000) >> 11)        /* R */)   
 #define ALLEGRO_CONVERT_RGBA_4444_TO_RGBX_8888(x) \
-   ((((x) & 0x00f0) <<  8) /* B */ | \
-    (((x) & 0x0f00) << 12) /* G */ | \
-    (((x) & 0xf000) << 16) /* R */)   
+   ((_al_rgb_scale_4[((x) & 0x00f0) >>  4] <<  8) /* B */ | \
+    (_al_rgb_scale_4[((x) & 0x0f00) >>  8] << 16) /* G */ | \
+    (_al_rgb_scale_4[((x) & 0xf000) >> 12] << 24) /* R */)   
 #define ALLEGRO_CONVERT_RGBA_4444_TO_XRGB_8888(x) \
-   ((((x) & 0x00f0)      ) /* B */ | \
-    (((x) & 0x0f00) <<  4) /* G */ | \
-    (((x) & 0xf000) <<  8) /* R */)   
+   ((_al_rgb_scale_4[((x) & 0x00f0) >>  4]       ) /* B */ | \
+    (_al_rgb_scale_4[((x) & 0x0f00) >>  8] <<  8) /* G */ | \
+    (_al_rgb_scale_4[((x) & 0xf000) >> 12] << 16) /* R */)   
 #define ALLEGRO_CONVERT_RGBA_4444_TO_ABGR_F32(x) \
    al_map_rgba(_al_rgb_scale_4[((x) >> 12) & 15],\
    _al_rgb_scale_4[((x) >> 8) & 15],\
@@ -1508,16 +1508,16 @@
    _al_rgb_scale_4[((x) >> 0) & 15])
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_RGBA_4444_TO_ABGR_8888_LE(x) \
-   ((((x) & 0x000f) <<  4) /* A */ | \
-    (((x) & 0x00f0) <<  8) /* B */ | \
-    (((x) & 0x0f00) << 12) /* G */ | \
-    (((x) & 0xf000) << 16) /* R */)   
+   ((_al_rgb_scale_4[((x) & 0x000f) >>  0]       ) /* A */ | \
+    (_al_rgb_scale_4[((x) & 0x00f0) >>  4] <<  8) /* B */ | \
+    (_al_rgb_scale_4[((x) & 0x0f00) >>  8] << 16) /* G */ | \
+    (_al_rgb_scale_4[((x) & 0xf000) >> 12] << 24) /* R */)   
 #else
 #define ALLEGRO_CONVERT_RGBA_4444_TO_ABGR_8888_LE(x) \
-   ((((x) & 0x000f) << 28) /* A */ | \
-    (((x) & 0x00f0) << 16) /* B */ | \
-    (((x) & 0x0f00) <<  4) /* G */ | \
-    (((x) & 0xf000) >>  8) /* R */)   
+   ((_al_rgb_scale_4[((x) & 0x000f) >>  0] << 24) /* A */ | \
+    (_al_rgb_scale_4[((x) & 0x00f0) >>  4] << 16) /* B */ | \
+    (_al_rgb_scale_4[((x) & 0x0f00) >>  8] <<  8) /* G */ | \
+    (_al_rgb_scale_4[((x) & 0xf000) >> 12]       ) /* R */)   
 #endif
 #endif
 // Warning: This file was created by make_converters.py - do not edit.
