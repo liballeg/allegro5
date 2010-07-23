@@ -165,7 +165,8 @@ static void __al_emit_close_event(ALLEGRO_NATIVE_DIALOG *textlog, bool keypress)
 void __al_do_append_native_text_log_ansi(ALLEGRO_NATIVE_DIALOG *textlog)
 {
    int index;
-   CHARFORMATA format = { 0 };
+   CHARFORMATA format;
+   memset(&format, 0, sizeof(format));
    format.cbSize      = sizeof(format);
    format.dwMask      = CFM_COLOR;
    format.crTextColor = RGB(128, 255, 128);
@@ -187,7 +188,8 @@ void __al_do_append_native_text_log_unicode(ALLEGRO_NATIVE_DIALOG *textlog)
    int index, ch, next;
    static WCHAR buffer[BUFFER_SIZE + 1] = { 0 };
 
-   CHARFORMATW format = { 0 };
+   CHARFORMATW format;
+   memset(&format, 0, sizeof(format));
    format.cbSize      = sizeof(format);
    format.dwMask      = CFM_COLOR;
    format.crTextColor = RGB(128, 255, 128);
@@ -309,20 +311,19 @@ static LRESULT CALLBACK __al_text_log_callback(HWND hWnd, UINT uMsg, WPARAM wPar
 void _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
    LPCSTR font_name;
-   HWND hWnd = NULL;
-   HWND hLog = NULL;
-   WNDCLASSA text_log_class = { 0 };
+   HWND hWnd;
+   HWND hLog;
+   WNDCLASSA text_log_class;
    RECT client_rect;
-   HFONT hFont = NULL;
+   HFONT hFont;
    MSG msg;
    BOOL ret;
-   CHARFORMAT format = { 0 };
 
    al_lock_mutex(textlog->text_mutex);
 
    /* Prepare text log class info. */
    if (!__al_class_registered++) {
-
+      memset(&text_log_class, 0, sizeof(text_log_class));
       text_log_class.hInstance      = (HINSTANCE)GetModuleHandle(NULL);
       text_log_class.lpszClassName  = "Allegro Text Log";
       text_log_class.lpfnWndProc    = __al_text_log_callback;
