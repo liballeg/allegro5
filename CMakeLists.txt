@@ -577,15 +577,15 @@ endif(WANT_LINUX_CONSOLE AND CMAKE_SYSTEM_NAME STREQUAL Linux)
 # -- Windows --
 
 if(WIN32)
-    # We should probably check for ddraw as well.
+    find_package(DDraw)
     find_package(DInput)
     find_package(DSound)
     find_package(DXGuid)
 
-    if(NOT DINPUT_FOUND OR NOT DSOUND_FOUND OR NOT DXGUID_FOUND)
+    if(NOT DDRAW_FOUND OR NOT DINPUT_FOUND OR NOT DSOUND_FOUND OR NOT DXGUID_FOUND)
         if(MSVC)
             message(FATAL_ERROR
-                "DirectX required for Windows port. You might need to add DirectX include and lib directories to your INCLUDE and LIB environment variables. Also you need dinput.lib, which doesn't come with newer versions of the DirectX SDK. Get it from the Allegro web site (dx70_min.zip).
+                "DirectX required for Windows port. You might need to add DirectX include and lib directories to your INCLUDE and LIB environment variables.
     ")
         elseif(MINGW)
             message(FATAL_ERROR
@@ -596,6 +596,7 @@ if(WIN32)
     endif()
 
     include_directories(SYSTEM
+        ${DDRAW_INCLUDE_DIR}
         ${DINPUT_INCLUDE_DIR}
         ${DSOUND_INCLUDE_DIR}
         ${DXGUID_INCLUDE_DIR}
@@ -608,7 +609,7 @@ if(WIN32)
         comdlg32
         ole32
         ${DINPUT_LIBRARIES}
-        ddraw
+        ${DDRAW_LIBRARIES}
         ${DXGUID_LIBRARIES}
         winmm
         ${DSOUND_LIBRARIES}

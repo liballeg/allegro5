@@ -438,9 +438,15 @@ static int joystick_dinput_init(void)
       return -1;
 
    /* get the DirectInput interface */
-   hr = DirectInputCreate(allegro_inst, DIRECTINPUT_VERSION, &joystick_dinput, NULL);
+   hr = CoCreateInstance(&CLSID_DirectInput, NULL, CLSCTX_INPROC_SERVER, &IID_IDirectInput, &joystick_dinput);
    if (FAILED(hr))
       return -1;
+
+   hr = IDirectInput_Initialize(joystick_dinput, allegro_inst, DIRECTINPUT_VERSION);
+   if (FAILED(hr)) {
+      IDirectInput_Release(joystick_dinput);
+      return -1;
+   }
 
    /* enumerate the joysticks attached to the system */
    hr = IDirectInput_EnumDevices(joystick_dinput, DIDEVTYPE_JOYSTICK, joystick_enum_callback, NULL, DIEDFL_ATTACHEDONLY);

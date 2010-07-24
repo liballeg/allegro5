@@ -606,7 +606,11 @@ static int mouse_dinput_init(void)
    };
 
    /* Get DirectInput interface */
-   hr = DirectInputCreate(allegro_inst, DIRECTINPUT_VERSION, &mouse_dinput, NULL);
+   hr = CoCreateInstance(&CLSID_DirectInput, NULL, CLSCTX_INPROC_SERVER, &IID_IDirectInput, &mouse_dinput);
+   if (FAILED(hr))
+      goto Error;
+
+   hr = IDirectInput_Initialize(mouse_dinput, allegro_inst, DIRECTINPUT_VERSION);
    if (FAILED(hr))
       goto Error;
 

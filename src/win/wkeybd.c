@@ -676,7 +676,11 @@ static int key_dinput_init(void)
    };
 
    /* Get DirectInput interface */
-   hr = DirectInputCreate(allegro_inst, DIRECTINPUT_VERSION, &key_dinput, NULL);
+   hr = CoCreateInstance(&CLSID_DirectInput, NULL, CLSCTX_INPROC_SERVER, &IID_IDirectInput, &key_dinput);
+   if (FAILED(hr))
+      goto Error;
+
+   hr = IDirectInput_Initialize(key_dinput, allegro_inst, DIRECTINPUT_VERSION);
    if (FAILED(hr))
       goto Error;
 

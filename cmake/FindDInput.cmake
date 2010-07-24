@@ -20,10 +20,8 @@ find_path(DINPUT_INCLUDE_DIR dinput.h
     PATH ${HINT_INCLUDE}
     )
 
-# dinput8 gave me undefined reference to `_DirectInputCreateA@16'
-# for some reason.
 find_library(DINPUT_LIBRARY
-    NAMES dinput
+    NAMES dinput dinput8
     PATHS ${HINT_LIB}
     PATH_SUFFIXES x86 x64
     )
