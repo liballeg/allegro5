@@ -265,6 +265,7 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
       format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
    }
 #endif
+   ASSERT(format != ALLEGRO_PIXEL_FORMAT_ANY);
    ALLEGRO_TRACE_CHANNEL_LEVEL("display", 1)("Format %s used for backbuffer.\n",
       _al_format_name(format));
    

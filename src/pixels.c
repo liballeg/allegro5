@@ -254,6 +254,7 @@ static bool _al_try_display_format(ALLEGRO_DISPLAY *display, int *format)
    }
 
    best_format = al_get_display_format(display);
+   ASSERT(_al_pixel_format_is_real(best_format));
    bytes = al_get_pixel_size(*format);
    if (bytes && bytes != al_get_pixel_size(best_format))
       return false;
@@ -308,6 +309,7 @@ int _al_get_real_pixel_format(ALLEGRO_DISPLAY *display, int format)
          break;
    }
 
+   ASSERT(_al_pixel_format_is_real(format));
    return format;
 }
 
