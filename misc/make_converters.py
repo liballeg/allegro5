@@ -156,15 +156,15 @@ def macro_lines(info_a, info_b):
             lines.append((line, name, 0, size_a, size_b, mask_pos))
             continue
         mask_string = "((x) & " + (mask_format % mask) + ")"
-	if (size_a != 8 and size_b == 8):
-        	line = "(_al_rgb_scale_" + str(size_a) + "[" + mask_string + " >> %2d" % mask_pos + "]"
-	else:
-		if (shift > 0):
-			line = "(" + mask_string + " << %2d" % shift + ")"
-		elif (shift < 0):
-			line = "(" + mask_string + " >> %2d" % -shift + ")"
-		else:
-			line = mask_string + "      "
+        if (size_a != 8 and size_b == 8):
+            line = "(_al_rgb_scale_" + str(size_a) + "[" + mask_string + " >> %2d" % mask_pos + "]"
+        else:
+            if (shift > 0):
+                line = "(" + mask_string + " << %2d" % shift + ")"
+            elif (shift < 0):
+                line = "(" + mask_string + " >> %2d" % -shift + ")"
+            else:
+                line = mask_string + "      "
         lines.append((line, name, shift, size_a, size_b, mask_pos))
 
     # Concoct the macro.
@@ -174,16 +174,16 @@ def macro_lines(info_a, info_b):
         else: start = "    "
         if i == len(lines) - 1: cont = ")   "
         else: cont = " | \\"
-	if (size_a != 8 and size_b == 8):
-		shift = shift+(mask_pos-(8-size_a))
-		if (shift > 0):
-			backshift = " << %2d)" % shift
-		elif (shift < 0):
-			backshift = " >> %2d)" % -shift
-		else:
-			backshift = "       )"
-	else:
-		backshift = "       "
+        if (size_a != 8 and size_b == 8):
+            shift = shift+(mask_pos-(8-size_a))
+                if (shift > 0):
+                    backshift = " << %2d)" % shift
+                elif (shift < 0):
+                    backshift = " >> %2d)" % -shift
+                else:
+                    backshift = "       )"
+        else:
+            backshift = "       "
         r += start + line + backshift + " /* " + name + " */" + cont + "\n"
     return r
 
@@ -414,3 +414,4 @@ functions."""
 if __name__ == "__main__":
     main(sys.argv)
 
+# vim: set sts=4 sw=4 et:
