@@ -1616,7 +1616,8 @@ void _al_wgl_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 
    ASSERT(dm.dmFields & DM_PELSHEIGHT);
    ASSERT(dm.dmFields & DM_PELSWIDTH);
-   ASSERT(dm.dmFields & DM_POSITION);
+   /* Disabled this assertion for now as it fails under Wine 1.2. */
+   /* ASSERT(dm.dmFields & DM_POSITION); */
 
    info->x1 = dm.dmPosition.x;
    info->y1 = dm.dmPosition.y;
