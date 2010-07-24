@@ -957,6 +957,9 @@ option(WANT_TOOLS "Build tool programs" on)
 
 if(WANT_TOOLS)
     add_subdirectory(tools)
+
+    # Note to packagers: setup is mostly a historical footnote on modern
+    # operating systems.  Do not feel the need to package it.
     add_subdirectory(setup)
 endif(WANT_TOOLS)
 
