@@ -334,7 +334,7 @@ static gboolean textlog_key_press(GtkWidget *w, GdkEventKey *gevent,
       emit_close_event(textlog, true);
    }
 
-   return TRUE;
+   return FALSE;
 }
 
 void _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
