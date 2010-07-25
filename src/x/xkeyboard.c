@@ -695,6 +695,9 @@ static int x_keyboard_init(void)
    if (xkeyboard_installed)
       return 0;
 
+   if (s->x11display == NULL)
+      return 0;
+
    main_pid = getpid();
 
    memcpy(key_names, _al_keyboard_common_names, sizeof key_names);

@@ -225,6 +225,11 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    int adapter = al_get_new_display_adapter();
 
+   if (system->x11display == NULL) {
+      ALLEGRO_WARN("Not connected to X server.\n");
+      return NULL;
+   }
+
    _al_mutex_lock(&system->lock);
 
    if (adapter >= ScreenCount(system->x11display)) {

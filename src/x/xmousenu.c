@@ -98,8 +98,10 @@ ALLEGRO_MOUSE_DRIVER *_al_xwin_mouse_driver(void)
  */
 static bool xmouse_init(void)
 {
-   //FIXME
-   //_al_xwin_enable_hardware_cursor(true);
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+
+   if (system->x11display == NULL)
+      return false;
 
    memset(&the_mouse, 0, sizeof the_mouse);
 

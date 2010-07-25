@@ -182,29 +182,24 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
 
    /* Get an X11 display handle. */
    x11display = XOpenDisplay(0);
-   if (!x11display) {
-      ALLEGRO_ERROR("XOpenDisplay failed.\n");
-      return NULL;
+   if (x11display) {
+      /* Never ask. */
+      gfxdisplay = XOpenDisplay(0);
+      if (!gfxdisplay) {
+         ALLEGRO_ERROR("XOpenDisplay failed second time.\n");
+         XCloseDisplay(x11display);
+         return NULL;
+      }
    }
-
-   /* Never ask. */
-   gfxdisplay = XOpenDisplay(0);
-   if (!gfxdisplay) {
-      ALLEGRO_ERROR("XOpenDisplay failed.\n");
-      XCloseDisplay(x11display);
-      return NULL;
+   else {
+      ALLEGRO_INFO("XOpenDisplay failed; assuming headless mode.\n");
+      gfxdisplay = NULL;
    }
 
    _al_unix_init_time();
 
    s = al_malloc(sizeof *s);
    memset(s, 0, sizeof *s);
-
-   /* We need to put *some* atom into the ClientMessage we send for
-    * faking mouse movements with al_set_mouse_xy - so lets ask X11
-    * for one here.
-    */
-   s->AllegroAtom = XInternAtom(x11display, "AllegroAtom", False);
 
    _al_mutex_init_recursive(&s->lock);
    _al_cond_init(&s->resized);
@@ -217,28 +212,38 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
 
    s->system.vt = xglx_vt;
 
-   ALLEGRO_INFO("XGLX driver connected to X11 (%s %d).\n",
-      ServerVendor(s->x11display), VendorRelease(s->x11display));
-   ALLEGRO_INFO("X11 protocol version %d.%d.\n",
-      ProtocolVersion(s->x11display), ProtocolRevision(s->x11display));
+   if (s->x11display) {
+      ALLEGRO_INFO("XGLX driver connected to X11 (%s %d).\n",
+         ServerVendor(s->x11display), VendorRelease(s->x11display));
+      ALLEGRO_INFO("X11 protocol version %d.%d.\n",
+         ProtocolVersion(s->x11display), ProtocolRevision(s->x11display));
 
-   _al_thread_create(&s->thread, xglx_background_thread, s);
+      /* We need to put *some* atom into the ClientMessage we send for
+       * faking mouse movements with al_set_mouse_xy - so let's ask X11
+       * for one here.
+       */
+      s->AllegroAtom = XInternAtom(x11display, "AllegroAtom", False);
 
-   ALLEGRO_INFO("events thread spawned.\n");
+      _al_thread_create(&s->thread, xglx_background_thread, s);
+      ALLEGRO_INFO("events thread spawned.\n");
+   }
 
    return &s->system;
 }
 
 static void xglx_shutdown_system(void)
 {
-   /* Close all open displays. */
    ALLEGRO_SYSTEM *s = al_get_system_driver();
    ALLEGRO_SYSTEM_XGLX *sx = (void *)s;
 
    ALLEGRO_INFO("shutting down.\n");
 
-   _al_thread_join(&sx->thread);
+   if (sx->x11display) {
+      /* Events thread only runs if we are connected to an X server. */
+      _al_thread_join(&sx->thread);
+   }
 
+   /* Close all open displays. */
    while (_al_vector_size(&s->displays) > 0) {
       ALLEGRO_DISPLAY **dptr = _al_vector_ref(&s->displays, 0);
       ALLEGRO_DISPLAY *d = *dptr;

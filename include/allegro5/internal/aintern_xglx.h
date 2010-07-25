@@ -44,11 +44,15 @@ struct ALLEGRO_SYSTEM_XGLX
     * way to enforce locking for them.
     * The only solution seems to be two X11 display connections. One to do our
     * input handling, and one for OpenGL graphics.
+    *
+    * Note: these may be NULL if we are not connected to an X server, for
+    * headless command-line tools. We don't have a separate "null" system
+    * driver.
     */
    Display *x11display; /* The X11 display. You *MUST* only access this from one
     * thread at a time, use the mutex lock below to ensure it.
     */
-   Display *gfxdisplay; /* Annother X11 display we use for graphics. You *MUST*
+   Display *gfxdisplay; /* Another X11 display we use for graphics. You *MUST*
     * only use this in the main thread.
     */
 

@@ -790,10 +790,15 @@ static void _al_xsys_xfvm_exit(ALLEGRO_SYSTEM_XGLX *s)
  *
  */
 
-static void init_mmon_interface(ALLEGRO_SYSTEM_XGLX *s)
+static bool init_mmon_interface(ALLEGRO_SYSTEM_XGLX *s)
 {
+   if (s->x11display == NULL) {
+      ALLEGRO_WARN("Not connected to X server.\n");
+      return false;
+   }
+
    if (s->mmon_interface_inited)
-      return;
+      return true;
 
    /* Shouldn't we avoid initing any more of these than we need? */
 
@@ -813,6 +818,8 @@ static void init_mmon_interface(ALLEGRO_SYSTEM_XGLX *s)
       mmon_interface.store_mode(s);
 
    s->mmon_interface_inited = true;
+
+   return true;
 }
 
 void _al_xsys_mmon_exit(ALLEGRO_SYSTEM_XGLX *s)
@@ -837,7 +844,8 @@ void _al_xsys_mmon_exit(ALLEGRO_SYSTEM_XGLX *s)
 
 int _al_xglx_get_num_display_modes(ALLEGRO_SYSTEM_XGLX *s, int adapter)
 {
-   init_mmon_interface(s);
+   if (!init_mmon_interface(s))
+      return 0;
 
    if (!mmon_interface.get_num_display_modes) {
       if (adapter != 0)
@@ -852,7 +860,8 @@ int _al_xglx_get_num_display_modes(ALLEGRO_SYSTEM_XGLX *s, int adapter)
 ALLEGRO_DISPLAY_MODE *_al_xglx_get_display_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int index,
    ALLEGRO_DISPLAY_MODE *mode)
 {
-   init_mmon_interface(s);
+   if (!init_mmon_interface(s))
+      return NULL;
 
    if (!mmon_interface.get_display_mode) {
       mode->width = DisplayWidth(s->x11display, DefaultScreen(s->x11display));
@@ -873,7 +882,8 @@ int _al_xglx_fullscreen_select_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int w, 
    int i;
    int n;
 
-   init_mmon_interface(s);
+   if (!init_mmon_interface(s))
+      return -1;
 
    n = _al_xglx_get_num_display_modes(s, adapter);
    if (!n)
@@ -917,7 +927,8 @@ int _al_xglx_fullscreen_select_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int w, 
 bool _al_xglx_fullscreen_set_mode(ALLEGRO_SYSTEM_XGLX *s,
    ALLEGRO_DISPLAY_XGLX *d, int w, int h, int format, int refresh_rate)
 {
-   init_mmon_interface(s);
+   if (!init_mmon_interface(s))
+      return false;
 
    if (!mmon_interface.set_mode)
       return false;
@@ -941,7 +952,8 @@ void _al_xglx_fullscreen_to_display(ALLEGRO_SYSTEM_XGLX *s,
 
 void _al_xglx_store_video_mode(ALLEGRO_SYSTEM_XGLX *s)
 {
-   init_mmon_interface(s);
+   if (!init_mmon_interface(s))
+      return;
 
    if (!mmon_interface.store_mode)
       return;
@@ -951,7 +963,8 @@ void _al_xglx_store_video_mode(ALLEGRO_SYSTEM_XGLX *s)
 
 void _al_xglx_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter)
 {
-   init_mmon_interface(s);
+   if (!init_mmon_interface(s))
+      return;
 
    if (!mmon_interface.restore_mode)
       return;
@@ -961,7 +974,8 @@ void _al_xglx_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter)
 
 void _al_xglx_get_display_offset(ALLEGRO_SYSTEM_XGLX *s, int adapter, int *x, int *y)
 {
-   init_mmon_interface(s);
+   if (!init_mmon_interface(s))
+      return;
 
    if (!mmon_interface.get_display_offset)
       return;
@@ -971,7 +985,8 @@ void _al_xglx_get_display_offset(ALLEGRO_SYSTEM_XGLX *s, int adapter, int *x, in
 
 void _al_xglx_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONITOR_INFO *info)
 {
-   init_mmon_interface(s);
+   if (!init_mmon_interface(s))
+      return;
 
    if (!mmon_interface.get_monitor_info) {
       _al_mutex_lock(&s->lock);
@@ -988,7 +1003,8 @@ void _al_xglx_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONI
 
 int _al_xglx_get_num_video_adapters(ALLEGRO_SYSTEM_XGLX *s)
 {
-   init_mmon_interface(s);
+   if (!init_mmon_interface(s))
+      return 0;
 
    if (!mmon_interface.get_num_adapters)
       return 1;
