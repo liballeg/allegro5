@@ -48,6 +48,8 @@ A handle to the dialog which you can pass to
 query the results. When you are done, call
 [al_destroy_native_file_dialog] on it.
 
+If a dialog window could not be created then this function returns NULL.
+
 ## API: al_show_native_file_dialog
 
 Show the dialog window.  The display may be NULL, otherwise the given display
@@ -106,6 +108,9 @@ Returns:
 
 If `buttons` is not NULL, the number of the pressed button is returned, starting
 with 1.
+
+If a message box could not be created then this returns 0, as if the window
+was dismissed without activating a button.
 
 Example:
 

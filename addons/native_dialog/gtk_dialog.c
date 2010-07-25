@@ -19,8 +19,16 @@
 #include "allegro5/internal/aintern_xglx.h"
 #endif
 
+ALLEGRO_DEBUG_CHANNEL("gtk")
+
+enum {
+   STARTUP_ERROR  = -1,
+   STARTUP_NONE   = 0,
+   STARTUP_READY  = 1
+};
+
 static int global_counter;
-static bool gtk_is_running;
+static int gtk_startup = STARTUP_NONE;
 static ALLEGRO_MUTEX *gtk_lock;
 static ALLEGRO_COND *gtk_cond;
 static ALLEGRO_THREAD *gtk_thread;
@@ -49,13 +57,19 @@ static void *gtk_thread_func(ALLEGRO_THREAD *thread, void *data)
    (void)data;
 
    if (!g_thread_supported())
-       g_thread_init(NULL);
+      g_thread_init(NULL);
    gdk_threads_init();
 
-   gtk_init_check(&argc, &argv);
+   if (!gtk_init_check(&argc, &argv)) {
+      al_lock_mutex(gtk_lock);
+      gtk_startup = STARTUP_ERROR;
+      al_broadcast_cond(gtk_cond);
+      al_unlock_mutex(gtk_lock);
+      return NULL;
+   }
 
    al_lock_mutex(gtk_lock);
-   gtk_is_running = true;
+   gtk_startup = STARTUP_READY;
    al_broadcast_cond(gtk_cond);
    al_unlock_mutex(gtk_lock);
 
@@ -64,14 +78,14 @@ static void *gtk_thread_func(ALLEGRO_THREAD *thread, void *data)
    gdk_threads_leave();
 
    al_lock_mutex(gtk_lock);
-   gtk_is_running = false;
+   gtk_startup = STARTUP_NONE;
    al_broadcast_cond(gtk_cond);
    al_unlock_mutex(gtk_lock);
 
    return NULL;
 }
 
-static void gtk_start_and_lock(void)
+static bool gtk_start_and_lock(void)
 {
    /* Note: This is not 100% correct, best would be to create the lock from
     * the main thread *before* there is any chance for concurrency.
@@ -87,13 +101,25 @@ static void gtk_start_and_lock(void)
       gtk_cond = al_create_cond();
 
    if (global_counter == 1) {
+      gtk_startup = STARTUP_NONE;
+
       gtk_thread = al_create_thread(gtk_thread_func, NULL);
       al_start_thread(gtk_thread);
-      while (!gtk_is_running)
+      while (gtk_startup == STARTUP_NONE)
          al_wait_cond(gtk_cond, gtk_lock);
+
+      if (gtk_startup == STARTUP_ERROR) {
+         ALLEGRO_ERROR("Failed to start GTK.\n");
+         global_counter--;
+         al_unlock_mutex(gtk_lock);
+         return false;
+      }
+
+      ALLEGRO_INFO("GTK started.\n");
    }
 
    gdk_threads_enter();
+   return true;
 }
 
 static void gtk_unlock_and_wait(ALLEGRO_NATIVE_DIALOG *nd)
@@ -109,7 +135,7 @@ static void gtk_unlock_and_wait(ALLEGRO_NATIVE_DIALOG *nd)
    global_counter--;
    if (global_counter == 0) {
       gtk_main_quit();
-      while (gtk_is_running)
+      while (gtk_startup == STARTUP_READY)
          al_wait_cond(gtk_cond, gtk_lock);
    }
 
@@ -202,12 +228,13 @@ static void make_transient(ALLEGRO_DISPLAY *display, GtkWidget *window)
    #endif
 }
 
-void al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
+bool al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    ALLEGRO_NATIVE_DIALOG *fd)
 {
    GtkWidget *window;
 
-   gtk_start_and_lock();
+   if (!gtk_start_and_lock())
+      return false;
 
    /* Create a new file selection widget */
    window = gtk_file_selection_new(al_cstr(fd->title));
@@ -241,13 +268,16 @@ void al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    gtk_widget_show(window);
 
    gtk_unlock_and_wait(fd);
+   return true;
 }
 
 int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    ALLEGRO_NATIVE_DIALOG *fd)
 {
    GtkWidget *window;
-   gtk_start_and_lock();
+
+   if (!gtk_start_and_lock())
+      return 0; /* "cancelled" */
 
    /* Create a new file selection widget */
    GtkMessageType type = GTK_MESSAGE_INFO;
@@ -337,11 +367,14 @@ static gboolean textlog_key_press(GtkWidget *w, GdkEventKey *gevent,
    return FALSE;
 }
 
-void _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
    al_lock_mutex(textlog->text_mutex);
 
-   gtk_start_and_lock();
+   if (!gtk_start_and_lock()) {
+      al_unlock_mutex(textlog->text_mutex);
+      return false;
+   }
 
    /* Create a new text log window. */
    GtkWidget *top = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -389,6 +422,7 @@ void _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    al_signal_cond(textlog->text_cond);
    al_unlock_mutex(textlog->text_mutex);
 
+   return true;
 }
 
 static gboolean do_append_native_text_log(gpointer data)
@@ -434,3 +468,5 @@ void _al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
    gdk_threads_add_timeout(0, do_close_native_text_log, textlog);
 }
+
+/* vim: set sts=3 sw=3 et: */

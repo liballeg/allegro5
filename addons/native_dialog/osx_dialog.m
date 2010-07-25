@@ -97,7 +97,7 @@
 @end
 
 
-void al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
+bool al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    ALLEGRO_NATIVE_DIALOG *fd)
 {
    (void)display;
@@ -111,6 +111,7 @@ void al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
                                 withObject: [NSValue valueWithPointer:fd]
                              waitUntilDone: YES];
    [pool drain];
+   return true;
 }
 
 int _al_show_native_message_box(ALLEGRO_DISPLAY *display,

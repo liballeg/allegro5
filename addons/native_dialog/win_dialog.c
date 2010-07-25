@@ -42,7 +42,7 @@ static int next(char *s)
    return i+1;
 }
 
-void al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
+bool al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    ALLEGRO_NATIVE_DIALOG *fd)
 {
    OPENFILENAME ofn;
@@ -87,7 +87,7 @@ void al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
       char buf[1000];
       FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, 0, buf, 1000, NULL);
       TRACE("al_show_native_file_dialog failed or cancelled: %s\n", buf);
-      return;
+      return false;
    }
 
    if (flags & OFN_ALLOWMULTISELECT) {
@@ -126,6 +126,8 @@ void al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
       fd->paths = al_malloc(sizeof(void *));
       fd->paths[0] = al_create_path(buf);
    }
+
+   return true;
 }
 
 int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
@@ -307,7 +309,7 @@ static LRESULT CALLBACK wlog_text_log_callback(HWND hWnd, UINT uMsg, WPARAM wPar
 }
 
 
-void _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
    LPCSTR font_name;
    HWND hWnd;
@@ -334,7 +336,7 @@ void _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       if (RegisterClassA(&text_log_class) == 0) {
          /* Failure, window class is a basis and we do not have one. */
          al_unlock_mutex(textlog->text_mutex);
-         return;
+         return false;
       }
 
       wlog_class_registered++;
@@ -375,7 +377,7 @@ void _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       }
       UnregisterClassA("Allegro Text Log", (HINSTANCE)GetModuleHandle(NULL));
       al_unlock_mutex(textlog->text_mutex);
-      return;
+      return false;
    }
 
    /* Get client area of the log window. */
@@ -394,7 +396,7 @@ void _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       DestroyWindow(hWnd);
       UnregisterClassA("Allegro Text Log", (HINSTANCE)GetModuleHandle(NULL));
       al_unlock_mutex(textlog->text_mutex);
-      return;
+      return false;
    }
 
    /* Enable double-buffering. */
@@ -473,6 +475,8 @@ void _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    textlog->done = true;
    al_signal_cond(textlog->text_cond);
    al_unlock_mutex(textlog->text_mutex);
+
+   return true;
 }
 
 void _al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)

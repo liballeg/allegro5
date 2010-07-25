@@ -38,7 +38,7 @@ ALLEGRO_DIALOG_FUNC(
       ALLEGRO_PATH const *initial_path, char const *title,
       char const *patterns, int mode));
 ALLEGRO_DIALOG_FUNC(
-   void, al_show_native_file_dialog, (ALLEGRO_DISPLAY *display,
+   bool, al_show_native_file_dialog, (ALLEGRO_DISPLAY *display,
       ALLEGRO_NATIVE_DIALOG *fd));
 ALLEGRO_DIALOG_FUNC(
    int, al_show_native_message_box, (ALLEGRO_DISPLAY *display,
