@@ -489,22 +489,15 @@ void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR mask_color)
    int x, y;
    ALLEGRO_COLOR pixel;
    ALLEGRO_COLOR alpha_pixel;
-   ALLEGRO_STATE backup;
-   
-   ALLEGRO_TRANSFORM old_trans;
-   ALLEGRO_TRANSFORM identity_trans;
-   al_copy_transform(&old_trans, al_get_current_transform());
-   al_identity_transform(&identity_trans);
-   al_use_transform(&identity_trans);
-
-   al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
-   
-   al_set_target_bitmap(bitmap);
+   ALLEGRO_STATE state;
 
    if (!(lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY, 0))) {
       TRACE("al_convert_mask_to_alpha: Couldn't lock bitmap.\n");
       return;
    }
+
+   al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP);
+   al_set_target_bitmap(bitmap);
 
    alpha_pixel = al_map_rgba(0, 0, 0, 0);
 
@@ -517,9 +510,9 @@ void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR mask_color)
       }
    }
 
-   al_restore_state(&backup);
-   al_use_transform(&old_trans);
    al_unlock_bitmap(bitmap);
+
+   al_restore_state(&state);
 }
 
 
