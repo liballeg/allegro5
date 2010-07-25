@@ -21,7 +21,9 @@ int main(void)
    int i;
    const int data_size = 1024;
 
-   al_init();
+   if (!al_init()) {
+      abort_example("Could not init Allegro.\n");
+   }
 
    data = calloc(1, data_size);
    if (!data)

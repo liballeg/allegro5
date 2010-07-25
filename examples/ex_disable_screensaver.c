@@ -14,7 +14,11 @@ int main(void)
    bool done = false;
    bool active = true;
 
-   al_init();
+   if (!al_init()) {
+      abort_example("Could not init Allegro.\n");
+      return 1;
+   }
+
    al_install_keyboard();
    al_init_image_addon();
    al_init_font_addon();
@@ -22,10 +26,14 @@ int main(void)
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
 
    display = al_create_display(200, 32);
-   font = al_load_font("data/font.tga", 0, 0);
+   if (!display) {
+      abort_example("Could not create display.\n");
+      return 1;
+   }
 
+   font = al_load_font("data/font.tga", 0, 0);
    if (!font) {
-      printf("Error loading font\n");
+      abort_example("Error loading font\n");
       return 1;
    }
 

@@ -281,10 +281,16 @@ int main(int argc, char **argv)
          test_only_index = strtol(argv[i], NULL, 10);
    }
 
-   al_init();
+   if (!al_init()) {
+       abort_example("Could not initialise Allegro\n");
+   }
    al_init_primitives_addon();
-   if (test_display)
+   if (test_display) {
       display = al_create_display(100, 100);
+      if (!display) {
+	  abort_example("Unable to create display\n");
+      }
+   }
 
    for (i = 0; i < 2; i++) {
       for (j = 0; j < 2; j++) {

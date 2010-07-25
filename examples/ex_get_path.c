@@ -14,7 +14,9 @@ int main(void)
    /* defaults to the exename, set it here to remove the .exe on windows */
    al_set_app_name("ex_get_path");
    
-   al_init();
+   if (!al_init()) {
+      abort_example("Could not init Allegro.\n");
+   }
    open_log();
 
    path = al_get_standard_path(ALLEGRO_PROGRAM_PATH);

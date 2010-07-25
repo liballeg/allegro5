@@ -25,11 +25,18 @@ int main(int argc, char *argv[])
    (void)argc;
    (void)argv;
 
-   al_init();
+   if (!al_init()) {
+      abort_example("Error initialising Allegro.\n");
+      return 1;
+   }
    al_install_keyboard();
    al_set_new_display_flags(ALLEGRO_DIRECT3D);
    al_set_new_display_option(ALLEGRO_DEPTH_SIZE, 16, ALLEGRO_SUGGEST);
    display = al_create_display(640, 480);
+   if (!display) {
+      abort_example("Unable to create display.\n");
+      return 1;
+   }
 
    ALLEGRO_KEYBOARD_STATE state;
 

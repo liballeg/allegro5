@@ -190,6 +190,10 @@ int main(void)
    al_init_font_addon();
 
    display = al_create_display(800, 600);
+   if (!display) {
+      abort_example("Could not create display.\n");
+      return 1;
+   }
 
    font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!font) {

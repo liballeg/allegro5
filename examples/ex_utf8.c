@@ -1213,7 +1213,9 @@ int main(int argc, const char *argv[])
 {
    int i;
 
-   al_init();
+   if (!al_init()) {
+      abort_example("Could not init Allegro.\n");
+   }
    open_log_monospace();
 
    if (argc < 2) {

@@ -171,7 +171,9 @@ int main(void)
    int button;
    bool message_log = true;
 
-   al_init();
+   if (!al_init()) {
+      abort_example("Could not init Allegro.\n");
+   }
 
    textlog = al_open_native_text_log("Log", 0);
    message("Starting up log window.\n");

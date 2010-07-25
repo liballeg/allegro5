@@ -132,7 +132,10 @@ bool init(void)
 {
    srand(time(NULL));
 
-   al_init();
+   if (!al_init()) {
+      debug_message("Error initialising Allegro.\n");
+      return false;
+   }
    al_init_image_addon();
    al_init_font_addon();
    al_init_acodec_addon();

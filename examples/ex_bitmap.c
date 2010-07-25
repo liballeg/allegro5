@@ -24,8 +24,7 @@ int main(int argc, const char *argv[])
     }
 
     if (!al_init()) {
-        abort_example("Could not init Allegro.\n");
-        return 1;
+       abort_example("Could not init Allegro.\n");
     }
 
     al_install_mouse();

@@ -27,10 +27,14 @@ int main(void)
 
    al_set_new_display_flags(ALLEGRO_NOFRAME);
    display = al_create_display(300, 200);
+   if (!display) {
+      abort_example("Error creating display\n");
+      return 1;
+   }
    
    bitmap = al_load_bitmap("data/fakeamp.bmp");
    if (!bitmap) {
-      abort_example("Error loading fakeamp.bmp\n\n");
+      abort_example("Error loading fakeamp.bmp\n");
       return 1;
    }
 

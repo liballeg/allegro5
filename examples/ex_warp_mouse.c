@@ -20,7 +20,9 @@ int main(void)
    int fake_x = 0, fake_y = 0;
    ALLEGRO_COLOR white;
 
-   al_init();
+   if (!al_init()) {
+      abort_example("Could not init Allegro.\n");
+   }
    al_init_primitives_addon();
    al_init_font_addon();
    al_init_image_addon();
@@ -29,6 +31,10 @@ int main(void)
 
    al_set_new_display_flags(ALLEGRO_WINDOWED);
    display = al_create_display(width, height);
+   if (!display) {
+      abort_example("Could not create display.\n");
+      return 1;
+   }
 
    memset(&event, 0, sizeof(event));
 

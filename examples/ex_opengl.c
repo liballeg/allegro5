@@ -131,6 +131,10 @@ int main(void)
    al_install_keyboard();
    al_set_new_display_flags(ALLEGRO_OPENGL);
    display = al_create_display(640, 480);
+   if (!display) {
+      abort_example("Could not create display.\n");
+      return 1;
+   }
 
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());

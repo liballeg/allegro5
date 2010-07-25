@@ -523,7 +523,9 @@ int main(void)
    ALLEGRO_EVENT_QUEUE *queue;
 
    // Initialize Allegro 5 and addons
-   al_init();
+   if (!al_init()) {
+      abort_example("Could not init Allegro.\n");
+   }
    al_init_image_addon();
    al_init_font_addon();
    al_init_primitives_addon();
@@ -531,25 +533,25 @@ int main(void)
    // Create a window to display things on: 640x480 pixels
    display = al_create_display(ScreenW, ScreenH);
    if (!display) {
-      printf("Error creating display.\n");
+      abort_example("Error creating display.\n");
       return 1;
    }
    
    // Install the keyboard handler
    if (!al_install_keyboard()) {
-      printf("Error installing keyboard.\n");
+      abort_example("Error installing keyboard.\n");
       return 1;
    }
 
    if (!al_install_mouse()) {
-      printf("Error installing mouse.\n");
+      abort_example("Error installing mouse.\n");
       return 1;
    }
    
    // Load a font
    Font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!Font) {
-      printf("Error loading \"data/fixed_font.tga\".\n");
+      abort_example("Error loading \"data/fixed_font.tga\".\n");
       return 1;
    }
    

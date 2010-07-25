@@ -122,8 +122,7 @@ int main(int argc, char *argv[])
 
    sample = al_load_sample(argv[1]);
    if (!sample) {
-      fprintf(stderr, "Could not load sample from '%s'!\n", argv[1]);
-      return 1;
+      abort_example("Could not load sample from '%s'!\n", argv[1]);
    }
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);

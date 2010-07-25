@@ -10,7 +10,9 @@ int main(int argc, char **argv)
    ALLEGRO_PATH *tostring = NULL;
    ALLEGRO_PATH *cloned = NULL;
    
-   al_init();
+   if (!al_init()) {
+      abort_example("Could not init Allegro.\n");
+   }
    open_log();
 
    if (argc < 2) {

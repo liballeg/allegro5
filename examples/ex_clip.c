@@ -210,7 +210,7 @@ int main(void)
    ALLEGRO_TIMER *timer;
 
    if (!al_init()) {
-      printf("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
@@ -221,7 +221,7 @@ int main(void)
 
    display = al_create_display(640, 480);
    if (!display) {
-      printf("Error creating display.\n");
+      abort_example("Error creating display.\n");
       return 1;
    }
 

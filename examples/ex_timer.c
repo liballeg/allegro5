@@ -179,6 +179,10 @@ int main(void)
    al_init_font_addon();
 
    display = al_create_display(640, 480);
+   if (!display) {
+      abort_example("Could not create display.\n");
+      return 1;
+   }
 
    init();
 

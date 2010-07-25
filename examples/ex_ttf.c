@@ -108,6 +108,10 @@ int main(int argc, const char *argv[])
     al_init_ttf_addon();
 
     display = al_create_display(640, 480);
+    if (!display) {
+        abort_example("Could not create display.\n");
+        return 1;
+    }
     al_install_keyboard();
 
     if (argc >= 2) {

@@ -30,16 +30,14 @@ int main(int argc, const char *argv[])
    argv++;
 
    if (!al_init()) {
-      fprintf(stderr, "Could not init Allegro.\n");
-      return 1;
+      abort_example("Could not init Allegro.\n");
    }
 
    al_install_keyboard();
 
    display = al_create_display(640, 480);
    if (!display) {
-      fprintf(stderr, "Could not create display\n");
-      return 1;
+      abort_example("Could not create display\n");
    }
 
    event_queue = al_create_event_queue();

@@ -69,12 +69,14 @@ int main(int argc, const char *argv[])
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
    src_display = al_create_display(SRC_WIDTH, SRC_HEIGHT);
    if (!src_display) {
+      abort_example("Error creating display\n");
       return 1;
    }
    al_set_window_title(src_display, "Source");
 
    dst_display = al_create_display(DST_WIDTH, DST_HEIGHT);
    if (!dst_display) {
+      abort_example("Error creating display\n");
       return 1;
    }
    al_set_window_title(dst_display, "Destination");

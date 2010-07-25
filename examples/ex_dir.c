@@ -56,7 +56,9 @@ int main(int argc, char **argv)
 {
    int i;
 
-   al_init();
+   if (!al_init()) {
+      abort_example("Could not init Allegro.\n");
+   }
    open_log_monospace();
    
    log_printf("%-32s %-6s %10s %10s %10s %13s\n",

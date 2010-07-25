@@ -52,6 +52,11 @@ int main(void)
 
    displays[1] = al_create_display(W, H);
 
+   if (!displays[0] || !displays[1]) {
+      abort_example("Could not create displays.\n");
+      return 1;
+   }
+
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    myfont = al_load_font("data/fixed_font.tga", 0, 0);
    if (!myfont) {

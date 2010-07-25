@@ -107,8 +107,10 @@ int main(int argc, const char *argv[])
    }
 
    display = al_create_display(640, 480);
-   if (!display)
+   if (!display) {
+      abort_example("Error creating display.\n");
       return 1;
+   }
 
    /* Make future calls to al_fopen() on this thread go to the PhysicsFS
     * backend.
