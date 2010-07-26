@@ -85,3 +85,8 @@ void al_findclose(struct al_ffblk *info)
 {
 }
 
+
+
+void _al_detect_filename_encoding(void)
+{
+}

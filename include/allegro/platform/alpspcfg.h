@@ -29,7 +29,7 @@
    #define ALLEGRO_MAGIC_MAIN
    #define main _mangled_main
    #undef END_OF_MAIN
-   #define END_OF_MAIN() void *_mangled_main_address = _mangled_main;
+   #define END_OF_MAIN() void *_mangled_main_address = (void *) _mangled_main;
 #else
    #undef END_OF_MAIN
    #define END_OF_MAIN() void *_mangled_main_address;

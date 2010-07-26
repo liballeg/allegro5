@@ -40,6 +40,10 @@ set_target_properties(loadpng
 
 set_our_framework_properties(loadpng loadpng)
 
+if(PSP)
+    target_link_libraries(loadpng ${PNG_LIBRARIES} allegro)
+endif(PSP)
+
 target_link_libraries(loadpng allegro ${PNG_LIBRARIES})
 
 sanitize_cmake_link_flags(static_link_with ${PNG_LIBRARIES})
@@ -67,6 +71,9 @@ function(add_our_example nm)
         OUTPUT_NAME examples/${nm}
         )
     target_link_libraries(${nm}_png loadpng)
+    if(PSP)
+        add_psp_executable(${nm}_png)
+    endif(PSP)
 endfunction()
 
 if(WANT_EXAMPLES)

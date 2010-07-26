@@ -19,20 +19,26 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintpsp.h"
+//#include <malloc.h>
 #include <pspkernel.h>
+#include <pspctrl.h>
+#include <pspdebug.h>
 
 #ifndef ALLEGRO_PSP
    #error something is wrong with the makefile
 #endif
 
 
+#define DEFAULT_SCREEN_WIDTH       480
+#define DEFAULT_SCREEN_HEIGHT      272
+#define DEFAULT_COLOR_DEPTH         16
+
+
 static int psp_sys_init(void);
 static void psp_sys_exit(void);
-BITMAP * psp_create_bitmap_ex(int color_depth, int width, int height, int do_scaling);
-static BITMAP * psp_create_bitmap(int color_depth, int width, int height);
+static void psp_message(AL_CONST char *msg);
+static void psp_created_sub_bitmap(BITMAP *bmp, BITMAP *parent);
 static void psp_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode);
-static int align_to_16(int width, int color_depth);
-static int next_power_of_2(int width);
 
 
 
@@ -48,14 +54,14 @@ SYSTEM_DRIVER system_psp =
    NULL,  /* AL_METHOD(int, find_resource, (char *dest, AL_CONST char *resource, int size)); */
    NULL,  /* AL_METHOD(void, set_window_title, (AL_CONST char *name)); */
    NULL,  /* AL_METHOD(int, set_close_button_callback, (AL_METHOD(void, proc, (void)))); */
-   NULL,  /* AL_METHOD(void, message, (AL_CONST char *msg)); */
+   psp_message,  /* AL_METHOD(void, message, (AL_CONST char *msg)); */
    NULL,  /* AL_METHOD(void, assert, (AL_CONST char *msg)); */
    NULL,  /* AL_METHOD(void, save_console_state, (void)); */
    NULL,  /* AL_METHOD(void, restore_console_state, (void)); */
-   psp_create_bitmap,  /* AL_METHOD(struct BITMAP *, create_bitmap, (int color_depth, int width, int height)); */
+   NULL,  /* AL_METHOD(struct BITMAP *, create_bitmap, (int color_depth, int width, int height)); */
    NULL,  /* AL_METHOD(void, created_bitmap, (struct BITMAP *bmp)); */
    NULL,  /* AL_METHOD(struct BITMAP *, create_sub_bitmap, (struct BITMAP *parent, int x, int y, int width, int height)); */
-   NULL,  /* AL_METHOD(void, created_sub_bitmap, (struct BITMAP *bmp, struct BITMAP *parent)); */
+   psp_created_sub_bitmap,  /* AL_METHOD(void, created_sub_bitmap, (struct BITMAP *bmp, struct BITMAP *parent)); */
    NULL,  /* AL_METHOD(int, destroy_bitmap, (struct BITMAP *bitmap)); */
    NULL,  /* AL_METHOD(void, read_hardware_palette, (void)); */
    NULL,  /* AL_METHOD(void, set_palette_range, (AL_CONST struct RGB *p, int from, int to, int retracesync)); */
@@ -78,29 +84,6 @@ SYSTEM_DRIVER system_psp =
    NULL,  /* AL_METHOD(_DRIVER_INFO *, joystick_drivers, (void)); */
    NULL   /* AL_METHOD(_DRIVER_INFO *, timer_drivers, (void)); */
 };
-
-
-/* align_to_16:
- *  Aligns a bitmap width to 16.
- */
-static int align_to_16(int width, int color_depth)
-{
-   return ((width * BYTES_PER_PIXEL(color_depth) + 15) & ~15) / BYTES_PER_PIXEL(color_depth);
-}
-
-
-/* next_power_of_2:
- *
- */
-static int next_power_of_2(int width)
-{
-   int i;
-
-   width--;
-   for (i = 1; i < sizeof(int) * 8; i *= 2)
-      width = width | width >> i;
-   return width + 1;
-}
 
 
 
@@ -127,21 +110,36 @@ static void psp_sys_exit(void)
 
 
 
-/* psp_create_bitmap_ex:
+/* psp_message:
+ *  Prints a text message in the PSP system dependent format.
+ */
+static void psp_message(AL_CONST char *msg)
+{
+   SceCtrlData pad;
+   int buffers_to_read = 1;
+
+   pspDebugScreenInit();
+   pspDebugScreenPrintf(msg);
+
+   /* The message is displayed until a button is pressed. */
+   _psp_init_controller(SAMPLING_CYCLE, SAMPLING_MODE);
+   do {
+      sceCtrlPeekBufferPositive(&pad, buffers_to_read);
+   } while (!pad.Buttons);
+}
+
+
+
+/* psp_create_bitmap:
  *  Creates a RAM bitmap with proper PSP pitch.
  */
-BITMAP * psp_create_bitmap_ex(int color_depth, int width, int height, int do_scaling)
+BITMAP * psp_create_bitmap(int color_depth, int width, int height)
 {
    GFX_VTABLE *vtable;
    BITMAP *bitmap;
    int nr_pointers;
-   int padding;
    int i;
    int pitch;
-
-   ASSERT(width >= 0);
-   ASSERT(height > 0);
-   ASSERT(system_driver);
 
    vtable = _get_vtable(color_depth);
    if (!vtable)
@@ -156,24 +154,13 @@ BITMAP * psp_create_bitmap_ex(int color_depth, int width, int height, int do_sca
    if (!bitmap)
       return NULL;
 
-   /* This avoids a crash for assembler code accessing the last pixel, as it
-    * read 4 bytes instead of 3.
-    */
-   padding = (color_depth == 24) ? 1 : 0;
-
-   /* The memory bitmap width in bytes must be multiple of 16
+   /* The memory bitmap width must be multiple of 8 pixels
     * in order to blit properly using sceGuCopyImage().
     */
-   pitch = align_to_16(width, color_depth);
-   //pitch = next_power_of_2(width);
-   //if (pitch == 2048)
-   //pitch = 2032;
-   //pitch=width;
+   pitch = ALIGN_TO(width, 8);
 
-   bitmap->dat = memalign(64, pitch * height * BYTES_PER_PIXEL(color_depth) + padding);
-   //bitmap->dat = (unsigned int)bitmap->dat | 0x40000000;
-   //sceKernelDcacheWritebackInvalidateAll();
-   //bitmap->dat = _AL_MALLOC_ATOMIC(pitch * height * BYTES_PER_PIXEL(color_depth) + padding);
+   //bitmap->dat = memalign(64, pitch * height * BYTES_PER_PIXEL(color_depth));
+   bitmap->dat = _AL_MALLOC_ATOMIC(pitch * height * BYTES_PER_PIXEL(color_depth));
    if (!bitmap->dat) {
       _AL_FREE(bitmap);
       return NULL;
@@ -196,10 +183,10 @@ BITMAP * psp_create_bitmap_ex(int color_depth, int width, int height, int do_sca
          bitmap->line[i] = bitmap->line[i-1] + pitch * BYTES_PER_PIXEL(color_depth);
    }
 
-   /* Setup info structure to store additional information */
+   /* Setup info structure to store additional information. */
    bitmap->extra = malloc(sizeof(struct BMP_EXTRA_INFO));
    if (!bitmap->extra) {
-      free(bitmap);
+      _AL_FREE(bitmap);
       return NULL;
    }
    BMP_EXTRA(bitmap)->pitch = pitch;
@@ -209,13 +196,28 @@ BITMAP * psp_create_bitmap_ex(int color_depth, int width, int height, int do_sca
 
 
 
-/* psp_create_bitmap:
- *  Creates a RAM bitmap with proper PSP pitch.
+/* psp_created_sub_bitmap:
+ *  Set the needed sub bitmap info.
  */
-static BITMAP * psp_create_bitmap(int color_depth, int width, int height)
+static void psp_created_sub_bitmap(BITMAP *bmp, BITMAP *parent)
 {
-   int do_scaling = TRUE;
-   return psp_create_bitmap_ex(color_depth, width, height, do_scaling);
+   if (BMP_EXTRA(parent)) {
+      bmp->extra = malloc(sizeof(struct BMP_EXTRA_INFO));
+      if (bmp->extra)
+         BMP_EXTRA(bmp)->pitch = BMP_EXTRA(parent)->pitch;
+   }
+}
+
+
+
+/* psp_destroy_bitmap:
+ *  Destroys the bitmap extra info structure.
+ */
+int psp_destroy_bitmap(BITMAP *bitmap)
+{
+   _AL_FREE(bitmap->extra);
+
+   return 0;
 }
 
 
@@ -230,3 +232,5 @@ static void psp_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode)
    mode->height = DEFAULT_SCREEN_HEIGHT;
    mode->bpp = DEFAULT_COLOR_DEPTH;
 }
+
+

@@ -17,9 +17,8 @@
  *      See readme.txt for copyright information.
  */
 
-#include <pspkernel.h>
 
-#undef main
+#include <pspkernel.h>
 
 
 extern void *_mangled_main_address;
@@ -29,6 +28,7 @@ extern void *_mangled_main_address;
 /* Define the module info section */
 PSP_MODULE_INFO("Allegro Application", PSP_MODULE_USER, 1, 1);
 PSP_MAIN_THREAD_ATTR(PSP_THREAD_ATTR_USER);
+PSP_MAIN_THREAD_STACK_SIZE_KB(270);
 PSP_HEAP_SIZE_KB(-256);
 
 
@@ -75,11 +75,11 @@ static int setup_callback(void)
 /* main:
  *  Replacement for main function.
  */
-int main(void)
+int main(int argc, char *argv[])
 {
-   int (*real_main) (void) = (int (*) (void)) _mangled_main_address;
+   int (*real_main) (int, char *[]) = (int (*) (int, char *[])) _mangled_main_address;
 
    setup_callback();
-   return (*real_main)();
+   return (*real_main)(argc, argv);
 }
 

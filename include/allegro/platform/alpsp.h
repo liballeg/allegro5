@@ -23,7 +23,6 @@
    #error bad include
 #endif
 
-#include <stdio.h>
 
 /* System driver */
 #define SYSTEM_PSP              AL_ID('P','S','P',' ')
@@ -36,6 +35,10 @@ AL_VAR(TIMER_DRIVER, timer_psp);
 /* Keyboard driver */
 #define KEYSIM_PSP              AL_ID('P','S','P','K')
 AL_VAR(KEYBOARD_DRIVER, keybd_simulator_psp);
+
+/* Mouse drivers */
+#define MOUSE_PSP               AL_ID('P','S','P','M')
+AL_VAR(MOUSE_DRIVER, mouse_psp);
 
 /* Gfx driver */
 #define GFX_PSP                 AL_ID('P','S','P','G')

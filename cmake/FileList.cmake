@@ -328,10 +328,14 @@ set(ALLEGRO_SRC_PSP_FILES
         src/psp/pdrivers.c
         src/psp/pfile.c
         src/psp/pgfx.c
+        src/psp/pjoy.c
         src/psp/pkey.c
-        src/psp/pmain.c
+        src/psp/pmouse.c
         src/psp/psound.c
         src/psp/psystem.c
+        src/psp/ptimer.c
+        src/psp/pvram.c
+        src/psp/pvtable8.c
         src/misc/colconv.c
         )
 

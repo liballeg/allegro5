@@ -74,6 +74,9 @@ function(add_our_example nm)
         OUTPUT_NAME examples/${nm}
         )
     target_link_libraries(${nm}_jpg jpgalleg)
+    if(PSP)
+        add_psp_executable(${nm}_jpg)
+    endif(PSP)
 endfunction()
 
 if(WANT_EXAMPLES)

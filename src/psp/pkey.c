@@ -19,6 +19,7 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
+#include "allegro/platform/aintpsp.h"
 #include <pspctrl.h>
 
 #ifndef ALLEGRO_PSP
@@ -28,9 +29,6 @@
 #define PREFIX_I                "al-pkey INFO: "
 #define PREFIX_W                "al-pkey WARNING: "
 #define PREFIX_E                "al-pkey ERROR: "
-
-#define SAMPLING_CYCLE 0
-#define SAMPLING_MODE  PSP_CTRL_MODE_DIGITAL
 
 
 static int psp_keyboard_init(void);
@@ -42,23 +40,25 @@ static void psp_poll_keyboard(void);
  * TODO: Choose an alternative mapping?
  */
 static const int psp_to_scancode[][2] = {
-   { PSP_CTRL_SELECT,     KEY_ESC   },
-   { PSP_CTRL_START,      KEY_ENTER },
-   { PSP_CTRL_UP,         KEY_UP    },
-   { PSP_CTRL_RIGHT,      KEY_RIGHT },
-   { PSP_CTRL_DOWN,       KEY_DOWN  },
-   { PSP_CTRL_LEFT,       KEY_LEFT  },
-   { PSP_CTRL_TRIANGLE,   KEY_SPACE },
-   { PSP_CTRL_CIRCLE,     KEY_SPACE },
-   { PSP_CTRL_CROSS,      KEY_SPACE },
-   { PSP_CTRL_SQUARE,     KEY_SPACE }
+   { PSP_CTRL_SELECT,     KEY_ESC      },
+   { PSP_CTRL_START,      KEY_ENTER    },
+   { PSP_CTRL_UP,         KEY_UP       },
+   { PSP_CTRL_RIGHT,      KEY_RIGHT    },
+   { PSP_CTRL_DOWN,       KEY_DOWN     },
+   { PSP_CTRL_LEFT,       KEY_LEFT     },
+   { PSP_CTRL_TRIANGLE,   KEY_LCONTROL },
+   { PSP_CTRL_CIRCLE,     KEY_ALT      },
+   { PSP_CTRL_CROSS,      KEY_SPACE    },
+   { PSP_CTRL_SQUARE,     KEY_TAB      },
+   { PSP_CTRL_LTRIGGER,   KEY_LSHIFT   },
+   { PSP_CTRL_RTRIGGER,   KEY_RSHIFT    }
 };
 
 #define NKEYS (sizeof psp_to_scancode / sizeof psp_to_scancode[0])
 
 
 /* The last polled input. */
-static SceCtrlData old_pad = {0, 0, 0, 0};
+static SceCtrlData old_pad = {0, 0, 0, 0, {0,0,0,0,0,0}};
 
 
 KEYBOARD_DRIVER keybd_simulator_psp =
@@ -86,8 +86,7 @@ KEYBOARD_DRIVER keybd_simulator_psp =
  */
 static int psp_keyboard_init(void)
 {
-   sceCtrlSetSamplingCycle(SAMPLING_CYCLE);
-   sceCtrlSetSamplingMode(SAMPLING_MODE);
+   _psp_init_controller(SAMPLING_CYCLE, SAMPLING_MODE);
    TRACE(PREFIX_I "PSP keyboard installed\n");
 
    /* TODO: Maybe write a keyboard "interrupt" handler using a dedicated thread
@@ -112,7 +111,8 @@ static void psp_poll_keyboard(void)
 {
    SceCtrlData pad;
    int buffers_to_read = 1;
-   int i, changed;
+   uint8_t i;
+   int changed;
 
    sceCtrlPeekBufferPositive(&pad, buffers_to_read);
 
@@ -121,7 +121,7 @@ static void psp_poll_keyboard(void)
       if (changed) {
          if (pad.Buttons & psp_to_scancode[i][0]) {
             TRACE(PREFIX_I "PSP Keyboard: [%d] pressed\n", psp_to_scancode[i][1]);
-            _handle_key_press(0, psp_to_scancode[i][1]);
+            _handle_key_press(scancode_to_ascii(psp_to_scancode[i][1]), psp_to_scancode[i][1]);
          }
          else {
             TRACE(PREFIX_I "PSP Keyboard: [%d] released\n", psp_to_scancode[i][1]);

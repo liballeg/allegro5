@@ -35,7 +35,7 @@ static int psp_audio_channel_thread();
 static int digi_psp_detect(int);
 static int digi_psp_init(int, int);
 static void digi_psp_exit(int);
-//static int digi_psp_buffer_size();
+static int digi_psp_buffer_size();
 //static int digi_psp_set_mixer_volume(int);
 
 
@@ -65,7 +65,7 @@ DIGI_DRIVER digi_psp =
 
    NULL,
    NULL,
-   NULL,     //digi_psp_buffer_size,
+   digi_psp_buffer_size,
    _mixer_init_voice,
    _mixer_release_voice,
    _mixer_start_voice,
@@ -225,15 +225,16 @@ static void digi_psp_exit(int input)
 
 
 
-/*static int digi_psp_buffer_size()
+static int digi_psp_buffer_size()
 {
    return SAMPLES_PER_BUFFER;
 }
 
 
-
+/*
 static int digi_set_mixer_volume(int volume)
 {
    return sceAudioChangeChannelVolume(int channel, int leftvol, int rightvol);
 }
 */
+

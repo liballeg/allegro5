@@ -305,6 +305,13 @@ if(UNIX AND NOT APPLE AND NOT BEOS)
     set(ALLEGRO_UNIX 1)
 endif()
 
+if(PSP)
+    set(ALLEGRO_PSP 1)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -G0")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -G0 -fno-exceptions -fno-rtti")
+    set(CMAKE_INSTALL_PREFIX ${PSP_PREFIX})
+endif(PSP)
+
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WFLAGS} ${WFLAGS_C_ONLY}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WFLAGS}")
 
@@ -653,6 +660,16 @@ if(ALLEGRO_MACOSX)
 	)
 endif(ALLEGRO_MACOSX)
 
+# -- PSP --
+
+if(PSP)
+    include_directories(SYSTEM ${PSPSDK_PATH}/include)
+    link_directories(${PSPSDK_PATH}/lib)
+    list(APPEND PLATFORM_SOURCES ${ALLEGRO_SRC_PSP_FILES})
+    list(APPEND PLATFORM_LIBS
+    m pspaudio pspgu psprtc pspdebug pspdisplay pspge pspctrl pspsdk c pspnet pspnet_inet pspnet_resolver psputility pspuser pspkernel)
+endif(PSP)
+
 #-----------------------------------------------------------------------------#
 #
 # Generate and install headers
@@ -813,6 +830,20 @@ if(APPLE AND SHARED OR WANT_FRAMEWORKS)
     target_link_libraries(allegro alleg-main)
     install_our_library(alleg-main)
 endif(APPLE AND SHARED OR WANT_FRAMEWORKS)
+
+if(PSP)
+    add_our_library(alleg-main STATIC
+	src/psp/pmain.c
+	)
+    set_target_properties(alleg-main
+	PROPERTIES
+	OUTPUT_NAME alleg-main${BUILD_TYPE_SUFFIX}
+	COMPILE_FLAGS -DALLEGRO_SRC
+	)
+    target_link_libraries(alleg-main pspuser pspkernel)
+    target_link_libraries(allegro alleg-main)
+    install_our_library(alleg-main)
+endif(PSP)
 
 #-----------------------------------------------------------------------------#
 #

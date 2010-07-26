@@ -40,14 +40,14 @@ _DRIVER_INFO _keyboard_driver_list[] =
 
 _DRIVER_INFO _timer_driver_list[] =
 {
- //  { TIMER_PSP,               &timer_psp,               TRUE  },
+   { TIMER_PSP,               &timer_psp,               TRUE  },
    { 0,                       NULL,                     0     }
 };
 
 
 _DRIVER_INFO _mouse_driver_list[] =
 {
-// { MOUSE_PSP,               &mouse_psp,               TRUE  },
+   { MOUSE_PSP,               &mouse_psp,               TRUE  },
    { 0,                       NULL,                     0     }
 };
 
@@ -66,12 +66,11 @@ _DRIVER_INFO _digi_driver_list[] =
 };
 
 
-_DRIVER_INFO _midi_driver_list[] =
-{
-   { 0,                        NULL,                    0     }
-};
+BEGIN_MIDI_DRIVER_LIST
+MIDI_DRIVER_DIGMID
+END_MIDI_DRIVER_LIST
 
 
 BEGIN_JOYSTICK_DRIVER_LIST
-//{   JOYSTICK_PSP,              &joystick_psp,           TRUE  },
+{   JOYSTICK_PSP,              &joystick_psp,           TRUE  },
 END_JOYSTICK_DRIVER_LIST

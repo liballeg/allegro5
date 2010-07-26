@@ -193,7 +193,7 @@ static void fli_skip(int bytes)
 #define READ_CHAR_NC(p)    (*(signed char *)(p)++)
 #endif
 
-#if (defined ALLEGRO_GCC) && (defined ALLEGRO_LITTLE_ENDIAN) && (!defined ALLEGRO_ARM)
+#if (defined ALLEGRO_GCC) && (defined ALLEGRO_LITTLE_ENDIAN) && (!defined ALLEGRO_ARM) && (!defined ALLEGRO_PSP)
 
 #if 0
 /* the "cast expression as lvalue" extension is deprecated in GCC 3.4 */
