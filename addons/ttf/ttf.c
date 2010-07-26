@@ -341,6 +341,7 @@ static void ftclose(FT_Stream  stream)
 {
     ALLEGRO_TTF_FONT_DATA *data = stream->pathname.pointer;
     al_fclose(data->file);
+    data->file = NULL;
 }
 
 /* Function: al_load_ttf_font_f
@@ -372,7 +373,7 @@ ALLEGRO_FONT *al_load_ttf_font_f(ALLEGRO_FILE *file,
 
     if (FT_Open_Face(ft, &args, 0, &face) != 0) {
         ALLEGRO_DEBUG("Reading %s failed.\n", filename);
-        al_fclose(file);
+        // Note: Freetype already closed the file for us.
         al_free(data);
         return NULL;
     }
