@@ -503,7 +503,7 @@ void al_shutdown_ttf_addon(void)
    
    al_register_font_loader(".ttf", NULL);
    
-   FT_Done_FreeType(&ft);
+   FT_Done_FreeType(ft);
 }
 
 
