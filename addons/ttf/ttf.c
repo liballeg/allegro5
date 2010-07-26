@@ -32,7 +32,7 @@ typedef struct ALLEGRO_TTF_FONT_DATA
     unsigned long base_offset, offset;
 } ALLEGRO_TTF_FONT_DATA;
 
-static bool once = true;
+static bool inited;
 static FT_Library ft;
 static ALLEGRO_FONT_VTABLE vt;
 
@@ -357,20 +357,6 @@ ALLEGRO_FONT *al_load_ttf_font_f(ALLEGRO_FILE *file,
     ALLEGRO_PATH *path;
     FT_Open_Args args;
 
-    if (once) {
-        FT_Init_FreeType(&ft);
-        vt.font_height = font_height;
-        vt.font_ascent = font_ascent;
-        vt.font_descent = font_descent;
-        vt.char_length = char_length;
-        vt.text_length = text_length;
-        vt.render_char = render_char;
-        vt.render = render;
-        vt.destroy = destroy;
-        vt.get_text_dimensions = get_text_dimensions;
-        once = false;
-    }
-
     data = al_malloc(sizeof *data);
     memset(data, 0, sizeof *data);
     data->stream.read = ftread;
@@ -486,12 +472,38 @@ ALLEGRO_FONT *al_load_ttf_font(char const *filename, int size, int flags)
  */
 bool al_init_ttf_addon(void)
 {
+   if (inited) return false;
+   inited = true;
+
+   FT_Init_FreeType(&ft);
+   vt.font_height = font_height;
+   vt.font_ascent = font_ascent;
+   vt.font_descent = font_descent;
+   vt.char_length = char_length;
+   vt.text_length = text_length;
+   vt.render_char = render_char;
+   vt.render = render;
+   vt.destroy = destroy;
+   vt.get_text_dimensions = get_text_dimensions;
+    
    al_register_font_loader(".ttf", al_load_ttf_font);
    /* Can't fail right now - in the future we might dynamically load
     * the FreeType DLL here and/or initialize FreeType (which both
     * could fail and would cause a false return).
     */
    return true;
+}
+
+/* Function: al_shutdown_ttf_addon
+ */
+void al_shutdown_ttf_addon(void)
+{
+   if (!inited) return;
+   inited = false;
+   
+   al_register_font_loader(".ttf", NULL);
+   
+   FT_Done_FreeType(&ft);
 }
 
 
