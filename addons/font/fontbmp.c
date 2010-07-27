@@ -82,13 +82,12 @@ static int import_bitmap_font_color(uint32_t *data, int pitch,
    int *import_x, int *import_y)
 {
    int w, h, i;
-   int ret = 0;
 
    for(i = 0; i < num; i++) {
       font_find_character(data, pitch, bmp_w, bmp_h,
          import_x, import_y, &w, &h);
       if(w <= 0 || h <= 0) {
-         bits[i] = NULL;
+         return -1;
       }
       else {
          bits[i] = al_create_sub_bitmap(glyphs,
@@ -96,7 +95,7 @@ static int import_bitmap_font_color(uint32_t *data, int pitch,
          *import_x += w;
       }
    }
-   return ret;
+   return 0;
 }
 
 
@@ -253,7 +252,7 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp,
    al_restore_state(&backup);
    
    cf = f->data;
-   if (cf)
+   if (cf && cf->bitmaps[0])
       f->height = al_get_bitmap_height(cf->bitmaps[0]);
 
    if (lock)
