@@ -452,6 +452,8 @@ bool al_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
  */
 bool al_set_voice_playing(ALLEGRO_VOICE *voice, bool val)
 {
+   ASSERT(voice);
+
    if (voice->attached_stream && !voice->is_streaming) {
       bool playing = al_get_voice_playing(voice);
 
