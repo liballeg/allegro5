@@ -60,6 +60,8 @@ int main(void)
    black = al_map_rgb(0, 0, 0);
    red = al_map_rgb(255, 0, 0);
 
+   memset(&mst0, 0, sizeof(mst0));
+
    while (1) {
       al_get_mouse_state(&mst);
       if (mst.display != mst0.display ||
