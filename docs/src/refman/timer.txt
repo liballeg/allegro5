@@ -75,11 +75,21 @@ See also: [al_set_timer_count]
 
 ## API: al_set_timer_count
 
-Change a timer's counter value. The timer can be started or stopped.
+Set the timer's counter value. The timer can be started or stopped.
 The count value may be positive or negative, but will always be incremented
-by +1.
+by +1 at each tick.
 
-See also: [al_get_timer_count]
+See also: [al_get_timer_count], [al_add_timer_count]
+
+## API: al_add_timer_count
+
+Add *diff* to the timer's counter value.  This is similar to writing:
+
+    al_set_timer_count(timer, al_get_timer_count(timer) + diff);
+
+except that the addition is performed atomically, so no ticks will be lost.
+
+See also: [al_set_timer_count]
 
 ## API: al_get_timer_speed
 

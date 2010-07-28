@@ -327,6 +327,21 @@ void al_set_timer_count(ALLEGRO_TIMER *timer, int64_t new_count)
 
 
 
+/* Function: al_add_timer_count
+ */
+void al_add_timer_count(ALLEGRO_TIMER *timer, int64_t diff)
+{
+   ASSERT(timer);
+
+   _al_mutex_lock(&timer_thread_mutex);
+   {
+      timer->count += diff;
+   }
+   _al_mutex_unlock(&timer_thread_mutex);
+}
+
+
+
 /* timer_handle_tick: [timer thread]
  *  Handle a single tick.
  */
