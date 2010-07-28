@@ -119,6 +119,8 @@ void al_draw_justified_ustr(const ALLEGRO_FONT *font,
    float fleft, finc;
 
    (void)flags;
+   
+   ASSERT(font);
 
    /* count words and measure min length (without spaces) */ 
    num_words = 0;
