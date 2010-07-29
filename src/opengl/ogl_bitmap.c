@@ -556,10 +556,22 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
          ogl_bitmap->texture, error_string(e));
    }
 
-    
-   glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
-      ogl_bitmap->true_w, ogl_bitmap->true_h, 0, glformats[bitmap->format][2],
-      glformats[bitmap->format][1], bitmap->memory);
+   if (bitmap->memory == NULL) {
+      /* Ideally we could just call glTexImage2D with a NULL data parameter.
+       * However if we do that, without NPOT textures, we get some junk at the
+       * edges of our bitmaps when we draw them.
+       */
+      unsigned char *buf = al_calloc(ogl_bitmap->true_h, ogl_bitmap->true_w);
+      glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
+         ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
+         GL_ALPHA, GL_UNSIGNED_BYTE, buf);
+      al_free(buf);
+   }
+   else {
+      glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
+         ogl_bitmap->true_w, ogl_bitmap->true_h, 0, glformats[bitmap->format][2],
+         glformats[bitmap->format][1], bitmap->memory);
+   }
    e = glGetError();
    if (e) {
       ALLEGRO_ERROR("glTexImage2D for format %s, size %dx%d failed (%s)\n",
@@ -572,8 +584,8 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       // the problem try to use multiple textures?
       return false;
    }
-   
-   if (!cfg_read) {         
+
+   if (!cfg_read) {
       ALLEGRO_SYSTEM *sys;
       const char *s;
 
@@ -1010,7 +1022,6 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    int true_w;
    int true_h;
    int pitch;
-   size_t bytes;
    (void)d;
 
    ALLEGRO_DEBUG("Creating OpenGL bitmap\n");
@@ -1062,20 +1073,29 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    bitmap->bitmap.ct = 0;
    bitmap->bitmap.cr_excl = w;
    bitmap->bitmap.cb_excl = h;
-   al_identity_transform(&bitmap->bitmap.transform);  // XXX back and front buffers should share a transform
+   /* Back and front buffers should share a transform, which they do
+    * because our OpenGL driver returns the same pointer for both.
+    */
+   al_identity_transform(&bitmap->bitmap.transform);
 
    bitmap->true_w = true_w;
    bitmap->true_h = true_h;
 
-   bytes = pitch * true_h;
-   bitmap->bitmap.memory = al_malloc(bytes);
-   
-   /* We never allow un-initialized memory for OpenGL bitmaps, if it
-    * is uploaded to a floating point texture it can lead to Inf and
-    * NaN values which break all subsequent blending.
-    */
-    // FIXME!~
-   memset(bitmap->bitmap.memory, 0, bytes);
+#if !defined(ALLEGRO_IPHONE) && !defined(ALLEGRO_GP2XWIZ)
+   bitmap->bitmap.memory = NULL;
+#else
+   /* iPhone/Wiz ports still expect the buffer to be present. */
+   {
+      size_t bytes = pitch * true_h;
+      bitmap->bitmap.memory = al_malloc(bytes);
+
+      /* We never allow un-initialized memory for OpenGL bitmaps, if it
+       * is uploaded to a floating point texture it can lead to Inf and
+       * NaN values which break all subsequent blending.
+       */
+      memset(bitmap->bitmap.memory, 0, bytes);
+   }
+#endif
 
    return &bitmap->bitmap;
 }

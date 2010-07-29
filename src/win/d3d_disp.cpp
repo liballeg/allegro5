@@ -2399,6 +2399,8 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    bitmap->bitmap.pitch = w * al_get_pixel_size(format);
    al_identity_transform(&bitmap->bitmap.transform);
 
+   bitmap->bitmap.memory = (unsigned char *)al_malloc(bitmap->bitmap.pitch * h);
+
    bitmap->video_texture = 0;
    bitmap->system_texture = 0;
    bitmap->initialized = false;

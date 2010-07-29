@@ -117,14 +117,9 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 
    ASSERT(bitmap->pitch >= w * al_get_pixel_size(bitmap->format));
 
-   /* If the true height is greater than bitmap->h then the display driver
-    * should allocate the memory itself.
+   /* The display driver should have set the bitmap->memory field if
+    * appropriate; video bitmaps may leave it NULL.
     */
-   if (!bitmap->memory) {
-      size_t bytes = bitmap->pitch * h;
-      bitmap->memory = al_malloc(bytes);
-      //memset(bitmap->memory, 0, bytes);
-   }
 
    if (!bitmap->vt->upload_bitmap(bitmap)) {
       al_destroy_bitmap(bitmap);
@@ -411,6 +406,7 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
       if (f < 0) {
          return NULL;
       }
+      ASSERT(bitmap->memory);
       if (format == ALLEGRO_PIXEL_FORMAT_ANY || bitmap->format == format || f == bitmap->format) {
          bitmap->locked_region.data = bitmap->memory
             + bitmap->pitch * y + x * al_get_pixel_size(bitmap->format);
@@ -838,6 +834,8 @@ void _al_convert_bitmap_data(
    void *dst, int dst_format, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
+   ASSERT(src);
+   ASSERT(dst);
    ASSERT(_al_pixel_format_is_real(dst_format));
 
    /* Use memcpy if no conversion is needed. */

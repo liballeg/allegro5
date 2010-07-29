@@ -211,7 +211,6 @@ ALLEGRO_BITMAP *_al_ogl_get_backbuffer(ALLEGRO_DISPLAY *d)
 bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP_OGL *b, int w, int h)
 {
    int pitch;
-   int bytes;
          
    pitch = w * al_get_pixel_size(b->bitmap.format);
 
@@ -228,11 +227,18 @@ bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP_OGL *b, int w, int h)
    b->true_w = w;
    b->true_h = h;
 
-   /* FIXME: lazily manage memory */
-   bytes = pitch * h;
-   al_free(b->bitmap.memory);
-   b->bitmap.memory = al_malloc(bytes);
-   memset(b->bitmap.memory, 0, bytes);
+#if !defined(ALLEGRO_IPHONE) && !defined(ALLEGRO_GP2XWIZ)
+   b->bitmap.memory = NULL;
+#else
+   /* iPhone/Wiz ports still expect the buffer to be present. */
+   {
+      /* FIXME: lazily manage memory */
+      size_t bytes = pitch * h;
+      al_free(b->bitmap.memory);
+      b->bitmap.memory = al_malloc(bytes);
+      memset(b->bitmap.memory, 0, bytes);
+   }
+#endif
 
    return true;
 }
