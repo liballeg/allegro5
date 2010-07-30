@@ -147,13 +147,25 @@ Each event is of one of the following types:
 *   ALLEGRO_EVENT_DISPLAY_CLOSE - The close button of the window has been
     pressed.
 
-*   ALLEGRO_EVENT_DISPLAY_LOST - Displays can be lost with some drivers (just
-    Direct3D?). This means that rendering is impossible. The device will be
-    restored as soon as it is possible. The program should be able to ignore
-    this event and continue rendering however it will have no effect.
+*   ALLEGRO_EVENT_DISPLAY_LOST - When using Direct3D, displays can enter
+    a "lost" state. In that state, drawing calls are ignored, and upon
+    entering the state, bitmap's pixel data can become undefined. Allegro
+    does its best to preserve the correct contents of bitmaps
+    (See ALLEGRO_NO_PRESERVE_TEXTURE) and restore them when the device
+    is "found" (see ALLEGRO_EVENT_DISPLAY_FOUND) However, this is not 100%
+    fool proof. To ensure that all bitmap contents are restored accurately,
+    one must take additional steps; the best procedure to follow if bitmap
+    constancy is important to you is as follows: first, always have the
+    ALLEGRO_NO_PRESERVE_TEXTURE flag set to true when creating bitmaps, as
+    it incurs pointless overhead when using this method. Second, create
+    a mechanism in your game for easily reloading all of your bitmaps --
+    for example, wrap them in a class or data structure and have a "bitmap
+    manager" that can reload them back to the desired state. Then, when you
+    receive an ALLEGRO_EVENT_DISPLAY_FOUND event, tell the bitmap manager
+    (or whatever your mechanism is) to restore your bitmaps.
 
-*   ALLEGRO_EVENT_DISPLAY_FOUND - Generated when a lost device is regained.
-    Drawing will no longer be a no-op.
+*   ALLEGRO_EVENT_DISPLAY_FOUND - Generated when a lost device is restored
+    to operating state. See ALLEGRO_EVENT_DISPLAY_LOST.
 
 *   ALLEGRO_EVENT_DISPLAY_SWITCH_OUT - The window is no longer active, that
     is the user might have clicked into another window or "tabbed" away.

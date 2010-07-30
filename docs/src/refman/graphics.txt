@@ -360,11 +360,12 @@ you know that the bitmap will only ever be accessed by locking it, no unneeded
 FBOs will be created for it in the OpenGL drivers.
 
 * ALLEGRO_NO_PRESERVE_TEXTURE - Normally, every effort is taken to preserve
-the contents of bitmaps since some drivers may forget them. This can take
-extra time. If you know it doesn't matter if a bitmap keeps its image,
-for example a temporary buffer, use this flag to tell Allegro not to attempt
-to preserve the contents of bitmaps created after this flag is set. This
-can lead to speed improvements in your program.
+the contents of bitmaps, since Direct3D may forget them. This can take
+extra processing time. If you know it doesn't matter if a bitmap keeps its
+pixel data, for example its a temporary buffer, use this flag to tell Allegro
+not to attempt to preserve its contents. This can increase performance of
+your game or application, but there is a catch. See
+ALLEGRO_EVENT_DISPLAY_LOST for further information.
 
 * ALLEGRO_ALPHA_TEST - This is a driver hint only. It tells the graphics
 driver to do alpha testing instead of alpha blending on bitmaps created
