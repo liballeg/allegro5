@@ -104,7 +104,7 @@ uint32_t al_get_allegro_native_dialog_version(void)
 
 /* Function: al_show_native_file_dialog
  */
-void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
+void al_show_native_file_dialog(ALLEGRO_DISPLAY *display, ALLEGRO_NATIVE_DIALOG *fd)
 {
 }
 
