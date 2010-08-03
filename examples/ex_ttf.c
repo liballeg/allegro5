@@ -35,8 +35,7 @@ static void render(void)
     al_hold_bitmap_drawing(false);
     al_hold_bitmap_drawing(true);
 
-    al_draw_textf(ex.f3, red, 50, 220, 0, "The color can be changed simply "
-        "by using a different blender.");
+    al_draw_textf(ex.f3, red, 50, 220, 0, "The color can simply be changed.");
         
     al_hold_bitmap_drawing(false);
     al_hold_bitmap_drawing(true);
