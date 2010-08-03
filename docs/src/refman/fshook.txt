@@ -34,7 +34,7 @@ Creates an [ALLEGRO_FS_ENTRY] object pointing to path on the filesystem.
 ## API: al_destroy_fs_entry
 
 Destroys a fs entry handle. The file or directory represented by it is not
-destroyed.
+destroyed. If the entry was opened, it is closed before being destroyed.
 
 Does nothing if passed NULL.
 
@@ -165,7 +165,7 @@ See also: [al_read_directory], [al_close_directory]
 Reads the next directory item and returns a filesystem entry for it.
 
 Returns NULL if there are no more entries or if an error occurs. Call
-[al_close_directory] on the directory handle when you are done.
+[al_destroy_fs_entry] on the returned entry when you are done with it.
 
 See also: [al_open_directory], [al_close_directory]
 
