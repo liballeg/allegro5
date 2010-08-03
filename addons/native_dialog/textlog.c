@@ -61,12 +61,12 @@ ALLEGRO_NATIVE_DIALOG *al_open_native_text_log(char const *title, int flags)
       al_wait_cond(textlog->text_cond, textlog->text_mutex);
    }
    al_unlock_mutex(textlog->text_mutex);
-#endif
 
    if (textlog->init_error) {
       al_close_native_text_log(textlog);
       return NULL;
    }
+#endif
 
    return textlog;
 }
