@@ -222,6 +222,12 @@ static bool file_stdio_ferror(ALLEGRO_FILE *f)
 }
 
 
+static void file_stdio_fclearerr(ALLEGRO_FILE *f)
+{
+   clearerr(get_fp(f));
+}
+
+
 static int file_stdio_fungetc(ALLEGRO_FILE *f, int c)
 {
    int rc = ungetc(c, get_fp(f));
@@ -273,6 +279,7 @@ const struct ALLEGRO_FILE_INTERFACE _al_file_interface_stdio =
    file_stdio_fseek,
    file_stdio_feof,
    file_stdio_ferror,
+   file_stdio_fclearerr,
    file_stdio_fungetc,
    file_stdio_fsize
 };

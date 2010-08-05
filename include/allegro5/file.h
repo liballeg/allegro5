@@ -28,6 +28,7 @@ typedef struct ALLEGRO_FILE_INTERFACE
    AL_METHOD(bool,    fi_fseek, (ALLEGRO_FILE *f, int64_t offset, int whence));
    AL_METHOD(bool,    fi_feof, (ALLEGRO_FILE *f));
    AL_METHOD(bool,    fi_ferror, (ALLEGRO_FILE *f));
+   AL_METHOD(void,    fi_fclearerr, (ALLEGRO_FILE *f));
    AL_METHOD(int,     fi_fungetc, (ALLEGRO_FILE *f, int c));
    AL_METHOD(off_t,   fi_fsize, (ALLEGRO_FILE *f));
 } ALLEGRO_FILE_INTERFACE;
@@ -59,6 +60,7 @@ AL_FUNC(int64_t, al_ftell, (ALLEGRO_FILE *f));
 AL_FUNC(bool, al_fseek, (ALLEGRO_FILE *f, int64_t offset, int whence));
 AL_FUNC(bool, al_feof, (ALLEGRO_FILE *f));
 AL_FUNC(bool, al_ferror, (ALLEGRO_FILE *f));
+AL_FUNC(void, al_fclearerr, (ALLEGRO_FILE *f));
 AL_FUNC(int, al_fungetc, (ALLEGRO_FILE *f, int c));
 AL_FUNC(int64_t, al_fsize, (ALLEGRO_FILE *f));
 

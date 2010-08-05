@@ -233,6 +233,16 @@ static bool file_phys_ferror(ALLEGRO_FILE *f)
 }
 
 
+static void file_phys_fclearerr(ALLEGRO_FILE *f)
+{
+   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
+
+   fp->error_indicator = false;
+
+   /* PhysicsFS doesn't provide a way to clear the EOF indicator. */
+}
+
+
 static int file_phys_fungetc(ALLEGRO_FILE *f, int c)
 {
    ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
@@ -273,6 +283,7 @@ static const ALLEGRO_FILE_INTERFACE file_phys_vtable =
    file_phys_seek,
    file_phys_feof,
    file_phys_ferror,
+   file_phys_fclearerr,
    file_phys_fungetc,
    file_phys_fsize
 };

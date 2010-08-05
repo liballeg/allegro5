@@ -119,6 +119,12 @@ static bool memfile_ferror(ALLEGRO_FILE *fp)
    return false;
 }
 
+static void memfile_fclearerr(ALLEGRO_FILE *fp)
+{
+   ALLEGRO_FILE_MEMFILE *mf = (ALLEGRO_FILE_MEMFILE*)fp;
+   mf->eof = false;
+}
+
 static int memfile_fungetc(ALLEGRO_FILE *fp, int c)
 {
    ALLEGRO_FILE_MEMFILE *mf = (ALLEGRO_FILE_MEMFILE*)fp;
@@ -146,6 +152,7 @@ static struct ALLEGRO_FILE_INTERFACE memfile_vtable = {
    memfile_fseek,
    memfile_feof,
    memfile_ferror,
+   memfile_fclearerr,
    memfile_fungetc,
    memfile_fsize
 };

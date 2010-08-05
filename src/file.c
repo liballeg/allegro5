@@ -107,6 +107,16 @@ bool al_ferror(ALLEGRO_FILE *f)
 }
 
 
+/* Function: al_fclearerr
+ */
+void al_fclearerr(ALLEGRO_FILE *f)
+{
+   ASSERT(f);
+
+   f->vtable->fi_fclearerr(f);
+}
+
+
 /* Function: al_fgetc
  */
 int al_fgetc(ALLEGRO_FILE *f)

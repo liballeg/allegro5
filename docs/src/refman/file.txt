@@ -25,6 +25,7 @@ The fields are:
     bool          (*fi_fseek)(ALLEGRO_FILE *f, int64_t offset, int whence);
     bool          (*fi_feof)(ALLEGRO_FILE *f);
     bool          (*fi_ferror)(ALLEGRO_FILE *f);
+    void          (*fi_fclearerr)(ALLEGRO_FILE *f);
     int           (*fi_fungetc)(ALLEGRO_FILE *f, int c);
     off_t         (*fi_fsize)(ALLEGRO_FILE *f);
 
@@ -126,13 +127,24 @@ contains exactly two bytes:
        report_error();
     }
 
-See also: [al_ferror]
+See also: [al_ferror], [al_fclearerr]
 
 ## API: al_ferror
 
 Returns true if there was some sort of previous error.
 
-See also: [al_feof]
+See also: [al_feof], [al_fclearerr]
+
+## API: al_fclearerr
+
+Clear the error indicator for the given stream.
+
+The standard I/O backend also clears the end-of-file indicator, and other
+backends *should* try to do this.  However, they may not if it would require
+too much effort (e.g. PhysicsFS backend), so your code should not rely on it
+if you need your code to be portable to other backends.
+
+See also: [al_ferror], [al_feof]
 
 ## API: al_fungetc
 
