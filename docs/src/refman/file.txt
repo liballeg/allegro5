@@ -31,18 +31,21 @@ The fields are:
 
 ## API: ALLEGRO_SEEK
 
-* ALLEGRO_SEEK_SET - Seek to pos from beginning of file
-* ALLEGRO_SEEK_CUR - Seek to pos from curent position
-* ALLEGRO_SEEK_END - Seek to pos from end of file
+* ALLEGRO_SEEK_SET - seek relative to beginning of file
+* ALLEGRO_SEEK_CUR - seek relative to current file position
+* ALLEGRO_SEEK_END - seek relative to end of file
+
+See also: [al_fseek]
 
 ## API: al_fopen
 
 Creates and opens a file (real or virtual) given the path and mode.
 The current file interface is used to open the file.
 
-'path' - the path to open
+Parameters:
 
-'mode' - mode to open the entry in ("r", "w", etc.)
+* path - path to the file to open
+* mode - access mode to open the file in ("r", "w", etc.)
 
 Depending on the stream type and the mode string, files may be opened in
 "text" mode.  The handling of newlines is particularly important.  For example,
@@ -56,60 +59,76 @@ Newline translations can be useful for text files but is disastrous for binary
 files.  To avoid this behaviour you need to open file streams in binary mode
 by using a mode argument containing a "b", e.g. "rb", "wb".
 
-See also: [al_set_new_file_interface].
+Returns a file handle on success, or NULL on error.
+
+See also: [al_set_new_file_interface], [al_fclose].
 
 ## API: al_fclose
 
-Close the given file.
+Close the given file, writing any buffered output data (if any).
 
 ## API: al_fread
 
-Read 'size' bytes into 'ptr' from entry 'fp'
+Read 'size' bytes into the buffer pointed to by 'ptr', from the given file.
 
-Return number of bytes actually read.
+Returns the number of bytes actually read.
+If an error occurs, or the end-of-file is reached, the return value is a
+short byte count (or zero).
+
+al_fread() does not distinguish between EOF and other errors.
+Use [al_feof] and [al_ferror] to determine which occurred.
+
+See also: [al_fgetc], [al_fread16be], [al_fread16le], [al_fread32be],
+[al_fread32le]
 
 ## API: al_fwrite
 
-Write 'size' bytes from 'ptr' into file 'fp'
+Write 'size' bytes from the buffer pointed to by 'ptr' into the given file.
 
-Return number of bytes actually written or 0 on error.
+Returns the number of bytes actually written.
+If an error occurs, the return value is a short byte count (or zero).
 
-Does not distinguish between EOF and other errors.
-Use [al_feof] and [al_ferror]
-to tell them apart.
+See also: [al_fputc], [al_fputs], [al_fwrite16be], [al_fwrite16le],
+[al_fwrite32be], [al_fwrite32le]
 
 ## API: al_fflush
 
-Flush any pending writes to 'fp' to disk.
+Flush any pending writes to the given file.
 
-Returns true on success, false otherwise, and errno is set to indicate the error.
+Returns true on success, false otherwise.
+errno is set to indicate the error.
 
 See also: [al_get_errno]
 
 ## API: al_ftell
 
-Returns the current position in file, or -1 on error.
+Returns the current position in the given file, or -1 on error.
 errno is set to indicate the error.
 
 On some platforms this function may not support large files.
 
-See also: [al_get_errno]
+See also: [al_fseek], [al_get_errno]
 
 ## API: al_fseek
 
-Seek to 'offset' in file based on 'whence'.
+Set the current position of the given file to a position relative
+to that specified by 'whence', plus 'offset' number of bytes.
 
 'whence' can be:
 
-* ALLEGRO_SEEK_SET - Seek from beggining of file
-* ALLEGRO_SEEK_CUR - Seek from current position
-* ALLEGRO_SEEK_END - Seek from end of file
+* ALLEGRO_SEEK_SET - seek relative to beginning of file
+* ALLEGRO_SEEK_CUR - seek relative to current file position
+* ALLEGRO_SEEK_END - seek relative to end of file
 
-Returns true on success, false on failure and errno is set to indicate the error.
+Returns true on success, false on failure.
+errno is set to indicate the error.
+
+After a successful seek, the end-of-file indicator is cleared
+and all pushback bytes are forgotten.
 
 On some platforms this function may not support large files.
 
-See also: [al_get_errno]
+See also: [al_ftell], [al_get_errno]
 
 ## API: al_feof
 
@@ -131,13 +150,14 @@ See also: [al_ferror], [al_fclearerr]
 
 ## API: al_ferror
 
-Returns true if there was some sort of previous error.
+Returns true if the error indicator is set on the given file,
+i.e. there was some sort of previous error.
 
 See also: [al_feof], [al_fclearerr]
 
 ## API: al_fclearerr
 
-Clear the error indicator for the given stream.
+Clear the error indicator for the given file.
 
 The standard I/O backend also clears the end-of-file indicator, and other
 backends *should* try to do this.  However, they may not if it would require
@@ -148,8 +168,12 @@ See also: [al_ferror], [al_feof]
 
 ## API: al_fungetc
 
-Ungets a single byte from a file. Does not write to file, it only places the
-char back into the entry's buffer.
+Ungets a single byte from a file.
+Pushed-back bytes are not written to the file, only made available for
+subsequent reads, in reverse order.
+
+The number of pushbacks depends on the backend.  The standard I/O backend only
+guarantees a single pushback; this depends on the libc implementation.
 
 See also: [al_fgetc], [al_get_errno]
 
@@ -159,22 +183,21 @@ Return the size of the file, if it can be determined, or -1 otherwise.
 
 ## API: al_fgetc
 
-Read and return next byte in entry 'f'.
+Read and return next byte in the given file.
 Returns EOF on end of file or if an error occurred.
 
 See also: [al_fungetc]
 
 ## API: al_fputc
 
-Write a single byte to entry.
+Write a single byte to the given file.
 
 Parameters:
 
 * c - byte value to write
-* f - entry to write to
+* f - file to write to
 
-Returns:
-EOF on error
+Returns c on success, or EOF on error.
 
 ## API: al_fread16le
 
@@ -266,6 +289,8 @@ if the end of file was reached without reading any bytes.
 
 See [al_fopen] about translations of end-of-line characters.
 
+See also: [al_fget_ustr]
+
 ## API: al_fget_ustr
 
 Read a string of bytes terminated with a newline or end-of-file.
@@ -277,6 +302,8 @@ Returns NULL if an error occurred or if the end of file was reached without
 reading any bytes.
 
 See [al_fopen] about translations of end-of-line characters.
+
+See also: [al_fgetc], [al_fgets]
 
 ## API: al_fputs
 
@@ -296,6 +323,8 @@ Note: depending on the stream type and the mode passed to [al_fopen], newline
 characters in the string may or may not be automatically translated to
 native end-of-line sequences, e.g. CR/LF instead of LF.
 
+See also: [al_fwrite]
+
 ## Standard I/O specific routines
 
 ### API: al_fopen_fd
@@ -310,6 +339,8 @@ not be closed.
 
 The file descriptor will be closed by [al_fclose] so you should not
 call close() on it.
+
+See also: [al_fopen]
 
 ### API: al_make_temp_file
 
