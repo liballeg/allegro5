@@ -13,12 +13,8 @@
  *      See readme.txt for copyright information.
  */
 
-/* Title: Error handling
- */
-
-
-#ifndef _al_included_error_h
-#define _al_included_error_h
+#ifndef __al_included_allegro5_error_h
+#define __al_included_allegro5_error_h
 
 #include "allegro5/base.h"
 
@@ -33,7 +29,7 @@ AL_FUNC(void, al_set_errno, (int errnum));
    }
 #endif
 
-#endif          /* ifndef ALLEGRO_MOUSE_H */
+#endif
 
 /*
  * Local Variables:

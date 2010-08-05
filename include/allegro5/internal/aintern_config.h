@@ -1,5 +1,5 @@
-#ifndef AINTERN_CONFIG_H
-#define AINTERN_CONFIG_H
+#ifndef __al_included_allegro5_aintern_config_h
+#define __al_included_allegro5_aintern_config_h
 
 #include "allegro5/internal/aintern_aatree.h"
 
@@ -28,5 +28,5 @@ struct ALLEGRO_CONFIG {
 };
 
 
-#endif /* AINTERN_CONFIG_H */
+#endif
 

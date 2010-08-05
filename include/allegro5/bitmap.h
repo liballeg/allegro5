@@ -1,8 +1,5 @@
-/* Title: Bitmap types and constants
- */
-
-#ifndef ALLEGRO_BITMAP_NEW_H
-#define ALLEGRO_BITMAP_NEW_H
+#ifndef __al_included_allegro5_bitmap_h
+#define __al_included_allegro5_bitmap_h
 
 #include "allegro5/color.h"
 
@@ -13,18 +10,6 @@
 /* Type: ALLEGRO_BITMAP
  */
 typedef struct ALLEGRO_BITMAP ALLEGRO_BITMAP;
-
-/* This is just a proof-of-concept implementation. The basic idea is to leave 
- * things like pixel formats to Allegro usually. The user of course should be
- * able to specify things, as specific as they want. (E.g.
- * "i want a bitmap with 16-bit resolution per color channel"
- * "i want the best bitmap format which is HW accelerated"
- * "i want an RGBA bitmap which does not need to be HW accelerated"
- * )
- * For now, there is only a single flags parameter, which is passed on to the
- * underlying driver, but ignored otherwise.
- */
-
 
 
 /* Enum: ALLEGRO_PIXEL_FORMAT

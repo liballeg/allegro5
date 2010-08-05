@@ -1,5 +1,5 @@
-#ifndef AINTGP2XWIZ_H
-#define AINTGP2XWIZ_H
+#ifndef __al_included_allegro5_aintiphone_h
+#define __al_included_allegro5_aintiphone_h
 
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_bitmap.h"

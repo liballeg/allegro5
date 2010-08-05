@@ -1,8 +1,8 @@
 /*
  * UNIX threads
  */
-#ifndef _AINTUTHR_H
-#define _AINTUTHR_H
+#ifndef __al_included_allegro5_aintuthr_h
+#define __al_included_allegro5_aintuthr_h
 
 #include <pthread.h>
 #include "allegro5/internal/aintern_thread.h"

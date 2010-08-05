@@ -15,10 +15,10 @@
  *      See readme.txt for copyright information.
  */
 
-#ifndef AINTWIN_H
-#define AINTWIN_H
+#ifndef __al_included_allegro5_aintwin_h
+#define __al_included_allegro5_aintwin_h
 
-#ifndef ALLEGRO_H
+#ifndef __al_included_allegro5_allegro_h
    #error must include allegro.h first
 #endif
 
@@ -188,5 +188,5 @@ bool _al_win_hide_mouse_cursor(ALLEGRO_DISPLAY *display);
 #endif
 
 
-#endif          /* !defined AINTWIN_H */
+#endif
 

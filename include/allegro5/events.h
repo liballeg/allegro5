@@ -1,30 +1,5 @@
-/* Title: Events
- *
- * Overview of the event system
- *
- * An "event" is a thing that happens at some instant in time.  The fact that
- * this event occurred is captured in a piece of data, known also as an
- * "event".
- *
- * Event can be created by some certain types of objects, collectively known as
- * "event sources", and then placed into "event queues", in chronological
- * order.  The user can take events out of event queues, also in chronological
- * order, and examine them.
- *
- * >  event source 1 \
- * >                   \
- * >  event source 2 ---->--- event queue ----->---- user
- * >                   /
- * >  event source 3 /
- * >
- * >               Events are             The user takes events
- * >               generated and          out of the queue,
- * >               placed into		  examines them,
- * >               event queues.          and acts on them.
- */
-
-#ifndef _al_included_events_h
-#define _al_included_events_h
+#ifndef __al_included_allegro5_events_h
+#define __al_included_allegro5_events_h
 
 #include "allegro5/base.h"
 
@@ -261,10 +236,4 @@ AL_FUNC(bool, al_wait_for_event_until, (ALLEGRO_EVENT_QUEUE *queue,
 
 #endif
 
-/*
- * Local Variables:
- * c-basic-offset: 3
- * indent-tabs-mode: nil
- * End:
- */
 /* vim: set sts=3 sw=3 et: */

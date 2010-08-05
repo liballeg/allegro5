@@ -13,11 +13,8 @@
  *      See readme.txt for copyright information.
  */
 
-/* Title: Joystick types
- */
-
-#ifndef _al_included_joystick_h
-#define _al_included_joystick_h
+#ifndef __al_included_allegro5_joystick_h
+#define __al_included_allegro5_joystick_h
 
 #include "allegro5/base.h"
 
@@ -93,10 +90,3 @@ AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_joystick_event_source, (ALLEGRO_JOYSTICK 
 #endif
 
 #endif
-
-/*
- * Local Variables:
- * c-basic-offset: 3
- * indent-tabs-mode: nil
- * End:
- */

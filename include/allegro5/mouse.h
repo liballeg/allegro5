@@ -13,12 +13,8 @@
  *      See readme.txt for copyright information.
  */
 
-/* Title: Mouse types
- */
-
-
-#ifndef _al_included_mouse_h
-#define _al_included_mouse_h
+#ifndef __al_included_allegro5_mouse_h
+#define __al_included_allegro5_mouse_h
 
 #include "allegro5/base.h"
 
@@ -125,6 +121,6 @@ AL_FUNC(bool, al_get_mouse_cursor_position, (int *ret_x, int *ret_y));
    }
 #endif
 
-#endif          /* ifndef ALLEGRO_MOUSE_H */
+#endif
 
 /* vim: set sts=3 sw=3 et: */

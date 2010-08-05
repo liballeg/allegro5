@@ -15,8 +15,8 @@
  *      See readme.txt for copyright information.
  */
 
-#ifndef AINTUNIX_H
-#define AINTUNIX_H
+#ifndef __al_included_allegro5_aintunix_h
+#define __al_included_allegro5_aintunix_h
 
 #include "allegro5/path.h"
 
@@ -91,4 +91,4 @@ AL_VAR(struct ALLEGRO_JOYSTICK_DRIVER, _al_joydrv_linux);
 #endif
 
 
-#endif /* ifndef AINTUNIX_H */
+#endif

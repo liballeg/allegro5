@@ -16,8 +16,8 @@
  *      See readme.txt for copyright information.
  */
 
-#ifndef ALLEGRO_BASE_H
-#define ALLEGRO_BASE_H
+#ifndef __al_included_allegro5_base_h
+#define __al_included_allegro5_base_h
 
 #ifndef ALLEGRO_NO_STD_HEADERS
    #include <errno.h>
@@ -100,4 +100,4 @@ typedef struct _DRIVER_INFO         /* info about a hardware driver */
    }
 #endif
 
-#endif          /* ifndef ALLEGRO_BASE_H */
+#endif

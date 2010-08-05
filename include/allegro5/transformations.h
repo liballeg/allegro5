@@ -1,8 +1,5 @@
-/* Title: Transformations
- */
-
-#ifndef ALLEGRO_TRANSFORMATIONS_H
-#define ALLEGRO_TRANSFORMATIONS_H
+#ifndef __al_included_allegro5_transformations_h
+#define __al_included_allegro5_transformations_h
 
 #ifdef __cplusplus
    extern "C" {

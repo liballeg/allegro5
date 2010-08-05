@@ -16,8 +16,8 @@
  */
 
 
-#ifndef ALLEGRO_FIXED_H
-#define ALLEGRO_FIXED_H
+#ifndef __al_included_allegro5_fixed_h
+#define __al_included_allegro5_fixed_h
 
 #include "allegro5/base.h"
 
@@ -36,6 +36,6 @@ AL_VAR(const al_fixed, al_radtofix_r);
    }
 #endif
 
-#endif          /* ifndef ALLEGRO_FIXED_H */
+#endif
 
 

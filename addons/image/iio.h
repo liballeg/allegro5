@@ -1,5 +1,5 @@
-#ifndef IIO_H
-#define IIO_H
+#ifndef __al_included_allegro5_iio_h
+#define __al_included_allegro5_iio_h
 
 
 
@@ -35,5 +35,5 @@ extern int _al_png_compression_level;
 
 
 
-#endif // IIO_H
+#endif
 

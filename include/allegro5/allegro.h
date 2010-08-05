@@ -19,8 +19,8 @@
  */
 
 
-#ifndef ALLEGRO_H
-#define ALLEGRO_H
+#ifndef __al_included_allegro5_allegro_h
+#define __al_included_allegro5_allegro_h
 
 
 #include "allegro5/base.h"
@@ -63,6 +63,6 @@
 #endif
 
 
-#endif          /* ifndef ALLEGRO_H */
+#endif
 
 

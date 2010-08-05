@@ -13,11 +13,8 @@
  *      See readme.txt for copyright information.
  */
 
-/* Title: Thread local storage
- */
-
-#ifndef ALLEGRO_TLS_H
-#define ALLEGRO_TLS_H
+#ifndef __al_included_allegro5_tls_h
+#define __al_included_allegro5_tls_h
 
 #include "allegro5/base.h"
 
@@ -65,4 +62,4 @@ AL_FUNC(void, al_restore_state, (ALLEGRO_STATE const *state));
    }
 #endif
 
-#endif /* ifndef ALLEGRO_TLS_H */
+#endif

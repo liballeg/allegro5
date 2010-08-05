@@ -1,5 +1,5 @@
-#ifndef ALLEGRO_INTERNAL_XGLX_NEW_H
-#define ALLEGRO_INTERNAL_XGLX_NEW_H
+#ifndef __al_included_allegro5_aintern_xglx_h
+#define __al_included_allegro5_aintern_xglx_h
 
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>

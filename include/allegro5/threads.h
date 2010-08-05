@@ -13,12 +13,8 @@
  *      See readme.txt for copyright information.
  */
 
-/* Title: Threads
- */
-
-
-#ifndef _al_included_threads_h
-#define _al_included_threads_h
+#ifndef __al_included_allegro5_threads_h
+#define __al_included_allegro5_threads_h
 
 #include "allegro5/altime.h"
 
@@ -66,6 +62,6 @@ AL_FUNC(void, al_signal_cond, (ALLEGRO_COND *cond));
    }
 #endif
 
-#endif          /* ifndef _al_included_threads_h */
+#endif
 
 /* vim: set sts=3 sw=3 et: */

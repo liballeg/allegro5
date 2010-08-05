@@ -1,5 +1,5 @@
-#ifndef __al_included_aintern_atomic_ops_h
-#define __al_included_aintern_atomic_ops_h
+#ifndef __al_included_allegro5_aintern_atomicops_h
+#define __al_included_allegro5_aintern_atomicops_h
 
 #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)
 
@@ -115,6 +115,6 @@
 
 #endif
 
-#endif   /* __al_included_aintern_atomicops_h */
+#endif
 
 /* vim: set sts=3 sw=3 et: */

@@ -15,8 +15,8 @@
  *      See readme.txt for copyright information.
  */
 
-#ifndef ASTDBOOL_H
-#define ASTDBOOL_H
+#ifndef __al_included_allegro5_astdbool_h
+#define __al_included_allegro5_astdbool_h
 
 #ifndef __cplusplus
 #  ifdef ALLEGRO_HAVE_STDBOOL_H
@@ -32,4 +32,4 @@
 #  endif
 #endif
 
-#endif /* ifndef ASTDBOOL_H */
+#endif

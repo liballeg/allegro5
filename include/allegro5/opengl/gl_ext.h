@@ -1,6 +1,6 @@
 
-#ifndef GL_EXT_ALLEGRO_H
-#define GL_EXT_ALLEGRO_H
+#ifndef __al_included_allegro5_gl_ext_h
+#define __al_included_allegro5_gl_ext_h
 
 
 /*
@@ -136,5 +136,5 @@ typedef struct ALLEGRO_OGL_EXT_API {
 
 
 
-#endif /* #ifndef GL_EXT_ALLEGRO_H */
+#endif
 

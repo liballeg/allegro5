@@ -13,8 +13,8 @@
  *      See readme.txt for copyright information.
  */
 
-#ifndef __al_included_aintern_fshook_h
-#define __al_included_aintern_fshook_h
+#ifndef __al_included_allegro5_aintern_fshook_h
+#define __al_included_allegro5_aintern_fshook_h
 
 #include "allegro5/base.h"
 
@@ -30,4 +30,4 @@ extern struct ALLEGRO_FS_INTERFACE _al_fs_interface_stdio;
    }
 #endif
 
-#endif          /* ifndef __al_included_aintern_fshook_h */
+#endif

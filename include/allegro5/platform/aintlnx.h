@@ -15,8 +15,8 @@
  *      See readme.txt for copyright information.
  */
 
-#ifndef AINTLNX_H
-#define AINTLNX_H
+#ifndef __al_included_allegro5_aintlnx_h
+#define __al_included_allegro5_aintlnx_h
 
 #ifdef __cplusplus
 extern "C" {
@@ -170,5 +170,5 @@ extern volatile int __al_linux_switching_blocked;
    extern int __al_linux_get_fb_resolution(int *width, int *height);
 #endif
 
-#endif /* ifndef AINTLNX_H */
+#endif
 

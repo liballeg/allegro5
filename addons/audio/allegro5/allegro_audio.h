@@ -3,8 +3,8 @@
  * Originally done by KC/Milan
  */
 
-#ifndef __al_included_allegro_audio_h
-#define __al_included_allegro_audio_h
+#ifndef __al_included_allegro5_allegro_audio_h
+#define __al_included_allegro5_allegro_audio_h
 
 #ifdef __cplusplus
 extern "C" {
@@ -367,7 +367,7 @@ ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_STREAM *, al_load_audio_stream_f, (ALLEGRO_
 #endif
 
 
-#endif  /* __al_included_allegro_audio_h */
+#endif
 
 
 /* vim: set sts=3 sw=3 et: */

@@ -1,5 +1,5 @@
-#ifndef _al_included_aintern_thread_h
-#define _al_included_aintern_thread_h
+#ifndef __al_included_allegro5_aintern_thread_h
+#define __al_included_allegro5_aintern_thread_h
 
 #ifndef SCAN_EXPORT
 #include ALLEGRO_INTERNAL_THREAD_HEADER

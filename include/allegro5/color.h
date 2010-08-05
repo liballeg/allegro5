@@ -1,8 +1,5 @@
-/* Title: Colors
- */
-
-#ifndef _ALLEGRO_COLORNEW_H
-#define _ALLEGRO_COLORNEW_H
+#ifndef __al_included_allegro5_color_h
+#define __al_included_allegro5_color_h
 
 #ifdef __cplusplus
    extern "C" {

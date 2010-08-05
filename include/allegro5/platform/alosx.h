@@ -16,8 +16,8 @@
  */
 
 
-#ifndef ALOSX_H
-#define ALOSX_H
+#ifndef __al_included_allegro5_alosx_h
+#define __al_included_allegro5_alosx_h
 
 #ifndef ALLEGRO_MACOSX
    #error bad include

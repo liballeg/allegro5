@@ -1,8 +1,5 @@
-/* Title: Timing routines
- */
-
-#ifndef _al_included_altime_h
-#define _al_included_altime_h
+#ifndef __al_included_allegro5_altime_h
+#define __al_included_allegro5_altime_h
 
 #include "allegro5/base.h"
 

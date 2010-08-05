@@ -1,5 +1,5 @@
-#ifndef ALLEGRO_FONT_H
-#define ALLEGRO_FONT_H
+#ifndef __al_included_allegro5_allegro_font_h
+#define __al_included_allegro5_allegro_font_h
 
 #if (defined ALLEGRO_MINGW32) || (defined ALLEGRO_MSVC) || (defined ALLEGRO_BCC32)
    #ifndef ALLEGRO_STATICLINK
@@ -107,4 +107,4 @@ ALLEGRO_FONT_FUNC(uint32_t, al_get_allegro_font_version, (void));
    }
 #endif
 
-#endif          /* ifndef ALLEGRO_FONT_H */
+#endif

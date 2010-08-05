@@ -1,5 +1,5 @@
-#ifndef _al_included_aintern_events_h
-#define _al_included_aintern_events_h
+#ifndef __al_included_allegro5_aintern_events_h
+#define __al_included_allegro5_aintern_events_h
 
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_vector.h"

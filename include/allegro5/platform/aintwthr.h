@@ -1,8 +1,8 @@
 /*
  * Windows threads
  */
-#ifndef _AINTWTHR_H
-#define _AINTWTHR_H
+#ifndef __al_included_allegro5_aintwthr_h
+#define __al_included_allegro5_aintwthr_h
 
 #include <windows.h>
 

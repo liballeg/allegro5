@@ -1,5 +1,5 @@
-#ifndef __al_included_aintern_path_h
-#define __al_included_aintern_path_h
+#ifndef __al_included_allegro5_aintern_path_h
+#define __al_included_allegro5_aintern_path_h
 
 struct ALLEGRO_PATH {
    ALLEGRO_USTR *drive;

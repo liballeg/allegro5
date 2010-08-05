@@ -36,7 +36,6 @@
 		64839153102AF35000D508EE /* allegro5.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390DF102AF35000D508EE /* allegro5.h */; };
 		64839154102AF35000D508EE /* altime.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390E0102AF35000D508EE /* altime.h */; };
 		64839155102AF35000D508EE /* base.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390E1102AF35000D508EE /* base.h */; };
-		64839156102AF35000D508EE /* bealleg.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390E2102AF35000D508EE /* bealleg.h */; };
 		64839157102AF35000D508EE /* bitmap_new.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390E3102AF35000D508EE /* bitmap_new.h */; };
 		64839159102AF35000D508EE /* color_new.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390E5102AF35000D508EE /* color_new.h */; };
 		6483915A102AF35000D508EE /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390E6102AF35000D508EE /* config.h */; };
@@ -89,7 +88,6 @@
 		6483918C102AF35000D508EE /* wgl_ext_api.h in Headers */ = {isa = PBXBuildFile; fileRef = 6483911D102AF35000D508EE /* wgl_ext_api.h */; };
 		6483918D102AF35000D508EE /* wgl_ext_defs.h in Headers */ = {isa = PBXBuildFile; fileRef = 6483911E102AF35000D508EE /* wgl_ext_defs.h */; };
 		6483918E102AF35000D508EE /* wgl_ext_list.h in Headers */ = {isa = PBXBuildFile; fileRef = 6483911F102AF35000D508EE /* wgl_ext_list.h */; };
-		6483918F102AF35000D508EE /* osxalleg.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839120102AF35000D508EE /* osxalleg.h */; };
 		64839190102AF35000D508EE /* path.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839121102AF35000D508EE /* path.h */; };
 		64839193102AF35000D508EE /* aintiphone.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839125102AF35000D508EE /* aintiphone.h */; };
 		64839194102AF35000D508EE /* aintlnx.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839126102AF35000D508EE /* aintlnx.h */; };
@@ -665,7 +663,6 @@
 		648390DF102AF35000D508EE /* allegro5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = allegro5.h; path = ../include/allegro5/allegro5.h; sourceTree = SOURCE_ROOT; };
 		648390E0102AF35000D508EE /* altime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = altime.h; path = ../include/allegro5/altime.h; sourceTree = SOURCE_ROOT; };
 		648390E1102AF35000D508EE /* base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = base.h; path = ../include/allegro5/base.h; sourceTree = SOURCE_ROOT; };
-		648390E2102AF35000D508EE /* bealleg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bealleg.h; path = ../include/allegro5/bealleg.h; sourceTree = SOURCE_ROOT; };
 		648390E3102AF35000D508EE /* bitmap_new.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bitmap_new.h; path = ../include/allegro5/bitmap_new.h; sourceTree = SOURCE_ROOT; };
 		648390E5102AF35000D508EE /* color_new.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = color_new.h; path = ../include/allegro5/color_new.h; sourceTree = SOURCE_ROOT; };
 		648390E6102AF35000D508EE /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../include/allegro5/config.h; sourceTree = SOURCE_ROOT; };
@@ -1395,7 +1392,6 @@
 				648390DF102AF35000D508EE /* allegro5.h */,
 				648390E0102AF35000D508EE /* altime.h */,
 				648390E1102AF35000D508EE /* base.h */,
-				648390E2102AF35000D508EE /* bealleg.h */,
 				648390E3102AF35000D508EE /* bitmap_new.h */,
 				648390E5102AF35000D508EE /* color_new.h */,
 				648390E6102AF35000D508EE /* config.h */,
@@ -1964,7 +1960,6 @@
 				64839153102AF35000D508EE /* allegro5.h in Headers */,
 				64839154102AF35000D508EE /* altime.h in Headers */,
 				64839155102AF35000D508EE /* base.h in Headers */,
-				64839156102AF35000D508EE /* bealleg.h in Headers */,
 				64839157102AF35000D508EE /* bitmap_new.h in Headers */,
 				64839159102AF35000D508EE /* color_new.h in Headers */,
 				6483915A102AF35000D508EE /* config.h in Headers */,

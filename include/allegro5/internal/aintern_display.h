@@ -1,5 +1,5 @@
-#ifndef ALLEGRO_INTERNAL_DISPLAY_NEW_H
-#define ALLEGRO_INTERNAL_DISPLAY_NEW_H
+#ifndef __al_included_allegro5_aintern_display_h
+#define __al_included_allegro5_aintern_display_h
 
 #include "allegro5/allegro.h"
 #include "allegro5/transformations.h"

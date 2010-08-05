@@ -1,6 +1,6 @@
 // Warning: This file was created by make_converters.py - do not edit.
-#ifndef _ALLEGRO_CONVERT_H
-#define _ALLEGRO_CONVERT_H
+#ifndef __al_included_allegro5_aintern_convert_h
+#define __al_included_allegro5_aintern_convert_h
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_pixels.h"

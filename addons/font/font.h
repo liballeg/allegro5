@@ -1,5 +1,5 @@
-#ifndef INT_FONT_H
-#define INT_FONT_H
+#ifndef __al_included_allegro5_font_h
+#define __al_included_allegro5_font_h
 
 extern ALLEGRO_FONT_VTABLE *al_font_vtable_color;
 
@@ -15,4 +15,4 @@ ALLEGRO_FONT *_al_load_bitmap_font(const char *filename,
    int size, int flags);
 
 
-#endif /* INT_FONT_H */
+#endif

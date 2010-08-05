@@ -16,8 +16,8 @@
  */
 
 
-#ifndef AINTOSX_H
-#define AINTOSX_H
+#ifndef __al_included_allegro5_aintosx_h
+#define __al_included_allegro5_aintosx_h
 
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_system.h"

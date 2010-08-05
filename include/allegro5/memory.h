@@ -13,8 +13,8 @@
  *      See readme.txt for copyright information.
  */
 
-#ifndef ALLEGRO_MEMORY_H
-#define ALLEGRO_MEMORY_H
+#ifndef __al_included_allegro5_memory_h
+#define __al_included_allegro5_memory_h
 
 #ifdef __cplusplus
    extern "C" {
@@ -66,4 +66,4 @@ AL_FUNC(void *, al_calloc_with_context, (size_t count, size_t n,
    }
 #endif
 
-#endif          /* ifndef ALLEGRO_MEMORY_H */
+#endif

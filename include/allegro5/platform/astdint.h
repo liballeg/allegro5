@@ -15,8 +15,8 @@
  *      See readme.txt for copyright information.
  */
 
-#ifndef ASTDINT_H
-#define ASTDINT_H
+#ifndef __al_included_allegro5_astdint_h
+#define __al_included_allegro5_astdint_h
 
 /* Please only include this file from include/allegro5/internal/alconfig.h
  * and don't add more than inttypes.h/stdint.h emulation here.  Thanks.
@@ -72,4 +72,4 @@
 
 
 
-#endif /* ifndef ASTDINT_H */
+#endif

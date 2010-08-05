@@ -1,5 +1,5 @@
-#ifndef __al_included_internal_aintern_file_h
-#define __al_included_internal_aintern_file_h
+#ifndef __al_included_allegro5_aintern_file_h
+#define __al_included_allegro5_aintern_file_h
 
 #ifdef __cplusplus
    extern "C" {

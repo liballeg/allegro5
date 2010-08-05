@@ -1,5 +1,5 @@
-#ifndef __al_included_aintern_float_h
-#define __al_included_aintern_float_h
+#ifndef __al_included_allegro5_aintern_float_h
+#define __al_included_allegro5_aintern_float_h
 
    /* This file used to contain a tricky function that sped up float->int
     * conversions on x86 machines when the SSE instruction CVTTSS2SI wasn't
@@ -11,6 +11,6 @@
     */
    #define _al_fast_float_to_int(f)  ((int)(f))
 
-#endif   /* __al_included_aintern_float_h */
+#endif
 
 /* vim: set sts=3 sw=3 et: */

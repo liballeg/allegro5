@@ -15,8 +15,8 @@
  */
 
 
-#ifndef A5_OPENGL_ALLEGRO_H
-#define A5_OPENGL_ALLEGRO_H
+#ifndef __al_included_allegro5_allegro_opengl_h
+#define __al_included_allegro5_allegro_opengl_h
 
 #ifdef __cplusplus
    extern "C" {
@@ -126,4 +126,4 @@ AL_FUNC(void,                  al_get_opengl_texture_position,   (ALLEGRO_BITMAP
    }
 #endif
 
-#endif /* A5_OPENGL_ALLEGRO_H */
+#endif

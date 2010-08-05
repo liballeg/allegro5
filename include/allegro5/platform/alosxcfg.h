@@ -16,8 +16,8 @@
  */
 
 
-#ifndef ALOSXCFG_H
-#define ALOSXCFG_H
+#ifndef __al_included_allegro5_alosxcfg_h
+#define __al_included_allegro5_alosxcfg_h
 
 /* Include configuration information.  */
 #include "allegro5/platform/alplatf.h"

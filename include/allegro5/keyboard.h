@@ -13,11 +13,8 @@
  *      See readme.txt for copyright information.
  */
 
-/* Title: Keyboard types
- */
-
-#ifndef _al_included_keyboard_h
-#define _al_included_keyboard_h
+#ifndef __al_included_allegro5_keyboard_h
+#define __al_included_allegro5_keyboard_h
 
 #include "allegro5/base.h"
 #include "allegro5/keycodes.h"

@@ -1,5 +1,5 @@
-#ifndef ALLEGRO_INTERNAL_SYSTEM_NEW_H
-#define ALLEGRO_INTERNAL_SYSTEM_NEW_H
+#ifndef __al_included_allegro5_aintern_system_h
+#define __al_included_allegro5_aintern_system_h
 
 #include "allegro5/system.h"
 #include "allegro5/internal/aintern_display.h"

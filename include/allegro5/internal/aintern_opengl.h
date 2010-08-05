@@ -1,5 +1,5 @@
-#ifndef ALLEGRO_INTERNAL_OPENGL_NEW_H
-#define ALLEGRO_INTERNAL_OPENGL_NEW_H
+#ifndef __al_included_allegro5_aintern_opengl_h
+#define __al_included_allegro5_aintern_opengl_h
 
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"

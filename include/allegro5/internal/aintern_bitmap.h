@@ -1,5 +1,5 @@
-#ifndef ALLEGRO_INTERNAL_BITMAP_NEW_H
-#define ALLEGRO_INTERNAL_BITMAP_NEW_H
+#ifndef __al_included_allegro5_aintern_bitmap_h
+#define __al_included_allegro5_aintern_bitmap_h
 
 #include "allegro5/display.h"
 #include "allegro5/bitmap.h"

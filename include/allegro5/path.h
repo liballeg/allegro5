@@ -1,5 +1,5 @@
-#ifndef ALLEGRO_PATH_H
-#define ALLEGRO_PATH_H
+#ifndef __al_included_allegro5_path_h
+#define __al_included_allegro5_path_h
 
 #include "allegro5/base.h"
 
@@ -55,4 +55,4 @@ AL_FUNC(bool, al_is_path_present, (const ALLEGRO_PATH *path));
    }
 #endif
 
-#endif /* ALLEGRO_PATH_H */
+#endif

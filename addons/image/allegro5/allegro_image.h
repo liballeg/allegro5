@@ -1,5 +1,5 @@
-#ifndef __al_included_allegro_image_h
-#define __al_included_allegro_image_h
+#ifndef __al_included_allegro5_allegro_image_h
+#define __al_included_allegro5_allegro_image_h
 
 #if (defined ALLEGRO_MINGW32) || (defined ALLEGRO_MSVC) || (defined ALLEGRO_BCC32)
    #ifndef ALLEGRO_STATICLINK

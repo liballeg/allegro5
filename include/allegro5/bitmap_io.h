@@ -1,5 +1,5 @@
-#ifndef __al_included_bitmap_io_h
-#define __al_included_bitmap_io_h
+#ifndef __al_included_allegro5_bitmap_io_h
+#define __al_included_allegro5_bitmap_io_h
 
 #include "allegro5/bitmap.h"
 #include "allegro5/file.h"

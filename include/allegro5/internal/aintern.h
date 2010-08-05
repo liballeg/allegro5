@@ -16,11 +16,11 @@
  */
 
 
-#ifndef AINTERN_H
-#define AINTERN_H
+#ifndef __al_included_allegro5_aintern_h
+#define __al_included_allegro5_aintern_h
 
-#ifndef ALLEGRO_H
-   #error must include allegro.h first
+#ifndef __al_included_allegro5_allegro_h
+   #error must include allegro5/allegro.h first
 #endif
 
 #ifdef __cplusplus
@@ -64,4 +64,4 @@ AL_FUNC(int, _al_rand, (void));
    }
 #endif
 
-#endif          /* ifndef AINTERN_H */
+#endif

@@ -1,5 +1,5 @@
-#ifndef __al_included_allegro_native_dialog_h
-#define __al_included_allegro_native_dialog_h
+#ifndef __al_included_allegro5_allegro_native_dialog_h
+#define __al_included_allegro5_allegro_native_dialog_h
 
 #include "allegro5/allegro.h"
 
@@ -92,6 +92,6 @@ enum {
    }
 #endif
 
-#endif   /* __al_included_allegro_native_dialog_h */
+#endif
 
 /* vim: set sts=3 sw=3 et: */

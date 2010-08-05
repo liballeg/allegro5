@@ -8,13 +8,13 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      File System Hooks, draft.
+ *      File System Hooks.
  *
  *      See readme.txt for copyright information.
  */
 
-#ifndef ALLEGRO_FSHOOK_H
-#define ALLEGRO_FSHOOK_H
+#ifndef __al_included_allegro5_fshook_h
+#define __al_included_allegro5_fshook_h
 
 #include "allegro5/base.h"
 #include "allegro5/path.h"
@@ -127,6 +127,6 @@ AL_FUNC(void, al_set_standard_fs_interface, (void));
    }
 #endif
 
-#endif          /* ifndef ALLEGRO_FSHOOK_H */
+#endif
 
 /* vim: set sts=3 sw=3 et: */

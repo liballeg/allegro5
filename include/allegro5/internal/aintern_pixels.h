@@ -1,5 +1,5 @@
-#ifndef __al_included_aintern_pixels_h
-#define __al_included_aintern_pixels_h
+#ifndef __al_included_allegro5_aintern_pixels_h
+#define __al_included_allegro5_aintern_pixels_h
 
 #include "allegro5/internal/aintern_float.h"
 
@@ -454,6 +454,6 @@ AL_ARRAY(float, _al_u8_to_float);
 AL_FUNC(char const *, _al_format_name, (ALLEGRO_PIXEL_FORMAT format));
 AL_FUNC(void, _al_init_pixels, (void));
 
-#endif /* __al_included_aintern_pixels_h */
+#endif
 
 /* vim: set sts=3 sw=3 et: */

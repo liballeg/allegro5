@@ -1,5 +1,5 @@
-#ifndef __al_included_internal_aatree_h
-#define __al_included_internal_aatree_h
+#ifndef __al_included_allegro5_aintern_aatree_h
+#define __al_included_allegro5_aintern_aatree_h
 
 typedef struct _AL_AATREE _AL_AATREE;
 

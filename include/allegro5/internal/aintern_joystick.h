@@ -1,5 +1,5 @@
-#ifndef _al_included_aintern_joystick_h
-#define _al_included_aintern_joystick_h
+#ifndef __al_included_allegro5_aintern_joystick_h
+#define __al_included_allegro5_aintern_joystick_h
 
 #include "allegro5/internal/aintern_events.h"
 

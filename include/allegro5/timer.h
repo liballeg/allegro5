@@ -13,11 +13,8 @@
  *      See readme.txt for copyright information.
  */
 
-/* Title: Timer routines
- */
-
-#ifndef ALLEGRO_TIMER_H
-#define ALLEGRO_TIMER_H
+#ifndef __al_included_allegro5_timer_h
+#define __al_included_allegro5_timer_h
 
 #include "allegro5/base.h"
 
@@ -65,4 +62,4 @@ AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_timer_event_source, (ALLEGRO_TIMER *timer
    }
 #endif
 
-#endif          /* ifndef ALLEGRO_TIMER_H */
+#endif

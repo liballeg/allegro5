@@ -14,8 +14,8 @@
  *
  */
 
-#ifndef ALLEGRO_WINDOWS_H
-#define ALLEGRO_WINDOWS_H
+#ifndef __al_included_allegro5_allegro_windows_h
+#define __al_included_allegro5_allegro_windows_h
 
 #ifndef SCAN_DEPEND
 #include <windows.h>

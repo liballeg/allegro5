@@ -1,5 +1,5 @@
-#ifndef ALLEGRO_MEMFILE_H
-#define ALLEGRO_MEMFILE_H
+#ifndef __al_included_allegro5_memfile_h
+#define __al_included_allegro5_memfile_h
 
 #include "allegro5/allegro.h"
 
@@ -37,4 +37,4 @@ ALLEGRO_MEMFILE_FUNC(uint32_t, al_get_allegro_memfile_version, (void));
 }
 #endif
 
-#endif /* ALLEGRO_MEMFILE_H */
+#endif

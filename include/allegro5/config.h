@@ -1,5 +1,5 @@
-#ifndef ALLEGRO5_CONFIG_H
-#define ALLEGRO5_CONFIG_H
+#ifndef __al_included_allegro5_config_h
+#define __al_included_allegro5_config_h
 
 #include "allegro5/file.h"
 
@@ -33,4 +33,4 @@ AL_FUNC(char const *, al_get_next_config_entry, (void **iterator));
 }
 #endif
 
-#endif /* CONFIG_H */
+#endif

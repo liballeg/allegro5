@@ -1,5 +1,5 @@
-#ifndef __al_included_file_h
-#define __al_included_file_h
+#ifndef __al_included_allegro5_file_h
+#define __al_included_allegro5_file_h
 
 #include "allegro5/base.h"
 #include "allegro5/path.h"

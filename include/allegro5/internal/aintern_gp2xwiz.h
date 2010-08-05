@@ -1,5 +1,5 @@
-#ifndef ALLEGRO_INTERNAL_GP2XWIZ_NEW_H
-#define ALLEGRO_INTERNAL_GP2XWIZ_NEW_H
+#ifndef __al_included_allegro5_aintern_gp2xwiz_h
+#define __al_included_allegro5_aintern_gp2xwiz_h
 
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_opengl.h"

@@ -1,5 +1,5 @@
-#ifndef AINTERN_PRIM_SOFT_H
-#define AINTERN_PRIM_SOFT_H
+#ifndef __al_included_allegro5_aintern_prim_soft_h
+#define __al_included_allegro5_aintern_prim_soft_h
 
 struct ALLEGRO_BITMAP;
 struct ALLEGRO_VERTEX;

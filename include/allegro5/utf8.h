@@ -1,5 +1,5 @@
-#ifndef __al_included_utf8_h
-#define __al_included_utf8_h
+#ifndef __al_included_allegro5_utf8_h
+#define __al_included_allegro5_utf8_h
 
 #include "allegro5/base.h"
 

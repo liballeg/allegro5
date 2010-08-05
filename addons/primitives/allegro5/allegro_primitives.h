@@ -1,5 +1,5 @@
-#ifndef ALLEGRO_PRIMITIVES_H
-#define ALLEGRO_PRIMITIVES_H
+#ifndef __al_included_allegro5_allegro_primitives_h
+#define __al_included_allegro5_allegro_primitives_h
 
 #include <allegro5/allegro.h>
 

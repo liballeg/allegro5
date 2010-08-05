@@ -16,8 +16,8 @@
  */
 
 
-#ifndef ALLEGRO_FMATHS_INL
-#define ALLEGRO_FMATHS_INL
+#ifndef __al_included_allegro5_inline_fmaths_inl
+#define __al_included_allegro5_inline_fmaths_inl
 
 #ifdef __cplusplus
    extern "C" {
@@ -253,6 +253,6 @@ AL_INLINE(al_fixed, al_fixasin, (al_fixed x),
    }
 #endif
 
-#endif          /* ifndef ALLEGRO_FMATHS_INL */
+#endif
 
 

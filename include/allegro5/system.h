@@ -1,5 +1,5 @@
-#ifndef ALLEGRO_SYSTEM_NEW_H
-#define ALLEGRO_SYSTEM_NEW_H
+#ifndef __al_included_allegro5_system_h
+#define __al_included_allegro5_system_h
 
 #include "allegro5/config.h"
 #include "allegro5/path.h"

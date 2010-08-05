@@ -1,3 +1,6 @@
+#ifndef __al_included_allegro5_allegro_ttf_h
+#define __al_included_allegro5_allegro_ttf_h
+
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_font.h"
 
@@ -36,4 +39,6 @@ ALLEGRO_TTF_FUNC(uint32_t, al_get_allegro_ttf_version, (void));
 
 #ifdef __cplusplus
    }
+#endif
+
 #endif

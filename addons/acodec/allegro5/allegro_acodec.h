@@ -1,5 +1,5 @@
-#ifndef __al_included_allegro_acodec_h
-#define __al_included_allegro_acodec_h
+#ifndef __al_included_allegro5_allegro_acodec_h
+#define __al_included_allegro5_allegro_acodec_h
 
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_audio.h"
