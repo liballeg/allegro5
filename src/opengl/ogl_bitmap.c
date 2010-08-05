@@ -17,7 +17,7 @@
 
 /* FIXME: Add the other format for gp2xwiz 1555 or 5551 */
 
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_opengl.h"

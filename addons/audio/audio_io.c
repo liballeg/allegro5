@@ -2,7 +2,7 @@
  * Allegro audio codec table.
  */
 
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/allegro_audio.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_audio.h"

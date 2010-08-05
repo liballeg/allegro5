@@ -6,7 +6,7 @@
  * - CMYK (a bit like the opposite of RGB)
  * - YUV (the Y channel is quite useful for creating grayscale pictures)
  */
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/allegro_color.h"
 #include <math.h>
 #include <stdio.h>

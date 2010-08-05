@@ -1,7 +1,7 @@
 #ifndef __al_included_allegro_native_dialog_h
 #define __al_included_allegro_native_dialog_h
 
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 
 #ifdef __cplusplus
    extern "C" {

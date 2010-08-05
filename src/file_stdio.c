@@ -13,7 +13,7 @@
  *      See LICENSE.txt for copyright information.
  */
 
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 
 /* enable large file support in gcc/glibc */
 #if defined ALLEGRO_HAVE_FTELLO && defined ALLEGRO_HAVE_FSEEKO

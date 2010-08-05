@@ -228,7 +228,7 @@ def write_convert_h(filename):
 #ifndef _ALLEGRO_CONVERT_H
 #define _ALLEGRO_CONVERT_H
 
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_pixels.h"
 """)
 
@@ -345,7 +345,7 @@ def write_convert_c(filename):
     f = open(filename, "w")
     f.write("""\
 // Warning: This file was created by make_converters.py - do not edit.
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_convert.h"
 """)

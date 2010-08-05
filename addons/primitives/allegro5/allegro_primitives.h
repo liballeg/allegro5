@@ -1,7 +1,7 @@
 #ifndef ALLEGRO_PRIMITIVES_H
 #define ALLEGRO_PRIMITIVES_H
 
-#include <allegro5/allegro5.h>
+#include <allegro5/allegro.h>
 
 #if (defined ALLEGRO_MINGW32) || (defined ALLEGRO_MSVC) || (defined ALLEGRO_BCC32)
 #ifndef ALLEGRO_STATICLINK

@@ -2,7 +2,7 @@
 #ifndef _ALLEGRO_CONVERT_H
 #define _ALLEGRO_CONVERT_H
 
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_pixels.h"
 #define ALLEGRO_CONVERT_ARGB_8888_TO_RGBA_8888(x) \
    ((((x) & 0xff000000) >> 24)        /* A */ | \

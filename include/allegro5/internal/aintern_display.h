@@ -1,7 +1,7 @@
 #ifndef ALLEGRO_INTERNAL_DISPLAY_NEW_H
 #define ALLEGRO_INTERNAL_DISPLAY_NEW_H
 
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/transformations.h"
 #include "allegro5/display.h"
 #include "allegro5/bitmap.h"

@@ -4,7 +4,7 @@
  *       From left to right you should see Red, Green, Blue gradients.
  */
 
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/allegro_image.h"
 
 #include "common.c"

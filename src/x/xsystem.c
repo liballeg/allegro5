@@ -9,7 +9,7 @@ extern int _Xdebug; /* part of Xlib */
 
 #include <sys/time.h>
 
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/internal/aintern_xglx.h"
 

@@ -3,7 +3,7 @@
  * by Jacob Dawid & Trent Gamblin
  */
 
-#include <allegro5/allegro5.h>
+#include <allegro5/allegro.h>
 #include <allegro5/allegro_direct3d.h>
 #include <d3dx9.h>
 #include <windows.h>

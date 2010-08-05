@@ -5,7 +5,7 @@
  */
 
 #include <physfs.h>
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/allegro_physfs.h"
 
 #include "allegro_physfs_intern.h"

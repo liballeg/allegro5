@@ -32,7 +32,7 @@
 #define SM_MOUSEHORIZONTALWHEELPRESENT    91
 #endif
 
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_mouse.h"
 #include "allegro5/platform/aintwin.h"

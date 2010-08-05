@@ -5,7 +5,7 @@
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
-#include <allegro5/allegro5.h>
+#include <allegro5/allegro.h>
 #include <allegro5/allegro_opengl.h>
 
 #include "common.c"

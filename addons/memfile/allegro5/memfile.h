@@ -1,7 +1,7 @@
 #ifndef ALLEGRO_MEMFILE_H
 #define ALLEGRO_MEMFILE_H
 
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 
 #ifdef __cplusplus
 extern "C" {

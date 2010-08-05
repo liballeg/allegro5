@@ -166,7 +166,7 @@ def parse_all_headers():
     p = options.source
     includes = " -I " + p + "/include -I " + os.path.join(options.build, "include")
     includes += " -I " + p + "/addons/acodec"
-    headers = [p + "/include/allegro5/allegro5.h",
+    headers = [p + "/include/allegro5/allegro.h",
         p + "/addons/acodec/allegro5/allegro_acodec.h",
         p + "/include/allegro5/allegro_opengl.h"]
 
@@ -181,7 +181,7 @@ def parse_all_headers():
     for header in headers:
         p = subprocess.Popen("gcc -E -dD - " + includes,
             stdout = subprocess.PIPE, stdin = subprocess.PIPE, shell = True)
-        p.stdin.write("#include <allegro5/allegro5.h>\n" + open(header).read())
+        p.stdin.write("#include <allegro5/allegro.h>\n" + open(header).read())
         p.stdin.close()
         text = p.stdout.read()
         n = parse_header(text.splitlines(), header)

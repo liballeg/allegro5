@@ -22,7 +22,7 @@
 #include <windows.h>
 #include <windowsx.h>
 
-#include <allegro5/allegro5.h>
+#include <allegro5/allegro.h>
 #include <process.h>
 
 #include "allegro5/allegro_windows.h"

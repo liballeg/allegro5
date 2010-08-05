@@ -1,4 +1,7 @@
-#include "allegro5/allegro5.h"
+#ifndef __al_included_allegro5_allegro_color_h
+#define __al_included_allegro5_allegro_color_h
+
+#include "allegro5/allegro.h"
 
 #if (defined ALLEGRO_MINGW32) || (defined ALLEGRO_MSVC) || (defined ALLEGRO_BCC32)
    #ifndef ALLEGRO_STATICLINK
@@ -60,4 +63,6 @@ ALLEGRO_COLOR_FUNC(ALLEGRO_COLOR, al_color_html, (char const *string));
 
 #ifdef __cplusplus
    }
+#endif
+
 #endif

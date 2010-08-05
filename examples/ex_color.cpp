@@ -6,7 +6,7 @@
 
 #include <string>
 #include <cstdio>
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/allegro_ttf.h"
 #include "allegro5/allegro_color.h"
 #include <allegro5/allegro_primitives.h>

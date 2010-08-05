@@ -16,7 +16,7 @@
 
 #include <sys/time.h>
 
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/internal/aintern_gp2xwiz.h"
 #include "allegro5/platform/aintwiz.h"

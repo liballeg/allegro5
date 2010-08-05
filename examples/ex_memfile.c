@@ -9,7 +9,7 @@
    #pragma comment ( linker, "/SUBSYSTEM:CONSOLE")
 #endif
 #define ALLEGRO_USE_CONSOLE
-#include <allegro5/allegro5.h>
+#include <allegro5/allegro.h>
 #include <allegro5/memfile.h>
 
 #include "common.c"

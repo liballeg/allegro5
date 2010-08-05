@@ -1,7 +1,7 @@
 /* A test of timer events. Since both al_current_time() as well as the timer
  * events may be the source of inaccuracy, it doesn't tell a lot.
  */
-#include <allegro5/allegro5.h>
+#include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>

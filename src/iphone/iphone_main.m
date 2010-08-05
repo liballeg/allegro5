@@ -1,6 +1,6 @@
 #import <UIKit/UIKit.h>
 #import "allegroAppDelegate.h"
-#include <allegro5/allegro5.h>
+#include <allegro5/allegro.h>
 #include <allegro5/internal/aintern_iphone.h>
 #include <pthread.h>
 

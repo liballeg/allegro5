@@ -31,7 +31,7 @@
 #include <X11/Xproto.h>
 #include <X11/XKBlib.h>
 
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_keyboard.h"

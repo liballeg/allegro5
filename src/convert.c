@@ -1,5 +1,5 @@
 // Warning: This file was created by make_converters.py - do not edit.
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_convert.h"
 static void argb_8888_to_rgba_8888(void *src, int src_pitch,

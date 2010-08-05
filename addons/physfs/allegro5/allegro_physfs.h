@@ -1,7 +1,7 @@
 #ifndef ALLEGRO_PHYSFS_H
 #define ALLEGRO_PHYSFS_H
 
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 
 #ifdef __cplusplus
 extern "C" {

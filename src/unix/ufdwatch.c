@@ -26,7 +26,7 @@
 #include <sys/select.h>
 #include <unistd.h>
 
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_vector.h"

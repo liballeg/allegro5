@@ -20,7 +20,7 @@
 
 
 #include <string.h>
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
 #include "allegro5/internal/aintern_display.h"

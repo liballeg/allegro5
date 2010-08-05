@@ -1,7 +1,7 @@
 /* Shows the ability to play a sample without a mixer. */
 
 #include <stdio.h>
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/allegro_audio.h"
 #include "allegro5/allegro_acodec.h"
 

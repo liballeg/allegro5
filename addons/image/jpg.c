@@ -11,7 +11,7 @@
 
 #define BUFFER_SIZE 4096
 
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/allegro_image.h"
 #include "allegro5/internal/aintern_image.h"
 

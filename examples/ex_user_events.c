@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 #define ALLEGRO_USE_CONSOLE
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 
 #include "common.c"
 

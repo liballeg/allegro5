@@ -18,7 +18,7 @@
  */
 
 #include <string.h> /* for memset */
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/bitmap.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"

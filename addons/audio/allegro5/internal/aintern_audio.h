@@ -5,7 +5,7 @@
 #ifndef AINTERN_AUDIO_H
 #define AINTERN_AUDIO_H
 
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_vector.h"
 #include "../allegro_audio.h"
 

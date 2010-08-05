@@ -21,7 +21,7 @@
 #include <process.h>
 #include <math.h>
 
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 
 #include "allegro5/system.h"
 #include "allegro5/internal/aintern.h"

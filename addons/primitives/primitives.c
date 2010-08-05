@@ -16,7 +16,7 @@
  *      See readme.txt for copyright information.
  */
 
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/allegro_primitives.h"
 #include "allegro5/internal/aintern_prim_opengl.h"
 #include "allegro5/internal/aintern_prim_directx.h"
