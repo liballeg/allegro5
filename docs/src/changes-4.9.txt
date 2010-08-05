@@ -624,17 +624,17 @@ Glebbeek, Paul Suntsov, Peter Wang.
 
 Core:
 
--  Removed END_OF_MAIN() everywhere.
+-   Removed END_OF_MAIN() everywhere.
 
-   For MSVC, we pass a linker option through a #pragma.
+    For MSVC, we pass a linker option through a #pragma.
 
-   On Mac OS X, we rename main() and call it from a real main() function in the
-   allegro-main addon.  The prototype for main() for C++ applications should be
-   "int main(int, char **)", or the code will not compile on OS X.  For C,
-   either of the normal ANSI forms is fine.
+    On Mac OS X, we rename main() and call it from a real main() function in
+    the allegro-main addon.  The prototype for main() for C++ applications
+    should be "int main(int, char **)", or the code will not compile on OS X.
+    For C, either of the normal ANSI forms is fine.
 
-   #define ALLEGRO_NO_MAGIC_MAIN disables the #pragma or name mangling, so you
-   can write a WinMain() or use al_run_main() yourself.
+    \#define ALLEGRO_NO_MAGIC_MAIN disables the \#pragma or name mangling, so
+    you can write a WinMain() or use al_run_main() yourself.
 
 Graphics:
 
