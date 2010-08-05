@@ -48,7 +48,7 @@ static void phys_set_errno(ALLEGRO_FILE_PHYSFS *fp)
 }
 
 
-static ALLEGRO_FILE *file_phys_fopen(const char *filename, const char *mode)
+ALLEGRO_FILE *_al_file_phys_fopen(const char *filename, const char *mode)
 {
    PHYSFS_file *phys;
    ALLEGRO_FILE_PHYSFS *fp;
@@ -274,7 +274,7 @@ static off_t file_phys_fsize(ALLEGRO_FILE *f)
 
 static const ALLEGRO_FILE_INTERFACE file_phys_vtable =
 {
-   file_phys_fopen,
+   _al_file_phys_fopen,
    file_phys_fclose,
    file_phys_fread,
    file_phys_fwrite,

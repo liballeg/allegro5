@@ -84,6 +84,9 @@ struct ALLEGRO_FS_INTERFACE {
    AL_METHOD(ALLEGRO_PATH *,  fs_get_current_directory, (void));
    AL_METHOD(bool,            fs_change_directory, (const char *path));
    AL_METHOD(bool,            fs_make_directory,   (const char *path));
+
+   AL_METHOD(ALLEGRO_FILE *,  fs_open_file,        (ALLEGRO_FS_ENTRY *e,
+                                                    const char *mode));
 };
 
 AL_FUNC(ALLEGRO_FS_ENTRY *,   al_create_fs_entry,  (const char *path));
@@ -109,6 +112,9 @@ AL_FUNC(bool,                 al_remove_filename,  (const char *path));
 AL_FUNC(ALLEGRO_PATH *,       al_get_current_directory, (void));
 AL_FUNC(bool,                 al_change_directory, (const char *path));
 AL_FUNC(bool,                 al_make_directory,   (const char *path));
+
+AL_FUNC(ALLEGRO_FILE *,       al_open_fs_entry,    (ALLEGRO_FS_ENTRY *e,
+                                                    const char *mode));
 
 
 /* Thread-local state. */

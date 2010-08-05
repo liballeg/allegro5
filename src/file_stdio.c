@@ -86,7 +86,7 @@ ALLEGRO_FILE *al_fopen_fd(int fd, const char *mode)
 }
 
 
-static ALLEGRO_FILE *file_stdio_fopen(const char *path, const char *mode)
+ALLEGRO_FILE *_al_file_stdio_fopen(const char *path, const char *mode)
 {
    FILE *fp;
    ALLEGRO_FILE_STDIO *f;
@@ -270,7 +270,7 @@ Error:
 
 const struct ALLEGRO_FILE_INTERFACE _al_file_interface_stdio =
 {
-   file_stdio_fopen,
+   _al_file_stdio_fopen,
    file_stdio_fclose,
    file_stdio_fread,
    file_stdio_fwrite,

@@ -200,6 +200,17 @@ the error.
 
 See also: [al_get_errno]
 
+### API: al_open_fs_entry
+
+Open an [ALLEGRO_FILE] handle to a filesystem entry, for the given access mode.
+This is like calling [al_fopen] with the name of the filesystem entry, but uses
+the appropriate file interface, not whatever was set with the latest call to
+[al_set_new_file_interface].
+
+Returns the handle on success, NULL on error.
+
+See also: [al_fopen]
+
 
 ## Alternative filesystem functions
 
@@ -235,6 +246,8 @@ The available functions you can provide for a filesystem. They are:
    ALLEGRO_PATH *      fs_get_current_directory(void);
    bool                fs_change_directory(const char *path);
    bool                fs_make_directory(const char *path);
+
+   ALLEGRO_FILE *      fs_open_file(ALLEGRO_FS_ENTRY *e);
 ~~~
 
 ### API: al_set_fs_interface

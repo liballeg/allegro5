@@ -170,6 +170,14 @@ static void fs_phys_destroy_entry(ALLEGRO_FS_ENTRY *fse)
    al_free(e);
 }
 
+static ALLEGRO_FILE *fs_phys_open_file(ALLEGRO_FS_ENTRY *fse, const char *mode)
+{
+   ALLEGRO_PATH *path = al_clone_path(fs_phys_entry_name(fse));
+   ALLEGRO_FILE *f = _al_file_phys_fopen(al_path_cstr(path, '/'), mode);
+   al_destroy_path(path);
+   return f;
+}
+
 static const ALLEGRO_FS_INTERFACE fs_phys_vtable =
 {
    fs_phys_create_entry,
@@ -192,7 +200,9 @@ static const ALLEGRO_FS_INTERFACE fs_phys_vtable =
    fs_phys_remove_filename,
    fs_phys_get_current_directory,
    fs_phys_change_directory,
-   fs_phys_make_directory
+   fs_phys_make_directory,
+
+   fs_phys_open_file
 };
 
 void _al_set_physfs_fs_interface(void)

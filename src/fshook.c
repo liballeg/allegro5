@@ -241,6 +241,20 @@ bool al_remove_filename(const char *path)
 }
 
 
+/* Function: al_open_fs_entry
+ */
+ALLEGRO_FILE *al_open_fs_entry(ALLEGRO_FS_ENTRY *e, const char *mode)
+{
+   ASSERT(e != NULL);
+
+   if (e->vtable->fs_open_file)
+      return e->vtable->fs_open_file(e, mode);
+
+   al_set_errno(EINVAL);
+   return NULL;
+}
+
+
 /*
  * Local Variables:
  * c-basic-offset: 3

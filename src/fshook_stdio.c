@@ -38,7 +38,7 @@
    #define  SLASH _T("\\")
 #endif
 
-#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_file.h"
 #include "allegro5/internal/aintern_fshook.h"
 
 #ifdef ALLEGRO_HAVE_SYS_STAT_H
@@ -612,7 +612,6 @@ static bool fs_stdio_make_directory(const char *path)
    return true;
 }
 
-
 static bool fs_stdio_entry_exists(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
@@ -715,6 +714,14 @@ static const ALLEGRO_PATH *fs_stdio_name(ALLEGRO_FS_ENTRY *fp)
    return fp_stdio->apath;
 }
 
+static ALLEGRO_FILE *fs_stdio_open_file(ALLEGRO_FS_ENTRY *fp, const char *mode)
+{
+   ALLEGRO_PATH *path = al_clone_path(fs_stdio_name(fp));
+   ALLEGRO_FILE *f = _al_file_stdio_fopen(al_path_cstr(path, '/'), mode);
+   al_destroy_path(path);
+   return f;
+}
+
 struct ALLEGRO_FS_INTERFACE _al_fs_interface_stdio = {
    fs_stdio_create_entry,
    fs_stdio_destroy_entry,
@@ -736,7 +743,9 @@ struct ALLEGRO_FS_INTERFACE _al_fs_interface_stdio = {
    fs_stdio_remove_filename,
    fs_stdio_get_current_directory,
    fs_stdio_change_directory,
-   fs_stdio_make_directory
+   fs_stdio_make_directory,
+
+   fs_stdio_open_file
 };
 
 /* Function: al_set_standard_fs_interface
