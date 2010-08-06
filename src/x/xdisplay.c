@@ -733,12 +733,22 @@ static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
 {
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+   XWindowAttributes xwa;
 
    /* A fullscreen-window can't be resized. */
    if (d->flags & ALLEGRO_FULLSCREEN_WINDOW)
       return false;
 
    _al_mutex_lock(&system->lock);
+
+   /* It seems some X servers will treat the resize as a no-op if the window is
+    * already the right size, so check for it to avoid a deadlock later.
+    */
+   XGetWindowAttributes(system->x11display, glx->window, &xwa);
+   if (xwa.width == w && xwa.height == h) {
+      _al_mutex_unlock(&system->lock);
+      return false;
+   }
 
    reset_size_hints(d);
    XResizeWindow(system->x11display, glx->window, w, h);
