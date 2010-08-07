@@ -142,6 +142,12 @@ static void read_allegro_cfg(void)
 #else
    active_sysdrv->config = al_load_config_file("allegro5.cfg");
 #endif
+
+   /* Always have a configuration available whether or not a config file
+    * exists.
+    */
+   if (!active_sysdrv->config)
+      active_sysdrv->config = al_create_config();
 }
 
 

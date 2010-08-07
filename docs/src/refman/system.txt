@@ -115,6 +115,7 @@ Returns the currently active system driver, or NULL.
 
 ## API: al_get_system_config
 
-Returns the configuration for the installed system, if any, or NULL otherwise.
+Returns the current system configuration structure, or NULL if
+there is no active system driver.
 This is mainly used for configuring Allegro and its addons.
 
