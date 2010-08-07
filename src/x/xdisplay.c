@@ -145,6 +145,13 @@ static void xdpy_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 
    XMoveWindow(system->x11display, glx->window, x, y);
    XFlush(system->x11display);
+
+   /* We have to store these immediately, as we will ignore the XConfigureEvent
+    * that we receive in response.  _al_display_xglx_configure() knows why.
+    */
+   glx->x = x;
+   glx->y = y;
+
    _al_mutex_unlock(&system->lock);
 }
 
@@ -798,8 +805,11 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
       }
    }
 
-   /* This ignores the event when changing the border (which has bogus
-    * coordinates).
+   /* We receive two configure events when toggling the window frame.
+    * We ignore the first one as it has bogus coordinates.
+    * The only way to tell them apart seems to be the send_event field.
+    * Unfortunately, we also end up ignoring the only event we receive in
+    * response to a XMoveWindow request so we have to compensate for that.
     */
    if (xevent->xconfigure.send_event) {
       glx->x = xevent->xconfigure.x;
