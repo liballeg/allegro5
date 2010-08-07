@@ -556,23 +556,29 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
          ogl_bitmap->texture, error_string(e));
    }
 
+   glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
    if (bitmap->memory == NULL) {
       /* Ideally we could just call glTexImage2D with a NULL data parameter.
        * However if we do that, without NPOT textures, we get some junk at the
        * edges of our bitmaps when we draw them.
        */
       unsigned char *buf = al_calloc(ogl_bitmap->true_h, ogl_bitmap->true_w);
+      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
          ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
          GL_ALPHA, GL_UNSIGNED_BYTE, buf);
+      e = glGetError();
       al_free(buf);
    }
    else {
+      glPixelStorei(GL_UNPACK_ALIGNMENT, al_get_pixel_size(bitmap->format));
       glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
          ogl_bitmap->true_w, ogl_bitmap->true_h, 0, glformats[bitmap->format][2],
          glformats[bitmap->format][1], bitmap->memory);
+      e = glGetError();
    }
-   e = glGetError();
+   glPopClientAttrib();
+
    if (e) {
       ALLEGRO_ERROR("glTexImage2D for format %s, size %dx%d failed (%s)\n",
          _al_format_name(bitmap->format),
