@@ -12,6 +12,10 @@
 #include "allegro5/internal/aintern_system.h"
 #include "acodec.h"
 
+#ifndef ALLEGRO_CFG_ACODEC_MODAUDIO
+   #error configuration problem, ALLEGRO_CFG_ACODEC_MODAUDIO not set
+#endif
+
 #include <dumb.h>
 #include <stdio.h>
 

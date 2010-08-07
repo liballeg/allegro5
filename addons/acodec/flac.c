@@ -13,6 +13,10 @@
 #include "allegro5/internal/aintern_system.h"
 #include "acodec.h"
 
+#ifndef ALLEGRO_CFG_ACODEC_FLAC
+   #error configuration problem, ALLEGRO_CFG_ACODEC_FLAC not set
+#endif
+
 #include <FLAC/stream_decoder.h>
 #include <stdio.h>
 

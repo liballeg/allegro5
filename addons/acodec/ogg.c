@@ -12,6 +12,10 @@
 #include "allegro5/internal/aintern_system.h"
 #include "acodec.h"
 
+#ifndef ALLEGRO_CFG_ACODEC_VORBIS
+   #error configuration problem, ALLEGRO_CFG_ACODEC_VORBIS not set
+#endif
+
 ALLEGRO_DEBUG_CHANNEL("acodec")
 
 /* FIXME: We need a ALLEGRO_CFG_TREMOR */
