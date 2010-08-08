@@ -295,7 +295,7 @@ To allocate a buffer of the correct size, you can use something like this:
     bytes = samples * sample_size;
     buffer = al_malloc(bytes)
 
-See also: [al_destroy_sample].
+See also: [al_destroy_sample], [ALLEGRO_AUDIO_DEPTH], [ALLEGRO_CHANNEL_CONF]
 
 ### API: al_destroy_sample
 

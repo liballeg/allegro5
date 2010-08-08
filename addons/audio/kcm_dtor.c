@@ -30,7 +30,9 @@ static _AL_DTOR_LIST *kcm_dtors = NULL;
  */
 void _al_kcm_init_destructors(void)
 {
-   kcm_dtors = _al_init_destructors();
+   if (!kcm_dtors) {
+      kcm_dtors = _al_init_destructors();
+   }
 }
 
 

@@ -299,12 +299,16 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
  */
 bool al_install_audio(void)
 {
-   bool ret = do_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT);
-   if (ret) {
-      _al_kcm_init_destructors();
-      _al_add_exit_func(al_uninstall_audio, "al_uninstall_audio");
-   }
-   return ret;
+   if (_al_kcm_driver)
+      return true;
+
+   /* The destructors are initialised even if the audio driver fails to install
+    * because the user may still create samples.
+    */
+   _al_kcm_init_destructors();
+   _al_add_exit_func(al_uninstall_audio, "al_uninstall_audio");
+
+   return do_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT);
 }
 
 /* Function: al_uninstall_audio
@@ -316,6 +320,9 @@ void al_uninstall_audio(void)
       _al_kcm_shutdown_destructors();
       _al_kcm_driver->close();
       _al_kcm_driver = NULL;
+   }
+   else {
+      _al_kcm_shutdown_destructors();
    }
 }
 
