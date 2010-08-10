@@ -169,10 +169,10 @@ static void ok(GtkWidget *w, GtkFileSelection *fs)
    while (paths[n]) {
       n++;
    }
-   fc->count = n;
-   fc->paths = al_malloc(n * sizeof(void *));
+   fc->fc_path_count = n;
+   fc->fc_paths = al_malloc(n * sizeof(void *));
    for (i = 0; i < n; i++)
-      fc->paths[i] = al_create_path(paths[i]);
+      fc->fc_paths[i] = al_create_path(paths[i]);
    g_strfreev(paths);
 }
 
@@ -182,18 +182,18 @@ static void response(GtkDialog *dialog, gint response_id, gpointer user_data)
    (void)dialog;
    switch (response_id) {
       case GTK_RESPONSE_DELETE_EVENT:
-         nd->pressed_button = 0;
+         nd->mb_pressed_button = 0;
          break;
       case GTK_RESPONSE_YES:
       case GTK_RESPONSE_OK:
-         nd->pressed_button = 1;
+         nd->mb_pressed_button = 1;
          break;
       case GTK_RESPONSE_NO:
       case GTK_RESPONSE_CANCEL:
-         nd->pressed_button = 2;
+         nd->mb_pressed_button = 2;
          break;
       default:
-         nd->pressed_button = response_id;
+         nd->mb_pressed_button = response_id;
    }
    gtk_end(nd);
 }
@@ -257,12 +257,12 @@ bool al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    g_object_set_data(G_OBJECT(GTK_FILE_SELECTION(window)->ok_button),
       "ALLEGRO_NATIVE_DIALOG", fd);
 
-   if (fd->initial_path) {
+   if (fd->fc_initial_path) {
       gtk_file_selection_set_filename(GTK_FILE_SELECTION(window),
-         al_path_cstr(fd->initial_path, '/'));
+         al_path_cstr(fd->fc_initial_path, '/'));
    }
 
-   if (fd->mode & ALLEGRO_FILECHOOSER_MULTIPLE)
+   if (fd->flags & ALLEGRO_FILECHOOSER_MULTIPLE)
       gtk_file_selection_set_select_multiple(GTK_FILE_SELECTION(window), true);
 
    gtk_widget_show(window);
@@ -282,32 +282,32 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    /* Create a new file selection widget */
    GtkMessageType type = GTK_MESSAGE_INFO;
    GtkButtonsType buttons = GTK_BUTTONS_OK;
-   if (fd->mode & ALLEGRO_MESSAGEBOX_YES_NO) type = GTK_MESSAGE_QUESTION;
-   if (fd->mode & ALLEGRO_MESSAGEBOX_QUESTION) type = GTK_MESSAGE_QUESTION;
-   if (fd->mode & ALLEGRO_MESSAGEBOX_WARN) type = GTK_MESSAGE_WARNING;
-   if (fd->mode & ALLEGRO_MESSAGEBOX_ERROR) type = GTK_MESSAGE_ERROR;
-   if (fd->mode & ALLEGRO_MESSAGEBOX_YES_NO) buttons = GTK_BUTTONS_YES_NO;
-   if (fd->mode & ALLEGRO_MESSAGEBOX_OK_CANCEL) buttons = GTK_BUTTONS_OK_CANCEL;
-   if (fd->buttons) buttons = GTK_BUTTONS_NONE;
+   if (fd->flags & ALLEGRO_MESSAGEBOX_YES_NO) type = GTK_MESSAGE_QUESTION;
+   if (fd->flags & ALLEGRO_MESSAGEBOX_QUESTION) type = GTK_MESSAGE_QUESTION;
+   if (fd->flags & ALLEGRO_MESSAGEBOX_WARN) type = GTK_MESSAGE_WARNING;
+   if (fd->flags & ALLEGRO_MESSAGEBOX_ERROR) type = GTK_MESSAGE_ERROR;
+   if (fd->flags & ALLEGRO_MESSAGEBOX_YES_NO) buttons = GTK_BUTTONS_YES_NO;
+   if (fd->flags & ALLEGRO_MESSAGEBOX_OK_CANCEL) buttons = GTK_BUTTONS_OK_CANCEL;
+   if (fd->mb_buttons) buttons = GTK_BUTTONS_NONE;
 
    window = gtk_message_dialog_new(NULL, 0, type, buttons, "%s",
-      al_cstr(fd->heading));
+      al_cstr(fd->mb_heading));
     gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(window), "%s",
-      al_cstr(fd->text));
+      al_cstr(fd->mb_text));
 
    make_transient(display, window);
 
-   if (fd->buttons) {
+   if (fd->mb_buttons) {
       int i = 1;
       int pos = 0;
       while (1) {
-         int next = al_ustr_find_chr(fd->buttons, pos, '|');
+         int next = al_ustr_find_chr(fd->mb_buttons, pos, '|');
          int pos2 = next;
          if (next == -1)
-	     pos2 = al_ustr_length(fd->buttons);
+	     pos2 = al_ustr_length(fd->mb_buttons);
          ALLEGRO_USTR_INFO info;
          ALLEGRO_USTR *button_text;
-         button_text = al_ref_ustr(&info, fd->buttons, pos, pos2);
+         button_text = al_ref_ustr(&info, fd->mb_buttons, pos, pos2);
          pos = pos2 + 1;
          char buffer[256];
          al_ustr_to_buffer(button_text, buffer, sizeof buffer);
@@ -326,7 +326,7 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 
    gtk_unlock_and_wait(fd);
 
-   return fd->pressed_button;
+   return fd->mb_pressed_button;
 }
 
 static void emit_close_event(ALLEGRO_NATIVE_DIALOG *textlog, bool keypress)
@@ -336,7 +336,7 @@ static void emit_close_event(ALLEGRO_NATIVE_DIALOG *textlog, bool keypress)
    event.user.timestamp = al_current_time();
    event.user.data1 = (intptr_t)textlog;
    event.user.data2 = (intptr_t)keypress;
-   al_emit_user_event(&textlog->events, &event, NULL);
+   al_emit_user_event(&textlog->tl_events, &event, NULL);
 }
 
 static gboolean textlog_delete(GtkWidget *w, GdkEvent *gevent,
@@ -346,7 +346,7 @@ static gboolean textlog_delete(GtkWidget *w, GdkEvent *gevent,
    (void)w;
    (void)gevent;
 
-   if (!(textlog->mode & ALLEGRO_TEXTLOG_NO_CLOSE)) {
+   if (!(textlog->flags & ALLEGRO_TEXTLOG_NO_CLOSE)) {
       emit_close_event(textlog, false);
    }
 
@@ -369,10 +369,10 @@ static gboolean textlog_key_press(GtkWidget *w, GdkEventKey *gevent,
 
 bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
-   al_lock_mutex(textlog->text_mutex);
+   al_lock_mutex(textlog->tl_text_mutex);
 
    if (!gtk_start_and_lock()) {
-      al_unlock_mutex(textlog->text_mutex);
+      al_unlock_mutex(textlog->tl_text_mutex);
       return false;
    }
 
@@ -381,7 +381,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    gtk_window_set_default_size(GTK_WINDOW(top), 640, 480);
    gtk_window_set_title(GTK_WINDOW(top), al_cstr(textlog->title));
 
-   if (textlog->mode & ALLEGRO_TEXTLOG_NO_CLOSE) {
+   if (textlog->flags & ALLEGRO_TEXTLOG_NO_CLOSE) {
       gtk_window_set_deletable(GTK_WINDOW(top), false);
    }
    else {
@@ -395,7 +395,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    gtk_container_add(GTK_CONTAINER(top), scroll);
    GtkWidget *view = gtk_text_view_new();
    gtk_text_view_set_editable(GTK_TEXT_VIEW(view), false);
-   if (textlog->mode & ALLEGRO_TEXTLOG_MONOSPACE) {
+   if (textlog->flags & ALLEGRO_TEXTLOG_MONOSPACE) {
       PangoFontDescription *font_desc;
       font_desc = pango_font_description_from_string("Monospace");
       gtk_widget_modify_font(view, font_desc);
@@ -406,21 +406,21 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    gtk_widget_show(scroll);
    gtk_widget_show(top);
    textlog->window = top;
-   textlog->textview = view;
+   textlog->tl_textview = view;
 
    /* Now notify al_show_native_textlog that the text log is ready. */
-   textlog->done = true;
-   al_signal_cond(textlog->text_cond);
-   al_unlock_mutex(textlog->text_mutex);
+   textlog->tl_done = true;
+   al_signal_cond(textlog->tl_text_cond);
+   al_unlock_mutex(textlog->tl_text_mutex);
 
    /* Keep running until the textlog is closed. */
    gtk_unlock_and_wait(textlog);
 
    /* Notify everyone that we're gone. */
-   al_lock_mutex(textlog->text_mutex);
-   textlog->done = true;
-   al_signal_cond(textlog->text_cond);
-   al_unlock_mutex(textlog->text_mutex);
+   al_lock_mutex(textlog->tl_text_mutex);
+   textlog->tl_done = true;
+   al_signal_cond(textlog->tl_text_cond);
+   al_unlock_mutex(textlog->tl_text_mutex);
 
    return true;
 }
@@ -428,22 +428,22 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 static gboolean do_append_native_text_log(gpointer data)
 {
    ALLEGRO_NATIVE_DIALOG *textlog = data;
-   al_lock_mutex(textlog->text_mutex);
+   al_lock_mutex(textlog->tl_text_mutex);
 
-   GtkTextView *tv = GTK_TEXT_VIEW(textlog->textview);
+   GtkTextView *tv = GTK_TEXT_VIEW(textlog->tl_textview);
    GtkTextBuffer *buffer = gtk_text_view_get_buffer(tv);
    GtkTextIter iter;
 
    gtk_text_buffer_get_end_iter(buffer, &iter);
-   gtk_text_buffer_insert(buffer, &iter, al_cstr(textlog->text), -1);
+   gtk_text_buffer_insert(buffer, &iter, al_cstr(textlog->tl_pending_text), -1);
 
    gtk_text_buffer_get_end_iter(buffer, &iter);
    gtk_text_view_scroll_to_iter(tv, &iter, 0, false, 0, 0);
 
    /* Notify the original caller that we are all done. */
-   textlog->done = true;
-   al_signal_cond(textlog->text_cond);
-   al_unlock_mutex(textlog->text_mutex);
+   textlog->tl_done = true;
+   al_signal_cond(textlog->tl_text_cond);
+   al_unlock_mutex(textlog->tl_text_mutex);
    return false;
 }
 

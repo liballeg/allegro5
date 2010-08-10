@@ -6,20 +6,20 @@
 /* Function: al_create_native_file_dialog
  */
 ALLEGRO_NATIVE_DIALOG *al_create_native_file_dialog(
-    ALLEGRO_PATH const *initial_path,
-    char const *title,
-    char const *patterns,
-    int mode)
+   ALLEGRO_PATH const *initial_path,
+   char const *title,
+   char const *patterns,
+   int mode)
 {
    ALLEGRO_NATIVE_DIALOG *fc;
    fc = al_malloc(sizeof *fc);
    memset(fc, 0, sizeof *fc);
 
    if (initial_path)
-      fc->initial_path = al_clone_path(initial_path);
+      fc->fc_initial_path = al_clone_path(initial_path);
    fc->title = al_ustr_new(title);
-   fc->patterns = al_ustr_new(patterns);
-   fc->mode = mode;
+   fc->fc_patterns = al_ustr_new(patterns);
+   fc->flags = mode;
 
    return fc;
 }
@@ -28,7 +28,7 @@ ALLEGRO_NATIVE_DIALOG *al_create_native_file_dialog(
  */
 int al_get_native_file_dialog_count(const ALLEGRO_NATIVE_DIALOG *fc)
 {
-   return fc->count;
+   return fc->fc_path_count;
 }
 
 /* Function: al_get_native_file_dialog_path
@@ -36,8 +36,8 @@ int al_get_native_file_dialog_count(const ALLEGRO_NATIVE_DIALOG *fc)
 const ALLEGRO_PATH *al_get_native_file_dialog_path(
    const ALLEGRO_NATIVE_DIALOG *fc, size_t i)
 {
-   if (i < fc->count)
-      return fc->paths[i];
+   if (i < fc->fc_path_count)
+      return fc->fc_paths[i];
    return NULL;
 }
 
@@ -45,24 +45,32 @@ const ALLEGRO_PATH *al_get_native_file_dialog_path(
  */
 void al_destroy_native_dialog(ALLEGRO_NATIVE_DIALOG *fd)
 {
+   size_t i;
+
    if (!fd)
       return;
 
-   if (fd->paths) {
-      size_t i;
-      for (i = 0; i < fd->count; i++) {
-         al_destroy_path(fd->paths[i]);
-      }
-   }
-   al_free(fd->paths);
-   if (fd->initial_path)
-      al_destroy_path(fd->initial_path);
    al_ustr_free(fd->title);
-   al_ustr_free(fd->heading);
-   al_ustr_free(fd->patterns);
-   al_ustr_free(fd->text);
-   al_ustr_free(fd->buttons);
+
+   /* file chooser stuff */
+   al_destroy_path(fd->fc_initial_path);
+   for (i = 0; i < fd->fc_path_count; i++) {
+      al_destroy_path(fd->fc_paths[i]);
+   }
+   al_free(fd->fc_paths);
+   al_ustr_free(fd->fc_patterns);
+
+   /* message box stuff */
+   al_ustr_free(fd->mb_heading);
+   al_ustr_free(fd->mb_text);
+   al_ustr_free(fd->mb_buttons);
+
+   /* text log stuff is handled by al_close_native_text_log */
+   /* XXX should we implicitly call al_close_native_text_log? */
+
+   /* platform specific stuff */
    al_destroy_cond(fd->cond);
+
    al_free(fd);
 }
 
@@ -74,14 +82,15 @@ int al_show_native_message_box(ALLEGRO_DISPLAY *display,
 {
    ALLEGRO_NATIVE_DIALOG *fc;
    int r;
+
    fc = al_malloc(sizeof *fc);
    memset(fc, 0, sizeof *fc);
 
    fc->title = al_ustr_new(title);
-   fc->heading = al_ustr_new(heading);
-   fc->text = al_ustr_new(text);
-   fc->buttons = al_ustr_new(buttons);
-   fc->mode = flags;
+   fc->mb_heading = al_ustr_new(heading);
+   fc->mb_text = al_ustr_new(text);
+   fc->mb_buttons = al_ustr_new(buttons);
+   fc->flags = flags;
 
    r = _al_show_native_message_box(display, fc);
    al_destroy_native_dialog(fc);

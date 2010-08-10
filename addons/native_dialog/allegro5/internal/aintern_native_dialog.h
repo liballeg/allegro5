@@ -7,34 +7,34 @@
 struct ALLEGRO_NATIVE_DIALOG
 {
    ALLEGRO_USTR *title;
-   ALLEGRO_USTR *text;
-   int mode;
+   int flags;
 
    /* Only used by file chooser. */
-   ALLEGRO_PATH *initial_path;
-   size_t count;
-   ALLEGRO_PATH **paths;
-   ALLEGRO_USTR *patterns;
+   ALLEGRO_PATH *fc_initial_path;
+   size_t fc_path_count;
+   ALLEGRO_PATH **fc_paths;
+   ALLEGRO_USTR *fc_patterns;
 
    /* Only used by message box. */
-   ALLEGRO_USTR *heading;
-   ALLEGRO_USTR *buttons;
-   int pressed_button;
+   ALLEGRO_USTR *mb_heading;
+   ALLEGRO_USTR *mb_text;
+   ALLEGRO_USTR *mb_buttons;
+   int mb_pressed_button;
 
    /* Only used by text log. */
-   ALLEGRO_THREAD *thread;
-   ALLEGRO_COND *text_cond;
-   ALLEGRO_MUTEX *text_mutex;
-   bool init_error;
-   bool done;
-   int new_line; /* XXX new_line never seems to be set */
-   ALLEGRO_EVENT_SOURCE events;
+   ALLEGRO_THREAD *tl_thread;
+   ALLEGRO_COND *tl_text_cond;
+   ALLEGRO_MUTEX *tl_text_mutex;
+   ALLEGRO_USTR *tl_pending_text;
+   bool tl_init_error;
+   bool tl_done;
+   ALLEGRO_EVENT_SOURCE tl_events;
+   void *tl_textview;
 
    /* Only used by platform implementations. */
    bool is_active;
    ALLEGRO_COND *cond;
    void *window;
-   void *textview;
 };
 
 extern int _al_show_native_message_box(ALLEGRO_DISPLAY *display,

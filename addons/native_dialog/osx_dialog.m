@@ -16,18 +16,18 @@
 @implementation FileDialog
 +(void) show : (NSValue *) param {
    ALLEGRO_NATIVE_DIALOG *fd = [param pointerValue];
-   int mode = fd->mode;
+   int mode = fd->flags;
    NSString *directory, *filename;
 
    /* Set initial directory to pass to the file selector */
-   if (fd->initial_path) {
-      ALLEGRO_PATH *initial_directory = al_clone_path(fd->initial_path);
+   if (fd->fc_initial_path) {
+      ALLEGRO_PATH *initial_directory = al_clone_path(fd->fc_initial_path);
       /* Strip filename from path  */
       al_set_path_filename(initial_directory, NULL);
 
       /* Convert path and filename to NSString objects */
       directory = [NSString stringWithUTF8String: al_path_cstr(initial_directory, '/')];
-      filename = [NSString stringWithUTF8String: al_get_path_filename(fd->initial_path)];
+      filename = [NSString stringWithUTF8String: al_get_path_filename(fd->fc_initial_path)];
       al_destroy_path(initial_directory);
    } else {
       directory = nil;
@@ -55,9 +55,9 @@
           * (according to the UTF8String docs anyway).
           */
          const char *s = [[panel filename] UTF8String];
-         fd->count = 1;
-         fd->paths = al_malloc(fd->count * sizeof *fd->paths);
-         fd->paths[0] = al_create_path(s);
+         fd->fc_path_count = 1;
+         fd->fc_paths = al_malloc(fd->fc_path_count * sizeof *fd->fc_paths);
+         fd->fc_paths[0] = al_create_path(s);
       }
    } else {                                  // Open dialog
       NSOpenPanel *panel = [NSOpenPanel openPanel];
@@ -80,16 +80,16 @@
       /* Open dialog box */
       if ([panel runModalForDirectory:directory file:filename] == NSOKButton) {
          size_t i;
-         fd->count = [[panel filenames] count];
-         fd->paths = al_malloc(fd->count * sizeof *fd->paths);
-         for (i = 0; i < fd->count; i++) {
+         fd->fc_path_count = [[panel filenames] count];
+         fd->fc_paths = al_malloc(fd->fc_path_count * sizeof *fd->fc_paths);
+         for (i = 0; i < fd->fc_path_count; i++) {
             /* NOTE: at first glance, it looks as if this code might leak
              * memory, but in fact it doesn't: the string returned by
              * UTF8String is freed automatically when it goes out of scope
              * (according to the UTF8String docs anyway).
              */
             const char *s = [[[panel filenames] objectAtIndex: i] UTF8String];
-            fd->paths[i] = al_create_path(s);
+            fd->fc_paths[i] = al_create_path(s);
          }
       }
    }
@@ -131,25 +131,25 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    NSAlert* box = [[NSAlert alloc] init];
    NSAlertStyle style;
    [box autorelease];
-   if (fd->buttons == NULL) {
+   if (fd->mb_buttons == NULL) {
       button_text = @"OK";
-      if (fd->mode & ALLEGRO_MESSAGEBOX_YES_NO) button_text = @"Yes|No";
-      if (fd->mode & ALLEGRO_MESSAGEBOX_OK_CANCEL) button_text = @"OK|Cancel";
+      if (fd->flags & ALLEGRO_MESSAGEBOX_YES_NO) button_text = @"Yes|No";
+      if (fd->flags & ALLEGRO_MESSAGEBOX_OK_CANCEL) button_text = @"OK|Cancel";
    }
    else {
-      button_text = [NSString stringWithUTF8String: al_cstr(fd->buttons)];
+      button_text = [NSString stringWithUTF8String: al_cstr(fd->mb_buttons)];
    }
 
    style = NSWarningAlertStyle;
    buttons = [button_text componentsSeparatedByString: @"|"];
    [box setMessageText:[NSString stringWithUTF8String: al_cstr(fd->title)]];
-   [box setInformativeText:[NSString stringWithUTF8String: al_cstr(fd->text)]];
+   [box setInformativeText:[NSString stringWithUTF8String: al_cstr(fd->mb_text)]];
    [box setAlertStyle: style];
    for (i = 0; i < [buttons count]; ++i)
       [box addButtonWithTitle: [buttons objectAtIndex: i]];
 
-   fd->pressed_button = [box runModal] + 1 - NSAlertFirstButtonReturn;
+   fd->mb_pressed_button = [box runModal] + 1 - NSAlertFirstButtonReturn;
 
    [pool drain];
-   return fd->pressed_button;
+   return fd->mb_pressed_button;
 }

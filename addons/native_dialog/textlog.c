@@ -18,10 +18,10 @@ static void *textlog_thread_proc(ALLEGRO_THREAD *thread, void *arg)
    ALLEGRO_NATIVE_DIALOG *textlog = arg;
 
    if (!_al_open_native_text_log(textlog)) {
-      al_lock_mutex(textlog->text_mutex);
-      textlog->init_error = true;
-      al_signal_cond(textlog->text_cond);
-      al_unlock_mutex(textlog->text_mutex);
+      al_lock_mutex(textlog->tl_text_mutex);
+      textlog->tl_init_error = true;
+      al_signal_cond(textlog->tl_text_cond);
+      al_unlock_mutex(textlog->tl_text_mutex);
    }
 
    return thread;
@@ -42,27 +42,27 @@ ALLEGRO_NATIVE_DIALOG *al_open_native_text_log(char const *title, int flags)
 #ifdef HAVE_TEXT_LOG
    textlog = al_calloc(1, sizeof *textlog);
    textlog->title = al_ustr_new(title);
-   textlog->mode = flags;
-   textlog->thread = al_create_thread(textlog_thread_proc, textlog);
-   textlog->text_cond = al_create_cond();
-   textlog->text_mutex = al_create_mutex();
-   al_init_user_event_source(&textlog->events);
+   textlog->flags = flags;
+   textlog->tl_thread = al_create_thread(textlog_thread_proc, textlog);
+   textlog->tl_text_cond = al_create_cond();
+   textlog->tl_text_mutex = al_create_mutex();
+   al_init_user_event_source(&textlog->tl_events);
 
    /* Unlike the other dialogs, this one never blocks as the intended
     * use case is a log window running in the background for debugging
     * purposes when no console can be used. Therefore we have it run
     * in a separate thread.
     */
-   textlog->init_error = false;
-   textlog->done = false;
-   al_start_thread(textlog->thread);
-   al_lock_mutex(textlog->text_mutex);
-   while (!textlog->done && !textlog->init_error) {
-      al_wait_cond(textlog->text_cond, textlog->text_mutex);
+   textlog->tl_init_error = false;
+   textlog->tl_done = false;
+   al_start_thread(textlog->tl_thread);
+   al_lock_mutex(textlog->tl_text_mutex);
+   while (!textlog->tl_done && !textlog->tl_init_error) {
+      al_wait_cond(textlog->tl_text_cond, textlog->tl_text_mutex);
    }
-   al_unlock_mutex(textlog->text_mutex);
+   al_unlock_mutex(textlog->tl_text_mutex);
 
-   if (textlog->init_error) {
+   if (textlog->tl_init_error) {
       al_close_native_text_log(textlog);
       return NULL;
    }
@@ -80,26 +80,26 @@ void al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       return;
 
 #ifdef HAVE_TEXT_LOG
-   if (!textlog->init_error) {
-      al_lock_mutex(textlog->text_mutex);
-      textlog->done = false;
+   if (!textlog->tl_init_error) {
+      al_lock_mutex(textlog->tl_text_mutex);
+      textlog->tl_done = false;
 
       _al_close_native_text_log(textlog);
 
-      while (!textlog->done) {
-         al_wait_cond(textlog->text_cond, textlog->text_mutex);
+      while (!textlog->tl_done) {
+         al_wait_cond(textlog->tl_text_cond, textlog->tl_text_mutex);
       }
    }
 
    al_ustr_free(textlog->title);
 
-   al_destroy_user_event_source(&textlog->events);
+   al_destroy_user_event_source(&textlog->tl_events);
 
-   al_unlock_mutex(textlog->text_mutex);
+   al_unlock_mutex(textlog->tl_text_mutex);
 
-   al_destroy_thread(textlog->thread);
-   al_destroy_cond(textlog->text_cond);
-   al_destroy_mutex(textlog->text_mutex);
+   al_destroy_thread(textlog->tl_thread);
+   al_destroy_cond(textlog->tl_text_cond);
+   al_destroy_mutex(textlog->tl_text_mutex);
    al_free(textlog);
 #endif
 }
@@ -123,11 +123,11 @@ void al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog,
 #ifdef HAVE_TEXT_LOG
    /* We could optimise the case where format="%s". */
    va_start(args, format);
-   textlog->text = al_ustr_new("");
-   al_ustr_vappendf(textlog->text, format, args);
+   textlog->tl_pending_text = al_ustr_new("");
+   al_ustr_vappendf(textlog->tl_pending_text, format, args);
    va_end(args);
 
-   al_lock_mutex(textlog->text_mutex);
+   al_lock_mutex(textlog->tl_text_mutex);
 
    _al_append_native_text_log(textlog);
 
@@ -135,14 +135,14 @@ void al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog,
     * work correctly even if 10 threads are calling us 60 times
     * a second.  (Of course calling us that often would be slow.)
     */
-   textlog->done = false;
-   while (!textlog->done) {
-      al_wait_cond(textlog->text_cond, textlog->text_mutex);
+   textlog->tl_done = false;
+   while (!textlog->tl_done) {
+      al_wait_cond(textlog->tl_text_cond, textlog->tl_text_mutex);
    }
 
-   al_unlock_mutex(textlog->text_mutex);
+   al_unlock_mutex(textlog->tl_text_mutex);
 
-   al_ustr_free(textlog->text);
+   al_ustr_free(textlog->tl_pending_text);
 #endif
 }
 
@@ -154,7 +154,7 @@ ALLEGRO_EVENT_SOURCE *al_get_native_dialog_event_source(
 {
    ASSERT(dialog);
 
-   return &dialog->events;
+   return &dialog->tl_events;
 }
 
 

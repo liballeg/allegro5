@@ -57,22 +57,22 @@ bool al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    ofn.lStructSize = sizeof(OPENFILENAME);
    win_display = (ALLEGRO_DISPLAY_WIN *)display;
    ofn.hwndOwner = win_display->window;
-   if (fd->initial_path) {
-      strncpy(buf, al_path_cstr(fd->initial_path, '/'), 4096);
+   if (fd->fc_initial_path) {
+      strncpy(buf, al_path_cstr(fd->fc_initial_path, '/'), 4096);
    }
 
    ofn.lpstrFile = buf;
    ofn.nMaxFile = 4096;
 
    flags |= OFN_NOCHANGEDIR | OFN_EXPLORER;
-   if (fd->mode & ALLEGRO_FILECHOOSER_SAVE) {
+   if (fd->flags & ALLEGRO_FILECHOOSER_SAVE) {
       flags |= OFN_OVERWRITEPROMPT;
    }
    else {
-      flags |= (fd->mode & ALLEGRO_FILECHOOSER_FILE_MUST_EXIST) ? OFN_FILEMUSTEXIST : 0;
+      flags |= (fd->flags & ALLEGRO_FILECHOOSER_FILE_MUST_EXIST) ? OFN_FILEMUSTEXIST : 0;
    }
-   flags |= (fd->mode & ALLEGRO_FILECHOOSER_MULTIPLE) ? OFN_ALLOWMULTISELECT : 0;
-   flags |= (fd->mode & ALLEGRO_FILECHOOSER_SHOW_HIDDEN) ? 0x10000000 : 0; // NOTE: 0x10000000 is FORCESHOWHIDDEN
+   flags |= (fd->flags & ALLEGRO_FILECHOOSER_MULTIPLE) ? OFN_ALLOWMULTISELECT : 0;
+   flags |= (fd->flags & ALLEGRO_FILECHOOSER_SHOW_HIDDEN) ? 0x10000000 : 0; // NOTE: 0x10000000 is FORCESHOWHIDDEN
    ofn.Flags = flags;
 
    if (flags & OFN_OVERWRITEPROMPT) {
@@ -103,28 +103,28 @@ bool al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
       i = next(buf);
 
       /* Count selected */
-      fd->count = 0;
+      fd->fc_path_count = 0;
       while (1) {
          if (buf[i] == 0) {
-            fd->count++;
+            fd->fc_path_count++;
             if (buf[i+1] == 0)
                break;
          }
          i++;
       }
 
-      fd->paths = al_malloc(fd->count * sizeof(void *));
+      fd->fc_paths = al_malloc(fd->fc_path_count * sizeof(void *));
       i = next(buf);
-      for (p = 0; p < (int)fd->count; p++) {
-         fd->paths[p] = al_create_path(path);
-         al_join_paths(fd->paths[p], al_create_path(buf+i));
+      for (p = 0; p < (int)fd->fc_path_count; p++) {
+         fd->fc_paths[p] = al_create_path(path);
+         al_join_paths(fd->fc_paths[p], al_create_path(buf+i));
          i += next(buf+i);
       }
    }
    else {
-      fd->count = 1;
-      fd->paths = al_malloc(sizeof(void *));
-      fd->paths[0] = al_create_path(buf);
+      fd->fc_path_count = 1;
+      fd->fc_paths = al_malloc(sizeof(void *));
+      fd->fc_paths[0] = al_create_path(buf);
    }
 
    return true;
@@ -136,14 +136,14 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    UINT type = 0;
    int result;
 
-   if (fd->mode & ALLEGRO_MESSAGEBOX_QUESTION) type |= MB_ICONQUESTION;
-   if (fd->mode & ALLEGRO_MESSAGEBOX_WARN) type |= MB_ICONWARNING;
-   if (fd->mode & ALLEGRO_MESSAGEBOX_ERROR) type |= MB_ICONERROR;
-   if (fd->mode & ALLEGRO_MESSAGEBOX_YES_NO) type |= MB_YESNO;
-   if (fd->mode & ALLEGRO_MESSAGEBOX_OK_CANCEL) type |= MB_OKCANCEL;
+   if (fd->flags & ALLEGRO_MESSAGEBOX_QUESTION) type |= MB_ICONQUESTION;
+   if (fd->flags & ALLEGRO_MESSAGEBOX_WARN) type |= MB_ICONWARNING;
+   if (fd->flags & ALLEGRO_MESSAGEBOX_ERROR) type |= MB_ICONERROR;
+   if (fd->flags & ALLEGRO_MESSAGEBOX_YES_NO) type |= MB_YESNO;
+   if (fd->flags & ALLEGRO_MESSAGEBOX_OK_CANCEL) type |= MB_OKCANCEL;
 
    result = MessageBox(al_get_win_window_handle(display),
-      al_cstr(fd->text), al_cstr(fd->title), type);
+      al_cstr(fd->mb_text), al_cstr(fd->title), type);
 
    if (result == IDYES || result == IDOK)
       return 1;
@@ -160,7 +160,7 @@ static void wlog_emit_close_event(ALLEGRO_NATIVE_DIALOG *textlog, bool keypress)
    event.user.timestamp = al_current_time();
    event.user.data1 = (intptr_t)textlog;
    event.user.data2 = (intptr_t)keypress;
-   al_emit_user_event(&textlog->events, &event, NULL);
+   al_emit_user_event(&textlog->tl_events, &event, NULL);
 }
 
 /* Output message to ANSI log. */
@@ -173,13 +173,10 @@ static void wlog_do_append_native_text_log_ansi(ALLEGRO_NATIVE_DIALOG *textlog)
    format.dwMask      = CFM_COLOR;
    format.crTextColor = RGB(128, 255, 128);
 
-   index = GetWindowTextLength(textlog->textview);
-   SendMessageA(textlog->textview, EM_SETSEL, (WPARAM)index, (LPARAM)index);
-   SendMessageA(textlog->textview, EM_SETCHARFORMAT, (WPARAM)SCF_SELECTION, (LPARAM)&format);
-   SendMessageA(textlog->textview, EM_REPLACESEL, 0, (LPARAM)al_cstr(textlog->text));
-   if (textlog->new_line) {
-      SendMessageA(textlog->textview, EM_REPLACESEL, 0, (LPARAM)"\n");
-   }
+   index = GetWindowTextLength(textlog->tl_textview);
+   SendMessageA(textlog->tl_textview, EM_SETSEL, (WPARAM)index, (LPARAM)index);
+   SendMessageA(textlog->tl_textview, EM_SETCHARFORMAT, (WPARAM)SCF_SELECTION, (LPARAM)&format);
+   SendMessageA(textlog->tl_textview, EM_REPLACESEL, 0, (LPARAM)al_cstr(textlog->tl_pending_text));
 }
 
 /* Output message to Unicode log. */
@@ -196,20 +193,20 @@ static void wlog_do_append_native_text_log_unicode(ALLEGRO_NATIVE_DIALOG *textlo
    format.dwMask      = CFM_COLOR;
    format.crTextColor = RGB(128, 255, 128);
 
-   index = GetWindowTextLength(textlog->textview);
-   SendMessageW(textlog->textview, EM_SETSEL, (WPARAM)index, (LPARAM)index);
-   SendMessageW(textlog->textview, EM_SETCHARFORMAT, (WPARAM)SCF_SELECTION, (LPARAM)&format);
+   index = GetWindowTextLength(textlog->tl_textview);
+   SendMessageW(textlog->tl_textview, EM_SETSEL, (WPARAM)index, (LPARAM)index);
+   SendMessageW(textlog->tl_textview, EM_SETCHARFORMAT, (WPARAM)SCF_SELECTION, (LPARAM)&format);
 
    next = 0;
    index = 0;
    flush = false;
-   while ((ch = al_ustr_get_next(textlog->text, &next)) >= 0) {
+   while ((ch = al_ustr_get_next(textlog->tl_pending_text, &next)) >= 0) {
       buffer[index % BUFFER_SIZE] = (WCHAR)ch;
       flush = true;
 
       if ((next % BUFFER_SIZE) == 0) {
          buffer[BUFFER_SIZE] = L'\0';
-         SendMessageW(textlog->textview, EM_REPLACESEL, 0, (LPARAM)buffer);
+         SendMessageW(textlog->tl_textview, EM_REPLACESEL, 0, (LPARAM)buffer);
          flush = false;
       }
 
@@ -218,11 +215,7 @@ static void wlog_do_append_native_text_log_unicode(ALLEGRO_NATIVE_DIALOG *textlo
 
    if (flush) {
       buffer[index % BUFFER_SIZE] = L'\0';
-      SendMessageW(textlog->textview, EM_REPLACESEL, 0, (LPARAM)buffer);
-   }
-
-   if (textlog->new_line) {
-      SendMessageW(textlog->textview, EM_REPLACESEL, 0, (LPARAM)"\r\n");
+      SendMessageW(textlog->tl_textview, EM_REPLACESEL, 0, (LPARAM)buffer);
    }
 }
 
@@ -236,7 +229,7 @@ static void wlog_do_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       wlog_do_append_native_text_log_ansi(textlog);
    }
 
-   SendMessage(textlog->textview, WM_VSCROLL, SB_BOTTOM, 0);
+   SendMessage(textlog->tl_textview, WM_VSCROLL, SB_BOTTOM, 0);
 }
 
 /* Text log window callback. */
@@ -261,7 +254,7 @@ static LRESULT CALLBACK wlog_text_log_callback(HWND hWnd, UINT uMsg, WPARAM wPar
 
       case WM_CLOSE:
          if (textlog->is_active) {
-            if (!(textlog->mode & ALLEGRO_TEXTLOG_NO_CLOSE)) {
+            if (!(textlog->flags & ALLEGRO_TEXTLOG_NO_CLOSE)) {
                wlog_emit_close_event(textlog, false);
             }
             return 0;
@@ -288,20 +281,20 @@ static LRESULT CALLBACK wlog_text_log_callback(HWND hWnd, UINT uMsg, WPARAM wPar
          if (wParam == SIZE_RESTORED || wParam == SIZE_MAXIMIZED) {
             RECT client_rect;
             GetClientRect(hWnd, &client_rect);
-            MoveWindow(textlog->textview, client_rect.left, client_rect.top,
+            MoveWindow(textlog->tl_textview, client_rect.left, client_rect.top,
                client_rect.right - client_rect.left, client_rect.bottom - client_rect.top, TRUE);
          }
          break;
 
       case WM_USER:
-         al_lock_mutex(textlog->text_mutex);
+         al_lock_mutex(textlog->tl_text_mutex);
 
          wlog_do_append_native_text_log(textlog);
 
          /* notify the original caller that we are all done */
-         textlog->done = true;
-         al_signal_cond(textlog->text_cond);
-         al_unlock_mutex(textlog->text_mutex);
+         textlog->tl_done = true;
+         al_signal_cond(textlog->tl_text_cond);
+         al_unlock_mutex(textlog->tl_text_mutex);
          break;
    }
 
@@ -320,7 +313,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    MSG msg;
    BOOL ret;
 
-   al_lock_mutex(textlog->text_mutex);
+   al_lock_mutex(textlog->tl_text_mutex);
 
    /* Prepare text log class info. */
    if (!wlog_class_registered) {
@@ -335,7 +328,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 
       if (RegisterClassA(&text_log_class) == 0) {
          /* Failure, window class is a basis and we do not have one. */
-         al_unlock_mutex(textlog->text_mutex);
+         al_unlock_mutex(textlog->tl_text_mutex);
          return false;
       }
 
@@ -376,7 +369,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
          wlog_rich_edit_module = NULL;
       }
       UnregisterClassA("Allegro Text Log", (HINSTANCE)GetModuleHandle(NULL));
-      al_unlock_mutex(textlog->text_mutex);
+      al_unlock_mutex(textlog->tl_text_mutex);
       return false;
    }
 
@@ -395,7 +388,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       }
       DestroyWindow(hWnd);
       UnregisterClassA("Allegro Text Log", (HINSTANCE)GetModuleHandle(NULL));
-      al_unlock_mutex(textlog->text_mutex);
+      al_unlock_mutex(textlog->tl_text_mutex);
       return false;
    }
 
@@ -403,7 +396,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    SetWindowLong(hLog, GWL_EXSTYLE, GetWindowLong(hLog, GWL_EXSTYLE) | 0x02000000L/*WS_EX_COMPOSITED*/);
 
    /* Select font name. */
-   if (textlog->mode & ALLEGRO_TEXTLOG_MONOSPACE)
+   if (textlog->flags & ALLEGRO_TEXTLOG_MONOSPACE)
       font_name = "Courier New";
    else
       font_name = "Arial";
@@ -428,13 +421,13 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 
    /* Save handles for future use. */
    textlog->window    = hWnd;
-   textlog->textview  = hLog;
+   textlog->tl_textview  = hLog;
    textlog->is_active = true;
 
    /* Now notify al_show_native_textlog that the text log is ready. */
-   textlog->done = true;
-   al_signal_cond(textlog->text_cond);
-   al_unlock_mutex(textlog->text_mutex);
+   textlog->tl_done = true;
+   al_signal_cond(textlog->tl_text_cond);
+   al_unlock_mutex(textlog->tl_text_mutex);
 
    /* Process messages. */
    while ((ret = GetMessage(&msg, NULL, 0, 0)) != 0) {
@@ -471,10 +464,10 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    }
 
    /* Notify everyone that we're gone. */
-   al_lock_mutex(textlog->text_mutex);
-   textlog->done = true;
-   al_signal_cond(textlog->text_cond);
-   al_unlock_mutex(textlog->text_mutex);
+   al_lock_mutex(textlog->tl_text_mutex);
+   textlog->tl_done = true;
+   al_signal_cond(textlog->tl_text_cond);
+   al_unlock_mutex(textlog->tl_text_mutex);
 
    return true;
 }
