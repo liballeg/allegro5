@@ -50,7 +50,7 @@ struct {
     X(RENDER_METHOD, 2),
     X(SINGLE_BUFFER, 1),
     X(SWAP_METHOD, 1),
-    X(VSYNC, 1),
+    X(VSYNC, 2),
     X(COMPATIBLE_DISPLAY, 1),
     X(MAX_BITMAP_SIZE, 65536),
     X(SUPPORT_NPOT_BITMAP, 1),

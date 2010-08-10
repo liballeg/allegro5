@@ -191,6 +191,9 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_fbconfig(Display *dpy,
        eds->settings[ALLEGRO_SWAP_METHOD] = swap_method;
    }
 
+   /* We can only guarantee vsync is off. */
+   eds->settings[ALLEGRO_VSYNC] = 2;
+
    eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] = (_al_deduce_color_format(eds)
                                                != ALLEGRO_PIXEL_FORMAT_ANY);
 

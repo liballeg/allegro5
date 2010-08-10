@@ -484,7 +484,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
     */
    ALLEGRO_DEBUG("requested vsync=%d.\n",
       display->extra_settings.settings[ALLEGRO_VSYNC]);
-   if (display->extra_settings.settings[ALLEGRO_VSYNC]) {
+   if (display->extra_settings.settings[ALLEGRO_VSYNC] == 1) {
       if (display->ogl_extras->extension_list->ALLEGRO_GLX_SGI_swap_control) {
          int x = 1;
          if (display->extra_settings.settings[ALLEGRO_VSYNC] == 2)
@@ -495,7 +495,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       }
       else {
          ALLEGRO_WARN("no vsync, GLX_SGI_swap_control missing.\n");
-         display->extra_settings.settings[ALLEGRO_VSYNC] = 0;
+         display->extra_settings.settings[ALLEGRO_VSYNC] = 2;
       }
    }
 
