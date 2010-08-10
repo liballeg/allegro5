@@ -433,22 +433,29 @@ static gboolean do_append_native_text_log(gpointer data)
    GtkTextView *tv = GTK_TEXT_VIEW(textlog->tl_textview);
    GtkTextBuffer *buffer = gtk_text_view_get_buffer(tv);
    GtkTextIter iter;
+   GtkTextMark *mark;
 
    gtk_text_buffer_get_end_iter(buffer, &iter);
    gtk_text_buffer_insert(buffer, &iter, al_cstr(textlog->tl_pending_text), -1);
 
-   gtk_text_buffer_get_end_iter(buffer, &iter);
-   gtk_text_view_scroll_to_iter(tv, &iter, 0, false, 0, 0);
+   mark = gtk_text_buffer_create_mark(buffer, NULL, &iter, FALSE);
+   gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(textlog->tl_textview), mark);
+   gtk_text_buffer_delete_mark(buffer, mark);
 
-   /* Notify the original caller that we are all done. */
-   textlog->tl_done = true;
-   al_signal_cond(textlog->tl_text_cond);
+   al_ustr_truncate(textlog->tl_pending_text, 0);
+
+   textlog->tl_have_pending = false;
+
    al_unlock_mutex(textlog->tl_text_mutex);
    return false;
 }
 
 void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
+   if (textlog->tl_have_pending)
+      return;
+   textlog->tl_have_pending = true;
+
    gdk_threads_add_timeout(0, do_append_native_text_log, textlog);
 }
 

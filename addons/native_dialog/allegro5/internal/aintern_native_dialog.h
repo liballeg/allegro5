@@ -28,6 +28,7 @@ struct ALLEGRO_NATIVE_DIALOG
    ALLEGRO_USTR *tl_pending_text;
    bool tl_init_error;
    bool tl_done;
+   bool tl_have_pending;
    ALLEGRO_EVENT_SOURCE tl_events;
    void *tl_textview;
 

@@ -46,6 +46,7 @@ ALLEGRO_NATIVE_DIALOG *al_open_native_text_log(char const *title, int flags)
    textlog->tl_thread = al_create_thread(textlog_thread_proc, textlog);
    textlog->tl_text_cond = al_create_cond();
    textlog->tl_text_mutex = al_create_mutex();
+   textlog->tl_pending_text = al_ustr_new("");
    al_init_user_event_source(&textlog->tl_events);
 
    /* Unlike the other dialogs, this one never blocks as the intended
@@ -92,6 +93,7 @@ void al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    }
 
    al_ustr_free(textlog->title);
+   al_ustr_free(textlog->tl_pending_text);
 
    al_destroy_user_event_source(&textlog->tl_events);
 
@@ -121,28 +123,16 @@ void al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog,
    }
 
 #ifdef HAVE_TEXT_LOG
+   al_lock_mutex(textlog->tl_text_mutex);
+
    /* We could optimise the case where format="%s". */
    va_start(args, format);
-   textlog->tl_pending_text = al_ustr_new("");
    al_ustr_vappendf(textlog->tl_pending_text, format, args);
    va_end(args);
 
-   al_lock_mutex(textlog->tl_text_mutex);
-
    _al_append_native_text_log(textlog);
 
-   /* We wait until it is appended - that way we are sure it will
-    * work correctly even if 10 threads are calling us 60 times
-    * a second.  (Of course calling us that often would be slow.)
-    */
-   textlog->tl_done = false;
-   while (!textlog->tl_done) {
-      al_wait_cond(textlog->tl_text_cond, textlog->tl_text_mutex);
-   }
-
    al_unlock_mutex(textlog->tl_text_mutex);
-
-   al_ustr_free(textlog->tl_pending_text);
 #endif
 }
 

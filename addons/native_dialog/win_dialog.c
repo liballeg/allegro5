@@ -177,6 +177,9 @@ static void wlog_do_append_native_text_log_ansi(ALLEGRO_NATIVE_DIALOG *textlog)
    SendMessageA(textlog->tl_textview, EM_SETSEL, (WPARAM)index, (LPARAM)index);
    SendMessageA(textlog->tl_textview, EM_SETCHARFORMAT, (WPARAM)SCF_SELECTION, (LPARAM)&format);
    SendMessageA(textlog->tl_textview, EM_REPLACESEL, 0, (LPARAM)al_cstr(textlog->tl_pending_text));
+
+   al_ustr_truncate(textlog->tl_pending_text, 0);
+   textlog->tl_have_pending = false;
 }
 
 /* Output message to Unicode log. */
@@ -217,6 +220,9 @@ static void wlog_do_append_native_text_log_unicode(ALLEGRO_NATIVE_DIALOG *textlo
       buffer[index % BUFFER_SIZE] = L'\0';
       SendMessageW(textlog->tl_textview, EM_REPLACESEL, 0, (LPARAM)buffer);
    }
+
+   al_ustr_truncate(textlog->tl_pending_text, 0);
+   textlog->tl_have_pending = false;
 }
 
 /* General function to output log message. */
@@ -288,12 +294,7 @@ static LRESULT CALLBACK wlog_text_log_callback(HWND hWnd, UINT uMsg, WPARAM wPar
 
       case WM_USER:
          al_lock_mutex(textlog->tl_text_mutex);
-
          wlog_do_append_native_text_log(textlog);
-
-         /* notify the original caller that we are all done */
-         textlog->tl_done = true;
-         al_signal_cond(textlog->tl_text_cond);
          al_unlock_mutex(textlog->tl_text_mutex);
          break;
    }
@@ -483,8 +484,13 @@ void _al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 
 void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
-   /* Post text as user message. This guratantee that whole proccesing will take
-    * place on text log thread. */
+   if (textlog->tl_have_pending)
+      return;
+   textlog->tl_have_pending = true;
+
+   /* Post text as user message. This guarantees that the whole processing will
+    * take place on text log thread.
+    */
    if (IsWindow(textlog->window)) {
       PostMessage(textlog->window, WM_USER, (WPARAM)textlog, 0);
    }
