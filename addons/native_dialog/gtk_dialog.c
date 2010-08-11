@@ -456,7 +456,7 @@ void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       return;
    textlog->tl_have_pending = true;
 
-   gdk_threads_add_timeout(0, do_append_native_text_log, textlog);
+   gdk_threads_add_timeout(100, do_append_native_text_log, textlog);
 }
 
 static gboolean do_close_native_text_log(gpointer data)
