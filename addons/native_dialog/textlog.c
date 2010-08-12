@@ -4,6 +4,8 @@
 #include "allegro5/allegro_native_dialog.h"
 #include "allegro5/internal/aintern_native_dialog.h"
 #include "allegro5/internal/aintern_native_dialog_cfg.h"
+#include "allegro5/internal/aintern_dtor.h"
+#include "allegro5/internal/aintern_system.h"
 
 /* Text logs are only implemented for GTK+ and Windows so far. */
 #if defined(ALLEGRO_CFG_NATIVE_DIALOG_GTK) || defined(ALLEGRO_CFG_NATIVE_DIALOG_WINDOWS)
@@ -67,6 +69,9 @@ ALLEGRO_NATIVE_DIALOG *al_open_native_text_log(char const *title, int flags)
       al_close_native_text_log(textlog);
       return NULL;
    }
+
+   _al_register_destructor(_al_dtor_list, textlog,
+      (void (*)(void *))al_close_native_text_log);
 #endif
 
    return textlog;
@@ -90,6 +95,8 @@ void al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       while (!textlog->tl_done) {
          al_wait_cond(textlog->tl_text_cond, textlog->tl_text_mutex);
       }
+
+      _al_unregister_destructor(_al_dtor_list, textlog);
    }
 
    al_ustr_free(textlog->title);

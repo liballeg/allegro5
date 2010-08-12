@@ -1,6 +1,8 @@
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_native_dialog.h"
 #include "allegro5/internal/aintern_native_dialog.h"
+#include "allegro5/internal/aintern_dtor.h"
+#include "allegro5/internal/aintern_system.h"
 
 
 /* Function: al_create_native_file_dialog
@@ -20,6 +22,9 @@ ALLEGRO_NATIVE_DIALOG *al_create_native_file_dialog(
    fc->title = al_ustr_new(title);
    fc->fc_patterns = al_ustr_new(patterns);
    fc->flags = mode;
+
+   _al_register_destructor(_al_dtor_list, fc,
+      (void (*)(void *))al_destroy_native_file_dialog);
 
    return fc;
 }
@@ -49,6 +54,8 @@ void al_destroy_native_dialog(ALLEGRO_NATIVE_DIALOG *fd)
 
    if (!fd)
       return;
+
+   _al_unregister_destructor(_al_dtor_list, fd);
 
    al_ustr_free(fd->title);
 
