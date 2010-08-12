@@ -11,7 +11,7 @@ void log_printf(char const *format, ...);
 
 #include "allegro5/allegro_native_dialog.h"
 
-ALLEGRO_NATIVE_DIALOG *textlog = NULL;
+ALLEGRO_TEXTLOG *textlog = NULL;
 
 void abort_example(char const *format, ...)
 {
@@ -43,7 +43,7 @@ void close_log(bool wait_for_user)
 {
    if (textlog && wait_for_user) {
       ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
-      al_register_event_source(queue, al_get_native_dialog_event_source(
+      al_register_event_source(queue, al_get_native_text_log_event_source(
          textlog));
       al_wait_for_event(queue, NULL);
       al_destroy_event_queue(queue);

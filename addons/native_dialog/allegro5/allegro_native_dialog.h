@@ -29,38 +29,31 @@
    #define ALLEGRO_DIALOG_FUNC      AL_FUNC
 #endif
 
-/* Type: ALLEGRO_NATIVE_DIALOG
+/* Type: ALLEGRO_FILECHOOSER
  */
-typedef struct ALLEGRO_NATIVE_DIALOG ALLEGRO_NATIVE_DIALOG;
+typedef struct ALLEGRO_FILECHOOSER ALLEGRO_FILECHOOSER;
 
-ALLEGRO_DIALOG_FUNC(
-   ALLEGRO_NATIVE_DIALOG *, al_create_native_file_dialog, (
-      ALLEGRO_PATH const *initial_path, char const *title,
-      char const *patterns, int mode));
-ALLEGRO_DIALOG_FUNC(
-   bool, al_show_native_file_dialog, (ALLEGRO_DISPLAY *display,
-      ALLEGRO_NATIVE_DIALOG *fd));
-ALLEGRO_DIALOG_FUNC(
-   int, al_show_native_message_box, (ALLEGRO_DISPLAY *display,
-      char const *title, char const *heading, char const *text,
-      char const *buttons, int flags));
-ALLEGRO_DIALOG_FUNC(
-   int, al_get_native_file_dialog_count, (
-      const ALLEGRO_NATIVE_DIALOG *fc));
-ALLEGRO_DIALOG_FUNC(
-   const ALLEGRO_PATH *, al_get_native_file_dialog_path, (
-      const ALLEGRO_NATIVE_DIALOG *fc, size_t index));
-ALLEGRO_DIALOG_FUNC(void, al_destroy_native_dialog, (ALLEGRO_NATIVE_DIALOG *fc));
+/* Type: ALLEGRO_TEXTLOG
+ */
+typedef struct ALLEGRO_TEXTLOG ALLEGRO_TEXTLOG;
+
+ALLEGRO_DIALOG_FUNC(ALLEGRO_FILECHOOSER *, al_create_native_file_dialog, (ALLEGRO_PATH const *initial_path,
+   char const *title, char const *patterns, int mode));
+ALLEGRO_DIALOG_FUNC(bool, al_show_native_file_dialog, (ALLEGRO_DISPLAY *display, ALLEGRO_FILECHOOSER *dialog));
+ALLEGRO_DIALOG_FUNC(int, al_get_native_file_dialog_count, (const ALLEGRO_FILECHOOSER *dialog));
+ALLEGRO_DIALOG_FUNC(const ALLEGRO_PATH *, al_get_native_file_dialog_path, (const ALLEGRO_FILECHOOSER *dialog,
+   size_t index));
+ALLEGRO_DIALOG_FUNC(void, al_destroy_native_file_dialog, (ALLEGRO_FILECHOOSER *dialog));
+
+ALLEGRO_DIALOG_FUNC(int, al_show_native_message_box, (ALLEGRO_DISPLAY *display, char const *title,
+   char const *heading, char const *text, char const *buttons, int flags));
+
+ALLEGRO_DIALOG_FUNC(ALLEGRO_TEXTLOG *, al_open_native_text_log, (char const *title, int flags));
+ALLEGRO_DIALOG_FUNC(void, al_close_native_text_log, (ALLEGRO_TEXTLOG *textlog));
+ALLEGRO_DIALOG_FUNC(void, al_append_native_text_log, (ALLEGRO_TEXTLOG *textlog, char const *format, ...));
+ALLEGRO_DIALOG_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_native_text_log_event_source, (ALLEGRO_TEXTLOG *textlog));
+
 ALLEGRO_DIALOG_FUNC(uint32_t, al_get_allegro_native_dialog_version, (void));
-
-ALLEGRO_DIALOG_FUNC(ALLEGRO_NATIVE_DIALOG *, al_open_native_text_log,
-   (char const *title, int flags));
-ALLEGRO_DIALOG_FUNC(void, al_close_native_text_log,
-   (ALLEGRO_NATIVE_DIALOG *textlog));
-ALLEGRO_DIALOG_FUNC(void, al_append_native_text_log,
-   (ALLEGRO_NATIVE_DIALOG *textlog, char const *format, ...));
-ALLEGRO_DIALOG_FUNC(ALLEGRO_EVENT_SOURCE *,
-   al_get_native_dialog_event_source, (ALLEGRO_NATIVE_DIALOG *dialog));
 
 enum {
    ALLEGRO_FILECHOOSER_FILE_MUST_EXIST = 1,

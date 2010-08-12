@@ -228,7 +228,7 @@ static void make_transient(ALLEGRO_DISPLAY *display, GtkWidget *window)
    #endif
 }
 
-bool al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
+bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    ALLEGRO_NATIVE_DIALOG *fd)
 {
    GtkWidget *window;

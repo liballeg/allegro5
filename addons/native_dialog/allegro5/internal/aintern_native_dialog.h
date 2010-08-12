@@ -1,6 +1,8 @@
 #ifndef __al_included_allegro_aintern_native_dialog_h
 #define __al_included_allegro_aintern_native_dialog_h
 
+typedef struct ALLEGRO_NATIVE_DIALOG ALLEGRO_NATIVE_DIALOG;
+
 /* We could use different structs for the different dialogs. But why
  * bother.
  */
@@ -38,6 +40,8 @@ struct ALLEGRO_NATIVE_DIALOG
    void *window;
 };
 
+extern bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
+   ALLEGRO_NATIVE_DIALOG *fd);
 extern int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    ALLEGRO_NATIVE_DIALOG *fd);
 extern bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog);

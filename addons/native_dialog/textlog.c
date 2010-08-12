@@ -33,7 +33,7 @@ static void *textlog_thread_proc(ALLEGRO_THREAD *thread, void *arg)
 
 /* Function: al_open_native_text_log
  */
-ALLEGRO_NATIVE_DIALOG *al_open_native_text_log(char const *title, int flags)
+ALLEGRO_TEXTLOG *al_open_native_text_log(char const *title, int flags)
 {
    ALLEGRO_NATIVE_DIALOG *textlog = NULL;
 
@@ -66,7 +66,7 @@ ALLEGRO_NATIVE_DIALOG *al_open_native_text_log(char const *title, int flags)
    al_unlock_mutex(textlog->tl_text_mutex);
 
    if (textlog->tl_init_error) {
-      al_close_native_text_log(textlog);
+      al_close_native_text_log((ALLEGRO_TEXTLOG *)textlog);
       return NULL;
    }
 
@@ -74,55 +74,58 @@ ALLEGRO_NATIVE_DIALOG *al_open_native_text_log(char const *title, int flags)
       (void (*)(void *))al_close_native_text_log);
 #endif
 
-   return textlog;
+   return (ALLEGRO_TEXTLOG *)textlog;
 }
 
 
 /* Function: al_close_native_text_log
  */
-void al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+void al_close_native_text_log(ALLEGRO_TEXTLOG *textlog)
 {
-   if (!textlog)
+   ALLEGRO_NATIVE_DIALOG *dialog = (ALLEGRO_NATIVE_DIALOG *)textlog;
+
+   if (!dialog)
       return;
 
 #ifdef HAVE_TEXT_LOG
-   if (!textlog->tl_init_error) {
-      al_lock_mutex(textlog->tl_text_mutex);
-      textlog->tl_done = false;
+   if (!dialog->tl_init_error) {
+      al_lock_mutex(dialog->tl_text_mutex);
+      dialog->tl_done = false;
 
-      _al_close_native_text_log(textlog);
+      _al_close_native_text_log(dialog);
 
-      while (!textlog->tl_done) {
-         al_wait_cond(textlog->tl_text_cond, textlog->tl_text_mutex);
+      while (!dialog->tl_done) {
+         al_wait_cond(dialog->tl_text_cond, dialog->tl_text_mutex);
       }
 
-      _al_unregister_destructor(_al_dtor_list, textlog);
+      _al_unregister_destructor(_al_dtor_list, dialog);
    }
 
-   al_ustr_free(textlog->title);
-   al_ustr_free(textlog->tl_pending_text);
+   al_ustr_free(dialog->title);
+   al_ustr_free(dialog->tl_pending_text);
 
-   al_destroy_user_event_source(&textlog->tl_events);
+   al_destroy_user_event_source(&dialog->tl_events);
 
-   al_unlock_mutex(textlog->tl_text_mutex);
+   al_unlock_mutex(dialog->tl_text_mutex);
 
-   al_destroy_thread(textlog->tl_thread);
-   al_destroy_cond(textlog->tl_text_cond);
-   al_destroy_mutex(textlog->tl_text_mutex);
-   al_free(textlog);
+   al_destroy_thread(dialog->tl_thread);
+   al_destroy_cond(dialog->tl_text_cond);
+   al_destroy_mutex(dialog->tl_text_mutex);
+   al_free(dialog);
 #endif
 }
 
 
 /* Function: al_append_native_text_log
  */
-void al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog,
+void al_append_native_text_log(ALLEGRO_TEXTLOG *textlog,
    char const *format, ...)
 {
+   ALLEGRO_NATIVE_DIALOG *dialog = (ALLEGRO_NATIVE_DIALOG *)textlog;
    va_list args;
 
    /* Fall back to printf if no window. */
-   if (!textlog) {
+   if (!dialog) {
       va_start(args, format);
       vprintf(format, args);
       va_end(args);
@@ -130,25 +133,26 @@ void al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog,
    }
 
 #ifdef HAVE_TEXT_LOG
-   al_lock_mutex(textlog->tl_text_mutex);
+   al_lock_mutex(dialog->tl_text_mutex);
 
    /* We could optimise the case where format="%s". */
    va_start(args, format);
-   al_ustr_vappendf(textlog->tl_pending_text, format, args);
+   al_ustr_vappendf(dialog->tl_pending_text, format, args);
    va_end(args);
 
-   _al_append_native_text_log(textlog);
+   _al_append_native_text_log(dialog);
 
-   al_unlock_mutex(textlog->tl_text_mutex);
+   al_unlock_mutex(dialog->tl_text_mutex);
 #endif
 }
 
 
-/* Function: al_get_native_dialog_event_source
+/* Function: al_get_native_text_log_event_source
  */
-ALLEGRO_EVENT_SOURCE *al_get_native_dialog_event_source(
-   ALLEGRO_NATIVE_DIALOG *dialog)
+ALLEGRO_EVENT_SOURCE *al_get_native_text_log_event_source(
+   ALLEGRO_TEXTLOG *textlog)
 {
+   ALLEGRO_NATIVE_DIALOG *dialog = (ALLEGRO_NATIVE_DIALOG *)textlog;
    ASSERT(dialog);
 
    return &dialog->tl_events;

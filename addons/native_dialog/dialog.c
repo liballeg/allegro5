@@ -7,7 +7,7 @@
 
 /* Function: al_create_native_file_dialog
  */
-ALLEGRO_NATIVE_DIALOG *al_create_native_file_dialog(
+ALLEGRO_FILECHOOSER *al_create_native_file_dialog(
    ALLEGRO_PATH const *initial_path,
    char const *title,
    char const *patterns,
@@ -26,30 +26,42 @@ ALLEGRO_NATIVE_DIALOG *al_create_native_file_dialog(
    _al_register_destructor(_al_dtor_list, fc,
       (void (*)(void *))al_destroy_native_file_dialog);
 
-   return fc;
+   return (ALLEGRO_FILECHOOSER *)fc;
+}
+
+/* Function: al_show_native_file_dialog
+ */
+bool al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
+   ALLEGRO_FILECHOOSER *dialog)
+{
+   ALLEGRO_NATIVE_DIALOG *fd = (ALLEGRO_NATIVE_DIALOG *)dialog;
+   return _al_show_native_file_dialog(display, fd);
 }
 
 /* Function: al_get_native_file_dialog_count
  */
-int al_get_native_file_dialog_count(const ALLEGRO_NATIVE_DIALOG *fc)
+int al_get_native_file_dialog_count(const ALLEGRO_FILECHOOSER *dialog)
 {
+   const ALLEGRO_NATIVE_DIALOG *fc = (const ALLEGRO_NATIVE_DIALOG *)dialog;
    return fc->fc_path_count;
 }
 
 /* Function: al_get_native_file_dialog_path
  */
 const ALLEGRO_PATH *al_get_native_file_dialog_path(
-   const ALLEGRO_NATIVE_DIALOG *fc, size_t i)
+   const ALLEGRO_FILECHOOSER *dialog, size_t i)
 {
+   const ALLEGRO_NATIVE_DIALOG *fc = (const ALLEGRO_NATIVE_DIALOG *)dialog;
    if (i < fc->fc_path_count)
       return fc->fc_paths[i];
    return NULL;
 }
 
-/* Function: al_destroy_native_dialog
+/* Function: al_destroy_native_file_dialog
  */
-void al_destroy_native_dialog(ALLEGRO_NATIVE_DIALOG *fd)
+void al_destroy_native_file_dialog(ALLEGRO_FILECHOOSER *dialog)
 {
+   ALLEGRO_NATIVE_DIALOG *fd = (ALLEGRO_NATIVE_DIALOG *)dialog;
    size_t i;
 
    if (!fd)
@@ -72,8 +84,8 @@ void al_destroy_native_dialog(ALLEGRO_NATIVE_DIALOG *fd)
    al_ustr_free(fd->mb_text);
    al_ustr_free(fd->mb_buttons);
 
-   /* text log stuff is handled by al_close_native_text_log */
-   /* XXX should we implicitly call al_close_native_text_log? */
+   /* text logs should be closed with al_close_native_text_log */
+   ASSERT(!fd->tl_textview);
 
    /* platform specific stuff */
    al_destroy_cond(fd->cond);
@@ -100,7 +112,7 @@ int al_show_native_message_box(ALLEGRO_DISPLAY *display,
    fc->flags = flags;
 
    r = _al_show_native_message_box(display, fc);
-   al_destroy_native_dialog(fc);
+   al_destroy_native_file_dialog((ALLEGRO_FILECHOOSER *)fc);
    return r;
 }
 
@@ -113,15 +125,4 @@ uint32_t al_get_allegro_native_dialog_version(void)
 }
 
 
-/* Hack for documentation, since al_show_native_file_dialog() is defined
- * in multiple files.
- */
-#if 0
-
-/* Function: al_show_native_file_dialog
- */
-void al_show_native_file_dialog(ALLEGRO_DISPLAY *display, ALLEGRO_NATIVE_DIALOG *fd)
-{
-}
-
-#endif
+/* vim: set sts=3 sw=3 et: */

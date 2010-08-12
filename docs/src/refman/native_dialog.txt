@@ -5,9 +5,13 @@ Link with allegro_dialog.
 
     #include <allegro5/allegro_native_dialog.h>
 
-## API: ALLEGRO_NATIVE_DIALOG
+## API: ALLEGRO_FILECHOOSER
 
-Opaque handle to a native dialog.
+Opaque handle to a native file dialog.
+
+## API: ALLEGRO_TEXTLOG
+
+Opaque handle to a text log window.
 
 ## API: al_create_native_file_dialog
 
@@ -24,7 +28,7 @@ Parameters:
   supported by the native dialog, this parameter is ignored.
 - mode: 0, or a combination of the flags below.
 
-Possible flags for the 'mode' parameter are:
+Possible flags for the 'flags' parameter are:
 
 - ALLEGRO_FILECHOOSER_FILE_MUST_EXIST: If supported by the native dialog,
   it will not allow entering new names, but just allow existing files
@@ -59,6 +63,8 @@ This function blocks the calling thread until it returns,
 so you may want to spawn a thread with [al_create_thread] and
 call it from inside that thread.
 
+Returns true on success, false on failure.
+
 ## API: al_get_native_file_dialog_count
 
 Returns the number of files selected, or 0 if the dialog was cancelled.
@@ -67,9 +73,9 @@ Returns the number of files selected, or 0 if the dialog was cancelled.
 
 Returns one of the selected paths.
 
-## API: al_destroy_native_dialog
+## API: al_destroy_native_file_dialog
 
-Frees up all resources used by the dialog.
+Frees up all resources used by the file dialog.
 
 ## API: al_show_native_message_box
 
@@ -135,7 +141,7 @@ The flags available are:
 ALLEGRO_TEXTLOG_NO_CLOSE
 :   Prevent the window from having a close button. Otherwise if the close
     button is pressed an event is generated; see
-    [al_get_native_dialog_event_source].
+    [al_get_native_text_log_event_source].
 
 ALLEGRO_TEXTLOG_MONOSPACE
 :   Use a monospace font to display the text.
@@ -164,15 +170,14 @@ If the window is NULL then this function will fall back to calling
 printf. This makes it convenient to support logging to a window or
 a terminal.
 
-## API: al_get_native_dialog_event_source
+## API: al_get_native_text_log_event_source
 
-Get an event source for a native window. The possible events are:
+Get an event source for a text log window. The possible events are:
 
 ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE
 :   The window was requested to be closed, either by pressing the close button
-    or pressing Escape on the keyboard.  Only supported for windows created
-    with [al_open_native_text_log].
-    The user.data1 field will hold a pointer to the [ALLEGRO_NATIVE_DIALOG]
+    or pressing Escape on the keyboard.
+    The user.data1 field will hold a pointer to the [ALLEGRO_TEXTLOG]
     which generated the event.
     The user.data2 field will be 1 if the event was generated as a result of a
     key press; otherwise it will be zero.

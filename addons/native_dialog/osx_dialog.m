@@ -97,7 +97,7 @@
 @end
 
 
-bool al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
+bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    ALLEGRO_NATIVE_DIALOG *fd)
 {
    (void)display;

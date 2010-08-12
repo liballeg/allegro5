@@ -23,12 +23,12 @@
 typedef struct
 {
    ALLEGRO_DISPLAY *display;
-   ALLEGRO_NATIVE_DIALOG *file_dialog;
+   ALLEGRO_FILECHOOSER *file_dialog;
    ALLEGRO_EVENT_SOURCE event_source;
    ALLEGRO_THREAD *thread;
 } AsyncDialog;
 
-ALLEGRO_NATIVE_DIALOG *textlog;
+ALLEGRO_TEXTLOG *textlog;
 
 static void message(char const *format, ...)
 {
@@ -127,14 +127,14 @@ static void stop_async_dialog(AsyncDialog *data)
       al_destroy_thread(data->thread);
       al_destroy_user_event_source(&data->event_source);
       if (data->file_dialog)
-         al_destroy_native_dialog(data->file_dialog);
+         al_destroy_native_file_dialog(data->file_dialog);
       free(data);
    }
 }
 
 
 /* Helper function to display the result from a file dialog. */
-static void show_files_list(ALLEGRO_NATIVE_DIALOG *dialog,
+static void show_files_list(ALLEGRO_FILECHOOSER *dialog,
    const ALLEGRO_FONT *font, ALLEGRO_COLOR info)
 {
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
@@ -217,7 +217,7 @@ restart:
    al_register_event_source(queue, al_get_display_event_source(display));
    al_register_event_source(queue, al_get_timer_event_source(timer));
    if (textlog) {
-      al_register_event_source(queue, al_get_native_dialog_event_source(
+      al_register_event_source(queue, al_get_native_text_log_event_source(
          textlog));
    }
    al_start_timer(timer);
@@ -247,7 +247,7 @@ restart:
                    textlog = al_open_native_text_log("Log", 0);
                    if (textlog) {
                       al_register_event_source(queue,
-                         al_get_native_dialog_event_source(textlog));
+                         al_get_native_text_log_event_source(textlog));
                    }
                 }
                 else {
@@ -323,7 +323,7 @@ restart:
          close_log = false;
          message_log = false;
          al_unregister_event_source(queue,
-            al_get_native_dialog_event_source(textlog));
+            al_get_native_text_log_event_source(textlog));
          al_close_native_text_log(textlog);
          textlog = NULL;
       }

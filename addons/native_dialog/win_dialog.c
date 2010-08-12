@@ -42,7 +42,7 @@ static int next(char *s)
    return i+1;
 }
 
-bool al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
+bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    ALLEGRO_NATIVE_DIALOG *fd)
 {
    OPENFILENAME ofn;
@@ -131,7 +131,7 @@ bool al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
 }
 
 int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
-	ALLEGRO_NATIVE_DIALOG *fd)
+   ALLEGRO_NATIVE_DIALOG *fd)
 {
    UINT type = 0;
    int result;
@@ -495,3 +495,5 @@ void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       PostMessage(textlog->window, WM_USER, (WPARAM)textlog, 0);
    }
 }
+
+/* vim: set sts=3 sw=3 et: */

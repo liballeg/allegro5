@@ -24,7 +24,7 @@ static void saw(ALLEGRO_AUDIO_STREAM *stream)
    al_register_event_source(queue, al_get_audio_stream_event_source(stream));
 #ifdef ALLEGRO_POPUP_EXAMPLES
    if (textlog) {
-      al_register_event_source(queue, al_get_native_dialog_event_source(textlog));
+      al_register_event_source(queue, al_get_native_text_log_event_source(textlog));
    }
 #endif
 
