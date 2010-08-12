@@ -250,7 +250,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
       disp->vt->flush_vertex_cache(disp);
    }
    disp->cache_texture = ogl_bitmap->texture;
-   
+
    verts = disp->vt->prepare_vertex_cache(disp, 6);
    
    tex_l = ogl_bitmap->left;
@@ -262,6 +262,24 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    h = bitmap->h;
    tex_w = 1.0 / ogl_bitmap->true_w;
    tex_h = 1.0 / ogl_bitmap->true_h;
+   
+   /* We need to fix positions if we draw a sub-bitmap which is outside
+    * of tis parent, as there is no texture for the outside part.
+    */
+   if (bitmap->parent) {
+      if (bitmap->xofs < 0) {
+         sx -= bitmap->xofs;
+         dx -= bitmap->xofs;
+         sw += bitmap->xofs;
+         dw += bitmap->xofs;
+      }
+      if (bitmap->yofs < 0) {
+         sy -= bitmap->yofs;
+         dy -= bitmap->yofs;
+         sh += bitmap->yofs;
+         dh += bitmap->yofs;
+      }
+   }
 
    tex_l += sx * tex_w;
    tex_t -= sy * tex_h;
@@ -309,6 +327,10 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    verts[4].g = tint.g;
    verts[4].b = tint.b;
    verts[4].a = tint.a;
+   
+   // TODO: Maybe if we add a flag which says that there is no
+   // transformation in effect wahtsoever, we could get a slight
+   // speedup here.
    
    if(angle == 0) {
       c = 1;
