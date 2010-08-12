@@ -479,12 +479,12 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
     * if it is forced on.
     * http://www.opengl.org/registry/specs/SGI/swap_control.txt
     * If the option is set to 0, we simply use the system default. The
-    * above extension specifies vsync on as default to, so in the end
-    * with GLX we can't force vsync on, just off.
+    * above extension specifies vsync on as default though, so in the
+    * end with GLX we can't force vsync on, just off.
     */
    ALLEGRO_DEBUG("requested vsync=%d.\n",
       display->extra_settings.settings[ALLEGRO_VSYNC]);
-   if (display->extra_settings.settings[ALLEGRO_VSYNC] == 1) {
+   if (display->extra_settings.settings[ALLEGRO_VSYNC]) {
       if (display->ogl_extras->extension_list->ALLEGRO_GLX_SGI_swap_control) {
          int x = 1;
          if (display->extra_settings.settings[ALLEGRO_VSYNC] == 2)
@@ -495,7 +495,10 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       }
       else {
          ALLEGRO_WARN("no vsync, GLX_SGI_swap_control missing.\n");
-         display->extra_settings.settings[ALLEGRO_VSYNC] = 2;
+         /* According to the specification that means it's on, but
+          * the driver might have disabled it. So we do not know.
+          */
+         display->extra_settings.settings[ALLEGRO_VSYNC] = 0;
       }
    }
 

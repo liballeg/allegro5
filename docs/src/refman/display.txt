@@ -125,7 +125,12 @@ The supported options are:
     capable of updating just a region, and 0 if calling
     [al_update_display_region] is equivalent to [al_flip_display].
 *   ALLEGRO_VSYNC: Set to 1 to tell the driver to wait for vsync
-    in [al_flip_display], or to 2 to force vsync off. 
+    in [al_flip_display], or to 2 to force vsync off. The default of
+    0 means that Allegro does not try to modify the vsync behavior so
+    it may be on or off.
+    Note that even in the case of 1 or 2 it is possile to override
+    the vsync behavior in the graphics driver so you should not rely
+    on it.
 *   ALLEGRO_MAX_BITMAP_SIZE: When queried this returns the maximum
     size (width as well as height) a bitmap can have for this
     display. Calls to [al_create_bitmap] or [al_load_bitmap] for
