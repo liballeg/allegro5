@@ -27,7 +27,7 @@ if(WANT_NATIVE_IMAGE_LOADER)
             check_cxx_source_compiles("
                 #include <windows.h>
                 #include <objidl.h>
-                #include <gdiplus.h>
+                #include <GdiPlus.h>
                 int main(void)
                 {
                     return 0;

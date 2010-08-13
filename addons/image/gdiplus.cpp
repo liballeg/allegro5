@@ -1,6 +1,6 @@
 #include <windows.h>
 #include <objidl.h>
-#include <gdiplus.h>
+#include <GdiPlus.h>
 
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_image.h"

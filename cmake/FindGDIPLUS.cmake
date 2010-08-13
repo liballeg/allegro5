@@ -10,7 +10,7 @@ if(GDIPLUS_INCLUDE_DIR)
     set(GDIPLUS_FIND_QUIETLY TRUE)
 endif(GDIPLUS_INCLUDE_DIR)
 
-find_path(GDIPLUS_INCLUDE_DIR gdiplus.h)
+find_path(GDIPLUS_INCLUDE_DIR GdiPlus.h)
 
 find_library(GDIPLUS_LIBRARY NAMES gdiplus)
 
