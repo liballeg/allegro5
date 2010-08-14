@@ -135,12 +135,6 @@ static int render_glyph(ALLEGRO_FONT const *f,
         ALLEGRO_LOCKED_REGION *lr;
         ALLEGRO_STATE backup;
 
-        ALLEGRO_TRANSFORM old_trans;
-        ALLEGRO_TRANSFORM identity_trans;
-        al_copy_transform(&old_trans, al_get_current_transform());
-        al_identity_transform(&identity_trans);
-        al_use_transform(&identity_trans);
-
         FT_Load_Glyph(face, ft_index, FT_LOAD_RENDER);
         w = face->glyph->bitmap.width;
         h = face->glyph->bitmap.rows;
@@ -179,7 +173,6 @@ static int render_glyph(ALLEGRO_FONT const *f,
         glyph->advance = face->glyph->advance.x >> 6;
 
         al_restore_state(&backup);
-        al_use_transform(&old_trans);
     }
 
     /* Do kerning? */
