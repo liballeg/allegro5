@@ -25,7 +25,6 @@ set(ALLEGRO_SRC_FILES
     src/mousenu.c
     src/path.c
     src/pixels.c
-    src/rotate.c
     src/system.c
     src/threads.c
     src/timernu.c
