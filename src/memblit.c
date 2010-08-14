@@ -282,7 +282,6 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
    ALLEGRO_LOCKED_REGION *src_region;
    ALLEGRO_LOCKED_REGION *dst_region;
-   ASSERT(src->parent == NULL);
 
    float sxinc;
    float syinc;
@@ -296,6 +295,8 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    int xend;
    int yend;
    int size;
+   
+   ASSERT(src->parent == NULL);
 
    if ((sw <= 0) || (sh <= 0))
       return;
