@@ -354,33 +354,6 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
 #undef SWAP
 
 
-
-static void ogl_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_COLOR tint, float sx, float sy,
-   float sw, float sh, float dx, float dy, float dw, float dh, int flags)
-{
-   // FIXME: hack
-   // FIXME: need format conversion if they don't match
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   ALLEGRO_DISPLAY *disp = al_get_current_display();
-   
-   if (target->parent) {
-      ogl_target = (ALLEGRO_BITMAP_OGL *)target->parent;
-   }
-      
-   if (disp->ogl_extras->opengl_target != ogl_target ||
-         !setup_blending(disp) || target->locked) {
-      _al_draw_scaled_bitmap_memory(bitmap, tint, sx, sy, sw, sh,
-         dx, dy, dw, dh, flags);
-      return;
-   }
-
-   draw_quad(bitmap, tint, sx, sy, sw, sh, 0, 0, dx, dy, dw, dh, 1, 1, 0, flags);
-}
-
-
-
 static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_COLOR tint, float sx, float sy,
    float sw, float sh, float dx, float dy, int flags)
@@ -483,71 +456,6 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
 }
 
 
-
-/* Draw the bitmap at the specified position. */
-static void ogl_draw_bitmap(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_COLOR tint, float x, float y,
-   int flags)
-{
-   ogl_draw_bitmap_region(bitmap, tint, 0, 0, bitmap->w, bitmap->h, x, y, flags);
-}
-
-
-
-static void ogl_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_COLOR tint, float cx, float cy,
-   float dx, float dy, float angle, int flags)
-{
-   // FIXME: hack
-   // FIXME: need format conversion if they don't match
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   ALLEGRO_DISPLAY *disp = target->display;
-   
-   if (target->parent) {
-       ogl_target = (ALLEGRO_BITMAP_OGL *)target->parent;
-   }
-   
-   if (disp->ogl_extras->opengl_target != ogl_target ||
-      !setup_blending(disp) || target->locked) {
-      _al_draw_rotated_bitmap_memory(bitmap, tint, cx, cy, dx, dy, angle, flags);
-      return;
-   }
-
-   draw_quad(bitmap, tint, 0, 0, bitmap->w, bitmap->h, cx, cy,
-      dx, dy, bitmap->w, bitmap->h, 1, 1, angle, flags);
-}
-
-
-
-static void ogl_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_COLOR tint, 
-   float cx, float cy, float dx, float dy, float xscale, float yscale,
-   float angle, int flags)
-{
-   // FIXME: hack
-   // FIXME: need format conversion if they don't match
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   ALLEGRO_DISPLAY *disp = target->display;
-   
-   if (target->parent) {
-       ogl_target = (ALLEGRO_BITMAP_OGL *)target->parent;
-   }
-   
-   if (disp->ogl_extras->opengl_target != ogl_target ||
-      !setup_blending(disp) || target->locked) {
-      _al_draw_rotated_scaled_bitmap_memory(bitmap, tint, cx, cy,
-         dx, dy, xscale, yscale, angle, flags);
-      return;
-   }
-
-   draw_quad(bitmap, tint, 0, 0, bitmap->w, bitmap->h, cx, cy, dx, dy,
-      bitmap->w, bitmap->h, xscale, yscale, angle, flags);
-}
-
-
-
 /* Helper to get smallest fitting power of two. */
 static int pot(int x)
 {
@@ -555,7 +463,6 @@ static int pot(int x)
    while (y < x) y *= 2;
    return y;
 }
-
 
 
 // FIXME: need to do all the logic AllegroGL does, checking extensions,
@@ -1026,11 +933,7 @@ static ALLEGRO_BITMAP_INTERFACE *ogl_bitmap_driver(void)
    glbmp_vt = al_malloc(sizeof *glbmp_vt);
    memset(glbmp_vt, 0, sizeof *glbmp_vt);
 
-   glbmp_vt->draw_bitmap = ogl_draw_bitmap;
    glbmp_vt->draw_bitmap_region = ogl_draw_bitmap_region;
-   glbmp_vt->draw_scaled_bitmap = ogl_draw_scaled_bitmap;
-   glbmp_vt->draw_rotated_bitmap = ogl_draw_rotated_bitmap;
-   glbmp_vt->draw_rotated_scaled_bitmap = ogl_draw_rotated_scaled_bitmap;
    glbmp_vt->upload_bitmap = ogl_upload_bitmap;
    glbmp_vt->update_clipping_rectangle = ogl_update_clipping_rectangle;
    glbmp_vt->destroy_bitmap = ogl_destroy_bitmap;

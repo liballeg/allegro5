@@ -3,7 +3,6 @@
  *
  *    This program blitting to/from sub-bitmaps.
  *
- *    Pass -v on the command line to use video bitmaps.
  */
 
 #include "allegro5/allegro.h"
@@ -56,6 +55,7 @@ int main(int argc, const char *argv[])
    bool mouse_down;
    bool recreate_subbitmaps;
    bool redraw;
+   bool use_memory;
    const char *image_filename = NULL;
 
    if (!al_init()) {
@@ -80,14 +80,11 @@ int main(int argc, const char *argv[])
       return 1;
    }
    al_set_window_title(dst_display, "Destination");
-   
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+
    {
       int i;
       for (i = 1; i < argc; ++i) {
-         if (!strcmp(argv[i], "-v"))
-            al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
-         else if (!image_filename)
+         if (!image_filename)
             image_filename = argv[i];
          else
             fprintf(stderr, "Unknown argument: %s\n", argv[i]);
@@ -119,8 +116,10 @@ int main(int argc, const char *argv[])
    mouse_down = false;
    recreate_subbitmaps = true;
    redraw = true;
+   use_memory = false;
 
    log_printf("Highlight sub-bitmap regions with left mouse button.\n");
+   log_printf("Press 'm' to toggle memory bitmaps.\n");
    log_printf("Press '1' to perform plain blits.\n");
    log_printf("Press 's' to perform scaled blits.\n");
    log_printf("Press 'h' to flip horizontally.\n");
@@ -259,6 +258,17 @@ int main(int argc, const char *argv[])
          else if (event.keyboard.unichar == 'v') {
             draw_flags ^= ALLEGRO_FLIP_VERTICAL;
             redraw = true;
+         }
+         else if (event.keyboard.unichar == 'm') {
+            ALLEGRO_BITMAP *temp = src_bmp;
+            use_memory = !use_memory;
+            log_printf("Using a %s bitmap.\n", use_memory ? "memory" : "video");
+            al_set_new_bitmap_flags(use_memory ?
+               ALLEGRO_MEMORY_BITMAP : ALLEGRO_VIDEO_BITMAP);
+            src_bmp = al_clone_bitmap(temp);
+            al_destroy_bitmap(temp);
+            redraw = true;
+            recreate_subbitmaps = true;
          }
       }
       else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN &&

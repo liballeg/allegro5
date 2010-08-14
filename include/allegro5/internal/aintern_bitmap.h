@@ -73,21 +73,11 @@ struct ALLEGRO_BITMAP
 struct ALLEGRO_BITMAP_INTERFACE
 {
    int id;
-   void (*draw_bitmap)(struct ALLEGRO_BITMAP *bitmap,
-      ALLEGRO_COLOR tint, float x, float y, int flags);
+
    void (*draw_bitmap_region)(ALLEGRO_BITMAP *bitmap,
       ALLEGRO_COLOR tint,float sx, float sy,
       float sw, float sh, float dx, float dy, int flags);
-   void (*draw_scaled_bitmap)(ALLEGRO_BITMAP *bitmap,
-      ALLEGRO_COLOR tint, float sx, float sy,
-      float sw, float sh, float dx, float dy, float dw, float dh, int flags);
-   void (*draw_rotated_bitmap)(ALLEGRO_BITMAP *bitmap,
-      ALLEGRO_COLOR tint, float cx, float cy,
-      float angle, float dx, float dy, int flags);
-   void (*draw_rotated_scaled_bitmap)(ALLEGRO_BITMAP *bitmap,
-      ALLEGRO_COLOR tint, float cx, float cy,
-      float angle, float dx, float dy, float xscale, float yscale,
-      int flags);
+
    /* After the memory-copy of the bitmap has been modified, need to call this
     * to update the display-specific copy. E.g. with an OpenGL driver, this
     * might create/update a texture. Returns false on failure.
@@ -131,37 +121,13 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_COLOR tint,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int flags);
-void _al_draw_bitmap_memory(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_COLOR tint,
-   int dx, int dy, int flags);
-void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_COLOR tint,
-   int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, int flags);
-void _al_draw_rotated_bitmap_memory(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_COLOR tint,
-   int center_x, int center_y, int dx, int dy, float angle, int flags);
-void _al_draw_rotated_bitmap_memory(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_COLOR tint,
-   int center_x, int center_y, int dx, int dy,
-   float angle, int flags);
-void _al_draw_rotated_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_COLOR tint,
-   int center_x, int center_y, int dx, int dy,
-   float xscale, float yscale, float angle, int flags);
 
 void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int flags);
+
 void _al_draw_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
   int dx, int dy, int flags);
-void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
-   int sx, int sy, int sw, int sh,
-   int dx, int dy, int dw, int dh, int flags);
-void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
-   int cx, int cy, int dx, int dy, float xscale, float yscale,
-   float angle, int flags);
-void _al_draw_rotated_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
-   int cx, int cy, int dx, int dy, float angle, int flags);
 
 
 /* For blending memory bitmaps */
