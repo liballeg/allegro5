@@ -17,9 +17,7 @@
 #ifndef __al_included_allegro5_allegro_direct3d_h
 #define __al_included_allegro5_allegro_direct3d_h
 
-#ifndef SCAN_DEPEND
 #include <d3d9.h>
-#endif
 
 #ifdef __cplusplus
    extern "C" {

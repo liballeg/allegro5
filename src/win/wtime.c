@@ -20,9 +20,7 @@
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/platform/aintwin.h"
 
-#ifndef SCAN_DEPEND
-   #include <mmsystem.h>
-#endif
+#include <mmsystem.h>
 
 ALLEGRO_STATIC_ASSERT(sizeof(ALLEGRO_TIMEOUT_WIN) <= sizeof(ALLEGRO_TIMEOUT));
 

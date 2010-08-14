@@ -22,12 +22,11 @@
 #endif
 */
 
-#ifndef SCAN_DEPEND
-   #include <io.h>
-   #include <fcntl.h>
-   #include <direct.h>
-   #include <malloc.h>
-#endif
+
+#include <io.h>
+#include <fcntl.h>
+#include <direct.h>
+#include <malloc.h>
 
 
 #pragma warn -8004  /* unused assigned value         */

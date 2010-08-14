@@ -22,7 +22,7 @@
    extern "C" {
 #endif
 
-#if defined(ALLEGRO_WINDOWS) && !defined(SCAN_EXPORT)
+#if defined(ALLEGRO_WINDOWS)
 #include <windows.h>
 #endif
 

@@ -1,9 +1,7 @@
 #ifndef __al_included_allegro5_aintern_thread_h
 #define __al_included_allegro5_aintern_thread_h
 
-#ifndef SCAN_EXPORT
 #include ALLEGRO_INTERNAL_THREAD_HEADER
-#endif
 
 #ifdef __cplusplus
    extern "C" {

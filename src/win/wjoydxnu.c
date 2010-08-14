@@ -62,15 +62,15 @@
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_joystick.h"
 
-#ifndef SCAN_DEPEND
-   #ifdef ALLEGRO_MINGW32
-      #undef MAKEFOURCC
-   #endif
 
-   #include <mmsystem.h>
-   #include <process.h>
-   #include <dinput.h>
+#ifdef ALLEGRO_MINGW32
+   #undef MAKEFOURCC
 #endif
+
+#include <mmsystem.h>
+#include <process.h>
+#include <dinput.h>
+
 
 #ifndef ALLEGRO_WINDOWS
 #error something is wrong with the makefile

@@ -20,10 +20,8 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_thread.h"
 
-#ifndef SCAN_DEPEND
-   #include <mmsystem.h>
-   #include <process.h>
-#endif
+#include <mmsystem.h>
+#include <process.h>
 
 
 

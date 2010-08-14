@@ -20,9 +20,7 @@
    #error bad include
 #endif
 
-#if !defined(SCAN_EXPORT)
-   #include <windows.h>
-#endif
+#include <windows.h>
 
 /*******************************************/
 /********** magic main emulation ***********/

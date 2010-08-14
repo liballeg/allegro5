@@ -18,12 +18,10 @@
  */
 
 
-#ifndef SCAN_DEPEND
-   #include <io.h>
-   #include <fcntl.h>
-   #include <direct.h>
-   #include <malloc.h>
-#endif
+#include <io.h>
+#include <fcntl.h>
+#include <direct.h>
+#include <malloc.h>
 
 #include "allegro5/platform/alplatf.h"
 

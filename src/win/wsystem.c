@@ -36,9 +36,7 @@
 #include <windows.h>
 
 
-#ifndef SCAN_DEPEND
-   #include <mmsystem.h>
-#endif
+#include <mmsystem.h>
 
 /* FIXME: should we check for psapi _WIN32_IE and shlobj?
 { */

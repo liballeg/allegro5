@@ -16,10 +16,8 @@
  */
 
 
-#ifndef SCAN_DEPEND
-   #include <io.h>
-   #include <fcntl.h>
-#endif
+#include <io.h>
+#include <fcntl.h>
 
 #include <stdint.h>
 
@@ -66,7 +64,7 @@
 
 #if (defined ALLEGRO_SRC)
 
-#if (!defined S_IRUSR) && (!defined SCAN_DEPEND)
+#if (!defined S_IRUSR)
    #define S_IRUSR   S_IREAD
    #define S_IWUSR   S_IWRITE
 #endif

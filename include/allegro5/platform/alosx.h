@@ -24,29 +24,28 @@
 #endif
 
 
-#ifndef SCAN_DEPEND
-   #include <stdio.h>
-   #include <stdlib.h>
-   #include <fcntl.h>
-   #include <unistd.h>
-   #include <signal.h>
-   #include <pthread.h>
-   #if defined __OBJC__ && defined ALLEGRO_SRC
-      #import <mach/mach.h>
-      #import <mach/mach_error.h>
-      #import <AppKit/AppKit.h>
-      #import <ApplicationServices/ApplicationServices.h>
-      #import <Cocoa/Cocoa.h>
-      #import <CoreAudio/CoreAudio.h>
-      #import <AudioUnit/AudioUnit.h>
-      #import <AudioToolbox/AudioToolbox.h>
-      #import <QuickTime/QuickTime.h>
-      #import <IOKit/IOKitLib.h>
-      #import <IOKit/IOCFPlugIn.h>
-      #import <IOKit/hid/IOHIDLib.h>
-      #import <IOKit/hid/IOHIDKeys.h>
-      #import <Kernel/IOKit/hidsystem/IOHIDUsageTables.h>
-   #endif
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <signal.h>
+#include <pthread.h>
+#if defined __OBJC__ && defined ALLEGRO_SRC
+   #import <mach/mach.h>
+   #import <mach/mach_error.h>
+   #import <AppKit/AppKit.h>
+   #import <ApplicationServices/ApplicationServices.h>
+   #import <Cocoa/Cocoa.h>
+   #import <CoreAudio/CoreAudio.h>
+   #import <AudioUnit/AudioUnit.h>
+   #import <AudioToolbox/AudioToolbox.h>
+   #import <QuickTime/QuickTime.h>
+   #import <IOKit/IOKitLib.h>
+   #import <IOKit/IOCFPlugIn.h>
+   #import <IOKit/hid/IOHIDLib.h>
+   #import <IOKit/hid/IOHIDKeys.h>
+   #import <Kernel/IOKit/hidsystem/IOHIDUsageTables.h>
 #endif
 
 

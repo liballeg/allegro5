@@ -24,44 +24,43 @@
 
 
 /* include platform-specific stuff */
-#ifndef SCAN_DEPEND
-   #include "allegro5/platform/alplatf.h"
+
+#include "allegro5/platform/alplatf.h"
+
+
+
+#if defined ALLEGRO_DJGPP
+   #include "allegro5/platform/aldjgpp.h"
+#elif defined ALLEGRO_WATCOM
+   #include "allegro5/platform/alwatcom.h"
+#elif defined ALLEGRO_MINGW32
+   #include "allegro5/platform/almngw32.h"
+#elif defined ALLEGRO_DMC
+   #include "allegro5/platform/aldmc.h"
+#elif defined ALLEGRO_BCC32
+   #include "allegro5/platform/albcc32.h"
+#elif defined ALLEGRO_MSVC
+   #include "allegro5/platform/almsvc.h"
+#elif defined ALLEGRO_BEOS
+   #include "allegro5/platform/albecfg.h"
+#elif defined ALLEGRO_IPHONE
+   #include "allegro5/platform/aliphonecfg.h"
+#elif defined ALLEGRO_MACOSX
+   #include "allegro5/platform/alosxcfg.h"
+#elif defined ALLEGRO_QNX
+   #include "allegro5/platform/alqnxcfg.h"
+#elif defined ALLEGRO_GP2XWIZ
+   #include "allegro5/platform/alwizcfg.h"
+#elif defined ALLEGRO_UNIX
+   #include "allegro5/platform/alucfg.h"
+#else
+   #error platform not supported
 #endif
 
-#ifndef SCAN_EXPORT
-   #if defined ALLEGRO_DJGPP
-      #include "allegro5/platform/aldjgpp.h"
-   #elif defined ALLEGRO_WATCOM
-      #include "allegro5/platform/alwatcom.h"
-   #elif defined ALLEGRO_MINGW32
-      #include "allegro5/platform/almngw32.h"
-   #elif defined ALLEGRO_DMC
-      #include "allegro5/platform/aldmc.h"
-   #elif defined ALLEGRO_BCC32
-      #include "allegro5/platform/albcc32.h"
-   #elif defined ALLEGRO_MSVC
-      #include "allegro5/platform/almsvc.h"
-   #elif defined ALLEGRO_BEOS
-      #include "allegro5/platform/albecfg.h"
-   #elif defined ALLEGRO_IPHONE
-      #include "allegro5/platform/aliphonecfg.h"
-   #elif defined ALLEGRO_MACOSX
-      #include "allegro5/platform/alosxcfg.h"
-   #elif defined ALLEGRO_QNX
-      #include "allegro5/platform/alqnxcfg.h"
-   #elif defined ALLEGRO_GP2XWIZ
-      #include "allegro5/platform/alwizcfg.h"
-   #elif defined ALLEGRO_UNIX
-      #include "allegro5/platform/alucfg.h"
-   #else
-      #error platform not supported
-   #endif
+  
+#include "allegro5/platform/astdint.h"
+#include "allegro5/platform/astdbool.h"
 
-   #ifndef SCAN_DEPEND
-      #include "allegro5/platform/astdint.h"
-      #include "allegro5/platform/astdbool.h"
-   #endif
-#endif
 
 
 /* special definitions for the GCC compiler */
@@ -337,11 +336,6 @@
    #define WRITE3BYTES(p,c)  ((*(unsigned char *)(p) = (c) >> 16),       \
                               (*((unsigned char *)(p) + 1) = (c) >> 8),  \
                               (*((unsigned char *)(p) + 2) = (c)))
-
-#elif defined SCAN_DEPEND
-
-   #define READ3BYTES(p)
-   #define WRITE3BYTES(p,c)
 
 #else
    #error endianess not defined

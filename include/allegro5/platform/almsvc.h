@@ -16,12 +16,10 @@
  */
 
 
-#ifndef SCAN_DEPEND
-   #include <io.h>
-   #include <fcntl.h>
-   #include <direct.h>
-   #include <malloc.h>
-#endif
+#include <io.h>
+#include <fcntl.h>
+#include <direct.h>
+#include <malloc.h>
 
 #include "allegro5/platform/alplatf.h"
 
@@ -102,7 +100,7 @@
 
 
 /* life would be so easy if compilers would all use the same names! */
-#if (!defined S_IRUSR) && (!defined SCAN_DEPEND)
+#if (!defined S_IRUSR)
    #define S_IRUSR   S_IREAD
    #define S_IWUSR   S_IWRITE
    #define S_IXUSR   S_IEXEC

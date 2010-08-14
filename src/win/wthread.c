@@ -22,9 +22,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/platform/aintwin.h"
 
-#ifndef SCAN_DEPEND
-   #include <objbase.h>
-#endif
+#include <objbase.h>
 
 #ifndef ALLEGRO_WINDOWS
 #error something is wrong with the makefile

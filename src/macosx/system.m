@@ -24,11 +24,9 @@
    #error something is wrong with the makefile
 #endif
 
-#ifndef SCAN_DEPEND
 #import <CoreFoundation/CoreFoundation.h>
 #include <mach/mach_port.h>
 #include <servers/bootstrap.h>
-#endif
 
 ALLEGRO_DEBUG_CHANNEL("MacOSX")
 
