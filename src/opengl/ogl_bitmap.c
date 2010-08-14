@@ -218,30 +218,18 @@ static INLINE bool setup_blending(ALLEGRO_DISPLAY *ogl_disp)
    return true;
 }
 
-static INLINE void transform_vertex(float cx, float cy, float dx, float dy, 
-    float xscale, float yscale, float c, float s, float* x, float* y)
+static INLINE void transform_vertex(float* x, float* y)
 {
-   if(s == 0) {
-      *x = xscale * (*x - dx - cx) + dx;
-      *y = yscale * (*y - dy - cy) + dy;
-   } else {
-      float t;
-      *x = xscale * (*x - dx - cx);
-      *y = yscale * (*y - dy - cy);
-      t = *x;
-      *x = c * *x - s * *y + dx;
-      *y = s * t + c * *y + dy;
-   }
+   al_transform_coordinates(al_get_current_transform(), x, y);
 }
 
 static void draw_quad(ALLEGRO_BITMAP *bitmap,
     ALLEGRO_COLOR tint,
-    float sx, float sy, float sw, float sh,
-    float cx, float cy, float dx, float dy, float dw, float dh,
-    float xscale, float yscale, float angle, int flags)
+    float sx, float sy, float sw, float sh, float dx, float dy,
+    int flags)
 {
    float tex_l, tex_t, tex_r, tex_b, w, h, tex_w, tex_h;
-   float c, s;
+   float dw = sw, dh = sh;
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    ALLEGRO_OGL_BITMAP_VERTEX* verts;
    ALLEGRO_DISPLAY *disp = al_get_current_display();
@@ -328,23 +316,13 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    verts[4].b = tint.b;
    verts[4].a = tint.a;
    
-   // TODO: Maybe if we add a flag which says that there is no
-   // transformation in effect wahtsoever, we could get a slight
-   // speedup here.
-   
-   if(angle == 0) {
-      c = 1;
-      s = 0;
-   } else {
-      c = cosf(angle);
-      s = sinf(angle);
+   if (disp->cache_enabled) {
+      /* If drawing is batched, we apply transformations manually. */
+      transform_vertex(&verts[0].x, &verts[0].y);
+      transform_vertex(&verts[1].x, &verts[1].y);
+      transform_vertex(&verts[2].x, &verts[2].y);
+      transform_vertex(&verts[4].x, &verts[4].y);
    }
-   
-   transform_vertex(cx, cy, dx, dy, xscale, yscale, c, s, &verts[0].x, &verts[0].y);
-   transform_vertex(cx, cy, dx, dy, xscale, yscale, c, s, &verts[1].x, &verts[1].y);
-   transform_vertex(cx, cy, dx, dy, xscale, yscale, c, s, &verts[2].x, &verts[2].y);
-   transform_vertex(cx, cy, dx, dy, xscale, yscale, c, s, &verts[4].x, &verts[4].y);
-   
    verts[3] = verts[1];
    verts[5] = verts[2];
    
@@ -444,7 +422,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
    }
    if (disp->ogl_extras->opengl_target == ogl_target) {
       if (setup_blending(disp)) {
-         draw_quad(bitmap, tint, sx, sy, sw, sh, 0, 0, dx, dy, sw, sh, 1, 1, 0, flags);
+         draw_quad(bitmap, tint, sx, sy, sw, sh, dx, dy, flags);
          return;
       }
    }
