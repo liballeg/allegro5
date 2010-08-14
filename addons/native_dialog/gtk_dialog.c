@@ -460,6 +460,11 @@ void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 static gboolean do_close_native_text_log(gpointer data)
 {
    ALLEGRO_NATIVE_DIALOG *textlog = data;
+
+   /* Delay closing until appends are completed. */
+   if (textlog->tl_have_pending)
+      return true;
+
    /* This causes the GTK window as well as all of its children to
     * be freed. Further it will call the destroy function which we
     * connected to the destroy signal which in turn causes our
