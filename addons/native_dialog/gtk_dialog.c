@@ -21,21 +21,12 @@
 
 ALLEGRO_DEBUG_CHANNEL("gtk")
 
-enum {
-   STARTUP_ERROR  = -1,
-   STARTUP_NONE   = 0,
-   STARTUP_READY  = 1
-};
+static int global_counter = 0;
+static GStaticMutex gtk_lock = G_STATIC_MUTEX_INIT;
+static GCond *gtk_cond = NULL;
+static GThread *gtk_thread = NULL;
 
-static int global_counter;
-static int gtk_startup = STARTUP_NONE;
-/* XXX these are never cleaned up */
-static ALLEGRO_MUTEX *gtk_lock;
-static ALLEGRO_COND *gtk_cond;
-static ALLEGRO_THREAD *gtk_thread;
-
-/* All dialogs in the native dialogs addon are blocking. This makes the
- * implementation particularly simple in GTK:
+/* If dialogs were always blocking, the implementation would be simple in GTK:
  * - Start GTK (gtk_init) and create the GTK dialog.
  * - Run GTK (gtk_main).
  * - Exit GTK from dialog callback (gtk_main_quit) which makes the gtk_main()
@@ -50,75 +41,44 @@ static ALLEGRO_THREAD *gtk_thread;
  * long as at least one dialog is shown.
  */
 
-static void *gtk_thread_func(ALLEGRO_THREAD *thread, void *data)
+static void *gtk_thread_func(void *data)
+{
+   gdk_threads_enter();
+   ALLEGRO_DEBUG("Entering gtk_main.\n");
+   gtk_main();
+   ALLEGRO_DEBUG("Leaving gtk_main.\n");
+   gdk_threads_leave();
+   return data;
+}
+
+static bool gtk_start_and_lock(ALLEGRO_NATIVE_DIALOG *fd)
 {
    int argc = 0;
    char **argv = NULL;
-   (void)thread;
-   (void)data;
 
    if (!g_thread_supported())
       g_thread_init(NULL);
-   gdk_threads_init();
 
-   if (!gtk_init_check(&argc, &argv)) {
-      al_lock_mutex(gtk_lock);
-      gtk_startup = STARTUP_ERROR;
-      al_broadcast_cond(gtk_cond);
-      al_unlock_mutex(gtk_lock);
-      return NULL;
-   }
-
-   al_lock_mutex(gtk_lock);
-   gtk_startup = STARTUP_READY;
-   al_broadcast_cond(gtk_cond);
-   al_unlock_mutex(gtk_lock);
-
-   gdk_threads_enter();
-   gtk_main();
-   gdk_threads_leave();
-
-   al_lock_mutex(gtk_lock);
-   gtk_startup = STARTUP_NONE;
-   al_broadcast_cond(gtk_cond);
-   al_unlock_mutex(gtk_lock);
-
-   return NULL;
-}
-
-static bool gtk_start_and_lock(void)
-{
-   /* Note: This is not 100% correct, best would be to create the lock from
-    * the main thread *before* there is any chance for concurrency.
-    */
-   if (!gtk_lock) {
-      gtk_lock = al_create_mutex();
-      gtk_cond = al_create_cond();
-   }
-
-   al_lock_mutex(gtk_lock);
+   g_static_mutex_lock(&gtk_lock);
 
    global_counter++;
-
    if (global_counter == 1) {
-      gtk_startup = STARTUP_NONE;
+      gdk_threads_init();
 
-      gtk_thread = al_create_thread(gtk_thread_func, NULL);
-      al_start_thread(gtk_thread);
-      while (gtk_startup == STARTUP_NONE)
-         al_wait_cond(gtk_cond, gtk_lock);
-
-      if (gtk_startup == STARTUP_ERROR) {
-         ALLEGRO_ERROR("Failed to start GTK.\n");
+      if (!gtk_init_check(&argc, &argv)) {
          global_counter--;
-         al_unlock_mutex(gtk_lock);
+         g_static_mutex_unlock(&gtk_lock);
+         ALLEGRO_WARN("GTK init failed.\n");
          return false;
       }
 
+      gtk_cond = g_cond_new();
+      gtk_thread = g_thread_create(gtk_thread_func, NULL, TRUE, NULL);
       ALLEGRO_INFO("GTK started.\n");
    }
 
    gdk_threads_enter();
+   fd->is_active = true;
    return true;
 }
 
@@ -126,36 +86,36 @@ static void gtk_unlock_and_wait(ALLEGRO_NATIVE_DIALOG *nd)
 {
    gdk_threads_leave();
 
-   nd->is_active = true;
    while (nd->is_active)
-      al_wait_cond(gtk_cond, gtk_lock);
+      g_cond_wait(gtk_cond, g_static_mutex_get_mutex(&gtk_lock));
 
    global_counter--;
    if (global_counter == 0) {
       gtk_main_quit();
-      while (gtk_startup == STARTUP_READY)
-         al_wait_cond(gtk_cond, gtk_lock);
+      g_thread_join(gtk_thread);
+      gtk_thread = NULL;
+      g_cond_free(gtk_cond);
+      gtk_cond = NULL;
    }
 
-   al_unlock_mutex(gtk_lock);
+   g_static_mutex_unlock(&gtk_lock);
 }
 
-static void gtk_end(ALLEGRO_NATIVE_DIALOG *nd)
+static void set_dialog_inactive(ALLEGRO_NATIVE_DIALOG *nd)
 {
-   al_lock_mutex(gtk_lock);
+   g_static_mutex_lock(&gtk_lock);
 
    nd->is_active = false;
-   al_broadcast_cond(gtk_cond);
+   g_cond_broadcast(gtk_cond);
 
-   al_unlock_mutex(gtk_lock);
+   g_static_mutex_unlock(&gtk_lock);
 }
 
 static void destroy(GtkWidget *w, gpointer data)
 {
    ALLEGRO_NATIVE_DIALOG *nd = data;
-   (void)data;
    (void)w;
-   gtk_end(nd);
+   set_dialog_inactive(nd);
 }
 
 static void ok(GtkWidget *w, GtkFileSelection *fs)
@@ -193,7 +153,7 @@ static void response(GtkDialog *dialog, gint response_id, gpointer user_data)
       default:
          nd->mb_pressed_button = response_id;
    }
-   gtk_end(nd);
+   set_dialog_inactive(nd);
 }
 
 #ifdef ALLEGRO_WITH_XWINDOWS
@@ -231,7 +191,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
 {
    GtkWidget *window;
 
-   if (!gtk_start_and_lock())
+   if (!gtk_start_and_lock(fd))
       return false;
 
    /* Create a new file selection widget */
@@ -274,7 +234,7 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 {
    GtkWidget *window;
 
-   if (!gtk_start_and_lock())
+   if (!gtk_start_and_lock(fd))
       return 0; /* "cancelled" */
 
    /* Create a new file selection widget */
@@ -369,7 +329,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
    al_lock_mutex(textlog->tl_text_mutex);
 
-   if (!gtk_start_and_lock()) {
+   if (!gtk_start_and_lock(textlog)) {
       al_unlock_mutex(textlog->tl_text_mutex);
       return false;
    }
