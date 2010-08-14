@@ -29,6 +29,7 @@ enum {
 
 static int global_counter;
 static int gtk_startup = STARTUP_NONE;
+/* XXX these are never cleaned up */
 static ALLEGRO_MUTEX *gtk_lock;
 static ALLEGRO_COND *gtk_cond;
 static ALLEGRO_THREAD *gtk_thread;
@@ -90,15 +91,14 @@ static bool gtk_start_and_lock(void)
    /* Note: This is not 100% correct, best would be to create the lock from
     * the main thread *before* there is any chance for concurrency.
     */
-   if (!gtk_lock)
+   if (!gtk_lock) {
       gtk_lock = al_create_mutex();
+      gtk_cond = al_create_cond();
+   }
 
    al_lock_mutex(gtk_lock);
 
    global_counter++;
-
-   if (!gtk_cond)
-      gtk_cond = al_create_cond();
 
    if (global_counter == 1) {
       gtk_startup = STARTUP_NONE;
@@ -126,11 +126,9 @@ static void gtk_unlock_and_wait(ALLEGRO_NATIVE_DIALOG *nd)
 {
    gdk_threads_leave();
 
-   nd->cond = al_create_cond();
-
    nd->is_active = true;
    while (nd->is_active)
-      al_wait_cond(nd->cond, gtk_lock);
+      al_wait_cond(gtk_cond, gtk_lock);
 
    global_counter--;
    if (global_counter == 0) {
@@ -147,7 +145,7 @@ static void gtk_end(ALLEGRO_NATIVE_DIALOG *nd)
    al_lock_mutex(gtk_lock);
 
    nd->is_active = false;
-   al_broadcast_cond(nd->cond);
+   al_broadcast_cond(gtk_cond);
 
    al_unlock_mutex(gtk_lock);
 }

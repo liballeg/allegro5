@@ -36,7 +36,6 @@ struct ALLEGRO_NATIVE_DIALOG
 
    /* Only used by platform implementations. */
    bool is_active;
-   ALLEGRO_COND *cond;
    void *window;
 };
 

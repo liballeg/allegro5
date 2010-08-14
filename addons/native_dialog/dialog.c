@@ -87,9 +87,6 @@ void al_destroy_native_file_dialog(ALLEGRO_FILECHOOSER *dialog)
    /* text logs should be closed with al_close_native_text_log */
    ASSERT(!fd->tl_textview);
 
-   /* platform specific stuff */
-   al_destroy_cond(fd->cond);
-
    al_free(fd);
 }
 
