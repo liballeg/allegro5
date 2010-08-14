@@ -70,23 +70,12 @@ void al_destroy_native_file_dialog(ALLEGRO_FILECHOOSER *dialog)
    _al_unregister_destructor(_al_dtor_list, fd);
 
    al_ustr_free(fd->title);
-
-   /* file chooser stuff */
    al_destroy_path(fd->fc_initial_path);
    for (i = 0; i < fd->fc_path_count; i++) {
       al_destroy_path(fd->fc_paths[i]);
    }
    al_free(fd->fc_paths);
    al_ustr_free(fd->fc_patterns);
-
-   /* message box stuff */
-   al_ustr_free(fd->mb_heading);
-   al_ustr_free(fd->mb_text);
-   al_ustr_free(fd->mb_buttons);
-
-   /* text logs should be closed with al_close_native_text_log */
-   ASSERT(!fd->tl_textview);
-
    al_free(fd);
 }
 
@@ -109,7 +98,13 @@ int al_show_native_message_box(ALLEGRO_DISPLAY *display,
    fc->flags = flags;
 
    r = _al_show_native_message_box(display, fc);
-   al_destroy_native_file_dialog((ALLEGRO_FILECHOOSER *)fc);
+
+   al_ustr_free(fc->title);
+   al_ustr_free(fc->mb_heading);
+   al_ustr_free(fc->mb_text);
+   al_ustr_free(fc->mb_buttons);
+   al_free(fc);
+
    return r;
 }
 
