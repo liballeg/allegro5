@@ -422,11 +422,11 @@ void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
       selection_mode = al_get_config_value(system->system.config, "graphics",
                           "config_selection");
       if (selection_mode && selection_mode[0] != '\0') {
-         if (!stricmp(selection_mode, "old")) {
+         if (!_al_stricmp(selection_mode, "old")) {
             ALLEGRO_WARN("Forcing OLD visual selection method.\n");
             force_old = true;
          }
-         else if (!stricmp(selection_mode, "new"))
+         else if (!_al_stricmp(selection_mode, "new"))
             force_old = false;
       }
    }

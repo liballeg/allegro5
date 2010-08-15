@@ -223,7 +223,7 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
    if (sys->config) {
       s = al_get_config_value(sys->config, "graphics", "driver");
       if (s) {
-         if (!stricmp(s, "OPENGL")) {
+         if (!_al_stricmp(s, "OPENGL")) {
 #if defined ALLEGRO_CFG_OPENGL
             flags |= ALLEGRO_OPENGL;
             al_set_new_display_flags(flags);
@@ -232,7 +232,7 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
             return NULL;
 #endif
          }
-         else if (!stricmp(s, "DIRECT3D") || !stricmp(s, "D3D")) {
+         else if (!_al_stricmp(s, "DIRECT3D") || !_al_stricmp(s, "D3D")) {
 #if defined ALLEGRO_CFG_D3D
             flags |= ALLEGRO_DIRECT3D;
             al_set_new_display_flags(flags);

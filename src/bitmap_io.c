@@ -45,7 +45,7 @@ static Handler *find_handler(const char *extension)
 
    for (i = 0; i < _al_vector_size(&iio_table); i++) {
       Handler *l = _al_vector_ref(&iio_table, i);
-      if (0 == stricmp(extension, l->extension)) {
+      if (0 == _al_stricmp(extension, l->extension)) {
          return l;
       }
    }

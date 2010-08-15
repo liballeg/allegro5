@@ -292,29 +292,6 @@
    extern "C" {
 #endif
 
-/* emulate missing library functions */
-/* Define the macros conditionally in case another library is also helpful. */
-#ifdef ALLEGRO_NO_STRICMP
-   AL_FUNC(int, _alemu_stricmp, (const char *s1, const char *s2));
-   #ifndef stricmp
-     #define stricmp(s1, s2) _alemu_stricmp((s1), (s2))
-   #endif
-#endif
-
-#ifdef ALLEGRO_NO_STRLWR
-   AL_FUNC(char *, _alemu_strlwr, (char *string));
-   #ifndef strlwr
-     #define strlwr(s1, s2) _alemu_strlwr((s1), (s2))
-   #endif
-#endif
-
-#ifdef ALLEGRO_NO_STRUPR
-   AL_FUNC(char *, _alemu_strupr, (char *string));
-   #ifndef strupr
-      #define strupr(s1, s2) _alemu_strupr((s1), (s2))
-   #endif
-#endif
-
 
 /* endian-independent 3-byte accessor macros */
 #ifdef ALLEGRO_LITTLE_ENDIAN

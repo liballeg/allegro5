@@ -40,7 +40,7 @@ static void free_sample_vector(void);
 static int string_to_depth(const char *s)
 {
    // FIXME: fill in the rest
-   if (!stricmp(s, "int16")) {
+   if (!_al_stricmp(s, "int16")) {
       return ALLEGRO_AUDIO_DEPTH_INT16;
    }
    else {

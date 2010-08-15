@@ -137,19 +137,19 @@ static ALLEGRO_AUDIO_DRIVER_ENUM get_config_audio_driver(void)
    if (!value || value[0] == '\0')
       return ALLEGRO_AUDIO_DRIVER_AUTODETECT;
 
-   if (0 == stricmp(value, "ALSA"))
+   if (0 == _al_stricmp(value, "ALSA"))
       return ALLEGRO_AUDIO_DRIVER_ALSA;
 
-   if (0 == stricmp(value, "OPENAL"))
+   if (0 == _al_stricmp(value, "OPENAL"))
       return ALLEGRO_AUDIO_DRIVER_OPENAL;
 
-   if (0 == stricmp(value, "OSS"))
+   if (0 == _al_stricmp(value, "OSS"))
       return ALLEGRO_AUDIO_DRIVER_OSS;
 
-   if (0 == stricmp(value, "PULSEAUDIO"))
+   if (0 == _al_stricmp(value, "PULSEAUDIO"))
       return ALLEGRO_AUDIO_DRIVER_PULSEAUDIO;
 
-   if (0 == stricmp(value, "DSOUND") || 0 == stricmp(value, "DIRECTSOUND"))
+   if (0 == _al_stricmp(value, "DSOUND") || 0 == _al_stricmp(value, "DIRECTSOUND"))
       return ALLEGRO_AUDIO_DRIVER_DSOUND;
 
    return ALLEGRO_AUDIO_DRIVER_AUTODETECT;

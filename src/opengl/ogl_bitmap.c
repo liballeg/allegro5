@@ -72,9 +72,9 @@ static GLint ogl_mag_filter = GL_NEAREST;
 
 static GLint ogl_get_filter(const char *s)
 {
-   if (!stricmp(s, "LINEAR"))
+   if (!_al_stricmp(s, "LINEAR"))
       return GL_LINEAR;
-   if (!stricmp(s, "ANISOTROPIC"))
+   if (!_al_stricmp(s, "ANISOTROPIC"))
       return GL_LINEAR;
    return GL_NEAREST;
 }

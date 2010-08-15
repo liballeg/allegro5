@@ -40,15 +40,4 @@
 /* Enable multithreaded library */
 #define ALLEGRO_MULTITHREADED
 
-/* Provide implementations of missing functions.  */
-#ifndef ALLEGRO_HAVE_STRICMP
-#define ALLEGRO_NO_STRICMP
-#endif
 
-#ifndef ALLEGRO_HAVE_STRLWR
-#define ALLEGRO_NO_STRLWR
-#endif
-
-#ifndef ALLEGRO_HAVE_STRUPR
-#define ALLEGRO_NO_STRUPR
-#endif

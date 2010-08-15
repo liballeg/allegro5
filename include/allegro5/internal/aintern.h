@@ -53,7 +53,7 @@ AL_FUNC(char *, _al_sane_strncpy, (char *dest, const char *src, size_t n));
 AL_FUNC(void, _al_srand, (int seed));
 AL_FUNC(int, _al_rand, (void));
 
-
+AL_FUNC(int, _al_stricmp, (const char *s1, const char *s2));
 
 #ifdef __cplusplus
    }

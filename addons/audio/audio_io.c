@@ -53,7 +53,7 @@ static ACODEC_TABLE *find_acodec_table_entry(const char *ext)
 
    for (i = 0; i < _al_vector_size(&acodec_table); i++) {
       ent = _al_vector_ref(&acodec_table, i);
-      if (0 == stricmp(ent->ext, ext)) {
+      if (0 == _al_stricmp(ent->ext, ext)) {
          return ent;
       }
    }

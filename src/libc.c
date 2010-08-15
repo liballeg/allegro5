@@ -29,53 +29,10 @@
 static int _al_rand_seed = 0;
 
 
-
-#ifdef ALLEGRO_NO_STRLWR
-
-/* _alemu_strlwr:
- *  Convert all upper case characters in string to lower case.
+/* _al_stricmp:
+ *  Case-insensitive comparison of 7-bit ASCII strings.
  */
-char *_alemu_strlwr(char *string)
-{
-   char *p;
-   ASSERT(string);
-
-   for (p=string; *p; p++)
-      *p = tolower(*p);
-
-   return string;
-}
-
-#endif
-
-
-
-#ifdef ALLEGRO_NO_STRUPR
-
-/* _alemu_strupr:
- *  Convert all lower case characters in string to upper case.
- */
-char *_alemu_strupr(char *string)
-{
-   char *p;
-   ASSERT(string);
-
-   for (p=string; *p; p++)
-      *p = toupper(*p);
-
-   return string;
-}
-
-#endif
-
-
-
-#ifdef ALLEGRO_NO_STRICMP
-
-/* _alemu_stricmp:
- *  Case-insensitive comparison of strings.
- */
-int _alemu_stricmp(const char *s1, const char *s2)
+int _al_stricmp(const char *s1, const char *s2)
 {
    int c1, c2;
    ASSERT(s1);
@@ -88,9 +45,6 @@ int _alemu_stricmp(const char *s1, const char *s2)
 
    return c1 - c2;
 }
-
-#endif
-
 
 
 /* _al_sane_realloc:

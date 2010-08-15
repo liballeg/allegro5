@@ -853,11 +853,11 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
       selection_mode = al_get_config_value(system->config, "graphics",
                           "config_selection");
       if (selection_mode && selection_mode[0] != '\0') {
-         if (!stricmp(selection_mode, "old")) {
+         if (!_al_stricmp(selection_mode, "old")) {
             ALLEGRO_INFO("Forcing OLD visual selection method.\n");
             force_old = true;
          }
-         else if (!stricmp(selection_mode, "new"))
+         else if (!_al_stricmp(selection_mode, "new"))
             force_old = false;
       }
    }

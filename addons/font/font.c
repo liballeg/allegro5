@@ -300,7 +300,7 @@ static FONT_HANDLER *find_extension(char const *extension)
     */
    for (i = _al_vector_size(&font_handlers) - 1; i >= 0 ; i--) {
       FONT_HANDLER *handler = _al_vector_ref(&font_handlers, i);
-      if (0 == stricmp(al_cstr(handler->extension), extension))
+      if (0 == _al_stricmp(al_cstr(handler->extension), extension))
          return handler;
    }
    return NULL;

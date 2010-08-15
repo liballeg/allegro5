@@ -799,9 +799,9 @@ ALLEGRO_MIXER *al_create_mixer(unsigned int freq,
       const char *p;
       p = al_get_config_value(config, "audio", "default_mixer_quality");
       if (p && p[0] != '\0') {
-         if (!stricmp(p, "point"))
+         if (!_al_stricmp(p, "point"))
             default_mixer_quality = ALLEGRO_MIXER_QUALITY_POINT;
-         else if (!stricmp(p, "linear"))
+         else if (!_al_stricmp(p, "linear"))
             default_mixer_quality = ALLEGRO_MIXER_QUALITY_LINEAR;
       }
    }

@@ -27,7 +27,6 @@
 #define ALLEGRO_INTERNAL_THREAD_HEADER "allegro5/platform/aintuthr.h"
 
 #define ALLEGRO_EXCLUDE_GLX
-#define ALLEGRO_NO_STRICMP
 
 #ifndef AL_INLINE
 #define AL_INLINE(type, name, args, code)    \
