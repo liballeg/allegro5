@@ -22,6 +22,7 @@
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/display.h"
 #include "allegro5/opengl/gl_ext.h"
+#include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_system.h"
@@ -154,13 +155,14 @@ static void print_extensions(char const *extension)
 
    while (*extension != '\0') {
       start = buf;
-      strncpy(buf, extension, 80);
+      _al_sane_strncpy(buf, extension, 80);
       while ((*start != ' ') && (*start != '\0')) {
          extension++;
          start++;
       }
       *start = '\0';
-      extension++;
+      if (*extension != '\0')
+	  extension++;
       ALLEGRO_DEBUG("%s\n", buf);
    }
 }
