@@ -27,6 +27,8 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_system.h"
 
+ALLEGRO_DEBUG_CHANNEL("bitmap")
+
 static ALLEGRO_COLOR solid_white = {1, 1, 1, 1};
 
 /* Creates a memory bitmap.
@@ -74,9 +76,7 @@ static void _al_destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
 
 
 
-/* Function: al_create_bitmap
- */
-ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
+static ALLEGRO_BITMAP *do_create_bitmap(int w, int h)
 {
    ALLEGRO_BITMAP *bitmap;
    ALLEGRO_BITMAP **back;
@@ -136,6 +136,20 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 
 
 
+/* Function: al_create_bitmap
+ */
+ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
+{
+   ALLEGRO_BITMAP *bitmap = do_create_bitmap(w, h);
+   if (bitmap) {
+      _al_register_destructor(_al_dtor_list, bitmap,
+         (void (*)(void *))al_destroy_bitmap);
+   }
+   return bitmap;
+}
+
+
+
 /* Function: al_destroy_bitmap
  */
 void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
@@ -143,6 +157,8 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
    if (!bitmap) {
       return;
    }
+
+   _al_unregister_destructor(_al_dtor_list, bitmap);
 
    if (bitmap->parent) {
       /* It's a sub-bitmap */
@@ -734,14 +750,16 @@ void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap)
       return;
    }
 
-   /* Allocate a temporary bitmap which will hold the data
-    * during the conversion process. */
+   ALLEGRO_DEBUG("converting memory bitmap %p to display bitmap\n", bitmap);
 
+   /* Allocate a temporary bitmap which will hold the data during the
+    * conversion process.
+    */
    al_store_state(&backup, ALLEGRO_STATE_BITMAP | ALLEGRO_STATE_BLENDER);
 
    al_set_new_bitmap_flags(0);
    al_set_new_bitmap_format(bitmap->format);
-   tmp = al_create_bitmap(bitmap->w, bitmap->h);
+   tmp = do_create_bitmap(bitmap->w, bitmap->h);
 
    /* Preserve bitmap contents. */
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
@@ -767,7 +785,8 @@ void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap)
    *vid = bitmap;
 
    /* Remove the temporary bitmap from the display bitmap list, added
-    * automatically by al_create_bitmap()*/
+    * automatically by al_create_bitmap()
+    */
    _al_vector_find_and_delete(&d->bitmaps, &tmp);
    al_free(tmp);
 }
@@ -796,6 +815,8 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
       return;
    }
 
+   ALLEGRO_DEBUG("converting display bitmap %p to memory bitmap\n", bitmap);
+
    /* Allocate a temporary bitmap which will hold the data
     * during the conversion process. */
    
@@ -803,7 +824,7 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    al_set_new_bitmap_format(bitmap->format);
-   tmp = al_create_bitmap(bitmap->w, bitmap->h);
+   tmp = _al_create_memory_bitmap(bitmap->w, bitmap->h);
 
    /* Preserve bitmap contents. */
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);

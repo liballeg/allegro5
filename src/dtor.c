@@ -111,7 +111,7 @@ void _al_run_destructors(_AL_DTOR_LIST *dtors)
          void *object = dtor->object;
          void (*func)(void *) = dtor->func;
 
-         ALLEGRO_INFO("calling dtor for object %p, func %p\n", object, func);
+         ALLEGRO_DEBUG("calling dtor for object %p, func %p\n", object, func);
          _al_mutex_unlock(&dtors->mutex);
          {
             (*func)(object);
@@ -181,6 +181,10 @@ void _al_register_destructor(_AL_DTOR_LIST *dtors, void *object,
          if (new_dtor) {
             new_dtor->object = object;
             new_dtor->func = func;
+            ALLEGRO_DEBUG("added dtor for object %p, func %p\n", object, func);
+         }
+         else {
+            ALLEGRO_WARN("failed to add dtor for object %p\n", object);
          }
       }
    }
@@ -207,6 +211,7 @@ void _al_unregister_destructor(_AL_DTOR_LIST *dtors, void *object)
          DTOR *dtor = _al_vector_ref(&dtors->dtors, i);
          if (dtor->object == object) {
             _al_vector_delete_at(&dtors->dtors, i);
+            ALLEGRO_DEBUG("removed dtor for object %p\n", object);
             break;
          }
       }
