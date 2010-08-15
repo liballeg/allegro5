@@ -53,10 +53,16 @@ void al_use_transform(const ALLEGRO_TRANSFORM *trans)
 
    al_copy_transform(&target->transform, trans);
 
-   display = target->display;
-   if (display) {
-      display->vt->update_transformation(display, target);
-   }
+	/*
+	 * When the drawing is held, we apply the transformations in software,
+	 * so the hardware transformation has to be kept at identity
+	 */
+	if(!al_is_bitmap_drawing_held()) {
+		display = target->display;
+		if (display) {
+			display->vt->update_transformation(display, target);
+		}
+	}
 }
 
 /* Function: al_get_current_transform

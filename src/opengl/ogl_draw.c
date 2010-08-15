@@ -195,12 +195,6 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
    ALLEGRO_BITMAP *target)
 {
-   /* If a vertex cache is enabled, we don't want to update the
-    * OpenGL matrix - it's not used until the cache is drawn
-    * anyway.
-    */
-   if (disp->cache_enabled) return;
-
    glMatrixMode(GL_MODELVIEW);
    if (target->parent) {
       /* Sub-bitmaps have an additional offset. */
