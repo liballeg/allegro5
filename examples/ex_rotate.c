@@ -148,7 +148,7 @@ int main(void)
          al_set_clipping_rectangle(0, 0, display_w, display_h);
       }
 
-      al_draw_tinted_rotated_scaled_bitmap(src_bmp,
+      al_draw_tinted_scaled_rotated_bitmap(src_bmp,
          trans,
          50, 50, display_w/2, display_h/2,
          k, k, theta,

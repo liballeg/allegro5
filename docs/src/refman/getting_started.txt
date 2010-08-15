@@ -72,7 +72,7 @@ addon with [al_init_image_addon].  Then use [al_load_bitmap], which returns an
 [ALLEGRO_BITMAP].
 
 Use [al_draw_bitmap], [al_draw_scaled_bitmap] or
-[al_draw_rotated_scaled_bitmap] to draw the image to the backbuffer.
+[al_draw_scaled_rotated_bitmap] to draw the image to the backbuffer.
 Remember to call [al_flip_display].
 
 ## Changing the drawing target

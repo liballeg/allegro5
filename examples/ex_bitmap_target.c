@@ -81,7 +81,7 @@ static void draw(void)
    xs = 1 + 0.2 * sin(t * ALLEGRO_PI * 2);
    ys = 1 + 0.2 * sin(t * ALLEGRO_PI * 2);
    a = t * ALLEGRO_PI * 2 / 3;
-   al_draw_rotated_scaled_bitmap(target, W / 2, H / 2, 320, 240, xs, ys, a, 0);
+   al_draw_scaled_rotated_bitmap(target, W / 2, H / 2, 320, 240, xs, ys, a, 0);
 }
 
 /* Run the FPS test. */

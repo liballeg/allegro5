@@ -36,7 +36,7 @@ static void step(enum Mode mode, ALLEGRO_BITMAP *b2)
          al_draw_scaled_bitmap(b2, 0, 0, 320, 200, 0, 0, 640, 480, 0);
          break;
       case ROTATE_BLIT:
-         al_draw_rotated_scaled_bitmap(b2, 10, 10, 10, 10, 2.0, 2.0,
+         al_draw_scaled_rotated_bitmap(b2, 10, 10, 10, 10, 2.0, 2.0,
             ALLEGRO_PI/30, 0);
          break;
    }

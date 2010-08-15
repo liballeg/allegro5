@@ -153,7 +153,7 @@ int main(int argc, const char *argv[])
             al_draw_tinted_bitmap(bitmap, tint, 0, 0, 0);
             al_draw_tinted_scaled_bitmap(bitmap, tint, w / 4, h / 4, w / 2, h / 2, w, 0, w / 2, h / 4, 0);//ALLEGRO_FLIP_HORIZONTAL);
             al_draw_tinted_bitmap_region(bitmap, tint, w / 4, h / 4, w / 2, h / 2, 0, h, ALLEGRO_FLIP_VERTICAL);
-            al_draw_tinted_rotated_scaled_bitmap(bitmap, tint, w / 2, h / 2, w + w / 2, h + h / 2, 0.7, 0.7, 0.3, 0);
+            al_draw_tinted_scaled_rotated_bitmap(bitmap, tint, w / 2, h / 2, w + w / 2, h + h / 2, 0.7, 0.7, 0.3, 0);
             al_draw_pixel(w + w / 2, h + h / 2, al_map_rgb_f(0, 1, 0));
             al_put_pixel(w + w / 2 + 2, h + h / 2 + 2, al_map_rgb_f(0, 1, 1));
             al_draw_circle(w, h, 50, al_map_rgb_f(1, 0.5, 0), 3);

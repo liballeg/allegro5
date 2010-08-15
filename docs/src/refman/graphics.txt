@@ -470,7 +470,7 @@ flags can be a combination of:
 * ALLEGRO_FLIP_VERTICAL - flip the bitmap about the x-axis
 
 See also: [al_draw_bitmap_region], [al_draw_scaled_bitmap],
-[al_draw_rotated_bitmap], [al_draw_rotated_scaled_bitmap]
+[al_draw_rotated_bitmap], [al_draw_scaled_rotated_bitmap]
 
 ### API: al_draw_tinted_bitmap
 
@@ -498,7 +498,7 @@ Draws a region of the given bitmap to the target bitmap.
 * flags - same as for [al_draw_bitmap]
 
 See also: [al_draw_bitmap], [al_draw_scaled_bitmap],
-[al_draw_rotated_bitmap], [al_draw_rotated_scaled_bitmap]
+[al_draw_rotated_bitmap], [al_draw_scaled_rotated_bitmap]
 
 ### API: al_draw_tinted_bitmap_region
 
@@ -536,7 +536,7 @@ bitmap is rotated around this point.
 * flags - same as for [al_draw_bitmap]
 
 See also: [al_draw_bitmap], [al_draw_bitmap_region],
-[al_draw_scaled_bitmap], [al_draw_rotated_scaled_bitmap]
+[al_draw_scaled_bitmap], [al_draw_scaled_rotated_bitmap]
 
 ### API: al_draw_tinted_rotated_bitmap
 
@@ -545,7 +545,7 @@ with the given color.
 
 See also: [al_draw_tinted_bitmap]
 
-### API: al_draw_rotated_scaled_bitmap
+### API: al_draw_scaled_rotated_bitmap
 
 Like [al_draw_rotated_bitmap], but can also scale the bitmap.
 
@@ -564,9 +564,9 @@ rotated and scaled around this point.
 See also: [al_draw_bitmap], [al_draw_bitmap_region], [al_draw_scaled_bitmap],
 [al_draw_rotated_bitmap]
 
-### API: al_draw_tinted_rotated_scaled_bitmap
+### API: al_draw_tinted_scaled_rotated_bitmap
 
-Like [al_draw_rotated_scaled_bitmap] but multiplies all colors in the
+Like [al_draw_scaled_rotated_bitmap] but multiplies all colors in the
 bitmap with the given color.
 
 See also: [al_draw_tinted_bitmap]
@@ -586,7 +586,7 @@ Draws a scaled version of the given bitmap to the target bitmap.
 * flags - same as for [al_draw_bitmap]
 
 See also: [al_draw_bitmap], [al_draw_bitmap_region], [al_draw_rotated_bitmap],
-[al_draw_rotated_scaled_bitmap],
+[al_draw_scaled_rotated_bitmap],
 
 ### API: al_draw_tinted_scaled_bitmap
 

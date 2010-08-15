@@ -530,7 +530,7 @@ static void draw_sprite(const Sprite *spr)
    cy = spr->align_y * al_get_bitmap_height(bmp);
    tint = al_map_rgba_f(spr->r, spr->g, spr->b, spr->opacity);
 
-   al_draw_tinted_rotated_scaled_bitmap(bmp, tint, cx, cy,
+   al_draw_tinted_scaled_rotated_bitmap(bmp, tint, cx, cy,
       spr->x, spr->y, spr->scale_x, spr->scale_y, spr->angle, 0);
 }
 

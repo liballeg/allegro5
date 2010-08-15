@@ -95,7 +95,7 @@ int main(int argc, const char *argv[])
             if (zoom == 1)
                 al_draw_bitmap(bitmap, 0, 0, 0);
             else
-                al_draw_rotated_scaled_bitmap(
+                al_draw_scaled_rotated_bitmap(
                     bitmap, 0, 0, 0, 0, zoom, zoom, 0, 0);
             al_flip_display();
         }
