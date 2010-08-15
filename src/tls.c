@@ -52,6 +52,9 @@ typedef struct thread_local_state {
 
    /* Error code */
    int allegro_errno;
+
+   /* Destructor ownership count */
+   int dtor_owner_count;
 } thread_local_state;
 
 typedef struct INTERNAL_STATE {
@@ -836,5 +839,17 @@ void al_set_errno(int errnum)
       return;
    tls->allegro_errno = errnum;
 }
+
+
+
+int *_al_tls_get_dtor_owner_count(void)
+{
+   thread_local_state *tls;
+
+   tls = tls_get();
+   return &tls->dtor_owner_count;
+}
+
+
 
 /* vim: set sts=3 sw=3 et: */

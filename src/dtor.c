@@ -28,9 +28,14 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_thread.h"
+#include "allegro5/internal/aintern_tls.h"
 #include "allegro5/internal/aintern_vector.h"
 
-ALLEGRO_DEBUG_CHANNEL("system")
+/* XXX The dependency on tls.c is not nice but the DllMain stuff for Windows
+ * does not it easy to make abstract away TLS API differences.
+ */
+
+ALLEGRO_DEBUG_CHANNEL("dtor")
 
 
 struct _AL_DTOR_LIST {
@@ -45,7 +50,6 @@ typedef struct DTOR {
 } DTOR;
 
 
-
 /* Internal function: _al_init_destructors
  *  Initialise a list of destructors.
  */
@@ -58,6 +62,34 @@ _AL_DTOR_LIST *_al_init_destructors(void)
    _al_vector_init(&dtors->dtors, sizeof(DTOR));
 
    return dtors;
+}
+
+
+
+/* _al_push_destructor_owner:
+ *  Increase the owner count for the current thread.  When it is greater than
+ *  zero, _al_register_destructor will do nothing.
+ *
+ *  This is required if an object to-be-registered (B) should be "owned" by an
+ *  object (A), which is responsible for destroying (B).  (B) should not be
+ *  destroyed independently of (A).
+ */
+void _al_push_destructor_owner(void)
+{
+   int *dtor_owner_count = _al_tls_get_dtor_owner_count();
+   (*dtor_owner_count)++;
+}
+
+
+
+/* _al_push_destructor_owner:
+ *  Decrease the owner count for the current thread.
+ */
+void _al_pop_destructor_owner(void)
+{
+   int *dtor_owner_count = _al_tls_get_dtor_owner_count();
+   (*dtor_owner_count)--;
+   ASSERT(*dtor_owner_count >= 0);
 }
 
 
@@ -121,8 +153,13 @@ void _al_shutdown_destructors(_AL_DTOR_LIST *dtors)
 void _al_register_destructor(_AL_DTOR_LIST *dtors, void *object,
    void (*func)(void*))
 {
+   int *dtor_owner_count;
    ASSERT(object);
    ASSERT(func);
+
+   dtor_owner_count = _al_tls_get_dtor_owner_count();
+   if (*dtor_owner_count > 0)
+      return;
 
    _al_mutex_lock(&dtors->mutex);
    {
@@ -165,18 +202,18 @@ void _al_unregister_destructor(_AL_DTOR_LIST *dtors, void *object)
    _al_mutex_lock(&dtors->mutex);
    {
       unsigned int i;
-      bool found = false;
 
       for (i = 0; i < _al_vector_size(&dtors->dtors); i++) {
          DTOR *dtor = _al_vector_ref(&dtors->dtors, i);
          if (dtor->object == object) {
             _al_vector_delete_at(&dtors->dtors, i);
-            found = true;
             break;
          }
       }
 
-      ASSERT(found);
+      /* We cannot assert that the destructor was found because it might not
+       * have been registered if the owner count was non-zero at the time.
+       */
    }
    _al_mutex_unlock(&dtors->mutex);
 }

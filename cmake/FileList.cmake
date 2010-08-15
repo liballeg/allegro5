@@ -216,6 +216,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
     include/allegro5/internal/aintern_pixels.h
     include/allegro5/internal/aintern_system.h
     include/allegro5/internal/aintern_thread.h
+    include/allegro5/internal/aintern_tls.h
     include/allegro5/internal/aintern_vector.h
     include/allegro5/internal/alconfig.h
     )

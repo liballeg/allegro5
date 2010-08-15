@@ -10,6 +10,8 @@ typedef struct _AL_DTOR_LIST _AL_DTOR_LIST;
 
 
 AL_FUNC(_AL_DTOR_LIST *, _al_init_destructors, (void));
+AL_FUNC(void, _al_push_destructor_owner, (void));
+AL_FUNC(void, _al_pop_destructor_owner, (void));
 AL_FUNC(void, _al_run_destructors, (_AL_DTOR_LIST *dtors));
 AL_FUNC(void, _al_shutdown_destructors, (_AL_DTOR_LIST *dtors));
 AL_FUNC(void, _al_register_destructor, (_AL_DTOR_LIST *dtors, void *object,
