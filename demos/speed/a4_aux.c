@@ -253,13 +253,15 @@ ALLEGRO_FONT *font_video;
 /* like create_bitmap() */
 ALLEGRO_BITMAP *create_memory_bitmap(int w, int h)
 {
-   ALLEGRO_STATE state;
+   int oldflags;
+   int newflags;
    ALLEGRO_BITMAP *bmp;
 
-   al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   oldflags = al_get_new_bitmap_flags();
+   newflags = (oldflags &~ ALLEGRO_VIDEO_BITMAP) | ALLEGRO_MEMORY_BITMAP;
+   al_set_new_bitmap_flags(newflags);
    bmp = al_create_bitmap(w, h);
-   al_restore_state(&state);
+   al_set_new_bitmap_flags(oldflags);
    return bmp;
 }
 
