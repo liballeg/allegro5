@@ -195,6 +195,8 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
    ALLEGRO_BITMAP *target)
 {
+   (void)disp;
+
    glMatrixMode(GL_MODELVIEW);
    if (target->parent) {
       /* Sub-bitmaps have an additional offset. */
