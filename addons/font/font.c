@@ -256,8 +256,6 @@ ALLEGRO_FONT_VTABLE _al_font_vtable_color = {
     color_get_text_dimensions,
 };
 
-ALLEGRO_FONT_VTABLE* al_font_vtable_color = &_al_font_vtable_color;
-
 
 static void font_shutdown(void)
 {

@@ -198,7 +198,7 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp,
 
    f = al_malloc(sizeof *f);
    memset(f, 0, sizeof *f);
-   f->vtable = al_font_vtable_color;
+   f->vtable = &_al_font_vtable_color;
    
    al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
