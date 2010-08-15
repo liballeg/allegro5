@@ -2573,6 +2573,13 @@ void al_get_d3d_texture_position(ALLEGRO_BITMAP *bitmap, int *u, int *v)
    *v = bitmap->yofs;
 }
 
+/* Function: al_is_d3d_device_lost
+ */
+bool al_is_d3d_device_lost(ALLEGRO_DISPLAY *display)
+{
+   return ((ALLEGRO_DISPLAY_D3D *)display)->device_lost;
+}
+
 static void d3d_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 {
    _al_win_set_window_position(((ALLEGRO_DISPLAY_WIN *)display)->window, x, y);
