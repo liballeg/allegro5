@@ -191,8 +191,7 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 }
 
 static void _bitmap_drawer(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint,
-   float sx, float sy, float sw, float sh, float dx, float dy,
-   int flags)
+   float sx, float sy, float sw, float sh, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
    ALLEGRO_DISPLAY *display = dest->display;
@@ -201,7 +200,7 @@ static void _bitmap_drawer(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint,
    
    /* If destination is memory, do a memory blit */
    if (dest->flags & ALLEGRO_MEMORY_BITMAP) {
-      _al_draw_bitmap_region_memory(bitmap, tint, sx, sy, sw, sh, dx, dy, flags);
+      _al_draw_bitmap_region_memory(bitmap, tint, sx, sy, sw, sh, 0, 0, flags);
    }
    else {
       /* if source is memory or incompatible */
@@ -210,17 +209,15 @@ static void _bitmap_drawer(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint,
       {
          if (display && display->vt->draw_memory_bitmap_region) {
             display->vt->draw_memory_bitmap_region(display, bitmap,
-               sx, sy, sw, sh, dx, dy, flags);
+               sx, sy, sw, sh, flags);
          }
          else {
-            _al_draw_bitmap_region_memory(bitmap, tint, sx, sy, sw, sh,
-               dx, dy, flags);
+            _al_draw_bitmap_region_memory(bitmap, tint, sx, sy, sw, sh, 0, 0, flags);
          }
       }
       else {
          /* Compatible display bitmap, use full acceleration */
-         bitmap->vt->draw_bitmap_region(bitmap, tint, sx, sy, sw, sh,
-            dx, dy, flags);
+         bitmap->vt->draw_bitmap_region(bitmap, tint, sx, sy, sw, sh, flags);
       }
    }
 }
@@ -229,7 +226,8 @@ static void _bitmap_drawer(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint,
 static void _draw_tinted_rotated_scaled_bitmap_region(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_COLOR tint, float cx, float cy, float angle,
    float xscale, float yscale,
-   float sx, float sy, float sw, float sh, float dx, float dy, int flags)
+   float sx, float sy, float sw, float sh, float dx, float dy,
+   int flags)
 {
    ALLEGRO_TRANSFORM backup;
    ALLEGRO_TRANSFORM t;
@@ -277,7 +275,7 @@ static void _draw_tinted_rotated_scaled_bitmap_region(ALLEGRO_BITMAP *bitmap,
    al_compose_transform(&t, &backup);
 
    al_use_transform(&t);
-   _bitmap_drawer(parent, tint, sx, sy, sw, sh, 0, 0, flags);
+   _bitmap_drawer(parent, tint, sx, sy, sw, sh, flags);
    al_use_transform(&backup);
 }
 

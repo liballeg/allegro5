@@ -334,13 +334,15 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
 
 static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_COLOR tint, float sx, float sy,
-   float sw, float sh, float dx, float dy, int flags)
+   float sw, float sh, int flags)
 {
    // FIXME: hack
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target;
    ALLEGRO_DISPLAY *disp = target->display;
+   int dx = 0;
+   int dy = 0;
    
    /* For sub-bitmaps */
    if (target->parent) {

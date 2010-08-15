@@ -76,7 +76,7 @@ struct ALLEGRO_BITMAP_INTERFACE
 
    void (*draw_bitmap_region)(ALLEGRO_BITMAP *bitmap,
       ALLEGRO_COLOR tint,float sx, float sy,
-      float sw, float sh, float dx, float dy, int flags);
+      float sw, float sh, int flags);
 
    /* After the memory-copy of the bitmap has been modified, need to call this
     * to update the display-specific copy. E.g. with an OpenGL driver, this
@@ -119,8 +119,7 @@ int _al_get_real_pixel_format(ALLEGRO_DISPLAY *display, int format);
 /* Memory bitmap blitting */
 void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_COLOR tint,
-   int sx, int sy, int sw, int sh,
-   int dx, int dy, int flags);
+   int sx, int sy, int sw, int sh, int dx, int dy, int flags);
 
 void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
    int sx, int sy, int sw, int sh,

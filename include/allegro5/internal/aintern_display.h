@@ -42,7 +42,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
    void (*switch_in)(ALLEGRO_DISPLAY *display);
 
    void (*draw_memory_bitmap_region)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap,
-      float sx, float sy, float sw, float sh, float dx, float dy, int flags);
+      float sx, float sy, float sw, float sh, int flags);
 
    ALLEGRO_BITMAP *(*create_sub_bitmap)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *parent,
       int x, int y, int width, int height);

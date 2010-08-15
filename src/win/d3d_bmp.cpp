@@ -54,39 +54,17 @@ void _al_d3d_bmp_destroy(void)
    vt = NULL;
 }
 
-static INLINE void transform_vertex(float cx, float cy, float dx, float dy, 
-    float c, float s, float* x, float* y)
+static INLINE void transform_vertex(float* x, float* y)
 {
-   if(s == 0) {
-      *x = (*x - cx) + dx;
-      *y = (*y - cy) + dy;
-   } else {
-      float t;
-      *x = (*x - cx);
-      *y = (*y - cy);
-      t = *x;
-      *x = c * *x - s * *y + dx;
-      *y = s * t + c * *y + dy;
-   }
+   al_transform_coordinates(al_get_current_transform(), x, y);
 }
 
 /*
- * Draw a textured quad (or filled rectangle)
- *
- * bmp - bitmap with texture to draw
- * sx, sy, sw, sh - source x, y, width, height
- * dx, dy, dw, dh - destination x, y, width, height
- * cx, cy - center of rotation and scaling
- * angle - rotation angle in radians (counter clockwise)
- * color - tint color?
- * flags - flipping flags
- *
+ * Draw a textured quad
  */
-void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *bmp,
-   float sx, float sy, float sw, float sh,
-   float dx, float dy, float dw, float dh,
-   float cx, float cy, float angle,
-   D3DCOLOR color, int flags, bool pivot)
+static void d3d_draw_textured_quad(
+   ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *bmp, ALLEGRO_COLOR tint,
+   float sx, float sy, float sw, float sh, int flags)
 {
    float right;
    float bottom;
@@ -96,9 +74,7 @@ void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *b
    float tv_end;
    int texture_w;
    int texture_h;
-   float dest_x;
-   float dest_y;
-   float c, s;
+   DWORD d3d_color;
 
    const float z = 0.0f;
    
@@ -111,8 +87,8 @@ void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *b
 
    D3D_TL_VERTEX* vertices = (D3D_TL_VERTEX*)aldisp->vt->prepare_vertex_cache(aldisp, 6);
 
-   right  = dx + dw;
-   bottom = dy + dh;
+   right  = sw;
+   bottom = sh;
 
    texture_w = bmp->texture_w;
    texture_h = bmp->texture_h;
@@ -132,62 +108,47 @@ void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *b
       tv_end = temp;
    }
 
-   vertices[0].x = dx;
-   vertices[0].y = dy;
+   d3d_color = D3DCOLOR_COLORVALUE(tint.r, tint.g, tint.b, tint.a);
+
+   vertices[0].x = 0;
+   vertices[0].y = 0;
    vertices[0].z = z;
-   vertices[0].diffuse = color;
+   vertices[0].diffuse = d3d_color;
    vertices[0].tu = tu_start;
    vertices[0].tv = tv_start;
 
    vertices[1].x = right;
-   vertices[1].y = dy;
+   vertices[1].y = 0;
    vertices[1].z = z;
-   vertices[1].diffuse = color;
+   vertices[1].diffuse = d3d_color;
    vertices[1].tu = tu_end;
    vertices[1].tv = tv_start;
 
    vertices[2].x = right;
    vertices[2].y = bottom;
    vertices[2].z = z;
-   vertices[2].diffuse = color;
+   vertices[2].diffuse = d3d_color;
    vertices[2].tu = tu_end;
    vertices[2].tv = tv_end;
 
-   vertices[5].x = dx;
+   vertices[5].x = 0;
    vertices[5].y = bottom;
    vertices[5].z = z;
-   vertices[5].diffuse = color;
+   vertices[5].diffuse = d3d_color;
    vertices[5].tu = tu_start;
    vertices[5].tv = tv_end;
 
-   if (pivot) {
-      cx = dx + cx * (dw / sw);
-      cy = dy + cy * (dh / sh);
-      dest_x = dx;
-      dest_y = dy;
+   if (aldisp->cache_enabled) {
+      transform_vertex(&vertices[0].x, &vertices[0].y);
+      transform_vertex(&vertices[1].x, &vertices[1].y);
+      transform_vertex(&vertices[2].x, &vertices[2].y);
+      transform_vertex(&vertices[5].x, &vertices[5].y);
    }
-   else {
-      cx = dx + cx;
-      cy = dy + cy;
-      dest_x = cx;
-      dest_y = cy;
-   }
-   
-   if(angle == 0) {
-      c = 1;
-      s = 0;
-   } else {
-      c = cosf(angle);
-      s = sinf(angle);
-   }
-
-   transform_vertex(cx, cy, dest_x, dest_y, c, s, &vertices[0].x, &vertices[0].y);
-   transform_vertex(cx, cy, dest_x, dest_y, c, s, &vertices[1].x, &vertices[1].y);
-   transform_vertex(cx, cy, dest_x, dest_y, c, s, &vertices[2].x, &vertices[2].y);
-   transform_vertex(cx, cy, dest_x, dest_y, c, s, &vertices[5].x, &vertices[5].y);
    
    vertices[3] = vertices[0];
    vertices[4] = vertices[2];
+
+   //printf("vert0=%g %g\n", vertices[0].x, vertices[0].y);
    
    if(!aldisp->cache_enabled)
       aldisp->vt->flush_vertex_cache(aldisp);
@@ -643,28 +604,26 @@ void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest)
    d3d_sync_bitmap_memory(dest);
 }
 
-
-/* Draw the bitmap at the specified position. */
-static void d3d_blit_real(ALLEGRO_BITMAP *src,
+static void d3d_draw_bitmap_region(
+   ALLEGRO_BITMAP *src,
    ALLEGRO_COLOR tint,
-   float sx, float sy, float sw, float sh,
-   float source_center_x, float source_center_y,
-   float dx, float dy, float dw, float dh,
-   float angle, int flags, bool pivot)
+   float sx, float sy, float sw, float sh, int flags)
 {
-   ALLEGRO_BITMAP_D3D *d3d_src = (ALLEGRO_BITMAP_D3D *)src;
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
-   ALLEGRO_BITMAP_D3D *d3d_dest = (ALLEGRO_BITMAP_D3D *)al_get_target_bitmap();
-   DWORD color;
-   unsigned char r, g, b, a;
+   ALLEGRO_BITMAP_D3D *d3d_dest = (ALLEGRO_BITMAP_D3D *)dest;
+   ALLEGRO_BITMAP_D3D *d3d_src = (ALLEGRO_BITMAP_D3D *)src;
 
+   if (!_al_d3d_render_to_texture_supported() || !_al_d3d_supports_separate_alpha_blend(al_get_current_display())) {
+      _al_draw_bitmap_region_memory(src, tint,
+         (int)sx, (int)sy, (int)sw, (int)sh, 0, 0,
+         (int)flags);
+      return;
+   }
+   
    if (d3d_dest->display->device_lost)
       return;
 
    _al_d3d_set_bitmap_clip(dest);
-
-   al_unmap_rgba(tint, &r, &g, &b, &a);
-   color = D3DCOLOR_ARGB(a, r, g, b);
 
    /* For sub-bitmaps */
    if (src->parent) {
@@ -679,137 +638,24 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
    }
 
    if (d3d_src->is_backbuffer) {
-      if (angle != 0) {
-         ALLEGRO_BITMAP_D3D *tmp_bmp = NULL;
-         tmp_bmp =
-            (ALLEGRO_BITMAP_D3D *)d3d_create_bitmap_from_surface(
-               ((ALLEGRO_BITMAP_D3D *)d3d_src)->display->render_target,
-               src->flags);
-         d3d_blit_real((ALLEGRO_BITMAP *)tmp_bmp, tint, sx, sy, sw, sh,
-            source_center_x, source_center_y,
-            dx, dy, dw, dh,
-            angle, flags, pivot);
-         al_destroy_bitmap((ALLEGRO_BITMAP *)tmp_bmp);
-      }
-      else {
-         bool screen_screen = d3d_src == d3d_dest;
-         LPDIRECT3DSURFACE9 tmp_surface_full;
-         LPDIRECT3DSURFACE9 tmp_surface_small;
-         LPDIRECT3DSURFACE9 screen_surface;
-         ALLEGRO_DISPLAY *al_display = (ALLEGRO_DISPLAY *)
-            d3d_dest->display;
-         RECT src_rect, dst_rect;
-         POINT point;
-         DWORD ret;
-         D3DFORMAT format;
-
-         ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
-         al_set_target_bitmap(al_get_backbuffer(al_get_current_display())); // set it away from our bitmap/screen
-         
-         if (dest->parent) {
-            dx += dest->xofs;
-            dy += dest->yofs;
-         }
-
-         ret = d3d_dest->display->device->GetRenderTarget(
-            0,
-            &screen_surface
-         );
-
-
-         format = (D3DFORMAT)_al_format_to_d3d(
-            _al_get_real_pixel_format(al_display, al_display->backbuffer_format)
-         );
-         ret = d3d_dest->display->device->CreateOffscreenPlainSurface(
-            al_display->w, al_display->h, format,
-            D3DPOOL_SYSTEMMEM, &tmp_surface_full, NULL
-         );
-         ret = d3d_dest->display->device->CreateOffscreenPlainSurface(
-            sw, sh, format,
-            D3DPOOL_DEFAULT, &tmp_surface_small, NULL
-         );
-
-         ret = d3d_dest->display->device->GetRenderTargetData(
-            screen_surface,
-            tmp_surface_full
-         );
-
-         src_rect.left = sx;
-         src_rect.top = sy;
-         src_rect.right = sx+sw;
-         src_rect.bottom = sy+sh;
-         point.x = 0;
-         point.y = 0;
-
-         ret = d3d_dest->display->device->UpdateSurface(
-            tmp_surface_full, &src_rect,
-            tmp_surface_small, &point);
-
-         dst_rect.left = dx;
-         dst_rect.top = dy;
-         dst_rect.right = dx+dw;
-         dst_rect.bottom = dy+dh;
-
-         /* FIXME: do filtering if enabled in config */
-         if (!screen_screen) {
-            LPDIRECT3DSURFACE9 bmp_surface;
-            ret = d3d_dest->video_texture->GetSurfaceLevel(0, &bmp_surface);
-            ret = d3d_dest->display->device->StretchRect(
-               tmp_surface_small,
-               NULL,
-               bmp_surface,
-               &dst_rect,
-               D3DTEXF_NONE);
-            if (ret != D3D_OK) printf("fail\n");
-            bmp_surface->Release();
-         }
-         else {
-            ret = d3d_dest->display->device->StretchRect(
-               tmp_surface_small,
-               NULL,
-               screen_surface,
-               &dst_rect,
-               D3DTEXF_NONE);
-         }
-         tmp_surface_full->Release();
-         tmp_surface_small->Release();
-         screen_surface->Release();
-         al_set_target_bitmap(old_target); // set it back
-      }
+      ALLEGRO_BITMAP_D3D *tmp_bmp = NULL;
+      tmp_bmp =
+         (ALLEGRO_BITMAP_D3D *)d3d_create_bitmap_from_surface(
+         ((ALLEGRO_BITMAP_D3D *)d3d_src)->display->render_target,
+         src->flags);
+      d3d_draw_bitmap_region((ALLEGRO_BITMAP *)tmp_bmp, tint,
+         sx, sy, sw, sh, flags);
+      al_destroy_bitmap((ALLEGRO_BITMAP *)tmp_bmp);
       return;
    }
 
-   
    _al_d3d_set_blender(d3d_dest->display);
 
-   _al_d3d_draw_textured_quad(d3d_dest->display, d3d_src,
-      sx, sy, sw, sh,
-      dx, dy, dw, dh,
-      source_center_x, source_center_y,
-      angle, color,
-      flags, pivot);
+   d3d_draw_textured_quad(
+      d3d_dest->display, d3d_src, tint,
+      sx, sy, sw, sh, flags);
 
    d3d_dest->modified = true;
-}
-
-/* Blitting functions */
-
-static void d3d_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_COLOR tint,
-   float sx, float sy, float sw, float sh, float dx, float dy, int flags)
-{
-   if (!_al_d3d_render_to_texture_supported() || !_al_d3d_supports_separate_alpha_blend(al_get_current_display())) {
-      _al_draw_bitmap_region_memory(bitmap, tint,
-         (int) sx, (int) sy, (int) sw, (int) sh,
-         (int) dx, (int) dy, flags);
-      return;
-   }
-
-   d3d_blit_real(bitmap, tint,
-      sx, sy, sw, sh,
-      0.0f, 0.0f,
-      dx, dy, sw, sh,
-      0.0f, flags, false);
 }
 
 static void d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap)

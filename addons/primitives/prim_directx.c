@@ -298,7 +298,6 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    const ALLEGRO_TRANSFORM* cur_trans = al_get_current_transform();
    IDirect3DVertexShader9* old_vtx_shader;
    IDirect3DPixelShader9* old_pix_shader;
-   HRESULT hr;
    
    if (al_is_d3d_device_lost(target->display)) {
       return 0;
