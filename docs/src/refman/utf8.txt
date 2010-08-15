@@ -531,7 +531,7 @@ See also: [al_ustr_find_cset_cstr], [al_ustr_find_set]
 
 Like [al_ustr_find_cset] but takes a C-style string for `reject`.
 
-### API: al_ustr_find_ustr
+### API: al_ustr_find_str
 
 Find the first occurrence of string `needle` in `haystack`, beginning from byte
 offset `pos` (inclusive).  Return the byte offset of the occurrence if it is
