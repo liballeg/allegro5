@@ -22,6 +22,7 @@
 #include "allegro5/transformations.h"
 #include <math.h>
 
+// TODO: Re-write this file with *clean* code.
 
 #define MIN _ALLEGRO_MIN
 #define MAX _ALLEGRO_MAX
@@ -206,6 +207,19 @@ static void _al_blend_inline_dest_zero_add(
 {                                                                        \
   int cl = dest->cl, cr = dest->cr_excl;                                 \
   int ct = dest->ct, cb = dest->cb_excl;                                 \
+  bool hflip = false, vflip = false;                                     \
+  if (dw < 0) {                                                          \
+     hflip = true;                                                       \
+     dx += dw;                                                           \
+     dw = -dw;                                                           \
+     sx -= sw;                                                           \
+  }                                                                      \
+  if (dh < 0) {                                                          \
+     vflip = true;                                                       \
+     dy += dh;                                                           \
+     dh = -dh;                                                           \
+     sy -= sh;                                                           \
+  }                                                                      \
                                                                          \
   if (dest->parent) {                                                    \
      dx += dest->xofs;                                                   \
@@ -237,9 +251,7 @@ static void _al_blend_inline_dest_zero_add(
      const int d = cl - dx;                                              \
      dx = cl;                                                            \
      dw -= d;                                                            \
-     if (!(flags & ALLEGRO_FLIP_HORIZONTAL)) {                           \
-        sx += d * wr;                                                    \
-     }                                                                   \
+     sx += d * wr;                                                       \
      sw -= d * wr;                                                       \
   }                                                                      \
                                                                          \
@@ -247,18 +259,13 @@ static void _al_blend_inline_dest_zero_add(
      const int d = dx + dw - cr;                                         \
      dw -= d;                                                            \
      sw -= d * wr;                                                       \
-     if (flags & ALLEGRO_FLIP_HORIZONTAL) {                              \
-        sx += d * wr;                                                    \
-     }                                                                   \
   }                                                                      \
                                                                          \
   if (dy < ct) {                                                         \
      const int d = ct - dy;                                              \
      dy = ct;                                                            \
      dh -= d;                                                            \
-     if (!(flags & ALLEGRO_FLIP_VERTICAL)) {                             \
-        sy += d * hr;                                                    \
-     }                                                                   \
+     sy += d * hr;                                                       \
      sh -= d * hr;                                                       \
   }                                                                      \
                                                                          \
@@ -266,16 +273,16 @@ static void _al_blend_inline_dest_zero_add(
      const int d = dy + dh - cb;                                         \
      dh -= d;                                                            \
      sh -= d * hr;                                                       \
-     if (flags & ALLEGRO_FLIP_VERTICAL) {                                \
-        sy += d * hr;                                                    \
-     }                                                                   \
   }                                                                      \
                                                                          \
   if (sh <= 0 || sw <= 0) return;                                        \
+                                                                         \
+  if (hflip) {dx += dw; dw = -dw; sx += sw; dx--;}                       \
+  if (vflip) {dy += dh; dh = -dh; sy += sh; dy--;}                       \
 }
 
 
-void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
+static void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int dw, int dh, int flags)
 {
@@ -297,6 +304,7 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    int size;
    
    ASSERT(src->parent == NULL);
+   ASSERT(!(flags & (ALLEGRO_FLIP_HORIZONTAL | ALLEGRO_FLIP_VERTICAL)));
 
    if ((sw <= 0) || (sh <= 0))
       return;
@@ -341,18 +349,7 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    xend = abs(dw);
    yend = abs(dh);
 
-   if (flags & ALLEGRO_FLIP_HORIZONTAL) {
-      sxinc = -sxinc;
-      sx = sx + sw - 1;
-   }
-
-   if (flags & ALLEGRO_FLIP_VERTICAL) {
-      syinc = -syinc;
-      _sy = sy + sh - 1;
-   }
-   else {
-      _sy = sy;
-   }
+   _sy = sy;
 
    #define INNER(t, s, r, w) \
       for (x = 0; x < xend; x++) { \
@@ -442,18 +439,7 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    xend = abs(dw);
    yend = abs(dh);
 
-   if (flags & ALLEGRO_FLIP_HORIZONTAL) {
-      sxinc = -sxinc;
-      sx = sx + sw - 1;
-   }
-
-   if (flags & ALLEGRO_FLIP_VERTICAL) {
-      syinc = -syinc;
-      _sy = sy + sh - 1;
-   }
-   else {
-      _sy = sy;
-   }
+   _sy = sy;
 
    _dy = dy;
 
@@ -615,22 +601,12 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *src,
       return;
    }
 
-   if (flags & ALLEGRO_FLIP_VERTICAL) {
-      yd = sh-1;
-      yinc = -1;
-   }
-   else {
-      yd = 0;
-      yinc = 1;
-   }
-   if (flags & ALLEGRO_FLIP_HORIZONTAL) {
-      xinc = -1;
-      sxd = sw-1;
-   }
-   else {
-      xinc = 1;
-      sxd = 0;
-   }
+   
+   yd = 0;
+   yinc = 1;
+   
+   xinc = 1;
+   sxd = 0;
 
    ASSERT(!src->parent);
    ASSERT(!dest->parent);
@@ -1208,39 +1184,6 @@ do {                                                                         \
                                                                              \
    al_unlock_bitmap(src);                                                    \
    al_unlock_bitmap(dst);                                                    \
-} while (0)
-
-
-/* _pivot_scaled_sprite_flip:
- *  The most generic routine to which you specify the position with angles,
- *  scales, etc.
- */
-#define DO_DRAW_ROTATED_SCALED(src, dst,                                     \
-       fl_cx, fl_cy,                                                         \
-       fl_dx, fl_dy,                                                         \
-       fl_xscale, fl_yscale,                                                 \
-       fl_angle,                                                             \
-       flags)                                                                \
-do {                                                                         \
-   al_fixed xs[4], ys[4];                                                    \
-   al_fixed fix_dx = al_ftofix(fl_dx);                                       \
-   al_fixed fix_dy = al_ftofix(fl_dy);                                       \
-   al_fixed fix_cx = al_ftofix(fl_cx);                                       \
-   al_fixed fix_cy = al_ftofix(fl_cy);                                       \
-   al_fixed fix_angle = al_ftofix(fl_angle*256/(ALLEGRO_PI*2));              \
-   al_fixed fix_xscale = al_ftofix(fl_xscale);                               \
-   al_fixed fix_yscale = al_ftofix(fl_yscale);                               \
-   int sx = 0;                                                               \
-   int sy = 0;                                                               \
-   int sw = src->w;                                                          \
-   int sh = src->h;                                                          \
-                                                                             \
-   _al_rotate_scale_flip_coordinates(src->w << 16, src->h << 16,             \
-      fix_dx, fix_dy, fix_cx, fix_cy, fix_angle, fix_xscale, fix_yscale,     \
-      flags & ALLEGRO_FLIP_HORIZONTAL, flags & ALLEGRO_FLIP_VERTICAL,        \
-      xs, ys);                                                               \
-                                                                             \
-   DO_PARALLELOGRAM_MAP(true, flags);                                        \
 } while (0)
 
 
