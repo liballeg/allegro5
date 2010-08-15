@@ -468,11 +468,12 @@ void al_hold_bitmap_drawing(bool hold)
    ALLEGRO_DISPLAY *current_display = al_get_current_display();
 
    if (current_display) {
-      if(hold && !current_display->cache_enabled) {
+      if (hold && !current_display->cache_enabled) {
          /*
           * Set the hardware transformation to identity, but keep the bitmap
           * transform the same as it was. Relies on the fact that when bitmap
-          * holding is turned on, al_use_transform does not update the former.
+          * holding is turned on, al_use_transform does not update the hardware
+          * transformation.
           */
          ALLEGRO_TRANSFORM old, ident;
          al_copy_transform(&old, al_get_current_transform());
@@ -482,13 +483,14 @@ void al_hold_bitmap_drawing(bool hold)
          current_display->cache_enabled = hold;
          al_use_transform(&old);
       }
-      else
+      else {
          current_display->cache_enabled = hold;
+      }
 
-      if(!hold) {
+      if (!hold) {
          current_display->vt->flush_vertex_cache(current_display);
          /*
-          * Reset the hardware transform to match the stored transform
+          * Reset the hardware transform to match the stored transform.
           */
          al_use_transform(al_get_current_transform());
       }
