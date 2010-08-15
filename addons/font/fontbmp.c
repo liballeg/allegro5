@@ -21,6 +21,8 @@
 #include "allegro5/allegro.h"
 
 #include "allegro5/allegro_font.h"
+#include "allegro5/internal/aintern_dtor.h"
+#include "allegro5/internal/aintern_system.h"
 
 #include "font.h"
 
@@ -260,6 +262,9 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp,
 
    if (unmasked)
        al_destroy_bitmap(unmasked);
+
+   _al_register_destructor(_al_dtor_list, f,
+      (void (*)(void  *))al_destroy_font);
 
    return f;
 

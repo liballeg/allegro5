@@ -3,6 +3,8 @@
 
 #include "allegro5/allegro_ttf.h"
 #include "allegro5/internal/aintern_ttf_cfg.h"
+#include "allegro5/internal/aintern_dtor.h"
+#include "allegro5/internal/aintern_system.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -72,14 +74,25 @@ static int font_descent(ALLEGRO_FONT const *f)
 // into 256x256 pixels.
 static void push_new_cache_bitmap(ALLEGRO_TTF_FONT_DATA *data)
 {
-    ALLEGRO_BITMAP **back = _al_vector_alloc_back(&data->cache_bitmaps);
+    ALLEGRO_BITMAP **back;
+    ALLEGRO_STATE state;
+
+    back = _al_vector_alloc_back(&data->cache_bitmaps);
+
+    /* The bitmap will be destroyed when the parent font is destroyed so
+     * it is not safe to register a destructor for it.
+     */
+    _al_push_destructor_owner();
     *back = al_create_bitmap(256, 256);
-    al_set_target_bitmap(*back);
+    _al_pop_destructor_owner();
+
     /* Sometimes OpenGL will partly sample texels from the border of
      * glyphs. So we better clear the texture to transparency.
      */
+    al_store_state(&state, ALLEGRO_STATE_BITMAP);
+    al_set_target_bitmap(*back);
     al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
-
+    al_restore_state(&state);
 }
 
 static ALLEGRO_BITMAP* create_glyph_cache(ALLEGRO_FONT const *f, int w,
@@ -436,6 +449,9 @@ ALLEGRO_FONT *al_load_ttf_font_f(ALLEGRO_FILE *file,
 
     f->vtable = &vt;
     f->data = data;
+
+    _al_register_destructor(_al_dtor_list, f,
+       (void (*)(void *))al_destroy_font);
 
     return f;
 }

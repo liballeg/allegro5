@@ -24,6 +24,8 @@
 #include "allegro5/allegro.h"
 
 #include "allegro5/allegro_font.h"
+#include "allegro5/internal/aintern_dtor.h"
+#include "allegro5/internal/aintern_system.h"
 
 /* If you call this, you're probably making a mistake. */
 /*
@@ -334,6 +336,9 @@ void al_get_text_dimensions(const ALLEGRO_FONT *f,
 void al_destroy_font(ALLEGRO_FONT *f)
 {
    ASSERT(f);
+
+   _al_unregister_destructor(_al_dtor_list, f);
+
    f->vtable->destroy(f);
 }
 
