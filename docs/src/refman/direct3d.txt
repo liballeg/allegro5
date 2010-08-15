@@ -54,3 +54,12 @@ used texture, in pixels.
 * bitmap - ALLEGRO_BITMAP to examine
 * u - Will hold the returned u coordinate
 * v - Will hold the returned v coordinate
+
+## API: al_is_d3d_device_lost
+
+Returns a boolean indicating whether or not the Direct3D device
+belonging to the given display is in a lost state.
+
+*Parameters:*
+
+* display - The display that the device you wish to check is attached to
