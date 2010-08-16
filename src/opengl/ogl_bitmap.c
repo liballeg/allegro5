@@ -471,11 +471,25 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
        * However if we do that, without NPOT textures, we get some junk at the
        * edges of our bitmaps when we draw them.
        */
-      unsigned char *buf = al_calloc(ogl_bitmap->true_h, ogl_bitmap->true_w);
+      unsigned char *buf;
+#ifdef ALLEGRO_IPHONE
+      {
+         int pix_size = al_get_pixel_size(bitmap->format);
+        buf = al_calloc(1,
+            ogl_bitmap->true_h * ogl_bitmap->true_w * pix_size);
+         glPixelStorei(GL_UNPACK_ALIGNMENT, pix_size);
+         glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
+            ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
+            glformats[bitmap->format][2],
+            glformats[bitmap->format][1], buf);
+      }
+#else
+      buf = al_calloc(ogl_bitmap->true_h, ogl_bitmap->true_w);
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
          ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
          GL_ALPHA, GL_UNSIGNED_BYTE, buf);
+#endif
       e = glGetError();
       al_free(buf);
    }
