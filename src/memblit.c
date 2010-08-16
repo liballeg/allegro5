@@ -207,18 +207,19 @@ static void _al_blend_inline_dest_zero_add(
 {                                                                        \
   int cl = dest->cl, cr = dest->cr_excl;                                 \
   int ct = dest->ct, cb = dest->cb_excl;                                 \
+  int sx_, sy_, sw_, sh_;                                                \
   bool hflip = false, vflip = false;                                     \
   if (dw < 0) {                                                          \
      hflip = true;                                                       \
      dx += dw;                                                           \
      dw = -dw;                                                           \
-     sx -= sw;                                                           \
+     sx_ = sx; sw_ = sw;                                                 \
   }                                                                      \
   if (dh < 0) {                                                          \
      vflip = true;                                                       \
      dy += dh;                                                           \
      dh = -dh;                                                           \
-     sy -= sh;                                                           \
+     sy_ = sy; sh_ = sh;                                                 \
   }                                                                      \
                                                                          \
   if (dest->parent) {                                                    \
@@ -277,8 +278,8 @@ static void _al_blend_inline_dest_zero_add(
                                                                          \
   if (sh <= 0 || sw <= 0) return;                                        \
                                                                          \
-  if (hflip) {dx += dw; dw = -dw; sx += sw; dx--;}                       \
-  if (vflip) {dy += dh; dh = -dh; sy += sh; dy--;}                       \
+  if (hflip) {dx += dw; dw = -dw; sx = sx_ + sw_ - sw + sx_ - sx; dx--;} \
+  if (vflip) {dy += dh; dh = -dh; sy = sy_ + sh_ - sh + sy_ - sy; dy--;} \
 }
 
 
@@ -303,6 +304,7 @@ static void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    int yend;
    int size;
    
+   ASSERT(sx >= 0 && sy >= 0);
    ASSERT(src->parent == NULL);
    ASSERT(!(flags & (ALLEGRO_FLIP_HORIZONTAL | ALLEGRO_FLIP_VERTICAL)));
 
@@ -355,8 +357,8 @@ static void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
       for (x = 0; x < xend; x++) { \
          t pix = r((char *)src_region->data+(int)_sy*src_region->pitch+(int)_sx*s); \
          w((char *)dst_region->data+(int)_dy*dst_region->pitch+(int)_dx*s, pix); \
-	_sx += sxinc; \
-	_dx += dxinc; \
+         _sx += sxinc; \
+         _dx += dxinc; \
       } \
 
    _dy = dy;

@@ -220,6 +220,12 @@ void do_test(ALLEGRO_CONFIG const *cfg, char const *testname)
    char const *stmt;
    char buf[MAXBUF];
    char arg[10][MAXBUF];
+   
+   if (verbose) {
+      /* So in case it segfaults, we know which test to re-run. */
+      printf("Running %s.\n", testname);
+      fflush(stdout);
+   }
 
    /* Reset to defaults. */
    {
