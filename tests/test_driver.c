@@ -24,7 +24,7 @@ int               failed_tests = 0;
 
 #define streq(a, b)  (0 == strcmp((a), (b)))
 
-void error(char const *msg, ...)
+static void error(char const *msg, ...)
 {
    va_list ap;
 
@@ -59,7 +59,7 @@ static ALLEGRO_BITMAP *load_relative_bitmap(char const *filename)
    return bmp;
 }
 
-void load_bitmaps(ALLEGRO_CONFIG const *cfg, const char *section)
+static void load_bitmaps(ALLEGRO_CONFIG const *cfg, const char *section)
 {
    int i = 0;
    void *iter;
@@ -83,7 +83,7 @@ void load_bitmaps(ALLEGRO_CONFIG const *cfg, const char *section)
    num_global_bitmaps = i;
 }
 
-ALLEGRO_BITMAP **reserve_local_bitmap(const char *name)
+static ALLEGRO_BITMAP **reserve_local_bitmap(const char *name)
 {
    int i;
 
@@ -98,14 +98,14 @@ ALLEGRO_BITMAP **reserve_local_bitmap(const char *name)
    return NULL;
 }
 
-char const *resolve_var(ALLEGRO_CONFIG const *cfg, char const *section,
+static char const *resolve_var(ALLEGRO_CONFIG const *cfg, char const *section,
    char const *v)
 {
    char const *vv = al_get_config_value(cfg, section, v);
    return (vv) ? vv : v;
 }
 
-ALLEGRO_COLOR get_color(char const *value)
+static ALLEGRO_COLOR get_color(char const *value)
 {
    int r, g, b, a;
 
@@ -116,7 +116,7 @@ ALLEGRO_COLOR get_color(char const *value)
    return al_color_name(value);
 }
 
-ALLEGRO_BITMAP *get_bitmap(char const *value)
+static ALLEGRO_BITMAP *get_bitmap(char const *value)
 {
    int i;
 
@@ -128,7 +128,7 @@ ALLEGRO_BITMAP *get_bitmap(char const *value)
    return NULL;
 }
 
-int get_draw_bitmap_flag(char const *value)
+static int get_draw_bitmap_flag(char const *value)
 {
    if (streq(value, "ALLEGRO_FLIP_HORIZONTAL"))
       return ALLEGRO_FLIP_HORIZONTAL;
@@ -141,7 +141,7 @@ int get_draw_bitmap_flag(char const *value)
    return atoi(value);
 }
 
-int get_blender_op(char const *value)
+static int get_blender_op(char const *value)
 {
    return streq(value, "ALLEGRO_ADD") ? ALLEGRO_ADD
       : streq(value, "ALLEGRO_DEST_MINUS_SRC") ? ALLEGRO_DEST_MINUS_SRC
@@ -149,7 +149,7 @@ int get_blender_op(char const *value)
       : atoi(value);
 }
 
-int get_blend_factor(char const *value)
+static int get_blend_factor(char const *value)
 {
    return streq(value, "ALLEGRO_ZERO") ? ALLEGRO_ZERO
       : streq(value, "ALLEGRO_ONE") ? ALLEGRO_ONE
@@ -158,7 +158,7 @@ int get_blend_factor(char const *value)
       : atoi(value);
 }
 
-uint32_t hash_bitmap(ALLEGRO_BITMAP *bmp)
+static uint32_t hash_bitmap(ALLEGRO_BITMAP *bmp)
 {
    /* FNV-1a algorithm, parameters from:
     * http://www.isthe.com/chongo/tech/comp/fnv/index.html
@@ -187,7 +187,7 @@ uint32_t hash_bitmap(ALLEGRO_BITMAP *bmp)
    return hash;
 }
 
-void check_hash(ALLEGRO_CONFIG const *cfg, char const *testname,
+static void check_hash(ALLEGRO_CONFIG const *cfg, char const *testname,
    ALLEGRO_BITMAP *bmp)
 {
    char hash[16];
@@ -211,7 +211,7 @@ void check_hash(ALLEGRO_CONFIG const *cfg, char const *testname,
    total_tests++;
 }
 
-void do_test(ALLEGRO_CONFIG const *cfg, char const *testname)
+static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname)
 {
 #define MAXBUF    80
 #define PAT       " %80[A-Za-z0-9_-.$|#] "

@@ -182,19 +182,19 @@ int main(int argc, char *argv[])
 
    /* parse the commandline */
    for (i=1; i<argc; i++) {
-      if (_al_stricmp(argv[i], "-cheat") == 0) {
+      if (strcmp(argv[i], "-cheat") == 0) {
 	 cheat = TRUE;
       }
-      else if (_al_stricmp(argv[i], "-simple") == 0) {
+      else if (strcmp(argv[i], "-simple") == 0) {
 	 low_detail = TRUE;
       }
-      else if (_al_stricmp(argv[i], "-nogrid") == 0) {
+      else if (strcmp(argv[i], "-nogrid") == 0) {
 	 no_grid = TRUE;
       }
-      else if (_al_stricmp(argv[i], "-nomusic") == 0) {
+      else if (strcmp(argv[i], "-nomusic") == 0) {
 	 no_music = TRUE;
       }
-      else if (_al_stricmp(argv[i], "-www") == 0) {
+      else if (strcmp(argv[i], "-www") == 0) {
 	 www = TRUE;
       }
       else {

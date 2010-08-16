@@ -21,6 +21,7 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_file.h"
 #include "allegro5/internal/aintern_fshook.h"
+#include "allegro5/internal/aintern_tls.h"
 
 
 /* Thread local storage for various per-thread state. */

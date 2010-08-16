@@ -385,7 +385,7 @@ static void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
 }
 
 
-void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
+static void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    ALLEGRO_COLOR tint,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int dw, int dh, int flags)
