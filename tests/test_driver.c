@@ -15,6 +15,7 @@ typedef struct {
 ALLEGRO_DISPLAY   *display;
 Bitmap            bitmaps[MAX_BITMAPS];
 float             delay = 0.0;
+bool              save_outputs = false;
 bool              verbose = false;
 int               total_tests = 0;
 int               passed_tests = 0;
@@ -364,6 +365,12 @@ void do_test(ALLEGRO_CONFIG const *cfg, char const *testname)
 
    check_hash(cfg, testname, al_get_target_bitmap());
 
+   if (save_outputs) {
+      ALLEGRO_USTR *filename = al_ustr_newf("%s.png", testname);
+      al_save_bitmap(al_cstr(filename), al_get_target_bitmap());
+      al_ustr_free(filename);
+   }
+
    al_flip_display();
    al_rest(delay);
 
@@ -492,6 +499,9 @@ int main(int argc, char const *argv[])
       }
       else if (streq(argv[0], "-v") || streq(argv[0], "--verbose")) {
          verbose = true;
+      }
+      else if (streq(argv[0], "-s") || streq(argv[0], "--save")) {
+         save_outputs = true;
       }
       else {
          break;

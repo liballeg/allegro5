@@ -8,6 +8,9 @@ where options are:
     -d, --delay
         delay between tests
 
+    -s, --save
+	save output images as <test name>.png
+
     -v, --verbose
         print extra output
 
