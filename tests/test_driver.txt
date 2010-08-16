@@ -1,0 +1,51 @@
+Usage
+=====
+
+    test_driver [OPTIONS] config.ini [TESTS ...]
+
+where options are:
+
+    -d, --delay
+        delay between tests
+
+    -v, --verbose
+        print extra output
+
+If the list of tests is omitted then every test in the config file will be run.
+Otherwise each test named on the command line is run.  For convenience, you may
+drop the "test " prefix on test names.
+
+If a test name ends with an asterisk, then all tests which match that prefix
+will be run, e.g.
+
+    ./test_driver -d test_bitmaps.ini 'scaled rotate*'
+
+
+Config file format
+==================
+
+Each [test ...] section defines a single test, containing one or more
+operations named by the keys op0, op1, ... opN.  The value of each op
+key is a call to an Allegro function, or `nop'.  Each argument of the call
+must be a literal of the correct type, or a variable name.
+
+A variable name is just another key in the section, whose value is taken
+as a _literal_ to be substituted in place of the variable.
+
+A test may inherit the keys of another section using the 'extend' key.
+Keys in the child section override keys in the parent.
+
+The [bitmaps] section defines a list of bitmaps to load, relative to the
+tests directory.  Each key name is then a valid bitmap literal.
+
+ALLEGRO_COLOR literals may be written as #rrggbb, #rrggbbaa or a named
+color (e.g. purple).
+
+Integer, float and enumeration literals are written as per C.
+(Note that "ALLEGRO_FLIP_HORIZONTAL|ALLEGRO_FLIP_VERTICAL" must be written
+without whitespace, because we don't have a proper parser.)
+
+Each test section contains a key called 'hash', containing the hash code
+of the expected output for that test.  When writing a test you should
+check (visually) that the output looks correct, then add the hash code
+computed hash code to the test section.

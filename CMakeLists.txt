@@ -147,6 +147,7 @@ option(WANT_DLL_TLS "Force use of DllMain for TLS (Windows)" on)
 option(WANT_DEMO "Build demo programs" on)
 option(WANT_EXAMPLES "Build example programs" on)
 option(WANT_POPUP_EXAMPLES "Use popups instead of printf for fatal errors" on)
+option(WANT_TESTS "Build test programs" on)
 
 #-----------------------------------------------------------------------------#
 #
@@ -795,6 +796,16 @@ endif(NOT MSVC80 AND WANT_DEMO)
 if(WANT_EXAMPLES)
     add_subdirectory(examples)
 endif(WANT_EXAMPLES)
+
+#-----------------------------------------------------------------------------#
+#
+# Tests
+#
+#-----------------------------------------------------------------------------#
+
+if(WANT_TESTS)
+    add_subdirectory(tests)
+endif(WANT_TESTS)
 
 #-----------------------------------------------------------------------------#
 #
