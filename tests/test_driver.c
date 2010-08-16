@@ -14,6 +14,7 @@ typedef struct {
 
 ALLEGRO_DISPLAY   *display;
 Bitmap            bitmaps[MAX_BITMAPS];
+int               num_global_bitmaps;
 float             delay = 0.0;
 bool              save_outputs = false;
 bool              verbose = false;
@@ -35,33 +36,42 @@ void error(char const *msg, ...)
    exit(EXIT_FAILURE);
 }
 
+static ALLEGRO_BITMAP *load_relative_bitmap(char const *filename)
+{
+   ALLEGRO_PATH *path;
+   ALLEGRO_PATH *tail;
+   char const *path_str;
+   ALLEGRO_BITMAP *bmp;
+
+   path = al_get_standard_path(ALLEGRO_PROGRAM_PATH);
+   tail = al_create_path(filename);
+   al_join_paths(path, tail);
+   path_str = al_path_cstr(path, '/');
+
+   bmp = al_load_bitmap(path_str);
+   if (!bmp) {
+      error("failed to load %s", path_str);
+   }
+
+   al_destroy_path(path);
+   al_destroy_path(tail);
+
+   return bmp;
+}
+
 void load_bitmaps(ALLEGRO_CONFIG const *cfg, const char *section)
 {
    int i = 0;
    void *iter;
    char const *key;
    char const *value;
-   ALLEGRO_PATH *path;
-   ALLEGRO_PATH *tail;
-   char const *path_str;
 
    key = al_get_first_config_entry(cfg, section, &iter);
    while (key && i < MAX_BITMAPS) {
       value = al_get_config_value(cfg, section, key);
 
-      path = al_get_standard_path(ALLEGRO_PROGRAM_PATH);
-      tail = al_create_path(value);
-      al_join_paths(path, tail);
-      path_str = al_path_cstr(path, '/');
-
       bitmaps[i].name = al_ustr_new(key);
-      bitmaps[i].bitmap = al_load_bitmap(path_str);
-      if (!bitmaps[i].bitmap) {
-         error("failed to load %s", path_str);
-      }
-
-      al_destroy_path(path);
-      al_destroy_path(tail);
+      bitmaps[i].bitmap = load_relative_bitmap(value);
 
       key = al_get_next_config_entry(&iter);
       i++;
@@ -69,6 +79,23 @@ void load_bitmaps(ALLEGRO_CONFIG const *cfg, const char *section)
 
    if (i == MAX_BITMAPS)
       error("bitmap limit reached");
+
+   num_global_bitmaps = i;
+}
+
+ALLEGRO_BITMAP **reserve_local_bitmap(const char *name)
+{
+   int i;
+
+   for (i = num_global_bitmaps; i < MAX_BITMAPS; i++) {
+      if (!bitmaps[i].name) {
+         bitmaps[i].name = al_ustr_new(name);
+         return &bitmaps[i].bitmap;
+      }
+   }
+
+   error("bitmap limit reached");
+   return NULL;
 }
 
 char const *resolve_var(ALLEGRO_CONFIG const *cfg, char const *section,
@@ -187,7 +214,8 @@ void check_hash(ALLEGRO_CONFIG const *cfg, char const *testname,
 void do_test(ALLEGRO_CONFIG const *cfg, char const *testname)
 {
 #define MAXBUF    80
-#define PAT1      " %80[A-Za-z0-9_-.$|#] "
+#define PAT       " %80[A-Za-z0-9_-.$|#] "
+#define PAT1      PAT
 #define PAT2      PAT1 "," PAT1
 #define PAT3      PAT2 "," PAT1
 #define PAT4      PAT3 "," PAT1
@@ -215,13 +243,18 @@ void do_test(ALLEGRO_CONFIG const *cfg, char const *testname)
 #define C(a)      get_color(V(a))
 #define B(a)      get_bitmap(V(a))
 #define SCAN(fn, arity) \
-                  (sscanf(stmt, fn " (" PAT##arity " )", ARGS##arity) == arity)
+      (sscanf(stmt, fn " (" PAT##arity " )", ARGS##arity) == arity)
+#define SCANLVAL(fn, arity) \
+      (sscanf(stmt, PAT " = " fn " (" PAT##arity " )", lval, ARGS##arity) \
+         == 1 + arity)
 
    int op;
    char const *stmt;
    char buf[MAXBUF];
-   char arg[10][MAXBUF];
-   
+   char arg[11][MAXBUF];
+   char lval[MAXBUF];
+   int i;
+
    if (verbose) {
       /* So in case it segfaults, we know which test to re-run. */
       printf("Running %s.\n", testname);
@@ -360,6 +393,12 @@ void do_test(ALLEGRO_CONFIG const *cfg, char const *testname)
          continue;
       }
 
+      if (SCANLVAL("al_load_bitmap", 1)) {
+         ALLEGRO_BITMAP **bmp = reserve_local_bitmap(lval);
+         (*bmp) = load_relative_bitmap(V(0));
+         continue;
+      }
+
       error("statement didn't scan: %s", stmt);
    }
 
@@ -373,6 +412,16 @@ void do_test(ALLEGRO_CONFIG const *cfg, char const *testname)
 
    al_flip_display();
    al_rest(delay);
+
+   /* Destroy local bitmaps. */
+   for (i = num_global_bitmaps; i < MAX_BITMAPS; i++) {
+      if (bitmaps[i].name) {
+         al_ustr_free(bitmaps[i].name);
+         bitmaps[i].name = NULL;
+         al_destroy_bitmap(bitmaps[i].bitmap);
+         bitmaps[i].bitmap = NULL;
+      }
+   }
 
 #undef B
 #undef C

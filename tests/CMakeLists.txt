@@ -30,4 +30,9 @@ add_custom_target(test_bitmaps
     COMMAND test_driver ${CMAKE_CURRENT_SOURCE_DIR}/test_bitmaps.ini
     )
 
+add_custom_target(test_image
+    DEPENDS test_driver
+    COMMAND test_driver ${CMAKE_CURRENT_SOURCE_DIR}/test_image.ini
+    )
+
 # vim: set sts=4 sw=4 et:
