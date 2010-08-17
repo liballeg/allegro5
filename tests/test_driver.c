@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <allegro5/allegro.h>
@@ -9,10 +10,16 @@
 
 typedef struct {
    ALLEGRO_USTR   *name;
-   ALLEGRO_BITMAP *bitmap;
+   ALLEGRO_BITMAP *bitmap[2];
 } Bitmap;
 
+typedef enum {
+   SW = 0,
+   HW = 1
+} BmpType;
+
 ALLEGRO_DISPLAY   *display;
+ALLEGRO_BITMAP    *membuf;
 Bitmap            bitmaps[MAX_BITMAPS];
 int               num_global_bitmaps;
 float             delay = 0.0;
@@ -34,6 +41,15 @@ static void error(char const *msg, ...)
    fprintf(stderr, "\n");
    va_end(ap);
    exit(EXIT_FAILURE);
+}
+
+static char const *bmp_type_to_string(BmpType bmp_type)
+{
+   switch (bmp_type) {
+      case SW: return "sw";
+      case HW: return "hw";
+   }
+   return "error";
 }
 
 static ALLEGRO_BITMAP *load_relative_bitmap(char const *filename)
@@ -59,7 +75,8 @@ static ALLEGRO_BITMAP *load_relative_bitmap(char const *filename)
    return bmp;
 }
 
-static void load_bitmaps(ALLEGRO_CONFIG const *cfg, const char *section)
+static void load_bitmaps(ALLEGRO_CONFIG const *cfg, const char *section,
+   BmpType bmp_type)
 {
    int i = 0;
    void *iter;
@@ -71,7 +88,7 @@ static void load_bitmaps(ALLEGRO_CONFIG const *cfg, const char *section)
       value = al_get_config_value(cfg, section, key);
 
       bitmaps[i].name = al_ustr_new(key);
-      bitmaps[i].bitmap = load_relative_bitmap(value);
+      bitmaps[i].bitmap[bmp_type] = load_relative_bitmap(value);
 
       key = al_get_next_config_entry(&iter);
       i++;
@@ -83,19 +100,33 @@ static void load_bitmaps(ALLEGRO_CONFIG const *cfg, const char *section)
    num_global_bitmaps = i;
 }
 
-static ALLEGRO_BITMAP **reserve_local_bitmap(const char *name)
+static ALLEGRO_BITMAP **reserve_local_bitmap(const char *name, BmpType bmp_type)
 {
    int i;
 
    for (i = num_global_bitmaps; i < MAX_BITMAPS; i++) {
       if (!bitmaps[i].name) {
          bitmaps[i].name = al_ustr_new(name);
-         return &bitmaps[i].bitmap;
+         return &bitmaps[i].bitmap[bmp_type];
       }
    }
 
    error("bitmap limit reached");
    return NULL;
+}
+
+static void set_target_reset(ALLEGRO_BITMAP *target)
+{
+   ALLEGRO_TRANSFORM ident;
+
+   al_set_target_bitmap(target);
+   al_clear_to_color(al_map_rgb(0, 0, 0));
+   al_set_clipping_rectangle(0, 0,
+      al_get_bitmap_width(target),
+      al_get_bitmap_height(target));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+   al_identity_transform(&ident);
+   al_use_transform(&ident);
 }
 
 static char const *resolve_var(ALLEGRO_CONFIG const *cfg, char const *section,
@@ -116,13 +147,13 @@ static ALLEGRO_COLOR get_color(char const *value)
    return al_color_name(value);
 }
 
-static ALLEGRO_BITMAP *get_bitmap(char const *value)
+static ALLEGRO_BITMAP *get_bitmap(char const *value, BmpType bmp_type)
 {
    int i;
 
    for (i = 0; i < MAX_BITMAPS; i++) {
       if (bitmaps[i].name && streq(al_cstr(bitmaps[i].name), value))
-         return bitmaps[i].bitmap;
+         return bitmaps[i].bitmap[bmp_type];
    }
 
    return NULL;
@@ -188,8 +219,9 @@ static uint32_t hash_bitmap(ALLEGRO_BITMAP *bmp)
 }
 
 static void check_hash(ALLEGRO_CONFIG const *cfg, char const *testname,
-   ALLEGRO_BITMAP *bmp)
+   ALLEGRO_BITMAP *bmp, BmpType bmp_type)
 {
+   char const *bt = bmp_type_to_string(bmp_type);
    char hash[16];
    char const *exp;
 
@@ -197,21 +229,72 @@ static void check_hash(ALLEGRO_CONFIG const *cfg, char const *testname,
 
    exp = al_get_config_value(cfg, testname, "hash");
    if (!exp) {
-      printf("NEW  %s - hash is %s\n", testname, hash);
+      printf("NEW  %s [%s] - hash is %s\n", testname, bt, hash);
    }
    else if (streq(hash, exp)) {
-      printf("OK   %s\n", testname);
+      printf("OK   %s [%s]\n", testname, bt);
       passed_tests++;
    }
    else {
-      printf("FAIL %s - hash is %s; expected %s\n", testname, hash, exp);
+      printf("FAIL %s [%s] - hash is %s; expected %s\n", testname, bt,
+         hash, exp);
       failed_tests++;
    }
-
-   total_tests++;
 }
 
-static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname)
+static double bitmap_dissimilarity(ALLEGRO_BITMAP *bmp1, ALLEGRO_BITMAP *bmp2)
+{
+   ALLEGRO_LOCKED_REGION *lr1;
+   ALLEGRO_LOCKED_REGION *lr2;
+   int x, y, w, h;
+   double sqerr = 0.0;
+
+   lr1 = al_lock_bitmap(bmp1, ALLEGRO_PIXEL_FORMAT_RGBA_8888,
+      ALLEGRO_LOCK_READONLY);
+   lr2 = al_lock_bitmap(bmp2, ALLEGRO_PIXEL_FORMAT_RGBA_8888,
+      ALLEGRO_LOCK_READONLY);
+
+   w = al_get_bitmap_width(bmp1);
+   h = al_get_bitmap_height(bmp1);
+
+   for (y = 0; y < h; y++) {
+      char const *data1 = ((char const *)lr1->data) + y*lr1->pitch;
+      char const *data2 = ((char const *)lr2->data) + y*lr2->pitch;
+
+      for (x = 0; x < w*4; x++) {
+         double err = (double)data1[x] - (double)data2[x];
+         sqerr += err*err;
+      }
+   }
+
+   al_unlock_bitmap(bmp1);
+   al_unlock_bitmap(bmp2);
+
+   return sqrt(sqerr / (w*h*4.0));
+}
+
+static void check_similarity(char const *testname,
+   ALLEGRO_BITMAP *bmp1, ALLEGRO_BITMAP *bmp2, BmpType bmp_type, bool reliable)
+{
+   char const *bt = bmp_type_to_string(bmp_type);
+   double rms = bitmap_dissimilarity(bmp1, bmp2);
+
+   /* This cutoff is "empirically determined" only. */
+   if (rms <= 16.0) {
+      if (reliable)
+         printf("OK   %s [%s]\n", testname, bt);
+      else
+         printf("OK?  %s [%s]\n", testname, bt);
+      passed_tests++;
+   }
+   else {
+      printf("FAIL %s [%s] - RMS error is %g\n", testname, bt, rms);
+      failed_tests++;
+   }
+}
+
+static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
+   ALLEGRO_BITMAP *target, int bmp_type, bool reliable)
 {
 #define MAXBUF    80
 #define PAT       " %80[A-Za-z0-9_-.$|#] "
@@ -241,7 +324,7 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname)
 #define I(a)      atoi(V(a))
 #define F(a)      atof(V(a))
 #define C(a)      get_color(V(a))
-#define B(a)      get_bitmap(V(a))
+#define B(a)      get_bitmap(V(a), bmp_type)
 #define SCAN(fn, arity) \
       (sscanf(stmt, fn " (" PAT##arity " )", ARGS##arity) == arity)
 #define SCANLVAL(fn, arity) \
@@ -257,25 +340,11 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname)
 
    if (verbose) {
       /* So in case it segfaults, we know which test to re-run. */
-      printf("Running %s.\n", testname);
+      printf("Running %s [%s].\n", testname, bmp_type_to_string(bmp_type));
       fflush(stdout);
    }
 
-   /* Reset to defaults. */
-   {
-      ALLEGRO_BITMAP *target = al_get_backbuffer(display);
-      ALLEGRO_TRANSFORM ident;
-
-      /* Maybe we should be drawing to a memory buffer? */
-      al_set_target_bitmap(target);
-      al_clear_to_color(al_map_rgb(0, 0, 0));
-      al_set_clipping_rectangle(0, 0,
-         al_get_bitmap_width(target),
-         al_get_bitmap_height(target));
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-      al_identity_transform(&ident);
-      al_use_transform(&ident);
-   }
+   set_target_reset(target);
 
    for (op = 0; ; op++) {
       sprintf(buf, "op%d", op);
@@ -394,7 +463,7 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname)
       }
 
       if (SCANLVAL("al_load_bitmap", 1)) {
-         ALLEGRO_BITMAP **bmp = reserve_local_bitmap(lval);
+         ALLEGRO_BITMAP **bmp = reserve_local_bitmap(lval, bmp_type);
          (*bmp) = load_relative_bitmap(V(0));
          continue;
       }
@@ -402,12 +471,22 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname)
       error("statement didn't scan: %s", stmt);
    }
 
-   check_hash(cfg, testname, al_get_target_bitmap());
+   if (bmp_type == SW)
+      check_hash(cfg, testname, target, bmp_type);
+   else
+      check_similarity(testname, target, membuf, bmp_type, reliable);
+
+   total_tests++;
 
    if (save_outputs) {
       ALLEGRO_USTR *filename = al_ustr_newf("%s.png", testname);
-      al_save_bitmap(al_cstr(filename), al_get_target_bitmap());
+      al_save_bitmap(al_cstr(filename), target);
       al_ustr_free(filename);
+   }
+
+   if (target != al_get_backbuffer(display)) {
+      set_target_reset(al_get_backbuffer(display));
+      al_draw_bitmap(target, 0, 0, 0);
    }
 
    al_flip_display();
@@ -418,8 +497,8 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname)
       if (bitmaps[i].name) {
          al_ustr_free(bitmaps[i].name);
          bitmaps[i].name = NULL;
-         al_destroy_bitmap(bitmaps[i].bitmap);
-         bitmaps[i].bitmap = NULL;
+         al_destroy_bitmap(bitmaps[i].bitmap[bmp_type]);
+         bitmaps[i].bitmap[bmp_type] = NULL;
       }
    }
 
@@ -428,6 +507,20 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname)
 #undef F
 #undef I
 #undef SCAN
+}
+
+static void sw_hw_test(ALLEGRO_CONFIG const *cfg, char const *testname)
+{
+   int old_failed_tests = failed_tests;
+   bool reliable;
+
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   do_test(cfg, testname, membuf, SW, true);
+
+   reliable = (failed_tests == old_failed_tests);
+
+   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+   do_test(cfg, testname, al_get_backbuffer(display), HW, reliable);
 }
 
 static bool section_exists(ALLEGRO_CONFIG const *cfg, char const *section)
@@ -475,12 +568,12 @@ static void run_test(ALLEGRO_CONFIG const *cfg, char const *section)
 
    extend = al_get_config_value(cfg, section, "extend");
    if (!extend) {
-      do_test(cfg, section);
+      sw_hw_test(cfg, section);
    }
    else {
       cfg2 = al_create_config();
       merge_config_sections(cfg2, section, cfg, section);
-      do_test(cfg2, section);
+      sw_hw_test(cfg2, section);
       al_destroy_config(cfg2);
    }
 }
@@ -569,8 +662,13 @@ int main(int argc, char const *argv[])
    }
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   membuf = al_create_bitmap(
+      al_get_display_width(display),
+      al_get_display_height(display));
+   load_bitmaps(cfg, "bitmaps", SW);
 
-   load_bitmaps(cfg, "bitmaps");
+   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+   load_bitmaps(cfg, "bitmaps", HW);
 
    if (argc == 0)
       run_matching_tests(cfg, "test ");

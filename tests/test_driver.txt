@@ -23,6 +23,10 @@ will be run, e.g.
 
     ./test_driver -d test_bitmaps.ini 'scaled rotate*'
 
+Every test is run with both memory and video bitmaps.  The software rendered
+result is checked against an expected hash code.  The hardware rendered result
+is checked for similarity with the software result.
+
 
 Config file format
 ==================
