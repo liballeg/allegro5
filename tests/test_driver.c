@@ -24,6 +24,7 @@ Bitmap            bitmaps[MAX_BITMAPS];
 int               num_global_bitmaps;
 float             delay = 0.0;
 bool              save_outputs = false;
+bool              quiet = false;
 bool              verbose = false;
 int               total_tests = 0;
 int               passed_tests = 0;
@@ -484,13 +485,15 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
       al_ustr_free(filename);
    }
 
-   if (target != al_get_backbuffer(display)) {
-      set_target_reset(al_get_backbuffer(display));
-      al_draw_bitmap(target, 0, 0, 0);
-   }
+   if (!quiet) {
+      if (target != al_get_backbuffer(display)) {
+         set_target_reset(al_get_backbuffer(display));
+         al_draw_bitmap(target, 0, 0, 0);
+      }
 
-   al_flip_display();
-   al_rest(delay);
+      al_flip_display();
+      al_rest(delay);
+   }
 
    /* Destroy local bitmaps. */
    for (i = num_global_bitmaps; i < MAX_BITMAPS; i++) {
@@ -636,14 +639,18 @@ int main(int argc, char const *argv[])
    al_init_image_addon();
 
    for (; argc > 0; argc--, argv++) {
-      if (streq(argv[0], "-d") || streq(argv[0], "--delay")) {
+      char const *opt = argv[0];
+      if (streq(opt, "-d") || streq(opt, "--delay")) {
          delay = 1.0;
       }
-      else if (streq(argv[0], "-v") || streq(argv[0], "--verbose")) {
-         verbose = true;
-      }
-      else if (streq(argv[0], "-s") || streq(argv[0], "--save")) {
+      else if (streq(opt, "-s") || streq(opt, "--save")) {
          save_outputs = true;
+      }
+      else if (streq(opt, "-q") || streq(opt, "--quiet")) {
+         quiet = true;
+      }
+      else if (streq(opt, "-v") || streq(opt, "--verbose")) {
+         verbose = true;
       }
       else {
          break;

@@ -11,6 +11,9 @@ where options are:
     -s, --save
 	save output images as <test name>.png
 
+    -q, --quiet
+	don't display graphical output
+
     -v, --verbose
         print extra output
 
