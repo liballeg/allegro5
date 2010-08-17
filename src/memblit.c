@@ -205,9 +205,9 @@ static void _al_blend_inline_dest_zero_add(
 
 #define CLIPPER(src, sx, sy, sw, sh, dest, dx, dy, dw, dh, wr, hr, flags)\
 {                                                                        \
-  int cl = dest->cl, cr = dest->cr_excl;                                 \
-  int ct = dest->ct, cb = dest->cb_excl;                                 \
-  int sx_, sy_, sw_, sh_;                                                \
+  float cl = dest->cl, cr = dest->cr_excl;                               \
+  float ct = dest->ct, cb = dest->cb_excl;                               \
+  float sx_, sy_, sw_, sh_;                                              \
   bool hflip = false, vflip = false;                                     \
   if (dw < 0) {                                                          \
      hflip = true;                                                       \
@@ -284,8 +284,8 @@ static void _al_blend_inline_dest_zero_add(
 
 
 static void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
-   int sx, int sy, int sw, int sh,
-   int dx, int dy, int dw, int dh, int flags)
+   float sx, float sy, float sw, float sh,
+   float dx, float dy, float dw, float dh, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
    ALLEGRO_LOCKED_REGION *src_region;
@@ -387,8 +387,8 @@ static void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
 
 static void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    ALLEGRO_COLOR tint,
-   int sx, int sy, int sw, int sh,
-   int dx, int dy, int dw, int dh, int flags)
+   float sx, float sy, float sw, float sh,
+   float dx, float dy, float dw, float dh, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
    ALLEGRO_LOCKED_REGION *src_region;
@@ -461,7 +461,7 @@ static void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
          char *dst_data =
             (((char *) dest->locked_region.data)
              + _al_fast_float_to_int(_dy) * dest->locked_region.pitch
-             + dst_size * dx);
+             + dst_size * _al_fast_float_to_int(dx));
 
          ALLEGRO_COLOR result;
 
