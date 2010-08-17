@@ -36,8 +36,8 @@ Config file format
 
 Each [test ...] section defines a single test, containing one or more
 operations named by the keys op0, op1, ... opN.  The value of each op
-key is a call to an Allegro function, or `nop'.  Each argument of the call
-must be a literal of the correct type, or a variable name.
+key is a call to an Allegro function, or empty.  Each argument of the
+call must be a literal of the correct type, or a variable name.
 
 A variable name is just another key in the section, whose value is taken
 as a _literal_ to be substituted in place of the variable.

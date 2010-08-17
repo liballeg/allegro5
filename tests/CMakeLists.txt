@@ -1,5 +1,6 @@
 if(NOT ALLEGRO_LINK_WITH OR NOT ALLEGRO_MAIN_LINK_WITH OR
-        NOT IMAGE_LINK_WITH OR NOT COLOR_LINK_WITH)
+        NOT IMAGE_LINK_WITH OR NOT COLOR_LINK_WITH OR
+        NOT FONT_LINK_WITH OR NOT TTF_LINK_WITH)
     return()
 endif()
 
@@ -23,6 +24,8 @@ add_our_executable(
     ${ALLEGRO_MAIN_LINK_WITH}
     ${IMAGE_LINK_WITH}
     ${COLOR_LINK_WITH}
+    ${FONT_LINK_WITH}
+    ${TTF_LINK_WITH}
     )
 
 add_custom_target(test_bitmaps
@@ -33,6 +36,11 @@ add_custom_target(test_bitmaps
 add_custom_target(test_image
     DEPENDS test_driver
     COMMAND test_driver ${CMAKE_CURRENT_SOURCE_DIR}/test_image.ini
+    )
+
+add_custom_target(test_fonts
+    DEPENDS test_driver
+    COMMAND test_driver ${CMAKE_CURRENT_SOURCE_DIR}/test_fonts.ini
     )
 
 # vim: set sts=4 sw=4 et:

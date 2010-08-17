@@ -5,9 +5,12 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_color.h>
 #include <allegro5/allegro_image.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
 
 #define MAX_BITMAPS  8
 #define MAX_TRANS    8
+#define MAX_FONTS    8
 
 typedef struct {
    ALLEGRO_USTR   *name;
@@ -24,10 +27,16 @@ typedef struct {
    ALLEGRO_TRANSFORM transform;
 } Transform;
 
+typedef struct {
+   ALLEGRO_USTR   *name;
+   ALLEGRO_FONT   *font;
+} Font;
+
 ALLEGRO_DISPLAY   *display;
 ALLEGRO_BITMAP    *membuf;
 Bitmap            bitmaps[MAX_BITMAPS];
 Transform         transforms[MAX_TRANS];
+Font              fonts[MAX_FONTS];
 int               num_global_bitmaps;
 float             delay = 0.0;
 bool              save_outputs = false;
@@ -123,6 +132,30 @@ static ALLEGRO_BITMAP **reserve_local_bitmap(const char *name, BmpType bmp_type)
    return NULL;
 }
 
+static void load_fonts(ALLEGRO_CONFIG const *cfg, const char *section)
+{
+   int i = 0;
+   void *iter;
+   char const *key;
+   char const *value;
+
+   key = al_get_first_config_entry(cfg, section, &iter);
+   while (key && i < MAX_FONTS) {
+      value = al_get_config_value(cfg, section, key);
+
+      fonts[i].name = al_ustr_new(key);
+      fonts[i].font = al_load_font(value, 24, 0);
+      if (!fonts[i].font)
+         error("failed to load font: %s", value);
+
+      key = al_get_next_config_entry(&iter);
+      i++;
+   }
+
+   if (i == MAX_FONTS)
+      error("font limit reached");
+}
+
 static void set_target_reset(ALLEGRO_BITMAP *target)
 {
    ALLEGRO_TRANSFORM ident;
@@ -142,6 +175,13 @@ static char const *resolve_var(ALLEGRO_CONFIG const *cfg, char const *section,
 {
    char const *vv = al_get_config_value(cfg, section, v);
    return (vv) ? vv : v;
+}
+
+static bool get_bool(char const *value)
+{
+   return streq(value, "true") ? true
+      : streq(value, "false") ? false
+      : atoi(value);
 }
 
 static ALLEGRO_COLOR get_color(char const *value)
@@ -168,6 +208,7 @@ static ALLEGRO_BITMAP *get_bitmap(char const *value, BmpType bmp_type,
    if (streq(value, "target"))
       return target;
 
+   error("undefined bitmap: %s", value);
    return NULL;
 }
 
@@ -218,6 +259,27 @@ static ALLEGRO_TRANSFORM *get_transform(const char *name)
 
    error("transforms limit reached");
    return NULL;
+}
+
+static ALLEGRO_FONT *get_font(char const *name)
+{
+   int i;
+
+   for (i = 0; i < MAX_FONTS; i++) {
+      if (fonts[i].name && streq(al_cstr(fonts[i].name), name))
+         return fonts[i].font;
+   }
+
+   error("undefined font: %s", name);
+   return NULL;
+}
+
+static int get_font_align(char const *value)
+{
+   return streq(value, "ALLEGRO_ALIGN_LEFT") ? ALLEGRO_ALIGN_LEFT
+      : streq(value, "ALLEGRO_ALIGN_CENTRE") ? ALLEGRO_ALIGN_CENTRE
+      : streq(value, "ALLEGRO_ALIGN_RIGHT") ? ALLEGRO_ALIGN_RIGHT
+      : atoi(value);
 }
 
 static uint32_t hash_bitmap(ALLEGRO_BITMAP *bmp)
@@ -386,7 +448,7 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
       if (verbose)
          printf("# %s\n", stmt);
 
-      if (streq(stmt, "nop"))
+      if (streq(stmt, ""))
          continue;
 
       if (SCAN("al_set_target_bitmap", 1)) {
@@ -510,6 +572,11 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
          continue;
       }
 
+      if (SCAN("al_hold_bitmap_drawing", 1)) {
+         al_hold_bitmap_drawing(get_bool(V(0)));
+         continue;
+      }
+
       /* Transformations */
       if (SCAN("al_copy_transform", 2)) {
          al_copy_transform(get_transform(V(0)), get_transform(V(1)));
@@ -537,6 +604,19 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
       }
       if (SCAN("al_compose_transform", 2)) {
          al_compose_transform(get_transform(V(0)), get_transform(V(1)));
+         continue;
+      }
+
+      /* Fonts */
+      if (SCAN("al_draw_text", 6)) {
+         al_draw_text(get_font(V(0)), C(1), F(2), F(3), get_font_align(V(4)),
+            V(5));
+         continue;
+      }
+
+      if (SCAN("al_draw_justified_text", 8)) {
+         al_draw_justified_text(get_font(V(0)), C(1), F(2), F(3), F(4), F(5),
+            get_font_align(V(6)), V(7));
          continue;
       }
 
@@ -714,6 +794,8 @@ int main(int argc, char const *argv[])
       error("failed to initialise Allegro");
    }
    al_init_image_addon();
+   al_init_font_addon();
+   al_init_ttf_addon();
 
    for (; argc > 0; argc--, argv++) {
       char const *opt = argv[0];
@@ -753,6 +835,7 @@ int main(int argc, char const *argv[])
 
    al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
    load_bitmaps(cfg, "bitmaps", HW);
+   load_fonts(cfg, "fonts");
 
    if (argc == 0)
       run_matching_tests(cfg, "test ");
