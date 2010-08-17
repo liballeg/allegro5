@@ -47,6 +47,7 @@ Keys in the child section override keys in the parent.
 
 The [bitmaps] section defines a list of bitmaps to load, relative to the
 tests directory.  Each key name is then a valid bitmap literal.
+The name 'target' refers to the default target bitmap.
 
 ALLEGRO_COLOR literals may be written as #rrggbb, #rrggbbaa or a named
 color (e.g. purple).
@@ -57,6 +58,9 @@ without whitespace, because we don't have a proper parser.)
 
 String literals are not supported, but you can use a variable whose value
 is treated as the string contents (no quotes).
+
+Transformations are automatically created the first time they are mentioned,
+and set to the identity matrix.
 
 Each test section contains a key called 'hash', containing the hash code
 of the expected output for that test.  When writing a test you should

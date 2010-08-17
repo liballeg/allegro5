@@ -7,6 +7,7 @@
 #include <allegro5/allegro_image.h>
 
 #define MAX_BITMAPS  8
+#define MAX_TRANS    8
 
 typedef struct {
    ALLEGRO_USTR   *name;
@@ -18,9 +19,15 @@ typedef enum {
    HW = 1
 } BmpType;
 
+typedef struct {
+   ALLEGRO_USTR   *name;
+   ALLEGRO_TRANSFORM transform;
+} Transform;
+
 ALLEGRO_DISPLAY   *display;
 ALLEGRO_BITMAP    *membuf;
 Bitmap            bitmaps[MAX_BITMAPS];
+Transform         transforms[MAX_TRANS];
 int               num_global_bitmaps;
 float             delay = 0.0;
 bool              save_outputs = false;
@@ -148,7 +155,8 @@ static ALLEGRO_COLOR get_color(char const *value)
    return al_color_name(value);
 }
 
-static ALLEGRO_BITMAP *get_bitmap(char const *value, BmpType bmp_type)
+static ALLEGRO_BITMAP *get_bitmap(char const *value, BmpType bmp_type,
+   ALLEGRO_BITMAP *target)
 {
    int i;
 
@@ -156,6 +164,9 @@ static ALLEGRO_BITMAP *get_bitmap(char const *value, BmpType bmp_type)
       if (bitmaps[i].name && streq(al_cstr(bitmaps[i].name), value))
          return bitmaps[i].bitmap[bmp_type];
    }
+
+   if (streq(value, "target"))
+      return target;
 
    return NULL;
 }
@@ -188,6 +199,25 @@ static int get_blend_factor(char const *value)
       : streq(value, "ALLEGRO_ALPHA") ? ALLEGRO_ALPHA
       : streq(value, "ALLEGRO_INVERSE_ALPHA") ? ALLEGRO_INVERSE_ALPHA
       : atoi(value);
+}
+
+static ALLEGRO_TRANSFORM *get_transform(const char *name)
+{
+   int i;
+
+   for (i = 0; i < MAX_TRANS; i++) {
+      if (!transforms[i].name) {
+         transforms[i].name = al_ustr_new(name);
+         al_identity_transform(&transforms[i].transform);
+         return &transforms[i].transform;
+      }
+
+      if (transforms[i].name && streq(al_cstr(transforms[i].name), name))
+         return &transforms[i].transform;
+   }
+
+   error("transforms limit reached");
+   return NULL;
 }
 
 static uint32_t hash_bitmap(ALLEGRO_BITMAP *bmp)
@@ -325,7 +355,7 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
 #define I(a)      atoi(V(a))
 #define F(a)      atof(V(a))
 #define C(a)      get_color(V(a))
-#define B(a)      get_bitmap(V(a), bmp_type)
+#define B(a)      get_bitmap(V(a), bmp_type, target)
 #define SCAN(fn, arity) \
       (sscanf(stmt, fn " (" PAT##arity " )", ARGS##arity) == arity)
 #define SCANLVAL(fn, arity) \
@@ -358,6 +388,11 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
 
       if (streq(stmt, "nop"))
          continue;
+
+      if (SCAN("al_set_target_bitmap", 1)) {
+         al_set_target_bitmap(B(0));
+         continue;
+      }
 
       if (SCAN("al_set_clipping_rectangle", 4)) {
          al_set_clipping_rectangle(I(0), I(1), I(2), I(3));
@@ -463,9 +498,45 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
          continue;
       }
 
+      if (SCANLVAL("al_create_sub_bitmap", 5)) {
+         ALLEGRO_BITMAP **bmp = reserve_local_bitmap(lval, bmp_type);
+         (*bmp) = al_create_sub_bitmap(B(0), I(1), I(2), I(3), I(4));
+         continue;
+      }
+
       if (SCANLVAL("al_load_bitmap", 1)) {
          ALLEGRO_BITMAP **bmp = reserve_local_bitmap(lval, bmp_type);
          (*bmp) = load_relative_bitmap(V(0));
+         continue;
+      }
+
+      /* Transformations */
+      if (SCAN("al_copy_transform", 2)) {
+         al_copy_transform(get_transform(V(0)), get_transform(V(1)));
+         continue;
+      }
+      if (SCAN("al_use_transform", 1)) {
+         al_use_transform(get_transform(V(0)));
+         continue;
+      }
+      if (SCAN("al_build_transform", 6)) {
+         al_build_transform(get_transform(V(0)), F(1), F(2), F(3), F(4), F(5));
+         continue;
+      }
+      if (SCAN("al_translate_transform", 3)) {
+         al_translate_transform(get_transform(V(0)), F(1), F(2));
+         continue;
+      }
+      if (SCAN("al_scale_transform", 3)) {
+         al_scale_transform(get_transform(V(0)), F(1), F(2));
+         continue;
+      }
+      if (SCAN("al_rotate_transform", 2)) {
+         al_rotate_transform(get_transform(V(0)), F(1));
+         continue;
+      }
+      if (SCAN("al_compose_transform", 2)) {
+         al_compose_transform(get_transform(V(0)), get_transform(V(1)));
          continue;
       }
 
@@ -503,6 +574,12 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
          al_destroy_bitmap(bitmaps[i].bitmap[bmp_type]);
          bitmaps[i].bitmap[bmp_type] = NULL;
       }
+   }
+
+   /* Free transform names. */
+   for (i = 0; i < MAX_TRANS; i++) {
+      al_ustr_free(transforms[i].name);
+      transforms[i].name = NULL;
    }
 
 #undef B
