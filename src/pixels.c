@@ -438,9 +438,9 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
 
       data = bitmap->locked_region.data;
       data += y * bitmap->locked_region.pitch;
-      data += x * al_get_pixel_size(bitmap->format);
+      data += x * al_get_pixel_size(bitmap->locked_region.format);
       
-      _AL_INLINE_PUT_PIXEL(bitmap->format, data, color, false);
+      _AL_INLINE_PUT_PIXEL(bitmap->locked_region.format, data, color, false);
    }
    else {
       lr = al_lock_bitmap_region(bitmap, x, y, 1, 1, bitmap->format, 0);
