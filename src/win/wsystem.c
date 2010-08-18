@@ -56,6 +56,7 @@ static bool using_higher_res_timer;
 
 static ALLEGRO_SYSTEM_WIN *_al_win_system;
 
+static bool d3d_available = true;
 
 /* _WinMain:
  *  Entry point for Windows GUI programs, hooked by a macro in alwin.h,
@@ -145,7 +146,9 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
 /* Create a new system object. */
 static ALLEGRO_SYSTEM *win_initialize(int flags)
 {
+   bool result;
    (void)flags;
+   (void)result;
 
    _al_win_system = al_malloc(sizeof *_al_win_system);
    memset(_al_win_system, 0, sizeof *_al_win_system);
@@ -163,8 +166,14 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
    _al_win_system->system.vt = vt;
 
 #if defined ALLEGRO_CFG_D3D
-   if (_al_d3d_init_display() != true)
+   result = _al_d3d_init_display();
+#ifndef ALLEGRO_CFG_OPENGL
+   if (result != true)
       return NULL;
+#else
+   if (result != true)
+      d3d_available = false;
+#endif
 #endif
    
    return &_al_win_system->system;
@@ -208,6 +217,7 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
    int flags = al_get_new_display_flags();
    ALLEGRO_SYSTEM *sys = al_get_system_driver();
    const char *s;
+   ALLEGRO_DISPLAY_INTERFACE *ret = NULL;
 
 #if defined ALLEGRO_CFG_D3D
    if (flags & ALLEGRO_DIRECT3D) {
@@ -245,14 +255,23 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
    }
 
 #if defined ALLEGRO_CFG_D3D
+#ifdef ALLEGRO_CFG_OPENGL
+   if (d3d_available) {
+#endif
       flags |= ALLEGRO_DIRECT3D;
       al_set_new_display_flags(flags);
-      return _al_display_d3d_driver();
+      ret = _al_display_d3d_driver();
+      if (ret != NULL)
+         return ret;
+      flags &= ~ALLEGRO_DIRECT3D;
+#ifdef ALLEGRO_CFG_OPENGL
+   }
+#endif
 #endif
 #if defined ALLEGRO_CFG_OPENGL
-      flags |= ALLEGRO_OPENGL;
-      al_set_new_display_flags(flags);
-      return _al_display_wgl_driver();
+   flags |= ALLEGRO_OPENGL;
+   al_set_new_display_flags(flags);
+   return _al_display_wgl_driver();
 #endif
 
    return NULL;
@@ -309,50 +328,44 @@ static ALLEGRO_DISPLAY_MODE *win_get_display_mode(int index,
 
 static int win_get_num_video_adapters(void)
 {
-   int flags = al_get_new_display_flags();
+   DISPLAY_DEVICE dd;
+   int count = 0;
+   int c = 0;
 
-#if defined ALLEGRO_CFG_OPENGL
-   if (flags & ALLEGRO_OPENGL) {
-      return _al_wgl_get_num_video_adapters();
+   memset(&dd, 0, sizeof(dd));
+   dd.cb = sizeof(dd);
+
+   while (EnumDisplayDevices(NULL, count, &dd, 0) != false) {
+      if (dd.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP)
+         c++;
+      count++;
    }
-#endif
 
-#if defined ALLEGRO_CFG_D3D
-   return _al_d3d_get_num_video_adapters();
-#endif
-
-#if defined ALLEGRO_CFG_OPENGL
-   return _al_wgl_get_num_video_adapters();
-#endif
-
-   return 0;
+   return c;
 }
 
 static void win_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
-   int flags = al_get_new_display_flags();
+   DISPLAY_DEVICE dd;
+   DEVMODE dm;
 
-#if defined ALLEGRO_CFG_OPENGL
-   if (flags & ALLEGRO_OPENGL) {
-      _al_wgl_get_monitor_info(adapter, info);
-      return;
-   }
-#endif
+   memset(&dd, 0, sizeof(dd));
+   dd.cb = sizeof(dd);
+   EnumDisplayDevices(NULL, adapter, &dd, 0);
 
-#if defined ALLEGRO_CFG_D3D
-   _al_d3d_get_monitor_info(adapter, info);
-   return;
-#endif
+   memset(&dm, 0, sizeof(dm));
+   dm.dmSize = sizeof(dm);
+   EnumDisplaySettings(dd.DeviceName, ENUM_CURRENT_SETTINGS, &dm);
 
-#if defined ALLEGRO_CFG_OPENGL
-   _al_wgl_get_monitor_info(adapter, info);
-   return;
-#endif
+   ASSERT(dm.dmFields & DM_PELSHEIGHT);
+   ASSERT(dm.dmFields & DM_PELSWIDTH);
+   /* Disabled this assertion for now as it fails under Wine 1.2. */
+   /* ASSERT(dm.dmFields & DM_POSITION); */
 
-   /* Well, you can't disable all display drivers and expect things to
-    * work.
-    */
-   ASSERT(false);
+   info->x1 = dm.dmPosition.x;
+   info->y1 = dm.dmPosition.y;
+   info->x2 = info->x1 + dm.dmPelsWidth;
+   info->y2 = info->y1 + dm.dmPelsHeight;
 }
 
 static bool win_get_cursor_position(int *ret_x, int *ret_y)

@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -12,7 +12,7 @@
  *
  *      By Eric Botcazou.
  *
- *      Omar Cornut fixed it to handle a weird peculiarity of 
+ *      Omar Cornut fixed it to handle a weird peculiarity of
  *      the DirectInput joystick API.
  *
  *      Modified extensively for the new joystick API by Peter Wang.
@@ -76,11 +76,7 @@
 #error something is wrong with the makefile
 #endif
 
-#define PREFIX_I                "al-wjoy INFO: "
-#define PREFIX_W                "al-wjoy WARNING: "
-#define PREFIX_E                "al-wjoy ERROR: "
-
-
+ALLEGRO_DEBUG_CHANNEL("dinput")
 
 /* arbitrary limit to make life easier; this was the limit in Allegro 4.1.x */
 #define MAX_JOYSTICKS        8
@@ -171,7 +167,100 @@ ALLEGRO_JOYSTICK_DRIVER _al_joydrv_directx =
 };
 
 
+/* GUID values are borrowed from Wine */
+#define DEFINE_PRIVATE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
+   static const GUID name = { l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } }
+
+DEFINE_PRIVATE_GUID(__al_GUID_XAxis, 0xA36D02E0,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00);
+DEFINE_PRIVATE_GUID(__al_GUID_YAxis, 0xA36D02E1,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00);
+DEFINE_PRIVATE_GUID(__al_GUID_ZAxis, 0xA36D02E2,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00);
+DEFINE_PRIVATE_GUID(__al_GUID_RxAxis,0xA36D02F4,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00);
+DEFINE_PRIVATE_GUID(__al_GUID_RyAxis,0xA36D02F5,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00);
+DEFINE_PRIVATE_GUID(__al_GUID_RzAxis,0xA36D02E3,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00);
+DEFINE_PRIVATE_GUID(__al_GUID_Slider,0xA36D02E4,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00);
+DEFINE_PRIVATE_GUID(__al_GUID_Button,0xA36D02F0,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00);
+DEFINE_PRIVATE_GUID(__al_GUID_POV,   0xA36D02F2,0xC9F3,0x11CF,0xBF,0xC7,0x44,0x45,0x53,0x54,0x00,0x00);
+
+DEFINE_PRIVATE_GUID(__al_IID_IDirectInput8A,         0xBF798030,0x483A,0x4DA2,0xAA,0x99,0x5D,0x64,0xED,0x36,0x97,0x00);
+DEFINE_PRIVATE_GUID(__al_IID_IDirectInputDevice8A,   0x54D41080,0xDC15,0x4833,0xA4,0x1B,0x74,0x8F,0x73,0xA3,0x81,0x79);
+
+
+/* definition of DirectInput Joystick was borrowed from Wine implementation */
+#define DIDFT_AXIS              0x00000003
+#define DIDFT_ANYINSTANCE       0x00FFFF00
+#define DIDFT_OPTIONAL          0x80000000
+
+static const DIOBJECTDATAFORMAT __al_dfDIJoystick[] = {
+   { &__al_GUID_XAxis, DIJOFS_X, DIDFT_OPTIONAL | DIDFT_AXIS | DIDFT_ANYINSTANCE, 0},
+   { &__al_GUID_YAxis, DIJOFS_Y, DIDFT_OPTIONAL | DIDFT_AXIS | DIDFT_ANYINSTANCE, 0},
+   { &__al_GUID_ZAxis, DIJOFS_Z, DIDFT_OPTIONAL | DIDFT_AXIS | DIDFT_ANYINSTANCE, 0},
+   { &__al_GUID_RxAxis, DIJOFS_RX, DIDFT_OPTIONAL | DIDFT_AXIS | DIDFT_ANYINSTANCE, 0},
+   { &__al_GUID_RyAxis, DIJOFS_RY, DIDFT_OPTIONAL | DIDFT_AXIS | DIDFT_ANYINSTANCE, 0},
+   { &__al_GUID_RzAxis, DIJOFS_RZ, DIDFT_OPTIONAL | DIDFT_AXIS | DIDFT_ANYINSTANCE, 0},
+   { &__al_GUID_Slider, DIJOFS_SLIDER(0), DIDFT_OPTIONAL | DIDFT_AXIS | DIDFT_ANYINSTANCE, 0},
+   { &__al_GUID_Slider, DIJOFS_SLIDER(1), DIDFT_OPTIONAL | DIDFT_AXIS | DIDFT_ANYINSTANCE, 0},
+   { &__al_GUID_POV, DIJOFS_POV(0), DIDFT_OPTIONAL | DIDFT_POV | DIDFT_ANYINSTANCE, 0},
+   { &__al_GUID_POV, DIJOFS_POV(1), DIDFT_OPTIONAL | DIDFT_POV | DIDFT_ANYINSTANCE, 0},
+   { &__al_GUID_POV, DIJOFS_POV(2), DIDFT_OPTIONAL | DIDFT_POV | DIDFT_ANYINSTANCE, 0},
+   { &__al_GUID_POV, DIJOFS_POV(3), DIDFT_OPTIONAL | DIDFT_POV | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(0), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(1), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(2), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(3), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(4), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(5), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(6), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(7), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(8), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(9), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(10), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(11), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(12), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(13), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(14), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(15), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(16), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(17), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(18), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(19), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(20), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(21), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(22), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(23), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(24), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(25), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(26), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(27), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(28), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(29), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(30), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+   { NULL, DIJOFS_BUTTON(31), DIDFT_OPTIONAL | DIDFT_BUTTON | DIDFT_ANYINSTANCE, 0},
+};
+
+static const DIDATAFORMAT __al_c_dfDIJoystick = {
+   sizeof(DIDATAFORMAT),
+   sizeof(DIOBJECTDATAFORMAT),
+   DIDF_ABSAXIS,
+   sizeof(DIJOYSTATE),
+   sizeof(__al_dfDIJoystick) / sizeof(*__al_dfDIJoystick),
+   (LPDIOBJECTDATAFORMAT)__al_dfDIJoystick
+};
+/* end of Wine code */
+
+
 ALLEGRO_DISPLAY_WIN *win_disp;
+
+/* DirectInput creation prototype */
+typedef HRESULT (WINAPI *DIRECTINPUT8CREATEPROC)(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID * ppvOut, LPUNKNOWN punkOuter);
+
+/* DirectInput module name */
+static const char* _al_dinput_module_name = "dinput8.dll";
+
+/* DirecInput module handle */
+static HMODULE _al_dinput_module = NULL;
+
+/* DirectInput creation procedure */
+static DIRECTINPUT8CREATEPROC _al_dinput_create = (DIRECTINPUT8CREATEPROC)NULL;
 
 /* a handle to the DirectInput interface */
 static LPDIRECTINPUT joystick_dinput = NULL;
@@ -270,7 +359,7 @@ static void joystick_dinput_acquire(void)
          hr = IDirectInputDevice8_Acquire(joydx_joystick[i].device);
 
          if (FAILED(hr))
-   TRACE(PREFIX_E "acquire joystick %d failed: %s\n", i, dinput_err_str(hr));
+            ALLEGRO_ERROR("acquire joystick %d failed: %s\n", i, dinput_err_str(hr));
       }
    }
 }
@@ -318,7 +407,7 @@ void _al_win_joystick_dinput_grab(void *param)
                       joydx_joystick[i].device, win_disp->window,
                       DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
       if (FAILED(hr)) {
-         TRACE(PREFIX_E "IDirectInputDevice8_SetCooperativeLevel failed.\n");
+         ALLEGRO_ERROR("IDirectInputDevice8_SetCooperativeLevel failed.\n");
          return;
       }
    }
@@ -344,55 +433,55 @@ static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVO
 
    CAPS_AND_NAMES *can = pvRef;
 
-   if (GUIDTYPE_EQ(GUID_XAxis)) {
+   if (GUIDTYPE_EQ(__al_GUID_XAxis)) {
       if (!can->have_x) {
          can->have_x = true;
          can->name_x = my_strdup(lpddoi->tszName);
       }
    }
-   else if (GUIDTYPE_EQ(GUID_YAxis)) {
+   else if (GUIDTYPE_EQ(__al_GUID_YAxis)) {
       if (!can->have_y) {
          can->have_y = true;
          can->name_y = my_strdup(lpddoi->tszName);
       }
    }
-   else if (GUIDTYPE_EQ(GUID_ZAxis)) {
+   else if (GUIDTYPE_EQ(__al_GUID_ZAxis)) {
       if (!can->have_z) {
          can->have_z = true;
          can->name_z = my_strdup(lpddoi->tszName);
       }
    }
-   else if (GUIDTYPE_EQ(GUID_RxAxis)) {
+   else if (GUIDTYPE_EQ(__al_GUID_RxAxis)) {
       if (!can->have_rx) {
          can->have_rx = true;
          can->name_rx = my_strdup(lpddoi->tszName);
       }
    }
-   else if (GUIDTYPE_EQ(GUID_RyAxis)) {
+   else if (GUIDTYPE_EQ(__al_GUID_RyAxis)) {
       if (!can->have_ry) {
          can->have_ry = true;
          can->name_ry = my_strdup(lpddoi->tszName);
       }
    }
-   else if (GUIDTYPE_EQ(GUID_RzAxis)) {
+   else if (GUIDTYPE_EQ(__al_GUID_RzAxis)) {
       if (!can->have_rz) {
          can->have_rz = true;
          can->name_rz = my_strdup(lpddoi->tszName);
       }
    }
-   else if (GUIDTYPE_EQ(GUID_Slider)) {
+   else if (GUIDTYPE_EQ(__al_GUID_Slider)) {
       if (can->num_sliders < MAX_SLIDERS) {
          can->name_slider[can->num_sliders] = my_strdup(lpddoi->tszName);
          can->num_sliders++;
       }
    }
-   else if (GUIDTYPE_EQ(GUID_POV)) {
+   else if (GUIDTYPE_EQ(__al_GUID_POV)) {
       if (can->num_povs < MAX_POVS) {
          can->name_pov[can->num_povs] = my_strdup(lpddoi->tszName);
          can->num_povs++;
       }
    }
-   else if (GUIDTYPE_EQ(GUID_Button)) {
+   else if (GUIDTYPE_EQ(__al_GUID_Button)) {
       if (can->num_buttons < MAX_BUTTONS) {
          can->name_button[can->num_buttons] = my_strdup(lpddoi->tszName);
          can->num_buttons++;
@@ -583,7 +672,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
       goto Error;
 
    /* query the DirectInputDevice2 interface needed for the poll() method */
-   hr = IDirectInputDevice8_QueryInterface(_dinput_device1, &IID_IDirectInputDevice8, &temp);
+   hr = IDirectInputDevice8_QueryInterface(_dinput_device1, &__al_IID_IDirectInputDevice8A, &temp);
    IDirectInputDevice8_Release(_dinput_device1);
    if (FAILED(hr))
       goto Error;
@@ -591,14 +680,14 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    dinput_device = temp;
 
    /* enumerate objects available on the device */
-   hr = IDirectInputDevice8_EnumObjects(dinput_device, object_enum_callback, 
+   hr = IDirectInputDevice8_EnumObjects(dinput_device, object_enum_callback,
                                         &joydx_joystick[joydx_num_joysticks].caps_and_names,
                                         DIDFT_PSHBUTTON | DIDFT_AXIS | DIDFT_POV);
    if (FAILED(hr))
       goto Error;
 
    /* set data format */
-   hr = IDirectInputDevice8_SetDataFormat(dinput_device, &c_dfDIJoystick);
+   hr = IDirectInputDevice8_SetDataFormat(dinput_device, &__al_c_dfDIJoystick);
    if (FAILED(hr))
       goto Error;
 
@@ -629,11 +718,11 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    /* tell the joystick background thread to wake up when this joystick
     * device's state changes
     */
-   hr = IDirectInputDevice8_SetEventNotification(joydx_joystick[joydx_num_joysticks].device, 
+   hr = IDirectInputDevice8_SetEventNotification(joydx_joystick[joydx_num_joysticks].device,
                                                  JOYSTICK_WAKER(joydx_num_joysticks));
 
    if (FAILED(hr)) {
-      TRACE(PREFIX_E "SetEventNotification failed for joystick %d: %s\n", joydx_num_joysticks, dinput_err_str(hr));
+      ALLEGRO_ERROR("SetEventNotification failed for joystick %d: %s\n", joydx_num_joysticks, dinput_err_str(hr));
       goto Error;
    }
 
@@ -650,15 +739,15 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
 
       JOYSTICK_WAKER(joydx_num_joysticks) = CreateWaitableTimer(NULL, false, NULL);
       if (JOYSTICK_WAKER(joydx_num_joysticks) == NULL) {
-         TRACE(PREFIX_E "CreateWaitableTimer failed in wjoydxnu.c\n");
+         ALLEGRO_ERROR("CreateWaitableTimer failed in wjoydxnu.c\n");
          goto Error;
       }
 
-      { 
+      {
          LARGE_INTEGER due_time;
          due_time.HighPart = 0;
          due_time.LowPart = 150; /* 15 ms (arbitrary) */
-         SetWaitableTimer(JOYSTICK_WAKER(joydx_num_joysticks), 
+         SetWaitableTimer(JOYSTICK_WAKER(joydx_num_joysticks),
                           &due_time, true, /* periodic */
                           NULL, NULL, false);
       }
@@ -715,9 +804,28 @@ static bool joydx_init_joystick(void)
       return false;
       */
 
+   /* load DirectInput module */
+   _al_dinput_module = LoadLibraryA(_al_dinput_module_name);
+   if (_al_dinput_module == NULL) {
+      ALLEGRO_ERROR("Failed to open '%s' library\n", _al_dinput_module_name);
+      joystick_dinput = NULL;
+      return false;
+   }
+
+   /* import DirectInput create proc */
+   _al_dinput_create = (DIRECTINPUT8CREATEPROC)GetProcAddress(_al_dinput_module, "DirectInput8Create");
+   if (_al_dinput_create == NULL) {
+      ALLEGRO_ERROR("DirectInput8Create not in %s\n", _al_dinput_module_name);
+      FreeLibrary(_al_dinput_module);
+      joystick_dinput = NULL;
+      return false;
+   }
+
    /* get the DirectInput interface */
-   hr = DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, &IID_IDirectInput8A, u.v, NULL);
+   hr = _al_dinput_create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, &__al_IID_IDirectInput8A, u.v, NULL);
    if (FAILED(hr)) {
+      ALLEGRO_ERROR("Failed to create DirectInput interface\n");
+      FreeLibrary(_al_dinput_module);
       joystick_dinput = NULL;
       return false;
    }
@@ -726,6 +834,7 @@ static bool joydx_init_joystick(void)
    hr = IDirectInput8_EnumDevices(joystick_dinput, DI8DEVCLASS_GAMECTRL, joystick_enum_callback, NULL, DIEDFL_ATTACHEDONLY);
    if (FAILED(hr) || (joydx_num_joysticks == 0)) {
       IDirectInput8_Release(joystick_dinput);
+      FreeLibrary(_al_dinput_module);
       joystick_dinput = NULL;
       return false;
    }
@@ -771,7 +880,7 @@ static void free_caps_and_names_strings(CAPS_AND_NAMES *can)
    } while(0)           \
 
    int k;
- 
+
    FREE(can->name_x);
    FREE(can->name_y);
    FREE(can->name_z);
@@ -844,6 +953,10 @@ static void joydx_exit_joystick(void)
 
    /* destroy the DirectInput interface */
    IDirectInput8_Release(joystick_dinput);
+
+   /* release module handle */
+   FreeLibrary(_al_dinput_module);
+
    joystick_dinput = NULL;
 
    joydx_num_joysticks = 0;
@@ -985,10 +1098,10 @@ static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy)
 
    if (hr != DI_OK && hr != DI_BUFFEROVERFLOW) {
       if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
-         TRACE(PREFIX_W "joystick device not acquired or lost\n");
+         ALLEGRO_WARN("joystick device not acquired or lost\n");
       }
       else {
-         TRACE(PREFIX_E "unexpected error while polling the joystick\n");
+         ALLEGRO_ERROR("unexpected error while polling the joystick\n");
       }
       return;
    }

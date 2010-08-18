@@ -17,6 +17,9 @@ const IID GUID_NULL = { 0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0 } };
 #include "allegro5/allegro.h"
 
 extern "C" {
+
+ALLEGRO_DEBUG_CHANNEL("audio-dsound")
+
 #include "allegro5/internal/aintern_audio.h"
 
 /* This is used to stop MinGW from complaining about type-punning */
@@ -27,7 +30,12 @@ extern "C" {
    } u; \
    u.p = (ptr);
 
+typedef HRESULT (WINAPI *DIRECTSOUNDCREATE8PROC)(LPCGUID pcGuidDevice, LPDIRECTSOUND8 *ppDS8, LPUNKNOWN pUnkOuter);
+
 /* DirectSound vars */
+static const char* _al_dsound_module_name = "dsound.dll";
+static HMODULE _al_dsound_module = NULL;
+static DIRECTSOUNDCREATE8PROC _al_dsound_create = (DIRECTSOUNDCREATE8PROC)NULL;
 static IDirectSound8 *device;
 static HRESULT hr;
 static char ds_err_str[100];
@@ -60,7 +68,7 @@ static char *ds_get_error(HRESULT hr)
       case DSERR_BADFORMAT:
          strcpy(ds_err_str, "DSERR_BADFORMAT");
          break;
-      case DSERR_BUFFERTOOSMALL: 
+      case DSERR_BUFFERTOOSMALL:
          strcpy(ds_err_str, "DSERR_BUFFERTOOSMALL");
          break;
       case DSERR_CONTROLUNAVAIL:
@@ -159,7 +167,7 @@ static void* _dsound_update(ALLEGRO_THREAD* self, void* arg)
                memcpy(ptr2, ((unsigned char *)data)+block1_bytes, block2_bytes);
                hr = ex_data->ds8_buffer->Unlock(ptr1, block1_bytes, ptr2, block2_bytes);
                if (FAILED(hr)) {
-                  fprintf(stderr, "Unlock failed: %s\n", ds_get_error(hr));
+                  ALLEGRO_ERROR("Unlock failed: %s\n", ds_get_error(hr));
                }
             }
             else {
@@ -182,20 +190,37 @@ static void* _dsound_update(ALLEGRO_THREAD* self, void* arg)
    previously set paramters, or defaults. It shouldn't need to start sending
    audio data to the device yet, however. */
 static int _dsound_open()
-{ 
-   fprintf(stderr, "Starting DirectSound...\n");
+{
+   /* load DirectInput module */
+   _al_dsound_module = LoadLibraryA(_al_dsound_module_name);
+   if (_al_dsound_module == NULL) {
+      ALLEGRO_ERROR("Failed to open '%s' library\n", _al_dsound_module_name);
+      return 1;
+   }
+
+   /* import DirectInput create proc */
+   _al_dsound_create = (DIRECTSOUNDCREATE8PROC)GetProcAddress(_al_dsound_module, "DirectSoundCreate8");
+   if (_al_dsound_create == NULL) {
+      ALLEGRO_ERROR("DirectSoundCreate8 not in %s\n", _al_dsound_module_name);
+      FreeLibrary(_al_dsound_module);
+      return 1;
+   }
+
+   ALLEGRO_INFO("Starting DirectSound...\n");
 
    /* FIXME: Use default device until we have device enumeration */
-   hr = DirectSoundCreate8(NULL, &device, NULL);
+   hr = _al_dsound_create(NULL, &device, NULL);
    if (FAILED(hr)) {
-      fprintf(stderr, "DirectSoundCreate8 failed\n");
+      ALLEGRO_ERROR("DirectSoundCreate8 failed\n");
+      FreeLibrary(_al_dsound_module);
       return 1;
    }
 
    /* FIXME: The window specified here is probably very wrong. NULL won't work either. */
    hr = device->SetCooperativeLevel(GetForegroundWindow(), DSSCL_PRIORITY);
    if (FAILED(hr)) {
-      fprintf(stderr, "SetCooperativeLevel failed\n");
+      ALLEGRO_ERROR("SetCooperativeLevel failed\n");
+      FreeLibrary(_al_dsound_module);
       return 1;
    }
 
@@ -208,6 +233,8 @@ static int _dsound_open()
 static void _dsound_close()
 {
    device->Release();
+
+   FreeLibrary(_al_dsound_module);
 }
 
 
@@ -227,26 +254,26 @@ static int _dsound_allocate_voice(ALLEGRO_VOICE *voice)
          bits_per_sample = 8;
          break;
       case ALLEGRO_AUDIO_DEPTH_INT8:
-         fprintf(stderr, "DirectSound requires 8-bit data to be unsigned\n");
+         ALLEGRO_ERROR("DirectSound requires 8-bit data to be unsigned\n");
          return 1;
       case ALLEGRO_AUDIO_DEPTH_UINT16:
-         fprintf(stderr, "DirectSound requires 16-bit data to be signed\n");
+         ALLEGRO_ERROR("DirectSound requires 16-bit data to be signed\n");
          return 1;
       case ALLEGRO_AUDIO_DEPTH_INT16:
          /* format supported */
          bits_per_sample = 16;
          break;
-      case ALLEGRO_AUDIO_DEPTH_UINT24:  
-         fprintf(stderr, "DirectSound does not support 24-bit data\n");
+      case ALLEGRO_AUDIO_DEPTH_UINT24:
+         ALLEGRO_ERROR("DirectSound does not support 24-bit data\n");
          return 1;
-      case ALLEGRO_AUDIO_DEPTH_INT24:  
-         fprintf(stderr, "DirectSound does not support 24-bit data\n");
+      case ALLEGRO_AUDIO_DEPTH_INT24:
+         ALLEGRO_ERROR("DirectSound does not support 24-bit data\n");
          return 1;
       case ALLEGRO_AUDIO_DEPTH_FLOAT32:
-         fprintf(stderr, "DirectSound does not support 32-bit floating data\n");
+         ALLEGRO_ERROR("DirectSound does not support 32-bit floating data\n");
          return 1;
       default:
-         fprintf(stderr, "Cannot allocate unknown voice depth\n");
+         ALLEGRO_ERROR("Cannot allocate unknown voice depth\n");
          return 1;
    }
 
@@ -258,13 +285,13 @@ static int _dsound_allocate_voice(ALLEGRO_VOICE *voice)
          channels = 2;
          break;
       default:
-         fprintf(stderr, "Unsupported number of channels\n");
+         ALLEGRO_ERROR("Unsupported number of channels\n");
          return 1;
    }
 
    ex_data = (ALLEGRO_DS_DATA *)al_calloc(1, sizeof(*ex_data));
    if (!ex_data) {
-      fprintf(stderr, "Could not allocate voice data memory\n"); 
+      ALLEGRO_ERROR("Could not allocate voice data memory\n");
       return 1;
    }
 
@@ -380,7 +407,7 @@ static int _dsound_start_voice(ALLEGRO_VOICE *voice)
 
       hr = device->CreateSoundBuffer(&ex_data->desc, &ex_data->ds_buffer, NULL);
       if (FAILED(hr)) {
-         fprintf(stderr, "CreateSoundBuffer failed: %s\n", ds_get_error(hr));
+         ALLEGRO_ERROR("CreateSoundBuffer failed: %s\n", ds_get_error(hr));
          al_free(ex_data);
          return 1;
       }
@@ -404,7 +431,7 @@ static int _dsound_stop_voice(ALLEGRO_VOICE* voice)
    ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
 
    if (!ex_data->ds8_buffer) {
-      fprintf(stderr, "Trying to stop empty voice buffer\n"); 
+      ALLEGRO_ERROR("Trying to stop empty voice buffer\n");
       return 1;
    }
 

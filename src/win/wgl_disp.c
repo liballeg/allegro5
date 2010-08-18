@@ -1581,50 +1581,5 @@ ALLEGRO_DISPLAY_MODE *_al_wgl_get_display_mode(int index, int format,
    return mode;
 }
 
-
-int _al_wgl_get_num_video_adapters(void)
-{
-   DISPLAY_DEVICE dd;
-   int count = 0;
-   int c = 0;
-
-   memset(&dd, 0, sizeof(dd));
-   dd.cb = sizeof(dd);
-
-   while (EnumDisplayDevices(NULL, count, &dd, 0) != false) {
-      if (dd.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP)
-         c++;
-      count++;
-   }
-
-   return c;
-}
-
-
-void _al_wgl_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
-{
-   DISPLAY_DEVICE dd;
-   DEVMODE dm;
-
-   memset(&dd, 0, sizeof(dd));
-   dd.cb = sizeof(dd);
-   EnumDisplayDevices(NULL, adapter, &dd, 0);
-
-   memset(&dm, 0, sizeof(dm));
-   dm.dmSize = sizeof(dm);
-   EnumDisplaySettings(dd.DeviceName, ENUM_CURRENT_SETTINGS, &dm);
-
-   ASSERT(dm.dmFields & DM_PELSHEIGHT);
-   ASSERT(dm.dmFields & DM_PELSWIDTH);
-   /* Disabled this assertion for now as it fails under Wine 1.2. */
-   /* ASSERT(dm.dmFields & DM_POSITION); */
-
-   info->x1 = dm.dmPosition.x;
-   info->y1 = dm.dmPosition.y;
-   info->x2 = info->x1 + dm.dmPelsWidth;
-   info->y2 = info->y1 + dm.dmPelsHeight;
-}
-
-
 /* vi: set sts=3 sw=3 et: */
 
