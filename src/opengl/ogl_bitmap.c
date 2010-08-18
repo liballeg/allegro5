@@ -558,6 +558,34 @@ static void ogl_update_clipping_rectangle(ALLEGRO_BITMAP *bitmap)
 }
 
 
+static int ogl_pixel_alignment(int pixel_size)
+{
+   /* Valid alignments are: 1, 2, 4, 8 bytes. */
+   switch (pixel_size) {
+      case 1:
+      case 2:
+      case 4:
+      case 8:
+         return pixel_size;
+      case 3:
+      case 16: /* float32 */
+         return 4;
+      default:
+         ASSERT(false);
+         return 4;
+   }
+}
+
+
+static int ogl_pitch(int w, int pixel_size)
+{
+   int pitch = w * pixel_size;
+   if (pixel_size == 3)
+      return (pitch + 3) & ~0x3; /* round up to four bytes */
+   else
+      return pitch;
+}
+
 
 /* OpenGL cannot "lock" pixels, so instead we update our memory copy and
  * return a pointer into that.
@@ -567,7 +595,8 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
 {
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    int pixel_size;
-   int pitch = 0;
+   int pixel_alignment;
+   int pitch;
    ALLEGRO_DISPLAY *disp;
    ALLEGRO_DISPLAY *old_disp = NULL;
    GLint gl_y = bitmap->h - y - h;
@@ -580,6 +609,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    format = _al_get_real_pixel_format(disp, format);
 
    pixel_size = al_get_pixel_size(format);
+   pixel_alignment = ogl_pixel_alignment(pixel_size);
 
    if (bitmap->display->ogl_extras->is_shared == false &&
          bitmap->display != disp) {
@@ -593,12 +623,17 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
     * http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall/
     */
    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
-   glPixelStorei(GL_PACK_ALIGNMENT, pixel_size);
+   glPixelStorei(GL_PACK_ALIGNMENT, pixel_alignment);
+   e = glGetError();
+   if (e) {
+      ALLEGRO_ERROR("glPixelStorei(GL_PACK_ALIGNMENT, %d) failed (%s).\n",
+         pixel_alignment, error_string(e));
+   }
 
    if (ogl_bitmap->is_backbuffer) {
       ALLEGRO_DEBUG("Locking backbuffer\n");
 
-      pitch = w * pixel_size;
+      pitch = ogl_pitch(w, pixel_size);
       ogl_bitmap->lock_buffer = al_malloc(pitch * h);
 
       if (!(flags & ALLEGRO_LOCK_WRITEONLY)) {
@@ -620,7 +655,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       if (flags & ALLEGRO_LOCK_WRITEONLY) {
          ALLEGRO_DEBUG("Locking non-backbuffer WRITEONLY\n");
 
-         pitch = w * pixel_size;
+         pitch = ogl_pitch(w, pixel_size);
          ogl_bitmap->lock_buffer = al_malloc(pitch * h);
          bitmap->locked_region.data = ogl_bitmap->lock_buffer +
             pitch * (h - 1);
@@ -644,7 +679,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
             glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &current_fbo);
             glBindFramebufferOES(GL_FRAMEBUFFER_OES, ogl_bitmap->fbo);
 
-            pitch = w * pixel_size;
+            pitch = ogl_pitch(w, pixel_size);
             ogl_bitmap->lock_buffer = al_malloc(pitch * h);
 
             glReadPixels(x, gl_y, w, h,
@@ -661,7 +696,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
          // texture - even when only a single pixel is locked. Likely
          // using FBO and glReadPixels to just read the locked part
          // would be faster.
-         pitch = ogl_bitmap->true_w * pixel_size;
+         pitch = ogl_pitch(ogl_bitmap->true_w, pixel_size);
          ogl_bitmap->lock_buffer = al_malloc(pitch * ogl_bitmap->true_h);
 
          glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
@@ -681,7 +716,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
 #else
    else {
       if (flags & ALLEGRO_LOCK_WRITEONLY) {
-         pitch = w * pixel_size;
+         pitch = ogl_pitch(w, pixel_size);
          ogl_bitmap->lock_buffer = al_malloc(pitch * h);
 	 bitmap->locked_region.data = ogl_bitmap->lock_buffer;
 	 pitch = -pitch;
@@ -719,6 +754,8 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    GLint gl_y = bitmap->h - bitmap->lock_y - bitmap->lock_h;
    int orig_format;
    int orig_pixel_size;
+   int lock_pixel_size;
+   int pixel_alignment;
    (void)e;
 
    if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) {
@@ -737,7 +774,14 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 
    /* Keep this in sync with ogl_lock_region. */
    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
-   glPixelStorei(GL_UNPACK_ALIGNMENT, al_get_pixel_size(lock_format));
+   lock_pixel_size = al_get_pixel_size(lock_format);
+   pixel_alignment = ogl_pixel_alignment(lock_pixel_size);
+   glPixelStorei(GL_UNPACK_ALIGNMENT, pixel_alignment);
+   e = glGetError();
+   if (e) {
+      ALLEGRO_ERROR("glPixelStorei(GL_UNPACK_ALIGNMENT, %d) failed (%s).\n",
+         pixel_alignment, error_string(e));
+   }
 
 #if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    if (ogl_bitmap->is_backbuffer) {
@@ -826,7 +870,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    else {
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
       if (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY) {
-         int dst_pitch = bitmap->lock_w*orig_pixel_size;
+         int dst_pitch = ogl_pixel_alignment(bitmap->lock_w, orig_pixel_size);
          _al_convert_bitmap_data(
             ogl_bitmap->lock_buffer,
             bitmap->locked_region.format,
@@ -836,7 +880,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             dst_pitch,
             0, 0, 0, 0,
             bitmap->lock_w, bitmap->lock_h);
-         glPixelStorei(GL_UNPACK_ALIGNMENT, orig_pixel_size);
+         glPixelStorei(GL_UNPACK_ALIGNMENT, ogl_pixel_alignment(orig_pixel_size));
          glTexSubImage2D(GL_TEXTURE_2D, 0,
             bitmap->lock_x, gl_y,
             bitmap->lock_w, bitmap->lock_h,
@@ -851,7 +895,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       }
       else {
          #ifdef ALLEGRO_IPHONE
-         glPixelStorei(GL_UNPACK_ALIGNMENT, orig_pixel_size);
+         glPixelStorei(GL_UNPACK_ALIGNMENT, ogl_pixel_alignment(orig_pixel_size));
          glTexSubImage2D(GL_TEXTURE_2D, 0, bitmap->lock_x, gl_y,
             bitmap->lock_w, bitmap->lock_h,
             glformats[lock_format][2],
