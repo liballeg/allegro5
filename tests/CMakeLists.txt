@@ -33,6 +33,16 @@ add_custom_target(test_bitmaps
     COMMAND test_driver ${CMAKE_CURRENT_SOURCE_DIR}/test_bitmaps.ini
     )
 
+add_custom_target(test_locking
+    DEPENDS test_driver
+    COMMAND test_driver ${CMAKE_CURRENT_SOURCE_DIR}/test_locking.ini
+    )
+
+add_custom_target(test_locking2
+    DEPENDS test_driver
+    COMMAND test_driver ${CMAKE_CURRENT_SOURCE_DIR}/test_locking2.ini
+    )
+
 add_custom_target(test_image
     DEPENDS test_driver
     COMMAND test_driver ${CMAKE_CURRENT_SOURCE_DIR}/test_image.ini

@@ -28,6 +28,14 @@ typedef struct {
 } Transform;
 
 typedef struct {
+   int            x;
+   int            y;
+   int            w;
+   int            h;
+   ALLEGRO_LOCKED_REGION *lr;
+} LockRegion;
+
+typedef struct {
    ALLEGRO_USTR   *name;
    ALLEGRO_FONT   *font;
 } Font;
@@ -35,6 +43,7 @@ typedef struct {
 ALLEGRO_DISPLAY   *display;
 ALLEGRO_BITMAP    *membuf;
 Bitmap            bitmaps[MAX_BITMAPS];
+LockRegion        lock_region;
 Transform         transforms[MAX_TRANS];
 Font              fonts[MAX_FONTS];
 int               num_global_bitmaps;
@@ -261,6 +270,70 @@ static ALLEGRO_TRANSFORM *get_transform(const char *name)
    return NULL;
 }
 
+static int get_pixel_format(char const *v)
+{
+   int format = streq(v, "ALLEGRO_PIXEL_FORMAT_ANY") ? ALLEGRO_PIXEL_FORMAT_ANY
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA") ? ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA") ? ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA") ? ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA") ? ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA") ? ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA") ? ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA") ? ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA") ? ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_ARGB_8888") ? ALLEGRO_PIXEL_FORMAT_ARGB_8888
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_RGBA_8888") ? ALLEGRO_PIXEL_FORMAT_RGBA_8888
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_ARGB_4444") ? ALLEGRO_PIXEL_FORMAT_ARGB_4444
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_RGB_888") ? ALLEGRO_PIXEL_FORMAT_RGB_888
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_RGB_565") ? ALLEGRO_PIXEL_FORMAT_RGB_565
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_RGB_555") ? ALLEGRO_PIXEL_FORMAT_RGB_555
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_RGBA_5551") ? ALLEGRO_PIXEL_FORMAT_RGBA_5551
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_ARGB_1555") ? ALLEGRO_PIXEL_FORMAT_ARGB_1555
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_ABGR_8888") ? ALLEGRO_PIXEL_FORMAT_ABGR_8888
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_XBGR_8888") ? ALLEGRO_PIXEL_FORMAT_XBGR_8888
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_BGR_888") ? ALLEGRO_PIXEL_FORMAT_BGR_888
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_BGR_565") ? ALLEGRO_PIXEL_FORMAT_BGR_565
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_BGR_555") ? ALLEGRO_PIXEL_FORMAT_BGR_555
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_RGBX_8888") ? ALLEGRO_PIXEL_FORMAT_RGBX_8888
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_XRGB_8888") ? ALLEGRO_PIXEL_FORMAT_XRGB_8888
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_ABGR_F32") ? ALLEGRO_PIXEL_FORMAT_ABGR_F32
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE") ? ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_RGBA_4444") ? ALLEGRO_PIXEL_FORMAT_RGBA_4444
+      : -1;
+   if (format == -1)
+      error("invalid format: %s", v);
+   return format;
+}
+
+static int get_lock_bitmap_flags(char const *v)
+{
+   return streq(v, "ALLEGRO_LOCK_READWRITE") ? ALLEGRO_LOCK_READWRITE
+      : streq(v, "ALLEGRO_LOCK_READONLY") ? ALLEGRO_LOCK_READONLY
+      : streq(v, "ALLEGRO_LOCK_WRITEONLY") ? ALLEGRO_LOCK_WRITEONLY
+      : atoi(v);
+}
+
+static void fill_lock_region(LockRegion *lr, bool blended)
+{
+   int x, y;
+   float r, g, b, a;
+   ALLEGRO_COLOR c;
+
+   for (y = 0; y < lr->h; y++) {
+      for (x = 0; x < lr->w; x++) {
+         r = (float)x / lr->w;
+         b = (float)y / lr->h;
+         g = r*b;
+         a = r;
+         c = al_map_rgba_f(r, g, b, a);
+         if (blended)
+            al_put_blended_pixel(lr->x + x, lr->y + y, c);
+         else
+            al_put_pixel(lr->x + x, lr->y + y, c);
+      }
+   }
+}
+
 static ALLEGRO_FONT *get_font(char const *name)
 {
    int i;
@@ -442,8 +515,15 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
    for (op = 0; ; op++) {
       sprintf(buf, "op%d", op);
       stmt = al_get_config_value(cfg, testname, buf);
-      if (!stmt)
-         break;
+      if (!stmt) {
+         /* Check for a common mistake. */
+         sprintf(buf, "op%d", op+1);
+         stmt = al_get_config_value(cfg, testname, buf);
+         if (!stmt)
+            break;
+         printf("WARNING: op%d skipped, continuing at op%d\n", op, op+1);
+         op++;
+      }
 
       if (verbose)
          printf("# %s\n", stmt);
@@ -560,6 +640,12 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
          continue;
       }
 
+      if (SCANLVAL("al_create_bitmap", 2)) {
+         ALLEGRO_BITMAP **bmp = reserve_local_bitmap(lval, bmp_type);
+         (*bmp) = al_create_bitmap(I(0), I(1));
+         continue;
+      }
+
       if (SCANLVAL("al_create_sub_bitmap", 5)) {
          ALLEGRO_BITMAP **bmp = reserve_local_bitmap(lval, bmp_type);
          (*bmp) = al_create_sub_bitmap(B(0), I(1), I(2), I(3), I(4));
@@ -604,6 +690,41 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
       }
       if (SCAN("al_compose_transform", 2)) {
          al_compose_transform(get_transform(V(0)), get_transform(V(1)));
+         continue;
+      }
+
+      /* Locking */
+      if (SCAN("al_lock_bitmap", 3)) {
+         ALLEGRO_BITMAP *bmp = B(0);
+         lock_region.x = 0;
+         lock_region.y = 0;
+         lock_region.w = al_get_bitmap_width(bmp);
+         lock_region.h = al_get_bitmap_height(bmp);
+         lock_region.lr = al_lock_bitmap(bmp,
+            get_pixel_format(V(1)),
+            get_lock_bitmap_flags(V(2)));
+         continue;
+      }
+      if (SCAN("al_lock_bitmap_region", 7)) {
+         ALLEGRO_BITMAP *bmp = B(0);
+         lock_region.x = I(1);
+         lock_region.y = I(2);
+         lock_region.w = I(3);
+         lock_region.h = I(4);
+         lock_region.lr = al_lock_bitmap_region(bmp,
+            lock_region.x, lock_region.y,
+            lock_region.w, lock_region.h,
+            get_pixel_format(V(5)),
+            get_lock_bitmap_flags(V(6)));
+         continue;
+      }
+      if (SCAN("al_unlock_bitmap", 1)) {
+         al_unlock_bitmap(B(0));
+         lock_region.lr = NULL;
+         continue;
+      }
+      if (SCAN("fill_lock_region", 1)) {
+         fill_lock_region(&lock_region, get_bool(V(0)));
          continue;
       }
 
