@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -23,6 +23,8 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_pixels.h"
+
+ALLEGRO_DEBUG_CHANNEL("pixels")
 
 /* lookup table for scaling 8 bit integers up to floats [0.0, 1.0] */
 float _al_u8_to_float[256];
@@ -271,7 +273,7 @@ static bool _al_try_display_format(ALLEGRO_DISPLAY *display, int *format)
             *format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
             return true;
       }
-   }   
+   }
    *format = best_format;
    return true;
 }
@@ -375,7 +377,7 @@ ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
       x -= bitmap->lock_x;
       y -= bitmap->lock_y;
       if (x < 0 || y < 0 || x >= bitmap->lock_w || y >= bitmap->lock_h) {
-         TRACE("al_get_pixel out of bounds\n");
+         ALLEGRO_ERROR("Out of bounds.");
          memset(&color, 0, sizeof(ALLEGRO_COLOR));
          return color;
       }
@@ -399,7 +401,7 @@ ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
          memset(&color, 0, sizeof(ALLEGRO_COLOR));
          return color;
       }
-      
+
       /* FIXME: check for valid pixel format */
 
       data = lr->data;
@@ -422,7 +424,7 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
        y += bitmap->yofs;
        bitmap = bitmap->parent;
    }
-   
+
    if (x < bitmap->cl || y < bitmap->ct ||
        x >= bitmap->cr_excl || y >= bitmap->cb_excl)
    {
@@ -432,14 +434,14 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
    if (bitmap->locked) {
       x -= bitmap->lock_x;
       y -= bitmap->lock_y;
-      if (x < 0 || y < 0 || x >= bitmap->lock_w || y >= bitmap->lock_h) { 
+      if (x < 0 || y < 0 || x >= bitmap->lock_w || y >= bitmap->lock_h) {
          return;
       }
 
       data = bitmap->locked_region.data;
       data += y * bitmap->locked_region.pitch;
       data += x * al_get_pixel_size(bitmap->locked_region.format);
-      
+
       _AL_INLINE_PUT_PIXEL(bitmap->locked_region.format, data, color, false);
    }
    else {

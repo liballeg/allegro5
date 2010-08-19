@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -20,7 +20,9 @@
 
 #include "allegro5/allegro.h"
 
-
+#ifdef ALLEGRO_MSVC
+   #define hypotf(x, y) _hypotf((x), (y))
+#endif
 
 al_fixed _al_fix_cos_tbl[512] =
 {
@@ -222,7 +224,7 @@ al_fixed al_fixatan(al_fixed x)
    else {                  /* search the second half instead */
       a = 128;
       b = 255;
-   } 
+   }
 
    do {
       c = (a + b) >> 1;
@@ -258,7 +260,7 @@ al_fixed al_fixatan2(al_fixed y, al_fixed x)
       }
       else
 	 return ((y < 0) ? -0x00400000L : 0x00400000L);
-   } 
+   }
 
    al_set_errno(0);
    r = al_fixdiv(y, x);
@@ -318,7 +320,7 @@ al_fixed al_fixsqrt(al_fixed x)
  */
 al_fixed al_fixhypot(al_fixed x, al_fixed y)
 {
-   return al_ftofix(hypot(al_fixtof(x), al_fixtof(y)));
+   return al_ftofix(hypotf(al_fixtof(x), al_fixtof(y)));
 }
 
 

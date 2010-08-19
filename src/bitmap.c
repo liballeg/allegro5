@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -38,9 +38,9 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    ALLEGRO_BITMAP *bitmap;
    int pitch;
    int format = al_get_new_bitmap_format();
-   
+
    format = _al_get_real_pixel_format(al_get_current_display(), format);
-   
+
    bitmap = al_malloc(sizeof *bitmap);
    memset(bitmap, 0, sizeof(*bitmap));
    bitmap->size = sizeof(*bitmap);
@@ -93,7 +93,7 @@ static ALLEGRO_BITMAP *do_create_bitmap(int w, int h)
 
    bitmap = current_display->vt->create_bitmap(current_display, w, h);
    if (!bitmap) {
-      TRACE("al_create_bitmap: failed to create display bitmap\n");
+      ALLEGRO_ERROR("failed to create display bitmap");
       return NULL;
    }
 
@@ -197,7 +197,7 @@ static void _bitmap_drawer(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint,
    ALLEGRO_DISPLAY *display = dest->display;
    ASSERT(bitmap->parent == NULL);
    ASSERT(!(flags & (ALLEGRO_FLIP_HORIZONTAL | ALLEGRO_FLIP_VERTICAL)));
-   
+
    /* If destination is memory, do a memory blit */
    if (dest->flags & ALLEGRO_MEMORY_BITMAP) {
       _al_draw_bitmap_region_memory(bitmap, tint, sx, sy, sw, sh, 0, 0, flags);
@@ -244,7 +244,7 @@ static void _draw_tinted_rotated_scaled_bitmap_region(ALLEGRO_BITMAP *bitmap,
          sw += sx;
          al_translate_transform(&t, -sx, 0);
          sx = 0;
-      }
+}
       if (sy < 0) {
          sh += sy;
          al_translate_transform(&t, 0, -sy);
@@ -299,15 +299,15 @@ void al_draw_tinted_bitmap(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint,
 {
    al_draw_tinted_bitmap_region(bitmap, tint, 0, 0,
       bitmap->w, bitmap->h, dx, dy, flags);
-}
+   }
 
 
 /* Function: al_draw_bitmap
  */
 void al_draw_bitmap(ALLEGRO_BITMAP *bitmap, float dx, float dy, int flags)
-{
+      {
    al_draw_tinted_bitmap(bitmap, solid_white, dx, dy, flags);
-}
+         }
 
 
 /* Function: al_draw_bitmap_region
@@ -331,7 +331,7 @@ void al_draw_tinted_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
       0, 0, 0,
       dw / sw, dh / sh,
       sx, sy, sw, sh, dx, dy, flags);
-}
+   }
 
 /* Function: al_draw_scaled_bitmap
  */
@@ -346,7 +346,7 @@ void al_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
 
 
 /* Function: al_draw_tinted_rotated_bitmap
- * 
+ *
  * angle is specified in radians and moves clockwise
  * on the screen.
  */
@@ -356,7 +356,7 @@ void al_draw_tinted_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
 {
    al_draw_tinted_scaled_rotated_bitmap(bitmap, tint, cx, cy, dx, dy,
       1, 1, angle, flags);
-}
+   }
 
 /* Function: al_draw_rotated_bitmap
  */
@@ -379,7 +379,7 @@ void al_draw_tinted_scaled_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
       cx, cy, angle,
       xscale, yscale,
       0, 0, bitmap->w, bitmap->h, dx, dy, flags);
-}
+   }
 
 
 /* Function: al_draw_scaled_rotated_bitmap
@@ -509,7 +509,7 @@ void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR mask_color)
    ALLEGRO_STATE state;
 
    if (!(lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY, 0))) {
-      TRACE("al_convert_mask_to_alpha: Couldn't lock bitmap.\n");
+      ALLEGRO_ERROR("Couldn't lock bitmap.");
       return;
    }
 
@@ -767,7 +767,7 @@ void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap)
    tmp->cr_excl = bitmap->cr_excl;
    tmp->cl = bitmap->cl;
    tmp->ct = bitmap->ct;
-   
+
    al_restore_state(&backup);
 
    /* Free the memory bitmap's memory. */
@@ -817,7 +817,7 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
 
    /* Allocate a temporary bitmap which will hold the data
     * during the conversion process. */
-   
+
    al_store_state(&backup, ALLEGRO_STATE_BITMAP | ALLEGRO_STATE_BLENDER);
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
@@ -832,7 +832,7 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
    tmp->cr_excl = bitmap->cr_excl;
    tmp->cl = bitmap->cl;
    tmp->ct = bitmap->ct;
-   
+
    al_restore_state(&backup);
 
    /* Destroy the display bitmap to free driver-specific resources. */
