@@ -35,8 +35,8 @@ static void draw_joystick_axes(int cx, int cy, int stick)
    int y = cy + joys_y[stick] * size;
 
    al_draw_filled_rectangle(cx-osize, cy-osize, cx+osize, cy+osize, grey);
-   al_draw_rectangle(cx-osize, cy-osize, cx+osize, cy+osize, black, 0);
-   al_draw_filled_rectangle(x-5, y-5, x+5.5, y+5.5, black);
+   al_draw_rectangle(cx-osize+0.5, cy-osize+0.5, cx+osize-0.5, cy+osize-0.5, black, 0);
+   al_draw_filled_rectangle(x-5, y-5, x+5, y+5, black);
 }
 
 
@@ -44,13 +44,13 @@ static void draw_joystick_axes(int cx, int cy, int stick)
 static void draw_joystick_button(int button, bool down)
 {
    ALLEGRO_BITMAP *bmp = al_get_target_bitmap();
-   int x = al_get_bitmap_width(bmp)/2 + (button % 5) * 30;
-   int y = al_get_bitmap_height(bmp)-60 + (button / 5) * 30;
+   int x = al_get_bitmap_width(bmp)/2-120 + (button % 8) * 30;
+   int y = al_get_bitmap_height(bmp)-120 + (button / 8) * 30;
 
-   al_draw_filled_rectangle(x, y, x + 25.5, y + 25.5, grey);
-   al_draw_rectangle(x, y, x + 25.5, y + 25.5, black, 0);
+   al_draw_filled_rectangle(x, y, x + 25, y + 25, grey);
+   al_draw_rectangle(x+0.5, y+0.5, x + 24.5, y + 24.5, black, 0);
    if (down) {
-      al_draw_filled_rectangle(x + 2, y + 2, x + 24.5, y + 24.5, black);
+      al_draw_filled_rectangle(x + 2, y + 2, x + 23, y + 23, black);
    }
 }
 
