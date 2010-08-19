@@ -244,7 +244,7 @@ static void _draw_tinted_rotated_scaled_bitmap_region(ALLEGRO_BITMAP *bitmap,
          sw += sx;
          al_translate_transform(&t, -sx, 0);
          sx = 0;
-}
+      }
       if (sy < 0) {
          sh += sy;
          al_translate_transform(&t, 0, -sy);
@@ -299,15 +299,15 @@ void al_draw_tinted_bitmap(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint,
 {
    al_draw_tinted_bitmap_region(bitmap, tint, 0, 0,
       bitmap->w, bitmap->h, dx, dy, flags);
-   }
+}
 
 
 /* Function: al_draw_bitmap
  */
 void al_draw_bitmap(ALLEGRO_BITMAP *bitmap, float dx, float dy, int flags)
-      {
+{
    al_draw_tinted_bitmap(bitmap, solid_white, dx, dy, flags);
-         }
+}
 
 
 /* Function: al_draw_bitmap_region
@@ -331,7 +331,7 @@ void al_draw_tinted_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
       0, 0, 0,
       dw / sw, dh / sh,
       sx, sy, sw, sh, dx, dy, flags);
-   }
+}
 
 /* Function: al_draw_scaled_bitmap
  */
@@ -356,7 +356,7 @@ void al_draw_tinted_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
 {
    al_draw_tinted_scaled_rotated_bitmap(bitmap, tint, cx, cy, dx, dy,
       1, 1, angle, flags);
-   }
+}
 
 /* Function: al_draw_rotated_bitmap
  */
@@ -379,7 +379,7 @@ void al_draw_tinted_scaled_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
       cx, cy, angle,
       xscale, yscale,
       0, 0, bitmap->w, bitmap->h, dx, dy, flags);
-   }
+}
 
 
 /* Function: al_draw_scaled_rotated_bitmap
