@@ -355,31 +355,106 @@ static int get_font_align(char const *value)
       : atoi(value);
 }
 
+/* FNV-1a algorithm, parameters from:
+ * http://www.isthe.com/chongo/tech/comp/fnv/index.html
+ */
+#define FNV_OFFSET_BASIS   2166136261UL
+#define FNV_PRIME          16777619
+
 static uint32_t hash_bitmap(ALLEGRO_BITMAP *bmp)
 {
-   /* FNV-1a algorithm, parameters from:
-    * http://www.isthe.com/chongo/tech/comp/fnv/index.html
-    */
    ALLEGRO_LOCKED_REGION *lr;
    int x, y, w, h;
    uint32_t hash;
 
    w = al_get_bitmap_width(bmp);
    h = al_get_bitmap_height(bmp);
-   hash = 2166136261UL;
+   hash = FNV_OFFSET_BASIS;
 
-   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_RGBA_8888,
+   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
       ALLEGRO_LOCK_READONLY);
 
    for (y = 0; y < h; y++) {
-      char const *data = ((char const *)lr->data) + y*lr->pitch;
-      for (x = 0; x < w*4; x++) {
-         hash ^= data[x];
-         hash *= 16777619;
+      /* Oops, I unintentially committed the first version of this with signed
+       * chars and computing in BGRA order, so leave it like that so we don't
+       * have to update a bunch of old hashes.
+       */
+      signed char const *data = ((signed char const *)lr->data) + y*lr->pitch;
+      for (x = 0; x < w; x++) {
+         hash ^= data[x*4 + 3]; hash *= FNV_PRIME;
+         hash ^= data[x*4 + 2]; hash *= FNV_PRIME;
+         hash ^= data[x*4 + 1]; hash *= FNV_PRIME;
+         hash ^= data[x*4 + 0]; hash *= FNV_PRIME;
       }
    }
 
    al_unlock_bitmap(bmp);
+
+   return hash;
+}
+
+static uint32_t hash_thumbnail(ALLEGRO_BITMAP *bmp)
+{
+   int const BLOCK_W = 20;
+   int const BLOCK_H = 20;
+   ALLEGRO_LOCKED_REGION *lr;
+   int x, y, w, h;
+   uint32_t hash;
+
+   w = al_get_bitmap_width(bmp);
+   h = al_get_bitmap_height(bmp);
+   hash = FNV_OFFSET_BASIS;
+
+#ifdef VIS_THUMB
+   ALLEGRO_BITMAP *vis = al_create_bitmap(640/BLOCK_W, 480/BLOCK_H);
+   al_set_target_bitmap(vis);
+#endif
+
+   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
+      ALLEGRO_LOCK_READONLY);
+
+   for (y = 0; y < h; y += BLOCK_W) {
+      for (x = 0; x < w; x += BLOCK_H) {
+         uint32_t racc = 0;
+         uint32_t gacc = 0;
+         uint32_t bacc = 0;
+         int i, j;
+
+         for (j = y; j < y + BLOCK_H; j++) {
+            unsigned char const *data = ((unsigned char const *)lr->data)
+               + j*lr->pitch;
+
+            for (i = x; i < x + BLOCK_W; i++) {
+               racc += data[i*4 + 0];
+               gacc += data[i*4 + 1];
+               bacc += data[i*4 + 2];
+            }
+         }
+
+         racc /= BLOCK_W * BLOCK_H;
+         gacc /= BLOCK_W * BLOCK_H;
+         bacc /= BLOCK_W * BLOCK_H;
+
+         /* Quantise to reduce minor differences further. */
+         racc = (racc >> 3) << 3;
+         gacc = (gacc >> 3) << 3;
+         bacc = (bacc >> 3) << 3;
+
+#ifdef VIS_THUMB
+         al_put_pixel(x/BLOCK_W, y/BLOCK_H, al_map_rgb(racc, gacc, bacc));
+#endif
+
+         hash ^= racc; hash *= FNV_PRIME;
+         hash ^= gacc; hash *= FNV_PRIME;
+         hash ^= bacc; hash *= FNV_PRIME;
+      }
+   }
+
+   al_unlock_bitmap(bmp);
+
+#ifdef VIS_THUMB
+   al_save_bitmap("vis.png", vis);
+#endif
 
    return hash;
 }
@@ -389,23 +464,48 @@ static void check_hash(ALLEGRO_CONFIG const *cfg, char const *testname,
 {
    char const *bt = bmp_type_to_string(bmp_type);
    char hash[16];
+   char thumbhash[16];
    char const *exp;
-
-   sprintf(hash, "%08x", hash_bitmap(bmp));
+   char const *thumbexp;
 
    exp = al_get_config_value(cfg, testname, "hash");
-   if (!exp) {
-      printf("NEW  %s [%s] - hash is %s\n", testname, bt, hash);
+   thumbexp = al_get_config_value(cfg, testname, "thumbhash");
+
+   if (exp && streq(exp, "off")) {
+      printf("OK   %s [%s] - hash check off\n", testname, bt);
+      passed_tests++;
+      return;
    }
-   else if (streq(hash, exp)) {
+
+   sprintf(hash, "%08x", hash_bitmap(bmp));
+   sprintf(thumbhash, "%08x", hash_thumbnail(bmp));
+
+   if (verbose) {
+      printf("hash=%s\n", hash);
+      printf("thumbhash=%s\n", thumbhash);
+   }
+
+   if (!exp && !thumbexp) {
+      printf("NEW  %s [%s] - hash=%s; thumbhash=%s\n",
+         testname, bt, hash, thumbhash);
+      return;
+   }
+
+   if (exp && streq(hash, exp)) {
       printf("OK   %s [%s]\n", testname, bt);
       passed_tests++;
+      return;
    }
-   else {
-      printf("FAIL %s [%s] - hash is %s; expected %s\n", testname, bt,
-         hash, exp);
-      failed_tests++;
+
+   if (thumbexp && streq(thumbhash, thumbexp)) {
+      printf("OK   %s [%s] - by thumbhash\n", testname, bt);
+      passed_tests++;
+      return;
    }
+
+   printf("FAIL %s [%s] - hash=%s; thumbhash=%s\n", testname, bt,
+      hash, thumbhash);
+   failed_tests++;
 }
 
 static double bitmap_dissimilarity(ALLEGRO_BITMAP *bmp1, ALLEGRO_BITMAP *bmp2)

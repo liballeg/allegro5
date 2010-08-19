@@ -66,3 +66,13 @@ Each test section contains a key called 'hash', containing the hash code
 of the expected output for that test.  When writing a test you should
 check (visually) that the output looks correct, then add the hash code
 computed hash code to the test section.
+
+But, some tests produce slightly different (but still acceptable) output
+depending on the hardware, compiler or optimisation settings.  As an
+alternative, you can use 'thumbhash', which computes a hash on a shrunk
+down version of the image.  Hopefully any minor discrepancies will be blurred
+out.
+
+Finally, 'hash=off' will disable hash checking entirely.  For example, TTF
+rendering depends on the FreeType configuration, and the differences are big
+enough to show up even in the thumbnails.
