@@ -93,7 +93,12 @@ if(SUPPORT_FLAC)
     list(APPEND ACODEC_SOURCES flac.c)
 
     if(WIN32)
-        if(FLAC_LIBRARY MATCHES "${WIN32_STATIC_LIB_REGEX}")
+        option(FLAC_STATIC "Set this if linking with a static FLAC library" off)
+        if(FLAC_STATIC)
+            set(FLAC__NO_DLL "-DFLAC__NO_DLL")
+        endif()
+
+        if(NOT FLAC_STATIC AND (FLAC_LIBRARY MATCHES "${WIN32_STATIC_LIB_REGEX}"))
             set(FLAC_STATIC 1)
             set(FLAC__NO_DLL "-DFLAC__NO_DLL")
         endif()
