@@ -130,7 +130,7 @@ static float _al_ogl_version(void)
       return 1.0;
    }
 #else
-   const char *s = glGetString(GL_VERSION);
+   const char *s = (char *)glGetString(GL_VERSION);
    if (strstr(s, "2.0"))
       return 2.0;
    else if (strstr(s, "1.1"))
@@ -374,6 +374,7 @@ static int _ogl_is_extension_supported(const char *extension,
    return false;
 #endif
 
+#ifndef ALLEGRO_IPHONE
    if (al_get_opengl_version() >= 3) {
       int i;
       GLint ext_cnt;
@@ -386,7 +387,9 @@ static int _ogl_is_extension_supported(const char *extension,
          }
       }
    }
-   else {
+   else
+#endif
+   {
       ext_str = glGetString(GL_EXTENSIONS);
       if (!ext_str)
          return false;

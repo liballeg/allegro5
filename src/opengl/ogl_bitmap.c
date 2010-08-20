@@ -465,7 +465,9 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
          ogl_bitmap->texture, error_string(e));
    }
 
+#ifndef ALLEGRO_IPHONE
    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
+#endif
    if (bitmap->memory == NULL) {
       /* Ideally we could just call glTexImage2D with a NULL data parameter.
        * However if we do that, without NPOT textures, we get some junk at the
@@ -500,7 +502,9 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
          glformats[bitmap->format][1], bitmap->memory);
       e = glGetError();
    }
+#ifndef ALLEGRO_IPHONE
    glPopClientAttrib();
+#endif
 
    if (e) {
       ALLEGRO_ERROR("glTexImage2D for format %s, size %dx%d failed (%s)\n",
@@ -622,6 +626,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
     * See also pitfalls 7 & 8 from:
     * http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall/
     */
+#ifndef ALLEGRO_IPHONE
    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
    glPixelStorei(GL_PACK_ALIGNMENT, pixel_alignment);
    e = glGetError();
@@ -629,6 +634,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       ALLEGRO_ERROR("glPixelStorei(GL_PACK_ALIGNMENT, %d) failed (%s).\n",
          pixel_alignment, error_string(e));
    }
+#endif
 
    if (ogl_bitmap->is_backbuffer) {
       ALLEGRO_DEBUG("Locking backbuffer\n");
@@ -727,8 +733,9 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       }
    }
 #endif
-
+#ifndef ALLEGRO_IPHONE
    glPopClientAttrib();
+#endif
 
    bitmap->locked_region.format = format;
    bitmap->locked_region.pitch = -pitch;
@@ -773,7 +780,9 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    }
 
    /* Keep this in sync with ogl_lock_region. */
+#ifndef ALLEGRO_IPHONE
    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
+#endif
    lock_pixel_size = al_get_pixel_size(lock_format);
    pixel_alignment = ogl_pixel_alignment(lock_pixel_size);
    glPixelStorei(GL_UNPACK_ALIGNMENT, pixel_alignment);
@@ -783,6 +792,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          pixel_alignment, error_string(e));
    }
 
+   
 #if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    if (ogl_bitmap->is_backbuffer) {
       bool popmatrix = false;
@@ -870,12 +880,12 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    else {
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
       if (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY) {
-         int dst_pitch = ogl_pixel_alignment(bitmap->lock_w, orig_pixel_size);
+         int dst_pitch = bitmap->lock_w * ogl_pixel_alignment(orig_pixel_size);
          _al_convert_bitmap_data(
             ogl_bitmap->lock_buffer,
             bitmap->locked_region.format,
             -bitmap->locked_region.pitch,
-	    bitmap->memory,
+	     bitmap->memory,
             orig_format,
             dst_pitch,
             0, 0, 0, 0,
@@ -894,7 +904,6 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          }
       }
       else {
-         #ifdef ALLEGRO_IPHONE
          glPixelStorei(GL_UNPACK_ALIGNMENT, ogl_pixel_alignment(orig_pixel_size));
          glTexSubImage2D(GL_TEXTURE_2D, 0, bitmap->lock_x, gl_y,
             bitmap->lock_w, bitmap->lock_h,
@@ -906,12 +915,13 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
                _al_format_name(lock_format), error_string(e));
          }
-         #endif
       }
    }
 #endif
 
+#ifndef ALLEGRO_IPHONE
    glPopClientAttrib();
+#endif
 
    if (old_disp) {
       _al_set_current_display_only(old_disp);

@@ -568,11 +568,11 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *src,
 	 case ALLEGRO_PIXEL_FORMAT_RGBA_4444: {
 	    switch (dest->format) {
 	       case ALLEGRO_PIXEL_FORMAT_RGB_565: {
-		  _al_draw_bitmap_region_optimized_rgba_4444_to_rgb_565(src, sx, sy, sw, sh, dest, dx, dy, flags);
+		  _al_draw_bitmap_region_optimized_rgba_4444_to_rgb_565(tint, src, sx, sy, sw, sh, dest, dx, dy, flags);
 		  return;
                }
 	       case ALLEGRO_PIXEL_FORMAT_RGBA_4444: {
-		  _al_draw_bitmap_region_optimized_rgba_4444_to_rgba_4444(src, sx, sy, sw, sh, dest, dx, dy, flags);
+		  _al_draw_bitmap_region_optimized_rgba_4444_to_rgba_4444(tint, src, sx, sy, sw, sh, dest, dx, dy, flags);
 		  return;
 	       }
 	    }
@@ -580,7 +580,7 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *src,
          case ALLEGRO_PIXEL_FORMAT_RGB_565: {
             switch (dest->format) {
                case ALLEGRO_PIXEL_FORMAT_RGB_565: {
-		  _al_draw_bitmap_region_optimized_rgb_565_to_rgb_565(src, sx, sy, sw, sh, dest, dx, dy, flags);
+		  _al_draw_bitmap_region_optimized_rgb_565_to_rgb_565(tint, src, sx, sy, sw, sh, dest, dx, dy, flags);
                   return;
                }
             }
