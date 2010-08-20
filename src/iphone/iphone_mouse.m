@@ -7,7 +7,7 @@ typedef struct ALLEGRO_MOUSE_IPHONE {
     ALLEGRO_MOUSE_STATE state;
 } ALLEGRO_MOUSE_IPHONE;
 
-static ALLEGRO_MOUSE_IPHONE the_mouse = {0};
+static ALLEGRO_MOUSE_IPHONE the_mouse;
 
 static bool imouse_installed;
 
@@ -113,13 +113,18 @@ static unsigned int imouse_get_mouse_num_axes(void)
 }
 
 /* Hard to accomplish on a touch screen. */
-static bool imouse_set_mouse_xy(int x, int y)
+static bool imouse_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
 {
+    (void)display;
+    (void)x;
+    (void)y;
     return false;
 }
 
 static bool imouse_set_mouse_axis(int which, int z)
 {
+    (void)which;
+    (void)z;
     return false;
 }
 

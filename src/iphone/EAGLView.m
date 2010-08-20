@@ -129,7 +129,8 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 // Handles the start of a touch
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-   UIAccelerometer *accelerometer = [UIAccelerometer sharedAccelerometer];
+   (void)event;
+   //UIAccelerometer *accelerometer = [UIAccelerometer sharedAccelerometer];
 
    // TODO: handle double-clicks (send two events?)
 	// NSUInteger numTaps = [[touches anyObject] tapCount];
@@ -146,7 +147,7 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 // Handles the continuation of a touch.
 -(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {  
-	
+	(void)event;
 	NSUInteger touchCount = 0;
 	// Enumerates through all touch objects
 	for (UITouch *touch in touches) {
@@ -160,6 +161,7 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 // Handles the end of a touch event.
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
+   (void)event;
    NSUInteger touchCount = 0;
 	// Enumerates through all touch object
 	for (UITouch *touch in touches) {
@@ -175,6 +177,7 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 // puts the device to his or her face."
 -(void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    (void)event;
 	// Enumerates through all touch object
 	for (UITouch *touch in touches) {
 		// FIXME: We probably should generate ALLEGRO_EVENT_MOUSE_BUTTON_UP

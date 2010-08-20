@@ -187,11 +187,13 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
 
 static void iphone_destroy_display(ALLEGRO_DISPLAY *d)
 {
+    (void)d;
     // FIXME: not supported yet
 }
 
 static bool iphone_set_current_display(ALLEGRO_DISPLAY *d)
 {
+    (void)d;
     _al_iphone_make_view_current();
     return true;
 }
@@ -202,12 +204,17 @@ static bool iphone_set_current_display(ALLEGRO_DISPLAY *d)
 static bool iphone_is_compatible_bitmap(ALLEGRO_DISPLAY *display,
                                       ALLEGRO_BITMAP *bitmap)
 {
+    (void)display;
+    (void)bitmap;
     return true;
 }
 
 /* Resizing is not possible. */
 static bool iphone_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
 {
+    (void)d;
+    (void)w;
+    (void)h;
     return false;
 }
 
@@ -216,85 +223,95 @@ static bool iphone_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
  */
 static void iphone_set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
 {
+    (void)d;
+    (void)bitmap;
 }
 
 /* There is no way to leave fullscreen so no window title is visible. */
 static void iphone_set_window_title(ALLEGRO_DISPLAY *display, char const *title)
 {
+    (void)display;
+    (void)title;
 }
 
 /* The window always spans the entire screen right now. */
 static void iphone_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 {
+    (void)display;
+    (void)x;
+    (void)y;
 }
 
 /* Always fullscreen. */
 static bool iphone_toggle_display_flag(ALLEGRO_DISPLAY *display,
    int flag, bool onoff)
 {
+   (void)display;
+   (void)flag;
+   (void)onoff;
    return false;
 }
 
 static void iphone_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 {
+    (void)display;
     *x = 0;
     *y = 0;
 }
 
 static bool iphone_wait_for_vsync(ALLEGRO_DISPLAY *display)
 {
+    (void)display;
     return false;
 }
 
 static void iphone_flip_display(ALLEGRO_DISPLAY *d)
 {
+    (void)d;
     _al_iphone_flip_view();
 }
 
 static void iphone_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
                                        int w, int h)
 {
+    (void)x;
+    (void)y;
+    (void)w;
+    (void)h;
     iphone_flip_display(d);
 }
 
 static bool iphone_acknowledge_resize(ALLEGRO_DISPLAY *d)
 {
+    (void)d;
     return false;
-}
-
-
-static ALLEGRO_MOUSE_CURSOR *iphone_create_mouse_cursor(
-    ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bmp, int x_focus, int y_focus)
-{
-    return NULL;
-}
-
-
-
-static void iphone_destroy_mouse_cursor(ALLEGRO_DISPLAY *display,
-                                      ALLEGRO_MOUSE_CURSOR *cursor)
-{
 }
 
 static bool iphone_set_mouse_cursor(ALLEGRO_DISPLAY *display,
                                   ALLEGRO_MOUSE_CURSOR *cursor)
 {
+    (void)display;
+    (void)cursor;
     return false;
 }
 
 static bool iphone_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
                                          ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 {
+    (void)display;
+    (void)cursor_id;
     return false;
 }
 
 static bool iphone_show_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
+    (void)display;
     return false;
 }
 
 static bool iphone_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
+    (void)display;
     return false;
 }
 
@@ -327,9 +344,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_iphone_display_interface(void)
     vt->get_window_position = iphone_get_window_position;
     vt->toggle_display_flag = iphone_toggle_display_flag;
     vt->wait_for_vsync = iphone_wait_for_vsync;
-    
-    vt->create_mouse_cursor = iphone_create_mouse_cursor;
-    vt->destroy_mouse_cursor = iphone_destroy_mouse_cursor;
+
     vt->set_mouse_cursor = iphone_set_mouse_cursor;
     vt->set_system_mouse_cursor = iphone_set_system_mouse_cursor;
     vt->show_mouse_cursor = iphone_show_mouse_cursor;

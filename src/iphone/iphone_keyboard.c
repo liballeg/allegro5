@@ -24,11 +24,13 @@ static ALLEGRO_KEYBOARD *iphone_get_keyboard(void)
 
 static bool iphone_set_keyboard_leds(int leds)
 {
+    (void)leds;
     return false;
 }
 
 static char const *iphone_keycode_to_name(int keycode)
 {
+    (void)keycode;
     return "none";
 }
 

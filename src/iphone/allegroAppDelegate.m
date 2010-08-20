@@ -109,6 +109,7 @@ static void display_splash_screen(void)
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
+    (void)application;
     ALLEGRO_EVENT event;
     ALLEGRO_DISPLAY *d = allegro_display;
     ALLEGRO_SYSTEM_IPHONE *iphone = (void *)al_get_system_driver();
@@ -147,6 +148,7 @@ static void display_splash_screen(void)
 
 - (void)accelerometer:(UIAccelerometer*)accelerometer didAccelerate:(UIAcceleration*)acceleration
 {
+    (void)accelerometer;
     _al_iphone_generate_joystick_event(acceleration.x, acceleration.y, acceleration.z);
 }
 

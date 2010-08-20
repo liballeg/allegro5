@@ -9,6 +9,7 @@ static ALLEGRO_SYSTEM_INTERFACE *vt;
 /* al_init will call this. */
 ALLEGRO_SYSTEM *iphone_initialize(int flags)
 {
+    (void)flags;
     iphone = al_malloc(sizeof *iphone);
     memset(iphone, 0, sizeof *iphone);
     
@@ -50,6 +51,7 @@ static int iphone_get_num_video_adapters(void)
 static void iphone_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
    int w, h;
+    (void)adapter;
    _al_iphone_get_screen_size(&w, &h);
    info->x1 = 0;
    info->y1 = 0;
@@ -60,6 +62,8 @@ static void iphone_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 /* There is no cursor. */
 static bool iphone_get_cursor_position(int *ret_x, int *ret_y)
 {
+   (void)ret_x;
+   (void)ret_y;
    return false;
 }
 

@@ -14,6 +14,7 @@ extern int _al_mangled_main(int, char **);
 /* We run the user's "main" in its own thread. */
 static void *user_main(ALLEGRO_THREAD *thread, void *arg)
 {
+    (void)thread;
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     ALLEGRO_INFO("Starting user main.\n");
     _al_mangled_main(global_argc, global_argv);
