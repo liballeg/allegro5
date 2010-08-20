@@ -1,7 +1,7 @@
-if(APPLE)
+if(MACOSX)
     set(SOURCES osx_main.m)
     set(SUPPORT_ALLEGRO_MAIN 1)
-endif(APPLE)
+endif(MACOSX)
 
 if(NOT SUPPORT_ALLEGRO_MAIN)
     set(SOURCES generic_main.c)

@@ -71,8 +71,10 @@ include(Common)
 #
 #-----------------------------------------------------------------------------#
 
+if(NOT IPHONE)
 option(SHARED "Build shared libraries" on)
 set(BUILD_SHARED_LIBS ${SHARED})    # actual CMake variable
+endif(NOT IPHONE)
 
 # On some 64-bit platforms, libraries should be installed into `lib64'
 # instead of `lib'.  Set this to 64 to do that.
@@ -104,8 +106,12 @@ option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11, OS X))" on)
 option(WANT_FONT "Enable bitmap font add-on" on)
 option(WANT_AUDIO "Enable allegro_audio engine" on)
 option(WANT_IMAGE "Enable image load/save addon" on)
+
+if (NOT IPHONE)
 option(WANT_IMAGE_JPG "Enable JPEG support in image addon" on)
 option(WANT_IMAGE_PNG "Enable PNG support in image addon" on)
+endif (NOT IPHONE)
+
 option(WANT_NATIVE_IMAGE_LOADER "Enable the native platform image loader (if available)" on)
 option(WANT_TTF "Enable TTF addon" on)
 option(WANT_COLOR "Enable color addon" on)
@@ -141,7 +147,10 @@ option(WANT_MUDFLAP "Enable gcc mudflap (requires gcc 4.0+)" off)
 # Minor options.
 #
 
+if(NOT IPHONE)
 option(WANT_ALLOW_SSE "Allow compiler to use SSE instructions (x86)" on)
+endif(NOT IPHONE)
+
 option(NO_FPU "No floating point unit" off)
 option(WANT_DLL_TLS "Force use of DllMain for TLS (Windows)" on)
 option(WANT_DEMO "Build demo programs" on)
@@ -235,8 +244,11 @@ if(UNIX AND NOT APPLE)
     set(ALLEGRO_UNIX 1)
 endif(UNIX AND NOT APPLE)
 
-if(APPLE)
+if(APPLE AND NOT IPHONE)
     set(MACOSX 1)
+endif(APPLE AND NOT IPHONE)
+
+if(MACOSX)
     set(ALLEGRO_MACOSX 1)
     set(ALLEGRO_CFG_PTHREADS_TLS 1)
     set(ALLEGRO_UNIX 0)
@@ -246,7 +258,18 @@ if(APPLE)
     # problems with global variables which are not explicitly initialised.
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-common")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-common")
-endif(APPLE)
+endif(MACOSX)
+
+if(IPHONE)
+    set(ALLEGRO_HAVE_LIBPTHREAD 1)
+    set(ALLEGRO_CFG_PTHREADS_TLS 1)
+    set(ALLEGRO_IPHONE 1)
+    set(ALLEGRO_UNIX 0)
+    set(WANT_X11 off)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
+    set(CMAKE_EXE_LINKER_FLAGS "-framework CoreGraphics -framework QuartzCore -framework UIKit -framework Foundation -framework CoreFoundation")
+    SET (CMAKE_OSX_ARCHITECTURES "armv7")
+endif(IPHONE)
 
 if(BORLAND)
     set(ALLEGRO_BCC32 1)
@@ -389,7 +412,11 @@ include(CheckTypeSize)
 include(FindPkgConfig)
 
 include(TestBigEndian)
+
+if(NOT IPHONE)
 test_big_endian(ALLEGRO_BIG_ENDIAN)
+endif(NOT IPHONE)
+
 if(NOT ALLEGRO_BIG_ENDIAN)
     set(ALLEGRO_LITTLE_ENDIAN 1)
 endif(NOT ALLEGRO_BIG_ENDIAN)
@@ -489,18 +516,27 @@ check_ctors(ALLEGRO_USE_CONSTRUCTOR)
 
 if(WANT_OPENGL)
     find_package(OpenGL)
+
+    # on cmake 2.8.1 OpenGL ES is not found in the iphone case
+    if(IPHONE)
+        set(OPENGL_LIBRARIES "-framework OpenGLES")
+        set(OPENGL_gl_LIBRARY "-framework OpenGLES")
+        set(OPENGL_glu_LIBRARY "")
+    endif(IPHONE)
+
     if(OPENGL_FOUND)
         set(SUPPORT_OPENGL 1)
         set(ALLEGRO_CFG_OPENGL 1)
     endif(OPENGL_FOUND)
 endif(WANT_OPENGL)
 
+
 #
 # Unix-specific
 #
 
 if(UNIX) # includes MACOSX
-    if(NOT GP2XWIZ)
+    if(NOT GP2XWIZ AND NOT IPHONE)
         find_package(Threads)
         if(CMAKE_USE_PTHREADS_INIT)
             set(ALLEGRO_HAVE_LIBPTHREAD 1)
@@ -508,7 +544,7 @@ if(UNIX) # includes MACOSX
             message(FATAL_ERROR
                 "Unix port requires pthreads support, not detected.")
         endif(CMAKE_USE_PTHREADS_INIT)
-    endif(NOT GP2XWIZ)
+    endif()
 endif(UNIX)
 
 #
@@ -720,6 +756,10 @@ if(GP2XWIZ)
     list(APPEND PLATFORM_LIBS wiz pthread-0.10 dl)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_GP2XWIZ_FILES})
 endif(GP2XWIZ)
+
+if(IPHONE)
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_IPHONE_FILES})
+endif(IPHONE)
 
 # Header files that we need to install.
 set(ALLEGRO_PUBLIC_HEADERS

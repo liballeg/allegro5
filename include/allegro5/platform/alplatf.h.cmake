@@ -8,6 +8,7 @@
 #cmakedefine ALLEGRO_MACOSX
 #cmakedefine ALLEGRO_BCC32
 #cmakedefine ALLEGRO_GP2XWIZ
+#cmakedefine ALLEGRO_IPHONE
 #cmakedefine ALLEGRO_CFG_WANT_NATIVE_IMAGE_LOADER
 
 #cmakedefine ALLEGRO_CFG_ALLOW_SSE

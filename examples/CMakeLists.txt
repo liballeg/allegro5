@@ -63,6 +63,11 @@ set(NIHGUI nihgui.cpp ${FONT} ${PRIM})
 if(MSVC)
     set(EXECUTABLE_TYPE)
 endif(MSVC)
+
+if(IPHONE)
+    set(EXECUTABLE_TYPE MACOSX_BUNDLE)
+endif(IPHONE)
+
     example(ex_config)
     example(ex_dir)
     example(ex_get_path)

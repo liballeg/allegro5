@@ -50,7 +50,7 @@ function(sanitize_cmake_link_flags ...)
          string(REGEX REPLACE "lib(.*)\\.a" "\\1" lib ${lib})
          string(REGEX REPLACE "lib(.*)\\.so" "\\1" lib ${lib})
          string(REGEX REPLACE "lib(.*)\\.dylib" "\\1" lib ${lib})
-   
+
          # Remove -l prefix if it's there already.
          string(REGEX REPLACE "-l(.*)" "\\1" lib ${lib})
          
@@ -99,12 +99,12 @@ function(add_our_library target sources extra_flags link_with)
     endif()
 
     # Suppress errors about _mangled_main_address being undefined on Mac OS X.
-    if(APPLE)
+    if(MACOSX)
         set_target_properties(${target}
             PROPERTIES
             LINK_FLAGS "-flat_namespace -undefined suppress"
             )
-    endif(APPLE)
+    endif(MACOSX)
 
     # Specify a list of libraries to be linked into the specified target.
     # Library dependencies are transitive by default.  Any target which links
@@ -162,6 +162,17 @@ function(install_our_headers)
     endif()
 endfunction(install_our_headers)
 
+function(fix_executable nm)
+    if(IPHONE)
+        string(REPLACE "_" "" bundle_nm ${nm})
+        set_target_properties(${nm} PROPERTIES MACOSX_BUNDLE_GUI_IDENTIFIER "org.liballeg.${bundle_nm}")
+
+        # FIXME:We want those as project attributes, not target attributes, but I don't know how
+        set_target_properties(${nm} PROPERTIES XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer")
+        set_target_properties(${nm} PROPERTIES XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1/2")
+    endif(IPHONE)
+endfunction(fix_executable)
+
 # Arguments after nm should be source files, libraries, or defines (-D).
 # Source files must end with .c or .cpp.  If no source file was explicitly
 # specified, we assume an implied C source file.
@@ -204,7 +215,6 @@ function(add_our_executable nm)
         set_property(TARGET ${nm} APPEND PROPERTY COMPILE_DEFINITIONS ${d})
     endforeach(d ${defines})
 
-    
     if(MINGW)
         if(NOT CMAKE_BUILD_TYPE STREQUAL Debug)
             set_target_properties(${nm} PROPERTIES LINK_FLAGS "-Wl,-subsystem,windows")

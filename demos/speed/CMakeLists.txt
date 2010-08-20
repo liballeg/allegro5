@@ -32,7 +32,15 @@ if(COMPILER_GCC)
         "${CMAKE_C_FLAGS} -Wno-strict-prototypes -Wno-missing-prototypes")
 endif(COMPILER_GCC)
 
-add_executable(speed ${SPEED_SRCS} ${A4_FONT})
+if(APPLE)
+    set(DEMO_EXECUTABLE_TYPE MACOSX_BUNDLE)
+else(APPLE)
+    set(DEMO_EXECUTABLE_TYPE "${EXECUTABLE_TYPE}")
+endif(APPLE)
+
+add_executable(speed ${DEMO_EXECUTABLE_TYPE} ${SPEED_SRCS} ${A4_FONT})
+
+fix_executable(speed)
 
 target_link_libraries(speed
     ${ALLEGRO_MAIN_LINK_WITH}

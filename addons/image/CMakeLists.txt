@@ -7,9 +7,14 @@ set_our_header_properties(${IMAGE_INCLUDE_FILES})
 set(IMAGE_LIBRARIES)
 set(IMAGE_DEFINES)
 
-if(APPLE)
+if(MACOSX)
     list(APPEND IMAGE_SOURCES macosx.m)
-endif(APPLE)
+endif(MACOSX)
+
+if(IPHONE)
+    list(APPEND IMAGE_SOURCES iphone.m)
+endif(IPHONE)
+        
 
 # ALLEGRO_CFG_IIO_HAVE_* are the available libraries.
 # ALLEGRO_CFG_IIO_SUPPORT_* are the supported formats.

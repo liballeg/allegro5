@@ -62,7 +62,7 @@ int main(int argc, const char *argv[])
        abort_example("data/bmpfont.tga not found or failed to load\n");
     }
 
-    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+    //al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
     buffer = al_create_bitmap(640, 480);
     buffer_subbitmap = al_create_sub_bitmap(buffer, 50, 50, 640 - 50, 480 - 50);
 

@@ -139,6 +139,21 @@ set(ALLEGRO_SRC_GP2XWIZ_FILES
     src/linux/ljoynu.c
     )
 
+set(ALLEGRO_SRC_IPHONE_FILES
+    src/iphone/
+    src/iphone/allegroAppDelegate.m
+    src/iphone/EAGLView.m
+    src/iphone/iphone_display.c
+    src/iphone/iphone_joystick.m
+    src/iphone/iphone_keyboard.c
+    src/iphone/iphone_main.m
+    src/iphone/iphone_mouse.m
+    src/iphone/iphone_path.m
+    src/iphone/iphone_system.c
+    src/unix/utime.c
+    src/unix/uxthread.c
+    )
+
 set(ALLEGRO_MODULE_ALSADIGI_FILES
     )
 

@@ -49,11 +49,11 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/addons/acodec
     )
 
-if(MACOSX)
+if(APPLE)
     set(DEMO_EXECUTABLE_TYPE MACOSX_BUNDLE)
-else(MACOSX)
+else(APPLE)
     set(DEMO_EXECUTABLE_TYPE "${EXECUTABLE_TYPE}")
-endif(MACOSX)
+endif(APPLE)
 
 if(SUPPORT_FONT AND SUPPORT_AUDIO AND SUPPORT_ACODEC)
     add_executable(demo
@@ -63,6 +63,8 @@ if(SUPPORT_FONT AND SUPPORT_AUDIO AND SUPPORT_ACODEC)
         ${DEMO_SFX}
         ${DEMO_ICON}
         )
+    
+    fix_executable(demo)
 
     target_link_libraries(demo
         ${ALLEGRO_MAIN_LINK_WITH}
