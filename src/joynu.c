@@ -31,10 +31,7 @@
 
 /* the active joystick driver */
 static ALLEGRO_JOYSTICK_DRIVER *new_joystick_driver = NULL;
-
-/* a list of joystick devices currently "opened" */
-static _AL_VECTOR opened_joysticks = _AL_VECTOR_INITIALIZER(ALLEGRO_JOYSTICK *);
-
+static ALLEGRO_EVENT_SOURCE es;
 
 
 /* Function: al_install_joystick
@@ -47,8 +44,6 @@ bool al_install_joystick(void)
    if (new_joystick_driver)
       return true;
 
-   ASSERT(_al_vector_is_empty(&opened_joysticks));
-
    sysdrv = al_get_system_driver();
    ASSERT(sysdrv);
 
@@ -57,6 +52,7 @@ bool al_install_joystick(void)
       joydrv = sysdrv->vt->get_joystick_driver();
       if (joydrv && joydrv->init_joystick()) {
          new_joystick_driver = joydrv;
+         _al_event_source_init(&es);
          _al_add_exit_func(al_uninstall_joystick, "al_uninstall_joystick");
          return true;
       }
@@ -72,20 +68,30 @@ bool al_install_joystick(void)
 void al_uninstall_joystick(void)
 {
    if (new_joystick_driver) {
-      /* automatically release all the outstanding joysticks */
-      while (!_al_vector_is_empty(&opened_joysticks)) {
-         ALLEGRO_JOYSTICK **slot = _al_vector_ref_back(&opened_joysticks);
-         al_release_joystick(*slot);
-      }
-      _al_vector_free(&opened_joysticks);
-
       /* perform driver clean up */
       new_joystick_driver->exit_joystick();
+      _al_event_source_free(&es);
       new_joystick_driver = NULL;
    }
 }
 
+ALLEGRO_EVENT_SOURCE *al_get_joystick_event_source(void)
+{
+   if (!new_joystick_driver)
+      return NULL;
+   return &es;
+}
 
+void _al_generate_joystick_event(ALLEGRO_EVENT *event)
+{
+   ASSERT(new_joystick_driver);
+
+   _al_event_source_lock(&es);
+      if (_al_event_source_needs_to_generate_event(&es)) {
+         _al_event_source_emit_event(&es, event);
+      }
+   _al_event_source_unlock(&es);
+}
 
 /* Function: al_get_num_joysticks
  */
@@ -99,51 +105,14 @@ int al_get_num_joysticks(void)
 
 
 
-/* find_opened_joystick_by_num: [primary thread]
- *
- *  Return the joystick structure corresponding to device number NUM if
- *  the device was already opened.
- */
-static ALLEGRO_JOYSTICK *find_opened_joystick_by_num(int num)
-{
-   ALLEGRO_JOYSTICK **slot;
-   unsigned int i;
-
-   for (i = 0; i < _al_vector_size(&opened_joysticks); i++) {
-      slot = _al_vector_ref(&opened_joysticks, i);
-      if ((*slot)->num == num)
-         return *slot;
-   }
-
-   return NULL;
-}
-
-
-
 /* Function: al_get_joystick
  */
-ALLEGRO_JOYSTICK *al_get_joystick(int num)
+ALLEGRO_JOYSTICK * al_get_joystick(int num)
 {
    ASSERT(new_joystick_driver);
    ASSERT(num >= 0);
-   {
-      ALLEGRO_JOYSTICK *joy;
-      ALLEGRO_JOYSTICK **slot;
 
-      if (num >= new_joystick_driver->num_joysticks())
-         return NULL;
-
-      if ((joy = find_opened_joystick_by_num(num)))
-         return joy;
-
-      if ((joy = new_joystick_driver->get_joystick(num))) {
-         /* Add the new structure to the list of opened joysticks. */
-         slot = _al_vector_alloc_back(&opened_joysticks);
-         *slot = joy;
-      }
-
-      return joy;
-   }
+   return new_joystick_driver->get_joystick(num);
 }
 
 
@@ -156,8 +125,6 @@ void al_release_joystick(ALLEGRO_JOYSTICK *joy)
    ASSERT(joy);
 
    new_joystick_driver->release_joystick(joy);
-
-   _al_vector_find_and_delete(&opened_joysticks, &joy);
 }
 
 
@@ -167,27 +134,15 @@ void al_release_joystick(ALLEGRO_JOYSTICK *joy)
 const char *al_get_joystick_name(ALLEGRO_JOYSTICK *joy)
 {
    ASSERT(joy);
-   (void)joy;
 
-   return "Joystick"; /* TODO */
-}
-
-
-
-/* Function: al_get_joystick_number
- */
-int al_get_joystick_number(ALLEGRO_JOYSTICK *joy)
-{
-   ASSERT(joy);
-
-   return joy->num;
+   return new_joystick_driver->get_name(joy);
 }
 
 
 
 /* Function: al_get_joystick_num_sticks
  */
-int al_get_joystick_num_sticks(const ALLEGRO_JOYSTICK *joy)
+int al_get_joystick_num_sticks(ALLEGRO_JOYSTICK *joy)
 {
    ASSERT(joy);
 
@@ -198,7 +153,7 @@ int al_get_joystick_num_sticks(const ALLEGRO_JOYSTICK *joy)
 
 /* Function: al_get_joystick_stick_flags
  */
-int al_get_joystick_stick_flags(const ALLEGRO_JOYSTICK *joy, int stick)
+int al_get_joystick_stick_flags(ALLEGRO_JOYSTICK *joy, int stick)
 {
    ASSERT(joy);
    ASSERT(stick >= 0);
@@ -213,7 +168,7 @@ int al_get_joystick_stick_flags(const ALLEGRO_JOYSTICK *joy, int stick)
 
 /* Function: al_get_joystick_stick_name
  */
-const char *al_get_joystick_stick_name(const ALLEGRO_JOYSTICK *joy, int stick)
+const char *al_get_joystick_stick_name(ALLEGRO_JOYSTICK *joy, int stick)
 {
    ASSERT(joy);
    ASSERT(stick >= 0);
@@ -228,7 +183,7 @@ const char *al_get_joystick_stick_name(const ALLEGRO_JOYSTICK *joy, int stick)
 
 /* Function: al_get_joystick_num_axes
  */
-int al_get_joystick_num_axes(const ALLEGRO_JOYSTICK *joy, int stick)
+int al_get_joystick_num_axes(ALLEGRO_JOYSTICK *joy, int stick)
 {
    ASSERT(joy);
 
@@ -242,7 +197,7 @@ int al_get_joystick_num_axes(const ALLEGRO_JOYSTICK *joy, int stick)
 
 /* Function: al_get_joystick_axis_name
  */
-const char *al_get_joystick_axis_name(const ALLEGRO_JOYSTICK *joy, int stick, int axis)
+const char *al_get_joystick_axis_name(ALLEGRO_JOYSTICK *joy, int stick, int axis)
 {
    ASSERT(joy);
    ASSERT(stick >= 0);
@@ -259,7 +214,7 @@ const char *al_get_joystick_axis_name(const ALLEGRO_JOYSTICK *joy, int stick, in
 
 /* Function: al_get_joystick_num_buttons
  */
-int al_get_joystick_num_buttons(const ALLEGRO_JOYSTICK *joy)
+int al_get_joystick_num_buttons(ALLEGRO_JOYSTICK *joy)
 {
    ASSERT(joy);
 
@@ -270,7 +225,7 @@ int al_get_joystick_num_buttons(const ALLEGRO_JOYSTICK *joy)
 
 /* Function: al_get_joystick_button_name
  */
-const char *al_get_joystick_button_name(const ALLEGRO_JOYSTICK *joy, int button)
+const char *al_get_joystick_button_name(ALLEGRO_JOYSTICK *joy, int button)
 {
    ASSERT(joy);
    ASSERT(button >= 0);
@@ -293,16 +248,6 @@ void al_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_st
 
    new_joystick_driver->get_joystick_state(joy, ret_state);
 }
-
-
-
-/* Function: al_get_joystick_event_source
- */
-ALLEGRO_EVENT_SOURCE *al_get_joystick_event_source(ALLEGRO_JOYSTICK *joystick)
-{
-   return &joystick->es;
-}
-
 
 /*
  * Local Variables:

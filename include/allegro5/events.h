@@ -17,6 +17,7 @@ enum
    ALLEGRO_EVENT_JOYSTICK_AXIS               =  1,
    ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN        =  2,
    ALLEGRO_EVENT_JOYSTICK_BUTTON_UP          =  3,
+   ALLEGRO_EVENT_JOYSTICK_CONFIGURATION      =  4,
 
    ALLEGRO_EVENT_KEY_DOWN                    = 10,
    ALLEGRO_EVENT_KEY_REPEAT                  = 11,
@@ -101,10 +102,10 @@ typedef struct ALLEGRO_DISPLAY_EVENT
 } ALLEGRO_DISPLAY_EVENT;
 
 
-
 typedef struct ALLEGRO_JOYSTICK_EVENT
 {
    _AL_EVENT_HEADER(struct ALLEGRO_JOYSTICK)
+   struct ALLEGRO_JOYSTICK *id;
    int stick;
    int axis;
    float pos;

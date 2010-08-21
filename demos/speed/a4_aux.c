@@ -95,7 +95,7 @@ void init_input()
    if (al_get_num_joysticks() > 0) {
       joy = al_get_joystick(0);
       if (joy)
-	 al_register_event_source(input_queue, al_get_joystick_event_source(joy));
+	 al_register_event_source(input_queue, al_get_joystick_event_source());
    }
 }
 

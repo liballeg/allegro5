@@ -186,7 +186,7 @@ int main(void)
    al_register_event_source(event_queue, al_get_keyboard_event_source());
 #endif
    al_register_event_source(event_queue, al_get_display_event_source(display));
-   al_register_event_source(event_queue, al_get_joystick_event_source(zero_joy));
+   al_register_event_source(event_queue, al_get_joystick_event_source());
 
    /* Initialise values. */
    al_get_joystick_state(zero_joy, &jst);

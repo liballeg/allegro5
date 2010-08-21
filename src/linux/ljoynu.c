@@ -42,7 +42,7 @@
 #include <sys/types.h>
 #include <linux/joystick.h>
 
-
+ALLEGRO_DEBUG_CHANNEL("ljoy");
 
 #define TOTAL_JOYSTICK_AXES  (_AL_MAX_JOYSTICK_STICKS * _AL_MAX_JOYSTICK_AXES)
 
@@ -61,6 +61,7 @@ typedef struct ALLEGRO_JOYSTICK_LINUX
    int fd;
    AXIS_MAPPING axis_mapping[TOTAL_JOYSTICK_AXES];
    ALLEGRO_JOYSTICK_STATE joystate;
+   char name[100];
 } ALLEGRO_JOYSTICK_LINUX;
 
 
@@ -72,6 +73,7 @@ static int ljoy_num_joysticks(void);
 static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num);
 static void ljoy_release_joystick(ALLEGRO_JOYSTICK *joy_);
 static void ljoy_get_joystick_state(ALLEGRO_JOYSTICK *joy_, ALLEGRO_JOYSTICK_STATE *ret_state);
+static const char *ljoy_get_name(ALLEGRO_JOYSTICK *joy_);
 
 static void ljoy_process_new_data(void *data);
 static void ljoy_generate_axis_event(ALLEGRO_JOYSTICK_LINUX *joy, int stick, int axis, float pos);
@@ -93,13 +95,18 @@ ALLEGRO_JOYSTICK_DRIVER _al_joydrv_linux =
    ljoy_num_joysticks,
    ljoy_get_joystick,
    ljoy_release_joystick,
-   ljoy_get_joystick_state
+   ljoy_get_joystick_state,
+   ljoy_get_name
 };
 
 
 /* set once when the joystick is initialised */
 static int num_joysticks;
-
+static int num_joysticks_real;
+static _AL_VECTOR joysticks;
+static _AL_VECTOR joysticks_real;
+static bool merged;
+static ALLEGRO_THREAD *config_thread;
 
 
 /* check_js_api_version: [primary thread]
@@ -183,33 +190,303 @@ static int try_open_joy_device(int num)
 
 
 
-/* count_num_joysticks: [primary thread]
- *
- *  Count the number of joysticks on the system.  It just tries to
- *  open joystick devices in turn, stopping as soon as it fails.  I
- *  don't know if that is the correct behaviour.
- */
-static int count_num_joysticks(void)
+static void destroy_joy(ALLEGRO_JOYSTICK_LINUX *joy)
 {
-   int i, fd;
+   int i;
+   
+   _al_unix_stop_watching_fd(joy->fd);
 
-   for (i = 0; ; i++) {
-      fd = try_open_joy_device(i);
-      if (fd == -1)
-         return i;
-      close(fd);
+   close(joy->fd);
+   for (i = 0; i < joy->parent.info.num_sticks; i++)
+      al_free((void *)joy->parent.info.stick[i].name);
+   for (i = 0; i < joy->parent.info.num_buttons; i++)
+      al_free((void *)joy->parent.info.button[i].name);
+   al_free(joy);
+}
+
+static void ljoy_generate_configure_event(void)
+{
+   ALLEGRO_EVENT event;
+   event.joystick.type = ALLEGRO_EVENT_JOYSTICK_CONFIGURATION;
+   event.joystick.timestamp = al_current_time();
+
+   _al_generate_joystick_event(&event);
+}
+
+/*
+static void copy_joy(ALLEGRO_JOYSTICK_LINUX *dst, ALLEGRO_JOYSTICK_LINUX *src)
+{
+   int i;
+   dst->parent.info.num_sticks = src->parent.info.num_sticks;
+   dst->parent.info.num_buttons = src->parent.info.num_buttons;
+   for (i = 0; i < src->parent.info.num_sticks; i++) {
+      dst->parent.info.stick[i].name = strdup(src->parent.info.stick[i].name);
+   }
+   for (i = 0; i < src->parent.info.num_buttons; i++) {
+      dst->parent.info.button[i].name = strdup(src->parent.info.button[i].name);
+   }
+   dst->fd = src->fd;
+   memcpy(dst->axis_mapping, src->axis_mapping, sizeof(src->axis_mapping));
+   memcpy(&dst->joystate, &src->joystate, sizeof(src->joystate));
+   memcpy(dst->name, src->name, sizeof(src->name));
+}
+*/
+
+static void ljoy_scan(bool configure)
+{
+   int fd;
+   ALLEGRO_JOYSTICK_LINUX *joy, **joypp;
+   int num;
+   FILE *name_file;
+   char buf[100];
+   int i, j;
+
+   merged = false;
+   num_joysticks_real = 0;
+
+   /* This is an insanely big number, but there can be gaps */
+   for (num = 0; num < 256; num++) { 
+      /* Try to open the device. */
+      fd = try_open_joy_device(num);
+      if (fd == -1) {
+         continue;
+      }
+   
+      /* Allocate a structure for the joystick. */
+      joy = al_malloc(sizeof *joy);
+      if (!joy) {
+         close(fd);
+         break;
+      }
+      memset(joy, 0, sizeof *joy);
+
+      sprintf(buf, "/sys/class/input/js%d/device/name", num);
+      name_file = fopen(buf, "r");
+      if (name_file) {
+         if (fgets(joy->name, sizeof(joy->name)-1, name_file) == NULL) {
+            joy->name[0] = 0;
+         }
+         else {
+            joy->name[strlen(joy->name)-1] = 0;
+         }
+         fclose(name_file);
+      }
+      else {
+         joy->name[0] = 0;
+      }
+
+      /* Fill in the joystick information fields. */
+      {
+         char num_axes;
+         char num_buttons;
+         int throttle;
+         int s, a, b;
+   
+         ioctl(fd, JSIOCGAXES, &num_axes);
+         ioctl(fd, JSIOCGBUTTONS, &num_buttons);
+   
+         if (num_axes > TOTAL_JOYSTICK_AXES)
+            num_axes = TOTAL_JOYSTICK_AXES;
+   
+         if (num_buttons > _AL_MAX_JOYSTICK_BUTTONS)
+            num_buttons = _AL_MAX_JOYSTICK_BUTTONS;
+   
+         /* XXX use configuration system when we get one */
+         throttle = -1;
+   #if 0
+         /* User is allowed to override our simple assumption of which
+          * axis number (kernel) the throttle is located at. */
+         snprintf(tmp, sizeof(tmp), "throttle_axis_%d", num);
+         throttle = get_config_int("joystick", tmp, -1);
+         if (throttle == -1) {
+            throttle = get_config_int("joystick", 
+                                      "throttle_axis", -1);
+         }
+   #endif
+   
+         /* Each pair of axes is assumed to make up a stick unless it 
+          * is the sole remaining axis, or has been user specified, in 
+          * which case it is a throttle. */
+   
+         for (s = 0, a = 0;
+              s < _AL_MAX_JOYSTICK_STICKS && a < num_axes;
+              s++)
+         {
+            if ((a == throttle) || (a == num_axes-1)) {
+               /* One axis throttle. */
+               joy->parent.info.stick[s].flags = ALLEGRO_JOYFLAG_ANALOGUE;
+               joy->parent.info.stick[s].num_axes = 1;
+               joy->parent.info.stick[s].axis[0].name = "Throttle";
+               char *name = joy->parent.info.stick[s].axis[0].name;
+               joy->parent.info.stick[s].name = al_malloc(strlen(name) + 1);
+               strcpy(joy->parent.info.stick[s].name, name);
+               joy->axis_mapping[a].stick = s;
+               joy->axis_mapping[a].axis = 0;
+               a++;
+            }
+            else {
+               /* Two axis stick. */
+               joy->parent.info.stick[s].flags = ALLEGRO_JOYFLAG_ANALOGUE;
+               joy->parent.info.stick[s].num_axes = 2;
+               joy->parent.info.stick[s].axis[0].name = "X";
+               joy->parent.info.stick[s].axis[1].name = "Y";
+               joy->parent.info.stick[s].name = al_malloc (32);
+               snprintf((char *)joy->parent.info.stick[s].name, 32, "Stick %d", s+1);
+               joy->axis_mapping[a].stick = s;
+               joy->axis_mapping[a].axis = 0;
+               a++;
+               joy->axis_mapping[a].stick = s;
+               joy->axis_mapping[a].axis = 1;
+               a++;
+            }
+         }
+   
+         joy->parent.info.num_sticks = s;
+   
+         /* Do the buttons. */
+   
+         for (b = 0; b < num_buttons; b++) {
+            joy->parent.info.button[b].name = al_malloc (32);
+            snprintf((char *)joy->parent.info.button[b].name, 32, "B%d", b+1);
+         }
+   
+         joy->parent.info.num_buttons = num_buttons;
+      }
+   
+      joy->fd = fd;
+   
+      joypp = _al_vector_alloc_back(&joysticks_real);
+      *joypp = joy;
+
+      num_joysticks_real++;
+
+      /* Register the joystick with the fdwatch subsystem.  */
+         
+      _al_unix_start_watching_fd(joy->fd, ljoy_process_new_data, joy);
+   }
+
+   if (configure) {
+      if (num_joysticks != num_joysticks_real) {
+         ljoy_generate_configure_event();
+	 return;
+      }
+      for (i = 0; i < num_joysticks; i++) {
+         bool found = false;
+         for (j = 0; j < num_joysticks_real; j++) {
+            ALLEGRO_JOYSTICK_LINUX *joy1;
+            ALLEGRO_JOYSTICK_LINUX *joy2;
+            joy1 = *((ALLEGRO_JOYSTICK_LINUX **)_al_vector_ref(&joysticks, i));
+            joy2 = *((ALLEGRO_JOYSTICK_LINUX **)_al_vector_ref(&joysticks_real, j));
+            if (!strcmp(joy1->name, joy2->name)) {
+               found = true;
+               break;
+            }
+         }
+         if (!found) {
+            ljoy_generate_configure_event();
+            return;
+         }
+      }
    }
 }
 
+static void ljoy_merge(void)
+{
+   int i, j;
+   int count = 0;
+   int size;
+   ALLEGRO_JOYSTICK_LINUX *joy1, *joy2, **joypp;
 
+   merged = true;
+
+   ALLEGRO_INFO("Merging %d %d\n", num_joysticks, num_joysticks_real);
+
+   // Keep only joysticks that are still around
+   for (i = 0; i < (int)_al_vector_size(&joysticks); i++) {
+      bool found = false;
+      joy1 = *((ALLEGRO_JOYSTICK_LINUX **)_al_vector_ref(&joysticks, i));
+      for (j = 0; j < num_joysticks_real; j++) {
+         joy2 = *((ALLEGRO_JOYSTICK_LINUX **)_al_vector_ref(&joysticks_real, j));
+         if (!strcmp(joy1->name, joy2->name)) {
+            found = true;
+            break;
+         }
+      }
+      if (found) {
+         (*(ALLEGRO_JOYSTICK_LINUX **)_al_vector_ref(&joysticks, count)) = joy1;
+         count++;
+      }
+      else {
+         destroy_joy(joy1);
+      }
+   }
+
+   size = _al_vector_size(&joysticks);
+   for (i = count; i < size; i++) {
+      _al_vector_delete_at(&joysticks, count);
+   }
+
+   for (i = 0; i < (int)_al_vector_size(&joysticks_real); i++) {
+      bool found = false;
+      joy2 = *((ALLEGRO_JOYSTICK_LINUX **)_al_vector_ref(&joysticks_real, i));
+      for (j = 0; j < count; j++) {
+         joy1 = *((ALLEGRO_JOYSTICK_LINUX **)_al_vector_ref(&joysticks, j));
+         if (!strcmp(joy1->name, joy2->name)) {
+            found = true;
+            break;
+         }
+      }
+      if (!found) {
+         joypp = _al_vector_alloc_back(&joysticks);
+         *joypp = joy2;
+         count++;
+      }
+      else {
+         destroy_joy(joy2);
+      }
+   }
+
+   size = _al_vector_size(&joysticks_real);
+   for (i = 0; i < size; i++) {
+      _al_vector_delete_at(&joysticks_real, 0);
+   }
+
+   num_joysticks = count;
+   num_joysticks_real = 0;
+}
+
+static void *config_thread_proc(ALLEGRO_THREAD *thread, void *data)
+{
+   (void)data;
+
+   while (!al_get_thread_should_stop(thread)) {
+      al_rest(1);
+      while (_al_vector_size(&joysticks_real) > 0) {
+         ALLEGRO_JOYSTICK_LINUX *joy = *((ALLEGRO_JOYSTICK_LINUX **)_al_vector_ref(&joysticks_real, 0));
+         destroy_joy(joy);
+         _al_vector_delete_at(&joysticks_real, 0);
+      }
+      num_joysticks_real = 0;
+      ljoy_scan(true);
+   }
+
+   return NULL;
+}
 
 /* ljoy_init_joystick: [primary thread]
  *  Initialise the joystick driver.
  */
 static bool ljoy_init_joystick(void)
 {
-   /* cache the number of joysticks on the system */
-   num_joysticks = count_num_joysticks();
+   _al_vector_init(&joysticks, sizeof(ALLEGRO_JOYSTICK_LINUX *));
+   _al_vector_init(&joysticks_real, sizeof(ALLEGRO_JOYSTICK_LINUX *));
+
+   // Scan for joysticks
+   ljoy_scan(false);
+   ljoy_merge();
+
+   config_thread = al_create_thread(config_thread_proc, NULL);
+   al_start_thread(config_thread);
 
    return true;
 }
@@ -221,7 +498,18 @@ static bool ljoy_init_joystick(void)
  */
 static void ljoy_exit_joystick(void)
 {
-   num_joysticks = 0; /* not really necessary */
+   int i;
+
+   al_join_thread(config_thread, NULL);
+
+   ljoy_merge();
+   for (i = 0; i < (int)_al_vector_size(&joysticks); i++) {
+      destroy_joy(*((ALLEGRO_JOYSTICK_LINUX **)_al_vector_ref(&joysticks, i)));
+   }
+   _al_vector_free(&joysticks);
+   _al_vector_free(&joysticks_real);
+   num_joysticks = 0;
+   num_joysticks_real = 0;
 }
 
 
@@ -232,6 +520,10 @@ static void ljoy_exit_joystick(void)
  */
 static int ljoy_num_joysticks(void)
 {
+   if (merged) {
+      return num_joysticks;
+   }
+   ljoy_merge();
    return num_joysticks;
 }
 
@@ -246,112 +538,9 @@ static int ljoy_num_joysticks(void)
  */
 static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num)
 {
-   ALLEGRO_JOYSTICK_LINUX *joy;
-   int fd;
+   ASSERT(num >= 0 && num < num_joysticks);
 
-   /* Try to open the device. */
-   fd = try_open_joy_device(num);
-   if (fd == -1)
-      return NULL;
-
-   /* Allocate a structure for the joystick. */
-   joy = al_malloc(sizeof *joy);
-   if (!joy) {
-      close(fd);
-      return NULL;
-   }
-   memset(joy, 0, sizeof *joy);
-
-   /* Initialise the event source part of it. */
-   _al_event_source_init(&joy->parent.es);
-
-   /* Fill in the joystick information fields. */
-   {
-      /* char tmp[128], tmp1[128], tmp2[128]; */
-      char num_axes;
-      char num_buttons;
-      int throttle;
-      int s, a, b;
-
-      ioctl(fd, JSIOCGAXES, &num_axes);
-      ioctl(fd, JSIOCGBUTTONS, &num_buttons);
-
-      if (num_axes > TOTAL_JOYSTICK_AXES)
-         num_axes = TOTAL_JOYSTICK_AXES;
-
-      if (num_buttons > _AL_MAX_JOYSTICK_BUTTONS)
-         num_buttons = _AL_MAX_JOYSTICK_BUTTONS;
-
-      /* XXX use configuration system when we get one */
-      throttle = -1;
-#if 0
-      /* User is allowed to override our simple assumption of which
-       * axis number (kernel) the throttle is located at. */
-      snprintf(tmp, sizeof(tmp), "throttle_axis_%d", num);
-      throttle = get_config_int("joystick", tmp, -1);
-      if (throttle == -1) {
-         throttle = get_config_int("joystick", 
-                                   "throttle_axis", -1);
-      }
-#endif
-
-      /* Each pair of axes is assumed to make up a stick unless it 
-       * is the sole remaining axis, or has been user specified, in 
-       * which case it is a throttle. */
-
-      for (s = 0, a = 0;
-           s < _AL_MAX_JOYSTICK_STICKS && a < num_axes;
-           s++)
-      {
-         if ((a == throttle) || (a == num_axes-1)) {
-            /* One axis throttle. */
-            joy->parent.info.stick[s].flags = ALLEGRO_JOYFLAG_ANALOGUE;
-            joy->parent.info.stick[s].num_axes = 1;
-            joy->parent.info.stick[s].axis[0].name = "Throttle";
-            char *name = joy->parent.info.stick[s].axis[0].name;
-            joy->parent.info.stick[s].name = al_malloc(strlen(name) + 1);
-            strcpy(joy->parent.info.stick[s].name, name);
-            joy->axis_mapping[a].stick = s;
-            joy->axis_mapping[a].axis = 0;
-            a++;
-         }
-         else {
-            /* Two axis stick. */
-            joy->parent.info.stick[s].flags = ALLEGRO_JOYFLAG_ANALOGUE;
-            joy->parent.info.stick[s].num_axes = 2;
-            joy->parent.info.stick[s].axis[0].name = "X";
-            joy->parent.info.stick[s].axis[1].name = "Y";
-            joy->parent.info.stick[s].name = al_malloc (32);
-            snprintf((char *)joy->parent.info.stick[s].name, 32, "Stick %d", s+1);
-            joy->axis_mapping[a].stick = s;
-            joy->axis_mapping[a].axis = 0;
-            a++;
-            joy->axis_mapping[a].stick = s;
-            joy->axis_mapping[a].axis = 1;
-            a++;
-         }
-      }
-
-      joy->parent.info.num_sticks = s;
-
-      /* Do the buttons. */
-
-      for (b = 0; b < num_buttons; b++) {
-         joy->parent.info.button[b].name = al_malloc (32);
-         snprintf((char *)joy->parent.info.button[b].name, 32, "B%d", b+1);
-      }
-
-      joy->parent.info.num_buttons = num_buttons;
-   }
-
-   joy->parent.num = num;
-
-   joy->fd = fd;
-
-   /* Register the joystick with the fdwatch subsystem.  */
-   _al_unix_start_watching_fd(joy->fd, ljoy_process_new_data, joy);
-
-   return (ALLEGRO_JOYSTICK *) joy;
+   return (ALLEGRO_JOYSTICK *)*((ALLEGRO_JOYSTICK_LINUX **)_al_vector_ref(&joysticks, num));
 }
 
 
@@ -362,18 +551,7 @@ static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num)
  */
 static void ljoy_release_joystick(ALLEGRO_JOYSTICK *joy_)
 {
-   ALLEGRO_JOYSTICK_LINUX *joy = (ALLEGRO_JOYSTICK_LINUX *) joy_;
-   int i;
-   
-   _al_unix_stop_watching_fd(joy->fd);
-
-   _al_event_source_free(&joy->parent.es);
-   close(joy->fd);
-   for (i = 0; i < joy->parent.info.num_sticks; i++)
-      al_free((void *)joy->parent.info.stick[i].name);
-   for (i = 0; i < joy->parent.info.num_buttons; i++)
-      al_free((void *)joy->parent.info.button[i].name);
-   al_free(joy);
+   (void)joy_;
 }
 
 
@@ -385,15 +563,20 @@ static void ljoy_release_joystick(ALLEGRO_JOYSTICK *joy_)
 static void ljoy_get_joystick_state(ALLEGRO_JOYSTICK *joy_, ALLEGRO_JOYSTICK_STATE *ret_state)
 {
    ALLEGRO_JOYSTICK_LINUX *joy = (ALLEGRO_JOYSTICK_LINUX *) joy_;
+   ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
 
-   _al_event_source_lock(&joy->parent.es);
+   _al_event_source_lock(es);
    {
       *ret_state = joy->joystate;
    }
-   _al_event_source_unlock(&joy->parent.es);
+   _al_event_source_unlock(es);
 }
 
-
+static const char *ljoy_get_name(ALLEGRO_JOYSTICK *joy_)
+{
+   ALLEGRO_JOYSTICK_LINUX *joy = (ALLEGRO_JOYSTICK_LINUX *)joy_;
+   return joy->name;
+}
 
 /* ljoy_process_new_data: [fdwatch thread]
  *
@@ -402,8 +585,14 @@ static void ljoy_get_joystick_state(ALLEGRO_JOYSTICK *joy_, ALLEGRO_JOYSTICK_STA
 static void ljoy_process_new_data(void *data)
 {
    ALLEGRO_JOYSTICK_LINUX *joy = data;
+   ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
 
-   _al_event_source_lock(&joy->parent.es);
+   if (!es) {
+      // Joystick driver not fully initialized
+      return;
+   }
+   
+   _al_event_source_lock(es);
    {
       struct js_event js_events[32];
       int bytes, nr, i;
@@ -445,7 +634,7 @@ static void ljoy_process_new_data(void *data)
          }
       }
    }
-   _al_event_source_unlock(&joy->parent.es);
+   _al_event_source_unlock(es);
 }
 
 
@@ -458,18 +647,20 @@ static void ljoy_process_new_data(void *data)
 static void ljoy_generate_axis_event(ALLEGRO_JOYSTICK_LINUX *joy, int stick, int axis, float pos)
 {
    ALLEGRO_EVENT event;
+   ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
 
-   if (!_al_event_source_needs_to_generate_event(&joy->parent.es))
+   if (!_al_event_source_needs_to_generate_event(es))
       return;
 
    event.joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
    event.joystick.timestamp = al_current_time();
+   event.joystick.id = (ALLEGRO_JOYSTICK *)joy;
    event.joystick.stick = stick;
    event.joystick.axis = axis;
    event.joystick.pos = pos;
    event.joystick.button = 0;
 
-   _al_event_source_emit_event(&joy->parent.es, &event);
+   _al_event_source_emit_event(es, &event);
 }
 
 
@@ -482,18 +673,20 @@ static void ljoy_generate_axis_event(ALLEGRO_JOYSTICK_LINUX *joy, int stick, int
 static void ljoy_generate_button_event(ALLEGRO_JOYSTICK_LINUX *joy, int button, ALLEGRO_EVENT_TYPE event_type)
 {
    ALLEGRO_EVENT event;
+   ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
 
-   if (!_al_event_source_needs_to_generate_event(&joy->parent.es))
+   if (!_al_event_source_needs_to_generate_event(es))
       return;
 
    event.joystick.type = event_type;
    event.joystick.timestamp = al_current_time();
+   event.joystick.id = (ALLEGRO_JOYSTICK *)joy;
    event.joystick.stick = 0;
    event.joystick.axis = 0;
    event.joystick.pos = 0.0;
    event.joystick.button = button;
 
-   _al_event_source_emit_event(&joy->parent.es, &event);
+   _al_event_source_emit_event(es, &event);
 }
 
 #endif /* ALLEGRO_HAVE_LINUX_JOYSTICK_H */
