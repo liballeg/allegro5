@@ -80,7 +80,14 @@ static GLint ogl_get_filter(const char *s)
 }
 
 /* Conversion table from Allegro's pixel formats to corresponding OpenGL
- * formats. The three entries are GL internal format, GL type, GL format.
+ * formats. The three entries are:
+ * - GL internal format: the number of color components in the texture
+ * - GL pixel type: Specifies the data type of the pixel data.
+ * - GL format: Specifies the format of the pixel data.
+ *
+ * GL does not support RGB_555 and BGR_555 directly so we use
+ * GL_UNSIGNED_SHORT_1_5_5_5_REV when transferring pixel data, and ensure that
+ * the alpha bit (the "1" component) is present by setting GL_ALPHA_BIAS.
  */
 #if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
 static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
@@ -100,14 +107,14 @@ static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
    {GL_RGBA4, GL_UNSIGNED_SHORT_4_4_4_4_REV, GL_BGRA}, /* ARGB_4444 */
    {GL_RGB8, GL_UNSIGNED_BYTE, GL_BGR}, /* RGB_888 */
    {GL_RGB, GL_UNSIGNED_SHORT_5_6_5, GL_RGB}, /* RGB_565 */
-   {GL_RGB5_A1, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_BGRA}, /* RGB_555 */
+   {GL_RGB5, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_BGRA}, /* RGB_555 - see above */
    {GL_RGB5_A1, GL_UNSIGNED_SHORT_5_5_5_1, GL_RGBA}, /* RGBA_5551 */
    {GL_RGB5_A1, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_BGRA}, /* ARGB_1555 */
    {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_RGBA}, /* ABGR_8888 */
    {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_RGBA}, /* XBGR_8888 */
    {GL_RGB8, GL_UNSIGNED_BYTE, GL_RGB}, /* BGR_888 */
    {GL_RGB, GL_UNSIGNED_SHORT_5_6_5_REV, GL_RGB}, /* BGR_565 */
-   {GL_RGB5_A1, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_RGBA}, /* BGR_555 */
+   {GL_RGB5, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_RGBA}, /* BGR_555 - see above */
    {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA}, /* RGBX_8888 */
    {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_BGRA}, /* XRGB_8888 */
    {GL_RGBA32F_ARB, GL_FLOAT, GL_RGBA}, /* ABGR_F32 */
@@ -591,6 +598,13 @@ static int ogl_pitch(int w, int pixel_size)
 }
 
 
+static bool exactly_15bpp(int pixel_format)
+{
+   return pixel_format == ALLEGRO_PIXEL_FORMAT_RGB_555
+      || pixel_format == ALLEGRO_PIXEL_FORMAT_BGR_555;
+}
+
+
 /* OpenGL cannot "lock" pixels, so instead we update our memory copy and
  * return a pointer into that.
  */
@@ -763,6 +777,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    int orig_pixel_size;
    int lock_pixel_size;
    int pixel_alignment;
+   bool biased_alpha = false;
    (void)e;
 
    if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) {
@@ -792,7 +807,14 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          pixel_alignment, error_string(e));
    }
 
-   
+   if (exactly_15bpp(lock_format)) {
+      /* OpenGL does not support 15-bpp internal format without an alpha,
+       * so when storing such data we must ensure the alpha bit is set.
+       */
+      glPixelTransferi(GL_ALPHA_BIAS, 1);
+      biased_alpha = true;
+   }
+
 #if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    if (ogl_bitmap->is_backbuffer) {
       bool popmatrix = false;
@@ -921,6 +943,9 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    }
 #endif
 
+   if (biased_alpha) {
+      glPixelTransferi(GL_ALPHA_BIAS, 0);
+   }
 #ifndef ALLEGRO_IPHONE
    glPopClientAttrib();
 #endif
