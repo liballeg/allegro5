@@ -570,7 +570,7 @@ static void check_similarity(char const *testname,
    double rms = bitmap_dissimilarity(bmp1, bmp2);
 
    /* This cutoff is "empirically determined" only. */
-   if (rms <= 16.0) {
+   if (rms <= 17.0) {
       if (reliable)
          printf("OK   %s [%s]\n", testname, bt);
       else
@@ -745,7 +745,7 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
       if (SCAN("al_draw_scaled_rotated_bitmap", 9)) {
          al_draw_scaled_rotated_bitmap(B(0),
             F(1), F(2), F(3), F(4), F(5), F(6), F(7),
-            get_draw_bitmap_flag(V(9)));
+            get_draw_bitmap_flag(V(8)));
          continue;
       }
 
