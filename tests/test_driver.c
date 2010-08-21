@@ -313,7 +313,7 @@ static int get_lock_bitmap_flags(char const *v)
       : atoi(v);
 }
 
-static void fill_lock_region(LockRegion *lr, bool blended)
+static void fill_lock_region(LockRegion *lr, float alphafactor, bool blended)
 {
    int x, y;
    float r, g, b, a;
@@ -324,7 +324,7 @@ static void fill_lock_region(LockRegion *lr, bool blended)
          r = (float)x / lr->w;
          b = (float)y / lr->h;
          g = r*b;
-         a = r;
+         a = r * alphafactor;
          c = al_map_rgba_f(r, g, b, a);
          if (blended)
             al_put_blended_pixel(lr->x + x, lr->y + y, c);
@@ -847,8 +847,8 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
          lock_region.lr = NULL;
          continue;
       }
-      if (SCAN("fill_lock_region", 1)) {
-         fill_lock_region(&lock_region, get_bool(V(0)));
+      if (SCAN("fill_lock_region", 2)) {
+         fill_lock_region(&lock_region, F(0), get_bool(V(1)));
          continue;
       }
 
