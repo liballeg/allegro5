@@ -106,7 +106,7 @@
                _al_rgb_scale_5[(_gp_pixel & 0x7C00) >> 10],                      \
                _al_rgb_scale_5[(_gp_pixel & 0x03E0) >> 5],                       \
                _al_rgb_scale_5[(_gp_pixel & 0x001F)],                            \
-               255);                                                          \
+               _al_rgb_scale_1[(_gp_pixel & 0x8000) >> 15]);                  \
             if (advance)                                                      \
                data += 2;                                                     \
             break;                                                            \
