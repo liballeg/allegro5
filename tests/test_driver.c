@@ -393,70 +393,90 @@ static uint32_t hash_bitmap(ALLEGRO_BITMAP *bmp)
    return hash;
 }
 
-static uint32_t hash_thumbnail(ALLEGRO_BITMAP *bmp)
+/* Image "signature" I just made up:
+ * We take the average intensity of 7x7 patches centred at 9x9 grid points on
+ * the image.  Each of these values is reduced down to 6 bits so it can be
+ * represented by one printable character in base64 encoding.  This gives a
+ * reasonable signature length.
+ */
+
+#define SIG_GRID  9
+#define SIG_LEN   (SIG_GRID * SIG_GRID)
+#define SIG_LENZ  (SIG_LEN + 1)
+
+static int patch_intensity(ALLEGRO_BITMAP *bmp, int cx, int cy)
 {
-   int const BLOCK_W = 20;
-   int const BLOCK_H = 20;
-   ALLEGRO_LOCKED_REGION *lr;
-   int x, y, w, h;
-   uint32_t hash;
+   float sum = 0.0;
+   int x, y;
 
-   w = al_get_bitmap_width(bmp);
-   h = al_get_bitmap_height(bmp);
-   hash = FNV_OFFSET_BASIS;
-
-#ifdef VIS_THUMB
-   ALLEGRO_BITMAP *vis = al_create_bitmap(640/BLOCK_W, 480/BLOCK_H);
-   al_set_target_bitmap(vis);
-#endif
-
-   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
-      ALLEGRO_LOCK_READONLY);
-
-   for (y = 0; y < h; y += BLOCK_W) {
-      for (x = 0; x < w; x += BLOCK_H) {
-         uint32_t racc = 0;
-         uint32_t gacc = 0;
-         uint32_t bacc = 0;
-         int i, j;
-
-         for (j = y; j < y + BLOCK_H; j++) {
-            unsigned char const *data = ((unsigned char const *)lr->data)
-               + j*lr->pitch;
-
-            for (i = x; i < x + BLOCK_W; i++) {
-               racc += data[i*4 + 0];
-               gacc += data[i*4 + 1];
-               bacc += data[i*4 + 2];
-            }
-         }
-
-         racc /= BLOCK_W * BLOCK_H;
-         gacc /= BLOCK_W * BLOCK_H;
-         bacc /= BLOCK_W * BLOCK_H;
-
-         /* Quantise to reduce minor differences further. */
-         racc = (racc >> 3) << 3;
-         gacc = (gacc >> 3) << 3;
-         bacc = (bacc >> 3) << 3;
-
-#ifdef VIS_THUMB
-         al_put_pixel(x/BLOCK_W, y/BLOCK_H, al_map_rgb(racc, gacc, bacc));
-#endif
-
-         hash ^= racc; hash *= FNV_PRIME;
-         hash ^= gacc; hash *= FNV_PRIME;
-         hash ^= bacc; hash *= FNV_PRIME;
+   for (y = -3; y <= 3; y++) {
+      for (x = -3; x <= 3; x++) {
+         ALLEGRO_COLOR c = al_get_pixel(bmp, cx + x, cy + y);
+         sum += c.r + c.g + c.b;
       }
    }
 
+   return 255 * sum/(7*7*3);
+}
+
+static char const base64[64] =
+   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/";
+
+static int base64_decode(char c)
+{
+   if (c >= '0' && c <= '9') return c - '0';
+   if (c >= 'A' && c <= 'Z') return 10 + (c - 'A');
+   if (c >= 'a' && c <= 'z') return 36 + (c - 'a');
+   if (c == '+') return 62;
+   if (c == '/') return 63;
+   error("invalid base64 character: %c", c);
+   return -1;
+}
+
+static void compute_signature(ALLEGRO_BITMAP *bmp, char sig[SIG_LENZ])
+{
+   int w = al_get_bitmap_width(bmp);
+   int h = al_get_bitmap_height(bmp);
+   int x, y;
+   int n = 0;
+
+   al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+
+   for (y = 0; y < SIG_GRID; y++) {
+      for (x = 0; x < SIG_GRID; x++) {
+         int cx = (1 + x) * w/(1 + SIG_GRID);
+         int cy = (1 + y) * h/(1 + SIG_GRID);
+         int level = patch_intensity(bmp, cx, cy);
+         sig[n] = base64[level >> 2];
+         n++;
+      }
+   }
+
+   sig[n] = '\0';
+
    al_unlock_bitmap(bmp);
+}
 
-#ifdef VIS_THUMB
-   al_save_bitmap("vis.png", vis);
-#endif
+static bool similar_signatures(char const sig1[SIG_LEN], char const sig2[SIG_LEN])
+{
+   int correct = 0;
+   int i;
 
-   return hash;
+   for (i = 0; i < SIG_LEN; i++) {
+      int q1 = base64_decode(sig1[i]);
+      int q2 = base64_decode(sig2[i]);
+
+      /* A difference of one quantisation level could be because two values
+       * which were originally close by straddled a quantisation boundary.
+       * A difference of two quantisation levels is a significant deviation.
+       */
+      if (abs(q1 - q2) > 1)
+         return false;
+
+      correct++;
+   }
+
+   return ((float)correct / SIG_LEN) > 0.95;
 }
 
 static void check_hash(ALLEGRO_CONFIG const *cfg, char const *testname,
@@ -464,12 +484,12 @@ static void check_hash(ALLEGRO_CONFIG const *cfg, char const *testname,
 {
    char const *bt = bmp_type_to_string(bmp_type);
    char hash[16];
-   char thumbhash[16];
+   char sig[SIG_LENZ];
    char const *exp;
-   char const *thumbexp;
+   char const *sigexp;
 
    exp = al_get_config_value(cfg, testname, "hash");
-   thumbexp = al_get_config_value(cfg, testname, "thumbhash");
+   sigexp = al_get_config_value(cfg, testname, "sig");
 
    if (exp && streq(exp, "off")) {
       printf("OK   %s [%s] - hash check off\n", testname, bt);
@@ -478,16 +498,16 @@ static void check_hash(ALLEGRO_CONFIG const *cfg, char const *testname,
    }
 
    sprintf(hash, "%08x", hash_bitmap(bmp));
-   sprintf(thumbhash, "%08x", hash_thumbnail(bmp));
+   compute_signature(bmp, sig);
 
    if (verbose) {
       printf("hash=%s\n", hash);
-      printf("thumbhash=%s\n", thumbhash);
+      printf("sig=%s\n", sig);
    }
 
-   if (!exp && !thumbexp) {
-      printf("NEW  %s [%s] - hash=%s; thumbhash=%s\n",
-         testname, bt, hash, thumbhash);
+   if (!exp && !sigexp) {
+      printf("NEW  %s [%s] - hash=%s; sig=%s\n",
+         testname, bt, hash, sig);
       return;
    }
 
@@ -497,14 +517,18 @@ static void check_hash(ALLEGRO_CONFIG const *cfg, char const *testname,
       return;
    }
 
-   if (thumbexp && streq(thumbhash, thumbexp)) {
-      printf("OK   %s [%s] - by thumbhash\n", testname, bt);
+   if (sigexp && strlen(sigexp) != SIG_LEN) {
+      printf("WARNING: ignoring bad signature: %s\n", sigexp);
+      sigexp = NULL;
+   }
+
+   if (sigexp && similar_signatures(sig, sigexp)) {
+      printf("OK   %s [%s] - by signature\n", testname, bt);
       passed_tests++;
       return;
    }
 
-   printf("FAIL %s [%s] - hash=%s; thumbhash=%s\n", testname, bt,
-      hash, thumbhash);
+   printf("FAIL %s [%s] - hash=%s\n", testname, bt, hash);
    failed_tests++;
 }
 
@@ -606,7 +630,7 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
 
    if (verbose) {
       /* So in case it segfaults, we know which test to re-run. */
-      printf("Running %s [%s].\n", testname, bmp_type_to_string(bmp_type));
+      printf("\nRunning %s [%s].\n", testname, bmp_type_to_string(bmp_type));
       fflush(stdout);
    }
 
