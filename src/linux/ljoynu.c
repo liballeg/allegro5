@@ -34,6 +34,12 @@
 #include "allegro5/internal/aintern_joystick.h"
 #include ALLEGRO_INTERNAL_HEADER
 
+#if defined(ALLEGRO_HAVE_SYS_INOTIFY_H) && defined(ALLEGRO_HAVE_SYS_TIMERFD_H)
+   #define SUPPORT_HOTPLUG
+   #include <sys/inotify.h>
+   #include <sys/timerfd.h>
+#endif
+
 #ifdef ALLEGRO_HAVE_LINUX_JOYSTICK_H
 
 /* To be safe, include sys/types.h before linux/joystick.h to avoid conflicting
@@ -113,7 +119,10 @@ static unsigned num_joysticks;   /* number of joysticks known to the user */
 static _AL_VECTOR joysticks;     /* of ALLEGRO_JOYSTICK_LINUX pointers */
 static volatile bool config_needs_merging;
 static ALLEGRO_MUTEX *config_mutex;
-static ALLEGRO_THREAD *config_thread;
+#ifdef SUPPORT_HOTPLUG
+static int inotify_fd = -1;
+static int timer_fd = -1;
+#endif
 
 
 /* check_js_api_version: [primary thread]
@@ -463,27 +472,49 @@ static void ljoy_merge(void)
 
 
 
-/* config_thread_proc: [joystick config thread]
- *  Rescans for joystick devices periodically.
+#ifdef SUPPORT_HOTPLUG
+/* ljoy_config_dev_changed: [fdwatch thread]
+ *  Called when the /dev hierarchy changes.
  */
-static void *config_thread_proc(ALLEGRO_THREAD *thread, void *data)
+static void ljoy_config_dev_changed(void *data)
 {
+   char buf[128];
+   struct itimerspec spec;
    (void)data;
 
-   /* XXX We probably can do this more efficiently using directory change
-    * notifications (dnotify?).
-    */
-
-   while (!al_get_thread_should_stop(thread)) {
-      al_rest(1);
-
-      al_lock_mutex(config_mutex);
-      ljoy_scan(true);
-      al_unlock_mutex(config_mutex);
+   /* Empty the event buffer.  Right now we don't use the information. */
+   while (read(inotify_fd, buf, sizeof(buf)) > 0) {
    }
 
-   return NULL;
+   /* Set the timer to fire once in one second.
+    * We cannot scan immediately because the devices may not be ready yet :-P
+    */
+   spec.it_value.tv_sec = 1;
+   spec.it_value.tv_nsec = 0;
+   spec.it_interval.tv_sec = 0;
+   spec.it_interval.tv_nsec = 0;
+   timerfd_settime(timer_fd, 0, &spec, NULL);
 }
+
+
+
+/* ljoy_config_rescan: [fdwatch thread]
+ *  Rescans for joystick devices a little while after devices change.
+ */
+static void ljoy_config_rescan(void *data)
+{
+   uint64_t exp;
+   (void)data;
+
+   /* Empty the event buffer. */
+   while (read(timer_fd, &exp, sizeof(uint64_t)) > 0) {
+   }
+
+   al_lock_mutex(config_mutex);
+   ljoy_scan(true);
+   al_unlock_mutex(config_mutex);
+}
+#endif
 
 
 
@@ -500,9 +531,29 @@ static bool ljoy_init_joystick(void)
    ljoy_merge();
 
    config_mutex = al_create_mutex();
-   config_thread = al_create_thread(config_thread_proc, NULL);
-   /* XXX handle failure */
-   al_start_thread(config_thread);
+
+#ifdef SUPPORT_HOTPLUG
+   inotify_fd = inotify_init1(IN_NONBLOCK);
+   timer_fd = timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK);
+   if (inotify_fd != -1 && timer_fd != -1) {
+      /* Modern Linux probably only needs to monitor /dev/input. */
+      inotify_add_watch(inotify_fd, "/dev", IN_CREATE|IN_DELETE);
+      _al_unix_start_watching_fd(inotify_fd, ljoy_config_dev_changed, NULL);
+      _al_unix_start_watching_fd(timer_fd, ljoy_config_rescan, NULL);
+      ALLEGRO_INFO("Hotplugging enabled\n");
+   }
+   else {
+      ALLEGRO_WARN("Hotplugging not enabled\n");
+      if (inotify_fd != -1) {
+         close(inotify_fd);
+         inotify_fd = -1;
+      }
+      if (timer_fd != -1) {
+         close(timer_fd);
+         timer_fd = -1;
+      }
+   }
+#endif
 
    return true;
 }
@@ -516,8 +567,21 @@ static void ljoy_exit_joystick(void)
 {
    int i;
 
-   al_destroy_thread(config_thread);
-   config_thread = NULL;
+#ifdef SUPPORT_HOTPLUG
+   if (inotify_fd != -1) {
+      _al_unix_stop_watching_fd(inotify_fd);
+      close(inotify_fd);
+      inotify_fd = -1;
+   }
+   if (timer_fd != -1) {
+      _al_unix_stop_watching_fd(timer_fd);
+      close(timer_fd);
+      timer_fd = -1;
+   }
+#endif
+
+   al_destroy_mutex(config_mutex);
+   config_mutex = NULL;
 
    for (i = 0; i < (int)_al_vector_size(&joysticks); i++) {
       ALLEGRO_JOYSTICK_LINUX **slot = _al_vector_ref(&joysticks, i);
@@ -525,9 +589,6 @@ static void ljoy_exit_joystick(void)
    }
    _al_vector_free(&joysticks);
    num_joysticks = 0;
-
-   al_destroy_mutex(config_mutex);
-   config_mutex = NULL;
 }
 
 
@@ -719,9 +780,4 @@ static void ljoy_generate_button_event(ALLEGRO_JOYSTICK_LINUX *joy, int button, 
 
 
 
-/*
- * Local Variables:
- * c-basic-offset: 3
- * indent-tabs-mode: nil
- * End:
- */
+/* vim: set sts=3 sw=3 et: */

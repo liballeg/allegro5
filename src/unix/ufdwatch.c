@@ -99,8 +99,12 @@ static void fd_watch_thread_func(_AL_THREAD *self, void *unused)
 
          for (i = 0; i < _al_vector_size(&fd_watch_list); i++) {
             wi = _al_vector_ref(&fd_watch_list, i);
-            if (FD_ISSET(wi->fd, &rfds))
+            if (FD_ISSET(wi->fd, &rfds)) {
+               /* The callback is allowed to modify the watch list so the mutex
+                * must be recursive.
+                */
                wi->callback(wi->cb_data);
+            }
          }
       }
       _al_mutex_unlock(&fd_watch_mutex);
@@ -127,7 +131,10 @@ void _al_unix_start_watching_fd(int fd, void (*callback)(void *), void *cb_data)
 
    /* start the background thread if necessary */
    if (_al_vector_size(&fd_watch_list) == 0) {
-      _al_mutex_init(&fd_watch_mutex);
+      /* We need a recursive mutex to allow callbacks to modify the fd watch
+       * list.
+       */
+      _al_mutex_init_recursive(&fd_watch_mutex);
       _al_thread_create(&fd_watch_thread, fd_watch_thread_func, NULL);
    }
 
