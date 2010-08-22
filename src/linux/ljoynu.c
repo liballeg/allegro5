@@ -100,12 +100,12 @@ ALLEGRO_JOYSTICK_DRIVER _al_joydrv_linux =
 };
 
 
-/* set once when the joystick is initialised */
 static int num_joysticks;
 static int num_joysticks_real;
-static _AL_VECTOR joysticks;
-static _AL_VECTOR joysticks_real;
-static bool merged;
+static _AL_VECTOR joysticks;        /* of ALLEGRO_JOYSTICK_LINUX pointers */
+static _AL_VECTOR joysticks_real;   /* of ALLEGRO_JOYSTICK_LINUX pointers */
+static bool config_merged;
+static ALLEGRO_MUTEX *config_mutex;
 static ALLEGRO_THREAD *config_thread;
 
 
@@ -204,6 +204,8 @@ static void destroy_joy(ALLEGRO_JOYSTICK_LINUX *joy)
    al_free(joy);
 }
 
+
+
 static void ljoy_generate_configure_event(void)
 {
    ALLEGRO_EVENT event;
@@ -212,6 +214,8 @@ static void ljoy_generate_configure_event(void)
 
    _al_generate_joystick_event(&event);
 }
+
+
 
 /*
 static void copy_joy(ALLEGRO_JOYSTICK_LINUX *dst, ALLEGRO_JOYSTICK_LINUX *src)
@@ -232,6 +236,8 @@ static void copy_joy(ALLEGRO_JOYSTICK_LINUX *dst, ALLEGRO_JOYSTICK_LINUX *src)
 }
 */
 
+
+
 static void ljoy_scan(bool configure)
 {
    int fd;
@@ -241,11 +247,11 @@ static void ljoy_scan(bool configure)
    char buf[100];
    int i, j;
 
-   merged = false;
-   num_joysticks_real = 0;
+   config_merged = false;
+   ASSERT(num_joysticks_real == 0);
 
    /* This is an insanely big number, but there can be gaps */
-   for (num = 0; num < 256; num++) { 
+   for (num = 0; num < 256; num++) {
       /* Try to open the device. */
       fd = try_open_joy_device(num);
       if (fd == -1) {
@@ -265,9 +271,6 @@ static void ljoy_scan(bool configure)
       if (name_file) {
          if (fgets(joy->name, sizeof(joy->name)-1, name_file) == NULL) {
             joy->name[0] = 0;
-         }
-         else {
-            joy->name[strlen(joy->name)-1] = 0;
          }
          fclose(name_file);
       }
@@ -390,6 +393,8 @@ static void ljoy_scan(bool configure)
    }
 }
 
+
+
 static void ljoy_merge(void)
 {
    int i, j;
@@ -397,9 +402,10 @@ static void ljoy_merge(void)
    int size;
    ALLEGRO_JOYSTICK_LINUX *joy1, *joy2, **joypp;
 
-   merged = true;
+   config_merged = true;
 
-   ALLEGRO_INFO("Merging %d %d\n", num_joysticks, num_joysticks_real);
+   ALLEGRO_INFO("Merging num_joysticks=%d, num_joysticks_real=%d\n",
+      num_joysticks, num_joysticks_real);
 
    // Keep only joysticks that are still around
    for (i = 0; i < (int)_al_vector_size(&joysticks); i++) {
@@ -453,25 +459,45 @@ static void ljoy_merge(void)
 
    num_joysticks = count;
    num_joysticks_real = 0;
+
+   ALLEGRO_DEBUG("Merging done\n");
 }
 
+
+
+/* config_thread_proc: [joystick config thread]
+ *  Rescans for joystick devices periodically.
+ */
 static void *config_thread_proc(ALLEGRO_THREAD *thread, void *data)
 {
    (void)data;
 
+   /* XXX We probably can do this more efficiently using directory change
+    * notifications (dnotify?).
+    */
+
    while (!al_get_thread_should_stop(thread)) {
       al_rest(1);
-      while (_al_vector_size(&joysticks_real) > 0) {
-         ALLEGRO_JOYSTICK_LINUX *joy = *((ALLEGRO_JOYSTICK_LINUX **)_al_vector_ref(&joysticks_real, 0));
+
+      al_lock_mutex(config_mutex);
+
+      while (!_al_vector_is_empty(&joysticks_real)) {
+         ALLEGRO_JOYSTICK_LINUX **slot = _al_vector_ref_back(&joysticks_real);
+         ALLEGRO_JOYSTICK_LINUX *joy = *slot;
          destroy_joy(joy);
-         _al_vector_delete_at(&joysticks_real, 0);
+         _al_vector_delete_at(&joysticks_real, _al_vector_size(&joysticks_real)-1);
       }
+
       num_joysticks_real = 0;
       ljoy_scan(true);
+
+      al_unlock_mutex(config_mutex);
    }
 
    return NULL;
 }
+
+
 
 /* ljoy_init_joystick: [primary thread]
  *  Initialise the joystick driver.
@@ -485,7 +511,9 @@ static bool ljoy_init_joystick(void)
    ljoy_scan(false);
    ljoy_merge();
 
+   config_mutex = al_create_mutex();
    config_thread = al_create_thread(config_thread_proc, NULL);
+   /* XXX handle failure */
    al_start_thread(config_thread);
 
    return true;
@@ -500,16 +528,21 @@ static void ljoy_exit_joystick(void)
 {
    int i;
 
-   al_join_thread(config_thread, NULL);
+   al_destroy_thread(config_thread);
+   config_thread = NULL;
 
    ljoy_merge();
    for (i = 0; i < (int)_al_vector_size(&joysticks); i++) {
-      destroy_joy(*((ALLEGRO_JOYSTICK_LINUX **)_al_vector_ref(&joysticks, i)));
+      ALLEGRO_JOYSTICK_LINUX **slot = _al_vector_ref(&joysticks, i);
+      destroy_joy(*slot);
    }
    _al_vector_free(&joysticks);
    _al_vector_free(&joysticks_real);
    num_joysticks = 0;
    num_joysticks_real = 0;
+
+   al_destroy_mutex(config_mutex);
+   config_mutex = NULL;
 }
 
 
@@ -520,10 +553,11 @@ static void ljoy_exit_joystick(void)
  */
 static int ljoy_num_joysticks(void)
 {
-   if (merged) {
-      return num_joysticks;
+   if (!config_merged) {
+      al_lock_mutex(config_mutex);
+      ljoy_merge();
+      al_unlock_mutex(config_mutex);
    }
-   ljoy_merge();
    return num_joysticks;
 }
 
@@ -572,11 +606,15 @@ static void ljoy_get_joystick_state(ALLEGRO_JOYSTICK *joy_, ALLEGRO_JOYSTICK_STA
    _al_event_source_unlock(es);
 }
 
+
+
 static const char *ljoy_get_name(ALLEGRO_JOYSTICK *joy_)
 {
    ALLEGRO_JOYSTICK_LINUX *joy = (ALLEGRO_JOYSTICK_LINUX *)joy_;
    return joy->name;
 }
+
+
 
 /* ljoy_process_new_data: [fdwatch thread]
  *

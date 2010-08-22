@@ -75,6 +75,10 @@ void al_uninstall_joystick(void)
    }
 }
 
+
+
+/* Function: al_get_joystick_event_source
+ */
 ALLEGRO_EVENT_SOURCE *al_get_joystick_event_source(void)
 {
    if (!new_joystick_driver)
@@ -82,16 +86,20 @@ ALLEGRO_EVENT_SOURCE *al_get_joystick_event_source(void)
    return &es;
 }
 
+
+
 void _al_generate_joystick_event(ALLEGRO_EVENT *event)
 {
    ASSERT(new_joystick_driver);
 
    _al_event_source_lock(&es);
-      if (_al_event_source_needs_to_generate_event(&es)) {
-         _al_event_source_emit_event(&es, event);
-      }
+   if (_al_event_source_needs_to_generate_event(&es)) {
+      _al_event_source_emit_event(&es, event);
+   }
    _al_event_source_unlock(&es);
 }
+
+
 
 /* Function: al_get_num_joysticks
  */

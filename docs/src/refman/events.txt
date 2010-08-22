@@ -24,6 +24,7 @@ Each event is of one of the following types:
 *   ALLEGRO_EVENT_JOYSTICK_AXIS - a joystick axis value changed.
 
     Fields are:
+    -   joystick.id,
     -   joystick.stick,
     -   joystick.axis,
     -   joystick.pos (-1.0 to 1.0).
@@ -31,12 +32,17 @@ Each event is of one of the following types:
 *   ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN - a joystick button was pressed.
 
     Fields are:
+    -   joystick.id,
     -   joystick.button.
   
 *   ALLEGRO_EVENT_JOYSTICK_BUTTON_UP - a joystick button was released.
 
     Fields are:
+    -   joystick.id,
     -   joystick.button.
+
+*   ALLEGRO_EVENT_JOYSTICK_CONFIGURATION - a joystick was plugged in or
+    unplugged.
 
 *   ALLEGRO_EVENT_KEY_DOWN - a keyboard key was pressed.
 
