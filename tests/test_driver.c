@@ -7,6 +7,7 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
+#include <allegro5/allegro_primitives.h>
 
 #define MAX_BITMAPS  8
 #define MAX_TRANS    8
@@ -749,6 +750,13 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
          continue;
       }
 
+      if (SCAN("al_draw_tinted_scaled_rotated_bitmap", 10)) {
+         al_draw_tinted_scaled_rotated_bitmap(B(0), C(1),
+            F(2), F(3), F(4), F(5), F(6), F(7), F(8),
+            get_draw_bitmap_flag(V(9)));
+         continue;
+      }
+
       if (SCAN("al_draw_pixel", 3)) {
          al_draw_pixel(I(0), I(1), C(2));
          continue;
@@ -863,6 +871,67 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
          al_draw_justified_text(get_font(V(0)), C(1), F(2), F(3), F(4), F(5),
             get_font_align(V(6)), V(7));
          continue;
+      }
+
+      /* Primitives */
+      if (SCAN("al_draw_line", 6)) {
+         al_draw_line(F(0), F(1), F(2), F(3), C(4), F(5));
+         continue;
+      }
+      if (SCAN("al_draw_triangle", 8)) {
+         al_draw_triangle(F(0), F(1), F(2), F(3), F(4), F(5),
+            C(6), F(7));
+         continue;
+      }
+      if (SCAN("al_draw_filled_triangle", 7)) {
+         al_draw_filled_triangle(F(0), F(1), F(2), F(3), F(4), F(5), C(6));
+         continue;
+      }
+      if (SCAN("al_draw_rectangle", 6)) {
+         al_draw_rectangle(F(0), F(1), F(2), F(3), C(4), F(5));
+         continue;
+      }
+      if (SCAN("al_draw_filled_rectangle", 5)) {
+         al_draw_filled_rectangle(F(0), F(1), F(2), F(3), C(4));
+         continue;
+      }
+      if (SCAN("al_draw_rounded_rectangle", 8)) {
+         al_draw_rounded_rectangle(F(0), F(1), F(2), F(3), F(4), F(5), C(6),
+            F(7));
+         continue;
+      }
+      if (SCAN("al_draw_filled_rounded_rectangle", 7)) {
+         al_draw_filled_rounded_rectangle(F(0), F(1), F(2), F(3), F(4), F(5),
+            C(6));
+         continue;
+      }
+      if (SCAN("al_draw_ellipse", 6)) {
+         al_draw_ellipse(F(0), F(1), F(2), F(3), C(4), F(5));
+         continue;
+      }
+      if (SCAN("al_draw_filled_ellipse", 5)) {
+         al_draw_filled_ellipse(F(0), F(1), F(2), F(3), C(4));
+         continue;
+      }
+      if (SCAN("al_draw_circle", 5)) {
+         al_draw_circle(F(0), F(1), F(2), C(3), F(4));
+         continue;
+      }
+      if (SCAN("al_draw_filled_circle", 4)) {
+         al_draw_filled_circle(F(0), F(1), F(2), C(3));
+         continue;
+      }
+      if (SCAN("al_draw_arc", 7)) {
+         al_draw_arc(F(0), F(1), F(2), F(3), F(4), C(5), F(6));
+         continue;
+      }
+      if (SCAN("al_draw_spline", 3)) {
+         float pt[8];
+         if (sscanf(V(0), "%f, %f, %f, %f, %f, %f, %f, %f",
+               pt+0, pt+1, pt+2, pt+3, pt+4, pt+5, pt+6, pt+7) == 8) {
+            al_draw_spline(pt, C(1), F(2));
+            continue;
+         }
       }
 
       error("statement didn't scan: %s", stmt);
@@ -1041,6 +1110,7 @@ int main(int argc, char const *argv[])
    al_init_image_addon();
    al_init_font_addon();
    al_init_ttf_addon();
+   al_init_primitives_addon();
 
    for (; argc > 0; argc--, argv++) {
       char const *opt = argv[0];
