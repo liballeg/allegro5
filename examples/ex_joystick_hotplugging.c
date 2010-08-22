@@ -31,6 +31,8 @@ int main(void)
    else
       curr_joy = NULL;
 
+   goto initial_draw;
+
    while (1) {
       ALLEGRO_EVENT event;
       al_wait_for_event(queue, &event);
@@ -59,6 +61,8 @@ int main(void)
       else if (event.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN) {
       	printf("button down event %d from %p\n", event.joystick.button, event.joystick.id);
       }
+
+initial_draw:
 
       al_clear_to_color(al_map_rgb(0, 0, 0));
 

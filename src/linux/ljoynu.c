@@ -23,7 +23,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
-#include <sys/time.h>
+#include <sys/stat.h>
 
 #define ALLEGRO_NO_KEY_DEFINES
 #define ALLEGRO_NO_COMPATIBILITY
@@ -45,7 +45,13 @@
 ALLEGRO_DEBUG_CHANNEL("ljoy");
 
 #define TOTAL_JOYSTICK_AXES  (_AL_MAX_JOYSTICK_STICKS * _AL_MAX_JOYSTICK_AXES)
+#define MAX_DEVICE_NAME      128
 
+
+typedef enum {
+   LJOY_MARK   = (1 << 0),
+   LJOY_REMOVE = (1 << 1)
+} CONFIG_BITS;
 
 
 /* map a Linux joystick axis number to an Allegro (stick,axis) pair */
@@ -59,6 +65,9 @@ typedef struct ALLEGRO_JOYSTICK_LINUX
 {
    ALLEGRO_JOYSTICK parent;
    int fd;
+   char device_name[MAX_DEVICE_NAME];
+   int config_bits;
+
    AXIS_MAPPING axis_mapping[TOTAL_JOYSTICK_AXES];
    ALLEGRO_JOYSTICK_STATE joystate;
    char name[100];
@@ -100,11 +109,9 @@ ALLEGRO_JOYSTICK_DRIVER _al_joydrv_linux =
 };
 
 
-static int num_joysticks;
-static int num_joysticks_real;
-static _AL_VECTOR joysticks;        /* of ALLEGRO_JOYSTICK_LINUX pointers */
-static _AL_VECTOR joysticks_real;   /* of ALLEGRO_JOYSTICK_LINUX pointers */
-static bool config_merged;
+static unsigned num_joysticks;   /* number of joysticks known to the user */
+static _AL_VECTOR joysticks;     /* of ALLEGRO_JOYSTICK_LINUX pointers */
+static volatile bool config_needs_merging;
 static ALLEGRO_MUTEX *config_mutex;
 static ALLEGRO_THREAD *config_thread;
 
@@ -120,7 +127,7 @@ static bool check_js_api_version(int fd)
 
    if (ioctl(fd, JSIOCGVERSION, &raw_version) < 0) {
       /* NOTE: IOCTL fails if the joystick API is version 0.x */
-      TRACE("Your Linux joystick API is version 0.x which is unsupported.\n");
+      ALLEGRO_WARN("Your Linux joystick API is version 0.x which is unsupported.\n");
       return false;
    }
 
@@ -137,55 +144,41 @@ static bool check_js_api_version(int fd)
 
 
 
-/* try_open_joy_device: [primary thread]
- *
- *  Try to open joystick device number NUM, returning the fd on success
- *  or -1 on failure.
- */
-static int try_open_joy_device(int num)
+static ALLEGRO_JOYSTICK_LINUX *ljoy_by_device_name(const char *device_name)
 {
-   const char *device_name = NULL;
-   char tmp[128];
-   /* char tmp1[128], tmp2[128]; */
-   int fd;
+   unsigned i;
 
-   /* XXX use configuration system when we get one */
-   device_name = NULL;
-#if 0
-   /* Check for a user override on the device to use. */
-   snprintf(tmp, sizeof(tmp), "joystick_device_%d", num);
-   device_name = get_config_string("joystick", tmp, NULL);
+   for (i = 0; i < _al_vector_size(&joysticks); i++) {
+      ALLEGRO_JOYSTICK_LINUX **slot = _al_vector_ref(&joysticks, i);
+      ALLEGRO_JOYSTICK_LINUX *joy = *slot;
 
-   /* Special case for the first joystick. */
-   if (!device_name && (num == 0))
-      device_name = get_config_string("joystick",
-                                      "joystick_device",
-                                      NULL);
-#endif
-
-   if (device_name)
-      fd = open(device_name, O_RDONLY|O_NONBLOCK);
-   else {
-      snprintf(tmp, sizeof(tmp), "/dev/input/js%d", num);
-      tmp[sizeof(tmp)-1] = 0;
-
-      fd = open(tmp, O_RDONLY|O_NONBLOCK);
-      if (fd == -1) {
-         snprintf(tmp, sizeof(tmp), "/dev/js%d", num);
-         tmp[sizeof(tmp)-1] = 0;
-
-         fd = open(tmp, O_RDONLY|O_NONBLOCK);
-         if (fd == -1)
-	    return -1;
-      }
+      if (joy && 0 == strcmp(device_name, joy->device_name))
+         return joy;
    }
 
-   if (!check_js_api_version(fd)) {
-      close(fd);
-      return -1;
+   return NULL;
+}
+
+
+
+static bool ljoy_detect_device_name(int num, char device_name[MAX_DEVICE_NAME])
+{
+   int try;
+   struct stat stbuf;
+
+   for (try = 0; try < 2; try++) {
+      /* XXX allow user to override device path in config file */
+      if (try == 0)
+         snprintf(device_name, MAX_DEVICE_NAME, "/dev/input/js%d", num);
+      else
+         snprintf(device_name, MAX_DEVICE_NAME, "/dev/js%d", num);
+      device_name[MAX_DEVICE_NAME-1] = 0;
+
+      if (stat(device_name, &stbuf) == 0)
+         return true;
    }
 
-   return fd;   
+   return false;
 }
 
 
@@ -206,6 +199,29 @@ static void destroy_joy(ALLEGRO_JOYSTICK_LINUX *joy)
 
 
 
+static bool ljoy_schedule_removals(void)
+{
+   bool any_removals = false;
+   unsigned i;
+
+   for (i = 0; i < _al_vector_size(&joysticks); i++) {
+      ALLEGRO_JOYSTICK_LINUX **slot = _al_vector_ref(&joysticks, i);
+      ALLEGRO_JOYSTICK_LINUX *joy = *slot;
+
+      if (joy && !(joy->config_bits & LJOY_MARK)) {
+         if (!(joy->config_bits & LJOY_REMOVE)) {
+            ALLEGRO_DEBUG("Device %s to be removed\n", joy->device_name);
+            joy->config_bits |= LJOY_REMOVE;
+         }
+         any_removals = true;
+      }
+   }
+
+   return any_removals;
+}
+
+
+
 static void ljoy_generate_configure_event(void)
 {
    ALLEGRO_EVENT event;
@@ -217,59 +233,64 @@ static void ljoy_generate_configure_event(void)
 
 
 
-/*
-static void copy_joy(ALLEGRO_JOYSTICK_LINUX *dst, ALLEGRO_JOYSTICK_LINUX *src)
-{
-   int i;
-   dst->parent.info.num_sticks = src->parent.info.num_sticks;
-   dst->parent.info.num_buttons = src->parent.info.num_buttons;
-   for (i = 0; i < src->parent.info.num_sticks; i++) {
-      dst->parent.info.stick[i].name = strdup(src->parent.info.stick[i].name);
-   }
-   for (i = 0; i < src->parent.info.num_buttons; i++) {
-      dst->parent.info.button[i].name = strdup(src->parent.info.button[i].name);
-   }
-   dst->fd = src->fd;
-   memcpy(dst->axis_mapping, src->axis_mapping, sizeof(src->axis_mapping));
-   memcpy(&dst->joystate, &src->joystate, sizeof(src->joystate));
-   memcpy(dst->name, src->name, sizeof(src->name));
-}
-*/
-
-
-
 static void ljoy_scan(bool configure)
 {
    int fd;
    ALLEGRO_JOYSTICK_LINUX *joy, **joypp;
    int num;
+   char device_name[MAX_DEVICE_NAME];
+   char name_path[MAX_DEVICE_NAME];
    FILE *name_file;
-   char buf[100];
-   int i, j;
+   unsigned i;
+   bool any_removals;
 
-   config_merged = false;
-   ASSERT(num_joysticks_real == 0);
+   /* Any joystick which remains unmarked will be scheduled for removal. */
+   for (i = 0; i < _al_vector_size(&joysticks); i++) {
+      joypp = _al_vector_ref(&joysticks, i);
+      joy = *joypp;
+      joy->config_bits &= ~LJOY_MARK;
+   }
 
    /* This is an insanely big number, but there can be gaps */
+   /* XXX this is going to make us look dumb to anyone watching strace */
    for (num = 0; num < 256; num++) {
-      /* Try to open the device. */
-      fd = try_open_joy_device(num);
-      if (fd == -1) {
+      if (!ljoy_detect_device_name(num, device_name))
+         continue;
+
+      joy = ljoy_by_device_name(device_name);
+      if (joy) {
+         ALLEGRO_DEBUG("Device %s still exists\n", device_name);
+         joy->config_bits |= LJOY_MARK;
          continue;
       }
-   
+
+      /* Try to open the device. */
+      fd = open(device_name, O_RDONLY|O_NONBLOCK);
+      if (fd == -1) {
+         ALLEGRO_WARN("Failed to open device %s\n", device_name);
+         continue;
+      }
+      if (!check_js_api_version(fd)) {
+         close(fd);
+         continue;
+      }
+      ALLEGRO_DEBUG("Device %s is new\n", device_name);
+
       /* Allocate a structure for the joystick. */
-      joy = al_malloc(sizeof *joy);
+      joy = al_calloc(1, sizeof *joy);
       if (!joy) {
          close(fd);
          break;
       }
-      memset(joy, 0, sizeof *joy);
 
-      sprintf(buf, "/sys/class/input/js%d/device/name", num);
-      name_file = fopen(buf, "r");
+      joy->fd = fd;
+      strcpy(joy->device_name, device_name);
+      joy->config_bits = LJOY_MARK;
+
+      sprintf(name_path, "/sys/class/input/js%d/device/name", num);
+      name_file = fopen(name_path, "r");
       if (name_file) {
-         if (fgets(joy->name, sizeof(joy->name)-1, name_file) == NULL) {
+         if (fgets(joy->name, sizeof(joy->name), name_file) == NULL) {
             joy->name[0] = 0;
          }
          fclose(name_file);
@@ -356,111 +377,88 @@ static void ljoy_scan(bool configure)
          joy->parent.info.num_buttons = num_buttons;
       }
    
-      joy->fd = fd;
-   
-      joypp = _al_vector_alloc_back(&joysticks_real);
+      joypp = _al_vector_alloc_back(&joysticks);
       *joypp = joy;
 
-      num_joysticks_real++;
-
       /* Register the joystick with the fdwatch subsystem.  */
-         
       _al_unix_start_watching_fd(joy->fd, ljoy_process_new_data, joy);
    }
 
-   if (configure) {
-      if (num_joysticks != num_joysticks_real) {
+   /* Schedule unmarked joysticks for removal. */
+   any_removals = ljoy_schedule_removals();
+
+   /* Generate a configure event if any joysticks need to be added or removed.
+    * Even if we generated one before that the user hasn't responded to,
+    * we don't know if the user received it so always generate it.
+    */
+   if (any_removals || num_joysticks != _al_vector_size(&joysticks)) {
+      ALLEGRO_DEBUG("Joystick configuration needs merging\n");
+      config_needs_merging = true;
+      if (configure) {
          ljoy_generate_configure_event();
-	 return;
-      }
-      for (i = 0; i < num_joysticks; i++) {
-         bool found = false;
-         for (j = 0; j < num_joysticks_real; j++) {
-            ALLEGRO_JOYSTICK_LINUX *joy1;
-            ALLEGRO_JOYSTICK_LINUX *joy2;
-            joy1 = *((ALLEGRO_JOYSTICK_LINUX **)_al_vector_ref(&joysticks, i));
-            joy2 = *((ALLEGRO_JOYSTICK_LINUX **)_al_vector_ref(&joysticks_real, j));
-            if (!strcmp(joy1->name, joy2->name)) {
-               found = true;
-               break;
-            }
-         }
-         if (!found) {
-            ljoy_generate_configure_event();
-            return;
-         }
       }
    }
 }
 
 
 
+static bool fill_empty_slot(ALLEGRO_JOYSTICK_LINUX *joy, unsigned max)
+{
+   unsigned i;
+
+   ASSERT(!(joy->config_bits & LJOY_REMOVE));
+
+   for (i = 0; i < max; i++) {
+      ALLEGRO_JOYSTICK_LINUX **slot = _al_vector_ref(&joysticks, i);
+      if (!*slot) {
+         *slot = joy;
+         return true;
+      }
+   }
+   return false;
+}
+
+
+
 static void ljoy_merge(void)
 {
-   int i, j;
-   int count = 0;
-   int size;
-   ALLEGRO_JOYSTICK_LINUX *joy1, *joy2, **joypp;
+   unsigned i;
 
-   config_merged = true;
+   config_needs_merging = false;
 
-   ALLEGRO_INFO("Merging num_joysticks=%d, num_joysticks_real=%d\n",
-      num_joysticks, num_joysticks_real);
+   /* Remove old joysticks. */
+   for (i = 0; i < num_joysticks; i++) {
+      ALLEGRO_JOYSTICK_LINUX **slot = _al_vector_ref(&joysticks, i);
+      ALLEGRO_JOYSTICK_LINUX *joy = *slot;
 
-   // Keep only joysticks that are still around
-   for (i = 0; i < (int)_al_vector_size(&joysticks); i++) {
-      bool found = false;
-      joy1 = *((ALLEGRO_JOYSTICK_LINUX **)_al_vector_ref(&joysticks, i));
-      for (j = 0; j < num_joysticks_real; j++) {
-         joy2 = *((ALLEGRO_JOYSTICK_LINUX **)_al_vector_ref(&joysticks_real, j));
-         if (!strcmp(joy1->name, joy2->name)) {
-            found = true;
-            break;
-         }
-      }
-      if (found) {
-         (*(ALLEGRO_JOYSTICK_LINUX **)_al_vector_ref(&joysticks, count)) = joy1;
-         count++;
-      }
-      else {
-         destroy_joy(joy1);
+      if (joy->config_bits & LJOY_REMOVE) {
+         destroy_joy(joy);
+         *slot = NULL;
       }
    }
 
-   size = _al_vector_size(&joysticks);
-   for (i = count; i < size; i++) {
-      _al_vector_delete_at(&joysticks, count);
+   /* Move new joysticks into vacated slots. */
+   for (i = num_joysticks; i < _al_vector_size(&joysticks); i++) {
+      ALLEGRO_JOYSTICK_LINUX **slot = _al_vector_ref(&joysticks, i);
+      ALLEGRO_JOYSTICK_LINUX *joy = *slot;
+
+      if (fill_empty_slot(joy, num_joysticks))
+         *slot = NULL;
+      else
+         break;
    }
 
-   for (i = 0; i < (int)_al_vector_size(&joysticks_real); i++) {
-      bool found = false;
-      joy2 = *((ALLEGRO_JOYSTICK_LINUX **)_al_vector_ref(&joysticks_real, i));
-      for (j = 0; j < count; j++) {
-         joy1 = *((ALLEGRO_JOYSTICK_LINUX **)_al_vector_ref(&joysticks, j));
-         if (!strcmp(joy1->name, joy2->name)) {
-            found = true;
-            break;
-         }
-      }
-      if (!found) {
-         joypp = _al_vector_alloc_back(&joysticks);
-         *joypp = joy2;
-         count++;
-      }
-      else {
-         destroy_joy(joy2);
-      }
+   /* Delete remaining empty slots. */
+   for (i = 0; i < _al_vector_size(&joysticks); ) {
+      ALLEGRO_JOYSTICK_LINUX **slot = _al_vector_ref(&joysticks, i);
+
+      if (!*slot)
+         _al_vector_delete_at(&joysticks, i);
+      else
+         i++;
    }
 
-   size = _al_vector_size(&joysticks_real);
-   for (i = 0; i < size; i++) {
-      _al_vector_delete_at(&joysticks_real, 0);
-   }
-
-   num_joysticks = count;
-   num_joysticks_real = 0;
-
-   ALLEGRO_DEBUG("Merging done\n");
+   num_joysticks = _al_vector_size(&joysticks);
 }
 
 
@@ -480,17 +478,7 @@ static void *config_thread_proc(ALLEGRO_THREAD *thread, void *data)
       al_rest(1);
 
       al_lock_mutex(config_mutex);
-
-      while (!_al_vector_is_empty(&joysticks_real)) {
-         ALLEGRO_JOYSTICK_LINUX **slot = _al_vector_ref_back(&joysticks_real);
-         ALLEGRO_JOYSTICK_LINUX *joy = *slot;
-         destroy_joy(joy);
-         _al_vector_delete_at(&joysticks_real, _al_vector_size(&joysticks_real)-1);
-      }
-
-      num_joysticks_real = 0;
       ljoy_scan(true);
-
       al_unlock_mutex(config_mutex);
    }
 
@@ -505,7 +493,7 @@ static void *config_thread_proc(ALLEGRO_THREAD *thread, void *data)
 static bool ljoy_init_joystick(void)
 {
    _al_vector_init(&joysticks, sizeof(ALLEGRO_JOYSTICK_LINUX *));
-   _al_vector_init(&joysticks_real, sizeof(ALLEGRO_JOYSTICK_LINUX *));
+   num_joysticks = 0;
 
    // Scan for joysticks
    ljoy_scan(false);
@@ -531,15 +519,12 @@ static void ljoy_exit_joystick(void)
    al_destroy_thread(config_thread);
    config_thread = NULL;
 
-   ljoy_merge();
    for (i = 0; i < (int)_al_vector_size(&joysticks); i++) {
       ALLEGRO_JOYSTICK_LINUX **slot = _al_vector_ref(&joysticks, i);
       destroy_joy(*slot);
    }
    _al_vector_free(&joysticks);
-   _al_vector_free(&joysticks_real);
    num_joysticks = 0;
-   num_joysticks_real = 0;
 
    al_destroy_mutex(config_mutex);
    config_mutex = NULL;
@@ -553,11 +538,12 @@ static void ljoy_exit_joystick(void)
  */
 static int ljoy_num_joysticks(void)
 {
-   if (!config_merged) {
+   if (config_needs_merging) {
       al_lock_mutex(config_mutex);
       ljoy_merge();
       al_unlock_mutex(config_mutex);
    }
+
    return num_joysticks;
 }
 
@@ -572,9 +558,11 @@ static int ljoy_num_joysticks(void)
  */
 static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num)
 {
-   ASSERT(num >= 0 && num < num_joysticks);
+   ALLEGRO_JOYSTICK_LINUX **slot;
+   ASSERT(num >= 0 && num < (int)num_joysticks);
 
-   return (ALLEGRO_JOYSTICK *)*((ALLEGRO_JOYSTICK_LINUX **)_al_vector_ref(&joysticks, num));
+   slot = _al_vector_ref(&joysticks, num);
+   return (ALLEGRO_JOYSTICK *) *slot;
 }
 
 
