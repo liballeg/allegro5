@@ -105,10 +105,6 @@ NULL is returned.
 See also: [al_get_joystick_stick_name], [al_get_joystick_axis_name],
 [al_get_joystick_num_buttons]
 
-## API: al_get_joystick_number
-
-Return the joystick number, i.e. the parameter passed to [al_get_joystick].
-
 ## API: al_get_joystick_stick_flags
 
 Return the flags of the given "stick".  If the stick doesn't
