@@ -51,7 +51,6 @@
 ALLEGRO_DEBUG_CHANNEL("ljoy");
 
 #define TOTAL_JOYSTICK_AXES  (_AL_MAX_JOYSTICK_STICKS * _AL_MAX_JOYSTICK_AXES)
-#define MAX_DEVICE_NAME      128
 
 
 typedef enum {
@@ -71,7 +70,7 @@ typedef struct ALLEGRO_JOYSTICK_LINUX
 {
    ALLEGRO_JOYSTICK parent;
    int fd;
-   char device_name[MAX_DEVICE_NAME];
+   ALLEGRO_USTR *device_name;
    int config_bits;
 
    AXIS_MAPPING axis_mapping[TOTAL_JOYSTICK_AXES];
@@ -153,7 +152,8 @@ static bool check_js_api_version(int fd)
 
 
 
-static ALLEGRO_JOYSTICK_LINUX *ljoy_by_device_name(const char *device_name)
+static ALLEGRO_JOYSTICK_LINUX *ljoy_by_device_name(
+   const ALLEGRO_USTR *device_name)
 {
    unsigned i;
 
@@ -161,7 +161,7 @@ static ALLEGRO_JOYSTICK_LINUX *ljoy_by_device_name(const char *device_name)
       ALLEGRO_JOYSTICK_LINUX **slot = _al_vector_ref(&joysticks, i);
       ALLEGRO_JOYSTICK_LINUX *joy = *slot;
 
-      if (joy && 0 == strcmp(device_name, joy->device_name))
+      if (joy && al_ustr_equal(device_name, joy->device_name))
          return joy;
    }
 
@@ -170,24 +170,27 @@ static ALLEGRO_JOYSTICK_LINUX *ljoy_by_device_name(const char *device_name)
 
 
 
-static bool ljoy_detect_device_name(int num, char device_name[MAX_DEVICE_NAME])
+static bool ljoy_detect_device_name(int num, ALLEGRO_USTR *device_name)
 {
-   int try;
+   ALLEGRO_CONFIG *cfg;
+   char key[80];
+   const char *value;
    struct stat stbuf;
 
-   for (try = 0; try < 2; try++) {
-      /* XXX allow user to override device path in config file */
-      if (try == 0)
-         snprintf(device_name, MAX_DEVICE_NAME, "/dev/input/js%d", num);
-      else
-         snprintf(device_name, MAX_DEVICE_NAME, "/dev/js%d", num);
-      device_name[MAX_DEVICE_NAME-1] = 0;
+   al_ustr_truncate(device_name, 0);
 
-      if (stat(device_name, &stbuf) == 0)
-         return true;
+   cfg = al_get_system_config();
+   if (cfg) {
+      snprintf(key, sizeof(key), "device%d", num);
+      value = al_get_config_value(cfg, "joystick", key);
+      if (value)
+         al_ustr_assign_cstr(device_name, value);
    }
 
-   return false;
+   if (al_ustr_size(device_name) == 0)
+      al_ustr_appendf(device_name, "/dev/input/js%d", num);
+
+   return (stat(al_cstr(device_name), &stbuf) == 0);
 }
 
 
@@ -203,6 +206,7 @@ static void destroy_joy(ALLEGRO_JOYSTICK_LINUX *joy)
       al_free((void *)joy->parent.info.stick[i].name);
    for (i = 0; i < joy->parent.info.num_buttons; i++)
       al_free((void *)joy->parent.info.button[i].name);
+   al_ustr_free(joy->device_name);
    al_free(joy);
 }
 
@@ -219,7 +223,7 @@ static bool ljoy_schedule_removals(void)
 
       if (joy && !(joy->config_bits & LJOY_MARK)) {
          if (!(joy->config_bits & LJOY_REMOVE)) {
-            ALLEGRO_DEBUG("Device %s to be removed\n", joy->device_name);
+            ALLEGRO_DEBUG("Device %s to be removed\n", al_cstr(joy->device_name));
             joy->config_bits |= LJOY_REMOVE;
          }
          any_removals = true;
@@ -247,9 +251,7 @@ static void ljoy_scan(bool configure)
    int fd;
    ALLEGRO_JOYSTICK_LINUX *joy, **joypp;
    int num;
-   char device_name[MAX_DEVICE_NAME];
-   char name_path[MAX_DEVICE_NAME];
-   FILE *name_file;
+   ALLEGRO_USTR *device_name;
    unsigned i;
    bool any_removals;
 
@@ -260,30 +262,31 @@ static void ljoy_scan(bool configure)
       joy->config_bits &= ~LJOY_MARK;
    }
 
-   /* This is an insanely big number, but there can be gaps */
-   /* XXX this is going to make us look dumb to anyone watching strace */
-   for (num = 0; num < 256; num++) {
+   device_name = al_ustr_new("");
+
+   /* This is a big number, but there can be gaps. */
+   for (num = 0; num < 16; num++) {
       if (!ljoy_detect_device_name(num, device_name))
          continue;
 
       joy = ljoy_by_device_name(device_name);
       if (joy) {
-         ALLEGRO_DEBUG("Device %s still exists\n", device_name);
+         ALLEGRO_DEBUG("Device %s still exists\n", al_cstr(device_name));
          joy->config_bits |= LJOY_MARK;
          continue;
       }
 
       /* Try to open the device. */
-      fd = open(device_name, O_RDONLY|O_NONBLOCK);
+      fd = open(al_cstr(device_name), O_RDONLY|O_NONBLOCK);
       if (fd == -1) {
-         ALLEGRO_WARN("Failed to open device %s\n", device_name);
+         ALLEGRO_WARN("Failed to open device %s\n", al_cstr(device_name));
          continue;
       }
       if (!check_js_api_version(fd)) {
          close(fd);
          continue;
       }
-      ALLEGRO_DEBUG("Device %s is new\n", device_name);
+      ALLEGRO_DEBUG("Device %s is new\n", al_cstr(device_name));
 
       /* Allocate a structure for the joystick. */
       joy = al_calloc(1, sizeof *joy);
@@ -293,20 +296,11 @@ static void ljoy_scan(bool configure)
       }
 
       joy->fd = fd;
-      strcpy(joy->device_name, device_name);
+      joy->device_name = al_ustr_dup(device_name);
       joy->config_bits = LJOY_MARK;
 
-      sprintf(name_path, "/sys/class/input/js%d/device/name", num);
-      name_file = fopen(name_path, "r");
-      if (name_file) {
-         if (fgets(joy->name, sizeof(joy->name), name_file) == NULL) {
-            joy->name[0] = 0;
-         }
-         fclose(name_file);
-      }
-      else {
-         joy->name[0] = 0;
-      }
+      if (ioctl(fd, JSIOCGNAME(sizeof(joy->name)), joy->name) < 0)
+         strcpy(joy->name, "Unknown");
 
       /* Fill in the joystick information fields. */
       {
@@ -392,6 +386,8 @@ static void ljoy_scan(bool configure)
       /* Register the joystick with the fdwatch subsystem.  */
       _al_unix_start_watching_fd(joy->fd, ljoy_process_new_data, joy);
    }
+
+   al_ustr_free(device_name);
 
    /* Schedule unmarked joysticks for removal. */
    any_removals = ljoy_schedule_removals();
