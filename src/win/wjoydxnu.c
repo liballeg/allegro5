@@ -165,6 +165,7 @@ ALLEGRO_JOYSTICK_DRIVER _al_joydrv_directx =
    "DirectInput joystick",
    joydx_init_joystick,
    joydx_exit_joystick,
+   NULL, /* XXX implement al_reconfigure_joysticks */
    joydx_get_num_joysticks,
    joydx_get_joystick,
    joydx_release_joystick,

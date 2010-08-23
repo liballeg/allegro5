@@ -115,6 +115,7 @@ static ALLEGRO_JOYSTICK_DRIVER iphone_joystick_driver = {
    "iphone joystick",
     ijoy_init_joystick,
     ijoy_exit_joystick,
+    NULL, /* XXX implement al_reconfigure_joysticks */
     ijoy_num_joysticks,
     ijoy_get_joystick,
     ijoy_release_joystick,

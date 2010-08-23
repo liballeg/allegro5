@@ -308,6 +308,7 @@ ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver(void)
       vt->joydrv_ascii_name = "OSX HID Driver";
       vt->init_joystick = init_joystick;
       vt->exit_joystick = exit_joystick;
+      /* XXX implement al_reconfigure_joysticks */
       vt->num_joysticks = num_joysticks;
       vt->get_joystick = get_joystick;
       vt->release_joystick = release_joystick;

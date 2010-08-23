@@ -16,11 +16,13 @@ typedef struct ALLEGRO_JOYSTICK_DRIVER
    const char *joydrv_ascii_name;
    AL_METHOD(bool, init_joystick, (void));
    AL_METHOD(void, exit_joystick, (void));
+   AL_METHOD(bool, reconfigure_joysticks, (void));
    AL_METHOD(int, num_joysticks, (void));
    AL_METHOD(ALLEGRO_JOYSTICK *, get_joystick, (int joyn));
    AL_METHOD(void, release_joystick, (ALLEGRO_JOYSTICK *joy));
    AL_METHOD(void, get_joystick_state, (ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_state));
    AL_METHOD(const char *, get_name, (ALLEGRO_JOYSTICK *joy));
+   AL_METHOD(bool, get_active, (ALLEGRO_JOYSTICK *joy));
 } ALLEGRO_JOYSTICK_DRIVER;
 
 

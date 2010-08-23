@@ -64,10 +64,12 @@ enum
 
 AL_FUNC(bool,           al_install_joystick,    (void));
 AL_FUNC(void,           al_uninstall_joystick,  (void));
+AL_FUNC(bool,           al_reconfigure_joysticks, (void));
 
 AL_FUNC(int,            al_get_num_joysticks,   (void));
-AL_FUNC(ALLEGRO_JOYSTICK *,       al_get_joystick,     (int joyn));
+AL_FUNC(ALLEGRO_JOYSTICK *, al_get_joystick,    (int joyn));
 AL_FUNC(void,           al_release_joystick,    (ALLEGRO_JOYSTICK *));
+AL_FUNC(bool,           al_get_joystick_active, (ALLEGRO_JOYSTICK *));
 AL_FUNC(const char*,    al_get_joystick_name,   (ALLEGRO_JOYSTICK *));
 
 AL_FUNC(int,            al_get_joystick_num_sticks, (ALLEGRO_JOYSTICK *));

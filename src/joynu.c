@@ -77,6 +77,24 @@ void al_uninstall_joystick(void)
 
 
 
+/* Function: al_reconfigure_joysticks
+ */
+bool al_reconfigure_joysticks(void)
+{
+   if (!new_joystick_driver)
+      return false;
+
+   /* XXX only until Windows and Mac joystick drivers are updated */
+   if (!new_joystick_driver->reconfigure_joysticks) {
+      new_joystick_driver->num_joysticks();
+      return true;
+   }
+
+   return new_joystick_driver->reconfigure_joysticks();
+}
+
+
+
 /* Function: al_get_joystick_event_source
  */
 ALLEGRO_EVENT_SOURCE *al_get_joystick_event_source(void)
@@ -133,6 +151,17 @@ void al_release_joystick(ALLEGRO_JOYSTICK *joy)
    ASSERT(joy);
 
    new_joystick_driver->release_joystick(joy);
+}
+
+
+
+/* Function: al_get_joystick_active
+ */
+bool al_get_joystick_active(ALLEGRO_JOYSTICK *joy)
+{
+   ASSERT(joy);
+
+   return new_joystick_driver->get_active(joy);
 }
 
 
@@ -263,3 +292,4 @@ void al_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_st
  * indent-tabs-mode: nil
  * End:
  */
+/* vim: set sts=3 sw=3 et: */
