@@ -1074,36 +1074,6 @@ static void d3d_release_bitmaps(ALLEGRO_DISPLAY *display)
 }
 
 
-static void d3d_release_current_target(void)
-{
-   ALLEGRO_BITMAP *curr;
-   ALLEGRO_BITMAP_D3D *curr_d3d;
-
-   curr = al_get_target_bitmap();
-   if (curr) {
-      if (!(curr->flags & ALLEGRO_MEMORY_BITMAP)) {
-         curr_d3d = (ALLEGRO_BITMAP_D3D *)curr;
-         if (curr_d3d->render_target) {
-               ALLEGRO_DISPLAY_D3D *dd = (ALLEGRO_DISPLAY_D3D *)curr->display;
-            if (curr_d3d->is_backbuffer) {
-               if (dd->render_target->Release() != 0) {
-                  ALLEGRO_WARN("d3d_release_current_target: (bb) ref count not 0\n");
-               }
-               dd->render_target = NULL;
-            }
-            else if (!curr_d3d->is_backbuffer) {
-               if (curr_d3d->render_target->Release() != 0) {
-                  ALLEGRO_WARN("d3d_release_current_target: (bmp) ref count not 0\n");
-               }
-               curr_d3d->render_target = NULL;
-               dd->render_target = NULL;
-            }
-         }
-      }
-   }
-}
-
-
 static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
    ALLEGRO_DISPLAY *al_display = (ALLEGRO_DISPLAY *)d3d_display;
@@ -1116,8 +1086,6 @@ static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    }
 
    d3d_release_bitmaps((ALLEGRO_DISPLAY *)d3d_display);
-
-   d3d_release_current_target();
 
    if (win_display->window) {
    SendMessage(win_display->window, _al_win_msg_suicide, 0, 0);
