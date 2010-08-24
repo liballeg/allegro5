@@ -48,6 +48,20 @@ static BOOL _osx_mouse_installed = NO, _osx_keyboard_installed = NO;
 static NSPoint last_window_pos;
 static unsigned int next_display_group = 1;
 
+/* New window locations are set in threat-local storage by the user with
+ * al_set_new_window_position, however, our window creation routine in
+ * initialiseDisplay (in ALDisplayHelper) calls al_get_new_window_position
+ * from a different threat (the main threat). The "proper" fix for this
+ * situation is to call al_get_new_window position() before invoking
+ * initialiseDisplay and passing these values as parameters. It's a little
+ * tedious to do, however, so we use two global variables instead. This can
+ * lead to a race condition if two windows are created simultaneously from
+ * different threats. Unlikely, but it's possible.
+ * FIXME: do this the proper way!
+ */
+static int new_window_pos_x;
+static int new_window_pos_y;
+
 /* Dictionary to map Allegro's DISPLAY_OPTIONS to OS X
  * PixelFormatAttributes. 
  * The first column is Allegro's name, the second column is the OS X
@@ -832,17 +846,15 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
     * the range -16000 ... 16000 (approximately, probably the range of a
     * signed 16 bit integer). Should we check for this?
     */
-   int new_x, new_y;
-   al_get_new_window_position(&new_x, &new_y);
-   if ((new_x != INT_MAX) && (new_y != INT_MAX)) {
+   if ((new_window_pos_x != INT_MAX) && (new_window_pos_y != INT_MAX)) {
       /* The user gave us window coordinates */
       NSRect rc = [win frame];
       NSRect sc = [[win screen] frame];
       NSPoint origin;
 
       /* We need to modify the y coordinate, cf. set_window_position */
-      origin.x = sc.origin.x + new_x;
-      origin.y = sc.origin.y + sc.size.height - rc.size.height - new_y;
+      origin.x = sc.origin.x + new_window_pos_x;
+      origin.y = sc.origin.y + sc.size.height - rc.size.height - new_window_pos_y;
       [win setFrameOrigin: origin];
    } 
    else {
@@ -1340,6 +1352,12 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    if (_al_vector_is_empty(&al_get_system_driver()->displays)) {
       last_window_pos = NSZeroPoint;
    }
+
+   /* Get the new window position. This is stored in TLS, so we need to do
+    * this before calling initialiseDisplay, which runs on a different
+    * threat.
+    */
+   al_get_new_window_position(&new_window_pos_x, &new_window_pos_y);
 
    /* OSX specific part - finish the initialisation on the main thread */
    [ALDisplayHelper performSelectorOnMainThread: @selector(initialiseDisplay:) 
