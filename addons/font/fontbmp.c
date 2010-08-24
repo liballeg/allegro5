@@ -229,6 +229,7 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp,
          f->data = cf;
       
       cf->bitmaps = al_malloc(sizeof(ALLEGRO_BITMAP*) * n);
+      cf->bitmaps[0] = NULL;
 
       if (!glyphs) {
          glyphs = al_clone_bitmap(unmasked);
