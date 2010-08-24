@@ -53,11 +53,12 @@ static bool _wgl_do_not_change_display_mode = false;
  * These parameters cannot be gotten by the display thread because
  * they're thread local. We get them in the calling thread first.
  */
-typedef struct new_display_parameters {
+typedef struct WGL_DISPLAY_PARAMETERS {
    ALLEGRO_DISPLAY_WGL *display;
    volatile bool init_failed;
    HANDLE AckEvent;
-} new_display_parameters;
+   int window_x, window_y;
+} WGL_DISPLAY_PARAMETERS;
 
 
 static char* get_error_desc(DWORD err)
@@ -911,7 +912,15 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
 {
    ALLEGRO_DISPLAY     *disp     = (void*)wgl_disp;
    ALLEGRO_DISPLAY_WIN *win_disp = (void*)wgl_disp;
-   new_display_parameters ndp;
+   WGL_DISPLAY_PARAMETERS ndp;
+   int window_x, window_y;
+
+   /* The window is created in a separate thread so we need to pass this
+    * TLS on
+    */
+   al_get_new_window_position(&window_x, &window_y);
+   ndp.window_x = window_x;
+   ndp.window_y = window_y;
 
    /* _beginthread closes the handle automatically. */
    ndp.display = wgl_disp;
@@ -1135,11 +1144,13 @@ static void wgl_unset_current_display(ALLEGRO_DISPLAY *d)
  */
 static void display_thread_proc(void *arg)
 {
-   new_display_parameters *ndp = arg;
+   WGL_DISPLAY_PARAMETERS *ndp = arg;
    ALLEGRO_DISPLAY *disp = (ALLEGRO_DISPLAY*)ndp->display;
    ALLEGRO_DISPLAY_WGL *wgl_disp = (void*)disp;
    ALLEGRO_DISPLAY_WIN *win_disp = (void*)disp;
    MSG msg;
+
+   al_set_new_window_position(ndp->window_x, ndp->window_y);
 
    /* So that we can call the functions using TLS from this thread. */
    al_set_new_display_flags(disp->flags);

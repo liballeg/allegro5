@@ -79,11 +79,12 @@ ALLEGRO_MUTEX *_al_d3d_lost_device_mutex;
  * These parameters cannot be gotten by the display thread because
  * they're thread local. We get them in the calling thread first.
  */
-typedef struct new_display_parameters {
+typedef struct D3D_DISPLAY_PARAMETERS {
    ALLEGRO_DISPLAY_D3D *display;
    volatile bool init_failed;
    HANDLE AckEvent;
-} new_display_parameters;
+   int window_x, window_y;
+} D3D_DISPLAY_PARAMETERS;
 
 
 static int allegro_formats[] = {
@@ -1415,6 +1416,7 @@ struct CREATE_WINDOW_INFO {
    int flags;
    bool inited;
    bool quit;
+   int window_x, window_y;
 };
 
 static void d3d_generic_window_message_loop(CREATE_WINDOW_INFO *info)
@@ -1439,6 +1441,8 @@ static void *d3d_create_window_proc(void *arg)
    CREATE_WINDOW_INFO *info = (CREATE_WINDOW_INFO *)arg;
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)info->display;
    
+   al_set_new_window_position(info->window_x, info->window_y);
+
    win_display->window = _al_win_create_window(
       info->display,
       info->w,
@@ -1483,11 +1487,14 @@ static void *d3d_display_thread_proc(void *arg)
    ALLEGRO_DISPLAY *al_display;
    HRESULT hr;
    bool lost_event_generated = false;
-   new_display_parameters *params = (new_display_parameters *)arg;
+   D3D_DISPLAY_PARAMETERS *params = (D3D_DISPLAY_PARAMETERS *)arg;
    D3DCAPS9 caps;
    int new_format;
    bool convert_to_faux;
    CREATE_WINDOW_INFO *info = (CREATE_WINDOW_INFO *)al_calloc(1, sizeof(*info));
+
+   info->window_x = params->window_x;
+   info->window_y = params->window_y;
 
    d3d_display = params->display;
    win_display = &d3d_display->win_display;
@@ -1797,7 +1804,7 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
 
 static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
-   new_display_parameters params;
+   D3D_DISPLAY_PARAMETERS params;
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
    ALLEGRO_DISPLAY *al_display = &win_display->display;
    static bool cfg_read = false;
@@ -1806,8 +1813,16 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref =  _al_get_new_display_settings();
    int num_modes;
    int i;
+   int window_x, window_y;
 
    params.display = d3d_display;
+
+   /* The window is created in a separate thread so we need to pass this
+    * TLS on
+    */
+   al_get_new_window_position(&window_x, &window_y);
+   params.window_x = window_x;
+   params.window_y = window_y;
 
    d3d_generate_display_format_list();
 
