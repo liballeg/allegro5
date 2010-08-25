@@ -167,6 +167,7 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 - (void)keyDown: (NSEvent*)event;
 - (BOOL)windowShouldClose: (id)sender;
 - (void)emitCloseEventWithKeypress: (BOOL)keypress;
++ (void)appendText: (NSValue*)param;
 @end
 
 
@@ -205,6 +206,26 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    event.user.data1 = (intptr_t)[self textlog];
    event.user.data2 = (intptr_t)keypress;
    al_emit_user_event(&[self textlog]->tl_events, &event, NULL);
+}
+
++ (void)appendText: (NSValue*)param
+{
+   ALLEGRO_NATIVE_DIALOG *textlog = (ALLEGRO_NATIVE_DIALOG*)[param pointerValue];
+   al_lock_mutex(textlog->tl_text_mutex);
+   if (textlog->is_active) {
+      LogView *view = (LogView *)textlog->tl_textview;
+      NSString *text = [[NSString alloc] initWithUTF8String: al_cstr(textlog->tl_pending_text)];
+      NSRange range = NSMakeRange([[view string] length], 0);
+      
+      [view setEditable: YES];
+      [view setSelectedRange: range];
+      [view insertText: text];
+      [view setEditable: NO];
+      [text release];
+      al_ustr_truncate(textlog->tl_pending_text, 0);
+      textlog->tl_have_pending = false;
+   }
+   al_unlock_mutex(textlog->tl_text_mutex);
 }
 
 @end
@@ -303,16 +324,12 @@ void _al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 
 void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
-   LogView *view = (LogView *)textlog->tl_textview;
-   NSString *text = [[NSString alloc] initWithUTF8String: al_cstr(textlog->tl_pending_text)];
-   NSRange range = NSMakeRange ([[view string] length], 0);
+   if (textlog->tl_have_pending)
+      return;
+   textlog->tl_have_pending = true;
    
-   [view setEditable: YES];
-   [view setSelectedRange: range];
-   [view insertText: text];
-   [view setEditable: NO];
-   [text release];
-   al_ustr_truncate(textlog->tl_pending_text, 0);
-   textlog->tl_have_pending = false;
+   [LogView performSelectorOnMainThread: @selector(appendText:) 
+                             withObject: [NSValue valueWithPointer: textlog]
+                          waitUntilDone: NO];
 }
 
