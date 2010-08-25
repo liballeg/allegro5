@@ -153,3 +153,132 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    [pool drain];
    return fd->mb_pressed_button;
 }
+
+
+@interface LogView : NSTextView
+{
+}
+-(void) keyDown:(NSEvent*) event;
+@end
+
+@implementation LogView
+
+/* Keyboard event handler */
+-(void) keyDown:(NSEvent*) event
+{
+   if (([event keyCode] == 0x35) ||                                                   // Escape
+       (([event keyCode] == 0x0D) && ([event modifierFlags] & NSCommandKeyMask))) {   // Command+W
+      [[self window] close];
+   }
+   else {
+      [super keyDown: event];
+   }
+}
+
+@end
+
+
+bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+{
+   NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+   
+   al_lock_mutex(textlog->tl_text_mutex);
+   
+   NSRect rect = NSMakeRect(0, 0, 640, 480);
+   NSWindow *win = [NSWindow alloc];
+   int adapter = al_get_new_display_adapter();
+   NSScreen *screen;
+   unsigned int mask = NSTitledWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask;
+   if (!(textlog->flags & ALLEGRO_TEXTLOG_NO_CLOSE))
+      mask |= NSClosableWindowMask;
+   
+   if ((adapter >= 0) && (adapter < al_get_num_video_adapters())) {
+      screen = [[NSScreen screens] objectAtIndex: adapter];
+   } else {
+      screen = [NSScreen mainScreen];
+   }
+   [win initWithContentRect: rect
+                  styleMask: mask
+                    backing: NSBackingStoreBuffered
+                      defer: NO
+                     screen: screen];
+   [win setReleasedWhenClosed: NO];
+   [win setTitle: @"Allegro Text Log"];
+   [win setMinSize: NSMakeSize(128, 128)];
+   
+   NSScrollView *scrollView = [[NSScrollView alloc] initWithFrame: rect];
+   [scrollView setHasHorizontalScroller: YES];
+   [scrollView setHasVerticalScroller: YES];
+   [scrollView setAutohidesScrollers: YES];
+   [scrollView setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+   
+   [[scrollView contentView] setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+   [[scrollView contentView] setAutoresizesSubviews: YES];
+   
+   rect = [[scrollView contentView] frame];
+   LogView *view = [[LogView alloc] initWithFrame: rect];
+   [view setHorizontallyResizable: YES];
+   [view setVerticallyResizable: YES];
+   [view setAutoresizingMask: NSViewHeightSizable | NSViewWidthSizable];
+   [[view textContainer] setContainerSize: NSMakeSize(rect.size.width, 1000000)];
+   [[view textContainer] setWidthTracksTextView: NO];
+   [view setTextColor: [NSColor grayColor]];
+   if (textlog->flags & ALLEGRO_TEXTLOG_MONOSPACE)
+      [view setFont: [NSFont userFixedPitchFontOfSize: 0]];
+   [view setEditable: NO];
+   [scrollView setDocumentView: view];
+   
+   [[win contentView] addSubview: scrollView];
+   
+   [win orderFront: nil];
+   
+   /* Save handles for future use. */
+   textlog->window = win;
+   textlog->tl_textview = view;
+   textlog->is_active = true;
+
+   /* Now notify al_show_native_textlog that the text log is ready. */
+   textlog->tl_done = true;
+   al_signal_cond(textlog->tl_text_cond);
+   al_unlock_mutex(textlog->tl_text_mutex);
+   
+   while ([win isVisible]) {
+      al_rest(0.05);
+   }
+   
+   al_lock_mutex(textlog->tl_text_mutex);
+   _al_close_native_text_log(textlog);
+   al_unlock_mutex(textlog->tl_text_mutex);
+   
+   [pool drain];
+   return true;
+}
+
+void _al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+{
+   NSWindow *win = (NSWindow *)textlog->window;
+   if ([win isVisible]) {
+      [win close];
+   }
+   
+   /* Notify everyone that we're gone. */
+   textlog->is_active = false;
+   textlog->tl_done = true;
+   al_signal_cond(textlog->tl_text_cond);
+}
+
+void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+{
+   LogView *view = (LogView *)textlog->tl_textview;
+   NSString *text = [[NSString alloc] initWithUTF8String: al_cstr(textlog->tl_pending_text)];
+   NSRange range = NSMakeRange ([[view string] length], 0);
+   
+   [view setEditable: YES];
+   [view setSelectedRange: range];
+   [view insertText: text];
+   [view setEditable: NO];
+   [text release];
+   al_ustr_truncate(textlog->tl_pending_text, 0);
+   textlog->tl_have_pending = false;
+}
+
