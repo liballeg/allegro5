@@ -260,6 +260,7 @@ static void inactivate_joy(ALLEGRO_JOYSTICK_LINUX *joy)
    for (i = 0; i < joy->parent.info.num_buttons; i++)
       al_free((void *)joy->parent.info.button[i].name);
    memset(&joy->parent.info, 0, sizeof(joy->parent.info));
+   memset(&joy->joystate, 0, sizeof(joy->joystate));
 
    al_ustr_free(joy->device_name);
    joy->device_name = NULL;
@@ -618,21 +619,28 @@ static int ljoy_num_joysticks(void)
  */
 static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num)
 {
+   ALLEGRO_JOYSTICK *ret = NULL;
    unsigned i;
    ASSERT(num >= 0);
+
+   al_lock_mutex(config_mutex);
 
    for (i = 0; i < _al_vector_size(&joysticks); i++) {
       ALLEGRO_JOYSTICK_LINUX **slot = _al_vector_ref(&joysticks, i);
       ALLEGRO_JOYSTICK_LINUX *joy = *slot;
 
       if (ACTIVE_STATE(joy->config_state)) {
-         if (num == 0)
-            return (ALLEGRO_JOYSTICK *)joy;
+         if (num == 0) {
+            ret = (ALLEGRO_JOYSTICK *)joy;
+            break;
+         }
          num--;
       }
    }
 
-   return NULL;
+   al_unlock_mutex(config_mutex);
+
+   return ret;
 }
 
 
