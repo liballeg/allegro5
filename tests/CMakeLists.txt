@@ -30,34 +30,15 @@ add_our_executable(
     ${PRIMITIVES_LINK_WITH}
     )
 
-add_custom_target(test_bitmaps
+add_custom_target(run_tests
     DEPENDS test_driver
-    COMMAND test_driver ${CMAKE_CURRENT_SOURCE_DIR}/test_bitmaps.ini
-    )
-
-add_custom_target(test_locking
-    DEPENDS test_driver
-    COMMAND test_driver ${CMAKE_CURRENT_SOURCE_DIR}/test_locking.ini
-    )
-
-add_custom_target(test_locking2
-    DEPENDS test_driver
-    COMMAND test_driver ${CMAKE_CURRENT_SOURCE_DIR}/test_locking2.ini
-    )
-
-add_custom_target(test_image
-    DEPENDS test_driver
-    COMMAND test_driver ${CMAKE_CURRENT_SOURCE_DIR}/test_image.ini
-    )
-
-add_custom_target(test_fonts
-    DEPENDS test_driver
-    COMMAND test_driver ${CMAKE_CURRENT_SOURCE_DIR}/test_fonts.ini
-    )
-
-add_custom_target(test_prim
-    DEPENDS test_driver
-    COMMAND test_driver ${CMAKE_CURRENT_SOURCE_DIR}/test_prim.ini
+    COMMAND test_driver -x ${CMAKE_CURRENT_SOURCE_DIR}/test_bitmaps.ini
+    COMMAND test_driver -x ${CMAKE_CURRENT_SOURCE_DIR}/test_locking.ini
+    COMMAND test_driver -x ${CMAKE_CURRENT_SOURCE_DIR}/test_locking2.ini
+    COMMAND test_driver -x ${CMAKE_CURRENT_SOURCE_DIR}/test_backbuffer.ini
+    COMMAND test_driver -x ${CMAKE_CURRENT_SOURCE_DIR}/test_image.ini
+    COMMAND test_driver -x ${CMAKE_CURRENT_SOURCE_DIR}/test_fonts.ini
+    COMMAND test_driver -x ${CMAKE_CURRENT_SOURCE_DIR}/test_prim.ini
     )
 
 # vim: set sts=4 sw=4 et:

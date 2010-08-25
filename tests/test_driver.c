@@ -52,6 +52,7 @@ float             delay = 0.0;
 bool              save_outputs = false;
 bool              quiet = false;
 bool              verbose = false;
+bool              no_exit_code = false;
 int               total_tests = 0;
 int               passed_tests = 0;
 int               failed_tests = 0;
@@ -1126,6 +1127,9 @@ int main(int argc, char const *argv[])
       else if (streq(opt, "-v") || streq(opt, "--verbose")) {
          verbose = true;
       }
+      else if (streq(opt, "-x") || streq(opt, "--no-exit-code")) {
+         no_exit_code = true;
+      }
       else {
          break;
       }
@@ -1164,7 +1168,10 @@ int main(int argc, char const *argv[])
    printf("passed tests: %d\n", passed_tests);
    printf("failed tests: %d\n", failed_tests);
 
-   return !!failed_tests;
+   if (no_exit_code)
+      return 0;
+   else
+      return !!failed_tests;
 }
 
 /* vim: set sts=3 sw=3 et: */
