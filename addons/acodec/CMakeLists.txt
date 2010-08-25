@@ -98,7 +98,7 @@ if(SUPPORT_FLAC)
             set(FLAC__NO_DLL "-DFLAC__NO_DLL")
         endif()
 
-        if(NOT FLAC_STATIC AND (FLAC_LIBRARY MATCHES "${WIN32_STATIC_LIB_REGEX}"))
+        if(NOT FLAC_STATIC AND FLAC_LIBRARY MATCHES "${WIN32_STATIC_LIB_REGEX}")
             set(FLAC_STATIC 1)
             set(FLAC__NO_DLL "-DFLAC__NO_DLL")
         endif()
