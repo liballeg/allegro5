@@ -26,16 +26,15 @@
  *
  * 1. When the driver is initialised all the joysticks on the system
  * are enumerated.  For each joystick, a ALLEGRO_JOYSTICK_DIRECTX structure
- * is created and _mostly_ initialised.  An win32 Event is created
+ * is created.  An win32 Event is created
  * also created for each joystick, and DirectInput is told to set that
  * event whenever the joystick state changes.  For some devices this
  * is not possible -- they must be polled.  In that case, a Waitable
  * Timer object is used instead of a win32 Event.  Once all the
  * joysticks are set up, a dedicated background thread is started.
  *
- * 2. When al_get_joystick() is called, the remaining initialisation
- * is done on one of one of the ALLEGRO_JOYSTICK_DIRECTX structures, and
- * then the address of it is returned to the user.
+ * 2. When al_get_joystick() is called the address of one of the
+ * ALLEGRO_JOYSTICK_DIRECTX structures is returned to the user.
  *
  * 3. The background thread waits upon the win32 Events/Waitable Timer
  * objects.  When one of them is triggered, the thread wakes up and
@@ -44,8 +43,13 @@
  * Also, any Allegro events are generated if necessary.
  *
  * 4. When the user calls al_get_joystick_state() the contents of the
- * internal ALLEGRO_JOYSTICK_STATE structure are copied to a user ALLEGRO_JOYSTICK_STATE
- * structure.
+ * internal ALLEGRO_JOYSTICK_STATE structure are copied to a user
+ * ALLEGRO_JOYSTICK_STATE structure.
+ *
+ * 5. Every second or so, all the joysticks on the system are enumerated again.
+ * We compare the GUIDs of the enumerated joysticks with the existing
+ * ALLEGRO_JOYSTICK structures to tell if any new joysticks have been connected,
+ * or old ones disconnected.
  */
 
 
@@ -64,6 +68,10 @@
 #include "allegro5/internal/aintern_bitmap.h"
 
 
+#ifndef ALLEGRO_WINDOWS
+#error something is wrong with the makefile
+#endif
+
 #ifdef ALLEGRO_MINGW32
    #undef MAKEFOURCC
 #endif
@@ -72,11 +80,6 @@
 #include <mmsystem.h>
 #include <process.h>
 #include <dinput.h>
-
-
-#ifndef ALLEGRO_WINDOWS
-#error something is wrong with the makefile
-#endif
 
 ALLEGRO_DEBUG_CHANNEL("dinput")
 
@@ -91,19 +94,39 @@ ALLEGRO_DEBUG_CHANNEL("dinput")
 /* the number of joystick events that DirectInput is told to buffer */
 #define DEVICE_BUFFER_SIZE   10
 
+/* make sure all the constants add up */
+/* the first two sticks are (x,y,z) and (rx,ry,rz) */
+ALLEGRO_STATIC_ASSERT(_AL_MAX_JOYSTICK_STICKS >= (2 + MAX_SLIDERS + MAX_POVS));
+ALLEGRO_STATIC_ASSERT(_AL_MAX_JOYSTICK_BUTTONS >= MAX_BUTTONS);
+
+
+#define GUID_EQUAL(a, b)     (0 == memcmp(&(a), &(b), sizeof(GUID)))
+
+
+typedef enum {
+   STATE_UNUSED,
+   STATE_BORN,
+   STATE_ALIVE,
+   STATE_DYING
+} CONFIG_STATE;
+
+#define ACTIVE_STATE(st) \
+   ((st) == STATE_ALIVE || (st) == STATE_DYING)
+
 
 /* helper structure to record information through object_enum_callback */
-/* all the name_* fields must be dynamically allocated or NULL */
+#define NAME_LEN     128
+
 typedef struct {
-   bool have_x;      char *name_x;
-   bool have_y;      char *name_y;
-   bool have_z;      char *name_z;
-   bool have_rx;     char *name_rx;
-   bool have_ry;     char *name_ry;
-   bool have_rz;     char *name_rz;
-   int num_sliders;  char *name_slider[MAX_SLIDERS];
-   int num_povs;     char *name_pov[MAX_POVS];
-   int num_buttons;  char *name_button[MAX_BUTTONS];
+   bool have_x;      char name_x[NAME_LEN];
+   bool have_y;      char name_y[NAME_LEN];
+   bool have_z;      char name_z[NAME_LEN];
+   bool have_rx;     char name_rx[NAME_LEN];
+   bool have_ry;     char name_ry[NAME_LEN];
+   bool have_rz;     char name_rz[NAME_LEN];
+   int num_sliders;  char name_slider[MAX_SLIDERS][NAME_LEN];
+   int num_povs;     char name_pov[MAX_POVS][NAME_LEN];
+   int num_buttons;  char name_button[MAX_BUTTONS][NAME_LEN];
 } CAPS_AND_NAMES;
 
 
@@ -115,13 +138,13 @@ typedef struct {
 
 typedef struct ALLEGRO_JOYSTICK_DIRECTX {
    ALLEGRO_JOYSTICK parent;          /* must be first */
-
-   CAPS_AND_NAMES caps_and_names;
+   CONFIG_STATE config_state;
+   bool marked;
+   LPDIRECTINPUTDEVICE2 device;
+   GUID guid;
+   HANDLE waker_event;
 
    ALLEGRO_JOYSTICK_STATE joystate;
-
-   LPDIRECTINPUTDEVICE2 device;
-
    AXIS_MAPPING x_mapping;
    AXIS_MAPPING y_mapping;
    AXIS_MAPPING z_mapping;
@@ -130,8 +153,8 @@ typedef struct ALLEGRO_JOYSTICK_DIRECTX {
    AXIS_MAPPING rz_mapping;
    AXIS_MAPPING slider_mapping[MAX_SLIDERS];
    int pov_mapping_stick[MAX_POVS];
-
-   GUID guid;
+   char name[80];
+   char all_names[512]; /* button/stick/axis names with NUL terminators */
 } ALLEGRO_JOYSTICK_DIRECTX;
 
 
@@ -139,12 +162,15 @@ typedef struct ALLEGRO_JOYSTICK_DIRECTX {
 /* forward declarations */
 static bool joydx_init_joystick(void);
 static void joydx_exit_joystick(void);
+static bool joydx_reconfigure_joysticks(void);
 static int joydx_get_num_joysticks(void);
 static ALLEGRO_JOYSTICK *joydx_get_joystick(int num);
 static void joydx_release_joystick(ALLEGRO_JOYSTICK *joy);
 static void joydx_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_state);
 static const char *joydx_get_name(ALLEGRO_JOYSTICK *joy);
-static void joydx_destroy_joy(ALLEGRO_JOYSTICK_DIRECTX *joy, bool destroy_dev);
+static bool joydx_get_active(ALLEGRO_JOYSTICK *joy);
+
+static void joydx_inactivate_joy(ALLEGRO_JOYSTICK_DIRECTX *joy);
 
 static unsigned __stdcall joydx_thread_proc(LPVOID unused);
 static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy);
@@ -165,12 +191,13 @@ ALLEGRO_JOYSTICK_DRIVER _al_joydrv_directx =
    "DirectInput joystick",
    joydx_init_joystick,
    joydx_exit_joystick,
-   NULL, /* XXX implement al_reconfigure_joysticks */
+   joydx_reconfigure_joysticks,
    joydx_get_num_joysticks,
    joydx_get_joystick,
    joydx_release_joystick,
    joydx_get_joystick_state,
-   joydx_get_name
+   joydx_get_name,
+   joydx_get_active
 };
 
 
@@ -255,8 +282,6 @@ static const DIDATAFORMAT __al_c_dfDIJoystick = {
 /* end of Wine code */
 
 
-ALLEGRO_DISPLAY_WIN *win_disp;
-
 /* DirectInput creation prototype */
 typedef HRESULT (WINAPI *DIRECTINPUT8CREATEPROC)(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID * ppvOut, LPUNKNOWN punkOuter);
 
@@ -272,31 +297,31 @@ static DIRECTINPUT8CREATEPROC _al_dinput_create = (DIRECTINPUT8CREATEPROC)NULL;
 /* a handle to the DirectInput interface */
 static LPDIRECTINPUT joystick_dinput = NULL;
 
-/* these are initialised by joydx_init_joystick
- * One set contains what the user currently sees, and the
- * other contains what is actually plugged into the system
- * at the present time. Calling al_get_num_joysticks makes
- * user configuration the same as present configuration.
- */
+/* last display which acquired the devices */
+static ALLEGRO_DISPLAY_WIN *win_disp;
+
+/* number of joysticks visible to user */
 static int joydx_num_joysticks;
+
+/* the joystick structures */
 static ALLEGRO_JOYSTICK_DIRECTX joydx_joystick[MAX_JOYSTICKS];
-static int joydx_num_joysticks_real;
-static ALLEGRO_JOYSTICK_DIRECTX joydx_joystick_real[MAX_JOYSTICKS];
 
 /* for the background thread */
 static HANDLE joydx_thread = NULL;
 static CRITICAL_SECTION joydx_thread_cs;
 
+/* whether the user should call al_reconfigure_joysticks */
+static bool config_needs_merging = false;
+
 /* An array of objects that are to wake the background thread when
- * something interesting happens.  Each joystick has one such object,
- * and there is an additional Event for thread termination.
- * One for what the user sees and one for actual current state, updated
- * on call of al_get_num_joysticks (usually after event received.)
+ * something interesting happens.  The first handle is for thread
+ * termination.  The rest point to joydx_joystick[i].waker_event values,
+ * for each active joystick.  joydx_joystick[i].waker_event is NOT
+ * necessarily at JOYSTICK_WAKER(i).
  */
 static HANDLE joydx_thread_wakers[1+MAX_JOYSTICKS];
-static HANDLE joydx_thread_wakers_real[1+MAX_JOYSTICKS];
 #define STOP_EVENT        (joydx_thread_wakers[0])
-#define JOYSTICK_WAKER(n) (wakers[1+(n)])
+#define JOYSTICK_WAKER(n) (joydx_thread_wakers[1+(n)])
 
 
 /* names for things in case DirectInput doesn't provide them */
@@ -316,22 +341,16 @@ static char *default_name_button[MAX_BUTTONS] = {
    "B25", "B26", "B27", "B28", "B29", "B30", "B31", "B32"
 };
 
-#define IS_SAME_DEVICE(a, b) (!memcmp(&a.guid, &b.guid, sizeof(a.guid)))
-static bool merged;
-
 
 #define JOY_POVFORWARD_WRAP  36000
 
 
-static char *_joydx_guid_string(ALLEGRO_JOYSTICK_DIRECTX *joy)
+/* Returns a pointer to a static buffer, for debugging. */
+static char *joydx_guid_string(ALLEGRO_JOYSTICK_DIRECTX *joy)
 {
    static char buf[200];
 
-   char str[9];
-   memcpy(str, joy->guid.Data4, 8);
-   str[8] = 0;
-
-   sprintf(buf, "%lu %d %d %x %x %x %x %x %x %x %x (%s)",
+   sprintf(buf, "%lx-%x-%x-%x%x%x%x%x%x%x%x",
       joy->guid.Data1,
       joy->guid.Data2,
       joy->guid.Data3,
@@ -342,12 +361,12 @@ static char *_joydx_guid_string(ALLEGRO_JOYSTICK_DIRECTX *joy)
       joy->guid.Data4[4],
       joy->guid.Data4[5],
       joy->guid.Data4[6],
-      joy->guid.Data4[7],
-      str
+      joy->guid.Data4[7]
    );
 
    return buf;
 }
+
 
 /* dinput_err_str:
  *  Returns a DirectInput error string.
@@ -390,7 +409,6 @@ static char* dinput_err_str(long err)
 #endif
 
 
-
 /* _al_win_joystick_dinput_acquire: [window thread]
  *  Acquires the joystick devices.
  */
@@ -399,8 +417,11 @@ static void joystick_dinput_acquire(void)
    HRESULT hr;
    int i;
 
-   if (joystick_dinput) {
-      for (i=0; i<joydx_num_joysticks; i++) {
+   if (!joystick_dinput)
+      return;
+
+   for (i=0; i < MAX_JOYSTICKS; i++) {
+      if (joydx_joystick[i].device) {
          hr = IDirectInputDevice8_Acquire(joydx_joystick[i].device);
 
          if (FAILED(hr))
@@ -408,7 +429,6 @@ static void joystick_dinput_acquire(void)
       }
    }
 }
-
 
 
 /* _al_win_joystick_dinput_unacquire: [window thread]
@@ -421,8 +441,9 @@ void _al_win_joystick_dinput_unacquire(void *unused)
    (void)unused;
 
    if (joystick_dinput && win_disp) {
-      for (i=0; i < joydx_num_joysticks; i++) {
-         IDirectInputDevice8_Unacquire(joydx_joystick[i].device);
+      for (i=0; i < MAX_JOYSTICKS; i++) {
+         if (joydx_joystick[i].device)
+            IDirectInputDevice8_Unacquire(joydx_joystick[i].device);
       }
    }
 }
@@ -447,10 +468,14 @@ void _al_win_joystick_dinput_grab(void *param)
    win_disp = param;
 
    /* set cooperative level */
-   for (i = 0; i < joydx_num_joysticks; i++) {
-      HRESULT hr = IDirectInputDevice8_SetCooperativeLevel(
-                      joydx_joystick[i].device, win_disp->window,
-                      DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+   for (i = 0; i < MAX_JOYSTICKS; i++) {
+      HRESULT hr;
+
+      if (!joydx_joystick[i].device)
+         continue;
+
+      hr = IDirectInputDevice8_SetCooperativeLevel(joydx_joystick[i].device, win_disp->window,
+         DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
       if (FAILED(hr)) {
          ALLEGRO_ERROR("IDirectInputDevice8_SetCooperativeLevel failed.\n");
          return;
@@ -461,11 +486,32 @@ void _al_win_joystick_dinput_grab(void *param)
 }
 
 
-static char *my_strdup(char const *str)
+static ALLEGRO_JOYSTICK_DIRECTX *joydx_by_guid(const GUID guid)
 {
-   char *dup = al_malloc(strlen(str) + 1);
-   strcpy(dup, str);
-   return dup;
+   unsigned i;
+
+   for (i = 0; i < MAX_JOYSTICKS; i++) {
+      if (GUID_EQUAL(joydx_joystick[i].guid, guid))
+         return &joydx_joystick[i];
+   }
+
+   return NULL;
+}
+
+
+static ALLEGRO_JOYSTICK_DIRECTX *joydx_allocate_structure(int *num)
+{
+   int i;
+
+   for (i = 0; i < MAX_JOYSTICKS; i++) {
+      if (joydx_joystick[i].config_state == STATE_UNUSED) {
+         *num = i;
+         return &joydx_joystick[i];
+      }
+   }
+
+   *num = -1;
+   return NULL;
 }
 
 
@@ -474,61 +520,52 @@ static char *my_strdup(char const *str)
  */
 static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef)
 {
-#define GUIDTYPE_EQ(x) (memcmp(&lpddoi->guidType, &x, sizeof(GUID)) == 0)
+#define GUIDTYPE_EQ(x)  GUID_EQUAL(lpddoi->guidType, x)
 
    CAPS_AND_NAMES *can = pvRef;
 
    if (GUIDTYPE_EQ(__al_GUID_XAxis)) {
-      if (!can->have_x) {
-         can->have_x = true;
-         can->name_x = my_strdup(lpddoi->tszName);
-      }
+      can->have_rx = true;
+      _al_sane_strncpy(can->name_x, lpddoi->tszName, NAME_LEN);
    }
    else if (GUIDTYPE_EQ(__al_GUID_YAxis)) {
-      if (!can->have_y) {
-         can->have_y = true;
-         can->name_y = my_strdup(lpddoi->tszName);
-      }
+      can->have_ry = true;
+      _al_sane_strncpy(can->name_y, lpddoi->tszName, NAME_LEN);
    }
    else if (GUIDTYPE_EQ(__al_GUID_ZAxis)) {
-      if (!can->have_z) {
-         can->have_z = true;
-         can->name_z = my_strdup(lpddoi->tszName);
-      }
+      can->have_rz = true;
+      _al_sane_strncpy(can->name_z, lpddoi->tszName, NAME_LEN);
    }
    else if (GUIDTYPE_EQ(__al_GUID_RxAxis)) {
-      if (!can->have_rx) {
-         can->have_rx = true;
-         can->name_rx = my_strdup(lpddoi->tszName);
-      }
+      can->have_rx = true;
+      _al_sane_strncpy(can->name_rx, lpddoi->tszName, NAME_LEN);
    }
    else if (GUIDTYPE_EQ(__al_GUID_RyAxis)) {
-      if (!can->have_ry) {
-         can->have_ry = true;
-         can->name_ry = my_strdup(lpddoi->tszName);
-      }
+      can->have_ry = true;
+      _al_sane_strncpy(can->name_ry, lpddoi->tszName, NAME_LEN);
    }
    else if (GUIDTYPE_EQ(__al_GUID_RzAxis)) {
-      if (!can->have_rz) {
-         can->have_rz = true;
-         can->name_rz = my_strdup(lpddoi->tszName);
-      }
+      can->have_rz = true;
+      _al_sane_strncpy(can->name_rz, lpddoi->tszName, NAME_LEN);
    }
    else if (GUIDTYPE_EQ(__al_GUID_Slider)) {
       if (can->num_sliders < MAX_SLIDERS) {
-         can->name_slider[can->num_sliders] = my_strdup(lpddoi->tszName);
+         _al_sane_strncpy(can->name_slider[can->num_sliders], lpddoi->tszName,
+            NAME_LEN);
          can->num_sliders++;
       }
    }
    else if (GUIDTYPE_EQ(__al_GUID_POV)) {
       if (can->num_povs < MAX_POVS) {
-         can->name_pov[can->num_povs] = my_strdup(lpddoi->tszName);
+         _al_sane_strncpy(can->name_pov[can->num_povs], lpddoi->tszName,
+            NAME_LEN);
          can->num_povs++;
       }
    }
    else if (GUIDTYPE_EQ(__al_GUID_Button)) {
       if (can->num_buttons < MAX_BUTTONS) {
-         can->name_button[can->num_buttons] = my_strdup(lpddoi->tszName);
+         _al_sane_strncpy(can->name_button[can->num_buttons], lpddoi->tszName,
+            NAME_LEN);
          can->num_buttons++;
       }
    }
@@ -539,20 +576,36 @@ static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVO
 }
 
 
+static char *add_string(char **pbuf, const char *src, int *psize)
+{
+   char *dest = *pbuf;
+   size_t n;
 
-/* fill_joystick_info: [primary thread]
+   _al_sane_strncpy(dest, src, *psize);
+   n = strlen(dest) + 1;
+   (*psize) -= n;
+   (*pbuf) += n;
+
+   return dest;
+}
+
+
+/* fill_joystick_info_using_caps_and_names: [primary thread]
  *  Helper to fill in the contents of the joystick structure using the
  *  information painstakingly stored into the caps_and_names substructure.
  */
-static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *joy)
+static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *joy,
+   const CAPS_AND_NAMES *can)
 {
    _AL_JOYSTICK_INFO *info = &joy->parent.info;
-   CAPS_AND_NAMES *can = &joy->caps_and_names;
+   char *buf = joy->all_names;
+   int rem = sizeof(joy->all_names);
    int i;
 
-#define N_STICK   (info->num_sticks)
-#define N_AXIS    (info->stick[N_STICK].num_axes)
-#define OR(A, B)  ((A) ? (A) : (B))
+#define N_STICK         (info->num_sticks)
+#define N_AXIS          (info->stick[N_STICK].num_axes)
+#define OR(A, B)        ((A) ? ADD_STRING(A) : ADD_STRING(B))
+#define ADD_STRING(s)   add_string(&buf, (s), &rem)
 
    /* the X, Y, Z axes make up the first stick */
    if (can->have_x || can->have_y || can->have_z) {
@@ -580,7 +633,7 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
          N_AXIS++;
       }
 
-      info->stick[N_STICK].name = default_name_stick;
+      info->stick[N_STICK].name = ADD_STRING(default_name_stick);
       N_STICK++;
    }
 
@@ -610,7 +663,7 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
          N_AXIS++;
       }
 
-      info->stick[N_STICK].name = default_name_stick;
+      info->stick[N_STICK].name = ADD_STRING(default_name_stick);
       N_STICK++;
    }
 
@@ -618,7 +671,7 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
    for (i = 0; i < can->num_sliders; i++) {
       info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL | ALLEGRO_JOYFLAG_ANALOGUE;
       info->stick[N_STICK].num_axes = 1;
-      info->stick[N_STICK].axis[0].name = "";
+      info->stick[N_STICK].axis[0].name = ADD_STRING("axis");
       info->stick[N_STICK].name = OR(can->name_slider[i], default_name_slider);
       joy->slider_mapping[i].stick = N_STICK;
       joy->slider_mapping[i].axis  = 0;
@@ -629,16 +682,12 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
    for (i = 0; i < can->num_povs; i++) {
       info->stick[N_STICK].flags = ALLEGRO_JOYFLAG_DIGITAL;
       info->stick[N_STICK].num_axes = 2;
-      info->stick[N_STICK].axis[0].name = "left/right";
-      info->stick[N_STICK].axis[1].name = "up/down";
+      info->stick[N_STICK].axis[0].name = ADD_STRING("left/right");
+      info->stick[N_STICK].axis[1].name = ADD_STRING("up/down");
       info->stick[N_STICK].name = OR(can->name_pov[i], default_name_hat);
       joy->pov_mapping_stick[i] = N_STICK;
       N_STICK++;
    }
-
-#undef N_AXIS
-#undef N_STICK
-#undef MAYBE_NAME
 
    /* buttons */
    for (i = 0; i < can->num_buttons; i++) {
@@ -646,6 +695,11 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
    }
 
    info->num_buttons = can->num_buttons;
+
+#undef N_AXIS
+#undef N_STICK
+#undef OR
+#undef ADD_STRING
 }
 
 
@@ -656,15 +710,6 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
  */
 static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
 {
-   LPDIRECTINPUTDEVICE _dinput_device1;
-   LPDIRECTINPUTDEVICE2 dinput_device = NULL;
-   HRESULT hr;
-   LPVOID temp;
-
-   int *num;
-   ALLEGRO_JOYSTICK_DIRECTX *joys;
-   HANDLE *wakers;
-
    DIPROPRANGE property_range =
    {
       /* the header */
@@ -708,16 +753,23 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
       DEVICE_BUFFER_SIZE        // number of data items
    };
 
+   LPDIRECTINPUTDEVICE _dinput_device1;
+   LPDIRECTINPUTDEVICE2 dinput_device = NULL;
+   HRESULT hr;
+   LPVOID temp;
+   CAPS_AND_NAMES caps_and_names;
+   ALLEGRO_JOYSTICK_DIRECTX *joy;
+   int num;
+
    (void)pvRef;
 
-   num = &joydx_num_joysticks_real;
-   joys = joydx_joystick_real;
-   wakers = joydx_thread_wakers_real;
-
-   ASSERT(*num >= 0 && *num < MAX_JOYSTICKS-1);
-   //ASSERT(!JOYSTICK_WAKER(*num));
-
-   memset(&joys[*num], 0, sizeof(joys[*num]));
+   /* check if the joystick already existed before */
+   joy = joydx_by_guid(lpddi->guidInstance);
+   if (joy) {
+      ALLEGRO_DEBUG("Device %s still exists\n", joydx_guid_string(joy));
+      joy->marked = true;
+      return DIENUM_CONTINUE;
+   }
 
    /* create the DirectInput joystick device */
    hr = IDirectInput8_CreateDevice(joystick_dinput, &lpddi->guidInstance, &_dinput_device1, NULL);
@@ -733,9 +785,9 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    dinput_device = temp;
 
    /* enumerate objects available on the device */
+   memset(&caps_and_names, 0, sizeof(caps_and_names));
    hr = IDirectInputDevice8_EnumObjects(dinput_device, object_enum_callback,
-                                        &joys[*num].caps_and_names,
-                                        DIDFT_PSHBUTTON | DIDFT_AXIS | DIDFT_POV);
+      &caps_and_names, DIDFT_PSHBUTTON | DIDFT_AXIS | DIDFT_POV);
    if (FAILED(hr))
       goto Error;
 
@@ -759,21 +811,34 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    if (FAILED(hr))
       goto Error;
 
-   /* fill in the joystick structure */
-   fill_joystick_info_using_caps_and_names(&joys[*num]);
-   joys[*num].device = dinput_device;
+   /* set up the joystick structure */
+   joy = joydx_allocate_structure(&num);
+   if (!joy) {
+      ALLEGRO_ERROR("Joystick array full\n");
+      goto Error;
+   }
 
-   /* create a thread event for this joystick */
-   JOYSTICK_WAKER(*num) = CreateEvent(NULL, false, false, NULL);
+   joy->config_state = STATE_BORN;
+   joy->marked = true;
+   joy->device = dinput_device;
+   memcpy(&joy->guid, &lpddi->guidInstance, sizeof(GUID));
+
+   _al_sane_strncpy(joy->name, lpddi->tszInstanceName, sizeof(joy->name));
+
+   /* fill in the joystick structure */
+   fill_joystick_info_using_caps_and_names(joy, &caps_and_names);
+
+   /* create a thread event for this joystick, unless it was already created */
+   joy->waker_event = CreateEvent(NULL, false, false, NULL);
 
    /* tell the joystick background thread to wake up when this joystick
     * device's state changes
     */
-   hr = IDirectInputDevice8_SetEventNotification(joys[*num].device, 
-                                                 JOYSTICK_WAKER(*num));
+   hr = IDirectInputDevice8_SetEventNotification(joy->device, joy->waker_event);
 
    if (FAILED(hr)) {
-      ALLEGRO_ERROR("SetEventNotification failed for joystick %d: %s\n", joydx_num_joysticks, dinput_err_str(hr));
+      ALLEGRO_ERROR("SetEventNotification failed for joystick %d: %s\n",
+         num, dinput_err_str(hr));
       goto Error;
    }
 
@@ -786,11 +851,11 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
        * are there going to be on a system?
        */
 
-     CloseHandle(JOYSTICK_WAKER(*num));
+      CloseHandle(joy->waker_event);
  
-      JOYSTICK_WAKER(*num) = CreateWaitableTimer(NULL, false, NULL);
-      if (JOYSTICK_WAKER(*num) == NULL) {
-         ALLEGRO_ERROR("CreateWaitableTimer failed in wjoydxnu.c\n");
+      joy->waker_event = CreateWaitableTimer(NULL, false, NULL);
+      if (joy->waker_event == NULL) {
+         ALLEGRO_ERROR("CreateWaitableTimer failed for polled device.\n");
          goto Error;
       }
 
@@ -798,36 +863,61 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
          LARGE_INTEGER due_time;
          due_time.HighPart = 0;
          due_time.LowPart = 150; /* 15 ms (arbitrary) */
-         SetWaitableTimer(JOYSTICK_WAKER(*num), 
+         SetWaitableTimer(joy->waker_event,
                           &due_time, true, /* periodic */
                           NULL, NULL, false);
       }
    }
 
-   // Save unique product ID
-   memcpy(&(joys[*num].guid), &lpddi->guidProduct, sizeof(GUID));
-  
-   ALLEGRO_INFO("Joystick %d initialized\n", *num);
-   ALLEGRO_INFO("New joy GUID is %s\n", _joydx_guid_string(&joys[*num]));
+   ALLEGRO_INFO("Joystick %d initialized, GUID: %s\n",
+      num, joydx_guid_string(joy));
 
-   (*num)++;
+   config_needs_merging = true;
 
    return DIENUM_CONTINUE;
 
  Error:
 
-   if (JOYSTICK_WAKER(*num)) {
-      CloseHandle(JOYSTICK_WAKER(*num));
-      JOYSTICK_WAKER(*num) = NULL;
-   }
-
    if (dinput_device)
       IDirectInputDevice8_Release(dinput_device);
+
+   if (joy) {
+      joy->device = NULL;
+      joydx_inactivate_joy(joy);
+   }
 
    return DIENUM_CONTINUE;
 }
 
-static void _joydx_generate_configure_event(void)
+
+static void joydx_inactivate_joy(ALLEGRO_JOYSTICK_DIRECTX *joy)
+{
+   if (joy->config_state == STATE_UNUSED)
+      return;
+   joy->config_state = STATE_UNUSED;
+   joy->marked = false;
+
+   if (joy->device) {
+      IDirectInputDevice8_SetEventNotification(joy->device, NULL);
+      IDirectInputDevice8_Release(joy->device);
+      joy->device = NULL;
+   }
+
+   memset(&joy->guid, 0, sizeof(GUID));
+
+   if (joy->waker_event) {
+      CloseHandle(joy->waker_event);
+      joy->waker_event = NULL;
+   }
+
+   memset(&joy->parent.info, 0, sizeof(joy->parent.info));
+   /* XXX the joystick name really belongs in joy->parent.info too */
+   joy->name[0] = '\0';
+   memset(&joy->joystate, 0, sizeof(joy->joystate));
+}
+
+
+static void joydx_generate_configure_event(void)
 {
    ALLEGRO_EVENT event;
    event.joystick.type = ALLEGRO_EVENT_JOYSTICK_CONFIGURATION;
@@ -836,94 +926,81 @@ static void _joydx_generate_configure_event(void)
    _al_generate_joystick_event(&event);
 }
 
-bool _joydx_scan(bool configure)
+
+static bool joydx_scan(bool configure)
 {
    HRESULT hr;
-   int i, j;
+   unsigned i;
 
-   merged = false;
+   /* Clear mark bits. */
+   for (i = 0; i < MAX_JOYSTICKS; i++)
+      joydx_joystick[i].marked = false;
 
    /* enumerate the joysticks attached to the system */
-   hr = IDirectInput8_EnumDevices(joystick_dinput, DI8DEVCLASS_GAMECTRL, joystick_enum_callback, NULL, DIEDFL_ATTACHEDONLY);
+   hr = IDirectInput8_EnumDevices(joystick_dinput, DI8DEVCLASS_GAMECTRL,
+      joystick_enum_callback, NULL, DIEDFL_ATTACHEDONLY);
    if (FAILED(hr)) {
+      /* XXX will this ruin everything? */
       IDirectInput8_Release(joystick_dinput);
       joystick_dinput = NULL;
       return false;
    }
 
-   if (configure) {
-      // Generate a configure event if anything changed
-      if (joydx_num_joysticks != joydx_num_joysticks_real) {
-         _joydx_generate_configure_event();
-         return true;
-      }
-      for (i = 0; i < joydx_num_joysticks; i++) {
-         bool found = false;
-         for (j = 0; j < joydx_num_joysticks_real; j++) {
-            if (IS_SAME_DEVICE(joydx_joystick[i], joydx_joystick_real[j])) {
-               found = true;
-               break;
-            }
-         }
-         if (!found) {
-            _joydx_generate_configure_event();
-            return true;
-         }
+   /* Schedule unmarked structures to be inactivated. */
+   for (i = 0; i < MAX_JOYSTICKS; i++) {
+      ALLEGRO_JOYSTICK_DIRECTX *joy = &joydx_joystick[i];
+
+      if (joy->config_state == STATE_ALIVE && !joy->marked) {
+         ALLEGRO_DEBUG("Joystick %s to be inactivated\n", joydx_guid_string(joy));
+         joy->config_state = STATE_DYING;
+         config_needs_merging = true;
       }
    }
 
-   return true;
+   if (config_needs_merging && configure)
+      joydx_generate_configure_event();
+
+   return config_needs_merging;
 }
 
-static void _joydx_merge(void)
+
+static void joydx_merge(void)
 {
-   int i, j;
-   int count = 0;
+   unsigned i;
+   HRESULT hr;
 
-   merged = true;
+   config_needs_merging = false;
+   joydx_num_joysticks = 0;
 
-   EnterCriticalSection(&joydx_thread_cs);
+   for (i = 0; i < MAX_JOYSTICKS; i++) {
+      ALLEGRO_JOYSTICK_DIRECTX *joy = &joydx_joystick[i];
 
-   ALLEGRO_INFO("Merging %d %d\n", joydx_num_joysticks, joydx_num_joysticks_real);
-
-   // Delete all current
-   for (i = 0; i < joydx_num_joysticks; i++) {
-      bool found = false;
-      for (j = 0; j < joydx_num_joysticks_real; j++) {
-         if (IS_SAME_DEVICE(joydx_joystick[i], joydx_joystick_real[j])) {
-            found = true;
+      switch (joy->config_state) {
+         case STATE_UNUSED:
             break;
-         }
-      }
-      if (found) {
-         memcpy(&joydx_joystick[count], &joydx_joystick[i], sizeof(ALLEGRO_JOYSTICK_DIRECTX));
-         joydx_thread_wakers[1+count] = joydx_thread_wakers[1+i];
-         count++;
-      }
-      else {
-         joydx_destroy_joy(&joydx_joystick[i], true);
+
+         case STATE_BORN:
+            hr = IDirectInputDevice8_Acquire(joy->device);
+            if (FAILED(hr)) {
+               ALLEGRO_ERROR("acquire joystick %d failed: %s\n",
+                  i, dinput_err_str(hr));
+            }
+            joy->config_state = STATE_ALIVE;
+            /* fall through */
+         case STATE_ALIVE:
+            JOYSTICK_WAKER(joydx_num_joysticks) = joy->waker_event;
+            joydx_num_joysticks++;
+            break;
+
+         case STATE_DYING:
+            joydx_inactivate_joy(joy);
+            break;
       }
    }
-   for (i = 0; i < joydx_num_joysticks_real; i++) {
-      bool found = false;
-      for (j = 0; j < count; j++) {
-         if (IS_SAME_DEVICE(joydx_joystick[j], joydx_joystick_real[i])) {
-            found = true;
-            break;
-         }
-      }
-      if (!found) {
-         memcpy(&joydx_joystick[count], &joydx_joystick_real[i], sizeof(ALLEGRO_JOYSTICK_DIRECTX));
-         joydx_thread_wakers[1+count] = joydx_thread_wakers_real[1+i];
-         count++;
-      }
-      joydx_destroy_joy(&joydx_joystick_real[i], false);
-   }
 
-   joydx_num_joysticks = count;
-   joydx_num_joysticks_real = 0;
+   ALLEGRO_INFO("Merged, num joysticks=%d\n", joydx_num_joysticks);
 
-   LeaveCriticalSection(&joydx_thread_cs);
+   joystick_dinput_acquire();
 }
 
 
@@ -943,11 +1020,6 @@ static bool joydx_init_joystick(void)
    size_t i;
 
    MAKE_UNION(&joystick_dinput, LPDIRECTINPUT *);
-
-   /* make sure all the constants add up */
-   /* the first two sticks are (x,y,z) and (rx,ry,rz) */
-   ASSERT(_AL_MAX_JOYSTICK_STICKS >= (2 + MAX_SLIDERS + MAX_POVS));
-   ASSERT(_AL_MAX_JOYSTICK_BUTTONS >= MAX_BUTTONS);
 
    ASSERT(!joystick_dinput);
    ASSERT(!joydx_num_joysticks);
@@ -984,11 +1056,10 @@ static bool joydx_init_joystick(void)
    InitializeCriticalSection(&joydx_thread_cs);
 
    // This initializes present joystick state
-   if (!_joydx_scan(false))
-      return false;
-   
+   joydx_scan(false);
+
    // This copies present state to user state
-   _joydx_merge();
+   joydx_merge();
 
    /* create the dedicated thread stopping event */
    STOP_EVENT = CreateEvent(NULL, false, false, NULL);
@@ -1012,45 +1083,6 @@ static bool joydx_init_joystick(void)
 
 
 
-/* free_caps_and_names_strings: [primary thread]
- *  Free the dynamically allocated strings in a CAPS_AND_NAMES
- *  structure.  Incidentally, this is the only reason why the
- *  caps_and_names field is kept around in ALLEGRO_JOYSTICK_DIRECTX.
- */
-static void free_caps_and_names_strings(CAPS_AND_NAMES *can)
-{
-#define FREE(x)         \
-   do {                 \
-      if (x) {          \
-         al_free(x);   \
-         x = NULL;      \
-      }                 \
-   } while(0)           \
-
-   int k;
-
-   FREE(can->name_x);
-   FREE(can->name_y);
-   FREE(can->name_z);
-   FREE(can->name_rx);
-   FREE(can->name_ry);
-   FREE(can->name_rz);
-
-   for (k=0; k<MAX_SLIDERS; k++) {
-      FREE(can->name_slider[k]);
-   }
-
-   for (k=0; k<MAX_POVS; k++) {
-      FREE(can->name_pov[k]);
-   }
-
-   for (k=0; k<MAX_BUTTONS; k++) {
-      FREE(can->name_button[k]);
-   }
-
-#undef FREE
-}
-
 /* joydx_exit_joystick: [primary thread]
  *  Shuts down the DirectInput joystick devices.
  */
@@ -1059,7 +1091,6 @@ static void joydx_exit_joystick(void)
    int i;
    ALLEGRO_SYSTEM *system;
    size_t j;
-   HANDLE *wakers;
 
    ASSERT(joydx_thread);
 
@@ -1068,8 +1099,6 @@ static void joydx_exit_joystick(void)
    WaitForSingleObject(joydx_thread, INFINITE);
    CloseHandle(joydx_thread);
    joydx_thread = NULL;
-
-   _joydx_merge();
 
    /* free thread resources */
    CloseHandle(STOP_EVENT);
@@ -1088,23 +1117,41 @@ static void joydx_exit_joystick(void)
    }
 
    /* destroy the devices */
-   wakers = joydx_thread_wakers;
-   for (i = 0; i < joydx_num_joysticks; i++) {
-      joydx_destroy_joy(&joydx_joystick[i], true);
-      CloseHandle(JOYSTICK_WAKER(i));
+   for (i = 0; i < MAX_JOYSTICKS; i++) {
+      joydx_inactivate_joy(&joydx_joystick[i]);
+   }
+   joydx_num_joysticks = 0;
+
+   for (i = 0; i < MAX_JOYSTICKS; i++) {
       JOYSTICK_WAKER(i) = NULL;
    }
 
    /* destroy the DirectInput interface */
    IDirectInput8_Release(joystick_dinput);
+   joystick_dinput = NULL;
 
    /* release module handle */
    FreeLibrary(_al_dinput_module);
+}
 
-   joystick_dinput = NULL;
 
-   joydx_num_joysticks = 0;
-   joydx_num_joysticks_real = 0;
+
+/* joydx_reconfigure_joysticks: [primary thread]
+ */
+static bool joydx_reconfigure_joysticks(void)
+{
+   bool ret = false;
+
+   EnterCriticalSection(&joydx_thread_cs);
+
+   if (config_needs_merging) {
+      joydx_merge();
+      ret = true;
+   }
+
+   LeaveCriticalSection(&joydx_thread_cs);
+
+   return ret;
 }
 
 
@@ -1114,10 +1161,6 @@ static void joydx_exit_joystick(void)
  */
 static int joydx_get_num_joysticks(void)
 {
-   if (merged) {
-      return joydx_num_joysticks;
-   }
-   _joydx_merge();
    return joydx_num_joysticks;
 }
 
@@ -1130,13 +1173,36 @@ static int joydx_get_num_joysticks(void)
  */
 static ALLEGRO_JOYSTICK *joydx_get_joystick(int num)
 {
-   ALLEGRO_JOYSTICK_DIRECTX *joy = &joydx_joystick[num];
-   ALLEGRO_BITMAP *target;
+   ALLEGRO_JOYSTICK *ret;
+   unsigned i;
+   ASSERT(num >= 0);
 
-   target = al_get_target_bitmap();
-   _al_win_joystick_dinput_grab(target->display);
+   EnterCriticalSection(&joydx_thread_cs);
 
-   return (ALLEGRO_JOYSTICK *)joy;
+   for (i = 0; i < MAX_JOYSTICKS; i++) {
+      ALLEGRO_JOYSTICK_DIRECTX *joy = &joydx_joystick[i];
+
+      if (ACTIVE_STATE(joy->config_state)) {
+         if (num == 0) {
+            ret = (ALLEGRO_JOYSTICK *)joy;
+            break;
+         }
+         num--;
+      }
+   }
+
+   LeaveCriticalSection(&joydx_thread_cs);
+
+#if 0
+   /* is this needed? */
+   if (ret) {
+      ALLEGRO_DISPLAY *display = al_get_current_display();
+      if (display)
+         _al_win_joystick_dinput_grab(display);
+   }
+#endif
+
+   return ret;
 }
 
 
@@ -1147,16 +1213,6 @@ static ALLEGRO_JOYSTICK *joydx_get_joystick(int num)
 static void joydx_release_joystick(ALLEGRO_JOYSTICK *joy)
 {
    (void)joy;
-}
-
-
-static void joydx_destroy_joy(ALLEGRO_JOYSTICK_DIRECTX *joy, bool destroy_dev)
-{
-   if (destroy_dev) {
-      IDirectInputDevice8_SetEventNotification(joy->device, NULL);
-      IDirectInputDevice8_Release(joy->device);
-      free_caps_and_names_strings(&joy->caps_and_names);
-   }
 }
 
 
@@ -1176,10 +1232,18 @@ static void joydx_get_joystick_state(ALLEGRO_JOYSTICK *joy_, ALLEGRO_JOYSTICK_ST
 }
 
 
-static const char *joydx_get_name(ALLEGRO_JOYSTICK *joy)
+static const char *joydx_get_name(ALLEGRO_JOYSTICK *joy_)
 {
-   (void)joy;
-   return "Joystick";
+   ALLEGRO_JOYSTICK_DIRECTX *joy = (ALLEGRO_JOYSTICK_DIRECTX *)joy_;
+   return joy->name;
+}
+
+
+static bool joydx_get_active(ALLEGRO_JOYSTICK *joy)
+{
+   ALLEGRO_JOYSTICK_DIRECTX *joydx = (ALLEGRO_JOYSTICK_DIRECTX *)joy;
+
+   return ACTIVE_STATE(joydx->config_state);
 }
 
 
@@ -1189,65 +1253,45 @@ static const char *joydx_get_name(ALLEGRO_JOYSTICK *joy)
 static unsigned __stdcall joydx_thread_proc(LPVOID unused)
 {
    double last_update = al_current_time();
-   bool done = false;
 
    /* XXX is this needed? */
    _al_win_thread_init();
 
    while (true) {
       DWORD result;
-      int num;
-
-      result = WaitForMultipleObjects(joydx_num_joysticks+1, /* +1 for STOP_EVENT */
+      result = WaitForMultipleObjects(joydx_num_joysticks + 1, /* +1 for STOP_EVENT */
                                       joydx_thread_wakers,
                                       false,       /* wait for any */
                                       1000);   /* 1 second wait */
 
+      if (result == WAIT_OBJECT_0)
+         break; /* STOP_EVENT */
+
       EnterCriticalSection(&joydx_thread_cs);
       {
+         if (al_current_time() > last_update+1 || result == WAIT_TIMEOUT) {
+            joydx_scan(true);
+            last_update = al_current_time();
+         }
 
-      if (al_current_time() > last_update+1 || result == WAIT_TIMEOUT) {
-         last_update = al_current_time();
-         if (joydx_num_joysticks_real > 0) {
-            int i, j;
-            for (i = 0; i < joydx_num_joysticks_real; i++) {
-               bool found = false;
-               for (j = 0; j < joydx_num_joysticks; j++) {
-                  if (IS_SAME_DEVICE(joydx_joystick[j], joydx_joystick_real[i])) {
-                     found = true;
-                     break;
-                  }
-               }
-               if (found) {
-                  joydx_destroy_joy(&joydx_joystick_real[i], false);
-               }
-               else {
-                  joydx_destroy_joy(&joydx_joystick_real[i], true);
+         if (result != WAIT_TIMEOUT) {
+            int waker_num = result - WAIT_OBJECT_0 - 1; /* -1 for STOP_EVENT */
+            HANDLE waker = JOYSTICK_WAKER(waker_num);
+            unsigned i;
+
+            for (i = 0; i < MAX_JOYSTICKS; i++) {
+               if (waker == joydx_joystick[i].waker_event) {
+                  update_joystick(&joydx_joystick[i]);
+                  break;
                }
             }
+
+            if (i == MAX_JOYSTICKS) {
+               ALLEGRO_WARN("unable to match event to joystick\n");
+            }
          }
-         joydx_num_joysticks_real = 0;
-         _joydx_scan(true);
-         if (result == WAIT_TIMEOUT)
-            goto end_loop;
       }
-
-      if (result == WAIT_OBJECT_0) {
-         done = true;
-         goto end_loop;  /* thread suicide */
-      }
-
-      num = result - WAIT_OBJECT_0 - 1; /* -1 for STOP_EVENT */
-      if (num < 0 || num >= joydx_num_joysticks)
-         goto end_loop;
-
-      update_joystick(&joydx_joystick[num]);
-
-      }
-end_loop:
       LeaveCriticalSection(&joydx_thread_cs);
-      if (done)
-         break;
    }
 
    _al_win_thread_exit();
@@ -1269,8 +1313,6 @@ static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy)
    DWORD num_items = DEVICE_BUFFER_SIZE;
    HRESULT hr;
    ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
-
-
 
    /* some devices require polling */
    IDirectInputDevice8_Poll(joy->device);
@@ -1434,7 +1476,7 @@ static void generate_axis_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int stick, int ax
 
    event.joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
    event.joystick.timestamp = al_current_time();
-   event.joystick.id = (intptr_t)joy;
+   event.joystick.id = (ALLEGRO_JOYSTICK *)joy;
    event.joystick.stick = stick;
    event.joystick.axis = axis;
    event.joystick.pos = pos;
@@ -1459,7 +1501,7 @@ static void generate_button_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int button, ALL
 
    event.joystick.type = event_type;
    event.joystick.timestamp = al_current_time();
-   event.joystick.id = (intptr_t)joy;
+   event.joystick.id = (ALLEGRO_JOYSTICK *)joy;
    event.joystick.stick = 0;
    event.joystick.axis = 0;
    event.joystick.pos = 0.0;
@@ -1476,3 +1518,4 @@ static void generate_button_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int button, ALL
  * indent-tabs-mode: nil
  * End:
  */
+/* vim: set sts=3 sw=3 et: */
