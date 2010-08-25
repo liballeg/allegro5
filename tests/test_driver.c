@@ -82,24 +82,12 @@ static char const *bmp_type_to_string(BmpType bmp_type)
 
 static ALLEGRO_BITMAP *load_relative_bitmap(char const *filename)
 {
-   ALLEGRO_PATH *path;
-   ALLEGRO_PATH *tail;
-   char const *path_str;
    ALLEGRO_BITMAP *bmp;
 
-   path = al_get_standard_path(ALLEGRO_PROGRAM_PATH);
-   tail = al_create_path(filename);
-   al_join_paths(path, tail);
-   path_str = al_path_cstr(path, '/');
-
-   bmp = al_load_bitmap(path_str);
+   bmp = al_load_bitmap(filename);
    if (!bmp) {
-      error("failed to load %s", path_str);
+      error("failed to load %s", filename);
    }
-
-   al_destroy_path(path);
-   al_destroy_path(tail);
-
    return bmp;
 }
 
@@ -589,7 +577,7 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
    ALLEGRO_BITMAP *target, int bmp_type, bool reliable)
 {
 #define MAXBUF    80
-#define PAT       " %80[A-Za-z0-9_-.$|#] "
+#define PAT       " %80[-A-Za-z0-9_.$|#] "
 #define PAT1      PAT
 #define PAT2      PAT1 "," PAT1
 #define PAT3      PAT2 "," PAT1
