@@ -362,7 +362,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    /* Create text log window. */
    hWnd = CreateWindowA("Allegro Text Log", al_cstr(textlog->title),
       WS_CAPTION | WS_SIZEBOX | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU,
-      CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL,
+      CW_USEDEFAULT, CW_USEDEFAULT, 640, 480, NULL, NULL,
       (HINSTANCE)GetModuleHandle(NULL), textlog);
    if (!hWnd) {
       if (wlog_rich_edit_module) {
