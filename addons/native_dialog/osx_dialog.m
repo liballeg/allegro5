@@ -155,24 +155,56 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 }
 
 
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
+@interface LogView : NSTextView <NSWindowDelegate>
+#else
 @interface LogView : NSTextView
+#endif
 {
+	ALLEGRO_NATIVE_DIALOG *textlog;
 }
--(void) keyDown:(NSEvent*) event;
+@property ALLEGRO_NATIVE_DIALOG *textlog;
+- (void)keyDown: (NSEvent*)event;
+- (BOOL)windowShouldClose: (id)sender;
+- (void)emitCloseEventWithKeypress: (BOOL)keypress;
 @end
+
 
 @implementation LogView
 
-/* Keyboard event handler */
--(void) keyDown:(NSEvent*) event
+@synthesize textlog;
+
+- (void)keyDown: (NSEvent*)event
 {
    if (([event keyCode] == 0x35) ||                                                   // Escape
        (([event keyCode] == 0x0D) && ([event modifierFlags] & NSCommandKeyMask))) {   // Command+W
       [[self window] close];
+      [self emitCloseEventWithKeypress: YES];
    }
    else {
       [super keyDown: event];
    }
+}
+
+- (BOOL)windowShouldClose: (id)sender
+{
+   (void)sender;
+   if ([self textlog]->is_active) {
+      if (!([self textlog]->flags & ALLEGRO_TEXTLOG_NO_CLOSE)) {
+         [self emitCloseEventWithKeypress: NO];
+      }
+   }
+   return YES;
+}
+
+- (void)emitCloseEventWithKeypress: (BOOL)keypress
+{
+   ALLEGRO_EVENT event;
+   event.user.type = ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE;
+   event.user.timestamp = al_current_time();
+   event.user.data1 = (intptr_t)[self textlog];
+   event.user.data2 = (intptr_t)keypress;
+   al_emit_user_event(&[self textlog]->tl_events, &event, NULL);
 }
 
 @end
@@ -217,6 +249,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    
    rect = [[scrollView contentView] frame];
    LogView *view = [[LogView alloc] initWithFrame: rect];
+   [view setTextlog: textlog];
    [view setHorizontallyResizable: YES];
    [view setVerticallyResizable: YES];
    [view setAutoresizingMask: NSViewHeightSizable | NSViewWidthSizable];
@@ -230,6 +263,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    
    [[win contentView] addSubview: scrollView];
    
+   [win setDelegate: view];
    [win orderFront: nil];
    
    /* Save handles for future use. */
