@@ -560,7 +560,7 @@ static void check_similarity(char const *testname,
    double rms = bitmap_dissimilarity(bmp1, bmp2);
 
    /* This cutoff is "empirically determined" only. */
-   if (rms <= 17.0) {
+   if (rms <= 17.5) {
       if (reliable)
          printf("OK   %s [%s]\n", testname, bt);
       else
@@ -990,7 +990,7 @@ static bool section_exists(ALLEGRO_CONFIG const *cfg, char const *section)
 {
    void *iter;
 
-   return al_get_first_config_entry(cfg, section, &iter);
+   return al_get_first_config_entry(cfg, section, &iter) != NULL;
 }
 
 static void merge_config_sections(
