@@ -344,6 +344,18 @@ static void handle_mouse_capture(bool down, HWND hWnd)
    }
 }
 
+static void break_window_message_pump(ALLEGRO_DISPLAY_WIN *win_display, HWND hWnd)
+{
+  /* Get the ID of the thread which created the HWND and is processing its messages */
+   DWORD wnd_thread_id = GetWindowThreadProcessId(hWnd, NULL);
+
+   /* Set the "end_thread" flag to stop the message pump */
+   win_display->end_thread = true;
+
+   /* Wake-up the message pump so the thread can read the new value of "end_thread" */
+   PostThreadMessage(wnd_thread_id, WM_NULL, 0, 0);
+}
+
 static LRESULT CALLBACK window_callback(HWND hWnd, UINT message, 
     WPARAM wParam, LPARAM lParam)
 {
@@ -367,7 +379,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 
    if (message == _al_win_msg_suicide && wParam) {
       win_display = (ALLEGRO_DISPLAY_WIN*)wParam;
-      win_display->end_thread = true;
+      break_window_message_pump(win_display, hWnd);
       DestroyWindow(hWnd);
       return 0;
    }
@@ -386,7 +398,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       return DefWindowProc(hWnd,message,wParam,lParam); 
 
    if (message == _al_win_msg_suicide) {
-      win_display->end_thread = true;
+      break_window_message_pump(win_display, hWnd);
       DestroyWindow(hWnd);
       return 0;
    }

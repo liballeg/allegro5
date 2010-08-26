@@ -1427,10 +1427,10 @@ static void d3d_generic_window_message_loop(CREATE_WINDOW_INFO *info)
    info->inited = true;
 
    while (!win_display->end_thread) {
-      if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+      if (GetMessage(&msg, NULL, 0, 0) != 0)
          DispatchMessage(&msg);
-      }
-      al_rest(0.001);
+      else
+         break;                  /* WM_QUIT received or error (GetMessage returned -1)  */
    }
 
    info->quit = true;

@@ -1268,24 +1268,13 @@ static void display_thread_proc(void *arg)
    SetEvent(ndp->AckEvent);
 
    while (!win_disp->end_thread) {
-      if (WaitMessage()) {
-         /* messages are waiting in the queue */
-         while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
-            if (GetMessage(&msg, NULL, 0, 0)) {
-               DispatchMessage(&msg);
-            }
-            else {
-               goto End;
-            }
-         }
-      }
-      else {
-         ALLEGRO_ERROR("Wait failed.\n");
-         break;
-      }
+      /* get a message from the queue */
+      if (GetMessage(&msg, NULL, 0, 0) != 0)
+         DispatchMessage(&msg);
+      else
+         break;                 /* WM_QUIT received or error (GetMessage returned -1)  */
    }
 
-End:
    if (wgl_disp->glrc) {
       wglDeleteContext(wgl_disp->glrc);
       wgl_disp->glrc = NULL;
