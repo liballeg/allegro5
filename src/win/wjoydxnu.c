@@ -576,15 +576,25 @@ static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVO
 }
 
 
-static char *add_string(char **pbuf, const char *src, int *psize)
+static char *add_string(char *buf, const char *src, int *pos, int bufsize)
 {
-   char *dest = *pbuf;
-   size_t n;
+   char *dest = buf + *pos;
 
-   _al_sane_strncpy(dest, src, *psize);
-   n = strlen(dest) + 1;
-   (*psize) -= n;
-   (*pbuf) += n;
+   if (*pos >= bufsize - 1) {
+      /* Out of space. */
+      ASSERT(dest[0] == '\0');
+      return dest;
+   }
+
+   if (*pos > 0) {
+      /* Skip over NUL separator. */
+      dest++;
+      (*pos)++;
+   }
+
+   _al_sane_strncpy(dest, src, bufsize - *pos);
+   (*pos) += strlen(dest);
+   ASSERT(*pos < bufsize);
 
    return dest;
 }
@@ -598,14 +608,14 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
    const CAPS_AND_NAMES *can)
 {
    _AL_JOYSTICK_INFO *info = &joy->parent.info;
-   char *buf = joy->all_names;
-   int rem = sizeof(joy->all_names);
+   int pos = 0;
    int i;
 
 #define N_STICK         (info->num_sticks)
 #define N_AXIS          (info->stick[N_STICK].num_axes)
 #define OR(A, B)        ((A) ? ADD_STRING(A) : ADD_STRING(B))
-#define ADD_STRING(s)   add_string(&buf, (s), &rem)
+#define ADD_STRING(s)   add_string(joy->all_names, (s), &pos, \
+                           sizeof(joy->all_names))
 
    /* the X, Y, Z axes make up the first stick */
    if (can->have_x || can->have_y || can->have_z) {
