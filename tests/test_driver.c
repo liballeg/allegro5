@@ -580,7 +580,7 @@ static void check_similarity(ALLEGRO_CONFIG const *cfg,
       }
 
       printf("FAIL %s [%s] - RMS error is %g\n", testname, bt, rms);
-      printf("     hash is %s", hash);
+      printf("     hash is %s\n", hash);
       failed_tests++;
    }
 }
