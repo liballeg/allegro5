@@ -131,6 +131,7 @@ static ALLEGRO_BITMAP* create_glyph_cache(ALLEGRO_FONT const *f, int w,
     return ret;
 }
 
+
 static int render_glyph(ALLEGRO_FONT const *f,
    ALLEGRO_COLOR color, int prev, int ch,
     float xpos, float ypos, ALLEGRO_TTF_GLYPH_DATA **measure_glyph)
@@ -147,8 +148,12 @@ static int render_glyph(ALLEGRO_FONT const *f,
         int x, y, w, h;
         ALLEGRO_LOCKED_REGION *lr;
         ALLEGRO_STATE backup;
-
-        FT_Load_Glyph(face, ft_index, FT_LOAD_RENDER);
+        FT_Error e;
+        
+        e = FT_Load_Glyph(face, ft_index, FT_LOAD_RENDER);
+        if (e) {
+           ALLEGRO_WARN("Failed loading glyph %d from.\n", ft_index);
+        }
         w = face->glyph->bitmap.width;
         h = face->glyph->bitmap.rows;
 
@@ -163,19 +168,23 @@ static int render_glyph(ALLEGRO_FONT const *f,
         glyph->bitmap = create_glyph_cache(f, w, h, false);
 
         al_set_target_bitmap(glyph->bitmap);
-        lr = al_lock_bitmap(glyph->bitmap, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
+        lr = al_lock_bitmap(glyph->bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_WRITEONLY);
         /* In case this is an empty bitmap, we need to at least draw
          * the one pixel we use as minimum size.
          * TODO: Does A5 not support bitmap with zero dimensions?
-         * If it does, we can simpligy this.
+         * If it does, we can simplify this.
          */
         al_put_pixel(0, 0, al_map_rgba(0, 0, 0, 0));
         row = face->glyph->bitmap.buffer;
         for (y = 0; y < face->glyph->bitmap.rows; y++) {
-            unsigned char *ptr = row;
+            unsigned char *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
+            unsigned char *dptr = lr->data + lr->pitch * y;
             for (x = 0; x < face->glyph->bitmap.width; x++) {
                 unsigned char c = *ptr;
-                al_put_pixel(x, y, al_map_rgba(255, 255, 255, c));
+                *(dptr++) = 255;
+                *(dptr++) = 255;
+                *(dptr++) = 255;
+                *(dptr++) = c;
                 ptr++;
             }
             row += face->glyph->bitmap.pitch;
@@ -288,14 +297,19 @@ static void get_text_dimensions(ALLEGRO_FONT const *f,
 }
 
 #if 0
+#include <allegro5/allegro_image.h>
 static void debug_cache(ALLEGRO_FONT *f)
 {
    ALLEGRO_TTF_FONT_DATA *data = f->data;
    _AL_VECTOR *v = &data->cache_bitmaps;
+   static int j = 0;
    int i;
-   for (i = 0; i < _al_vector_size(v); i++) {
+   
+   al_init_image_addon();
+   
+   for (i = 0; i < (int)_al_vector_size(v); i++) {
       ALLEGRO_BITMAP **bmp = _al_vector_ref(v, i);
-      ALLEGRO_USTR *u = al_ustr_newf("font%d.png", i);
+      ALLEGRO_USTR *u = al_ustr_newf("font%d.png", j++);
       al_save_bitmap(al_cstr(u), *bmp);
       al_ustr_free(u);
    }
