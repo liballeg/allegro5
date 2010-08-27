@@ -10,7 +10,7 @@ Build like this:
 
 mkdir build
 cd build
-cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-iphone.cmake -G XCode ..
+cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-iphone.cmake -G Xcode ..
 xcodebuild
 
 Many things cannot be set up by cmake though, so you have to do them
