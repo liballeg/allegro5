@@ -238,8 +238,10 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    float tex_l, tex_t, tex_r, tex_b, w, h, tex_w, tex_h;
    float dw = sw, dh = sh;
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
-   ALLEGRO_OGL_BITMAP_VERTEX* verts;
+   ALLEGRO_OGL_BITMAP_VERTEX *verts;
    ALLEGRO_DISPLAY *disp = al_get_current_display();
+   
+   (void)flags;
 
    if (disp->num_cache_vertices != 0 && ogl_bitmap->texture != disp->cache_texture) {
       disp->vt->flush_vertex_cache(disp);
@@ -247,7 +249,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    disp->cache_texture = ogl_bitmap->texture;
 
    verts = disp->vt->prepare_vertex_cache(disp, 6);
-   
+
    tex_l = ogl_bitmap->left;
    tex_r = ogl_bitmap->right;
    tex_t = ogl_bitmap->top;
@@ -257,35 +259,11 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    h = bitmap->h;
    tex_w = 1.0 / ogl_bitmap->true_w;
    tex_h = 1.0 / ogl_bitmap->true_h;
-   
-   /* We need to fix positions if we draw a sub-bitmap which is outside
-    * of tis parent, as there is no texture for the outside part.
-    */
-   if (bitmap->parent) {
-      if (bitmap->xofs < 0) {
-         sx -= bitmap->xofs;
-         dx -= bitmap->xofs;
-         sw += bitmap->xofs;
-         dw += bitmap->xofs;
-      }
-      if (bitmap->yofs < 0) {
-         sy -= bitmap->yofs;
-         dy -= bitmap->yofs;
-         sh += bitmap->yofs;
-         dh += bitmap->yofs;
-      }
-   }
 
    tex_l += sx * tex_w;
    tex_t -= sy * tex_h;
    tex_r -= (w - sx - sw) * tex_w;
    tex_b += (h - sy - sh) * tex_h;
-   
-   if (flags & ALLEGRO_FLIP_HORIZONTAL)
-      SWAP(float, tex_l, tex_r);
-
-   if (flags & ALLEGRO_FLIP_VERTICAL)
-      SWAP(float, tex_t, tex_b);
 
    verts[0].x = dx;
    verts[0].y = dy+dh;
