@@ -23,6 +23,11 @@ static void ijoy_exit_joystick(void)
 {
 }
 
+static bool ijoy_reconfigure_joysticks(void)
+{
+    return false;
+}
+
 static int ijoy_num_joysticks(void)
 {
     return 1;
@@ -42,12 +47,8 @@ static ALLEGRO_JOYSTICK *ijoy_get_joystick(int num)
 
     memset(ijoy, 0, sizeof *ijoy);
     joy = (void *)ijoy;
-    
-    /* Initialise the event source part of it. */
-    _al_event_source_init(&joy->es);
 
     /* Fill in the joystick information fields. */
-    joy->num = num;
     joy->info.num_sticks = 1;
     joy->info.num_buttons = 0;
     joy->info.stick[0].name = "Accelerometer";
@@ -66,34 +67,33 @@ static ALLEGRO_JOYSTICK *ijoy_get_joystick(int num)
 
 static void ijoy_release_joystick(ALLEGRO_JOYSTICK *joy)
 {
-    ALLEGRO_DEBUG("Joystick %d released.\n", joy->num);
+    (void)joy;
+    ALLEGRO_DEBUG("Joystick released.\n");
     _al_iphone_accelerometer_control(0);
     initialized = false;
-
-    _al_event_source_free(&joy->es);
 }
 
 static void ijoy_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_state)
 {
     ALLEGRO_JOYSTICK_IPHONE *ijoy = (void *)joy;
+    ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
     
-    _al_event_source_lock(&joy->es);
+    _al_event_source_lock(es);
     *ret_state = ijoy->joystate;
-    _al_event_source_unlock(&joy->es);
+    _al_event_source_unlock(es);
 }
 
 void _al_iphone_generate_joystick_event(float x, float y, float z)
 {
     if (!initialized)
        return;
+    ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
 
-    ALLEGRO_JOYSTICK_IPHONE *ijoy = &the_joystick;
-    ALLEGRO_JOYSTICK *joy = (void *)ijoy;
     ALLEGRO_EVENT event;
 
-    _al_event_source_lock(&joy->es);
+    _al_event_source_lock(es);
     
-    if (_al_event_source_needs_to_generate_event(&joy->es)) {
+    if (_al_event_source_needs_to_generate_event(es)) {
         float pos[] = {x, y, z};
         for (int i = 0; i < 3; i++) {
             event.joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
@@ -102,10 +102,22 @@ void _al_iphone_generate_joystick_event(float x, float y, float z)
             event.joystick.axis = i;
             event.joystick.pos = pos[i];
             event.joystick.button = 0;
-            _al_event_source_emit_event(&joy->es, &event);
+            _al_event_source_emit_event(es, &event);
         }
     }
-    _al_event_source_unlock(&joy->es);
+    _al_event_source_unlock(es);
+}
+
+static char const *ijoy_get_name(ALLEGRO_JOYSTICK *joy)
+{
+    (void)joy;
+    return "Accelerometer";
+}
+
+static bool ijoy_get_active(ALLEGRO_JOYSTICK *joy)
+{
+    (void)joy;
+    return true;
 }
 
 static ALLEGRO_JOYSTICK_DRIVER iphone_joystick_driver = {
@@ -115,11 +127,13 @@ static ALLEGRO_JOYSTICK_DRIVER iphone_joystick_driver = {
    "iphone joystick",
     ijoy_init_joystick,
     ijoy_exit_joystick,
-    NULL, /* XXX implement al_reconfigure_joysticks */
+    ijoy_reconfigure_joysticks,
     ijoy_num_joysticks,
     ijoy_get_joystick,
     ijoy_release_joystick,
-    ijoy_get_joystick_state
+    ijoy_get_joystick_state,
+    ijoy_get_name,
+    ijoy_get_active
 };
 
 ALLEGRO_JOYSTICK_DRIVER *_al_get_iphone_joystick_driver(void)

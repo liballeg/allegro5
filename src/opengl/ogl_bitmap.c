@@ -789,8 +789,10 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       /* OpenGL does not support 15-bpp internal format without an alpha,
        * so when storing such data we must ensure the alpha bit is set.
        */
+      #ifndef ALLEGRO_IPHONE
       glPixelTransferi(GL_ALPHA_BIAS, 1);
       biased_alpha = true;
+      #endif
    }
 
 #if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
@@ -922,7 +924,9 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 #endif
 
    if (biased_alpha) {
+#ifndef ALLEGRO_IPHONE
       glPixelTransferi(GL_ALPHA_BIAS, 0);
+#endif
    }
 #ifndef ALLEGRO_IPHONE
    glPopClientAttrib();
