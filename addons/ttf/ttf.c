@@ -150,7 +150,10 @@ static int render_glyph(ALLEGRO_FONT const *f,
         ALLEGRO_STATE backup;
         FT_Error e;
         
-        e = FT_Load_Glyph(face, ft_index, FT_LOAD_RENDER);
+        // FIXME: Investigate why some fonts don't work without the
+        // NO_BITMAP flags. Supposedly using that flag makes small sizes
+        // look bad so ideally we would not used it.
+        e = FT_Load_Glyph(face, ft_index, FT_LOAD_RENDER | FT_LOAD_NO_BITMAP);
         if (e) {
            ALLEGRO_WARN("Failed loading glyph %d from.\n", ft_index);
         }
