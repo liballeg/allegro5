@@ -553,7 +553,8 @@ static double bitmap_dissimilarity(ALLEGRO_BITMAP *bmp1, ALLEGRO_BITMAP *bmp2)
    return sqrt(sqerr / (w*h*4.0));
 }
 
-static void check_similarity(char const *testname,
+static void check_similarity(ALLEGRO_CONFIG const *cfg,
+   char const *testname,
    ALLEGRO_BITMAP *bmp1, ALLEGRO_BITMAP *bmp2, BmpType bmp_type, bool reliable)
 {
    char const *bt = bmp_type_to_string(bmp_type);
@@ -568,7 +569,18 @@ static void check_similarity(char const *testname,
       passed_tests++;
    }
    else {
+      char const *exp = al_get_config_value(cfg, testname, "hash");
+      char hash[16];
+      sprintf(hash, "%08x", hash_bitmap(bmp1));
+
+      if (exp && streq(hash, exp)) {
+         printf("OK   %s [%s]\n", testname, bt);
+         passed_tests++;
+         return;
+      }
+
       printf("FAIL %s [%s] - RMS error is %g\n", testname, bt, rms);
+      printf("     hash is %s", hash);
       failed_tests++;
    }
 }
@@ -929,7 +941,7 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
    if (bmp_type == SW)
       check_hash(cfg, testname, target, bmp_type);
    else
-      check_similarity(testname, target, membuf, bmp_type, reliable);
+      check_similarity(cfg, testname, target, membuf, bmp_type, reliable);
 
    total_tests++;
 
