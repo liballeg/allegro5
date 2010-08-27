@@ -19,24 +19,26 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
    /* Note: buffer is now owned (and later freed) by the data object. */
    NSData *nsdata = [NSData dataWithBytesNoCopy:buffer length:size];
    NSImage *image = [[NSImage alloc] initWithData:nsdata];
+
    if (!image)
       return NULL;
 
-   NSSize s = [image size];
-   int w = s.width;
-   int h = s.height;
+   /* Get the image representations */
+   NSArray *reps = [image representations];
+   NSImageRep *image_rep = [reps objectAtIndex: 0];
 
    // Note: Do we want to support this on OSX 10.5? It doesn't have
    // CGImageForProposedRect...
-   //NSArray *reps = [image representations];
-   //NSImageRep *image_rep = [reps objectAtIndex: 0];
+   //CGImageRef cgimage = [image_rep CGImageForProposedRect: nil context: nil hints: nil];
    
-   //if (!image_rep) 
-   //   return NULL;
+   if (!image_rep) 
+      return NULL;
+
+   /* Get the actual size in pixels from the representation */
+   int w = [image_rep pixelsWide];
+   int h = [image_rep pixelsHigh];
 
    ALLEGRO_DEBUG("Read image of size %dx%d\n", w, h);
-
-   //CGImageRef cgimage = [image_rep CGImageForProposedRect: nil context: nil hints: nil];
 
    /* Now we need to draw the image into a memory buffer. */
    pixels = al_malloc(w * h * 4);
