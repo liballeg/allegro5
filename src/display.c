@@ -61,36 +61,24 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    
    _al_vector_init(&display->bitmaps, sizeof(ALLEGRO_BITMAP*));
 
-   al_set_target_bitmap(al_get_backbuffer(display));
-   
+   if (display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY])
+      al_set_target_bitmap(al_get_backbuffer(display));
+   else
+      _al_set_current_display_only(display);
+
    al_identity_transform(&identity);
    al_use_transform(&identity);
 
    /* Clear the screen */
-#ifndef ALLEGRO_GP2XWIZ
-   if (display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY])
+   if (display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY]) {
       al_clear_to_color(al_map_rgb(0, 0, 0));
-#else
-   al_clear_to_color(al_map_rgb(0, 0, 0));
-#endif
 
-   /* on iphone, don't kill the initial splashscreen */
+      /* on iphone, don't kill the initial splashscreen */
 #ifndef ALLEGRO_IPHONE
-   al_flip_display();
+      al_flip_display();
 #endif
+   }
 
-   /* Clear the backbuffer */
-#ifndef ALLEGRO_GP2XWIZ
-   if (display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY])
-      al_clear_to_color(al_map_rgb(0, 0, 0));
-#else
-   al_clear_to_color(al_map_rgb(0, 0, 0));
-#endif
-   
-#ifndef ALLEGRO_IPHONE
-   al_flip_display();
-#endif
-   
    al_set_window_title(display, al_get_app_name());
 
    return display;
