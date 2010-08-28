@@ -158,6 +158,26 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 }
 
 
+/* Function: al_set_current_opengl_context
+ */
+void al_set_current_opengl_context(ALLEGRO_DISPLAY *display)
+{
+   ASSERT(display);
+
+   if (!(display->flags & ALLEGRO_OPENGL))
+      return;
+
+   if (display) {
+      ALLEGRO_BITMAP *bmp = al_get_target_bitmap();
+      if (bmp && bmp->display && bmp->display != display) {
+         al_set_target_bitmap(NULL);
+      }
+   }
+
+   _al_set_current_display_only(display);
+}
+
+
 void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap)
 {
    int x_1, y_1, x_2, y_2, h;
