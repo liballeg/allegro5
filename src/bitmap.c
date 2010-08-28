@@ -240,21 +240,22 @@ static void _draw_tinted_rotated_scaled_bitmap_region(ALLEGRO_BITMAP *bitmap,
       parent = bitmap->parent;
       sx += bitmap->xofs;
       sy += bitmap->yofs;
-      if (sx < 0) {
-         sw += sx;
-         al_translate_transform(&t, -sx, 0);
-         sx = 0;
-      }
-      if (sy < 0) {
-         sh += sy;
-         al_translate_transform(&t, 0, -sy);
-         sy = 0;
-      }
-      if (sx + sw > parent->w)
-         sw = parent->w - sx;
-      if (sy + sh > parent->h)
-         sh = parent->h - sy;
    }
+   
+   if (sx < 0) {
+      sw += sx;
+      al_translate_transform(&t, -sx, 0);
+      sx = 0;
+   }
+   if (sy < 0) {
+      sh += sy;
+      al_translate_transform(&t, 0, -sy);
+      sy = 0;
+   }
+   if (sx + sw > parent->w)
+      sw = parent->w - sx;
+   if (sy + sh > parent->h)
+      sh = parent->h - sy;
 
    if (flags & ALLEGRO_FLIP_HORIZONTAL) {
       al_scale_transform(&t, -1, 1);
