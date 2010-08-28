@@ -51,12 +51,16 @@ typedef enum ALLEGRO_PIXEL_FORMAT
  * Bitmap flags
  */
 #define ALLEGRO_VIDEO_BITMAP          0x0000
+
 #define ALLEGRO_MEMORY_BITMAP         0x0001
 #define ALLEGRO_KEEP_BITMAP_FORMAT    0x0002
 #define ALLEGRO_FORCE_LOCKING         0x0004
 #define ALLEGRO_NO_PRESERVE_TEXTURE   0x0008
 #define ALLEGRO_ALPHA_TEST            0x0010
 #define _ALLEGRO_INTERNAL_OPENGL      0x0020
+#define ALLEGRO_MIN_LINEAR            0x0040
+#define ALLEGRO_MAG_LINEAR            0x0080
+#define ALLEGRO_MIPMAP                0x0100
 
 
 /* Flags for the blitting functions */
@@ -104,6 +108,7 @@ AL_FUNC(void, al_set_new_bitmap_format, (int format));
 AL_FUNC(void, al_set_new_bitmap_flags, (int flags));
 AL_FUNC(int, al_get_new_bitmap_format, (void));
 AL_FUNC(int, al_get_new_bitmap_flags, (void));
+AL_FUNC(void, al_add_new_bitmap_flag, (int flag));
 
 AL_FUNC(int, al_get_bitmap_width, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(int, al_get_bitmap_height, (ALLEGRO_BITMAP *bitmap));

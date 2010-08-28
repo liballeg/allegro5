@@ -608,6 +608,19 @@ void al_set_new_bitmap_flags(int flags)
 
 
 
+/* Function: al_add_new_bitmap_flag
+ */
+void al_add_new_bitmap_flag(int flag)
+{
+   thread_local_state *tls;
+
+   if ((tls = tls_get()) == NULL)
+      return;
+   tls->new_bitmap_flags |= flag;
+}
+
+
+
 /* Function: al_get_new_bitmap_format
  */
 int al_get_new_bitmap_format(void)

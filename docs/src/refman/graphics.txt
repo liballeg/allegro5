@@ -338,40 +338,69 @@ See also: [ALLEGRO_PIXEL_FORMAT], [al_set_new_bitmap_format]
 Sets the flags to use for newly created bitmaps.
 Valid flags are:
 
-* ALLEGRO_VIDEO_BITMAP - This is the default flag. Creates a bitmap that resides
-in the video card memory. These types of bitmaps receive the greatest benefit
-from hardware acceleration.
+ALLEGRO_VIDEO_BITMAP
+:   This is the default flag. Creates a bitmap that resides
+    in the video card memory. These types of bitmaps receive the greatest benefit
+    from hardware acceleration.
 
-* ALLEGRO_MEMORY_BITMAP - Create a bitmap residing in system memory.
-Operations on, and with, memory bitmaps will not be hardware accelerated.
-However, direct pixel access can be relatively quick compared to video bitmaps,
-which depend on the display driver in use.
-*Note: Allegro's software rendering routines are currently very unoptimised.*
+ALLEGRO_MEMORY_BITMAP 
+:   Create a bitmap residing in system memory.
+    Operations on, and with, memory bitmaps will not be hardware accelerated.
+    However, direct pixel access can be relatively quick compared to video bitmaps,
+    which depend on the display driver in use.
+    
+    *Note: Allegro's software rendering routines are currently very unoptimised.*
 
-* ALLEGRO_KEEP_BITMAP_FORMAT - Only used when loading bitmaps from disk files,
-forces the resulting ALLEGRO_BITMAP to use the same format as the file.
-*This is not yet honoured.*
+ALLEGRO_KEEP_BITMAP_FORMAT
+:   Only used when loading bitmaps from disk files,
+    forces the resulting ALLEGRO_BITMAP to use the same format as the file.
+    
+    *This is not yet honoured.*
 
-* ALLEGRO_FORCE_LOCKING - When drawing to a bitmap with this flag set, always
-use pixel locking and draw to it using Allegro's software drawing primitives.
-This should never be used if you plan to draw to the bitmap using Allegro's
-graphics primitives as it would cause severe performance penalties. However if
-you know that the bitmap will only ever be accessed by locking it, no unneeded
-FBOs will be created for it in the OpenGL drivers.
+ALLEGRO_FORCE_LOCKING 
+:   When drawing to a bitmap with this flag set, always
+    use pixel locking and draw to it using Allegro's software drawing primitives.
+    This should never be used if you plan to draw to the bitmap using Allegro's
+    graphics primitives as it would cause severe performance penalties. However if
+    you know that the bitmap will only ever be accessed by locking it, no unneeded
+    FBOs will be created for it in the OpenGL drivers.
 
-* ALLEGRO_NO_PRESERVE_TEXTURE - Normally, every effort is taken to preserve
-the contents of bitmaps, since Direct3D may forget them. This can take
-extra processing time. If you know it doesn't matter if a bitmap keeps its
-pixel data, for example its a temporary buffer, use this flag to tell Allegro
-not to attempt to preserve its contents. This can increase performance of
-your game or application, but there is a catch. See
-ALLEGRO_EVENT_DISPLAY_LOST for further information.
+ALLEGRO_NO_PRESERVE_TEXTURE
+:   Normally, every effort is taken to preserve
+    the contents of bitmaps, since Direct3D may forget them. This can take
+    extra processing time. If you know it doesn't matter if a bitmap keeps its
+    pixel data, for example its a temporary buffer, use this flag to tell Allegro
+    not to attempt to preserve its contents. This can increase performance of
+    your game or application, but there is a catch. See
+    ALLEGRO_EVENT_DISPLAY_LOST for further information.
 
-* ALLEGRO_ALPHA_TEST - This is a driver hint only. It tells the graphics
-driver to do alpha testing instead of alpha blending on bitmaps created
-with this flag. Alpha testing is usually faster and preferred if your
-bitmaps have only one level of alpha (0). This flag is currently not
-widely implemented (i.e., only for memory bitmaps).
+ALLEGRO_ALPHA_TEST
+:   This is a driver hint only. It tells the graphics
+    driver to do alpha testing instead of alpha blending on bitmaps
+    created with this flag. Alpha testing is usually faster and
+    preferred if your bitmaps have only one level of alpha (0). This
+    flag is currently not widely implemented (i.e., only for memory
+    bitmaps).
+
+ALLEGRO_MIN_LINEAR
+:   When drawing a scaled down version of the bitmap, use linear
+    filtering. This usually looks better. You can also combine it with
+    the MIPMAP flag for even better quality.
+
+ALLEGRO_MAG_LINEAR
+
+:   When drawing a magnified version of a bitmap, use linear filtering.
+    This will cause the picture to get blurry instead of creating a big
+    rectangle for each pixel. It depends on how you want things to look
+    like whether you want to use this or not.
+
+ALLEGRO_MIPMAP
+
+:   This can only be used for bitmaps whose width and height is a power
+    of two. In that case, it will generate mipmaps and use them when
+    drawing scaled down versions. For example if the bitmap is 64x64,
+    then extra bitmaps of sizes 32x32, 16x16, 8x8, 4x4, 2x2 and 1x1 will
+    be created always containing a scaled down version of the original.
 
 See also: [al_get_new_bitmap_flags], [al_get_bitmap_flags]
 

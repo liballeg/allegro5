@@ -915,17 +915,8 @@ static void main_loop(ALLEGRO_EVENT_QUEUE *queue)
    }
 }
 
-static void default_cfg_value(ALLEGRO_CONFIG *cfg, const char *section,
-   const char *key, const char *value)
-{
-   const char *val = al_get_config_value(cfg, section, key);
-   if (!val || val[0] == '\0')
-      al_set_config_value(cfg, section, key, value);
-}
-
 int main(void)
 {
-   ALLEGRO_CONFIG *cfg;
    ALLEGRO_EVENT_QUEUE *queue;
 
    if (!al_init()) {
@@ -937,12 +928,7 @@ int main(void)
    al_init_acodec_addon();
    al_init_image_addon();
 
-   cfg = al_get_system_config();
-   if (cfg) {
-      /* This should probably become a display option. */
-      default_cfg_value(cfg, "graphics", "min_filter", "linear");
-      default_cfg_value(cfg, "graphics", "mag_filter", "linear");
-   }
+   al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
 
    display = al_create_display(screen_w, screen_h);
    if (!display) {

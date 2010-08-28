@@ -64,6 +64,10 @@ a {
     color: #348;
 }
 
+dl dt {
+   font-weight: bold;
+}
+
 dt code {
     font-weight: bold;
 }

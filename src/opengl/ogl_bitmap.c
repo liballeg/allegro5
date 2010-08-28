@@ -67,18 +67,6 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
  * 0 ###########.....
  */
 
-static GLint ogl_min_filter = GL_NEAREST;
-static GLint ogl_mag_filter = GL_NEAREST;
-
-static GLint ogl_get_filter(const char *s)
-{
-   if (!_al_stricmp(s, "LINEAR"))
-      return GL_LINEAR;
-   if (!_al_stricmp(s, "ANISOTROPIC"))
-      return GL_LINEAR;
-   return GL_NEAREST;
-}
-
 /* Conversion table from Allegro's pixel formats to corresponding OpenGL
  * formats. The three entries are:
  * - GL internal format: the number of color components in the texture
@@ -437,8 +425,12 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    int w = bitmap->w;
    int h = bitmap->h;
-   static bool cfg_read = false;
    GLenum e;
+   int filter;
+   int gl_filters[] = {
+      GL_NEAREST, GL_LINEAR, GL_NEAREST_MIPMAP_LINEAR,
+      GL_LINEAR_MIPMAP_LINEAR
+   };
 
    if (ogl_bitmap->texture == 0) {
       glGenTextures(1, &ogl_bitmap->texture);
@@ -448,6 +440,10 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
    if (e) {
       ALLEGRO_ERROR("glBindTexture for texture %d failed (%s).\n",
          ogl_bitmap->texture, error_string(e));
+   }
+   
+   if (bitmap->flags & ALLEGRO_MIPMAP) {
+      glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
    }
 
 #ifndef ALLEGRO_IPHONE
@@ -502,29 +498,32 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       // the problem try to use multiple textures?
       return false;
    }
-
-   if (!cfg_read) {
-      ALLEGRO_SYSTEM *sys;
-      const char *s;
-
-      cfg_read = true;
-
-      sys = al_get_system_driver();
-
-      if (sys->config) {
-         s = al_get_config_value(sys->config, "graphics", "min_filter");
-         if (s)
-            ogl_min_filter = ogl_get_filter(s);
-         s = al_get_config_value(sys->config, "graphics", "mag_filter");
-         if (s)
-            ogl_mag_filter = ogl_get_filter(s);
-      }
-   }
-
+   
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, ogl_min_filter);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, ogl_mag_filter);
+
+   filter = bitmap->flags & ALLEGRO_MIPMAP ? 2 : 0;
+   if (bitmap->flags & ALLEGRO_MIN_LINEAR) {
+      filter++;
+   }
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+      gl_filters[filter]);
+    
+   filter = 0;
+   if (bitmap->flags & ALLEGRO_MAG_LINEAR) {
+      filter++;
+   }
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+      gl_filters[filter]);
+
+// TODO: To support anisotropy, we would need an API for it. Something
+// like:
+// al_set_new_bitmap_option(ALLEGRO_ANISOTROPY, 16.0);
+#if 0
+   if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_texture_filter_anisotropic) {
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
+   }
+#endif
 
    ogl_bitmap->left = 0;
    ogl_bitmap->right = (float) w / ogl_bitmap->true_w;
