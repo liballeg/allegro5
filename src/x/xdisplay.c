@@ -416,7 +416,6 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    }
 
    if (!_al_xglx_config_create_context(d)) {
-      ALLEGRO_ERROR("Failed to create a context.\n");
       xdpy_destroy_display(display);
       _al_mutex_unlock(&system->lock);
       return NULL;
@@ -430,11 +429,15 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
     * thread.
     */
    if (d->fbc) {
-      glXMakeContextCurrent(system->gfxdisplay, d->glxwindow, d->glxwindow,
-         d->context);
+      if (!glXMakeContextCurrent(system->gfxdisplay, d->glxwindow,
+            d->glxwindow, d->context)) {
+         ALLEGRO_ERROR("glXMakeContextCurrent failed\n");
+      }
    }
    else {
-      glXMakeCurrent(system->gfxdisplay, d->glxwindow, d->context);
+      if (!glXMakeCurrent(system->gfxdisplay, d->glxwindow, d->context)) {
+         ALLEGRO_ERROR("glXMakeCurrent failed\n");
+      }
    }
 
    _al_ogl_manage_extensions(display);

@@ -142,6 +142,14 @@ static float _al_ogl_version(void)
 
 
 
+static bool _al_ogl_version_3_only(int flags)
+{
+   const int mask = ALLEGRO_OPENGL_3_0 | ALLEGRO_OPENGL_FORWARD_COMPATIBLE;
+   return (flags & mask) == mask;
+}
+
+
+
 /* print_extensions:
  * Given a string containing extensions (i.e. a NULL terminated string where
  * each extension are separated by a space and which names do not contain any
@@ -175,7 +183,7 @@ float al_get_opengl_version(void)
 {
    ALLEGRO_DISPLAY *ogl_disp;
 
-   ogl_disp = (ALLEGRO_DISPLAY*)al_get_current_display();
+   ogl_disp = al_get_current_display();
    if (!ogl_disp || !ogl_disp->ogl_extras)
       return 0.0f;
 
@@ -484,7 +492,7 @@ int al_is_opengl_extension_supported(const char *extension)
    if (!(disp->flags & ALLEGRO_OPENGL))
       return false;
 
-   return _ogl_is_extension_supported(extension, (ALLEGRO_DISPLAY*)disp);
+   return _ogl_is_extension_supported(extension, disp);
 }
 
 
@@ -625,9 +633,14 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    ALLEGRO_OGL_EXT_API *ext_api;
    ALLEGRO_OGL_EXT_LIST *ext_list;
 
-   /* Print out OpenGL extensions */
-   ALLEGRO_DEBUG("OpenGL Extensions:\n");
-   print_extensions((char const *)glGetString(GL_EXTENSIONS));
+   /* Print out OpenGL extensions
+    * We should use glGetStringi(GL_EXTENSIONS, i) for OpenGL 3.0+
+    * but it doesn't seem to work until later.
+    */
+   if (_al_ogl_version_3_only(gl_disp->flags)) {
+      ALLEGRO_DEBUG("OpenGL Extensions:\n");
+      print_extensions((char const *)glGetString(GL_EXTENSIONS));
+   }
 
    /* Print out GLU version */
    //buf = gluGetString(GLU_VERSION);
@@ -776,8 +789,11 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
          }
       }
       else if (strstr(vendor, "ATI Technologies")) {
-         if (!strstr((const char *)glGetString(GL_EXTENSIONS),
-                     "GL_ARB_texture_non_power_of_two")
+         if (_al_ogl_version_3_only(gl_disp->flags)) {
+            /* Assume okay. */
+         }
+         else if (!strstr((const char *)glGetString(GL_EXTENSIONS),
+               "GL_ARB_texture_non_power_of_two")
              && gl_disp->ogl_extras->ogl_info.version >= 2.0f) {
             ext_list->ALLEGRO_GL_ARB_texture_non_power_of_two = 0;
          }
@@ -821,7 +837,12 @@ ALLEGRO_OGL_EXT_LIST *al_get_opengl_extension_list(void)
 
    disp = al_get_current_display();
    ASSERT(disp);
-   return ((ALLEGRO_DISPLAY*)disp)->ogl_extras->extension_list;
+
+   if (!(disp->flags & ALLEGRO_OPENGL))
+      return NULL;
+
+   ASSERT(disp->ogl_extras);
+   return disp->ogl_extras->extension_list;
 }
 
 
@@ -843,3 +864,5 @@ void _al_ogl_unmanage_extensions(ALLEGRO_DISPLAY *gl_disp)
    }
 #endif
 }
+
+/* vim: set sts=3 sw=3 et: */

@@ -105,6 +105,7 @@ static bool is_wgl_extension_supported(const char *extension, HDC dc)
    _ALLEGRO_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB;
    int ret;
 
+   /* XXX deprecated in OpenGL 3.0 */
    if (!glGetString(GL_EXTENSIONS))
       return false;
 

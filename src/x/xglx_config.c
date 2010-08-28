@@ -460,28 +460,30 @@ void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
 }
 
 static GLXContext create_context_new(int ver, Display *dpy, GLXFBConfig fb,
-   GLXContext ctx, bool fc, int major, int minor)
+   GLXContext ctx, bool forward_compat, int major, int minor)
 {
    typedef GLXContext (*GCCA_PROC) (Display*, GLXFBConfig, GLXContext, Bool, const int*);
-   GCCA_PROC _xglx_glXCreateContextAttribsARB;
+   GCCA_PROC _xglx_glXCreateContextAttribsARB = NULL;
+
    if (ver >= 140) {
       /* GLX 1.4 should have this */
       _xglx_glXCreateContextAttribsARB = glXCreateContextAttribsARB;
    }
-   else {
+   if (!_xglx_glXCreateContextAttribsARB) {
       /* Load the extension manually. */
       _xglx_glXCreateContextAttribsARB =
          (GCCA_PROC)glXGetProcAddress((const GLubyte*)"glXCreateContextAttribsARB");
-      if (!_xglx_glXCreateContextAttribsARB) {
-         TRACE("GLX_ARB_create_context not supported and needed for OpenGL 3\n");
-         return NULL;
-      }
    }
+   if (!_xglx_glXCreateContextAttribsARB) {
+      ALLEGRO_ERROR("GLX_ARB_create_context not supported and needed for OpenGL 3\n");
+      return NULL;
+   }
+
    int attrib[] = {GLX_CONTEXT_MAJOR_VERSION_ARB, major,
                    GLX_CONTEXT_MINOR_VERSION_ARB, minor,
                    GLX_CONTEXT_FLAGS_ARB, 0,
                    0};
-   if (fc)
+   if (forward_compat)
       attrib[5] = GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB;
    return _xglx_glXCreateContextAttribsARB(dpy, fb, ctx, True, attrib);
 }
@@ -503,10 +505,10 @@ bool _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
    if (glx->fbc) {
       /* Create a GLX context from FBC. */
       if (disp->flags & ALLEGRO_OPENGL_3_0) {
-         bool fc = disp->flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE;
+         bool forward_compat = disp->flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE;
          glx->context = create_context_new(glx->glx_version,
-            system->gfxdisplay, *glx->fbc, existing_ctx, fc, 3, 0);
-         disp->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = !fc;
+            system->gfxdisplay, *glx->fbc, existing_ctx, forward_compat, 3, 0);
+         disp->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = !forward_compat;
       }
       else {
          glx->context = glXCreateNewContext(system->gfxdisplay, *glx->fbc,
@@ -525,6 +527,7 @@ bool _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
    }
 
    if (!glx->context || !glx->glxwindow) {
+      ALLEGRO_ERROR("Failed to create GLX context.\n");
       return false;
    }
 
