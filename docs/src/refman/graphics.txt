@@ -404,6 +404,14 @@ ALLEGRO_MIPMAP
 
 See also: [al_get_new_bitmap_flags], [al_get_bitmap_flags]
 
+### API: al_add_new_bitmap_flag
+
+A convenience function which does the same as
+
+    al_set_new_bitmap_flags(al_get_new_bitmap_format() | flag);
+
+See also: [al_set_new_bitmap_flags], [al_get_new_bitmap_flags], [al_get_bitmap_flags]
+
 ### API: al_set_new_bitmap_format
 
 Sets the pixel format for newly created bitmaps.
