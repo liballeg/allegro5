@@ -41,6 +41,7 @@ See also: [al_destroy_font], [al_init_font_addon]
 ### API: al_destroy_font
 
 Frees the memory being used by a font structure.
+Does nothing if passed NULL.
 
 See also: [al_load_font]
 

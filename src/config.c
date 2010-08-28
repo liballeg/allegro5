@@ -342,6 +342,7 @@ ALLEGRO_CONFIG *al_load_config_file_f(ALLEGRO_FILE *file)
    ALLEGRO_USTR *section;
    ALLEGRO_USTR *key;
    ALLEGRO_USTR *value;
+   ASSERT(file);
 
    config = al_create_config();
    if (!config) {

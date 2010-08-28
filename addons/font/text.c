@@ -335,7 +335,8 @@ void al_get_text_dimensions(const ALLEGRO_FONT *f,
  */
 void al_destroy_font(ALLEGRO_FONT *f)
 {
-   ASSERT(f);
+   if (!f)
+      return;
 
    _al_unregister_destructor(_al_dtor_list, f);
 
