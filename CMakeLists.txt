@@ -268,7 +268,6 @@ if(IPHONE)
     set(WANT_X11 off)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
     set(CMAKE_EXE_LINKER_FLAGS "-framework CoreGraphics -framework QuartzCore -framework UIKit -framework Foundation -framework CoreFoundation")
-    SET (CMAKE_OSX_ARCHITECTURES "armv7")
 endif(IPHONE)
 
 if(BORLAND)

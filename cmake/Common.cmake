@@ -170,6 +170,16 @@ function(fix_executable nm)
         # FIXME:We want those as project attributes, not target attributes, but I don't know how
         set_target_properties(${nm} PROPERTIES XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer")
         set_target_properties(${nm} PROPERTIES XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1/2")
+        
+        # We have to add an icon to every executable on IPhone else
+        # cmake won't create a resource copy build phase for us.
+        # And re-creating those by hand would be a major pain.
+        set_target_properties(${nm} PROPERTIES MACOSX_BUNDLE_ICON_FILE icon.png)
+        
+        set_source_files_properties("${CMAKE_SOURCE_DIR}/misc/icon.png" PROPERTIES
+            MACOSX_PACKAGE_LOCATION "Resources"
+        )
+
     endif(IPHONE)
 endfunction(fix_executable)
 
@@ -201,6 +211,11 @@ function(add_our_executable nm)
     if(NOT srcs)
         set(srcs "${nm}.c")
     endif(NOT srcs)
+    
+    if(IPHONE)
+    set(EXECUTABLE_TYPE MACOSX_BUNDLE)
+    set(srcs ${srcs} "${CMAKE_SOURCE_DIR}/misc/icon.png")
+    endif(IPHONE)
 
     add_executable(${nm} ${EXECUTABLE_TYPE} ${srcs})
     target_link_libraries(${nm} ${libs})
@@ -220,6 +235,8 @@ function(add_our_executable nm)
             set_target_properties(${nm} PROPERTIES LINK_FLAGS "-Wl,-subsystem,windows")
         endif(NOT CMAKE_BUILD_TYPE STREQUAL Debug)
    endif(MINGW)
+   
+   fix_executable(${nm})
 endfunction(add_our_executable)
 
 # Recreate data directory for out-of-source builds.

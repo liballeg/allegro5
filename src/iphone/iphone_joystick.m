@@ -21,6 +21,8 @@ static bool ijoy_init_joystick(void)
 
 static void ijoy_exit_joystick(void)
 {
+    _al_iphone_accelerometer_control(0);
+    initialized = false;
 }
 
 static bool ijoy_reconfigure_joysticks(void)

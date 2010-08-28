@@ -15,9 +15,9 @@ configure_file(
 # FREETYPE_LIBRARIES should include zlib automatically if statically linking,
 # but it doesn't.
 find_package(ZLIB)
-if(ZLIB_FOUND)
+if(ZLIB_FOUND AND NOT IPHONE)
     list(APPEND FREETYPE_LIBRARIES ${ZLIB_LIBRARIES})
-endif(ZLIB_FOUND)
+endif()
 
 add_our_library(allegro_ttf
     "${TTF_SOURCES};${TTF_INCLUDE_FILES}"
