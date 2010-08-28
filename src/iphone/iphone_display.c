@@ -7,6 +7,11 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 
 static ALLEGRO_DISPLAY_INTERFACE *vt;
 
+static float _screen_scale = 1.0, _screen_iscale = 1.0;
+static float _screen_x, _screen_y;
+static float _screen_w, _screen_h;
+static bool _screen_hack;
+
 void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d)
 {
     int w, h;
@@ -18,7 +23,10 @@ void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d)
     glLoadIdentity();
     
     glOrthof(0, w, h, 0, -1, 1);
-   
+    
+    _screen_w = w;
+    _screen_h = h;
+
     /* We automatically adjust the view if the user doesn't use 320x480. Users
      * of the iphone port are adviced to provide a 320x480 mode and do their
      * own adjustment - but for the sake of allowing ports without knowing
@@ -26,16 +34,20 @@ void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d)
      * application - here you go.
      */
     if (d->w != w || d->h != h) {
-       double scale;
+       double scale = 1, xoff = 0, yoff = 0;
        if (d->w >= d->h) {
           if (d->w * w > d->h * h) {
              scale = h * 1.0 / d->w;
-             glTranslatef((w - d->h * scale) * 0.5, 0, 0);
+             xoff = (w - d->h * scale) * 0.5;
+             _screen_y = 0.5 * (d->h - w / scale);
           }
           else {
              scale = w * 1.0 / d->h;
-             glTranslatef(0, (h - d->w * scale) * 0.5, 0);
+             yoff = (h - d->w * scale) * 0.5;
+             _screen_x = 0.5 * (d->w - h / scale);
           }
+
+          glTranslatef(xoff, yoff, 0); 
           glTranslatef(w, 0, 0);
           glRotatef(90, 0, 0, 1);
           glScalef(scale, scale, 1);
@@ -43,10 +55,65 @@ void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d)
        else {
           // TODO
        }
+       _screen_hack = true;
+       _screen_scale = scale;
+       _screen_iscale = 1.0 / _screen_scale;
+        
+        ALLEGRO_INFO("Auto-scaling/rotating %dx%d display to %.fx%.f screen.\n",
+           d->w, d->h, _screen_w, _screen_h);
+        ALLEGRO_DEBUG("x-off:%.f y-off:%.f scale:%.2f\n", _screen_x,
+                      _screen_y, _screen_scale);
     }
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+}
+
+void _al_iphone_translate_from_screen(ALLEGRO_DISPLAY *d, int *x, int *y)
+{
+   if (!_screen_hack) return;
+   // See _al_iphone_setup_opengl_view
+   float ox = *x, oy = *y;
+
+   if (d->w >= d->h) {
+      *x = _screen_x + oy * _screen_iscale;
+      *y = _screen_y + (_screen_w - ox) * _screen_iscale;
+   }
+   else {
+      // TODO
+   }
+}
+
+void _al_iphone_translate_to_screen(ALLEGRO_DISPLAY *d, int *ox, int *oy)
+{
+    if (!_screen_hack) return;
+    // See _al_iphone_setup_opengl_view
+    float x = *ox, y = *oy;
+    
+    if (d->w >= d->h) {
+        *ox = _screen_w - (y - _screen_y) * _screen_scale;
+        *oy = (x - _screen_x) * _screen_scale;
+    }
+    else {
+        // TODO
+    }
+}
+
+void _al_iphone_clip(ALLEGRO_BITMAP const *bitmap, int x_1, int y_1, int x_2, int y_2)
+{
+   ALLEGRO_BITMAP_OGL *oglb = (void *)(bitmap->parent ? bitmap->parent : bitmap);
+   int h = oglb->bitmap.h;
+   if (_screen_hack && oglb->is_backbuffer) {
+      _al_iphone_translate_to_screen(bitmap->display, &x_1, &y_1);
+      _al_iphone_translate_to_screen(bitmap->display, &x_2, &y_2);
+      if (x_1 > x_2) {
+         int t = x_1;
+         x_1 = x_2;
+         x_2 = t;
+      }
+      h = _screen_h;
+   }
+   glScissor(x_1, h - y_2, x_2 - x_1, y_2 - y_1);
 }
 
 /* Helper to set up GL state as we want it. */

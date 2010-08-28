@@ -216,8 +216,13 @@ void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap)
    }
    else {
       glEnable(GL_SCISSOR_TEST);
+       
+      #ifdef ALLEGRO_IPHONE
+      _al_iphone_clip(bitmap, x_1, y_1, x_2, y_2);
+      #else
       /* OpenGL is upside down, so must adjust y_2 to the height. */
       glScissor(x_1, h - y_2, x_2 - x_1, y_2 - y_1);
+      #endif
    }
 }
 

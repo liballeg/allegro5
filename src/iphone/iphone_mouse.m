@@ -1,6 +1,7 @@
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_mouse.h"
 #include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_iphone.h"
 
 typedef struct ALLEGRO_MOUSE_IPHONE {
     ALLEGRO_MOUSE parent;
@@ -21,31 +22,8 @@ void _al_iphone_generate_mouse_event(unsigned int type, int x, int y,
    
    _al_event_source_lock(&the_mouse.parent.es);
 
-   /* See iphone_display.c for details about the view scaling. */
-   if (d->w != 320 || d->h != 480) {
-      int ox = x;
-      int oy = y;
-      int cx = 0, cy = 0;
-      double iscale;
-      if (d->w >= d->h) {
-         if (d->w * 320 > d->h * 480.0) {
-            iscale = d->w / 480.0;
-            cy = 0.5 * (d->h - 320 * iscale);
-         }
-         else {
-            iscale = d->h / 320.0;
-            cx = 0.5 * (d->w - 480 * iscale);
-         }
-         x = cx + oy * iscale;
-         y = cy + (320 - ox) * iscale;
-      }
-      else {
-         // TODO
-      }
-   }
+   _al_iphone_translate_from_screen(d, &x, &y);
 
-   // FIXME: also update state (right now only events work)
-   
    if (_al_event_source_needs_to_generate_event(&the_mouse.parent.es)) {
       event.mouse.type = type;
       event.mouse.timestamp = al_current_time();

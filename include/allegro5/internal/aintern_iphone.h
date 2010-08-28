@@ -36,3 +36,6 @@ void _al_iphone_accelerometer_control(int frequency);
 void _al_iphone_generate_joystick_event(float x, float y, float z);
 void _al_iphone_await_termination(void);
 void _al_iphone_get_screen_size(int *w, int *h);
+void _al_iphone_translate_from_screen(ALLEGRO_DISPLAY *d, int *x, int *y);
+void _al_iphone_translate_to_screen(ALLEGRO_DISPLAY *d, int *x, int *y);
+void _al_iphone_clip(ALLEGRO_BITMAP const *bitmap, int x_1, int y_1, int x_2, int y_2);
