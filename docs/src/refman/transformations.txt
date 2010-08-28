@@ -26,7 +26,30 @@ The resultant matrix multiplication expression will look like this:
     T4 * T3 * T2 * T1
     
 Since the point coordinate vector term will go on the right of that sequency of 
-factors, the transformation that is called first, will be also be applied first.
+factors, the transformation that is called first, will also be applied first.
+
+This means if you have code like this:
+
+    al_identity_transform(&T1);
+    al_scale_transform(&T1, 2, 2);
+    al_identity_transform(&T2);
+    al_translate_transform(&T2, 100, 0);
+    
+    al_identity_transform(&T);
+   
+    al_compose_transform(&T, &T1);
+    al_compose_transform(&T, &T2);
+    
+    al_use_transform(T);
+
+it does exactly the same as:
+
+   al_identity_transform(&T);
+   
+   al_scale_transform(&T, 2, 2);
+   al_translate_transform(&T, 100, 0);
+   
+   al_use_transform(T);
 
 ## API: ALLEGRO_TRANSFORM
 
@@ -73,7 +96,7 @@ A pointer to the current transformation.
 
 Inverts the passed transformation. If the transformation is nearly singular 
 (close to not having an inverse) then the returned transformation may be
-invalid. Use [al_check_inverse] to assertain if the transformation has an
+invalid. Use [al_check_inverse] to ascertain if the transformation has an
 inverse before inverting it if you are in doubt.
 
 *Parameters:*
@@ -167,6 +190,10 @@ Transform a pair of coordinates.
 Compose (combine) two transformations by a matrix multiplication.
 
     trans := trans other
+
+Note that the order of matrix multiplications is important. The effect
+of applying the combined transform will be as if first applying `trans`
+and then applying `other` and not the other way around.
 
 *Parameters:*
 
