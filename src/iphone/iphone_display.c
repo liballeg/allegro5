@@ -55,14 +55,16 @@ void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d)
        else {
           // TODO
        }
-       _screen_hack = true;
-       _screen_scale = scale;
-       _screen_iscale = 1.0 / _screen_scale;
         
-        ALLEGRO_INFO("Auto-scaling/rotating %dx%d display to %.fx%.f screen.\n",
-           d->w, d->h, _screen_w, _screen_h);
-        ALLEGRO_DEBUG("x-off:%.f y-off:%.f scale:%.2f\n", _screen_x,
-                      _screen_y, _screen_scale);
+       if (!_screen_hack) {
+           ALLEGRO_INFO("Auto-scaling/rotating %dx%d display to %.fx%.f screen.\n",
+                        d->w, d->h, _screen_w, _screen_h);
+           ALLEGRO_DEBUG("x-off:%.f y-off:%.f scale:%.2f\n", _screen_x,
+                         _screen_y, _screen_scale);
+          _screen_hack = true;
+          _screen_scale = scale;
+          _screen_iscale = 1.0 / _screen_scale;
+       }
     }
 
     glMatrixMode(GL_MODELVIEW);

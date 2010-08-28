@@ -135,12 +135,12 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
    // TODO: handle double-clicks (send two events?)
 	// NSUInteger numTaps = [[touches anyObject] tapCount];
 	// Enumerate through all the touch objects.
-	NSUInteger touchCount = 0;
 	for (UITouch *touch in touches) {
       CGPoint p = [touch locationInView:self];
-      touchCount++;
 		_al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_DOWN,
-                                      p.x, p.y, touchCount, allegro_display);
+                                      p.x, p.y, 1, allegro_display);
+        _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
+                                        p.x, p.y, 1, allegro_display);
 	}
 }
 
@@ -148,13 +148,13 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 -(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {  
 	(void)event;
-	NSUInteger touchCount = 0;
 	// Enumerates through all touch objects
 	for (UITouch *touch in touches) {
       CGPoint p = [touch locationInView:self];
-      touchCount++;
       _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
-                                      p.x, p.y, touchCount, allegro_display);		
+                                      p.x, p.y, 1, allegro_display);	
+      _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
+                                        p.x, p.y, 1, allegro_display);
 	}
 }
 
@@ -162,13 +162,13 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
    (void)event;
-   NSUInteger touchCount = 0;
 	// Enumerates through all touch object
 	for (UITouch *touch in touches) {
 		CGPoint p = [touch locationInView:self];
-      touchCount++;
-      _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_UP,
-                                      p.x, p.y, touchCount, allegro_display);		
+        _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_UP,
+                                        p.x, p.y, 1, allegro_display);
+        _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
+                                        p.x, p.y, 1, allegro_display);
 	}
 }
 
@@ -180,8 +180,9 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
     (void)event;
 	// Enumerates through all touch object
 	for (UITouch *touch in touches) {
-		// FIXME: We probably should generate ALLEGRO_EVENT_MOUSE_BUTTON_UP
-      // for all currently pressed buttons.
+        CGPoint p = [touch locationInView:self];
+		_al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_UP,
+                                        p.x, p.y, 1, allegro_display);	
 	}
 }
 
