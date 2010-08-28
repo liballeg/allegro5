@@ -1167,6 +1167,7 @@ int main(int argc, char const *argv[])
    printf("total tests:  %d\n", total_tests);
    printf("passed tests: %d\n", passed_tests);
    printf("failed tests: %d\n", failed_tests);
+   printf("\n");
 
    if (no_exit_code)
       return 0;

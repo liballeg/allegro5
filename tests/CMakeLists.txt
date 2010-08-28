@@ -33,6 +33,8 @@ add_our_executable(
 add_custom_target(run_tests
     DEPENDS test_driver
     COMMAND test_driver -x ${CMAKE_CURRENT_SOURCE_DIR}/test_bitmaps.ini
+    COMMAND test_driver -x ${CMAKE_CURRENT_SOURCE_DIR}/test_bitmaps2.ini
+    COMMAND test_driver -x ${CMAKE_CURRENT_SOURCE_DIR}/test_blend.ini
     COMMAND test_driver -x ${CMAKE_CURRENT_SOURCE_DIR}/test_locking.ini
     COMMAND test_driver -x ${CMAKE_CURRENT_SOURCE_DIR}/test_locking2.ini
     COMMAND test_driver -x ${CMAKE_CURRENT_SOURCE_DIR}/test_backbuffer.ini
