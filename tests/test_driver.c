@@ -51,7 +51,7 @@ int               num_global_bitmaps;
 float             delay = 0.0;
 bool              save_outputs = false;
 bool              quiet = false;
-bool              verbose = false;
+int               verbose = 0;
 bool              no_exit_code = false;
 int               total_tests = 0;
 int               passed_tests = 0;
@@ -658,7 +658,7 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
          op++;
       }
 
-      if (verbose)
+      if (verbose > 1)
          printf("# %s\n", stmt);
 
       if (streq(stmt, ""))
@@ -1133,7 +1133,7 @@ int main(int argc, char const *argv[])
          quiet = true;
       }
       else if (streq(opt, "-v") || streq(opt, "--verbose")) {
-         verbose = true;
+         verbose++;
       }
       else if (streq(opt, "-x") || streq(opt, "--no-exit-code")) {
          no_exit_code = true;

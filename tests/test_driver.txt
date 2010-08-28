@@ -17,6 +17,9 @@ where options are:
     -v, --verbose
         print extra output
 
+    -v -v
+        extra extra verbose
+
     -x, --no-exit-code
 	return exit code 0 regardless of failures
 
