@@ -408,7 +408,7 @@ See also: [al_get_new_bitmap_flags], [al_get_bitmap_flags]
 
 A convenience function which does the same as
 
-    al_set_new_bitmap_flags(al_get_new_bitmap_format() | flag);
+    al_set_new_bitmap_flags(al_get_new_bitmap_flags() | flag);
 
 See also: [al_set_new_bitmap_flags], [al_get_new_bitmap_flags], [al_get_bitmap_flags]
 
