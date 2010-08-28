@@ -559,9 +559,16 @@ static void check_similarity(ALLEGRO_CONFIG const *cfg,
 {
    char const *bt = bmp_type_to_string(bmp_type);
    double rms = bitmap_dissimilarity(bmp1, bmp2);
+   double tolerance;
+   char const *value;
 
-   /* This cutoff is "empirically determined" only. */
-   if (rms <= 17.5) {
+   /* The default cutoff is "empirically determined" only. */
+   if ((value = al_get_config_value(cfg, testname, "tolerance")))
+      tolerance = atof(value);
+   else
+      tolerance = 17.5;
+
+   if (rms <= tolerance) {
       if (reliable)
          printf("OK   %s [%s]\n", testname, bt);
       else
@@ -946,7 +953,8 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
    total_tests++;
 
    if (save_outputs) {
-      ALLEGRO_USTR *filename = al_ustr_newf("%s.png", testname);
+      ALLEGRO_USTR *filename = al_ustr_newf("%s [%s].png", testname,
+         bmp_type_to_string(bmp_type));
       al_save_bitmap(al_cstr(filename), target);
       al_ustr_free(filename);
    }

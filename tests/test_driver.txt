@@ -81,3 +81,7 @@ You can supply both 'hash' and 'sig' keys.
 Finally, 'hash=off' will disable hash checking entirely.  For example, TTF
 rendering depends on the FreeType configuration, and the differences are big
 enough to show up even in the thumbnails.
+
+The hardware implementation is compared against the software implementation,
+with some tolerance.  The tolerance is arbitrary but you can set it if
+necessary with the 'tolerance' key.
