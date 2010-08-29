@@ -36,16 +36,15 @@ static void _al_parallelogram_map_fast(ALLEGRO_BITMAP *src,
    al_fixed xs[4],
    al_fixed ys[4], int sx, int sy, int sw, int sh);
 
-static bool is_identity(const ALLEGRO_TRANSFORM* trans)
+static bool is_translation(const ALLEGRO_TRANSFORM* trans, float *dx,
+   float *dy)
 {
-   return trans->m[0][0] == 1 &&
+   if (trans->m[0][0] == 1 &&
           trans->m[1][0] == 0 &&
           trans->m[2][0] == 0 &&
-          trans->m[3][0] == 0 &&
           trans->m[0][1] == 0 &&
           trans->m[1][1] == 1 &&
           trans->m[2][1] == 0 &&
-          trans->m[3][1] == 0 &&
           trans->m[0][2] == 0 &&
           trans->m[1][2] == 0 &&
           trans->m[2][2] == 1 &&
@@ -53,7 +52,12 @@ static bool is_identity(const ALLEGRO_TRANSFORM* trans)
           trans->m[0][3] == 0 &&
           trans->m[1][3] == 0 &&
           trans->m[2][3] == 0 &&
-          trans->m[3][3] == 1;
+          trans->m[3][3] == 1) {
+      *dx = trans->m[3][0];
+      *dy = trans->m[3][1];
+      return true;
+   }
+   return false;
 }
 
 
@@ -528,12 +532,13 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *src,
    int yd;
    int sxd;
    int dw = sw, dh = sh;
+   float xtrans, ytrans;
    
    ASSERT(src->parent == NULL);
 
-   if(!is_identity(al_get_current_transform()))
+   if(!is_translation(al_get_current_transform(), &xtrans, &ytrans))
    {
-      float xscale, yscale, xtrans, ytrans;
+      float xscale, yscale;
       if (is_scale_trans(al_get_current_transform(), &xscale, &yscale,
          &xtrans, &ytrans)) {
          _al_draw_scaled_bitmap_memory(src, tint, sx, sy, sw, sh,
@@ -545,6 +550,9 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *src,
       }
       return;
    }
+   
+   dx += xtrans;
+   dy += ytrans;
 
    al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
 
