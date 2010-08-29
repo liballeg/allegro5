@@ -152,9 +152,7 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 	for (UITouch *touch in touches) {
       CGPoint p = [touch locationInView:self];
       _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
-                                      p.x, p.y, 1, allegro_display);	
-      _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
-                                        p.x, p.y, 1, allegro_display);
+                                      p.x, p.y, 1, allegro_display);
 	}
 }
 
