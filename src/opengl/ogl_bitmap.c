@@ -220,7 +220,7 @@ static INLINE void transform_vertex(float* x, float* y)
 
 static void draw_quad(ALLEGRO_BITMAP *bitmap,
     ALLEGRO_COLOR tint,
-    float sx, float sy, float sw, float sh, float dx, float dy,
+    float sx, float sy, float sw, float sh,
     int flags)
 {
    float tex_l, tex_t, tex_r, tex_b, w, h, tex_w, tex_h;
@@ -253,8 +253,8 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    tex_r -= (w - sx - sw) * tex_w;
    tex_b += (h - sy - sh) * tex_h;
 
-   verts[0].x = dx;
-   verts[0].y = dy+dh;
+   verts[0].x = 0;
+   verts[0].y = dh;
    verts[0].tx = tex_l;
    verts[0].ty = tex_b;
    verts[0].r = tint.r;
@@ -262,8 +262,8 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    verts[0].b = tint.b;
    verts[0].a = tint.a;
    
-   verts[1].x = dx;
-   verts[1].y = dy;
+   verts[1].x = 0;
+   verts[1].y = 0;
    verts[1].tx = tex_l;
    verts[1].ty = tex_t;
    verts[1].r = tint.r;
@@ -271,8 +271,8 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    verts[1].b = tint.b;
    verts[1].a = tint.a;
    
-   verts[2].x = dx+dw;
-   verts[2].y = dy+dh;
+   verts[2].x = dw;
+   verts[2].y = dh;
    verts[2].tx = tex_r;
    verts[2].ty = tex_b;
    verts[2].r = tint.r;
@@ -280,8 +280,8 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    verts[2].b = tint.b;
    verts[2].a = tint.a;
    
-   verts[4].x = dx+dw;
-   verts[4].y = dy;
+   verts[4].x = dw;
+   verts[4].y = 0;
    verts[4].tx = tex_r;
    verts[4].ty = tex_t;
    verts[4].r = tint.r;
@@ -314,8 +314,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target;
    ALLEGRO_DISPLAY *disp = target->display;
-   int dx = 0;
-   int dy = 0;
+   
    
    /* For sub-bitmaps */
    if (target->parent) {
@@ -328,41 +327,13 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
 #if !defined ALLEGRO_GP2XWIZ
       ALLEGRO_BITMAP_OGL *ogl_source = (void *)bitmap;
       if (ogl_source->is_backbuffer) {
-         float clip;
-         
-         if (target->parent) {
-            dx += target->xofs;
-            dy += target->yofs;
-         }
 
-         /* Have to do our own clipping. */
-         clip = dx - target->cl;
-         if (clip < 0) {
-            dx -= clip;
-            sw += clip;
-            dx -= clip;
-         }
-         clip = dy - target->ct;
-         if (clip < 0) {
-            dy -= clip;
-            sh += clip;
-            dy -= clip;
-         }
-         clip = target->cr_excl - dx - sw;
-         if (clip < 0) {
-            sw += clip;
-         }
-         clip = target->cb_excl - dy - sh;
-         if (clip < 0) {
-            sh += clip;
-         }
-          
          if (ogl_target->is_backbuffer) {
             #if !defined ALLEGRO_IPHONE
             /* Oh fun. Someone draws the screen to itself. */
             // FIXME: What if the target is locked?
             if (setup_blending(disp)) {
-               glRasterPos2f(dx, dy + sh);
+               glRasterPos2f(0, sh);
                glCopyPixels(sx, bitmap->h - sy - sh, sw, sh, GL_COLOR);
                return;
             }
@@ -381,7 +352,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
                _al_ogl_set_target_bitmap(disp, bitmap);
             glBindTexture(GL_TEXTURE_2D, ogl_target->texture);
             glCopyTexSubImage2D(GL_TEXTURE_2D, 0,
-                dx, target->h - dy - sh,
+                0, target->h - sh,
                 sx, bitmap->h - sy - sh,
                 sw, sh);
             /* Fix up FBO again after the copy. */
@@ -397,7 +368,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
    }
    if (disp->ogl_extras->opengl_target == ogl_target) {
       if (setup_blending(disp)) {
-         draw_quad(bitmap, tint, sx, sy, sw, sh, dx, dy, flags);
+         draw_quad(bitmap, tint, sx, sy, sw, sh, flags);
          return;
       }
    }
@@ -405,7 +376,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
    
    
    /* If all else fails, fall back to software implementation. */
-   _al_draw_bitmap_region_memory(bitmap, tint, sx, sy, sw, sh, dx, dy, flags);
+   _al_draw_bitmap_region_memory(bitmap, tint, sx, sy, sw, sh, 0, 0, flags);
 }
 
 
