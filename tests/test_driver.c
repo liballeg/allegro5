@@ -41,6 +41,8 @@ typedef struct {
    ALLEGRO_FONT   *font;
 } Font;
 
+int               argc;
+char const        **argv;
 ALLEGRO_DISPLAY   *display;
 ALLEGRO_BITMAP    *membuf;
 Bitmap            bitmaps[MAX_BITMAPS];
@@ -52,7 +54,6 @@ float             delay = 0.0;
 bool              save_outputs = false;
 bool              quiet = false;
 int               verbose = 0;
-bool              no_exit_code = false;
 int               total_tests = 0;
 int               passed_tests = 0;
 int               failed_tests = 0;
@@ -153,6 +154,26 @@ static void load_fonts(ALLEGRO_CONFIG const *cfg, const char *section)
 
    if (i == MAX_FONTS)
       error("font limit reached");
+}
+
+static void unload_data(void)
+{
+   int i;
+
+   for (i = 0; i < MAX_BITMAPS; i++) {
+      al_ustr_free(bitmaps[i].name);
+      al_destroy_bitmap(bitmaps[i].bitmap[0]);
+      al_destroy_bitmap(bitmaps[i].bitmap[1]);
+   }
+   memset(bitmaps, 0, sizeof(bitmaps));
+
+   for (i = 0; i < MAX_FONTS; i++) {
+      al_ustr_free(fonts[i].name);
+      al_destroy_font(fonts[i].font);
+   }
+   memset(fonts, 0, sizeof(fonts));
+
+   num_global_bitmaps = 0;
 }
 
 static void set_target_reset(ALLEGRO_BITMAP *target)
@@ -1075,12 +1096,11 @@ static void run_matching_tests(ALLEGRO_CONFIG const *cfg, const char *prefix)
    }
 }
 
-static void partial_tests(ALLEGRO_CONFIG const *cfg,
-   int argc, char const *argv[])
+static void partial_tests(ALLEGRO_CONFIG const *cfg, int n)
 {
    ALLEGRO_USTR *name = al_ustr_new("");
 
-   for (; argc > 0; argc--, argv++) {
+   while (n > 0) {
       /* Automatically prepend "test" for convenience. */
       if (0 == strncmp(argv[0], "test ", 5)) {
          al_ustr_assign_cstr(name, argv[0]);
@@ -1098,14 +1118,66 @@ static void partial_tests(ALLEGRO_CONFIG const *cfg,
       else {
          run_test(cfg, al_cstr(name));
       }
+
+      argc--;
+      argv++;
+      n--;
    }
 
    al_ustr_free(name);
 }
 
-int main(int argc, char const *argv[])
+static bool has_suffix(char const *s, char const *suf)
+{
+   return (strlen(s) >= strlen(suf))
+      && streq(s + strlen(s) - strlen(suf), suf);
+}
+
+static void process_ini_files(void)
 {
    ALLEGRO_CONFIG *cfg;
+   int n;
+
+   while (argc > 0) {
+      if (!has_suffix(argv[0], ".ini"))
+         error("expected .ini arument: %s\n", argv[0]);
+      cfg = al_load_config_file(argv[0]);
+      if (!cfg)
+         error("failed to load config file %s", argv[0]);
+
+      if (verbose)
+         printf("Running %s\n", argv[0]);
+
+      argc--;
+      argv++;
+
+      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+      load_bitmaps(cfg, "bitmaps", SW);
+
+      al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+      load_bitmaps(cfg, "bitmaps", HW);
+      load_fonts(cfg, "fonts");
+
+      for (n = 0; n < argc; n++) {
+         if (has_suffix(argv[n], ".ini"))
+            break;
+      }
+
+      if (n == 0)
+         run_matching_tests(cfg, "test ");
+      else
+         partial_tests(cfg, n);
+
+      unload_data();
+
+      al_destroy_config(cfg);
+   }
+}
+
+int main(const int _argc, const char const *_argv[])
+{
+   argc = _argc;
+   argv = _argv;
 
    if (argc == 1) {
       error("requires config file argument");
@@ -1135,19 +1207,10 @@ int main(int argc, char const *argv[])
       else if (streq(opt, "-v") || streq(opt, "--verbose")) {
          verbose++;
       }
-      else if (streq(opt, "-x") || streq(opt, "--no-exit-code")) {
-         no_exit_code = true;
-      }
       else {
          break;
       }
    }
-
-   cfg = al_load_config_file(argv[0]);
-   if (!cfg)
-      error("failed to load config file %s", argv[0]);
-   argc--;
-   argv++;
 
    display = al_create_display(640, 480);
    if (!display) {
@@ -1158,18 +1221,8 @@ int main(int argc, char const *argv[])
    membuf = al_create_bitmap(
       al_get_display_width(display),
       al_get_display_height(display));
-   load_bitmaps(cfg, "bitmaps", SW);
 
-   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
-   load_bitmaps(cfg, "bitmaps", HW);
-   load_fonts(cfg, "fonts");
-
-   if (argc == 0)
-      run_matching_tests(cfg, "test ");
-   else
-      partial_tests(cfg, argc, argv);
-
-   al_destroy_config(cfg);
+   process_ini_files();
 
    printf("\n");
    printf("total tests:  %d\n", total_tests);
@@ -1177,10 +1230,7 @@ int main(int argc, char const *argv[])
    printf("failed tests: %d\n", failed_tests);
    printf("\n");
 
-   if (no_exit_code)
-      return 0;
-   else
-      return !!failed_tests;
+   return !!failed_tests;
 }
 
 /* vim: set sts=3 sw=3 et: */

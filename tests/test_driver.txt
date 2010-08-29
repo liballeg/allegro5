@@ -1,7 +1,7 @@
 Usage
 =====
 
-    test_driver [OPTIONS] config.ini [TESTS ...]
+    test_driver [OPTIONS] config1.ini [TESTS ...] [config2.ini [TESTS...]] ...
 
 where options are:
 
@@ -19,9 +19,6 @@ where options are:
 
     -v -v
         extra extra verbose
-
-    -x, --no-exit-code
-	return exit code 0 regardless of failures
 
 If the list of tests is omitted then every test in the config file will be run.
 Otherwise each test named on the command line is run.  For convenience, you may
