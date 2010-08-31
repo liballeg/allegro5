@@ -322,7 +322,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
    }
 
    ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   
+
    if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP)) {
 #if !defined ALLEGRO_GP2XWIZ
       ALLEGRO_BITMAP_OGL *ogl_source = (void *)bitmap;
@@ -338,27 +338,57 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
                return;
             }
             #endif
+            // FIXME: See case for bitmap target below - we need a
+            // temporary texture.
          }
          else {
             /* Our source bitmap is the OpenGL backbuffer, the target
              * is an OpenGL texture.
              */
-            // FIXME: What if the target is locked?
-            // FIXME: This does no blending.
-            /* In general, we can't modify the texture while it's
-             * FBO bound - so we temporarily disable the FBO.
-             */
-            if (ogl_target->fbo)
-               _al_ogl_set_target_bitmap(disp, bitmap);
-            glBindTexture(GL_TEXTURE_2D, ogl_target->texture);
-            glCopyTexSubImage2D(GL_TEXTURE_2D, 0,
-                0, target->h - sh,
-                sx, bitmap->h - sy - sh,
-                sw, sh);
-            /* Fix up FBO again after the copy. */
-            if (ogl_target->fbo)
-               _al_ogl_set_target_bitmap(disp, target);
-            return;
+            float xtrans, ytrans;
+
+            /* If we only translate, we can do this fast. */
+            if(_al_transform_is_translation(al_get_current_transform(),
+               &xtrans, &ytrans)) {
+               /* In general, we can't modify the texture while it's
+                * FBO bound - so we temporarily disable the FBO.
+                */
+               if (ogl_target->fbo)
+                  _al_ogl_set_target_bitmap(disp, bitmap);
+               
+               /* We need to do clipping because glCopyTexSubImage2D
+                * fails otherwise.
+                */
+               if (xtrans < target->cl) {
+                  sw += xtrans - target->cl;
+                  xtrans = target->cl;
+               }
+               if (ytrans < target->ct) {
+                  sh += ytrans - target->ct;
+                  ytrans = target->ct;
+               }
+               if (xtrans + sw > target->cr_excl) {
+                  sw = target->cr_excl - xtrans;
+               }
+               if (ytrans + sh > target->cb_excl) {
+                  sh = target->cb_excl - ytrans;
+               }
+
+               glBindTexture(GL_TEXTURE_2D, ogl_target->texture);
+               glCopyTexSubImage2D(GL_TEXTURE_2D, 0,
+                   xtrans, target->h - ytrans - sh,
+                   sx, bitmap->h - sy - sh,
+                   sw, sh);
+               /* Fix up FBO again after the copy. */
+               if (ogl_target->fbo)
+                  _al_ogl_set_target_bitmap(disp, target);
+               return;
+            }
+            // FIXME: We need to create a new temporary bitmap with
+            // the source area as pixels (we can use glCopyTexSubImage2D
+            // for that). Then we need to adjust the transformation
+            // for the changed source size and blit the temporary
+            // bitmap. Finally destroy it again.
          }
       }
 #elif defined ALLEGRO_GP2XWIZ
@@ -373,8 +403,6 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
       }
    }
 
-   
-   
    /* If all else fails, fall back to software implementation. */
    _al_draw_bitmap_region_memory(bitmap, tint, sx, sy, sw, sh, 0, 0, flags);
 }

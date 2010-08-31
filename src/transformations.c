@@ -271,4 +271,28 @@ void al_compose_transform(ALLEGRO_TRANSFORM *trans, const ALLEGRO_TRANSFORM *oth
    trans->m[3][1] =  other->m[0][1] * t + other->m[1][1] * trans->m[3][1] + other->m[3][1];
 }
 
+bool _al_transform_is_translation(const ALLEGRO_TRANSFORM* trans,
+   float *dx, float *dy)
+{
+   if (trans->m[0][0] == 1 &&
+          trans->m[1][0] == 0 &&
+          trans->m[2][0] == 0 &&
+          trans->m[0][1] == 0 &&
+          trans->m[1][1] == 1 &&
+          trans->m[2][1] == 0 &&
+          trans->m[0][2] == 0 &&
+          trans->m[1][2] == 0 &&
+          trans->m[2][2] == 1 &&
+          trans->m[3][2] == 0 &&
+          trans->m[0][3] == 0 &&
+          trans->m[1][3] == 0 &&
+          trans->m[2][3] == 0 &&
+          trans->m[3][3] == 1) {
+      *dx = trans->m[3][0];
+      *dy = trans->m[3][1];
+      return true;
+   }
+   return false;
+}
+
 /* vim: set sts=3 sw=3 et: */

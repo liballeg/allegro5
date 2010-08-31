@@ -151,6 +151,9 @@ void _al_draw_bitmap_region_optimized_rgba_4444_to_rgba_4444(
    ALLEGRO_BITMAP *dest, int dx, int dy, int flags);
 #endif
 
+bool _al_transform_is_translation(const ALLEGRO_TRANSFORM* trans,
+   float *dx, float *dy);
+
 void _al_init_iio_table(void);
 
 #ifdef __cplusplus
