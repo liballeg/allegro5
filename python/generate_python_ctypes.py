@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import sys, re, optparse
+import sys, re, optparse, os
 from ctypes import *
 
 """
@@ -387,6 +387,15 @@ def _dll(func, ret, params):
 ALLEGRO_VERSION_INT = \
     ((ALLEGRO_VERSION << 24) | (ALLEGRO_SUB_VERSION << 16) | \
     (ALLEGRO_WIP_VERSION << 8) | ALLEGRO_RELEASE_NUMBER)
+    """)
+    
+    f.write(r"""
+# work around bug http://gcc.gnu.org/bugzilla/show_bug.cgi?id=36834
+if os.name == "nt":
+    def al_map_rgba_f(r, g, b, a): return ALLEGRO_COLOR(r, g, b, a)
+    def al_map_rgb_f(r, g, b, a): return ALLEGRO_COLOR(r, g, b, 1)
+    def al_map_rgba(r, g, b, a): return ALLEGRO_COLOR(r / 255.0, g / 255.0, b / 255.0, a / 255.0)
+    def al_map_rgb(r, g, b, a): return ALLEGRO_COLOR(r / 255.0, g / 255.0, b / 255.0, 1)
     """)
 
     f.write("""
