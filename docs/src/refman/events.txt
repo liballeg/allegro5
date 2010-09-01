@@ -77,11 +77,11 @@ Each event is of one of the following types:
     -   mouse.dz,
     -   mouse.display.
 
-    Note: Calling [al_set_mouse_xy] also will result in a change of axis
+    > *Note:* Calling [al_set_mouse_xy] also will result in a change of axis
     values, but such a change is reported with ALLEGRO_EVENT_MOUSE_WARPED
     events instead.
 
-    Note: currently mouse.display may be NULL if an event is generated in
+    > *Note:* currently mouse.display may be NULL if an event is generated in
     response to [al_set_mouse_axis].
 
 *   ALLEGRO_EVENT_MOUSE_BUTTON_DOWN - a mouse button was pressed.
@@ -130,7 +130,8 @@ Each event is of one of the following types:
 
 *   ALLEGRO_EVENT_DISPLAY_EXPOSE - The display (or a portion thereof) has
     become visible.
-    Note: The display needs to be created with ALLEGRO_GENERATE_EXPOSE_EVENTS
+    
+    > *Note:* The display needs to be created with ALLEGRO_GENERATE_EXPOSE_EVENTS
     flag.
 
     Fields:

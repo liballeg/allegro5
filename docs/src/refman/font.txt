@@ -284,7 +284,7 @@ specified in pixel. The standard font size is measured in *units per
 EM*, if you instead want to specify the size as the total height of
 glyphs in pixel, pass it as a negative value.
 
-Note: If you want to display text at multiple sizes, load the font
+> *Note:* If you want to display text at multiple sizes, load the font
 multiple times with different size parameters.
 
 The only flag supported right now is:
@@ -299,7 +299,7 @@ See also: [al_init_ttf_addon], [al_load_ttf_font_f]
 Like [al_load_ttf_font], but the font is read from the file handle. The filename
 is only used to find possible additional files next to a font file.
 
-Note: The file handle is owned by the returned ALLEGRO_FONT object and must not
+> *Note:* The file handle is owned by the returned ALLEGRO_FONT object and must not
 be freed by the caller, as FreeType expects to be able to read from it at a
 later time.
 

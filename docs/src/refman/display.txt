@@ -379,8 +379,8 @@ See also: [al_acknowledge_resize]
 
 Changes the icon associated with the display (window).
 
-Note: If the underlying OS can not use an icon with the size of the provided
-bitmap, it will be scaled.
+> *Note:* If the underlying OS can not use an icon with the size of the
+provided bitmap, it will be scaled.
 
 TODO: Describe best practice for the size?
 TODO: Allow providing multiple icons in differet sizes?

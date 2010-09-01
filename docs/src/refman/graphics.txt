@@ -95,16 +95,16 @@ layout of a pixel in memory. Components are specified from high bits
 to low bits, so for example a fully opaque red pixel in ARGB_8888 format
 is 0xFFFF0000.
 
-Note:
-
-The pixel format is independent of endianness. That is, in the above
-example you can always get the red component with
-
- (pixel & 0x00ff0000) >> 16
-
-But you can *not* rely on this code:
-
- *(pixel + 2)
+> *Note:*
+>
+> The pixel format is independent of endianness. That is, in the above
+> example you can always get the red component with
+>
+>     (pixel & 0x00ff0000) >> 16
+>
+> But you can *not* rely on this code:
+>
+>     *(pixel + 2)
 
 It will return the red component on little endian systems, but the
 green component on big endian systems.
@@ -235,10 +235,9 @@ To lock in the same format as the bitmap stores it's data internally,
 call with `al_get_bitmap_format(bitmap)` as the format or use
 ALLEGRO_PIXEL_FORMAT_ANY. Locking in the native format will usually be faster.
 
-Note:
-
-While a bitmap is locked, you can not use any drawing operations on
-it (with the sole exception of [al_put_pixel] and [al_put_blended_pixel]).
+> *Note:* While a bitmap is locked, you can not use any drawing operations
+on it (with the sole exception of [al_put_pixel] and
+[al_put_blended_pixel]).
 
 See also: [ALLEGRO_LOCKED_REGION], [ALLEGRO_PIXEL_FORMAT],
 [al_unlock_bitmap]
@@ -507,14 +506,14 @@ to the current target bitmap (see [al_set_target_bitmap]).
 * ALLEGRO_FLIP_HORIZONTAL - flip the bitmap about the y-axis
 * ALLEGRO_FLIP_VERTICAL - flip the bitmap about the x-axis
 
-Note: The current target bitmap must be a different bitmap.
+> *Note:* The current target bitmap must be a different bitmap.
 Drawing a bitmap to itself (or to a sub-bitmap of itself) or
 drawing a sub-bitmap to its parent (or another sub-bitmap of its
 parent) are not currently supported.
 To copy part of a bitmap into the same bitmap simply use a
 temporary bitmap instead.
 
-Note: The backbuffer (or a sub-bitmap thereof) can not be transformed.
+> *Note:* The backbuffer (or a sub-bitmap thereof) can not be transformed.
 If you need to draw a transformed part of the backbuffer draw it to
 a temporary bitmap first.
 
@@ -975,7 +974,7 @@ The file type is determined by the extension.
 
 Returns NULL on error.
 
-Note: the core Allegro library does not support any image file formats by
+> *Note:* the core Allegro library does not support any image file formats by
 default.  You must use the allegro_image addon, or register your own format
 handler.
 
@@ -992,7 +991,7 @@ name extension including the leading dot.
 Returns NULL on error.
 The file remains open afterwards.
 
-Note: the core Allegro library does not support any image file formats by
+> *Note:* the core Allegro library does not support any image file formats by
 default.  You must use the allegro_image addon, or register your own format
 handler.
 
@@ -1006,7 +1005,7 @@ The file type is determined by the extension.
 
 Returns true on success, false on error.
 
-Note: the core Allegro library does not support any image file formats by
+> *Note:* the core Allegro library does not support any image file formats by
 default.  You must use the allegro_image addon, or register your own format
 handler.
 
@@ -1021,7 +1020,7 @@ name extension including the leading dot.
 Returns true on success, false on error.
 The file remains open afterwards.
 
-Note: the core Allegro library does not support any image file formats by
+> *Note:* the core Allegro library does not support any image file formats by
 default.  You must use the allegro_image addon, or register your own format
 handler.
 

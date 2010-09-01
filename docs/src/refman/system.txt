@@ -32,7 +32,7 @@ See also: [al_install_system]
 
 Closes down the Allegro system.
 
-Note: al_uninstall_system() can be called without a corresponding
+> Note: al_uninstall_system() can be called without a corresponding
 [al_install_system] call, e.g. from atexit().
 
 ## API: al_get_allegro_version

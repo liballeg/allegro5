@@ -724,17 +724,17 @@ audio delay. The delay in seconds can be expressed as:
 This is only the delay due to Allegro's streaming, there may be additional
 delay caused by sound drivers and/or hardware.
 
-Note: If you know the fragment size in bytes, you can get the size in samples
-like this:
+> *Note:* If you know the fragment size in bytes, you can get the size in samples
+> like this:
+>
+>     sample_size = al_get_channel_count(chan_conf) * al_get_audio_depth_size(depth);
+>     samples = bytes_per_fragment / sample_size;
+>
+> The size of the complete buffer is:
+>
+>     buffer_size = bytes_per_fragment * fragment_count
 
-    sample_size = al_get_channel_count(chan_conf) * al_get_audio_depth_size(depth);
-    samples = bytes_per_fragment / sample_size;
-
-The size of the complete buffer is:
-
-    buffer_size = bytes_per_fragment * fragment_count
-
-Note: unlike many Allegro objects, audio streams are not implicitly destroyed
+> *Note:* unlike many Allegro objects, audio streams are not implicitly destroyed
 when Allegro is shut down.  You must destroy them manually with
 [al_destroy_audio_stream] before the audio system is shut down.
 
@@ -743,7 +743,7 @@ when Allegro is shut down.  You must destroy them manually with
 Destroy an audio stream which was created with [al_create_audio_stream]
 or [al_load_audio_stream].
 
-Note: If the stream is still attached to a mixer or voice,
+> *Note:* If the stream is still attached to a mixer or voice,
 [al_detach_audio_stream] is automatically called on it first.
 
 See also: [al_drain_audio_stream].
@@ -890,7 +890,7 @@ buffer to [al_set_audio_stream_fragment].
 
 If the stream is not ready for new data, the function will return NULL.
 
-Note: If you listen to events from the stream, an
+> *Note:* If you listen to events from the stream, an
 ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT event will be generated whenever a new
 fragment is ready. However, getting an event is *not* a guarantee that
 [al_get_audio_stream_fragment] will not return NULL, so you still must check for it.
@@ -1047,7 +1047,7 @@ use [al_load_audio_stream].
 
 Returns the sample on success, NULL on failure.
 
-Note: the allegro_audio library does not support any audio file formats by
+> *Note:* the allegro_audio library does not support any audio file formats by
 default.  You must use the allegro_acodec addon, or register your own format
 handler.
 
@@ -1066,7 +1066,7 @@ use [al_load_audio_stream_f].
 Returns the sample on success, NULL on failure.
 The file remains open afterwards.
 
-Note: the allegro_audio library does not support any audio file formats by
+> *Note:* the allegro_audio library does not support any audio file formats by
 default.  You must use the allegro_acodec addon, or register your own format
 handler.
 
@@ -1086,7 +1086,7 @@ A stream must be attached to a voice to be used.  See
 
 Returns the stream on success, NULL on failure.
 
-Note: the allegro_audio library does not support any audio file formats by
+> *Note:* the allegro_audio library does not support any audio file formats by
 default.  You must use the allegro_acodec addon, or register your own format
 handler.
 
@@ -1113,7 +1113,7 @@ On success the file should be considered owned by the audio stream,
 and will be closed when the audio stream is destroyed.
 On failure the file will be closed.
 
-Note: the allegro_audio library does not support any audio file formats by
+> *Note:* the allegro_audio library does not support any audio file formats by
 default.  You must use the allegro_acodec addon, or register your own format
 handler.
 
@@ -1128,7 +1128,7 @@ must be '.wav'.
 
 Returns true on success, false on error.
 
-Note: the allegro_audio library does not support any audio file formats by
+> *Note:* the allegro_audio library does not support any audio file formats by
 default.  You must use the allegro_acodec addon, or register your own format
 handler.
 
@@ -1144,7 +1144,7 @@ must be '.wav'.
 Returns true on success, false on error.
 The file remains open afterwards.
 
-Note: the allegro_audio library does not support any audio file formats by
+> *Note:* the allegro_audio library does not support any audio file formats by
 default.  You must use the allegro_acodec addon, or register your own format
 handler.
 

@@ -52,7 +52,7 @@ with ARB's Multitexture extension:
 If _glMultiTexCoord3fARB_ is not NULL then it can be used as if it has 
 been defined in the OpenGL core library.
 
-Note: Under Windows, OpenGL functions may need a special calling
+> *Note:* Under Windows, OpenGL functions may need a special calling
 convention, so it's best to always use the ALLEGRO_DEFINE_PROC_TYPE
 macro when declaring function pointer types for OpenGL functions.
 
