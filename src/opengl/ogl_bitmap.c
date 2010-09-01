@@ -314,8 +314,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target;
    ALLEGRO_DISPLAY *disp = target->display;
-   
-   
+
    /* For sub-bitmaps */
    if (target->parent) {
       target = target->parent;
@@ -373,11 +372,9 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
                _al_ogl_set_target_bitmap(disp, target);
             return;
          }
-         // FIXME: We need to create a new temporary bitmap with
-         // the source area as pixels (we can use glCopyTexSubImage2D
-         // for that). Then we need to adjust the transformation
-         // for the changed source size and blit the temporary
-         // bitmap. Finally destroy it again.
+         
+         /* Drawing a deformed backbuffer is not supported. */
+         ASSERT(0);
       }
 #elif defined ALLEGRO_GP2XWIZ
       /* FIXME: make this work somehow on Wiz */
