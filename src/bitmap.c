@@ -197,6 +197,7 @@ static void _bitmap_drawer(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint,
    ALLEGRO_DISPLAY *display = dest->display;
    ASSERT(bitmap->parent == NULL);
    ASSERT(!(flags & (ALLEGRO_FLIP_HORIZONTAL | ALLEGRO_FLIP_VERTICAL)));
+   ASSERT(bitmap != dest && bitmap != dest->parent);
 
    /* If destination is memory, do a memory blit */
    if (dest->flags & ALLEGRO_MEMORY_BITMAP) {
