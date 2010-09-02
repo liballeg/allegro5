@@ -54,6 +54,17 @@ For OSX, this should work:
     export DYLD_LIBRARY_PATH=lib/
     python ../python/ex_draw_bitmap.py
 
+For Windows:
+
+Make sure to have WANT_PYTHON_WRAPPER enabled when building. It doesn't
+matter whether you use mingw or MSVC, but Python must be installed on
+your system.
+
+Then run ex_draw_bitmap.py. The DLLs as well as allegro.py must be
+found, easiest is to just have them all in the same directory. Or
+you can also edit allegro.py and specify a directory from which to
+load the DLLs - see the comments in there.
+
 ## Limitations
 
 Right now this is only a proof-of concept implementation, some

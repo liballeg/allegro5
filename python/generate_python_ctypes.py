@@ -291,6 +291,11 @@ from ctypes.util import *
 _dlls = []
 def _add_dll(name):
     release = "%(release)s"
+    
+    # Under Windows, DLLs are found in the current directory, so this
+    # would be an easy way to keep all your DLLs in a sub-folder.
+    
+    # os.chdir("dlls")
 
     path = find_library(name + release)
     if not path:
@@ -308,10 +313,9 @@ def _add_dll(name):
  
         # In most cases, you actually don't want the above and instead
         # use the exact filename within your game distribution, possibly
-        # even within a .zip file. Here we simply look inside a folder
-        # relative to the current path...
-        if not path:
-            path = "dlls/" + path
+        # even within a .zip file.
+        # if not os.path.exists(path):
+        #     path = "dlls/" + path
 
     try:
         # RTLD_GLOBAL is required under OSX for some reason (?)
@@ -319,6 +323,8 @@ def _add_dll(name):
     except OSError:
         # No need to fail here, might just be one of the addons.
         pass
+      
+   # os.chdir("..")
 
 _add_dll("allegro")
 _add_dll("allegro_acodec")
@@ -393,9 +399,9 @@ ALLEGRO_VERSION_INT = \
 # work around bug http://gcc.gnu.org/bugzilla/show_bug.cgi?id=36834
 if os.name == "nt":
     def al_map_rgba_f(r, g, b, a): return ALLEGRO_COLOR(r, g, b, a)
-    def al_map_rgb_f(r, g, b, a): return ALLEGRO_COLOR(r, g, b, 1)
+    def al_map_rgb_f(r, g, b): return ALLEGRO_COLOR(r, g, b, 1)
     def al_map_rgba(r, g, b, a): return ALLEGRO_COLOR(r / 255.0, g / 255.0, b / 255.0, a / 255.0)
-    def al_map_rgb(r, g, b, a): return ALLEGRO_COLOR(r / 255.0, g / 255.0, b / 255.0, 1)
+    def al_map_rgb(r, g, b): return ALLEGRO_COLOR(r / 255.0, g / 255.0, b / 255.0, 1)
     """)
 
     f.write("""

@@ -12,6 +12,7 @@ add_custom_command(
 SET(release "")
 append_lib_type_suffix(release)
 append_lib_linkage_suffix(release)
+SET(release "${release}-${ALLEGRO_SOVERSION}")
 
 add_custom_command(
     OUTPUT allegro.py
