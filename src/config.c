@@ -578,7 +578,7 @@ void al_destroy_config(ALLEGRO_CONFIG *config)
 /* Function: al_get_first_config_section
  */
 char const *al_get_first_config_section(ALLEGRO_CONFIG const *config,
-   void **iterator)
+   ALLEGRO_CONFIG_SECTION **iterator)
 {
    ALLEGRO_CONFIG_SECTION *s;
 
@@ -592,7 +592,7 @@ char const *al_get_first_config_section(ALLEGRO_CONFIG const *config,
 
 /* Function: al_get_next_config_section
  */
-char const *al_get_next_config_section(void **iterator)
+char const *al_get_next_config_section(ALLEGRO_CONFIG_SECTION **iterator)
 {
    ALLEGRO_CONFIG_SECTION *s;
 
@@ -609,7 +609,7 @@ char const *al_get_next_config_section(void **iterator)
 /* Function: al_get_first_config_entry
  */
 char const *al_get_first_config_entry(ALLEGRO_CONFIG const *config,
-   char const *section, void **iterator)
+   char const *section, ALLEGRO_CONFIG_ENTRY **iterator)
 {
    ALLEGRO_USTR_INFO section_info;
    ALLEGRO_USTR *usection;
@@ -636,7 +636,7 @@ char const *al_get_first_config_entry(ALLEGRO_CONFIG const *config,
 
 /* Function: al_get_next_config_entry
  */
-char const *al_get_next_config_entry(void **iterator)
+char const *al_get_next_config_entry(ALLEGRO_CONFIG_ENTRY **iterator)
 {
    ALLEGRO_CONFIG_ENTRY *e;
 

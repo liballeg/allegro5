@@ -11,6 +11,14 @@ extern "C" {
  */
 typedef struct ALLEGRO_CONFIG ALLEGRO_CONFIG;
 
+/* Type: ALLEGRO_CONFIG_SECTION
+ */
+typedef struct ALLEGRO_CONFIG_SECTION ALLEGRO_CONFIG_SECTION;
+
+/* Type: ALLEGRO_CONFIG_ENTRY
+ */
+typedef struct ALLEGRO_CONFIG_ENTRY ALLEGRO_CONFIG_ENTRY;
+
 AL_FUNC(ALLEGRO_CONFIG *, al_create_config, (void));
 AL_FUNC(void, al_add_config_section, (ALLEGRO_CONFIG *config, const char *name));
 AL_FUNC(void, al_set_config_value, (ALLEGRO_CONFIG *config, const char *section, const char *key, const char *value));
@@ -24,10 +32,11 @@ AL_FUNC(void, al_merge_config_into, (ALLEGRO_CONFIG *master, const ALLEGRO_CONFI
 AL_FUNC(ALLEGRO_CONFIG *, al_merge_config, (const ALLEGRO_CONFIG *cfg1, const ALLEGRO_CONFIG *cfg2));
 AL_FUNC(void, al_destroy_config, (ALLEGRO_CONFIG *config));
 
-AL_FUNC(char const *, al_get_first_config_section, (ALLEGRO_CONFIG const *config, void **iterator));
-AL_FUNC(char const *, al_get_next_config_section, (void **iterator));
-AL_FUNC(char const *, al_get_first_config_entry, (ALLEGRO_CONFIG const *config, char const *section, void **iterator));
-AL_FUNC(char const *, al_get_next_config_entry, (void **iterator));
+AL_FUNC(char const *, al_get_first_config_section, (ALLEGRO_CONFIG const *config, ALLEGRO_CONFIG_SECTION **iterator));
+AL_FUNC(char const *, al_get_next_config_section, (ALLEGRO_CONFIG_SECTION **iterator));
+AL_FUNC(char const *, al_get_first_config_entry, (ALLEGRO_CONFIG const *config, char const *section,
+	ALLEGRO_CONFIG_ENTRY **iterator));
+AL_FUNC(char const *, al_get_next_config_entry, (ALLEGRO_CONFIG_ENTRY **iterator));
 
 #ifdef __cplusplus
 }

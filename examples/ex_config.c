@@ -26,7 +26,8 @@ int main(void)
 {
    ALLEGRO_CONFIG *cfg;
    const char *value;
-   void *iterator, *iterator2;
+   ALLEGRO_CONFIG_SECTION *iterator;
+   ALLEGRO_CONFIG_ENTRY *iterator2;
 
    if (!al_init()) {
       return 1;

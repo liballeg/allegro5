@@ -632,7 +632,7 @@ static void _al_xwin_get_keyboard_mapping(void)
    ALLEGRO_CONFIG *c = system->system.config;
    
    char const *key;
-   void *it;
+   ALLEGRO_CONFIG_ENTRY *it;
    key = al_get_first_config_entry(c, "xkeymap", &it);
    while (key) {
       char const *val;

@@ -96,7 +96,7 @@ static void load_bitmaps(ALLEGRO_CONFIG const *cfg, const char *section,
    BmpType bmp_type)
 {
    int i = 0;
-   void *iter;
+   ALLEGRO_CONFIG_ENTRY *iter;
    char const *key;
    char const *value;
 
@@ -135,7 +135,7 @@ static ALLEGRO_BITMAP **reserve_local_bitmap(const char *name, BmpType bmp_type)
 static void load_fonts(ALLEGRO_CONFIG const *cfg, const char *section)
 {
    int i = 0;
-   void *iter;
+   ALLEGRO_CONFIG_ENTRY *iter;
    char const *key;
    char const *value;
 
@@ -1029,7 +1029,7 @@ static void sw_hw_test(ALLEGRO_CONFIG const *cfg, char const *testname)
 
 static bool section_exists(ALLEGRO_CONFIG const *cfg, char const *section)
 {
-   void *iter;
+   ALLEGRO_CONFIG_ENTRY *iter;
 
    return al_get_first_config_entry(cfg, section, &iter) != NULL;
 }
@@ -1040,7 +1040,7 @@ static void merge_config_sections(
 {
    char const *key;
    char const *value;
-   void *iter;
+   ALLEGRO_CONFIG_ENTRY *iter;
 
    value = al_get_config_value(src_cfg, src_section, "extend");
    if (value) {
@@ -1084,7 +1084,7 @@ static void run_test(ALLEGRO_CONFIG const *cfg, char const *section)
 
 static void run_matching_tests(ALLEGRO_CONFIG const *cfg, const char *prefix)
 {
-   void *iter;
+   ALLEGRO_CONFIG_SECTION *iter;
    char const *section;
 
    for (section = al_get_first_config_section(cfg, &iter);
