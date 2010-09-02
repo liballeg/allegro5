@@ -171,7 +171,7 @@ static int render_glyph(ALLEGRO_FONT const *f,
         glyph->bitmap = create_glyph_cache(f, w, h, false);
 
         al_set_target_bitmap(glyph->bitmap);
-        lr = al_lock_bitmap(glyph->bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_WRITEONLY);
+        lr = al_lock_bitmap(glyph->bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
         /* In case this is an empty bitmap, we need to at least draw
          * the one pixel we use as minimum size.
          * TODO: Does A5 not support bitmap with zero dimensions?
