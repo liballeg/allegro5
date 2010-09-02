@@ -132,7 +132,7 @@ int main(void)
       lock = al_lock_bitmap(example.bitmaps[0][i],
          ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
       for (y = 0; y < 1024; y++) {
-         unsigned char *row = lock->data + lock->pitch * y;
+         unsigned char *row = (unsigned char *)lock->data + lock->pitch * y;
          unsigned char *ptr = row;
          for (x = 0; x < 1024; x++) {
             int c = 0;

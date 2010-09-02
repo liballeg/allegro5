@@ -181,7 +181,7 @@ static int render_glyph(ALLEGRO_FONT const *f,
         row = face->glyph->bitmap.buffer;
         for (y = 0; y < face->glyph->bitmap.rows; y++) {
             unsigned char *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
-            unsigned char *dptr = lr->data + lr->pitch * y;
+            unsigned char *dptr = (unsigned char *)lr->data + lr->pitch * y;
             for (x = 0; x < face->glyph->bitmap.width; x++) {
                 unsigned char c = *ptr;
                 *(dptr++) = 255;
