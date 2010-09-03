@@ -818,6 +818,12 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
          (*bmp) = load_relative_bitmap(V(0));
          continue;
       }
+      if (SCAN("al_save_bitmap", 2)) {
+         if (!al_save_bitmap(V(0), B(1))) {
+            error("failed to save %s", V(0));
+         }
+         continue;
+      }
 
       if (SCAN("al_hold_bitmap_drawing", 1)) {
          al_hold_bitmap_drawing(get_bool(V(0)));
