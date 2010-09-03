@@ -327,7 +327,7 @@ static void save_jpg_entry_helper(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp,
    while (cinfo.next_scanline < cinfo.image_height) {
       unsigned char *row[1];
       row[0] = ((unsigned char *)lock->data)
-         + cinfo.next_scanline * lock->pitch;
+         + (signed)cinfo.next_scanline * lock->pitch;
       jpeg_write_scanlines(&cinfo, (void *)row, 1);
    }
 
