@@ -1213,6 +1213,10 @@ int main(const int _argc, const char const *_argv[])
       else if (streq(opt, "-v") || streq(opt, "--verbose")) {
          verbose++;
       }
+      else if (streq(opt, "--force-opengl-1.2")) {
+         ALLEGRO_CONFIG *cfg = al_get_system_config();
+         al_set_config_value(cfg, "opengl", "force_opengl_version", "1.2");
+      }
       else {
          break;
       }

@@ -20,6 +20,9 @@ where options are:
     -v -v
         extra extra verbose
 
+    --force-opengl-1.2
+	restrict Allegro to OpenGL 1.2
+
 If the list of tests is omitted then every test in the config file will be run.
 Otherwise each test named on the command line is run.  For convenience, you may
 drop the "test " prefix on test names.
