@@ -194,14 +194,13 @@ bool al_resize_display(ALLEGRO_DISPLAY *display, int width, int height)
 void al_clear_to_color(ALLEGRO_COLOR color)
 {
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_DISPLAY *display = target->display;
-
    ASSERT(target);
 
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
       _al_clear_memory(&color);
    }
    else {
+      ALLEGRO_DISPLAY *display = target->display;
       ASSERT(display);
       display->vt->clear(display, &color);
    }
