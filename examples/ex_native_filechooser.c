@@ -149,7 +149,7 @@ static void show_files_list(ALLEGRO_FILECHOOSER *dialog,
       const char *name;
 
       path = al_get_native_file_dialog_path(dialog, i);
-      name = al_path_cstr(path, '/');
+      name = al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP);
       al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
       al_draw_textf(font, info, x, y + i * th, ALLEGRO_ALIGN_CENTRE, name, 0, 0);
    }

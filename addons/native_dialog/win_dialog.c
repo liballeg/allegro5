@@ -10,6 +10,7 @@
 
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_native_dialog.h"
+#include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_native_dialog.h"
 
 #include "allegro5/platform/aintwin.h"
@@ -32,11 +33,11 @@ static wchar_t* wlog_edit_control = L"EDIT";
 static bool wlog_unicode = false;
 
 
-static int next(char *s)
+static int skip_nul_terminated_string(char *s)
 {
    int i = 0;
 
-   while  (s[i])
+   while (s[i])
       i++;
 
    return i+1;
@@ -49,7 +50,8 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    ALLEGRO_DISPLAY_WIN *win_display;
    int flags = 0;
    bool ret;
-   char buf[4096] = { 0, };
+   char buf[4096] = "";
+   char init_dir[4096] = "";
    int i;
 
    memset(&ofn, 0, sizeof(OPENFILENAME));
@@ -57,12 +59,16 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    ofn.lStructSize = sizeof(OPENFILENAME);
    win_display = (ALLEGRO_DISPLAY_WIN *)display;
    ofn.hwndOwner = win_display->window;
-   if (fd->fc_initial_path) {
-      strncpy(buf, al_path_cstr(fd->fc_initial_path, '/'), 4096);
-   }
 
    ofn.lpstrFile = buf;
-   ofn.nMaxFile = 4096;
+   ofn.nMaxFile = sizeof(buf);
+
+   if (fd->fc_initial_path) {
+      _al_sane_strncpy(init_dir,
+         al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP),
+         sizeof(init_dir));
+      ofn.lpstrInitialDir = init_dir;
+   }
 
    flags |= OFN_NOCHANGEDIR | OFN_EXPLORER;
    if (fd->flags & ALLEGRO_FILECHOOSER_SAVE) {
@@ -85,46 +91,45 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    if (!ret) {
       DWORD err = GetLastError();
       char buf[1000];
-      FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, 0, buf, 1000, NULL);
+      FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, 0, buf, sizeof(buf), NULL);
       TRACE("al_show_native_file_dialog failed or cancelled: %s\n", buf);
       return false;
    }
 
    if (flags & OFN_ALLOWMULTISELECT) {
-      int p;
-      char path[1000];
-
-      /* Copy the path portion */
-      strncpy(path, buf, 999);
-      /* FIXME: This appends a slash to a filename. */
-      strcat(path, "/");
-
-      /* Skip path portion */
-      i = next(buf);
-
-      /* Count selected */
+      int i;
+      /* Count number of file names in buf. */
       fd->fc_path_count = 0;
+      i = skip_nul_terminated_string(buf);
       while (1) {
-         if (buf[i] == 0) {
+         if (buf[i] == '\0') {
             fd->fc_path_count++;
-            if (buf[i+1] == 0)
+            if (buf[i+1] == '\0')
                break;
          }
          i++;
       }
-
-      fd->fc_paths = al_malloc(fd->fc_path_count * sizeof(void *));
-      i = next(buf);
-      for (p = 0; p < (int)fd->fc_path_count; p++) {
-         fd->fc_paths[p] = al_create_path(path);
-         al_join_paths(fd->fc_paths[p], al_create_path(buf+i));
-         i += next(buf+i);
-      }
    }
    else {
       fd->fc_path_count = 1;
+   }
+
+   if (fd->fc_path_count == 1) {
       fd->fc_paths = al_malloc(sizeof(void *));
       fd->fc_paths[0] = al_create_path(buf);
+   }
+   else {
+      int p;
+      /* If multiple files were selected, the first string in buf is the
+       * directory name, followed by each of the file names terminated by NUL.
+       */
+      fd->fc_paths = al_malloc(fd->fc_path_count * sizeof(void *));
+      i = skip_nul_terminated_string(buf);
+      for (p = 0; p < (int)fd->fc_path_count; p++) {
+         fd->fc_paths[p] = al_create_path_for_directory(buf);
+         al_set_path_filename(fd->fc_paths[p], buf+i);
+         i += skip_nul_terminated_string(buf+i);
+      }
    }
 
    return true;

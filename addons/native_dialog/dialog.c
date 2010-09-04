@@ -17,8 +17,10 @@ ALLEGRO_FILECHOOSER *al_create_native_file_dialog(
    fc = al_malloc(sizeof *fc);
    memset(fc, 0, sizeof *fc);
 
-   if (initial_path)
+   if (initial_path) {
       fc->fc_initial_path = al_clone_path(initial_path);
+      al_set_path_filename(fc->fc_initial_path, NULL);
+   }
    fc->title = al_ustr_new(title);
    fc->fc_patterns = al_ustr_new(patterns);
    fc->flags = mode;
