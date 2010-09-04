@@ -326,14 +326,13 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
 #if !defined ALLEGRO_GP2XWIZ
       ALLEGRO_BITMAP_OGL *ogl_source = (void *)bitmap;
       if (ogl_source->is_backbuffer) {
-
-         /* Source and target cannot both be the back-buffer. */
-         ASSERT(!ogl_target->is_backbuffer);
-       
          /* Our source bitmap is the OpenGL backbuffer, the target
           * is an OpenGL texture.
           */
          float xtrans, ytrans;
+
+         /* Source and target cannot both be the back-buffer. */
+         ASSERT(!ogl_target->is_backbuffer);
 
          /* If we only translate, we can do this fast. */
          if(_al_transform_is_translation(al_get_current_transform(),
