@@ -233,6 +233,8 @@ static void _draw_tinted_rotated_scaled_bitmap_region(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_TRANSFORM backup;
    ALLEGRO_TRANSFORM t;
    ALLEGRO_BITMAP *parent = bitmap;
+   float const orig_sw = sw;
+   float const orig_sh = sh;
 
    al_copy_transform(&backup, al_get_current_transform());
    al_identity_transform(&t);
@@ -260,13 +262,13 @@ static void _draw_tinted_rotated_scaled_bitmap_region(ALLEGRO_BITMAP *bitmap,
 
    if (flags & ALLEGRO_FLIP_HORIZONTAL) {
       al_scale_transform(&t, -1, 1);
-      al_translate_transform(&t, sw - bitmap->xofs, 0);
+      al_translate_transform(&t, orig_sw, 0);
       flags &= ~ALLEGRO_FLIP_HORIZONTAL;
    }
 
    if (flags & ALLEGRO_FLIP_VERTICAL) {
       al_scale_transform(&t, 1, -1);
-      al_translate_transform(&t, 0, sh - bitmap->yofs);
+      al_translate_transform(&t, 0, orig_sh);
       flags &= ~ALLEGRO_FLIP_VERTICAL;
    }
 
