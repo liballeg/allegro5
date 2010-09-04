@@ -37,6 +37,8 @@
 #define PREFIX_W                "al-newin WARNING: "
 #define PREFIX_E                "al-newin ERROR: "
 
+ALLEGRO_DEBUG_CHANNEL("wwindow")
+
 static WNDCLASS window_class;
 
 static bool resize_postponed = false;
@@ -869,8 +871,14 @@ bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
          return true;
 
       case ALLEGRO_FULLSCREEN_WINDOW:
-         if (onoff == ((display->flags & ALLEGRO_FULLSCREEN_WINDOW) != 0))
+         if ((display->flags & ALLEGRO_FULLSCREEN_WINDOW) && onoff) {
+            ALLEGRO_DEBUG("Already a fullscreen window\n");
             return true;
+         }
+         if (!(display->flags & ALLEGRO_FULLSCREEN_WINDOW) && !onoff) {
+            ALLEGRO_DEBUG("Already a non-fullscreen window\n");
+            return true;
+         }
 
          _al_win_toggle_display_flag(display, ALLEGRO_NOFRAME, !onoff);
 
@@ -878,7 +886,7 @@ bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
             ALLEGRO_MONITOR_INFO mi;
             int adapter = al_get_new_display_adapter();
             if (adapter == -1)
-                  adapter = 0;
+               adapter = 0;
             al_get_monitor_info(adapter, &mi);
             display->flags |= ALLEGRO_FULLSCREEN_WINDOW;
             display->w = mi.x2 - mi.x1;
@@ -889,6 +897,8 @@ bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
             display->w = win_display->toggle_w;
             display->h = win_display->toggle_h;
          }
+
+         ASSERT(!!(display->flags & ALLEGRO_FULLSCREEN_WINDOW) == onoff);
 
          al_resize_display(display, display->w, display->h);
          timeout = al_current_time() + 3; // 3 seconds...
@@ -905,6 +915,8 @@ bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
             // FIXME: HOW?!
          }
          /* FIXME: else center the window? */
+
+         ASSERT(!!(display->flags & ALLEGRO_FULLSCREEN_WINDOW) == onoff);
          return true;
    }
    return false;
