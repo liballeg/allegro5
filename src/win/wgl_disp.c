@@ -326,7 +326,7 @@ static int decode_pixel_format_old(PIXELFORMATDESCRIPTOR *pfd,
 
    eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
 
-	return true;
+   return true;
 }
 
 
@@ -987,10 +987,6 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
          destroy_display_internals(wgl_disp);
          return false;
       }
-      disp->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;
-   }
-   else if (disp->ogl_extras->ogl_info.version > 2.1) {
-      /* We don't have OpenGL3 a driver. */
       disp->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;
    }
 

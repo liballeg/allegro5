@@ -63,8 +63,10 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
 
    if (display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY])
       al_set_target_bitmap(al_get_backbuffer(display));
-   else
+   else {
+      ALLEGRO_DEBUG("ALLEGRO_COMPATIBLE_DISPLAY not set\n");
       _al_set_current_display_only(display);
+   }
 
    al_identity_transform(&identity);
    al_use_transform(&identity);
