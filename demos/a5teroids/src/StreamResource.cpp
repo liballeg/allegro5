@@ -10,6 +10,11 @@ void StreamResource::destroy(void)
 
 bool StreamResource::load(void)
 {
+   if (!al_is_audio_installed()) {
+      debug_message("Skipped loading stream %s\n", filename.c_str());
+      return true;
+   }
+
    stream = al_load_audio_stream(filename.c_str(), 4, 2048);
    if (!stream) {
        debug_message("Error creating stream\n");

@@ -27,11 +27,13 @@ void ResourceManager::destroy(void)
 
 bool ResourceManager::add(Resource* res, bool load)
 {
+   // We have to add the resource even if loading fails, if we want to be able
+   // to continue without the resource (e.g. samples).
+   resources.push_back(res);
    if (load) {
       if (!res->load())
          return false;
    }
-   resources.push_back(res);
    return true;
 }
 

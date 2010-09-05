@@ -67,23 +67,23 @@ bool loadResources(void)
    ResourceManager& rm = ResourceManager::getInstance();
 
    if (!rm.add(new DisplayResource())) {
-   	printf("Failed to create display.\n");
-   	return false;
+      printf("Failed to create display.\n");
+      return false;
    }
 
    /* For some reason dsound needs a window... */
    if (!al_install_audio()) {
-   	printf("Failed to install audio.\n");
-   	return false;
+      printf("Failed to install audio.\n");
+      /* Continue anyway. */
    }
 
    if (!rm.add(new Player(), false)) {
-   	printf("Failed to create player.\n");
-   	return false;
+      printf("Failed to create player.\n");
+      return false;
    }
    if (!rm.add(new Input())) {
-   	printf("Failed initializing input.\n");
-	return false;
+      printf("Failed initializing input.\n");
+      return false;
    }
 
    // Load fonts
@@ -113,15 +113,13 @@ bool loadResources(void)
 
    for (int i = 0; SAMPLE_NAMES[i]; i++) {
       if (!rm.add(new SampleResource(getResource(SAMPLE_NAMES[i])))) {
-         printf("Failed to load %s\n", getResource(SAMPLE_NAMES[i]));
-         return false;
+         /* Continue anyway. */
       }
    }
 
    for (int i = 0; STREAM_NAMES[i]; i++) {
       if (!rm.add(new StreamResource(getResource(STREAM_NAMES[i])))) {
-         printf("Failed to load %s\n", getResource(STREAM_NAMES[i]));
-         return false;
+         /* Continue anyway. */
       }
    }
 
@@ -155,21 +153,26 @@ bool init(void)
       return false;
    }
 
-   voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
-   mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
-   al_attach_mixer_to_voice(mixer, voice);
-   
-   ResourceManager& rm = ResourceManager::getInstance();
+   if (al_is_audio_installed()) {
+      voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
+      mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
+      al_attach_mixer_to_voice(mixer, voice);
 
-   for (int i = RES_SAMPLE_START; i < RES_SAMPLE_END; i++) {
-      ALLEGRO_SAMPLE_INSTANCE *s = (ALLEGRO_SAMPLE_INSTANCE *)rm.getData(i);
-      al_attach_sample_instance_to_mixer(s, mixer);
-   }
+      ResourceManager& rm = ResourceManager::getInstance();
 
-   for (int i = RES_STREAM_START; i < RES_STREAM_END; i++) {
-      ALLEGRO_AUDIO_STREAM *s = (ALLEGRO_AUDIO_STREAM *)rm.getData(i);
-      al_attach_audio_stream_to_mixer(s, mixer);
-      al_set_audio_stream_playing(s, false);
+      for (int i = RES_SAMPLE_START; i < RES_SAMPLE_END; i++) {
+         ALLEGRO_SAMPLE_INSTANCE *s = (ALLEGRO_SAMPLE_INSTANCE *)rm.getData(i);
+         if (s)
+            al_attach_sample_instance_to_mixer(s, mixer);
+      }
+
+      for (int i = RES_STREAM_START; i < RES_STREAM_END; i++) {
+         ALLEGRO_AUDIO_STREAM *s = (ALLEGRO_AUDIO_STREAM *)rm.getData(i);
+         if (s) {
+            al_attach_audio_stream_to_mixer(s, mixer);
+            al_set_audio_stream_playing(s, false);
+         }
+      }
    }
 
    return true;
@@ -188,7 +191,8 @@ void done(void)
    ResourceManager& rm = ResourceManager::getInstance();
    for (int i = RES_STREAM_START; i < RES_STREAM_END; i++) {
       ALLEGRO_AUDIO_STREAM *s = (ALLEGRO_AUDIO_STREAM *)rm.getData(i);
-      al_set_audio_stream_playing(s, false);
+      if (s)
+         al_set_audio_stream_playing(s, false);
    }
 
    ResourceManager::getInstance().destroy();
