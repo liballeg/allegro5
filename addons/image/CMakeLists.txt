@@ -55,6 +55,10 @@ if(WANT_NATIVE_IMAGE_LOADER)
             message("WARNING: cannot use GDI+. Will try other libraries.")
         endif(SUPPORT_GDIPLUS)
     endif(WIN32)
+    if (MACOSX)
+        set(ALLEGRO_CFG_IIO_SUPPORT_PNG 1)
+        set(ALLEGRO_CFG_IIO_SUPPORT_JPG 1)
+    endif(MACOSX)
 endif(WANT_NATIVE_IMAGE_LOADER)
 
 # Now look for third party libraries to handle the unsupported formats

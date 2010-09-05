@@ -122,6 +122,86 @@ static ALLEGRO_BITMAP *_al_osx_load_image(const char *filename)
 }
 
 
+extern NSImage* NSImageFromAllegroBitmap(ALLEGRO_BITMAP* bmp);
+
+bool _al_osx_save_image_f(ALLEGRO_FILE *f, const char *ident, ALLEGRO_BITMAP *bmp)
+{
+   NSBitmapImageFileType type;
+   
+   if (!strcmp(ident, ".bmp")) {
+      type = NSBMPFileType;
+   }
+   else if (!strcmp(ident, ".jpg") || !strcmp(ident, ".jpeg")) {
+      type = NSJPEGFileType;
+   }
+   else if (!strcmp(ident, ".gif")) {
+      type = NSGIFFileType;
+   }
+   else if (!strcmp(ident, ".tif") || !strcmp(ident, ".tiff")) {
+      type = NSTIFFFileType;
+   }
+   else if (!strcmp(ident, ".png")) {
+      type = NSPNGFileType;
+   }
+   else {
+      return false;
+   }
+   
+   NSImage *image = NSImageFromAllegroBitmap(bmp);
+   NSArray *reps = [image representations];
+   NSData *nsdata = [NSBitmapImageRep representationOfImageRepsInArray: reps usingType: type properties: nil];
+   
+   size_t size = (size_t)[nsdata length];
+   bool ret = al_fwrite(f, [nsdata bytes], size) == size;
+   
+   [nsdata release];
+   [reps release];
+   [image release];
+   
+   return ret;
+}
+
+
+bool _al_osx_save_image(const char *filename, ALLEGRO_BITMAP *bmp)
+{
+   ALLEGRO_FILE *fp;
+   bool ret = false;
+
+   fp = al_fopen(filename, "wb");
+   if (fp) {
+      ALLEGRO_PATH *path = al_create_path(filename);
+      if (path) {
+         ret = _al_osx_save_image_f(fp, al_get_path_extension(path), bmp);
+         al_destroy_path(path);
+      }
+      al_fclose(fp);
+   }
+
+   return ret;
+}
+
+
+bool _al_osx_save_png_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
+{
+   return _al_osx_save_image_f(f, ".png", bmp);
+}
+
+bool _al_osx_save_jpg_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
+{
+   return _al_osx_save_image_f(f, ".jpg", bmp);
+}
+
+bool _al_osx_save_tif_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
+{
+   return _al_osx_save_image_f(f, ".tif", bmp);
+}
+
+bool _al_osx_save_gif_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
+{
+   return _al_osx_save_image_f(f, ".gif", bmp);
+}
+
+
 bool _al_osx_register_image_loader(void)
 {
    bool success = false;
@@ -144,6 +224,20 @@ bool _al_osx_register_image_loader(void)
       success |= al_register_bitmap_loader(s, _al_osx_load_image);
       success |= al_register_bitmap_loader_f(s, _al_osx_load_image_f);
    }
+   
+   char const *extensions[] = { ".tif", ".tiff", ".gif", ".png", ".jpg", ".jpeg", NULL };
+   
+   for (i = 0; extensions[i]; i++) {
+      ALLEGRO_DEBUG("Registering native saver for bitmap type %s\n", extensions[i]);
+      success |= al_register_bitmap_saver(extensions[i], _al_osx_save_image);
+   }
+
+   success |= al_register_bitmap_saver_f(".tif", _al_osx_save_tif_f);
+   success |= al_register_bitmap_saver_f(".tiff", _al_osx_save_tif_f);
+   success |= al_register_bitmap_saver_f(".gif", _al_osx_save_gif_f);
+   success |= al_register_bitmap_saver_f(".png", _al_osx_save_png_f);
+   success |= al_register_bitmap_saver_f(".jpg", _al_osx_save_jpg_f);
+   success |= al_register_bitmap_saver_f(".jpeg", _al_osx_save_jpg_f);
 
    return success;
 }
