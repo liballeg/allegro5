@@ -532,27 +532,9 @@ const char *al_get_path_basename(const ALLEGRO_PATH *path)
  */
 bool al_is_path_present(const ALLEGRO_PATH *path)
 {
-   ALLEGRO_USTR *ustr;
-   bool rc;
    ASSERT(path);
 
-   ustr = al_ustr_new("");
-   path_to_ustr(path, ALLEGRO_NATIVE_PATH_SEP, ustr);
-
-   /* Windows' stat() doesn't like the slash at the end of the path when
-    * the path is pointing to a directory. There are other places which
-    * might require the same fix.
-    */
-#ifdef ALLEGRO_WINDOWS
-   if (al_ustr_has_suffix_cstr(ustr, "\\")) {
-      al_ustr_truncate(ustr, al_ustr_size(ustr) - 1);
-   }
-#endif
-
-   rc = al_filename_exists(al_cstr(ustr));
-   al_ustr_free(ustr);
-
-   return rc;
+   return al_filename_exists(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
 }
 
 

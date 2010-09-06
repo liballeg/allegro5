@@ -636,18 +636,39 @@ static bool fs_stdio_entry_exists(ALLEGRO_FS_ENTRY *fp)
 
 static bool fs_stdio_filename_exists(const char *path)
 {
+   char *copy = NULL;
    struct stat st;
-   if (stat(path, &st) != 0) {
-      if (errno == ENOENT) {
-         return false;
-      }
-      else {
-         al_set_errno(errno);
-         return false;
+   bool ret;
+
+   ASSERT(path);
+
+   /* Windows' stat() doesn't like the slash at the end of the path when
+    * the path is pointing to a directory. There are other places which
+    * might require the same fix.
+    */
+#ifdef ALLEGRO_WINDOWS
+   {
+      size_t len = strlen(path);
+      if (len > 0 && (path[len-1] == '\\' || path[len-1] == '/')) {
+         copy = strdup(path);
+         copy[len-1] = '\0';
+         path = copy;
       }
    }
+#endif
 
-   return true;
+   if (stat(path, &st) == 0) {
+      ret = true;
+   }
+   else {
+      if (errno != ENOENT)
+         al_set_errno(errno);
+      ret = false;
+   }
+
+   free(copy);
+
+   return ret;
 }
 
 static bool fs_stdio_remove_entry(ALLEGRO_FS_ENTRY *fp)
