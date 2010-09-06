@@ -49,6 +49,10 @@ This function is automatically called when Allegro is shut down.
 
 See also: [al_install_joystick]
 
+## API: al_is_joystick_installed
+
+Returns true if [al_install_joystick] was called successfully.
+
 ## API: al_reconfigure_joysticks
 
 Allegro is able to cope with users connecting and disconnected joystick devices

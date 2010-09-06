@@ -64,6 +64,7 @@ enum
 
 AL_FUNC(bool,           al_install_joystick,    (void));
 AL_FUNC(void,           al_uninstall_joystick,  (void));
+AL_FUNC(bool,           al_is_joystick_installed, (void));
 AL_FUNC(bool,           al_reconfigure_joysticks, (void));
 
 AL_FUNC(int,            al_get_num_joysticks,   (void));

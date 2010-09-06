@@ -77,6 +77,15 @@ void al_uninstall_joystick(void)
 
 
 
+/* Function: al_is_joystick_installed
+ */
+bool al_is_joystick_installed(void)
+{
+   return (new_joystick_driver) ? true : false;
+}
+
+
+
 /* Function: al_reconfigure_joysticks
  */
 bool al_reconfigure_joysticks(void)
