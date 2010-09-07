@@ -420,7 +420,6 @@ static void fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio)
       fp_stdio->stat_mode |= ALLEGRO_FILEMODE_EXECUTE;
 #endif
 
-/* TODO: do we need a special OSX section here? or are . (dot) files "proper" under osx? */
 #ifdef ALLEGRO_WINDOWS
    {
       DWORD attrib = GetFileAttributes(fp_stdio->path);
@@ -428,6 +427,13 @@ static void fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio)
          fp_stdio->stat_mode |= ALLEGRO_FILEMODE_HIDDEN;
    }
 #else
+#ifdef ALLEGRO_MACOSX
+   {
+      /* OSX hidden files can both start with the dot as well as having this flag set... */
+      if (fp_stdio->st.st_flags & UF_HIDDEN)
+         fp_stdio->stat_mode |= ALLEGRO_FILEMODE_HIDDEN;
+   }
+#endif
    fp_stdio->stat_mode |= (fp_stdio->path[0] == '.' ? ALLEGRO_FILEMODE_HIDDEN : 0);
 #endif
 
