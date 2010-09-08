@@ -14,7 +14,7 @@ static void print_file(ALLEGRO_FS_ENTRY *entry)
    const ALLEGRO_PATH *path = al_get_fs_entry_name(entry);
    off_t size = al_get_fs_entry_size(entry);
    char const *name;
-   if (al_fs_entry_is_directory(entry))
+   if (mode & ALLEGRO_FILEMODE_ISDIR)
       name = al_get_path_component(path, -1);
    else
       name = al_get_path_filename(path);
@@ -36,7 +36,7 @@ static void print_entry(ALLEGRO_FS_ENTRY *entry)
 {
    print_file(entry);
 
-   if (al_fs_entry_is_directory(entry)) {
+   if (al_get_fs_entry_mode(entry) & ALLEGRO_FILEMODE_ISDIR) {
       ALLEGRO_FS_ENTRY *next;
 
       al_open_directory(entry);

@@ -69,7 +69,7 @@ static void listdir(ALLEGRO_FS_ENTRY *entry)
          break;
 
       print_file(next);
-      if (al_fs_entry_is_directory(next))
+      if (al_get_fs_entry_mode(next) & ALLEGRO_FILEMODE_ISDIR)
          listdir(next);
       al_destroy_fs_entry(next);
    }

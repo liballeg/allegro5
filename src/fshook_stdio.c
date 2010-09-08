@@ -730,7 +730,7 @@ static const ALLEGRO_PATH *fs_stdio_name(ALLEGRO_FS_ENTRY *fp)
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
 
    if (!fp_stdio->apath) {
-      if (al_fs_entry_is_directory(fp)) {
+      if (al_get_fs_entry_mode(fp) & ALLEGRO_FILEMODE_ISDIR) {
          fp_stdio->apath = al_create_path_for_directory(fp_stdio->path);
       }
       else {

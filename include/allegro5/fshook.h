@@ -99,8 +99,6 @@ AL_FUNC(time_t,               al_get_fs_entry_mtime,(ALLEGRO_FS_ENTRY *e));
 AL_FUNC(time_t,               al_get_fs_entry_ctime,(ALLEGRO_FS_ENTRY *e));
 AL_FUNC(off_t,                al_get_fs_entry_size,(ALLEGRO_FS_ENTRY *e));
 AL_FUNC(bool,                 al_fs_entry_exists,  (ALLEGRO_FS_ENTRY *e));
-AL_FUNC(bool,                 al_fs_entry_is_directory,(ALLEGRO_FS_ENTRY *e));
-AL_FUNC(bool,                 al_fs_entry_is_file, (ALLEGRO_FS_ENTRY *e));
 AL_FUNC(bool,                 al_remove_fs_entry,  (ALLEGRO_FS_ENTRY *e));
 
 AL_FUNC(bool,                 al_open_directory,   (ALLEGRO_FS_ENTRY *e));

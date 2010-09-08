@@ -133,26 +133,6 @@ bool al_fs_entry_exists(ALLEGRO_FS_ENTRY *e)
 }
 
 
-/* Function: al_fs_entry_is_directory
- */
-bool al_fs_entry_is_directory(ALLEGRO_FS_ENTRY *e)
-{
-   ASSERT(e != NULL);
-
-   return al_get_fs_entry_mode(e) & ALLEGRO_FILEMODE_ISDIR;
-}
-
-
-/* Function: al_fs_entry_is_file
- */
-bool al_fs_entry_is_file(ALLEGRO_FS_ENTRY *e)
-{
-   ASSERT(e != NULL);
-
-   return al_get_fs_entry_mode(e) & ALLEGRO_FILEMODE_ISFILE;
-}
-
-
 /* Function: al_open_directory
  */
 bool al_open_directory(ALLEGRO_FS_ENTRY *e)

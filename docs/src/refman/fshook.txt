@@ -11,8 +11,7 @@ whatever else you or an addon makes it do).
 ## API: ALLEGRO_FS_ENTRY
 
 Opaque filesystem entry object.
-Represents a file or a directory (check with [al_fs_entry_is_directory]
-or [al_fs_entry_is_file]).
+Represents a file or a directory (check with [al_get_fs_entry_mode]).
 There are no user accessible member variables.
 
 ## API: ALLEGRO_FILE_MODE
@@ -59,7 +58,7 @@ Returns true on success, false on failure.
 Fills in errno to indicate the error.
 
 See also: [al_get_errno], [al_get_fs_entry_atime], [al_get_fs_entry_ctime],
-[al_fs_entry_is_directory], [al_fs_entry_is_file], [al_get_fs_entry_mode]
+[al_get_fs_entry_mode]
 
 ## API: al_get_fs_entry_mode
 
@@ -108,18 +107,6 @@ See also: [al_update_fs_entry]
 Check if the given entry exists on in the filesystem.
 Returns true if it does exist or false if it doesn't exist, or an error occured.
 Error is indicated in Allegro' errno.
-
-## API: al_fs_entry_is_file
-
-Return true iff this entry is a regular file.
-
-See also: [al_get_fs_entry_mode]
-
-## API: al_fs_entry_is_directory
-
-Return true iff this entry is a directory.
-
-See also: [al_get_fs_entry_mode]
 
 ## API: al_remove_fs_entry
 
