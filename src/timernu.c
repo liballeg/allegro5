@@ -258,9 +258,9 @@ void al_stop_timer(ALLEGRO_TIMER *timer)
 
 
 
-/* Function: al_timer_is_started
+/* Function: al_get_timer_started
  */
-bool al_timer_is_started(const ALLEGRO_TIMER *timer)
+bool al_get_timer_started(const ALLEGRO_TIMER *timer)
 {
    ASSERT(timer);
 

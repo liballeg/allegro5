@@ -43,7 +43,7 @@ Start the timer specified.  From then, the timer's counter will increment
 at a constant rate, and it will begin generating events.  Starting a
 timer that is already started does nothing.
 
-See also: [al_stop_timer], [al_timer_is_started]
+See also: [al_stop_timer], [al_get_timer_started]
 
 ## API: al_stop_timer
 
@@ -51,9 +51,9 @@ Stop the timer specified.  The timer's counter will stop incrementing and
 it will stop generating events.  Stopping a timer that is already stopped
 does nothing.
 
-See also: [al_start_timer], [al_timer_is_started]
+See also: [al_start_timer], [al_get_timer_started]
 
-## API: al_timer_is_started
+## API: al_get_timer_started
 
 Return true if the timer specified is currently started.
 

@@ -49,7 +49,7 @@ AL_FUNC(ALLEGRO_TIMER*, al_create_timer, (double speed_secs));
 AL_FUNC(void, al_destroy_timer, (ALLEGRO_TIMER *timer));
 AL_FUNC(void, al_start_timer, (ALLEGRO_TIMER *timer));
 AL_FUNC(void, al_stop_timer, (ALLEGRO_TIMER *timer));
-AL_FUNC(bool, al_timer_is_started, (const ALLEGRO_TIMER *timer));
+AL_FUNC(bool, al_get_timer_started, (const ALLEGRO_TIMER *timer));
 AL_FUNC(double, al_get_timer_speed, (const ALLEGRO_TIMER *timer));
 AL_FUNC(void, al_set_timer_speed, (ALLEGRO_TIMER *timer, double speed_secs));
 AL_FUNC(int64_t, al_get_timer_count, (const ALLEGRO_TIMER *timer));
