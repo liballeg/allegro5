@@ -528,16 +528,6 @@ const char *al_get_path_basename(const ALLEGRO_PATH *path)
 }
 
 
-/* Function: al_is_path_present
- */
-bool al_is_path_present(const ALLEGRO_PATH *path)
-{
-   ASSERT(path);
-
-   return al_filename_exists(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
-}
-
-
 /* Function: al_make_path_absolute
  */
 bool al_make_path_absolute(ALLEGRO_PATH *path)

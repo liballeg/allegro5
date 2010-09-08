@@ -221,8 +221,3 @@ not "/quux" as a naive removal of ".." components would give you.
 
 See also: [al_make_path_absolute]
 
-## API: al_is_path_present
-
-Return true if path represents an existing file on the system,
-or false if it doesn't exist.
-

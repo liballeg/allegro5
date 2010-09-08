@@ -446,18 +446,9 @@ static void t13(void)
    al_destroy_path(path2);
 }
 
-/* Test al_is_path_present. */
 static void t14(void)
 {
-   ALLEGRO_PATH *path;
-
-   path = al_create_path("./data");
-   CHECK(al_is_path_present(path));
-
-   al_set_path_extension(path, ".phony");
-   CHECK(! al_is_path_present(path));
-
-   al_destroy_path(path);
+   /* nothing */
 }
 
 static void t15(void)

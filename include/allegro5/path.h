@@ -48,8 +48,6 @@ AL_FUNC(const char*, al_get_path_basename, (const ALLEGRO_PATH *path));
 AL_FUNC(bool, al_make_path_absolute, (ALLEGRO_PATH *path));
 AL_FUNC(bool, al_make_path_canonical, (ALLEGRO_PATH *path));
 
-AL_FUNC(bool, al_is_path_present, (const ALLEGRO_PATH *path));
-
 
 #ifdef __cplusplus
    }
