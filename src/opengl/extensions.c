@@ -479,9 +479,9 @@ static bool _ogl_is_extension_with_version_supported(
 
 
 
-/* Function: al_is_opengl_extension_supported
+/* Function: al_have_opengl_extension
  */
-int al_is_opengl_extension_supported(const char *extension)
+int al_have_opengl_extension(const char *extension)
 {
    ALLEGRO_DISPLAY *disp;
    

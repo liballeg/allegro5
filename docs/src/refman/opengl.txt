@@ -28,7 +28,7 @@ with GLX extensions.
 
 In case you want to manually check for extensions and load function pointers
 yourself (say, in case the Allegro developers did not include it yet), you
-can use the [al_is_opengl_extension_supported] and
+can use the [al_have_opengl_extension] and
 [al_get_opengl_proc_address] functions instead.
 
 ## API: al_get_opengl_proc_address
@@ -98,14 +98,14 @@ for it.
 If the bitmap has an OpenGL FBO created for it (see [al_set_target_bitmap]),
 it is freed. It also is freed automatically when the bitmap is destroyed.
 
-## API: al_is_opengl_extension_supported
+## API: al_have_opengl_extension
 
 This function is a helper to determine whether an OpenGL extension is
 available on the given display or not.
 
 Example:
 
-    int packedpixels = al_is_opengl_extension_supported("GL_EXT_packed_pixels");
+    int packedpixels = al_have_opengl_extension("GL_EXT_packed_pixels");
 
 If _packedpixels_ is TRUE then you can safely use the constants related
 to the packed pixels extension.

@@ -60,12 +60,12 @@ int main(void)
 
    buffer = al_create_bitmap(320, 200);
 
-   if (!al_is_opengl_extension_supported("GL_EXT_framebuffer_object")) {
+   if (!al_have_opengl_extension("GL_EXT_framebuffer_object")) {
       abort_example("GL_EXT_framebuffer_object not supported.\n");
    }
 
    // Check for shader support
-   if (!al_is_opengl_extension_supported("GL_ARB_fragment_shader")) {
+   if (!al_have_opengl_extension("GL_ARB_fragment_shader")) {
       abort_example("Fragment shaders not supported.\n");
    }
 
