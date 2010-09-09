@@ -848,10 +848,12 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    }
 #else /* ALLEGRO_GP2XWIZ or ALLEGRO_IPHONE */
    if (ogl_bitmap->is_backbuffer) {
+      ALLEGRO_DEBUG("Unlocking backbuffer\n");
       GLuint tmp_tex;
       glGenTextures(1, &tmp_tex);
-      glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0], bitmap->lock_w, bitmap->lock_h,
-                   0, glformats[bitmap->format][2], glformats[bitmap->format][1],
+      glBindTexture(GL_TEXTURE_2D, tmp_tex);
+      glTexImage2D(GL_TEXTURE_2D, 0, glformats[lock_format][0], bitmap->lock_w, bitmap->lock_h,
+                   0, glformats[lock_format][2], glformats[lock_format][1],
                    ogl_bitmap->lock_buffer);
       e = glGetError();
       if (e) {
@@ -867,6 +869,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       glDeleteTextures(1, &tmp_tex);
    }
    else {
+      ALLEGRO_DEBUG("Unlocking non-backbuffer\n");
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
       if (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY) {
          int dst_pitch = bitmap->lock_w * ogl_pixel_alignment(orig_pixel_size);
