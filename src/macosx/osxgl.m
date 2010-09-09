@@ -1875,6 +1875,7 @@ static bool toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
             display->flags &= ~ALLEGRO_FULLSCREEN_WINDOW;
             resize_display_win(display, sc.size.width, sc.size.height);
             [win center];
+            [[view window] makeFirstResponder: view];
          }
          return true;
    }
