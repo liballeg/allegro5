@@ -500,6 +500,7 @@ static void check_hash(ALLEGRO_CONFIG const *cfg, char const *testname,
    char const *sigexp;
 
    exp = al_get_config_value(cfg, testname, "hash");
+
    sigexp = al_get_config_value(cfg, testname, "sig");
 
    if (exp && streq(exp, "off")) {
@@ -582,6 +583,17 @@ static void check_similarity(ALLEGRO_CONFIG const *cfg,
    double rms = bitmap_dissimilarity(bmp1, bmp2);
    double tolerance;
    char const *value;
+   
+   if (bmp_type == HW) {
+      char const *exp = al_get_config_value(cfg, testname, "hw_hash");
+      char hash[16];
+      sprintf(hash, "%08x", hash_bitmap(bmp1));
+      if (exp && streq(hash, exp)) {
+         printf("OK   %s [%s]\n", testname, bt);
+         passed_tests++;
+         return;
+      }
+   }
 
    /* The default cutoff is "empirically determined" only. */
    if ((value = al_get_config_value(cfg, testname, "tolerance")))

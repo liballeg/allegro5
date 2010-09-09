@@ -87,4 +87,6 @@ enough to show up even in the thumbnails.
 
 The hardware implementation is compared against the software implementation,
 with some tolerance.  The tolerance is arbitrary but you can set it if
-necessary with the 'tolerance' key.
+necessary with the 'tolerance' key. In case the HW results is supposed
+to look different, a separate hash can be specifeid with 'hw_hash'
+instead of the similarity comparison.

@@ -361,6 +361,11 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
                sh = target->cb_excl - ytrans;
             }
 
+            /* Note: Allegro 5.0.0 does not support blending or
+             * tinting if the source bitmap is the screen. So it is
+             * correct to ignore them here.
+             */
+
             glBindTexture(GL_TEXTURE_2D, ogl_target->texture);
             glCopyTexSubImage2D(GL_TEXTURE_2D, 0,
                 xtrans, target->h - ytrans - sh,
