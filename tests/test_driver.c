@@ -611,6 +611,7 @@ static void check_similarity(ALLEGRO_CONFIG const *cfg,
    else {
       char const *exp = al_get_config_value(cfg, testname, "hash");
       char hash[16];
+      char sig[SIG_LENZ];
       sprintf(hash, "%08x", hash_bitmap(bmp1));
 
       if (exp && streq(hash, exp)) {
@@ -620,7 +621,9 @@ static void check_similarity(ALLEGRO_CONFIG const *cfg,
       }
 
       printf("FAIL %s [%s] - RMS error is %g\n", testname, bt, rms);
-      printf("     hash is %s\n", hash);
+      printf("hash_hw=%s\n", hash);
+      compute_signature(bmp1, sig);
+      printf("sig_hw=%s\n", sig);
       failed_tests++;
    }
 }
