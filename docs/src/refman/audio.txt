@@ -517,6 +517,11 @@ Returns true on success.
 
 Return the sample data that the sample instance plays.
 
+Note this returns a pointer to an internal structure, *not* the
+[ALLEGRO_SAMPLE] that you may have passed to [al_set_sample].
+You may, however, check which sample buffer is being played by the sample
+instance with [al_get_sample_data], and so on.
+
 ### API: al_set_sample
 
 Change the sample data that a sample instance plays.  This can be quite an
