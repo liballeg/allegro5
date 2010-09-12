@@ -453,6 +453,10 @@ AL_ARRAY(int, _al_rgb_scale_6);
 AL_ARRAY(float, _al_u8_to_float);
 AL_FUNC(char const *, _al_format_name, (ALLEGRO_PIXEL_FORMAT format));
 AL_FUNC(void, _al_init_pixels, (void));
+AL_FUNC(void, _al_blend_inline, (
+   const ALLEGRO_COLOR *scol, const ALLEGRO_COLOR *dcol,
+   int op, int src_, int dst_, int aop, int asrc_, int adst_,
+   ALLEGRO_COLOR *result));
 
 #endif
 

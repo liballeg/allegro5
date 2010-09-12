@@ -1,6 +1,8 @@
+#!/usr/bin/env python
+#
 # Generate the routines to draw each scanline of a primitive.
 # Run:
-#  python misc/make_scanline_drawers.py | indent -kr -i3 -l0 > addons/primitives/draw_scanline.c
+#  python misc/make_scanline_drawers.py | indent -kr -i3 -l0 > addons/primitives/scanline_drawers.c
 
 def make_drawer(name):
    texture = (name.find("_texture_") != -1)
@@ -99,6 +101,7 @@ def make_drawer(name):
       print """\
       const int src_format = s->texture->locked_region.format;
       const int src_size = al_get_pixel_size(src_format);
+      ALLEGRO_COLOR src_color = {0, 0, 0, 0};
       """
 
    print """\
@@ -118,7 +121,6 @@ def make_drawer(name):
          """
    else:
       print """\
-         ALLEGRO_COLOR src_color;
          const int src_x = fix_var(u, s->w);
          const int src_y = fix_var(v, s->h);
          uint8_t *src_data = (uint8_t *)s->texture->locked_region.data
@@ -174,18 +176,8 @@ def make_drawer(name):
 
 if __name__ == "__main__":
    print """\
-   // Warning: This file was created by make_scanline_drawers.py - do not edit.
-
-   #include "allegro5/internal/aintern_bitmap.h"
-   #include "allegro5/internal/aintern_pixels.h"
-
-   // XXX this should be inlined
-   // XXX use _al_blend_inline_dest_zero_add as well
-   extern void _al_blend_inline(
-      const ALLEGRO_COLOR *scol, const ALLEGRO_COLOR *dcol,
-      int op, int src_, int dst_, int aop, int asrc_, int adst_,
-      ALLEGRO_COLOR *result);
-   """
+// Warning: This file was created by make_scanline_drawers.py - do not edit.
+"""
 
    make_drawer("shader_solid_any_draw_shade")
    make_drawer("shader_solid_any_draw_opaque")

@@ -19,6 +19,8 @@
 
 #include "allegro5/allegro_primitives.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_pixels.h"
 #include "allegro5/internal/aintern_prim.h"
 #include "allegro5/internal/aintern_prim_soft.h"
 #include <math.h>
@@ -34,26 +36,6 @@ typedef void (*shader_step)(uintptr_t, int);
 typedef struct {
    ALLEGRO_COLOR cur_color;
 } state_solid_any_2d;
-
-static void shader_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
-{
-   state_solid_any_2d* s = (state_solid_any_2d*)state;
-   int x;
-
-   for (x = x1; x <= x2; x++) {
-      al_put_blended_pixel(x, y - 1, s->cur_color);
-   }
-}
-
-static void shader_solid_any_draw_opaque(uintptr_t state, int x1, int y, int x2)
-{
-   state_solid_any_2d* s = (state_solid_any_2d*)state;
-   int x;
-
-   for (x = x1; x <= x2; x++) {
-      al_put_pixel(x, y - 1, s->cur_color);
-   }
-}
 
 static void shader_solid_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3)
 {
@@ -129,42 +111,6 @@ typedef struct {
    const float x12 = x1 - x2;               \
                                             \
    const float det_u = minor3 - minor1 + minor2;
-
-static void shader_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
-{
-   state_grad_any_2d* s = (state_grad_any_2d*)state;
-   ALLEGRO_COLOR color = s->solid.cur_color;
-   int x;
-   
-   for (x = x1; x <= x2; x++) {
-      /*
-      TODO: This y - 1 bit bothers me, why would I need this?
-      Either _al_put_pixel, or al_draw_bitmap are shifted by 1 relative to OpenGL
-      */
-      al_put_blended_pixel(x, y - 1, color);
-      
-      color.r += s->color_dx.r;
-      color.g += s->color_dx.g;
-      color.b += s->color_dx.b;
-      color.a += s->color_dx.a;  
-   }
-}
-
-static void shader_grad_any_draw_opaque(uintptr_t state, int x1, int y, int x2)
-{
-   state_grad_any_2d* s = (state_grad_any_2d*)state;
-   ALLEGRO_COLOR color = s->solid.cur_color;
-   int x;
-
-   for (x = x1; x <= x2; x++) {
-      al_put_pixel(x, y - 1, color);
-      
-      color.r += s->color_dx.r;
-      color.g += s->color_dx.g;
-      color.b += s->color_dx.b;
-      color.a += s->color_dx.a;
-   }
-}
 
 static void shader_grad_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3)
 {
@@ -277,76 +223,6 @@ typedef struct {
    int w, h;
 } state_texture_solid_any_2d;
 
-static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
-{
-   state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
-   float u = s->u;
-   float v = s->v;
-   int x;
-   ALLEGRO_COLOR color;
-   
-   for (x = x1; x <= x2; x++) {
-      color = al_get_pixel(s->texture, fix_var(u, s->w), fix_var(v, s->h));
-      SHADE_COLORS(color, s->cur_color)
-      al_put_blended_pixel(x, y - 1, color);
-      
-      u += s->du_dx;
-      v += s->dv_dx;
-   }
-}
-
-static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, int y, int x2)
-{
-   state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
-   float u = s->u;
-   float v = s->v;
-   int x;
-   ALLEGRO_COLOR color;
-   
-   for (x = x1; x <= x2; x++) {
-      color = al_get_pixel(s->texture, fix_var(u, s->w), fix_var(v, s->h));
-      al_put_blended_pixel(x, y - 1, color);
-      
-      u += s->du_dx;
-      v += s->dv_dx;
-   }
-}
-
-static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y, int x2)
-{
-   state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
-   float u = s->u;
-   float v = s->v;
-   int x;
-   ALLEGRO_COLOR color;
-   
-   for (x = x1; x <= x2; x++) {
-      color = al_get_pixel(s->texture, fix_var(u, s->w), fix_var(v, s->h));
-      SHADE_COLORS(color, s->cur_color)
-      al_put_pixel(x, y - 1, color);
-      
-      u += s->du_dx;
-      v += s->dv_dx;
-   }
-}
-
-static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, int y, int x2)
-{
-   state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
-   float u = s->u;
-   float v = s->v;
-   int x;
-   ALLEGRO_COLOR color;
-   
-   for (x = x1; x <= x2; x++) {
-      color = al_get_pixel(s->texture, fix_var(u, s->w), fix_var(v, s->h));
-      al_put_pixel(x, y - 1, color);
-      
-      u += s->du_dx;
-      v += s->dv_dx;
-   }
-}
-
 static void shader_texture_solid_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3)
 {
    INIT_PREAMBLE
@@ -415,54 +291,6 @@ typedef struct {
    ALLEGRO_COLOR minor_color;
    ALLEGRO_COLOR major_color;
 } state_texture_grad_any_2d;
-
-static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
-{
-   state_texture_grad_any_2d* s = (state_texture_grad_any_2d*)state;
-   float u = s->solid.u;
-   float v = s->solid.v;
-   int x;
-   ALLEGRO_COLOR color;
-   ALLEGRO_COLOR cur_color = s->solid.cur_color;
-   
-   for (x = x1; x <= x2; x++) {
-      color = al_get_pixel(s->solid.texture, fix_var(u, s->solid.w), fix_var(v, s->solid.h));
-      SHADE_COLORS(color, cur_color)
-      al_put_blended_pixel(x, y - 1, color);
-      
-      u += s->solid.du_dx;
-      v += s->solid.dv_dx;
-
-      cur_color.r += s->color_dx.r;
-      cur_color.g += s->color_dx.g;
-      cur_color.b += s->color_dx.b;
-      cur_color.a += s->color_dx.a; 
-   }
-}
-
-static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, int x2)
-{
-   state_texture_grad_any_2d* s = (state_texture_grad_any_2d*)state;
-   float u = s->solid.u;
-   float v = s->solid.v;
-   int x;
-   ALLEGRO_COLOR color;
-   ALLEGRO_COLOR cur_color = s->solid.cur_color;
-   
-   for (x = x1; x <= x2; x++) {
-      color = al_get_pixel(s->solid.texture, fix_var(u, s->solid.w), fix_var(v, s->solid.h));
-      SHADE_COLORS(color, cur_color)
-      al_put_pixel(x, y - 1, color);
-      
-      u += s->solid.du_dx;
-      v += s->solid.dv_dx;
-
-      cur_color.r += s->color_dx.r;
-      cur_color.g += s->color_dx.g;
-      cur_color.b += s->color_dx.b;
-      cur_color.a += s->color_dx.a; 
-   }
-}
 
 static void shader_texture_grad_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3)
 {
@@ -556,6 +384,9 @@ static void shader_texture_grad_any_step(uintptr_t state, int minor)
    }
 }
 
+
+/* Include generated routines. */
+#include "scanline_drawers.c"
 
 
 static void triangle_stepper(uintptr_t state,

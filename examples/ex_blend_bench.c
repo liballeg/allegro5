@@ -35,14 +35,6 @@ static char const *names[] = {
 
 ALLEGRO_DISPLAY *display;
 
-ALLEGRO_VERTEX_ELEMENT elems[] = {
-   {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_FLOAT_3, offsetof(ALLEGRO_VERTEX, x)},
-   {ALLEGRO_PRIM_TEX_COORD_PIXEL, ALLEGRO_PRIM_FLOAT_2, offsetof(ALLEGRO_VERTEX, u)},
-   {ALLEGRO_PRIM_COLOR_ATTR, 0, offsetof(ALLEGRO_VERTEX, color)},
-   {0, 0, 0}
-};
-ALLEGRO_VERTEX_DECL* decl;
-
 static void replacement_al_draw_scaled_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
    float cx, float cy, float dx, float dy, float xscale, float yscale,
    float angle, int flags)
@@ -83,21 +75,7 @@ static void replacement_al_draw_scaled_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
    v[2].color = c;
    
    al_use_transform(&trans);
-   al_draw_prim(v, decl, bitmap, 0, 4, ALLEGRO_PRIM_TRIANGLE_STRIP);
-}
-
-static void setup(enum Mode mode)
-{
-   if (mode == DRAW_PRIM) {
-      decl = al_create_vertex_decl(elems, sizeof(ALLEGRO_VERTEX));
-   }
-}
-
-static void tear_down(enum Mode mode)
-{
-   if (mode == DRAW_PRIM) {
-      al_destroy_vertex_decl(decl);
-   }
+   al_draw_prim(v, NULL, bitmap, 0, 4, ALLEGRO_PRIM_TRIANGLE_STRIP);
 }
 
 static void step(enum Mode mode, ALLEGRO_BITMAP *b2)
@@ -138,8 +116,6 @@ static bool do_test(enum Mode mode)
    int REPEAT;
    double t0, t1;
    int i;
-
-   setup(mode);
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
 
@@ -192,8 +168,6 @@ static bool do_test(enum Mode mode)
    al_destroy_bitmap(b1);
    al_destroy_bitmap(b2);
       
-   tear_down(mode);
-   
    return true;
 }
 

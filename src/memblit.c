@@ -74,7 +74,7 @@ static INLINE float get_factor(enum ALLEGRO_BLEND_MODE operation, float alpha)
 }
 
 
-static INLINE void _al_blend_inline(
+INLINE void _al_blend_inline(
    const ALLEGRO_COLOR *scol, const ALLEGRO_COLOR *dcol,
    int op, int src_, int dst_, int aop, int asrc_, int adst_,
    ALLEGRO_COLOR *result)
