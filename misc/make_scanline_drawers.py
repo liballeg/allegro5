@@ -48,11 +48,13 @@ def make_drawer(name):
          """
 
    # XXX keep target in the state
+   # XXX still don't understand why y-1 is required
    print """\
       ALLEGRO_BITMAP *target = al_get_target_bitmap();
       x1 -= target->lock_x;
       x2 -= target->lock_x;
       y -= target->lock_y;
+      y--;
 
       if (y < 0 || y >= target->lock_h) {
          return;
@@ -99,11 +101,10 @@ def make_drawer(name):
       const int src_size = al_get_pixel_size(src_format);
       """
 
-   # XXX still don't understand why y-1 is required
    print """\
       const int dst_format = target->locked_region.format;
       uint8_t *dst_data = (uint8_t *)target->locked_region.data
-         + (y-1) * target->locked_region.pitch
+         + y * target->locked_region.pitch
          + x1 * al_get_pixel_size(dst_format);
       """
 
