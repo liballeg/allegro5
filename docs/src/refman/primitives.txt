@@ -345,8 +345,8 @@ Draws a subset of the passed vertex buffer.
 
 * texture - Texture to use, pass 0 to use only color shaded primitves
 * vtxs - Pointer to an array of vertices
-* decl - Pointer to a vertex declaration. If set to 0, the vtxs are assumed
-      to be of the ALLEGRO_VERTEX type
+* decl - Pointer to a vertex declaration. If set to NULL, the vertices
+      are assumed to be of the ALLEGRO_VERTEX type
 * start, end - Start and end of the subset of the vertex buffer to draw
 * type - Primitive type to draw
 
@@ -496,8 +496,12 @@ al_create_vertex_decl function to create the vertex declaration. For that they
 generally occur in an array. The last element of such an array should have the 
 attribute field equal to 0, to signify that it is the end of the array.
 Here is an example code that would create a declaration describing the 
-ALLEGRO_VERTEX structure:
+ALLEGRO_VERTEX structure (passing this as vertex declaration to
+al_draw_prim would be identical to passing NULL):
 
+    /* On compilers without the offsetof keyword you need to obtain the
+     * offset with sizeof and make sure to account for packing.
+     */
     ALLEGRO_VERTEX_ELEMENT elems[] = {
        {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_FLOAT_3, offsetof(ALLEGRO_VERTEX, x)},
        {ALLEGRO_PRIM_TEX_COORD_PIXEL, ALLEGRO_PRIM_FLOAT_2, offsetof(ALLEGRO_VERTEX, u)},
