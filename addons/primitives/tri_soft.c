@@ -188,16 +188,6 @@ static void shader_grad_any_step(uintptr_t state, int minor)
 
 /*========================== Textured Shaders ================================*/
 
-static int fix_var(float var, int max_var)
-{
-   const int ivar = (int)floorf(var);
-   const int ret = ivar % max_var;
-   if(ret >= 0)
-      return ret;
-   else
-      return ret + max_var;
-}
-
 #define SHADE_COLORS(A, B) \
    A.r = B.r * A.r;        \
    A.g = B.g * A.g;        \

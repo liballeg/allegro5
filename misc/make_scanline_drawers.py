@@ -102,6 +102,14 @@ def make_drawer(name):
       const int src_format = s->texture->locked_region.format;
       const int src_size = al_get_pixel_size(src_format);
       ALLEGRO_COLOR src_color = {0, 0, 0, 0};
+
+      /* Ensure u in [0, s->w) and v in [0, s->h). */
+      while (u < 0) u += s->w;
+      while (v < 0) v += s->h;
+      u = fmodf(u, s->w);
+      v = fmodf(v, s->h);
+      ASSERT(0 <= u); ASSERT(u < s->w);
+      ASSERT(0 <= v); ASSERT(v < s->h);
       """
 
    print """\
@@ -121,8 +129,8 @@ def make_drawer(name):
          """
    else:
       print """\
-         const int src_x = fix_var(u, s->w);
-         const int src_y = fix_var(v, s->h);
+         const int src_x = _al_fast_float_to_int(u);
+         const int src_y = _al_fast_float_to_int(v);
          uint8_t *src_data = (uint8_t *)s->texture->locked_region.data
             + (src_y - s->texture->lock_y) * s->texture->locked_region.pitch
             + (src_x - s->texture->lock_x) * src_size;
@@ -157,6 +165,16 @@ def make_drawer(name):
       print """\
          u += s->du_dx;
          v += s->dv_dx;
+
+         if (u < 0)
+            u += s->w;
+         else if (u >= s->w)
+            u -= s->w;
+
+         if (v < 0)
+            v += s->h;
+         else if (v >= s->h)
+            v -= s->h;
          """
 
    if grad:
