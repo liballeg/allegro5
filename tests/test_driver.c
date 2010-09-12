@@ -12,6 +12,7 @@
 #define MAX_BITMAPS  8
 #define MAX_TRANS    8
 #define MAX_FONTS    8
+#define MAX_VERTICES 100
 
 typedef struct {
    ALLEGRO_USTR   *name;
@@ -49,6 +50,7 @@ Bitmap            bitmaps[MAX_BITMAPS];
 LockRegion        lock_region;
 Transform         transforms[MAX_TRANS];
 Font              fonts[MAX_FONTS];
+ALLEGRO_VERTEX    vertices[MAX_VERTICES];
 int               num_global_bitmaps;
 float             delay = 0.0;
 bool              save_outputs = false;
@@ -228,6 +230,9 @@ static ALLEGRO_BITMAP *get_bitmap(char const *value, BmpType bmp_type,
    if (streq(value, "target"))
       return target;
 
+   if (streq(value, "0") || streq(value, "NULL"))
+      return NULL;
+
    error("undefined bitmap: %s", value);
    return NULL;
 }
@@ -363,6 +368,50 @@ static int get_font_align(char const *value)
    return streq(value, "ALLEGRO_ALIGN_LEFT") ? ALLEGRO_ALIGN_LEFT
       : streq(value, "ALLEGRO_ALIGN_CENTRE") ? ALLEGRO_ALIGN_CENTRE
       : streq(value, "ALLEGRO_ALIGN_RIGHT") ? ALLEGRO_ALIGN_RIGHT
+      : atoi(value);
+}
+
+static void fill_vertices(ALLEGRO_CONFIG const *cfg, char const *name)
+{
+#define MAXBUF    80
+
+   char const *value;
+   char buf[MAXBUF];
+   float x, y, z;
+   float u, v;
+   int i;
+
+   memset(vertices, 0, sizeof(vertices));
+
+   for (i = 0; i < MAX_VERTICES; i++) {
+      sprintf(buf, "v%d", i);
+      value = al_get_config_value(cfg, name, buf);
+      if (!value)
+         return;
+
+      if (sscanf(value, " %f , %f , %f ; %f , %f ; %s",
+            &x, &y, &z, &u, &v, buf) == 6) {
+         vertices[i].x = x;
+         vertices[i].y = y;
+         vertices[i].z = z;
+         vertices[i].u = u;
+         vertices[i].v = v;
+         vertices[i].color = get_color(buf);
+      }
+   }
+
+#undef MAXBUF
+}
+
+static int get_prim_type(char const *value)
+{
+   return streq(value, "ALLEGRO_PRIM_POINT_LIST") ? ALLEGRO_PRIM_POINT_LIST
+      : streq(value, "ALLEGRO_PRIM_LINE_LIST") ? ALLEGRO_PRIM_LINE_LIST
+      : streq(value, "ALLEGRO_PRIM_LINE_STRIP") ? ALLEGRO_PRIM_LINE_STRIP
+      : streq(value, "ALLEGRO_PRIM_LINE_LOOP") ? ALLEGRO_PRIM_LINE_LOOP
+      : streq(value, "ALLEGRO_PRIM_TRIANGLE_LIST") ? ALLEGRO_PRIM_TRIANGLE_LIST
+      : streq(value, "ALLEGRO_PRIM_TRIANGLE_STRIP") ? ALLEGRO_PRIM_TRIANGLE_STRIP
+      : streq(value, "ALLEGRO_PRIM_TRIANGLE_FAN") ? ALLEGRO_PRIM_TRIANGLE_FAN
       : atoi(value);
 }
 
@@ -983,6 +1032,12 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
             continue;
          }
       }
+      if (SCAN("al_draw_prim", 6)) {
+         fill_vertices(cfg, V(0));
+         /* decl arg is ignored */
+         al_draw_prim(vertices, NULL, B(2), I(3), I(4), get_prim_type(V(5)));
+         continue;
+      }
 
       error("statement didn't scan: %s", stmt);
    }
@@ -1097,6 +1152,7 @@ static void run_test(ALLEGRO_CONFIG const *cfg, char const *section)
    }
    else {
       cfg2 = al_create_config();
+      al_merge_config_into(cfg2, cfg);
       merge_config_sections(cfg2, section, cfg, section);
       sw_hw_test(cfg2, section);
       al_destroy_config(cfg2);
