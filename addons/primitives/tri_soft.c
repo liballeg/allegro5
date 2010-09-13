@@ -20,6 +20,7 @@
 #include "allegro5/allegro_primitives.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_blend.h"
 #include "allegro5/internal/aintern_pixels.h"
 #include "allegro5/internal/aintern_prim.h"
 #include "allegro5/internal/aintern_prim_soft.h"
