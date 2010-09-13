@@ -503,7 +503,7 @@ static void triangle_stepper(uintptr_t state,
 
       N.B. the same offset in the bottom segment as well
       */
-      right_first = floorf((right_error) / right_y_delta - 0.00001f);
+      right_first = floorf((right_error) / right_y_delta - 0.000001f);
       
       /*
       Calculate the normal steps
@@ -599,7 +599,7 @@ static void triangle_stepper(uintptr_t state,
       }
       
       left_first = ceilf((left_error) / left_y_delta);
-      right_first = floorf((right_error) / right_y_delta - 0.00001f);
+      right_first = floorf((right_error) / right_y_delta - 0.000001f);
       
       left_step = ceilf(left_x_delta / left_y_delta);
       left_d_er = -(float)left_step * left_y_delta;
