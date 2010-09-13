@@ -4,7 +4,18 @@
 # Run:
 #  python misc/make_scanline_drawers.py | indent -kr -i3 -l0 > addons/primitives/scanline_drawers.c
 
+import sys, re
+
+# http://code.activestate.com/recipes/502257/
+def interp(string):
+   locals  = sys._getframe(1).f_locals
+   globals = sys._getframe(1).f_globals
+   for item in re.findall(r'#\{([^}]*)\}', string):
+      string = string.replace('#{%s}' % item, str(eval(item, globals, locals)))
+   return string
+
 def make_drawer(name):
+   global texture, grad, solid, shade, opaque, white
    texture = (name.find("_texture_") != -1)
    grad = (name.find("_grad_") != -1)
    solid = (name.find("_solid_") != -1)
@@ -13,13 +24,13 @@ def make_drawer(name):
    white = (name.find("_white") != -1)
 
    if grad and solid:
-      print "#error grad and solid"
+      raise Exception("grad and solid")
    if grad and white:
-      print "#error grad and white"
+      raise Exception("grad and white")
    if shade and opaque:
-      print "#error shade and opaque"
+      raise Exception("shade and opaque")
 
-   print "static void", name, "(uintptr_t state, int x1, int y, int x2) {"
+   print interp("static void #{name} (uintptr_t state, int x1, int y, int x2) {")
 
    if not texture:
       if grad:
@@ -112,6 +123,7 @@ def make_drawer(name):
       ASSERT(0 <= v); ASSERT(v < s->h);
       """
 
+   print "{"
    print """\
       const int dst_format = target->locked_region.format;
       uint8_t *dst_data = (uint8_t *)target->locked_region.data
@@ -119,23 +131,122 @@ def make_drawer(name):
          + x1 * al_get_pixel_size(dst_format);
       """
 
+   if shade:
+      make_if_blender_loop(
+            op='ALLEGRO_ADD',
+            src_mode='ALLEGRO_ALPHA',
+            src_alpha='ALLEGRO_ALPHA',
+            op_alpha='ALLEGRO_ADD',
+            dst_mode='ALLEGRO_INVERSE_ALPHA',
+            dst_alpha='ALLEGRO_INVERSE_ALPHA',
+            if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888'
+            )
+      print "else"
+      make_if_blender_loop(
+            op='ALLEGRO_ADD',
+            src_mode='ALLEGRO_ONE',
+            src_alpha='ALLEGRO_ONE',
+            op_alpha='ALLEGRO_ADD',
+            dst_mode='ALLEGRO_ONE',
+            dst_alpha='ALLEGRO_ONE',
+            if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888'
+            )
+      print "else"
+
+   make_loop(
+         if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888'
+         )
+   print "else"
+
+   make_loop()
+
    print """\
+   }
+   }
+   }
+   }
+   """
+
+def make_if_blender_loop(
+      op='op',
+      src_mode='src_mode',
+      dst_mode='dst_mode',
+      op_alpha='op_alpha',
+      src_alpha='src_alpha',
+      dst_alpha='dst_alpha',
+      src_format='src_format',
+      dst_format='dst_format',
+      if_format=None
+      ):
+   print interp("""\
+      if (op == #{op} &&
+            src_mode == #{src_mode} &&
+            src_alpha == #{src_alpha} &&
+            op_alpha == #{op_alpha} &&
+            dst_mode == #{dst_mode} &&
+            dst_alpha == #{dst_alpha}) {
+      """)
+
+   if texture and if_format:
+      make_loop(
+            op=op,
+            src_mode=src_mode,
+            src_alpha=src_alpha,
+            op_alpha=op_alpha,
+            dst_mode=dst_mode,
+            dst_alpha=dst_alpha,
+            if_format=if_format
+            )
+      print "else"
+
+   make_loop(
+      op=op,
+      src_mode=src_mode,
+      src_alpha=src_alpha,
+      op_alpha=op_alpha,
+      dst_mode=dst_mode,
+      dst_alpha=dst_alpha)
+
+   print "}"
+
+def make_loop(
+      op='op',
+      src_mode='src_mode',
+      dst_mode='dst_mode',
+      op_alpha='op_alpha',
+      src_alpha='src_alpha',
+      dst_alpha='dst_alpha',
+      src_format='src_format',
+      dst_format='dst_format',
+      if_format=None
+      ):
+
+   if if_format:
+      src_format = if_format
+      dst_format = if_format
+      print interp("if (dst_format == #{dst_format}")
+      if texture:
+         print interp("&& src_format == #{src_format}")
+      print ")"
+
+   print """
+   {
       for (; x1 <= x2; x1++) {
-      """
+   """
 
    if not texture:
       print """\
          ALLEGRO_COLOR src_color = cur_color;
          """
    else:
-      print """\
+      print interp("""\
          const int src_x = _al_fast_float_to_int(u);
          const int src_y = _al_fast_float_to_int(v);
          uint8_t *src_data = (uint8_t *)s->texture->locked_region.data
             + (src_y - s->texture->lock_y) * s->texture->locked_region.pitch
             + (src_x - s->texture->lock_x) * src_size;
-         _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
-         """
+         _AL_INLINE_GET_PIXEL(#{src_format}, src_data, src_color, false);
+         """)
       if grad:
          print """\
          SHADE_COLORS(src_color, cur_color);
@@ -146,20 +257,22 @@ def make_drawer(name):
          """
 
    if shade:
-      print """\
+      print interp("""\
          {
             ALLEGRO_COLOR dst_color;
             ALLEGRO_COLOR result;
-            _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
+            _AL_INLINE_GET_PIXEL(#{dst_format}, dst_data, dst_color, false);
             _al_blend_inline(&src_color, &dst_color,
-               op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &result);
-            _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
+               #{op}, #{src_mode}, #{dst_mode},
+               #{op_alpha}, #{src_alpha}, #{dst_alpha},
+               &result);
+            _AL_INLINE_PUT_PIXEL(#{dst_format}, dst_data, result, true);
          }
-         """
+         """)
    else:
-      print """\
-         _AL_INLINE_PUT_PIXEL(dst_format, dst_data, src_color, true);
-         """
+      print interp("""\
+         _AL_INLINE_PUT_PIXEL(#{dst_format}, dst_data, src_color, true);
+         """)
 
    if texture:
       print """\
@@ -186,9 +299,7 @@ def make_drawer(name):
          """
 
    print """\
-   }
-   }
-   }
+      }
    }
    """
 
