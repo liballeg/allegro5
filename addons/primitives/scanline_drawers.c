@@ -418,7 +418,6 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 	 ALLEGRO_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
 	 const int src_format = texture->locked_region.format;
 	 const int src_size = al_get_pixel_size(src_format);
-	 ALLEGRO_COLOR src_color = { 0, 0, 0, 0 };
 
 	 /* Ensure u in [0, s->w) and v in [0, s->h). */
 	 while (u < 0)
@@ -442,6 +441,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 	       {
 		  for (; x1 <= x2; x1++) {
 
+		     ALLEGRO_COLOR src_color;
 		     const int src_x = _al_fast_float_to_int(u) + offset_x;
 		     const int src_y = _al_fast_float_to_int(v) + offset_y;
 		     uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -477,6 +477,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 	       {
 		  for (; x1 <= x2; x1++) {
 
+		     ALLEGRO_COLOR src_color;
 		     const int src_x = _al_fast_float_to_int(u) + offset_x;
 		     const int src_y = _al_fast_float_to_int(v) + offset_y;
 		     uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -514,6 +515,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 	       {
 		  for (; x1 <= x2; x1++) {
 
+		     ALLEGRO_COLOR src_color;
 		     const int src_x = _al_fast_float_to_int(u) + offset_x;
 		     const int src_y = _al_fast_float_to_int(v) + offset_y;
 		     uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -549,6 +551,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 	       {
 		  for (; x1 <= x2; x1++) {
 
+		     ALLEGRO_COLOR src_color;
 		     const int src_x = _al_fast_float_to_int(u) + offset_x;
 		     const int src_y = _al_fast_float_to_int(v) + offset_y;
 		     uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -584,6 +587,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 	    {
 	       for (; x1 <= x2; x1++) {
 
+		  ALLEGRO_COLOR src_color;
 		  const int src_x = _al_fast_float_to_int(u) + offset_x;
 		  const int src_y = _al_fast_float_to_int(v) + offset_y;
 		  uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -619,6 +623,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 	    {
 	       for (; x1 <= x2; x1++) {
 
+		  ALLEGRO_COLOR src_color;
 		  const int src_x = _al_fast_float_to_int(u) + offset_x;
 		  const int src_y = _al_fast_float_to_int(v) + offset_y;
 		  uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -695,7 +700,6 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 	 ALLEGRO_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
 	 const int src_format = texture->locked_region.format;
 	 const int src_size = al_get_pixel_size(src_format);
-	 ALLEGRO_COLOR src_color = { 0, 0, 0, 0 };
 
 	 /* Ensure u in [0, s->w) and v in [0, s->h). */
 	 while (u < 0)
@@ -719,6 +723,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 	       {
 		  for (; x1 <= x2; x1++) {
 
+		     ALLEGRO_COLOR src_color;
 		     const int src_x = _al_fast_float_to_int(u) + offset_x;
 		     const int src_y = _al_fast_float_to_int(v) + offset_y;
 		     uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -752,6 +757,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 	       {
 		  for (; x1 <= x2; x1++) {
 
+		     ALLEGRO_COLOR src_color;
 		     const int src_x = _al_fast_float_to_int(u) + offset_x;
 		     const int src_y = _al_fast_float_to_int(v) + offset_y;
 		     uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -787,6 +793,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 	       {
 		  for (; x1 <= x2; x1++) {
 
+		     ALLEGRO_COLOR src_color;
 		     const int src_x = _al_fast_float_to_int(u) + offset_x;
 		     const int src_y = _al_fast_float_to_int(v) + offset_y;
 		     uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -820,6 +827,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 	       {
 		  for (; x1 <= x2; x1++) {
 
+		     ALLEGRO_COLOR src_color;
 		     const int src_x = _al_fast_float_to_int(u) + offset_x;
 		     const int src_y = _al_fast_float_to_int(v) + offset_y;
 		     uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -853,6 +861,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 	    {
 	       for (; x1 <= x2; x1++) {
 
+		  ALLEGRO_COLOR src_color;
 		  const int src_x = _al_fast_float_to_int(u) + offset_x;
 		  const int src_y = _al_fast_float_to_int(v) + offset_y;
 		  uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -886,6 +895,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 	    {
 	       for (; x1 <= x2; x1++) {
 
+		  ALLEGRO_COLOR src_color;
 		  const int src_x = _al_fast_float_to_int(u) + offset_x;
 		  const int src_y = _al_fast_float_to_int(v) + offset_y;
 		  uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -956,7 +966,6 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 	 ALLEGRO_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
 	 const int src_format = texture->locked_region.format;
 	 const int src_size = al_get_pixel_size(src_format);
-	 ALLEGRO_COLOR src_color = { 0, 0, 0, 0 };
 
 	 /* Ensure u in [0, s->w) and v in [0, s->h). */
 	 while (u < 0)
@@ -978,6 +987,7 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 	    {
 	       for (; x1 <= x2; x1++) {
 
+		  ALLEGRO_COLOR src_color;
 		  const int src_x = _al_fast_float_to_int(u) + offset_x;
 		  const int src_y = _al_fast_float_to_int(v) + offset_y;
 		  uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -1007,6 +1017,7 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 	    {
 	       for (; x1 <= x2; x1++) {
 
+		  ALLEGRO_COLOR src_color;
 		  const int src_x = _al_fast_float_to_int(u) + offset_x;
 		  const int src_y = _al_fast_float_to_int(v) + offset_y;
 		  uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -1073,7 +1084,6 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 	 ALLEGRO_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
 	 const int src_format = texture->locked_region.format;
 	 const int src_size = al_get_pixel_size(src_format);
-	 ALLEGRO_COLOR src_color = { 0, 0, 0, 0 };
 
 	 /* Ensure u in [0, s->w) and v in [0, s->h). */
 	 while (u < 0)
@@ -1095,6 +1105,7 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 	    {
 	       for (; x1 <= x2; x1++) {
 
+		  ALLEGRO_COLOR src_color;
 		  const int src_x = _al_fast_float_to_int(u) + offset_x;
 		  const int src_y = _al_fast_float_to_int(v) + offset_y;
 		  uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -1122,6 +1133,7 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 	    {
 	       for (; x1 <= x2; x1++) {
 
+		  ALLEGRO_COLOR src_color;
 		  const int src_x = _al_fast_float_to_int(u) + offset_x;
 		  const int src_y = _al_fast_float_to_int(v) + offset_y;
 		  uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -1197,7 +1209,6 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 	 ALLEGRO_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
 	 const int src_format = texture->locked_region.format;
 	 const int src_size = al_get_pixel_size(src_format);
-	 ALLEGRO_COLOR src_color = { 0, 0, 0, 0 };
 
 	 /* Ensure u in [0, s->w) and v in [0, s->h). */
 	 while (u < 0)
@@ -1221,6 +1232,7 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 	       {
 		  for (; x1 <= x2; x1++) {
 
+		     ALLEGRO_COLOR src_color;
 		     const int src_x = _al_fast_float_to_int(u) + offset_x;
 		     const int src_y = _al_fast_float_to_int(v) + offset_y;
 		     uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -1261,6 +1273,7 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 	       {
 		  for (; x1 <= x2; x1++) {
 
+		     ALLEGRO_COLOR src_color;
 		     const int src_x = _al_fast_float_to_int(u) + offset_x;
 		     const int src_y = _al_fast_float_to_int(v) + offset_y;
 		     uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -1303,6 +1316,7 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 	       {
 		  for (; x1 <= x2; x1++) {
 
+		     ALLEGRO_COLOR src_color;
 		     const int src_x = _al_fast_float_to_int(u) + offset_x;
 		     const int src_y = _al_fast_float_to_int(v) + offset_y;
 		     uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -1343,6 +1357,7 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 	       {
 		  for (; x1 <= x2; x1++) {
 
+		     ALLEGRO_COLOR src_color;
 		     const int src_x = _al_fast_float_to_int(u) + offset_x;
 		     const int src_y = _al_fast_float_to_int(v) + offset_y;
 		     uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -1383,6 +1398,7 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 	    {
 	       for (; x1 <= x2; x1++) {
 
+		  ALLEGRO_COLOR src_color;
 		  const int src_x = _al_fast_float_to_int(u) + offset_x;
 		  const int src_y = _al_fast_float_to_int(v) + offset_y;
 		  uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -1423,6 +1439,7 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 	    {
 	       for (; x1 <= x2; x1++) {
 
+		  ALLEGRO_COLOR src_color;
 		  const int src_x = _al_fast_float_to_int(u) + offset_x;
 		  const int src_y = _al_fast_float_to_int(v) + offset_y;
 		  uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -1507,7 +1524,6 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 	 ALLEGRO_BITMAP *texture = s->texture->parent ? s->texture->parent : s->texture;
 	 const int src_format = texture->locked_region.format;
 	 const int src_size = al_get_pixel_size(src_format);
-	 ALLEGRO_COLOR src_color = { 0, 0, 0, 0 };
 
 	 /* Ensure u in [0, s->w) and v in [0, s->h). */
 	 while (u < 0)
@@ -1529,6 +1545,7 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 	    {
 	       for (; x1 <= x2; x1++) {
 
+		  ALLEGRO_COLOR src_color;
 		  const int src_x = _al_fast_float_to_int(u) + offset_x;
 		  const int src_y = _al_fast_float_to_int(v) + offset_y;
 		  uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;
@@ -1563,6 +1580,7 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 	    {
 	       for (; x1 <= x2; x1++) {
 
+		  ALLEGRO_COLOR src_color;
 		  const int src_x = _al_fast_float_to_int(u) + offset_x;
 		  const int src_y = _al_fast_float_to_int(v) + offset_y;
 		  uint8_t *src_data = (uint8_t *) texture->locked_region.data + (src_y - texture->lock_y) * texture->locked_region.pitch + (src_x - texture->lock_x) * src_size;

@@ -115,7 +115,6 @@ def make_drawer(name):
       ALLEGRO_BITMAP* texture = s->texture->parent ? s->texture->parent : s->texture;
       const int src_format = texture->locked_region.format;
       const int src_size = al_get_pixel_size(src_format);
-      ALLEGRO_COLOR src_color = {0, 0, 0, 0};
 
       /* Ensure u in [0, s->w) and v in [0, s->h). */
       while (u < 0) u += s->w;
@@ -243,6 +242,7 @@ def make_loop(
          """
    else:
       print interp("""\
+         ALLEGRO_COLOR src_color;
          const int src_x = _al_fast_float_to_int(u) + offset_x;
          const int src_y = _al_fast_float_to_int(v) + offset_y;
          uint8_t *src_data = (uint8_t *)texture->locked_region.data

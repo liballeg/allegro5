@@ -241,6 +241,7 @@
             break;                                                            \
                                                                               \
          case ALLEGRO_NUM_PIXEL_FORMATS:                                      \
+         default:                                                             \
             TRACE("INLINE_GET got non _gp_pixel format: %d\n", format);       \
             abort();                                                          \
             break;                                                            \
