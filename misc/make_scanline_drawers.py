@@ -231,10 +231,23 @@ def make_loop(
          print interp("&& src_format == #{src_format}")
       print ")"
 
-   print """
-   {
+   print "{"
+
+   if texture:
+      print """\
+         uint8_t *lock_data = texture->locked_region.data;
+         const int src_pitch = texture->locked_region.pitch;
+         const int lock_y = texture->lock_y;
+         const int lock_x = texture->lock_x;
+         const float du_dx = s->du_dx;
+         const float dv_dx = s->dv_dx;
+         const int w = s->w;
+         const int h = s->h;
+         """
+
+   print """\
       for (; x1 <= x2; x1++) {
-   """
+      """
 
    if not texture:
       print """\
@@ -245,9 +258,9 @@ def make_loop(
          ALLEGRO_COLOR src_color;
          const int src_x = _al_fast_float_to_int(u) + offset_x;
          const int src_y = _al_fast_float_to_int(v) + offset_y;
-         uint8_t *src_data = (uint8_t *)texture->locked_region.data
-            + (src_y - texture->lock_y) * texture->locked_region.pitch
-            + (src_x - texture->lock_x) * src_size;
+         uint8_t *src_data = lock_data
+            + (src_y - lock_y) * src_pitch
+            + (src_x - lock_x) * src_size;
          _AL_INLINE_GET_PIXEL(#{src_format}, src_data, src_color, false);
          """)
       if grad:
@@ -279,18 +292,18 @@ def make_loop(
 
    if texture:
       print """\
-         u += s->du_dx;
-         v += s->dv_dx;
+         u += du_dx;
+         v += dv_dx;
 
          if (u < 0)
-            u += s->w;
-         else if (u >= s->w)
-            u -= s->w;
+            u += w;
+         else if (u >= w)
+            u -= w;
 
          if (v < 0)
-            v += s->h;
-         else if (v >= s->h)
-            v -= s->h;
+            v += h;
+         else if (v >= h)
+            v -= h;
          """
 
    if grad:
