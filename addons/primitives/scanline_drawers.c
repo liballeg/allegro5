@@ -430,16 +430,18 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 		  const int src_pitch = texture->locked_region.pitch;
 		  const int lock_y = texture->lock_y;
 		  const int lock_x = texture->lock_x;
-		  const float du_dx = s->du_dx;
-		  const float dv_dx = s->dv_dx;
-		  const int w = s->w;
-		  const int h = s->h;
+		  const al_fixed du_dx = al_ftofix(s->du_dx);
+		  const al_fixed dv_dx = al_ftofix(s->dv_dx);
+		  const al_fixed w = al_ftofix(s->w);
+		  const al_fixed h = al_ftofix(s->h);
+		  al_fixed uu = al_ftofix(u);
+		  al_fixed vv = al_ftofix(v);
 
 		  for (; x1 <= x2; x1++) {
 
 		     ALLEGRO_COLOR src_color;
-		     const int src_x = _al_fast_float_to_int(u) + offset_x;
-		     const int src_y = _al_fast_float_to_int(v) + offset_y;
+		     const int src_x = (uu >> 16) + offset_x;
+		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		     _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
@@ -453,18 +455,18 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			_AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 		     }
 
-		     u += du_dx;
-		     v += dv_dx;
+		     uu += du_dx;
+		     vv += dv_dx;
 
-		     if (u < 0)
-			u += w;
-		     else if (u >= w)
-			u -= w;
+		     if (uu < 0)
+			uu += w;
+		     else if (uu >= w)
+			uu -= w;
 
-		     if (v < 0)
-			v += h;
-		     else if (v >= h)
-			v -= h;
+		     if (vv < 0)
+			vv += h;
+		     else if (vv >= h)
+			vv -= h;
 
 		  }
 	       }
@@ -474,16 +476,18 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 		  const int src_pitch = texture->locked_region.pitch;
 		  const int lock_y = texture->lock_y;
 		  const int lock_x = texture->lock_x;
-		  const float du_dx = s->du_dx;
-		  const float dv_dx = s->dv_dx;
-		  const int w = s->w;
-		  const int h = s->h;
+		  const al_fixed du_dx = al_ftofix(s->du_dx);
+		  const al_fixed dv_dx = al_ftofix(s->dv_dx);
+		  const al_fixed w = al_ftofix(s->w);
+		  const al_fixed h = al_ftofix(s->h);
+		  al_fixed uu = al_ftofix(u);
+		  al_fixed vv = al_ftofix(v);
 
 		  for (; x1 <= x2; x1++) {
 
 		     ALLEGRO_COLOR src_color;
-		     const int src_x = _al_fast_float_to_int(u) + offset_x;
-		     const int src_y = _al_fast_float_to_int(v) + offset_y;
+		     const int src_x = (uu >> 16) + offset_x;
+		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		     _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
@@ -497,18 +501,18 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			_AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 		     }
 
-		     u += du_dx;
-		     v += dv_dx;
+		     uu += du_dx;
+		     vv += dv_dx;
 
-		     if (u < 0)
-			u += w;
-		     else if (u >= w)
-			u -= w;
+		     if (uu < 0)
+			uu += w;
+		     else if (uu >= w)
+			uu -= w;
 
-		     if (v < 0)
-			v += h;
-		     else if (v >= h)
-			v -= h;
+		     if (vv < 0)
+			vv += h;
+		     else if (vv >= h)
+			vv -= h;
 
 		  }
 	       }
@@ -520,16 +524,18 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 		  const int src_pitch = texture->locked_region.pitch;
 		  const int lock_y = texture->lock_y;
 		  const int lock_x = texture->lock_x;
-		  const float du_dx = s->du_dx;
-		  const float dv_dx = s->dv_dx;
-		  const int w = s->w;
-		  const int h = s->h;
+		  const al_fixed du_dx = al_ftofix(s->du_dx);
+		  const al_fixed dv_dx = al_ftofix(s->dv_dx);
+		  const al_fixed w = al_ftofix(s->w);
+		  const al_fixed h = al_ftofix(s->h);
+		  al_fixed uu = al_ftofix(u);
+		  al_fixed vv = al_ftofix(v);
 
 		  for (; x1 <= x2; x1++) {
 
 		     ALLEGRO_COLOR src_color;
-		     const int src_x = _al_fast_float_to_int(u) + offset_x;
-		     const int src_y = _al_fast_float_to_int(v) + offset_y;
+		     const int src_x = (uu >> 16) + offset_x;
+		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		     _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
@@ -543,18 +549,18 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			_AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 		     }
 
-		     u += du_dx;
-		     v += dv_dx;
+		     uu += du_dx;
+		     vv += dv_dx;
 
-		     if (u < 0)
-			u += w;
-		     else if (u >= w)
-			u -= w;
+		     if (uu < 0)
+			uu += w;
+		     else if (uu >= w)
+			uu -= w;
 
-		     if (v < 0)
-			v += h;
-		     else if (v >= h)
-			v -= h;
+		     if (vv < 0)
+			vv += h;
+		     else if (vv >= h)
+			vv -= h;
 
 		  }
 	       }
@@ -564,16 +570,18 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 		  const int src_pitch = texture->locked_region.pitch;
 		  const int lock_y = texture->lock_y;
 		  const int lock_x = texture->lock_x;
-		  const float du_dx = s->du_dx;
-		  const float dv_dx = s->dv_dx;
-		  const int w = s->w;
-		  const int h = s->h;
+		  const al_fixed du_dx = al_ftofix(s->du_dx);
+		  const al_fixed dv_dx = al_ftofix(s->dv_dx);
+		  const al_fixed w = al_ftofix(s->w);
+		  const al_fixed h = al_ftofix(s->h);
+		  al_fixed uu = al_ftofix(u);
+		  al_fixed vv = al_ftofix(v);
 
 		  for (; x1 <= x2; x1++) {
 
 		     ALLEGRO_COLOR src_color;
-		     const int src_x = _al_fast_float_to_int(u) + offset_x;
-		     const int src_y = _al_fast_float_to_int(v) + offset_y;
+		     const int src_x = (uu >> 16) + offset_x;
+		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		     _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
@@ -587,18 +595,18 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			_AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 		     }
 
-		     u += du_dx;
-		     v += dv_dx;
+		     uu += du_dx;
+		     vv += dv_dx;
 
-		     if (u < 0)
-			u += w;
-		     else if (u >= w)
-			u -= w;
+		     if (uu < 0)
+			uu += w;
+		     else if (uu >= w)
+			uu -= w;
 
-		     if (v < 0)
-			v += h;
-		     else if (v >= h)
-			v -= h;
+		     if (vv < 0)
+			vv += h;
+		     else if (vv >= h)
+			vv -= h;
 
 		  }
 	       }
@@ -608,16 +616,18 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 	       const int src_pitch = texture->locked_region.pitch;
 	       const int lock_y = texture->lock_y;
 	       const int lock_x = texture->lock_x;
-	       const float du_dx = s->du_dx;
-	       const float dv_dx = s->dv_dx;
-	       const int w = s->w;
-	       const int h = s->h;
+	       const al_fixed du_dx = al_ftofix(s->du_dx);
+	       const al_fixed dv_dx = al_ftofix(s->dv_dx);
+	       const al_fixed w = al_ftofix(s->w);
+	       const al_fixed h = al_ftofix(s->h);
+	       al_fixed uu = al_ftofix(u);
+	       al_fixed vv = al_ftofix(v);
 
 	       for (; x1 <= x2; x1++) {
 
 		  ALLEGRO_COLOR src_color;
-		  const int src_x = _al_fast_float_to_int(u) + offset_x;
-		  const int src_y = _al_fast_float_to_int(v) + offset_y;
+		  const int src_x = (uu >> 16) + offset_x;
+		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		  _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
@@ -631,18 +641,18 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 		     _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 		  }
 
-		  u += du_dx;
-		  v += dv_dx;
+		  uu += du_dx;
+		  vv += dv_dx;
 
-		  if (u < 0)
-		     u += w;
-		  else if (u >= w)
-		     u -= w;
+		  if (uu < 0)
+		     uu += w;
+		  else if (uu >= w)
+		     uu -= w;
 
-		  if (v < 0)
-		     v += h;
-		  else if (v >= h)
-		     v -= h;
+		  if (vv < 0)
+		     vv += h;
+		  else if (vv >= h)
+		     vv -= h;
 
 	       }
 	    }
@@ -652,16 +662,18 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 	       const int src_pitch = texture->locked_region.pitch;
 	       const int lock_y = texture->lock_y;
 	       const int lock_x = texture->lock_x;
-	       const float du_dx = s->du_dx;
-	       const float dv_dx = s->dv_dx;
-	       const int w = s->w;
-	       const int h = s->h;
+	       const al_fixed du_dx = al_ftofix(s->du_dx);
+	       const al_fixed dv_dx = al_ftofix(s->dv_dx);
+	       const al_fixed w = al_ftofix(s->w);
+	       const al_fixed h = al_ftofix(s->h);
+	       al_fixed uu = al_ftofix(u);
+	       al_fixed vv = al_ftofix(v);
 
 	       for (; x1 <= x2; x1++) {
 
 		  ALLEGRO_COLOR src_color;
-		  const int src_x = _al_fast_float_to_int(u) + offset_x;
-		  const int src_y = _al_fast_float_to_int(v) + offset_y;
+		  const int src_x = (uu >> 16) + offset_x;
+		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		  _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
@@ -675,18 +687,18 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 		     _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 		  }
 
-		  u += du_dx;
-		  v += dv_dx;
+		  uu += du_dx;
+		  vv += dv_dx;
 
-		  if (u < 0)
-		     u += w;
-		  else if (u >= w)
-		     u -= w;
+		  if (uu < 0)
+		     uu += w;
+		  else if (uu >= w)
+		     uu -= w;
 
-		  if (v < 0)
-		     v += h;
-		  else if (v >= h)
-		     v -= h;
+		  if (vv < 0)
+		     vv += h;
+		  else if (vv >= h)
+		     vv -= h;
 
 	       }
 	    }
@@ -760,16 +772,18 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 		  const int src_pitch = texture->locked_region.pitch;
 		  const int lock_y = texture->lock_y;
 		  const int lock_x = texture->lock_x;
-		  const float du_dx = s->du_dx;
-		  const float dv_dx = s->dv_dx;
-		  const int w = s->w;
-		  const int h = s->h;
+		  const al_fixed du_dx = al_ftofix(s->du_dx);
+		  const al_fixed dv_dx = al_ftofix(s->dv_dx);
+		  const al_fixed w = al_ftofix(s->w);
+		  const al_fixed h = al_ftofix(s->h);
+		  al_fixed uu = al_ftofix(u);
+		  al_fixed vv = al_ftofix(v);
 
 		  for (; x1 <= x2; x1++) {
 
 		     ALLEGRO_COLOR src_color;
-		     const int src_x = _al_fast_float_to_int(u) + offset_x;
-		     const int src_y = _al_fast_float_to_int(v) + offset_y;
+		     const int src_x = (uu >> 16) + offset_x;
+		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		     _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
@@ -781,18 +795,18 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			_AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 		     }
 
-		     u += du_dx;
-		     v += dv_dx;
+		     uu += du_dx;
+		     vv += dv_dx;
 
-		     if (u < 0)
-			u += w;
-		     else if (u >= w)
-			u -= w;
+		     if (uu < 0)
+			uu += w;
+		     else if (uu >= w)
+			uu -= w;
 
-		     if (v < 0)
-			v += h;
-		     else if (v >= h)
-			v -= h;
+		     if (vv < 0)
+			vv += h;
+		     else if (vv >= h)
+			vv -= h;
 
 		  }
 	       }
@@ -802,16 +816,18 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 		  const int src_pitch = texture->locked_region.pitch;
 		  const int lock_y = texture->lock_y;
 		  const int lock_x = texture->lock_x;
-		  const float du_dx = s->du_dx;
-		  const float dv_dx = s->dv_dx;
-		  const int w = s->w;
-		  const int h = s->h;
+		  const al_fixed du_dx = al_ftofix(s->du_dx);
+		  const al_fixed dv_dx = al_ftofix(s->dv_dx);
+		  const al_fixed w = al_ftofix(s->w);
+		  const al_fixed h = al_ftofix(s->h);
+		  al_fixed uu = al_ftofix(u);
+		  al_fixed vv = al_ftofix(v);
 
 		  for (; x1 <= x2; x1++) {
 
 		     ALLEGRO_COLOR src_color;
-		     const int src_x = _al_fast_float_to_int(u) + offset_x;
-		     const int src_y = _al_fast_float_to_int(v) + offset_y;
+		     const int src_x = (uu >> 16) + offset_x;
+		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		     _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
@@ -823,18 +839,18 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			_AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 		     }
 
-		     u += du_dx;
-		     v += dv_dx;
+		     uu += du_dx;
+		     vv += dv_dx;
 
-		     if (u < 0)
-			u += w;
-		     else if (u >= w)
-			u -= w;
+		     if (uu < 0)
+			uu += w;
+		     else if (uu >= w)
+			uu -= w;
 
-		     if (v < 0)
-			v += h;
-		     else if (v >= h)
-			v -= h;
+		     if (vv < 0)
+			vv += h;
+		     else if (vv >= h)
+			vv -= h;
 
 		  }
 	       }
@@ -846,16 +862,18 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 		  const int src_pitch = texture->locked_region.pitch;
 		  const int lock_y = texture->lock_y;
 		  const int lock_x = texture->lock_x;
-		  const float du_dx = s->du_dx;
-		  const float dv_dx = s->dv_dx;
-		  const int w = s->w;
-		  const int h = s->h;
+		  const al_fixed du_dx = al_ftofix(s->du_dx);
+		  const al_fixed dv_dx = al_ftofix(s->dv_dx);
+		  const al_fixed w = al_ftofix(s->w);
+		  const al_fixed h = al_ftofix(s->h);
+		  al_fixed uu = al_ftofix(u);
+		  al_fixed vv = al_ftofix(v);
 
 		  for (; x1 <= x2; x1++) {
 
 		     ALLEGRO_COLOR src_color;
-		     const int src_x = _al_fast_float_to_int(u) + offset_x;
-		     const int src_y = _al_fast_float_to_int(v) + offset_y;
+		     const int src_x = (uu >> 16) + offset_x;
+		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		     _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
@@ -867,18 +885,18 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			_AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 		     }
 
-		     u += du_dx;
-		     v += dv_dx;
+		     uu += du_dx;
+		     vv += dv_dx;
 
-		     if (u < 0)
-			u += w;
-		     else if (u >= w)
-			u -= w;
+		     if (uu < 0)
+			uu += w;
+		     else if (uu >= w)
+			uu -= w;
 
-		     if (v < 0)
-			v += h;
-		     else if (v >= h)
-			v -= h;
+		     if (vv < 0)
+			vv += h;
+		     else if (vv >= h)
+			vv -= h;
 
 		  }
 	       }
@@ -888,16 +906,18 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 		  const int src_pitch = texture->locked_region.pitch;
 		  const int lock_y = texture->lock_y;
 		  const int lock_x = texture->lock_x;
-		  const float du_dx = s->du_dx;
-		  const float dv_dx = s->dv_dx;
-		  const int w = s->w;
-		  const int h = s->h;
+		  const al_fixed du_dx = al_ftofix(s->du_dx);
+		  const al_fixed dv_dx = al_ftofix(s->dv_dx);
+		  const al_fixed w = al_ftofix(s->w);
+		  const al_fixed h = al_ftofix(s->h);
+		  al_fixed uu = al_ftofix(u);
+		  al_fixed vv = al_ftofix(v);
 
 		  for (; x1 <= x2; x1++) {
 
 		     ALLEGRO_COLOR src_color;
-		     const int src_x = _al_fast_float_to_int(u) + offset_x;
-		     const int src_y = _al_fast_float_to_int(v) + offset_y;
+		     const int src_x = (uu >> 16) + offset_x;
+		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		     _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
@@ -909,18 +929,18 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			_AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 		     }
 
-		     u += du_dx;
-		     v += dv_dx;
+		     uu += du_dx;
+		     vv += dv_dx;
 
-		     if (u < 0)
-			u += w;
-		     else if (u >= w)
-			u -= w;
+		     if (uu < 0)
+			uu += w;
+		     else if (uu >= w)
+			uu -= w;
 
-		     if (v < 0)
-			v += h;
-		     else if (v >= h)
-			v -= h;
+		     if (vv < 0)
+			vv += h;
+		     else if (vv >= h)
+			vv -= h;
 
 		  }
 	       }
@@ -930,16 +950,18 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 	       const int src_pitch = texture->locked_region.pitch;
 	       const int lock_y = texture->lock_y;
 	       const int lock_x = texture->lock_x;
-	       const float du_dx = s->du_dx;
-	       const float dv_dx = s->dv_dx;
-	       const int w = s->w;
-	       const int h = s->h;
+	       const al_fixed du_dx = al_ftofix(s->du_dx);
+	       const al_fixed dv_dx = al_ftofix(s->dv_dx);
+	       const al_fixed w = al_ftofix(s->w);
+	       const al_fixed h = al_ftofix(s->h);
+	       al_fixed uu = al_ftofix(u);
+	       al_fixed vv = al_ftofix(v);
 
 	       for (; x1 <= x2; x1++) {
 
 		  ALLEGRO_COLOR src_color;
-		  const int src_x = _al_fast_float_to_int(u) + offset_x;
-		  const int src_y = _al_fast_float_to_int(v) + offset_y;
+		  const int src_x = (uu >> 16) + offset_x;
+		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		  _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
@@ -951,18 +973,18 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 		     _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 		  }
 
-		  u += du_dx;
-		  v += dv_dx;
+		  uu += du_dx;
+		  vv += dv_dx;
 
-		  if (u < 0)
-		     u += w;
-		  else if (u >= w)
-		     u -= w;
+		  if (uu < 0)
+		     uu += w;
+		  else if (uu >= w)
+		     uu -= w;
 
-		  if (v < 0)
-		     v += h;
-		  else if (v >= h)
-		     v -= h;
+		  if (vv < 0)
+		     vv += h;
+		  else if (vv >= h)
+		     vv -= h;
 
 	       }
 	    }
@@ -972,16 +994,18 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 	       const int src_pitch = texture->locked_region.pitch;
 	       const int lock_y = texture->lock_y;
 	       const int lock_x = texture->lock_x;
-	       const float du_dx = s->du_dx;
-	       const float dv_dx = s->dv_dx;
-	       const int w = s->w;
-	       const int h = s->h;
+	       const al_fixed du_dx = al_ftofix(s->du_dx);
+	       const al_fixed dv_dx = al_ftofix(s->dv_dx);
+	       const al_fixed w = al_ftofix(s->w);
+	       const al_fixed h = al_ftofix(s->h);
+	       al_fixed uu = al_ftofix(u);
+	       al_fixed vv = al_ftofix(v);
 
 	       for (; x1 <= x2; x1++) {
 
 		  ALLEGRO_COLOR src_color;
-		  const int src_x = _al_fast_float_to_int(u) + offset_x;
-		  const int src_y = _al_fast_float_to_int(v) + offset_y;
+		  const int src_x = (uu >> 16) + offset_x;
+		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		  _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
@@ -993,18 +1017,18 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 		     _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 		  }
 
-		  u += du_dx;
-		  v += dv_dx;
+		  uu += du_dx;
+		  vv += dv_dx;
 
-		  if (u < 0)
-		     u += w;
-		  else if (u >= w)
-		     u -= w;
+		  if (uu < 0)
+		     uu += w;
+		  else if (uu >= w)
+		     uu -= w;
 
-		  if (v < 0)
-		     v += h;
-		  else if (v >= h)
-		     v -= h;
+		  if (vv < 0)
+		     vv += h;
+		  else if (vv >= h)
+		     vv -= h;
 
 	       }
 	    }
@@ -1072,16 +1096,18 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 	       const int src_pitch = texture->locked_region.pitch;
 	       const int lock_y = texture->lock_y;
 	       const int lock_x = texture->lock_x;
-	       const float du_dx = s->du_dx;
-	       const float dv_dx = s->dv_dx;
-	       const int w = s->w;
-	       const int h = s->h;
+	       const al_fixed du_dx = al_ftofix(s->du_dx);
+	       const al_fixed dv_dx = al_ftofix(s->dv_dx);
+	       const al_fixed w = al_ftofix(s->w);
+	       const al_fixed h = al_ftofix(s->h);
+	       al_fixed uu = al_ftofix(u);
+	       al_fixed vv = al_ftofix(v);
 
 	       for (; x1 <= x2; x1++) {
 
 		  ALLEGRO_COLOR src_color;
-		  const int src_x = _al_fast_float_to_int(u) + offset_x;
-		  const int src_y = _al_fast_float_to_int(v) + offset_y;
+		  const int src_x = (uu >> 16) + offset_x;
+		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		  _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
@@ -1089,18 +1115,18 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 
 		  _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, src_color, true);
 
-		  u += du_dx;
-		  v += dv_dx;
+		  uu += du_dx;
+		  vv += dv_dx;
 
-		  if (u < 0)
-		     u += w;
-		  else if (u >= w)
-		     u -= w;
+		  if (uu < 0)
+		     uu += w;
+		  else if (uu >= w)
+		     uu -= w;
 
-		  if (v < 0)
-		     v += h;
-		  else if (v >= h)
-		     v -= h;
+		  if (vv < 0)
+		     vv += h;
+		  else if (vv >= h)
+		     vv -= h;
 
 	       }
 	    }
@@ -1110,16 +1136,18 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 	       const int src_pitch = texture->locked_region.pitch;
 	       const int lock_y = texture->lock_y;
 	       const int lock_x = texture->lock_x;
-	       const float du_dx = s->du_dx;
-	       const float dv_dx = s->dv_dx;
-	       const int w = s->w;
-	       const int h = s->h;
+	       const al_fixed du_dx = al_ftofix(s->du_dx);
+	       const al_fixed dv_dx = al_ftofix(s->dv_dx);
+	       const al_fixed w = al_ftofix(s->w);
+	       const al_fixed h = al_ftofix(s->h);
+	       al_fixed uu = al_ftofix(u);
+	       al_fixed vv = al_ftofix(v);
 
 	       for (; x1 <= x2; x1++) {
 
 		  ALLEGRO_COLOR src_color;
-		  const int src_x = _al_fast_float_to_int(u) + offset_x;
-		  const int src_y = _al_fast_float_to_int(v) + offset_y;
+		  const int src_x = (uu >> 16) + offset_x;
+		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		  _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
@@ -1127,18 +1155,18 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 
 		  _AL_INLINE_PUT_PIXEL(dst_format, dst_data, src_color, true);
 
-		  u += du_dx;
-		  v += dv_dx;
+		  uu += du_dx;
+		  vv += dv_dx;
 
-		  if (u < 0)
-		     u += w;
-		  else if (u >= w)
-		     u -= w;
+		  if (uu < 0)
+		     uu += w;
+		  else if (uu >= w)
+		     uu -= w;
 
-		  if (v < 0)
-		     v += h;
-		  else if (v >= h)
-		     v -= h;
+		  if (vv < 0)
+		     vv += h;
+		  else if (vv >= h)
+		     vv -= h;
 
 	       }
 	    }
@@ -1206,33 +1234,35 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 	       const int src_pitch = texture->locked_region.pitch;
 	       const int lock_y = texture->lock_y;
 	       const int lock_x = texture->lock_x;
-	       const float du_dx = s->du_dx;
-	       const float dv_dx = s->dv_dx;
-	       const int w = s->w;
-	       const int h = s->h;
+	       const al_fixed du_dx = al_ftofix(s->du_dx);
+	       const al_fixed dv_dx = al_ftofix(s->dv_dx);
+	       const al_fixed w = al_ftofix(s->w);
+	       const al_fixed h = al_ftofix(s->h);
+	       al_fixed uu = al_ftofix(u);
+	       al_fixed vv = al_ftofix(v);
 
 	       for (; x1 <= x2; x1++) {
 
 		  ALLEGRO_COLOR src_color;
-		  const int src_x = _al_fast_float_to_int(u) + offset_x;
-		  const int src_y = _al_fast_float_to_int(v) + offset_y;
+		  const int src_x = (uu >> 16) + offset_x;
+		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		  _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 		  _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, src_color, true);
 
-		  u += du_dx;
-		  v += dv_dx;
+		  uu += du_dx;
+		  vv += dv_dx;
 
-		  if (u < 0)
-		     u += w;
-		  else if (u >= w)
-		     u -= w;
+		  if (uu < 0)
+		     uu += w;
+		  else if (uu >= w)
+		     uu -= w;
 
-		  if (v < 0)
-		     v += h;
-		  else if (v >= h)
-		     v -= h;
+		  if (vv < 0)
+		     vv += h;
+		  else if (vv >= h)
+		     vv -= h;
 
 	       }
 	    }
@@ -1242,33 +1272,35 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 	       const int src_pitch = texture->locked_region.pitch;
 	       const int lock_y = texture->lock_y;
 	       const int lock_x = texture->lock_x;
-	       const float du_dx = s->du_dx;
-	       const float dv_dx = s->dv_dx;
-	       const int w = s->w;
-	       const int h = s->h;
+	       const al_fixed du_dx = al_ftofix(s->du_dx);
+	       const al_fixed dv_dx = al_ftofix(s->dv_dx);
+	       const al_fixed w = al_ftofix(s->w);
+	       const al_fixed h = al_ftofix(s->h);
+	       al_fixed uu = al_ftofix(u);
+	       al_fixed vv = al_ftofix(v);
 
 	       for (; x1 <= x2; x1++) {
 
 		  ALLEGRO_COLOR src_color;
-		  const int src_x = _al_fast_float_to_int(u) + offset_x;
-		  const int src_y = _al_fast_float_to_int(v) + offset_y;
+		  const int src_x = (uu >> 16) + offset_x;
+		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		  _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 		  _AL_INLINE_PUT_PIXEL(dst_format, dst_data, src_color, true);
 
-		  u += du_dx;
-		  v += dv_dx;
+		  uu += du_dx;
+		  vv += dv_dx;
 
-		  if (u < 0)
-		     u += w;
-		  else if (u >= w)
-		     u -= w;
+		  if (uu < 0)
+		     uu += w;
+		  else if (uu >= w)
+		     uu -= w;
 
-		  if (v < 0)
-		     v += h;
-		  else if (v >= h)
-		     v -= h;
+		  if (vv < 0)
+		     vv += h;
+		  else if (vv >= h)
+		     vv -= h;
 
 	       }
 	    }
@@ -1349,16 +1381,18 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 		  const int src_pitch = texture->locked_region.pitch;
 		  const int lock_y = texture->lock_y;
 		  const int lock_x = texture->lock_x;
-		  const float du_dx = s->du_dx;
-		  const float dv_dx = s->dv_dx;
-		  const int w = s->w;
-		  const int h = s->h;
+		  const al_fixed du_dx = al_ftofix(s->du_dx);
+		  const al_fixed dv_dx = al_ftofix(s->dv_dx);
+		  const al_fixed w = al_ftofix(s->w);
+		  const al_fixed h = al_ftofix(s->h);
+		  al_fixed uu = al_ftofix(u);
+		  al_fixed vv = al_ftofix(v);
 
 		  for (; x1 <= x2; x1++) {
 
 		     ALLEGRO_COLOR src_color;
-		     const int src_x = _al_fast_float_to_int(u) + offset_x;
-		     const int src_y = _al_fast_float_to_int(v) + offset_y;
+		     const int src_x = (uu >> 16) + offset_x;
+		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		     _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
@@ -1372,18 +1406,18 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			_AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 		     }
 
-		     u += du_dx;
-		     v += dv_dx;
+		     uu += du_dx;
+		     vv += dv_dx;
 
-		     if (u < 0)
-			u += w;
-		     else if (u >= w)
-			u -= w;
+		     if (uu < 0)
+			uu += w;
+		     else if (uu >= w)
+			uu -= w;
 
-		     if (v < 0)
-			v += h;
-		     else if (v >= h)
-			v -= h;
+		     if (vv < 0)
+			vv += h;
+		     else if (vv >= h)
+			vv -= h;
 
 		     cur_color.r += gs->color_dx.r;
 		     cur_color.g += gs->color_dx.g;
@@ -1398,16 +1432,18 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 		  const int src_pitch = texture->locked_region.pitch;
 		  const int lock_y = texture->lock_y;
 		  const int lock_x = texture->lock_x;
-		  const float du_dx = s->du_dx;
-		  const float dv_dx = s->dv_dx;
-		  const int w = s->w;
-		  const int h = s->h;
+		  const al_fixed du_dx = al_ftofix(s->du_dx);
+		  const al_fixed dv_dx = al_ftofix(s->dv_dx);
+		  const al_fixed w = al_ftofix(s->w);
+		  const al_fixed h = al_ftofix(s->h);
+		  al_fixed uu = al_ftofix(u);
+		  al_fixed vv = al_ftofix(v);
 
 		  for (; x1 <= x2; x1++) {
 
 		     ALLEGRO_COLOR src_color;
-		     const int src_x = _al_fast_float_to_int(u) + offset_x;
-		     const int src_y = _al_fast_float_to_int(v) + offset_y;
+		     const int src_x = (uu >> 16) + offset_x;
+		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		     _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
@@ -1421,18 +1457,18 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			_AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 		     }
 
-		     u += du_dx;
-		     v += dv_dx;
+		     uu += du_dx;
+		     vv += dv_dx;
 
-		     if (u < 0)
-			u += w;
-		     else if (u >= w)
-			u -= w;
+		     if (uu < 0)
+			uu += w;
+		     else if (uu >= w)
+			uu -= w;
 
-		     if (v < 0)
-			v += h;
-		     else if (v >= h)
-			v -= h;
+		     if (vv < 0)
+			vv += h;
+		     else if (vv >= h)
+			vv -= h;
 
 		     cur_color.r += gs->color_dx.r;
 		     cur_color.g += gs->color_dx.g;
@@ -1449,16 +1485,18 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 		  const int src_pitch = texture->locked_region.pitch;
 		  const int lock_y = texture->lock_y;
 		  const int lock_x = texture->lock_x;
-		  const float du_dx = s->du_dx;
-		  const float dv_dx = s->dv_dx;
-		  const int w = s->w;
-		  const int h = s->h;
+		  const al_fixed du_dx = al_ftofix(s->du_dx);
+		  const al_fixed dv_dx = al_ftofix(s->dv_dx);
+		  const al_fixed w = al_ftofix(s->w);
+		  const al_fixed h = al_ftofix(s->h);
+		  al_fixed uu = al_ftofix(u);
+		  al_fixed vv = al_ftofix(v);
 
 		  for (; x1 <= x2; x1++) {
 
 		     ALLEGRO_COLOR src_color;
-		     const int src_x = _al_fast_float_to_int(u) + offset_x;
-		     const int src_y = _al_fast_float_to_int(v) + offset_y;
+		     const int src_x = (uu >> 16) + offset_x;
+		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		     _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
@@ -1472,18 +1510,18 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			_AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 		     }
 
-		     u += du_dx;
-		     v += dv_dx;
+		     uu += du_dx;
+		     vv += dv_dx;
 
-		     if (u < 0)
-			u += w;
-		     else if (u >= w)
-			u -= w;
+		     if (uu < 0)
+			uu += w;
+		     else if (uu >= w)
+			uu -= w;
 
-		     if (v < 0)
-			v += h;
-		     else if (v >= h)
-			v -= h;
+		     if (vv < 0)
+			vv += h;
+		     else if (vv >= h)
+			vv -= h;
 
 		     cur_color.r += gs->color_dx.r;
 		     cur_color.g += gs->color_dx.g;
@@ -1498,16 +1536,18 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 		  const int src_pitch = texture->locked_region.pitch;
 		  const int lock_y = texture->lock_y;
 		  const int lock_x = texture->lock_x;
-		  const float du_dx = s->du_dx;
-		  const float dv_dx = s->dv_dx;
-		  const int w = s->w;
-		  const int h = s->h;
+		  const al_fixed du_dx = al_ftofix(s->du_dx);
+		  const al_fixed dv_dx = al_ftofix(s->dv_dx);
+		  const al_fixed w = al_ftofix(s->w);
+		  const al_fixed h = al_ftofix(s->h);
+		  al_fixed uu = al_ftofix(u);
+		  al_fixed vv = al_ftofix(v);
 
 		  for (; x1 <= x2; x1++) {
 
 		     ALLEGRO_COLOR src_color;
-		     const int src_x = _al_fast_float_to_int(u) + offset_x;
-		     const int src_y = _al_fast_float_to_int(v) + offset_y;
+		     const int src_x = (uu >> 16) + offset_x;
+		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		     _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
@@ -1521,18 +1561,18 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			_AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 		     }
 
-		     u += du_dx;
-		     v += dv_dx;
+		     uu += du_dx;
+		     vv += dv_dx;
 
-		     if (u < 0)
-			u += w;
-		     else if (u >= w)
-			u -= w;
+		     if (uu < 0)
+			uu += w;
+		     else if (uu >= w)
+			uu -= w;
 
-		     if (v < 0)
-			v += h;
-		     else if (v >= h)
-			v -= h;
+		     if (vv < 0)
+			vv += h;
+		     else if (vv >= h)
+			vv -= h;
 
 		     cur_color.r += gs->color_dx.r;
 		     cur_color.g += gs->color_dx.g;
@@ -1547,16 +1587,18 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 	       const int src_pitch = texture->locked_region.pitch;
 	       const int lock_y = texture->lock_y;
 	       const int lock_x = texture->lock_x;
-	       const float du_dx = s->du_dx;
-	       const float dv_dx = s->dv_dx;
-	       const int w = s->w;
-	       const int h = s->h;
+	       const al_fixed du_dx = al_ftofix(s->du_dx);
+	       const al_fixed dv_dx = al_ftofix(s->dv_dx);
+	       const al_fixed w = al_ftofix(s->w);
+	       const al_fixed h = al_ftofix(s->h);
+	       al_fixed uu = al_ftofix(u);
+	       al_fixed vv = al_ftofix(v);
 
 	       for (; x1 <= x2; x1++) {
 
 		  ALLEGRO_COLOR src_color;
-		  const int src_x = _al_fast_float_to_int(u) + offset_x;
-		  const int src_y = _al_fast_float_to_int(v) + offset_y;
+		  const int src_x = (uu >> 16) + offset_x;
+		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		  _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
@@ -1570,18 +1612,18 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 		     _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 		  }
 
-		  u += du_dx;
-		  v += dv_dx;
+		  uu += du_dx;
+		  vv += dv_dx;
 
-		  if (u < 0)
-		     u += w;
-		  else if (u >= w)
-		     u -= w;
+		  if (uu < 0)
+		     uu += w;
+		  else if (uu >= w)
+		     uu -= w;
 
-		  if (v < 0)
-		     v += h;
-		  else if (v >= h)
-		     v -= h;
+		  if (vv < 0)
+		     vv += h;
+		  else if (vv >= h)
+		     vv -= h;
 
 		  cur_color.r += gs->color_dx.r;
 		  cur_color.g += gs->color_dx.g;
@@ -1596,16 +1638,18 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 	       const int src_pitch = texture->locked_region.pitch;
 	       const int lock_y = texture->lock_y;
 	       const int lock_x = texture->lock_x;
-	       const float du_dx = s->du_dx;
-	       const float dv_dx = s->dv_dx;
-	       const int w = s->w;
-	       const int h = s->h;
+	       const al_fixed du_dx = al_ftofix(s->du_dx);
+	       const al_fixed dv_dx = al_ftofix(s->dv_dx);
+	       const al_fixed w = al_ftofix(s->w);
+	       const al_fixed h = al_ftofix(s->h);
+	       al_fixed uu = al_ftofix(u);
+	       al_fixed vv = al_ftofix(v);
 
 	       for (; x1 <= x2; x1++) {
 
 		  ALLEGRO_COLOR src_color;
-		  const int src_x = _al_fast_float_to_int(u) + offset_x;
-		  const int src_y = _al_fast_float_to_int(v) + offset_y;
+		  const int src_x = (uu >> 16) + offset_x;
+		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		  _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
@@ -1619,18 +1663,18 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 		     _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 		  }
 
-		  u += du_dx;
-		  v += dv_dx;
+		  uu += du_dx;
+		  vv += dv_dx;
 
-		  if (u < 0)
-		     u += w;
-		  else if (u >= w)
-		     u -= w;
+		  if (uu < 0)
+		     uu += w;
+		  else if (uu >= w)
+		     uu -= w;
 
-		  if (v < 0)
-		     v += h;
-		  else if (v >= h)
-		     v -= h;
+		  if (vv < 0)
+		     vv += h;
+		  else if (vv >= h)
+		     vv -= h;
 
 		  cur_color.r += gs->color_dx.r;
 		  cur_color.g += gs->color_dx.g;
@@ -1710,16 +1754,18 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 	       const int src_pitch = texture->locked_region.pitch;
 	       const int lock_y = texture->lock_y;
 	       const int lock_x = texture->lock_x;
-	       const float du_dx = s->du_dx;
-	       const float dv_dx = s->dv_dx;
-	       const int w = s->w;
-	       const int h = s->h;
+	       const al_fixed du_dx = al_ftofix(s->du_dx);
+	       const al_fixed dv_dx = al_ftofix(s->dv_dx);
+	       const al_fixed w = al_ftofix(s->w);
+	       const al_fixed h = al_ftofix(s->h);
+	       al_fixed uu = al_ftofix(u);
+	       al_fixed vv = al_ftofix(v);
 
 	       for (; x1 <= x2; x1++) {
 
 		  ALLEGRO_COLOR src_color;
-		  const int src_x = _al_fast_float_to_int(u) + offset_x;
-		  const int src_y = _al_fast_float_to_int(v) + offset_y;
+		  const int src_x = (uu >> 16) + offset_x;
+		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		  _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
@@ -1727,18 +1773,18 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 
 		  _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, src_color, true);
 
-		  u += du_dx;
-		  v += dv_dx;
+		  uu += du_dx;
+		  vv += dv_dx;
 
-		  if (u < 0)
-		     u += w;
-		  else if (u >= w)
-		     u -= w;
+		  if (uu < 0)
+		     uu += w;
+		  else if (uu >= w)
+		     uu -= w;
 
-		  if (v < 0)
-		     v += h;
-		  else if (v >= h)
-		     v -= h;
+		  if (vv < 0)
+		     vv += h;
+		  else if (vv >= h)
+		     vv -= h;
 
 		  cur_color.r += gs->color_dx.r;
 		  cur_color.g += gs->color_dx.g;
@@ -1753,16 +1799,18 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 	       const int src_pitch = texture->locked_region.pitch;
 	       const int lock_y = texture->lock_y;
 	       const int lock_x = texture->lock_x;
-	       const float du_dx = s->du_dx;
-	       const float dv_dx = s->dv_dx;
-	       const int w = s->w;
-	       const int h = s->h;
+	       const al_fixed du_dx = al_ftofix(s->du_dx);
+	       const al_fixed dv_dx = al_ftofix(s->dv_dx);
+	       const al_fixed w = al_ftofix(s->w);
+	       const al_fixed h = al_ftofix(s->h);
+	       al_fixed uu = al_ftofix(u);
+	       al_fixed vv = al_ftofix(v);
 
 	       for (; x1 <= x2; x1++) {
 
 		  ALLEGRO_COLOR src_color;
-		  const int src_x = _al_fast_float_to_int(u) + offset_x;
-		  const int src_y = _al_fast_float_to_int(v) + offset_y;
+		  const int src_x = (uu >> 16) + offset_x;
+		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
 		  _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
@@ -1770,18 +1818,18 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 
 		  _AL_INLINE_PUT_PIXEL(dst_format, dst_data, src_color, true);
 
-		  u += du_dx;
-		  v += dv_dx;
+		  uu += du_dx;
+		  vv += dv_dx;
 
-		  if (u < 0)
-		     u += w;
-		  else if (u >= w)
-		     u -= w;
+		  if (uu < 0)
+		     uu += w;
+		  else if (uu >= w)
+		     uu -= w;
 
-		  if (v < 0)
-		     v += h;
-		  else if (v >= h)
-		     v -= h;
+		  if (vv < 0)
+		     vv += h;
+		  else if (vv >= h)
+		     vv -= h;
 
 		  cur_color.r += gs->color_dx.r;
 		  cur_color.g += gs->color_dx.g;

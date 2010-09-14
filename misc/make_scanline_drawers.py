@@ -239,10 +239,12 @@ def make_loop(
          const int src_pitch = texture->locked_region.pitch;
          const int lock_y = texture->lock_y;
          const int lock_x = texture->lock_x;
-         const float du_dx = s->du_dx;
-         const float dv_dx = s->dv_dx;
-         const int w = s->w;
-         const int h = s->h;
+         const al_fixed du_dx = al_ftofix(s->du_dx);
+         const al_fixed dv_dx = al_ftofix(s->dv_dx);
+         const al_fixed w = al_ftofix(s->w);
+         const al_fixed h = al_ftofix(s->h);
+         al_fixed uu = al_ftofix(u);
+         al_fixed vv = al_ftofix(v);
          """
 
    print """\
@@ -254,10 +256,12 @@ def make_loop(
          ALLEGRO_COLOR src_color = cur_color;
          """
    else:
+      # The comment in al_fixfloor says the right shift is not portable, but
+      # it's so much quicker...
       print interp("""\
          ALLEGRO_COLOR src_color;
-         const int src_x = _al_fast_float_to_int(u) + offset_x;
-         const int src_y = _al_fast_float_to_int(v) + offset_y;
+         const int src_x = (uu >> 16) + offset_x;
+         const int src_y = (vv >> 16) + offset_y;
          uint8_t *src_data = lock_data
             + (src_y - lock_y) * src_pitch
             + (src_x - lock_x) * src_size;
@@ -292,18 +296,18 @@ def make_loop(
 
    if texture:
       print """\
-         u += du_dx;
-         v += dv_dx;
+         uu += du_dx;
+         vv += dv_dx;
 
-         if (u < 0)
-            u += w;
-         else if (u >= w)
-            u -= w;
+         if (uu < 0)
+            uu += w;
+         else if (uu >= w)
+            uu -= w;
 
-         if (v < 0)
-            v += h;
-         else if (v >= h)
-            v -= h;
+         if (vv < 0)
+            vv += h;
+         else if (vv >= h)
+            vv -= h;
          """
 
    if grad:
