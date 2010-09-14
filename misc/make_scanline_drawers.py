@@ -155,10 +155,16 @@ def make_drawer(name):
             )
       print "else"
 
-   make_loop(
-         if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888'
-         )
-   print "else"
+   if opaque and white:
+      make_loop(
+            copy_format=True
+            )
+      print "else"
+   else:
+      make_loop(
+            if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888'
+            )
+      print "else"
 
    make_loop()
 
@@ -220,7 +226,8 @@ def make_loop(
       dst_alpha='dst_alpha',
       src_format='src_format',
       dst_format='dst_format',
-      if_format=None
+      if_format=None,
+      copy_format=False
       ):
 
    if if_format:
@@ -230,6 +237,9 @@ def make_loop(
       if texture:
          print interp("&& src_format == #{src_format}")
       print ")"
+   elif copy_format:
+      assert opaque and white
+      print "if (dst_format == src_format)"
 
    print "{"
 
@@ -258,25 +268,51 @@ def make_loop(
    else:
       # The comment in al_fixfloor says the right shift is not portable, but
       # it's so much quicker...
-      print interp("""\
-         ALLEGRO_COLOR src_color;
+      print """\
          const int src_x = (uu >> 16) + offset_x;
          const int src_y = (vv >> 16) + offset_y;
          uint8_t *src_data = lock_data
             + (src_y - lock_y) * src_pitch
             + (src_x - lock_x) * src_size;
-         _AL_INLINE_GET_PIXEL(#{src_format}, src_data, src_color, false);
-         """)
-      if grad:
-         print """\
-         SHADE_COLORS(src_color, cur_color);
-         """
-      elif not white:
-         print """\
-         SHADE_COLORS(src_color, s->cur_color);
          """
 
-   if shade:
+      if copy_format:
+         pass
+      else:
+         print interp("""\
+            ALLEGRO_COLOR src_color;
+            _AL_INLINE_GET_PIXEL(#{src_format}, src_data, src_color, false);
+            """)
+         if grad:
+            print """\
+            SHADE_COLORS(src_color, cur_color);
+            """
+         elif not white:
+            print """\
+            SHADE_COLORS(src_color, s->cur_color);
+            """
+
+   if copy_format:
+      print """\
+         switch (src_size) {
+            case 4:
+               memcpy(dst_data, src_data, 4);
+               dst_data += 4;
+               break;
+            case 3:
+               memcpy(dst_data, src_data, 3);
+               dst_data += 3;
+               break;
+            case 2:
+               *dst_data++ = *src_data++;
+               *dst_data++ = *src_data;
+               break;
+            case 1:
+               *dst_data++ = *src_data;
+               break;
+         }
+         """
+   elif shade:
       print interp("""\
          {
             ALLEGRO_COLOR dst_color;

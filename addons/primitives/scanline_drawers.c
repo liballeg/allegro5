@@ -439,10 +439,11 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 
 		  for (; x1 <= x2; x1++) {
 
-		     ALLEGRO_COLOR src_color;
 		     const int src_x = (uu >> 16) + offset_x;
 		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		     ALLEGRO_COLOR src_color;
 		     _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 		     SHADE_COLORS(src_color, s->cur_color);
@@ -485,10 +486,11 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 
 		  for (; x1 <= x2; x1++) {
 
-		     ALLEGRO_COLOR src_color;
 		     const int src_x = (uu >> 16) + offset_x;
 		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		     ALLEGRO_COLOR src_color;
 		     _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 		     SHADE_COLORS(src_color, s->cur_color);
@@ -533,10 +535,11 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 
 		  for (; x1 <= x2; x1++) {
 
-		     ALLEGRO_COLOR src_color;
 		     const int src_x = (uu >> 16) + offset_x;
 		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		     ALLEGRO_COLOR src_color;
 		     _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 		     SHADE_COLORS(src_color, s->cur_color);
@@ -579,10 +582,11 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 
 		  for (; x1 <= x2; x1++) {
 
-		     ALLEGRO_COLOR src_color;
 		     const int src_x = (uu >> 16) + offset_x;
 		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		     ALLEGRO_COLOR src_color;
 		     _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 		     SHADE_COLORS(src_color, s->cur_color);
@@ -625,10 +629,11 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 
 	       for (; x1 <= x2; x1++) {
 
-		  ALLEGRO_COLOR src_color;
 		  const int src_x = (uu >> 16) + offset_x;
 		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		  ALLEGRO_COLOR src_color;
 		  _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 		  SHADE_COLORS(src_color, s->cur_color);
@@ -671,10 +676,11 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 
 	       for (; x1 <= x2; x1++) {
 
-		  ALLEGRO_COLOR src_color;
 		  const int src_x = (uu >> 16) + offset_x;
 		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		  ALLEGRO_COLOR src_color;
 		  _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 		  SHADE_COLORS(src_color, s->cur_color);
@@ -781,10 +787,11 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 
 		  for (; x1 <= x2; x1++) {
 
-		     ALLEGRO_COLOR src_color;
 		     const int src_x = (uu >> 16) + offset_x;
 		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		     ALLEGRO_COLOR src_color;
 		     _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 		     {
@@ -825,10 +832,11 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 
 		  for (; x1 <= x2; x1++) {
 
-		     ALLEGRO_COLOR src_color;
 		     const int src_x = (uu >> 16) + offset_x;
 		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		     ALLEGRO_COLOR src_color;
 		     _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 		     {
@@ -871,10 +879,11 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 
 		  for (; x1 <= x2; x1++) {
 
-		     ALLEGRO_COLOR src_color;
 		     const int src_x = (uu >> 16) + offset_x;
 		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		     ALLEGRO_COLOR src_color;
 		     _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 		     {
@@ -915,10 +924,11 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 
 		  for (; x1 <= x2; x1++) {
 
-		     ALLEGRO_COLOR src_color;
 		     const int src_x = (uu >> 16) + offset_x;
 		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		     ALLEGRO_COLOR src_color;
 		     _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 		     {
@@ -959,10 +969,11 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 
 	       for (; x1 <= x2; x1++) {
 
-		  ALLEGRO_COLOR src_color;
 		  const int src_x = (uu >> 16) + offset_x;
 		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		  ALLEGRO_COLOR src_color;
 		  _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 		  {
@@ -1003,10 +1014,11 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 
 	       for (; x1 <= x2; x1++) {
 
-		  ALLEGRO_COLOR src_color;
 		  const int src_x = (uu >> 16) + offset_x;
 		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		  ALLEGRO_COLOR src_color;
 		  _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 		  {
@@ -1105,10 +1117,11 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 
 	       for (; x1 <= x2; x1++) {
 
-		  ALLEGRO_COLOR src_color;
 		  const int src_x = (uu >> 16) + offset_x;
 		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		  ALLEGRO_COLOR src_color;
 		  _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 		  SHADE_COLORS(src_color, s->cur_color);
@@ -1145,10 +1158,11 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 
 	       for (; x1 <= x2; x1++) {
 
-		  ALLEGRO_COLOR src_color;
 		  const int src_x = (uu >> 16) + offset_x;
 		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		  ALLEGRO_COLOR src_color;
 		  _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 		  SHADE_COLORS(src_color, s->cur_color);
@@ -1229,7 +1243,7 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 	    const int dst_format = target->locked_region.format;
 	    uint8_t *dst_data = (uint8_t *) target->locked_region.data + y * target->locked_region.pitch + x1 * al_get_pixel_size(dst_format);
 
-	    if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+	    if (dst_format == src_format) {
 	       uint8_t *lock_data = texture->locked_region.data;
 	       const int src_pitch = texture->locked_region.pitch;
 	       const int lock_y = texture->lock_y;
@@ -1243,13 +1257,27 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 
 	       for (; x1 <= x2; x1++) {
 
-		  ALLEGRO_COLOR src_color;
 		  const int src_x = (uu >> 16) + offset_x;
 		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
-		  _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
-		  _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, src_color, true);
+		  switch (src_size) {
+		  case 4:
+		     memcpy(dst_data, src_data, 4);
+		     dst_data += 4;
+		     break;
+		  case 3:
+		     memcpy(dst_data, src_data, 3);
+		     dst_data += 3;
+		     break;
+		  case 2:
+		     *dst_data++ = *src_data++;
+		     *dst_data++ = *src_data;
+		     break;
+		  case 1:
+		     *dst_data++ = *src_data;
+		     break;
+		  }
 
 		  uu += du_dx;
 		  vv += dv_dx;
@@ -1281,10 +1309,11 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 
 	       for (; x1 <= x2; x1++) {
 
-		  ALLEGRO_COLOR src_color;
 		  const int src_x = (uu >> 16) + offset_x;
 		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		  ALLEGRO_COLOR src_color;
 		  _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 		  _AL_INLINE_PUT_PIXEL(dst_format, dst_data, src_color, true);
@@ -1390,10 +1419,11 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 
 		  for (; x1 <= x2; x1++) {
 
-		     ALLEGRO_COLOR src_color;
 		     const int src_x = (uu >> 16) + offset_x;
 		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		     ALLEGRO_COLOR src_color;
 		     _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 		     SHADE_COLORS(src_color, cur_color);
@@ -1441,10 +1471,11 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 
 		  for (; x1 <= x2; x1++) {
 
-		     ALLEGRO_COLOR src_color;
 		     const int src_x = (uu >> 16) + offset_x;
 		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		     ALLEGRO_COLOR src_color;
 		     _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 		     SHADE_COLORS(src_color, cur_color);
@@ -1494,10 +1525,11 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 
 		  for (; x1 <= x2; x1++) {
 
-		     ALLEGRO_COLOR src_color;
 		     const int src_x = (uu >> 16) + offset_x;
 		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		     ALLEGRO_COLOR src_color;
 		     _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 		     SHADE_COLORS(src_color, cur_color);
@@ -1545,10 +1577,11 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 
 		  for (; x1 <= x2; x1++) {
 
-		     ALLEGRO_COLOR src_color;
 		     const int src_x = (uu >> 16) + offset_x;
 		     const int src_y = (vv >> 16) + offset_y;
 		     uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		     ALLEGRO_COLOR src_color;
 		     _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 		     SHADE_COLORS(src_color, cur_color);
@@ -1596,10 +1629,11 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 
 	       for (; x1 <= x2; x1++) {
 
-		  ALLEGRO_COLOR src_color;
 		  const int src_x = (uu >> 16) + offset_x;
 		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		  ALLEGRO_COLOR src_color;
 		  _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 		  SHADE_COLORS(src_color, cur_color);
@@ -1647,10 +1681,11 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 
 	       for (; x1 <= x2; x1++) {
 
-		  ALLEGRO_COLOR src_color;
 		  const int src_x = (uu >> 16) + offset_x;
 		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		  ALLEGRO_COLOR src_color;
 		  _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 		  SHADE_COLORS(src_color, cur_color);
@@ -1763,10 +1798,11 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 
 	       for (; x1 <= x2; x1++) {
 
-		  ALLEGRO_COLOR src_color;
 		  const int src_x = (uu >> 16) + offset_x;
 		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		  ALLEGRO_COLOR src_color;
 		  _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
 
 		  SHADE_COLORS(src_color, cur_color);
@@ -1808,10 +1844,11 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 
 	       for (; x1 <= x2; x1++) {
 
-		  ALLEGRO_COLOR src_color;
 		  const int src_x = (uu >> 16) + offset_x;
 		  const int src_y = (vv >> 16) + offset_y;
 		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+
+		  ALLEGRO_COLOR src_color;
 		  _AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
 
 		  SHADE_COLORS(src_color, cur_color);
