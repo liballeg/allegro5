@@ -31,6 +31,7 @@ int ScreenW = 800, ScreenH = 600;
 #define NUM_SCREENS 10
 #define ROTATE_SPEED 0.0001f
 Screen Screens[NUM_SCREENS];
+const char *ScreenName[NUM_SCREENS];
 ALLEGRO_FONT* Font;
 ALLEGRO_TRANSFORM Identity;
 ALLEGRO_BITMAP* Buffer;
@@ -86,11 +87,6 @@ static void CustomVertexFormatPrimitives(int mode)
       Theta += Speed;
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
-      
-      al_draw_textf(Font, solid_white, ScreenW / 2, ScreenH - 20,
-         ALLEGRO_ALIGN_CENTRE, "Custom Vertex Format");
-      
       if (Blend)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
       else
@@ -132,10 +128,6 @@ static void TexturePrimitives(int mode)
       Theta += Speed;
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
-
-      al_draw_textf(Font, solid_white, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "Textured Primitives");
-      
       if (Blend)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
       else
@@ -186,10 +178,6 @@ static void FilledTexturePrimitives(int mode)
       Theta += Speed;
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
-      
-      al_draw_textf(Font, solid_white, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "Filled Textured Primitives");
-      
       if (Blend)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
       else
@@ -234,10 +222,6 @@ static void FilledPrimitives(int mode)
       Theta += Speed;
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
-      
-      al_draw_textf(Font, solid_white, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "Low Level Filled Primitives");
-      
       if (Blend)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
       else
@@ -293,10 +277,6 @@ static void IndexedFilledPrimitives(int mode)
       
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
-      
-      al_draw_textf(Font, solid_white, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "Indexed Filled Primitives");
-      
       if (Blend)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
       else
@@ -327,10 +307,6 @@ static void HighPrimitives(int mode)
          300, -200
       };
 
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
-      
-      al_draw_textf(Font, solid_white, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "High Level Primitives");
-      
       if (Blend)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
       else
@@ -359,10 +335,6 @@ static void HighFilledPrimitives(int mode)
       Theta += Speed;
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
-      
-      al_draw_textf(Font, solid_white, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "High Level Filled Primitives");
-      
       if (Blend)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
       else
@@ -394,9 +366,6 @@ static void TransformationsPrimitives(int mode)
          -700, 200,
          300, -200
       };
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
-      
-      al_draw_textf(Font, solid_white, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "Transformations");
       
       if (Blend)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
@@ -441,10 +410,6 @@ static void LowPrimitives(int mode)
       Theta += Speed;
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
-      
-      al_draw_textf(Font, solid_white, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "Low Level Primitives");
-      
       if (Blend)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
       else
@@ -494,10 +459,6 @@ static void IndexedPrimitives(int mode)
       
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
-      
-      al_draw_textf(Font, solid_white, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "Indexed Primitives");
-      
       if (Blend)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
       else
@@ -610,7 +571,18 @@ int main(void)
    Screens[7] = TexturePrimitives;
    Screens[8] = FilledTexturePrimitives;
    Screens[9] = CustomVertexFormatPrimitives;
-   
+
+   ScreenName[0] = "Low Level Primitives";
+   ScreenName[1] = "Indexed Primitives";
+   ScreenName[2] = "High Level Primitives";
+   ScreenName[3] = "Transformations";
+   ScreenName[4] = "Low Level Filled Primitives";
+   ScreenName[5] = "Indexed Filled Primitives";
+   ScreenName[6] = "High Level Filled Primitives";
+   ScreenName[7] = "Textured Primitives";
+   ScreenName[8] = "Filled Textured Primitives";
+   ScreenName[9] = "Custom Vertex Format";
+
    for (ii = 0; ii < NUM_SCREENS; ii++)
       Screens[ii](INIT);
       
@@ -672,6 +644,8 @@ int main(void)
                      }
                      case ALLEGRO_KEY_B: {
                         Background = !Background;
+                        time_diff = al_current_time();
+                        frames_done = 0;
                         break;
                      }
                      case ALLEGRO_KEY_LEFT: {
@@ -749,6 +723,7 @@ int main(void)
       }
 
       al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+      al_draw_textf(Font, solid_white, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, ScreenName[cur_screen]);
       al_draw_textf(Font, solid_white, 0, 0, 0, "FPS: %f", (float)frames_done / (al_current_time() - time_diff));
       al_draw_textf(Font, solid_white, 0, 20, 0, "Change Screen (Up/Down). Esc to Quit.");
       al_draw_textf(Font, solid_white, 0, 40, 0, "Rotation (Left/Right/Space): %f", Speed);
