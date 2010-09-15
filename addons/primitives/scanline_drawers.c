@@ -1,5 +1,11 @@
 // Warning: This file was created by make_scanline_drawers.py - do not edit.
 
+#if __GNUC__
+#define _AL_EXPECT_FAIL(expr) __builtin_expect((expr), 0)
+#else
+#define _AL_EXPECT_FAIL(expr) (expr)
+#endif
+
 static void shader_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 {
    state_solid_any_2d *s = (state_solid_any_2d *) state;
@@ -459,14 +465,14 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 		     uu += du_dx;
 		     vv += dv_dx;
 
-		     if (uu < 0)
+		     if (_AL_EXPECT_FAIL(uu < 0))
 			uu += w;
-		     else if (uu >= w)
+		     else if (_AL_EXPECT_FAIL(uu >= w))
 			uu -= w;
 
-		     if (vv < 0)
+		     if (_AL_EXPECT_FAIL(vv < 0))
 			vv += h;
-		     else if (vv >= h)
+		     else if (_AL_EXPECT_FAIL(vv >= h))
 			vv -= h;
 
 		  }
@@ -506,14 +512,14 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 		     uu += du_dx;
 		     vv += dv_dx;
 
-		     if (uu < 0)
+		     if (_AL_EXPECT_FAIL(uu < 0))
 			uu += w;
-		     else if (uu >= w)
+		     else if (_AL_EXPECT_FAIL(uu >= w))
 			uu -= w;
 
-		     if (vv < 0)
+		     if (_AL_EXPECT_FAIL(vv < 0))
 			vv += h;
-		     else if (vv >= h)
+		     else if (_AL_EXPECT_FAIL(vv >= h))
 			vv -= h;
 
 		  }
@@ -555,14 +561,14 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 		     uu += du_dx;
 		     vv += dv_dx;
 
-		     if (uu < 0)
+		     if (_AL_EXPECT_FAIL(uu < 0))
 			uu += w;
-		     else if (uu >= w)
+		     else if (_AL_EXPECT_FAIL(uu >= w))
 			uu -= w;
 
-		     if (vv < 0)
+		     if (_AL_EXPECT_FAIL(vv < 0))
 			vv += h;
-		     else if (vv >= h)
+		     else if (_AL_EXPECT_FAIL(vv >= h))
 			vv -= h;
 
 		  }
@@ -602,14 +608,14 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 		     uu += du_dx;
 		     vv += dv_dx;
 
-		     if (uu < 0)
+		     if (_AL_EXPECT_FAIL(uu < 0))
 			uu += w;
-		     else if (uu >= w)
+		     else if (_AL_EXPECT_FAIL(uu >= w))
 			uu -= w;
 
-		     if (vv < 0)
+		     if (_AL_EXPECT_FAIL(vv < 0))
 			vv += h;
-		     else if (vv >= h)
+		     else if (_AL_EXPECT_FAIL(vv >= h))
 			vv -= h;
 
 		  }
@@ -649,14 +655,14 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 		  uu += du_dx;
 		  vv += dv_dx;
 
-		  if (uu < 0)
+		  if (_AL_EXPECT_FAIL(uu < 0))
 		     uu += w;
-		  else if (uu >= w)
+		  else if (_AL_EXPECT_FAIL(uu >= w))
 		     uu -= w;
 
-		  if (vv < 0)
+		  if (_AL_EXPECT_FAIL(vv < 0))
 		     vv += h;
-		  else if (vv >= h)
+		  else if (_AL_EXPECT_FAIL(vv >= h))
 		     vv -= h;
 
 	       }
@@ -696,14 +702,14 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 		  uu += du_dx;
 		  vv += dv_dx;
 
-		  if (uu < 0)
+		  if (_AL_EXPECT_FAIL(uu < 0))
 		     uu += w;
-		  else if (uu >= w)
+		  else if (_AL_EXPECT_FAIL(uu >= w))
 		     uu -= w;
 
-		  if (vv < 0)
+		  if (_AL_EXPECT_FAIL(vv < 0))
 		     vv += h;
-		  else if (vv >= h)
+		  else if (_AL_EXPECT_FAIL(vv >= h))
 		     vv -= h;
 
 	       }
@@ -805,14 +811,14 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 		     uu += du_dx;
 		     vv += dv_dx;
 
-		     if (uu < 0)
+		     if (_AL_EXPECT_FAIL(uu < 0))
 			uu += w;
-		     else if (uu >= w)
+		     else if (_AL_EXPECT_FAIL(uu >= w))
 			uu -= w;
 
-		     if (vv < 0)
+		     if (_AL_EXPECT_FAIL(vv < 0))
 			vv += h;
-		     else if (vv >= h)
+		     else if (_AL_EXPECT_FAIL(vv >= h))
 			vv -= h;
 
 		  }
@@ -850,14 +856,14 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 		     uu += du_dx;
 		     vv += dv_dx;
 
-		     if (uu < 0)
+		     if (_AL_EXPECT_FAIL(uu < 0))
 			uu += w;
-		     else if (uu >= w)
+		     else if (_AL_EXPECT_FAIL(uu >= w))
 			uu -= w;
 
-		     if (vv < 0)
+		     if (_AL_EXPECT_FAIL(vv < 0))
 			vv += h;
-		     else if (vv >= h)
+		     else if (_AL_EXPECT_FAIL(vv >= h))
 			vv -= h;
 
 		  }
@@ -897,14 +903,14 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 		     uu += du_dx;
 		     vv += dv_dx;
 
-		     if (uu < 0)
+		     if (_AL_EXPECT_FAIL(uu < 0))
 			uu += w;
-		     else if (uu >= w)
+		     else if (_AL_EXPECT_FAIL(uu >= w))
 			uu -= w;
 
-		     if (vv < 0)
+		     if (_AL_EXPECT_FAIL(vv < 0))
 			vv += h;
-		     else if (vv >= h)
+		     else if (_AL_EXPECT_FAIL(vv >= h))
 			vv -= h;
 
 		  }
@@ -942,14 +948,14 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 		     uu += du_dx;
 		     vv += dv_dx;
 
-		     if (uu < 0)
+		     if (_AL_EXPECT_FAIL(uu < 0))
 			uu += w;
-		     else if (uu >= w)
+		     else if (_AL_EXPECT_FAIL(uu >= w))
 			uu -= w;
 
-		     if (vv < 0)
+		     if (_AL_EXPECT_FAIL(vv < 0))
 			vv += h;
-		     else if (vv >= h)
+		     else if (_AL_EXPECT_FAIL(vv >= h))
 			vv -= h;
 
 		  }
@@ -987,14 +993,14 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 		  uu += du_dx;
 		  vv += dv_dx;
 
-		  if (uu < 0)
+		  if (_AL_EXPECT_FAIL(uu < 0))
 		     uu += w;
-		  else if (uu >= w)
+		  else if (_AL_EXPECT_FAIL(uu >= w))
 		     uu -= w;
 
-		  if (vv < 0)
+		  if (_AL_EXPECT_FAIL(vv < 0))
 		     vv += h;
-		  else if (vv >= h)
+		  else if (_AL_EXPECT_FAIL(vv >= h))
 		     vv -= h;
 
 	       }
@@ -1032,14 +1038,14 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 		  uu += du_dx;
 		  vv += dv_dx;
 
-		  if (uu < 0)
+		  if (_AL_EXPECT_FAIL(uu < 0))
 		     uu += w;
-		  else if (uu >= w)
+		  else if (_AL_EXPECT_FAIL(uu >= w))
 		     uu -= w;
 
-		  if (vv < 0)
+		  if (_AL_EXPECT_FAIL(vv < 0))
 		     vv += h;
-		  else if (vv >= h)
+		  else if (_AL_EXPECT_FAIL(vv >= h))
 		     vv -= h;
 
 	       }
@@ -1131,14 +1137,14 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 		  uu += du_dx;
 		  vv += dv_dx;
 
-		  if (uu < 0)
+		  if (_AL_EXPECT_FAIL(uu < 0))
 		     uu += w;
-		  else if (uu >= w)
+		  else if (_AL_EXPECT_FAIL(uu >= w))
 		     uu -= w;
 
-		  if (vv < 0)
+		  if (_AL_EXPECT_FAIL(vv < 0))
 		     vv += h;
-		  else if (vv >= h)
+		  else if (_AL_EXPECT_FAIL(vv >= h))
 		     vv -= h;
 
 	       }
@@ -1172,14 +1178,14 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 		  uu += du_dx;
 		  vv += dv_dx;
 
-		  if (uu < 0)
+		  if (_AL_EXPECT_FAIL(uu < 0))
 		     uu += w;
-		  else if (uu >= w)
+		  else if (_AL_EXPECT_FAIL(uu >= w))
 		     uu -= w;
 
-		  if (vv < 0)
+		  if (_AL_EXPECT_FAIL(vv < 0))
 		     vv += h;
-		  else if (vv >= h)
+		  else if (_AL_EXPECT_FAIL(vv >= h))
 		     vv -= h;
 
 	       }
@@ -1282,14 +1288,14 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 		  uu += du_dx;
 		  vv += dv_dx;
 
-		  if (uu < 0)
+		  if (_AL_EXPECT_FAIL(uu < 0))
 		     uu += w;
-		  else if (uu >= w)
+		  else if (_AL_EXPECT_FAIL(uu >= w))
 		     uu -= w;
 
-		  if (vv < 0)
+		  if (_AL_EXPECT_FAIL(vv < 0))
 		     vv += h;
-		  else if (vv >= h)
+		  else if (_AL_EXPECT_FAIL(vv >= h))
 		     vv -= h;
 
 	       }
@@ -1321,14 +1327,14 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 		  uu += du_dx;
 		  vv += dv_dx;
 
-		  if (uu < 0)
+		  if (_AL_EXPECT_FAIL(uu < 0))
 		     uu += w;
-		  else if (uu >= w)
+		  else if (_AL_EXPECT_FAIL(uu >= w))
 		     uu -= w;
 
-		  if (vv < 0)
+		  if (_AL_EXPECT_FAIL(vv < 0))
 		     vv += h;
-		  else if (vv >= h)
+		  else if (_AL_EXPECT_FAIL(vv >= h))
 		     vv -= h;
 
 	       }
@@ -1439,14 +1445,14 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 		     uu += du_dx;
 		     vv += dv_dx;
 
-		     if (uu < 0)
+		     if (_AL_EXPECT_FAIL(uu < 0))
 			uu += w;
-		     else if (uu >= w)
+		     else if (_AL_EXPECT_FAIL(uu >= w))
 			uu -= w;
 
-		     if (vv < 0)
+		     if (_AL_EXPECT_FAIL(vv < 0))
 			vv += h;
-		     else if (vv >= h)
+		     else if (_AL_EXPECT_FAIL(vv >= h))
 			vv -= h;
 
 		     cur_color.r += gs->color_dx.r;
@@ -1491,14 +1497,14 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 		     uu += du_dx;
 		     vv += dv_dx;
 
-		     if (uu < 0)
+		     if (_AL_EXPECT_FAIL(uu < 0))
 			uu += w;
-		     else if (uu >= w)
+		     else if (_AL_EXPECT_FAIL(uu >= w))
 			uu -= w;
 
-		     if (vv < 0)
+		     if (_AL_EXPECT_FAIL(vv < 0))
 			vv += h;
-		     else if (vv >= h)
+		     else if (_AL_EXPECT_FAIL(vv >= h))
 			vv -= h;
 
 		     cur_color.r += gs->color_dx.r;
@@ -1545,14 +1551,14 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 		     uu += du_dx;
 		     vv += dv_dx;
 
-		     if (uu < 0)
+		     if (_AL_EXPECT_FAIL(uu < 0))
 			uu += w;
-		     else if (uu >= w)
+		     else if (_AL_EXPECT_FAIL(uu >= w))
 			uu -= w;
 
-		     if (vv < 0)
+		     if (_AL_EXPECT_FAIL(vv < 0))
 			vv += h;
-		     else if (vv >= h)
+		     else if (_AL_EXPECT_FAIL(vv >= h))
 			vv -= h;
 
 		     cur_color.r += gs->color_dx.r;
@@ -1597,14 +1603,14 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 		     uu += du_dx;
 		     vv += dv_dx;
 
-		     if (uu < 0)
+		     if (_AL_EXPECT_FAIL(uu < 0))
 			uu += w;
-		     else if (uu >= w)
+		     else if (_AL_EXPECT_FAIL(uu >= w))
 			uu -= w;
 
-		     if (vv < 0)
+		     if (_AL_EXPECT_FAIL(vv < 0))
 			vv += h;
-		     else if (vv >= h)
+		     else if (_AL_EXPECT_FAIL(vv >= h))
 			vv -= h;
 
 		     cur_color.r += gs->color_dx.r;
@@ -1649,14 +1655,14 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 		  uu += du_dx;
 		  vv += dv_dx;
 
-		  if (uu < 0)
+		  if (_AL_EXPECT_FAIL(uu < 0))
 		     uu += w;
-		  else if (uu >= w)
+		  else if (_AL_EXPECT_FAIL(uu >= w))
 		     uu -= w;
 
-		  if (vv < 0)
+		  if (_AL_EXPECT_FAIL(vv < 0))
 		     vv += h;
-		  else if (vv >= h)
+		  else if (_AL_EXPECT_FAIL(vv >= h))
 		     vv -= h;
 
 		  cur_color.r += gs->color_dx.r;
@@ -1701,14 +1707,14 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 		  uu += du_dx;
 		  vv += dv_dx;
 
-		  if (uu < 0)
+		  if (_AL_EXPECT_FAIL(uu < 0))
 		     uu += w;
-		  else if (uu >= w)
+		  else if (_AL_EXPECT_FAIL(uu >= w))
 		     uu -= w;
 
-		  if (vv < 0)
+		  if (_AL_EXPECT_FAIL(vv < 0))
 		     vv += h;
-		  else if (vv >= h)
+		  else if (_AL_EXPECT_FAIL(vv >= h))
 		     vv -= h;
 
 		  cur_color.r += gs->color_dx.r;
@@ -1812,14 +1818,14 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 		  uu += du_dx;
 		  vv += dv_dx;
 
-		  if (uu < 0)
+		  if (_AL_EXPECT_FAIL(uu < 0))
 		     uu += w;
-		  else if (uu >= w)
+		  else if (_AL_EXPECT_FAIL(uu >= w))
 		     uu -= w;
 
-		  if (vv < 0)
+		  if (_AL_EXPECT_FAIL(vv < 0))
 		     vv += h;
-		  else if (vv >= h)
+		  else if (_AL_EXPECT_FAIL(vv >= h))
 		     vv -= h;
 
 		  cur_color.r += gs->color_dx.r;
@@ -1858,14 +1864,14 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 		  uu += du_dx;
 		  vv += dv_dx;
 
-		  if (uu < 0)
+		  if (_AL_EXPECT_FAIL(uu < 0))
 		     uu += w;
-		  else if (uu >= w)
+		  else if (_AL_EXPECT_FAIL(uu >= w))
 		     uu -= w;
 
-		  if (vv < 0)
+		  if (_AL_EXPECT_FAIL(vv < 0))
 		     vv += h;
-		  else if (vv >= h)
+		  else if (_AL_EXPECT_FAIL(vv >= h))
 		     vv -= h;
 
 		  cur_color.r += gs->color_dx.r;

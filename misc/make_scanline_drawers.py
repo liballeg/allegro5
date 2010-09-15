@@ -335,14 +335,14 @@ def make_loop(
          uu += du_dx;
          vv += dv_dx;
 
-         if (uu < 0)
+         if (_AL_EXPECT_FAIL(uu < 0))
             uu += w;
-         else if (uu >= w)
+         else if (_AL_EXPECT_FAIL(uu >= w))
             uu -= w;
 
-         if (vv < 0)
+         if (_AL_EXPECT_FAIL(vv < 0))
             vv += h;
-         else if (vv >= h)
+         else if (_AL_EXPECT_FAIL(vv >= h))
             vv -= h;
          """
 
@@ -362,6 +362,12 @@ def make_loop(
 if __name__ == "__main__":
    print """\
 // Warning: This file was created by make_scanline_drawers.py - do not edit.
+
+#if __GNUC__
+#define _AL_EXPECT_FAIL(expr) __builtin_expect((expr), 0)
+#else
+#define _AL_EXPECT_FAIL(expr) (expr)
+#endif
 """
 
    make_drawer("shader_solid_any_draw_shade")
