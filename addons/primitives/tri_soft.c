@@ -222,7 +222,9 @@ static void shader_texture_solid_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, A
    PLANE_DETS(v, v1->v, v2->v, v3->v)
    
    state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
-   
+
+   s->cur_color = v1->color;
+
    s->off_x = v1->x - 0.5f;
    s->off_y = v1->y + 0.5f;
 
