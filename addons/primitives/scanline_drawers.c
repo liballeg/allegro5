@@ -1249,7 +1249,7 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 	    const int dst_format = target->locked_region.format;
 	    uint8_t *dst_data = (uint8_t *) target->locked_region.data + y * target->locked_region.pitch + x1 * al_get_pixel_size(dst_format);
 
-	    if (dst_format == src_format) {
+	    if (dst_format == src_format && src_size == 4) {
 	       uint8_t *lock_data = texture->locked_region.data;
 	       const int src_pitch = texture->locked_region.pitch;
 	       const int lock_y = texture->lock_y;
@@ -1265,9 +1265,113 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 
 		  const int src_x = (uu >> 16) + offset_x;
 		  const int src_y = (vv >> 16) + offset_y;
-		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * src_size;
+		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * 4;
 
-		  switch (src_size) {
+		  switch (4) {
+		  case 4:
+		     memcpy(dst_data, src_data, 4);
+		     dst_data += 4;
+		     break;
+		  case 3:
+		     memcpy(dst_data, src_data, 3);
+		     dst_data += 3;
+		     break;
+		  case 2:
+		     *dst_data++ = *src_data++;
+		     *dst_data++ = *src_data;
+		     break;
+		  case 1:
+		     *dst_data++ = *src_data;
+		     break;
+		  }
+
+		  uu += du_dx;
+		  vv += dv_dx;
+
+		  if (_AL_EXPECT_FAIL(uu < 0))
+		     uu += w;
+		  else if (_AL_EXPECT_FAIL(uu >= w))
+		     uu -= w;
+
+		  if (_AL_EXPECT_FAIL(vv < 0))
+		     vv += h;
+		  else if (_AL_EXPECT_FAIL(vv >= h))
+		     vv -= h;
+
+	       }
+	    }
+
+	    else if (dst_format == src_format && src_size == 3) {
+	       uint8_t *lock_data = texture->locked_region.data;
+	       const int src_pitch = texture->locked_region.pitch;
+	       const int lock_y = texture->lock_y;
+	       const int lock_x = texture->lock_x;
+	       const al_fixed du_dx = al_ftofix(s->du_dx);
+	       const al_fixed dv_dx = al_ftofix(s->dv_dx);
+	       const al_fixed w = al_ftofix(s->w);
+	       const al_fixed h = al_ftofix(s->h);
+	       al_fixed uu = al_ftofix(u);
+	       al_fixed vv = al_ftofix(v);
+
+	       for (; x1 <= x2; x1++) {
+
+		  const int src_x = (uu >> 16) + offset_x;
+		  const int src_y = (vv >> 16) + offset_y;
+		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * 3;
+
+		  switch (3) {
+		  case 4:
+		     memcpy(dst_data, src_data, 4);
+		     dst_data += 4;
+		     break;
+		  case 3:
+		     memcpy(dst_data, src_data, 3);
+		     dst_data += 3;
+		     break;
+		  case 2:
+		     *dst_data++ = *src_data++;
+		     *dst_data++ = *src_data;
+		     break;
+		  case 1:
+		     *dst_data++ = *src_data;
+		     break;
+		  }
+
+		  uu += du_dx;
+		  vv += dv_dx;
+
+		  if (_AL_EXPECT_FAIL(uu < 0))
+		     uu += w;
+		  else if (_AL_EXPECT_FAIL(uu >= w))
+		     uu -= w;
+
+		  if (_AL_EXPECT_FAIL(vv < 0))
+		     vv += h;
+		  else if (_AL_EXPECT_FAIL(vv >= h))
+		     vv -= h;
+
+	       }
+	    }
+
+	    else if (dst_format == src_format && src_size == 2) {
+	       uint8_t *lock_data = texture->locked_region.data;
+	       const int src_pitch = texture->locked_region.pitch;
+	       const int lock_y = texture->lock_y;
+	       const int lock_x = texture->lock_x;
+	       const al_fixed du_dx = al_ftofix(s->du_dx);
+	       const al_fixed dv_dx = al_ftofix(s->dv_dx);
+	       const al_fixed w = al_ftofix(s->w);
+	       const al_fixed h = al_ftofix(s->h);
+	       al_fixed uu = al_ftofix(u);
+	       al_fixed vv = al_ftofix(v);
+
+	       for (; x1 <= x2; x1++) {
+
+		  const int src_x = (uu >> 16) + offset_x;
+		  const int src_y = (vv >> 16) + offset_y;
+		  uint8_t *src_data = lock_data + (src_y - lock_y) * src_pitch + (src_x - lock_x) * 2;
+
+		  switch (2) {
 		  case 4:
 		     memcpy(dst_data, src_data, 4);
 		     dst_data += 4;

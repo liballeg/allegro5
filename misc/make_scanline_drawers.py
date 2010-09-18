@@ -156,9 +156,11 @@ def make_drawer(name):
       print "else"
 
    if opaque and white:
-      make_loop(
-            copy_format=True
-            )
+      make_loop(copy_format=True, src_size='4')
+      print "else"
+      make_loop(copy_format=True, src_size='3')
+      print "else"
+      make_loop(copy_format=True, src_size='2')
       print "else"
    else:
       make_loop(
@@ -226,6 +228,7 @@ def make_loop(
       dst_alpha='dst_alpha',
       src_format='src_format',
       dst_format='dst_format',
+      src_size='src_size',
       if_format=None,
       copy_format=False
       ):
@@ -239,7 +242,7 @@ def make_loop(
       print ")"
    elif copy_format:
       assert opaque and white
-      print "if (dst_format == src_format)"
+      print interp("if (dst_format == src_format && src_size == #{src_size})")
 
    print "{"
 
@@ -266,15 +269,13 @@ def make_loop(
          ALLEGRO_COLOR src_color = cur_color;
          """
    else:
-      # The comment in al_fixfloor says the right shift is not portable, but
-      # it's so much quicker...
-      print """\
+      print interp("""\
          const int src_x = (uu >> 16) + offset_x;
          const int src_y = (vv >> 16) + offset_y;
          uint8_t *src_data = lock_data
             + (src_y - lock_y) * src_pitch
-            + (src_x - lock_x) * src_size;
-         """
+            + (src_x - lock_x) * #{src_size};
+         """)
 
       if copy_format:
          pass
@@ -293,8 +294,8 @@ def make_loop(
             """
 
    if copy_format:
-      print """\
-         switch (src_size) {
+      print interp("""\
+         switch (#{src_size}) {
             case 4:
                memcpy(dst_data, src_data, 4);
                dst_data += 4;
@@ -311,7 +312,7 @@ def make_loop(
                *dst_data++ = *src_data;
                break;
          }
-         """
+         """)
    elif shade:
       print interp("""\
          {
