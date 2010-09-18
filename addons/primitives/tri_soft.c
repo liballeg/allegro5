@@ -130,22 +130,27 @@ static void shader_grad_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO_VE
    
    s->off_x = v1->x - 0.5f;
    s->off_y = v1->y + 0.5f;
-   
-   s->color_dx.r    = -r_det_x / det_u;
-   s->color_dy.r    = -r_det_y / det_u;
-   s->color_const.r = r_det / det_u;
-   
-   s->color_dx.g    = -g_det_x / det_u;
-   s->color_dy.g    = -g_det_y / det_u;
-   s->color_const.g = g_det / det_u;
-   
-   s->color_dx.b    = -b_det_x / det_u;
-   s->color_dy.b    = -b_det_y / det_u;
-   s->color_const.b = b_det / det_u;
-   
-   s->color_dx.a    = -a_det_x / det_u;
-   s->color_dy.a    = -a_det_y / det_u;
-   s->color_const.a = a_det / det_u;
+
+   if (det_u == 0.0) {
+      s->color_dx = s->color_dy = s->color_const = al_map_rgba_f(0, 0, 0, 0);
+   }
+   else {
+      s->color_dx.r    = -r_det_x / det_u;
+      s->color_dy.r    = -r_det_y / det_u;
+      s->color_const.r = r_det / det_u;
+
+      s->color_dx.g    = -g_det_x / det_u;
+      s->color_dy.g    = -g_det_y / det_u;
+      s->color_const.g = g_det / det_u;
+
+      s->color_dx.b    = -b_det_x / det_u;
+      s->color_dy.b    = -b_det_y / det_u;
+      s->color_const.b = b_det / det_u;
+
+      s->color_dx.a    = -a_det_x / det_u;
+      s->color_dy.a    = -a_det_y / det_u;
+      s->color_const.a = a_det / det_u;
+   }
 }
 
 static void shader_grad_any_first(uintptr_t state, int x1, int y, int left_minor, int left_major)
@@ -231,13 +236,19 @@ static void shader_texture_solid_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, A
    s->w = al_get_bitmap_width(s->texture);
    s->h = al_get_bitmap_height(s->texture);
    
-   s->du_dx    = -u_det_x / det_u;
-   s->du_dy    = -u_det_y / det_u;
-   s->u_const  = u_det / det_u;
-                
-   s->dv_dx    = -v_det_x / det_u;
-   s->dv_dy    = -v_det_y / det_u;
-   s->v_const  = v_det / det_u;
+   if (det_u == 0.0f) {
+      s->du_dx = s->du_dy = s->u_const = 0.0f;
+      s->dv_dx = s->dv_dy = s->v_const = 0.0f;
+   }
+   else {
+      s->du_dx    = -u_det_x / det_u;
+      s->du_dy    = -u_det_y / det_u;
+      s->u_const  = u_det / det_u;
+
+      s->dv_dx    = -v_det_x / det_u;
+      s->dv_dy    = -v_det_y / det_u;
+      s->v_const  = v_det / det_u;
+   }
 }
 
 static void shader_texture_solid_any_first(uintptr_t state, int x1, int y, int left_minor, int left_major)
@@ -246,10 +257,10 @@ static void shader_texture_solid_any_first(uintptr_t state, int x1, int y, int l
    
    const float cur_x = (float)x1 - s->off_x;
    const float cur_y = (float)y - s->off_y;
-   
+
    s->u = cur_x * s->du_dx + cur_y * s->du_dy + s->u_const;
    s->v = cur_x * s->dv_dx + cur_y * s->dv_dy + s->v_const;
-   
+
    s->minor_du = (float)left_minor * s->du_dx + s->du_dy;
    s->minor_dv = (float)left_minor * s->dv_dx + s->dv_dy;
    
@@ -308,29 +319,36 @@ static void shader_texture_grad_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, AL
    s->solid.off_x = v1->x - 0.5f;
    s->solid.off_y = v1->y + 0.5f;
 
-   s->solid.du_dx    = -u_det_x / det_u;
-   s->solid.du_dy    = -u_det_y / det_u;
-   s->solid.u_const  = u_det / det_u;
-                     
-   s->solid.dv_dx    = -v_det_x / det_u;
-   s->solid.dv_dy    = -v_det_y / det_u;
-   s->solid.v_const  = v_det / det_u;
-   
-   s->color_dx.r    = -r_det_x / det_u;
-   s->color_dy.r    = -r_det_y / det_u;
-   s->color_const.r = r_det / det_u;
-   
-   s->color_dx.g    = -g_det_x / det_u;
-   s->color_dy.g    = -g_det_y / det_u;
-   s->color_const.g = g_det / det_u;
-   
-   s->color_dx.b    = -b_det_x / det_u;
-   s->color_dy.b    = -b_det_y / det_u;
-   s->color_const.b = b_det / det_u;
-   
-   s->color_dx.a    = -a_det_x / det_u;
-   s->color_dy.a    = -a_det_y / det_u;
-   s->color_const.a = a_det / det_u;
+   if (det_u == 0.0) {
+      s->solid.du_dx = s->solid.du_dy = s->solid.u_const = 0.0;
+      s->solid.dv_dx = s->solid.dv_dy = s->solid.v_const = 0.0;
+      s->color_dx = s->color_dy = s->color_const = al_map_rgba_f(0, 0, 0, 0);
+   }
+   else {
+      s->solid.du_dx    = -u_det_x / det_u;
+      s->solid.du_dy    = -u_det_y / det_u;
+      s->solid.u_const  = u_det / det_u;
+
+      s->solid.dv_dx    = -v_det_x / det_u;
+      s->solid.dv_dy    = -v_det_y / det_u;
+      s->solid.v_const  = v_det / det_u;
+
+      s->color_dx.r    = -r_det_x / det_u;
+      s->color_dy.r    = -r_det_y / det_u;
+      s->color_const.r = r_det / det_u;
+
+      s->color_dx.g    = -g_det_x / det_u;
+      s->color_dy.g    = -g_det_y / det_u;
+      s->color_const.g = g_det / det_u;
+
+      s->color_dx.b    = -b_det_x / det_u;
+      s->color_dy.b    = -b_det_y / det_u;
+      s->color_const.b = b_det / det_u;
+
+      s->color_dx.a    = -a_det_x / det_u;
+      s->color_dy.a    = -a_det_y / det_u;
+      s->color_const.a = a_det / det_u;
+   }
 }
 
 static void shader_texture_grad_any_first(uintptr_t state, int x1, int y, int left_minor, int left_major)
