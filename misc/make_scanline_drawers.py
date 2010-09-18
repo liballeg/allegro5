@@ -260,6 +260,60 @@ def make_loop(
          al_fixed vv = al_ftofix(v);
          """
 
+      if opaque:
+         # If texture coordinates never wrap around then we can simplify the
+         # innermost loop. It doesn't seem to have so great an impact when the
+         # loop is complicated by blending.
+         print """\
+            const float steps = x2 - x1 + 1;
+            const float end_u = u + steps * s->du_dx;
+            const float end_v = v + steps * s->dv_dx;
+            if (end_u >= 0 && end_u < s->w && end_v >= 0 && end_v < s->h) {
+            """
+         make_innermost_loop(
+            op=op,
+            src_mode=src_mode,
+            dst_mode=dst_mode,
+            op_alpha=op_alpha,
+            src_alpha=src_alpha,
+            dst_alpha=dst_alpha,
+            src_format=src_format,
+            dst_format=dst_format,
+            src_size=src_size,
+            copy_format=copy_format,
+            tiling=False
+            )
+         print "} else"
+
+   make_innermost_loop(
+      op=op,
+      src_mode=src_mode,
+      dst_mode=dst_mode,
+      op_alpha=op_alpha,
+      src_alpha=src_alpha,
+      dst_alpha=dst_alpha,
+      src_format=src_format,
+      dst_format=dst_format,
+      src_size=src_size,
+      copy_format=copy_format
+      )
+
+   print "}"
+
+def make_innermost_loop(
+      op='op',
+      src_mode='src_mode',
+      dst_mode='dst_mode',
+      op_alpha='op_alpha',
+      src_alpha='src_alpha',
+      dst_alpha='dst_alpha',
+      src_format='src_format',
+      dst_format='dst_format',
+      src_size='src_size',
+      copy_format=False,
+      tiling=True
+      ):
+
    print """\
       for (; x1 <= x2; x1++) {
       """
@@ -335,7 +389,10 @@ def make_loop(
       print """\
          uu += du_dx;
          vv += dv_dx;
+         """
 
+      if tiling:
+         print """\
          if (_AL_EXPECT_FAIL(uu < 0))
             uu += w;
          else if (_AL_EXPECT_FAIL(uu >= w))
@@ -355,10 +412,7 @@ def make_loop(
          cur_color.a += gs->color_dx.a;
          """
 
-   print """\
-      }
-   }
-   """
+   print "}"
 
 if __name__ == "__main__":
    print """\
