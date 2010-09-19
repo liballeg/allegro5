@@ -736,11 +736,13 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
       bitmap->locked_region.data = d3d_bmp->locked_rect.pBits;
       bitmap->locked_region.format = bitmap->format;
       bitmap->locked_region.pitch = d3d_bmp->locked_rect.Pitch;
+      bitmap->locked_region.pixel_size = al_get_pixel_size(bitmap->format);
    }
    else {
       bitmap->locked_region.pitch = al_get_pixel_size(f) * w;
       bitmap->locked_region.data = al_malloc(bitmap->locked_region.pitch*h);
       bitmap->locked_region.format = f;
+      bitmap->locked_region.pixel_size = al_get_pixel_size(bitmap->format);
       if (!(bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY)) {
          _al_convert_bitmap_data(
             d3d_bmp->locked_rect.pBits, bitmap->format, d3d_bmp->locked_rect.Pitch,

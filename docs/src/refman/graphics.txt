@@ -83,7 +83,8 @@ call will work with any bitmap, including memory bitmaps.
             int pitch;  // the size in bytes of a single line
                         // pitch may be greater than pixel_size*bitmap->w
                         // i.e. padded with extra bytes
-    }
+            int pixel_size; // the size in bytes of a single pixel
+    } ALLEGRO_LOCKED_REGION;
 
 See also: [al_lock_bitmap], [al_lock_bitmap_region], [al_unlock_bitmap],
 [ALLEGRO_PIXEL_FORMAT]

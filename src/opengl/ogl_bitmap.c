@@ -718,6 +718,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
 
    bitmap->locked_region.format = format;
    bitmap->locked_region.pitch = -pitch;
+   bitmap->locked_region.pixel_size = pixel_size;
 
    if (old_disp) {
       _al_set_current_display_only(old_disp);

@@ -92,7 +92,7 @@ static void _al_draw_filled_rectangle_memory_fast(int x1, int y1, int x2, int y2
 
    /* Fill in the region. */
    line_ptr = lr->data;
-   switch (al_get_pixel_size(bitmap->format)) {
+   switch (lr->pixel_size) {
       case 2: {
          int pixel_value = bmp_read16(line_ptr);
          for (y = y1; y < y1 + h; y++) {

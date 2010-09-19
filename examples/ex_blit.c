@@ -166,7 +166,7 @@ static void draw(void)
    lock = al_lock_bitmap_region(screen, x, y, iw, ih,
       ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
    format = lock->format;
-   size = al_get_pixel_size(format);
+   size = lock->pixel_size;
    data = malloc(size * iw * ih);
    for (i = 0; i < ih; i++)
       memcpy((char*)data + i * size * iw,

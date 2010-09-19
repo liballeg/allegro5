@@ -122,7 +122,7 @@ def make_drawer(name):
       const int offset_y = s->texture->parent ? s->texture->yofs : 0;
       ALLEGRO_BITMAP* texture = s->texture->parent ? s->texture->parent : s->texture;
       const int src_format = texture->locked_region.format;
-      const int src_size = al_get_pixel_size(src_format);
+      const int src_size = texture->locked_region.pixel_size;
 
       /* Ensure u in [0, s->w) and v in [0, s->h). */
       while (u < 0) u += s->w;
@@ -138,7 +138,7 @@ def make_drawer(name):
       const int dst_format = target->locked_region.format;
       uint8_t *dst_data = (uint8_t *)target->locked_region.data
          + y * target->locked_region.pitch
-         + x1 * al_get_pixel_size(dst_format);
+         + x1 * target->locked_region.pixel_size;
       """
 
    if shade:
