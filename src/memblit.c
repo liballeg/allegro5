@@ -62,14 +62,6 @@ static bool is_scale_trans(const ALLEGRO_TRANSFORM* trans,
 }
 
 
-#define DEST_IS_ZERO \
-   dst_mode == ALLEGRO_ZERO &&  dst_alpha == ALLEGRO_ZERO && \
-   op != ALLEGRO_DEST_MINUS_SRC && op_alpha != ALLEGRO_DEST_MINUS_SRC
-
-#define SRC_NOT_MODIFIED \
-   src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && \
-   tint.r == 1.0f && tint.g == 1.0f && tint.b == 1.0f && tint.a == 1.0f
-
 /* The CLIPPER macro takes pre-clipped coordinates for both the source
  * and destination bitmaps and clips them as necessary, taking sub-
  * bitmaps into consideration. The wr and hr parameters are the ratio of
@@ -294,7 +286,7 @@ static void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    al_get_separate_blender(&op, &src_mode, &dst_mode,
       &op_alpha, &src_alpha, &dst_alpha);
 
-   if (DEST_IS_ZERO && SRC_NOT_MODIFIED) {
+   if (_AL_DEST_IS_ZERO && _AL_SRC_NOT_MODIFIED_TINT_WHITE) {
       _al_draw_scaled_bitmap_memory_fast(src,
             sx, sy, sw, sh, dx, dy, dw, dh, flags);
       return;
@@ -349,7 +341,7 @@ static void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
 
          _sx = sx;
 
-         if (DEST_IS_ZERO) {
+         if (_AL_DEST_IS_ZERO) {
             for (x = 0; x < xend; x++) {
                const char *src_data = src_row
                   + src_size * _al_fast_float_to_int(_sx);
@@ -435,8 +427,7 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *src,
 
    al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
 
-   if (DEST_IS_ZERO && SRC_NOT_MODIFIED)
-   {
+   if (_AL_DEST_IS_ZERO && _AL_SRC_NOT_MODIFIED_TINT_WHITE) {
       _al_draw_bitmap_region_memory_fast(src, sx, sy, sw, sh, dx, dy, flags);
       return;
    }
@@ -1013,7 +1004,7 @@ do {                                                                         \
          + dst_region->pitch * (bmp_y_i - clip_top_i)                        \
          + al_get_pixel_size(dst->format) * (my_l_bmp_x_i - (clip_left>>16));\
                                                                              \
-      if (DEST_IS_ZERO) {                                            \
+      if (_AL_DEST_IS_ZERO) {                                                \
          for (x = my_l_bmp_x_i; x < my_r_bmp_x_i; x++) {                     \
             const char *src_data = (char*)src_region->data                   \
                   + src_region->pitch * (my_l_spr_y>>16)                     \
@@ -1142,7 +1133,7 @@ static void _al_draw_transformed_bitmap_memory(ALLEGRO_BITMAP *src,
    xs[bl] = al_ftofix(xsf[2]);
    ys[bl] = al_ftofix(ysf[2]);
 
-   if (DEST_IS_ZERO && SRC_NOT_MODIFIED) {
+   if (_AL_DEST_IS_ZERO && _AL_SRC_NOT_MODIFIED_TINT_WHITE) {
       _al_parallelogram_map_fast(src, xs, ys, sx, sy, sw, sh);
       return;
    }

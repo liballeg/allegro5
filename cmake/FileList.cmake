@@ -30,6 +30,7 @@ set(ALLEGRO_SRC_FILES
     src/timernu.c
     src/tls.c
     src/transformations.c
+    src/tri_soft.c
     src/utf8.c
     src/misc/aatree.c
     src/misc/bstrlib.c

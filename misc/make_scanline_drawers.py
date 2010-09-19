@@ -2,7 +2,7 @@
 #
 # Generate the routines to draw each scanline of a primitive.
 # Run:
-#  python misc/make_scanline_drawers.py | indent -kr -i3 -l0 > addons/primitives/scanline_drawers.c
+#  python misc/make_scanline_drawers.py | indent -kr -i3 -l0 > src/scanline_drawers.c
 
 import sys, re
 

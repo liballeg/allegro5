@@ -24,6 +24,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_prim_soft.h"
 #include "allegro5/internal/aintern_prim.h"
+#include "allegro5/internal/aintern_tri_soft.h"
 
 #ifdef ALLEGRO_CFG_D3D
 #include "allegro5/allegro_direct3d.h"
@@ -519,3 +520,17 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
    return num_primitives;
 #undef SET_VERTEX
 }
+
+/* Function: al_draw_soft_triangle
+ */
+void al_draw_soft_triangle(
+   ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3, uintptr_t state,
+   void (*init)(uintptr_t, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*),
+   void (*first)(uintptr_t, int, int, int, int),
+   void (*step)(uintptr_t, int),
+   void (*draw)(uintptr_t, int, int, int))
+{
+   _al_draw_soft_triangle(v1, v2, v3, state, init, first, step, draw);
+}
+
+/* vim: set sts=3 sw=3 et: */

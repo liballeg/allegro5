@@ -91,6 +91,10 @@ typedef struct ALLEGRO_VERTEX_DECL ALLEGRO_VERTEX_DECL;
  */
 typedef uint32_t ALLEGRO_PRIM_COLOR;
 
+/* Duplicated in allegro5/internal/aintern_tri_soft.h */
+#ifndef _ALLEGRO_VERTEX_DEFINED
+#define _ALLEGRO_VERTEX_DEFINED
+
 /* Type: ALLEGRO_VERTEX
  */
 typedef struct ALLEGRO_VERTEX ALLEGRO_VERTEX;
@@ -100,6 +104,7 @@ struct ALLEGRO_VERTEX {
   float u, v;
   ALLEGRO_COLOR color;
 };
+#endif
 
 ALLEGRO_PRIM_FUNC(uint32_t, al_get_allegro_primitives_version, (void));
 

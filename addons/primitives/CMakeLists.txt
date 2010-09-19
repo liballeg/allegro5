@@ -1,7 +1,6 @@
 set(PRIMITIVES_SOURCES
     high_primitives.c
     line_soft.c
-    tri_soft.c
     prim_directx.c
     prim_opengl.c
     prim_soft.c

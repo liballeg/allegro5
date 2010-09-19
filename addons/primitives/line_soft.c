@@ -18,6 +18,7 @@
 
 
 #include "allegro5/allegro_primitives.h"
+#include "allegro5/internal/aintern_blend.h"
 #include "allegro5/internal/aintern_prim.h"
 #include "allegro5/internal/aintern_prim_soft.h"
 #include <math.h>
@@ -500,7 +501,7 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
    v2c = v2->color;
    
    al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
-   if (_DEST_IS_ZERO && _SRC_NOT_MODIFIED) {
+   if (_AL_DEST_IS_ZERO && _AL_SRC_NOT_MODIFIED) {
       shade = 0;
    }
    
