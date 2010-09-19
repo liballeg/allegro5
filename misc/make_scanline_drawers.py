@@ -60,10 +60,9 @@ def make_drawer(name):
          float v = s->v;
          """
 
-   # XXX keep target in the state
    # XXX still don't understand why y-1 is required
    print """\
-      ALLEGRO_BITMAP *target = al_get_target_bitmap();
+      ALLEGRO_BITMAP *target = s->target;
 
       if (target->parent) {
          x1 += target->xofs;

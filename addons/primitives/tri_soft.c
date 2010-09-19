@@ -35,12 +35,14 @@ typedef void (*shader_first)(uintptr_t, int, int, int, int);
 typedef void (*shader_step)(uintptr_t, int);
 
 typedef struct {
+   ALLEGRO_BITMAP *target;
    ALLEGRO_COLOR cur_color;
 } state_solid_any_2d;
 
 static void shader_solid_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3)
 {
    state_solid_any_2d* s = (state_solid_any_2d*)state;
+   s->target = al_get_target_bitmap();
    s->cur_color = v1->color;
 
    (void)v2;
@@ -127,6 +129,8 @@ static void shader_grad_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO_VE
    PLANE_DETS(a, v1c.a, v2c.a, v3c.a)
    
    state_grad_any_2d* s = (state_grad_any_2d*)state;
+
+   s->solid.target = al_get_target_bitmap();
    
    s->off_x = v1->x - 0.5f;
    s->off_y = v1->y + 0.5f;
@@ -201,6 +205,7 @@ static void shader_grad_any_step(uintptr_t state, int minor)
    A.a = B.a * A.a;
 
 typedef struct {
+   ALLEGRO_BITMAP *target;
    ALLEGRO_COLOR cur_color;
 
    float du_dx, du_dy, u_const;
@@ -228,6 +233,7 @@ static void shader_texture_solid_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, A
    
    state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
 
+   s->target = al_get_target_bitmap();
    s->cur_color = v1->color;
 
    s->off_x = v1->x - 0.5f;
@@ -313,6 +319,7 @@ static void shader_texture_grad_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, AL
    
    state_texture_grad_any_2d* s = (state_texture_grad_any_2d*)state;
    
+   s->solid.target = al_get_target_bitmap();
    s->solid.w = al_get_bitmap_width(s->solid.texture);
    s->solid.h = al_get_bitmap_height(s->solid.texture);
 
@@ -825,3 +832,5 @@ void al_draw_soft_triangle(
    if (need_unlock)
       al_unlock_bitmap(target);
 }
+
+/* vim: set sts=3 sw=3 et: */

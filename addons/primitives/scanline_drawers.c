@@ -11,7 +11,7 @@ static void shader_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
    state_solid_any_2d *s = (state_solid_any_2d *) state;
    ALLEGRO_COLOR cur_color = s->cur_color;
 
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
@@ -121,7 +121,7 @@ static void shader_solid_any_draw_opaque(uintptr_t state, int x1, int y, int x2)
    state_solid_any_2d *s = (state_solid_any_2d *) state;
    ALLEGRO_COLOR cur_color = s->cur_color;
 
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
@@ -182,7 +182,7 @@ static void shader_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
    state_solid_any_2d *s = &gs->solid;
    ALLEGRO_COLOR cur_color = s->cur_color;
 
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
@@ -318,7 +318,7 @@ static void shader_grad_any_draw_opaque(uintptr_t state, int x1, int y, int x2)
    state_solid_any_2d *s = &gs->solid;
    ALLEGRO_COLOR cur_color = s->cur_color;
 
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
@@ -395,7 +395,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
    float u = s->u;
    float v = s->v;
 
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
@@ -742,7 +742,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
    float u = s->u;
    float v = s->v;
 
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
@@ -1077,7 +1077,7 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
    float u = s->u;
    float v = s->v;
 
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
@@ -1268,7 +1268,7 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
    float u = s->u;
    float v = s->v;
 
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
@@ -1647,7 +1647,7 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
    float u = s->u;
    float v = s->v;
 
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
@@ -2031,7 +2031,7 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
    float u = s->u;
    float v = s->v;
 
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP *target = s->target;
 
    if (target->parent) {
       x1 += target->xofs;
