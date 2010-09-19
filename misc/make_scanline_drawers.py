@@ -257,14 +257,8 @@ def make_loop(
       print """\
          uint8_t *lock_data = texture->locked_region.data;
          const int src_pitch = texture->locked_region.pitch;
-         const int lock_y = texture->lock_y;
-         const int lock_x = texture->lock_x;
          const al_fixed du_dx = al_ftofix(s->du_dx);
          const al_fixed dv_dx = al_ftofix(s->dv_dx);
-         const al_fixed w = al_ftofix(s->w);
-         const al_fixed h = al_ftofix(s->h);
-         al_fixed uu = al_ftofix(u);
-         al_fixed vv = al_ftofix(v);
          """
 
       if opaque:
@@ -321,9 +315,29 @@ def make_innermost_loop(
       tiling=True
       ):
 
-   print """\
-      for (; x1 <= x2; x1++) {
-      """
+   print "{"
+
+   if texture:
+      # In non-tiling mode we can hoist offsets out of the loop.
+      if tiling:
+         print """\
+            al_fixed uu = al_ftofix(u);
+            al_fixed vv = al_ftofix(v);
+            const int uu_ofs = offset_x - texture->lock_x;
+            const int vv_ofs = offset_y - texture->lock_y;
+            const al_fixed w = al_ftofix(s->w);
+            const al_fixed h = al_ftofix(s->h);
+            """
+         uu_ofs = "uu_ofs"
+         vv_ofs = "vv_ofs"
+      else:
+         print """\
+            al_fixed uu = al_ftofix(u) + ((offset_x - texture->lock_x) << 16);
+            al_fixed vv = al_ftofix(v) + ((offset_y - texture->lock_y) << 16);
+            """
+         uu_ofs = vv_ofs = "0"
+
+   print "for (; x1 <= x2; x1++) {"
 
    if not texture:
       print """\
@@ -331,11 +345,11 @@ def make_innermost_loop(
          """
    else:
       print interp("""\
-         const int src_x = (uu >> 16) + offset_x;
-         const int src_y = (vv >> 16) + offset_y;
+         const int src_x = (uu >> 16) + #{uu_ofs};
+         const int src_y = (vv >> 16) + #{vv_ofs};
          uint8_t *src_data = lock_data
-            + (src_y - lock_y) * src_pitch
-            + (src_x - lock_x) * #{src_size};
+            + src_y * src_pitch
+            + src_x * #{src_size};
          """)
 
       if copy_format:
@@ -419,7 +433,9 @@ def make_innermost_loop(
          cur_color.a += gs->color_dx.a;
          """
 
-   print "}"
+   print """\
+      }
+   }"""
 
 if __name__ == "__main__":
    print """\
