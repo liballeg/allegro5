@@ -64,6 +64,14 @@ def make_drawer(name):
    # XXX still don't understand why y-1 is required
    print """\
       ALLEGRO_BITMAP *target = al_get_target_bitmap();
+
+      if (target->parent) {
+         x1 += target->xofs;
+         x2 += target->xofs;
+         y += target->yofs;
+         target = target->parent;
+      }
+
       x1 -= target->lock_x;
       x2 -= target->lock_x;
       y -= target->lock_y;

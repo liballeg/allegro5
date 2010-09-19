@@ -12,6 +12,14 @@ static void shader_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
    ALLEGRO_COLOR cur_color = s->cur_color;
 
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
+
+   if (target->parent) {
+      x1 += target->xofs;
+      x2 += target->xofs;
+      y += target->yofs;
+      target = target->parent;
+   }
+
    x1 -= target->lock_x;
    x2 -= target->lock_x;
    y -= target->lock_y;
@@ -114,6 +122,14 @@ static void shader_solid_any_draw_opaque(uintptr_t state, int x1, int y, int x2)
    ALLEGRO_COLOR cur_color = s->cur_color;
 
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
+
+   if (target->parent) {
+      x1 += target->xofs;
+      x2 += target->xofs;
+      y += target->yofs;
+      target = target->parent;
+   }
+
    x1 -= target->lock_x;
    x2 -= target->lock_x;
    y -= target->lock_y;
@@ -167,6 +183,14 @@ static void shader_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
    ALLEGRO_COLOR cur_color = s->cur_color;
 
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
+
+   if (target->parent) {
+      x1 += target->xofs;
+      x2 += target->xofs;
+      y += target->yofs;
+      target = target->parent;
+   }
+
    x1 -= target->lock_x;
    x2 -= target->lock_x;
    y -= target->lock_y;
@@ -295,6 +319,14 @@ static void shader_grad_any_draw_opaque(uintptr_t state, int x1, int y, int x2)
    ALLEGRO_COLOR cur_color = s->cur_color;
 
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
+
+   if (target->parent) {
+      x1 += target->xofs;
+      x2 += target->xofs;
+      y += target->yofs;
+      target = target->parent;
+   }
+
    x1 -= target->lock_x;
    x2 -= target->lock_x;
    y -= target->lock_y;
@@ -364,6 +396,14 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
    float v = s->v;
 
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
+
+   if (target->parent) {
+      x1 += target->xofs;
+      x2 += target->xofs;
+      y += target->yofs;
+      target = target->parent;
+   }
+
    x1 -= target->lock_x;
    x2 -= target->lock_x;
    y -= target->lock_y;
@@ -703,6 +743,14 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
    float v = s->v;
 
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
+
+   if (target->parent) {
+      x1 += target->xofs;
+      x2 += target->xofs;
+      y += target->yofs;
+      target = target->parent;
+   }
+
    x1 -= target->lock_x;
    x2 -= target->lock_x;
    y -= target->lock_y;
@@ -1030,6 +1078,14 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
    float v = s->v;
 
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
+
+   if (target->parent) {
+      x1 += target->xofs;
+      x2 += target->xofs;
+      y += target->yofs;
+      target = target->parent;
+   }
+
    x1 -= target->lock_x;
    x2 -= target->lock_x;
    y -= target->lock_y;
@@ -1213,6 +1269,14 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
    float v = s->v;
 
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
+
+   if (target->parent) {
+      x1 += target->xofs;
+      x2 += target->xofs;
+      y += target->yofs;
+      target = target->parent;
+   }
+
    x1 -= target->lock_x;
    x2 -= target->lock_x;
    y -= target->lock_y;
@@ -1584,6 +1648,14 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
    float v = s->v;
 
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
+
+   if (target->parent) {
+      x1 += target->xofs;
+      x2 += target->xofs;
+      y += target->yofs;
+      target = target->parent;
+   }
+
    x1 -= target->lock_x;
    x2 -= target->lock_x;
    y -= target->lock_y;
@@ -1960,6 +2032,14 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
    float v = s->v;
 
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
+
+   if (target->parent) {
+      x1 += target->xofs;
+      x2 += target->xofs;
+      y += target->yofs;
+      target = target->parent;
+   }
+
    x1 -= target->lock_x;
    x2 -= target->lock_x;
    y -= target->lock_y;
