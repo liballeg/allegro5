@@ -17,6 +17,9 @@
  */
 
 
+#define _AL_NO_BLEND_INLINE_FUNC
+
+#include "allegro5/allegro.h"
 #include "allegro5/allegro_primitives.h"
 #include "allegro5/internal/aintern_blend.h"
 #include "allegro5/internal/aintern_prim.h"

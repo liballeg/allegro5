@@ -12,16 +12,13 @@
  *
  */
 
+#define _AL_NO_BLEND_INLINE_FUNC
+
 #include "allegro5/allegro.h"
-#include "allegro5/internal/aintern.h"
-#include ALLEGRO_INTERNAL_HEADER
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_blend.h"
 #include "allegro5/internal/aintern_convert.h"
-#include "allegro5/internal/aintern_float.h"
-#include "allegro5/internal/aintern_pixels.h"
 #include "allegro5/internal/aintern_tri_soft.h"
-#include "allegro5/transformations.h"
 #include <math.h>
 
 #define MIN _ALLEGRO_MIN

@@ -23,6 +23,8 @@
    tint.r == 1.0f && tint.g == 1.0f && tint.b == 1.0f && tint.a == 1.0f)
 
 
+#ifndef _AL_NO_BLEND_INLINE_FUNC
+
 static _AL_ALWAYS_INLINE float
 get_factor(enum ALLEGRO_BLEND_MODE operation, float alpha)
 {
@@ -100,28 +102,7 @@ void _al_blend_inline(
    }
 }
 
-
-static _AL_ALWAYS_INLINE void
-_al_blend_inline_dest_zero_add(
-   const ALLEGRO_COLOR *scol,
-   int src_, int asrc_,
-   ALLEGRO_COLOR *result)
-{
-   float src, asrc;
-
-   result->r = scol->r;
-   result->g = scol->g;
-   result->b = scol->b;
-   result->a = scol->a;
-
-   src = get_factor(src_, result->a);
-   asrc = get_factor(asrc_, result->a);
-
-   result->r *= src;
-   result->g *= src;
-   result->b *= src;
-   result->a *= asrc;
-}
+#endif
 
 
 #endif
