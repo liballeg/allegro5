@@ -24,8 +24,6 @@
 #include "allegro5/transformations.h"
 #include <math.h>
 
-// TODO: Re-write this file with *clean* code.
-
 #define MIN _ALLEGRO_MIN
 #define MAX _ALLEGRO_MAX
 
@@ -33,6 +31,9 @@ static void _al_draw_transformed_scaled_bitmap_memory(
    ALLEGRO_BITMAP *src, ALLEGRO_COLOR tint,
    int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh,
    int flags);
+static void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
+   int sx, int sy, int sw, int sh,
+   int dx, int dy, int flags);
 
 
 /* The CLIPPER macro takes pre-clipped coordinates for both the source
@@ -135,157 +136,28 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *src,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int flags)
 {
-   ALLEGRO_LOCKED_REGION *src_region;
-   ALLEGRO_LOCKED_REGION *dst_region;
-   ALLEGRO_BITMAP *dest = al_get_target_bitmap();
-   int x, y;
    int op, src_mode, dst_mode;
    int op_alpha, src_alpha, dst_alpha;
-   int xinc, yinc;
-   int yd;
-   int sxd;
-   int dw = sw, dh = sh;
    float xtrans, ytrans;
    
    ASSERT(src->parent == NULL);
 
-   if (!_al_transform_is_translation(al_get_current_transform(),
-         &xtrans, &ytrans)) {
-      /* Currently there is no special case for scaling-only transforms because
-       * the general version received more optimisation and ended up faster.
-       */
-      _al_draw_transformed_scaled_bitmap_memory(src, tint, sx, sy,
-         sw, sh, dx, dy, sw, sh, flags);
-      return;
-   }
-
-   dx += xtrans;
-   dy += ytrans;
-
    al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
 
-   if (_AL_DEST_IS_ZERO && _AL_SRC_NOT_MODIFIED_TINT_WHITE) {
-      _al_draw_bitmap_region_memory_fast(src, sx, sy, sw, sh, dx, dy, flags);
-      return;
-   }
-
-   ASSERT(_al_pixel_format_is_real(src->format));
-   ASSERT(_al_pixel_format_is_real(dest->format));
-
-   CLIPPER(src, sx, sy, sw, sh, dest, dx, dy, dw, dh, 1, 1, flags)
-
-#ifdef ALLEGRO_GP2XWIZ
-   if (src_mode == ALLEGRO_ALPHA &&
-	 dst_mode == ALLEGRO_INVERSE_ALPHA &&
-	 src_alpha == ALLEGRO_ALPHA &&
-	 dst_alpha == ALLEGRO_INVERSE_ALPHA) {
-      switch (src->format) {
-	 case ALLEGRO_PIXEL_FORMAT_RGBA_4444: {
-	    switch (dest->format) {
-	       case ALLEGRO_PIXEL_FORMAT_RGB_565: {
-		  _al_draw_bitmap_region_optimized_rgba_4444_to_rgb_565(tint, src, sx, sy, sw, sh, dest, dx, dy, flags);
-		  return;
-               }
-	       case ALLEGRO_PIXEL_FORMAT_RGBA_4444: {
-		  _al_draw_bitmap_region_optimized_rgba_4444_to_rgba_4444(tint, src, sx, sy, sw, sh, dest, dx, dy, flags);
-		  return;
-	       }
-	    }
-	 }
-         case ALLEGRO_PIXEL_FORMAT_RGB_565: {
-            switch (dest->format) {
-               case ALLEGRO_PIXEL_FORMAT_RGB_565: {
-		  _al_draw_bitmap_region_optimized_rgb_565_to_rgb_565(tint, src, sx, sy, sw, sh, dest, dx, dy, flags);
-                  return;
-               }
-            }
-         }
-      }
-   }
-#endif
-   /* Blitting to a locked bitmap is a user mistake. */
-   ASSERT(!al_is_bitmap_locked(dest));
-
-   /* Lock the bitmaps */
-   if (!(src_region = al_lock_bitmap_region(src, sx, sy, sw, sh, ALLEGRO_PIXEL_FORMAT_ANY,
-      ALLEGRO_LOCK_READONLY)))
+   if (_AL_DEST_IS_ZERO && _AL_SRC_NOT_MODIFIED_TINT_WHITE &&
+      _al_transform_is_translation(al_get_current_transform(), &xtrans, &ytrans))
    {
+      _al_draw_bitmap_region_memory_fast(src, sx, sy, sw, sh,
+         dx + xtrans, dy + ytrans, flags);
       return;
    }
 
-   if (!(dst_region = al_lock_bitmap_region(dest, dx, dy, sw, sh, ALLEGRO_PIXEL_FORMAT_ANY, 0))) {
-      al_unlock_bitmap(src);
-      return;
-   }
-
-   
-   yd = 0;
-   yinc = 1;
-   
-   xinc = 1;
-   sxd = 0;
-
-   ASSERT(!src->parent);
-   ASSERT(!dest->parent);
-
-   {
-      const int src_data_inc = xinc * al_get_pixel_size(src_region->format);
-      ALLEGRO_COLOR src_color = {0, 0, 0, 0};   /* avoid bogus warnings */
-      ALLEGRO_COLOR dst_color = {0, 0, 0, 0};
-      ALLEGRO_COLOR result;
-
-      for (y = 0; y < sh; y++, yd += yinc) {
-         char *dest_data =
-            (((char *) dst_region->data)
-             + yd * dst_region->pitch);
-
-         char *src_data =
-            (((char *) src_region->data)
-             + y * src_region->pitch);
-
-         if (src_data_inc < 0)
-            src_data += (sw - 1) * -src_data_inc;
-
-         /* Special case this for two reasons:
-          * - we don't need to read and blend with the destination pixel;
-          * - the destination may be uninitialised and may contain NaNs, Inf
-          *   which would not be clobbered when multiplied with zero.
-          */
-         if (dst_mode == ALLEGRO_ZERO && dst_alpha == ALLEGRO_ZERO &&
-            op != ALLEGRO_DEST_MINUS_SRC && op_alpha != ALLEGRO_DEST_MINUS_SRC) {
-            for (x = 0; x < sw; x++) {
-               _AL_INLINE_GET_PIXEL(src_region->format, src_data, src_color, false);
-               src_color.r *= tint.r;
-               src_color.g *= tint.g;
-               src_color.b *= tint.b;
-               src_color.a *= tint.a;
-               _al_blend_inline_dest_zero_add(&src_color, src_mode, src_alpha,
-                  &result);
-               _AL_INLINE_PUT_PIXEL(dst_region->format, dest_data, result, true);
-
-               src_data += src_data_inc;
-            }
-         }
-         else {
-            for (x = 0; x < sw; x++) {
-               _AL_INLINE_GET_PIXEL(src_region->format, src_data, src_color, false);
-               _AL_INLINE_GET_PIXEL(dst_region->format, dest_data, dst_color, false);
-               src_color.r *= tint.r;
-               src_color.g *= tint.g;
-               src_color.b *= tint.b;
-               src_color.a *= tint.a;
-               _al_blend_inline(&src_color, &dst_color,
-                  op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &result);
-               _AL_INLINE_PUT_PIXEL(dst_region->format, dest_data, result, true);
-
-               src_data += src_data_inc;
-            }
-         }
-      }
-   }
-
-   al_unlock_bitmap(src);
-   al_unlock_bitmap(dest);
+   /* We used to have special cases for translation/scaling only, but the
+    * general version received much more optimisation and ended up being
+    * faster.
+    */
+   _al_draw_transformed_scaled_bitmap_memory(src, tint, sx, sy,
+      sw, sh, dx, dy, sw, sh, flags);
 }
 
 
@@ -388,100 +260,43 @@ static void _al_draw_transformed_scaled_bitmap_memory(
 }
 
 
-void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
+static void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int flags)
 {
    ALLEGRO_LOCKED_REGION *src_region;
    ALLEGRO_LOCKED_REGION *dst_region;
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
-   int x;
-   int y;
    int dw = sw, dh = sh;
 
    ASSERT(_al_pixel_format_is_real(bitmap->format));
    ASSERT(_al_pixel_format_is_real(dest->format));
    ASSERT(bitmap->parent == NULL);
 
+   /* Currently the only flags are for flipping, which is handled as negative
+    * scaling.
+    */
+   ASSERT(flags == 0);
+   (void)flags;
+
    CLIPPER(bitmap, sx, sy, sw, sh, dest, dx, dy, dw, dh, 1, 1, flags)
 
-   /* Fast paths for no flipping */
-   if (!(flags & ALLEGRO_FLIP_HORIZONTAL) &&
-         !(flags & ALLEGRO_FLIP_VERTICAL)) {
-      if (!(src_region = al_lock_bitmap_region(bitmap, sx, sy, sw, sh,
-            bitmap->format, ALLEGRO_LOCK_READONLY))) {
-         return;
-      }
-
-      if (!(dst_region = al_lock_bitmap_region(dest, dx, dy, sw, sh,
-         dest->format, ALLEGRO_LOCK_WRITEONLY))) {
-            al_unlock_bitmap(bitmap);
-         return;
-      }
-
-      /* will detect if no conversion is needed */
-      _al_convert_bitmap_data(
-         src_region->data, bitmap->format, src_region->pitch,
-         dst_region->data, dest->format, dst_region->pitch,
-         0, 0, 0, 0, sw, sh);
-
-      al_unlock_bitmap(bitmap);
-      al_unlock_bitmap(dest);
-
-      return;
-   }
-
    if (!(src_region = al_lock_bitmap_region(bitmap, sx, sy, sw, sh,
-         ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA, ALLEGRO_LOCK_READONLY))) {
+         bitmap->format, ALLEGRO_LOCK_READONLY))) {
       return;
    }
 
    if (!(dst_region = al_lock_bitmap_region(dest, dx, dy, sw, sh,
-      ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA, ALLEGRO_LOCK_WRITEONLY))) {
-         al_unlock_bitmap(bitmap);
+         dest->format, ALLEGRO_LOCK_WRITEONLY))) {
+      al_unlock_bitmap(bitmap);
       return;
    }
 
-   do {
-      int cdx_start, cdy;   /* current dest */
-      int dxi, dyi;         /* dest increments */
-      uint32_t pixel;
-
-      (void)sx;
-      (void)sy;
-      (void)dx;
-      (void)dy;
-
-      /* Adjust for flipping */
-
-      if (flags & ALLEGRO_FLIP_HORIZONTAL) {
-         cdx_start = sw - 1;
-         dxi = -1;
-      }
-      else {
-         cdx_start = 0;
-         dxi = 1;
-      }
-
-      if (flags & ALLEGRO_FLIP_VERTICAL) {
-         cdy = sh - 1;
-         dyi = -1;
-      }
-      else {
-         cdy = 0;
-         dyi = 1;
-      }
-
-      for (y = 0; y < sh; y++) {
-         int cdx = cdx_start;
-         for (x = 0; x < sw; x++) {
-            pixel = *(uint32_t *)(((char *)src_region->data) + y * src_region->pitch + x * 4);
-            *(uint32_t *)(((char *)dst_region->data) + cdy * dst_region->pitch + cdx * 4) = pixel;
-            cdx += dxi;
-         }
-         cdy += dyi;
-      }
-   } while (0);
+   /* will detect if no conversion is needed */
+   _al_convert_bitmap_data(
+      src_region->data, bitmap->format, src_region->pitch,
+      dst_region->data, dest->format, dst_region->pitch,
+      0, 0, 0, 0, sw, sh);
 
    al_unlock_bitmap(bitmap);
    al_unlock_bitmap(dest);

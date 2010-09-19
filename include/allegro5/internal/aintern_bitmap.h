@@ -121,13 +121,6 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_COLOR tint,
    int sx, int sy, int sw, int sh, int dx, int dy, int flags);
 
-void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
-   int sx, int sy, int sw, int sh,
-   int dx, int dy, int flags);
-
-void _al_draw_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
-  int dx, int dy, int flags);
-
 
 /* For blending memory bitmaps */
 typedef void (*ALLEGRO_MEMORY_BLENDER)(
