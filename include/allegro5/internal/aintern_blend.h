@@ -7,7 +7,7 @@
 #ifdef __GNUC__
    #define _AL_ALWAYS_INLINE  __attribute__((always_inline))
 #else
-   #define _AL_ALWAYS_INLINE  inline
+   #define _AL_ALWAYS_INLINE  INLINE
 #endif
 
 
