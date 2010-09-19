@@ -34,30 +34,6 @@ static void _al_draw_transformed_scaled_bitmap_memory(
    int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh,
    int flags);
 
-static bool is_scale_trans(const ALLEGRO_TRANSFORM* trans,
-   float *sx, float *sy, float *tx, float *ty)
-{
-   if (   trans->m[1][0] == 0 &&
-          trans->m[2][0] == 0 &&
-          trans->m[0][1] == 0 &&
-          trans->m[2][1] == 0 &&
-          trans->m[0][2] == 0 &&
-          trans->m[1][2] == 0 &&
-          trans->m[2][2] == 1 &&
-          trans->m[3][2] == 0 &&
-          trans->m[0][3] == 0 &&
-          trans->m[1][3] == 0 &&
-          trans->m[2][3] == 0 &&
-          trans->m[3][3] == 1) {
-      *sx = trans->m[0][0];
-      *sy = trans->m[1][1];
-      *tx = trans->m[3][0];
-      *ty = trans->m[3][1];
-      return true;
-   }
-   return false;
-}
-
 
 /* The CLIPPER macro takes pre-clipped coordinates for both the source
  * and destination bitmaps and clips them as necessary, taking sub-
@@ -154,236 +130,6 @@ static bool is_scale_trans(const ALLEGRO_TRANSFORM* trans,
 }
 
 
-static void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
-   float sx, float sy, float sw, float sh,
-   float dx, float dy, float dw, float dh, int flags)
-{
-   ALLEGRO_BITMAP *dest = al_get_target_bitmap();
-   ALLEGRO_LOCKED_REGION *src_region;
-   ALLEGRO_LOCKED_REGION *dst_region;
-
-   float sxinc;
-   float syinc;
-   float _sx;
-   float _sy;
-   float dxinc;
-   float dyinc;
-   float _dx;
-   float _dy;
-   int x, y;
-   int xend;
-   int yend;
-   int size;
-   
-   ASSERT(sx >= 0 && sy >= 0);
-   ASSERT(src->parent == NULL);
-   ASSERT(!(flags & (ALLEGRO_FLIP_HORIZONTAL | ALLEGRO_FLIP_VERTICAL)));
-
-   if ((sw <= 0) || (sh <= 0))
-      return;
-
-   /* This must be calculated before clipping dw, dh. */
-   sxinc = fabs((float)sw / dw);
-   syinc = fabs((float)sh / dh);
-
-   CLIPPER(src, sx, sy, sw, sh, dest, dx, dy, dw, dh, sxinc, syinc, flags)
-
-   if (src->format == dest->format) {
-      if (!(src_region = al_lock_bitmap(src, ALLEGRO_PIXEL_FORMAT_ANY,
-            ALLEGRO_LOCK_READONLY))) {
-         return;
-      }
-      /* XXX we should be able to lock less of the destination and use
-       * ALLEGRO_LOCK_WRITEONLY
-       */
-      if (!(dst_region = al_lock_bitmap(dest, ALLEGRO_PIXEL_FORMAT_ANY, 0))) {
-         al_unlock_bitmap(src);
-         return;
-      }
-      size = al_get_pixel_size(src->format);
-   }
-   else {
-      if (!(src_region = al_lock_bitmap(src, ALLEGRO_PIXEL_FORMAT_ARGB_8888,
-            ALLEGRO_LOCK_READONLY))) {
-         return;
-      }
-      /* XXX we should be able to lock less of the destination and use
-       * ALLEGRO_LOCK_WRITEONLY
-       */
-      if (!(dst_region = al_lock_bitmap(dest, ALLEGRO_PIXEL_FORMAT_ARGB_8888, 0))) {
-         al_unlock_bitmap(src);
-         return;
-      }
-      size = 4;
-   }
-
-   dxinc = dw < 0 ? -1 : 1;
-   dyinc = dh < 0 ? -1 : 1;
-   xend = abs(dw);
-   yend = abs(dh);
-
-   _sy = sy;
-
-   #define INNER(t, s, r, w) \
-      for (x = 0; x < xend; x++) { \
-         t pix = r((char *)src_region->data+(int)_sy*src_region->pitch+(int)_sx*s); \
-         w((char *)dst_region->data+(int)_dy*dst_region->pitch+(int)_dx*s, pix); \
-         _sx += sxinc; \
-         _dx += dxinc; \
-      } \
-
-   _dy = dy;
-   for (y = 0; y < yend; y++) {
-      _sx = sx;
-      _dx = dx;
-      switch (size) {
-         case 2:
-            INNER(uint16_t, size, bmp_read16, bmp_write16)
-            break;
-         case 3:
-            INNER(uint32_t, size, READ3BYTES, WRITE3BYTES)
-            break;
-         default:
-            INNER(uint32_t, size, bmp_read32, bmp_write32)
-            break;
-      }
-      _sy += syinc;
-      _dy += dyinc;
-   }
-
-   al_unlock_bitmap(src);
-   al_unlock_bitmap(dest);
-}
-
-
-static void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
-   ALLEGRO_COLOR tint,
-   float sx, float sy, float sw, float sh,
-   float dx, float dy, float dw, float dh, int flags)
-{
-   ALLEGRO_BITMAP *dest = al_get_target_bitmap();
-   ALLEGRO_LOCKED_REGION *src_region;
-   ALLEGRO_LOCKED_REGION *dst_region;
-   int op, src_mode, dst_mode;
-   int op_alpha, src_alpha, dst_alpha;
-
-   float sxinc;
-   float syinc;
-   float _sx;
-   float _sy;
-   float dxinc;
-   float dyinc;
-   float _dy;
-   int x, y;
-   int xend;
-   int yend;
-   
-   ASSERT(src->parent == NULL);
-
-   al_get_separate_blender(&op, &src_mode, &dst_mode,
-      &op_alpha, &src_alpha, &dst_alpha);
-
-   if (_AL_DEST_IS_ZERO && _AL_SRC_NOT_MODIFIED_TINT_WHITE) {
-      _al_draw_scaled_bitmap_memory_fast(src,
-            sx, sy, sw, sh, dx, dy, dw, dh, flags);
-      return;
-   }
-
-   if ((sw <= 0) || (sh <= 0))
-      return;
-
-   /* This must be calculated before clipping dw, dh. */
-   sxinc = fabs((float)sw / dw);
-   syinc = fabs((float)sh / dh);
-
-   CLIPPER(src, sx, sy, sw, sh, dest, dx, dy, dw, dh, sxinc, syinc, flags)
-
-   if (!(src_region = al_lock_bitmap(src, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY))) {
-      return;
-   }
-   /* XXX we should be able to lock less of the destination */
-   if (!(dst_region = al_lock_bitmap(dest, ALLEGRO_PIXEL_FORMAT_ANY, 0))) {
-      al_unlock_bitmap(src);
-      return;
-   }
-
-   dxinc = dw < 0 ? -1 : 1;
-   dyinc = dh < 0 ? -1 : 1;
-   xend = abs(dw);
-   yend = abs(dh);
-
-   _sy = sy;
-
-   _dy = dy;
-
-   {
-      const int src_size = al_get_pixel_size(src->format);
-      const int dst_size = al_get_pixel_size(dest->format);
-      const int dst_inc = dst_size * (int)dxinc;
-
-      ALLEGRO_COLOR src_color = {0, 0, 0, 0};   /* avoid bogus warnings */
-      ALLEGRO_COLOR dst_color = {0, 0, 0, 0};
-
-      for (y = 0; y < yend; y++) {
-         const char *src_row =
-            (((char *) src->locked_region.data)
-             + _al_fast_float_to_int(_sy) * src->locked_region.pitch);
-
-         char *dst_data =
-            (((char *) dest->locked_region.data)
-             + _al_fast_float_to_int(_dy) * dest->locked_region.pitch
-             + dst_size * _al_fast_float_to_int(dx));
-
-         ALLEGRO_COLOR result;
-
-         _sx = sx;
-
-         if (_AL_DEST_IS_ZERO) {
-            for (x = 0; x < xend; x++) {
-               const char *src_data = src_row
-                  + src_size * _al_fast_float_to_int(_sx);
-               _AL_INLINE_GET_PIXEL(src->format, src_data, src_color, false);
-               src_color.r *= tint.r;
-               src_color.g *= tint.g;
-               src_color.b *= tint.b;
-               src_color.a *= tint.a;
-               _al_blend_inline_dest_zero_add(&src_color, src_mode, src_alpha,
-                  &result);
-               _AL_INLINE_PUT_PIXEL(dest->format, dst_data, result, false);
-
-               _sx += sxinc;
-               dst_data += dst_inc;
-            }
-         }
-         else {
-            for (x = 0; x < xend; x++) {
-               const char * src_data = src_row
-                  + src_size * _al_fast_float_to_int(_sx);
-               _AL_INLINE_GET_PIXEL(src->format, src_data, src_color, false);
-               _AL_INLINE_GET_PIXEL(dest->format, dst_data, dst_color, false);
-               src_color.r *= tint.r;
-               src_color.g *= tint.g;
-               src_color.b *= tint.b;
-               src_color.a *= tint.a;
-               _al_blend_inline(&src_color, &dst_color,
-                  op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &result);
-               _AL_INLINE_PUT_PIXEL(dest->format, dst_data, result, false);
-
-               _sx += sxinc;
-               dst_data += dst_inc;
-            }
-         }
-
-         _sy += syinc;
-         _dy += dyinc;
-      }
-   }
-
-   al_unlock_bitmap(src);
-   al_unlock_bitmap(dest);
-}
-
-
 void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *src,
    ALLEGRO_COLOR tint,
    int sx, int sy, int sw, int sh,
@@ -403,22 +149,16 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *src,
    
    ASSERT(src->parent == NULL);
 
-   if(!_al_transform_is_translation(al_get_current_transform(),
-      &xtrans, &ytrans))
-   {
-      float xscale, yscale;
-      if (is_scale_trans(al_get_current_transform(), &xscale, &yscale,
+   if (!_al_transform_is_translation(al_get_current_transform(),
          &xtrans, &ytrans)) {
-         _al_draw_scaled_bitmap_memory(src, tint, sx, sy, sw, sh,
-            dx + xtrans, dy + ytrans, sw * xscale, sh * yscale, flags);
-      }
-      else {
-         _al_draw_transformed_scaled_bitmap_memory(src, tint, sx, sy,
-            sw, sh, dx, dy, sw, sh, flags);
-      }
+      /* Currently there is no special case for scaling-only transforms because
+       * the general version received more optimisation and ended up faster.
+       */
+      _al_draw_transformed_scaled_bitmap_memory(src, tint, sx, sy,
+         sw, sh, dx, dy, sw, sh, flags);
       return;
    }
-   
+
    dx += xtrans;
    dy += ytrans;
 
@@ -560,7 +300,6 @@ static void _al_draw_transformed_bitmap_memory(ALLEGRO_BITMAP *src,
    ALLEGRO_VERTEX v[4];
 
    ASSERT(_al_pixel_format_is_real(src->format));
-   ASSERT(_al_pixel_format_is_real(dst->format));
 
    /* Decide what order to take corners in. */
    if (flags & ALLEGRO_FLIP_VERTICAL) {
