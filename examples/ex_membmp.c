@@ -57,6 +57,10 @@ static bool test(ALLEGRO_BITMAP *bitmap, ALLEGRO_FONT *font, char *message)
       
       al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 
+      /* Note this makes the memory buffer case much slower due to repeated
+       * locking of the backbuffer.  Officially you can't use al_lock_bitmap
+       * to solve the problem either.
+       */
       print(font, message, 0, 0);
       sprintf(second_line, "%.1f FPS", fps);
       print(font, second_line, 0, al_get_font_line_height(font)+5);
