@@ -627,7 +627,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
    }
    
    event.user.type = ALLEGRO_EVENT_AUDIO_STREAM_FINISHED;
-   event.user.timestamp = al_current_time();
+   event.user.timestamp = al_get_time();
    al_emit_user_event(&stream->spl.es, &event, NULL);
 
    al_destroy_event_queue(queue);
@@ -656,7 +656,7 @@ void _al_kcm_emit_stream_events(ALLEGRO_AUDIO_STREAM *stream)
    while (count--) {
       ALLEGRO_EVENT event;
       event.user.type = ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT;
-      event.user.timestamp = al_current_time();
+      event.user.timestamp = al_get_time();
       al_emit_user_event(&stream->spl.es, &event, NULL);
    }
 }

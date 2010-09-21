@@ -11,11 +11,11 @@ const int MAX_UFO_TIME = 50000;
 bool logic(int step)
 {
    if (lastUFO < 0)
-      lastUFO = (long)(al_current_time() * 1000);
+      lastUFO = (long)(al_get_time() * 1000);
 
-   if (canUFO && (al_current_time() * 1000 > (lastUFO+MIN_UFO_TIME))) {
+   if (canUFO && (al_get_time() * 1000 > (lastUFO+MIN_UFO_TIME))) {
       int r = rand() % (MAX_UFO_TIME-MIN_UFO_TIME);
-      if (r <= step || (al_current_time() * 1000 > (lastUFO+MAX_UFO_TIME))) {
+      if (r <= step || (al_get_time() * 1000 > (lastUFO+MAX_UFO_TIME))) {
          canUFO = false;
          UFO *ufo;
          float x, y, dx, dy;
@@ -47,7 +47,7 @@ bool logic(int step)
       return false;
    /* Catch close button presses */
    ALLEGRO_EVENT_QUEUE *events = ((DisplayResource *)rm.getResource(RES_DISPLAY))->getEventQueue();
-   while (!al_event_queue_is_empty(events)) {
+   while (!al_is_event_queue_empty(events)) {
       ALLEGRO_EVENT event;
       al_get_next_event(events, &event);
       if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
@@ -59,7 +59,7 @@ bool logic(int step)
       Entity *e = *it;
       if (!e->logic(step)) {
          if (e->isUFO()) {
-            lastUFO = (long)(al_current_time() * 1000);
+            lastUFO = (long)(al_get_time() * 1000);
             canUFO = true;
          }
          delete e;

@@ -214,7 +214,7 @@ static void ljoy_generate_configure_event(void)
 {
    ALLEGRO_EVENT event;
    event.joystick.type = ALLEGRO_EVENT_JOYSTICK_CONFIGURATION;
-   event.joystick.timestamp = al_current_time();
+   event.joystick.timestamp = al_get_time();
 
    _al_generate_joystick_event(&event);
 }
@@ -766,7 +766,7 @@ static void ljoy_generate_axis_event(ALLEGRO_JOYSTICK_LINUX *joy, int stick, int
       return;
 
    event.joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
-   event.joystick.timestamp = al_current_time();
+   event.joystick.timestamp = al_get_time();
    event.joystick.id = (ALLEGRO_JOYSTICK *)joy;
    event.joystick.stick = stick;
    event.joystick.axis = axis;
@@ -792,7 +792,7 @@ static void ljoy_generate_button_event(ALLEGRO_JOYSTICK_LINUX *joy, int button, 
       return;
 
    event.joystick.type = event_type;
-   event.joystick.timestamp = al_current_time();
+   event.joystick.timestamp = al_get_time();
    event.joystick.id = (ALLEGRO_JOYSTICK *)joy;
    event.joystick.stick = 0;
    event.joystick.axis = 0;

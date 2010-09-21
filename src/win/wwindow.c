@@ -295,7 +295,7 @@ static void postpone_thread_proc(void *arg)
       if (_al_event_source_needs_to_generate_event(es)) {
          ALLEGRO_EVENT event;
          event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
-         event.display.timestamp = al_current_time();
+         event.display.timestamp = al_get_time();
          event.display.x = x;
          event.display.y = y;
          event.display.width = w;
@@ -308,7 +308,7 @@ static void postpone_thread_proc(void *arg)
       if (_al_event_source_needs_to_generate_event(es)) {
          ALLEGRO_EVENT event;
          event.display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
-         event.display.timestamp = al_current_time();
+         event.display.timestamp = al_get_time();
          event.display.x = x;
          event.display.y = y;
          event.display.width = w;
@@ -621,7 +621,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                for (i = 0; i < n; i++) {
                   ALLEGRO_EVENT event;
                   event.display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
-                  event.display.timestamp = al_current_time();
+                  event.display.timestamp = al_get_time();
                   event.display.x = rects[i].left;
                   event.display.y = rects[i].top;
                   event.display.width = rects[i].right - rects[i].left;
@@ -680,7 +680,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             if (_al_event_source_needs_to_generate_event(es)) {
                ALLEGRO_EVENT event;
                event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
-               event.display.timestamp = al_current_time();
+               event.display.timestamp = al_get_time();
                _al_event_source_emit_event(es, &event);
             }
             _al_event_source_unlock(es);
@@ -695,7 +695,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             if (_al_event_source_needs_to_generate_event(es)) {
                ALLEGRO_EVENT event;
                event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
-               event.display.timestamp = al_current_time();
+               event.display.timestamp = al_get_time();
                _al_event_source_emit_event(es, &event);
             }
             _al_event_source_unlock(es);
@@ -709,7 +709,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          if (_al_event_source_needs_to_generate_event(es)) {
             ALLEGRO_EVENT event;
             event.display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
-            event.display.timestamp = al_current_time();
+            event.display.timestamp = al_get_time();
             _al_event_source_emit_event(es, &event);
          }
          _al_event_source_unlock(es);
@@ -901,8 +901,8 @@ bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
          ASSERT(!!(display->flags & ALLEGRO_FULLSCREEN_WINDOW) == onoff);
 
          al_resize_display(display, display->w, display->h);
-         timeout = al_current_time() + 3; // 3 seconds...
-         while (al_current_time() < timeout) {
+         timeout = al_get_time() + 3; // 3 seconds...
+         while (al_get_time() < timeout) {
             if (win_display->can_acknowledge) {
                al_acknowledge_resize(display);
                break;

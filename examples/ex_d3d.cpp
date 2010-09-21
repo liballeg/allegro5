@@ -77,8 +77,8 @@ int main(int argc, char *argv[])
 
    float angle = 0.0f;
    D3DXMATRIX mat;
-   double start = al_current_time();
-   double start_secs = al_current_time();
+   double start = al_get_time();
+   double start_secs = al_get_time();
    long frames = 0;
 
    do {
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
        */
       D3DXMatrixTranslation(&mat, 0.5, 0.5, 2.0f);
       d3dd->SetTransform(D3DTS_WORLDMATRIX(0), &mat);
-      angle += 50 * (al_current_time() - start);
+      angle += 50 * (al_get_time() - start);
       D3DXMatrixRotationY(&mat, angle);
       d3dd->MultiplyTransform(D3DTS_WORLDMATRIX(0), &mat);
 
@@ -105,11 +105,11 @@ int main(int argc, char *argv[])
 
       al_get_keyboard_state(&state);
 
-      start = al_current_time();
+      start = al_get_time();
       frames++;
    } while (!al_key_down(&state, ALLEGRO_KEY_ESCAPE));
 
-   double elapsed = al_current_time() - start_secs;
+   double elapsed = al_get_time() - start_secs;
    printf("%g fps\n", frames/elapsed);
 
    return 0;

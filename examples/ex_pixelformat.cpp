@@ -170,12 +170,12 @@ void Prog::draw_sample()
          char str[256];
          int frames = 0;
 
-         t0 = al_current_time();
+         t0 = al_get_time();
          printf("Timing...\n");
          do {
            al_draw_bitmap(bitmap1, 0, 0, 0);
            frames++;
-           t1 = al_current_time();
+           t1 = al_get_time();
          } while (t1 - t0 < 0.25);
          printf("    ...done.\n");
          sprintf(str, "%.0f FPS", (double)frames / (t1 - t0));

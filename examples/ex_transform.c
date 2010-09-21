@@ -111,8 +111,8 @@ int main(int argc, const char *argv[])
         if (event.type == ALLEGRO_EVENT_TIMER)
             redraw = true;
             
-        if (redraw && al_event_queue_is_empty(queue)) {
-            double t = al_current_time();
+        if (redraw && al_is_event_queue_empty(queue)) {
+            double t = al_get_time();
             ALLEGRO_COLOR tint;
             redraw = false;
             

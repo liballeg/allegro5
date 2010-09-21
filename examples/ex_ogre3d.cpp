@@ -263,13 +263,13 @@ void Example::mainLoop()
 {
    bool redraw = true;
 
-   startTime = lastMoveTime = al_current_time();
+   startTime = lastMoveTime = al_get_time();
    al_start_timer(timer);
 
    for (;;) {
       ALLEGRO_EVENT event;
 
-      if (al_event_queue_is_empty(queue) && redraw) {
+      if (al_is_event_queue_empty(queue) && redraw) {
          nextFrame();
          redraw = false;
       }
@@ -414,7 +414,7 @@ void Example::animate(double now)
 
 void Example::nextFrame()
 {
-   const double now = al_current_time();
+   const double now = al_get_time();
    animate(now);
    render();
    lastRenderTime = now;

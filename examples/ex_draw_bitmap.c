@@ -48,7 +48,7 @@ struct Example {
 
 static void add_time(void)
 {
-   example.frame_times[example.ftpos++] = al_current_time();
+   example.frame_times[example.ftpos++] = al_get_time();
    if (example.ftpos >= FPS)
       example.ftpos = 0;
 }
@@ -300,12 +300,12 @@ int main(void)
    while (!done) {
       ALLEGRO_EVENT event;
 
-      if (need_redraw && al_event_queue_is_empty(queue)) {
-         double t = -al_current_time();
+      if (need_redraw && al_is_event_queue_empty(queue)) {
+         double t = -al_get_time();
          add_time();
          al_clear_to_color(al_map_rgb_f(0, 0, 0));
          redraw();
-         t += al_current_time();
+         t += al_get_time();
          example.direct_speed_measure  = t;
          al_flip_display();
          need_redraw = false;

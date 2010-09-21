@@ -27,7 +27,7 @@
 ALLEGRO_STATIC_ASSERT(sizeof(ALLEGRO_TIMEOUT_UNIX) <= sizeof(ALLEGRO_TIMEOUT));
 
 
-/* Marks the time Allegro was initialised, for al_current_time(). */
+/* Marks the time Allegro was initialised, for al_get_time(). */
 struct timeval _al_unix_initial_time;
 
 
@@ -42,9 +42,9 @@ void _al_unix_init_time(void)
 
 
 
-/* Function: al_current_time
+/* Function: al_get_time
  */
-double al_current_time(void)
+double al_get_time(void)
 {
    struct timeval now;
    double time;

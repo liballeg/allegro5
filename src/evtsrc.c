@@ -240,7 +240,7 @@ bool al_emit_user_event(ALLEGRO_EVENT_SOURCE *src,
 
       num_queues = _al_vector_size(&rsrc->queues);
       if (num_queues > 0) {
-         event->user.timestamp = al_current_time();
+         event->user.timestamp = al_get_time();
          _al_event_source_emit_event(src, event);
          rc = true;
       }

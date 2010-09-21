@@ -91,7 +91,7 @@ static void timer_thread_proc(_AL_THREAD *self, void *unused)
    }
 #endif
 
-   double old_time = al_current_time();
+   double old_time = al_get_time();
    double new_time;
    double interval = 0.032768;
 
@@ -101,7 +101,7 @@ static void timer_thread_proc(_AL_THREAD *self, void *unused)
       _al_mutex_lock(&timer_thread_mutex);
       {
          /* Calculate actual time elapsed.  */
-         new_time = al_current_time();
+         new_time = al_get_time();
          interval = new_time - old_time;
          old_time = new_time;
 
@@ -359,7 +359,7 @@ static void timer_handle_tick(ALLEGRO_TIMER *timer)
       if (_al_event_source_needs_to_generate_event(&timer->es)) {
          ALLEGRO_EVENT event;
          event.timer.type = ALLEGRO_EVENT_TIMER;
-         event.timer.timestamp = al_current_time();
+         event.timer.timestamp = al_get_time();
          event.timer.count = timer->count;
          event.timer.error = -timer->counter;
          _al_event_source_emit_event(&timer->es, &event);

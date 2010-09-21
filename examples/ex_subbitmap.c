@@ -165,7 +165,7 @@ int main(int argc, const char *argv[])
          recreate_subbitmaps = false;
       }
 
-      if (redraw && al_event_queue_is_empty(queue)) {
+      if (redraw && al_is_event_queue_empty(queue)) {
          al_set_target_backbuffer(dst_display);
          al_clear_to_color(al_map_rgb(0, 0, 0));
 

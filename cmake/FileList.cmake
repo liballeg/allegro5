@@ -180,6 +180,7 @@ set(ALLEGRO_INCLUDE_FILES
 set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/allegro5.h
     include/allegro5/allegro.h
+    include/allegro5/alcompat.h
     include/allegro5/alinline.h
     include/allegro5/altime.h
     include/allegro5/base.h

@@ -225,7 +225,7 @@ static void print_parameters(void)
       al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
       al_draw_textf(font, i == selection ? light : normal, 75, y, 0, "%s", param_values[i]);
       if (i == selection && editing &&
-         (((int)(al_current_time() * 2)) & 1)) {
+         (((int)(al_get_time() * 2)) & 1)) {
          int x = 75 + al_get_text_width(font, param_values[i]);
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
          al_draw_line(x, y, x, y + th, white, 0);
@@ -294,7 +294,7 @@ static void mouse_click(int x, int y)
 
 static void render(void)
 {
-   double t = al_current_time();
+   double t = al_get_time();
    if (regenerate) {
       al_destroy_bitmap(logo);
       al_destroy_bitmap(logo_flash);
@@ -504,7 +504,7 @@ int main(void)
       if (event.type == ALLEGRO_EVENT_TIMER)
          redraw++;
 
-      if (redraw && al_event_queue_is_empty(queue)) {
+      if (redraw && al_is_event_queue_empty(queue)) {
          redraw = 0;
 
          render();

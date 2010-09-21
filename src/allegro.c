@@ -286,7 +286,7 @@ channel_included:
       al_trace("%-32s ", function);
    }
    if (_al_debug_info.flags & 4) {
-      double t = al_current_time();
+      double t = al_get_time();
       /* Kludge:
        * Very high timers (more than a year?) likely mean the timer
        * subsystem isn't initialized yet, so print 0.

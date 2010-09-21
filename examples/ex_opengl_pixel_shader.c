@@ -79,7 +79,7 @@ int main(void)
    loc = glGetUniformLocationARB(tinter, "backBuffer");
    glUniform1iARB(loc, al_get_opengl_texture(buffer));
 
-   start = al_current_time();
+   start = al_get_time();
 
    while (1) {
       double now, diff;
@@ -88,7 +88,7 @@ int main(void)
       if (al_key_down(&state, ALLEGRO_KEY_ESCAPE)) {
          break;
       }
-      now = al_current_time();
+      now = al_get_time();
       diff = now - start;
       start = now;
       ratio += diff * 0.5 * dir;

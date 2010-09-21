@@ -135,7 +135,7 @@ static void main_loop(void)
    ALLEGRO_EVENT event;
 
    while (true) {
-      if (al_event_queue_is_empty(event_queue)) {
+      if (al_is_event_queue_empty(event_queue)) {
          al_clear_to_color(white);
          draw_message_log();
          al_flip_display();

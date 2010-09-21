@@ -557,7 +557,7 @@ static void handle_key_press(int mycode, unsigned int ascii)
       return;
 
    event.keyboard.type = event_type;
-   event.keyboard.timestamp = al_current_time();
+   event.keyboard.timestamp = al_get_time();
    event.keyboard.display = NULL;
    event.keyboard.keycode = mycode;
    event.keyboard.unichar = ascii;
@@ -589,7 +589,7 @@ static void handle_key_release(int mycode)
       return;
 
    event.keyboard.type = ALLEGRO_EVENT_KEY_UP;
-   event.keyboard.timestamp = al_current_time();
+   event.keyboard.timestamp = al_get_time();
    event.keyboard.display = NULL;
    event.keyboard.keycode = mycode;
    event.keyboard.unichar = 0;

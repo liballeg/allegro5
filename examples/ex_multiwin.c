@@ -52,7 +52,7 @@ int main(void)
 
    while (1) {
       /* read input */
-      while (!al_event_queue_is_empty(events)) {
+      while (!al_is_event_queue_empty(events)) {
          al_get_next_event(events, &event);
          if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
             ALLEGRO_KEYBOARD_EVENT *key = &event.keyboard;

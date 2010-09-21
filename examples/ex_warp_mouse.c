@@ -47,7 +47,7 @@ int main(void)
    white = al_map_rgb_f(1, 1, 1);
 
    while (1) {      
-      if (redraw && al_event_queue_is_empty(event_queue)) {
+      if (redraw && al_is_event_queue_empty(event_queue)) {
          int th = al_get_font_line_height(font);
          
          al_clear_to_color(al_map_rgb_f(0, 0, 0));

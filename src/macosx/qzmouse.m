@@ -168,7 +168,7 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 		mouse_event->type = type;
 		// Note: we use 'allegro time' rather than the time stamp 
 		// from the event 
-		mouse_event->timestamp = al_current_time();
+		mouse_event->timestamp = al_get_time();
         mouse_event->display = dpy;
 		mouse_event->button = b;
 		mouse_event->x = pos.x;
@@ -321,7 +321,7 @@ static bool osx_set_mouse_xy(ALLEGRO_DISPLAY *dpy_, int x, int y)
         mouse_event->type = ALLEGRO_EVENT_MOUSE_WARPED;
         // Note: we use 'allegro time' rather than the time stamp 
         // from the event 
-        mouse_event->timestamp = al_current_time();
+        mouse_event->timestamp = al_get_time();
         mouse_event->display = (ALLEGRO_DISPLAY *)dpy;
         mouse_event->button = 0;
         mouse_event->x = x;

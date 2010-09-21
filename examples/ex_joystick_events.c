@@ -85,7 +85,7 @@ static void main_loop(void)
    ALLEGRO_EVENT event;
 
    while (true) {
-      if (al_event_queue_is_empty(event_queue))
+      if (al_is_event_queue_empty(event_queue))
          draw_all();
 
       al_wait_for_event(event_queue, &event);

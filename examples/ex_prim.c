@@ -269,10 +269,10 @@ static void IndexedFilledPrimitives(int mode)
       int ii;
       Theta += Speed;
       for (ii = 0; ii < 6; ii++) {
-         indices1[ii] = ((int)al_current_time() + ii) % 20 + 1;
-         indices2[ii] = ((int)al_current_time() + ii + 6) % 20 + 1;
+         indices1[ii] = ((int)al_get_time() + ii) % 20 + 1;
+         indices2[ii] = ((int)al_get_time() + ii + 6) % 20 + 1;
          if (ii > 0)
-            indices3[ii] = ((int)al_current_time() + ii + 12) % 20 + 1;
+            indices3[ii] = ((int)al_get_time() + ii + 12) % 20 + 1;
       }
       
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
@@ -353,7 +353,7 @@ static void HighFilledPrimitives(int mode)
 
 static void TransformationsPrimitives(int mode)
 {
-   float t = al_current_time();
+   float t = al_get_time();
    if (mode == INIT) {
    
    } else if (mode == LOGIC) {
@@ -452,9 +452,9 @@ static void IndexedPrimitives(int mode)
       int ii;
       Theta += Speed;
       for (ii = 0; ii < 4; ii++) {
-         indices1[ii] = ((int)al_current_time() + ii) % 13;
-         indices2[ii] = ((int)al_current_time() + ii + 4) % 13;
-         indices3[ii] = ((int)al_current_time() + ii + 8) % 13;
+         indices1[ii] = ((int)al_get_time() + ii) % 13;
+         indices2[ii] = ((int)al_get_time() + ii + 4) % 13;
+         indices3[ii] = ((int)al_get_time() + ii + 8) % 13;
       }
       
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
@@ -537,10 +537,10 @@ int main(void)
    {
    int refresh_rate = 60;
    int frames_done = 0;
-   double time_diff = al_current_time();
+   double time_diff = al_get_time();
    double fixed_timestep = 1.0f / refresh_rate;
-   double real_time = al_current_time();
-   double game_time = al_current_time();
+   double real_time = al_get_time();
+   double game_time = al_get_time();
    int ii;
    int cur_screen = 0;
    bool done = false;
@@ -587,10 +587,10 @@ int main(void)
       Screens[ii](INIT);
       
    while (!done) {
-      double frame_duration = al_current_time() - real_time;
+      double frame_duration = al_get_time() - real_time;
       al_rest(fixed_timestep - frame_duration); //rest at least fixed_dt
-      frame_duration = al_current_time() - real_time;
-      real_time = al_current_time();
+      frame_duration = al_get_time() - real_time;
+      real_time = al_get_time();
       
       if (real_time - game_time > frame_duration) { //eliminate excess overflow
          game_time += fixed_timestep * floor((real_time - game_time) / fixed_timestep);
@@ -598,7 +598,7 @@ int main(void)
       
       while (real_time - game_time >= 0) {
          ALLEGRO_EVENT key_event;
-         double start_time = al_current_time();
+         double start_time = al_get_time();
          game_time += fixed_timestep;
          
          Screens[cur_screen](LOGIC);
@@ -626,25 +626,25 @@ int main(void)
                      }
                      case ALLEGRO_KEY_S: {
                         Soft = !Soft;
-                        time_diff = al_current_time();
+                        time_diff = al_get_time();
                         frames_done = 0;
                         break;
                      }
                      case ALLEGRO_KEY_C: {
                         clip = !clip;
-                        time_diff = al_current_time();
+                        time_diff = al_get_time();
                         frames_done = 0;
                         break;
                      }
                      case ALLEGRO_KEY_L: {
                         Blend = !Blend;
-                        time_diff = al_current_time();
+                        time_diff = al_get_time();
                         frames_done = 0;
                         break;
                      }
                      case ALLEGRO_KEY_B: {
                         Background = !Background;
-                        time_diff = al_current_time();
+                        time_diff = al_get_time();
                         frames_done = 0;
                         break;
                      }
@@ -691,7 +691,7 @@ int main(void)
             }
          }
          
-         if (al_current_time() - start_time >= fixed_timestep) { //break if we start taking too long
+         if (al_get_time() - start_time >= fixed_timestep) { //break if we start taking too long
             break;
          }
       }
@@ -724,7 +724,7 @@ int main(void)
 
       al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
       al_draw_textf(Font, solid_white, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, ScreenName[cur_screen]);
-      al_draw_textf(Font, solid_white, 0, 0, 0, "FPS: %f", (float)frames_done / (al_current_time() - time_diff));
+      al_draw_textf(Font, solid_white, 0, 0, 0, "FPS: %f", (float)frames_done / (al_get_time() - time_diff));
       al_draw_textf(Font, solid_white, 0, 20, 0, "Change Screen (Up/Down). Esc to Quit.");
       al_draw_textf(Font, solid_white, 0, 40, 0, "Rotation (Left/Right/Space): %f", Speed);
       al_draw_textf(Font, solid_white, 0, 60, 0, "Thickness (PgUp/PgDown): %f", Thickness);

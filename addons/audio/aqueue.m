@@ -237,7 +237,7 @@ static void *stream_proc(void *in_data)
    /* We need to periodically drain and recreate the autorelease pool
     * so it doesn't fill up memory.
     */
-   double last_drain = al_current_time();
+   double last_drain = al_get_time();
    #endif
 
    ALLEGRO_VOICE *voice = in_data;
@@ -311,7 +311,7 @@ static void *stream_proc(void *in_data)
          false
       );
       #ifdef ALLEGRO_IPHONE
-      double now = al_current_time();
+      double now = al_get_time();
       if (now > last_drain+30) {
          last_drain = now;
          THREAD_DRAIN

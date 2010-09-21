@@ -35,12 +35,12 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   t0 = al_current_time();
+   t0 = al_get_time();
    if (!al_save_bitmap(argv[2], bitmap)) {
       fprintf(stderr, "Error saving bitmap\n");
       return 1;
    }
-   t1 = al_current_time();
+   t1 = al_get_time();
    printf("Saving took %.4f seconds\n", t1 - t0);
 
    al_destroy_bitmap(bitmap);

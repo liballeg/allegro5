@@ -17,7 +17,7 @@ have the following fields in common:
 By examining the type field you can then access type-specific fields.  The
 any.source field tells you which event source generated that particular
 event.  The any.timestamp field tells you when the event was generated.  The
-time is referenced to the same starting point as al_current_time().
+time is referenced to the same starting point as [al_get_time].
 
 Each event is of one of the following types:
 
@@ -328,7 +328,7 @@ to, call [al_unref_user_event] on non-reference counted user events.
 
 See also: [ALLEGRO_USER_EVENT]
 
-## API: al_event_queue_is_empty
+## API: al_is_event_queue_empty
 
 Return true if the event queue specified is currently empty.
 

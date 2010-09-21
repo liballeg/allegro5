@@ -442,7 +442,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
    if (_al_event_source_needs_to_generate_event(es)) {
       ALLEGRO_EVENT event;
       event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
-      event.display.timestamp = al_current_time();
+      event.display.timestamp = al_get_time();
       event.display.width = NSWidth(content);
       event.display.height = NSHeight(content);
       _al_event_source_emit_event(es, &event);
@@ -488,7 +488,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
    if (_al_event_source_needs_to_generate_event(es)) {
       ALLEGRO_EVENT event;
       event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
-      event.display.timestamp = al_current_time();
+      event.display.timestamp = al_get_time();
       event.display.width = NSWidth(content);
       event.display.height = NSHeight(content);
       _al_event_source_emit_event(es, &event);

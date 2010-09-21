@@ -44,7 +44,7 @@ static void draw(void)
 {
    float xs, ys, a;
    double dt = 0;
-   double t = al_current_time();
+   double t = al_get_time();
    if (last_time > 0) {
       dt = t - last_time;
    }
@@ -100,10 +100,10 @@ static void run(void)
    dx = 81;
    dy = 63;
 
-   start = al_current_time();
+   start = al_get_time();
    while (true) {
       /* Check for ESC key or close button event and quit in either case. */
-      if (!al_event_queue_is_empty(queue)) {
+      if (!al_is_event_queue_empty(queue)) {
          while (al_get_next_event(queue, &event)) {
             switch (event.type) {
                case ALLEGRO_EVENT_DISPLAY_CLOSE:
@@ -121,7 +121,7 @@ static void run(void)
          }
       }
       draw();
-      print(0, 0, "FPS: %.1f", frames / (al_current_time() - start));
+      print(0, 0, "FPS: %.1f", frames / (al_get_time() - start));
       if (al_get_new_bitmap_flags() & ALLEGRO_FORCE_LOCKING) {
          print(0, al_get_font_line_height(myfont), "using forced bitmap locking");
       }

@@ -67,10 +67,10 @@ int main(void)
                 break;
             }
         }
-        if (al_current_time() - last_resize > 0.1) {
+        if (al_get_time() - last_resize > 0.1) {
             int s;
 
-            last_resize = al_current_time();
+            last_resize = al_get_time();
             rs += 10;
             if (rs == 300)
                rs = 100;

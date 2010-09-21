@@ -195,7 +195,7 @@ static void draw(void)
 static void tick(void)
 {
    /* Count frames during the last second or so. */
-   double t = al_current_time();
+   double t = al_get_time();
    if (t >= ex.last_second + 1) {
       ex.fps = ex.frames_accum / (t - ex.last_second);
       ex.frames_accum = 0;
@@ -216,7 +216,7 @@ static void run(void)
 
    while (1) {
       /* Perform frame skipping so we don't fall behind the timer events. */
-      if (need_draw && al_event_queue_is_empty(ex.queue)) {
+      if (need_draw && al_is_event_queue_empty(ex.queue)) {
          tick();
          need_draw = false;
       }

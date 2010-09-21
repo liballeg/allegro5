@@ -150,13 +150,13 @@ int main(int argc, const char *argv[])
         if (event.type == ALLEGRO_EVENT_TIMER)
             redraw++;
 
-        while (redraw > 0 && al_event_queue_is_empty(queue)) {
+        while (redraw > 0 && al_is_event_queue_empty(queue)) {
             double dt;
             redraw--;
 
-            dt = al_current_time();
+            dt = al_get_time();
             render();
-            dt = al_current_time() - dt;
+            dt = al_get_time() - dt;
 
             t = 0.99 * t + 0.01 * dt;
 

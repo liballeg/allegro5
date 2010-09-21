@@ -285,9 +285,9 @@ int main(void)
    }
 
 
-   start = al_current_time();
+   start = al_get_time();
    while (1) {
-      if (!al_event_queue_is_empty(queue)) {
+      if (!al_is_event_queue_empty(queue)) {
          while (al_get_next_event(queue, &event)) {
             switch (event.type) {
                case ALLEGRO_EVENT_DISPLAY_CLOSE:
@@ -307,7 +307,7 @@ int main(void)
    }
 
 done:
-   printf("%.1f FPS\n", frames / (al_current_time() - start));
+   printf("%.1f FPS\n", frames / (al_get_time() - start));
    glDeleteProgramsARB(1, &pid);
    al_destroy_event_queue(queue);
 

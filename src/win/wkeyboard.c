@@ -304,7 +304,7 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool repeated,
       return;
 
    event.keyboard.type = repeated ? ALLEGRO_EVENT_KEY_REPEAT : ALLEGRO_EVENT_KEY_DOWN;
-   event.keyboard.timestamp = al_current_time();
+   event.keyboard.timestamp = al_get_time();
    event.keyboard.display = (void*)win_disp;
    event.keyboard.keycode = my_code;
    event.keyboard.unichar = ccode;
@@ -364,7 +364,7 @@ void _al_win_kbd_handle_key_release(int vcode, ALLEGRO_DISPLAY_WIN *win_disp)
       return;
 
    event.keyboard.type = ALLEGRO_EVENT_KEY_UP;
-   event.keyboard.timestamp = al_current_time();
+   event.keyboard.timestamp = al_get_time();
    event.keyboard.display = (void*)win_disp;
    event.keyboard.keycode = my_code;
    event.keyboard.unichar = 0;

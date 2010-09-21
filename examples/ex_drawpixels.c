@@ -55,11 +55,11 @@ int main(void)
    }
 
 
-   start = al_current_time() * 1000;
+   start = al_get_time() * 1000;
    now = start;
    elapsed = 0;
    frame_count = 0;
-   program_start = al_current_time();
+   program_start = al_get_time();
 
 
    while (1) {
@@ -98,7 +98,7 @@ int main(void)
          total_frames++;
       }
 
-      now = al_current_time() * 1000;
+      now = al_get_time() * 1000;
       elapsed = now - start;
       start = now;
 
@@ -120,7 +120,7 @@ int main(void)
          break;
    }
 
-   length = al_current_time() - program_start;
+   length = al_get_time() - program_start;
 
    if (length != 0) {
       printf("%d FPS\n", (int)(total_frames / length));

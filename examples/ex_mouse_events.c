@@ -89,7 +89,7 @@ int main(void)
    al_register_event_source(queue, al_get_display_event_source(display));
 
    while (1) {
-      if (al_event_queue_is_empty(queue)) {
+      if (al_is_event_queue_empty(queue)) {
          al_clear_to_color(al_map_rgb(0xff, 0xff, 0xc0));
          for (i = 0; i < NUM_BUTTONS; i++) {
             draw_mouse_button(i, buttons[i]);

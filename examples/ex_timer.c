@@ -1,4 +1,4 @@
-/* A test of timer events. Since both al_current_time() as well as the timer
+/* A test of timer events. Since both al_get_time() as well as the timer
  * events may be the source of inaccuracy, it doesn't tell a lot.
  */
 #include <allegro5/allegro.h>
@@ -70,7 +70,7 @@ static void draw(void)
    int h, y, i;
    double cur_time, event_overhead, total_error;
    
-   cur_time = al_current_time();
+   cur_time = al_get_time();
    event_overhead = cur_time - ex.timestamp;
    total_error = event_overhead + ex.timer_error;
 
@@ -100,7 +100,7 @@ static void tick(ALLEGRO_TIMER_EVENT* timer_event)
 {
    int i;
 
-   ex.this_time = al_current_time();
+   ex.this_time = al_get_time();
 
    if (ex.first_tick) {
       ex.first_tick = false;

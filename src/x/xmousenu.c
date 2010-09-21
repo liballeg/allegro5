@@ -456,7 +456,7 @@ static void generate_mouse_event(unsigned int type,
       return;
 
    event.mouse.type = type;
-   event.mouse.timestamp = al_current_time();
+   event.mouse.timestamp = al_get_time();
    event.mouse.display = display;
    event.mouse.x = x;
    event.mouse.y = y;

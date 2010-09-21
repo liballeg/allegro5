@@ -70,7 +70,7 @@ int main(void)
             break;
       }
       
-      if (redraw && al_event_queue_is_empty(queue)) {
+      if (redraw && al_is_event_queue_empty(queue)) {
          al_set_target_backbuffer(ms_display);
          draw();
          al_flip_display();

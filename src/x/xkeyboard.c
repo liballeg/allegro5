@@ -979,7 +979,7 @@ static void handle_key_press(int mycode, int unichar, unsigned int modifiers,
       if (_al_event_source_needs_to_generate_event(&the_keyboard.parent.es)) {
          ALLEGRO_EVENT event;
          event.keyboard.type = type;
-         event.keyboard.timestamp = al_current_time();
+         event.keyboard.timestamp = al_get_time();
          event.keyboard.display = display;
          event.keyboard.keycode   = mycode;
          event.keyboard.unichar   = unichar;
@@ -1021,7 +1021,7 @@ static void handle_key_release(int mycode, ALLEGRO_DISPLAY *display)
       if (_al_event_source_needs_to_generate_event(&the_keyboard.parent.es)) {
          ALLEGRO_EVENT event;
          event.keyboard.type = ALLEGRO_EVENT_KEY_UP;
-         event.keyboard.timestamp = al_current_time();
+         event.keyboard.timestamp = al_get_time();
          event.keyboard.display = display;
          event.keyboard.keycode = mycode;
          event.keyboard.unichar = 0;

@@ -57,7 +57,7 @@ class Example:
 example = Example()
 
 def add_time():
-   example.frame_times[example.ftpos] = al_current_time()
+   example.frame_times[example.ftpos] = al_get_time()
    example.ftpos += 1
    if example.ftpos >= FPS:
       example.ftpos = 0
@@ -263,12 +263,12 @@ def main():
     while not done:
         event = ALLEGRO_EVENT()
 
-        if need_redraw and al_event_queue_is_empty(queue):
-            t = -al_current_time()
+        if need_redraw and al_is_event_queue_empty(queue):
+            t = -al_get_time()
             add_time()
             al_clear_to_color(al_map_rgb_f(0, 0, 0))
             redraw()
-            t += al_current_time()
+            t += al_get_time()
             example.direct_speed_measure  = t
             al_flip_display()
             need_redraw = False

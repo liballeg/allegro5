@@ -86,7 +86,7 @@ static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode, i
 		{
 			 ALLEGRO_EVENT event;
 			 event.keyboard.type = type;
-			 event.keyboard.timestamp = al_current_time();
+			 event.keyboard.timestamp = al_get_time();
 			 event.keyboard.display   = dpy;
 			 event.keyboard.keycode   = scancode;
 			 event.keyboard.unichar   = unicode;
@@ -106,7 +106,7 @@ static void _handle_key_release(ALLEGRO_DISPLAY* dpy, int scancode) {
 		{
 			ALLEGRO_EVENT event;
 			event.keyboard.type = ALLEGRO_EVENT_KEY_UP;
-			event.keyboard.timestamp = al_current_time();
+			event.keyboard.timestamp = al_get_time();
 			event.keyboard.display   = dpy;
 			event.keyboard.keycode   = scancode;
 			event.keyboard.unichar   = 0;

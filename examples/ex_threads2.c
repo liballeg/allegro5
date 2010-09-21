@@ -335,7 +335,7 @@ int main(void)
 
    need_draw = true;
    while (true) {
-      if (need_draw && al_event_queue_is_empty(queue)) {
+      if (need_draw && al_is_event_queue_empty(queue)) {
          show_images();
          need_draw = false;
       }

@@ -119,7 +119,7 @@ static void display_splash_screen(void)
     
     if (_al_event_source_needs_to_generate_event(&d->es)) {
         event.display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
-        event.display.timestamp = al_current_time();
+        event.display.timestamp = al_get_time();
         _al_event_source_emit_event(&d->es, &event);
     }
     _al_event_source_unlock(&d->es);

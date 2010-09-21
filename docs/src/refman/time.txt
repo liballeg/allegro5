@@ -11,7 +11,7 @@ statically allocated.  The contents are private.
 
 See also: [al_init_timeout]
 
-## API: al_current_time
+## API: al_get_time
 
 Return the number of seconds since the Allegro library was
 initialised. The return value is undefined if Allegro is uninitialised.

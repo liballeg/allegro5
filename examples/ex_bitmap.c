@@ -45,9 +45,9 @@ int main(int argc, const char *argv[])
      * FIXME: Or should A5 automatically created multiple display bitmaps?
      */
     al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-    t0 = al_current_time();
+    t0 = al_get_time();
     membitmap = al_load_bitmap(filename);
-    t1 = al_current_time();
+    t1 = al_get_time();
     if (!membitmap) {
        abort_example("%s not found or failed to load\n", filename);
     }
@@ -89,7 +89,7 @@ int main(int argc, const char *argv[])
         if (event.type == ALLEGRO_EVENT_TIMER)
             redraw = true;
             
-        if (redraw && al_event_queue_is_empty(queue)) {
+        if (redraw && al_is_event_queue_empty(queue)) {
             redraw = false;
             al_clear_to_color(al_map_rgb_f(0, 0, 0));
             if (zoom == 1)

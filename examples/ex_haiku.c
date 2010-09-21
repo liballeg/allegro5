@@ -360,7 +360,7 @@ static void anim_full(Sprite *spr, float *lval, float start_val, float end_val,
    float start_time;
    Anim *anim;
 
-   start_time = al_current_time() + delay;
+   start_time = al_get_time() + delay;
    fix_conflicting_anims(spr, lval, start_time, start_val);
 
    anim = get_next_anim(spr);
@@ -574,7 +574,7 @@ static void draw_screen(void)
 
 static void spawn_wind_effects(float x, float y)
 {
-   const float now = al_current_time();
+   const float now = al_get_time();
    Sprite *spr;
 
    spr = make_flair(IMG_AIR_EFFECT, x, y, now + 1.0);
@@ -591,7 +591,7 @@ static void spawn_wind_effects(float x, float y)
 
 static void spawn_fire_effects(float x, float y)
 {
-   const float now = al_current_time();
+   const float now = al_get_time();
    Sprite *spr;
    int i;
 
@@ -631,7 +631,7 @@ static void spawn_water_effects(float x, float y)
 #define MRAND(a, b)     (random_float((a), (b)) * max_duration)
 #define SIGN            (random_sign())
 
-   float    now = al_current_time();
+   float    now = al_get_time();
    float    max_duration = 1.0;
    Sprite   *spr;
    int      i;
@@ -871,8 +871,8 @@ static void main_loop(ALLEGRO_EVENT_QUEUE *queue)
    bool redraw = true;
 
    for (;;) {
-      if (redraw && al_event_queue_is_empty(queue)) {
-         float now = al_current_time();
+      if (redraw && al_is_event_queue_empty(queue)) {
+         float now = al_get_time();
          free_old_flairs(now);
          update_anims(now);
          draw_screen();

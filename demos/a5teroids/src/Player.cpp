@@ -71,8 +71,8 @@ bool Player::logic(int step)
          break;
    }
 
-   if ((lastShot+shotRate) < (al_current_time() * 1000) && input->b1()) {
-      lastShot = (int) (al_current_time() * 1000);
+   if ((lastShot+shotRate) < (al_get_time() * 1000) && input->b1()) {
+      lastShot = (int) (al_get_time() * 1000);
       float realAngle = angle;
       float bx = x + radius * cos(realAngle);
       float by = y + radius * sin(realAngle);

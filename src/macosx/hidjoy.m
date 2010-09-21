@@ -321,7 +321,7 @@ static void joyosx_generate_configure_event(void)
 {
    ALLEGRO_EVENT event;
    event.joystick.type = ALLEGRO_EVENT_JOYSTICK_CONFIGURATION;
-   event.joystick.timestamp = al_current_time();
+   event.joystick.timestamp = al_get_time();
 
    _al_generate_joystick_event(&event);
 }

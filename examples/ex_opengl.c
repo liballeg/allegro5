@@ -14,7 +14,7 @@ bool no_fbo = false;
 
 static void draw_opengl(void)
 {
-   double secs = al_current_time();
+   double secs = al_get_time();
 
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
@@ -140,10 +140,10 @@ int main(void)
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_display_event_source(display));
 
-   start = al_current_time();
+   start = al_get_time();
    while (true) {
       /* Check for ESC key or close button event and quit in either case. */
-      if (!al_event_queue_is_empty(queue)) {
+      if (!al_is_event_queue_empty(queue)) {
          while (al_get_next_event(queue, &event)) {
             switch (event.type) {
                case ALLEGRO_EVENT_DISPLAY_CLOSE:
@@ -163,7 +163,7 @@ int main(void)
 
 done:
 
-   printf("%.1f FPS\n", frames / (al_current_time() - start));
+   printf("%.1f FPS\n", frames / (al_get_time() - start));
    al_destroy_event_queue(queue);
 
    return 0;

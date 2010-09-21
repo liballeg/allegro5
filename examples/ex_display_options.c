@@ -331,7 +331,7 @@ int main(void)
       if (selected_option < 0) selected_option = 0;
       if (selected_option >= options_count) selected_option = options_count - 1;
 
-      if (redraw && al_event_queue_is_empty(queue)) {
+      if (redraw && al_is_event_queue_empty(queue)) {
          redraw = false;
          al_clear_to_color(al_map_rgb_f(1, 1, 1));
          display_options(display);

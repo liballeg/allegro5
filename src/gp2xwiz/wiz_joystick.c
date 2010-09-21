@@ -89,7 +89,7 @@ static void generate_axis_event(ALLEGRO_JOYSTICK *joy, int stick, int axis, floa
       return;
 
    event.joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
-   event.joystick.timestamp = al_current_time();
+   event.joystick.timestamp = al_get_time();
    event.joystick.stick = stick;
    event.joystick.axis = axis;
    event.joystick.pos = pos;   event.joystick.button = 0;
@@ -106,7 +106,7 @@ static void generate_button_event(ALLEGRO_JOYSTICK *joy, int button, ALLEGRO_EVE
       return;
 
    event.joystick.type = event_type;
-   event.joystick.timestamp = al_current_time();
+   event.joystick.timestamp = al_get_time();
    event.joystick.stick = 0;
    event.joystick.axis = 0;
    event.joystick.pos = 0.0;

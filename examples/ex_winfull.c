@@ -35,7 +35,7 @@ int main(void)
    al_register_event_source(events, al_get_keyboard_event_source());
 
    while (1) {
-      while (!al_event_queue_is_empty(events)) {
+      while (!al_is_event_queue_empty(events)) {
          al_get_next_event(events, &event);
          if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
                event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)

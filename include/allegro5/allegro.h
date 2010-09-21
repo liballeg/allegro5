@@ -58,6 +58,12 @@
 
 #include "config.h"
 
+
+#ifndef ALLEGRO_NO_COMPATIBILITY
+   #include "allegro5/alcompat.h"
+#endif
+
+
 #ifdef ALLEGRO_EXTRA_HEADER
    #include ALLEGRO_EXTRA_HEADER
 #endif

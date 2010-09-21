@@ -17,7 +17,7 @@ struct ALLEGRO_TIMEOUT {
 
 
 
-AL_FUNC(double, al_current_time, (void));
+AL_FUNC(double, al_get_time, (void));
 AL_FUNC(void, al_rest, (double seconds));
 AL_FUNC(void, al_init_timeout, (ALLEGRO_TIMEOUT *timeout, double seconds));
 

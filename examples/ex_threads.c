@@ -137,7 +137,7 @@ static void *thread_func(ALLEGRO_THREAD *thr, void *arg)
    al_start_timer(timer);
 
    while (true) {
-      if (al_event_queue_is_empty(queue) && redraw) {
+      if (al_is_event_queue_empty(queue) && redraw) {
          double r = 0.7 + 0.3 * (sin(theta) + 1.0) / 2.0;
          ALLEGRO_COLOR c = al_map_rgb_f(
             background->rmax * r,

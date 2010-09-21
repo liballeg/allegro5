@@ -32,7 +32,7 @@ static int64_t high_res_timer_freq;
 static int64_t _al_win_prev_time;
 static double _al_win_total_time;
 
-static double (*real_current_time_func)(void);
+static double (*real_get_time_func)(void);
 
 static _AL_MUTEX time_mutex = _AL_MUTEX_UNINITED;
 
@@ -82,9 +82,9 @@ static double high_res_current_time(void)
 }
 
 
-double al_current_time(void)
+double al_get_time(void)
 {
-   return (*real_current_time_func)();
+   return (*real_get_time_func)();
 }
 
 
@@ -96,13 +96,13 @@ void _al_win_init_time(void)
    _al_mutex_init(&time_mutex);
    
    if (QueryPerformanceFrequency(&tmp_freq) == 0) {
-      real_current_time_func = low_res_current_time;
+      real_get_time_func = low_res_current_time;
       _al_win_prev_time = (int64_t) timeGetTime();
    }
    else {
       LARGE_INTEGER count;
       high_res_timer_freq = LARGE_INTEGER_TO_INT64(tmp_freq);
-      real_current_time_func = high_res_current_time;
+      real_get_time_func = high_res_current_time;
       QueryPerformanceCounter(&count);
       _al_win_prev_time = LARGE_INTEGER_TO_INT64(count);
    }

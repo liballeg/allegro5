@@ -142,7 +142,7 @@ static void xglx_background_thread(_AL_THREAD *self, void *arg)
        * systems, though.
        */
       if (s->inhibit_screensaver) {
-         double now = al_current_time();
+         double now = al_get_time();
          if (now - last_reset_screensaver_time > 10.0) {
             XResetScreenSaver(s->x11display);
             last_reset_screensaver_time = now;

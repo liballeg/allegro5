@@ -47,7 +47,7 @@ static void main_loop(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *picture)
    al_register_event_source(queue, al_get_display_event_source(display));
 
    while (1) {
-      if (al_event_queue_is_empty(queue)) {
+      if (al_is_event_queue_empty(queue)) {
          redraw(picture);
       }
       al_wait_for_event(queue, &event);

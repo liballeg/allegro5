@@ -227,7 +227,7 @@ int main(void)
             break;
 
          case ALLEGRO_EVENT_TIMER:
-            if(al_event_queue_is_empty(queue)) {
+            if(al_is_event_queue_empty(queue)) {
                set_camera_position();
                draw();
                al_flip_display();

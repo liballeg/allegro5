@@ -125,7 +125,7 @@ int main(void)
    while (!done) {
       ALLEGRO_EVENT event;
 
-      if (redraw && al_event_queue_is_empty(queue)) {
+      if (redraw && al_is_event_queue_empty(queue)) {
          update(bmp);
          al_clear_to_color(al_map_rgb_f(0, 0, 0));
          al_draw_tinted_bitmap(bmp, al_map_rgba_f(1, 1, 1, 0.5),

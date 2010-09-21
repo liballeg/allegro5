@@ -164,7 +164,7 @@ int main(void)
    while (!done) {
       ALLEGRO_EVENT event;
 
-      if (need_redraw && al_event_queue_is_empty(queue)) {
+      if (need_redraw && al_is_event_queue_empty(queue)) {
          redraw();
          al_flip_display();
          need_redraw = false;

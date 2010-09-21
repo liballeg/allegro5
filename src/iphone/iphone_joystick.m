@@ -99,7 +99,7 @@ void _al_iphone_generate_joystick_event(float x, float y, float z)
         float pos[] = {x, y, z};
         for (int i = 0; i < 3; i++) {
             event.joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
-            event.joystick.timestamp = al_current_time();
+            event.joystick.timestamp = al_get_time();
             event.joystick.stick = 0;
             event.joystick.axis = i;
             event.joystick.pos = pos[i];

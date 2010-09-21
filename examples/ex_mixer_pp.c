@@ -101,7 +101,7 @@ static void main_loop(void)
    theta = 0.0;
 
    for (;;) {
-      if (redraw && al_event_queue_is_empty(queue)) {
+      if (redraw && al_is_event_queue_empty(queue)) {
          draw();
          redraw = false;
       }

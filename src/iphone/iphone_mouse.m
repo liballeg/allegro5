@@ -26,7 +26,7 @@ void _al_iphone_generate_mouse_event(unsigned int type, int x, int y,
 
    if (_al_event_source_needs_to_generate_event(&the_mouse.parent.es)) {
       event.mouse.type = type;
-      event.mouse.timestamp = al_current_time();
+      event.mouse.timestamp = al_get_time();
       event.mouse.display = d;
       event.mouse.x = x;
       event.mouse.y = y;

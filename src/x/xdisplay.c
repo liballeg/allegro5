@@ -801,7 +801,7 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
       if (_al_event_source_needs_to_generate_event(es)) {
          ALLEGRO_EVENT event;
          event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
-         event.display.timestamp = al_current_time();
+         event.display.timestamp = al_get_time();
          event.display.x = xevent->xconfigure.x;
          event.display.y = xevent->xconfigure.y;
          event.display.width = xevent->xconfigure.width;
@@ -839,7 +839,7 @@ void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent)
    if (_al_event_source_needs_to_generate_event(es)) {
       ALLEGRO_EVENT event;
       event.display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
-      event.display.timestamp = al_current_time();
+      event.display.timestamp = al_get_time();
       _al_event_source_emit_event(es, &event);
    }
    _al_event_source_unlock(es);
@@ -866,7 +866,7 @@ void _al_xwin_display_switch_handler(ALLEGRO_DISPLAY *display,
          event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
       else
          event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
-      event.display.timestamp = al_current_time();
+      event.display.timestamp = al_get_time();
       _al_event_source_emit_event(es, &event);
    }
    _al_event_source_unlock(es);
@@ -882,7 +882,7 @@ void _al_xwin_display_expose(ALLEGRO_DISPLAY *display,
    if (_al_event_source_needs_to_generate_event(es)) {
       ALLEGRO_EVENT event;
       event.display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
-      event.display.timestamp = al_current_time();
+      event.display.timestamp = al_get_time();
       event.display.x = xevent->x;
       event.display.y = xevent->y;
       event.display.width = xevent->width;

@@ -41,7 +41,7 @@ static void go(void)
    al_register_event_source(queue, al_get_keyboard_event_source());
 
    while (1) {
-      if (!al_event_queue_is_empty(queue)) {
+      if (!al_is_event_queue_empty(queue)) {
          al_get_next_event(queue, &event);
 	 if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 	    if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {

@@ -291,7 +291,7 @@ static void emit_close_event(ALLEGRO_NATIVE_DIALOG *textlog, bool keypress)
 {
    ALLEGRO_EVENT event;
    event.user.type = ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE;
-   event.user.timestamp = al_current_time();
+   event.user.timestamp = al_get_time();
    event.user.data1 = (intptr_t)textlog;
    event.user.data2 = (intptr_t)keypress;
    al_emit_user_event(&textlog->tl_events, &event, NULL);

@@ -203,9 +203,9 @@ intptr_t al_get_event_source_data(const ALLEGRO_EVENT_SOURCE *source)
    return rsource->data;
 }
 
-/* Function: al_event_queue_is_empty
+/* Function: al_is_event_queue_empty
  */
-bool al_event_queue_is_empty(ALLEGRO_EVENT_QUEUE *queue)
+bool al_is_event_queue_empty(ALLEGRO_EVENT_QUEUE *queue)
 {
    ASSERT(queue);
 
@@ -236,7 +236,7 @@ static ALLEGRO_EVENT *get_next_event_if_any(ALLEGRO_EVENT_QUEUE *queue,
 {
    ALLEGRO_EVENT *event;
 
-   if (al_event_queue_is_empty(queue)) {
+   if (al_is_event_queue_empty(queue)) {
       return NULL;
    }
 
@@ -350,7 +350,7 @@ void al_wait_for_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
 
    _al_mutex_lock(&queue->mutex);
    {
-      while (al_event_queue_is_empty(queue)) {
+      while (al_is_event_queue_empty(queue)) {
          _al_cond_wait(&queue->cond, &queue->mutex);
       }
 
@@ -411,7 +411,7 @@ static bool do_wait_for_event(ALLEGRO_EVENT_QUEUE *queue,
        * variable, which will be signaled when an event is placed into
        * the queue.
        */
-      while (al_event_queue_is_empty(queue) && (result != -1)) {
+      while (al_is_event_queue_empty(queue) && (result != -1)) {
          result = _al_cond_timedwait(&queue->cond, &queue->mutex, timeout);
       }
 

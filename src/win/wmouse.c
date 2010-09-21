@@ -94,7 +94,7 @@ static void generate_mouse_event(unsigned int type,
 
    _al_event_source_lock(&the_mouse.es);
    event.mouse.type = type;
-   event.mouse.timestamp = al_current_time();
+   event.mouse.timestamp = al_get_time();
    event.mouse.display = source;
    event.mouse.x = x;
    event.mouse.y = y;

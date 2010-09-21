@@ -69,7 +69,7 @@ int main(int argc, char **argv)
       al_rest(0.200);
 
       int step = 0;
-      long start = (long) (al_current_time() * 1000);
+      long start = (long) (al_get_time() * 1000);
 
       for (;;) {
          if (entities.size() <= 0) {
@@ -83,7 +83,7 @@ int main(int argc, char **argv)
             break;
          render(step);
          al_rest(0.010);
-         long end = (long) (al_current_time() * 1000);
+         long end = (long) (al_get_time() * 1000);
          step = end - start;
          start = end;
       }

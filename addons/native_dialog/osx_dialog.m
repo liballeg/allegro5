@@ -202,7 +202,7 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 {
    ALLEGRO_EVENT event;
    event.user.type = ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE;
-   event.user.timestamp = al_current_time();
+   event.user.timestamp = al_get_time();
    event.user.data1 = (intptr_t)[self textlog];
    event.user.data2 = (intptr_t)keypress;
    al_emit_user_event(&[self textlog]->tl_events, &event, NULL);

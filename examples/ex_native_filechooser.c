@@ -305,7 +305,7 @@ restart:
          redraw = true;
       }
 
-      if (redraw && al_event_queue_is_empty(queue)) {
+      if (redraw && al_is_event_queue_empty(queue)) {
          float x = al_get_display_width(display) / 2;
          float y = 0;
          redraw = false;

@@ -221,7 +221,7 @@ static void run(void)
    bool need_draw = true;
 
    while (1) {
-      if (need_draw && al_event_queue_is_empty(ex.queue)) {
+      if (need_draw && al_is_event_queue_empty(ex.queue)) {
          tick();
          need_draw = false;
       }

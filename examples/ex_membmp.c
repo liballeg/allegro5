@@ -25,7 +25,7 @@ static bool test(ALLEGRO_BITMAP *bitmap, ALLEGRO_FONT *font, char *message)
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
 
-   start_time = al_current_time();
+   start_time = al_get_time();
 
    for (;;) {
       if (al_get_next_event(queue, &event)) {
@@ -68,7 +68,7 @@ static bool test(ALLEGRO_BITMAP *bitmap, ALLEGRO_FONT *font, char *message)
       al_flip_display();
 
       frames++;
-      fps = (double)frames / (al_current_time() - start_time);
+      fps = (double)frames / (al_get_time() - start_time);
    }
 
    al_destroy_event_queue(queue);

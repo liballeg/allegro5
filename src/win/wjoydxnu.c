@@ -931,7 +931,7 @@ static void joydx_generate_configure_event(void)
 {
    ALLEGRO_EVENT event;
    event.joystick.type = ALLEGRO_EVENT_JOYSTICK_CONFIGURATION;
-   event.joystick.timestamp = al_current_time();
+   event.joystick.timestamp = al_get_time();
 
    _al_generate_joystick_event(&event);
 }
@@ -1262,7 +1262,7 @@ static bool joydx_get_active(ALLEGRO_JOYSTICK *joy)
  */
 static unsigned __stdcall joydx_thread_proc(LPVOID unused)
 {
-   double last_update = al_current_time();
+   double last_update = al_get_time();
 
    /* XXX is this needed? */
    _al_win_thread_init();
@@ -1279,9 +1279,9 @@ static unsigned __stdcall joydx_thread_proc(LPVOID unused)
 
       EnterCriticalSection(&joydx_thread_cs);
       {
-         if (al_current_time() > last_update+1 || result == WAIT_TIMEOUT) {
+         if (al_get_time() > last_update+1 || result == WAIT_TIMEOUT) {
             joydx_scan(true);
-            last_update = al_current_time();
+            last_update = al_get_time();
          }
 
          if (result != WAIT_TIMEOUT) {
@@ -1485,7 +1485,7 @@ static void generate_axis_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int stick, int ax
       return;
 
    event.joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
-   event.joystick.timestamp = al_current_time();
+   event.joystick.timestamp = al_get_time();
    event.joystick.id = (ALLEGRO_JOYSTICK *)joy;
    event.joystick.stick = stick;
    event.joystick.axis = axis;
@@ -1510,7 +1510,7 @@ static void generate_button_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int button, ALL
       return;
 
    event.joystick.type = event_type;
-   event.joystick.timestamp = al_current_time();
+   event.joystick.timestamp = al_get_time();
    event.joystick.id = (ALLEGRO_JOYSTICK *)joy;
    event.joystick.stick = 0;
    event.joystick.axis = 0;

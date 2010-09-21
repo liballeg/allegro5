@@ -76,13 +76,13 @@ static void print(char const *format, ...)
 
 static void start_timer(int i)
 {
-   ex.timer[i] -= al_current_time();
+   ex.timer[i] -= al_get_time();
    ex.counter[i]++;
 }
 
 static void stop_timer(int i)
 {
-    ex.timer[i] += al_current_time();
+    ex.timer[i] += al_get_time();
 }
 
 static double get_fps(int i)
@@ -197,7 +197,7 @@ static void run(void)
    bool need_draw = true;
 
    while (1) {
-      if (need_draw && al_event_queue_is_empty(ex.queue)) {
+      if (need_draw && al_is_event_queue_empty(ex.queue)) {
          tick();
          need_draw = false;
       }
