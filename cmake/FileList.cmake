@@ -120,7 +120,7 @@ set(ALLEGRO_SRC_X_FILES
     )
 
 set(ALLEGRO_SRC_MACOSX_FILES
-    src/macosx/hidjoy.m
+    src/macosx/hidjoy_hotplug.m
     src/macosx/hidman.m
     src/macosx/keybd.m
     src/macosx/qzmouse.m
