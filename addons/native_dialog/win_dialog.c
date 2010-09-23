@@ -209,20 +209,21 @@ static void wlog_do_append_native_text_log_unicode(ALLEGRO_NATIVE_DIALOG *textlo
    index = 0;
    flush = false;
    while ((ch = al_ustr_get_next(textlog->tl_pending_text, &next)) >= 0) {
-      buffer[index % BUFFER_SIZE] = (WCHAR)ch;
+      buffer[index] = (WCHAR)ch;
       flush = true;
 
-      if ((next % BUFFER_SIZE) == 0) {
+      index++;
+
+      if ((index % BUFFER_SIZE) == 0) {
          buffer[BUFFER_SIZE] = L'\0';
          SendMessageW(textlog->tl_textview, EM_REPLACESEL, 0, (LPARAM)buffer);
          flush = false;
+         index = 0;
       }
-
-      index = next;
    }
 
    if (flush) {
-      buffer[index % BUFFER_SIZE] = L'\0';
+      buffer[index] = L'\0';
       SendMessageW(textlog->tl_textview, EM_REPLACESEL, 0, (LPARAM)buffer);
    }
 
