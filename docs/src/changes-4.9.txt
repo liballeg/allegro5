@@ -4,6 +4,235 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.21 to 4.9.22 (September 2010)
+==============================================
+
+The developers this time included: Michał Cichoń, Trent Gamblin,
+Evert Glebbeek, Angelo Mottola, Elias Pschernig, Paul Suntsov and Peter Wang.
+
+System:
+
+-  Allow the X11 port to initialise without an X server connection.
+
+Graphics:
+
+-  Fix many bugs with bitmap locking.
+
+-  Fix many bugs to do with transformations, flipping and clipping.
+
+-  Fix many bugs to do with sub-bitmaps as source and destination.
+
+-  Renamed al\_draw\_[tinted\_]rotated_scaled_bitmap to
+   al\_draw\_[tinted\_]scaled_rotated_bitmap to match the parameter order.
+
+-  Reimplemented bitmap software rendering routines using newly optimised
+   software triangle renderer, formerly in the primitives addon.
+
+-  Add pixel_size field to ALLEGRO_LOCKED_REGION.
+
+-  Fix bugs to do with pixel alignment on OpenGL.
+
+-  Fix OpenGL pixel transfer of 15 bpp formats, where Allegro does not Allegro
+   does not care whether the unused bit is set or not, but when transferring to
+   OpenGL it will be interpreted as an alpha bit.
+
+-  Disabled support for drawing a bitmap into itself.
+
+-  Changed specification of al\_draw_*bitmap to not allow transformation and
+   ignore blending/tinting when the screen itself is being drawn (except when
+   drawn into a memory bitmap).
+
+-  Allow bitmap regions to be outside the bitmap area in drawing routines.
+
+-  Added al_add_new_bitmap_flag convenience function.
+
+-  Added three new bitmaps flags ALLEGRO_MAG_LINEAR, ALLEGRO_MIN_LINEAR,
+   ALLEGRO_MIPMAP.  Removed the config settings for linear/anisotropic min/mag
+   filtering.  DirectX side not yet updated.
+
+-  Register destructors for bitmaps, so they will be implicitly destroyed when
+   Allegro is shut down.  This was only true for some bitmaps previously.
+
+-  Don't allocate memory buffers for video bitmaps when using OpenGL.
+
+-  Make al_get_opengl_extension_list() return NULL if called on a non-GL display.
+
+-  Fix al_create_display for OpenGL forward compatible contexts.
+
+-  Add al_set_current_opengl_context as an explicit way to set the OpenGL
+   context.
+
+-  Rename al_is_opengl_extension_supported to al_have_opengl_extension.
+
+-  Produce more accurate/correct color when going from less to more bits per
+   component.
+
+-  Fix al_set_new_window_position() everywhere.
+
+-  Avoid potential deadlock if resizing window to the same size on X11.
+
+-  Fixed turning off vsync in X11.
+
+-  Added al_is_d3d_device_lost function.
+
+-  Dynamically load dinput and d3d DLLs on Windows.
+
+-  Replaced PeekMessage with GetMessage in window event loops for the D3D and
+   WGL drivers (David Capello).
+
+Input:
+
+-  Added hotplugging support for joysticks on Linux, Windows and OS X.
+
+-  Added al_reconfigure_joysticks function.
+
+-  Merged all joystick devices under a single joystick event source.
+
+-  Removed al_get_joystick_number.
+
+-  Add al_is_joystick_installed.
+
+-  The OS X joystick driver was rewritten; it requires OS X 10.5.
+   The older driver still exists for OS X 10.4 and earlier but is in a
+   semi-updated state with regards to hotplugging.
+
+-  Allow user to override joystick device paths in the config file (Linux).
+
+-  Fix iphone touch input and clipping for modes other than w=768,h=1024.
+
+-  Fixed missing mouse movement messages on IPhone on touch-up/down. Also
+   changed how mouse buttons are reported - always as button 1 now.
+
+Config:
+
+-  Give config iterators proper types instead of void *.
+
+-  Make al_get_system_config() always return non-NULL if a system driver is
+   installed.
+
+Events:
+
+-  Rename al_event_queue_is_empty to al_is_event_queue_empty
+   (with compatibility define).
+
+Timers:
+
+-  Add al_add_timer_count function.
+
+-  Rename al_timer_is_started to al_get_timer_started.
+
+-  Rename al_current_time to al_get_time (with compatibility define).
+
+File I/O:
+
+-  Add al_open_fs_entry to open a file handle from an FS_ENTRY.
+
+-  Add al_fclearerr.
+
+-  Set ALLEGRO_FILEMODE_HIDDEN flag on entries for file names beginning with
+   dot (OS X).
+
+-  Remove al_is_path_present, al_fs_entry_is_directory, al_fs_entry_is_file
+   (all trivial).
+
+Primitives addon:
+
+-  Optimised most of the software rendering routines by a lot.
+
+-  Triangle drawer was skipping pixels in very thin triangles.
+
+-  Handle lost d3d devices better.
+
+-  Fix some bugs found during testing.
+
+Image I/O addon:
+
+-  Fix native image loader on Mac OS X: images that were not 72 dpi would be
+   rescaled to a smaller size.
+
+-  Added native bitmap saving support for OSX.
+
+-  Fix jpeg saving when locked region has negative pitch.
+
+Native dialogs addon:
+
+-  Add Windows and OS X text log implementations.
+
+-  Add ALLEGRO_FILECHOOSER and ALLEGRO_TEXTLOG types instead of conflating
+   them into ALLEGRO_NATIVE_DIALOG.
+
+-  Fix race condition in al_open_native_text_log.
+
+-  Rename al_destroy_native_dialog to al_destroy_native_file_dialog.
+
+-  Rename al_get_native_dialog_event_source to
+   al_get_native_text_log_event_source.
+
+-  Speed up text log appending by making the reader/writers asynchronous.
+
+-  Register destructors for file chooser and text log dialogs.
+
+-  Fix file chooser on Windows returning multiple selections with slashes
+   appended to filenames.  If an initial path was specified then the dialog
+   wouldn't open at all; fixed.
+
+-  Let native dialog functions fail gracefully.
+
+Audio addons:
+
+-  Init destructors even if audio driver fails to install.
+
+-  Dynamically load dsound DLL on Windows.
+
+Font addons:
+
+-  Added al_shutdown_ttf_addon.
+
+-  Prevent SIGSEGV for double-closing a file in the TTF addon if it is not a
+   valid font file.
+
+-  Make al_grab_font_from_bitmap not cause a segmentation fault if the bitmap
+   is garbage.
+
+-  Some TTF fonts would not render right at small sizes; fixed.
+
+-  Make al_destroy_font ignore NULL.
+
+Tests:
+
+-  Added a test suite (finally).
+
+-  Add a shell script to produce test coverage results using lcov.
+
+Examples:
+
+-  Add ex_haiku, an example based on Mark Oates's Haiku game.
+   Mark generously agreed to let us include it as an Allegro example.
+
+-  Added a new example ex_joystick_hotplugging.
+
+-  Added a new example ex_filter.
+
+-  Make ex_fs_window work on MSVC.
+
+-  Allow a5teroids to run without audio, or if audio data doesn't load.
+
+Build system:
+
+-  Re-added CMake option that allows forced static linking of libFLAC.
+
+-  Replaced the old iphone xcode project with a cmake iphone toolchain.
+
+Documentation:
+
+-  Many updates to the reference manual.
+
+Bindings:
+
+-  Added a workaround to the Python wrapper for a Mingw bug.
+
+
+
 Changes from 4.9.20 to 4.9.21 (July 2010)
 =========================================
 
