@@ -28,7 +28,9 @@ Make sure the MSVC compiler cl.exe and lib.exe also run correctly.
 7. Press "Configure".  Watch for messages about missing headers and libraries.
 If anything is missing, you can give CMake a helping hand by setting
 _INCLUDE_DIR and _LIBRARY options manually, e.g. if ZLIB is not found you
-would set ZLIB_INCLUDE_DIR and ZLIB_LIBRARY.  Then press "Configure" again.
+would set ZLIB_INCLUDE_DIR and ZLIB_LIBRARY.
+You may have to switch to "Advanced View" in order to see the variables.
+Once done, press "Configure" again.
 
 8. Press "Generate".  CMake will now generate a project solution.
 
