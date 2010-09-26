@@ -1,3 +1,9 @@
+/*
+ *    Automated testing driver program for Allegro.
+ *
+ *    By Peter Wang.
+ */
+
 #include <ctype.h>
 #include <math.h>
 #include <stdarg.h>
@@ -681,7 +687,7 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
    ALLEGRO_BITMAP *target, int bmp_type, bool reliable)
 {
 #define MAXBUF    80
-#define PAT       " %80[-A-Za-z0-9_.$|#] "
+#define PAT       " %80[A-Za-z0-9_.$|#-] "
 #define PAT1      PAT
 #define PAT2      PAT1 "," PAT1
 #define PAT3      PAT2 "," PAT1
