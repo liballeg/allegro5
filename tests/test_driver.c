@@ -377,6 +377,14 @@ static int get_font_align(char const *value)
       : atoi(value);
 }
 
+static void set_config_int(ALLEGRO_CONFIG *cfg, char const *section,
+   char const *var, int value)
+{
+   char buf[40];
+   sprintf(buf, "%d", value);
+   al_set_config_value(cfg, section, var, buf);
+}
+
 static void fill_vertices(ALLEGRO_CONFIG const *cfg, char const *name)
 {
 #define MAXBUF    80
@@ -683,7 +691,7 @@ static void check_similarity(ALLEGRO_CONFIG const *cfg,
    }
 }
 
-static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
+static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
    ALLEGRO_BITMAP *target, int bmp_type, bool reliable)
 {
 #define MAXBUF    80
@@ -971,10 +979,38 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
             V(5));
          continue;
       }
-
       if (SCAN("al_draw_justified_text", 8)) {
          al_draw_justified_text(get_font(V(0)), C(1), F(2), F(3), F(4), F(5),
             get_font_align(V(6)), V(7));
+         continue;
+      }
+      if (SCANLVAL("al_get_text_width", 2)) {
+         int w = al_get_text_width(get_font(V(0)), V(1));
+         set_config_int(cfg, testname, lval, w);
+         continue;
+      }
+      if (SCANLVAL("al_get_font_line_height", 1)) {
+         int h = al_get_font_line_height(get_font(V(0)));
+         set_config_int(cfg, testname, lval, h);
+         continue;
+      }
+      if (SCANLVAL("al_get_font_ascent", 1)) {
+         int as = al_get_font_ascent(get_font(V(0)));
+         set_config_int(cfg, testname, lval, as);
+         continue;
+      }
+      if (SCANLVAL("al_get_font_descent", 1)) {
+         int de = al_get_font_descent(get_font(V(0)));
+         set_config_int(cfg, testname, lval, de);
+         continue;
+      }
+      if (SCAN("al_get_text_dimensions", 6)) {
+         int bbx, bby, bbw, bbh;
+         al_get_text_dimensions(get_font(V(0)), V(1), &bbx, &bby, &bbw, &bbh);
+         set_config_int(cfg, testname, V(2), bbx);
+         set_config_int(cfg, testname, V(3), bby);
+         set_config_int(cfg, testname, V(4), bbw);
+         set_config_int(cfg, testname, V(5), bbh);
          continue;
       }
 
@@ -1095,7 +1131,7 @@ static void do_test(ALLEGRO_CONFIG const *cfg, char const *testname,
 #undef SCAN
 }
 
-static void sw_hw_test(ALLEGRO_CONFIG const *cfg, char const *testname)
+static void sw_hw_test(ALLEGRO_CONFIG *cfg, char const *testname)
 {
    int old_failed_tests = failed_tests;
    bool reliable;
@@ -1152,17 +1188,14 @@ static void run_test(ALLEGRO_CONFIG const *cfg, char const *section)
       error("section not found: %s", section);
    }
 
+   cfg2 = al_create_config();
+   al_merge_config_into(cfg2, cfg);
    extend = al_get_config_value(cfg, section, "extend");
-   if (!extend) {
-      sw_hw_test(cfg, section);
-   }
-   else {
-      cfg2 = al_create_config();
-      al_merge_config_into(cfg2, cfg);
+   if (extend) {
       merge_config_sections(cfg2, section, cfg, section);
-      sw_hw_test(cfg2, section);
-      al_destroy_config(cfg2);
    }
+   sw_hw_test(cfg2, section);
+   al_destroy_config(cfg2);
 }
 
 static void run_matching_tests(ALLEGRO_CONFIG const *cfg, const char *prefix)
