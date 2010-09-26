@@ -54,9 +54,9 @@
 #include "allegro5/fshook.h"
 #include "allegro5/path.h"
 
-#include "fmaths.h"
+#include "allegro5/fmaths.h"
 
-#include "config.h"
+#include "allegro5/config.h"
 
 
 #ifndef ALLEGRO_NO_COMPATIBILITY
