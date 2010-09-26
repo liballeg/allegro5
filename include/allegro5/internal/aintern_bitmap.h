@@ -113,7 +113,6 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap);
 void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap);
 bool _al_format_has_alpha(int format);
 bool _al_pixel_format_is_real(int format);
-bool _al_pixel_format_fits(int format1, int format2);
 int _al_get_real_pixel_format(ALLEGRO_DISPLAY *display, int format);
 
 /* Memory bitmap blitting */
