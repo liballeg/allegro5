@@ -19,6 +19,10 @@ include_directories(
     ../addons/ttf
     )
 
+if(MSVC)
+    set(EXECUTABLE_TYPE)
+endif(MSVC)
+
 add_our_executable(
     test_driver
     ${ALLEGRO_LINK_WITH}
