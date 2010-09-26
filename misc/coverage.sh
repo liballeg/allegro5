@@ -34,6 +34,7 @@ lcov -d $BUILDDIR --zerocounters
 
 make -j${JOBS} ex_blend_test
 make -j${JOBS} ex_config
+make -j${JOBS} ex_dir
 make -j${JOBS} ex_path_test
 make -j${JOBS} ex_utf8
 make -j${JOBS} copy_example_data
@@ -41,6 +42,7 @@ make -j${JOBS} copy_example_data
 ( cd examples
     ./ex_blend_test
     ./ex_config
+    ./ex_dir
     ./ex_path_test
     ./ex_utf8
 ) || true
