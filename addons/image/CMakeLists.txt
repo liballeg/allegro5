@@ -80,7 +80,23 @@ endif(WANT_IMAGE_PNG AND NOT ALLEGRO_CFG_IIO_SUPPORT_PNG)
 
 if(WANT_IMAGE_JPG AND NOT ALLEGRO_CFG_IIO_SUPPORT_JPG)
     find_package(JPEG)
-    if(JPEG_FOUND)
+    if(JPEG_FOUND AND MINGW)
+        set(CMAKE_REQUIRED_INCLUDES ${JPEG_INCLUDE_DIR})
+        check_c_source_compiles("
+            #include <stdio.h>
+            #include <windows.h>
+            #include <jpeglib.h>
+            #include <jerror.h>
+            int main(void) {
+                return 0;
+            }"
+            JPEG_COMPILES)
+        set(CMAKE_REQUIRED_INCLUDES)
+        set(SUPPORT_JPEG ${JPEG_COMPILES})
+    else()
+        set(SUPPORT_JPEG ${JPEG_FOUND})
+    endif()
+    if(SUPPORT_JPEG)
         # HAVE_JPG means libjpeg is available (and should be used)
         set(ALLEGRO_CFG_IIO_HAVE_JPG 1)
         set(ALLEGRO_CFG_IIO_SUPPORT_JPG 1)
@@ -88,9 +104,15 @@ if(WANT_IMAGE_JPG AND NOT ALLEGRO_CFG_IIO_SUPPORT_JPG)
         list(APPEND IMAGE_LIBRARIES ${JPEG_LIBRARIES})
         list(APPEND IMAGE_DEFINES ${JPEG_DEFINITIONS})
         include_directories(SYSTEM ${JPEG_INCLUDE_DIR})
-    else(JPEG_FOUND)
-        message("WARNING: libjpeg not found, disabling support")
-    endif(JPEG_FOUND)
+    else()
+        if(MINGW AND JPEG_FOUND AND NOT JPEG_COMPILES)
+            message("WARNING: libjpeg found but a the headers appear to "
+                "conflict with your MinGW headers, disabling support. "
+                "Try a later version.")
+        else()
+            message("WARNING: libjpeg not found, disabling support")
+        endif()
+    endif()
 endif(WANT_IMAGE_JPG AND NOT ALLEGRO_CFG_IIO_SUPPORT_JPG)
 
 configure_file(
