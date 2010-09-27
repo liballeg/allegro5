@@ -106,8 +106,8 @@ if(WANT_IMAGE_JPG AND NOT ALLEGRO_CFG_IIO_SUPPORT_JPG)
         include_directories(SYSTEM ${JPEG_INCLUDE_DIR})
     else()
         if(MINGW AND JPEG_FOUND AND NOT JPEG_COMPILES)
-            message("WARNING: libjpeg found but a the headers appear to "
-                "conflict with your MinGW headers, disabling support. "
+            message("WARNING: libjpeg found but the headers appear to "
+                "conflict with your MinGW headers, so disabling support. "
                 "Try a later version.")
         else()
             message("WARNING: libjpeg not found, disabling support")
