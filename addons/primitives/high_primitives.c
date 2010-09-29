@@ -67,7 +67,7 @@ void al_draw_line(float x1, float y1, float x2, float y2,
    if (thickness > 0) {
       int ii;
       float tx, ty;
-      float len = (float)hypot(x2 - x1, y2 - y1);
+      float len = hypotf(x2 - x1, y2 - y1);
       
       ALLEGRO_VERTEX vtx[4];
 
@@ -110,61 +110,198 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
    float x3, float y3, ALLEGRO_COLOR color, float thickness)
 {
    if (thickness > 0) {
-      int ii;
+      int ii = 0;
+      int jj;
       float side1, side2, side3;      
-      float p, s;
+      float perimeter, semi_perimeter;
       float outer_frac, inner_frac;
       float incenter_x, incenter_y;
-      float vert_x1, vert_y1, vert_x2, vert_y2, vert_x3, vert_y3;
       float incircle_rad;
-      ALLEGRO_VERTEX vtx[8];
-  
-      side1 = (float)hypot(x2 - x1, y2 - y1);
-      side2 = (float)hypot(x3 - x1, y3 - y1);
-      side3 = (float)hypot(x3 - x2, y3 - y2);
+      int idx = 0;
+      ALLEGRO_VERTEX vtx[5];
+      float x[3] = {x1, x2, x3};
+      float y[3] = {y1, y2, y3};
+      ALLEGRO_VERTEX first_inner_vtx;
+      ALLEGRO_VERTEX first_outer_vtx;
+      float cross = (x[1] - x[0]) * (y[2] - y[0]) - (x[2] - x[0]) * (y[1] - y[0]);
+      
+      /*
+       * If the triangle is very flat, draw it as a line
+       */
+      if(fabs(cross) < 0.0001f) {
+         float tx, ty, lx, ly;
+         float len;
+         /*
+          * Find the obtuse vertex via two dot products
+          */
+         float dot = (x[1] - x[0]) * (x[2] - x[0]) + (y[1] - y[0]) * (y[2] - y[0]);
+         if(dot < 0) {
+            x1 = x[1]; y1 = y[1];
+            x2 = x[2]; y2 = y[2];
+         } else {
+            dot = (x[0] - x[1]) * (x[2] - x[1]) + (y[0] - y[1]) * (y[2] - y[1]);
+            if(dot < 0) {
+               x1 = x[0]; y1 = y[0];
+               x2 = x[2]; y2 = y[2];
+            } else {
+               x1 = x[0]; y1 = y[0];
+               x2 = x[1]; y2 = y[1];
+            }
+         }
+         len = hypotf(x2 - x1, y2 - y1);
 
-      p = side1 + side2 + side3;
-      s = p / 2.0f;
-      if (s < 0.00001f)
+         if (len == 0)
+            return;
+
+         tx = 0.5f * thickness * (y2 - y1) / len;
+         ty = 0.5f * thickness * -(x2 - x1) / len;
+         lx = 0.5f * thickness * (x2 - x1) / len;
+         ly = 0.5f * thickness * (y2 - y1) / len;
+               
+         vtx[0].x = x1 + tx - lx; vtx[0].y = y1 + ty - ly;
+         vtx[1].x = x1 - tx - lx; vtx[1].y = y1 - ty - ly;
+         vtx[2].x = x2 - tx + lx; vtx[2].y = y2 - ty + ly;
+         vtx[3].x = x2 + tx + lx; vtx[3].y = y2 + ty + ly;
+         
+         for (ii = 0; ii < 4; ii++) {
+            vtx[ii].color = color;
+            vtx[ii].z = 0;
+         }
+         
+         al_draw_prim(vtx, 0, 0, 0, 4, ALLEGRO_PRIM_TRIANGLE_FAN);
+         return;
+      }
+      else if(cross > 0) {
+         /*
+          * Points need to be would correctly for the algorithm to work
+          */
+         float t;
+         t = x[1];
+         x[1] = x[2];
+         x[2] = t;
+         
+         t = y[1];
+         y[1] = y[2];
+         y[2] = t;
+      }
+  
+      side1 = hypotf(x[1] - x[0], y[1] - y[0]);
+      side2 = hypotf(x[2] - x[0], y[2] - y[0]);
+      side3 = hypotf(x[2] - x[1], y[2] - y[1]);
+
+      perimeter = side1 + side2 + side3;
+      semi_perimeter = perimeter / 2.0f;
+      if (semi_perimeter < 0.00001f)
          return;
 
-      incircle_rad = sqrtf((s - side1) * (s - side2) * (s - side3) / s);
+      incircle_rad = sqrtf((semi_perimeter - side1) * (semi_perimeter - side2) * (semi_perimeter - side3) / semi_perimeter);
 
       if (incircle_rad < 0.00001f)
          return;
 
       outer_frac = (incircle_rad + thickness / 2) / incircle_rad;
       inner_frac = (incircle_rad - thickness / 2) / incircle_rad;
+      
+      if(inner_frac < 0)
+         inner_frac = 0;
 
-      incenter_x = (side1 * x3 + side2 * x2 + side3 * x1) / p;
-      incenter_y = (side1 * y3 + side2 * y2 + side3 * y1) / p;
-      
-      vert_x1 = x1 - incenter_x;
-      vert_y1 = y1 - incenter_y;
-      vert_x2 = x2 - incenter_x;
-      vert_y2 = y2 - incenter_y;
-      vert_x3 = x3 - incenter_x;
-      vert_y3 = y3 - incenter_y;
+      incenter_x = (side1 * x[2] + side2 * x[1] + side3 * x[0]) / perimeter;
+      incenter_y = (side1 * y[2] + side2 * y[1] + side3 * y[0]) / perimeter;
 
-      vtx[1].x = incenter_x + vert_x1 * outer_frac; vtx[1].y = incenter_y + vert_y1 * outer_frac;
-      vtx[0].x = incenter_x + vert_x1 * inner_frac; vtx[0].y = incenter_y + vert_y1 * inner_frac;
-      
-      vtx[3].x = incenter_x + vert_x2 * outer_frac; vtx[3].y = incenter_y + vert_y2 * outer_frac;
-      vtx[2].x = incenter_x + vert_x2 * inner_frac; vtx[2].y = incenter_y + vert_y2 * inner_frac;
-      
-      vtx[5].x = incenter_x + vert_x3 * outer_frac; vtx[5].y = incenter_y + vert_y3 * outer_frac;
-      vtx[4].x = incenter_x + vert_x3 * inner_frac; vtx[4].y = incenter_y + vert_y3 * inner_frac;
-      
-      vtx[7].x = incenter_x + vert_x1 * outer_frac; vtx[7].y = incenter_y + vert_y1 * outer_frac;
-      vtx[6].x = incenter_x + vert_x1 * inner_frac; vtx[6].y = incenter_y + vert_y1 * inner_frac;
-      
-      for (ii = 0; ii < 8; ii++) {
-         vtx[ii].color = color;
-         vtx[ii].z = 0;
+      #define DRAW                                                         \
+            if(ii != 0) {                                                  \
+               vtx[idx++] = outer_vtx;                                     \
+               vtx[idx++] = inner_vtx;                                     \
+                                                                           \
+               for (jj = 0; jj < idx; jj++) {                              \
+                  vtx[jj].color = color;                                   \
+                  vtx[jj].z = 0;                                           \
+               }                                                           \
+                                                                           \
+               al_draw_prim(vtx, 0, 0, 0, idx, ALLEGRO_PRIM_TRIANGLE_FAN); \
+                                                                           \
+               idx = 0;                                                    \
+            }
+
+      /*
+       * Iterate across the vertices, and draw each side of the triangle separately
+       */
+      for(ii = 0; ii < 3; ii++)
+      {
+         float vert_x = x[ii] - incenter_x;
+         float vert_y = y[ii] - incenter_y;
+         
+         float o_dx = vert_x * outer_frac;
+         float o_dy = vert_y * outer_frac;
+         
+         float i_dx = vert_x * inner_frac;
+         float i_dy = vert_y * inner_frac;
+         
+         float tdx = o_dx - i_dx;
+         float tdy = o_dy - i_dy;
+         
+         ALLEGRO_VERTEX inner_vtx;
+         ALLEGRO_VERTEX outer_vtx;
+         
+         if(tdx * tdx + tdy * tdy > 16 * thickness * thickness) {
+            float x_pos = x[(ii + 1) % 3];
+            float y_pos = y[(ii + 1) % 3];
+            
+            float x_neg = x[(ii + 2) % 3];
+            float y_neg = y[(ii + 2) % 3];
+            
+            float x1_x2 = x[ii] - x_pos;
+            float y1_y2 = y[ii] - y_pos;
+            
+            float x1_x3 = x[ii] - x_neg;
+            float y1_y3 = y[ii] - y_neg;
+            
+            float mag_1_2 = hypotf(x1_x2, y1_y2);
+            float mag_1_3 = hypotf(x1_x3, y1_y3);
+            
+            ALLEGRO_VERTEX next_vtx;
+            
+            x1_x2 *= thickness / 2 / mag_1_2;
+            y1_y2 *= thickness / 2 / mag_1_2;
+            
+            x1_x3 *= thickness / 2 / mag_1_3;
+            y1_y3 *= thickness / 2 / mag_1_3;
+            
+            outer_vtx.x = x[ii] + x1_x3 - y1_y3; outer_vtx.y = y[ii] + y1_y3 + x1_x3;
+            inner_vtx.x = incenter_x + i_dx; inner_vtx.y = incenter_y + i_dy;
+            next_vtx.x = x[ii] + x1_x2 + y1_y2; next_vtx.y = y[ii] + y1_y2 - x1_x2;
+            
+            DRAW
+            
+            vtx[idx++] = inner_vtx;
+            vtx[idx++] = outer_vtx;
+            vtx[idx++] = next_vtx;
+         } else {
+            inner_vtx.x = incenter_x + i_dx; inner_vtx.y = incenter_y + i_dy;
+            outer_vtx.x = incenter_x + o_dx; outer_vtx.y = incenter_y + o_dy;
+            
+            DRAW
+            
+            vtx[idx++] = inner_vtx;
+            vtx[idx++] = outer_vtx;
+         }
+         
+         if(ii == 0) {
+            first_inner_vtx = inner_vtx;
+            first_outer_vtx = outer_vtx;
+         }
       }
       
-      al_draw_prim(vtx, 0, 0, 0, 8, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      vtx[idx++] = first_outer_vtx;
+      vtx[idx++] = first_inner_vtx;
+      for (jj = 0; jj < idx; jj++) {
+         vtx[jj].color = color;
+         vtx[jj].z = 0;
+      }
+
+      al_draw_prim(vtx, 0, 0, 0, idx, ALLEGRO_PRIM_TRIANGLE_FAN);
       
+      #undef DRAW
    } else {
       ALLEGRO_VERTEX vtx[3];
          
@@ -317,7 +454,7 @@ void al_calculate_arc(float* dest, int stride, float cx, float cy,
       } else {
          if (rx != 0 && !ry == 0) {
             for (ii = 0; ii < num_segments; ii++) {
-               float denom = (float)hypot(ry * x, rx * y);
+               float denom = hypotf(ry * x, rx * y);
                float nx = thickness / 2 * ry * x / denom;
                float ny = thickness / 2 * rx * y / denom;
 
@@ -727,9 +864,9 @@ void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
 {
    int ii;
    float scale = get_scale();
-   int num_segments = (int)(sqrtf((float)hypot(points[2] - points[0], points[3] - points[1]) +
-                                  (float)hypot(points[4] - points[2], points[5] - points[3]) +
-                                  (float)hypot(points[6] - points[4], points[7] - points[5])) *
+   int num_segments = (int)(sqrtf(hypotf(points[2] - points[0], points[3] - points[1]) +
+                                  hypotf(points[4] - points[2], points[5] - points[3]) +
+                                  hypotf(points[6] - points[4], points[7] - points[5])) *
                             1.2 * ALLEGRO_PRIM_QUALITY * scale / 10);
    LOCAL_VERTEX_CACHE;
    
@@ -796,7 +933,7 @@ void al_calculate_ribbon(float* dest, int dest_stride, const float *points,
          cur_dir_x = *(points)     - x;
          cur_dir_y = *(points + 1) - y;
          
-         dir_len = (float)hypot(cur_dir_x, cur_dir_y);
+         dir_len = hypotf(cur_dir_x, cur_dir_y);
          
          if(dir_len > 0.000001f) {
             cur_dir_x /= dir_len;
@@ -824,7 +961,7 @@ void al_calculate_ribbon(float* dest, int dest_stride, const float *points,
                float tx_;
                tx = cur_dir_x - prev_dir_x;
                ty = cur_dir_y - prev_dir_y;
-               norm_len = (float)hypot(tx, ty);
+               norm_len = hypotf(tx, ty);
                
                tx /= norm_len;
                ty /= norm_len;
@@ -841,7 +978,7 @@ void al_calculate_ribbon(float* dest, int dest_stride, const float *points,
                float new_norm_len;
                tx = cur_dir_y + prev_dir_y;
                ty = -(cur_dir_x + prev_dir_x);
-               norm_len = (float)hypot(tx, ty);
+               norm_len = hypotf(tx, ty);
   
                tx /= norm_len;
                ty /= norm_len;
