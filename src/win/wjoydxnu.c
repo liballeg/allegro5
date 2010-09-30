@@ -442,8 +442,10 @@ void _al_win_joystick_dinput_unacquire(void *unused)
 
    if (joystick_dinput && win_disp) {
       for (i=0; i < MAX_JOYSTICKS; i++) {
-         if (joydx_joystick[i].device)
+         if (joydx_joystick[i].device) {
+            ALLEGRO_DEBUG("Unacquiring joystick device at slot %d\n", i);
             IDirectInputDevice8_Unacquire(joydx_joystick[i].device);
+         }
       }
    }
 }
@@ -1102,6 +1104,8 @@ static void joydx_exit_joystick(void)
    ALLEGRO_SYSTEM *system;
    size_t j;
 
+   ALLEGRO_DEBUG("Entering joydx_exit_joystick\n");
+
    ASSERT(joydx_thread);
 
    /* stop the thread */
@@ -1120,10 +1124,12 @@ static void joydx_exit_joystick(void)
    for (j = 0; j < _al_vector_size(&system->displays); j++) {
       ALLEGRO_DISPLAY_WIN **pwin_disp = _al_vector_ref(&system->displays, j);
       ALLEGRO_DISPLAY_WIN *win_disp = *pwin_disp;
-      if (win_disp->window == GetForegroundWindow())
+      if (win_disp->window == GetForegroundWindow()) {
+         ALLEGRO_DEBUG("Requesting window unacquire joystick devices\n");
          _al_win_wnd_call_proc(win_disp->window,
                                _al_win_joystick_dinput_unacquire,
                                win_disp);
+      }
    }
 
    /* destroy the devices */
@@ -1142,6 +1148,9 @@ static void joydx_exit_joystick(void)
 
    /* release module handle */
    FreeLibrary(_al_dinput_module);
+   _al_dinput_module = NULL;
+
+   ALLEGRO_DEBUG("Leaving joydx_exit_joystick\n");
 }
 
 
