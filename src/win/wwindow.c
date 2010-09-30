@@ -541,18 +541,20 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          break;
       }
       case WM_MOUSELEAVE: {
-          _al_win_mouse_handle_leave(win_display);
-          break;
+         _al_win_mouse_handle_leave(win_display);
+         break;
       }
-      case WM_CAPTURECHANGED: if (al_is_mouse_installed()) {
-         int i;
-         ALLEGRO_MOUSE_STATE state;
-         if (!lParam || (HWND)lParam == hWnd)
-            break;
-         al_get_mouse_state(&state);
-         for (i = 1; i <= 5; i++) {
-            if (al_mouse_button_down(&state, i))
-               _al_win_mouse_handle_button(i, 0, 0, 0, true, win_display);
+      case WM_CAPTURECHANGED: {
+         if (al_is_mouse_installed()) {
+            int i;
+            ALLEGRO_MOUSE_STATE state;
+            if (!lParam || (HWND)lParam == hWnd)
+               break;
+            al_get_mouse_state(&state);
+            for (i = 1; i <= 5; i++) {
+               if (al_mouse_button_down(&state, i))
+                  _al_win_mouse_handle_button(i, 0, 0, 0, true, win_display);
+            }
          }
          break;
       }
