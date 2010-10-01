@@ -382,34 +382,19 @@ static void flush_data(png_structp png_ptr)
  */
 static int save_rgba(png_structp png_ptr, ALLEGRO_BITMAP *bmp)
 {
-   const int bmp_w = al_get_bitmap_width(bmp);
    const int bmp_h = al_get_bitmap_height(bmp);
-   unsigned char *rowdata;
-   int x, y;
    ALLEGRO_LOCKED_REGION *lock;
-   lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+   int y;
 
-   rowdata = (unsigned char *)al_malloc(bmp_w * 4);
-   if (!rowdata)
+   lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
+      ALLEGRO_LOCK_READONLY);
+   if (!lock)
       return 0;
 
    for (y = 0; y < bmp_h; y++) {
-      unsigned char *p = rowdata;
-
-      for (x = 0; x < bmp_w; x++) {
-         ALLEGRO_COLOR c = al_get_pixel(bmp, x, y);
-         unsigned char r, g, b, a;
-         al_unmap_rgba(c, &r, &g, &b, &a);
-         *p++ = r;
-         *p++ = g;
-         *p++ = b;
-         *p++ = a;
-      }
-
-      png_write_row(png_ptr, rowdata);
+      unsigned char *p = lock->data + lock->pitch * y;
+      png_write_row(png_ptr, p);
    }
-
-   al_free(rowdata);
    
    al_unlock_bitmap(bmp);
 

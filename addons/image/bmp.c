@@ -839,14 +839,22 @@ bool _al_save_bmp_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
    al_fwrite32le(f, 0);                   /* biClrUsed */
    al_fwrite32le(f, 0);                   /* biClrImportant */
 
-   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+   /* Don't really need the alpha channel, just the _LE.
+    * Note that there exist 32-bit BMPs now so we could try to save those.
+    */
+   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
+      ALLEGRO_LOCK_READONLY);
 
    /* image data */
    for (i = h - 1; i >= 0; i--) {
+      unsigned char *data = lr->data + i * lr->pitch;
+
       for (j = 0; j < w; j++) {
-         ALLEGRO_COLOR c = al_get_pixel(bmp, j, i);
-         unsigned char r, g, b;
-         al_unmap_rgb(c, &r, &g, &b);
+         unsigned char r = data[0];
+         unsigned char g = data[1];
+         unsigned char b = data[2];
+         data += 4;
+
          al_fputc(f, b);
          al_fputc(f, g);
          al_fputc(f, r);
