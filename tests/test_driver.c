@@ -648,7 +648,7 @@ static void check_similarity(ALLEGRO_CONFIG const *cfg,
    char const *value;
    
    if (bmp_type == HW) {
-      char const *exp = al_get_config_value(cfg, testname, "hw_hash");
+      char const *exp = al_get_config_value(cfg, testname, "hash_hw");
       char hash[16];
       sprintf(hash, "%08x", hash_bitmap(bmp1));
       if (exp && streq(hash, exp)) {

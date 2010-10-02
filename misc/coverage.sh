@@ -37,7 +37,7 @@ make -j${JOBS} ex_config
 make -j${JOBS} ex_dir
 make -j${JOBS} ex_path_test
 make -j${JOBS} ex_utf8
-make -j${JOBS} copy_example_data
+make -j${JOBS} copy_example_data copy_demo_data
 
 ( cd examples
     ./ex_blend_test
