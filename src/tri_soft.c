@@ -210,11 +210,11 @@ typedef struct {
    float du_dx, du_dy, u_const;
    float dv_dx, dv_dy, v_const;
 
-   float u, v;
-   float minor_du;
-   float minor_dv;
-   float major_du;
-   float major_dv;
+   double u, v;
+   double minor_du;
+   double minor_dv;
+   double major_du;
+   double major_dv;
 
    float off_x;
    float off_y;
@@ -266,8 +266,8 @@ static void shader_texture_solid_any_first(uintptr_t state, int x1, int y, int l
    s->u = cur_x * s->du_dx + cur_y * s->du_dy + s->u_const;
    s->v = cur_x * s->dv_dx + cur_y * s->dv_dy + s->v_const;
 
-   s->minor_du = (float)left_minor * s->du_dx + s->du_dy;
-   s->minor_dv = (float)left_minor * s->dv_dx + s->dv_dy;
+   s->minor_du = (double)left_minor * s->du_dx + s->du_dy;
+   s->minor_dv = (double)left_minor * s->dv_dx + s->dv_dy;
 
    s->major_du = (float)left_major * s->du_dx + s->du_dy;
    s->major_dv = (float)left_major * s->dv_dx + s->dv_dy;
