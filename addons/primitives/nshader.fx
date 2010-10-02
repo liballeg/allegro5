@@ -53,7 +53,7 @@
 # define _op_pos2                       o.pos = mul(float4(i.pos.xy,   0.0f, 1.0f), g_world_view_proj);
 # define _op_pos3                       o.pos = mul(float4(i.pos.xyz,        1.0f), g_world_view_proj);
 # define _op_tex0
-# define _op_tex2                       o.tex = mul(float4(i.tex.xy,   0.0f, 1.0f), g_texture_proj).xy;
+# define _op_tex2                       o.tex = mul(float4(i.tex.xy,   1.0f, 0.0f), g_texture_proj).xy;
 # define _op_col0                       o.col = float4(1.0f, 1.0f, 1.0f, 1.0f);
 # define _op_col4_0                     o.col = i.col;
 # define _op_col4_1                     o.col = i.col;
