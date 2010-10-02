@@ -219,17 +219,6 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const 
       return _al_draw_prim_soft(texture, vtxs, decl, start, end, type);
    }
    
-   /* For sub bitmaps. */
-   if(al_is_sub_bitmap(target)) {
-      int xofs, yofs;
-      al_get_opengl_texture_position(target, &xofs, &yofs);
-      glMatrixMode(GL_MODELVIEW);
-      glPushMatrix();
-      glLoadIdentity();
-      glTranslatef(target->xofs, target->yofs, 0);
-      glMultMatrixf((float*)al_get_current_transform()->m);
-   }
-   
    vtx = (const char*)vtxs + start * stride;
    num_vtx = end - start;
 
@@ -290,11 +279,6 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const 
    glDisableClientState(GL_COLOR_ARRAY);
    glDisableClientState(GL_VERTEX_ARRAY);
    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-   
-   if(al_is_sub_bitmap(target)) {
-      glMatrixMode(GL_MODELVIEW);
-      glPopMatrix();
-   }
 
    return num_primitives;
 #else
@@ -331,17 +315,6 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
 
    if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) || al_is_bitmap_locked(target)) {
       return _al_draw_prim_indexed_soft(texture, decl, vtxs, indices, num_vtx, type);
-   }
-   
-   /* For sub bitmaps. */
-   if(al_is_sub_bitmap(target)) {
-      int xofs, yofs;
-      al_get_opengl_texture_position(target, &xofs, &yofs);
-      glMatrixMode(GL_MODELVIEW);
-      glPushMatrix();
-      glLoadIdentity();
-      glTranslatef(xofs, yofs, 0);
-      glMultMatrixf((float*)al_get_current_transform()->m);
    }
    
    vtx = vtxs;
@@ -413,11 +386,6 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
    glDisableClientState(GL_COLOR_ARRAY);
    glDisableClientState(GL_VERTEX_ARRAY);
    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-   
-   if(al_is_sub_bitmap(target)) {
-      glMatrixMode(GL_MODELVIEW);
-      glPopMatrix();
-   }
 
    return num_primitives;
 #else
