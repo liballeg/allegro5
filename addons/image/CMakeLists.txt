@@ -35,6 +35,7 @@ if(WANT_NATIVE_IMAGE_LOADER)
                 #include <GdiPlus.h>
                 int main(void)
                 {
+                    int pf = PixelFormat32bppARGB;
                     return 0;
                 }
                 "
