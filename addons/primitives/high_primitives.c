@@ -111,7 +111,6 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
 {
    if (thickness > 0) {
       int ii = 0;
-      int jj;
       float side1, side2, side3;      
       float perimeter, semi_perimeter;
       float outer_frac, inner_frac;
@@ -123,7 +122,13 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
       float y[3] = {y1, y2, y3};
       ALLEGRO_VERTEX first_inner_vtx;
       ALLEGRO_VERTEX first_outer_vtx;
+      ALLEGRO_VERTEX ini_vtx;
       float cross = (x[1] - x[0]) * (y[2] - y[0]) - (x[2] - x[0]) * (y[1] - y[0]);
+      
+      ini_vtx.x = ini_vtx.y = ini_vtx.z = ini_vtx.u = ini_vtx.v = 0;
+      ini_vtx.color = color;
+      first_inner_vtx = ini_vtx;
+      first_outer_vtx = ini_vtx;
       
       /*
        * If the triangle is very flat, draw it as a line
@@ -173,7 +178,7 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
       }
       else if(cross > 0) {
          /*
-          * Points need to be would correctly for the algorithm to work
+          * Points need to be wound correctly for the algorithm to work
           */
          float t;
          t = x[1];
@@ -213,11 +218,6 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
                vtx[idx++] = outer_vtx;                                     \
                vtx[idx++] = inner_vtx;                                     \
                                                                            \
-               for (jj = 0; jj < idx; jj++) {                              \
-                  vtx[jj].color = color;                                   \
-                  vtx[jj].z = 0;                                           \
-               }                                                           \
-                                                                           \
                al_draw_prim(vtx, 0, 0, 0, idx, ALLEGRO_PRIM_TRIANGLE_FAN); \
                                                                            \
                idx = 0;                                                    \
@@ -240,8 +240,8 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
          float tdx = o_dx - i_dx;
          float tdy = o_dy - i_dy;
          
-         ALLEGRO_VERTEX inner_vtx;
-         ALLEGRO_VERTEX outer_vtx;
+         ALLEGRO_VERTEX inner_vtx = ini_vtx;
+         ALLEGRO_VERTEX outer_vtx = ini_vtx;
          
          if(tdx * tdx + tdy * tdy > 16 * thickness * thickness) {
             float x_pos = x[(ii + 1) % 3];
@@ -259,7 +259,7 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
             float mag_1_2 = hypotf(x1_x2, y1_y2);
             float mag_1_3 = hypotf(x1_x3, y1_y3);
             
-            ALLEGRO_VERTEX next_vtx;
+            ALLEGRO_VERTEX next_vtx = ini_vtx;
             
             x1_x2 *= thickness / 2 / mag_1_2;
             y1_y2 *= thickness / 2 / mag_1_2;
@@ -294,10 +294,6 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
       
       vtx[idx++] = first_outer_vtx;
       vtx[idx++] = first_inner_vtx;
-      for (jj = 0; jj < idx; jj++) {
-         vtx[jj].color = color;
-         vtx[jj].z = 0;
-      }
 
       al_draw_prim(vtx, 0, 0, 0, idx, ALLEGRO_PRIM_TRIANGLE_FAN);
       
