@@ -1,6 +1,5 @@
 #include <windows.h>
 #include <objidl.h>
-#include <GdiPlus.h>
 
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_image.h"
@@ -9,6 +8,15 @@
 #include "allegro5/internal/aintern_image.h"
 
 #include "iio.h"
+
+#ifdef ALLEGRO_CFG_IIO_HAVE_GDIPLUS_LOWERCASE_H
+   #include <gdiplus.h>
+#else
+   #include <Gdiplus.h>
+#endif
+
+/* Needed with the MinGW w32api-3.15 headers. */
+using namespace Gdiplus;
 
 #ifndef _MSC_VER
 #define __uuidof(x) (IID_ ## x)
@@ -60,9 +68,11 @@ class AllegroWindowsStream : public IStream
 
 public:
    /* Create a stream from an open file handle */
-   AllegroWindowsStream(ALLEGRO_FILE *fp) : fp(fp), refCount(1)
+   AllegroWindowsStream(ALLEGRO_FILE *fp) :
+      refCount(1),
+      fp(fp)
    {
-	   this->fp = fp;
+      this->fp = fp;
    }
 
    /* IUnknown */
@@ -168,14 +178,19 @@ public:
    virtual HRESULT STDMETHODCALLTYPE CopyTo (IStream *pstm, ULARGE_INTEGER cb,
       ULARGE_INTEGER *pcbRead, ULARGE_INTEGER *pcbWritten)
    {
-      (void) pstm, cb, pcbRead, pcbWritten;
+      (void) pstm;
+      (void) cb;
+      (void) pcbRead;
+      (void) pcbWritten;
       return E_NOTIMPL;
    }
 
    virtual HRESULT STDMETHODCALLTYPE LockRegion(ULARGE_INTEGER libOffset,
       ULARGE_INTEGER cb, DWORD dwLockType)
    {
-      (void) libOffset, cb, dwLockType;
+      (void) libOffset;
+      (void) cb;
+      (void) dwLockType;
       return E_NOTIMPL;
    }
     
@@ -193,7 +208,9 @@ public:
    virtual HRESULT STDMETHODCALLTYPE UnlockRegion(ULARGE_INTEGER libOffset,
       ULARGE_INTEGER cb, DWORD dwLockType)
    {
-      (void) libOffset, cb, dwLockType;
+      (void) libOffset;
+      (void) cb;
+      (void) dwLockType;
       return E_NOTIMPL;
    }
 };
@@ -333,7 +350,7 @@ bool _al_save_gdiplus_bitmap_f(ALLEGRO_FILE *fp, const char *ident,
          gdi_bmp->UnlockBits(gdi_lock);
       }
 				
-      ret = (gdi_bmp->Save(s, &encoder) == 0);
+      ret = (gdi_bmp->Save(s, &encoder, NULL) == 0);
 
       delete gdi_lock;		
       delete gdi_bmp;

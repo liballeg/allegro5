@@ -11,6 +11,12 @@ if(GDIPLUS_INCLUDE_DIR)
 endif(GDIPLUS_INCLUDE_DIR)
 
 find_path(GDIPLUS_INCLUDE_DIR GdiPlus.h)
+if(NOT GDIPLUS_INCLUDE_DIR)
+   find_path(GDIPLUS_INCLUDE_DIR gdiplus.h)
+   if(GDIPLUS_INCLUDE_DIR)
+      set(GDIPLUS_LOWERCASE 1 CACHE INTERNAL "Is GdiPlus.h spelt with lowercase?")
+   endif()
+endif()
 
 find_library(GDIPLUS_LIBRARY NAMES gdiplus)
 
@@ -26,4 +32,4 @@ else(GDIPLUS_FOUND)
     set(GDIPLUS_LIBRARIES)
 endif(GDIPLUS_FOUND)
 
-mark_as_advanced(GDIPLUS_INCLUDE_DIR GDIPLUS_LIBRARY)
+mark_as_advanced(GDIPLUS_INCLUDE_DIR GDIPLUS_LIBRARY GDIPLUS_LOWERCASE)

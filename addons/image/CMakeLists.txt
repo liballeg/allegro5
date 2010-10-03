@@ -27,12 +27,18 @@ if(WANT_NATIVE_IMAGE_LOADER)
     if(WIN32)
         find_package(GDIPLUS)
         if(GDIPLUS_FOUND)
+            set(CMAKE_REQUIRED_DEFINITIONS -DGDIPLUS_LOWERCASE=${GDIPLUS_LOWERCASE})
             set(CMAKE_REQUIRED_INCLUDES ${GDIPLUS_INCLUDE_DIR})
             set(CMAKE_REQUIRED_LIBRARIES ${GDIPLUS_LIBRARY})
             check_cxx_source_compiles("
                 #include <windows.h>
                 #include <objidl.h>
-                #include <GdiPlus.h>
+                #if GDIPLUS_LOWERCASE
+                    #include <gdiplus.h>
+                #else
+                    #include <GdiPlus.h>
+                #endif
+                using namespace Gdiplus;
                 int main(void)
                 {
                     int pf = PixelFormat32bppARGB;
@@ -43,6 +49,7 @@ if(WANT_NATIVE_IMAGE_LOADER)
         endif(GDIPLUS_FOUND)
         if(SUPPORT_GDIPLUS)
             set(ALLEGRO_CFG_IIO_HAVE_GDIPLUS 1)
+            set(ALLEGRO_CFG_IIO_HAVE_GDIPLUS_LOWERCASE_H ${GDIPLUS_LOWERCASE})
             set(ALLEGRO_CFG_IIO_SUPPORT_PNG 1)
             set(ALLEGRO_CFG_IIO_SUPPORT_JPG 1)
             list(APPEND IMAGE_SOURCES gdiplus.cpp)
