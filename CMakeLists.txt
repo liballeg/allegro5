@@ -178,6 +178,8 @@ if(WIN32)
 endif(WIN32)
 
 if(MSVC)
+    # MSVC never needs DLL TLS and it just confuses
+    set(ALLEGRO_CFG_DLL_TLS 0)
     set(COMPILER_MSVC 1)
     set(ALLEGRO_MSVC 1)
 
