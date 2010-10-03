@@ -847,7 +847,7 @@ bool _al_save_bmp_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 
    /* image data */
    for (i = h - 1; i >= 0; i--) {
-      unsigned char *data = lr->data + i * lr->pitch;
+      unsigned char *data = (unsigned char *)lr->data + i * lr->pitch;
 
       for (j = 0; j < w; j++) {
          unsigned char r = data[0];
