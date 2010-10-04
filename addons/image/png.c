@@ -392,7 +392,7 @@ static int save_rgba(png_structp png_ptr, ALLEGRO_BITMAP *bmp)
       return 0;
 
    for (y = 0; y < bmp_h; y++) {
-      unsigned char *p = lock->data + lock->pitch * y;
+      unsigned char *p = (unsigned char *)lock->data + lock->pitch * y;
       png_write_row(png_ptr, p);
    }
    
