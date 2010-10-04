@@ -16,6 +16,8 @@ if(NOT GDIPLUS_INCLUDE_DIR)
    if(GDIPLUS_INCLUDE_DIR)
       set(GDIPLUS_LOWERCASE 1 CACHE INTERNAL "Is GdiPlus.h spelt with lowercase?")
    endif()
+else(NOT GDIPLUS_INCLUDE_DIR)
+   set(GDIPLUS_LOWERCASE 0 CACHE INTERNAL "Is GdiPlus.h spelt with lowercase?")
 endif()
 
 find_library(GDIPLUS_LIBRARY NAMES gdiplus)
