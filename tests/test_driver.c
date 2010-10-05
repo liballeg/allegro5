@@ -1326,6 +1326,14 @@ int main(const int _argc, char const *_argv[])
       else if (streq(opt, "--force-opengl-1.2")) {
          ALLEGRO_CONFIG *cfg = al_get_system_config();
          al_set_config_value(cfg, "opengl", "force_opengl_version", "1.2");
+         al_set_new_display_flags(ALLEGRO_OPENGL);
+      }
+      else if (streq(opt, "--force-opengl")) {
+         al_set_new_display_flags(ALLEGRO_OPENGL);
+      }
+      else if (streq(opt, "--force-d3d")) {
+         /* Don't try this at home. */
+         al_set_new_display_flags(ALLEGRO_DIRECT3D_INTERNAL);
       }
       else {
          break;
