@@ -36,18 +36,18 @@ static int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
    Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
 
    Gdiplus::GetImageEncodersSize(&num, &size);
-   if(size == 0) {
+   if (size == 0) {
       return -1;  
    }
 
    pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(al_malloc(size));
-   if(pImageCodecInfo == NULL) {
+   if (pImageCodecInfo == NULL) {
       return -1;  
    }
 
    GetImageEncoders(num, size, pImageCodecInfo);
 
-   for(UINT j = 0; j < num; ++j) {
+   for (UINT j = 0; j < num; ++j) {
       if(wcscmp(pImageCodecInfo[j].MimeType, format) == 0) {
          *pClsid = pImageCodecInfo[j].Clsid;
          al_free(pImageCodecInfo);
@@ -84,19 +84,20 @@ public:
    virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void **ppvObject)
    {
       if (iid == __uuidof(IUnknown) || iid == __uuidof(ISequentialStream)
-            || iid == __uuidof(IStream)) {
+         || iid == __uuidof(IStream)) {
          *ppvObject = static_cast<IStream*>(this);
          AddRef();
          return S_OK;
       }
-      else
+      else {
          return E_NOINTERFACE;
-	}
+      }
+   }
 
    virtual ULONG STDMETHODCALLTYPE Release(void)
    {
       ULONG ret = InterlockedDecrement(&refCount);
-      if(ret == 0) { 
+      if (ret == 0) {
          delete this; 
          return 0; 
       }
@@ -420,3 +421,5 @@ void _al_shutdown_gdiplus()
       gdiplus_inited = false;
    }
 }
+
+/* vim: set sts=3 sw=3 et: */
