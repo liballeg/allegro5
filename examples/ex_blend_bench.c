@@ -25,58 +25,14 @@ enum Mode {
    ALL,
    PLAIN_BLIT,
    SCALED_BLIT,
-   ROTATE_BLIT,
-   DRAW_PRIM,
+   ROTATE_BLIT
 };
 
 static char const *names[] = {
-   "", "Plain blit", "Scaled blit", "Rotated blit", "Draw primitive"
+   "", "Plain blit", "Scaled blit", "Rotated blit"
 };
 
 ALLEGRO_DISPLAY *display;
-
-static void replacement_al_draw_scaled_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
-   float cx, float cy, float dx, float dy, float xscale, float yscale,
-   float angle, int flags)
-{
-   ALLEGRO_VERTEX v[4];
-   ALLEGRO_COLOR c = al_map_rgb_f(1, 1, 1);
-   int w = al_get_bitmap_width(bitmap);
-   int h = al_get_bitmap_height(bitmap);
-   ALLEGRO_TRANSFORM trans;
-   al_identity_transform(&trans);
-   al_translate_transform(&trans, -cx, -cy);
-   al_scale_transform(&trans, xscale, yscale);
-   al_rotate_transform(&trans, angle);
-   al_translate_transform(&trans, dx, dy);
-   v[0].x = 0;
-   v[0].y = 0;
-   v[0].z = 0;
-   v[0].u = 0;
-   v[0].v = 0;
-   v[0].color = c;
-   v[1].x = w;
-   v[1].y = 0;
-   v[1].z = 0;
-   v[1].u = w;
-   v[1].v = 0;
-   v[1].color = c;
-   v[3].x = w;
-   v[3].y = h;
-   v[3].z = 0;
-   v[3].u = w;
-   v[3].v = h;
-   v[3].color = c;
-   v[2].x = 0;
-   v[2].y = h;
-   v[2].z = 0;
-   v[2].u = 0;
-   v[2].v = h;
-   v[2].color = c;
-   
-   al_use_transform(&trans);
-   al_draw_prim(v, NULL, bitmap, 0, 4, ALLEGRO_PRIM_TRIANGLE_STRIP);
-}
 
 static void step(enum Mode mode, ALLEGRO_BITMAP *b2)
 {
@@ -91,10 +47,6 @@ static void step(enum Mode mode, ALLEGRO_BITMAP *b2)
       case ROTATE_BLIT:
          al_draw_scaled_rotated_bitmap(b2, 10, 10, 10, 10, 2.0, 2.0,
             ALLEGRO_PI/30, 0);
-         break;
-      case DRAW_PRIM:
-         replacement_al_draw_scaled_rotated_bitmap(b2, 10, 10, 10, 10,
-            2.0, 2.0, ALLEGRO_PI/30, 0);
          break;
    }
 }
@@ -188,9 +140,6 @@ int main(int argc, const char *argv[])
          case 2:
             mode = ROTATE_BLIT;
             break;
-         case 3:
-            mode = DRAW_PRIM;
-            break;
       }
    }
 
@@ -209,7 +158,7 @@ int main(int argc, const char *argv[])
    }
    
    if (mode == ALL) {
-      for (mode = PLAIN_BLIT; mode <= DRAW_PRIM; mode++) {
+      for (mode = PLAIN_BLIT; mode <= ROTATE_BLIT; mode++) {
          do_test(mode);
       }
    }
