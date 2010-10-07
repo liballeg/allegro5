@@ -708,6 +708,36 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
 
    info->num_buttons = can->num_buttons;
 
+   /* correct buggy MP-8866 Dual USB Joypad info received from DirectInput */
+   if (!strcmp(joy->name, "MP-8866 Dual USB Joypad")) {
+      /* axes were mapped weird; remap as expected */
+      /* really R-stick X axis */
+      joy->z_mapping.stick  = 1;
+      joy->z_mapping.axis   = 0;
+
+      /* really R-stick Y axis */
+      joy->rz_mapping.stick = 1;
+      joy->rz_mapping.axis  = 1;
+
+      info->stick[0].num_axes = 2;
+      info->stick[1].num_axes = 2;
+
+      /* reuse the axis names from the first stick */
+      info->stick[2].axis[0].name = info->stick[1].axis[0].name = info->stick[0].axis[0].name;
+      info->stick[2].axis[1].name = info->stick[1].axis[1].name = info->stick[0].axis[1].name;
+
+      /* first four button names contained junk; replace with valid strings */
+      info->button[ 0].name = ADD_STRING("Triangle");
+      info->button[ 1].name = ADD_STRING("Circle");
+      info->button[ 2].name = ADD_STRING("X");
+      info->button[ 3].name = ADD_STRING("Square");
+
+      /* while we're at it, give these controls more sensible names, too */
+      info->stick[0].name = ADD_STRING("[L-stick] or D-pad");
+      info->stick[1].name = ADD_STRING("[R-stick]");
+      info->stick[2].name = ADD_STRING("[D-pad]");
+   }
+
 #undef N_AXIS
 #undef N_STICK
 #undef OR
