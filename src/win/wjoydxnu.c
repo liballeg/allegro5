@@ -527,15 +527,15 @@ static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVO
    CAPS_AND_NAMES *can = pvRef;
 
    if (GUIDTYPE_EQ(__al_GUID_XAxis)) {
-      can->have_rx = true;
+      can->have_x = true;
       _al_sane_strncpy(can->name_x, lpddoi->tszName, NAME_LEN);
    }
    else if (GUIDTYPE_EQ(__al_GUID_YAxis)) {
-      can->have_ry = true;
+      can->have_y = true;
       _al_sane_strncpy(can->name_y, lpddoi->tszName, NAME_LEN);
    }
    else if (GUIDTYPE_EQ(__al_GUID_ZAxis)) {
-      can->have_rz = true;
+      can->have_z = true;
       _al_sane_strncpy(can->name_z, lpddoi->tszName, NAME_LEN);
    }
    else if (GUIDTYPE_EQ(__al_GUID_RxAxis)) {
@@ -1192,7 +1192,7 @@ static int joydx_get_num_joysticks(void)
  */
 static ALLEGRO_JOYSTICK *joydx_get_joystick(int num)
 {
-   ALLEGRO_JOYSTICK *ret;
+   ALLEGRO_JOYSTICK *ret = NULL;
    unsigned i;
    ASSERT(num >= 0);
 
