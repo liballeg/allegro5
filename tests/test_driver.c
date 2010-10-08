@@ -343,8 +343,12 @@ static void fill_lock_region(LockRegion *lr, float alphafactor, bool blended)
 
    for (y = 0; y < lr->h; y++) {
       for (x = 0; x < lr->w; x++) {
-         r = (float)x / lr->w;
-         b = (float)y / lr->h;
+         /* -1 to make the last pixel use the full color, allows easier
+          * manual inspection of the test results as we have a fixed
+          * color on each side.
+          */
+         r = (float)x / (lr->w - 1);
+         b = (float)y / (lr->h - 1);
          g = r*b;
          a = r * alphafactor;
          c = al_map_rgba_f(r, g, b, a);
