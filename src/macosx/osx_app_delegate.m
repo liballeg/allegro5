@@ -244,11 +244,18 @@ static void call_user_main(void)
 
 
 /* This prevents warnings that 'NSApplication might not
- * respond to setAppleMenu' on OS X 10.4
+ * respond to setAppleMenu' on OS X 10.4+
  */
 @interface NSApplication(AllegroOSX)
 - (void)setAppleMenu:(NSMenu *)menu;
 @end
+
+/* Helper macro to add entries to the menu */
+#define add_menu(name, sel, eq)                                         \
+        [menu addItem: [[NSMenuItem allocWithZone: [NSMenu menuZone]]   \
+                                    initWithTitle: name                 \
+                                           action: @selector(sel)       \
+                                    keyEquivalent: eq]]                 \
 
 int _al_osx_run_main(int argc, char **argv,
    int (*real_main)(int, char **))
@@ -284,26 +291,42 @@ int _al_osx_run_main(int argc, char **argv,
         {
             title = [[NSProcessInfo processInfo] processName];
         }
-        NSMenu* main_menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @"temp"];
+        NSMenu* main_menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @""];
         [NSApp setMainMenu: main_menu];
-        menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @"temp"];
+
+        /* Add application ("Apple") menu */
+        menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @"Apple menu"];
         temp_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
-                     initWithTitle: @"temp"
+                     initWithTitle: @""
                      action: NULL
                      keyEquivalent: @""];
         [main_menu addItem: temp_item];
         [main_menu setSubmenu: menu forItem: temp_item];
         [temp_item release];
+        add_menu([@"Hide " stringByAppendingString: title], hide:, @"h");
+        add_menu(@"Hide Others", hideOtherApplications:, @"");
+        add_menu(@"Show All", unhideAllApplications:, @"");
+        [menu addItem: [NSMenuItem separatorItem]];
+        add_menu([@"Quit " stringByAppendingString: title], terminate:, @"q");
         [NSApp setAppleMenu: menu];
-        NSString *quit = [@"Quit " stringByAppendingString: title];
-        menu_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
-                     initWithTitle: quit
-                     action: @selector(terminate:)
-                     keyEquivalent: @"q"];
-        [menu_item setKeyEquivalentModifierMask: NSCommandKeyMask];
-        [menu addItem: menu_item];
-        [menu_item release];
         [menu release];
+
+        /* Add "Window" menu */
+        menu = [[NSMenu allocWithZone: [NSMenu menuZone]]
+                        initWithTitle: @"Window"];
+        temp_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
+                                 initWithTitle: @""
+                                        action: NULL
+                                 keyEquivalent: @""];
+        [main_menu addItem: temp_item];
+        [main_menu setSubmenu: menu forItem: temp_item];
+        [temp_item release];
+        /* Add menu entries */
+        add_menu(@"Minimize", performMiniaturize:, @"M");
+        add_menu(@"Bring All to Front", arrangeInFront:, @"");
+        [NSApp setWindowsMenu:menu];
+        [menu release];
+
         [main_menu release];
     }
     // setDelegate: doesn't retain the delegate here (a Cocoa convention)
