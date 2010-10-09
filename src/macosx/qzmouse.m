@@ -232,7 +232,7 @@ static bool osx_init_mouse(void)
       }
       ALLEGRO_INFO("Detected %d axes and %d buttons\n", axes, buttons);
       
-      /* When mouse events reach teh application, it is not clear which
+      /* When mouse events reach the application, it is not clear which
        * device generated them, so effectively the largest number of
        * buttons and axes reported corresponds to the device that the
        * application "sees"
