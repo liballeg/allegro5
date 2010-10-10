@@ -93,14 +93,14 @@ static void postprocess_latex(void)
 
       /* Change cross references from, to:  (notice the backslashes)
        *   \href{DUMMY_REF}{foo\_bar\_baz}
-       *   \ref{foo_bar_baz}
+       *   \alref{foo_bar_baz}
        */
       while (d_match(line, "\\\\href\\{DUMMY_REF\\}\\{([^}]*)\\}")) {
          const char *ref = d_submatch(1);
          d_printf("%s", d_before_match);
-         d_printf("{%s}~(\\ref{", ref);
+         d_printf("\\alref{", ref);
          print_sans_backslashes(ref);
-         d_printf("})");
+         d_printf("}");
          d_assign(line, d_after_match);
       }
       d_print(line);

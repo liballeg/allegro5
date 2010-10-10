@@ -135,6 +135,7 @@ option(WANT_DOCS_HTML "Generate HTML documentation" on)
 option(WANT_DOCS_MAN "Generate man pages" on)
 option(WANT_DOCS_INFO "Generate Info document" off)
 option(WANT_DOCS_PDF "Generate PDF document (requires pdflatex)" off)
+option(WANT_DOCS_PDF_PAPER "Whether PDF output is destined for paper" off)
 
 #
 # For developers.

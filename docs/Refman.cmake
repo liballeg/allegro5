@@ -351,6 +351,12 @@ if(WANT_DOCS_PDF AND NOT PDFLATEX_COMPILER)
 endif()
 
 if(MAKE_PDF)
+    if(WANT_DOCS_PDF_PAPER)
+        set(paperref 1)
+    else()
+        set(paperref)
+    endif()
+
     make_directory(${LATEX_DIR})
     add_custom_target(latex ALL DEPENDS ${LATEX_DIR}/refman.tex)
     add_custom_command(
@@ -363,6 +369,7 @@ if(MAKE_PDF)
         COMMAND ${MAKE_DOC}
                 --to latex
                 --template ${SRC_REFMAN_DIR}/latex.template
+                -V paperref=${paperref}
                 --standalone
                 --toc
                 --number-sections
