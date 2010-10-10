@@ -1017,8 +1017,12 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h)
    ALLEGRO_DISPLAY_WGL *wgl_display = al_malloc(sizeof *wgl_display);
    ALLEGRO_DISPLAY *ogl_display = (void*)wgl_display;
    ALLEGRO_DISPLAY     *display     = (void*)ogl_display;
+   ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)display;
 
    memset(display, 0, sizeof *wgl_display);
+
+   win_disp->adapter = _al_win_determine_adapter();
+
    display->w = w;
    display->h = h;
    display->refresh_rate = al_get_new_display_refresh_rate();
@@ -1162,9 +1166,7 @@ static void display_thread_proc(void *arg)
    }
    else if (disp->flags & ALLEGRO_FULLSCREEN_WINDOW) {
       ALLEGRO_MONITOR_INFO mi;
-      int adapter = al_get_new_display_adapter();
-      if (adapter == -1)
-         adapter = 0;
+      int adapter = win_disp->adapter;
       al_get_monitor_info(adapter, &mi);
       win_disp->toggle_w = disp->w;
       win_disp->toggle_h = disp->h;

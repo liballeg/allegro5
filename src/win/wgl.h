@@ -13,3 +13,4 @@ typedef struct ALLEGRO_DISPLAY_WGL
    HGLRC glrc;
 } ALLEGRO_DISPLAY_WGL;
 
+int _al_win_determine_adapter(void);

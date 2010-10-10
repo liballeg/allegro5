@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_image.h"
 
@@ -25,6 +26,10 @@ int main(int argc, const char *argv[])
 
     if (!al_init()) {
        abort_example("Could not init Allegro.\n");
+    }
+       
+    if (argc > 2) {
+       al_set_new_display_adapter(atoi(argv[2]));
     }
 
     al_install_mouse();

@@ -1749,13 +1749,11 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
    ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)al_malloc(sizeof(ALLEGRO_DISPLAY_D3D));
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
    ALLEGRO_DISPLAY *al_display = &win_display->display;
-   int adapter = al_get_new_display_adapter();
-   if (adapter == -1)
-      adapter = 0;
 
    memset(d3d_display, 0, sizeof *d3d_display);
+   
+   win_display->adapter = _al_win_determine_adapter();
 
-   win_display->adapter = adapter;
    /* w/h may be reset below if ALLEGRO_FULLSCREEN_WINDOW is set */
    al_display->w = w;
    al_display->h = h;

@@ -128,6 +128,7 @@ void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest);
 bool _al_d3d_supports_separate_alpha_blend(ALLEGRO_DISPLAY *display);
 void _al_d3d_bmp_init(void);
 void _al_d3d_bmp_destroy(void);
+int _al_win_determine_adapter(void);
 
 extern ALLEGRO_MUTEX *_al_d3d_lost_device_mutex;
 
