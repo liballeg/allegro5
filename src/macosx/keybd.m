@@ -179,7 +179,7 @@ ALLEGRO_KEYBOARD_DRIVER keyboard_macosx =
 	NULL, // ALLEGRO_METHOD(const char *, keycode_to_name, (int keycode));
 	get_state, // ALLEGRO_METHOD(void, get_state, (ALLEGRO_KEYBOARD_STATE *ret_state));
 };
-_DRIVER_INFO _al_keyboard_driver_list[] =
+_AL_DRIVER_INFO _al_keyboard_driver_list[] =
 {
 	{ KEYBOARD_MACOSX,         &keyboard_macosx,          1 },
 	{ 0,                       NULL,                     0     }

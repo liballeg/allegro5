@@ -126,7 +126,7 @@ static ALLEGRO_KEYBOARD_DRIVER keyboard_winapi =
 
 
 /* list the available drivers */
-_DRIVER_INFO _al_keyboard_driver_list[] =
+_AL_DRIVER_INFO _al_keyboard_driver_list[] =
 {
    {  KEYBOARD_WINAPI, &keyboard_winapi, true  },
    {  0,                NULL,              0     }

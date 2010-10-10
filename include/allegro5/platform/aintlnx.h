@@ -27,9 +27,9 @@ extern "C" {
 /************ Driver lists ************/
 /**************************************/
 
-extern _DRIVER_INFO _linux_gfx_driver_list[];
-extern _DRIVER_INFO _al_linux_keyboard_driver_list[];
-extern _DRIVER_INFO _al_linux_mouse_driver_list[];
+extern _AL_DRIVER_INFO _linux_gfx_driver_list[];
+extern _AL_DRIVER_INFO _al_linux_keyboard_driver_list[];
+extern _AL_DRIVER_INFO _al_linux_mouse_driver_list[];
 
 
 /****************************************/

@@ -87,12 +87,12 @@ AL_FUNC(int, al_run_main, (int argc, char **argv, int (*)(int, char **)));
 
 #define AL_ID(a,b,c,d)     (((a)<<24) | ((b)<<16) | ((c)<<8) | (d))
 
-typedef struct _DRIVER_INFO         /* info about a hardware driver */
+typedef struct _AL_DRIVER_INFO      /* info about a hardware driver */
 {
    int id;                          /* integer ID */
    void *driver;                    /* the driver structure */
    int autodetect;                  /* set to allow autodetection */
-} _DRIVER_INFO;
+} _AL_DRIVER_INFO;
 
        
 

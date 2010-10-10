@@ -391,7 +391,7 @@ ALLEGRO_MOUSE_DRIVER* _al_osx_get_mouse_driver(void)
 }
 
 /* list the available drivers */
-_DRIVER_INFO _al_mouse_driver_list[] =
+_AL_DRIVER_INFO _al_mouse_driver_list[] =
 {
    {  1, &osx_mouse_driver, 1 },
    {  0,  NULL,  0  }

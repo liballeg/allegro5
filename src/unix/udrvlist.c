@@ -24,9 +24,9 @@
 
 
 
-_DRIVER_INFO *_unix_gfx_driver_list = 0;
-_DRIVER_INFO *_unix_digi_driver_list = 0;
-_DRIVER_INFO *_unix_midi_driver_list = 0;
+_AL_DRIVER_INFO *_unix_gfx_driver_list = 0;
+_AL_DRIVER_INFO *_unix_digi_driver_list = 0;
+_AL_DRIVER_INFO *_unix_midi_driver_list = 0;
 
 
 

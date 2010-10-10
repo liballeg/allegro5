@@ -21,7 +21,7 @@
 
 
 /* list the available drivers */
-_DRIVER_INFO _al_keyboard_driver_list[] =
+_AL_DRIVER_INFO _al_keyboard_driver_list[] =
 {
    {  0,                NULL,              0     }
 };

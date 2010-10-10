@@ -50,7 +50,7 @@ static void sys_linux_restore_console_state(void);
 
 
 /* driver list getters */
-#define make_getter(x,y) static _DRIVER_INFO *get_##y##_driver_list (void) { return x##_##y##_driver_list; }
+#define make_getter(x,y) static _AL_DRIVER_INFO *get_##y##_driver_list (void) { return x##_##y##_driver_list; }
 	make_getter (_unix, gfx)
 	make_getter (_unix, digi)
 	make_getter (_unix, midi)

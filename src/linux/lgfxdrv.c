@@ -20,7 +20,7 @@
 
 
 /* list the available drivers */
-_DRIVER_INFO _linux_gfx_driver_list[] =
+_AL_DRIVER_INFO _linux_gfx_driver_list[] =
 {
 #if (defined ALLEGRO_LINUX_FBCON) && (!defined ALLEGRO_WITH_MODULES)
    {  GFX_FBCON,    &gfx_fbcon,    true  },

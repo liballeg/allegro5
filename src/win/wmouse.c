@@ -220,7 +220,7 @@ static ALLEGRO_MOUSE_DRIVER mousedrv_winapi =
 };
 
 
-_DRIVER_INFO _al_mouse_driver_list[] =
+_AL_DRIVER_INFO _al_mouse_driver_list[] =
 {
    {MOUSE_WINAPI, &mousedrv_winapi, true},
    {0, NULL, 0}

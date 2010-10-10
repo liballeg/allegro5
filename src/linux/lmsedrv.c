@@ -21,7 +21,7 @@
 #include "allegro5/platform/aintunix.h"
 
 /* list the available drivers */
-_DRIVER_INFO _al_linux_mouse_driver_list[] =
+_AL_DRIVER_INFO _al_linux_mouse_driver_list[] =
 {
    /* These drivers have not been updated for the new mouse API.
     * They may be updated as required, although the evdev driver

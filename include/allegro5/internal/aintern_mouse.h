@@ -25,7 +25,7 @@ typedef struct ALLEGRO_MOUSE_DRIVER
 } ALLEGRO_MOUSE_DRIVER;
 
 
-AL_ARRAY(_DRIVER_INFO, _al_mouse_driver_list);
+AL_ARRAY(_AL_DRIVER_INFO, _al_mouse_driver_list);
 
 
 struct ALLEGRO_MOUSE
