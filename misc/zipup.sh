@@ -182,11 +182,15 @@ then
    mkdir $builddir
    ( cd $builddir
        cmake ..
-       make docs html
+       make -j4 docs html man
        mv docs/txt/changes-4.9.txt ../CHANGES-4.9.txt
+
        test -d ../docs/html || mkdir -p ../docs/html
        rm -rf ../docs/html/refman
        mv docs/html/refman ../docs/html/refman
+
+       rm -rf ../docs/man
+       mv docs/man ../docs/man
    ) || exit 1
    rm -rf $builddir
 else
