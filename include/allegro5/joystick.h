@@ -48,10 +48,6 @@ struct ALLEGRO_JOYSTICK_STATE
 };
 
 
-
-/* Flags for al_get_joystick_stick_flags */
-typedef int ALLEGRO_JOYFLAGS;
-
 /* Enum: ALLEGRO_JOYFLAGS
  */
 enum ALLEGRO_JOYFLAGS
@@ -74,7 +70,7 @@ AL_FUNC(bool,           al_get_joystick_active, (ALLEGRO_JOYSTICK *));
 AL_FUNC(const char*,    al_get_joystick_name,   (ALLEGRO_JOYSTICK *));
 
 AL_FUNC(int,            al_get_joystick_num_sticks, (ALLEGRO_JOYSTICK *));
-AL_FUNC(ALLEGRO_JOYFLAGS, al_get_joystick_stick_flags, (ALLEGRO_JOYSTICK *, int stick)); /* junk? */
+AL_FUNC(int, al_get_joystick_stick_flags, (ALLEGRO_JOYSTICK *, int stick)); /* junk? */
 AL_FUNC(const char*,    al_get_joystick_stick_name, (ALLEGRO_JOYSTICK *, int stick));
 
 AL_FUNC(int,            al_get_joystick_num_axes,   (ALLEGRO_JOYSTICK *, int stick));

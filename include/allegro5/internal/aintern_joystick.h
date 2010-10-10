@@ -49,7 +49,7 @@ typedef struct _AL_JOYSTICK_AXIS_INFO
 /* information about one or more axis (a slider or directional control) */
 typedef struct _AL_JOYSTICK_STICK_INFO
 {
-   ALLEGRO_JOYFLAGS flags;
+   int flags; /* bit-field */
    int num_axes;
    _AL_JOYSTICK_AXIS_INFO axis[_AL_MAX_JOYSTICK_AXES];
    char *name;
