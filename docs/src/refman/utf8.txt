@@ -4,20 +4,30 @@ These functions are declared in the main Allegro header file:
 
     #include <allegro5/allegro.h>
 
-## About Unicode
+## About UTF-8 string routines
 
-Here we should give a short overview of Unicode/UCS and in particular UTF-8
-encoding.
+Some parts of the Allegro API, such as the font rountines, expect Unicode
+strings encoded in UTF-8.  These basic routines are provided to help you work
+with UTF-8 strings.  You should use another library (e.g. ICU) if you require
+more functionality.
 
-Explain about code points and relationship to "characters".
+You should also looks elsewhere for an introduction to Unicode.  However,
+extremely briefly, Unicode is a standard consisting of a large character set
+(of over 100,000 characters), and many rules, such as how to sort strings.
+A *code point* is the integer value of a character, but not all code points are
+characters, as some code points have other uses.  Clearly it is impossible
+represent each code point with a single byte or even a 16-bit integer, so there
+exist different Unicode Transformation Formats.  UTF-8 has many nice
+properties, but the main advantages are that it is backwards compatible with C
+strings, and ASCII characters (code points <= 127) are encoded in UTF-8 exactly
+as they would be in ASCII.
 
-Explain about half-open intervals.
-
-Always be careful whether a function takes byte offsets or code-point indices.
-In general, all position parameters are in byte offsets, not code point indices.
-This may be surprising, but it is because the functions are designed to be
-highly performant and to also work with arbitrary byte buffers. Therefore UTF8
-decoding is not done by default.
+In the following, be careful whether a function takes byte offsets or
+code-point indices.  In general, all position parameters are in byte offsets,
+not code point indices.  This may be surprising, but if you think about, is
+required for good performance.  It also means many functions will work even
+if they do not contain UTF-8, so you may actually store arbitrary data in the
+strings.
 
 For actual text processing, where you want to specify positions with code point
 indices, you should use [al_ustr_offset] to find the byte position of
