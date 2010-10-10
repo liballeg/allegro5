@@ -1,0 +1,173 @@
+%% This template is a modified version of the default pandoc latex template.
+%% Changes are marked with double-%% comments.
+%% Most of it was "inspired" by the Memoir manual.
+
+$if(legacy-header)$
+$legacy-header$
+$else$
+%% Replacement for the book document class.
+\documentclass{memoir}
+
+%% ToC down to subsections
+\settocdepth{subsection}
+%% Numbering down to subsections as well
+\setsecnumdepth{subsection}
+
+%% Choose a nice looking chapter style.
+\chapterstyle{ell}
+%\chapterstyle{ger}
+
+%% Choose a nice font.
+\usepackage[T1]{fontenc}
+%\usepackage{mathpazo}	    % roman=Palatino
+%\usepackage{mathptmx}	    % roman=Times
+%\usepackage{newcent}	    % roman=New Century Schoolbook
+\usepackage{charter}	    % roman=Charter
+\usepackage{inconsolata}    % typewriter=Inconsolata
+% TODO: I don't like the sans serif fonts much.
+
+%% Does this help with overlongs?
+\midsloppy
+
+%% The long identifiers make justified text look quite ugly.
+\raggedright
+
+\usepackage{amssymb,amsmath}
+$if(xetex)$
+\usepackage{ifxetex}
+\ifxetex
+  \usepackage{fontspec,xltxtra,xunicode}
+  \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+\else
+  \usepackage[mathletters]{ucs}
+  \usepackage[utf8x]{inputenc}
+\fi
+$else$
+\usepackage[mathletters]{ucs}
+\usepackage[utf8x]{inputenc}
+$endif$
+$if(lhs)$
+\usepackage{listings}
+\lstnewenvironment{code}{\lstset{language=Haskell,basicstyle=\small\ttfamily}}{}
+$endif$
+$endif$
+$if(verbatim-in-note)$
+\usepackage{fancyvrb}
+$endif$
+$if(fancy-enums)$
+% Redefine labelwidth for lists; otherwise, the enumerate package will cause
+% markers to extend beyond the left margin.
+\makeatletter\AtBeginDocument{%
+  \renewcommand{\@listi}
+    {\setlength{\labelwidth}{4em}}
+}\makeatother
+\usepackage{enumerate}
+$endif$
+$if(tables)$
+\usepackage{array}
+% This is needed because raggedright in table elements redefines \\:
+\newcommand{\PreserveBackslash}[1]{\let\temp=\\#1\let\\=\temp}
+\let\PBS=\PreserveBackslash
+$endif$
+$if(strikeout)$
+\usepackage[normalem]{ulem}
+$endif$
+$if(subscript)$
+\newcommand{\textsubscr}[1]{\ensuremath{_{\scriptsize\textrm{#1}}}}
+$endif$
+$if(url)$
+\usepackage{url}
+$endif$
+$if(graphics)$
+\usepackage{graphicx}
+% We will generate all images so they have a width \maxwidth. This means
+% that they will get their normal width if they fit onto the page, but
+% are scaled down if they would overflow the margins.
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth
+\else\Gin@nat@width\fi}
+\makeatother
+\let\Oldincludegraphics\includegraphics
+\renewcommand{\includegraphics}[1]{\Oldincludegraphics[width=\maxwidth]{#1}}
+$endif$
+\usepackage[breaklinks=true,unicode=true,hyperref]{hyperref}
+
+%% Nice coloured links.
+\usepackage{color}
+\definecolor{linkcolor}{rgb}{0.2,0.2,0.6}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=linkcolor,
+    citecolor=linkcolor,
+    filecolor=linkcolor,
+    urlcolor=linkcolor
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+$if(numbersections)$
+$else$
+\setcounter{secnumdepth}{0}
+$endif$
+$if(verbatim-in-note)$
+\VerbatimFootnotes % allows verbatim text in footnotes
+$endif$
+$for(header-includes)$
+$header-includes$
+$endfor$
+
+$if(title)$
+\title{$title$}
+$endif$
+$if(author)$
+\author{$for(author)$$author$$sep$\\$endfor$}
+$endif$
+$if(date)$
+\date{$date$}
+$endif$
+
+\begin{document}
+
+%% Make a nice title page.
+\frontmatter
+\pagestyle{empty} % no page numbers, etc.
+\vspace*{\fill}
+\begin{center}
+\HUGE\textsf{The Allegro 4.9 Library}\par
+\end{center}
+\begin{center}
+\HUGE\textsf{Reference Manual}\par
+\end{center}
+\begin{center}
+\vspace*{\fill}
+\LARGE{\textcopyright{} 2008 --- 2010}
+\end{center}
+\cleardoublepage
+\pagestyle{ruled}
+
+%% Fiddle with the spacing in table of contents.
+\setlength\cftsectionindent{1.5em}
+\setlength\cftsubsectionindent{1.5em}
+\setlength\cftchapternumwidth{2em}
+\setlength\cftsectionnumwidth{3.7em}
+\setlength\cftsubsectionnumwidth{4.7em}
+
+$for(include-before)$
+$include-before$
+
+$endfor$
+$if(toc)$
+\tableofcontents
+
+$endif$
+
+%% This enables page numbers, etc.
+\mainmatter
+
+$body$
+$for(include-after)$
+
+$include-after$
+$endfor$
+
+\end{document}

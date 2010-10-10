@@ -37,19 +37,23 @@ AL_FUNC(void, al_set_memory_interface, (ALLEGRO_MEMORY_INTERFACE *iface));
 
 /* Function: al_malloc
  */
-#define al_malloc(n) (al_malloc_with_context((n), __LINE__, __FILE__, __func__))
+#define al_malloc(n) \
+   (al_malloc_with_context((n), __LINE__, __FILE__, __func__))
 
 /* Function: al_free
  */
-#define al_free(p) (al_free_with_context((p), __LINE__, __FILE__, __func__))
+#define al_free(p) \
+   (al_free_with_context((p), __LINE__, __FILE__, __func__))
 
 /* Function: al_realloc
  */
-#define al_realloc(p, n) (al_realloc_with_context((p), (n), __LINE__, __FILE__, __func__))
+#define al_realloc(p, n) \
+   (al_realloc_with_context((p), (n), __LINE__, __FILE__, __func__))
 
 /* Function: al_calloc
  */
-#define al_calloc(c, n) (al_calloc_with_context((c), (n), __LINE__, __FILE__, __func__))
+#define al_calloc(c, n) \
+   (al_calloc_with_context((c), (n), __LINE__, __FILE__, __func__))
 
 
 AL_FUNC(void *, al_malloc_with_context, (size_t n,

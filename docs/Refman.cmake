@@ -6,7 +6,6 @@ set(PAGES
     getting_started
 
     config
-    direct3d
     display
     events
     file
@@ -18,9 +17,7 @@ set(PAGES
     memory
     misc
     mouse
-    opengl
     path
-    platform
     state
     system
     threads
@@ -28,6 +25,10 @@ set(PAGES
     timer
     transformations
     utf8
+
+    platform
+    direct3d
+    opengl
 
     audio
     acodec
@@ -337,42 +338,49 @@ endif(WANT_DOCS_INFO AND PANDOC_WITH_TEXINFO AND MAKEINFO)
 #
 #-----------------------------------------------------------------------------#
 
-make_directory(${LATEX_DIR})
+set(MAKE_PDF ${WANT_DOCS_PDF})
 
-add_custom_command(
-    OUTPUT ${LATEX_DIR}/refman.tex
-    DEPENDS ${PROTOS_TIMESTAMP}
-            ${DUMMY_REFS_TIMESTAMP}
-            ${PAGES_TXT}
-            ${SRC_REFMAN_DIR}/header.tex
-            make_doc
-    COMMAND ${MAKE_DOC}
-            --to latex
-            --include-in-header ${SRC_REFMAN_DIR}/header.tex
-            --standalone
-            --number-sections
-            -- ${DUMMY_REFS} ${PAGES_TXT}
-            > ${LATEX_DIR}/refman.tex
-    )
-    
-set(PDF_IMAGES)
-foreach(image ${IMAGES})
-  add_custom_command(
-		OUTPUT ${LATEX_DIR}/images/${image}.png
-		DEPENDS
-			 ${SRC_REFMAN_DIR}/images/${image}.png
-		COMMAND 
-			 "${CMAKE_COMMAND}" -E copy
-			 "${SRC_REFMAN_DIR}/images/${image}.png" "${LATEX_DIR}/images/${image}.png"
-		) 
-	list(APPEND PDF_IMAGES ${LATEX_DIR}/images/${image}.png)
-endforeach(image)
+if(WANT_DOCS_PDF AND NOT PANDOC_FOR_LATEX)
+    set(MAKE_PDF 0)
+    message("PDF generation requires pandoc 1.5+")
+endif()
 
-add_custom_target(latex ALL DEPENDS ${LATEX_DIR}/refman.tex)
+if(WANT_DOCS_PDF AND NOT PDFLATEX_COMPILER)
+    set(MAKE_PDF 0)
+    message("PDF generation requires pdflatex")
+endif()
 
-if(WANT_DOCS_PDF AND PDFLATEX_COMPILER)
+if(MAKE_PDF)
+    make_directory(${LATEX_DIR})
+    add_custom_target(latex ALL DEPENDS ${LATEX_DIR}/refman.tex)
+    add_custom_command(
+        OUTPUT ${LATEX_DIR}/refman.tex
+        DEPENDS ${PROTOS_TIMESTAMP}
+                ${DUMMY_REFS_TIMESTAMP}
+                ${PAGES_TXT}
+                ${SRC_REFMAN_DIR}/latex.template
+                make_doc
+        COMMAND ${MAKE_DOC}
+                --to latex
+                --template ${SRC_REFMAN_DIR}/latex.template
+                --standalone
+                --toc
+                --number-sections
+                -- ${DUMMY_REFS} ${PAGES_TXT}
+                > ${LATEX_DIR}/refman.tex
+        )
+    set(PDF_IMAGES)
+    foreach(image ${IMAGES})
+        add_custom_command(
+            OUTPUT ${LATEX_DIR}/images/${image}.png
+            DEPENDS ${SRC_REFMAN_DIR}/images/${image}.png
+            COMMAND "${CMAKE_COMMAND}" -E copy
+                    "${SRC_REFMAN_DIR}/images/${image}.png" "${LATEX_DIR}/images/${image}.png"
+            )
+        list(APPEND PDF_IMAGES ${LATEX_DIR}/images/${image}.png)
+    endforeach(image)
+
     make_directory(${PDF_DIR})
-
     add_custom_target(pdf ALL DEPENDS ${PDF_DIR}/refman.pdf)
     add_custom_command(
         OUTPUT ${PDF_DIR}/refman.pdf
@@ -383,12 +391,7 @@ if(WANT_DOCS_PDF AND PDFLATEX_COMPILER)
         COMMAND "${CMAKE_COMMAND}" -E chdir ${LATEX_DIR} ${PDFLATEX_COMPILER} -output-directory ${PDF_DIR} ${LATEX_DIR}/refman.tex
         COMMAND "${CMAKE_COMMAND}" -E chdir ${LATEX_DIR} ${PDFLATEX_COMPILER} -output-directory ${PDF_DIR} ${LATEX_DIR}/refman.tex
         )
-
-else()
-    if(WANT_DOCS_PDF)
-        message("PDF generation requires pdflatex")
-    endif(WANT_DOCS_PDF)
-endif(WANT_DOCS_PDF AND PDFLATEX_COMPILER)
+endif(MAKE_PDF)
 
 #-----------------------------------------------------------------------------#
 #

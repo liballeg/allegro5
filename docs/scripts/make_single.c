@@ -79,12 +79,6 @@ static void postprocess_latex(void)
    dstr line;
 
    while (d_getline(line)) {
-      /* Comment out unneeded packages (tetex 3.0 doesn't include them). */
-      if (d_match(line, "usepackage.*(amsmath|ucs|inputenc)")) {
-         d_printf("%%%s\n", line);
-         continue;
-      }
-
       /* Insert \label{id} for all sections which are probably API entries.
        * T-Rex doesn't seem to backtrack properly if we write "(sub)*".
        */

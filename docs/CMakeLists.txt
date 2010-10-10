@@ -51,6 +51,26 @@ if(PANDOC AND NOT DEFINED PANDOC_STRIP_UNDERSCORES)
     mark_as_advanced(PANDOC_STRIP_UNDERSCORES)
 endif()
 
+# Pandoc 1.5 or later is required for LaTeX as it will begin
+# sectioning with \chapter.
+if(PANDOC AND NOT DEFINED PANDOC_FOR_LATEX)
+    if(NOT PANDOC_VERSION_TEXT)
+        execute_process(
+            COMMAND ${PANDOC} --version
+            OUTPUT_VARIABLE PANDOC_VERSION_TEXT
+            ERROR_VARIABLE PANDOC_VERSION_TEXT
+            )
+    endif()
+    if(PANDOC_VERSION_TEXT MATCHES "pandoc (0|1[.][01234])")
+        set(PANDOC_FOR_LATEX 0 CACHE BOOL
+            "Pandoc recent enough for LaTeX output")
+    else()
+        set(PANDOC_FOR_LATEX 1 CACHE BOOL
+            "Pandoc recent enough for LaTeX output")
+    endif()
+    mark_as_advanced(PANDOC_FOR_LATEX)
+endif()
+
 #-----------------------------------------------------------------------------#
 
 set(all_docs)
