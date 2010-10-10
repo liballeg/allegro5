@@ -243,6 +243,8 @@ static bool _al_try_display_format(ALLEGRO_DISPLAY *display, int *format)
          case ALLEGRO_PIXEL_FORMAT_XBGR_8888:
             *format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
             return true;
+         default:
+            return false;
       }
    }
    *format = best_format;
