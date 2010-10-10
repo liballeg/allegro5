@@ -95,9 +95,12 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    int pos_x, pos_y;
    bool center = false;
    ALLEGRO_MONITOR_INFO info;
+   ALLEGRO_MONITOR_INFO temp_info; // for finding primary display adapter (to position centered window correctly in the virtual screen space)
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
    WINDOWINFO wi;
    int bw, bh;
+   bool *is_fullscreen;
+   bool fullscreen_info_available = false;
 
    wi.cbSize = sizeof(WINDOWINFO);
 
@@ -125,18 +128,18 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    }
 
    if (center) {
-      //int a = al_get_new_display_adapter();
+      // int a = al_get_new_display_adapter();
       int a = win_display->adapter;
 
       if (a == -1) {
          ALLEGRO_SYSTEM *sys = al_get_system_driver();
          unsigned int num;
-         bool *is_fullscreen;
          unsigned int i;
          unsigned int fullscreen_found = 0;
          num = al_get_num_video_adapters();
          is_fullscreen = al_malloc(sizeof(bool)*num);
          memset(is_fullscreen, 0, sizeof(bool)*num);
+         fullscreen_info_available = true;
          for (i = 0; i < sys->displays._size; i++) {
             ALLEGRO_DISPLAY **dptr = _al_vector_ref(&sys->displays, i);
             ALLEGRO_DISPLAY *d = *dptr;
@@ -156,12 +159,29 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
          }
          else
             a = 0;
-         al_free(is_fullscreen);
       }
 
       al_set_new_display_adapter(a);
 
       al_get_monitor_info(a, &info);
+
+      if( info.x1 != 0 || info.y1 != 0) { // if a is probably not the primary screen..
+        // ..try to find it and overwrite info, so the window will get positioned centered on the primary screen (unless it is already in fullscreen mode)
+        int num_screens = al_get_num_video_adapters();
+        int cScreen = 0;
+        for(cScreen = 0; cScreen < num_screens; cScreen++) {
+          if(((fullscreen_info_available && !is_fullscreen[cScreen]) || !fullscreen_info_available) && cScreen != a) {
+            al_get_monitor_info(cScreen, &temp_info);
+            if(temp_info.x1 == 0 && temp_info.y1 == 0) { // ..probably found primary display
+              info = temp_info;
+              break;
+            }
+          }
+        }
+      }
+
+      if(fullscreen_info_available)
+        al_free(is_fullscreen);
 
       win_size.left = info.x1 + (info.x2 - info.x1 - width) / 2;
       win_size.right = win_size.left + width;
