@@ -148,8 +148,6 @@ static void d3d_draw_textured_quad(
    vertices[3] = vertices[0];
    vertices[4] = vertices[2];
 
-   //printf("vert0=%g %g\n", vertices[0].x, vertices[0].y);
-   
    if(!aldisp->cache_enabled)
       aldisp->vt->flush_vertex_cache(aldisp);
 }

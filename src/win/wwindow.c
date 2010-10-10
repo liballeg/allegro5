@@ -127,7 +127,6 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
 
    if (center) {
       int a = win_display->adapter;
-      printf("a=%d\n", a);
 
       ALLEGRO_SYSTEM *sys = al_get_system_driver();
       unsigned int num;
@@ -154,8 +153,6 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
          }
       }
       al_free(is_fullscreen);
-
-      printf("after a=%d\n", a);
 
       al_get_monitor_info(a, &info);
 
