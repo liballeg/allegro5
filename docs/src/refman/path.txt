@@ -1,4 +1,4 @@
-# Path
+# Path structures
 
 These functions are declared in the main Allegro header file:
 

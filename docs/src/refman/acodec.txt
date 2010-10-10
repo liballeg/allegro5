@@ -1,11 +1,11 @@
-# Audio codecs
+# Audio codecs addon
 
 These functions are declared in the following header file.
 Link with allegro_acodec.
 
     #include <allegro5/allegro_acodec.h>
 
-### API: al_init_acodec_addon
+## API: al_init_acodec_addon
 
 This function registers all the known audio file type handlers for
 [al_load_sample], [al_save_sample], [al_load_audio_stream], etc.
@@ -15,7 +15,7 @@ extensions is: .wav, .flac, .ogg, .it, .mod, .s3m, .xm.
 
 Return true on success.
 
-### API: al_get_allegro_acodec_version
+## API: al_get_allegro_acodec_version
 
 Returns the (compiled) version of the addon, in the same format as
 [al_get_allegro_version].

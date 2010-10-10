@@ -1,4 +1,4 @@
-# Graphics
+# Graphics routines
 
 These functions are declared in the main Allegro header file:
 
@@ -121,80 +121,48 @@ The only exception to this ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE which will always
 have the components as 4 bytes corresponding to red, green, blue and alpha,
 in this order, independent of the endianness.
 
---------------------------------------------------------------------------------
-Format                                 Notes
--------------------------------------- -----------------------------------------
-ALLEGRO_PIXEL_FORMAT_ANY               Let the driver choose a format. This is
-                                       the default format at program start.
-
-ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA      Let the driver choose a format without
-                                       alpha.
-
-ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA    Let the driver choose a format with
-                                       alpha.
-
-ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA   Let the driver choose a 15 bit format
-                                       without alpha.
-
-ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA Let the driver choose a 15 bit format
-                                       with alpha.
-
-ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA   Let the driver choose a 16 bit format
-                                       without alpha.
-
-ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA Let the driver choose a 16 bit
-                                       format with alpha.
-
-ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA   Let the driver choose a 24 bit format
-                                       without alpha.
-
-ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA Let the driver choose a 24 bit
-                                       format with alpha.
-
-ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA   Let the driver choose a 32 bit format
-                                       without alpha.
-
-ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA Let the driver choose a 32 bit
-                                       format with alpha.
-
-ALLEGRO_PIXEL_FORMAT_ARGB_8888         32 bit
-
-ALLEGRO_PIXEL_FORMAT_RGBA_8888         32 bit
-
-ALLEGRO_PIXEL_FORMAT_ARGB_4444         16 bit
-
-ALLEGRO_PIXEL_FORMAT_RGB_888           24 bit
-
-ALLEGRO_PIXEL_FORMAT_RGB_565           16 bit
-
-ALLEGRO_PIXEL_FORMAT_RGB_555           15 bit
-
-ALLEGRO_PIXEL_FORMAT_RGBA_5551         16 bit
-
-ALLEGRO_PIXEL_FORMAT_ARGB_1555         16 bit
-
-ALLEGRO_PIXEL_FORMAT_ABGR_8888         32 bit
-
-ALLEGRO_PIXEL_FORMAT_XBGR_8888         32 bit
-
-ALLEGRO_PIXEL_FORMAT_BGR_888           24 bit
-
-ALLEGRO_PIXEL_FORMAT_BGR_565           16 bit 
-
-ALLEGRO_PIXEL_FORMAT_BGR_555           15 bit
-
-ALLEGRO_PIXEL_FORMAT_RGBX_8888         32 bit
-
-ALLEGRO_PIXEL_FORMAT_XRGB_8888         32 bit
-
-ALLEGRO_PIXEL_FORMAT_ABGR_F32          128 bit
-
-ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE      Like the version without _LE, but the
-                                       component order is guaranteed to be
-                                       red, green, blue, alpha. This only makes
-                                       a difference on big endian systems, on
-                                       little endian it is just an alias.
---------------------------------------------------------------------------------
+* ALLEGRO_PIXEL_FORMAT_ANY -
+    Let the driver choose a format. This is the default format at program start.
+* ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA -
+    Let the driver choose a format without alpha.
+* ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA -
+    Let the driver choose a format with alpha.
+* ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA -
+    Let the driver choose a 15 bit format without alpha.
+* ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA -
+    Let the driver choose a 15 bit format with alpha.
+* ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA -
+    Let the driver choose a 16 bit format without alpha.
+* ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA -
+    Let the driver choose a 16 bit format with alpha.
+* ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA -
+    Let the driver choose a 24 bit format without alpha.
+* ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA -
+    Let the driver choose a 24 bit format with alpha.
+* ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA -
+    Let the driver choose a 32 bit format without alpha.
+* ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA -
+    Let the driver choose a 32 bit format with alpha.
+* ALLEGRO_PIXEL_FORMAT_ARGB_8888 - 32 bit
+* ALLEGRO_PIXEL_FORMAT_RGBA_8888 - 32 bit
+* ALLEGRO_PIXEL_FORMAT_ARGB_4444 - 16 bit
+* ALLEGRO_PIXEL_FORMAT_RGB_888 - 24 bit
+* ALLEGRO_PIXEL_FORMAT_RGB_565 - 16 bit
+* ALLEGRO_PIXEL_FORMAT_RGB_555 - 15 bit
+* ALLEGRO_PIXEL_FORMAT_RGBA_5551 - 16 bit
+* ALLEGRO_PIXEL_FORMAT_ARGB_1555 - 16 bit
+* ALLEGRO_PIXEL_FORMAT_ABGR_8888 - 32 bit
+* ALLEGRO_PIXEL_FORMAT_XBGR_8888 - 32 bit
+* ALLEGRO_PIXEL_FORMAT_BGR_888 - 24 bit
+* ALLEGRO_PIXEL_FORMAT_BGR_565 - 16 bit
+* ALLEGRO_PIXEL_FORMAT_BGR_555 - 15 bit
+* ALLEGRO_PIXEL_FORMAT_RGBX_8888 - 32 bit
+* ALLEGRO_PIXEL_FORMAT_XRGB_8888 - 32 bit
+* ALLEGRO_PIXEL_FORMAT_ABGR_F32 - 128 bit
+* ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE -
+    Like the version without _LE, but the component order is guaranteed to be
+    red, green, blue, alpha. This only makes a difference on big endian
+    systems, on little endian it is just an alias.
 
 See also: [al_set_new_bitmap_format], [al_get_bitmap_format]
 
@@ -268,14 +236,6 @@ See also: [al_lock_bitmap], [al_lock_bitmap_region]
 
 Abstract type representing a bitmap (2D image).
 
-### API: al_clone_bitmap
-
-Clone a bitmap "exactly", formats can be different.
-
-XXX document this better
-
-See also: [al_create_bitmap]
-
 ### API: al_create_bitmap
 
 Creates a new bitmap using the bitmap format and flags for the current
@@ -315,6 +275,14 @@ sub-bitmaps; instead the sub-bitmaps become invalid and should no
 longer be used.
 
 See also: [al_create_bitmap]
+
+### API: al_clone_bitmap
+
+Create a new bitmap with [al_create_bitmap], and copy the pixel data from the
+old bitmap across.
+
+See also: [al_create_bitmap], [al_set_new_bitmap_format],
+[al_set_new_bitmap_flags]
 
 ### API: al_destroy_bitmap
 

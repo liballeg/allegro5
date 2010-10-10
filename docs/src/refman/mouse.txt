@@ -1,4 +1,4 @@
-# Mouse
+# Mouse routines
 
 These functions are declared in the main Allegro header file:
 
@@ -11,8 +11,7 @@ Public fields (read only):
 * x - mouse x
 * y - mouse y
 * w, z - Mouse wheel position (2D 'ball')
-
-buttons - mouse buttons
+* buttons - mouse buttons
 
 See also: [al_get_mouse_state], [al_get_mouse_state_axis], [al_mouse_button_down]
 
@@ -53,6 +52,8 @@ See also: [ALLEGRO_MOUSE_STATE], [al_get_mouse_state_axis]
 ## API: al_get_mouse_state_axis
 
 Extract the mouse axis value from the saved state.
+The axes are numbered from 0, in this order:
+x-axis, y-axis, z-axis, w-axis.
 
 See also: [ALLEGRO_MOUSE_STATE], [al_get_mouse_state], [al_mouse_button_down]
 

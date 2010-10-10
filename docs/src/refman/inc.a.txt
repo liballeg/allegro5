@@ -1,22 +1,19 @@
 <div class="sidebar">
 
+<div>
 * [**Contents**](index.html)
 * [Configuration files](config.html)
-* [Direct3D](direct3d.html)
 * [Display](display.html)
 * [Events](events.html)
 * [File I/O](file.html)
 * [Filesystem](fshook.html)
-* [Fixed](fixed.html)
+* [Fixed point math](fixed.html)
 * [Graphics](graphics.html)
 * [Joystick](joystick.html)
 * [Keyboard](keyboard.html)
 * [Memory](memory.html)
-* [Miscellaneous](misc.html)
 * [Mouse](mouse.html)
-* [OpenGL](opengl.html)
 * [Path](path.html)
-* [Platform-specific](platform.html)
 * [State](state.html)
 * [System](system.html)
 * [Threads](threads.html)
@@ -24,6 +21,13 @@
 * [Timer](timer.html)
 * [Transformations](transformations.html)
 * [UTF-8](utf8.html)
+* [Miscellaneous](misc.html)
+* [Platform-specific](platform.html)
+* [Direct3D](direct3d.html)
+* [OpenGL](opengl.html)
+</div>
+
+<div>
 * [**Addons**](index.html#addons)
 * [Audio addon](audio.html)
 * [Audio codecs](acodec.html)
@@ -33,6 +37,7 @@
 * [Native dialogs addon](native_dialog.html)
 * [PhysicsFS addon](physfs.html)
 * [Primitives addon](primitives.html)
+</div>
 
 <div class="searchbox">
 <script type="text/javascript">

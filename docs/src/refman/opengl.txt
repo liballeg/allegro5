@@ -1,4 +1,4 @@
-# OpenGL
+# OpenGL integration
 
 These functions are declared in the following header file:
 

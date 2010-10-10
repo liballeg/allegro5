@@ -1,4 +1,4 @@
-# Display
+# Display routines
 
 These functions are declared in the main Allegro header file:
 
@@ -381,9 +381,6 @@ Changes the icon associated with the display (window).
 
 > *Note:* If the underlying OS can not use an icon with the size of the
 provided bitmap, it will be scaled.
-
-TODO: Describe best practice for the size?
-TODO: Allow providing multiple icons in differet sizes?
 
 See also: [al_set_window_title]
 

@@ -1,4 +1,4 @@
-# Joystick
+# Joystick routines
 
 These functions are declared in the main Allegro header file:
 
@@ -137,6 +137,7 @@ See also: [al_get_joystick_axis_name], [al_get_joystick_num_sticks]
 
 Return the name of the given axis.  If the axis doesn't exist,
 NULL is returned.
+Indices begin from 0.
 
 See also: [al_get_joystick_stick_name], [al_get_joystick_num_axes]
 
@@ -144,6 +145,7 @@ See also: [al_get_joystick_stick_name], [al_get_joystick_num_axes]
 
 Return the name of the given button.  If the button doesn't exist,
 NULL is returned.
+Indices begin from 0.
 
 See also: [al_get_joystick_stick_name], [al_get_joystick_axis_name],
 [al_get_joystick_num_buttons]
@@ -152,6 +154,7 @@ See also: [al_get_joystick_stick_name], [al_get_joystick_axis_name],
 
 Return the flags of the given "stick".  If the stick doesn't
 exist, NULL is returned.
+Indices begin from 0.
 
 See also: [ALLEGRO_JOYFLAGS]
 
