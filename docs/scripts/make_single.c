@@ -91,6 +91,20 @@ static void postprocess_latex(void)
          continue;
       }
 
+      /* Replace `verbatim' environment by `Verbatim' from fancyvrb,
+       * which gives us some flexibility over the formatting.
+       */
+      if (d_match(line, "\\\\begin\\{verbatim\\}$")) {
+         d_printf("%s", d_before_match);
+         d_print("\\begin{Verbatim}");
+         continue;
+      }
+      if (d_match(line, "\\\\end\\{verbatim\\}$")) {
+         d_printf("%s", d_before_match);
+         d_print("\\end{Verbatim}");
+         continue;
+      }
+
       /* Change cross references from, to:  (notice the backslashes)
        *   \href{DUMMY_REF}{foo\_bar\_baz}
        *   \alref{foo_bar_baz}

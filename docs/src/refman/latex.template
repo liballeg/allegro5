@@ -51,9 +51,11 @@ $if(lhs)$
 \lstnewenvironment{code}{\lstset{language=Haskell,basicstyle=\small\ttfamily}}{}
 $endif$
 $endif$
-$if(verbatim-in-note)$
+
+%% Use `Verbatim' environments so we can offset them slightly.
 \usepackage{fancyvrb}
-$endif$
+\fvset{xleftmargin=8pt}
+
 $if(fancy-enums)$
 % Redefine labelwidth for lists; otherwise, the enumerate package will cause
 % markers to extend beyond the left margin.
