@@ -337,13 +337,9 @@ Playback may fail because all the reserved sample instances are currently used.
 Parameters:
 
 * gain - relative volume at which the sample is played; 1.0 is normal.
-
 * pan - 0.0 is centred, -1.0 is left, 1.0 is right, or ALLEGRO_AUDIO_PAN_NONE.
-
 * speed - relative speed at which the sample is played; 1.0 is normal.
-
 * loop - the play mode.
-
 * ret_id - if non-NULL the variable which this points to will be assigned
   an id representing the sample being played.
 

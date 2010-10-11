@@ -44,12 +44,10 @@ This means if you have code like this:
 
 it does exactly the same as:
 
-   al_identity_transform(&T);
-   
-   al_scale_transform(&T, 2, 2);
-   al_translate_transform(&T, 100, 0);
-   
-   al_use_transform(T);
+    al_identity_transform(&T);
+    al_scale_transform(&T, 2, 2);
+    al_translate_transform(&T, 100, 0);
+    al_use_transform(T);
 
 ## API: ALLEGRO_TRANSFORM
 

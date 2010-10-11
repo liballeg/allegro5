@@ -30,20 +30,22 @@ Parameters:
 
 Possible flags for the 'flags' parameter are:
 
-- ALLEGRO_FILECHOOSER_FILE_MUST_EXIST: If supported by the native dialog,
-  it will not allow entering new names, but just allow existing files
-  to be selected. Else it is ignored.
-- ALLEGRO_FILECHOOSER_SAVE: If the native dialog system has a
-  different dialog for saving (for example one which allows creating
-  new directories), it is used. Else ignored.
-- ALLEGRO_FILECHOOSER_FOLDER: If there is support for a separate
-  dialog to select a folder instead of a file, it will be used.
-- ALLEGRO_FILECHOOSER_PICTURES: If a different dialog is available
-  for selecting pictures, it is used. Else ignored.
-- ALLEGRO_FILECHOOSER_SHOW_HIDDEN: If the platform supports it, also
-  hidden files will be shown.
-- ALLEGRO_FILECHOOSER_MULTIPLE: If supported, allow selecting
-  multiple files.
+ALLEGRO_FILECHOOSER_FILE_MUST_EXIST
+:   If supported by the native dialog, it will not allow entering new names,
+    but just allow existing files to be selected. Else it is ignored.
+ALLEGRO_FILECHOOSER_SAVE
+:   If the native dialog system has a different dialog for saving (for example
+    one which allows creating new directories), it is used. Else ignored.
+ALLEGRO_FILECHOOSER_FOLDER
+:   If there is support for a separate dialog to select a folder instead of a
+    file, it will be used.
+ALLEGRO_FILECHOOSER_PICTURES
+:   If a different dialog is available for selecting pictures, it is used. Else
+    ignored.
+ALLEGRO_FILECHOOSER_SHOW_HIDDEN
+:   If the platform supports it, also hidden files will be shown.
+ALLEGRO_FILECHOOSER_MULTIPLE
+:   If supported, allow selecting multiple files.
 
 Returns:
 
@@ -88,23 +90,19 @@ dialog boxes usually have on the native system. If the `buttons` parameter is
 not NULL, you can instead specify the button text in a string, with buttons
 separated by a vertical bar (|).
 
---------------------------------------------------------------------------------
-Flags
------------------------------ --------------------------------------------------
-ALLEGRO_MESSAGEBOX_WARN       The message is a warning.
-                                 This may cause a different icon
-                                 (or other effects).
-
-ALLEGRO_MESSAGEBOX_ERROR      The message is an error.
-
-ALLEGRO_MESSAGEBOX_QUESTION   The message is a question.
-
-ALLEGRO_MESSAGEBOX_OK_CANCEL  Instead of the "OK" button also display a cancel
-                                 button. Ignored if `buttons` is not NULL.
-
-ALLEGRO_MESSAGEBOX_YES_NO     Instead of the "OK" button display Yes/No
-                                 buttons. Ignored if `buttons` is not NULL.
---------------------------------------------------------------------------------
+ALLEGRO_MESSAGEBOX_WARN
+:   The message is a warning.
+    This may cause a different icon (or other effects).
+ALLEGRO_MESSAGEBOX_ERROR
+:   The message is an error.
+ALLEGRO_MESSAGEBOX_QUESTION
+:   The message is a question.
+ALLEGRO_MESSAGEBOX_OK_CANCEL
+:   Instead of the "OK" button also display a cancel button.
+    Ignored if `buttons` is not NULL.
+ALLEGRO_MESSAGEBOX_YES_NO
+:   Instead of the "OK" button display Yes/No buttons.
+    Ignored if `buttons` is not NULL.
 
 Returns:
 

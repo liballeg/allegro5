@@ -32,6 +32,10 @@ $else$
 %% The long identifiers make justified text look quite ugly.
 \raggedright
 
+%% In definition lists, start the description on the next line.
+\usepackage{enumitem}
+\setdescription{style=nextline}
+
 \usepackage{amssymb,amsmath}
 $if(xetex)$
 \usepackage{ifxetex}

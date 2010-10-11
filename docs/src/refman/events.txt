@@ -19,57 +19,50 @@ any.source field tells you which event source generated that particular
 event.  The any.timestamp field tells you when the event was generated.  The
 time is referenced to the same starting point as [al_get_time].
 
-Each event is of one of the following types:
+Each event is of one of the following types, with the usable fields given:
 
-*   ALLEGRO_EVENT_JOYSTICK_AXIS - a joystick axis value changed.
-
-    Fields are:
-    -   joystick.id,
+ALLEGRO_EVENT_JOYSTICK_AXIS
+:   A joystick axis value changed.
+:   -   joystick.id,
     -   joystick.stick,
     -   joystick.axis,
     -   joystick.pos (-1.0 to 1.0).
 
-*   ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN - a joystick button was pressed.
-
-    Fields are:
-    -   joystick.id,
+ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN
+:   A joystick button was pressed.
+:   -   joystick.id,
     -   joystick.button.
   
-*   ALLEGRO_EVENT_JOYSTICK_BUTTON_UP - a joystick button was released.
-
-    Fields are:
-    -   joystick.id,
+ALLEGRO_EVENT_JOYSTICK_BUTTON_UP
+:   A joystick button was released.
+:   -   joystick.id,
     -   joystick.button.
 
-*   ALLEGRO_EVENT_JOYSTICK_CONFIGURATION - a joystick was plugged in or
-    unplugged.
+ALLEGRO_EVENT_JOYSTICK_CONFIGURATION
+:   A joystick was plugged in or unplugged.
 
-*   ALLEGRO_EVENT_KEY_DOWN - a keyboard key was pressed.
-
-    Fields:
-    -   keyboard.keycode,
+ALLEGRO_EVENT_KEY_DOWN
+:   A keyboard key was pressed.
+:   -   keyboard.keycode,
     -   keyboard.unichar,
     -   keyboard.modifiers,
     -   keyboard.display.
 
-*   ALLEGRO_EVENT_KEY\_REPEAT - a typed character auto-repeated.
-
-    Fields:
-    -   keyboard.keycode (ALLEGRO\_KEY\_\*),
+ALLEGRO_EVENT_KEY\_REPEAT
+:   A typed character auto-repeated.
+:   -   keyboard.keycode (ALLEGRO\_KEY\_\*),
     -   keyboard.unichar (unicode character),
     -   keyboard.modifiers (ALLEGRO\_KEYMOD\_\*),
     -   keyboard.display.
 
-*   ALLEGRO_EVENT_KEY_UP - a keyboard key was released.
-
-    Fields:
-    -   keyboard.keycode,
+ALLEGRO_EVENT_KEY_UP
+:   A keyboard key was released.
+:   -   keyboard.keycode,
     -   keyboard.display.
 
-*   ALLEGRO_EVENT_MOUSE_AXES - one or more mouse axis values changed.
-
-    Fields:
-    -   mouse.x,
+ALLEGRO_EVENT_MOUSE_AXES
+:   One or more mouse axis values changed.
+:   -   mouse.x,
     -   mouse.y,
     -   mouse.z,
     -   mouse.dx,
@@ -84,66 +77,57 @@ Each event is of one of the following types:
     > *Note:* currently mouse.display may be NULL if an event is generated in
     response to [al_set_mouse_axis].
 
-*   ALLEGRO_EVENT_MOUSE_BUTTON_DOWN - a mouse button was pressed.
-
-    Fields:
-    -   mouse.x,
+ALLEGRO_EVENT_MOUSE_BUTTON_DOWN
+:   A mouse button was pressed.
+:   -   mouse.x,
     -   mouse.y,
     -   mouse.z,
     -   mouse.button,
     -   mouse.display.
 
-*   ALLEGRO_EVENT_MOUSE_BUTTON_UP - a mouse button was released.
-
-    Fields:
-    -   mouse.x,
+ALLEGRO_EVENT_MOUSE_BUTTON_UP
+:   A mouse button was released.
+:   -   mouse.x,
     -   mouse.y,
     -   mouse.z,
     -   mouse.button,
     -   mouse.display.
 
-*   ALLEGRO_EVENT_MOUSE_WARPED - [al_set_mouse_xy] was called to move the
-    mouse. This event is identical to ALLEGRO_EVENT_MOUSE_AXES otherwise.
+ALLEGRO_EVENT_MOUSE_WARPED
+:   [al_set_mouse_xy] was called to move the mouse.
+    This event is identical to ALLEGRO_EVENT_MOUSE_AXES otherwise.
 
-*   ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY - the mouse cursor entered a window
-    opened by the program.
-
-    Fields:
-    -   mouse.x,
+ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY
+:   The mouse cursor entered a window opened by the program.
+:   -   mouse.x,
     -   mouse.y,
     -   mouse.z,
     -   mouse.display.
 
-*   ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY - the mouse cursor leave the boundaries
-    of a window opened by the program.
-
-    Fields:
-    -   mouse.x,
+ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY
+:   The mouse cursor leave the boundaries of a window opened by the program.
+:   -   mouse.x,
     -   mouse.y,
     -   mouse.z,
     -   mouse.display.
 
-*   ALLEGRO_EVENT_TIMER - a timer counter incremented.
+ALLEGRO_EVENT_TIMER
+:   A timer counter incremented.
+:   -   timer.count.
 
-    Fields:
-    -   timer.count.
-
-*   ALLEGRO_EVENT_DISPLAY_EXPOSE - The display (or a portion thereof) has
-    become visible.
-    
-    > *Note:* The display needs to be created with ALLEGRO_GENERATE_EXPOSE_EVENTS
-    flag.
-
-    Fields:
-    -   display.x,
+ALLEGRO_EVENT_DISPLAY_EXPOSE
+:   The display (or a portion thereof) has become visible.
+:   -   display.x,
     -   display.y,
     -   display.width,
     -   display.height
 
-*   ALLEGRO_EVENT_DISPLAY_RESIZE - The window has been resized.
+    > *Note:* The display needs to be created with ALLEGRO_GENERATE_EXPOSE_EVENTS
+    flag.
 
-    Fields:
-    -   display.x,
+ALLEGRO_EVENT_DISPLAY_RESIZE
+:   The window has been resized.
+:   -   display.x,
     -   display.y,
     -   display.width,
     -   display.height
@@ -151,17 +135,20 @@ Each event is of one of the following types:
     Note that further resize events may be generated by the time you process the
     event, so these fields may hold outdated information.
 
-*   ALLEGRO_EVENT_DISPLAY_CLOSE - The close button of the window has been
-    pressed.
+ALLEGRO_EVENT_DISPLAY_CLOSE
+:   The close button of the window has been pressed.
 
-*   ALLEGRO_EVENT_DISPLAY_LOST - When using Direct3D, displays can enter
+ALLEGRO_EVENT_DISPLAY_LOST
+:   When using Direct3D, displays can enter
     a "lost" state. In that state, drawing calls are ignored, and upon
     entering the state, bitmap's pixel data can become undefined. Allegro
     does its best to preserve the correct contents of bitmaps
-    (See ALLEGRO_NO_PRESERVE_TEXTURE) and restore them when the device
-    is "found" (see ALLEGRO_EVENT_DISPLAY_FOUND) However, this is not 100%
-    fool proof. To ensure that all bitmap contents are restored accurately,
-    one must take additional steps; the best procedure to follow if bitmap
+    (see ALLEGRO_NO_PRESERVE_TEXTURE) and restore them when the device
+    is "found" (see ALLEGRO_EVENT_DISPLAY_FOUND). However, this is not 100%
+    fool proof.
+
+    To ensure that all bitmap contents are restored accurately,
+    one must take additional steps. The best procedure to follow if bitmap
     constancy is important to you is as follows: first, always have the
     ALLEGRO_NO_PRESERVE_TEXTURE flag set to true when creating bitmaps, as
     it incurs pointless overhead when using this method. Second, create
@@ -171,13 +158,16 @@ Each event is of one of the following types:
     receive an ALLEGRO_EVENT_DISPLAY_FOUND event, tell the bitmap manager
     (or whatever your mechanism is) to restore your bitmaps.
 
-*   ALLEGRO_EVENT_DISPLAY_FOUND - Generated when a lost device is restored
+ALLEGRO_EVENT_DISPLAY_FOUND
+:   Generated when a lost device is restored
     to operating state. See ALLEGRO_EVENT_DISPLAY_LOST.
 
-*   ALLEGRO_EVENT_DISPLAY_SWITCH_OUT - The window is no longer active, that
+ALLEGRO_EVENT_DISPLAY_SWITCH_OUT
+:   The window is no longer active, that
     is the user might have clicked into another window or "tabbed" away.
 
-*   ALLEGRO_EVENT_DISPLAY_SWITCH_IN - The window is the active one again.
+ALLEGRO_EVENT_DISPLAY_SWITCH_IN
+:   The window is the active one again.
 
 See also: [ALLEGRO_EVENT_SOURCE], [ALLEGRO_EVENT_TYPE], [ALLEGRO_USER_EVENT]
 

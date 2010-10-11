@@ -58,17 +58,22 @@ an official release. For example "5.0.2[1]" would be the (first) official
 
 Gets a system path, depending on the `id` parameter:
 
-id                            description
------------------------------ ------------------------
-ALLEGRO_PROGRAM_PATH          Directory with the executed program.
-ALLEGRO_TEMP_PATH             Path to the directory for temporary files.
-ALLEGRO_SYSTEM_DATA_PATH      Data path for system-wide installation.
-ALLEGRO_USER_DATA_PATH        Data path for per-user installation.
-ALLEGRO_USER_HOME_PATH        Path to the user's home directory.
-ALLEGRO_USER_SETTINGS_PATH    Path to per-user settings directory.
-ALLEGRO_SYSTEM_SETTINGS_PATH  Path to system-wide settings directory.
-ALLEGRO_EXENAME_PATH          The full path to the executable. 
-
+ALLEGRO_PROGRAM_PATH
+:   Directory with the executed program.
+ALLEGRO_TEMP_PATH
+:   Path to the directory for temporary files.
+ALLEGRO_SYSTEM_DATA_PATH
+:   Data path for system-wide installation.
+ALLEGRO_USER_DATA_PATH
+:   Data path for per-user installation.
+ALLEGRO_USER_HOME_PATH
+:   Path to the user's home directory.
+ALLEGRO_USER_SETTINGS_PATH
+:   Path to per-user settings directory.
+ALLEGRO_SYSTEM_SETTINGS_PATH
+:   Path to system-wide settings directory.
+ALLEGRO_EXENAME_PATH
+:   The full path to the executable.
 
 Returns NULL on failure.  The returned path should be freed with
 [al_destroy_path].
