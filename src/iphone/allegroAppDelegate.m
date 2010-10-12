@@ -97,11 +97,50 @@ static void display_splash_screen(void)
    [splashwin makeKeyAndVisible];
 }
 
+- (void)orientation_change:(NSNotification *)notification
+{
+   ALLEGRO_DISPLAY *d = allegro_display;
+   UIDeviceOrientation o = [[UIDevice currentDevice] orientation];
+   int ao;
+   
+   (void)notification;
+
+   if (o == UIDeviceOrientationPortrait) {
+   	ao = ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES;
+   }
+   else if (o == UIDeviceOrientationPortraitUpsideDown) {
+   	ao = ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES;
+   }
+   else if (o == UIDeviceOrientationLandscapeLeft) {
+   	ao = ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES;
+   }
+   else if (o == UIDeviceOrientationLandscapeRight) {
+   	ao = ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES;
+   }
+   else {
+   	return;
+   }
+            
+   _al_event_source_lock(&d->es);
+   if (_al_event_source_needs_to_generate_event(&d->es)) {
+      ALLEGRO_EVENT event;
+      event.display.type = ALLEGRO_EVENT_DISPLAY_ORIENTATION;
+      event.display.timestamp = al_get_time();
+      event.display.orientation = ao;
+      _al_event_source_emit_event(&d->es, &event);
+   }
+   _al_event_source_unlock(&d->es);
+}
+
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
    ALLEGRO_INFO("App launched.\n");
     
    application.statusBarHidden = true;
    global_delegate = self;
+
+   // Register for device orientation notifications
+   [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientation_change:) name:UIDeviceOrientationDidChangeNotification object:nil];
 
    _al_iphone_run_user_main();
     
@@ -114,6 +153,8 @@ static void display_splash_screen(void)
     ALLEGRO_DISPLAY *d = allegro_display;
     ALLEGRO_SYSTEM_IPHONE *iphone = (void *)al_get_system_driver();
     iphone->wants_shutdown = true;
+	
+	[[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
 
     _al_event_source_lock(&d->es);
     

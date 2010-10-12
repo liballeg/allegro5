@@ -76,6 +76,21 @@ int main(int argc, const char *argv[])
     while (1) {
         ALLEGRO_EVENT event;
         al_wait_for_event(queue, &event);
+		if (event.type == ALLEGRO_EVENT_DISPLAY_ORIENTATION) {
+			int o = event.display.orientation;
+			if (o == ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES) {
+				printf("0 degrees\n");
+			}
+			else if (o == ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES) {
+				printf("90 degrees\n");
+			}
+			else if (o == ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES) {
+				printf("180 degrees\n");
+			}
+			else if (o == ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES) {
+				printf("270 degrees\n");
+			}
+		}
         if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
             break;
         if (event.type == ALLEGRO_EVENT_KEY_DOWN) {

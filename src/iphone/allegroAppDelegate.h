@@ -16,6 +16,7 @@
 + (void)run:(int)argc:(char **)argv;
 - (void)add_view;
 - (void)set_allegro_display:(ALLEGRO_DISPLAY *)d;
+- (void)orientation_change:(NSNotification *)notification;
 
 @end
 

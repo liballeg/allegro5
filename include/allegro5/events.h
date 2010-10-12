@@ -38,7 +38,8 @@ enum
    ALLEGRO_EVENT_DISPLAY_LOST                = 43,
    ALLEGRO_EVENT_DISPLAY_FOUND               = 44,
    ALLEGRO_EVENT_DISPLAY_SWITCH_IN           = 45,
-   ALLEGRO_EVENT_DISPLAY_SWITCH_OUT          = 46
+   ALLEGRO_EVENT_DISPLAY_SWITCH_OUT          = 46,
+   ALLEGRO_EVENT_DISPLAY_ORIENTATION         = 47
 };
 
 
@@ -93,12 +94,12 @@ typedef struct ALLEGRO_ANY_EVENT
 } ALLEGRO_ANY_EVENT;
 
 
-
 typedef struct ALLEGRO_DISPLAY_EVENT
 {
    _AL_EVENT_HEADER(struct ALLEGRO_DISPLAY)
    int x, y;
    int width, height;
+   int orientation;
 } ALLEGRO_DISPLAY_EVENT;
 
 
