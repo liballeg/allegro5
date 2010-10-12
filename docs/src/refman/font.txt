@@ -287,10 +287,12 @@ glyphs in pixel, pass it as a negative value.
 > *Note:* If you want to display text at multiple sizes, load the font
 multiple times with different size parameters.
 
-The only flag supported right now is:
+The following flags are supported:
 
 * ALLEGRO_TTF_NO_KERNING - Do not use any kerning even if the font file
   supports it.
+* ALLEGRO_TTF_MONOCHROME - Load as a monochrome font (Which means no
+  anti-aliasing of the font is done)
 
 See also: [al_init_ttf_addon], [al_load_ttf_font_f]
 

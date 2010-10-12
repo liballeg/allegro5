@@ -123,7 +123,7 @@ int main(int argc, const char *argv[])
     /* Specifying negative values means we specify the glyph height
      * in pixels, not the usual font size.
      */
-    ex.f4 = al_load_font(font_file, -140, 0);
+    ex.f4 = al_load_font(font_file, -140, ALLEGRO_TTF_MONOCHROME);
 
     if (!ex.f1 || !ex.f2 || !ex.f3 || !ex.f4) {
         fprintf(stderr, "Could not load font: %s\n", font_file);

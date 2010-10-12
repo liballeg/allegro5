@@ -16,6 +16,7 @@ typedef struct ALLEGRO_TTF_GLYPH_DATA
     ALLEGRO_BITMAP *bitmap;
     int x, y;
     int advance;
+    bool monochrome;
 } ALLEGRO_TTF_GLYPH_DATA;
 
 typedef struct ALLEGRO_TTF_FONT_DATA
@@ -153,7 +154,8 @@ static int render_glyph(ALLEGRO_FONT const *f,
         // FIXME: Investigate why some fonts don't work without the
         // NO_BITMAP flags. Supposedly using that flag makes small sizes
         // look bad so ideally we would not used it.
-        e = FT_Load_Glyph(face, ft_index, FT_LOAD_RENDER | FT_LOAD_NO_BITMAP);
+        e = FT_Load_Glyph(face, ft_index, FT_LOAD_RENDER | FT_LOAD_NO_BITMAP |
+	   (glyph->monochrome ? FT_LOAD_TARGET_MONO : 0));
         if (e) {
            ALLEGRO_WARN("Failed loading glyph %d from.\n", ft_index);
         }
@@ -179,19 +181,42 @@ static int render_glyph(ALLEGRO_FONT const *f,
          */
         al_put_pixel(0, 0, al_map_rgba(0, 0, 0, 0));
         row = face->glyph->bitmap.buffer;
-        for (y = 0; y < face->glyph->bitmap.rows; y++) {
-            unsigned char *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
-            unsigned char *dptr = (unsigned char *)lr->data + lr->pitch * y;
-            for (x = 0; x < face->glyph->bitmap.width; x++) {
-                unsigned char c = *ptr;
-                *(dptr++) = 255;
-                *(dptr++) = 255;
-                *(dptr++) = 255;
-                *(dptr++) = c;
-                ptr++;
-            }
-            row += face->glyph->bitmap.pitch;
-        }
+
+	if (glyph->monochrome) {
+		for (y = 0; y < face->glyph->bitmap.rows; y++) {
+		    unsigned char *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
+		    unsigned char *dptr = (unsigned char *)lr->data + lr->pitch * y;
+		    int bit = 0;
+		    for (x = 0; x < face->glyph->bitmap.width; x++) {
+			bool set = (*ptr >> (7-bit)) & 1;
+			*(dptr++) = 255;
+			*(dptr++) = 255;
+			*(dptr++) = 255;
+			*(dptr++) = set ? 255 : 0;
+			bit++;
+			if (bit >= 8) {
+			   bit = 0;
+			   ptr++;
+			}
+		    }
+		    row += face->glyph->bitmap.pitch;
+		}
+	}
+	else {
+		for (y = 0; y < face->glyph->bitmap.rows; y++) {
+		    unsigned char *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
+		    unsigned char *dptr = (unsigned char *)lr->data + lr->pitch * y;
+		    for (x = 0; x < face->glyph->bitmap.width; x++) {
+			unsigned char c = *ptr;
+			*(dptr++) = 255;
+			*(dptr++) = 255;
+			*(dptr++) = 255;
+			*(dptr++) = c;
+			ptr++;
+		    }
+		    row += face->glyph->bitmap.pitch;
+		}
+	}
         al_unlock_bitmap(glyph->bitmap);
         glyph->x = face->glyph->bitmap_left;
         glyph->y = (face->size->metrics.ascender >> 6) - face->glyph->bitmap_top;
@@ -458,6 +483,14 @@ ALLEGRO_FONT *al_load_ttf_font_f(ALLEGRO_FILE *file,
     bytes = (m + 1) * sizeof(ALLEGRO_TTF_GLYPH_DATA);
     data->cache = al_malloc(bytes);
     memset(data->cache, 0, bytes);
+
+    if (flags & ALLEGRO_TTF_MONOCHROME) {
+       unsigned int i;
+       for (i = 0; i < m+1; i++) {
+          ((ALLEGRO_TTF_GLYPH_DATA *)(data->cache + i))->monochrome = true;
+       }
+    }
+
     _al_vector_init(&data->cache_bitmaps, sizeof(ALLEGRO_BITMAP*));
     ALLEGRO_DEBUG("%s: Preparing cache for %d glyphs.\n", filename, m);
 
