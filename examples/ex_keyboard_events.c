@@ -91,9 +91,7 @@ static void log_key(char const *how, int keycode, int unichar, int modifiers)
    char multibyte[5] = {0, 0, 0, 0, 0};
    const char* key_name;
 
-   if (unichar == 0 || unichar == -1)
-      unichar = ' ';
-   al_utf8_encode(multibyte, unichar);
+   al_utf8_encode(multibyte, unichar <= 0 ? ' ' : unichar);
    key_name = al_keycode_to_name(keycode);
    us = al_ustr_newf("%s: %3d <%s> %08x [%08x]   %s", how, keycode, multibyte,
       unichar, modifiers, key_name);
