@@ -105,20 +105,27 @@ static void display_splash_screen(void)
    
    (void)notification;
 
-   if (o == UIDeviceOrientationPortrait) {
-   	ao = ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES;
-   }
-   else if (o == UIDeviceOrientationPortraitUpsideDown) {
-   	ao = ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES;
-   }
-   else if (o == UIDeviceOrientationLandscapeLeft) {
-   	ao = ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES;
-   }
-   else if (o == UIDeviceOrientationLandscapeRight) {
-   	ao = ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES;
-   }
-   else {
-   	return;
+   switch (o) {
+      case (UIDeviceOrientationPortrait):
+         ao = ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES;
+         break;
+      case (UIDeviceOrientationPortraitUpsideDown):
+         ao = ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES;
+         break;
+      case (UIDeviceOrientationLandscapeLeft):
+         ao = ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES;
+         break;
+      case (UIDeviceOrientationLandscapeRight):
+         ao = ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES;
+         break;
+      case (UIDeviceOrientationFaceUp):
+         ao = ALLEGRO_DISPLAY_ORIENTATION_FACE_UP;
+         break;
+      case (UIDeviceOrientationFaceDown):
+         ao = ALLEGRO_DISPLAY_ORIENTATION_FACE_DOWN;
+         break;
+      default:
+         return;
    }
             
    _al_event_source_lock(&d->es);
@@ -153,8 +160,8 @@ static void display_splash_screen(void)
     ALLEGRO_DISPLAY *d = allegro_display;
     ALLEGRO_SYSTEM_IPHONE *iphone = (void *)al_get_system_driver();
     iphone->wants_shutdown = true;
-	
-	[[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
+   
+   [[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
 
     _al_event_source_lock(&d->es);
     
@@ -194,8 +201,8 @@ static void display_splash_screen(void)
 }
 
 - (void)dealloc {
-	[window release];
-	[super dealloc];
+   [window release];
+   [super dealloc];
 }
 
 @end

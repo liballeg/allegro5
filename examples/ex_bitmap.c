@@ -90,6 +90,12 @@ int main(int argc, const char *argv[])
 			else if (o == ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES) {
 				printf("270 degrees\n");
 			}
+			else if (o == ALLEGRO_DISPLAY_ORIENTATION_FACE_UP) {
+				printf("Face up\n");
+			}
+			else if (o == ALLEGRO_DISPLAY_ORIENTATION_FACE_DOWN) {
+				printf("Face down\n");
+			}
 		}
         if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
             break;
