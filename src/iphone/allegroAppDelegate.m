@@ -133,6 +133,7 @@ static void display_splash_screen(void)
       ALLEGRO_EVENT event;
       event.display.type = ALLEGRO_EVENT_DISPLAY_ORIENTATION;
       event.display.timestamp = al_get_time();
+      event.display.source = allegro_display;
       event.display.orientation = ao;
       _al_event_source_emit_event(&d->es, &event);
    }
