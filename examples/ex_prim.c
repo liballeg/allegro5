@@ -723,7 +723,7 @@ int main(void)
       }
 
       al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
-      al_draw_textf(Font, solid_white, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, ScreenName[cur_screen]);
+      al_draw_textf(Font, solid_white, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "%s", ScreenName[cur_screen]);
       al_draw_textf(Font, solid_white, 0, 0, 0, "FPS: %f", (float)frames_done / (al_get_time() - time_diff));
       al_draw_textf(Font, solid_white, 0, 20, 0, "Change Screen (Up/Down). Esc to Quit.");
       al_draw_textf(Font, solid_white, 0, 40, 0, "Rotation (Left/Right/Space): %f", Speed);
