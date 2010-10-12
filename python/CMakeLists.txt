@@ -12,7 +12,7 @@ add_custom_command(
 SET(release "")
 append_lib_type_suffix(release)
 append_lib_linkage_suffix(release)
-SET(release "${release}-${ALLEGRO_SOVERSION}")
+SET(version "${ALLEGRO_SOVERSION}")
 
 add_custom_command(
     OUTPUT allegro.py
@@ -20,7 +20,8 @@ add_custom_command(
     COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/python/generate_python_ctypes.py
         -p python_protos
         -o allegro.py
-        -r \"${release}\"
+        -t \"${release}\"
+        -v \"${version}\"
     )
 
 add_custom_target(python
