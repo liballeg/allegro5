@@ -105,6 +105,9 @@ static void display_splash_screen(void)
    
    (void)notification;
 
+   if (d == NULL)
+      return;
+
    switch (o) {
       case (UIDeviceOrientationPortrait):
          ao = ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES;
