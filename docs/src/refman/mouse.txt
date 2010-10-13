@@ -8,10 +8,14 @@ These functions are declared in the main Allegro header file:
 
 Public fields (read only):
 
-* x - mouse x
-* y - mouse y
-* w, z - Mouse wheel position (2D 'ball')
-* buttons - mouse buttons
+* x - mouse x position
+* y - mouse y position
+* w, z - mouse wheel position (2D 'ball')
+* buttons - mouse buttons bitfield
+
+The zeroth bit is set if the primary mouse button is held down,
+the first bit is set if the secondary mouse button is held down,
+and so on.
 
 See also: [al_get_mouse_state], [al_get_mouse_state_axis], [al_mouse_button_down]
 
@@ -37,17 +41,24 @@ This function is automatically called when Allegro is shut down.
 ## API: al_get_mouse_num_axes
 
 Return the number of buttons on the mouse.
+The first axis is 0.
+
+See also: [al_get_mouse_num_buttons]
 
 ## API: al_get_mouse_num_buttons
 
 Return the number of buttons on the mouse.
+The first button is 1.
+
+See also: [al_get_mouse_num_axes]
 
 ## API: al_get_mouse_state
 
 Save the state of the mouse specified at the time the function
 is called into the given structure.
 
-See also: [ALLEGRO_MOUSE_STATE], [al_get_mouse_state_axis]
+See also: [ALLEGRO_MOUSE_STATE], [al_get_mouse_state_axis],
+[al_mouse_button_down]
 
 ## API: al_get_mouse_state_axis
 
@@ -60,7 +71,7 @@ See also: [ALLEGRO_MOUSE_STATE], [al_get_mouse_state], [al_mouse_button_down]
 ## API: al_mouse_button_down
 
 Return true if the mouse button specified was held down in the state
-specified.
+specified.  Unlike most things, the first mouse button is numbered 1.
 
 See also: [ALLEGRO_MOUSE_STATE], [al_get_mouse_state], [al_get_mouse_state_axis]
 
