@@ -6,7 +6,10 @@ $if(legacy-header)$
 $legacy-header$
 $else$
 %% Replacement for the book document class.
-\documentclass{memoir}
+\documentclass[a4paper]{memoir}
+
+%% The default layout looks too wasteful to me.
+\usepackage[a4paper,hmargin=2.6cm,top=2.4cm,bottom=3cm,footskip=1cm,centering]{geometry}
 
 %% ToC down to subsections
 \settocdepth{subsection}
