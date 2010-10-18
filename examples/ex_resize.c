@@ -23,11 +23,11 @@ static void redraw(void)
 int main(void)
 {
     ALLEGRO_DISPLAY *display;
+    ALLEGRO_TIMER *timer;
     ALLEGRO_EVENT_QUEUE *events;
     ALLEGRO_EVENT event;
-
-    double last_resize;
     int rs = 100;
+    bool resize = false;
 
     /* Initialize Allegro and create an event queue. */
     if (!al_init()) {
@@ -46,38 +46,42 @@ int main(void)
     }
     al_register_event_source(events, al_get_display_event_source(display));
 
-    /* Setup a keyboard driver and regsiter events from it. */
+    timer = al_create_timer(0.1);
+    al_start_timer(timer);
+
+    /* Setup a keyboard driver and register events from it. */
     al_install_keyboard();
     al_register_event_source(events, al_get_keyboard_event_source());
+    al_register_event_source(events, al_get_timer_event_source(timer));
 
     /* Display a pulsating window until a key or the closebutton is pressed. */
     redraw();
-    last_resize = 0;
     while (true) {
-        if (al_get_next_event(events, &event)) {
-            if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
-                ALLEGRO_DISPLAY_EVENT *de = &event.display;
-                al_acknowledge_resize(de->source);
-                redraw();
-            }
-            if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
-                break;
-            }
-            if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-                break;
-            }
-        }
-        if (al_get_time() - last_resize > 0.1) {
+        if (resize) {
             int s;
-
-            last_resize = al_get_time();
             rs += 10;
             if (rs == 300)
-               rs = 100;
+                rs = 100;
             s = rs;
             if (s > 200)
-               s = 400 - s;
+                s = 400 - s;
             al_resize_display(display, s, s);
+            resize = false;
+        }
+        al_wait_for_event(events, &event);
+        if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
+            ALLEGRO_DISPLAY_EVENT *de = &event.display;
+            al_acknowledge_resize(de->source);
+            redraw();
+        }
+        else if (event.type == ALLEGRO_EVENT_TIMER) {
+            resize = true;
+        }
+        else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+            break;
+        }
+        else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+            break;
         }
     }
 
