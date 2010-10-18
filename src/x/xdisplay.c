@@ -33,7 +33,8 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
 
 static void set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
 {
-   if (d->flags & ALLEGRO_RESIZABLE) return;
+   if (d->flags & ALLEGRO_RESIZABLE)
+      return;
 
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
@@ -208,7 +209,11 @@ static void xdpy_toggle_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
    if (onoff == !(display->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
       _al_mutex_lock(&system->lock);
       reset_size_hints(display);
-      _al_xglx_toggle_fullscreen_window(display);
+      _al_xglx_toggle_fullscreen_window(display, 2);
+      /* XXX Technically, the user may fiddle with the _NET_WM_STATE_FULLSCREEN
+       * property outside of Allegro so this flag may not be in sync with
+       * reality.
+       */
       display->flags ^= ALLEGRO_FULLSCREEN_WINDOW;
       set_size_hints(display, INT_MAX, INT_MAX);
       _al_mutex_unlock(&system->lock);
@@ -343,19 +348,26 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    }
 
    int x_off = INT_MAX, y_off = INT_MAX;
-   if(display->flags & ALLEGRO_FULLSCREEN) {
+   if (display->flags & ALLEGRO_FULLSCREEN) {
       _al_xglx_get_display_offset(system, d->xscreen, &x_off, &y_off);
    }
    else {
       al_get_new_window_position(&x_off, &y_off);
    }
-   
-   d->window = XCreateWindow(system->x11display, RootWindow(
-      system->x11display, d->xvinfo->screen), x_off != INT_MAX ? x_off : 0, y_off != INT_MAX ? y_off : 0, w, h, 0, d->xvinfo->depth,
+
+   d->window = XCreateWindow(system->x11display,
+      RootWindow(system->x11display, d->xvinfo->screen),
+      x_off != INT_MAX ? x_off : 0,
+      y_off != INT_MAX ? y_off : 0,
+      w, h, 0, d->xvinfo->depth,
       InputOutput, d->xvinfo->visual, mask, &swa);
 
    // Try to set full screen mode if requested, fail if we can't
    if (display->flags & ALLEGRO_FULLSCREEN) {
+      /* According to the spec, the window manager is supposed to disable
+       * window decorations when _NET_WM_STATE_FULLSCREEN is in effect.
+       * However, some WMs may not be fully compliant, e.g. Fluxbox.
+       */
       xdpy_toggle_frame(display, false);
 
       if (!_al_xglx_fullscreen_set_mode(system, d, w, h, 0, display->refresh_rate)) {
@@ -365,7 +377,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
          return NULL;
       }
    }
-   
+
    if (display->flags & ALLEGRO_NOFRAME)
       xdpy_toggle_frame(display, false);
 
@@ -373,7 +385,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    set_size_hints(display, x_off, y_off);
 
-   d->wm_delete_window_atom = XInternAtom (system->x11display,
+   d->wm_delete_window_atom = XInternAtom(system->x11display,
       "WM_DELETE_WINDOW", False);
    XSetWMProtocols(system->x11display, d->window, &d->wm_delete_window_atom, 1);
 
@@ -392,19 +404,18 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       _al_cond_wait(&d->mapped, &system->lock);
    }
 
-   if (display->flags & ALLEGRO_FULLSCREEN) {
-      _al_xglx_set_above(display);
-   }
-      
    /* We can do this at any time, but if we already have a mapped
     * window when switching to fullscreen it will use the same
     * monitor (with the MetaCity version I'm using here right now).
     */
-   if (display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+   if (display->flags & ALLEGRO_FULLSCREEN) {
+      _al_xglx_toggle_fullscreen_window(display, 1);
+   }
+   else if (display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
       ALLEGRO_INFO("Toggling fullscreen flag for %d x %d window.\n",
          display->w, display->h);
       reset_size_hints(display);
-      _al_xglx_toggle_fullscreen_window(display);
+      _al_xglx_toggle_fullscreen_window(display, 2);
       set_size_hints(display, INT_MAX, INT_MAX);
 
       XWindowAttributes xwa;
@@ -608,7 +619,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
 
    _al_mutex_unlock(&s->lock);
 
-    ALLEGRO_DEBUG("xdpy: destroy display fin.\n");
+   ALLEGRO_DEBUG("xdpy: destroy display finished.\n");
 }
 
 
@@ -689,16 +700,18 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
    w = xwa.width;
    h = xwa.height;
 
-   d->w = w;
-   d->h = h;
+   if ((int)w != d->w || (int)h != d->h) {
+      d->w = w;
+      d->h = h;
 
-   ALLEGRO_DEBUG("xdpy: acknowledge_resize (%d, %d)\n", d->w, d->h);
+      ALLEGRO_DEBUG("xdpy: acknowledge_resize (%d, %d)\n", d->w, d->h);
 
-   /* No context yet means this is a stray call happening during
-    * initialization.
-    */
-   if (glx->context)
-      setup_gl(d);
+      /* No context yet means this is a stray call happening during
+       * initialization.
+       */
+      if (glx->context)
+         setup_gl(d);
+   }
 
    _al_mutex_unlock(&system->lock);
 
@@ -711,25 +724,34 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
  * wait for the condition variable it gets auto-unlocked. For a
  * nested lock that would not be the case.
  */
-void _al_display_xglx_await_resize(ALLEGRO_DISPLAY *d)
+void _al_display_xglx_await_resize(ALLEGRO_DISPLAY *d, int old_resize_count,
+   bool delay_hack)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
-   int old_resize_count;
+   ALLEGRO_TIMEOUT timeout;
+
+   ALLEGRO_DEBUG("Awaiting resize event\n");
 
    XSync(system->x11display, False);
 
-   /* Wait until we are actually resized. */
-   old_resize_count = glx->resize_count;
+   /* Wait until we are actually resized.
+    * Don't wait forever if an event never comes.
+    */
+   al_init_timeout(&timeout, 1.0);
    while (old_resize_count == glx->resize_count) {
-      _al_cond_wait(&system->resized, &system->lock);
+      if (_al_cond_timedwait(&system->resized, &system->lock, &timeout) == -1) {
+         ALLEGRO_ERROR("Timeout while waiting for resize event.\n");
+         return;
+      }
    }
 
-   /* XXX: This hack makes the second and subsequent toggles of
-    * ALLEGRO_FULLSCREEN_WINDOW work in ex_fs_window on my machine,
-    * with IceWM and Fluxbox.  xfwm and kwin were okay without.
+   /* XXX: This hack helps when toggling between fullscreen windows and not,
+    * on various window managers.
     */
-   al_rest(0.05);
+   if (delay_hack) {
+      al_rest(0.2);
+   }
 
    /* TODO: Right now, we still generate a resize event (from the events
     * thread, in response to the Configure event) which is X11
@@ -746,6 +768,8 @@ static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
    XWindowAttributes xwa;
+   int attempts;
+   bool ret = false;
 
    /* A fullscreen-window can't be resized. */
    if (d->flags & ALLEGRO_FULLSCREEN_WINDOW)
@@ -762,21 +786,55 @@ static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
       return false;
    }
 
-   reset_size_hints(d);
-   XResizeWindow(system->x11display, glx->window, w, h);
-
-   _al_display_xglx_await_resize(d);
-   
-   // XXX is this even a valid action?
    if (d->flags & ALLEGRO_FULLSCREEN) {
-      _al_xglx_fullscreen_set_mode(system, glx, w, h, 0, 0);
+      _al_xglx_toggle_fullscreen_window(d, 0);
+      if (!_al_xglx_fullscreen_set_mode(system, glx, w, h, 0, 0)) {
+         ret = false;
+         goto skip_resize;
+      }
+      attempts = 3;
+   }
+   else {
+      attempts = 1;
+   }
+
+   /* Hack: try multiple times to resize the window, with delays.  KDE reacts
+    * slowly to the video mode change, and won't resize our window until a
+    * while after.  It would be better to wait for some sort of event rather
+    * than just waiting some amount of time, but I didn't manage to find that
+    * event. --pw
+    */
+   for (; attempts >= 0; attempts--) {
+      const int old_resize_count = glx->resize_count;
+      ALLEGRO_DEBUG("calling XResizeWindow, attempts=%d\n", attempts);
+      reset_size_hints(d);
+      XResizeWindow(system->x11display, glx->window, w, h);
+      _al_display_xglx_await_resize(d, old_resize_count,
+         (d->flags & ALLEGRO_FULLSCREEN));
+      set_size_hints(d, INT_MAX, INT_MAX);
+
+      if (d->w == w && d->h == h) {
+         ret = true;
+         break;
+      }
+
+      /* Wait before trying again. */
+      al_rest(0.333);
+   }
+
+   if (attempts == 0) {
+      ALLEGRO_ERROR("XResizeWindow didn't work; giving up\n");
+   }
+
+skip_resize:
+
+   if (d->flags & ALLEGRO_FULLSCREEN) {
+      _al_xglx_toggle_fullscreen_window(d, 1);
       _al_xglx_fullscreen_to_display(system, glx);
    }
-   
-   set_size_hints(d, INT_MAX, INT_MAX);
 
    _al_mutex_unlock(&system->lock);
-   return true;
+   return ret;
 }
 
 

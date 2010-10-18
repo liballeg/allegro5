@@ -181,6 +181,8 @@ bool al_resize_display(ALLEGRO_DISPLAY *display, int width, int height)
 {
    ASSERT(display);
 
+   ALLEGRO_INFO("Requested display resize %dx%d\n", width, height);
+
    if (display->vt->resize_display) {
       return display->vt->resize_display(display, width, height);
    }

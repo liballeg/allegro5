@@ -491,13 +491,13 @@ static void _al_xsys_xrandr_init(ALLEGRO_SYSTEM_XGLX *s)
 static void _al_xsys_xrandr_exit(ALLEGRO_SYSTEM_XGLX *s)
 {
    int i;
-   ALLEGRO_DEBUG("xfullscreen: XRandR exit.\n");
+   ALLEGRO_DEBUG("xfullscreen: XRandR exiting.\n");
 
    for (i = 0; i < s->xrandr_output_count; i++) {
    //   XRRFreeOutputInfo(s->xrandr_outputs[i]);
    }
 
-   ALLEGRO_ERROR("xfullscreen: XRRFreeScreenResources\n");
+   ALLEGRO_DEBUG("xfullscreen: XRRFreeScreenResources\n");
    //if (s->xrandr_res)
    //   XRRFreeScreenResources(s->xrandr_res);
 
@@ -508,7 +508,7 @@ static void _al_xsys_xrandr_exit(ALLEGRO_SYSTEM_XGLX *s)
    s->xrandr_output_count = 0;
    s->xrandr_outputs = NULL;
 
-   ALLEGRO_ERROR("xfullscreen: XRandR exit fin.\n");
+   ALLEGRO_DEBUG("xfullscreen: XRandR exit finished.\n");
 }
 
 #endif /* ALLEGRO_XWINDOWS_WITH_XRANDR */
@@ -940,14 +940,11 @@ void _al_xglx_fullscreen_to_display(ALLEGRO_SYSTEM_XGLX *s,
    ALLEGRO_DISPLAY_XGLX *d)
 {
    /* First, make sure the mouse stays inside the window. */
-   //XGrabPointer(s->gfxdisplay, d->window, False,
-   //   PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
-   //   GrabModeAsync, GrabModeAsync, d->window, None, CurrentTime);
+   XGrabPointer(s->gfxdisplay, d->window, False,
+      PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
+      GrabModeAsync, GrabModeAsync, d->window, None, CurrentTime);
    //FIXME: handle possible errors here
-   //s->pointer_grabbed = true;
-
-   (void)s;
-   (void)d;
+   s->pointer_grabbed = true;
 }
 
 void _al_xglx_store_video_mode(ALLEGRO_SYSTEM_XGLX *s)
@@ -1019,11 +1016,14 @@ int _al_xglx_get_num_video_adapters(ALLEGRO_SYSTEM_XGLX *s)
 /* Note: The system mutex must be locked (exactly once) before
  * calling this as we call _al_display_xglx_await_resize.
  */
-void _al_xglx_toggle_fullscreen_window(ALLEGRO_DISPLAY *display)
+void _al_xglx_toggle_fullscreen_window(ALLEGRO_DISPLAY *display, int value)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
    Display *x11 = system->x11display;
+   int old_resize_count = glx->resize_count;
+
+   ALLEGRO_DEBUG("Toggling _NET_WM_STATE_FULLSCREEN hint: %d\n", value);
 
    XEvent xev;
    xev.xclient.type = ClientMessage;
@@ -1035,7 +1035,7 @@ void _al_xglx_toggle_fullscreen_window(ALLEGRO_DISPLAY *display)
 
    // Note: It seems 0 is not reliable except when mapping a window -
    // 2 is all we need though.
-   xev.xclient.data.l[0] = 2; /* 0 = off, 1 = on, 2 = toggle */
+   xev.xclient.data.l[0] = value; /* 0 = off, 1 = on, 2 = toggle */
 
    xev.xclient.data.l[1] = X11_ATOM(_NET_WM_STATE_FULLSCREEN);
    xev.xclient.data.l[2] = 0;
@@ -1045,39 +1045,10 @@ void _al_xglx_toggle_fullscreen_window(ALLEGRO_DISPLAY *display)
    XSendEvent(x11, DefaultRootWindow(x11), False,
       SubstructureRedirectMask | SubstructureNotifyMask, &xev);
    
-   _al_display_xglx_await_resize(display);
-}
-
-// XXX This doesn't seem to actually work with KDE4+Plasma, the panel still appears over our window.
-void _al_xglx_set_above(ALLEGRO_DISPLAY *display)
-{
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
-   Display *x11 = system->x11display;
-
-   _al_mutex_lock(&system->lock);
-
-   XEvent xev;
-   xev.xclient.type = ClientMessage;
-   xev.xclient.serial = 0;
-   xev.xclient.send_event = True;
-   xev.xclient.message_type = X11_ATOM(_NET_WM_STATE);
-   xev.xclient.window = glx->window;
-   xev.xclient.format = 32;
-
-   // Note: It seems 0 is not reliable except when mapping a window -
-   // 2 is all we need though.
-   xev.xclient.data.l[0] = 1; /* 0 = off, 1 = on, 2 = toggle */
-
-   xev.xclient.data.l[1] = X11_ATOM(_NET_WM_STATE_ABOVE);
-   xev.xclient.data.l[2] = 0;
-   xev.xclient.data.l[3] = 0;
-   xev.xclient.data.l[4] = 1;
-
-   XSendEvent(x11, DefaultRootWindow(x11), False,
-      SubstructureRedirectMask | SubstructureNotifyMask, &xev);
-
-   _al_mutex_unlock(&system->lock);
+   if (value == 2) {
+      /* Only wait for a resize if toggling. */
+      _al_display_xglx_await_resize(display, old_resize_count, true);
+   }
 }
 
 /* vim: set sts=3 sw=3 et: */
