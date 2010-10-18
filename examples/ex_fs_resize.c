@@ -25,7 +25,10 @@ static void redraw(ALLEGRO_BITMAP *picture)
    int w = al_get_bitmap_width(target);
    int h = al_get_bitmap_height(target);
 
-   color = al_map_rgb(rand() % 255, rand() % 255, rand() % 255);
+   color = al_map_rgb(
+       128 + rand() % 128,
+       128 + rand() % 128,
+       128 + rand() % 128);
    al_clear_to_color(color);
 
    color = al_map_rgb(255, 0, 0);
@@ -88,7 +91,6 @@ static void main_loop(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *picture)
          }
          else {
             printf("failed.\n");
-	    return;
          }
       }
    }
@@ -113,7 +115,8 @@ int main(int argc, char **argv)
    	al_set_new_display_adapter(atoi(argv[1]));
    }
 
-   al_set_new_display_flags(ALLEGRO_FULLSCREEN);
+   al_set_new_display_flags(ALLEGRO_FULLSCREEN |
+       ALLEGRO_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(res[cur_res].w, res[cur_res].h);
    if (!display) {
       abort_example("Error creating display\n");
