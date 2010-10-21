@@ -457,7 +457,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    /* Print out OpenGL version info */
    ALLEGRO_INFO("OpenGL Version: %s\n", (const char*)glGetString(GL_VERSION));
    ALLEGRO_INFO("Vendor: %s\n", (const char*)glGetString(GL_VENDOR));
-   ALLEGRO_INFO("Renderer: %s\n\n", (const char*)glGetString(GL_RENDERER));
+   ALLEGRO_INFO("Renderer: %s\n", (const char*)glGetString(GL_RENDERER));
 
    if (display->ogl_extras->ogl_info.version < 1.2) {
       ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = _al_get_new_display_settings();
