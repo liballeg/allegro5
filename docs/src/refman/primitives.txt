@@ -347,11 +347,20 @@ Draws a subset of the passed vertex buffer.
 * vtxs - Pointer to an array of vertices
 * decl - Pointer to a vertex declaration. If set to NULL, the vertices
       are assumed to be of the ALLEGRO_VERTEX type
-* start, end - Start and end of the subset of the vertex buffer to draw
+* start - Start index of the subset of the vertex buffer to draw
+* end - One past the last index of subset of the vertex buffer to draw
 * type - Primitive type to draw
 
 *Returns:*
 Number of primitives drawn
+
+For example to draw a textured triangle you could use:
+
+    ALLEGRO_VERTEX v[] = {
+        {.x = 128, .y = 0, .z = 0, .u = 128, .v = 0},
+        {.x = 0, .y = 256, .z = 0, .u = 0, .v = 256},
+        {.x = 256, .y = 256, .z = 0, .u = 256, .v = 256}};
+    al_draw_prim(v, NULL, texture, 0, 3, ALLEGRO_PRIM_TRIANGLE_LIST);
 
 *See Also:*
 [ALLEGRO_VERTEX], [ALLEGRO_PRIM_TYPE], [ALLEGRO_VERTEX_DECL], 
