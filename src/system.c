@@ -41,7 +41,7 @@ _AL_DTOR_LIST *_al_dtor_list = NULL;
 static bool atexit_virgin = true;
 
 static char _al_app_name[256] = "";
-static char _al_org_name[256] = "allegro";
+static char _al_org_name[256] = "";
 
 #if 0
 bool al_register_system_driver(ALLEGRO_SYSTEM_INTERFACE *sys_interface)
@@ -317,7 +317,7 @@ ALLEGRO_PATH *al_get_standard_path(int id)
 void al_set_org_name(const char *org_name)
 {
    if (!org_name)
-      org_name = "allegro";
+      org_name = "";
 
    _al_sane_strncpy(_al_org_name, org_name, sizeof(_al_org_name));
 }
