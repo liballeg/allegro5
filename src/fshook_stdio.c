@@ -17,6 +17,8 @@
 
 #include "allegro5/allegro.h"
 
+ALLEGRO_DEBUG_CHANNEL("fshook")
+
 /* Enable large file support in gcc/glibc. */
 #if defined ALLEGRO_HAVE_FTELLO && defined ALLEGRO_HAVE_FSEEKO
    #define _LARGEFILE_SOURCE
@@ -346,8 +348,8 @@ static bool fs_stdio_update_entry(ALLEGRO_FS_ENTRY *fp);
 static ALLEGRO_FS_ENTRY *fs_stdio_create_entry(const char *path)
 {
    ALLEGRO_FS_ENTRY_STDIO *fh = NULL;
-   uint32_t len = 0;
-   unsigned int trailing_slashes = 0;
+   int len = 0;
+   int trailing_slashes = 0;
    char c;
 
    fh = al_malloc(sizeof(*fh));
@@ -365,11 +367,12 @@ static ALLEGRO_FS_ENTRY *fs_stdio_create_entry(const char *path)
    /* At least under Windows 7, a trailing slash or backslash makes
     * all calls to stat() with the given filename fail - making the
     * filesystem entry useless.
+    * But don't trim the root path "/" to nothing.
     */
-   while (true) {
-      if (trailing_slashes >= len) break;
+   while (len - trailing_slashes > 1) {
       c = path[len - 1 - trailing_slashes];
-      if (c != '/' && c != '\\') break;
+      if (c != '/' && c != '\\')
+         break;
       trailing_slashes++;
    }
 
@@ -382,6 +385,8 @@ static ALLEGRO_FS_ENTRY *fs_stdio_create_entry(const char *path)
 
    memcpy(fh->path, path, len - trailing_slashes);
    fh->path[len - trailing_slashes] = 0;
+
+   ALLEGRO_DEBUG("Creating entry for %s\n", fh->path);
 
    fs_stdio_update_entry((ALLEGRO_FS_ENTRY *) fh);
 
