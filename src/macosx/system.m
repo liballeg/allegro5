@@ -441,6 +441,7 @@ NSImage* NSImageFromAllegroBitmap(ALLEGRO_BITMAP* bmp)
       colorSpaceName:NSDeviceRGBColorSpace 
       bytesPerRow: 0 // Calculate yourself
       bitsPerPixel:0 ];// Calculate yourself
+   al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
    int x, y;
    for (y = 0; y<h; ++y) {
       for (x = 0; x<w; ++x) {
@@ -453,6 +454,7 @@ NSImage* NSImageFromAllegroBitmap(ALLEGRO_BITMAP* bmp)
          ptr[2] *= c.a;
       }
    }
+   al_unlock_bitmap(bmp);
    [img addRepresentation:rep];
    [rep release];
    return [img autorelease];
