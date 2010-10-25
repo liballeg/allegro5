@@ -608,19 +608,54 @@ static bool fs_stdio_change_directory(const char *path)
    return true;
 }
 
-static bool fs_stdio_make_directory(const char *path)
+static int mkdir_perm(const char *path)
 {
 #ifdef ALLEGRO_WINDOWS
-   int32_t ret = mkdir(path);
+   return mkdir(path);
 #else
-   int32_t ret = mkdir(path, 0755);
+   return mkdir(path, 0755);
 #endif
-   if (ret == -1) {
-      al_set_errno(errno);
-      return false;
+}
+
+static bool fs_stdio_make_directory(const char *path)
+{
+   ALLEGRO_PATH *path1, *path2;
+   const char *s;
+   struct stat st;
+   int i, n;
+   bool success = true;
+
+   path1 = al_create_path_for_directory(path);
+   path2 = al_create_path(NULL);
+   al_set_path_drive(path2, al_get_path_drive(path1));
+
+   n = al_get_path_num_components(path1);
+   for (i = 0; i < n; i++) {
+      al_append_path_component(path2, al_get_path_component(path1, i));
+      s = al_path_cstr(path2, ALLEGRO_NATIVE_PATH_SEP);
+      if (stat(s, &st) == 0) {
+         if (S_ISDIR(st.st_mode))
+            continue;
+         al_set_errno(ENOTDIR);
+         success = false;
+         break;
+      }
+      if (errno != ENOENT) {
+         al_set_errno(errno);
+         success = false;
+         break;
+      }
+      if (mkdir_perm(s) != 0) {
+         al_set_errno(errno);
+         success = false;
+         break;
+      }
    }
 
-   return true;
+   al_destroy_path(path1);
+   al_destroy_path(path2);
+
+   return success;
 }
 
 static bool fs_stdio_entry_exists(ALLEGRO_FS_ENTRY *fp)

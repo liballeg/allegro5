@@ -180,10 +180,11 @@ Returns true on success, false on error.
 
 ### API: al_make_directory
 
-Creates a new directory on the filesystem.
+Creates a new directory on the filesystem.  This function also creates any
+parent directories as needed.
 
-Returns true on success, false on error.  Fills in Allegro's errno to indicate
-the error.
+Returns true on success (including if the directory already exists), otherwise
+returns false on error.  Fills in Allegro's errno to indicate the error.
 
 See also: [al_get_errno]
 
