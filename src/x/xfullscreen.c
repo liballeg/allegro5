@@ -842,10 +842,19 @@ void _al_xsys_mmon_exit(ALLEGRO_SYSTEM_XGLX *s)
    s->mmon_interface_inited = false;
 }
 
+static int get_default_adapter(void)
+{
+   /* FIXME: the default adapter is not necessarily 0. */
+   return 0;
+}
+
 int _al_xglx_get_num_display_modes(ALLEGRO_SYSTEM_XGLX *s, int adapter)
 {
    if (!init_mmon_interface(s))
       return 0;
+
+   if (adapter == -1)
+      adapter = get_default_adapter();
 
    if (!mmon_interface.get_num_display_modes) {
       if (adapter != 0)
@@ -862,6 +871,9 @@ ALLEGRO_DISPLAY_MODE *_al_xglx_get_display_mode(ALLEGRO_SYSTEM_XGLX *s, int adap
 {
    if (!init_mmon_interface(s))
       return NULL;
+
+   if (adapter == -1)
+      adapter = get_default_adapter();
 
    if (!mmon_interface.get_display_mode) {
       mode->width = DisplayWidth(s->x11display, DefaultScreen(s->x11display));
@@ -884,6 +896,9 @@ int _al_xglx_fullscreen_select_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int w, 
 
    if (!init_mmon_interface(s))
       return -1;
+   
+   if (adapter == -1)
+      adapter = get_default_adapter();
 
    n = _al_xglx_get_num_display_modes(s, adapter);
    if (!n)
