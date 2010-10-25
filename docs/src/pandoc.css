@@ -142,6 +142,11 @@ div.searchbox {
     font-size:		    small;
 }
 
+/* font-size isn't inherited (at least not in Firefox and Chrome) */
+input#q {
+   font-size: small;
+}
+
 /* Body of page */
 div.content {
     margin-left: 165px;
