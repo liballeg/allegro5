@@ -99,11 +99,24 @@ ALLEGRO_MOUSE_DRIVER *_al_xwin_mouse_driver(void)
 static bool xmouse_init(void)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   ALLEGRO_DISPLAY *display;
+   int x, y;
 
    if (system->x11display == NULL)
       return false;
+   if (xmouse_installed)
+      return false;
 
+   /* Don't clobber mouse position in case the display was created before
+    * the mouse is installed.
+    */
+   display = the_mouse.state.display;
+   x = the_mouse.state.x;
+   y = the_mouse.state.y;
    memset(&the_mouse, 0, sizeof the_mouse);
+   the_mouse.state.display = display;
+   the_mouse.state.x = x;
+   the_mouse.state.y = y;
 
    _al_event_source_init(&the_mouse.parent.es);
 
@@ -122,8 +135,6 @@ static void xmouse_exit(void)
    if (!xmouse_installed)
       return;
    xmouse_installed = false;
-
-   /* ... */
 
    _al_event_source_free(&the_mouse.parent.es);
 }
@@ -492,10 +503,14 @@ void _al_xwin_mouse_switch_handler(ALLEGRO_DISPLAY *display,
    switch (event->type) {
       case EnterNotify:
          the_mouse.state.display = display;
+         the_mouse.state.x = event->x;
+         the_mouse.state.y = event->y;
          event_type = ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY;
          break;
       case LeaveNotify:
          the_mouse.state.display = NULL;
+         the_mouse.state.x = event->x;
+         the_mouse.state.y = event->y;
          event_type = ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY;
          break;
       default:
