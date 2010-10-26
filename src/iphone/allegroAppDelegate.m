@@ -115,10 +115,10 @@ static void display_splash_screen(void)
       case (UIDeviceOrientationPortraitUpsideDown):
          ao = ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES;
          break;
-      case (UIDeviceOrientationLandscapeLeft):
+      case (UIDeviceOrientationLandscapeRight):
          ao = ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES;
          break;
-      case (UIDeviceOrientationLandscapeRight):
+      case (UIDeviceOrientationLandscapeLeft):
          ao = ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES;
          break;
       case (UIDeviceOrientationFaceUp):
