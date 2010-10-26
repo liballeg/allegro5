@@ -194,8 +194,6 @@ void al_init_user_event_source(ALLEGRO_EVENT_SOURCE *src)
    ASSERT(src);
 
    _al_event_source_init(src);
-   _al_register_destructor(_al_dtor_list, src,
-      (void (*)(void *)) al_destroy_user_event_source);
 }
 
 
@@ -205,7 +203,6 @@ void al_init_user_event_source(ALLEGRO_EVENT_SOURCE *src)
 void al_destroy_user_event_source(ALLEGRO_EVENT_SOURCE *src)
 {
    if (src) {
-      _al_unregister_destructor(_al_dtor_list, src);
       _al_event_source_free(src);
    }
 }

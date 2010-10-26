@@ -285,6 +285,9 @@ type).
 
 However, it is only one technique and you are not obliged to use it.
 
+The user event source will never be destroyed automatically.
+You must destroy it manually with [al_destroy_user_event_source].
+
 See also: [ALLEGRO_EVENT_SOURCE], [al_emit_user_event],
 [al_destroy_user_event_source]
 
