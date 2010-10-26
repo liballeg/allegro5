@@ -168,7 +168,11 @@ See also: [al_open_directory], [al_read_directory]
 ### API: al_get_current_directory
 
 Returns the path to the current working directory, or NULL on failure.
-Allegro's errno is filled in to indicate the error.
+The returned path is dynamically allocated and must be destroyed with
+[al_destroy_path].
+
+Allegro's errno is filled in to indicate the error if there is a failure.
+This function may not be implemented on some (virtual) filesystems.
 
 See also: [al_get_errno]
 

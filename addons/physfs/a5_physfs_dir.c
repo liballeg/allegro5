@@ -10,6 +10,14 @@
 
 #include "allegro_physfs_intern.h"
 
+#if defined(ENOTSUP)
+   #define NOTSUP ENOTSUP
+#elif defined(ENOSYS)
+   #define NOTSUP ENOSYS
+#else
+   #define NOTSUP EINVAL
+#endif
+
 
 typedef struct ALLEGRO_FS_ENTRY_PHYSFS ALLEGRO_FS_ENTRY_PHYSFS;
 
@@ -41,12 +49,14 @@ static ALLEGRO_FS_ENTRY *fs_phys_create_entry(const char *path)
 
 static ALLEGRO_PATH *fs_phys_get_current_directory(void)
 {
+   al_set_errno(NOTSUP);
    return NULL;
 }
 
 static bool fs_phys_change_directory(const char *path)
 {
    (void)path;
+   al_set_errno(NOTSUP);
    return false;
 }
 
