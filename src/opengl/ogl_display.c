@@ -276,6 +276,8 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
    ALLEGRO_STATE backup;
    int format;
 
+   ALLEGRO_DEBUG("Creating backbuffer\n");
+
    al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
 
    // FIXME: _al_deduce_color_format would work fine if the display paramerers
@@ -296,16 +298,17 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
       format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
    }
 #endif
-   ASSERT(format != ALLEGRO_PIXEL_FORMAT_ANY);
    ALLEGRO_TRACE_CHANNEL_LEVEL("display", 1)("Format %s used for backbuffer.\n",
       _al_format_name(format));
-   
+   ASSERT(format != ALLEGRO_PIXEL_FORMAT_ANY);
+
    /* Now that the display backbuffer has a format, update extra_settings so
     * the user can query it back.
     */
    _al_set_color_components(format, &disp->extra_settings, ALLEGRO_REQUIRE);
    disp->backbuffer_format = format;
 
+   ALLEGRO_DEBUG("Creating backbuffer bitmap\n");
    al_set_new_bitmap_format(format);
    al_set_new_bitmap_flags(0);
    backbuffer = _al_ogl_create_bitmap(disp, disp->w, disp->h);
