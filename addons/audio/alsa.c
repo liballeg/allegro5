@@ -127,9 +127,23 @@ static int xrun_recovery(snd_pcm_t *handle, int err)
       if (err < 0) {
          ALLEGRO_ERROR("Can't recover from underrun, prepare failed: %s\n", snd_strerror(err));
       }
+      else {
+         ALLEGRO_DEBUG("Recovered from underrun\n");
+      }
+      return 0;
+   }
+   else if (err == -ESTRPIPE) { /* suspend */
+      err = snd_pcm_resume(handle);
+      if (err < 0) {
+         ALLEGRO_ERROR("Can't recover from suspend, resume failed: %s\n", snd_strerror(err));
+      }
+      else {
+         ALLEGRO_DEBUG("Resumed successfully\n");
+      }
       return 0;
    }
    else {
+      ALLEGRO_ERROR("Unknown error code: %d\n", err);
       ASSERT(0);
    }
 
