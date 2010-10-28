@@ -408,10 +408,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
     * window when switching to fullscreen it will use the same
     * monitor (with the MetaCity version I'm using here right now).
     */
-   if (display->flags & ALLEGRO_FULLSCREEN) {
-      _al_xglx_toggle_fullscreen_window(display, 1);
-   }
-   else if (display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+   if ((display->flags & ALLEGRO_FULLSCREEN_WINDOW) || (display->flags & ALLEGRO_FULLSCREEN)) {
       ALLEGRO_INFO("Toggling fullscreen flag for %d x %d window.\n",
          display->w, display->h);
       reset_size_hints(display);
