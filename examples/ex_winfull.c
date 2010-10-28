@@ -19,7 +19,8 @@ int main(void)
    al_set_new_display_flags(ALLEGRO_WINDOWED);
    win = al_create_display(640, 480);
    if (!win) {
-      abort_example("Error creating windowed display\n");
+      abort_example("Error creating windowed display on adapter 1 "
+	  "(do you have multiple adapters?)\n");
       return 1;
    }
 
@@ -27,7 +28,7 @@ int main(void)
    al_set_new_display_flags(ALLEGRO_FULLSCREEN);
    full = al_create_display(640, 480);
    if (!full) {
-      abort_example("Error creating fullscreen display\n");
+      abort_example("Error creating fullscreen display on adapter 0\n");
       return 1;
    }
 
