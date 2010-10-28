@@ -109,6 +109,8 @@ static void draw(void)
    screen = al_get_target_bitmap();
 
    /* Test 1. */
+   /* Disabled: drawing to same bitmap is not supported. */
+   /*
    set_xy(8, 8);
    print("Screen -> Screen (%.1f fps)", get_fps(0));
    get_xy(&x, &y);
@@ -117,6 +119,7 @@ static void draw(void)
    start_timer(0);
    al_draw_bitmap_region(screen, x, y, iw, ih, x + 8 + iw, y, 0);
    stop_timer(0);
+   */
    set_xy(x, y + ih);
 
    /* Test 2. */
