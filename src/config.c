@@ -395,7 +395,7 @@ ALLEGRO_CONFIG *al_load_config_file_f(ALLEGRO_FILE *file)
 
 
 static bool config_write_section(ALLEGRO_FILE *file,
-   const ALLEGRO_CONFIG_SECTION *s)
+   const ALLEGRO_CONFIG_SECTION *s, bool *should_blank)
 {
    ALLEGRO_CONFIG_ENTRY *e;
 
@@ -403,6 +403,7 @@ static bool config_write_section(ALLEGRO_FILE *file,
       al_fputc(file, '[');
       al_fputs(file, al_cstr(s->name));
       al_fputs(file, "]\n");
+      *should_blank = false;
       if (al_ferror(file)) {
          return false;
       }
@@ -418,12 +419,14 @@ static bool config_write_section(ALLEGRO_FILE *file,
             al_fputs(file, al_cstr(e->key));
          }
          al_fputc(file, '\n');
+         *should_blank = false;
       }
       else {
          al_fputs(file, al_cstr(e->key));
          al_fputc(file, '=');
          al_fputs(file, al_cstr(e->value));
          al_fputc(file, '\n');
+         *should_blank = true;
       }
       if (al_ferror(file)) {
          return false;
@@ -459,12 +462,13 @@ bool al_save_config_file(const char *filename, const ALLEGRO_CONFIG *config)
 bool al_save_config_file_f(ALLEGRO_FILE *file, const ALLEGRO_CONFIG *config)
 {
    ALLEGRO_CONFIG_SECTION *s;
+   bool should_blank = false;
 
    /* Save global section */
    s = config->head;
    while (s != NULL) {
       if (al_ustr_size(s->name) == 0) {
-         if (!config_write_section(file, s)) {
+         if (!config_write_section(file, s, &should_blank)) {
             return false;
          }
          break;
@@ -476,7 +480,10 @@ bool al_save_config_file_f(ALLEGRO_FILE *file, const ALLEGRO_CONFIG *config)
    s = config->head;
    while (s != NULL) {
       if (al_ustr_size(s->name) > 0) {
-         if (!config_write_section(file, s)) {
+         if (should_blank) {
+            al_fputs(file, "\n");
+         }
+         if (!config_write_section(file, s, &should_blank)) {
             return false;
          }
       }
