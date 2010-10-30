@@ -1419,23 +1419,6 @@ struct CREATE_WINDOW_INFO {
    int window_x, window_y;
 };
 
-static void d3d_generic_window_message_loop(CREATE_WINDOW_INFO *info)
-{
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)(info->display);
-   MSG msg;
-
-   info->inited = true;
-
-   while (!win_display->end_thread) {
-      if (GetMessage(&msg, NULL, 0, 0) != 0)
-         DispatchMessage(&msg);
-      else
-         break;                  /* WM_QUIT received or error (GetMessage returned -1)  */
-   }
-
-   info->quit = true;
-}
-
 static void *d3d_create_window_proc(void *arg)
 {
    CREATE_WINDOW_INFO *info = (CREATE_WINDOW_INFO *)arg;
@@ -1450,8 +1433,6 @@ static void *d3d_create_window_proc(void *arg)
       info->flags
    );
    
-   d3d_generic_window_message_loop(info);
-
    return NULL;
 }
 
@@ -1472,8 +1453,6 @@ static void *d3d_create_faux_fullscreen_window_proc(void *arg)
          info->flags
       );
 
-   d3d_generic_window_message_loop(info);
-   
    return NULL;
 }
 
@@ -1485,13 +1464,14 @@ static void *d3d_display_thread_proc(void *arg)
    ALLEGRO_DISPLAY_D3D *d3d_display;
    ALLEGRO_DISPLAY_WIN *win_display;
    ALLEGRO_DISPLAY *al_display;
-   HRESULT hr;
-   bool lost_event_generated = false;
    D3D_DISPLAY_PARAMETERS *params = (D3D_DISPLAY_PARAMETERS *)arg;
-   D3DCAPS9 caps;
    int new_format;
    bool convert_to_faux;
    CREATE_WINDOW_INFO *info = (CREATE_WINDOW_INFO *)al_calloc(1, sizeof(*info));
+   HRESULT hr;
+   bool lost_event_generated = false;
+   D3DCAPS9 caps;
+   MSG msg;
 
    info->window_x = params->window_x;
    info->window_y = params->window_y;
@@ -1577,11 +1557,7 @@ static void *d3d_display_thread_proc(void *arg)
       info->refresh_rate = refresh_rate;
       info->flags = al_display->flags;
 
-      al_run_detached_thread(d3d_create_faux_fullscreen_window_proc, info);
-
-      while (!info->inited) {
-         al_rest(0.001);
-      }
+      d3d_create_faux_fullscreen_window_proc(info);
 
       if (!win_display->window) {
          ALLEGRO_DEBUG("Failed to create window (faux)fullscreen.\n");
@@ -1605,10 +1581,7 @@ static void *d3d_display_thread_proc(void *arg)
       info->h = al_display->h;
       info->flags = al_display->flags;
 
-      al_run_detached_thread(d3d_create_window_proc, info);
-      
-      while (!info->inited) {
-         al_rest(0.001);
+      d3d_create_window_proc(info);
    }
 
    if (!win_display->window) {
@@ -1617,7 +1590,6 @@ static void *d3d_display_thread_proc(void *arg)
          params->init_failed = true;
       SetEvent(params->AckEvent);
          return NULL;
-   }
    }
 
    if (!(al_display->flags & ALLEGRO_FULLSCREEN) || d3d_display->faux_fullscreen) {
@@ -1652,11 +1624,17 @@ static void *d3d_display_thread_proc(void *arg)
    win_display->end_thread = false;
    SetEvent(params->AckEvent);
 
-   while (!info->quit) {
+   while (!win_display->end_thread) {
       al_rest(0.001);
+
+      if (GetMessage(&msg, NULL, 0, 0) != 0)
+         DispatchMessage(&msg);
+      else
+         break;                  /* WM_QUIT received or error (GetMessage returned -1)  */
+
       if (!d3d_display->device) {
          continue;
-         }
+      }
 
       hr = d3d_display->device->TestCooperativeLevel();
 
