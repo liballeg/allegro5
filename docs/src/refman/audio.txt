@@ -1100,8 +1100,9 @@ need not be fed by the user; the library will automatically
 read more of the file as it is needed.  The stream will 
 contain *buffer_count* buffers with *samples* samples.
 
-A stream must be attached to a voice to be used.  See
-[ALLEGRO_AUDIO_STREAM] for more details.
+The audio stream will start in the playing state.
+It should be attached to a voice or mixer to generate any output.
+See [ALLEGRO_AUDIO_STREAM] for more details.
 
 Returns the stream on success, NULL on failure.
 
@@ -1124,8 +1125,9 @@ contain *buffer_count* buffers with *samples* samples.
 The file type is determined by the passed 'ident' parameter, which is a file
 name extension including the leading dot.
 
-A stream must be attached to a voice to be used.  See
-[ALLEGRO_AUDIO_STREAM] for more details.
+The audio stream will start in the playing state.
+It should be attached to a voice or mixer to generate any output.
+See [ALLEGRO_AUDIO_STREAM] for more details.
 
 Returns the stream on success, NULL on failure.
 On success the file should be considered owned by the audio stream,
