@@ -15,7 +15,7 @@ bool StreamResource::load(void)
       return true;
    }
 
-   stream = al_load_audio_stream(filename.c_str(), 4, 2048);
+   stream = al_load_audio_stream(filename.c_str(), 4, 1024);
    if (!stream) {
        debug_message("Error creating stream\n");
        return false;
