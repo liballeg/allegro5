@@ -21,6 +21,10 @@ bool StreamResource::load(void)
        return false;
    }
 
+   al_set_audio_stream_playing(stream, false);
+   al_set_audio_stream_playmode(stream, ALLEGRO_PLAYMODE_LOOP);
+   al_attach_audio_stream_to_mixer(stream, al_get_default_mixer());
+
    return true;
 }
 
@@ -30,8 +34,8 @@ void* StreamResource::get(void)
 }
 
 StreamResource::StreamResource(const char* filename) :
-   stream(0)
+   stream(0),
+   filename(filename)
 {
-   this->filename = std::string(filename);
 }
 

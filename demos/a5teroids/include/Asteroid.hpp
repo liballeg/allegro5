@@ -1,13 +1,12 @@
 #ifndef ASTEROID_HPP
 #define ASTEROID_HPP
 
-class Asteroid : public Enemy
+class Asteroid : public Entity
 {
 public:
    bool logic(int step);
    void render(int offx, int offy);
 
-   //bool init(lua_State *luaState);
    void init(float x, float y, float speed_x, float speed_y, float da);
 
    Asteroid(float radius, int bitmapID);

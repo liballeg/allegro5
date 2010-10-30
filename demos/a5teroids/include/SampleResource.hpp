@@ -11,7 +11,6 @@ public:
    SampleResource(const char* filename);
 private:
    ALLEGRO_SAMPLE *sample_data;
-   ALLEGRO_SAMPLE_INSTANCE *sample;
    std::string filename;
 };
 

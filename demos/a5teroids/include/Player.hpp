@@ -42,7 +42,6 @@ private:
    ALLEGRO_BITMAP *trans_bitmap;
    ALLEGRO_BITMAP *trail_bitmap;
    ALLEGRO_BITMAP *icon;
-   ALLEGRO_FONT *small_font;
    ALLEGRO_BITMAP *highscoreBitmap;
 };
 

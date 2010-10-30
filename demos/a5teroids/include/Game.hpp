@@ -1,5 +1,5 @@
-#ifndef MISC_HPP
-#define MISC_HPP
+#ifndef GAME_HPP
+#define GAME_HPP
 
 #include "a5teroids.hpp"
 
@@ -18,5 +18,5 @@ extern bool kb_installed;
 extern bool joy_installed;
 
 
-#endif // MISC_HPP
+#endif // GAME_HPP
 

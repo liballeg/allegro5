@@ -13,20 +13,15 @@ void DisplayResource::destroy(void)
 
 bool DisplayResource::load(void)
 {
-   /*
-   Configuration& cfg = Configuration::getInstance();
-   bool fullscreen = cfg.isFullscreen();
-   */
-   // added
-   bool fullscreen = useFullScreenMode;
-   int flags = fullscreen ? ALLEGRO_FULLSCREEN : ALLEGRO_WINDOWED;
+   int flags = useFullScreenMode ? ALLEGRO_FULLSCREEN : ALLEGRO_WINDOWED;
 
    al_set_new_display_flags(flags);
    display = al_create_display(BB_W, BB_H);
+   if (!display)
+       return false;
    events = al_create_event_queue();
-   if (display)
-      al_register_event_source(events, al_get_display_event_source(display));
-   return display != 0;
+   al_register_event_source(events, al_get_display_event_source(display));
+   return true;
 }
 
 void* DisplayResource::get(void)

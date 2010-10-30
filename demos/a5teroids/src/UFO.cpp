@@ -1,15 +1,5 @@
 #include "a5teroids.hpp"
 
-/*
-bool UFO::init(lua_State *luaState)
-{
-   x = getNumberFromTable(luaState, "x");
-   y = getNumberFromTable(luaState, "y");
-   dx = getNumberFromTable(luaState, "dx");
-   dy = getNumberFromTable(luaState, "dy");
-}
-*/
-
 bool UFO::logic(int step)
 {
    Player *p = (Player *)getPlayerCollision();
@@ -21,8 +11,9 @@ bool UFO::logic(int step)
       return false;
    }
 
-   if ((al_get_time() * 1000) > nextShot) {
-      nextShot = (int)(al_get_time() * 1000) + SHOT_SPEED;
+   int now = al_get_time() * 1000;
+   if (now > nextShot) {
+      nextShot = now + SHOT_SPEED;
       ResourceManager& rm = ResourceManager::getInstance();
       Player *p = (Player *)rm.getData(RES_PLAYER);
       float px = p->getX();

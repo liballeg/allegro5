@@ -11,12 +11,6 @@ bool joy_installed = false;
  * Return the path to user resources (save states, configuration)
  */
 
-#ifdef ALLEGRO_MACOSX
-#ifndef MAX_PATH 
-#define MAX_PATH PATH_MAX
-#endif
-#endif
-
 #ifdef ALLEGRO_MSVC
    #define snprintf _snprintf
 #endif
@@ -56,12 +50,6 @@ const char* getResource(const char* fmt, ...)
 }
 
 
-static void my_destroy_font(void *f)
-{
-   al_destroy_font((ALLEGRO_FONT *)f);
-}
-
-
 bool loadResources(void)
 {
    ResourceManager& rm = ResourceManager::getInstance();
@@ -76,6 +64,9 @@ bool loadResources(void)
       printf("Failed to install audio.\n");
       /* Continue anyway. */
    }
+   else {
+      al_reserve_samples(16);
+   }
 
    if (!rm.add(new Player(), false)) {
       printf("Failed to create player.\n");
@@ -87,21 +78,9 @@ bool loadResources(void)
    }
 
    // Load fonts
-   ALLEGRO_FONT *myfont = al_load_font(getResource("gfx/large_font.tga"), 0, 0);
-   if (!myfont) {
-      debug_message("Failed to load %s\n", getResource("gfx/large_font.tga"));
+   if (!rm.add(new FontResource(getResource("gfx/large_font.tga"))))
       return false;
-   }
-   GenericResource *res = new GenericResource(myfont, my_destroy_font);
-   if (!rm.add(res, false))
-      return false;
-   myfont = al_load_font(getResource("gfx/small_font.tga"), 0, 0);
-   if (!myfont) {
-      printf("Failed to load %s\n", getResource("gfx/small_font.tga"));
-      return false;
-   }
-   res = new GenericResource(myfont, my_destroy_font);
-   if (!rm.add(res, false))
+   if (!rm.add(new FontResource(getResource("gfx/small_font.tga"))))
       return false;
 
    for (int i = 0; BMP_NAMES[i]; i++) {
@@ -140,39 +119,9 @@ bool init(void)
 
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
 
-   // Read configuration file
-   /*
-   Configuration& cfg = Configuration::getInstance();
-   if (!cfg.read()) {
-      debug_message("Error reading configuration file.\n");
-   }
-   */
-   
    if (!loadResources()) {
       debug_message("Error loading resources.\n");
       return false;
-   }
-
-   if (al_is_audio_installed()) {
-      voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
-      mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
-      al_attach_mixer_to_voice(mixer, voice);
-
-      ResourceManager& rm = ResourceManager::getInstance();
-
-      for (int i = RES_SAMPLE_START; i < RES_SAMPLE_END; i++) {
-         ALLEGRO_SAMPLE_INSTANCE *s = (ALLEGRO_SAMPLE_INSTANCE *)rm.getData(i);
-         if (s)
-            al_attach_sample_instance_to_mixer(s, mixer);
-      }
-
-      for (int i = RES_STREAM_START; i < RES_STREAM_END; i++) {
-         ALLEGRO_AUDIO_STREAM *s = (ALLEGRO_AUDIO_STREAM *)rm.getData(i);
-         if (s) {
-            al_attach_audio_stream_to_mixer(s, mixer);
-            al_set_audio_stream_playing(s, false);
-         }
-      }
    }
 
    return true;
@@ -180,12 +129,6 @@ bool init(void)
 
 void done(void)
 {
-   /*
-   Configuration& cfg = Configuration::getInstance();
-   cfg.write();
-   cfg.destroy();
-   */
-
    // Free resources
    al_stop_samples();
    ResourceManager& rm = ResourceManager::getInstance();

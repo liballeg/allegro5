@@ -22,8 +22,7 @@ public:
 private:
    ALLEGRO_KEYBOARD_STATE kbdstate;
    ALLEGRO_JOYSTICK_STATE joystate;
+   ALLEGRO_JOYSTICK *joystick;
 };
-
-extern ALLEGRO_JOYSTICK *joystick;
 
 #endif // INPUT_HPP

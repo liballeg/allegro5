@@ -20,9 +20,9 @@ void Explosion::render(int offx, int offy)
    int bitmapIndex;
 
    if (big)
-      bitmapIndex = RES_LARGEEXPLOSION0+currFrame;
+      bitmapIndex = RES_LARGEEXPLOSION0 + currFrame;
    else
-      bitmapIndex = RES_SMALLEXPLOSION0+currFrame;
+      bitmapIndex = RES_SMALLEXPLOSION0 + currFrame;
 
    bitmap = (ALLEGRO_BITMAP *)rm.getData(bitmapIndex);
 

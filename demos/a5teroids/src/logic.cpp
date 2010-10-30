@@ -10,12 +10,14 @@ const int MAX_UFO_TIME = 50000;
 
 bool logic(int step)
 {
-   if (lastUFO < 0)
-      lastUFO = (long)(al_get_time() * 1000);
+   const long now = al_get_time() * 1000;
 
-   if (canUFO && (al_get_time() * 1000 > (lastUFO+MIN_UFO_TIME))) {
+   if (lastUFO < 0)
+      lastUFO = now;
+
+   if (canUFO && (now > (lastUFO+MIN_UFO_TIME))) {
       int r = rand() % (MAX_UFO_TIME-MIN_UFO_TIME);
-      if (r <= step || (al_get_time() * 1000 > (lastUFO+MAX_UFO_TIME))) {
+      if (r <= step || (now > (lastUFO+MAX_UFO_TIME))) {
          canUFO = false;
          UFO *ufo;
          float x, y, dx, dy;
@@ -59,7 +61,7 @@ bool logic(int step)
       Entity *e = *it;
       if (!e->logic(step)) {
          if (e->isUFO()) {
-            lastUFO = (long)(al_get_time() * 1000);
+            lastUFO = now;
             canUFO = true;
          }
          delete e;

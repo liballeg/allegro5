@@ -5,9 +5,8 @@
 #pragma warning( disable : 4800 )
 #endif
 
-ALLEGRO_JOYSTICK *joystick = 0;
-
-Input::Input()
+Input::Input() :
+   joystick(0)
 {
    memset(&kbdstate, 0, sizeof(ALLEGRO_KEYBOARD_STATE));
    memset(&joystate, 0, sizeof(ALLEGRO_JOYSTICK_STATE));
@@ -86,9 +85,9 @@ bool Input::load(void)
       joystick = al_get_joystick(0);
    }
    if (kb_installed)
-      printf("Keyboard driver installed.\n");
+      debug_message("Keyboard driver installed.\n");
    if (joystick)
-      printf("Joystick found.\n");
+      debug_message("Joystick found.\n");
    return kb_installed || joystick;
 }
 

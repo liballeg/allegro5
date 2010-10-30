@@ -5,9 +5,6 @@ class ButtonWidget : public Widget
 {
 public:
    bool activate(void);
-   void left(void);
-   void right(void);
-
    void render(bool selected);
 
    ButtonWidget(int x, int y, bool center, const char *text);

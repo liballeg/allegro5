@@ -5,18 +5,16 @@ set(DEMO_SRCS
     src/ButtonWidget.cpp
     src/Debug.cpp
     src/DisplayResource.cpp
-    src/Enemy.cpp
     src/Entity.cpp
-    src/Error.cpp
     src/Explosion.cpp
+    src/FontResource.cpp
+    src/Game.cpp
     src/GUI.cpp
-    src/GenericResource.cpp
     src/Input.cpp
     src/LargeAsteroid.cpp
     src/LargeBullet.cpp
     src/LargeSlowBullet.cpp
     src/MediumAsteroid.cpp
-    src/Misc.cpp
     src/Player.cpp
     src/PowerUp.cpp
     src/Resource.cpp
@@ -56,7 +54,7 @@ else(APPLE)
 endif(APPLE)
 
 if(SUPPORT_FONT AND SUPPORT_AUDIO AND SUPPORT_ACODEC)
-    add_executable(demo
+    add_executable(a5teroids
         ${DEMO_EXECUTABLE_TYPE}
         ${DEMO_SRCS}
 	${DEMO_GFX}
@@ -64,9 +62,9 @@ if(SUPPORT_FONT AND SUPPORT_AUDIO AND SUPPORT_ACODEC)
         ${DEMO_ICON}
         )
     
-    fix_executable(demo)
+    fix_executable(a5teroids)
 
-    target_link_libraries(demo
+    target_link_libraries(a5teroids
         ${ALLEGRO_MAIN_LINK_WITH}
         ${FONT_LINK_WITH}
         ${IMAGE_LINK_WITH}
@@ -75,11 +73,11 @@ if(SUPPORT_FONT AND SUPPORT_AUDIO AND SUPPORT_ACODEC)
         )
 
     if(NOT BUILD_SHARED_LIBS) 
-        set_target_properties(demo PROPERTIES COMPILE_FLAGS "-DALLEGRO_STATICLINK")
+        set_target_properties(a5teroids PROPERTIES COMPILE_FLAGS "-DALLEGRO_STATICLINK")
     endif(NOT BUILD_SHARED_LIBS)
 
     # Mac OS X bundle support.
-    set_target_properties(demo PROPERTIES
+    set_target_properties(a5teroids PROPERTIES
 	MACOSX_BUNDLE_COPYRIGHT "Copyright 2008 Allegro Developers"
 	MACOSX_BUNDLE_ICON_FILE "Icon.icns"
 	MACOSX_BUNDLE_INFO_STRING "4.9, Copyright 2008 Allegro Developers"
@@ -98,7 +96,7 @@ if(SUPPORT_FONT AND SUPPORT_AUDIO AND SUPPORT_ACODEC)
 	)
 
 else()
-    message(STATUS "Not building demo")
+    message(STATUS "Not building a5teroids")
 endif()
 
 copy_data_dir_to_build(copy_demo_data data)

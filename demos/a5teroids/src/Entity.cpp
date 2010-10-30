@@ -86,19 +86,6 @@ void Entity::render_four(ALLEGRO_COLOR tint)
       render(0, BB_H, tint);
       render(ox, BB_H, tint);
    }
-   
-   #ifdef DEBUG_COLLISION_CIRCLES
-   float x1 = x + cos(0) * radius;
-   float y1 = y + sin(0) * radius;
-   for (int i = 0; i < 30; i++) {
-      float x2 = x + cos((i + 1) * ALLEGRO_PI * 2 / 30) * radius;
-      float y2 = y + sin((i + 1) * ALLEGRO_PI * 2 / 30) * radius;
-      al_draw_line(x1, y1, x2, y2, al_map_rgba_f(1, 0, 0, 1));
-      x1 = x2;
-      y1 = y2;
-   }
-   #endif
-   
 }
 
 void Entity::render(int x, int y, ALLEGRO_COLOR c)
@@ -155,20 +142,16 @@ Entity *Entity::getAllCollision(void)
 // Returns true if dead
 bool Entity::hit(int damage)
 {
-   hp-=damage;
+   hp -= damage;
 
    hilightCount = 500;
 
-   bool ret;
-
    if (hp <= 0) {
-      ret = true;
       explode();
+      return true;
    }
-   else
-      ret = false;
 
-   return ret;
+   return false;
 }
 
 void Entity::explode(void)

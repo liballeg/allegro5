@@ -71,8 +71,9 @@ bool Player::logic(int step)
          break;
    }
 
-   if ((lastShot+shotRate) < (al_get_time() * 1000) && input->b1()) {
-      lastShot = (int) (al_get_time() * 1000);
+   int now = al_get_time() * 1000;
+   if ((lastShot+shotRate) < now && input->b1()) {
+      lastShot = now;
       float realAngle = angle;
       float bx = x + radius * cos(realAngle);
       float by = y + radius * sin(realAngle);
@@ -119,17 +120,13 @@ void Player::render_extra(void)
    if (lives <= 0) {
       int w = al_get_bitmap_width(highscoreBitmap);
       int h = al_get_bitmap_height(highscoreBitmap);
-      al_draw_rotated_bitmap(highscoreBitmap, w/2, h/2, BB_W/2, BB_H/2,
-         0.0f, 0);
+      al_draw_bitmap(highscoreBitmap, (w-BB_W)/2, (h-BB_H)/2, 0);
       return;
    }
 
    al_draw_bitmap(icon, 2, 2, 0);
-
-   small_font = (ALLEGRO_FONT *)rm.getData(RES_SMALLFONT);
-
+   ALLEGRO_FONT *small_font = (ALLEGRO_FONT *)rm.getData(RES_SMALLFONT);
    al_draw_textf(small_font, al_map_rgb(255, 255, 255), 20, 2, 0, "x%d", lives);
-
    al_draw_textf(small_font, al_map_rgb(255, 255, 255), 2, 18, 0, "%d", score);
 }
 
@@ -179,7 +176,12 @@ bool Player::hit(int damage)
 Player::Player() :
    weapon(WEAPON_SMALL),
    lastShot(0),
-   score(0)
+   score(0),
+   bitmap(0),
+   trans_bitmap(0),
+   trail_bitmap(0),
+   icon(0),
+   highscoreBitmap(0)
 {
 }
 
@@ -189,13 +191,16 @@ Player::~Player()
    
 void Player::destroy(void)
 {
-   /*
    al_destroy_bitmap(bitmap);
    al_destroy_bitmap(trans_bitmap);
    al_destroy_bitmap(trail_bitmap);
    al_destroy_bitmap(icon);
    al_destroy_bitmap(highscoreBitmap);
-   */
+   bitmap = 0;
+   trans_bitmap = 0;
+   trail_bitmap = 0;
+   icon = 0;
+   highscoreBitmap = 0;
 }
 
 bool Player::load(void)
@@ -249,7 +254,6 @@ bool Player::load(void)
 
    draw_radius = al_get_bitmap_width(bitmap)/2;
    radius = draw_radius / 2;
-   
 
    newGame();
    reset();

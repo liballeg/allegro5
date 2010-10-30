@@ -5,14 +5,6 @@ bool ButtonWidget::activate(void)
    return false;
 }
 
-void ButtonWidget::left(void)
-{
-}
-
-void ButtonWidget::right(void)
-{
-}
-
 void ButtonWidget::render(bool selected)
 {
    ALLEGRO_FONT *myfont;

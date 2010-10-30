@@ -22,18 +22,15 @@
 #include <math.h>
 #include <time.h>
 
-#include "Error.hpp"
 #include "Debug.hpp"
-//#include "Configuration.hpp"
 #include "Resource.hpp"
 #include "BitmapResource.hpp"
 #include "DisplayResource.hpp"
-#include "GenericResource.hpp"
+#include "FontResource.hpp"
+#include "Game.hpp"
 #include "SampleResource.hpp"
 #include "StreamResource.hpp"
 #include "ResourceManager.hpp"
-#include "Misc.hpp"
-//#include "Script.hpp"
 #include "Input.hpp"
 #include "sound.hpp"
 #include "collision.hpp"
@@ -48,7 +45,6 @@
 #include "Explosion.hpp"
 #include "render.hpp"
 #include "Wave.hpp"
-#include "Enemy.hpp"
 #include "Asteroid.hpp"
 #include "LargeAsteroid.hpp"
 #include "MediumAsteroid.hpp"
@@ -61,9 +57,6 @@
 
 const int BB_W = 800;
 const int BB_H = 600;
-
-extern ALLEGRO_VOICE *voice;
-extern ALLEGRO_MIXER *mixer;
 
 #endif // A5TEROIDS_HPP
 

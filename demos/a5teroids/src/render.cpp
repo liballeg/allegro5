@@ -93,8 +93,6 @@ void render(int step)
       al_get_bitmap_width(bg), al_get_bitmap_height(bg), 
       bgx, bgy, BB_W, BB_H, 0);
 
-   int rendered = 0;
-
    std::list<Entity *>::iterator it;
    for (it = entities.begin(); it != entities.end(); it++) {
       Entity *e = *it;
@@ -104,7 +102,6 @@ void render(int step)
          e->render_four(al_map_rgb(150, 150, 150));
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
       }
-      rendered++;
    }
 
    Player *player = (Player *)rm.getData(RES_PLAYER);

@@ -1,17 +1,5 @@
 #include "a5teroids.hpp"
 
-/*
-bool Asteroid::init(lua_State *luaState)
-{
-   x = getNumberFromTable(luaState, "x");
-   y = getNumberFromTable(luaState, "y");
-   dx = getNumberFromTable(luaState, "dx");
-   dy = getNumberFromTable(luaState, "dy");
-   da = getNumberFromTable(luaState, "da");
-   angle = 0.0f;
-}
-*/
-
 void Asteroid::init(float x, float y, float speed_x, float speed_y, float da)
 {
    this->x = x;
