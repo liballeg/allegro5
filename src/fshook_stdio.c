@@ -583,18 +583,22 @@ static time_t fs_stdio_entry_ctime(ALLEGRO_FS_ENTRY *fp)
    return ent->st.st_ctime;
 }
 
-static ALLEGRO_PATH *fs_stdio_get_current_directory(void)
+static char *fs_stdio_get_current_directory(void)
 {
    char tmpdir[PATH_MAX];
-   char *cwd = getcwd(tmpdir, PATH_MAX);
-   size_t len;
-   if (!cwd) {
+   char *cwd;
+
+   if (!getcwd(tmpdir, PATH_MAX)) {
       al_set_errno(errno);
       return NULL;
    }
-   len = strlen(cwd);
 
-   return al_create_path_for_directory(tmpdir);
+   cwd = al_malloc(strlen(tmpdir) + 1);
+   if (!cwd) {
+      al_set_errno(ENOMEM);
+      return NULL;
+   }
+   return strcpy(cwd, tmpdir);
 }
 
 static bool fs_stdio_change_directory(const char *path)
@@ -765,7 +769,7 @@ static bool fs_stdio_remove_filename(const char *path)
    return true;
 }
 
-static const ALLEGRO_PATH *fs_stdio_name(ALLEGRO_FS_ENTRY *fp)
+static const char *fs_stdio_name(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
 
@@ -778,15 +782,12 @@ static const ALLEGRO_PATH *fs_stdio_name(ALLEGRO_FS_ENTRY *fp)
       }
    }
 
-   return fp_stdio->apath;
+   return al_path_cstr(fp_stdio->apath, ALLEGRO_NATIVE_PATH_SEP);
 }
 
 static ALLEGRO_FILE *fs_stdio_open_file(ALLEGRO_FS_ENTRY *fp, const char *mode)
 {
-   ALLEGRO_PATH *path = al_clone_path(fs_stdio_name(fp));
-   ALLEGRO_FILE *f = _al_file_stdio_fopen(al_path_cstr(path, '/'), mode);
-   al_destroy_path(path);
-   return f;
+   return _al_file_stdio_fopen(fs_stdio_name(fp), mode);
 }
 
 struct ALLEGRO_FS_INTERFACE _al_fs_interface_stdio = {

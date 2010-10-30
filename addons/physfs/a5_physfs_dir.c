@@ -47,7 +47,7 @@ static ALLEGRO_FS_ENTRY *fs_phys_create_entry(const char *path)
    return &e->fs_entry;
 }
 
-static ALLEGRO_PATH *fs_phys_get_current_directory(void)
+static char *fs_phys_get_current_directory(void)
 {
    al_set_errno(NOTSUP);
    return NULL;
@@ -75,10 +75,10 @@ static bool fs_phys_make_directory(const char *path)
    return PHYSFS_mkdir(path) != 0;
 }
 
-static const ALLEGRO_PATH *fs_phys_entry_name(ALLEGRO_FS_ENTRY *fse)
+static const char *fs_phys_entry_name(ALLEGRO_FS_ENTRY *fse)
 {
    ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
-   return e->path;
+   return al_path_cstr(e->path, '/');
 }
 
 static bool fs_phys_update_entry(ALLEGRO_FS_ENTRY *fse)
@@ -182,10 +182,7 @@ static void fs_phys_destroy_entry(ALLEGRO_FS_ENTRY *fse)
 
 static ALLEGRO_FILE *fs_phys_open_file(ALLEGRO_FS_ENTRY *fse, const char *mode)
 {
-   ALLEGRO_PATH *path = al_clone_path(fs_phys_entry_name(fse));
-   ALLEGRO_FILE *f = _al_file_phys_fopen(al_path_cstr(path, '/'), mode);
-   al_destroy_path(path);
-   return f;
+   return _al_file_phys_fopen(fs_phys_entry_name(fse), mode);
 }
 
 static const ALLEGRO_FS_INTERFACE fs_phys_vtable =

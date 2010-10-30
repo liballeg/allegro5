@@ -41,11 +41,11 @@ static void print_file(ALLEGRO_FS_ENTRY *entry)
    time_t atime = al_get_fs_entry_atime(entry);
    time_t ctime = al_get_fs_entry_ctime(entry);
    time_t mtime = al_get_fs_entry_mtime(entry);
-   const ALLEGRO_PATH *path = al_get_fs_entry_name(entry);
+   const char *name = al_get_fs_entry_name(entry);
    off_t size = al_get_fs_entry_size(entry);
 
-   log_printf("%-32s %s%s%s%s%s%s %10lu %10lu %10lu %13lu\n",
-      al_path_cstr(path, '/'),
+   log_printf("%-36s %s%s%s%s%s%s %8lu %8lu %8lu %8lu\n",
+      name,
       mode & ALLEGRO_FILEMODE_READ ? "r" : ".",
       mode & ALLEGRO_FILEMODE_WRITE ? "w" : ".",
       mode & ALLEGRO_FILEMODE_EXECUTE ? "x" : ".",
@@ -118,15 +118,15 @@ int main(int argc, const char *argv[])
    al_set_physfs_file_interface();
 
    /* List the contents of our example zip recursively. */
-   log_printf("%-32s %-6s %10s %10s %10s %13s\n",
+   log_printf("%-36s %-6s %8s %8s %8s %8s\n",
       "name", "flags", "ctime", "mtime", "atime", "size");
    log_printf(
-          "-------------------------------- "
+          "------------------------------------ "
           "------ "
-          "---------- "
-          "---------- "
-          "---------- "
-          "-------------\n");
+          "-------- "
+          "-------- "
+          "-------- "
+          "--------\n");
    entry = al_create_fs_entry("");
    listdir(entry);
    al_destroy_fs_entry(entry);

@@ -59,15 +59,21 @@ static ALLEGRO_PATH *_find_executable_file(const char *filename)
       }
       else {
          struct stat finfo;
-         char pathname[1024];
-    
-         /* Prepend current directory */
-         ALLEGRO_PATH *path = al_get_current_directory();
-         al_append_path_component(path, filename);
+         char *cwd;
 
-         if ((stat(pathname, &finfo)==0) &&
-            (!S_ISDIR (finfo.st_mode))) {
-            return path;
+         /* Prepend current directory */
+         cwd = al_get_current_directory();
+         if (cwd) {
+            ALLEGRO_PATH *path = al_create_path_for_directory(cwd);
+            al_free(cwd);
+            al_set_path_filename(path, filename);
+
+            if (stat(al_path_cstr(path, '/'), &finfo) == 0
+                  && !S_ISDIR(finfo.st_mode)) {
+               return path;
+            }
+
+            al_destroy_path(path);
          }
       }
    }
@@ -87,12 +93,15 @@ static ALLEGRO_PATH *_find_executable_file(const char *filename)
          ALLEGRO_USTR *sub = al_ref_ustr(&info, us, start_pos, end_pos);
 
          ALLEGRO_PATH *path = al_create_path_for_directory(al_cstr(sub));
-         al_append_path_component(path, filename);
+         al_set_path_filename(path, filename);
 
          if (stat(al_path_cstr(path, '/'), &finfo) == 0 &&
             !S_ISDIR (finfo.st_mode)) {
             return path;
          }
+
+         al_destroy_path(path);
+
          start_pos = next_start_pos;
       }
    }
@@ -106,6 +115,7 @@ static ALLEGRO_PATH *_find_executable_file(const char *filename)
 static ALLEGRO_PATH *get_executable_name(void)
 {
    ALLEGRO_PATH *path;
+
    #ifdef ALLEGRO_HAVE_GETEXECNAME
    {
       const char *s = getexecname();

@@ -207,6 +207,9 @@ Prepends the current working directory to 'path' if it is a relative path.
 The drive is also set to the driver of the current working directory.
 Does nothing if 'path' is an absolute path.
 
+Note: the current working directory depends on the current filesystem in
+effect.
+
 See also: [al_make_path_canonical]
 
 ## API: al_make_path_canonical

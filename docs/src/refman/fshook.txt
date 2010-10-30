@@ -45,7 +45,7 @@ that the filesystem encoding may not be known and the conversion to UTF-8
 could in very rare cases cause this to return an invalid path. Therefore it's
 always safest to access the file over its [ALLEGRO_FS_ENTRY] and not the path.
 
-On success returns a read only path structure, which you must not modify or
+On success returns a read only string, which you must not modify or
 destroy.  Returns NULL on failure; errno is set to indicate the error.
 
 ## API: al_update_fs_entry
@@ -169,12 +169,12 @@ See also: [al_open_directory], [al_read_directory]
 
 Returns the path to the current working directory, or NULL on failure.
 The returned path is dynamically allocated and must be destroyed with
-[al_destroy_path].
+[al_free].
 
 Allegro's errno is filled in to indicate the error if there is a failure.
 This function may not be implemented on some (virtual) filesystems.
 
-See also: [al_get_errno]
+See also: [al_get_errno], [al_free]
 
 ### API: al_change_directory
 
@@ -219,7 +219,7 @@ The available functions you can provide for a filesystem. They are:
 ~~~
    ALLEGRO_FS_ENTRY *  fs_create_entry   (const char *path);
    void                fs_destroy_entry  (ALLEGRO_FS_ENTRY *e);
-   const ALLEGRO_PATH *fs_entry_name     (ALLEGRO_FS_ENTRY *e);
+   const char *        fs_entry_name     (ALLEGRO_FS_ENTRY *e);
    bool                fs_update_entry   (ALLEGRO_FS_ENTRY *e);
    uint32_t            fs_entry_mode     (ALLEGRO_FS_ENTRY *e);
    time_t              fs_entry_atime    (ALLEGRO_FS_ENTRY *e);
@@ -235,7 +235,7 @@ The available functions you can provide for a filesystem. They are:
 
    bool                fs_filename_exists(const char *path);
    bool                fs_remove_filename(const char *path);
-   ALLEGRO_PATH *      fs_get_current_directory(void);
+   char *              fs_get_current_directory(void);
    bool                fs_change_directory(const char *path);
    bool                fs_make_directory(const char *path);
 

@@ -45,7 +45,7 @@ void al_destroy_fs_entry(ALLEGRO_FS_ENTRY *fh)
 
 /* Function: al_get_fs_entry_name
  */
-const ALLEGRO_PATH *al_get_fs_entry_name(ALLEGRO_FS_ENTRY *e)
+const char *al_get_fs_entry_name(ALLEGRO_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
 
@@ -165,7 +165,7 @@ ALLEGRO_FS_ENTRY *al_read_directory(ALLEGRO_FS_ENTRY *e)
 
 /* Function: al_get_current_directory
  */
-ALLEGRO_PATH *al_get_current_directory(void)
+char *al_get_current_directory(void)
 {
    const ALLEGRO_FS_INTERFACE *vt = al_get_fs_interface();
    ASSERT(vt->fs_get_current_directory);

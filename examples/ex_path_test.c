@@ -459,20 +459,21 @@ static void t15(void)
 /* Test al_make_path_absolute. */
 static void t16(void)
 {
-   ALLEGRO_PATH *path, *cwd;
-   const char *buf, *buf2;
+   ALLEGRO_PATH *path;
+   const char *buf;
+   char *buf2;
 
    path = al_create_path("abc/def");
    CHECK(al_make_path_absolute(path));
 
-   cwd = al_get_current_directory();
    buf = al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP);
-   buf2 = al_path_cstr(cwd, ALLEGRO_NATIVE_PATH_SEP);
+   buf2 = al_get_current_directory();
    CHECK(0 == strncmp(buf, buf2, strlen(buf2)));
-   CHECK(0 == strcmp(buf + strlen(buf2), "abc/def") ||
-         0 == strcmp(buf + strlen(buf2), "abc\\def"));
+   CHECK(0 == strcmp(buf + strlen(buf2), "/abc/def") ||
+         0 == strcmp(buf + strlen(buf2), "\\abc\\def"));
 
    al_destroy_path(path);
+   al_free(buf2);
 }
 
 /* Test al_make_path_canonical. */

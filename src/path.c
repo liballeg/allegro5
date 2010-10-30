@@ -532,6 +532,7 @@ const char *al_get_path_basename(const ALLEGRO_PATH *path)
  */
 bool al_make_path_absolute(ALLEGRO_PATH *path)
 {
+   char *cwd;
    ALLEGRO_PATH *cwd_path;
    int i;
 
@@ -541,7 +542,11 @@ bool al_make_path_absolute(ALLEGRO_PATH *path)
       return true;
    }
 
-   cwd_path = al_get_current_directory();
+   cwd = al_get_current_directory();
+   if (!cwd)
+      return false;
+   cwd_path = al_create_path_for_directory(cwd);
+   al_free(cwd);
    if (!cwd_path)
       return false;
 
