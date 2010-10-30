@@ -9,6 +9,7 @@ public:
 
    bool logic(int step);
    void render(int offx, int offy);
+   void render(int offx, int offy, ALLEGRO_COLOR tint);
 
    UFO(float x, float y, float dx, float dy);
    ~UFO();

@@ -44,11 +44,15 @@ bool UFO::logic(int step)
 
 void UFO::render(int offx, int offy)
 {
-   al_draw_rotated_bitmap(bitmaps[bitmapFrame], radius, radius, offx + x,
-      offy + y, 0.0f, 0);
+   render(offx, offy, al_map_rgb(255, 255, 255));
 }
 
-// added x, y, dx, dy
+void UFO::render(int offx, int offy, ALLEGRO_COLOR tint)
+{
+   al_draw_tinted_rotated_bitmap(bitmaps[bitmapFrame], tint,
+      radius, radius, offx + x, offy + y, 0.0f, 0);
+}
+
 UFO::UFO(float x, float y, float speed_x, float speed_y) :
    SHOT_SPEED(3000),
    ANIMATION_SPEED(150)
