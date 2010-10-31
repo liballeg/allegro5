@@ -85,12 +85,12 @@ static void main_loop(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *picture)
 
       if (new_res != cur_res) {
          cur_res = new_res;
-         al_append_native_text_log(textlog, "Switching to %dx%d... ", res[cur_res].w, res[cur_res].h);
+         log_printf("Switching to %dx%d... ", res[cur_res].w, res[cur_res].h);
          if (al_resize_display(display, res[cur_res].w, res[cur_res].h)) {
-            al_append_native_text_log(textlog, "Succeeded.\n");
+            log_printf("Succeeded.\n");
          }
          else {
-            al_append_native_text_log(textlog, "Failed. current resolution: %dx%d\n",
+            log_printf("Failed. current resolution: %dx%d\n",
                al_get_display_width(display), al_get_display_height(display));
          }
       }
