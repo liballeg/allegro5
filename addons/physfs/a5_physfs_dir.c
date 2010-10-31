@@ -49,8 +49,12 @@ static ALLEGRO_FS_ENTRY *fs_phys_create_entry(const char *path)
 
 static char *fs_phys_get_current_directory(void)
 {
-   al_set_errno(NOTSUP);
-   return NULL;
+   char *s = al_malloc(2);
+   if (s) {
+      s[0] = '/';
+      s[1] = '\0';
+   }
+   return s;
 }
 
 static bool fs_phys_change_directory(const char *path)
