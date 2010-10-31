@@ -85,12 +85,12 @@ static void main_loop(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *picture)
 
       if (new_res != cur_res) {
          cur_res = new_res;
-         printf("Switching to %dx%d... ", res[cur_res].w, res[cur_res].h);
+         al_append_native_text_log(textlog, "Switching to %dx%d... ", res[cur_res].w, res[cur_res].h);
          if (al_resize_display(display, res[cur_res].w, res[cur_res].h)) {
-            printf("succeeded.\n");
+            al_append_native_text_log(textlog, "Succeeded.\n");
          }
          else {
-            printf("failed. current resolution: %dx%d\n",
+            al_append_native_text_log(textlog, "Failed. current resolution: %dx%d\n",
                al_get_display_width(display), al_get_display_height(display));
          }
       }
@@ -112,6 +112,8 @@ int main(int argc, char **argv)
    al_install_keyboard();
    al_init_image_addon();
 
+   open_log_monospace();
+
    if (argc == 2) {
    	al_set_new_display_adapter(atoi(argv[1]));
    }
@@ -123,7 +125,7 @@ int main(int argc, char **argv)
       abort_example("Error creating display\n");
       return 1;
    }
-
+   
    picture = al_load_bitmap("data/mysha.pcx");
    if (!picture) {
       abort_example("mysha.pcx not found\n");
