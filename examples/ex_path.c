@@ -58,7 +58,7 @@ int main(int argc, char **argv)
    }
 
    /* FIXME: test out more of the al_path_ functions, ie: insert, remove,
-    * concat, canonicalize, absolute, relative
+    * concat, relative
     */
 
    dyn = al_create_path(argv[1]);
@@ -69,9 +69,6 @@ int main(int argc, char **argv)
 
          al_make_path_canonical(cloned);
          log_printf("can: '%s'\n", al_path_cstr(cloned, '/'));
-
-         al_make_path_absolute(cloned);
-         log_printf("abs: '%s'\n", al_path_cstr(cloned, '/'));
 
          al_destroy_path(dyn);
          al_destroy_path(cloned);

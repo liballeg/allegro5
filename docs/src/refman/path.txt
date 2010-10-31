@@ -55,6 +55,20 @@ Tail's drive is ignored.
 Returns true if 'tail' was a relative path and so concatenated to 'path',
 otherwise returns false.
 
+See also: [al_rebase_path]
+
+## API: al_rebase_path
+
+Concatenate two path structures, modifying the second path structure.
+If *tail* is an absolute path, this function does nothing.
+Otherwise, the drive and path components in *head* are inserted
+at the start of *tail*.
+
+For example, if *head* is "/anchor/" and *tail* is "data/file.ext", then
+after the call *tail* becomes "/anchor/data/file.ext".
+
+See also: [al_join_paths]
+
 ## API: al_get_path_drive
 
 Return the drive letter on a path, or the empty string if there is none.
@@ -201,17 +215,6 @@ for 'delim'.
 The returned pointer is valid only until the path is modified in any way,
 or until the path is destroyed.
 
-## API: al_make_path_absolute
-
-Prepends the current working directory to 'path' if it is a relative path.
-The drive is also set to the driver of the current working directory.
-Does nothing if 'path' is an absolute path.
-
-Note: the current working directory depends on the current filesystem in
-effect.
-
-See also: [al_make_path_canonical]
-
 ## API: al_make_path_canonical
 
 Removes any leading '..' directory components in absolute paths.
@@ -221,6 +224,4 @@ Note that this does *not* collapse "x/../y" sections into "y".
 This is by design. If "/foo" on your system is a symlink to "/bar/baz",
 then "/foo/../quux" is actually "/bar/quux",
 not "/quux" as a naive removal of ".." components would give you.
-
-See also: [al_make_path_absolute]
 

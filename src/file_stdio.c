@@ -329,17 +329,15 @@ ALLEGRO_FILE *al_make_temp_file(const char *template, ALLEGRO_PATH **ret_path)
 
    path = al_get_standard_path(ALLEGRO_TEMP_PATH);
    if (!path) {
-      al_destroy_path(path);
       return NULL;
    }
 
-   /* Try to make the path absolute.  The user is likely to want to remove the
-    * file later.  If we return a relative path, the user might change the
+   /* Note: the path should be absolute.  The user is likely to want to remove
+    * the file later.  If we return a relative path, the user might change the
     * working directory in the mean time and then try to remove the wrong file.
     * Mostly likely there won't be any such file, but the temporary file
     * wouldn't be removed.
     */
-   al_make_path_absolute(path);
 
    for (i=0; i<MAX_MKTEMP_TRIES; ++i) {
       mktemp_replace_XX(template, filename);

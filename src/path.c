@@ -180,6 +180,7 @@ ALLEGRO_PATH *al_create_path(const char *str)
    return path;
 }
 
+
 /* Function: al_create_path_for_directory
  */
 ALLEGRO_PATH *al_create_path_for_directory(const char *str)
@@ -366,6 +367,29 @@ bool al_join_paths(ALLEGRO_PATH *path, const ALLEGRO_PATH *tail)
 }
 
 
+/* Function: al_rebase_path
+ */
+bool al_rebase_path(const ALLEGRO_PATH *head, ALLEGRO_PATH *tail)
+{
+   unsigned i;
+   ASSERT(head);
+   ASSERT(tail);
+
+   /* Don't bother concating if the tail is an absolute path. */
+   if (path_is_absolute(tail)) {
+      return false;
+   }
+
+   al_set_path_drive(tail, al_get_path_drive(head));
+
+   for (i = 0; i < _al_vector_size(&head->segments); i++) {
+      al_insert_path_component(tail, i, get_segment_cstr(head, i));
+   }
+
+   return true;
+}
+
+
 static void path_to_ustr(const ALLEGRO_PATH *path, int32_t delim,
    ALLEGRO_USTR *str)
 {
@@ -525,40 +549,6 @@ const char *al_get_path_basename(const ALLEGRO_PATH *path)
    }
 
    return al_cstr(path->filename);
-}
-
-
-/* Function: al_make_path_absolute
- */
-bool al_make_path_absolute(ALLEGRO_PATH *path)
-{
-   char *cwd;
-   ALLEGRO_PATH *cwd_path;
-   int i;
-
-   ASSERT(path);
-
-   if (path_is_absolute(path)) {
-      return true;
-   }
-
-   cwd = al_get_current_directory();
-   if (!cwd)
-      return false;
-   cwd_path = al_create_path_for_directory(cwd);
-   al_free(cwd);
-   if (!cwd_path)
-      return false;
-
-   al_set_path_drive(path, al_get_path_drive(cwd_path));
-
-   for (i = al_get_path_num_components(cwd_path) - 1; i >= 0; i--) {
-      al_insert_path_component(path, 0, al_get_path_component(cwd_path, i));
-   }
-
-   al_destroy_path(cwd_path);
-
-   return true;
 }
 
 

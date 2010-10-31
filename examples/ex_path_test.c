@@ -370,8 +370,66 @@ static void t10(void)
    al_destroy_path(path2);
 }
 
-/* Test al_set_path_extension, al_get_path_extension. */
+/* Test al_rebase_path. */
 static void t11(void)
+{
+   ALLEGRO_PATH *path1;
+   ALLEGRO_PATH *path2;
+
+   /* Both empty. */
+   path1 = al_create_path(NULL);
+   path2 = al_create_path(NULL);
+   al_rebase_path(path1, path2);
+   CHECK_EQ(al_path_cstr(path2, '/'), "");
+   al_destroy_path(path1);
+   al_destroy_path(path2);
+
+   /* Both just filenames. */
+   path1 = al_create_path("file1");
+   path2 = al_create_path("file2");
+   al_rebase_path(path1, path2);
+   CHECK_EQ(al_path_cstr(path2, '/'), "file2");
+   al_destroy_path(path1);
+   al_destroy_path(path2);
+
+   /* Both relative paths. */
+   path1 = al_create_path("dir1a/dir1b/file1");
+   path2 = al_create_path("dir2a/dir2b/file2");
+   al_rebase_path(path1, path2);
+   CHECK_EQ(al_path_cstr(path2, '/'),
+      "dir1a/dir1b/dir2a/dir2b/file2");
+   al_destroy_path(path1);
+   al_destroy_path(path2);
+
+#ifdef ALLEGRO_WINDOWS
+   /* Both relative paths with drive letters. */
+   path1 = al_create_path("d:dir1a/dir1b/file1");
+   path2 = al_create_path("e:dir2a/dir2b/file2");
+   al_rebase_path(path1, path2);
+   CHECK_EQ(al_path_cstr(path2, '/'), "d:dir1a/dir1b/dir2a/dir2b/file2");
+   al_destroy_path(path1);
+   al_destroy_path(path2);
+#endif
+
+   /* Path1 absolute, path2 relative. */
+   path1 = al_create_path("/dir1a/dir1b/file1");
+   path2 = al_create_path("dir2a/dir2b/file2");
+   al_rebase_path(path1, path2);
+   CHECK_EQ(al_path_cstr(path2, '/'), "/dir1a/dir1b/dir2a/dir2b/file2");
+   al_destroy_path(path1);
+   al_destroy_path(path2);
+
+   /* Both paths absolute. */
+   path1 = al_create_path("/dir1a/dir1b/file1");
+   path2 = al_create_path("/dir2a/dir2b/file2");
+   al_rebase_path(path1, path2);
+   CHECK_EQ(al_path_cstr(path2, '/'), "/dir2a/dir2b/file2");
+   al_destroy_path(path1);
+   al_destroy_path(path2);
+}
+
+/* Test al_set_path_extension, al_get_path_extension. */
+static void t12(void)
 {
    ALLEGRO_PATH *path = al_create_path(NULL);
 
@@ -403,7 +461,7 @@ static void t11(void)
 }
 
 /* Test al_get_path_basename. */
-static void t12(void)
+static void t13(void)
 {
    ALLEGRO_PATH *path = al_create_path(NULL);
 
@@ -427,7 +485,7 @@ static void t12(void)
 }
 
 /* Test al_clone_path. */
-static void t13(void)
+static void t14(void)
 {
    ALLEGRO_PATH *path1;
    ALLEGRO_PATH *path2;
@@ -446,34 +504,14 @@ static void t13(void)
    al_destroy_path(path2);
 }
 
-static void t14(void)
-{
-   /* nothing */
-}
-
 static void t15(void)
 {
    /* nothing */
 }
 
-/* Test al_make_path_absolute. */
 static void t16(void)
 {
-   ALLEGRO_PATH *path;
-   const char *buf;
-   char *buf2;
-
-   path = al_create_path("abc/def");
-   CHECK(al_make_path_absolute(path));
-
-   buf = al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP);
-   buf2 = al_get_current_directory();
-   CHECK(0 == strncmp(buf, buf2, strlen(buf2)));
-   CHECK(0 == strcmp(buf + strlen(buf2), "/abc/def") ||
-         0 == strcmp(buf + strlen(buf2), "\\abc\\def"));
-
-   al_destroy_path(path);
-   al_free(buf2);
+   /* nothing */
 }
 
 /* Test al_make_path_canonical. */

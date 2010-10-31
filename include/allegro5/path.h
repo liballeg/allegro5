@@ -32,6 +32,7 @@ AL_FUNC(const char*, al_get_path_tail, (const ALLEGRO_PATH *path));
 AL_FUNC(void, al_drop_path_tail, (ALLEGRO_PATH *path));
 AL_FUNC(void, al_append_path_component, (ALLEGRO_PATH *path, const char *s));
 AL_FUNC(bool, al_join_paths, (ALLEGRO_PATH *path, const ALLEGRO_PATH *tail));
+AL_FUNC(bool, al_rebase_path, (const ALLEGRO_PATH *head, ALLEGRO_PATH *tail));
 AL_FUNC(const char*, al_path_cstr, (const ALLEGRO_PATH *path, char delim));
 AL_FUNC(void, al_destroy_path, (ALLEGRO_PATH *path));
 
@@ -45,7 +46,6 @@ AL_FUNC(const char*, al_get_path_extension, (const ALLEGRO_PATH *path));
 AL_FUNC(bool, al_set_path_extension, (ALLEGRO_PATH *path, char const *extension));
 AL_FUNC(const char*, al_get_path_basename, (const ALLEGRO_PATH *path));
 
-AL_FUNC(bool, al_make_path_absolute, (ALLEGRO_PATH *path));
 AL_FUNC(bool, al_make_path_canonical, (ALLEGRO_PATH *path));
 
 
