@@ -1324,7 +1324,7 @@ static void wgl_update_display_region(ALLEGRO_DISPLAY *d,
 }
 
 
-static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
+static bool wgl_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
 {
    ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)d;
    ALLEGRO_DISPLAY *ogl_disp = (ALLEGRO_DISPLAY *)d;
@@ -1423,6 +1423,19 @@ static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
    return true;
 }
 
+static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
+{
+   int orig_w = d->w;
+   int orig_h = d->h;
+
+   if (!wgl_resize_helper(d, width, height)) {
+      wgl_resize_helper(d, orig_w, orig_h);
+      return false;
+   }
+   else {
+      return true;
+   }
+}
 
 static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d)
 {

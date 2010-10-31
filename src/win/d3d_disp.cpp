@@ -2211,7 +2211,7 @@ void _al_d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap)
    disp->device->SetScissorRect(&rect);
 }
 
-static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
+static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
 {
    ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)d;
    ALLEGRO_DISPLAY_WIN *win_display = &disp->win_display;
@@ -2219,6 +2219,11 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
    int full_w, full_h;
    ALLEGRO_MONITOR_INFO mi;
    int adapter = al_get_new_display_adapter();
+   int orig_w, orig_h;
+
+   orig_w = d->w;
+   orig_h = d->h;
+
    if (adapter == -1)
          adapter = 0;
    al_get_monitor_info(adapter, &mi);
@@ -2246,7 +2251,6 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
          ffw_set = false;
       }
       if (!d3d_create_display_internals(disp)) {
-         //al_free(disp);
          return false;
       }
       al_set_target_bitmap(al_get_backbuffer(d));
@@ -2302,6 +2306,20 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
    disp->backbuffer_bmp.bitmap.h = height;
 
    return ret;
+}
+
+static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
+{
+   int orig_w = d->w;
+   int orig_h = d->h;
+
+   if (!d3d_resize_helper(d, width, height)) {
+      d3d_resize_helper(d, orig_w, orig_h);
+      return false;
+   }
+   else {
+      return true;
+   }
 }
 
 static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)

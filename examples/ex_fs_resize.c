@@ -90,7 +90,8 @@ static void main_loop(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *picture)
             printf("succeeded.\n");
          }
          else {
-            printf("failed.\n");
+            printf("failed. current resolution: %dx%d\n",
+               al_get_display_width(display), al_get_display_height(display));
          }
       }
    }
