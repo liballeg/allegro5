@@ -38,13 +38,11 @@ class UString
    ALLEGRO_USTR *ustr;
 
 public:
-   UString(const std::string & s, int first, int count = -1)
+   UString(const ALLEGRO_USTR *s, int first, int end = -1)
    {
-      ustr = al_ref_cstr(&info, s.c_str());
-      ustr = al_ref_ustr(&info, ustr, al_ustr_offset(ustr, first),
-         (count == -1)
-            ? al_ustr_size(ustr)
-            : al_ustr_offset(ustr, first + count));
+      if (end == -1)
+         end = al_ustr_size(s);
+      ustr = al_ref_ustr(&info, s, first, end);
    }
 
    // Conversion
@@ -660,12 +658,17 @@ void HSlider::set_cur_value(int v)
 
 /*---------------------------------------------------------------------------*/
 
-TextEntry::TextEntry(std::string text) :
-   text(text),
+TextEntry::TextEntry(const char *initial_text) :
    focused(false),
    cursor_pos(0),
    left_pos(0)
 {
+   text = al_ustr_new(initial_text);
+}
+
+TextEntry::~TextEntry()
+{
+   al_ustr_free(text);
 }
 
 bool TextEntry::want_key_focus()
@@ -689,13 +692,11 @@ void TextEntry::on_key_down(const ALLEGRO_KEYBOARD_EVENT & event)
 {
    switch (event.keycode) {
       case ALLEGRO_KEY_LEFT:
-         if (cursor_pos > 0)
-            cursor_pos--;
+         al_ustr_prev(text, &cursor_pos);
          break;
 
       case ALLEGRO_KEY_RIGHT:
-         if (cursor_pos < text.size())
-            cursor_pos++;
+         al_ustr_next(text, &cursor_pos);
          break;
 
       case ALLEGRO_KEY_HOME:
@@ -703,22 +704,23 @@ void TextEntry::on_key_down(const ALLEGRO_KEYBOARD_EVENT & event)
          break;
 
       case ALLEGRO_KEY_END:
-         cursor_pos = text.size();
+         cursor_pos = al_ustr_size(text);
          break;
 
       case ALLEGRO_KEY_DELETE:
-         if (cursor_pos < text.size())
-            text.erase(cursor_pos, 1);
+         al_ustr_remove_chr(text, cursor_pos);
          break;
 
       case ALLEGRO_KEY_BACKSPACE:
-         if (cursor_pos > 0)
-            text.erase(--cursor_pos, 1);
+         if (al_ustr_prev(text, &cursor_pos))
+            al_ustr_remove_chr(text, cursor_pos);
          break;
 
       default:
-         if (isprint(event.unichar))
-            text.insert(cursor_pos++, 1, event.unichar);
+         if (event.unichar >= ' ') {
+            al_ustr_insert_chr(text, cursor_pos, event.unichar);
+            cursor_pos += al_utf8_width(event.unichar);
+         }
          break;
    }
 
@@ -739,11 +741,11 @@ void TextEntry::maybe_scroll()
    else {
       for (;;) {
          const int tw = al_get_ustr_width(theme.font,
-            UString(text, left_pos, cursor_pos - left_pos));
+            UString(text, left_pos, cursor_pos));
          if (x1 + tw + CURSOR_WIDTH < x2) {
             break;
          }
-         left_pos++;
+         al_ustr_next(text, &left_pos);
       }
    }
 }
@@ -769,26 +771,30 @@ void TextEntry::draw()
          x += al_get_ustr_width(theme.font, sub);
       }
 
-      if (cursor_pos == text.size()) {
+      if ((unsigned) cursor_pos == al_ustr_size(text)) {
          al_draw_filled_rectangle(x, y1, x + CURSOR_WIDTH,
             y1 + al_get_font_line_height(theme.font), theme.fg);
       }
       else {
-         UString sub(text, cursor_pos, 1);
+         int post_cursor = cursor_pos;
+         al_ustr_next(text, &post_cursor);
+
+         UString sub(text, cursor_pos, post_cursor);
          int subw = al_get_ustr_width(theme.font, sub);
          al_draw_filled_rectangle(x, y1, x + subw,
             y1 + al_get_font_line_height(theme.font), theme.fg);
          al_draw_ustr(theme.font, theme.bg, x, y1, 0, sub);
          x += subw;
 
-         al_draw_ustr(theme.font, theme.fg, x, y1, 0, UString(text, cursor_pos + 1));
+         al_draw_ustr(theme.font, theme.fg, x, y1, 0,
+            UString(text, post_cursor));
       }
    }
 }
 
-const std::string & TextEntry::get_text()
+const char *TextEntry::get_text()
 {
-   return text;
+   return al_cstr(text);
 }
 
 

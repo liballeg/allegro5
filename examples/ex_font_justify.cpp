@@ -78,7 +78,7 @@ void Prog::draw_text()
    const int th = al_get_font_line_height(font);
 
    al_draw_justified_text(font, al_map_rgb_f(1, 1, 1), x1, x2, 50, diff,
-      0, text_entry.get_text().c_str());
+      0, text_entry.get_text());
 
    al_draw_rectangle(x1, 50, x2, 50 + th, al_map_rgb(0, 0, 255), 0);
 
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
    }
 #endif
 
-   font_gui = al_load_font("data/fixed_font.tga", 0, 0);
+   font_gui = al_load_font("data/DejaVuSans.ttf", 14, 0);
    if (!font_gui) {
       abort_example("Failed to load data/DejaVuSans.ttf\n");
       return 1;

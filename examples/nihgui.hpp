@@ -211,13 +211,14 @@ class TextEntry : public Widget {
 private:
    static const int CURSOR_WIDTH = 8;
 
-   std::string    text;
+   ALLEGRO_USTR   *text;
    bool           focused;
-   unsigned int   cursor_pos;
-   unsigned int   left_pos;
+   int            cursor_pos;
+   int            left_pos;
 
 public:
-   explicit TextEntry(std::string text="");
+   explicit TextEntry(const char *initial_text="");
+   ~TextEntry();
 
    virtual bool   want_key_focus();
    virtual void   got_key_focus();
@@ -225,7 +226,7 @@ public:
    virtual void   on_key_down(const ALLEGRO_KEYBOARD_EVENT & event);
    virtual void   draw();
 
-   const std::string & get_text();
+   const char *   get_text();
 
 private:
    void maybe_scroll();
