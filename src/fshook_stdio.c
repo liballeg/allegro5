@@ -432,9 +432,12 @@ static void fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio)
          fp_stdio->stat_mode |= ALLEGRO_FILEMODE_HIDDEN;
    }
 #else
-#ifdef ALLEGRO_MACOSX
+#if defined ALLEGRO_MACOSX && defined UF_HIDDEN
    {
-      /* OSX hidden files can both start with the dot as well as having this flag set... */
+      /* OSX hidden files can both start with the dot as well as having this flag set...
+       * Note that this flag does not exist on all versions of OS X (Tiger
+       * doesn't seem to have it) so we need to test for it.
+       */
       if (fp_stdio->st.st_flags & UF_HIDDEN)
          fp_stdio->stat_mode |= ALLEGRO_FILEMODE_HIDDEN;
    }

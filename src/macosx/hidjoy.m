@@ -20,7 +20,6 @@
 #include "allegro5/platform/aintosx.h"
 
 #import <CoreFoundation/CoreFoundation.h>
-#import <IOKit/hid/IOHIDBase.h>
 #import <IOKit/hid/IOHIDKeys.h>
 
 #ifndef ALLEGRO_MACOSX
@@ -31,6 +30,8 @@
 #if MAC_OS_X_VERSION_MIN_REQUIRED < 1050
 #include "hidjoy-10.4.m"
 #else
+
+#import <IOKit/hid/IOHIDBase.h>
 
 /* State transitions:
  *    unused -> born
