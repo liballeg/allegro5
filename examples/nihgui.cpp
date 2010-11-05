@@ -428,10 +428,10 @@ void Button::draw()
       bg = theme.bg;
    }
 
-   al_draw_rectangle(this->x1, this->y1, this->x2, this->y2,
-      fg, 0);
-   al_draw_filled_rectangle(this->x1 + 1, this->y1 + 1, this->x2 - 1, this->y2 - 1,
-      bg);
+   al_draw_filled_rectangle(this->x1, this->y1,
+      this->x2, this->y2, bg);
+   al_draw_rectangle(this->x1 + 0.5, this->y1 + 0.5,
+      this->x2 - 0.5, this->y2 - 0.5, fg, 0);
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
    al_draw_text(theme.font, fg, (this->x1 + this->x2 + 1)/2,
       this->y1, ALLEGRO_ALIGN_CENTRE, this->text.c_str());
