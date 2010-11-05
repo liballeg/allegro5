@@ -7,6 +7,7 @@
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_image.h"
 #include "allegro5/allegro_font.h"
+#include "allegro5/allegro_primitives.h"
 #include "allegro5/allegro_audio.h"
 #include "allegro5/allegro_acodec.h"
 #include "nihgui.hpp"
@@ -107,6 +108,7 @@ int main(int argc, char *argv[])
 
    al_init_image_addon();
    al_init_font_addon();
+   al_init_primitives_addon();
 
    al_init_acodec_addon();
 
