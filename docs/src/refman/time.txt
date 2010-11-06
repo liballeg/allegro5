@@ -22,7 +22,7 @@ order of microseconds.
 
 Set timeout value of some number of seconds after the function call.
 
-See also: [ALLEGRO_TIMEOUT]
+See also: [ALLEGRO_TIMEOUT], [al_wait_for_event_until]
 
 ## API: al_rest
 
