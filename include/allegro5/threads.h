@@ -53,7 +53,7 @@ AL_FUNC(void, al_destroy_mutex, (ALLEGRO_MUTEX *mutex));
 AL_FUNC(ALLEGRO_COND *, al_create_cond, (void));
 AL_FUNC(void, al_destroy_cond, (ALLEGRO_COND *cond));
 AL_FUNC(void, al_wait_cond, (ALLEGRO_COND *cond, ALLEGRO_MUTEX *mutex));
-AL_FUNC(int, al_wait_cond_timed, (ALLEGRO_COND *cond, ALLEGRO_MUTEX *mutex,
+AL_FUNC(int, al_wait_cond_until, (ALLEGRO_COND *cond, ALLEGRO_MUTEX *mutex,
                     const ALLEGRO_TIMEOUT *timeout));
 AL_FUNC(void, al_broadcast_cond, (ALLEGRO_COND *cond));
 AL_FUNC(void, al_signal_cond, (ALLEGRO_COND *cond));

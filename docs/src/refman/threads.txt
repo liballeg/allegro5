@@ -211,19 +211,18 @@ If multiple threads are blocked on the condition variable, the condition may
 no longer be true by the time the second and later threads are unblocked.
 Remember not to unlock the mutex prematurely.
 
-See also: [al_wait_cond_timed], [al_broadcast_cond], [al_signal_cond].
+See also: [al_wait_cond_until], [al_broadcast_cond], [al_signal_cond].
 
 
 
-## API: al_wait_cond_timed
+## API: al_wait_cond_until
 
 Like [al_wait_cond] but the call can return if the absolute time passes
 `timeout` before the condition is signalled.
 
 Returns zero on success, non-zero if the call timed out.
 
-**Fix up the return value.  pthread_cond_timedwait returns ETIMEDOUT
-but can return other errors.  Do we need to return other errors?**
+See also: [al_wait_cond]
 
 
 

@@ -366,9 +366,9 @@ void al_wait_cond(ALLEGRO_COND *cond, ALLEGRO_MUTEX *mutex)
 }
 
 
-/* Function: al_wait_cond_timed
+/* Function: al_wait_cond_until
  */
-int al_wait_cond_timed(ALLEGRO_COND *cond, ALLEGRO_MUTEX *mutex,
+int al_wait_cond_until(ALLEGRO_COND *cond, ALLEGRO_MUTEX *mutex,
    const ALLEGRO_TIMEOUT *timeout)
 {
    ASSERT(cond);
