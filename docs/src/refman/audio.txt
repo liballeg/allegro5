@@ -310,7 +310,7 @@ To allocate a buffer of the correct size, you can use something like this:
 
     sample_size = al_get_channel_count(chan_conf) * al_get_audio_depth_size(depth);
     bytes = samples * sample_size;
-    buffer = al_malloc(bytes)
+    buffer = al_malloc(bytes);
 
 See also: [al_destroy_sample], [ALLEGRO_AUDIO_DEPTH], [ALLEGRO_CHANNEL_CONF]
 
@@ -319,12 +319,8 @@ See also: [al_destroy_sample], [ALLEGRO_AUDIO_DEPTH], [ALLEGRO_CHANNEL_CONF]
 Free the sample data structure. If it was created with the `free_buf`
 parameter set to true, then the buffer will be freed with [al_free].
 
-You must stop or destroy any [ALLEGRO_SAMPLE_INSTANCE] structures which
-reference this [ALLEGRO_SAMPLE] beforehand.
-
-If you have used [al_play_sample] at all, it is a very good idea to call
-[al_stop_samples] before destroying samples at the end of the program, in case
-any are still playing.
+This function will stop any sample instances which may be playing the
+buffer referenced by the [ALLEGRO_SAMPLE].
 
 See also: [al_destroy_sample_instance], [al_stop_sample], [al_stop_samples]
 

@@ -225,6 +225,28 @@ void _al_unregister_destructor(_AL_DTOR_LIST *dtors, void *object)
 
 
 
+/* Internal function: _al_foreach_destructor
+ *  Call the callback for each registered object.
+ *  [thread-safe]
+ */
+void _al_foreach_destructor(_AL_DTOR_LIST *dtors,
+   void (*callback)(void *object, void (*func)(void *), void *udata),
+   void *userdata)
+{
+   _al_mutex_lock(&dtors->mutex);
+   {
+      unsigned int i;
+
+      for (i = 0; i < _al_vector_size(&dtors->dtors); i++) {
+         DTOR *dtor = _al_vector_ref(&dtors->dtors, i);
+         callback(dtor->object, dtor->func, userdata);
+      }
+   }
+   _al_mutex_unlock(&dtors->mutex);
+}
+
+
+
 /*
  * Local Variables:
  * c-basic-offset: 3

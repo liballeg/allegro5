@@ -155,11 +155,31 @@ ALLEGRO_SAMPLE *al_create_sample(void *buf, unsigned int samples,
 }
 
 
+/* Stop any sample instances which are still playing a sample buffer which
+ * is about to be destroyed.
+ */
+static void stop_sample_instances_helper(void *object, void (*func)(void *),
+   void *userdata)
+{
+   ALLEGRO_SAMPLE_INSTANCE *splinst = object;
+
+   /* This is ugly. */
+   if (func == (void (*)(void *)) al_destroy_sample_instance
+      && al_get_sample_data(al_get_sample(splinst)) == userdata
+      && al_get_sample_instance_playing(splinst))
+   {
+      al_stop_sample_instance(splinst);
+   }
+}
+
+
 /* Function: al_destroy_sample
  */
 void al_destroy_sample(ALLEGRO_SAMPLE *spl)
 {
    if (spl) {
+      _al_kcm_foreach_destructor(stop_sample_instances_helper,
+         al_get_sample_data(spl));
       _al_kcm_unregister_destructor(spl);
 
       if (spl->free_buf && spl->buffer.ptr) {

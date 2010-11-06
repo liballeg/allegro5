@@ -19,6 +19,7 @@
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_audio.h"
 #include "allegro5/internal/aintern_dtor.h"
+#include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_audio.h"
 
 
@@ -64,6 +65,17 @@ void _al_kcm_register_destructor(void *object, void (*func)(void*))
 void _al_kcm_unregister_destructor(void *object)
 {
    _al_unregister_destructor(kcm_dtors, object);
+}
+
+
+/* _al_kcm_foreach_destructor:
+ *  Call the callback for each registered object.
+ */
+void _al_kcm_foreach_destructor(
+   void (*callback)(void *object, void (*func)(void *), void *udata),
+   void *userdata)
+{
+   _al_foreach_destructor(kcm_dtors, callback, userdata);
 }
 
 
