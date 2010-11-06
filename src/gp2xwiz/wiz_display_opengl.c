@@ -250,7 +250,6 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_gp2xwiz_opengl_driver(void)
    gp2xwiz_vt->create_bitmap = _al_ogl_create_bitmap;
    gp2xwiz_vt->create_sub_bitmap = _al_ogl_create_sub_bitmap;
    gp2xwiz_vt->get_backbuffer = _al_ogl_get_backbuffer;
-   gp2xwiz_vt->get_frontbuffer = _al_ogl_get_backbuffer;
    gp2xwiz_vt->set_target_bitmap = _al_ogl_set_target_bitmap;
    gp2xwiz_vt->is_compatible_bitmap = gp2xwiz_is_compatible_bitmap_ogl;
    gp2xwiz_vt->resize_display = gp2xwiz_resize_display_ogl;

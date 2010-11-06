@@ -402,7 +402,6 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_iphone_display_interface(void)
     vt->create_bitmap = _al_ogl_create_bitmap;
     vt->create_sub_bitmap = _al_ogl_create_sub_bitmap;
     vt->get_backbuffer = _al_ogl_get_backbuffer;
-    vt->get_frontbuffer = _al_ogl_get_backbuffer;
     vt->set_target_bitmap = _al_ogl_set_target_bitmap;
 
     vt->is_compatible_bitmap = iphone_is_compatible_bitmap;

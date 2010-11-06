@@ -123,18 +123,6 @@ ALLEGRO_BITMAP *al_get_backbuffer(ALLEGRO_DISPLAY *display)
 
 
 
-/* Function: al_get_frontbuffer
- */
-ALLEGRO_BITMAP *al_get_frontbuffer(ALLEGRO_DISPLAY *display)
-{
-   if (display)
-      return display->vt->get_frontbuffer(display);
-   else
-      return NULL;
-}
-
-
-
 /* Function: al_flip_display
  */
 void al_flip_display(void)

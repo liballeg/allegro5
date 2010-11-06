@@ -1023,7 +1023,6 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    xdpy_vt.create_bitmap = _al_ogl_create_bitmap;
    xdpy_vt.create_sub_bitmap = _al_ogl_create_sub_bitmap;
    xdpy_vt.get_backbuffer = _al_ogl_get_backbuffer;
-   xdpy_vt.get_frontbuffer = _al_ogl_get_backbuffer;
    xdpy_vt.set_target_bitmap = _al_ogl_set_target_bitmap;
    xdpy_vt.is_compatible_bitmap = xdpy_is_compatible_bitmap;
    xdpy_vt.resize_display = xdpy_resize_display;

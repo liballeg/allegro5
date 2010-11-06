@@ -311,16 +311,6 @@ then first copy a region of the backbuffer into a temporary bitmap (via
 the [al_draw_bitmap] and [al_draw_bitmap_region]), and then use that 
 temporary bitmap as the source bitmap.
 
-See also: [al_get_frontbuffer]
-
-### API: al_get_frontbuffer
-
-Return a special bitmap representing the front-buffer of
-the display. This may not be supported by the driver;
-returns NULL in that case.
-
-See also: [al_get_backbuffer]
-
 ### API: al_get_display_flags
 
 Gets the flags of the display.

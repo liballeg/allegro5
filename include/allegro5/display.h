@@ -126,7 +126,6 @@ AL_FUNC(ALLEGRO_DISPLAY*, al_get_current_display, (void));
 AL_FUNC(void,            al_set_target_bitmap, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(void,            al_set_target_backbuffer, (ALLEGRO_DISPLAY *display));
 AL_FUNC(ALLEGRO_BITMAP*, al_get_backbuffer,    (ALLEGRO_DISPLAY *display));
-AL_FUNC(ALLEGRO_BITMAP*, al_get_frontbuffer,   (ALLEGRO_DISPLAY *display));
 AL_FUNC(ALLEGRO_BITMAP*, al_get_target_bitmap, (void));
 
 AL_FUNC(bool, al_acknowledge_resize, (ALLEGRO_DISPLAY *display));

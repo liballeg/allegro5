@@ -181,7 +181,6 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_gp2xwiz_framebuffer_driver(void)
    gp2xwiz_vt->create_bitmap = NULL;
    gp2xwiz_vt->create_sub_bitmap = NULL;
    gp2xwiz_vt->get_backbuffer = gp2xwiz_get_backbuffer_fb;
-   gp2xwiz_vt->get_frontbuffer = gp2xwiz_get_backbuffer_fb;
    gp2xwiz_vt->set_target_bitmap = NULL;
    gp2xwiz_vt->is_compatible_bitmap = gp2xwiz_is_compatible_bitmap_fb;
    gp2xwiz_vt->resize_display = gp2xwiz_resize_display_fb;

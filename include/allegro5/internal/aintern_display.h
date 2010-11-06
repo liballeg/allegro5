@@ -35,7 +35,6 @@ struct ALLEGRO_DISPLAY_INTERFACE
    
    void (*set_target_bitmap)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
    ALLEGRO_BITMAP *(*get_backbuffer)(ALLEGRO_DISPLAY *d);
-   ALLEGRO_BITMAP *(*get_frontbuffer)(ALLEGRO_DISPLAY *d);
 
    bool (*is_compatible_bitmap)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
    void (*switch_out)(ALLEGRO_DISPLAY *display);
