@@ -2502,12 +2502,6 @@ static ALLEGRO_BITMAP *d3d_get_backbuffer(ALLEGRO_DISPLAY *display)
    return (ALLEGRO_BITMAP *)&(((ALLEGRO_DISPLAY_D3D *)display)->backbuffer_bmp);
 }
 
-static ALLEGRO_BITMAP *d3d_get_frontbuffer(ALLEGRO_DISPLAY *display)
-{
-   (void)display;
-   return NULL;
-}
-
 static bool d3d_is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
    return display == bitmap->display;
@@ -2704,7 +2698,6 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->create_bitmap = _al_d3d_create_bitmap;
    vt->set_target_bitmap = d3d_set_target_bitmap;
    vt->get_backbuffer = d3d_get_backbuffer;
-   vt->get_frontbuffer = d3d_get_frontbuffer;
    vt->is_compatible_bitmap = d3d_is_compatible_bitmap;
    vt->switch_out = d3d_switch_out;
    vt->switch_in = d3d_switch_in;
