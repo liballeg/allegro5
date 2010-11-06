@@ -263,7 +263,7 @@ int _al_osx_run_main(int argc, char **argv,
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     AllegroAppDelegate *app_delegate = [[AllegroAppDelegate alloc] init];
     NSMenu *menu;
-    NSMenuItem *menu_item, *temp_item;
+    NSMenuItem *temp_item;
     
     user_main = real_main;
     __crt0_argc = argc;
