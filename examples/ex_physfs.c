@@ -44,7 +44,7 @@ static void print_file(ALLEGRO_FS_ENTRY *entry)
    const char *name = al_get_fs_entry_name(entry);
    off_t size = al_get_fs_entry_size(entry);
 
-   log_printf("%-36s %s%s%s%s%s%s %8lu %8lu %8lu %8lu\n",
+   log_printf("%-36s %s%s%s%s%s%s %8llu %8llu %8llu %8llu\n",
       name,
       mode & ALLEGRO_FILEMODE_READ ? "r" : ".",
       mode & ALLEGRO_FILEMODE_WRITE ? "w" : ".",
