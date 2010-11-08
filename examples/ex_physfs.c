@@ -44,7 +44,7 @@ static void print_file(ALLEGRO_FS_ENTRY *entry)
    const char *name = al_get_fs_entry_name(entry);
    off_t size = al_get_fs_entry_size(entry);
 
-   log_printf("%-36s %s%s%s%s%s%s %8llu %8llu %8llu %8llu\n",
+   log_printf("%-36s %s%s%s%s%s%s %8u %8u %8u %8u\n",
       name,
       mode & ALLEGRO_FILEMODE_READ ? "r" : ".",
       mode & ALLEGRO_FILEMODE_WRITE ? "w" : ".",
@@ -52,10 +52,10 @@ static void print_file(ALLEGRO_FS_ENTRY *entry)
       mode & ALLEGRO_FILEMODE_HIDDEN ? "h" : ".",
       mode & ALLEGRO_FILEMODE_ISFILE ? "f" : ".",
       mode & ALLEGRO_FILEMODE_ISDIR ? "d" : ".",
-      now - ctime,
-      now - mtime,
-      now - atime,
-      size);
+      (unsigned)(now - ctime),
+      (unsigned)(now - mtime),
+      (unsigned)(now - atime),
+      (unsigned)size);
 }
 
 static void listdir(ALLEGRO_FS_ENTRY *entry)
