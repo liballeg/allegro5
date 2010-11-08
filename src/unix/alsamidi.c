@@ -144,7 +144,7 @@ static int alsa_rawmidi_detect(int input)
  */
 static int alsa_rawmidi_init(int input, int voices)
 {
-   int ret = -1, err;
+   int ret, err;
    char tmp1[128], tmp2[128], temp[256];
 #if ALLEGRO_ALSA_VERSION == 9
    snd_rawmidi_info_t *info;
@@ -181,8 +181,9 @@ static int alsa_rawmidi_init(int input, int voices)
 	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text(temp));
 	 ret = -1;
       }
-
-      ret = 0;
+      else {
+         ret = 0;
+      }
    }
 
    if (rawmidi_handle) {
