@@ -254,6 +254,11 @@ static BITMAP *osx_qz_full_init(int w, int h, int v_w, int v_h, int color_depth)
    _unix_lock_mutex(osx_event_mutex);
    bmp = private_osx_qz_full_init(w, h, v_w, v_h, color_depth);
    _unix_unlock_mutex(osx_event_mutex);
+
+   _unix_lock_mutex(osx_skip_events_processing_mutex);
+   osx_skip_events_processing = FALSE;
+   _unix_unlock_mutex(osx_skip_events_processing_mutex);
+
    if (!bmp)
       osx_qz_full_exit(bmp);
    return bmp;
@@ -294,6 +299,10 @@ static void osx_qz_full_exit(BITMAP *bmp)
    osx_gfx_mode = OSX_GFX_NONE;
    
    _unix_unlock_mutex(osx_event_mutex);
+
+   _unix_lock_mutex(osx_skip_events_processing_mutex);
+   osx_skip_events_processing = TRUE;
+   _unix_unlock_mutex(osx_skip_events_processing_mutex);
 }
 
 
