@@ -873,7 +873,11 @@ if(UNIX) # including MACOSX
     if(APPLE)
         # XXX untested
         set(ACCEPT_FRAMEWORKS yes)
-        set(FRAMEWORKS "-framework Cocoa -framework Allegro -lalleg-main${BUILD_TYPE_SUFFIX}")
+        if(BUILD_SHARED_LIBS)
+            set(FRAMEWORKS "-framework Cocoa -framework Allegro -lalleg-main${BUILD_TYPE_SUFFIX}")
+        else(BUILD_SHARED_LIBS)
+            set(FRAMEWORKS "-framework Cocoa -framework Allegro -lalleg-main${BUILD_TYPE_SUFFIX} -framework Carbon -framework IOKit -framework System -framework CoreAudio -framework AudioUnit -framework AudioToolbox -framework QuickTime")
+        endif(BUILD_SHARED_LIBS)
     else()
         set(ACCEPT_FRAMEWORKS no)
         set(FRAMEWORKS "")
