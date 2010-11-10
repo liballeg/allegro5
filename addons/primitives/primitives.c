@@ -44,12 +44,16 @@ TODO: This is a hack... I need to know the values of these without actually incl
 #define ALLEGRO_DIRECT3D 8
 #endif
 
+static bool addon_initialized = false;
+
 /* Function: al_init_primitives_addon
  */
 bool al_init_primitives_addon(void)
 {
    bool ret = true;
    ret &= _al_init_d3d_driver();
+   
+   addon_initialized = ret;
    
    _al_add_exit_func(al_shutdown_primitives_addon, "primitives_shutdown");
    
@@ -61,6 +65,7 @@ bool al_init_primitives_addon(void)
 void al_shutdown_primitives_addon(void)
 {
    _al_shutdown_d3d_driver();
+   addon_initialized = false;
 }
 
 /* Function: al_draw_prim
@@ -71,6 +76,7 @@ int al_draw_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
    ALLEGRO_BITMAP *target;
    int ret = 0;
  
+   ASSERT(addon_initialized);
    ASSERT(vtxs);
    ASSERT(end >= start);
    ASSERT(type >= 0 && type < ALLEGRO_PRIM_NUM_TYPES);
@@ -103,6 +109,7 @@ int al_draw_indexed_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
    ALLEGRO_BITMAP *target;
    int ret = 0;
  
+   ASSERT(addon_initialized);
    ASSERT(vtxs);
    ASSERT(indices);
    ASSERT(num_vtx > 0);
@@ -153,6 +160,8 @@ ALLEGRO_VERTEX_DECL* al_create_vertex_decl(const ALLEGRO_VERTEX_ELEMENT* element
    ALLEGRO_VERTEX_DECL* ret;
    ALLEGRO_DISPLAY* display;
    int flags;
+
+   ASSERT(addon_initialized);
 
    ret = al_malloc(sizeof(ALLEGRO_VERTEX_DECL));
    ret->elements = al_malloc(sizeof(ALLEGRO_VERTEX_ELEMENT) * ALLEGRO_PRIM_ATTR_NUM);
