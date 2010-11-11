@@ -55,11 +55,6 @@ static void main_loop(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *picture)
       }
       al_wait_for_event(queue, &event);
 
-      if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
-         al_acknowledge_resize(event.display.source);
-         continue;
-      }
-
       if (event.type != ALLEGRO_EVENT_KEY_DOWN) {
          continue;
       }

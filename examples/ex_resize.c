@@ -70,12 +70,7 @@ int main(void)
             resize = false;
         }
         al_wait_for_event(events, &event);
-        if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
-            ALLEGRO_DISPLAY_EVENT *de = &event.display;
-            al_acknowledge_resize(de->source);
-            redraw();
-        }
-        else if (event.type == ALLEGRO_EVENT_TIMER) {
+        if (event.type == ALLEGRO_EVENT_TIMER) {
             resize = true;
         }
         else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
