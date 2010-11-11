@@ -64,6 +64,13 @@ struct ALLEGRO_DISPLAY_WIN
     * after al_resize_display called you can call acknowledge_resize
     */
    bool can_acknowledge;
+
+   /* For internal use by the windows driver. When this is set and a Windows
+    * window resize event is received by the window procedure, the event is
+    * ignored and this value is set to false.
+    */
+   bool ignore_resize;
+
    /* Size to reset to when al_set_display_flag(FULLSCREEN_WINDOW, false)
     * is called.
     */
