@@ -113,6 +113,7 @@ struct ALLEGRO_DISPLAY_XGLX
    bool is_mapped;  /* Set to true when mapped. */
 
    int resize_count; /* Increments when resized. */
+   bool programmatic_resize; /* Set while programmatic resize in progress. */
 
    /* Cursor for this window. */
    Cursor invisible_cursor;

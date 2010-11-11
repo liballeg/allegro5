@@ -292,6 +292,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    _al_cond_init(&d->mapped);
 
    d->resize_count = 0;
+   d->programmatic_resize = false;
 
    _al_xglx_config_select_visual(d);
 
@@ -750,11 +751,6 @@ void _al_display_xglx_await_resize(ALLEGRO_DISPLAY *d, int old_resize_count,
       al_rest(0.2);
    }
 
-   /* TODO: Right now, we still generate a resize event (from the events
-    * thread, in response to the Configure event) which is X11
-    * specific though - if there's a simple way to prevent it we
-    * should do so.
-    */
    xdpy_acknowledge_resize(d);
 }
 
@@ -805,9 +801,11 @@ static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
       const int old_resize_count = glx->resize_count;
       ALLEGRO_DEBUG("calling XResizeWindow, attempts=%d\n", attempts);
       reset_size_hints(d);
+      glx->programmatic_resize = true;
       XResizeWindow(system->x11display, glx->window, w, h);
       _al_display_xglx_await_resize(d, old_resize_count,
          (d->flags & ALLEGRO_FULLSCREEN));
+      glx->programmatic_resize = false;
       set_size_hints(d, INT_MAX, INT_MAX);
 
       if (d->w == w && d->h == h) {
@@ -846,13 +844,14 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
    ALLEGRO_EVENT_SOURCE *es = &glx->display.es;
    _al_event_source_lock(es);
 
-   /* Generate a resize event if the size has changed. We cannot asynchronously
-    * change the display size here yet, since the user will only know about a
-    * changed size after receiving the resize event. Here we merely add the
-    * event to the queue.
+   /* Generate a resize event if the size has changed non-programmtically.
+    * We cannot asynchronously change the display size here yet, since the user
+    * will only know about a changed size after receiving the resize event.
+    * Here we merely add the event to the queue.
     */
-   if (d->w != xevent->xconfigure.width ||
-      d->h != xevent->xconfigure.height) {
+   if (!glx->programmatic_resize &&
+         (d->w != xevent->xconfigure.width ||
+          d->h != xevent->xconfigure.height)) {
       if (_al_event_source_needs_to_generate_event(es)) {
          ALLEGRO_EVENT event;
          event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
