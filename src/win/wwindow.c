@@ -272,44 +272,49 @@ static void postpone_thread_proc(void *arg)
    wi.cbSize = sizeof(WINDOWINFO);
 
    Sleep(50);
-      
-   /* Generate a resize event if the size has changed. We cannot asynchronously
-    * change the display size here yet, since the user will only know about a
-    * changed size after receiving the resize event. Here we merely add the
-    * event to the queue.
-    */
-   GetWindowInfo(win_display->window, &wi);
-   x = wi.rcClient.left;
-   y = wi.rcClient.top;
-   w = wi.rcClient.right - wi.rcClient.left;
-   h = wi.rcClient.bottom - wi.rcClient.top;
-   if (display->w != w || display->h != h) {
-      _al_event_source_lock(es);
-      if (_al_event_source_needs_to_generate_event(es)) {
-         ALLEGRO_EVENT event;
-         event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
-         event.display.timestamp = al_get_time();
-         event.display.x = x;
-         event.display.y = y;
-         event.display.width = w;
-         event.display.height = h;
-         event.display.source = display;
-         _al_event_source_emit_event(es, &event);
-      }
 
-      /* Generate an expose event. */
-      if (_al_event_source_needs_to_generate_event(es)) {
-         ALLEGRO_EVENT event;
-         event.display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
-         event.display.timestamp = al_get_time();
-         event.display.x = x;
-         event.display.y = y;
-         event.display.width = w;
-         event.display.height = h;
-         event.display.source = display;
-         _al_event_source_emit_event(es, &event);
+   if (win_display->ignore_resize) {
+      win_display->ignore_resize = false;
+   }
+   else {
+      /* Generate a resize event if the size has changed. We cannot asynchronously
+       * change the display size here yet, since the user will only know about a
+       * changed size after receiving the resize event. Here we merely add the
+       * event to the queue.
+       */
+      GetWindowInfo(win_display->window, &wi);
+      x = wi.rcClient.left;
+      y = wi.rcClient.top;
+      w = wi.rcClient.right - wi.rcClient.left;
+      h = wi.rcClient.bottom - wi.rcClient.top;
+      if (display->w != w || display->h != h) {
+         _al_event_source_lock(es);
+         if (_al_event_source_needs_to_generate_event(es)) {
+            ALLEGRO_EVENT event;
+            event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
+            event.display.timestamp = al_get_time();
+            event.display.x = x;
+            event.display.y = y;
+            event.display.width = w;
+            event.display.height = h;
+            event.display.source = display;
+            _al_event_source_emit_event(es, &event);
+         }
+
+         /* Generate an expose event. */
+         if (_al_event_source_needs_to_generate_event(es)) {
+            ALLEGRO_EVENT event;
+            event.display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
+            event.display.timestamp = al_get_time();
+            event.display.x = x;
+            event.display.y = y;
+            event.display.width = w;
+            event.display.height = h;
+            event.display.source = display;
+            _al_event_source_emit_event(es, &event);
+         }
+         _al_event_source_unlock(es);
       }
-      _al_event_source_unlock(es);
    }
 
    resize_postponed = false;
@@ -879,9 +884,7 @@ bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 
          if (onoff) {
             ALLEGRO_MONITOR_INFO mi;
-            int adapter = al_get_new_display_adapter();
-            if (adapter == -1)
-               adapter = 0;
+            int adapter = win_display->adapter;
             al_get_monitor_info(adapter, &mi);
             display->flags |= ALLEGRO_FULLSCREEN_WINDOW;
             display->w = mi.x2 - mi.x1;

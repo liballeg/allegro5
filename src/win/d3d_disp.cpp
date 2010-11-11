@@ -1419,9 +1419,8 @@ struct CREATE_WINDOW_INFO {
    int window_x, window_y;
 };
 
-static void *d3d_create_window_proc(void *arg)
+static void d3d_create_window_proc(CREATE_WINDOW_INFO *info)
 {
-   CREATE_WINDOW_INFO *info = (CREATE_WINDOW_INFO *)arg;
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)info->display;
    
    al_set_new_window_position(info->window_x, info->window_y);
@@ -1432,8 +1431,6 @@ static void *d3d_create_window_proc(void *arg)
       info->h,
       info->flags
    );
-   
-   return NULL;
 }
 
 static void *d3d_create_faux_fullscreen_window_proc(void *arg)
@@ -1627,10 +1624,12 @@ static void *d3d_display_thread_proc(void *arg)
    while (!win_display->end_thread) {
       al_rest(0.001);
 
-      if (GetMessage(&msg, NULL, 0, 0) != 0)
-         DispatchMessage(&msg);
-      else
-         break;                  /* WM_QUIT received or error (GetMessage returned -1)  */
+      if (PeekMessage(&msg, NULL, 0, 0, FALSE)) {
+         if (GetMessage(&msg, NULL, 0, 0) != 0)
+            DispatchMessage(&msg);
+         else
+            break;                  /* WM_QUIT received or error (GetMessage returned -1)  */
+      }
 
       if (!d3d_display->device) {
          continue;
@@ -1760,13 +1759,13 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
             al_get_monitor_info(adapter, &mi);
             al_display->w = mi.x2 - mi.x1;
             al_display->h = mi.y2 - mi.y1;
-            win_display->toggle_w = w;
-            win_display->toggle_h = h;
             d3d_display->faux_fullscreen = true;
          }
          else {
             d3d_display->faux_fullscreen = false;
          }
+         win_display->toggle_w = w;
+         win_display->toggle_h = h;
       }
 #ifdef ALLEGRO_CFG_D3D9EX
    }
@@ -2211,6 +2210,47 @@ void _al_d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap)
    disp->device->SetScissorRect(&rect);
 }
 
+static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
+{
+   WINDOWINFO wi;
+   ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)d;
+   ALLEGRO_DISPLAY_WIN *win_display = &disp->win_display;
+   int w, h;
+   ALLEGRO_STATE state;
+
+   wi.cbSize = sizeof(WINDOWINFO);
+   GetWindowInfo(win_display->window, &wi);
+   w = wi.rcClient.right - wi.rcClient.left;
+   h = wi.rcClient.bottom - wi.rcClient.top;
+
+   if (w > 0 && h > 0) {
+      d->w = w;
+      d->h = h;
+   }
+
+   disp->backbuffer_bmp.bitmap.w = d->w;
+   disp->backbuffer_bmp.bitmap.h = d->h;
+   disp->backbuffer_bmp.bitmap.cl = 0;
+   disp->backbuffer_bmp.bitmap.ct = 0;
+   disp->backbuffer_bmp.bitmap.cr_excl = w;
+   disp->backbuffer_bmp.bitmap.cb_excl = h;
+
+   disp->do_reset = true;
+   while (!disp->reset_done) {
+      al_rest(0.001);
+   }
+   disp->reset_done = false;
+
+//   if (!(d->flags  & ALLEGRO_FULLSCREEN)) {
+      al_store_state(&state, ALLEGRO_STATE_DISPLAY | ALLEGRO_STATE_TARGET_BITMAP);
+      al_set_target_bitmap(al_get_backbuffer(d));
+   al_set_clipping_rectangle(0, 0, d->w, d->h);
+      al_restore_state(&state);
+//   }
+
+   return disp->reset_success;
+}
+
 static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
 {
    ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)d;
@@ -2218,14 +2258,13 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
    bool ret;
    int full_w, full_h;
    ALLEGRO_MONITOR_INFO mi;
-   int adapter = al_get_new_display_adapter();
+   int adapter = win_display->adapter;
    int orig_w, orig_h;
+   ALLEGRO_STATE backup;
 
    orig_w = d->w;
    orig_h = d->h;
 
-   if (adapter == -1)
-         adapter = 0;
    al_get_monitor_info(adapter, &mi);
    full_w = mi.x2 - mi.x1;
    full_h = mi.y2 - mi.y1;
@@ -2289,7 +2328,6 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
        * The clipping rectangle and bitmap size must be
        * changed to match the new size.
        */
-       /*
       al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
       al_set_target_bitmap(&disp->backbuffer_bmp.bitmap);
       disp->backbuffer_bmp.bitmap.w = width;
@@ -2297,7 +2335,6 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
       al_set_clipping_rectangle(0, 0, width, height);
       _al_d3d_set_bitmap_clip(&disp->backbuffer_bmp.bitmap);
       al_restore_state(&backup);
-      */
 
       ret = true;
    }
@@ -2310,57 +2347,24 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
 
 static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
 {
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)d;
    int orig_w = d->w;
    int orig_h = d->h;
+   bool ret;
+
+   win_display->ignore_resize = true;
 
    if (!d3d_resize_helper(d, width, height)) {
       d3d_resize_helper(d, orig_w, orig_h);
-      return false;
+      ret = false;
    }
    else {
-      return true;
-   }
-}
-
-static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
-{
-   WINDOWINFO wi;
-   ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)d;
-   ALLEGRO_DISPLAY_WIN *win_display = &disp->win_display;
-   int w, h;
-   ALLEGRO_STATE state;
-
-   wi.cbSize = sizeof(WINDOWINFO);
-   GetWindowInfo(win_display->window, &wi);
-   w = wi.rcClient.right - wi.rcClient.left;
-   h = wi.rcClient.bottom - wi.rcClient.top;
-
-   if (w > 0 && h > 0) {
-      d->w = w;
-      d->h = h;
+      ret = true;
    }
 
-   disp->backbuffer_bmp.bitmap.w = d->w;
-   disp->backbuffer_bmp.bitmap.h = d->h;
-   disp->backbuffer_bmp.bitmap.cl = 0;
-   disp->backbuffer_bmp.bitmap.ct = 0;
-   disp->backbuffer_bmp.bitmap.cr_excl = w;
-   disp->backbuffer_bmp.bitmap.cb_excl = h;
+   d3d_acknowledge_resize(d);
 
-   disp->do_reset = true;
-   while (!disp->reset_done) {
-      al_rest(0.001);
-   }
-   disp->reset_done = false;
-
-//   if (!(d->flags  & ALLEGRO_FULLSCREEN)) {
-      al_store_state(&state, ALLEGRO_STATE_DISPLAY | ALLEGRO_STATE_TARGET_BITMAP);
-      al_set_target_bitmap(al_get_backbuffer(d));
-   al_set_clipping_rectangle(0, 0, d->w, d->h);
-      al_restore_state(&state);
-//   }
-
-   return disp->reset_success;
+   return ret;
 }
 
 ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,

@@ -1173,6 +1173,10 @@ static void display_thread_proc(void *arg)
       disp->w = mi.x2 - mi.x1;
       disp->h = mi.y2 - mi.y1;
    }
+   else {
+      win_disp->toggle_w = disp->w;
+      win_disp->toggle_h = disp->h;
+   }
 
    win_disp->window = _al_win_create_window(disp, disp->w, disp->h, disp->flags);
 
@@ -1425,16 +1429,22 @@ static bool wgl_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
 
 static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
 {
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)d;
    int orig_w = d->w;
    int orig_h = d->h;
+   bool ret;
+
+   win_display->ignore_resize = true;
 
    if (!wgl_resize_helper(d, width, height)) {
       wgl_resize_helper(d, orig_w, orig_h);
-      return false;
+      ret = false;
    }
    else {
-      return true;
+      ret = true;
    }
+
+   return ret;
 }
 
 static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d)
