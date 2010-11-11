@@ -66,6 +66,7 @@ int main(void)
             if (s > 200)
                 s = 400 - s;
             al_resize_display(display, s, s);
+            redraw();
             resize = false;
         }
         al_wait_for_event(events, &event);
