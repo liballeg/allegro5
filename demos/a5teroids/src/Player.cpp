@@ -120,7 +120,7 @@ void Player::render_extra(void)
    if (lives <= 0) {
       int w = al_get_bitmap_width(highscoreBitmap);
       int h = al_get_bitmap_height(highscoreBitmap);
-      al_draw_bitmap(highscoreBitmap, (w-BB_W)/2, (h-BB_H)/2, 0);
+      al_draw_bitmap(highscoreBitmap, (BB_W-w)/2, (BB_H-h)/2, 0);
       return;
    }
 
@@ -132,6 +132,9 @@ void Player::render_extra(void)
 
 void Player::render(int offx, int offy, ALLEGRO_COLOR tint)
 {
+   if (lives <= 0)
+      return;
+
    int rx = (int)(offx + x), ry = (int)(offy + y);
 
    if (!isDestructable) {
