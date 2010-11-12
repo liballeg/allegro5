@@ -606,13 +606,12 @@ static int _find_executable_file(const char *filename, char *output, int size)
 }
 
 /* Implentation of get_path */
-static const char *_fixme_osx_get_path(uint32_t id, char* path, size_t length)
+static ALLEGRO_PATH *osx_get_path(int id)
 {
    NSString* ans = nil;
    NSArray* paths = nil;
    NSString *org_name = [[NSString alloc] initWithUTF8String: al_get_org_name()];
    NSString *app_name = [[NSString alloc] initWithUTF8String: al_get_app_name()];
-   BOOL ok = NO;
    switch (id) {
       case ALLEGRO_PROGRAM_PATH:
          ans = [[NSBundle mainBundle] bundlePath];
@@ -656,8 +655,10 @@ static const char *_fixme_osx_get_path(uint32_t id, char* path, size_t length)
             if (__crt0_argv[0][0] == '/') {
                ans = [NSString stringWithUTF8String: __crt0_argv[0]];
             } else {
-               if (_find_executable_file(__crt0_argv[0], path, length))
-                  ans = [NSString stringWithUTF8String: path];
+               /* FIXME: get rid of arbitrary fixed length in path */
+               char temp[PATH_MAX];
+               if (_find_executable_file(__crt0_argv[0], temp, PATH_MAX))
+                  ans = [NSString stringWithUTF8String: temp];
             }
          }
          break;
@@ -692,18 +693,7 @@ static const char *_fixme_osx_get_path(uint32_t id, char* path, size_t length)
    }
    [org_name release];
    [app_name release];
-   if ((ans != nil) && (path != NULL)) {
-      _al_sane_strncpy(path, [ans UTF8String], length);
-   }
-   return ok == YES ? path : NULL;
-}
-
-static ALLEGRO_PATH *osx_get_path(int id)
-{
-   // FIXME: get rid of arbitrary length
-   char temp[PATH_MAX];
-   _fixme_osx_get_path(id, temp, sizeof temp);
-   return al_create_path(temp);
+   return ans != nil ? al_create_path_for_directory([ans UTF8String]) : NULL;
 }
 
 /* _al_osx_post_quit
