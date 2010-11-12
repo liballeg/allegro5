@@ -12,7 +12,7 @@
 #ifdef ALLEGRO_CFG_IIO_HAVE_GDIPLUS_LOWERCASE_H
    #include <gdiplus.h>
 #else
-   #include <Gdiplus.h>
+   #include <GdiPlus.h>
 #endif
 
 /* Needed with the MinGW w32api-3.15 headers. */
