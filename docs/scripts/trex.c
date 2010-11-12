@@ -20,7 +20,7 @@
 #define _SC(x) (x)
 #endif
 
-#ifdef _DEBUG
+#ifdef TREX_DEBUG
 #include <stdio.h>
 
 static const TRexChar *g_nnames[] =
@@ -553,7 +553,7 @@ TRex *trex_compile(const TRexChar *pattern,const TRexChar **error)
 		exp->_nodes[exp->_first].left = res;
 		if(*exp->_p!='\0')
 			trex_error(exp,_SC("unexpected character"));
-#ifdef _DEBUG
+#ifdef TREX_DEBUG
 		{
 			int nsize,i;
 			TRexNode *t;
