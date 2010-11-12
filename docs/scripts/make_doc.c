@@ -12,6 +12,7 @@
  * Environment variables: PANDOC
  */
 
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -170,9 +171,25 @@ void call_pandoc(const char *input, const char *output,
    const char *extra_options)
 {
    dstr cmd;
+   dstr input_native;
+   char *p;
+
+   strcpy(input_native, input);
+
+   /* Use native Windows syntax to avoid "c:/foo.txt" being treated as a
+    * remote URI by Pandoc 1.5 and 1.6.
+    */
+   if (strlen(input_native) > 2
+         && isalpha(input_native[0])
+         && input_native[1] == ':') {
+      for (p = input_native; *p != '\0'; p++) {
+         if (*p == '/')
+            *p = '\\';
+      }
+   }
 
    sprintf(cmd, "%s %s %s %s --to %s --output %s",
-      pandoc, input, pandoc_options, extra_options, to_format, output);
+      pandoc, input_native, pandoc_options, extra_options, to_format, output);
    if (system(cmd) != 0) {
       d_abort("system call failed: ", cmd);
    }
