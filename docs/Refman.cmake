@@ -73,12 +73,12 @@ set(DUMMY_REFS_TIMESTAMP ${DUMMY_REFS}.timestamp)
 set(SEARCH_INDEX_JS ${HTML_DIR}/search_index.js)
 
 set(SCRIPT_DIR ${CMAKE_SOURCE_DIR}/docs/scripts)
-set(MAKE_PROTOS ${CMAKE_CURRENT_BINARY_DIR}/make_protos)
-set(MAKE_HTML_REFS ${CMAKE_CURRENT_BINARY_DIR}/make_html_refs)
-set(MAKE_DUMMY_REFS ${CMAKE_CURRENT_BINARY_DIR}/make_dummy_refs)
-set(MAKE_DOC ${CMAKE_CURRENT_BINARY_DIR}/make_doc --protos ${PROTOS})
-set(INSERT_TIMESTAMP ${CMAKE_CURRENT_BINARY_DIR}/insert_timestamp)
-set(MAKE_SEARCH_INDEX ${CMAKE_CURRENT_BINARY_DIR}/make_search_index)
+set(MAKE_PROTOS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/make_protos)
+set(MAKE_HTML_REFS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/make_html_refs)
+set(MAKE_DUMMY_REFS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/make_dummy_refs)
+set(MAKE_DOC ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/make_doc --protos ${PROTOS})
+set(INSERT_TIMESTAMP ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/insert_timestamp)
+set(MAKE_SEARCH_INDEX ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/make_search_index)
 
 set(DAWK_SOURCES scripts/aatree.c scripts/dawk.c scripts/trex.c)
 
@@ -115,11 +115,17 @@ add_executable(make_search_index scripts/make_search_index.c ${DAWK_SOURCES})
 # you run make, it will compare them and find them equal, so protos.timestamp
 # won't be updated.  However that check is instantaneous.
 
-file(GLOB_RECURSE ALL_SRCS
+# ALL_SRCS is split into multiple lists, otherwise the make_protos command
+# line is too long for Windows >:-(
+file(GLOB_RECURSE ALL_SRCS1
     ${CMAKE_SOURCE_DIR}/src/*.[ch]
     ${CMAKE_SOURCE_DIR}/src/*.[ch]pp
+    )
+file(GLOB_RECURSE ALL_SRCS2
     ${CMAKE_SOURCE_DIR}/include/*.h
     ${CMAKE_SOURCE_DIR}/include/*.inl
+    )
+file (GLOB_RECURSE ALL_SRCS3
     ${CMAKE_SOURCE_DIR}/addons/*.[ch]
     ${CMAKE_SOURCE_DIR}/addons/*.[ch]pp
     )
@@ -127,7 +133,9 @@ file(GLOB_RECURSE ALL_SRCS
 add_custom_command(
     OUTPUT ${PROTOS}
     DEPENDS ${ALL_SRCS} make_protos
-    COMMAND ${MAKE_PROTOS} ${ALL_SRCS} > ${PROTOS}
+    COMMAND ${MAKE_PROTOS} ${ALL_SRCS1} > ${PROTOS}
+    COMMAND ${MAKE_PROTOS} ${ALL_SRCS2} >> ${PROTOS}
+    COMMAND ${MAKE_PROTOS} ${ALL_SRCS3} >> ${PROTOS}
     )
 
 add_custom_command(
@@ -136,8 +144,10 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PROTOS} ${PROTOS_TIMESTAMP}
     )
 
-# For testing.
-add_custom_target(gen_protos DEPENDS ${PROTOS})
+# For testing (command line too long for Windows)
+if(NOT WIN32)
+    add_custom_target(gen_protos DEPENDS ${PROTOS})
+endif()
 
 #-----------------------------------------------------------------------------#
 #
