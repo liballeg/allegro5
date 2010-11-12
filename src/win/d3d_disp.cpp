@@ -69,9 +69,6 @@ static bool is_vista = false;
 static int num_faux_fullscreen_windows = 0;
 static bool already_fullscreen = false; /* real fullscreen */
 
-static DWORD d3d_min_filter = D3DTEXF_POINT;
-static DWORD d3d_mag_filter = D3DTEXF_POINT;
-
 static ALLEGRO_MUTEX *present_mutex;
 ALLEGRO_MUTEX *_al_d3d_lost_device_mutex;
 
@@ -367,16 +364,6 @@ static int d3d_al_color_to_d3d(ALLEGRO_COLOR color)
    return result;
 }
 
-static DWORD d3d_get_filter(const char *s)
-{
-   if (!stricmp(s, "LINEAR"))
-      return D3DTEXF_LINEAR;
-   if (!stricmp(s, "ANISOTROPIC"))
-      return D3DTEXF_ANISOTROPIC;
-   return D3DTEXF_POINT;
-}
-
-
 static void d3d_reset_state(ALLEGRO_DISPLAY_D3D *disp)
 {
    if (disp->device_lost)
@@ -392,12 +379,6 @@ static void d3d_reset_state(ALLEGRO_DISPLAY_D3D *disp)
    if (disp->device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP) != D3D_OK)
       ALLEGRO_ERROR("SetSamplerState failed\n");
    if (disp->device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP) != D3D_OK)
-      ALLEGRO_ERROR("SetSamplerState failed\n");
-
-   /* Set up filtering */
-   if (disp->device->SetSamplerState(0, D3DSAMP_MINFILTER, d3d_min_filter) != D3D_OK)
-      ALLEGRO_ERROR("SetSamplerState failed\n");
-   if (disp->device->SetSamplerState(0, D3DSAMP_MAGFILTER, d3d_mag_filter) != D3D_OK)
       ALLEGRO_ERROR("SetSamplerState failed\n");
 }
 
@@ -1782,9 +1763,6 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    D3D_DISPLAY_PARAMETERS params;
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
    ALLEGRO_DISPLAY *al_display = &win_display->display;
-   static bool cfg_read = false;
-   ALLEGRO_SYSTEM *sys;
-   const char *s;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref =  _al_get_new_display_settings();
    int num_modes;
    int i;
@@ -1869,21 +1847,6 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    if (i == eds_list_count) {
       ALLEGRO_WARN("All %d formats failed.\n", eds_list_count);
       return false;
-   }
-
-   if (!cfg_read) {
-      cfg_read = true;
-
-      sys = al_get_system_driver();
-
-      if (sys->config) {
-         s = al_get_config_value(sys->config, "graphics", "min_filter");
-         if (s)
-            d3d_min_filter = d3d_get_filter(s);
-         s = al_get_config_value(sys->config, "graphics", "mag_filter");
-         if (s)
-            d3d_mag_filter = d3d_get_filter(s);
-      }
    }
 
    d3d_reset_state(d3d_display);
@@ -2643,11 +2606,32 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
       return;
 
    ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;
+   ALLEGRO_BITMAP* cache_bmp = (ALLEGRO_BITMAP*)disp->cache_texture;
+   ALLEGRO_BITMAP_D3D* d3d_bmp = (ALLEGRO_BITMAP_D3D*)cache_bmp;
 
    if (d3d_disp->device->SetTexture(0,
-         (IDirect3DBaseTexture9 *)((ALLEGRO_BITMAP_D3D*)disp->cache_texture)->video_texture) != D3D_OK) {
+         (IDirect3DBaseTexture9 *)d3d_bmp->video_texture) != D3D_OK) {
       ALLEGRO_ERROR("d3d_flush_vertex_cache: SetTexture failed.\n");
       return;
+   }
+
+   if (cache_bmp->flags & ALLEGRO_MIN_LINEAR) {
+      d3d_disp->device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+   }
+   else {
+      d3d_disp->device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+   }
+   if (cache_bmp->flags & ALLEGRO_MAG_LINEAR) {
+      d3d_disp->device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+   }
+   else {
+      d3d_disp->device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+   }
+   if (cache_bmp->flags & ALLEGRO_MIPMAP) {
+      d3d_disp->device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+   }
+   else {
+      d3d_disp->device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
    }
 
    d3d_disp->device->SetFVF(D3DFVF_TL_VERTEX);

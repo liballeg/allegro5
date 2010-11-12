@@ -165,10 +165,10 @@ static void d3d_sync_bitmap_memory(ALLEGRO_BITMAP *bitmap)
       texture = d3d_bmp->video_texture;
 
    if (texture->LockRect(0, &locked_rect, NULL, 0) == D3D_OK) {
-   _al_convert_bitmap_data(locked_rect.pBits, bitmap->format, locked_rect.Pitch,
-      bitmap->memory, bitmap->format, al_get_pixel_size(bitmap->format)*bitmap->w,
-      0, 0, 0, 0, bitmap->w, bitmap->h);
-   texture->UnlockRect(0);
+      _al_convert_bitmap_data(locked_rect.pBits, bitmap->format, locked_rect.Pitch,
+         bitmap->memory, bitmap->format, al_get_pixel_size(bitmap->format)*bitmap->w,
+         0, 0, 0, 0, bitmap->w, bitmap->h);
+      texture->UnlockRect(0);
    }
    else {
       ALLEGRO_ERROR("d3d_sync_bitmap_memory: Couldn't lock texture.\n");
@@ -300,26 +300,45 @@ void _al_d3d_release_default_pool_textures(void)
 }
 
 static bool d3d_create_textures(ALLEGRO_DISPLAY_D3D *disp, int w, int h,
+   int flags,
    LPDIRECT3DTEXTURE9 *video_texture, LPDIRECT3DTEXTURE9 *system_texture,
    int format)
 {
+   int levels;
+   int autogenmipmap;
+   int err;
+
+   if (flags & ALLEGRO_MIPMAP) {
+      /* "0" for all possible levels, required for auto mipmap generation. */
+      levels = 0;
+      autogenmipmap = D3DUSAGE_AUTOGENMIPMAP;
+   }
+   else {
+      levels = 1;
+      autogenmipmap = 0;
+   }
+
    if (_al_d3d_render_to_texture_supported()) {
       if (video_texture) {
-         if (disp->device->CreateTexture(w, h, 1,
-               D3DUSAGE_RENDERTARGET, (D3DFORMAT)_al_format_to_d3d(format), D3DPOOL_DEFAULT,
-               video_texture, NULL) != D3D_OK) {
+         err = disp->device->CreateTexture(w, h, levels,
+            D3DUSAGE_RENDERTARGET | autogenmipmap,
+            (D3DFORMAT)_al_format_to_d3d(format), D3DPOOL_DEFAULT,
+            video_texture, NULL);
+         if (err != D3D_OK && err != D3DOK_NOAUTOGEN) {
             ALLEGRO_ERROR("d3d_create_textures: Unable to create video texture.\n");
             return false;
          }
       }
 
       if (system_texture) {
-         if (disp->device->CreateTexture(w, h, 1,
-               0, (D3DFORMAT)_al_format_to_d3d(format), D3DPOOL_SYSTEMMEM,
-               system_texture, NULL) != D3D_OK) {
+         err = disp->device->CreateTexture(w, h, 1,
+            0, (D3DFORMAT)_al_format_to_d3d(format), D3DPOOL_SYSTEMMEM,
+            system_texture, NULL);
+         if (err != D3D_OK) {
             ALLEGRO_ERROR("d3d_create_textures: Unable to create system texture.\n");
             if (video_texture && (*video_texture)) {
                (*video_texture)->Release();
+               *video_texture = NULL;
             }
             return false;
          }
@@ -329,9 +348,10 @@ static bool d3d_create_textures(ALLEGRO_DISPLAY_D3D *disp, int w, int h,
    }
    else {
       if (video_texture) {
-         if (disp->device->CreateTexture(w, h, 1,
-               0, (D3DFORMAT)_al_format_to_d3d(format), D3DPOOL_MANAGED,
-               video_texture, NULL) != D3D_OK) {
+         err = disp->device->CreateTexture(w, h, 1,
+            0, (D3DFORMAT)_al_format_to_d3d(format), D3DPOOL_MANAGED,
+            video_texture, NULL);
+         if (err != D3D_OK) {
             ALLEGRO_ERROR("d3d_create_textures: Unable to create video texture (no render-to-texture).\n");
             return false;
          }
@@ -455,9 +475,11 @@ bool _al_d3d_recreate_bitmap_textures(ALLEGRO_DISPLAY_D3D *disp)
       ALLEGRO_BITMAP_D3D **bptr = (ALLEGRO_BITMAP_D3D **)_al_vector_ref(&created_bitmaps, i);
       ALLEGRO_BITMAP_D3D *bmp = *bptr;
       ALLEGRO_BITMAP *al_bmp = (ALLEGRO_BITMAP *)bmp;
+
       if (bmp->display == disp) {
 	      if (!d3d_create_textures(disp, bmp->texture_w,
 		    bmp->texture_h,
+		    al_bmp->flags,
 		    &bmp->video_texture,
 		    &bmp->system_texture,
 		    al_bmp->format))
@@ -482,7 +504,9 @@ void _al_d3d_refresh_texture_memory(void)
       ALLEGRO_BITMAP_D3D *bmp = *bptr;
       ALLEGRO_BITMAP *al_bmp = (ALLEGRO_BITMAP *)bmp;
       ALLEGRO_DISPLAY_D3D *bmps_display = (ALLEGRO_DISPLAY_D3D *)al_bmp->display;
+
       d3d_create_textures(bmps_display, bmp->texture_w, bmp->texture_h,
+         al_bmp->flags,
 	 &bmp->video_texture, /*&bmp->system_texture*/0, al_bmp->format);
       d3d_sync_bitmap_texture(al_bmp,
 	 0, 0, al_bmp->w, al_bmp->h);
@@ -526,6 +550,7 @@ static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       if (d3d_bmp->video_texture == 0)
          if (!d3d_create_textures(d3d_bmp->display, d3d_bmp->texture_w,
                d3d_bmp->texture_h,
+               d3d_bmp->bitmap.flags,
                &d3d_bmp->video_texture,
                &d3d_bmp->system_texture,
                bitmap->format)) {
