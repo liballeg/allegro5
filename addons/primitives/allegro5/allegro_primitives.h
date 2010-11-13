@@ -87,10 +87,6 @@ struct ALLEGRO_VERTEX_ELEMENT {
  */
 typedef struct ALLEGRO_VERTEX_DECL ALLEGRO_VERTEX_DECL;
 
-/* Type: ALLEGRO_PRIM_COLOR
- */
-typedef uint32_t ALLEGRO_PRIM_COLOR;
-
 /* Duplicated in allegro5/internal/aintern_tri_soft.h */
 #ifndef _ALLEGRO_VERTEX_DEFINED
 #define _ALLEGRO_VERTEX_DEFINED
