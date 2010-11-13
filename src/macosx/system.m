@@ -612,12 +612,16 @@ static ALLEGRO_PATH *osx_get_path(int id)
    NSArray* paths = nil;
    NSString *org_name = [[NSString alloc] initWithUTF8String: al_get_org_name()];
    NSString *app_name = [[NSString alloc] initWithUTF8String: al_get_app_name()];
+   ALLEGRO_PATH *path = NULL;
+
    switch (id) {
       case ALLEGRO_PROGRAM_PATH:
          ans = [[NSBundle mainBundle] bundlePath];
+         path = al_create_path_for_directory([ans UTF8String]);
          break;
       case ALLEGRO_TEMP_PATH:
          ans = NSTemporaryDirectory();
+         path = al_create_path_for_directory([ans UTF8String]);
          break;
       case ALLEGRO_SYSTEM_DATA_PATH:
          ans = [[NSBundle mainBundle] resourcePath];
@@ -626,6 +630,7 @@ static ALLEGRO_PATH *osx_get_path(int id)
             ans = [[ans stringByAppendingPathComponent: org_name]
                                      stringByAppendingPathComponent: app_name];
          }
+         path = al_create_path_for_directory([ans UTF8String]);
          break;
       case ALLEGRO_USER_DATA_PATH:
          paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory,
@@ -638,9 +643,11 @@ static ALLEGRO_PATH *osx_get_path(int id)
             ans = [[ans stringByAppendingPathComponent: org_name]
                                      stringByAppendingPathComponent: app_name];
          }
+         path = al_create_path_for_directory([ans UTF8String]);
          break;
       case ALLEGRO_USER_HOME_PATH:
          ans = NSHomeDirectory();
+         path = al_create_path_for_directory([ans UTF8String]);
          break;
       case ALLEGRO_EXENAME_PATH:
          /* If the application lives in a bundle, return the bundle path as
@@ -661,6 +668,7 @@ static ALLEGRO_PATH *osx_get_path(int id)
                   ans = [NSString stringWithUTF8String: temp];
             }
          }
+         path = al_create_path([ans UTF8String]);
          break;
       case ALLEGRO_USER_SETTINGS_PATH:
          paths =
@@ -674,6 +682,7 @@ static ALLEGRO_PATH *osx_get_path(int id)
             ans = [[ans stringByAppendingPathComponent: org_name]
                                      stringByAppendingPathComponent: app_name];
          }
+         path = al_create_path_for_directory([ans UTF8String]);
          break;
       case ALLEGRO_SYSTEM_SETTINGS_PATH:
          paths =
@@ -687,13 +696,15 @@ static ALLEGRO_PATH *osx_get_path(int id)
             ans = [[ans stringByAppendingPathComponent: org_name]
                                      stringByAppendingPathComponent: app_name];
          }
+         path = al_create_path_for_directory([ans UTF8String]);
          break;
       default:
-      break;
+         break;
    }
    [org_name release];
    [app_name release];
-   return ans != nil ? al_create_path_for_directory([ans UTF8String]) : NULL;
+
+   return path;
 }
 
 /* _al_osx_post_quit
