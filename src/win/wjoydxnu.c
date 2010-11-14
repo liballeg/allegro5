@@ -25,12 +25,11 @@
  * Driver operation:
  *
  * 1. When the driver is initialised all the joysticks on the system
- * are enumerated.  For each joystick, a ALLEGRO_JOYSTICK_DIRECTX structure
- * is created.  An win32 Event is created
- * also created for each joystick, and DirectInput is told to set that
- * event whenever the joystick state changes.  For some devices this
- * is not possible -- they must be polled.  In that case, a Waitable
- * Timer object is used instead of a win32 Event.  Once all the
+ * are enumerated.  For each joystick, an ALLEGRO_JOYSTICK_DIRECTX structure
+ * is created.  A win32 Event is also created for each joystick and DirectInput
+ * is told to set that event whenever the joystick state changes. For some
+ * devices this is not possible -- they must be polled.  In that case, a
+ * Waitable Timer object is used instead of a win32 Event.  Once all the
  * joysticks are set up, a dedicated background thread is started.
  *
  * 2. When al_get_joystick() is called the address of one of the
@@ -709,7 +708,7 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
    info->num_buttons = can->num_buttons;
 
    /* correct buggy MP-8866 Dual USB Joypad info received from DirectInput */
-   if (!strcmp(joy->name, "MP-8866 Dual USB Joypad")) {
+   if (strstr(joy->name, "MP-8866")) {
       /* axes were mapped weird; remap as expected */
       /* really R-stick X axis */
       joy->z_mapping.stick  = 1;
