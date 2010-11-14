@@ -135,21 +135,21 @@ endfunction(texi2text)
 
 if(PANDOC)
     pandoc(
-        src/changes-4.9.txt
-        html/changes-4.9.html
+        src/changes-5.0.txt
+        html/changes-5.0.html
         -c pandoc.css
         )
 endif(PANDOC)
 
 if(PANDOC_WITH_TEXINFO)
     pandoc(
-        src/changes-4.9.txt
-        texi/changes-4.9.texi
+        src/changes-5.0.txt
+        texi/changes-5.0.texi
         )
     if(MAKEINFO)
         texi2text(
-            texi/changes-4.9.texi
-            txt/changes-4.9.txt
+            texi/changes-5.0.texi
+            txt/changes-5.0.txt
             )
     endif(MAKEINFO)
 endif(PANDOC_WITH_TEXINFO)

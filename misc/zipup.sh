@@ -183,7 +183,7 @@ then
    ( cd $builddir
        cmake ..
        make -j4 docs html man
-       mv docs/txt/changes-4.9.txt ../CHANGES-4.9.txt
+       mv docs/txt/changes-5.0.txt ../CHANGES-5.0.txt
 
        test -d ../docs/html || mkdir -p ../docs/html
        rm -rf ../docs/html/refman
