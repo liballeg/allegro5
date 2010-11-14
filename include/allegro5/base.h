@@ -53,9 +53,9 @@
    extern "C" {
 #endif
 
-#define ALLEGRO_VERSION          4
-#define ALLEGRO_SUB_VERSION      9
-#define ALLEGRO_WIP_VERSION      23
+#define ALLEGRO_VERSION          5
+#define ALLEGRO_SUB_VERSION      0
+#define ALLEGRO_WIP_VERSION      0
 
 /* Not sure we need it, but since ALLEGRO_VERSION_STR contains it:
  * 0 = SVN
@@ -67,9 +67,9 @@
  */
 #define ALLEGRO_RELEASE_NUMBER   0
 
-#define ALLEGRO_VERSION_STR      "4.9.23 (SVN)"
+#define ALLEGRO_VERSION_STR      "5.0.0 (RC1)"
 #define ALLEGRO_DATE_STR         "2010"
-#define ALLEGRO_DATE             20100926    /* yyyymmdd */
+#define ALLEGRO_DATE             20101114    /* yyyymmdd */
 #define ALLEGRO_VERSION_INT \
     ((ALLEGRO_VERSION << 24) | (ALLEGRO_SUB_VERSION << 16) | \
     (ALLEGRO_WIP_VERSION << 8) | ALLEGRO_RELEASE_NUMBER)

@@ -29,9 +29,9 @@ set(CMAKE_CONFIGURATION_TYPES "${CMAKE_BUILD_TYPE}" CACHE INTERNAL "internal")
 # We use C++ in a few cases.
 project(ALLEGRO C CXX)
 
-set(ALLEGRO_VERSION 4.9.23)
+set(ALLEGRO_VERSION 5.0.0)
 string(REGEX MATCH "^[0-9]+[.][0-9]+" ALLEGRO_SOVERSION ${ALLEGRO_VERSION})
-set(ALLEGRO_DLL_SHORTVER 49)
+set(ALLEGRO_DLL_SHORTVER 50)
 
 # Search in the `cmake' directory for additional CMake modules.
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
