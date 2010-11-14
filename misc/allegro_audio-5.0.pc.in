@@ -3,12 +3,13 @@ exec_prefix=${prefix}
 libdir=@libdir@
 includedir=@includedir@
 version=@ALLEGRO_VERSION@
+soversion=@ALLEGRO_SOVERSION@
 suffix=@lib_type@@lib_linkage@
 
-Name: allegro_main
-Description: Allegro game programming library, magic main addon
+Name: allegro_audio
+Description: Allegro game programming library, audio addon
 Version: ${version}
-Libs: -L${libdir} -lallegro_main${suffix}
+Libs: -L${libdir} -lallegro_audio${suffix}
 Libs.private: @link_with@
-Requires: allegro${suffix}-4.9 >= ${version}
+Requires: allegro${suffix}-${soversion} >= ${version}
 Cflags: -I${includedir}

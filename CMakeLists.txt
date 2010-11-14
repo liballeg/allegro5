@@ -888,14 +888,14 @@ if(UNIX AND NOT WANT_FRAMEWORKS)
 
     foreach(name ${PKG_CONFIG_FILES})
         if (SHARED)
-            set(outname ${name}${lib_type}-4.9.pc)
+            set(outname ${name}${lib_type}-5.0.pc)
         else (SHARED)
             # For static linking: get extra libraries to link with.
             get_target_property(link_with ${name} static_link_with)
-            set(outname ${name}${lib_type}-static-4.9.pc)
+            set(outname ${name}${lib_type}-static-5.0.pc)
         endif (SHARED)
         configure_file(
-            misc/${name}-4.9.pc.in
+            misc/${name}-5.0.pc.in
             ${LIBRARY_OUTPUT_PATH}/pkgconfig/${outname}
             @ONLY
             )
