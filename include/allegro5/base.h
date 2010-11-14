@@ -54,7 +54,7 @@
 #endif
 
 #define ALLEGRO_VERSION          5
-#define ALLEGRO_SUB_VERSION      0
+#define ALLEGRO_SUB_VERSION      1
 #define ALLEGRO_WIP_VERSION      0
 
 /* Not sure we need it, but since ALLEGRO_VERSION_STR contains it:
@@ -67,7 +67,7 @@
  */
 #define ALLEGRO_RELEASE_NUMBER   0
 
-#define ALLEGRO_VERSION_STR      "5.0.0 (RC1)"
+#define ALLEGRO_VERSION_STR      "5.1.0 (SVN)"
 #define ALLEGRO_DATE_STR         "2010"
 #define ALLEGRO_DATE             20101114    /* yyyymmdd */
 #define ALLEGRO_VERSION_INT \
