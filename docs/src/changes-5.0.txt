@@ -4,6 +4,146 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.22 to 5.0.0 RC1 (November 2010)
+================================================
+
+The developers this time were: Trent Gamblin, Evert Glebbeek, Elias Pschernig,
+Paul Suntsov, Peter Wang.
+
+Graphics:
+
+-  Make al_resize_display keep the original resolution (or change back) if it
+   can't set the users request, on Windows.
+
+-  Do not emit ALLEGRO_DISPLAY_RESIZE events from the Windows and X11 display
+   drivers when using al_resize_display.
+
+-  [X11] Make al_get_num_display_modes and al_get_display_mode work if the
+   adapter is set to default. Right now there was no way to query the modes of
+   the default monitor.
+
+-  [X11] Use _NET_WM_STATE_FULLSCREEN hint for "true" fullscreen displays.
+   Enable mouse grabbing in fullscreen modes.
+
+-  Added ALLEGRO_EVENT_DISPLAY_ORIENTATION and implement it on iOS.
+
+-  Dennis Busch fixed a problem with displays not showing up on the
+   primary display by default in some dual head setups, on Windows.
+
+-  Increase the precision of texture coordinate deltas in the software triangle
+   renderer, from floats to doubles.
+
+-  Remove al_get_frontbuffer(). It wasn't implemented anywhere.
+
+-  Implement min/mag filter and mipmap flags for Direct3D.
+
+Input:
+
+-  Report correct initial mouse position if a display is created with the mouse
+   pointer inside, or if the mouse routines are installed after a display is
+   created (X11, Windows).
+
+-  John Murphy fixed improperly mapped axes on the Windows joystick driver.
+
+Events:
+
+-  Do not register user event sources with the destructor system as it cannot
+   work reliably.  User event sources must be destroyed manually.
+
+Filesystem:
+
+-  Make al_get_fs_entry_name and al_get_current_directory return strings
+   instead of ALLEGRO_PATH.
+
+-  Make al_make_directory create parent directories as needed.
+
+-  Fix al_create_fs_entry to not trim the root path "/" down to the empty
+   string with the stdio backend.
+
+Path routines:
+
+-  Remove al_make_path_absolute and replace it by al_rebase_path.
+
+-  Remove undocumented behavior of setting a default organization name of
+   "allegro" for all apps.
+
+-  Correctly return standard paths as directories on OS X.
+
+Threads:
+
+-  Rename al_wait_cond_timed to al_wait_cond_until to match al_wait_cond_until.
+
+Config routines:
+
+-  Add a blank line between sections when writing out a config file.
+
+Other core:
+
+-  Move the Windows event loops back into the same thread as the D3D event
+   loop. It's a requirement of D3D, else you can get crashes as I was when
+   resetting the device (like tabbing away from a fullscreen app).
+
+-  Add some missing standard entries to the OS X menu bar (the "hide", "hide
+   others" and the window list, mainly).
+
+Audio addon:
+
+-  Automatically stop sample instances which point to a buffer of a sample
+   which is about to be destroyed with al_destroy_sample.
+
+-  alsa: Resume properly after suspending.
+
+Image I/O addon:
+
+-  Make GDI+ support compile cleanly with the headers that come with MinGW
+   package w32api-3.15.
+
+-  Speed up PNG and BMP saving, and NSImageFromAllegroBitmap loading.
+
+TTF addon:
+
+-  Add a flag for loading TTFs without anti-aliasing (ALLEGRO_TTF_MONOCHROME).
+
+PhysicsFS addon:
+
+-  Make PhysFS implementation of al_get_current_directory return "/", not NULL.
+
+Primitives addon:
+
+-  Fix several failed sub-bitmap related unit tests on Windows.
+
+-  Made thick outlined triangles look nicer when the triangles are very thin.
+
+-  Add a debug-only check for primitives addon initialization to aid in code
+   portability.
+
+Examples:
+
+-  Added example demonstrating the effect of premultiplied alpha.
+
+-  Make 'F' toggle fullscreen window in SPEED (in-game).
+
+-  Minor improvements to the a5teroids demo.
+
+Documentation:
+
+-  Many documentation updates.
+
+-  Add list of contributors and a readme for packagers.
+
+-  Make make_doc tool build cleanly on MSVC, and work around a problem with
+   recent version of Pandoc on Windows.
+
+-  Improve styling of PDF output.
+
+-  Add generated man pages to archives.
+
+Bindings:
+
+-  Implemented array types in the Python wrapper.
+
+
+
 Changes from 4.9.21 to 4.9.22 (September 2010)
 ==============================================
 
