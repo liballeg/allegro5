@@ -1,7 +1,6 @@
 /* Support for awk-style processing in C. */
 
 #include <ctype.h>
-#include <stdbool.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>

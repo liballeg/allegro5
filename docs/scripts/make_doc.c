@@ -15,7 +15,9 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+#if defined(_BSD_SOURCE) || defined(_SVID_SOURCE) || (_XOPEN_SOURCE >= 500)
+   #include <unistd.h>
+#endif
 
 #include "aatree.h"
 #include "dawk.h"

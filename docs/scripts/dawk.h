@@ -1,7 +1,13 @@
 #ifndef __included_dawk_h
 #define __included_dawk_h
 
-#include <stdbool.h>
+#ifdef _MSC_VER
+   #define bool int
+   #define true 1
+   #define false 0
+#else
+   #include <stdbool.h>
+#endif
 #include <stdio.h>
 
 /* One line of the TexInfo output is nearly this long as it doesn't perform
