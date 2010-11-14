@@ -3,8 +3,10 @@ People who have contributed code to Allegro 5:
 Angelo Mottola
 Chris Robinson
 David Capello
+Dennis Busch
 Elias Pschernig
 Evert Glebbeek
+John-Kim Murphy
 Jon Rafkind
 Matthew Leverton
 Michał Cichoń
@@ -13,6 +15,8 @@ Paul Suntsov
 Peter Hull
 Peter Wang
 Ryan Dickie
+Ryan Patterson
+Steven Wallace
 Thomas Fjellstrom
 Todd Cope
 Trent Gamblin
