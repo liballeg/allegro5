@@ -97,13 +97,17 @@ function(pandoc source output) # extraargs...
     set(abs_source ${CMAKE_CURRENT_SOURCE_DIR}/${source})
     set(abs_output ${CMAKE_CURRENT_BINARY_DIR}/${output})
 
+    # Use native Windows syntax to avoid "c:/foo.txt" being treated as a
+    # remote URI by Pandoc 1.5 and 1.6.
+    file(TO_NATIVE_PATH ${abs_source} abs_source_native)
+
     list(APPEND all_docs ${abs_output})
     set(all_docs ${all_docs} PARENT_SCOPE)
 
     add_custom_command(
         OUTPUT  ${abs_output}
         DEPENDS ${abs_source}
-        COMMAND ${PANDOC} ${abs_source} --toc --standalone ${ARGN}
+        COMMAND ${PANDOC} ${abs_source_native} --toc --standalone ${ARGN}
                 -o ${abs_output}
         )
 endfunction(pandoc source output)
