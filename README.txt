@@ -1,9 +1,12 @@
-% Allegro 4.9.x readme
+% Allegro 5.0.0 RC1
 
-Thanks for trying this development release of Allegro. This is currently work
-in progress, although we think we are now close to releasing Allegro 5.0.
+Welcome to Allegro 5, a cross-platform game programming library.
+Currently supported platforms are Linux/Unix, Windows, MacOS X and iPhone.
+Note that Allegro 5 is wholly *incompatible* with Allegro 4 and earlier
+versions, but both may be installed at the same time without conflicts.
 
-This readme contains general information which applies to all ports.
+This readme contains general information which applies to all platforms
+that Allegro builds on.
 
 README_cmake.txt discusses some build options for cmake.
 
@@ -14,8 +17,7 @@ operating systems such as Linux, MacOS X and MinGW on Windows.
 
 README_macosx.txt has a few additional notes for MacOS X.
 
-README_iphone.txt discusses iPhone operating systems.  Note that we don't yet
-use CMake on iPhone OS.
+README_iphone.txt discusses iPhone operating systems.
 
 
 
@@ -71,11 +73,11 @@ will need to be installed.  The packages are probably named *-dev or *-devel.
 
 These are the dependencies required for the addons: 
 
-- libpng and zlib, for PNG image support (Unix and MinGW only)
+- libpng and zlib, for PNG image support (Unix and older MinGW only)
   Home page: <http://www.libpng.org/pub/png/>
   Windows binaries: <http://gnuwin32.sourceforge.net/packages/libpng.htm>
 
-- libjpeg, for JPEG image support (Unix and MinGW only)
+- libjpeg, for JPEG image support (Unix and older MinGW only)
   Home page: <http://www.ijg.org/>
   Windows binaries: <http://gnuwin32.sourceforge.net/packages/jpeg.htm>
 

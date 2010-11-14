@@ -2,10 +2,9 @@
 
 ## Introduction
 
-Welcome to Allegro 4.9!
+Welcome to Allegro 5.0!
 
-Yes, the documentation is still very patchy.  But if you're interested
-anyway, this short guide should point you at the parts of the API that you'll
+This short guide should point you at the parts of the API that you'll
 want to know about first.  It's not a tutorial, as there isn't much
 discussion, only links into the manual.  The rest you'll have to discover for
 yourself.  Read the examples, and ask questions at [Allegro.cc].
@@ -17,7 +16,7 @@ earlier versions of Allegro.
 
 ## Structure of the library and its addons
 
-Allegro 4.9 is divided into a core library and multiple addons.  The addons
+Allegro 5.0 is divided into a core library and multiple addons.  The addons
 are bundled together and built at the same time as the core, but they are
 distinct and kept in separate libraries.  The core doesn't depend on anything
 in the addons, but addons may depend on the core and other addons and
@@ -173,4 +172,4 @@ There's a heap of stuff we haven't even mentioned yet.
 Enjoy!
 
 [Allegro.cc]: http://www.allegro.cc/forums/
-[the wiki]: http://wiki.allegro.cc/index.php?title=Allegro_4.9.14_tutorials
+[the wiki]: http://wiki.allegro.cc/

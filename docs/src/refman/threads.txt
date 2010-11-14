@@ -1,6 +1,6 @@
 # Threads
 
-Allegro 4.9 includes a simple cross-platform threading interface.
+Allegro includes a simple cross-platform threading interface.
 It is a thin layer on top of two threading APIs: Windows threads
 and POSIX Threads (pthreads).  Enforcing a consistent semantics on all
 platforms would be difficult at best, hence the behaviour of the following
