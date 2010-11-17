@@ -37,7 +37,8 @@ Once done, press "Configure" again.
 *Note:*
 As of the time this is written, CMake has a bug that causes the DLLs in
 MSVC 10 to be named incorrectly. To work around this, generate MSVC 9 projects
-instead.
+instead.  You may need to uncomment the line "#define ALLEGRO_HAVE_STDINT_H"
+in alplatf.h.  Alternatively, use nmake instead of project files.
 
 9. Open up the project solution with the MSVC IDE and start building.
 
@@ -47,11 +48,17 @@ Running the examples
 ====================
 
 If you build Allegro as a shared library (the default), the example programs
-will probably not run as-is, because they cannot find the Allegro DLLs.  The
-only solution I know of is to manually copy the Allegro DLLs into the
-Build/examples directory where they will be found when the example is run.
-A more drastic solution is to copy them into your C:\WINDOWS\SYSTEM32
-directory, but most people prefer not to make a mess in that directory.
+will probably not run as-is, because they cannot find the Allegro DLLs.
+You may:
+
+- manually copy the Allegro DLLs into the Build/examples directory where they
+  will be found when the example is run; or
+
+- build the INSTALL project, which copies the library files into the MSVC
+  search path (%VCINSTALLDIR%\bin).  You may not want to make a mess in there.
+
+- The most drastic solution is to copy them into your C:\WINDOWS\SYSTEM32
+  directory, but most people prefer not to make a mess in that directory.
 
 By default, Allegro will load FLAC and Ogg Vorbis DLLs at runtime.  If it
 cannot find them, FLAC and Vorbis file format support will be disabled.
