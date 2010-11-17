@@ -8,7 +8,6 @@
  * (which are not allowed)
  */
 
-#define ALLEGRO_USE_CONSOLE
 #include <allegro5/allegro.h>
 #include <allegro5/utf8.h>
 #include <stdarg.h>

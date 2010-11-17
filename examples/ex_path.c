@@ -1,5 +1,4 @@
 #include <stdio.h>
-#define ALLEGRO_USE_CONSOLE
 #include <allegro5/allegro.h>
 
 #include "common.c"
