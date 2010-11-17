@@ -69,10 +69,34 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
    if (bmp) {
       ALLEGRO_LOCKED_REGION *lock = al_lock_bitmap(bmp,
             ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_WRITEONLY);
-      int i;
+      int i, x;
+      // See iphone.m around line 46 for the reasoning behind this code.
+      for (i = 0; i < h; i++) {
+          unsigned char *src_ptr = (unsigned char *)pixels + w * 4 * i;
+          unsigned char *dest_ptr = (unsigned char *)lock->data + lock->pitch * i;
+          for (x = 0; x < w; x++) {
+              unsigned char r, g, b, a;
+   	   r = *src_ptr++;
+   	   g = *src_ptr++;
+   	   b = *src_ptr++;
+   	   a = *src_ptr++;
+   	   float alpha_mul = 255.0f / a;
+   	   r *= alpha_mul;
+   	   g *= alpha_mul;
+   	   b *= alpha_mul;
+   	   *dest_ptr++ = r;
+   	   *dest_ptr++ = g;
+   	   *dest_ptr++ = b;
+   	   *dest_ptr++ = a;
+          }
+      }
+      // FIXME: when PREMULTIPLY_ALPHA (?) load flag is added, run the above
+      // code or the below commented out code conditionally.
+      /*
       for (i = 0; i < h; i++) {
          memcpy(lock->data + lock->pitch * i, pixels + w * 4 * i, w * 4);
       }
+      */
       al_unlock_bitmap(bmp);
    }
    al_free(pixels);
