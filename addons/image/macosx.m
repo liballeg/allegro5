@@ -80,7 +80,8 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
    	   g = *src_ptr++;
    	   b = *src_ptr++;
    	   a = *src_ptr++;
-   	   float alpha_mul = 255.0f / a;
+	   // NOTE: avoid divide by zero by adding a fraction
+   	   float alpha_mul = 255.0f / (a+0.001f);
    	   r *= alpha_mul;
    	   g *= alpha_mul;
    	   b *= alpha_mul;
