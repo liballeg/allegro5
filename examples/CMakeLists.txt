@@ -87,7 +87,11 @@ example(ex_monitorinfo)
 example(ex_path)
 example(ex_path_test)
 example(ex_user_events)
-example(ex_utf8)
+
+if(NOT MSVC)
+    # UTF-8 strings are problematic under MSVC.
+    example(ex_utf8)
+endif(NOT MSVC)
 
 example(ex_bitmap ${IMAGE})
 example(ex_bitmap_flip ${IMAGE} ${FONT})

@@ -9,7 +9,14 @@ struct Example
 {
     double fps;
     ALLEGRO_FONT *f1, *f2, *f3, *f4;
+    ALLEGRO_CONFIG *config;
 } ex;
+
+static const char *get_string(const char *key)
+{
+    const char *v = al_get_config_value(ex.config, "", key);
+    return (v) ? v : key;
+}
 
 static void render(void)
 {
@@ -41,21 +48,21 @@ static void render(void)
     al_hold_bitmap_drawing(true);
 
     al_draw_textf(ex.f3, green, 50, 240, 0, "Some unicode symbols:");
-    al_draw_textf(ex.f3, green, 50, 260, 0, "■□▢▣▤▥▦▧▨▩▪▫▬▭▮▯▰▱");
-    al_draw_textf(ex.f3, green, 50, 280, 0, "▲△▴▵▶▷▸▹►▻▼▽▾▿◀◁◂◃◄◅◆◇◈◉◊");
-    al_draw_textf(ex.f3, green, 50, 300, 0, "○◌◍◎●◐◑◒◓◔◕◖◗◘◙");
+    al_draw_textf(ex.f3, green, 50, 260, 0, get_string("symbols1"));
+    al_draw_textf(ex.f3, green, 50, 280, 0, get_string("symbols2"));
+    al_draw_textf(ex.f3, green, 50, 300, 0, get_string("symbols3"));
 
    #define OFF(x) al_ustr_offset(u, x)
    #define SUB(x, y) al_ref_ustr(&sub_info, u, OFF(x), OFF(y))
-    u = al_ref_cstr(&info, "«Thís»|you");
+    u = al_ref_cstr(&info, get_string("substr1"));
     al_draw_ustr(ex.f3, green, 50, 320, 0, SUB(0, 6));
-    u = al_ref_cstr(&info, "should|‘ìş’");
+    u = al_ref_cstr(&info, get_string("substr2"));
     al_draw_ustr(ex.f3, green, 50, 340, 0, SUB(7, 11));
-    u = al_ref_cstr(&info, "not|“cøünt”|see");
+    u = al_ref_cstr(&info, get_string("substr3"));
     al_draw_ustr(ex.f3, green, 50, 360, 0, SUB(4, 11));
-    u = al_ref_cstr(&info, "réstrïçteđ…|this.");
+    u = al_ref_cstr(&info, get_string("substr4"));
     al_draw_ustr(ex.f3, green, 50, 380, 0, SUB(0, 11));
-    
+
     al_hold_bitmap_drawing(false);
 
     target_w = al_get_bitmap_width(al_get_target_bitmap());
@@ -126,7 +133,13 @@ int main(int argc, const char *argv[])
     ex.f4 = al_load_font(font_file, -140, ALLEGRO_TTF_MONOCHROME);
 
     if (!ex.f1 || !ex.f2 || !ex.f3 || !ex.f4) {
-        fprintf(stderr, "Could not load font: %s\n", font_file);
+        abort_example("Could not load font: %s\n", font_file);
+        return 1;
+    }
+
+    ex.config = al_load_config_file("data/ex_ttf.ini");
+    if (!ex.config) {
+        abort_example("Could not data/ex_ttf.ini\n");
         return 1;
     }
 
@@ -169,6 +182,7 @@ int main(int argc, const char *argv[])
     al_destroy_font(ex.f2);
     al_destroy_font(ex.f3);
     al_destroy_font(ex.f4);
+    al_destroy_config(ex.config);
 
     return 0;
 }
