@@ -48,9 +48,9 @@ static void render(void)
     al_hold_bitmap_drawing(true);
 
     al_draw_textf(ex.f3, green, 50, 240, 0, "Some unicode symbols:");
-    al_draw_textf(ex.f3, green, 50, 260, 0, get_string("symbols1"));
-    al_draw_textf(ex.f3, green, 50, 280, 0, get_string("symbols2"));
-    al_draw_textf(ex.f3, green, 50, 300, 0, get_string("symbols3"));
+    al_draw_textf(ex.f3, green, 50, 260, 0, "%s", get_string("symbols1"));
+    al_draw_textf(ex.f3, green, 50, 280, 0, "%s", get_string("symbols2"));
+    al_draw_textf(ex.f3, green, 50, 300, 0, "%s", get_string("symbols3"));
 
    #define OFF(x) al_ustr_offset(u, x)
    #define SUB(x, y) al_ref_ustr(&sub_info, u, OFF(x), OFF(y))
