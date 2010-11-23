@@ -17,15 +17,14 @@ void abort_example(char const *format, ...)
 {
    char str[1024];
    va_list args;
+   ALLEGRO_DISPLAY *display;
+
    va_start(args, format);
    vsnprintf(str, sizeof str, format, args);
    va_end(args);
 
-   // FIXME: We could check here if Allegro is installed and/or a display is
-   // active - but it's probably better if make al_show_native_message_box
-   // does that instead and falls back to other means to deliver the message
-   // on all platforms (even without A5 installed or a display active).
-   al_show_native_message_box(NULL, "Error", "Cannot run example", str, NULL, 0);
+   display = al_is_system_installed() ? al_get_current_display() : NULL;
+   al_show_native_message_box(display, "Error", "Cannot run example", str, NULL, 0);
    exit(1);
 }
 
