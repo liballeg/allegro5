@@ -258,7 +258,11 @@ static bool _al_xsys_xrandr_set_mode(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGL
       return false;
 
    XRRModeInfo *cur_mode = s->xrandr_stored_modes[d->xscreen];
-   int cur_refresh_rate = ((float) cur_mode->dotClock / ((float) cur_mode->hTotal * (float) cur_mode->vTotal));
+   int cur_refresh_rate;
+   if (cur_mode->hTotal && cur_mode->vTotal)
+      cur_refresh_rate = ((float) cur_mode->dotClock / ((float) cur_mode->hTotal * (float) cur_mode->vTotal));
+   else
+      cur_refresh_rate = 0;
    if ((int)cur_mode->width == w && (int)cur_mode->height == h && cur_refresh_rate == refresh) {
       ALLEGRO_DEBUG("xrandr: mode already set, we're good to go.\n");
       return true;
@@ -531,11 +535,16 @@ static int _al_xsys_xfvm_get_num_modes(ALLEGRO_SYSTEM_XGLX *s, int adapter)
 
 static ALLEGRO_DISPLAY_MODE *_al_xsys_xfvm_get_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int i, ALLEGRO_DISPLAY_MODE *mode)
 {
+   int denom;
+
    mode->width = s->xfvm_screen[adapter].modes[i]->hdisplay;
    mode->height = s->xfvm_screen[adapter].modes[i]->vdisplay;
    mode->format = 0;
-   mode->refresh_rate = (s->xfvm_screen[adapter].modes[i]->dotclock * 1000L /
-      ( s->xfvm_screen[adapter].modes[i]->htotal * s->xfvm_screen[adapter].modes[i]->vtotal));
+   denom = s->xfvm_screen[adapter].modes[i]->htotal * s->xfvm_screen[adapter].modes[i]->vtotal;
+   if (denom > 0)
+      mode->refresh_rate = s->xfvm_screen[adapter].modes[i]->dotclock * 1000L / denom;
+   else
+      mode->refresh_rate = 0;
 
    return mode;
 }
