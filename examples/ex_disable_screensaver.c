@@ -5,7 +5,7 @@
 
 #include "common.c"
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_FONT *font;
@@ -13,6 +13,13 @@ int main(void)
    ALLEGRO_EVENT event;
    bool done = false;
    bool active = true;
+   bool fullscreen = false;
+ 
+   if (argc == 2) {
+      if (!strcmp(argv[1], "-fullscreen")) {
+         fullscreen = true;
+      }
+   }
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -23,9 +30,10 @@ int main(void)
    al_init_image_addon();
    al_init_font_addon();
 
-   al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
+   al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS |
+      (fullscreen ? ALLEGRO_FULLSCREEN : 0));
 
-   display = al_create_display(200, 32);
+   display = al_create_display(640, 480);
    if (!display) {
       abort_example("Could not create display.\n");
       return 1;
