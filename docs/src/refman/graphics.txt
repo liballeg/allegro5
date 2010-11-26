@@ -855,9 +855,9 @@ parent is less efficient, so it is advisable to stagger bitmap drawing calls
 such that the parent bitmap is the same for large number of those calls.
 While deferred bitmap drawing is enabled, the only functions that can be used 
 are the bitmap drawing functions and font drawing functions. Changing the state
-such as the blending modes will result in undefined behaviour. However, changing
-the blending color, but keeping the blending modes the same will work as 
-expected.
+such as the blending modes will result in undefined behaviour. One exception to
+this rule are the transformations. It is possible to set a new transformation 
+while the drawing is held.
 
 No drawing is guaranteed to take place until you disable the hold. Thus, the 
 idiom of this function's usage is to enable the deferred bitmap drawing, draw as
