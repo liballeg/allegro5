@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
       return 1;
    }
 
-   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+   al_set_new_bitmap_flags(0);
    font_video = al_load_bitmap_font("a4_font.tga");
    if (!font_video) {
       fprintf(stderr, "Error loading a4_font.tga\n");

@@ -258,7 +258,7 @@ ALLEGRO_BITMAP *create_memory_bitmap(int w, int h)
    ALLEGRO_BITMAP *bmp;
 
    oldflags = al_get_new_bitmap_flags();
-   newflags = (oldflags &~ ALLEGRO_VIDEO_BITMAP) | ALLEGRO_MEMORY_BITMAP;
+   newflags = ALLEGRO_MEMORY_BITMAP;
    al_set_new_bitmap_flags(newflags);
    bmp = al_create_bitmap(w, h);
    al_set_new_bitmap_flags(oldflags);

@@ -264,7 +264,7 @@ int main(int argc, const char *argv[])
             use_memory = !use_memory;
             log_printf("Using a %s bitmap.\n", use_memory ? "memory" : "video");
             al_set_new_bitmap_flags(use_memory ?
-               ALLEGRO_MEMORY_BITMAP : ALLEGRO_VIDEO_BITMAP);
+               ALLEGRO_MEMORY_BITMAP : 0);
             src_bmp = al_clone_bitmap(temp);
             al_destroy_bitmap(temp);
             redraw = true;

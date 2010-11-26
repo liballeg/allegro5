@@ -1145,7 +1145,7 @@ static void sw_hw_test(ALLEGRO_CONFIG *cfg, char const *testname)
 
    reliable = (failed_tests == old_failed_tests);
 
-   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+   al_set_new_bitmap_flags(0);
    do_test(cfg, testname, al_get_backbuffer(display), HW, reliable);
 }
 
@@ -1274,7 +1274,7 @@ static void process_ini_files(void)
       al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
       load_bitmaps(cfg, "bitmaps", SW);
 
-      al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+      al_set_new_bitmap_flags(0);
       load_bitmaps(cfg, "bitmaps", HW);
       load_fonts(cfg, "fonts");
 
