@@ -7,15 +7,19 @@
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_system.h"
 
-/* Text logs are only implemented for GTK+ and Windows so far. */
-#if defined(ALLEGRO_CFG_NATIVE_DIALOG_GTK) || defined(ALLEGRO_CFG_NATIVE_DIALOG_WINDOWS) || defined(ALLEGRO_CFG_NATIVE_DIALOG_OSX)
-   #define HAVE_TEXT_LOG
+
+/* The GTK implementation does not require an extra thread.
+ * The Windows and OSX implementations do.
+ */
+#if defined(ALLEGRO_CFG_NATIVE_DIALOG_WINDOWS) || defined(ALLEGRO_CFG_NATIVE_DIALOG_OSX)
+   #define TEXT_LOG_EXTRA_THREAD true
+#else
+   #define TEXT_LOG_EXTRA_THREAD false
 #endif
 
 
-#ifdef HAVE_TEXT_LOG
 /* This will only return when the text window is closed. */
-static void *textlog_thread_proc(ALLEGRO_THREAD *thread, void *arg)
+static void *text_log_thread_proc(ALLEGRO_THREAD *thread, void *arg)
 {
    ALLEGRO_NATIVE_DIALOG *textlog = arg;
 
@@ -28,7 +32,6 @@ static void *textlog_thread_proc(ALLEGRO_THREAD *thread, void *arg)
 
    return thread;
 }
-#endif
 
 
 /* Function: al_open_native_text_log
@@ -41,29 +44,36 @@ ALLEGRO_TEXTLOG *al_open_native_text_log(char const *title, int flags)
    (void)title;
    (void)flags;
 
-#ifdef HAVE_TEXT_LOG
    textlog = al_calloc(1, sizeof *textlog);
    textlog->title = al_ustr_new(title);
    textlog->flags = flags;
-   textlog->tl_thread = al_create_thread(textlog_thread_proc, textlog);
+   if (TEXT_LOG_EXTRA_THREAD) {
+      textlog->tl_thread = al_create_thread(text_log_thread_proc, textlog);
+   }
    textlog->tl_text_cond = al_create_cond();
    textlog->tl_text_mutex = al_create_mutex();
    textlog->tl_pending_text = al_ustr_new("");
    al_init_user_event_source(&textlog->tl_events);
 
-   /* Unlike the other dialogs, this one never blocks as the intended
-    * use case is a log window running in the background for debugging
-    * purposes when no console can be used. Therefore we have it run
-    * in a separate thread.
-    */
    textlog->tl_init_error = false;
    textlog->tl_done = false;
-   al_start_thread(textlog->tl_thread);
-   al_lock_mutex(textlog->tl_text_mutex);
-   while (!textlog->tl_done && !textlog->tl_init_error) {
-      al_wait_cond(textlog->tl_text_cond, textlog->tl_text_mutex);
+
+   if (TEXT_LOG_EXTRA_THREAD) {
+      /* Unlike the other dialogs, this one never blocks as the intended
+       * use case is a log window running in the background for debugging
+       * purposes when no console can be used. Therefore we have it run
+       * in a separate thread.
+       */
+      al_start_thread(textlog->tl_thread);
+      al_lock_mutex(textlog->tl_text_mutex);
+      while (!textlog->tl_done && !textlog->tl_init_error) {
+         al_wait_cond(textlog->tl_text_cond, textlog->tl_text_mutex);
+      }
+      al_unlock_mutex(textlog->tl_text_mutex);
    }
-   al_unlock_mutex(textlog->tl_text_mutex);
+   else {
+      _al_open_native_text_log(textlog);
+   }
 
    if (textlog->tl_init_error) {
       al_close_native_text_log((ALLEGRO_TEXTLOG *)textlog);
@@ -72,7 +82,6 @@ ALLEGRO_TEXTLOG *al_open_native_text_log(char const *title, int flags)
 
    _al_register_destructor(_al_dtor_list, textlog,
       (void (*)(void *))al_close_native_text_log);
-#endif
 
    return (ALLEGRO_TEXTLOG *)textlog;
 }
@@ -87,15 +96,19 @@ void al_close_native_text_log(ALLEGRO_TEXTLOG *textlog)
    if (!dialog)
       return;
 
-#ifdef HAVE_TEXT_LOG
    if (!dialog->tl_init_error) {
-      al_lock_mutex(dialog->tl_text_mutex);
       dialog->tl_done = false;
 
-      _al_close_native_text_log(dialog);
-
-      while (!dialog->tl_done) {
-         al_wait_cond(dialog->tl_text_cond, dialog->tl_text_mutex);
+      if (TEXT_LOG_EXTRA_THREAD) {
+         al_lock_mutex(dialog->tl_text_mutex);
+         _al_close_native_text_log(dialog);
+         while (!dialog->tl_done) {
+            al_wait_cond(dialog->tl_text_cond, dialog->tl_text_mutex);
+         }
+      }
+      else {
+         _al_close_native_text_log(dialog);
+         al_lock_mutex(dialog->tl_text_mutex);
       }
 
       _al_unregister_destructor(_al_dtor_list, dialog);
@@ -108,11 +121,12 @@ void al_close_native_text_log(ALLEGRO_TEXTLOG *textlog)
 
    al_unlock_mutex(dialog->tl_text_mutex);
 
-   al_destroy_thread(dialog->tl_thread);
+   if (TEXT_LOG_EXTRA_THREAD) {
+      al_destroy_thread(dialog->tl_thread);
+   }
    al_destroy_cond(dialog->tl_text_cond);
    al_destroy_mutex(dialog->tl_text_mutex);
    al_free(dialog);
-#endif
 }
 
 
@@ -132,7 +146,6 @@ void al_append_native_text_log(ALLEGRO_TEXTLOG *textlog,
       return;
    }
 
-#ifdef HAVE_TEXT_LOG
    al_lock_mutex(dialog->tl_text_mutex);
 
    /* We could optimise the case where format="%s". */
@@ -143,7 +156,6 @@ void al_append_native_text_log(ALLEGRO_TEXTLOG *textlog,
    _al_append_native_text_log(dialog);
 
    al_unlock_mutex(dialog->tl_text_mutex);
-#endif
 }
 
 

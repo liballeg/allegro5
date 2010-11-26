@@ -37,6 +37,7 @@ struct ALLEGRO_NATIVE_DIALOG
    /* Only used by platform implementations. */
    bool is_active;
    void *window;
+   void *async_queue;
 };
 
 extern bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,

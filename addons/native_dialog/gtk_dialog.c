@@ -21,140 +21,105 @@
 
 ALLEGRO_DEBUG_CHANNEL("gtk")
 
-static int global_counter = 0;
-static GStaticMutex gtk_lock = G_STATIC_MUTEX_INIT;
-static GCond *gtk_cond = NULL;
-static GThread *gtk_thread = NULL;
+typedef struct {
+   ALLEGRO_DISPLAY         *display;
+   ALLEGRO_NATIVE_DIALOG   *dialog;
+} Msg;
 
-/* If dialogs were always blocking, the implementation would be simple in GTK:
- * - Start GTK (gtk_init) and create the GTK dialog.
- * - Run GTK (gtk_main).
- * - Exit GTK from dialog callback (gtk_main_quit) which makes the gtk_main()
- *   above return.
+#define ACK_OK       ((void *)0x1111)
+#define ACK_ERROR    ((void *)0x2222)
+#define ACK_OPENED   ((void *)0x3333)
+#define ACK_CLOSED   ((void *)0x4444)
+
+/*---------------------------------------------------------------------------*/
+/* GTK thread                                                                */
+/*---------------------------------------------------------------------------*/
+
+/* GTK is not thread safe.  We launch a single thread which runs the GTK main
+ * loop, and it is the only thread which calls into GTK.  (g_timeout_add may be
+ * called from other threads without locking.)
  *
- * However, this is only if we forget about threads. With threads, things look
- * different - as they make it possible to show more than one native dialog
- * at a time. But gtk_init/gtk_main can of course only be called once by an
- * application (without calling gtk_main_quit first). Here a simple solution
- * would be to have GTK be running as long as the addon is initialized - but we
- * did a somewhat more complex solution which has GTK run in its own thread as
- * long as at least one dialog is shown.
+ * We used to attempt to use gdk_threads_enter/gdk_threads_leave but hit
+ * some problems with deadlocks so switched to this.
  */
+
+static GStaticMutex gtk_lock = G_STATIC_MUTEX_INIT;
+static GThread *gtk_thread = NULL;
+static int window_counter = 0;
 
 static void *gtk_thread_func(void *data)
 {
-   gdk_threads_enter();
-   ALLEGRO_DEBUG("Entering gtk_main.\n");
-   gtk_main();
-   ALLEGRO_DEBUG("Leaving gtk_main.\n");
-   gdk_threads_leave();
-   return data;
-}
-
-static bool gtk_start_and_lock(ALLEGRO_NATIVE_DIALOG *fd)
-{
+   GAsyncQueue *queue = data;
    int argc = 0;
    char **argv = NULL;
+   bool again;
+
+   ALLEGRO_DEBUG("Calling gtk_init_check.\n");
+   if (gtk_init_check(&argc, &argv)) {
+      g_async_queue_push(queue, ACK_OK);
+   }
+   else {
+      ALLEGRO_ERROR("GTK initialisation failed.\n");
+      g_async_queue_push(queue, ACK_ERROR);
+      return NULL;
+   }
+
+   do {
+      ALLEGRO_INFO("Entering GTK main loop.\n");
+      gtk_main();
+
+      /* Re-enter the main loop if a new window was created soon after the last
+       * one was destroyed, which caused us to drop out of the GTK main loop.
+       */
+      g_static_mutex_lock(&gtk_lock);
+      if (window_counter == 0) {
+         gtk_thread = NULL;
+         again = false;
+      } else {
+         again = true;
+      }
+      g_static_mutex_unlock(&gtk_lock);
+   } while (again);
+
+   ALLEGRO_INFO("GTK stopped.\n");
+   return NULL;
+}
+
+static bool ensure_gtk_thread(void)
+{
+   bool ok = true;
 
    if (!g_thread_supported())
       g_thread_init(NULL);
 
    g_static_mutex_lock(&gtk_lock);
 
-   global_counter++;
-   if (global_counter == 1) {
-      gdk_threads_init();
-
-      if (!gtk_init_check(&argc, &argv)) {
-         global_counter--;
-         g_static_mutex_unlock(&gtk_lock);
-         ALLEGRO_WARN("GTK init failed.\n");
-         return false;
+   if (!gtk_thread) {
+      GAsyncQueue *queue = g_async_queue_new();
+      bool joinable = FALSE;
+      gtk_thread = g_thread_create(gtk_thread_func, queue, joinable, NULL);
+      if (!gtk_thread) {
+         ok = false;
       }
-
-      gtk_cond = g_cond_new();
-      gtk_thread = g_thread_create(gtk_thread_func, NULL, TRUE, NULL);
-      ALLEGRO_INFO("GTK started.\n");
+      else {
+         ok = (g_async_queue_pop(queue) == ACK_OK);
+      }
+      g_async_queue_unref(queue);
    }
 
-   gdk_threads_enter();
-   fd->is_active = true;
-   return true;
-}
-
-static void gtk_unlock_and_wait(ALLEGRO_NATIVE_DIALOG *nd)
-{
-   gdk_threads_leave();
-
-   while (nd->is_active)
-      g_cond_wait(gtk_cond, g_static_mutex_get_mutex(&gtk_lock));
-
-   global_counter--;
-   if (global_counter == 0) {
-      gtk_main_quit();
-      g_thread_join(gtk_thread);
-      gtk_thread = NULL;
-      g_cond_free(gtk_cond);
-      gtk_cond = NULL;
+   if (ok) {
+      ++window_counter;
+      ALLEGRO_DEBUG("++window_counter = %d\n", window_counter);
    }
 
    g_static_mutex_unlock(&gtk_lock);
+
+   return ok;
 }
 
-static void set_dialog_inactive(ALLEGRO_NATIVE_DIALOG *nd)
-{
-   g_static_mutex_lock(&gtk_lock);
-
-   nd->is_active = false;
-   g_cond_broadcast(gtk_cond);
-
-   g_static_mutex_unlock(&gtk_lock);
-}
-
-static void destroy(GtkWidget *w, gpointer data)
-{
-   ALLEGRO_NATIVE_DIALOG *nd = data;
-   (void)w;
-   set_dialog_inactive(nd);
-}
-
-static void ok(GtkWidget *w, GtkFileSelection *fs)
-{
-   ALLEGRO_NATIVE_DIALOG *fc;
-   fc = g_object_get_data(G_OBJECT(w), "ALLEGRO_NATIVE_DIALOG");
-   gchar **paths = gtk_file_selection_get_selections(fs);
-   int n = 0, i;
-   while (paths[n]) {
-      n++;
-   }
-   fc->fc_path_count = n;
-   fc->fc_paths = al_malloc(n * sizeof(void *));
-   for (i = 0; i < n; i++)
-      fc->fc_paths[i] = al_create_path(paths[i]);
-   g_strfreev(paths);
-}
-
-static void response(GtkDialog *dialog, gint response_id, gpointer user_data)
-{
-   ALLEGRO_NATIVE_DIALOG *nd = (void *)user_data;
-   (void)dialog;
-   switch (response_id) {
-      case GTK_RESPONSE_DELETE_EVENT:
-         nd->mb_pressed_button = 0;
-         break;
-      case GTK_RESPONSE_YES:
-      case GTK_RESPONSE_OK:
-         nd->mb_pressed_button = 1;
-         break;
-      case GTK_RESPONSE_NO:
-      case GTK_RESPONSE_CANCEL:
-         nd->mb_pressed_button = 2;
-         break;
-      default:
-         nd->mb_pressed_button = response_id;
-   }
-   set_dialog_inactive(nd);
-}
+/*---------------------------------------------------------------------------*/
+/* Shared functions                                                          */
+/*---------------------------------------------------------------------------*/
 
 #ifdef ALLEGRO_WITH_XWINDOWS
 static void really_make_transient(GtkWidget *window, ALLEGRO_DISPLAY_XGLX *glx)
@@ -186,13 +151,51 @@ static void make_transient(ALLEGRO_DISPLAY *display, GtkWidget *window)
    #endif
 }
 
-bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
-   ALLEGRO_NATIVE_DIALOG *fd)
+static void dialog_destroy(GtkWidget *w, gpointer data)
 {
-   GtkWidget *window;
+   ALLEGRO_NATIVE_DIALOG *nd = data;
+   (void)w;
 
-   if (!gtk_start_and_lock(fd))
-      return false;
+   ASSERT(nd->async_queue);
+   g_async_queue_push(nd->async_queue, ACK_CLOSED);
+
+   g_static_mutex_lock(&gtk_lock);
+   --window_counter;
+   ALLEGRO_DEBUG("--window_counter = %d\n", window_counter);
+   if (window_counter == 0) {
+      gtk_main_quit();
+      ALLEGRO_DEBUG("Called gtk_main_quit.\n");
+   }
+   g_static_mutex_unlock(&gtk_lock);
+}
+
+/*---------------------------------------------------------------------------*/
+/* File selector                                                             */
+/*---------------------------------------------------------------------------*/
+
+static void filesel_ok(GtkWidget *w, GtkFileSelection *fs)
+{
+   ALLEGRO_NATIVE_DIALOG *fc;
+   fc = g_object_get_data(G_OBJECT(w), "ALLEGRO_NATIVE_DIALOG");
+   gchar **paths = gtk_file_selection_get_selections(fs);
+   int n = 0, i;
+   while (paths[n]) {
+      n++;
+   }
+   fc->fc_path_count = n;
+   fc->fc_paths = al_malloc(n * sizeof(void *));
+   for (i = 0; i < n; i++)
+      fc->fc_paths[i] = al_create_path(paths[i]);
+   g_strfreev(paths);
+}
+
+/* [gtk thread] */
+static gboolean create_native_file_dialog(gpointer data)
+{
+   Msg *msg = data;
+   ALLEGRO_DISPLAY *display = msg->display;
+   ALLEGRO_NATIVE_DIALOG *fd = msg->dialog;
+   GtkWidget *window;
 
    /* Create a new file selection widget */
    window = gtk_file_selection_new(al_cstr(fd->title));
@@ -200,11 +203,11 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    make_transient(display, window);
 
    /* Connect the destroy signal */
-   g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(destroy), fd);
+   g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(dialog_destroy), fd);
 
    /* Connect the ok_button */
    g_signal_connect(G_OBJECT(GTK_FILE_SELECTION(window)->ok_button),
-                    "clicked", G_CALLBACK(ok), (gpointer) window);
+                    "clicked", G_CALLBACK(filesel_ok), (gpointer) window);
 
    /* Connect both buttons to gtk_widget_destroy */
    g_signal_connect_swapped(GTK_FILE_SELECTION(window)->ok_button,
@@ -224,18 +227,65 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
       gtk_file_selection_set_select_multiple(GTK_FILE_SELECTION(window), true);
 
    gtk_widget_show(window);
+   return FALSE;
+}
 
-   gtk_unlock_and_wait(fd);
+/* [user thread] */
+bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
+   ALLEGRO_NATIVE_DIALOG *fd)
+{
+   Msg msg;
+
+   if (!ensure_gtk_thread())
+      return false;
+
+   fd->async_queue = g_async_queue_new();
+
+   msg.display = display;
+   msg.dialog = fd;
+   g_timeout_add(0, create_native_file_dialog, &msg);
+
+   /* Wait for a signal that the window is closed. */
+   while (g_async_queue_pop(fd->async_queue) != ACK_CLOSED)
+      ;
+   g_async_queue_unref(fd->async_queue);
+   fd->async_queue = NULL;
    return true;
 }
 
-int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
-   ALLEGRO_NATIVE_DIALOG *fd)
-{
-   GtkWidget *window;
+/*---------------------------------------------------------------------------*/
+/* Message box                                                               */
+/*---------------------------------------------------------------------------*/
 
-   if (!gtk_start_and_lock(fd))
-      return 0; /* "cancelled" */
+static void msgbox_response(GtkDialog *dialog, gint response_id,
+   gpointer user_data)
+{
+   ALLEGRO_NATIVE_DIALOG *nd = (void *)user_data;
+   (void)dialog;
+   switch (response_id) {
+      case GTK_RESPONSE_DELETE_EVENT:
+         nd->mb_pressed_button = 0;
+         break;
+      case GTK_RESPONSE_YES:
+      case GTK_RESPONSE_OK:
+         nd->mb_pressed_button = 1;
+         break;
+      case GTK_RESPONSE_NO:
+      case GTK_RESPONSE_CANCEL:
+         nd->mb_pressed_button = 2;
+         break;
+      default:
+         nd->mb_pressed_button = response_id;
+   }
+}
+
+/* [gtk thread] */
+static gboolean create_native_message_box(gpointer data)
+{
+   Msg *msg = data;
+   ALLEGRO_DISPLAY *display = msg->display;
+   ALLEGRO_NATIVE_DIALOG *fd = msg->dialog;
+   GtkWidget *window;
 
    /* Create a new file selection widget */
    GtkMessageType type = GTK_MESSAGE_INFO;
@@ -277,15 +327,41 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 
    gtk_window_set_title(GTK_WINDOW(window), al_cstr(fd->title));
 
-   g_signal_connect(G_OBJECT(window), "response", G_CALLBACK(response), fd);
+   g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(dialog_destroy), fd);
+
+   g_signal_connect(G_OBJECT(window), "response", G_CALLBACK(msgbox_response), fd);
    g_signal_connect_swapped(G_OBJECT(window), "response", G_CALLBACK(gtk_widget_destroy), window);
 
    gtk_widget_show(window);
+   return FALSE;
+}
 
-   gtk_unlock_and_wait(fd);
+/* [user thread] */
+int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
+   ALLEGRO_NATIVE_DIALOG *fd)
+{
+   Msg msg;
 
+   if (!ensure_gtk_thread())
+      return 0; /* "cancelled" */
+
+   fd->async_queue = g_async_queue_new();
+
+   msg.display = display;
+   msg.dialog = fd;
+   g_timeout_add(0, create_native_message_box, &msg);
+
+   /* Wait for a signal that the window is closed. */
+   while (g_async_queue_pop(fd->async_queue) != ACK_CLOSED)
+      ;
+   g_async_queue_unref(fd->async_queue);
+   fd->async_queue = NULL;
    return fd->mb_pressed_button;
 }
+
+/*---------------------------------------------------------------------------*/
+/* Text log                                                                  */
+/*---------------------------------------------------------------------------*/
 
 static void emit_close_event(ALLEGRO_NATIVE_DIALOG *textlog, bool keypress)
 {
@@ -325,14 +401,11 @@ static gboolean textlog_key_press(GtkWidget *w, GdkEventKey *gevent,
    return FALSE;
 }
 
-bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+/* [gtk thread] */
+static gboolean create_native_text_log(gpointer data)
 {
-   al_lock_mutex(textlog->tl_text_mutex);
-
-   if (!gtk_start_and_lock(textlog)) {
-      al_unlock_mutex(textlog->tl_text_mutex);
-      return false;
-   }
+   Msg *msg = data;
+   ALLEGRO_NATIVE_DIALOG *textlog = msg->dialog;
 
    /* Create a new text log window. */
    GtkWidget *top = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -346,7 +419,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       g_signal_connect(G_OBJECT(top), "key-press-event", G_CALLBACK(textlog_key_press), textlog);
    }
    g_signal_connect(G_OBJECT(top), "delete-event", G_CALLBACK(textlog_delete), textlog);
-   g_signal_connect(G_OBJECT(top), "destroy", G_CALLBACK(destroy), textlog);
+   g_signal_connect(G_OBJECT(top), "destroy", G_CALLBACK(dialog_destroy), textlog);
    GtkWidget *scroll = gtk_scrolled_window_new(NULL, NULL);
    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll),
       GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
@@ -366,23 +439,34 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    textlog->window = top;
    textlog->tl_textview = view;
 
-   /* Now notify al_show_native_textlog that the text log is ready. */
-   textlog->tl_done = true;
-   al_signal_cond(textlog->tl_text_cond);
-   al_unlock_mutex(textlog->tl_text_mutex);
+   ASSERT(textlog->async_queue);
+   g_async_queue_push(textlog->async_queue, ACK_OPENED);
+   return FALSE;
+}
 
-   /* Keep running until the textlog is closed. */
-   gtk_unlock_and_wait(textlog);
+/* [user thread] */
+bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+{
+   Msg msg;
 
-   /* Notify everyone that we're gone. */
-   al_lock_mutex(textlog->tl_text_mutex);
-   textlog->tl_done = true;
-   al_signal_cond(textlog->tl_text_cond);
-   al_unlock_mutex(textlog->tl_text_mutex);
+   if (!ensure_gtk_thread()) {
+      textlog->tl_init_error = true;
+      return false;
+   }
+
+   textlog->async_queue = g_async_queue_new();
+
+   msg.display = NULL;
+   msg.dialog = textlog;
+   g_timeout_add(0, create_native_text_log, &msg);
+
+   while (g_async_queue_pop(textlog->async_queue) != ACK_OPENED)
+      ;
 
    return true;
 }
 
+/* [gtk thread] */
 static gboolean do_append_native_text_log(gpointer data)
 {
    ALLEGRO_NATIVE_DIALOG *textlog = data;
@@ -405,9 +489,10 @@ static gboolean do_append_native_text_log(gpointer data)
    textlog->tl_have_pending = false;
 
    al_unlock_mutex(textlog->tl_text_mutex);
-   return false;
+   return FALSE;
 }
 
+/* [user thread] */
 void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
    if (textlog->tl_have_pending)
@@ -417,13 +502,15 @@ void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    gdk_threads_add_timeout(100, do_append_native_text_log, textlog);
 }
 
+/* [gtk thread] */
 static gboolean do_close_native_text_log(gpointer data)
 {
    ALLEGRO_NATIVE_DIALOG *textlog = data;
 
    /* Delay closing until appends are completed. */
-   if (textlog->tl_have_pending)
-      return true;
+   if (textlog->tl_have_pending) {
+      return TRUE;
+   }
 
    /* This causes the GTK window as well as all of its children to
     * be freed. Further it will call the destroy function which we
@@ -431,12 +518,18 @@ static gboolean do_close_native_text_log(gpointer data)
     * gtk thread to quit.
     */
    gtk_widget_destroy(textlog->window);
-   return false;
+   return FALSE;
 }
 
+/* [user thread] */
 void _al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
    gdk_threads_add_timeout(0, do_close_native_text_log, textlog);
+
+   while (g_async_queue_pop(textlog->async_queue) != ACK_CLOSED)
+      ;
+   g_async_queue_unref(textlog->async_queue);
+   textlog->async_queue = NULL;
 }
 
 /* vim: set sts=3 sw=3 et: */
