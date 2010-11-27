@@ -72,10 +72,10 @@ ALLEGRO_STATIC_ASSERT(
 static void initialize_blender(ALLEGRO_BLENDER *b)
 {
    b->blend_op = ALLEGRO_ADD;
-   b->blend_source = ALLEGRO_ALPHA;
+   b->blend_source = ALLEGRO_ONE,
    b->blend_dest = ALLEGRO_INVERSE_ALPHA;
    b->blend_alpha_op = ALLEGRO_ADD;
-   b->blend_alpha_source = ALLEGRO_ALPHA;
+   b->blend_alpha_source = ALLEGRO_ONE;
    b->blend_alpha_dest = ALLEGRO_INVERSE_ALPHA;
 }
 

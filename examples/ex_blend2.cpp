@@ -276,7 +276,7 @@ void Prog::draw_samples()
 
    /* Display results. */
    al_restore_state(&state);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    al_draw_bitmap(target, 40, 20, 0);
    al_draw_bitmap(target_bmp, 400, 20, 0);
  

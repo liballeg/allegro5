@@ -150,7 +150,7 @@ static void show_files_list(ALLEGRO_FILECHOOSER *dialog,
 
       path = al_get_native_file_dialog_path(dialog, i);
       name = al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP);
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
       al_draw_textf(font, info, x, y + i * th, ALLEGRO_ALIGN_CENTRE, name, 0, 0);
    }
 }
@@ -310,7 +310,7 @@ restart:
          float y = 0;
          redraw = false;
          al_clear_to_color(background);
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
          al_draw_textf(font, cur_dialog ? inactive : active, x, y, ALLEGRO_ALIGN_CENTRE, "Open");
          al_draw_textf(font, cur_dialog ? inactive : active, x, h - 30,
             ALLEGRO_ALIGN_CENTRE, message_log ? "Close Message Log" : "Open Message Log");

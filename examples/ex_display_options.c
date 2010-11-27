@@ -105,7 +105,7 @@ static void display_options(ALLEGRO_DISPLAY *display)
          al_draw_filled_rectangle(x, y, x + 300, y + font_h, c);
       }
       c = al_map_rgb_f(0, 0, 0);
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
       al_draw_textf(font, c, x, y, 0, "%s %d x %d (%d, %d)",
          i < modes_count ? "Fullscreen" : "Windowed",
          mode.width,

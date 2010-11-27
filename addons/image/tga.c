@@ -248,6 +248,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f)
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_LOCKED_REGION *lr;
    unsigned char *buf;
+   bool premul = !(al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
    ASSERT(f);
 
    id_length = al_fgetc(f);
@@ -410,6 +411,12 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f)
                   int g = buf[i * 4 + 1];
                   int r = buf[i * 4 + 2];
                   int a = buf[i * 4 + 3];
+                  
+                  if (premul) {
+                     r = r * a / 255;
+                     g = g * a / 255;
+                     b = b * a / 255;
+                  }
 
                   unsigned char *dest = (unsigned char*)lr->data +
                      lr->pitch*true_y + true_x*4;

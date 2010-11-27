@@ -90,24 +90,24 @@ int main(void)
          redraw = false;
          al_clear_to_color(al_map_rgb_f(0.5, 0.6, 1));
          
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
          al_draw_textf(font, color, x, y, 0, "not premultiplied");
          al_draw_textf(font, color, x, y + th, 0, "no filtering");
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
          al_draw_scaled_rotated_bitmap(tex1, 4, 4, x + 320, y, 8, 8, a, 0);
          
          y += 120;
 
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
          al_draw_textf(font, color, x, y, 0, "not premultiplied");
          al_draw_textf(font, color, x, y + th, 0, "mag linear filtering");
          al_draw_textf(font, color2, x + 400, y, 0, "wrong dark border");
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
          al_draw_scaled_rotated_bitmap(tex2, 4, 4, x + 320, y, 8, 8, a, 0);
 
          y += 120;
 
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
          al_draw_textf(font, color, x, y, 0, "premultiplied alpha");
          al_draw_textf(font, color, x, y + th, 0, "no filtering");
          al_draw_textf(font, color, x + 400, y, 0, "no difference");
@@ -116,7 +116,7 @@ int main(void)
          
          y += 120;
 
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
          al_draw_textf(font, color, x, y, 0, "premultiplied alpha");
          al_draw_textf(font, color, x, y + th, 0, "mag linear filtering");
          al_draw_textf(font, color3, x + 400, y, 0, "correct color");

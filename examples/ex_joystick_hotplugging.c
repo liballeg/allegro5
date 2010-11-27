@@ -118,6 +118,7 @@ int main(void)
          }
       }
       else if (event.type == ALLEGRO_EVENT_JOYSTICK_CONFIGURATION) {
+         int old = al_get_num_joysticks();
          al_reconfigure_joysticks();
          num_joysticks = al_get_num_joysticks();
          log_printf("after reconfiguration num joysticks = %d\n",
@@ -125,6 +126,9 @@ int main(void)
          if (curr_joy) {
             log_printf("current joystick is: %s\n",
                al_get_joystick_active(curr_joy) ? "active" : "inactive");
+         }
+         if (old < num_joysticks) {
+            curr_joy = al_get_joystick(0);
          }
       }
       else if (event.type == ALLEGRO_EVENT_JOYSTICK_AXIS) {

@@ -63,7 +63,7 @@ static void plonk(const int x, const int y, bool blend)
    al_set_target_bitmap(dbuf);
 
    fade();
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ZERO);
    draw_clip_rect();
    red_dot(x, y);
 
@@ -91,7 +91,7 @@ static void splat(const int x, const int y, bool blend)
    al_set_target_bitmap(dbuf);
 
    fade();
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ZERO);
    draw_clip_rect();
    red_dot(x, y);
 

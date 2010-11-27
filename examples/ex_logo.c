@@ -211,7 +211,7 @@ static void print_parameters(void)
 
    th = al_get_font_line_height(font) + 3;
    for (i = 0; param_names[i]; i++) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
       al_draw_textf(font, label, 2, 2 + i * th, 0, "%s", param_names[i]);
    }
    for (i = 0; param_names[i]; i++) {
@@ -219,20 +219,20 @@ static void print_parameters(void)
       // FIXME: additive blending seems broken here when using
       // memory blenders (i.e. no FBO available)
       // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, white)
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
       al_draw_filled_rectangle(75, y, 375, y + th - 2,
                         al_map_rgba_f(1, 1, 1, 0.5));
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
       al_draw_textf(font, i == selection ? light : normal, 75, y, 0, "%s", param_values[i]);
       if (i == selection && editing &&
          (((int)(al_get_time() * 2)) & 1)) {
          int x = 75 + al_get_text_width(font, param_values[i]);
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
          al_draw_line(x, y, x, y + th, white, 0);
       }
    }
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    al_draw_textf(font, normal, 400, 2, 0, "%s", "R - Randomize");
    al_draw_textf(font, normal, 400, 2 + th, 0, "%s", "S - Save as logo.png");
 
@@ -371,7 +371,7 @@ static void render(void)
       w = al_get_bitmap_width(logo);
       h = al_get_bitmap_height(logo);
       al_store_state(&state, ALLEGRO_STATE_BLENDER);
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
       al_draw_tinted_bitmap(logo, al_map_rgba_f(1, 1, 1, 1 - f), logo_x, logo_y, 0);
       al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
       for (j = -2; j <= 2; j += 2) {

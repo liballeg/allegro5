@@ -47,9 +47,9 @@ int do_gui(const std::vector<Widget *>& widgets, unsigned int selected)
          0);
       al_draw_bitmap(logo, (BB_W-lw)/2, (BB_H-lh)/4, 0);
 
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
       al_draw_textf(myfont, al_map_rgb(255, 255, 0), BB_W/2, BB_H/2, ALLEGRO_ALIGN_CENTRE, "z/y to start");
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
 
       for (unsigned int i = 0; i < widgets.size(); i++) {
          widgets[i]->render(i == selected);

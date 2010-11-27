@@ -43,7 +43,7 @@ int main(void)
    }
    al_set_target_backbuffer(display);
 
-   al_set_window_title(display, "<-- Changing icon example");
+   al_set_window_title(display, "Changing icon example");
 
    timer = al_create_timer(0.5);
    queue = al_create_event_queue();

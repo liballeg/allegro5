@@ -179,7 +179,7 @@ static void redraw(void)
    ALLEGRO_COLOR tint = example.white;
 
    if (example.blending == 0) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
       tint = example.half_white;
    }
    else if (example.blending == 1) {
@@ -198,7 +198,7 @@ static void redraw(void)
       al_draw_tinted_bitmap(example.bitmap, tint, s->x, s->y, 0);
    }
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    if (example.show_help) {
       for (i = 0; i < 5; i++)
          al_draw_text(example.font, example.white, 0, h - 5 * fh + i * fh, 0, text[i]);

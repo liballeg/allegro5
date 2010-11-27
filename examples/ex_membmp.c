@@ -55,7 +55,7 @@ static bool test(ALLEGRO_BITMAP *bitmap, ALLEGRO_FONT *font, char *message)
          al_get_bitmap_height(al_get_target_bitmap()),
          0);
       
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
 
       /* Note this makes the memory buffer case much slower due to repeated
        * locking of the backbuffer.  Officially you can't use al_lock_bitmap

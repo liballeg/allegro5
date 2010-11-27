@@ -188,11 +188,12 @@ static int render_glyph(ALLEGRO_FONT const *f,
 		    unsigned char *dptr = (unsigned char *)lr->data + lr->pitch * y;
 		    int bit = 0;
 		    for (x = 0; x < face->glyph->bitmap.width; x++) {
-			bool set = (*ptr >> (7-bit)) & 1;
-			*(dptr++) = 255;
-			*(dptr++) = 255;
-			*(dptr++) = 255;
-			*(dptr++) = set ? 255 : 0;
+			unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
+			float setf = set / 255.0f;
+			*(dptr++) = 255 * setf;
+			*(dptr++) = 255 * setf;
+			*(dptr++) = 255 * setf;
+			*(dptr++) = set;
 			bit++;
 			if (bit >= 8) {
 			   bit = 0;
@@ -208,9 +209,10 @@ static int render_glyph(ALLEGRO_FONT const *f,
 		    unsigned char *dptr = (unsigned char *)lr->data + lr->pitch * y;
 		    for (x = 0; x < face->glyph->bitmap.width; x++) {
 			unsigned char c = *ptr;
-			*(dptr++) = 255;
-			*(dptr++) = 255;
-			*(dptr++) = 255;
+			float cf = c / 255.0f;
+			*(dptr++) = 255 * cf;
+			*(dptr++) = 255 * cf;
+			*(dptr++) = 255 * cf;
 			*(dptr++) = c;
 			ptr++;
 		    }

@@ -3,7 +3,7 @@
 ALLEGRO_VOICE *voice;
 ALLEGRO_MIXER *mixer;
 
-static int check_arg(int argc, const char **argv, const char *arg)
+static int check_arg(int argc, char **argv, const char *arg)
 {
    for (int i = 1; i < argc; i++) {
       if (!strcmp(argv[i], arg))
@@ -47,7 +47,7 @@ void game_loop()
    entities.clear();
 }
 
-int main(int argc, const char **argv)
+int main(int argc, char **argv)
 {
    if (check_arg(argc, argv, "-fullscreen"))
       useFullScreenMode = true;

@@ -100,7 +100,7 @@ void render(int step)
       if (e->isHighlighted()) {
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ONE);
          e->render_four(al_map_rgb(150, 150, 150));
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
       }
    }
 

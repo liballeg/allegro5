@@ -120,7 +120,7 @@ int main(void)
 
    al_start_timer(timer);
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
 
    while (!done) {
       ALLEGRO_EVENT event;

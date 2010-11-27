@@ -25,6 +25,7 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
    UIImage *uiimage = [UIImage imageWithData:nsdata];
    int w = uiimage.size.width;
    int h = uiimage.size.height;
+   bool premul = !(al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
    /* Now we need to draw the image into a memory buffer. */
    pixels = al_malloc(w * h * 4);
@@ -43,40 +44,33 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
    ALLEGRO_LOCKED_REGION *lock = al_lock_bitmap(bmp,
       ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_WRITEONLY);
 
-   /* For whatever reason, there is no way in the current Quartz API
-    * to read non-premultiplied pixels from an image. Since by default,
-    * all of Allegro's image loader do not load premultiplied alpha images,
-    * we de-multiply the alpha here by default. If the user asks for
-    * premultiplied alpha, we can skip this step and do a faster memcpy
-    * of the data directly into the lock buffer.
-    */
-   for (int i = 0; i < h; i++) {
-       unsigned char *src_ptr = (unsigned char *)pixels + w * 4 * i;
-       unsigned char *dest_ptr = (unsigned char *)lock->data + lock->pitch * i;
-       for (int x = 0; x < w; x++) {
-           unsigned char r, g, b, a;
-	   r = *src_ptr++;
-	   g = *src_ptr++;
-	   b = *src_ptr++;
-	   a = *src_ptr++;
-	   // NOTE: avoid divide by zero by adding a fraction
-	   float alpha_mul = 255.0f / (a+0.001f);
-	   r *= alpha_mul;
-	   g *= alpha_mul;
-	   b *= alpha_mul;
-	   *dest_ptr++ = r;
-	   *dest_ptr++ = g;
-	   *dest_ptr++ = b;
-	   *dest_ptr++ = a;
-       }
+   if (!premul) {
+      for (int i = 0; i < h; i++) {
+          unsigned char *src_ptr = (unsigned char *)pixels + w * 4 * i;
+          unsigned char *dest_ptr = (unsigned char *)lock->data +
+        lock->pitch * i;
+          for (int x = 0; x < w; x++) {
+              unsigned char r, g, b, a;
+         r = *src_ptr++;
+         g = *src_ptr++;
+         b = *src_ptr++;
+         a = *src_ptr++;
+         // NOTE: avoid divide by zero by adding a fraction
+         float alpha_mul = 255.0f / (a+0.001f);
+         r *= alpha_mul;
+         g *= alpha_mul;
+         b *= alpha_mul;
+         *dest_ptr++ = r;
+         *dest_ptr++ = g;
+         *dest_ptr++ = b;
+         *dest_ptr++ = a;
+      }
    }
-   // FIXME: when PREMULTIPLY_ALPHA (?) load flag is added, run the above
-   // code or the below commented out code conditionally.
-   /*
-   for (int i = 0; i < h; i++) {
-      memcpy(lock->data + lock->pitch * i, pixels + w * 4 * i, w * 4);
+   else {
+      for (int i = 0; i < h; i++) {
+         memcpy(lock->data + lock->pitch * i, pixels + w * 4 * i, w * 4);
+      }
    }
-   */
    al_unlock_bitmap(bmp);
 done:
    al_free(pixels);
