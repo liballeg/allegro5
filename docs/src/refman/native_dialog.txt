@@ -104,6 +104,9 @@ ALLEGRO_MESSAGEBOX_YES_NO
 :   Instead of the "OK" button display Yes/No buttons.
     Ignored if `buttons` is not NULL.
 
+[al_show_native_message_box] may be called without Allegro being installed.
+This is useful to report an error to initialise Allegro itself.
+
 Returns:
 
 - 0 if the dialog window was closed without activating a button.

@@ -121,6 +121,8 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 
    (void)display;
 
+   /* Note: the message box code cannot assume that Allegro is installed. */
+
    /* Since this might be run from a separate thread, we setup
     * release pool, or we get memory leaks
     */
