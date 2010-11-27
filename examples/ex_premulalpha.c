@@ -93,7 +93,7 @@ int main(void)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
          al_draw_textf(font, color, x, y, 0, "not premultiplied");
          al_draw_textf(font, color, x, y + th, 0, "no filtering");
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
          al_draw_scaled_rotated_bitmap(tex1, 4, 4, x + 320, y, 8, 8, a, 0);
          
          y += 120;
@@ -102,7 +102,7 @@ int main(void)
          al_draw_textf(font, color, x, y, 0, "not premultiplied");
          al_draw_textf(font, color, x, y + th, 0, "mag linear filtering");
          al_draw_textf(font, color2, x + 400, y, 0, "wrong dark border");
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
          al_draw_scaled_rotated_bitmap(tex2, 4, 4, x + 320, y, 8, 8, a, 0);
 
          y += 120;
