@@ -26,10 +26,7 @@
 #error something is wrong with the makefile
 #endif
 
-// 10.4 OS will use the older driver that doesn't support hotplugging
-#if MAC_OS_X_VERSION_MIN_REQUIRED < 1050
-#include "hidjoy-10.4.m"
-#else
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
 
 #import <IOKit/hid/IOHIDBase.h>
 
@@ -682,7 +679,7 @@ static bool get_joystick_active(ALLEGRO_JOYSTICK *joy_)
    return joy->cfg_state == JOY_STATE_ALIVE || joy->cfg_state == JOY_STATE_DYING;
 }
 
-ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver(void)
+ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver_10_5(void)
 {
    static ALLEGRO_JOYSTICK_DRIVER* vt = NULL;
    if (vt == NULL) {
@@ -700,6 +697,23 @@ ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver(void)
       vt->get_active = get_joystick_active;
    }
    return vt;
+}
+
+ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver_10_4(void);
+
+ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver(void)
+{
+   SInt32 major, minor;
+
+   Gestalt(gestaltSystemVersionMajor, &major);
+   Gestalt(gestaltSystemVersionMinor, &minor);
+
+   if (major >= 10 && minor >= 5) {
+   	return _al_osx_get_joystick_driver_10_5();
+   }
+   else {
+   	return _al_osx_get_joystick_driver_10_4();
+   }
 }
 
 #endif // Leopard+

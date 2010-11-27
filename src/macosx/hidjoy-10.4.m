@@ -299,7 +299,20 @@ static void add_device(io_object_t device)
    //[elements release];
 }
 
-ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver(void)
+// FIXME!
+static const char *get_joystick_name(ALLEGRO_JOYSTICK *joy_)
+{  
+   (void)joy_;
+   return "Joystick";
+}
+
+static bool get_joystick_active(ALLEGRO_JOYSTICK *joy_)
+{
+	(void)joy_;
+	return true;
+}
+
+ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver_10_4(void)
 {
    static ALLEGRO_JOYSTICK_DRIVER* vt = NULL;
    if (vt == NULL) {
@@ -313,6 +326,8 @@ ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver(void)
       vt->get_joystick = get_joystick;
       vt->release_joystick = release_joystick;
       vt->get_joystick_state = get_joystick_state;
+      vt->get_name = get_joystick_name;
+      vt->get_active = get_joystick_active;
    }
    return vt;
 }
