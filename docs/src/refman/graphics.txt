@@ -781,14 +781,14 @@ Valid values for `src` and `dst` passed to this function are
 
 Blending examples:
 
-So for example, to restore the default of using alpha blending, you
-would use (pseudo code)
-
-    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA)
-
-If you are using pre-multiplied alpha, you could use
+So for example, to restore the default of using premultiplied alpha
+blending, you would use (pseudo code)
 
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA)
+
+If you are using non-pre-multiplied alpha, you could use
+
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA)
 
 Additive blending would be achieved with
 
