@@ -247,26 +247,26 @@ ALLEGRO_BITMAP *_al_load_gdiplus_bitmap_f(ALLEGRO_FILE *fp)
                   !(al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
                if (premul) {
-               }
-               int in_inc = gdi_lock->Stride - (w*4);
-               int out_inc = a_lock->pitch - (w*4);
-               for (int y = 0; y < h; y++) {
-                  for (int x = 0; x < w; x++) {
-                     unsigned char r, g, b, a;
-                     b = *in++;
-                     g = *in++;
-                     r = *in++;
-                     a = *in++;
-                     b = b * a / 255;
-                     g = g * a / 255;
-                     r = r * a / 255;
-                     *out++ = b;
-                     *out++ = g;
-                     *out++ = r;
-                     *out++ = a;
+                  int in_inc = gdi_lock->Stride - (w*4);
+                  int out_inc = a_lock->pitch - (w*4);
+                  for (unsigned int y = 0; y < h; y++) {
+                     for (unsigned int x = 0; x < w; x++) {
+                        unsigned char r, g, b, a;
+                        b = *in++;
+                        g = *in++;
+                        r = *in++;
+                        a = *in++;
+                        b = b * a / 255;
+                        g = g * a / 255;
+                        r = r * a / 255;
+                        *out++ = b;
+                        *out++ = g;
+                        *out++ = r;
+                        *out++ = a;
+                     }
+                     in += in_inc;
+                     out += out_inc;
                   }
-                  in += in_inc;
-                  out += out_inc;
                }
                else {
                   if (gdi_lock->Stride == a_lock->pitch) {
