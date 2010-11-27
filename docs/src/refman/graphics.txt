@@ -365,6 +365,80 @@ ALLEGRO_MIPMAP
     then extra bitmaps of sizes 32x32, 16x16, 8x8, 4x4, 2x2 and 1x1 will
     be created always containing a scaled down version of the original.
 
+ALLEGRO_NO_PREMULTIPLIED_ALPHA
+
+:   By default, Allegro pre-multiplies the alpha channel of an image with
+    the images color data when it loads it. Typically that would look
+    something like this:
+
+       r = get_float_byte();
+       g = get_float_byte();
+       b = get_float_byte();
+       a = get_float_byte();
+
+       r = r * a;
+       g = g * a;
+       b = b * a;
+
+       set_image_pixel(x, y, r, g, b, a);
+
+    The reason for this can be seen in the Allegro example
+    ex_premulalpha, ie, using pre-multiplied alpha gives more accurate
+    color results in some cases. To use alpha blending with images loaded
+    with pre-multiplied alpha, you would use the default blending mode,
+    which is set with al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE,
+    ALLEGRO_INVERSE_ALPHA).
+
+    The ALLEGRO_NO_PREMULTIPLIED_ALPHA flag being set will ensure that
+    images are not loaded with alpha pre-multiplied, but are loaded with
+    color values direct from the image. That looks like this:
+
+       r = get_float_byte();
+       g = get_float_byte();
+       b = get_float_byte();
+       a = get_float_byte();
+
+       set_image_pixel(x, y, r, g, b, a);
+
+    To draw such an image using regular alpha blending, you would use
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA)
+    to set the correct blender. This has some caveats. First, as mentioned
+    above, drawing such an image can result in less accurate color blending
+    (when drawing an image with linear filtering on, the edges will
+    be darker than they should be). Second, the behaviour is somewhat confusing,
+    which is explained in the example below.
+
+       // Load and create bitmaps with an alpha channel
+       al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
+       // Load some bitmap with alpha in it
+       bmp = al_load_bitmap("some_alpha_bitmap.png");
+       // We will draw to this buffer and then draw this buffer to the screen
+       tmp_buffer = al_create_bitmap(SCREEN_W, SCREEN_H);
+       // Set the buffer as the target and clear it
+       al_set_target_bitmap(tmp_buffer);
+       al_clear_to_color(al_map_rgba_f(0, 0, 0, 1));
+       // Draw the bitmap to the temporary buffer
+       al_draw_bitmap(bmp, 0, 0, 0);
+       // Finally, draw the buffer to the screen
+       // The output will look incorrect (may take close inspection
+       // depending on the bitmap -- it may also be very obvious)
+       al_set_target_bitmap(al_get_backbuffer(display));
+       al_draw_bitmap(tmp_buffer, 0, 0, 0);
+
+   To explain further, if you have a pixel with 0.5 alpha, and you're using
+   (ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA) for blending, the
+   formula is:
+
+      a = da * dst + sa * src
+
+   Expands to:
+
+      result_a = dst_a * (1-0.5) + 0.5 * 0.5;
+
+   So if you draw the image to the temporary buffer, it is blended once resulting
+   in 0.75 alpha, then drawn again to the screen, blended in the same way,
+   resulting in a pixel has 0.1875 as an alpha value.
+
 See also: [al_get_new_bitmap_flags], [al_get_bitmap_flags]
 
 ### API: al_add_new_bitmap_flag
