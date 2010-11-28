@@ -4,9 +4,6 @@
 
 #include "common.c"
 
-const int W = 320;
-const int H = 200;
-
 int main(void)
 {
    ALLEGRO_DISPLAY *display;
@@ -27,7 +24,7 @@ int main(void)
    al_set_new_display_flags(ALLEGRO_RESIZABLE |
       ALLEGRO_GENERATE_EXPOSE_EVENTS);
    al_set_new_display_option(ALLEGRO_SINGLE_BUFFER, true, ALLEGRO_REQUIRE);
-   display = al_create_display(W, H);
+   display = al_create_display(320, 200);
    if (!display) {
       abort_example("Error creating display\n");
       return 1;
@@ -41,7 +38,7 @@ int main(void)
    al_draw_bitmap(bitmap, 0, 0, 0);
    al_flip_display();
 
-   timer = al_create_timer(0.5);
+   timer = al_create_timer(0.1);
 
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
@@ -76,8 +73,8 @@ int main(void)
          /* Slowly restore the original bitmap. */
          int x, y;
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
-         for (y = 0; y < H; y += 200) {
-            for (x = 0; x < W; x += 320) {
+         for (y = 0; y < al_get_display_height(display); y += 200) {
+            for (x = 0; x < al_get_display_width(display); x += 320) {
                al_draw_tinted_bitmap(bitmap, al_map_rgba_f(1, 1, 1, 0.1), x, y, 0);
             }
          }
