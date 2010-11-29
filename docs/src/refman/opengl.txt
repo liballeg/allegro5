@@ -131,6 +131,9 @@ means you may *not* call it before [al_create_display].
 As usual, be careful when comparing floating point values.
 `al_get_opengl_version() >= 1.4` may well evaluate to false even
 if you do have OpenGL 1.4 or higher.
+You should at least write the literal as "1.4f" to ensure you perform
+a single precision floating point comparison, rather than implicitly
+promoting the return value of [al_get_opengl_version] to a double.
 
 ## API: al_set_current_opengl_context
 

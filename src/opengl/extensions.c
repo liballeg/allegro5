@@ -383,7 +383,7 @@ static int _ogl_is_extension_supported(const char *extension,
 #endif
 
 #ifndef ALLEGRO_IPHONE
-   if (al_get_opengl_version() >= 3) {
+   if (al_get_opengl_version() >= 3.0f) {
       int i;
       GLint ext_cnt;
       glGetIntegerv(GL_NUM_EXTENSIONS, &ext_cnt);
