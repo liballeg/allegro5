@@ -129,7 +129,10 @@ static void joystick_callback(void *target, IOReturn result, void *refcon __attr
    ALLEGRO_JOYSTICK_OSX* joy = (ALLEGRO_JOYSTICK_OSX*) target;
    IOHIDQueueInterface** queue = (IOHIDQueueInterface**) sender;
    AbsoluteTime past = {0,0};
-   ALLEGRO_EVENT_SOURCE* src = al_get_joystick_event_source();
+   ALLEGRO_EVENT_SOURCE *src = al_get_joystick_event_source();
+   if (src == NULL) {
+      return;
+   }
    _al_event_source_lock(src);
    while (result == kIOReturnSuccess) {
       IOHIDEventStruct event;

@@ -163,9 +163,9 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 @interface LogView : NSTextView
 #endif
 {
+@public
 	ALLEGRO_NATIVE_DIALOG *textlog;
 }
-@property ALLEGRO_NATIVE_DIALOG *textlog;
 - (void)keyDown: (NSEvent*)event;
 - (BOOL)windowShouldClose: (id)sender;
 - (void)emitCloseEventWithKeypress: (BOOL)keypress;
@@ -175,7 +175,6 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 
 @implementation LogView
 
-@synthesize textlog;
 
 - (void)keyDown: (NSEvent*)event
 {
@@ -192,8 +191,8 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 - (BOOL)windowShouldClose: (id)sender
 {
    (void)sender;
-   if ([self textlog]->is_active) {
-      if (!([self textlog]->flags & ALLEGRO_TEXTLOG_NO_CLOSE)) {
+   if (self->textlog->is_active) {
+      if (!(self->textlog->flags & ALLEGRO_TEXTLOG_NO_CLOSE)) {
          [self emitCloseEventWithKeypress: NO];
       }
    }
@@ -205,9 +204,9 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    ALLEGRO_EVENT event;
    event.user.type = ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE;
    event.user.timestamp = al_get_time();
-   event.user.data1 = (intptr_t)[self textlog];
+   event.user.data1 = (intptr_t)self->textlog;
    event.user.data2 = (intptr_t)keypress;
-   al_emit_user_event(&[self textlog]->tl_events, &event, NULL);
+   al_emit_user_event(&self->textlog->tl_events, &event, NULL);
 }
 
 + (void)appendText: (NSValue*)param
@@ -272,7 +271,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    
    rect = [[scrollView contentView] frame];
    LogView *view = [[LogView alloc] initWithFrame: rect];
-   [view setTextlog: textlog];
+   view->textlog = textlog;
    [view setHorizontallyResizable: YES];
    [view setVerticallyResizable: YES];
    [view setAutoresizingMask: NSViewHeightSizable | NSViewWidthSizable];
