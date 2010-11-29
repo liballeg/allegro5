@@ -51,7 +51,7 @@ static bool set_opengl_blending(ALLEGRO_DISPLAY *d)
 	   return true;
    }
 #else
-   if (d->ogl_extras->ogl_info.version >= 1.4) {
+   if (d->ogl_extras->ogl_info.version >= 1.39999) {
       glEnable(GL_BLEND);
       glBlendFuncSeparate(blend_modes[src_color],
          blend_modes[dst_color], blend_modes[src_alpha],

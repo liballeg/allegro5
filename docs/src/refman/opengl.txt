@@ -128,6 +128,10 @@ and "1.2.2" as 1.22, etc.
 A valid OpenGL context must exist for this function to work, which
 means you may *not* call it before [al_create_display].
 
+As usual, be careful when comparing floating point values.
+`al_get_opengl_version() >= 1.4` may well evaluate to false even
+if you do have OpenGL 1.4 or higher.
+
 ## API: al_set_current_opengl_context
 
 Make the OpenGL context associated with the given display current for the
