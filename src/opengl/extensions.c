@@ -93,50 +93,78 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 
 
 
+#ifndef ALLEGRO_IPHONE
+static uint32_t parse_opengl_version(const char *s)
+{
+   char *p = (char *) s;
+   int v[4] = {0, 0, 0, 0};
+   int n;
+   uint32_t ver;
+
+   /* e.g. "4.0.0 Vendor blah blah" */
+   for (n = 0; n < 4; n++) {
+      char *end;
+      long l;
+
+      errno = 0;
+      l = strtol(p, &end, 10);
+      if (errno)
+         break;
+      v[n] = _ALLEGRO_CLAMP(0, l, 255);
+      if (*end != '.')
+         break;
+      p = end + 1; /* skip dot */
+   }
+
+   ver = (v[0] << 24) | (v[1] << 16) | (v[2] << 8) | v[3];
+   ALLEGRO_DEBUG("Parsed '%s' as 0x%08x\n", s, ver);
+   return ver;
+}
+#endif
+
+
+
 /* Reads version info out of glGetString(GL_VERSION) */
-static float _al_ogl_version(void)
+static uint32_t _al_ogl_version(void)
 {
 #ifndef ALLEGRO_IPHONE
    ALLEGRO_CONFIG *cfg;
    const char *str;
-   int major, minor1, minor2;
 
    cfg = al_get_system_config();
    if (cfg) {
       char const *value = al_get_config_value(cfg,
 	 "opengl", "force_opengl_version");
       if (value) {
-         float v = strtod(value, NULL);
-         ALLEGRO_WARN("OpenGL version forced to %.1f.\n", v);
+         uint32_t v = parse_opengl_version(value);
+         ALLEGRO_INFO("OpenGL version forced to %d.%d.%d.%d.\n",
+            (v >> 24) & 0xff,
+            (v >> 16) & 0xff,
+            (v >> 8) & 0xff,
+            (v & 0xff));
          return v;
       }
    }
 
    str = (const char *)glGetString(GL_VERSION);
    if (str) {
-      float v;
-      major = minor1 = minor2 = 0;
-      sscanf(str, "%d.%d.%d", &major, &minor1, &minor2);
-      v = major;
-      v += minor1 / 10.f;
-      if (minor2 > 0)
-        v += minor2 / pow(10, 2 + floor(log10(minor2)));
-      return v;
+      return parse_opengl_version(str);
    }
    else {
       /* The OpenGL driver does not return a version
        * number. However it probably supports at least OpenGL 1.0
        */
-      return 1.0;
+      return _ALLEGRO_OPENGL_VERSION_1_0;
    }
 #else
+   /* XXX this is asking for trouble, and should be documented */
    const char *s = (char *)glGetString(GL_VERSION);
    if (strstr(s, "2.0"))
-      return 2.0;
+      return _ALLEGRO_OPENGL_VERSION_2_0;
    else if (strstr(s, "1.1"))
-      return 1.5;
+      return _ALLEGRO_OPENGL_VERSION_1_5; /* 1.5 */
    else
-      return 1.3;
+      return _ALLEGRO_OPENGL_VERSION_1_3;
 #endif
 }
 
@@ -179,13 +207,13 @@ static void print_extensions(char const *extension)
 
 /* Function: al_get_opengl_version
  */
-float al_get_opengl_version(void)
+uint32_t al_get_opengl_version(void)
 {
    ALLEGRO_DISPLAY *ogl_disp;
 
    ogl_disp = al_get_current_display();
    if (!ogl_disp || !ogl_disp->ogl_extras)
-      return 0.0f;
+      return 0x0;
 
    return ogl_disp->ogl_extras->ogl_info.version;
 }
@@ -383,7 +411,7 @@ static int _ogl_is_extension_supported(const char *extension,
 #endif
 
 #ifndef ALLEGRO_IPHONE
-   if (al_get_opengl_version() >= 3.0f) {
+   if (al_get_opengl_version() >= _ALLEGRO_OPENGL_VERSION_3_0) {
       int i;
       GLint ext_cnt;
       glGetIntegerv(GL_NUM_EXTENSIONS, &ext_cnt);
@@ -444,7 +472,7 @@ static int _ogl_is_extension_supported(const char *extension,
 
 
 static bool _ogl_is_extension_with_version_supported(
-   const char *extension, ALLEGRO_DISPLAY *disp, float ver)
+   const char *extension, ALLEGRO_DISPLAY *disp, uint32_t ver)
 {
    ALLEGRO_CONFIG *cfg;
    char const *value;
@@ -471,8 +499,9 @@ static bool _ogl_is_extension_with_version_supported(
    /* If the extension is included in the OpenGL version, there is no
     * need to check the extensions list.
     */
-   if (disp->ogl_extras->ogl_info.version >= ver && ver > 0)
+   if (ver > 0 && disp->ogl_extras->ogl_info.version >= ver) {
       return true;
+   }
       
    return _ogl_is_extension_supported(extension, disp);
 }
@@ -613,7 +642,11 @@ static void fill_in_info_struct(const GLubyte *rendereru, OPENGL_INFO *info)
 
    /* Read OpenGL properties */
    info->version = _al_ogl_version();
-   ALLEGRO_INFO("Assumed OpenGL version: %f\n", info->version);
+   ALLEGRO_INFO("Assumed OpenGL version: %d.%d.%d.%d\n",
+      (info->version >> 24) & 0xff,
+      (info->version >> 16) & 0xff,
+      (info->version >>  8) & 0xff,
+      (info->version      ) & 0xff);
 
    return;
 }
@@ -710,7 +743,8 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    /* Fill the list. */
 #define AGL_EXT(name, ver) { \
       ext_list->ALLEGRO_GL_##name = \
-         _ogl_is_extension_with_version_supported("GL_" #name, gl_disp, ver); \
+         _ogl_is_extension_with_version_supported("GL_" #name, gl_disp, \
+            _ALLEGRO_OPENGL_VERSION_##ver); \
    }
    #include "allegro5/opengl/GLext/gl_ext_list.h"
 #undef AGL_EXT
@@ -718,14 +752,16 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
 #ifdef ALLEGRO_UNIX
 #define AGL_EXT(name, ver) { \
       ext_list->ALLEGRO_GLX_##name = \
-         _ogl_is_extension_with_version_supported("GLX_" #name, gl_disp, ver); \
+         _ogl_is_extension_with_version_supported("GLX_" #name, gl_disp, \
+            _ALLEGRO_OPENGL_VERSION_##ver); \
    }
    #include "allegro5/opengl/GLext/glx_ext_list.h"
 #undef AGL_EXT
 #elif defined ALLEGRO_WINDOWS
 #define AGL_EXT(name, ver) { \
       ext_list->ALLEGRO_WGL_##name = \
-         _ogl_is_extension_with_version_supported("WGL_" #name, gl_disp, ver); \
+         _ogl_is_extension_with_version_supported("WGL_" #name, gl_disp, \
+            _ALLEGRO_OPENGL_VERSION_##ver); \
    }
    #include "allegro5/opengl/GLext/wgl_ext_list.h"
 #undef AGL_EXT
@@ -794,7 +830,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
          }
          else if (!strstr((const char *)glGetString(GL_EXTENSIONS),
                "GL_ARB_texture_non_power_of_two")
-             && gl_disp->ogl_extras->ogl_info.version >= 2.0f) {
+             && gl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
             ext_list->ALLEGRO_GL_ARB_texture_non_power_of_two = 0;
          }
       }
@@ -804,7 +840,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
       int *s = gl_disp->extra_settings.settings;
       glGetIntegerv(GL_MAX_TEXTURE_SIZE, s + ALLEGRO_MAX_BITMAP_SIZE);
    
-      if (gl_disp->ogl_extras->ogl_info.version >= 2.0)
+      if (gl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0)
          s[ALLEGRO_SUPPORT_SEPARATE_ALPHA] = 1;
 
       s[ALLEGRO_SUPPORT_NPOT_BITMAP] =

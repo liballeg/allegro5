@@ -121,19 +121,12 @@ TRUE if the extension is available FALSE otherwise.
 ## API: al_get_opengl_version
 
 Returns the OpenGL version number of the client
-(the computer the program is running on), for the current DISPLAY.
-"1.0" is returned as 1.0, "1.2.1" is returned as 1.21,
-and "1.2.2" as 1.22, etc.
+(the computer the program is running on), for the current display.
+"1.0" is returned as 0x01000000, "1.2.1" is returned as 0x01020100,
+and "1.2.2" as 0x01020200, etc.
 
 A valid OpenGL context must exist for this function to work, which
 means you may *not* call it before [al_create_display].
-
-As usual, be careful when comparing floating point values.
-`al_get_opengl_version() >= 1.4` may well evaluate to false even
-if you do have OpenGL 1.4 or higher.
-You should at least write the literal as "1.4f" to ensure you perform
-a single precision floating point comparison, rather than implicitly
-promoting the return value of [al_get_opengl_version] to a double.
 
 ## API: al_set_current_opengl_context
 

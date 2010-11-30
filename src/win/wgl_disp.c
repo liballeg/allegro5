@@ -980,7 +980,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    _al_ogl_manage_extensions(disp);
    _al_ogl_set_extensions(disp->ogl_extras->extension_api);
 
-   if (disp->ogl_extras->ogl_info.version < 1.2) {
+   if (disp->ogl_extras->ogl_info.version < _ALLEGRO_OPENGL_VERSION_1_2) {
       ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = _al_get_new_display_settings();
       if (eds->required & (1<<ALLEGRO_COMPATIBLE_DISPLAY)) {
          ALLEGRO_WARN("Allegro requires at least OpenGL version 1.2 to work.\n");

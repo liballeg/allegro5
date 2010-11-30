@@ -45,14 +45,14 @@ static void setup_blending(ALLEGRO_DISPLAY *ogl_disp)
 #if !defined ALLEGRO_GP2XWIZ
    {
 #ifndef ALLEGRO_IPHONE
-      if (ogl_disp->ogl_extras->ogl_info.version >= 1.4f) {
+      if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_1_4) {
 #else
-      if (ogl_disp->ogl_extras->ogl_info.version >= 2.0f) {
+      if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
 #endif
          glEnable(GL_BLEND);
          glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
                         blend_modes[src_alpha], blend_modes[dst_alpha]);
-         if (ogl_disp->ogl_extras->ogl_info.version >= 2.0f) {
+         if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
             glBlendEquationSeparate(
                               blend_equations[op],
                               blend_equations[op_alpha]);

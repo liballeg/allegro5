@@ -182,14 +182,14 @@ static INLINE bool setup_blending(ALLEGRO_DISPLAY *ogl_disp)
    /* (And not in OpenGL ES) */
 #if !defined ALLEGRO_GP2XWIZ
 #ifndef ALLEGRO_IPHONE
-   if (ogl_disp->ogl_extras->ogl_info.version >= 1.4f) {
+   if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_1_4) {
 #else
-   if (ogl_disp->ogl_extras->ogl_info.version >= 2.0f) {
+   if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
 #endif
       glEnable(GL_BLEND);
       glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
          blend_modes[src_alpha], blend_modes[dst_alpha]);
-      if (ogl_disp->ogl_extras->ogl_info.version >= 2.0f) {
+      if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
          glBlendEquationSeparate(
             blend_equations[op],
             blend_equations[op_alpha]);
@@ -791,7 +791,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       ALLEGRO_DEBUG("Unlocking backbuffer\n");
 
       /* glWindowPos2i may not be available. */
-      if (al_get_opengl_version() >= 1.4f) {
+      if (al_get_opengl_version() >= _ALLEGRO_OPENGL_VERSION_1_4) {
          glWindowPos2i(bitmap->lock_x, gl_y);
       }
       else {
