@@ -21,6 +21,7 @@ extern "C" {
 ALLEGRO_DEBUG_CHANNEL("audio-dsound")
 
 #include "allegro5/internal/aintern_audio.h"
+#include "allegro5/internal/aintern_system.h"
 
 /* This is used to stop MinGW from complaining about type-punning */
 #define MAKE_UNION(ptr, t) \
@@ -34,10 +35,9 @@ typedef HRESULT (WINAPI *DIRECTSOUNDCREATE8PROC)(LPCGUID pcGuidDevice, LPDIRECTS
 
 /* DirectSound vars */
 static const char* _al_dsound_module_name = "dsound.dll";
-static HMODULE _al_dsound_module = NULL;
+static void *_al_dsound_module = NULL;
 static DIRECTSOUNDCREATE8PROC _al_dsound_create = (DIRECTSOUNDCREATE8PROC)NULL;
 static IDirectSound8 *device;
-static HRESULT hr;
 static char ds_err_str[100];
 static int buffer_size_in_samples = 4*1024; // default
 static int buffer_size; // in bytes
@@ -131,6 +131,7 @@ static void* _dsound_update(ALLEGRO_THREAD* self, void* arg)
    DWORD block1_bytes, block2_bytes;
    const void *data;
    const int bytes_per_sample = ex_data->bits_per_sample / 8;
+   HRESULT hr;
 
    (void)self;
 
@@ -191,18 +192,20 @@ static void* _dsound_update(ALLEGRO_THREAD* self, void* arg)
    audio data to the device yet, however. */
 static int _dsound_open()
 {
+   HRESULT hr;
+
    /* load DirectInput module */
-   _al_dsound_module = LoadLibraryA(_al_dsound_module_name);
+   _al_dsound_module = _al_open_library(_al_dsound_module_name);
    if (_al_dsound_module == NULL) {
       ALLEGRO_ERROR("Failed to open '%s' library\n", _al_dsound_module_name);
       return 1;
    }
 
    /* import DirectInput create proc */
-   _al_dsound_create = (DIRECTSOUNDCREATE8PROC)GetProcAddress(_al_dsound_module, "DirectSoundCreate8");
+   _al_dsound_create = (DIRECTSOUNDCREATE8PROC)_al_import_symbol(_al_dsound_module, "DirectSoundCreate8");
    if (_al_dsound_create == NULL) {
       ALLEGRO_ERROR("DirectSoundCreate8 not in %s\n", _al_dsound_module_name);
-      FreeLibrary(_al_dsound_module);
+      _al_close_library(_al_dsound_module);
       return 1;
    }
 
@@ -212,7 +215,7 @@ static int _dsound_open()
    hr = _al_dsound_create(NULL, &device, NULL);
    if (FAILED(hr)) {
       ALLEGRO_ERROR("DirectSoundCreate8 failed\n");
-      FreeLibrary(_al_dsound_module);
+      _al_close_library(_al_dsound_module);
       return 1;
    }
 
@@ -220,7 +223,7 @@ static int _dsound_open()
    hr = device->SetCooperativeLevel(GetForegroundWindow(), DSSCL_PRIORITY);
    if (FAILED(hr)) {
       ALLEGRO_ERROR("SetCooperativeLevel failed\n");
-      FreeLibrary(_al_dsound_module);
+      _al_close_library(_al_dsound_module);
       return 1;
    }
 
@@ -234,7 +237,7 @@ static void _dsound_close()
 {
    device->Release();
 
-   FreeLibrary(_al_dsound_module);
+   _al_close_library(_al_dsound_module);
 }
 
 
@@ -323,6 +326,7 @@ static void _dsound_deallocate_voice(ALLEGRO_VOICE *voice)
 static int _dsound_load_voice(ALLEGRO_VOICE *voice, const void *data)
 {
    ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
+   HRESULT hr;
    LPVOID ptr1, ptr2;
    DWORD block1_bytes, block2_bytes;
    MAKE_UNION(&ex_data->ds8_buffer, LPDIRECTSOUNDBUFFER8 *);
@@ -379,6 +383,7 @@ static void _dsound_unload_voice(ALLEGRO_VOICE *voice)
 static int _dsound_start_voice(ALLEGRO_VOICE *voice)
 {
    ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
+   HRESULT hr;
    MAKE_UNION(&ex_data->ds8_buffer, LPDIRECTSOUNDBUFFER8 *);
 
    if (!voice->is_streaming) {
@@ -475,6 +480,7 @@ static unsigned int _dsound_get_voice_position(const ALLEGRO_VOICE *voice)
 {
    ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
    DWORD play_pos;
+   HRESULT hr;
 
    hr = ex_data->ds8_buffer->GetCurrentPosition(&play_pos, NULL);
    if (FAILED(hr))
@@ -489,6 +495,7 @@ static unsigned int _dsound_get_voice_position(const ALLEGRO_VOICE *voice)
 static int _dsound_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
 {
    ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
+   HRESULT hr;
 
    val *= ex_data->channels * (ex_data->bits_per_sample/8);
 

@@ -45,10 +45,10 @@ static bool set_opengl_blending(ALLEGRO_DISPLAY *d)
       return true;
    }
    else {
-	   glEnable(GL_BLEND);
-	   glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
-	   glBlendEquation(blend_equations[op]);
-	   return true;
+      glEnable(GL_BLEND);
+      glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
+      glBlendEquation(blend_equations[op]);
+      return true;
    }
 #else
    if (d->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_1_4) {
