@@ -246,7 +246,7 @@ bool al_save_bitmap(const char *filename, ALLEGRO_BITMAP *bitmap)
    if (h)
       return h->saver(filename, bitmap);
    else {
-      TRACE("No handler for image %s found\n", filename);
+      ALLEGRO_WARN("No handler for image %s found\n", filename);
       return false;
    }
 }
@@ -273,7 +273,7 @@ bool al_save_bitmap_f(ALLEGRO_FILE *fp, const char *ident,
    if (h)
       return h->fs_saver(fp, bitmap);
    else {
-      TRACE("No handler for image %s found\n", ident);
+      ALLEGRO_WARN("No handler for image %s found\n", ident);
       return false;
    }
 }

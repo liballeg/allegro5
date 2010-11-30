@@ -8,6 +8,8 @@
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_vector.h"
 
+ALLEGRO_DEBUG_CHANNEL("audio")
+
 
 #define MAX_EXTENSION_LENGTH  (32)
 
@@ -301,7 +303,7 @@ ALLEGRO_AUDIO_STREAM *al_load_audio_stream(const char *filename,
       return (ent->stream_loader)(filename, buffer_count, samples);
    }
 
-   TRACE("Error creating ALLEGRO_AUDIO_STREAM from '%s'.\n", filename);
+   ALLEGRO_ERROR("Error creating ALLEGRO_AUDIO_STREAM from '%s'.\n", filename);
 
    return NULL;
 }

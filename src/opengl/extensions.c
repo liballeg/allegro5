@@ -691,7 +691,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
 
    /* Print out GLU version */
    //buf = gluGetString(GLU_VERSION);
-   //TRACE(PREFIX_I "GLU Version : %s\n", buf);
+   //ALLEGRO_INFO("GLU Version : %s\n", buf);
 
 #ifdef ALLEGRO_HAVE_DYNAMIC_LINK
    /* Get glXGetProcAddress entry */

@@ -14,6 +14,8 @@
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_audio_cfg.h"
 
+ALLEGRO_DEBUG_CHANNEL("audio")
+
 
 /* forward declarations */
 static void stream_read(void *source, void **vbuf, unsigned int *samples,
@@ -116,7 +118,7 @@ bool al_attach_sample_instance_to_voice(ALLEGRO_SAMPLE_INSTANCE *spl,
    ASSERT(spl);
 
    if (voice->attached_stream) {
-      TRACE(
+      ALLEGRO_WARN(
          "Attempted to attach to a voice that already has an attachment\n");
       _al_set_error(ALLEGRO_INVALID_OBJECT,
          "Attempted to attach to a voice that already has an attachment");
@@ -124,7 +126,7 @@ bool al_attach_sample_instance_to_voice(ALLEGRO_SAMPLE_INSTANCE *spl,
    }
 
    if (spl->parent.u.ptr) {
-      TRACE("Attempted to attach a sample that is already attached\n");
+      ALLEGRO_WARN("Attempted to attach a sample that is already attached\n");
       _al_set_error(ALLEGRO_INVALID_OBJECT,
          "Attempted to attach a sample that is already attached");
       return false;
@@ -134,7 +136,7 @@ bool al_attach_sample_instance_to_voice(ALLEGRO_SAMPLE_INSTANCE *spl,
       voice->frequency != spl->spl_data.frequency ||
       voice->depth != spl->spl_data.depth)
    {
-      TRACE("Sample settings do not match voice settings\n");
+      ALLEGRO_WARN("Sample settings do not match voice settings\n");
       _al_set_error(ALLEGRO_INVALID_OBJECT,
          "Sample settings do not match voice settings");
       return false;
@@ -164,7 +166,7 @@ bool al_attach_sample_instance_to_voice(ALLEGRO_SAMPLE_INSTANCE *spl,
       _al_kcm_stream_set_mutex(spl, NULL);
       spl->parent.u.voice = NULL;
 
-      TRACE("Unable to load sample into voice\n");
+      ALLEGRO_ERROR("Unable to load sample into voice\n");
       ret = false;
    }
    else {
@@ -458,10 +460,12 @@ bool al_set_voice_playing(ALLEGRO_VOICE *voice, bool val)
       bool playing = al_get_voice_playing(voice);
 
       if (playing == val) {
-         if (playing)
-            TRACE("Voice is already playing\n");
-         else
-            TRACE("Voice is already stopped\n");
+         if (playing) {
+            ALLEGRO_DEBUG("Voice is already playing\n");
+         }
+         else {
+            ALLEGRO_DEBUG("Voice is already stopped\n");
+         }
          return true;
       }
 
@@ -472,7 +476,7 @@ bool al_set_voice_playing(ALLEGRO_VOICE *voice, bool val)
          return voice->driver->stop_voice(voice) == 0;
    }
    else {
-      TRACE("Voice has no sample or mixer attached\n");
+      ALLEGRO_DEBUG("Voice has no sample or mixer attached\n");
       return false;
    }
 }

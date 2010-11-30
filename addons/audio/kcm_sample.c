@@ -24,6 +24,8 @@
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_vector.h"
 
+ALLEGRO_DEBUG_CHANNEL("audio")
+
 
 static ALLEGRO_VOICE *allegro_voice = NULL;
 static ALLEGRO_MIXER *allegro_mixer = NULL;
@@ -83,7 +85,7 @@ static bool create_default_mixer(void)
       allegro_voice = al_create_voice(voice_frequency, voice_depth,
          ALLEGRO_CHANNEL_CONF_2);
       if (!allegro_voice) {
-         TRACE("al_create_voice failed\n");
+         ALLEGRO_ERROR("al_create_voice failed\n");
          goto Error;
       }
    }
@@ -92,13 +94,13 @@ static bool create_default_mixer(void)
       allegro_mixer = al_create_mixer(mixer_frequency, mixer_depth,
          ALLEGRO_CHANNEL_CONF_2);
       if (!allegro_mixer) {
-         TRACE("al_create_voice failed\n");
+         ALLEGRO_ERROR("al_create_voice failed\n");
          goto Error;
       }
    }
 
    if (!al_attach_mixer_to_voice(allegro_mixer, allegro_voice)) {
-      TRACE("al_attach_mixer_to_voice failed\n");
+      ALLEGRO_ERROR("al_attach_mixer_to_voice failed\n");
       goto Error;
    }
 
@@ -218,11 +220,11 @@ bool al_reserve_samples(int reserve_samples)
          *id = 0;
          *slot = al_create_sample_instance(NULL);
          if (!*slot) {
-            TRACE("al_create_sample failed\n");
+            ALLEGRO_ERROR("al_create_sample failed\n");
             goto Error;
          }
          if (!al_attach_sample_instance_to_mixer(*slot, default_mixer)) {
-            TRACE("al_attach_mixer_to_sample failed\n");
+            ALLEGRO_ERROR("al_attach_mixer_to_sample failed\n");
             goto Error;
          }
       }
@@ -274,11 +276,11 @@ bool al_set_default_mixer(ALLEGRO_MIXER *mixer)
 
          *slot = al_create_sample_instance(NULL);
          if (!*slot) {
-            TRACE("al_create_sample failed\n");
+            ALLEGRO_ERROR("al_create_sample failed\n");
             goto Error;
          }
          if (!al_attach_sample_instance_to_mixer(*slot, default_mixer)) {
-            TRACE("al_attach_mixer_to_sample failed\n");
+            ALLEGRO_ERROR("al_attach_mixer_to_sample failed\n");
             goto Error;
          }
       }      
@@ -349,7 +351,7 @@ static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *splinst,
    ALLEGRO_SAMPLE *spl, float gain, float pan, float speed, int loop)
 {
    if (!al_set_sample(splinst, spl)) {
-      TRACE("al_set_sample failed\n");
+      ALLEGRO_ERROR("al_set_sample failed\n");
       return false;
    }
 
@@ -361,7 +363,7 @@ static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *splinst,
    }
 
    if (!al_play_sample_instance(splinst)) {
-      TRACE("al_play_sample_instance failed\n");
+      ALLEGRO_ERROR("al_play_sample_instance failed\n");
       return false;
    }
 

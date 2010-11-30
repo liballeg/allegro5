@@ -236,13 +236,13 @@
          case ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA:                           \
          case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:                           \
          case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:                         \
-            TRACE("INLINE_GET got fake _gp_pixel format: %d\n", format);      \
+            ALLEGRO_ERROR("INLINE_GET got fake _gp_pixel format: %d\n", format); \
             abort();                                                          \
             break;                                                            \
                                                                               \
          case ALLEGRO_NUM_PIXEL_FORMATS:                                      \
          default:                                                             \
-            TRACE("INLINE_GET got non _gp_pixel format: %d\n", format);       \
+            ALLEGRO_ERROR("INLINE_GET got non _gp_pixel format: %d\n", format); \
             abort();                                                          \
             break;                                                            \
       }                                                                       \
@@ -436,12 +436,12 @@
          case ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA:                           \
          case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:                           \
          case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:                         \
-            TRACE("INLINE_PUT got fake _pp_pixel format: %d\n", format);      \
+            ALLEGRO_ERROR("INLINE_PUT got fake _pp_pixel format: %d\n", format); \
             abort();                                                          \
             break;                                                            \
                                                                               \
          case ALLEGRO_NUM_PIXEL_FORMATS:                                      \
-            TRACE("INLINE_PUT got non _pp_pixel format: %d\n", format);       \
+            ALLEGRO_ERROR("INLINE_PUT got non _pp_pixel format: %d\n", format); \
             abort();                                                          \
             break;                                                            \
       }                                                                       \

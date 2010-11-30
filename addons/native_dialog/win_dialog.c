@@ -20,6 +20,9 @@
 /* We use RichEdit by default. */
 #include <richedit.h>
 
+ALLEGRO_DEBUG_CHANNEL("win_dialog")
+
+
 /* Non-zero if text log window class was registered. */
 static int wlog_class_registered = 0;
 
@@ -90,9 +93,11 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
 
    if (!ret) {
       DWORD err = GetLastError();
-      char buf[1000];
-      FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, 0, buf, sizeof(buf), NULL);
-      TRACE("al_show_native_file_dialog failed or cancelled: %s\n", buf);
+      if (err != ERROR_SUCCESS) {
+         char buf[1000];
+         FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, 0, buf, sizeof(buf), NULL);
+         ALLEGRO_ERROR("al_show_native_file_dialog failed: %s\n", buf);
+      }
       return false;
    }
 

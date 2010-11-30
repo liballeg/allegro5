@@ -40,9 +40,7 @@ AL_FUNC(void, al_register_trace_handler, (AL_METHOD(int, handler, (const char *m
    #define ALLEGRO_TRACE_CHANNEL_LEVEL(channel, level)                        \
       !_al_trace_prefix(channel, level, __FILE__, __LINE__, __func__)         \
       ? (void)0 : al_trace
-   #define TRACE                 al_trace
 #else
-   #define TRACE                                    1 ? (void) 0 : al_trace
    #define ALLEGRO_TRACE_CHANNEL_LEVEL(channel, x)  1 ? (void) 0 : al_trace
    #define ALLEGRO_DEBUG_CHANNEL(x)
 #endif

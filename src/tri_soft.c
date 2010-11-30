@@ -25,6 +25,8 @@
 #include "allegro5/internal/aintern_tri_soft.h"
 #include <math.h>
 
+ALLEGRO_DEBUG_CHANNEL("tri_soft")
+
 #define MIN _ALLEGRO_MIN
 #define MAX _ALLEGRO_MAX
 
