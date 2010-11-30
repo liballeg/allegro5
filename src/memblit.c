@@ -52,7 +52,7 @@ static void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
 {                                                                        \
   float cl = dest->cl, cr = dest->cr_excl;                               \
   float ct = dest->ct, cb = dest->cb_excl;                               \
-  float sx_, sy_, sw_, sh_;                                              \
+  float sx_ = 0, sy_ = 0, sw_ = 0, sh_ = 0;                              \
   bool hflip = false, vflip = false;                                     \
   if (dw < 0) {                                                          \
      hflip = true;                                                       \
