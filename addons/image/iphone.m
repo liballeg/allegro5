@@ -29,7 +29,28 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
 
    /* Now we need to draw the image into a memory buffer. */
    pixels = al_malloc(w * h * 4);
-   CGColorSpaceRef cs =  CGColorSpaceCreateDeviceRGB();
+   CGFloat whitePoint[3] = {
+      1, 1, 1
+   };
+   CGFloat blackPoint[3] = {
+      0, 0, 0
+   };
+   CGFloat gamma[3] = {
+      2.2, 2.2, 2.2
+   };
+   CGFloat matrix[9] = {
+      1, 1, 1,
+      1, 1, 1,
+      1, 1, 1
+   };
+   /* This sets up a color space that results in identical values
+    * as the image data itself, which is the same as the standalone
+    * libpng loader
+    */
+   CGColorSpaceRef cs =
+      CGColorSpaceCreateCalibratedRGB(
+         whitePoint, blackPoint, gamma, matrix
+      );
    CGContextRef context = CGBitmapContextCreate(pixels, w, h, 8, w * 4,
       cs, kCGImageAlphaPremultipliedLast);
    CGContextSetBlendMode(context, kCGBlendModeCopy);
