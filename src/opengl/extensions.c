@@ -399,7 +399,7 @@ int _al_ogl_look_for_an_extension(const char *name, const GLubyte *extensions)
 
 
 
-static int _ogl_is_extension_supported(const char *extension,
+static bool _ogl_is_extension_supported(const char *extension,
                                        ALLEGRO_DISPLAY *disp)
 {
    int ret = 0;
@@ -510,7 +510,7 @@ static bool _ogl_is_extension_with_version_supported(
 
 /* Function: al_have_opengl_extension
  */
-int al_have_opengl_extension(const char *extension)
+bool al_have_opengl_extension(const char *extension)
 {
    ALLEGRO_DISPLAY *disp;
    
