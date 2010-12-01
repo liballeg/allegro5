@@ -1807,6 +1807,8 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    }
 
    for (i = 0; i < eds_list_count; i++) {
+      ALLEGRO_DEBUG("Trying format %d of %d.\n", i, eds_list_count);
+
       d3d_display->depth_stencil_format = d3d_get_depth_stencil_format(eds_list[i]);
       d3d_display->samples = eds_list[i]->settings[ALLEGRO_SAMPLES];
       d3d_display->single_buffer = eds_list[i]->settings[ALLEGRO_SINGLE_BUFFER] ? true : false;
@@ -1828,12 +1830,16 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
 #else
       WaitForSingleObject(params.AckEvent, 10*1000);
 #endif
+      ALLEGRO_DEBUG("Resumed after wait.\n");
 
       CloseHandle(params.AckEvent);
 
       if (!params.init_failed) {
          break;
       }
+
+      ALLEGRO_INFO("Format %d failed.\n", i);
+
       // Display has been destroyed in d3d_display_thread_proc, create empty template again
       d3d_display = d3d_create_display_helper(al_display->w, al_display->h);
       win_display = &d3d_display->win_display;
@@ -1848,6 +1854,8 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
       ALLEGRO_WARN("All %d formats failed.\n", eds_list_count);
       return false;
    }
+
+   ALLEGRO_INFO("Format %d succeeded.\n", i);
 
    d3d_reset_state(d3d_display);
 
