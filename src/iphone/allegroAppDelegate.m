@@ -15,6 +15,8 @@ static UIWindow *splashwin;
 static volatile bool waiting_for_program_halt = false;
 static float scale_override = -1.0;
 
+/* Function: al_iphone_program_has_halted
+ */
 void al_iphone_program_has_halted(void)
 {
    waiting_for_program_halt = false;
@@ -31,6 +33,8 @@ float _al_iphone_get_screen_scale(void)
    return 1.0f;
 }
 
+/* Function: al_iphone_override_screen_scale
+ */
 void al_iphone_override_screen_scale(float scale)
 {
    scale_override = scale;
