@@ -159,7 +159,7 @@ static void draw(void)
    set_xy(x, y + ih);
    
    al_destroy_bitmap(temp);
-   al_set_new_bitmap_flags(0);
+   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
 
    /* Test 4. */
    print("Screen -> Locked -> Screen (%.1f fps)", get_fps(3));

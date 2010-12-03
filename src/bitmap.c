@@ -761,7 +761,7 @@ void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap)
     */
    al_store_state(&backup, ALLEGRO_STATE_BITMAP | ALLEGRO_STATE_BLENDER);
 
-   al_set_new_bitmap_flags(0);
+   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
    al_set_new_bitmap_format(bitmap->format);
    tmp = do_create_bitmap(bitmap->w, bitmap->h);
 

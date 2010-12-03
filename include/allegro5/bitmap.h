@@ -60,7 +60,8 @@ enum {
    ALLEGRO_MIN_LINEAR               = 0x0040,
    ALLEGRO_MAG_LINEAR               = 0x0080,
    ALLEGRO_MIPMAP                   = 0x0100,
-   ALLEGRO_NO_PREMULTIPLIED_ALPHA   = 0x0200
+   ALLEGRO_NO_PREMULTIPLIED_ALPHA   = 0x0200,
+   ALLEGRO_VIDEO_BITMAP             = 0x0400
 };
 
 

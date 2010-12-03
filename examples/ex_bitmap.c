@@ -56,7 +56,7 @@ int main(int argc, const char *argv[])
     if (!membitmap) {
        abort_example("%s not found or failed to load\n", filename);
     }
-    al_set_new_bitmap_flags(0);
+    al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
 
     printf("Loading took %.4f seconds\n", t1 - t0);
     

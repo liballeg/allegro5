@@ -49,7 +49,7 @@ restart:
    if (mode == 0) {
       log_printf("Locking video bitmap");
       al_clear_to_color(al_map_rgb(0, 0, 0));
-      al_set_new_bitmap_flags(0);
+      al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
       bitmap = al_create_bitmap(3*256, 256);
    }
    else if (mode == 1) {
