@@ -9,3 +9,35 @@ These functions are declared in the following header file:
 ### API: al_get_win_window_handle
 
 Returns the handle to the window that the passed display is using.
+
+## iPhone
+
+These functions are declared in the following header file:
+
+    #include <allegro5/allegro_iphone.h>
+
+### API: al_iphone_program_has_halted
+
+Multitasking on iOS is different than on other platforms. When an
+application receives a ALLEGRO_DISPLAY_SWITCH_OUT or ALLEGRO_DISPLAY_CLOSE
+event on a multitasking-capable device, it should cease all activity and
+do nothing but check for an ALLEGRO_DISPLAY_SWITCH_IN event. To let the
+iPhone driver know that you've ceased all activity, call this function. Certain
+operations, if done, will crash the program after this call, most notably any
+function which uses OpenGL. This function is needed because the "switch out"
+handler on iPhone can't return until these operations have stopped.
+
+### API: al_iphone_override_screen_scale
+
+Original iPhones and iPod Touches had a screen resolution of 320x480
+(in Portrait mode). When the iPhone 4 and iPod Touch 4th generation devices
+came out, they were backwards compatible with all old iPhone apps. This
+means that they assume a 480x320 screen resolution by default, while they
+actually have a 960x640 pixel screen (exactly 2x on each dimension). An
+API was added to allow access to the full (or in fact any fraction of)
+resolution of the new devices. This function is normally called with a value
+of "2.0" to get the native iPhone 4 screen resolution (you must also call
+al_create_display with (960, 640), AFTER calling this function). It is not
+limited to 2.0 scaling factors however. You can use 1.5 or 0.5 or other values
+in between, however if it's not an exact multiple of the original iPhone
+resolution, linear filtering will be applied to the screen.

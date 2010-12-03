@@ -12,6 +12,29 @@ void _al_iphone_run_user_main(void);
 static allegroAppDelegate *global_delegate;
 static UIImageView *splashview;
 static UIWindow *splashwin;
+static volatile bool waiting_for_program_halt = false;
+static float scale_override = -1.0;
+
+void al_iphone_program_has_halted(void)
+{
+   waiting_for_program_halt = false;
+}
+
+float _al_iphone_get_screen_scale(void)
+{
+   if (scale_override > 0.0) {
+   	return scale_override;
+   }
+   if ([[UIScreen mainScreen] respondsToSelector:NSSelectorFromString(@"scale")]) {
+      return [[UIScreen mainScreen] scale];
+   }
+   return 1.0f;
+}
+
+void al_iphone_override_screen_scale(float scale)
+{
+   scale_override = scale;
+}
 
 void _al_iphone_add_view(ALLEGRO_DISPLAY *display)
 {
@@ -34,7 +57,9 @@ void _al_iphone_flip_view(void)
 {
     [global_delegate.view flip];
    if (splashview) {
+      [splashview removeFromSuperview];
       [splashview release];
+      [splashwin removeFromSuperview];
       [splashwin release];
       splashview = nil;
       splashwin = nil;
@@ -62,8 +87,8 @@ void _al_iphone_accelerometer_control(int frequency)
 
 void _al_iphone_get_screen_size(int *w, int *h)
 {
-    *w = [[UIScreen mainScreen] bounds].size.width;
-    *h = [[UIScreen mainScreen] bounds].size.height;
+    *w = global_delegate.view.backingWidth;
+    *h = global_delegate.view.backingHeight;
 }
 
 @implementation allegroAppDelegate
@@ -87,7 +112,7 @@ void _al_iphone_get_screen_size(int *w, int *h)
  * view is first displayed in the user thread we switch from displaying the
  * splash screen to the first user frame, without any flicker.
  */
-static void display_splash_screen(void)
+- (void)display_splash_screen
 {
    UIScreen *screen = [UIScreen mainScreen];
    splashwin = [[UIWindow alloc] initWithFrame:[screen bounds]];
@@ -153,9 +178,9 @@ static void display_splash_screen(void)
    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientation_change:) name:UIDeviceOrientationDidChangeNotification object:nil];
 
+    [self display_splash_screen];
+
    _al_iphone_run_user_main();
-    
-    display_splash_screen();
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
@@ -183,6 +208,38 @@ static void display_splash_screen(void)
     _al_iphone_await_termination();
 }
 
+- (void)applicationDidEnterBackground:(UIApplication *)application {
+   ALLEGRO_DISPLAY *d = allegro_display;
+   ALLEGRO_EVENT event;
+
+   waiting_for_program_halt = true;
+
+   _al_event_source_lock(&d->es);
+   if (_al_event_source_needs_to_generate_event(&d->es)) {
+       event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
+       event.display.timestamp = al_current_time();
+       _al_event_source_emit_event(&d->es, &event);
+   }
+   _al_event_source_unlock(&d->es);
+
+   while (waiting_for_program_halt) {
+   	// do nothing, this should be quick
+   }
+}
+
+- (void)applicationWillEnterForeground:(UIApplication *)application {
+    ALLEGRO_DISPLAY *d = allegro_display;
+	ALLEGRO_EVENT event;
+
+    _al_event_source_lock(&d->es);
+    if (_al_event_source_needs_to_generate_event(&d->es)) {
+        event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
+        event.display.timestamp = al_current_time();
+        _al_event_source_emit_event(&d->es, &event);
+    }
+    _al_event_source_unlock(&d->es);
+}
+
 - (void)set_allegro_display:(ALLEGRO_DISPLAY *)d {
    allegro_display = d;
 }
@@ -196,6 +253,7 @@ static void display_splash_screen(void)
    [view set_allegro_display:allegro_display];
    [window addSubview:view];
    [window makeKeyAndVisible];
+   [view becomeFirstResponder];
 }
 
 - (void)accelerometer:(UIAccelerometer*)accelerometer didAccelerate:(UIAcceleration*)acceleration

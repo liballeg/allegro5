@@ -221,6 +221,7 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
     display->vt = _al_get_iphone_display_interface();
     display->w = w;
     display->h = h;
+    display->flags = al_get_new_display_flags();
 
     ALLEGRO_SYSTEM_IPHONE *system = (void *)al_get_system_driver();
 
