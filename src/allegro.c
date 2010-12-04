@@ -33,8 +33,6 @@ static int debug_trace_virgin = true;
 static FILE *trace_file = NULL;
 static _AL_MUTEX trace_mutex = _AL_MUTEX_UNINITED;
 
-int (*_al_trace_handler)(const char *msg) = NULL;
-
 
 typedef struct DEBUG_INFO
 {
@@ -231,6 +229,49 @@ static void configure_logging(void)
 
 
 
+static void open_trace_file(void)
+{
+   const char *s;
+
+   if (debug_trace_virgin) {
+      s = getenv("ALLEGRO_TRACE");
+
+      if (s)
+         trace_file = fopen(s, "w");
+      else
+#ifdef ALLEGRO_IPHONE
+         // Remember, we have no (accessible) filesystem on (not jailbroken)
+         // iphone.
+         // stderr will be redirected to xcode's debug console though, so
+         // it's as good to use as the NSLog stuff.
+         trace_file = stderr;
+#else
+         trace_file = fopen("allegro.log", "w");
+#endif
+
+      debug_trace_virgin = false;
+   }
+}
+
+
+
+static void do_trace(const char *msg, ...)
+{
+   va_list ap;
+
+   if (trace_file) {
+      va_start(ap, msg);
+      vfprintf(trace_file, msg, ap);
+      va_end(ap);
+   }
+}
+
+
+
+/* _al_trace_prefix:
+ *  Conditionally write the initial part of a trace message.  If we do, return true
+ *  and continue to hold the trace_mutex lock.
+ */
 bool _al_trace_prefix(char const *channel, int level,
    char const *file, int line, char const *function)
 {
@@ -272,11 +313,13 @@ channel_included:
    /* Avoid interleaved output from different threads. */
    _al_mutex_lock(&trace_mutex);
 
-   al_trace("%-8s ", channel);
-   if (level == 0) al_trace("D ");
-   if (level == 1) al_trace("I ");
-   if (level == 2) al_trace("W ");
-   if (level == 3) al_trace("E ");
+   open_trace_file();
+
+   do_trace("%-8s ", channel);
+   if (level == 0) do_trace("D ");
+   if (level == 1) do_trace("I ");
+   if (level == 2) do_trace("W ");
+   if (level == 3) do_trace("E ");
 
 #ifdef ALLEGRO_MSVC
    name = strrchr(file, '\\');
@@ -284,10 +327,10 @@ channel_included:
    name = strrchr(file, '/');
 #endif
    if (_al_debug_info.flags & 1) {
-      al_trace("%20s:%-4d ", name ? name + 1 : file, line);
+      do_trace("%20s:%-4d ", name ? name + 1 : file, line);
    }
    if (_al_debug_info.flags & 2) {
-      al_trace("%-32s ", function);
+      do_trace("%-32s ", function);
    }
    if (_al_debug_info.flags & 4) {
       double t = al_get_time();
@@ -297,71 +340,33 @@ channel_included:
        */
       if (t > 3600 * 24 * 365)
          t = 0;
-      al_trace("[%10.5f] ", t);
+      do_trace("[%10.5f] ", t);
    }
 
-   _al_mutex_unlock(&trace_mutex);
-
+   /* Do not unlocked trace_mutex here; that is done by _al_trace_suffix. */
    return true;
 }
 
 
 
-/* al_trace:
- *  Outputs a trace message (uses ASCII strings).
+/* _al_trace_suffix:
+ *  Output the final part of a trace message, and release the trace_mutex lock.
  */
-void al_trace(const char *msg, ...)
+void _al_trace_suffix(const char *msg, ...)
 {
    int olderr = errno;
-   char buf[512];
-   char *s;
-
-   /* todo, some day: use vsnprintf (C99) */
    va_list ap;
-   va_start(ap, msg);
-   vsprintf(buf, msg, ap);
-   va_end(ap);
-
-   if (_al_trace_handler) {
-      if (_al_trace_handler(buf))
-	 return;
-   }
-
-   if (debug_trace_virgin) {
-      s = getenv("ALLEGRO_TRACE");
-
-      if (s)
-         trace_file = fopen(s, "w");
-      else
-#ifdef ALLEGRO_IPHONE
-         // Remember, we have no (accessible) filesystem on (not jailbroken)
-         // iphone.
-         // stderr will be redirected to xcode's debug console though, so
-         // it's as good to use as the NSLog stuff.
-         trace_file = stderr;
-#else
-         trace_file = fopen("allegro.log", "w");
-#endif
-
-      debug_trace_virgin = false;
-   }
 
    if (trace_file) {
-      fwrite(buf, sizeof(char), strlen(buf), trace_file);
+      va_start(ap, msg);
+      vfprintf(trace_file, msg, ap);
+      va_end(ap);
       fflush(trace_file);
    }
 
+   _al_mutex_unlock(&trace_mutex);
+
    errno = olderr;
-}
-
-
-
-/* al_register_trace_handler:
- *  Installs a user handler for trace output.
- */
-void al_register_trace_handler(int (*handler)(const char *msg))
-{
-   _al_trace_handler = handler;
 }
 
 

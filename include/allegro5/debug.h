@@ -29,9 +29,7 @@
 AL_FUNC(bool, _al_trace_prefix, (char const *channel, int level,
    char const *file, int line, char const *function));
 
-AL_PRINTFUNC(void, al_trace, (const char *msg, ...), 1, 2);
-
-AL_FUNC(void, al_register_trace_handler, (AL_METHOD(int, handler, (const char *msg))));
+AL_PRINTFUNC(void, _al_trace_suffix, (const char *msg, ...), 1, 2);
 
 
 #ifdef DEBUGMODE
@@ -39,7 +37,7 @@ AL_FUNC(void, al_register_trace_handler, (AL_METHOD(int, handler, (const char *m
    #define ALLEGRO_DEBUG_CHANNEL(x) static char const *__al_debug_channel = x;
    #define ALLEGRO_TRACE_CHANNEL_LEVEL(channel, level)                        \
       !_al_trace_prefix(channel, level, __FILE__, __LINE__, __func__)         \
-      ? (void)0 : al_trace
+      ? (void)0 : _al_trace_suffix
 #else
    #define ALLEGRO_TRACE_CHANNEL_LEVEL(channel, x)  1 ? (void) 0 : al_trace
    #define ALLEGRO_DEBUG_CHANNEL(x)
