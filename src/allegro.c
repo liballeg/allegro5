@@ -278,7 +278,11 @@ channel_included:
    if (level == 2) al_trace("W ");
    if (level == 3) al_trace("E ");
 
+#ifdef ALLEGRO_MSVC
+   name = strrchr(file, '\\');
+#else
    name = strrchr(file, '/');
+#endif
    if (_al_debug_info.flags & 1) {
       al_trace("%20s:%-4d ", name ? name + 1 : file, line);
    }
