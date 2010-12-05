@@ -51,7 +51,7 @@ void al_use_transform(const ALLEGRO_TRANSFORM *trans)
     * doesn't support front buffer bitmaps.
     */
 
-   al_copy_transform(&target->transform, trans);
+   if (trans != &target->transform) al_copy_transform(&target->transform, trans);
 
    /*
     * When the drawing is held, we apply the transformations in software,
