@@ -699,7 +699,10 @@ ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver_10_5(void)
    return vt;
 }
 
+#endif // Leopard+
+
 ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver_10_4(void);
+ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver_10_5(void);
 
 ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver(void)
 {
@@ -715,8 +718,6 @@ ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver(void)
    	return _al_osx_get_joystick_driver_10_4();
    }
 }
-
-#endif // Leopard+
 
 /* Local variables:       */
 /* c-basic-offset: 3      */
