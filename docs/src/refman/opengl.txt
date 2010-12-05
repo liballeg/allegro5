@@ -105,18 +105,12 @@ available on the given display or not.
 
 Example:
 
-    int packedpixels = al_have_opengl_extension("GL_EXT_packed_pixels");
+    bool packedpixels = al_have_opengl_extension("GL_EXT_packed_pixels");
 
-If _packedpixels_ is TRUE then you can safely use the constants related
+If _packedpixels_ is true then you can safely use the constants related
 to the packed pixels extension.
 
-Parameters:
-
-extension - The name of the extension that is needed
-
-*Return value:*
-
-TRUE if the extension is available FALSE otherwise.
+Returns true if the extension is available; false otherwise.
 
 ## API: al_get_opengl_version
 
