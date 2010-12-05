@@ -8,7 +8,7 @@
 struct Example
 {
     double fps;
-    ALLEGRO_FONT *f1, *f2, *f3, *f4;
+    ALLEGRO_FONT *f1, *f2, *f3, *f4, *f5;
     ALLEGRO_CONFIG *config;
 } ex;
 
@@ -62,6 +62,8 @@ static void render(void)
     al_draw_ustr(ex.f3, green, 50, 360, 0, SUB(4, 11));
     u = al_ref_cstr(&info, get_string("substr4"));
     al_draw_ustr(ex.f3, green, 50, 380, 0, SUB(0, 11));
+
+    al_draw_textf(ex.f5, black, 50, 420, 0, "forced monochrome");
 
     al_hold_bitmap_drawing(false);
 
@@ -130,7 +132,8 @@ int main(int argc, const char *argv[])
     /* Specifying negative values means we specify the glyph height
      * in pixels, not the usual font size.
      */
-    ex.f4 = al_load_font(font_file, -140, ALLEGRO_TTF_MONOCHROME);
+    ex.f4 = al_load_font(font_file, -140, 0);
+    ex.f5 = al_load_font(font_file, 12, ALLEGRO_TTF_MONOCHROME);
 
     if (!ex.f1 || !ex.f2 || !ex.f3 || !ex.f4) {
         abort_example("Could not load font: %s\n", font_file);
@@ -182,6 +185,7 @@ int main(int argc, const char *argv[])
     al_destroy_font(ex.f2);
     al_destroy_font(ex.f3);
     al_destroy_font(ex.f4);
+    al_destroy_font(ex.f5);
     al_destroy_config(ex.config);
 
     return 0;
