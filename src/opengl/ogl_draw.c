@@ -34,7 +34,7 @@ static bool set_opengl_blending(ALLEGRO_DISPLAY *d)
    al_get_separate_blender(&op, &src_color, &dst_color, &op_alpha,
       &src_alpha, &dst_alpha);
 #if defined ALLEGRO_IPHONE || defined ALLEGRO_GP2XWIZ
-   if (al_get_opengl_version() >= 2.0) {
+   if (al_get_opengl_version() >= _ALLEGRO_OPENGL_VERSION_2_0) {
       glEnable(GL_BLEND);
       glBlendFuncSeparate(blend_modes[src_color],
          blend_modes[dst_color], blend_modes[src_alpha],
@@ -51,12 +51,12 @@ static bool set_opengl_blending(ALLEGRO_DISPLAY *d)
 	   return true;
    }
 #else
-   if (d->ogl_extras->ogl_info.version >= 1.4) {
+   if (d->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_1_4) {
       glEnable(GL_BLEND);
       glBlendFuncSeparate(blend_modes[src_color],
          blend_modes[dst_color], blend_modes[src_alpha],
          blend_modes[dst_alpha]);
-      if (d->ogl_extras->ogl_info.version >= 2.0) {
+      if (d->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
          glBlendEquationSeparate(
             blend_equations[op],
             blend_equations[op_alpha]);

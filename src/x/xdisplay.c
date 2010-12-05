@@ -457,10 +457,10 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    ALLEGRO_INFO("Vendor: %s\n", (const char*)glGetString(GL_VENDOR));
    ALLEGRO_INFO("Renderer: %s\n", (const char*)glGetString(GL_RENDERER));
 
-   if (display->ogl_extras->ogl_info.version < 1.2) {
+   if (display->ogl_extras->ogl_info.version < _ALLEGRO_OPENGL_VERSION_1_2) {
       ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = _al_get_new_display_settings();
       if (eds->required & (1<<ALLEGRO_COMPATIBLE_DISPLAY)) {
-         ALLEGRO_ERROR("Allegro requires at least OpenGL version 1.2 to work.");
+         ALLEGRO_ERROR("Allegro requires at least OpenGL version 1.2 to work.\n");
          xdpy_destroy_display(display);
          _al_mutex_unlock(&system->lock);
          return NULL;
@@ -471,7 +471,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    // Apparently, you can get a OpenGL 3.0 context without specifically creating
    // it with glXCreateContextAttribsARB, and not every OpenGL 3.0 is evil, but we
    // can't tell the difference at this stage.
-   else if (display->ogl_extras->ogl_info.version > 2.1) {
+   else if (display->ogl_extras->ogl_info.version > _ALLEGRO_OPENGL_VERSION_2_1) {
       /* We don't have OpenGL3 a driver. */
       display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;
    }

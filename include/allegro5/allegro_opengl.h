@@ -110,7 +110,7 @@
  */
 
 
-AL_FUNC(float,                 al_get_opengl_version,            (void));
+AL_FUNC(uint32_t,              al_get_opengl_version,            (void));
 AL_FUNC(int,                   al_have_opengl_extension,         (const char *extension));
 AL_FUNC(void*,                 al_get_opengl_proc_address,       (const char *name));
 AL_FUNC(ALLEGRO_OGL_EXT_LIST*, al_get_opengl_extension_list,     (void));
