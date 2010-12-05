@@ -498,7 +498,8 @@ bool _al_save_wav_f(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl)
       }
    }
    else {
-      TRACE("Unknown audio depth (%d) when saving wav ALLEGRO_FILE.\n", spl->depth);
+      ALLEGRO_ERROR("Unknown audio depth (%d) when saving wav ALLEGRO_FILE.\n",
+         spl->depth);
       return false;
    }
 

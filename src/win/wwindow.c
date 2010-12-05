@@ -33,10 +33,6 @@
 #include "allegro5/platform/aintwin.h"
 
 
-#define PREFIX_I                "al-newin INFO: "
-#define PREFIX_W                "al-newin WARNING: "
-#define PREFIX_E                "al-newin ERROR: "
-
 ALLEGRO_DEBUG_CHANNEL("wwindow")
 
 static WNDCLASS window_class;
@@ -947,7 +943,7 @@ void _al_win_wnd_schedule_proc(HWND wnd, void (*proc) (void*), void* param)
 {
    ASSERT(_al_win_msg_call_proc);
    if (!PostMessage(wnd, _al_win_msg_call_proc, (WPARAM)proc, (LPARAM)param)) {
-      TRACE(PREFIX_E "_al_win_wnd_schedule_proc failed.\n");
+      ALLEGRO_ERROR("_al_win_wnd_schedule_proc failed.\n");
    }
 }
 

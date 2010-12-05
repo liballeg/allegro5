@@ -533,8 +533,6 @@ static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->import_symbol = win_import_symbol;
    vt->close_library = win_close_library;
 
-   TRACE("ALLEGRO_SYSTEM_INTERFACE created.\n");
-
    return vt;
 }
 

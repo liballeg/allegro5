@@ -11,6 +11,8 @@
 
 #include "iio.h"
 
+ALLEGRO_DEBUG_CHANNEL("image")
+
 
 double _al_png_screen_gamma = -1.0;
 int _al_png_compression_level = Z_BEST_COMPRESSION;
@@ -511,7 +513,7 @@ bool _al_save_png(const char *filename, ALLEGRO_BITMAP *bmp)
 
    fp = al_fopen(filename, "wb");
    if (!fp) {
-      TRACE("Unable to open file %s for writing\n", filename);
+      ALLEGRO_ERROR("Unable to open file %s for writing\n", filename);
       return false;
    }
 

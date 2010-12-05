@@ -20,6 +20,9 @@
 #include <jpeglib.h>
 #include <jerror.h>
 
+ALLEGRO_DEBUG_CHANNEL("image")
+
+
 struct my_src_mgr
 {
    struct jpeg_source_mgr pub;
@@ -382,7 +385,7 @@ bool _al_save_jpg(char const *filename, ALLEGRO_BITMAP *bmp)
 
    fp = al_fopen(filename, "wb");
    if (!fp) {
-      TRACE("Unable to open file %s for writing\n", filename);
+      ALLEGRO_ERROR("Unable to open file %s for writing\n", filename);
       return false;
    }
 

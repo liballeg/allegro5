@@ -418,8 +418,8 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
       audio_buf_info bi;
 
       if (ioctl(oss_voice->fd, SNDCTL_DSP_GETOSPACE, &bi) == -1) {
-         TRACE(PREFIX_E "Error SNDCTL_DSP_GETOSPACE.\n");
-         TRACE(PREFIX_E "errno: %i -- %s\n", errno, strerror(errno));
+         ALLEGRO_ERROR("Error SNDCTL_DSP_GETOSPACE, errno=%i (%s)\n",
+            errno, strerror(errno));
          return NULL;
       }
 

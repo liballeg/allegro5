@@ -722,7 +722,7 @@ static int x_keyboard_init(void)
 /* TODO: is this needed?
    modifiers = XSetLocaleModifiers("@im=none");
    if (modifiers == NULL) {
-      TRACE(PREFIX_W "XSetLocaleModifiers failed.\n");
+      ALLEGRO_WARN("XSetLocaleModifiers failed.\n");
    }
 */
 
