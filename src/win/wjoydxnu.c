@@ -1068,7 +1068,7 @@ static bool joydx_init_joystick(void)
    ASSERT(!STOP_EVENT);
 
    /* load DirectInput module */
-   _al_dinput_module = LoadLibraryA(_al_dinput_module_name);
+   _al_dinput_module = _al_win_safe_load_library(_al_dinput_module_name);
    if (_al_dinput_module == NULL) {
       ALLEGRO_ERROR("Failed to open '%s' library\n", _al_dinput_module_name);
       joystick_dinput = NULL;

@@ -788,7 +788,7 @@ bool _al_d3d_init_display()
    D3DDISPLAYMODE d3d_dm;
    OSVERSIONINFO info;
 
-   _al_d3d_module = LoadLibraryA(_al_d3d_module_name);
+   _al_d3d_module = _al_win_safe_load_library(_al_d3d_module_name);
    if (_al_d3d_module == NULL) {
       ALLEGRO_ERROR("Failed to open '%s' library\n", _al_d3d_module_name);
       return false;

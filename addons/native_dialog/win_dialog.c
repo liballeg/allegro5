@@ -27,7 +27,7 @@ ALLEGRO_DEBUG_CHANNEL("win_dialog")
 static int wlog_class_registered = 0;
 
 /* Handle of RichEdit module */
-static HMODULE wlog_rich_edit_module = 0;
+static void *wlog_rich_edit_module = 0;
 
 /* Name of the edit control. Depend on system resources. */
 static wchar_t* wlog_edit_control = L"EDIT";
@@ -351,17 +351,17 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 
    /* Load RichEdit control. */
    if (!wlog_rich_edit_module) {
-      if ((wlog_rich_edit_module = LoadLibraryA("msftedit.dll"))) {
+      if ((wlog_rich_edit_module = _al_open_library("msftedit.dll"))) {
          /* 4.1 and emulation of 3.0, 2.0, 1.0 */
          wlog_edit_control = L"RICHEDIT50W"; /*MSFTEDIT_CLASS*/
          wlog_unicode      = true;
       }
-      else if ((wlog_rich_edit_module = LoadLibraryA("riched20.dll"))) {
+      else if ((wlog_rich_edit_module = _al_open_library("riched20.dll"))) {
          /* 3.0, 2.0 */
          wlog_edit_control = L"RichEdit20W"; /*RICHEDIT_CLASS*/
          wlog_unicode      = true;
       }
-      else if ((wlog_rich_edit_module = LoadLibraryA("riched32.dll"))) {
+      else if ((wlog_rich_edit_module = _al_open_library("riched32.dll"))) {
          /* 1.0 */
          wlog_edit_control = L"RichEdit"; /*RICHEDIT_CLASS*/
          wlog_unicode      = false;
@@ -379,7 +379,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       (HINSTANCE)GetModuleHandle(NULL), textlog);
    if (!hWnd) {
       if (wlog_rich_edit_module) {
-         FreeLibrary(wlog_rich_edit_module);
+         _al_close_library(wlog_rich_edit_module);
          wlog_rich_edit_module = NULL;
       }
       UnregisterClassA("Allegro Text Log", (HINSTANCE)GetModuleHandle(NULL));
@@ -397,7 +397,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       hWnd, NULL, (HINSTANCE)GetModuleHandle(NULL), NULL);
    if (!hLog) {
       if (wlog_rich_edit_module) {
-         FreeLibrary(wlog_rich_edit_module);
+         _al_close_library(wlog_rich_edit_module);
          wlog_rich_edit_module = NULL;
       }
       DestroyWindow(hWnd);
@@ -468,7 +468,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 
    /* Release RichEdit module. */
    if (wlog_rich_edit_module) {
-      FreeLibrary(wlog_rich_edit_module);
+      _al_close_library(wlog_rich_edit_module);
       wlog_rich_edit_module = NULL;
    }
 

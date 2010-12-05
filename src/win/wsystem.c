@@ -34,9 +34,10 @@
 #endif
 
 #include <windows.h>
-
-
 #include <mmsystem.h>
+
+ALLEGRO_DEBUG_CHANNEL("system")
+
 
 /* FIXME: should we check for psapi _WIN32_IE and shlobj?
 { */
@@ -483,16 +484,145 @@ static bool win_inhibit_screensaver(bool inhibit)
    return true;
 }
 
-static void *win_open_library(const char *filename)
+static HMODULE load_library_at_path(ALLEGRO_PATH *path, const char *filename)
 {
-   HINSTANCE lib = LoadLibrary(filename);
-   if (!lib) {
+   const char *path_str;
+   HMODULE lib;
+
+   al_set_path_filename(path, filename);
+   path_str = al_path_cstr(path, '\\');
+
+   lib = LoadLibraryA(path_str);
+   if (lib) {
+      ALLEGRO_INFO("Loaded %s\n", path_str);
+   }
+   else {
       DWORD error = GetLastError();
       HRESULT hr = HRESULT_FROM_WIN32(error);
       /* XXX do something with it */
       (void)hr;
+      ALLEGRO_WARN("Failed to load %s (error: %ld)\n", path_str, error);
    }
+
    return lib;
+}
+
+static bool is_build_config_name(const char *s)
+{
+   return s &&
+      (  0 == strcmp(s, "Debug")
+      || 0 == strcmp(s, "Release")
+      || 0 == strcmp(s, "RelWithDebInfo")
+      || 0 == strcmp(s, "Profile"));
+}
+
+static bool same_dir(ALLEGRO_PATH *dir1, ALLEGRO_PATH *dir2)
+{
+   const char *s1;
+   const char *s2;
+   int i, n1, n2;
+
+   n1 = al_get_path_num_components(dir1);
+   n2 = al_get_path_num_components(dir2);
+   if (n1 != n2)
+      return false;
+
+   for (i = 0; i < n1; i++) {
+      s1 = al_get_path_component(dir1, i);
+      s2 = al_get_path_component(dir2, i);
+      if (strcmp(s1, s2) != 0)
+         return false;
+   }
+
+   s1 = al_get_path_drive(dir1);
+   s2 = al_get_path_drive(dir2);
+   if (!s1 || !s2 || strcmp(s1, s2) != 0)
+      return false;
+
+   return true;
+}
+
+static HMODULE maybe_load_library_at_cwd(ALLEGRO_PATH *path)
+{
+   char cwd_buf[MAX_PATH];
+   ALLEGRO_PATH *cwd;
+   const char *path_str;
+   HMODULE lib;
+
+   if (!is_build_config_name(al_get_path_tail(path)))
+      return NULL;
+
+   if (GetCurrentDirectoryA(sizeof(cwd_buf), cwd_buf) >= sizeof(cwd_buf)) {
+      ALLEGRO_WARN("GetCurrentDirectoryA failed\n");
+      return NULL;
+   }
+
+   al_drop_path_tail(path);
+   path_str = al_path_cstr(path, '\\');
+
+   cwd = al_create_path_for_directory(cwd_buf);
+   if (same_dir(path, cwd)) {
+      ALLEGRO_DEBUG("Assuming MSVC build directory, trying %s\n", path_str);
+      lib = LoadLibraryA(path_str);
+   }
+   al_destroy_path(cwd);
+
+   return lib;
+}
+
+/*
+ * Calling LoadLibrary with a relative file name is a security risk:
+ * see e.g. Microsoft Security Advisory (2269637)
+ * "Insecure Library Loading Could Allow Remote Code Execution"
+ */
+HMODULE _al_win_safe_load_library(const char *filename)
+{
+   char buf[MAX_PATH];
+   HMODULE lib;
+   bool msvc_only = false;
+
+   /* MSVC only: if the executable is in the build configuration directory,
+    * which is also just under the current directory, then also try to load the
+    * library from the current directory.  This leads to less surprises when
+    * running example programs.
+    */
+#if defined(ALLEGRO_MSVC)
+   msvc_only = true;
+#endif
+
+   /* Try to load the library from the directory containing the running
+    * executable.
+    */
+   if (GetModuleFileName(NULL, buf, sizeof(buf)) < sizeof(buf)) {
+      ALLEGRO_PATH *path = al_create_path(buf);
+      lib = load_library_at_path(path, filename);
+      if (!lib && msvc_only) {
+         lib = maybe_load_library_at_cwd(path);
+      }
+      al_destroy_path(path);
+      if (lib)
+         return lib;
+   }
+
+   /* Try to load the library from the Windows system directory. */
+   if (GetSystemDirectoryA(buf, sizeof(buf)) < sizeof(buf)) {
+      ALLEGRO_PATH *path = al_create_path_for_directory(buf);
+      lib = load_library_at_path(path, filename);
+      al_destroy_path(path);
+      if (lib)
+         return lib;
+   }
+
+   /* Do NOT try to load the library from the current directory, or
+    * directories on the PATH.
+    */
+
+   return NULL;
+}
+
+static void *win_open_library(const char *filename)
+{
+   return _al_win_safe_load_library(filename);
 }
 
 static void *win_import_symbol(void *library, const char *symbol)

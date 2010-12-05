@@ -112,6 +112,9 @@ AL_FUNC(void, _al_win_wnd_call_proc, (HWND wnd, void (*proc)(void*), void *param
 
 extern bool _al_win_disable_screensaver;
 
+/* dynamic library loading */
+HMODULE _al_win_safe_load_library(const char *filename);
+
 /* time */
 void _al_win_init_time(void);
 void _al_win_shutdown_time(void);
