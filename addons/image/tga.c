@@ -407,6 +407,8 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f)
 
                for (i = 0; i < image_width; i++) {
                   int true_x = (left_to_right) ? i : (image_width - 1 - i);
+                  unsigned char *dest = (unsigned char *)lr->data +
+                     lr->pitch*true_y + true_x*4;
                   int b = buf[i * 4 + 0];
                   int g = buf[i * 4 + 1];
                   int r = buf[i * 4 + 2];
@@ -418,8 +420,6 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f)
                      b = b * a / 255;
                   }
 
-                  unsigned char *dest = (unsigned char*)lr->data +
-                     lr->pitch*true_y + true_x*4;
                   dest[0] = r;
                   dest[1] = g;
                   dest[2] = b;
