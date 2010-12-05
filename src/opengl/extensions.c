@@ -162,9 +162,9 @@ static uint32_t _al_ogl_version(void)
    if (strstr(s, "2.0"))
       return _ALLEGRO_OPENGL_VERSION_2_0;
    else if (strstr(s, "1.1"))
-      return _ALLEGRO_OPENGL_VERSION_1_5; /* 1.5 */
+      return _ALLEGRO_OPENGL_VERSION_1_1;
    else
-      return _ALLEGRO_OPENGL_VERSION_1_3;
+      return _ALLEGRO_OPENGL_VERSION_0;
 #endif
 }
 
@@ -219,6 +219,20 @@ uint32_t al_get_opengl_version(void)
 }
 
 
+/* NOTE: al_get_opengl_variant is pretty simple right now but may
+ * eventually need driver support.
+ */
+
+/* Function: al_get_opengl_variant
+ */
+int al_get_opengl_variant(void)
+{
+#if defined ALLEGRO_IPHONE || defined ALLEGRO_GP2XWIZ
+   return ALLEGRO_OPENGL_ES;
+#else
+   return ALLEGRO_DESKTOP_OPENGL;
+#endif
+}
 
 /* Create the extension list */
 static ALLEGRO_OGL_EXT_LIST *create_extension_list(void)

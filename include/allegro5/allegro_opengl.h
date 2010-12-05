@@ -30,6 +30,8 @@
 
 #include <OpenGLES/ES1/gl.h>
 #include <OpenGLES/ES1/glext.h>
+#include <OpenGLES/ES2/gl.h>
+#include <OpenGLES/ES2/glext.h>
 
 /* Apple defines OES versions for these - however the separated alpha ones
  * don't seem to work on the device and just crash.
@@ -109,6 +111,12 @@
  *  Public OpenGL-related API
  */
 
+/* Enum: ALLEGRO_OPENGL_VARIANT
+ */
+typedef enum ALLEGRO_OPENGL_VARIANT {
+   ALLEGRO_DESKTOP_OPENGL = 0,
+   ALLEGRO_OPENGL_ES
+} ALLEGRO_OPENGL_VARIANT;
 
 AL_FUNC(uint32_t,              al_get_opengl_version,            (void));
 AL_FUNC(bool,                  al_have_opengl_extension,         (const char *extension));
@@ -122,6 +130,7 @@ AL_FUNC(void,                  al_get_opengl_texture_size,       (ALLEGRO_BITMAP
 AL_FUNC(void,                  al_get_opengl_texture_position,   (ALLEGRO_BITMAP *bitmap,
                                                                   int *u, int *v));
 AL_FUNC(void,                  al_set_current_opengl_context,    (ALLEGRO_DISPLAY *display));
+AL_FUNC(int,                   al_get_opengl_variant,            (void));
 
 #ifdef __cplusplus
    }

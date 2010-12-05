@@ -134,6 +134,20 @@ You might need if it you created an OpenGL "forward compatible" context.
 Then [al_get_backbuffer] only returns NULL, so it would not work to pass that
 to [al_set_target_bitmap].
 
+## API: al_get_opengl_variant
+
+Returns the variant or type of OpenGL used on the running platform. This
+function can be called before creating a display or setting properties for
+new displays. Possible values are:
+
+   ALLEGRO_DESKTOP_OPENGL
+      Regular OpenGL as seen on desktop/laptop computers.
+
+   ALLEGRO_OPENGL_ES
+      Trimmed down version of OpenGL used on many small consumer electronic
+      devices such as handheld (and sometimes full size) consoles.
+
+See also: [al_get_opengl_version]
 
 ## OpenGL configuration
 
