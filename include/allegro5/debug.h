@@ -39,7 +39,7 @@ AL_PRINTFUNC(void, _al_trace_suffix, (const char *msg, ...), 1, 2);
       !_al_trace_prefix(channel, level, __FILE__, __LINE__, __func__)         \
       ? (void)0 : _al_trace_suffix
 #else
-   #define ALLEGRO_TRACE_CHANNEL_LEVEL(channel, x)  1 ? (void) 0 : al_trace
+   #define ALLEGRO_TRACE_CHANNEL_LEVEL(channel, x)  1 ? (void) 0 : _al_trace_suffix
    #define ALLEGRO_DEBUG_CHANNEL(x)
 #endif
 
