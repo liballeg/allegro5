@@ -35,12 +35,15 @@ crash as described before can happen.
 Original iPhones and iPod Touches had a screen resolution of 320x480
 (in Portrait mode). When the iPhone 4 and iPod Touch 4th generation devices
 came out, they were backwards compatible with all old iPhone apps. This
-means that they assume a 480x320 screen resolution by default, while they
-actually have a 960x640 pixel screen (exactly 2x on each dimension). An
-API was added to allow access to the full (or in fact any fraction of)
-resolution of the new devices. This function is normally called with a value
-of "2.0" to get the native iPhone 4 screen resolution (you must also call
-al_create_display with (960, 640), AFTER calling this function). It is not
-limited to 2.0 scaling factors however. You can use 1.5 or 0.5 or other values
-in between, however if it's not an exact multiple of the original iPhone
-resolution, linear filtering will be applied to the screen.
+means that they assume a 320x480 screen resolution by default, while they
+actually have a 640x960 pixel screen (exactly 2x on each dimension). An
+API was added to allow access to the full (or in fact any fraction of the)
+resolution of the new devices. This function is normally not needed, as in
+the case when you want a scale of 2.0 for "retina display" resolution
+(640x960). In that case you would just call al_create_display with the
+larger width and height parameters. It is not limited to 2.0 scaling factors
+however. You can use 1.5 or 0.5 or other values in between, however if it's
+not an exact multiple of the original iPhone resolution, linear filtering
+will be applied to the final image.
+
+This function should be called BEFORE calling al_create_display.
