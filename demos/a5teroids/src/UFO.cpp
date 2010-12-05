@@ -11,7 +11,7 @@ bool UFO::logic(int step)
       return false;
    }
 
-   int now = al_get_time() * 1000;
+   int now = (int) (al_get_time() * 1000.0);
    if (now > nextShot) {
       nextShot = now + SHOT_SPEED;
       ResourceManager& rm = ResourceManager::getInstance();
