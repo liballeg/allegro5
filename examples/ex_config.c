@@ -5,7 +5,6 @@
  */
 
 #include <stdio.h>
-#define ALLEGRO_USE_CONSOLE
 #include "allegro5/allegro.h"
 
 #include "common.c"
@@ -36,7 +35,7 @@ int main(void)
 
    cfg = al_load_config_file("data/sample.cfg");
    if (!cfg) {
-      printf("Couldn't load data/sample.cfg\n");
+      abort_example("Couldn't load data/sample.cfg\n");
       return 1;
    }
 

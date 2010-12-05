@@ -4,7 +4,6 @@
  *    Stress test path routines.
  */
 
-#define ALLEGRO_USE_CONSOLE
 #include <allegro5/allegro.h>
 #include <stdio.h>
 
