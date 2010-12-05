@@ -166,6 +166,8 @@ static int _aqueue_allocate_voice(ALLEGRO_VOICE *voice)
       case ALLEGRO_AUDIO_DEPTH_INT16:
          bits_per_sample = 16;
          break;
+      default:
+         return 1;
    }
 
    switch (voice->chan_conf) {
@@ -219,6 +221,8 @@ static void _aqueue_deallocate_voice(ALLEGRO_VOICE *voice)
 static int _aqueue_load_voice(ALLEGRO_VOICE *voice, const void *data)
 {
    /* FIXME */
+   (void)voice;
+   (void)data;
    return 1;
 }
 
@@ -227,6 +231,7 @@ static int _aqueue_load_voice(ALLEGRO_VOICE *voice, const void *data)
 static void _aqueue_unload_voice(ALLEGRO_VOICE *voice)
 {
    /* FIXME */
+   (void)voice;
 }
 
 
@@ -381,6 +386,7 @@ static bool _aqueue_voice_is_playing(const ALLEGRO_VOICE *voice)
 static unsigned int _aqueue_get_voice_position(const ALLEGRO_VOICE *voice)
 {
    /* FIXME */
+   (void)voice;
    return 0;
 }
 
@@ -390,6 +396,8 @@ static unsigned int _aqueue_get_voice_position(const ALLEGRO_VOICE *voice)
 static int _aqueue_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
 {
    /* FIXME */
+   (void)voice;
+   (void)val;
    return 0;
 }
 
