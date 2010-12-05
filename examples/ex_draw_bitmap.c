@@ -118,7 +118,7 @@ static void change_size(int size)
    if (example.bitmap)
       al_destroy_bitmap(example.bitmap);
    al_set_new_bitmap_flags(
-      example.use_memory_bitmaps ? ALLEGRO_MEMORY_BITMAP : 0);
+      example.use_memory_bitmaps ? ALLEGRO_MEMORY_BITMAP : ALLEGRO_VIDEO_BITMAP);
    example.bitmap = al_create_bitmap(size, size);
    example.bitmap_size = size;
    al_set_target_bitmap(example.bitmap);

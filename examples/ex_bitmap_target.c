@@ -169,7 +169,7 @@ int main(void)
 
    while (!quit) {
       if (al_get_new_bitmap_flags() & ALLEGRO_FORCE_LOCKING)
-         al_set_new_bitmap_flags(0);
+         al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
       else
          al_set_new_bitmap_flags(ALLEGRO_FORCE_LOCKING);
       run();

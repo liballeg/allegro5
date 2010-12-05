@@ -310,7 +310,7 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
 
    ALLEGRO_DEBUG("Creating backbuffer bitmap\n");
    al_set_new_bitmap_format(format);
-   al_set_new_bitmap_flags(0);
+   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
    backbuffer = _al_ogl_create_bitmap(disp, disp->w, disp->h);
    al_restore_state(&backup);
 
