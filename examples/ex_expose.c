@@ -75,10 +75,10 @@ int main(void)
       if (event.type == ALLEGRO_EVENT_TIMER) {
          /* Slowly restore the original bitmap. */
          int x, y;
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
          for (y = 0; y < H; y += 200) {
             for (x = 0; x < W; x += 320) {
-               al_draw_tinted_bitmap(bitmap, al_map_rgba_f(1, 1, 1, 0), x, y, 0);
+               al_draw_tinted_bitmap(bitmap, al_map_rgba_f(1, 1, 1, 0.1), x, y, 0);
             }
          }
          al_flip_display();

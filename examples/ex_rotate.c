@@ -137,7 +137,7 @@ int main(void)
          al_clear_to_color(al_map_rgba_f(0, 0, 1, 1));
 
       if (trans_mode) {
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
          trans = al_map_rgba_f(1, 1, 1, 0.5);
       }
 

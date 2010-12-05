@@ -27,7 +27,8 @@ int main(int argc, char **argv)
    al_init_image_addon();
 
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP
+      | ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
    bitmap = al_load_bitmap(argv[1]);
    if (!bitmap) {
