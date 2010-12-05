@@ -199,6 +199,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
       glBindTexture(GL_TEXTURE_2D, 0);
    }
 }
+#endif /* ALLEGRO_CFG_OPENGL */
 
 int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, int start, int end, int type)
 {   
@@ -282,12 +283,13 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const 
 
    return num_primitives;
 #else
+   (void)target;
    (void)texture;
    (void)vtxs;
+   (void)decl;
    (void)start;
    (void)end;
    (void)type;
-   (void)decl;
 
    return 0;
 #endif
@@ -389,15 +391,14 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
 
    return num_primitives;
 #else
+   (void)target;
    (void)texture;
    (void)vtxs;
-   (void)start;
-   (void)end;
-   (void)type;
    (void)decl;
+   (void)indices;
+   (void)num_vtx;
+   (void)type;
 
    return 0;
 #endif
 }
-
-#endif
