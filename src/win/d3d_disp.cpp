@@ -1881,7 +1881,7 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    return true;
 }
 
-static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
+static ALLEGRO_DISPLAY *d3d_create_display_locked(int w, int h)
 {
    ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_get_system_driver();
    ALLEGRO_DISPLAY_D3D *d3d_display = d3d_create_display_helper(w, h);
@@ -1939,6 +1939,17 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    }
 
    return al_display;
+}
+
+static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
+{
+   ALLEGRO_DISPLAY *display;
+
+   al_lock_mutex(present_mutex);
+   display = d3d_create_display_locked(w, h);
+   al_unlock_mutex(present_mutex);
+
+   return display;
 }
 
 static bool d3d_set_current_display(ALLEGRO_DISPLAY *d)
