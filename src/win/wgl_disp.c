@@ -1596,7 +1596,7 @@ ALLEGRO_DISPLAY_MODE *_al_wgl_get_display_mode(int index, int format,
       return NULL;
 
    mode->width = dm.dmPelsWidth;
-   mode->height = dm.dmPanningHeight;
+   mode->height = dm.dmPelsHeight;
    mode->refresh_rate = dm.dmDisplayFrequency;
 
    return mode;
