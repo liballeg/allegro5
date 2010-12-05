@@ -20,10 +20,10 @@ static void draw_mouse_button(int but, bool down)
    grey = al_map_rgb(0xe0, 0xe0, 0xe0);
    black = al_map_rgb(0, 0, 0);
 
-   al_draw_filled_rectangle(x, y, x + 26.5, y + 41.5, grey);
-   al_draw_rectangle(x, y, x + 26.5, y + 41.5, black, 0);
+   al_draw_filled_rectangle(x, y, x + 27, y + 42, grey);
+   al_draw_rectangle(x + 0.5, y + 0.5, x + 26.5, y + 41.5, black, 0);
    if (down) {
-      al_draw_filled_rectangle(x + 2, y + 2, x + 24.5, y + 39.5, black);
+      al_draw_filled_rectangle(x + 2, y + 2, x + 25, y + 40, black);
    }
 }
 
