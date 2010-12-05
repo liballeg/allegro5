@@ -19,6 +19,7 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
    /* Note: buffer is now owned (and later freed) by the data object. */
    NSData *nsdata = [NSData dataWithBytesNoCopy:buffer length:size];
    NSImage *image = [[NSImage alloc] initWithData:nsdata];
+   bool premul = !(al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
    if (!image)
       return NULL;
@@ -70,8 +71,34 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
       ALLEGRO_LOCKED_REGION *lock = al_lock_bitmap(bmp,
             ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_WRITEONLY);
       int i;
-      for (i = 0; i < h; i++) {
-         memcpy(lock->data + lock->pitch * i, pixels + w * 4 * i, w * 4);
+      if (!premul) {
+         int x;
+         for (i = 0; i < h; i++) {
+            unsigned char *src_ptr = (unsigned char *)pixels + w * 4 * i;
+            unsigned char *dest_ptr = (unsigned char *)lock->data +
+	       lock->pitch * i;
+            for (x = 0; x < w; x++) {
+               unsigned char r, g, b, a;
+               r = *src_ptr++;
+               g = *src_ptr++;
+               b = *src_ptr++;
+               a = *src_ptr++;
+            // NOTE: avoid divide by zero by adding a fraction
+               float alpha_mul = 255.0f / (a+0.001f);
+               r *= alpha_mul;
+               g *= alpha_mul;
+               b *= alpha_mul;
+               *dest_ptr++ = r;
+               *dest_ptr++ = g;
+               *dest_ptr++ = b;
+               *dest_ptr++ = a;
+            }
+         }
+      }
+      else {
+         for (i = 0; i < h; i++) {
+            memcpy(lock->data + lock->pitch * i, pixels + w * 4 * i, w * 4);
+         }
       }
       al_unlock_bitmap(bmp);
    }

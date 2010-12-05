@@ -50,17 +50,17 @@ typedef enum ALLEGRO_PIXEL_FORMAT
 /*
  * Bitmap flags
  */
-#define ALLEGRO_VIDEO_BITMAP          0x0000
-
-#define ALLEGRO_MEMORY_BITMAP         0x0001
-#define ALLEGRO_KEEP_BITMAP_FORMAT    0x0002
-#define ALLEGRO_FORCE_LOCKING         0x0004
-#define ALLEGRO_NO_PRESERVE_TEXTURE   0x0008
-#define ALLEGRO_ALPHA_TEST            0x0010
-#define _ALLEGRO_INTERNAL_OPENGL      0x0020
-#define ALLEGRO_MIN_LINEAR            0x0040
-#define ALLEGRO_MAG_LINEAR            0x0080
-#define ALLEGRO_MIPMAP                0x0100
+#define ALLEGRO_VIDEO_BITMAP            0x0000
+#define ALLEGRO_MEMORY_BITMAP           0x0001
+#define ALLEGRO_KEEP_BITMAP_FORMAT      0x0002
+#define ALLEGRO_FORCE_LOCKING           0x0004
+#define ALLEGRO_NO_PRESERVE_TEXTURE     0x0008
+#define ALLEGRO_ALPHA_TEST              0x0010
+#define _ALLEGRO_INTERNAL_OPENGL        0x0020
+#define ALLEGRO_MIN_LINEAR              0x0040
+#define ALLEGRO_MAG_LINEAR              0x0080
+#define ALLEGRO_MIPMAP                  0x0100
+#define ALLEGRO_NO_PREMULTIPLIED_ALPHA  0x0200
 
 
 /* Flags for the blitting functions */

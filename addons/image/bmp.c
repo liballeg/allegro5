@@ -340,6 +340,7 @@ static void read_32bit_line(int length, ALLEGRO_FILE *f, unsigned char *data)
    int i;
    unsigned char c[4];
    unsigned char r, g, b, a;
+   bool premul = !(al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
    for (i = 0; i < length; i++) {
       al_fread(f, c, 4);
@@ -347,6 +348,12 @@ static void read_32bit_line(int length, ALLEGRO_FILE *f, unsigned char *data)
       g = c[1];
       b = c[0];
       a = c[3];
+      
+      if (premul) {
+         r = r * a / 255;
+         g = g * a / 255;
+         b = b * a / 255;
+      }
 
       data[0] = r;
       data[1] = g;

@@ -555,7 +555,7 @@ static void draw_screen(void)
    for (i = 0; i < NUM_TOKENS; i++)
       draw_token(&tokens[i]);
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
 
    for (i = 0; i < NUM_TYPES; i++)
       draw_token(&buttons[i]);

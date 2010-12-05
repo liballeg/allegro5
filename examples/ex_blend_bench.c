@@ -84,7 +84,7 @@ static bool do_test(enum Mode mode)
    }
 
    al_set_target_bitmap(b1);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    step(mode, b2);
 
    /* Display the blended bitmap to the screen so we can see something. */

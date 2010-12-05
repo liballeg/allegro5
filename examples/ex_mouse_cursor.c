@@ -54,7 +54,7 @@ static void draw_display(ALLEGRO_FONT *font)
 
    al_clear_to_color(al_map_rgb(128, 128, 128));
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    th = al_get_font_line_height(font);
    for (i = 0; i < NUM_CURSORS; i++) {
       al_draw_text(font, al_map_rgba_f(0, 0, 0, 1),

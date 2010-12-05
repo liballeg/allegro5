@@ -69,7 +69,7 @@ static void print(char const *format, ...)
    va_start(list, format);
    vsnprintf(message, sizeof message, format, list);
    va_end(list);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    al_draw_textf(ex.font, ex.text, ex.text_x, ex.text_y, 0, "%s", message);
    ex.text_y += th;   
 }

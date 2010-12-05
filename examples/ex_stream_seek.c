@@ -116,7 +116,7 @@ static void render(void)
    al_clear_to_color(al_map_rgb(64, 64, 128));
    
    /* render "music player" */
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    al_draw_textf(basic_font, c, 0, 0, 0, "Playing %s", stream_filename);
    print_time(8, 24, pos);
    al_draw_textf(basic_font, c, 100, 24, 0, "/");

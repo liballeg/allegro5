@@ -282,7 +282,7 @@ ALLEGRO_BITMAP *replace_bitmap(ALLEGRO_BITMAP *bmp)
  */
 void solid_mode()
 {
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
 }
 
 

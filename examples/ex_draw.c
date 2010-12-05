@@ -82,7 +82,7 @@ static void print(char const *format, ...)
    vsnprintf(message, sizeof message, format, list);
    va_end(list);
    
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    al_draw_textf(ex.font, ex.text, ex.text_x, ex.text_y, 0, "%s", message);
    al_restore_state(&state);
    
@@ -157,7 +157,7 @@ static void draw(void)
 
    /* Draw the test scene. */
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    for (i = 0; i < rects_num; i++) {
       ALLEGRO_COLOR rgba = ex.foreground;
       rgba.a *= 0.5;

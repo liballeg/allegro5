@@ -41,7 +41,7 @@ static void print(int x, int y, bool vertical, char const *format, ...)
    vsnprintf(message, sizeof message, format, list);
    va_end(list);
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    h = al_get_font_line_height(ex.myfont);
 
    for (j = 0; j < 2; j++) {
@@ -153,12 +153,12 @@ static void draw(void)
    }
 
    if (ex.mode >= 1 && ex.mode <= 5) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
       al_set_target_bitmap(target);
       al_draw_bitmap_region(ex.offscreen, x, y, 430, 430, x, y, 0);
    }
    if (ex.mode >= 6 && ex.mode <= 10) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
       al_set_target_bitmap(target);
       al_draw_bitmap_region(ex.memory, x, y, 430, 430, x, y, 0);
    }

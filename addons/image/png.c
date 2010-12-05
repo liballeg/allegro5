@@ -100,6 +100,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
    ALLEGRO_LOCKED_REGION *lock;
    unsigned char *buf;
    unsigned char *rgba;
+   bool premul = !(al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
    ASSERT(png_ptr && info_ptr);
 
@@ -246,11 +247,22 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
          else {
             for (i = 0; i < width; i++) {
                uint32_t pix = bmp_read32(ptr);
+               int r = pix & 0xff;
+               int g = (pix >> 8) & 0xff;
+               int b = (pix >> 16) & 0xff;
+               int a = (pix >> 24) & 0xff;
                ptr += 4;
-               *(rgba++) = pix & 0xff;
-               *(rgba++) = (pix >> 8) & 0xff;
-               *(rgba++) = (pix >> 16) & 0xff;
-               *(rgba++) = (pix >> 24) & 0xff;
+
+               if (premul) {
+                  r = r * a / 255;
+                  g = g * a / 255;
+                  b = b * a / 255;
+               }
+
+               *(rgba++) = r;
+               *(rgba++) = g;
+               *(rgba++) = b;
+               *(rgba++) = a;
             }
          }
          rgba = rgba_row_start + lock->pitch;

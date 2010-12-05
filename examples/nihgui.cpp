@@ -373,7 +373,7 @@ void Label::draw()
    const Theme & theme = this->dialog->get_theme();
    SaveState state;
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    if (centred) {
       al_draw_text(theme.font, theme.fg, (this->x1 + this->x2 + 1)/2,
          this->y1, ALLEGRO_ALIGN_CENTRE, this->text.c_str());
@@ -432,7 +432,7 @@ void Button::draw()
       this->x2, this->y2, bg);
    al_draw_rectangle(this->x1 + 0.5, this->y1 + 0.5,
       this->x2 - 0.5, this->y2 - 0.5, fg, 0);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    al_draw_text(theme.font, fg, (this->x1 + this->x2 + 1)/2,
       this->y1, ALLEGRO_ALIGN_CENTRE, this->text.c_str());
 }
@@ -524,7 +524,7 @@ void List::draw()
 
    al_draw_filled_rectangle(x1 + 1, y1 + 1, x2 - 1, y2 - 1, theme.bg);
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    const int font_height = al_get_font_line_height(theme.font);
    for (unsigned i = 0; i < items.size(); i++) {
       int yi = y1 + i * font_height;
@@ -757,7 +757,7 @@ void TextEntry::draw()
 
    al_draw_filled_rectangle(x1, y1, x2, y2, theme.bg);
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
 
    if (!focused) {
       al_draw_ustr(theme.font, theme.fg, x1, y1, 0, UString(text, left_pos));

@@ -72,6 +72,7 @@ static void draw(void)
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
    al_draw_filled_rectangle(0, 0, al_get_bitmap_width(dbuf), al_get_bitmap_height(dbuf),
       al_map_rgba_f(0.8, 0.3, 0.1, 0.06));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    al_draw_tinted_scaled_rotated_bitmap(bmp,
       al_map_rgba_f(0.8, 0.3, 0.1, 0.2),
       sw/2.0, sh/2.0, dx, dy - disp, scale, scale, theta, 0);
@@ -80,6 +81,7 @@ static void draw(void)
    al_set_target_backbuffer(display);
    al_draw_bitmap(dbuf, 0, 0, 0);
 
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
    al_draw_line(10, dh - db_l, 10, dh, al_map_rgb_f(1, 0.6, 0.2), 6);
    al_draw_line(20, dh - db_r, 20, dh, al_map_rgb_f(1, 0.6, 0.2), 6);
 
