@@ -1140,12 +1140,12 @@ static void sw_hw_test(ALLEGRO_CONFIG *cfg, char const *testname)
    int old_failed_tests = failed_tests;
    bool reliable;
 
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP | ALLEGRO_NO_PREMULTIPLIED_ALPHA);
    do_test(cfg, testname, membuf, SW, true);
 
    reliable = (failed_tests == old_failed_tests);
 
-   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP | ALLEGRO_NO_PREMULTIPLIED_ALPHA);
    do_test(cfg, testname, al_get_backbuffer(display), HW, reliable);
 }
 
@@ -1271,10 +1271,10 @@ static void process_ini_files(void)
       argc--;
       argv++;
 
-      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP | ALLEGRO_NO_PREMULTIPLIED_ALPHA);
       load_bitmaps(cfg, "bitmaps", SW);
 
-      al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+      al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP | ALLEGRO_NO_PREMULTIPLIED_ALPHA);
       load_bitmaps(cfg, "bitmaps", HW);
       load_fonts(cfg, "fonts");
 
