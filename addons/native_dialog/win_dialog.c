@@ -58,7 +58,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
 
    ofn.lStructSize = sizeof(OPENFILENAME);
    win_display = (ALLEGRO_DISPLAY_WIN *)display;
-   ofn.hwndOwner = win_display->window;
+   ofn.hwndOwner = (win_display) ? win_display->window : NULL;
 
    ofn.lpstrFile = buf;
    ofn.nMaxFile = sizeof(buf);
