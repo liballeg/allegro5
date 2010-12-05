@@ -10,7 +10,7 @@ const int MAX_UFO_TIME = 50000;
 
 bool logic(int step)
 {
-   const long now = al_get_time() * 1000;
+   const long now = (long) (al_get_time() * 1000.0);
 
    if (lastUFO < 0)
       lastUFO = now;
