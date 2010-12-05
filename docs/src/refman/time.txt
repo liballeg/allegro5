@@ -18,6 +18,10 @@ initialised. The return value is undefined if Allegro is uninitialised.
 The resolution depends on the used driver, but typically can be in the
 order of microseconds.
 
+## API: al_current_time
+
+Alternate spelling of [al_get_time].
+
 ## API: al_init_timeout
 
 Set timeout value of some number of seconds after the function call.
