@@ -35,6 +35,10 @@ Closes down the Allegro system.
 > Note: al_uninstall_system() can be called without a corresponding
 [al_install_system] call, e.g. from atexit().
 
+## API: al_is_system_installed
+
+Returns true if Allegro is initialized, otherwise returns false.
+
 ## API: al_get_allegro_version
 
 Returns the (compiled) version of the Allegro library, packed into a single
@@ -113,10 +117,6 @@ See also: [al_set_app_name]
 Returns the global organization name string.
 
 See also: [al_set_org_name]
-
-## API: al_get_system_driver
-
-Returns the currently active system driver, or NULL.
 
 ## API: al_get_system_config
 

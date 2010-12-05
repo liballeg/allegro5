@@ -283,7 +283,17 @@ void al_uninstall_system(void)
 
 
 
-/* Function: al_get_system_driver
+/* Function: al_is_system_installed
+ */
+bool al_is_system_installed(void)
+{
+   return (active_sysdrv) ? true : false;
+}
+
+
+/* Hidden function: al_get_system_driver
+ *  This was exported and documented in 5.0rc1 but probably shouldn't have been
+ *  as ALLEGRO_SYSTEM is not documented.
  */
 ALLEGRO_SYSTEM *al_get_system_driver(void)
 {
