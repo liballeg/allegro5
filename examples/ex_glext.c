@@ -189,14 +189,20 @@ static void draw_mesh(void)
 
 
 
-int main(void)
+int main(int argc, const char *argv[])
 {
    GLuint pid;
    ALLEGRO_DISPLAY *d;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_EVENT event;
+   ALLEGRO_TIMER *timer;
    int frames = 0;
    double start;
+   bool limited = true;
+
+   if (argc > 1 && 0 == strcmp(argv[1], "-nolimit")) {
+      limited = false;
+   }
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -225,6 +231,14 @@ int main(void)
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_display_event_source(d));
 
+   if (limited) {
+      timer = al_create_timer(1/60.0);
+      al_register_event_source(queue, al_get_timer_event_source(timer));
+      al_start_timer(timer);
+   }
+   else {
+      timer = NULL;
+   }
 
    if (al_get_opengl_extension_list()->ALLEGRO_GL_ARB_multisample) {
       glEnable(GL_MULTISAMPLE_ARB);
@@ -287,6 +301,10 @@ int main(void)
 
    start = al_get_time();
    while (1) {
+      if (limited) {
+         al_wait_for_event(queue, NULL);
+      }
+
       if (!al_is_event_queue_empty(queue)) {
          while (al_get_next_event(queue, &event)) {
             switch (event.type) {
