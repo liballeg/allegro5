@@ -132,7 +132,7 @@ int main(void)
          }
       }
       else if (event.type == ALLEGRO_EVENT_JOYSTICK_AXIS) {
-         log_printf("axis event from %p\n", event.joystick.id);
+         log_printf("axis event from %p, stick %d, axis %d\n", event.joystick.id, event.joystick.stick, event.joystick.axis);
       }
       else if (event.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN) {
          log_printf("button down event %d from %p\n",
