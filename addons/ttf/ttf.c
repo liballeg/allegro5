@@ -155,7 +155,7 @@ static int render_glyph(ALLEGRO_FONT const *f,
         // NO_BITMAP flags. Supposedly using that flag makes small sizes
         // look bad so ideally we would not used it.
         e = FT_Load_Glyph(face, ft_index, FT_LOAD_RENDER | FT_LOAD_NO_BITMAP |
-	   (glyph->monochrome ? FT_LOAD_TARGET_MONO : 0));
+           (glyph->monochrome ? FT_LOAD_TARGET_MONO : 0));
         if (e) {
            ALLEGRO_WARN("Failed loading glyph %d from.\n", ft_index);
         }
@@ -182,43 +182,73 @@ static int render_glyph(ALLEGRO_FONT const *f,
         al_put_pixel(0, 0, al_map_rgba(0, 0, 0, 0));
         row = face->glyph->bitmap.buffer;
 
-	if (glyph->monochrome) {
-		for (y = 0; y < face->glyph->bitmap.rows; y++) {
-		    unsigned char *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
-		    unsigned char *dptr = (unsigned char *)lr->data + lr->pitch * y;
-		    int bit = 0;
-		    for (x = 0; x < face->glyph->bitmap.width; x++) {
-			unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
-			float setf = set / 255.0f;
-			*(dptr++) = 255 * setf;
-			*(dptr++) = 255 * setf;
-			*(dptr++) = 255 * setf;
-			*(dptr++) = set;
-			bit++;
-			if (bit >= 8) {
-			   bit = 0;
-			   ptr++;
-			}
-		    }
-		    row += face->glyph->bitmap.pitch;
-		}
-	}
-	else {
-		for (y = 0; y < face->glyph->bitmap.rows; y++) {
-		    unsigned char *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
-		    unsigned char *dptr = (unsigned char *)lr->data + lr->pitch * y;
-		    for (x = 0; x < face->glyph->bitmap.width; x++) {
-			unsigned char c = *ptr;
-			float cf = c / 255.0f;
-			*(dptr++) = 255 * cf;
-			*(dptr++) = 255 * cf;
-			*(dptr++) = 255 * cf;
-			*(dptr++) = c;
-			ptr++;
-		    }
-		    row += face->glyph->bitmap.pitch;
-		}
-	}
+        if (glyph->monochrome) {
+           for (y = 0; y < face->glyph->bitmap.rows; y++) {
+               unsigned char *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
+               unsigned char *dptr = (unsigned char *)lr->data + lr->pitch * y;
+               int bit = 0;
+	       if (al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
+                  for (x = 0; x < face->glyph->bitmap.width; x++) {
+                     unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
+                     *(dptr++) = 255;
+                     *(dptr++) = 255;
+                     *(dptr++) = 255;
+                     *(dptr++) = set;
+                     bit++;
+                     if (bit >= 8) {
+                        bit = 0;
+                        ptr++;
+                     }
+                  }
+	       }
+	       else {
+                  for (x = 0; x < face->glyph->bitmap.width; x++) {
+                     unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
+                     float setf = set / 255.0f;
+                     *(dptr++) = 255 * setf;
+                     *(dptr++) = 255 * setf;
+                     *(dptr++) = 255 * setf;
+                     *(dptr++) = set;
+                     bit++;
+                     if (bit >= 8) {
+                        bit = 0;
+                        ptr++;
+                     }
+                  }
+               }
+               row += face->glyph->bitmap.pitch;
+           }
+        }
+        else {
+           for (y = 0; y < face->glyph->bitmap.rows; y++) {
+               unsigned char *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
+               unsigned char *dptr = (unsigned char *)lr->data + lr->pitch * y;
+               if (al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
+                  for (x = 0; x < face->glyph->bitmap.width; x++) {
+                     unsigned char c = *ptr;
+                     float cf = c / 255.0f;
+                     *(dptr++) = 255;
+                     *(dptr++) = 255;
+                     *(dptr++) = 255;
+                     *(dptr++) = c;
+                     ptr++;
+                  }
+               }
+               else {
+                  for (x = 0; x < face->glyph->bitmap.width; x++) {
+                     unsigned char c = *ptr;
+                     float cf = c / 255.0f;
+                     *(dptr++) = 255 * cf;
+                     *(dptr++) = 255 * cf;
+                     *(dptr++) = 255 * cf;
+                     *(dptr++) = c;
+                     ptr++;
+                  }
+               }
+               row += face->glyph->bitmap.pitch;
+           }
+        }
+
         al_unlock_bitmap(glyph->bitmap);
         glyph->x = face->glyph->bitmap_left;
         glyph->y = (face->size->metrics.ascender >> 6) - face->glyph->bitmap_top;
