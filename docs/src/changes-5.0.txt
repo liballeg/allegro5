@@ -28,7 +28,7 @@ Graphics:
    rather than an attempted estimate at a desktop GL version.
 
 -  Added function al_get_opengl_variant that returns either
-   ALLEGRO_DESKTOP_OPENGL or ALLEGRO_OPENGL_ES. Added documentation for it.
+   ALLEGRO_DESKTOP_OPENGL or ALLEGRO_OPENGL_ES.
 
 -  Make al_have_opengl_extension return bool.
 
@@ -67,7 +67,7 @@ Native dialogs addon:
 
 -  Make GTK native dialog implementation only call GTK from a single thread.
 
--  Define al_show_native_message_box to be usuable without installing Allegro.
+-  Define al_show_native_message_box to be usable without installing Allegro.
 
 Primitives addon:
 
