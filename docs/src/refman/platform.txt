@@ -19,13 +19,16 @@ These functions are declared in the following header file:
 ### API: al_iphone_program_has_halted
 
 Multitasking on iOS is different than on other platforms. When an
-application receives a ALLEGRO_DISPLAY_SWITCH_OUT or ALLEGRO_DISPLAY_CLOSE
+application receives an ALLEGRO_DISPLAY_SWITCH_OUT or ALLEGRO_DISPLAY_CLOSE
 event on a multitasking-capable device, it should cease all activity and
 do nothing but check for an ALLEGRO_DISPLAY_SWITCH_IN event. To let the
-iPhone driver know that you've ceased all activity, call this function. Certain
+iPhone driver know that you've ceased all activity, call this function.
+You should call this function very soon after receiving the event telling
+you it's time to switch out (within a couple milliseconds). Certain
 operations, if done, will crash the program after this call, most notably any
 function which uses OpenGL. This function is needed because the "switch out"
-handler on iPhone can't return until these operations have stopped.
+handler on iPhone can't return until these operations have stopped, or a
+crash as described before can happen.
 
 ### API: al_iphone_override_screen_scale
 
