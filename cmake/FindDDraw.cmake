@@ -1,5 +1,5 @@
-# - Find DirectInput
-# Find the DirectInput includes and libraries
+# - Find DirectDraw
+# Find the DirectDraw includes and libraries
 #
 #  DDRAW_INCLUDE_DIR - where to find ddraw.h
 #  DDRAW_LIBRARIES   - List of libraries when using ddraw.
