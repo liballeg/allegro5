@@ -4,6 +4,8 @@
 
 #include "common.c"
 
+#define EURO      "\xe2\x82\xac"
+
 static void wait_for_esc(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_EVENT_QUEUE *queue;
@@ -92,7 +94,7 @@ int main(void)
     al_draw_textf(f, al_map_rgb(0, 255, 0), 10, 50, 0, "green");
     
     /* Draw a unicode symbol */
-    al_draw_textf(a4f, al_map_rgb(0, 0, 255), 10, 90, 0, "Mysha's 0.02€");
+    al_draw_textf(a4f, al_map_rgb(0, 0, 255), 10, 90, 0, "Mysha's 0.02" EURO);
 
     al_flip_display();
 
