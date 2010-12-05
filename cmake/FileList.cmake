@@ -286,6 +286,10 @@ set(ALLEGRO_INCLUDE_ALLEGRO_WINDOWS_FILES
     include/allegro5/allegro_windows.h
     )
 
+set(ALLEGRO_INCLUDE_ALLEGRO_IPHONE_FILES
+    include/allegro5/allegro_iphone.h
+    )
+
 set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED
     include/allegro5/platform/alplatf.h
     )
