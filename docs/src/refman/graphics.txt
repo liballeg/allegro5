@@ -698,8 +698,8 @@ See also: [al_set_target_bitmap]
 
 Draw a single pixel on the target bitmap. This operation is slow on non-memory
 bitmaps. Consider locking the bitmap if you are going to use this function
-multiple times on the same bitmap. This function is not affected by neither the
-transformations nor the color blenders.
+multiple times on the same bitmap. This function is not affected by either the
+transformations or the color blenders.
 
 See also: [ALLEGRO_COLOR], [al_get_pixel], [al_put_blended_pixel]
 
