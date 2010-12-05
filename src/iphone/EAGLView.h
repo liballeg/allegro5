@@ -13,9 +13,7 @@ Note that setting the view non-opaque will only work if the EAGL surface has an 
 @interface EAGLView : UIView {
 
 @private
-	EAGLContext *context;
-   GLint backingWidth;
-   GLint backingHeight;
+   EAGLContext *context;
    ALLEGRO_DISPLAY *allegro_display;
 
    /* OpenGL names for the renderbuffer and framebuffers used to render to this view */
@@ -26,6 +24,8 @@ Note that setting the view non-opaque will only work if the EAGL surface has an 
 }
 
 @property (nonatomic, retain) EAGLContext *context;
+@property GLint backingWidth;
+@property GLint backingHeight;
 
 
 - (void)make_current;

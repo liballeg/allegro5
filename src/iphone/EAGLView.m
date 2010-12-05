@@ -9,6 +9,8 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 @implementation EAGLView
 
 @synthesize context;
+@synthesize backingWidth;
+@synthesize backingHeight;
 
 
 // You must implement this method
@@ -74,6 +76,10 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 
 
 - (BOOL)createFramebuffer {
+   if ([self respondsToSelector:@selector(contentScaleFactor)]) {
+   	self.contentScaleFactor = _al_iphone_get_screen_scale();
+   }
+
     ALLEGRO_INFO("Creating GL framebuffer.\n");
     glGenFramebuffersOES(1, &viewFramebuffer);
     glGenRenderbuffersOES(1, &viewRenderbuffer);
@@ -137,6 +143,8 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 	// Enumerate through all the touch objects.
 	for (UITouch *touch in touches) {
       CGPoint p = [touch locationInView:self];
+      p.x *= _al_iphone_get_screen_scale();
+      p.y *= _al_iphone_get_screen_scale();
 		_al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_DOWN,
                                       p.x, p.y, 1, allegro_display);
         _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
@@ -151,6 +159,8 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 	// Enumerates through all touch objects
 	for (UITouch *touch in touches) {
       CGPoint p = [touch locationInView:self];
+      p.x *= _al_iphone_get_screen_scale();
+      p.y *= _al_iphone_get_screen_scale();
       _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
                                       p.x, p.y, 1, allegro_display);
 	}
@@ -163,6 +173,8 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 	// Enumerates through all touch object
 	for (UITouch *touch in touches) {
 		CGPoint p = [touch locationInView:self];
+      p.x *= _al_iphone_get_screen_scale();
+      p.y *= _al_iphone_get_screen_scale();
         _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_UP,
                                         p.x, p.y, 1, allegro_display);
         _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
@@ -179,9 +191,15 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 	// Enumerates through all touch object
 	for (UITouch *touch in touches) {
         CGPoint p = [touch locationInView:self];
+      p.x *= _al_iphone_get_screen_scale();
+      p.y *= _al_iphone_get_screen_scale();
 		_al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_UP,
                                         p.x, p.y, 1, allegro_display);	
 	}
+}
+
+-(BOOL)canBecomeFirstResponder {
+    return YES;
 }
 
 @end
