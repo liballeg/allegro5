@@ -226,7 +226,6 @@ static int render_glyph(ALLEGRO_FONT const *f,
                if (al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
                   for (x = 0; x < face->glyph->bitmap.width; x++) {
                      unsigned char c = *ptr;
-                     float cf = c / 255.0f;
                      *dptr++ = 255;
                      *dptr++ = 255;
                      *dptr++ = 255;
