@@ -141,6 +141,8 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    UINT type = 0;
    int result;
 
+   /* Note: the message box code cannot assume that Allegro is installed. */
+
    if (fd->flags & ALLEGRO_MESSAGEBOX_QUESTION) type |= MB_ICONQUESTION;
    if (fd->flags & ALLEGRO_MESSAGEBOX_WARN) type |= MB_ICONWARNING;
    if (fd->flags & ALLEGRO_MESSAGEBOX_ERROR) type |= MB_ICONERROR;

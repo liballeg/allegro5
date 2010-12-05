@@ -257,6 +257,8 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
 /* Message box                                                               */
 /*---------------------------------------------------------------------------*/
 
+/* Note: the message box code cannot assume that Allegro is installed. */
+
 static void msgbox_response(GtkDialog *dialog, gint response_id,
    gpointer user_data)
 {
