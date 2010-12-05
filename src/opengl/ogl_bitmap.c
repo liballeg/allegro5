@@ -194,8 +194,9 @@ static INLINE bool setup_blending(ALLEGRO_DISPLAY *ogl_disp)
             blend_equations[op],
             blend_equations[op_alpha]);
       }
-      else
+      else {
          glBlendEquation(blend_equations[op]);
+      }
    }
    else {
       if (src_color == src_alpha && dst_color == dst_alpha) {
@@ -203,6 +204,7 @@ static INLINE bool setup_blending(ALLEGRO_DISPLAY *ogl_disp)
          glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
       }
       else {
+         ALLEGRO_ERROR("Blender unsupported with this OpenGL version\n");
          return false;
       }
    }
