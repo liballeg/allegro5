@@ -4,6 +4,91 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 5.0.0 RC1 to 5.0.0 RC2 (December 2010)
+===================================================
+
+The developers this time were: Trent Gamblin, Elias Pschernig and Peter Wang.
+
+System:
+
+-  Add al_is_system_installed and hide al_get_system_driver.
+
+-  Prevent 'DLL hijacking' security issue on Windows.
+
+Graphics:
+
+-  Change to using premultiplied alpha by default.  The new bitmap flag
+   ALLEGRO_NO_PREMULTIPLIED_ALPHA was added.
+
+-  Change the value of ALLEGRO_VIDEO_BITMAP to non-zero.
+
+-  Change al_get_opengl_version to return a packed integer.
+
+-  Made al_get_opengl_version return an OpenGL ES version (if using OpenGL ES)
+   rather than an attempted estimate at a desktop GL version.
+
+-  Added function al_get_opengl_variant that returns either
+   ALLEGRO_DESKTOP_OPENGL or ALLEGRO_OPENGL_ES. Added documentation for it.
+
+-  Make al_have_opengl_extension return bool.
+
+-  Fix OpenGL graphics mode height value on Windows.
+
+-  Only try to create one Direct3D display at a time.
+
+-  Make screensaver activate on Windows Vista and above unless inhibited.
+
+-  Avoid potential divide-by-zeroes when computing the refresh rate in X11
+   video modes.
+
+Events:
+
+-  Delete an incorrect mutex destroy in al_unregister_event_source.
+
+Input:
+
+-  Revert the joystick driver used on OS X 10.4 to the pre-hotplugging version,
+   rather than one which contained an earlier attempt at implementing
+   hotplugging.  Select the 10.4 or greater joystick driver at runtime.
+
+iPhone:
+
+-  Added two iPhone-specific functions: al_iphone_override_screen_scale and
+   al_iphone_program_has_halted.
+
+Image I/O addon:
+
+-  Made the iPhone and OSX image loaders not try and correct colors to some
+   arbitrary color space, but instead use the values directly from the image.
+
+Native dialogs addon:
+
+-  Tolerate null display in al_show_native_file_dialog on Windows.
+
+-  Make GTK native dialog implementation only call GTK from a single thread.
+
+-  Define al_show_native_message_box to be usuable without installing Allegro.
+
+Primitives addon:
+
+-  Make primitives addon compilable again without OpenGL.
+
+Examples:
+
+-  ex_ttf: Test the monochrome flag.
+
+-  Work around problems with MSVC and UTF-8 string literals.
+   ex_utf8 is now not built under MSVC.
+
+-  Don't use WIN32 executable type on examples that require the console
+   (David Capello).
+
+Other:
+
+-  Minor bug fixes and documentation updates.
+
+
+
 Changes from 4.9.22 to 5.0.0 RC1 (November 2010)
 ================================================
 
