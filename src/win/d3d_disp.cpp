@@ -655,19 +655,19 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
 
       if ((ret = d3d->CreateDeviceEx(win_display->adapter,
                D3DDEVTYPE_HAL, fullscreen_focus_window,
-               D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
+               D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED|D3DCREATE_SCREENSAVER,
                &d3d_pp, &mode, (IDirect3DDevice9Ex **)(&d->device))) != D3D_OK) {
          if ((ret = d3d->CreateDeviceEx(win_display->adapter,
                   D3DDEVTYPE_HAL, fullscreen_focus_window,
-                  D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
+                  D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED|D3DCREATE_SCREENSAVER,
                   &d3d_pp, &mode, (IDirect3DDevice9Ex **)(&d->device))) != D3D_OK) {
             if ((ret = d3d->CreateDeviceEx(win_display->adapter,
                      D3DDEVTYPE_REF, fullscreen_focus_window,
-                     D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
+                     D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED|D3DCREATE_SCREENSAVER,
                      &d3d_pp, &mode, (IDirect3DDevice9Ex **)(&d->device))) != D3D_OK) {
                if ((ret = d3d->CreateDeviceEx(win_display->adapter,
                         D3DDEVTYPE_REF, fullscreen_focus_window,
-                        D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
+                        D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED|D3DCREATE_SCREENSAVER,
                         &d3d_pp, &mode, (IDirect3DDevice9Ex **)(&d->device))) != D3D_OK) {
                   switch (ret) {
                      case D3DERR_INVALIDCALL:
