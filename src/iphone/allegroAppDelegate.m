@@ -228,6 +228,7 @@ void _al_iphone_get_screen_size(int *w, int *h)
 
    while (waiting_for_program_halt) {
    	// do nothing, this should be quick
+	al_rest(0.001);
    }
 }
 
