@@ -1,5 +1,4 @@
 set(PRIMITIVES_SOURCES
-    common.c
     directx_shaders.c
     high_primitives.c
     line_soft.c
@@ -8,6 +7,7 @@ set(PRIMITIVES_SOURCES
     prim_directx.c
     prim_opengl.c
     prim_soft.c
+    prim_util.c
     primitives.c
     triangulator.c
     )

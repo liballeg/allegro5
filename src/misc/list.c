@@ -8,9 +8,9 @@
  *                                           /\____/
  *                                           \_/__/
  *
- * Double linked list.
+ *      Double linked list.
  *
- * By Micha≥ CichoÒ.
+ *      By Micha≈Ç Cicho«π.
  *
  *      See readme.txt for copyright information.
  *

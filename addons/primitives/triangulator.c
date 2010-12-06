@@ -11,7 +11,7 @@
  *      Polygon triangulation with holes.
  *
  *
- *      By Micha≥ CichoÒ.
+ *      By Micha≈Ç Cicho«π.
  *
  *      See readme.txt for copyright information.
  */

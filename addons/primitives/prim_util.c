@@ -11,7 +11,7 @@
  *      Common utilities.
  *
  *
- *      By Micha≥ CichoÒ.
+ *      By Micha≈Ç Cicho≈Ñ.
  *
  *      See readme.txt for copyright information.
  */
