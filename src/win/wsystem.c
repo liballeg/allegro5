@@ -547,7 +547,7 @@ static HMODULE maybe_load_library_at_cwd(ALLEGRO_PATH *path)
    char cwd_buf[MAX_PATH];
    ALLEGRO_PATH *cwd;
    const char *path_str;
-   HMODULE lib;
+   HMODULE lib = NULL;
 
    if (!is_build_config_name(al_get_path_tail(path)))
       return NULL;
