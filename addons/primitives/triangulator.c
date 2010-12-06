@@ -254,8 +254,8 @@ static _AL_LIST* __al_poly_create_split_list(_AL_POLY* polygon)
    int i;
    int last_split;
 
-   _AL_LIST*       list   = _al_list_create_static(polygon->split_count - 1);
-   _AL_POLY_SPLIT* splits = (_AL_POLY_SPLIT*)al_malloc((polygon->split_count - 1) * sizeof(_AL_POLY_SPLIT));
+   _AL_LIST*       list   = _al_list_create_static(polygon->split_count);
+   _AL_POLY_SPLIT* splits = (_AL_POLY_SPLIT*)al_malloc(polygon->split_count * sizeof(_AL_POLY_SPLIT));
 
    if ((NULL == list) || (NULL == splits)) {
 
@@ -269,6 +269,7 @@ static _AL_LIST* __al_poly_create_split_list(_AL_POLY* polygon)
     * manually releasing allocated memory.
     */
    _al_list_set_dtor(list, __al_poly_split_list_dtor);
+   _al_list_set_user_data(list, splits);
 
    last_split = POLY_SPLIT(0);
    for (i = 1; i < (int)polygon->split_count; ++i) {
