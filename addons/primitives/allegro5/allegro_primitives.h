@@ -116,16 +116,22 @@ ALLEGRO_PRIM_FUNC(ALLEGRO_VERTEX_DECL*, al_create_vertex_decl, (const ALLEGRO_VE
 ALLEGRO_PRIM_FUNC(void, al_destroy_vertex_decl, (ALLEGRO_VERTEX_DECL* decl));
 
 /*
+* Utilities for high level primitives.
+*/
+ALLEGRO_PRIM_FUNC(bool, al_triangulate_polygon, (const float* vertices, size_t vertex_stride, size_t vertex_count, const int* splits, size_t split_stride, size_t split_count, void (*emit_triangle)(int, int, int, void*), void* userdata));
+
+
+/*
 * Custom primitives
 */
 ALLEGRO_PRIM_FUNC(void, al_draw_soft_triangle, (ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3, uintptr_t state,
                                            void (*init)(uintptr_t, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*),
                                            void (*first)(uintptr_t, int, int, int, int),
-                                           void (*step)(uintptr_t, int), 
+                                           void (*step)(uintptr_t, int),
                                            void (*draw)(uintptr_t, int, int, int)));
 ALLEGRO_PRIM_FUNC(void, al_draw_soft_line, (ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, uintptr_t state,
                                        void (*first)(uintptr_t, int, int, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*),
-                                       void (*step)(uintptr_t, int), 
+                                       void (*step)(uintptr_t, int),
                                        void (*draw)(uintptr_t, int, int)));
 
 /*
@@ -152,8 +158,13 @@ ALLEGRO_PRIM_FUNC(void, al_draw_filled_rectangle, (float x1, float y1, float x2,
 ALLEGRO_PRIM_FUNC(void, al_draw_filled_ellipse, (float cx, float cy, float rx, float ry, ALLEGRO_COLOR color));
 ALLEGRO_PRIM_FUNC(void, al_draw_filled_circle, (float cx, float cy, float r, ALLEGRO_COLOR color));
 ALLEGRO_PRIM_FUNC(void, al_draw_filled_rounded_rectangle, (float x1, float y1, float x2, float y2, float rx, float ry, ALLEGRO_COLOR color));
-   
-   
+
+ALLEGRO_PRIM_FUNC(void, al_draw_polygon, (const float* vertices, int vertex_count, ALLEGRO_COLOR color, float thickness));
+ALLEGRO_PRIM_FUNC(void, al_draw_polygon_with_holes, (const float* vertices, int vertex_count, const int* holes, int hole_count, ALLEGRO_COLOR color, float thickness));
+ALLEGRO_PRIM_FUNC(void, al_draw_filled_polygon, (const float* vertices, int vertex_count, ALLEGRO_COLOR color));
+ALLEGRO_PRIM_FUNC(void, al_draw_filled_polygon_with_holes, (const float* vertices, int vertex_count, const int* holes, int hole_count, ALLEGRO_COLOR color));
+
+
 #ifdef __cplusplus
 }
 #endif

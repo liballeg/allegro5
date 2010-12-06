@@ -1,12 +1,15 @@
 set(PRIMITIVES_SOURCES
+    common.c
+    directx_shaders.c
     high_primitives.c
     line_soft.c
+    point_soft.c
+    polygon.c
     prim_directx.c
     prim_opengl.c
     prim_soft.c
-    point_soft.c
     primitives.c
-    directx_shaders.c
+    triangulator.c
     )
 
 set(PRIMITIVES_INCLUDE_FILES allegro5/allegro_primitives.h)
