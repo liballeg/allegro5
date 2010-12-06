@@ -18,6 +18,7 @@
 
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_primitives.h"
+#include "allegro5/internal/aintern_prim.h"
 #include "allegro5/internal/aintern_list.h"
 #include <float.h>
 #include <math.h>
