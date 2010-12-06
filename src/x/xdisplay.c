@@ -33,29 +33,23 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
 
 static void set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
 {
-   if (d->flags & ALLEGRO_RESIZABLE)
-      return;
-
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
    XSizeHints *hints = XAllocSizeHints();;
 
-   int w = d->w;
-   int h = d->h;
-   hints->flags = PMinSize | PMaxSize | PBaseSize;
-   hints->min_width  = hints->max_width  = hints->base_width  = w;
-   hints->min_height = hints->max_height = hints->base_height = h;
-   
-   // Tell WMs to respect our chosen position,
-   // otherwise the x_off/y_off positions passed to
-   // XCreateWindow will be ignored by most WMs.
-   if (x_off != INT_MAX && y_off != INT_MAX) {
-      ALLEGRO_DEBUG("Force window position to %d, %d.\n",
-         x_off, y_off);
+   if (!(d->flags & ALLEGRO_RESIZABLE)) {
+      hints->flags = PMinSize | PMaxSize | PBaseSize;
+      hints->min_width  = hints->max_width  = hints->base_width  = d->w;
+      hints->min_height = hints->max_height = hints->base_height = d->h;
+   }
 
+   // Tell WMs to respect our chosen position, otherwise the x_off/y_off
+   // positions passed to XCreateWindow will be ignored by most WMs.
+   if (x_off != INT_MAX && y_off != INT_MAX) {
+      ALLEGRO_DEBUG("Force window position to %d, %d.\n", x_off, y_off);
       hints->flags |= PPosition;
    }
-   
+
    XSetWMNormalHints(system->x11display, glx->window, hints);
 
    XFree(hints);
