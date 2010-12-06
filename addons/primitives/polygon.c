@@ -105,14 +105,6 @@ static void _al_polygon_cache_push_triangle_callback(int i0, int i1, int i2, voi
 }
 
 
-static float _al_get_angle_between(const float* dir_0, const float* dir_1)
-{
-   float x_diff =  (dir_0[0] * dir_1[0] + dir_0[1] * dir_1[1]);
-   float y_diff = -(dir_0[0] * dir_1[1] - dir_0[1] * dir_1[0]);
-
-   return (x_diff || y_diff) ? atan2f(y_diff, x_diff) : 0.0f;
-}
-
 static float _al_compute_cross_edge(const float* v0, const float* v1, const float* v2, float* left_0, float* left_1, float* right_0, float* right_1, float* center, float radius)
 {
    float normal_0[2];
@@ -294,7 +286,7 @@ static void _al_do_draw_polygon(_AL_POLYGON_VERTEX_CACHE* cache, const float* ve
       float center[2];
       float radius;
       float inner_radius;
-      float last_angle;
+      float last_angle = 0.0;
       int segments;
       int i;
 

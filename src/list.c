@@ -68,8 +68,6 @@ static _AL_LIST_ITEM* __al_list_get_free_item(_AL_LIST* list);
 static _AL_LIST_ITEM* __al_list_create_item(_AL_LIST* list);
 static void           __al_list_destroy_item(_AL_LIST* list, _AL_LIST_ITEM* item);
 
-static _AL_LIST_ITEM_DTOR* __al_list_item_dtor(_AL_LIST* list, _AL_LIST_ITEM* item);
-
 
 /* Internal function: __al_list_do_create
  *

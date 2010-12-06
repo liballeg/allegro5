@@ -370,8 +370,10 @@ static bool __al_poly_initialize(_AL_POLY* polygon)
       split_list     = __al_poly_create_split_list(polygon);
       use_split_list = true;
    }
-   else
+   else {
+      split_list = NULL;
       use_split_list = false;
+   }
 
    if ((NULL == vertex_list) || (NULL == reflex_list) || (NULL == ear_list) || (use_split_list && (NULL == split_list))) {
 
@@ -782,7 +784,9 @@ bool al_triangulate_polygon(
    const int* splits, size_t split_stride, size_t split_count,
    void (*emit_triangle)(int, int, int, void*), void* userdata)
 {
-   _AL_POLY polygon = { 0 };
+   _AL_POLY polygon;
+
+   memset(&polygon, 0, sizeof(polygon));
    polygon.vertex_buffer = vertices;
    polygon.vertex_stride = vertex_stride;
    polygon.vertex_count  = vertex_count;
