@@ -10,7 +10,7 @@
  *
  *      Double linked list.
  *
- *      By Michał Cichoǹ.
+ *      By Michał Cichoń.
  *
  *      See readme.txt for copyright information.
  *
@@ -19,10 +19,6 @@
  *
  *      This module is NOT thread-safe.
  */
-
-/* Internal Title: Lists
- */
-
 
 #include <stdlib.h>
 #include <string.h>
@@ -36,7 +32,7 @@ ALLEGRO_DEBUG_CHANNEL("list")
 
 
 /* Definition of list, holds root and size. */
-typedef struct __AL_LIST {
+typedef struct _AL_LIST {
    /* Root of the list. It is an element, but
     * not visible one. Using it end and the
     * beginning can be easily identified. */
@@ -48,29 +44,28 @@ typedef struct __AL_LIST {
    _AL_LIST_ITEM* next_free;
    void*          user_data;
    _AL_LIST_DTOR  dtor;
-} __AL_LIST;
+} _AL_LIST;
 
 /* List item, holds user data and destructor. */
-typedef struct __AL_LIST_ITEM {
+typedef struct _AL_LIST_ITEM {
    _AL_LIST*          list;
    _AL_LIST_ITEM*     next;
    _AL_LIST_ITEM*     prev;
    void*              data;
    _AL_LIST_ITEM_DTOR dtor;
-} __AL_LIST_ITEM;
+} _AL_LIST_ITEM;
 
 
 /* List of the internal functions. */
-static _AL_LIST* __al_list_do_create(size_t capacity, size_t item_extra_size);
-static bool      __al_list_is_static(_AL_LIST* list);
+static _AL_LIST* list_do_create(size_t capacity, size_t item_extra_size);
+static bool      list_is_static(_AL_LIST* list);
 
-static _AL_LIST_ITEM* __al_list_get_free_item(_AL_LIST* list);
-static _AL_LIST_ITEM* __al_list_create_item(_AL_LIST* list);
-static void           __al_list_destroy_item(_AL_LIST* list, _AL_LIST_ITEM* item);
+static _AL_LIST_ITEM* list_get_free_item(_AL_LIST* list);
+static _AL_LIST_ITEM* list_create_item(_AL_LIST* list);
+static void           list_destroy_item(_AL_LIST* list, _AL_LIST_ITEM* item);
 
 
-/* Internal function: __al_list_do_create
- *
+/*
  *  Create an instance of double linked list.
  *
  *  Parameters:
@@ -96,7 +91,7 @@ static void           __al_list_destroy_item(_AL_LIST* list, _AL_LIST_ITEM* item
  *     piece of memory. This kind of list have capacity, but adding and
  *     removing elements is very cheap operation.
  */
-static _AL_LIST* __al_list_do_create(size_t capacity, size_t extra_item_size)
+static _AL_LIST* list_do_create(size_t capacity, size_t extra_item_size)
 {
    size_t i;
    size_t memory_size;
@@ -145,7 +140,7 @@ static _AL_LIST* __al_list_do_create(size_t capacity, size_t extra_item_size)
    prev->next = NULL;
 
    /* Initialize root. */
-   list->root = __al_list_get_free_item(list);
+   list->root = list_get_free_item(list);
    list->root->dtor = NULL;
    list->root->next = list->root;
    list->root->prev = list->root;
@@ -154,26 +149,24 @@ static _AL_LIST* __al_list_do_create(size_t capacity, size_t extra_item_size)
 }
 
 
-/* Internal function: __al_list_is_static
- *
+/*
  *  Returns true if 'list' point to static double linked list.
  */
-static bool __al_list_is_static(_AL_LIST* list)
+static bool list_is_static(_AL_LIST* list)
 {
    return 0 != list->capacity;
 }
 
 
-/* Internal function: __al_list_get_free_item
- *
+/*
  *  Returns free item from internal list. Call to this function
  *  is valid only for static lists.
  */
-static _AL_LIST_ITEM* __al_list_get_free_item(_AL_LIST* list)
+static _AL_LIST_ITEM* list_get_free_item(_AL_LIST* list)
 {
    _AL_LIST_ITEM* item;
 
-   assert(__al_list_is_static(list));
+   assert(list_is_static(list));
 
    item = list->next_free;
    if (NULL != item)
@@ -183,20 +176,19 @@ static _AL_LIST_ITEM* __al_list_get_free_item(_AL_LIST* list)
 }
 
 
-/* Internal function: __al_list_create_item
- *
+/*
  *  Create an instance of new double linked list item.
  */
-static _AL_LIST_ITEM* __al_list_create_item(_AL_LIST* list)
+static _AL_LIST_ITEM* list_create_item(_AL_LIST* list)
 {
    _AL_LIST_ITEM* item = NULL;
 
-   if (__al_list_is_static(list)) {
+   if (list_is_static(list)) {
 
       /* Items from internal list already are partially initialized.
        * So we do not have to setup list pointer.
        */
-      item = __al_list_get_free_item(list);
+      item = list_get_free_item(list);
    }
    else {
 
@@ -209,19 +201,18 @@ static _AL_LIST_ITEM* __al_list_create_item(_AL_LIST* list)
 }
 
 
-/* Internal function: __al_list_destroy_item
- *
+/*
  *  Destroys double linked list item. Item destructor is called
  *  when necessary.
  */
-static void __al_list_destroy_item(_AL_LIST* list, _AL_LIST_ITEM* item)
+static void list_destroy_item(_AL_LIST* list, _AL_LIST_ITEM* item)
 {
    assert(list == item->list);
 
    if (NULL != item->dtor)
       item->dtor(item->data, list->user_data);
 
-   if (__al_list_is_static(list)) {
+   if (list_is_static(list)) {
       item->next      = list->next_free;
       list->next_free = item;
    }
@@ -230,26 +221,24 @@ static void __al_list_destroy_item(_AL_LIST* list, _AL_LIST_ITEM* item)
 }
 
 
-/* Internal function: _al_list_create
- *
+/*
  *  Create new instance of dynamic double linked list.
  *
  *  See:
- *     __al_list_do_create
+ *     list_do_create
  */
 _AL_LIST* _al_list_create(void)
 {
-   return __al_list_do_create(0, 0);
+   return list_do_create(0, 0);
 }
 
 
-/* Internal function: _al_list_create_static
- *
+/*
  *  Create new instance of list item. Maximum number of list items is
  *  limited by capacity.
  *
  *  See:
- *     __al_list_do_create
+ *     list_do_create
  */
 _AL_LIST* _al_list_create_static(size_t capacity)
 {
@@ -259,12 +248,11 @@ _AL_LIST* _al_list_create_static(size_t capacity)
       return NULL;
    }
 
-   return __al_list_do_create(capacity, 0);
+   return list_do_create(capacity, 0);
 }
 
 
-/* Internal function: _al_list_destroy
- *
+/*
  *  Destroys instance of the list. All elements
  *  that list contain are also destroyed.
  */
@@ -282,8 +270,7 @@ void _al_list_destroy(_AL_LIST* list)
 }
 
 
-/* Internal function: _al_list_set_dtor
- *
+/*
  *  Sets a destructor for the list.
  */
 void _al_list_set_dtor(_AL_LIST* list, _AL_LIST_DTOR dtor)
@@ -292,8 +279,7 @@ void _al_list_set_dtor(_AL_LIST* list, _AL_LIST_DTOR dtor)
 }
 
 
-/* Internal function: _al_list_get_dtor
- *
+/*
  *  Returns destructor of the list.
  */
 _AL_LIST_DTOR _al_list_get_dtor(_AL_LIST* list)
@@ -302,8 +288,7 @@ _AL_LIST_DTOR _al_list_get_dtor(_AL_LIST* list)
 }
 
 
-/* Internal function: _al_list_push_front
- *
+/*
  *  Create and push new item at the beginning of the list.
  *
  *  Returns pointer to new item.
@@ -314,8 +299,7 @@ _AL_LIST_ITEM* _al_list_push_front(_AL_LIST* list, void* data)
 }
 
 
-/* Internal function: _al_list_push_front_ex
- *
+/*
  *  Pretty the same as _al_list_push_front(), but also allow
  *  to provide custom destructor for the item.
  */
@@ -325,8 +309,7 @@ _AL_LIST_ITEM* _al_list_push_front_ex(_AL_LIST* list, void* data, _AL_LIST_ITEM_
 }
 
 
-/* Internal function: _al_list_push_back
- *
+/*
  *  Create and push new item at the end of the list.
  *
  *  Returns pointer to new item.
@@ -337,8 +320,7 @@ _AL_LIST_ITEM* _al_list_push_back(_AL_LIST* list, void* data)
 }
 
 
-/* Internal function: _al_list_push_back_ex
- *
+/*
  *  Pretty the same as _al_list_push_back(), but also allow
  *  to provide custom destructor for the item.
  */
@@ -348,8 +330,7 @@ _AL_LIST_ITEM* _al_list_push_back_ex(_AL_LIST* list, void* data, _AL_LIST_ITEM_D
 }
 
 
-/* Internal function: _al_list_pop_front
- *
+/*
  *  Remove first item in the list.
  */
 void _al_list_pop_front(_AL_LIST* list)
@@ -359,8 +340,7 @@ void _al_list_pop_front(_AL_LIST* list)
 }
 
 
-/* Internal function: _al_list_pop_back
- *
+/*
  *  Remove last item in the list.
  */
 void _al_list_pop_back(_AL_LIST* list)
@@ -370,8 +350,7 @@ void _al_list_pop_back(_AL_LIST* list)
 }
 
 
-/* Internal function: _al_list_insert_after
- *
+/*
  *  Create and insert new item after one specified by 'where'.
  *
  *  Returns pointer to new item.
@@ -382,8 +361,7 @@ _AL_LIST_ITEM* _al_list_insert_after(_AL_LIST* list, _AL_LIST_ITEM* where, void*
 }
 
 
-/* Internal function: _al_list_insert_after_ex
- *
+/*
  *  Pretty the same as _al_list_insert_after(), but also allow
  *  to provide custom destructor for the item.
  */
@@ -393,7 +371,7 @@ _AL_LIST_ITEM* _al_list_insert_after_ex(_AL_LIST* list, _AL_LIST_ITEM* where, vo
 
    assert(list == where->list);
 
-   item = __al_list_create_item(list);
+   item = list_create_item(list);
    if (NULL == item)
       return NULL;
 
@@ -412,8 +390,7 @@ _AL_LIST_ITEM* _al_list_insert_after_ex(_AL_LIST* list, _AL_LIST_ITEM* where, vo
 }
 
 
-/* Internal function: _al_list_insert_before
- *
+/*
  *  Create and insert new item before one specified by 'where'.
  *
  *  Returns pointer to new item.
@@ -424,8 +401,7 @@ _AL_LIST_ITEM* _al_list_insert_before(_AL_LIST* list, _AL_LIST_ITEM* where, void
 }
 
 
-/* Internal function: _al_list_insert_before_ex
- *
+/*
  *  Pretty the same as _al_list_insert_before(), but also allow
  *  to provide custom destructor for the item.
  */
@@ -435,7 +411,7 @@ _AL_LIST_ITEM* _al_list_insert_before_ex(_AL_LIST* list, _AL_LIST_ITEM* where, v
 
    assert(list == where->list);
 
-   item = __al_list_create_item(list);
+   item = list_create_item(list);
    if (NULL == item)
       return NULL;
 
@@ -454,8 +430,7 @@ _AL_LIST_ITEM* _al_list_insert_before_ex(_AL_LIST* list, _AL_LIST_ITEM* where, v
 }
 
 
-/* Internal function: _al_list_erase
- *
+/*
  *  Remove specified item from the list.
  */
 void _al_list_erase(_AL_LIST* list, _AL_LIST_ITEM* item)
@@ -470,12 +445,11 @@ void _al_list_erase(_AL_LIST* list, _AL_LIST_ITEM* item)
 
    list->size--;
 
-   __al_list_destroy_item(list, item);
+   list_destroy_item(list, item);
 }
 
 
-/* Internal function: _al_list_clear
- *
+/*
  *  Remove all items from the list.
  */
 void _al_list_clear(_AL_LIST* list)
@@ -496,8 +470,7 @@ void _al_list_clear(_AL_LIST* list)
 }
 
 
-/* Internal function: _al_list_remove
- *
+/*
  *  Remove all occurrences of specified value in the list.
  */
 void _al_list_remove(_AL_LIST* list, void* data)
@@ -518,8 +491,7 @@ void _al_list_remove(_AL_LIST* list, void* data)
 }
 
 
-/* Internal function: _al_list_is_empty
- *
+/*
  *  Returns true if list is empty.
  */
 bool _al_list_is_empty(_AL_LIST* list)
@@ -528,8 +500,7 @@ bool _al_list_is_empty(_AL_LIST* list)
 }
 
 
-/* Internal function: _al_list_contains
- *
+/*
  *  Returns true if list contain specified value.
  */
 bool _al_list_contains(_AL_LIST* list, void* data)
@@ -538,8 +509,7 @@ bool _al_list_contains(_AL_LIST* list, void* data)
 }
 
 
-/* Internal function: _al_list_find_first
- *
+/*
  *  Returns first occurrence of specified value in the list.
  */
 _AL_LIST_ITEM* _al_list_find_first(_AL_LIST* list, void* data)
@@ -548,8 +518,7 @@ _AL_LIST_ITEM* _al_list_find_first(_AL_LIST* list, void* data)
 }
 
 
-/* Internal function: _al_list_find_last
- *
+/*
  *  Returns last occurrence of specified value in the list.
  */
 _AL_LIST_ITEM* _al_list_find_last(_AL_LIST* list, void* data)
@@ -558,8 +527,7 @@ _AL_LIST_ITEM* _al_list_find_last(_AL_LIST* list, void* data)
 }
 
 
-/* Internal function: _al_list_find_after
- *
+/*
  *  Return occurrence of specified value in the list after 'where' item.
  */
 _AL_LIST_ITEM* _al_list_find_after(_AL_LIST* list, _AL_LIST_ITEM* where, void* data)
@@ -576,8 +544,7 @@ _AL_LIST_ITEM* _al_list_find_after(_AL_LIST* list, _AL_LIST_ITEM* where, void* d
 }
 
 
-/* Internal function: _al_list_find_before
- *
+/*
  *  Return occurrence of specified value in the list before 'where' item.
  */
 _AL_LIST_ITEM* _al_list_find_before(_AL_LIST* list, _AL_LIST_ITEM* where, void* data)
@@ -594,8 +561,7 @@ _AL_LIST_ITEM* _al_list_find_before(_AL_LIST* list, _AL_LIST_ITEM* where, void* 
 }
 
 
-/* Internal function: _al_list_size
- *
+/*
  *  Returns current size of the list.
  */
 size_t _al_list_size(_AL_LIST* list)
@@ -604,8 +570,7 @@ size_t _al_list_size(_AL_LIST* list)
 }
 
 
-/* Internal function: _al_list_at
- *
+/*
  *  Returns item located at specified index.
  */
 _AL_LIST_ITEM* _al_list_at(_AL_LIST* list, size_t index)
@@ -636,8 +601,7 @@ _AL_LIST_ITEM* _al_list_at(_AL_LIST* list, size_t index)
 }
 
 
-/* Internal function: _al_list_front
- *
+/*
  *  Returns first item in the list.
  */
 _AL_LIST_ITEM* _al_list_front(_AL_LIST* list)
@@ -649,8 +613,7 @@ _AL_LIST_ITEM* _al_list_front(_AL_LIST* list)
 }
 
 
-/* Internal function: _al_list_back
- *
+/*
  *  Returns last item in the list.
  */
 _AL_LIST_ITEM* _al_list_back(_AL_LIST* list)
@@ -662,8 +625,7 @@ _AL_LIST_ITEM* _al_list_back(_AL_LIST* list)
 }
 
 
-/* Internal function: _al_list_next
- *
+/*
  *  Returns next element in the list.
  */
 _AL_LIST_ITEM* _al_list_next(_AL_LIST* list, _AL_LIST_ITEM* item)
@@ -677,8 +639,7 @@ _AL_LIST_ITEM* _al_list_next(_AL_LIST* list, _AL_LIST_ITEM* item)
 }
 
 
-/* Internal function: _al_list_previous
- *
+/*
  *  Returns previous element in the list.
  */
 _AL_LIST_ITEM* _al_list_previous(_AL_LIST* list, _AL_LIST_ITEM* item)
@@ -692,8 +653,7 @@ _AL_LIST_ITEM* _al_list_previous(_AL_LIST* list, _AL_LIST_ITEM* item)
 }
 
 
-/* Internal function: _al_list_next_circular
- *
+/*
  *  Returns next element in the list. If end of the list is reached,
  *  first element is returned instead of NULL.
  */
@@ -708,8 +668,7 @@ _AL_LIST_ITEM* _al_list_next_circular(_AL_LIST* list, _AL_LIST_ITEM* item)
 }
 
 
-/* Internal function: _al_list_previous_circular
- *
+/*
  *  Returns previous element in the list. If beginning of the list is reached,
  *  last element is returned instead of NULL.
  */
@@ -724,8 +683,7 @@ _AL_LIST_ITEM* _al_list_previous_circular(_AL_LIST* list, _AL_LIST_ITEM* item)
 }
 
 
-/* Internal function: _al_list_item_data
- *
+/*
  *  Returns value associated with specified item.
  */
 void* _al_list_item_data(_AL_LIST_ITEM* item)
@@ -734,8 +692,7 @@ void* _al_list_item_data(_AL_LIST_ITEM* item)
 }
 
 
-/* Internal function: _al_list_item_set_dtor
- *
+/*
  *  Sets item destructor.
  */
 void _al_list_item_set_dtor(_AL_LIST_ITEM* item, _AL_LIST_ITEM_DTOR dtor)
@@ -744,8 +701,7 @@ void _al_list_item_set_dtor(_AL_LIST_ITEM* item, _AL_LIST_ITEM_DTOR dtor)
 }
 
 
-/* Internal function: _al_list_item_get_dtor
- *
+/*
  *  Returns item destructor.
  */
 _AL_LIST_ITEM_DTOR _al_list_item_get_dtor(_AL_LIST_ITEM* item)
@@ -754,8 +710,7 @@ _AL_LIST_ITEM_DTOR _al_list_item_get_dtor(_AL_LIST_ITEM* item)
 }
 
 
-/* Internal function: _al_list_set_user_data
- *
+/*
  *  Sets user data for list. This pointer is passed to list destructor.
  */
 void _al_list_set_user_data(_AL_LIST* list, void* user_data)
@@ -764,8 +719,7 @@ void _al_list_set_user_data(_AL_LIST* list, void* user_data)
 }
 
 
-/* Internal function: _al_list_get_user_data
- *
+/*
  *  Returns user data for list.
  */
 void* _al_list_get_user_data(_AL_LIST* list)

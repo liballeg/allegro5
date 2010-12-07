@@ -1,4 +1,4 @@
-/*         ______   ___    ___
+﻿/*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
@@ -11,7 +11,7 @@
  *      Polygon triangulation with holes.
  *
  *
- *      By Michał Cichoǹ.
+ *      By Michał Cichoń.
  *
  *      See readme.txt for copyright information.
  */
@@ -33,28 +33,28 @@
 # define POLY_VERTEX_ATTR_ALL         (POLY_VERTEX_ATTR_REFLEX | POLY_VERTEX_ATTR_EAR_CLIP)
 
 
-typedef void (*_AL_POLY_EMIT_TRIANGLE)(int, int, int, void*);
+typedef void (*POLY_EMIT_TRIANGLE)(int, int, int, void*);
 
-typedef struct _AL_POLY {
+typedef struct POLY {
    const float*            vertex_buffer;
    size_t                  vertex_stride;
    size_t                  vertex_count;
    const int*              split_indices;
    size_t                  split_stride;
    size_t                  split_count;
-   _AL_POLY_EMIT_TRIANGLE  emit;
+   POLY_EMIT_TRIANGLE  emit;
    void*                   userdata;
    _AL_LIST*               vertex_list;
    _AL_LIST*               reflex_list;
    _AL_LIST*               ear_list;
-} _AL_POLY;
+} POLY;
 
-typedef struct _AL_POLY_SPLIT {
+typedef struct POLY_SPLIT {
    int      begin;
    size_t   size;
    float*   point;
    int      max_index;
-} _AL_POLY_SPLIT;
+} POLY_SPLIT;
 
 
 # if POLY_DEBUG
@@ -64,17 +64,16 @@ int g_poly_step_current = 0;
 
 
 /* Internal functions. */
-static bool      __al_poly_initialize(_AL_POLY* poly);
-static void      __al_poly_classify_vertices(_AL_LIST* vertices, _AL_LIST* reflex, _AL_LIST* ear);
-static void      __al_poly_classify_vertices_in_range(_AL_LIST_ITEM* begin, _AL_LIST_ITEM* end, _AL_LIST* vertices, _AL_LIST* reflex, _AL_LIST* ear);
-static void      __al_poly_do_triangulate(_AL_POLY* poly);
+static bool      poly_initialize(POLY* poly);
+static void      poly_classify_vertices(_AL_LIST* vertices, _AL_LIST* reflex, _AL_LIST* ear);
+static void      poly_classify_vertices_in_range(_AL_LIST_ITEM* begin, _AL_LIST_ITEM* end, _AL_LIST* vertices, _AL_LIST* reflex, _AL_LIST* ear);
+static void      poly_do_triangulate(POLY* poly);
 
-static _AL_LIST* __al_poly_create_split_list(_AL_POLY* polygon);
-static void      __al_poly_split_list_dtor(void* user_data);
+static _AL_LIST* poly_create_split_list(POLY* polygon);
+static void      poly_split_list_dtor(void* user_data);
 
 
-/* Internal function: __al_poly_find_closest_intersection
- *
+/*
  *  Seek for closest intersection point of polygon with a ray directed
  *  to the right.
  *
@@ -83,7 +82,7 @@ static void      __al_poly_split_list_dtor(void* user_data);
  *  Returns false if intersection was not fount and none of above
  *  are modified.
  */
-static bool __al_poly_find_closest_intersection(_AL_LIST* vertices, const float* vertex, float* point, _AL_LIST_ITEM** edge0, _AL_LIST_ITEM** edge1)
+static bool poly_find_closest_intersection(_AL_LIST* vertices, const float* vertex, float* point, _AL_LIST_ITEM** edge0, _AL_LIST_ITEM** edge1)
 {
    size_t i;
    const float* v0 = NULL;
@@ -158,14 +157,13 @@ static bool __al_poly_find_closest_intersection(_AL_LIST* vertices, const float*
 }
 
 
-/* Internal function: __al_poly_find_outter_split_vertex
- *
+/*
  *  Seek for the best vertex in polygon for doing split.
  *
  *  Returns vertex after which split (hole) vertices
  *  can be inserted.
  */
-static _AL_LIST_ITEM* __al_poly_find_outter_split_vertex(_AL_POLY* polygon, _AL_POLY_SPLIT* split)
+static _AL_LIST_ITEM* poly_find_outter_split_vertex(POLY* polygon, POLY_SPLIT* split)
 {
    float intersection[2];
    _AL_LIST_ITEM* edge_vertex_0;
@@ -178,7 +176,7 @@ static _AL_LIST_ITEM* __al_poly_find_outter_split_vertex(_AL_POLY* polygon, _AL_
    float* p1;
    float* p;
 
-   if (!__al_poly_find_closest_intersection(polygon->vertex_list, split->point, intersection, &edge_vertex_0, &edge_vertex_1))
+   if (!poly_find_closest_intersection(polygon->vertex_list, split->point, intersection, &edge_vertex_0, &edge_vertex_1))
       return NULL;
 
    p0 = (float*)_al_list_item_data(edge_vertex_0);
@@ -245,17 +243,16 @@ static _AL_LIST_ITEM* __al_poly_find_outter_split_vertex(_AL_POLY* polygon, _AL_
 # define POLY_SPLIT_INDEX(split) (((uint8_t*)split - (uint8_t*)polygon->split_indices) / polygon->split_stride)
 
 
-/* Internal function: __al_poly_create_split_list
- *
+/*
  *  Create list of the splits.
  */
-static _AL_LIST* __al_poly_create_split_list(_AL_POLY* polygon)
+static _AL_LIST* poly_create_split_list(POLY* polygon)
 {
    int i;
    int last_split;
 
    _AL_LIST*       list   = _al_list_create_static(polygon->split_count);
-   _AL_POLY_SPLIT* splits = (_AL_POLY_SPLIT*)al_malloc(polygon->split_count * sizeof(_AL_POLY_SPLIT));
+   POLY_SPLIT* splits = (POLY_SPLIT*)al_malloc(polygon->split_count * sizeof(POLY_SPLIT));
 
    if ((NULL == list) || (NULL == splits)) {
 
@@ -268,7 +265,7 @@ static _AL_LIST* __al_poly_create_split_list(_AL_POLY* polygon)
    /* Set list destructor, so we will don't worry about
     * manually releasing allocated memory.
     */
-   _al_list_set_dtor(list, __al_poly_split_list_dtor);
+   _al_list_set_dtor(list, poly_split_list_dtor);
    _al_list_set_user_data(list, splits);
 
    last_split = POLY_SPLIT(0);
@@ -276,7 +273,7 @@ static _AL_LIST* __al_poly_create_split_list(_AL_POLY* polygon)
 
       int j;
       float max;
-      _AL_POLY_SPLIT* split = splits + i;
+      POLY_SPLIT* split = splits + i;
       _AL_LIST_ITEM* where;
 
       split->begin = last_split;
@@ -306,7 +303,7 @@ static _AL_LIST* __al_poly_create_split_list(_AL_POLY* polygon)
 
          for (where = _al_list_front(list); where; where = _al_list_next(list, where)) {
 
-            _AL_POLY_SPLIT* local_split = (_AL_POLY_SPLIT*)_al_list_item_data(where);
+            POLY_SPLIT* local_split = (POLY_SPLIT*)_al_list_item_data(where);
 
             if (local_split->point[0] < max)
                break;
@@ -323,20 +320,18 @@ static _AL_LIST* __al_poly_create_split_list(_AL_POLY* polygon)
 }
 
 
-/* Internal function: __al_poly_split_list_dtor
- *
+/*
  *  Release memory allocated by split list. This method
  *  serve as callback to the list.
  */
-static void __al_poly_split_list_dtor(void* user_data)
+static void poly_split_list_dtor(void* user_data)
 {
-   /* This is array of _AL_POLY_SPLIT. */
+   /* This is array of POLY_SPLIT. */
    al_free(user_data);
 }
 
 
-/* Internal function: __al_poly_initialize
- *
+/*
  *  Perform initialization step to polygon triangulation.
  *
  *  Three linked list are initialized: vertex_list, reflex_list
@@ -345,7 +340,7 @@ static void __al_poly_split_list_dtor(void* user_data)
  *  All provided splits (holes) are resolved in this step.
  *  Therefore at the end we have simple polygon.
  */
-static bool __al_poly_initialize(_AL_POLY* polygon)
+static bool poly_initialize(POLY* polygon)
 {
    _AL_LIST* vertex_list;
    _AL_LIST* reflex_list;
@@ -367,7 +362,7 @@ static bool __al_poly_initialize(_AL_POLY* polygon)
 
    if (polygon->split_count > 1) {
 
-      split_list     = __al_poly_create_split_list(polygon);
+      split_list     = poly_create_split_list(polygon);
       use_split_list = true;
    }
    else {
@@ -396,18 +391,18 @@ static bool __al_poly_initialize(_AL_POLY* polygon)
 
    if (use_split_list) {
 
-      __al_poly_classify_vertices(vertex_list, reflex_list, NULL);
+      poly_classify_vertices(vertex_list, reflex_list, NULL);
 
       /* Resolve all holes. */
       for (split_item = _al_list_front(split_list); split_item; split_item = _al_list_next(split_list, split_item)) {
 
          _AL_LIST_ITEM* first_vertex;
          _AL_LIST_ITEM* last_vertex;
-         _AL_POLY_SPLIT* split;
+         POLY_SPLIT* split;
 
-         split = (_AL_POLY_SPLIT*)_al_list_item_data(split_item);
+         split = (POLY_SPLIT*)_al_list_item_data(split_item);
 
-         first_vertex = __al_poly_find_outter_split_vertex(polygon, split);
+         first_vertex = poly_find_outter_split_vertex(polygon, split);
 
          if (NULL == first_vertex)
             break;
@@ -421,16 +416,16 @@ static bool __al_poly_initialize(_AL_POLY* polygon)
 
          _al_list_remove(reflex_list, first_vertex);
 
-         __al_poly_classify_vertices_in_range(first_vertex, _al_list_next(vertex_list, last_vertex), vertex_list, reflex_list, NULL);
+         poly_classify_vertices_in_range(first_vertex, _al_list_next(vertex_list, last_vertex), vertex_list, reflex_list, NULL);
       }
 
       _al_list_destroy(split_list);
 
-      __al_poly_classify_vertices(vertex_list, NULL, ear_list);
+      poly_classify_vertices(vertex_list, NULL, ear_list);
    }
    else
       /* Initialize reflex and ear vertex lists. */
-      __al_poly_classify_vertices(vertex_list, reflex_list, ear_list);
+      poly_classify_vertices(vertex_list, reflex_list, ear_list);
 
    return true;
 }
@@ -440,8 +435,7 @@ static bool __al_poly_initialize(_AL_POLY* polygon)
 # undef POLY_SPLIT_INDEX
 
 
-/* Internal function: __al_poly_compute_vertex_attributes
- *
+/*
  *  Compute polygon vertex attributes. Currently supported attributes are:
  *    - ear clip
  *    - reflex
@@ -460,7 +454,7 @@ static bool __al_poly_initialize(_AL_POLY* polygon)
  *  Flags are used to determine for which attribute we want to check.
  *  Use POLY_VERTEX_ATTR_ALL to test for all attributes.
  */
-static int __al_poly_compute_vertex_attributes(_AL_LIST* vertices, _AL_LIST_ITEM* item, int flags, _AL_LIST* reflex)
+static int poly_compute_vertex_attributes(_AL_LIST* vertices, _AL_LIST_ITEM* item, int flags, _AL_LIST* reflex)
 {
    size_t i;
    _AL_LIST_ITEM* prev = _al_list_previous_circular(vertices, item);
@@ -554,26 +548,24 @@ static int __al_poly_compute_vertex_attributes(_AL_LIST* vertices, _AL_LIST_ITEM
 }
 
 
-/* Internal function: __al_poly_classify_vertices
- *
+/*
  *  Classify all vertices into reflex or ear group.
  *
  *  One of target group may be NULL so it will be simply ignored.
  */
-static void __al_poly_classify_vertices(_AL_LIST* vertices, _AL_LIST* reflex, _AL_LIST* ear)
+static void poly_classify_vertices(_AL_LIST* vertices, _AL_LIST* reflex, _AL_LIST* ear)
 {
-   __al_poly_classify_vertices_in_range(_al_list_front(vertices), NULL, vertices, reflex, ear);
+   poly_classify_vertices_in_range(_al_list_front(vertices), NULL, vertices, reflex, ear);
 }
 
 
-/* Internal function: __al_poly_classify_vertices_in_range
- *
+/*
  *  Classify selected range of vertices [begin, end) into
  *  reflex or ear group.
  *
  *  One of target group may be NULL so it will be simply ignored.
  */
-static void __al_poly_classify_vertices_in_range(_AL_LIST_ITEM* begin, _AL_LIST_ITEM* end, _AL_LIST* vertices, _AL_LIST* reflex, _AL_LIST* ear)
+static void poly_classify_vertices_in_range(_AL_LIST_ITEM* begin, _AL_LIST_ITEM* end, _AL_LIST* vertices, _AL_LIST* reflex, _AL_LIST* ear)
 {
    _AL_LIST_ITEM* item = NULL;
    int attribute_mask = 0;
@@ -586,7 +578,7 @@ static void __al_poly_classify_vertices_in_range(_AL_LIST_ITEM* begin, _AL_LIST_
 
    for (item = begin; item != end; item = _al_list_next(vertices, item))
    {
-      int attr = __al_poly_compute_vertex_attributes(vertices, item, attribute_mask, NULL);
+      int attr = poly_compute_vertex_attributes(vertices, item, attribute_mask, NULL);
 
       if (0 == attr)
          continue;
@@ -600,19 +592,18 @@ static void __al_poly_classify_vertices_in_range(_AL_LIST_ITEM* begin, _AL_LIST_
 }
 
 
-/* Internal function: __al_poly_update_vertex_attributes
- *
+/*
  *  Reclassify vertex. After triangle was emitted one vertex
  *  is removed from the list. Two neighbor vertices may
  *  change their attributes. In this place we have general
  *  function which update lists to match new attributes
  *  of provided vertex.
  */
-static void __al_poly_update_vertex_attributes(_AL_LIST* vertices, _AL_LIST* reflex, _AL_LIST* ear, _AL_LIST_ITEM* vertex)
+static void poly_update_vertex_attributes(_AL_LIST* vertices, _AL_LIST* reflex, _AL_LIST* ear, _AL_LIST_ITEM* vertex)
 {
    _AL_LIST_ITEM* item;
 
-   int attr = __al_poly_compute_vertex_attributes(vertices, vertex, POLY_VERTEX_ATTR_ALL, reflex);
+   int attr = poly_compute_vertex_attributes(vertices, vertex, POLY_VERTEX_ATTR_ALL, reflex);
 
    // Update reflex list only if an attribute change.
    item = _al_list_find_first(reflex, vertex);
@@ -643,13 +634,12 @@ static void __al_poly_update_vertex_attributes(_AL_LIST* vertices, _AL_LIST* ref
 }
 
 
-/* Internal function: __al_poly_do_triangulate
- *
+/*
  *  Triangulator iterate trough list of ear vertices
  *  and clip isolated triangles. This process repeats
  *  until there are ear vertices.
  */
-static void __al_poly_do_triangulate(_AL_POLY* polygon)
+static void poly_do_triangulate(POLY* polygon)
 {
 # define VERTEX_INDEX(vertex) ((((uint8_t*)vertex) - ((uint8_t*)polygon->vertex_buffer)) / polygon->vertex_stride)
 
@@ -731,8 +721,8 @@ static void __al_poly_do_triangulate(_AL_POLY* polygon)
       _al_list_erase(polygon->reflex_list, _al_list_find_first(polygon->reflex_list, vertex_item));
 
       // Update attributes of corner vertices.
-      __al_poly_update_vertex_attributes(polygon->vertex_list, polygon->reflex_list, polygon->ear_list, prev);
-      __al_poly_update_vertex_attributes(polygon->vertex_list, polygon->reflex_list, polygon->ear_list, next);
+      poly_update_vertex_attributes(polygon->vertex_list, polygon->reflex_list, polygon->ear_list, prev);
+      poly_update_vertex_attributes(polygon->vertex_list, polygon->reflex_list, polygon->ear_list, next);
 
 # if POLY_DEBUG
       if (g_poly_step == g_poly_step_current) {
@@ -775,8 +765,7 @@ static void __al_poly_do_triangulate(_AL_POLY* polygon)
 }
 
 
-/* Internal function: __al_poly_triangulate
- *
+/*
  *  General triangulation function.
  */
 bool al_triangulate_polygon(
@@ -784,7 +773,7 @@ bool al_triangulate_polygon(
    const int* splits, size_t split_stride, size_t split_count,
    void (*emit_triangle)(int, int, int, void*), void* userdata)
 {
-   _AL_POLY polygon;
+   POLY polygon;
 
    memset(&polygon, 0, sizeof(polygon));
    polygon.vertex_buffer = vertices;
@@ -796,9 +785,9 @@ bool al_triangulate_polygon(
    polygon.emit          = emit_triangle;
    polygon.userdata      = userdata;
 
-   if (__al_poly_initialize(&polygon)) {
+   if (poly_initialize(&polygon)) {
 
-      __al_poly_do_triangulate(&polygon);
+      poly_do_triangulate(&polygon);
 
       _al_list_destroy(polygon.vertex_list);
       _al_list_destroy(polygon.reflex_list);

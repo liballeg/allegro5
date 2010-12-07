@@ -5,8 +5,8 @@
 extern "C" {
 #endif
 
-typedef struct __AL_LIST _AL_LIST;
-typedef struct __AL_LIST_ITEM _AL_LIST_ITEM;
+typedef struct _AL_LIST _AL_LIST;
+typedef struct _AL_LIST_ITEM _AL_LIST_ITEM;
 
 typedef void (*_AL_LIST_DTOR)(void* userdata);
 typedef void (*_AL_LIST_ITEM_DTOR)(void* value, void* userdata);

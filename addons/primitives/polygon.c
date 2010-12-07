@@ -1,4 +1,4 @@
-/*         ______   ___    ___
+﻿/*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
@@ -11,8 +11,8 @@
  *      Polygon with holes drawing routines.
  *
  *
- *      By Michał Cichoǹ.
-  *
+ *      By Michał Cichoń.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -25,21 +25,21 @@
    #define hypotf(x, y) _hypotf((x), (y))
 #endif
 
-typedef enum _AL_POLYGON_PRIM_TYPE {
+typedef enum POLYGON_PRIM_TYPE {
    ALLEGRO_POLY_PRIM_TRIANGLE,
    ALLEGRO_POLY_PRIM_LINE,
-} _AL_POLYGON_PRIM_TYPE;
+} POLYGON_PRIM_TYPE;
 
-typedef struct _AL_POLYGON_VERTEX_CACHE {
+typedef struct POLYGON_VERTEX_CACHE {
    ALLEGRO_VERTEX          cache[ALLEGRO_VERTEX_CACHE_SIZE];
    size_t                  size;
-   _AL_POLYGON_PRIM_TYPE   prim_type;
+   POLYGON_PRIM_TYPE   prim_type;
    ALLEGRO_VERTEX*         current;
    const float*            vertices;
    ALLEGRO_COLOR           color;
-} _AL_POLYGON_VERTEX_CACHE;
+} POLYGON_VERTEX_CACHE;
 
-static void _al_polygon_cache_init(_AL_POLYGON_VERTEX_CACHE* cache, _AL_POLYGON_PRIM_TYPE prim_type, const float* vertices, ALLEGRO_COLOR color)
+static void polygon_cache_init(POLYGON_VERTEX_CACHE* cache, POLYGON_PRIM_TYPE prim_type, const float* vertices, ALLEGRO_COLOR color)
 {
    cache->vertices  = vertices;
    cache->size      = 0;
@@ -48,7 +48,7 @@ static void _al_polygon_cache_init(_AL_POLYGON_VERTEX_CACHE* cache, _AL_POLYGON_
    cache->color     = color;
 }
 
-static void _al_polygon_cache_flush(_AL_POLYGON_VERTEX_CACHE* cache)
+static void polygon_cache_flush(POLYGON_VERTEX_CACHE* cache)
 {
    if (cache->size == 0)
       return;
@@ -62,10 +62,10 @@ static void _al_polygon_cache_flush(_AL_POLYGON_VERTEX_CACHE* cache)
    cache->size    = 0;
 }
 
-static void _al_polygon_cache_push_triangle(_AL_POLYGON_VERTEX_CACHE* cache, const float* v0, const float* v1, const float* v2)
+static void polygon_cache_push_triangle(POLYGON_VERTEX_CACHE* cache, const float* v0, const float* v1, const float* v2)
 {
    if (cache->size >= (ALLEGRO_VERTEX_CACHE_SIZE - 3))
-      _al_polygon_cache_flush(cache);
+      polygon_cache_flush(cache);
 
    cache->current->x     = v0[0];
    cache->current->y     = v0[1];
@@ -93,19 +93,19 @@ static void _al_polygon_cache_push_triangle(_AL_POLYGON_VERTEX_CACHE* cache, con
    //al_draw_triangle(v0[0], v0[1], v1[0], v1[1], v2[0], v2[1], cache->color, 1.0f);
 }
 
-static void _al_polygon_cache_push_triangle_callback(int i0, int i1, int i2, void* user_data)
+static void polygon_cache_push_triangle_callback(int i0, int i1, int i2, void* user_data)
 {
-   _AL_POLYGON_VERTEX_CACHE* cache = (_AL_POLYGON_VERTEX_CACHE*)user_data;
+   POLYGON_VERTEX_CACHE* cache = (POLYGON_VERTEX_CACHE*)user_data;
 
    const float* v0 = cache->vertices + (i0 * 2);
    const float* v1 = cache->vertices + (i1 * 2);
    const float* v2 = cache->vertices + (i2 * 2);
 
-   _al_polygon_cache_push_triangle(cache, v0, v1, v2);
+   polygon_cache_push_triangle(cache, v0, v1, v2);
 }
 
 
-static float _al_compute_cross_edge(const float* v0, const float* v1, const float* v2, float* left_0, float* left_1, float* right_0, float* right_1, float* center, float radius)
+static float compute_cross_edge(const float* v0, const float* v1, const float* v2, float* left_0, float* left_1, float* right_0, float* right_1, float* center, float radius)
 {
    float normal_0[2];
    float normal_1[2];
@@ -220,7 +220,7 @@ static float _al_compute_cross_edge(const float* v0, const float* v1, const floa
    return angle;
 }
 
-static void _al_draw_arc_between_edges(_AL_POLYGON_VERTEX_CACHE* cache, const float* left_edge, const float* center, const float* right_edge, float radius, int segments)
+static void emit_arc_between_edges(POLYGON_VERTEX_CACHE* cache, const float* left_edge, const float* center, const float* right_edge, float radius, int segments)
 {
    float start = atan2f( left_edge[1] - center[1],  left_edge[0] - center[0]);
    float end   = atan2f(right_edge[1] - center[1], right_edge[0] - center[0]);
@@ -255,7 +255,7 @@ static void _al_draw_arc_between_edges(_AL_POLYGON_VERTEX_CACHE* cache, const fl
       v1[0] = center[0] + cosf(angle + step) * radius;
       v1[1] = center[1] + sinf(angle + step) * radius;
 
-      _al_polygon_cache_push_triangle(cache, v0, center, v1);
+      polygon_cache_push_triangle(cache, v0, center, v1);
 
       v0[0] = v1[0];
       v0[1] = v1[1];
@@ -271,7 +271,7 @@ static float get_scale(void)
    return (hypotf(t->m[0][0], t->m[0][1]) + hypotf(t->m[1][0], t->m[1][1])) / 2;
 }
 
-static void _al_do_draw_polygon(_AL_POLYGON_VERTEX_CACHE* cache, const float* vertices, int vertex_stride, int vertex_count, ALLEGRO_COLOR color, float thickness)
+static void do_draw_polygon(POLYGON_VERTEX_CACHE* cache, const float* vertices, int vertex_stride, int vertex_count, ALLEGRO_COLOR color, float thickness)
 {
 # define VERTEX(index)  ((const float*)(((uint8_t*)vertices) + vertex_stride * ((vertex_count + (index)) % vertex_count)))
 
@@ -294,7 +294,7 @@ static void _al_do_draw_polygon(_AL_POLYGON_VERTEX_CACHE* cache, const float* ve
 
       segments = ALLEGRO_PRIM_QUALITY * get_scale() * sqrtf(radius);
 
-      _al_polygon_cache_init(cache, ALLEGRO_POLY_PRIM_TRIANGLE, vertices, color);
+      polygon_cache_init(cache, ALLEGRO_POLY_PRIM_TRIANGLE, vertices, color);
 
       for (i = 0; i <= vertex_count; ++i) {
 
@@ -302,7 +302,7 @@ static void _al_do_draw_polygon(_AL_POLYGON_VERTEX_CACHE* cache, const float* ve
          const float* v1 = VERTEX(i);
          const float* v2 = VERTEX(i + 1);
 
-         float inner_angle = _al_compute_cross_edge(v0, v1, v2, left_0, left_1, right_0, right_1, center, radius);
+         float inner_angle = compute_cross_edge(v0, v1, v2, left_0, left_1, right_0, right_1, center, radius);
 
          if (0 == i) {
 
@@ -316,20 +316,20 @@ static void _al_do_draw_polygon(_AL_POLYGON_VERTEX_CACHE* cache, const float* ve
 
          if (last_angle > 0.0f) {
 
-            _al_polygon_cache_push_triangle(cache, very_left_0, left_0, very_left_1);
-            _al_polygon_cache_push_triangle(cache, very_left_1, left_0,      left_1);
+            polygon_cache_push_triangle(cache, very_left_0, left_0, very_left_1);
+            polygon_cache_push_triangle(cache, very_left_1, left_0,      left_1);
          }
          else {
-            _al_polygon_cache_push_triangle(cache, very_left_1, left_1, very_left_0);
-            _al_polygon_cache_push_triangle(cache, very_left_0, left_1,      left_0);
+            polygon_cache_push_triangle(cache, very_left_1, left_1, very_left_0);
+            polygon_cache_push_triangle(cache, very_left_0, left_1,      left_0);
          }
 
          if (fabsf(inner_angle) < ALLEGRO_PI / 2.0f) {
 
             //ALLEGRO_COLOR color = cache->color;
             //cache->color = al_map_rgb(0, 255, 0);
-            _al_polygon_cache_push_triangle(cache, right_0, right_1, center);
-            _al_polygon_cache_push_triangle(cache,  left_1,  left_0, center);
+            polygon_cache_push_triangle(cache, right_0, right_1, center);
+            polygon_cache_push_triangle(cache,  left_1,  left_0, center);
             //cache->color = color;
 
             if (inner_angle > 0.0f)
@@ -343,9 +343,9 @@ static void _al_do_draw_polygon(_AL_POLYGON_VERTEX_CACHE* cache, const float* ve
          //ALLEGRO_COLOR color = cache->color;
          //cache->color = al_map_rgb(0, 0, 255);
          if (inner_angle > 0.0f)
-            _al_draw_arc_between_edges(cache, right_1, center, left_1, inner_radius, segments);
+            emit_arc_between_edges(cache, right_1, center, left_1, inner_radius, segments);
          else
-            _al_draw_arc_between_edges(cache, left_0, center, right_0, inner_radius, segments);
+            emit_arc_between_edges(cache, left_0, center, right_0, inner_radius, segments);
          //cache->color = color;
 
          //al_draw_line(center[0], center[1], v1[0], v1[1], al_map_rgb(255, 0, 255), 2.0f);
@@ -357,19 +357,19 @@ static void _al_do_draw_polygon(_AL_POLYGON_VERTEX_CACHE* cache, const float* ve
          last_angle     = inner_angle;
       }
 
-      _al_polygon_cache_flush(cache);
+      polygon_cache_flush(cache);
    }
    else {
 
       const float* vertex;
       int i;
 
-      _al_polygon_cache_init(cache, ALLEGRO_POLY_PRIM_LINE, vertices, color);
+      polygon_cache_init(cache, ALLEGRO_POLY_PRIM_LINE, vertices, color);
 
       for (i = 0; i <= vertex_count; ++i) {
 
          if (cache->size >= (ALLEGRO_VERTEX_CACHE_SIZE - 2))
-            _al_polygon_cache_flush(cache);
+            polygon_cache_flush(cache);
 
          vertex = VERTEX(i);
 
@@ -382,7 +382,7 @@ static void _al_do_draw_polygon(_AL_POLYGON_VERTEX_CACHE* cache, const float* ve
          ++cache->size;
       }
 
-      _al_polygon_cache_flush(cache);
+      polygon_cache_flush(cache);
    }
 
 # undef VERTEX
@@ -390,21 +390,21 @@ static void _al_do_draw_polygon(_AL_POLYGON_VERTEX_CACHE* cache, const float* ve
 
 void al_draw_polygon(const float* vertices, int vertex_count, ALLEGRO_COLOR color, float thickness)
 {
-   _AL_POLYGON_VERTEX_CACHE cache;
-   _al_do_draw_polygon(&cache, vertices, sizeof(float) * 2, vertex_count, color, thickness);
+   POLYGON_VERTEX_CACHE cache;
+   do_draw_polygon(&cache, vertices, sizeof(float) * 2, vertex_count, color, thickness);
 }
 
 void al_draw_filled_polygon(const float* vertices, int vertex_count, ALLEGRO_COLOR color)
 {
-   _AL_POLYGON_VERTEX_CACHE cache;
+   POLYGON_VERTEX_CACHE cache;
 
-   _al_polygon_cache_init(&cache, ALLEGRO_POLY_PRIM_TRIANGLE, vertices, color);
+   polygon_cache_init(&cache, ALLEGRO_POLY_PRIM_TRIANGLE, vertices, color);
 
    al_triangulate_polygon(
       vertices, sizeof(float) * 2, vertex_count, &vertex_count, sizeof(int), 1,
-      _al_polygon_cache_push_triangle_callback, &cache);
+      polygon_cache_push_triangle_callback, &cache);
 
-   _al_polygon_cache_flush(&cache);
+   polygon_cache_flush(&cache);
 }
 
 void al_draw_polygon_with_holes(const float* vertices, int vertex_count, const int* holes, int hole_count, ALLEGRO_COLOR color, float thickness)
@@ -412,16 +412,16 @@ void al_draw_polygon_with_holes(const float* vertices, int vertex_count, const i
 # define VERTEX(index)  ((const float*)(((uint8_t*)vertices) + (sizeof(float) * 2) * ((vertex_count + (index)) % vertex_count)))
 # define HOLE(index)    (*((int*)(((uint8_t*)holes) + sizeof(int) * ((hole_count + index) % hole_count))))
 
-   _AL_POLYGON_VERTEX_CACHE cache;
+   POLYGON_VERTEX_CACHE cache;
    int i;
 
    if (hole_count <= 0)
       return;
 
-   _al_do_draw_polygon(&cache, vertices, sizeof(float) * 2, HOLE(0), color, thickness);
+   do_draw_polygon(&cache, vertices, sizeof(float) * 2, HOLE(0), color, thickness);
 
    for (i = 1; i < hole_count; ++i)
-      _al_do_draw_polygon(&cache, VERTEX(HOLE(i) - 1), -(int)(sizeof(float) * 2), HOLE(i) - HOLE(i - 1), color, thickness);
+      do_draw_polygon(&cache, VERTEX(HOLE(i) - 1), -(int)(sizeof(float) * 2), HOLE(i) - HOLE(i - 1), color, thickness);
 
 # undef VERTEX
 # undef HOLE
@@ -429,13 +429,13 @@ void al_draw_polygon_with_holes(const float* vertices, int vertex_count, const i
 
 void al_draw_filled_polygon_with_holes(const float* vertices, int vertex_count, const int* holes, int hole_count, ALLEGRO_COLOR color)
 {
-   _AL_POLYGON_VERTEX_CACHE cache;
+   POLYGON_VERTEX_CACHE cache;
 
-   _al_polygon_cache_init(&cache, ALLEGRO_POLY_PRIM_TRIANGLE, vertices, color);
+   polygon_cache_init(&cache, ALLEGRO_POLY_PRIM_TRIANGLE, vertices, color);
 
    al_triangulate_polygon(
       vertices, sizeof(float) * 2, vertex_count, holes, sizeof(int), hole_count,
-      _al_polygon_cache_push_triangle_callback, &cache);
+      polygon_cache_push_triangle_callback, &cache);
 
-   _al_polygon_cache_flush(&cache);
+   polygon_cache_flush(&cache);
 }

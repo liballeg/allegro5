@@ -1,4 +1,4 @@
-/*         ______   ___    ___
+﻿/*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
@@ -27,8 +27,7 @@
 # define AL_EPSILON         0.001f
 
 
-/* Internal function: _al_prim_wrap_two_pi
- *
+/*
  *  Wraps angle to the range [0, 2 pi).
  */
 float _al_prim_wrap_two_pi(float angle)
@@ -40,8 +39,7 @@ float _al_prim_wrap_two_pi(float angle)
 }
 
 
-/* Internal function: _al_prim_wrap_two_pi
- *
+/*
  *  Wraps angle to the range [-pi, pi).
  */
 float _al_prim_wrap_pi_to_pi(float angle)
@@ -53,8 +51,7 @@ float _al_prim_wrap_pi_to_pi(float angle)
 }
 
 
-/* Internal function: _al_prim_get_angle
- *
+/*
  *  Returns angle between two edges.
  *
  *  Angle is in range [-2 pi, 2 pi], so it is good idea to
@@ -69,8 +66,7 @@ float _al_prim_get_angle(const float* p0, const float* origin, const float* p1)
 }
 
 
-/* Internal function: _al_prim_test_line_side
- *
+/*
  *  Tests on which side of the line point is placed.
  *  Positive value will be returned if point is on half plane
  *  determined by normal vector. Negative value will be returned
@@ -90,8 +86,7 @@ int _al_prim_test_line_side(const float* origin, const float* normal, const floa
 }
 
 
-/* Internal function: _al_prim_is_point_in_triangle
- *
+/*
  *  Tests if point is inside of the triangle defined by vertices v0, v1 and v2.
  *
  *  Order of vertices does not have matter.
@@ -110,8 +105,7 @@ bool _al_prim_is_point_in_triangle(const float* point, const float* v0, const fl
 }
 
 
-/* Internal function: _al_prim_intersect_segment
- *
+/*
  *  Tests for intersection of lines defined by points { v0, v1 }
  *  and { p0, p1 }.
  *
@@ -154,8 +148,7 @@ bool _al_prim_intersect_segment(const float* v0, const float* v1, const float* p
 }
 
 
-/* Internal function: _al_prim_are_points_equal
- *
+/*
  *  Compares two points for equality.
  *
  *  This is not exact comparison but it is sufficient
