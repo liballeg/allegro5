@@ -36,7 +36,10 @@ See also: [al_init_font_addon]
 Loads a font from disk. This will use [al_load_bitmap_font] if you pass the
 name of a known bitmap format, or else [al_load_ttf_font].
 
-See also: [al_destroy_font], [al_init_font_addon]
+Bitmap and TTF fonts are affected by the current bitmap flags at the time the
+font is loaded.
+
+See also: [al_destroy_font], [al_init_font_addon], [al_register_font_loader]
 
 ### API: al_destroy_font
 
