@@ -166,7 +166,7 @@ static _AL_LIST_ITEM* list_get_free_item(_AL_LIST* list)
 {
    _AL_LIST_ITEM* item;
 
-   assert(list_is_static(list));
+   ASSERT(list_is_static(list));
 
    item = list->next_free;
    if (NULL != item)
@@ -207,7 +207,7 @@ static _AL_LIST_ITEM* list_create_item(_AL_LIST* list)
  */
 static void list_destroy_item(_AL_LIST* list, _AL_LIST_ITEM* item)
 {
-   assert(list == item->list);
+   ASSERT(list == item->list);
 
    if (NULL != item->dtor)
       item->dtor(item->data, list->user_data);
@@ -369,7 +369,7 @@ _AL_LIST_ITEM* _al_list_insert_after_ex(_AL_LIST* list, _AL_LIST_ITEM* where, vo
 {
    _AL_LIST_ITEM* item;
 
-   assert(list == where->list);
+   ASSERT(list == where->list);
 
    item = list_create_item(list);
    if (NULL == item)
@@ -409,7 +409,7 @@ _AL_LIST_ITEM* _al_list_insert_before_ex(_AL_LIST* list, _AL_LIST_ITEM* where, v
 {
    _AL_LIST_ITEM* item;
 
-   assert(list == where->list);
+   ASSERT(list == where->list);
 
    item = list_create_item(list);
    if (NULL == item)
@@ -438,7 +438,7 @@ void _al_list_erase(_AL_LIST* list, _AL_LIST_ITEM* item)
    if (NULL == item)
       return;
 
-   assert(list == item->list);
+   ASSERT(list == item->list);
 
    item->prev->next = item->next;
    item->next->prev = item->prev;
@@ -534,7 +534,7 @@ _AL_LIST_ITEM* _al_list_find_after(_AL_LIST* list, _AL_LIST_ITEM* where, void* d
 {
    _AL_LIST_ITEM* item;
 
-   assert(list == where->list);
+   ASSERT(list == where->list);
 
    for (item = where->next; item != list->root; item = item->next)
       if (item->data == data)
@@ -551,7 +551,7 @@ _AL_LIST_ITEM* _al_list_find_before(_AL_LIST* list, _AL_LIST_ITEM* where, void* 
 {
    _AL_LIST_ITEM* item;
 
-   assert(list == where->list);
+   ASSERT(list == where->list);
 
    for (item = where->prev; item != list->root; item = item->prev)
       if (item->data == data)
@@ -630,7 +630,7 @@ _AL_LIST_ITEM* _al_list_back(_AL_LIST* list)
  */
 _AL_LIST_ITEM* _al_list_next(_AL_LIST* list, _AL_LIST_ITEM* item)
 {
-   assert(list == item->list);
+   ASSERT(list == item->list);
 
    if (item->next != item->list->root)
       return item->next;
@@ -644,7 +644,7 @@ _AL_LIST_ITEM* _al_list_next(_AL_LIST* list, _AL_LIST_ITEM* item)
  */
 _AL_LIST_ITEM* _al_list_previous(_AL_LIST* list, _AL_LIST_ITEM* item)
 {
-   assert(list == item->list);
+   ASSERT(list == item->list);
 
    if (item->prev != item->list->root)
       return item->prev;
@@ -659,7 +659,7 @@ _AL_LIST_ITEM* _al_list_previous(_AL_LIST* list, _AL_LIST_ITEM* item)
  */
 _AL_LIST_ITEM* _al_list_next_circular(_AL_LIST* list, _AL_LIST_ITEM* item)
 {
-   assert(list == item->list);
+   ASSERT(list == item->list);
 
    if (item->next != item->list->root)
       return item->next;
@@ -674,7 +674,7 @@ _AL_LIST_ITEM* _al_list_next_circular(_AL_LIST* list, _AL_LIST_ITEM* item)
  */
 _AL_LIST_ITEM* _al_list_previous_circular(_AL_LIST* list, _AL_LIST_ITEM* item)
 {
-   assert(list == item->list);
+   ASSERT(list == item->list);
 
    if (item->prev != item->list->root)
       return item->prev;

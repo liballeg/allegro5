@@ -510,7 +510,7 @@ static ALLEGRO_FS_ENTRY *fs_stdio_read_directory(ALLEGRO_FS_ENTRY *fp)
    ALLEGRO_PATH *path;
    ALLEGRO_FS_ENTRY *ret;
    
-   assert(fp_stdio->dir);
+   ASSERT(fp_stdio->dir);
 
    do {
       ent = readdir(fp_stdio->dir);

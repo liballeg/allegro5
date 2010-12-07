@@ -296,7 +296,7 @@ static _AL_LIST* poly_create_split_list(POLY* polygon)
 
       split->max_index -= split->begin;
 
-      assert(split->max_index >= 0);
+      ASSERT(split->max_index >= 0);
 
       where = NULL;
       if (!_al_list_is_empty(list)) {
