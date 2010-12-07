@@ -32,7 +32,7 @@ ALLEGRO_DEBUG_CHANNEL("list")
 
 
 /* Definition of list, holds root and size. */
-typedef struct _AL_LIST {
+struct _AL_LIST {
    /* Root of the list. It is an element, but
     * not visible one. Using it end and the
     * beginning can be easily identified. */
@@ -44,16 +44,16 @@ typedef struct _AL_LIST {
    _AL_LIST_ITEM* next_free;
    void*          user_data;
    _AL_LIST_DTOR  dtor;
-} _AL_LIST;
+};
 
 /* List item, holds user data and destructor. */
-typedef struct _AL_LIST_ITEM {
+struct _AL_LIST_ITEM {
    _AL_LIST*          list;
    _AL_LIST_ITEM*     next;
    _AL_LIST_ITEM*     prev;
    void*              data;
    _AL_LIST_ITEM_DTOR dtor;
-} _AL_LIST_ITEM;
+};
 
 
 /* List of the internal functions. */
