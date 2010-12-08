@@ -358,6 +358,16 @@ static int find_unknown_key_assignment (int i)
 
 
 
+/* unicode_getc:
+ *  Reads a character from a Unicode string.
+ */
+static int unicode_getc(AL_CONST char *s)
+{
+   return *((unsigned short *)s);
+}
+
+
+
 /* _xwin_keyboard_handler:
  *  Keyboard "interrupt" handler.
  */
@@ -412,7 +422,7 @@ void _xwin_keyboard_handler(XKeyEvent *event, int dga2_hack)
       }
       buffer[len] = '\0';
       uconvert(buffer, U_UTF8, buffer2, U_UNICODE, sizeof buffer2);
-      unicode = *(unsigned short *)buffer2;
+      unicode = unicode_getc(buffer2);
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XIM
       r = XFilterEvent((XEvent *)event, _xwin.window);
