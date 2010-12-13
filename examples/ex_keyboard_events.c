@@ -7,8 +7,7 @@
 
 #include <stdio.h>
 #include <allegro5/allegro.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_native_dialog.h>
 
 #include "common.c"
 
@@ -20,103 +19,18 @@
 /* globals */
 ALLEGRO_EVENT_QUEUE *event_queue;
 ALLEGRO_DISPLAY     *display;
-ALLEGRO_FONT         *myfont;
-ALLEGRO_COLOR        black;
-ALLEGRO_COLOR        white;
-
-/* circular array of log messages */
-static ALLEGRO_USTR *msg_log[SIZE_LOG];
-static int msg_head = 0;
-static int msg_tail = 0;
-
-
-
-/* Add a message to the log. */
-static void log_message(ALLEGRO_USTR *message)
-{
-   if (msg_log[msg_head])
-      al_ustr_free(msg_log[msg_head]);
-   msg_log[msg_head] = message;
-   msg_head = (msg_head + 1) % SIZE_LOG;
-   if (msg_head == msg_tail) {
-      msg_tail = (msg_tail + 1) % SIZE_LOG;
-   }
-}
-
-
-
-/* Draw the message log to the screen. */
-static int num_messages(void)
-{
-   if (msg_head < msg_tail) {
-      return (SIZE_LOG - msg_tail) + msg_head;
-   }
-   else {
-      return msg_head - msg_tail;
-   }
-}
-
-static void draw_message_log(void)
-{
-   const int th = al_get_font_line_height(myfont);
-   int y;
-   int i;
-
-   al_draw_text(myfont, black, 5, th * 0.5, 0, "EVENT KEY CHR UNICODE  [MODIFIERS]  KEY NAME");
-
-   /* Scroll down the log if necessary. */
-   while (num_messages() >= (HEIGHT/th)) {
-      msg_tail = (msg_tail + 1) % SIZE_LOG;
-   }
-
-   y = th * 2;
-   i = msg_tail;
-   while (1) {
-      if (msg_log[i])
-         al_draw_text(myfont, black, 5, y, 0, al_cstr(msg_log[i]));
-      y += th;
-
-      i = (i + 1) % SIZE_LOG;
-      if (i == msg_head) {
-         break;
-      }
-   }
-}
 
 
 
 static void log_key(char const *how, int keycode, int unichar, int modifiers)
 {
-   ALLEGRO_USTR *us;
    char multibyte[5] = {0, 0, 0, 0, 0};
    const char* key_name;
 
-   al_utf8_encode(multibyte, unichar <= 0 ? ' ' : unichar);
+   al_utf8_encode(multibyte, unichar <= 32 ? ' ' : unichar);
    key_name = al_keycode_to_name(keycode);
-   us = al_ustr_newf("%s: %3d <%s> %08x [%08x]   %s", how, keycode, multibyte,
-      unichar, modifiers, key_name);
-   log_message(us);
-}
-
-
-
-static void log_key_down(int keycode, int unichar, int modifiers)
-{
-   log_key("Down", keycode, unichar, modifiers);
-}
-
-
-
-static void log_key_repeat(int keycode, int unichar, int modifiers)
-{
-   log_key("Rept", keycode, unichar, modifiers);
-}
-
-
-
-static void log_key_up(int keycode, int unichar, int modifiers)
-{
-   log_key("Up  ", keycode, unichar, modifiers);
+   log_printf("%s  code=%03d, char='%s' (%4d), modifiers=%08x, [%s]\n",
+      how, keycode, multibyte, unichar, modifiers, key_name);
 }
 
 
@@ -132,13 +46,10 @@ static void main_loop(void)
 {
    ALLEGRO_EVENT event;
 
-   while (true) {
-      if (al_is_event_queue_empty(event_queue)) {
-         al_clear_to_color(white);
-         draw_message_log();
-         al_flip_display();
-      }
+   log_printf("Focus on the main window (black) and press keys to see events. ");
+   log_printf("Escape quits.\n\n");
 
+   while (true) {
       /* Take the next event out of the event queue, and store it in `event'. */
       al_wait_for_event(event_queue, &event);
 
@@ -169,9 +80,10 @@ static void main_loop(void)
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
                return;
             }
-            log_key_down(event.keyboard.keycode,
-                  event.keyboard.unichar,
-                  event.keyboard.modifiers);
+            log_key("KEY_DOWN  ",
+               event.keyboard.keycode,
+               event.keyboard.unichar,
+               event.keyboard.modifiers);
             break;
 
          /* ALLEGRO_EVENT_KEY_REPEAT - a keyboard key was held down long enough to
@@ -180,18 +92,20 @@ static void main_loop(void)
           * by the operating environment the program is running in.
           */
          case ALLEGRO_EVENT_KEY_REPEAT:
-            log_key_repeat(event.keyboard.keycode,
-                  event.keyboard.unichar,
-                  event.keyboard.modifiers);
+            log_key("KEY_REPEAT",
+               event.keyboard.keycode,
+               event.keyboard.unichar,
+               event.keyboard.modifiers);
             break;
 
          /* ALLEGRO_EVENT_KEY_UP - a keyboard key was released.
           * Note that the unichar field is unused for this event.
           */
          case ALLEGRO_EVENT_KEY_UP:
-            log_key_up(event.keyboard.keycode,
-                  event.keyboard.unichar,
-                  event.keyboard.modifiers);
+            log_key("KEY_UP    ",
+               event.keyboard.keycode,
+               event.keyboard.unichar,
+               event.keyboard.modifiers);
             break;
 
          /* ALLEGRO_EVENT_DISPLAY_CLOSE - the window close button was pressed.
@@ -212,20 +126,12 @@ static void main_loop(void)
 
 int main(void)
 {
-   ALLEGRO_BITMAP *a4font;
-   int ranges[] = {
-       0x0020, 0x007F,  /* ASCII */
-       0x00A1, 0x00FF,  /* Latin 1 */
-       0x0100, 0x017F,  /* Extended-A */
-       0x20AC, 0x20AC}; /* Euro */
-
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
       return 1;
    }
 
-   al_init_image_addon();
-   al_init_font_addon();
+   open_log_monospace();
 
    display = al_create_display(WIDTH, HEIGHT);
    if (!display) {
@@ -238,17 +144,6 @@ int main(void)
       return 1;
    }
 
-   /* Unlike data/fixed_font.tga this contains some non-ASCII characters. */
-   a4font = al_load_bitmap("data/a4_font.tga");
-   if (!a4font) {
-      abort_example("Failed to load a4_font.tga\n");
-      return 1;
-   }
-
-   myfont = al_grab_font_from_bitmap(a4font, 4, ranges);
-   black = al_map_rgb(0, 0, 0);
-   white = al_map_rgb(255, 255, 255);
-
    event_queue = al_create_event_queue();
    if (!event_queue) {
       abort_example("al_create_event_queue failed\n");
@@ -259,6 +154,8 @@ int main(void)
    al_register_event_source(event_queue, al_get_display_event_source(display));
 
    main_loop();
+
+   close_log(false);
 
    return 0;
 }
