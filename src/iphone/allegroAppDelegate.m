@@ -137,13 +137,18 @@ void _al_iphone_get_screen_size(int *w, int *h)
    if (NULL != screen) {
 
       CGRect bounds = [screen bounds];
-      *w = bounds.size.width;
-      *h = bounds.size.height;
+      CGFloat scale = 1.0f;
+      
+      if ([screen respondsToSelector:NSSelectorFromString(@"scale")]) {
+         scale = [screen scale];
+      }
+      
+      *w = (int)(bounds.size.width  * scale);
+      *h = (int)(bounds.size.height * scale);
    }
    else {
-
-      *w = global_delegate.view.backingWidth;
-      *h = global_delegate.view.backingHeight;
+   
+      ASSERT("You sould never see this message, unless Apple changed their policy and allow for removing screens from iDevices." && false);
    }
 }
 
