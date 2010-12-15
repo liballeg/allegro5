@@ -180,8 +180,7 @@ static void event_handler(const ALLEGRO_EVENT * event)
          break;
 
       /* Was a key pressed? */
-      case ALLEGRO_EVENT_KEY_DOWN:
-      case ALLEGRO_EVENT_KEY_REPEAT:
+      case ALLEGRO_EVENT_KEY_CHAR:
          if (event->keyboard.keycode == ALLEGRO_KEY_LEFT) {
             double pos = al_get_audio_stream_position_secs(music_stream);
             pos -= 5.0;

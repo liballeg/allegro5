@@ -220,7 +220,6 @@ int main(void)
             goto done;
 
          case ALLEGRO_EVENT_KEY_DOWN:
-         case ALLEGRO_EVENT_KEY_REPEAT:
             if(event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
                goto done;
             keyboard(event.keyboard.keycode);

@@ -617,8 +617,7 @@ int main(void)
                   done = true;
                   break;
                }
-               case ALLEGRO_EVENT_KEY_DOWN:
-               case ALLEGRO_EVENT_KEY_REPEAT: {
+               case ALLEGRO_EVENT_KEY_CHAR: {
                   switch (key_event.keyboard.keycode) {
                      case ALLEGRO_KEY_ESCAPE: {
                         done = true;

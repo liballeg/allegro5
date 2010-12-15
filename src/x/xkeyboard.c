@@ -964,7 +964,6 @@ static void handle_key_press(int mycode, int unichar, unsigned int modifiers,
     ALLEGRO_DISPLAY *display)
 {
    bool is_repeat;
-   ALLEGRO_EVENT_TYPE type;
 
    is_repeat = (last_press_code == mycode);
    last_press_code = mycode;
@@ -974,17 +973,27 @@ static void handle_key_press(int mycode, int unichar, unsigned int modifiers,
       /* Update the key_down array.  */
       _AL_KEYBOARD_STATE_SET_KEY_DOWN(the_keyboard.state, mycode);
 
-      /* Generate the press event if necessary. */
-      type = is_repeat ? ALLEGRO_EVENT_KEY_REPEAT : ALLEGRO_EVENT_KEY_DOWN;
+      /* Generate the events if necessary. */
       if (_al_event_source_needs_to_generate_event(&the_keyboard.parent.es)) {
          ALLEGRO_EVENT event;
-         event.keyboard.type = type;
+
+         event.keyboard.type = ALLEGRO_EVENT_KEY_DOWN;
          event.keyboard.timestamp = al_get_time();
          event.keyboard.display = display;
-         event.keyboard.keycode   = mycode;
-         event.keyboard.unichar   = unichar;
-         event.keyboard.modifiers = modifiers;
-         _al_event_source_emit_event(&the_keyboard.parent.es, &event);
+         event.keyboard.keycode = mycode;
+         event.keyboard.unichar = 0;
+         event.keyboard.modifiers = 0;
+
+         if (!is_repeat) {
+            _al_event_source_emit_event(&the_keyboard.parent.es, &event);
+         }
+
+         {
+            event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
+            event.keyboard.unichar = unichar;
+            event.keyboard.modifiers = modifiers;
+            _al_event_source_emit_event(&the_keyboard.parent.es, &event);
+         }
       }
    }
    _al_event_source_unlock(&the_keyboard.parent.es);

@@ -442,10 +442,10 @@ int main(void)
       al_wait_for_event(queue, &event);
       if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
          break;
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN ||
-          event.type == ALLEGRO_EVENT_KEY_REPEAT) {
-         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+      if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
+         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
             quit = true;
+         }
          else if (event.keyboard.keycode == ALLEGRO_KEY_ENTER) {
             if (editing) {
                regenerate = true;

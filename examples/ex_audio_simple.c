@@ -74,13 +74,11 @@ Restart:
 
    while (true) {
       al_wait_for_event(event_queue, &event);
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN ||
-            event.type == ALLEGRO_EVENT_KEY_REPEAT) {
+      if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
          if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
             break;
          }
-
-         if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+         if (event.keyboard.unichar == ' ') {
             al_stop_samples();
          }
 

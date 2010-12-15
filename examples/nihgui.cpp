@@ -182,8 +182,7 @@ void Dialog::run_step(bool block)
             this->request_quit();
             break;
 
-         case ALLEGRO_EVENT_KEY_DOWN:
-         case ALLEGRO_EVENT_KEY_REPEAT:
+         case ALLEGRO_EVENT_KEY_CHAR:
             on_key_down(event.keyboard);
             break;
 

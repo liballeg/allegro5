@@ -173,7 +173,6 @@ int main(void)
       al_wait_for_event(queue, &event);
       switch (event.type) {
          case ALLEGRO_EVENT_KEY_DOWN:
-         case ALLEGRO_EVENT_KEY_REPEAT:
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
                done = true;
             if (event.keyboard.keycode == ALLEGRO_KEY_SPACE)

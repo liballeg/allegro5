@@ -80,17 +80,25 @@ static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode, i
 	_al_event_source_lock(&keyboard.es);
 	{
 		/* Generate the press event if necessary. */
-		type = is_repeat ? ALLEGRO_EVENT_KEY_REPEAT : ALLEGRO_EVENT_KEY_DOWN;
 		if (_al_event_source_needs_to_generate_event(&keyboard.es))
 		{
 			 ALLEGRO_EVENT event;
-			 event.keyboard.type = type;
+			 event.keyboard.type = ALLEGRO_EVENT_KEY_DOWN;
 			 event.keyboard.timestamp = al_get_time();
 			 event.keyboard.display   = dpy;
 			 event.keyboard.keycode   = scancode;
-			 event.keyboard.unichar   = unicode;
-			 event.keyboard.modifiers = modifiers;
-			 _al_event_source_emit_event(&keyboard.es, &event);
+			 event.keyboard.unichar   = 0;
+			 event.keyboard.modifiers = 0;
+			 if (!is_repeat) {
+				 _al_event_source_emit_event(&keyboard.es, &event);
+			 }
+
+			 {
+				 event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
+				 event.keyboard.unichar = unicode;
+				 event.keyboard.modifiers = modifiers;
+				 _al_event_source_emit_event(&keyboard.es, &event);
+			 }
 		}
 	}
    /* Maintain the kbdstate array. */
