@@ -166,7 +166,9 @@ static _AL_LIST_ITEM* list_get_free_item(_AL_LIST* list)
 {
    _AL_LIST_ITEM* item;
 
-   ASSERT(list_is_static(list));
+   //thedmd: disabled, root is always static-like element and this method
+   //        is called even for dynamic lists
+   //ASSERT(list_is_static(list));
 
    item = list->next_free;
    if (NULL != item)

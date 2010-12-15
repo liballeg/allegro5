@@ -6,6 +6,38 @@
 
 ALLEGRO_DEBUG_CHANNEL("iphone")
 
+typedef struct touch_t
+{
+   int      id;
+   UITouch* touch;
+   CGPoint  point;
+} touch_t;
+
+static void touch_item_dtor(void* value, void* userdata)
+{
+   al_free(value);
+}
+
+static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch, UIView* view)
+{
+   _AL_LIST_ITEM* item;
+   
+   for (item = _al_list_front(list); item; item = _al_list_next(list, item)) {
+   
+      touch_t* touch = (touch_t*)_al_list_item_data(item);
+      
+      CGPoint lastPoint = [nativeTouch previousLocationInView: view];
+      
+      if (touch->touch == nativeTouch)
+         return touch;
+      
+      if (touch->point.x == lastPoint.x && touch->point.y == lastPoint.y)
+         return touch;
+   }
+         
+   return NULL;
+}
+
 @implementation EAGLView
 
 @synthesize context;
@@ -49,6 +81,11 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 - (id)initWithFrame:(CGRect)frame {
     
     self = [super initWithFrame:frame];
+    
+    touch_list = _al_list_create();
+    
+    touch_id_set       = [[NSMutableIndexSet alloc] init];
+    next_free_touch_id = 1;
 
     return self;
 }
@@ -122,6 +159,11 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 }
 
 - (void)dealloc {
+    if (touch_list)
+      _al_list_destroy(touch_list);
+
+    [touch_id_set release]; 
+
     if ([EAGLContext currentContext] == context) {
         [EAGLContext setCurrentContext:nil];
     }
@@ -132,6 +174,21 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 
 /* Handling of touch events. */
 
+-(NSArray*)getSortedTouches:(NSSet*)touches
+{
+   NSArray* unsorted = [NSArray arrayWithArray: [touches allObjects]];
+   NSArray* sorted   = [unsorted sortedArrayUsingComparator: ^(id obj1, id obj2)
+   {
+     if ([obj1 timestamp] > [obj2 timestamp])
+       return (NSComparisonResult)NSOrderedDescending;
+     else if ([obj1 timestamp] < [obj2 timestamp])
+       return (NSComparisonResult)NSOrderedAscending;
+     else
+       return (NSComparisonResult)NSOrderedSame;
+   }];
+   return sorted;
+}
+
 // Handles the start of a touch
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
@@ -141,14 +198,34 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
    // TODO: handle double-clicks (send two events?)
 	// NSUInteger numTaps = [[touches anyObject] tapCount];
 	// Enumerate through all the touch objects.
+   
 	for (UITouch *touch in touches) {
-      CGPoint p = [touch locationInView:self];
+   
+      touch_t* touchItem;
+      int touch_id;
+      
+      if ([touch_id_set count] != 0) {
+
+         touch_id = [touch_id_set firstIndex];
+         
+         [touch_id_set removeIndex:touch_id];
+      }
+      else
+         touch_id = next_free_touch_id++;
+      
+      touchItem = al_malloc(sizeof(touch_t));
+      touchItem->id = touch_id;
+      touchItem->point = [touch locationInView:self];
+      touchItem->touch = touch;
+      _al_list_push_back_ex(touch_list, touchItem, touch_item_dtor);
+      
+      CGPoint p = touchItem->point;
       p.x *= _al_iphone_get_screen_scale();
       p.y *= _al_iphone_get_screen_scale();
 		_al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_DOWN,
-                                      p.x, p.y, 1, allegro_display);
+                                      p.x, p.y, touch_id, allegro_display);
         _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
-                                        p.x, p.y, 1, allegro_display);
+                                        p.x, p.y, touch_id, allegro_display);
 	}
 }
 
@@ -156,13 +233,20 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 -(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {  
 	(void)event;
+
+   touch_t* touch;
+   
 	// Enumerates through all touch objects
-	for (UITouch *touch in touches) {
-      CGPoint p = [touch locationInView:self];
-      p.x *= _al_iphone_get_screen_scale();
-      p.y *= _al_iphone_get_screen_scale();
-      _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
-                                      p.x, p.y, 1, allegro_display);
+	for (UITouch *nativeTouch in touches) {
+   
+      if (touch = find_touch(touch_list, nativeTouch, self)) {
+      
+         CGPoint p = [nativeTouch locationInView:self];
+         p.x *= _al_iphone_get_screen_scale();
+         p.y *= _al_iphone_get_screen_scale();
+         _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
+                                         p.x, p.y, touch->id, allegro_display);
+      }
 	}
 }
 
@@ -170,15 +254,25 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
    (void)event;
-	// Enumerates through all touch object
-	for (UITouch *touch in touches) {
-		CGPoint p = [touch locationInView:self];
-      p.x *= _al_iphone_get_screen_scale();
-      p.y *= _al_iphone_get_screen_scale();
-        _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_UP,
-                                        p.x, p.y, 1, allegro_display);
-        _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
-                                        p.x, p.y, 1, allegro_display);
+   
+   touch_t* touch;
+   
+	// Enumerates through all touch objects
+	for (UITouch *nativeTouch in touches) {
+
+      if (touch = find_touch(touch_list, nativeTouch, self)) {
+   
+         CGPoint p = [nativeTouch locationInView:self];
+         p.x *= _al_iphone_get_screen_scale();
+         p.y *= _al_iphone_get_screen_scale();
+           _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_UP,
+                                           p.x, p.y, touch->id, allegro_display);
+           _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
+                                           p.x, p.y, touch->id, allegro_display);
+                                           
+         [touch_id_set addIndex:touch->id];
+         _al_list_remove(touch_list, touch);
+      }
 	}
 }
 
@@ -188,13 +282,22 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 -(void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
     (void)event;
-	// Enumerates through all touch object
-	for (UITouch *touch in touches) {
-        CGPoint p = [touch locationInView:self];
-      p.x *= _al_iphone_get_screen_scale();
-      p.y *= _al_iphone_get_screen_scale();
-		_al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_UP,
-                                        p.x, p.y, 1, allegro_display);	
+    
+   touch_t* touch;
+   
+	// Enumerates through all touch objects
+	for (UITouch *nativeTouch in touches) {
+   
+      if (touch = find_touch(touch_list, nativeTouch, self)) {
+   
+           CGPoint p = [nativeTouch locationInView:self];
+         p.x *= _al_iphone_get_screen_scale();
+         p.y *= _al_iphone_get_screen_scale();
+         _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_UP,
+                                           p.x, p.y, touch->id, allegro_display);	
+         [touch_id_set addIndex:touch->id];
+         _al_list_remove(touch_list, touch);
+      }
 	}
 }
 

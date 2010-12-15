@@ -72,6 +72,7 @@ enum
 
 enum ALLEGRO_DISPLAY_ORIENTATION
 {
+   ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN,
    ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES,
    ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES,
    ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES,
@@ -118,6 +119,7 @@ AL_FUNC(int, al_get_display_height, (ALLEGRO_DISPLAY *display));
 AL_FUNC(int, al_get_display_format, (ALLEGRO_DISPLAY *display));
 AL_FUNC(int, al_get_display_refresh_rate, (ALLEGRO_DISPLAY *display));
 AL_FUNC(int, al_get_display_flags,  (ALLEGRO_DISPLAY *display));
+AL_FUNC(int, al_get_display_orientation, (ALLEGRO_DISPLAY* display));
 AL_FUNC(bool, al_toggle_display_flag, (ALLEGRO_DISPLAY *display, int flag, bool onoff));
 
 AL_FUNC(ALLEGRO_DISPLAY*, al_create_display, (int w, int h));

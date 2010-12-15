@@ -59,6 +59,8 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    bitmap->cr_excl = w;
    bitmap->cb_excl = h;
    al_identity_transform(&bitmap->transform);
+   al_identity_transform(&bitmap->inverse_transform);
+   bitmap->inverse_transform_dirty = false;
    bitmap->parent = NULL;
    bitmap->xofs = bitmap->yofs = 0;
    bitmap->memory = al_malloc(pitch * h);
@@ -110,6 +112,8 @@ static ALLEGRO_BITMAP *do_create_bitmap(int w, int h)
    bitmap->cr_excl = w;
    bitmap->cb_excl = h;
    al_identity_transform(&bitmap->transform);
+   al_identity_transform(&bitmap->inverse_transform);
+   bitmap->inverse_transform_dirty = false;
    bitmap->parent = NULL;
    bitmap->xofs = 0;
    bitmap->yofs = 0;
@@ -664,6 +668,8 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    bitmap->cr_excl = w;
    bitmap->cb_excl = h;
    al_identity_transform(&bitmap->transform);
+   al_identity_transform(&bitmap->inverse_transform);
+   bitmap->inverse_transform_dirty = false;
    bitmap->parent = parent;
    bitmap->xofs = x;
    bitmap->yofs = y;

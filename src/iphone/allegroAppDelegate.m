@@ -15,6 +15,47 @@ static UIWindow *splashwin;
 static volatile bool waiting_for_program_halt = false;
 static float scale_override = -1.0;
 
+static int iphone_orientation_to_allegro(UIDeviceOrientation orientation)
+{
+   switch (orientation) {
+      case UIDeviceOrientationPortrait:
+         return ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES;
+
+      case UIDeviceOrientationPortraitUpsideDown:
+         return ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES;
+
+      case UIDeviceOrientationLandscapeRight:
+         return ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES;
+
+      case UIDeviceOrientationLandscapeLeft:
+         return ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES;
+
+      case UIDeviceOrientationFaceUp:
+         return ALLEGRO_DISPLAY_ORIENTATION_FACE_UP;
+
+      case UIDeviceOrientationFaceDown:
+         return ALLEGRO_DISPLAY_ORIENTATION_FACE_DOWN;
+
+      default:
+         return ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN;
+   }
+}
+
+static void iphone_send_orientation_event(ALLEGRO_DISPLAY* display, int orientation)
+{
+   _al_event_source_lock(&display->es);
+   if (_al_event_source_needs_to_generate_event(&display->es)) {
+      ALLEGRO_EVENT event;
+      event.display.type = ALLEGRO_EVENT_DISPLAY_ORIENTATION;
+      event.display.timestamp = al_get_time();
+      event.display.source = display;
+      event.display.orientation = orientation;
+      _al_event_source_emit_event(&display->es, &event);
+   }
+   _al_event_source_unlock(&display->es);
+}
+
+
 /* Function: al_iphone_program_has_halted
  */
 void al_iphone_program_has_halted(void)
@@ -91,8 +132,29 @@ void _al_iphone_accelerometer_control(int frequency)
 
 void _al_iphone_get_screen_size(int *w, int *h)
 {
-    *w = global_delegate.view.backingWidth;
-    *h = global_delegate.view.backingHeight;
+   UIScreen* screen = [UIScreen mainScreen];
+   
+   if (NULL != screen) {
+
+      CGRect bounds = [screen bounds];
+      *w = bounds.size.width;
+      *h = bounds.size.height;
+   }
+   else {
+
+      *w = global_delegate.view.backingWidth;
+      *h = global_delegate.view.backingHeight;
+   }
+}
+
+int _al_iphone_get_orientation()
+{
+   UIDevice* device = [UIDevice currentDevice];
+  
+   if (NULL != device)
+      return iphone_orientation_to_allegro([device orientation]);
+   else
+      return ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN;
 }
 
 @implementation allegroAppDelegate
@@ -129,50 +191,17 @@ void _al_iphone_get_screen_size(int *w, int *h)
 - (void)orientation_change:(NSNotification *)notification
 {
    ALLEGRO_DISPLAY *d = allegro_display;
-   UIDeviceOrientation o = [[UIDevice currentDevice] orientation];
-   int ao;
    
    (void)notification;
 
    if (d == NULL)
       return;
-
-   switch (o) {
-      case (UIDeviceOrientationPortrait):
-         ao = ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES;
-         break;
-      case (UIDeviceOrientationPortraitUpsideDown):
-         ao = ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES;
-         break;
-      case (UIDeviceOrientationLandscapeRight):
-         ao = ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES;
-         break;
-      case (UIDeviceOrientationLandscapeLeft):
-         ao = ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES;
-         break;
-      case (UIDeviceOrientationFaceUp):
-         ao = ALLEGRO_DISPLAY_ORIENTATION_FACE_UP;
-         break;
-      case (UIDeviceOrientationFaceDown):
-         ao = ALLEGRO_DISPLAY_ORIENTATION_FACE_DOWN;
-         break;
-      default:
-         return;
-   }
-            
-   _al_event_source_lock(&d->es);
-   if (_al_event_source_needs_to_generate_event(&d->es)) {
-      ALLEGRO_EVENT event;
-      event.display.type = ALLEGRO_EVENT_DISPLAY_ORIENTATION;
-      event.display.timestamp = al_get_time();
-      event.display.source = allegro_display;
-      event.display.orientation = ao;
-      _al_event_source_emit_event(&d->es, &event);
-   }
-   _al_event_source_unlock(&d->es);
+      
+   iphone_send_orientation_event(d, _al_iphone_get_orientation());
 }
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
+
    ALLEGRO_INFO("App launched.\n");
     
    application.statusBarHidden = true;
@@ -182,7 +211,7 @@ void _al_iphone_get_screen_size(int *w, int *h)
    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientation_change:) name:UIDeviceOrientationDidChangeNotification object:nil];
 
-    [self display_splash_screen];
+   [self display_splash_screen];
 
    _al_iphone_run_user_main();
 }

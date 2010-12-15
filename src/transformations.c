@@ -51,7 +51,12 @@ void al_use_transform(const ALLEGRO_TRANSFORM *trans)
     * doesn't support front buffer bitmaps.
     */
 
-   if (trans != &target->transform) al_copy_transform(&target->transform, trans);
+   if (trans != &target->transform) {
+   
+      al_copy_transform(&target->transform, trans);
+      
+      target->inverse_transform_dirty = true;
+   }
 
    /*
     * When the drawing is held, we apply the transformations in software,
@@ -75,6 +80,23 @@ const ALLEGRO_TRANSFORM *al_get_current_transform(void)
       return NULL;
 
    return &target->transform;
+}
+
+/* Function: al_get_current_inverse_transform
+ */
+const ALLEGRO_TRANSFORM *al_get_current_inverse_transform(void)
+{
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+
+   if (!target)
+      return NULL;
+      
+   if (target->inverse_transform_dirty) {
+      al_copy_transform(&target->inverse_transform, &target->transform);
+      al_invert_transform(&target->inverse_transform);
+   }
+
+   return &target->inverse_transform;
 }
 
 /* Function: al_identity_transform

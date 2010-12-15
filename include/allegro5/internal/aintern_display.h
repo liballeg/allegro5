@@ -29,6 +29,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
    bool (*acknowledge_resize)(ALLEGRO_DISPLAY *d);
    bool (*resize_display)(ALLEGRO_DISPLAY *d, int width, int height);
    void (*quick_size)(ALLEGRO_DISPLAY *d);
+   int (*get_orientation)(ALLEGRO_DISPLAY *d);
 
    ALLEGRO_BITMAP *(*create_bitmap)(ALLEGRO_DISPLAY *d,
    	int w, int h);

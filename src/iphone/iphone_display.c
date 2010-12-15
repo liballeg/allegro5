@@ -269,6 +269,13 @@ static bool iphone_set_current_display(ALLEGRO_DISPLAY *d)
     return true;
 }
 
+static int iphone_get_orientation(ALLEGRO_DISPLAY *d)
+{
+   (void)d;
+   return _al_iphone_get_orientation();
+}
+
+
 /* There can be only one window and only one OpenGL context, so all bitmaps
  * are compatible.
  */
@@ -405,6 +412,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_iphone_display_interface(void)
     vt->create_sub_bitmap = _al_ogl_create_sub_bitmap;
     vt->get_backbuffer = _al_ogl_get_backbuffer;
     vt->set_target_bitmap = _al_ogl_set_target_bitmap;
+    
+    vt->get_orientation = iphone_get_orientation;
 
     vt->is_compatible_bitmap = iphone_is_compatible_bitmap;
     vt->resize_display = iphone_resize_display;

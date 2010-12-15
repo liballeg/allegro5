@@ -286,6 +286,16 @@ int al_get_display_flags(ALLEGRO_DISPLAY *display)
 }
 
 
+/* Function: al_get_display_orientation
+ */
+int al_get_display_orientation(ALLEGRO_DISPLAY* display)
+{
+   if (display && display->vt->get_orientation)
+      return display->vt->get_orientation(display);
+   else
+      return ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN;
+}
+
 
 /* Function: al_get_num_display_modes
  */

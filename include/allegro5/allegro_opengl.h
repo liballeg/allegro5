@@ -39,6 +39,11 @@
 #define glBlendEquation glBlendEquationOES
 #define glBlendFuncSeparate glBlendFuncSeparateOES
 #define glBlendEquationSeparate glBlendEquationSeparateOES
+#ifdef GL_FUNC_ADD
+#undef GL_FUNC_ADD
+#undef GL_FUNC_SUBTRACT
+#undef GL_FUNC_REVERSE_SUBTRACT
+#endif
 #define GL_FUNC_ADD GL_FUNC_ADD_OES
 #define GL_FUNC_SUBTRACT GL_FUNC_SUBTRACT_OES
 #define GL_FUNC_REVERSE_SUBTRACT GL_FUNC_REVERSE_SUBTRACT_OES

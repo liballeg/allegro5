@@ -54,6 +54,8 @@ struct ALLEGRO_BITMAP
 
    /* Transformation for this bitmap */
    ALLEGRO_TRANSFORM transform;
+   ALLEGRO_TRANSFORM inverse_transform;
+   bool              inverse_transform_dirty;
 
    /* Info for sub-bitmaps */
    ALLEGRO_BITMAP *parent;
