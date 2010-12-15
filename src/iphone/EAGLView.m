@@ -10,15 +10,20 @@ typedef struct touch_t
 {
    int      id;
    UITouch* touch;
-   CGPoint  point;
 } touch_t;
 
+/* Every UITouch have associated touch_t structure. This destructor
+ * is used in list which held touch information. While ending touch it will
+ * be called and memory will be freed.
+ */
 static void touch_item_dtor(void* value, void* userdata)
 {
    al_free(value);
 }
 
-static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch, UIView* view)
+/* Search for touch_t associated with UITouch.
+ */
+static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 {
    _AL_LIST_ITEM* item;
    
@@ -26,12 +31,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch, UIView* view)
    
       touch_t* touch = (touch_t*)_al_list_item_data(item);
       
-      CGPoint lastPoint = [nativeTouch previousLocationInView: view];
-      
       if (touch->touch == nativeTouch)
-         return touch;
-      
-      if (touch->point.x == lastPoint.x && touch->point.y == lastPoint.y)
          return touch;
    }
          
@@ -199,33 +199,31 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch, UIView* view)
 	// NSUInteger numTaps = [[touches anyObject] tapCount];
 	// Enumerate through all the touch objects.
    
-	for (UITouch *touch in touches) {
+	for (UITouch *nativeTouch in touches) {
    
-      touch_t* touchItem;
-      int touch_id;
+      /* Create new touch_t and associate ID with UITouch. */
+      touch_t* touch = al_malloc(sizeof(touch_t));
+
+      touch->touch = nativeTouch;
       
       if ([touch_id_set count] != 0) {
 
-         touch_id = [touch_id_set firstIndex];
+         touch->id = [touch_id_set firstIndex];
          
-         [touch_id_set removeIndex:touch_id];
+         [touch_id_set removeIndex:touch->id];
       }
       else
-         touch_id = next_free_touch_id++;
+         touch->id = next_free_touch_id++;
       
-      touchItem = al_malloc(sizeof(touch_t));
-      touchItem->id = touch_id;
-      touchItem->point = [touch locationInView:self];
-      touchItem->touch = touch;
-      _al_list_push_back_ex(touch_list, touchItem, touch_item_dtor);
+      _al_list_push_back_ex(touch_list, touch, touch_item_dtor);
       
-      CGPoint p = touchItem->point;
+      CGPoint p = [nativeTouch locationInView:self];
       p.x *= _al_iphone_get_screen_scale();
       p.y *= _al_iphone_get_screen_scale();
 		_al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_DOWN,
-                                      p.x, p.y, touch_id, allegro_display);
+                                      p.x, p.y, touch->id, allegro_display);
         _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
-                                        p.x, p.y, touch_id, allegro_display);
+                                        p.x, p.y, touch->id, allegro_display);
 	}
 }
 
@@ -239,7 +237,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch, UIView* view)
 	// Enumerates through all touch objects
 	for (UITouch *nativeTouch in touches) {
    
-      if (touch = find_touch(touch_list, nativeTouch, self)) {
+      if (touch = find_touch(touch_list, nativeTouch)) {
       
          CGPoint p = [nativeTouch locationInView:self];
          p.x *= _al_iphone_get_screen_scale();
@@ -260,7 +258,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch, UIView* view)
 	// Enumerates through all touch objects
 	for (UITouch *nativeTouch in touches) {
 
-      if (touch = find_touch(touch_list, nativeTouch, self)) {
+      if (touch = find_touch(touch_list, nativeTouch)) {
    
          CGPoint p = [nativeTouch locationInView:self];
          p.x *= _al_iphone_get_screen_scale();
@@ -288,7 +286,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch, UIView* view)
 	// Enumerates through all touch objects
 	for (UITouch *nativeTouch in touches) {
    
-      if (touch = find_touch(touch_list, nativeTouch, self)) {
+      if (touch = find_touch(touch_list, nativeTouch)) {
    
            CGPoint p = [nativeTouch locationInView:self];
          p.x *= _al_iphone_get_screen_scale();
