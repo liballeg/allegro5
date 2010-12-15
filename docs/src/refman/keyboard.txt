@@ -86,6 +86,10 @@ These are the list of key codes used by Allegro, which you can pass to
     ALLEGRO_KEYMOD_ACCENT3
     ALLEGRO_KEYMOD_ACCENT4
 
+The event field 'keyboard.modifiers' is a bitfield composed of these constants.
+These indicate the modifier keys which were pressed at the time a character was
+typed.
+
 ## API: al_install_keyboard
 
 Install a keyboard driver. Returns true if successful. If a driver
