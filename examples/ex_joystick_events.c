@@ -10,6 +10,7 @@
 #include "common.c"
 
 #define MAX_STICKS   8
+#define MAX_AXES     3
 #define MAX_BUTTONS  32
 
 
@@ -19,24 +20,31 @@ ALLEGRO_COLOR        black;
 ALLEGRO_COLOR        grey;
 ALLEGRO_COLOR        white;
 
-int num_sticks;
-float joys_x[MAX_STICKS];
-float joys_y[MAX_STICKS];
-int num_buttons;
-bool joys_buttons[MAX_BUTTONS];
-
+int num_sticks = 0;
+int num_buttons = 0;
+int num_axes[MAX_AXES] = { 0 };
+float joys[MAX_STICKS][MAX_AXES] = { 0 };
+bool joys_buttons[MAX_BUTTONS] = { 0 };
 
 
 static void draw_joystick_axes(int cx, int cy, int stick)
 {
    const int size = 30;
-   const int osize = 35;
-   int x = cx + joys_x[stick] * size;
-   int y = cy + joys_y[stick] * size;
+   const int csize = 5;
+   const int osize = size + csize;
+   int axes = num_axes[stick];
+   int zx = cx + osize + csize * 2;
+   int x = cx + joys[stick][0] * size;
+   int y = cy + joys[stick][1] * size;
+   int z = cy + joys[stick][2] * size;
 
    al_draw_filled_rectangle(cx-osize, cy-osize, cx+osize, cy+osize, grey);
    al_draw_rectangle(cx-osize+0.5, cy-osize+0.5, cx+osize-0.5, cy+osize-0.5, black, 0);
    al_draw_filled_rectangle(x-5, y-5, x+5, y+5, black);
+
+   al_draw_filled_rectangle(zx-csize, cy-osize, zx+csize, cy+osize, grey);
+   al_draw_rectangle(zx-csize+0.5f, cy-osize+0.5f, zx+csize-0.5f, cy+osize-0.5f, black, 0);
+   al_draw_filled_rectangle(zx-5, z-5, zx+5, z+5, black);
 }
 
 
@@ -97,12 +105,8 @@ static void main_loop(void)
           * 'stick' on the first joystick on the system.
           */
          case ALLEGRO_EVENT_JOYSTICK_AXIS:
-            if (event.joystick.stick < MAX_STICKS) {
-               int stick = event.joystick.stick;
-               if (event.joystick.axis == 0)
-                  joys_x[stick] = event.joystick.pos;
-               else if (event.joystick.axis == 1)
-                  joys_y[stick] = event.joystick.pos;
+            if (event.joystick.stick < MAX_STICKS && event.joystick.axis < MAX_AXES) {
+                  joys[event.joystick.stick][event.joystick.axis] = event.joystick.pos;
             }
             break;
 
@@ -144,7 +148,7 @@ int main(void)
    ALLEGRO_DISPLAY *display;
    ALLEGRO_JOYSTICK *zero_joy;
    ALLEGRO_JOYSTICK_STATE jst;
-   int i;
+   int i, j;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -195,8 +199,9 @@ int main(void)
    if (num_sticks > MAX_STICKS)
       num_sticks = MAX_STICKS;
    for (i = 0; i < num_sticks; i++) {
-      joys_x[i] = jst.stick[i].axis[0];
-      joys_y[i] = jst.stick[i].axis[1];
+      num_axes[i] = al_get_joystick_num_axes(zero_joy, i);
+      for (j = 0; j < num_axes[i]; ++j)
+         joys[i][j] = jst.stick[i].axis[j];
    }
 
    num_buttons = al_get_joystick_num_buttons(zero_joy);
