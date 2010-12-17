@@ -14,6 +14,8 @@
 /* I'm not sure what library this is supposed to be in, but I couldn't find it yet */
 const IID GUID_NULL = { 0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0 } };
 
+const IID _al_IID_IDirectSoundBuffer8 = { 0x6825a449, 0x7524, 0x4d82, { 0x92, 0x0f, 0x50, 0xe3, 0x6a, 0xb3, 0xab, 0x1e } };
+
 #include "allegro5/allegro.h"
 
 extern "C" {
@@ -55,7 +57,7 @@ static void dsound_set_buffer_size(int bits_per_sample)
       if (dsound_buffer_size && dsound_buffer_size[0] != '\0')
          buffer_size_in_samples = atoi(dsound_buffer_size);
    }
-   
+
    buffer_size = buffer_size_in_samples * (bits_per_sample/8);
 }
 
@@ -352,7 +354,7 @@ static int _dsound_load_voice(ALLEGRO_VOICE *voice, const void *data)
       return 1;
    }
 
-   ex_data->ds_buffer->QueryInterface(IID_IDirectSoundBuffer8, u.v);
+   ex_data->ds_buffer->QueryInterface(_al_IID_IDirectSoundBuffer8, u.v);
 
    hr = ex_data->ds8_buffer->Lock(0, voice->buffer_size, &ptr1, &block1_bytes, &ptr2, &block2_bytes,
       0);
@@ -417,7 +419,7 @@ static int _dsound_start_voice(ALLEGRO_VOICE *voice)
          return 1;
       }
 
-      ex_data->ds_buffer->QueryInterface(IID_IDirectSoundBuffer8, u.v);
+      ex_data->ds_buffer->QueryInterface(_al_IID_IDirectSoundBuffer8, u.v);
 
       ex_data->ds8_buffer->SetVolume(DSBVOLUME_MAX);
 
