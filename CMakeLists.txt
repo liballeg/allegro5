@@ -31,7 +31,7 @@ project(ALLEGRO C CXX)
 
 set(ALLEGRO_VERSION 5.0.0)
 string(REGEX MATCH "^[0-9]+[.][0-9]+" ALLEGRO_SOVERSION ${ALLEGRO_VERSION})
-set(ALLEGRO_DLL_SHORTVER 50)
+string(REPLACE "." "" ALLEGRO_DLL_SHORTVER ${ALLEGRO_SOVERSION})
 
 # Search in the `cmake' directory for additional CMake modules.
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -886,14 +886,14 @@ if(UNIX AND NOT WANT_FRAMEWORKS)
 
     foreach(name ${PKG_CONFIG_FILES})
         if (SHARED)
-            set(outname ${name}${lib_type}-5.0.pc)
+            set(outname ${name}${lib_type}-${ALLEGRO_SOVERSION}.pc)
         else (SHARED)
             # For static linking: get extra libraries to link with.
             get_target_property(link_with ${name} static_link_with)
-            set(outname ${name}${lib_type}-static-5.0.pc)
+            set(outname ${name}${lib_type}-static-${ALLEGRO_SOVERSION}.pc)
         endif (SHARED)
         configure_file(
-            misc/${name}-5.0.pc.in
+            misc/${name}.pc.in
             ${LIBRARY_OUTPUT_PATH}/pkgconfig/${outname}
             @ONLY
             )
