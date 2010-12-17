@@ -275,8 +275,7 @@ def main():
 
         al_wait_for_event(queue, byref(event))
 
-        if event.type in [ALLEGRO_EVENT_KEY_DOWN,
-            ALLEGRO_EVENT_KEY_REPEAT]:
+        if event.type == ALLEGRO_EVENT_KEY_CHAR:
             if event.keyboard.keycode == ALLEGRO_KEY_ESCAPE:
                done = True
             elif event.keyboard.keycode == ALLEGRO_KEY_UP:

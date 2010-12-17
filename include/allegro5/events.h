@@ -20,7 +20,7 @@ enum
    ALLEGRO_EVENT_JOYSTICK_CONFIGURATION      =  4,
 
    ALLEGRO_EVENT_KEY_DOWN                    = 10,
-   ALLEGRO_EVENT_KEY_REPEAT                  = 11,
+   ALLEGRO_EVENT_KEY_CHAR                    = 11,
    ALLEGRO_EVENT_KEY_UP                      = 12,
 
    ALLEGRO_EVENT_MOUSE_AXES                  = 20,

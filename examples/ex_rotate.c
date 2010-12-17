@@ -83,7 +83,7 @@ int main(void)
 
    while (true) {
       if (al_get_next_event(queue, &event)) {
-         if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+         if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
                break;
             if (event.keyboard.unichar == ' ') {

@@ -303,15 +303,26 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool repeated,
    if (!_al_event_source_needs_to_generate_event(&the_keyboard.es))
       return;
 
-   event.keyboard.type = repeated ? ALLEGRO_EVENT_KEY_REPEAT : ALLEGRO_EVENT_KEY_DOWN;
+   event.keyboard.type = ALLEGRO_EVENT_KEY_DOWN;
    event.keyboard.timestamp = al_get_time();
    event.keyboard.display = (void*)win_disp;
    event.keyboard.keycode = my_code;
-   event.keyboard.unichar = ccode;
-   event.keyboard.modifiers = modifiers;
+   event.keyboard.unichar = 0;
+   event.keyboard.modifiers = 0;
 
    _al_event_source_lock(&the_keyboard.es);
-   _al_event_source_emit_event(&the_keyboard.es, &event);
+
+   if (!repeated) {
+      _al_event_source_emit_event(&the_keyboard.es, &event);
+   }
+
+   {
+      event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
+      event.keyboard.unichar = ccode;
+      event.keyboard.modifiers = modifiers;
+      _al_event_source_emit_event(&the_keyboard.es, &event);
+   }
+
    _al_event_source_unlock(&the_keyboard.es);
 }
 

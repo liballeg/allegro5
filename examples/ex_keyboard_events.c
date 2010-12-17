@@ -29,7 +29,7 @@ static void log_key(char const *how, int keycode, int unichar, int modifiers)
 
    al_utf8_encode(multibyte, unichar <= 32 ? ' ' : unichar);
    key_name = al_keycode_to_name(keycode);
-   log_printf("%s  code=%03d, char='%s' (%4d), modifiers=%08x, [%s]\n",
+   log_printf("%-8s  code=%03d, char='%s' (%4d), modifiers=%08x, [%s]\n",
       how, keycode, multibyte, unichar, modifiers, key_name);
 }
 
@@ -64,45 +64,24 @@ static void main_loop(void)
       switch (event.type) {
 
          /* ALLEGRO_EVENT_KEY_DOWN - a keyboard key was pressed.
-          * The three keyboard event fields we use here are:
-          *
-          * keycode -- an integer constant representing the key, e.g.
-          *             AL_KEY_ESCAPE;
-          *
-          * unichar -- the Unicode character being typed, if any.  This can
-          *             depend on the modifier keys and previous keys that were
-          *             pressed, e.g. for accents.
-          *
-          * modifiers -- a bitmask containing the state of Shift/Ctrl/Alt, etc.
-          *             keys.
           */
          case ALLEGRO_EVENT_KEY_DOWN:
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
                return;
             }
-            log_key("KEY_DOWN  ",
-               event.keyboard.keycode,
-               event.keyboard.unichar,
-               event.keyboard.modifiers);
-            break;
-
-         /* ALLEGRO_EVENT_KEY_REPEAT - a keyboard key was held down long enough to
-          * 'repeat'.  This is a useful event if you are working on something
-          * that requires typed input.  The repeat rate should be determined
-          * by the operating environment the program is running in.
-          */
-         case ALLEGRO_EVENT_KEY_REPEAT:
-            log_key("KEY_REPEAT",
-               event.keyboard.keycode,
-               event.keyboard.unichar,
-               event.keyboard.modifiers);
+            log_key("KEY_DOWN", event.keyboard.keycode, 0, 0);
             break;
 
          /* ALLEGRO_EVENT_KEY_UP - a keyboard key was released.
-          * Note that the unichar field is unused for this event.
           */
          case ALLEGRO_EVENT_KEY_UP:
-            log_key("KEY_UP    ",
+            log_key("KEY_UP", event.keyboard.keycode, 0, 0);
+            break;
+
+         /* ALLEGRO_EVENT_KEY_CHAR - a character was typed or repeated.
+          */
+         case ALLEGRO_EVENT_KEY_CHAR:
+            log_key("KEY_CHAR",
                event.keyboard.keycode,
                event.keyboard.unichar,
                event.keyboard.modifiers);

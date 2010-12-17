@@ -142,15 +142,14 @@ void poll_input()
 
 	 case ALLEGRO_EVENT_KEY_DOWN:
 	    key[event.keyboard.keycode] = 1;
-	    add_key(&event.keyboard);
-	    break;
-
-	 case ALLEGRO_EVENT_KEY_REPEAT:
-	    add_key(&event.keyboard);
 	    break;
 
 	 case ALLEGRO_EVENT_KEY_UP:
 	    key[event.keyboard.keycode] = 0;
+	    break;
+
+	 case ALLEGRO_EVENT_KEY_CHAR:
+	    add_key(&event.keyboard);
 	    break;
 
 	 case ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN:

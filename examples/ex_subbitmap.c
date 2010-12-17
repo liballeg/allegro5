@@ -239,7 +239,7 @@ int main(int argc, const char *argv[])
       if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
          break;
       }
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+      if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
          if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
             break;
          }

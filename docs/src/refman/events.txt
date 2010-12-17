@@ -44,21 +44,25 @@ ALLEGRO_EVENT_JOYSTICK_CONFIGURATION
 ALLEGRO_EVENT_KEY_DOWN
 :   A keyboard key was pressed.
 :   -   keyboard.keycode,
-    -   keyboard.unichar,
-    -   keyboard.modifiers,
     -   keyboard.display.
 
-ALLEGRO_EVENT_KEY\_REPEAT
-:   A typed character auto-repeated.
-:   -   keyboard.keycode (ALLEGRO\_KEY\_\*),
-    -   keyboard.unichar (unicode character),
-    -   keyboard.modifiers (ALLEGRO\_KEYMOD\_\*),
-    -   keyboard.display.
+    Note: this event is about the physical keys being press on the keyboard.
+    Look for ALLEGRO_EVENT_KEY_CHAR events for character input.
 
 ALLEGRO_EVENT_KEY_UP
 :   A keyboard key was released.
 :   -   keyboard.keycode,
     -   keyboard.display.
+
+ALLEGRO_EVENT_KEY_CHAR
+:   A character was typed on the keyboard, or a character was auto-repeated.
+:   -   keyboard.keycode,
+    -   keyboard.unichar (unicode character),
+    -   keyboard.modifiers (ALLEGRO\_KEYMOD\_\*),
+    -   keyboard.display.
+
+    Note: this event is also generated for non-visible "characters", such as
+    arrow keys.  In that case, the unichar field will be negative.
 
 ALLEGRO_EVENT_MOUSE_AXES
 :   One or more mouse axis values changed.

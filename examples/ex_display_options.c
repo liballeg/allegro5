@@ -255,8 +255,7 @@ int main(void)
               old_flags |= f;
           }
       }
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN ||
-         event.type == ALLEGRO_EVENT_KEY_REPEAT) {
+      if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
          int change;
          if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
             break;
