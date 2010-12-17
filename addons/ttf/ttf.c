@@ -190,10 +190,10 @@ static int render_glyph(ALLEGRO_FONT const *f,
 	       if (al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
                   for (x = 0; x < face->glyph->bitmap.width; x++) {
                      unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
-                     *(dptr++) = 255;
-                     *(dptr++) = 255;
-                     *(dptr++) = 255;
-                     *(dptr++) = set;
+                     *dptr++ = 255;
+                     *dptr++ = 255;
+                     *dptr++ = 255;
+                     *dptr++ = set;
                      bit++;
                      if (bit >= 8) {
                         bit = 0;
@@ -205,10 +205,10 @@ static int render_glyph(ALLEGRO_FONT const *f,
                   for (x = 0; x < face->glyph->bitmap.width; x++) {
                      unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
                      float setf = set / 255.0f;
-                     *(dptr++) = 255 * setf;
-                     *(dptr++) = 255 * setf;
-                     *(dptr++) = 255 * setf;
-                     *(dptr++) = set;
+                     *dptr++ = 255 * setf;
+                     *dptr++ = 255 * setf;
+                     *dptr++ = 255 * setf;
+                     *dptr++ = set;
                      bit++;
                      if (bit >= 8) {
                         bit = 0;
@@ -227,10 +227,10 @@ static int render_glyph(ALLEGRO_FONT const *f,
                   for (x = 0; x < face->glyph->bitmap.width; x++) {
                      unsigned char c = *ptr;
                      float cf = c / 255.0f;
-                     *(dptr++) = 255;
-                     *(dptr++) = 255;
-                     *(dptr++) = 255;
-                     *(dptr++) = c;
+                     *dptr++ = 255;
+                     *dptr++ = 255;
+                     *dptr++ = 255;
+                     *dptr++ = c;
                      ptr++;
                   }
                }
@@ -238,10 +238,10 @@ static int render_glyph(ALLEGRO_FONT const *f,
                   for (x = 0; x < face->glyph->bitmap.width; x++) {
                      unsigned char c = *ptr;
                      float cf = c / 255.0f;
-                     *(dptr++) = 255 * cf;
-                     *(dptr++) = 255 * cf;
-                     *(dptr++) = 255 * cf;
-                     *(dptr++) = c;
+                     *dptr++ = 255 * cf;
+                     *dptr++ = 255 * cf;
+                     *dptr++ = 255 * cf;
+                     *dptr++ = c;
                      ptr++;
                   }
                }
