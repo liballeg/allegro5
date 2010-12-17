@@ -20,7 +20,8 @@ enum {
    ALLEGRO_OPENGL_3_0                  = 1 << 7,
    ALLEGRO_OPENGL_FORWARD_COMPATIBLE   = 1 << 8,
    ALLEGRO_FULLSCREEN_WINDOW           = 1 << 9,
-   ALLEGRO_MINIMIZED                   = 1 << 10
+   ALLEGRO_MINIMIZED                   = 1 << 10,
+   ALLEGRO_USE_PROGRAMMABLE_PIPELINE   = 1 << 11
 };
 
 /* Possible parameters for al_set_display_option.

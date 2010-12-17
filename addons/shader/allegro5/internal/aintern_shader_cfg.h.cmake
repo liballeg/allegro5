@@ -1,0 +1,3 @@
+#cmakedefine ALLEGRO_CFG_GLSL_SHADERS
+#cmakedefine ALLEGRO_CFG_HLSL_SHADERS
+#cmakedefine ALLEGRO_CFG_CG_SHADERS

@@ -792,6 +792,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 #if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    if (ogl_bitmap->is_backbuffer) {
       bool popmatrix = false;
+      ALLEGRO_TRANSFORM tmp;
       ALLEGRO_DEBUG("Unlocking backbuffer\n");
 
       /* glWindowPos2i may not be available. */
@@ -807,8 +808,9 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
           * Consider using glWindowPos2fMESAemulate from:
           * http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall/
           */
-         glPushMatrix();
-         glLoadIdentity();
+         al_copy_transform(&tmp, &disp->proj_transform);
+         al_identity_transform(&disp->proj_transform);
+         disp->vt->set_projection(disp);
          glRasterPos2f(bitmap->lock_x,
             bitmap->lock_y + bitmap->lock_h - 1e-4f);
          popmatrix = true;
@@ -824,7 +826,8 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             _al_format_name(lock_format), error_string(e));
       }
       if (popmatrix) {
-         glPopMatrix();
+         al_copy_transform(&disp->proj_transform, &tmp);
+         disp->vt->set_projection(disp);
       }
    }
    else {

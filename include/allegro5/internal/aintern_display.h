@@ -67,6 +67,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
    void* (*prepare_vertex_cache)(ALLEGRO_DISPLAY *d, int num_new_vertices);
    
    void (*update_transformation)(ALLEGRO_DISPLAY* d, ALLEGRO_BITMAP *target);
+   void (*set_projection)(ALLEGRO_DISPLAY *d);
 
    void (*shutdown)(void);
 };
@@ -123,6 +124,9 @@ struct ALLEGRO_DISPLAY
    ALLEGRO_BLENDER cur_blender;
    
    void (*display_invalidated)(ALLEGRO_DISPLAY*);
+
+   ALLEGRO_TRANSFORM proj_transform;
+   ALLEGRO_TRANSFORM view_transform;
 };
 
 int  _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref);

@@ -277,12 +277,9 @@ void _al_osx_mouse_was_installed(BOOL install) {
       NSRect rc = [self bounds];
       glViewport(0, 0, NSWidth(rc), NSHeight(rc));
       
-      glMatrixMode(GL_PROJECTION);
-      glLoadIdentity();
-      glOrtho(0, NSWidth(rc), NSHeight(rc), 0, -1, 1);
+      al_identity_transform(&dpy_ptr->proj_transform);
+      al_ortho_transform(&dpy_ptr->proj_transform, 0, NSWidth(rc), NSHeight(rc), 0, -1, 1);
       
-      glMatrixMode(GL_MODELVIEW);
-      glLoadIdentity();
       // To do: update the tracking rect
    }
 }
@@ -525,13 +522,10 @@ bool set_current_display(ALLEGRO_DISPLAY* d) {
 static void setup_gl(ALLEGRO_DISPLAY *d)
 {
    glViewport(0, 0, d->w, d->h);
+      
+   al_identity_transform(&d->proj_transform);
+   al_ortho_transform(&d->proj_transform, 0, d->w, d->h, 0, -1, 1);
    
-   glMatrixMode(GL_PROJECTION);
-   glLoadIdentity();
-   glOrtho(0, d->w, d->h, 0, -1, 1);
-   
-   glMatrixMode(GL_MODELVIEW);
-   glLoadIdentity();
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
    [dpy->ctx update];
 }

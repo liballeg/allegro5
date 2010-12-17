@@ -64,8 +64,13 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
    eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:
       [NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking,
       color_format, kEAGLDrawablePropertyColorFormat, nil];
-   
-   context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
+
+   if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+   }
+   else {
+      context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
+   }
    
    if (!context || ![EAGLContext setCurrentContext:context]) {
       [self release];

@@ -195,17 +195,37 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
    ALLEGRO_BITMAP *target)
 {
-   (void)disp;
+   ALLEGRO_TRANSFORM tmp;
+   
+   al_copy_transform(&tmp, &target->transform);
 
-   glMatrixMode(GL_MODELVIEW);
    if (target->parent) {
       /* Sub-bitmaps have an additional offset. */
-      glLoadIdentity();
-      glTranslatef(target->xofs, target->yofs, 0);
-      glMultMatrixf((float*)(target->transform.m));
+      al_translate_transform(&tmp, target->xofs, target->yofs);
+   }
+
+   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      al_copy_transform(&disp->view_transform, &tmp);
    }
    else {
-      glLoadMatrixf((float *)target->transform.m);
+      glMatrixMode(GL_MODELVIEW);
+      glLoadMatrixf((float *)tmp.m);
+   }
+}
+
+static void ogl_set_projection(ALLEGRO_DISPLAY *d)
+{
+   if (d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      GLuint program_object = d->ogl_extras->program_object;
+      GLint handle = glGetUniformLocation(program_object, "proj_matrix");
+      if (handle >= 0) {
+         glUniformMatrix4fv(handle, 1, false, (float *)d->proj_transform.m);
+      }
+   }
+   else {
+      glMatrixMode(GL_PROJECTION);
+      glLoadMatrixf((float *)d->proj_transform.m);
+      glMatrixMode(GL_MODELVIEW);
    }
 }
 
@@ -218,6 +238,7 @@ void _al_ogl_add_drawing_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
    vt->flush_vertex_cache = ogl_flush_vertex_cache;
    vt->prepare_vertex_cache = ogl_prepare_vertex_cache;
    vt->update_transformation = ogl_update_transformation;
+   vt->set_projection = ogl_set_projection;
 }
 
 /* vim: set sts=3 sw=3 et: */

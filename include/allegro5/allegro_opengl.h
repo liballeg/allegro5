@@ -136,6 +136,7 @@ AL_FUNC(void,                  al_get_opengl_texture_position,   (ALLEGRO_BITMAP
                                                                   int *u, int *v));
 AL_FUNC(void,                  al_set_current_opengl_context,    (ALLEGRO_DISPLAY *display));
 AL_FUNC(int,                   al_get_opengl_variant,            (void));
+AL_FUNC(void,                  al_set_opengl_program_object,     (ALLEGRO_DISPLAY *display, GLuint program_object));
 
 #ifdef __cplusplus
    }

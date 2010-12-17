@@ -81,6 +81,8 @@ typedef struct ALLEGRO_OGL_EXTRAS
    /* True if display resources are shared among displays. */
    bool is_shared;
 
+   GLuint program_object; // Shader object
+
 } ALLEGRO_OGL_EXTRAS;
 
 typedef struct ALLEGRO_OGL_BITMAP_VERTEX

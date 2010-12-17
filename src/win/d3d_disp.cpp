@@ -435,8 +435,7 @@ static void d3d_get_identity_matrix(D3DMATRIX *matrix)
 
 static void _al_d3d_set_ortho_projection(ALLEGRO_DISPLAY_D3D *disp, float w, float h)
 {
-   D3DMATRIX matOrtho;
-   D3DMATRIX matIdentity;
+   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)disp;
 
    if (disp->device_lost)
       return;
@@ -444,11 +443,18 @@ static void _al_d3d_set_ortho_projection(ALLEGRO_DISPLAY_D3D *disp, float w, flo
    d3d_ortho_w = w;
    d3d_ortho_h = h;
 
-   d3d_get_identity_matrix(&matIdentity);
-   d3d_get_ortho_matrix(w, h, &matOrtho);
-
-   disp->device->SetTransform(D3DTS_PROJECTION, &matOrtho);
-   disp->device->SetTransform(D3DTS_WORLD, &matIdentity);
+   if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      al_identity_transform(&display->proj_transform);
+      al_ortho_transform(&display->proj_transform, 0, w, h, 0, -1, 1);
+   }
+   else {
+      D3DMATRIX matOrtho;
+      D3DMATRIX matIdentity;
+      d3d_get_identity_matrix(&matIdentity);
+      d3d_get_ortho_matrix(w, h, &matOrtho);
+      disp->device->SetTransform(D3DTS_PROJECTION, &matOrtho);
+      disp->device->SetTransform(D3DTS_WORLD, &matIdentity);
+   }
 }
 
 static bool d3d_display_mode_matches(D3DDISPLAYMODE *dm, int w, int h, int format, int refresh_rate)
@@ -1949,6 +1955,8 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    display = d3d_create_display_locked(w, h);
    al_unlock_mutex(present_mutex);
 
+   al_identity_transform(&display->view_transform);
+
    return display;
 }
 
@@ -2677,11 +2685,17 @@ static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *tar
       al_translate_transform(&tmp_transform, target->xofs, target->yofs);
    }
 
-   memcpy(matrix.m[0], tmp_transform.m[0], 16 * sizeof(float));
-   matrix.m[3][0] -= 0.5;
-   matrix.m[3][1] -= 0.5;
-
-   d3d_disp->device->SetTransform(D3DTS_VIEW, &matrix);
+   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      // FIXME: offset like below
+      al_copy_transform(&disp->view_transform, &tmp_transform);
+   }
+   else {
+      memcpy(matrix.m[0], tmp_transform.m[0], 16 * sizeof(float));
+      matrix.m[3][0] -= 0.5;
+      matrix.m[3][1] -= 0.5;
+   
+      d3d_disp->device->SetTransform(D3DTS_VIEW, &matrix);
+   }
 }
 
 /* Obtain a reference to this driver. */
