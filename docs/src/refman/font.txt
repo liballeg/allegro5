@@ -232,14 +232,14 @@ white.
 Examples:
 
     int ranges[] = {32, 126};
-    al_font_grab_font_from_bitmap(bitmap, 1, ranges)
+    al_grab_font_from_bitmap(bitmap, 1, ranges)
 
     int ranges[] = {
         0x0020, 0x007F,  /* ASCII */
         0x00A1, 0x00FF,  /* Latin 1 */
         0x0100, 0x017F,  /* Extended-A */
         0x20AC, 0x20AC}; /* Euro */
-    al_font_grab_font_from_bitmap(bitmap, 4, ranges)
+    al_grab_font_from_bitmap(bitmap, 4, ranges)
 
 The first example will grab glyphs for the 95 standard printable ASCII
 characters, beginning with the space character (32) and ending with the
