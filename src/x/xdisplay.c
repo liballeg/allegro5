@@ -280,7 +280,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    // store our initial screen, used by fullscreen and glx visual code
    d->xscreen = adapter;
    if (d->xscreen < 0)
-      d->xscreen = 0;
+      d->xscreen = DefaultScreen(system->x11display);
 
    d->is_mapped = false;
    _al_cond_init(&d->mapped);
