@@ -91,8 +91,19 @@ void _al_iphone_accelerometer_control(int frequency)
 
 void _al_iphone_get_screen_size(int *w, int *h)
 {
-    *w = global_delegate.view.backingWidth;
-    *h = global_delegate.view.backingHeight;
+   UIScreen* screen = [UIScreen mainScreen];
+   
+   if (NULL != screen) {
+
+      CGRect bounds = [screen bounds];
+      *w = bounds.size.width;
+      *h = bounds.size.height;
+   }
+   else {
+
+      *w = global_delegate.view.backingWidth;
+      *h = global_delegate.view.backingHeight;
+   }
 }
 
 @implementation allegroAppDelegate
