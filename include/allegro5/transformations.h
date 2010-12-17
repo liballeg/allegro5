@@ -27,6 +27,7 @@ AL_FUNC(const ALLEGRO_TRANSFORM*, al_get_current_transform, (void));
 AL_FUNC(const ALLEGRO_TRANSFORM*, al_get_current_inverse_transform, (void));
 AL_FUNC(void, al_invert_transform, (ALLEGRO_TRANSFORM *trans));
 AL_FUNC(int, al_check_inverse, (const ALLEGRO_TRANSFORM *trans, float tol));
+AL_FUNC(void, al_ortho_transform, (ALLEGRO_TRANSFORM *trans, float left, float right, float top, float bottom, float n, float f));
 
 #ifdef __cplusplus
    }

@@ -317,4 +317,26 @@ bool _al_transform_is_translation(const ALLEGRO_TRANSFORM* trans,
    return false;
 }
 
+void al_ortho_transform(ALLEGRO_TRANSFORM *trans,
+   float left, float right, float bottom, float top,
+   float n, float f)
+{
+   float delta_x = right - left;
+   float delta_y = top - bottom;
+   float delta_z = f - n;
+   ALLEGRO_TRANSFORM tmp;
+
+   al_identity_transform(&tmp);
+
+   tmp.m[0][0] = 2.0f / delta_x;
+   tmp.m[1][1] = 2.0f / delta_y;
+//   tmp.m[2][2] = -2.0f / delta_z;
+//   tmp.m[2][2] = 2.0f / delta_z;
+   tmp.m[3][0] = -(right + left) / delta_x;
+   tmp.m[3][1] = -(top + bottom) / delta_y;
+   tmp.m[3][2] = -(f + n) / delta_z;
+
+   al_compose_transform(trans, &tmp);
+}
+
 /* vim: set sts=3 sw=3 et: */
