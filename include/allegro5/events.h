@@ -120,7 +120,7 @@ typedef struct ALLEGRO_KEYBOARD_EVENT
    _AL_EVENT_HEADER(struct ALLEGRO_KEYBOARD)
    struct ALLEGRO_DISPLAY *display; /* the window the key was pressed in */
    int keycode;                 /* the physical key pressed */
-   unsigned int unichar;        /* unicode character */
+   int unichar;                 /* unicode character or negative */
    unsigned int modifiers;      /* bitfield */
    bool repeat;                 /* auto-repeated or not */
 } ALLEGRO_KEYBOARD_EVENT;

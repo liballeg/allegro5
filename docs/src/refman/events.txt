@@ -10,173 +10,364 @@ An ALLEGRO_EVENT is a union of all builtin event structures, i.e. it is an
 object large enough to hold the data of any event type.  All events
 have the following fields in common:
 
-    ALLEGRO_EVENT_TYPE          type;
-    ALLEGRO_EVENT_SOURCE *      any.source;
-    double                      any.timestamp;
+type (ALLEGRO_EVENT_TYPE)
+:   Indicates the type of event.
 
-By examining the type field you can then access type-specific fields.  The
-any.source field tells you which event source generated that particular
-event.  The any.timestamp field tells you when the event was generated.  The
+any.source (ALLEGRO_EVENT_SOURCE *)
+:   The event source which generated the event.
+
+any.timestamp (double)
+:   When the event was generated.
+
+By examining the `type` field you can then access type-specific fields.  The
+`any.source` field tells you which event source generated that particular
+event.  The `any.timestamp` field tells you when the event was generated.  The
 time is referenced to the same starting point as [al_get_time].
 
-Each event is of one of the following types, with the usable fields given:
+Each event is of one of the following types, with the usable fields given.
 
 ALLEGRO_EVENT_JOYSTICK_AXIS
-:   A joystick axis value changed.
-:   -   joystick.id,
-    -   joystick.stick,
-    -   joystick.axis,
-    -   joystick.pos (-1.0 to 1.0).
+---------------------------
+A joystick axis value changed.
+
+joystick.id (ALLEGRO_JOYSTICK *)
+:   The joystick which generated the event.  This is not the same as the event
+    source `joystick.source`.
+
+joystick.stick (int)
+:   The stick number, counting from zero.
+    Axes on a joystick are grouped into "sticks".
+
+joystick.axis (int)
+:   The axis number on the stick, counting from zero.
+
+joystick.pos (float)
+:   The axis position, from -1.0 to +1.0.
 
 ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN
-:   A joystick button was pressed.
-:   -   joystick.id,
-    -   joystick.button (beginning with 0).
-  
+----------------------------------
+A joystick button was pressed.
+
+joystick.id (ALLEGRO_JOYSTICK *)
+:   The joystick which generated the event.
+
+joystick.button (int)
+:   The button which was pressed, counting from zero.
+
 ALLEGRO_EVENT_JOYSTICK_BUTTON_UP
-:   A joystick button was released.
-:   -   joystick.id,
-    -   joystick.button (beginning with 0).
+--------------------------------
+A joystick button was released.
+
+joystick.id (ALLEGRO_JOYSTICK *)
+:   The joystick which generated the event.
+
+joystick.button (int)
+:   The button which was released, counting from zero.
 
 ALLEGRO_EVENT_JOYSTICK_CONFIGURATION
-:   A joystick was plugged in or unplugged.
+------------------------------------
+A joystick was plugged in or unplugged.
+See [al_reconfigure_joysticks] for details.
 
 ALLEGRO_EVENT_KEY_DOWN
-:   A keyboard key was pressed.
-:   -   keyboard.keycode,
-    -   keyboard.display.
+----------------------
+A keyboard key was pressed.
 
-    Note: this event is about the physical keys being press on the keyboard.
-    Look for ALLEGRO_EVENT_KEY_CHAR events for character input.
+keyboard.keycode (int)
+:   The code corresponding to the physical key which was pressed.
+    See the "Key codes" section for the list of ALLEGRO\_KEY\_\* constants.
+
+keyboard.display (ALLEGRO_DISPLAY *)
+:   The display which had keyboard focus when the event occurred.
+
+> *Note:* this event is about the physical keys being press on the keyboard.
+Look for ALLEGRO_EVENT_KEY_CHAR events for character input.
 
 ALLEGRO_EVENT_KEY_UP
-:   A keyboard key was released.
-:   -   keyboard.keycode,
-    -   keyboard.display.
+--------------------
+A keyboard key was released.
+
+keyboard.keycode (int)
+:   The code corresponding to the physical key which was released.
+    See the "Key codes" section for the list of ALLEGRO\_KEY\_\* constants.
+
+keyboard.display (ALLEGRO_DISPLAY *)
+:   The display which had keyboard focus when the event occurred.
 
 ALLEGRO_EVENT_KEY_CHAR
-:   A character was typed on the keyboard, or a character was auto-repeated.
-:   -   keyboard.keycode,
-    -   keyboard.unichar - a Unicode code point (character),
-    -   keyboard.modifiers - a bitfield, see "Keyboard modifier flags",
-    -   keyboard.repeat - whether this is a repeated character,
-    -   keyboard.display.
+----------------------
+A character was typed on the keyboard, or a character was auto-repeated.
 
-    Note: this event is also generated for non-visible "characters", such as
-    arrow keys.  In that case, the unichar field will be negative.
+keyboard.keycode (int)
+:   The code corresponding to the physical key which was last pressed.
+    See the "Key codes" section for the list of ALLEGRO\_KEY\_\* constants.
+
+keyboard.unichar (int)
+:   A Unicode code point (character).  This may be a negative value if the
+    event was generated for a non-visible "character", such as an arrow key.
+    In that case you can act upon the `keycode` field.
+
+keyboard.modifiers (unsigned)
+:   This is a bitfield of the modifier keys which were pressed when the event
+    occurred.  See "Keyboard modifier flags" for the constants.
+
+keyboard.repeat (bool)
+:   Indicates if this is a repeated character.
+
+keyboard.display (ALLEGRO_DISPLAY *)
+:   The display which had keyboard focus when the event occurred.
+
+> *Note*: in many input methods, characters are *not* entered one-for-one with
+physical key presses.  Multiple key presses can combine to generate a single
+character, e.g. apostrophe + e may produce 'é'.  Fewer key presses can also
+generate more characters, e.g. macro sequences expanding to common phrases.
 
 ALLEGRO_EVENT_MOUSE_AXES
-:   One or more mouse axis values changed.
-:   -   mouse.x,
-    -   mouse.y,
-    -   mouse.z,
-    -   mouse.dx,
-    -   mouse.dy,
-    -   mouse.dz,
-    -   mouse.display.
+------------------------
+One or more mouse axis values changed.
 
-    > *Note:* Calling [al_set_mouse_xy] also will result in a change of axis
-    values, but such a change is reported with ALLEGRO_EVENT_MOUSE_WARPED
-    events instead.
+mouse.x (int)
+:   x-coordinate
 
-    > *Note:* currently mouse.display may be NULL if an event is generated in
-    response to [al_set_mouse_axis].
+mouse.y (int)
+:   y-coordinate
+
+mouse.z (int)
+:   z-coordinate.  This usually means the vertical axis of a mouse wheel,
+    where up is positive and down is negative.
+
+mouse.w (int)
+:   w-coordinate.  This usually means the horizontal axis of a mouse wheel.
+
+mouse.dx (int)
+:   Change in the x-coordinate value since the previous
+    ALLEGRO_EVENT_MOUSE_AXES event.
+
+mouse.dy (int)
+:   Change in the y-coordinate value since the previous
+    ALLEGRO_EVENT_MOUSE_AXES event.
+
+mouse.dz (int)
+:   Change in the z-coordinate value since the previous
+    ALLEGRO_EVENT_MOUSE_AXES event.
+
+mouse.dw (int)
+:   Change in the w-coordinate value since the previous
+    ALLEGRO_EVENT_MOUSE_AXES event.
+
+mouse.display (ALLEGRO_DISPLAY *)
+:   The display which had mouse focus.
+
+> *Note:* Calling [al_set_mouse_xy] also will result in a change of axis
+values, but such a change is reported with ALLEGRO_EVENT_MOUSE_WARPED
+events instead.
+
+> *Note:* currently mouse.display may be NULL if an event is generated in
+response to [al_set_mouse_axis].
 
 ALLEGRO_EVENT_MOUSE_BUTTON_DOWN
-:   A mouse button was pressed.
-:   -   mouse.x,
-    -   mouse.y,
-    -   mouse.z,
-    -   mouse.button (beginning with 1),
-    -   mouse.display.
+-------------------------------
+A mouse button was pressed.
+
+mouse.x (int)
+:   x-coordinate
+
+mouse.y (int)
+:   y-coordinate
+
+mouse.z (int)
+:   z-coordinate
+
+mouse.w (int)
+:   w-coordinate
+
+mouse.button (unsigned)
+:   The mouse button which was pressed, numbering from 1.
+
+mouse.display (ALLEGRO_DISPLAY *)
+:   The display which had mouse focus.
 
 ALLEGRO_EVENT_MOUSE_BUTTON_UP
-:   A mouse button was released.
-:   -   mouse.x,
-    -   mouse.y,
-    -   mouse.z,
-    -   mouse.button (beginning with 1),
-    -   mouse.display.
+-----------------------------
+A mouse button was released.
+
+mouse.x (int)
+:   x-coordinate
+
+mouse.y (int)
+:   y-coordinate
+
+mouse.z (int)
+:   z-coordinate
+
+mouse.w (int)
+:   w-coordinate
+
+mouse.button (unsigned)
+:   The mouse button which was released, numbering from 1.
+
+mouse.display (ALLEGRO_DISPLAY *)
+:   The display which had mouse focus.
 
 ALLEGRO_EVENT_MOUSE_WARPED
-:   [al_set_mouse_xy] was called to move the mouse.
-    This event is identical to ALLEGRO_EVENT_MOUSE_AXES otherwise.
+--------------------------
+[al_set_mouse_xy] was called to move the mouse.
+This event is identical to ALLEGRO_EVENT_MOUSE_AXES otherwise.
 
 ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY
-:   The mouse cursor entered a window opened by the program.
-:   -   mouse.x,
-    -   mouse.y,
-    -   mouse.z,
-    -   mouse.display.
+---------------------------------
+The mouse cursor entered a window opened by the program.
+
+mouse.x (int)
+:   x-coordinate
+
+mouse.y (int)
+:   y-coordinate
+
+mouse.z (int)
+:   z-coordinate
+
+mouse.w (int)
+:   w-coordinate
+
+mouse.display (ALLEGRO_DISPLAY *)
+:   The display which had mouse focus.
 
 ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY
-:   The mouse cursor leave the boundaries of a window opened by the program.
-:   -   mouse.x,
-    -   mouse.y,
-    -   mouse.z,
-    -   mouse.display.
+---------------------------------
+
+The mouse cursor leave the boundaries of a window opened by the program.
+
+mouse.x (int)
+:   x-coordinate
+
+mouse.y (int)
+:   y-coordinate
+
+mouse.z (int)
+:   z-coordinate
+
+mouse.w (int)
+:   w-coordinate
+
+mouse.display (ALLEGRO_DISPLAY *)
+:   The display which had mouse focus.
 
 ALLEGRO_EVENT_TIMER
-:   A timer counter incremented.
-:   -   timer.count.
+-------------------
+A timer counter incremented.
+
+timer.source (ALLEGRO_TIMER *)
+:   The timer which generated the event.
+
+timer.count (int64_t)
+:   The timer count value.
 
 ALLEGRO_EVENT_DISPLAY_EXPOSE
-:   The display (or a portion thereof) has become visible.
-:   -   display.x,
-    -   display.y,
-    -   display.width,
-    -   display.height
+----------------------------
+The display (or a portion thereof) has become visible.
 
-    > *Note:* The display needs to be created with ALLEGRO_GENERATE_EXPOSE_EVENTS
-    flag.
+display.source (ALLEGRO_DISPLAY *)
+:   The display which was exposed.
+
+display.x (int)
+:   &nbsp;
+display.y (int)
+:   &nbsp;
+:   The top-left corner of the display which was exposed.
+
+display.width (int)
+:   &nbsp;
+display.height (int)
+:   The width and height of the rectangle which was exposed.
+
+> *Note:* The display needs to be created with ALLEGRO_GENERATE_EXPOSE_EVENTS
+flag for these events to be generated.
 
 ALLEGRO_EVENT_DISPLAY_RESIZE
-:   The window has been resized.
-:   -   display.x,
-    -   display.y,
-    -   display.width,
-    -   display.height
+----------------------------
+The window has been resized.
 
-    Note that further resize events may be generated by the time you process the
-    event, so these fields may hold outdated information.
+display.source (ALLEGRO_DISPLAY *)
+:   The display which was resized.
+
+display.x (int)
+:   &nbsp;
+display.y (int)
+:   The position of the top-level corner of the display.
+
+display.width (int)
+:   The new width of the display.
+
+display.height (int)
+:   The new height of the display.
+
+Note that further resize events may be generated by the time you process the
+event, so these fields may hold outdated information.
 
 ALLEGRO_EVENT_DISPLAY_CLOSE
-:   The close button of the window has been pressed.
+---------------------------
+The close button of the window has been pressed.
+
+display.source (ALLEGRO_DISPLAY *)
+:   The display which was closed.
 
 ALLEGRO_EVENT_DISPLAY_LOST
-:   When using Direct3D, displays can enter
-    a "lost" state. In that state, drawing calls are ignored, and upon
-    entering the state, bitmap's pixel data can become undefined. Allegro
-    does its best to preserve the correct contents of bitmaps
-    (see ALLEGRO_NO_PRESERVE_TEXTURE) and restore them when the device
-    is "found" (see ALLEGRO_EVENT_DISPLAY_FOUND). However, this is not 100%
-    fool proof.
+--------------------------
+When using Direct3D, displays can enter
+a "lost" state. In that state, drawing calls are ignored, and upon
+entering the state, bitmap's pixel data can become undefined. Allegro
+does its best to preserve the correct contents of bitmaps
+(see ALLEGRO_NO_PRESERVE_TEXTURE) and restore them when the device
+is "found" (see ALLEGRO_EVENT_DISPLAY_FOUND). However, this is not 100%
+fool proof.
 
-    To ensure that all bitmap contents are restored accurately,
-    one must take additional steps. The best procedure to follow if bitmap
-    constancy is important to you is as follows: first, always have the
-    ALLEGRO_NO_PRESERVE_TEXTURE flag set to true when creating bitmaps, as
-    it incurs pointless overhead when using this method. Second, create
-    a mechanism in your game for easily reloading all of your bitmaps --
-    for example, wrap them in a class or data structure and have a "bitmap
-    manager" that can reload them back to the desired state. Then, when you
-    receive an ALLEGRO_EVENT_DISPLAY_FOUND event, tell the bitmap manager
-    (or whatever your mechanism is) to restore your bitmaps.
+To ensure that all bitmap contents are restored accurately,
+one must take additional steps. The best procedure to follow if bitmap
+constancy is important to you is as follows: first, always have the
+ALLEGRO_NO_PRESERVE_TEXTURE flag set to true when creating bitmaps, as
+it incurs pointless overhead when using this method. Second, create
+a mechanism in your game for easily reloading all of your bitmaps --
+for example, wrap them in a class or data structure and have a "bitmap
+manager" that can reload them back to the desired state. Then, when you
+receive an ALLEGRO_EVENT_DISPLAY_FOUND event, tell the bitmap manager
+(or whatever your mechanism is) to restore your bitmaps.
+
+display.source (ALLEGRO_DISPLAY *)
+:   The display which was lost.
 
 ALLEGRO_EVENT_DISPLAY_FOUND
-:   Generated when a lost device is restored
-    to operating state. See ALLEGRO_EVENT_DISPLAY_LOST.
+---------------------------
+Generated when a lost device is restored to operating state.
+See ALLEGRO_EVENT_DISPLAY_LOST.
+
+display.source (ALLEGRO_DISPLAY *)
+:   The display which was found.
 
 ALLEGRO_EVENT_DISPLAY_SWITCH_OUT
-:   The window is no longer active, that
-    is the user might have clicked into another window or "tabbed" away.
+--------------------------------
+The window is no longer active, that is the user might have clicked into
+another window or "tabbed" away.
+
+display.source (ALLEGRO_DISPLAY *)
+:   The display which was switched out of.
 
 ALLEGRO_EVENT_DISPLAY_SWITCH_IN
-:   The window is the active one again.
+-------------------------------
+The window is the active one again.
+
+display.source (ALLEGRO_DISPLAY *)
+:   The display which was switched into.
 
 ALLEGRO_EVENT_DISPLAY_ORIENTATION
-:   Received when the rotation or orientation of a display changes. The
-    event.display.orientation member contains one of the following values:
+---------------------------------
+Generated when the rotation or orientation of a display changes.
+
+display.source (ALLEGRO_DISPLAY *)
+:   The display which generated the event.
+
+event.display.orientation
+:   Contains one of the following values:
 
     - ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES
     - ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES
@@ -192,11 +383,11 @@ See also: [ALLEGRO_EVENT_SOURCE], [ALLEGRO_EVENT_TYPE], [ALLEGRO_USER_EVENT]
 An event structure that can be emitted by user event sources.
 These are the public fields:
 
-    ALLEGRO_EVENT_SOURCE *source;
-    intptr_t data1;
-    intptr_t data2;
-    intptr_t data3;
-    intptr_t data4;
+-   ALLEGRO_EVENT_SOURCE *source;
+-   intptr_t data1;
+-   intptr_t data2;
+-   intptr_t data3;
+-   intptr_t data4;
 
 See also: [al_emit_user_event]
 
