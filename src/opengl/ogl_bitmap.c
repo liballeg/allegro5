@@ -530,6 +530,10 @@ static void ogl_update_clipping_rectangle(ALLEGRO_BITMAP *bitmap)
    ALLEGRO_DISPLAY *ogl_disp = al_get_current_display();
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
 
+   if (bitmap->parent) {
+      ogl_bitmap = (ALLEGRO_BITMAP_OGL *)bitmap->parent;
+   }
+
    if (ogl_disp->ogl_extras->opengl_target == ogl_bitmap) {
       _al_ogl_setup_bitmap_clipping(bitmap);
    }
