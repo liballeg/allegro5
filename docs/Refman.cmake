@@ -118,7 +118,7 @@ add_executable(make_search_index scripts/make_search_index.c ${DAWK_SOURCES})
 # ALL_SRCS is split into multiple lists, otherwise the make_protos command
 # line is too long for Windows >:-(
 file(GLOB_RECURSE ALL_SRCS1
-    ${CMAKE_SOURCE_DIR}/src/*.[ch]
+    ${CMAKE_SOURCE_DIR}/src/*.[chm]
     ${CMAKE_SOURCE_DIR}/src/*.[ch]pp
     )
 file(GLOB_RECURSE ALL_SRCS2
@@ -126,7 +126,7 @@ file(GLOB_RECURSE ALL_SRCS2
     ${CMAKE_SOURCE_DIR}/include/*.inl
     )
 file (GLOB_RECURSE ALL_SRCS3
-    ${CMAKE_SOURCE_DIR}/addons/*.[ch]
+    ${CMAKE_SOURCE_DIR}/addons/*.[chm]
     ${CMAKE_SOURCE_DIR}/addons/*.[ch]pp
     )
 
