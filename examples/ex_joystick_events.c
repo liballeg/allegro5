@@ -23,7 +23,7 @@ ALLEGRO_COLOR        white;
 int num_sticks = 0;
 int num_buttons = 0;
 int num_axes[MAX_AXES] = { 0 };
-float joys[MAX_STICKS][MAX_AXES] = { 0 };
+float joys[MAX_STICKS][MAX_AXES] = {{ 0 }};
 bool joys_buttons[MAX_BUTTONS] = { 0 };
 
 
@@ -32,7 +32,6 @@ static void draw_joystick_axes(int cx, int cy, int stick)
    const int size = 30;
    const int csize = 5;
    const int osize = size + csize;
-   int axes = num_axes[stick];
    int zx = cx + osize + csize * 2;
    int x = cx + joys[stick][0] * size;
    int y = cy + joys[stick][1] * size;
