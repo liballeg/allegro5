@@ -29,6 +29,7 @@ typedef struct ALLEGRO_TTF_FONT_DATA
     int cache_line_height;
     ALLEGRO_TTF_GLYPH_DATA *cache;
     int flags;
+    bool no_premultiply_alpha;
 
     FT_StreamRec stream;
     ALLEGRO_FILE *file;
@@ -187,7 +188,7 @@ static int render_glyph(ALLEGRO_FONT const *f,
                unsigned char *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
                unsigned char *dptr = (unsigned char *)lr->data + lr->pitch * y;
                int bit = 0;
-	       if (al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
+               if (data->no_premultiply_alpha) {
                   for (x = 0; x < face->glyph->bitmap.width; x++) {
                      unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
                      *dptr++ = 255;
@@ -200,8 +201,8 @@ static int render_glyph(ALLEGRO_FONT const *f,
                         ptr++;
                      }
                   }
-	       }
-	       else {
+               }
+               else {
                   for (x = 0; x < face->glyph->bitmap.width; x++) {
                      unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
                      float setf = set / 255.0f;
@@ -223,7 +224,7 @@ static int render_glyph(ALLEGRO_FONT const *f,
            for (y = 0; y < face->glyph->bitmap.rows; y++) {
                unsigned char *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
                unsigned char *dptr = (unsigned char *)lr->data + lr->pitch * y;
-               if (al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
+               if (data->no_premultiply_alpha) {
                   for (x = 0; x < face->glyph->bitmap.width; x++) {
                      unsigned char c = *ptr;
                      *dptr++ = 255;
@@ -510,6 +511,8 @@ ALLEGRO_FONT *al_load_ttf_font_f(ALLEGRO_FILE *file,
 
     data->face = face;
     data->flags = flags;
+    data->no_premultiply_alpha =
+       (al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
     data->glyphs_count = m;
     bytes = (m + 1) * sizeof(ALLEGRO_TTF_GLYPH_DATA);
     data->cache = al_malloc(bytes);
