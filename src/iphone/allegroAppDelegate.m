@@ -107,7 +107,7 @@ void _al_iphone_get_screen_size(int *w, int *h)
    }
    else {
    
-      ASSERT("You sould never see this message, unless Apple changed their policy and allow for removing screens from iDevices." && false);
+      ASSERT("You should never see this message, unless Apple changed their policy and allows for removing screens from iDevices." && false);
    }
 }
 
