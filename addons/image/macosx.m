@@ -9,6 +9,10 @@
 
 #include "iio.h"
 
+#if MAC_OS_X_VERSION_MIN_REQUIRED < 1050
+typedef float CGFloat;
+#endif
+
 ALLEGRO_DEBUG_CHANNEL("OSXIIO")
 
 
