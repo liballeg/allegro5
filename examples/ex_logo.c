@@ -216,13 +216,8 @@ static void print_parameters(void)
    }
    for (i = 0; param_names[i]; i++) {
       int y = 2 + i * th;
-      // FIXME: additive blending seems broken here when using
-      // memory blenders (i.e. no FBO available)
-      // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, white)
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
       al_draw_filled_rectangle(75, y, 375, y + th - 2,
-                        al_map_rgba_f(1, 1, 1, 0.5));
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+                        al_map_rgba_f(0.5, 0.5, 0.5, 0.5));
       al_draw_textf(font, i == selection ? light : normal, 75, y, 0, "%s", param_values[i]);
       if (i == selection && editing &&
          (((int)(al_get_time() * 2)) & 1)) {
