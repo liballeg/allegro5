@@ -309,6 +309,7 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool repeated,
    event.keyboard.keycode = my_code;
    event.keyboard.unichar = 0;
    event.keyboard.modifiers = 0;
+   event.keyboard.repeat = false;
 
    _al_event_source_lock(&the_keyboard.es);
 
@@ -320,6 +321,7 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool repeated,
       event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
       event.keyboard.unichar = ccode;
       event.keyboard.modifiers = modifiers;
+      event.keyboard.repeat = repeated;
       _al_event_source_emit_event(&the_keyboard.es, &event);
    }
 

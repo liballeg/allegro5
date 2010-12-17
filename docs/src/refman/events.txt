@@ -57,8 +57,9 @@ ALLEGRO_EVENT_KEY_UP
 ALLEGRO_EVENT_KEY_CHAR
 :   A character was typed on the keyboard, or a character was auto-repeated.
 :   -   keyboard.keycode,
-    -   keyboard.unichar (unicode character),
-    -   keyboard.modifiers (ALLEGRO\_KEYMOD\_\*),
+    -   keyboard.unichar - a Unicode code point (character),
+    -   keyboard.modifiers - a bitfield, see "Keyboard modifier flags",
+    -   keyboard.repeat - whether this is a repeated character,
     -   keyboard.display.
 
     Note: this event is also generated for non-visible "characters", such as

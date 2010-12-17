@@ -80,12 +80,14 @@ static void main_loop(void)
 
          /* ALLEGRO_EVENT_KEY_CHAR - a character was typed or repeated.
           */
-         case ALLEGRO_EVENT_KEY_CHAR:
-            log_key("KEY_CHAR",
+         case ALLEGRO_EVENT_KEY_CHAR: {
+            char const *label = (event.keyboard.repeat ? "repeat" : "KEY_CHAR");
+            log_key(label,
                event.keyboard.keycode,
                event.keyboard.unichar,
                event.keyboard.modifiers);
             break;
+         }
 
          /* ALLEGRO_EVENT_DISPLAY_CLOSE - the window close button was pressed.
           */

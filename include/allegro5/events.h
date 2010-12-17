@@ -122,6 +122,7 @@ typedef struct ALLEGRO_KEYBOARD_EVENT
    int keycode;                 /* the physical key pressed */
    unsigned int unichar;        /* unicode character */
    unsigned int modifiers;      /* bitfield */
+   bool repeat;                 /* auto-repeated or not */
 } ALLEGRO_KEYBOARD_EVENT;
 
 

@@ -89,6 +89,7 @@ static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode, i
 			 event.keyboard.keycode   = scancode;
 			 event.keyboard.unichar   = 0;
 			 event.keyboard.modifiers = 0;
+			 event.keyboard.repeat    = false;
 			 if (!is_repeat) {
 				 _al_event_source_emit_event(&keyboard.es, &event);
 			 }
@@ -97,6 +98,7 @@ static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode, i
 				 event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
 				 event.keyboard.unichar = unicode;
 				 event.keyboard.modifiers = modifiers;
+				 event.keyboard.repeat = is_repeat;
 				 _al_event_source_emit_event(&keyboard.es, &event);
 			 }
 		}

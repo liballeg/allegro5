@@ -983,6 +983,7 @@ static void handle_key_press(int mycode, int unichar, unsigned int modifiers,
          event.keyboard.keycode = mycode;
          event.keyboard.unichar = 0;
          event.keyboard.modifiers = 0;
+         event.keyboard.repeat = false;
 
          if (!is_repeat) {
             _al_event_source_emit_event(&the_keyboard.parent.es, &event);
@@ -992,6 +993,7 @@ static void handle_key_press(int mycode, int unichar, unsigned int modifiers,
             event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
             event.keyboard.unichar = unichar;
             event.keyboard.modifiers = modifiers;
+            event.keyboard.repeat = is_repeat;
             _al_event_source_emit_event(&the_keyboard.parent.es, &event);
          }
       }
