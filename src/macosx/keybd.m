@@ -75,8 +75,7 @@ void _al_osx_switch_keyboard_focus(ALLEGRO_DISPLAY *dpy, bool switch_in)
 	_al_event_source_unlock(&keyboard.es);	
 }
 
-static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode, int modifiers) {
-	int is_repeat=0;
+static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode, int modifiers, bool is_repeat) {
 	int type;
 	_al_event_source_lock(&keyboard.es);
 	{
@@ -203,18 +202,19 @@ void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY* dpy)
 	int scancode = mac_to_scancode[[event keyCode]];
 	int modifiers = [event modifierFlags];
    int key_shifts;
+   bool is_repeat = pressed ? ([event isARepeat] == YES) : false;
 
    /* Translate OS X modifier flags to Allegro modifier flags */
    key_shifts = translate_modifier_flags(modifiers);
 	
 	if (pressed) {
 		if (key_shifts & ALLEGRO_KEYMOD_ALT)
-			_handle_key_press(dpy, 0, scancode, key_shifts);
+			_handle_key_press(dpy, 0, scancode, key_shifts, is_repeat);
 		else {
 			if ((key_shifts & ALLEGRO_KEYMOD_CTRL) && (isalpha(raw_character)))
-				_handle_key_press(dpy, tolower(raw_character) - 'a' + 1, scancode, key_shifts);
+				_handle_key_press(dpy, tolower(raw_character) - 'a' + 1, scancode, key_shifts, is_repeat);
 			else
-				_handle_key_press(dpy, upper_character, scancode, key_shifts);
+				_handle_key_press(dpy, upper_character, scancode, key_shifts, is_repeat);
 		}
 //		if ((three_finger_flag) &&
 //			(scancode == KEY_END) && (_key_shifts & (KB_CTRL_FLAG | KB_ALT_FLAG))) {
@@ -243,14 +243,14 @@ void _al_osx_keyboard_modifiers(unsigned int modifiers, ALLEGRO_DISPLAY* dpy)
 		changed = (modifiers ^ old_modifiers) & mod_info[i][0];
 		if (changed) {
 			if (modifiers & mod_info[i][0]) {
-				_handle_key_press(dpy, -1, mod_info[i][2], key_shifts);
+				_handle_key_press(dpy, -1, mod_info[i][2], key_shifts, false);
 				if (i == 0)
 					/* Caps lock requires special handling */
 					_handle_key_release(dpy, mod_info[0][2]);
 			}
 			else {
 				if (i == 0)
-					_handle_key_press(dpy, -1, mod_info[0][2], key_shifts);
+					_handle_key_press(dpy, -1, mod_info[0][2], key_shifts, false);
 				_handle_key_release(dpy, mod_info[i][2]);
 			}
 		}
