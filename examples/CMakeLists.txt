@@ -9,6 +9,7 @@ include_directories(
     ../addons/native_dialog
     ../addons/physfs
     ../addons/primitives
+    ../addons/shader
     ../addons/ttf
     )
 
@@ -74,6 +75,7 @@ set(MEMFILE x${MEMFILE_LINK_WITH})
 set(PHYSFS x${PHYSFS_LINK_WITH})
 set(PRIM x${PRIMITIVES_LINK_WITH})
 set(TTF x${TTF_LINK_WITH})
+set(SHADER x${SHADER_LINK_WITH})
 
 set(NIHGUI nihgui.cpp ${FONT} ${PRIM})
 
@@ -138,6 +140,7 @@ example(ex_resize ${PRIM})
 example(ex_resize2 ${IMAGE})
 example(ex_rotate ${IMAGE})
 example(ex_scale ${IMAGE})
+example(ex_shader ex_shader.cpp ${IMAGE} ${SHADER})
 example(ex_subbitmap ${IMAGE} ${PRIM})
 example(ex_threads ${PRIM})
 example(ex_threads2)
