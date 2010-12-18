@@ -4,6 +4,49 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 5.0.0 RC2 to 5.0.0 RC3 (December 2010)
+===================================================
+
+The main developers this time were: Michał Cichoń, Trent Gamblin, Peter Wang.
+
+Graphics:
+
+-  Honour subbitmap clipping rectangle under OpenGL (Elias Pschernig).
+
+-  Fix an error in the Direct3D primitives blending.
+
+-  al_set_new_window_position() did not have an effect for resizable
+   windows on X11.
+
+-  Fix windows only showing up on first monitor on X11 (Thomas Fjellstrom).
+
+-  Implement al_get_monitor_info() for iDevices.
+
+Input:
+
+-  Separate character inputs from physical key down events.  This removes
+   unichar and modifiers fields from ALLEGRO_EVENT_KEY_DOWN, and replaces
+   ALLEGRO_EVENT_KEY_REPEAT by ALLEGRO_EVENT_KEY_CHAR.  We decided this design
+   flaw was better fixed now than later.
+
+-  Make Mac OS X keyboard driver properly distinguish key down and key repeat
+   events.
+
+TTF addon:
+
+-  Respect ALLEGRO_NO_PREMULTIPLIED_ALPHA flag when loading TTF fonts.
+
+Other:
+
+-  Fix returning a garbage pointer in maybe_load_library_at_cwd
+   (Vadik Mironov).
+
+-  Remove dependency on dxguid.
+
+-  Minor compilation fixes and documentation updates.
+
+
+
 Changes from 5.0.0 RC1 to 5.0.0 RC2 (December 2010)
 ===================================================
 
