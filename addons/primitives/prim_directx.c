@@ -223,6 +223,12 @@ static int al_blender_to_d3d(int al_mode)
 static void set_blender(LPDIRECT3DDEVICE9 device)
 {
    int op, src, dst, alpha_op, alpha_src, alpha_dst;
+   DWORD d3d_op, d3d_alpha_op;
+   DWORD allegro_to_d3d_blendop[ALLEGRO_NUM_BLEND_OPERATIONS] = {
+      D3DBLENDOP_ADD,
+      D3DBLENDOP_SUBTRACT,
+      D3DBLENDOP_REVSUBTRACT
+   };
 
    al_get_separate_blender(&op, &src, &dst, &alpha_op, &alpha_src, &alpha_dst);
 
@@ -230,6 +236,14 @@ static void set_blender(LPDIRECT3DDEVICE9 device)
    dst = al_blender_to_d3d(dst);
    alpha_src = al_blender_to_d3d(alpha_src);
    alpha_dst = al_blender_to_d3d(alpha_dst);
+   d3d_op = allegro_to_d3d_blendop[op];
+   d3d_alpha_op = allegro_to_d3d_blendop[alpha_op];
+
+   /* These may not be supported but they will always fall back to ADD
+    * in that case.
+    */
+   IDirect3DDevice9_SetRenderState(device, D3DRS_BLENDOP, d3d_op);
+   IDirect3DDevice9_SetRenderState(device, D3DRS_BLENDOPALPHA, d3d_alpha_op);
 
    IDirect3DDevice9_SetRenderState(device, D3DRS_SRCBLEND, src);
    IDirect3DDevice9_SetRenderState(device, D3DRS_DESTBLEND, dst);
