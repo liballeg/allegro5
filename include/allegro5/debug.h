@@ -34,7 +34,13 @@ AL_PRINTFUNC(void, _al_trace_suffix, (const char *msg, ...), 1, 2);
 
 #ifdef DEBUGMODE
    /* Must not be used with a trailing semicolon. */
-   #define ALLEGRO_DEBUG_CHANNEL(x) static char const *__al_debug_channel = x;
+   #ifdef ALLEGRO_GCC
+      #define ALLEGRO_DEBUG_CHANNEL(x) \
+         static char const *__al_debug_channel __attribute__((unused)) = x;
+   #else
+      #define ALLEGRO_DEBUG_CHANNEL(x) \
+         static char const *__al_debug_channel = x;
+   #endif
    #define ALLEGRO_TRACE_CHANNEL_LEVEL(channel, level)                        \
       !_al_trace_prefix(channel, level, __FILE__, __LINE__, __func__)         \
       ? (void)0 : _al_trace_suffix
