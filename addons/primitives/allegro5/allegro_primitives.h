@@ -65,6 +65,29 @@ typedef enum ALLEGRO_PRIM_STORAGE
    ALLEGRO_PRIM_SHORT_2,
 } ALLEGRO_PRIM_STORAGE;
 
+/* Enum ALLEGRO_LINE_JOIN
+ */
+typedef enum ALLEGRO_LINE_JOIN
+{
+   ALLEGRO_LINE_JOIN_NONE,
+   ALLEGRO_LINE_JOIN_BEVEL,
+   ALLEGRO_LINE_JOIN_ROUND,
+   ALLEGRO_LINE_JOIN_MITER
+} ALLEGRO_LINE_JOIN;
+
+
+/* Enum ALLEGRO_LINE_CAP
+ */
+typedef enum ALLEGRO_LINE_CAP
+{
+   ALLEGRO_LINE_CAP_NONE,
+   ALLEGRO_LINE_CAP_SQUARE,
+   ALLEGRO_LINE_CAP_ROUND,
+   ALLEGRO_LINE_CAP_TRIANGLE,
+   ALLEGRO_LINE_CAP_CLOSED
+} ALLEGRO_LINE_CAP;
+
+
 /* Enum: ALLEGRO_VERTEX_CACHE_SIZE
  */
 #define ALLEGRO_VERTEX_CACHE_SIZE 256
@@ -159,8 +182,11 @@ ALLEGRO_PRIM_FUNC(void, al_draw_filled_ellipse, (float cx, float cy, float rx, f
 ALLEGRO_PRIM_FUNC(void, al_draw_filled_circle, (float cx, float cy, float r, ALLEGRO_COLOR color));
 ALLEGRO_PRIM_FUNC(void, al_draw_filled_rounded_rectangle, (float x1, float y1, float x2, float y2, float rx, float ry, ALLEGRO_COLOR color));
 
-ALLEGRO_PRIM_FUNC(void, al_draw_polygon, (const float* vertices, int vertex_count, ALLEGRO_COLOR color, float thickness));
-ALLEGRO_PRIM_FUNC(void, al_draw_polygon_with_holes, (const float* vertices, int vertex_count, const int* holes, int hole_count, ALLEGRO_COLOR color, float thickness));
+ALLEGRO_PRIM_FUNC(void, al_draw_polyline, (const float* vertices, int vertex_count, ALLEGRO_LINE_JOIN join_style, ALLEGRO_LINE_CAP cap_style, ALLEGRO_COLOR color, float thickness, float miter_limit));
+ALLEGRO_PRIM_FUNC(void, al_draw_polyline_ex, (const float* vertices, int vertex_stride, int vertex_count, ALLEGRO_LINE_JOIN join_style, ALLEGRO_LINE_CAP cap_style, ALLEGRO_COLOR color, float thickness, float miter_limit));
+
+ALLEGRO_PRIM_FUNC(void, al_draw_polygon, (const float* vertices, int vertex_count, ALLEGRO_LINE_JOIN join_style, ALLEGRO_COLOR color, float thickness, float miter_limit));
+ALLEGRO_PRIM_FUNC(void, al_draw_polygon_with_holes, (const float* vertices, int vertex_count, const int* holes, int hole_count, ALLEGRO_LINE_JOIN join_style, ALLEGRO_COLOR color, float thickness, float miter_limit));
 ALLEGRO_PRIM_FUNC(void, al_draw_filled_polygon, (const float* vertices, int vertex_count, ALLEGRO_COLOR color));
 ALLEGRO_PRIM_FUNC(void, al_draw_filled_polygon_with_holes, (const float* vertices, int vertex_count, const int* holes, int hole_count, ALLEGRO_COLOR color));
 

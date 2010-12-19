@@ -42,7 +42,7 @@ typedef struct POLY {
    const int*              split_indices;
    size_t                  split_stride;
    size_t                  split_count;
-   POLY_EMIT_TRIANGLE  emit;
+   POLY_EMIT_TRIANGLE      emit;
    void*                   userdata;
    _AL_LIST*               vertex_list;
    _AL_LIST*               reflex_list;

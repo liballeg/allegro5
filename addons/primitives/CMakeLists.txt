@@ -4,6 +4,7 @@ set(PRIMITIVES_SOURCES
     line_soft.c
     point_soft.c
     polygon.c
+    polyline.c
     prim_directx.c
     prim_opengl.c
     prim_soft.c

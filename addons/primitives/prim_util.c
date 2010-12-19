@@ -23,8 +23,39 @@
 #include <float.h>
 #include <math.h>
 
+#ifdef ALLEGRO_MSVC
+   #define hypotf(x, y) _hypotf((x), (y))
+#endif
 
 # define AL_EPSILON         0.001f
+
+
+/*
+ * Make an estimate of the scale of the current transformation.
+ */
+float _al_prim_get_scale(void)
+{
+   const ALLEGRO_TRANSFORM* t = al_get_current_transform();
+   return (hypotf(t->m[0][0], t->m[0][1]) + hypotf(t->m[1][0], t->m[1][1])) / 2;
+}
+
+
+/*
+ * Normalizes vector.
+ */
+float _al_prim_normalize(float* vector)
+{
+   float length;
+   float inv_length;
+
+   length     = _hypotf(vector[0], vector[1]);
+   inv_length = length > 0.0f ? 1.0f / length : 1.0f;
+
+   vector[0] *= inv_length;
+   vector[1] *= inv_length;
+
+   return length;
+}
 
 
 /*
@@ -158,4 +189,95 @@ bool _al_prim_are_points_equal(const float* point_a, const float* point_b)
 {
    return (fabsf(point_a[0] - point_b[0]) < AL_EPSILON)
        && (fabsf(point_a[1] - point_b[1]) < AL_EPSILON);
+}
+
+
+/*
+ *
+ */
+void _al_prim_cache_init(ALLEGRO_PRIM_VERTEX_CACHE* cache, int prim_type, ALLEGRO_COLOR color)
+{
+   _al_prim_cache_init_ex(cache, prim_type, color, NULL);
+}
+
+void _al_prim_cache_init_ex(ALLEGRO_PRIM_VERTEX_CACHE* cache, int prim_type, ALLEGRO_COLOR color, void* user_data)
+{
+   cache->size      = 0;
+   cache->current   = cache->buffer;
+   cache->color     = color;
+   cache->prim_type = prim_type;
+   cache->user_data = user_data;
+}
+
+void _al_prim_cache_term(ALLEGRO_PRIM_VERTEX_CACHE* cache)
+{
+   _al_prim_cache_flush(cache);
+}
+
+void _al_prim_cache_flush(ALLEGRO_PRIM_VERTEX_CACHE* cache)
+{
+   if (cache->size == 0)
+      return;
+
+   if (cache->prim_type == ALLEGRO_PRIM_VERTEX_CACHE_TRIANGLE)
+      al_draw_prim(cache->buffer, NULL, NULL, 0, cache->size, ALLEGRO_PRIM_TRIANGLE_LIST);
+   else if (cache->prim_type == ALLEGRO_PRIM_VERTEX_CACHE_LINE_STRIP)
+      al_draw_prim(cache->buffer, NULL, NULL, 0, cache->size, ALLEGRO_PRIM_LINE_STRIP);
+
+   if (cache->prim_type == ALLEGRO_PRIM_VERTEX_CACHE_LINE_STRIP)
+   {
+      cache->buffer[0] = *(cache->current - 1);
+      cache->current   = cache->buffer + 1;
+      cache->size      = 1;
+   }
+   else
+   {
+      cache->current = cache->buffer;
+      cache->size    = 0;
+   }
+}
+
+void _al_prim_cache_push_triangle(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* v0, const float* v1, const float* v2)
+{
+   if (cache->size >= (ALLEGRO_VERTEX_CACHE_SIZE - 3))
+      _al_prim_cache_flush(cache);
+
+   cache->current->x     = v0[0];
+   cache->current->y     = v0[1];
+   cache->current->z     = 0.0f;
+   cache->current->color = cache->color;
+
+   ++cache->current;
+
+   cache->current->x     = v1[0];
+   cache->current->y     = v1[1];
+   cache->current->z     = 0.0f;
+   cache->current->color = cache->color;
+
+   ++cache->current;
+
+   cache->current->x     = v2[0];
+   cache->current->y     = v2[1];
+   cache->current->z     = 0.0f;
+   cache->current->color = cache->color;
+
+   ++cache->current;
+
+   cache->size += 3;
+
+   //al_draw_triangle(v0[0], v0[1], v1[0], v1[1], v2[0], v2[1], cache->color, 1.0f);
+}
+
+void _al_prim_cache_push_point(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* v)
+{
+   if (cache->size >= (ALLEGRO_VERTEX_CACHE_SIZE - 1))
+      _al_prim_cache_flush(cache);
+
+   cache->current->x     = v[0];
+   cache->current->y     = v[1];
+   cache->current->z     = 0.0f;
+   cache->current->color = cache->color;
+
+   ++cache->current;
+   ++cache->size;
 }
