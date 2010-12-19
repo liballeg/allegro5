@@ -217,23 +217,23 @@ void al_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
 
 /* Function: al_get_mouse_state_axis
  */
-int al_get_mouse_state_axis(ALLEGRO_MOUSE_STATE *ret_state, int axis)
+int al_get_mouse_state_axis(const ALLEGRO_MOUSE_STATE *state, int axis)
 {
-   ASSERT(ret_state);
+   ASSERT(state);
    ASSERT(axis >= 0);
    ASSERT(axis < (4 + ALLEGRO_MOUSE_MAX_EXTRA_AXES));
 
    switch (axis) {
       case 0:
-         return ret_state->x;
+         return state->x;
       case 1:
-         return ret_state->y;
+         return state->y;
       case 2:
-         return ret_state->z;
+         return state->z;
       case 3:
-         return ret_state->w;
+         return state->w;
       default:
-         return ret_state->more_axes[axis - 4];
+         return state->more_axes[axis - 4];
    }
 }
 
@@ -241,7 +241,7 @@ int al_get_mouse_state_axis(ALLEGRO_MOUSE_STATE *ret_state, int axis)
 
 /* Function: al_mouse_button_down
  */
-bool al_mouse_button_down(ALLEGRO_MOUSE_STATE *state, int button)
+bool al_mouse_button_down(const ALLEGRO_MOUSE_STATE *state, int button)
 {
    ASSERT(state);
    ASSERT(button > 0);
