@@ -48,7 +48,7 @@ float _al_prim_normalize(float* vector)
    float length;
    float inv_length;
 
-   length     = _hypotf(vector[0], vector[1]);
+   length     = hypotf(vector[0], vector[1]);
    inv_length = length > 0.0f ? 1.0f / length : 1.0f;
 
    vector[0] *= inv_length;
