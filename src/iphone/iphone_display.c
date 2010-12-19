@@ -2,6 +2,7 @@
 #include <allegro5/allegro_opengl.h>
 #include <allegro5/internal/aintern_iphone.h>
 #include <allegro5/internal/aintern_opengl.h>
+#include <math.h>
 
 ALLEGRO_DEBUG_CHANNEL("iphone")
 
@@ -15,17 +16,18 @@ static bool _screen_hack;
 void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d)
 {
     int w, h;
+    ALLEGRO_TRANSFORM tmp;
+    GLint handle;
+
     _al_iphone_get_screen_size(&w, &h);
     _al_iphone_reset_framebuffer();
     glViewport(0, 0, w, h);
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    
-    glOrthof(0, w, h, 0, -1, 1);
-    
     _screen_w = w;
     _screen_h = h;
+
+    al_identity_transform(&d->proj_transform);
+    al_ortho_transform(&d->proj_transform, 0, d->w, d->h, 0, -1, 1);
 
     /* We automatically adjust the view if the user doesn't use 320x480. Users
      * of the iphone port are adviced to provide a 320x480 mode and do their
@@ -34,6 +36,7 @@ void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d)
      * application - here you go.
      */
     if (d->w != w || d->h != h) {
+       /* FIXME: The transformation is not working 100% correctly ATM */
        double scale = 1, xoff = 0, yoff = 0;
        if (d->w >= d->h) {
           if (d->w * w > d->h * h) {
@@ -47,10 +50,8 @@ void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d)
              _screen_x = 0.5 * (d->w - h / scale);
           }
 
-          glTranslatef(xoff, yoff, 0); 
-          glTranslatef(w, 0, 0);
-          glRotatef(90, 0, 0, 1);
-          glScalef(scale, scale, 1);
+          al_scale_transform(&d->proj_transform, scale, scale);
+          al_rotate_transform(&d->proj_transform, -M_PI/2);
        }
        else {
           // TODO
@@ -68,8 +69,25 @@ void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d)
         }
     }
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+   al_identity_transform(&tmp);
+
+   if (!(d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
+      glMatrixMode(GL_PROJECTION);
+      glLoadMatrixf((float *)d->proj_transform.m);
+      glMatrixMode(GL_MODELVIEW);
+      glLoadMatrixf((float *)tmp.m);
+   }
+   else {
+      /* FIXME: This can't work right now - need a good way to set the shader */
+      handle = glGetUniformLocation(d->ogl_extras->program_object, "proj_matrix");
+      if (handle >= 0) {
+         glUniformMatrix4fv(handle, 1, false, (float *)&d->proj_transform.m);
+      }
+      handle = glGetUniformLocation(d->ogl_extras->program_object, "view_matrix");
+      if (handle >= 0) {
+         glUniformMatrix4fv(handle, 1, false, (float *)&tmp.m);
+      }
+   }
 }
 
 void _al_iphone_translate_from_screen(ALLEGRO_DISPLAY *d, int *x, int *y)

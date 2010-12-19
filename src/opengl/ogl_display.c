@@ -98,7 +98,11 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
    }
    else {
       display->ogl_extras->opengl_target = ogl_bitmap;
-       
+
+      #ifdef ALLEGRO_IPHONE
+      _al_iphone_setup_opengl_view(display);
+      #else
+ 
       if (display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
           display->ogl_extras->extension_list->ALLEGRO_GL_OES_framebuffer_object) {
          glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
@@ -113,6 +117,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       al_ortho_transform(&display->proj_transform, 0, display->w, display->h, 0, -1, 1);
 
       display->vt->set_projection(display);
+      #endif
    }
 #else
 

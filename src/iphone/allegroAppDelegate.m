@@ -133,7 +133,7 @@ void _al_iphone_accelerometer_control(int frequency)
 void _al_iphone_get_screen_size(int *w, int *h)
 {
    UIScreen* screen = [UIScreen mainScreen];
-   
+
    if (NULL != screen) {
 
       CGRect bounds = [screen bounds];
