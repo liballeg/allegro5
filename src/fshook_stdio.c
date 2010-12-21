@@ -790,7 +790,7 @@ static const char *fs_stdio_name(ALLEGRO_FS_ENTRY *fp)
 
 static ALLEGRO_FILE *fs_stdio_open_file(ALLEGRO_FS_ENTRY *fp, const char *mode)
 {
-   return _al_file_stdio_fopen(fs_stdio_name(fp), mode);
+   return al_fopen_vt(&_al_file_interface_stdio, fs_stdio_name(fp), mode);
 }
 
 struct ALLEGRO_FS_INTERFACE _al_fs_interface_stdio = {

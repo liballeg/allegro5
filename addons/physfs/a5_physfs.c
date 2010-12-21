@@ -15,7 +15,6 @@ typedef struct ALLEGRO_FILE_PHYSFS ALLEGRO_FILE_PHYSFS;
 
 struct ALLEGRO_FILE_PHYSFS
 {
-   ALLEGRO_FILE file;      /* must be first */
    PHYSFS_file *phys;
    int pushback;           /* -1 if none */
    bool error_indicator;
@@ -24,13 +23,18 @@ struct ALLEGRO_FILE_PHYSFS
 /* forward declaration */
 static const ALLEGRO_FILE_INTERFACE file_phys_vtable;
 
+const ALLEGRO_FILE_INTERFACE *_al_get_phys_vtable(void)
+{
+   return &file_phys_vtable;
+}
+
 
 #define streq(a, b)  (0 == strcmp(a, b))
 
 
 static ALLEGRO_FILE_PHYSFS *cast_stream(ALLEGRO_FILE *f)
 {
-   return (ALLEGRO_FILE_PHYSFS *)f;
+   return (ALLEGRO_FILE_PHYSFS *)al_get_file_userdata(f);
 }
 
 
@@ -48,7 +52,7 @@ static void phys_set_errno(ALLEGRO_FILE_PHYSFS *fp)
 }
 
 
-ALLEGRO_FILE *_al_file_phys_fopen(const char *filename, const char *mode)
+void *file_phys_fopen(const char *filename, const char *mode)
 {
    PHYSFS_file *phys;
    ALLEGRO_FILE_PHYSFS *fp;
@@ -78,12 +82,11 @@ ALLEGRO_FILE *_al_file_phys_fopen(const char *filename, const char *mode)
       return NULL;
    }
 
-   fp->file.vtable = &file_phys_vtable;
    fp->phys = phys;
    fp->pushback = -1;
    fp->error_indicator = false;
 
-   return (ALLEGRO_FILE *)fp;
+   return fp;
 }
 
 
@@ -92,7 +95,6 @@ static void file_phys_fclose(ALLEGRO_FILE *f)
    ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
 
    PHYSFS_close(fp->phys);
-   al_free(fp);
 }
 
 
@@ -274,7 +276,7 @@ static off_t file_phys_fsize(ALLEGRO_FILE *f)
 
 static const ALLEGRO_FILE_INTERFACE file_phys_vtable =
 {
-   _al_file_phys_fopen,
+   file_phys_fopen,
    file_phys_fclose,
    file_phys_fread,
    file_phys_fwrite,

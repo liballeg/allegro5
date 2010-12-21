@@ -7,17 +7,58 @@
  */
 ALLEGRO_FILE *al_fopen(const char *path, const char *mode)
 {
-   const ALLEGRO_FILE_INTERFACE *drv = al_get_new_file_interface();
-   ASSERT(path);
-   ASSERT(mode);
-   ASSERT(drv);
-
-   if (drv->fi_fopen)
-      return drv->fi_fopen(path, mode);
-   else
-      return NULL;
+   return al_fopen_vt(al_get_new_file_interface(), path, mode);
 }
 
+
+/* Function: al_fopen_vt
+ */
+ALLEGRO_FILE *al_fopen_vt(const ALLEGRO_FILE_INTERFACE *drv, const char *path, const char *mode)
+{ 
+   ALLEGRO_FILE *f = NULL;
+   
+   ASSERT(drv);  
+   ASSERT(path);
+   ASSERT(mode);
+   
+   if (drv->fi_fopen) {
+      f = al_malloc(sizeof(*f));
+      if (!f) {
+         al_set_errno(ENOMEM);
+      }
+      else {
+         f->vtable = drv;
+         f->userdata = drv->fi_fopen(path, mode);
+         if (!f->userdata) {
+            al_free(f);
+            f = NULL;
+         }
+      }
+   }
+   
+   return f;
+}
+
+
+/* Function: al_create_file_handle
+ */
+ALLEGRO_FILE *al_create_file_handle(const ALLEGRO_FILE_INTERFACE *drv, void *userdata)
+{
+   ALLEGRO_FILE *f;
+ 
+   ASSERT(drv);
+
+   f = al_malloc(sizeof(*f));
+   if (!f) {
+      al_set_errno(ENOMEM);
+   }
+   else {
+      f->vtable = drv;   
+      f->userdata = userdata;
+   }
+   
+   return f;
+}
 
 /* Function: al_fclose
  */
@@ -25,6 +66,7 @@ void al_fclose(ALLEGRO_FILE *f)
 {
    if (f) {
       f->vtable->fi_fclose(f);
+      al_free(f);
    }
 }
 
@@ -405,6 +447,16 @@ int64_t al_fsize(ALLEGRO_FILE *f)
    ASSERT(f != NULL);
 
    return f->vtable->fi_fsize(f);
+}
+
+
+/* Function: al_get_file_userdata
+ */
+void *al_get_file_userdata(ALLEGRO_FILE *f)
+{
+   ASSERT(f != NULL);
+
+   return f->userdata;
 }
 
 
