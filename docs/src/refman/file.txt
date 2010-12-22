@@ -28,7 +28,7 @@ The fields are:
     void          (*fi_fclearerr)(ALLEGRO_FILE *f);
     int           (*fi_fungetc)(ALLEGRO_FILE *f, int c);
     off_t         (*fi_fsize)(ALLEGRO_FILE *f);
-    
+
 The fi_open function must allocate memory for whatever userdata structure it needs.
 The pointer to that memory must be returned; it will then be associated with the
 file. The other functions can access that data by calling [al_get_file_userdata]
@@ -74,9 +74,10 @@ Returns a file handle on success, or NULL on error.
 
 See also: [al_set_new_file_interface], [al_fclose].
 
-## API: al_fopen_vt
+## API: al_fopen_interface
 
-Opens a file using the specified interface.
+Opens a file using the specified interface, instead of the interface
+set with [al_set_new_file_interface].
 
 See also: [al_fopen]
 

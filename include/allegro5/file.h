@@ -46,7 +46,7 @@ typedef enum ALLEGRO_SEEK
 
 /* The basic operations. */
 AL_FUNC(ALLEGRO_FILE*, al_fopen, (const char *path, const char *mode));
-AL_FUNC(ALLEGRO_FILE*, al_fopen_vt, (const ALLEGRO_FILE_INTERFACE *vt, const char *path, const char *mode));
+AL_FUNC(ALLEGRO_FILE*, al_fopen_interface, (const ALLEGRO_FILE_INTERFACE *vt, const char *path, const char *mode));
 AL_FUNC(ALLEGRO_FILE*, al_create_file_handle, (const ALLEGRO_FILE_INTERFACE *vt, void *userdata));
 AL_FUNC(void, al_fclose, (ALLEGRO_FILE *f));
 AL_FUNC(size_t, al_fread, (ALLEGRO_FILE *f, void *ptr, size_t size));

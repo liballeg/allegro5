@@ -7,13 +7,14 @@
  */
 ALLEGRO_FILE *al_fopen(const char *path, const char *mode)
 {
-   return al_fopen_vt(al_get_new_file_interface(), path, mode);
+   return al_fopen_interface(al_get_new_file_interface(), path, mode);
 }
 
 
-/* Function: al_fopen_vt
+/* Function: al_fopen_interface
  */
-ALLEGRO_FILE *al_fopen_vt(const ALLEGRO_FILE_INTERFACE *drv, const char *path, const char *mode)
+ALLEGRO_FILE *al_fopen_interface(const ALLEGRO_FILE_INTERFACE *drv,
+   const char *path, const char *mode)
 { 
    ALLEGRO_FILE *f = NULL;
    
@@ -43,7 +44,8 @@ ALLEGRO_FILE *al_fopen_vt(const ALLEGRO_FILE_INTERFACE *drv, const char *path, c
 
 /* Function: al_create_file_handle
  */
-ALLEGRO_FILE *al_create_file_handle(const ALLEGRO_FILE_INTERFACE *drv, void *userdata)
+ALLEGRO_FILE *al_create_file_handle(const ALLEGRO_FILE_INTERFACE *drv,
+   void *userdata)
 {
    ALLEGRO_FILE *f;
  
@@ -61,6 +63,7 @@ ALLEGRO_FILE *al_create_file_handle(const ALLEGRO_FILE_INTERFACE *drv, void *use
    
    return f;
 }
+
 
 /* Function: al_fclose
  */
