@@ -10,7 +10,7 @@
 #endif
 #define ALLEGRO_USE_CONSOLE
 #include <allegro5/allegro.h>
-#include <allegro5/memfile.h>
+#include <allegro5/allegro_memfile.h>
 
 #include "common.c"
 
@@ -30,7 +30,7 @@ int main(void)
       return 1;
    
    printf("Creating memfile\n");
-   memfile = al_open_memfile(data_size, data);
+   memfile = al_open_memfile(data, data_size, "rw");
    if (!memfile) {
       printf("Error opening memfile :(\n");
       goto Error;

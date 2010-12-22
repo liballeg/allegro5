@@ -1,7 +1,7 @@
 
 set(MEMFILE_SOURCES memfile.c)
 
-set(MEMFILE_INCLUDE_FILES allegro5/memfile.h)
+set(MEMFILE_INCLUDE_FILES allegro5/allegro_memfile.h)
 
 set_our_header_properties(${MEMFILE_INCLUDE_FILES})
 

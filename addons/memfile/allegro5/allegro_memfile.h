@@ -30,7 +30,7 @@ extern "C" {
 #endif
 
 
-ALLEGRO_MEMFILE_FUNC(ALLEGRO_FILE *, al_open_memfile, (int64_t size, void *mem));
+ALLEGRO_MEMFILE_FUNC(ALLEGRO_FILE *, al_open_memfile, (void *mem, int64_t size, const char *mode));
 ALLEGRO_MEMFILE_FUNC(uint32_t, al_get_allegro_memfile_version, (void));
 
 #ifdef __cplusplus
