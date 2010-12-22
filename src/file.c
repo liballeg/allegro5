@@ -29,6 +29,7 @@ ALLEGRO_FILE *al_fopen_vt(const ALLEGRO_FILE_INTERFACE *drv, const char *path, c
       else {
          f->vtable = drv;
          f->userdata = drv->fi_fopen(path, mode);
+         f->ungetc_len = 0;
          if (!f->userdata) {
             al_free(f);
             f = NULL;
@@ -55,6 +56,7 @@ ALLEGRO_FILE *al_create_file_handle(const ALLEGRO_FILE_INTERFACE *drv, void *use
    else {
       f->vtable = drv;   
       f->userdata = userdata;
+      f->ungetc_len = 0;
    }
    
    return f;
@@ -77,8 +79,22 @@ size_t al_fread(ALLEGRO_FILE *f, void *ptr, size_t size)
 {
    ASSERT(f);
    ASSERT(ptr);
-
-   return f->vtable->fi_fread(f, ptr, size);
+   
+   if (f->ungetc_len) {
+      int bytes_ungetc = 0;
+      unsigned char *cptr = ptr;
+      
+      while (f->ungetc_len > 0 && size > 0) {
+         *cptr++ = f->ungetc[--f->ungetc_len];
+         ++bytes_ungetc;
+         --size;
+      }
+      
+      return bytes_ungetc + f->vtable->fi_fread(f, cptr, size);
+   }
+   else {
+      return f->vtable->fi_fread(f, ptr, size);
+   }
 }
 
 
@@ -88,7 +104,8 @@ size_t al_fwrite(ALLEGRO_FILE *f, const void *ptr, size_t size)
 {
    ASSERT(f);
    ASSERT(ptr);
-
+   
+   f->ungetc_len = 0;
    return f->vtable->fi_fwrite(f, ptr, size);
 }
 
@@ -109,7 +126,7 @@ int64_t al_ftell(ALLEGRO_FILE *f)
 {
    ASSERT(f);
 
-   return f->vtable->fi_ftell(f);
+   return f->vtable->fi_ftell(f) - f->ungetc_len;
 }
 
 
@@ -124,6 +141,13 @@ bool al_fseek(ALLEGRO_FILE *f, int64_t offset, int whence)
       whence == ALLEGRO_SEEK_CUR ||
       whence == ALLEGRO_SEEK_END
    );
+   
+   if (f->ungetc_len) {
+      if (whence == ALLEGRO_SEEK_CUR) {
+         offset -= f->ungetc_len;
+      }
+      f->ungetc_len = 0;
+   }
 
    return f->vtable->fi_fseek(f, offset, whence);
 }
@@ -135,7 +159,7 @@ bool al_feof(ALLEGRO_FILE *f)
 {
    ASSERT(f);
 
-   return f->vtable->fi_feof(f);
+   return f->ungetc_len == 0 && f->vtable->fi_feof(f);
 }
 
 
@@ -435,8 +459,24 @@ int al_fputs(ALLEGRO_FILE *f, char const *p)
 int al_fungetc(ALLEGRO_FILE *f, int c)
 {
    ASSERT(f != NULL);
-
-   return f->vtable->fi_fungetc(f, c);
+   
+   if (f->vtable->fi_fungetc) {
+      return f->vtable->fi_fungetc(f, c);
+   }
+   else {      
+      /* If the interface does not provide an implementation for ungetc,
+       * then a default one will be used. (Note that if the interface does
+       * implement it, then this ungetc buffer will never be filled, and all
+       * other references to it within this file will always be ignored.)
+       */   
+      if (f->ungetc_len == ALLEGRO_UNGETC_SIZE) {
+         return EOF;
+      }
+         
+      f->ungetc[f->ungetc_len++] = (unsigned char) c;
+      
+      return c;
+   }
 }
 
 

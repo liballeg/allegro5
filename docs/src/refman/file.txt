@@ -37,6 +37,9 @@ on the file handle. If fi_open returns NULL then [al_fopen] will also return NUL
 The fi_fclose function must clean up and free the userdata, but Allegro will
 free the [ALLEGRO_FILE] handle.
 
+If fi_fungetc is NULL, then Allegro's default implementation of a 16 char long
+buffer will be used.
+
 ## API: ALLEGRO_SEEK
 
 * ALLEGRO_SEEK_SET - seek relative to beginning of file
@@ -188,6 +191,11 @@ subsequent reads, in reverse order.
 
 The number of pushbacks depends on the backend.  The standard I/O backend only
 guarantees a single pushback; this depends on the libc implementation.
+
+For backends that follow the standard behavior, the pushback buffer will
+be cleared after any seeking or writing; also calls to [al_fseek] and [al_ftell]
+are relative to the number of pushbacks. If a pushback causes the position to
+become negative, the behavior of [al_fseek] and [al_ftell] are undefined.
 
 See also: [al_fgetc], [al_get_errno]
 
