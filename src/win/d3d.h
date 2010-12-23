@@ -81,6 +81,15 @@ typedef struct ALLEGRO_DISPLAY_D3D
    int samples;
    bool single_buffer;
    bool vsync;
+
+   int blender_state_op;
+   int blender_state_src;
+   int blender_state_dst;
+   int blender_state_alpha_op;
+   int blender_state_alpha_src;
+   int blender_state_alpha_dst;
+
+   RECT scissor_state;
 } ALLEGRO_DISPLAY_D3D;
 
 
