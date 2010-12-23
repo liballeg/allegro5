@@ -140,9 +140,11 @@ Install the audio subsystem.
 
 Returns true on success, false on failure.
 
-Note: most users will call [al_reserve_samples] after this.
+Note: most users will call [al_reserve_samples] and [al_init_acodec_addon]
+after this.
 
-See also: [al_reserve_samples], [al_uninstall_audio], [al_is_audio_installed]
+See also: [al_reserve_samples], [al_uninstall_audio], [al_is_audio_installed],
+[al_init_acodec_addon]
 
 ### API: al_uninstall_audio
 
@@ -335,7 +337,7 @@ Parameters:
 * gain - relative volume at which the sample is played; 1.0 is normal.
 * pan - 0.0 is centred, -1.0 is left, 1.0 is right, or ALLEGRO_AUDIO_PAN_NONE.
 * speed - relative speed at which the sample is played; 1.0 is normal.
-* loop - the play mode.
+* loop - ALLEGRO_PLAYMODE_ONCE, ALLEGRO_PLAYMODE_LOOP, or ALLEGRO_PLAYMODE_BIDIR
 * ret_id - if non-NULL the variable which this points to will be assigned
   an id representing the sample being played.
 
