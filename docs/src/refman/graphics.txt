@@ -612,6 +612,11 @@ a lot of pixels consider using the primitives addon.
 * y - destination y
 * color - color of the pixel
 
+> *Note:* This function may not draw exactly where you expect it to. See the
+<a href="primitives.html#pixel-precise-output">pixel-precise output section</a> on the
+primitives addon documentation for details on how to control exactly where the
+pixel is drawn. 
+
 See also: [ALLEGRO_COLOR], [al_put_pixel]
 
 ### API: al_draw_rotated_bitmap
