@@ -26,6 +26,7 @@
 
 #import <CoreFoundation/CoreFoundation.h>
 #include <mach/mach_port.h>
+#include <mach-o/dyld.h>
 #include <servers/bootstrap.h>
 
 ALLEGRO_DEBUG_CHANNEL("MacOSX")
@@ -538,73 +539,6 @@ void _al_register_system_interfaces()
    *add = _al_system_osx_driver();
 }
 
-/* _find_executable_file:
- *  Helper function: searches path and current directory for executable.
- *  Returns 1 on succes, 0 on failure.
- */
-static int _find_executable_file(const char *filename, char *output, int size)
-{
-   char *path;
-
-   /* If filename has an explicit path, search current directory */
-   if (strchr(filename, '/')) {
-      if (filename[0] == '/') {
-         /* Full path; done */
-         _al_sane_strncpy(output, filename, size);
-         return 1;
-      }
-      else {
-         struct stat finfo;
-         char pathname[1024];
-         int len;
-
-         /* Prepend current directory */
-         getcwd(pathname, sizeof(pathname));
-         len = strlen(pathname);
-         pathname[len] = '/';
-         _al_sane_strncpy(pathname+len+1, filename, strlen(filename)+1);
-
-         if ((stat(pathname, &finfo)==0) && (!S_ISDIR (finfo.st_mode))) {
-            _al_sane_strncpy(output, pathname, size);
-            return 1;
-         }
-      }
-   }
-   /* If filename has no explicit path, but we do have $PATH, search there */
-   else if ((path = getenv("PATH"))) {
-      char *start = path, *end = path, *buffer = NULL, *temp;
-      struct stat finfo;
-
-      while (*end) {
-         end = strchr(start, ':');
-         if (!end)
-            end = strchr(start, '\0');
-
-         /* Resize `buffer' for path component, slash, filename and a '\0' */
-         temp = al_realloc (buffer, end - start + 1 + strlen (filename) + 1);
-         if (temp) {
-            buffer = temp;
-
-            _al_sane_strncpy(buffer, start, end - start);
-            *(buffer + (end - start)) = '/';
-            _al_sane_strncpy(buffer + (end - start) + 1, filename, end - start + 1 + strlen (filename) + 1);
-
-            if ((stat(buffer, &finfo)==0) && (!S_ISDIR (finfo.st_mode))) {
-               _al_sane_strncpy(output, buffer, size);
-               al_free(buffer);
-               return 1;
-            }
-         } /* else... ignore the failure; `buffer' is still valid anyway. */
-
-         start = end + 1;
-      }
-      /* Path search failed */
-      al_free(buffer);
-   }
-
-   return 0;
-}
-
 /* Implentation of get_path */
 static ALLEGRO_PATH *osx_get_path(int id)
 {
@@ -656,17 +590,11 @@ static ALLEGRO_PATH *osx_get_path(int id)
          if (osx_bundle) {
             ans = [[NSBundle mainBundle] bundlePath];
          } else {
-            /* OS X path names seem to always be UTF8.
-             * Should we use the Darwin/BSD function getprogname() instead?
-             */
-            if (__crt0_argv[0][0] == '/') {
-               ans = [NSString stringWithUTF8String: __crt0_argv[0]];
-            } else {
-               /* FIXME: get rid of arbitrary fixed length in path */
-               char temp[PATH_MAX];
-               if (_find_executable_file(__crt0_argv[0], temp, PATH_MAX))
-                  ans = [NSString stringWithUTF8String: temp];
-            }
+            /* Otherwise, return the executable pathname */
+            char path[PATH_MAX];
+            uint32_t size = sizeof(path);
+            if (_NSGetExecutablePath(path, &size) == 0)
+               ans = [NSString stringWithUTF8String: path];
          }
          path = al_create_path([ans UTF8String]);
          break;
