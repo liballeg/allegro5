@@ -108,9 +108,9 @@ int _al_prim_test_line_side(const float* origin, const float* normal, const floa
 {
    float c = -(origin[0] * normal[0] + origin[1] * normal[1]);
    float d =   point[0]  * normal[0] + point[1]  * normal[1] + c;
-   if (d < -AL_EPSILON)
+   if (d < 0.0f)/*-AL_EPSILON)*/
       return -1;
-   else if (d > AL_EPSILON)
+   else if (d > 0.0f)/*AL_EPSILON)*/
       return 1;
    else
       return 0;

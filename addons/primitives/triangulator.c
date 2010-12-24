@@ -16,12 +16,13 @@
  *      See readme.txt for copyright information.
  */
 
-#include "allegro5/allegro.h"
-#include "allegro5/allegro_primitives.h"
-#include "allegro5/internal/aintern_prim.h"
-#include "allegro5/internal/aintern_list.h"
-#include <float.h>
-#include <math.h>
+
+# include "allegro5/allegro.h"
+# include "allegro5/allegro_primitives.h"
+# include "allegro5/internal/aintern_prim.h"
+# include "allegro5/internal/aintern_list.h"
+# include <float.h>
+# include <math.h>
 
 
 # define POLY_DEBUG 0
@@ -58,8 +59,17 @@ typedef struct POLY_SPLIT {
 
 
 # if POLY_DEBUG
-int g_poly_step = -1;
-int g_poly_step_current = 0;
+typedef void (*poly_debug_draw_text_t)(float x, float y, int line, const char* format, ...);
+
+__declspec(dllexport) int                     g_poly_debug_step            = -1;
+__declspec(dllexport) int                     g_poly_debug_step_current    = 0;
+__declspec(dllexport) poly_debug_draw_text_t  g_poly_debug_draw_text       = NULL;
+__declspec(dllexport) float                   g_poly_debug_scale           = 1.0f;
+
+
+# define POLY_DEBUG_TEXT(x,y,...)            (g_poly_debug_draw_text ? g_poly_debug_draw_text(x,y,INT_MAX,__VA_ARGS__) : __noop)
+# define POLY_DEBUG_TEXT_LINE(x,y,line,...)  (g_poly_debug_draw_text ? g_poly_debug_draw_text(x,y,line,__VA_ARGS__)    : __noop)
+
 # endif
 
 
@@ -479,15 +489,15 @@ static int poly_compute_vertex_attributes(_AL_LIST* vertices, _AL_LIST_ITEM* ite
    angle = _al_prim_wrap_two_pi(_al_prim_get_angle(v0, v1, v2));
 
 # if POLY_DEBUG
-   if (g_poly_step == g_poly_step_current) {
+   if (g_poly_debug_step == g_poly_debug_step_current) {
 
       float dir0[2] = { v0[0] - v1[0], v0[1] - v1[1] };
       float dir2[2] = { v2[0] - v1[0], v2[1] - v1[1] };
 
-      //draw_aligned_text(g_font, v1[0] + 5, v1[1] + 5, ta_top_left, "%.1f", angle * 180.0f / 3.1415f);
+      POLY_DEBUG_TEXT(v1[0], v1[1], "%.1f", angle * 180.0f / 3.1415f);
 
-      al_draw_line(v1[0], v1[1], v1[0] + dir0[0] * 0.25f, v1[1] + dir0[1] * 0.25f, al_map_rgb(255, 0, 0), 4.0f);
-      al_draw_line(v1[0], v1[1], v1[0] + dir2[0] * 0.25f, v1[1] + dir2[1] * 0.25f, al_map_rgb(255, 0, 0), 4.0f);
+      al_draw_line(v1[0], v1[1], v1[0] + dir0[0] * 0.25f, v1[1] + dir0[1] * 0.25f, al_map_rgb(255, 0, 0), 4.0f * g_poly_debug_scale);
+      al_draw_line(v1[0], v1[1], v1[0] + dir2[0] * 0.25f, v1[1] + dir2[1] * 0.25f, al_map_rgb(255, 0, 0), 4.0f * g_poly_debug_scale);
    }
 # endif
 
@@ -644,51 +654,53 @@ static void poly_do_triangulate(POLY* polygon)
 # define VERTEX_INDEX(vertex) ((((uint8_t*)vertex) - ((uint8_t*)polygon->vertex_buffer)) / polygon->vertex_stride)
 
 # if POLY_DEBUG
-   g_poly_step_current = 0;
+   g_poly_debug_step_current = 0;
 
    {
       _AL_LIST_ITEM* item;
       _AL_LIST_ITEM* next;
+      int* histogram = al_calloc(_al_list_size(polygon->vertex_list), sizeof(int));
 
-      std::map<float*, int> histogram;
+      /*std::map<float*, int> histogram;*/
 
       int index = 0;
       for (item = _al_list_front(polygon->vertex_list); item; item = _al_list_next(polygon->vertex_list, item)) {
 
+         float* point0;
+         float* point1;
+         float n[2];
+         float l, r;
+         char status[3] = { 0 };
+         int status_index = 0;
+
          next = _al_list_next_circular(polygon->vertex_list, item);
 
-         float* point0 = (float*)_al_list_item_data(item);
-         float* point1 = (float*)_al_list_item_data(next);
+         point0 = (float*)_al_list_item_data(item);
+         point1 = (float*)_al_list_item_data(next);
 
-         float n[2] = {
-            -(point1[1] - point0[1]),
-             (point1[0] - point0[0])
-         };
+         n[0] = -(point1[1] - point0[1]);
+         n[1] =   point1[0] - point0[0];
 
-         float l = 2.0f * sqrtf(n[0] * n[0] + n[1] * n[1]);
+         l = 2.0f * sqrtf(n[0] * n[0] + n[1] * n[1]);
 
          n[0] /= l;
          n[1] /= l;
 
-         float r = 1.0f;
+         r = 1.0f;
 
-         al_draw_line(point0[0] + n[0] * r, point0[1] + n[1] * r, point1[0] + n[0] * r, point1[1] + n[1] * r, al_map_rgba(255, 0, 255, 128), r);
-
-         if (histogram.find(point0) == histogram.end())
-            histogram[point0] = 0;
-         else
-            histogram[point0] = histogram[point0] + 1;
-
-         char status[3] = { 0 };
-         int status_index = 0;
+         al_draw_line(point0[0] + n[0] * r, point0[1] + n[1] * r, point1[0] + n[0] * r, point1[1] + n[1] * r, al_map_rgba(255, 0, 255, 128), r * g_poly_debug_scale);
 
          if (_al_list_contains(polygon->reflex_list, item))
             status[status_index++] = 'R';
          if (_al_list_contains(polygon->ear_list, item))
             status[status_index++] = 'E';
 
-         draw_aligned_text(g_font,point0[0] - 5, point0[1] - 5 - 12 * histogram[point0], ta_bottom_right, "%s %d", status, index++);
+         POLY_DEBUG_TEXT_LINE(point0[0], point0[1], -histogram[VERTEX_INDEX(point0)], "%s %d", status, index++);
+
+         ++histogram[VERTEX_INDEX(point0)];
       }
+
+      al_free(histogram);
    }
 # endif
 
@@ -725,7 +737,7 @@ static void poly_do_triangulate(POLY* polygon)
       poly_update_vertex_attributes(polygon->vertex_list, polygon->reflex_list, polygon->ear_list, next);
 
 # if POLY_DEBUG
-      if (g_poly_step == g_poly_step_current) {
+      if (g_poly_debug_step == g_poly_debug_step_current) {
          _AL_LIST_ITEM* item;
          ALLEGRO_COLOR color;
 
@@ -734,14 +746,14 @@ static void poly_do_triangulate(POLY* polygon)
          for (item = _al_list_front(polygon->vertex_list); item; item = _al_list_next(polygon->vertex_list, item)) {
 
             float* point = (float*)_al_list_item_data(item);
-            al_draw_filled_circle(point[0], point[1], 6.0f, al_map_rgb(255, 255, 255));
+            al_draw_filled_circle(point[0], point[1], 6.0f * g_poly_debug_scale, al_map_rgb(255, 255, 255));
          }
 
          for (item = _al_list_front(polygon->reflex_list); item; item = _al_list_next(polygon->reflex_list, item)) {
 
             float* point = (float*)_al_list_item_data((_AL_LIST_ITEM*)_al_list_item_data(item));
 
-            al_draw_filled_circle(point[0], point[1], 6.0f, al_map_rgb(255, 255, 0));
+            al_draw_filled_circle(point[0], point[1], 6.0f * g_poly_debug_scale, al_map_rgb(255, 255, 0));
          }
 
          color = al_map_rgb(255, 0, 0);
@@ -752,12 +764,12 @@ static void poly_do_triangulate(POLY* polygon)
             if (item == _al_list_front(polygon->ear_list))
                color = al_map_rgb(0, 255, 0);
 
-            al_draw_circle(point[0], point[1], 9.0f, color, 2.0f);
+            al_draw_circle(point[0], point[1], 9.0f * g_poly_debug_scale, color, 2.0f * g_poly_debug_scale);
          }
       }
-      if (g_poly_step >= 0 && g_poly_step_current >= g_poly_step)
+      if (g_poly_debug_step >= 0 && g_poly_debug_step_current >= g_poly_debug_step)
          break;
-      g_poly_step_current++;
+      g_poly_debug_step_current++;
 # endif
    }
 
