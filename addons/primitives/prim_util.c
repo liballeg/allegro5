@@ -132,7 +132,14 @@ bool _al_prim_is_point_in_triangle(const float* point, const float* v0, const fl
    int edge_side_1 = _al_prim_test_line_side(v1, edge_normal_1, point);
    int edge_side_2 = _al_prim_test_line_side(v2, edge_normal_2, point);
 
-   return (edge_side_0 == edge_side_1) && (edge_side_0 == edge_side_2);
+   if (edge_side_0 && edge_side_1 && edge_side_2)
+      return (edge_side_0 == edge_side_1) && (edge_side_0 == edge_side_2);
+   else if (0 == edge_side_0)
+      return (edge_side_1 && edge_side_2);
+   else if (0 == edge_side_1)
+      return (edge_side_0 && edge_side_2);
+   else /*if (0 == edge_side_2)*/
+      return (edge_side_0 && edge_side_1);
 }
 
 
