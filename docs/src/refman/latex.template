@@ -150,7 +150,7 @@ $endif$
 \pagestyle{empty} % no page numbers, etc.
 \vspace*{\fill}
 \begin{center}
-\HUGE\textsf{The Allegro 4.9 Library}\par
+\HUGE\textsf{The Allegro 5 Library}\par
 \end{center}
 \begin{center}
 \HUGE\textsf{Reference Manual}\par
