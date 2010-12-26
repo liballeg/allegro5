@@ -1,16 +1,21 @@
 #include <allegro5/allegro.h>
-#include "allegro5/memfile.h"
+#include "allegro5/allegro_memfile.h"
 
+#define UNGET_SIZE 16
 
 typedef struct ALLEGRO_FILE_MEMFILE ALLEGRO_FILE_MEMFILE;
 
 struct ALLEGRO_FILE_MEMFILE {
+   bool readable;
+   bool writable;
+   
    bool eof;
    int64_t size;
    int64_t pos;
    char *mem;
-
-   unsigned char ungetc;
+   
+   unsigned char ungetc[UNGET_SIZE];
+   int unget_len;
 };
 
 static void memfile_fclose(ALLEGRO_FILE *fp)
@@ -21,27 +26,61 @@ static void memfile_fclose(ALLEGRO_FILE *fp)
 static size_t memfile_fread(ALLEGRO_FILE *fp, void *ptr, size_t size)
 {
    ALLEGRO_FILE_MEMFILE *mf = al_get_file_userdata(fp);
-   size_t n;
-
-   if (mf->size - mf->pos < (int64_t)size) { 
-      /* partial read */
-      n = mf->size - mf->pos;
-      mf->eof = true;
+   size_t bytes_unget = 0;
+   size_t bytes_read = 0;
+   
+   if (!mf->readable) {
+      al_set_errno(EPERM);
+      return 0;
    }
-   else {
-      n = size;
+   
+   /* While bytes are sitting on the unget buffer, pull from there.
+      The ptr will be incremented and the size will be decremented 
+      by the number of used unget bytes. So after the the unget
+      buffer is used, the remainder can be read from memory as normal.
+    */
+   while (mf->unget_len > 0 && size > 0) {
+      *((unsigned char *)ptr++) = mf->ungetc[--mf->unget_len];
+      ++bytes_unget;
+      --size;
    }
-
-   memcpy(ptr, mf->mem + mf->pos, n);
-   mf->pos += n;
-   return n;
+   
+   mf->pos += bytes_unget;
+   
+   if (size) {
+      ASSERT(mf->pos >= 0);
+      
+      if (mf->size - mf->pos < (int64_t)size) { 
+         /* partial read */
+         bytes_read = mf->size - mf->pos;
+         mf->eof = true;
+      }
+      else {
+         bytes_read = size;
+      }
+  
+      memcpy(ptr, mf->mem + mf->pos, bytes_read);
+      mf->pos += bytes_read;
+   }
+   
+   return bytes_unget + bytes_read;
 }
 
 static size_t memfile_fwrite(ALLEGRO_FILE *fp, const void *ptr, size_t size)
 {
    ALLEGRO_FILE_MEMFILE *mf = al_get_file_userdata(fp);
    size_t n;
-
+   
+   if (!mf->writable) {
+      al_set_errno(EPERM);
+      return 0;
+   }
+   
+   if (mf->pos < 0) {
+      /* this can happen if ungetc was called */
+      mf->pos = 0;
+   }
+   
    if (mf->size - mf->pos < (int64_t)size) {
       /* partial write */
       n = mf->size - mf->pos;
@@ -53,6 +92,8 @@ static size_t memfile_fwrite(ALLEGRO_FILE *fp, const void *ptr, size_t size)
 
    memcpy(mf->mem + mf->pos, ptr, n);
    mf->pos += n;
+   mf->unget_len = 0;
+   
    return n;
 }
 
@@ -97,6 +138,7 @@ static bool memfile_fseek(ALLEGRO_FILE *fp, int64_t offset,
    mf->pos = pos;
 
    mf->eof = false;
+   mf->unget_len = 0;
    
    return true;
 }
@@ -126,8 +168,13 @@ static int memfile_fungetc(ALLEGRO_FILE *fp, int c)
 {
    ALLEGRO_FILE_MEMFILE *mf = al_get_file_userdata(fp);
 
-   /* XXX this isn't used at all */
-   mf->ungetc = (unsigned char)c;
+   if (mf->unget_len == UNGET_SIZE) {
+      return EOF;
+   }
+   
+   mf->ungetc[mf->unget_len++] = (unsigned char) c;
+   mf->pos--;
+   mf->eof = false;
 
    return c;
 }
@@ -156,7 +203,7 @@ static struct ALLEGRO_FILE_INTERFACE memfile_vtable = {
 
 /* Function: al_open_memfile
  */
-ALLEGRO_FILE *al_open_memfile(int64_t size, void *mem)
+ALLEGRO_FILE *al_open_memfile(void *mem, int64_t size, const char *mode)
 {
    ALLEGRO_FILE *memfile;
    ALLEGRO_FILE_MEMFILE *userdata = NULL;
@@ -174,6 +221,10 @@ ALLEGRO_FILE *al_open_memfile(int64_t size, void *mem)
    userdata->size = size;
    userdata->pos = 0;
    userdata->mem = mem;
+   userdata->unget_len = 0;
+   
+   userdata->readable = strchr(mode, 'r') || strchr(mode, 'R');
+   userdata->writable = strchr(mode, 'w') || strchr(mode, 'W');
       
    memfile = al_create_file_handle(&memfile_vtable, userdata);
    if (!memfile) {

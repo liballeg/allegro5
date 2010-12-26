@@ -1,0 +1,27 @@
+# Memfile interface
+
+The memfile interface allows you to treat a fixed block of contiguous
+memory as a file that can be used with Allegro's I/O functions.
+
+These functions are declared in the following header file.
+Link with allegro_memfile.
+
+    #include <allegro5/allegro_memfile.h>
+
+## API: al_open_memfile
+
+Returns a file handle to the block of memory. All read and write operations
+act upon the memory directly, so it must not be freed while the file remains
+open.
+
+The mode can be any combination of "r" (readable) and "w" (writable).
+Regardless of the mode, the file always opens at position 0. The file size
+is fixed and cannot be expanded. 
+
+It should be closed with [al_fclose]. After the file is closed, you are
+responsible for freeing the memory (if needed).
+
+## API: al_get_allegro_memfile_version
+
+Returns the (compiled) version of the addon, in the same format as
+[al_get_allegro_version].

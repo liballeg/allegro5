@@ -34,6 +34,7 @@
 * [Color addon](color.html)
 * [Font addons](font.html)
 * [Image I/O addon](image.html)
+* [Memfile addon](memfile.html)
 * [Native dialogs addon](native_dialog.html)
 * [PhysicsFS addon](physfs.html)
 * [Primitives addon](primitives.html)
