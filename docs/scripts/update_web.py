@@ -6,6 +6,9 @@ def main(argv):
     p = optparse.OptionParser()
     p.add_option("-p", "--path", help = "Path to the build directory.")
     p.add_option("-u", "--user", help = "Username to use.")
+    p.add_option("-d", "--directory", help = "Remote directory to " +
+        "use. Should be either 'trunk' which is the default or else " +
+        "the version number.", default = "trunk")
     options, args = p.parse_args()
 
     if options.user:
@@ -20,7 +23,8 @@ def main(argv):
         p.print_help()
         sys.exit(-1)
 
-    destdir = "/home/groups/a/al/alleg/htdocs_parts/a5docs/a5docs/"
+    destdir = "/home/groups/a/al/alleg/htdocs_parts/staticweb/a5docs"
+    destdir += "/" + options.directory
 
     def run(cmd):
         print ">", cmd
@@ -31,7 +35,7 @@ def main(argv):
 
     print "Copying files.."
     rsync = "rsync --delete -r -z"
-    path = os.path.join(options.path, "docs/html/refman")
+    path = os.path.join(options.path, "docs/html/refman/")
     run("%s %s %s:%s" % (rsync, path, sf, destdir))
 
     print("Updated A5 docs at: http://docs.liballeg.org")
