@@ -1,12 +1,10 @@
 #include <allegro5/allegro.h>
 #include "allegro5/memfile.h"
-#include "allegro5/internal/aintern_file.h"
 
 
 typedef struct ALLEGRO_FILE_MEMFILE ALLEGRO_FILE_MEMFILE;
-struct ALLEGRO_FILE_MEMFILE {
-   ALLEGRO_FILE file;   /* must be first */
 
+struct ALLEGRO_FILE_MEMFILE {
    bool eof;
    int64_t size;
    int64_t pos;
@@ -15,15 +13,14 @@ struct ALLEGRO_FILE_MEMFILE {
    unsigned char ungetc;
 };
 
-
 static void memfile_fclose(ALLEGRO_FILE *fp)
 {
-   al_free(fp);
+   al_free(al_get_file_userdata(fp));
 }
 
 static size_t memfile_fread(ALLEGRO_FILE *fp, void *ptr, size_t size)
 {
-   ALLEGRO_FILE_MEMFILE *mf = (ALLEGRO_FILE_MEMFILE*)fp;
+   ALLEGRO_FILE_MEMFILE *mf = al_get_file_userdata(fp);
    size_t n;
 
    if (mf->size - mf->pos < (int64_t)size) { 
@@ -42,7 +39,7 @@ static size_t memfile_fread(ALLEGRO_FILE *fp, void *ptr, size_t size)
 
 static size_t memfile_fwrite(ALLEGRO_FILE *fp, const void *ptr, size_t size)
 {
-   ALLEGRO_FILE_MEMFILE *mf = (ALLEGRO_FILE_MEMFILE*)fp;
+   ALLEGRO_FILE_MEMFILE *mf = al_get_file_userdata(fp);
    size_t n;
 
    if (mf->size - mf->pos < (int64_t)size) {
@@ -67,7 +64,7 @@ static bool memfile_fflush(ALLEGRO_FILE *fp)
 
 static int64_t memfile_ftell(ALLEGRO_FILE *fp)
 {
-   ALLEGRO_FILE_MEMFILE *mf = (ALLEGRO_FILE_MEMFILE*)fp;
+   ALLEGRO_FILE_MEMFILE *mf = al_get_file_userdata(fp);
 
    return mf->pos;
 }
@@ -75,7 +72,7 @@ static int64_t memfile_ftell(ALLEGRO_FILE *fp)
 static bool memfile_fseek(ALLEGRO_FILE *fp, int64_t offset,
    int whence)
 {
-   ALLEGRO_FILE_MEMFILE *mf = (ALLEGRO_FILE_MEMFILE*)fp;
+   ALLEGRO_FILE_MEMFILE *mf = al_get_file_userdata(fp);
    int64_t pos = mf->pos;
 
    switch (whence) {
@@ -109,7 +106,7 @@ static bool memfile_fseek(ALLEGRO_FILE *fp, int64_t offset,
    even if it seeks past the end of the file */
 static bool memfile_feof(ALLEGRO_FILE *fp)
 {
-   ALLEGRO_FILE_MEMFILE *mf = (ALLEGRO_FILE_MEMFILE*)fp;
+   ALLEGRO_FILE_MEMFILE *mf = al_get_file_userdata(fp);
    return mf->eof;
 }
 
@@ -121,13 +118,13 @@ static bool memfile_ferror(ALLEGRO_FILE *fp)
 
 static void memfile_fclearerr(ALLEGRO_FILE *fp)
 {
-   ALLEGRO_FILE_MEMFILE *mf = (ALLEGRO_FILE_MEMFILE*)fp;
+   ALLEGRO_FILE_MEMFILE *mf = al_get_file_userdata(fp);
    mf->eof = false;
 }
 
 static int memfile_fungetc(ALLEGRO_FILE *fp, int c)
 {
-   ALLEGRO_FILE_MEMFILE *mf = (ALLEGRO_FILE_MEMFILE*)fp;
+   ALLEGRO_FILE_MEMFILE *mf = al_get_file_userdata(fp);
 
    /* XXX this isn't used at all */
    mf->ungetc = (unsigned char)c;
@@ -137,7 +134,7 @@ static int memfile_fungetc(ALLEGRO_FILE *fp, int c)
 
 static off_t memfile_fsize(ALLEGRO_FILE *fp)
 {
-   ALLEGRO_FILE_MEMFILE *mf = (ALLEGRO_FILE_MEMFILE*)fp;
+   ALLEGRO_FILE_MEMFILE *mf = al_get_file_userdata(fp);
 
    return mf->size;
 }
@@ -157,28 +154,33 @@ static struct ALLEGRO_FILE_INTERFACE memfile_vtable = {
    memfile_fsize
 };
 
+/* Function: al_open_memfile
+ */
 ALLEGRO_FILE *al_open_memfile(int64_t size, void *mem)
 {
-   ALLEGRO_FILE_MEMFILE *memfile = NULL;
+   ALLEGRO_FILE *memfile;
+   ALLEGRO_FILE_MEMFILE *userdata = NULL;
 
    ASSERT(mem);
    ASSERT(size > 0);
-
-   memfile = al_malloc(sizeof(ALLEGRO_FILE_MEMFILE));
-   if(!memfile) {
+   
+   userdata = al_malloc(sizeof(ALLEGRO_FILE_MEMFILE));
+   if(!userdata) {
       al_set_errno(ENOMEM);
       return NULL;
    }
+   
+   memset(userdata, 0, sizeof(*userdata));
+   userdata->size = size;
+   userdata->pos = 0;
+   userdata->mem = mem;
+      
+   memfile = al_create_file_handle(&memfile_vtable, userdata);
+   if (!memfile) {
+      al_free(userdata);
+   }
 
-   memset(memfile, 0, sizeof(*memfile));
-
-   memfile->file.vtable = &memfile_vtable;
-
-   memfile->size = size;
-   memfile->pos = 0;
-   memfile->mem = mem;
-
-   return (ALLEGRO_FILE *)memfile;
+   return memfile;
 }
 
 /* Function: al_get_allegro_memfile_version

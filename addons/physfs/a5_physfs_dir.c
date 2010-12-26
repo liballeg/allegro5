@@ -186,7 +186,7 @@ static void fs_phys_destroy_entry(ALLEGRO_FS_ENTRY *fse)
 
 static ALLEGRO_FILE *fs_phys_open_file(ALLEGRO_FS_ENTRY *fse, const char *mode)
 {
-   return _al_file_phys_fopen(fs_phys_entry_name(fse), mode);
+   return al_fopen_vt(_al_get_phys_vtable(), fs_phys_entry_name(fse), mode);
 }
 
 static const ALLEGRO_FS_INTERFACE fs_phys_vtable =

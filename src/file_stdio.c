@@ -38,13 +38,6 @@
 #endif
 
 
-typedef struct ALLEGRO_FILE_STDIO
-{
-   ALLEGRO_FILE file;               /* must be first */
-   FILE *fp;
-} ALLEGRO_FILE_STDIO;
-
-
 /* forward declaration */
 const struct ALLEGRO_FILE_INTERFACE _al_file_interface_stdio;
 
@@ -52,7 +45,7 @@ const struct ALLEGRO_FILE_INTERFACE _al_file_interface_stdio;
 static FILE *get_fp(ALLEGRO_FILE *f)
 {
    if (f)
-      return ((ALLEGRO_FILE_STDIO *)f)->fp;
+      return (FILE *)al_get_file_userdata(f);
    else
       return NULL;
 }
@@ -62,34 +55,29 @@ static FILE *get_fp(ALLEGRO_FILE *f)
  */
 ALLEGRO_FILE *al_fopen_fd(int fd, const char *mode)
 {
-   ALLEGRO_FILE_STDIO *f;
+   ALLEGRO_FILE *f;
    FILE *fp;
 
    /* The fd should remain open if this function fails in either way. */
-
-   f = al_malloc(sizeof(*f));
-   if (!f) {
-      al_set_errno(ENOMEM);
-      return NULL;
-   }
-
    fp = fdopen(fd, mode);
    if (!fp) {
       al_set_errno(errno);
-      al_free(f);
+      return NULL;
+   }
+   
+   f = al_create_file_handle(&_al_file_interface_stdio, fp);
+   if (!f) {
+      al_set_errno(errno);
       return NULL;
    }
 
-   f->file.vtable = &_al_file_interface_stdio;
-   f->fp = fp;
-   return (ALLEGRO_FILE *)f;
+   return f;
 }
 
 
-ALLEGRO_FILE *_al_file_stdio_fopen(const char *path, const char *mode)
+static void *file_stdio_fopen(const char *path, const char *mode)
 {
    FILE *fp;
-   ALLEGRO_FILE_STDIO *f;
 
    fp = fopen(path, mode);
    if (!fp) {
@@ -97,23 +85,13 @@ ALLEGRO_FILE *_al_file_stdio_fopen(const char *path, const char *mode)
       return NULL;
    }
 
-   f = al_malloc(sizeof(*f));
-   if (!f) {
-      al_set_errno(ENOMEM);
-      fclose(fp);
-      return NULL;
-   }
-
-   f->file.vtable = &_al_file_interface_stdio;
-   f->fp = fp;
-   return (ALLEGRO_FILE *)f;
+   return fp;
 }
 
 
 static void file_stdio_fclose(ALLEGRO_FILE *f)
 {
    fclose(get_fp(f));
-   al_free(f);
 }
 
 
@@ -270,7 +248,7 @@ Error:
 
 const struct ALLEGRO_FILE_INTERFACE _al_file_interface_stdio =
 {
-   _al_file_stdio_fopen,
+   file_stdio_fopen,
    file_stdio_fclose,
    file_stdio_fread,
    file_stdio_fwrite,

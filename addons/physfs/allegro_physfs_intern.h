@@ -3,8 +3,6 @@
 
 
 void _al_set_physfs_fs_interface(void);
-
-ALLEGRO_FILE *_al_file_phys_fopen(const char *filename, const char *mode);
-
+const ALLEGRO_FILE_INTERFACE *_al_get_phys_vtable(void);
 
 #endif
