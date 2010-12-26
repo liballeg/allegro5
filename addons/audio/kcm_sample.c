@@ -36,7 +36,8 @@ static _AL_VECTOR auto_sample_ids = _AL_VECTOR_INITIALIZER(int);
 
 
 static bool create_default_mixer(void);
-static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *spl, ALLEGRO_SAMPLE *data, float gain, float pan, float speed, int loop);
+static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *spl, ALLEGRO_SAMPLE *data,
+      float gain, float pan, float speed, ALLEGRO_PLAYMODE loop);
 static void free_sample_vector(void);
 
 
@@ -312,7 +313,7 @@ bool al_restore_default_mixer(void)
 /* Function: al_play_sample
  */
 bool al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed,
-   int loop, ALLEGRO_SAMPLE_ID *ret_id)
+   ALLEGRO_PLAYMODE loop, ALLEGRO_SAMPLE_ID *ret_id)
 {
    static int next_id = 0;
    unsigned int i;
@@ -348,7 +349,7 @@ bool al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed,
 
 
 static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *splinst,
-   ALLEGRO_SAMPLE *spl, float gain, float pan, float speed, int loop)
+   ALLEGRO_SAMPLE *spl, float gain, float pan, float speed, ALLEGRO_PLAYMODE loop)
 {
    if (!al_set_sample(splinst, spl)) {
       ALLEGRO_ERROR("al_set_sample failed\n");

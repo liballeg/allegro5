@@ -328,7 +328,7 @@ ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_MIXER *, al_get_default_mixer, (void));
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_set_default_mixer, (ALLEGRO_MIXER *mixer));
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_restore_default_mixer, (void));
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_play_sample, (ALLEGRO_SAMPLE *data,
-      float gain, float pan, float speed, int loop, ALLEGRO_SAMPLE_ID *ret_id));
+      float gain, float pan, float speed, ALLEGRO_PLAYMODE loop, ALLEGRO_SAMPLE_ID *ret_id));
 ALLEGRO_KCM_AUDIO_FUNC(void, al_stop_sample, (ALLEGRO_SAMPLE_ID *spl_id));
 ALLEGRO_KCM_AUDIO_FUNC(void, al_stop_samples, (void));
 
