@@ -369,6 +369,18 @@ static void d3d_reset_state(ALLEGRO_DISPLAY_D3D *disp)
    if (disp->device_lost)
       return;
 
+   disp->blender_state_op          = -1;
+   disp->blender_state_src         = -1;
+   disp->blender_state_dst         = -1;
+   disp->blender_state_alpha_op    = -1;
+   disp->blender_state_alpha_src   = -1;
+   disp->blender_state_alpha_dst   = -1;
+
+   disp->scissor_state.bottom = -1;
+   disp->scissor_state.top    = -1;
+   disp->scissor_state.left   = -1;
+   disp->scissor_state.right  = -1;
+
    disp->device->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
    disp->device->SetRenderState(D3DRS_ZWRITEENABLE, true);
    disp->device->SetRenderState(D3DRS_LIGHTING, false);
@@ -1100,7 +1112,7 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
    }
 
    _al_vector_free(&display->bitmaps);
-   
+
    if (old_disp != display)
       _al_set_current_display_only(old_disp);
 
@@ -1403,7 +1415,7 @@ struct CREATE_WINDOW_INFO {
 static void d3d_create_window_proc(CREATE_WINDOW_INFO *info)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)info->display;
-   
+
    al_set_new_window_position(info->window_x, info->window_y);
 
    win_display->window = _al_win_create_window(
@@ -1418,10 +1430,10 @@ static void *d3d_create_faux_fullscreen_window_proc(void *arg)
 {
    CREATE_WINDOW_INFO *info = (CREATE_WINDOW_INFO *)arg;
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)info->display;
-   
+
    win_display->window =
       _al_win_create_faux_fullscreen_window(
-         info->dd.DeviceName, 
+         info->dd.DeviceName,
          info->display,
          info->mi.x1,
          info->mi.y1,
@@ -1709,7 +1721,7 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
    ALLEGRO_DISPLAY *al_display = &win_display->display;
 
    memset(d3d_display, 0, sizeof *d3d_display);
-   
+
    win_display->adapter = _al_win_determine_adapter();
 
    /* w/h may be reset below if ALLEGRO_FULLSCREEN_WINDOW is set */
@@ -1996,46 +2008,91 @@ static int d3d_al_blender_to_d3d(int al_mode)
 
 void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
+   bool blender_changed;
    int op, src, dst, alpha_op, alpha_src, alpha_dst;
-   DWORD d3d_op, d3d_alpha_op;
    DWORD allegro_to_d3d_blendop[ALLEGRO_NUM_BLEND_OPERATIONS] = {
       D3DBLENDOP_ADD,
       D3DBLENDOP_SUBTRACT,
       D3DBLENDOP_REVSUBTRACT
    };
 
+   blender_changed = false;
+
    al_get_separate_blender(&op, &src, &dst,
       &alpha_op, &alpha_src, &alpha_dst);
 
-   src = d3d_al_blender_to_d3d(src);
-   dst = d3d_al_blender_to_d3d(dst);
-   alpha_src = d3d_al_blender_to_d3d(alpha_src);
-   alpha_dst = d3d_al_blender_to_d3d(alpha_dst);
-   d3d_op = allegro_to_d3d_blendop[op];
-   d3d_alpha_op = allegro_to_d3d_blendop[alpha_op];
+   if (d3d_display->blender_state_op != op) {
 
-   /* These may not be supported but they will always fall back to ADD
-    * in that case.
-    */
-   d3d_display->device->SetRenderState(D3DRS_BLENDOP, d3d_op);
-   d3d_display->device->SetRenderState(D3DRS_BLENDOPALPHA, d3d_alpha_op);
+      /* These may not be supported but they will always fall back to ADD
+       * in that case.
+       */
+      d3d_display->device->SetRenderState(D3DRS_BLENDOP, allegro_to_d3d_blendop[op]);
+      d3d_display->blender_state_op = op;
 
-   if (d3d_display->device->SetRenderState(D3DRS_SRCBLEND, src) != D3D_OK)
-      ALLEGRO_ERROR("Failed to set source blender\n");
-   if (d3d_display->device->SetRenderState(D3DRS_DESTBLEND, dst) != D3D_OK)
-      ALLEGRO_ERROR("Failed to set dest blender\n");
+      blender_changed = true;
+   }
 
-   if (d3d_display->device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, true) != D3D_OK)
-      ALLEGRO_ERROR("D3DRS_SEPARATEALPHABLENDENABLE failed\n");
-   if (d3d_display->device->SetRenderState(D3DRS_SRCBLENDALPHA, alpha_src) != D3D_OK)
-      ALLEGRO_ERROR("Failed to set source alpha blender\n");
-   if (d3d_display->device->SetRenderState(D3DRS_DESTBLENDALPHA, alpha_dst) != D3D_OK)
-      ALLEGRO_ERROR("Failed to set dest alpha blender\n");
+   if (d3d_display->blender_state_alpha_op != alpha_op) {
 
-   d3d_display->device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+      /* These may not be supported but they will always fall back to ADD
+       * in that case.
+       */
+      d3d_display->device->SetRenderState(D3DRS_BLENDOPALPHA, allegro_to_d3d_blendop[alpha_op]);
+      d3d_display->blender_state_alpha_op = alpha_op;
+
+      blender_changed = true;
+   }
+
+   if (d3d_display->blender_state_src != src) {
+
+      if (d3d_display->device->SetRenderState(D3DRS_SRCBLEND, d3d_al_blender_to_d3d(src)) != D3D_OK)
+         ALLEGRO_ERROR("Failed to set source blender\n");
+      d3d_display->blender_state_src = src;
+
+      blender_changed = true;
+   }
+
+   if (d3d_display->blender_state_dst != dst) {
+
+      if (d3d_display->device->SetRenderState(D3DRS_DESTBLEND, d3d_al_blender_to_d3d(dst)) != D3D_OK)
+         ALLEGRO_ERROR("Failed to set dest blender\n");
+      d3d_display->blender_state_dst = dst;
+
+      blender_changed = true;
+   }
+
+   if (d3d_display->blender_state_alpha_src != alpha_src) {
+
+      if (d3d_display->device->SetRenderState(D3DRS_SRCBLENDALPHA, d3d_al_blender_to_d3d(alpha_src)) != D3D_OK)
+         ALLEGRO_ERROR("Failed to set source alpha blender\n");
+      d3d_display->blender_state_alpha_src = alpha_src;
+
+      blender_changed = true;
+   }
+
+   if (d3d_display->blender_state_alpha_dst != alpha_dst) {
+
+      if (d3d_display->device->SetRenderState(D3DRS_DESTBLENDALPHA, d3d_al_blender_to_d3d(alpha_dst)) != D3D_OK)
+         ALLEGRO_ERROR("Failed to set dest alpha blender\n");
+      d3d_display->blender_state_alpha_dst = alpha_dst;
+
+      blender_changed = true;
+   }
+
+   if (blender_changed) {
+
+      bool enable_separate_blender = (op != alpha_op) || (src != alpha_src) || (dst != alpha_dst);
+
+      if (enable_separate_blender) {
+
+         if (d3d_display->device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, true) != D3D_OK)
+            ALLEGRO_ERROR("D3DRS_SEPARATEALPHABLENDENABLE failed\n");
+      }
+
+      /* thedmd: Why is this function called anyway? */
+      d3d_display->device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+   }
 }
-
-
 
 static void d3d_clear(ALLEGRO_DISPLAY *al_display, ALLEGRO_COLOR *color)
 {
@@ -2183,13 +2240,18 @@ void _al_d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap)
       rect.bottom = bitmap->cb_excl;
    }
 
-   if (rect.left == 0 && rect.top == 0 && rect.right == disp->win_display.display.w && rect.left == disp->win_display.display.h) {
-      disp->device->SetRenderState(D3DRS_SCISSORTESTENABLE, false);
-      return;
-   }
+   if (memcmp(&disp->scissor_state, &rect, sizeof(RECT)) != 0) {
 
-   disp->device->SetRenderState(D3DRS_SCISSORTESTENABLE, true);
-   disp->device->SetScissorRect(&rect);
+      if (rect.left == 0 && rect.top == 0 && rect.right == disp->win_display.display.w && rect.left == disp->win_display.display.h) {
+         disp->device->SetRenderState(D3DRS_SCISSORTESTENABLE, false);
+         return;
+      }
+
+      disp->device->SetRenderState(D3DRS_SCISSORTESTENABLE, true);
+      disp->device->SetScissorRect(&rect);
+
+      disp->scissor_state = rect;
+   }
 }
 
 static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
