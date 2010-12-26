@@ -16,7 +16,6 @@ typedef struct ALLEGRO_FILE_PHYSFS ALLEGRO_FILE_PHYSFS;
 struct ALLEGRO_FILE_PHYSFS
 {
    PHYSFS_file *phys;
-   int pushback;           /* -1 if none */
    bool error_indicator;
 };
 
@@ -83,7 +82,6 @@ void *file_phys_fopen(const char *filename, const char *mode)
    }
 
    fp->phys = phys;
-   fp->pushback = -1;
    fp->error_indicator = false;
 
    return fp;
@@ -106,29 +104,12 @@ static size_t file_phys_fread(ALLEGRO_FILE *f, void *buf, size_t buf_size)
    if (buf_size == 0)
       return 0;
 
-   if (fp->pushback == -1) {
-      n = PHYSFS_read(fp->phys, buf, 1, buf_size);
-      if (n < 0) {
-         phys_set_errno(fp);
-         return 0;
-      }
-      return n;
+   n = PHYSFS_read(fp->phys, buf, 1, buf_size);
+   if (n < 0) {
+      phys_set_errno(fp);
+      return 0;
    }
-   else {
-      unsigned char *cbuf = buf;
-
-      n = PHYSFS_read(fp->phys, cbuf + 1, 1, buf_size - 1);
-      if (n < 0) {
-         phys_set_errno(fp);
-         return 0;
-      }
-
-      /* Now we can pop the pushback byte. */
-      cbuf[0] = fp->pushback;
-      fp->pushback = -1;
-
-      return n + 1;
-   }
+   return n;
 }
 
 
@@ -211,10 +192,7 @@ static bool file_phys_seek(ALLEGRO_FILE *f, int64_t offset, int whence)
       phys_set_errno(fp);
       return false;
    }
-
-   /* Follow fseek() semantics. */
-   fp->pushback = -1;
-
+   
    return true;
 }
 
@@ -245,20 +223,6 @@ static void file_phys_fclearerr(ALLEGRO_FILE *f)
 }
 
 
-static int file_phys_fungetc(ALLEGRO_FILE *f, int c)
-{
-   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
-
-   if (fp->pushback == -1) {
-      fp->pushback = c;
-      return c;
-   }
-
-   phys_set_errno(fp);
-   return EOF;
-}
-
-
 static off_t file_phys_fsize(ALLEGRO_FILE *f)
 {
    ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
@@ -286,7 +250,7 @@ static const ALLEGRO_FILE_INTERFACE file_phys_vtable =
    file_phys_feof,
    file_phys_ferror,
    file_phys_fclearerr,
-   file_phys_fungetc,
+   NULL,  /* ungetc */
    file_phys_fsize
 };
 

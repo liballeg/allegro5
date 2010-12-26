@@ -20,6 +20,7 @@ int main(void)
    char *data;
    int i;
    const int data_size = 1024;
+   char buffer[50];
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -59,6 +60,42 @@ int main(void)
       printf("EOF indicator prematurely set!\n");
       goto Error;
    }
+   
+   /* testing the ungetc buffer */
+   al_fseek(memfile, 0, ALLEGRO_SEEK_SET);
+   
+   for (i = 0; al_fungetc(memfile, i) != EOF; ++i) { }
+   printf("Length of ungetc buffer: %d\n", i);
+   
+   if (al_ftell(memfile) != -i) {
+      printf("Current position is not correct. Expected -%d, but got %d\n",
+         i, (int) al_ftell(memfile));
+      goto Error;
+   }
+   
+   while (i--) {
+      if (i != al_fgetc(memfile)) {
+         printf("Failed to verify ungetc data.\n");
+         goto Error;
+      }
+   }
+   
+   if (al_ftell(memfile) != 0) {
+      printf("Current position is not correct after reading back the ungetc buffer\n");
+      printf("Expected 0, but got %d\n", (int) al_ftell(memfile));
+      goto Error;
+   }
+   
+   al_fputs(memfile, "legro rocks!");
+   al_fseek(memfile, 0, ALLEGRO_SEEK_SET);
+   al_fungetc(memfile, 'l');
+   al_fungetc(memfile, 'A');
+   al_fgets(memfile, buffer, 15);
+   if (strcmp(buffer, "Allegro rocks!")) {
+      printf("Expected to see 'Allegro rocks!' but got '%s' instead.\n", buffer);
+      printf("(Maybe the ungetc buffer isn't big enough.)\n");
+      goto Error;
+   }   
 
    printf("Done.\n");
 
