@@ -593,8 +593,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          break;
       }
       case WM_PAINT: {
-         if ((win_display->display.flags & ALLEGRO_GENERATE_EXPOSE_EVENTS) &&
-                  _al_event_source_needs_to_generate_event(es)) {
+         if (win_display->display.flags & ALLEGRO_GENERATE_EXPOSE_EVENTS) {
             RECT r;
             HRGN hrgn;
             GetWindowRect(win_display->window, &r);
@@ -614,15 +613,17 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                rects = (RECT *)rgndata->Buffer;
                //GetWindowInfo(win_display->window, &wi);
                _al_event_source_lock(es);
-               for (i = 0; i < n; i++) {
+               if (_al_event_source_needs_to_generate_event(es)) {
                   ALLEGRO_EVENT event;
                   event.display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
                   event.display.timestamp = al_get_time();
-                  event.display.x = rects[i].left;
-                  event.display.y = rects[i].top;
-                  event.display.width = rects[i].right - rects[i].left;
-                  event.display.height = rects[i].bottom - rects[i].top;
-                  _al_event_source_emit_event(es, &event);
+                  for (i = 0; i < n; i++) {
+                     event.display.x = rects[i].left;
+                     event.display.y = rects[i].top;
+                     event.display.width = rects[i].right - rects[i].left;
+                     event.display.height = rects[i].bottom - rects[i].top;
+                     _al_event_source_emit_event(es, &event);
+                  }
                }
                _al_event_source_unlock(es);
                al_free(rgndata);
@@ -671,10 +672,11 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             //SetWindowPos(win_display->window, HWND_TOP, 0, 0, 0, 0,
             //   SWP_NOMOVE | SWP_NOSIZE);
             if (d->vt->switch_in)
-            	  d->vt->switch_in(d);
+               d->vt->switch_in(d);
             _al_event_source_lock(es);
             if (_al_event_source_needs_to_generate_event(es)) {
                ALLEGRO_EVENT event;
+               memset(&event, 0, sizeof(event));
                event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
                event.display.timestamp = al_get_time();
                _al_event_source_emit_event(es, &event);
@@ -690,6 +692,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             _al_event_source_lock(es);
             if (_al_event_source_needs_to_generate_event(es)) {
                ALLEGRO_EVENT event;
+               memset(&event, 0, sizeof(event));
                event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
                event.display.timestamp = al_get_time();
                _al_event_source_emit_event(es, &event);
@@ -704,6 +707,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          _al_event_source_lock(es);
          if (_al_event_source_needs_to_generate_event(es)) {
             ALLEGRO_EVENT event;
+            memset(&event, 0, sizeof(event));
             event.display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
             event.display.timestamp = al_get_time();
             _al_event_source_emit_event(es, &event);
