@@ -525,6 +525,11 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
 
    if (post_generate_mipmap) {
       glGenerateMipmap(GL_TEXTURE_2D);
+      e = glGetError();
+      if (e) {
+         ALLEGRO_ERROR("glGenerateMipmap for texture %d failed (%s).\n",
+            ogl_bitmap->texture, error_string(e));
+      }
    }
 
    ogl_bitmap->left = 0;
@@ -866,6 +871,16 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       if (e) {
          ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
             _al_format_name(lock_format), error_string(e));
+      }
+
+      /* If using FBOs, we need to regenerate mipmaps explicitly now. */
+      if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object) {
+         glGenerateMipmap(GL_TEXTURE_2D);
+         e = glGetError();
+         if (e) {
+            ALLEGRO_ERROR("glGenerateMipmap for texture %d failed (%s).\n",
+               ogl_bitmap->texture, error_string(e));
+         }
       }
    }
 #else /* ALLEGRO_GP2XWIZ or ALLEGRO_IPHONE */
