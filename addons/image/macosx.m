@@ -94,7 +94,7 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
    bmp = al_create_bitmap(w, h);
    if (bmp) {
       ALLEGRO_LOCKED_REGION *lock = al_lock_bitmap(bmp,
-            ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_WRITEONLY);
+            ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
       int i;
       if (!premul) {
          int x;
