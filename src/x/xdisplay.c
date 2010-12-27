@@ -247,6 +247,11 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       return NULL;
    }
 
+   if (w <= 0 || h <= 0) {
+      ALLEGRO_ERROR("Invalid window size %dx%d\n", w, h);
+      return NULL;
+   }
+
    _al_mutex_lock(&system->lock);
 
    if (adapter >= ScreenCount(system->x11display)) {
