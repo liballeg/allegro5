@@ -295,19 +295,13 @@ static void postpone_thread_proc(void *arg)
             event.display.height = h;
             event.display.source = display;
             _al_event_source_emit_event(es, &event);
-         }
 
-         /* Generate an expose event. */
-         if (_al_event_source_needs_to_generate_event(es)) {
-            ALLEGRO_EVENT event;
-            event.display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
-            event.display.timestamp = al_get_time();
-            event.display.x = x;
-            event.display.y = y;
-            event.display.width = w;
-            event.display.height = h;
-            event.display.source = display;
-            _al_event_source_emit_event(es, &event);
+            /* Generate an expose event. */
+            /* This seems a bit redundant after a resize. */
+            if (win_display->display.flags & ALLEGRO_GENERATE_EXPOSE_EVENTS) {
+               event.display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
+               _al_event_source_emit_event(es, &event);
+            }
          }
          _al_event_source_unlock(es);
       }
