@@ -25,6 +25,7 @@
 #include <allegro5/allegro.h>
 #include <process.h>
 
+#include "allegro5/allegro_direct3d.h"
 #include "allegro5/allegro_windows.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
@@ -257,15 +258,53 @@ void _al_win_grab_input(ALLEGRO_DISPLAY_WIN *win_disp)
                              win_disp);
 }
 
+/* Generate a resize event if the size has changed. We cannot asynchronously
+ * change the display size here yet, since the user will only know about a
+ * changed size after receiving the resize event. Here we merely add the
+ * event to the queue.
+ */
+static void win_generate_resize_event(ALLEGRO_DISPLAY_WIN *win_display)
+{
+   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)win_display;
+   ALLEGRO_EVENT_SOURCE *es = &display->es;
+   WINDOWINFO wi;
+   int x, y, w, h;
+
+   wi.cbSize = sizeof(WINDOWINFO);
+   GetWindowInfo(win_display->window, &wi);
+   x = wi.rcClient.left;
+   y = wi.rcClient.top;
+   w = wi.rcClient.right - wi.rcClient.left;
+   h = wi.rcClient.bottom - wi.rcClient.top;
+
+   if (display->w != w || display->h != h) {
+      _al_event_source_lock(es);
+      if (_al_event_source_needs_to_generate_event(es)) {
+         ALLEGRO_EVENT event;
+         event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
+         event.display.timestamp = al_get_time();
+         event.display.x = x;
+         event.display.y = y;
+         event.display.width = w;
+         event.display.height = h;
+         event.display.source = display;
+         _al_event_source_emit_event(es, &event);
+
+         /* Generate an expose event. */
+         /* This seems a bit redundant after a resize. */
+         if (win_display->display.flags & ALLEGRO_GENERATE_EXPOSE_EVENTS) {
+            event.display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
+            _al_event_source_emit_event(es, &event);
+         }
+      }
+      _al_event_source_unlock(es);
+   }
+}
+
 static void postpone_thread_proc(void *arg)
 {
    ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)arg;
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
-   WINDOWINFO wi;
-   int x, y, w, h;
-   ALLEGRO_EVENT_SOURCE *es = &display->es;
-
-   wi.cbSize = sizeof(WINDOWINFO);
 
    Sleep(50);
 
@@ -273,38 +312,7 @@ static void postpone_thread_proc(void *arg)
       win_display->ignore_resize = false;
    }
    else {
-      /* Generate a resize event if the size has changed. We cannot asynchronously
-       * change the display size here yet, since the user will only know about a
-       * changed size after receiving the resize event. Here we merely add the
-       * event to the queue.
-       */
-      GetWindowInfo(win_display->window, &wi);
-      x = wi.rcClient.left;
-      y = wi.rcClient.top;
-      w = wi.rcClient.right - wi.rcClient.left;
-      h = wi.rcClient.bottom - wi.rcClient.top;
-      if (display->w != w || display->h != h) {
-         _al_event_source_lock(es);
-         if (_al_event_source_needs_to_generate_event(es)) {
-            ALLEGRO_EVENT event;
-            event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
-            event.display.timestamp = al_get_time();
-            event.display.x = x;
-            event.display.y = y;
-            event.display.width = w;
-            event.display.height = h;
-            event.display.source = display;
-            _al_event_source_emit_event(es, &event);
-
-            /* Generate an expose event. */
-            /* This seems a bit redundant after a resize. */
-            if (win_display->display.flags & ALLEGRO_GENERATE_EXPOSE_EVENTS) {
-               event.display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
-               _al_event_source_emit_event(es, &event);
-            }
-         }
-         _al_event_source_unlock(es);
-      }
+      win_generate_resize_event(win_display);
    }
 
    resize_postponed = false;
@@ -719,6 +727,26 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             }
          }
          return 0;
+      case WM_ENTERSIZEMOVE:
+         /* DefWindowProc for WM_ENTERSIZEMOVE enters a modal loop, which also
+          * ends up blocking the loop in d3d_display_thread_proc (which is
+          * where we are called from, if using D3D).  Rather than batching up
+          * intermediate resize events which the user cannot acknowledge in the
+          * meantime anyway, make it so only a single resize event is generated
+          * at WM_EXITSIZEMOVE.
+          */
+         if (d->flags & ALLEGRO_DIRECT3D) {
+            resize_postponed = true;
+         }
+         break;
+      case WM_EXITSIZEMOVE:
+         if (resize_postponed) {
+            win_generate_resize_event(d);
+            win_display->ignore_resize = false;
+            resize_postponed = false;
+            win_display->can_acknowledge = true;
+         }
+         break;
    } 
 
    return DefWindowProc(hWnd,message,wParam,lParam); 
