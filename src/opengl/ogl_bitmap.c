@@ -434,7 +434,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
    }
 
    if (bitmap->flags & ALLEGRO_MIPMAP) {
-      /* If using FBOs, use glGenerateMipmap instead of the GL_GENERATE_MIPMAP
+      /* If using FBOs, use glGenerateMipmapEXT instead of the GL_GENERATE_MIPMAP
        * texture parameter.  GL_GENERATE_MIPMAP is deprecated in GL 3.0 so we
        * may want to use the new method in other cases as well.
        */
@@ -524,10 +524,10 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
 #endif
 
    if (post_generate_mipmap) {
-      glGenerateMipmap(GL_TEXTURE_2D);
+      glGenerateMipmapEXT(GL_TEXTURE_2D);
       e = glGetError();
       if (e) {
-         ALLEGRO_ERROR("glGenerateMipmap for texture %d failed (%s).\n",
+         ALLEGRO_ERROR("glGenerateMipmapEXT for texture %d failed (%s).\n",
             ogl_bitmap->texture, error_string(e));
       }
    }
@@ -875,10 +875,10 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 
       /* If using FBOs, we need to regenerate mipmaps explicitly now. */
       if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object) {
-         glGenerateMipmap(GL_TEXTURE_2D);
+         glGenerateMipmapEXT(GL_TEXTURE_2D);
          e = glGetError();
          if (e) {
-            ALLEGRO_ERROR("glGenerateMipmap for texture %d failed (%s).\n",
+            ALLEGRO_ERROR("glGenerateMipmapEXT for texture %d failed (%s).\n",
                ogl_bitmap->texture, error_string(e));
          }
       }
