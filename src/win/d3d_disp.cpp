@@ -1645,6 +1645,7 @@ static void *d3d_display_thread_proc(void *arg)
             _al_event_source_lock(&al_display->es);
             if (_al_event_source_needs_to_generate_event(&al_display->es)) {
                ALLEGRO_EVENT event;
+               memset(&event, 0, sizeof(event));
                event.display.type = ALLEGRO_EVENT_DISPLAY_LOST;
                event.display.timestamp = al_get_time();
                _al_event_source_emit_event(&al_display->es, &event);
@@ -1663,6 +1664,7 @@ static void *d3d_display_thread_proc(void *arg)
             _al_event_source_lock(&al_display->es);
             if (_al_event_source_needs_to_generate_event(&al_display->es)) {
                ALLEGRO_EVENT event;
+               memset(&event, 0, sizeof(event));
                event.display.type = ALLEGRO_EVENT_DISPLAY_FOUND;
                event.display.timestamp = al_get_time();
                _al_event_source_emit_event(&al_display->es, &event);
