@@ -409,11 +409,18 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f)
                   int true_x = (left_to_right) ? i : (image_width - 1 - i);
                   unsigned char *dest = (unsigned char *)lr->data +
                      lr->pitch*true_y + true_x*4;
+
+#ifdef ALLEGRO_BIG_ENDIAN
+                  int a = buf[i * 4 + 0];
+                  int r = buf[i * 4 + 1];
+                  int g = buf[i * 4 + 2];
+                  int b = buf[i * 4 + 3];
+#else					 
                   int b = buf[i * 4 + 0];
                   int g = buf[i * 4 + 1];
                   int r = buf[i * 4 + 2];
                   int a = buf[i * 4 + 3];
-                  
+#endif                  
                   if (premul) {
                      r = r * a / 255;
                      g = g * a / 255;
