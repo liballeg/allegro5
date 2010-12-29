@@ -12,6 +12,7 @@ set(OUR_LIBS "${ALLEGRO_LINK_WITH}")
 if(WANT_OPENGL)
     list(APPEND SHADER_SOURCES shader_glsl.c)
     list(APPEND SHADER_INCLUDE_FILES allegro5/allegro_shader_glsl.h)
+    set_our_header_properties(allegro5/allegro_shader_glsl.h)
     set(OUR_DEFINES "${OUR_DEFINES} -DALLEGRO_CFG_WANT_GLSL_SHADERS")
 endif(WANT_OPENGL)
 
