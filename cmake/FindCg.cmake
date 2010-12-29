@@ -9,6 +9,7 @@
 # CG_INCLUDE_PATH = directory where cg.h resides
 # CG_LIBRARY = full path to libCg.so (Cg.DLL on win32)
 # CG_GL_LIBRARY = full path to libCgGL.so (CgGL.dll on win32)
+# CG_D3D9_LIBRARY = full path to cgD3D9.dll
 # CG_COMPILER = full path to cgc (cgc.exe on win32)
 # 
 
@@ -33,6 +34,7 @@ IF (APPLE)
 	# Note, we use weak linking, so that it works even when Cg is not available.
     SET(CG_LIBRARY "-weak_framework Cg" CACHE STRING "Cg library")
     SET(CG_GL_LIBRARY "-weak_framework Cg" CACHE STRING "Cg GL library")
+    SET(CG_D3D9_LIBRARY "-weak_framework Cg" CACHE STRING "Cg D3D9 library")
   ENDIF (Cg_FRAMEWORKS)
   FIND_PROGRAM(CG_COMPILER cgc
     /usr/bin
@@ -83,7 +85,17 @@ ELSE (APPLE)
       ${PROJECT_SOURCE_DIR}/../Cg
       ${CG_COMPILER_SUPER_DIR}/lib
       ${CG_COMPILER_DIR}
-      DOC "The Cg runtime library"
+      DOC "The Cg GL runtime library"
+      )
+    FIND_LIBRARY( CG_D3D9_LIBRARY
+      NAMES cgD3D9
+      PATHS
+      $ENV{PROGRAMFILES}/NVIDIA\ Corporation/Cg/lib
+      $ENV{PROGRAMFILES}/Cg
+      ${PROJECT_SOURCE_DIR}/../Cg
+      ${CG_COMPILER_SUPER_DIR}/lib
+      ${CG_COMPILER_DIR}
+      DOC "The Cg D3D9 runtime library"
       )
   ELSE (WIN32)
     FIND_PROGRAM( CG_COMPILER cgc

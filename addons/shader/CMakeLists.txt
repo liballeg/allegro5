@@ -34,6 +34,11 @@ if(CG_FOUND)
     if(WANT_OPENGL)
         set(OUR_LIBS "${CG_GL_LIBRARY};${OUR_LIBS}")
     endif(WANT_OPENGL)
+    if(WANT_D3D)
+        set(OUR_LIBS "${CG_D3D9_LIBRARY};${OUR_LIBS}")
+    endif(WANT_D3D)
+
+    include_directories(${CG_INCLUDE_PATH})
 
     foreach(arg ${CG_CFLAGS})
         set(CG_CFLAGS_STRING "${CG_CFLAGS_STRING} ${arg}")
