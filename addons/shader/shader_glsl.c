@@ -1,6 +1,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/allegro_shader.h"
+#include "allegro5/allegro_shader_glsl.h"
 #include "allegro5/internal/aintern_shader_glsl.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"

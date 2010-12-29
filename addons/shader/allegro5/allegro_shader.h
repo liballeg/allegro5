@@ -1,8 +1,6 @@
 #ifndef _ALLEGRO_SHADER_H
 #define _ALLEGRO_SHADER_H
 
-#include "allegro5/internal/aintern_shader_cfg.h"
-
 struct ALLEGRO_SHADER;
 
 typedef struct ALLEGRO_SHADER ALLEGRO_SHADER;
@@ -48,11 +46,6 @@ bool al_set_shader_float_vector(ALLEGRO_SHADER *shader, const char *name,
 bool al_set_shader_vertex_array(ALLEGRO_SHADER *shader, float *v, int stride);
 bool al_set_shader_color_array(ALLEGRO_SHADER *shader, unsigned char *c, int stride);
 bool al_set_shader_texcoord_array(ALLEGRO_SHADER *shader, float *u, int stride);
-
-#ifdef ALLEGRO_CFG_OPENGL
-#include <allegro5/allegro_opengl.h>
-GLuint al_get_opengl_program_object(ALLEGRO_SHADER *shader);
-#endif
 
 #ifdef __cplusplus
 }

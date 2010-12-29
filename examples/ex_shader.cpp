@@ -10,6 +10,7 @@
    //#define GLSL
 #else
    #define GLSL
+   #include "allegro5/allegro_shader_glsl.h"
 #endif
 
 /*
