@@ -527,7 +527,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
    ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
 
-   ALLEGRO_DEBUG("xdpy: destroy display.\n");
+   ALLEGRO_DEBUG("destroy display.\n");
 
    /* If we're the last display, convert all bitmpas to display independent
     * (memory) bitmaps. */
@@ -560,29 +560,46 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    }
 
    _al_ogl_unmanage_extensions(d);
-   ALLEGRO_DEBUG("xdpy: unmanaged extensions.\n");
+   ALLEGRO_DEBUG("unmanaged extensions.\n");
 
    _al_mutex_lock(&s->lock);
    _al_vector_find_and_delete(&s->system.displays, &d);
    XDestroyWindow(s->x11display, glx->window);
 
-   ALLEGRO_DEBUG("xdpy: destroy window.\n");
+   ALLEGRO_DEBUG("destroy window.\n");
 
    if (d->flags & ALLEGRO_FULLSCREEN) {
-      ALLEGRO_DEBUG("xfullscreen: restore modes.\n");
-      _al_xglx_restore_video_mode(s, glx->xscreen);
+      size_t i;
+      ALLEGRO_DISPLAY **living = NULL;
+      bool last_fullscreen = true;
+      /* If any other fullscreen display is still active, we must
+       * not touch the video mode.
+       */
+      for (i = 0; i < s->system.displays._size; i++) {
+         living = _al_vector_ref(&s->system.displays, i);
+         if (*living == d) continue;
+         if (al_get_display_flags(*living) & ALLEGRO_FULLSCREEN)
+            last_fullscreen = false;
+      }
+      if (last_fullscreen) {
+         ALLEGRO_DEBUG("restore modes.\n");
+         _al_xglx_restore_video_mode(s, glx->xscreen);
+      }
+      else {
+         ALLEGRO_DEBUG("*not* restoring modes.\n");
+      }
    }
 
    if (ogl->backbuffer) {
       _al_ogl_destroy_backbuffer(ogl->backbuffer);
       ogl->backbuffer = NULL;
-      ALLEGRO_DEBUG("xdpy: destroy backbuffer.\n");
+      ALLEGRO_DEBUG("destroy backbuffer.\n");
    }
 
    if (glx->context) {
       glXDestroyContext(s->gfxdisplay, glx->context);
       glx->context = NULL;
-      ALLEGRO_DEBUG("xdpy: destroy context.\n");
+      ALLEGRO_DEBUG("destroy context.\n");
    }
 
    /* XXX quick pre-release hack */
@@ -611,7 +628,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
 
    _al_mutex_unlock(&s->lock);
 
-   ALLEGRO_DEBUG("xdpy: destroy display finished.\n");
+   ALLEGRO_DEBUG("destroy display finished.\n");
 }
 
 
