@@ -1,10 +1,4 @@
-/* Test retrieving and settings possible modes.
- * 
- * FIXME: I can't test fullscreen support - I only get a single mode
- *        listed which does not work. Most likely the format parameter
- *        should be used somehow.
- * 
- */
+/* Test retrieving and settings possible modes. */
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
@@ -20,6 +14,9 @@ int modes_count;
 int options_count;
 char status[256];
 int flags, old_flags;
+
+int visible_rows;
+int first_visible_row;
 
 int selected_column;
 int selected_mode;
@@ -88,10 +85,17 @@ static void display_options(ALLEGRO_DISPLAY *display)
    c = al_map_rgb_f(0.8, 0.8, 1);
    al_draw_textf(font, c, x, y, 0, "Create new display");
    y += font_h;
-   for (i = 0; i < modes_count + 1; i++) {
+   for (i = first_visible_row; i < modes_count + 2 &&
+      i < first_visible_row + visible_rows; i++) {
       ALLEGRO_DISPLAY_MODE mode;
-      if (i < modes_count) {
-         al_get_display_mode(i, &mode);
+      if (i > 1) {
+         al_get_display_mode(i - 2, &mode);
+      }
+      else if (i == 1) {
+         mode.width = 800;
+         mode.height = 600;
+         mode.format = 0;
+         mode.refresh_rate = 0;
       }
       else {
          mode.width = 800;
@@ -106,13 +110,20 @@ static void display_options(ALLEGRO_DISPLAY *display)
       }
       c = al_map_rgb_f(0, 0, 0);
       al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
-      al_draw_textf(font, c, x, y, 0, "%s %d x %d (%d, %d)",
-         i < modes_count ? "Fullscreen" : "Windowed",
-         mode.width,
-         mode.height, mode.format, mode.refresh_rate);
+      if ((i == first_visible_row && i > 0) ||
+            (i == first_visible_row + visible_rows - 1 &&
+            i < modes_count + 1)) {
+         al_draw_textf(font, c, x, y, 0, "...");
+      }
+      else {
+         al_draw_textf(font, c, x, y, 0, "%s %d x %d (%d, %d)",
+            i > 1 ? "Fullscreen" : i == 0 ? "Windowed" : "FS Window",
+            mode.width,
+            mode.height, mode.format, mode.refresh_rate);
+      }
       y += font_h;
    }
-   
+
    x = dw / 2 + 10;
    y = 10;
    c = al_map_rgb_f(0.8, 0.8, 1);
@@ -167,6 +178,12 @@ static void display_options(ALLEGRO_DISPLAY *display)
    al_draw_text(font, c, dw / 2, dh - font_h, ALLEGRO_ALIGN_CENTRE, status);
 }
 
+static void update_ui(void)
+{
+   int h = al_get_display_height(al_get_current_display());
+   visible_rows = h / font_h - 10;
+}
+
 int main(void)
 {
    ALLEGRO_DISPLAY *display;
@@ -207,6 +224,9 @@ int main(void)
    options_count = sizeof(options) / sizeof(options[0]);
    n = 0;
    font_h = al_get_font_line_height(font);
+   
+   update_ui();
+   
    al_clear_to_color(al_map_rgb_f(1, 1, 1));
    display_options(display);
    al_flip_display();
@@ -281,19 +301,29 @@ int main(void)
              if (selected_column == 0) {
                 ALLEGRO_DISPLAY_MODE mode;
                 ALLEGRO_DISPLAY *new_display;
-                if (selected_mode < modes_count)
-                    al_get_display_mode(selected_mode, &mode);
+                if (selected_mode > 1) {
+                    al_get_display_mode(selected_mode - 2, &mode);
+                    al_set_new_display_flags(ALLEGRO_FULLSCREEN);
+                }
+                else if (selected_mode == 1) {
+                    mode.width = 800;
+                    mode.height = 600;
+                    al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+                }
                 else {
                     mode.width = 800;
                     mode.height = 600;
+                    al_set_new_display_flags(ALLEGRO_WINDOWED);
                 }
-                printf("al_create_display\n");
+
                 new_display = al_create_display(
                    mode.width, mode.height);
                 if (new_display) {
                    al_destroy_display(display);
                    display = new_display;
-                   al_register_event_source(queue, al_get_display_event_source(display));
+                   al_register_event_source(queue,
+                     al_get_display_event_source(display));
+                   update_ui();
                    sprintf(status, "Display creation succeeded.");
                 }
                 else {
@@ -303,7 +333,8 @@ int main(void)
              if (selected_column == 1) {
                  options[selected_option].required += 1;
                  options[selected_option].required %= 3;
-                 al_set_new_display_option(options[selected_option].option,
+                 al_set_new_display_option(
+                    options[selected_option].option,
                     options[selected_option].value,
                     options[selected_option].required);
              }
@@ -316,8 +347,10 @@ int main(void)
             options[selected_option].value += change;
             if (options[selected_option].value < 0)
                options[selected_option].value = 0;
-            if (options[selected_option].value > options[selected_option].max_value)
-               options[selected_option].value = options[selected_option].max_value;
+            if (options[selected_option].value >
+               options[selected_option].max_value)
+               options[selected_option].value =
+                  options[selected_option].max_value;
             al_set_new_display_option(options[selected_option].option,
                options[selected_option].value,
                options[selected_option].required);
@@ -326,9 +359,15 @@ int main(void)
       }
       
       if (selected_mode < 0) selected_mode = 0;
-      if (selected_mode > modes_count) selected_mode = modes_count;
+      if (selected_mode > modes_count + 1)
+         selected_mode = modes_count + 1;
       if (selected_option < 0) selected_option = 0;
-      if (selected_option >= options_count) selected_option = options_count - 1;
+      if (selected_option >= options_count)
+         selected_option = options_count - 1;
+      if (selected_mode < first_visible_row)
+         first_visible_row = selected_mode;
+      if (selected_mode > first_visible_row + visible_rows - 1)
+         first_visible_row = selected_mode - visible_rows + 1;
 
       if (redraw && al_is_event_queue_empty(queue)) {
          redraw = false;
