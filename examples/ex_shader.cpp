@@ -5,13 +5,12 @@
 #include "allegro5/allegro_opengl.h"
 #include <cstdio>
 
-#if defined ALLEGRO_WINDOWS
-   #define HLSL
-   //#define GLSL
-#else
-   #define GLSL
-   #include "allegro5/allegro_shader_glsl.h"
-#endif
+// FIXME: supported drivers should go in alplatf.h
+// Uncomment one of these three blocks depending what driver you want
+//#define HLSL
+
+#define GLSL
+#include "allegro5/allegro_shader_glsl.h"
 
 /*
 #include <Cg/cg.h>
@@ -36,6 +35,12 @@
 #define vsource_name cg_vertex_source
 #define psource_name cg_pixel_source
 #define PLATFORM ALLEGRO_SHADER_CG
+#endif
+
+#ifdef GLSL
+#define EX_SHADER_FLAGS | ALLEGRO_OPENGL
+#else
+#define EX_SHADER_FLAGS
 #endif
 
 #ifdef CG	
@@ -144,7 +149,7 @@ static const char *glsl_pixel_source =
    "}\n";
 #endif
 
-#if defined ALLEGRO_WINDOWS && !defined CG
+#if defined HLSL && !defined CG
 #include <allegro5/allegro_direct3d.h>
 #include <d3d9.h>
 #include <d3dx9.h>
@@ -183,7 +188,7 @@ int main(int argc, char **argv)
    al_install_keyboard();
    al_init_image_addon();
 
-   al_set_new_display_flags(ALLEGRO_USE_PROGRAMMABLE_PIPELINE);
+   al_set_new_display_flags(ALLEGRO_USE_PROGRAMMABLE_PIPELINE EX_SHADER_FLAGS);
 
    display = al_create_display(640, 480);
    bmp = al_load_bitmap("data/mysha.pcx");
@@ -293,7 +298,7 @@ int main(int argc, char **argv)
       al_use_shader(shader, true);
       if (al_get_display_flags(display) & ALLEGRO_OPENGL)
       	drawGL(v, 0, 6);
-      #if defined ALLEGRO_WINDOWS && !defined CG
+      #if defined HLSL && !defined CG
       else
          drawD3D(v, 0, 6);
       #endif
@@ -304,7 +309,7 @@ int main(int argc, char **argv)
       al_use_shader(shader, true);
       if (al_get_display_flags(display) & ALLEGRO_OPENGL)
       	drawGL(v, 6, 6);
-      #if defined ALLEGRO_WINDOWS && !defined CG
+      #if defined HLSL && !defined CG
       else
          drawD3D(v, 6, 6);
       #endif
@@ -315,7 +320,7 @@ int main(int argc, char **argv)
       al_use_shader(shader, true);
       if (al_get_display_flags(display) & ALLEGRO_OPENGL)
       	drawGL(v, 12, 6);
-      #if defined ALLEGRO_WINDOWS && !defined CG
+      #if defined HLSL && !defined CG
       else
          drawD3D(v, 12, 6);
       #endif
@@ -334,7 +339,7 @@ int main(int argc, char **argv)
       al_use_shader(shader, true);
       if (al_get_display_flags(display) & ALLEGRO_OPENGL)
       	drawGL(v, 18, 6);
-      #if defined ALLEGRO_WINDOWS && !defined CG
+      #if defined HLSL && !defined CG
       else
          drawD3D(v, 18, 6);
       #endif

@@ -3,7 +3,7 @@
 #include "allegro5/internal/aintern_shader.h"
 #include "shader_glsl.h"
 
-#ifdef ALLEGRO_WINDOWS
+#ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
 #include "shader_hlsl.h"
 #endif
 #ifdef ALLEGRO_CFG_WANT_CG_SHADERS
@@ -13,7 +13,7 @@
 
 ALLEGRO_DEBUG_CHANNEL("shader")
 
-#ifdef ALLEGRO_WINDOWS
+#ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
 #define USING_OPENGL() (al_get_display_flags(al_get_current_display()) & ALLEGRO_OPENGL)
 #else
 #define USING_OPENGL() true
@@ -52,7 +52,7 @@ ALLEGRO_SHADER *al_create_shader(ALLEGRO_SHADER_PLATFORM platform)
       shader->platform = platform;
       return shader;
    }
-#ifdef ALLEGRO_WINDOWS
+#ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
    shader = _al_create_shader_hlsl(platform);
    shader->platform = platform;
 #endif
@@ -65,7 +65,7 @@ bool al_link_shader(ALLEGRO_SHADER *shader)
 {
    if (!(shader->platform & ALLEGRO_SHADER_CG) && (shader->platform & ALLEGRO_SHADER_GLSL))
       return _al_link_shader_glsl(shader);
-#ifdef ALLEGRO_WINDOWS
+#ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
    else if (shader->platform & ALLEGRO_SHADER_HLSL)
       return _al_link_shader_hlsl(shader); // does nothing
 #endif
@@ -93,7 +93,7 @@ bool al_attach_shader_source(
       ret = _al_attach_shader_source_cg(shader, type, source); 
    }
 #endif
-#ifdef ALLEGRO_WINDOWS
+#ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
    else if (shader->platform & ALLEGRO_SHADER_HLSL) {
       ret = _al_attach_shader_source_hlsl(shader, type, source); 
    }
@@ -112,7 +112,7 @@ void al_use_shader(ALLEGRO_SHADER *shader, bool use)
       _al_use_shader_cg(shader, use);
    }
 #endif
-#ifdef ALLEGRO_WINDOWS
+#ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
    else if (shader->platform & ALLEGRO_SHADER_HLSL) {
       _al_use_shader_hlsl(shader, use);
    }
@@ -134,7 +134,7 @@ void al_destroy_shader(ALLEGRO_SHADER *shader)
       _al_destroy_shader_cg(shader);
    }
 #endif
-#ifdef ALLEGRO_WINDOWS
+#ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
    else if (shader->platform & ALLEGRO_SHADER_HLSL) {
       _al_destroy_shader_hlsl(shader);
    }
@@ -151,7 +151,7 @@ bool al_set_shader_sampler(ALLEGRO_SHADER *shader, const char *name,
       return _al_set_shader_sampler_cg(shader, name, bitmap, unit);
    }
 #endif
-#ifdef ALLEGRO_WINDOWS
+#ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
    else if (shader->platform & ALLEGRO_SHADER_HLSL)
       return _al_set_shader_sampler_hlsl(shader, name, bitmap, unit);
 #endif
@@ -169,7 +169,7 @@ bool al_set_shader_matrix(ALLEGRO_SHADER *shader, const char *name,
       return _al_set_shader_matrix_cg(shader, name, matrix);
    }
 #endif
-#ifdef ALLEGRO_WINDOWS
+#ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
    else if (shader->platform & ALLEGRO_SHADER_HLSL)
       return _al_set_shader_matrix_hlsl(shader, name, matrix);
 #endif
@@ -186,7 +186,7 @@ bool al_set_shader_int(ALLEGRO_SHADER *shader, const char *name, int i)
       return _al_set_shader_int_cg(shader, name, i);
    }
 #endif
-#ifdef ALLEGRO_WINDOWS
+#ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
    else if (shader->platform & ALLEGRO_SHADER_HLSL)
       return _al_set_shader_int_hlsl(shader, name, i);
 #endif
@@ -203,7 +203,7 @@ bool al_set_shader_float(ALLEGRO_SHADER *shader, const char *name, float f)
       return _al_set_shader_float_cg(shader, name, f);
    }
 #endif
-#ifdef ALLEGRO_WINDOWS
+#ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
    else if (shader->platform & ALLEGRO_SHADER_HLSL)
       return _al_set_shader_float_hlsl(shader, name, f);
 #endif
@@ -221,7 +221,7 @@ bool al_set_shader_int_vector(ALLEGRO_SHADER *shader, const char *name,
       return _al_set_shader_int_vector_cg(shader, name, size, i);
    }
 #endif
-#ifdef ALLEGRO_WINDOWS
+#ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
    else if (shader->platform & ALLEGRO_SHADER_HLSL)
       return _al_set_shader_int_vector_hlsl(shader, name, size, i);
 #endif
@@ -239,7 +239,7 @@ bool al_set_shader_float_vector(ALLEGRO_SHADER *shader, const char *name,
       return _al_set_shader_float_vector_cg(shader, name, size, f);
    }
 #endif
-#ifdef ALLEGRO_WINDOWS
+#ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
    else if (shader->platform & ALLEGRO_SHADER_HLSL)
       return _al_set_shader_float_vector_hlsl(shader, name, size, f);
 #endif
@@ -256,7 +256,7 @@ bool al_set_shader_vertex_array(ALLEGRO_SHADER *shader, float *v, int stride)
       return _al_set_shader_vertex_array_cg(shader, v, stride);
    }
 #endif
-#ifdef ALLEGRO_WINDOWS
+#ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
    else if (shader->platform & ALLEGRO_SHADER_HLSL)
       return _al_set_shader_vertex_array_hlsl(shader, v, stride);
 #endif
@@ -273,7 +273,7 @@ bool al_set_shader_color_array(ALLEGRO_SHADER *shader, unsigned char *c, int str
       return _al_set_shader_color_array_cg(shader, c, stride);
    }
 #endif
-#ifdef ALLEGRO_WINDOWS
+#ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
    else if (shader->platform & ALLEGRO_SHADER_HLSL)
       return _al_set_shader_color_array_hlsl(shader, c, stride);
 #endif
@@ -290,7 +290,7 @@ bool al_set_shader_texcoord_array(ALLEGRO_SHADER *shader, float *u, int stride)
       return _al_set_shader_texcoord_array_cg(shader, u, stride);
    }
 #endif
-#ifdef ALLEGRO_WINDOWS
+#ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
    else if (shader->platform & ALLEGRO_SHADER_HLSL)
       return _al_set_shader_texcoord_array_hlsl(shader, u, stride);
 #endif
