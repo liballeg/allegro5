@@ -25,6 +25,7 @@ set(A4_FONT ${CMAKE_CURRENT_BINARY_DIR}/a4_font.tga)
 
 if(NOT SUPPORT_AUDIO OR NOT SUPPORT_PRIMITIVES OR NOT SUPPORT_FONT)
     message(STATUS "Not building SPEED")
+    return()
 endif()
 
 if(COMPILER_GCC)
