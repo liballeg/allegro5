@@ -175,9 +175,9 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 		CGPoint p = [touch locationInView:self];
       p.x *= _al_iphone_get_screen_scale();
       p.y *= _al_iphone_get_screen_scale();
-        _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_UP,
-                                        p.x, p.y, 1, allegro_display);
         _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
+                                        p.x, p.y, 1, allegro_display);
+        _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_UP,
                                         p.x, p.y, 1, allegro_display);
 	}
 }
