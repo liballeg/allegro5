@@ -60,7 +60,8 @@ AL_PRINTFUNC(void, _al_trace_suffix, (const char *msg, ...), 1, 2);
 #define ALLEGRO_ASSERT_CONCAT_(a, b)   a##b
 #define ALLEGRO_ASSERT_CONCAT(a, b)    ALLEGRO_ASSERT_CONCAT_(a, b)
 #define ALLEGRO_STATIC_ASSERT(e) \
-   enum { ALLEGRO_ASSERT_CONCAT(static_assert_line_, __LINE__) = 1/!!(e) }
+   struct ALLEGRO_ASSERT_CONCAT(static_assert_line_, __LINE__) \
+      { unsigned int bf : !!(e); }
 
 /* We are lazy and use just ASSERT while Allegro itself is compiled. */
 #ifdef ALLEGRO_LIB_BUILD
