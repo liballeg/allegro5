@@ -30,6 +30,10 @@
 #include "allegro5/internal/aintern_gp2xwiz.h"
 #endif
 
+#ifdef ALLEGRO_IPHONE
+#define glGenerateMipmapEXT glGenerateMipmapOES
+#endif
+
 ALLEGRO_DEBUG_CHANNEL("opengl")
 
 /* OpenGL does not support "locking", i.e. direct access to a memory
@@ -870,13 +874,15 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             _al_format_name(lock_format), error_string(e));
       }
 
-      /* If using FBOs, we need to regenerate mipmaps explicitly now. */
-      if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object) {
-         glGenerateMipmapEXT(GL_TEXTURE_2D);
-         e = glGetError();
-         if (e) {
-            ALLEGRO_ERROR("glGenerateMipmapEXT for texture %d failed (%s).\n",
-               ogl_bitmap->texture, error_string(e));
+      if (bitmap->flags & ALLEGRO_MIPMAP) {
+         /* If using FBOs, we need to regenerate mipmaps explicitly now. */
+         if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object) {
+            glGenerateMipmapEXT(GL_TEXTURE_2D);
+            e = glGetError();
+            if (e) {
+               ALLEGRO_ERROR("glGenerateMipmapEXT for texture %d failed (%s).\n",
+                  ogl_bitmap->texture, error_string(e));
+            }
          }
       }
    }
