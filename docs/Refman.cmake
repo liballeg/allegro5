@@ -408,9 +408,9 @@ if(MAKE_PDF)
         DEPENDS ${LATEX_DIR}/refman.tex
         DEPENDS ${PDF_IMAGES}
         # Repeat three times to get cross references correct.
-        COMMAND "${CMAKE_COMMAND}" -E chdir ${LATEX_DIR} ${PDFLATEX_COMPILER} -output-directory ${PDF_DIR} ${LATEX_DIR}/refman.tex
-        COMMAND "${CMAKE_COMMAND}" -E chdir ${LATEX_DIR} ${PDFLATEX_COMPILER} -output-directory ${PDF_DIR} ${LATEX_DIR}/refman.tex
-        COMMAND "${CMAKE_COMMAND}" -E chdir ${LATEX_DIR} ${PDFLATEX_COMPILER} -output-directory ${PDF_DIR} ${LATEX_DIR}/refman.tex
+        COMMAND "${CMAKE_COMMAND}" -E chdir ${LATEX_DIR} ${PDFLATEX_COMPILER} -interaction batchmode -output-directory ${PDF_DIR} ${LATEX_DIR}/refman.tex
+        COMMAND "${CMAKE_COMMAND}" -E chdir ${LATEX_DIR} ${PDFLATEX_COMPILER} -interaction batchmode -output-directory ${PDF_DIR} ${LATEX_DIR}/refman.tex
+        COMMAND "${CMAKE_COMMAND}" -E chdir ${LATEX_DIR} ${PDFLATEX_COMPILER} -interaction batchmode -output-directory ${PDF_DIR} ${LATEX_DIR}/refman.tex
         )
 endif(MAKE_PDF)
 
