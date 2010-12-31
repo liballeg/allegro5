@@ -19,8 +19,17 @@ You cannot read the state of keys directly.  Use the function
 
 ## Key codes
 
-These are the list of key codes used by Allegro, which you can pass to
-[al_key_down].
+The constant ALLEGRO_KEY_MAX is always one higher than
+the highest key code. So if you want to use the key code as array index
+you can do something like this:
+
+    bool pressed_keys[ALLEGRO_KEY_MAX];
+    ...
+    pressed_keys[key_code] = true;
+
+These are the list of key codes used by Allegro, which are returned in
+the event.keyboard.keycode field of the ALLEGRO_KEY_DOWN and
+ALLEGRO_KEY_UP events and which you can pass to [al_key_down]:
 
     ALLEGRO_KEY_A ... ALLEGRO_KEY_Z,
     ALLEGRO_KEY_0 ... ALLEGRO_KEY_9,
