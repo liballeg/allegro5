@@ -741,7 +741,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          break;
       case WM_EXITSIZEMOVE:
          if (resize_postponed) {
-            win_generate_resize_event(d);
+            win_generate_resize_event(win_display);
             win_display->ignore_resize = false;
             resize_postponed = false;
             win_display->can_acknowledge = true;
