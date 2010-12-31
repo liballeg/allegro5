@@ -85,8 +85,15 @@ if(WANT_AQUEUE AND MACOSX)
     # Should check the presence just to be sure.
     find_library(AUDIO_TOOLBOX_LIB NAMES AudioToolbox)
     if(AUDIO_TOOLBOX_LIB)
-        set(SUPPORT_AQUEUE 1)
+        find_path(AQUEUE_INCLUDE_DIR AudioToolbox/AudioQueue.h)
+        if(AQUEUE_INCLUDE_DIR)
+            set(SUPPORT_AQUEUE 1)
+        endif(AQUEUE_INCLUDE_DIR)
     endif(AUDIO_TOOLBOX_LIB)
+
+    if(NOT SUPPORT_AQUEUE)
+        message("WARNING: could not find AudioQueue. (This is normal on OS X 10.4)")
+    endif(NOT SUPPORT_AQUEUE)
 endif(WANT_AQUEUE AND MACOSX)
 
 if(SUPPORT_AQUEUE)

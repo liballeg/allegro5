@@ -31,9 +31,6 @@
 #import <Foundation/NSAutoreleasePool.h>
 #endif
 
-/* AudioToolbox is only available in Leopard and later */
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
-
 #import <AudioToolbox/AudioQueue.h>
 
 #define THREAD_BEGIN NSAutoreleasePool *___p = [[NSAutoreleasePool alloc] init];
@@ -422,4 +419,3 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_aqueue_driver = {
    _aqueue_set_voice_position,
 };
 
-#endif /* MAC_OS_X_VERSION_MIN_REQUIRED >= 1050 */
