@@ -93,6 +93,8 @@ static void file_phys_fclose(ALLEGRO_FILE *f)
    ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
 
    PHYSFS_close(fp->phys);
+
+   al_free(fp);
 }
 
 
