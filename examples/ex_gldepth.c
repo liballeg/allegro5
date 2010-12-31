@@ -24,6 +24,7 @@ double dist_speed = 1.0;
 
 GLuint tex;
 ALLEGRO_BITMAP *bmp;
+bool key[ALLEGRO_KEY_MAX];
 
 static void set_camera_position(void)
 {
@@ -39,16 +40,16 @@ static void set_camera_position(void)
 
 
 
-static void keyboard(int key)
+static void keyboard(void)
 {
-   if(key == ALLEGRO_KEY_LEFT)  camera.yangle += angle_speed;
-   if(key == ALLEGRO_KEY_RIGHT) camera.yangle -= angle_speed;
+   if(key[ALLEGRO_KEY_LEFT])  camera.yangle += angle_speed;
+   if(key[ALLEGRO_KEY_RIGHT]) camera.yangle -= angle_speed;
 
-   if(key == ALLEGRO_KEY_UP)   camera.xangle += angle_speed;
-   if(key == ALLEGRO_KEY_DOWN) camera.xangle -= angle_speed;
+   if(key[ALLEGRO_KEY_UP])   camera.xangle += angle_speed;
+   if(key[ALLEGRO_KEY_DOWN]) camera.xangle -= angle_speed;
 
-   if(key == ALLEGRO_KEY_PGUP) camera.dist -= dist_speed;
-   if(key == ALLEGRO_KEY_PGDN) camera.dist += dist_speed;
+   if(key[ALLEGRO_KEY_PGUP]) camera.dist -= dist_speed;
+   if(key[ALLEGRO_KEY_PGDN]) camera.dist += dist_speed;
 }
 
 
@@ -222,10 +223,15 @@ int main(void)
          case ALLEGRO_EVENT_KEY_DOWN:
             if(event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
                goto done;
-            keyboard(event.keyboard.keycode);
+            key[event.keyboard.keycode] = true;
+            break;
+         
+         case ALLEGRO_EVENT_KEY_UP:
+            key[event.keyboard.keycode] = false;
             break;
 
          case ALLEGRO_EVENT_TIMER:
+            keyboard();
             if(al_is_event_queue_empty(queue)) {
                set_camera_position();
                draw();
