@@ -4,6 +4,60 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 5.0.0 RC3 to 5.0.0 RC4 (December 2010)
+===================================================
+
+The main developers this time were: Trent Gamblin, Matthew Leverton,
+Elias Pschernig, Peter Wang.
+
+Graphics:
+
+-  d3d: Don't generate intermediate resize events during modal resize loop.
+
+-  Optimize D3D9 driver by caching blender state and scissor rectangle so
+   redundant calls to D3D9 functions are avoided (Michał Cichoń).
+
+-  gl: Use glGenerateMipmapEXT to generate mipmaps when FBOs are used.
+
+-  x11: Don't restore display mode if another fullscreen display is active.
+
+Input:
+
+-  iphone: Reverse button/axis events that were swapped at some point.
+
+File I/O:
+
+-  Change the way user code implements new ALLEGRO_FILE structures.
+   This adds al_create_file_handle and al_get_file_userdata.
+
+-  Implement default ungetc behavior - used if the interface does not supply
+   its own.
+
+-  Add al_fopen_interface.
+
+Memfile addon:
+
+-  Implement ungetc.
+
+-  Add rw file modes.
+
+-  Rename header to allegro_memfile.h.
+
+-  Add documentation.
+
+Image I/O addon:
+
+-  Fix endian issues in TGA and Mac OS X image loaders.
+
+Other:
+
+-  Use _NSGetExecutablePath for al_get_standard_path(ALLEGRO_EXENAME_PATH) on
+   OS X (Jeff Connelly).
+
+-  Minor bug fixes and documentation updates.
+
+
+
 Changes from 5.0.0 RC2 to 5.0.0 RC3 (December 2010)
 ===================================================
 
