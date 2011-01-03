@@ -40,8 +40,8 @@
 ALLEGRO_DEBUG_CHANNEL("keyboard")
 
 /*----------------------------------------------------------------------*/
-static void handle_key_press(int mycode, int unichar, unsigned int modifiers,
-    ALLEGRO_DISPLAY *display);
+static void handle_key_press(int mycode, int unichar, int filtered,
+   unsigned int modifiers, ALLEGRO_DISPLAY *display);
 static void handle_key_release(int mycode, ALLEGRO_DISPLAY *display);
 static int _key_shifts;
 /*----------------------------------------------------------------------*/
@@ -388,7 +388,8 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, ALLEGRO_DISPLAY *display)
    if (event->type == KeyPress) { /* Key pressed.  */
       int len;
       char buffer[16];
-      int unicode = 0, r = 0;
+      int unicode = 0;
+      int filtered = 0;
 
 #if defined (ALLEGRO_XWINDOWS_WITH_XIM) && defined(X_HAVE_UTF8_STRING)
       if (xic) {
@@ -404,28 +405,15 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, ALLEGRO_DISPLAY *display)
       ALLEGRO_USTR_INFO info;
       ALLEGRO_USTR *ustr = al_ref_cstr(&info, buffer);
       unicode = al_ustr_get(ustr, 0);
+      if (unicode < 0)
+         unicode = 0;
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XIM
       ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
-      r = XFilterEvent((XEvent *)event, glx->window);
+      filtered = XFilterEvent((XEvent *)event, glx->window);
 #endif
       if (keycode || unicode) {
-         /* If we have a keycode, we want it to go to Allegro immediately, so the
-          * key[] array is updated, and the user callbacks are called. OTOH, a key
-          * should not be added to the keyboard buffer (parameter -1) if it was
-          * filtered out as a compose key, or if it is a modifier key.
-          */
-         if (r || keycode >= ALLEGRO_KEY_MODIFIERS)
-            unicode = -1;
-         else {
-            /* Historically, Allegro expects to get only the scancode when Alt is
-             * held down.
-             */
-            if (_key_shifts & ALLEGRO_KEYMOD_ALT)
-               unicode = 0;
-         }
-
-         handle_key_press(keycode, unicode, _key_shifts, display);
+         handle_key_press(keycode, unicode, filtered, _key_shifts, display);
       }
    }
    else { /* Key release. */
@@ -960,13 +948,14 @@ static void xkeybd_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
  */
 static int last_press_code = -1;
 
-static void handle_key_press(int mycode, int unichar, unsigned int modifiers,
-    ALLEGRO_DISPLAY *display)
+static void handle_key_press(int mycode, int unichar, int filtered,
+   unsigned int modifiers, ALLEGRO_DISPLAY *display)
 {
    bool is_repeat;
 
    is_repeat = (last_press_code == mycode);
-   last_press_code = mycode;
+   if (mycode > 0)
+      last_press_code = mycode;
 
    _al_event_source_lock(&the_keyboard.parent.es);
    {
@@ -980,16 +969,20 @@ static void handle_key_press(int mycode, int unichar, unsigned int modifiers,
          event.keyboard.type = ALLEGRO_EVENT_KEY_DOWN;
          event.keyboard.timestamp = al_get_time();
          event.keyboard.display = display;
-         event.keyboard.keycode = mycode;
+         event.keyboard.keycode = last_press_code;
          event.keyboard.unichar = 0;
          event.keyboard.modifiers = 0;
          event.keyboard.repeat = false;
 
-         if (!is_repeat) {
+         /* Don't send KEY_DOWN for non-physical key events. */
+         if (mycode > 0 && !is_repeat) {
             _al_event_source_emit_event(&the_keyboard.parent.es, &event);
          }
 
-         {
+         /* Don't send KEY_CHAR for events filtered by an input method,
+          * nor modifier keys.
+          */
+         if (!filtered && mycode < ALLEGRO_KEY_MODIFIERS) {
             event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
             event.keyboard.unichar = unichar;
             event.keyboard.modifiers = modifiers;
