@@ -7,7 +7,7 @@ int main(void)
 {
    ALLEGRO_PATH *path;
 
-   /* defaults to allegro */
+   /* defaults to blank */
    al_set_org_name("liballeg.org");
 
    /* defaults to the exename, set it here to remove the .exe on windows */
