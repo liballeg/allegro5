@@ -177,17 +177,14 @@ static bool set_mouse_xy(ALLEGRO_DISPLAY *disp, int x, int y)
 }
 
 
-static bool set_mouse_axis(int which, int z)
+static bool set_mouse_axis(int which, int val)
 {
-   if (which != 2) {
-      return false;
-   }
-
-   {
-      int dz = (z - mouse_state.z);
+   /* Vertical mouse wheel. */
+   if (which == 2) {
+      int dz = (val - mouse_state.z);
 
       if (dz != 0) {
-         mouse_state.z = z;
+         mouse_state.z = val;
 
          generate_mouse_event(
             ALLEGRO_EVENT_MOUSE_AXES,
@@ -195,9 +192,28 @@ static bool set_mouse_axis(int which, int z)
             0, 0, dz, 0,
             0, mouse_state.display);
       }
+
+      return true;
    }
 
-   return true;
+   /* Horizontal mouse wheel. */
+   if (which == 3) {
+      int dw = (val - mouse_state.w);
+
+      if (dw != 0) {
+         mouse_state.w = val;
+
+         generate_mouse_event(
+            ALLEGRO_EVENT_MOUSE_AXES,
+            mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w,
+            0, 0, 0, dw,
+            0, mouse_state.display);
+      }
+
+      return true;
+   }
+
+   return false;
 }
 
 
