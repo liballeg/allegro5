@@ -1613,7 +1613,7 @@ static bool osx_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
          requested_cursor = [NSCursor crosshairCursor];
          break;
       case ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK:
-         requested_cursor = [NSCursor openHandCursor];
+         requested_cursor = [NSCursor pointingHandCursor];
          break;
       default:
          return false;
