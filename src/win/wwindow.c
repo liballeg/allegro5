@@ -19,8 +19,14 @@
 #ifndef WINVER
 #define WINVER 0x0501
 #endif
+
 #include <windows.h>
 #include <windowsx.h>
+
+/* Only used for Vista and up. */
+#ifndef WM_MOUSEHWHEEL
+#define WM_MOUSEHWHEEL 0x020E
+#endif
 
 #include <allegro5/allegro.h>
 #include <process.h>
@@ -509,6 +515,11 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       case WM_MOUSEWHEEL: {
          int d = GET_WHEEL_DELTA_WPARAM(wParam);
          _al_win_mouse_handle_wheel(d / WHEEL_DELTA, false, win_display);
+         return TRUE;
+      }
+      case WM_MOUSEHWHEEL: {
+         int d = GET_WHEEL_DELTA_WPARAM(wParam);
+         _al_win_mouse_handle_hwheel(d / WHEEL_DELTA, false, win_display);
          return TRUE;
       }
       case WM_MOUSEMOVE: {
