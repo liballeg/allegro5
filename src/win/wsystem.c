@@ -457,9 +457,21 @@ static ALLEGRO_PATH *win_get_path(int id)
    if (!cisdl_path)
       return NULL;
 
-   if (id != ALLEGRO_USER_HOME_PATH) {
-      al_append_path_component(cisdl_path, al_get_org_name());
-      al_append_path_component(cisdl_path, al_get_app_name());
+   if (csidl == CSIDL_APPDATA) {
+      const char *org_name = al_get_org_name();
+      const char *app_name = al_get_app_name();
+
+      if (!app_name || !app_name[0]) {
+         /* this shouldn't ever happen. */
+         al_destroy_path(cisdl_path);
+         return NULL;
+      }
+
+      if (org_name && org_name[0]) {
+         al_append_path_component(cisdl_path, org_name);
+      }
+
+      al_append_path_component(cisdl_path, app_name);
    }
 
    return cisdl_path;
