@@ -60,22 +60,58 @@ an official release. For example "5.0.2[1]" would be the (first) official
 
 ## API: al_get_standard_path
 
-Gets a system path, depending on the `id` parameter:
+Gets a system path, depending on the `id` parameter. Some of these paths
+may be affected by the organization and application name, so be sure to
+set those before calling this function.
 
-ALLEGRO_PROGRAM_PATH
-:   Directory with the executed program.
+The paths are not guaranteed to be unique (e.g., SETTINGS and DATA may be
+the same on some platforms), so you should be sure your filenames are unique
+if you need to avoid naming collisions. Also, a returned path may not actually
+exist on the file system.
+
+ALLEGRO_RESOURCES_PATH
+:   If you bundle data in a location relative to your executable, then you
+    should use this path to locate that data. On most platforms, this is the
+    directory that contains the executable file. 
+    
+    If ran from an OS X app bundle, then this will point to the internal
+    resource directory (<bundle.app>/Contents/Resources). To maintain 
+    consistency, if you put your resources into a directory called "data"
+    beneath the executable on some other platform (like Windows), then
+    you should also create a directory called "data" under the OS X app
+    bundle's resource folder.
+    
+    You should not try to write to this path, as it is very likely read-only.
+    
+    If you install your resources in some other system directory (e.g., in
+    /usr/share or C:\\ProgramData), then you are responsible for keeping track
+    of that yourself.    
+    
 ALLEGRO_TEMP_PATH
 :   Path to the directory for temporary files.
-ALLEGRO_SYSTEM_DATA_PATH
-:   Data path for system-wide installation.
-ALLEGRO_USER_DATA_PATH
-:   Data path for per-user installation.
+
 ALLEGRO_USER_HOME_PATH
-:   Path to the user's home directory.
+:   This is the user's home directory. You should not write into this directory,
+    or create any sub folders in it. One practical application of this path
+    would be to use it as the starting place of a file selector in a GUI.
+    
+ALLEGRO_USER_DOCUMENTS_PATH
+:   This location is easily accessible by the user, and is the place
+    to store documents and files that the user might want to later open with
+    an external program or transfer to another place. 
+    
+    You should not save files here unless the user expects it, usually by
+    explicit permission.
+    
+ALLEGRO_USER_DATA_PATH
+:   If your program saves any data that the user doesn't need to access 
+    externally, then you should place it here. This is generally the least
+    intrusive place to store data.
+    
 ALLEGRO_USER_SETTINGS_PATH
-:   Path to per-user settings directory.
-ALLEGRO_SYSTEM_SETTINGS_PATH
-:   Path to system-wide settings directory.
+:   If you are saving configuration files (especially if the user may want to
+    edit them outside of your program), then you should place them here.
+    
 ALLEGRO_EXENAME_PATH
 :   The full path to the executable.
 

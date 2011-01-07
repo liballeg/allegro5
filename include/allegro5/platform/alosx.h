@@ -49,11 +49,6 @@
 #endif
 
 
-/* The following code comes from alunix.h */
-/* Magic to capture name of executable file */
-extern int    __crt0_argc;
-extern char **__crt0_argv;
-
 #ifndef ALLEGRO_NO_MAGIC_MAIN
    #define ALLEGRO_MAGIC_MAIN
    #define main _al_mangled_main

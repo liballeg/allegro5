@@ -18,20 +18,12 @@ int main(void)
    }
    open_log();
 
-   path = al_get_standard_path(ALLEGRO_PROGRAM_PATH);
-   log_printf("PROGRAM_PATH: %s\n", al_path_cstr(path, '/'));
+   path = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
+   log_printf("RESOURCES_PATH: %s\n", al_path_cstr(path, '/'));
    al_destroy_path(path);
 
    path = al_get_standard_path(ALLEGRO_TEMP_PATH);
    log_printf("TEMP_PATH: %s\n", al_path_cstr(path, '/'));
-   al_destroy_path(path);
-
-   path = al_get_standard_path(ALLEGRO_SYSTEM_DATA_PATH);
-   log_printf("SYSTEM_DATA_PATH: %s\n", al_path_cstr(path, '/'));
-   al_destroy_path(path);
-
-   path = al_get_standard_path(ALLEGRO_SYSTEM_SETTINGS_PATH);
-   log_printf("SYSTEM_SETTINGS_PATH: %s\n", al_path_cstr(path, '/'));
    al_destroy_path(path);
 
    path = al_get_standard_path(ALLEGRO_USER_DATA_PATH);
@@ -43,6 +35,10 @@ int main(void)
 
    path = al_get_standard_path(ALLEGRO_USER_HOME_PATH);
    log_printf("USER_HOME_PATH: %s\n", al_path_cstr(path, '/'));
+   al_destroy_path(path);
+
+   path = al_get_standard_path(ALLEGRO_USER_DOCUMENTS_PATH);
+   log_printf("USER_DOCUMENTS_PATH: %s\n", al_path_cstr(path, '/'));
    al_destroy_path(path);
 
    path = al_get_standard_path(ALLEGRO_EXENAME_PATH);
