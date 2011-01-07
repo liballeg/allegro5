@@ -3,10 +3,19 @@
 
 #include "common.c"
 
-int main(void)
+static void show_path(int id, const char *label)
 {
    ALLEGRO_PATH *path;
+   const char *path_str;
 
+   path = al_get_standard_path(id);
+   path_str = (path) ? al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP) : "<none>";
+   log_printf("%s: %s\n", label, path_str);
+   al_destroy_path(path);
+}
+
+int main(void)
+{
    /* defaults to blank */
    al_set_org_name("liballeg.org");
 
@@ -18,32 +27,13 @@ int main(void)
    }
    open_log();
 
-   path = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
-   log_printf("RESOURCES_PATH: %s\n", al_path_cstr(path, '/'));
-   al_destroy_path(path);
-
-   path = al_get_standard_path(ALLEGRO_TEMP_PATH);
-   log_printf("TEMP_PATH: %s\n", al_path_cstr(path, '/'));
-   al_destroy_path(path);
-
-   path = al_get_standard_path(ALLEGRO_USER_DATA_PATH);
-   log_printf("USER_DATA_PATH: %s\n", al_path_cstr(path, '/'));
-   al_destroy_path(path);
-
-   path = al_get_standard_path(ALLEGRO_USER_SETTINGS_PATH);
-   log_printf("USER_SETTINGS_PATH: %s\n", al_path_cstr(path, '/'));
-
-   path = al_get_standard_path(ALLEGRO_USER_HOME_PATH);
-   log_printf("USER_HOME_PATH: %s\n", al_path_cstr(path, '/'));
-   al_destroy_path(path);
-
-   path = al_get_standard_path(ALLEGRO_USER_DOCUMENTS_PATH);
-   log_printf("USER_DOCUMENTS_PATH: %s\n", al_path_cstr(path, '/'));
-   al_destroy_path(path);
-
-   path = al_get_standard_path(ALLEGRO_EXENAME_PATH);
-   log_printf("EXENAME_PATH: %s\n", al_path_cstr(path, '/'));
-   al_destroy_path(path);
+   show_path(ALLEGRO_RESOURCES_PATH, "RESOURCES_PATH");
+   show_path(ALLEGRO_TEMP_PATH, "TEMP_PATH");
+   show_path(ALLEGRO_USER_DATA_PATH, "USER_DATA_PATH");
+   show_path(ALLEGRO_USER_SETTINGS_PATH, "USER_SETTINGS_PATH");
+   show_path(ALLEGRO_USER_HOME_PATH, "USER_HOME_PATH");
+   show_path(ALLEGRO_USER_DOCUMENTS_PATH, "USER_DOCUMENTS_PATH");
+   show_path(ALLEGRO_EXENAME_PATH, "EXENAME_PATH");
 
    close_log(true);
    return 0;
