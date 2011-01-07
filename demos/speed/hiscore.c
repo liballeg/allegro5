@@ -38,7 +38,10 @@ void init_hiscore()
    char buf1[256];
    int i;
 
-   path = al_get_standard_path(ALLEGRO_EXENAME_PATH);
+   path = al_get_standard_path(ALLEGRO_USER_DATA_PATH);
+   if (!path) return;
+   al_make_directory(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
+   
    al_set_path_filename(path, "speed.rec");
 
    cfg = al_load_config_file(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
@@ -68,7 +71,10 @@ void shutdown_hiscore()
    char buf1[256];
    int i;
 
-   path = al_get_standard_path(ALLEGRO_EXENAME_PATH);
+   path = al_get_standard_path(ALLEGRO_USER_DATA_PATH);
+   if (!path) return;
+   al_make_directory(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
+
    al_set_path_filename(path, "speed.rec");
 
    cfg = al_create_config();
