@@ -9,7 +9,26 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+/* Some low-end drivers enable automatic S3TC compression, which
+ * requires glTexSubImage2D to only work on multiples of aligned
+ * 4x4 pixel blocks with some buggy OpenGL drivers.
+ * There's not much we can do about that in general - if the user
+ * locks a portion of a bitmap not conformin to this it will fail
+ * with such a driver.
+ * 
+ * However in many programs this is no problem at all safe for rendering
+ * glyphs and simply aligning to 4 pixels here fixes it.
+ */
+#define ALIGN_TO_4_PIXEL
+
 ALLEGRO_DEBUG_CHANNEL("font")
+
+#ifdef ALIGN_TO_4_PIXEL
+static inline int align4(int x)
+{
+   return (x + 3) & ~3;
+}
+#endif
 
 typedef struct ALLEGRO_TTF_GLYPH_DATA
 {
@@ -114,9 +133,17 @@ static ALLEGRO_BITMAP* create_glyph_cache(ALLEGRO_FONT const *f, int w,
 
     p_cache = _al_vector_ref_back(&data->cache_bitmaps);
     cache = *p_cache;
+    
+    #ifdef ALIGN_TO_4_PIXEL
+    w = align4(w);
+    h = align4(h);
+    #endif
 
     if (data->cache_pos_x + w > al_get_bitmap_width(cache)) {
         data->cache_pos_y += data->cache_line_height + 2;
+        #ifdef ALIGN_TO_4_PIXEL
+        data->cache_pos_y = align4(data->cache_pos_y);
+        #endif
         data->cache_pos_x = 0;
         data->cache_line_height = 0;
     }
@@ -128,6 +155,9 @@ static ALLEGRO_BITMAP* create_glyph_cache(ALLEGRO_FONT const *f, int w,
     ret = al_create_sub_bitmap(cache, data->cache_pos_x,
         data->cache_pos_y, w, h);
     data->cache_pos_x += w + 2;
+    #ifdef ALIGN_TO_4_PIXEL
+        data->cache_pos_x = align4(data->cache_pos_x);
+    #endif
     if (h > data->cache_line_height)
         data->cache_line_height = h;
     return ret;
@@ -181,6 +211,22 @@ static int render_glyph(ALLEGRO_FONT const *f,
          * If it does, we can simplify this.
          */
         al_put_pixel(0, 0, al_map_rgba(0, 0, 0, 0));
+        #ifdef ALIGN_TO_4_PIXEL
+        {
+           /* clear the extra borders we added */
+           int i;
+           int bw = al_get_bitmap_width(glyph->bitmap);
+           int bh = al_get_bitmap_height(glyph->bitmap);
+           for (i = 0; i < (bh - h); i++) {
+              memset((unsigned char *)lr->data +
+                 (bh - 1 - i) * lr->pitch, 0, 4 * bw);
+           }
+           for (i = 0; i < bh; i++) {
+              memset((unsigned char *)lr->data +
+                 i * lr->pitch + 4 * w, 0, 4 * (bw - w));
+           }
+        }
+        #endif
         row = face->glyph->bitmap.buffer;
 
         if (glyph->monochrome) {
@@ -357,7 +403,7 @@ static void get_text_dimensions(ALLEGRO_FONT const *f,
 }
 
 #if 0
-#include <allegro5/allegro_image.h>
+#include "allegro5/allegro_image.h"
 static void debug_cache(ALLEGRO_FONT *f)
 {
    ALLEGRO_TTF_FONT_DATA *data = f->data;
