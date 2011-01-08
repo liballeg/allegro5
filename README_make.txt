@@ -1,3 +1,6 @@
+Building Allegro with make
+==========================
+
 This document discusses building Allegro using CMake and GNU make from a
 terminal window.  This document applies to Unix-like operating systems such as
 Linux, and also Mac OS X and MinGW.
@@ -32,13 +35,13 @@ More examples:
 
         cmake .. -G "MSYS Makefiles"
 
-4. Now, if that step was successful you can run make to build Allegro.
-On MinGW your make might actually be called mingw32-make.
+4. Now, if that step was successful you can run `make` to build Allegro.
+On MinGW your make might actually be called `mingw32-make`.
 
         make
 
 Since multicore processors are common now, you might wish to speed that up by
-passing "-j<n>" option, where <n> is the number of parallel jobs to spawn.
+passing a "-j<n>" option, where <n> is the number of parallel jobs to spawn.
 
 
 5. You may optionally install Allegro into your system path with the install
@@ -48,7 +51,7 @@ target.
 
 MinGW users might need to set the MINGDIR environment variable first.
 
-The DESTDIR is supported, for staged installs.
+The DESTDIR variable is supported for staged installs.
 
         make install DESTDIR=/tmp/allegro-package
 

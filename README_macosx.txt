@@ -1,3 +1,6 @@
+Mac OS X-specific notes
+=======================
+
 Building Allegro on Mac OS X is the same as on other Unix-like operating systems.
 See README_make.txt.  You may also use Xcode but that is not covered there.
 

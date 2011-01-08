@@ -1,4 +1,7 @@
-% Allegro 5.0.0 RC1
+% Allegro 5
+
+Overview
+========
 
 Welcome to Allegro 5, a cross-platform game programming library.
 Currently supported platforms are Linux/Unix, Windows, MacOS X and iPhone.
@@ -50,17 +53,17 @@ those, nothing will work.  These are required for the core library:
   <http://www.g-productions.net/list.php?c=files_devpak>
 
 - X11 development libraries (Linux/Unix only)
-  The libraries will be part of you Linux distribution, but you may have to
+  The libraries will be part of your Linux distribution, but you may have to
   install them explicitly.
 
-- OpenGL development libraries (except on Windows)
+- OpenGL development libraries (optional only on Windows)
 
 The addons, too, may require additional libraries.  Since the addons are
 strictly optional, they are not required to build Allegro, but a lot of
 functionality may be disabled if they are not present.
 
-Windows users may find some precompiled binaries from
-<http://gnuwin32.sourceforge.net/>.  You need to get the `bin` and `lib`
+Windows users may find some precompiled binaries for the additional libraries
+from <http://gnuwin32.sourceforge.net/>.  You need to get the `bin` and `lib`
 packages.  The `bin` packages contain DLLs, and the `lib` packages contain the
 headers and import libraries.
 
@@ -77,13 +80,21 @@ These are the dependencies required for the addons:
   Home page: <http://www.libpng.org/pub/png/>
   Windows binaries: <http://gnuwin32.sourceforge.net/packages/libpng.htm>
 
+  On Windows/Mac OS X/iPhone, PNG image support is available by using the
+  native facilities on the respective operating systems, so libpng is not
+  required.
+
 - libjpeg, for JPEG image support (Unix and older MinGW only)
   Home page: <http://www.ijg.org/>
   Windows binaries: <http://gnuwin32.sourceforge.net/packages/jpeg.htm>
 
+  On Windows/Mac OS X/iPhone, JPEG image support is available by using the
+  native facilities on the respective operating systems, so libjpeg is not
+  required.
+
 - FreeType, for TrueType font support.
   Home page: <http://freetype.sourceforge.net/>
-  Window binaries: <http://gnuwin32.sourceforge.net/packages/freetype.htm>
+  Windows binaries: <http://gnuwin32.sourceforge.net/packages/freetype.htm>
 
 - Ogg Vorbis, a free lossy audio format. (libogg, libvorbis, libvorbisfile)
   Home page: <http://www.vorbis.com/>

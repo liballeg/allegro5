@@ -1,3 +1,6 @@
+Building Allegro with MSVC
+==========================
+
 There are a lot of variations to the build process, but we will just stick with
 one to keep things simple.  If you know what you are doing, you can do
 something else.
