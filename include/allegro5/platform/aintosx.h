@@ -111,7 +111,7 @@ typedef struct
 
 int _al_osx_bootstrap_ok(void);
 
-void _al_setup_direct_shifts(void);
+ALLEGRO_PATH *_al_osx_get_path(int id);
 
 void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY*);
 void _al_osx_keyboard_modifiers(unsigned int new_mods, ALLEGRO_DISPLAY*);

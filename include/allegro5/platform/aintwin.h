@@ -79,6 +79,9 @@ struct ALLEGRO_DISPLAY_WIN
 };
 
 
+/* standard path */
+ALLEGRO_PATH *_al_win_get_path(int id);
+
 /* thread routines */
 void _al_win_thread_init(void);
 void _al_win_thread_exit(void);

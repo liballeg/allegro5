@@ -388,7 +388,7 @@ static ALLEGRO_MOUSE_DRIVER *win_get_mouse_driver(void)
  *  Returns full path to various system and user diretories
  */
 
-static ALLEGRO_PATH *win_get_path(int id)
+ALLEGRO_PATH *_al_win_get_path(int id)
 {
    char path[MAX_PATH];
    uint32_t csidl = 0;
@@ -656,7 +656,7 @@ static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->destroy_mouse_cursor = _al_win_destroy_mouse_cursor;
    vt->get_monitor_info = win_get_monitor_info;
    vt->get_cursor_position = win_get_cursor_position;
-   vt->get_path = win_get_path;
+   vt->get_path = _al_win_get_path;
    vt->inhibit_screensaver = win_inhibit_screensaver;
    vt->open_library = win_open_library;
    vt->import_symbol = win_import_symbol;
