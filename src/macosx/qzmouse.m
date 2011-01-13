@@ -161,7 +161,8 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 	    osx_mouse.warped = FALSE;
 	}
 	_al_event_source_lock(&osx_mouse.parent.es);
-	if ((within||b_change) && _al_event_source_needs_to_generate_event(&osx_mouse.parent.es))
+	if ((within || b_change || type == ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY)
+		&& _al_event_source_needs_to_generate_event(&osx_mouse.parent.es))
 	{
 		ALLEGRO_EVENT new_event;
 		ALLEGRO_MOUSE_EVENT* mouse_event = &new_event.mouse;
