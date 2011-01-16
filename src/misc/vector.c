@@ -126,7 +126,44 @@ void* _al_vector_ref_back(const _AL_VECTOR *vec)
    return _al_vector_ref(vec, vec->_size-1);
 }
 
+/* Internal function: _al_vector_append_array
+ * 
+ *  append `num` elements from `arr` array to _AL_VECTOR `vec`
+ * 
+ */
 
+void _al_vector_append_array(_AL_VECTOR *vec, int num, TYPE *arr)
+{
+   ASSERT(vec);
+   ASSERT(arr);
+   ASSERT(num);
+   
+   if (vec->_items == NULL) {
+      ASSERT(vec->_size == 0);
+      ASSERT(vec->_unused == 0);
+
+      vec->_items = al_malloc(vec->_itemsize * num);
+      ASSERT(vec->_items);
+      if (!vec->_items)
+         return NULL;
+
+      vec->_unused = num;
+   }
+   else if (vec->_unused < num) {
+      char *new_items = al_realloc(vec->_items, (vec->_size + num) * vec->_itemsize);
+      ASSERT(new_items);
+      if (!new_items)
+         return NULL;
+
+      vec->_items = new_items;
+      vec->_unused = num;
+   }
+   
+   vec->_size += num;
+   vec->_unused -= num;
+   
+   memcpy(vec->_items, arr, vec->_itemsize * num); 
+}
 
 /* Internal function: _al_vector_alloc_back
  *
