@@ -264,7 +264,6 @@ static xrandr_mode *_al_xsys_xrandr_fetch_mode(ALLEGRO_SYSTEM_XGLX *s, int sid, 
 
 static inline xrandr_crtc *_al_xsys_xrandr_map_to_crtc(ALLEGRO_SYSTEM_XGLX *s, int sid, int adapter)
 {
-   xrandr_screen *screen = _al_vector_ref(&s->xrandr_screens, sid);
    return _al_xsys_xrandr_fetch_crtc(s, sid, *(int*)_al_vector_ref(&s->xrandr_adaptermap, adapter));
 }
 
@@ -327,8 +326,6 @@ static bool _al_xsys_xrandr_query(ALLEGRO_SYSTEM_XGLX *s)
       
       /* Detect clones */
       int j;
-      xrandr_crtc *origin = NULL;
-      
       for(j = 0; j < (int)_al_vector_size(&screen->crtcs); j++) {
          xrandr_crtc *crtc = _al_vector_ref(&screen->crtcs, j);
          // XXX it might be nessesary to do something more clever about detecting clones
@@ -373,22 +370,22 @@ static bool _al_xsys_xrandr_query(ALLEGRO_SYSTEM_XGLX *s)
          int xscreen_j = _al_xsys_xrandr_get_xscreen(s, j);
          xrandr_crtc *crtc_j = _al_xsys_xrandr_fetch_crtc(s, xscreen_j, *(RRCrtc*)_al_vector_ref(&s->xrandr_adaptermap, j));
          
-         if(crtc->x == crtc_j->x + crtc_j->width) {
+         if(crtc->x == crtc_j->x + (int)crtc_j->width) {
             crtc->align_to = crtc_j->id;
             crtc->align = CRTC_POS_RIGHTOF;
             ALLEGRO_DEBUG("Adapter %i is RightOf Adapter %i.\n", i, j);
          } else
-         if(crtc->x + crtc->width == crtc_j->x) {
+         if(crtc->x + (int)crtc->width == crtc_j->x) {
             crtc->align_to = crtc_j->id;
             crtc->align = CRTC_POS_LEFTOF;
             ALLEGRO_DEBUG("Adapter %i is LeftOf Adapter %i.\n", i, j);
          } else
-         if(crtc->y == crtc_j->y + crtc_j->height) {
+         if(crtc->y == crtc_j->y + (int)crtc_j->height) {
             crtc->align_to = crtc_j->id;
             crtc->align = CRTC_POS_BELOW;
             ALLEGRO_DEBUG("Adapter %i is Below Adapter %i.\n", i, j);
          } else
-         if(crtc->y + crtc->height == crtc_j->y) {
+         if(crtc->y + (int)crtc->height == crtc_j->y) {
             crtc->align_to = crtc_j->id;
             crtc->align = CRTC_POS_ABOVE;
             ALLEGRO_DEBUG("Adapter %i is Above Adapter %i.\n", i, j);
@@ -424,8 +421,7 @@ static ALLEGRO_DISPLAY_MODE *_al_xsys_xrandr_get_mode(ALLEGRO_SYSTEM_XGLX *s, in
    
    if(id < 0 || id > (int)_al_vector_size(&output->modes))
       return NULL;
-      
-   RRMode *mp = (RRMode*)_al_vector_ref(&output->modes, id);
+   
    xrandr_mode *mode = _al_xsys_xrandr_fetch_mode(s, xscreen, *(RRMode*)_al_vector_ref(&output->modes, id));
    
    amode->width = mode->width;
@@ -488,7 +484,7 @@ static bool _al_xsys_xrandr_set_mode(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGL
    xrandr_crtc *crtc = _al_xsys_xrandr_map_to_crtc(s, xscreen, adapter);
    xrandr_mode *cur_mode = _al_xsys_xrandr_fetch_mode(s, xscreen, crtc->mode);
    
-   if((int)cur_mode->width == w && (int)cur_mode->height == h && (refresh == 0 || refresh == cur_mode->refresh)) {
+   if((int)cur_mode->width == w && (int)cur_mode->height == h && (refresh == 0 || refresh == (int)cur_mode->refresh)) {
       ALLEGRO_DEBUG("mode already set, good to go\n");
       return true;
    }
@@ -603,7 +599,6 @@ static void _al_xsys_xrandr_restore_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter)
 static void _al_xsys_xrandr_get_display_offset(ALLEGRO_SYSTEM_XGLX *s, int adapter, int *x, int *y)
 {
    int xscreen = _al_xglx_get_xscreen(s, adapter);
-   xrandr_screen *screen = _al_vector_ref(&s->xrandr_screens, xscreen);
    
    xrandr_crtc *crtc = _al_xsys_xrandr_map_to_crtc(s, xscreen, adapter);
    
