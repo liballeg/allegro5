@@ -132,7 +132,7 @@ void* _al_vector_ref_back(const _AL_VECTOR *vec)
  * 
  */
 
-void _al_vector_append_array(_AL_VECTOR *vec, int num, TYPE *arr)
+void _al_vector_append_array(_AL_VECTOR *vec, unsigned int num, const void *arr)
 {
    ASSERT(vec);
    ASSERT(arr);
@@ -145,7 +145,7 @@ void _al_vector_append_array(_AL_VECTOR *vec, int num, TYPE *arr)
       vec->_items = al_malloc(vec->_itemsize * num);
       ASSERT(vec->_items);
       if (!vec->_items)
-         return NULL;
+         return;
 
       vec->_unused = num;
    }
@@ -153,7 +153,7 @@ void _al_vector_append_array(_AL_VECTOR *vec, int num, TYPE *arr)
       char *new_items = al_realloc(vec->_items, (vec->_size + num) * vec->_itemsize);
       ASSERT(new_items);
       if (!new_items)
-         return NULL;
+         return;
 
       vec->_items = new_items;
       vec->_unused = num;
