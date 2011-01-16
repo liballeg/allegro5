@@ -84,13 +84,32 @@ struct ALLEGRO_SYSTEM_XGLX
 #endif
 #ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
    int xrandr_available;
-   XRRScreenResources *xrandr_res;
+   int xrandr_event_base;
+   
+   _AL_VECTOR xrandr_screens;
+   _AL_VECTOR xrandr_adaptermap;
+   
+#if 0
+   int xrandr_res_count;
+   XRRScreenResources **xrandr_res;
    // these are technically changeable at runtime if we handle XRandR events.
    // or more accurately, they can become stale at runtime if we don't handle XRandR events.
    int xrandr_output_count;
-   XRROutputInfo **xrandr_outputs;
-   XRRModeInfo **xrandr_stored_modes;
+   struct xrandr_output_s {
+      int res_id;
+      XRROutputInfo *output;
+      RRMode mode;
+      RRMode set_mode;
+   } **xrandr_outputs;
+   XRRScreenSize *saved_size;
+#endif /* 0 */
+   
 #endif
+   
+   /* used to keep track of how many adapters are in use,
+    * so the multi-head code can bail if we try to use more than one. */
+   uint32_t adapter_use_count;
+   int adapter_map[32]; /* really can't think of a better way to track which adapters are in use ::) */
 };
 
 /* This is our version of ALLEGRO_DISPLAY with driver specific extra data. */
@@ -101,7 +120,8 @@ struct ALLEGRO_DISPLAY_XGLX
    /* Driver specifics. */
 
    Window window;
-   int xscreen; /* TODO: what is this? something with multi-monitor? */
+   int xscreen; /* X Screen ID */
+   int adapter; /* allegro virtual adapter id/index */
    GLXWindow glxwindow;
    GLXContext context;
    Atom wm_delete_window_atom;
@@ -164,6 +184,26 @@ void _al_xglx_add_cursor_functions(ALLEGRO_DISPLAY_INTERFACE *vt);
 
 /* fullscreen and multi monitor stuff */
 
+typedef struct _ALLEGRO_XGLX_MMON_INTERFACE _ALLEGRO_XGLX_MMON_INTERFACE;
+
+struct _ALLEGRO_XGLX_MMON_INTERFACE {
+    int (*get_num_display_modes)(ALLEGRO_SYSTEM_XGLX *s, int adapter);
+    ALLEGRO_DISPLAY_MODE *(*get_display_mode)(ALLEGRO_SYSTEM_XGLX *s, int, int, ALLEGRO_DISPLAY_MODE*);
+    bool (*set_mode)(ALLEGRO_SYSTEM_XGLX *, ALLEGRO_DISPLAY_XGLX *, int, int, int, int);
+    void (*store_mode)(ALLEGRO_SYSTEM_XGLX *);
+    void (*restore_mode)(ALLEGRO_SYSTEM_XGLX *, int);
+    void (*get_display_offset)(ALLEGRO_SYSTEM_XGLX *, int, int *, int *);
+    int (*get_num_adapters)(ALLEGRO_SYSTEM_XGLX *);
+    void (*get_monitor_info)(ALLEGRO_SYSTEM_XGLX *, int, ALLEGRO_MONITOR_INFO *);
+    int (*get_default_adapter)(ALLEGRO_SYSTEM_XGLX *);
+    int (*get_adapter)(ALLEGRO_SYSTEM_XGLX *, ALLEGRO_DISPLAY_XGLX *);
+    int (*get_xscreen)(ALLEGRO_SYSTEM_XGLX *, int);
+    void (*post_setup)(ALLEGRO_SYSTEM_XGLX *, ALLEGRO_DISPLAY_XGLX *);
+    void (*handle_xevent)(ALLEGRO_SYSTEM_XGLX *, ALLEGRO_DISPLAY_XGLX *, XEvent *e);
+};
+
+extern _ALLEGRO_XGLX_MMON_INTERFACE mmon_interface;
+
 void _al_xsys_mmon_exit(ALLEGRO_SYSTEM_XGLX *s);
 
 int _al_xglx_get_num_display_modes(ALLEGRO_SYSTEM_XGLX *s, int adapter);
@@ -184,6 +224,14 @@ int _al_xglx_fullscreen_select_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int w, 
 void _al_xglx_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONITOR_INFO *info);
 int _al_xglx_get_num_video_adapters(ALLEGRO_SYSTEM_XGLX *s);
 
+int _al_xglx_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s);
+int _al_xglx_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter);
+
+void _al_xglx_toggle_above(ALLEGRO_DISPLAY *display, int value);
+
+int _al_xglx_get_adapter(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, bool recalc);
+
+void _al_xglx_handle_xevent(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, XEvent *e);
 
 /* glx_config */
 void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx);

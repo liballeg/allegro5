@@ -96,6 +96,11 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
             d->mouse_warp = true;
             break;
          }
+         break;
+         
+      default:
+         _al_xglx_handle_xevent(s, d, &event);
+         break;
    }
 }
 
@@ -252,6 +257,10 @@ static void xglx_shutdown_system(void)
    }
    _al_vector_free(&s->displays);
 
+   // Makes sure we wait for any commands sent to the X server when destroying the displays.
+   // Should make sure we don't shutdown before modes are restored.
+   XSync(sx->x11display, False);
+   
    _al_xsys_mmon_exit(sx);
 
    if (sx->x11display) {

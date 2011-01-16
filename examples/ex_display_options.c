@@ -81,6 +81,8 @@ static void display_options(ALLEGRO_DISPLAY *display)
    int dw = al_get_display_width(display);
    int dh = al_get_display_height(display);
 
+   modes_count = al_get_num_display_modes();
+   
    ALLEGRO_COLOR c;
    c = al_map_rgb_f(0.8, 0.8, 1);
    al_draw_textf(font, c, x, y, 0, "Create new display");
