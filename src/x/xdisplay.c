@@ -54,7 +54,7 @@ static void set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
       hints->y = y_off;
    }
 
-   if(d->flags & ALLEGRO_FULLSCREEN) {
+   if (d->flags & ALLEGRO_FULLSCREEN) {
       /* kwin will improperly layer a panel over our window on a second display without this.
        * some other Size flags may cause glitches with various WMs, but this seems to be ok
        * with metacity and kwin. As noted in xdpy_create_display, compiz is just broken.
@@ -304,7 +304,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    // store our initial virtual adapter, used by fullscreen and positioning code
    d->adapter = adapter;
    ALLEGRO_DEBUG("selected adapter %i\n", adapter);
-   if(d->adapter < 0) {
+   if (d->adapter < 0) {
       d->adapter = _al_xglx_get_default_adapter(system);
    }
 
@@ -325,14 +325,14 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    true_xinerama_active = !xrandr_active && system->xinerama_available;
 #endif
    
-   if((true_xinerama_active || ScreenCount(system->x11display) > 1) && system->adapter_use_count) {
+   if ((true_xinerama_active || ScreenCount(system->x11display) > 1) && system->adapter_use_count) {
       uint32_t i, adapter_use_count = 0;
-      for(i = 0; i < 32; i++) {
-         if(system->adapter_map[i])
+      for (i = 0; i < 32; i++) {
+         if (system->adapter_map[i])
             adapter_use_count++;
       }
       
-      if(adapter_use_count > 1) {
+      if (adapter_use_count > 1) {
          ALLEGRO_ERROR("Use of more than one adapter at once in multi-head X or X with true Xinerama active is not possible.\n");
          al_free(d);
          al_free(ogl);
@@ -417,13 +417,13 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
       al_get_new_window_position(&x_off, &y_off);
       
-      if(adapter != -1) { 
+      if (adapter != -1) {
          /* non default adapter. I'm assuming this means the user wants the window to be placed on the adapter offset by new display pos */
          _al_xglx_get_display_offset(system, d->adapter, &xscr_x, &xscr_y);
-         if(x_off != INT_MAX)
+         if (x_off != INT_MAX)
             x_off += xscr_x;
          
-         if(y_off != INT_MAX)
+         if (y_off != INT_MAX)
             y_off += xscr_y;
       }
    }
@@ -1000,15 +1000,15 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
    ALLEGRO_DEBUG("xconfigure event! %ix%i\n", xevent->xconfigure.x, xevent->xconfigure.y);
    
    /* check if we're no longer inside the stored adapter */
-   if((center_x < mi.x1 && center_x > mi.x2) ||
+   if ((center_x < mi.x1 && center_x > mi.x2) ||
       (center_y < mi.y1 && center_y > mi.x2))
    {
       
       int new_adapter = _al_xglx_get_adapter(system, glx, true);
-      if(new_adapter != glx->adapter) {
+      if (new_adapter != glx->adapter) {
          ALLEGRO_DEBUG("xdpy: adapter change!\n");
          _al_xglx_unuse_adapter(system, glx->adapter);
-         if(d->flags & ALLEGRO_FULLSCREEN)
+         if (d->flags & ALLEGRO_FULLSCREEN)
             _al_xglx_restore_video_mode(system, glx->adapter);
          glx->adapter = new_adapter;
          _al_xglx_use_adapter(system, glx->adapter);
