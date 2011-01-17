@@ -14,27 +14,27 @@ translate from and to various color representations.
 
 ### API: al_map_rgb
 
-Convert r, g, b (ranging from 0-255) into an ALLEGRO_COLOR,
+Convert r, g, b (ranging from 0-255) into an [ALLEGRO_COLOR],
 using 255 for alpha.
 
 See also: [al_map_rgba], [al_map_rgba_f], [al_map_rgb_f]
 
 ### API: al_map_rgb_f
 
-Convert r, g, b, (ranging from 0.0f-1.0f) into an ALLEGRO_COLOR,
+Convert r, g, b, (ranging from 0.0f-1.0f) into an [ALLEGRO_COLOR],
 using 1.0f for alpha.
 
 See also: [al_map_rgba], [al_map_rgb], [al_map_rgba_f]
 
 ### API: al_map_rgba
 
-Convert r, g, b, a  (ranging from 0-255) into an ALLEGRO_COLOR.
+Convert r, g, b, a  (ranging from 0-255) into an [ALLEGRO_COLOR].
 
 See also: [al_map_rgb], [al_map_rgba_f], [al_map_rgb_f]
 
 ### API: al_map_rgba_f
 
-Convert r, g, b, a (ranging from 0.0f-1.0f) into an ALLEGRO_COLOR.
+Convert r, g, b, a (ranging from 0.0f-1.0f) into an [ALLEGRO_COLOR].
 
 See also: [al_map_rgba], [al_map_rgb], [al_map_rgb_f]
 
@@ -47,21 +47,21 @@ See also: [al_unmap_rgba], [al_unmap_rgba_f], [al_unmap_rgb_f]
 
 ### API: al_unmap_rgb_f
 
-Retrieves components of an ALLEGRO_COLOR, ignoring alpha.
+Retrieves components of an [ALLEGRO_COLOR], ignoring alpha.
 Components will range from 0.0f-1.0f.
 
 See also: [al_unmap_rgba], [al_unmap_rgb], [al_unmap_rgba_f]
 
 ### API: al_unmap_rgba
 
-Retrieves components of an ALLEGRO_COLOR.
+Retrieves components of an [ALLEGRO_COLOR].
 Components will range from 0-255.
 
 See also: [al_unmap_rgb], [al_unmap_rgba_f], [al_unmap_rgb_f]
 
 ### API: al_unmap_rgba_f
 
-Retrieves components of an ALLEGRO_COLOR.
+Retrieves components of an [ALLEGRO_COLOR].
 Components will range from 0.0f-1.0f.
 
 See also: [al_unmap_rgba], [al_unmap_rgb], [al_unmap_rgb_f]
@@ -322,7 +322,7 @@ ALLEGRO_MEMORY_BITMAP
 
 ALLEGRO_KEEP_BITMAP_FORMAT
 :   Only used when loading bitmaps from disk files,
-    forces the resulting ALLEGRO_BITMAP to use the same format as the file.
+    forces the resulting [ALLEGRO_BITMAP] to use the same format as the file.
     
     *This is not yet honoured.*
 
@@ -377,16 +377,16 @@ ALLEGRO_NO_PREMULTIPLIED_ALPHA
     the images color data when it loads it. Typically that would look
     something like this:
 
-       r = get_float_byte();
-       g = get_float_byte();
-       b = get_float_byte();
-       a = get_float_byte();
+        r = get_float_byte();
+        g = get_float_byte();
+        b = get_float_byte();
+        a = get_float_byte();
 
-       r = r * a;
-       g = g * a;
-       b = b * a;
+        r = r * a;
+        g = g * a;
+        b = b * a;
 
-       set_image_pixel(x, y, r, g, b, a);
+        set_image_pixel(x, y, r, g, b, a);
 
     The reason for this can be seen in the Allegro example
     ex_premulalpha, ie, using pre-multiplied alpha gives more accurate
@@ -399,12 +399,12 @@ ALLEGRO_NO_PREMULTIPLIED_ALPHA
     images are not loaded with alpha pre-multiplied, but are loaded with
     color values direct from the image. That looks like this:
 
-       r = get_float_byte();
-       g = get_float_byte();
-       b = get_float_byte();
-       a = get_float_byte();
+        r = get_float_byte();
+        g = get_float_byte();
+        b = get_float_byte();
+        a = get_float_byte();
 
-       set_image_pixel(x, y, r, g, b, a);
+        set_image_pixel(x, y, r, g, b, a);
 
     To draw such an image using regular alpha blending, you would use
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA)
@@ -414,32 +414,32 @@ ALLEGRO_NO_PREMULTIPLIED_ALPHA
     be darker than they should be). Second, the behaviour is somewhat confusing,
     which is explained in the example below.
 
-       // Load and create bitmaps with an alpha channel
-       al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
-       // Load some bitmap with alpha in it
-       bmp = al_load_bitmap("some_alpha_bitmap.png");
-       // We will draw to this buffer and then draw this buffer to the screen
-       tmp_buffer = al_create_bitmap(SCREEN_W, SCREEN_H);
-       // Set the buffer as the target and clear it
-       al_set_target_bitmap(tmp_buffer);
-       al_clear_to_color(al_map_rgba_f(0, 0, 0, 1));
-       // Draw the bitmap to the temporary buffer
-       al_draw_bitmap(bmp, 0, 0, 0);
-       // Finally, draw the buffer to the screen
-       // The output will look incorrect (may take close inspection
-       // depending on the bitmap -- it may also be very obvious)
-       al_set_target_bitmap(al_get_backbuffer(display));
-       al_draw_bitmap(tmp_buffer, 0, 0, 0);
+        // Load and create bitmaps with an alpha channel
+        al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
+        // Load some bitmap with alpha in it
+        bmp = al_load_bitmap("some_alpha_bitmap.png");
+        // We will draw to this buffer and then draw this buffer to the screen
+        tmp_buffer = al_create_bitmap(SCREEN_W, SCREEN_H);
+        // Set the buffer as the target and clear it
+        al_set_target_bitmap(tmp_buffer);
+        al_clear_to_color(al_map_rgba_f(0, 0, 0, 1));
+        // Draw the bitmap to the temporary buffer
+        al_draw_bitmap(bmp, 0, 0, 0);
+        // Finally, draw the buffer to the screen
+        // The output will look incorrect (may take close inspection
+        // depending on the bitmap -- it may also be very obvious)
+        al_set_target_bitmap(al_get_backbuffer(display));
+        al_draw_bitmap(tmp_buffer, 0, 0, 0);
 
    To explain further, if you have a pixel with 0.5 alpha, and you're using
    (ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA) for blending, the
    formula is:
 
-      a = da * dst + sa * src
+        a = da * dst + sa * src
 
    Expands to:
 
-      result_a = dst_a * (1-0.5) + 0.5 * 0.5;
+        result_a = dst_a * (1-0.5) + 0.5 * 0.5;
 
    So if you draw the image to the temporary buffer, it is blended once resulting
    in 0.75 alpha, then drawn again to the screen, blended in the same way,
@@ -505,7 +505,7 @@ See also: [al_lock_bitmap], [al_lock_bitmap_region], [al_unlock_bitmap]
 ### API: al_is_compatible_bitmap
 
 D3D and OpenGL allow sharing a texture in a way so it can be used for
-multiple windows. Each ALLEGRO_BITMAP created with [al_create_bitmap]
+multiple windows. Each [ALLEGRO_BITMAP] created with [al_create_bitmap]
 however is usually tied to a single ALLEGRO_DISPLAY. This function can
 be used to know if the bitmap is compatible with the given display,
 even if it is a different display to the one it was created with. It
@@ -1020,7 +1020,7 @@ See also: [al_register_bitmap_saver]
 
 ### API: al_load_bitmap
 
-Loads an image file into an ALLEGRO_BITMAP.
+Loads an image file into an [ALLEGRO_BITMAP].
 The file type is determined by the extension.
 
 Returns NULL on error.
@@ -1035,7 +1035,7 @@ See also: [al_load_bitmap_f], [al_register_bitmap_loader],
 
 ### API: al_load_bitmap_f
 
-Loads an image from an ALLEGRO_FILE stream into an ALLEGRO_BITMAP.
+Loads an image from an [ALLEGRO_FILE] stream into an [ALLEGRO_BITMAP].
 The file type is determined by the passed 'ident' parameter, which is a file
 name extension including the leading dot.
 
@@ -1051,7 +1051,7 @@ See also: [al_load_bitmap], [al_register_bitmap_loader_f],
 
 ### API: al_save_bitmap
 
-Saves an ALLEGRO_BITMAP to an image file.
+Saves an [ALLEGRO_BITMAP] to an image file.
 The file type is determined by the extension.
 
 Returns true on success, false on error.
@@ -1064,7 +1064,7 @@ See also: [al_save_bitmap_f], [al_register_bitmap_saver], [al_init_image_addon]
 
 ### API: al_save_bitmap_f
 
-Saves an ALLEGRO_BITMAP to an ALLEGRO_FILE stream.
+Saves an [ALLEGRO_BITMAP] to an [ALLEGRO_FILE] stream.
 The file type is determined by the passed 'ident' parameter, which is a file
 name extension including the leading dot.
 
