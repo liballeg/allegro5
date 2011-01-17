@@ -993,7 +993,7 @@ void _al_xglx_handle_mmon_event(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d,
 #define X11_ATOM(x)  XInternAtom(x11, #x, False);
 
 /* Note: The system mutex must be locked (exactly once) before
- * calling this as we call _al_display_xglx_await_resize.
+ * calling this as we call _al_xglx_display_await_resize.
  */
 void _al_xglx_toggle_fullscreen_window(ALLEGRO_DISPLAY *display, int value)
 {
@@ -1026,7 +1026,7 @@ void _al_xglx_toggle_fullscreen_window(ALLEGRO_DISPLAY *display, int value)
    
    if (value == 2) {
       /* Only wait for a resize if toggling. */
-      _al_display_xglx_await_resize(display, old_resize_count, true);
+      _al_xglx_display_await_resize(display, old_resize_count, true);
    }
 }
 

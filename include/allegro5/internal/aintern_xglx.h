@@ -158,8 +158,8 @@ struct ALLEGRO_MOUSE_CURSOR_XGLX
 /* Functions private to the X11 driver. */
 
 /* display */
-void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *event);
-void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent);
+void _al_xglx_display_configure(ALLEGRO_DISPLAY *d, XEvent *event);
+void _al_xglx_display_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent);
 void _al_xwin_display_switch_handler(ALLEGRO_DISPLAY *d,
    XFocusChangeEvent *event);
 void _al_xwin_display_expose(ALLEGRO_DISPLAY *display, XExposeEvent *xevent);
@@ -220,7 +220,7 @@ void _al_xglx_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter);
 void _al_xglx_fullscreen_to_display(ALLEGRO_SYSTEM_XGLX *s,
    ALLEGRO_DISPLAY_XGLX *d);
 void _al_xglx_toggle_fullscreen_window(ALLEGRO_DISPLAY *display, int value);
-void _al_display_xglx_await_resize(ALLEGRO_DISPLAY *d, int old_resize_count, bool delay_hack);
+void _al_xglx_display_await_resize(ALLEGRO_DISPLAY *d, int old_resize_count, bool delay_hack);
 void _al_xglx_get_display_offset(ALLEGRO_SYSTEM_XGLX *s, int adapter, int *x, int *y);
 
 int _al_xglx_fullscreen_select_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int w, int h, int format, int refresh_rate);

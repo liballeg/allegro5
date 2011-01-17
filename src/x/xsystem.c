@@ -70,7 +70,7 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
             event.xmotion.x, event.xmotion.y, &d->display);
          break;
       case ConfigureNotify:
-         _al_display_xglx_configure(&d->display,  &event);
+         _al_xglx_display_configure(&d->display,  &event);
          d->resize_count++;
          _al_cond_signal(&s->resized);
          break;
@@ -89,7 +89,7 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
          break;
       case ClientMessage:
          if ((Atom)event.xclient.data.l[0] == d->wm_delete_window_atom) {
-            _al_display_xglx_closebutton(&d->display, &event);
+            _al_xglx_display_closebutton(&d->display, &event);
             break;
          }
          if (event.xclient.message_type == s->AllegroAtom) {
@@ -283,7 +283,7 @@ static void xglx_shutdown_system(void)
 // to the system driver, so addons could provide additional drivers.
 static ALLEGRO_DISPLAY_INTERFACE *xglx_get_display_driver(void)
 {
-   return _al_display_xglx_driver();
+   return _al_xglx_display_driver();
 }
 
 static ALLEGRO_KEYBOARD_DRIVER *xglx_get_keyboard_driver(void)

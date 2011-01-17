@@ -167,7 +167,7 @@ static void xdpy_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
    XFlush(system->x11display);
 
    /* We have to store these immediately, as we will ignore the XConfigureEvent
-    * that we receive in response.  _al_display_xglx_configure() knows why.
+    * that we receive in response.  _al_xglx_display_configure() knows why.
     */
    glx->x = x;
    glx->y = y;
@@ -834,7 +834,7 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
  * wait for the condition variable it gets auto-unlocked. For a
  * nested lock that would not be the case.
  */
-void _al_display_xglx_await_resize(ALLEGRO_DISPLAY *d, int old_resize_count,
+void _al_xglx_display_await_resize(ALLEGRO_DISPLAY *d, int old_resize_count,
    bool delay_hack)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
@@ -915,7 +915,7 @@ static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
       reset_size_hints(d);
       glx->programmatic_resize = true;
       XResizeWindow(system->x11display, glx->window, w, h);
-      _al_display_xglx_await_resize(d, old_resize_count,
+      _al_xglx_display_await_resize(d, old_resize_count,
          (d->flags & ALLEGRO_FULLSCREEN));
       glx->programmatic_resize = false;
       set_size_hints(d, INT_MAX, INT_MAX);
@@ -951,7 +951,7 @@ skip_resize:
 /* Handle an X11 configure event. [X11 thread]
  * Only called from the event handler with the system locked.
  */
-void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
+void _al_xglx_display_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
 
@@ -1025,7 +1025,7 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
 /* Handle an X11 close button event. [X11 thread]
  * Only called from the event handler with the system locked.
  */
-void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent)
+void _al_xglx_display_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent)
 {
    ALLEGRO_EVENT_SOURCE *es = &d->es;
    (void)xevent;
@@ -1149,7 +1149,7 @@ static bool xdpy_wait_for_vsync(ALLEGRO_DISPLAY *display)
 
 
 /* Obtain a reference to this driver. */
-ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
+ALLEGRO_DISPLAY_INTERFACE *_al_xglx_display_driver(void)
 {
    if (xdpy_vt.create_display)
       return &xdpy_vt;
