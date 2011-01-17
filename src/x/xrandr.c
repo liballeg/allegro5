@@ -80,7 +80,7 @@ struct xrandr_rect {
    int y2;
 };
 
-static void _al_xsys_xrandr_copy_mode(xrandr_mode *mode, XRRModeInfo *rrmode)
+static void xrandr_copy_mode(xrandr_mode *mode, XRRModeInfo *rrmode)
 {
    mode->id     = rrmode->id;
    mode->width  = rrmode->width;
@@ -94,7 +94,7 @@ static void _al_xsys_xrandr_copy_mode(xrandr_mode *mode, XRRModeInfo *rrmode)
    }
 }
 
-static void _al_xsys_xrandr_copy_output(xrandr_output *output, RROutput id, XRROutputInfo *rroutput)
+static void xrandr_copy_output(xrandr_output *output, RROutput id, XRROutputInfo *rroutput)
 {
    output->id             = id;
    output->timestamp      = rroutput->timestamp;
@@ -127,7 +127,7 @@ static void _al_xsys_xrandr_copy_output(xrandr_output *output, RROutput id, XRRO
    
 }
 
-static void _al_xsys_xrandr_copy_crtc(xrandr_crtc *crtc, RRCrtc id, XRRCrtcInfo *rrcrtc)
+static void xrandr_copy_crtc(xrandr_crtc *crtc, RRCrtc id, XRRCrtcInfo *rrcrtc)
 {
    crtc->id        = id;
    crtc->timestamp = rrcrtc->timestamp;
@@ -166,7 +166,7 @@ static void _al_xsys_xrandr_copy_crtc(xrandr_crtc *crtc, RRCrtc id, XRRCrtcInfo 
    
 }
 
-static void _al_xsys_xrandr_copy_screen(ALLEGRO_SYSTEM_XGLX *s, xrandr_screen *screen, XRRScreenResources *res)
+static void xrandr_copy_screen(ALLEGRO_SYSTEM_XGLX *s, xrandr_screen *screen, XRRScreenResources *res)
 {
    int j;
 
@@ -174,7 +174,7 @@ static void _al_xsys_xrandr_copy_screen(ALLEGRO_SYSTEM_XGLX *s, xrandr_screen *s
    if(res->nmode) {
       for(j = 0; j < res->nmode; j++) {
          xrandr_mode *mode = _al_vector_alloc_back(&screen->modes);
-         _al_xsys_xrandr_copy_mode(mode, &res->modes[j]);
+         xrandr_copy_mode(mode, &res->modes[j]);
       }
    }
    
@@ -186,7 +186,7 @@ static void _al_xsys_xrandr_copy_screen(ALLEGRO_SYSTEM_XGLX *s, xrandr_screen *s
          xrandr_crtc *crtc = _al_vector_alloc_back(&screen->crtcs);
          XRRCrtcInfo *rrcrtc = XRRGetCrtcInfo(s->x11display, res, res->crtcs[j]);
       
-         _al_xsys_xrandr_copy_crtc(crtc, res->crtcs[j], rrcrtc);
+         xrandr_copy_crtc(crtc, res->crtcs[j], rrcrtc);
       
          XRRFreeCrtcInfo(rrcrtc);
       }
@@ -200,7 +200,7 @@ static void _al_xsys_xrandr_copy_screen(ALLEGRO_SYSTEM_XGLX *s, xrandr_screen *s
          xrandr_output *output = _al_vector_alloc_back(&screen->outputs);
          XRROutputInfo *rroutput = XRRGetOutputInfo(s->x11display, res, res->outputs[j]);
       
-         _al_xsys_xrandr_copy_output(output, res->outputs[j], rroutput);
+         xrandr_copy_output(output, res->outputs[j], rroutput);
       
          XRRFreeOutputInfo(rroutput);
          XSync(s->x11display, False);
@@ -208,7 +208,7 @@ static void _al_xsys_xrandr_copy_screen(ALLEGRO_SYSTEM_XGLX *s, xrandr_screen *s
    }
 }
 
-static xrandr_crtc *_al_xsys_xrandr_fetch_crtc(ALLEGRO_SYSTEM_XGLX *s, int sid, RRCrtc id)
+static xrandr_crtc *xrandr_fetch_crtc(ALLEGRO_SYSTEM_XGLX *s, int sid, RRCrtc id)
 {
    unsigned int i;
    
@@ -223,7 +223,7 @@ static xrandr_crtc *_al_xsys_xrandr_fetch_crtc(ALLEGRO_SYSTEM_XGLX *s, int sid, 
    return NULL;
 }
 
-static xrandr_output *_al_xsys_xrandr_fetch_output(ALLEGRO_SYSTEM_XGLX *s, int sid, RROutput id)
+static xrandr_output *xrandr_fetch_output(ALLEGRO_SYSTEM_XGLX *s, int sid, RROutput id)
 {
    unsigned int i;
    
@@ -238,7 +238,7 @@ static xrandr_output *_al_xsys_xrandr_fetch_output(ALLEGRO_SYSTEM_XGLX *s, int s
    return NULL;
 }
 
-static xrandr_mode *_al_xsys_xrandr_fetch_mode(ALLEGRO_SYSTEM_XGLX *s, int sid, RRMode id)
+static xrandr_mode *xrandr_fetch_mode(ALLEGRO_SYSTEM_XGLX *s, int sid, RRMode id)
 {
    unsigned int i;
    
@@ -253,18 +253,18 @@ static xrandr_mode *_al_xsys_xrandr_fetch_mode(ALLEGRO_SYSTEM_XGLX *s, int sid, 
    return NULL;
 }
 
-static inline xrandr_crtc *_al_xsys_xrandr_map_to_crtc(ALLEGRO_SYSTEM_XGLX *s, int sid, int adapter)
+static inline xrandr_crtc *xrandr_map_to_crtc(ALLEGRO_SYSTEM_XGLX *s, int sid, int adapter)
 {
-   return _al_xsys_xrandr_fetch_crtc(s, sid, *(int*)_al_vector_ref(&s->xrandr_adaptermap, adapter));
+   return xrandr_fetch_crtc(s, sid, *(int*)_al_vector_ref(&s->xrandr_adaptermap, adapter));
 }
 
-static inline xrandr_output *_al_xsys_xrandr_map_adapter(ALLEGRO_SYSTEM_XGLX *s, int sid, int adapter)
+static inline xrandr_output *xrandr_map_adapter(ALLEGRO_SYSTEM_XGLX *s, int sid, int adapter)
 {
-   xrandr_crtc *crtc = _al_xsys_xrandr_map_to_crtc(s, sid, adapter);
-   return _al_xsys_xrandr_fetch_output(s, sid, *(RROutput*)_al_vector_ref(&crtc->connected, 0));
+   xrandr_crtc *crtc = xrandr_map_to_crtc(s, sid, adapter);
+   return xrandr_fetch_output(s, sid, *(RROutput*)_al_vector_ref(&crtc->connected, 0));
 }
 
-static void _al_xsys_xrandr_combine_output_rect(struct xrandr_rect *rect, xrandr_crtc *crtc)
+static void xrandr_combine_output_rect(struct xrandr_rect *rect, xrandr_crtc *crtc)
 {
    if(rect->x1 > crtc->x)
       rect->x1 = crtc->x;
@@ -281,9 +281,9 @@ static void _al_xsys_xrandr_combine_output_rect(struct xrandr_rect *rect, xrandr
 
 /* begin vtable methods */
 
-static int _al_xsys_xrandr_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter);
+static int xrandr_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter);
 
-static bool _al_xsys_xrandr_query(ALLEGRO_SYSTEM_XGLX *s)
+static bool xrandr_query(ALLEGRO_SYSTEM_XGLX *s)
 {
    int screen_count = ScreenCount(s->x11display);
    int i;
@@ -306,7 +306,7 @@ static bool _al_xsys_xrandr_query(ALLEGRO_SYSTEM_XGLX *s)
          continue;
       }
       
-      _al_xsys_xrandr_copy_screen(s, screen, res);
+      xrandr_copy_screen(s, screen, res);
       
       screen->res = res;
       
@@ -348,13 +348,13 @@ static bool _al_xsys_xrandr_query(ALLEGRO_SYSTEM_XGLX *s)
    /* map out crtc positions and alignments */
    /* this code makes Adapter 0 the root display, everything will hang off it */
    for(i = 1; i < (int)_al_vector_size(&s->xrandr_adaptermap); i++) {
-      int xscreen = _al_xsys_xrandr_get_xscreen(s, i);
-      xrandr_crtc *crtc = _al_xsys_xrandr_fetch_crtc(s, xscreen, *(RRCrtc*)_al_vector_ref(&s->xrandr_adaptermap, i));
+      int xscreen = xrandr_get_xscreen(s, i);
+      xrandr_crtc *crtc = xrandr_fetch_crtc(s, xscreen, *(RRCrtc*)_al_vector_ref(&s->xrandr_adaptermap, i));
       
       int j;
       for(j = 0; j < (int)_al_vector_size(&s->xrandr_adaptermap); j++) {
-         int xscreen_j = _al_xsys_xrandr_get_xscreen(s, j);
-         xrandr_crtc *crtc_j = _al_xsys_xrandr_fetch_crtc(s, xscreen_j, *(RRCrtc*)_al_vector_ref(&s->xrandr_adaptermap, j));
+         int xscreen_j = xrandr_get_xscreen(s, j);
+         xrandr_crtc *crtc_j = xrandr_fetch_crtc(s, xscreen_j, *(RRCrtc*)_al_vector_ref(&s->xrandr_adaptermap, j));
          
          if(crtc->x == crtc_j->x + (int)crtc_j->width) {
             crtc->align_to = crtc_j->id;
@@ -390,25 +390,25 @@ static bool _al_xsys_xrandr_query(ALLEGRO_SYSTEM_XGLX *s)
    return ret;
 }
 
-static int _al_xsys_xrandr_get_num_modes(ALLEGRO_SYSTEM_XGLX *s, int adapter)
+static int xrandr_get_num_modes(ALLEGRO_SYSTEM_XGLX *s, int adapter)
 {
    if(adapter < 0 || adapter >= (int)_al_vector_size(&s->xrandr_adaptermap))
       return 0;
    
    int xscreen = _al_xglx_get_xscreen(s, adapter);
-   xrandr_output *output = _al_xsys_xrandr_map_adapter(s, xscreen, adapter);
+   xrandr_output *output = xrandr_map_adapter(s, xscreen, adapter);
    return _al_vector_size(&output->modes);
 }
 
-static ALLEGRO_DISPLAY_MODE *_al_xsys_xrandr_get_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int id, ALLEGRO_DISPLAY_MODE *amode)
+static ALLEGRO_DISPLAY_MODE *xrandr_get_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int id, ALLEGRO_DISPLAY_MODE *amode)
 {
    int xscreen = _al_xglx_get_xscreen(s, adapter);
-   xrandr_output *output = _al_xsys_xrandr_map_adapter(s, xscreen, adapter);
+   xrandr_output *output = xrandr_map_adapter(s, xscreen, adapter);
    
    if(id < 0 || id > (int)_al_vector_size(&output->modes))
       return NULL;
    
-   xrandr_mode *mode = _al_xsys_xrandr_fetch_mode(s, xscreen, *(RRMode*)_al_vector_ref(&output->modes, id));
+   xrandr_mode *mode = xrandr_fetch_mode(s, xscreen, *(RRMode*)_al_vector_ref(&output->modes, id));
    
    amode->width = mode->width;
    amode->height = mode->height;
@@ -418,14 +418,14 @@ static ALLEGRO_DISPLAY_MODE *_al_xsys_xrandr_get_mode(ALLEGRO_SYSTEM_XGLX *s, in
    return amode;
 }
 
-static bool _al_xsys_xrandr_realign_crtc_origin(ALLEGRO_SYSTEM_XGLX *s, int xscreen, xrandr_crtc *crtc, int *x, int *y)
+static bool xrandr_realign_crtc_origin(ALLEGRO_SYSTEM_XGLX *s, int xscreen, xrandr_crtc *crtc, int *x, int *y)
 {
    bool ret = false;
    
    if(crtc->align_to == 0)
       return false;
    
-   xrandr_crtc *align_to = _al_xsys_xrandr_fetch_crtc(s, xscreen, crtc->align_to);
+   xrandr_crtc *align_to = xrandr_fetch_crtc(s, xscreen, crtc->align_to);
 
    switch(crtc->align) {
       case CRTC_POS_RIGHTOF:
@@ -460,15 +460,15 @@ static bool _al_xsys_xrandr_realign_crtc_origin(ALLEGRO_SYSTEM_XGLX *s, int xscr
    return false;
 }
 
-static bool _al_xsys_xrandr_set_mode(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, int w, int h, int format, int refresh)
+static bool xrandr_set_mode(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, int w, int h, int format, int refresh)
 {
    int adapter = _al_xglx_get_adapter(s, d, false);
    int xscreen = _al_xglx_get_xscreen(s, adapter);
    
    xrandr_screen *screen = _al_vector_ref(&s->xrandr_screens, xscreen);
    
-   xrandr_crtc *crtc = _al_xsys_xrandr_map_to_crtc(s, xscreen, adapter);
-   xrandr_mode *cur_mode = _al_xsys_xrandr_fetch_mode(s, xscreen, crtc->mode);
+   xrandr_crtc *crtc = xrandr_map_to_crtc(s, xscreen, adapter);
+   xrandr_mode *cur_mode = xrandr_fetch_mode(s, xscreen, crtc->mode);
    
    if((int)cur_mode->width == w && (int)cur_mode->height == h && (refresh == 0 || refresh == (int)cur_mode->refresh)) {
       ALLEGRO_DEBUG("mode already set, good to go\n");
@@ -484,12 +484,12 @@ static bool _al_xsys_xrandr_set_mode(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGL
       return false;
    }
    
-   xrandr_output *output = _al_xsys_xrandr_fetch_output(s, xscreen, *(RROutput*)_al_vector_ref(&crtc->connected, 0));
-   xrandr_mode *mode = _al_xsys_xrandr_fetch_mode(s, xscreen, *(RRMode*)_al_vector_ref(&output->modes, mode_idx));
+   xrandr_output *output = xrandr_fetch_output(s, xscreen, *(RROutput*)_al_vector_ref(&crtc->connected, 0));
+   xrandr_mode *mode = xrandr_fetch_mode(s, xscreen, *(RRMode*)_al_vector_ref(&output->modes, mode_idx));
    
    int new_x = crtc->x, new_y = crtc->y;
    
-   _al_xsys_xrandr_realign_crtc_origin(s, xscreen, crtc, &new_x, &new_y);
+   xrandr_realign_crtc_origin(s, xscreen, crtc, &new_x, &new_y);
    
    ALLEGRO_DEBUG("xrandr: set mode %i+%i-%ix%i on adapter %i\n", new_x, new_y, w, h, adapter);
    
@@ -520,7 +520,7 @@ static bool _al_xsys_xrandr_set_mode(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGL
    for(i = 0; i < (int)_al_vector_size(&screen->crtcs); i++) {
       xrandr_crtc *c = _al_vector_ref(&screen->crtcs, i);
       if(_al_vector_size(&c->connected) > 0) {
-         _al_xsys_xrandr_combine_output_rect(&rect, crtc);
+         xrandr_combine_output_rect(&rect, crtc);
       }
    }
    
@@ -542,18 +542,18 @@ static bool _al_xsys_xrandr_set_mode(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGL
    return true;
 }
 
-static void _al_xsys_xrandr_restore_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter)
+static void xrandr_restore_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter)
 {
    int xscreen = _al_xglx_get_xscreen(s, adapter);
    xrandr_screen *screen = _al_vector_ref(&s->xrandr_screens, xscreen);
-   xrandr_crtc *crtc = _al_xsys_xrandr_map_to_crtc(s, xscreen, adapter);
+   xrandr_crtc *crtc = xrandr_map_to_crtc(s, xscreen, adapter);
    
    if(crtc->mode == crtc->original_mode) {
       ALLEGRO_DEBUG("current crtc mode (%i) equals the original mode (%i), not restoring.\n", (int)crtc->mode, (int)crtc->original_mode);
       return;
    }
    
-   xrandr_mode *orig_mode = _al_xsys_xrandr_fetch_mode(s, xscreen, crtc->original_mode);
+   xrandr_mode *orig_mode = xrandr_fetch_mode(s, xscreen, crtc->original_mode);
    
    ALLEGRO_DEBUG("restore mode %i+%i-%ix%i@%i on adapter %i\n", crtc->original_xoff, crtc->original_yoff, orig_mode->width, orig_mode->height, orig_mode->refresh, adapter);
    
@@ -582,11 +582,11 @@ static void _al_xsys_xrandr_restore_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter)
    _al_mutex_unlock(&s->lock);
 }
 
-static void _al_xsys_xrandr_get_display_offset(ALLEGRO_SYSTEM_XGLX *s, int adapter, int *x, int *y)
+static void xrandr_get_display_offset(ALLEGRO_SYSTEM_XGLX *s, int adapter, int *x, int *y)
 {
    int xscreen = _al_xglx_get_xscreen(s, adapter);
    
-   xrandr_crtc *crtc = _al_xsys_xrandr_map_to_crtc(s, xscreen, adapter);
+   xrandr_crtc *crtc = xrandr_map_to_crtc(s, xscreen, adapter);
    
    // XXX Should we always return original_[xy]off here?
    // When does a user want to query the offset after the modes are set?
@@ -597,20 +597,20 @@ static void _al_xsys_xrandr_get_display_offset(ALLEGRO_SYSTEM_XGLX *s, int adapt
    ALLEGRO_DEBUG("display offset: %ix%i.\n", *x, *y);
 }
 
-static int _al_xsys_xrandr_get_num_adapters(ALLEGRO_SYSTEM_XGLX *s)
+static int xrandr_get_num_adapters(ALLEGRO_SYSTEM_XGLX *s)
 {
    return _al_vector_size(&s->xrandr_adaptermap);
 }
 
-static void _al_xsys_xrandr_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONITOR_INFO *mi)
+static void xrandr_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONITOR_INFO *mi)
 {
    if(adapter < 0 || adapter >= (int)_al_vector_size(&s->xrandr_adaptermap))
       return;
    
    int xscreen = _al_xglx_get_xscreen(s, adapter);
-   xrandr_output *output = _al_xsys_xrandr_map_adapter(s, xscreen, adapter);
+   xrandr_output *output = xrandr_map_adapter(s, xscreen, adapter);
    
-   xrandr_crtc *crtc = _al_xsys_xrandr_fetch_crtc(s, xscreen, output->crtc);
+   xrandr_crtc *crtc = xrandr_fetch_crtc(s, xscreen, output->crtc);
    
    mi->x1 = crtc->x;
    mi->y1 = crtc->y;
@@ -618,7 +618,7 @@ static void _al_xsys_xrandr_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter
    mi->y2 = crtc->y + crtc->height;
 }
 
-static int _al_xsys_xrandr_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
+static int xrandr_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
 {
    // if we have more than one xrandr_screen, we're in multi-head x mode
    if(_al_vector_size(&s->xrandr_screens) > 1)
@@ -629,7 +629,7 @@ static int _al_xsys_xrandr_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
    
    int i, default_adapter = 0;
    for(i = 0; i < (int)_al_vector_size(&s->xrandr_adaptermap); i++) {
-      xrandr_crtc *crtc = _al_xsys_xrandr_map_to_crtc(s, 0, i);
+      xrandr_crtc *crtc = xrandr_map_to_crtc(s, 0, i);
       
       if(center_x >= (int)crtc->x && center_x <= (int)(crtc->x + crtc->width) &&
          center_y >= (int)crtc->y && center_y <= (int)(crtc->y + crtc->height))
@@ -644,7 +644,7 @@ static int _al_xsys_xrandr_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
    return default_adapter;
 }
 
-static int _al_xsys_xrandr_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter)
+static int xrandr_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter)
 {
    // more than one screen means we have multi-head x mode
    if(_al_vector_size(&s->xrandr_screens) > 1)
@@ -654,7 +654,7 @@ static int _al_xsys_xrandr_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter)
    return 0;
 }
 
-static void _al_xsys_xrandr_handle_xevent(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, XEvent *e)
+static void xrandr_handle_xevent(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, XEvent *e)
 {
    if(e->type == s->xrandr_event_base + RRNotify) {
       XRRNotifyEvent *rre = (XRRNotifyEvent*)e;
@@ -662,7 +662,7 @@ static void _al_xsys_xrandr_handle_xevent(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLA
          XRRCrtcChangeNotifyEvent *rrce = (XRRCrtcChangeNotifyEvent*)rre;
          ALLEGRO_DEBUG("RRNotify_CrtcChange!\n");
          
-         xrandr_crtc *crtc = _al_xsys_xrandr_fetch_crtc(s, d->xscreen, rrce->crtc);
+         xrandr_crtc *crtc = xrandr_fetch_crtc(s, d->xscreen, rrce->crtc);
          if(!crtc) {
             ALLEGRO_DEBUG("invalid RRCrtc(%i).\n", (int)rrce->crtc);
             return;
@@ -697,7 +697,7 @@ static void _al_xsys_xrandr_handle_xevent(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLA
       if(rre->subtype == RRNotify_OutputChange) {
          XRROutputChangeNotifyEvent *rroe = (XRROutputChangeNotifyEvent*)rre;
                                                       
-         xrandr_output *output = _al_xsys_xrandr_fetch_output(s, d->xscreen, rroe->output);
+         xrandr_output *output = xrandr_fetch_output(s, d->xscreen, rroe->output);
          if(!output) {
             ALLEGRO_DEBUG("invalid RROutput(%i).\n", (int)rroe->output);
             return;
@@ -771,7 +771,7 @@ void _al_xsys_xrandr_init(ALLEGRO_SYSTEM_XGLX *s)
          ALLEGRO_WARN("XRandR not available, unsupported version: %i.%i\n", major_version, minor_version);
       }
       else {
-         bool ret = _al_xsys_xrandr_query(s);
+         bool ret = xrandr_query(s);
          if (ret) {
             ALLEGRO_INFO("XRandR is active\n");
             s->xrandr_available = 1;
@@ -786,18 +786,17 @@ void _al_xsys_xrandr_init(ALLEGRO_SYSTEM_XGLX *s)
    }
 
    if (s->xrandr_available) {
-      memset(&mmon_interface, 0, sizeof(mmon_interface));
-      mmon_interface.get_num_display_modes = _al_xsys_xrandr_get_num_modes;
-      mmon_interface.get_display_mode      = _al_xsys_xrandr_get_mode;
-      mmon_interface.set_mode              = _al_xsys_xrandr_set_mode;
-      mmon_interface.restore_mode          = _al_xsys_xrandr_restore_mode;
-      mmon_interface.get_display_offset    = _al_xsys_xrandr_get_display_offset;
-      mmon_interface.get_num_adapters      = _al_xsys_xrandr_get_num_adapters;
-      mmon_interface.get_monitor_info      = _al_xsys_xrandr_get_monitor_info;
-      mmon_interface.get_default_adapter   = _al_xsys_xrandr_get_default_adapter;
-      mmon_interface.get_xscreen           = _al_xsys_xrandr_get_xscreen;
-      mmon_interface.handle_xevent         = _al_xsys_xrandr_handle_xevent;
-
+      memset(&_al_xglx_mmon_interface, 0, sizeof(_al_xglx_mmon_interface));
+      _al_xglx_mmon_interface.get_num_display_modes = xrandr_get_num_modes;
+      _al_xglx_mmon_interface.get_display_mode      = xrandr_get_mode;
+      _al_xglx_mmon_interface.set_mode              = xrandr_set_mode;
+      _al_xglx_mmon_interface.restore_mode          = xrandr_restore_mode;
+      _al_xglx_mmon_interface.get_display_offset    = xrandr_get_display_offset;
+      _al_xglx_mmon_interface.get_num_adapters      = xrandr_get_num_adapters;
+      _al_xglx_mmon_interface.get_monitor_info      = xrandr_get_monitor_info;
+      _al_xglx_mmon_interface.get_default_adapter   = xrandr_get_default_adapter;
+      _al_xglx_mmon_interface.get_xscreen           = xrandr_get_xscreen;
+      _al_xglx_mmon_interface.handle_xevent         = xrandr_handle_xevent;
    }
 
    _al_mutex_unlock(&s->lock);

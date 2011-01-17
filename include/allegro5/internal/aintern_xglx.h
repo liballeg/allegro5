@@ -202,7 +202,7 @@ struct _ALLEGRO_XGLX_MMON_INTERFACE {
     void (*handle_xevent)(ALLEGRO_SYSTEM_XGLX *, ALLEGRO_DISPLAY_XGLX *, XEvent *e);
 };
 
-extern _ALLEGRO_XGLX_MMON_INTERFACE mmon_interface;
+extern _ALLEGRO_XGLX_MMON_INTERFACE _al_xglx_mmon_interface;
 
 void _al_xsys_mmon_exit(ALLEGRO_SYSTEM_XGLX *s);
 
