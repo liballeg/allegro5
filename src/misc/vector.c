@@ -60,23 +60,7 @@ void _al_vector_init(_AL_VECTOR *vec, size_t itemsize)
    vec->_unused = 0;
 }
 
-/* Internal function: _al_vector_reserve
- * 
- *  Reserve or pre-allocate 'num' items in the vector.
- */
-bool _al_vector_reserve(_AL_VECTOR *vec, int num)
-{
-   ASSERT(vec);
-   ASSERT(num > 0);
-   
-   vec->_items = al_malloc(vec->_itemsize * num);
-   if(!vec->_items)
-      return false;
-   
-   vec->_unused = num;
-   
-   return true;
-}
+
 
 /*
  * Simple inline functions:
@@ -126,12 +110,11 @@ void* _al_vector_ref_back(const _AL_VECTOR *vec)
    return _al_vector_ref(vec, vec->_size-1);
 }
 
-/* Internal function: _al_vector_append_array
- * 
- *  append `num` elements from `arr` array to _AL_VECTOR `vec`
- * 
- */
 
+
+/* Internal function: _al_vector_append_array
+ *  Append `num` elements from `arr` array to _AL_VECTOR `vec`
+ */
 void _al_vector_append_array(_AL_VECTOR *vec, unsigned int num, const void *arr)
 {
    ASSERT(vec);
@@ -164,6 +147,8 @@ void _al_vector_append_array(_AL_VECTOR *vec, unsigned int num, const void *arr)
    
    memcpy(vec->_items, arr, vec->_itemsize * num); 
 }
+
+
 
 /* Internal function: _al_vector_alloc_back
  *

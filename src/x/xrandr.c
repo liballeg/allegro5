@@ -172,9 +172,6 @@ static void _al_xsys_xrandr_copy_screen(ALLEGRO_SYSTEM_XGLX *s, xrandr_screen *s
 
    _al_vector_init(&screen->modes, sizeof(xrandr_mode));
    if(res->nmode) {
-      _al_vector_reserve(&screen->modes, res->nmode);
-      memset(screen->modes._items, 0, sizeof(xrandr_mode) * res->nmode);
-   
       for(j = 0; j < res->nmode; j++) {
          xrandr_mode *mode = _al_vector_alloc_back(&screen->modes);
          _al_xsys_xrandr_copy_mode(mode, &res->modes[j]);
@@ -183,9 +180,6 @@ static void _al_xsys_xrandr_copy_screen(ALLEGRO_SYSTEM_XGLX *s, xrandr_screen *s
    
    _al_vector_init(&screen->crtcs, sizeof(xrandr_crtc));
    if(res->ncrtc) {
-      _al_vector_reserve(&screen->crtcs, res->ncrtc);
-      memset(screen->crtcs._items, 0, sizeof(xrandr_crtc) * res->ncrtc);
-   
       ALLEGRO_DEBUG("fount %i crtcs.\n", res->ncrtc);
       for(j = 0; j < res->ncrtc; j++) {
          ALLEGRO_DEBUG("crtc[%i] %i.\n", j, (int)res->crtcs[j]);
@@ -200,9 +194,6 @@ static void _al_xsys_xrandr_copy_screen(ALLEGRO_SYSTEM_XGLX *s, xrandr_screen *s
    
    _al_vector_init(&screen->outputs, sizeof(xrandr_output));
    if(res->noutput) {
-      _al_vector_reserve(&screen->outputs, res->noutput);
-      memset(screen->outputs._items, 0, sizeof(xrandr_output) * res->noutput);
-   
       ALLEGRO_DEBUG("found %i outputs.\n", res->noutput);
       for(j = 0; j < res->noutput; j++) {
          ALLEGRO_DEBUG("output[%i] %i.\n", j, (int)res->outputs[j]);
@@ -299,13 +290,8 @@ static bool _al_xsys_xrandr_query(ALLEGRO_SYSTEM_XGLX *s)
    bool ret = true;
    
    _al_vector_init(&s->xrandr_screens, sizeof(xrandr_screen));
-   _al_vector_reserve(&s->xrandr_screens, screen_count);
-   memset(s->xrandr_screens._items, 0, sizeof(xrandr_screen) * screen_count);
-   
    _al_vector_init(&s->xrandr_adaptermap, sizeof(RROutput));
-   _al_vector_reserve(&s->xrandr_adaptermap, 4); // Seems like a good initial default
-   memset(s->xrandr_adaptermap._items, 0, sizeof(RROutput) * 4);
-   
+
    for(i = 0; i < screen_count; i++) {
       xrandr_screen *screen = _al_vector_alloc_back(&s->xrandr_screens);
       
@@ -518,7 +504,7 @@ static bool _al_xsys_xrandr_set_mode(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGL
       new_y,
       mode->id,
       crtc->rotation,
-      (RROutput*)crtc->connected._items,
+      _al_vector_ref_front(&crtc->connected),
       _al_vector_size(&crtc->connected)
    );
    
@@ -583,7 +569,7 @@ static void _al_xsys_xrandr_restore_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter)
       crtc->original_yoff,
       orig_mode->id,
       crtc->rotation,
-      (RROutput*)crtc->connected._items,
+      _al_vector_ref_front(&crtc->connected),
       _al_vector_size(&crtc->connected)
    );
    
