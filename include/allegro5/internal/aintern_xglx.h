@@ -235,7 +235,7 @@ void _al_xglx_toggle_above(ALLEGRO_DISPLAY *display, int value);
 
 int _al_xglx_get_adapter(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, bool recalc);
 
-void _al_xglx_handle_xevent(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, XEvent *e);
+void _al_xglx_handle_mmon_event(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, XEvent *e);
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
 void _al_xsys_xrandr_init(ALLEGRO_SYSTEM_XGLX *s);

@@ -99,7 +99,7 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
          break;
          
       default:
-         _al_xglx_handle_xevent(s, d, &event);
+         _al_xglx_handle_mmon_event(s, d, &event);
          break;
    }
 }
