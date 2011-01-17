@@ -48,6 +48,7 @@
    #import <Kernel/IOKit/hidsystem/IOHIDUsageTables.h>
 #endif
 
+ALLEGRO_PATH *_al_osx_get_path(int id);
 
 #ifndef ALLEGRO_NO_MAGIC_MAIN
    #define ALLEGRO_MAGIC_MAIN
