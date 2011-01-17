@@ -3,10 +3,6 @@
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
 
-int _al_xsys_mheadx_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s);
-int _al_xsys_mheadx_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter);
-void _al_xsys_get_active_window_center(ALLEGRO_SYSTEM_XGLX *s, int *x, int *y);
-
 ALLEGRO_DEBUG_CHANNEL("xrandr")
 
 typedef struct xrandr_screen xrandr_screen;
