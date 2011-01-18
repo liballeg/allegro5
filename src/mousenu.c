@@ -377,6 +377,18 @@ bool al_get_mouse_cursor_position(int *ret_x, int *ret_y)
    }
 }
 
+/* Function: al_grab_mouse
+ */
+
+bool al_grab_mouse(ALLEGRO_DISPLAY *display, bool onoff)
+{
+   if (display) {
+      ASSERT(display->vt->grab_mouse);
+      return display->vt->grab_mouse(display, onoff);
+   }
+   
+   return false;
+}
 
 
 /* Function: al_get_mouse_event_source
