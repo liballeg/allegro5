@@ -103,8 +103,6 @@ static CFMutableDictionaryRef CreateDeviceMatchingDictionary(
             pageCFNumberRef
          );
 
-	 CFRelease(usage_page);
-
          CFRelease(pageCFNumberRef);
 
          // note: the usage is only valid if the usage page is also defined
@@ -124,7 +122,6 @@ static CFMutableDictionaryRef CreateDeviceMatchingDictionary(
                usageCFNumberRef
             );
 
-	    CFRelease(usage_key);
             CFRelease(usageCFNumberRef);
          }
       }
@@ -224,8 +221,6 @@ const char *get_device_product_id(IOHIDDeviceRef ref)
    CFStringRef s = CFSTR(kIOHIDProductIDKey);
 
    CFTypeRef product_id = IOHIDDeviceGetProperty(ref, s);
-
-   CFRelease(s);
 
    return product_id;
 }
