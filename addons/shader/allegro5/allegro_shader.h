@@ -29,6 +29,7 @@ ALLEGRO_SHADER *al_create_shader(ALLEGRO_SHADER_PLATFORM platform);
 bool al_attach_shader_source(ALLEGRO_SHADER *shader,
    ALLEGRO_SHADER_TYPE type, const char *source);
 bool al_link_shader(ALLEGRO_SHADER *shader);
+void al_set_shader(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader);
 void al_use_shader(ALLEGRO_SHADER *shader, bool use);
 void al_destroy_shader(ALLEGRO_SHADER *shader);
 

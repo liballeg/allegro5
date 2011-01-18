@@ -28,8 +28,6 @@ typedef struct GLSL_DEFERRED_SET {
    ALLEGRO_SHADER *shader;
 } GLSL_DEFERRED_SET;
 
-static _AL_VECTOR glsl_deferred_sets = _AL_VECTOR_INITIALIZER(GLSL_DEFERRED_SET);
-
 ALLEGRO_SHADER *_al_create_shader_glsl(ALLEGRO_SHADER_PLATFORM platform)
 {
    ALLEGRO_SHADER_GLSL_S *shader = (ALLEGRO_SHADER_GLSL_S *)al_malloc(
@@ -42,6 +40,9 @@ ALLEGRO_SHADER *_al_create_shader_glsl(ALLEGRO_SHADER_PLATFORM platform)
       return NULL;
 
    memset(shader, 0, sizeof(ALLEGRO_SHADER_GLSL_S));
+
+   shader->deferred_sets = al_malloc(sizeof(_AL_VECTOR));
+   _al_vector_init(shader->deferred_sets, sizeof(GLSL_DEFERRED_SET));
 
    return (ALLEGRO_SHADER *)shader;
 }
@@ -165,6 +166,7 @@ void _al_destroy_shader_glsl(ALLEGRO_SHADER *shader)
    glDeleteShader(gl_shader->vertex_shader);
    glDeleteShader(gl_shader->pixel_shader);
    glDeleteProgram(gl_shader->program_object);
+   _al_vector_free(gl_shader->deferred_sets);
    al_free(shader);
 }
 
@@ -268,12 +270,14 @@ static void shader_set_float_vector(GLSL_DEFERRED_SET *s)
 
 void _al_use_shader_glsl(ALLEGRO_SHADER *shader, bool use)
 {
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+
    if (use) {
       ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
-      ALLEGRO_DISPLAY *display = al_get_current_display();
-
       GLint handle;
+
       glUseProgram(gl_shader->program_object);
+
       handle = glGetUniformLocation(gl_shader->program_object, "proj_matrix");
       if (handle >= 0) {
          glUniformMatrix4fv(handle, 1, false, (float *)display->proj_transform.m);
@@ -284,11 +288,11 @@ void _al_use_shader_glsl(ALLEGRO_SHADER *shader, bool use)
       }
 
       // Apply all deferred sets
-      while (!_al_vector_is_empty(&glsl_deferred_sets)) {
-         GLSL_DEFERRED_SET *sptr = _al_vector_ref_front(&glsl_deferred_sets);
+      while (!_al_vector_is_empty(gl_shader->deferred_sets)) {
+         GLSL_DEFERRED_SET *sptr = _al_vector_ref_front(gl_shader->deferred_sets);
          (*(sptr->fptr))(sptr);
-	 free(sptr->name);
-         _al_vector_delete_at(&glsl_deferred_sets, 0);
+         free(sptr->name);
+         _al_vector_delete_at(gl_shader->deferred_sets, 0);
       }
    }
    else {
@@ -337,7 +341,7 @@ static bool shader_add_deferred_set(
    s.unit = unit;
    s.shader = shader;
 
-   sptr = _al_vector_alloc_back(&glsl_deferred_sets);
+   sptr = _al_vector_alloc_back(gl_shader->deferred_sets);
    if (!sptr)
       return false;
 

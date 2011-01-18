@@ -83,6 +83,35 @@ typedef struct ALLEGRO_OGL_EXTRAS
 
    GLuint program_object; // Shader object
 
+   /* Shader variable addresses. If the user is using the programmable pipeline,
+    * they have to follow certain rules if they expect to interoperate with
+    * Allegro's drawing routines. Variables with these names (minus the _loc)
+    * should exist in the vertex or pixel shaders (pos, color, and texcoord
+    * are vertex shader attributes, the rest are pixel shader uniforms). In
+    * addition to these, there are two matrices that Allegro will set
+    * automatically for you (of course these are vertex shader uniforms).
+    * Those are named proj_matrix and view_matrix. proj_matrix will contain
+    * Allegro's calculated projection matrix which is an orthographic matrix,
+    * sometimes with a rotation or translation on iPhone. The view matrix is
+    * whatever you set with al_use_transform. A more detailed explanation of
+    * each of the below variables is given here:
+    *
+    * pos - vertex position attribute (vertex shader)
+    * color - vertex color attribute (vertex shader, passed to fragment shader)
+    * texcoord - vertex texture coordinate (vertex shader, passed to fragment shader)
+    * use_tex - whether or not to use the bound texture
+    * tex - the sampler2D for the texture if one is bound
+    * use_tex_matric - whether or not to use a texture matrix
+    * tex_matrix - the texture matrix (used by the primitives addon)
+    */
+   GLint pos_loc;
+   GLint color_loc;
+   GLint texcoord_loc;
+   GLint use_tex_loc;
+   GLint tex_loc;
+   GLint use_tex_matrix_loc;
+   GLint tex_matrix_loc;
+
 } ALLEGRO_OGL_EXTRAS;
 
 typedef struct ALLEGRO_OGL_BITMAP_VERTEX

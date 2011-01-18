@@ -4,6 +4,8 @@
 #import <UIKit/UIKit.h>
 #include <pthread.h>
 
+#include "allegro5/allegro_iphone.h"
+
 
 ALLEGRO_DEBUG_CHANNEL("iphone")
 
@@ -12,8 +14,18 @@ void _al_iphone_run_user_main(void);
 static allegroAppDelegate *global_delegate;
 static UIImageView *splashview;
 static UIWindow *splashwin;
+static UIApplication *app;
 static volatile bool waiting_for_program_halt = false;
 static float scale_override = -1.0;
+
+static bool is_ipad(void)
+{
+#if (__IPHONE_OS_VERSION_MAX_ALLOWED >= 30200)
+	if ([[UIDevice currentDevice] respondsToSelector: @selector(userInterfaceIdiom)])
+		return ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad);
+#endif
+	return false;
+}
 
 static int iphone_orientation_to_allegro(UIDeviceOrientation orientation)
 {
@@ -63,7 +75,7 @@ void al_iphone_program_has_halted(void)
    waiting_for_program_halt = false;
 }
 
-float _al_iphone_get_screen_scale(void)
+float al_iphone_get_screen_scale(void)
 {
    if (scale_override > 0.0) {
    	return scale_override;
@@ -79,6 +91,22 @@ float _al_iphone_get_screen_scale(void)
 void al_iphone_override_screen_scale(float scale)
 {
    scale_override = scale;
+}
+
+void al_iphone_set_statusbar_orientation(int o)
+{
+	UIInterfaceOrientation orientation = UIInterfaceOrientationPortrait;
+
+	if (o == ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_PORTRAIT)
+		orientation = UIInterfaceOrientationPortrait;
+	else if (o == ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_PORTRAIT_UPSIDE_DOWN)
+		orientation = UIInterfaceOrientationPortraitUpsideDown;
+	else if (o == ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_LANDSCAPE_RIGHT)
+		orientation = UIInterfaceOrientationLandscapeRight;
+	else if (o == ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_LANDSCAPE_LEFT)
+		orientation = UIInterfaceOrientationLandscapeLeft;
+
+	[app setStatusBarOrientation:orientation animated:NO];
 }
 
 void _al_iphone_add_view(ALLEGRO_DISPLAY *display)
@@ -182,12 +210,18 @@ int _al_iphone_get_orientation()
  * Default.png just as apple does internally. This way the moment the user
  * view is first displayed in the user thread we switch from displaying the
  * splash screen to the first user frame, without any flicker.
+ *
+ * NOTE: Default-Portrait.png is loaded if on iPad
  */
 - (void)display_splash_screen
 {
    UIScreen *screen = [UIScreen mainScreen];
    splashwin = [[UIWindow alloc] initWithFrame:[screen bounds]];
-   UIImage *img = [UIImage imageNamed:@"Default.png"];
+   UIImage *img;
+   if (is_ipad())
+   	img = [UIImage imageNamed:@"Default-Portrait.png"];
+   else
+   	img = [UIImage imageNamed:@"Default.png"];
    splashview = [[UIImageView alloc] initWithImage:img];
    [splashwin addSubview:splashview];
    [splashwin makeKeyAndVisible];
@@ -209,8 +243,9 @@ int _al_iphone_get_orientation()
 
    ALLEGRO_INFO("App launched.\n");
     
-   application.statusBarHidden = true;
+   //application.statusBarHidden = true;
    global_delegate = self;
+   app = application;
 
    // Register for device orientation notifications
    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
@@ -249,6 +284,8 @@ int _al_iphone_get_orientation()
 - (void)applicationDidEnterBackground:(UIApplication *)application {
    ALLEGRO_DISPLAY *d = allegro_display;
    ALLEGRO_EVENT event;
+   
+   (void)application;
 
    waiting_for_program_halt = true;
 
@@ -269,6 +306,8 @@ int _al_iphone_get_orientation()
 - (void)applicationWillEnterForeground:(UIApplication *)application {
     ALLEGRO_DISPLAY *d = allegro_display;
 	ALLEGRO_EVENT event;
+	
+	(void)application;
 
     _al_event_source_lock(&d->es);
     if (_al_event_source_needs_to_generate_event(&d->es)) {

@@ -22,8 +22,19 @@
  *  Public iPhone-related API
  */
 
-AL_FUNC(void, al_iphone_program_has_halted,    (void));
-AL_FUNC(void, al_iphone_override_screen_scale, (float scale));
+enum ALLEGRO_IPHONE_STATUSBAR_ORIENTATION {
+	ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_PORTRAIT = 0,
+	ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_PORTRAIT_UPSIDE_DOWN,
+	ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_LANDSCAPE_RIGHT,
+	ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_LANDSCAPE_LEFT
+};
+
+AL_FUNC(void,   al_iphone_program_has_halted,        (void));
+AL_FUNC(void,   al_iphone_override_screen_scale,     (float scale));
+AL_FUNC(void,   al_iphone_set_statusbar_orientation, (int orientation));
+AL_FUNC(double, al_iphone_get_last_shake_time,       (void));
+AL_FUNC(float,  al_iphone_get_battery_level,         (void));
+AL_FUNC(float,  al_iphone_get_screen_scale,          (void));
 
 #ifdef __cplusplus
    }

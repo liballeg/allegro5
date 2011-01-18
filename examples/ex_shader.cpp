@@ -61,14 +61,14 @@ static const char *cg_vertex_source =
    "}\n";
 
 static const char *cg_pixel_source =
-   "uniform sampler2D t;\n"
+   "uniform sampler2D tex;\n"
    "uniform float3 tint;\n"
    "void ps_main(\n"
    "  in float4 color    : COLOR0,\n"
    "  in float2 texcoord : TEXCOORD0,\n"
    "  out float4 colorO  : COLOR0)\n"
    "{\n"
-   "  colorO = color * tex2D(t, texcoord);\n"
+   "  colorO = color * tex2D(tex, texcoord);\n"
    "  colorO.r *= tint.r;\n"
    "  colorO.g *= tint.g;\n"
    "  colorO.b *= tint.b;\n"
@@ -105,7 +105,7 @@ static const char *hlsl_vertex_source =
 static const char *hlsl_pixel_source =
    "texture t;\n"
    "sampler2D s = sampler_state {\n"
-   "   texture = <t>;\n"
+   "   texture = <tex>;\n"
    "};\n"
    "float3 tint;\n"
    "float4 ps_main(VS_OUTPUT Input) : COLOR0\n"
@@ -135,13 +135,13 @@ static const char *glsl_vertex_source =
    "}\n";
 
 static const char *glsl_pixel_source =
-   "uniform sampler2D t;\n"
+   "uniform sampler2D tex;\n"
    "uniform vec3 tint;\n"
    "varying vec4 varying_color;\n"
    "varying vec2 varying_texcoord;\n"
    "void main()\n"
    "{\n"
-   "  vec4 tmp = varying_color * texture2D(t, varying_texcoord);\n"
+   "  vec4 tmp = varying_color * texture2D(tex, varying_texcoord);\n"
    "  tmp.r *= tint.r;\n"
    "  tmp.g *= tint.g;\n"
    "  tmp.b *= tint.b;\n"
@@ -167,12 +167,6 @@ void drawD3D(ALLEGRO_VERTEX *v, int start, int count)
       &v[start].x, sizeof(ALLEGRO_VERTEX));
 }
 #endif
-
-void drawGL(ALLEGRO_VERTEX *v, int start, int count)
-{
-   (void)v;
-   glDrawArrays(GL_TRIANGLES, start, count);
-}
 
 int main(int argc, char **argv)
 {
@@ -212,55 +206,6 @@ int main(int argc, char **argv)
    al_set_opengl_program_object(display, al_get_opengl_program_object(shader));
 #endif
       
-   ALLEGRO_VERTEX *v;
-   v = new ALLEGRO_VERTEX[6*4];
-
-   v[0].x = 0;
-   v[0].y = 160;
-   v[0].z = 0;
-   v[0].u = 0;
-   v[0].v = BOT;
-   v[0].color = al_map_rgb(255, 255, 255);
-   v[1].x = 0;
-   v[1].y = 0;
-   v[1].z = 0;
-   v[1].u = 0;
-   v[1].v = TOP;
-   v[1].color = al_map_rgb(255, 255, 255);
-   v[2].x = 240;
-   v[2].y = 0;
-   v[2].z = 0;
-   v[2].u = 1;
-   v[2].v = TOP;
-   v[2].color = al_map_rgb(255, 255, 255);
-
-   v[3].x = 0;
-   v[3].y = 160;
-   v[3].z = 0;
-   v[3].u = 0;
-   v[3].v = BOT;
-   v[3].color = al_map_rgb(255, 255, 255);
-   v[4].x = 240;
-   v[4].y = 0;
-   v[4].z = 0;
-   v[4].u = 1;
-   v[4].v = TOP;
-   v[4].color = al_map_rgb(255, 255, 255);
-   v[5].x = 240;
-   v[5].y = 160;
-   v[5].z = 0;
-   v[5].u = 1;
-   v[5].v = BOT;
-   v[5].color = al_map_rgb(255, 255, 0);
-
-   for (int i = 0; i < 6; i++) {
-      v[i+6] = v[i];
-      v[i+6].x += 300;
-      v[i+12] = v[i];
-      v[i+12].y += 200;
-      v[i+18] = v[i];
-   }
-
    tints = new float[3*4];
 
    tints[0] = 4.0;
@@ -279,10 +224,6 @@ int main(int argc, char **argv)
    tints[10] = 4.0;
    tints[11] = 1.0;
 
-   al_set_shader_vertex_array(shader, &v[0].x, sizeof(ALLEGRO_VERTEX));
-   al_set_shader_color_array(shader, (unsigned char *)&v[0].color, sizeof(ALLEGRO_VERTEX));
-   al_set_shader_texcoord_array(shader, &v[0].u, sizeof(ALLEGRO_VERTEX));
-
    while (1) {
       ALLEGRO_KEYBOARD_STATE s;
       al_get_keyboard_state(&s);
@@ -293,33 +234,33 @@ int main(int argc, char **argv)
          al_map_rgb(140, 40, 40)
       );
 
-      al_set_shader_sampler(shader, "t", bmp, 0);
+      al_set_shader_sampler(shader, "tex", bmp, 0);
       al_set_shader_float_vector(shader, "tint", 3, &tints[0]);
       al_use_shader(shader, true);
       if (al_get_display_flags(display) & ALLEGRO_OPENGL)
-      	drawGL(v, 0, 6);
+		al_draw_bitmap(bmp, 0, 0, 0);
       #if defined HLSL && !defined CG
       else
          drawD3D(v, 0, 6);
       #endif
       al_use_shader(shader, false);
 
-      al_set_shader_sampler(shader, "t", bmp, 0);
+      al_set_shader_sampler(shader, "tex", bmp, 0);
       al_set_shader_float_vector(shader, "tint", 3, &tints[3]);
       al_use_shader(shader, true);
       if (al_get_display_flags(display) & ALLEGRO_OPENGL)
-      	drawGL(v, 6, 6);
+		al_draw_bitmap(bmp, 320, 0, 0);
       #if defined HLSL && !defined CG
       else
          drawD3D(v, 6, 6);
       #endif
       al_use_shader(shader, false);
 
-      al_set_shader_sampler(shader, "t", bmp, 0);
+      al_set_shader_sampler(shader, "tex", bmp, 0);
       al_set_shader_float_vector(shader, "tint", 3, &tints[6]);
       al_use_shader(shader, true);
       if (al_get_display_flags(display) & ALLEGRO_OPENGL)
-      	drawGL(v, 12, 6);
+		al_draw_bitmap(bmp, 0, 240, 0);
       #if defined HLSL && !defined CG
       else
          drawD3D(v, 12, 6);
@@ -327,18 +268,17 @@ int main(int argc, char **argv)
       al_use_shader(shader, false);
 
       /* Draw the last one transformed */
-
       ALLEGRO_TRANSFORM trans, backup;
       al_copy_transform(&backup, al_get_current_transform());
       al_identity_transform(&trans);
-      al_translate_transform(&trans, 300, 200);
+      al_translate_transform(&trans, 320, 240);
       al_use_transform(&trans);
 
-      al_set_shader_sampler(shader, "t", bmp, 0);
+      al_set_shader_sampler(shader, "tex", bmp, 0);
       al_set_shader_float_vector(shader, "tint", 3, &tints[9]);
       al_use_shader(shader, true);
       if (al_get_display_flags(display) & ALLEGRO_OPENGL)
-      	drawGL(v, 18, 6);
+		al_draw_bitmap(bmp, 0, 0, 0);
       #if defined HLSL && !defined CG
       else
          drawD3D(v, 18, 6);

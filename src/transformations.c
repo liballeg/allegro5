@@ -339,4 +339,16 @@ void al_ortho_transform(ALLEGRO_TRANSFORM *trans,
    al_compose_transform(trans, &tmp);
 }
 
+ALLEGRO_TRANSFORM *al_get_projection_transform(ALLEGRO_DISPLAY *display)
+{
+   return &display->proj_transform;
+}
+
+void al_set_projection_transform(ALLEGRO_DISPLAY *display, ALLEGRO_TRANSFORM *t)
+{
+   al_copy_transform(&display->proj_transform, t);
+   display->vt->set_projection(display);
+}
+
+
 /* vim: set sts=3 sw=3 et: */

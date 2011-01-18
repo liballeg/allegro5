@@ -217,6 +217,9 @@ static void emit_triange_end_cap(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* 
  */
 static void emit_round_end_cap(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pivot, const float* dir, const float* normal, float radius)
 {
+   (void)dir;
+   (void)radius;
+
    float angle = atan2f(-normal[1], -normal[0]);
 
    emit_arc(cache, pivot, angle, angle + ALLEGRO_PI, radius, 16);

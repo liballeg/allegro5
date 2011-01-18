@@ -1,8 +1,12 @@
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_shader.h"
 #include "allegro5/internal/aintern_shader.h"
-#include "shader_glsl.h"
 
+#ifdef ALLEGRO_CFG_WANT_GLSL_SHADERS
+#include "allegro5/allegro_opengl.h"
+#include "shader_glsl.h"
+#include "allegro5/allegro_shader_glsl.h"
+#endif
 #ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
 #include "shader_hlsl.h"
 #endif
@@ -296,4 +300,18 @@ bool al_set_shader_texcoord_array(ALLEGRO_SHADER *shader, float *u, int stride)
 #endif
 
    return false;
+}
+
+void al_set_shader(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader)
+{
+#ifdef ALLEGRO_CFG_WANT_GLSL_SHADERS
+   if (USING_OPENGL()) {
+      al_set_opengl_program_object(display, al_get_opengl_program_object(shader));
+   }
+#else
+   if (false) {
+#endif
+   else {
+      // FIXME
+   }
 }

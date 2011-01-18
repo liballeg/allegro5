@@ -79,75 +79,168 @@ static void setup_blending(ALLEGRO_DISPLAY *ogl_disp)
 
 static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEGRO_BITMAP* texture)
 {
-   if(decl) {
-      ALLEGRO_VERTEX_ELEMENT* e;
-      e = &decl->elements[ALLEGRO_PRIM_POSITION];
-      if(e->attribute) {
-         int ncoord = 0;
-         GLenum type = 0;
+   ALLEGRO_DISPLAY *display = al_get_current_display();
 
-         glEnableClientState(GL_VERTEX_ARRAY);
+   if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      if(decl) {
+         ALLEGRO_VERTEX_ELEMENT* e;
+         e = &decl->elements[ALLEGRO_PRIM_POSITION];
+         if(e->attribute) {
+            int ncoord = 0;
+            GLenum type = 0;
 
-         switch(e->storage) {
-            case ALLEGRO_PRIM_FLOAT_2:
-               ncoord = 2;
-               type = GL_FLOAT;
-            break;
-            case ALLEGRO_PRIM_FLOAT_3:
-               ncoord = 3;
-               type = GL_FLOAT;
-            break;
-            case ALLEGRO_PRIM_SHORT_2:
-               ncoord = 2;
-               type = GL_SHORT;
-            break;
+            switch(e->storage) {
+               case ALLEGRO_PRIM_FLOAT_2:
+                  ncoord = 2;
+                  type = GL_FLOAT;
+               break;
+               case ALLEGRO_PRIM_FLOAT_3:
+                  ncoord = 3;
+                  type = GL_FLOAT;
+               break;
+               case ALLEGRO_PRIM_SHORT_2:
+                  ncoord = 2;
+                  type = GL_SHORT;
+               break;
+            }
+
+            if (display->ogl_extras->pos_loc >= 0) {
+               glVertexAttribPointer(display->ogl_extras->pos_loc, ncoord, type, false, decl->stride, vtxs + e->offset);
+               glEnableVertexAttribArray(display->ogl_extras->pos_loc);
+            }
+         } else {
+            if (display->ogl_extras->pos_loc >= 0) {
+               glDisableVertexAttribArray(display->ogl_extras->pos_loc);
+            }
          }
-         glVertexPointer(ncoord, type, decl->stride, vtxs + e->offset);
-      } else {
-         glDisableClientState(GL_VERTEX_ARRAY);
-      }
 
-      e = &decl->elements[ALLEGRO_PRIM_TEX_COORD];
-      if(!e->attribute)
-         e = &decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
-      if(texture && e->attribute) {
-         GLenum type = 0;
+         e = &decl->elements[ALLEGRO_PRIM_TEX_COORD];
+         if(!e->attribute)
+            e = &decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
+         if(texture && e->attribute) {
+            GLenum type = 0;
 
-         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            switch(e->storage) {
+               case ALLEGRO_PRIM_FLOAT_2:
+               case ALLEGRO_PRIM_FLOAT_3:
+                  type = GL_FLOAT;
+               break;
+               case ALLEGRO_PRIM_SHORT_2:
+                  type = GL_SHORT;
+               break;
+            }
 
-         switch(e->storage) {
-            case ALLEGRO_PRIM_FLOAT_2:
-            case ALLEGRO_PRIM_FLOAT_3:
-               type = GL_FLOAT;
-            break;
-            case ALLEGRO_PRIM_SHORT_2:
-               type = GL_SHORT;
-            break;
+            if (display->ogl_extras->texcoord_loc >= 0) {
+               glVertexAttribPointer(display->ogl_extras->texcoord_loc, 2, type, false, decl->stride, vtxs + e->offset);
+               glEnableVertexAttribArray(display->ogl_extras->texcoord_loc);
+            }
+         } else {
+            if (display->ogl_extras->texcoord_loc >= 0) {
+               glDisableVertexAttribArray(display->ogl_extras->texcoord_loc);
+            }
          }
-         glTexCoordPointer(2, type, decl->stride, vtxs + e->offset);
-      } else {
-         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-      }
 
-      e = &decl->elements[ALLEGRO_PRIM_COLOR_ATTR];
-      if(e->attribute) {
-         glEnableClientState(GL_COLOR_ARRAY);
-
-         glColorPointer(4, GL_FLOAT, decl->stride, vtxs + e->offset);
+         e = &decl->elements[ALLEGRO_PRIM_COLOR_ATTR];
+         if(e->attribute) {
+            if (display->ogl_extras->color_loc >= 0) {
+               glVertexAttribPointer(display->ogl_extras->color_loc, 4, GL_FLOAT, true, decl->stride, vtxs + e->offset);
+               glEnableVertexAttribArray(display->ogl_extras->color_loc);
+            }
+         } else {
+            if (display->ogl_extras->color_loc >= 0) {
+               glDisableVertexAttribArray(display->ogl_extras->color_loc);
+            }
+         }
       } else {
-         glDisableClientState(GL_COLOR_ARRAY);
-         glColor4f(1, 1, 1, 1);
+         const ALLEGRO_VERTEX* vtx = (const ALLEGRO_VERTEX*)vtxs;
+            
+         if (display->ogl_extras->pos_loc >= 0) {
+            glVertexAttribPointer(display->ogl_extras->pos_loc, 3, GL_FLOAT, false, sizeof(ALLEGRO_VERTEX), &vtx[0].x);
+            glEnableVertexAttribArray(display->ogl_extras->pos_loc);
+         }
+         
+         if (display->ogl_extras->texcoord_loc >= 0) {
+            glVertexAttribPointer(display->ogl_extras->texcoord_loc, 2, GL_FLOAT, false, sizeof(ALLEGRO_VERTEX), &vtx[0].u);
+            glEnableVertexAttribArray(display->ogl_extras->texcoord_loc);
+         }
+         
+         if (display->ogl_extras->color_loc >= 0) {
+            glVertexAttribPointer(display->ogl_extras->color_loc, 4, GL_FLOAT, true, sizeof(ALLEGRO_VERTEX), &vtx[0].color);
+            glEnableVertexAttribArray(display->ogl_extras->color_loc);
+         }
       }
-   } else {
-      const ALLEGRO_VERTEX* vtx = (const ALLEGRO_VERTEX*)vtxs;
+   }
+   else {
+      if(decl) {
+         ALLEGRO_VERTEX_ELEMENT* e;
+         e = &decl->elements[ALLEGRO_PRIM_POSITION];
+         if(e->attribute) {
+            int ncoord = 0;
+            GLenum type = 0;
    
-      glEnableClientState(GL_COLOR_ARRAY);
-      glEnableClientState(GL_VERTEX_ARRAY);
-      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-      glVertexPointer(3, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].x);
-      glColorPointer(4, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].color.r);
-      glTexCoordPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].u);
+            glEnableClientState(GL_VERTEX_ARRAY);
+   
+            switch(e->storage) {
+               case ALLEGRO_PRIM_FLOAT_2:
+                  ncoord = 2;
+                  type = GL_FLOAT;
+               break;
+               case ALLEGRO_PRIM_FLOAT_3:
+                  ncoord = 3;
+                  type = GL_FLOAT;
+               break;
+               case ALLEGRO_PRIM_SHORT_2:
+                  ncoord = 2;
+                  type = GL_SHORT;
+               break;
+            }
+            glVertexPointer(ncoord, type, decl->stride, vtxs + e->offset);
+         } else {
+            glDisableClientState(GL_VERTEX_ARRAY);
+         }
+   
+         e = &decl->elements[ALLEGRO_PRIM_TEX_COORD];
+         if(!e->attribute)
+            e = &decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
+         if(texture && e->attribute) {
+            GLenum type = 0;
+   
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+   
+            switch(e->storage) {
+               case ALLEGRO_PRIM_FLOAT_2:
+               case ALLEGRO_PRIM_FLOAT_3:
+                  type = GL_FLOAT;
+               break;
+               case ALLEGRO_PRIM_SHORT_2:
+                  type = GL_SHORT;
+               break;
+            }
+            glTexCoordPointer(2, type, decl->stride, vtxs + e->offset);
+         } else {
+            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+         }
+   
+         e = &decl->elements[ALLEGRO_PRIM_COLOR_ATTR];
+         if(e->attribute) {
+            glEnableClientState(GL_COLOR_ARRAY);
+   
+            glColorPointer(4, GL_FLOAT, decl->stride, vtxs + e->offset);
+         } else {
+            glDisableClientState(GL_COLOR_ARRAY);
+            glColor4f(1, 1, 1, 1);
+         }
+      } else {
+         const ALLEGRO_VERTEX* vtx = (const ALLEGRO_VERTEX*)vtxs;
+      
+         glEnableClientState(GL_COLOR_ARRAY);
+         glEnableClientState(GL_VERTEX_ARRAY);
+         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+   
+         glVertexPointer(3, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].x);
+         glColorPointer(4, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].color.r);
+         glTexCoordPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].u);
+      }
    }
 
    if (texture) {
@@ -187,18 +280,41 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          mat[1][1] = -1.0f / true_h;
       }
 
-      glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&current_texture);
-      if (current_texture != gl_texture) {
-         glBindTexture(GL_TEXTURE_2D, gl_texture);
+      if (!(display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
+         glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&current_texture);
+         if (current_texture != gl_texture) {
+            glBindTexture(GL_TEXTURE_2D, gl_texture);
+         }
       }
 
-      glMatrixMode(GL_TEXTURE);
-      glLoadMatrixf(mat[0]);
-      glMatrixMode(GL_MODELVIEW);
+      if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+         float transposed[4][4];
+         int x, y;
+         GLint handle;
+         for (y = 0; y < 4; y++) {
+            for (x = 0; x < 4; x++) {
+               transposed[y][x] = mat[x][y];
+            }
+         }
+
+         handle = display->ogl_extras->tex_matrix_loc;
+         if (handle >= 0)
+            glUniformMatrix4fv(handle, 1, false, (float *)transposed);
+
+         handle = display->ogl_extras->use_tex_matrix_loc;
+         if (handle >= 0)
+            glUniform1i(handle, 1);
+      }
+      else {
+         glMatrixMode(GL_TEXTURE);
+         glLoadMatrixf(mat[0]);
+         glMatrixMode(GL_MODELVIEW);
+      }
    } else {
       glBindTexture(GL_TEXTURE_2D, 0);
    }
 }
+
 #endif /* ALLEGRO_CFG_OPENGL */
 
 int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, int start, int end, int type)
@@ -219,7 +335,7 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const 
    if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) || al_is_bitmap_locked(target)) {
       return _al_draw_prim_soft(texture, vtxs, decl, start, end, type);
    }
-   
+
    vtx = (const char*)vtxs + start * stride;
    num_vtx = end - start;
 
@@ -227,9 +343,25 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const 
    setup_state(vtx, decl, texture);
    
    if(texture) {
-      glEnable(GL_TEXTURE_2D);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+      if (ogl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+         if (ogl_disp->ogl_extras->use_tex_loc >= 0) {
+            glUniform1i(ogl_disp->ogl_extras->use_tex_loc, 1);
+         }
+         if (ogl_disp->ogl_extras->tex_loc >= 0) {
+            glBindTexture(GL_TEXTURE_2D, al_get_opengl_texture(texture));
+            glActiveTexture(GL_TEXTURE0);
+            glUniform1i(ogl_disp->ogl_extras->tex_loc, 0); // 0th sampler
+         }
+         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+         //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+         //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+      }
+      else {
+         glEnable(GL_TEXTURE_2D);
+         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+      }
    }
 
    switch (type) {
@@ -271,25 +403,53 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const 
    }
 
    if(texture) {
-      glDisable(GL_TEXTURE_2D);
-      glMatrixMode(GL_TEXTURE);
-      glLoadIdentity();
-      glMatrixMode(GL_MODELVIEW);
+      if (ogl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+         float identity[16] = {
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+         };
+         GLint handle;
+         handle = ogl_disp->ogl_extras->tex_matrix_loc;
+         if (handle >= 0)
+            glUniformMatrix4fv(handle, 1, false, identity);
+         handle = ogl_disp->ogl_extras->use_tex_matrix_loc;
+         if (handle >= 0)
+            glUniform1i(handle, 0);
+         if (ogl_disp->ogl_extras->use_tex_loc >= 0)
+            glUniform1i(ogl_disp->ogl_extras->use_tex_loc, 0);
+      }
+      else {
+         glDisable(GL_TEXTURE_2D);
+         glMatrixMode(GL_TEXTURE);
+         glLoadIdentity();
+         glMatrixMode(GL_MODELVIEW);
+      }
    }
-   
-   glDisableClientState(GL_COLOR_ARRAY);
-   glDisableClientState(GL_VERTEX_ARRAY);
-   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+   if (ogl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      if (ogl_disp->ogl_extras->pos_loc >= 0)
+         glDisableVertexAttribArray(ogl_disp->ogl_extras->pos_loc);
+      if (ogl_disp->ogl_extras->color_loc >= 0)
+         glDisableVertexAttribArray(ogl_disp->ogl_extras->color_loc);
+      if (ogl_disp->ogl_extras->texcoord_loc >= 0)
+         glDisableVertexAttribArray(ogl_disp->ogl_extras->texcoord_loc);
+   }
+   else {
+      glDisableClientState(GL_COLOR_ARRAY);
+      glDisableClientState(GL_VERTEX_ARRAY);
+      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+   }
 
    return num_primitives;
 #else
-   (void)target;
    (void)texture;
    (void)vtxs;
-   (void)decl;
    (void)start;
    (void)end;
    (void)type;
+   (void)decl;
 
    return 0;
 #endif
@@ -325,7 +485,17 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
    setup_state(vtx, decl, texture);
    
    if(texture) {
-      glEnable(GL_TEXTURE_2D);
+      if (ogl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+         if (ogl_disp->ogl_extras->use_tex_loc >= 0) {
+            glUniform1i(ogl_disp->ogl_extras->use_tex_loc, 1);
+         }
+         if (ogl_disp->ogl_extras->tex_loc >= 0) {
+            glUniform1i(ogl_disp->ogl_extras->tex_loc, 0); // 0th sampler
+         }
+      }
+      else {
+         glEnable(GL_TEXTURE_2D);
+      }
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
    }
@@ -379,25 +549,53 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
    }
 
    if(texture) {
-      glDisable(GL_TEXTURE_2D);
-      glMatrixMode(GL_TEXTURE);
-      glLoadIdentity();
-      glMatrixMode(GL_MODELVIEW);
+      if (ogl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+         float identity[16] = {
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+         };
+         GLint handle;
+         handle = ogl_disp->ogl_extras->tex_matrix_loc;
+         if (handle >= 0)
+            glUniformMatrix4fv(handle, 1, false, identity);
+         handle = ogl_disp->ogl_extras->use_tex_matrix_loc;
+         if (handle >= 0)
+            glUniform1i(handle, 0);
+         if (ogl_disp->ogl_extras->use_tex_loc >= 0)
+            glUniform1i(ogl_disp->ogl_extras->use_tex_loc, 0);
+      }
+      else {
+         glDisable(GL_TEXTURE_2D);
+         glMatrixMode(GL_TEXTURE);
+         glLoadIdentity();
+         glMatrixMode(GL_MODELVIEW);
+      }
    }
    
-   glDisableClientState(GL_COLOR_ARRAY);
-   glDisableClientState(GL_VERTEX_ARRAY);
-   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+   if (ogl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      if (ogl_disp->ogl_extras->pos_loc >= 0)
+         glDisableVertexAttribArray(ogl_disp->ogl_extras->pos_loc);
+      if (ogl_disp->ogl_extras->color_loc >= 0)
+         glDisableVertexAttribArray(ogl_disp->ogl_extras->color_loc);
+      if (ogl_disp->ogl_extras->texcoord_loc >= 0)
+         glDisableVertexAttribArray(ogl_disp->ogl_extras->texcoord_loc);
+   }
+   else {
+      glDisableClientState(GL_COLOR_ARRAY);
+      glDisableClientState(GL_VERTEX_ARRAY);
+      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+   }
 
    return num_primitives;
 #else
-   (void)target;
    (void)texture;
    (void)vtxs;
-   (void)decl;
-   (void)indices;
-   (void)num_vtx;
+   (void)start;
+   (void)end;
    (void)type;
+   (void)decl;
 
    return 0;
 #endif

@@ -16,10 +16,12 @@ static bool _screen_hack;
 void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d)
 {
     int w, h;
-    ALLEGRO_TRANSFORM tmp;
-    GLint handle;
 
-    _al_iphone_get_screen_size(&w, &h);
+    //_al_iphone_get_screen_size(&w, &h);
+
+    w = d->w;
+    h = d->h;
+
     _al_iphone_reset_framebuffer();
     glViewport(0, 0, w, h);
 
@@ -29,6 +31,7 @@ void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d)
     al_identity_transform(&d->proj_transform);
     al_ortho_transform(&d->proj_transform, 0, d->w, d->h, 0, -1, 1);
 
+#if 0
     /* We automatically adjust the view if the user doesn't use 320x480. Users
      * of the iphone port are adviced to provide a 320x480 mode and do their
      * own adjustment - but for the sake of allowing ports without knowing
@@ -68,25 +71,15 @@ void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d)
                          _screen_y, _screen_scale);
         }
     }
+#endif
 
-   al_identity_transform(&tmp);
+   al_identity_transform(&d->view_transform);
 
    if (!(d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
       glMatrixMode(GL_PROJECTION);
       glLoadMatrixf((float *)d->proj_transform.m);
       glMatrixMode(GL_MODELVIEW);
-      glLoadMatrixf((float *)tmp.m);
-   }
-   else {
-      /* FIXME: This can't work right now - need a good way to set the shader */
-      handle = glGetUniformLocation(d->ogl_extras->program_object, "proj_matrix");
-      if (handle >= 0) {
-         glUniformMatrix4fv(handle, 1, false, (float *)&d->proj_transform.m);
-      }
-      handle = glGetUniformLocation(d->ogl_extras->program_object, "view_matrix");
-      if (handle >= 0) {
-         glUniformMatrix4fv(handle, 1, false, (float *)&tmp.m);
-      }
+      glLoadMatrixf((float *)d->view_transform.m);
    }
 }
 
@@ -363,8 +356,25 @@ static bool iphone_wait_for_vsync(ALLEGRO_DISPLAY *display)
 
 static void iphone_flip_display(ALLEGRO_DISPLAY *d)
 {
-    (void)d;
+   bool using_shader = false;
+
+   if (d->flags & ALLEGRO_OPENGL) {
+      if (d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      	 if (d->ogl_extras->program_object) {
+	    using_shader = true;
+	 }
+      }
+   }
+
+   if (using_shader) {
+      glUseProgram(0);
+   }
+
     _al_iphone_flip_view();
+
+   if (using_shader) {
+      glUseProgram(d->ogl_extras->program_object);
+   }
 }
 
 static void iphone_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,

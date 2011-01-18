@@ -56,16 +56,27 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       /* When a bitmap is set as target bitmap, we try to create an FBO for it.
        */
       if (ogl_bitmap->fbo == 0 && !(bitmap->flags & ALLEGRO_FORCE_LOCKING)) {
+      
+   /* FIXME This is quite a hack but I don't know how the Allegro extension
+    * manager works to fix this properly (getting extensions properly reported
+    * on iphone.
+    */
+#ifdef ALLEGRO_IPHONE
+         if (true) {
+#else
          if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object ||
             al_get_opengl_extension_list()->ALLEGRO_GL_OES_framebuffer_object) {
+#endif
             glGenFramebuffersEXT(1, &ogl_bitmap->fbo);
          }
       }
 
       if (ogl_bitmap->fbo) {
          /* Bind to the FBO. */
+#ifndef ALLEGRO_IPHONE
          ASSERT(display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
          display->ogl_extras->extension_list->ALLEGRO_GL_OES_framebuffer_object);
+#endif
          glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ogl_bitmap->fbo);
 
          /* Attach the texture. */
@@ -99,10 +110,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
    else {
       display->ogl_extras->opengl_target = ogl_bitmap;
 
-      #ifdef ALLEGRO_IPHONE
-      _al_iphone_setup_opengl_view(display);
-      #else
- 
+#ifndef ALLEGRO_IPHONE
       if (display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
           display->ogl_extras->extension_list->ALLEGRO_GL_OES_framebuffer_object) {
          glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
@@ -117,7 +125,22 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       al_ortho_transform(&display->proj_transform, 0, display->w, display->h, 0, -1, 1);
 
       display->vt->set_projection(display);
-      #endif
+#else
+      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+      _al_iphone_setup_opengl_view(display);
+#endif
+      if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+         GLint handle;
+         GLuint program_object = display->ogl_extras->program_object;
+         handle = glGetUniformLocation(program_object, "proj_matrix");
+         if (handle >= 0) {
+            glUniformMatrix4fv(handle, 1, false, (float *)display->proj_transform.m);
+         }
+         handle = glGetUniformLocation(program_object, "view_matrix");
+         if (handle >= 0) {
+            glUniformMatrix4fv(handle, 1, false, (float *)display->view_transform.m);
+         }
+      }
    }
 #else
 
@@ -340,7 +363,28 @@ void _al_ogl_destroy_backbuffer(ALLEGRO_BITMAP_OGL *b)
 
 void al_set_opengl_program_object(ALLEGRO_DISPLAY *display, GLuint program_object)
 {
+   GLint handle;
+   
    display->ogl_extras->program_object = program_object;
+
+   glUseProgram(program_object);
+      
+   handle = glGetUniformLocation(program_object, "view_matrix");
+   if (handle >= 0) {
+      glUniformMatrix4fv(handle, 1, false, (float *)display->view_transform.m);
+   }
+   handle = glGetUniformLocation(program_object, "proj_matrix");
+   if (handle >= 0) {
+      glUniformMatrix4fv(handle, 1, false, (float *)display->proj_transform.m);
+   }
+
+   display->ogl_extras->pos_loc = glGetAttribLocation(program_object, "pos");
+   display->ogl_extras->color_loc = glGetAttribLocation(program_object, "color");
+   display->ogl_extras->texcoord_loc = glGetAttribLocation(program_object, "texcoord");
+   display->ogl_extras->use_tex_loc = glGetUniformLocation(program_object, "use_tex");
+   display->ogl_extras->tex_loc = glGetUniformLocation(program_object, "tex");
+   display->ogl_extras->use_tex_matrix_loc = glGetUniformLocation(program_object, "use_tex_matrix");
+   display->ogl_extras->tex_matrix_loc = glGetUniformLocation(program_object, "tex_matrix");
 }
 
 /* vi: set sts=3 sw=3 et: */

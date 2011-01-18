@@ -4,7 +4,12 @@
 #import "EAGLView.h"
 #include <pthread.h>
 
+#include "allegro5/allegro_iphone.h"
+
 ALLEGRO_DEBUG_CHANNEL("iphone")
+
+static double allegro_iphone_shake_time = 0.0;
+static float allegro_iphone_battery_level = 1.0;
 
 typedef struct touch_t
 {
@@ -18,6 +23,7 @@ typedef struct touch_t
  */
 static void touch_item_dtor(void* value, void* userdata)
 {
+   (void)userdata;
    al_free(value);
 }
 
@@ -67,6 +73,10 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+      if (context == nil) {
+         display->flags &= ~ ALLEGRO_USE_PROGRAMMABLE_PIPELINE;
+         context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
+      }
    }
    else {
       context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
@@ -92,7 +102,31 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
     touch_id_set       = [[NSMutableIndexSet alloc] init];
     next_free_touch_id = 1;
 
+   [UIDevice currentDevice].batteryMonitoringEnabled = YES;
+   if ([[UIDevice currentDevice] batteryState] == UIDeviceBatteryStateCharging || [[UIDevice currentDevice] batteryState] == UIDeviceBatteryStateFull || !([[UIDevice currentDevice] isBatteryMonitoringEnabled]))
+      allegro_iphone_battery_level = 1.0;
+   else
+      allegro_iphone_battery_level = [[UIDevice currentDevice] batteryLevel];
+
+   // Register for battery level and state change notifications.
+   [[NSNotificationCenter defaultCenter] addObserver:self
+      selector:@selector(batteryLevelDidChange:)
+      name:UIDeviceBatteryLevelDidChangeNotification object:nil];
+
+   [[NSNotificationCenter defaultCenter] addObserver:self
+      selector:@selector(batteryLevelDidChange:)
+      name:UIDeviceBatteryStateDidChangeNotification object:nil];
+
     return self;
+}
+
+- (void)batteryLevelDidChange:(NSNotification *)notification
+{
+    (void)notification;
+	if ([[UIDevice currentDevice] batteryState] == UIDeviceBatteryStateCharging || [[UIDevice currentDevice] batteryState] == UIDeviceBatteryStateFull)
+		allegro_iphone_battery_level = 1.0;
+	else
+		allegro_iphone_battery_level = [[UIDevice currentDevice] batteryLevel];
 }
 
 - (void)make_current {
@@ -119,7 +153,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 
 - (BOOL)createFramebuffer {
    if ([self respondsToSelector:@selector(contentScaleFactor)]) {
-   	self.contentScaleFactor = _al_iphone_get_screen_scale();
+   	self.contentScaleFactor = al_iphone_get_screen_scale();
    }
 
     ALLEGRO_INFO("Creating GL framebuffer.\n");
@@ -223,8 +257,8 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
       _al_list_push_back_ex(touch_list, touch, touch_item_dtor);
       
       CGPoint p = [nativeTouch locationInView:self];
-      p.x *= _al_iphone_get_screen_scale();
-      p.y *= _al_iphone_get_screen_scale();
+      p.x *= al_iphone_get_screen_scale();
+      p.y *= al_iphone_get_screen_scale();
 		_al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_DOWN,
                                       p.x, p.y, touch->id, allegro_display);
         _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
@@ -242,11 +276,11 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 	// Enumerates through all touch objects
 	for (UITouch *nativeTouch in touches) {
    
-      if (touch = find_touch(touch_list, nativeTouch)) {
+      if ((touch = find_touch(touch_list, nativeTouch))) {
       
          CGPoint p = [nativeTouch locationInView:self];
-         p.x *= _al_iphone_get_screen_scale();
-         p.y *= _al_iphone_get_screen_scale();
+         p.x *= al_iphone_get_screen_scale();
+         p.y *= al_iphone_get_screen_scale();
          _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
                                          p.x, p.y, touch->id, allegro_display);
       }
@@ -263,11 +297,11 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 	// Enumerates through all touch objects
 	for (UITouch *nativeTouch in touches) {
 
-      if (touch = find_touch(touch_list, nativeTouch)) {
+      if ((touch = find_touch(touch_list, nativeTouch))) {
    
          CGPoint p = [nativeTouch locationInView:self];
-         p.x *= _al_iphone_get_screen_scale();
-         p.y *= _al_iphone_get_screen_scale();
+         p.x *= al_iphone_get_screen_scale();
+         p.y *= al_iphone_get_screen_scale();
            _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
                                            p.x, p.y, touch->id, allegro_display);
            _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_UP,
@@ -291,11 +325,11 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 	// Enumerates through all touch objects
 	for (UITouch *nativeTouch in touches) {
    
-      if (touch = find_touch(touch_list, nativeTouch)) {
+      if ((touch = find_touch(touch_list, nativeTouch))) {
    
            CGPoint p = [nativeTouch locationInView:self];
-         p.x *= _al_iphone_get_screen_scale();
-         p.y *= _al_iphone_get_screen_scale();
+         p.x *= al_iphone_get_screen_scale();
+         p.y *= al_iphone_get_screen_scale();
          _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_UP,
                                            p.x, p.y, touch->id, allegro_display);	
          [touch_id_set addIndex:touch->id];
@@ -308,4 +342,23 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
     return YES;
 }
 
+-(void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
+{
+    (void)motion;
+
+	if (event.subtype == UIEventSubtypeMotionShake) {
+		allegro_iphone_shake_time = al_get_time();
+	}
+}
+
 @end
+
+double al_iphone_get_last_shake_time(void)
+{
+	return allegro_iphone_shake_time;
+}
+
+float al_iphone_get_battery_level(void)
+{
+	return allegro_iphone_battery_level;
+}

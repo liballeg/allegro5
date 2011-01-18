@@ -77,6 +77,87 @@ static bool set_opengl_blending(ALLEGRO_DISPLAY *d)
    return false;
 }
 
+/* These functions make drawing calls use shaders or the fixed pipeline
+ * based on what the user has set up. FIXME: OpenGL only right now.
+ */
+
+static void vert_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, void *v)
+{
+   if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      if (display->ogl_extras->pos_loc >= 0) {
+         glVertexAttribPointer(display->ogl_extras->pos_loc, n, t, false, stride, v);
+         glEnableVertexAttribArray(display->ogl_extras->pos_loc);
+      }
+   }
+   else {
+      glEnableClientState(GL_VERTEX_ARRAY);
+      glVertexPointer(n, t, stride, v);
+   }
+}
+
+static void vert_ptr_off(ALLEGRO_DISPLAY *display)
+{
+   if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      if (display->ogl_extras->pos_loc >= 0) {
+         glDisableVertexAttribArray(display->ogl_extras->pos_loc);
+      }
+   }
+   else {
+      glDisableClientState(GL_VERTEX_ARRAY);
+   }
+}
+
+static void color_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, void *v)
+{
+   if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      if (display->ogl_extras->color_loc >= 0) {
+         glVertexAttribPointer(display->ogl_extras->color_loc, n, t, false, stride, v);
+         glEnableVertexAttribArray(display->ogl_extras->color_loc);
+      }
+   }
+   else {
+      glEnableClientState(GL_COLOR_ARRAY);
+      glColorPointer(n, t, stride, v);
+   }
+}
+
+static void color_ptr_off(ALLEGRO_DISPLAY *display)
+{
+   if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      if (display->ogl_extras->color_loc >= 0) {
+         glDisableVertexAttribArray(display->ogl_extras->color_loc);
+      }
+   }
+   else {
+      glDisableClientState(GL_COLOR_ARRAY);
+   }
+}
+
+static void tex_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, void *v)
+{
+   if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      if (display->ogl_extras->texcoord_loc >= 0) {
+         glVertexAttribPointer(display->ogl_extras->texcoord_loc, n, t, false, stride, v);
+         glEnableVertexAttribArray(display->ogl_extras->texcoord_loc);
+      }
+   }
+   else {
+      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+      glTexCoordPointer(n, t, stride, v);
+   }
+}
+
+static void tex_ptr_off(ALLEGRO_DISPLAY *display)
+{
+   if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      if (display->ogl_extras->texcoord_loc >= 0) {
+         glDisableVertexAttribArray(display->ogl_extras->texcoord_loc);
+      }
+   }
+   else {
+      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+   }
+}
 
 
 /* Dummy implementation of clear. */
@@ -105,13 +186,13 @@ static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 }
 
 
-
 static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
    ALLEGRO_COLOR *color)
 {
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
    GLfloat vert[2];
+   GLfloat color_array[4];
 
    if ((!ogl_target->is_backbuffer &&
       d->ogl_extras->opengl_target != ogl_target) ||
@@ -120,18 +201,33 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
       return;
    }
 
+   /* For sub bitmaps. */
+   if(target->parent) {
+      ALLEGRO_TRANSFORM tmp;
+      al_identity_transform(&tmp);
+      al_translate_transform(&tmp, target->xofs, target->yofs);
+      al_use_transform(&tmp);
+   }
+
    vert[0] = x;
    vert[1] = y;
 
-   glEnableClientState(GL_VERTEX_ARRAY);
-   glEnableClientState(GL_COLOR_ARRAY);
-   glVertexPointer(2, GL_FLOAT, 0, vert);
-   glColorPointer(4, GL_FLOAT, 0, color);
+   color_array[0] = color->r;
+   color_array[1] = color->g;
+   color_array[2] = color->b;
+   color_array[3] = color->a;
+
+   vert_ptr_on(d, 2, GL_FLOAT, 2*sizeof(float), vert);
+   color_ptr_on(d, 4, GL_FLOAT, 4*sizeof(float), color_array);
+
+   if (!set_opengl_blending(d)) {
+      return;
+   }
 
    glDrawArrays(GL_POINTS, 0, 1);
 
-   glDisableClientState(GL_VERTEX_ARRAY);
-   glDisableClientState(GL_COLOR_ARRAY);
+   vert_ptr_off(d);
+   color_ptr_off(d);
 }
 
 static void* ogl_prepare_vertex_cache(ALLEGRO_DISPLAY* disp, 
@@ -154,13 +250,32 @@ static void* ogl_prepare_vertex_cache(ALLEGRO_DISPLAY* disp,
 
 static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 {
-   GLboolean on;
+   GLboolean on = false;
    GLuint current_texture;
+   ALLEGRO_BITMAP *target;
    if(!disp->vertex_cache)
       return;
    if(disp->num_cache_vertices == 0)
       return;
-      
+
+   /* FIXME: these can maybe be done on update_transformation */
+   target = al_get_target_bitmap();
+   if(target->parent) {
+      ALLEGRO_TRANSFORM tmp;
+      al_identity_transform(&tmp);
+      al_translate_transform(&tmp, target->xofs, target->yofs);
+      al_use_transform(&tmp);
+   }
+
+   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      if (disp->ogl_extras->use_tex_loc >= 0) {
+         glUniform1i(disp->ogl_extras->use_tex_loc, 1);
+      }
+      if (disp->ogl_extras->use_tex_matrix_loc >= 0) {
+         glUniform1i(disp->ogl_extras->use_tex_matrix_loc, 0);
+      }
+   }
+
    glGetBooleanv(GL_TEXTURE_2D, &on);
    if (!on) {
       glEnable(GL_TEXTURE_2D);
@@ -168,27 +283,41 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    
    glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&current_texture);
    if (current_texture != disp->cache_texture) {
+      if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+         /* Use texture unit 0 */
+         glActiveTexture(GL_TEXTURE0);
+         if (disp->ogl_extras->tex_loc >= 0)
+            glUniform1i(disp->ogl_extras->tex_loc, 0);
+      }
       glBindTexture(GL_TEXTURE_2D, disp->cache_texture);
    }
 
-   glEnableClientState(GL_VERTEX_ARRAY);
-   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-   glEnableClientState(GL_COLOR_ARRAY);
-   
-   glVertexPointer(2, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX), disp->vertex_cache);
-   glTexCoordPointer(2, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX), 
-                  (char*)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, tx));
-   glColorPointer(4, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX), (char*)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, r));
+///* Figure out what this is here for
+#ifdef ALLEGRO_IPHONE
+      if (!set_opengl_blending(disp)) {
+         return;
+      }
+#endif
+//*/
+
+   vert_ptr_on(disp, 2, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX), (char *)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, x));
+   tex_ptr_on(disp, 2, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX), (char*)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, tx));
+   color_ptr_on(disp, 4, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX), (char*)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, r));
 
    glDrawArrays(GL_TRIANGLES, 0, disp->num_cache_vertices);
 
-   glDisableClientState(GL_VERTEX_ARRAY);
-   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-   glDisableClientState(GL_COLOR_ARRAY);
+   vert_ptr_off(disp);
+   tex_ptr_off(disp);
+   color_ptr_off(disp);
    
    disp->num_cache_vertices = 0;
    if (!on) {
       glDisable(GL_TEXTURE_2D);
+   }
+
+   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      if (disp->ogl_extras->use_tex_loc >= 0)
+         glUniform1i(disp->ogl_extras->use_tex_loc, 0);
    }
 }
 
@@ -206,6 +335,11 @@ static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
 
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       al_copy_transform(&disp->view_transform, &tmp);
+      GLuint program_object = disp->ogl_extras->program_object;
+      GLint handle = glGetUniformLocation(program_object, "view_matrix");
+      if (handle >= 0) {
+         glUniformMatrix4fv(handle, 1, false, (float *)disp->view_transform.m);
+      }
    }
    else {
       glMatrixMode(GL_MODELVIEW);

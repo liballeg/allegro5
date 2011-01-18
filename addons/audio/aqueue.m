@@ -95,6 +95,7 @@ static int _aqueue_stop_voice(ALLEGRO_VOICE* voice);
 
 static void interruption_callback(void *inClientData, UInt32 inInterruptionState)
 {
+   (void)inClientData;
    if (inInterruptionState == kAudioSessionBeginInterruption) {
       _aqueue_stop_voice(saved_voice);
    }
@@ -106,6 +107,9 @@ static void interruption_callback(void *inClientData, UInt32 inInterruptionState
 // This allows plugging/unplugging of hardware/bluetooth/speakers etc while keeping the sound playing
 static void property_listener(void *inClientData, AudioSessionPropertyID inID, UInt32 inDataSize, const void *inData)
 {
+   (void)inClientData;
+   (void)inDataSize;
+
    if (inID == kAudioSessionProperty_AudioRouteChange) {
       UInt32 reason = (UInt32)inData;
       if (reason == kAudioSessionRouteChangeReason_NewDeviceAvailable) {
