@@ -270,27 +270,7 @@ static bool xdpy_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
    return true;
 }
 
-static bool xdpy_grab_mouse(ALLEGRO_DISPLAY *display, bool onoff)
-{
-   ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   
-   if(!system->pointer_grabbed && onoff == true) {
-      XGrabPointer(system->x11display, glx->window, False,
-         PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
-         GrabModeAsync, GrabModeAsync, glx->window, None, CurrentTime);
-      
-      system->pointer_grabbed = true;
-      return true;
-   }
-   else if(system->pointer_grabbed) {
-      XUngrabPointer(system->x11display, CurrentTime);
-      system->pointer_grabbed = false;
-      return true;
-   }
-   
-   return false;
-}
+
 
 void _al_xglx_add_cursor_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
 {
@@ -298,7 +278,6 @@ void _al_xglx_add_cursor_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
    vt->set_system_mouse_cursor = xdpy_set_system_mouse_cursor;
    vt->show_mouse_cursor = xdpy_show_mouse_cursor;
    vt->hide_mouse_cursor = xdpy_hide_mouse_cursor;
-   vt->grab_mouse = xdpy_grab_mouse;
 }
 
 

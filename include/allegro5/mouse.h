@@ -116,8 +116,8 @@ AL_FUNC(bool, al_set_system_mouse_cursor, (struct ALLEGRO_DISPLAY *display,
 AL_FUNC(bool, al_show_mouse_cursor, (struct ALLEGRO_DISPLAY *display));
 AL_FUNC(bool, al_hide_mouse_cursor, (struct ALLEGRO_DISPLAY *display));
 AL_FUNC(bool, al_get_mouse_cursor_position, (int *ret_x, int *ret_y));
-
-AL_FUNC(bool, al_grab_mouse, (struct ALLEGRO_DISPLAY *display, bool onoff));
+AL_FUNC(bool, al_grab_mouse, (struct ALLEGRO_DISPLAY *display));
+AL_FUNC(bool, al_ungrab_mouse, (void));
 
 #ifdef __cplusplus
    }

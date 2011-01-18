@@ -377,18 +377,34 @@ bool al_get_mouse_cursor_position(int *ret_x, int *ret_y)
    }
 }
 
+
+
 /* Function: al_grab_mouse
  */
-
-bool al_grab_mouse(ALLEGRO_DISPLAY *display, bool onoff)
+bool al_grab_mouse(ALLEGRO_DISPLAY *display)
 {
-   if (display) {
-      ASSERT(display->vt->grab_mouse);
-      return display->vt->grab_mouse(display, onoff);
-   }
-   
+   ALLEGRO_SYSTEM *alsys = al_get_system_driver();
+
+   if (alsys->vt->grab_mouse)
+      return alsys->vt->grab_mouse(display);
+
    return false;
 }
+
+
+
+/* Function: al_ungrab_mouse
+ */
+bool al_ungrab_mouse(void)
+{
+   ALLEGRO_SYSTEM *alsys = al_get_system_driver();
+
+   if (alsys->vt->ungrab_mouse)
+      return alsys->vt->ungrab_mouse();
+
+   return false;
+}
+
 
 
 /* Function: al_get_mouse_event_source

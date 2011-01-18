@@ -332,6 +332,31 @@ static bool xglx_get_cursor_position(int *ret_x, int *ret_y)
    return true;
 }
 
+static bool xglx_grab_mouse(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   int rv;
+
+   rv = XGrabPointer(system->x11display, glx->window, False,
+      PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
+      GrabModeAsync, GrabModeAsync, glx->window, None, CurrentTime);
+   if (rv == GrabSuccess) {
+      system->pointer_grabbed = true;
+      return true;
+   }
+   return false;
+}
+
+static bool xglx_ungrab_mouse(void)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+
+   XUngrabPointer(system->x11display, CurrentTime);
+   system->pointer_grabbed = false;
+   return true;
+}
+
 static bool xglx_inhibit_screensaver(bool inhibit)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
@@ -378,6 +403,8 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
    xglx_vt->create_mouse_cursor = _al_xwin_create_mouse_cursor;
    xglx_vt->destroy_mouse_cursor = _al_xwin_destroy_mouse_cursor;
    xglx_vt->get_cursor_position = xglx_get_cursor_position;
+   xglx_vt->grab_mouse = xglx_grab_mouse;
+   xglx_vt->ungrab_mouse = xglx_ungrab_mouse;
    xglx_vt->get_path = _al_unix_get_path;
    xglx_vt->inhibit_screensaver = xglx_inhibit_screensaver;
 
