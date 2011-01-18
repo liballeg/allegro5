@@ -81,24 +81,29 @@ static CFMutableDictionaryRef CreateDeviceMatchingDictionary(
    // create a dictionary to add usage page/usages to
    CFMutableDictionaryRef result = CFDictionaryCreateMutable(
       kCFAllocatorDefault,
-   0,
-   &kCFTypeDictionaryKeyCallBacks,
-   &kCFTypeDictionaryValueCallBacks
+      0,
+      &kCFTypeDictionaryKeyCallBacks,
+      &kCFTypeDictionaryValueCallBacks
    );
 
    if (result) {
       // Add key for device type to refine the matching dictionary.
-      CFNumberRef pageCFNumberRef = CFNumberCreate( 
+      CFNumberRef pageCFNumberRef = CFNumberCreate(
          kCFAllocatorDefault,
          kCFNumberIntType,
          &inUsagePage
       );
+
       if (pageCFNumberRef) {
+         CFStringRef usage_page = CFSTR(kIOHIDDeviceUsagePageKey);
+
          CFDictionarySetValue(
             result, 
-            CFSTR(kIOHIDDeviceUsagePageKey),
+            usage_page,
             pageCFNumberRef
          );
+
+	 CFRelease(usage_page);
 
          CFRelease(pageCFNumberRef);
 
@@ -110,13 +115,17 @@ static CFMutableDictionaryRef CreateDeviceMatchingDictionary(
             &inUsage
          );
 
-         if ( usageCFNumberRef ) {
+         if (usageCFNumberRef) {
+            CFStringRef usage_key = CFSTR(kIOHIDDeviceUsageKey);
+
             CFDictionarySetValue(
                result, 
-               CFSTR(kIOHIDDeviceUsageKey),
+               usage_key,
                usageCFNumberRef
             );
-            CFRelease( usageCFNumberRef );
+
+	    CFRelease(usage_key);
+            CFRelease(usageCFNumberRef);
          }
       }
    }
@@ -212,9 +221,12 @@ static void add_elements(CFArrayRef elements, ALLEGRO_JOYSTICK_OSX *joy)
 
 const char *get_device_product_id(IOHIDDeviceRef ref)
 {
-   CFTypeRef product_id = IOHIDDeviceGetProperty(
-      ref, CFSTR(kIOHIDProductIDKey)
-   );
+   CFStringRef s = CFSTR(kIOHIDProductIDKey);
+
+   CFTypeRef product_id = IOHIDDeviceGetProperty(ref, s);
+
+   CFRelease(s);
+
    return product_id;
 }
 
@@ -261,6 +273,8 @@ static void device_add_callback(
    );
 
    add_elements(elements, joy);
+
+   CFRelease(elements);
 
    // Fill in ALLEGRO_JOYSTICK properties
    joy->parent.info.num_sticks = joy->num_x_axes;
@@ -467,12 +481,14 @@ static bool init_joystick(void)
       (const void **)criteria_list,
       2, NULL
    );
-   
+
    IOHIDManagerSetDeviceMatchingMultiple(
       hidManagerRef,
       criteria
    );
 
+   CFRelease(criteria0);
+   CFRelease(criteria1);
    CFRelease(criteria);
 
    /* Register for plug/unplug notifications */
