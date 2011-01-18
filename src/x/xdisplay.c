@@ -602,6 +602,21 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    d->current_cursor = None; /* Initially, we use the root cursor. */
    d->cursor_hidden = false;
 
+   if (system->system.config && !system->toggle_mouse_grab_keycode) {
+      const char *binding = al_get_config_value(system->system.config,
+         "mouse", "toggle_mouse_grab_key");
+      if (binding) {
+         system->toggle_mouse_grab_keycode = _al_parse_key_binding(binding,
+            &system->toggle_mouse_grab_modifiers);
+         if (system->toggle_mouse_grab_keycode) {
+            ALLEGRO_DEBUG("Toggle mouse grab key: '%s'\n", binding);
+         }
+         else {
+            ALLEGRO_WARN("Cannot parse key binding '%s'\n", binding);
+         }
+      }
+   }
+
    d->icon = None;
    d->icon_mask = None;
 

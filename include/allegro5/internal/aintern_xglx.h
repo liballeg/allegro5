@@ -74,6 +74,8 @@ struct ALLEGRO_SYSTEM_XGLX
    // FIXME: One condition variable really would be enough.
    _AL_COND resized; /* Condition variable to wait for resizing a window. */
    bool pointer_grabbed; /* Is an XGrabPointer in effect? */
+   int toggle_mouse_grab_keycode; /* Disabled if zero */
+   unsigned int toggle_mouse_grab_modifiers;
    bool inhibit_screensaver; /* Should we inhibit the screensaver? */
 
    bool mmon_interface_inited;
@@ -88,7 +90,6 @@ struct ALLEGRO_SYSTEM_XGLX
    
    _AL_VECTOR xrandr_screens;
    _AL_VECTOR xrandr_adaptermap;
-   
 #endif
    
    /* used to keep track of how many adapters are in use,

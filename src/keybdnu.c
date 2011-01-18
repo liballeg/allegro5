@@ -270,6 +270,74 @@ ALLEGRO_EVENT_SOURCE *al_get_keyboard_event_source(void)
 }
 
 
+
+static int match_key_name(const char *s)
+{
+   int i;
+
+   /* Some key names are not intuitive, but this is all we've got. */
+   for (i = 1; i < ALLEGRO_KEY_MAX; i++) {
+      if (0 == _al_stricmp(s, _al_keyboard_common_names[i]))
+         return i;
+   }
+   return 0;
+}
+
+
+
+static unsigned int match_modifier(const char *s)
+{
+   if (0 == _al_stricmp(s, "SHIFT"))   return ALLEGRO_KEYMOD_SHIFT;
+   if (0 == _al_stricmp(s, "CTRL"))    return ALLEGRO_KEYMOD_CTRL;
+   if (0 == _al_stricmp(s, "ALT"))     return ALLEGRO_KEYMOD_ALT;
+   if (0 == _al_stricmp(s, "LWIN"))    return ALLEGRO_KEYMOD_LWIN;
+   if (0 == _al_stricmp(s, "RWIN"))    return ALLEGRO_KEYMOD_RWIN;
+   if (0 == _al_stricmp(s, "ALTGR"))   return ALLEGRO_KEYMOD_ALTGR;
+   if (0 == _al_stricmp(s, "COMMAND")) return ALLEGRO_KEYMOD_COMMAND;
+   return 0;
+}
+
+
+
+int _al_parse_key_binding(const char *s, unsigned int *modifiers)
+{
+   ALLEGRO_USTR *us;
+   unsigned start = 0;
+   int keycode = 0;
+
+   us = al_ustr_new(s);
+   al_ustr_trim_ws(us);
+   *modifiers = 0;
+
+   while (start < al_ustr_size(us)) {
+      /* XXX not all keys can be bound due to a conflict with the delimiter
+       * characters
+       */
+      int end = al_ustr_find_set_cstr(us, start, "+-");
+      unsigned int mod;
+
+      /* Last component must be a key. */
+      if (end == -1) {
+         keycode = match_key_name(al_cstr(us) + start);
+         break;
+      }
+
+      /* Otherwise must be a modifier. */
+      al_ustr_set_chr(us, end, '\0');
+      mod = match_modifier(al_cstr(us) + start);
+      if (!mod) {
+         break;
+      }
+      (*modifiers) |= mod;
+      start = end + 1;
+   }
+
+   al_ustr_free(us);
+
+   return keycode;
+}
+
+
 /*
  * Local Variables:
  * c-basic-offset: 3
