@@ -334,9 +334,12 @@ static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
    }
 
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      GLuint program_object;
+      GLint handle;
+
       al_copy_transform(&disp->view_transform, &tmp);
-      GLuint program_object = disp->ogl_extras->program_object;
-      GLint handle = glGetUniformLocation(program_object, "view_matrix");
+      program_object = disp->ogl_extras->program_object;
+      handle = glGetUniformLocation(program_object, "view_matrix");
       if (handle >= 0) {
          glUniformMatrix4fv(handle, 1, false, (float *)disp->view_transform.m);
       }
