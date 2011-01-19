@@ -604,7 +604,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    if (system->system.config && !system->toggle_mouse_grab_keycode) {
       const char *binding = al_get_config_value(system->system.config,
-         "mouse", "toggle_mouse_grab_key");
+         "keyboard", "toggle_mouse_grab_key");
       if (binding) {
          system->toggle_mouse_grab_keycode = _al_parse_key_binding(binding,
             &system->toggle_mouse_grab_modifiers);
