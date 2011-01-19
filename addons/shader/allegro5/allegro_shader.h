@@ -1,5 +1,5 @@
-#ifndef _ALLEGRO_SHADER_H
-#define _ALLEGRO_SHADER_H
+#ifndef __al_included_allegro5_allegro_shader_h
+#define __al_included_allegro5_allegro_shader_h
 
 struct ALLEGRO_SHADER;
 
@@ -21,32 +21,57 @@ enum ALLEGRO_SHADER_PLATFORM {
 
 typedef enum ALLEGRO_SHADER_PLATFORM ALLEGRO_SHADER_PLATFORM;
 
+#include "allegro5/allegro.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-ALLEGRO_SHADER *al_create_shader(ALLEGRO_SHADER_PLATFORM platform);
-bool al_attach_shader_source(ALLEGRO_SHADER *shader,
-   ALLEGRO_SHADER_TYPE type, const char *source);
-bool al_link_shader(ALLEGRO_SHADER *shader);
-void al_set_shader(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader);
-void al_use_shader(ALLEGRO_SHADER *shader, bool use);
-void al_destroy_shader(ALLEGRO_SHADER *shader);
+#if (defined ALLEGRO_MINGW32) || (defined ALLEGRO_MSVC) || (defined ALLEGRO_BCC32)
+   #ifndef ALLEGRO_STATICLINK
+      #ifdef ALLEGRO_SHADER_SRC
+         #define _ALLEGRO_SHADER_DLL __declspec(dllexport)
+      #else
+         #define _ALLEGRO_SHADER_DLL __declspec(dllimport)
+      #endif
+   #else
+      #define _ALLEGRO_SHADER_DLL
+   #endif
+#endif
 
-bool al_set_shader_sampler(ALLEGRO_SHADER *shader, const char *name,
-   ALLEGRO_BITMAP *bitmap, int unit);
-bool al_set_shader_matrix(ALLEGRO_SHADER *shader, const char *name,
-   ALLEGRO_TRANSFORM *matrix);
-bool al_set_shader_int(ALLEGRO_SHADER *shader, const char *name, int i);
-bool al_set_shader_float(ALLEGRO_SHADER *shader, const char *name, float f);
-bool al_set_shader_int_vector(ALLEGRO_SHADER *shader, const char *name,
-   int size, int *i);
-bool al_set_shader_float_vector(ALLEGRO_SHADER *shader, const char *name,
-   int size, float *f);
+#if defined ALLEGRO_MSVC
+   #define ALLEGRO_SHADER_FUNC(type, name, args)      _ALLEGRO_SHADER_DLL type __cdecl name args
+#elif defined ALLEGRO_MINGW32
+   #define ALLEGRO_SHADER_FUNC(type, name, args)      extern type name args
+#elif defined ALLEGRO_BCC32
+   #define ALLEGRO_SHADER_FUNC(type, name, args)      extern _ALLEGRO_SHADER_DLL type name args
+#else
+   #define ALLEGRO_SHADER_FUNC      AL_FUNC
+#endif
 
-bool al_set_shader_vertex_array(ALLEGRO_SHADER *shader, float *v, int stride);
-bool al_set_shader_color_array(ALLEGRO_SHADER *shader, unsigned char *c, int stride);
-bool al_set_shader_texcoord_array(ALLEGRO_SHADER *shader, float *u, int stride);
+
+ALLEGRO_SHADER_FUNC(ALLEGRO_SHADER *, al_create_shader, (ALLEGRO_SHADER_PLATFORM platform));
+ALLEGRO_SHADER_FUNC(bool, al_attach_shader_source, (ALLEGRO_SHADER *shader,
+   ALLEGRO_SHADER_TYPE type, const char *source));
+ALLEGRO_SHADER_FUNC(bool, al_link_shader, (ALLEGRO_SHADER *shader));
+ALLEGRO_SHADER_FUNC(void, al_set_shader, (ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader));
+ALLEGRO_SHADER_FUNC(void, al_use_shader, (ALLEGRO_SHADER *shader, bool use));
+ALLEGRO_SHADER_FUNC(void, al_destroy_shader, (ALLEGRO_SHADER *shader));
+
+ALLEGRO_SHADER_FUNC(bool, al_set_shader_sampler, (ALLEGRO_SHADER *shader, const char *name,
+   ALLEGRO_BITMAP *bitmap, int unit));
+ALLEGRO_SHADER_FUNC(bool, al_set_shader_matrix, (ALLEGRO_SHADER *shader, const char *name,
+   ALLEGRO_TRANSFORM *matrix));
+ALLEGRO_SHADER_FUNC(bool, al_set_shader_int, (ALLEGRO_SHADER *shader, const char *name, int i));
+ALLEGRO_SHADER_FUNC(bool, al_set_shader_float, (ALLEGRO_SHADER *shader, const char *name, float f));
+ALLEGRO_SHADER_FUNC(bool, al_set_shader_int_vector, (ALLEGRO_SHADER *shader, const char *name,
+   int size, int *i));
+ALLEGRO_SHADER_FUNC(bool, al_set_shader_float_vector, (ALLEGRO_SHADER *shader, const char *name,
+   int size, float *f));
+
+ALLEGRO_SHADER_FUNC(bool, al_set_shader_vertex_array, (ALLEGRO_SHADER *shader, float *v, int stride));
+ALLEGRO_SHADER_FUNC(bool, al_set_shader_color_array, (ALLEGRO_SHADER *shader, unsigned char *c, int stride));
+ALLEGRO_SHADER_FUNC(bool, al_set_shader_texcoord_array, (ALLEGRO_SHADER *shader, float *u, int stride));
 
 #ifdef __cplusplus
 }

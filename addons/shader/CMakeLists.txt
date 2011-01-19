@@ -9,7 +9,7 @@ set(SHADER_SOURCES
     shader.c
     )
 
-set(OUR_DEFINES "")
+set(OUR_DEFINES "-DALLEGRO_SHADER_SRC")
 set(OUR_LIBS "${ALLEGRO_LINK_WITH}")
 
 if(WANT_OPENGL)
@@ -44,7 +44,7 @@ if(WANT_CG_SHADERS)
             set(OUR_LIBS "${CG_D3D9_LIBRARY};${OUR_LIBS}")
         endif(WANT_D3D)
 
-        include_directories(${CG_INCLUDE_PATH})
+        include_directories(SYSTEM ${CG_INCLUDE_PATH})
 
         foreach(arg ${CG_CFLAGS})
             set(CG_CFLAGS_STRING "${CG_CFLAGS_STRING} ${arg}")
@@ -62,6 +62,8 @@ configure_file(
    allegro5/internal/aintern_shader_cfg.h.cmake
    ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_shader_cfg.h
    )
+
+include_directories(.)
 
 add_our_library(allegro_shader
    "${SHADER_SOURCES};${SHADER_INCLUDE_FILES}"
