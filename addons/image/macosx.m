@@ -36,8 +36,10 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
    // CGImageForProposedRect...
    //CGImageRef cgimage = [image_rep CGImageForProposedRect: nil context: nil hints: nil];
    
-   if (!image_rep) 
+   if (!image_rep) {
+	  [image release];
       return NULL;
+   }
 
    /* Get the actual size in pixels from the representation */
    int w = [image_rep pixelsWide];
@@ -206,8 +208,6 @@ bool _al_osx_save_image_f(ALLEGRO_FILE *f, const char *ident, ALLEGRO_BITMAP *bm
    size_t size = (size_t)[nsdata length];
    bool ret = al_fwrite(f, [nsdata bytes], size) == size;
    
-   [nsdata release];
-   [reps release];
    [image release];
    
    return ret;
