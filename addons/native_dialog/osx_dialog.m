@@ -284,6 +284,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    [scrollView setDocumentView: view];
    
    [[win contentView] addSubview: scrollView];
+   [scrollView release];
    
    [win setDelegate: view];
    [win orderFront: nil];
