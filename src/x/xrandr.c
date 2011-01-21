@@ -153,7 +153,7 @@ static void xrandr_copy_crtc(xrandr_crtc *crtc, RRCrtc id, XRRCrtcInfo *rrcrtc)
       int i;
       char output_string[64] = { 0 };
       for(i = 0; i < rrcrtc->npossible; i++) {
-         char tmp[8] = { 0 };
+         char tmp[64] = { 0 };
          snprintf(tmp, 64, "%i ", (int)rrcrtc->possible[i]);
          strcat(output_string, tmp);
       }
