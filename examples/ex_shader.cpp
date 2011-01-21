@@ -2,19 +2,22 @@
 #include "allegro5/allegro_shader.h"
 #include "allegro5/allegro_image.h"
 #include "allegro5/allegro_primitives.h"
-#include "allegro5/allegro_opengl.h"
 #include <cstdio>
 
 // FIXME: supported drivers should go in alplatf.h
 // Uncomment one of these three blocks depending what driver you want
+
 //#define HLSL
+//#include "allegro5/allegro_direct3d.h"
+//#include "allegro5/allegro_shader_hlsl.h"
 
 #define GLSL
+#include "allegro5/allegro_opengl.h"
 #include "allegro5/allegro_shader_glsl.h"
 
 /*
-#include <Cg/cg.h>
 #define CG
+#include <Cg/cg.h>
 */
 
 #ifdef HLSL
@@ -103,7 +106,7 @@ static const char *hlsl_vertex_source =
    "}\n";
 
 static const char *hlsl_pixel_source =
-   "texture t;\n"
+   "texture tex;\n"
    "sampler2D s = sampler_state {\n"
    "   texture = <tex>;\n"
    "};\n"
@@ -202,8 +205,10 @@ int main(int argc, char **argv)
 
    al_link_shader(shader);
 
-#ifdef GLSL
+#if defined GLSL
    al_set_opengl_program_object(display, al_get_opengl_program_object(shader));
+#elif defined HLSL
+   al_set_direct3d_effect(display, al_get_direct3d_effect(shader));
 #endif
       
    tints = new float[3*4];
@@ -237,34 +242,19 @@ int main(int argc, char **argv)
       al_set_shader_sampler(shader, "tex", bmp, 0);
       al_set_shader_float_vector(shader, "tint", 3, &tints[0]);
       al_use_shader(shader, true);
-      if (al_get_display_flags(display) & ALLEGRO_OPENGL)
-		al_draw_bitmap(bmp, 0, 0, 0);
-      #if defined HLSL && !defined CG
-      else
-         drawD3D(v, 0, 6);
-      #endif
+      al_draw_bitmap(bmp, 0, 0, 0);
       al_use_shader(shader, false);
 
       al_set_shader_sampler(shader, "tex", bmp, 0);
       al_set_shader_float_vector(shader, "tint", 3, &tints[3]);
       al_use_shader(shader, true);
-      if (al_get_display_flags(display) & ALLEGRO_OPENGL)
-		al_draw_bitmap(bmp, 320, 0, 0);
-      #if defined HLSL && !defined CG
-      else
-         drawD3D(v, 6, 6);
-      #endif
+      al_draw_bitmap(bmp, 320, 0, 0);
       al_use_shader(shader, false);
 
       al_set_shader_sampler(shader, "tex", bmp, 0);
       al_set_shader_float_vector(shader, "tint", 3, &tints[6]);
       al_use_shader(shader, true);
-      if (al_get_display_flags(display) & ALLEGRO_OPENGL)
-		al_draw_bitmap(bmp, 0, 240, 0);
-      #if defined HLSL && !defined CG
-      else
-         drawD3D(v, 12, 6);
-      #endif
+      al_draw_bitmap(bmp, 0, 240, 0);
       al_use_shader(shader, false);
 
       /* Draw the last one transformed */
@@ -277,12 +267,7 @@ int main(int argc, char **argv)
       al_set_shader_sampler(shader, "tex", bmp, 0);
       al_set_shader_float_vector(shader, "tint", 3, &tints[9]);
       al_use_shader(shader, true);
-      if (al_get_display_flags(display) & ALLEGRO_OPENGL)
-		al_draw_bitmap(bmp, 0, 0, 0);
-      #if defined HLSL && !defined CG
-      else
-         drawD3D(v, 18, 6);
-      #endif
+      al_draw_bitmap(bmp, 0, 0, 0);
       al_use_shader(shader, false);
 
       al_use_transform(&backup);

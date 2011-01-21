@@ -17,6 +17,7 @@ if(WANT_OPENGL)
     list(APPEND SHADER_INCLUDE_FILES allegro5/allegro_shader_glsl.h)
     set_our_header_properties(${SHADER_INCLUDE_FILES})
     set(OUR_DEFINES "${OUR_DEFINES} -DALLEGRO_CFG_WANT_GLSL_SHADERS")
+    set(ALLEGRO_CFG_GLSL_SHADERS 1 PARENT_SCOPE)
 endif(WANT_OPENGL)
 
 if(WANT_D3D AND WANT_D3D_SHADERS)
@@ -25,8 +26,12 @@ if(WANT_D3D AND WANT_D3D_SHADERS)
         mark_as_advanced(D3DX9)
         if(D3DX9)
             list(APPEND SHADER_SOURCES shader_hlsl.cpp)
+            list(APPEND SHADER_INCLUDE_FILES allegro5/allegro_shader_hlsl.h)
             set(OUR_DEFINES "${OUR_DEFINES} -DALLEGRO_CFG_WANT_HLSL_SHADERS")
             set(OUR_LIBS "${D3DX9};${OUR_LIBS}")
+            set(ALLEGRO_CFG_HLSL_SHADERS 1 PARENT_SCOPE)
+            list(APPEND ALLEGRO_LINK_WITH d3dx9)
+            set(ALLEGRO_LINK_WITH ${ALLEGRO_LINK_WITH} PARENT_SCOPE)
         endif(D3DX9)
     endif(WIN32 AND WANT_D3D)
 endif(WANT_D3D AND WANT_D3D_SHADERS)
@@ -55,13 +60,9 @@ if(WANT_CG_SHADERS)
             PROPERTIES
             COMPILE_FLAGS "${CG_CFLAGS_STRING}"
             )
+        set(ALLEGRO_CFG_CG_SHADERS 1 PARENT_SCOPE)
     endif(CG_FOUND)
 endif(WANT_CG_SHADERS)
-
-configure_file(
-   allegro5/internal/aintern_shader_cfg.h.cmake
-   ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_shader_cfg.h
-   )
 
 include_directories(.)
 

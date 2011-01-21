@@ -4,9 +4,9 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_direct3d.h"
 #include "allegro5/platform/aintwin.h"
+#include "allegro5/platform/alplatf.h"
 
 #include <windows.h>
-#include <d3d9.h>
 
 /* The MinGW copy of d3d9.h doesn't currently define this constant. */
 #ifndef D3D9b_SDK_VERSION
@@ -23,8 +23,7 @@ extern "C" {
 #endif
 
 /* Flexible vertex formats */
-#define D3DFVF_COLORED_VERTEX (D3DFVF_XYZ | D3DFVF_DIFFUSE)
-#define D3DFVF_TL_VERTEX (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
+#define D3DFVF_TL_VERTEX (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
 
 
 typedef struct ALLEGRO_SYSTEM_D3D ALLEGRO_SYSTEM_D3D;
@@ -91,30 +90,11 @@ typedef struct ALLEGRO_DISPLAY_D3D
    int blender_state_alpha_dst;
 
    RECT scissor_state;
+
+#ifdef ALLEGRO_CFG_HLSL_SHADERS
+   LPD3DXEFFECT effect;
+#endif
 } ALLEGRO_DISPLAY_D3D;
-
-
-/* Colored vertex */
-typedef struct D3D_COLORED_VERTEX
-{
-   float x;
-   float y;
-   float z;
-   D3DCOLOR color;
-} D3D_COLORED_VERTEX; 
-
-
-/* Transformed & lit vertex */
-typedef struct D3D_TL_VERTEX
-{
-   float x;		/* x position */
-   float y;		/* y position */
-   float z;		/* z position */
-   D3DCOLOR diffuse;    /* diffuse color */
-   float tu;		/* texture coordinate */
-   float tv;		/* texture coordinate */
-} D3D_TL_VERTEX;
-
 
 ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void);
 

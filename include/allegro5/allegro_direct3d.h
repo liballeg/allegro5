@@ -18,6 +18,10 @@
 #define __al_included_allegro5_allegro_direct3d_h
 
 #include <d3d9.h>
+#if defined ALLEGRO_CFG_HLSL_SHADERS && defined __cplusplus
+#include <d3dx9.h>
+#endif
+#include "allegro5/platform/alplatf.h"
 
 #ifdef __cplusplus
    extern "C" {
@@ -39,6 +43,9 @@ AL_FUNC(bool,               al_have_d3d_non_square_texture_support, (void));
 AL_FUNC(void,               al_get_d3d_texture_position, (ALLEGRO_BITMAP *bitmap, int *u, int *v));
 AL_FUNC(bool,               al_is_d3d_device_lost, (ALLEGRO_DISPLAY *display));
 
+#if defined ALLEGRO_CFG_HLSL_SHADERS && defined __cplusplus
+AL_FUNC(void,               al_set_direct3d_effect,     (ALLEGRO_DISPLAY *display, LPD3DXEFFECT effect));
+#endif
 
 #ifdef __cplusplus
    }

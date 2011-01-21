@@ -17,6 +17,10 @@
 #cmakedefine ALLEGRO_CFG_DLL_TLS
 #cmakedefine ALLEGRO_CFG_PTHREADS_TLS
 
+#cmakedefine ALLEGRO_CFG_GLSL_SHADERS
+#cmakedefine ALLEGRO_CFG_HLSL_SHADERS
+#cmakedefine ALLEGRO_CFG_CG_SHADERS
+
 /*---------------------------------------------------------------------------*/
 
 /* TODO: rename this */

@@ -30,6 +30,8 @@
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_vector.h"
+#include "allegro5/internal/aintern_tri_soft.h" // For ALLEGRO_VERTEX
+#include "allegro5/internal/aintern_shader_cfg.h"
 #include "allegro5/platform/aintwin.h"
 
 #include "d3d.h"
@@ -71,6 +73,14 @@ static bool already_fullscreen = false; /* real fullscreen */
 
 static ALLEGRO_MUTEX *present_mutex;
 ALLEGRO_MUTEX *_al_d3d_lost_device_mutex;
+
+#ifdef ALLEGRO_CFG_HLSL_SHADERS
+void al_set_direct3d_effect(ALLEGRO_DISPLAY *display, LPD3DXEFFECT effect)
+{
+   ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)display;
+   d3d_disp->effect = effect;
+}
+#endif
 
 /*
  * These parameters cannot be gotten by the display thread because
@@ -355,15 +365,6 @@ int _al_d3d_format_to_allegro(int d3d_fmt)
    return -1;
 }
 
-static int d3d_al_color_to_d3d(ALLEGRO_COLOR color)
-{
-   unsigned char r, g, b, a;
-   int result;
-   al_unmap_rgba(color, &r, &g, &b, &a);
-   result = D3DCOLOR_ARGB(a, r, g, b);
-   return result;
-}
-
 static void d3d_reset_state(ALLEGRO_DISPLAY_D3D *disp)
 {
    if (disp->device_lost)
@@ -458,6 +459,17 @@ static void _al_d3d_set_ortho_projection(ALLEGRO_DISPLAY_D3D *disp, float w, flo
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       al_identity_transform(&display->proj_transform);
       al_ortho_transform(&display->proj_transform, 0, w, h, 0, -1, 1);
+#ifdef ALLEGRO_CFG_HLSL_SHADERS
+      LPD3DXEFFECT effect = disp->effect;
+      if (effect) {
+         UINT required_passes;
+         effect->EndPass();
+         effect->End();
+         disp->effect->SetMatrix("proj_matrix", (D3DXMATRIX *)display->proj_transform.m);
+         effect->Begin(&required_passes, 0);
+         effect->BeginPass(0);
+      }
+#endif
    }
    else {
       D3DMATRIX matOrtho;
@@ -2105,20 +2117,13 @@ static void d3d_clear(ALLEGRO_DISPLAY *al_display, ALLEGRO_COLOR *color)
 static void d3d_draw_pixel(ALLEGRO_DISPLAY *al_display, float x, float y, ALLEGRO_COLOR *color)
 {
    ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)al_display;
-   ALLEGRO_COLOR c;
 
-   D3D_TL_VERTEX vertices[1];
+   ALLEGRO_VERTEX vertices[1];
 
    vertices[0].x = x;
    vertices[0].y = y;
    vertices[0].z = 0;
-
-   c.r = color->r;
-   c.g = color->g;
-   c.b = color->b;
-   c.a = color->a;
-
-   vertices[0].diffuse = d3d_al_color_to_d3d(c);
+   vertices[0].color = *color;
 
    _al_d3d_set_blender(disp);
 
@@ -2127,7 +2132,7 @@ static void d3d_draw_pixel(ALLEGRO_DISPLAY *al_display, float x, float y, ALLEGR
    disp->device->SetFVF(D3DFVF_TL_VERTEX);
 
    if (disp->device->DrawPrimitiveUP(D3DPT_POINTLIST, 1,
-         vertices, sizeof(D3D_TL_VERTEX)) != D3D_OK) {
+         vertices, sizeof(ALLEGRO_VERTEX)) != D3D_OK) {
       ALLEGRO_ERROR("d3d_draw_pixel: DrawPrimitive failed.\n");
       return;
    }
@@ -2657,16 +2662,16 @@ static void* d3d_prepare_vertex_cache(ALLEGRO_DISPLAY* disp,
 {
    disp->num_cache_vertices += num_new_vertices;
    if(!disp->vertex_cache) {
-      disp->vertex_cache = al_malloc(num_new_vertices * sizeof(D3D_TL_VERTEX));
+      disp->vertex_cache = al_malloc(num_new_vertices * sizeof(ALLEGRO_VERTEX));
 
       disp->vertex_cache_size = num_new_vertices;
    } else if (disp->num_cache_vertices > disp->vertex_cache_size) {
       disp->vertex_cache = al_realloc(disp->vertex_cache,
-                              2 * disp->num_cache_vertices * sizeof(D3D_TL_VERTEX));
+                              2 * disp->num_cache_vertices * sizeof(ALLEGRO_VERTEX));
 
       disp->vertex_cache_size = 2 * disp->num_cache_vertices;
    }
-   return (D3D_TL_VERTEX*)disp->vertex_cache +
+   return (ALLEGRO_VERTEX *)disp->vertex_cache +
          (disp->num_cache_vertices - num_new_vertices);
 }
 
@@ -2709,7 +2714,7 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    d3d_disp->device->SetFVF(D3DFVF_TL_VERTEX);
 
    if (d3d_disp->device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, disp->num_cache_vertices / 3,
-      (D3D_TL_VERTEX*)disp->vertex_cache, sizeof(D3D_TL_VERTEX)) != D3D_OK) {
+      (ALLEGRO_VERTEX *)disp->vertex_cache, sizeof(ALLEGRO_VERTEX)) != D3D_OK) {
       ALLEGRO_ERROR("d3d_flush_vertex_cache: DrawPrimitive failed.\n");
       return;
    }
@@ -2733,6 +2738,17 @@ static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *tar
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       // FIXME: offset like below
       al_copy_transform(&disp->view_transform, &tmp_transform);
+#ifdef ALLEGRO_CFG_HLSL_SHADERS
+      LPD3DXEFFECT effect = d3d_disp->effect;
+      if (effect) {
+         UINT required_passes;
+         effect->EndPass();
+         effect->End();
+         d3d_disp->effect->SetMatrix("view_matrix", (D3DXMATRIX *)tmp_transform.m);
+         effect->Begin(&required_passes, 0);
+         effect->BeginPass(0);
+      }
+#endif
    }
    else {
       memcpy(matrix.m[0], tmp_transform.m[0], 16 * sizeof(float));
@@ -2896,37 +2912,5 @@ ALLEGRO_DISPLAY_MODE *_al_d3d_get_display_mode(int index, int format,
 
    return mode;
 }
-
-
-/*
-int _al_d3d_get_num_video_adapters(void)
-{
-   return _al_d3d->GetAdapterCount();
-   //return num_video_adapters;
-}
-*/
-
-/*
-void _al_d3d_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
-{
-   HMONITOR mon = _al_d3d->GetAdapterMonitor(adapter);
-   MONITORINFO mi;
-
-   if (!mon) {
-      info->x1 =
-         info->y1 =
-         info->x2 =
-         info->y2 = -1;
-   }
-   else {
-      mi.cbSize = sizeof(mi);
-      GetMonitorInfo(mon, &mi);
-      info->x1 = mi.rcMonitor.left;
-      info->y1 = mi.rcMonitor.top;
-      info->x2 = mi.rcMonitor.right;
-      info->y2 = mi.rcMonitor.bottom;
-   }
-}
-*/
 
 /* vim: set sts=3 sw=3 et: */

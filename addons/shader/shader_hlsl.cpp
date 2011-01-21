@@ -2,6 +2,7 @@
 #include "allegro5/allegro_direct3d.h"
 #include <d3dx9.h>
 #include "allegro5/allegro_shader.h"
+#include "allegro5/allegro_shader_hlsl.h"
 #include "allegro5/transformations.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_shader_hlsl.h"
@@ -334,4 +335,9 @@ bool _al_set_shader_texcoord_array_hlsl(ALLEGRO_SHADER *shader, float *u, int st
    (void)u;
    (void)stride;
    return true;
+}
+
+LPD3DXEFFECT al_get_direct3d_effect(ALLEGRO_SHADER *shader)
+{
+   return ((ALLEGRO_SHADER_HLSL_S *)shader)->hlsl_shader;
 }

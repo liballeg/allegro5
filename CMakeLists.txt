@@ -662,25 +662,6 @@ endif(WIN32)
 
 #-----------------------------------------------------------------------------#
 #
-#   Produce configuration file
-#
-#-----------------------------------------------------------------------------#
-
-# We no longer support hand-written assembly routines.
-set(ALLEGRO_NO_ASM 1)
-
-if(NO_FPU)
-    set(ALLEGRO_CFG_NO_FPU 1)
-endif(NO_FPU)
-
-# All relevant variables must be set before here.
-configure_file(
-    include/allegro5/platform/alplatf.h.cmake
-    ${CMAKE_BINARY_DIR}/include/allegro5/platform/alplatf.h
-    )
-
-#-----------------------------------------------------------------------------#
-#
 #   Main library
 #
 #-----------------------------------------------------------------------------#
@@ -818,6 +799,25 @@ set(ALLEGRO_LINK_WITH allegro)
 #-----------------------------------------------------------------------------#
 
 add_subdirectory(addons)
+
+#-----------------------------------------------------------------------------#
+#
+#   Produce configuration file
+#
+#-----------------------------------------------------------------------------#
+
+# We no longer support hand-written assembly routines.
+set(ALLEGRO_NO_ASM 1)
+
+if(NO_FPU)
+    set(ALLEGRO_CFG_NO_FPU 1)
+endif(NO_FPU)
+
+# All relevant variables must be set before here.
+configure_file(
+    include/allegro5/platform/alplatf.h.cmake
+    ${CMAKE_BINARY_DIR}/include/allegro5/platform/alplatf.h
+    )
 
 #-----------------------------------------------------------------------------#
 #

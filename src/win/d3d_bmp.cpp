@@ -24,6 +24,7 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_system.h"
+#include "allegro5/internal/aintern_tri_soft.h" // For ALLEGRO_VERTEX
 #include "allegro5/platform/aintwin.h"
 
 #include "d3d.h"
@@ -74,7 +75,6 @@ static void d3d_draw_textured_quad(
    float tv_end;
    int texture_w;
    int texture_h;
-   DWORD d3d_color;
 
    const float z = 0.0f;
    
@@ -85,7 +85,7 @@ static void d3d_draw_textured_quad(
    }
    aldisp->cache_texture = (uintptr_t)bmp;
 
-   D3D_TL_VERTEX* vertices = (D3D_TL_VERTEX*)aldisp->vt->prepare_vertex_cache(aldisp, 6);
+   ALLEGRO_VERTEX *vertices = (ALLEGRO_VERTEX *)aldisp->vt->prepare_vertex_cache(aldisp, 6);
 
    right  = sw;
    bottom = sh;
@@ -108,35 +108,33 @@ static void d3d_draw_textured_quad(
       tv_end = temp;
    }
 
-   d3d_color = D3DCOLOR_COLORVALUE(tint.r, tint.g, tint.b, tint.a);
-
    vertices[0].x = 0;
    vertices[0].y = 0;
    vertices[0].z = z;
-   vertices[0].diffuse = d3d_color;
-   vertices[0].tu = tu_start;
-   vertices[0].tv = tv_start;
+   vertices[0].color = tint;
+   vertices[0].u = tu_start;
+   vertices[0].v = tv_start;
 
    vertices[1].x = right;
    vertices[1].y = 0;
    vertices[1].z = z;
-   vertices[1].diffuse = d3d_color;
-   vertices[1].tu = tu_end;
-   vertices[1].tv = tv_start;
+   vertices[1].color = tint;
+   vertices[1].u = tu_end;
+   vertices[1].v = tv_start;
 
    vertices[2].x = right;
    vertices[2].y = bottom;
    vertices[2].z = z;
-   vertices[2].diffuse = d3d_color;
-   vertices[2].tu = tu_end;
-   vertices[2].tv = tv_end;
+   vertices[2].color = tint;
+   vertices[2].u = tu_end;
+   vertices[2].v = tv_end;
 
    vertices[5].x = 0;
    vertices[5].y = bottom;
    vertices[5].z = z;
-   vertices[5].diffuse = d3d_color;
-   vertices[5].tu = tu_start;
-   vertices[5].tv = tv_end;
+   vertices[5].color = tint;
+   vertices[5].u = tu_start;
+   vertices[5].v = tv_end;
 
    if (aldisp->cache_enabled) {
       transform_vertex(&vertices[0].x, &vertices[0].y);
