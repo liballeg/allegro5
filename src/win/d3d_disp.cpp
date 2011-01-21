@@ -31,7 +31,6 @@
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/internal/aintern_tri_soft.h" // For ALLEGRO_VERTEX
-#include "allegro5/internal/aintern_shader_cfg.h"
 #include "allegro5/platform/aintwin.h"
 
 #include "d3d.h"
