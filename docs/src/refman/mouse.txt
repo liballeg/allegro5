@@ -229,3 +229,25 @@ already was visible), false otherwise.
 
 See also: [al_hide_mouse_cursor]
 
+### API: al_grab_mouse
+
+Confine the mouse cursor to the given display.  The mouse cursor can only be
+confined to one display at a time.
+
+Returns true if successful, otherwise returns false.
+Do not assume that the cursor will remain confined until you call
+[al_ungrab_mouse].  It may lose the confined status at any time for other
+reasons.
+
+> *Note:* not yet implemented on Mac OS X.
+
+See also: [al_ungrab_mouse]
+
+### API: al_ungrab_mouse
+
+Stop confining the mouse cursor to any display belonging to the program.
+
+> *Note:* not yet implemented on Mac OS X.
+
+See also: [al_grab_mouse]
+
