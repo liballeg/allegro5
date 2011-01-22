@@ -306,7 +306,7 @@ static bool osx_set_mouse_xy(ALLEGRO_DISPLAY *dpy_, int x, int y)
         if ((CGGetDisplaysWithRect(rect, 16, displays, &displayCount) == 0) && (displayCount >= 1))
         	display = displays[0];
         pos.x = content.origin.x + x;
-        pos.y = frame.size.height - content.origin.y - y;
+        pos.y = rect.size.height - content.origin.y - content.size.height + y;
     }
     else {
         if (dpy)
