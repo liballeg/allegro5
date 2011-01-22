@@ -356,7 +356,7 @@ static bool xfvm_set_mode(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, int w
    int adapter = _al_xglx_get_adapter(s, d, false);
    
 #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
-   /* TwinView work arrounds, nothing to do here, since we can't really change or restore modes */
+   /* TwinView workarounds, nothing to do here, since we can't really change or restore modes */
    if (s->xinerama_available && s->xinerama_screen_count != s->xfvm_screen_count) {
       /* at least pretend we set a mode if its the current mode */
       if (s->xinerama_screen_info[adapter].width != w || s->xinerama_screen_info[adapter].height != h)
@@ -385,7 +385,7 @@ static void xfvm_store_video_mode(ALLEGRO_SYSTEM_XGLX *s)
    ALLEGRO_DEBUG("xfullscreen: xfvm_store_video_mode\n");
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
-   /* TwinView work arrounds, nothing to do here, since we can't really change or restore modes */
+   /* TwinView workarounds, nothing to do here, since we can't really change or restore modes */
    if (s->xinerama_available && s->xinerama_screen_count != s->xfvm_screen_count) {
       return;
    }
@@ -417,7 +417,7 @@ static void xfvm_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter)
    Bool ok;
    
 #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
-   /* TwinView work arrounds, nothing to do here, since we can't really change or restore modes */
+   /* TwinView workarounds, nothing to do here, since we can't really change or restore modes */
    if (s->xinerama_available && s->xinerama_screen_count != s->xfvm_screen_count) {
       return;
    }
@@ -542,7 +542,7 @@ static void xfvm_post_setup(ALLEGRO_SYSTEM_XGLX *s,
    XWindowAttributes xwa;
    
 #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
-   /* TwinView work arrounds, nothing to do here, since we can't really change or restore modes */
+   /* TwinView workarounds, nothing to do here, since we can't really change or restore modes */
    if (s->xinerama_available && s->xinerama_screen_count != s->xfvm_screen_count) {
       return;
    }
