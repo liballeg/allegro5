@@ -435,9 +435,9 @@ static void xfvm_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter)
       ALLEGRO_ERROR("xfullscreen: XF86VidModeSwitchToMode failed\n");
    }
 
-   if (s->pointer_grabbed) {
+   if (s->mouse_grab_display) {
       XUngrabPointer(s->gfxdisplay, CurrentTime);
-      s->pointer_grabbed = false;
+      s->mouse_grab_display = NULL;
    }
 
    /* This is needed, at least on my machine, or the program may terminate
@@ -856,14 +856,6 @@ bool _al_xglx_fullscreen_set_mode(ALLEGRO_SYSTEM_XGLX *s,
 void _al_xglx_fullscreen_to_display(ALLEGRO_SYSTEM_XGLX *s,
    ALLEGRO_DISPLAY_XGLX *d)
 {
-   /* First, make sure the mouse stays inside the window. */
-   /* XXX We don't want to do it this way, for say a dual monitor setup... */
-   //XGrabPointer(s->x11display, d->window, False,
-   //   PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
-   //   GrabModeAsync, GrabModeAsync, d->window, None, CurrentTime);
-   //FIXME: handle possible errors here
-   s->pointer_grabbed = true;
-   
    if (!init_mmon_interface(s))
       return;
    

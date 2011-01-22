@@ -73,7 +73,7 @@ struct ALLEGRO_SYSTEM_XGLX
    _AL_MUTEX lock; /* thread lock for whenever we access internals. */
    // FIXME: One condition variable really would be enough.
    _AL_COND resized; /* Condition variable to wait for resizing a window. */
-   bool pointer_grabbed; /* Is an XGrabPointer in effect? */
+   ALLEGRO_DISPLAY *mouse_grab_display; /* Best effort: may be inaccurate. */
    int toggle_mouse_grab_keycode; /* Disabled if zero */
    unsigned int toggle_mouse_grab_modifiers;
    bool inhibit_screensaver; /* Should we inhibit the screensaver? */
