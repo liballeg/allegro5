@@ -1114,6 +1114,9 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
    if (old_disp != display)
       _al_set_current_display_only(display);
 
+   if (system->mouse_grab_display == display)
+      al_ungrab_mouse();
+
    d3d_destroy_display_internals(d3d_display);
 
    _al_vector_find_and_delete(&system->system.displays, &display);

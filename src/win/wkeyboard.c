@@ -254,6 +254,7 @@ static void update_modifiers(int code, bool pressed)
 void _al_win_kbd_handle_key_press(int scode, int vcode, bool repeated,
                            ALLEGRO_DISPLAY_WIN *win_disp)
 {
+   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)win_disp;
    ALLEGRO_EVENT event;
    int my_code;
    int char_count;
@@ -304,7 +305,7 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool repeated,
 
    event.keyboard.type = ALLEGRO_EVENT_KEY_DOWN;
    event.keyboard.timestamp = al_get_time();
-   event.keyboard.display = (void*)win_disp;
+   event.keyboard.display = display;
    event.keyboard.keycode = my_code;
    event.keyboard.unichar = 0;
    event.keyboard.modifiers = 0;
@@ -330,8 +331,22 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool repeated,
          }
       }
    }
-
    _al_event_source_unlock(&the_keyboard.es);
+
+   /* Toggle mouse grab key. */
+   if (my_code && !repeated) {
+      ALLEGRO_SYSTEM_WIN *system = (void *)al_get_system_driver();
+      if (my_code == system->toggle_mouse_grab_keycode &&
+         (modifiers & system->toggle_mouse_grab_modifiers) == system->toggle_mouse_grab_modifiers)
+      {
+         if (system->mouse_grab_display == display) {
+            al_ungrab_mouse();
+         }
+         else {
+            al_grab_mouse(display);
+         }
+      }
+   }
 }
 
 

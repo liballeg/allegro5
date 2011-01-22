@@ -136,6 +136,9 @@ typedef struct ALLEGRO_SYSTEM_WIN ALLEGRO_SYSTEM_WIN;
 struct ALLEGRO_SYSTEM_WIN
 {
    ALLEGRO_SYSTEM system; /* This must be the first member, we "derive" from it. */
+   ALLEGRO_DISPLAY *mouse_grab_display; /* May be inaccurate. */
+   int toggle_mouse_grab_keycode; /* Disabled if zero. */
+   unsigned int toggle_mouse_grab_modifiers;
 };
 
 /* helpers to create windows */
