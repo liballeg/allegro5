@@ -76,7 +76,6 @@ void _al_osx_switch_keyboard_focus(ALLEGRO_DISPLAY *dpy, bool switch_in)
 }
 
 static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode, int modifiers, bool is_repeat) {
-	int type;
 	_al_event_source_lock(&keyboard.es);
 	{
 		/* Generate the press event if necessary. */
@@ -93,7 +92,7 @@ static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode, i
 			 if (!is_repeat) {
 				 _al_event_source_emit_event(&keyboard.es, &event);
 			 }
-
+			 if (unicode > 0)
 			 {
 				 event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
 				 event.keyboard.unichar = unicode;
@@ -203,33 +202,26 @@ ALLEGRO_KEYBOARD_DRIVER* _al_osx_get_keyboard_driver(void) {
 void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY* dpy)
 {
    /* We need to distinguish between the raw character code (needed for
-    * ctrl and alt) and the "shifted" caharacter code when neither of these
+    * ctrl and alt) and the "shifted" character code when neither of these
     * is held down. This is needed to get the correct behavior when caps
     * lock is on (ie, letters are upper case)
     */
-	const char raw_character = [[event charactersIgnoringModifiers] characterAtIndex: 0];
-	const char upper_character = [[event characters] characterAtIndex: 0];
 	int scancode = mac_to_scancode[[event keyCode]];
-	int modifiers = [event modifierFlags];
-   int key_shifts;
-   bool is_repeat = pressed ? ([event isARepeat] == YES) : false;
 
-   /* Translate OS X modifier flags to Allegro modifier flags */
-   key_shifts = translate_modifier_flags(modifiers);
 	
 	if (pressed) {
-		if (key_shifts & ALLEGRO_KEYMOD_ALT)
-			_handle_key_press(dpy, 0, scancode, key_shifts, is_repeat);
-		else {
-			if ((key_shifts & ALLEGRO_KEYMOD_CTRL) && (isalpha(raw_character)))
-				_handle_key_press(dpy, tolower(raw_character) - 'a' + 1, scancode, key_shifts, is_repeat);
-			else
-				_handle_key_press(dpy, upper_character, scancode, key_shifts, is_repeat);
-		}
-//		if ((three_finger_flag) &&
-//			(scancode == KEY_END) && (_key_shifts & (KB_CTRL_FLAG | KB_ALT_FLAG))) {
-//			raise(SIGTERM);
-//		}
+	    /* Translate OS X modifier flags to Allegro modifier flags */
+	    int key_shifts = translate_modifier_flags([event modifierFlags]);
+		NSString* raw_characters = [event charactersIgnoringModifiers];
+		NSString* upper_characters = [event characters];
+		const unichar raw_character = ([raw_characters length] > 0) ? [raw_characters characterAtIndex: 0] : 0;
+		const unichar upper_character =([upper_characters length] > 0) ?  [upper_characters characterAtIndex: 0] : 0;
+	    bool is_repeat = pressed ? ([event isARepeat] == YES) : false;
+		/* Special processing to send character 1 for CTRL-A, 2 for CTRL-B etc. */
+		if ((key_shifts & ALLEGRO_KEYMOD_CTRL) && (isalpha(raw_character)))
+			_handle_key_press(dpy, tolower(raw_character) - 'a' + 1, scancode, key_shifts, is_repeat);
+		else
+			_handle_key_press(dpy, upper_character, scancode, key_shifts, is_repeat);
 	}
 	else
 		_handle_key_release(dpy, scancode);
