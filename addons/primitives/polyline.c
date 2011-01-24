@@ -50,6 +50,8 @@ static void compute_end_cross_points(const float* v0, const float* v1, float rad
 {
    float dir[2];
    float normal[2];
+   /* XXX delete this parameter? */
+   (void)radius;
 
    compute_direction_and_normal(v0, v1, dir, normal);
 
@@ -218,6 +220,7 @@ static void emit_triange_end_cap(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* 
 static void emit_round_end_cap(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pivot, const float* dir, const float* normal, float radius)
 {
    float angle = atan2f(-normal[1], -normal[0]);
+   /* XXX delete these parameters? */
    (void)dir;
    (void)radius;
 
@@ -290,6 +293,9 @@ static void emit_round_join(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pivot
 static void emit_miter_join(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pivot, const float* p0, const float* p1,
    float radius, const float* middle, float angle, float miter_distance, float max_miter_distance)
 {
+   /* XXX delete this parameter? */
+   (void)radius;
+
    if (miter_distance > max_miter_distance) {
 
       float normal[2] = { -middle[1], middle[0] };

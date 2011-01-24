@@ -114,6 +114,8 @@ extern UINT _al_win_msg_suicide;
 AL_FUNC(void, _al_win_wnd_schedule_proc, (HWND wnd, void (*proc)(void*), void *param));
 AL_FUNC(void, _al_win_wnd_call_proc, (HWND wnd, void (*proc)(void*), void *param));
 
+int _al_win_determine_adapter(void);
+
 extern bool _al_win_disable_screensaver;
 
 /* dynamic library loading */
