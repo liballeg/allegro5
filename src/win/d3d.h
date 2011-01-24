@@ -23,8 +23,17 @@ extern "C" {
 #endif
 
 /* Flexible vertex formats */
-#define D3DFVF_TL_VERTEX (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
+// Fixed pipeline vertex
+#define D3DFVF_FIXED_VERTEX (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
+// Programmable pipeline vertex
+#define D3DFVF_ALLEGRO_VERTEX (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
 
+// Vertex structure when using fixed pipeline (otherwise it's ALLEGRO_VERTEX)
+struct D3D_FIXED_VERTEX {
+   float x, y, z;
+   D3DCOLOR color;
+   float u, v;
+};
 
 typedef struct ALLEGRO_SYSTEM_D3D ALLEGRO_SYSTEM_D3D;
 

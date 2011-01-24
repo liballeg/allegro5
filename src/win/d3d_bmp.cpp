@@ -29,8 +29,6 @@
 
 #include "d3d.h"
 
-extern "C" {
-
 ALLEGRO_DEBUG_CHANNEL("d3d")
 
 
@@ -85,8 +83,6 @@ static void d3d_draw_textured_quad(
    }
    aldisp->cache_texture = (uintptr_t)bmp;
 
-   ALLEGRO_VERTEX *vertices = (ALLEGRO_VERTEX *)aldisp->vt->prepare_vertex_cache(aldisp, 6);
-
    right  = sw;
    bottom = sh;
 
@@ -108,45 +104,59 @@ static void d3d_draw_textured_quad(
       tv_end = temp;
    }
 
-   vertices[0].x = 0;
-   vertices[0].y = 0;
-   vertices[0].z = z;
-   vertices[0].color = tint;
-   vertices[0].u = tu_start;
-   vertices[0].v = tv_start;
+#define ALLEGRO_COLOR_TO_D3D(c) D3DCOLOR_COLORVALUE(c.r, c.g, c.b, c.a)
 
-   vertices[1].x = right;
-   vertices[1].y = 0;
-   vertices[1].z = z;
-   vertices[1].color = tint;
-   vertices[1].u = tu_end;
-   vertices[1].v = tv_start;
-
-   vertices[2].x = right;
-   vertices[2].y = bottom;
-   vertices[2].z = z;
-   vertices[2].color = tint;
-   vertices[2].u = tu_end;
-   vertices[2].v = tv_end;
-
-   vertices[5].x = 0;
-   vertices[5].y = bottom;
-   vertices[5].z = z;
-   vertices[5].color = tint;
-   vertices[5].u = tu_start;
-   vertices[5].v = tv_end;
-
-   if (aldisp->cache_enabled) {
-      transform_vertex(&vertices[0].x, &vertices[0].y);
-      transform_vertex(&vertices[1].x, &vertices[1].y);
-      transform_vertex(&vertices[2].x, &vertices[2].y);
-      transform_vertex(&vertices[5].x, &vertices[5].y);
-   }
-   
-   vertices[3] = vertices[0];
+#define SET(f) \
+   vertices[0].x = 0; \
+   vertices[0].y = 0; \
+   vertices[0].z = z; \
+   vertices[0].color = f(tint); \
+   vertices[0].u = tu_start; \
+   vertices[0].v = tv_start; \
+ \
+   vertices[1].x = right; \
+   vertices[1].y = 0; \
+   vertices[1].z = z; \
+   vertices[1].color = f(tint); \
+   vertices[1].u = tu_end; \
+   vertices[1].v = tv_start; \
+ \
+   vertices[2].x = right; \
+   vertices[2].y = bottom; \
+   vertices[2].z = z; \
+   vertices[2].color = f(tint); \
+   vertices[2].u = tu_end; \
+   vertices[2].v = tv_end; \
+ \
+   vertices[5].x = 0; \
+   vertices[5].y = bottom; \
+   vertices[5].z = z; \
+   vertices[5].color = f(tint); \
+   vertices[5].u = tu_start; \
+   vertices[5].v = tv_end; \
+\
+   if (aldisp->cache_enabled) { \
+      transform_vertex(&vertices[0].x, &vertices[0].y); \
+      transform_vertex(&vertices[1].x, &vertices[1].y); \
+      transform_vertex(&vertices[2].x, &vertices[2].y); \
+      transform_vertex(&vertices[5].x, &vertices[5].y); \
+   } \
+    \
+   vertices[3] = vertices[0]; \
    vertices[4] = vertices[2];
 
-   if(!aldisp->cache_enabled)
+   bool pp = aldisp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE;
+
+   if (pp) {
+   	ALLEGRO_VERTEX *vertices = (ALLEGRO_VERTEX *)aldisp->vt->prepare_vertex_cache(aldisp, 6);
+	SET(ALLEGRO_COLOR)
+   }
+   else {
+   	D3D_FIXED_VERTEX *vertices = (D3D_FIXED_VERTEX *)aldisp->vt->prepare_vertex_cache(aldisp, 6);
+	SET(ALLEGRO_COLOR_TO_D3D)
+   }
+
+   if (!aldisp->cache_enabled)
       aldisp->vt->flush_vertex_cache(aldisp);
 }
 
@@ -836,4 +846,3 @@ ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void)
    return vt;
 }
 
-} // end extern "C"

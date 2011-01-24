@@ -2120,21 +2120,21 @@ static void d3d_draw_pixel(ALLEGRO_DISPLAY *al_display, float x, float y, ALLEGR
 {
    ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)al_display;
 
-   ALLEGRO_VERTEX vertices[1];
+   D3D_FIXED_VERTEX vertices[1];
 
    vertices[0].x = x;
    vertices[0].y = y;
    vertices[0].z = 0;
-   vertices[0].color = *color;
+   vertices[0].color = D3DCOLOR_COLORVALUE(color->r, color->g, color->b, color->a);
 
    _al_d3d_set_blender(disp);
 
    disp->device->SetTexture(0, NULL);
 
-   disp->device->SetFVF(D3DFVF_TL_VERTEX);
+   disp->device->SetFVF(D3DFVF_FIXED_VERTEX);
 
    if (disp->device->DrawPrimitiveUP(D3DPT_POINTLIST, 1,
-         vertices, sizeof(ALLEGRO_VERTEX)) != D3D_OK) {
+         vertices, sizeof(D3D_FIXED_VERTEX)) != D3D_OK) {
       ALLEGRO_ERROR("d3d_draw_pixel: DrawPrimitive failed.\n");
       return;
    }
@@ -2662,19 +2662,28 @@ static void d3d_shutdown(void)
 static void* d3d_prepare_vertex_cache(ALLEGRO_DISPLAY* disp,
                                       int num_new_vertices)
 {
+   int size;
+
+   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      size = sizeof(ALLEGRO_VERTEX);
+   }
+   else {
+      size = sizeof(D3D_FIXED_VERTEX);
+   }
+
    disp->num_cache_vertices += num_new_vertices;
    if(!disp->vertex_cache) {
-      disp->vertex_cache = al_malloc(num_new_vertices * sizeof(ALLEGRO_VERTEX));
+      disp->vertex_cache = al_malloc(num_new_vertices * size);
 
       disp->vertex_cache_size = num_new_vertices;
    } else if (disp->num_cache_vertices > disp->vertex_cache_size) {
       disp->vertex_cache = al_realloc(disp->vertex_cache,
-                              2 * disp->num_cache_vertices * sizeof(ALLEGRO_VERTEX));
+                              2 * disp->num_cache_vertices * size);
 
       disp->vertex_cache_size = 2 * disp->num_cache_vertices;
    }
-   return (ALLEGRO_VERTEX *)disp->vertex_cache +
-         (disp->num_cache_vertices - num_new_vertices);
+   return (unsigned char *)disp->vertex_cache +
+         (disp->num_cache_vertices - num_new_vertices) * size;
 }
 
 static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
@@ -2713,10 +2722,19 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
       d3d_disp->device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
    }
 
-   d3d_disp->device->SetFVF(D3DFVF_TL_VERTEX);
+   int size;
+
+   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      d3d_disp->device->SetFVF(D3DFVF_ALLEGRO_VERTEX);
+      size = sizeof(ALLEGRO_VERTEX);
+   }
+   else {
+      d3d_disp->device->SetFVF(D3DFVF_FIXED_VERTEX);
+      size = sizeof(D3D_FIXED_VERTEX);
+   }
 
    if (d3d_disp->device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, disp->num_cache_vertices / 3,
-      (ALLEGRO_VERTEX *)disp->vertex_cache, sizeof(ALLEGRO_VERTEX)) != D3D_OK) {
+      (void *)disp->vertex_cache, size) != D3D_OK) {
       ALLEGRO_ERROR("d3d_flush_vertex_cache: DrawPrimitive failed.\n");
       return;
    }
