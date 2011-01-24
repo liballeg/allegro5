@@ -148,7 +148,7 @@ static const int mac_to_scancode[128] = {
 	/* 0x44 */ 0,              ALLEGRO_KEY_PAD_PLUS,   0,              ALLEGRO_KEY_NUMLOCK,
 	/* 0x48 */ 0,              0,              0,              ALLEGRO_KEY_PAD_SLASH,
 	/* 0x4c */ ALLEGRO_KEY_PAD_ENTER,  0,              ALLEGRO_KEY_PAD_MINUS,   0,
-	/* 0x50 */ 0,              ALLEGRO_KEY_EQUALS_PAD, ALLEGRO_KEY_PAD_0,      ALLEGRO_KEY_PAD_1,
+	/* 0x50 */ 0,              ALLEGRO_KEY_PAD_EQUALS, ALLEGRO_KEY_PAD_0,      ALLEGRO_KEY_PAD_1,
 	/* 0x54 */ ALLEGRO_KEY_PAD_2,      ALLEGRO_KEY_PAD_3,      ALLEGRO_KEY_PAD_4,      ALLEGRO_KEY_PAD_5,
 	/* 0x58 */ ALLEGRO_KEY_PAD_6,      ALLEGRO_KEY_PAD_7,      0,              ALLEGRO_KEY_PAD_8,
 	/* 0x5c */ ALLEGRO_KEY_PAD_9,      0,              0,              0,

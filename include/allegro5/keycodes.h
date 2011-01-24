@@ -133,7 +133,7 @@ enum
    ALLEGRO_KEY_COLON2	= 101,
    ALLEGRO_KEY_KANJI		= 102,
 
-   ALLEGRO_KEY_EQUALS_PAD	= 103,	/* MacOS X */
+   ALLEGRO_KEY_PAD_EQUALS	= 103,	/* MacOS X */
    ALLEGRO_KEY_BACKQUOTE	= 104,	/* MacOS X */
    ALLEGRO_KEY_SEMICOLON2	= 105,	/* MacOS X -- TODO: ask lillo what this should be */
    ALLEGRO_KEY_COMMAND	= 106,	/* MacOS X */
