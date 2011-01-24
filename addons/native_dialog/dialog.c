@@ -8,7 +8,7 @@
 /* Function: al_create_native_file_dialog
  */
 ALLEGRO_FILECHOOSER *al_create_native_file_dialog(
-   ALLEGRO_PATH const *initial_path,
+   char const *initial_path,
    char const *title,
    char const *patterns,
    int mode)
@@ -18,8 +18,7 @@ ALLEGRO_FILECHOOSER *al_create_native_file_dialog(
    memset(fc, 0, sizeof *fc);
 
    if (initial_path) {
-      fc->fc_initial_path = al_clone_path(initial_path);
-      al_set_path_filename(fc->fc_initial_path, NULL);
+      fc->fc_initial_path = al_create_path(initial_path);
    }
    fc->title = al_ustr_new(title);
    fc->fc_patterns = al_ustr_new(patterns);
@@ -50,12 +49,12 @@ int al_get_native_file_dialog_count(const ALLEGRO_FILECHOOSER *dialog)
 
 /* Function: al_get_native_file_dialog_path
  */
-const ALLEGRO_PATH *al_get_native_file_dialog_path(
+const char *al_get_native_file_dialog_path(
    const ALLEGRO_FILECHOOSER *dialog, size_t i)
 {
    const ALLEGRO_NATIVE_DIALOG *fc = (const ALLEGRO_NATIVE_DIALOG *)dialog;
    if (i < fc->fc_path_count)
-      return fc->fc_paths[i];
+      return al_path_cstr(fc->fc_paths[i], ALLEGRO_NATIVE_PATH_SEP);
    return NULL;
 }
 
