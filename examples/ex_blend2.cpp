@@ -174,6 +174,16 @@ void draw_background(int x, int y)
    }
 }
 
+static ALLEGRO_COLOR makecol(int r, int g, int b, int a)
+{
+   /* Premultiply alpha. */
+   float rf = (float)r / 255.0f;
+   float gf = (float)g / 255.0f;
+   float bf = (float)b / 255.0f;
+   float af = (float)a / 255.0f;
+   return al_map_rgba_f(rf*af, gf*af, bf*af, af);
+}
+
 static bool contains(const std::string & haystack, const std::string & needle)
 {
    return haystack.find(needle) != std::string::npos;
@@ -189,7 +199,7 @@ void Prog::draw_bitmap(const std::string & str,
    int gv = g[i].get_cur_value();
    int bv = b[i].get_cur_value();
    int av = a[i].get_cur_value();
-   ALLEGRO_COLOR color = al_map_rgba(rv, gv, bv, av);
+   ALLEGRO_COLOR color = makecol(rv, gv, bv, av);
    ALLEGRO_BITMAP *bmp;
 
    if (contains(str, "Mysha"))
@@ -308,6 +318,9 @@ int main(int argc, char *argv[])
       abort_example("Unable to create display\n");
       return 1;
    }
+
+   al_set_new_bitmap_flags(ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+
    font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!font) {
       abort_example("Failed to load data/fixed_font.tga\n");
@@ -326,7 +339,7 @@ int main(int argc, char *argv[])
    
    target = al_create_bitmap(320, 200);
 
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_add_new_bitmap_flag(ALLEGRO_MEMORY_BITMAP);
    allegro_bmp = al_clone_bitmap(allegro);
    mysha_bmp = al_clone_bitmap(mysha);
    target_bmp = al_clone_bitmap(target);
