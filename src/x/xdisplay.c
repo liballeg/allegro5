@@ -511,6 +511,14 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       _al_xglx_toggle_above(display, 1);
       
       _al_xglx_fullscreen_to_display(system, d);
+      
+      /* grab mouse if we only have one display,
+       * ungrab it if we have more than one */
+      if(_al_vector_size(&system->system.displays) == 1) {
+         al_grab_mouse(display);
+      } else if(_al_vector_size(&system->system.displays) > 1) {
+         al_ungrab_mouse();
+      }
    }
    
    if (!_al_xglx_config_create_context(d)) {
