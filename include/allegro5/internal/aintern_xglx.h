@@ -180,7 +180,7 @@ struct _ALLEGRO_XGLX_MMON_INTERFACE {
     void (*restore_mode)(ALLEGRO_SYSTEM_XGLX *, int);
     void (*get_display_offset)(ALLEGRO_SYSTEM_XGLX *, int, int *, int *);
     int (*get_num_adapters)(ALLEGRO_SYSTEM_XGLX *);
-    void (*get_monitor_info)(ALLEGRO_SYSTEM_XGLX *, int, ALLEGRO_MONITOR_INFO *);
+    bool (*get_monitor_info)(ALLEGRO_SYSTEM_XGLX *, int, ALLEGRO_MONITOR_INFO *);
     int (*get_default_adapter)(ALLEGRO_SYSTEM_XGLX *);
     int (*get_adapter)(ALLEGRO_SYSTEM_XGLX *, ALLEGRO_DISPLAY_XGLX *);
     int (*get_xscreen)(ALLEGRO_SYSTEM_XGLX *, int);
@@ -211,7 +211,7 @@ void _al_xglx_get_display_offset(ALLEGRO_SYSTEM_XGLX *s, int adapter, int *x, in
 
 int _al_xglx_fullscreen_select_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int w, int h, int format, int refresh_rate);
 
-void _al_xglx_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONITOR_INFO *info);
+bool _al_xglx_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONITOR_INFO *info);
 int _al_xglx_get_num_video_adapters(ALLEGRO_SYSTEM_XGLX *s);
 
 int _al_xglx_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s);

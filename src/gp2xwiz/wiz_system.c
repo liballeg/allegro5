@@ -91,13 +91,14 @@ static int gp2xwiz_get_num_video_adapters(void)
    return 1;
 }
 
-static void gp2xwiz_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
+static bool gp2xwiz_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
    (void)adapter;
    info->x1 = 0;
    info->y1 = 0;
    info->x2 = 320;
    info->y2 = 240;
+   return true;
 }
 
 // FIXME
