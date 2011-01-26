@@ -267,7 +267,7 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
 
    ALLEGRO_INFO("Allegro version: %s\n", ALLEGRO_VERSION_STR);
 
-   if(strcmp(al_get_app_name(), "") == 0) {
+   if (strcmp(al_get_app_name(), "") == 0) {
       al_set_app_name(NULL);
    }
 

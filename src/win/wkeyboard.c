@@ -378,7 +378,7 @@ void _al_win_kbd_handle_key_release(int vcode, ALLEGRO_DISPLAY_WIN *win_disp)
       vcode = VK_LMENU;
    else if (vcode == VK_MENU && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_ALTGR) && !(ks[VK_RMENU] & 0x80))
       vcode = VK_RMENU;
-   else if(vcode == VK_MENU)
+   else if (vcode == VK_MENU)
 	   return;
 
    my_code = hw_to_mycode[vcode];
@@ -389,9 +389,9 @@ void _al_win_kbd_handle_key_release(int vcode, ALLEGRO_DISPLAY_WIN *win_disp)
    /* Windows only sends a WM_KEYUP message for the Shift keys when
       both have been released. If one of the Shift keys is still reported
       as down, we need to release it as well. */
-   if(my_code == ALLEGRO_KEY_LSHIFT && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_RSHIFT))
+   if (my_code == ALLEGRO_KEY_LSHIFT && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_RSHIFT))
       _al_win_kbd_handle_key_release(VK_RSHIFT, win_disp);
-   else if(my_code == ALLEGRO_KEY_RSHIFT && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_LSHIFT))
+   else if (my_code == ALLEGRO_KEY_RSHIFT && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_LSHIFT))
       _al_win_kbd_handle_key_release(VK_LSHIFT, win_disp);
    
    if (!_al_event_source_needs_to_generate_event(&the_keyboard.es))

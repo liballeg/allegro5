@@ -85,10 +85,10 @@ static int import_bitmap_font_color(uint32_t *data, int pitch,
 {
    int w, h, i;
 
-   for(i = 0; i < num; i++) {
+   for (i = 0; i < num; i++) {
       font_find_character(data, pitch, bmp_w, bmp_h,
          import_x, import_y, &w, &h);
-      if(w <= 0 || h <= 0) {
+      if (w <= 0 || h <= 0) {
          return -1;
       }
       else {

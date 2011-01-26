@@ -41,7 +41,7 @@ static WAVFILE *wav_open(ALLEGRO_FILE *f)
 
    /* prepare default values */
    wavfile = al_malloc(sizeof(WAVFILE));
-   if(!wavfile){
+   if (!wavfile) {
       return NULL;
    }
    wavfile->f = f;
@@ -245,13 +245,13 @@ static size_t wav_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    bytes_per_sample = (wavfile->bits / 8) * wavfile->channels;
    btime = ((double)buf_size / (double)bytes_per_sample) / (double)(wavfile->freq);
    
-   if(stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR && ctime + btime > wavfile->loop_end) {
+   if (stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR && ctime + btime > wavfile->loop_end) {
       samples = ((wavfile->loop_end - ctime) * (double)(wavfile->freq));
    }
    else {
       samples = buf_size / bytes_per_sample;
    }
-   if(samples < 0)
+   if (samples < 0)
       return 0;
 
    samples_read = wav_read(wavfile, data, samples);

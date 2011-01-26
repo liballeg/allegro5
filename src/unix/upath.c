@@ -200,7 +200,7 @@ static ALLEGRO_PATH *get_executable_name(void)
       char* ret;
       /* The first line of output is a header */
       ret = fgets(linkname, sizeof(linkname), pipe);
-      if(!ret)
+      if (!ret)
          ALLEGRO_ERROR("Failed to read the name of the executable file.\n");
       
       /* The information we want is in the last column; find it */
@@ -210,7 +210,7 @@ static ALLEGRO_PATH *get_executable_name(void)
 
       /* The second line contains the info we want */
       ret = fgets(linkname, sizeof(linkname), pipe);
-      if(!ret)
+      if (!ret)
          ALLEGRO_ERROR("Failed to read the name of the executable file.\n");
       pclose(pipe);
 

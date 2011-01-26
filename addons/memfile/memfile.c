@@ -103,7 +103,7 @@ static bool memfile_fseek(ALLEGRO_FILE *fp, int64_t offset,
 
    if (pos >= mf->size)
       pos = mf->size;
-   else if(pos < 0)
+   else if (pos < 0)
       pos = 0;
 
    mf->pos = pos;
@@ -167,7 +167,7 @@ ALLEGRO_FILE *al_open_memfile(void *mem, int64_t size, const char *mode)
    ASSERT(size > 0);
    
    userdata = al_malloc(sizeof(ALLEGRO_FILE_MEMFILE));
-   if(!userdata) {
+   if (!userdata) {
       al_set_errno(ENOMEM);
       return NULL;
    }

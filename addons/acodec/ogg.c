@@ -153,7 +153,7 @@ static int seek_callback(void *dptr, ogg_int64_t offset, int whence)
       case SEEK_END: whence = ALLEGRO_SEEK_END; break;
    }
 
-   if(!al_fseek(ov->file, offset, whence)) {
+   if (!al_fseek(ov->file, offset, whence)) {
       return -1;
    }
 
@@ -167,7 +167,7 @@ static long tell_callback(void *dptr)
    int64_t ret = 0;
 
    ret = al_ftell(ov->file);
-   if(ret == -1)
+   if (ret == -1)
       return -1;
 
    return (long)ret;

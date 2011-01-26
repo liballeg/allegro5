@@ -1305,7 +1305,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    if (al_get_new_display_flags() & ALLEGRO_FULLSCREEN_WINDOW) {
       NSRect rc = NSMakeRect(0, 0, w,  h);
       ALOpenGLView* view = [[ALOpenGLView alloc] initWithFrame: rc];
-      if(![view respondsToSelector:
+      if (![view respondsToSelector:
                   @selector(enterFullScreenMode:withOptions:)]) {
          ALLEGRO_DEBUG("Cannot create FULLSCREEN_WINDOW");
          [view release];

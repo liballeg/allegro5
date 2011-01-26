@@ -252,43 +252,43 @@ static int _al_osx_get_num_display_modes(void)
        * spoken to very harshly in a very severe voice.
        */
 
-      if(CFStringCompare(pixel_encoding, CFSTR(kIO16BitFloatPixels), 1) == 0) {
+      if (CFStringCompare(pixel_encoding, CFSTR(kIO16BitFloatPixels), 1) == 0) {
          bpp = 64;
          samples = 3;
          value = 16;
       }
 
-      if(CFStringCompare(pixel_encoding, CFSTR(kIO32BitFloatPixels), 1) == 0) {
+      if (CFStringCompare(pixel_encoding, CFSTR(kIO32BitFloatPixels), 1) == 0) {
          bpp = 128;
          samples = 3;
          value = 32;
       }
 
-      if(CFStringCompare(pixel_encoding, CFSTR(kIO64BitDirectPixels), 1) == 0) {
+      if (CFStringCompare(pixel_encoding, CFSTR(kIO64BitDirectPixels), 1) == 0) {
          bpp = 64;
          samples = 3;
          value = 16;
       }
 
-      if(CFStringCompare(pixel_encoding, CFSTR(kIO30BitDirectPixels), 1) == 0) {
+      if (CFStringCompare(pixel_encoding, CFSTR(kIO30BitDirectPixels), 1) == 0) {
          bpp = 32;
          samples = 3;
          value = 10;
       }
 
-      if(CFStringCompare(pixel_encoding, CFSTR(IO32BitDirectPixels), 1) == 0) {
+      if (CFStringCompare(pixel_encoding, CFSTR(IO32BitDirectPixels), 1) == 0) {
          bpp = 32;
          samples = 3;
          value = 8;
       }
 
-      if(CFStringCompare(pixel_encoding, CFSTR(IO16BitDirectPixels), 1) == 0) {
+      if (CFStringCompare(pixel_encoding, CFSTR(IO16BitDirectPixels), 1) == 0) {
          bpp = 16;
          samples = 3;
          value = 5;
       }
 
-      if(CFStringCompare(pixel_encoding, CFSTR(IO8BitIndexedPixels), 1) == 0) {
+      if (CFStringCompare(pixel_encoding, CFSTR(IO8BitIndexedPixels), 1) == 0) {
          bpp = 8;
          samples = 1;
          value = 8;
