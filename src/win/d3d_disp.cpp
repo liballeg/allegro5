@@ -292,7 +292,7 @@ bool al_have_d3d_non_pow2_texture_support(void)
 {
    D3DCAPS9 caps;
    int adapter = al_get_new_display_adapter();
-   if (adapter == -1)
+   if (adapter < 0)
       adapter = 0;
 
    /* This might have to change for multihead */
@@ -315,7 +315,7 @@ bool al_have_d3d_non_square_texture_support(void)
 {
    D3DCAPS9 caps;
    int adapter = al_get_new_display_adapter();
-   if (adapter == -1)
+   if (adapter < 0)
       adapter = 0;
 
    /* This might have to change for multihead */
@@ -997,7 +997,7 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
    }
    d3d_pp.hDeviceWindow = win_display->window;
 
-   if (adapter == -1)
+   if (adapter < 0)
       adapter = 0;
 
    if ((hr = _al_d3d->CreateDevice(adapter,
@@ -1768,7 +1768,7 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
          if (al_display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
             ALLEGRO_MONITOR_INFO mi;
             int adapter = al_get_new_display_adapter();
-            if (adapter == -1)
+            if (adapter < 0)
                adapter = 0;
             al_get_monitor_info(adapter, &mi);
             al_display->w = mi.x2 - mi.x1;
@@ -2852,7 +2852,7 @@ int _al_d3d_get_num_display_modes(int format, int refresh_rate, int flags)
 
    for (; allegro_formats[j] != -1; j++) {
       int adapter = al_get_new_display_adapter();
-      if (adapter == -1)
+      if (adapter < 0)
          adapter = 0;
 
       if (!_al_pixel_format_is_real(allegro_formats[j]) || _al_format_has_alpha(allegro_formats[j]))
@@ -2902,7 +2902,7 @@ ALLEGRO_DISPLAY_MODE *_al_d3d_get_display_mode(int index, int format,
 
    for (; allegro_formats[j] != -1; j++) {
       int adapter = al_get_new_display_adapter();
-      if (adapter == -1)
+      if (adapter < 0)
          adapter = 0;
 
       if (!_al_pixel_format_is_real(allegro_formats[j]) || _al_format_has_alpha(allegro_formats[j]))

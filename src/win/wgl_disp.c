@@ -589,7 +589,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d)
    int bpp;
    int adapter = al_get_new_display_adapter();
 
-   if (adapter != -1) {
+   if (adapter >= 0) {
       memset(&dd, 0, sizeof(dd));
       dd.cb = sizeof(dd);
       if (EnumDisplayDevices(NULL, adapter, &dd, 0) == false)
@@ -1351,8 +1351,8 @@ static bool wgl_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
    int full_w, full_h;
    ALLEGRO_MONITOR_INFO mi;
    int adapter = al_get_new_display_adapter();
-   if (adapter == -1)
-         adapter = 0;
+   if (adapter < 0)
+      adapter = 0;
    al_get_monitor_info(adapter, &mi);
    full_w = mi.x2 - mi.x1;
    full_h = mi.y2 - mi.y1;
