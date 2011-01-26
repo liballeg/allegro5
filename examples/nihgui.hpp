@@ -47,6 +47,7 @@ public:
    unsigned int   width()  { return x2 - x1 + 1; }
    unsigned int   height() { return y2 - y1 + 1; }
 
+   virtual bool   want_mouse_focus() { return true; }
    virtual void   got_mouse_focus() {}
    virtual void   lost_mouse_focus() {}
    virtual void   on_mouse_button_down(int mx, int my) { (void)mx; (void)my; }
@@ -130,6 +131,7 @@ public:
    Label(std::string text="", bool centred=true);
    void set_text(std::string text);
    virtual void   draw();
+   virtual bool   want_mouse_focus();
 };
 
 class Button : public Widget {
