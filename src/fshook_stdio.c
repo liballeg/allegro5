@@ -16,6 +16,7 @@
  */
 
 #include "allegro5/allegro.h"
+#include "allegro5/internal/aintern.h"
 
 ALLEGRO_DEBUG_CHANNEL("fshook")
 
@@ -324,6 +325,32 @@ static int closedir(DIR* dirp)
 }
 
 #endif /* ALLEGRO_MSVC */
+
+
+/* Windows' stat() doesn't like the slash at the end of the path when the path
+ * is pointing to a directory.  This function should be called instead of
+ * stat() if a path may have a trailing slash.  fs_stdio_create_entry() already
+ * removes trailing slashes from ALLEGRO_FS_ENTRY paths.
+ */
+static int stat_unslash(const char *s, struct stat *st)
+{
+#ifdef ALLEGRO_WINDOWS
+   size_t len;
+   char buf[PATH_MAX];
+
+   len = strlen(s);
+   if (len + 1 > PATH_MAX) {
+      errno = EINVAL;
+      return -1;
+   }
+   if (len > 1 && (s[len-1] == '\\' || s[len-1] == '/')) {
+      _al_sane_strncpy(buf, s, len);
+      return stat(buf, st);
+   }
+#endif
+
+   return stat(s, st);
+}
 
 
 typedef struct ALLEGRO_FS_ENTRY_STDIO ALLEGRO_FS_ENTRY_STDIO;
@@ -638,9 +665,15 @@ static bool fs_stdio_make_directory(const char *path)
 
    n = al_get_path_num_components(path1);
    for (i = 0; i < n; i++) {
-      al_append_path_component(path2, al_get_path_component(path1, i));
+      const char *component = al_get_path_component(path1, i);
+      al_append_path_component(path2, component);
+
+      /* Skip empty components. Windows mkdir will fail otherwise. */
+      if (*component == '\0')
+         continue;
+
       s = al_path_cstr(path2, ALLEGRO_NATIVE_PATH_SEP);
-      if (stat(s, &st) == 0) {
+      if (stat_unslash(s, &st) == 0) {
          if (S_ISDIR(st.st_mode))
             continue;
          al_set_errno(ENOTDIR);
@@ -653,6 +686,7 @@ static bool fs_stdio_make_directory(const char *path)
          break;
       }
       if (mkdir_perm(s) != 0) {
+         ALLEGRO_WARN("mkdir_perm(\"%s\") failed (%s)\n", s, strerror(errno));
          al_set_errno(errno);
          success = false;
          break;
@@ -669,6 +703,7 @@ static bool fs_stdio_entry_exists(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    struct stat st;
+
    if (stat(fp_stdio->path, &st) != 0) {
       if (errno == ENOENT) {
          return false;
@@ -677,11 +712,6 @@ static bool fs_stdio_entry_exists(ALLEGRO_FS_ENTRY *fp)
          al_set_errno(errno);
          return false;
       }
-
-      /* or just: (but ENOENT isn't a fatal error condition for this function...)
-         al_set_errno(errno);
-         return false;
-      */
    }
 
    return true;
@@ -689,39 +719,17 @@ static bool fs_stdio_entry_exists(ALLEGRO_FS_ENTRY *fp)
 
 static bool fs_stdio_filename_exists(const char *path)
 {
-   char *copy = NULL;
    struct stat st;
-   bool ret;
-
    ASSERT(path);
 
-   /* Windows' stat() doesn't like the slash at the end of the path when
-    * the path is pointing to a directory. There are other places which
-    * might require the same fix.
-    */
-#ifdef ALLEGRO_WINDOWS
-   {
-      size_t len = strlen(path);
-      if (len > 0 && (path[len-1] == '\\' || path[len-1] == '/')) {
-         copy = strdup(path);
-         copy[len-1] = '\0';
-         path = copy;
-      }
-   }
-#endif
-
-   if (stat(path, &st) == 0) {
-      ret = true;
+   if (stat_unslash(path, &st) == 0) {
+      return true;
    }
    else {
       if (errno != ENOENT)
          al_set_errno(errno);
-      ret = false;
+      return false;
    }
-
-   free(copy);
-
-   return ret;
 }
 
 static bool fs_stdio_remove_entry(ALLEGRO_FS_ENTRY *fp)
