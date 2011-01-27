@@ -19,6 +19,7 @@
 
 /* We use RichEdit by default. */
 #include <richedit.h>
+#include <shlobj.h> // for folder selector
 
 ALLEGRO_DEBUG_CHANNEL("win_dialog")
 
@@ -35,6 +36,71 @@ static wchar_t* wlog_edit_control = L"EDIT";
 /* True if output support unicode */
 static bool wlog_unicode = false;
 
+
+static bool select_folder(ALLEGRO_DISPLAY_WIN *win_display,
+   ALLEGRO_NATIVE_DIALOG *fd)
+{
+   BROWSEINFO folderinfo;
+   LPCITEMIDLIST pidl;
+   char buf[MAX_PATH] = "";
+   char dbuf[MAX_PATH] = "";
+
+   folderinfo.hwndOwner = win_display->window;
+   folderinfo.pidlRoot = NULL;
+   folderinfo.pszDisplayName = dbuf;
+   folderinfo.lpszTitle = al_cstr(fd->title);
+   folderinfo.ulFlags = 0;
+   folderinfo.lpfn = NULL;
+
+   pidl = SHBrowseForFolder(&folderinfo);
+   if (pidl) {
+      SHGetPathFromIDList(pidl, buf);
+      fd->fc_path_count = 1;
+      fd->fc_paths = al_malloc(sizeof(void *));
+      fd->fc_paths[0] = al_create_path(buf);
+      return true;
+   }
+   return false;
+}
+
+static ALLEGRO_USTR *create_filter_string(const ALLEGRO_USTR *patterns)
+{
+   ALLEGRO_USTR *filter;
+   bool filter_all = false;
+   int start, end;
+
+   filter = al_ustr_new("All Supported Files");
+   al_ustr_append_chr(filter, '\0');
+   start = al_ustr_size(filter);
+   al_ustr_append(filter, patterns);
+
+   /* Remove all instances of "*.*", which will be added separately. */
+   for (;;) {
+      int pos = al_ustr_find_cstr(filter, start, "*.*;");
+      if (pos == -1)
+         break;
+      filter_all = true;
+      al_ustr_remove_range(filter, pos, pos + 4);
+      start = pos;
+   }
+   while (al_ustr_has_suffix_cstr(filter, ";*.*")) {
+      filter_all = true;
+      end = al_ustr_size(filter);
+      al_ustr_remove_range(filter, end - 4, end);
+   }
+
+   al_ustr_append_chr(filter, '\0');
+
+   if (filter_all) {
+      al_ustr_append_cstr(filter, "All Files");
+      al_ustr_append_chr(filter, '\0');
+      al_ustr_append_cstr(filter, "*.*");
+      al_ustr_append_chr(filter, '\0');
+   }
+
+   al_ustr_append_chr(filter, '\0');
+   return filter;
+}
 
 static int skip_nul_terminated_string(char *s)
 {
@@ -54,24 +120,39 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    int flags = 0;
    bool ret;
    char buf[4096] = "";
-   char init_dir[4096] = "";
-   int i;
+   ALLEGRO_USTR *filter_string = NULL;
 
-   memset(&ofn, 0, sizeof(OPENFILENAME));
-
-   ofn.lStructSize = sizeof(OPENFILENAME);
    win_display = (ALLEGRO_DISPLAY_WIN *)display;
+
+   if (fd->flags & ALLEGRO_FILECHOOSER_FOLDER) {
+      return select_folder(win_display, fd);
+   }
+
+   /* Selecting a file. */
+   memset(&ofn, 0, sizeof(OPENFILENAME));
+   ofn.lStructSize = sizeof(OPENFILENAME);
    ofn.hwndOwner = (win_display) ? win_display->window : NULL;
+
+   /* Create filter string. */
+   if (fd->fc_patterns) {
+      filter_string = create_filter_string(fd->fc_patterns);
+      ofn.lpstrFilter = al_cstr(filter_string);
+   }
+   else {
+      /* List all files by default. */
+      ofn.lpstrFilter = "All Files\0*.*\0\0";
+   }
 
    ofn.lpstrFile = buf;
    ofn.nMaxFile = sizeof(buf);
 
    if (fd->fc_initial_path) {
-      _al_sane_strncpy(init_dir,
-         al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP),
-         sizeof(init_dir));
-      ofn.lpstrInitialDir = init_dir;
+      ofn.lpstrInitialDir =
+         al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP);
    }
+
+   if (fd->title)
+      ofn.lpstrTitle = al_cstr(fd->title);
 
    flags |= OFN_NOCHANGEDIR | OFN_EXPLORER;
    if (fd->flags & ALLEGRO_FILECHOOSER_SAVE) {
@@ -90,6 +171,8 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    else {
       ret = GetOpenFileName(&ofn);
    }
+
+   al_ustr_free(filter_string);
 
    if (!ret) {
       DWORD err = GetLastError();
@@ -124,7 +207,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
       fd->fc_paths[0] = al_create_path(buf);
    }
    else {
-      int p;
+      int i, p;
       /* If multiple files were selected, the first string in buf is the
        * directory name, followed by each of the file names terminated by NUL.
        */
