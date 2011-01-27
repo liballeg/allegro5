@@ -254,10 +254,10 @@ static void call_user_main(void)
 
 /* Helper macro to add entries to the menu */
 #define add_menu(name, sel, eq)                                         \
-        [menu addItem: [[NSMenuItem allocWithZone: [NSMenu menuZone]]   \
+        [menu addItem: [[[NSMenuItem allocWithZone: [NSMenu menuZone]]   \
                                     initWithTitle: name                 \
                                            action: @selector(sel)       \
-                                    keyEquivalent: eq]]                 \
+                                    keyEquivalent: eq] autorelease]]                 \
 
 int _al_osx_run_main(int argc, char **argv,
    int (*real_main)(int, char **))
