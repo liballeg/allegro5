@@ -356,18 +356,18 @@ static bool xrandr_query(ALLEGRO_SYSTEM_XGLX *s)
             crtc->align_to = crtc_j->id;
             crtc->align = CRTC_POS_RIGHTOF;
             ALLEGRO_DEBUG("Adapter %i is RightOf Adapter %i.\n", i, j);
-         } else
-         if(crtc->x + (int)crtc->width == crtc_j->x) {
+         }
+         else if(crtc->x + (int)crtc->width == crtc_j->x) {
             crtc->align_to = crtc_j->id;
             crtc->align = CRTC_POS_LEFTOF;
             ALLEGRO_DEBUG("Adapter %i is LeftOf Adapter %i.\n", i, j);
-         } else
-         if(crtc->y == crtc_j->y + (int)crtc_j->height) {
+         }
+         else if(crtc->y == crtc_j->y + (int)crtc_j->height) {
             crtc->align_to = crtc_j->id;
             crtc->align = CRTC_POS_BELOW;
             ALLEGRO_DEBUG("Adapter %i is Below Adapter %i.\n", i, j);
-         } else
-         if(crtc->y + (int)crtc->height == crtc_j->y) {
+         }
+         else if(crtc->y + (int)crtc->height == crtc_j->y) {
             crtc->align_to = crtc_j->id;
             crtc->align = CRTC_POS_ABOVE;
             ALLEGRO_DEBUG("Adapter %i is Above Adapter %i.\n", i, j);
@@ -688,9 +688,8 @@ static void xrandr_handle_xevent(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d
          
          xrandr_screen *screen = _al_vector_ref(&s->xrandr_screens, d->xscreen);
          crtc->timestamp = screen->timestamp;
-         
-      } else
-      if(rre->subtype == RRNotify_OutputChange) {
+      }
+      else if(rre->subtype == RRNotify_OutputChange) {
          XRROutputChangeNotifyEvent *rroe = (XRROutputChangeNotifyEvent*)rre;
                                                       
          xrandr_output *output = xrandr_fetch_output(s, d->xscreen, rroe->output);
@@ -716,17 +715,15 @@ static void xrandr_handle_xevent(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d
          
          xrandr_screen *screen = _al_vector_ref(&s->xrandr_screens, d->xscreen);
          output->timestamp = screen->timestamp;
-         
-      } else
-      if(rre->subtype == RRNotify_OutputProperty) {
+      }
+      else if(rre->subtype == RRNotify_OutputProperty) {
          ALLEGRO_DEBUG("xrandr: RRNotify_OutputProperty!\n");
       }
       else {
          ALLEGRO_DEBUG("xrandr: RRNotify_Unknown(%i)!\n", rre->subtype);  
       }
-      
-   } else
-   if(e->type == s->xrandr_event_base + RRScreenChangeNotify) {
+   }
+   else if(e->type == s->xrandr_event_base + RRScreenChangeNotify) {
       XRRScreenChangeNotifyEvent *rre = (XRRScreenChangeNotifyEvent*)e;
       XRRUpdateConfiguration( e );
       
@@ -844,7 +841,6 @@ void _al_xsys_xrandr_exit(ALLEGRO_SYSTEM_XGLX *s)
       
       XRRFreeScreenResources(screen->res);
       screen->res = NULL;
-      
    }
 
    _al_vector_free(&s->xrandr_screens);
@@ -854,3 +850,4 @@ void _al_xsys_xrandr_exit(ALLEGRO_SYSTEM_XGLX *s)
 
 #endif /* ALLEGRO_XWINDOWS_WITH_XRANDR */
 
+/* vim: set sts=3 sw=3 et: */

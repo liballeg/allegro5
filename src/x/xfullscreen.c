@@ -13,7 +13,7 @@ int _al_xsys_mheadx_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
  
    ALLEGRO_DEBUG("mhead get default adapter\n");
    
-   if(ScreenCount(s->x11display) == 1)
+   if (ScreenCount(s->x11display) == 1)
       return 0;
 
    _al_mutex_lock(&s->lock);
@@ -23,18 +23,18 @@ int _al_xsys_mheadx_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
    XWindowAttributes attr;
    Screen *focus_screen;
 
-   if(!XGetInputFocus(s->x11display, &focus, &revert_to)) {
+   if (!XGetInputFocus(s->x11display, &focus, &revert_to)) {
       ALLEGRO_ERROR("XGetInputFocus failed!");
-		_al_mutex_unlock(&s->lock);
+      _al_mutex_unlock(&s->lock);
       return 0;
    }
    
-   if(focus == None) {
+   if (focus == None) {
       ALLEGRO_ERROR("XGetInputFocus returned None!\n");
-		_al_mutex_unlock(&s->lock);
+      _al_mutex_unlock(&s->lock);
       return 0;
-   } else
-   if(focus == PointerRoot) {
+   }
+   else if (focus == PointerRoot) {
       ALLEGRO_DEBUG("XGetInputFocus returned PointerRoot.\n");
       /* XXX TEST THIS >:( */
       Window root, child;
@@ -42,14 +42,13 @@ int _al_xsys_mheadx_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
       int win_x, win_y;
       unsigned int mask;
       
-      if(XQueryPointer(s->x11display, focus, &root, &child, &root_x, &root_y, &win_x, &win_y, &mask) == False) {
+      if (XQueryPointer(s->x11display, focus, &root, &child, &root_x, &root_y, &win_x, &win_y, &mask) == False) {
          ALLEGRO_ERROR("XQueryPointer failed :(");
-			_al_mutex_unlock(&s->lock);
+         _al_mutex_unlock(&s->lock);
          return 0;
       }
       
       focus = root;
-
    }
    else {
       ALLEGRO_DEBUG("XGetInputFocus returned %i!\n", (int)focus);
@@ -58,9 +57,9 @@ int _al_xsys_mheadx_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
    XGetWindowAttributes(s->x11display, focus, &attr);
    focus_screen = attr.screen;
    
-	int ret = 0;
-   for(i = 0; i < ScreenCount(s->x11display); i++) {
-      if(ScreenOfDisplay(s->x11display, i) == focus_screen) {
+   int ret = 0;
+   for (i = 0; i < ScreenCount(s->x11display); i++) {
+      if (ScreenOfDisplay(s->x11display, i) == focus_screen) {
          _al_mutex_unlock(&s->lock);
          ret = i;
          break;
@@ -121,13 +120,13 @@ void _al_xsys_get_active_window_center(ALLEGRO_SYSTEM_XGLX *s, int *x, int *y)
    
    _al_mutex_lock(&s->lock);
    
-   if(!XGetInputFocus(s->x11display, &focus, &revert_to)) {
+   if (!XGetInputFocus(s->x11display, &focus, &revert_to)) {
       ALLEGRO_ERROR("XGetInputFocus failed!\n");
-		_al_mutex_unlock(&s->lock);
+      _al_mutex_unlock(&s->lock);
       return;
    }
    
-   if(focus == None || focus == PointerRoot) {
+   if (focus == None || focus == PointerRoot) {
       ALLEGRO_DEBUG("XGetInputFocus returned special window, selecting default root!\n");
       focus = DefaultRootWindow(s->x11display);
    }
@@ -144,7 +143,7 @@ void _al_xsys_get_active_window_center(ALLEGRO_SYSTEM_XGLX *s, int *x, int *y)
    
    XWindowAttributes attr;
    
-   if(XGetWindowAttributes(s->x11display, focus, &attr) == 0) {
+   if (XGetWindowAttributes(s->x11display, focus, &attr) == 0) {
       ALLEGRO_ERROR("XGetWindowAttributes failed :(\n");
       _al_mutex_unlock(&s->lock);
       return;
@@ -244,7 +243,7 @@ static ALLEGRO_DISPLAY_MODE *xinerama_get_mode(ALLEGRO_SYSTEM_XGLX *s, int adapt
    if (adapter < 0 || adapter >= s->xinerama_screen_count)
       return NULL;
    
-   if(i != 0)
+   if (i != 0)
       return NULL;
    
    mode->width = s->xinerama_screen_info[adapter].width;
@@ -264,8 +263,8 @@ static int xinerama_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
    ALLEGRO_DEBUG("xinerama got active center: %ix%i\n", center_x, center_y);
    
    int i;
-   for(i = 0; i < s->xinerama_screen_count; i++) {
-      if(center_x >= s->xinerama_screen_info[i].x_org && center_x <= s->xinerama_screen_info[i].x_org + s->xinerama_screen_info[i].width &&
+   for (i = 0; i < s->xinerama_screen_count; i++) {
+      if (center_x >= s->xinerama_screen_info[i].x_org && center_x <= s->xinerama_screen_info[i].x_org + s->xinerama_screen_info[i].width &&
          center_y >= s->xinerama_screen_info[i].y_org && center_y <= s->xinerama_screen_info[i].y_org + s->xinerama_screen_info[i].height)
       {
          ALLEGRO_DEBUG("center is inside (%i) %ix%i %ix%i\n", i, s->xinerama_screen_info[i].x_org, s->xinerama_screen_info[i].y_org, s->xinerama_screen_info[i].width, s->xinerama_screen_info[i].height);
@@ -301,8 +300,8 @@ static int xinerama_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter)
 static int xfvm_get_num_modes(ALLEGRO_SYSTEM_XGLX *s, int adapter)
 {
 #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
-   if(s->xinerama_available && s->xinerama_screen_count != s->xfvm_screen_count) {
-      if(adapter < 0 || adapter > s->xinerama_screen_count)
+   if (s->xinerama_available && s->xinerama_screen_count != s->xfvm_screen_count) {
+      if (adapter < 0 || adapter > s->xinerama_screen_count)
          return 0;
     
       /* due to braindeadedness of the NVidia binary driver we can't know what an individual
@@ -314,7 +313,7 @@ static int xfvm_get_num_modes(ALLEGRO_SYSTEM_XGLX *s, int adapter)
    }
 #endif
 
-   if(adapter < 0 || adapter > s->xfvm_screen_count)
+   if (adapter < 0 || adapter > s->xfvm_screen_count)
       return 0;
    
    return s->xfvm_screen[adapter].mode_count;
@@ -333,10 +332,10 @@ static ALLEGRO_DISPLAY_MODE *xfvm_get_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, 
    }
 #endif
 
-   if(adapter < 0 || adapter > s->xfvm_screen_count)
+   if (adapter < 0 || adapter > s->xfvm_screen_count)
       return NULL;
    
-   if(i < 0 || i > s->xfvm_screen[adapter].mode_count)
+   if (i < 0 || i > s->xfvm_screen[adapter].mode_count)
       return NULL;
    
    mode->width = s->xfvm_screen[adapter].modes[i]->hdisplay;
@@ -360,7 +359,7 @@ static bool xfvm_set_mode(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, int w
    /* TwinView work arrounds, nothing to do here, since we can't really change or restore modes */
    if (s->xinerama_available && s->xinerama_screen_count != s->xfvm_screen_count) {
       /* at least pretend we set a mode if its the current mode */
-      if(s->xinerama_screen_info[adapter].width != w || s->xinerama_screen_info[adapter].height != h)
+      if (s->xinerama_screen_info[adapter].width != w || s->xinerama_screen_info[adapter].height != h)
          return false;
       
       return true;
@@ -424,7 +423,7 @@ static void xfvm_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter)
    }
 #endif
 
-   if(adapter < 0 || adapter > s->xfvm_screen_count)
+   if (adapter < 0 || adapter > s->xfvm_screen_count)
       return;
 
    ASSERT(s->xfvm_screen[adapter].original_mode);
@@ -490,7 +489,7 @@ static void xfvm_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_M
    }
 #endif
 
-   if(adapter < 0 || adapter > s->xfvm_screen_count)
+   if (adapter < 0 || adapter > s->xfvm_screen_count)
       return;
 
    XWindowAttributes xwa;
@@ -616,9 +615,12 @@ static void xfvm_init(ALLEGRO_SYSTEM_XGLX *s)
 
       if (s->xinerama_available && ext_ret == False) {
          num_screens = s->xinerama_screen_count;
-      } else
+      }
+      else
 #endif
-      num_screens = ScreenCount(s->x11display);
+      {
+         num_screens = ScreenCount(s->x11display);
+      }
 
       ALLEGRO_DEBUG("XF86VidMode Got %d screens.\n", num_screens);
       s->xfvm_screen_count = num_screens;
@@ -965,7 +967,7 @@ int _al_xglx_get_adapter(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, bool r
    if (!init_mmon_interface(s))
       return 0;
       
-   if(d->adapter != -1 && !recalc)
+   if (d->adapter != -1 && !recalc)
       return d->adapter;
    
    if (!_al_xglx_mmon_interface.get_adapter)
@@ -978,7 +980,7 @@ void _al_xglx_handle_mmon_event(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d,
 {
    ALLEGRO_DEBUG("got event %i\n", e->type);
    // if we haven't setup the mmon interface, just bail
-   if(!s->mmon_interface_inited)
+   if (!s->mmon_interface_inited)
       return;
    
    // bail if the current mmon interface doesn't implement the handle_xevent method
@@ -1055,7 +1057,6 @@ void _al_xglx_toggle_above(ALLEGRO_DISPLAY *display, int value)
 
    XSendEvent(x11, DefaultRootWindow(x11), False,
       SubstructureRedirectMask | SubstructureNotifyMask, &xev);
-   
 }
 
 /* vim: set sts=3 sw=3 et: */
