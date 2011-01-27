@@ -103,7 +103,7 @@ keyboard.keycode (int)
     See the "Key codes" section for the list of ALLEGRO\_KEY\_\* constants.
 
 keyboard.unichar (int)
-:   A Unicode code point (character).  This may be a negative value if the
+:   A Unicode code point (character).  This may be zero or negative if the
     event was generated for a non-visible "character", such as an arrow key.
     In that case you can act upon the `keycode` field.
 
