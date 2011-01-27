@@ -99,7 +99,7 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
         glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthRenderbuffer);
     }
     
-    if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES) {
+    if (glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES) {
         NSLog(@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
         return NO;
     }
@@ -115,7 +115,7 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
     glDeleteRenderbuffersOES(1, &viewRenderbuffer);
     viewRenderbuffer = 0;
     
-    if(depthRenderbuffer) {
+    if (depthRenderbuffer) {
         glDeleteRenderbuffersOES(1, &depthRenderbuffer);
         depthRenderbuffer = 0;
     }

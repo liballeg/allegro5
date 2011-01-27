@@ -305,7 +305,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    verts[3] = verts[1];
    verts[5] = verts[2];
    
-   if(!disp->cache_enabled)
+   if (!disp->cache_enabled)
       disp->vt->flush_vertex_cache(disp);
 }
 #undef SWAP
@@ -341,7 +341,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
          ASSERT(!ogl_target->is_backbuffer);
 
          /* If we only translate, we can do this fast. */
-         if(_al_transform_is_translation(al_get_current_transform(),
+         if (_al_transform_is_translation(al_get_current_transform(),
             &xtrans, &ytrans)) {
             /* In general, we can't modify the texture while it's
              * FBO bound - so we temporarily disable the FBO.

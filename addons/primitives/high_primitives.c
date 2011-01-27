@@ -934,7 +934,7 @@ void al_calculate_ribbon(float* dest, int dest_stride, const float *points,
          if(dir_len > 0.000001f) {
             cur_dir_x /= dir_len;
             cur_dir_y /= dir_len;
-         } else if (ii == 0){
+         } else if (ii == 0) {
             cur_dir_x = 1;
             cur_dir_y = 0;
          } else {

@@ -138,7 +138,7 @@ static void* ogl_prepare_vertex_cache(ALLEGRO_DISPLAY* disp,
                                       int num_new_vertices)
 {
    disp->num_cache_vertices += num_new_vertices;
-   if(!disp->vertex_cache) {  
+   if (!disp->vertex_cache) {
       disp->vertex_cache = al_malloc(num_new_vertices * sizeof(ALLEGRO_OGL_BITMAP_VERTEX));
       
       disp->vertex_cache_size = num_new_vertices;
@@ -156,11 +156,11 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 {
    GLboolean on;
    GLuint current_texture;
-   if(!disp->vertex_cache)
+   if (!disp->vertex_cache)
       return;
-   if(disp->num_cache_vertices == 0)
+   if (disp->num_cache_vertices == 0)
       return;
-      
+
    glGetBooleanv(GL_TEXTURE_2D, &on);
    if (!on) {
       glEnable(GL_TEXTURE_2D);

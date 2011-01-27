@@ -145,9 +145,9 @@ static FLAC__StreamDecoderReadStatus read_callback(const FLAC__StreamDecoder *de
    FLACFILE *ff = (FLACFILE *)dptr;
    ALLEGRO_FILE *fh = ff->fh;
    (void)decoder;
-   if(*bytes > 0) {
+   if (*bytes > 0) {
       *bytes = al_fread(fh, buffer, *bytes);
-      if(al_ferror(fh))
+      if (al_ferror(fh))
          return FLAC__STREAM_DECODER_READ_STATUS_ABORT;
       else if (*bytes == 0)
          return FLAC__STREAM_DECODER_READ_STATUS_END_OF_STREAM;
@@ -167,7 +167,7 @@ static FLAC__StreamDecoderSeekStatus seek_callback(
    ALLEGRO_FILE *fh = ff->fh;
    (void)decoder;
 
-   if(!al_fseek(fh, absolute_byte_offset, ALLEGRO_SEEK_SET))
+   if (!al_fseek(fh, absolute_byte_offset, ALLEGRO_SEEK_SET))
       return FLAC__STREAM_DECODER_SEEK_STATUS_ERROR;
    else
       return FLAC__STREAM_DECODER_SEEK_STATUS_OK;
@@ -184,7 +184,7 @@ static FLAC__StreamDecoderTellStatus tell_callback(
    (void)decoder;
 
    pos = al_ftell(fh);
-   if(pos == -1)
+   if (pos == -1)
       return FLAC__STREAM_DECODER_TELL_STATUS_ERROR;
 
    *absolute_byte_offset = (FLAC__uint64)pos;
@@ -213,7 +213,7 @@ static FLAC__bool eof_callback(const FLAC__StreamDecoder *decoder, void *dptr)
    ALLEGRO_FILE *fh = ff->fh;
    (void)decoder;
 
-   if(al_feof(fh))
+   if (al_feof(fh))
       return true;
 
    return false;

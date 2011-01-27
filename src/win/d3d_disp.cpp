@@ -2651,7 +2651,7 @@ static void* d3d_prepare_vertex_cache(ALLEGRO_DISPLAY* disp,
                                       int num_new_vertices)
 {
    disp->num_cache_vertices += num_new_vertices;
-   if(!disp->vertex_cache) {
+   if (!disp->vertex_cache) {
       disp->vertex_cache = al_malloc(num_new_vertices * sizeof(D3D_TL_VERTEX));
 
       disp->vertex_cache_size = num_new_vertices;
@@ -2667,9 +2667,9 @@ static void* d3d_prepare_vertex_cache(ALLEGRO_DISPLAY* disp,
 
 static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 {
-   if(!disp->vertex_cache)
+   if (!disp->vertex_cache)
       return;
-   if(disp->num_cache_vertices == 0)
+   if (disp->num_cache_vertices == 0)
       return;
 
    ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;

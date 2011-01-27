@@ -761,7 +761,7 @@ static bool fs_stdio_remove_filename(const char *path)
       return false;
 
    err = fs_stdio_remove_entry(fp);
-   if(err != 0) {
+   if (err != 0) {
       al_set_errno(errno);
       fs_stdio_destroy_entry(fp);
       return false;

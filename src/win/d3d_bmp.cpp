@@ -685,7 +685,7 @@ static void d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_D3D *d3d_bmp = (ALLEGRO_BITMAP_D3D *)bitmap;
 
-   if(!al_is_sub_bitmap(bitmap)) {
+   if (!al_is_sub_bitmap(bitmap)) {
       if (d3d_bmp->video_texture) {
          if (d3d_bmp->video_texture->Release() != 0) {
             ALLEGRO_WARN("d3d_destroy_bitmap: Release video texture failed.\n");
