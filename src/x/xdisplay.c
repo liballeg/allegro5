@@ -417,7 +417,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
       al_get_new_window_position(&x_off, &y_off);
       
-      if (adapter != -1) {
+      if (adapter >= 0) {
          /* non default adapter. I'm assuming this means the user wants the window to be placed on the adapter offset by new display pos */
          _al_xglx_get_display_offset(system, d->adapter, &xscr_x, &xscr_y);
          if (x_off != INT_MAX)

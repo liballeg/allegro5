@@ -84,7 +84,7 @@ static void initialize_tls_values(thread_local_state *tls)
 {
    memset(tls, 0, sizeof *tls);
 
-   tls->new_display_adapter = -1;
+   tls->new_display_adapter = ALLEGRO_DEFAULT_DISPLAY_ADAPTER;
    tls->new_window_x = INT_MAX;
    tls->new_window_y = INT_MAX;
 
@@ -332,6 +332,10 @@ void al_set_new_display_adapter(int adapter)
 
    if ((tls = tls_get()) == NULL)
       return;
+
+   if (adapter < 0) {
+      tls->new_display_adapter = ALLEGRO_DEFAULT_DISPLAY_ADAPTER;
+   }
    tls->new_display_adapter = adapter;
 }
 
@@ -344,7 +348,7 @@ int al_get_new_display_adapter(void)
    thread_local_state *tls;
 
    if ((tls = tls_get()) == NULL)
-      return -1;
+      return ALLEGRO_DEFAULT_DISPLAY_ADAPTER;
    return tls->new_display_adapter;
 }
 

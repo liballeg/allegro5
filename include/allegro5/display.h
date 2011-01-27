@@ -108,6 +108,11 @@ typedef struct ALLEGRO_MONITOR_INFO
 } ALLEGRO_MONITOR_INFO;
 
 
+enum {
+   ALLEGRO_DEFAULT_DISPLAY_ADAPTER = -1
+};
+
+
 AL_FUNC(void, al_set_new_display_refresh_rate, (int refresh_rate));
 AL_FUNC(void, al_set_new_display_flags, (int flags));
 AL_FUNC(int,  al_get_new_display_refresh_rate, (void));

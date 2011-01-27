@@ -531,7 +531,7 @@ The adapter has a monitor attached to it. Information
 about the monitor can be gotten using [al_get_num_video_adapters]
 and [al_get_monitor_info].
 
-To return to the default behaviour, pass -1.
+To return to the default behaviour, pass `ALLEGRO_DEFAULT_DISPLAY_ADAPTER`.
 
 See also: [al_get_num_video_adapters], [al_get_monitor_info]
 
