@@ -674,6 +674,10 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    _al_vector_find_and_delete(&s->system.displays, &d);
    XDestroyWindow(s->x11display, glx->window);
 
+   if (s->mouse_grab_display == d) {
+      s->mouse_grab_display = NULL;
+   }
+
    ALLEGRO_DEBUG("destroy window.\n");
 
    if (d->flags & ALLEGRO_FULLSCREEN) {

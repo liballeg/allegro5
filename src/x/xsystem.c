@@ -342,7 +342,7 @@ static bool xglx_grab_mouse(ALLEGRO_DISPLAY *display)
       PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
       GrabModeAsync, GrabModeAsync, glx->window, None, CurrentTime);
    if (rv == GrabSuccess) {
-      system->pointer_grabbed = true;
+      system->mouse_grab_display = display;
       return true;
    }
    return false;
@@ -353,7 +353,7 @@ static bool xglx_ungrab_mouse(void)
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
 
    XUngrabPointer(system->x11display, CurrentTime);
-   system->pointer_grabbed = false;
+   system->mouse_grab_display = NULL;
    return true;
 }
 

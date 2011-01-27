@@ -998,7 +998,7 @@ static void handle_key_press(int mycode, int unichar, int filtered,
             (modifiers & system->toggle_mouse_grab_modifiers)
                == system->toggle_mouse_grab_modifiers)
          {
-            if (system->pointer_grabbed)
+            if (system->mouse_grab_display == display)
                al_ungrab_mouse();
             else
                al_grab_mouse(display);
