@@ -225,7 +225,7 @@ translation_table[] = {
    //{, ALLEGRO_KEY_CIRCUMFLEX},
    //{, ALLEGRO_KEY_COLON2},
    //{, ALLEGRO_KEY_KANJI},
-   {XK_KP_Equal, ALLEGRO_KEY_EQUALS_PAD},  /* MacOS X */
+   {XK_KP_Equal, ALLEGRO_KEY_PAD_EQUALS},  /* MacOS X */
    //{, ALLEGRO_KEY_BACKQUOTE},  /* MacOS X */
    //{, ALLEGRO_KEY_SEMICOLON},  /* MacOS X */
    //{, ALLEGRO_KEY_COMMAND},  /* MacOS X */
