@@ -149,16 +149,11 @@ static void xrandr_copy_crtc(xrandr_crtc *crtc, RRCrtc id, XRRCrtcInfo *rrcrtc)
    _al_vector_init(&crtc->possible, sizeof(RROutput));
    if(rrcrtc->npossible) {
       _al_vector_append_array(&crtc->possible, rrcrtc->npossible, rrcrtc->possible);
-      
+
       int i;
-      char output_string[64] = { 0 };
       for(i = 0; i < rrcrtc->npossible; i++) {
-         char tmp[64] = { 0 };
-         snprintf(tmp, 64, "%i ", (int)rrcrtc->possible[i]);
-         strcat(output_string, tmp);
+         ALLEGRO_DEBUG("output[%i] %i.\n", i, (int)rrcrtc->possible[i]);
       }
-      
-      ALLEGRO_DEBUG("outputs: %s\n", output_string);
    }
    
    crtc->original_mode = crtc->mode;
