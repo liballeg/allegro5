@@ -65,31 +65,41 @@ static bool select_folder(ALLEGRO_DISPLAY_WIN *win_display,
 
 static ALLEGRO_USTR *create_filter_string(const ALLEGRO_USTR *patterns)
 {
-   ALLEGRO_USTR *filter;
+   ALLEGRO_USTR *filter = al_ustr_new("");
    bool filter_all = false;
    int start, end;
 
-   filter = al_ustr_new("All Supported Files");
-   al_ustr_append_chr(filter, '\0');
-   start = al_ustr_size(filter);
-   al_ustr_append(filter, patterns);
-
-   /* Remove all instances of "*.*", which will be added separately. */
-   for (;;) {
-      int pos = al_ustr_find_cstr(filter, start, "*.*;");
-      if (pos == -1)
-         break;
+   if (0 == strcmp(al_cstr(patterns), "*.*")) {
       filter_all = true;
-      al_ustr_remove_range(filter, pos, pos + 4);
-      start = pos;
    }
-   while (al_ustr_has_suffix_cstr(filter, ";*.*")) {
-      filter_all = true;
-      end = al_ustr_size(filter);
-      al_ustr_remove_range(filter, end - 4, end);
-   }
+   else {
+      al_ustr_append_cstr(filter, "All Supported Files");
+      al_ustr_append_chr(filter, '\0');
+      start = al_ustr_size(filter);
+      al_ustr_append(filter, patterns);
 
-   al_ustr_append_chr(filter, '\0');
+      /* Remove all instances of "*.*", which will be added separately. */
+      for (;;) {
+         int pos = al_ustr_find_cstr(filter, start, "*.*;");
+         if (pos == -1)
+            break;
+         if (pos == start || al_ustr_get(filter, pos - 1) == ';') {
+            filter_all = true;
+            al_ustr_remove_range(filter, pos, pos + 4);
+            start = pos;
+         }
+         else {
+            start = pos + 4;
+         }
+      }
+      while (al_ustr_has_suffix_cstr(filter, ";*.*")) {
+         filter_all = true;
+         end = al_ustr_size(filter);
+         al_ustr_remove_range(filter, end - 4, end);
+      }
+
+      al_ustr_append_chr(filter, '\0');
+   }
 
    if (filter_all) {
       al_ustr_append_cstr(filter, "All Files");
