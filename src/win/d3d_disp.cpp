@@ -284,7 +284,7 @@ bool al_have_d3d_non_pow2_texture_support(void)
    D3DCAPS9 caps;
    int adapter = al_get_new_display_adapter();
    if (adapter == -1)
-         adapter = 0;
+      adapter = 0;
 
    /* This might have to change for multihead */
    if (_al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_HAL, &caps) != D3D_OK) {
@@ -1152,23 +1152,23 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
        d3d_pp.Windowed = 0;
        d3d_pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
        d3d_pp.hDeviceWindow = win_display->window;
-      if (d3d_display->vsync) {
-         d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
-      }
-      else {
-         d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
-      }
+       if (d3d_display->vsync) {
+          d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+       }
+       else {
+          d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+       }
 
-      if (d3d_display->depth_stencil_format) {
-         d3d_pp.EnableAutoDepthStencil = true;
-         d3d_pp.AutoDepthStencilFormat = d3d_display->depth_stencil_format;
-      }
-      if (d3d_display->samples) {
-         d3d_pp.MultiSampleType = D3DMULTISAMPLE_NONMASKABLE;
-         d3d_pp.MultiSampleQuality = d3d_display->samples;
-      }
-      else
-         d3d_pp.Flags |= D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
+       if (d3d_display->depth_stencil_format) {
+          d3d_pp.EnableAutoDepthStencil = true;
+          d3d_pp.AutoDepthStencilFormat = d3d_display->depth_stencil_format;
+       }
+       if (d3d_display->samples) {
+          d3d_pp.MultiSampleType = D3DMULTISAMPLE_NONMASKABLE;
+          d3d_pp.MultiSampleQuality = d3d_display->samples;
+       }
+       else
+          d3d_pp.Flags |= D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
 
        if (d3d_display->single_buffer) {
           d3d_pp.SwapEffect = D3DSWAPEFFECT_COPY;
@@ -1232,23 +1232,23 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
        d3d_pp.Windowed = 1;
        d3d_pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
        d3d_pp.hDeviceWindow = win_display->window;
-      if (d3d_display->vsync) {
-         d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
-      }
-      else {
-         d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
-      }
+       if (d3d_display->vsync) {
+          d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+       }
+       else {
+          d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+       }
 
-      if (d3d_display->depth_stencil_format) {
-         d3d_pp.EnableAutoDepthStencil = true;
-         d3d_pp.AutoDepthStencilFormat = d3d_display->depth_stencil_format;
-      }
-      if (d3d_display->samples) {
-         d3d_pp.MultiSampleType = D3DMULTISAMPLE_NONMASKABLE;
-         d3d_pp.MultiSampleQuality = d3d_display->samples;
-      }
-      else
-         d3d_pp.Flags |= D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
+       if (d3d_display->depth_stencil_format) {
+          d3d_pp.EnableAutoDepthStencil = true;
+          d3d_pp.AutoDepthStencilFormat = d3d_display->depth_stencil_format;
+       }
+       if (d3d_display->samples) {
+          d3d_pp.MultiSampleType = D3DMULTISAMPLE_NONMASKABLE;
+          d3d_pp.MultiSampleQuality = d3d_display->samples;
+       }
+       else
+          d3d_pp.Flags |= D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
 
        if (d3d_display->single_buffer) {
           d3d_pp.SwapEffect = D3DSWAPEFFECT_COPY;
@@ -1257,7 +1257,7 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
           d3d_pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
        }
 
-      /* Must be 0 for windowed modes */
+       /* Must be 0 for windowed modes */
        d3d_pp.FullScreen_RefreshRateInHz = 0;
 
        if (d3d_display->device->Reset(&d3d_pp) != D3D_OK) {
@@ -1672,7 +1672,7 @@ static void *d3d_display_thread_proc(void *arg)
          d3d_display->do_reset = false;
          d3d_display->reset_done = true;
       }
-      }
+   }
 
    d3d_destroy_device(d3d_display);
 
@@ -1684,7 +1684,6 @@ static void *d3d_display_thread_proc(void *arg)
 
    win_display->thread_ended = true;
 
-//   info->quit = true;
    al_free(info);
 
    ALLEGRO_INFO("d3d display thread exits\n");
@@ -1750,7 +1749,7 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
             ALLEGRO_MONITOR_INFO mi;
             int adapter = al_get_new_display_adapter();
             if (adapter == -1)
-                  adapter = 0;
+               adapter = 0;
             al_get_monitor_info(adapter, &mi);
             al_display->w = mi.x2 - mi.x1;
             al_display->h = mi.y2 - mi.y1;
@@ -2024,69 +2023,54 @@ void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
       &alpha_op, &alpha_src, &alpha_dst);
 
    if (d3d_display->blender_state_op != op) {
-
       /* These may not be supported but they will always fall back to ADD
        * in that case.
        */
       d3d_display->device->SetRenderState(D3DRS_BLENDOP, allegro_to_d3d_blendop[op]);
       d3d_display->blender_state_op = op;
-
       blender_changed = true;
    }
 
    if (d3d_display->blender_state_alpha_op != alpha_op) {
-
       /* These may not be supported but they will always fall back to ADD
        * in that case.
        */
       d3d_display->device->SetRenderState(D3DRS_BLENDOPALPHA, allegro_to_d3d_blendop[alpha_op]);
       d3d_display->blender_state_alpha_op = alpha_op;
-
       blender_changed = true;
    }
 
    if (d3d_display->blender_state_src != src) {
-
       if (d3d_display->device->SetRenderState(D3DRS_SRCBLEND, d3d_al_blender_to_d3d(src)) != D3D_OK)
          ALLEGRO_ERROR("Failed to set source blender\n");
       d3d_display->blender_state_src = src;
-
       blender_changed = true;
    }
 
    if (d3d_display->blender_state_dst != dst) {
-
       if (d3d_display->device->SetRenderState(D3DRS_DESTBLEND, d3d_al_blender_to_d3d(dst)) != D3D_OK)
          ALLEGRO_ERROR("Failed to set dest blender\n");
       d3d_display->blender_state_dst = dst;
-
       blender_changed = true;
    }
 
    if (d3d_display->blender_state_alpha_src != alpha_src) {
-
       if (d3d_display->device->SetRenderState(D3DRS_SRCBLENDALPHA, d3d_al_blender_to_d3d(alpha_src)) != D3D_OK)
          ALLEGRO_ERROR("Failed to set source alpha blender\n");
       d3d_display->blender_state_alpha_src = alpha_src;
-
       blender_changed = true;
    }
 
    if (d3d_display->blender_state_alpha_dst != alpha_dst) {
-
       if (d3d_display->device->SetRenderState(D3DRS_DESTBLENDALPHA, d3d_al_blender_to_d3d(alpha_dst)) != D3D_OK)
          ALLEGRO_ERROR("Failed to set dest alpha blender\n");
       d3d_display->blender_state_alpha_dst = alpha_dst;
-
       blender_changed = true;
    }
 
    if (blender_changed) {
-
       bool enable_separate_blender = (op != alpha_op) || (src != alpha_src) || (dst != alpha_dst);
-
       if (enable_separate_blender) {
-
          if (d3d_display->device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, true) != D3D_OK)
             ALLEGRO_ERROR("D3DRS_SEPARATEALPHABLENDENABLE failed\n");
       }
@@ -2135,11 +2119,11 @@ static void d3d_draw_pixel(ALLEGRO_DISPLAY *al_display, float x, float y, ALLEGR
    disp->device->SetFVF(D3DFVF_TL_VERTEX);
 
    if (disp->device->DrawPrimitiveUP(D3DPT_POINTLIST, 1,
-      vertices, sizeof(D3D_TL_VERTEX)) != D3D_OK) {
+         vertices, sizeof(D3D_TL_VERTEX)) != D3D_OK) {
       ALLEGRO_ERROR("d3d_draw_pixel: DrawPrimitive failed.\n");
       return;
    }
-   }
+}
 
 
 
@@ -2211,7 +2195,6 @@ static void d3d_update_display_region(ALLEGRO_DISPLAY *al_display,
          d3d_display->device_lost = true;
          return;
       }
-
    }
    else {
       d3d_flip_display(al_display);
@@ -2287,12 +2270,10 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
    }
    disp->reset_done = false;
 
-//   if (!(d->flags  & ALLEGRO_FULLSCREEN)) {
-      al_store_state(&state, ALLEGRO_STATE_DISPLAY | ALLEGRO_STATE_TARGET_BITMAP);
-      al_set_target_bitmap(al_get_backbuffer(d));
+   al_store_state(&state, ALLEGRO_STATE_DISPLAY | ALLEGRO_STATE_TARGET_BITMAP);
+   al_set_target_bitmap(al_get_backbuffer(d));
    al_set_clipping_rectangle(0, 0, d->w, d->h);
-      al_restore_state(&state);
-//   }
+   al_restore_state(&state);
 
    return disp->reset_success;
 }
