@@ -255,7 +255,7 @@ void Dialog::check_mouse_over(int mx, int my)
          it != this->all_widgets.end();
          ++it)
    {
-      if ((*it)->contains(mx, my)) {
+      if ((*it)->contains(mx, my) && (*it)->want_mouse_focus()) {
          this->mouse_over_widget = (*it);
          this->mouse_over_widget->got_mouse_focus();
          return;
@@ -385,6 +385,11 @@ void Label::draw()
 void Label::set_text(std::string new_text)
 {
    this->text = new_text;
+}
+
+bool Label::want_mouse_focus()
+{
+   return false;
 }
 
 /*---------------------------------------------------------------------------*/
