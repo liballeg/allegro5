@@ -24,7 +24,7 @@
 ALLEGRO_DEBUG_CHANNEL("font")
 
 #ifdef ALIGN_TO_4_PIXEL
-static inline int align4(int x)
+static INLINE int align4(int x)
 {
    return (x + 3) & ~3;
 }
