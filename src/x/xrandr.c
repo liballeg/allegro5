@@ -110,26 +110,17 @@ static void _al_xsys_xrandr_copy_output(xrandr_output *output, RROutput id, XRRO
    
    _al_vector_init(&output->crtcs, sizeof(RRCrtc));
    if(rroutput->ncrtc) {
-      _al_vector_reserve(&output->crtcs, rroutput->ncrtc);
-      memcpy(output->crtcs._items, rroutput->crtcs, sizeof(RRCrtc) * rroutput->ncrtc);
-      output->crtcs._size = rroutput->ncrtc;
-      output->crtcs._unused = 0;
+      _al_vector_append_array(&output->crtcs, rroutput->ncrtc, rroutput->crtcs);
    }
    
    _al_vector_init(&output->clones, sizeof(RROutput));
    if(rroutput->nclone) {
-      _al_vector_reserve(&output->clones, rroutput->nclone);
-      memcpy(output->clones._items, rroutput->clones, sizeof(RROutput) * rroutput->nclone);
-      output->clones._size = rroutput->nclone;
-      output->clones._unused = 0;
+      _al_vector_append_array(&output->clones, rroutput->nclone, rroutput->clones);
    }
    
    _al_vector_init(&output->modes, sizeof(RRMode));
    if(rroutput->nmode) {
-      _al_vector_reserve(&output->modes, rroutput->nmode);
-      memcpy(output->modes._items, rroutput->modes, sizeof(RRMode) * rroutput->nmode);
-      output->modes._size = rroutput->nmode;
-      output->modes._unused = 0;
+      _al_vector_append_array(&output->modes, rroutput->nmode, rroutput->modes);
    }
    
    output->preffered_mode = rroutput->modes[rroutput->npreferred];
@@ -149,18 +140,14 @@ static void _al_xsys_xrandr_copy_crtc(xrandr_crtc *crtc, RRCrtc id, XRRCrtcInfo 
    
    _al_vector_init(&crtc->connected, sizeof(RROutput));
    if(rrcrtc->noutput) {
-      _al_vector_reserve(&crtc->connected, rrcrtc->noutput);
-      memcpy(crtc->connected._items, rrcrtc->outputs, sizeof(RROutput) * rrcrtc->noutput);
-      crtc->connected._size = rrcrtc->noutput;
+      _al_vector_append_array(&crtc->connected, rrcrtc->noutput, rrcrtc->outputs);
    }
    
    ALLEGRO_DEBUG("found %i outputs.\n", rrcrtc->noutput);
    
    _al_vector_init(&crtc->possible, sizeof(RROutput));
    if(rrcrtc->npossible) {
-      _al_vector_reserve(&crtc->possible, rrcrtc->npossible);
-      memcpy(crtc->possible._items, rrcrtc->possible, sizeof(RROutput) * rrcrtc->npossible);
-      crtc->possible._size = rrcrtc->npossible;
+      _al_vector_append_array(&crtc->possible, rrcrtc->npossible, rrcrtc->possible);
       
       int i;
       char output_string[64] = { 0 };
