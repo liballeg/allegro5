@@ -54,15 +54,7 @@ static ALLEGRO_PATH *osx_get_path(int id);
 
 
 /* Global variables */
-int    __crt0_argc;
-char **__crt0_argv;
-NSBundle *osx_bundle = NULL;
-struct _AL_MUTEX osx_event_mutex;
-//AllegroWindow *osx_window = NULL;
-//char osx_window_title[ALLEGRO_MESSAGE_SIZE];
-void (*osx_window_close_hook)(void) = NULL;
-//int osx_emulate_mouse_buttons = false;
-//int osx_window_first_expose = false;
+NSBundle *_al_osx_bundle = NULL;
 static _AL_VECTOR osx_display_modes;
 static ALLEGRO_SYSTEM osx_system;
 _AL_VECTOR _osx_threads = _AL_VECTOR_INITIALIZER(THREAD_AND_POOL *);
@@ -130,7 +122,7 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
    osx_system.vt = _al_system_osx_driver();
    _al_vector_init(&osx_system.displays, sizeof(ALLEGRO_DISPLAY*));
   
-   if (osx_bundle == NULL) {
+   if (_al_osx_bundle == NULL) {
        /* If in a bundle, the dock will recognise us automatically */
        osx_tell_dock();
    }
@@ -549,21 +541,18 @@ static ALLEGRO_PATH *osx_get_path(int id)
    ALLEGRO_PATH *path = NULL;
 
    switch (id) {
-      case ALLEGRO_PROGRAM_PATH:
-         ans = [[NSBundle mainBundle] bundlePath];
-         path = al_create_path_for_directory([ans UTF8String]);
+      case ALLEGRO_RESOURCES_PATH:
+         if (_al_osx_bundle) {
+            ans = [_al_osx_bundle resourcePath];
+            path = al_create_path_for_directory([ans UTF8String]);
+         } else {
+            /* Otherwise, return the executable pathname */
+            path = osx_get_path(ALLEGRO_EXENAME_PATH);
+            al_set_path_filename(path, NULL);
+         }
          break;
       case ALLEGRO_TEMP_PATH:
          ans = NSTemporaryDirectory();
-         path = al_create_path_for_directory([ans UTF8String]);
-         break;
-      case ALLEGRO_SYSTEM_DATA_PATH:
-         ans = [[NSBundle mainBundle] resourcePath];
-         if (ans != nil) {
-            /* Append program name */
-            ans = [[ans stringByAppendingPathComponent: org_name]
-                                     stringByAppendingPathComponent: app_name];
-         }
          path = al_create_path_for_directory([ans UTF8String]);
          break;
       case ALLEGRO_USER_DATA_PATH:
@@ -583,39 +572,27 @@ static ALLEGRO_PATH *osx_get_path(int id)
          ans = NSHomeDirectory();
          path = al_create_path_for_directory([ans UTF8String]);
          break;
-      case ALLEGRO_EXENAME_PATH:
-         /* If the application lives in a bundle, return the bundle path as
-          * the executable path, since this is probably what is expected.
-          */
-         if (osx_bundle) {
-            ans = [[NSBundle mainBundle] bundlePath];
-         } else {
-            /* Otherwise, return the executable pathname */
-            char path[PATH_MAX];
-            uint32_t size = sizeof(path);
-            if (_NSGetExecutablePath(path, &size) == 0)
-               ans = [NSString stringWithUTF8String: path];
-         }
-         path = al_create_path([ans UTF8String]);
-         break;
-      case ALLEGRO_USER_SETTINGS_PATH:
-         paths =
-         NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory,
+      case ALLEGRO_USER_DOCUMENTS_PATH:
+         paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
             NSUserDomainMask,
             YES);
          if ([paths count] > 0)
             ans = [paths objectAtIndex: 0];
-         if (ans != nil) {
-            /* Append program name */
-            ans = [[ans stringByAppendingPathComponent: org_name]
-                                     stringByAppendingPathComponent: app_name];
-         }
          path = al_create_path_for_directory([ans UTF8String]);
          break;
-      case ALLEGRO_SYSTEM_SETTINGS_PATH:
+      case ALLEGRO_EXENAME_PATH: {
+         char exepath[PATH_MAX];
+         uint32_t size = sizeof(exepath);
+         if (_NSGetExecutablePath(exepath, &size) == 0)
+            ans = [NSString stringWithUTF8String: exepath];
+
+         path = al_create_path([ans UTF8String]);
+         break;
+      }
+      case ALLEGRO_USER_SETTINGS_PATH:
          paths =
          NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory,
-            NSLocalDomainMask,
+            NSUserDomainMask,
             YES);
          if ([paths count] > 0)
             ans = [paths objectAtIndex: 0];

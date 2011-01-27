@@ -27,7 +27,7 @@ const char* getResource(const char* fmt, ...)
    snprintf(res, 511, fmt, ap);
 
    if (!dir) {
-      dir = al_get_standard_path(ALLEGRO_PROGRAM_PATH);
+      dir = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
 #ifdef ALLEGRO_MSVC
       {
          /* Hack to cope automatically with MSVC workspaces. */

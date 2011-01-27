@@ -13,20 +13,16 @@ ALLEGRO_PATH *_al_iphone_get_path(int id)
       case ALLEGRO_USER_HOME_PATH:
          string = NSHomeDirectory();
          break;
-        case ALLEGRO_TEMP_PATH:
+      case ALLEGRO_TEMP_PATH:
          string = NSTemporaryDirectory();
          break;
-        case ALLEGRO_PROGRAM_PATH:
-            mainBundle = [NSBundle mainBundle];
-            string = [mainBundle bundlePath];
+      case ALLEGRO_RESOURCES_PATH:
+         mainBundle = [NSBundle mainBundle];
+         string = [mainBundle resourcePath];
          break;
-        case ALLEGRO_SYSTEM_DATA_PATH:
-        case ALLEGRO_USER_DATA_PATH:
-            mainBundle = [NSBundle mainBundle];
-            string = [mainBundle resourcePath];
-         break;
-        case ALLEGRO_USER_SETTINGS_PATH:
-        case ALLEGRO_SYSTEM_SETTINGS_PATH:
+      case ALLEGRO_USER_SETTINGS_PATH:
+      case ALLEGRO_USER_DATA_PATH:
+      case ALLEGRO_USER_DOCUMENTS_PATH:
          array = NSSearchPathForDirectoriesInDomains(
             NSDocumentDirectory,
             NSUserDomainMask,

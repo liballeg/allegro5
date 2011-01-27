@@ -408,7 +408,7 @@ static ALLEGRO_PATH *win_get_path(int id)
 
       } break;
 
-      case ALLEGRO_PROGRAM_PATH: { /* where the program is in */
+      case ALLEGRO_RESOURCES_PATH: { /* where the program is in */
          HANDLE process = GetCurrentProcess();
          char *ptr;
          GetModuleFileNameEx(process, NULL, path, MAX_PATH);
@@ -424,30 +424,17 @@ static ALLEGRO_PATH *win_get_path(int id)
          return al_create_path_for_directory(path);
       } break;
 
-      case ALLEGRO_SYSTEM_DATA_PATH: /* CSIDL_COMMON_APPDATA */
-         csidl = CSIDL_COMMON_APPDATA;
-         break;
-
       case ALLEGRO_USER_DATA_PATH: /* CSIDL_APPDATA */
-         csidl = CSIDL_APPDATA;
-         break;
-
-      case ALLEGRO_USER_HOME_PATH: /* CSIDL_PERSONAL */
-         csidl = CSIDL_PERSONAL;
-         break;
-
       case ALLEGRO_USER_SETTINGS_PATH:
-         /* CHECKME: is this correct? Windows doesn't seem to have a "path"
-          * for settings; I guess these should go in the registry instead?
-          */
          csidl = CSIDL_APPDATA;
          break;
 
-      case ALLEGRO_SYSTEM_SETTINGS_PATH:
-         /* CHECKME: is this correct? Windows doesn't seem to have a "path"
-          * for settings; I guess these should go in the registry instead?
-          */
-         csidl = CSIDL_COMMON_APPDATA;
+      case ALLEGRO_USER_HOME_PATH: /* CSIDL_PROFILE */
+         csidl = CSIDL_PROFILE;
+         break;
+         
+      case ALLEGRO_USER_DOCUMENTS_PATH: /* CSIDL_PERSONAL */
+         csidl = CSIDL_PERSONAL;
          break;
 
       case ALLEGRO_EXENAME_PATH: { /* full path to the exe including its name */
