@@ -974,7 +974,7 @@ int _al_xglx_get_adapter(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, bool r
    return _al_xglx_mmon_interface.get_adapter(s, d);
 }
 
-void _al_xglx_handle_xevent(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, XEvent *e)
+void _al_xglx_handle_mmon_event(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, XEvent *e)
 {
    ALLEGRO_DEBUG("got event %i\n", e->type);
    // if we haven't setup the mmon interface, just bail
