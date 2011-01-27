@@ -1869,12 +1869,14 @@ static bool toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
             resize_display_win(display, sc.size.width, sc.size.height);
             display->flags |= ALLEGRO_FULLSCREEN_WINDOW;
          } else {
+            [win orderOut:[win contentView]];
             NSView *view = [win contentView];
             [view exitFullScreenModeWithOptions: nil];
             NSRect sc = [view frame];
             display->flags &= ~ALLEGRO_FULLSCREEN_WINDOW;
             resize_display_win(display, sc.size.width, sc.size.height);
             [win center];
+            [win makeKeyAndOrderFront:[win contentView]];
             [[view window] makeFirstResponder: view];
          }
          return true;
