@@ -103,6 +103,25 @@ static void shutdown_system_driver(void)
 
 
 
+/* al_get_standard_path() does not work before the system driver is
+ * initialised.  Before that, we need to call the underlying functions
+ * directly.
+ */
+static ALLEGRO_PATH *early_get_exename_path(void)
+{
+#if defined(ALLEGRO_WINDOWS)
+   return _al_win_get_path(ALLEGRO_EXENAME_PATH);
+#elif defined(ALLEGRO_MACOSX)
+   return _al_osx_get_path(ALLEGRO_EXENAME_PATH);
+#elif defined(ALLEGRO_UNIX)
+   return _al_unix_get_path(ALLEGRO_EXENAME_PATH);
+#else
+   #error early_get_exename_path not implemented
+#endif
+}
+
+
+
 static void read_allegro_cfg(void)
 {
    /* We cannot use any logging in this function as it would cause the
@@ -110,39 +129,48 @@ static void read_allegro_cfg(void)
     * have been read in.
     */
 
-#if defined ALLEGRO_UNIX && !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
-   ALLEGRO_CONFIG *temp;
-   ALLEGRO_PATH *path;
+   /* We assume that the stdio file interface is in effect. */
 
+   ALLEGRO_PATH *path;
+   ALLEGRO_CONFIG *temp;
+
+   active_sysdrv->config = NULL;
+
+#if defined(ALLEGRO_UNIX) && !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
    active_sysdrv->config = al_load_config_file("/etc/allegro5rc");
 
    path = _al_unix_get_path(ALLEGRO_USER_HOME_PATH);
-   al_set_path_filename(path, "allegro5rc");
-   temp = al_load_config_file(al_path_cstr(path, '/'));
-   if (temp) {
-      if (active_sysdrv->config) {
-         al_merge_config_into(active_sysdrv->config, temp);
-         al_destroy_config(temp);
+   if (path) {
+      al_set_path_filename(path, "allegro5rc");
+      temp = al_load_config_file(al_path_cstr(path, '/'));
+      if (temp) {
+         if (active_sysdrv->config) {
+            al_merge_config_into(active_sysdrv->config, temp);
+            al_destroy_config(temp);
+         }
+         else {
+            active_sysdrv->config = temp;
+         }
       }
-      else {
-         active_sysdrv->config = temp;
-      }
+      al_destroy_path(path);
    }
-   al_destroy_path(path);
-
-   temp = al_load_config_file("allegro5.cfg");
-   if (temp) {
-      if (active_sysdrv->config) {
-         al_merge_config_into(active_sysdrv->config, temp);
-         al_destroy_config(temp);
-      }
-      else {
-         active_sysdrv->config = temp;
-      }
-   }
-#else
-   active_sysdrv->config = al_load_config_file("allegro5.cfg");
 #endif
+
+   path = early_get_exename_path();
+   if (path) {
+      al_set_path_filename(path, "allegro5.cfg");
+      temp = al_load_config_file(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
+      if (temp) {
+         if (active_sysdrv->config) {
+            al_merge_config_into(active_sysdrv->config, temp);
+            al_destroy_config(temp);
+         }
+         else {
+            active_sysdrv->config = temp;
+         }
+      }
+      al_destroy_path(path);
+   }
 
    /* Always have a configuration available whether or not a config file
     * exists.
@@ -314,6 +342,8 @@ ALLEGRO_CONFIG *al_get_system_config(void)
 ALLEGRO_PATH *al_get_standard_path(int id)
 {
    ASSERT(active_sysdrv);
+   ASSERT(active_sysdrv->vt);
+   ASSERT(active_sysdrv->vt->get_path);
 
    if (active_sysdrv->vt->get_path)
       return active_sysdrv->vt->get_path(id);

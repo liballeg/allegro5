@@ -50,7 +50,6 @@ typedef struct THREAD_AND_POOL {
 static ALLEGRO_SYSTEM* osx_sys_init(int flags);
 ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void);
 static void osx_sys_exit(void);
-static ALLEGRO_PATH *osx_get_path(int id);
 
 
 /* Global variables */
@@ -511,7 +510,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
       vt->create_mouse_cursor = _al_osx_create_mouse_cursor;
       vt->destroy_mouse_cursor = _al_osx_destroy_mouse_cursor;
       vt->get_cursor_position = osx_get_cursor_position;
-      vt->get_path = osx_get_path;
+      vt->get_path = _al_osx_get_path;
       vt->inhibit_screensaver = osx_inhibit_screensaver;
       vt->thread_init = osx_thread_init;
       vt->thread_exit = osx_thread_exit;
@@ -531,8 +530,8 @@ void _al_register_system_interfaces()
    *add = _al_system_osx_driver();
 }
 
-/* Implentation of get_path */
-static ALLEGRO_PATH *osx_get_path(int id)
+/* Implementation of get_path */
+ALLEGRO_PATH *_al_osx_get_path(int id)
 {
    NSString* ans = nil;
    NSArray* paths = nil;
@@ -547,7 +546,7 @@ static ALLEGRO_PATH *osx_get_path(int id)
             path = al_create_path_for_directory([ans UTF8String]);
          } else {
             /* Otherwise, return the executable pathname */
-            path = osx_get_path(ALLEGRO_EXENAME_PATH);
+            path = _al_osx_get_path(ALLEGRO_EXENAME_PATH);
             al_set_path_filename(path, NULL);
          }
          break;
