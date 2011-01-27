@@ -91,7 +91,7 @@ static void *message_box_thread(ALLEGRO_THREAD *thread, void *arg)
 
 /* Function to start the new thread. */
 static AsyncDialog *spawn_async_file_dialog(ALLEGRO_DISPLAY *display,
-   const ALLEGRO_PATH *initial_path)
+   const char *initial_path)
 {
    AsyncDialog *data = malloc(sizeof *data);
 
@@ -145,11 +145,7 @@ static void show_files_list(ALLEGRO_FILECHOOSER *dialog,
    int i;
 
    for (i = 0; i < count; i++) {
-      const ALLEGRO_PATH *path;
-      const char *name;
-
-      path = al_get_native_file_dialog_path(dialog, i);
-      name = al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP);
+      const char *name = al_get_native_file_dialog_path(dialog, i);
       al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
       al_draw_textf(font, info, x, y + i * th, ALLEGRO_ALIGN_CENTRE, name, 0, 0);
    }
@@ -260,7 +256,7 @@ restart:
              }
           }
           else if (!cur_dialog) {
-             const ALLEGRO_PATH *last_path = NULL;
+             const char *last_path = NULL;
              /* If available, use the path from the last dialog as
               * initial path for the new one.
               */

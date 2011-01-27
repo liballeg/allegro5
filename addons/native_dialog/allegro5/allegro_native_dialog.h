@@ -37,11 +37,11 @@ typedef struct ALLEGRO_FILECHOOSER ALLEGRO_FILECHOOSER;
  */
 typedef struct ALLEGRO_TEXTLOG ALLEGRO_TEXTLOG;
 
-ALLEGRO_DIALOG_FUNC(ALLEGRO_FILECHOOSER *, al_create_native_file_dialog, (ALLEGRO_PATH const *initial_path,
+ALLEGRO_DIALOG_FUNC(ALLEGRO_FILECHOOSER *, al_create_native_file_dialog, (char const *initial_path,
    char const *title, char const *patterns, int mode));
 ALLEGRO_DIALOG_FUNC(bool, al_show_native_file_dialog, (ALLEGRO_DISPLAY *display, ALLEGRO_FILECHOOSER *dialog));
 ALLEGRO_DIALOG_FUNC(int, al_get_native_file_dialog_count, (const ALLEGRO_FILECHOOSER *dialog));
-ALLEGRO_DIALOG_FUNC(const ALLEGRO_PATH *, al_get_native_file_dialog_path, (const ALLEGRO_FILECHOOSER *dialog,
+ALLEGRO_DIALOG_FUNC(const char *, al_get_native_file_dialog_path, (const ALLEGRO_FILECHOOSER *dialog,
    size_t index));
 ALLEGRO_DIALOG_FUNC(void, al_destroy_native_file_dialog, (ALLEGRO_FILECHOOSER *dialog));
 
