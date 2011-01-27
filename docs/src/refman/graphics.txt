@@ -78,13 +78,23 @@ structure represents the locked region of the bitmap. This
 call will work with any bitmap, including memory bitmaps.
 
     typedef struct ALLEGRO_LOCKED_REGION {
-            void *data; // the bitmap data
-            int format; // the pixel format of the data
-            int pitch;  // the size in bytes of a single line
-                        // pitch may be greater than pixel_size*bitmap->w
-                        // i.e. padded with extra bytes
-            int pixel_size; // the size in bytes of a single pixel
+        void *data;
+        int format;
+        int pitch;
+        int pixel_size;
     } ALLEGRO_LOCKED_REGION;
+
+- *data* points to the leftmost pixel of the first row (row 0) of the locked
+  region.
+
+- *format* indicates the pixel format of the data.
+
+- *pitch* gives the size in bytes of a single row (also known as the stride).
+  The pitch may be greater than `width * pixel_size` due to padding; this is
+  not uncommon.  It is also *not* uncommon for the pitch to be negative (the
+  bitmap may be upside down).
+
+- *pixel_size* is the number of bytes used to represent a single pixel.
 
 See also: [al_lock_bitmap], [al_lock_bitmap_region], [al_unlock_bitmap],
 [ALLEGRO_PIXEL_FORMAT]
