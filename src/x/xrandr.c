@@ -58,7 +58,7 @@ struct xrandr_output {
    SubpixelOrder subpixel_order;
    _AL_VECTOR crtcs; // RRCrtc
    _AL_VECTOR clones; // RROutput
-   RRMode preffered_mode;
+   RRMode prefered_mode;
    _AL_VECTOR modes; // RRMode
 };
 
@@ -119,12 +119,12 @@ static void xrandr_copy_output(xrandr_output *output, RROutput id, XRROutputInfo
       _al_vector_append_array(&output->modes, rroutput->nmode, rroutput->modes);
    }
 
-   /* npreferred isn't the preffered mode index, its the number of preffered modes
-    * starting from 0. So just load up the first preffered mode.
-    * we don't actually use it yet anyway, so its not really important */
-
+   /* npreferred isn't the prefered mode index, it's the number of prefered modes
+    * starting from 0. So just load up the first prefered mode.
+    * We don't actually use it yet anyway, so it's not really important.
+    */
    if(rroutput->npreferred) {
-      output->preffered_mode = rroutput->modes[0];
+      output->prefered_mode = rroutput->modes[0];
    }
 }
 
