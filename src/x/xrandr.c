@@ -424,7 +424,7 @@ static ALLEGRO_DISPLAY_MODE *xrandr_get_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter
    return amode;
 }
 
-static bool xrandr_realign_crtc_origin(ALLEGRO_SYSTEM_XGLX *s, int xscreen, xrandr_crtc *crtc, int *x, int *y)
+static bool xrandr_realign_crtc_origin(ALLEGRO_SYSTEM_XGLX *s, int xscreen, xrandr_crtc *crtc, int new_w, int new_h, int *x, int *y)
 {
    bool ret = false;
    
@@ -441,7 +441,7 @@ static bool xrandr_realign_crtc_origin(ALLEGRO_SYSTEM_XGLX *s, int xscreen, xran
          break;
          
       case CRTC_POS_LEFTOF:
-         *x = align_to->x - crtc->width;
+         *x = align_to->x - new_w;
          *y = align_to->y;
          ret = true;
          break;
@@ -454,7 +454,7 @@ static bool xrandr_realign_crtc_origin(ALLEGRO_SYSTEM_XGLX *s, int xscreen, xran
          
       case CRTC_POS_ABOVE:
          *x = align_to->x;
-         *y = align_to->y - crtc->height;
+         *y = align_to->y - new_h;
          ret = true;
          break;
       
@@ -495,7 +495,7 @@ static bool xrandr_set_mode(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, int
    
    int new_x = crtc->x, new_y = crtc->y;
    
-   xrandr_realign_crtc_origin(s, xscreen, crtc, &new_x, &new_y);
+   xrandr_realign_crtc_origin(s, xscreen, crtc, w, h, &new_x, &new_y);
    
    ALLEGRO_DEBUG("xrandr: set mode %i+%i-%ix%i on adapter %i\n", new_x, new_y, w, h, adapter);
    
