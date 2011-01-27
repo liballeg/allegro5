@@ -251,7 +251,7 @@ static xrandr_mode *xrandr_fetch_mode(ALLEGRO_SYSTEM_XGLX *s, int sid, RRMode id
 
 static inline xrandr_crtc *xrandr_map_to_crtc(ALLEGRO_SYSTEM_XGLX *s, int sid, int adapter)
 {
-   return xrandr_fetch_crtc(s, sid, *(int*)_al_vector_ref(&s->xrandr_adaptermap, adapter));
+   return xrandr_fetch_crtc(s, sid, *(RRCrtc*)_al_vector_ref(&s->xrandr_adaptermap, adapter));
 }
 
 static inline xrandr_output *xrandr_map_adapter(ALLEGRO_SYSTEM_XGLX *s, int sid, int adapter)
@@ -310,6 +310,11 @@ static bool xrandr_query(ALLEGRO_SYSTEM_XGLX *s)
       int j;
       for(j = 0; j < (int)_al_vector_size(&screen->crtcs); j++) {
          xrandr_crtc *crtc = _al_vector_ref(&screen->crtcs, j);
+
+         /* Skip crtc with no connected outputs. */
+         if(_al_vector_size(&crtc->connected) < 1)
+            continue;
+            
          // XXX it might be nessesary to do something more clever about detecting clones
          // XXX for now I'm going with a plain origin test, it aught to work for most cases.
          // the other alternative is to check the crtc's connected outputs's clone's list...
@@ -318,6 +323,11 @@ static bool xrandr_query(ALLEGRO_SYSTEM_XGLX *s)
          bool not_clone = true;
          for(k = 0; k < j; k++) {
             xrandr_crtc *crtc_k = _al_vector_ref(&screen->crtcs, k);
+            
+            /* Skip crtc with no connected outputs. */
+            if(_al_vector_size(&crtc_k->connected) < 1)
+               continue;
+            
             if(crtc->x == crtc_k->x && crtc->y == crtc_k->y)
                not_clone = false;
          }
