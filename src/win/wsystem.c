@@ -365,18 +365,22 @@ static int win_get_num_video_adapters(void)
    return c;
 }
 
-static void win_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
+static bool win_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
    DISPLAY_DEVICE dd;
    DEVMODE dm;
 
    memset(&dd, 0, sizeof(dd));
    dd.cb = sizeof(dd);
-   EnumDisplayDevices(NULL, adapter, &dd, 0);
+   if (!EnumDisplayDevices(NULL, adapter, &dd, 0)) {
+      return false;
+   }
 
    memset(&dm, 0, sizeof(dm));
    dm.dmSize = sizeof(dm);
-   EnumDisplaySettings(dd.DeviceName, ENUM_CURRENT_SETTINGS, &dm);
+   if (!EnumDisplaySettings(dd.DeviceName, ENUM_CURRENT_SETTINGS, &dm)) {
+      return false;
+   }
 
    ASSERT(dm.dmFields & DM_PELSHEIGHT);
    ASSERT(dm.dmFields & DM_PELSWIDTH);
@@ -387,6 +391,7 @@ static void win_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
    info->y1 = dm.dmPosition.y;
    info->x2 = info->x1 + dm.dmPelsWidth;
    info->y2 = info->y1 + dm.dmPelsHeight;
+   return true;
 }
 
 static bool win_get_cursor_position(int *ret_x, int *ret_y)

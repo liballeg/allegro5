@@ -369,7 +369,7 @@ static int osx_get_num_video_adapters(void)
 /* osx_get_monitor_info:
  * Return the details of one monitor
  */
-static void osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info) 
+static bool osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info) 
 {
 /*
    int count = osx_get_num_video_adapters();
@@ -395,6 +395,10 @@ static void osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info)
       info->y2 = (int) (rc.origin.y + rc.size.height);
       ALLEGRO_INFO("Display %d has coordinates (%d, %d) - (%d, %d)\n",
          adapter, info->x1, info->y1, info->x2, info->y2);
+      return true;
+   }
+   else {
+      return false;
    }
 }
 

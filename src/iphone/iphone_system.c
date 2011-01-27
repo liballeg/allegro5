@@ -48,7 +48,7 @@ static int iphone_get_num_video_adapters(void)
    return 1;
 }
 
-static void iphone_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
+static bool iphone_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
    int w, h;
     (void)adapter;
@@ -57,6 +57,7 @@ static void iphone_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
    info->y1 = 0;
    info->x2 = w;
    info->y2 = h;
+   return true;
 }
 
 /* There is no cursor. */

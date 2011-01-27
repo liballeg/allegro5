@@ -227,15 +227,16 @@ static void xinerama_get_display_offset(ALLEGRO_SYSTEM_XGLX *s, int adapter, int
    ALLEGRO_DEBUG("xinerama dpy off %ix%i\n", *x, *y);
 }
 
-static void xinerama_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONITOR_INFO *mi)
+static bool xinerama_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONITOR_INFO *mi)
 {
    if (adapter < 0 || adapter >= s->xinerama_screen_count)
-      return;
-   
+      return false;
+
    mi->x1 = s->xinerama_screen_info[adapter].x_org;
    mi->y1 = s->xinerama_screen_info[adapter].y_org;
    mi->x2 = mi->x1 + s->xinerama_screen_info[adapter].width;
    mi->y2 = mi->y1 + s->xinerama_screen_info[adapter].height;
+   return true;
 }
 
 static ALLEGRO_DISPLAY_MODE *xinerama_get_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int i, ALLEGRO_DISPLAY_MODE *mode)
@@ -480,17 +481,16 @@ static int xfvm_get_num_adapters(ALLEGRO_SYSTEM_XGLX *s)
    return s->xfvm_screen_count;
 }
 
-static void xfvm_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONITOR_INFO *mi)
+static bool xfvm_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONITOR_INFO *mi)
 {
 #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
    if (s->xinerama_available) {
-      xinerama_get_monitor_info(s, adapter, mi);
-      return;
+      return xinerama_get_monitor_info(s, adapter, mi);
    }
 #endif
 
    if (adapter < 0 || adapter > s->xfvm_screen_count)
-      return;
+      return false;
 
    XWindowAttributes xwa;
    Window root;
@@ -507,6 +507,7 @@ static void xfvm_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_M
    mi->y1 = 0;
    mi->x2 = xwa.width;
    mi->y2 = xwa.height;
+   return true;
 }
 
 static int xfvm_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
@@ -899,10 +900,10 @@ void _al_xglx_get_display_offset(ALLEGRO_SYSTEM_XGLX *s, int adapter, int *x, in
    _al_xglx_mmon_interface.get_display_offset(s, adapter, x, y);
 }
 
-void _al_xglx_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONITOR_INFO *info)
+bool _al_xglx_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONITOR_INFO *info)
 {
    if (!init_mmon_interface(s))
-      return;
+      return false;
 
    if (!_al_xglx_mmon_interface.get_monitor_info) {
       _al_mutex_lock(&s->lock);
@@ -911,10 +912,10 @@ void _al_xglx_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONI
       info->x2 = DisplayWidth(s->x11display, DefaultScreen(s->x11display));
       info->y2 = DisplayHeight(s->x11display, DefaultScreen(s->x11display));
       _al_mutex_unlock(&s->lock);
-      return;
+      return true;
    }
 
-   _al_xglx_mmon_interface.get_monitor_info(s, adapter, info);
+   return _al_xglx_mmon_interface.get_monitor_info(s, adapter, info);
 }
 
 int _al_xglx_get_num_video_adapters(ALLEGRO_SYSTEM_XGLX *s)

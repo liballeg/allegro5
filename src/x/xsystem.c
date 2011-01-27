@@ -326,13 +326,11 @@ static int xglx_get_num_video_adapters(void)
    return _al_xglx_get_num_video_adapters(system);
 }
 
-// FIXME: only uses xinerama to get info. Need to extend later and include the xfullscreen code
-// to use xrandr once nvidia gets arround to supporting at least XRandR 1.2
-static void xglx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
+static bool xglx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
 
-   _al_xglx_get_monitor_info(system, adapter, info);
+   return _al_xglx_get_monitor_info(system, adapter, info);
 }
 
 static bool xglx_get_cursor_position(int *ret_x, int *ret_y)

@@ -608,10 +608,10 @@ static int xrandr_get_num_adapters(ALLEGRO_SYSTEM_XGLX *s)
    return _al_vector_size(&s->xrandr_adaptermap);
 }
 
-static void xrandr_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONITOR_INFO *mi)
+static bool xrandr_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONITOR_INFO *mi)
 {
    if(adapter < 0 || adapter >= (int)_al_vector_size(&s->xrandr_adaptermap))
-      return;
+      return false;
    
    int xscreen = _al_xglx_get_xscreen(s, adapter);
    xrandr_output *output = xrandr_map_adapter(s, xscreen, adapter);
@@ -622,6 +622,7 @@ static void xrandr_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO
    mi->y1 = crtc->y;
    mi->x2 = crtc->x + crtc->width;
    mi->y2 = crtc->y + crtc->height;
+   return true;
 }
 
 static int xrandr_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s)
