@@ -561,6 +561,18 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_ext(int fmt, HDC dc)
    }
 
    al_free(value);
+   
+   /* Hack: for some reason this happens for me under Wine. */
+   if (eds &&
+      eds->settings[ALLEGRO_RED_SHIFT] == 0 &&
+         eds->settings[ALLEGRO_GREEN_SHIFT] == 0 &&
+         eds->settings[ALLEGRO_BLUE_SHIFT] == 0 &&
+         eds->settings[ALLEGRO_ALPHA_SHIFT] == 0) {
+      eds->settings[ALLEGRO_RED_SHIFT] = 0;
+      eds->settings[ALLEGRO_GREEN_SHIFT] = 8;
+      eds->settings[ALLEGRO_BLUE_SHIFT] = 16;
+      eds->settings[ALLEGRO_ALPHA_SHIFT] = 24;
+   }
 
    return eds;
 }
