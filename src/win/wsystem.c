@@ -217,8 +217,28 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
 {
    int flags = al_get_new_display_flags();
    ALLEGRO_SYSTEM *sys = al_get_system_driver();
+   ALLEGRO_SYSTEM_WIN *syswin = (ALLEGRO_SYSTEM_WIN *)sys;
    const char *s;
    ALLEGRO_DISPLAY_INTERFACE *ret = NULL;
+
+   /* Look up the toggle_mouse_grab_key binding.  This isn't such a great place
+    * to do it, but the config file is not available in win_initialize,
+    * and this is neutral between the D3D and OpenGL display drivers.
+    */
+   if (sys->config && !syswin->toggle_mouse_grab_keycode) {
+      const char *binding = al_get_config_value(sys->config,
+         "keyboard", "toggle_mouse_grab_key");
+      if (binding) {
+         syswin->toggle_mouse_grab_keycode = _al_parse_key_binding(binding,
+            &syswin->toggle_mouse_grab_modifiers);
+         if (syswin->toggle_mouse_grab_keycode) {
+            ALLEGRO_DEBUG("Toggle mouse grab key: '%s'\n", binding);
+         }
+         else {
+            ALLEGRO_WARN("Cannot parse key binding '%s'\n", binding);
+         }
+      }
+   }
 
 #if defined ALLEGRO_CFG_D3D
    if (flags & ALLEGRO_DIRECT3D) {
@@ -378,16 +398,38 @@ static bool win_get_cursor_position(int *ret_x, int *ret_y)
    return true;
 }
 
+static bool win_grab_mouse(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_SYSTEM_WIN *system = (void *)al_get_system_driver();
+   ALLEGRO_DISPLAY_WIN *win_disp = (void *)display;
+   RECT rect;
+
+   GetWindowRect(win_disp->window, &rect);
+   if (ClipCursor(&rect) != 0) {
+      system->mouse_grab_display = display;
+      return true;
+   }
+
+   return false;
+}
+
+static bool win_ungrab_mouse(void)
+{
+   ALLEGRO_SYSTEM_WIN *system = (void *)al_get_system_driver();
+
+   ClipCursor(NULL);
+   system->mouse_grab_display = NULL;
+   return true;
+}
 
 static ALLEGRO_MOUSE_DRIVER *win_get_mouse_driver(void)
 {
    return _al_mouse_driver_list[0].driver;
 }
 
-/* _win_get_path:
+/* _al_win_get_path:
  *  Returns full path to various system and user diretories
  */
-
 ALLEGRO_PATH *_al_win_get_path(int id)
 {
    char path[MAX_PATH];
@@ -656,6 +698,8 @@ static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->destroy_mouse_cursor = _al_win_destroy_mouse_cursor;
    vt->get_monitor_info = win_get_monitor_info;
    vt->get_cursor_position = win_get_cursor_position;
+   vt->grab_mouse = win_grab_mouse;
+   vt->ungrab_mouse = win_ungrab_mouse;
    vt->get_path = _al_win_get_path;
    vt->inhibit_screensaver = win_inhibit_screensaver;
    vt->open_library = win_open_library;
