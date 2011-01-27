@@ -2,6 +2,7 @@
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_direct3d.h"
 #include "allegro5/platform/aintwin.h"
 
 #include <windows.h>
@@ -124,7 +125,6 @@ AL_FUNC(ALLEGRO_BITMAP *, _al_d3d_create_bitmap,
 //void _al_d3d_unlock_device();
 int _al_format_to_d3d(int format);
 int _al_d3d_format_to_allegro(int d3d_fmt);
-void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *disp);
 bool _al_d3d_render_to_texture_supported(void);
 void _al_d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap);
 

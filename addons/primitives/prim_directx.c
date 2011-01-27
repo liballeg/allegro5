@@ -29,6 +29,7 @@
 #ifdef ALLEGRO_CFG_D3D
 
 #include "allegro5/allegro_direct3d.h"
+#include "allegro5/internal/aintern_direct3d.h"
 
 static ALLEGRO_MUTEX *d3d_mutex;
 /*
@@ -37,7 +38,7 @@ static ALLEGRO_MUTEX *d3d_mutex;
  * 1. They don't support shaders
  * 2. They don't support custom vertices
  * 3. DrawIndexedPrimitiveUP is broken
- * 
+ *
  * Since shaders are used 100% of the time, this means that for these cards
  * the incoming vertices are first converted into the vertex type that these cards
  * can handle.
@@ -77,7 +78,7 @@ static void display_invalidated(ALLEGRO_DISPLAY* display)
       return;
 
    al_lock_mutex(d3d_mutex);
-   
+
    for(ii = 0; ii < num_shader_entries; ii++)
    {
       if(shader_entries[ii].device == device) {
@@ -87,30 +88,30 @@ static void display_invalidated(ALLEGRO_DISPLAY* display)
          break;
       }
    }
-   
+
    al_unlock_mutex(d3d_mutex);
 }
 
 static void setup_default_shader(ALLEGRO_DISPLAY* display)
-{   
+{
    LPDIRECT3DDEVICE9 device = al_get_d3d_device(display);
-   
+
    /*
-    * Lock the mutex so that the entries are not messed up by a 
+    * Lock the mutex so that the entries are not messed up by a
     * display blowing up/being created
     */
    al_lock_mutex(d3d_mutex);
-   
+
    if(num_shader_entries == 0) {
       shader_entries = al_malloc(sizeof(SHADER_ENTRY));
       num_shader_entries = 1;
-      
+
       shader_entries[0].device = device;
       shader_entries[0].shader = _al_create_default_shader(device);
-      
+
       _al_set_display_invalidated_callback(display, &display_invalidated);
    }
-   
+
    if(shader_entries[0].device != device) {
       int ii;
       bool found = false;
@@ -118,36 +119,36 @@ static void setup_default_shader(ALLEGRO_DISPLAY* display)
       {
          if(shader_entries[ii].device == device) {
             /*
-             * Move this entry to the front, so the search goes faster 
+             * Move this entry to the front, so the search goes faster
              * next time - presumably the al_draw_prim will be called
              * several times for each display before switching again
              */
             SHADER_ENTRY t = shader_entries[0];
             shader_entries[0] = shader_entries[ii];
             shader_entries[ii] = t;
-            
+
             found = true;
-            
+
             break;
          }
       }
-      
+
       if(!found) {
          SHADER_ENTRY t = shader_entries[0];
-         
+
          num_shader_entries++;
          shader_entries = al_realloc(shader_entries, sizeof(SHADER_ENTRY) * num_shader_entries);
-         
+
          shader_entries[num_shader_entries - 1] = t;
          shader_entries[0].device = device;
          shader_entries[0].shader = _al_create_default_shader(device);
-         
+
          _al_set_display_invalidated_callback(display, &display_invalidated);
       }
    }
-   
+
    _al_setup_default_shader(device, shader_entries[0].shader);
-   
+
    al_unlock_mutex(d3d_mutex);
 }
 
@@ -182,7 +183,7 @@ void _al_shutdown_d3d_driver(void)
    legacy_buffer = NULL;
 
    destroy_default_shaders();
-   
+
    legacy_card = false;
    know_card_type = false;
    legacy_buffer_size = 0;
@@ -191,79 +192,15 @@ void _al_shutdown_d3d_driver(void)
 
 #ifdef ALLEGRO_CFG_D3D
 
-static int al_blender_to_d3d(int al_mode)
-{
-   int num_modes = 4;
-
-   int allegro_modes[] = {
-      ALLEGRO_ZERO,
-      ALLEGRO_ONE,
-      ALLEGRO_ALPHA,
-      ALLEGRO_INVERSE_ALPHA
-   };
-
-   int d3d_modes[] = {
-      D3DBLEND_ZERO,
-      D3DBLEND_ONE,
-      D3DBLEND_SRCALPHA,
-      D3DBLEND_INVSRCALPHA
-   };
-
-   int i;
-
-   for (i = 0; i < num_modes; i++) {
-      if (al_mode == allegro_modes[i]) {
-         return d3d_modes[i];
-      }
-   }
-
-   return D3DBLEND_ONE;
-}
-
-static void set_blender(LPDIRECT3DDEVICE9 device)
-{
-   int op, src, dst, alpha_op, alpha_src, alpha_dst;
-   DWORD d3d_op, d3d_alpha_op;
-   DWORD allegro_to_d3d_blendop[ALLEGRO_NUM_BLEND_OPERATIONS] = {
-      D3DBLENDOP_ADD,
-      D3DBLENDOP_SUBTRACT,
-      D3DBLENDOP_REVSUBTRACT
-   };
-
-   al_get_separate_blender(&op, &src, &dst, &alpha_op, &alpha_src, &alpha_dst);
-
-   src = al_blender_to_d3d(src);
-   dst = al_blender_to_d3d(dst);
-   alpha_src = al_blender_to_d3d(alpha_src);
-   alpha_dst = al_blender_to_d3d(alpha_dst);
-   d3d_op = allegro_to_d3d_blendop[op];
-   d3d_alpha_op = allegro_to_d3d_blendop[alpha_op];
-
-   /* These may not be supported but they will always fall back to ADD
-    * in that case.
-    */
-   IDirect3DDevice9_SetRenderState(device, D3DRS_BLENDOP, d3d_op);
-   IDirect3DDevice9_SetRenderState(device, D3DRS_BLENDOPALPHA, d3d_alpha_op);
-
-   IDirect3DDevice9_SetRenderState(device, D3DRS_SRCBLEND, src);
-   IDirect3DDevice9_SetRenderState(device, D3DRS_DESTBLEND, dst);
-
-   IDirect3DDevice9_SetRenderState(device, D3DRS_SEPARATEALPHABLENDENABLE, true);
-   IDirect3DDevice9_SetRenderState(device, D3DRS_SRCBLENDALPHA, alpha_src);
-   IDirect3DDevice9_SetRenderState(device, D3DRS_DESTBLENDALPHA, alpha_dst);
-
-   IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-}
-
 static void* convert_to_legacy_vertices(const void* vtxs, int num_vertices, const int* indices, bool loop)
 {
    const ALLEGRO_VERTEX* vtx = vtxs;
    int ii;
    int num_needed_vertices = num_vertices;
-   
+
    if(loop)
       num_needed_vertices++;
-   
+
    if(legacy_buffer == 0) {
       legacy_buffer = al_malloc(num_needed_vertices * sizeof(LEGACY_VERTEX));
       legacy_buffer_size = num_needed_vertices;
@@ -273,25 +210,25 @@ static void* convert_to_legacy_vertices(const void* vtxs, int num_vertices, cons
    }
    for(ii = 0; ii < num_vertices; ii++) {
       ALLEGRO_VERTEX vertex;
-      
+
       if(indices)
          vertex = vtx[indices[ii]];
       else
          vertex = vtx[ii];
-         
+
       legacy_buffer[ii].x = vertex.x;
       legacy_buffer[ii].y = vertex.y;
       legacy_buffer[ii].z = vertex.z;
-      
+
       legacy_buffer[ii].u = vertex.u;
       legacy_buffer[ii].v = vertex.v;
-      
+
       legacy_buffer[ii].color = D3DCOLOR_COLORVALUE(vertex.color.r, vertex.color.g, vertex.color.b, vertex.color.a);
    }
-   
+
    if(loop)
       legacy_buffer[num_vertices] = legacy_buffer[0];
-      
+
    return legacy_buffer;
 }
 
@@ -310,11 +247,11 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    int min_idx = 0, max_idx = num_vtx - 1;
    IDirect3DVertexShader9* old_vtx_shader;
    IDirect3DPixelShader9* old_pix_shader;
-   
+
    if (al_is_d3d_device_lost(target->display)) {
       return 0;
    }
-   
+
    if(indices)
    {
       int ii;
@@ -335,7 +272,7 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    device = al_get_d3d_device(target->display);
    IDirect3DDevice9_GetVertexShader(device, &old_vtx_shader);
    IDirect3DDevice9_GetPixelShader(device, &old_pix_shader);
-   
+
    if(!know_card_type) {
       D3DCAPS9 caps;
       IDirect3DDevice9_GetDeviceCaps(device, &caps);
@@ -343,7 +280,7 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
          legacy_card = true;
       know_card_type = true;
    }
-   
+
    /* Check for early exit */
    if((legacy_card && decl) || (decl && decl->d3d_decl == 0)) {
       if(!indices)
@@ -352,31 +289,32 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
          return _al_draw_prim_indexed_soft(texture, vtx, decl, indices, num_vtx, type);
    }
 
-   if(!old_pix_shader)
-      set_blender(device);
-      
+   if(!old_pix_shader) {
+      _al_d3d_set_blender((struct ALLEGRO_DISPLAY_D3D *)target->display);
+   }
+
    if(!old_vtx_shader) {
       /* Prepare the default shader */
       if(!legacy_card) {
-         if(decl) 
+         if(decl)
             _al_setup_shader(device, decl);
          else
             setup_default_shader(target->display);
       }
    }
-   
+
    /* Set the vertex declarations */
    if(legacy_card) {
       IDirect3DDevice9_SetFVF(device, A5V_LEGACY_FVF);
       stride = sizeof(LEGACY_VERTEX);
-   } else {         
+   } else {
       if(decl) {
          IDirect3DDevice9_SetVertexDeclaration(device, (IDirect3DVertexDeclaration9*)decl->d3d_decl);
       } else {
          IDirect3DDevice9_SetFVF(device, A5V_FVF);
       }
    }
-   
+
    if(!old_vtx_shader) {
       /* Set up the texture */
       if (texture) {
@@ -387,9 +325,9 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
             {0, 1, 0, 0},
             {0, 0, 1, 0},
             {0, 0, 0, 1}
-         };      
+         };
          IDirect3DTexture9_GetLevelDesc(al_get_d3d_video_texture(texture), 0, &desc);
-         
+
          al_get_d3d_texture_position(texture, &tex_x, &tex_y);
 
          if(decl) {
@@ -421,13 +359,13 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
          IDirect3DDevice9_SetTexture(device, 0, NULL);
       }
    }
-   
+
    IDirect3DDevice9_GetSamplerState(device, 0, D3DSAMP_ADDRESSU, &old_wrap_state[0]);
    IDirect3DDevice9_GetSamplerState(device, 0, D3DSAMP_ADDRESSV, &old_wrap_state[1]);
-   
+
    IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
    IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
-   
+
    /* Convert vertices for legacy cards */
    if(legacy_card) {
       al_lock_mutex(d3d_mutex);
@@ -454,7 +392,7 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
                int in[2];
                in[0] = 0;
                in[1] = num_vtx-1;
-         
+
                IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_LINELIST, 0, num_vtx, 1, in, D3DFMT_INDEX32, vtx, stride);
             } else {
                IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_LINELIST, 1, (char*)vtx + stride * (num_vtx - 1), stride);
@@ -482,7 +420,7 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
             break;
          };
       }
-   } else {      
+   } else {
       switch (type) {
          case ALLEGRO_PRIM_LINE_LIST: {
             num_primitives = num_vtx / 2;
@@ -498,7 +436,7 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
             int in[2];
             num_primitives = num_vtx - 1;
             IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_LINESTRIP, min_idx, max_idx + 1, num_primitives, indices, D3DFMT_INDEX32, vtx, stride);
-            
+
             in[0] = indices[0];
             in[1] = indices[num_vtx-1];
             IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_LINELIST, min_idx, max_idx + 1, 1, in, D3DFMT_INDEX32, vtx, stride);
@@ -541,7 +479,7 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
          };
       }
    }
-   
+
    if(legacy_card)
       al_unlock_mutex(d3d_mutex);
 
@@ -551,7 +489,7 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    if(!old_vtx_shader && legacy_card && texture) {
       IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, old_ttf_state);
    }
-   
+
    if(!old_vtx_shader)
       IDirect3DDevice9_SetVertexShader(device, 0);
 
@@ -669,17 +607,17 @@ void _al_set_d3d_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL* ret)
             d3delements[idx].UsageIndex = color_idx;
             idx++;
          }
-         
+
          d3delements[idx].Stream = 0xFF;
          d3delements[idx].Offset = 0;
          d3delements[idx].Type = D3DDECLTYPE_UNUSED;
          d3delements[idx].Method = 0;
          d3delements[idx].Usage = 0;
          d3delements[idx].UsageIndex = 0;
-         
+
          IDirect3DDevice9_CreateVertexDeclaration(device, d3delements, (IDirect3DVertexDeclaration9**)&ret->d3d_decl);
       }
-      
+
       _al_create_shader(device, ret);
    }
 #else
