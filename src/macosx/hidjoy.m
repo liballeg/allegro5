@@ -536,7 +536,7 @@ static bool init_joystick(void)
          break;
       }
       count = CFSetGetCount(devices);
-      //CFRelease(devices); FIXME: needed?
+      CFRelease(devices);
       al_lock_mutex(add_mutex);
       size = _al_vector_size(&joysticks);
       al_unlock_mutex(add_mutex);
