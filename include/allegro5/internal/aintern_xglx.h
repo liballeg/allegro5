@@ -204,6 +204,10 @@ struct _ALLEGRO_XGLX_MMON_INTERFACE {
 
 extern _ALLEGRO_XGLX_MMON_INTERFACE _al_xglx_mmon_interface;
 
+int _al_xsys_mheadx_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s);
+int _al_xsys_mheadx_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter);
+void _al_xsys_get_active_window_center(ALLEGRO_SYSTEM_XGLX *s, int *x, int *y);
+
 void _al_xsys_mmon_exit(ALLEGRO_SYSTEM_XGLX *s);
 
 int _al_xglx_get_num_display_modes(ALLEGRO_SYSTEM_XGLX *s, int adapter);
@@ -232,6 +236,11 @@ void _al_xglx_toggle_above(ALLEGRO_DISPLAY *display, int value);
 int _al_xglx_get_adapter(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, bool recalc);
 
 void _al_xglx_handle_xevent(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, XEvent *e);
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
+void _al_xsys_xrandr_init(ALLEGRO_SYSTEM_XGLX *s);
+void _al_xsys_xrandr_exit(ALLEGRO_SYSTEM_XGLX *s);
+#endif /* ALLEGRO_XWINDOWS_WITH_XRANDR */
 
 /* glx_config */
 void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx);

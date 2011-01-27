@@ -291,21 +291,6 @@ static int xinerama_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter)
 
 /*---------------------------------------------------------------------------
  *
- * RandR
- *
- */
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
-
-void _al_xsys_xrandr_init(ALLEGRO_SYSTEM_XGLX *s);
-void _al_xsys_xrandr_exit(ALLEGRO_SYSTEM_XGLX *s);
-
-#endif /* ALLEGRO_XWINDOWS_WITH_XRANDR */
-
-
-
-/*---------------------------------------------------------------------------
- *
  * XF86VidMode
  *
  */
