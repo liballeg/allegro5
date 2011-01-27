@@ -118,9 +118,14 @@ static void xrandr_copy_output(xrandr_output *output, RROutput id, XRROutputInfo
    if(rroutput->nmode) {
       _al_vector_append_array(&output->modes, rroutput->nmode, rroutput->modes);
    }
-   
-   output->preffered_mode = rroutput->modes[rroutput->npreferred];
-   
+
+   /* npreferred isn't the preffered mode index, its the number of preffered modes
+    * starting from 0. So just load up the first preffered mode.
+    * we don't actually use it yet anyway, so its not really important */
+
+   if(rroutput->npreferred) {
+      output->preffered_mode = rroutput->modes[0];
+   }
 }
 
 static void xrandr_copy_crtc(xrandr_crtc *crtc, RRCrtc id, XRRCrtcInfo *rrcrtc)
