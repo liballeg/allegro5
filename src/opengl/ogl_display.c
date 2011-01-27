@@ -298,9 +298,8 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
       format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
    }
 #endif
-   ALLEGRO_TRACE_CHANNEL_LEVEL("display", 1)("Format %s used for backbuffer.\n",
+   ALLEGRO_TRACE_CHANNEL_LEVEL("display", 1)("Deduced format %s for backbuffer.\n",
       _al_format_name(format));
-   ASSERT(format != ALLEGRO_PIXEL_FORMAT_ANY);
 
    /* Now that the display backbuffer has a format, update extra_settings so
     * the user can query it back.

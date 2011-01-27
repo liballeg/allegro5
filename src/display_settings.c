@@ -630,6 +630,20 @@ int _al_deduce_color_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
       }
    }
 
+   if (format == ALLEGRO_PIXEL_FORMAT_ANY) {
+      ALLEGRO_WARN(
+         "Could not deduce color format, sizes = (%d,%d,%d,%d,%d), shifts = (%d,%d,%d,%d)\n",
+          eds->settings[ALLEGRO_RED_SIZE],
+          eds->settings[ALLEGRO_GREEN_SIZE],
+          eds->settings[ALLEGRO_BLUE_SIZE],
+          eds->settings[ALLEGRO_ALPHA_SIZE],
+          eds->settings[ALLEGRO_COLOR_SIZE],
+          eds->settings[ALLEGRO_RED_SHIFT],
+          eds->settings[ALLEGRO_GREEN_SHIFT],
+          eds->settings[ALLEGRO_BLUE_SHIFT],
+          eds->settings[ALLEGRO_ALPHA_SHIFT]);
+   }
+
    return format;
 }
 
