@@ -256,19 +256,18 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool repeated,
 {
    ALLEGRO_EVENT event;
    int my_code;
-   int ccode;
+   int char_count;
+   int event_count;
+   int i;
    BYTE ks[256];
-   WCHAR buf[8];
+   WCHAR buf[8] = { 0 };
 
    if (!installed)
       return;
 
-   if (!GetKeyboardState(&ks[0]))
-      ccode = 0; /* shound't really happen */
-   else if (ToUnicode(vcode, scode, ks, buf, 8, 0) == 1)
-      ccode = buf[0];
-   else
-      ccode = 0;
+   if (!GetKeyboardState(&ks[0])) {
+      /* shouldn't really happen */
+   }
 
    /* Windows doesn't differentiate between the left and right versions
       of the modifiers. To compensate we read the current keyboard state
@@ -313,16 +312,23 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool repeated,
 
    _al_event_source_lock(&the_keyboard.es);
 
-   if (!repeated) {
+   if (my_code > 0 && !repeated) {
       _al_event_source_emit_event(&the_keyboard.es, &event);
    }
 
-   {
-      event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
-      event.keyboard.unichar = ccode;
-      event.keyboard.modifiers = modifiers;
-      event.keyboard.repeat = repeated;
-      _al_event_source_emit_event(&the_keyboard.es, &event);
+   /* Send char events, but not for modifier keys or dead keys. */
+   if (my_code < ALLEGRO_KEY_MODIFIERS) {
+      char_count = ToUnicode(vcode, scode, ks, buf, 8, 0);
+      if (char_count != -1) { /* -1 means it was a dead key. */
+         event_count = char_count ? char_count : 1;
+         event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
+         event.keyboard.modifiers = modifiers;
+         event.keyboard.repeat = repeated;
+         for (i = 0; i < event_count; i++) {
+            event.keyboard.unichar = buf[i];
+            _al_event_source_emit_event(&the_keyboard.es, &event);
+         }
+      }
    }
 
    _al_event_source_unlock(&the_keyboard.es);
