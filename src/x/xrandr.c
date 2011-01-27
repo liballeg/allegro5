@@ -334,7 +334,7 @@ static bool xrandr_query(ALLEGRO_SYSTEM_XGLX *s)
          
          if(not_clone) {
             RRCrtc *crtc_ptr = _al_vector_alloc_back(&s->xrandr_adaptermap);
-            ALLEGRO_DEBUG("Map Allegro Adadpter %i to RandR CRTC %i.\n", j, (int)crtc->id);
+            ALLEGRO_DEBUG("Map Allegro Adadpter %i to RandR CRTC %i.\n", (int)(_al_vector_size(&s->xrandr_adaptermap)-1), (int)crtc->id);
             *crtc_ptr = crtc->id;
          }
          else {
