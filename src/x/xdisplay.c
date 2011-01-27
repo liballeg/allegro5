@@ -35,9 +35,11 @@ static void set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
-   XSizeHints *hints = XAllocSizeHints();;
+   XSizeHints *hints = XAllocSizeHints();
 
-   if (!(d->flags & ALLEGRO_RESIZABLE)) {
+   /* Do not force the size of the window on resizeable or fullscreen windows */
+   /* on fullscreen windows, it confuses most X Window Managers */
+   if (!(d->flags & ALLEGRO_RESIZABLE) && !(d->flags & ALLEGRO_FULLSCREEN)) {
       hints->flags = PMinSize | PMaxSize | PBaseSize;
       hints->min_width  = hints->max_width  = hints->base_width  = d->w;
       hints->min_height = hints->max_height = hints->base_height = d->h;
@@ -48,6 +50,18 @@ static void set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
    if (x_off != INT_MAX && y_off != INT_MAX) {
       ALLEGRO_DEBUG("Force window position to %d, %d.\n", x_off, y_off);
       hints->flags |= PPosition;
+      hints->x = x_off;
+      hints->y = y_off;
+   }
+
+   if(d->flags & ALLEGRO_FULLSCREEN) {
+      /* kwin will improperly layer a panel over our window on a second display without this.
+       * some other Size flags may cause glitches with various WMs, but this seems to be ok
+       * with metacity and kwin. As noted in xdpy_create_display, compiz is just broken.
+       */
+      hints->flags |= PBaseSize;
+      hints->base_width  = d->w;
+      hints->base_height = d->h;
    }
 
    XSetWMNormalHints(system->x11display, glx->window, hints);
@@ -61,7 +75,7 @@ static void reset_size_hints(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
-   XSizeHints *hints = XAllocSizeHints();;
+   XSizeHints *hints = XAllocSizeHints();
 
    hints->flags = PMinSize | PMaxSize;
    hints->min_width  = 0;
@@ -230,7 +244,19 @@ static bool xdpy_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag,
    return false;
 }
 
+static void _al_xglx_use_adapter(ALLEGRO_SYSTEM_XGLX *s, int adapter)
+{
+   ALLEGRO_DEBUG("use adapter %i\n", adapter);
+   s->adapter_use_count++;
+   s->adapter_map[adapter]++;
+}
 
+static void _al_xglx_unuse_adapter(ALLEGRO_SYSTEM_XGLX *s, int adapter)
+{
+   ALLEGRO_DEBUG("unuse adapter %i\n", adapter);
+   s->adapter_use_count--;
+   s->adapter_map[adapter]--;
+}
 
 static void xdpy_destroy_display(ALLEGRO_DISPLAY *d);
 
@@ -241,7 +267,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    int adapter = al_get_new_display_adapter();
-
+   
    if (system->x11display == NULL) {
       ALLEGRO_WARN("Not connected to X server.\n");
       return NULL;
@@ -253,13 +279,6 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    }
 
    _al_mutex_lock(&system->lock);
-
-   if (adapter >= ScreenCount(system->x11display)) {
-      /* Fail early, as glXGetFBConfigs may crash otherwise. */
-      ALLEGRO_DEBUG("Requested display adapter more than ScreenCount.\n");
-      _al_mutex_unlock(&system->lock);
-      return NULL;
-   }
 
    ALLEGRO_DISPLAY_XGLX *d = al_malloc(sizeof *d);
    ALLEGRO_DISPLAY *display = (void*)d;
@@ -282,11 +301,52 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    // FIXME: default? Is this the right place to set this?
    display->flags |= ALLEGRO_OPENGL;
 
-   // store our initial screen, used by fullscreen and glx visual code
-   d->xscreen = adapter;
-   if (d->xscreen < 0)
-      d->xscreen = DefaultScreen(system->x11display);
+   // store our initial virtual adapter, used by fullscreen and positioning code
+   d->adapter = adapter;
+   ALLEGRO_DEBUG("selected adapter %i\n", adapter);
+   if(d->adapter < 0) {
+      d->adapter = _al_xglx_get_default_adapter(system);
+   }
 
+   _al_xglx_use_adapter(system, d->adapter);
+   
+   /* if we're in multi-head X mode, bail if we try to use more than one display
+    * as there are bugs in X/glX that cause us to hang in X if we try to use more than one. */
+   /* if we're in real xinerama mode, also bail, x makes mouse use evil */
+   
+   bool true_xinerama_active = false;
+   bool xrandr_active = false;
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
+   xrandr_active = system->xrandr_available;
+#endif
+   
+#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+   true_xinerama_active = !xrandr_active && system->xinerama_available;
+#endif
+   
+   if((true_xinerama_active || ScreenCount(system->x11display) > 1) && system->adapter_use_count) {
+      uint32_t i, adapter_use_count = 0;
+      for(i = 0; i < 32; i++) {
+         if(system->adapter_map[i])
+            adapter_use_count++;
+      }
+      
+      if(adapter_use_count > 1) {
+         ALLEGRO_ERROR("Use of more than one adapter at once in multi-head X or X with true Xinerama active is not possible.\n");
+         al_free(d);
+         al_free(ogl);
+         _al_mutex_unlock(&system->lock);
+         return NULL;
+      }
+   }
+   ALLEGRO_DEBUG("xdpy: selected adapter %i\n", d->adapter);
+   
+   // store or initial X Screen, used by window creation, fullscreen, and glx visual code
+   d->xscreen = _al_xglx_get_xscreen(system, d->adapter);
+   
+   ALLEGRO_DEBUG("xdpy: selected xscreen %i\n", d->xscreen);
+   
    d->is_mapped = false;
    _al_cond_init(&d->mapped);
 
@@ -349,10 +409,23 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    int x_off = INT_MAX, y_off = INT_MAX;
    if (display->flags & ALLEGRO_FULLSCREEN) {
-      _al_xglx_get_display_offset(system, d->xscreen, &x_off, &y_off);
+      _al_xglx_get_display_offset(system, d->adapter, &x_off, &y_off);
    }
    else {
+      /* we want new_display_adapter's offset to add to the new_window_position */
+      int xscr_x = 0, xscr_y = 0;
+
       al_get_new_window_position(&x_off, &y_off);
+      
+      if(adapter != -1) { 
+         /* non default adapter. I'm assuming this means the user wants the window to be placed on the adapter offset by new display pos */
+         _al_xglx_get_display_offset(system, d->adapter, &xscr_x, &xscr_y);
+         if(x_off != INT_MAX)
+            x_off += xscr_x;
+         
+         if(y_off != INT_MAX)
+            y_off += xscr_y;
+      }
    }
 
    d->window = XCreateWindow(system->x11display,
@@ -361,30 +434,34 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       y_off != INT_MAX ? y_off : 0,
       w, h, 0, d->xvinfo->depth,
       InputOutput, d->xvinfo->visual, mask, &swa);
-
+      
    // Try to set full screen mode if requested, fail if we can't
    if (display->flags & ALLEGRO_FULLSCREEN) {
       /* According to the spec, the window manager is supposed to disable
        * window decorations when _NET_WM_STATE_FULLSCREEN is in effect.
        * However, some WMs may not be fully compliant, e.g. Fluxbox.
        */
+      
       xdpy_toggle_frame(display, false);
 
+      _al_xglx_toggle_above(display, 1);
+      
       if (!_al_xglx_fullscreen_set_mode(system, d, w, h, 0, display->refresh_rate)) {
          ALLEGRO_DEBUG("xdpy: failed to set fullscreen mode.\n");
          xdpy_destroy_display(display);
          _al_mutex_unlock(&system->lock);
          return NULL;
       }
+      //XSync(system->x11display, False);
    }
 
    if (display->flags & ALLEGRO_NOFRAME)
       xdpy_toggle_frame(display, false);
 
    ALLEGRO_DEBUG("X11 window created.\n");
-
+   
    set_size_hints(display, x_off, y_off);
-
+   
    d->wm_delete_window_atom = XInternAtom(system->x11display,
       "WM_DELETE_WINDOW", False);
    XSetWMProtocols(system->x11display, d->window, &d->wm_delete_window_atom, 1);
@@ -394,6 +471,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    /* Send the pending request to the X server. */
    XSync(system->x11display, False);
+   
    /* To avoid race conditions where some X11 functions fail before the window
     * is mapped, we wait here until it is mapped. Note that the thread is
     * locked, so the event could not possibly have been processed yet in the
@@ -408,7 +486,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
     * window when switching to fullscreen it will use the same
     * monitor (with the MetaCity version I'm using here right now).
     */
-   if ((display->flags & ALLEGRO_FULLSCREEN_WINDOW) || (display->flags & ALLEGRO_FULLSCREEN)) {
+   if ((display->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
       ALLEGRO_INFO("Toggling fullscreen flag for %d x %d window.\n",
          display->w, display->h);
       reset_size_hints(display);
@@ -423,14 +501,22 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
          display->w, display->h);
    }
 
+   if (display->flags & ALLEGRO_FULLSCREEN) {
+      /* kwin wants these here */
+      /* metacity wants these here too */
+      /* XXX compiz is quiky, can't seem to find a combination of hints that
+       * make sure we are layerd over panels, and are positioned properly */
+
+      //_al_xglx_toggle_fullscreen_window(display, 1);
+      _al_xglx_toggle_above(display, 1);
+      
+      _al_xglx_fullscreen_to_display(system, d);
+   }
+   
    if (!_al_xglx_config_create_context(d)) {
       xdpy_destroy_display(display);
       _al_mutex_unlock(&system->lock);
       return NULL;
-   }
-
-   if (display->flags & ALLEGRO_FULLSCREEN) {
-      _al_xglx_fullscreen_to_display(system, d);
    }
 
    /* Make our GLX context current for reading and writing in the current
@@ -564,6 +650,8 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
       }
    }
 
+   _al_xglx_unuse_adapter(s, glx->adapter);
+   
    _al_ogl_unmanage_extensions(d);
    ALLEGRO_DEBUG("unmanaged extensions.\n");
 
@@ -577,18 +665,26 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
       size_t i;
       ALLEGRO_DISPLAY **living = NULL;
       bool last_fullscreen = true;
-      /* If any other fullscreen display is still active, we must
-       * not touch the video mode.
+      /* If any other fullscreen display is still active on the same adapter,
+       * we must not touch the video mode.
        */
       for (i = 0; i < s->system.displays._size; i++) {
          living = _al_vector_ref(&s->system.displays, i);
+         ALLEGRO_DISPLAY_XGLX *living_glx = (void*)*living;
+         
          if (*living == d) continue;
-         if (al_get_display_flags(*living) & ALLEGRO_FULLSCREEN)
+         
+         /* check for fullscreen displays on the same adapter */
+         if (living_glx->adapter == glx->adapter &&
+             al_get_display_flags(*living) & ALLEGRO_FULLSCREEN)
+         {
             last_fullscreen = false;
+         }
       }
+      
       if (last_fullscreen) {
          ALLEGRO_DEBUG("restore modes.\n");
-         _al_xglx_restore_video_mode(s, glx->xscreen);
+         _al_xglx_restore_video_mode(s, glx->adapter);
       }
       else {
          ALLEGRO_DEBUG("*not* restoring modes.\n");
@@ -841,7 +937,9 @@ skip_resize:
 
    if (d->flags & ALLEGRO_FULLSCREEN) {
       _al_xglx_toggle_fullscreen_window(d, 1);
+      _al_xglx_toggle_above(d, 1);
       _al_xglx_fullscreen_to_display(system, glx);
+      ALLEGRO_DEBUG("xdpy: resize fullscreen?\n");
    }
 
    _al_mutex_unlock(&system->lock);
@@ -890,8 +988,36 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
       glx->x = xevent->xconfigure.x;
       glx->y = xevent->xconfigure.y;
    }
+   
 
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX*)al_get_system_driver();
+   ALLEGRO_MONITOR_INFO mi;
+   int center_x = (glx->x + (glx->x + xevent->xconfigure.width)) / 2;
+   int center_y = (glx->y + (glx->y + xevent->xconfigure.height)) / 2;
+         
+   _al_xglx_get_monitor_info(system, glx->adapter, &mi);
+   
+   ALLEGRO_DEBUG("xconfigure event! %ix%i\n", xevent->xconfigure.x, xevent->xconfigure.y);
+   
+   /* check if we're no longer inside the stored adapter */
+   if((center_x < mi.x1 && center_x > mi.x2) ||
+      (center_y < mi.y1 && center_y > mi.x2))
+   {
+      
+      int new_adapter = _al_xglx_get_adapter(system, glx, true);
+      if(new_adapter != glx->adapter) {
+         ALLEGRO_DEBUG("xdpy: adapter change!\n");
+         _al_xglx_unuse_adapter(system, glx->adapter);
+         if(d->flags & ALLEGRO_FULLSCREEN)
+            _al_xglx_restore_video_mode(system, glx->adapter);
+         glx->adapter = new_adapter;
+         _al_xglx_use_adapter(system, glx->adapter);
+      }
+      
+   }
+   
    _al_event_source_unlock(es);
+   
 }
 
 

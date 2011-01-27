@@ -19,6 +19,7 @@ typedef struct _AL_VECTOR
 
 
 AL_FUNC(void,  _al_vector_init, (_AL_VECTOR*, size_t itemsize));
+AL_FUNC(bool, _al_vector_reserve, (_AL_VECTOR *vec, int num));
 AL_INLINE(size_t, _al_vector_size, (const _AL_VECTOR *vec),
 {
    return vec->_size;

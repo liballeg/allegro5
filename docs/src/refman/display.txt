@@ -172,9 +172,17 @@ flags is a bitfield containing any reasonable combination of the following:
 ALLEGRO_WINDOWED
 :   Prefer a windowed mode.
 
+    Under multi-head X (not XRandR/TwinView), the use of more than one adapter is
+    impossible due to bugs in X and glX. [al_create_display] will fail if more than one
+    adapter is attempted to be used.
+    
 ALLEGRO_FULLSCREEN
 :   Prefer a fullscreen mode.
 
+    Under X the use of more than one FULLSCREEN display when using multi-head X,
+    or true Xinerama is not possible due to bugs in X and glX,
+    display creation will fail if more than one adapter is attempted to be used.
+   
 ALLEGRO_FULLSCREEN_WINDOW
 :   Make the window span the entire screen. Unlike ALLEGRO_FULLSCREEN this
     will never attempt to modify the screen resolution. Instead the pixel
@@ -191,6 +199,10 @@ ALLEGRO_FULLSCREEN_WINDOW
     toggle between fullscreen/windowed mode or how additional monitors
     behave while your display is in fullscreen mode.
 
+    Additionally under X, the use of more than one adapter in multi-head mode
+    or with true Xinerama enabled is impossible due to bugs in X/glX,
+    creation will fail if more than one adapter is attempted to be used.
+    
 ALLEGRO_RESIZABLE
 :   The display is resizable (only applicable if combined with
     ALLEGRO_WINDOWED).

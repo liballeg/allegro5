@@ -115,6 +115,7 @@ set(ALLEGRO_SRC_X_FILES
     src/x/xdisplay.c
     src/x/xfullscreen.c
     src/x/xglx_config.c
+    src/x/xrandr.c
     src/x/xsystem.c
     src/linux/ljoynu.c
     )
