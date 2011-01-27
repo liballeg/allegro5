@@ -409,64 +409,44 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
 
       } break;
 
-#if 0
-      case ALLEGRO_USER_DATA_PATH: {
-         int32_t ret = 0;
-         uint32_t path_len = 0, ptr_len = 0, prog_len = 0;
-         char path[PATH_MAX] = "", *ptr = NULL;
-         char prog[PATH_MAX] = "";
-
-         if (_unix_find_home(path, PATH_MAX) != 0) {
-            return NULL;
-         }
-
-         strncat(path, "/.", 2);
-
-         path_len = strlen(path);
-
-         /* get exe name */
-         /* FIXME:
-            This really aught to get the "Program" name from somewhere, say a config var? Or a function al_set_program_name()?
-            making a ~/.test_program dir for a exe named "test_program" might not be what people have in mind.
-         */
-
-         get_executable_name(prog, PATH_MAX);
-
-         ptr = strrchr(prog, '/');
-         if (!ptr) {
-            al_set_errno(EINVAL);
-            return NULL;
-         }
-
-         *ptr = '\0';
-         ptr++;
-         ptr_len = strlen(ptr);
-         //
-         strncat(path, ptr, ptr_len+1);
-         //*(ptr-1) = '/';
-         do_uconvert(path, U_ASCII, dir, U_UTF8, strlen(path)+1);
-
-      } break;
-#endif
-
-      case ALLEGRO_USER_SETTINGS_PATH:
-      case ALLEGRO_USER_DATA_PATH: {
+      case ALLEGRO_USER_DATA_PATH:
+      case ALLEGRO_USER_SETTINGS_PATH: {
          ALLEGRO_PATH *local_path = NULL;
          const char *org_name = al_get_org_name();
          const char *app_name = al_get_app_name();
          
+         /* to avoid writing directly into the user's directory, require at least an app name */
          if (!app_name)
             return NULL;
-
-         local_path = _unix_find_home();
-         if (!local_path)
-            return NULL;
-
-         al_append_path_component(local_path, ".config");         
-         if (org_name && org_name[0]) {            
-              /* only add org name if not blank */
-            al_append_path_component(local_path, al_get_org_name());         
+         
+         /* find the appropriate path from the xdg environment variables, if possible */
+         if (id == ALLEGRO_USER_DATA_PATH) {
+            const char *xdg_data_home = getenv("XDG_DATA_HOME");
+            local_path = al_create_path_for_directory(xdg_data_home ? xdg_data_home : ".local/share");
          }
+         else {
+            const char *xdg_config_home = getenv("XDG_CONFIG_HOME");
+            local_path = al_create_path_for_directory(xdg_config_home ? xdg_config_home : ".config");
+         }
+         
+         if (!local_path) 
+            return NULL;
+         
+         /* if the path is relative, prepend the user's home directory */
+         if (al_path_cstr(local_path, '/')[0] != '/') {
+            ALLEGRO_PATH *home_path = _unix_find_home();
+            if (!home_path)
+               return NULL;
+            
+            al_rebase_path(home_path, local_path);
+            al_destroy_path(home_path);
+         }
+
+         /* only add org name if not blank */
+         if (org_name && org_name[0]) {              
+            al_append_path_component(local_path, al_get_org_name());
+         }
+         
          al_append_path_component(local_path, al_get_app_name());
 
         return local_path;
