@@ -188,7 +188,7 @@ int main(void)
          draw_display(font);
          continue;
       }
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+      if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
          switch (event.keyboard.unichar) {
             case 27: /* escape */
                goto Quit;

@@ -109,7 +109,7 @@ int main(void)
             event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
          break;
       }
-      else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+      else if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
          int n = event.keyboard.unichar - '0';
          if (n >= 0 && n < num_joysticks) {
             curr_joy = al_get_joystick(n);

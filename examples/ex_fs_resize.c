@@ -55,7 +55,7 @@ static void main_loop(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *picture)
       }
       al_wait_for_event(queue, &event);
 
-      if (event.type != ALLEGRO_EVENT_KEY_DOWN) {
+      if (event.type != ALLEGRO_EVENT_KEY_CHAR) {
          continue;
       }
 

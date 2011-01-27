@@ -137,7 +137,7 @@ restart:
    while (1) {
       al_wait_for_event(events, &event);
 
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+      if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
          if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
             break;
 
