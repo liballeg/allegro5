@@ -217,7 +217,7 @@ bool _al_pixel_format_is_real(int format)
 /* We use al_get_display_format() as a hint for the preferred RGB ordering when
  * nothing else is specified.
  */
-static bool _al_try_display_format(ALLEGRO_DISPLAY *display, int *format)
+static bool try_display_format(ALLEGRO_DISPLAY *display, int *format)
 {
    int best_format;
    int bytes;
@@ -227,7 +227,9 @@ static bool _al_try_display_format(ALLEGRO_DISPLAY *display, int *format)
    }
 
    best_format = al_get_display_format(display);
-   ASSERT(_al_pixel_format_is_real(best_format));
+   if (!_al_pixel_format_is_real(best_format))
+      return false;
+
    bytes = al_get_pixel_size(*format);
    if (bytes && bytes != al_get_pixel_size(best_format))
       return false;
@@ -257,20 +259,20 @@ int _al_get_real_pixel_format(ALLEGRO_DISPLAY *display, int format)
    switch (format) {
       case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:
       case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:
-         if (!_al_try_display_format(display, &format))
+         if (!try_display_format(display, &format))
             format = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
          break;
       case ALLEGRO_PIXEL_FORMAT_ANY:
       case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:
       case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:
-         if (!_al_try_display_format(display, &format))
+         if (!try_display_format(display, &format))
             format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
          break;
       case ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA:
          format = ALLEGRO_PIXEL_FORMAT_RGB_555;
          break;
       case ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA:
-         if (!_al_try_display_format(display, &format))
+         if (!try_display_format(display, &format))
             format = ALLEGRO_PIXEL_FORMAT_RGB_565;
          break;
       case ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA:
