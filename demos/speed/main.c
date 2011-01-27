@@ -156,6 +156,7 @@ static void usage()
       "\n"
       "Available options:\n"
       "\n"
+      "\t-fullscreen enables full screen mode. (w and h are optional)\n"
       "\t-cheat makes you invulnerable.\n"
       "\t-simple turns off the more expensive graphics effects.\n"
       "\t-nogrid turns off the wireframe background grid.\n"
@@ -173,11 +174,16 @@ static void usage()
 /* the main program body */
 int main(int argc, char *argv[])
 {
-   int w=0, h=0;
+   ALLEGRO_PATH *font_path;
+   int w = 0, h = 0;
    int www = FALSE;
    int i, n;
+   int display_flags = ALLEGRO_GENERATE_EXPOSE_EVENTS;
 
    srand(time(NULL));
+   
+   al_set_org_name("liballeg.org");
+   al_set_app_name("SPEED");
 
    if (!al_init()) {
       fprintf(stderr, "Could not initialise Allegro.\n");
@@ -185,46 +191,50 @@ int main(int argc, char *argv[])
    }
    al_init_primitives_addon();
 
-   if (argc == 1) {
-      w = 640;
-      h = 480;
-   }
-
    /* parse the commandline */
    for (i=1; i<argc; i++) {
       if (strcmp(argv[i], "-cheat") == 0) {
-	 cheat = TRUE;
+         cheat = TRUE;
       }
       else if (strcmp(argv[i], "-simple") == 0) {
-	 low_detail = TRUE;
+         low_detail = TRUE;
       }
       else if (strcmp(argv[i], "-nogrid") == 0) {
-	 no_grid = TRUE;
+         no_grid = TRUE;
       }
       else if (strcmp(argv[i], "-nomusic") == 0) {
-	 no_music = TRUE;
+         no_music = TRUE;
       }
       else if (strcmp(argv[i], "-www") == 0) {
-	 www = TRUE;
+         www = TRUE;
+      }
+      else if (strcmp(argv[i], "-fullscreen") == 0) {
+         /* if no width is specified, assume fullscreen_window */
+         display_flags |= w ? ALLEGRO_FULLSCREEN : ALLEGRO_FULLSCREEN_WINDOW;
       }
       else {
-	 n = atoi(argv[i]);
+         n = atoi(argv[i]);
 
-	 if (!n) {
-	    usage();
-	    return 1;
-	 }
+         if (!n) {
+            usage();
+            return 1;
+         }
 
-	 if (!w) {
-	    w = n;
-	 }
-	 else if (!h) {
-	    h = n;
-	 }
-	 else {
-	    usage();
-	    return 1;
-	 }
+         if (!w) {
+            w = n;
+            if (display_flags & ALLEGRO_FULLSCREEN_WINDOW) {
+               /* toggle from fullscreen_window to fullscreen */
+               display_flags &= ~ALLEGRO_FULLSCREEN_WINDOW;
+               display_flags |= ALLEGRO_FULLSCREEN;
+            }
+         }
+         else if (!h) {
+            h = n;
+         }
+         else {
+            usage();
+            return 1;
+         }
       }
    }
 
@@ -247,14 +257,20 @@ int main(int argc, char *argv[])
 
       return 1;
    }
-
-   if ((!w) || (!h)) {
-      usage();
-      return 1;
+   
+   if (!w || !h) {
+      if (argc == 1 || (display_flags & ALLEGRO_FULLSCREEN_WINDOW)) {
+         w = 640;
+         h = 480;
+      }
+      else {
+         usage();
+         return 1;
+      }
    }
 
    /* set the screen mode */
-   al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
+   al_set_new_display_flags(display_flags);
    screen = al_create_display(w, h);
    if (!screen) {
       fprintf(stderr, "Error setting %dx%d display mode\n", w, h);
@@ -269,20 +285,26 @@ int main(int argc, char *argv[])
     * We need a font loaded into a memory bitmap for those, then a font
     * loaded into a video bitmap for the game view. Blech!
     */
+   font_path = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
+   if (!font_path) font_path = al_create_path("");
+   al_set_path_filename(font_path, "a4_font.tga");
+    
    al_init_font_addon();
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   font = al_load_bitmap_font("a4_font.tga");
+   font = al_load_bitmap_font(al_path_cstr(font_path, '/'));
    if (!font) {
-      fprintf(stderr, "Error loading a4_font.tga\n");
+      fprintf(stderr, "Error loading %s\n", al_path_cstr(font_path, '/'));
       return 1;
    }
 
    al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
-   font_video = al_load_bitmap_font("a4_font.tga");
+   font_video = al_load_bitmap_font(al_path_cstr(font_path, '/'));
    if (!font_video) {
-      fprintf(stderr, "Error loading a4_font.tga\n");
+      fprintf(stderr, "Error loading %s\n", al_path_cstr(font_path, '/'));
       return 1;
    }
+   
+   al_destroy_path(font_path);
 
    /* set up everything else */
    al_install_keyboard();
