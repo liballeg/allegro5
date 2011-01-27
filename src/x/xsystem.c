@@ -336,24 +336,32 @@ static bool xglx_grab_mouse(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
-   int rv;
+   int grab;
+   bool ret;
 
-   rv = XGrabPointer(system->x11display, glx->window, False,
+   _al_mutex_lock(&system->lock);
+   grab = XGrabPointer(system->x11display, glx->window, False,
       PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
       GrabModeAsync, GrabModeAsync, glx->window, None, CurrentTime);
-   if (rv == GrabSuccess) {
+   if (grab == GrabSuccess) {
       system->mouse_grab_display = display;
-      return true;
+      ret = true;
    }
-   return false;
+   else {
+      ret = false;
+   }
+   _al_mutex_unlock(&system->lock);
+   return ret;
 }
 
 static bool xglx_ungrab_mouse(void)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
 
+   _al_mutex_lock(&system->lock);
    XUngrabPointer(system->x11display, CurrentTime);
    system->mouse_grab_display = NULL;
+   _al_mutex_unlock(&system->lock);
    return true;
 }
 
