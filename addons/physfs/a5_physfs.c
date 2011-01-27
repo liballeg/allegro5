@@ -51,7 +51,7 @@ static void phys_set_errno(ALLEGRO_FILE_PHYSFS *fp)
 }
 
 
-void *file_phys_fopen(const char *filename, const char *mode)
+static void *file_phys_fopen(const char *filename, const char *mode)
 {
    PHYSFS_file *phys;
    ALLEGRO_FILE_PHYSFS *fp;
