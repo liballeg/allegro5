@@ -28,6 +28,8 @@ struct ALLEGRO_SYSTEM_INTERFACE
    ALLEGRO_MOUSE_CURSOR *(*create_mouse_cursor)(ALLEGRO_BITMAP *bmp, int x_focus, int y_focus);
    void (*destroy_mouse_cursor)(ALLEGRO_MOUSE_CURSOR *cursor);
    bool (*get_cursor_position)(int *ret_x, int *ret_y);
+   bool (*grab_mouse)(ALLEGRO_DISPLAY *display);
+   bool (*ungrab_mouse)(void);
    ALLEGRO_PATH *(*get_path)(int id);
    bool (*inhibit_screensaver)(bool inhibit);
    void (*thread_init)(ALLEGRO_THREAD *thread);
