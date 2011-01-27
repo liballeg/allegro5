@@ -104,10 +104,6 @@ ALLEGRO_USER_DOCUMENTS_PATH
     You should not save files here unless the user expects it, usually by
     explicit permission.
 
-    al_get_standard_path is especially liable to return NULL for this location
-    on Linux/Unix systems which don't follow the convention.
-    You may like to fall back to USER_HOME then.
-
 ALLEGRO_USER_DATA_PATH
 :   If your program saves any data that the user doesn't need to access 
     externally, then you should place it here. This is generally the least
