@@ -89,21 +89,6 @@ struct ALLEGRO_SYSTEM_XGLX
    _AL_VECTOR xrandr_screens;
    _AL_VECTOR xrandr_adaptermap;
    
-#if 0
-   int xrandr_res_count;
-   XRRScreenResources **xrandr_res;
-   // these are technically changeable at runtime if we handle XRandR events.
-   // or more accurately, they can become stale at runtime if we don't handle XRandR events.
-   int xrandr_output_count;
-   struct xrandr_output_s {
-      int res_id;
-      XRROutputInfo *output;
-      RRMode mode;
-      RRMode set_mode;
-   } **xrandr_outputs;
-   XRRScreenSize *saved_size;
-#endif /* 0 */
-   
 #endif
    
    /* used to keep track of how many adapters are in use,
