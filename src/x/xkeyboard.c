@@ -990,6 +990,20 @@ static void handle_key_press(int mycode, int unichar, int filtered,
             _al_event_source_emit_event(&the_keyboard.parent.es, &event);
          }
       }
+
+      /* Toggle mouse grab key. */
+      if (last_press_code && !is_repeat) {
+         ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+         if (system->toggle_mouse_grab_keycode == mycode &&
+            (modifiers & system->toggle_mouse_grab_modifiers)
+               == system->toggle_mouse_grab_modifiers)
+         {
+            if (system->pointer_grabbed)
+               al_ungrab_mouse();
+            else
+               al_grab_mouse(display);
+         }
+      }
    }
    _al_event_source_unlock(&the_keyboard.parent.es);
 
