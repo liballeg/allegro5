@@ -238,6 +238,34 @@ static ALLEGRO_PATH *get_executable_name(void)
    return al_create_path("");
 }
 
+static ALLEGRO_PATH *follow_symlinks(ALLEGRO_PATH *path)
+{
+   for (;;) {
+      const char *path_str = al_path_cstr(path, '/');
+      char buf[PATH_MAX];
+      int len;
+
+      len = readlink(path_str, buf, sizeof(buf) - 1);
+      if (len <= 0)
+         break;
+      buf[len] = '\0';
+      al_destroy_path(path);
+      path = al_create_path(buf);
+   }
+
+   /* Make absolute path. */
+   {
+      const char *cwd = al_get_current_directory();
+      ALLEGRO_PATH *cwd_path = al_create_path_for_directory(cwd);
+      if (al_rebase_path(cwd_path, path))
+         al_make_path_canonical(path);
+      al_destroy_path(cwd_path);
+      al_free((void *) cwd);
+   }
+
+   return path;
+}
+
 #endif
 
 #define XDG_MAX_PATH_LEN 1000
@@ -403,7 +431,7 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
 
       case ALLEGRO_RESOURCES_PATH: {
          ALLEGRO_PATH *exe = get_executable_name();
-         /* TODO: follow symlinks */
+         exe = follow_symlinks(exe);
          al_set_path_filename(exe, NULL);
          return exe;
 
@@ -470,3 +498,5 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
 
    return NULL;
 }
+
+/* vim: set sts=3 sw=3 et: */
