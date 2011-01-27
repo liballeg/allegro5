@@ -14,10 +14,13 @@ filename.
 
 ## API: al_create_path
 
-Create a path structure from a string.
+Create a path structure from a string.  The last component, if it is followed
+by a directory separator and is neither "." nor "..", is treated as the last
+directory name in the path.  Otherwise the last component is treated as the
+filename.
 The string may be NULL for an empty path.
 
-See also: [al_destroy_path]
+See also: [al_create_path], [al_destroy_path]
 
 ## API: al_create_path_for_directory
 
@@ -25,7 +28,7 @@ This is the same as [al_create_path], but interprets the passed string
 as a directory path. The filename component of the returned path will
 always be empty.
 
-See also: [al_destroy_path]
+See also: [al_create_path], [al_destroy_path]
 
 ## API: al_destroy_path
 
