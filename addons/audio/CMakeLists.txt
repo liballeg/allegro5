@@ -39,7 +39,26 @@ endif(SUPPORT_OSS)
 if(WANT_PULSEAUDIO AND ALLEGRO_UNIX)
     pkg_check_modules(PULSEAUDIO libpulse-simple)
     if(PULSEAUDIO_FOUND)
-        set(SUPPORT_PULSEAUDIO 1)
+        set(CMAKE_REQUIRED_INCLUDES ${PULSEAUDIO_INCLUDE_DIRS})
+        check_c_source_compiles("
+            #include <pulse/simple.h>
+            #include <pulse/error.h>
+            #include <pulse/introspect.h>
+            #include <pulse/mainloop.h>
+            int main(void)
+            {
+                /* Require pulseaudio 0.9.15 */
+                pa_context *c;
+                pa_sink_info *si;
+                pa_sink_state_t *ss;
+                return 0;
+            }"
+            PULSEAUDIO_COMPILES)
+        set(CMAKE_REQUIRED_INCLUDES)
+        set(SUPPORT_PULSEAUDIO ${PULSEAUDIO_COMPILES})
+        if(NOT SUPPORT_PULSEAUDIO)
+            message("WARNING: PulseAudio compile test failed, disabling support")
+        endif()
     endif(PULSEAUDIO_FOUND)
 endif(WANT_PULSEAUDIO AND ALLEGRO_UNIX)
 
@@ -48,6 +67,7 @@ if(SUPPORT_PULSEAUDIO)
     list(APPEND AUDIO_SOURCES pulseaudio.c)
     list(APPEND AUDIO_LIBRARIES ${PULSEAUDIO_LIBRARIES})
     include_directories(SYSTEM ${PULSEAUDIO_INCLUDE_DIRS})
+    link_directories(${PULSEAUDIO_LIBRARY_DIRS})
     set(SUPPORT_AUDIO 1)
 endif(SUPPORT_PULSEAUDIO)
 
