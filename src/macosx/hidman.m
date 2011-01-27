@@ -450,8 +450,8 @@ HID_DEVICE_COLLECTION *_al_osx_hid_scan(int type, HID_DEVICE_COLLECTION* col)
 			}
 			IOObjectRelease(hid_object_iterator);
 		}
-		CFRelease(usage_ref);
-		CFRelease(usage_page_ref);
+		if (usage_ref) CFRelease(usage_ref);
+		if (usage_page_ref) CFRelease(usage_page_ref);
 		mach_port_deallocate(mach_task_self(), master_port);
 	}
 	
