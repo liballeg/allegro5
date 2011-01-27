@@ -994,6 +994,7 @@ HWND al_get_win_window_handle(ALLEGRO_DISPLAY *display)
    return ((ALLEGRO_DISPLAY_WIN *)display)->window;
 }
 
+
 int _al_win_determine_adapter(void)
 {
    int a = al_get_new_display_adapter();

@@ -38,8 +38,8 @@ ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, _al_load_tga_f, (ALLEGRO_FILE *f));
 ALLEGRO_IIO_FUNC(bool, _al_save_tga_f, (ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp));
 
 #ifdef ALLEGRO_CFG_IIO_HAVE_GDIPLUS
-ALLEGRO_IIO_FUNC(bool, _al_init_gdiplus, ());
-ALLEGRO_IIO_FUNC(void, _al_shutdown_gdiplus, ());
+ALLEGRO_IIO_FUNC(bool, _al_init_gdiplus, (void));
+ALLEGRO_IIO_FUNC(void, _al_shutdown_gdiplus, (void));
 ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, _al_load_gdiplus_bitmap, (const char *filename));
 ALLEGRO_IIO_FUNC(bool, _al_save_gdiplus_bitmap, (const char *filename, ALLEGRO_BITMAP *bmp));
 ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, _al_load_gdiplus_bitmap_f, (ALLEGRO_FILE *f));
