@@ -94,6 +94,7 @@ void _al_win_kbd_handle_key_release(int vcode, ALLEGRO_DISPLAY_WIN *win_disp);
 /* mouse routines */
 void _al_win_mouse_handle_move(int x, int y, bool abs, ALLEGRO_DISPLAY_WIN *win_disp);
 void _al_win_mouse_handle_wheel(int d, bool abs, ALLEGRO_DISPLAY_WIN *win_disp);
+void _al_win_mouse_handle_hwheel(int d, bool abs, ALLEGRO_DISPLAY_WIN *win_disp);
 void _al_win_mouse_handle_button(int button, bool down, int x, int y, bool abs, ALLEGRO_DISPLAY_WIN *win_disp);
 void _al_win_mouse_handle_leave(ALLEGRO_DISPLAY_WIN *win_display);
 void _al_win_mouse_handle_enter(ALLEGRO_DISPLAY_WIN *win_display);
