@@ -1081,6 +1081,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 #endif
 
    ALLEGRO_DEBUG("Chose format %s for OpenGL bitmap\n", _al_format_name(format));
+   ASSERT(_al_pixel_format_is_real(format));
 
    pitch = true_w * al_get_pixel_size(format);
 
