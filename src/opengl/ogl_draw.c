@@ -201,14 +201,6 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
       return;
    }
 
-   /* For sub bitmaps. */
-   if (target->parent) {
-      ALLEGRO_TRANSFORM tmp;
-      al_identity_transform(&tmp);
-      al_translate_transform(&tmp, target->xofs, target->yofs);
-      al_use_transform(&tmp);
-   }
-
    vert[0] = x;
    vert[1] = y;
 
@@ -252,20 +244,10 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 {
    GLboolean on = false;
    GLuint current_texture;
-   ALLEGRO_BITMAP *target;
    if (!disp->vertex_cache)
       return;
    if (disp->num_cache_vertices == 0)
       return;
-
-   /* FIXME: these can maybe be done on update_transformation */
-   target = al_get_target_bitmap();
-   if (target->parent) {
-      ALLEGRO_TRANSFORM tmp;
-      al_identity_transform(&tmp);
-      al_translate_transform(&tmp, target->xofs, target->yofs);
-      al_use_transform(&tmp);
-   }
 
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       if (disp->ogl_extras->use_tex_loc >= 0) {
