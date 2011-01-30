@@ -34,6 +34,7 @@ set(ALLEGRO_SRC_FILES
     src/utf8.c
     src/misc/aatree.c
     src/misc/bstrlib.c
+    src/misc/list.c
     src/misc/vector.c
     )
 
@@ -115,7 +116,6 @@ set(ALLEGRO_SRC_X_FILES
     src/x/xdisplay.c
     src/x/xfullscreen.c
     src/x/xglx_config.c
-    src/x/xrandr.c
     src/x/xsystem.c
     src/linux/ljoynu.c
     )
@@ -231,6 +231,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
     include/allegro5/internal/aintern_fshook.h
     include/allegro5/internal/aintern_joystick.h
     include/allegro5/internal/aintern_keyboard.h
+    include/allegro5/internal/aintern_list.h
     include/allegro5/internal/aintern_mouse.h
     include/allegro5/internal/aintern_opengl.h
     include/allegro5/internal/aintern_pixels.h
