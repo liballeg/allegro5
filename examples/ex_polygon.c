@@ -229,6 +229,18 @@ static void draw_all(void)
    texty += texth;
 }
 
+/* Print vertices in a format for the test suite. */
+static void print_vertices(void)
+{
+   int i;
+
+   for (i = 0; i < ex.vertex_count; i++) {
+      printf("v%-2d= %.2f, %.2f\n",
+         i, ex.vertices[i].x, ex.vertices[i].y);
+   }
+   printf("\n");
+}
+
 int main(void)
 {
    ALLEGRO_EVENT event;
@@ -328,6 +340,9 @@ int main(void)
                break;
             case 'R':
                reset();
+               break;
+            case 'P':
+               print_vertices();
                break;
          }
       }
