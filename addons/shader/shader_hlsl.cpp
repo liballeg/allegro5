@@ -337,6 +337,8 @@ bool _al_set_shader_texcoord_array_hlsl(ALLEGRO_SHADER *shader, float *u, int st
    return true;
 }
 
+/* Function: al_get_direct3d_effect
+ */
 LPD3DXEFFECT al_get_direct3d_effect(ALLEGRO_SHADER *shader)
 {
    return ((ALLEGRO_SHADER_HLSL_S *)shader)->hlsl_shader;

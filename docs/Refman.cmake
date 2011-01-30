@@ -39,6 +39,7 @@ set(PAGES
     native_dialog
     physfs
     primitives
+    shader
     )
 
 set(PAGES_TXT)

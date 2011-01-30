@@ -1,8 +1,8 @@
 #ifndef __al_included_allegro5_allegro_shader_h
 #define __al_included_allegro5_allegro_shader_h
 
-struct ALLEGRO_SHADER;
-
+/* Type: ALLEGRO_SHADER
+ */
 typedef struct ALLEGRO_SHADER ALLEGRO_SHADER;
 
 enum ALLEGRO_SHADER_TYPE {
@@ -10,6 +10,8 @@ enum ALLEGRO_SHADER_TYPE {
    ALLEGRO_PIXEL_SHADER = 2
 };
 
+/* Enum: ALLEGRO_SHADER_TYPE
+ */
 typedef enum ALLEGRO_SHADER_TYPE ALLEGRO_SHADER_TYPE;
 
 enum ALLEGRO_SHADER_PLATFORM {
@@ -19,6 +21,8 @@ enum ALLEGRO_SHADER_PLATFORM {
    ALLEGRO_SHADER_CG   = 4
 };
 
+/* Enum: ALLEGRO_SHADER_PLATFORM
+ */
 typedef enum ALLEGRO_SHADER_PLATFORM ALLEGRO_SHADER_PLATFORM;
 
 #include "allegro5/allegro.h"

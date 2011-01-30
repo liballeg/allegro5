@@ -38,6 +38,7 @@
 * [Native dialogs addon](native_dialog.html)
 * [PhysicsFS addon](physfs.html)
 * [Primitives addon](primitives.html)
+* [Shader addon](shader.html)
 </div>
 
 <div class="searchbox">

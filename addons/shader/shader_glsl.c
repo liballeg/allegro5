@@ -523,6 +523,8 @@ bool _al_set_shader_texcoord_array_glsl(ALLEGRO_SHADER *shader, float *u, int st
    return true;
 }
 
+/* Function: al_get_opengl_program_object
+ */
 GLuint al_get_opengl_program_object(ALLEGRO_SHADER *shader)
 {
    return ((ALLEGRO_SHADER_GLSL_S *)shader)->program_object;

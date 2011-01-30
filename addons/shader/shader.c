@@ -23,6 +23,8 @@ ALLEGRO_DEBUG_CHANNEL("shader")
 #define USING_OPENGL() true
 #endif
 
+/* Function: al_create_shader
+ */
 ALLEGRO_SHADER *al_create_shader(ALLEGRO_SHADER_PLATFORM platform)
 {
    ALLEGRO_SHADER *shader = NULL;
@@ -65,6 +67,8 @@ ALLEGRO_SHADER *al_create_shader(ALLEGRO_SHADER_PLATFORM platform)
 
 }
 
+/* Function: al_link_shader
+ */
 bool al_link_shader(ALLEGRO_SHADER *shader)
 {
    if (!(shader->platform & ALLEGRO_SHADER_CG) && (shader->platform & ALLEGRO_SHADER_GLSL))
@@ -82,10 +86,10 @@ bool al_link_shader(ALLEGRO_SHADER *shader)
    return false;
 }
 
-bool al_attach_shader_source(
-   ALLEGRO_SHADER *shader,
-   ALLEGRO_SHADER_TYPE type,
-   const char *source)
+/* Function: al_attach_shader_source
+ */
+bool al_attach_shader_source(ALLEGRO_SHADER *shader, ALLEGRO_SHADER_TYPE type,
+    const char *source)
 {
    bool ret = false;
 
@@ -106,9 +110,11 @@ bool al_attach_shader_source(
    return ret;
 }
 
+/* Function: al_use_shader
+ */
 void al_use_shader(ALLEGRO_SHADER *shader, bool use)
 {
-	if (!(shader->platform & ALLEGRO_SHADER_CG) && (shader->platform & ALLEGRO_SHADER_GLSL)) {
+   if (!(shader->platform & ALLEGRO_SHADER_CG) && (shader->platform & ALLEGRO_SHADER_GLSL)) {
       _al_use_shader_glsl(shader, use);
    }
 #ifdef ALLEGRO_CFG_WANT_CG_SHADERS
@@ -123,6 +129,8 @@ void al_use_shader(ALLEGRO_SHADER *shader, bool use)
 #endif
 }
 
+/* Function: al_destroy_shader
+ */
 void al_destroy_shader(ALLEGRO_SHADER *shader)
 {
    if (shader->vertex_copy)
@@ -145,6 +153,8 @@ void al_destroy_shader(ALLEGRO_SHADER *shader)
 #endif
 }
 
+/* Function: al_set_shader_sampler
+ */
 bool al_set_shader_sampler(ALLEGRO_SHADER *shader, const char *name,
    ALLEGRO_BITMAP *bitmap, int unit)
 {
@@ -163,6 +173,8 @@ bool al_set_shader_sampler(ALLEGRO_SHADER *shader, const char *name,
    return false;
 }
 
+/* Function: al_set_shader_matrix
+ */
 bool al_set_shader_matrix(ALLEGRO_SHADER *shader, const char *name,
    ALLEGRO_TRANSFORM *matrix)
 {
@@ -181,6 +193,8 @@ bool al_set_shader_matrix(ALLEGRO_SHADER *shader, const char *name,
    return false;
 }
 
+/* Function: al_set_shader_int
+ */
 bool al_set_shader_int(ALLEGRO_SHADER *shader, const char *name, int i)
 {
    if (!(shader->platform & ALLEGRO_SHADER_CG) && (shader->platform & ALLEGRO_SHADER_GLSL))
@@ -198,6 +212,8 @@ bool al_set_shader_int(ALLEGRO_SHADER *shader, const char *name, int i)
    return false;
 }
 
+/* Function: al_set_shader_float
+ */
 bool al_set_shader_float(ALLEGRO_SHADER *shader, const char *name, float f)
 {
    if (!(shader->platform & ALLEGRO_SHADER_CG) && (shader->platform & ALLEGRO_SHADER_GLSL))
@@ -215,6 +231,8 @@ bool al_set_shader_float(ALLEGRO_SHADER *shader, const char *name, float f)
    return false;
 }
 
+/* Function: al_set_shader_int_vector
+ */
 bool al_set_shader_int_vector(ALLEGRO_SHADER *shader, const char *name,
    int size, int *i)
 {
@@ -233,6 +251,8 @@ bool al_set_shader_int_vector(ALLEGRO_SHADER *shader, const char *name,
    return false;
 }
 
+/* Function: al_set_shader_float_vector
+ */
 bool al_set_shader_float_vector(ALLEGRO_SHADER *shader, const char *name,
    int size, float *f)
 {
@@ -251,6 +271,8 @@ bool al_set_shader_float_vector(ALLEGRO_SHADER *shader, const char *name,
    return false;
 }
 
+/* Function: al_set_shader_vertex_array
+ */
 bool al_set_shader_vertex_array(ALLEGRO_SHADER *shader, float *v, int stride)
 {
    if (!(shader->platform & ALLEGRO_SHADER_CG) && (shader->platform & ALLEGRO_SHADER_GLSL))
@@ -268,6 +290,8 @@ bool al_set_shader_vertex_array(ALLEGRO_SHADER *shader, float *v, int stride)
    return false;
 }
 
+/* Function: al_set_shader_color_array
+ */
 bool al_set_shader_color_array(ALLEGRO_SHADER *shader, unsigned char *c, int stride)
 {
    if (!(shader->platform & ALLEGRO_SHADER_CG) && (shader->platform & ALLEGRO_SHADER_GLSL))
@@ -285,6 +309,8 @@ bool al_set_shader_color_array(ALLEGRO_SHADER *shader, unsigned char *c, int str
    return false;
 }
 
+/* Function: al_set_shader_texcoord_array
+ */
 bool al_set_shader_texcoord_array(ALLEGRO_SHADER *shader, float *u, int stride)
 {
    if (!(shader->platform & ALLEGRO_SHADER_CG) && (shader->platform & ALLEGRO_SHADER_GLSL))
@@ -302,6 +328,8 @@ bool al_set_shader_texcoord_array(ALLEGRO_SHADER *shader, float *u, int stride)
    return false;
 }
 
+/* Function: al_set_shader
+ */
 void al_set_shader(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader)
 {
 #ifdef ALLEGRO_CFG_WANT_GLSL_SHADERS

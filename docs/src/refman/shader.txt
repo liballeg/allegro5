@@ -1,0 +1,127 @@
+# Shader addon
+
+These functions are declared in the following header file.
+Link with allegro_shader.
+
+    #include <allegro5/allegro_shader.h>
+
+## API: ALLEGRO_SHADER
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: ALLEGRO_SHADER_TYPE
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: ALLEGRO_SHADER_PLATFORM
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_create_shader
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_link_shader
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_attach_shader_source
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_use_shader
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_destroy_shader
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_set_shader_sampler
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_set_shader_matrix
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_set_shader_int
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_set_shader_float
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_set_shader_int_vector
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_set_shader_float_vector
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_set_shader_vertex_array
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_set_shader_color_array
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_set_shader_texcoord_array
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_set_shader
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_get_opengl_program_object
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_get_direct3d_effect
+
+*Not yet documented.*
+
+Since: 5.1.0
+
