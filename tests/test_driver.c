@@ -57,6 +57,8 @@ LockRegion        lock_region;
 Transform         transforms[MAX_TRANS];
 Font              fonts[MAX_FONTS];
 ALLEGRO_VERTEX    vertices[MAX_VERTICES];
+float             simple_vertices[2 * MAX_VERTICES];
+int               num_simple_vertices;
 int               num_global_bitmaps;
 float             delay = 0.0;
 bool              save_outputs = false;
@@ -421,6 +423,34 @@ static void fill_vertices(ALLEGRO_CONFIG const *cfg, char const *name)
 #undef MAXBUF
 }
 
+static void fill_simple_vertices(ALLEGRO_CONFIG const *cfg, char const *name)
+{
+#define MAXBUF    80
+
+   char const *value;
+   char buf[MAXBUF];
+   float x, y;
+   int i;
+
+   memset(simple_vertices, 0, sizeof(simple_vertices));
+
+   for (i = 0; i < MAX_VERTICES; i++) {
+      sprintf(buf, "v%d", i);
+      value = al_get_config_value(cfg, name, buf);
+      if (!value)
+         break;
+
+      if (sscanf(value, " %f , %f", &x, &y) == 2) {
+         simple_vertices[2*i + 0] = x;
+         simple_vertices[2*i + 1] = y;
+      }
+   }
+
+   num_simple_vertices = i;
+
+#undef MAXBUF
+}
+
 static int get_prim_type(char const *value)
 {
    return streq(value, "ALLEGRO_PRIM_POINT_LIST") ? ALLEGRO_PRIM_POINT_LIST
@@ -430,6 +460,25 @@ static int get_prim_type(char const *value)
       : streq(value, "ALLEGRO_PRIM_TRIANGLE_LIST") ? ALLEGRO_PRIM_TRIANGLE_LIST
       : streq(value, "ALLEGRO_PRIM_TRIANGLE_STRIP") ? ALLEGRO_PRIM_TRIANGLE_STRIP
       : streq(value, "ALLEGRO_PRIM_TRIANGLE_FAN") ? ALLEGRO_PRIM_TRIANGLE_FAN
+      : atoi(value);
+}
+
+static int get_line_join(char const *value)
+{
+   return streq(value, "ALLEGRO_LINE_JOIN_NONE") ? ALLEGRO_LINE_JOIN_NONE
+      : streq(value, "ALLEGRO_LINE_JOIN_BEVEL") ? ALLEGRO_LINE_JOIN_BEVEL
+      : streq(value, "ALLEGRO_LINE_JOIN_ROUND") ? ALLEGRO_LINE_JOIN_ROUND
+      : streq(value, "ALLEGRO_LINE_JOIN_MITER") ? ALLEGRO_LINE_JOIN_MITER
+      : atoi(value);
+}
+
+static int get_line_cap(char const *value)
+{
+   return streq(value, "ALLEGRO_LINE_CAP_NONE") ? ALLEGRO_LINE_CAP_NONE
+      : streq(value, "ALLEGRO_LINE_CAP_SQUARE") ? ALLEGRO_LINE_CAP_SQUARE
+      : streq(value, "ALLEGRO_LINE_CAP_ROUND") ? ALLEGRO_LINE_CAP_ROUND
+      : streq(value, "ALLEGRO_LINE_CAP_TRIANGLE") ? ALLEGRO_LINE_CAP_TRIANGLE
+      : streq(value, "ALLEGRO_LINE_CAP_CLOSED") ? ALLEGRO_LINE_CAP_CLOSED
       : atoi(value);
 }
 
@@ -1082,6 +1131,27 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
          fill_vertices(cfg, V(0));
          /* decl arg is ignored */
          al_draw_prim(vertices, NULL, B(2), I(3), I(4), get_prim_type(V(5)));
+         continue;
+      }
+
+      /* Keep 5.0 and 5.1 functions separate for easier merging. */
+
+      /* Primitives (5.1) */
+      if (SCAN("al_draw_polyline", 6)) {
+         fill_simple_vertices(cfg, V(0));
+         al_draw_polyline(simple_vertices, num_simple_vertices,
+            get_line_join(V(1)), get_line_cap(V(2)), C(3), F(4), F(5));
+         continue;
+      }
+      if (SCAN("al_draw_polygon", 5)) {
+         fill_simple_vertices(cfg, V(0));
+         al_draw_polygon(simple_vertices, num_simple_vertices,
+            get_line_join(V(1)), C(2), F(3), F(4));
+         continue;
+      }
+      if (SCAN("al_draw_filled_polygon", 2)) {
+         fill_simple_vertices(cfg, V(0));
+         al_draw_filled_polygon(simple_vertices, num_simple_vertices, C(1));
          continue;
       }
 

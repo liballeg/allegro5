@@ -46,6 +46,7 @@ add_custom_target(run_tests
             ${CMAKE_CURRENT_SOURCE_DIR}/test_image.ini
             ${CMAKE_CURRENT_SOURCE_DIR}/test_fonts.ini
             ${CMAKE_CURRENT_SOURCE_DIR}/test_prim.ini
+            ${CMAKE_CURRENT_SOURCE_DIR}/test_prim2.ini
     )
 
 # vim: set sts=4 sw=4 et:
