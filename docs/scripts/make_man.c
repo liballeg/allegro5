@@ -63,6 +63,11 @@ void make_man_pages(int argc, char *argv[])
          d_assign(line, d_after_match);
       }
 
+      if (d_match(line, "^\\*?Since:\\*?")) {
+         d_print("# SINCE");
+         d_assign(line, d_after_match);
+      }
+
       if (d_match(line, "^\\*?See [Aa]lso:\\*?")) {
          d_print("# SEE ALSO");
          d_assign(line, d_after_match);
