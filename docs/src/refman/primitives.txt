@@ -500,7 +500,7 @@ array of some structure type, e.g.
 
     void my_draw(struct VertexInfo verts[], int vertex_count, ALLEGRO_COLOR c)
     {
-       al_draw_polyline_ex((float *)verts, sizeof(Vertex), vertex_count,
+       al_draw_polyline_ex((float *)verts, sizeof(VertexInfo), vertex_count,
           ALLEGRO_LINE_JOIN_NONE, ALLEGRO_LINE_CAP_NONE, c, 1.0, 1.0);
     }
 
