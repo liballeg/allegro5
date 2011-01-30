@@ -468,6 +468,99 @@ The line is drawn top to bottom.
 * draw - Called once per pixel. The function is expected to draw the pixel at
   the coordinates passed to it.
 
+## Polygon routines
+
+### API: al_draw_polyline
+
+Draw a series of line segments.
+
+* vertex - Interleaved array of (x, y) vertex coordinates
+* vertex_count - Number of vertices in the array
+* join_style - How to render the joins between line segments
+* cap_style - How to render the end caps
+* color - Color of the line
+* thickness - Thickness of the line, pass `<= 0` to draw hairline lines
+* miter_limit - Parameter for miter join style
+
+Since: 5.1.0
+
+See also: [al_draw_polyline_ex], [ALLEGRO_LINE_JOIN], [ALLEGRO_LINE_CAP]
+
+### API: al_draw_polyline_ex
+
+Like [al_draw_polyline], but you also pass the number of bytes between pairs of
+vertices (the stride).  This is useful if the vertex coordinates are in an
+array of some structure type, e.g.
+
+    struct VertexInfo {
+       float x;
+       float y;
+       int id;
+    };
+
+    void my_draw(struct VertexInfo verts[], int vertex_count, ALLEGRO_COLOR c)
+    {
+       al_draw_polyline_ex((float *)verts, sizeof(Vertex), vertex_count,
+          ALLEGRO_LINE_JOIN_NONE, ALLEGRO_LINE_CAP_NONE, c, 1.0, 1.0);
+    }
+
+Since: 5.1.0
+
+See also: [al_draw_polyline], [ALLEGRO_LINE_JOIN], [ALLEGRO_LINE_CAP]
+
+### API: al_draw_polygon
+
+Draw an unfilled polygon.  This is the same as passing
+`ALLEGRO_LINE_CAP_CLOSED` to [al_draw_polyline].
+
+* vertex - Interleaved array of (x, y) vertex coordinates
+* vertex_count - Number of vertices in the array
+* join_style - How to render the joins between line segments
+* color - Color of the line
+* thickness - Thickness of the line, pass `<= 0` to draw hairline lines
+* miter_limit - Parameter for miter join style
+
+Since: 5.1.0
+
+See also: [al_draw_filled_polygon], [al_draw_polyline], [ALLEGRO_LINE_JOIN]
+
+### API: al_draw_polygon_with_holes
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+See also: [al_draw_polygon]
+
+### API: al_draw_filled_polygon
+
+Draw a filled, simple polygon.
+
+* vertex - Interleaved array of (x, y) vertex coordinates
+* vertex_count - Number of vertices in the array
+* color - Color of the line
+
+When the y-axis is facing downwards (the usual), the coordinates must be
+ordered anti-clockwise.
+
+Since: 5.1.0
+
+See also: [al_draw_polygon], [al_draw_filled_polygon_with_holes]
+
+### API: al_draw_filled_polygon_with_holes
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+See also: [al_draw_filled_polygon], [al_draw_filled_polygon_with_holes]
+
+### API: al_triangulate_polygon
+
+*Not yet documented.*
+
+Since: 5.1.0
+
 ## Structures and types
 
 ### API: ALLEGRO_VERTEX
@@ -602,3 +695,25 @@ number of line segments that will be used to form them.
 Defines the quality of the quadratic primitives. At 10, this roughly
 corresponds to error of less than half of a pixel.
 
+### API: ALLEGRO_LINE_JOIN
+
+* ALLEGRO_LINE_JOIN_NONE
+* ALLEGRO_LINE_JOIN_BEVEL
+* ALLEGRO_LINE_JOIN_ROUND
+* ALLEGRO_LINE_JOIN_MITER
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+### API: ALLEGRO_LINE_CAP
+
+* ALLEGRO_LINE_CAP_NONE
+* ALLEGRO_LINE_CAP_SQUARE
+* ALLEGRO_LINE_CAP_ROUND
+* ALLEGRO_LINE_CAP_TRIANGLE
+* ALLEGRO_LINE_CAP_CLOSED
+
+*Not yet documented.*
+
+Since: 5.1.0

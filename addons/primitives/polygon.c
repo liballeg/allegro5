@@ -39,12 +39,19 @@ static void polygon_push_triangle_callback(int i0, int i1, int i2, void* user_da
 }
 
 
-void al_draw_polygon(const float* vertices, int vertex_count, ALLEGRO_LINE_JOIN join_style, ALLEGRO_COLOR color, float thickness, float miter_limit)
+/* Function: al_draw_polygon
+ */
+void al_draw_polygon(const float *vertices, int vertex_count,
+   ALLEGRO_LINE_JOIN join_style, ALLEGRO_COLOR color,
+   float thickness, float miter_limit)
 {
    al_draw_polyline(vertices, vertex_count, join_style, ALLEGRO_LINE_CAP_CLOSED, color, thickness, miter_limit);
 }
 
-void al_draw_filled_polygon(const float* vertices, int vertex_count, ALLEGRO_COLOR color)
+/* Function: al_draw_filled_polygon
+ */
+void al_draw_filled_polygon(const float *vertices, int vertex_count,
+   ALLEGRO_COLOR color)
 {
    ALLEGRO_PRIM_VERTEX_CACHE cache;
 
@@ -57,7 +64,11 @@ void al_draw_filled_polygon(const float* vertices, int vertex_count, ALLEGRO_COL
    _al_prim_cache_flush(&cache);
 }
 
-void al_draw_polygon_with_holes(const float* vertices, int vertex_count, const int* holes, int hole_count, ALLEGRO_LINE_JOIN join_style, ALLEGRO_COLOR color, float thickness, float miter_limit)
+/* Function: al_draw_polygon_with_holes
+ */
+void al_draw_polygon_with_holes(const float *vertices, int vertex_count,
+   const int *holes, int hole_count, ALLEGRO_LINE_JOIN join_style,
+   ALLEGRO_COLOR color, float thickness, float miter_limit)
 {
 # define VERTEX(index)  ((const float*)(((uint8_t*)vertices) + (sizeof(float) * 2) * ((vertex_count + (index)) % vertex_count)))
 # define HOLE(index)    (*((int*)(((uint8_t*)holes) + sizeof(int) * ((hole_count + index) % hole_count))))
@@ -76,7 +87,10 @@ void al_draw_polygon_with_holes(const float* vertices, int vertex_count, const i
 # undef HOLE
 }
 
-void al_draw_filled_polygon_with_holes(const float* vertices, int vertex_count, const int* holes, int hole_count, ALLEGRO_COLOR color)
+/* Function: al_draw_filled_polygon_with_holes
+ */
+void al_draw_filled_polygon_with_holes(const float *vertices, int vertex_count,
+   const int *holes, int hole_count, ALLEGRO_COLOR color)
 {
    ALLEGRO_PRIM_VERTEX_CACHE cache;
 
@@ -88,3 +102,5 @@ void al_draw_filled_polygon_with_holes(const float* vertices, int vertex_count, 
 
    _al_prim_cache_flush(&cache);
 }
+
+/* vim: set sts=3 sw=3 et: */

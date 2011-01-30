@@ -777,7 +777,7 @@ static void poly_do_triangulate(POLY* polygon)
 }
 
 
-/*
+/* Function: al_triangulate_polygon
  *  General triangulation function.
  */
 bool al_triangulate_polygon(
