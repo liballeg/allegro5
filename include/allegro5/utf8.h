@@ -13,12 +13,16 @@ typedef struct _al_tagbstring ALLEGRO_USTR;
 
 /* Type: ALLEGRO_USTR_INFO
  */
-typedef struct ALLEGRO_USTR_INFO ALLEGRO_USTR_INFO;
+typedef struct _al_tagbstring ALLEGRO_USTR_INFO;
 
-struct ALLEGRO_USTR_INFO {
-   /* This struct needs to be at least as big as struct _al_tagbstring. */
-   int __pad[4];
+#ifndef __al_tagbstring_defined
+#define __al_tagbstring_defined
+struct _al_tagbstring {
+	int mlen;
+	int slen;
+	unsigned char * data;
 };
+#endif
 
 /* Creating strings */
 AL_FUNC(ALLEGRO_USTR *, al_ustr_new, (const char *s));
