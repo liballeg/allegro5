@@ -633,6 +633,7 @@ _AL_LIST_ITEM* _al_list_back(_AL_LIST* list)
 _AL_LIST_ITEM* _al_list_next(_AL_LIST* list, _AL_LIST_ITEM* item)
 {
    ASSERT(list == item->list);
+   (void)list;
 
    if (item->next != item->list->root)
       return item->next;
@@ -647,6 +648,7 @@ _AL_LIST_ITEM* _al_list_next(_AL_LIST* list, _AL_LIST_ITEM* item)
 _AL_LIST_ITEM* _al_list_previous(_AL_LIST* list, _AL_LIST_ITEM* item)
 {
    ASSERT(list == item->list);
+   (void)list;
 
    if (item->prev != item->list->root)
       return item->prev;
