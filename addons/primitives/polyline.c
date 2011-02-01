@@ -464,7 +464,7 @@ static void do_draw_polyline(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* vert
 
       _al_prim_cache_init(cache, ALLEGRO_PRIM_VERTEX_CACHE_LINE_STRIP, color);
 
-      for (i = 0; i <= vertex_count; ++i) {
+      for (i = 0; i < vertex_count; ++i) {
 
          if (cache->size >= (ALLEGRO_VERTEX_CACHE_SIZE - 2))
             _al_prim_cache_flush(cache);
