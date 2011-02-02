@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -176,7 +176,7 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
       d3d_available = false;
 #endif
 #endif
-   
+
    return &_al_win_system->system;
 }
 
@@ -432,6 +432,11 @@ static ALLEGRO_MOUSE_DRIVER *win_get_mouse_driver(void)
    return _al_mouse_driver_list[0].driver;
 }
 
+static ALLEGRO_TOUCH_INPUT_DRIVER *win_get_touch_input_driver(void)
+{
+   return _al_touch_input_driver_list[0].driver;
+}
+
 /* _al_win_get_path:
  *  Returns full path to various system and user diretories
  */
@@ -479,7 +484,7 @@ ALLEGRO_PATH *_al_win_get_path(int id)
       case ALLEGRO_USER_HOME_PATH: /* CSIDL_PROFILE */
          csidl = CSIDL_PROFILE;
          break;
-         
+
       case ALLEGRO_USER_DOCUMENTS_PATH: /* CSIDL_PERSONAL */
          csidl = CSIDL_PERSONAL;
          break;
@@ -490,7 +495,7 @@ ALLEGRO_PATH *_al_win_get_path(int id)
 
          return al_create_path(path);
       } break;
-      
+
       default:
          return NULL;
    }
@@ -694,6 +699,7 @@ static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->get_display_driver = win_get_display_driver;
    vt->get_keyboard_driver = win_get_keyboard_driver;
    vt->get_mouse_driver = win_get_mouse_driver;
+   vt->get_touch_input_driver = win_get_touch_input_driver;
    vt->get_joystick_driver = win_get_joystick_driver;
    vt->get_num_display_modes = win_get_num_display_modes;
    vt->get_display_mode = win_get_display_mode;

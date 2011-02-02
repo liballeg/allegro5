@@ -30,6 +30,8 @@ Note that setting the view non-opaque will only work if the EAGL surface has an 
     */
    _AL_LIST*            touch_list;
    NSMutableIndexSet*   touch_id_set;
+   NSTimeInterval       first_touch_time;
+   UITouch*             primary_touch;
    int                  next_free_touch_id;
 }
 

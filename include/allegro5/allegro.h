@@ -40,6 +40,7 @@
 #include "allegro5/timer.h"
 #include "allegro5/keyboard.h"
 #include "allegro5/joystick.h"
+#include "allegro5/touch_input.h"
 
 #include "allegro5/threads.h"
 

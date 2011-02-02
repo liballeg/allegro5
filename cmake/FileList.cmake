@@ -29,6 +29,7 @@ set(ALLEGRO_SRC_FILES
     src/threads.c
     src/timernu.c
     src/tls.c
+    src/touch_input.c
     src/transformations.c
     src/tri_soft.c
     src/utf8.c
@@ -54,6 +55,7 @@ set(ALLEGRO_SRC_WIN_FILES
     src/win/wwindow.c
     src/win/wthread.c
     src/win/wtime.c
+    src/win/wtouch_input.c
     src/win/wxthread.c
     )
 
@@ -154,6 +156,7 @@ set(ALLEGRO_SRC_IPHONE_FILES
     src/iphone/iphone_mouse.m
     src/iphone/iphone_path.m
     src/iphone/iphone_system.c
+    src/iphone/iphone_touch_input.m
     src/unix/utime.c
     src/unix/uxthread.c
     )
@@ -210,6 +213,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/system.h
     include/allegro5/threads.h
     include/allegro5/tls.h
+    include/allegro5/touch_input.h
     include/allegro5/timer.h
     include/allegro5/transformations.h
     include/allegro5/utf8.h
@@ -239,6 +243,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
     include/allegro5/internal/aintern_system.h
     include/allegro5/internal/aintern_thread.h
     include/allegro5/internal/aintern_tls.h
+    include/allegro5/internal/aintern_touch_input.h
     include/allegro5/internal/aintern_vector.h
     include/allegro5/internal/alconfig.h
     )

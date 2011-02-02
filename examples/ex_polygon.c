@@ -255,6 +255,7 @@ int main(void)
    al_init_font_addon();
    al_install_mouse();
    al_install_keyboard();
+   al_install_touch_input();
 
    ex.display = al_create_display(800, 600);
    if (!ex.display) {
@@ -277,6 +278,8 @@ int main(void)
    al_register_event_source(ex.queue, al_get_keyboard_event_source());
    al_register_event_source(ex.queue, al_get_mouse_event_source());
    al_register_event_source(ex.queue, al_get_display_event_source(ex.display));
+   al_register_event_source(ex.queue, al_get_touch_input_event_source());
+   al_register_event_source(ex.queue, al_get_touch_input_mouse_emulation_event_source());
 
    ex.bg = al_map_rgba_f(1, 1, 0.9, 1);
    ex.fg = al_map_rgba_f(0, 0.5, 1, 1);

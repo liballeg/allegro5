@@ -39,7 +39,12 @@ enum
    ALLEGRO_EVENT_DISPLAY_FOUND               = 44,
    ALLEGRO_EVENT_DISPLAY_SWITCH_IN           = 45,
    ALLEGRO_EVENT_DISPLAY_SWITCH_OUT          = 46,
-   ALLEGRO_EVENT_DISPLAY_ORIENTATION         = 47
+   ALLEGRO_EVENT_DISPLAY_ORIENTATION         = 47,
+
+   ALLEGRO_EVENT_TOUCH_BEGIN                 = 50,
+   ALLEGRO_EVENT_TOUCH_END                   = 51,
+   ALLEGRO_EVENT_TOUCH_MOVE                  = 52,
+   ALLEGRO_EVENT_TOUCH_CANCEL                = 53
 };
 
 
@@ -154,6 +159,25 @@ typedef struct ALLEGRO_TIMER_EVENT
 
 
 
+/* Type: ALLEGRO_TOUCH_EVENT
+ */
+typedef struct ALLEGRO_TOUCH_EVENT
+{
+   _AL_EVENT_HEADER(struct ALLEGRO_TOUCH_INPUT)
+   struct ALLEGRO_DISPLAY *display;
+   /* (id) Identifier of the event, always positive number.
+    * (x, y) Touch position on the screen in 1:1 resolution.
+    * (dx, dy) Relative touch position.
+    * (primary) True, if touch is a primary one (usually first one).
+    */
+   int id;
+   float x, y;
+   float dx, dy;
+   bool primary;
+} ALLEGRO_TOUCH_EVENT;
+
+
+
 /* Type: ALLEGRO_USER_EVENT
  */
 typedef struct ALLEGRO_USER_EVENT ALLEGRO_USER_EVENT;
@@ -188,6 +212,7 @@ union ALLEGRO_EVENT
    ALLEGRO_KEYBOARD_EVENT keyboard;
    ALLEGRO_MOUSE_EVENT    mouse;
    ALLEGRO_TIMER_EVENT    timer;
+   ALLEGRO_TOUCH_EVENT    touch;
    ALLEGRO_USER_EVENT     user;
 };
 

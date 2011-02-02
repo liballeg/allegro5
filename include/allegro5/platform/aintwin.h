@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -196,6 +196,75 @@ bool _al_win_hide_mouse_cursor(ALLEGRO_DISPLAY *display);
                                                   ALLEGRO_DISPLAY_MODE *mode);
    bool _al_wgl_init_display(void);
 #endif /*  defined ALLEGRO_CFG_OPENGL */
+
+
+/* touch input specific API */
+
+# if (_WIN32_WINNT < 0x0601)
+typedef struct tagTOUCHINPUT {
+   LONG x;
+   LONG y;
+   HANDLE hSource;
+   DWORD dwID;
+   DWORD dwFlags;
+   DWORD dwMask;
+   DWORD dwTime;
+   ULONG_PTR dwExtraInfo;
+   DWORD cxContact;
+   DWORD cyContact;
+} TOUCHINPUT, *PTOUCHINPUT;
+
+#define WM_TOUCHMOVE                     576
+#define WM_TOUCHDOWN                     577
+#define WM_TOUCHUP                       578
+
+#define TOUCHEVENTF_MOVE                 0x0001
+#define TOUCHEVENTF_DOWN                 0x0002
+#define TOUCHEVENTF_UP                   0x0004
+#define TOUCHEVENTF_INRANGE              0x0008
+#define TOUCHEVENTF_PRIMARY              0x0010
+#define TOUCHEVENTF_NOCOALESCE           0x0020
+#define TOUCHEVENTF_PEN                  0x0040
+#define TOUCHEVENTF_PALM                 0x0080
+
+#define TOUCHEVENTMASKF_CONTACTAREA      0x0004
+#define TOUCHEVENTMASKF_EXTRAINFO        0x0002
+#define TOUCHEVENTMASKF_TIMEFROMSYSTEM   0x0001
+# endif
+
+/* MinGW WinAPI headers contains a bug. Values of
+ * TOUCHEVENTF_MOVE and TOUCHEVENTF_DOWN are swapped.
+ * This is a workaround to that.
+ */
+#if defined(ALLEGRO_MINGW32) && (_WIN32_WINNT >= 0x0601)
+#undef TOUCHEVENTF_MOVE
+#undef TOUCHEVENTF_DOWN
+#define TOUCHEVENTF_MOVE                 0x0001
+#define TOUCHEVENTF_DOWN                 0x0002
+#endif
+
+/* set of function required to handle touch input on Windows */
+typedef BOOL (WINAPI *CLOSETOUCHINPUTHANDLEPROC)(HANDLE hTouchInput);
+typedef BOOL (WINAPI *GETTOUCHINPUTINFOPROC)(HANDLE hTouchInput, UINT cInputs, PTOUCHINPUT pInputs, int cbSize);
+typedef BOOL (WINAPI *ISTOUCHWINDOWPROC)(HWND hWnd, PULONG pulFlags);
+typedef BOOL (WINAPI *REGISTERTOUCHWINDOWPROC)(HWND hWnd, ULONG ulFlags);
+typedef BOOL (WINAPI *UNREGISTERTOUCHWINDOWPROC)(HWND hWnd);
+
+bool _al_win_init_touch_input_api(void);
+void _al_win_exit_touch_input_api(void);
+
+extern CLOSETOUCHINPUTHANDLEPROC     _al_win_close_touch_input_handle;
+extern GETTOUCHINPUTINFOPROC         _al_win_get_touch_input_info;
+extern ISTOUCHWINDOWPROC             _al_win_is_touch_window;
+extern REGISTERTOUCHWINDOWPROC       _al_win_register_touch_window;
+extern UNREGISTERTOUCHWINDOWPROC     _al_win_unregister_touch_window;
+
+/* touch input routines */
+void _al_win_touch_input_set_time_stamp(size_t timestamp);
+void _al_win_touch_input_handle_begin(int id, size_t timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY_WIN *win_disp);
+void _al_win_touch_input_handle_end(int id, size_t timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY_WIN *win_disp);
+void _al_win_touch_input_handle_move(int id, size_t timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY_WIN *win_disp);
+void _al_win_touch_input_handle_cancel(int id, size_t timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY_WIN *win_disp);
 
 
 #ifdef __cplusplus

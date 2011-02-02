@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -26,6 +26,13 @@
 /* Only used for Vista and up. */
 #ifndef WM_MOUSEHWHEEL
 #define WM_MOUSEHWHEEL 0x020E
+#endif
+
+/* Those defines are available on Windows 7 and newer. */
+#if (_WIN32_WINNT < 0x0601)
+#define WM_TOUCHMOVE 576
+#define WM_TOUCHDOWN 577
+#define WM_TOUCHUP   578
 #endif
 
 #include <allegro5/allegro.h>
@@ -81,7 +88,7 @@ static void get_window_pos(HWND window, RECT *pos)
 
 HWND _al_win_create_hidden_window()
 {
-   HWND window = CreateWindowEx(0, 
+   HWND window = CreateWindowEx(0,
       "ALEX", "hidden", WS_POPUP,
       -5000, -5000, 0, 0,
       NULL,NULL,window_class.hInstance,0);
@@ -175,8 +182,11 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
       pos_x, pos_y, width, height,
       NULL,NULL,window_class.hInstance,0);
 
+   if (_al_win_register_touch_window)
+      _al_win_register_touch_window(my_window, 0);
+
    GetWindowInfo(my_window, &wi);
-      
+
    bw = (wi.rcClient.left - wi.rcWindow.left) + (wi.rcWindow.right - wi.rcClient.right),
    bh = (wi.rcClient.top - wi.rcWindow.top) + (wi.rcWindow.bottom - wi.rcClient.bottom),
 
@@ -206,9 +216,9 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
 }
 
 
-HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *display, 
+HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *display,
 	int x1, int y1, int width, int height, int refresh_rate, int flags)
-{ 
+{
    HWND my_window;
    DWORD style;
    DWORD ex_style;
@@ -227,6 +237,9 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
       x1, y1, width, height,
       NULL,NULL,window_class.hInstance,0);
 
+   if (_al_win_register_touch_window)
+      _al_win_register_touch_window(my_window, 0);
+
    temp = GetWindowLong(my_window, GWL_STYLE);
    temp &= ~WS_CAPTION;
    SetWindowLong(my_window, GWL_STYLE, temp);
@@ -237,7 +250,7 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    mode.dmSize = sizeof(DEVMODE);
    mode.dmDriverExtra = 0;
    mode.dmBitsPerPel = al_get_new_display_option(ALLEGRO_COLOR_SIZE, NULL);
-   mode.dmPelsWidth = width; 
+   mode.dmPelsWidth = width;
    mode.dmPelsHeight = height;
    mode.dmDisplayFlags = 0;
    mode.dmDisplayFrequency = refresh_rate;
@@ -247,7 +260,7 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    	DM_DISPLAYFREQUENCY|DM_POSITION;
 
    ChangeDisplaySettingsEx(devname, &mode, NULL, 0, NULL/*CDS_FULLSCREEN*/);
-   
+
    return my_window;
 }
 
@@ -360,7 +373,7 @@ static void break_window_message_pump(ALLEGRO_DISPLAY_WIN *win_display, HWND hWn
    PostThreadMessage(wnd_thread_id, WM_NULL, 0, 0);
 }
 
-static LRESULT CALLBACK window_callback(HWND hWnd, UINT message, 
+static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
     WPARAM wParam, LPARAM lParam)
 {
    ALLEGRO_DISPLAY *d = NULL;
@@ -378,12 +391,14 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    }
 
    if (!system) {
-      return DefWindowProc(hWnd,message,wParam,lParam); 
+      return DefWindowProc(hWnd,message,wParam,lParam);
    }
 
    if (message == _al_win_msg_suicide && wParam) {
       win_display = (ALLEGRO_DISPLAY_WIN*)wParam;
       break_window_message_pump(win_display, hWnd);
+      if (_al_win_unregister_touch_window)
+         _al_win_unregister_touch_window(hWnd);
       DestroyWindow(hWnd);
       return 0;
    }
@@ -399,16 +414,18 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    }
 
    if (i == system->displays._size)
-      return DefWindowProc(hWnd,message,wParam,lParam); 
+      return DefWindowProc(hWnd,message,wParam,lParam);
 
    if (message == _al_win_msg_suicide) {
       break_window_message_pump(win_display, hWnd);
+      if (_al_win_unregister_touch_window)
+         _al_win_unregister_touch_window(hWnd);
       DestroyWindow(hWnd);
       return 0;
    }
 
    switch (message) {
-      case WM_INPUT: 
+      case WM_INPUT:
       {
          /* RAW Input is currently unused. */
           UINT dwSize;
@@ -419,17 +436,17 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
           if (!al_is_mouse_installed())
              break;
 
-          GetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize, 
+          GetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize,
                           sizeof(RAWINPUTHEADER));
           lpb = al_malloc(sizeof(BYTE)*dwSize);
-          if (lpb == NULL) 
+          if (lpb == NULL)
               break;
 
           GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER));
           raw = (RAWINPUT*)lpb;
 
           if (raw->header.dwType != RIM_TYPEMOUSE) {
-             al_free(lpb); 
+             al_free(lpb);
              break;
           }
 
@@ -469,7 +486,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
           }
        }
 
-          al_free(lpb); 
+          al_free(lpb);
           break;
       }
       case WM_LBUTTONDOWN:
@@ -551,6 +568,47 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          _al_win_mouse_handle_leave(win_display);
          break;
       }
+      case WM_TOUCHDOWN:
+      case WM_TOUCHUP:
+      case WM_TOUCHMOVE: {
+         if (_al_win_get_touch_input_info && _al_win_close_touch_input_handle) {
+            int number_of_touches = LOWORD(wParam);
+
+            TOUCHINPUT* touches = al_malloc(number_of_touches * sizeof(TOUCHINPUT));
+
+            if (_al_win_get_touch_input_info((HANDLE)lParam, number_of_touches, touches, sizeof(TOUCHINPUT))) {
+
+               if (al_is_touch_input_installed()) {
+
+                  int i;
+
+                  _al_win_touch_input_set_time_stamp((touches + number_of_touches - 1)->dwTime);
+
+                  for (i = 0; i < number_of_touches; ++i) {
+
+                     TOUCHINPUT* touch = touches + i;
+
+                     float x = touch->x / 100.0f;
+                     float y = touch->y / 100.0f;
+
+                     bool primary = touch->dwMask & TOUCHEVENTF_PRIMARY ? true : false;
+
+                     if (touch->dwMask & TOUCHEVENTF_DOWN)
+                        _al_win_touch_input_handle_begin((int)touch->dwID, (size_t)touch->dwTime, x, y, primary, win_display);
+                     else if (touch->dwMask & TOUCHEVENTF_UP)
+                        _al_win_touch_input_handle_end((int)touch->dwID, (size_t)touch->dwTime, x, y, primary, win_display);
+                     else if (touch->dwMask & TOUCHEVENTF_MOVE)
+                        _al_win_touch_input_handle_move((int)touch->dwID, (size_t)touch->dwTime, x, y, primary, win_display);
+                  }
+               }
+
+               _al_win_close_touch_input_handle((HANDLE)lParam);
+            }
+
+            al_free(touches);
+         }
+         break;
+      }
       case WM_CAPTURECHANGED: {
          if (al_is_mouse_installed()) {
             int i;
@@ -573,13 +631,13 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          break;
       }
       case WM_SYSKEYDOWN: {
-         int vcode = wParam; 
+         int vcode = wParam;
          bool repeated  = (lParam >> 30) & 0x1;
          _al_win_kbd_handle_key_press(0, vcode, repeated, win_display);
          break;
       }
       case WM_KEYDOWN: {
-         int vcode = wParam; 
+         int vcode = wParam;
          int scode = (lParam >> 16) & 0xff;
          bool repeated  = (lParam >> 30) & 0x1;
          /* We can't use TranslateMessage() because we don't know if it will
@@ -758,19 +816,19 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             win_display->can_acknowledge = true;
          }
          break;
-   } 
+   }
 
-   return DefWindowProc(hWnd,message,wParam,lParam); 
+   return DefWindowProc(hWnd,message,wParam,lParam);
 }
 
 int _al_win_init_window()
 {
-   // Create A Window Class Structure 
+   // Create A Window Class Structure
    window_class.cbClsExtra = 0;
-   window_class.cbWndExtra = 0; 
+   window_class.cbWndExtra = 0;
    window_class.hbrBackground = NULL;
-   window_class.hCursor = NULL; 
-   window_class.hIcon = NULL; 
+   window_class.hCursor = NULL;
+   window_class.hIcon = NULL;
    window_class.hInstance = GetModuleHandle(NULL);
    window_class.lpfnWndProc = window_callback;
    window_class.lpszClassName = "ALEX";
@@ -899,7 +957,7 @@ bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
    double timeout;
 
    switch(flag) {
-      case ALLEGRO_NOFRAME: 
+      case ALLEGRO_NOFRAME:
          _al_win_toggle_window_frame(display, win_display->window, display->w, display->h, onoff);
          return true;
 
