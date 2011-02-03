@@ -308,6 +308,35 @@ is only used to find possible additional files next to a font file.
 be freed by the caller, as FreeType expects to be able to read from it at a
 later time.
 
+### API: al_load_ttf_font_stretch
+
+Works exactly like [al_load_ttf_font], except it takes separate width and height
+parameters instead of a single size parameter.  The font will be stretched
+according to these parameters, if they are both positive numbers.
+As with [al_load_ttf_font], if you specify h as negative value, to size will be
+determined as the total height in pixels. If w is negative, too, then both
+values will be used to determine the sizes of the stretched font.
+
+> *Note:* Behaviour is undefined if one of w and h is positive while the other
+is negative.
+
+Since: 5.1.0
+
+See also: [al_load_ttf_font], [al_load_ttf_font_stretch_f]
+
+### API: al_load_ttf_font_stretch_f
+
+Like [al_load_ttf_font_stretch], but the font is read from the file handle. The
+filename is only used to find possible additional files next to a font file.
+
+> *Note:* The file handle is owned by the returned ALLEGRO_FONT object and must not
+be freed by the caller, as FreeType expects to be able to read from it at a
+later time.
+
+Since: 5.1.0
+
+See also: [al_load_ttf_font_stretch]
+
 ### API: al_get_allegro_ttf_version
 
 Returns the (compiled) version of the addon, in the same format as

@@ -475,6 +475,14 @@ static void ftclose(FT_Stream  stream)
 ALLEGRO_FONT *al_load_ttf_font_f(ALLEGRO_FILE *file,
     char const *filename, int size, int flags)
 {
+    return al_load_ttf_font_stretch_f(file, filename, 0, size, flags);
+}
+
+/* Function: al_load_ttf_font_stretch_f
+ */
+ALLEGRO_FONT *al_load_ttf_font_stretch_f(ALLEGRO_FILE *file,
+    char const *filename, int w, int h, int flags)
+{
     FT_Face face;
     FT_ULong unicode;
     FT_UInt g, m = 0;
@@ -525,8 +533,8 @@ ALLEGRO_FONT *al_load_ttf_font_f(ALLEGRO_FILE *file,
     }
     al_destroy_path(path);
 
-    if (size > 0) {
-       FT_Set_Pixel_Sizes(face, 0, size);
+    if (h > 0) {
+       FT_Set_Pixel_Sizes(face, w, h);
     }
     else {
        /* Set the "real dimension" of the font to be the passed size,
@@ -534,15 +542,15 @@ ALLEGRO_FONT *al_load_ttf_font_f(ALLEGRO_FILE *file,
         */
        FT_Size_RequestRec req;
        req.type = FT_SIZE_REQUEST_TYPE_REAL_DIM;
-       req.width = 0;
-       req.height = (-size) << 6;
+       req.width = (-w) << 6;
+       req.height = (-h) << 6;
        req.horiResolution = 0;
        req.vertResolution = 0;
        FT_Request_Size(face, &req);
     }
 
-    ALLEGRO_DEBUG("Font %s loaded with pixel size %d.\n", filename,
-        size);
+    ALLEGRO_DEBUG("Font %s loaded with pixel size %d x %d.\n", filename,
+        w, h);
     ALLEGRO_DEBUG("    ascent=%.1f, descent=%.1f, height=%.1f\n",
         face->size->metrics.ascender / 64.0,
         face->size->metrics.descender / 64.0,
@@ -591,6 +599,14 @@ ALLEGRO_FONT *al_load_ttf_font_f(ALLEGRO_FILE *file,
  */
 ALLEGRO_FONT *al_load_ttf_font(char const *filename, int size, int flags)
 {
+   return al_load_ttf_font_stretch(filename, 0, size, flags);
+}
+
+/* Function: al_load_ttf_font_stretch
+ */
+ALLEGRO_FONT *al_load_ttf_font_stretch(char const *filename, int w, int h,
+    int flags)
+{
    ALLEGRO_FILE *f;
    ALLEGRO_FONT *font;
    ASSERT(filename);
@@ -603,7 +619,7 @@ ALLEGRO_FONT *al_load_ttf_font(char const *filename, int size, int flags)
     * closed when the font is destroyed, in case Freetype has to load data
     * at a later time.
     */
-   font = al_load_ttf_font_f(f, filename, size, flags);
+   font = al_load_ttf_font_stretch_f(f, filename, w, h, flags);
 
    return font;
 }
