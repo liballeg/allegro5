@@ -72,6 +72,9 @@ Mouse:
 
 -  Assign different button IDs for separate touches on iPhone (Michał Cichoń).
 
+-  iphone: Remove fake mouse move events as they're unncessary and can cause
+   problems with user input tracking.
+
 Filesystem:
 
 -  Clean up al_get_standard_path(): remove SYSTEM_DATA, SYSTEM_SETTINGS,
