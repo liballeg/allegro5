@@ -126,13 +126,13 @@ restart:
    }
    al_unlock_bitmap(bitmap);
 
-   al_draw_bitmap(bitmap, 0, 0, 0);
-   al_flip_display();
-
    if (mode < 2) {
+      al_draw_bitmap(bitmap, 0, 0, 0);
       al_destroy_bitmap(bitmap);
       bitmap = NULL;
    }
+
+   al_flip_display();
 
    while (1) {
       al_wait_for_event(events, &event);
