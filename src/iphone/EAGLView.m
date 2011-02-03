@@ -222,8 +222,6 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
       p.y *= _al_iphone_get_screen_scale();
 		_al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_DOWN,
                                       p.x, p.y, touch->id, allegro_display);
-        _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
-                                        p.x, p.y, touch->id, allegro_display);
 	}
 }
 
@@ -263,8 +261,6 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
          CGPoint p = [nativeTouch locationInView:self];
       p.x *= _al_iphone_get_screen_scale();
       p.y *= _al_iphone_get_screen_scale();
-        _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
-                                           p.x, p.y, touch->id, allegro_display);
         _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_UP,
                                            p.x, p.y, touch->id, allegro_display);
                                            
