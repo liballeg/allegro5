@@ -189,11 +189,14 @@ extern int _al_bssplitstrcb (struct _al_bStream * s, _al_const_bstring splitStr,
 	int (* cb) (void * parm, int ofs, _al_const_bstring entry), void * parm);
 extern int _al_bseof (const struct _al_bStream * s);
 
+#ifndef __al_tagbstring_defined
+#define __al_tagbstring_defined
 struct _al_tagbstring {
 	int mlen;
 	int slen;
 	unsigned char * data;
 };
+#endif
 
 /* Accessor macros */
 #define _al_blengthe(b, e)      (((b) == (void *)0 || (b)->slen < 0) ? (int)(e) : ((b)->slen))
