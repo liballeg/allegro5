@@ -19,7 +19,7 @@ int main(int argc, const char *argv[])
     bool software = false;
     bool redraw = false;
     bool blend = false;
-    bool use_subbitmap = false;
+    bool use_subbitmap = true;
     int w, h;
     ALLEGRO_FONT* font;
     ALLEGRO_FONT* soft_font;
@@ -112,7 +112,7 @@ int main(int argc, const char *argv[])
             redraw = true;
             
         if (redraw && al_is_event_queue_empty(queue)) {
-            double t = al_get_time();
+            double t = 3.0 + al_get_time();
             ALLEGRO_COLOR tint;
             redraw = false;
             
