@@ -4,6 +4,126 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 5.0.0 RC4 to 5.0.0 RC5 (February 2010)
+===================================================
+
+The main developers this time were: Thomas Fjellstrom, Trent Gamblin,
+Peter Hull, Matthew Leverton and Peter Wang.  Other contributions noted
+in-line.
+
+System:
+
+-  Load allegro5.cfg from the directory containing the executable, not the
+   initial working directory.
+
+Graphics:
+
+-  Make al_get_monitor_info return success code.
+
+-  Replace al_set_new_display_adaptor(-1) with a named constant
+   ALLEGRO_DEFAULT_DISPLAY_ADAPTER.
+
+-  Fix numerous bugs in X mode setting and multi monitor related code, and
+   introduce new xrandr code.
+
+-  Generate ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY when mouse leaves OS X window
+   (Evert Glebbeek).
+
+-  Hide OS X window during exiting fullscreen window mode, to prevent the
+   hideous misaligned animation from showing.
+
+-  Fix erroneous assertions in OpenGL backend.
+
+-  Added a hack which makes OpenGL mode work under Wine for me
+   (Elias Pschernig).
+
+-  Add support for some al_get_display_options in D3D port.
+
+Keyboard:
+
+-  Don't send KEY_CHAR events for modifier and dead keys
+   (with contributions from torhu).
+
+-  Don't send KEY_DOWN events for non-physical key events.
+
+-  osx: Allow unicode entry (single keypresses only).
+
+-  x11: Set the keycode field in KEY_CHAR events to the code of the last key
+   pressed, as stated in the documentation, even if the char is due to a
+   compose sequence.
+
+-  x11: Get rid of historic behaviour where the unicode field is always zero
+   when Alt is held down.
+
+-  Rename ALLEGRO_KEY_EQUALS_PAD to ALLEGRO_KEY_PAD_EQUALS for consistency.
+
+Mouse:
+
+-  Add al_grab_mouse and al_ungrab_mouse.  Implemented on X11 and Windows.
+
+-  Allow the user configure a key binding to toggle mouse grabbing on a window.
+
+-  Support horizontal mouse wheel on Windows (jmasterx).
+
+-  Calculate Y position for al_set_mouse_xy correctly in OS X windowed mode
+   (X-G).
+
+-  Use more appropriate CURSOR_LINK cursor on OS X (X-G).
+
+-  Assign different button IDs for separate touches on iPhone (Michał Cichoń).
+
+Filesystem:
+
+-  Clean up al_get_standard_path(): remove SYSTEM_DATA, SYSTEM_SETTINGS,
+   PROGRAM paths; add RESOURCES and USER_DOCUMENTS paths.
+   Use system API calls if possible.
+
+-  Implement ALLEGRO_USER_DATA_PATH under Linux. Honor XDG_DATA/CONFIG_HOME
+   environment variables.
+
+-  Fix al_make_directory on Windows due to problems with calls to stat() with
+   trailing slashes.
+
+Native dialogs addon:
+
+-  Use string arguments to al_create_native_file_dialog() and
+   al_get_native_file_dialog_path() instead of ALLEGRO_PATH.
+
+-  Enhance the Windows file selector (initial patch by Todd Cope):
+
+    - Use Windows' folder selector for ALLEGRO_FILECHOOSER_FOLDER.
+
+    - Implement patterns.
+
+    - Display the title of the dialog that the user specified.
+
+Primitives addon:
+
+-  Fix changing the D3D blender state without updating the cached state.
+
+TTF addon:
+
+-  Align glyphs in ttf font sheets so as to work around problems with forced
+   S3TC compression with some OpenGL drivers (Elias Pschernig).
+
+Examples:
+
+-  SPEED: add full screen flag, use standard paths for highscores and data.
+
+Build system:
+
+-  Check PulseAudio backend will compile before enabling support.
+
+-  Give a louder warning if FLAC/Vorbis/DUMB compile tests fail.
+
+Other:
+
+-  Many leaks fixed on OS X.
+
+-  Minor bug fixes and documentation updates.
+
+
+
 Changes from 5.0.0 RC3 to 5.0.0 RC4 (December 2010)
 ===================================================
 
