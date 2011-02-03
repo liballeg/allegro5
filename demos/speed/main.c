@@ -171,6 +171,33 @@ static void usage()
 
 
 
+/* drop build configuration directory tail */
+static ALLEGRO_PATH *get_resources_path(void)
+{
+   ALLEGRO_PATH *path;
+   const char *last;
+
+   path = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
+   if (!path)
+      return al_create_path("");
+
+   /* If the last directory component is the name of an MSVC build
+    * configuration, then drop it.
+    */
+   last = al_get_path_tail(path);
+   if (last &&
+         (0 == strcmp(last, "Debug") ||
+          0 == strcmp(last, "Release") ||
+          0 == strcmp(last, "RelWithDebInfo") ||
+          0 == strcmp(last, "Profile"))) {
+      al_drop_path_tail(path);
+   }
+
+   return path;
+}
+
+
+
 /* the main program body */
 int main(int argc, char *argv[])
 {
@@ -285,10 +312,9 @@ int main(int argc, char *argv[])
     * We need a font loaded into a memory bitmap for those, then a font
     * loaded into a video bitmap for the game view. Blech!
     */
-   font_path = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
-   if (!font_path) font_path = al_create_path("");
+   font_path = get_resources_path();
    al_set_path_filename(font_path, "a4_font.tga");
-    
+
    al_init_font_addon();
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    font = al_load_bitmap_font(al_path_cstr(font_path, '/'));
