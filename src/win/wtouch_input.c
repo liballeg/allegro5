@@ -23,13 +23,6 @@
 #include "allegro5/platform/aintwin.h"
 #include "allegro5/internal/aintern_display.h"
 
-#if !defined(SM_DIGITIZER)
-#define SM_DIGITIZER    94
-#endif
-
-#if !defined(NID_READY)
-#define NID_READY 0x80
-#endif
 
 static ALLEGRO_TOUCH_INPUT_STATE touch_input_state;
 static ALLEGRO_TOUCH_INPUT touch_input;
@@ -123,7 +116,7 @@ void _al_win_exit_touch_input_api(void)
 
 static bool is_touch_input_device_available(void)
 {
-   return (user32_module && (GetSystemMetrics(SM_DIGITIZER) & NID_READY)) ? true : false;
+   return (user32_module && (GetSystemMetrics(_AL_SM_DIGITIZER) & _AL_NID_READY)) ? true : false;
 }
 
 
@@ -212,6 +205,8 @@ static bool init_touch_input(void)
 
    _al_event_source_init(&touch_input.es);
    _al_event_source_init(&touch_input.mouse_emulation_es);
+
+   touch_input.mouse_emulation_mode = ALLEGRO_MOUSE_EMULATION_TRANSPARENT;
 
    installed = true;
 

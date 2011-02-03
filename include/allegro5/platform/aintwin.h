@@ -200,7 +200,7 @@ bool _al_win_hide_mouse_cursor(ALLEGRO_DISPLAY *display);
 
 /* touch input specific API */
 
-# if (_WIN32_WINNT < 0x0601)
+#if (_WIN32_WINNT < 0x0601)
 typedef struct tagTOUCHINPUT {
    LONG x;
    LONG y;
@@ -213,35 +213,28 @@ typedef struct tagTOUCHINPUT {
    DWORD cxContact;
    DWORD cyContact;
 } TOUCHINPUT, *PTOUCHINPUT;
-
-#define WM_TOUCHMOVE                     576
-#define WM_TOUCHDOWN                     577
-#define WM_TOUCHUP                       578
-
-#define TOUCHEVENTF_MOVE                 0x0001
-#define TOUCHEVENTF_DOWN                 0x0002
-#define TOUCHEVENTF_UP                   0x0004
-#define TOUCHEVENTF_INRANGE              0x0008
-#define TOUCHEVENTF_PRIMARY              0x0010
-#define TOUCHEVENTF_NOCOALESCE           0x0020
-#define TOUCHEVENTF_PEN                  0x0040
-#define TOUCHEVENTF_PALM                 0x0080
-
-#define TOUCHEVENTMASKF_CONTACTAREA      0x0004
-#define TOUCHEVENTMASKF_EXTRAINFO        0x0002
-#define TOUCHEVENTMASKF_TIMEFROMSYSTEM   0x0001
-# endif
-
-/* MinGW WinAPI headers contains a bug. Values of
- * TOUCHEVENTF_MOVE and TOUCHEVENTF_DOWN are swapped.
- * This is a workaround to that.
- */
-#if defined(ALLEGRO_MINGW32) && (_WIN32_WINNT >= 0x0601)
-#undef TOUCHEVENTF_MOVE
-#undef TOUCHEVENTF_DOWN
-#define TOUCHEVENTF_MOVE                 0x0001
-#define TOUCHEVENTF_DOWN                 0x0002
 #endif
+
+/* Define those fellows. They are available on Windows SDK 7.0,
+ * which is shipped with Visual Studio 2010. So it is not likely they
+ * will be defined in <windows.h>. Also do not trust MinGW WinAPI
+ * headers as they are outdated. Version 3.15, which is newest at the
+ * time of writting this, still have invalid defines related to
+ * multi-touch support.
+ */
+#define _AL_WM_TOUCH                         0x0240
+
+#define _AL_MOUSEEVENTF_FROMTOUCH            0xFF515700
+
+#define _AL_TOUCHEVENTF_MOVE                 0x0001
+#define _AL_TOUCHEVENTF_DOWN                 0x0002
+#define _AL_TOUCHEVENTF_UP                   0x0004
+#define _AL_TOUCHEVENTF_PRIMARY              0x0010
+
+#define _AL_SM_DIGITIZER                     94
+
+#define _AL_NID_READY                        0x80
+
 
 /* set of function required to handle touch input on Windows */
 typedef BOOL (WINAPI *CLOSETOUCHINPUTHANDLEPROC)(HANDLE hTouchInput);

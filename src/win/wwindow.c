@@ -28,13 +28,6 @@
 #define WM_MOUSEHWHEEL 0x020E
 #endif
 
-/* Those defines are available on Windows 7 and newer. */
-#if (_WIN32_WINNT < 0x0601)
-#define WM_TOUCHMOVE 576
-#define WM_TOUCHDOWN 577
-#define WM_TOUCHUP   578
-#endif
-
 #include <allegro5/allegro.h>
 #include <process.h>
 
@@ -373,6 +366,18 @@ static void break_window_message_pump(ALLEGRO_DISPLAY_WIN *win_display, HWND hWn
    PostThreadMessage(wnd_thread_id, WM_NULL, 0, 0);
 }
 
+/* Windows Touch Input emulate WM_MOUSE* events. If we are using touch input explicitly,
+ * we do not want to use this, because Allegro driver provide emulation already. This
+ * way we can be consistent across platforms.
+ */
+static bool accept_mouse_event()
+{
+   if (!al_is_touch_input_installed())
+      return true;
+
+   return !((GetMessageExtraInfo() & _AL_MOUSEEVENTF_FROMTOUCH) == _AL_MOUSEEVENTF_FROMTOUCH);
+}
+
 static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
     WPARAM wParam, LPARAM lParam)
 {
@@ -491,86 +496,102 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       }
       case WM_LBUTTONDOWN:
       case WM_LBUTTONUP: {
-         int mx = GET_X_LPARAM(lParam);
-         int my = GET_Y_LPARAM(lParam);
-         bool down = (message == WM_LBUTTONDOWN);
-         _al_win_mouse_handle_button(1, down, mx, my, true, win_display);
-         handle_mouse_capture(down, hWnd);
+         if (accept_mouse_event()) {
+            int mx = GET_X_LPARAM(lParam);
+            int my = GET_Y_LPARAM(lParam);
+            bool down = (message == WM_LBUTTONDOWN);
+            _al_win_mouse_handle_button(1, down, mx, my, true, win_display);
+            handle_mouse_capture(down, hWnd);
+         }
          break;
       }
       case WM_MBUTTONDOWN:
       case WM_MBUTTONUP: {
-         int mx = GET_X_LPARAM(lParam);
-         int my = GET_Y_LPARAM(lParam);
-         bool down = (message == WM_MBUTTONDOWN);
-         _al_win_mouse_handle_button(3, down, mx, my, true, win_display);
-         handle_mouse_capture(down, hWnd);
+         if (accept_mouse_event()) {
+            int mx = GET_X_LPARAM(lParam);
+            int my = GET_Y_LPARAM(lParam);
+            bool down = (message == WM_MBUTTONDOWN);
+            _al_win_mouse_handle_button(3, down, mx, my, true, win_display);
+            handle_mouse_capture(down, hWnd);
+         }
          break;
       }
       case WM_RBUTTONDOWN:
       case WM_RBUTTONUP: {
-         int mx = GET_X_LPARAM(lParam);
-         int my = GET_Y_LPARAM(lParam);
-         bool down = (message == WM_RBUTTONDOWN);
-         _al_win_mouse_handle_button(2, down, mx, my, true, win_display);
-         handle_mouse_capture(down, hWnd);
+         if (accept_mouse_event()) {
+            int mx = GET_X_LPARAM(lParam);
+            int my = GET_Y_LPARAM(lParam);
+            bool down = (message == WM_RBUTTONDOWN);
+            _al_win_mouse_handle_button(2, down, mx, my, true, win_display);
+            handle_mouse_capture(down, hWnd);
+         }
          break;
       }
       case WM_XBUTTONDOWN:
       case WM_XBUTTONUP: {
-         int mx = GET_X_LPARAM(lParam);
-         int my = GET_Y_LPARAM(lParam);
-         int button = HIWORD(wParam);
-         bool down = (message == WM_XBUTTONDOWN);
-         if (button == XBUTTON1)
-            _al_win_mouse_handle_button(4, down, mx, my, true, win_display);
-         else if (button == XBUTTON2)
-            _al_win_mouse_handle_button(5, down, mx, my, true, win_display);
-         handle_mouse_capture(down, hWnd);
-         return TRUE;
+         if (accept_mouse_event()) {
+            int mx = GET_X_LPARAM(lParam);
+            int my = GET_Y_LPARAM(lParam);
+            int button = HIWORD(wParam);
+            bool down = (message == WM_XBUTTONDOWN);
+            if (button == XBUTTON1)
+               _al_win_mouse_handle_button(4, down, mx, my, true, win_display);
+            else if (button == XBUTTON2)
+               _al_win_mouse_handle_button(5, down, mx, my, true, win_display);
+            handle_mouse_capture(down, hWnd);
+            return TRUE;
+         }
+         break;
       }
       case WM_MOUSEWHEEL: {
-         int d = GET_WHEEL_DELTA_WPARAM(wParam);
-         _al_win_mouse_handle_wheel(d / WHEEL_DELTA, false, win_display);
-         return TRUE;
+         if (accept_mouse_event()) {
+            int d = GET_WHEEL_DELTA_WPARAM(wParam);
+            _al_win_mouse_handle_wheel(d / WHEEL_DELTA, false, win_display);
+            return TRUE;
+         }
+         break;
       }
       case WM_MOUSEHWHEEL: {
-         int d = GET_WHEEL_DELTA_WPARAM(wParam);
-         _al_win_mouse_handle_hwheel(d / WHEEL_DELTA, false, win_display);
-         return TRUE;
+         if (accept_mouse_event()) {
+            int d = GET_WHEEL_DELTA_WPARAM(wParam);
+            _al_win_mouse_handle_hwheel(d / WHEEL_DELTA, false, win_display);
+            return TRUE;
+         }
+         break;
       }
       case WM_MOUSEMOVE: {
-         TRACKMOUSEEVENT tme;
-         int mx = GET_X_LPARAM(lParam);
-         int my = GET_Y_LPARAM(lParam);
+         if (accept_mouse_event()) {
+            TRACKMOUSEEVENT tme;
+            int mx = GET_X_LPARAM(lParam);
+            int my = GET_Y_LPARAM(lParam);
 
-         if (win_display->mouse_cursor_shown && we_hid_the_mouse) {
-            we_hid_the_mouse = false;
-            win_display->display.vt->hide_mouse_cursor((void*)win_display);
-         }
+            if (win_display->mouse_cursor_shown && we_hid_the_mouse) {
+               we_hid_the_mouse = false;
+               win_display->display.vt->hide_mouse_cursor((void*)win_display);
+            }
 
-         _al_win_mouse_handle_move(mx, my, true, win_display);
-         if (mx >= 0 && my >= 0 && mx < d->w && my < d->h) {
-            tme.cbSize = sizeof(tme);
-            tme.dwFlags = TME_QUERY;
-            if (TrackMouseEvent(&tme) && !tme.hwndTrack) {
-               tme.dwFlags = TME_LEAVE;
-               tme.hwndTrack = hWnd;
-               tme.dwHoverTime = 0;
-               TrackMouseEvent(&tme);
-               _al_win_mouse_handle_enter(win_display);
+            _al_win_mouse_handle_move(mx, my, true, win_display);
+            if (mx >= 0 && my >= 0 && mx < d->w && my < d->h) {
+               tme.cbSize = sizeof(tme);
+               tme.dwFlags = TME_QUERY;
+               if (TrackMouseEvent(&tme) && !tme.hwndTrack) {
+                  tme.dwFlags = TME_LEAVE;
+                  tme.hwndTrack = hWnd;
+                  tme.dwHoverTime = 0;
+                  TrackMouseEvent(&tme);
+                  _al_win_mouse_handle_enter(win_display);
+               }
             }
          }
-
          break;
       }
       case WM_MOUSELEAVE: {
-         _al_win_mouse_handle_leave(win_display);
+         if (accept_mouse_event()) {
+            _al_win_mouse_handle_leave(win_display);
+         }
          break;
       }
-      case WM_TOUCHDOWN:
-      case WM_TOUCHUP:
-      case WM_TOUCHMOVE: {
+      case _AL_WM_TOUCH: {
          if (_al_win_get_touch_input_info && _al_win_close_touch_input_handle) {
             int number_of_touches = LOWORD(wParam);
 
@@ -582,22 +603,26 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 
                   int i;
 
+                  POINT origin = { 0, 0 };
+
+                  ClientToScreen(hWnd, &origin);
+
                   _al_win_touch_input_set_time_stamp((touches + number_of_touches - 1)->dwTime);
 
                   for (i = 0; i < number_of_touches; ++i) {
 
                      TOUCHINPUT* touch = touches + i;
 
-                     float x = touch->x / 100.0f;
-                     float y = touch->y / 100.0f;
+                     float x = touch->x / 100.0f - (float)origin.x;
+                     float y = touch->y / 100.0f - (float)origin.y;
 
-                     bool primary = touch->dwMask & TOUCHEVENTF_PRIMARY ? true : false;
+                     bool primary = touch->dwFlags & _AL_TOUCHEVENTF_PRIMARY ? true : false;
 
-                     if (touch->dwMask & TOUCHEVENTF_DOWN)
+                     if (touch->dwFlags & _AL_TOUCHEVENTF_DOWN)
                         _al_win_touch_input_handle_begin((int)touch->dwID, (size_t)touch->dwTime, x, y, primary, win_display);
-                     else if (touch->dwMask & TOUCHEVENTF_UP)
+                     else if (touch->dwFlags & _AL_TOUCHEVENTF_UP)
                         _al_win_touch_input_handle_end((int)touch->dwID, (size_t)touch->dwTime, x, y, primary, win_display);
-                     else if (touch->dwMask & TOUCHEVENTF_MOVE)
+                     else if (touch->dwFlags & _AL_TOUCHEVENTF_MOVE)
                         _al_win_touch_input_handle_move((int)touch->dwID, (size_t)touch->dwTime, x, y, primary, win_display);
                   }
                }
