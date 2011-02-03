@@ -235,7 +235,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 	// Enumerates through all touch objects
 	for (UITouch *nativeTouch in touches) {
    
-      if (touch = find_touch(touch_list, nativeTouch)) {
+      if ((touch = find_touch(touch_list, nativeTouch))) {
       
          CGPoint p = [nativeTouch locationInView:self];
       p.x *= _al_iphone_get_screen_scale();
@@ -256,7 +256,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 	// Enumerates through all touch objects
 	for (UITouch *nativeTouch in touches) {
 
-      if (touch = find_touch(touch_list, nativeTouch)) {
+      if ((touch = find_touch(touch_list, nativeTouch))) {
    
          CGPoint p = [nativeTouch locationInView:self];
       p.x *= _al_iphone_get_screen_scale();
@@ -282,7 +282,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 	// Enumerates through all touch objects
 	for (UITouch *nativeTouch in touches) {
    
-      if (touch = find_touch(touch_list, nativeTouch)) {
+      if ((touch = find_touch(touch_list, nativeTouch))) {
    
            CGPoint p = [nativeTouch locationInView:self];
       p.x *= _al_iphone_get_screen_scale();
