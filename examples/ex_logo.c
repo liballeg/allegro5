@@ -114,14 +114,22 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
    right = left + w + br * 2;
    bottom = top + h + br * 2;
 
+   if (left < 0)
+      left = 0;
+   if (top < 0)
+      top = 0;
+   if (right > dw - 1)
+      right = dw - 1;
+   if (bottom > dh - 1)
+      bottom = dh - 1;
+
    /* Cheap light effect. */
    light = al_create_bitmap(dw, dh);
    al_set_target_bitmap(light);
    al_clear_to_color(transparent);
    lock1 = al_lock_bitmap(blur, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
-   // FIXME: ALLEGRO_LOCK_WRITEONLY is broken right now with OpenGL
    lock2 = al_lock_bitmap_region(light, left, top, 1 + right - left,
-                         1 + bottom - top, ALLEGRO_PIXEL_FORMAT_ANY, 0);
+      1 + bottom - top, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
    for (y = top; y < bottom; y++) {
       for (x = left; x < right; x++) {
          float r1, g1, b1, a1;
