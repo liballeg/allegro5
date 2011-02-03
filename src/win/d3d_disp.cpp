@@ -300,6 +300,19 @@ bool al_have_d3d_non_pow2_texture_support(void)
    return false;
 }
 
+static int d3d_get_max_texture_size(int adapter)
+{
+   D3DCAPS9 caps;
+
+   if (_al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_HAL, &caps) != D3D_OK) {
+      if (_al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_REF, &caps) != D3D_OK) {
+         return -1;
+      }
+   }
+
+   return ALLEGRO_MIN(caps.MaxTextureWidth, caps.MaxTextureHeight);
+}
+
 /* Function: al_have_d3d_non_square_texture_support
  */
 bool al_have_d3d_non_square_texture_support(void)
@@ -1964,6 +1977,12 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    al_lock_mutex(present_mutex);
    display = d3d_create_display_locked(w, h);
    al_unlock_mutex(present_mutex);
+
+   int *s = display->extra_settings.settings;
+   s[ALLEGRO_MAX_BITMAP_SIZE] = d3d_get_max_texture_size(display->adapter);
+   s[ALLEGRO_SUPPORT_SEPARATE_ALPHA] = _al_d3d_supports_separate_alpha_blend(display);
+   s[ALLEGRO_SUPPORT_NPOT_BITMAP] = al_have_d3d_non_pow2_texture_support();
+   s[ALLEGRO_CAN_DRAW_INTO_BITMAP] = render_to_texture_supported;
 
    return display;
 }
