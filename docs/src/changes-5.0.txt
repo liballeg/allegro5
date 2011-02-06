@@ -4,6 +4,20 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 5.0.0 RC5 to 5.0.0 (February 2011)
+===============================================
+
+Color addon:
+
+-  Use colour names from CSS.  This is the same as the previous list but
+   with all grey/gray alternatives.
+
+Documentation:
+
+-  Minor documentation updates.
+
+
+
 Changes from 5.0.0 RC4 to 5.0.0 RC5 (February 2011)
 ===================================================
 
