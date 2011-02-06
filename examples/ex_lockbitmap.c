@@ -83,7 +83,6 @@ restart:
     * pixel data.
     * We use a 16-bit format and odd positions and sizes to increase the
     * chances of uncovering bugs.
-    * XXX 15-bit format doesn't work
     */
    locked = al_lock_bitmap_region(bitmap, 193, 65, 3*127, 127,
       ALLEGRO_PIXEL_FORMAT_RGB_565, lock_flags);
