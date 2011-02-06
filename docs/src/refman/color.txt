@@ -144,8 +144,8 @@ sandybrown, seagreen, seashell, sienna, silver, skyblue, slateblue,
 slategray, snow, springgreen, steelblue, tan, teal, thistle, tomato,
 turquoise, violet, wheat, white, whitesmoke, yellow, yellowgreen
 
-They are taken from <http://en.wikipedia.org/wiki/X11_color_names>,
-with CSS names being preferred over X11 ones where there is overlap.
+They are taken from
+<http://www.w3.org/TR/2010/PR-css3-color-20101028/#svg-color>.
 
 Returns:
 true if a name from the list above was passed, else false.
