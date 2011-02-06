@@ -511,22 +511,28 @@ Returns true iff an event was dropped.
 
 Emit a user event.
 The event source must have been initialised with [al_init_user_event_source].
-Some fields of the event being passed in may be modified.
 Returns `false` if the event source isn't registered with any queues,
 hence the event wouldn't have been delivered into any queues.
 
-Reference counting will be performed on the event if `dtor` is non-NULL.
-When the reference count drops to zero `dtor` will be called with a copy of
+Events are *copied* in and out of event queues, so after this function
+returns the memory pointed to by `event` may be freed or reused.
+Some fields of the event being passed in may be modified by the function.
+
+Reference counting will be performed if `dtor` is not NULL.
+Whenever a copy of the event is made, the reference count increases.
+You need to call [al_unref_user_event] to decrease the reference count
+once you are done a user event that you have received from [al_get_next_event],
+[al_peek_next_event], [al_wait_for_event], etc.
+
+Once the reference count drops to zero `dtor` will be called with a copy of
 the event as an argument.  It should free the resources associated with
-the event.  If `dtor` is NULL then reference counting will not be
-performed.
+the event, but *not* the event itself (since it is just a copy).
 
-You need to call [al_unref_user_event] when you are done with a reference
-counted user event that you have gotten from [al_get_next_event],
-[al_peek_next_event], [al_wait_for_event], etc.  You may, but do not need
-to, call [al_unref_user_event] on non-reference counted user events.
+If `dtor` is NULL then reference counting will not be performed.
+It is safe, but unnecessary, to call [al_unref_user_event] on non-reference
+counted user events.
 
-See also: [ALLEGRO_USER_EVENT]
+See also: [ALLEGRO_USER_EVENT], [al_unref_user_event]
 
 ## API: al_is_event_queue_empty
 
@@ -581,12 +587,13 @@ See also: [al_get_event_source_data]
 
 ## API: al_unref_user_event
 
-Unreference a user-defined event. This must be called on any user event
+Decrease the reference count of a user-defined event.
+This must be called on any user event
 that you get from [al_get_next_event], [al_peek_next_event],
 [al_wait_for_event], etc. which is reference counted.
 This function does nothing if the event is not reference counted.
 
-See also: [al_emit_user_event].
+See also: [al_emit_user_event]
 
 ## API: al_unregister_event_source
 
