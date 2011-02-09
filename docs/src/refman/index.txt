@@ -1,4 +1,4 @@
-% Allegro 5.0 reference manual
+% Allegro 5.1 reference manual
 <!-- This file is only used for the HTML output. -->
 <!-- If you change this you should change inc.a as well. -->
 <!-- Don't use #-sectioning in this file. -->
