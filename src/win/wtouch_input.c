@@ -114,12 +114,6 @@ void _al_win_exit_touch_input_api(void)
 
 /* Actual driver implementation. */
 
-static bool is_touch_input_device_available(void)
-{
-   return (user32_module && (GetSystemMetrics(_AL_SM_DIGITIZER) & _AL_NID_READY)) ? true : false;
-}
-
-
 static void generate_touch_input_event(int type, double timestamp, int id, float x, float y, float dx, float dy, bool primary, ALLEGRO_DISPLAY_WIN *win_disp)
 {
    ALLEGRO_EVENT event;
@@ -192,7 +186,7 @@ static void generate_touch_input_event(int type, double timestamp, int id, float
 
 static bool init_touch_input(void)
 {
-   int i;
+   unsigned i;
    ALLEGRO_SYSTEM* system;
 
    if (installed)
@@ -272,7 +266,7 @@ static void set_mouse_emulation_mode(int mode)
 }
 
 
-static ALLEGRO_TOUCH_STATE* find_free_touch_state()
+static ALLEGRO_TOUCH_STATE* find_free_touch_state(void)
 {
    int i;
 
@@ -304,7 +298,7 @@ static double get_time_stamp(size_t timestamp)
 
 void _al_win_touch_input_set_time_stamp(size_t timestamp)
 {
-   if (initiali_time_stamp != ~0)
+   if (initiali_time_stamp != (size_t)~0)
       initiali_time_stamp = timestamp;
 }
 
@@ -331,7 +325,10 @@ void _al_win_touch_input_handle_begin(int id, size_t timestamp, float x, float y
 
 void _al_win_touch_input_handle_end(int id, size_t timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY_WIN *win_disp)
 {
-   ALLEGRO_TOUCH_STATE* state = find_touch_state_with_id(id);
+   ALLEGRO_TOUCH_STATE* state;
+   (void)primary;
+
+   state = find_touch_state_with_id(id);
    if (NULL == state)
       return;
 
@@ -353,7 +350,10 @@ void _al_win_touch_input_handle_end(int id, size_t timestamp, float x, float y, 
 
 void _al_win_touch_input_handle_move(int id, size_t timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY_WIN *win_disp)
 {
-   ALLEGRO_TOUCH_STATE* state = find_touch_state_with_id(id);
+   ALLEGRO_TOUCH_STATE* state;
+   (void)primary;
+
+   state = find_touch_state_with_id(id);
    if (NULL == state)
       return;
 
@@ -371,7 +371,10 @@ void _al_win_touch_input_handle_move(int id, size_t timestamp, float x, float y,
 
 void _al_win_touch_input_handle_cancel(int id, size_t timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY_WIN *win_disp)
 {
-   ALLEGRO_TOUCH_STATE* state = find_touch_state_with_id(id);
+   ALLEGRO_TOUCH_STATE* state;
+   (void)primary;
+
+   state = find_touch_state_with_id(id);
    if (NULL == state)
       return;
 

@@ -370,7 +370,7 @@ static void break_window_message_pump(ALLEGRO_DISPLAY_WIN *win_display, HWND hWn
  * we do not want to use this, because Allegro driver provide emulation already. This
  * way we can be consistent across platforms.
  */
-static bool accept_mouse_event()
+static bool accept_mouse_event(void)
 {
    if (!al_is_touch_input_installed())
       return true;
