@@ -29,12 +29,16 @@
 static ALLEGRO_TOUCH_INPUT_DRIVER *touch_input_driver = NULL;
 
 
+/* Function: al_is_touch_input_installed
+ */
 bool al_is_touch_input_installed(void)
 {
    return (touch_input_driver ? true : false);
 }
 
 
+/* Function: al_install_touch_input
+ */
 bool al_install_touch_input(void)
 {
    if (touch_input_driver)
@@ -56,6 +60,8 @@ bool al_install_touch_input(void)
 }
 
 
+/* Function: al_uninstall_touch_input
+ */
 void al_uninstall_touch_input(void)
 {
    if (!touch_input_driver)
@@ -79,6 +85,8 @@ static ALLEGRO_TOUCH_INPUT *get_touch_input(void)
 }
 
 
+/* Function: al_get_touch_input_state
+ */
 void al_get_touch_input_state(ALLEGRO_TOUCH_INPUT_STATE *ret_state)
 {
    ASSERT(touch_input_driver);
@@ -88,6 +96,8 @@ void al_get_touch_input_state(ALLEGRO_TOUCH_INPUT_STATE *ret_state)
 }
 
 
+/* Function: al_set_mouse_emulation_mode
+ */
 void al_set_mouse_emulation_mode(int mode)
 {
    ASSERT(touch_input_driver);
@@ -99,6 +109,8 @@ void al_set_mouse_emulation_mode(int mode)
 }
 
 
+/* Function: al_get_mouse_emulation_mode
+ */
 int al_get_mouse_emulation_mode(void)
 {
    ASSERT(touch_input_driver);
@@ -110,6 +122,8 @@ int al_get_mouse_emulation_mode(void)
 }
 
 
+/* Function: al_get_touch_input_event_source
+ */
 ALLEGRO_EVENT_SOURCE *al_get_touch_input_event_source(void)
 {
    ALLEGRO_TOUCH_INPUT *touch_input = get_touch_input();
@@ -118,6 +132,8 @@ ALLEGRO_EVENT_SOURCE *al_get_touch_input_event_source(void)
 }
 
 
+/* Function: al_get_touch_input_mouse_emulation_event_source
+ */
 ALLEGRO_EVENT_SOURCE *al_get_touch_input_mouse_emulation_event_source(void)
 {
    ALLEGRO_TOUCH_INPUT *touch_input = get_touch_input();

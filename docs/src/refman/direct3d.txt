@@ -63,3 +63,9 @@ belonging to the given display is in a lost state.
 *Parameters:*
 
 * display - The display that the device you wish to check is attached to
+
+## API: al_set_direct3d_effect
+
+*Not yet documented.*
+
+Since: 5.1.0

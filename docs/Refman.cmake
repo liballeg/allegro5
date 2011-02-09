@@ -23,6 +23,7 @@ set(PAGES
     threads
     time
     timer
+    touch
     transformations
     utf8
 

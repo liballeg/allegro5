@@ -90,6 +90,12 @@ Returns the transformation of the current target bitmap, as set by
 *Returns:*
 A pointer to the current transformation.
 
+## API: al_get_current_inverse_transform
+
+*Not yet documented.*
+
+Since: 5.1.0
+
 ## API: al_invert_transform
 
 Inverts the passed transformation. If the transformation is nearly singular 
@@ -197,3 +203,21 @@ and then applying `other` and not the other way around.
 
 * trans - Transformation to alter
 * other - Transformation used to transform `trans`
+
+## API: al_ortho_transform
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_get_projection_transform
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_set_projection_transform
+
+*Not yet documented.*
+
+Since: 5.1.0

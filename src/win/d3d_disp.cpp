@@ -74,6 +74,8 @@ static ALLEGRO_MUTEX *present_mutex;
 ALLEGRO_MUTEX *_al_d3d_lost_device_mutex;
 
 #ifdef ALLEGRO_CFG_HLSL_SHADERS
+/* Function: al_set_direct3d_effect
+ */
 void al_set_direct3d_effect(ALLEGRO_DISPLAY *display, LPD3DXEFFECT effect)
 {
    ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)display;

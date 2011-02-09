@@ -317,6 +317,8 @@ bool _al_transform_is_translation(const ALLEGRO_TRANSFORM* trans,
    return false;
 }
 
+/* Function: al_ortho_transform
+ */
 void al_ortho_transform(ALLEGRO_TRANSFORM *trans,
    float left, float right, float bottom, float top,
    float n, float f)
@@ -339,11 +341,15 @@ void al_ortho_transform(ALLEGRO_TRANSFORM *trans,
    al_compose_transform(trans, &tmp);
 }
 
+/* Function: al_get_projection_transform
+ */
 ALLEGRO_TRANSFORM *al_get_projection_transform(ALLEGRO_DISPLAY *display)
 {
    return &display->proj_transform;
 }
 
+/* Function: al_set_projection_transform
+ */
 void al_set_projection_transform(ALLEGRO_DISPLAY *display, ALLEGRO_TRANSFORM *t)
 {
    al_copy_transform(&display->proj_transform, t);

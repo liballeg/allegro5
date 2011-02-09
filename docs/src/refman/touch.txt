@@ -1,0 +1,73 @@
+# Touch input
+
+## API: ALLEGRO_TOUCH_INPUT
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: ALLEGRO_TOUCH_INPUT_STATE
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: ALLEGRO_TOUCH_STATE
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: ALLEGRO_MOUSE_EMULATION_MODE
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_is_touch_input_installed
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_install_touch_input
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_uninstall_touch_input
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_get_touch_input_state
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_set_mouse_emulation_mode
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_get_mouse_emulation_mode
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_get_touch_input_event_source
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_get_touch_input_mouse_emulation_event_source
+
+*Not yet documented.*
+
+Since: 5.1.0

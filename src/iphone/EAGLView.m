@@ -397,11 +397,15 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 
 @end
 
+/* Function: al_iphone_get_last_shake_time
+ */
 double al_iphone_get_last_shake_time(void)
 {
 	return allegro_iphone_shake_time;
 }
 
+/* Function: al_iphone_get_battery_level
+ */
 float al_iphone_get_battery_level(void)
 {
 	return allegro_iphone_battery_level;

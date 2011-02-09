@@ -75,6 +75,8 @@ void al_iphone_program_has_halted(void)
    waiting_for_program_halt = false;
 }
 
+/* Function: al_iphone_get_screen_scale
+ */
 float al_iphone_get_screen_scale(void)
 {
    if (scale_override > 0.0) {
@@ -93,6 +95,8 @@ void al_iphone_override_screen_scale(float scale)
    scale_override = scale;
 }
 
+/* Function: al_iphone_set_statusbar_orientation
+ */
 void al_iphone_set_statusbar_orientation(int o)
 {
 	UIInterfaceOrientation orientation = UIInterfaceOrientationPortrait;

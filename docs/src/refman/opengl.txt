@@ -151,6 +151,12 @@ You might need if it you created an OpenGL "forward compatible" context.
 Then [al_get_backbuffer] only returns NULL, so it would not work to pass that
 to [al_set_target_bitmap].
 
+## API: al_set_opengl_program_object
+
+*Not yet documented.*
+
+Since: 5.1.0
+
 ## OpenGL configuration
 
 You can disable the detection of any OpenGL extension by Allegro with

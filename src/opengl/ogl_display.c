@@ -367,6 +367,9 @@ void _al_ogl_destroy_backbuffer(ALLEGRO_BITMAP_OGL *b)
    al_destroy_bitmap((ALLEGRO_BITMAP *)b);
 }
 
+
+/* Function: al_set_opengl_program_object
+ */
 void al_set_opengl_program_object(ALLEGRO_DISPLAY *display, GLuint program_object)
 {
    GLint handle;

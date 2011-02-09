@@ -360,6 +360,20 @@ Gets the width of the display. This is like SCREEN_W in Allegro 4.x.
 
 See also: [al_get_display_height]
 
+### API: al_get_display_orientation
+
+Return the display orientation, which can be one of the following:
+
+-  ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN
+-  ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES
+-  ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES
+-  ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES
+-  ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES
+-  ALLEGRO_DISPLAY_ORIENTATION_FACE_UP
+-  ALLEGRO_DISPLAY_ORIENTATION_FACE_DOWN
+
+Since: 5.1.0
+
 ### API: al_get_window_position
 
 Gets the position of a non-fullscreen display.

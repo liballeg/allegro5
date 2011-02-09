@@ -47,3 +47,27 @@ not an exact multiple of the original iPhone resolution, linear filtering
 will be applied to the final image.
 
 This function should be called BEFORE calling al_create_display.
+
+### API: al_iphone_set_statusbar_orientation
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+### API: al_iphone_get_last_shake_time
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+### API: al_iphone_get_battery_level
+
+*Not yet documented.*
+
+Since: 5.1.0
+
+### API: al_iphone_get_screen_scale
+
+*Not yet documented.*
+
+Since: 5.1.0
