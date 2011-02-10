@@ -420,14 +420,30 @@ See also: [ALLEGRO_EVENT], [ALLEGRO_GET_EVENT_TYPE],
 ## API: ALLEGRO_GET_EVENT_TYPE
 
 Make an event type identifier, which is a 32-bit integer.
-Usually this will be made from four 8-bit character codes, for example:
+Usually, but not necessarily, this will be made from four 8-bit character
+codes, for example:
 
     #define MY_EVENT_TYPE   ALLEGRO_GET_EVENT_TYPE('M','I','N','E')
 
-You should try to make your IDs unique so they don't clash with any 3rd party
-code you may be using.
-
 IDs less than 1024 are reserved for Allegro or its addons.
+Don't use anything lower than `ALLEGRO_GET_EVENT_TYPE(0, 0, 4, 0)`.
+
+You should try to make your IDs unique so they don't clash with any 3rd party
+code you may be using.  Be creative.  Numbering from 1024 is not creative.
+
+If you need multiple identifiers, you could define them like this:
+
+    #define BASE_EVENT   ALLEGRO_GET_EVENT_TYPE('M','I','N','E')
+    #define BARK_EVENT   (BASE_EVENT + 0)
+    #define MEOW_EVENT   (BASE_EVENT + 1)
+    #define SQUAWK_EVENT (BASE_EVENT + 2)
+
+    /* Alternatively */
+    enum {
+       BARK_EVENT = ALLEGRO_GET_EVENT_TYPE('M','I','N','E'),
+       MEOW_EVENT,
+       SQUAWK_EVENT
+    };
 
 See also: [ALLEGRO_EVENT], [ALLEGRO_EVENT_TYPE_IS_USER]
 
