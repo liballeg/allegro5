@@ -16,7 +16,9 @@ typedef struct {
    int r, g, b;
 } ColorName;
 
-/* Taken from http://www.w3.org/TR/2010/PR-css3-color-20101028/#svg-color */
+/* Taken from http://www.w3.org/TR/2010/PR-css3-color-20101028/#svg-color
+ * This must be sorted correctly for binary search.
+ */
 static ColorName _al_color_names[] = {
    {"aliceblue", 0xf0, 0xf8, 0xff},
    {"antiquewhite", 0xfa, 0xeb, 0xd7},
@@ -168,6 +170,24 @@ static ColorName _al_color_names[] = {
    {"yellowgreen", 0x9a, 0xcd, 0x32},
 };
 
+#define NUM_COLORS (sizeof(_al_color_names) / sizeof(ColorName))
+
+static void assert_sorted_names(void)
+{
+   /* In debug mode, check once that the array is sorted. */
+#ifdef ALLEGRO_DEBUG
+   static bool done = false;
+   unsigned i;
+
+   if (!done) {
+      for (i = 1; i < NUM_COLORS; i++) {
+         ASSERT(strcmp(_al_color_names[i-1].name, _al_color_names[i].name) < 0);
+      }
+      done = true;
+   }
+#endif
+}
+
 static int compare(const void *va, const void *vb)
 {
    char const *ca = va;
@@ -179,8 +199,9 @@ static int compare(const void *va, const void *vb)
  */
 bool al_color_name_to_rgb(char const *name, float *r, float *g, float *b)
 {
-   void *result = bsearch(name, _al_color_names,
-      sizeof(_al_color_names) / sizeof(ColorName), sizeof(ColorName),
+   void *result;
+   assert_sorted_names();
+   result = bsearch(name, _al_color_names, NUM_COLORS, sizeof(ColorName),
       compare);
    if (result) {
       ColorName *c = result;
@@ -200,7 +221,7 @@ char const *al_color_rgb_to_name(float r, float g, float b)
    int ir = r * 255;
    int ig = g * 255;
    int ib = b * 255;
-   int n = sizeof(_al_color_names) / sizeof(ColorName);
+   int n = NUM_COLORS;
    int min = n, mind = 0;
    /* Could optimize this, right now it does linear search. */
    for (i = 0; i < n; i++) {
