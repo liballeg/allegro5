@@ -176,7 +176,6 @@ int main(int argc, char **argv)
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_SHADER *shader;
-   float *tints;
 
    (void)argc;
    (void)argv;
@@ -211,23 +210,12 @@ int main(int argc, char **argv)
    al_set_direct3d_effect(display, al_get_direct3d_effect(shader));
 #endif
       
-   tints = new float[3*4];
-
-   tints[0] = 4.0;
-   tints[1] = 0.0;
-   tints[2] = 1.0;
-
-   tints[3] = 0.0;
-   tints[4] = 4.0;
-   tints[5] = 1.0;
-
-   tints[6] = 1.0;
-   tints[7] = 0.0;
-   tints[8] = 4.0;
-
-   tints[9] = 4.0;
-   tints[10] = 4.0;
-   tints[11] = 1.0;
+   float tints[12] = {
+      4.0, 0.0, 1.0,
+      0.0, 4.0, 1.0,
+      1.0, 0.0, 4.0,
+      4.0, 4.0, 1.0
+   };
 
    while (1) {
       ALLEGRO_KEYBOARD_STATE s;
