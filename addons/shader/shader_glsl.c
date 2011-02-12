@@ -39,9 +39,7 @@ typedef struct GLSL_DEFERRED_SET {
 
 ALLEGRO_SHADER *_al_create_shader_glsl(ALLEGRO_SHADER_PLATFORM platform)
 {
-   ALLEGRO_SHADER_GLSL_S *shader = (ALLEGRO_SHADER_GLSL_S *)al_malloc(
-      sizeof(ALLEGRO_SHADER_GLSL_S)
-   );
+   ALLEGRO_SHADER_GLSL_S *shader = al_malloc(sizeof(ALLEGRO_SHADER_GLSL_S));
    
    (void)platform;
 
@@ -84,12 +82,7 @@ bool _al_link_shader_glsl(ALLEGRO_SHADER *shader)
    glGetProgramiv(gl_shader->program_object, GL_LINK_STATUS, &status);
 
    if (status == 0) {
-      glGetProgramInfoLog(
-         gl_shader->program_object,
-         4096,
-         &length,
-         error_buf
-      );
+      glGetProgramInfoLog(gl_shader->program_object, 4096, &length, error_buf);
       printf("%s\n", error_buf);
       glDeleteProgram(gl_shader->program_object);
       return false;
@@ -140,25 +133,11 @@ bool _al_attach_shader_source_glsl(
       if ((*handle) == 0) {
          return false;
       }
-      glShaderSource(
-         *handle,
-         1,
-         &source,
-         NULL
-      );
+      glShaderSource(*handle, 1, &source, NULL);
       glCompileShader(*handle);
-      glGetShaderiv(
-         *handle,
-         GL_COMPILE_STATUS,
-         &status
-      );
+      glGetShaderiv(*handle, GL_COMPILE_STATUS, &status);
       if (status == 0) {
-         glGetShaderInfoLog(
-            *handle,
-            4096,
-            &length,
-            error_buf
-         );
+         glGetShaderInfoLog(*handle, 4096, &length, error_buf);
          printf("%s\n", error_buf);
          glDeleteShader(*handle);
          return false;
