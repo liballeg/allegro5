@@ -19,9 +19,9 @@ bool _al_set_shader_matrix_hlsl(ALLEGRO_SHADER *shader, const char *name,
 bool _al_set_shader_int_hlsl(ALLEGRO_SHADER *shader, const char *name, int i);
 bool _al_set_shader_float_hlsl(ALLEGRO_SHADER *shader, const char *name, float f);
 bool _al_set_shader_int_vector_hlsl(ALLEGRO_SHADER *shader, const char *name,
-   int size, int *i);
+   int elem_size, int *i, int num_elems);
 bool _al_set_shader_float_vector_hlsl(ALLEGRO_SHADER *shader, const char *name,
-   int size, float *f);
+   int elem_size, float *f, int num_elems);
 
 bool _al_set_shader_vertex_array_hlsl(ALLEGRO_SHADER *shader, float *v, int stride);
 bool _al_set_shader_color_array_hlsl(ALLEGRO_SHADER *shader, unsigned char *c, int stride);

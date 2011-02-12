@@ -240,19 +240,19 @@ int main(int argc, char **argv)
       );
 
       al_set_shader_sampler(shader, "tex", bmp, 0);
-      al_set_shader_float_vector(shader, "tint", 3, &tints[0]);
+      al_set_shader_float_vector(shader, "tint", 3, &tints[0], 1);
       al_use_shader(shader, true);
       al_draw_bitmap(bmp, 0, 0, 0);
       al_use_shader(shader, false);
 
       al_set_shader_sampler(shader, "tex", bmp, 0);
-      al_set_shader_float_vector(shader, "tint", 3, &tints[3]);
+      al_set_shader_float_vector(shader, "tint", 3, &tints[3], 1);
       al_use_shader(shader, true);
       al_draw_bitmap(bmp, 320, 0, 0);
       al_use_shader(shader, false);
 
       al_set_shader_sampler(shader, "tex", bmp, 0);
-      al_set_shader_float_vector(shader, "tint", 3, &tints[6]);
+      al_set_shader_float_vector(shader, "tint", 3, &tints[6], 1);
       al_use_shader(shader, true);
       al_draw_bitmap(bmp, 0, 240, 0);
       al_use_shader(shader, false);
@@ -265,7 +265,7 @@ int main(int argc, char **argv)
       al_use_transform(&trans);
 
       al_set_shader_sampler(shader, "tex", bmp, 0);
-      al_set_shader_float_vector(shader, "tint", 3, &tints[9]);
+      al_set_shader_float_vector(shader, "tint", 3, &tints[9], 1);
       al_use_shader(shader, true);
       al_draw_bitmap(bmp, 0, 0, 0);
       al_use_shader(shader, false);

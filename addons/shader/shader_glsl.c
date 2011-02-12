@@ -1,4 +1,4 @@
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/allegro_shader.h"
 #include "allegro5/allegro_shader_glsl.h"
@@ -16,7 +16,8 @@ typedef struct GLSL_DEFERRED_SET {
    void (*fptr)(struct GLSL_DEFERRED_SET *s);
    // dump every parameter possible from the setters below
    char *name;
-   int size;
+   int elem_size;
+   int num_elems;
    float *fp;
    unsigned char *cp;
    int *ip;
@@ -229,18 +230,21 @@ static void shader_set_int_vector(GLSL_DEFERRED_SET *s)
 
    handle = glGetUniformLocation(gl_shader->program_object, s->name);
 
-   switch (s->size) {
+   switch (s->elem_size) {
       case 1:
-         glUniform1i(handle, s->ip[0]);
+         glUniform1iv(handle, s->num_elems, s->ip);
          break;
       case 2:
-         glUniform2i(handle, s->ip[0], s->ip[1]);
+         glUniform2iv(handle, s->num_elems, s->ip);
          break;
       case 3:
-         glUniform3i(handle, s->ip[0], s->ip[1], s->ip[2]);
+         glUniform3iv(handle, s->num_elems, s->ip);
          break;
       case 4:
-         glUniform4i(handle, s->ip[0], s->ip[1], s->ip[2], s->ip[3]);
+         glUniform4iv(handle, s->num_elems, s->ip);
+         break;
+      default:
+         ASSERT(false);
          break;
    }
 }
@@ -252,18 +256,21 @@ static void shader_set_float_vector(GLSL_DEFERRED_SET *s)
 
    handle = glGetUniformLocation(gl_shader->program_object, s->name);
 
-   switch (s->size) {
+   switch (s->elem_size) {
       case 1:
-         glUniform1f(handle, s->fp[0]);
+         glUniform1fv(handle, s->num_elems, s->fp);
          break;
       case 2:
-         glUniform2f(handle, s->fp[0], s->fp[1]);
+         glUniform2fv(handle, s->num_elems, s->fp);
          break;
       case 3:
-         glUniform3f(handle, s->fp[0], s->fp[1], s->fp[2]);
+         glUniform3fv(handle, s->num_elems, s->fp);
          break;
       case 4:
-         glUniform4f(handle, s->fp[0], s->fp[1], s->fp[2], s->fp[3]);
+         glUniform4fv(handle, s->num_elems, s->fp);
+         break;
+      default:
+         ASSERT(false);
          break;
    }
 }
@@ -303,7 +310,8 @@ void _al_use_shader_glsl(ALLEGRO_SHADER *shader, bool use)
 static bool shader_add_deferred_set(
    void (*fptr)(GLSL_DEFERRED_SET *s),
    char *name,
-   int size,
+   int elem_size,
+   int num_elems,
    float *fp,
    unsigned char *cp,
    int *ip,
@@ -325,12 +333,14 @@ static bool shader_add_deferred_set(
    handle = glGetUniformLocation(gl_shader->program_object, name);
 
    if (handle < 0) {
+      ALLEGRO_WARN("No uniform variable '%s' in shader program\n", name);
       return false;
    }
-   
+
    s.fptr = fptr;
    s.name = name;
-   s.size = size;
+   s.elem_size = elem_size;
+   s.num_elems = num_elems;
    s.fp = fp;
    s.cp = cp;
    s.ip = ip;
@@ -359,7 +369,8 @@ bool _al_set_shader_sampler_glsl(ALLEGRO_SHADER *shader, const char *name,
    return shader_add_deferred_set(
       shader_set_sampler, // void (*fptr)(GLSL_DEFERRED_SET *s)
       strdup(name), // const char *name;
-      0,    // int size;
+      0,    // int elem_size;
+      0,    // int num_elems
       NULL, // float *fp;
       NULL, // unsigned char *cp;
       NULL, // int *ip;
@@ -378,7 +389,8 @@ bool _al_set_shader_matrix_glsl(ALLEGRO_SHADER *shader, const char *name,
    return shader_add_deferred_set(
       shader_set_matrix, // void (*fptr)(GLSL_DEFERRED_SET *s)
       strdup(name), // const char *name;
-      0,    // int size;
+      0,    // int elem_size;
+      0,    // int num_elems
       NULL, // float *fp;
       NULL, // unsigned char *cp;
       NULL, // int *ip;
@@ -396,7 +408,8 @@ bool _al_set_shader_int_glsl(ALLEGRO_SHADER *shader, const char *name, int i)
    return shader_add_deferred_set(
       shader_set_int, // void (*fptr)(GLSL_DEFERRED_SET *s)
       strdup(name), // const char *name;
-      0,    // int size;
+      0,    // int elem_size;
+      0,    // int num_elems
       NULL, // float *fp;
       NULL, // unsigned char *cp;
       NULL, // int *ip;
@@ -415,7 +428,8 @@ bool _al_set_shader_float_glsl(ALLEGRO_SHADER *shader, const char *name,
    return shader_add_deferred_set(
       shader_set_float, // void (*fptr)(GLSL_DEFERRED_SET *s)
       strdup(name), // const char *name;
-      0,    // int size;
+      0,    // int elem_size;
+      0,    // int num_elems
       NULL, // float *fp;
       NULL, // unsigned char *cp;
       NULL, // int *ip;
@@ -429,12 +443,13 @@ bool _al_set_shader_float_glsl(ALLEGRO_SHADER *shader, const char *name,
 }
 
 bool _al_set_shader_int_vector_glsl(ALLEGRO_SHADER *shader, const char *name,
-   int size, int *i)
+   int elem_size, int *i, int num_elems)
 {
    return shader_add_deferred_set(
       shader_set_int_vector, // void (*fptr)(GLSL_DEFERRED_SET *s)
       strdup(name), // const char *name;
-      size,    // int size;
+      elem_size,    // int size;
+      num_elems,
       NULL, // float *fp;
       NULL, // unsigned char *cp;
       i, // int *ip;
@@ -448,12 +463,13 @@ bool _al_set_shader_int_vector_glsl(ALLEGRO_SHADER *shader, const char *name,
 }
 
 bool _al_set_shader_float_vector_glsl(ALLEGRO_SHADER *shader, const char *name,
-   int size, float *f)
+   int elem_size, float *f, int num_elems)
 {
    return shader_add_deferred_set(
       shader_set_float_vector, // void (*fptr)(GLSL_DEFERRED_SET *s)
       strdup(name), // const char *name;
-      size,    // int size;
+      elem_size,    // int elem_size;
+      num_elems,
       f, // float *fp;
       NULL, // unsigned char *cp;
       NULL, // int *ip;

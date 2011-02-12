@@ -69,9 +69,9 @@ ALLEGRO_SHADER_FUNC(bool, al_set_shader_matrix, (ALLEGRO_SHADER *shader, const c
 ALLEGRO_SHADER_FUNC(bool, al_set_shader_int, (ALLEGRO_SHADER *shader, const char *name, int i));
 ALLEGRO_SHADER_FUNC(bool, al_set_shader_float, (ALLEGRO_SHADER *shader, const char *name, float f));
 ALLEGRO_SHADER_FUNC(bool, al_set_shader_int_vector, (ALLEGRO_SHADER *shader, const char *name,
-   int size, int *i));
+   int elem_size, int *i, int num_elems));
 ALLEGRO_SHADER_FUNC(bool, al_set_shader_float_vector, (ALLEGRO_SHADER *shader, const char *name,
-   int size, float *f));
+   int elem_size, float *f, int num_elems));
 
 ALLEGRO_SHADER_FUNC(bool, al_set_shader_vertex_array, (ALLEGRO_SHADER *shader, float *v, int stride));
 ALLEGRO_SHADER_FUNC(bool, al_set_shader_color_array, (ALLEGRO_SHADER *shader, unsigned char *c, int stride));

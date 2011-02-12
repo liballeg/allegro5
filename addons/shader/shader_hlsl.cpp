@@ -1,4 +1,4 @@
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #include "allegro5/allegro_direct3d.h"
 #include <d3dx9.h>
 #include "allegro5/allegro_shader.h"
@@ -292,23 +292,25 @@ bool _al_set_shader_float_hlsl(ALLEGRO_SHADER *shader, const char *name, float f
 }
 
 bool _al_set_shader_int_vector_hlsl(ALLEGRO_SHADER *shader, const char *name,
-   int size, int *i)
+   int elem_size, int *i, int num_elems)
 {
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
    HRESULT result;
 
-   result = hlsl_shader->hlsl_shader->SetIntArray(name, i, size);
+   result = hlsl_shader->hlsl_shader->SetIntArray(name, i,
+      elem_size * num_elems);
 
    return result == D3D_OK;
 }
 
 bool _al_set_shader_float_vector_hlsl(ALLEGRO_SHADER *shader, const char *name,
-   int size, float *f)
+   int elem_size, float *f, int num_elems)
 {
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
    HRESULT result;
 
-   result = hlsl_shader->hlsl_shader->SetFloatArray(name, f, size);
+   result = hlsl_shader->hlsl_shader->SetFloatArray(name, f,
+      elem_size * num_elems);
 
    return result == D3D_OK;
 }

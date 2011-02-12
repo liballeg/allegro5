@@ -234,18 +234,18 @@ bool al_set_shader_float(ALLEGRO_SHADER *shader, const char *name, float f)
 /* Function: al_set_shader_int_vector
  */
 bool al_set_shader_int_vector(ALLEGRO_SHADER *shader, const char *name,
-   int size, int *i)
+   int elem_size, int *i, int num_elems)
 {
    if (!(shader->platform & ALLEGRO_SHADER_CG) && (shader->platform & ALLEGRO_SHADER_GLSL))
-      return _al_set_shader_int_vector_glsl(shader, name, size, i);
+      return _al_set_shader_int_vector_glsl(shader, name, elem_size, i, num_elems);
 #ifdef ALLEGRO_CFG_WANT_CG_SHADERS
    else if (shader->platform & ALLEGRO_SHADER_CG) {
-      return _al_set_shader_int_vector_cg(shader, name, size, i);
+      return _al_set_shader_int_vector_cg(shader, name, elem_size, i, num_elems);
    }
 #endif
 #ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
    else if (shader->platform & ALLEGRO_SHADER_HLSL)
-      return _al_set_shader_int_vector_hlsl(shader, name, size, i);
+      return _al_set_shader_int_vector_hlsl(shader, name, elem_size, i, num_elems);
 #endif
 
    return false;
@@ -254,18 +254,18 @@ bool al_set_shader_int_vector(ALLEGRO_SHADER *shader, const char *name,
 /* Function: al_set_shader_float_vector
  */
 bool al_set_shader_float_vector(ALLEGRO_SHADER *shader, const char *name,
-   int size, float *f)
+   int elem_size, float *f, int num_elems)
 {
    if (!(shader->platform & ALLEGRO_SHADER_CG) && (shader->platform & ALLEGRO_SHADER_GLSL))
-      return _al_set_shader_float_vector_glsl(shader, name, size, f);
+      return _al_set_shader_float_vector_glsl(shader, name, elem_size, f, num_elems);
 #ifdef ALLEGRO_CFG_WANT_CG_SHADERS
    else if (shader->platform & ALLEGRO_SHADER_CG) {
-      return _al_set_shader_float_vector_cg(shader, name, size, f);
+      return _al_set_shader_float_vector_cg(shader, name, elem_size, f, num_elems);
    }
 #endif
 #ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
    else if (shader->platform & ALLEGRO_SHADER_HLSL)
-      return _al_set_shader_float_vector_hlsl(shader, name, size, f);
+      return _al_set_shader_float_vector_hlsl(shader, name, elem_size, f, num_elems);
 #endif
 
    return false;

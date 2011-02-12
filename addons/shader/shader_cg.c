@@ -1,4 +1,4 @@
-#include "allegro5/allegro5.h"
+#include "allegro5/allegro.h"
 #ifdef ALLEGRO_WINDOWS
 #include <Cg/cgD3D9.h>
 #include "allegro5/allegro_direct3d.h"
@@ -357,7 +357,7 @@ bool _al_set_shader_float_cg(ALLEGRO_SHADER *shader, const char *name, float f)
 }
 
 bool _al_set_shader_int_vector_cg(ALLEGRO_SHADER *shader, const char *name,
-   int size, int *i)
+   int elem_size, int *i, int num_elems)
 {
    ALLEGRO_SHADER_CG_S *cg_shader = (ALLEGRO_SHADER_CG_S *)shader;
    CGparameter v_param, p_param;
@@ -369,17 +369,17 @@ bool _al_set_shader_int_vector_cg(ALLEGRO_SHADER *shader, const char *name,
       return false;
 
    if (v_param != 0) {
-      cgSetParameterValueic(v_param, size, i);
+      cgSetParameterValueic(v_param, elem_size * num_elems, i);
    }
    if (p_param != 0) {
-      cgSetParameterValueic(p_param, size, i);
+      cgSetParameterValueic(p_param, elem_size, i);
    }
 
    return true;
 }
 
 bool _al_set_shader_float_vector_cg(ALLEGRO_SHADER *shader, const char *name,
-   int size, float *f)
+   int elem_size, float *f, int num_elems)
 {
    ALLEGRO_SHADER_CG_S *cg_shader = (ALLEGRO_SHADER_CG_S *)shader;
    CGparameter v_param, p_param;
@@ -391,10 +391,10 @@ bool _al_set_shader_float_vector_cg(ALLEGRO_SHADER *shader, const char *name,
       return false;
 
    if (v_param != 0) {
-      cgSetParameterValuefc(v_param, size, f);
+      cgSetParameterValuefc(v_param, elem_size * num_elems, f);
    }
    if (p_param != 0) {
-      cgSetParameterValuefc(p_param, size, f);
+      cgSetParameterValuefc(p_param, elem_size * num_elems, f);
    }
    
    return true;
