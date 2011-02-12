@@ -175,7 +175,8 @@ See also: [al_ustr_dup]
 
 ### API: al_ustr_empty_string
 
-Return a pointer to a static empty string.  The string is read only.
+Return a pointer to a static empty string.  The string is read only
+and must not be freed.
 
 
 ## Creating strings by referencing other data
