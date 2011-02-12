@@ -12,6 +12,14 @@
 
 ALLEGRO_DEBUG_CHANNEL("shader")
 
+#define LOG_GL_ERROR(proc)                                   \
+   do {                                                      \
+      GLenum err = glGetError();                             \
+      if (err != 0) {                                        \
+         ALLEGRO_DEBUG(proc ": glGetError() = %d\n", err);   \
+      }                                                      \
+   } while (0)
+
 typedef struct GLSL_DEFERRED_SET {
    void (*fptr)(struct GLSL_DEFERRED_SET *s);
    // dump every parameter possible from the setters below
@@ -191,6 +199,7 @@ static void shader_set_sampler(GLSL_DEFERRED_SET *s)
    texture = s->bitmap ? al_get_opengl_texture(s->bitmap) : 0;
    glBindTexture(GL_TEXTURE_2D, texture);
    glUniform1i(handle, s->unit);
+   LOG_GL_ERROR("shader_set_sampler");
 }
 
 static void shader_set_matrix(GLSL_DEFERRED_SET *s)
@@ -201,6 +210,7 @@ static void shader_set_matrix(GLSL_DEFERRED_SET *s)
    handle = glGetUniformLocation(gl_shader->program_object, s->name);
 
    glUniformMatrix4fv(handle, 1, false, (float *)s->transform->m);
+   LOG_GL_ERROR("shader_set_matrix");
 }
 
 static void shader_set_int(GLSL_DEFERRED_SET *s)
@@ -211,6 +221,7 @@ static void shader_set_int(GLSL_DEFERRED_SET *s)
    handle = glGetUniformLocation(gl_shader->program_object, s->name);
 
    glUniform1i(handle, s->i);
+   LOG_GL_ERROR("shader_set_int");
 }
 
 static void shader_set_float(GLSL_DEFERRED_SET *s)
@@ -221,6 +232,7 @@ static void shader_set_float(GLSL_DEFERRED_SET *s)
    handle = glGetUniformLocation(gl_shader->program_object, s->name);
 
    glUniform1f(handle, s->f);
+   LOG_GL_ERROR("shader_set_float");
 }
 
 static void shader_set_int_vector(GLSL_DEFERRED_SET *s)
@@ -247,6 +259,8 @@ static void shader_set_int_vector(GLSL_DEFERRED_SET *s)
          ASSERT(false);
          break;
    }
+
+   LOG_GL_ERROR("shader_set_int_vector");
 }
 
 static void shader_set_float_vector(GLSL_DEFERRED_SET *s)
@@ -273,6 +287,8 @@ static void shader_set_float_vector(GLSL_DEFERRED_SET *s)
          ASSERT(false);
          break;
    }
+
+   LOG_GL_ERROR("shader_set_float_vector");
 }
 
 void _al_use_shader_glsl(ALLEGRO_SHADER *shader, bool use)
@@ -363,8 +379,10 @@ static bool shader_add_deferred_set(
 bool _al_set_shader_sampler_glsl(ALLEGRO_SHADER *shader, const char *name,
    ALLEGRO_BITMAP *bitmap, int unit)
 {
-   if (bitmap && bitmap->flags & ALLEGRO_MEMORY_BITMAP)
+   if (bitmap && bitmap->flags & ALLEGRO_MEMORY_BITMAP) {
+      ALLEGRO_WARN("Cannot use memory bitmap for sampler\n");
       return false;
+   }
 
    return shader_add_deferred_set(
       shader_set_sampler, // void (*fptr)(GLSL_DEFERRED_SET *s)
