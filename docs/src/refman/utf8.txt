@@ -360,6 +360,11 @@ Append `us2` to the end of `us1`.
 
 Returns true on success, false on error.
 
+This function can be used to append an arbitrary buffer:
+
+    ALLEGRO_USTR_INFO info;
+    al_ustr_append(us, al_ref_buffer(&info, buf, size));
+
 See also: [al_ustr_append_cstr], [al_ustr_append_chr], [al_ustr_appendf],
 [al_ustr_vappendf]
 
