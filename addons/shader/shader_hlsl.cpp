@@ -11,7 +11,6 @@
 
 #include "shader.h"
 #include "shader_hlsl.h"
-#include <cstdio>
 
 ALLEGRO_DEBUG_CHANNEL("shader")
 
@@ -157,17 +156,24 @@ bool _al_attach_shader_source_hlsl(
       &errors
    );
 
+   al_ustr_free(full_source);
+
    if (ok != D3D_OK) {
-      fprintf(stderr, "%s\n", (char *)errors->GetBufferPointer());
+      char *msg = (char *)errors->GetBufferPointer();
+      if (shader->log) {
+         al_ustr_truncate(shader->log, 0);
+         al_ustr_append_cstr(shader->log, msg);
+      } else {
+         shader->log = al_ustr_new(msg);
+      }
+      ALLEGRO_ERROR("Error: %s\n", msg);
+      return false;
    }
    
    D3DXHANDLE hTech;
-
    hTech = hlsl_shader->hlsl_shader->GetTechniqueByName("TECH");
    hlsl_shader->hlsl_shader->ValidateTechnique(hTech);
    hlsl_shader->hlsl_shader->SetTechnique(hTech);
-
-   al_ustr_free(full_source);
 
    return true;
 }

@@ -8,7 +8,6 @@
 #include "allegro5/transformations.h"
 #include "shader.h"
 #include "shader_glsl.h"
-#include <stdio.h>
 
 ALLEGRO_DEBUG_CHANNEL("shader")
 
@@ -66,7 +65,6 @@ bool _al_link_shader_glsl(ALLEGRO_SHADER *shader)
 {
    GLint status;
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
-   GLsizei length;
    GLchar error_buf[4096];
 
    if (gl_shader->vertex_shader == 0 && gl_shader->pixel_shader == 0)
@@ -90,8 +88,16 @@ bool _al_link_shader_glsl(ALLEGRO_SHADER *shader)
    glGetProgramiv(gl_shader->program_object, GL_LINK_STATUS, &status);
 
    if (status == 0) {
-      glGetProgramInfoLog(gl_shader->program_object, 4096, &length, error_buf);
-      printf("%s\n", error_buf);
+      glGetProgramInfoLog(gl_shader->program_object, sizeof(error_buf), NULL,
+         error_buf);
+      if (shader->log) {
+         al_ustr_truncate(shader->log, 0);
+         al_ustr_append_cstr(shader->log, error_buf);
+      }
+      else {
+         shader->log = al_ustr_new(error_buf);
+      }
+      ALLEGRO_ERROR("Link error: %s\n", error_buf);
       glDeleteProgram(gl_shader->program_object);
       return false;
    }
@@ -105,7 +111,6 @@ bool _al_attach_shader_source_glsl(
    const char *source)
 {
    GLint status;
-   GLsizei length;
    GLchar error_buf[4096];
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
 
@@ -143,8 +148,15 @@ bool _al_attach_shader_source_glsl(
       glCompileShader(*handle);
       glGetShaderiv(*handle, GL_COMPILE_STATUS, &status);
       if (status == 0) {
-         glGetShaderInfoLog(*handle, 4096, &length, error_buf);
-         printf("%s\n", error_buf);
+         glGetShaderInfoLog(*handle, sizeof(error_buf), NULL, error_buf);
+         if (shader->log) {
+            al_ustr_truncate(shader->log, 0);
+            al_ustr_append_cstr(shader->log, error_buf);
+         }
+         else {
+            shader->log = al_ustr_new(error_buf);
+         }
+         ALLEGRO_ERROR("Compile error: %s\n", error_buf);
          glDeleteShader(*handle);
          return false;
       }
@@ -561,3 +573,5 @@ GLuint al_get_opengl_program_object(ALLEGRO_SHADER *shader)
 {
    return ((ALLEGRO_SHADER_GLSL_S *)shader)->program_object;
 }
+
+/* vim: set sts=3 sw=3 et: */

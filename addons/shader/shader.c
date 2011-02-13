@@ -110,6 +110,15 @@ bool al_attach_shader_source(ALLEGRO_SHADER *shader, ALLEGRO_SHADER_TYPE type,
    return ret;
 }
 
+/* Function: al_get_shader_log
+ */
+const char *al_get_shader_log(ALLEGRO_SHADER *shader)
+{
+   ASSERT(shader);
+
+   return (shader->log) ? al_cstr(shader->log) : "";
+}
+
 /* Function: al_use_shader
  */
 void al_use_shader(ALLEGRO_SHADER *shader, bool use)
@@ -137,6 +146,8 @@ void al_destroy_shader(ALLEGRO_SHADER *shader)
    shader->vertex_copy = NULL;
    al_ustr_free(shader->pixel_copy);
    shader->pixel_copy = NULL;
+   al_ustr_free(shader->log);
+   shader->log = NULL;
 
    if (!(shader->platform & ALLEGRO_SHADER_CG) && (shader->platform & ALLEGRO_SHADER_GLSL)) {
       _al_destroy_shader_glsl(shader);
@@ -343,3 +354,5 @@ void al_set_shader(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader)
       // FIXME
    }
 }
+
+/* vim: set sts=3 sw=3 et: */

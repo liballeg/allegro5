@@ -18,8 +18,6 @@
 #include "shader_cg.h"
 #include "allegro5/internal/aintern_shader_cg.h"
 
-#include <stdio.h>
-
 ALLEGRO_DEBUG_CHANNEL("shader")
 
 ALLEGRO_SHADER *_al_create_shader_cg(ALLEGRO_SHADER_PLATFORM platform)
@@ -102,7 +100,15 @@ bool _al_attach_shader_source_cg(
    );
    
    if (*program == 0) {
-      printf("%s\n", cgGetLastListing(cg_shader->context));
+      const char *msg = cgGetLastListing(cg_shader->context);
+      if (shader->log) {
+         al_ustr_truncate(shader->log, 0);
+         al_ustr_append_cstr(shader->log, msg);
+      }
+      else {
+         shader->log = al_ustr_new(msg);
+      }
+      ALLEGRO_ERROR("Error: %s\n", msg);
       return false;
    }
 
@@ -445,3 +451,4 @@ bool _al_set_shader_texcoord_array_cg(ALLEGRO_SHADER *shader, float *u, int stri
    return true;
 }
 
+/* vim: set sts=3 sw=3 et: */

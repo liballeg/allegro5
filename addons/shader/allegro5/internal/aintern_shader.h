@@ -5,6 +5,7 @@ struct ALLEGRO_SHADER
 {
    ALLEGRO_USTR *vertex_copy;
    ALLEGRO_USTR *pixel_copy;
+   ALLEGRO_USTR *log;
    ALLEGRO_SHADER_PLATFORM platform;
 };
 

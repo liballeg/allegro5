@@ -29,15 +29,31 @@ Since: 5.1.0
 
 Since: 5.1.0
 
+## API: al_attach_shader_source
+
+*Not yet documented.*
+
+On error this function updates the information log,
+which can be retrieved with [al_get_shader_log].
+
+Since: 5.1.0
+
 ## API: al_link_shader
 
 *Not yet documented.*
 
+On error this function updates the information log,
+which can be retrieved with [al_get_shader_log].
+
 Since: 5.1.0
 
-## API: al_attach_shader_source
+## API: al_get_shader_log
 
-*Not yet documented.*
+Return a read-only string containing the information log for a shader program.
+The log is updated by certain functions, such as [al_attach_shader_source]
+or [al_link_shader] when there is an error.
+
+This function never returns NULL.
 
 Since: 5.1.0
 
