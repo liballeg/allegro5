@@ -3,8 +3,8 @@
 
 struct ALLEGRO_SHADER
 {
-   char *vertex_copy;
-   char *pixel_copy;
+   ALLEGRO_USTR *vertex_copy;
+   ALLEGRO_USTR *pixel_copy;
    ALLEGRO_SHADER_PLATFORM platform;
 };
 

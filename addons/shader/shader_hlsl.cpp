@@ -60,6 +60,10 @@ ALLEGRO_SHADER *_al_create_shader_hlsl(ALLEGRO_SHADER_PLATFORM platform)
 
    memset(shader, 0, sizeof(ALLEGRO_SHADER_HLSL_S));
 
+   // For simplicity, these fields are never NULL in this backend.
+   shader->shader.pixel_copy = al_ustr_new("");
+   shader->shader.vertex_copy = al_ustr_new("");
+
    return (ALLEGRO_SHADER *)shader;
 }
 
@@ -74,8 +78,8 @@ bool _al_attach_shader_source_hlsl(
    ALLEGRO_SHADER_TYPE type,
    const char *source)
 {
-   bool add_technique = true;
-   char *full_source;
+   bool add_technique;
+   ALLEGRO_USTR *full_source;
    LPD3DXBUFFER errors;
    const char *vertex_source, *pixel_source, *technique_source;
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
@@ -83,59 +87,33 @@ bool _al_attach_shader_source_hlsl(
    if (source == NULL) {
       if (type == ALLEGRO_VERTEX_SHADER) {
          if (shader->vertex_copy) {
-            free(shader->vertex_copy);
-            shader->vertex_copy = NULL;
-	    hlsl_shader->hlsl_shader->Release();
+            al_ustr_truncate(shader->vertex_copy, 0);
+            hlsl_shader->hlsl_shader->Release();
          }
          vertex_source = null_source;
-         if (shader->pixel_copy) {
-            pixel_source = shader->pixel_copy;
-         }
-         else {
-            pixel_source = null_source;
-         }
+         pixel_source = al_cstr(shader->pixel_copy);
       }
       else {
          if (shader->pixel_copy) {
-            free(shader->pixel_copy);
-            shader->pixel_copy = NULL;
-	    hlsl_shader->hlsl_shader->Release();
+            al_ustr_truncate(shader->pixel_copy, 0);
+            hlsl_shader->hlsl_shader->Release();
          }
          pixel_source = null_source;
-         if (shader->vertex_copy) {
-            vertex_source = shader->vertex_copy;
-         }
-         else {
-            vertex_source = null_source;
-         }
+         vertex_source = al_cstr(shader->vertex_copy);
       }
    }
    else {
       if (type == ALLEGRO_VERTEX_SHADER) {
-            vertex_source = source;
-            if (shader->vertex_copy) {
-               free(shader->vertex_copy);
-            }
-            shader->vertex_copy = strdup(vertex_source);
-            if (shader->pixel_copy) {
-               pixel_source = shader->pixel_copy;
-            }
-            else {
-               pixel_source = null_source;
-            }
+         vertex_source = source;
+         al_ustr_truncate(shader->vertex_copy, 0);
+         al_ustr_append_cstr(shader->vertex_copy, vertex_source);
+         pixel_source = al_cstr(shader->pixel_copy);
       }
       else {
-            pixel_source = source;
-            if (shader->pixel_copy) {
-               free(shader->pixel_copy);
-            }
-            shader->pixel_copy = strdup(pixel_source);
-            if (shader->vertex_copy) {
-               vertex_source = shader->vertex_copy;
-            }
-            else {
-               vertex_source = null_source;
-            }
+         pixel_source = source;
+         al_ustr_truncate(shader->pixel_copy, 0);
+         al_ustr_append_cstr(shader->pixel_copy, pixel_source);
+         vertex_source = al_cstr(shader->vertex_copy);
       }
    }
 
@@ -143,10 +121,10 @@ bool _al_attach_shader_source_hlsl(
       return false;
    }
 
-   if (strstr(vertex_source, "technique"))
+   if (strstr(vertex_source, "technique") || strstr(pixel_source, "technique"))
       add_technique = false;
-   if (strstr(pixel_source, "technique"))
-      add_technique = false;
+   else
+      add_technique = true;
 
    if (add_technique) {
       if (vertex_source[0] == 0) {
@@ -155,36 +133,22 @@ bool _al_attach_shader_source_hlsl(
       else if (pixel_source[0] == 0) {
          technique_source = technique_source_vertex;
       }
-      else
-      	technique_source = technique_source_both;
+      else {
+         technique_source = technique_source_both;
+      }
    }
    else {
       technique_source = null_source;
    }
 
    // HLSL likes the source in one buffer
-   int vlen, plen, tlen;
-   vlen = strlen(vertex_source);
-   plen = strlen(pixel_source);
-   if (add_technique)
-      tlen = strlen(technique_source);
-   else
-      tlen = 0;
-   full_source = (char *)al_malloc(vlen+plen+tlen+4);
-   memcpy(full_source, vertex_source, vlen);
-   full_source[vlen] = '\n';
-   memcpy(full_source+vlen+1, pixel_source, plen);
-   full_source[vlen+plen+1] = '\n';
-   if (add_technique) {
-      memcpy(full_source+vlen+plen+2, technique_source, tlen);
-   }
-   full_source[vlen+plen+tlen+2] = '\n';
-   full_source[vlen+plen+tlen+3] = 0;
+   full_source = al_ustr_newf("%s\n%s\n%s\n",
+      vertex_source, pixel_source, technique_source);
 
    DWORD ok = D3DXCreateEffect(
       al_get_d3d_device(al_get_current_display()),
-      full_source,
-      strlen(full_source),
+      al_cstr(full_source),
+      al_ustr_size(full_source),
       NULL,
       NULL,
       D3DXSHADER_PACKMATRIX_ROWMAJOR,
@@ -203,7 +167,7 @@ bool _al_attach_shader_source_hlsl(
    hlsl_shader->hlsl_shader->ValidateTechnique(hTech);
    hlsl_shader->hlsl_shader->SetTechnique(hTech);
 
-   al_free(full_source);
+   al_ustr_free(full_source);
 
    return true;
 }
@@ -345,3 +309,5 @@ LPD3DXEFFECT al_get_direct3d_effect(ALLEGRO_SHADER *shader)
 {
    return ((ALLEGRO_SHADER_HLSL_S *)shader)->hlsl_shader;
 }
+
+/* vim: set sts=3 sw=3 et: */

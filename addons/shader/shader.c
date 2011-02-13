@@ -133,10 +133,10 @@ void al_use_shader(ALLEGRO_SHADER *shader, bool use)
  */
 void al_destroy_shader(ALLEGRO_SHADER *shader)
 {
-   if (shader->vertex_copy)
-      free(shader->vertex_copy);
-   if (shader->pixel_copy)
-      free(shader->pixel_copy);
+   al_ustr_free(shader->vertex_copy);
+   shader->vertex_copy = NULL;
+   al_ustr_free(shader->pixel_copy);
+   shader->pixel_copy = NULL;
 
    if (!(shader->platform & ALLEGRO_SHADER_CG) && (shader->platform & ALLEGRO_SHADER_GLSL)) {
       _al_destroy_shader_glsl(shader);

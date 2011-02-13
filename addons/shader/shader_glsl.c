@@ -105,14 +105,14 @@ bool _al_attach_shader_source_glsl(
       if (type == ALLEGRO_VERTEX_SHADER) {
          if (shader->vertex_copy) {
             glDeleteShader(gl_shader->vertex_shader);
-            free(shader->vertex_copy);
+            al_ustr_free(shader->vertex_copy);
             shader->vertex_copy = NULL;
          }
       }
       else {
          if (shader->pixel_copy) {
             glDeleteShader(gl_shader->pixel_shader);
-            free(shader->pixel_copy);
+            al_ustr_free(shader->pixel_copy);
             shader->pixel_copy = NULL;
          }
       }
