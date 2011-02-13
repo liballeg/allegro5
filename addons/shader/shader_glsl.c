@@ -37,6 +37,14 @@ typedef struct GLSL_DEFERRED_SET {
    ALLEGRO_SHADER *shader;
 } GLSL_DEFERRED_SET;
 
+static char *my_strdup(const char *src)
+{
+   size_t n = strlen(src) + 1; /* including NUL */
+   char *dst = al_malloc(n);
+   memcpy(dst, src, n);
+   return dst;
+}
+
 ALLEGRO_SHADER *_al_create_shader_glsl(ALLEGRO_SHADER_PLATFORM platform)
 {
    ALLEGRO_SHADER_GLSL_S *shader = al_malloc(sizeof(ALLEGRO_SHADER_GLSL_S));
@@ -147,6 +155,19 @@ bool _al_attach_shader_source_glsl(
    return true;
 }
 
+static void free_deferred_sets(_AL_VECTOR *vec, bool free_vector)
+{
+   while (!_al_vector_is_empty(vec)) {
+      GLSL_DEFERRED_SET *sptr = _al_vector_ref_back(vec);
+      al_free(sptr->name);
+      _al_vector_delete_at(vec, _al_vector_size(vec) - 1);
+   }
+
+   if (free_vector) {
+      _al_vector_free(vec);
+   }
+}
+
 void _al_destroy_shader_glsl(ALLEGRO_SHADER *shader)
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
@@ -154,7 +175,7 @@ void _al_destroy_shader_glsl(ALLEGRO_SHADER *shader)
    glDeleteShader(gl_shader->vertex_shader);
    glDeleteShader(gl_shader->pixel_shader);
    glDeleteProgram(gl_shader->program_object);
-   _al_vector_free(gl_shader->deferred_sets);
+   free_deferred_sets(gl_shader->deferred_sets, true);
    al_free(shader);
 }
 
@@ -273,6 +294,7 @@ static void shader_set_float_vector(GLSL_DEFERRED_SET *s)
 void _al_use_shader_glsl(ALLEGRO_SHADER *shader, bool use)
 {
    ALLEGRO_DISPLAY *display = al_get_current_display();
+   unsigned i;
 
    if (use) {
       ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
@@ -290,12 +312,11 @@ void _al_use_shader_glsl(ALLEGRO_SHADER *shader, bool use)
       }
 
       // Apply all deferred sets
-      while (!_al_vector_is_empty(gl_shader->deferred_sets)) {
-         GLSL_DEFERRED_SET *sptr = _al_vector_ref_front(gl_shader->deferred_sets);
+      for (i = 0; i < _al_vector_size(gl_shader->deferred_sets); i++) {
+         GLSL_DEFERRED_SET *sptr = _al_vector_ref(gl_shader->deferred_sets, i);
          (*(sptr->fptr))(sptr);
-         free(sptr->name);
-         _al_vector_delete_at(gl_shader->deferred_sets, 0);
       }
+      free_deferred_sets(gl_shader->deferred_sets, false);
    }
    else {
       glUseProgram(0);
@@ -304,7 +325,7 @@ void _al_use_shader_glsl(ALLEGRO_SHADER *shader, bool use)
 
 static bool shader_add_deferred_set(
    void (*fptr)(GLSL_DEFERRED_SET *s),
-   char *name,
+   const char *name,
    int elem_size,
    int num_elems,
    float *fp,
@@ -333,7 +354,7 @@ static bool shader_add_deferred_set(
    }
 
    s.fptr = fptr;
-   s.name = name;
+   s.name = my_strdup(name);
    s.elem_size = elem_size;
    s.num_elems = num_elems;
    s.fp = fp;
@@ -365,7 +386,7 @@ bool _al_set_shader_sampler_glsl(ALLEGRO_SHADER *shader, const char *name,
 
    return shader_add_deferred_set(
       shader_set_sampler, // void (*fptr)(GLSL_DEFERRED_SET *s)
-      strdup(name), // const char *name;
+      name,
       0,    // int elem_size;
       0,    // int num_elems
       NULL, // float *fp;
@@ -385,7 +406,7 @@ bool _al_set_shader_matrix_glsl(ALLEGRO_SHADER *shader, const char *name,
 {
    return shader_add_deferred_set(
       shader_set_matrix, // void (*fptr)(GLSL_DEFERRED_SET *s)
-      strdup(name), // const char *name;
+      name,
       0,    // int elem_size;
       0,    // int num_elems
       NULL, // float *fp;
@@ -404,7 +425,7 @@ bool _al_set_shader_int_glsl(ALLEGRO_SHADER *shader, const char *name, int i)
 {
    return shader_add_deferred_set(
       shader_set_int, // void (*fptr)(GLSL_DEFERRED_SET *s)
-      strdup(name), // const char *name;
+      name,
       0,    // int elem_size;
       0,    // int num_elems
       NULL, // float *fp;
@@ -424,7 +445,7 @@ bool _al_set_shader_float_glsl(ALLEGRO_SHADER *shader, const char *name,
 {
    return shader_add_deferred_set(
       shader_set_float, // void (*fptr)(GLSL_DEFERRED_SET *s)
-      strdup(name), // const char *name;
+      name,
       0,    // int elem_size;
       0,    // int num_elems
       NULL, // float *fp;
@@ -444,7 +465,7 @@ bool _al_set_shader_int_vector_glsl(ALLEGRO_SHADER *shader, const char *name,
 {
    return shader_add_deferred_set(
       shader_set_int_vector, // void (*fptr)(GLSL_DEFERRED_SET *s)
-      strdup(name), // const char *name;
+      name,
       elem_size,    // int size;
       num_elems,
       NULL, // float *fp;
@@ -464,7 +485,7 @@ bool _al_set_shader_float_vector_glsl(ALLEGRO_SHADER *shader, const char *name,
 {
    return shader_add_deferred_set(
       shader_set_float_vector, // void (*fptr)(GLSL_DEFERRED_SET *s)
-      strdup(name), // const char *name;
+      name,
       elem_size,    // int elem_size;
       num_elems,
       f, // float *fp;
