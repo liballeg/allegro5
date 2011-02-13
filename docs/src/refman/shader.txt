@@ -38,6 +38,16 @@ which can be retrieved with [al_get_shader_log].
 
 Since: 5.1.0
 
+## API: al_attach_shader_source_file
+
+Like [al_attach_shader_source] but reads the source code for the shader from
+the named file.
+
+On error this function updates the information log,
+which can be retrieved with [al_get_shader_log].
+
+Since: 5.1.0
+
 ## API: al_link_shader
 
 *Not yet documented.*

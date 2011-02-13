@@ -110,8 +110,37 @@ bool al_attach_shader_source(ALLEGRO_SHADER *shader, ALLEGRO_SHADER_TYPE type,
    return ret;
 }
 
-/* Function: al_get_shader_log
+/* Function: al_attach_shader_source_file
  */
+bool al_attach_shader_source_file(ALLEGRO_SHADER *shader,
+   ALLEGRO_SHADER_TYPE type, const char *filename)
+{
+   ALLEGRO_FILE *fp;
+   ALLEGRO_USTR *str;
+   bool ret;
+
+   fp = al_fopen(filename, "r");
+   if (!fp)
+      return false;
+   str = al_ustr_new("");
+   for (;;) {
+      char buf[512];
+      size_t n;
+      ALLEGRO_USTR_INFO info;
+
+      n = al_fread(fp, buf, sizeof(buf));
+      if (n <= 0)
+         break;
+      al_ustr_append(str, al_ref_buffer(&info, buf, n));
+   }
+   al_fclose(fp);
+   ret = al_attach_shader_source(shader, type, al_cstr(str));
+   al_ustr_free(str);
+   return ret;
+}
+
+/* Function: al_get_shader_log
+  */
 const char *al_get_shader_log(ALLEGRO_SHADER *shader)
 {
    ASSERT(shader);

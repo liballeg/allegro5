@@ -57,6 +57,8 @@ extern "C" {
 ALLEGRO_SHADER_FUNC(ALLEGRO_SHADER *, al_create_shader, (ALLEGRO_SHADER_PLATFORM platform));
 ALLEGRO_SHADER_FUNC(bool, al_attach_shader_source, (ALLEGRO_SHADER *shader,
    ALLEGRO_SHADER_TYPE type, const char *source));
+ALLEGRO_SHADER_FUNC(bool, al_attach_shader_source_file, (ALLEGRO_SHADER *shader,
+   ALLEGRO_SHADER_TYPE type, const char *filename));
 ALLEGRO_SHADER_FUNC(bool, al_link_shader, (ALLEGRO_SHADER *shader));
 ALLEGRO_SHADER_FUNC(const char *, al_get_shader_log, (ALLEGRO_SHADER *shader));
 ALLEGRO_SHADER_FUNC(void, al_set_shader, (ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader));
