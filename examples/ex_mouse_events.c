@@ -5,11 +5,12 @@
 
 #include "common.c"
 
-#define NUM_BUTTONS  3
+#define NUM_BUTTONS  5
+static int actual_buttons;
 
 static void draw_mouse_button(int but, bool down)
 {
-   const int offset[NUM_BUTTONS] = {0, 70, 35};
+   const int offset[NUM_BUTTONS] = {0, 70, 35, 105, 140};
    ALLEGRO_COLOR grey;
    ALLEGRO_COLOR black;
    int x;
@@ -59,6 +60,8 @@ int main(void)
    al_install_keyboard();
    al_init_image_addon();
    al_init_font_addon();
+   
+   actual_buttons = al_get_mouse_num_buttons();
 
    al_set_new_display_flags(ALLEGRO_RESIZABLE);
    display = al_create_display(640, 480);
@@ -91,7 +94,7 @@ int main(void)
    while (1) {
       if (al_is_event_queue_empty(queue)) {
          al_clear_to_color(al_map_rgb(0xff, 0xff, 0xc0));
-         for (i = 0; i < NUM_BUTTONS; i++) {
+         for (i = 0; i < actual_buttons; i++) {
             draw_mouse_button(i, buttons[i]);
          }
          al_draw_bitmap(cursor, mx, my, 0);
