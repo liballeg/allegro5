@@ -167,7 +167,8 @@ static unsigned int xmouse_get_mouse_num_buttons(void)
    num_buttons = XGetPointerMapping(system->x11display, map, sizeof(map));
    _al_mutex_unlock(&system->lock);
    
-   if (num_buttons > sizeof(map)) num_buttons = sizeof(map);
+   if (num_buttons > (int)sizeof(map))
+      num_buttons = sizeof(map);
    
    #ifdef DEBUGMODE
    char debug[num_buttons * 4 + 1];
@@ -454,6 +455,7 @@ static unsigned int x_button_to_al_button(unsigned int x_button)
          if (x_button >= 8 && x_button <= 36) {
             return 4 + x_button - 8;
          }
+         return 0;
    }
 }
 
