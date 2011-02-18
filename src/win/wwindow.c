@@ -88,20 +88,64 @@ HWND _al_win_create_hidden_window()
    return window;
 }
 
+static void _al_win_get_window_center(
+   ALLEGRO_DISPLAY_WIN *win_display, int width, int height, int style, int ex_style,
+   int *out_x, int *out_y)
+{
+   int a = win_display->adapter;
+   bool *is_fullscreen;
+   ALLEGRO_MONITOR_INFO info;
+   RECT win_size;
+
+   ALLEGRO_SYSTEM *sys = al_get_system_driver();
+   unsigned int num;
+   unsigned int i;
+   unsigned int fullscreen_found = 0;
+   num = al_get_num_video_adapters();
+   is_fullscreen = al_malloc(sizeof(bool)*num);
+   memset(is_fullscreen, 0, sizeof(bool)*num);
+   for (i = 0; i < sys->displays._size; i++) {
+      ALLEGRO_DISPLAY **dptr = _al_vector_ref(&sys->displays, i);
+      ALLEGRO_DISPLAY *d = *dptr;
+      if (d->flags & ALLEGRO_FULLSCREEN) {
+         ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)d;
+         is_fullscreen[win_display->adapter] = true;
+         fullscreen_found++;
+      }
+   }
+   if (fullscreen_found && fullscreen_found < num) {
+      for (i = 0; i < num; i++) {
+         if (is_fullscreen[i] == false) {
+            a = i;
+            break;
+         }
+      }
+   }
+   al_free(is_fullscreen);
+
+   al_get_monitor_info(a, &info);
+
+   win_size.left = info.x1 + (info.x2 - info.x1 - width) / 2;
+   win_size.right = win_size.left + width;
+   win_size.top = info.y1 + (info.y2 - info.y1 - height) / 2;
+   win_size.bottom = win_size.top + height;
+
+   AdjustWindowRectEx(&win_size, style, false, ex_style);
+
+   *out_x = win_size.left;
+   *out_y = win_size.top;
+}
 
 HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int flags)
 {
    HWND my_window;
-   RECT win_size;
    DWORD style;
    DWORD ex_style;
    int pos_x, pos_y;
    bool center = false;
-   ALLEGRO_MONITOR_INFO info;
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
    WINDOWINFO wi;
    int bw, bh;
-   bool *is_fullscreen;
 
    wi.cbSize = sizeof(WINDOWINFO);
 
@@ -129,45 +173,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    }
 
    if (center) {
-      int a = win_display->adapter;
-
-      ALLEGRO_SYSTEM *sys = al_get_system_driver();
-      unsigned int num;
-      unsigned int i;
-      unsigned int fullscreen_found = 0;
-      num = al_get_num_video_adapters();
-      is_fullscreen = al_malloc(sizeof(bool)*num);
-      memset(is_fullscreen, 0, sizeof(bool)*num);
-      for (i = 0; i < sys->displays._size; i++) {
-         ALLEGRO_DISPLAY **dptr = _al_vector_ref(&sys->displays, i);
-         ALLEGRO_DISPLAY *d = *dptr;
-         if (d->flags & ALLEGRO_FULLSCREEN) {
-            ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)d;
-            is_fullscreen[win_display->adapter] = true;
-            fullscreen_found++;
-         }
-      }
-      if (fullscreen_found && fullscreen_found < num) {
-         for (i = 0; i < num; i++) {
-            if (is_fullscreen[i] == false) {
-               a = i;
-               break;
-            }
-         }
-      }
-      al_free(is_fullscreen);
-
-      al_get_monitor_info(a, &info);
-
-      win_size.left = info.x1 + (info.x2 - info.x1 - width) / 2;
-      win_size.right = win_size.left + width;
-      win_size.top = info.y1 + (info.y2 - info.y1 - height) / 2;
-      win_size.bottom = win_size.top + height;
-
-      AdjustWindowRectEx(&win_size, style, false, ex_style);
-
-      pos_x = win_size.left;
-      pos_y = win_size.top;
+      _al_win_get_window_center(win_display, width, height, style, ex_style, &pos_x, &pos_y);
    }
 
    my_window = CreateWindowEx(ex_style,
@@ -235,7 +241,7 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    temp = GetWindowLong(my_window, GWL_STYLE);
    temp &= ~WS_CAPTION;
    SetWindowLong(my_window, GWL_STYLE, temp);
-   SetWindowPos(my_window, 0, 0,0, width, height, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+   SetWindowPos(my_window, HWND_TOP, 0, 0, width, height, SWP_FRAMECHANGED);
 
    /* Go fullscreen */
    memset(&mode, 0, sizeof(DEVMODE));
@@ -781,6 +787,8 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             return 0;
          }
          else {
+            // Show the taskbar in case we hid it
+            SetWindowPos(FindWindow("Shell_traywnd", ""), 0, 0, 0, 0, 0, SWP_SHOWWINDOW);
             if (d->flags & ALLEGRO_FULLSCREEN) {
                d->vt->switch_out(d);
             }
@@ -1013,6 +1021,9 @@ bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 
          ASSERT(!!(display->flags & ALLEGRO_FULLSCREEN_WINDOW) == onoff);
 
+         // Hide the window temporarily
+         SetWindowPos(win_display->window, 0, 0, 0, 0, 0, SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
+
          al_resize_display(display, display->w, display->h);
          timeout = al_get_time() + 3; // 3 seconds...
          while (al_get_time() < timeout) {
@@ -1024,10 +1035,30 @@ bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 
          if (onoff) {
             al_set_window_position(display, 0, 0);
-            // Pop it to the front
-            // FIXME: HOW?!
+            // Hide the taskbar
+            SetWindowPos(FindWindow("Shell_traywnd", ""), 0, 0, 0, 0, 0, SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
          }
-         /* FIXME: else center the window? */
+         else {
+            int pos_x = 0;
+            int pos_y = 0;
+            WINDOWINFO wi;
+            int style = GetWindowLong(win_display->window, GWL_STYLE);
+            int ex_style = GetWindowLong(win_display->window, GWL_EXSTYLE);
+            int bw, bh;
+
+            // Show the taskbar
+            SetWindowPos(FindWindow("Shell_traywnd", ""), 0, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
+            // Center the window
+            _al_win_get_window_center(win_display, display->w, display->h, style, ex_style, &pos_x, &pos_y);
+            GetWindowInfo(win_display->window, &wi);
+            bw = (wi.rcClient.left - wi.rcWindow.left) + (wi.rcWindow.right - wi.rcClient.right),
+            bh = (wi.rcClient.top - wi.rcWindow.top) + (wi.rcWindow.bottom - wi.rcClient.bottom),
+            SetWindowPos(
+               win_display->window, HWND_TOP, pos_x-bw/2, pos_y-bh/2, 0, 0,
+               SWP_NOSIZE);
+         }
+         // Show the window again
+         SetWindowPos(win_display->window, 0, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
 
          ASSERT(!!(display->flags & ALLEGRO_FULLSCREEN_WINDOW) == onoff);
          return true;
