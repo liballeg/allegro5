@@ -476,12 +476,16 @@ static void _al_d3d_set_ortho_projection(ALLEGRO_DISPLAY_D3D *disp, float w, flo
 #ifdef ALLEGRO_CFG_HLSL_SHADERS
       LPD3DXEFFECT effect = disp->effect;
       if (effect) {
+         /*
          UINT required_passes;
          effect->EndPass();
          effect->End();
+         */
          disp->effect->SetMatrix("proj_matrix", (D3DXMATRIX *)display->proj_transform.m);
+         /*
          effect->Begin(&required_passes, 0);
          effect->BeginPass(0);
+         */
       }
 #endif
    }
@@ -2140,6 +2144,7 @@ static void d3d_clear(ALLEGRO_DISPLAY *al_display, ALLEGRO_COLOR *color)
 
 
 
+// FIXME: does this need a programmable pipeline path?
 static void d3d_draw_pixel(ALLEGRO_DISPLAY *al_display, float x, float y, ALLEGRO_COLOR *color)
 {
    ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)al_display;
@@ -2720,6 +2725,13 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;
    ALLEGRO_BITMAP* cache_bmp = (ALLEGRO_BITMAP*)disp->cache_texture;
    ALLEGRO_BITMAP_D3D* d3d_bmp = (ALLEGRO_BITMAP_D3D*)cache_bmp;
+   UINT required_passes;
+
+   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      d3d_disp->effect->SetBool("use_tex", true);
+      d3d_disp->effect->SetTexture("tex", d3d_bmp->video_texture);
+      d3d_disp->effect->Begin(&required_passes, 0);
+   }
 
    if (d3d_disp->device->SetTexture(0,
          (IDirect3DBaseTexture9 *)d3d_bmp->video_texture) != D3D_OK) {
@@ -2751,20 +2763,34 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       d3d_disp->device->SetFVF(D3DFVF_ALLEGRO_VERTEX);
       size = sizeof(ALLEGRO_VERTEX);
+      for (unsigned int i = 0; i < required_passes; i++) {
+         d3d_disp->effect->BeginPass(i);
+         if (d3d_disp->device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, disp->num_cache_vertices / 3,
+            (void *)disp->vertex_cache, size) != D3D_OK) {
+            ALLEGRO_ERROR("d3d_flush_vertex_cache: DrawPrimitive failed.\n");
+            return;
+         }
+         d3d_disp->effect->EndPass();
+      }
    }
    else {
       d3d_disp->device->SetFVF(D3DFVF_FIXED_VERTEX);
       size = sizeof(D3D_FIXED_VERTEX);
-   }
-
-   if (d3d_disp->device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, disp->num_cache_vertices / 3,
-      (void *)disp->vertex_cache, size) != D3D_OK) {
-      ALLEGRO_ERROR("d3d_flush_vertex_cache: DrawPrimitive failed.\n");
-      return;
+      if (d3d_disp->device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, disp->num_cache_vertices / 3,
+         (void *)disp->vertex_cache, size) != D3D_OK) {
+         ALLEGRO_ERROR("d3d_flush_vertex_cache: DrawPrimitive failed.\n");
+         return;
+      }
    }
 
    disp->num_cache_vertices = 0;
    d3d_disp->device->SetTexture(0, NULL);
+   
+   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      d3d_disp->effect->End();
+      d3d_disp->effect->SetBool("use_tex", false);
+      d3d_disp->effect->SetTexture("tex", 0);
+   }
 }
 
 static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *target)
@@ -2781,16 +2807,22 @@ static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *tar
 
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       // FIXME: offset like below
+      tmp_transform.m[3][0] -= 0.5;
+      tmp_transform.m[3][1] -= 0.5;
       al_copy_transform(&disp->view_transform, &tmp_transform);
 #ifdef ALLEGRO_CFG_HLSL_SHADERS
       LPD3DXEFFECT effect = d3d_disp->effect;
       if (effect) {
+         /*
          UINT required_passes;
          effect->EndPass();
          effect->End();
+         */
          d3d_disp->effect->SetMatrix("view_matrix", (D3DXMATRIX *)tmp_transform.m);
+         /*
          effect->Begin(&required_passes, 0);
          effect->BeginPass(0);
+         */
       }
 #endif
    }

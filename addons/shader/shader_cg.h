@@ -18,6 +18,7 @@ bool _al_set_shader_int_vector_cg(ALLEGRO_SHADER *shader, const char *name,
    int elem_size, int *i, int num_elems);
 bool _al_set_shader_float_vector_cg(ALLEGRO_SHADER *shader, const char *name,
    int elem_size, float *f, int num_elems);
+bool _al_set_shader_bool_cg(ALLEGRO_SHADER *shader, const char *name, bool b);
 
 bool _al_set_shader_vertex_array_cg(ALLEGRO_SHADER *shader, float *v, int stride);
 bool _al_set_shader_color_array_cg(ALLEGRO_SHADER *shader, unsigned char *c, int stride);

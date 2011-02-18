@@ -406,6 +406,27 @@ bool _al_set_shader_float_vector_cg(ALLEGRO_SHADER *shader, const char *name,
    return true;
 }
 
+bool _al_set_shader_bool_cg(ALLEGRO_SHADER *shader, const char *name, bool b)
+{
+   ALLEGRO_SHADER_CG_S *cg_shader = (ALLEGRO_SHADER_CG_S *)shader;
+   CGparameter v_param, p_param;
+
+   v_param = cgGetNamedParameter(cg_shader->vertex_program, name);
+   p_param = cgGetNamedParameter(cg_shader->pixel_program, name);
+
+   if (v_param == 0 && p_param == 0)
+      return false;
+
+   if (v_param != 0) {
+      cgSetParameterValue1i(v_param, 1, b);
+   }
+   if (p_param != 0) {
+      cgSetParameterValue1i(p_param, 1, b);
+   }
+
+   return true;
+}
+
 bool _al_set_shader_vertex_array_cg(ALLEGRO_SHADER *shader, float *v, int stride)
 {
   if (shader->platform & ALLEGRO_SHADER_GLSL) {

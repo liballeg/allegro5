@@ -510,6 +510,25 @@ bool _al_set_shader_float_vector_glsl(ALLEGRO_SHADER *shader, const char *name,
    );
 }
 
+bool _al_set_shader_bool_glsl(ALLEGRO_SHADER *shader, const char *name, bool b)
+{
+   return shader_add_deferred_set(
+      shader_set_int, // void (*fptr)(GLSL_DEFERRED_SET *s)
+      name,
+      0,    // int elem_size;
+      0,    // int num_elems
+      NULL, // float *fp;
+      NULL, // unsigned char *cp;
+      NULL, // int *ip;
+      0.0f, // float f;
+      b,    // int i;
+      NULL, // ALLEGRO_TRANSFORM *transform;
+      NULL, // ALLEGRO_BITMAP *bitmap;
+      0,    // int unit;
+      shader
+   );
+}
+
 bool _al_set_shader_vertex_array_glsl(ALLEGRO_SHADER *shader, float *v, int stride)
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
@@ -572,6 +591,11 @@ bool _al_set_shader_texcoord_array_glsl(ALLEGRO_SHADER *shader, float *u, int st
 GLuint al_get_opengl_program_object(ALLEGRO_SHADER *shader)
 {
    return ((ALLEGRO_SHADER_GLSL_S *)shader)->program_object;
+}
+
+void _al_set_shader_glsl(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader)
+{
+   al_set_opengl_program_object(display, al_get_opengl_program_object(shader));
 }
 
 /* vim: set sts=3 sw=3 et: */

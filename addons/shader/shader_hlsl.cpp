@@ -185,18 +185,23 @@ void _al_use_shader_hlsl(ALLEGRO_SHADER *shader, bool use)
    ALLEGRO_DISPLAY *display = al_get_current_display();
 
    if (use) {
-      D3DXMATRIX mp, mv, mu;
-      memcpy(mp.m, (float *)display->proj_transform.m, sizeof(float)*16);
-      effect->SetMatrix("proj_matrix", &mp);
-      memcpy(mp.m, (float *)display->view_transform.m, sizeof(float)*16);
-      effect->SetMatrix("view_matrix", &mp);
-      UINT required_passes;
-      effect->Begin(&required_passes, 0);
+   /*
+      al_set_direct3d_effect(display, effect);
+      D3DXMATRIX m;
+      memcpy(m.m, (float *)display->proj_transform.m, sizeof(float)*16);
+      effect->SetMatrix("proj_matrix", &m);
+      memcpy(m.m, (float *)display->view_transform.m, sizeof(float)*16);
+      effect->SetMatrix("view_matrix", &m);
+      UINT r;
+      effect->Begin(&r, 0);
       effect->BeginPass(0);
+      */
+      effect->SetMatrix("proj_matrix", (LPD3DXMATRIX)&display->proj_transform.m);
+      effect->SetMatrix("view_matrix", (LPD3DXMATRIX)&display->view_transform.m);
    }
    else {
-      effect->EndPass();
-      effect->End();
+      //effect->EndPass();
+      //effect->End();
    }
 }
 
@@ -285,6 +290,16 @@ bool _al_set_shader_float_vector_hlsl(ALLEGRO_SHADER *shader, const char *name,
    return result == D3D_OK;
 }
 
+bool _al_set_shader_bool_hlsl(ALLEGRO_SHADER *shader, const char *name, bool b)
+{
+   ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
+   HRESULT result;
+
+   result = hlsl_shader->hlsl_shader->SetBool(name, b);
+
+   return result == D3D_OK;
+}
+
 bool _al_set_shader_vertex_array_hlsl(ALLEGRO_SHADER *shader, float *v, int stride)
 {
    (void)shader;
@@ -314,6 +329,11 @@ bool _al_set_shader_texcoord_array_hlsl(ALLEGRO_SHADER *shader, float *u, int st
 LPD3DXEFFECT al_get_direct3d_effect(ALLEGRO_SHADER *shader)
 {
    return ((ALLEGRO_SHADER_HLSL_S *)shader)->hlsl_shader;
+}
+
+void _al_set_shader_hlsl(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader)
+{
+   al_set_direct3d_effect(display, al_get_direct3d_effect(shader));
 }
 
 /* vim: set sts=3 sw=3 et: */

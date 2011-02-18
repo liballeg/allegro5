@@ -9,6 +9,7 @@
 #endif
 #ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
 #include "shader_hlsl.h"
+#include "allegro5/allegro_shader_hlsl.h"
 #endif
 #ifdef ALLEGRO_CFG_WANT_CG_SHADERS
 #include <Cg/cg.h>
@@ -311,6 +312,25 @@ bool al_set_shader_float_vector(ALLEGRO_SHADER *shader, const char *name,
    return false;
 }
 
+/* Function: al_set_shader_int
+ */
+bool al_set_shader_bool(ALLEGRO_SHADER *shader, const char *name, bool b)
+{
+   if (!(shader->platform & ALLEGRO_SHADER_CG) && (shader->platform & ALLEGRO_SHADER_GLSL))
+      return _al_set_shader_bool_glsl(shader, name, b);
+#ifdef ALLEGRO_CFG_WANT_CG_SHADERS
+   else if (shader->platform & ALLEGRO_SHADER_CG) {
+      return _al_set_shader_bool_cg(shader, name, b);
+   }
+#endif
+#ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
+   else if (shader->platform & ALLEGRO_SHADER_HLSL)
+      return _al_set_shader_bool_hlsl(shader, name, b);
+#endif
+
+   return false;
+}
+
 /* Function: al_set_shader_vertex_array
  */
 bool al_set_shader_vertex_array(ALLEGRO_SHADER *shader, float *v, int stride)
@@ -374,13 +394,13 @@ void al_set_shader(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader)
 {
 #ifdef ALLEGRO_CFG_WANT_GLSL_SHADERS
    if (USING_OPENGL()) {
-      al_set_opengl_program_object(display, al_get_opengl_program_object(shader));
+      _al_set_shader_glsl(display, shader);
    }
 #else
    if (false) {
 #endif
    else {
-      // FIXME
+      _al_set_shader_hlsl(display, shader);
    }
 }
 
