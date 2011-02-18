@@ -89,8 +89,7 @@ HWND _al_win_create_hidden_window()
 }
 
 static void _al_win_get_window_center(
-   ALLEGRO_DISPLAY_WIN *win_display, int width, int height, int style, int ex_style,
-   int *out_x, int *out_y)
+   ALLEGRO_DISPLAY_WIN *win_display, int width, int height, int *out_x, int *out_y)
 {
    int a = win_display->adapter;
    bool *is_fullscreen;
@@ -126,11 +125,7 @@ static void _al_win_get_window_center(
    al_get_monitor_info(a, &info);
 
    win_size.left = info.x1 + (info.x2 - info.x1 - width) / 2;
-   win_size.right = win_size.left + width;
    win_size.top = info.y1 + (info.y2 - info.y1 - height) / 2;
-   win_size.bottom = win_size.top + height;
-
-   AdjustWindowRectEx(&win_size, style, false, ex_style);
 
    *out_x = win_size.left;
    *out_y = win_size.top;
@@ -173,7 +168,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    }
 
    if (center) {
-      _al_win_get_window_center(win_display, width, height, style, ex_style, &pos_x, &pos_y);
+      _al_win_get_window_center(win_display, width, height, &pos_x, &pos_y);
    }
 
    my_window = CreateWindowEx(ex_style,
@@ -189,10 +184,13 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    bw = (wi.rcClient.left - wi.rcWindow.left) + (wi.rcWindow.right - wi.rcClient.right),
    bh = (wi.rcClient.top - wi.rcWindow.top) + (wi.rcWindow.bottom - wi.rcClient.bottom),
 
-   SetWindowPos(my_window, 0, pos_x-bw/2, pos_y-bh/2,
+   SetWindowPos(my_window, 0, 0, 0,
       width+bw,
       height+bh,
-      SWP_NOMOVE | SWP_NOZORDER);
+      SWP_NOZORDER | SWP_NOMOVE);
+   SetWindowPos(my_window, 0, pos_x-bw/2, pos_y-bh/2,
+      0, 0,
+      SWP_NOZORDER | SWP_NOSIZE);
 
    if (flags & ALLEGRO_NOFRAME) {
       SetWindowLong(my_window, GWL_STYLE, WS_VISIBLE);
@@ -1042,20 +1040,21 @@ bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
             int pos_x = 0;
             int pos_y = 0;
             WINDOWINFO wi;
-            int style = GetWindowLong(win_display->window, GWL_STYLE);
-            int ex_style = GetWindowLong(win_display->window, GWL_EXSTYLE);
             int bw, bh;
 
             // Show the taskbar
             SetWindowPos(FindWindow("Shell_traywnd", ""), 0, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
             // Center the window
-            _al_win_get_window_center(win_display, display->w, display->h, style, ex_style, &pos_x, &pos_y);
+            _al_win_get_window_center(win_display, display->w, display->h, &pos_x, &pos_y);
             GetWindowInfo(win_display->window, &wi);
             bw = (wi.rcClient.left - wi.rcWindow.left) + (wi.rcWindow.right - wi.rcClient.right),
             bh = (wi.rcClient.top - wi.rcWindow.top) + (wi.rcWindow.bottom - wi.rcClient.bottom),
             SetWindowPos(
-               win_display->window, HWND_TOP, pos_x-bw/2, pos_y-bh/2, 0, 0,
-               SWP_NOSIZE);
+               win_display->window, HWND_TOP, 0, 0, display->w+bw, display->h+bh, SWP_NOMOVE
+            );
+            SetWindowPos(
+               win_display->window, HWND_TOP, pos_x-bw/2, pos_y-bh/2, 0, 0, SWP_NOSIZE
+            );
          }
          // Show the window again
          SetWindowPos(win_display->window, 0, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
