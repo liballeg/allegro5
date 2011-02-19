@@ -140,6 +140,9 @@ static const int _32BIT_DS = 4; /* # 32 bit depth stencil formats */
 static ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds_list = NULL;
 static int eds_list_count = 0;
 
+static void (*d3d_release_callback)(void) = NULL;
+static void (*d3d_restore_callback)(void) = NULL;
+
 /*
  * This is a list of all supported display modes. Some other information will be
  * filled in later like multisample type and samples. This is for display scoring.
@@ -281,6 +284,23 @@ static D3DFORMAT d3d_get_depth_stencil_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *se
    return (D3DFORMAT)0;
 }
 
+/*
+ * This will be called whenever a d3d device is reset (minimize, toggle fullscreen window, etc)
+ * User should release any d3d resources they created themselves here
+ */
+void al_d3d_set_release_callback(void (*callback)(void))
+{
+   d3d_release_callback = callback;
+}
+
+/*
+ * This will be called whenever a d3d device that has been reset is restored
+ * User should restore any d3d resources they created themselves here
+ */
+void al_d3d_set_restore_callback(void (*callback)(void))
+{
+   d3d_restore_callback = callback;
+}
 
 bool _al_d3d_supports_separate_alpha_blend(ALLEGRO_DISPLAY *display)
 {
@@ -1161,6 +1181,9 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
 
 void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 {
+   if (d3d_release_callback) {
+      (*d3d_release_callback)();
+   }
    _al_d3d_release_default_pool_textures();
    while (disp->render_target && disp->render_target->Release() != 0) {
       ALLEGRO_WARN("_al_d3d_prepare_for_reset: (bb) ref count not 0\n");
@@ -1313,6 +1336,10 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
    }
 
    _al_d3d_refresh_texture_memory();
+   
+   if (d3d_restore_callback) {
+      (*d3d_restore_callback)();
+   }
 
    d3d_display->device->BeginScene();
 
@@ -2145,27 +2172,48 @@ static void d3d_clear(ALLEGRO_DISPLAY *al_display, ALLEGRO_COLOR *color)
 
 
 // FIXME: does this need a programmable pipeline path?
-static void d3d_draw_pixel(ALLEGRO_DISPLAY *al_display, float x, float y, ALLEGRO_COLOR *color)
+static void d3d_draw_pixel(ALLEGRO_DISPLAY *disp, float x, float y, ALLEGRO_COLOR *color)
 {
-   ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)al_display;
+   ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)disp;
 
-   D3D_FIXED_VERTEX vertices[1];
+   _al_d3d_set_blender(d3d_disp);
 
-   vertices[0].x = x;
-   vertices[0].y = y;
-   vertices[0].z = 0;
-   vertices[0].color = D3DCOLOR_COLORVALUE(color->r, color->g, color->b, color->a);
+   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      UINT required_passes;
+      ALLEGRO_VERTEX vertices[1];
+      vertices[0].x = x;
+      vertices[0].y = y;
+      vertices[0].z = 0;
+      vertices[0].color = *color;
 
-   _al_d3d_set_blender(disp);
+      d3d_disp->device->SetFVF(D3DFVF_ALLEGRO_VERTEX);
+      d3d_disp->effect->SetBool("use_tex", false);
+      d3d_disp->effect->Begin(&required_passes, 0);
+      for (unsigned int i = 0; i < required_passes; i++) {
+         d3d_disp->effect->BeginPass(i);
+         if (d3d_disp->device->DrawPrimitiveUP(D3DPT_POINTLIST, 1,
+               vertices, sizeof(ALLEGRO_VERTEX)) != D3D_OK) {
+            ALLEGRO_ERROR("d3d_draw_pixel: DrawPrimitive failed.\n");
+            return;
+         }
+         d3d_disp->effect->EndPass();
+      }
+      d3d_disp->effect->End();
+   }
+   else {
+      D3D_FIXED_VERTEX vertices[1];
+      vertices[0].x = x;
+      vertices[0].y = y;
+      vertices[0].z = 0;
+      vertices[0].color = D3DCOLOR_COLORVALUE(color->r, color->g, color->b, color->a);
 
-   disp->device->SetTexture(0, NULL);
-
-   disp->device->SetFVF(D3DFVF_FIXED_VERTEX);
-
-   if (disp->device->DrawPrimitiveUP(D3DPT_POINTLIST, 1,
-         vertices, sizeof(D3D_FIXED_VERTEX)) != D3D_OK) {
-      ALLEGRO_ERROR("d3d_draw_pixel: DrawPrimitive failed.\n");
-      return;
+      d3d_disp->device->SetFVF(D3DFVF_FIXED_VERTEX);
+      d3d_disp->device->SetTexture(0, NULL);
+      if (d3d_disp->device->DrawPrimitiveUP(D3DPT_POINTLIST, 1,
+            vertices, sizeof(D3D_FIXED_VERTEX)) != D3D_OK) {
+         ALLEGRO_ERROR("d3d_draw_pixel: DrawPrimitive failed.\n");
+         return;
+      }
    }
 }
 
@@ -2835,6 +2883,18 @@ static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *tar
    }
 }
 
+static void d3d_set_projection(ALLEGRO_DISPLAY *d)
+{
+   ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)d;
+
+   if (d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      d3d_disp->effect->SetMatrix("proj_matrix", (D3DXMATRIX *)d->proj_transform.m);
+   }
+   else {
+      d3d_disp->device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)d->proj_transform.m);
+   }
+}
+
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
 {
@@ -2879,6 +2939,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->prepare_vertex_cache = d3d_prepare_vertex_cache;
 
    vt->update_transformation = d3d_update_transformation;
+   vt->set_projection = d3d_set_projection;
 
    return vt;
 }

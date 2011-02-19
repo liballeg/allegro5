@@ -36,6 +36,14 @@ static ALLEGRO_BITMAP_INTERFACE *vt;
 static _AL_VECTOR created_bitmaps;
 
 
+void al_get_d3d_texture_size(ALLEGRO_BITMAP *bitmap, int *width, int *height)
+{
+   ALLEGRO_BITMAP_D3D *d3d_bmp = (ALLEGRO_BITMAP_D3D *)bitmap;
+   *width = d3d_bmp->texture_w;
+   *height = d3d_bmp->texture_h;
+}
+
+
 void _al_d3d_bmp_init(void)
 {
    _al_vector_init(&created_bitmaps, sizeof(ALLEGRO_BITMAP_D3D *));
