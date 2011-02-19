@@ -117,12 +117,14 @@ bool _al_attach_shader_source_glsl(
    if (source == NULL) {
       if (type == ALLEGRO_VERTEX_SHADER) {
          if (gl_shader->vertex_shader) {
+            glDetachShader(gl_shader->program_object, gl_shader->vertex_shader);
             glDeleteShader(gl_shader->vertex_shader);
             gl_shader->vertex_shader = 0;
          }
       }
       else {
          if (gl_shader->pixel_shader) {
+            glDetachShader(gl_shader->program_object, gl_shader->pixel_shader);
             glDeleteShader(gl_shader->pixel_shader);
             gl_shader->pixel_shader = 0;
          }
