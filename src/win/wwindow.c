@@ -764,12 +764,10 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          return 1;
       case WM_ACTIVATE:
          if (LOWORD(wParam) != WA_INACTIVE) {
-            /* This SetWindowPos is for faux-fullscreen windows that lost focus
-             * so they can get placed back on top
-             */
-             // FIXME: this doesn't seem to work
-            //SetWindowPos(win_display->window, HWND_TOP, 0, 0, 0, 0,
-            //   SWP_NOMOVE | SWP_NOSIZE);
+            // Make fullscreen windows TOPMOST again
+            if (d->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+               SetWindowPos(win_display->window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+            }
             if (d->vt->switch_in)
                d->vt->switch_in(d);
             _al_event_source_lock(es);
@@ -785,6 +783,11 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             return 0;
          }
          else {
+            // Remove TOPMOST flag from fullscreen windows so we can alt-tab. Also must raise the new activated window
+            if (d->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+               SetWindowPos(win_display->window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+               SetWindowPos(GetForegroundWindow(), HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+            }
             // Show the taskbar in case we hid it
             SetWindowPos(FindWindow("Shell_traywnd", ""), 0, 0, 0, 0, 0, SWP_SHOWWINDOW);
             if (d->flags & ALLEGRO_FULLSCREEN) {
@@ -1032,18 +1035,26 @@ bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
          }
 
          if (onoff) {
+            // Re-set the TOPMOST flag
+            SetWindowPos(win_display->window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+
             al_set_window_position(display, 0, 0);
             // Hide the taskbar
-            SetWindowPos(FindWindow("Shell_traywnd", ""), 0, 0, 0, 0, 0, SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
+            SetWindowPos(
+               FindWindow("Shell_traywnd", ""), 0, 0, 0, 0, 0, SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
          }
          else {
             int pos_x = 0;
             int pos_y = 0;
             WINDOWINFO wi;
             int bw, bh;
+            
+            // Unset the topmost flag
+            SetWindowPos(win_display->window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
             // Show the taskbar
-            SetWindowPos(FindWindow("Shell_traywnd", ""), 0, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
+            SetWindowPos(
+               FindWindow("Shell_traywnd", ""), 0, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
             // Center the window
             _al_win_get_window_center(win_display, display->w, display->h, &pos_x, &pos_y);
             GetWindowInfo(win_display->window, &wi);
