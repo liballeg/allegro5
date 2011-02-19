@@ -395,13 +395,16 @@ void al_set_shader(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader)
 #ifdef ALLEGRO_CFG_WANT_GLSL_SHADERS
    if (USING_OPENGL()) {
       _al_set_shader_glsl(display, shader);
+      return;
    }
-#else
-   if (false) {
 #endif
-   else {
+/* XXX Cg */
+#ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
+   if (shader->platform & ALLEGRO_SHADER_HLSL) {
       _al_set_shader_hlsl(display, shader);
+      return;
    }
+#endif
 }
 
 /* vim: set sts=3 sw=3 et: */

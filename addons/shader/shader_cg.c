@@ -418,10 +418,10 @@ bool _al_set_shader_bool_cg(ALLEGRO_SHADER *shader, const char *name, bool b)
       return false;
 
    if (v_param != 0) {
-      cgSetParameterValue1i(v_param, 1, b);
+      cgSetParameter1i(v_param, b);
    }
    if (p_param != 0) {
-      cgSetParameterValue1i(p_param, 1, b);
+      cgSetParameter1i(p_param, b);
    }
 
    return true;
