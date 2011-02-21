@@ -11,5 +11,5 @@ Description: Allegro game programming library, font addon
 Version: ${version}
 Libs: -L${libdir} -lallegro_font${suffix}
 Libs.private: @link_with@
-Requires: allegro_primitives${suffix}-${soversion} >= ${version}
+Requires: allegro${suffix}-${soversion} >= ${version}
 Cflags: -I${includedir}
