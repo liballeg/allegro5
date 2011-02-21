@@ -40,7 +40,7 @@ endif(WANT_D3D AND WANT_D3D_SHADERS)
 if(WANT_CG_SHADERS)
     find_package(Cg)
     if(CG_FOUND)
-        list(APPEND SHADER_SOURCES shader_cg.c)
+        list(APPEND SHADER_SOURCES shader_cg.cpp)
         set(OUR_DEFINES "${OUR_DEFINES} -DALLEGRO_CFG_WANT_CG_SHADERS")
         set(OUR_LIBS "${CG_LIBRARY};${OUR_LIBS}")
         if(WANT_OPENGL)
@@ -57,7 +57,7 @@ if(WANT_CG_SHADERS)
         endforeach(arg)
 
         set_source_files_properties(
-            shader_cg.c
+            shader_cg.cpp
             PROPERTIES
             COMPILE_FLAGS "${CG_CFLAGS_STRING}"
             )

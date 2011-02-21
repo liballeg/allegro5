@@ -61,7 +61,7 @@ bool _al_attach_shader_source_cg(
    const char *source)
 {
    ALLEGRO_SHADER_CG_S *cg_shader = (ALLEGRO_SHADER_CG_S *)shader;
-   CGprofile profile;
+   CGprofile profile = CG_PROFILE_VS_2_0; // initialize to silence warning
    CGprogram *program;
 
 #ifdef ALLEGRO_WINDOWS

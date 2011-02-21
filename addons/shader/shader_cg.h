@@ -1,6 +1,10 @@
 #ifndef _SHADER_CG_H
 #define _SHADER_CG_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 ALLEGRO_SHADER *_al_create_shader_cg(ALLEGRO_SHADER_PLATFORM platform);
 bool _al_attach_shader_source_cg(ALLEGRO_SHADER *shader,
    ALLEGRO_SHADER_TYPE type, const char *source);
@@ -23,5 +27,9 @@ bool _al_set_shader_bool_cg(ALLEGRO_SHADER *shader, const char *name, bool b);
 bool _al_set_shader_vertex_array_cg(ALLEGRO_SHADER *shader, float *v, int stride);
 bool _al_set_shader_color_array_cg(ALLEGRO_SHADER *shader, unsigned char *c, int stride);
 bool _al_set_shader_texcoord_array_cg(ALLEGRO_SHADER *shader, float *u, int stride);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
