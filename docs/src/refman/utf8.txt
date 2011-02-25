@@ -8,22 +8,25 @@ These functions are declared in the main Allegro header file:
 
 Some parts of the Allegro API, such as the font rountines, expect Unicode
 strings encoded in UTF-8.  These basic routines are provided to help you work
-with UTF-8 strings.  You should use another library (e.g. ICU) if you require
-more functionality.
+with UTF-8 strings, however it does *not* mean you need to use them.  You
+should consider another library (e.g. ICU) if you require more functionality.
 
-You should also see elsewhere for an introduction to Unicode.
-Extremely briefly, Unicode is a standard consisting of a large character set
-(of over 100,000 characters), and rules, such as how to sort strings.
+You should also see elsewhere for a proper introduction to Unicode.
+Briefly, Unicode is a standard consisting of a large character
+set of over 100,000 characters, and rules, such as how to sort strings.
 A *code point* is the integer value of a character, but not all code points are
 characters, as some code points have other uses.  Clearly it is impossible
 represent each code point with a 8-bit byte or even a 16-bit integer,
-so there exist different Unicode Transformation Formats.  UTF-8 has many nice
+so there exist different Unicode Transformation Formats, most importantly UTF-8
+and UTF-16.
+
+UTF-8 has many nice
 properties, but the main advantages are that it is backwards compatible with C
 strings, and ASCII characters (code points <= 127) are encoded in UTF-8 exactly
 as they would be in ASCII.
 
 Here is a diagram of the representation of the word "ål", with a NUL
-terminator.
+terminator, in both UTF-8 and UTF-16.
 
                        ---------------- ---------------- --------------
                String         å                l              NUL
@@ -35,13 +38,19 @@ terminator.
     UTF-16LE encoding     0xE5, 0x00       0x6C, 0x00      0x00, 0x00
                        ---------------- ---------------- --------------
 
-U+00E5 is greater than 127 so requires two bytes to represent in UTF-8.
-U+006C and U+0000 both exist in the ASCII range, so take one byte each,
-exactly as in an ASCII string.  UTF-16 is a different encoding, in which each
-code is represented by two or four bytes.  In UTF-8 a zero byte is only present
-when it represents the NUL character, but this is not true for UTF-16.
+You can see the aforementioned properties of UTF-8.
+The first character U+00E5 (å) has a value greater than 127,
+so its encoding takes more than a single byte; it requires two bytes.
+U+006C (l) and U+0000 (NUL) both exist in the ASCII range, i.e. less
+than 127, so take exactly one byte each, just as in a pure ASCII string.
+A zero byte never appears except to represent the NUL character, so many
+functions which expect C-style strings will work with UTF-8 strings without
+modification.
 
-In the Allegro API, be careful whether a function takes byte offsets or
+On the other hand, UTF-16 represents each code code by either two or four
+bytes, so functions expecting C-style strings will not work at all.
+
+In the following functions, be careful whether a function takes byte offsets or
 code-point indices.  In general, all position parameters are in byte offsets,
 not code point indices.  This may be surprising, but if you think about, is
 required for good performance.  It also means many functions will work even
