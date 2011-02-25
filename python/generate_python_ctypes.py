@@ -366,7 +366,7 @@ _add_dll("allegro_image")
 _add_dll("allegro_dialog")
 _add_dll("allegro_memfile")
 _add_dll("allegro_physfs")
-_add_dll("allegro_shaders")
+_add_dll("allegro_shader")
 _add_dll("allegro_main")
 
 # We don't have information ready which A5 function is in which DLL,
