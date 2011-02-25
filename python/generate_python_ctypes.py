@@ -62,6 +62,9 @@ class Allegro:
         if ptype.endswith("*"):
             if ptype in conversion:
                 return conversion[ptype]
+            t = ptype[:-1]
+            if t in self.types:
+                return POINTER(self.types[t])
             return c_void_p
         elif ptype in self.types:
             return self.types[ptype]
@@ -396,6 +399,8 @@ def _dll(func, ret, params):
             base = x.__bases__[0]
             if base != kind: continue
             f.write("class " + name + "(" + base.__name__ + "): pass\n")
+            pt = POINTER(x)
+            f.write("%s = POINTER(%s)\n" % (pt.__name__, name))
 
         for name, x in sorted(al.types.items()):
             base = x.__bases__[0]
