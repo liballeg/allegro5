@@ -1,11 +1,8 @@
 include(FindPythonInterp)
 
-# protos.timestamp is supposed to change whenever any function prototype
-# changed.
-
 add_custom_command(
     OUTPUT python_protos
-    DEPENDS ${CMAKE_BINARY_DIR}/docs/protos.timestamp
+    DEPENDS ${CMAKE_BINARY_DIR}/docs/protos
     COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/python/checkdocs.py
         -p python_protos
         -b ${CMAKE_BINARY_DIR}
