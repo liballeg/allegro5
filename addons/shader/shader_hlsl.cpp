@@ -8,6 +8,7 @@
 #include "allegro5/internal/aintern_shader_hlsl.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_direct3d.h"
 
 #include "shader.h"
 #include "shader_hlsl.h"
@@ -225,8 +226,9 @@ bool _al_set_shader_sampler_hlsl(ALLEGRO_SHADER *shader, const char *name,
    if (bitmap->flags & ALLEGRO_MEMORY_BITMAP)
       return false;
 
-   result = hlsl_shader->hlsl_shader->SetTexture(name,
-      al_get_d3d_video_texture(bitmap));
+   LPDIRECT3DTEXTURE9 vid_texture = al_get_d3d_video_texture(bitmap);
+   result = hlsl_shader->hlsl_shader->SetTexture(name, vid_texture);
+   ((ALLEGRO_DISPLAY_D3D *)bitmap->display)->device->SetTexture(0, vid_texture);
 
    return result == D3D_OK;
 }
