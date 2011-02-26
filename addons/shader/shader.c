@@ -9,7 +9,6 @@
 #endif
 #ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
 #include "shader_hlsl.h"
-#include "allegro5/allegro_shader_hlsl.h"
 #endif
 #ifdef ALLEGRO_CFG_WANT_CG_SHADERS
 #include <Cg/cg.h>
