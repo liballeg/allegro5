@@ -443,11 +443,11 @@ Returns true on success, false on failure.
 
 ### API: al_get_sample_instance_speed
 
-Return the playback speed.
+Return the relative playback speed.
 
 ### API: al_set_sample_instance_speed
 
-Set the playback speed.
+Set the relative playback speed.  1.0 is normal speed.
 
 Return true on success, false on failure.  Will fail if the sample instance is
 attached directly to a voice.
@@ -807,13 +807,13 @@ Return the stream length in samples.
 
 ### API: al_get_audio_stream_speed
 
-Return the playback speed.
+Return the relative playback speed.
 
 See also: [al_set_audio_stream_speed].
 
 ### API: al_set_audio_stream_speed
 
-Set the playback speed.
+Set the relative playback speed.  1.0 is normal speed.
 
 Return true on success, false on failure.  Will fail if the sample instance is
 attached directly to a voice.
