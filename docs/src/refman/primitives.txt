@@ -19,6 +19,8 @@ Initializes the primitives addon.
 *Returns:*
 True on success, false on failure.
 
+See also: [al_shutdown_primitives_addon]
+
 ### API: al_shutdown_primitives_addon
 
 Shut down the primitives addon. This is done automatically at program exit,
@@ -125,6 +127,8 @@ Draws a line segment between two points.
 * color - Color of the line
 * thickness - Thickness of the line, pass `<= 0` to draw hairline lines
 
+See also: [al_draw_soft_line]
+
 ### API: al_draw_triangle
 
 Draws an outlined triangle.
@@ -135,6 +139,8 @@ Draws an outlined triangle.
 * color - Color of the triangle
 * thickness - Thickness of the lines, pass `<= 0` to draw hairline lines
 
+See also: [al_draw_filled_triangle], [al_draw_soft_triangle]
+
 ### API: al_draw_filled_triangle
 
 Draws a filled triangle.
@@ -143,6 +149,8 @@ Draws a filled triangle.
 
 * x1, y1, x2, y2, x3, y3 - Three points of the triangle
 * color - Color of the triangle
+
+See also: [al_draw_triangle]
 
 ### API: al_draw_rectangle
 
@@ -154,6 +162,8 @@ Draws an outlined rectangle.
 * color - Color of the rectangle
 * thickness - Thickness of the lines, pass `<= 0` to draw hairline lines
 
+See also: [al_draw_filled_rectangle], [al_draw_rounded_rectangle]
+
 ### API: al_draw_filled_rectangle
 
 Draws a filled rectangle.
@@ -162,6 +172,8 @@ Draws a filled rectangle.
 
 * x1, y1, x2, y2 - Upper left and lower right points of the rectangle
 * color - Color of the rectangle
+
+See also: [al_draw_rectangle], [al_draw_filled_rounded_rectangle]
 
 ### API: al_draw_rounded_rectangle
 
@@ -174,6 +186,8 @@ Draws an outlined rounded rectangle.
 * rx, ry - The radii of the round
 * thickness - Thickness of the lines, pass `<= 0` to draw hairline lines
 
+See also: [al_draw_filled_rounded_rectangle], [al_draw_rectangle]
+
 ### API: al_draw_filled_rounded_rectangle
 
 Draws an filled rounded rectangle.
@@ -183,6 +197,8 @@ Draws an filled rounded rectangle.
 * x1, y1, x2, y2 - Upper left and lower right points of the rectangle
 * color - Color of the rectangle
 * rx, ry - The radii of the round
+
+See also: [al_draw_rounded_rectangle], [al_draw_filled_rectangle]
 
 ### API: al_calculate_arc
 
@@ -205,6 +221,8 @@ vertices.
 * thickness - Thickness of the arc
 * num_points - The number of points to calculate
 
+See also: [al_draw_arc], [al_calculate_spline], [al_calculate_ribbon]
+
 ### API: al_draw_ellipse
 
 Draws an outlined ellipse.
@@ -216,6 +234,8 @@ Draws an outlined ellipse.
 * color - Color of the ellipse
 * thickness - Thickness of the ellipse, pass `<= 0` to draw a hairline ellipse
 
+See also: [al_draw_filled_ellipse], [al_draw_circle]
+
 ### API: al_draw_filled_ellipse
 
 Draws a filled ellipse.
@@ -225,6 +245,8 @@ Draws a filled ellipse.
 * cx, cy - Center of the ellipse
 * rx, ry - Radii of the ellipse
 * color - Color of the ellipse
+
+See also: [al_draw_ellipse], [al_draw_filled_circle]
 
 ### API: al_draw_circle
 
@@ -237,6 +259,8 @@ Draws an outlined circle.
 * color - Color of the circle
 * thickness - Thickness of the circle, pass `<= 0` to draw a hairline circle
 
+See also: [al_draw_filled_circle], [al_draw_ellipse]
+
 ### API: al_draw_filled_circle
 
 Draws a filled circle.
@@ -246,6 +270,8 @@ Draws a filled circle.
 * cx, cy - Center of the circle
 * r - Radius of the circle
 * color - Color of the circle
+
+See also: [al_draw_circle], [al_draw_filled_ellipse]
 
 ### API: al_draw_arc
 
@@ -260,6 +286,8 @@ Draws an arc.
 * delta_theta - Angular span of the arc (pass a negative number to switch
     direction)
 * thickness - Thickness of the circle, pass `<= 0` to draw hairline circle
+
+See also: [al_calculate_arc]
 
 ### API: al_calculate_spline
 
@@ -277,6 +305,8 @@ coordinates of the vertices.
 * thickness - Thickness of the spline ribbon
 * num_segments - The number of points to calculate
 
+See also: [al_draw_spline], [al_calculate_arc], [al_calculate_ribbon]
+
 ### API: al_draw_spline
 
 Draws a Bézier spline given 4 control points.
@@ -286,6 +316,8 @@ Draws a Bézier spline given 4 control points.
 * points - An array of 4 pairs of coordinates of the 4 control points
 * color - Color of the spline
 * thickness - Thickness of the spline, pass `<= 0` to draw a hairline spline
+
+See also: [al_calculate_spline]
 
 ### API: al_calculate_ribbon
 
@@ -306,6 +338,8 @@ doublets of floats, corresponding to x and y coordinates of the vertices.
 * thickness - Thickness of the spline ribbon
 * num_segments - The number of points to calculate
 
+See also: [al_draw_ribbon], [al_calculate_arc], [al_calculate_spline]
+
 ### API: al_draw_ribbon
 
 Draws a ribbon given given an array of points. The ribbon will go through all
@@ -316,6 +350,8 @@ of the passed points.
 * points - An array of pairs of coordinates for each point
 * color - Color of the spline
 * thickness - Thickness of the spline, pass `<= 0` to draw hairline spline
+
+See also: [al_calculate_ribbon]
 
 ## Low level drawing routines
 
@@ -362,7 +398,7 @@ For example to draw a textured triangle you could use:
         {.x = 256, .y = 256, .z = 0, .u = 256, .v = 256}};
     al_draw_prim(v, NULL, texture, 0, 3, ALLEGRO_PRIM_TRIANGLE_LIST);
 
-*See Also:*
+See also:
 [ALLEGRO_VERTEX], [ALLEGRO_PRIM_TYPE], [ALLEGRO_VERTEX_DECL], 
 [al_draw_indexed_prim]
 
@@ -384,7 +420,7 @@ to specify which vertices to use.
 *Returns:*
 Number of primitives drawn
 
-*See Also:*
+See also:
 [ALLEGRO_VERTEX], [ALLEGRO_PRIM_TYPE], [ALLEGRO_VERTEX_DECL], [al_draw_prim]
 
 ### API: al_create_vertex_decl
@@ -399,7 +435,7 @@ Creates a vertex declaration, which describes a custom vertex format.
 *Returns:*
 Newly created vertex declaration.
 
-*See Also:*
+See also:
 [ALLEGRO_VERTEX_ELEMENT], [ALLEGRO_VERTEX_DECL], [al_destroy_vertex_decl]
 
 ### API: al_destroy_vertex_decl
@@ -410,7 +446,7 @@ Destroys a vertex declaration.
 
 * decl - Vertex declaration to destroy
 
-*See Also:*
+See also:
 [ALLEGRO_VERTEX_ELEMENT], [ALLEGRO_VERTEX_DECL], [al_create_vertex_decl]
 
 ### API: al_draw_soft_triangle
@@ -445,6 +481,8 @@ may be absent if two vertices are horizontally collinear.
   value of the third parameter (the x value of the end point). All coordinates
   are inclusive.
 
+See also: [al_draw_triangle]
+
 ### API: al_draw_soft_line
 
 Draws a line using the software rasterizer and user supplied pixel functions.
@@ -467,6 +505,8 @@ The line is drawn top to bottom.
   absolute value of the change in coordinate is at most 1 in either direction.
 * draw - Called once per pixel. The function is expected to draw the pixel at
   the coordinates passed to it.
+
+See also: [al_draw_line]
 
 ## Polygon routines
 
@@ -578,7 +618,7 @@ be left uninitialized when you are not using textures.
 * color - [ALLEGRO_COLOR] structure, storing the color of the vertex
 * u, v - Texture coordinates measured in pixels
 
-*See Also:*
+See also:
 [ALLEGRO_PRIM_ATTR]
 
 ### API: ALLEGRO_VERTEX_DECL
@@ -587,7 +627,7 @@ A vertex declaration. This opaque structure is responsible for describing
 the format and layout of a user defined custom vertex. It is created and 
 destroyed by specialized functions.
 
-*See Also:*
+See also:
 [al_create_vertex_decl], [al_destroy_vertex_decl], [ALLEGRO_VERTEX_ELEMENT]
 
 ### API: ALLEGRO_VERTEX_ELEMENT
@@ -621,7 +661,7 @@ al_draw_prim would be identical to passing NULL):
 * offset - Offset in bytes from the beginning of the custom vertex structure. C
    function offsetof is very useful here.
 
-*See Also:*
+See also:
 [al_create_vertex_decl], [ALLEGRO_VERTEX_DECL], [ALLEGRO_PRIM_STORAGE]
 
 ### API: ALLEGRO_PRIM_TYPE
@@ -667,7 +707,7 @@ Enumerates the types of vertex attributes that a custom vertex may have.
    only in ALLEGRO_PRIM_FLOAT_2 and ALLEGRO_PRIM_SHORT_2. These coordinates are
    measured in pixels.
 
-*See Also:*
+See also:
 [ALLEGRO_VERTEX_DECL], [ALLEGRO_PRIM_STORAGE]
 
 ### API: ALLEGRO_PRIM_STORAGE
@@ -679,7 +719,7 @@ in.
 * ALLEGRO_PRIM_FLOAT_3 - A triplet of floats
 * ALLEGRO_PRIM_SHORT_2 - A doublet of shorts
 
-*See Also:*
+See also:
 [ALLEGRO_PRIM_ATTR]
 
 ### API: ALLEGRO_VERTEX_CACHE_SIZE
