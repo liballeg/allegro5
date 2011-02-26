@@ -4,6 +4,7 @@ option(WANT_FLAC "Enable FLAC support" on)
 option(WANT_VORBIS "Enable Ogg Vorbis support" on)
 option(WANT_MODAUDIO "Enable MOD Audio support" on)
 option(WANT_ACODEC_DYNAMIC_LOAD "Enable DLL loading in acodec (Windows)" on)
+option(USE_TREMOR "Use Tremor instead of regular libogg/libvorbis" off)
 
 #-----------------------------------------------------------------------------#
 
@@ -171,27 +172,13 @@ endif()
 #
 
 if(WANT_VORBIS)
-    find_package(Vorbis)
-    if(VORBIS_FOUND)
-        set(CMAKE_REQUIRED_INCLUDES ${OGG_INCLUDE_DIR} ${VORBIS_INCLUDE_DIR})
-        set(CMAKE_REQUIRED_LIBRARIES ${VORBIS_LIBRARIES})
-        if(NOT GP2XWIZ)
+    if(USE_TREMOR)
+        find_package(Tremor)
+        if(TREMOR_FOUND)
+            set(CMAKE_REQUIRED_INCLUDES ${TREMOR_INCLUDE_DIR})
+            set(CMAKE_REQUIRED_LIBRARIES ${TREMOR_LIBRARY})
             check_c_source_compiles("
-                #include <vorbis/vorbisfile.h>
-                int main(void)
-                {
-                    OggVorbis_File f;
-                    ov_callbacks callback;
-                    vorbis_info *v = 0;
-                    (void)v;
-                    ov_info(&f, -1);
-                    callback = OV_CALLBACKS_NOCLOSE;
-                    return 0;
-                }"
-                VORBIS_COMPILES)
-        else(NOT GP2XWIZ)
-            check_c_source_compiles("
-                #include <tremor/ivorbisfile.h>
+                #include <Tremor/ivorbisfile.h>
                 int main(void)
                 {
                     OggVorbis_File f;
@@ -201,17 +188,65 @@ if(WANT_VORBIS)
                     //callback = OV_CALLBACKS_NOCLOSE;
                     return 0;
                 }"
-                VORBIS_COMPILES)
-        endif(NOT GP2XWIZ)
-        set(CMAKE_REQUIRED_INCLUDES)
-        set(CMAKE_REQUIRED_LIBRARIES)
-        if(VORBIS_COMPILES)
-            set(SUPPORT_VORBIS 1)
-        endif(VORBIS_COMPILES)
-    endif(VORBIS_FOUND)
-    if(NOT SUPPORT_VORBIS)
-        message("WARNING: libvorbis not found or compile test failed, disabling support.")
-    endif(NOT SUPPORT_VORBIS)
+                TREMOR_COMPILES)
+            set(CMAKE_REQUIRED_INCLUDES)
+            set(CMAKE_REQUIRED_LIBRARIES)
+            if(TREMOR_COMPILES)
+                set(SUPPORT_VORBIS 1)
+            endif(TREMOR_COMPILES)
+        endif(TREMOR_FOUND)
+        if(NOT SUPPORT_VORBIS)
+            message("WARNING: Tremor not found although USE_TREMOR was specified.")
+        else(NOT SUPPORT_VORBIS)
+            # mimic regular libogg/libvorbis
+            set(OGG_INCLUDE_DIR ${TREMOR_INCLUDE_DIR})
+            set(VORBIS_INCLUDE_DIR )
+            set(VORBIS_LIBRARIES ${TREMOR_LIBRARY})
+            set(ALLEGRO_CFG_TREMOR 1 PARENT_SCOPE)
+        endif(NOT SUPPORT_VORBIS)
+    else(USE_TREMOR)
+        find_package(Vorbis)
+        if(VORBIS_FOUND)
+            set(CMAKE_REQUIRED_INCLUDES ${OGG_INCLUDE_DIR} ${VORBIS_INCLUDE_DIR})
+            set(CMAKE_REQUIRED_LIBRARIES ${VORBIS_LIBRARIES})
+            if(NOT GP2XWIZ)
+                check_c_source_compiles("
+                    #include <vorbis/vorbisfile.h>
+                    int main(void)
+                    {
+                        OggVorbis_File f;
+                        ov_callbacks callback;
+                        vorbis_info *v = 0;
+                        (void)v;
+                        ov_info(&f, -1);
+                        callback = OV_CALLBACKS_NOCLOSE;
+                        return 0;
+                    }"
+                    VORBIS_COMPILES)
+            else(NOT GP2XWIZ)
+                check_c_source_compiles("
+                    #include <tremor/ivorbisfile.h>
+                    int main(void)
+                    {
+                        OggVorbis_File f;
+                        ov_callbacks callback;
+                        vorbis_info *v = 0;
+                        ov_info(&f, -1);
+                        //callback = OV_CALLBACKS_NOCLOSE;
+                        return 0;
+                    }"
+                    VORBIS_COMPILES)
+            endif(NOT GP2XWIZ)
+            set(CMAKE_REQUIRED_INCLUDES)
+            set(CMAKE_REQUIRED_LIBRARIES)
+            if(VORBIS_COMPILES)
+                set(SUPPORT_VORBIS 1)
+            endif(VORBIS_COMPILES)
+        endif(VORBIS_FOUND)
+        if(NOT SUPPORT_VORBIS)
+            message("WARNING: libvorbis not found or compile test failed, disabling support.")
+        endif(NOT SUPPORT_VORBIS)
+    endif(USE_TREMOR)
 endif(WANT_VORBIS)
 
 if(SUPPORT_VORBIS)
@@ -219,7 +254,7 @@ if(SUPPORT_VORBIS)
     set(ALLEGRO_CFG_ACODEC_VORBIS 1)
     list(APPEND ACODEC_SOURCES ogg.c)
 
-    if(WIN32 AND WANT_ACODEC_DYNAMIC_LOAD)
+    if(WIN32 AND WANT_ACODEC_DYNAMIC_LOAD AND (NOT USE_TREMOR))
         if(VORBISFILE_LIBRARY MATCHES "${WIN32_STATIC_LIB_REGEX}")
             message("WARNING: Dynamic loading will be disabled for Vorbis"
                     " as static library was found: ${VORBISFILE_LIBRARY}")
