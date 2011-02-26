@@ -267,30 +267,19 @@ void al_transform_coordinates(const ALLEGRO_TRANSFORM *trans, float *x, float *y
  */
 void al_compose_transform(ALLEGRO_TRANSFORM *trans, const ALLEGRO_TRANSFORM *other)
 {
-   float t;
-   ASSERT(other);
-   ASSERT(trans);
-   
-   /*
-   First column
-   */
-   t = trans->m[0][0];
-   trans->m[0][0] =  other->m[0][0] * t + other->m[1][0] * trans->m[0][1];
-   trans->m[0][1] =  other->m[0][1] * t + other->m[1][1] * trans->m[0][1];
-   
-   /*
-   Second column
-   */
-   t = trans->m[1][0];
-   trans->m[1][0] =  other->m[0][0] * t + other->m[1][0] * trans->m[1][1];
-   trans->m[1][1] =  other->m[0][1] * t + other->m[1][1] * trans->m[1][1];
-   
-   /*
-   Fourth column
-   */
-   t = trans->m[3][0];
-   trans->m[3][0] =  other->m[0][0] * t + other->m[1][0] * trans->m[3][1] + other->m[3][0];
-   trans->m[3][1] =  other->m[0][1] * t + other->m[1][1] * trans->m[3][1] + other->m[3][1];
+   ALLEGRO_TRANSFORM tmp;
+   int x, y, i;
+
+   al_copy_transform(&tmp, trans);
+
+   for (y = 0; y < 4; y++) {
+      for (x = 0; x < 4; x++) {
+         trans->m[x][y] = 0;
+         for (i = 0; i < 4; i++) {
+            trans->m[x][y] += other->m[i][y] * tmp.m[x][i];
+         }
+      }
+   }
 }
 
 bool _al_transform_is_translation(const ALLEGRO_TRANSFORM* trans,
@@ -332,11 +321,11 @@ void al_ortho_transform(ALLEGRO_TRANSFORM *trans,
 
    tmp.m[0][0] = 2.0f / delta_x;
    tmp.m[1][1] = 2.0f / delta_y;
-//   tmp.m[2][2] = -2.0f / delta_z;
-//   tmp.m[2][2] = 2.0f / delta_z;
+   tmp.m[2][2] = 2.0f / delta_z;
    tmp.m[3][0] = -(right + left) / delta_x;
    tmp.m[3][1] = -(top + bottom) / delta_y;
    tmp.m[3][2] = -(f + n) / delta_z;
+   tmp.m[3][3] = 1.0f;
 
    al_compose_transform(trans, &tmp);
 }
