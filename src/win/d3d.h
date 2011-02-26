@@ -54,7 +54,6 @@ void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp);
 void _al_d3d_refresh_texture_memory(void);
 bool _al_d3d_recreate_bitmap_textures(ALLEGRO_DISPLAY_D3D *disp);
 void _al_d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap);
-void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest);
 bool _al_d3d_supports_separate_alpha_blend(ALLEGRO_DISPLAY *display);
 void _al_d3d_bmp_init(void);
 void _al_d3d_bmp_destroy(void);
