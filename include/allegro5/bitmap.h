@@ -169,6 +169,7 @@ AL_FUNC(void, al_convert_mask_to_alpha, (ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR m
 
 /* Clipping */
 AL_FUNC(void, al_set_clipping_rectangle, (int x, int y, int width, int height));
+AL_FUNC(void, al_reset_clipping_rectangle, (void));
 AL_FUNC(void, al_get_clipping_rectangle, (int *x, int *y, int *w, int *h));
 
 /* Sub bitmaps */
