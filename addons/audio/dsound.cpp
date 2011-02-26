@@ -137,6 +137,10 @@ static void* _dsound_update(ALLEGRO_THREAD* self, void* arg)
 
    (void)self;
 
+   unsigned char *silence = (unsigned char *)al_malloc(buffer_size);
+   int silence_value = _al_kcm_get_silence(voice->depth);
+   memset(silence, silence_value, buffer_size);
+
    /* Fill buffer */
    hr = ex_data->ds8_buffer->Lock(0, buffer_size, &ptr1, &block1_bytes, &ptr2, &block2_bytes, DSBLOCK_ENTIREBUFFER);
    if (!FAILED(hr)) {
@@ -161,29 +165,28 @@ static void* _dsound_update(ALLEGRO_THREAD* self, void* arg)
          samples = d / bytes_per_sample / ex_data->channels;
          data = _al_voice_update(voice, &samples);
          if (data == NULL) {
-            /* FIXME: play silence */
+            data = silence;
          }
-         else {
-            hr = ex_data->ds8_buffer->Lock(saved_play_cursor, d, &ptr1, &block1_bytes, &ptr2, &block2_bytes, 0);
-            if (!FAILED(hr)) {
-               memcpy(ptr1, data, block1_bytes);
-               memcpy(ptr2, ((unsigned char *)data)+block1_bytes, block2_bytes);
-               hr = ex_data->ds8_buffer->Unlock(ptr1, block1_bytes, ptr2, block2_bytes);
-               if (FAILED(hr)) {
-                  ALLEGRO_ERROR("Unlock failed: %s\n", ds_get_error(hr));
-               }
+
+         hr = ex_data->ds8_buffer->Lock(saved_play_cursor, d, &ptr1, &block1_bytes, &ptr2, &block2_bytes, 0);
+         if (!FAILED(hr)) {
+            memcpy(ptr1, data, block1_bytes);
+            memcpy(ptr2, ((unsigned char *)data)+block1_bytes, block2_bytes);
+            hr = ex_data->ds8_buffer->Unlock(ptr1, block1_bytes, ptr2, block2_bytes);
+            if (FAILED(hr)) {
+               ALLEGRO_ERROR("Unlock failed: %s\n", ds_get_error(hr));
             }
-            else {
-            }
-            saved_play_cursor += block1_bytes + block2_bytes;
-            saved_play_cursor %= buffer_size;
          }
+         saved_play_cursor += block1_bytes + block2_bytes;
+         saved_play_cursor %= buffer_size;
       }
       al_rest(0.005);
    } while (!ex_data->stop_voice);
 
 
    ex_data->ds8_buffer->Stop();
+
+   al_free(silence);
 
    return NULL;
 }
