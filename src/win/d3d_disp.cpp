@@ -416,13 +416,12 @@ static void d3d_reset_state(ALLEGRO_DISPLAY_D3D *disp)
    disp->scissor_state.left   = -1;
    disp->scissor_state.right  = -1;
 
-   disp->device->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
-   disp->device->SetRenderState(D3DRS_ZWRITEENABLE, true);
-   disp->device->SetRenderState(D3DRS_LIGHTING, false);
+   disp->device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
+   disp->device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+   disp->device->SetRenderState(D3DRS_LIGHTING, FALSE);
    disp->device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-   disp->device->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
+   disp->device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 
-   /* Set texture address mode to clamp */
    if (disp->device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP) != D3D_OK)
       ALLEGRO_ERROR("SetSamplerState failed\n");
    if (disp->device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP) != D3D_OK)
@@ -496,16 +495,7 @@ static void _al_d3d_set_ortho_projection(ALLEGRO_DISPLAY_D3D *disp, float w, flo
 #ifdef ALLEGRO_CFG_HLSL_SHADERS
       LPD3DXEFFECT effect = disp->effect;
       if (effect) {
-         /*
-         UINT required_passes;
-         effect->EndPass();
-         effect->End();
-         */
          disp->effect->SetMatrix("proj_matrix", (D3DXMATRIX *)display->proj_transform.m);
-         /*
-         effect->Begin(&required_passes, 0);
-         effect->BeginPass(0);
-         */
       }
 #endif
    }
@@ -1810,26 +1800,27 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
             d3d_display->faux_fullscreen = false;
          }
       }
-      else {
-         if (al_display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
-            ALLEGRO_MONITOR_INFO mi;
-            al_get_monitor_info(win_display->adapter, &mi);
-            al_display->w = mi.x2 - mi.x1;
-            al_display->h = mi.y2 - mi.y1;
-            d3d_display->faux_fullscreen = true;
-         }
-         else {
-            d3d_display->faux_fullscreen = false;
-         }
-         win_display->toggle_w = w;
-         win_display->toggle_h = h;
-      }
 #ifdef ALLEGRO_CFG_D3D9EX
    }
    else {
       d3d_display->faux_fullscreen = false;
    }
 #endif
+      
+   if (!(al_display->flags & ALLEGRO_FULLSCREEN)) {
+      if (al_display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+         ALLEGRO_MONITOR_INFO mi;
+         al_get_monitor_info(win_display->adapter, &mi);
+         al_display->w = mi.x2 - mi.x1;
+         al_display->h = mi.y2 - mi.y1;
+         d3d_display->faux_fullscreen = true;
+      }
+      else {
+         d3d_display->faux_fullscreen = false;
+      }
+      win_display->toggle_w = w;
+      win_display->toggle_h = h;
+   }
 
    return d3d_display;
 }
@@ -2552,6 +2543,7 @@ static ALLEGRO_BITMAP *d3d_create_sub_bitmap(ALLEGRO_DISPLAY *display,
    bitmap->display = (ALLEGRO_DISPLAY_D3D *)display;
    bitmap->render_target = ((ALLEGRO_BITMAP_D3D *)parent)->render_target;
    bitmap->modified = true;
+   al_identity_transform(&bitmap->bitmap.transform);
 
    bitmap->bitmap.vt = parent->vt;
    return (ALLEGRO_BITMAP *)bitmap;
@@ -2611,6 +2603,17 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
          d3d_display->device->SetDepthStencilSurface(NULL);
       }
    }
+
+/*
+   D3DVIEWPORT9 viewport;
+   viewport.X = 0;
+   viewport.Y = 0;
+   viewport.Width = bitmap->w;
+   viewport.Height = bitmap->h;
+   viewport.MinZ = -1;
+   viewport.MaxZ = 1;
+   d3d_display->device->SetViewport(&viewport);
+*/
 
    d3d_reset_state(d3d_display);
 
@@ -2772,18 +2775,6 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    ALLEGRO_BITMAP_D3D* d3d_bmp = (ALLEGRO_BITMAP_D3D*)cache_bmp;
    UINT required_passes;
 
-   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-      d3d_disp->effect->SetBool("use_tex", true);
-      d3d_disp->effect->SetTexture("tex", d3d_bmp->video_texture);
-      d3d_disp->effect->Begin(&required_passes, 0);
-   }
-
-   if (d3d_disp->device->SetTexture(0,
-         (IDirect3DBaseTexture9 *)d3d_bmp->video_texture) != D3D_OK) {
-      ALLEGRO_ERROR("d3d_flush_vertex_cache: SetTexture failed.\n");
-      return;
-   }
-
    if (cache_bmp->flags & ALLEGRO_MIN_LINEAR) {
       d3d_disp->device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
    }
@@ -2803,10 +2794,25 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
       d3d_disp->device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
    }
 
+   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      d3d_disp->device->SetFVF(D3DFVF_ALLEGRO_VERTEX);
+   }
+
+   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      d3d_disp->effect->SetBool("use_tex", true);
+      d3d_disp->effect->SetTexture("tex", d3d_bmp->video_texture);
+      d3d_disp->effect->Begin(&required_passes, 0);
+      ASSERT(required_passes > 0);
+   }
+
+   if (d3d_disp->device->SetTexture(0, d3d_bmp->video_texture) != D3D_OK) {
+      ALLEGRO_ERROR("d3d_flush_vertex_cache: SetTexture failed.\n");
+      return;
+   }
+
    int size;
 
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-      d3d_disp->device->SetFVF(D3DFVF_ALLEGRO_VERTEX);
       size = sizeof(ALLEGRO_VERTEX);
       for (unsigned int i = 0; i < required_passes; i++) {
          d3d_disp->effect->BeginPass(i);
@@ -2829,13 +2835,13 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    }
 
    disp->num_cache_vertices = 0;
-   d3d_disp->device->SetTexture(0, NULL);
-   
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       d3d_disp->effect->End();
       d3d_disp->effect->SetBool("use_tex", false);
-      d3d_disp->effect->SetTexture("tex", 0);
+      d3d_disp->effect->SetTexture("tex", NULL);
    }
+
+   d3d_disp->device->SetTexture(0, NULL);
 }
 
 static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *target)
@@ -2851,23 +2857,13 @@ static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *tar
    }
 
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-      // FIXME: offset like below
       tmp_transform.m[3][0] -= 0.5;
       tmp_transform.m[3][1] -= 0.5;
       al_copy_transform(&disp->view_transform, &tmp_transform);
 #ifdef ALLEGRO_CFG_HLSL_SHADERS
       LPD3DXEFFECT effect = d3d_disp->effect;
       if (effect) {
-         /*
-         UINT required_passes;
-         effect->EndPass();
-         effect->End();
-         */
          d3d_disp->effect->SetMatrix("view_matrix", (D3DXMATRIX *)tmp_transform.m);
-         /*
-         effect->Begin(&required_passes, 0);
-         effect->BeginPass(0);
-         */
       }
 #endif
    }
