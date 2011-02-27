@@ -186,26 +186,6 @@ void al_unregister_event_source(ALLEGRO_EVENT_QUEUE *queue,
 
 
 
-/* Function: al_set_event_source_data
- */
-void al_set_event_source_data(ALLEGRO_EVENT_SOURCE *source, intptr_t data)
-{
-   ALLEGRO_EVENT_SOURCE_REAL *const rsource = (ALLEGRO_EVENT_SOURCE_REAL *)source;
-   rsource->data = data;
-}
-
-
-
-/* Function: al_get_event_source_data
- */
-intptr_t al_get_event_source_data(const ALLEGRO_EVENT_SOURCE *source)
-{
-   const ALLEGRO_EVENT_SOURCE_REAL *const rsource = (ALLEGRO_EVENT_SOURCE_REAL *)source;
-   return rsource->data;
-}
-
-
-
 /* Function: al_is_event_queue_empty
  */
 bool al_is_event_queue_empty(ALLEGRO_EVENT_QUEUE *queue)
