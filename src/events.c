@@ -38,6 +38,7 @@ struct ALLEGRO_EVENT_QUEUE
    _AL_VECTOR events;   /* vector of ALLEGRO_EVENT, used as circular array */
    unsigned int events_head;  /* write end of circular array */
    unsigned int events_tail;  /* read end of circular array */
+   bool paused;
    _AL_MUTEX mutex;
    _AL_COND cond;
 };
@@ -97,6 +98,7 @@ ALLEGRO_EVENT_QUEUE *al_create_event_queue(void)
       _al_vector_alloc_back(&queue->events);
       queue->events_head = 0;
       queue->events_tail = 0;
+      queue->paused = false;
 
       _AL_MARK_MUTEX_UNINITED(queue->mutex);
       _al_mutex_init(&queue->mutex);
@@ -182,6 +184,30 @@ void al_unregister_event_source(ALLEGRO_EVENT_QUEUE *queue,
       discard_events_of_source(queue, source);
       _al_mutex_unlock(&queue->mutex);
    }
+}
+
+
+
+/* Function: al_pause_event_queue
+ */
+void al_pause_event_queue(ALLEGRO_EVENT_QUEUE *queue, bool pause)
+{
+   ASSERT(queue);
+
+   _al_mutex_lock(&queue->mutex);
+   queue->paused = pause;
+   _al_mutex_unlock(&queue->mutex);
+}
+
+
+
+/* Function: al_is_event_queue_paused
+ */
+bool al_is_event_queue_paused(const ALLEGRO_EVENT_QUEUE *queue)
+{
+   ASSERT(queue);
+
+   return queue->paused;
 }
 
 
@@ -521,6 +547,9 @@ void _al_event_queue_push_event(ALLEGRO_EVENT_QUEUE *queue,
    ALLEGRO_EVENT *new_event;
    ASSERT(queue);
    ASSERT(orig_event);
+
+   if (queue->paused)
+      return;
 
    _al_mutex_lock(&queue->mutex);
    {

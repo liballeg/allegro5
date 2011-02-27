@@ -149,6 +149,9 @@ bool _al_event_source_needs_to_generate_event(ALLEGRO_EVENT_SOURCE *es)
 {
    ALLEGRO_EVENT_SOURCE_REAL *this = (ALLEGRO_EVENT_SOURCE_REAL *)es;
 
+   /* We don't consider pausing of event queues, but it does not seem worth
+    * optimising for.
+    */
    return !_al_vector_is_empty(&this->queues);
 }
 

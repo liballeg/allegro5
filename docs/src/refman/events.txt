@@ -488,6 +488,29 @@ source, they will no longer be in the queue after this call.
 
 See also: [al_register_event_source]
 
+## API: al_pause_event_queue
+
+Pause or resume accepting new events into the event queue.
+Events already in the queue are unaffected.
+
+While a queue is paused, any events which would be entered into the
+queue are simply ignored.
+This is an alternative to unregistering then re-registering all event
+sources from the event queue, if you just need to prevent events piling
+up in the queue for a while.
+
+See also: [al_is_event_queue_paused]
+
+Since: 5.1.0
+
+## API: al_is_event_queue_paused
+
+Return true if the event queue is paused.
+
+See also: [al_pause_event_queue]
+
+Since: 5.1.0
+
 ## API: al_is_event_queue_empty
 
 Return true if the event queue specified is currently empty.
