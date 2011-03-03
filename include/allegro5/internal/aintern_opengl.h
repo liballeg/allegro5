@@ -23,6 +23,17 @@ enum {
    _ALLEGRO_OPENGL_VERSION_4_0   = 0x04000000
 };
 
+#define ALLEGRO_MAX_OPENGL_FBOS 8
+
+struct ALLEGRO_BITMAP_OGL;
+
+typedef struct ALLEGRO_FBO_INFO
+{
+   bool used;
+   GLuint fbo;
+   struct ALLEGRO_BITMAP_OGL *owner;
+   double creation_time;
+} ALLEGRO_FBO_INFO;
 
 typedef struct ALLEGRO_BITMAP_OGL
 {
@@ -41,7 +52,7 @@ typedef struct ALLEGRO_BITMAP_OGL
    NativeWindowType pbuf_native_wnd;
    bool changed;
 #else
-   GLuint fbo; /* 0 means, no fbo yet. */
+   ALLEGRO_FBO_INFO *fbo_info;
 #endif
 
    unsigned char *lock_buffer;
@@ -80,6 +91,8 @@ typedef struct ALLEGRO_OGL_EXTRAS
 
    /* True if display resources are shared among displays. */
    bool is_shared;
+
+   ALLEGRO_FBO_INFO fbos[ALLEGRO_MAX_OPENGL_FBOS];
 
    GLuint program_object; // Shader object
 

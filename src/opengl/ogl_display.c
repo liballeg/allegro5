@@ -28,34 +28,55 @@
 #include "allegro5/internal/aintern_iphone.h"
 #endif
 
+#include <float.h>
+
 ALLEGRO_DEBUG_CHANNEL("opengl")
+
+static ALLEGRO_FBO_INFO *ogl_find_unused_fbo(ALLEGRO_DISPLAY *display)
+{
+	ALLEGRO_OGL_EXTRAS *extras = display->ogl_extras;
+	double min_time = DBL_MAX;
+	int min_time_index = -1;
+	int i;
+
+	for (i = 0; i < ALLEGRO_MAX_OPENGL_FBOS; i++) {
+		if (!extras->fbos[i].used)
+			return &extras->fbos[i];
+		if (extras->fbos[i].creation_time < min_time) {
+			min_time = extras->fbos[i].creation_time;
+			min_time_index = i;
+		}
+	}
+
+	return &extras->fbos[min_time_index];
+}
 
 static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_OGL *ogl_bitmap;
+   ALLEGRO_FBO_INFO *info;
    
+   #ifdef ALLEGRO_IPHONE
+   #define glGenFramebuffersEXT glGenFramebuffersOES
+   #define glBindFramebufferEXT glBindFramebufferOES
+   #define GL_FRAMEBUFFER_EXT GL_FRAMEBUFFER_OES
+   #define GL_COLOR_ATTACHMENT0_EXT GL_COLOR_ATTACHMENT0_OES
+   #define glCheckFramebufferStatusEXT glCheckFramebufferStatusOES
+   #define glFramebufferTexture2DEXT glFramebufferTexture2DOES
+   #define GL_FRAMEBUFFER_COMPLETE_EXT GL_FRAMEBUFFER_COMPLETE_OES
+   #define glDeleteFramebuffersEXT glDeleteFramebuffersOES
+   #define glOrtho glOrthof
+   #endif
+
    if (bitmap->parent) bitmap = bitmap->parent;
    ogl_bitmap = (void *)bitmap;
 
 #if !defined ALLEGRO_GP2XWIZ
    if (!ogl_bitmap->is_backbuffer) {
        
-      // FIXME: ...
-      #ifdef ALLEGRO_IPHONE
-      #define glGenFramebuffersEXT glGenFramebuffersOES
-      #define glBindFramebufferEXT glBindFramebufferOES
-      #define GL_FRAMEBUFFER_EXT GL_FRAMEBUFFER_OES
-      #define GL_COLOR_ATTACHMENT0_EXT GL_COLOR_ATTACHMENT0_OES
-      #define glCheckFramebufferStatusEXT glCheckFramebufferStatusOES
-      #define glFramebufferTexture2DEXT glFramebufferTexture2DOES
-      #define GL_FRAMEBUFFER_COMPLETE_EXT GL_FRAMEBUFFER_COMPLETE_OES
-      #define glDeleteFramebuffersEXT glDeleteFramebuffersOES
-      #define glOrtho glOrthof
-      #endif
-
       /* When a bitmap is set as target bitmap, we try to create an FBO for it.
        */
-      if (ogl_bitmap->fbo == 0 && !(bitmap->flags & ALLEGRO_FORCE_LOCKING)) {
+      if (ogl_bitmap->fbo_info == NULL && !(bitmap->flags & ALLEGRO_FORCE_LOCKING)) {
       
    /* FIXME This is quite a hack but I don't know how the Allegro extension
     * manager works to fix this properly (getting extensions properly reported
@@ -67,17 +88,33 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
          if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object ||
             al_get_opengl_extension_list()->ALLEGRO_GL_OES_framebuffer_object) {
 #endif
-            glGenFramebuffersEXT(1, &ogl_bitmap->fbo);
+            info = ogl_find_unused_fbo(display);
+
+            if (info->used) {
+               info->owner->fbo_info = NULL;
+               glDeleteFramebuffersEXT(1, &info->fbo);
+               memset(info, 0, sizeof(*info));
+            }
+
+            glGenFramebuffersEXT(1, &info->fbo);
          }
       }
+      else {
+         info = ogl_bitmap->fbo_info;
+      }
 
-      if (ogl_bitmap->fbo) {
+      if (info && info->fbo) {
          /* Bind to the FBO. */
 #ifndef ALLEGRO_IPHONE
          ASSERT(display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
          display->ogl_extras->extension_list->ALLEGRO_GL_OES_framebuffer_object);
 #endif
-         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ogl_bitmap->fbo);
+         info->used = true;
+         info->owner = ogl_bitmap;
+         info->creation_time = al_get_time();
+         ogl_bitmap->fbo_info = info;
+
+         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, info->fbo);
 
          /* Attach the texture. */
          glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
@@ -92,8 +129,9 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
                _al_format_name(bitmap->format));
             ALLEGRO_ERROR("*** SWITCHING TO SOFTWARE MODE ***\n");
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-            glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo);
-            ogl_bitmap->fbo = 0;
+            glDeleteFramebuffersEXT(1, &info->fbo);
+            memset(info, 0, sizeof(*info));
+            ogl_bitmap->fbo_info = NULL;
          }
          else {
             display->ogl_extras->opengl_target = ogl_bitmap;
