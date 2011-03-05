@@ -142,7 +142,8 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
          ASSERT(display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
          display->ogl_extras->extension_list->ALLEGRO_GL_OES_framebuffer_object);
 #endif
-         info->fbo_state = FBO_INFO_TRANSIENT;
+         if (info->fbo_state == FBO_INFO_UNUSED)
+            info->fbo_state = FBO_INFO_TRANSIENT;
          info->owner = ogl_bitmap;
          info->creation_time = al_get_time();
          ogl_bitmap->fbo_info = info;
