@@ -34,21 +34,21 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 
 static ALLEGRO_FBO_INFO *ogl_find_unused_fbo(ALLEGRO_DISPLAY *display)
 {
-	ALLEGRO_OGL_EXTRAS *extras = display->ogl_extras;
-	double min_time = DBL_MAX;
-	int min_time_index = -1;
-	int i;
+   ALLEGRO_OGL_EXTRAS *extras = display->ogl_extras;
+   double min_time = DBL_MAX;
+   int min_time_index = -1;
+   int i;
 
-	for (i = 0; i < ALLEGRO_MAX_OPENGL_FBOS; i++) {
-		if (!extras->fbos[i].used)
-			return &extras->fbos[i];
-		if (extras->fbos[i].creation_time < min_time) {
-			min_time = extras->fbos[i].creation_time;
-			min_time_index = i;
-		}
-	}
+   for (i = 0; i < ALLEGRO_MAX_OPENGL_FBOS; i++) {
+      if (!extras->fbos[i].used)
+         return &extras->fbos[i];
+      if (extras->fbos[i].creation_time < min_time) {
+         min_time = extras->fbos[i].creation_time;
+         min_time_index = i;
+      }
+   }
 
-	return &extras->fbos[min_time_index];
+   return &extras->fbos[min_time_index];
 }
 
 static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
