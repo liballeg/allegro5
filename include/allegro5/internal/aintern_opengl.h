@@ -27,9 +27,15 @@ enum {
 
 struct ALLEGRO_BITMAP_OGL;
 
+enum {
+   FBO_INFO_UNUSED      = 0,
+   FBO_INFO_TRANSIENT   = 1,  /* may be destroyed for another bitmap */
+   FBO_INFO_PERSISTENT  = 2   /* exclusive to the owner bitmap */
+};
+
 typedef struct ALLEGRO_FBO_INFO
 {
-   bool used;
+   bool fbo_state;
    GLuint fbo;
    struct ALLEGRO_BITMAP_OGL *owner;
    double creation_time;
@@ -147,6 +153,9 @@ ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *pa
                                           int x, int y, int w, int h);
 
 /* common driver */
+void _al_ogl_reset_fbo_info(ALLEGRO_FBO_INFO *info);
+ALLEGRO_FBO_INFO *_al_ogl_persist_fbo(ALLEGRO_DISPLAY *display,
+                                      ALLEGRO_FBO_INFO *transient_fbo_info);
 void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
 void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap);
 ALLEGRO_BITMAP *_al_ogl_get_backbuffer(ALLEGRO_DISPLAY *d);

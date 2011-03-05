@@ -90,13 +90,21 @@ used texture, in pixels.
 ## API: al_get_opengl_fbo
 
 Returns the OpenGL FBO id internally used by the given bitmap if it uses one,
-else 0. An FBO is created for a bitmap when you call [al_set_target_bitmap]
-for it.
+else 0. An FBO is created for a bitmap when you set it as the target bitmap,
+under certain conditions.  See [al_set_target_bitmap] for the details.
+
+The FBO returned by this function will only be freed when the bitmap is
+destroyed, or if you call [al_remove_opengl_fbo] on the bitmap.
+
+See also: [al_remove_opengl_fbo], [al_set_target_bitmap]
 
 ## API: al_remove_opengl_fbo
 
-If the bitmap has an OpenGL FBO created for it (see [al_set_target_bitmap]),
-it is freed. It also is freed automatically when the bitmap is destroyed.
+Explicitly free an OpenGL FBO created for a bitmap, if it has one.
+Usually you do not need to worry about freeing FBOs, unless you use
+[al_get_opengl_fbo].
+
+See also: [al_get_opengl_fbo], [al_set_target_bitmap]
 
 ## API: al_have_opengl_extension
 
