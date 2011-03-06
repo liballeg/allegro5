@@ -346,7 +346,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
             /* In general, we can't modify the texture while it's
              * FBO bound - so we temporarily disable the FBO.
              */
-            if (ogl_target->fbo)
+            if (ogl_target->fbo_info)
                _al_ogl_set_target_bitmap(disp, bitmap);
             
             /* We need to do clipping because glCopyTexSubImage2D
@@ -378,7 +378,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
                 sx, bitmap->h - sy - sh,
                 sw, sh);
             /* Fix up FBO again after the copy. */
-            if (ogl_target->fbo)
+            if (ogl_target->fbo_info)
                _al_ogl_set_target_bitmap(disp, target);
             return;
          }
@@ -679,7 +679,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
             GLint current_fbo;
 
             /* Create an FBO if there isn't one. */
-            if (!ogl_bitmap->fbo) {
+            if (!ogl_bitmap->fbo_info) {
                ALLEGRO_STATE state;
                al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP);
                bitmap->locked = false; // hack :(
@@ -689,7 +689,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
             }
 
             glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &current_fbo);
-            glBindFramebufferOES(GL_FRAMEBUFFER_OES, ogl_bitmap->fbo);
+            glBindFramebufferOES(GL_FRAMEBUFFER_OES, ogl_bitmap->fbo_info->fbo);
 
             pitch = ogl_pitch(w, pixel_size);
             ogl_bitmap->lock_buffer = al_malloc(pitch * h);
@@ -994,17 +994,16 @@ static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
       _al_set_current_display_only(bitmap->display);
    }
 
+   if (ogl_bitmap->fbo_info) {
+      if (ogl_bitmap->fbo_info->fbo) {
 #if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
-   if (ogl_bitmap->fbo) {
-      glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo);
-      ogl_bitmap->fbo = 0;
-   }
+         glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo_info->fbo);
 #elif defined ALLEGRO_IPHONE
-   if (ogl_bitmap->fbo) {
-      glDeleteFramebuffersOES(1, &ogl_bitmap->fbo);
-      ogl_bitmap->fbo = 0;
-   }
+         glDeleteFramebuffersOES(1, &ogl_bitmap->fbo_info->fbo);
 #endif
+      }
+      memset(ogl_bitmap->fbo_info, 0, sizeof(ALLEGRO_FBO_INFO));
+   }
 
    if (ogl_bitmap->texture) {
       glDeleteTextures(1, &ogl_bitmap->texture);
@@ -1144,7 +1143,7 @@ ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d,
    ogl_bmp->texture = ogl_parent->texture;
 
 #if !defined ALLEGRO_GP2XWIZ
-   ogl_bmp->fbo = ogl_parent->fbo;
+   ogl_bmp->fbo_info = ogl_parent->fbo_info;
 #endif
 
    ogl_bmp->left = x / (float)ogl_parent->true_w;
@@ -1177,9 +1176,10 @@ void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 #if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL)) return;
-   if (ogl_bitmap->fbo) {
-      glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo);
-      ogl_bitmap->fbo = 0;
+   if (ogl_bitmap->fbo_info) {
+      glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo_info->fbo);
+      memset(ogl_bitmap->fbo_info, 0, sizeof(ALLEGRO_FBO_INFO));
+      ogl_bitmap->fbo_info = NULL;
    }
 #else
    (void)bitmap;
@@ -1193,7 +1193,7 @@ GLuint al_get_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 #if !defined ALLEGRO_GP2XWIZ
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL)) return 0;
-   return ogl_bitmap->fbo;
+   return ogl_bitmap->fbo_info == NULL ? 0 : ogl_bitmap->fbo_info->fbo;
 #else
    (void)bitmap;
    return 0;
