@@ -440,6 +440,8 @@ void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
    ALLEGRO_DISPLAY *old_display;
    ALLEGRO_DISPLAY *new_display;
 
+   ASSERT(!al_is_bitmap_drawing_held());
+
    if ((tls = tls_get()) == NULL)
       return;
 
