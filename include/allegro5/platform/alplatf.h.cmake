@@ -21,8 +21,6 @@
 #cmakedefine ALLEGRO_CFG_HLSL_SHADERS
 #cmakedefine ALLEGRO_CFG_CG_SHADERS
 
-#cmakedefine ALLEGRO_CFG_TREMOR
-
 /*---------------------------------------------------------------------------*/
 
 /* TODO: rename this */

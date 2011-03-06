@@ -9,8 +9,8 @@ if(TREMOR_INCLUDE_DIR)
     set(TREMOR_FIND_QUIETLY TRUE)
 endif(TREMOR_INCLUDE_DIR)
 
-find_path(TREMOR_INCLUDE_DIR Tremor/ogg.h)
-find_library(TREMOR_LIBRARY NAMES Tremor)
+find_path(TREMOR_INCLUDE_DIR tremor/ivorbisfile.h)
+find_library(TREMOR_LIBRARY NAMES vorbisidec)
 
 # Handle the QUIETLY and REQUIRED arguments and set TREMOR_FOUND to TRUE if
 # all listed variables are TRUE.
