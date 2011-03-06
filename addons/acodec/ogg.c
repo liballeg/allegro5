@@ -18,8 +18,7 @@
 
 ALLEGRO_DEBUG_CHANNEL("acodec")
 
-/* FIXME: We need a ALLEGRO_CFG_TREMOR */
-#if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
+#if !defined(ALLEGRO_CFG_TREMOR) && !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
 #include <vorbis/vorbisfile.h>
 #else
 #include <tremor/ivorbisfile.h>
@@ -235,6 +234,7 @@ ALLEGRO_SAMPLE *_al_load_ogg_vorbis_f(ALLEGRO_FILE *file)
    int bitstream;
    long total_size;
    AL_OV_DATA ov;
+   long read;
 
    if (!init_dynlib()) {
       return NULL;
@@ -269,12 +269,12 @@ ALLEGRO_SAMPLE *_al_load_ogg_vorbis_f(ALLEGRO_FILE *file)
    while (pos < total_size) {
       /* XXX error handling */
 #ifndef TREMOR
-      long read = lib.ov_read(&vf, buffer + pos, packet_size, endian, word_size,
+      read = lib.ov_read(&vf, buffer + pos, packet_size, endian, word_size,
          signedness, &bitstream);
 #else
       (void)endian;
       (void)signedness;
-      long read = lib.ov_read(&vf, buffer + pos, packet_size, &bitstream);
+      read = lib.ov_read(&vf, buffer + pos, packet_size, &bitstream);
 #endif
       pos += read;
       if (read == 0)
@@ -392,6 +392,7 @@ static size_t ogg_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
 #endif
    double rate = extra->vi->rate;
    double btime = ((double)buf_size / (double)word_size) / rate;
+   unsigned long read;
    
    if (stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR) {
       if (ctime + btime > extra->loop_end) {
@@ -403,12 +404,12 @@ static size_t ogg_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
       }
    while (pos < (unsigned long)read_length) {
 #ifndef TREMOR
-      unsigned long read = lib.ov_read(extra->vf, (char *)data + pos,
+      read = lib.ov_read(extra->vf, (char *)data + pos,
          read_length - pos, endian, word_size, signedness, &extra->bitstream);
 #else
       (void)endian;
       (void)signedness;
-      unsigned long read = lib.ov_read(extra->vf, (char *)data + pos,
+      read = lib.ov_read(extra->vf, (char *)data + pos,
          read_length - pos, &extra->bitstream);
 #endif
       pos += read;
