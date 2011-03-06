@@ -82,6 +82,8 @@ This function does nothing if there is no target bitmap.
 
 * trans - Transformation to use
 
+See also: [al_get_current_transform], [al_transform_coordinates]
+
 ## API: al_get_current_transform
 
 Returns the transformation of the current target bitmap, as set by
@@ -101,8 +103,7 @@ inverse before inverting it if you are in doubt.
 
 * trans - Transformation to invert
 
-*See Also:*
-[al_check_inverse]
+See also: [al_check_inverse]
 
 ## API: al_check_inverse
 
@@ -122,8 +123,7 @@ above 0, the transformation will be invertible.
 *Returns:*
 1 if the transformation is invertible, 0 otherwise
 
-*See Also:*
-[al_invert_transform]
+See also: [al_invert_transform]
 
 ## API: al_identity_transform
 
@@ -132,6 +132,8 @@ Sets the transformation to be the identity transformation.
 *Parameters:*
 
 * trans - Transformation to alter
+
+See also: [al_translate_transform], [al_rotate_transform], [al_scale_transform]
 
 ## API: al_build_transform
 
@@ -147,6 +149,9 @@ functions.
 * sx, sy - Scale
 * theta - Rotation angle
 
+See also: [al_translate_transform], [al_rotate_transform],
+[al_scale_transform], [al_compose_transform]
+
 ## API: al_translate_transform
 
 Apply a translation to a transformation.
@@ -155,6 +160,8 @@ Apply a translation to a transformation.
 
 * trans - Transformation to alter
 * x, y - Translation
+
+See also: [al_rotate_transform], [al_scale_transform], [al_build_transform]
 
 ## API: al_rotate_transform
 
@@ -165,6 +172,8 @@ Apply a rotation to a transformation.
 * trans - Transformation to alter
 * theta - Rotation angle
 
+See also: [al_translate_transform], [al_scale_transform], [al_build_transform]
+
 ## API: al_scale_transform
 
 Apply a scale to a transformation.
@@ -174,6 +183,8 @@ Apply a scale to a transformation.
 * trans - Transformation to alter
 * sx, sy - Scale
 
+See also: [al_translate_transform], [al_rotate_transform], [al_build_transform]
+
 ## API: al_transform_coordinates
 
 Transform a pair of coordinates.
@@ -182,6 +193,8 @@ Transform a pair of coordinates.
 
 * trans - Transformation to use
 * x, y - Pointers to the coordinates
+
+See also: [al_use_transform]
 
 ## API: al_compose_transform
 
