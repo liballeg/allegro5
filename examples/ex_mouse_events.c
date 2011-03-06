@@ -62,6 +62,8 @@ int main(void)
    al_init_font_addon();
    
    actual_buttons = al_get_mouse_num_buttons();
+   if (actual_buttons > NUM_BUTTONS)
+      actual_buttons = NUM_BUTTONS;
 
    al_set_new_display_flags(ALLEGRO_RESIZABLE);
    display = al_create_display(640, 480);
