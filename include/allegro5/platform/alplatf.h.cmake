@@ -17,8 +17,6 @@
 #cmakedefine ALLEGRO_CFG_DLL_TLS
 #cmakedefine ALLEGRO_CFG_PTHREADS_TLS
 
-#cmakedefine ALLEGRO_CFG_TREMOR
-
 /*---------------------------------------------------------------------------*/
 
 /* TODO: rename this */
