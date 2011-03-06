@@ -108,16 +108,17 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
        */
       if (ogl_bitmap->fbo_info == NULL && !(bitmap->flags & ALLEGRO_FORCE_LOCKING)) {
       
-   /* FIXME This is quite a hack but I don't know how the Allegro extension
-    * manager works to fix this properly (getting extensions properly reported
-    * on iphone.
-    */
 #ifdef ALLEGRO_IPHONE
-         if (true) {
+         /* FIXME This is quite a hack but I don't know how the Allegro extension
+          * manager works to fix this properly (getting extensions properly reported
+          * on iphone.
+          */
+         if (true)
 #else
          if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object ||
-            al_get_opengl_extension_list()->ALLEGRO_GL_OES_framebuffer_object) {
+            al_get_opengl_extension_list()->ALLEGRO_GL_OES_framebuffer_object)
 #endif
+         {
             info = ogl_find_unused_fbo(display);
             ASSERT(info->fbo_state != FBO_INFO_PERSISTENT);
 
@@ -140,7 +141,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
          /* Bind to the FBO. */
 #ifndef ALLEGRO_IPHONE
          ASSERT(display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
-         display->ogl_extras->extension_list->ALLEGRO_GL_OES_framebuffer_object);
+            display->ogl_extras->extension_list->ALLEGRO_GL_OES_framebuffer_object);
 #endif
          if (info->fbo_state == FBO_INFO_UNUSED)
             info->fbo_state = FBO_INFO_TRANSIENT;
