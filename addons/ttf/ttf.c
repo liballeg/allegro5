@@ -181,6 +181,7 @@ static int render_glyph(ALLEGRO_FONT const *f,
         ALLEGRO_LOCKED_REGION *lr;
         ALLEGRO_STATE backup;
         FT_Error e;
+        bool was_held;
         
         // FIXME: Investigate why some fonts don't work without the
         // NO_BITMAP flags. Supposedly using that flag makes small sizes
@@ -198,6 +199,9 @@ static int render_glyph(ALLEGRO_FONT const *f,
         if (h == 0)
            h = 1;
 
+        /* We must not change the target bitmap while holding drawing. */
+        was_held = al_is_bitmap_drawing_held();
+        al_hold_bitmap_drawing(false);
         al_store_state(&backup, ALLEGRO_STATE_BITMAP);
 
         al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
@@ -301,6 +305,7 @@ static int render_glyph(ALLEGRO_FONT const *f,
         glyph->advance = face->glyph->advance.x >> 6;
 
         al_restore_state(&backup);
+        al_hold_bitmap_drawing(was_held);
     }
 
     /* Do kerning? */
