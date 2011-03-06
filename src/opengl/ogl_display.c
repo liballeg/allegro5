@@ -37,7 +37,7 @@ void _al_ogl_reset_fbo_info(ALLEGRO_FBO_INFO *info)
    info->fbo_state = FBO_INFO_UNUSED;
    info->fbo = 0;
    info->owner = NULL;
-   info->creation_time = 0.0;
+   info->last_use_time = 0.0;
 }
 
 static ALLEGRO_FBO_INFO *ogl_find_unused_fbo(ALLEGRO_DISPLAY *display)
@@ -50,8 +50,8 @@ static ALLEGRO_FBO_INFO *ogl_find_unused_fbo(ALLEGRO_DISPLAY *display)
    for (i = 0; i < ALLEGRO_MAX_OPENGL_FBOS; i++) {
       if (extras->fbos[i].fbo_state == FBO_INFO_UNUSED)
          return &extras->fbos[i];
-      if (extras->fbos[i].creation_time < min_time) {
-         min_time = extras->fbos[i].creation_time;
+      if (extras->fbos[i].last_use_time < min_time) {
+         min_time = extras->fbos[i].last_use_time;
          min_time_index = i;
       }
    }
@@ -135,6 +135,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       }
       else {
          info = ogl_bitmap->fbo_info;
+         info->last_use_time = al_get_time();
       }
 
       if (info && info->fbo) {
@@ -146,7 +147,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
          if (info->fbo_state == FBO_INFO_UNUSED)
             info->fbo_state = FBO_INFO_TRANSIENT;
          info->owner = ogl_bitmap;
-         info->creation_time = al_get_time();
+         info->last_use_time = al_get_time();
          ogl_bitmap->fbo_info = info;
 
          glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, info->fbo);
