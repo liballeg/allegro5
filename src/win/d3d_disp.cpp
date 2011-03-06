@@ -936,7 +936,7 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
    HRESULT hr;
    ALLEGRO_DISPLAY_WIN *win_display = &d->win_display;
    ALLEGRO_DISPLAY *al_display = &win_display->display;
-   int adapter = al_get_new_display_adapter();
+   int adapter = win_display->adapter;
 
    (void)refresh_rate;
    (void)flags;
@@ -1763,10 +1763,7 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
       else {
          if (al_display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
             ALLEGRO_MONITOR_INFO mi;
-            int adapter = al_get_new_display_adapter();
-            if (adapter < 0)
-               adapter = 0;
-            al_get_monitor_info(adapter, &mi);
+            al_get_monitor_info(win_display->adapter, &mi);
             al_display->w = mi.x2 - mi.x1;
             al_display->h = mi.y2 - mi.y1;
             d3d_display->faux_fullscreen = true;

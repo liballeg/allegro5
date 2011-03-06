@@ -233,7 +233,7 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    temp = GetWindowLong(my_window, GWL_STYLE);
    temp &= ~WS_CAPTION;
    SetWindowLong(my_window, GWL_STYLE, temp);
-   SetWindowPos(my_window, HWND_TOP, 0, 0, width, height, SWP_FRAMECHANGED);
+   SetWindowPos(my_window, HWND_TOP, 0, 0, width, height, SWP_NOMOVE | SWP_FRAMECHANGED);
 
    /* Go fullscreen */
    memset(&mode, 0, sizeof(DEVMODE));
@@ -904,7 +904,10 @@ void _al_win_toggle_window_frame(ALLEGRO_DISPLAY *display, HWND hWnd,
 bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (void*)display;
-   double timeout;
+   //double timeout;
+   ALLEGRO_MONITOR_INFO mi;
+
+   memset(&mi, 0, sizeof(mi));
 
    switch(flag) {
       case ALLEGRO_NOFRAME: 
@@ -924,7 +927,6 @@ bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
          _al_win_toggle_display_flag(display, ALLEGRO_NOFRAME, !onoff);
 
          if (onoff) {
-            ALLEGRO_MONITOR_INFO mi;
             int adapter = win_display->adapter;
             al_get_monitor_info(adapter, &mi);
             display->flags |= ALLEGRO_FULLSCREEN_WINDOW;
@@ -943,6 +945,8 @@ bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
          SetWindowPos(win_display->window, 0, 0, 0, 0, 0, SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
 
          al_resize_display(display, display->w, display->h);
+
+         /* acknowledge resize is no longer needed after al_resize_display (or so I think)
          timeout = al_get_time() + 3; // 3 seconds...
          while (al_get_time() < timeout) {
             if (win_display->can_acknowledge) {
@@ -950,15 +954,21 @@ bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
                break;
             }
          }
+         */
 
          if (onoff) {
-            // Re-set the TOPMOST flag
-            SetWindowPos(win_display->window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+            // Re-set the TOPMOST flag and move to position
+            SetWindowPos(win_display->window, HWND_TOPMOST, mi.x1, mi.y1, 0, 0, SWP_NOSIZE);
 
-            al_set_window_position(display, 0, 0);
-            // Hide the taskbar
-            SetWindowPos(
-               FindWindow("Shell_traywnd", ""), 0, 0, 0, 0, 0, SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
+            // Hide the taskbar if fullscreening on primary monitor
+            if (win_display->adapter == 0) {
+               SetWindowPos(
+                  FindWindow("Shell_traywnd", ""),
+                  0,
+                  0, 0,
+                  0, 0,
+                  SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
+            }
          }
          else {
             int pos_x = 0;
