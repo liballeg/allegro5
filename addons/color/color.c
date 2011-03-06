@@ -175,7 +175,7 @@ static ColorName _al_color_names[] = {
 static void assert_sorted_names(void)
 {
    /* In debug mode, check once that the array is sorted. */
-#ifdef ALLEGRO_DEBUG
+#ifdef DEBUGMODE
    static bool done = false;
    unsigned i;
 
