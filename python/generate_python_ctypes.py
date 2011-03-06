@@ -48,6 +48,7 @@ class Allegro:
             "double" : c_double,
             "al_fixed" : c_int,
             "HWND" : c_void_p,
+            "char*" : c_char_p,
             
             # hack: this probably shouldn't be in the public docs
             "postprocess_callback_t" : c_void_p,
@@ -59,6 +60,8 @@ class Allegro:
         ptype = re.sub(r"\s+", "", ptype)
 
         if ptype.endswith("*"):
+            if ptype in conversion:
+                return conversion[ptype]
             return c_void_p
         elif ptype in self.types:
             return self.types[ptype]
@@ -360,6 +363,7 @@ _add_dll("allegro_image")
 _add_dll("allegro_dialog")
 _add_dll("allegro_memfile")
 _add_dll("allegro_physfs")
+_add_dll("allegro_main")
 
 # We don't have information ready which A5 function is in which DLL,
 # so we just try them all.
