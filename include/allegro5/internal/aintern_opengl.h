@@ -35,7 +35,7 @@ enum {
 
 typedef struct ALLEGRO_FBO_INFO
 {
-   bool fbo_state;
+   int fbo_state;
    GLuint fbo;
    struct ALLEGRO_BITMAP_OGL *owner;
    double creation_time;
