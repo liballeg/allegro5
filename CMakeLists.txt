@@ -112,7 +112,6 @@ option(WANT_IMAGE_JPG "Enable JPEG support in image addon" on)
 option(WANT_IMAGE_PNG "Enable PNG support in image addon" on)
 endif (NOT IPHONE)
 
-option(WANT_NATIVE_IMAGE_LOADER "Enable the native platform image loader (if available)" on)
 option(WANT_TTF "Enable TTF addon" on)
 option(WANT_COLOR "Enable color addon" on)
 option(WANT_MEMFILE "Enable memfile addon" on)
@@ -276,10 +275,6 @@ endif(IPHONE)
 if(BORLAND)
     set(ALLEGRO_BCC32 1)
 endif(BORLAND)
-
-if(WANT_NATIVE_IMAGE_LOADER)
-    set(ALLEGRO_CFG_WANT_NATIVE_IMAGE_LOADER 1)
-endif(WANT_NATIVE_IMAGE_LOADER)
 
 # Tell the compiler it can use SSE instructions on x86 architectures.
 # If compatibility with Pentium 2's and below is required then the user
