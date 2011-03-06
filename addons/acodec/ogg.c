@@ -18,7 +18,7 @@
 
 ALLEGRO_DEBUG_CHANNEL("acodec")
 
-#if !defined(ALLEGRO_CFG_TREMOR) && !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
+#if !defined(ALLEGRO_CFG_TREMOR)
 #include <vorbis/vorbisfile.h>
 #else
 #include <tremor/ivorbisfile.h>

@@ -209,34 +209,19 @@ if(WANT_VORBIS)
         if(VORBIS_FOUND)
             set(CMAKE_REQUIRED_INCLUDES ${OGG_INCLUDE_DIR} ${VORBIS_INCLUDE_DIR})
             set(CMAKE_REQUIRED_LIBRARIES ${VORBIS_LIBRARIES})
-            if(NOT GP2XWIZ)
-                check_c_source_compiles("
-                    #include <vorbis/vorbisfile.h>
-                    int main(void)
-                    {
-                        OggVorbis_File f;
-                        ov_callbacks callback;
-                        vorbis_info *v = 0;
-                        (void)v;
-                        ov_info(&f, -1);
-                        callback = OV_CALLBACKS_NOCLOSE;
-                        return 0;
-                    }"
-                    VORBIS_COMPILES)
-            else(NOT GP2XWIZ)
-                check_c_source_compiles("
-                    #include <tremor/ivorbisfile.h>
-                    int main(void)
-                    {
-                        OggVorbis_File f;
-                        ov_callbacks callback;
-                        vorbis_info *v = 0;
-                        ov_info(&f, -1);
-                        //callback = OV_CALLBACKS_NOCLOSE;
-                        return 0;
-                    }"
-                    VORBIS_COMPILES)
-            endif(NOT GP2XWIZ)
+            check_c_source_compiles("
+                #include <vorbis/vorbisfile.h>
+                int main(void)
+                {
+                    OggVorbis_File f;
+                    ov_callbacks callback;
+                    vorbis_info *v = 0;
+                    (void)v;
+                    ov_info(&f, -1);
+                    callback = OV_CALLBACKS_NOCLOSE;
+                    return 0;
+                }"
+                VORBIS_COMPILES)
             set(CMAKE_REQUIRED_INCLUDES)
             set(CMAKE_REQUIRED_LIBRARIES)
             if(VORBIS_COMPILES)
@@ -254,7 +239,7 @@ if(SUPPORT_VORBIS)
     set(ALLEGRO_CFG_ACODEC_VORBIS 1)
     list(APPEND ACODEC_SOURCES ogg.c)
 
-    if(WIN32 AND WANT_ACODEC_DYNAMIC_LOAD AND (NOT USE_TREMOR))
+    if(WIN32 AND WANT_ACODEC_DYNAMIC_LOAD AND NOT USE_TREMOR)
         if(VORBISFILE_LIBRARY MATCHES "${WIN32_STATIC_LIB_REGEX}")
             message("WARNING: Dynamic loading will be disabled for Vorbis"
                     " as static library was found: ${VORBISFILE_LIBRARY}")
