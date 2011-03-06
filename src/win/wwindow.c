@@ -219,8 +219,7 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    (void)flags;
 
    style = WS_VISIBLE;
-   /* Not WS_EX_TOPMOST because user might want to tab away */
-   ex_style = 0;
+   ex_style = WS_EX_TOPMOST;
 
    my_window = CreateWindowEx(ex_style,
       "ALEX", "Allegro", style,
