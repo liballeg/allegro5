@@ -457,7 +457,113 @@ type, i.e. one of those described in [ALLEGRO_EVENT_TYPE].
 Create a new, empty event queue, returning a pointer to object if
 successful.  Returns NULL on error.
 
-See also: [ALLEGRO_EVENT_QUEUE]
+See also: [al_register_event_source], [al_destroy_event_queue],
+[ALLEGRO_EVENT_QUEUE]
+
+## API: al_destroy_event_queue
+
+Destroy the event queue specified.  All event sources currently
+registered with the queue will be automatically unregistered before
+the queue is destroyed.
+
+See also: [al_create_event_queue], [ALLEGRO_EVENT_QUEUE]
+
+## API: al_register_event_source
+
+Register the event source with the event queue specified.  An
+event source may be registered with any number of event queues
+simultaneously, or none.  Trying to register an event source with
+the same event queue more than once does nothing.
+
+See also: [al_unregister_event_source], [ALLEGRO_EVENT_SOURCE]
+
+## API: al_unregister_event_source
+
+Unregister an event source with an event queue.  If the event
+source is not actually registered with the event queue, nothing
+happens.
+
+If the queue had any events in it which originated from the event
+source, they will no longer be in the queue after this call.
+
+See also: [al_register_event_source]
+
+## API: al_is_event_queue_empty
+
+Return true if the event queue specified is currently empty.
+
+See also: [al_get_next_event], [al_peek_next_event]
+
+## API: al_get_next_event
+
+Take the next event out of the event queue specified, and
+copy the contents into `ret_event`, returning true.  The original
+event will be removed from the queue.  If the event queue is
+empty, return false and the contents of `ret_event` are unspecified.
+
+See also: [ALLEGRO_EVENT], [al_peek_next_event], [al_wait_for_event]
+
+## API: al_peek_next_event
+
+Copy the contents of the next event in the event queue
+specified into `ret_event` and return true.  The original event
+packet will remain at the head of the queue.  If the event queue is
+actually empty, this function returns false and the contents of
+`ret_event` are unspecified.
+
+See also: [ALLEGRO_EVENT], [al_get_next_event], [al_drop_next_event]
+
+## API: al_drop_next_event
+
+Drop (remove) the next event from the queue.  If the queue is empty,
+nothing happens.
+Returns true if an event was dropped.
+
+See also: [al_flush_event_queue], [al_is_event_queue_empty]
+
+## API: al_flush_event_queue
+
+Drops all events, if any, from the queue.
+
+See also: [al_drop_next_event], [al_is_event_queue_empty]
+
+## API: al_wait_for_event
+
+Wait until the event queue specified is non-empty.  If `ret_event`
+is not NULL, the first event in the queue will be copied
+into `ret_event` and removed from the queue.  If `ret_event` is NULL
+the first event is left at the head of the queue.
+
+See also: [ALLEGRO_EVENT], [al_wait_for_event_timed],
+[al_wait_for_event_until], [al_get_next_event]
+
+## API: al_wait_for_event_timed
+
+Wait until the event queue specified is non-empty.  If `ret_event`
+is not NULL, the first event in the queue will be copied
+into `ret_event` and removed from the queue.  If `ret_event` is NULL
+the first event is left at the head of the queue.
+
+`timeout_msecs` determines approximately how many seconds to
+wait.  If the call times out, false is returned.  Otherwise true is
+returned.
+
+See also: [ALLEGRO_EVENT], [al_wait_for_event], [al_wait_for_event_until]
+
+## API: al_wait_for_event_until
+
+Wait until the event queue specified is non-empty.  If `ret_event`
+is not NULL, the first event in the queue will be copied
+into `ret_event` and removed from the queue.  If `ret_event` is NULL
+the first event is left at the head of the queue.
+
+`timeout` determines how long to wait.  If the call times out, false is
+returned.  Otherwise true is returned.
+
+See also: [ALLEGRO_EVENT], [ALLEGRO_TIMEOUT], [al_init_timeout],
+[al_wait_for_event], [al_wait_for_event_timed]
+
+
 
 ## API: al_init_user_event_source
 
@@ -503,25 +609,11 @@ You must destroy it manually with [al_destroy_user_event_source].
 See also: [ALLEGRO_EVENT_SOURCE], [al_emit_user_event],
 [al_destroy_user_event_source]
 
-## API: al_destroy_event_queue
-
-Destroy the event queue specified.  All event sources currently
-registered with the queue will be automatically unregistered before
-the queue is destroyed.
-
-See also: [ALLEGRO_EVENT_QUEUE]
-
 ## API: al_destroy_user_event_source
 
 Destroy an event source initialised with [al_init_user_event_source].
 
 See also: [ALLEGRO_EVENT_SOURCE]
-
-## API: al_drop_next_event
-
-Drop the next event from the queue.  If the queue is empty,
-nothing happens.
-Returns true iff an event was dropped.
 
 ## API: al_emit_user_event
 
@@ -550,57 +642,6 @@ counted user events.
 
 See also: [ALLEGRO_USER_EVENT], [al_unref_user_event]
 
-## API: al_is_event_queue_empty
-
-Return true if the event queue specified is currently empty.
-
-## API: al_flush_event_queue
-
-Drops all events, if any, from the queue.
-
-## API: al_get_event_source_data
-
-Returns the abstract user data associated with the event source.  If no
-data was previously set, returns NULL.
-
-See also: [al_set_event_source_data]
-
-## API: al_get_next_event
-
-Take the next event out of the event queue specified, and
-copy the contents into `ret_event`, returning true.  The original
-event will be removed from the queue.  If the event queue is
-empty, return false and the contents of `ret_event` are unspecified.
-
-See also: [ALLEGRO_EVENT]
-
-## API: al_peek_next_event
-
-Copy the contents of the next event in the event queue
-specified into `ret_event` and return true.  The original event
-packet will remain at the head of the queue.  If the event queue is
-actually empty, this function returns false and the contents of
-`ret_event` are unspecified.
-
-See also: [ALLEGRO_EVENT]
-
-## API: al_register_event_source
-
-Register the event source with the event queue specified.  An
-event source may be registered with any number of event queues
-simultaneously, or none.  Trying to register an event source with
-the same event queue more than once does nothing.
-
-See also: [ALLEGRO_EVENT_QUEUE], [ALLEGRO_EVENT_SOURCE]
-
-## API: al_set_event_source_data
-
-Assign the abstract user data to the event source.  Allegro does
-not use the data internally for anything; it is simply meant as a
-convenient way to associate your own data or objects with events.
-
-See also: [al_get_event_source_data]
-
 ## API: al_unref_user_event
 
 Decrease the reference count of a user-defined event.
@@ -611,48 +652,20 @@ This function does nothing if the event is not reference counted.
 
 See also: [al_emit_user_event]
 
-## API: al_unregister_event_source
 
-Unregister an event source with an event queue.  If the event
-source is not actually registered with the event queue, nothing
-happens.
 
-If the queue had any events in it which originated from the event
-source, they will no longer be in the queue after this call.
+## API: al_get_event_source_data
 
-## API: al_wait_for_event
+Returns the abstract user data associated with the event source.  If no
+data was previously set, returns NULL.
 
-Wait until the event queue specified is non-empty.  If `ret_event`
-is not NULL, the first event in the queue will be copied
-into `ret_event` and removed from the queue.  If `ret_event` is NULL
-the first event is left at the head of the queue.
+See also: [al_set_event_source_data]
 
-See also: [ALLEGRO_EVENT], [al_wait_for_event_timed],
-[al_wait_for_event_until]
+## API: al_set_event_source_data
 
-## API: al_wait_for_event_timed
+Assign the abstract user data to the event source.  Allegro does
+not use the data internally for anything; it is simply meant as a
+convenient way to associate your own data or objects with events.
 
-Wait until the event queue specified is non-empty.  If `ret_event`
-is not NULL, the first event in the queue will be copied
-into `ret_event` and removed from the queue.  If `ret_event` is NULL
-the first event is left at the head of the queue.
-
-`timeout_msecs` determines approximately how many seconds to
-wait.  If the call times out, false is returned.  Otherwise true is
-returned.
-
-See also: [ALLEGRO_EVENT], [al_wait_for_event], [al_wait_for_event_until]
-
-## API: al_wait_for_event_until
-
-Wait until the event queue specified is non-empty.  If `ret_event`
-is not NULL, the first event in the queue will be copied
-into `ret_event` and removed from the queue.  If `ret_event` is NULL
-the first event is left at the head of the queue.
-
-`timeout` determines how long to wait.  If the call times out, false is
-returned.  Otherwise true is returned.
-
-See also: [ALLEGRO_EVENT], [ALLEGRO_TIMEOUT], [al_init_timeout],
-[al_wait_for_event], [al_wait_for_event_timed]
+See also: [al_get_event_source_data]
 
