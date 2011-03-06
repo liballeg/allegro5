@@ -46,7 +46,7 @@ adjust:
 
 - Find the correct libraries (cmake always thinks it is building for
   OSX instead of IPhone). They are all hacked in with linker flags right
-  now. The deps folder (see README_iphone) can however make things a lot
+  now. The deps folder (see README_cmake.txt) can however make things a lot
   easier. For example if you have freetype for iphone you could do this:
   
   mkdir deps
