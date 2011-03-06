@@ -82,19 +82,7 @@ static int _openal_open(void)
    openal_err = alGetError();
 
    /* pick default device. always a good choice */
-   #if defined(ALLEGRO_WINDOWS)
-      openal_dev = alcOpenDevice("DirectSound3D");
-      if (!openal_dev)
-      {
-         openal_dev = alcOpenDevice("DirectSound");
-         if (!openal_dev)
-         {
-            openal_dev = alcOpenDevice(NULL);
-         }
-      }
-   #else
-      openal_dev = alcOpenDevice(NULL);
-   #endif
+   openal_dev = alcOpenDevice(NULL);
 
    alc_err = ALC_NO_ERROR;
    if(!openal_dev || (alc_err = alcGetError(openal_dev)) != ALC_NO_ERROR)
