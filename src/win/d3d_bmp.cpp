@@ -278,24 +278,6 @@ void _al_d3d_release_default_pool_textures(void)
 	   d3d_bmp->video_texture->Release();
 	   d3d_bmp->video_texture = NULL;
 	}
-	/*
-   	if (_al_d3d_render_to_texture_supported()) {
-	   if (d3d_bmp->system_texture) {
-   	      d3d_bmp->system_texture->Release();
-	      d3d_bmp->system_texture = NULL;
-	   }
-	}
-	*/
-	/*
-   	while (d3d_bmp->video_texture->Release() != 0) {
-      	   ALLEGRO_WARN("_al_d3d_release_default_pool_textures: video texture reference count not 0\n");
-   	}
-   	if (_al_d3d_render_to_texture_supported()) {
-   	   while (d3d_bmp->system_texture->Release() != 0) {
-      	   	ALLEGRO_WARN("_al_d3d_release_default_pool_textures: system texture reference count not 0\n");
-	   }
-	}
-	*/
    }
 }
 
@@ -427,6 +409,61 @@ static ALLEGRO_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface
    return bitmap;
 }
 
+/* Copies video texture to system texture and bitmap->memory */
+static void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest)
+{
+   ALLEGRO_BITMAP_D3D *d3d_dest;
+   LPDIRECT3DSURFACE9 system_texture_surface;
+   LPDIRECT3DSURFACE9 video_texture_surface;
+   UINT i;
+
+   if (!_al_d3d_render_to_texture_supported())
+      return;
+
+   if (dest->locked) {
+      return;
+   }
+
+   d3d_dest = (ALLEGRO_BITMAP_D3D *)dest;
+
+   if (d3d_dest->system_texture == NULL || d3d_dest->video_texture == NULL) {
+      return;
+   }
+
+   if (dest->parent) {
+      dest = dest->parent;
+   }
+
+   if (d3d_dest->system_texture->GetSurfaceLevel(
+         0, &system_texture_surface) != D3D_OK) {
+      ALLEGRO_ERROR("_al_d3d_sync_bitmap: GetSurfaceLevel failed while updating video texture.\n");
+      return;
+   }
+
+   if (d3d_dest->video_texture->GetSurfaceLevel(
+         0, &video_texture_surface) != D3D_OK) {
+      ALLEGRO_ERROR("_al_d3d_sync_bitmap: GetSurfaceLevel failed while updating video texture.\n");
+      return;
+   }
+
+   if (d3d_dest->display->device->GetRenderTargetData(
+         video_texture_surface,
+         system_texture_surface) != D3D_OK) {
+      ALLEGRO_ERROR("_al_d3d_sync_bitmap: GetRenderTargetData failed.\n");
+      return;
+   }
+
+   if ((i = system_texture_surface->Release()) != 0) {
+      ALLEGRO_DEBUG("_al_d3d_sync_bitmap (system) ref count == %d\n", i);
+   }
+
+   if ((i = video_texture_surface->Release()) != 0) {
+      // This can be non-zero
+      ALLEGRO_DEBUG("_al_d3d_sync_bitmap (video) ref count == %d\n", i);
+   }
+
+   d3d_sync_bitmap_memory(dest);
+}
 
 /*
  * Must be called before the D3D device is reset (e.g., when
@@ -566,65 +603,9 @@ static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       d3d_bmp->initialized = true;
    }
 
-   d3d_do_upload(d3d_bmp, 0, 0, w, h, true);
+   d3d_do_upload(d3d_bmp, 0, 0, w, h, false);
 
    return true;
-}
-
-/* Copies video texture to system texture and bitmap->memory */
-void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest)
-{
-   ALLEGRO_BITMAP_D3D *d3d_dest;
-   LPDIRECT3DSURFACE9 system_texture_surface;
-   LPDIRECT3DSURFACE9 video_texture_surface;
-   UINT i;
-
-   if (!_al_d3d_render_to_texture_supported())
-      return;
-
-   if (dest->locked) {
-      return;
-   }
-
-   d3d_dest = (ALLEGRO_BITMAP_D3D *)dest;
-
-   if (d3d_dest->system_texture == NULL || d3d_dest->video_texture == NULL) {
-      return;
-   }
-
-   if (dest->parent) {
-      dest = dest->parent;
-   }
-
-   if (d3d_dest->system_texture->GetSurfaceLevel(
-         0, &system_texture_surface) != D3D_OK) {
-      ALLEGRO_ERROR("_al_d3d_sync_bitmap: GetSurfaceLevel failed while updating video texture.\n");
-      return;
-   }
-
-   if (d3d_dest->video_texture->GetSurfaceLevel(
-         0, &video_texture_surface) != D3D_OK) {
-      ALLEGRO_ERROR("_al_d3d_sync_bitmap: GetSurfaceLevel failed while updating video texture.\n");
-      return;
-   }
-
-   if (d3d_dest->display->device->GetRenderTargetData(
-         video_texture_surface,
-         system_texture_surface) != D3D_OK) {
-      ALLEGRO_ERROR("_al_d3d_sync_bitmap: GetRenderTargetData failed.\n");
-      return;
-   }
-
-   if ((i = system_texture_surface->Release()) != 0) {
-      ALLEGRO_DEBUG("_al_d3d_sync_bitmap (system) ref count == %d\n", i);
-   }
-
-   if ((i = video_texture_surface->Release()) != 0) {
-      // This can be non-zero
-      ALLEGRO_DEBUG("_al_d3d_sync_bitmap (video) ref count == %d\n", i);
-   }
-
-   d3d_sync_bitmap_memory(dest);
 }
 
 static void d3d_draw_bitmap_region(
