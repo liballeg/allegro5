@@ -32,6 +32,14 @@
 
 ALLEGRO_DEBUG_CHANNEL("opengl")
 
+void _al_ogl_reset_fbo_info(ALLEGRO_FBO_INFO *info)
+{
+   info->fbo_state = FBO_INFO_UNUSED;
+   info->fbo = 0;
+   info->owner = NULL;
+   info->creation_time = 0.0;
+}
+
 static ALLEGRO_FBO_INFO *ogl_find_unused_fbo(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_OGL_EXTRAS *extras = display->ogl_extras;
@@ -40,7 +48,7 @@ static ALLEGRO_FBO_INFO *ogl_find_unused_fbo(ALLEGRO_DISPLAY *display)
    int i;
 
    for (i = 0; i < ALLEGRO_MAX_OPENGL_FBOS; i++) {
-      if (!extras->fbos[i].used)
+      if (extras->fbos[i].fbo_state == FBO_INFO_UNUSED)
          return &extras->fbos[i];
       if (extras->fbos[i].creation_time < min_time) {
          min_time = extras->fbos[i].creation_time;
@@ -49,6 +57,28 @@ static ALLEGRO_FBO_INFO *ogl_find_unused_fbo(ALLEGRO_DISPLAY *display)
    }
 
    return &extras->fbos[min_time_index];
+}
+
+ALLEGRO_FBO_INFO *_al_ogl_persist_fbo(ALLEGRO_DISPLAY *display,
+   ALLEGRO_FBO_INFO *transient_fbo_info)
+{
+   ALLEGRO_OGL_EXTRAS *extras = display->ogl_extras;
+   int i;
+   ASSERT(transient_fbo_info->fbo_state == FBO_INFO_TRANSIENT);
+
+   for (i = 0; i < ALLEGRO_MAX_OPENGL_FBOS; i++) {
+      if (transient_fbo_info == &extras->fbos[i]) {
+         ALLEGRO_FBO_INFO *new_info = al_malloc(sizeof(ALLEGRO_FBO_INFO));
+         *new_info = *transient_fbo_info;
+         new_info->fbo_state = FBO_INFO_PERSISTENT;
+         _al_ogl_reset_fbo_info(transient_fbo_info);
+         ALLEGRO_DEBUG("Persistent FBO: %u\n", new_info->fbo);
+         return new_info;
+      }
+   }
+
+   ALLEGRO_ERROR("Could not find FBO %u in pool\n", transient_fbo_info->fbo);
+   return transient_fbo_info;
 }
 
 static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
@@ -89,14 +119,17 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
             al_get_opengl_extension_list()->ALLEGRO_GL_OES_framebuffer_object) {
 #endif
             info = ogl_find_unused_fbo(display);
+            ASSERT(info->fbo_state != FBO_INFO_PERSISTENT);
 
-            if (info->used) {
+            if (info->fbo_state == FBO_INFO_TRANSIENT) {
                info->owner->fbo_info = NULL;
+               ALLEGRO_DEBUG("Deleting FBO: %u\n", info->fbo);
                glDeleteFramebuffersEXT(1, &info->fbo);
-               memset(info, 0, sizeof(*info));
+               _al_ogl_reset_fbo_info(info);
             }
 
             glGenFramebuffersEXT(1, &info->fbo);
+            ALLEGRO_DEBUG("Created FBO: %u\n", info->fbo);
          }
       }
       else {
@@ -105,9 +138,11 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 
       if (info && info->fbo) {
          /* Bind to the FBO. */
+#ifndef ALLEGRO_IPHONE
          ASSERT(display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
          display->ogl_extras->extension_list->ALLEGRO_GL_OES_framebuffer_object);
-         info->used = true;
+#endif
+         info->fbo_state = FBO_INFO_TRANSIENT;
          info->owner = ogl_bitmap;
          info->creation_time = al_get_time();
          ogl_bitmap->fbo_info = info;
@@ -128,7 +163,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
             ALLEGRO_ERROR("*** SWITCHING TO SOFTWARE MODE ***\n");
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
             glDeleteFramebuffersEXT(1, &info->fbo);
-            memset(info, 0, sizeof(*info));
+            _al_ogl_reset_fbo_info(info);
             ogl_bitmap->fbo_info = NULL;
          }
          else {

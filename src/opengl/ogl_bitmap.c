@@ -994,16 +994,7 @@ static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
       _al_set_current_display_only(bitmap->display);
    }
 
-   if (ogl_bitmap->fbo_info) {
-      if (ogl_bitmap->fbo_info->fbo) {
-#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
-         glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo_info->fbo);
-#elif defined ALLEGRO_IPHONE
-         glDeleteFramebuffersOES(1, &ogl_bitmap->fbo_info->fbo);
-#endif
-      }
-      memset(ogl_bitmap->fbo_info, 0, sizeof(ALLEGRO_FBO_INFO));
-   }
+   al_remove_opengl_fbo(bitmap);
 
    if (ogl_bitmap->texture) {
       glDeleteTextures(1, &ogl_bitmap->texture);
@@ -1165,7 +1156,8 @@ ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d,
 GLuint al_get_opengl_texture(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
-   if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL)) return 0;
+   if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL))
+      return 0;
    return ogl_bitmap->texture;
 }
 
@@ -1173,17 +1165,31 @@ GLuint al_get_opengl_texture(ALLEGRO_BITMAP *bitmap)
  */
 void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 {
-#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
-   if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL)) return;
-   if (ogl_bitmap->fbo_info) {
-      glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo_info->fbo);
-      memset(ogl_bitmap->fbo_info, 0, sizeof(ALLEGRO_FBO_INFO));
-      ogl_bitmap->fbo_info = NULL;
-   }
-#else
-   (void)bitmap;
+
+   if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL))
+      return;
+   if (!ogl_bitmap->fbo_info)
+      return;
+
+   ASSERT(ogl_bitmap->fbo_info->fbo_state > FBO_INFO_UNUSED);
+   ASSERT(ogl_bitmap->fbo_info->fbo != 0);
+   ALLEGRO_DEBUG("Deleting FBO: %u\n", ogl_bitmap->fbo_info->fbo);
+
+#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
+   glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo_info->fbo);
+#elif defined ALLEGRO_IPHONE
+   glDeleteFramebuffersOES(1, &ogl_bitmap->fbo_info->fbo);
 #endif
+   ogl_bitmap->fbo_info->fbo = 0;
+
+   if (ogl_bitmap->fbo_info->fbo_state == FBO_INFO_PERSISTENT) {
+      al_free(ogl_bitmap->fbo_info);
+   }
+   else {
+      _al_ogl_reset_fbo_info(ogl_bitmap->fbo_info);
+   }
+   ogl_bitmap->fbo_info = NULL;
 }
 
 /* Function: al_get_opengl_fbo
@@ -1192,8 +1198,17 @@ GLuint al_get_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 {
 #if !defined ALLEGRO_GP2XWIZ
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
-   if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL)) return 0;
-   return ogl_bitmap->fbo_info == NULL ? 0 : ogl_bitmap->fbo_info->fbo;
+
+   if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL))
+      return 0;
+   if (!ogl_bitmap->fbo_info)
+      return 0;
+
+   if (ogl_bitmap->fbo_info->fbo_state == FBO_INFO_TRANSIENT) {
+      ogl_bitmap->fbo_info = _al_ogl_persist_fbo(bitmap->display,
+         ogl_bitmap->fbo_info);
+   }
+   return ogl_bitmap->fbo_info->fbo;
 #else
    (void)bitmap;
    return 0;
