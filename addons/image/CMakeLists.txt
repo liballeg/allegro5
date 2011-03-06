@@ -1,3 +1,5 @@
+option(WANT_NATIVE_IMAGE_LOADER "Enable the native platform image loader (if available)" on)
+
 set(IMAGE_SOURCES bmp.c iio.c pcx.c tga.c)
 set(IMAGE_INCLUDE_FILES allegro5/allegro_image.h)
 
@@ -24,6 +26,8 @@ endif(IPHONE)
 # don't need to be used.
 
 if(WANT_NATIVE_IMAGE_LOADER)
+    set(ALLEGRO_CFG_WANT_NATIVE_IMAGE_LOADER 1)
+
     if(WIN32)
         find_package(GDIPLUS)
         if(GDIPLUS_FOUND)
