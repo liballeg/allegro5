@@ -268,14 +268,17 @@ ALLEGRO_SAMPLE *_al_load_ogg_vorbis_f(ALLEGRO_FILE *file)
 
    pos = 0;
    while (pos < total_size) {
+      const int read_size = _ALLEGRO_MIN(packet_size, total_size - pos);
+      ASSERT(pos + read_size <= total_size);
+
       /* XXX error handling */
 #ifndef TREMOR
-      read = lib.ov_read(&vf, buffer + pos, packet_size, endian, word_size,
+      read = lib.ov_read(&vf, buffer + pos, read_size, endian, word_size,
          signedness, &bitstream);
 #else
       (void)endian;
       (void)signedness;
-      read = lib.ov_read(&vf, buffer + pos, packet_size, &bitstream);
+      read = lib.ov_read(&vf, buffer + pos, read_size, &bitstream);
 #endif
       pos += read;
       if (read == 0)
