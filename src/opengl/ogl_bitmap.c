@@ -1201,8 +1201,12 @@ GLuint al_get_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 
    if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL))
       return 0;
-   if (!ogl_bitmap->fbo_info)
-      return 0;
+
+   if (!ogl_bitmap->fbo_info) {
+      if (!_al_ogl_create_persistent_fbo(bitmap)) {
+         return 0;
+      }
+   }
 
    if (ogl_bitmap->fbo_info->fbo_state == FBO_INFO_TRANSIENT) {
       ogl_bitmap->fbo_info = _al_ogl_persist_fbo(bitmap->display,

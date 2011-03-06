@@ -32,6 +32,20 @@
 
 ALLEGRO_DEBUG_CHANNEL("opengl")
 
+#ifdef ALLEGRO_IPHONE
+   #define glGenFramebuffersEXT glGenFramebuffersOES
+   #define glBindFramebufferEXT glBindFramebufferOES
+   #define GL_FRAMEBUFFER_BINDING_EXT GL_FRAMEBUFFER_BINDING_OES
+   #define GL_FRAMEBUFFER_EXT GL_FRAMEBUFFER_OES
+   #define GL_COLOR_ATTACHMENT0_EXT GL_COLOR_ATTACHMENT0_OES
+   #define glCheckFramebufferStatusEXT glCheckFramebufferStatusOES
+   #define glFramebufferTexture2DEXT glFramebufferTexture2DOES
+   #define GL_FRAMEBUFFER_COMPLETE_EXT GL_FRAMEBUFFER_COMPLETE_OES
+   #define glDeleteFramebuffersEXT glDeleteFramebuffersOES
+   #define glOrtho glOrthof
+#endif
+
+
 void _al_ogl_reset_fbo_info(ALLEGRO_FBO_INFO *info)
 {
    info->fbo_state = FBO_INFO_UNUSED;
@@ -40,24 +54,61 @@ void _al_ogl_reset_fbo_info(ALLEGRO_FBO_INFO *info)
    info->last_use_time = 0.0;
 }
 
-static ALLEGRO_FBO_INFO *ogl_find_unused_fbo(ALLEGRO_DISPLAY *display)
-{
-   ALLEGRO_OGL_EXTRAS *extras = display->ogl_extras;
-   double min_time = DBL_MAX;
-   int min_time_index = -1;
-   int i;
 
-   for (i = 0; i < ALLEGRO_MAX_OPENGL_FBOS; i++) {
-      if (extras->fbos[i].fbo_state == FBO_INFO_UNUSED)
-         return &extras->fbos[i];
-      if (extras->fbos[i].last_use_time < min_time) {
-         min_time = extras->fbos[i].last_use_time;
-         min_time_index = i;
-      }
+bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
+{
+   ALLEGRO_BITMAP_OGL *ogl_bitmap;
+   ALLEGRO_FBO_INFO *info;
+   GLint old_fbo;
+
+   if (bitmap->parent)
+      bitmap = bitmap->parent;
+   ogl_bitmap = (void *)bitmap;
+
+   /* Don't continue if the bitmap does not belong to the current display. */
+   if (bitmap->display->ogl_extras->is_shared == false &&
+         bitmap->display != al_get_current_display()) {
+      return false;
    }
 
-   return &extras->fbos[min_time_index];
+   if (ogl_bitmap->is_backbuffer) {
+      return false;
+   }
+
+   ASSERT(!ogl_bitmap->fbo_info);
+
+   info = al_malloc(sizeof(ALLEGRO_FBO_INFO));
+   glGenFramebuffersEXT(1, &info->fbo);
+   if (info->fbo == 0) {
+      al_free(info);
+      return false;
+   }
+
+   glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &old_fbo);
+   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, info->fbo);
+
+   glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+      GL_TEXTURE_2D, ogl_bitmap->texture, 0);
+   if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) !=
+      GL_FRAMEBUFFER_COMPLETE_EXT)
+   {
+      ALLEGRO_ERROR("FBO incomplete.\n");
+      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, old_fbo);
+      glDeleteFramebuffersEXT(1, &info->fbo);
+      al_free(info);
+      return false;
+   }
+
+   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, old_fbo);
+
+   info->fbo_state = FBO_INFO_PERSISTENT;
+   info->owner = ogl_bitmap;
+   info->last_use_time = al_get_time();
+   ogl_bitmap->fbo_info = info;
+   ALLEGRO_DEBUG("Persistent FBO: %u\n", info->fbo);
+   return true;
 }
+
 
 ALLEGRO_FBO_INFO *_al_ogl_persist_fbo(ALLEGRO_DISPLAY *display,
    ALLEGRO_FBO_INFO *transient_fbo_info)
@@ -81,24 +132,34 @@ ALLEGRO_FBO_INFO *_al_ogl_persist_fbo(ALLEGRO_DISPLAY *display,
    return transient_fbo_info;
 }
 
+
+static ALLEGRO_FBO_INFO *ogl_find_unused_fbo(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_OGL_EXTRAS *extras = display->ogl_extras;
+   double min_time = DBL_MAX;
+   int min_time_index = -1;
+   int i;
+
+   for (i = 0; i < ALLEGRO_MAX_OPENGL_FBOS; i++) {
+      if (extras->fbos[i].fbo_state == FBO_INFO_UNUSED)
+         return &extras->fbos[i];
+      if (extras->fbos[i].last_use_time < min_time) {
+         min_time = extras->fbos[i].last_use_time;
+         min_time_index = i;
+      }
+   }
+
+   return &extras->fbos[min_time_index];
+}
+
+
 static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_OGL *ogl_bitmap;
    ALLEGRO_FBO_INFO *info;
-   
-   #ifdef ALLEGRO_IPHONE
-   #define glGenFramebuffersEXT glGenFramebuffersOES
-   #define glBindFramebufferEXT glBindFramebufferOES
-   #define GL_FRAMEBUFFER_EXT GL_FRAMEBUFFER_OES
-   #define GL_COLOR_ATTACHMENT0_EXT GL_COLOR_ATTACHMENT0_OES
-   #define glCheckFramebufferStatusEXT glCheckFramebufferStatusOES
-   #define glFramebufferTexture2DEXT glFramebufferTexture2DOES
-   #define GL_FRAMEBUFFER_COMPLETE_EXT GL_FRAMEBUFFER_COMPLETE_OES
-   #define glDeleteFramebuffersEXT glDeleteFramebuffersOES
-   #define glOrtho glOrthof
-   #endif
 
-   if (bitmap->parent) bitmap = bitmap->parent;
+   if (bitmap->parent)
+      bitmap = bitmap->parent;
    ogl_bitmap = (void *)bitmap;
 
 #if !defined ALLEGRO_GP2XWIZ
@@ -226,6 +287,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
    }
 #endif
 }
+
 
 void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
