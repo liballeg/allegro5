@@ -1,4 +1,7 @@
 #include "allegro5/allegro.h"
+#ifdef ALLEGRO_CFG_OPENGL
+#include "allegro5/allegro_opengl.h"
+#endif
 #include "allegro5/internal/aintern_vector.h"
 
 #include "allegro5/allegro_ttf.h"
@@ -97,6 +100,14 @@ static void push_new_cache_bitmap(ALLEGRO_TTF_FONT_DATA *data)
 {
     ALLEGRO_BITMAP **back;
     ALLEGRO_STATE state;
+
+#ifdef ALLEGRO_CFG_OPENGL
+    /* The FBO for the last bitmap is no longer required. */
+    if (_al_vector_is_nonempty(&data->cache_bitmaps)) {
+	back = _al_vector_ref_back(&data->cache_bitmaps);
+	al_remove_opengl_fbo(*back);
+    }
+#endif
 
     back = _al_vector_alloc_back(&data->cache_bitmaps);
 
