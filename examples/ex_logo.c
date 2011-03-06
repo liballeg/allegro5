@@ -2,12 +2,8 @@
  * bitmaps. Also uses alpha blending to create a real-time flash
  * effect (likely not visible with displays using memory bitmaps as it
  * is too slow).
- * 
- * FIXME: Fix few FIXMEs, and document.
- * 
- * TODO: Not sure this should be in the "examples" directory, it's not
- * really much of an example demonstrating a particular A5 feature.
  */
+
 #include <stdio.h>
 #include <math.h>
 #include <allegro5/allegro.h>
@@ -128,10 +124,11 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
    al_set_target_bitmap(light);
    al_clear_to_color(transparent);
    lock1 = al_lock_bitmap(blur, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
-   lock2 = al_lock_bitmap_region(light, left, top, 1 + right - left,
-      1 + bottom - top, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
-   for (y = top; y < bottom; y++) {
-      for (x = left; x < right; x++) {
+   lock2 = al_lock_bitmap_region(light, left, top,
+      1 + right - left, 1 + bottom - top,
+      ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
+   for (y = top; y <= bottom; y++) {
+      for (x = left; x <= right; x++) {
          float r1, g1, b1, a1;
          float r2, g2, b2, a2;
          float r, g, b, a;
