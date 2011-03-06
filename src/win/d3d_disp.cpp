@@ -417,7 +417,7 @@ static void d3d_reset_state(ALLEGRO_DISPLAY_D3D *disp)
    disp->scissor_state.right  = -1;
 
    disp->device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
-   disp->device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+   disp->device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
    disp->device->SetRenderState(D3DRS_LIGHTING, FALSE);
    disp->device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
    disp->device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
