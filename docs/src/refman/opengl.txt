@@ -90,11 +90,15 @@ used texture, in pixels.
 ## API: al_get_opengl_fbo
 
 Returns the OpenGL FBO id internally used by the given bitmap if it uses one,
-else 0. An FBO is created for a bitmap when you set it as the target bitmap,
-under certain conditions.  See [al_set_target_bitmap] for the details.
+otherwise returns zero.  No attempt will be made to create an FBO if the
+bitmap is not owned by the current display.
 
 The FBO returned by this function will only be freed when the bitmap is
 destroyed, or if you call [al_remove_opengl_fbo] on the bitmap.
+
+> *Note:* In Allegro 5.0.0 this function only returned an FBO which had
+previously been created by calling [al_set_target_bitmap].  It would not
+attempt to create an FBO itself.  This has since been changed.
 
 See also: [al_remove_opengl_fbo], [al_set_target_bitmap]
 
