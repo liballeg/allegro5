@@ -51,17 +51,17 @@
 ALLEGRO_PATH *_al_osx_get_path(int id);
 
 #ifndef ALLEGRO_LIB_BUILD
-	#ifndef ALLEGRO_NO_MAGIC_MAIN
-	   #define ALLEGRO_MAGIC_MAIN
-	   #if __GNUC__ >= 4
-		   #define main __attribute__ ((visibility("default"))) _al_mangled_main
-	   #else
-		   #define main _al_mangled_main
-	   #endif
-	   #ifdef __cplusplus
-		  extern "C" int _al_mangled_main(int, char **);
-	   #endif
-	#endif
+   #ifndef ALLEGRO_NO_MAGIC_MAIN
+      #define ALLEGRO_MAGIC_MAIN
+      #if __GNUC__ >= 4
+         #define main __attribute__ ((visibility("default"))) _al_mangled_main
+      #else
+         #define main _al_mangled_main
+      #endif
+      #ifdef __cplusplus
+         extern "C" int _al_mangled_main(int, char **);
+      #endif
+   #endif
 #endif
 
 /* Keyboard driver */
@@ -74,3 +74,4 @@ ALLEGRO_PATH *_al_osx_get_path(int id);
 /* c-basic-offset: 3      */
 /* indent-tabs-mode: nil  */
 /* End:                   */
+/* vim: set sts=3 sw=3 et: */
