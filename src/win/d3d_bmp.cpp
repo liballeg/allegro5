@@ -584,6 +584,11 @@ static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap)
          d3d_bmp->texture_w = pot(w);
          d3d_bmp->texture_h = pot(h);
       }
+
+      // Some cards/drivers don't like small textures
+      if (d3d_bmp->texture_w < 16) d3d_bmp->texture_w = 16;
+      if (d3d_bmp->texture_h < 16) d3d_bmp->texture_h = 16;
+
       if (d3d_bmp->video_texture == 0)
          if (!d3d_create_textures(d3d_bmp->display, d3d_bmp->texture_w,
                d3d_bmp->texture_h,
