@@ -613,6 +613,8 @@ See also: [ALLEGRO_EVENT_SOURCE], [al_emit_user_event],
 
 Destroy an event source initialised with [al_init_user_event_source].
 
+This does not free the memory, as that was user allocated to begin with.
+
 See also: [ALLEGRO_EVENT_SOURCE]
 
 ## API: al_emit_user_event
