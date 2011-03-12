@@ -98,6 +98,7 @@ set(ALLEGRO_SRC_C_FILES
         src/c/czscan32.c
         src/c/czscan8.c
         src/misc/ccolconv.c
+        src/misc/colconv.c
         )
 
 set(ALLEGRO_SRC_DOS_FILES
@@ -185,7 +186,6 @@ set(ALLEGRO_SRC_WIN_FILES
         src/win/wthread.c
         src/win/wtimer.c
         src/win/wwnd.c
-        src/misc/colconv.c
         )
 
 set(ALLEGRO_SRC_BEOS_FILES
@@ -221,7 +221,6 @@ set(ALLEGRO_SRC_BEOS_FILES
         src/beos/bwindow.cpp
         src/beos/bwscreen.cpp
         src/unix/ufile.c
-        src/misc/colconv.c
         src/misc/pckeys.c
         )
 
@@ -298,7 +297,6 @@ set(ALLEGRO_SRC_X_FILES
         src/x/xdga2.c
         src/x/xdga2s.s
         src/x/xwins.s
-        src/misc/colconv.c
         )
 
 set(ALLEGRO_SRC_MACOSX_FILES
@@ -321,7 +319,6 @@ set(ALLEGRO_SRC_MACOSX_FILES
         src/unix/uptimer.c
         src/unix/usystem.c
         src/unix/uthreads.c
-        src/misc/colconv.c
         )
 
 set(ALLEGRO_SRC_PSP_FILES
@@ -336,7 +333,6 @@ set(ALLEGRO_SRC_PSP_FILES
         src/psp/ptimer.c
         src/psp/pvram.c
         src/psp/pvtable8.c
-        src/misc/colconv.c
         )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_FILES
