@@ -6,6 +6,7 @@
 
 
 #include <png.h>
+#include <zlib.h>
 #include <allegro.h>
 #include <allegro/internal/aintern.h>
 #include "loadpng.h"
