@@ -156,7 +156,6 @@ static ALLEGRO_FBO_INFO *ogl_find_unused_fbo(ALLEGRO_DISPLAY *display)
 static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_OGL *ogl_bitmap;
-   ALLEGRO_FBO_INFO *info;
 
    if (bitmap->parent)
       bitmap = bitmap->parent;
@@ -164,7 +163,8 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 
 #if !defined ALLEGRO_GP2XWIZ
    if (!ogl_bitmap->is_backbuffer) {
-       
+      ALLEGRO_FBO_INFO *info = NULL;
+
       /* When a bitmap is set as target bitmap, we try to create an FBO for it.
        */
       if (ogl_bitmap->fbo_info == NULL && !(bitmap->flags & ALLEGRO_FORCE_LOCKING)) {
