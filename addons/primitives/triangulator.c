@@ -61,11 +61,19 @@ typedef struct POLY_SPLIT {
 # if POLY_DEBUG
 typedef void (*poly_debug_draw_text_t)(float x, float y, int line, const char* format, ...);
 
-__declspec(dllexport) int                     g_poly_debug_step            = -1;
-__declspec(dllexport) int                     g_poly_debug_step_current    = 0;
-__declspec(dllexport) poly_debug_draw_text_t  g_poly_debug_draw_text       = NULL;
-__declspec(dllexport) float                   g_poly_debug_scale           = 1.0f;
+#if defined _MSC_VER
+#define EXPORT __declspec(dllexport)
+#else
+#define EXPORT
+#define __noop ((void)0)
+#endif
 
+EXPORT int                     g_poly_debug_step            = -1;
+EXPORT int                     g_poly_debug_step_current    = 0;
+EXPORT poly_debug_draw_text_t  g_poly_debug_draw_text       = NULL;
+EXPORT float                   g_poly_debug_scale           = 1.0f;
+
+#undef EXPORT
 
 # define POLY_DEBUG_TEXT(x,y,...)            (g_poly_debug_draw_text ? g_poly_debug_draw_text(x,y,INT_MAX,__VA_ARGS__) : __noop)
 # define POLY_DEBUG_TEXT_LINE(x,y,line,...)  (g_poly_debug_draw_text ? g_poly_debug_draw_text(x,y,line,__VA_ARGS__)    : __noop)
