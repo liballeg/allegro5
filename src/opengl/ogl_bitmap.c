@@ -949,12 +949,18 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             GLint tex_internalformat;
             ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
                _al_format_name(lock_format), error_string(e));
+#ifndef ALLEGRO_IPHONE
             glGetTexLevelParameteriv(GL_TEXTURE_2D, 0,
                GL_TEXTURE_INTERNAL_FORMAT, &tex_internalformat);
 
             ALLEGRO_DEBUG("x/y/w/h: %d/%d/%d/%d, internal format: %d\n",
                bitmap->lock_x, gl_y, bitmap->lock_w, bitmap->lock_h,
                tex_internalformat);
+#else
+            (void)tex_internalformat;
+            ALLEGRO_DEBUG("x/y/w/h: %d/%d/%d/%d\n",
+               bitmap->lock_x, gl_y, bitmap->lock_w, bitmap->lock_h);
+#endif
          }
       }
    }
