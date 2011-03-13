@@ -196,7 +196,6 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       }
       else {
          info = ogl_bitmap->fbo_info;
-         info->last_use_time = al_get_time();
       }
 
       if (info && info->fbo) {
