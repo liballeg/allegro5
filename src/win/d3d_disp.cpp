@@ -2166,6 +2166,7 @@ static void d3d_draw_pixel(ALLEGRO_DISPLAY *disp, float x, float y, ALLEGRO_COLO
 
    _al_d3d_set_blender(d3d_disp);
 
+#ifdef ALLEGRO_CFG_HLSL_SHADERS
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       UINT required_passes;
       ALLEGRO_VERTEX vertices[1];
@@ -2188,7 +2189,9 @@ static void d3d_draw_pixel(ALLEGRO_DISPLAY *disp, float x, float y, ALLEGRO_COLO
       }
       d3d_disp->effect->End();
    }
-   else {
+   else
+#endif
+   {
       D3D_FIXED_VERTEX vertices[1];
       vertices[0].x = x;
       vertices[0].y = y;
@@ -2554,6 +2557,11 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    ALLEGRO_BITMAP *target;
    ALLEGRO_BITMAP_D3D *d3d_target;
    ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
+   D3DVIEWPORT9 viewport;
+   viewport.X = 0;
+   viewport.Y = 0;
+   viewport.MinZ = 0;
+   viewport.MaxZ = 1;
 
    if (d3d_display->device_lost)
       return;
@@ -2583,6 +2591,11 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
       }
       d3d_target->render_target = d3d_display->render_target;
       d3d_display->device->SetDepthStencilSurface(d3d_display->depth_stencil);
+
+      viewport.Width = display->w;
+      viewport.Height = display->h;
+      d3d_display->device->SetViewport(&viewport);
+
       _al_d3d_set_ortho_projection(d3d_display, display->w, display->h);
    }
    else {
@@ -2597,23 +2610,17 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
             d3d_target->render_target->Release();
             return;
          }
+
+         viewport.Width = d3d_target->texture_w;
+         viewport.Height = d3d_target->texture_h;
+         d3d_display->device->SetViewport(&viewport);
+
          _al_d3d_set_ortho_projection(d3d_display, d3d_target->texture_w, d3d_target->texture_h);
       }
       if (d3d_display->samples) {
          d3d_display->device->SetDepthStencilSurface(NULL);
       }
    }
-
-/*
-   D3DVIEWPORT9 viewport;
-   viewport.X = 0;
-   viewport.Y = 0;
-   viewport.Width = bitmap->w;
-   viewport.Height = bitmap->h;
-   viewport.MinZ = -1;
-   viewport.MaxZ = 1;
-   d3d_display->device->SetViewport(&viewport);
-*/
 
    d3d_reset_state(d3d_display);
 
@@ -2773,7 +2780,6 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;
    ALLEGRO_BITMAP* cache_bmp = (ALLEGRO_BITMAP*)disp->cache_texture;
    ALLEGRO_BITMAP_D3D* d3d_bmp = (ALLEGRO_BITMAP_D3D*)cache_bmp;
-   UINT required_passes;
 
    if (cache_bmp->flags & ALLEGRO_MIN_LINEAR) {
       d3d_disp->device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
@@ -2798,12 +2804,15 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
       d3d_disp->device->SetFVF(D3DFVF_ALLEGRO_VERTEX);
    }
 
+#ifdef ALLEGRO_CFG_HLSL_SHADERS
+   UINT required_passes;
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       d3d_disp->effect->SetBool("use_tex", true);
       d3d_disp->effect->SetTexture("tex", d3d_bmp->video_texture);
       d3d_disp->effect->Begin(&required_passes, 0);
       ASSERT(required_passes > 0);
    }
+#endif
 
    if (d3d_disp->device->SetTexture(0, d3d_bmp->video_texture) != D3D_OK) {
       ALLEGRO_ERROR("d3d_flush_vertex_cache: SetTexture failed.\n");
@@ -2812,6 +2821,7 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 
    int size;
 
+#ifdef ALLEGRO_CFG_HLSL_SHADERS
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       size = sizeof(ALLEGRO_VERTEX);
       for (unsigned int i = 0; i < required_passes; i++) {
@@ -2824,7 +2834,9 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
          d3d_disp->effect->EndPass();
       }
    }
-   else {
+   else
+#endif
+   {
       d3d_disp->device->SetFVF(D3DFVF_FIXED_VERTEX);
       size = sizeof(D3D_FIXED_VERTEX);
       if (d3d_disp->device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, disp->num_cache_vertices / 3,
@@ -2835,11 +2847,13 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    }
 
    disp->num_cache_vertices = 0;
+#ifdef ALLEGRO_CFG_HLSL_SHADERS
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       d3d_disp->effect->End();
       d3d_disp->effect->SetBool("use_tex", false);
       d3d_disp->effect->SetTexture("tex", NULL);
    }
+#endif
 
    d3d_disp->device->SetTexture(0, NULL);
 }
@@ -2880,10 +2894,13 @@ static void d3d_set_projection(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)d;
 
+#ifdef ALLEGRO_CFG_HLSL_SHADERS
    if (d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       d3d_disp->effect->SetMatrix("proj_matrix", (D3DXMATRIX *)d->proj_transform.m);
    }
-   else {
+   else
+#endif
+   {
       d3d_disp->device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)d->proj_transform.m);
    }
 }
