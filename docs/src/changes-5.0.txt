@@ -4,6 +4,76 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 5.0.0 to 5.0.1 (March 2011)
+========================================
+
+The main developers this time were: Trent Gamblin, Elias Pschernig, Peter Wang.
+Other contributions noted in-line.
+
+Graphics:
+
+-  Automatically destroy framebuffer objects (FBOs) created for non-memory
+   bitmaps after a while.  This solves the problem of running out of resources
+   if you set many different target bitmaps.
+
+-  Make al_get_opengl_fbo attempt to create an FBO if one doesn't exist.
+
+-  Avoid very small textures in Direct3D.
+
+-  Do not sync from memory when first creating/uploading a bitmap (D3D).
+
+-  Try to fix the problem of the taskbar appearing above fullscreen windows
+   on Windows.
+
+-  Center the window after toggling fullscreen on Windows.
+
+Input:
+
+-  Support 4-way mouse-wheel and up to 32 mouse buttons in X11.
+
+Audio addons:
+
+-  Avoid buffer overrun while reading from vorbis files.
+
+-  Added optional support for Tremor in place of libvorbis on any platform.
+
+-  Do not prefer DirectSound with OpenAL.  This can cause problems and also
+   will override user config.
+
+-  Play silence where needed in DirectSound driver.
+
+TTF addon:
+
+-  Do not hold bitmap drawing when changing target bitmap, which is invalid
+   and caused transformations to be misapplied.
+
+-  Remove FBO for a cache bitmap once we are no longer adding glyphs to it.
+
+Build system:
+
+-  Force "default" visibility of _al_mangled_main on OS X, otherwise the
+   dynamic linker cannot find the symbol if building with XCode4
+   (Owen Anderson and Peter Hull).
+
+-  Generated pkg-config files should take into account LIB_SUFFIX variable
+   (Cristian Morales Vega).
+
+-  Update allegro_font pkg-config file to not require allegro_primitives.
+
+Documentation:
+
+-  Various documentation updates.
+
+-  Add copy of DejaVu font licence.
+
+Bindings:
+
+-  Add allegro_main addon to the Python wrapper.  Make the wrapper work with
+   Python 3, which has a different string representation.  Add parameter type
+   checking for custom types.
+
+
+
 Changes from 5.0.0 RC5 to 5.0.0 (February 2011)
 ===============================================
 
