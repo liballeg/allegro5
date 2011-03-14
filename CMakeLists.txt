@@ -336,6 +336,8 @@ if(COMPILER_GCC)
         CACHE STRING "profiling flags")
     set(CMAKE_EXE_LINKER_FLAGS_PROFILE "-pg"
         CACHE STRING "profiling flags")
+    set(CMAKE_SHARED_LINKER_FLAGS_PROFILE "-pg"
+        CACHE STRING "profiling flags")
 endif(COMPILER_GCC)
 if(COMPILER_MSVC)
     set(CMAKE_C_FLAGS_PROFILE "-Gd -Ox"
