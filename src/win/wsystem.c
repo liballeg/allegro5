@@ -154,7 +154,12 @@ static int sys_directx_init(void)
       /* Since doesn't exist os_version == 7 or greater yet,
          these will be detected as Vista instead of NT. */
       if (os_version >= 6) {
-         os_type = OSTYPE_WINVISTA;
+         /* If in the future a os_revision == 2 or greater comes,
+            it will be detected as Windows 7 instead of Vista. */
+         if (os_revision >= 1)
+	    os_type = OSTYPE_WIN7;
+         else
+	    os_type = OSTYPE_WINVISTA;
       }
       else if (os_version == 5) {
          /* If in the future a os_revision == 3 or greater comes,
