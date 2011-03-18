@@ -155,7 +155,7 @@ static BITMAP *gdi_screen;
 static int lock_nesting = 0;
 static int render_semaphore = FALSE;
 static PALETTE palette;
-static HANDLE vsync_event;
+static HANDLE vsync_event = NULL;
 #define RENDER_DELAY (1000/70)  /* 70 Hz */
 
 /* hardware mouse cursor emulation */
@@ -515,13 +515,20 @@ static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_dep
 
    /* the last flag serves as an end of loop delimiter */
    gdi_dirty_lines = _AL_MALLOC_ATOMIC((h+1) * sizeof(char));
-   ASSERT(gdi_dirty_lines);
+   if (!gdi_dirty_lines) {
+      _TRACE(PREFIX_E "Could not allocate memory for gdi_dirty_lines.\n");	   
+      goto Error;
+   }
    memset(gdi_dirty_lines, 0, (h+1) * sizeof(char));
    gdi_dirty_lines[h] = 1;
 
    /* create the screen surface */
    screen_surf = _AL_MALLOC_ATOMIC(w * h * BYTES_PER_PIXEL(color_depth));
    gdi_screen = _make_bitmap(w, h, (unsigned long)screen_surf, &gfx_gdi, color_depth, w * BYTES_PER_PIXEL(color_depth));
+   if (!gdi_screen) {
+      _TRACE(PREFIX_E "Could not make a bitmap out of the screen surface.\n");	   
+      goto Error;
+   }
    gdi_screen->write_bank = gfx_gdi_write_bank; 
    _screen_vtable.acquire = gfx_gdi_lock;
    _screen_vtable.release = gfx_gdi_unlock;
@@ -570,16 +577,23 @@ static void gfx_gdi_exit(struct BITMAP *bmp)
    /* stop timer */
    remove_int(render_proc);
    CloseHandle(vsync_event);
+   vsync_event = NULL;
 
    /* disconnect from the system driver */
    win_gfx_driver = NULL;
 
-   /* destroy dirty lines array */   
-   _AL_FREE(gdi_dirty_lines);
-   gdi_dirty_lines = NULL;   
+   /* destroy dirty lines array */
+   if (gdi_dirty_lines) {
+      _AL_FREE(gdi_dirty_lines);
+      gdi_dirty_lines = NULL;
+   }
 
    /* destroy screen surface */
-   _AL_FREE(screen_surf);
+   if (screen_surf) {
+      _AL_FREE(screen_surf);
+      screen_surf = NULL;
+   }
+
    gdi_screen = NULL;
 
    /* destroy mouse bitmaps */
