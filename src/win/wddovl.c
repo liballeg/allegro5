@@ -378,6 +378,10 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
       goto Error;
 
    gfx_directx_forefront_bitmap = gfx_directx_make_bitmap_from_surface(overlay_surface, w, h, BMP_ID_VIDEO);
+   if (!gfx_directx_forefront_bitmap) {
+      _TRACE(PREFIX_E "Can't make a bitmap from the surface\n");
+      goto Error;
+   }
 
    /* set the overlay color key */
    key.dwColorSpaceLowValue = gfx_directx_forefront_bitmap->vtable->mask_color;
