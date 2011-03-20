@@ -21,9 +21,9 @@
 
 
 static ALLEGRO_TOUCH_INPUT_STATE touch_input_state;
+static ALLEGRO_MOUSE_STATE mouse_state;
 static ALLEGRO_TOUCH_INPUT touch_input;
 static bool installed = false;
-
 
 static void generate_touch_input_event(unsigned int type, double timestamp, int id, float x, float y, float dx, float dy, bool primary, ALLEGRO_DISPLAY *disp)
 {
@@ -62,7 +62,7 @@ static void generate_touch_input_event(unsigned int type, double timestamp, int 
 
    if (want_mouse_emulation_event) {
 
-      ALLEGRO_MOUSE_STATE state;
+      //ALLEGRO_MOUSE_STATE state;
 
       switch (type) {
          case ALLEGRO_EVENT_TOUCH_BEGIN: type = ALLEGRO_EVENT_MOUSE_BUTTON_DOWN; break;
@@ -71,15 +71,15 @@ static void generate_touch_input_event(unsigned int type, double timestamp, int 
          case ALLEGRO_EVENT_TOUCH_MOVE:  type = ALLEGRO_EVENT_MOUSE_AXES;        break;
       }
 
-      al_get_mouse_state(&state);
+      //al_get_mouse_state(&state);
 
       event.mouse.type      = type;
       event.mouse.timestamp = timestamp;
       event.mouse.display   = (ALLEGRO_DISPLAY*)disp;
       event.mouse.x         = (int)x;
       event.mouse.y         = (int)y;
-      event.mouse.z         = state.z;
-      event.mouse.w         = state.w;
+      //event.mouse.z         = state.z;
+      //event.mouse.w         = state.w;
       event.mouse.dx        = (int)dx;
       event.mouse.dy        = (int)dy;
       event.mouse.dz        = 0;
@@ -91,6 +91,14 @@ static void generate_touch_input_event(unsigned int type, double timestamp, int 
 
       _al_event_source_lock(&touch_input.mouse_emulation_es);
       _al_event_source_emit_event(&touch_input.mouse_emulation_es, &event);
+
+      mouse_state.x = (int)x;
+      mouse_state.y = (int)y;
+      if (type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
+         mouse_state.buttons = 1;
+      else if (type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
+         mouse_state.buttons = 0;
+
       _al_event_source_unlock(&touch_input.mouse_emulation_es);
    }
 }
@@ -102,6 +110,7 @@ static bool init_touch_input(void)
       return false;
 
    memset(&touch_input_state, 0, sizeof(touch_input_state));
+   memset(&mouse_state, 0, sizeof(mouse_state));
 
    _al_event_source_init(&touch_input.es);
    _al_event_source_init(&touch_input.mouse_emulation_es);
@@ -119,6 +128,7 @@ static void exit_touch_input(void)
       return;
 
    memset(&touch_input_state, 0, sizeof(touch_input_state));
+   memset(&mouse_state, 0, sizeof(mouse_state));
 
    _al_event_source_free(&touch_input.es);
    _al_event_source_free(&touch_input.mouse_emulation_es);
@@ -288,3 +298,11 @@ ALLEGRO_TOUCH_INPUT_DRIVER *_al_get_iphone_touch_input_driver(void)
 {
     return &touch_input_driver;
 }
+
+void imouse_get_state(ALLEGRO_MOUSE_STATE *ret_state)
+{
+   _al_event_source_lock(&touch_input.es);
+   *ret_state = mouse_state;
+   _al_event_source_unlock(&touch_input.es);
+}
+

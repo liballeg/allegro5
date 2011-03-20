@@ -106,6 +106,7 @@ static bool imouse_set_mouse_axis(int which, int z)
     return false;
 }
 
+/*
 static void imouse_get_state(ALLEGRO_MOUSE_STATE *ret_state)
 {
     ASSERT(imouse_installed);
@@ -116,6 +117,8 @@ static void imouse_get_state(ALLEGRO_MOUSE_STATE *ret_state)
     }
     _al_event_source_unlock(&the_mouse.parent.es);
 }
+*/
+void imouse_get_state(ALLEGRO_MOUSE_STATE *ret_state);
 
 static ALLEGRO_MOUSE_DRIVER iphone_mouse_driver = {
     AL_ID('I', 'P', 'H', 'O'),
