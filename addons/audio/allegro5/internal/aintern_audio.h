@@ -312,6 +312,8 @@ ALLEGRO_KCM_AUDIO_FUNC(void, _al_kcm_shutdown_default_mixer, (void));
 ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_CHANNEL_CONF, _al_count_to_channel_conf, (int num_channels));
 ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_DEPTH, _al_word_size_to_depth_conf, (int word_size));
 
+ALLEGRO_KCM_AUDIO_FUNC(void, _al_emit_audio_event, (int event_type));
+
 #endif
 
 /* vim: set sts=3 sw=3 et: */

@@ -75,7 +75,7 @@ static void handle_buffer(
       data = silence;
 
    unsigned int copy_bytes = samples * ex_data->channels *
-   	(ex_data->bits_per_sample/8);
+      (ex_data->bits_per_sample/8);
    copy_bytes = _ALLEGRO_MIN(copy_bytes, inBuffer->mAudioDataBytesCapacity);
 
    memcpy(inBuffer->mAudioData, data, copy_bytes);
@@ -98,9 +98,11 @@ static void interruption_callback(void *inClientData, UInt32 inInterruptionState
    (void)inClientData;
    if (inInterruptionState == kAudioSessionBeginInterruption) {
       _aqueue_stop_voice(saved_voice);
+      _al_emit_audio_event(ALLEGRO_EVENT_AUDIO_INTERRUPTION);
    }
    else {
       _aqueue_start_voice(saved_voice);
+      _al_emit_audio_event(ALLEGRO_EVENT_AUDIO_END_INTERRUPTION);
    }
 }
 
@@ -115,6 +117,7 @@ static void property_listener(void *inClientData, AudioSessionPropertyID inID, U
       if (reason == kAudioSessionRouteChangeReason_NewDeviceAvailable) {
          _aqueue_stop_voice(saved_voice);
          _aqueue_start_voice(saved_voice);
+         _al_emit_audio_event(ALLEGRO_EVENT_AUDIO_ROUTE_CHANGE);
       }
    }
 }
@@ -254,11 +257,11 @@ static void *stream_proc(void *in_data)
    desc.mSampleRate = voice->frequency;
    desc.mFormatID = kAudioFormatLinearPCM;
    if (voice->depth == ALLEGRO_AUDIO_DEPTH_INT16)
-   	desc.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger |
-		kLinearPCMFormatFlagIsPacked;
+      desc.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger |
+      kLinearPCMFormatFlagIsPacked;
    else
-   	desc.mFormatFlags = kLinearPCMFormatFlagIsFloat |
-		kLinearPCMFormatFlagIsPacked;
+      desc.mFormatFlags = kLinearPCMFormatFlagIsFloat |
+      kLinearPCMFormatFlagIsPacked;
    desc.mBytesPerPacket = ex_data->channels * (ex_data->bits_per_sample/8);
    desc.mFramesPerPacket = 1;
    desc.mBytesPerFrame = ex_data->channels * (ex_data->bits_per_sample/8);
@@ -325,7 +328,7 @@ static void *stream_proc(void *in_data)
       }
       #endif
    } while (playing);
-	
+
    #ifdef ALLEGRO_IPHONE
    THREAD_END
    #endif
