@@ -182,7 +182,6 @@ static int render_glyph(ALLEGRO_FONT const *f,
     ALLEGRO_TTF_FONT_DATA *data = f->data;
     FT_Face face = data->face;
     int ft_index = FT_Get_Char_Index(face, ch);
-    unsigned char *row;
     int advance = 0;
 
     ALLEGRO_TTF_GLYPH_DATA *glyph = data->cache + ft_index;
@@ -242,7 +241,6 @@ static int render_glyph(ALLEGRO_FONT const *f,
            }
         }
         #endif
-        row = face->glyph->bitmap.buffer;
 
         if (glyph->monochrome) {
            for (y = 0; y < face->glyph->bitmap.rows; y++) {
@@ -278,7 +276,6 @@ static int render_glyph(ALLEGRO_FONT const *f,
                      }
                   }
                }
-               row += face->glyph->bitmap.pitch;
            }
         }
         else {
@@ -306,7 +303,6 @@ static int render_glyph(ALLEGRO_FONT const *f,
                      ptr++;
                   }
                }
-               row += face->glyph->bitmap.pitch;
            }
         }
 
