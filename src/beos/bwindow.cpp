@@ -347,9 +347,9 @@ extern "C" struct BITMAP *be_gfx_bwindow_init(int w, int h, int v_w, int v_h, in
    }
    
 #ifdef ALLEGRO_NO_ASM
-   bmp->read_bank = _be_gfx_bwindow_read_write_bank;
-   bmp->write_bank = _be_gfx_bwindow_read_write_bank;
-   _screen_vtable.unwrite_bank = _be_gfx_bwindow_unwrite_bank;
+   bmp->read_bank = (void *)_be_gfx_bwindow_read_write_bank;
+   bmp->write_bank = (void *)_be_gfx_bwindow_read_write_bank;
+   _screen_vtable.unwrite_bank = (void *)_be_gfx_bwindow_unwrite_bank;
 #else
    bmp->read_bank = _be_gfx_bwindow_read_write_bank_asm;
    bmp->write_bank = _be_gfx_bwindow_read_write_bank_asm;

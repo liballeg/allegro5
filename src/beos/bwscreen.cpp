@@ -363,9 +363,9 @@ static struct BITMAP *_be_gfx_bwindowscreen_init(GFX_DRIVER *drv, int w, int h, 
 
 #ifdef ALLEGRO_NO_ASM
    if (gfx_capabilities) {
-      bmp->write_bank = be_gfx_bwindowscreen_read_write_bank;
-      bmp->read_bank  = be_gfx_bwindowscreen_read_write_bank;
-      _screen_vtable.unwrite_bank = be_gfx_bwindowscreen_unwrite_bank;
+      bmp->write_bank = (void *)be_gfx_bwindowscreen_read_write_bank;
+      bmp->read_bank  = (void *)be_gfx_bwindowscreen_read_write_bank;
+      _screen_vtable.unwrite_bank = (void *)be_gfx_bwindowscreen_unwrite_bank;
    }
 #else
    if (gfx_capabilities) {
