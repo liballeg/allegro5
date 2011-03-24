@@ -24,9 +24,6 @@
 #define ALLEGRO_NO_STRLWR
 #define ALLEGRO_NO_STRUPR
 
-/* Provide implementations of missing definitions */
-#define O_BINARY     0
-
 /* Override default definitions for this platform */
 #define AL_RAND()    ((rand() >> 16) & 0x7fff)
 

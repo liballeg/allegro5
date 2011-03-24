@@ -27,11 +27,6 @@
 #define ALLEGRO_EXTRA_HEADER "allegro/platform/alunix.h"
 #define ALLEGRO_INTERNAL_HEADER "allegro/platform/aintunix.h"
 
-#ifndef O_BINARY
-#define O_BINARY  0
-#define O_TEXT    0
-#endif
-
 /* These defines will be provided by configure script.  */
 #undef ALLEGRO_COLOR8
 #undef ALLEGRO_COLOR16

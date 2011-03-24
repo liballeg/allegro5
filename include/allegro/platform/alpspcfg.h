@@ -37,9 +37,6 @@
 
 
 /* Provide implementations of missing definitions */
-#ifndef O_BINARY
-   #define O_BINARY     0
-#endif
 #define dup(X)	(fcntl(X, F_DUPFD, 0))
 
 

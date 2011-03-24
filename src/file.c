@@ -43,6 +43,9 @@
    #include "winalleg.h" /* for GetTempPath */
 #endif
 
+#ifndef O_BINARY
+   #define O_BINARY  0
+#endif
 
 /* permissions to use when opening files */
 #ifndef ALLEGRO_MPW
