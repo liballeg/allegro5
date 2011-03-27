@@ -68,6 +68,7 @@ typedef void (*poly_debug_draw_text_t)(float x, float y, int line, const char* f
 #define __noop ((void)0)
 #endif
 
+EXPORT int                     g_poly_debug_split_step      = -1;
 EXPORT int                     g_poly_debug_step            = -1;
 EXPORT int                     g_poly_debug_step_current    = 0;
 EXPORT poly_debug_draw_text_t  g_poly_debug_draw_text       = NULL;
@@ -165,7 +166,7 @@ static bool poly_find_closest_intersection(_AL_LIST* vertices, const float* vert
          *edge1 = best_e1;
 
 # if POLY_DEBUG
-      //al_draw_line(v0[0], v0[1], point[0], point[1], al_map_rgb(255, 0, 0), 4.0f);
+      //al_draw_line(v0[0], v0[1], point[0], point[1], al_map_rgb(255, 0, 0), 0.0f);
 # endif
 
       return true;
@@ -247,10 +248,10 @@ static _AL_LIST_ITEM* poly_find_outter_split_vertex(POLY* polygon, POLY_SPLIT* s
    if (NULL != best_vertex)
       vertex = best_vertex;
 
-# if POLY_DEBUG
-   //float* v0 = (float*)_al_list_item_data(vertex);
-   //al_draw_line(v0[0], v0[1], intersection[0], intersection[1], al_map_rgb(255, 0, 0), 4.0f);
-# endif
+//# if POLY_DEBUG
+//   p0 = (float*)_al_list_item_data(vertex);
+//   al_draw_line(p0[0], p0[1], intersection[0], intersection[1], al_map_rgb(255, 0, 0), 0.0f);
+//# endif
 
    return vertex;
 }
@@ -304,7 +305,7 @@ static _AL_LIST* poly_create_split_list(POLY* polygon)
 
          float* point = POLY_VERTEX(j);
 
-         if (point[0] > max) {
+         if (point[0] >= max) {
 
             max               = point[0];
             split->point      = point;
@@ -370,6 +371,11 @@ static bool poly_initialize(POLY* polygon)
    size_t j;
    int i;
 
+# if POLY_DEBUG
+   if (g_poly_debug_split_step >= 0)
+      polygon->split_count = min(g_poly_debug_split_step, polygon->split_count);
+# endif
+
    /* Every hole add two extra vertices to the list. */
    vertex_count = polygon->vertex_count + (polygon->split_count - 1) * 2;
 
@@ -409,7 +415,11 @@ static bool poly_initialize(POLY* polygon)
 
    if (use_split_list) {
 
-      poly_classify_vertices(vertex_list, reflex_list, NULL);
+# if POLY_DEBUG
+       int current_split = 0;
+# endif
+
+       poly_classify_vertices(vertex_list, reflex_list, NULL);
 
       /* Resolve all holes. */
       for (split_item = _al_list_front(split_list); split_item; split_item = _al_list_next(split_list, split_item)) {
@@ -417,6 +427,13 @@ static bool poly_initialize(POLY* polygon)
          _AL_LIST_ITEM* first_vertex;
          _AL_LIST_ITEM* last_vertex;
          POLY_SPLIT* split;
+
+# if POLY_DEBUG
+         if (g_poly_debug_split_step >= 0 && current_split >= g_poly_debug_split_step)
+             break;
+
+         ++current_split;
+# endif
 
          split = (POLY_SPLIT*)_al_list_item_data(split_item);
 
@@ -499,13 +516,15 @@ static int poly_compute_vertex_attributes(_AL_LIST* vertices, _AL_LIST_ITEM* ite
 # if POLY_DEBUG
    if (g_poly_debug_step == g_poly_debug_step_current) {
 
+      float step = 0.25f * 0.0f;
+
       float dir0[2] = { v0[0] - v1[0], v0[1] - v1[1] };
       float dir2[2] = { v2[0] - v1[0], v2[1] - v1[1] };
 
       POLY_DEBUG_TEXT(v1[0], v1[1], "%.1f", angle * 180.0f / 3.1415f);
 
-      al_draw_line(v1[0], v1[1], v1[0] + dir0[0] * 0.25f, v1[1] + dir0[1] * 0.25f, al_map_rgb(255, 0, 0), 4.0f * g_poly_debug_scale);
-      al_draw_line(v1[0], v1[1], v1[0] + dir2[0] * 0.25f, v1[1] + dir2[1] * 0.25f, al_map_rgb(255, 0, 0), 4.0f * g_poly_debug_scale);
+      al_draw_line(v1[0], v1[1], v1[0] + dir0[0] * step, v1[1] + dir0[1] * step, al_map_rgb(255, 0, 0), 4.0f * g_poly_debug_scale);
+      al_draw_line(v1[0], v1[1], v1[0] + dir2[0] * step, v1[1] + dir2[1] * step, al_map_rgb(255, 0, 0), 4.0f * g_poly_debug_scale);
    }
 # endif
 
@@ -694,7 +713,7 @@ static void poly_do_triangulate(POLY* polygon)
          n[0] /= l;
          n[1] /= l;
 
-         r = 1.0f;
+         r = 1.0f * 0.0f;
 
          al_draw_line(point0[0] + n[0] * r, point0[1] + n[1] * r, point1[0] + n[0] * r, point1[1] + n[1] * r, al_map_rgba(255, 0, 255, 128), r * g_poly_debug_scale);
 
@@ -732,22 +751,11 @@ static void poly_do_triangulate(POLY* polygon)
       v1 = (float*)_al_list_item_data(vertex_item);
       v2 = (float*)_al_list_item_data(next);
 
-      // Emit triangle.
-      polygon->emit(VERTEX_INDEX(v0), VERTEX_INDEX(v1), VERTEX_INDEX(v2), polygon->userdata);
-
-      // Remove polygon->ear_list clip from all lists.
-      _al_list_erase(polygon->ear_list,      ear_item);
-      _al_list_erase(polygon->vertex_list, vertex_item);
-      _al_list_erase(polygon->reflex_list, _al_list_find_first(polygon->reflex_list, vertex_item));
-
-      // Update attributes of corner vertices.
-      poly_update_vertex_attributes(polygon->vertex_list, polygon->reflex_list, polygon->ear_list, prev);
-      poly_update_vertex_attributes(polygon->vertex_list, polygon->reflex_list, polygon->ear_list, next);
-
 # if POLY_DEBUG
       if (g_poly_debug_step == g_poly_debug_step_current) {
          _AL_LIST_ITEM* item;
          ALLEGRO_COLOR color;
+         int second = 0;
 
          al_draw_filled_triangle(v0[0], v0[1], v1[0], v1[1], v2[0], v2[1], al_map_rgba(0, 0, 255, 64));
 
@@ -765,12 +773,15 @@ static void poly_do_triangulate(POLY* polygon)
          }
 
          color = al_map_rgb(255, 0, 0);
-         for (item = _al_list_back(polygon->ear_list); item; item = _al_list_previous(polygon->ear_list, item)) {
+         second = _al_list_size(polygon->ear_list) - 1;
+         for (item = _al_list_back(polygon->ear_list); item; item = _al_list_previous(polygon->ear_list, item), --second) {
 
             float* point = (float*)_al_list_item_data((_AL_LIST_ITEM*)_al_list_item_data(item));
 
-            if (item == _al_list_front(polygon->ear_list))
+            if (second == 0)
                color = al_map_rgb(0, 255, 0);
+            else if (second == 1)
+               color = al_map_rgb(0, 0, 255);
 
             al_draw_circle(point[0], point[1], 9.0f * g_poly_debug_scale, color, 2.0f * g_poly_debug_scale);
          }
@@ -779,6 +790,18 @@ static void poly_do_triangulate(POLY* polygon)
          break;
       g_poly_debug_step_current++;
 # endif
+
+      // Emit triangle.
+      polygon->emit(VERTEX_INDEX(v0), VERTEX_INDEX(v1), VERTEX_INDEX(v2), polygon->userdata);
+
+      // Remove polygon->ear_list clip from all lists.
+      _al_list_erase(polygon->ear_list,      ear_item);
+      _al_list_erase(polygon->vertex_list, vertex_item);
+      _al_list_erase(polygon->reflex_list, _al_list_find_first(polygon->reflex_list, vertex_item));
+
+      // Update attributes of corner vertices.
+      poly_update_vertex_attributes(polygon->vertex_list, polygon->reflex_list, polygon->ear_list, prev);
+      poly_update_vertex_attributes(polygon->vertex_list, polygon->reflex_list, polygon->ear_list, next);
    }
 
 # undef VERTEX_INDEX
