@@ -339,8 +339,8 @@ void _al_xwin_mouse_button_press_handler(int x_button,
 static void wheel_motion_handler(int x_button, ALLEGRO_DISPLAY *display)
 {
    int dz = 0, dw = 0;
-   if (x_button == Button4) dz = -1;
-   if (x_button == Button5) dz = 1;
+   if (x_button == Button4) dz = 1;
+   if (x_button == Button5) dz = -1;
    if (x_button == 6) dw = -1;
    if (x_button == 7) dw = 1;
    if (dz == 0 && dw == 0) return;
