@@ -105,6 +105,11 @@ static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode,
             _al_event_source_emit_event(&keyboard.es, &event);
          }
          if (unicode > 0) {
+            /* Apple maps function, arrow, and other keys to Unicode points. */
+            /* http://www.unicode.org/Public/MAPPINGS/VENDORS/APPLE/CORPCHAR.TXT */
+            if (unicode >= 0xF700 && unicode <= 0xF747) {
+               unicode = 0;
+            }
             event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
             event.keyboard.unichar = unicode;
             event.keyboard.modifiers = modifiers;
