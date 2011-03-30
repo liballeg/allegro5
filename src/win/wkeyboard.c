@@ -22,6 +22,10 @@
 #include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/platform/aintwin.h"
 
+/* Missing from MSVC 2005 headers. */
+#ifndef MAPVK_VSC_TO_VK_EX
+   #define MAPVK_VSC_TO_VK_EX 3
+#endif
 
 static bool installed = false;
 static ALLEGRO_KEYBOARD the_keyboard;
@@ -251,8 +255,8 @@ static void update_modifiers(int code, bool pressed)
 /* _al_win_kbd_handle_key_press:
  *  Does stuff when a key is pressed.
  */
-void _al_win_kbd_handle_key_press(int scode, int vcode, bool repeated,
-                           ALLEGRO_DISPLAY_WIN *win_disp)
+void _al_win_kbd_handle_key_press(int scode, int vcode, bool extended,
+                           bool repeated, ALLEGRO_DISPLAY_WIN *win_disp)
 {
    ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)win_disp;
    ALLEGRO_EVENT event;
@@ -266,39 +270,25 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool repeated,
    if (!installed)
       return;
 
-   if (!GetKeyboardState(&ks[0])) {
-      /* shouldn't really happen */
-   }
+   /* Using MapVirtualKey for Ctrl and Alt doesn't work, since the right hand versions have
+      two-byte scan codes. On the other hand, none of the Shift keys are 'extended' keys. */
+   if (vcode == VK_CONTROL)
+      vcode = extended ? VK_RCONTROL : VK_LCONTROL;
+   else if (vcode == VK_MENU)
+      vcode = extended ? VK_RMENU : VK_LMENU;
+   else if (vcode == VK_SHIFT)
+      vcode = MapVirtualKey(scode, MAPVK_VSC_TO_VK_EX);
 
-   /* Windows doesn't differentiate between the left and right versions
-      of the modifiers. To compensate we read the current keyboard state
-      and use that information to determine which key was actually
-      pressed. We check the last known state of the modifier in question
-      and if it is not down we know that is the key that was pressed. */
-   if (vcode == VK_SHIFT || vcode == VK_CONTROL || vcode == VK_MENU) {
-      if ((ks[VK_LCONTROL] & 0x80) && !_AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_LCTRL))
-         vcode = VK_LCONTROL;
-      else if ((ks[VK_RCONTROL] & 0x80) && !_AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_RCTRL))
-         vcode = VK_RCONTROL;
-      else if ((ks[VK_LSHIFT] & 0x80) && !_AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_LSHIFT))
-         vcode = VK_LSHIFT;
-      else if ((ks[VK_RSHIFT] & 0x80) && !_AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_RSHIFT))
-         vcode = VK_RSHIFT;
-      else if ((ks[VK_LMENU] & 0x80) && !_AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_ALT))
-         vcode = VK_LMENU;
-      else if ((ks[VK_RMENU] & 0x80) && !_AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_ALTGR))
-         vcode = VK_RMENU;
-      else
-         return;
-   }
-   
    /* Ignore repeats for Caps Lock */
    if (vcode == VK_CAPITAL && repeated && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_CAPSLOCK))
       return;
-   
+
    my_code = hw_to_mycode[vcode];
-   update_modifiers(my_code, true);
-   _AL_KEYBOARD_STATE_SET_KEY_DOWN(the_state, my_code);
+   /* No VK_* code for numpad Enter, need to special case it. */
+   if (extended && my_code == ALLEGRO_KEY_ENTER) {
+      my_code = ALLEGRO_KEY_PAD_ENTER;
+   }
+   update_modifiers(my_code, true);   
 
    if (!_al_event_source_needs_to_generate_event(&the_keyboard.es))
       return;
@@ -313,13 +303,14 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool repeated,
 
    _al_event_source_lock(&the_keyboard.es);
 
-   if (my_code > 0 && !repeated) {
+   if (my_code > 0 && !(repeated && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, my_code))) {
       _al_event_source_emit_event(&the_keyboard.es, &event);
    }
+   _AL_KEYBOARD_STATE_SET_KEY_DOWN(the_state, my_code);
 
    /* Send char events, but not for modifier keys or dead keys. */
    if (my_code < ALLEGRO_KEY_MODIFIERS) {
-      char_count = ToUnicode(vcode, scode, ks, buf, 8, 0);
+      char_count = ToUnicode(vcode, scode, GetKeyboardState(ks) ? ks : NULL, buf, 8, 0);
       if (char_count != -1) { /* -1 means it was a dead key. */
          event_count = char_count ? char_count : 1;
          event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
@@ -354,34 +345,25 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool repeated,
 /* _al_win_kbd_handle_key_release:
  *  Does stuff when a key is released.
  */
-void _al_win_kbd_handle_key_release(int vcode, ALLEGRO_DISPLAY_WIN *win_disp)
+void _al_win_kbd_handle_key_release(int scode, int vcode, bool extended, ALLEGRO_DISPLAY_WIN *win_disp)
 {
    ALLEGRO_EVENT event;
    int my_code;
-   BYTE ks[256];
 
    if (!installed)
      return;
 
-   /* We need to read the latest key states so we can tell which
-      modifier was released. */
-   GetKeyboardState(&ks[0]);
-   if (vcode == VK_SHIFT && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_LSHIFT) && !(ks[VK_LSHIFT] & 0x80))
-      vcode = VK_LSHIFT;
-   else if (vcode == VK_SHIFT && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_RSHIFT) && !(ks[VK_RSHIFT] & 0x80))
-      vcode = VK_RSHIFT;
-   else if (vcode == VK_CONTROL && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_LCTRL) && !(ks[VK_LCONTROL] & 0x80))
-      vcode = VK_LCONTROL;
-   else if (vcode == VK_CONTROL && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_RCTRL) && !(ks[VK_RCONTROL] & 0x80))
-      vcode = VK_RCONTROL;
-   else if (vcode == VK_MENU && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_ALT) && !(ks[VK_LMENU] & 0x80))
-      vcode = VK_LMENU;
-   else if (vcode == VK_MENU && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_ALTGR) && !(ks[VK_RMENU] & 0x80))
-      vcode = VK_RMENU;
+   if (vcode == VK_CONTROL)
+      vcode = extended ? VK_RCONTROL : VK_LCONTROL;
    else if (vcode == VK_MENU)
-	   return;
+      vcode = extended ? VK_RMENU : VK_LMENU;
+   else if (vcode == VK_SHIFT)
+      vcode = MapVirtualKey(scode, MAPVK_VSC_TO_VK_EX);
 
    my_code = hw_to_mycode[vcode];
+   if (extended && my_code == ALLEGRO_KEY_ENTER) {
+      my_code = ALLEGRO_KEY_PAD_ENTER;
+   }
    update_modifiers(my_code, false);
 
    _AL_KEYBOARD_STATE_CLEAR_KEY_DOWN(the_state, my_code);
@@ -390,9 +372,9 @@ void _al_win_kbd_handle_key_release(int vcode, ALLEGRO_DISPLAY_WIN *win_disp)
       both have been released. If one of the Shift keys is still reported
       as down, we need to release it as well. */
    if (my_code == ALLEGRO_KEY_LSHIFT && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_RSHIFT))
-      _al_win_kbd_handle_key_release(VK_RSHIFT, win_disp);
+      _al_win_kbd_handle_key_release(scode, VK_RSHIFT, extended, win_disp);
    else if (my_code == ALLEGRO_KEY_RSHIFT && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_LSHIFT))
-      _al_win_kbd_handle_key_release(VK_LSHIFT, win_disp);
+      _al_win_kbd_handle_key_release(scode, VK_LSHIFT, extended, win_disp);
    
    if (!_al_event_source_needs_to_generate_event(&the_keyboard.es))
       return;
