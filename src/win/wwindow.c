@@ -576,24 +576,28 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          break;
       }
       case WM_SYSKEYDOWN: {
-         int vcode = wParam; 
+         int vcode = wParam;
+         bool extended = (lParam >> 24) & 0x1;
          bool repeated  = (lParam >> 30) & 0x1;
-         _al_win_kbd_handle_key_press(0, vcode, repeated, win_display);
+         _al_win_kbd_handle_key_press(0, vcode, extended, repeated, win_display);
          break;
       }
       case WM_KEYDOWN: {
          int vcode = wParam; 
          int scode = (lParam >> 16) & 0xff;
-         bool repeated  = (lParam >> 30) & 0x1;
+         bool extended = (lParam >> 24) & 0x1;
+         bool repeated = (lParam >> 30) & 0x1;
          /* We can't use TranslateMessage() because we don't know if it will
             produce a WM_CHAR or not. */
-         _al_win_kbd_handle_key_press(scode, vcode, repeated, win_display);
+         _al_win_kbd_handle_key_press(scode, vcode, extended, repeated, win_display);
          break;
       }
       case WM_SYSKEYUP:
       case WM_KEYUP: {
          int vcode = wParam;
-         _al_win_kbd_handle_key_release(vcode, win_display);
+         int scode = (lParam >> 16) & 0xff;
+         bool extended = (lParam >> 24) & 0x1;
+         _al_win_kbd_handle_key_release(scode, vcode, extended, win_display);
          break;
       }
       case WM_SYSCOMMAND: {
