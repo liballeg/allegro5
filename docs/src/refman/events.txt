@@ -103,9 +103,18 @@ keyboard.keycode (int)
     See the "Key codes" section for the list of ALLEGRO\_KEY\_\* constants.
 
 keyboard.unichar (int)
-:   A Unicode code point (character).  This may be zero or negative if the
-    event was generated for a non-visible "character", such as an arrow key.
-    In that case you can act upon the `keycode` field.
+:   A Unicode code point (character).  This *may* be zero or negative if the
+    event was generated for a non-visible "character", such as an arrow or
+    Function key.  In that case you can act upon the `keycode` field.
+
+    Some special keys will set the `unichar` field to their standard ASCII
+    values: Tab=9, Return=13, Escape=27.  In addition if you press the Control
+    key together with A to Z the `unichar` field will have the values 1 to 26.
+    For example Ctrl-A will set `unichar` to 1 and Ctrl-H will set it to 8.
+
+    As of Allegro 5.0.2 there are some inconsistencies in the treatment of
+    Backspace (8 or 127) and Delete (127 or 0) keys on different platforms.
+    These can be worked around by checking the `keycode` field.
 
 keyboard.modifiers (unsigned)
 :   This is a bitfield of the modifier keys which were pressed when the event
