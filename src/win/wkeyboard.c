@@ -290,6 +290,8 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool extended,
    }
    update_modifiers(my_code, true);   
 
+   _AL_KEYBOARD_STATE_SET_KEY_DOWN(the_state, my_code);
+
    if (!_al_event_source_needs_to_generate_event(&the_keyboard.es))
       return;
 
@@ -306,7 +308,6 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool extended,
    if (my_code > 0 && !(repeated && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, my_code))) {
       _al_event_source_emit_event(&the_keyboard.es, &event);
    }
-   _AL_KEYBOARD_STATE_SET_KEY_DOWN(the_state, my_code);
 
    /* Send char events, but not for modifier keys or dead keys. */
    if (my_code < ALLEGRO_KEY_MODIFIERS) {
