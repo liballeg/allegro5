@@ -4,6 +4,21 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 5.0.1 to 5.0.2 (March 2011)
+========================================
+
+Input:
+
+-  Fix inverted mouse wheel on X11.
+
+-  Make unicode field in KEY_CHAR events zero for Fn, arrow keys, etc.
+   for OS X (jmasterx, Peter Hull).
+
+-  Support ALLEGRO_KEY_PAD_ENTER and detect left/right Alt and Ctrl
+   keys independently on Windows (torhu, Matthew Leverton).
+
+
+
 Changes from 5.0.0 to 5.0.1 (March 2011)
 ========================================
 
