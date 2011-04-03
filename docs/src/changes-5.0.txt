@@ -4,7 +4,7 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
-Changes from 5.0.1 to 5.0.2 (March 2011)
+Changes from 5.0.1 to 5.0.2 (April 2011)
 ========================================
 
 Input:
