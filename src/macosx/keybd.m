@@ -196,7 +196,7 @@ static void get_state(ALLEGRO_KEYBOARD_STATE *ret_state)
 
 
 
-ALLEGRO_KEYBOARD_DRIVER keyboard_macosx =
+static ALLEGRO_KEYBOARD_DRIVER keyboard_macosx =
 {
    KEYBOARD_MACOSX,
    "",
