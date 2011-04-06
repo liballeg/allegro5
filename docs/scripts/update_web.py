@@ -28,17 +28,17 @@ def main(argv):
 
     def run(cmd):
         print ">", cmd
-        p = subprocess.Popen(cmd, shell = True,
+        return subprocess.call(cmd, shell = True,
             stdout = subprocess.PIPE,
             stderr = subprocess.STDOUT)
-        print ">", p.stdout.read()
 
     print "Copying files.."
     rsync = "rsync --delete -r -z"
     path = os.path.join(options.path, "docs/html/refman/")
-    run("%s %s %s:%s" % (rsync, path, sf, destdir))
-
-    print("Updated A5 docs at: http://docs.liballeg.org")
+    retcode = run("%s %s %s:%s" % (rsync, path, sf, destdir))
+    if retcode == 0:
+	print("Updated A5 docs at: http://docs.liballeg.org")
+    sys.exit(retcode)
 
 if __name__ == "__main__":
     main(sys.argv)
