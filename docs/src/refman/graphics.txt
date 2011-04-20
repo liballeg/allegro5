@@ -728,9 +728,11 @@ See also: [ALLEGRO_COLOR], [al_put_pixel]
 
 ### API: al_set_target_bitmap
 
-Select the bitmap to which all subsequent drawing operations in the calling
-thread will draw. Select the backbuffer (see [al_get_backbuffer]) to return
-to drawing to the screen normally.
+This function selects the bitmap to which all subsequent drawing operations in
+the calling thread will draw to.
+To return to drawing to a display, set the backbuffer of the display as the
+target bitmap, using [al_get_backbuffer]. As a convenience, you may also use
+[al_set_target_backbuffer].
 
 Each video bitmap is tied to a display. When a video bitmap is set to as the
 target bitmap, the display that the bitmap belongs to is automatically made
