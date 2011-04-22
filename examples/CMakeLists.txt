@@ -211,7 +211,7 @@ endif(WANT_CURL_EXAMPLE)
 # include_directories(/usr/include/OGRE)
 # target_link_libraries(ex_ogre3d OgreMain)
 
-copy_data_dir_to_build(copy_example_data data)
+copy_data_dir_to_build(copy_example_data data .)
 
 # This is useful for developers to add temporary test programs.
 include(${CMAKE_CURRENT_SOURCE_DIR}/local_examples.cmake OPTIONAL)

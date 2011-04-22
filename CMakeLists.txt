@@ -823,6 +823,7 @@ configure_file(
 if(NOT MSVC80 AND WANT_DEMO) # XXX disabled because it breaks MSVC's intellisense for some reason
     add_subdirectory(demos/a5teroids)
     add_subdirectory(demos/speed)
+    add_subdirectory(demos/skater)
 endif(NOT MSVC80 AND WANT_DEMO)
 
 #-----------------------------------------------------------------------------#
