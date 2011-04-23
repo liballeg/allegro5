@@ -25,7 +25,7 @@
 	calculations
 
 */
-double FixUp(double *vec, double normalx, double normaly)
+static double FixUp(double *vec, double normalx, double normaly)
 {
    double mul;
 
@@ -58,7 +58,7 @@ double FixUp(double *vec, double normalx, double normaly)
 	(i.e. 0 degrees = right, increases go anticlockwise)
 
 */
-void SetAngle(double normalx, double normaly, double *a, int JustDoIt)
+static void SetAngle(double normalx, double normaly, double *a, int JustDoIt)
 {
    double NewAng = atan2(normalx, -normaly);
 
@@ -82,7 +82,7 @@ void SetAngle(double normalx, double normaly, double *a, int JustDoIt)
 	and finally put back together to reform the complete player velocity
 
 */
-void DoFriction(double r, struct Edge *E, double *vec)
+static void DoFriction(double r, struct Edge *E, double *vec)
 {
    (void)r;
    /* calculate how quickly we're currently moving parallel and perpendicular to this edge */
@@ -146,6 +146,7 @@ void DoFriction(double r, struct Edge *E, double *vec)
 
 	Although some additional work needs to be done
 */
+#if 0 /* unused */
 struct QuadTreeNode *DoContinuousPhysics(struct Level *lvl, struct QuadTreeNode
                                          *CollTree, double *pos,
                                          double *vec, double TimeToGo,
@@ -327,6 +328,7 @@ struct QuadTreeNode *DoContinuousPhysics(struct Level *lvl, struct QuadTreeNode
 
    return CollTree;
 }
+#endif
 
 /*#define TIME_STEP	0.6f
 struct QuadTreeNode *RunPhysics(struct Level *lvl, double *pos, double *vec, double TimeToGo, struct Animation *PAnim)

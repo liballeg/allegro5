@@ -85,7 +85,7 @@ static int my_ungetc_c = -1;
 		\r\r				- 2 line endings
 
 */
-int my_fgetc(ALLEGRO_FILE * f)
+static int my_fgetc(ALLEGRO_FILE * f)
 {
    static int LastChar = '\0';
    int r;
@@ -115,7 +115,7 @@ int my_fgetc(ALLEGRO_FILE * f)
 /*
    Hackish way to ungetc a single character.
 */
-void my_ungetc(int c)
+static void my_ungetc(int c)
 {
    my_ungetc_c = c;
 }
@@ -127,7 +127,7 @@ void my_ungetc(int c)
 
 */
 
-void GetTokenInner(void)
+static void GetTokenInner(void)
 {
    char *Ptr = Token.Text;
 

@@ -135,7 +135,7 @@ void LoadVertices(struct Level *NewLev)
 		vertex reference -> { reference, edge height [, flags] }
 
 */
-void GetVert(struct Level *NewLev, struct Triangle *t, int c)
+static void GetVert(struct Level *NewLev, struct Triangle *t, int c)
 {
    ExpectToken(TK_OPENBRACE);
 
@@ -223,7 +223,7 @@ int GetNormal(struct Edge *e, double *v1, double *v2)
 	both end vertices of the edge they meet
 
 */
-void InitEdge(struct Edge *e, int radius)
+static void InitEdge(struct Edge *e, int radius)
 {
    /* get edge normal */
    GetNormal(e, e->EndPoints[0]->Pos, e->EndPoints[1]->Pos);

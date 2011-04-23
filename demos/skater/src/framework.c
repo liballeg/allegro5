@@ -192,7 +192,7 @@ int init_framework(void)
    Returns:
       none
 */
-void draw_framework(void)
+static void draw_framework(void)
 {
 
    /* Draw either the current state or the transition animation if we're

@@ -61,7 +61,7 @@
 	b. Uses the logic expressed in the comments at the top of this file
 
 */
-int GetChild(struct BoundingBox *b, double qx, double qy)
+static int GetChild(struct BoundingBox *b, double qx, double qy)
 {
    int ret = 0;
 
@@ -78,19 +78,19 @@ int GetChild(struct BoundingBox *b, double qx, double qy)
 	these return the corresponding co-ordinate of the child
 
 */
-double GetX1(int child, struct BoundingBox *b)
+static double GetX1(int child, struct BoundingBox *b)
 {
    return (child & 1) ? CentreX(b) : b->TL.Pos[0];
 }
-double GetX2(int child, struct BoundingBox *b)
+static double GetX2(int child, struct BoundingBox *b)
 {
    return (child & 1) ? b->BR.Pos[0] : CentreX(b);
 }
-double GetY1(int child, struct BoundingBox *b)
+static double GetY1(int child, struct BoundingBox *b)
 {
    return (child & 2) ? CentreY(b) : b->TL.Pos[1];
 }
-double GetY2(int child, struct BoundingBox *b)
+static double GetY2(int child, struct BoundingBox *b)
 {
    return (child & 2) ? b->BR.Pos[1] : CentreY(b);
 }
@@ -111,7 +111,7 @@ double GetY2(int child, struct BoundingBox *b)
 	hand side child, if it is heading down it wants the lower child, etc.
 
 */
-int ToggleChildPtrY(double yvec, int oldchild)
+static int ToggleChildPtrY(double yvec, int oldchild)
 {
    if (((yvec > 0) && (oldchild & 2)) || ((yvec < 0) && !(oldchild & 2))
       )
@@ -119,7 +119,7 @@ int ToggleChildPtrY(double yvec, int oldchild)
    return oldchild;
 }
 
-int ToggleChildPtrX(double xvec, int oldchild)
+static int ToggleChildPtrX(double xvec, int oldchild)
 {
    if (((xvec > 0) && (oldchild & 1)) || ((xvec < 0) && !(oldchild & 1))
       )
@@ -149,7 +149,7 @@ int ToggleChildPtrX(double xvec, int oldchild)
 	when doing collisions near the edge of a node
 
 */
-int Separated(struct BoundingBox *a, struct BoundingBox *b)
+static int Separated(struct BoundingBox *a, struct BoundingBox *b)
 {
    if (a->TL.Pos[0] - ERROR_BOUNDARY > b->BR.Pos[0])
       return true;
@@ -236,7 +236,7 @@ void FreeQuadTree(struct QuadTreeNode *Tree)
 		stored here to the children
 
 */
-void AddContent(struct QuadTreeNode *Tree, struct Container *NewContent,
+static void AddContent(struct QuadTreeNode *Tree, struct Container *NewContent,
                 int divider)
 {
    int c;
@@ -331,7 +331,7 @@ void AddContent(struct QuadTreeNode *Tree, struct Container *NewContent,
 	the edge tree, for collisions & physics
 
 */
-struct QuadTreeNode *GetNode(struct QuadTreeNode *Ptr, double *pos, double *vec)
+static struct QuadTreeNode *GetNode(struct QuadTreeNode *Ptr, double *pos, double *vec)
 {
    int Child;
    int MidX, MidY;
@@ -365,11 +365,6 @@ struct QuadTreeNode *GetCollisionNode(struct Level *lvl, double *pos,
    return GetNode(&lvl->CollisionTree, pos, vec);
 }
 
-struct QuadTreeNode *GetObjectNode(struct Level *lvl, double *pos, double *vec)
-{
-   return GetNode(&lvl->DisplayTree, pos, vec);
-}
-
 /*
 
 	STUFF FOR DEALING WITH 'TRIANGLES'
@@ -391,7 +386,7 @@ static void set_v(ALLEGRO_VERTEX *vt, double x, double y, double u, double v)
 	DrawEdge is a drawing function that adds a textured edge to a triangle
 
 */
-void DrawEdge(struct Triangle *tri,
+static void DrawEdge(struct Triangle *tri,
               struct BoundingBox *ScrBounder)
 {
    ALLEGRO_VERTEX PolyEdges[4];
@@ -443,7 +438,7 @@ static void setuv(ALLEGRO_VERTEX *v, struct BoundingBox *ScrBounder)
 	fill
 
 */
-void DrawTriangle(struct Triangle *tri,
+static void DrawTriangle(struct Triangle *tri,
                   struct BoundingBox *ScrBounder)
 {
    ALLEGRO_VERTEX v[3];
@@ -471,7 +466,7 @@ void DrawTriangle(struct Triangle *tri,
 	DrawObject is a drawing function that draws an object (!)
 
 */
-void DrawObject(struct Object *obj,
+static void DrawObject(struct Object *obj,
                 struct BoundingBox *ScrBounder)
 {
    /* quick bounding box check - if the triangle isn't on screen then we can
@@ -533,7 +528,7 @@ void DrawObject(struct Object *obj,
 		/365.25 = 1.36 years
 
 */
-void GetQuadTreeVisibilityList(struct QuadTreeNode *TriTree,
+static void GetQuadTreeVisibilityList(struct QuadTreeNode *TriTree,
                                struct Level *Lvl,
                                struct BoundingBox *ScrBounder)
 {
@@ -567,7 +562,7 @@ void GetQuadTreeVisibilityList(struct QuadTreeNode *TriTree,
    }
 }
 
-void DrawQuadTreePart(struct Level *Lvl,
+static void DrawQuadTreePart(struct Level *Lvl,
                       struct BoundingBox *ScrBounder,
                       unsigned int framec, int PostContents)
 {

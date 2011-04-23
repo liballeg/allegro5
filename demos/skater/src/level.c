@@ -151,7 +151,7 @@ void FreeLevel(struct Level *lvl)
 }
 
 /* 01234567890123456789012345678901234567890123456789012345678901234567890123456789 */
-int CalcIntersection(struct Edge *e1, struct Edge *e2, double *Inter,
+static int CalcIntersection(struct Edge *e1, struct Edge *e2, double *Inter,
                      int radius)
 {
    double d1, d2;
@@ -177,7 +177,7 @@ int CalcIntersection(struct Edge *e1, struct Edge *e2, double *Inter,
    return true;
 }
 
-void FixVerts(struct Level *NewLev, int radius)
+static void FixVerts(struct Level *NewLev, int radius)
 {
    struct Vertex *v = NewLev->AllVerts;
 
@@ -207,7 +207,7 @@ void FixVerts(struct Level *NewLev, int radius)
    }
 }
 
-int FixEdges(struct Level *NewLev, int radius)
+static int FixEdges(struct Level *NewLev, int radius)
 {
    struct Edge **e = &NewLev->AllEdges;
    int NotFinished = false, Failed;
@@ -268,7 +268,7 @@ int FixEdges(struct Level *NewLev, int radius)
 	edges and inserts them into the collision tree
 
 */
-void AddEdges(struct Level *NewLev)
+static void AddEdges(struct Level *NewLev)
 {
    struct Edge *e = NewLev->AllEdges;
 
@@ -299,7 +299,7 @@ void AddEdges(struct Level *NewLev)
 	the display tree
 
 */
-void ScaleAndAddObjects(struct Level *Lvl)
+static void ScaleAndAddObjects(struct Level *Lvl)
 {
    struct Object *O = Lvl->AllObjects;
    //double Scaler = (float)screen_height / 480.0f;
@@ -335,7 +335,7 @@ void ScaleAndAddObjects(struct Level *Lvl)
 	edge trim) and inserts them into the display tree
 
 */
-void AddTriangles(struct Level *Lvl)
+static void AddTriangles(struct Level *Lvl)
 {
    struct Triangle *Tri = Lvl->AllTris;
 

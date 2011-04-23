@@ -52,7 +52,7 @@ static int credit_speed;
 static int credit_skip;
 
 /* formats a list of TEXT_LIST structure into a single string */
-char *format_text(TEXT_LIST * head, char *eol, char *gap)
+static char *format_text(TEXT_LIST * head, char *eol, char *gap)
 {
    TEXT_LIST *l;
    int size = 0;
@@ -86,7 +86,7 @@ char *format_text(TEXT_LIST * head, char *eol, char *gap)
 
 
 /* loads the scroller message from readme.txt */
-void load_text(void)
+static void load_text(void)
 {
    README_SECTION sect[] = {
       {NULL, NULL, NULL, "Introduction"},
@@ -220,7 +220,7 @@ void load_text(void)
 
 
 /* sorts a list of credit strings */
-void sort_credit_list(void)
+static void sort_credit_list(void)
 {
    CREDIT_NAME **prev, *p;
    int n, done;
@@ -262,7 +262,7 @@ static ALLEGRO_FILE *open_thanks(const char *s)
 
 
 /* reads credit info from various places */
-void load_credits(void)
+static void load_credits(void)
 {
    char buf[256], *p, *p2;
    CREDIT_NAME *c = NULL;
@@ -340,7 +340,7 @@ void load_credits(void)
 }
 
 
-CREDIT_NAME *next_credit(CREDIT_NAME * cred)
+static CREDIT_NAME *next_credit(CREDIT_NAME * cred)
 {
    int max, i;
 

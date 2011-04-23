@@ -64,26 +64,6 @@ struct {
 } Clouds[8];
 double CloudX;
 
-DATA_ENTRY *load_datadir(char const *path)
-{
-    DATA_ENTRY *d = NULL;
-    int n = 0;
-    ALLEGRO_FS_ENTRY *dir = al_create_fs_entry(path);
-    if (!al_open_directory(dir)) return NULL;
-    while (1) {
-        ALLEGRO_FS_ENTRY *data = al_read_directory(dir);
-        if (!data) break;
-        d = realloc(d, ++n * sizeof *d);
-        d[n - 1].name = strdup(al_get_fs_entry_name(data));
-        d[n - 1].dat = al_load_sample(d[n - 1].name);
-        al_destroy_fs_entry(data);
-    }
-    d = realloc(d, ++n * sizeof *d);
-    d[n - 1].dat = NULL;
-    d[n - 1].name = NULL;
-    return d;
-}
-
 char *load_game_resources(void)
 {
    printf("load_game_resources\n");
@@ -137,7 +117,7 @@ void unload_game_resources(void)
    }
 }
 
-void DeInit(void)
+static void DeInit(void)
 {
    if (WaterVoice) {
       al_stop_sample_instance(WaterVoice);
@@ -152,7 +132,7 @@ void DeInit(void)
    PauseAnimation(PlayerAnim);
 }
 
-void GenericInit(void)
+static void GenericInit(void)
 {
    int c;
 
@@ -182,13 +162,13 @@ void GenericInit(void)
    UnpauseAnimation(PlayerAnim);
 }
 
-void ContinueInit(void)
+static void ContinueInit(void)
 {
    GenericInit();
    CurrentID = continueid();
 }
 
-void GameInit(void)
+static void GameInit(void)
 {
    KeyFlags = 0;
    enable_continue_game();
@@ -204,7 +184,7 @@ void GameInit(void)
    CurrentID = newid();
 }
 
-void DrawClouds(void)
+static void DrawClouds(void)
 {
    int c = 8;
    double x1, y1, x2, y2, x;
@@ -241,7 +221,7 @@ static void set_v(ALLEGRO_VERTEX *vt, double x, double y, double u, double v)
    vt->color = al_map_rgb_f(1, 1, 1);
 }
 
-void GameDraw(void)
+static void GameDraw(void)
 {
    ALLEGRO_BITMAP *ch;
    double depth;
@@ -356,7 +336,7 @@ void GameDraw(void)
                  "Items Remaining: %d", TotalObjectsLeft);
 }
 
-int GameUpdate(void)
+static int GameUpdate(void)
 {
    struct QuadTreeNode *CollTree;
    struct Container *EPtr;

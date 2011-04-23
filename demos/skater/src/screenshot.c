@@ -7,7 +7,7 @@
 #include "global.h"
 #include "screenshot.h"
 
-void next_screenshot(SCREENSHOT * ss)
+static void next_screenshot(SCREENSHOT * ss)
 {
    char buf[64];
 

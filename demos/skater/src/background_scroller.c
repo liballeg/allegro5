@@ -2,6 +2,7 @@
 #include <math.h>
 #include "demodata.h"
 #include "global.h"
+#include "background_scroller.h"
 
 static int offx;
 static int offy;
