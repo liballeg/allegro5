@@ -502,7 +502,7 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
       int ii;
 
       /* In case rx and ry are both 0. */
-      if (!num_segments)
+      if (num_segments < 2)
          return;
 
       if (2 * num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
@@ -521,13 +521,13 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
       int ii;
       
       /* In case rx and ry are both 0. */
-      if (!num_segments)
+      if (num_segments < 2)
          return;
 
       if (num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
          num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1;
       }
-      
+
       al_calculate_arc(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), cx, cy, rx, ry, 0, ALLEGRO_PI * 2, 0, num_segments);
       for (ii = 0; ii < num_segments; ii++) {
          vertex_cache[ii].color = color;
@@ -600,11 +600,14 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
    if (thickness > 0) {
       int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r));
       int ii;
-      
+
+      if (num_segments < 2)
+         return;
+
       if (2 * num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
          num_segments = (ALLEGRO_VERTEX_CACHE_SIZE - 1) / 2;
       }
-      
+
       al_calculate_arc(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), cx, cy, r, r, start_theta, delta_theta, thickness, num_segments);
       
       for (ii = 0; ii < 2 * num_segments; ii++) {
@@ -616,7 +619,10 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
    } else {
       int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r));
       int ii;
-      
+
+      if (num_segments < 2)
+         return;
+
       if (num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
          num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1;
       }
@@ -648,8 +654,10 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
       int ii;
 
       /* In case rx and ry are both 0. */
-      if (!num_segments)
+      if (num_segments < 2) {
          al_draw_rectangle(x1, y1, x2, y2, color, thickness);
+         return;
+      }
 
       if (8 * num_segments + 2 >= ALLEGRO_VERTEX_CACHE_SIZE) {
          num_segments = (ALLEGRO_VERTEX_CACHE_SIZE - 3) / 8;
@@ -693,8 +701,10 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
       int ii;
       
       /* In case rx and ry are both 0. */
-      if (!num_segments)
+      if (num_segments < 2) {
          al_draw_rectangle(x1, y1, x2, y2, color, thickness);
+         return;
+      }
 
       if (num_segments * 4 >= ALLEGRO_VERTEX_CACHE_SIZE) {
          num_segments = (ALLEGRO_VERTEX_CACHE_SIZE - 1) / 4;
@@ -740,8 +750,10 @@ void al_draw_filled_rounded_rectangle(float x1, float y1, float x2, float y2,
    ASSERT(ry >= 0);
    
    /* In case rx and ry are both 0. */
-   if (!num_segments)
+   if (num_segments < 2) {
       al_draw_filled_rectangle(x1, y1, x2, y2, color);
+      return;
+   }
 
    if (num_segments * 4 >= ALLEGRO_VERTEX_CACHE_SIZE) {
       num_segments = (ALLEGRO_VERTEX_CACHE_SIZE - 1) / 4;
@@ -1046,3 +1058,5 @@ void al_draw_ribbon(const float *points, int points_stride, ALLEGRO_COLOR color,
       al_draw_prim(vertex_cache, 0, 0, 0, num_segments, ALLEGRO_PRIM_LINE_STRIP);
    }
 }
+
+/* vim: set sts=3 sw=3 et: */
