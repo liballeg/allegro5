@@ -76,8 +76,8 @@ static void init(void)
       menu[3].data = (void *)choice_res;
       for (i = 0; i < n; i++) {
          ALLEGRO_DISPLAY_MODE m;
-         al_get_display_mode(i, &m);
          char str[100];
+         al_get_display_mode(i, &m);
          sprintf(str, "%dx%d", m.width, m.height);
          if (!already(str)) {
             if (m.width == screen_width && m.height == screen_height) {

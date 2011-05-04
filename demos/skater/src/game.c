@@ -66,10 +66,10 @@ double CloudX;
 
 char *load_game_resources(void)
 {
-   printf("load_game_resources\n");
    int c;
    ALLEGRO_PATH *path;
 
+   printf("load_game_resources\n");
    path = al_get_standard_path(ALLEGRO_EXENAME_PATH);
    al_append_path_component(path, "data");
    al_set_path_filename(path, "level.txt");
@@ -227,12 +227,14 @@ static void GameDraw(void)
    double depth;
    ALLEGRO_VERTEX Points[4];
    ALLEGRO_TRANSFORM transform;
+   int chw, chh;
+   float w;
    
    al_identity_transform(&transform);
    al_scale_transform(&transform, screen_height / 480.0, screen_height / 480.0);
    al_use_transform(&transform);
-   
-   float w = screen_width * 480.0 / screen_height;
+
+   w = screen_width * 480.0 / screen_height;
 
    /* draw background */
    {
@@ -309,8 +311,8 @@ static void GameDraw(void)
 
    /* add player sprite */
    ch = GetCurrentBitmap(PlayerAnim);
-   int chw = al_get_bitmap_width(ch);
-   int chh = al_get_bitmap_height(ch);
+   chw = al_get_bitmap_width(ch);
+   chh = al_get_bitmap_height(ch);
 
    al_draw_scaled_rotated_bitmap(ch, chw / 2.0, chh / 2.0,
       (PlayerPos[0] - ScrollPos[0]) + w / 2,

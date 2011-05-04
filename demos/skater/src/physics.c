@@ -84,12 +84,13 @@ static void SetAngle(double normalx, double normaly, double *a, int JustDoIt)
 */
 static void DoFriction(double r, struct Edge *E, double *vec)
 {
-   (void)r;
    /* calculate how quickly we're currently moving parallel and perpendicular to this edge */
    double ForwardSpeed =
       (vec[0] * E->b - vec[1] * E->a) / E->Material->Friction,
       UpSpeed = vec[0] * E->a + vec[1] * E->b;
    double FricLevel;
+
+   (void)r;
 
    /* apply adjustments based on user controls */
    if (KeyFlags & KEYFLAG_LEFT) {
