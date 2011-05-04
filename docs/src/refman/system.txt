@@ -167,3 +167,4 @@ Register a function to be called when an internal Allegro assertion fails.
 Pass NULL to reset to the default behaviour, which is to do whatever the
 standard `assert()` macro does.
 
+Since: 5.1.0
