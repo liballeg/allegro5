@@ -383,11 +383,10 @@ static void set_v(ALLEGRO_VERTEX *vt, double x, double y, double u, double v)
 
 /*
 
-	DrawEdge is a drawing function that adds a textured edge to a triangle
+	DrawTriEdge is a drawing function that adds a textured edge to a triangle
 
 */
-static void DrawEdge(struct Triangle *tri,
-              struct BoundingBox *ScrBounder)
+static void DrawTriEdge(struct Triangle *tri, struct BoundingBox *ScrBounder)
 {
    ALLEGRO_VERTEX PolyEdges[4];
    int c, c2;
@@ -603,7 +602,7 @@ static void DrawQuadTreePart(struct Level *Lvl,
       Thing = TriStart;
       while (Thing) {
          if (Thing->Content.T->LastFrame != framec) {
-            DrawEdge(Thing->Content.T, ScrBounder);
+            DrawTriEdge(Thing->Content.T, ScrBounder);
             Thing->Content.T->LastFrame = framec;
          }
          Thing = Thing->Next;
