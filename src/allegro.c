@@ -28,7 +28,7 @@
 #include ALLEGRO_INTERNAL_HEADER
 
 
-/* debugging stuff */
+/* tracing */
 static int debug_trace_virgin = true;
 static FILE *trace_file = NULL;
 static _AL_MUTEX trace_mutex = _AL_MUTEX_UNINITED;
@@ -55,6 +55,11 @@ DEBUG_INFO _al_debug_info =
    _AL_VECTOR_INITIALIZER(ALLEGRO_USTR *),
    false
 };
+
+
+/* run-time assertions */
+void (*_al_user_assert_handler)(char const *expr, char const *file,
+   int line, char const *func);
 
 
 /* dynamic registration system for cleanup code */
@@ -367,6 +372,16 @@ void _al_trace_suffix(const char *msg, ...)
    _al_mutex_unlock(&trace_mutex);
 
    errno = olderr;
+}
+
+
+
+/* Function: al_register_assert_handler
+ */
+void al_register_assert_handler(void (*handler)(char const *expr,
+   char const *file, int line, char const *func))
+{
+   _al_user_assert_handler = handler;
 }
 
 

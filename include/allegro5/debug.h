@@ -31,7 +31,6 @@ AL_FUNC(bool, _al_trace_prefix, (char const *channel, int level,
 
 AL_PRINTFUNC(void, _al_trace_suffix, (const char *msg, ...), 1, 2);
 
-
 #ifdef DEBUGMODE
    /* Must not be used with a trailing semicolon. */
    #ifdef ALLEGRO_GCC
@@ -49,12 +48,28 @@ AL_PRINTFUNC(void, _al_trace_suffix, (const char *msg, ...), 1, 2);
    #define ALLEGRO_DEBUG_CHANNEL(x)
 #endif
 
-#define ALLEGRO_ASSERT(e)        assert(e)
 #define ALLEGRO_TRACE_LEVEL(x)   ALLEGRO_TRACE_CHANNEL_LEVEL(__al_debug_channel, x)
 #define ALLEGRO_DEBUG            ALLEGRO_TRACE_LEVEL(0)
 #define ALLEGRO_INFO             ALLEGRO_TRACE_LEVEL(1)
 #define ALLEGRO_WARN             ALLEGRO_TRACE_LEVEL(2)
 #define ALLEGRO_ERROR            ALLEGRO_TRACE_LEVEL(3)
+
+/* Run-time assertions. */
+AL_FUNCPTR(void, _al_user_assert_handler, (char const *expr, char const *file,
+   int line, char const *func));
+
+AL_FUNC(void, al_register_assert_handler, (void (*handler)(char const *expr,
+   char const *file, int line, char const *func)));
+
+#ifdef NDEBUG
+   #define ALLEGRO_ASSERT(e)	((void) 0)
+#else
+   #define ALLEGRO_ASSERT(e)                                                  \
+      ((e) ? (void) 0                                                         \
+      : (_al_user_assert_handler) ?                                           \
+         _al_user_assert_handler(#e, __FILE__, __LINE__, __func__)            \
+      : assert(e))
+#endif
 
 /* Compile time assertions. */
 #define ALLEGRO_ASSERT_CONCAT_(a, b)   a##b
@@ -74,4 +89,4 @@ AL_PRINTFUNC(void, _al_trace_suffix, (const char *msg, ...), 1, 2);
 
 #endif
 
-
+/* vim: set sts=3 sw=3 et: */
