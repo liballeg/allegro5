@@ -23,7 +23,8 @@ Building Allegro 4.4 with CMake
    environment and generate makefiles or workspaces for you.  You may pass some
    options to customise the build (see later), but the defaults should be fine.
    You may need to tell CMake which type of files it should generate, using the
-   -G option.
+   -G option. You can call CMake using the --help option to see a list of 
+   available generators.
 
    Examples (you only need one):
    <code>
@@ -80,6 +81,9 @@ Build options
    </dd>
    <dt><b>WANT_&ltaddon&gt</b> (default: on)</dt><dd>
       Whether you want to build/install each particular addon.
+   </dd>
+   <dt><b>WANT_EXAMPLES</b> (default: off)</dt><dd>
+      Whether you want the specified addon's example programs to be built.
    </dd>
    <dt><b>WANT_FRAMEWORKS</b> (default: off)</dt><dd>
      On Mac OS X, whether to build and install frameworks instead of
