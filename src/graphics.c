@@ -1411,7 +1411,6 @@ BITMAP *create_system_bitmap(int width, int height)
       return gfx_driver->create_system_bitmap(width, height);
 
    bmp = create_bitmap(width, height);
-   bmp->id |= BMP_ID_SYSTEM;
 
    return bmp;
 }
