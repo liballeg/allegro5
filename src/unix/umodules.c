@@ -100,8 +100,10 @@ void _unix_load_modules(int system_driver)
    }
 
    for (pathptr = module_path; *pathptr; pathptr++) {
-      snprintf(fullpath, sizeof fullpath, "%s/%d.%d.%d/modules.lst",
-	       *pathptr, ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION);
+      /* ALLEGRO_MODULES_PATH already includes the version,
+       * as should ALLEGRO_MODULES.
+       */
+      snprintf(fullpath, sizeof fullpath, "%s/modules.lst", *pathptr);
       fullpath[(sizeof fullpath) - 1] = 0;
       f = pack_fopen(uconvert_ascii(fullpath, buf), F_READ);
       if (f) goto found;
