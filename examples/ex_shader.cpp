@@ -7,13 +7,13 @@
 // FIXME: supported drivers should go in alplatf.h
 // Uncomment one of these three blocks depending what driver you want
 
-#define HLSL
-#include "allegro5/allegro_direct3d.h"
-#include "allegro5/allegro_shader_hlsl.h"
+//#define HLSL
+//#include "allegro5/allegro_direct3d.h"
+//#include "allegro5/allegro_shader_hlsl.h"
 
-//#define GLSL
-//#include "allegro5/allegro_opengl.h"
-//#include "allegro5/allegro_shader_glsl.h"
+#define GLSL
+#include "allegro5/allegro_opengl.h"
+#include "allegro5/allegro_shader_glsl.h"
 
 /*
 #define CG
