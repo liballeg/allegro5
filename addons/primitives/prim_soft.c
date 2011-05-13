@@ -26,10 +26,6 @@
 #include "allegro5/internal/aintern_prim.h"
 #include "allegro5/internal/aintern_tri_soft.h"
 
-#ifdef ALLEGRO_CFG_D3D
-#include "allegro5/allegro_direct3d.h"
-#endif
-
 /*
 The vertex cache allows for bulk transformation of vertices, for faster run speeds
 */

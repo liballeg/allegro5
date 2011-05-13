@@ -47,7 +47,7 @@ set(ALLEGRO_SRC_I386_FILES
 
 set(ALLEGRO_SRC_WIN_FILES
     src/win/wjoydrv.c
-    src/win/wjoydxnu.c
+    src/win/wjoydxnu.cpp
     src/win/wkeyboard.c
     src/win/wmcursor.c
     src/win/wmouse.c
@@ -286,6 +286,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     include/allegro5/platform/alunix.h
     include/allegro5/platform/alwatcom.h
     include/allegro5/platform/alwin.h
+    include/allegro5/platform/ald3d.h
     include/allegro5/platform/astdbool.h
     include/allegro5/platform/astdint.h
     )

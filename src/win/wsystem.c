@@ -30,7 +30,8 @@
    #include "allegro5/allegro_opengl.h"
 #endif
 #if defined ALLEGRO_CFG_D3D
-   #include "allegro5/allegro_direct3d.h"
+   /* The below header only defines ALLEGRO_DIRECT3D, doesn't include d3dx9 */
+   #include "allegro5/platform/ald3d.h"
 #endif
 
 #include <windows.h>

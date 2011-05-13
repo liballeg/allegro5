@@ -241,7 +241,7 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    int num_primitives = 0;
 
    LPDIRECT3DDEVICE9 device;
-   LPDIRECT3DBASETEXTURE9 d3d_texture;
+   LPDIRECT3DTEXTURE9 d3d_texture;
    DWORD old_wrap_state[2];
    DWORD old_ttf_state;
    int min_idx = 0, max_idx = num_vtx - 1;
@@ -335,8 +335,10 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
             {0, 0, 1, 0},
             {0, 0, 0, 1}
          };
-         al_get_d3d_video_texture(texture)->GetLevelDesc(0, &desc);
 
+         d3d_texture = al_get_d3d_video_texture(texture);
+         
+         d3d_texture->GetLevelDesc(0, &desc);
          al_get_d3d_texture_position(texture, &tex_x, &tex_y);
 
          if(decl) {
@@ -354,7 +356,6 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
          mat[2][0] = (float)tex_x / desc.Width;
          mat[2][1] = (float)tex_y / desc.Height;
          
-	 d3d_texture = (LPDIRECT3DBASETEXTURE9)al_get_d3d_video_texture(texture);
 
          if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
 #ifdef ALLEGRO_CFG_HLSL_SHADERS
@@ -373,8 +374,9 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
                _al_set_texture_matrix(device, mat[0]);
             }
 	 }
+	 
+	 device->SetTexture(0, d3d_texture);
 
-         device->SetTexture(0, d3d_texture);
       } else {
          device->SetTexture(0, NULL);
       }

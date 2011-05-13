@@ -333,7 +333,7 @@ static char default_name_rz[] = "RZ";
 static char default_name_stick[] = "stick";
 static char default_name_slider[] = "slider";
 static char default_name_hat[] = "hat";
-static char *default_name_button[MAX_BUTTONS] = {
+static const char *default_name_button[MAX_BUTTONS] = {
    "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8",
    "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16",
    "B17", "B18", "B19", "B20", "B21", "B22", "B23", "B24",
@@ -466,7 +466,7 @@ void _al_win_joystick_dinput_grab(void *param)
       _al_win_wnd_call_proc(win_disp->window, _al_win_joystick_dinput_unacquire, NULL);
    }
 
-   win_disp = param;
+   win_disp = (ALLEGRO_DISPLAY_WIN *)param;
 
    /* set cooperative level */
    for (i = 0; i < MAX_JOYSTICKS; i++) {
@@ -523,7 +523,7 @@ static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVO
 {
 #define GUIDTYPE_EQ(x)  GUID_EQUAL(lpddoi->guidType, x)
 
-   CAPS_AND_NAMES *can = pvRef;
+   CAPS_AND_NAMES *can = (CAPS_AND_NAMES *)pvRef;
 
    if (GUIDTYPE_EQ(__al_GUID_XAxis)) {
       can->have_x = true;
@@ -813,17 +813,17 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    }
 
    /* create the DirectInput joystick device */
-   hr = IDirectInput8_CreateDevice(joystick_dinput, &lpddi->guidInstance, &_dinput_device1, NULL);
+   hr = IDirectInput8_CreateDevice(joystick_dinput, lpddi->guidInstance, &_dinput_device1, NULL);
    if (FAILED(hr))
       goto Error;
 
    /* query the DirectInputDevice2 interface needed for the poll() method */
-   hr = IDirectInputDevice8_QueryInterface(_dinput_device1, &__al_IID_IDirectInputDevice8A, &temp);
+   hr = IDirectInputDevice8_QueryInterface(_dinput_device1, __al_IID_IDirectInputDevice8A, &temp);
    IDirectInputDevice8_Release(_dinput_device1);
    if (FAILED(hr))
       goto Error;
 
-   dinput_device = temp;
+   dinput_device = (LPDIRECTINPUTDEVICE2)temp;
 
    /* enumerate objects available on the device */
    memset(&caps_and_names, 0, sizeof(caps_and_names));
@@ -1085,7 +1085,7 @@ static bool joydx_init_joystick(void)
    }
 
    /* get the DirectInput interface */
-   hr = _al_dinput_create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, &__al_IID_IDirectInput8A, u.v, NULL);
+   hr = _al_dinput_create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, __al_IID_IDirectInput8A, u.v, NULL);
    if (FAILED(hr)) {
       ALLEGRO_ERROR("Failed to create DirectInput interface\n");
       FreeLibrary(_al_dinput_module);
@@ -1108,7 +1108,7 @@ static bool joydx_init_joystick(void)
    /* If one of our windows is the foreground window make it grab the input. */
    system = al_get_system_driver();
    for (i = 0; i < _al_vector_size(&system->displays); i++) {
-      ALLEGRO_DISPLAY_WIN **pwin_disp = _al_vector_ref(&system->displays, i);
+      ALLEGRO_DISPLAY_WIN **pwin_disp = (ALLEGRO_DISPLAY_WIN **)_al_vector_ref(&system->displays, i);
       ALLEGRO_DISPLAY_WIN *win_disp = *pwin_disp;
       if (win_disp->window == GetForegroundWindow()) {
          _al_win_wnd_call_proc(win_disp->window,
@@ -1151,7 +1151,7 @@ static void joydx_exit_joystick(void)
    /* The toplevel display is assumed to have the input acquired. Release it. */
    system = al_get_system_driver();
    for (j = 0; j < _al_vector_size(&system->displays); j++) {
-      ALLEGRO_DISPLAY_WIN **pwin_disp = _al_vector_ref(&system->displays, j);
+      ALLEGRO_DISPLAY_WIN **pwin_disp = (ALLEGRO_DISPLAY_WIN **)_al_vector_ref(&system->displays, j);
       ALLEGRO_DISPLAY_WIN *win_disp = *pwin_disp;
       if (win_disp->window == GetForegroundWindow()) {
          ALLEGRO_DEBUG("Requesting window unacquire joystick devices\n");
@@ -1392,20 +1392,31 @@ static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy)
          const int dwOfs    = item->dwOfs;
          const DWORD dwData = item->dwData;
 
-         switch (dwOfs) {
-         case DIJOFS_X:         handle_axis_event(joy, &joy->x_mapping, dwData); break;
-         case DIJOFS_Y:         handle_axis_event(joy, &joy->y_mapping, dwData); break;
-         case DIJOFS_Z:         handle_axis_event(joy, &joy->z_mapping, dwData); break;
-         case DIJOFS_RX:        handle_axis_event(joy, &joy->rx_mapping, dwData); break;
-         case DIJOFS_RY:        handle_axis_event(joy, &joy->ry_mapping, dwData); break;
-         case DIJOFS_RZ:        handle_axis_event(joy, &joy->rz_mapping, dwData); break;
-         case DIJOFS_SLIDER(0): handle_axis_event(joy, &joy->slider_mapping[0], dwData); break;
-         case DIJOFS_SLIDER(1): handle_axis_event(joy, &joy->slider_mapping[1], dwData); break;
-         case DIJOFS_POV(0):    handle_pov_event(joy, joy->pov_mapping_stick[0], dwData); break;
-         case DIJOFS_POV(1):    handle_pov_event(joy, joy->pov_mapping_stick[1], dwData); break;
-         case DIJOFS_POV(2):    handle_pov_event(joy, joy->pov_mapping_stick[2], dwData); break;
-         case DIJOFS_POV(3):    handle_pov_event(joy, joy->pov_mapping_stick[3], dwData); break;
-         default:
+         if (dwOfs == DIJOFS_X)
+         	handle_axis_event(joy, &joy->x_mapping, dwData);
+         else if (dwOfs == DIJOFS_Y)
+         	handle_axis_event(joy, &joy->y_mapping, dwData);
+         else if (dwOfs == DIJOFS_Z)
+         	handle_axis_event(joy, &joy->z_mapping, dwData);
+         else if (dwOfs == DIJOFS_RX)
+         	handle_axis_event(joy, &joy->rx_mapping, dwData);
+         else if (dwOfs == DIJOFS_RY)
+         	handle_axis_event(joy, &joy->ry_mapping, dwData);
+         else if (dwOfs == DIJOFS_RZ)
+         	handle_axis_event(joy, &joy->rz_mapping, dwData);
+         else if ((unsigned int)dwOfs == DIJOFS_SLIDER(0))
+         	handle_axis_event(joy, &joy->slider_mapping[0], dwData);
+         else if ((unsigned int)dwOfs == DIJOFS_SLIDER(1))
+         	handle_axis_event(joy, &joy->slider_mapping[1], dwData);
+         else if ((unsigned int)dwOfs == DIJOFS_POV(0))
+         	handle_pov_event(joy, joy->pov_mapping_stick[0], dwData);
+         else if ((unsigned int)dwOfs == DIJOFS_POV(1))
+         	handle_pov_event(joy, joy->pov_mapping_stick[1], dwData);
+         else if ((unsigned int)dwOfs == DIJOFS_POV(2))
+         	handle_pov_event(joy, joy->pov_mapping_stick[2], dwData);
+         else if ((unsigned int)dwOfs == DIJOFS_POV(3))
+         	handle_pov_event(joy, joy->pov_mapping_stick[3], dwData);
+         else {
             /* buttons */
             if ((dwOfs >= DIJOFS_BUTTON0) &&
                 (dwOfs <  DIJOFS_BUTTON(joy->parent.info.num_buttons)))
@@ -1413,7 +1424,6 @@ static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy)
                int num = (dwOfs - DIJOFS_BUTTON0) / (DIJOFS_BUTTON1 - DIJOFS_BUTTON0);
                handle_button_event(joy, num, (dwData & 0x80));
             }
-            break;
          }
       }
    }
@@ -1480,11 +1490,13 @@ static void handle_pov_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int stick, DWORD _va
    else
       joy->joystate.stick[stick].axis[1] = p1 = 0.0;
 
-   if (old_p0 != p0)
+   if (old_p0 != p0) {
       generate_axis_event(joy, stick, 0, p0);
+   }
 
-   if (old_p1 != p1)
+   if (old_p1 != p1) {
       generate_axis_event(joy, stick, 1, p1);
+   }
 }
 
 

@@ -22,6 +22,7 @@
 #include <d3dx9.h>
 #endif
 #include "allegro5/platform/alplatf.h"
+#include "allegro5/platform/ald3d.h"
 
 #ifdef __cplusplus
    extern "C" {
@@ -30,10 +31,6 @@
 /*
  *  Public Direct3D-related API
  */
-
-/* Display creation flag. */
-#define ALLEGRO_DIRECT3D     ALLEGRO_DIRECT3D_INTERNAL
-
 
 AL_FUNC(LPDIRECT3DDEVICE9,  al_get_d3d_device,         (ALLEGRO_DISPLAY *));
 AL_FUNC(LPDIRECT3DTEXTURE9, al_get_d3d_system_texture, (ALLEGRO_BITMAP *));

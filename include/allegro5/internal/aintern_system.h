@@ -11,6 +11,10 @@
 #include "allegro5/internal/aintern_touch_input.h"
 #include "allegro5/internal/aintern_vector.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct ALLEGRO_SYSTEM_INTERFACE ALLEGRO_SYSTEM_INTERFACE;
 
 struct ALLEGRO_SYSTEM_INTERFACE
@@ -56,5 +60,9 @@ AL_VAR(_AL_DTOR_LIST *, _al_dtor_list);
 AL_FUNC(void *, _al_open_library, (const char *filename));
 AL_FUNC(void *, _al_import_symbol, (void *library, const char *symbol));
 AL_FUNC(void, _al_close_library, (void *library));
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

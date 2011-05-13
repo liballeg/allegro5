@@ -1,5 +1,5 @@
 set(PRIMITIVES_SOURCES
-    directx_shaders.c
+    directx_shaders.cpp
     high_primitives.c
     line_soft.c
     point_soft.c

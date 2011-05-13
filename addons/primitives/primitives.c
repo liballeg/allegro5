@@ -30,9 +30,6 @@
 #ifdef ALLEGRO_CFG_OPENGL
 #include "allegro5/allegro_opengl.h"
 #endif
-#ifdef ALLEGRO_CFG_D3D
-#include "allegro5/allegro_direct3d.h"
-#endif
 
 /*
 TODO: This is a hack... I need to know the values of these without actually including the respective system headers

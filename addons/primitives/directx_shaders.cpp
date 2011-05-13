@@ -542,7 +542,7 @@ static const uint8_t _al_vs_pos0_tex0_col0[] = {
 
 void _al_create_shader(void* dev, ALLEGRO_VERTEX_DECL* decl)
 {
-   LPDIRECT3DDEVICE9 device = dev;
+   LPDIRECT3DDEVICE9 device = (LPDIRECT3DDEVICE9)dev;
    LPDIRECT3DVERTEXSHADER9 ret = 0;
 
    ALLEGRO_VERTEX_ELEMENT* e;
@@ -604,7 +604,7 @@ void _al_create_shader(void* dev, ALLEGRO_VERTEX_DECL* decl)
 
 void* _al_create_default_shader(void* dev)
 {
-   LPDIRECT3DDEVICE9 device = dev;
+   LPDIRECT3DDEVICE9 device = (LPDIRECT3DDEVICE9)dev;
    LPDIRECT3DVERTEXSHADER9 shader;
    IDirect3DDevice9_CreateVertexShader(device, (const DWORD*)_al_vs_pos3_tex2_col4_1, &shader);
    return shader;
@@ -692,7 +692,7 @@ void _al_setup_default_shader(void* dev, void* shader)
 {
    IDirect3DDevice9* device = (IDirect3DDevice9*)dev;
    setup_transforms(device);
-   IDirect3DDevice9_SetVertexShader(device, shader);
+   IDirect3DDevice9_SetVertexShader(device, (LPDIRECT3DVERTEXSHADER9)shader);
 }
 
 #endif /* ALLEGRO_CFG_D3D */
