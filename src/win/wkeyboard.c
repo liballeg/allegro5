@@ -310,6 +310,11 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool extended,
    /* Send char events, but not for modifier keys or dead keys. */
    if (my_code < ALLEGRO_KEY_MODIFIERS) {
       char_count = ToUnicode(vcode, scode, GetKeyboardState(ks) ? ks : NULL, buf, 8, 0);
+      /* Special case DELETE key. */
+      if (char_count == 0 && my_code == ALLEGRO_KEY_DELETE) {
+         char_count = 1;
+         buf[0] = 127;
+      }
       if (char_count != -1) { /* -1 means it was a dead key. */
          event_count = char_count ? char_count : 1;
          event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
@@ -397,3 +402,4 @@ void _al_win_kbd_handle_key_release(int scode, int vcode, bool extended, ALLEGRO
  * indent-tabs-mode: nil
  * End:
  */
+/* vim: set sts=3 sw=3 et: */
