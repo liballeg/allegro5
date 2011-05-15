@@ -231,18 +231,22 @@ void _unix_read_os_type(void)
  */
 void _unix_yield_timeslice(void)
 {
-   #if defined(ALLEGRO_HAVE_SCHED_YIELD) && defined(_POSIX_PRIORITY_SCHEDULING)
-
-      sched_yield();
-
-   #else
-
-      struct timeval timeout;
-      timeout.tv_sec = 0;
-      timeout.tv_usec = 0;
-      select(0, NULL, NULL, NULL, &timeout);
-
-   #endif
+   /* Some of our example programs, which used to draw as fast as possible,
+    * caused input events from the X server to be *severely* delayed.
+    * This was always a problem with the Allegro input model, even in 1999.
+    * The usual workaround was to back off a little by inserting calls to
+    * rest(0) in the program.  That would end up calling sched_yield() or
+    * select() with zero timeout.
+    *
+    * However, neither of those implementations have the intended effect in
+    * 2011.  This is possibly due to multi-core machines, changes to the Linux
+    * scheduler, changes in X11, or some combination of the above.
+    * We now call select() with a non-zero timeout.
+    */
+   struct timeval timeout;
+   timeout.tv_sec = 0;
+   timeout.tv_usec = 1;
+   select(0, NULL, NULL, NULL, &timeout);
 }
 
 
