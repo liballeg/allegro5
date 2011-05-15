@@ -64,6 +64,48 @@ static void scroll_counter(void)
 }
 END_OF_STATIC_FUNCTION(scroll_counter);
 
+
+
+/* helper to find a file or directory in the Allegro tree */
+static int find_relative_path(char buf[], size_t bufsize, const char *name)
+{
+   static const char *locations[] = {
+      "",
+      "../",
+      "../../",         /* Allegro root, no build directory */
+      "../../../",      /* Allegro root, with build directory */
+      "../../../../",   /* Allegro root, MSVC build configuration directory */
+      NULL
+   };
+   char exe[256];
+   char dir[256];
+   int i;
+
+   get_executable_name(exe, sizeof(exe));
+   for (i = 0; locations[i] != NULL; i++) {
+      replace_filename(dir, exe, locations[i], sizeof(dir));
+      append_filename(buf, dir, name, bufsize);
+      if (file_exists(buf, FA_ALL, NULL)) {
+         return 1;
+      }
+   }
+
+   return 0;
+}
+
+
+
+/* helper to open readme.txt and thanks._tx */
+static PACKFILE *open_relative_file(char buf[], size_t size, const char *name)
+{
+   if (find_relative_path(buf, size, name))
+      return pack_fopen(buf, F_READ);
+
+   return NULL;
+}
+
+
+
 /* formats a list of TEXT_LIST structure into a single string */
 static char *format_text(TEXT_LIST * head, char *eol, char *gap)
 {
@@ -101,14 +143,6 @@ static char *format_text(TEXT_LIST * head, char *eol, char *gap)
 /* loads the scroller message from readme.txt */
 static void load_text(void)
 {
-   static const char *readme_locations[] = {
-      "readme.txt",
-      "../../readme.txt",
-      "../docs/readme.txt",
-      "../../docs/readme.txt",
-      NULL
-   };
-
    README_SECTION sect[] = {
       {NULL, NULL, NULL, "Introduction"},
       {NULL, NULL, NULL, "Features"},
@@ -134,7 +168,7 @@ static void load_text(void)
 
    static char splitter[] = SPLITTER;
    static char marker[] = "--------";
-   char buf[256], buf2[256];
+   char buf[256];
    README_SECTION *sec = NULL;
    TEXT_LIST *l, *p;
    PACKFILE *f;
@@ -142,16 +176,7 @@ static void load_text(void)
    char *s;
    int i;
 
-   get_executable_name(buf, sizeof(buf));
-
-   for (i = 0; readme_locations[i]; i++) {
-      replace_filename(buf2, buf, readme_locations[i], sizeof(buf2));
-      f = pack_fopen(buf2, F_READ);
-      if (f) {
-         break;
-      }
-   }
-
+   f = open_relative_file(buf, sizeof(buf), "docs/txt/readme.txt");
    if (!f) {
       title_text =
           "Can't find readme.txt, so this scroller is empty.                ";
@@ -412,18 +437,6 @@ static void sort_credit_list(void)
 
 
 
-/* helper to open thanks._tx */
-static PACKFILE *open_thanks(const char *s)
-{
-   char buf[256], buf2[256];
-
-   get_executable_name(buf, sizeof(buf));
-   replace_filename(buf2, buf, s, sizeof(buf2));
-   return pack_fopen(buf2, F_READ);
-}
-
-
-
 /* reads credit info from various places */
 static void load_credits(void)
 {
@@ -446,14 +459,10 @@ static void load_credits(void)
    if (SCREEN_W < 640)
       return;
 
-   /* parse thanks._tx, guessing at the relative location */
-   if ((f = open_thanks("../../../docs/src/thanks._tx")) == NULL) {
-      if ((f = open_thanks("../../docs/src/thanks._tx")) == NULL) {
-         if ((f = open_thanks("thanks._tx")) == NULL) {
-            return;
-         }
-      }
-   }
+   /* parse thanks._tx */
+   f = open_relative_file(buf, sizeof(buf), "docs/src/thanks._tx");
+   if (!f)
+      return;
 
    while (pack_fgets(buf, sizeof(buf) - 1, f) != 0) {
       if (stricmp(buf, "Thanks!") == 0)
@@ -517,15 +526,8 @@ static void load_credits(void)
 
    pack_fclose(f);
 
-   /* find Allegro root directory, whether or not we use a build directory */
-   get_executable_name(buf, sizeof(buf));
-   replace_filename(buf2, buf, "../../src", sizeof(buf2));
-   if (!file_exists(buf2, FA_DIREC, NULL)) {
-      replace_filename(buf2, buf, "../../../src", sizeof(buf2));
-   }
-
    /* parse source files from root of Allegro directory down */
-   if (file_exists(buf2, FA_DIREC, NULL)) {
+   if (find_relative_path(buf2, sizeof(buf2), "src")) {
       replace_filename(buf, buf2, "*.*", sizeof(buf));
       for_each_file_ex(buf, 0, ~(FA_ARCH | FA_RDONLY | FA_DIREC),
                        parse_source,
