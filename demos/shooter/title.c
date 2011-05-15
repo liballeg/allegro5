@@ -101,6 +101,14 @@ static char *format_text(TEXT_LIST * head, char *eol, char *gap)
 /* loads the scroller message from readme.txt */
 static void load_text(void)
 {
+   static const char *readme_locations[] = {
+      "readme.txt",
+      "../../readme.txt",
+      "../docs/readme.txt",
+      "../../docs/readme.txt",
+      NULL
+   };
+
    README_SECTION sect[] = {
       {NULL, NULL, NULL, "Introduction"},
       {NULL, NULL, NULL, "Features"},
@@ -136,21 +144,21 @@ static void load_text(void)
 
    get_executable_name(buf, sizeof(buf));
 
-   replace_filename(buf2, buf, "readme.txt", sizeof(buf2));
-   f = pack_fopen(buf2, F_READ);
+   for (i = 0; readme_locations[i]; i++) {
+      replace_filename(buf2, buf, readme_locations[i], sizeof(buf2));
+      f = pack_fopen(buf2, F_READ);
+      if (f) {
+         break;
+      }
+   }
 
    if (!f) {
-      replace_filename(buf2, buf, "../../readme.txt", sizeof(buf2));
-      f = pack_fopen(buf2, F_READ);
-
-      if (!f) {
-         title_text =
-             "Can't find readme.txt, so this scroller is empty.                ";
-         title_size = strlen(title_text);
-         title_alloced = FALSE;
-         end_text = NULL;
-         return;
-      }
+      title_text =
+          "Can't find readme.txt, so this scroller is empty.                ";
+      title_size = strlen(title_text);
+      title_alloced = FALSE;
+      end_text = NULL;
+      return;
    }
 
    while (pack_fgets(buf, sizeof(buf) - 1, f) != 0) {
@@ -509,13 +517,20 @@ static void load_credits(void)
 
    pack_fclose(f);
 
-   /* parse source files */
+   /* find Allegro root directory, whether or not we use a build directory */
    get_executable_name(buf, sizeof(buf));
-   replace_filename(buf2, buf, "../../*.*", sizeof(buf2));
+   replace_filename(buf2, buf, "../../src", sizeof(buf2));
+   if (!file_exists(buf2, FA_DIREC, NULL)) {
+      replace_filename(buf2, buf, "../../../src", sizeof(buf2));
+   }
 
-   for_each_file_ex(buf2, 0, ~(FA_ARCH | FA_RDONLY | FA_DIREC),
-                    parse_source,
-                    (void *)(unsigned long)(strlen(buf2) - 3));
+   /* parse source files from root of Allegro directory down */
+   if (file_exists(buf2, FA_DIREC, NULL)) {
+      replace_filename(buf, buf2, "*.*", sizeof(buf));
+      for_each_file_ex(buf, 0, ~(FA_ARCH | FA_RDONLY | FA_DIREC),
+                       parse_source,
+                       (void *)(unsigned long)(strlen(buf2) - 3));
+   }
 
    /* sort the lists */
    sort_credit_list();

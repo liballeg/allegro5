@@ -87,6 +87,14 @@ char *format_text(TEXT_LIST * head, char *eol, char *gap)
 /* loads the scroller message from readme.txt */
 void load_text(void)
 {
+   static const char *readme_locations[] = {
+      "readme.txt",
+      "../../readme.txt",
+      "../docs/readme.txt",
+      "../../docs/readme.txt",
+      NULL
+   };
+
    README_SECTION sect[] = {
       {NULL, NULL, NULL, "Introduction"},
       {NULL, NULL, NULL, "Features"},
@@ -114,21 +122,21 @@ void load_text(void)
 
    get_executable_name(buf, sizeof(buf));
 
-   replace_filename(buf2, buf, "readme.txt", sizeof(buf2));
-   f = pack_fopen(buf2, F_READ);
+   for (i = 0; readme_locations[i]; i++) {
+      replace_filename(buf2, buf, readme_locations[i], sizeof(buf2));
+      f = pack_fopen(buf2, F_READ);
+      if (f) {
+         break;
+      }
+   }
 
    if (!f) {
-      replace_filename(buf2, buf, "../../readme.txt", sizeof(buf2));
-      f = pack_fopen(buf2, F_READ);
-
-      if (!f) {
-         title_text =
-            "Can't find readme.txt, so this scroller is empty.                ";
-         title_size = strlen(title_text);
-         title_alloced = FALSE;
-         end_text = NULL;
-         return;
-      }
+      title_text =
+         "Can't find readme.txt, so this scroller is empty.                ";
+      title_size = strlen(title_text);
+      title_alloced = FALSE;
+      end_text = NULL;
+      return;
    }
 
    while (pack_fgets(buf, sizeof(buf) - 1, f) != 0) {
