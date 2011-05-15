@@ -474,7 +474,7 @@ struct Level *LoadLevel(char *name, int radius)
 
    /* Find the data of the first object in the datafile. */
    input = NULL;
-   {
+   if (file) {
       /* is it a datafile? */
       long magic = pack_mgetl(file);
       if (magic == DAT_MAGIC) {
