@@ -440,7 +440,7 @@ static int quality_cb(void *dp3, int d2)
 
 
 
-static int jpeg_settings_proc()
+static int jpeg_settings_proc(void)
 {
 	set_dialog_color(settings_dialog, gui_fg_color, gui_bg_color);
 	centre_dialog(settings_dialog);
