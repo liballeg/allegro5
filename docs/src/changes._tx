@@ -8,6 +8,62 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.4.1.1 to 4.4.2 (May 2011)
+<ul><li>
+   Make rest(0) call select() with non-zero timeout on Unix.  The old
+   implementation was no longer enough to make input responsive on X11,
+   on programs which try to draw as fast as possible.  (Peter Wang)
+<li>
+   Fix module loading on Unix (Bernhard Rosenkraenzer).
+<li>
+   Made memory bitmaps returned by create_system_bitmap not marked as system
+   bitmaps (Edgar Reynaldo).
+<li>
+   Add detection of Windows 7 (Andrei Ellman).
+<li>
+   Fail instead of crashing if gfx_directx_make_bitmap_from_surface() fails
+   (Andrei Ellman).
+<li>
+   Fix crash in GDI driver if setting a second mode fails, after having
+   successfully set a mode previously (Andrei Ellman).
+<li>
+   Add missing frameworks required for static linking on OS X (Peter Johansson).
+<li>
+   Fixed a problem with keyboard focus being lost on OS X when switching from
+   windowed mode to fullscreen mode (Peter Johansson).
+<li>
+   alsa_rawmidi_init could return success on failure (Nicolas Kaiser).
+<li>
+   Updated PSP port from diedel.  "The graphics, system, digi, keyboard, mouse,
+   joystick and timer drivers are implemented and are fully functional.  It
+   supports 8, 15, 16 and 32 bpp color depths and a max. resolution of 480x272
+   pixels."
+<li>
+   Eliminated the need for old DirectX headers for the Windows port
+   (David Capello).
+<li>
+   Fix problems in Windows when you use Alt-Tab.  Sometimes the Alt modifier is
+   kept pressed when you focus the Allegro window.  (David Capello)
+<li>
+   Make the submenu appear to the right of its parent menu if it does not fit
+   in the screen (Paul Suntsov).
+<li>
+   Made timers on Unix cope with system time being set backwards
+   (Hardi Stengelin).
+<li>
+   Fix various compilation and build problems (scottmc, Cristian Morales Vega,
+   Tony Ylisirniö, Edgar Reynaldo).
+<li>
+   Added WANT_OSS, WANT_ALSA, WANT_JACK, WANT_SGIAUDIO options
+   (Samuli Suominen).
+<li>
+   Also pass -pg when building shared library in PROFILE mode.
+<li>
+   Let demos find readme.txt and source files correctly even if running from a
+   build directory (Peter Wang).
+</ul>
+
+@heading
 Changes from 4.4.1 to 4.4.1.1 (March 2010)
 <ul><li>
    Fix a silly build system problem with MinGW on Windows.
