@@ -321,8 +321,10 @@ bool al_register_font_loader(char const *extension,
       handler->extension = al_ustr_new(extension);
    }
    else {
-      if (!load_font)
+      if (!load_font) {
+         al_ustr_free(handler->extension);
          return _al_vector_find_and_delete(&font_handlers, handler);
+      }
    }
    handler->load_font = load_font;
    return true;
