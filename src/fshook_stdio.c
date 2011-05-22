@@ -374,9 +374,9 @@ static bool fs_stdio_update_entry(ALLEGRO_FS_ENTRY *fp);
 
 static ALLEGRO_FS_ENTRY *fs_stdio_create_entry(const char *path)
 {
-   ALLEGRO_FS_ENTRY_STDIO *fh = NULL;
-   int len = 0;
-   int trailing_slashes = 0;
+   ALLEGRO_FS_ENTRY_STDIO *fh;
+   int len;
+   int trailing_slashes;
    char c;
 
    fh = al_malloc(sizeof(*fh));
@@ -390,6 +390,7 @@ static ALLEGRO_FS_ENTRY *fs_stdio_create_entry(const char *path)
    fh->fs_entry.vtable = &_al_fs_interface_stdio;
 
    len = strlen(path);
+   trailing_slashes = 0;
 
    /* At least under Windows 7, a trailing slash or backslash makes
     * all calls to stat() with the given filename fail - making the
@@ -478,7 +479,7 @@ static void fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio)
 static bool fs_stdio_update_entry(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
-   int32_t ret = 0;
+   int ret;
 
    ret = stat(fp_stdio->path, &(fp_stdio->st));
    if (ret == -1) {
@@ -633,7 +634,7 @@ static char *fs_stdio_get_current_directory(void)
 
 static bool fs_stdio_change_directory(const char *path)
 {
-   int32_t ret = chdir(path);
+   int ret = chdir(path);
    if (ret == -1) {
       al_set_errno(errno);
       return false;
@@ -735,7 +736,7 @@ static bool fs_stdio_filename_exists(const char *path)
 static bool fs_stdio_remove_entry(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
-   int32_t err = 0;
+   int err;
 
    ASSERT(fp);
 
