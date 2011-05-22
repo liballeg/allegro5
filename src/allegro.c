@@ -28,14 +28,13 @@
 #include ALLEGRO_INTERNAL_HEADER
 
 
-/* debugging stuff */
-static int debug_trace_virgin = true;
-static FILE *trace_file = NULL;
-static _AL_MUTEX trace_mutex = _AL_MUTEX_UNINITED;
-
-
-typedef struct DEBUG_INFO
+/* tracing */
+typedef struct TRACE_INFO
 {
+   bool trace_virgin;
+   FILE *trace_file;
+   _AL_MUTEX trace_mutex;
+
    /* 0: debug, 1: info, 2: warn, 3: error */
    int level;
    /* 1: line number, 2: function name, 4: timestamp */
@@ -45,10 +44,13 @@ typedef struct DEBUG_INFO
    _AL_VECTOR excluded;
    /* Whether settings have been read from allegro5.cfg or not. */
    bool configured;
-} DEBUG_INFO;
+} TRACE_INFO;
 
-DEBUG_INFO _al_debug_info =
+static TRACE_INFO trace_info =
 {
+   true,
+   NULL,
+   _AL_MUTEX_UNINITED,
    0,
    7,
    _AL_VECTOR_INITIALIZER(ALLEGRO_USTR *),
@@ -178,13 +180,13 @@ static void configure_logging(void)
 
          if (first == '-') {
             al_ustr_remove_chr(u2, 0);
-            iter = _al_vector_alloc_back(&_al_debug_info.excluded);
+            iter = _al_vector_alloc_back(&trace_info.excluded);
             *iter = u2;
          }
          else {
             if (first == '+')
                al_ustr_remove_chr(u2, 0);
-            iter = _al_vector_alloc_back(&_al_debug_info.channels);
+            iter = _al_vector_alloc_back(&trace_info.channels);
             *iter = u2;
             if (!strcmp(al_cstr(u2), "all"))
                got_all = true;
@@ -194,37 +196,37 @@ static void configure_logging(void)
       }
 
       if (got_all)
-         delete_string_list(&_al_debug_info.channels);
+         delete_string_list(&trace_info.channels);
    }
 
    v = al_get_config_value(config, "trace", "level");
    if (v) {
-      if (!strcmp(v, "error")) _al_debug_info.level = 3;
-      else if (!strcmp(v, "warn")) _al_debug_info.level = 2;
-      else if (!strcmp(v, "info")) _al_debug_info.level = 1;
+      if (!strcmp(v, "error")) trace_info.level = 3;
+      else if (!strcmp(v, "warn")) trace_info.level = 2;
+      else if (!strcmp(v, "info")) trace_info.level = 1;
    }
 
    v = al_get_config_value(config, "trace", "timestamps");
    if (!v || strcmp(v, "0"))
-      _al_debug_info.flags |= 4;
+      trace_info.flags |= 4;
    else
-      _al_debug_info.flags &= ~4;
+      trace_info.flags &= ~4;
 
    v = al_get_config_value(config, "trace", "functions");
    if (!v || strcmp(v, "0"))
-      _al_debug_info.flags |= 2;
+      trace_info.flags |= 2;
    else
-      _al_debug_info.flags &= ~2;
+      trace_info.flags &= ~2;
 
    v = al_get_config_value(config, "trace", "lines");
    if (!v || strcmp(v, "0"))
-      _al_debug_info.flags |= 1;
+      trace_info.flags |= 1;
    else
-      _al_debug_info.flags &= ~1;
+      trace_info.flags &= ~1;
 
-   _al_mutex_init(&trace_mutex);
+   _al_mutex_init(&trace_info.trace_mutex);
 
-   _al_debug_info.configured = true;
+   trace_info.configured = true;
 }
 
 
@@ -233,23 +235,23 @@ static void open_trace_file(void)
 {
    const char *s;
 
-   if (debug_trace_virgin) {
+   if (trace_info.trace_virgin) {
       s = getenv("ALLEGRO_TRACE");
 
       if (s)
-         trace_file = fopen(s, "w");
+         trace_info.trace_file = fopen(s, "w");
       else
 #ifdef ALLEGRO_IPHONE
          // Remember, we have no (accessible) filesystem on (not jailbroken)
          // iphone.
          // stderr will be redirected to xcode's debug console though, so
          // it's as good to use as the NSLog stuff.
-         trace_file = stderr;
+         trace_info.trace_file = stderr;
 #else
-         trace_file = fopen("allegro.log", "w");
+         trace_info.trace_file = fopen("allegro.log", "w");
 #endif
 
-      debug_trace_virgin = false;
+      trace_info.trace_virgin = false;
    }
 }
 
@@ -259,9 +261,9 @@ static void do_trace(const char *msg, ...)
 {
    va_list ap;
 
-   if (trace_file) {
+   if (trace_info.trace_file) {
       va_start(ap, msg);
-      vfprintf(trace_file, msg, ap);
+      vfprintf(trace_info.trace_file, msg, ap);
       va_end(ap);
    }
 }
@@ -280,14 +282,14 @@ bool _al_trace_prefix(char const *channel, int level,
    _AL_VECTOR const *v;
 
    /* XXX logging should be reconfigured if the system driver is reinstalled */
-   if (!_al_debug_info.configured) {
+   if (!trace_info.configured) {
       configure_logging();
    }
 
-   if (level < _al_debug_info.level)
+   if (level < trace_info.level)
       return false;
 
-   v = &_al_debug_info.channels;
+   v = &trace_info.channels;
    if (_al_vector_is_empty(v))
       goto channel_included;
 
@@ -301,7 +303,7 @@ bool _al_trace_prefix(char const *channel, int level,
 
 channel_included:
 
-   v = &_al_debug_info.excluded;
+   v = &trace_info.excluded;
    if (_al_vector_is_nonempty(v)) {
       for (i = 0; i < _al_vector_size(v); i++) {
          ALLEGRO_USTR **iter = _al_vector_ref(v, i);
@@ -311,7 +313,7 @@ channel_included:
    }
 
    /* Avoid interleaved output from different threads. */
-   _al_mutex_lock(&trace_mutex);
+   _al_mutex_lock(&trace_info.trace_mutex);
 
    open_trace_file();
 
@@ -326,13 +328,13 @@ channel_included:
 #else
    name = strrchr(file, '/');
 #endif
-   if (_al_debug_info.flags & 1) {
+   if (trace_info.flags & 1) {
       do_trace("%20s:%-4d ", name ? name + 1 : file, line);
    }
-   if (_al_debug_info.flags & 2) {
+   if (trace_info.flags & 2) {
       do_trace("%-32s ", function);
    }
-   if (_al_debug_info.flags & 4) {
+   if (trace_info.flags & 4) {
       double t = al_get_time();
       /* Kludge:
        * Very high timers (more than a year?) likely mean the timer
@@ -357,14 +359,14 @@ void _al_trace_suffix(const char *msg, ...)
    int olderr = errno;
    va_list ap;
 
-   if (trace_file) {
+   if (trace_info.trace_file) {
       va_start(ap, msg);
-      vfprintf(trace_file, msg, ap);
+      vfprintf(trace_info.trace_file, msg, ap);
       va_end(ap);
-      fflush(trace_file);
+      fflush(trace_info.trace_file);
    }
 
-   _al_mutex_unlock(&trace_mutex);
+   _al_mutex_unlock(&trace_info.trace_mutex);
 
    errno = olderr;
 }
