@@ -4,6 +4,47 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 5.0.2.1 to 5.0.3 (May 2011)
+========================================
+
+Input:
+
+-  Fixed keyboard repeat for extended keys on Windows.
+   Added ALLEGRO_KEY_MENU. (torhu)
+
+-  Make Delete key in Windows send KEY_CHAR event with unichar code 127
+   (Peter Wang).
+
+Filesystem:
+
+-  al_remove_filename returned false even if successful (reported by xpolife).
+
+Graphics:
+
+-  On OpenGL ES 1.1, glReadPixels can only read 4 byte pixels (Trent Gamblin).
+
+Font addon:
+
+-  Fix a small memory leak when unregistering a handler with
+   al_register_font_loader (Trent Gamblin).
+
+Primitives addon:
+
+-  Fix assertion failures when drawing al_draw_ellipse, al_draw_arc,
+   al_draw_rounded_rectangle, al_draw_filled_rounded_rectangle at very
+   small scales (reported by Carl Olsson).
+
+Native dialogs addon:
+
+-  gtk: Fix truncated string if the final button contained a non-ASCII
+   character (Peter Wang).
+
+Other:
+
+-  Minor build fixes and documentation updates.
+
+
+
 Changes from 5.0.2 to 5.0.2.1 (April 2011)
 ==========================================
 
