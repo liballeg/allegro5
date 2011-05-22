@@ -204,7 +204,7 @@ elseif(WANT_VORBIS)
     find_package(Vorbis)
     if(VORBIS_FOUND)
         set(CMAKE_REQUIRED_INCLUDES ${OGG_INCLUDE_DIR} ${VORBIS_INCLUDE_DIR})
-        set(CMAKE_REQUIRED_LIBRARIES ${VORBIS_LIBRARIES})
+        set(CMAKE_REQUIRED_LIBRARIES "${VORBIS_LIBRARIES};m")
         check_c_source_compiles("
             #include <vorbis/vorbisfile.h>
             int main(void)
