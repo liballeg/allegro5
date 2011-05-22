@@ -48,7 +48,7 @@ static struct
    ogg_int64_t (*ov_pcm_total)(OggVorbis_File *, int);
    vorbis_info *(*ov_info)(OggVorbis_File *, int);
 #ifndef TREMOR
-   int (*ov_open_callbacks)(void *, OggVorbis_File *, char *, long, ov_callbacks);
+   int (*ov_open_callbacks)(void *, OggVorbis_File *, const char *, long, ov_callbacks);
    double (*ov_time_total)(OggVorbis_File *, int);
    int (*ov_time_seek_lap)(OggVorbis_File *, double);
    double (*ov_time_tell)(OggVorbis_File *);
