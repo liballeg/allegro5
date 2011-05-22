@@ -59,7 +59,7 @@ static const unsigned char hw_to_mycode[256] =
    /* 0x50 */    ALLEGRO_KEY_P,           ALLEGRO_KEY_Q,             ALLEGRO_KEY_R,              ALLEGRO_KEY_S,
    /* 0x54 */    ALLEGRO_KEY_T,           ALLEGRO_KEY_U,             ALLEGRO_KEY_V,              ALLEGRO_KEY_W,
    /* 0x58 */    ALLEGRO_KEY_X,           ALLEGRO_KEY_Y,             ALLEGRO_KEY_Z,              ALLEGRO_KEY_LWIN,
-   /* 0x5C */    ALLEGRO_KEY_RWIN,        ALLEGRO_KEY_UNKNOWN+14,    0,                          0,
+   /* 0x5C */    ALLEGRO_KEY_RWIN,        ALLEGRO_KEY_MENU,          0,                          0,
    /* 0x60 */    ALLEGRO_KEY_PAD_0,       ALLEGRO_KEY_PAD_1,         ALLEGRO_KEY_PAD_2,          ALLEGRO_KEY_PAD_3,
    /* 0x64 */    ALLEGRO_KEY_PAD_4,       ALLEGRO_KEY_PAD_5,         ALLEGRO_KEY_PAD_6,          ALLEGRO_KEY_PAD_7,
    /* 0x68 */    ALLEGRO_KEY_PAD_8,       ALLEGRO_KEY_PAD_9,         ALLEGRO_KEY_PAD_ASTERISK,   ALLEGRO_KEY_PAD_PLUS,
@@ -261,6 +261,7 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool extended,
    ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)win_disp;
    ALLEGRO_EVENT event;
    int my_code;
+   bool actual_repeat;
    int char_count;
    int event_count;
    int i;
@@ -279,10 +280,6 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool extended,
    else if (vcode == VK_SHIFT)
       vcode = MapVirtualKey(scode, MAPVK_VSC_TO_VK_EX);
 
-   /* Ignore repeats for Caps Lock */
-   if (vcode == VK_CAPITAL && repeated && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_CAPSLOCK))
-      return;
-
    my_code = hw_to_mycode[vcode];
    /* No VK_* code for numpad Enter, need to special case it. */
    if (extended && my_code == ALLEGRO_KEY_ENTER) {
@@ -290,6 +287,7 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool extended,
    }
    update_modifiers(my_code, true);   
 
+   actual_repeat = repeated && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, my_code);
    _AL_KEYBOARD_STATE_SET_KEY_DOWN(the_state, my_code);
 
    if (!_al_event_source_needs_to_generate_event(&the_keyboard.es))
@@ -305,7 +303,7 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool extended,
 
    _al_event_source_lock(&the_keyboard.es);
 
-   if (my_code > 0 && !(repeated && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, my_code))) {
+   if (my_code > 0 && !actual_repeat) {
       _al_event_source_emit_event(&the_keyboard.es, &event);
    }
 
@@ -316,7 +314,7 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool extended,
          event_count = char_count ? char_count : 1;
          event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
          event.keyboard.modifiers = modifiers;
-         event.keyboard.repeat = repeated;
+         event.keyboard.repeat = actual_repeat;
          for (i = 0; i < event_count; i++) {
             event.keyboard.unichar = buf[i];
             _al_event_source_emit_event(&the_keyboard.es, &event);
