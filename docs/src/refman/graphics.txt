@@ -634,15 +634,23 @@ See also: [ALLEGRO_COLOR], [al_put_pixel]
 Draws a rotated version of the given bitmap to the target bitmap.
 The bitmap is rotated by 'angle' radians clockwise.
 
-The point at cx/cy inside the bitmap will be drawn at dx/dy and the
-bitmap is rotated around this point.
+The point at cx/cy relative to the upper left corner of the bitmap will be drawn at dx/dy and the
+bitmap is rotated around this point. If cx,cy is 0,0 the bitmap will rotate around its upper left corner.
 
-* cx - center x
-* cy - center y
+* cx - center x (relative to the bitmap)
+* cy - center y (relatice to the bitmap)
 * dx - destination x
 * dy - destination y
 * angle - angle by which to rotate
 * flags - same as for [al_draw_bitmap]
+
+Example
+
+    float w = al_get_bitmap_width(bitmap);
+    float h = al_get_bitmap_height(bitmap);
+    al_draw_rotated_bitmap(bitmap, w / 2, h / 2, x, y, ALLEGRO_PI / 2, 0);
+
+The above code draws the bitmap centered on x/y and rotates it 90° clockwise.
 
 See also: [al_draw_bitmap], [al_draw_bitmap_region],
 [al_draw_scaled_bitmap], [al_draw_scaled_rotated_bitmap]
