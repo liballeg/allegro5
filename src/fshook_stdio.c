@@ -762,22 +762,15 @@ static bool fs_stdio_remove_entry(ALLEGRO_FS_ENTRY *fp)
 static bool fs_stdio_remove_filename(const char *path)
 {
    ALLEGRO_FS_ENTRY *fp;
-   int err = 0;
+   bool rc;
 
    fp = fs_stdio_create_entry(path);
    if (!fp)
       return false;
 
-   err = fs_stdio_remove_entry(fp);
-   if (err != 0) {
-      al_set_errno(errno);
-      fs_stdio_destroy_entry(fp);
-      return false;
-   }
-   
+   rc = fs_stdio_remove_entry(fp);
    fs_stdio_destroy_entry(fp);
-
-   return true;
+   return rc;
 }
 
 static const char *fs_stdio_name(ALLEGRO_FS_ENTRY *fp)
