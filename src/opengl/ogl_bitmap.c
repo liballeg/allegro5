@@ -208,7 +208,8 @@ static INLINE bool setup_blending(ALLEGRO_DISPLAY *ogl_disp)
          glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
       }
       else {
-         ALLEGRO_ERROR("Blender unsupported with this OpenGL version\n");
+         ALLEGRO_ERROR("Blender unsupported with this OpenGL version (%d %d %d %d %d %d)\n",
+            op, src_color, dst_color, op_alpha, src_alpha, dst_alpha);
          return false;
       }
    }
@@ -677,6 +678,8 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
 
          #ifdef ALLEGRO_IPHONE
             GLint current_fbo;
+            unsigned char *tmpbuf;
+            int tmp_pitch;
 
             /* Create an FBO if there isn't one. */
             if (!ogl_bitmap->fbo_info) {
@@ -690,14 +693,38 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
 
             glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &current_fbo);
             glBindFramebufferOES(GL_FRAMEBUFFER_OES, ogl_bitmap->fbo_info->fbo);
+            e = glGetError();
+            if (e) {
+               ALLEGRO_ERROR("glBindFramebufferOES failed.\n");
+            }
 
             pitch = ogl_pitch(w, pixel_size);
             ogl_bitmap->lock_buffer = al_malloc(pitch * h);
+           
+            tmp_pitch = ogl_pitch(w, 4);
+            tmpbuf = al_malloc(tmp_pitch * h);
 
+            /* NOTE: GLES 1.1 can only read 4 byte pixels, we have to convert */
             glReadPixels(x, gl_y, w, h,
-               glformats[format][2],
-               glformats[format][1],
-               ogl_bitmap->lock_buffer);
+               GL_RGBA, GL_UNSIGNED_BYTE,
+               tmpbuf);
+            e = glGetError();
+            if (e) {
+               ALLEGRO_ERROR("glReadPixels for format %s failed (%s).\n",
+                  _al_format_name(format), error_string(e));
+            }
+
+            _al_convert_bitmap_data(
+               tmpbuf,
+               ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
+               tmp_pitch,
+               ogl_bitmap->lock_buffer,
+               format,
+               pitch,
+               0, 0, 0, 0,
+               w, h);
+
+            al_free(tmpbuf);
 
             glBindFramebufferOES(GL_FRAMEBUFFER_OES, current_fbo);
 
