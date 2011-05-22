@@ -132,6 +132,9 @@ class Allegro:
                 mob = re.match("^.*?(\w+)$", param)
                 if mob:
                     pnamepos = mob.start(1)
+                    if pnamepos == 0:
+                       # Seems the parameter is not named
+                       pnamepos = len(param)
                 else:
                     print(params)
                     print(proto)
@@ -417,8 +420,8 @@ def _dll(func, ret, params):
             line += "[" + (", ".join([a.__name__ for a in x.argtypes])) +\
                 "])\n"
             f.write(line)
-        except AttributeError:
-            print("Ignoring " + name + " because of errors.")
+        except AttributeError as e:
+            print("Ignoring " + name + " because of errors (" + str(e) + ").")
 
     # some stuff the automated parser doesn't pick up
     f.write(r"""

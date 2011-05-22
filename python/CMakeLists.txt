@@ -2,7 +2,7 @@ include(FindPythonInterp)
 
 add_custom_command(
     OUTPUT python_protos
-    DEPENDS ${CMAKE_BINARY_DIR}/docs/protos
+    DEPENDS ${ALL_SRC}
     COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/python/checkdocs.py
         -p python_protos
         -b ${CMAKE_BINARY_DIR}
