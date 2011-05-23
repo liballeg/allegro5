@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -373,7 +373,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
       case WM_MENUCHAR :
          return (MNC_CLOSE<<16)|(wparam&0xffff);
-         
+
       case WM_CLOSE:
          if (!user_wnd_proc) {
             if (user_close_proc)
@@ -477,7 +477,7 @@ static void wnd_thread_proc(HANDLE setup_event)
    /* message loop */
    while (TRUE) {
       result = MsgWaitForMultipleObjects(_win_input_events, _win_input_event_id, FALSE, INFINITE, QS_ALLINPUT);
-      if ((result >= WAIT_OBJECT_0) && (result < WAIT_OBJECT_0 + _win_input_events)) {
+      if ((result >= WAIT_OBJECT_0) && (result < (int)(WAIT_OBJECT_0 + _win_input_events))) {
          /* one of the registered events is in signaled state */
          (*_win_input_event_handler[result - WAIT_OBJECT_0])();
       }
@@ -557,7 +557,7 @@ int init_directx_window(void)
 
 	 default:               /* thread failed to create window */
 	    return -1;
-      } 
+      }
    }
 
    /* initialize gfx critical section */
@@ -598,7 +598,7 @@ void exit_directx_window(void)
    DeleteCriticalSection(&gfx_crit_sect);
 
    _win_input_exit();
-   
+
    window_is_initialized = FALSE;
 }
 
@@ -651,11 +651,11 @@ int adjust_window(int w, int h)
          }
          if (!user32_handle || !get_title_bar_info)
             tb_height = GetSystemMetrics(SM_CYSIZE);
-         
+
 	 /* try to center the window relative to its last position */
 	 last_wnd_x += (last_w - w)/2;
 	 last_wnd_y += (last_h - h)/2;
-	 
+
 	 if (last_wnd_x + w >= working_area.right)
 	    last_wnd_x = working_area.right - w;
 	 if (last_wnd_y + h >= working_area.bottom)
@@ -680,7 +680,7 @@ int adjust_window(int w, int h)
 
       /* retrieve the size of the decorated window */
       AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
-   
+
       /* display the window */
       MoveWindow(allegro_wnd, win_size.left, win_size.top,
                  win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
@@ -702,7 +702,7 @@ int adjust_window(int w, int h)
 
 
 /* save_window_pos:
- *  Stores the position of the current window before closing it so that 
+ *  Stores the position of the current window before closing it so that
  *  it can be used as the initial position for the next window.
  */
 void save_window_pos(void)
@@ -746,7 +746,7 @@ void win_set_window(HWND wnd)
       init_directx_window();
       init_window_modules(&wm);
    }
-   
+
    window_is_initialized = TRUE;
 }
 

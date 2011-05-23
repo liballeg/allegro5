@@ -676,7 +676,7 @@ static int key_dinput_init(void)
    };
 
    /* Get DirectInput interface */
-   hr = CoCreateInstance(&CLSID_DirectInput, NULL, CLSCTX_INPROC_SERVER, &IID_IDirectInput, &key_dinput);
+   hr = CoCreateInstance(&CLSID_DirectInput, NULL, CLSCTX_INPROC_SERVER, &IID_IDirectInput, (void**)&key_dinput);
    if (FAILED(hr))
       goto Error;
 

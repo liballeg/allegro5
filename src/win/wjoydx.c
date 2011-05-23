@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -12,7 +12,7 @@
  *
  *      By Eric Botcazou.
  *
- *      Omar Cornut fixed it to handle a weird peculiarity of 
+ *      Omar Cornut fixed it to handle a weird peculiarity of
  *      the DirectInput joystick API.
  *
  *      See readme.txt for copyright information.
@@ -186,17 +186,17 @@ static int joystick_dinput_poll(void)
 
          /* In versions of the DirectInput joystick API earlier than 8.00, slider
           * data is to be found in the Z axis data member, although the object was
-          * reported as a slider during enumeration. 
+          * reported as a slider during enumeration.
           *
           * Very few locations seem to describe this "feature". Here is one:
           * http://msdn.microsoft.com/archive/default.asp?url=/archive/en-us/dx81_vb/directx_vb/Input/VB_Ref/Types/dijoystate2.asp
           *
           * The interesting part is the note at the bottom of the page:
           * " Note: Under Microsoft DirectX 7, sliders on some joysticks could be assigned
-          *   to the Z axis, with subsequent code retrieving data from that member. 
-          *   Using DirectX 8, those same sliders will be assigned to the slider array. 
-          *   This should be taken into account when porting applications to DirectX 8. 
-          *   Make any necessary alterations to ensure that slider data is retrieved from 
+          *   to the Z axis, with subsequent code retrieving data from that member.
+          *   Using DirectX 8, those same sliders will be assigned to the slider array.
+          *   This should be taken into account when porting applications to DirectX 8.
+          *   Make any necessary alterations to ensure that slider data is retrieved from
           *   the slider array. "
           */
 
@@ -333,7 +333,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    HRESULT hr;
    LPVOID temp;
    HWND allegro_wnd = win_get_window();
-   
+
    DIPROPRANGE property_range =
    {
       /* the header */
@@ -438,7 +438,7 @@ static int joystick_dinput_init(void)
       return -1;
 
    /* get the DirectInput interface */
-   hr = CoCreateInstance(&CLSID_DirectInput, NULL, CLSCTX_INPROC_SERVER, &IID_IDirectInput, &joystick_dinput);
+   hr = CoCreateInstance(&CLSID_DirectInput, NULL, CLSCTX_INPROC_SERVER, &IID_IDirectInput, (void**)&joystick_dinput);
    if (FAILED(hr))
       return -1;
 

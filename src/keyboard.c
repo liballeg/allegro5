@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -20,10 +20,19 @@
 #include "allegro/internal/aintern.h"
 
 
+/* thedmd: Keyboard driver hit GCC bug 43614.
+ *         Details: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=43614
+ */
+#if defined(NDEBUG) && defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ == 4)
+#define GCC_440_BUG_WORKAROUND  __attribute__ ((optimize("O1")))
+#else
+#define GCC_440_BUG_WORKAROUND
+#endif
+
 
 KEYBOARD_DRIVER *keyboard_driver = NULL;     /* the active driver */
 
-int _keyboard_installed = FALSE; 
+int _keyboard_installed = FALSE;
 
 static int keyboard_polled = FALSE;          /* are we in polling mode? */
 
@@ -252,7 +261,7 @@ int keypressed(void)
  *  Returns the next character code from the keyboard buffer. If the
  *  buffer is empty, it waits until a key is pressed. The low byte of
  *  the return value contains the ASCII code of the key, and the high
- *  byte the scan code. 
+ *  byte the scan code.
  */
 int readkey(void)
 {
@@ -388,12 +397,12 @@ END_OF_STATIC_FUNCTION(repeat_timer);
 
 
 /* install_keyboard_hooks:
- *  You should only use this function if you *aren't* using the rest of the 
- *  keyboard handler. It can be called in the place of install_keyboard(), 
- *  and lets you provide callback routines to detect and read keypresses, 
- *  which will be used by the main keypressed() and readkey() functions. This 
- *  can be useful if you want to use Allegro's GUI code with a custom 
- *  keyboard handler, as it provides a way for the GUI to access keyboard 
+ *  You should only use this function if you *aren't* using the rest of the
+ *  keyboard handler. It can be called in the place of install_keyboard(),
+ *  and lets you provide callback routines to detect and read keypresses,
+ *  which will be used by the main keypressed() and readkey() functions. This
+ *  can be useful if you want to use Allegro's GUI code with a custom
+ *  keyboard handler, as it provides a way for the GUI to access keyboard
  *  input from your own code.
  */
 void install_keyboard_hooks(int (*keypressed)(void), int (*readkey)(void))
@@ -464,7 +473,7 @@ void _handle_key_press(int keycode, int scancode)
    }
 
    /* autorepeat? */
-   if ((keyboard_driver->autorepeat) && (repeat_delay) && 
+   if ((keyboard_driver->autorepeat) && (repeat_delay) &&
        (keycode >= 0) && (scancode > 0) && (scancode != KEY_PAUSE) &&
        ((keycode != repeat_key) || (scancode != repeat_scan))) {
       repeat_key = keycode;
@@ -519,7 +528,8 @@ END_OF_FUNCTION(_handle_key_release);
  *  switch into polling mode and will no longer operate asynchronously
  *  even if the driver actually does support that.
  */
-int poll_keyboard(void)
+static int internal_poll_keyboard(void) GCC_440_BUG_WORKAROUND;
+static int internal_poll_keyboard(void)
 {
    int i;
 
@@ -549,7 +559,7 @@ int poll_keyboard(void)
       }
 
       while (_key_buffer.start != _key_buffer.end) {
-	 add_key(&key_buffer, _key_buffer.key[_key_buffer.start], 
+	 add_key(&key_buffer, _key_buffer.key[_key_buffer.start],
 			      _key_buffer.scancode[_key_buffer.start]);
 
 	 if (_key_buffer.start < KEY_BUFFER_SIZE-1)
@@ -562,6 +572,11 @@ int poll_keyboard(void)
    }
 
    return 0;
+}
+
+int poll_keyboard(void)
+{
+   return internal_poll_keyboard();
 }
 
 
@@ -617,7 +632,7 @@ AL_CONST char *scancode_to_name(int scancode)
 
 
 /* install_keyboard:
- *  Installs Allegro's keyboard handler. You must call this before using 
+ *  Installs Allegro's keyboard handler. You must call this before using
  *  any of the keyboard input routines. Returns -1 on failure.
  */
 int install_keyboard(void)
@@ -690,7 +705,7 @@ int install_keyboard(void)
 
 
 /* remove_keyboard:
- *  Removes the keyboard handler. You don't normally need to call this, 
+ *  Removes the keyboard handler. You don't normally need to call this,
  *  because allegro_exit() will do it for you.
  */
 void remove_keyboard(void)

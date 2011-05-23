@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -234,7 +234,7 @@ static void mouse_dinput_handle_event(int ofs, int data)
                mag = last_data_x*last_data_x + last_data_y*last_data_y;
                if (mag >= mouse_accel_thr2)
                   data *= (mouse_accel_mult<<1);
-               else if (mag >= mouse_accel_thr1) 
+               else if (mag >= mouse_accel_thr1)
                   data *= mouse_accel_mult;
             }
 
@@ -252,7 +252,7 @@ static void mouse_dinput_handle_event(int ofs, int data)
                mag = last_data_x*last_data_x + last_data_y*last_data_y;
                if (mag >= mouse_accel_thr2)
                   data *= (mouse_accel_mult<<1);
-               else if (mag >= mouse_accel_thr1) 
+               else if (mag >= mouse_accel_thr1)
                   data *= mouse_accel_mult;
             }
 
@@ -606,7 +606,7 @@ static int mouse_dinput_init(void)
    };
 
    /* Get DirectInput interface */
-   hr = CoCreateInstance(&CLSID_DirectInput, NULL, CLSCTX_INPROC_SERVER, &IID_IDirectInput, &mouse_dinput);
+   hr = CoCreateInstance(&CLSID_DirectInput, NULL, CLSCTX_INPROC_SERVER, &IID_IDirectInput, (void**)&mouse_dinput);
    if (FAILED(hr))
       goto Error;
 
@@ -628,7 +628,7 @@ static int mouse_dinput_init(void)
       goto Error;
 
    /* Check to see if the buttons are swapped (left-hand) */
-   mouse_swap_button = GetSystemMetrics(SM_SWAPBUTTON);   
+   mouse_swap_button = GetSystemMetrics(SM_SWAPBUTTON);
 
    /* Set data format */
    hr = IDirectInputDevice_SetDataFormat(mouse_dinput_device, &c_dfDIMouse);
@@ -802,13 +802,13 @@ static void mouse_directx_enable_hardware_cursor(int mode)
 
 
 /* mouse_directx_select_system_cursor:
- *  Select an OS native cursor 
+ *  Select an OS native cursor
  */
 static int mouse_directx_select_system_cursor (int cursor)
 {
    HCURSOR wc;
    HWND allegro_wnd = win_get_window();
-   
+
    wc = NULL;
    switch(cursor) {
       case MOUSE_CURSOR_ARROW:
@@ -830,6 +830,6 @@ static int mouse_directx_select_system_cursor (int cursor)
    _win_hcursor = wc;
    SetCursor(_win_hcursor);
    PostMessage(allegro_wnd, WM_MOUSEMOVE, 0, 0);
-   
+
    return cursor;
 }

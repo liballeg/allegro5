@@ -1,6 +1,6 @@
 /*         ______   ___    ___
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -47,7 +47,7 @@ typedef struct CONFIG_HOOK
    int (*intgetter)(AL_CONST char *name, int def);
    AL_CONST char *(*stringgetter)(AL_CONST char *name, AL_CONST char *def);
    void (*stringsetter)(AL_CONST char *name, AL_CONST char *value);
-   struct CONFIG_HOOK *next; 
+   struct CONFIG_HOOK *next;
 } CONFIG_HOOK;
 
 
@@ -199,7 +199,7 @@ static void config_cleanup(void)
 	 if (hook->section)
 	    _AL_FREE(hook->section);
 
-	 nexthook = hook->next; 
+	 nexthook = hook->next;
 	 _AL_FREE(hook);
 	 hook = nexthook;
       }
@@ -209,10 +209,10 @@ static void config_cleanup(void)
 
    _AL_FREE(config_argv);
    config_argv = NULL;
-   
+
    _AL_FREE(argv_buf);
    argv_buf = NULL;
-   
+
    argv_buf_size = 0;
 
    _remove_exit_func(config_cleanup);
@@ -523,7 +523,7 @@ void set_config_file(AL_CONST char *filename)
 
 
 /* set_config_data:
- *  Sets the block of data to be used for all future configuration 
+ *  Sets the block of data to be used for all future configuration
  *  operations.
  */
 void set_config_data(AL_CONST char *data, int length)
@@ -552,7 +552,7 @@ void override_config_file(AL_CONST char *filename)
 
 
 /* override_config_data:
- *  Sets the block of data that will override all future configuration 
+ *  Sets the block of data that will override all future configuration
  *  operations.
  */
 void override_config_data(AL_CONST char *data, int length)
@@ -631,8 +631,8 @@ static void prettify_section_name(AL_CONST char *in, char *out, int out_size)
 
 
 /* hook_config_section:
- *  Hooks a config section to a set of getter/setter functions. This will 
- *  override the normal table of values, and give the provider of the hooks 
+ *  Hooks a config section to a set of getter/setter functions. This will
+ *  override the normal table of values, and give the provider of the hooks
  *  complete control over that section.
  */
 void hook_config_section(AL_CONST char *section, int (*intgetter)(AL_CONST char *, int), AL_CONST char *(*stringgetter)(AL_CONST char *, AL_CONST char *), void (*stringsetter)(AL_CONST char *, AL_CONST char *))
@@ -1044,7 +1044,7 @@ static CONFIG_ENTRY *insert_variable(CONFIG *the_config, CONFIG_ENTRY *p, AL_CON
 
    if (p) {
       n->next = p->next;
-      p->next = n; 
+      p->next = n;
    }
    else {
       n->next = NULL;
@@ -1136,8 +1136,8 @@ void set_config_string(AL_CONST char *section, AL_CONST char *name, AL_CONST cha
 	       }
 
 	       /* append to the end of the section */
-	       while ((p) && (p->next) && 
-		      (((p->next->name) && (ugetc(p->next->name))) || 
+	       while ((p) && (p->next) &&
+		      (((p->next->name) && (ugetc(p->next->name))) ||
 		       ((p->next->data) && (ugetc(p->next->data)))))
 		  p = p->next;
 
@@ -1149,7 +1149,7 @@ void set_config_string(AL_CONST char *section, AL_CONST char *name, AL_CONST cha
 	       insert_variable(the_config, NULL, name, val);
 	       the_config->head->next = p;
 	    }
-	 } 
+	 }
       }
 
       the_config->dirty = TRUE;
@@ -1246,7 +1246,7 @@ void _reload_config(void)
 
 /* reload_config_texts:
  *  Reads in a block of translated system text, looking for either a
- *  user-specified file, a ??text.cfg file, or a language.dat#??TEXT_CFG 
+ *  user-specified file, a ??text.cfg file, or a language.dat#??TEXT_CFG
  *  datafile object. If new_language is not NULL, the language config
  *  variable will be set to new_language before reloading the
  *  configuration files.
@@ -1511,6 +1511,6 @@ int list_config_sections(AL_CONST char ***names)
  */
 void free_config_entries(AL_CONST char ***names)
 {
-    _AL_FREE(*names);
+    _AL_FREE((void *)*names);
     *names = NULL;
 }

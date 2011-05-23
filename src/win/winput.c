@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -69,7 +69,7 @@ static void input_thread_proc(LPVOID unused)
       result = WaitForMultipleObjects(_win_input_events, _win_input_event_id, FALSE, INFINITE);
       if (result == WAIT_OBJECT_0 + 2)
          break;  /* thread suicide */
-      else if ((result >= WAIT_OBJECT_0) && (result < WAIT_OBJECT_0 + _win_input_events))
+      else if ((result >= WAIT_OBJECT_0) && (result < (int)(WAIT_OBJECT_0 + _win_input_events)))
          (*_win_input_event_handler[result - WAIT_OBJECT_0])();
    }
 
