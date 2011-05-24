@@ -4,10 +4,10 @@
 /** \file fontconv.c
  *  \brief Allegro FONT conversion routines.
  *
- * Notes: - Depends on the Allegro's FONT structure remaining 
+ * Notes: - Depends on the Allegro's FONT structure remaining
  *          intact.
  * Bugs:  - Bitmapped font support is flakey at best.
- * 
+ *
  */
 
 #include <math.h>
@@ -128,7 +128,7 @@ static int iroundf(float v) {
 	}
 	else {
 		/* distance to ceil smaller than distance to floor */
-		if ((c - v) < (v - f)) 
+		if ((c - v) < (v - f))
 			return (int)f;
 		else
 			return (int)c;
@@ -282,7 +282,7 @@ static int agl_get_font_range_end(FONT *f, int range) {
 		fad = next;
 		n++;
 	}
-	
+
 	return -1;
 }
 
@@ -298,7 +298,7 @@ static int create_textured_font_call_lists(AGL_GLYPH *coords, int max, BITMAP *b
 	scale = fabs(scale);
 
 	list = glGenLists(max);
-		
+
 	for (i = 0; i < max; i++) {
 		/* Coords of glyph in texture (texture coords) */
 		float tx = (float)coords[i].x / bmp->w;
@@ -329,7 +329,7 @@ static int create_textured_font_call_lists(AGL_GLYPH *coords, int max, BITMAP *b
 		}
 
 		glNewList(list + i, GL_COMPILE);
-			
+
 		glBegin(GL_QUADS);
 			glTexCoord2f(tx, ty);
 			glVertex2f(xoffs, -yoffs);
@@ -370,14 +370,14 @@ static FONT_AGL_DATA* copy_glyph_range(FONT_AGL_DATA *fad, int start, int end,
 	count = end - start;
 
 	coords = malloc(count * sizeof (AGL_GLYPH));
-		
+
 	/* for now, just copy glyph coords of the range */
 	for (i = 0; i < count; i++) {
 		coords[i] = fad->glyph_coords[start - fad->start + i];
 		coords[i].glyph_num = i;
 	}
-			
-	/* calculate the width of the glyphs and find the max height */	
+
+	/* calculate the width of the glyphs and find the max height */
 	for (i = 0; i < count; i++) {
 		int hh = coords[i].h + coords[i].offset_y + coords[i].offset_h;
 		if (h < hh)
@@ -510,7 +510,7 @@ static FONT *agl_extract_font_range(FONT *f, int start, int end) {
 				retval->data = newfad;
 			}
 		}
-			
+
 		next = next->next;
 	}
 
@@ -651,9 +651,9 @@ FONT *allegro_gl_convert_allegro_font(FONT *f, int type, float scale) {
  *
  *  You should destroy the font via allegro_gl_destroy_font() when you are
  *  done with it.
- * 
+ *
  * <b>Scaling</b>
- * 
+ *
  *  For #AGL_FONT_TYPE_TEXTURED fonts, glyphs in the font need to be mapped
  *  to OpenGL coordinates. The scale factor ensures that you get the scaling
  *  you need. scale reprents the number of pixels to be mapped to 1.0 OpenGL
@@ -675,7 +675,7 @@ FONT *allegro_gl_convert_allegro_font(FONT *f, int type, float scale) {
  *  it's ignored if the conversion will lead to a font of that type.
  *
  * <b>Format</b>
- * 
+ *
  *  The format specifies what internal format OpenGL should use for the texture,
  *  in the case of #AGL_FONT_TYPE_TEXTURED fonts. It has the same semantics as
  *  the internalformat parameter of glTexImage2D(). If you would like for
@@ -698,7 +698,7 @@ FONT *allegro_gl_convert_allegro_font_ex(FONT *f, int type, float scale,
 		FONT_COLOR_DATA* cf;
 		void *ptr;
 	} dat;
-	
+
 	if (!__allegro_gl_valid_context) {
 		return NULL;
 	}
@@ -750,13 +750,13 @@ FONT *allegro_gl_convert_allegro_font_ex(FONT *f, int type, float scale,
 		return NULL;
 	}
 	memset(destdata, 0, sizeof(FONT_AGL_DATA) * max);
-	
+
 	/* Construct the linked list */
 	for (i = 0; i < max - 1; i++) {
 		destdata[i].next = &destdata[i + 1];
 	}
 	destdata[max - 1].next = NULL;
-	
+
 	/* Set up the font */
 	dest->data = destdata;
 	dest->vtable = font_vtable_agl;
@@ -786,13 +786,13 @@ FONT *allegro_gl_convert_allegro_font_ex(FONT *f, int type, float scale,
 			aglf_convert_allegro_font_to_texture(&destdata, f, dat.ptr, &height,
 			                                     scale, format);
 		}
-			
+
 		if (height > dest->height) {
 			dest->height = height;
 		}
-			
+
 		dat.ptr = (is_mono_font(f) ? (void*)dat.mf->next : (void*)dat.cf->next);
-		
+
 		destdata = destdata->next;
 	}
 
@@ -807,7 +807,7 @@ FONT *allegro_gl_convert_allegro_font_ex(FONT *f, int type, float scale,
 static int sort_glyphs(const void *c1, const void *c2) {
 	AGL_GLYPH *g1 = (AGL_GLYPH*)c1;
 	AGL_GLYPH *g2 = (AGL_GLYPH*)c2;
-	
+
 	if (g1->w < g2->w) {
 		return 1;
 	}
@@ -826,7 +826,7 @@ static int sort_glyphs(const void *c1, const void *c2) {
 static int unsort_glyphs(const void *c1, const void *c2) {
 	AGL_GLYPH *g1 = (AGL_GLYPH*)c1;
 	AGL_GLYPH *g2 = (AGL_GLYPH*)c2;
-	
+
 	return g1->glyph_num - g2->glyph_num;
 }
 
@@ -837,7 +837,7 @@ static int unsort_glyphs(const void *c1, const void *c2) {
 static int sort_textures(const void *c1, const void *c2) {
 	texture_size *t1 = (texture_size*)c1;
 	texture_size *t2 = (texture_size*)c2;
-	
+
 	return t1->w * t1->h - t2->w * t2->h;
 }
 
@@ -875,13 +875,13 @@ static int aglf_sort_out_glyphs(BITMAP *bmp, AGL_GLYPH *glyphs, const int beg,
 	/* We now try to make all the glyphs fit on the bitmap */
 	for (i = 0; i < end - beg; i++) {
 		int collide = FALSE;
-	
+
 		/* Place glyphs on last_line */
 		glyphs[i].x = last_x;
 		glyphs[i].y = last_line;
-		
+
 		/* Check for collision */
-		
+
 		for (j = 0; j < i; j++) {
 			if ((glyphs[i].x >= glyphs[j].x + glyphs[j].w)
 			        || (glyphs[i].y >= glyphs[j].y + glyphs[j].h)
@@ -893,7 +893,7 @@ static int aglf_sort_out_glyphs(BITMAP *bmp, AGL_GLYPH *glyphs, const int beg,
 			glyphs[i].x = last_x;
 			j = 0;
 		}
-		
+
 		if ((last_x + glyphs[i].w > bmp->w)
 		 || (last_line + glyphs[i].h > bmp->h)) {
 			collide = TRUE;
@@ -946,11 +946,11 @@ static int split_font(FONT *f, void *source, void **dest1, void **dest2) {
 	union mixed_ptr range1, range2, src;
 	int colored;
 	int i;
-	
+
 	(*dest1) = NULL;
 	(*dest2) = NULL;
 	src.ptr = source;
-	
+
 	colored = (is_mono_font(f) ? FALSE : TRUE);
 
 	/* Allocate the ranges that we need */
@@ -963,7 +963,7 @@ static int split_font(FONT *f, void *source, void **dest1, void **dest2) {
 		      : (int)sizeof(FONT_MONO_DATA));
 		return FALSE;
 	}
-	
+
 	range2.ptr = malloc(colored ? sizeof(FONT_COLOR_DATA)
 	                            : sizeof(FONT_MONO_DATA));
 	if (!range2.ptr) {
@@ -974,23 +974,23 @@ static int split_font(FONT *f, void *source, void **dest1, void **dest2) {
 		free(range1.ptr);
 		return FALSE;
 	}
-	
+
 	(*dest1) = range1.ptr;
 	(*dest2) = range2.ptr;
-	
+
 	/* Now we split up the range */
 	if (colored) {
 		/* Half the range */
 		int mid = src.cf->begin + (src.cf->end - src.cf->begin) / 2;
-		
+
 		range1.cf->begin = src.cf->begin;
 		range1.cf->end = mid;
 		range2.cf->begin = mid;
 		range2.cf->end = src.cf->end;
-		
+
 		range1.cf->next = NULL;
 		range2.cf->next = NULL;
-		
+
 		/* Split up the bitmaps */
 		range1.cf->bitmaps = malloc(sizeof(BITMAP*)
 		                                * (range1.cf->end - range1.cf->begin));
@@ -1015,7 +1015,7 @@ static int split_font(FONT *f, void *source, void **dest1, void **dest2) {
 			return FALSE;
 		}
 
-		
+
 		for (i = 0; i < (range1.cf->end - range1.cf->begin); i++) {
 			range1.cf->bitmaps[i] = src.cf->bitmaps[i];
 		}
@@ -1027,15 +1027,15 @@ static int split_font(FONT *f, void *source, void **dest1, void **dest2) {
 	else {
 		/* Half the range */
 		int mid = src.mf->begin + (src.mf->end - src.mf->begin) / 2;
-		
+
 		range1.mf->begin = src.mf->begin;
 		range1.mf->end = mid;
 		range2.mf->begin = mid;
 		range2.mf->end = src.mf->end;
-		
+
 		range1.mf->next = NULL;
 		range2.mf->next = NULL;
-		
+
 		/* Split up the bitmaps */
 		range1.mf->glyphs = malloc(sizeof(FONT_GLYPH*)
 		                                 * (range1.mf->end - range1.mf->begin));
@@ -1059,7 +1059,7 @@ static int split_font(FONT *f, void *source, void **dest1, void **dest2) {
 			free(range2.ptr);
 			return FALSE;
 		}
-		
+
 		for (i = 0; i < (range1.mf->end - range1.mf->begin); i++) {
 			range1.mf->glyphs[i] = src.mf->glyphs[i];
 		}
@@ -1068,7 +1068,7 @@ static int split_font(FONT *f, void *source, void **dest1, void **dest2) {
 			            src.mf->glyphs[i + range2.mf->begin - range1.mf->begin];
 		}
 	}
-	
+
 	return TRUE;
 }
 
@@ -1077,7 +1077,7 @@ static int split_font(FONT *f, void *source, void **dest1, void **dest2) {
 /* Destroys a split font */
 static void destroy_split_font(FONT *f, union mixed_ptr range1,
                                         union mixed_ptr range2) {
-	
+
 	if (!is_mono_font(f)) {
 		free(range1.cf->bitmaps);
 		free(range2.cf->bitmaps);
@@ -1086,10 +1086,10 @@ static void destroy_split_font(FONT *f, union mixed_ptr range1,
 		free(range1.mf->glyphs);
 		free(range2.mf->glyphs);
 	}
-	
+
 	free(range1.ptr);
 	free(range2.ptr);
-	
+
 	return;
 }
 
@@ -1109,7 +1109,7 @@ static int do_crop_font_range(FONT *f, AGL_GLYPH *glyphs, int beg, int end) {
 		      "bitmap of size: %ix%i!\n", 32, 32);
 		goto error;
 	}
-	
+
 	/* Crop glyphs */
 	for (i = 0; i < max; i++) {
 		int used = 0;
@@ -1124,7 +1124,7 @@ static int do_crop_font_range(FONT *f, AGL_GLYPH *glyphs, int beg, int end) {
 				goto error;
 			}
 		}
-		clear(temp);
+		clear_bitmap(temp);
 
 		usetc(buf + usetc(buf, glyphs[i].glyph_num + beg), 0);
 
@@ -1157,7 +1157,7 @@ static int do_crop_font_range(FONT *f, AGL_GLYPH *glyphs, int beg, int end) {
 			glyphs[i].w = 1;
 			continue;
 		}
-		
+
 		/* Crop bottom */
 		j = glyphs[i].h + glyphs[i].offset_y - 1;
 		for ( /* above */; j >= glyphs[i].offset_y; j--) {
@@ -1218,7 +1218,7 @@ static int do_crop_font_range(FONT *f, AGL_GLYPH *glyphs, int beg, int end) {
 		      glyphs[i].offset_w, glyphs[i].offset_h);
 #endif
 	}
-	
+
 	destroy_bitmap(temp);
 
 	return TRUE;
@@ -1228,7 +1228,7 @@ error:
 		destroy_bitmap(temp);
 	}
 
-	return FALSE;	
+	return FALSE;
 }
 
 
@@ -1272,7 +1272,7 @@ static int crop_font_range(FONT *f, void *src, int beg, int end,
 		/* Not placed yet */
 		glyphs[i].x = -1;
 	}
-	
+
 	if (crop) {
 		ret = do_crop_font_range(f, glyphs, beg, end);
 	}
@@ -1333,7 +1333,7 @@ static BITMAP* look_for_texture(int beg, int end, AGL_GLYPH *glyphs,
 
 	for (i = 0; i < NUM_TEXTURE_SIZE * NUM_TEXTURE_SIZE; i++) {
 		int num_channels;
-		
+
 		/* Check the area - it must be larger than
 		 * all the glyphs
 		 */
@@ -1344,7 +1344,7 @@ static BITMAP* look_for_texture(int beg, int end, AGL_GLYPH *glyphs,
 		if (area < total_area) {
 			continue;
 		}
-			
+
 		/* Check against max values */
 		if ((t->h < max_h) || (t->w < max_w)) {
 			continue;
@@ -1392,7 +1392,7 @@ static BITMAP* look_for_texture(int beg, int end, AGL_GLYPH *glyphs,
 		destroy_bitmap(bmp);
 		bmp = NULL;
 	}
-	
+
 	return NULL;
 }
 
@@ -1452,7 +1452,7 @@ static int draw_glyphs(BITMAP *bmp, FONT *f, GLint format, int beg, int end,
 #endif
 		/* Generate an alpha font */
 		BITMAP *rgbbmp = create_bitmap_ex(24, bmp->w, bmp->h);
-		
+
 		if (!rgbbmp) {
 			TRACE(PREFIX_E "convert_allegro_font_to_texture: "
 			      "Ran out of memory while creating %ix%ix%i bitmap!\n",
@@ -1461,10 +1461,10 @@ static int draw_glyphs(BITMAP *bmp, FONT *f, GLint format, int beg, int end,
 		}
 
 		clear_bitmap(rgbbmp);
-		
+
 		for (i = 0; i < end - beg; i++) {
 			usetc(buf + usetc(buf, glyphs[i].glyph_num + beg), 0);
-			
+
 			textout_ex(rgbbmp, f, buf, glyphs[i].x - glyphs[i].offset_x,
 			                          glyphs[i].y - glyphs[i].offset_y, -1, -1);
 		}
@@ -1533,7 +1533,7 @@ static void aglf_convert_allegro_font_to_texture(FONT_AGL_DATA **dest, FONT *f,
 	int beg = 0, end = 0;
 	int max_w, max_h;
 	int total_area, gross_area;
-	
+
 	AGL_GLYPH *glyph_coords;
 
 	union mixed_ptr dat;
@@ -1609,7 +1609,7 @@ static void aglf_convert_allegro_font_to_texture(FONT_AGL_DATA **dest, FONT *f,
 		dest2->is_free_chunk = TRUE;
 		dest2->format = dest1->format;
 		dest2->has_alpha = dest1->has_alpha;
-		
+
 		if (split_font(f, dat.ptr, &f1.ptr, &f2.ptr) == FALSE) {
 			TRACE(PREFIX_E "convert_allegro_font_to_texture: Unable "
 			      "to split font!\n");
@@ -1617,7 +1617,7 @@ static void aglf_convert_allegro_font_to_texture(FONT_AGL_DATA **dest, FONT *f,
 			free(dest2);
 			return;
 		}
-		
+
 		aglf_convert_allegro_font_to_texture(&dest1, f, f1.ptr, height, scale,
 		                                     format);
 		height1 = (*height);
@@ -1628,7 +1628,7 @@ static void aglf_convert_allegro_font_to_texture(FONT_AGL_DATA **dest, FONT *f,
 		if (height1 > (*height))
 			(*height) = height1;
 		(*dest) = dest2;
-		
+
 		return;
 	}
 
@@ -1699,26 +1699,26 @@ static void aglf_convert_allegro_font_to_bitmap(FONT_AGL_DATA *dest, FONT *f,
 		      "memory while allocating %i bytes\n", (int)sizeof(FONT_GLYPH));
 		return;
 	}
-	
+
 	*height = f->height;
-		
-	if (is_mono_font(f)) {		
-	
+
+	if (is_mono_font(f)) {
+
 		/* for each glyph */
-		for (i = 0; i < max; i++) {		
+		for (i = 0; i < max; i++) {
 			FONT_GLYPH *oldgl = dat.mf->glyphs[i];
-	
+
 			int size = sizeof(FONT_GLYPH) + ((oldgl->w + 31) / 32) * 4
 			                                                         * oldgl->h;
-	
+
 			/* create new glyph */
 			FONT_GLYPH *newgl = (FONT_GLYPH*)malloc(size);
-	
+
 			if (!newgl)
 				break;
-	
+
 			memset(newgl, 0, size);
-	
+
 			newgl->w = oldgl->w;
 			newgl->h = oldgl->h;
 
@@ -1785,7 +1785,7 @@ static void aglf_convert_allegro_font_to_bitmap(FONT_AGL_DATA *dest, FONT *f,
 		}
 		dest->list_base = list;
 	}
-		
+
 	dest->is_free_chunk = 0;
 	dest->type = AGL_FONT_TYPE_BITMAP;
 	dest->start = beg;
