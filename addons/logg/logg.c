@@ -2,7 +2,7 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 
-#include "logg.h"
+#include "loggint.h"
 
 /* XXX requires testing */
 #ifdef ALLEGRO_BIG_ENDIAN
@@ -117,7 +117,7 @@ static int read_ogg_data(LOGG_Stream* s)
 	s->current_page %= OGG_PAGES_TO_BUFFER;
 
 	memset(s->buf[page], 0, logg_bufsize);
-	
+
 	while (read < logg_bufsize) {
 		int thisRead = ov_read(&s->ovf, s->buf[page]+read,
 				logg_bufsize-read,
