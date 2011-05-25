@@ -78,6 +78,21 @@ to the default behaviour.
 
 This function does nothing if there is no target bitmap.
 
+The parameter is passed by reference as an optimization to avoid the overhead of
+stack copying. The reference will not be stored in the Allegro library so it is
+safe to pass references to local variables.
+
+    void setup_my_transformation(){
+      ALLEGRO_TRANSFORM transform;
+      al_translate_transform(&transform, 5, 10);
+      al_use_transform(&transform);
+    }
+
+    void logic(){
+      setup_my_transformation();
+      // .. rest of code
+    }
+
 *Parameters:*
 
 * trans - Transformation to use
@@ -133,7 +148,13 @@ See also: [al_invert_transform]
 
 ## API: al_identity_transform
 
-Sets the transformation to be the identity transformation.
+Sets the transformation to be the identity transformation. This is the default
+transformation. Use [al_use_transform] on an identity transformation to return
+to the default.
+
+    ALLEGRO_TRANSFORM t;
+    al_identity_transform(&t);
+    al_use_transform(&t);
 
 *Parameters:*
 
