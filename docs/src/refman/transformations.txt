@@ -82,15 +82,11 @@ The parameter is passed by reference as an optimization to avoid the overhead of
 stack copying. The reference will not be stored in the Allegro library so it is
 safe to pass references to local variables.
 
-    void setup_my_transformation(){
-      ALLEGRO_TRANSFORM transform;
-      al_translate_transform(&transform, 5, 10);
-      al_use_transform(&transform);
-    }
-
-    void logic(){
-      setup_my_transformation();
-      // .. rest of code
+    void setup_my_transformation(void)
+    {
+       ALLEGRO_TRANSFORM transform;
+       al_translate_transform(&transform, 5, 10);
+       al_use_transform(&transform);
     }
 
 *Parameters:*
