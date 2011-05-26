@@ -668,9 +668,11 @@ static void d3d_draw_bitmap_region(
          (ALLEGRO_BITMAP_D3D *)d3d_create_bitmap_from_surface(
          ((ALLEGRO_BITMAP_D3D *)d3d_src)->display->render_target,
          src->flags);
-      d3d_draw_bitmap_region((ALLEGRO_BITMAP *)tmp_bmp, tint,
-         sx, sy, sw, sh, flags);
-      al_destroy_bitmap((ALLEGRO_BITMAP *)tmp_bmp);
+      if (tmp_bmp) {
+         d3d_draw_bitmap_region((ALLEGRO_BITMAP *)tmp_bmp, tint,
+            sx, sy, sw, sh, flags);
+         al_destroy_bitmap((ALLEGRO_BITMAP *)tmp_bmp);
+      }
       return;
    }
 
