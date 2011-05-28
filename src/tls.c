@@ -14,6 +14,27 @@
  *
  */
 
+/* FIXME:
+ * 
+ * There are several ways to get thread local storage:
+ * 
+ * 1. pthreads.
+ * 2. __thread keyword in gcc.
+ * 3. __declspec(thread) in MSVC.
+ * 4. TLS API under Windows.
+ * 
+ * Since pthreads is available from the system everywhere except in
+ * Windows, this is the only case which is problematic. It appears
+ * that except for old mingw versions (before gcc 4.2) we can simply
+ * use __thread, and for MSVC we can always use __declspec(thread):
+ * 
+ * However there also is a WANT_TLS configuration variable which is on
+ * by default and forces use of the TLS API instead. At the same time,
+ * the implementation using the TLS API in this file does not work
+ * with static linking. Someone should either completely remove
+ * WANT_TLS, or fix the static linking case...
+ */
+
 #include <string.h>
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
@@ -111,6 +132,13 @@ static void initialize_tls_values(thread_local_state *tls)
    _al_fill_display_settings(&tls->new_display_settings);
 }
 
+// FIXME: The TLS implementation below only works for dynamic linking
+// right now - instead of using DllMain we should simply initialize
+// on first request.
+#ifdef ALLEGRO_STATICLINK
+   #warning "TLS API not implemented with static linking."
+   #undef ALLEGRO_CFG_DLL_TLS
+#endif
 
 #if defined(ALLEGRO_CFG_DLL_TLS)
 
