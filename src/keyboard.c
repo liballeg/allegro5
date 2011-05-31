@@ -528,8 +528,8 @@ END_OF_FUNCTION(_handle_key_release);
  *  switch into polling mode and will no longer operate asynchronously
  *  even if the driver actually does support that.
  */
-static int internal_poll_keyboard(void) GCC_440_BUG_WORKAROUND;
-static int internal_poll_keyboard(void)
+int poll_keyboard(void) GCC_440_BUG_WORKAROUND;
+int poll_keyboard(void)
 {
    int i;
 
@@ -572,11 +572,6 @@ static int internal_poll_keyboard(void)
    }
 
    return 0;
-}
-
-int poll_keyboard(void)
-{
-   return internal_poll_keyboard();
 }
 
 
