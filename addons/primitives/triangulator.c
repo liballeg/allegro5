@@ -108,7 +108,7 @@ static bool poly_find_closest_intersection(_AL_LIST* vertices, const float* vert
    float v1[2];
    float intersection[2];
    float t0, t1;
-   float best_point[2] = {};
+   float best_point[2] = {0, 0};
    float best_t;
    _AL_LIST_ITEM* item = NULL;
    _AL_LIST_ITEM* next = NULL;
