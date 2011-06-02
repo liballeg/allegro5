@@ -306,7 +306,11 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
    if (bitmap->parent)
       ogl_bitmap = (void *)bitmap->parent;
 
-   if (!bitmap->locked) {
+   /* if either this bitmap or its parent (in the case of subbitmaps)
+    * is locked then don't do anything
+    */
+   if (!(bitmap->locked ||
+        (bitmap->parent && bitmap->parent->locked))){
       setup_fbo(display, bitmap);
 
       if (display->ogl_extras->opengl_target == ogl_bitmap) {
