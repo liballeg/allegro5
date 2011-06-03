@@ -533,7 +533,7 @@ Get a pixel's color value from the specified bitmap.  This operation is slow
 on non-memory bitmaps. Consider locking the bitmap if you are going to use this
 function multiple times on the same bitmap.
 
-See also: [ALLEGRO_COLOR], [al_put_pixel]
+See also: [ALLEGRO_COLOR], [al_put_pixel], [al_lock_bitmap]
 
 ### API: al_is_bitmap_locked
 
@@ -754,7 +754,7 @@ bitmaps. Consider locking the bitmap if you are going to use this function
 multiple times on the same bitmap. This function is not affected by the
 transformations or the color blenders.
 
-See also: [ALLEGRO_COLOR], [al_get_pixel], [al_put_blended_pixel]
+See also: [ALLEGRO_COLOR], [al_get_pixel], [al_put_blended_pixel], [al_lock_bitmap]
 
 ### API: al_put_blended_pixel
 
