@@ -49,9 +49,9 @@ int _al_d3d_format_to_allegro(int d3d_fmt);
 bool _al_d3d_render_to_texture_supported(void);
 void _al_d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap);
 
-void _al_d3d_release_default_pool_textures(void);
+void _al_d3d_release_default_pool_textures(ALLEGRO_DISPLAY *display);
 void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp);
-void _al_d3d_refresh_texture_memory(void);
+void _al_d3d_refresh_texture_memory(ALLEGRO_DISPLAY *display);
 bool _al_d3d_recreate_bitmap_textures(ALLEGRO_DISPLAY_D3D *disp);
 void _al_d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap);
 bool _al_d3d_supports_separate_alpha_blend(ALLEGRO_DISPLAY *display);

@@ -1177,7 +1177,7 @@ void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
    if (d3d_release_callback) {
       (*d3d_release_callback)();
    }
-   _al_d3d_release_default_pool_textures();
+   _al_d3d_release_default_pool_textures((ALLEGRO_DISPLAY *)disp);
    while (disp->render_target && disp->render_target->Release() != 0) {
       ALLEGRO_WARN("_al_d3d_prepare_for_reset: (bb) ref count not 0\n");
    }
@@ -1328,7 +1328,7 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
       d3d_display->device->GetDepthStencilSurface(&d3d_display->depth_stencil);
    }
 
-   _al_d3d_refresh_texture_memory();
+   _al_d3d_refresh_texture_memory(al_display);
    
    if (d3d_restore_callback) {
       (*d3d_restore_callback)();

@@ -33,7 +33,6 @@ ALLEGRO_DEBUG_CHANNEL("d3d")
 
 
 static ALLEGRO_BITMAP_INTERFACE *vt;
-static _AL_VECTOR created_bitmaps;
 
 // C++ needs to cast void pointers
 #define get_extra(b) ((ALLEGRO_BITMAP_EXTRA_D3D *)b->extra)
@@ -48,17 +47,12 @@ void al_get_d3d_texture_size(ALLEGRO_BITMAP *bitmap, int *width, int *height)
 
 void _al_d3d_bmp_init(void)
 {
-   _al_vector_init(&created_bitmaps, sizeof(ALLEGRO_BITMAP *));
+  
 }
 
 
 void _al_d3d_bmp_destroy(void)
 {
-   while (!_al_vector_is_empty(&created_bitmaps))
-      _al_vector_delete_at(&created_bitmaps, _al_vector_size(&created_bitmaps)-1);
-   _al_vector_free(&created_bitmaps);
-   _al_vector_init(&created_bitmaps, sizeof(ALLEGRO_SYSTEM_INTERFACE *));
-
    al_free(vt);
    vt = NULL;
 }
@@ -203,6 +197,8 @@ static void d3d_sync_bitmap_texture(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
    LPDIRECT3DTEXTURE9 texture;
 
+   if (bitmap->parent) return;
+
    rect.left = x;
    rect.top = y;
    rect.right = x + width;
@@ -278,12 +274,12 @@ static void d3d_do_upload(ALLEGRO_BITMAP *bmp, int x, int y, int width,
  * Release all default pool textures. This must be done before
  * resetting the device.
  */
-void _al_d3d_release_default_pool_textures(void)
+void _al_d3d_release_default_pool_textures(ALLEGRO_DISPLAY *disp)
 {
    unsigned int i;
 
-   for (i = 0; i < created_bitmaps._size; i++) {
-   	ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&created_bitmaps, i);
+   for (i = 0; i < disp->bitmaps._size; i++) {
+   	ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&disp->bitmaps, i);
 	ALLEGRO_BITMAP *albmp = *bptr;
 	ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp;
 	if (albmp->flags & ALLEGRO_MEMORY_BITMAP)
@@ -492,6 +488,7 @@ static void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest)
 void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 {
    unsigned int i;
+   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)disp;
 
    if (disp->device_lost)
       return;
@@ -501,8 +498,8 @@ void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 
    al_lock_mutex(_al_d3d_lost_device_mutex);
 
-   for (i = 0; i < created_bitmaps._size; i++) {
-      ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&created_bitmaps, i);
+   for (i = 0; i < display->bitmaps._size; i++) {
+      ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&display->bitmaps, i);
       ALLEGRO_BITMAP *bmp = *bptr;
       ALLEGRO_BITMAP_EXTRA_D3D *extra = get_extra(bmp);
       if ((void *)bmp->display == (void *)disp) {
@@ -526,9 +523,10 @@ void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 bool _al_d3d_recreate_bitmap_textures(ALLEGRO_DISPLAY_D3D *disp)
 {
    unsigned int i;
+   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)disp;
 
-   for (i = 0; i < created_bitmaps._size; i++) {
-      ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&created_bitmaps, i);
+   for (i = 0; i < display->bitmaps._size; i++) {
+      ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&display->bitmaps, i);
       ALLEGRO_BITMAP *bmp = *bptr;
       ALLEGRO_BITMAP_EXTRA_D3D *extra = get_extra(bmp);
 
@@ -551,12 +549,11 @@ bool _al_d3d_recreate_bitmap_textures(ALLEGRO_DISPLAY_D3D *disp)
  * Refresh the texture memory. This must be done after a device is
  * lost or after it is reset.
  */
-void _al_d3d_refresh_texture_memory(void)
+void _al_d3d_refresh_texture_memory(ALLEGRO_DISPLAY *display)
 {
    unsigned int i;
-
-   for (i = 0; i < created_bitmaps._size; i++) {
-      ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&created_bitmaps, i);
+   for (i = 0; i < display->bitmaps._size; i++) {
+      ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&display->bitmaps, i);
       ALLEGRO_BITMAP *bmp = *bptr;
       ALLEGRO_BITMAP_EXTRA_D3D *extra = get_extra(bmp);
       ALLEGRO_DISPLAY_D3D *bmps_display = (ALLEGRO_DISPLAY_D3D *)bmp->display;
@@ -617,12 +614,6 @@ static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap)
                bitmap->format)) {
             return false;
          }
-
-      /*
-       * Keep track of created bitmaps, in case the display is lost
-       * or resized.
-       */
-      *(ALLEGRO_BITMAP **)_al_vector_alloc_back(&created_bitmaps) = bitmap;
 
       d3d_bmp->initialized = true;
    }
@@ -705,8 +696,6 @@ static void d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
       }
    }
 
-   _al_vector_find_and_delete(&created_bitmaps, &d3d_bmp);
-   
    al_free(bitmap->extra);
 }
 
