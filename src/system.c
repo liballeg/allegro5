@@ -280,6 +280,8 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
    _al_init_pixels();
 
    _al_init_iio_table();
+   
+   _al_init_to_be_converted_bitmaps();
 
    if (atexit_ptr && atexit_virgin) {
       atexit_ptr(al_uninstall_system);
@@ -298,6 +300,7 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
  */
 void al_uninstall_system(void)
 {
+   _al_cleanup_to_be_converted_bitmaps();
    _al_run_destructors(_al_dtor_list);
    _al_run_exit_funcs();
    _al_shutdown_destructors(_al_dtor_list);

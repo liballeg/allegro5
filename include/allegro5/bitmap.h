@@ -178,6 +178,8 @@ AL_FUNC(bool, al_is_sub_bitmap, (ALLEGRO_BITMAP *bitmap));
 
 /* Miscellaneous */
 AL_FUNC(ALLEGRO_BITMAP *, al_clone_bitmap, (ALLEGRO_BITMAP *bitmap));
+AL_FUNC(void, al_convert_bitmap, (ALLEGRO_BITMAP *bitmap));
+AL_FUNC(void, al_convert_all_video_bitmaps, (void));
 AL_FUNC(bool, al_is_bitmap_locked, (ALLEGRO_BITMAP *bitmap));
 
 /* Blending */

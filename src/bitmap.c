@@ -31,6 +31,24 @@ ALLEGRO_DEBUG_CHANNEL("bitmap")
 
 static ALLEGRO_COLOR solid_white = {1, 1, 1, 1};
 
+struct TO_BE_CONVERTED_LIST {
+   ALLEGRO_MUTEX *mutex;
+   _AL_VECTOR bitmaps;
+};
+
+static struct TO_BE_CONVERTED_LIST to_be_converted;
+
+void _al_init_to_be_converted_bitmaps(void)
+{
+   to_be_converted.mutex = al_create_mutex();
+   _al_vector_init(&to_be_converted.bitmaps, sizeof(ALLEGRO_BITMAP *));
+}
+
+void _al_cleanup_to_be_converted_bitmaps(void)
+{
+   _al_vector_free(&to_be_converted.bitmaps);
+   al_destroy_mutex(to_be_converted.mutex);
+}
 
 /* Creates a memory bitmap.
  */
@@ -50,7 +68,17 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    bitmap->vt = NULL;
    bitmap->format = format;
 
+   /* If this is really a video bitmap, we add it to the list of to
+    * be converted bitmaps.
+    */
    bitmap->flags = (al_get_new_bitmap_flags() | ALLEGRO_MEMORY_BITMAP);
+   if (bitmap->flags & ALLEGRO_VIDEO_BITMAP) {
+      ALLEGRO_BITMAP **back;
+      al_lock_mutex(to_be_converted.mutex);
+      back = _al_vector_alloc_back(&to_be_converted.bitmaps);
+      *back = bitmap;
+      al_unlock_mutex(to_be_converted.mutex);
+   }
 
    bitmap->w = w;
    bitmap->h = h;
@@ -739,7 +767,9 @@ ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
 }
 
 
-static void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
+/* Function: al_convert_bitmap
+ */
+void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP temp = *bitmap;
    ALLEGRO_BITMAP *clone;
@@ -783,6 +813,34 @@ static void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
 
    *clone = temp; /* So everything can be deleted properly. */
    al_destroy_bitmap(clone);
+}
+
+
+/* Function: al_convert_all_video_bitmaps
+ */
+void al_convert_all_video_bitmaps(void)
+{
+   ALLEGRO_STATE backup;
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   if (!display) return;
+   
+   al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
+   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+
+   al_lock_mutex(to_be_converted.mutex);
+   
+   while (!_al_vector_is_empty(&to_be_converted.bitmaps)) {
+      ALLEGRO_BITMAP **back;
+      back = _al_vector_ref_back(&to_be_converted.bitmaps);
+      al_convert_bitmap(*back);
+
+      _al_vector_delete_at(&to_be_converted.bitmaps,
+         _al_vector_size(&to_be_converted.bitmaps) - 1);
+   }
+
+   al_unlock_mutex(to_be_converted.mutex);
+   
+   al_restore_state(&backup);
 }
 
 

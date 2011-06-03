@@ -261,8 +261,14 @@ has a maximum allowed texture size - so if bitmap creation fails
 for very large dimensions, you may want to re-try with a smaller
 bitmap.
 
+If you create a bitmap without ALLEGRO_MEMORY_BITMAP set but there is
+no current display, a temporary memory bitmap will be created instead.
+You can later convert all such bitmap to video bitmap and assign to a
+display by calling [al_convert_all_video_bitmaps].
+
 See also: [al_set_new_bitmap_format], [al_set_new_bitmap_flags],
-[al_clone_bitmap], [al_create_sub_bitmap]
+[al_clone_bitmap], [al_create_sub_bitmap],
+[al_convert_all_video_bitmaps]
 
 ### API: al_create_sub_bitmap
 
@@ -288,11 +294,34 @@ See also: [al_create_bitmap]
 
 ### API: al_clone_bitmap
 
-Create a new bitmap with [al_create_bitmap], and copy the pixel data from the
-old bitmap across.
+Create a new bitmap with [al_create_bitmap], and copy the pixel data
+from the old bitmap across.
 
 See also: [al_create_bitmap], [al_set_new_bitmap_format],
-[al_set_new_bitmap_flags]
+[al_set_new_bitmap_flags], [al_convert_bitmap]
+
+### API: al_convert_bitmap
+
+Converts the bitmap to the current bitmap flags and format. The bitmap
+will be as if it was created anew with al_create_bitmap but retain its
+contents.
+
+If the bitmap has sub-bitmaps you also must call al_convert_bitmap on
+all its sub-bitmaps. If the bitmap is a sub-bitmap you must also call
+al_convert_bitmap on the parent.
+
+See also: [al_create_bitmap], [al_set_new_bitmap_format],
+[al_set_new_bitmap_flags], [al_clone_bitmap]
+
+### API: al_convert_all_video_bitmaps
+
+If you create a video bitmap when there is no current display (for
+example because you have not called al_create_display in the current
+thread) the video bitmap will be created successfully, but really be
+a memory bitmap. This function converts all such bitmaps to proper
+video bitmaps belonging to the current display.
+
+See also:  [al_convert_bitmap], [al_create_bitmap]
 
 ### API: al_destroy_bitmap
 
