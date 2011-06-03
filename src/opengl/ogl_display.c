@@ -57,13 +57,13 @@ void _al_ogl_reset_fbo_info(ALLEGRO_FBO_INFO *info)
 
 bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP_OGL *ogl_bitmap;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap;
    ALLEGRO_FBO_INFO *info;
    GLint old_fbo;
 
    if (bitmap->parent)
       bitmap = bitmap->parent;
-   ogl_bitmap = (void *)bitmap;
+   ogl_bitmap = bitmap->extra;
 
    /* Don't continue if the bitmap does not belong to the current display. */
    if (bitmap->display->ogl_extras->is_shared == false &&
@@ -102,7 +102,7 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, old_fbo);
 
    info->fbo_state = FBO_INFO_PERSISTENT;
-   info->owner = ogl_bitmap;
+   info->owner = bitmap;
    info->last_use_time = al_get_time();
    ogl_bitmap->fbo_info = info;
    ALLEGRO_DEBUG("Persistent FBO: %u\n", info->fbo);
@@ -155,11 +155,11 @@ static ALLEGRO_FBO_INFO *ogl_find_unused_fbo(ALLEGRO_DISPLAY *display)
 
 static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP_OGL *ogl_bitmap;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap;
 
    if (bitmap->parent)
       bitmap = bitmap->parent;
-   ogl_bitmap = (void *)bitmap;
+   ogl_bitmap = bitmap->extra;
 
 #if !defined ALLEGRO_GP2XWIZ
    if (!ogl_bitmap->is_backbuffer) {
@@ -184,7 +184,8 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
             ASSERT(info->fbo_state != FBO_INFO_PERSISTENT);
 
             if (info->fbo_state == FBO_INFO_TRANSIENT) {
-               info->owner->fbo_info = NULL;
+               ALLEGRO_BITMAP_EXTRA_OPENGL *extra = info->owner->extra;
+               extra->fbo_info = NULL;
                ALLEGRO_DEBUG("Deleting FBO: %u\n", info->fbo);
                glDeleteFramebuffersEXT(1, &info->fbo);
                _al_ogl_reset_fbo_info(info);
@@ -206,7 +207,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 #endif
          if (info->fbo_state == FBO_INFO_UNUSED)
             info->fbo_state = FBO_INFO_TRANSIENT;
-         info->owner = ogl_bitmap;
+         info->owner = bitmap;
          info->last_use_time = al_get_time();
          ogl_bitmap->fbo_info = info;
 
@@ -230,7 +231,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
             ogl_bitmap->fbo_info = NULL;
          }
          else {
-            display->ogl_extras->opengl_target = ogl_bitmap;
+            display->ogl_extras->opengl_target = bitmap;
 
             glViewport(0, 0, bitmap->w, bitmap->h);
 
@@ -242,7 +243,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       }
    }
    else {
-      display->ogl_extras->opengl_target = ogl_bitmap;
+      display->ogl_extras->opengl_target = bitmap;
 
 #ifndef ALLEGRO_IPHONE
       if (display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
@@ -302,9 +303,9 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 
 void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+   ALLEGRO_BITMAP *target = bitmap;
    if (bitmap->parent)
-      ogl_bitmap = (void *)bitmap->parent;
+      target = bitmap->parent;
 
    /* if either this bitmap or its parent (in the case of subbitmaps)
     * is locked then don't do anything
@@ -313,7 +314,7 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
         (bitmap->parent && bitmap->parent->locked))){
       setup_fbo(display, bitmap);
 
-      if (display->ogl_extras->opengl_target == ogl_bitmap) {
+      if (display->ogl_extras->opengl_target == target) {
          _al_ogl_setup_bitmap_clipping(bitmap);
       }
    }
@@ -395,42 +396,43 @@ ALLEGRO_BITMAP *_al_ogl_get_backbuffer(ALLEGRO_DISPLAY *d)
 }
 
 
-bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP_OGL *b, int w, int h)
+bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP *b, int w, int h)
 {
    int pitch;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *extra = b->extra;
          
-   pitch = w * al_get_pixel_size(b->bitmap.format);
+   pitch = w * al_get_pixel_size(b->format);
 
-   b->bitmap.w = w;
-   b->bitmap.h = h;
-   b->bitmap.pitch = pitch;
-   b->bitmap.cl = 0;
-   b->bitmap.ct = 0;
-   b->bitmap.cr_excl = w;
-   b->bitmap.cb_excl = h;
+   b->w = w;
+   b->h = h;
+   b->pitch = pitch;
+   b->cl = 0;
+   b->ct = 0;
+   b->cr_excl = w;
+   b->cb_excl = h;
 
    /* There is no texture associated with the backbuffer so no need to care
     * about texture size limitations. */
-   b->true_w = w;
-   b->true_h = h;
+   extra->true_w = w;
+   extra->true_h = h;
 
    /* This code below appears to be unneccessary on platforms other than
     * OS X.
     */
 #ifdef ALLEGRO_MACOSX
-   b->bitmap.display->vt->set_projection(b->bitmap.display);
+   b->bitmap.display->vt->set_projection(b->display);
 #endif
 
 #if !defined(ALLEGRO_IPHONE) && !defined(ALLEGRO_GP2XWIZ)
-   b->bitmap.memory = NULL;
+   b->memory = NULL;
 #else
    /* iPhone/Wiz ports still expect the buffer to be present. */
    {
       /* FIXME: lazily manage memory */
       size_t bytes = pitch * h;
-      al_free(b->bitmap.memory);
-      b->bitmap.memory = al_malloc(bytes);
-      memset(b->bitmap.memory, 0, bytes);
+      al_free(b->memory);
+      b->memory = al_malloc(bytes);
+      memset(b->memory, 0, bytes);
    }
 #endif
 
@@ -438,9 +440,9 @@ bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP_OGL *b, int w, int h)
 }
 
 
-ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
+ALLEGRO_BITMAP* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
 {
-   ALLEGRO_BITMAP_OGL *ogl_backbuffer;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_backbuffer;
    ALLEGRO_BITMAP *backbuffer;
    ALLEGRO_STATE backup;
    int format;
@@ -481,6 +483,13 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
    al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
    backbuffer = _al_ogl_create_bitmap(disp, disp->w, disp->h);
    al_restore_state(&backup);
+   
+   backbuffer->w = disp->w;
+   backbuffer->h = disp->h;
+   backbuffer->cl = 0;
+   backbuffer->ct = 0;
+   backbuffer->cr_excl = disp->w;
+   backbuffer->cb_excl = disp->h;
 
    if (!backbuffer) {
       ALLEGRO_DEBUG("Backbuffer bitmap creation failed.\n");
@@ -491,19 +500,19 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
       "Created backbuffer bitmap (actual format: %s)\n",
       _al_format_name(backbuffer->format));
 
-   ogl_backbuffer = (ALLEGRO_BITMAP_OGL*)backbuffer;
+   ogl_backbuffer = backbuffer->extra;
    ogl_backbuffer->is_backbuffer = 1;
    backbuffer->display = disp;
 
    al_identity_transform(&disp->view_transform);
 
-   return ogl_backbuffer;
+   return backbuffer;
 }
 
 
-void _al_ogl_destroy_backbuffer(ALLEGRO_BITMAP_OGL *b)
+void _al_ogl_destroy_backbuffer(ALLEGRO_BITMAP *b)
 {
-   al_destroy_bitmap((ALLEGRO_BITMAP *)b);
+   al_destroy_bitmap(b);
 }
 
 

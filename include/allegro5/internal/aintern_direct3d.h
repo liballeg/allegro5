@@ -9,10 +9,8 @@
 extern "C" {
 #endif
 
-typedef struct ALLEGRO_BITMAP_D3D
+typedef struct ALLEGRO_BITMAP_EXTRA_D3D
 {
-   ALLEGRO_BITMAP bitmap; /* This must be the first member. */
-
    /* Driver specifics. */
 
    unsigned int texture_w;
@@ -31,7 +29,7 @@ typedef struct ALLEGRO_BITMAP_D3D
    IDirect3DSurface9 *render_target;
 
    bool modified;
-} ALLEGRO_BITMAP_D3D;
+} ALLEGRO_BITMAP_EXTRA_D3D;
 
 typedef struct ALLEGRO_DISPLAY_D3D
 {
@@ -47,7 +45,8 @@ typedef struct ALLEGRO_DISPLAY_D3D
    bool reset_done;
    bool reset_success;
 
-   ALLEGRO_BITMAP_D3D backbuffer_bmp;
+   ALLEGRO_BITMAP backbuffer_bmp;
+   ALLEGRO_BITMAP_EXTRA_D3D backbuffer_bmp_extra;
 
    bool device_lost;
 

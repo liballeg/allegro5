@@ -323,16 +323,19 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const 
 
    int num_primitives = 0;
    ALLEGRO_DISPLAY *ogl_disp = target->display;
-   ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
+   ALLEGRO_BITMAP *opengl_target = target;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *extra;
    const void* vtx;
    int stride = decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX);
    int num_vtx;
    
    if (target->parent) {
-       ogl_target = (ALLEGRO_BITMAP_OGL *)target->parent;
+       opengl_target = target->parent;
    }
+   extra = opengl_target->extra;
   
-   if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) || al_is_bitmap_locked(target)) {
+   if ((!extra->is_backbuffer && ogl_disp->ogl_extras->opengl_target !=
+      opengl_target) || al_is_bitmap_locked(target)) {
       return _al_draw_prim_soft(texture, vtxs, decl, start, end, type);
    }
 
@@ -461,7 +464,8 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
 
    int num_primitives = 0;
    ALLEGRO_DISPLAY *ogl_disp = target->display;
-   ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *extra;
+   ALLEGRO_BITMAP *ogl_target = target;
    const void* vtx;
    const void* idx = indices;
    GLenum idx_size;
@@ -472,10 +476,11 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
 #endif
 
    if (target->parent) {
-       ogl_target = (ALLEGRO_BITMAP_OGL *)target->parent;
+       ogl_target = target->parent;
    }
+   extra = ogl_target->extra;
 
-   if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) || al_is_bitmap_locked(target)) {
+   if ((!extra->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) || al_is_bitmap_locked(target)) {
       return _al_draw_prim_indexed_soft(texture, decl, vtxs, indices, num_vtx, type);
    }
    

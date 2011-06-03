@@ -25,8 +25,6 @@ enum {
 
 #define ALLEGRO_MAX_OPENGL_FBOS 8
 
-struct ALLEGRO_BITMAP_OGL;
-
 enum {
    FBO_INFO_UNUSED      = 0,
    FBO_INFO_TRANSIENT   = 1,  /* may be destroyed for another bitmap */
@@ -37,14 +35,12 @@ typedef struct ALLEGRO_FBO_INFO
 {
    int fbo_state;
    GLuint fbo;
-   struct ALLEGRO_BITMAP_OGL *owner;
+   ALLEGRO_BITMAP *owner;
    double last_use_time;
 } ALLEGRO_FBO_INFO;
 
-typedef struct ALLEGRO_BITMAP_OGL
+typedef struct ALLEGRO_BITMAP_EXTRA_OPENGL
 {
-   ALLEGRO_BITMAP bitmap; /* This must be the first member. */
-
    /* Driver specifics. */
 
    int true_w;
@@ -65,8 +61,7 @@ typedef struct ALLEGRO_BITMAP_OGL
 
    float left, top, right, bottom; /* Texture coordinates. */
    bool is_backbuffer; /* This is not a real bitmap, but the backbuffer. */
-} ALLEGRO_BITMAP_OGL;
-
+} ALLEGRO_BITMAP_EXTRA_OPENGL;
 
 typedef struct OPENGL_INFO {
    uint32_t version;       /* OpenGL version */
@@ -91,9 +86,9 @@ typedef struct ALLEGRO_OGL_EXTRAS
    /* Various info about OpenGL implementation. */
    OPENGL_INFO ogl_info;
 
-   ALLEGRO_BITMAP_OGL *opengl_target;
+   ALLEGRO_BITMAP *opengl_target;
 
-   ALLEGRO_BITMAP_OGL *backbuffer;
+   ALLEGRO_BITMAP *backbuffer;
 
    /* True if display resources are shared among displays. */
    bool is_shared;
@@ -160,9 +155,9 @@ ALLEGRO_FBO_INFO *_al_ogl_persist_fbo(ALLEGRO_DISPLAY *display,
 void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
 void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap);
 ALLEGRO_BITMAP *_al_ogl_get_backbuffer(ALLEGRO_DISPLAY *d);
-ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp);
-void _al_ogl_destroy_backbuffer(ALLEGRO_BITMAP_OGL *b);
-bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP_OGL *b, int w, int h);
+ALLEGRO_BITMAP* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp);
+void _al_ogl_destroy_backbuffer(ALLEGRO_BITMAP *b);
+bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP *b, int w, int h);
 
 struct ALLEGRO_DISPLAY_INTERFACE;
 

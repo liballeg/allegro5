@@ -165,15 +165,15 @@ static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 {
    ALLEGRO_DISPLAY *ogl_disp = (void *)d;
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_BITMAP_OGL *ogl_target;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_target;
    float r, g, b, a;
    
    if (target->parent) target = target->parent;
    
-   ogl_target = (void *)target;
+   ogl_target = target->extra;
 
    if ((!ogl_target->is_backbuffer &&
-      ogl_disp->ogl_extras->opengl_target != ogl_target) ||
+      ogl_disp->ogl_extras->opengl_target != target) ||
       target->locked) {
       _al_clear_memory(color);
       return;
@@ -190,12 +190,12 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
    ALLEGRO_COLOR *color)
 {
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_target = target->extra;
    GLfloat vert[2];
    GLfloat color_array[4];
 
    if ((!ogl_target->is_backbuffer &&
-      d->ogl_extras->opengl_target != ogl_target) ||
+      d->ogl_extras->opengl_target != target) ||
       target->locked || !set_opengl_blending(d))  {
       _al_draw_pixel_memory(target, x, y, color);
       return;

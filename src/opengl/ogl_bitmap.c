@@ -232,7 +232,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
 {
    float tex_l, tex_t, tex_r, tex_b, w, h, tex_w, tex_h;
    float dw = sw, dh = sh;
-   ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
    ALLEGRO_OGL_BITMAP_VERTEX *verts;
    ALLEGRO_DISPLAY *disp = al_get_current_display();
    
@@ -319,7 +319,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
    // FIXME: hack
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_BITMAP_OGL *ogl_target;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_target;
    ALLEGRO_DISPLAY *disp = target->display;
 
    /* For sub-bitmaps */
@@ -327,11 +327,11 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
       target = target->parent;
    }
 
-   ogl_target = (ALLEGRO_BITMAP_OGL *)target;
+   ogl_target = target->extra;
 
    if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP)) {
 #if !defined ALLEGRO_GP2XWIZ
-      ALLEGRO_BITMAP_OGL *ogl_source = (void *)bitmap;
+      ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_source = bitmap->extra;
       if (ogl_source->is_backbuffer) {
          /* Our source bitmap is the OpenGL backbuffer, the target
           * is an OpenGL texture.
@@ -392,7 +392,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
       return;
 #endif
    }
-   if (disp->ogl_extras->opengl_target == ogl_target) {
+   if (disp->ogl_extras->opengl_target == target) {
       if (setup_blending(disp)) {
          draw_quad(bitmap, tint, sx, sy, sw, sh, flags);
          return;
@@ -417,7 +417,7 @@ static int pot(int x)
 // proxy textures, formats, limits ...
 static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
    int w = bitmap->w;
    int h = bitmap->h;
    bool post_generate_mipmap = false;
@@ -550,13 +550,13 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
 static void ogl_update_clipping_rectangle(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_DISPLAY *ogl_disp = al_get_current_display();
-   ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+   ALLEGRO_BITMAP *target_bitmap = bitmap;
 
    if (bitmap->parent) {
-      ogl_bitmap = (ALLEGRO_BITMAP_OGL *)bitmap->parent;
+      target_bitmap = bitmap->parent;
    }
 
-   if (ogl_disp->ogl_extras->opengl_target == ogl_bitmap) {
+   if (ogl_disp->ogl_extras->opengl_target == target_bitmap) {
       _al_ogl_setup_bitmap_clipping(bitmap);
    }
 }
@@ -604,7 +604,7 @@ static bool exactly_15bpp(int pixel_format)
 static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    int x, int y, int w, int h, int format, int flags)
 {
-   ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
    int pixel_size;
    int pixel_alignment;
    int pitch;
@@ -787,7 +787,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
  */
 static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
    const int lock_format = bitmap->locked_region.format;
    ALLEGRO_DISPLAY *disp;
    ALLEGRO_DISPLAY *old_disp = NULL;
@@ -1015,7 +1015,7 @@ Done:
 
 static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
    ALLEGRO_DISPLAY *disp;
    ALLEGRO_DISPLAY *old_disp = NULL;
 
@@ -1036,6 +1036,8 @@ static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
    if (old_disp) {
       _al_set_current_display_only(old_disp);
    }
+   
+   al_free(ogl_bitmap);
 }
 
 
@@ -1063,7 +1065,8 @@ static ALLEGRO_BITMAP_INTERFACE *ogl_bitmap_driver(void)
 
 ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 {
-   ALLEGRO_BITMAP_OGL *bitmap;
+   ALLEGRO_BITMAP *bitmap;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *extra;
    int format = al_get_new_bitmap_format();
    const int flags = al_get_new_bitmap_flags();
    int true_w;
@@ -1107,97 +1110,91 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 
    pitch = true_w * al_get_pixel_size(format);
 
-   bitmap = al_malloc(sizeof *bitmap);
+   bitmap = al_calloc(1, sizeof *bitmap);
    ASSERT(bitmap);
-   memset(bitmap, 0, sizeof *bitmap);
-   bitmap->bitmap.size = sizeof *bitmap;
-   bitmap->bitmap.vt = ogl_bitmap_driver();
-   bitmap->bitmap.w = w;
-   bitmap->bitmap.h = h;
-   bitmap->bitmap.pitch = pitch;
-   bitmap->bitmap.format = format;
-   bitmap->bitmap.flags = flags | _ALLEGRO_INTERNAL_OPENGL;
-   bitmap->bitmap.cl = 0;
-   bitmap->bitmap.ct = 0;
-   bitmap->bitmap.cr_excl = w;
-   bitmap->bitmap.cb_excl = h;
-   /* Back and front buffers should share a transform, which they do
-    * because our OpenGL driver returns the same pointer for both.
-    */
-   al_identity_transform(&bitmap->bitmap.transform);
+   bitmap->extra = al_calloc(1, sizeof(ALLEGRO_BITMAP_EXTRA_OPENGL));
+   ASSERT(bitmap->extra);
+   extra = bitmap->extra;
+   
+   bitmap->vt = ogl_bitmap_driver();
+   bitmap->pitch = pitch;
+   bitmap->format = format;
+   bitmap->flags = flags | _ALLEGRO_INTERNAL_OPENGL;
 
-   bitmap->true_w = true_w;
-   bitmap->true_h = true_h;
+   extra->true_w = true_w;
+   extra->true_h = true_h;
 
 #if !defined(ALLEGRO_IPHONE) && !defined(ALLEGRO_GP2XWIZ)
-   bitmap->bitmap.memory = NULL;
+   bitmap->memory = NULL;
 #else
    /* iPhone/Wiz ports still expect the buffer to be present. */
    {
       size_t bytes = pitch * true_h;
-      bitmap->bitmap.memory = al_malloc(bytes);
+      bitmap->memory = al_malloc(bytes);
 
       /* We never allow un-initialized memory for OpenGL bitmaps, if it
        * is uploaded to a floating point texture it can lead to Inf and
        * NaN values which break all subsequent blending.
        */
-      memset(bitmap->bitmap.memory, 0, bytes);
+      memset(bitmap->memory, 0, bytes);
    }
 #endif
 
-   return &bitmap->bitmap;
+   return bitmap;
 }
-
 
 
 ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d,
                                           ALLEGRO_BITMAP *parent,
                                           int x, int y, int w, int h)
 {
-   ALLEGRO_BITMAP_OGL* ogl_bmp;
-   ALLEGRO_BITMAP_OGL* ogl_parent = (void*)parent;
+   ALLEGRO_BITMAP *bmp;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *extra;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *parent_extra = parent->extra;
    (void)d;
 
-   ogl_bmp = al_malloc(sizeof *ogl_bmp);
-   memset(ogl_bmp, 0, sizeof *ogl_bmp);
+   bmp = al_calloc(1, sizeof *bmp);
+   extra = al_calloc(1, sizeof *extra);
+   bmp->extra = extra;
 
-   ogl_bmp->true_w = ogl_parent->true_w;
-   ogl_bmp->true_h = ogl_parent->true_h;
-   ogl_bmp->texture = ogl_parent->texture;
+   extra->true_w = parent_extra->true_w;
+   extra->true_h = parent_extra->true_h;
+   extra->texture = parent_extra->texture;
 
 #if !defined ALLEGRO_GP2XWIZ
-   ogl_bmp->fbo_info = ogl_parent->fbo_info;
+   extra->fbo_info = parent_extra->fbo_info;
 #endif
 
-   ogl_bmp->left = x / (float)ogl_parent->true_w;
-   ogl_bmp->right = (x + w) / (float)ogl_parent->true_w;
-   ogl_bmp->top = (parent->h - y) / (float)ogl_parent->true_h;
-   ogl_bmp->bottom = (parent->h - y - h) / (float)ogl_parent->true_h;
+   extra->left = x / (float)parent_extra->true_w;
+   extra->right = (x + w) / (float)parent_extra->true_w;
+   extra->top = (parent->h - y) / (float)parent_extra->true_h;
+   extra->bottom = (parent->h - y - h) / (float)parent_extra->true_h;
 
-   ogl_bmp->is_backbuffer = ogl_parent->is_backbuffer;
+   extra->is_backbuffer = parent_extra->is_backbuffer;
 
-   ogl_bmp->bitmap.vt = parent->vt;
+   bmp->vt = parent->vt;
    
-   ogl_bmp->bitmap.flags |= _ALLEGRO_INTERNAL_OPENGL;
+   bmp->flags |= _ALLEGRO_INTERNAL_OPENGL;
 
-   return (void*)ogl_bmp;
+   return bmp;
 }
+
 
 /* Function: al_get_opengl_texture
  */
 GLuint al_get_opengl_texture(ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *extra = bitmap->extra;
    if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL))
       return 0;
-   return ogl_bitmap->texture;
+   return extra->texture;
 }
 
 /* Function: al_remove_opengl_fbo
  */
 void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
 
    if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL))
       return;
@@ -1229,7 +1226,7 @@ void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 GLuint al_get_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 {
 #if !defined ALLEGRO_GP2XWIZ
-   ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
 
    if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL))
       return 0;
@@ -1259,7 +1256,7 @@ void al_get_opengl_texture_size(ALLEGRO_BITMAP *bitmap, int *w, int *h)
     * texture sizes, so this will be the only way there to get the texture
     * size. On normal OpenGL also glGetTexLevelParameter could be used.
     */
-   ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
    if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL)) {
       *w = 0;
       *h = 0;

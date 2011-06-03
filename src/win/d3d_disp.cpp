@@ -35,6 +35,9 @@
 
 #include "d3d.h"
 
+// C++ needs to cast void pointers
+#define get_extra(b) ((ALLEGRO_BITMAP_EXTRA_D3D *)b->extra)
+
 static const char* _al_d3d_module_name = "d3d9.dll";
 
 ALLEGRO_DEBUG_CHANNEL("d3d")
@@ -1927,18 +1930,19 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    d3d_reset_state(d3d_display);
 
    //d3d_display->backbuffer_bmp.render_target = d3d_display->render_target;
-   d3d_display->backbuffer_bmp.is_backbuffer = true;
-   d3d_display->backbuffer_bmp.bitmap.display = al_display;
-   d3d_display->backbuffer_bmp.bitmap.format = _al_deduce_color_format(&al_display->extra_settings);
-   d3d_display->backbuffer_bmp.bitmap.flags = 0;
-   d3d_display->backbuffer_bmp.bitmap.w = al_display->w;
-   d3d_display->backbuffer_bmp.bitmap.h = al_display->h;
-   d3d_display->backbuffer_bmp.bitmap.cl = 0;
-   d3d_display->backbuffer_bmp.bitmap.ct = 0;
-   d3d_display->backbuffer_bmp.bitmap.cr_excl = al_display->w;
-   d3d_display->backbuffer_bmp.bitmap.cb_excl = al_display->h;
-   d3d_display->backbuffer_bmp.bitmap.vt = (ALLEGRO_BITMAP_INTERFACE *)_al_bitmap_d3d_driver();
-   d3d_display->backbuffer_bmp.display = d3d_display;
+   d3d_display->backbuffer_bmp.extra = &d3d_display->backbuffer_bmp_extra;
+   d3d_display->backbuffer_bmp_extra.is_backbuffer = true;
+   d3d_display->backbuffer_bmp.display = al_display;
+   d3d_display->backbuffer_bmp.format = _al_deduce_color_format(&al_display->extra_settings);
+   d3d_display->backbuffer_bmp.flags = 0;
+   d3d_display->backbuffer_bmp.w = al_display->w;
+   d3d_display->backbuffer_bmp.h = al_display->h;
+   d3d_display->backbuffer_bmp.cl = 0;
+   d3d_display->backbuffer_bmp.ct = 0;
+   d3d_display->backbuffer_bmp.cr_excl = al_display->w;
+   d3d_display->backbuffer_bmp.cb_excl = al_display->h;
+   d3d_display->backbuffer_bmp.vt = (ALLEGRO_BITMAP_INTERFACE *)_al_bitmap_d3d_driver();
+   d3d_display->backbuffer_bmp_extra.display = d3d_display;
 
    /* Alpha blending is the default */
    d3d_display->device->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
@@ -2289,7 +2293,8 @@ static void d3d_update_display_region(ALLEGRO_DISPLAY *al_display,
  */
 void _al_d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_DISPLAY_D3D *disp = ((ALLEGRO_BITMAP_D3D *)bitmap)->display;
+   ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
+   ALLEGRO_DISPLAY_D3D *disp = d3d_bmp->display;
    RECT rect;
 
    if (!disp)
@@ -2340,12 +2345,12 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
       d->h = h;
    }
 
-   disp->backbuffer_bmp.bitmap.w = d->w;
-   disp->backbuffer_bmp.bitmap.h = d->h;
-   disp->backbuffer_bmp.bitmap.cl = 0;
-   disp->backbuffer_bmp.bitmap.ct = 0;
-   disp->backbuffer_bmp.bitmap.cr_excl = w;
-   disp->backbuffer_bmp.bitmap.cb_excl = h;
+   disp->backbuffer_bmp.w = d->w;
+   disp->backbuffer_bmp.h = d->h;
+   disp->backbuffer_bmp.cl = 0;
+   disp->backbuffer_bmp.ct = 0;
+   disp->backbuffer_bmp.cr_excl = w;
+   disp->backbuffer_bmp.cb_excl = h;
 
    disp->do_reset = true;
    while (!disp->reset_done) {
@@ -2439,18 +2444,18 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
        * changed to match the new size.
        */
       al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
-      al_set_target_bitmap(&disp->backbuffer_bmp.bitmap);
-      disp->backbuffer_bmp.bitmap.w = width;
-      disp->backbuffer_bmp.bitmap.h = height;
+      al_set_target_bitmap(&disp->backbuffer_bmp);
+      disp->backbuffer_bmp.w = width;
+      disp->backbuffer_bmp.h = height;
       al_set_clipping_rectangle(0, 0, width, height);
-      _al_d3d_set_bitmap_clip(&disp->backbuffer_bmp.bitmap);
+      _al_d3d_set_bitmap_clip(&disp->backbuffer_bmp);
       al_restore_state(&backup);
 
       ret = true;
    }
 
-   disp->backbuffer_bmp.bitmap.w = width;
-   disp->backbuffer_bmp.bitmap.h = height;
+   disp->backbuffer_bmp.w = width;
+   disp->backbuffer_bmp.h = height;
 
    return ret;
 }
@@ -2480,14 +2485,13 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
 ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    int w, int h)
 {
-   ALLEGRO_BITMAP_D3D *bitmap = (ALLEGRO_BITMAP_D3D*)al_malloc(sizeof *bitmap);
+   ALLEGRO_BITMAP *bitmap = (ALLEGRO_BITMAP *)al_malloc(sizeof *bitmap);
+   ALLEGRO_BITMAP_EXTRA_D3D *extra;
    int format;
    int flags;
 
    ASSERT(bitmap);
    (void)h;
-
-   bitmap->bitmap.size = sizeof *bitmap;
 
    format = al_get_new_bitmap_format();
    flags = al_get_new_bitmap_flags();
@@ -2506,56 +2510,61 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
 
    ALLEGRO_INFO("Chose bitmap format %d\n", format);
 
-   bitmap->bitmap.vt = _al_bitmap_d3d_driver();
-   bitmap->bitmap.memory = NULL;
-   bitmap->bitmap.format = format;
-   bitmap->bitmap.flags = flags;
-   bitmap->bitmap.pitch = w * al_get_pixel_size(format);
-   al_identity_transform(&bitmap->bitmap.transform);
+   bitmap->vt = _al_bitmap_d3d_driver();
+   bitmap->memory = NULL;
+   bitmap->format = format;
+   bitmap->flags = flags;
+   bitmap->pitch = w * al_get_pixel_size(format);
+   al_identity_transform(&bitmap->transform);
 
-   bitmap->bitmap.memory = (unsigned char *)al_malloc(bitmap->bitmap.pitch * h);
+   bitmap->memory = (unsigned char *)al_malloc(bitmap->pitch * h);
 
-   bitmap->video_texture = 0;
-   bitmap->system_texture = 0;
-   bitmap->initialized = false;
-   bitmap->is_backbuffer = false;
-   bitmap->render_target = NULL;
-   bitmap->modified = true;
+   extra = (ALLEGRO_BITMAP_EXTRA_D3D *)al_calloc(1, sizeof *extra);
+   bitmap->extra = extra;
+   extra->video_texture = 0;
+   extra->system_texture = 0;
+   extra->initialized = false;
+   extra->is_backbuffer = false;
+   extra->render_target = NULL;
+   extra->modified = true;
 
-   bitmap->display = (ALLEGRO_DISPLAY_D3D *)d;
+   extra->display = (ALLEGRO_DISPLAY_D3D *)d;
 
-   return &bitmap->bitmap;
+   return bitmap;
 }
 
 static ALLEGRO_BITMAP *d3d_create_sub_bitmap(ALLEGRO_DISPLAY *display,
    ALLEGRO_BITMAP *parent, int x, int y, int width, int height)
 {
-   ALLEGRO_BITMAP_D3D *bitmap = (ALLEGRO_BITMAP_D3D*)al_malloc(sizeof *bitmap);
+   ALLEGRO_BITMAP *bitmap = (ALLEGRO_BITMAP *)al_malloc(sizeof *bitmap);
+   ALLEGRO_BITMAP_EXTRA_D3D *extra;
+   ALLEGRO_BITMAP_EXTRA_D3D *pextra = get_extra(parent);
+   extra = (ALLEGRO_BITMAP_EXTRA_D3D *)al_calloc(1, sizeof *extra);
+   bitmap->extra = extra;
 
    (void)x;
    (void)y;
    (void)width;
    (void)height;
 
-   bitmap->texture_w = 0;
-   bitmap->texture_h = 0;
-   bitmap->video_texture = ((ALLEGRO_BITMAP_D3D *)parent)->video_texture;
-   bitmap->system_texture = ((ALLEGRO_BITMAP_D3D *)parent)->system_texture;
-   bitmap->initialized = false;
-   bitmap->is_backbuffer = ((ALLEGRO_BITMAP_D3D *)parent)->is_backbuffer;
-   bitmap->display = (ALLEGRO_DISPLAY_D3D *)display;
-   bitmap->render_target = ((ALLEGRO_BITMAP_D3D *)parent)->render_target;
-   bitmap->modified = true;
-   al_identity_transform(&bitmap->bitmap.transform);
+   extra->texture_w = 0;
+   extra->texture_h = 0;
+   extra->video_texture = pextra->video_texture;
+   extra->system_texture = pextra->system_texture;
+   extra->initialized = false;
+   extra->is_backbuffer = pextra->is_backbuffer;
+   extra->display = (ALLEGRO_DISPLAY_D3D *)display;
+   extra->render_target = pextra->render_target;
+   extra->modified = true;
 
-   bitmap->bitmap.vt = parent->vt;
-   return (ALLEGRO_BITMAP *)bitmap;
+   bitmap->vt = parent->vt;
+   return bitmap;
 }
 
 static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP *target;
-   ALLEGRO_BITMAP_D3D *d3d_target;
+   ALLEGRO_BITMAP_EXTRA_D3D *d3d_target;
    ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
    D3DVIEWPORT9 viewport;
    viewport.X = 0;
@@ -2572,14 +2581,17 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    else {
       target = bitmap;
    }
-   d3d_target = (ALLEGRO_BITMAP_D3D *)target;
+   d3d_target = get_extra(target);
 
    /* Release the previous target bitmap if it was not the backbuffer */
 
-   ALLEGRO_BITMAP_D3D *currtarget = (ALLEGRO_BITMAP_D3D *)al_get_target_bitmap();
-   if (currtarget && !currtarget->is_backbuffer && currtarget->render_target) {
-      currtarget->render_target->Release();
-      currtarget->render_target = NULL;
+   ALLEGRO_BITMAP *currtarget = al_get_target_bitmap();
+   if (currtarget) {
+      ALLEGRO_BITMAP_EXTRA_D3D *cextra = get_extra(currtarget);
+      if (!cextra->is_backbuffer && cextra->render_target) {
+         cextra->render_target->Release();
+         cextra->render_target = NULL;
+      }
    }
 
    /* Set the render target */
@@ -2679,14 +2691,16 @@ LPDIRECT3DDEVICE9 al_get_d3d_device(ALLEGRO_DISPLAY *display)
  */
 LPDIRECT3DTEXTURE9 al_get_d3d_system_texture(ALLEGRO_BITMAP *bitmap)
 {
-   return ((ALLEGRO_BITMAP_D3D *)bitmap)->system_texture;
+   ALLEGRO_BITMAP_EXTRA_D3D *e = get_extra(bitmap);
+   return e->system_texture;
 }
 
 /* Function: al_get_d3d_video_texture
  */
 LPDIRECT3DTEXTURE9 al_get_d3d_video_texture(ALLEGRO_BITMAP *bitmap)
 {
-   return ((ALLEGRO_BITMAP_D3D *)bitmap)->video_texture;
+   ALLEGRO_BITMAP_EXTRA_D3D *e = get_extra(bitmap);
+   return e->video_texture;
 }
 
 /* Function: al_get_d3d_texture_position
@@ -2779,7 +2793,7 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 
    ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;
    ALLEGRO_BITMAP* cache_bmp = (ALLEGRO_BITMAP*)disp->cache_texture;
-   ALLEGRO_BITMAP_D3D* d3d_bmp = (ALLEGRO_BITMAP_D3D*)cache_bmp;
+   ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(cache_bmp);
 
    if (cache_bmp->flags & ALLEGRO_MIN_LINEAR) {
       d3d_disp->device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);

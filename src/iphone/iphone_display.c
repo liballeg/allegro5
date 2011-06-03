@@ -115,9 +115,10 @@ void _al_iphone_translate_to_screen(ALLEGRO_DISPLAY *d, int *ox, int *oy)
 
 void _al_iphone_clip(ALLEGRO_BITMAP const *bitmap, int x_1, int y_1, int x_2, int y_2)
 {
-   ALLEGRO_BITMAP_OGL *oglb = (void *)(bitmap->parent ? bitmap->parent : bitmap);
-   int h = oglb->bitmap.h;
-   if (_screen_hack && oglb->is_backbuffer) {
+   ALLEGRO_BITMAP *oglb = (void *)(bitmap->parent ? bitmap->parent : bitmap);
+   ALLEGRO_BITMAP_EXTRA_OPENGL *e = oglb->extra;
+   int h = oglb->h;
+   if (_screen_hack && e->is_backbuffer) {
       _al_iphone_translate_to_screen(bitmap->display, &x_1, &y_1);
       _al_iphone_translate_to_screen(bitmap->display, &x_2, &y_2);
       if (x_1 > x_2) {

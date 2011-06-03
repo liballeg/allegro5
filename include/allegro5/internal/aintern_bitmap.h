@@ -65,11 +65,10 @@ struct ALLEGRO_BITMAP
    /* A memory copy of the bitmap data. May be NULL for an empty bitmap. */
    unsigned char *memory;
 
-   /* Size of the bitmap object. Used only by functions to convert bitmap
-      storage type. Can be missleading. */
-   size_t size;
-
    bool preserve_texture;
+   
+   /* Extra data for display bitmaps, like texture id and so on. */
+   void *extra;
 };
 
 struct ALLEGRO_BITMAP_INTERFACE
@@ -149,6 +148,8 @@ bool _al_transform_is_translation(const ALLEGRO_TRANSFORM* trans,
    float *dx, float *dy);
 
 void _al_init_iio_table(void);
+void _al_init_to_be_converted_bitmaps(void);
+void _al_cleanup_to_be_converted_bitmaps(void);
 
 #ifdef __cplusplus
 }
