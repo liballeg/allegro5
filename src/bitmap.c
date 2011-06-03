@@ -102,7 +102,8 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
 
 static void _al_destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
 {
-   al_free(bmp->memory);
+   if (bmp->memory)
+      al_free(bmp->memory);
    al_free(bmp);
 }
 
@@ -189,14 +190,6 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
    }
 
    _al_unregister_destructor(_al_dtor_list, bitmap);
-
-   if (bitmap->parent) {
-      /* It's a sub-bitmap */
-      if (bitmap->display)
-         _al_vector_find_and_delete(&bitmap->display->bitmaps, &bitmap);
-      al_free(bitmap);
-      return;
-   }
 
    if (bitmap->flags & ALLEGRO_MEMORY_BITMAP) {
       _al_destroy_memory_bitmap(bitmap);
