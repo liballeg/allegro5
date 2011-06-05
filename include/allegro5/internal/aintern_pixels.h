@@ -218,10 +218,18 @@
          case ALLEGRO_PIXEL_FORMAT_RGBA_4444: {                               \
             uint16_t _gp_pixel = *(uint16_t *)(data);                         \
             _AL_MAP_RGBA(color,                                               \
-               _al_rgb_scale_4[(_gp_pixel & 0xF000) >> 12],                      \
-               _al_rgb_scale_4[(_gp_pixel & 0x0F00) >> 8],                       \
-               _al_rgb_scale_4[(_gp_pixel & 0x00F0) >> 4],                       \
-               _al_rgb_scale_4[(_gp_pixel & 0x000F)]);                           \
+               _al_rgb_scale_4[(_gp_pixel & 0xF000) >> 12],                   \
+               _al_rgb_scale_4[(_gp_pixel & 0x0F00) >> 8],                    \
+               _al_rgb_scale_4[(_gp_pixel & 0x00F0) >> 4],                    \
+               _al_rgb_scale_4[(_gp_pixel & 0x000F)]);                        \
+            if (advance)                                                      \
+               data += 2;                                                     \
+            break;                                                            \
+         }                                                                    \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_LUMINANCE_8: {                             \
+            uint8_t c = *(uint8_t *)(data);                                   \
+            _AL_MAP_RGBA(color, c, c, c, 255);                                \
             if (advance)                                                      \
                data += 2;                                                     \
             break;                                                            \
@@ -236,13 +244,13 @@
          case ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA:                           \
          case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:                           \
          case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:                         \
-            ALLEGRO_ERROR("INLINE_GET got fake _gp_pixel format: %d\n", format); \
+            ALLEGRO_ERROR("INLINE_GET got fake pixel format: %d\n", format); \
             abort();                                                          \
             break;                                                            \
                                                                               \
          case ALLEGRO_NUM_PIXEL_FORMATS:                                      \
          default:                                                             \
-            ALLEGRO_ERROR("INLINE_GET got non _gp_pixel format: %d\n", format); \
+            ALLEGRO_ERROR("INLINE_GET got non pixel format: %d\n", format); \
             abort();                                                          \
             break;                                                            \
       }                                                                       \
@@ -426,6 +434,14 @@
             if (advance)                                                      \
                data += 2;                                                     \
             break;                                                            \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_LUMINANCE_8: {                             \
+            uint8_t c = color.r;                                              \
+            *(uint8_t *)data = c;                                             \
+            if (advance)                                                      \
+               data += 3;                                                     \
+            break;                                                            \
+         }                                                                    \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_ANY:                                       \
          case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:                              \

@@ -60,7 +60,8 @@ static int pixel_sizes[] = {
    4,
    16, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
    4, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
-   2 /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
+   2, /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
+   1, /* ALLEGRO_PIXEL_FORMAT_LUMINANCE_8 */
 };
 
 static int pixel_bits[] = {
@@ -90,7 +91,8 @@ static int pixel_bits[] = {
    32,
    128, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
    32, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
-   16 /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
+   16, /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
+   8, /* ALLEGRO_PIXEL_FORMAT_LUMINANCE_8 */
 };
 
 
@@ -135,7 +137,8 @@ static bool format_alpha_table[ALLEGRO_NUM_PIXEL_FORMATS] = {
    false,
    true, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
    true, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
-   true /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
+   true, /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
+   false, /* ALLEGRO_PIXEL_FORMAT_LUMINANCE_8 */
 };
 
 static char const *pixel_format_names[ALLEGRO_NUM_PIXEL_FORMATS + 1] = {
@@ -166,6 +169,7 @@ static char const *pixel_format_names[ALLEGRO_NUM_PIXEL_FORMATS + 1] = {
    "ABGR_F32",
    "ABGR_8888_LE",
    "RGBA_4444",
+   "LUMINANCE_8",
    "INVALID"
 };
 
@@ -202,7 +206,8 @@ static bool format_is_real[ALLEGRO_NUM_PIXEL_FORMATS] =
    true,
    true, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
    true, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
-   true /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
+   true, /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
+   true, /* ALLEGRO_PIXEL_FORMAT_LUMINANCE_8 */
 };
 
 

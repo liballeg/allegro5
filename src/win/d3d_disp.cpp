@@ -114,6 +114,7 @@ static int allegro_formats[] = {
    ALLEGRO_PIXEL_FORMAT_RGB_565,
    //ALLEGRO_PIXEL_FORMAT_ARGB_1555,  this format seems not to be allowed
    ALLEGRO_PIXEL_FORMAT_ABGR_F32,
+   ALLEGRO_PIXEL_FORMAT_LUMINANCE_8,
    -1
 };
 
@@ -134,6 +135,7 @@ static int d3d_formats[] = {
    D3DFMT_R5G6B5,
    //D3DFMT_A1R5G5B5,
    D3DFMT_A32B32G32R32F,
+   D3DFMT_L8,
    -1
 };
 

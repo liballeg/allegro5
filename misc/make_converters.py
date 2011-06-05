@@ -36,11 +36,17 @@ def parse_format(format):
     info.components = {}
     info.name = format
     info.little_endian = "LE" in format
+    info.float = False
+    info.luminance = False
 
     if "F32" in format:
         info.float = True
         info.size = 128
-        info.name = format
+        return info
+   
+    if "LUMINANCE" in format:
+        info.luminance = True
+        info.size = 8
         return info
     
     for i in range(separator):
@@ -68,6 +74,8 @@ def macro_lines(info_a, info_b):
     names.sort()
 
     if info_a.float:
+        if info_b.luminance:
+            return "   (uint32_t)((x).r * 255)\n"
         lines = []
         for name in names:
             if name == "X": continue
@@ -82,6 +90,8 @@ def macro_lines(info_a, info_b):
         return r
 
     if info_b.float:
+        if info_a.luminance:
+            return "   al_map_rgb(x, x, x)\n"
         lines = []
         for name in "RGBA":
             if name not in info_a.components: break
@@ -95,6 +105,33 @@ def macro_lines(info_a, info_b):
         r += "   al_map_rgba(" if len(lines) == 4 else "   al_map_rgb("
         r += ",\\\n   ".join(lines)
         r += ")\n"
+        return r
+
+    if info_a.luminance:
+        lines = []
+        for name in names:
+           if name == "X": continue
+           c = info_b.components[name]
+           shift = 8 - c.size - c.position
+           m = hex(((1 << c.size) - 1) << c.position)
+           if name == "A":
+               lines.append(m)
+               continue
+           if shift > 0:
+               lines.append("(((x) >> " + str(shift) + ") & " + m + ")")
+           elif shift < 0:
+               lines.append("(((x) << " + str(-shift) + ") & " + m + ")")
+           else:
+               lines.append("((x) & " + m + ")")
+        r += "   ("
+        r += " | \\\n   ".join(lines)
+        r += ")\n"
+        return r
+    
+    if info_b.luminance:
+        c = info_a.components["R"]
+        m = (1 << c.size) - 1
+        r += "   (((x) >> " + str(c.position) + ") & " + hex(m) + ")\n"
         return r
 
     # Generate a list of (mask, shift, add) tuples for all components.
@@ -174,14 +211,14 @@ def macro_lines(info_a, info_b):
         else: start = "    "
         if i == len(lines) - 1: cont = ")   "
         else: cont = " | \\"
-        if (size_a != 8 and size_b == 8):
+        if size_a != 8 and size_b == 8:
             shift = shift+(mask_pos-(8-size_a))
-                if (shift > 0):
-                    backshift = " << %2d)" % shift
-                elif (shift < 0):
-                    backshift = " >> %2d)" % -shift
-                else:
-                    backshift = "       )"
+            if shift > 0:
+                backshift = " << %2d)" % shift
+            elif shift < 0:
+                backshift = " >> %2d)" % -shift
+            else:
+                backshift = "       )"
         else:
             backshift = "       "
         r += start + line + backshift + " /* " + name + " */" + cont + "\n"

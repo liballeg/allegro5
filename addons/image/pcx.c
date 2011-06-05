@@ -15,6 +15,7 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f)
    ALLEGRO_LOCKED_REGION *lr;
    unsigned char *buf;
    PalEntry pal[256];
+   bool keep_index;
    ASSERT(f);
 
    al_fgetc(f);                    /* skip manufacturer ID */
@@ -57,6 +58,8 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f)
    if (!b) {
       return NULL;
    }
+   
+   keep_index = al_get_bitmap_flags(b) & ALLEGRO_KEEP_INDEX;
 
    al_set_errno(0);
 
@@ -71,7 +74,12 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f)
       buf = (unsigned char *)al_malloc(bytes_per_line * 3);
    }
 
-   lr = al_lock_bitmap(b, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
+   if (bpp == 8 && keep_index) {
+      lr = al_lock_bitmap(b, ALLEGRO_PIXEL_FORMAT_LUMINANCE_8, ALLEGRO_LOCK_WRITEONLY);
+   }
+   else {
+      lr = al_lock_bitmap(b, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
+   }
    if (!lr) {
       al_free(buf);
       return NULL;
@@ -134,10 +142,15 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f)
          char *dest = (char*)lr->data + y*lr->pitch;
          for (x = 0; x < width; x++) {
             int index = buf[y * width + x];
-            dest[x*4    ] = pal[index].r;
-            dest[x*4 + 1] = pal[index].g;
-            dest[x*4 + 2] = pal[index].b;
-            dest[x*4 + 3] = 255;
+            if (keep_index) {
+               dest[x] = index;
+            }
+            else {
+               dest[x*4    ] = pal[index].r;
+               dest[x*4 + 1] = pal[index].g;
+               dest[x*4 + 2] = pal[index].b;
+               dest[x*4 + 3] = 255;
+            }
          }
       }
    }

@@ -266,8 +266,7 @@ static void read_8bit_line(int length, ALLEGRO_FILE *f, unsigned char *buf)
 
 
 /* read_16bit_line:
- *  Support function for reading the 16 bit bitmap file format, doing
- *  our best to convert it down to a 256 color palette.
+ *  Support function for reading the 16 bit bitmap file format.
  */
 static void read_16bit_line(int length, ALLEGRO_FILE *f, unsigned char *data)
 {
@@ -428,6 +427,7 @@ static void read_image(ALLEGRO_FILE *f,
    int i, j, line, height, dir;
    unsigned char *buf;
    unsigned char *data;
+   bool keep_index = al_get_new_bitmap_flags() & ALLEGRO_KEEP_INDEX;
 
    height = infoheader->biHeight;
    line = height < 0 ? 0 : height - 1;
@@ -467,11 +467,17 @@ static void read_image(ALLEGRO_FILE *f,
       }
       if (infoheader->biBitCount <= 8) {
          for (j = 0; j < (int)infoheader->biWidth; j++) {
-            data[0] = pal[buf[j]].r;
-            data[1] = pal[buf[j]].g;
-            data[2] = pal[buf[j]].b;
-            data[3] = 255;
-            data += 4;
+            if (keep_index) {
+               data[0] = buf[j];
+               data++;
+            }
+            else {
+               data[0] = pal[buf[j]].r;
+               data[1] = pal[buf[j]].g;
+               data[2] = pal[buf[j]].b;
+               data[3] = 255;
+               data += 4;
+            }
          }
       }
    }
@@ -657,6 +663,8 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
    unsigned char *buf = NULL;
    ALLEGRO_LOCKED_REGION *lr;
    int bpp;
+   bool keep_index = al_get_new_bitmap_flags() & ALLEGRO_KEEP_INDEX;
+
    ASSERT(f);
 
    if (read_bmfileheader(f, &fileheader) != 0) {
@@ -719,8 +727,16 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
       return NULL;
    }
 
-   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
-      ALLEGRO_LOCK_WRITEONLY);
+
+   if (bpp == 8 && keep_index) {
+      lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_LUMINANCE_8,
+         ALLEGRO_LOCK_WRITEONLY);
+   }
+   else {
+      lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
+         ALLEGRO_LOCK_WRITEONLY);
+   }
+
    if (!lr) {
       al_destroy_bitmap(bmp);
       return NULL;
@@ -764,11 +780,17 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
       for (y = 0; y < infoheader.biHeight; y++) {
          data = (unsigned char *)lr->data + lr->pitch * y;
          for (x = 0; x < (int)infoheader.biWidth; x++) {
-            data[0] = pal[buf[y * infoheader.biWidth + x]].r;
-            data[1] = pal[buf[y * infoheader.biWidth + x]].g;
-            data[2] = pal[buf[y * infoheader.biWidth + x]].b;
-            data[3] = 255;
-            data += 4;
+            if (keep_index) {
+               data[0] = buf[y * infoheader.biWidth + x];
+               data++;
+            }
+            else {
+               data[0] = pal[buf[y * infoheader.biWidth + x]].r;
+               data[1] = pal[buf[y * infoheader.biWidth + x]].g;
+               data[2] = pal[buf[y * infoheader.biWidth + x]].b;
+               data[3] = 255;
+               data += 4;
+            }
          }
       }
       al_free(buf);
