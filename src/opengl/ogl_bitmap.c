@@ -1020,6 +1020,11 @@ static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
    ALLEGRO_DISPLAY *disp;
    ALLEGRO_DISPLAY *old_disp = NULL;
+   
+   if (bitmap->parent) {
+      al_free(ogl_bitmap);
+      return;
+   }
 
    disp = al_get_current_display();
    if (bitmap->display->ogl_extras->is_shared == false &&
