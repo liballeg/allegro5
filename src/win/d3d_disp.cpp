@@ -139,7 +139,7 @@ static int d3d_formats[] = {
    -1
 };
 
-static const int NUM_DISPLAY_FORMATS = 2;
+static const int NUM_DISPLAY_FORMATS = sizeof(d3d_formats) / sizeof(d3d_formats[0]);
 static const int _16BIT_DS = 2; /* # 16 bit depth stencil formats */
 static const int _32BIT_DS = 4; /* # 32 bit depth stencil formats */
 static ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds_list = NULL;
