@@ -25,7 +25,7 @@ The resultant matrix multiplication expression will look like this:
 
     T4 * T3 * T2 * T1
     
-Since the point coordinate vector term will go on the right of that sequency of 
+Since the point coordinate vector term will go on the right of that sequence of 
 factors, the transformation that is called first, will also be applied first.
 
 This means if you have code like this:
