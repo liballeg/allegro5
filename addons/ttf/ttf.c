@@ -104,8 +104,8 @@ static void push_new_cache_bitmap(ALLEGRO_TTF_FONT_DATA *data)
 #ifdef ALLEGRO_CFG_OPENGL
     /* The FBO for the last bitmap is no longer required. */
     if (_al_vector_is_nonempty(&data->cache_bitmaps)) {
-	back = _al_vector_ref_back(&data->cache_bitmaps);
-	al_remove_opengl_fbo(*back);
+        back = _al_vector_ref_back(&data->cache_bitmaps);
+        al_remove_opengl_fbo(*back);
     }
 #endif
 
@@ -174,146 +174,155 @@ static ALLEGRO_BITMAP* create_glyph_cache(ALLEGRO_FONT const *f, int w,
     return ret;
 }
 
+static void cache_glyph(ALLEGRO_FONT const *f,
+    FT_Face face, int ft_index, ALLEGRO_TTF_GLYPH_DATA *glyph)
+{
+    ALLEGRO_TTF_FONT_DATA *data = f->data;
+    int x, y, w, h;
+    ALLEGRO_LOCKED_REGION *lr;
+    ALLEGRO_STATE backup;
+    FT_Error e;
+    bool was_held;
+
+    if (glyph->bitmap)
+        return;
+
+    // FIXME: make this a config setting? FT_LOAD_FORCE_AUTOHINT
+    
+    // FIXME: Investigate why some fonts don't work without the
+    // NO_BITMAP flags. Supposedly using that flag makes small sizes
+    // look bad so ideally we would not used it.
+    e = FT_Load_Glyph(face, ft_index, FT_LOAD_RENDER | FT_LOAD_NO_BITMAP |
+       (glyph->monochrome ? FT_LOAD_TARGET_MONO : 0));
+    if (e) {
+       ALLEGRO_WARN("Failed loading glyph %d from.\n", ft_index);
+    }
+    w = face->glyph->bitmap.width;
+    h = face->glyph->bitmap.rows;
+
+    if (w == 0)
+       w = 1;
+    if (h == 0)
+       h = 1;
+
+    /* We must not change the target bitmap while holding drawing. */
+    was_held = al_is_bitmap_drawing_held();
+    al_hold_bitmap_drawing(false);
+    al_store_state(&backup, ALLEGRO_STATE_BITMAP);
+
+    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
+    glyph->bitmap = create_glyph_cache(f, w, h, false);
+
+    al_set_target_bitmap(glyph->bitmap);
+    lr = al_lock_bitmap(glyph->bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
+        ALLEGRO_LOCK_WRITEONLY);
+    /* In case this is an empty bitmap, we need to at least draw
+     * the one pixel we use as minimum size.
+     * TODO: Does A5 not support bitmap with zero dimensions?
+     * If it does, we can simplify this.
+     */
+    al_put_pixel(0, 0, al_map_rgba(0, 0, 0, 0));
+    #ifdef ALIGN_TO_4_PIXEL
+    {
+       /* clear the extra borders we added */
+       int i;
+       int bw = al_get_bitmap_width(glyph->bitmap);
+       int bh = al_get_bitmap_height(glyph->bitmap);
+       for (i = 0; i < (bh - h); i++) {
+          memset((unsigned char *)lr->data +
+             (bh - 1 - i) * lr->pitch, 0, 4 * bw);
+       }
+       for (i = 0; i < bh; i++) {
+          memset((unsigned char *)lr->data +
+             i * lr->pitch + 4 * w, 0, 4 * (bw - w));
+       }
+    }
+    #endif
+
+    if (glyph->monochrome) {
+       for (y = 0; y < face->glyph->bitmap.rows; y++) {
+           unsigned char *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
+           unsigned char *dptr = (unsigned char *)lr->data + lr->pitch * y;
+           int bit = 0;
+           if (data->no_premultiply_alpha) {
+              for (x = 0; x < face->glyph->bitmap.width; x++) {
+                 unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
+                 *dptr++ = 255;
+                 *dptr++ = 255;
+                 *dptr++ = 255;
+                 *dptr++ = set;
+                 bit++;
+                 if (bit >= 8) {
+                    bit = 0;
+                    ptr++;
+                 }
+              }
+           }
+           else {
+              for (x = 0; x < face->glyph->bitmap.width; x++) {
+                 unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
+                 float setf = set / 255.0f;
+                 *dptr++ = 255 * setf;
+                 *dptr++ = 255 * setf;
+                 *dptr++ = 255 * setf;
+                 *dptr++ = set;
+                 bit++;
+                 if (bit >= 8) {
+                    bit = 0;
+                    ptr++;
+                 }
+              }
+           }
+       }
+    }
+    else {
+       for (y = 0; y < face->glyph->bitmap.rows; y++) {
+           unsigned char *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
+           unsigned char *dptr = (unsigned char *)lr->data + lr->pitch * y;
+           if (data->no_premultiply_alpha) {
+              for (x = 0; x < face->glyph->bitmap.width; x++) {
+                 unsigned char c = *ptr;
+                 *dptr++ = 255;
+                 *dptr++ = 255;
+                 *dptr++ = 255;
+                 *dptr++ = c;
+                 ptr++;
+              }
+           }
+           else {
+              for (x = 0; x < face->glyph->bitmap.width; x++) {
+                 unsigned char c = *ptr;
+                 float cf = c / 255.0f;
+                 *dptr++ = 255 * cf;
+                 *dptr++ = 255 * cf;
+                 *dptr++ = 255 * cf;
+                 *dptr++ = c;
+                 ptr++;
+              }
+           }
+       }
+    }
+
+    al_unlock_bitmap(glyph->bitmap);
+    glyph->x = face->glyph->bitmap_left;
+    glyph->y = (face->size->metrics.ascender >> 6) - face->glyph->bitmap_top;
+    glyph->advance = face->glyph->advance.x >> 6;
+
+    al_restore_state(&backup);
+    al_hold_bitmap_drawing(was_held);
+}
 
 static int render_glyph(ALLEGRO_FONT const *f,
-   ALLEGRO_COLOR color, int prev, int ch,
+    ALLEGRO_COLOR color, int prev, int ch,
     float xpos, float ypos, ALLEGRO_TTF_GLYPH_DATA **measure_glyph)
 {
     ALLEGRO_TTF_FONT_DATA *data = f->data;
     FT_Face face = data->face;
     int ft_index = FT_Get_Char_Index(face, ch);
+    ALLEGRO_TTF_GLYPH_DATA *glyph = data->cache + ft_index;
     int advance = 0;
 
-    ALLEGRO_TTF_GLYPH_DATA *glyph = data->cache + ft_index;
-    if (!glyph->bitmap) {
-        // FIXME: make this a config setting? FT_LOAD_FORCE_AUTOHINT
-        int x, y, w, h;
-        ALLEGRO_LOCKED_REGION *lr;
-        ALLEGRO_STATE backup;
-        FT_Error e;
-        bool was_held;
-        
-        // FIXME: Investigate why some fonts don't work without the
-        // NO_BITMAP flags. Supposedly using that flag makes small sizes
-        // look bad so ideally we would not used it.
-        e = FT_Load_Glyph(face, ft_index, FT_LOAD_RENDER | FT_LOAD_NO_BITMAP |
-           (glyph->monochrome ? FT_LOAD_TARGET_MONO : 0));
-        if (e) {
-           ALLEGRO_WARN("Failed loading glyph %d from.\n", ft_index);
-        }
-        w = face->glyph->bitmap.width;
-        h = face->glyph->bitmap.rows;
-
-        if (w == 0)
-           w = 1;
-        if (h == 0)
-           h = 1;
-
-        /* We must not change the target bitmap while holding drawing. */
-        was_held = al_is_bitmap_drawing_held();
-        al_hold_bitmap_drawing(false);
-        al_store_state(&backup, ALLEGRO_STATE_BITMAP);
-
-        al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
-        glyph->bitmap = create_glyph_cache(f, w, h, false);
-
-        al_set_target_bitmap(glyph->bitmap);
-        lr = al_lock_bitmap(glyph->bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
-        /* In case this is an empty bitmap, we need to at least draw
-         * the one pixel we use as minimum size.
-         * TODO: Does A5 not support bitmap with zero dimensions?
-         * If it does, we can simplify this.
-         */
-        al_put_pixel(0, 0, al_map_rgba(0, 0, 0, 0));
-        #ifdef ALIGN_TO_4_PIXEL
-        {
-           /* clear the extra borders we added */
-           int i;
-           int bw = al_get_bitmap_width(glyph->bitmap);
-           int bh = al_get_bitmap_height(glyph->bitmap);
-           for (i = 0; i < (bh - h); i++) {
-              memset((unsigned char *)lr->data +
-                 (bh - 1 - i) * lr->pitch, 0, 4 * bw);
-           }
-           for (i = 0; i < bh; i++) {
-              memset((unsigned char *)lr->data +
-                 i * lr->pitch + 4 * w, 0, 4 * (bw - w));
-           }
-        }
-        #endif
-
-        if (glyph->monochrome) {
-           for (y = 0; y < face->glyph->bitmap.rows; y++) {
-               unsigned char *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
-               unsigned char *dptr = (unsigned char *)lr->data + lr->pitch * y;
-               int bit = 0;
-               if (data->no_premultiply_alpha) {
-                  for (x = 0; x < face->glyph->bitmap.width; x++) {
-                     unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
-                     *dptr++ = 255;
-                     *dptr++ = 255;
-                     *dptr++ = 255;
-                     *dptr++ = set;
-                     bit++;
-                     if (bit >= 8) {
-                        bit = 0;
-                        ptr++;
-                     }
-                  }
-               }
-               else {
-                  for (x = 0; x < face->glyph->bitmap.width; x++) {
-                     unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
-                     float setf = set / 255.0f;
-                     *dptr++ = 255 * setf;
-                     *dptr++ = 255 * setf;
-                     *dptr++ = 255 * setf;
-                     *dptr++ = set;
-                     bit++;
-                     if (bit >= 8) {
-                        bit = 0;
-                        ptr++;
-                     }
-                  }
-               }
-           }
-        }
-        else {
-           for (y = 0; y < face->glyph->bitmap.rows; y++) {
-               unsigned char *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
-               unsigned char *dptr = (unsigned char *)lr->data + lr->pitch * y;
-               if (data->no_premultiply_alpha) {
-                  for (x = 0; x < face->glyph->bitmap.width; x++) {
-                     unsigned char c = *ptr;
-                     *dptr++ = 255;
-                     *dptr++ = 255;
-                     *dptr++ = 255;
-                     *dptr++ = c;
-                     ptr++;
-                  }
-               }
-               else {
-                  for (x = 0; x < face->glyph->bitmap.width; x++) {
-                     unsigned char c = *ptr;
-                     float cf = c / 255.0f;
-                     *dptr++ = 255 * cf;
-                     *dptr++ = 255 * cf;
-                     *dptr++ = 255 * cf;
-                     *dptr++ = c;
-                     ptr++;
-                  }
-               }
-           }
-        }
-
-        al_unlock_bitmap(glyph->bitmap);
-        glyph->x = face->glyph->bitmap_left;
-        glyph->y = (face->size->metrics.ascender >> 6) - face->glyph->bitmap_top;
-        glyph->advance = face->glyph->advance.x >> 6;
-
-        al_restore_state(&backup);
-        al_hold_bitmap_drawing(was_held);
-    }
+    cache_glyph(f, face, ft_index, glyph);
 
     /* Do kerning? */
     if (!(data->flags & ALLEGRO_TTF_NO_KERNING) && prev) {
@@ -323,11 +332,13 @@ static int render_glyph(ALLEGRO_FONT const *f,
         advance += delta.x >> 6;
     }
 
-    if (measure_glyph)
+    if (measure_glyph) {
         *measure_glyph = glyph;
-    else
+    }
+    else {
         al_draw_tinted_bitmap(glyph->bitmap, color,
             xpos + glyph->x + advance, ypos + glyph->y, 0);
+    }
 
     advance += glyph->advance;
 
@@ -349,8 +360,7 @@ static int char_length(ALLEGRO_FONT const *f, int ch)
 }
 
 static int render(ALLEGRO_FONT const *f, ALLEGRO_COLOR color,
-   const ALLEGRO_USTR *text,
-    float x, float y)
+    const ALLEGRO_USTR *text, float x, float y)
 {
     int pos = 0;
     int advance = 0;
@@ -386,8 +396,8 @@ static int text_length(ALLEGRO_FONT const *f, const ALLEGRO_USTR *text)
 }
 
 static void get_text_dimensions(ALLEGRO_FONT const *f,
-   ALLEGRO_USTR const *text,
-   int *bbx, int *bby, int *bbw, int *bbh)
+    ALLEGRO_USTR const *text,
+    int *bbx, int *bby, int *bbw, int *bbh)
 {
     int32_t prev = '\0';
     int pos = 0;
@@ -460,7 +470,7 @@ static void destroy(ALLEGRO_FONT *f)
 }
 
 static unsigned long ftread(FT_Stream stream, unsigned long offset,
-   unsigned char *buffer, unsigned long count)
+    unsigned char *buffer, unsigned long count)
 {
     ALLEGRO_TTF_FONT_DATA *data = stream->pathname.pointer;
     unsigned long bytes;
@@ -681,3 +691,5 @@ uint32_t al_get_allegro_ttf_version(void)
 {
    return ALLEGRO_VERSION_INT;
 }
+
+/* vim: set et: */
