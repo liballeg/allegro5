@@ -143,6 +143,16 @@ def make_drawer(name):
    if shade:
       make_if_blender_loop(
             op='ALLEGRO_ADD',
+            src_mode='ALLEGRO_ONE',
+            src_alpha='ALLEGRO_ONE',
+            op_alpha='ALLEGRO_ADD',
+            dst_mode='ALLEGRO_INVERSE_ALPHA',
+            dst_alpha='ALLEGRO_INVERSE_ALPHA',
+            if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888'
+            )
+      print "else"
+      make_if_blender_loop(
+            op='ALLEGRO_ADD',
             src_mode='ALLEGRO_ALPHA',
             src_alpha='ALLEGRO_ALPHA',
             op_alpha='ALLEGRO_ADD',
