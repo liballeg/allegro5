@@ -259,7 +259,18 @@ If a display bitmap is created, there may be limitations on the
 allowed dimensions. For example a DirectX or OpenGL backend usually
 has a maximum allowed texture size - so if bitmap creation fails
 for very large dimensions, you may want to re-try with a smaller
-bitmap.
+bitmap. Some platforms also dictate a minimum texture size, which is
+relevant if you plan to use this bitmap with the primitives addon. If
+you try to create a bitmap smaller than this, this call will not fail
+but the returned bitmap will be a section of a larger bitmap with the
+minimum size. This minimum size is 16 by 16.
+
+Some platforms do not directly support display bitmaps whose dimensions
+are not powers of two. Allegro handles this by creating a larger bitmap
+that has dimensions that are powers of two and then returning a section
+of that bitmap with the dimensions you requested. This can be relevant
+if you plan to use this bitmap with the primitives addon but shouldn't
+be an issue otherwise.
 
 If you create a bitmap without ALLEGRO_MEMORY_BITMAP set but there is
 no current display, a temporary memory bitmap will be created instead.
