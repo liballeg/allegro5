@@ -458,31 +458,44 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
 #endif
    if (bitmap->memory == NULL) {
-      /* Ideally we could just call glTexImage2D with a NULL data parameter.
-       * However if we do that, without NPOT textures, we get some junk at the
-       * edges of our bitmaps when we draw them.
+      /* If there's unused space around the bitmap, we need to clear it
+       * else linear filtering will cause artifacts from the random
+       * data there. We also clear for floating point formats because
+       * NaN values in the texture cause some blending modes to fail on
+       * those pixels
        */
-      unsigned char *buf;
-#ifdef ALLEGRO_IPHONE
-      {
-         int pix_size = al_get_pixel_size(bitmap->format);
-        buf = al_calloc(1,
-            ogl_bitmap->true_h * ogl_bitmap->true_w * pix_size);
-         glPixelStorei(GL_UNPACK_ALIGNMENT, pix_size);
+      if (ogl_bitmap->true_w != bitmap->w ||
+            ogl_bitmap->true_h != bitmap->h ||
+            bitmap->format == ALLEGRO_PIXEL_FORMAT_ABGR_F32) {
+         unsigned char *buf;
+         #ifdef ALLEGRO_IPHONE
+         {
+            int pix_size = al_get_pixel_size(bitmap->format);
+            buf = al_calloc(pix_size,
+               ogl_bitmap->true_h * ogl_bitmap->true_w);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, pix_size);
+            glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
+               ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
+               glformats[bitmap->format][2],
+               glformats[bitmap->format][1], buf);
+         }
+         #else
+         buf = al_calloc(ogl_bitmap->true_h, ogl_bitmap->true_w);
+         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
          glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
             ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
-            glformats[bitmap->format][2],
-            glformats[bitmap->format][1], buf);
+            GL_ALPHA, GL_UNSIGNED_BYTE, buf);
+         #endif
+         e = glGetError();
+         al_free(buf);
       }
-#else
-      buf = al_calloc(ogl_bitmap->true_h, ogl_bitmap->true_w);
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-      glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
-         ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
-         GL_ALPHA, GL_UNSIGNED_BYTE, buf);
-#endif
-      e = glGetError();
-      al_free(buf);
+      else {
+         glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
+            ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
+            glformats[bitmap->format][2], glformats[bitmap->format][1],
+            NULL);
+         e = glGetError();
+      }
    }
    else {
       glPixelStorei(GL_UNPACK_ALIGNMENT, al_get_pixel_size(bitmap->format));
