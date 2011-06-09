@@ -2066,7 +2066,7 @@ static int d3d_al_blender_to_d3d(int al_mode)
       D3DBLEND_SRCALPHA,
       D3DBLEND_INVSRCALPHA,
       D3DBLEND_SRCCOLOR,
-      D3DBLEND_DESTCCOLOR
+      D3DBLEND_DESTCOLOR
    };
 
    int i;
