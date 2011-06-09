@@ -16,12 +16,12 @@ def interp(string):
 
 def make_drawer(name):
    global texture, grad, solid, shade, opaque, white
-   texture = (name.find("_texture_") != -1)
-   grad = (name.find("_grad_") != -1)
-   solid = (name.find("_solid_") != -1)
-   shade = (name.find("_shade") != -1)
-   opaque = (name.find("_opaque") != -1)
-   white = (name.find("_white") != -1)
+   texture = "_texture_" in name
+   grad = "_grad_" in name
+   solid = "_solid_" in name
+   shade = "_shade" in name
+   opaque = "_opaque" in name
+   white = "_white" in name
 
    if grad and solid:
       raise Exception("grad and solid")
@@ -148,7 +148,8 @@ def make_drawer(name):
             op_alpha='ALLEGRO_ADD',
             dst_mode='ALLEGRO_INVERSE_ALPHA',
             dst_alpha='ALLEGRO_INVERSE_ALPHA',
-            if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888'
+            if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888',
+            alpha_only=True
             )
       print "else"
       make_if_blender_loop(
@@ -158,7 +159,8 @@ def make_drawer(name):
             op_alpha='ALLEGRO_ADD',
             dst_mode='ALLEGRO_INVERSE_ALPHA',
             dst_alpha='ALLEGRO_INVERSE_ALPHA',
-            if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888'
+            if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888',
+            alpha_only=True
             )
       print "else"
       make_if_blender_loop(
@@ -168,7 +170,8 @@ def make_drawer(name):
             op_alpha='ALLEGRO_ADD',
             dst_mode='ALLEGRO_ONE',
             dst_alpha='ALLEGRO_ONE',
-            if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888'
+            if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888',
+            alpha_only=True
             )
       print "else"
 
@@ -203,7 +206,8 @@ def make_if_blender_loop(
       dst_alpha='dst_alpha',
       src_format='src_format',
       dst_format='dst_format',
-      if_format=None
+      if_format=None,
+      alpha_only=False
       ):
    print interp("""\
       if (op == #{op} &&
@@ -222,7 +226,8 @@ def make_if_blender_loop(
             op_alpha=op_alpha,
             dst_mode=dst_mode,
             dst_alpha=dst_alpha,
-            if_format=if_format
+            if_format=if_format,
+            alpha_only=alpha_only
             )
       print "else"
 
@@ -232,7 +237,8 @@ def make_if_blender_loop(
       src_alpha=src_alpha,
       op_alpha=op_alpha,
       dst_mode=dst_mode,
-      dst_alpha=dst_alpha)
+      dst_alpha=dst_alpha,
+      alpha_only=alpha_only)
 
    print "}"
 
@@ -247,7 +253,8 @@ def make_loop(
       dst_format='dst_format',
       src_size='src_size',
       if_format=None,
-      copy_format=False
+      copy_format=False,
+      alpha_only=False
       ):
 
    if if_format:
@@ -292,7 +299,8 @@ def make_loop(
             dst_format=dst_format,
             src_size=src_size,
             copy_format=copy_format,
-            tiling=False
+            tiling=False,
+            alpha_only=alpha_only
             )
          print "} else"
 
@@ -306,7 +314,8 @@ def make_loop(
       src_format=src_format,
       dst_format=dst_format,
       src_size=src_size,
-      copy_format=copy_format
+      copy_format=copy_format,
+      alpha_only=alpha_only
       )
 
    print "}"
@@ -322,7 +331,8 @@ def make_innermost_loop(
       dst_format='dst_format',
       src_size='src_size',
       copy_format=False,
-      tiling=True
+      tiling=True,
+      alpha_only=True
       ):
 
    print "{"
@@ -399,12 +409,15 @@ def make_innermost_loop(
          }
          """)
    elif shade:
+      blend = "_al_blend_inline"
+      if alpha_only:
+         blend = "_al_blend_alpha_inline"
       print interp("""\
          {
             ALLEGRO_COLOR dst_color;
             ALLEGRO_COLOR result;
             _AL_INLINE_GET_PIXEL(#{dst_format}, dst_data, dst_color, false);
-            _al_blend_inline(&src_color, &dst_color,
+            #{blend}(&src_color, &dst_color,
                #{op}, #{src_mode}, #{dst_mode},
                #{op_alpha}, #{src_alpha}, #{dst_alpha},
                &result);

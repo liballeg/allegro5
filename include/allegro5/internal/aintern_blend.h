@@ -25,81 +25,194 @@
 
 #ifndef _AL_NO_BLEND_INLINE_FUNC
 
+/* only cares about alpha blending modes */
 static _AL_ALWAYS_INLINE float
-get_factor(enum ALLEGRO_BLEND_MODE operation, float alpha)
+get_alpha_factor(enum ALLEGRO_BLEND_MODE operation, float alpha)
 {
    switch (operation) {
        case ALLEGRO_ZERO: return 0;
        case ALLEGRO_ONE: return 1;
        case ALLEGRO_ALPHA: return alpha;
        case ALLEGRO_INVERSE_ALPHA: return 1 - alpha;
+       default: ASSERT(false); return 0;
    }
    ASSERT(false);
    return 0; /* silence warning in release build */
 }
 
+/* puts the blending factor in an ALLEGRO_COLOR object.
+ */
+static _AL_ALWAYS_INLINE void get_factor(enum ALLEGRO_BLEND_MODE operation, const ALLEGRO_COLOR * source, const ALLEGRO_COLOR * dest, ALLEGRO_COLOR * factor)
+{
+   switch(operation) {
+       case ALLEGRO_ZERO: {
+          factor->r = factor->g = factor->b = factor->a = 0;
+          break;
+       }
+       case ALLEGRO_ONE: {
+          factor->r = factor->g = factor->b = factor->a = 1;
+          break;
+       }
+       case ALLEGRO_ALPHA: {
+          factor->r = factor->g = factor->b = factor->a = source->a;
+          break;
+       }
+       case ALLEGRO_INVERSE_ALPHA: {
+          factor->r = factor->g = factor->b = factor->a = 1 - source->a;
+          break;
+       }
+       case ALLEGRO_SRC_COLOR: {
+           *factor = *source;
+           break;
+       }
+       case ALLEGRO_DST_COLOR: {
+           *factor = *dest;
+           break;
+       }
+       default: {
+           ASSERT(false);
+           break;
+       }
+   }
+}
 
+/* only call this if the blend modes are one of
+ * ALLEGRO_ONE, ALLEGRO_ZERO, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA
+ */
 static _AL_ALWAYS_INLINE
-void _al_blend_inline(
+void _al_blend_alpha_inline(
    const ALLEGRO_COLOR *scol, const ALLEGRO_COLOR *dcol,
    int op, int src_, int dst_, int aop, int asrc_, int adst_,
    ALLEGRO_COLOR *result)
 {
-   float src, dst, asrc, adst;
+   float asrc, adst;
+   float src, dst;
 
    result->r = scol->r;
    result->g = scol->g;
    result->b = scol->b;
    result->a = scol->a;
 
-   src = get_factor(src_, result->a);
-   dst = get_factor(dst_, result->a);
-   asrc = get_factor(asrc_, result->a);
-   adst = get_factor(adst_, result->a);
+   asrc = get_alpha_factor(asrc_, result->a);
+   adst = get_alpha_factor(adst_, result->a);
 
-   #define BLEND(c, src, dst) \
-      result->c = OP(result->c * src, dcol->c * dst);
-   switch (op) {
-      case ALLEGRO_ADD:
-         #define OP(x, y) _ALLEGRO_MIN(1, x + y)
-         BLEND(r, src, dst)
-         BLEND(g, src, dst)
-         BLEND(b, src, dst)
-         #undef OP
-         break;
-      case ALLEGRO_SRC_MINUS_DEST:
-         #define OP(x, y) _ALLEGRO_MAX(0, x - y)
-         BLEND(r, src, dst)
-         BLEND(g, src, dst)
-         BLEND(b, src, dst)
-         #undef OP
-         break;
-      case ALLEGRO_DEST_MINUS_SRC:
-         #define OP(x, y) _ALLEGRO_MAX(0, y - x)
-         BLEND(r, src, dst)
-         BLEND(g, src, dst)
-         BLEND(b, src, dst)
-         #undef OP
-         break;
-   }
+      src = get_alpha_factor(src_, result->a);
+      dst = get_alpha_factor(dst_, result->a);
 
-   switch (aop) {
-      case ALLEGRO_ADD:
-         #define OP(x, y) _ALLEGRO_MIN(1, x + y)
-         BLEND(a, asrc, adst)
-         #undef OP
-         break;
-      case ALLEGRO_SRC_MINUS_DEST:
-         #define OP(x, y) _ALLEGRO_MAX(0, x - y)
-         BLEND(a, asrc, adst)
-         #undef OP
-         break;
-      case ALLEGRO_DEST_MINUS_SRC:
-         #define OP(x, y) _ALLEGRO_MAX(0, y - x)
-         BLEND(a, asrc, adst)
-         #undef OP
-         break;
-   }
+      #define BLEND(c, src, dst) \
+         result->c = OP(result->c * src, dcol->c * dst);
+      switch (op) {
+         case ALLEGRO_ADD:
+            #define OP(x, y) _ALLEGRO_MIN(1, x + y)
+            BLEND(r, src, dst)
+            BLEND(g, src, dst)
+            BLEND(b, src, dst)
+            #undef OP
+            break;
+         case ALLEGRO_SRC_MINUS_DEST:
+            #define OP(x, y) _ALLEGRO_MAX(0, x - y)
+            BLEND(r, src, dst)
+            BLEND(g, src, dst)
+            BLEND(b, src, dst)
+            #undef OP
+            break;
+         case ALLEGRO_DEST_MINUS_SRC:
+            #define OP(x, y) _ALLEGRO_MAX(0, y - x)
+            BLEND(r, src, dst)
+            BLEND(g, src, dst)
+            BLEND(b, src, dst)
+            #undef OP
+            break;
+      }
+
+      switch (aop) {
+         case ALLEGRO_ADD:
+            #define OP(x, y) _ALLEGRO_MIN(1, x + y)
+            BLEND(a, asrc, adst)
+            #undef OP
+            break;
+         case ALLEGRO_SRC_MINUS_DEST:
+            #define OP(x, y) _ALLEGRO_MAX(0, x - y)
+            BLEND(a, asrc, adst)
+            #undef OP
+            break;
+         case ALLEGRO_DEST_MINUS_SRC:
+            #define OP(x, y) _ALLEGRO_MAX(0, y - x)
+            BLEND(a, asrc, adst)
+            #undef OP
+            break;
+      }
+      #undef BLEND
+}
+
+/* call this for general blending. its a little slower than just using alpha */
+static _AL_ALWAYS_INLINE
+void _al_blend_inline(
+   const ALLEGRO_COLOR *scol, const ALLEGRO_COLOR *dcol,
+   int op, int src_, int dst_, int aop, int asrc_, int adst_,
+   ALLEGRO_COLOR *result)
+{
+   float asrc, adst;
+   ALLEGRO_COLOR src, dst;
+
+   result->r = scol->r;
+   result->g = scol->g;
+   result->b = scol->b;
+   result->a = scol->a;
+   
+   asrc = get_alpha_factor(asrc_, result->a);
+   adst = get_alpha_factor(adst_, result->a);
+
+   get_factor(src_, scol, dcol, &src);
+   get_factor(dst_, scol, dcol, &dst);
+
+      #define BLEND(c, src, dst) \
+         result->c = OP(result->c * src.c, dcol->c * dst.c);
+      switch (op) {
+         case ALLEGRO_ADD:
+            #define OP(x, y) _ALLEGRO_MIN(1, x + y)
+            BLEND(r, src, dst)
+            BLEND(g, src, dst)
+            BLEND(b, src, dst)
+            #undef OP
+            break;
+         case ALLEGRO_SRC_MINUS_DEST:
+            #define OP(x, y) _ALLEGRO_MAX(0, x - y)
+            BLEND(r, src, dst)
+            BLEND(g, src, dst)
+            BLEND(b, src, dst)
+            #undef OP
+            break;
+         case ALLEGRO_DEST_MINUS_SRC:
+            #define OP(x, y) _ALLEGRO_MAX(0, y - x)
+            BLEND(r, src, dst)
+            BLEND(g, src, dst)
+            BLEND(b, src, dst)
+            #undef OP
+            break;
+      }
+      #undef BLEND
+
+      #define BLEND(c, src, dst) \
+         result->c = OP(result->c * src, dcol->c * dst);
+      switch (aop) {
+         case ALLEGRO_ADD:
+            #define OP(x, y) _ALLEGRO_MIN(1, x + y)
+            BLEND(a, asrc, adst)
+            #undef OP
+            break;
+         case ALLEGRO_SRC_MINUS_DEST:
+            #define OP(x, y) _ALLEGRO_MAX(0, x - y)
+            BLEND(a, asrc, adst)
+            #undef OP
+            break;
+         case ALLEGRO_DEST_MINUS_SRC:
+            #define OP(x, y) _ALLEGRO_MAX(0, y - x)
+            BLEND(a, asrc, adst)
+            #undef OP
+            break;
+      }
+      #undef BLEND
 }
 
 #endif

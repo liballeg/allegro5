@@ -922,6 +922,27 @@ Valid values for `src` and `dst` passed to this function are
          src = 1 - sa
          dst = 1 - sa
 
+* ALLEGRO_SRC_COLOR
+
+         src = (sr, sg, sb, sa)
+         dst = (sr, sg, sb, sa)
+
+* ALLEGRO_DST_COLOR
+
+         src = (dr, dg, db, da)
+         dst = (dr, dg, db, da)
+
+The blend factor for ALLEGRO_SRC_COLOR and ALLEGRO_DST_COLOR is the
+current component that is being operated on. 
+  
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_DST_COLOR, ALLEGRO_ZERO) 
+
+Will result in these equations
+
+         r = dr * 0 + sr * dr
+         g = dg * 0 + sg * dg
+         b = db * 0 + sb * db
+         a = da * 0 + sa * da
 
 Blending examples:
 
