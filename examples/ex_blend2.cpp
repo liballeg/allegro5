@@ -92,7 +92,7 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
       l.append_item("INVERSE");
       l.append_item("SRC_COLOR");
       l.append_item("DST_COLOR");
-      d.add(l, 1 + i * 3, 25, 3, 6);
+      d.add(l, 1 + i * 3, 25, 3, 7);
    }
 
    for (int i = 4; i < 6; i++) {

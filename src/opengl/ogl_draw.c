@@ -18,6 +18,8 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_opengl.h"
 
+ALLEGRO_DEBUG_CHANNEL("opengl")
+
 bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
 {
    int op, src_color, dst_color, op_alpha, src_alpha, dst_alpha;
