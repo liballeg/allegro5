@@ -27,14 +27,15 @@
 
 /* Only cares about alpha blending modes. */
 static _AL_ALWAYS_INLINE float
-get_alpha_factor(enum ALLEGRO_BLEND_MODE operation, float alpha)
+get_alpha_factor(enum ALLEGRO_BLEND_MODE operation, float src_alpha, float dst_alpha)
 {
    switch (operation) {
        case ALLEGRO_ZERO: return 0;
        case ALLEGRO_ONE: return 1;
-       case ALLEGRO_ALPHA: return alpha;
-       case ALLEGRO_INVERSE_ALPHA: return 1 - alpha;
-       default: ASSERT(false); return 0;
+       case ALLEGRO_ALPHA: return src_alpha;
+       case ALLEGRO_INVERSE_ALPHA: return 1 - src_alpha;
+       case ALLEGRO_SRC_COLOR: return src_alpha;
+       case ALLEGRO_DST_COLOR: return dst_alpha;
    }
    ASSERT(false);
    return 0; /* silence warning in release build */
@@ -88,10 +89,10 @@ void _al_blend_alpha_inline(
    result->b = scol->b;
    result->a = scol->a;
 
-   asrc = get_alpha_factor(asrc_, result->a);
-   adst = get_alpha_factor(adst_, result->a);
-   src = get_alpha_factor(src_, result->a);
-   dst = get_alpha_factor(dst_, result->a);
+   asrc = get_alpha_factor(asrc_, scol->a, dcol->a);
+   adst = get_alpha_factor(adst_, scol->a, dcol->a);
+   src = get_alpha_factor(src_, scol->a, dcol->a);
+   dst = get_alpha_factor(dst_, scol->a, dcol->a);
 
    #define BLEND(c, src, dst) \
       result->c = OP(result->c * src, dcol->c * dst);
@@ -154,8 +155,8 @@ void _al_blend_inline(
    result->b = scol->b;
    result->a = scol->a;
    
-   asrc = get_alpha_factor(asrc_, result->a);
-   adst = get_alpha_factor(adst_, result->a);
+   asrc = get_alpha_factor(asrc_, scol->a, dcol->a);
+   adst = get_alpha_factor(adst_, scol->a, dcol->a);
    get_factor(src_, scol, dcol, &src);
    get_factor(dst_, scol, dcol, &dst);
 
