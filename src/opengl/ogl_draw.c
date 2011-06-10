@@ -19,7 +19,7 @@
 #include "allegro5/internal/aintern_opengl.h"
 
 
-static bool set_opengl_blending(ALLEGRO_DISPLAY *d)
+bool _al_opengl_set_blender(ALLEGRO_DISPLAY *d)
 {
    const int blend_modes[4] = {
       GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
@@ -196,7 +196,7 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
 
    if ((!ogl_target->is_backbuffer &&
       d->ogl_extras->opengl_target != target) ||
-      target->locked || !set_opengl_blending(d))  {
+      target->locked || !_al_opengl_set_blender(d))  {
       _al_draw_pixel_memory(target, x, y, color);
       return;
    }
@@ -212,7 +212,7 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
    vert_ptr_on(d, 2, GL_FLOAT, 2*sizeof(float), vert);
    color_ptr_on(d, 4, GL_FLOAT, 4*sizeof(float), color_array);
 
-   if (!set_opengl_blending(d)) {
+   if (!_al_opengl_set_blender(d)) {
       return;
    }
 
@@ -276,7 +276,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 
 ///* Figure out what this is here for
 #ifdef ALLEGRO_IPHONE
-      if (!set_opengl_blending(disp)) {
+      if (!_al_opengl_set_blender(disp)) {
          return;
       }
 #endif
