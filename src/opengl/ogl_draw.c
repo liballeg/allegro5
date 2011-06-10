@@ -18,63 +18,57 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_opengl.h"
 
-
-bool _al_opengl_set_blender(ALLEGRO_DISPLAY *d)
+bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
 {
-   const int blend_modes[4] = {
-      GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+   int op, src_color, dst_color, op_alpha, src_alpha, dst_alpha;
+   const int blend_modes[6] = {
+      GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+      GL_SRC_COLOR, GL_DST_COLOR
    };
    const int blend_equations[3] = {
       GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT
    };
-   int op, src_color, dst_color, op_alpha, src_alpha, dst_alpha;
 
-   (void)d;
+   (void)ogl_disp;
 
-   al_get_separate_blender(&op, &src_color, &dst_color, &op_alpha,
-      &src_alpha, &dst_alpha);
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_GP2XWIZ
-   if (al_get_opengl_version() >= _ALLEGRO_OPENGL_VERSION_2_0) {
-      glEnable(GL_BLEND);
-      glBlendFuncSeparate(blend_modes[src_color],
-         blend_modes[dst_color], blend_modes[src_alpha],
-         blend_modes[dst_alpha]);
-      glBlendEquationSeparate(
-         blend_equations[op],
-         blend_equations[op_alpha]);
-      return true;
-   }
-   else {
-      glEnable(GL_BLEND);
-      glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
-      glBlendEquation(blend_equations[op]);
-      return true;
-   }
+   al_get_separate_blender(&op, &src_color, &dst_color,
+      &op_alpha, &src_alpha, &dst_alpha);
+   /* glBlendFuncSeparate was only included with OpenGL 1.4 */
+   /* (And not in OpenGL ES) */
+#if !defined ALLEGRO_GP2XWIZ
+#ifndef ALLEGRO_IPHONE
+   if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_1_4) {
 #else
-   if (d->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_1_4) {
+   if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
+#endif
       glEnable(GL_BLEND);
-      glBlendFuncSeparate(blend_modes[src_color],
-         blend_modes[dst_color], blend_modes[src_alpha],
-         blend_modes[dst_alpha]);
-      if (d->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
+      glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
+         blend_modes[src_alpha], blend_modes[dst_alpha]);
+      if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
          glBlendEquationSeparate(
             blend_equations[op],
             blend_equations[op_alpha]);
       }
-      else
+      else {
          glBlendEquation(blend_equations[op]);
-      return true;
+      }
    }
    else {
       if (src_color == src_alpha && dst_color == dst_alpha) {
          glEnable(GL_BLEND);
          glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
-         glBlendEquation(blend_equations[op]);
-         return true;
+      }
+      else {
+         ALLEGRO_ERROR("Blender unsupported with this OpenGL version (%d %d %d %d %d %d)\n",
+            op, src_color, dst_color, op_alpha, src_alpha, dst_alpha);
+         return false;
       }
    }
+#else
+   glEnable(GL_BLEND);
+   glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
 #endif
-   return false;
+   return true;
 }
 
 /* These functions make drawing calls use shaders or the fixed pipeline

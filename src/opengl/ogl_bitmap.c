@@ -170,59 +170,6 @@ static char const *error_string(GLenum e)
 }
 #undef ERR
 
-static INLINE bool setup_blending(ALLEGRO_DISPLAY *ogl_disp)
-{
-   int op, src_color, dst_color, op_alpha, src_alpha, dst_alpha;
-   const int blend_modes[6] = {
-      GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
-      GL_SRC_COLOR, GL_DST_COLOR
-   };
-   const int blend_equations[3] = {
-      GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT
-   };
-
-   (void)ogl_disp;
-
-   al_get_separate_blender(&op, &src_color, &dst_color,
-      &op_alpha, &src_alpha, &dst_alpha);
-   /* glBlendFuncSeparate was only included with OpenGL 1.4 */
-   /* (And not in OpenGL ES) */
-#if !defined ALLEGRO_GP2XWIZ
-#ifndef ALLEGRO_IPHONE
-   if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_1_4) {
-#else
-   if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
-#endif
-      glEnable(GL_BLEND);
-      glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
-         blend_modes[src_alpha], blend_modes[dst_alpha]);
-      if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
-         glBlendEquationSeparate(
-            blend_equations[op],
-            blend_equations[op_alpha]);
-      }
-      else {
-         glBlendEquation(blend_equations[op]);
-      }
-   }
-   else {
-      if (src_color == src_alpha && dst_color == dst_alpha) {
-         glEnable(GL_BLEND);
-         glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
-      }
-      else {
-         ALLEGRO_ERROR("Blender unsupported with this OpenGL version (%d %d %d %d %d %d)\n",
-            op, src_color, dst_color, op_alpha, src_alpha, dst_alpha);
-         return false;
-      }
-   }
-#else
-   glEnable(GL_BLEND);
-   glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
-#endif
-   return true;
-}
-
 static INLINE void transform_vertex(float* x, float* y)
 {
    al_transform_coordinates(al_get_current_transform(), x, y);
@@ -396,7 +343,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
 #endif
    }
    if (disp->ogl_extras->opengl_target == target) {
-      if (setup_blending(disp)) {
+      if (_al_opengl_set_blender(disp)) {
          draw_quad(bitmap, tint, sx, sy, sw, sh, flags);
          return;
       }
