@@ -2,6 +2,7 @@
 #ifdef ALLEGRO_CFG_OPENGL
 #include "allegro5/allegro_opengl.h"
 #endif
+#include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_vector.h"
 
 #include "allegro5/allegro_ttf.h"
@@ -11,6 +12,9 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+
+ALLEGRO_DEBUG_CHANNEL("font")
+
 
 /* Some low-end drivers enable automatic S3TC compression, which
  * requires glTexSubImage2D to only work on multiples of aligned
@@ -24,304 +28,409 @@
  */
 #define ALIGN_TO_4_PIXEL
 
-ALLEGRO_DEBUG_CHANNEL("font")
 
-#ifdef ALIGN_TO_4_PIXEL
-static INLINE int align4(int x)
+#define RANGE_SIZE   128
+
+
+typedef struct REGION
 {
-   return (x + 3) & ~3;
-}
-#endif
+   short x;
+   short y;
+   short w;
+   short h;
+} REGION;
+
 
 typedef struct ALLEGRO_TTF_GLYPH_DATA
 {
-    ALLEGRO_BITMAP *bitmap;
-    int x, y;
-    int advance;
-    bool monochrome;
+   ALLEGRO_BITMAP *page_bitmap;
+   REGION region;
+   short offset_x;
+   short offset_y;
+   short advance;
 } ALLEGRO_TTF_GLYPH_DATA;
+
+
+typedef struct ALLEGRO_TTF_GLYPH_RANGE
+{
+   int32_t range_start;
+   ALLEGRO_TTF_GLYPH_DATA *glyphs;  /* [RANGE_SIZE] */
+} ALLEGRO_TTF_GLYPH_RANGE;
+
 
 typedef struct ALLEGRO_TTF_FONT_DATA
 {
-    FT_Face face;
-    int glyphs_count;
-    _AL_VECTOR cache_bitmaps;
-    int cache_pos_x;
-    int cache_pos_y;
-    int cache_line_height;
-    ALLEGRO_TTF_GLYPH_DATA *cache;
-    int flags;
-    bool no_premultiply_alpha;
+   FT_Face face;
+   int flags;
+   bool no_premultiply_alpha;
+   _AL_VECTOR glyph_ranges;  /* sorted array of of ALLEGRO_TTF_GLYPH_RANGE */
 
-    FT_StreamRec stream;
-    ALLEGRO_FILE *file;
-    unsigned long base_offset, offset;
+   _AL_VECTOR page_bitmaps;  /* of ALLEGRO_BITMAP pointers */
+   int page_pos_x;
+   int page_pos_y;
+   int page_line_height;
+   REGION lock_rect;
+   ALLEGRO_LOCKED_REGION *page_lr;
+   ALLEGRO_LOCKED_REGION glyph_lr;
+
+   FT_StreamRec stream;
+   ALLEGRO_FILE *file;
+   unsigned long base_offset;
+   unsigned long offset;
 } ALLEGRO_TTF_FONT_DATA;
 
+
+/* globals */
 static bool inited;
 static FT_Library ft;
 static ALLEGRO_FONT_VTABLE vt;
 
-static int font_height(ALLEGRO_FONT const *f)
+
+static INLINE int align4(int x)
 {
-   ASSERT(f);
-   return f->height;
+#ifdef ALIGN_TO_4_PIXEL
+   return (x + 3) & ~3;
+#else
+   return x;
+#endif
 }
 
-static int font_ascent(ALLEGRO_FONT const *f)
+
+static ALLEGRO_TTF_GLYPH_DATA *get_glyph(ALLEGRO_TTF_FONT_DATA *data,
+   int ft_index)
 {
-    ALLEGRO_TTF_FONT_DATA *data;
-    FT_Face face;
+   ALLEGRO_TTF_GLYPH_RANGE *range;
+   int32_t range_start;
+   int lo, hi, mid;
 
-    ASSERT(f);
+   range_start = ft_index - (ft_index % RANGE_SIZE);
 
-    data = f->data;
-    face = data->face;
+   /* Binary search for the range. */
+   lo = 0;
+   hi = _al_vector_size(&data->glyph_ranges);
+   mid = (hi + lo)/2;
+   range = NULL;
 
-    return face->size->metrics.ascender >> 6;
+   while (lo < hi) {
+      ALLEGRO_TTF_GLYPH_RANGE *r = _al_vector_ref(&data->glyph_ranges, mid);
+      if (r->range_start == range_start) {
+         range = r;
+         break;
+      }
+      else if (r->range_start < range_start) {
+         lo = mid + 1;
+      }
+      else {
+         hi = mid;
+      }
+      mid = (hi + lo)/2;
+   }
+
+   if (!range) {
+      range = _al_vector_alloc_mid(&data->glyph_ranges, mid);
+      range->range_start = range_start;
+      range->glyphs = al_calloc(RANGE_SIZE, sizeof(ALLEGRO_TTF_GLYPH_DATA));
+   }
+
+   return &range->glyphs[ft_index - range_start];
 }
 
-static int font_descent(ALLEGRO_FONT const *f)
+
+static void unlock_current_page(ALLEGRO_TTF_FONT_DATA *data)
 {
-    ALLEGRO_TTF_FONT_DATA *data;
-    FT_Face face;
-
-    ASSERT(f);
-
-    data = f->data;
-    face = data->face;
-
-    return (-face->size->metrics.descender) >> 6;
+   if (data->page_lr) {
+      ALLEGRO_BITMAP **back = _al_vector_ref_back(&data->page_bitmaps);
+      ASSERT(al_is_bitmap_locked(*back));
+      al_unlock_bitmap(*back);
+      data->page_lr = NULL;
+   }
 }
+
 
 // FIXME: Add a special case for when a single glyph rendering won't fit
 // into 256x256 pixels.
-static void push_new_cache_bitmap(ALLEGRO_TTF_FONT_DATA *data)
+static ALLEGRO_BITMAP *push_new_page(ALLEGRO_TTF_FONT_DATA *data)
 {
     ALLEGRO_BITMAP **back;
+    ALLEGRO_BITMAP *page;
+    int old_format;
     ALLEGRO_STATE state;
 
-#ifdef ALLEGRO_CFG_OPENGL
-    /* The FBO for the last bitmap is no longer required. */
-    if (_al_vector_is_nonempty(&data->cache_bitmaps)) {
-        back = _al_vector_ref_back(&data->cache_bitmaps);
-        al_remove_opengl_fbo(*back);
-    }
-#endif
+    unlock_current_page(data);
 
-    back = _al_vector_alloc_back(&data->cache_bitmaps);
+    old_format = al_get_new_bitmap_format();
+    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
+    page = al_create_bitmap(256, 256);
+    al_set_new_bitmap_format(old_format);
 
     /* The bitmap will be destroyed when the parent font is destroyed so
      * it is not safe to register a destructor for it.
      */
     _al_push_destructor_owner();
-    *back = al_create_bitmap(256, 256);
+    back = _al_vector_alloc_back(&data->page_bitmaps);
+    *back = page;
     _al_pop_destructor_owner();
 
     /* Sometimes OpenGL will partly sample texels from the border of
      * glyphs. So we better clear the texture to transparency.
+     * XXX This is very slow and avoidable with some effort.
      */
-    al_store_state(&state, ALLEGRO_STATE_BITMAP);
+    al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP);
+    al_hold_bitmap_drawing(false);
     al_set_target_bitmap(*back);
     al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
     al_restore_state(&state);
+
+    data->page_pos_x = 0;
+    data->page_pos_y = 0;
+    data->page_line_height = 0;
+
+    return page;
 }
 
-static ALLEGRO_BITMAP* create_glyph_cache(ALLEGRO_FONT const *f, int w,
-   int h, bool new)
+
+static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
+   int w, int h, bool new, ALLEGRO_TTF_GLYPH_DATA *glyph)
 {
-    ALLEGRO_TTF_FONT_DATA *data = f->data;
-    ALLEGRO_BITMAP **p_cache;
-    ALLEGRO_BITMAP *cache;
-    ALLEGRO_BITMAP *ret;
+   ALLEGRO_BITMAP *page;
+   bool relock;
 
-    if (_al_vector_is_empty(&data->cache_bitmaps) || new) {
-        push_new_cache_bitmap(data);
-        data->cache_pos_x = 0;
-        data->cache_pos_y = 0;
-        data->cache_line_height = 0;
-    }
+   if (_al_vector_is_empty(&data->page_bitmaps) || new) {
+      page = push_new_page(data);
+      relock = true;
+   }
+   else {
+      ALLEGRO_BITMAP **back = _al_vector_ref_back(&data->page_bitmaps);
+      page = *back;
+      relock = !data->page_lr;
+   }
 
-    p_cache = _al_vector_ref_back(&data->cache_bitmaps);
-    cache = *p_cache;
-    
-    #ifdef ALIGN_TO_4_PIXEL
-    w = align4(w);
-    h = align4(h);
-    #endif
+   w = align4(w);
+   h = align4(h);
 
-    if (data->cache_pos_x + w > al_get_bitmap_width(cache)) {
-        data->cache_pos_y += data->cache_line_height + 2;
-        #ifdef ALIGN_TO_4_PIXEL
-        data->cache_pos_y = align4(data->cache_pos_y);
-        #endif
-        data->cache_pos_x = 0;
-        data->cache_line_height = 0;
-    }
+   if (data->page_pos_x + w > al_get_bitmap_width(page)) {
+      data->page_pos_y += data->page_line_height + 2;
+      data->page_pos_y = align4(data->page_pos_y);
+      data->page_pos_x = 0;
+      data->page_line_height = 0;
+      relock = true;
+   }
 
-    if (data->cache_pos_y + h > al_get_bitmap_height(cache)) {
-        return create_glyph_cache(f, w, h, true);
-    }
+   if (data->page_pos_y + h > al_get_bitmap_height(page)) {
+      return alloc_glyph_region(data, w, h, true, glyph);
+   }
 
-    ret = al_create_sub_bitmap(cache, data->cache_pos_x,
-        data->cache_pos_y, w, h);
-    data->cache_pos_x += w + 2;
-    #ifdef ALIGN_TO_4_PIXEL
-        data->cache_pos_x = align4(data->cache_pos_x);
-    #endif
-    if (h > data->cache_line_height)
-        data->cache_line_height = h;
-    return ret;
+   glyph->page_bitmap = page;
+   glyph->region.x = data->page_pos_x;
+   glyph->region.y = data->page_pos_y;
+   glyph->region.w = w;
+   glyph->region.h = h;
+
+   data->page_pos_x = align4(data->page_pos_x + w + 2);
+   if (h > data->page_line_height) {
+      data->page_line_height = h;
+      relock = true;
+   }
+
+   if (relock) {
+      unlock_current_page(data);
+
+      /* Lock a single line height, up to the right edge. */
+      data->lock_rect.x = glyph->region.x;
+      data->lock_rect.y = glyph->region.y;
+      data->lock_rect.w = al_get_bitmap_width(page) - data->lock_rect.x;
+      data->lock_rect.h = data->page_line_height;
+
+      data->page_lr = al_lock_bitmap_region(page,
+         data->lock_rect.x, data->lock_rect.y,
+         data->lock_rect.w, data->lock_rect.h,
+         ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
+   }
+
+   ASSERT(data->page_lr);
+
+   /* Copy a displaced pointer for the glyph. */
+   return (unsigned char *)data->page_lr->data
+      + (glyph->region.y - data->lock_rect.y) * data->page_lr->pitch
+      + (glyph->region.x - data->lock_rect.x) * sizeof(int32_t);
 }
 
-static void cache_glyph(ALLEGRO_FONT const *f,
-    FT_Face face, int ft_index, ALLEGRO_TTF_GLYPH_DATA *glyph)
+
+static void copy_glyph_mono(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
+   unsigned char *glyph_data)
 {
-    ALLEGRO_TTF_FONT_DATA *data = f->data;
-    int x, y, w, h;
-    ALLEGRO_LOCKED_REGION *lr;
-    ALLEGRO_STATE backup;
+   int pitch = font_data->page_lr->pitch;
+   int x, y;
+
+   for (y = 0; y < face->glyph->bitmap.rows; y++) {
+      unsigned char const *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
+      unsigned char *dptr = glyph_data + pitch * y;
+      int bit = 0;
+
+      if (font_data->no_premultiply_alpha) {
+         for (x = 0; x < face->glyph->bitmap.width; x++) {
+            unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
+            *dptr++ = 255;
+            *dptr++ = 255;
+            *dptr++ = 255;
+            *dptr++ = set;
+            bit = (bit + 1) & 7;
+            if (bit == 0) {
+               ptr++;
+            }
+         }
+      }
+      else {
+         for (x = 0; x < face->glyph->bitmap.width; x++) {
+            unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
+            *dptr++ = set;
+            *dptr++ = set;
+            *dptr++ = set;
+            *dptr++ = set;
+            bit = (bit + 1) & 7;
+            if (bit == 0) {
+               ptr++;
+            }
+         }
+      }
+   }
+}
+
+
+static void copy_glyph_color(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
+   unsigned char *glyph_data)
+{
+   int pitch = font_data->page_lr->pitch;
+   int x, y;
+
+   for (y = 0; y < face->glyph->bitmap.rows; y++) {
+      unsigned char const *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
+      unsigned char *dptr = glyph_data + pitch * y;
+
+      if (font_data->no_premultiply_alpha) {
+         for (x = 0; x < face->glyph->bitmap.width; x++) {
+            unsigned char c = *ptr;
+            *dptr++ = 255;
+            *dptr++ = 255;
+            *dptr++ = 255;
+            *dptr++ = c;
+            ptr++;
+         }
+      }
+      else {
+         for (x = 0; x < face->glyph->bitmap.width; x++) {
+            unsigned char c = *ptr;
+            *dptr++ = c;
+            *dptr++ = c;
+            *dptr++ = c;
+            *dptr++ = c;
+            ptr++;
+         }
+      }
+   }
+}
+
+
+/* NOTE: this function may disable the bitmap hold drawing state
+ * and leave the current page bitmap locked.
+ */
+static void cache_glyph(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
+   int ft_index, ALLEGRO_TTF_GLYPH_DATA *glyph)
+{
+    FT_Int32 ft_load_flags;
     FT_Error e;
-    bool was_held;
+    int w, h;
+    unsigned char *glyph_data;
 
-    if (glyph->bitmap)
+    if (glyph->page_bitmap || glyph->region.x < 0)
         return;
 
     // FIXME: make this a config setting? FT_LOAD_FORCE_AUTOHINT
-    
+
     // FIXME: Investigate why some fonts don't work without the
     // NO_BITMAP flags. Supposedly using that flag makes small sizes
     // look bad so ideally we would not used it.
-    e = FT_Load_Glyph(face, ft_index, FT_LOAD_RENDER | FT_LOAD_NO_BITMAP |
-       (glyph->monochrome ? FT_LOAD_TARGET_MONO : 0));
+    ft_load_flags = FT_LOAD_RENDER | FT_LOAD_NO_BITMAP;
+    if (font_data->flags & ALLEGRO_TTF_MONOCHROME)
+       ft_load_flags |= FT_LOAD_TARGET_MONO;
+
+    e = FT_Load_Glyph(face, ft_index, ft_load_flags);
     if (e) {
        ALLEGRO_WARN("Failed loading glyph %d from.\n", ft_index);
     }
+
+    glyph->offset_x = face->glyph->bitmap_left;
+    glyph->offset_y = (face->size->metrics.ascender >> 6) - face->glyph->bitmap_top;
+    glyph->advance = face->glyph->advance.x >> 6;
+
     w = face->glyph->bitmap.width;
     h = face->glyph->bitmap.rows;
 
-    if (w == 0)
-       w = 1;
-    if (h == 0)
-       h = 1;
+    if (w == 0 || h == 0) {
+       /* Mark this glyph so we won't try to cache it next time. */
+       glyph->region.x = -1;
+       glyph->region.y = -1;
+       return;
+    }
 
-    /* We must not change the target bitmap while holding drawing. */
-    was_held = al_is_bitmap_drawing_held();
-    al_hold_bitmap_drawing(false);
-    al_store_state(&backup, ALLEGRO_STATE_BITMAP);
+    glyph_data = alloc_glyph_region(font_data, w, h, false, glyph);
 
-    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
-    glyph->bitmap = create_glyph_cache(f, w, h, false);
-
-    al_set_target_bitmap(glyph->bitmap);
-    lr = al_lock_bitmap(glyph->bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
-        ALLEGRO_LOCK_WRITEONLY);
-    /* In case this is an empty bitmap, we need to at least draw
-     * the one pixel we use as minimum size.
-     * TODO: Does A5 not support bitmap with zero dimensions?
-     * If it does, we can simplify this.
-     */
-    al_put_pixel(0, 0, al_map_rgba(0, 0, 0, 0));
     #ifdef ALIGN_TO_4_PIXEL
     {
        /* clear the extra borders we added */
+       int pitch = font_data->page_lr->pitch;
+       int bw = glyph->region.w;
+       int bh = glyph->region.h;
        int i;
-       int bw = al_get_bitmap_width(glyph->bitmap);
-       int bh = al_get_bitmap_height(glyph->bitmap);
+
        for (i = 0; i < (bh - h); i++) {
-          memset((unsigned char *)lr->data +
-             (bh - 1 - i) * lr->pitch, 0, 4 * bw);
+          memset(glyph_data + (bh - 1 - i) * pitch, 0, 4 * bw);
        }
        for (i = 0; i < bh; i++) {
-          memset((unsigned char *)lr->data +
-             i * lr->pitch + 4 * w, 0, 4 * (bw - w));
+          memset(glyph_data + i * pitch + 4 * w, 0, 4 * (bw - w));
        }
     }
     #endif
 
-    if (glyph->monochrome) {
-       for (y = 0; y < face->glyph->bitmap.rows; y++) {
-           unsigned char *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
-           unsigned char *dptr = (unsigned char *)lr->data + lr->pitch * y;
-           int bit = 0;
-           if (data->no_premultiply_alpha) {
-              for (x = 0; x < face->glyph->bitmap.width; x++) {
-                 unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
-                 *dptr++ = 255;
-                 *dptr++ = 255;
-                 *dptr++ = 255;
-                 *dptr++ = set;
-                 bit++;
-                 if (bit >= 8) {
-                    bit = 0;
-                    ptr++;
-                 }
-              }
-           }
-           else {
-              for (x = 0; x < face->glyph->bitmap.width; x++) {
-                 unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
-                 float setf = set / 255.0f;
-                 *dptr++ = 255 * setf;
-                 *dptr++ = 255 * setf;
-                 *dptr++ = 255 * setf;
-                 *dptr++ = set;
-                 bit++;
-                 if (bit >= 8) {
-                    bit = 0;
-                    ptr++;
-                 }
-              }
-           }
-       }
-    }
-    else {
-       for (y = 0; y < face->glyph->bitmap.rows; y++) {
-           unsigned char *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
-           unsigned char *dptr = (unsigned char *)lr->data + lr->pitch * y;
-           if (data->no_premultiply_alpha) {
-              for (x = 0; x < face->glyph->bitmap.width; x++) {
-                 unsigned char c = *ptr;
-                 *dptr++ = 255;
-                 *dptr++ = 255;
-                 *dptr++ = 255;
-                 *dptr++ = c;
-                 ptr++;
-              }
-           }
-           else {
-              for (x = 0; x < face->glyph->bitmap.width; x++) {
-                 unsigned char c = *ptr;
-                 *dptr++ = c;
-                 *dptr++ = c;
-                 *dptr++ = c;
-                 *dptr++ = c;
-                 ptr++;
-              }
-           }
-       }
-    }
-
-    al_unlock_bitmap(glyph->bitmap);
-    glyph->x = face->glyph->bitmap_left;
-    glyph->y = (face->size->metrics.ascender >> 6) - face->glyph->bitmap_top;
-    glyph->advance = face->glyph->advance.x >> 6;
-
-    al_restore_state(&backup);
-    al_hold_bitmap_drawing(was_held);
+    if (font_data->flags & ALLEGRO_TTF_MONOCHROME)
+       copy_glyph_mono(font_data, face, glyph_data);
+    else
+       copy_glyph_color(font_data, face, glyph_data);
 }
 
+
+/* This function may disable the bitmap hold drawing state. */
+static void cache_glyphs(ALLEGRO_FONT const *f, const ALLEGRO_USTR *text)
+{
+   ALLEGRO_TTF_FONT_DATA *data = f->data;
+   FT_Face face = data->face;
+   int pos;
+   int end;
+   int32_t ch;
+
+   pos = 0;
+   end = al_ustr_size(text);
+
+   while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
+      int ft_index = FT_Get_Char_Index(face, ch);
+      ALLEGRO_TTF_GLYPH_DATA *glyph = get_glyph(data, ft_index);
+      cache_glyph(data, face, ft_index, glyph);
+   }
+
+   unlock_current_page(data);
+}
+
+
+/* Glyphs should be cached beforehand. */
 static int render_glyph(ALLEGRO_FONT const *f,
-    ALLEGRO_COLOR color, int prev, int ch,
-    float xpos, float ypos, ALLEGRO_TTF_GLYPH_DATA **measure_glyph)
+   ALLEGRO_COLOR color, int prev, int ch, float xpos, float ypos,
+   ALLEGRO_TTF_GLYPH_DATA **measure_glyph)
 {
     ALLEGRO_TTF_FONT_DATA *data = f->data;
     FT_Face face = data->face;
     int ft_index = FT_Get_Char_Index(face, ch);
-    ALLEGRO_TTF_GLYPH_DATA *glyph = data->cache + ft_index;
+    ALLEGRO_TTF_GLYPH_DATA *glyph = get_glyph(data, ft_index);
     int advance = 0;
-
-    cache_glyph(f, face, ft_index, glyph);
 
     /* Do kerning? */
     if (!(data->flags & ALLEGRO_TTF_NO_KERNING) && prev) {
@@ -334,9 +443,12 @@ static int render_glyph(ALLEGRO_FONT const *f,
     if (measure_glyph) {
         *measure_glyph = glyph;
     }
-    else {
-        al_draw_tinted_bitmap(glyph->bitmap, color,
-            xpos + glyph->x + advance, ypos + glyph->y, 0);
+    else if (glyph->page_bitmap) {
+        al_draw_tinted_bitmap_region(glyph->page_bitmap, color,
+            glyph->region.x, glyph->region.y,
+            glyph->region.w, glyph->region.h,
+            xpos + glyph->offset_x + advance,
+            ypos + glyph->offset_y, 0);
     }
 
     advance += glyph->advance;
@@ -344,42 +456,95 @@ static int render_glyph(ALLEGRO_FONT const *f,
     return advance;
 }
 
-static int render_char(ALLEGRO_FONT const *f, ALLEGRO_COLOR color,
-   int ch, float xpos,
-   float ypos)
+
+static int ttf_font_height(ALLEGRO_FONT const *f)
 {
-    return render_glyph(f, color, '\0', ch, xpos, ypos, NULL);
+   ASSERT(f);
+   return f->height;
 }
 
-static int char_length(ALLEGRO_FONT const *f, int ch)
+
+static int ttf_font_ascent(ALLEGRO_FONT const *f)
 {
-    ALLEGRO_TTF_GLYPH_DATA *glyph;
-    ALLEGRO_COLOR dummy = {1, 1, 1, 1};
-    return render_glyph(f, dummy, '\0', ch, 0, 0, &glyph);
+    ALLEGRO_TTF_FONT_DATA *data;
+    FT_Face face;
+
+    ASSERT(f);
+
+    data = f->data;
+    face = data->face;
+
+    return face->size->metrics.ascender >> 6;
 }
 
-static int render(ALLEGRO_FONT const *f, ALLEGRO_COLOR color,
-    const ALLEGRO_USTR *text, float x, float y)
+
+static int ttf_font_descent(ALLEGRO_FONT const *f)
 {
-    int pos = 0;
-    int advance = 0;
-    int32_t prev = '\0';
-    int32_t ch;
-    bool on = al_is_bitmap_drawing_held();
+    ALLEGRO_TTF_FONT_DATA *data;
+    FT_Face face;
 
-    al_hold_bitmap_drawing(true);
+    ASSERT(f);
 
-    while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
-        advance += render_glyph(f, color, prev, ch, x + advance, y, NULL);
-        prev = ch;
-    }
+    data = f->data;
+    face = data->face;
 
-    al_hold_bitmap_drawing(on);
-
-    return advance;
+    return (-face->size->metrics.descender) >> 6;
 }
 
-static int text_length(ALLEGRO_FONT const *f, const ALLEGRO_USTR *text)
+
+static int ttf_render_char(ALLEGRO_FONT const *f, ALLEGRO_COLOR color,
+   int ch, float xpos, float ypos)
+{
+   /* Unused method. */
+   ASSERT(false);
+   (void)f;
+   (void)color;
+   (void)ch;
+   (void)xpos;
+   (void)ypos;
+   return 0;
+}
+
+
+static int ttf_char_length(ALLEGRO_FONT const *f, int ch)
+{
+   /* Unused method. */
+   ASSERT(false);
+   (void)f;
+   (void)ch;
+   return 0;
+}
+
+
+static int ttf_render(ALLEGRO_FONT const *f, ALLEGRO_COLOR color,
+   const ALLEGRO_USTR *text, float x, float y)
+{
+   bool hold;
+   int pos;
+   int advance;
+   int32_t prev;
+   int32_t ch;
+
+   hold = al_is_bitmap_drawing_held();
+
+   cache_glyphs(f, text);
+
+   al_hold_bitmap_drawing(true);
+
+   pos = advance = prev = 0;
+   while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
+      advance += render_glyph(f, color, prev, ch, x + advance, y,
+         NULL);
+      prev = ch;
+   }
+
+   al_hold_bitmap_drawing(hold);
+
+   return advance;
+}
+
+
+static int ttf_text_length(ALLEGRO_FONT const *f, const ALLEGRO_USTR *text)
 {
     int pos = 0;
     int32_t prev = '\0';
@@ -387,14 +552,22 @@ static int text_length(ALLEGRO_FONT const *f, const ALLEGRO_USTR *text)
     int x = 0;
     ALLEGRO_TTF_GLYPH_DATA *glyph;
     ALLEGRO_COLOR dummy = {1, 1, 1, 1};
+    bool hold;
+
+    hold = al_is_bitmap_drawing_held();
+    cache_glyphs(f, text);
+    al_hold_bitmap_drawing(hold);
+
     while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
         x += render_glyph(f, dummy, prev, ch, x, 0, &glyph);
         prev = ch;
     }
+
     return x;
 }
 
-static void get_text_dimensions(ALLEGRO_FONT const *f,
+
+static void ttf_get_text_dimensions(ALLEGRO_FONT const *f,
     ALLEGRO_USTR const *text,
     int *bbx, int *bby, int *bbw, int *bbh)
 {
@@ -404,18 +577,24 @@ static void get_text_dimensions(ALLEGRO_FONT const *f,
     int x = 0;
     ALLEGRO_TTF_GLYPH_DATA *glyph;
     ALLEGRO_COLOR dummy = {1, 1, 1, 1};
+    bool hold;
+    int count;
 
-    int count = al_ustr_length(text);
+    hold = al_is_bitmap_drawing_held();
+    cache_glyphs(f, text);
+    al_hold_bitmap_drawing(hold);
+
+    count = al_ustr_length(text);
     *bbx = 0;
     for (i = 0; i < count; i++) {
         int32_t ch = al_ustr_get_next(text, &pos);
         x += render_glyph(f, dummy, prev, ch, 0, 0, &glyph);
         if (i == count - 1) {
             x -= glyph->advance;
-            x += glyph->x + al_get_bitmap_width(glyph->bitmap);
+            x += glyph->offset_x + glyph->region.w;
         }
         if (i == 0)
-            *bbx = glyph->x;
+            *bbx = glyph->offset_x;
         prev = ch;
     }
     *bby = 0; // FIXME
@@ -423,12 +602,13 @@ static void get_text_dimensions(ALLEGRO_FONT const *f,
     *bbh = f->height; // FIXME, we want the bounding box!
 }
 
-#if 0
+
+#ifdef DEBUG_CACHE
 #include "allegro5/allegro_image.h"
 static void debug_cache(ALLEGRO_FONT *f)
 {
    ALLEGRO_TTF_FONT_DATA *data = f->data;
-   _AL_VECTOR *v = &data->cache_bitmaps;
+   _AL_VECTOR *v = &data->page_bitmaps;
    static int j = 0;
    int i;
    
@@ -443,30 +623,33 @@ static void debug_cache(ALLEGRO_FONT *f)
 }
 #endif
 
-static void destroy(ALLEGRO_FONT *f)
+
+static void ttf_destroy(ALLEGRO_FONT *f)
 {
-    int i;
-    ALLEGRO_TTF_FONT_DATA *data = f->data;
-    _AL_VECTOR *vec = &data->cache_bitmaps;
-#if 0
-    debug_cache(f);
+   ALLEGRO_TTF_FONT_DATA *data = f->data;
+   int i;
+
+   ASSERT(data->page_lr == NULL);
+
+#ifdef DEBUG_CACHE
+   debug_cache(f);
 #endif
-    FT_Done_Face(data->face);
-    for (i = 0; i < data->glyphs_count; i++) {
-        if (data->cache[i].bitmap) {
-            al_destroy_bitmap(data->cache[i].bitmap);
-        }
-    }
-    while (_al_vector_is_nonempty(vec)) {
-        ALLEGRO_BITMAP **bmp = _al_vector_ref_back(vec);
-        al_destroy_bitmap(*bmp);
-        _al_vector_delete_at(vec, _al_vector_size(vec)-1);
-    }
-    _al_vector_free(&data->cache_bitmaps);
-    al_free(data->cache);
-    al_free(data);
-    al_free(f);
+
+   FT_Done_Face(data->face);
+   for (i = _al_vector_size(&data->glyph_ranges) - 1; i >= 0; i--) {
+      ALLEGRO_TTF_GLYPH_RANGE *range = _al_vector_ref(&data->glyph_ranges, i);
+      al_free(range->glyphs);
+   }
+   _al_vector_free(&data->glyph_ranges);
+   for (i = _al_vector_size(&data->page_bitmaps) - 1; i >= 0; i--) {
+      ALLEGRO_BITMAP **bmp = _al_vector_ref(&data->page_bitmaps, i);
+      al_destroy_bitmap(*bmp);
+   }
+   _al_vector_free(&data->page_bitmaps);
+   al_free(data);
+   al_free(f);
 }
+
 
 static unsigned long ftread(FT_Stream stream, unsigned long offset,
     unsigned char *buffer, unsigned long count)
@@ -484,12 +667,14 @@ static unsigned long ftread(FT_Stream stream, unsigned long offset,
     return bytes;
 }
 
+
 static void ftclose(FT_Stream  stream)
 {
     ALLEGRO_TTF_FONT_DATA *data = stream->pathname.pointer;
     al_fclose(data->file);
     data->file = NULL;
 }
+
 
 /* Function: al_load_ttf_font_f
  */
@@ -499,17 +684,15 @@ ALLEGRO_FONT *al_load_ttf_font_f(ALLEGRO_FILE *file,
     return al_load_ttf_font_stretch_f(file, filename, 0, size, flags);
 }
 
+
 /* Function: al_load_ttf_font_stretch_f
  */
 ALLEGRO_FONT *al_load_ttf_font_stretch_f(ALLEGRO_FILE *file,
     char const *filename, int w, int h, int flags)
 {
     FT_Face face;
-    FT_ULong unicode;
-    FT_UInt g, m = 0;
     ALLEGRO_TTF_FONT_DATA *data;
     ALLEGRO_FONT *f;
-    int bytes;
     ALLEGRO_PATH *path;
     FT_Open_Args args;
 
@@ -577,35 +760,16 @@ ALLEGRO_FONT *al_load_ttf_font_stretch_f(ALLEGRO_FILE *file,
         face->size->metrics.descender / 64.0,
         face->size->metrics.height / 64.0);
 
-    unicode = FT_Get_First_Char(face, &g);
-    while (g) {
-        unicode = FT_Get_Next_Char(face, unicode, &g);
-        if (g > m)
-           m = g;
-    }
-
     data->face = face;
     data->flags = flags;
     data->no_premultiply_alpha =
        (al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
-    data->glyphs_count = m;
-    bytes = (m + 1) * sizeof(ALLEGRO_TTF_GLYPH_DATA);
-    data->cache = al_malloc(bytes);
-    memset(data->cache, 0, bytes);
 
-    if (flags & ALLEGRO_TTF_MONOCHROME) {
-       unsigned int i;
-       for (i = 0; i < m+1; i++) {
-          ((ALLEGRO_TTF_GLYPH_DATA *)(data->cache + i))->monochrome = true;
-       }
-    }
-
-    _al_vector_init(&data->cache_bitmaps, sizeof(ALLEGRO_BITMAP*));
-    ALLEGRO_DEBUG("%s: Preparing cache for %d glyphs.\n", filename, m);
+    _al_vector_init(&data->glyph_ranges, sizeof(ALLEGRO_TTF_GLYPH_RANGE));
+    _al_vector_init(&data->page_bitmaps, sizeof(ALLEGRO_BITMAP*));
 
     f = al_malloc(sizeof *f);
     f->height = face->size->metrics.height >> 6;
-
     f->vtable = &vt;
     f->data = data;
 
@@ -623,10 +787,11 @@ ALLEGRO_FONT *al_load_ttf_font(char const *filename, int size, int flags)
    return al_load_ttf_font_stretch(filename, 0, size, flags);
 }
 
+
 /* Function: al_load_ttf_font_stretch
  */
 ALLEGRO_FONT *al_load_ttf_font_stretch(char const *filename, int w, int h,
-    int flags)
+   int flags)
 {
    ALLEGRO_FILE *f;
    ALLEGRO_FONT *font;
@@ -645,6 +810,7 @@ ALLEGRO_FONT *al_load_ttf_font_stretch(char const *filename, int w, int h,
    return font;
 }
 
+
 /* Function: al_init_ttf_addon
  */
 bool al_init_ttf_addon(void)
@@ -653,15 +819,15 @@ bool al_init_ttf_addon(void)
    inited = true;
 
    FT_Init_FreeType(&ft);
-   vt.font_height = font_height;
-   vt.font_ascent = font_ascent;
-   vt.font_descent = font_descent;
-   vt.char_length = char_length;
-   vt.text_length = text_length;
-   vt.render_char = render_char;
-   vt.render = render;
-   vt.destroy = destroy;
-   vt.get_text_dimensions = get_text_dimensions;
+   vt.font_height = ttf_font_height;
+   vt.font_ascent = ttf_font_ascent;
+   vt.font_descent = ttf_font_descent;
+   vt.char_length = ttf_char_length;
+   vt.text_length = ttf_text_length;
+   vt.render_char = ttf_render_char;
+   vt.render = ttf_render;
+   vt.destroy = ttf_destroy;
+   vt.get_text_dimensions = ttf_get_text_dimensions;
     
    al_register_font_loader(".ttf", al_load_ttf_font);
    /* Can't fail right now - in the future we might dynamically load
@@ -670,6 +836,7 @@ bool al_init_ttf_addon(void)
     */
    return true;
 }
+
 
 /* Function: al_shutdown_ttf_addon
  */
@@ -691,4 +858,4 @@ uint32_t al_get_allegro_ttf_version(void)
    return ALLEGRO_VERSION_INT;
 }
 
-/* vim: set et: */
+/* vim: set sts=3 sw=3 et: */
