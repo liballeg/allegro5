@@ -384,8 +384,8 @@ ALLEGRO_VIDEO_BITMAP
 ALLEGRO_ANY_BITMAP
 :   This is the default. It will try to create a video bitmap and if
     that fails create a memory bitmap. Bitmaps created with this flag
-    when there is no active display will be converted to video bitmap
-    next time a bitmap is created. They also will remain video bitmaps
+    when there is no active display will be converted to video bitmaps
+    next time a display is created. They also will remain video bitmaps
     if the last display is destroyed and then another is created again.
 
 ALLEGRO_KEEP_BITMAP_FORMAT
