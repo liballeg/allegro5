@@ -498,6 +498,7 @@ void al_draw_pieslice(float cx, float cy, float r, float start_theta,
    ASSERT(r >= 0);
    
    /* Only thickness less <= 0 is supported right now */
+   (void)thickness;
    
    num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r));
 
