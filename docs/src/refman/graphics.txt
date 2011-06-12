@@ -326,11 +326,15 @@ See also: [al_create_bitmap], [al_set_new_bitmap_format],
 
 ### API: al_convert_all_video_bitmaps
 
-If you create a video bitmap when there is no current display (for
-example because you have not called al_create_display in the current
-thread) the video bitmap will be created successfully, but really be
-a memory bitmap. This function converts all such bitmaps to proper
-video bitmaps belonging to the current display.
+If you create a bitmap when there is no current display (for example
+because you have not called al_create_display in the current
+thread) and are using the ALLEGRO_ANY_BITMAP bitmap flags (which is
+set by default) then the bitmap will be created successfully, but as a
+memory bitmap. This function converts all such bitmaps to proper video
+bitmaps belonging to the current display.
+
+Note that video bitmaps get automatically converted back to memory
+bitmaps when the last display is destroyed.
 
 See also:  [al_convert_bitmap], [al_create_bitmap]
 
@@ -356,19 +360,33 @@ See also: [ALLEGRO_PIXEL_FORMAT], [al_set_new_bitmap_format]
 Sets the flags to use for newly created bitmaps.
 Valid flags are:
 
-ALLEGRO_VIDEO_BITMAP
-:   Creates a bitmap that resides in the video card memory. These types of
-    bitmaps receive the greatest benefit from hardware acceleration.
-    [al_set_new_bitmap_flags] will implicitly set this flag unless
-    ALLEGRO_MEMORY_BITMAP is present.
-
 ALLEGRO_MEMORY_BITMAP 
 :   Create a bitmap residing in system memory.
     Operations on, and with, memory bitmaps will not be hardware accelerated.
     However, direct pixel access can be relatively quick compared to video bitmaps,
     which depend on the display driver in use.
     
-    *Note: Allegro's software rendering routines are currently very unoptimised.*
+    *Note*: Allegro's software rendering routines are currently very unoptimised.
+
+ALLEGRO_VIDEO_BITMAP
+:   Creates a bitmap that resides in the video card memory. These types of
+    bitmaps receive the greatest benefit from hardware acceleration.
+    
+    *Note*: Creating a video bitmap will fail if there is no current
+    display or the current display driver cannot create the bitmap. The
+    latter will happen if for example the format or dimensions are not
+    supported.
+    
+    *Note:* Bitmaps created with this flag will be converted to memory
+    bitmaps when the last display is destroyed. In most cases it is
+    therefor easier to use the ALLEGRO_ANY_BITMAP flag instead.
+
+ALLEGRO_ANY_BITMAP
+:   This is the default. It will try to create a video bitmap and if
+    that fails create a memory bitmap. Bitmaps created with this flag
+    when there is no active display will be converted to video bitmap
+    next time a bitmap is created. They also will remain video bitmaps
+    if the last display is destroyed and then another is created again.
 
 ALLEGRO_KEEP_BITMAP_FORMAT
 :   Only used when loading bitmaps from disk files,

@@ -82,6 +82,12 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    }
 
    al_set_window_title(display, al_get_app_name());
+   
+   /* We convert video bitmaps to memory bitmaps when the display is
+    * destroyed, so seems only fair to re-convertt hem when the display
+    * is re-created again.
+    */
+   al_convert_all_video_bitmaps();
 
    return display;
 }

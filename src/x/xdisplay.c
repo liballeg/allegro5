@@ -630,7 +630,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
 
    ALLEGRO_DEBUG("destroy display.\n");
 
-   /* If we're the last display, convert all bitmpas to display independent
+   /* If we're the last display, convert all bitmaps to display independent
     * (memory) bitmaps. */
    if (s->system.displays._size == 1) {
       while (d->bitmaps._size > 0) {

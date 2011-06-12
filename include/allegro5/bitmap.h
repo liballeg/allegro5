@@ -64,6 +64,7 @@ enum {
    ALLEGRO_NO_PREMULTIPLIED_ALPHA   = 0x0200,
    ALLEGRO_VIDEO_BITMAP             = 0x0400,
    ALLEGRO_KEEP_INDEX               = 0x0800,
+   ALLEGRO_ANY_BITMAP               = 0x1000,
 };
 
 

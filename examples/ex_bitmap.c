@@ -9,7 +9,7 @@ int main(int argc, const char *argv[])
 {
     const char *filename;
     ALLEGRO_DISPLAY *display;
-    ALLEGRO_BITMAP *membitmap, *bitmap;
+    ALLEGRO_BITMAP *bitmap;
     ALLEGRO_TIMER *timer;
     ALLEGRO_EVENT_QUEUE *queue;
     bool redraw = true;
@@ -44,27 +44,14 @@ int main(int argc, const char *argv[])
     
     al_set_window_title(display, filename);
     
-    /* We load the bitmap into a memory bitmap, because creating a
-     * display bitmap could fail if the bitmap is too big to fit into a
-     * single texture.
-     * FIXME: Or should A5 automatically created multiple display bitmaps?
-     */
-    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
     t0 = al_get_time();
-    membitmap = al_load_bitmap(filename);
+    bitmap = al_load_bitmap(filename);
     t1 = al_get_time();
-    if (!membitmap) {
+    if (!bitmap) {
        abort_example("%s not found or failed to load\n", filename);
     }
-    al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
 
     printf("Loading took %.4f seconds\n", t1 - t0);
-    
-    // FIXME: 
-    // Now try to split the memory bitmap into display bitmaps?
-    bitmap = al_clone_bitmap(membitmap);
-    if (!bitmap)
-        bitmap = membitmap;
 
     timer = al_create_timer(1.0 / 30);
     queue = al_create_event_queue();

@@ -60,22 +60,30 @@ int main(void)
 
    al_install_mouse();
    al_install_keyboard();
-   
-   /* We call this before creating the display on purpose. The
-    * font glyphs are all created as video bitmaps by default, but
-    * because there is no display yet they are forced to be memory
-    * bitmaps.
-    */
-   font = al_load_font("data/fixed_font.tga", 0, 0);
+
    spin = al_load_bitmap("data/cursor.tga");
+
+   display = al_create_display(64, 64);
+   
+   if (al_get_bitmap_flags(spin) & ALLEGRO_VIDEO_BITMAP) {
+      printf("video bitmap now.\n");
+   }
+
+   al_destroy_display(display);
+   
+   if (al_get_bitmap_flags(spin) & ALLEGRO_MEMORY_BITMAP) {
+      printf("memory bitmap now.\n");
+   }
 
    display = al_create_display(640, 480);
    
-   /* Calling this converts all the memory bitmaps who are marked as
-    * video bitmaps to real video bitmaps, belonging to the current
-    * display.
-    */
-   al_convert_all_video_bitmaps();
+   if (al_get_bitmap_flags(spin) & ALLEGRO_MEMORY_BITMAP) {
+      printf("Error: Could not convert to video bitmap.\n");
+   }
+   
+   return 0;
+   
+   font = al_load_font("data/fixed_font.tga", 0, 0);
 
    thread = al_create_thread(loading_thread, NULL);
    al_start_thread(thread);
