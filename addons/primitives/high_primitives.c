@@ -486,6 +486,70 @@ void al_calculate_arc(float* dest, int stride, float cx, float cy,
    }
 }
 
+/* Function: al_draw_pieslice
+ */
+void al_draw_pieslice(float cx, float cy, float r, float start_theta,
+   float delta_theta, ALLEGRO_COLOR color, float thickness)
+{
+   LOCAL_VERTEX_CACHE;
+   float scale = get_scale();
+   int num_segments, ii;
+   
+   ASSERT(r >= 0);
+   
+   /* Only thickness less <= 0 is supported right now */
+   
+   num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r));
+
+   if (num_segments < 2)
+      return;
+   
+   if (num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
+      num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1;
+   }
+      
+   al_calculate_arc(&(vertex_cache[1].x), sizeof(ALLEGRO_VERTEX), cx, cy, r, r, start_theta, delta_theta, 0, num_segments);
+   vertex_cache[0].x = cx; vertex_cache[0].y = cy;
+   
+   for (ii = 0; ii < num_segments + 1; ii++) {
+      vertex_cache[ii].color = color;
+      vertex_cache[ii].z = 0;
+   }
+   
+   al_draw_prim(vertex_cache, 0, 0, 0, num_segments + 1, ALLEGRO_PRIM_LINE_LOOP);
+}
+
+/* Function: al_draw_filled_pieslice
+ */
+void al_draw_filled_pieslice(float cx, float cy, float r, float start_theta,
+   float delta_theta, ALLEGRO_COLOR color)
+{
+   LOCAL_VERTEX_CACHE;
+   float scale = get_scale();
+   int num_segments, ii;
+   
+   ASSERT(r >= 0);
+   
+   num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r));
+
+   if (num_segments < 2)
+      return;
+   
+   if (num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
+      num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1;
+   }
+      
+   al_calculate_arc(&(vertex_cache[1].x), sizeof(ALLEGRO_VERTEX), cx, cy, r, r, start_theta, delta_theta, 0, num_segments);
+   vertex_cache[0].x = cx; vertex_cache[0].y = cy;
+   
+   for (ii = 0; ii < num_segments + 1; ii++) {
+      vertex_cache[ii].color = color;
+      vertex_cache[ii].z = 0;
+   }
+   
+   al_draw_prim(vertex_cache, 0, 0, 0, num_segments + 1, ALLEGRO_PRIM_TRIANGLE_FAN);
+}
+
 /* Function: al_draw_ellipse
  */
 void al_draw_ellipse(float cx, float cy, float rx, float ry,

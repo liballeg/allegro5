@@ -223,6 +223,37 @@ vertices.
 
 See also: [al_draw_arc], [al_calculate_spline], [al_calculate_ribbon]
 
+### API: al_draw_pieslice
+
+Draws a pieslice (outlined circular sector).
+
+*Parameters:*
+
+* cx, cy - Center of the pieslice
+* r - Radius of the pieslice
+* color - Color of the pieslice
+* start_theta - The initial angle from which the pieslice is drawn
+* delta_theta - Angular span of the pieslice (pass a negative number to switch
+    direction)
+* thickness - Thickness of the circle, pass `<= 0` to draw hairline pieslice
+
+See also: [al_draw_filled_pieslice]
+
+### API: al_draw_filled_pieslice
+
+Draws a filled pieslice (filled circular sector).
+
+*Parameters:*
+
+* cx, cy - Center of the pieslice
+* r - Radius of the pieslice
+* color - Color of the pieslice
+* start_theta - The initial angle from which the pieslice is drawn
+* delta_theta - Angular span of the pieslice (pass a negative number to switch
+    direction)
+
+See also: [al_draw_pieslice]
+
 ### API: al_draw_ellipse
 
 Draws an outlined ellipse.
