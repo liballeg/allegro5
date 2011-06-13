@@ -315,13 +315,13 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    /* if we're in real xinerama mode, also bail, x makes mouse use evil */
    
    bool true_xinerama_active = false;
+#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
    bool xrandr_active = false;
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
    xrandr_active = system->xrandr_available;
 #endif
-   
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+
    true_xinerama_active = !xrandr_active && system->xinerama_available;
 #endif
    
