@@ -321,6 +321,8 @@ If the bitmap has sub-bitmaps you also must call al_convert_bitmap on
 all its sub-bitmaps. If the bitmap is a sub-bitmap you must also call
 al_convert_bitmap on the parent.
 
+Since: 5.1.0
+
 See also: [al_create_bitmap], [al_set_new_bitmap_format],
 [al_set_new_bitmap_flags], [al_clone_bitmap]
 
@@ -336,7 +338,9 @@ bitmaps belonging to the current display.
 Note that video bitmaps get automatically converted back to memory
 bitmaps when the last display is destroyed.
 
-See also:  [al_convert_bitmap], [al_create_bitmap]
+Since: 5.1.0
+
+See also: [al_convert_bitmap], [al_create_bitmap]
 
 ### API: al_destroy_bitmap
 
@@ -379,7 +383,7 @@ ALLEGRO_VIDEO_BITMAP
     
     *Note:* Bitmaps created with this flag will be converted to memory
     bitmaps when the last display is destroyed. In most cases it is
-    therefor easier to use the ALLEGRO_ANY_BITMAP flag instead.
+    therefore easier to use the ALLEGRO_ANY_BITMAP flag instead.
 
 ALLEGRO_ANY_BITMAP
 :   This is the default. It will try to create a video bitmap and if
@@ -387,6 +391,7 @@ ALLEGRO_ANY_BITMAP
     when there is no active display will be converted to video bitmaps
     next time a display is created. They also will remain video bitmaps
     if the last display is destroyed and then another is created again.
+    Since 5.1.0.
 
 ALLEGRO_KEEP_BITMAP_FORMAT
 :   Only used when loading bitmaps from disk files,
