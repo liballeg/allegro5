@@ -173,6 +173,8 @@ in this order, independent of the endianness.
     Like the version without _LE, but the component order is guaranteed to be
     red, green, blue, alpha. This only makes a difference on big endian
     systems, on little endian it is just an alias.
+* ALLEGRO_PIXEL_FORMAT_LUMINANCE_8 - 8 bit.
+    Since 5.1.0.
 
 See also: [al_set_new_bitmap_format], [al_get_bitmap_format]
 
@@ -398,6 +400,10 @@ ALLEGRO_KEEP_BITMAP_FORMAT
     forces the resulting [ALLEGRO_BITMAP] to use the same format as the file.
     
     *This is not yet honoured.*
+
+ALLEGRO_KEEP_INDEX
+:   Load the palette indices of 8-bit .bmp and .pcx files instead of the rgb colors.
+    Since 5.1.0.
 
 ALLEGRO_FORCE_LOCKING 
 :   When drawing to a bitmap with this flag set, always
