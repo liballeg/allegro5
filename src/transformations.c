@@ -267,19 +267,22 @@ void al_transform_coordinates(const ALLEGRO_TRANSFORM *trans, float *x, float *y
  */
 void al_compose_transform(ALLEGRO_TRANSFORM *trans, const ALLEGRO_TRANSFORM *other)
 {
-   ALLEGRO_TRANSFORM tmp;
-   int x, y, i;
+   #define E(x, y)                        \
+      (other->m[0][y] * trans->m[x][0] +  \
+       other->m[1][y] * trans->m[x][1] +  \
+       other->m[2][y] * trans->m[x][2] +  \
+       other->m[3][y] * trans->m[x][3])   \
 
-   al_copy_transform(&tmp, trans);
+   const ALLEGRO_TRANSFORM tmp = {{
+      { E(0, 0), E(0, 1), E(0, 2), E(0, 3) },
+      { E(1, 0), E(1, 1), E(1, 2), E(1, 3) },
+      { E(2, 0), E(2, 1), E(2, 2), E(2, 3) },
+      { E(3, 0), E(3, 1), E(3, 2), E(3, 3) }
+   }};
 
-   for (y = 0; y < 4; y++) {
-      for (x = 0; x < 4; x++) {
-         trans->m[x][y] = 0;
-         for (i = 0; i < 4; i++) {
-            trans->m[x][y] += other->m[i][y] * tmp.m[x][i];
-         }
-      }
-   }
+   *trans = tmp;
+
+   #undef E
 }
 
 bool _al_transform_is_translation(const ALLEGRO_TRANSFORM* trans,
