@@ -2057,7 +2057,9 @@ static int d3d_al_blender_to_d3d(int al_mode)
       ALLEGRO_ALPHA,
       ALLEGRO_INVERSE_ALPHA,
       ALLEGRO_SRC_COLOR,
-      ALLEGRO_DST_COLOR
+      ALLEGRO_DST_COLOR,
+      ALLEGRO_INVERSE_SRC_COLOR,
+      ALLEGRO_INVERSE_DST_COLOR,
    };
 
    int d3d_modes[] = {
@@ -2066,7 +2068,9 @@ static int d3d_al_blender_to_d3d(int al_mode)
       D3DBLEND_SRCALPHA,
       D3DBLEND_INVSRCALPHA,
       D3DBLEND_SRCCOLOR,
-      D3DBLEND_DESTCOLOR
+      D3DBLEND_DESTCOLOR,
+      D3DBLEND_INVSRCCOLOR,
+      D3DBLEND_INVDESTCOLOR,
    };
 
    int i;

@@ -34,10 +34,10 @@ private:
    Label operation_label[6];
    List operations[6];
    Label rgba_label[2];
-   VSlider r[2];
-   VSlider g[2];
-   VSlider b[2];
-   VSlider a[2];
+   HSlider r[2];
+   HSlider g[2];
+   HSlider b[2];
+   HSlider a[2];
 
 public:
    Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
@@ -92,7 +92,9 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
       l.append_item("INVERSE");
       l.append_item("SRC_COLOR");
       l.append_item("DST_COLOR");
-      d.add(l, 1 + i * 3, 25, 3, 7);
+      l.append_item("INVERSE_SRC_COLOR");
+      l.append_item("INVERSE_DST_COLOR");
+      d.add(l, 1 + i * 3, 25, 3, 9);
    }
 
    for (int i = 4; i < 6; i++) {
@@ -107,19 +109,18 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
 
    rgba_label[0] = Label("RGBA");
    rgba_label[1] = Label("RGBA");
-   d.add(rgba_label[0], 1, 32, 4, 1);
-   d.add(rgba_label[1], 7, 32, 4, 1);
-   d.add(rgba_label[2], 13, 32, 4, 1);
+   d.add(rgba_label[0], 1, 34, 4, 1);
+   d.add(rgba_label[1], 7, 34, 4, 1);
 
    for (int i = 0; i < 2; i++) {
-      r[i] = VSlider(255, 255);
-      g[i] = VSlider(255, 255);
-      b[i] = VSlider(255, 255);
-      a[i] = VSlider(255, 255);
-      d.add(r[i], 1 + i * 6, 33, 1, 6);
-      d.add(g[i], 2 + i * 6, 33, 1, 6);
-      d.add(b[i], 3 + i * 6, 33, 1, 6);
-      d.add(a[i], 4 + i * 6, 33, 1, 6);
+      r[i] = HSlider(255, 255);
+      g[i] = HSlider(255, 255);
+      b[i] = HSlider(255, 255);
+      a[i] = HSlider(255, 255);
+      d.add(r[i], 1 + i * 6, 35, 3, 1);
+      d.add(g[i], 1 + i * 6, 36, 3, 1);
+      d.add(b[i], 1 + i * 6, 37, 3, 1);
+      d.add(a[i], 1 + i * 6, 38, 3, 1);
    }
 }
 
@@ -149,6 +150,10 @@ int str_to_blend_mode(const std::string & str)
       return ALLEGRO_SRC_COLOR;
    if (str == "DST_COLOR")
       return ALLEGRO_DST_COLOR;
+   if (str == "INVERSE_SRC_COLOR")
+      return ALLEGRO_INVERSE_SRC_COLOR;
+   if (str == "INVERSE_DST_COLOR")
+      return ALLEGRO_INVERSE_DST_COLOR;
    if (str == "ALPHA")
       return ALLEGRO_ALPHA;
    if (str == "INVERSE")
@@ -337,9 +342,9 @@ int main(int argc, char *argv[])
       abort_example("Failed to load data/allegro.pcx\n");
       return 1;
    }
-   mysha = al_load_bitmap("data/mysha.pcx");
+   mysha = al_load_bitmap("data/mysha256x256.png");
    if (!mysha) {
-      abort_example("Failed to load data/mysha.pcx\n");
+      abort_example("Failed to load data/mysha256x256.png\n");
       return 1;
    }
    

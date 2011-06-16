@@ -23,9 +23,10 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
 {
    int op, src_color, dst_color, op_alpha, src_alpha, dst_alpha;
-   const int blend_modes[6] = {
+   const int blend_modes[8] = {
       GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
-      GL_SRC_COLOR, GL_DST_COLOR
+      GL_SRC_COLOR, GL_DST_COLOR, GL_ONE_MINUS_SRC_COLOR,
+      GL_ONE_MINUS_DST_COLOR
    };
    const int blend_equations[3] = {
       GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT
