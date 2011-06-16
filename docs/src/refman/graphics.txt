@@ -901,77 +901,67 @@ Assume the source color (e.g. color of a rectangle to draw, or pixel
 of a bitmap to draw) is given as its red/green/blue/alpha
 components (if the bitmap has no alpha it always is assumed to be
 fully opaque, so 255 for 8-bit or 1.0 for floating point):
-*sr, sg, sb, sa*.
+*s = s.r, s.g, s.b, s.a*.
 And this color is drawn to a destination, which already has a color:
-*dr, dg, db, da*.
+*d = d.r, d.g, d.b, d.a*.
 
 The conceptional formula used by Allegro to draw any pixel then depends
 on the `op` parameter:
 
 * ALLEGRO_ADD
 
-         r = dr * dst + sr * src
-         g = dg * dst + sg * src
-         b = db * dst + sb * src
-         a = da * dst + sa * src
+         r = d.r * df.r + s.r * sf.r
+         g = d.g * df.g + s.g * sf.g
+         b = d.b * df.b + s.b * sf.b
+         a = d.a * df.a + s.a * sf.a
  
 * ALLEGRO_DEST_MINUS_SRC
 
-         r = dr * dst - sr * src
-         g = dg * dst - sg * src
-         b = db * dst - sb * src
-         a = da * dst - sa * src
+         r = d.r * df.r - s.r * sf.r
+         g = d.g * df.g - s.g * sf.g
+         b = d.b * df.b - s.b * sf.b
+         a = d.a * df.a - s.a * sf.a
     
 * ALLEGRO_SRC_MINUS_DEST
 
-         r = sr * src - dr * dst
-         g = sg * src - dg * dst
-         b = sb * src - db * dst
-         a = sa * src - da * dst
+         r = s.r * sf.r - d.r * df.r
+         g = s.g * sf.g - d.g * df.g
+         b = s.b * sf.b - d.b * df.b
+         a = s.a * sf.a - d.a * df.a
 
-Valid values for `src` and `dst` passed to this function are
+Valid values for the factors `sf` and `df` passed to this function are
 
 * ALLEGRO_ZERO
 
-         src = 0
-         dst = 0
+         f = 0, 0, 0, 0
 
 * ALLEGRO_ONE
       
-         src = 1
-         dst = 1
+         f = 1, 1, 1, 1
 
 * ALLEGRO_ALPHA
    
-         src = sa
-         dst = sa
+         f = s.a, s.a, s.a, s.a
 
 * ALLEGRO_INVERSE_ALPHA
 
-         src = 1 - sa
-         dst = 1 - sa
+         f = 1 - s.a, 1 - s.a, 1 - s.a, 1 - s.a
 
 * ALLEGRO_SRC_COLOR
 
-         src = (sr, sg, sb, sa)
-         dst = (sr, sg, sb, sa)
+         f = s.r, s.g, s.b, s.a
 
 * ALLEGRO_DST_COLOR
 
-         src = (dr, dg, db, da)
-         dst = (dr, dg, db, da)
+         f = d.r, d.g, d.b, d.a
 
-The blend factor for ALLEGRO_SRC_COLOR and ALLEGRO_DST_COLOR is the
-current component that is being operated on. 
-  
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_DST_COLOR, ALLEGRO_ZERO) 
+* ALLEGRO_INVERSE_SRC_COLOR
 
-Will result in these equations
+         f = 1 - s.r, 1 - s.g, 1 - s.b, 1 - s.a
 
-         r = dr * 0 + sr * dr
-         g = dg * 0 + sg * dg
-         b = db * 0 + sb * db
-         a = da * 0 + sa * da
+* ALLEGRO_INVERSE_DST_COLOR
+
+         f = 1 - d.r, 1 - d.g, 1 - d.b, 1 - d.a
 
 Blending examples:
 
@@ -979,6 +969,13 @@ So for example, to restore the default of using premultiplied alpha
 blending, you would use (pseudo code)
 
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA)
+
+As formula:
+
+    r = d.r * (1 - s.a) + s.r * 1
+    g = d.g * (1 - s.a) + s.g * 1
+    b = d.b * (1 - s.a) + s.b * 1
+    a = d.a * (1 - s.a) + s.a * 1
 
 If you are using non-pre-multiplied alpha, you could use
 
@@ -991,6 +988,17 @@ Additive blending would be achieved with
 Copying the source to the destination (including alpha) unmodified
 
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO)
+
+Multiplying source and destination components
+
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_DST_COLOR, ALLEGRO_ZERO) 
+
+As formula:
+
+    r = d.r * 0 + s.r * d.r
+    g = d.g * 0 + s.g * d.g
+    b = d.b * 0 + s.b * d.b
+    a = d.a * 0 + s.a * d.a
 
 See also: [al_set_separate_blender], [al_get_blender]
 
