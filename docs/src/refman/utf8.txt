@@ -138,15 +138,17 @@ with the following caveats:
   but a string which references the middle of another string or region
   of memory will *not* be NUL terminated.
 
-* If the ALLEGRO_USTR references another string, the returned c-string will
-  point into the referenced string, the length of the string will be ignored.
+* If the ALLEGRO_USTR references another string, the returned C string will
+  point into the referenced string. Again, no NUL terminator will be added
+  to the referenced string.
 
 See also: [al_ustr_to_buffer], [al_cstr_dup]
 
 ### API: al_ustr_to_buffer
 
 Write the contents of the string into a pre-allocated buffer of the given size
-in bytes. The result will always be 0-terminated.
+in bytes. The result will always be 0-terminated, so a maximum of `size - 1`
+bytes will be copied.
 
 See also: [al_cstr], [al_cstr_dup]
 
