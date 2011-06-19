@@ -30,7 +30,7 @@ int main(void)
    al_install_keyboard();
 
    al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_REQUIRE);
-   al_set_new_display_option(ALLEGRO_SAMPLES, 4, ALLEGRO_REQUIRE);
+   al_set_new_display_option(ALLEGRO_SAMPLES, 4, ALLEGRO_SUGGEST);
    ms_display = al_create_display(200, 200);
    if (!ms_display) {
       printf("Multisampling not available.\n");
@@ -39,7 +39,7 @@ int main(void)
    al_set_window_title(ms_display, "Multisampling");
 
    al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 0, ALLEGRO_REQUIRE);
-   al_set_new_display_option(ALLEGRO_SAMPLES, 0, ALLEGRO_REQUIRE);
+   al_set_new_display_option(ALLEGRO_SAMPLES, 0, ALLEGRO_SUGGEST);
    display = al_create_display(200, 200);
    al_set_window_title(display, "Normal");
    

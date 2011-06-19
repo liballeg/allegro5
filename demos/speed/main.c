@@ -297,6 +297,9 @@ int main(int argc, char *argv[])
    }
 
    /* set the screen mode */
+   al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
+   al_set_new_display_option(ALLEGRO_SAMPLES, 4, ALLEGRO_SUGGEST);
+
    al_set_new_display_flags(display_flags);
    screen = al_create_display(w, h);
    if (!screen) {

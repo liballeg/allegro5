@@ -203,11 +203,11 @@ int change_gfx_mode(void)
    
    if (screen_samples > 1) {
       al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
-      al_set_new_display_option(ALLEGRO_SAMPLES, screen_samples, ALLEGRO_SAMPLES);
+      al_set_new_display_option(ALLEGRO_SAMPLES, screen_samples, ALLEGRO_SUGGEST);
    }
    else {
       al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 0, ALLEGRO_SUGGEST);
-      al_set_new_display_option(ALLEGRO_SAMPLES, 0, ALLEGRO_SAMPLES);
+      al_set_new_display_option(ALLEGRO_SAMPLES, 0, ALLEGRO_SUGGEST);
    }
 
    /* Attempt to set the selected colour depth and gfx mode. */

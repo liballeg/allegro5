@@ -308,7 +308,7 @@ int main(void)
 
    if (ex.samples) {
       al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_REQUIRE);
-      al_set_new_display_option(ALLEGRO_SAMPLES, ex.samples, ALLEGRO_REQUIRE);
+      al_set_new_display_option(ALLEGRO_SAMPLES, ex.samples, ALLEGRO_SUGGEST);
    }
    display = al_create_display(640, 640);
    if (!display) {
