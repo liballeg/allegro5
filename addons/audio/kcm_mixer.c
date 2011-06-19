@@ -19,12 +19,11 @@
 ALLEGRO_DEBUG_CHANNEL("audio")
 
 
-/* globals */
-static union {
+typedef union {
    float f32[ALLEGRO_MAX_CHANNELS]; /* max: 7.1 */
    int16_t s16[ALLEGRO_MAX_CHANNELS];
    void *ptr;
-} _samp_buf;
+} SAMP_BUF;
 
 
 
@@ -245,14 +244,14 @@ static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
 }
 
 
-/* Interpolate the next sample value of spl into the global _samp_buf,
+/* Interpolate the next sample value of spl into samp_buf,
  * for all channels.
  */
-static INLINE const void *point_spl16(const ALLEGRO_SAMPLE_INSTANCE *spl,
-   unsigned int maxc)
+static INLINE const void *point_spl16(SAMP_BUF *samp_buf,
+   const ALLEGRO_SAMPLE_INSTANCE *spl, unsigned int maxc)
 {
    any_buffer_t *buf = (any_buffer_t *) &spl->spl_data.buffer;
-   int16_t *s = _samp_buf.s16;
+   int16_t *s = samp_buf->s16;
    unsigned int i;
 
    for (i = 0; i < maxc; i++) {
@@ -284,14 +283,14 @@ static INLINE const void *point_spl16(const ALLEGRO_SAMPLE_INSTANCE *spl,
 }
 
 
-/* Interpolate the next sample value of spl into the global _samp_buf,
+/* Interpolate the next sample value of spl into samp_buf,
  * for all channels.
  */
-static INLINE const void *point_spl32(const ALLEGRO_SAMPLE_INSTANCE *spl,
-   unsigned int maxc)
+static INLINE const void *point_spl32(SAMP_BUF *samp_buf,
+   const ALLEGRO_SAMPLE_INSTANCE *spl, unsigned int maxc)
 {
    any_buffer_t *buf = (any_buffer_t *) &spl->spl_data.buffer;
-   float *s = _samp_buf.f32;
+   float *s = samp_buf->f32;
    unsigned int i;
 
    for (i = 0; i < maxc; i++) {
@@ -323,14 +322,14 @@ static INLINE const void *point_spl32(const ALLEGRO_SAMPLE_INSTANCE *spl,
 }
 
 
-/* Interpolate the next sample value of spl into the global _samp_buf,
+/* Interpolate the next sample value of spl into samp_buf,
  * for all channels.
  */
-static INLINE const void *point_spl32u(const ALLEGRO_SAMPLE_INSTANCE *spl,
-   unsigned int maxc)
+static INLINE const void *point_spl32u(SAMP_BUF *samp_buf,
+   const ALLEGRO_SAMPLE_INSTANCE *spl, unsigned int maxc)
 {
    any_buffer_t *buf = (any_buffer_t *) &spl->spl_data.buffer;
-   float *s = _samp_buf.f32;
+   float *s = samp_buf->f32;
    unsigned int i;
 
    for (i = 0; i < maxc; i++) {
@@ -362,15 +361,16 @@ static INLINE const void *point_spl32u(const ALLEGRO_SAMPLE_INSTANCE *spl,
 }
 
 
-/* Interpolate the next sample value of spl into the global _samp_buf,
+/* Interpolate the next sample value of spl into samp_buf,
  * for all channels.
  */
-static INLINE const void *linear_spl32(const ALLEGRO_SAMPLE_INSTANCE *spl,
-   unsigned int maxc)
+static INLINE const void *linear_spl32(SAMP_BUF *samp_buf,
+   const ALLEGRO_SAMPLE_INSTANCE *spl, unsigned int maxc)
 {
    unsigned long p1, p2;
    unsigned int i;
-   float frac, *s = _samp_buf.f32;
+   float frac;
+   float *s = samp_buf->f32;
 
    p1 = (spl->pos>>MIXER_FRAC_SHIFT)*maxc;
    p2 = p1 + maxc;
@@ -428,15 +428,16 @@ static INLINE const void *linear_spl32(const ALLEGRO_SAMPLE_INSTANCE *spl,
 }
 
 
-/* Interpolate the next sample value of spl into the global _samp_buf,
+/* Interpolate the next sample value of spl into samp_buf,
  * for all channels.
  */
-static INLINE const void *linear_spl32u(const ALLEGRO_SAMPLE_INSTANCE *spl,
-   unsigned int maxc)
+static INLINE const void *linear_spl32u(SAMP_BUF *samp_buf,
+   const ALLEGRO_SAMPLE_INSTANCE *spl, unsigned int maxc)
 {
    unsigned long p1, p2;
    unsigned int i;
-   float frac, *s = _samp_buf.f32;
+   float frac;
+   float *s = samp_buf->f32;
 
    p1 = (spl->pos>>MIXER_FRAC_SHIFT)*maxc;
    p2 = p1 + maxc;
@@ -525,6 +526,7 @@ static void NAME(void *source, void **vbuf, unsigned int *samples,            \
    size_t maxc = al_get_channel_count(spl->spl_data.chan_conf);               \
    size_t samples_l = *samples;                                               \
    size_t c;                                                                  \
+   SAMP_BUF samp_buf;                                                         \
                                                                               \
    if (!spl->is_playing)                                                      \
       return;                                                                 \
@@ -536,7 +538,7 @@ static void NAME(void *source, void **vbuf, unsigned int *samples,            \
          return;                                                              \
                                                                               \
       /* It might be worth preparing multiple sample values at once. */       \
-      s = (TYPE *) NEXT_SAMPLE_VALUE(spl, maxc);                              \
+      s = (TYPE *) NEXT_SAMPLE_VALUE(&samp_buf, spl, maxc);                   \
                                                                               \
       for (c = 0; c < dest_maxc; c++) {                                       \
          size_t i;                                                            \
