@@ -227,16 +227,19 @@ void Prog::draw_bitmap(const std::string & str,
          al_draw_bitmap(bmp, 0, 0, 0);
    }
    else if (how == "scaled") {
+      int w = al_get_bitmap_width(bmp);
+      int h = al_get_bitmap_height(bmp);
+      float s = 200.0 / h * 0.9;
       if (str == "Color") {
          al_draw_filled_rectangle(10, 10, 300, 180, color);
       }
       else if (contains(str, "tint")) {
-         al_draw_tinted_scaled_bitmap(bmp, color, 0, 0,
-            320, 200, 10, 10, 300, 180, 0);
+         al_draw_tinted_scaled_bitmap(bmp, color, 0, 0, w, h,
+            160 - w * s / 2, 100 - h * s / 2, w * s, h * s, 0);
       }
       else {
-         al_draw_scaled_bitmap(memory ? mysha_bmp : mysha, 0, 0,
-            320, 200, 10, 10, 300, 180, 0);
+         al_draw_scaled_bitmap(bmp, 0, 0, w, h,
+            160 - w * s / 2, 100 - h * s / 2, w * s, h * s, 0);
       }
    }
    else if (how == "rotated") {
@@ -257,6 +260,7 @@ void Prog::draw_bitmap(const std::string & str,
 void Prog::blending_test(bool memory)
 {
    ALLEGRO_COLOR opaque_white = al_map_rgba_f(1, 1, 1, 1);
+   ALLEGRO_COLOR transparency = al_map_rgba_f(0, 0, 0, 0);
    int op = str_to_blend_mode(operations[4].get_selected_item_text());
    int aop = str_to_blend_mode(operations[5].get_selected_item_text());
    int src = str_to_blend_mode(operations[0].get_selected_item_text());
@@ -265,7 +269,7 @@ void Prog::blending_test(bool memory)
    int adst = str_to_blend_mode(operations[3].get_selected_item_text());
 
    /* Initialize with destination. */
-   al_clear_to_color(opaque_white); // Just in case.
+   al_clear_to_color(transparency); // Just in case.
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
    draw_bitmap(destination_image.get_selected_item_text(),
       "original", memory, true);
@@ -329,8 +333,6 @@ int main(int argc, char *argv[])
       abort_example("Unable to create display\n");
       return 1;
    }
-
-   al_set_new_bitmap_flags(ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
    font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!font) {
