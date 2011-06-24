@@ -10,6 +10,24 @@ These functions are declared in the following header file:
 
 Returns the handle to the window that the passed display is using.
 
+### API: al_add_win_window_callback
+
+The specified callback function will intercept the window's message
+before Allegro processes it. If the callback function consumes the event,
+then it should return true. In that case, Allegro will not do anything
+with the event. 
+
+The callbacks are executed in the same order they were added.
+
+Returns true if the callback was added.
+
+### API: al_remove_win_window_callback
+
+Removes the callback that was previously registered with 
+[al_add_win_window_callback]. 
+
+Returns true if the callback was removed.
+
 ## iPhone
 
 These functions are declared in the following header file:

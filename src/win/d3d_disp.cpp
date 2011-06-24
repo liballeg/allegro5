@@ -1166,6 +1166,7 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
    }
 
    _al_vector_free(&display->bitmaps);
+   _al_vector_free(&((ALLEGRO_DISPLAY_WIN*) display)->msg_callbacks);
 
    if (old_disp != display)
       _al_set_current_display_only(old_disp);

@@ -1128,6 +1128,7 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
    _al_vector_find_and_delete(&system->system.displays, &disp);
 
    _al_vector_free(&disp->bitmaps);
+   _al_vector_free(&((ALLEGRO_DISPLAY_WIN*) disp)->msg_callbacks);
    al_free(disp->ogl_extras);
 
    if (old_disp != disp)

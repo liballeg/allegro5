@@ -209,6 +209,8 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
       DrawMenuBar(my_window);
    }
 
+   _al_vector_init(&win_display->msg_callbacks, sizeof(bool (*)(ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM)));
+
    return my_window;
 }
 
@@ -430,6 +432,12 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          _al_win_unregister_touch_window(hWnd);
       DestroyWindow(hWnd);
       return 0;
+   }
+
+   for (i = 0; i < _al_vector_size(&win_display->msg_callbacks); ++i) {
+      ALLEGRO_DISPLAY_WIN_CALLBACK *ptr = _al_vector_ref(&win_display->msg_callbacks, i);
+      if ((*ptr)(d, message, wParam, lParam))
+         return TRUE;
    }
 
    switch (message) {
@@ -1165,6 +1173,54 @@ int _al_win_determine_adapter(void)
       return 0; // safety measure, probably not necessary
    }
    return a;
+}
+
+/* Function: al_add_win_window_callback
+ */
+bool al_add_win_window_callback(ALLEGRO_DISPLAY *display,
+   bool (*callback)(ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM))
+{
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
+   ALLEGRO_DISPLAY_WIN_CALLBACK *ptr;
+   
+   if (!display || !callback) {
+      return false;
+   }
+   else {
+      size_t i;
+      for (i = 0; i < _al_vector_size(&win_display->msg_callbacks); ++i) {
+         ALLEGRO_DISPLAY_WIN_CALLBACK *ptr = _al_vector_ref(&win_display->msg_callbacks, i);
+         if (*ptr == callback)
+            return false;
+      }
+   }
+
+   if (!(ptr = _al_vector_alloc_back(&win_display->msg_callbacks)))
+      return false;
+
+   *ptr = callback;
+   return true;
+}
+
+/* Function: al_remove_win_window_callback
+ */
+bool al_remove_win_window_callback(ALLEGRO_DISPLAY *display,
+   bool (*callback)(ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM))
+{
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
+   
+   if (display && callback) {
+      size_t i;
+      for (i = 0; i < _al_vector_size(&win_display->msg_callbacks); ++i) {
+         ALLEGRO_DISPLAY_WIN_CALLBACK *ptr = _al_vector_ref(&win_display->msg_callbacks, i);
+         if (*ptr == callback) {
+            _al_vector_delete_at(&win_display->msg_callbacks, i);
+            return true;
+         }
+      }
+   }
+
+   return false;
 }
 
 /* vi: set ts=8 sts=3 sw=3 et: */

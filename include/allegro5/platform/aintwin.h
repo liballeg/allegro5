@@ -30,6 +30,7 @@
 #include "allegro5/platform/aintwthr.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_system.h"
+#include "allegro5/internal/aintern_vector.h"
 #include "allegro5/system.h"
 
 
@@ -42,6 +43,8 @@
 
 
 typedef struct ALLEGRO_DISPLAY_WIN ALLEGRO_DISPLAY_WIN;
+
+typedef bool (*ALLEGRO_DISPLAY_WIN_CALLBACK)(ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM);
 
 struct ALLEGRO_DISPLAY_WIN
 {
@@ -76,6 +79,9 @@ struct ALLEGRO_DISPLAY_WIN
     */
    int toggle_w;
    int toggle_h;
+
+   /* A list of user callbacks associated with the window messages */
+   _AL_VECTOR msg_callbacks;
 };
 
 
