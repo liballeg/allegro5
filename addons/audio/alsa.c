@@ -55,7 +55,6 @@ typedef struct ALSA_VOICE {
    int ufds_count;
 
    ALLEGRO_THREAD *poll_thread;
-   volatile bool quit_poll_thread;
 
    snd_pcm_t *pcm_handle;
    bool mmapped;
@@ -250,15 +249,17 @@ static void *alsa_update_mmap(ALLEGRO_THREAD *self, void *arg)
 {
    ALLEGRO_VOICE *voice = (ALLEGRO_VOICE*)arg;
    ALSA_VOICE *alsa_voice = (ALSA_VOICE*)voice->extra;
+   snd_pcm_state_t last_state = -1;
+   snd_pcm_state_t state;
    snd_pcm_uframes_t frames;
    const snd_pcm_channel_area_t *areas;
    snd_pcm_uframes_t offset;
    char *mmap;
    int ret;
 
-   (void)self;
+   ALLEGRO_INFO("ALSA update_mmap thread started\n");
 
-   while (!alsa_voice->quit_poll_thread) {
+   while (!al_get_thread_should_stop(self)) {
       if (alsa_voice->stop && !alsa_voice->stopped) {
          snd_pcm_drop(alsa_voice->pcm_handle);
          al_lock_mutex(voice->mutex);
@@ -271,13 +272,35 @@ static void *alsa_update_mmap(ALLEGRO_THREAD *self, void *arg)
          alsa_voice->stopped = false;
       }
 
-      if (snd_pcm_state(alsa_voice->pcm_handle) == SND_PCM_STATE_PREPARED) {
-         snd_pcm_start(alsa_voice->pcm_handle);
+      if (alsa_voice->stopped) {
+         /* Keep waiting while the voice is supposed to be stopped but present.
+          */
+         al_lock_mutex(voice->mutex);
+         while (alsa_voice->stop && !al_get_thread_should_stop(self)) {
+            al_wait_cond(alsa_voice->cond, voice->mutex);
+         }
+         al_unlock_mutex(voice->mutex);
+         continue;
+      }
+
+      state = snd_pcm_state(alsa_voice->pcm_handle);
+      if (state != last_state) {
+         ALLEGRO_DEBUG("state changed to: %s\n", snd_pcm_state_name(state));
+         last_state = state;
+      }
+      if (state == SND_PCM_STATE_SETUP) {
+         int rc = snd_pcm_prepare(alsa_voice->pcm_handle);
+         ALLEGRO_DEBUG("snd_pcm_prepare returned: %d\n", rc);
+         continue;
+      }
+      if (state == SND_PCM_STATE_PREPARED) {
+         int rc = snd_pcm_start(alsa_voice->pcm_handle);
+         ALLEGRO_DEBUG("snd_pcm_start returned: %d\n", rc);
       }
 
       ret = alsa_voice_is_ready(alsa_voice);
       if (ret < 0)
-         return NULL;
+         break;
       if (ret == 0) {
          al_rest(0.005); /* TODO: Why not use an event or condition variable? */
          continue;
@@ -290,7 +313,7 @@ static void *alsa_update_mmap(ALLEGRO_THREAD *self, void *arg)
          if ((ret = xrun_recovery(alsa_voice->pcm_handle, ret)) < 0) {
             ALLEGRO_ERROR("MMAP begin avail error: %s\n", snd_strerror(ret));
          }
-         return NULL;
+         break;
       }
 
       ASSERT(frames);
@@ -340,10 +363,12 @@ silence:
       if (commitres < 0 || (snd_pcm_uframes_t)commitres != frames) {
          if ((ret = xrun_recovery(alsa_voice->pcm_handle, commitres >= 0 ? -EPIPE : commitres)) < 0) {
             ALLEGRO_ERROR("MMAP commit error: %s\n", snd_strerror(ret));
-            return NULL;
+            break;
          }
       }
    }
+
+   ALLEGRO_INFO("ALSA update_mmap thread stopped\n");
 
    return NULL;
 }
@@ -353,12 +378,14 @@ static void *alsa_update_rw(ALLEGRO_THREAD *self, void *arg)
 {
    ALLEGRO_VOICE *voice = (ALLEGRO_VOICE*)arg;
    ALSA_VOICE *alsa_voice = (ALSA_VOICE*)voice->extra;
+   snd_pcm_state_t last_state = -1;
+   snd_pcm_state_t state;
    snd_pcm_uframes_t frames;
    snd_pcm_sframes_t err;
 
-   (void)self;
+   ALLEGRO_INFO("ALSA update_rw thread started\n");
 
-   while (!alsa_voice->quit_poll_thread) {
+   while (!al_get_thread_should_stop(self)) {
       if (alsa_voice->stop && !alsa_voice->stopped) {
          snd_pcm_drop(alsa_voice->pcm_handle);
          al_lock_mutex(voice->mutex);
@@ -371,8 +398,30 @@ static void *alsa_update_rw(ALLEGRO_THREAD *self, void *arg)
          alsa_voice->stopped = false;
       }
 
-      if (snd_pcm_state(alsa_voice->pcm_handle) == SND_PCM_STATE_PREPARED) {
-         snd_pcm_start(alsa_voice->pcm_handle);
+      if (alsa_voice->stopped) {
+         /* Keep waiting while the voice is supposed to be stopped but present.
+          */
+         al_lock_mutex(voice->mutex);
+         while (alsa_voice->stop && !al_get_thread_should_stop(self)) {
+            al_wait_cond(alsa_voice->cond, voice->mutex);
+         }
+         al_unlock_mutex(voice->mutex);
+         continue;
+      }
+
+      state = snd_pcm_state(alsa_voice->pcm_handle);
+      if (state != last_state) {
+         ALLEGRO_DEBUG("state changed to: %s\n", snd_pcm_state_name(state));
+         last_state = state;
+      }
+      if (state == SND_PCM_STATE_SETUP) {
+         int rc = snd_pcm_prepare(alsa_voice->pcm_handle);
+         ALLEGRO_DEBUG("snd_pcm_prepare returned: %d\n", rc);
+         continue;
+      }
+      if (state == SND_PCM_STATE_PREPARED) {
+         int rc = snd_pcm_start(alsa_voice->pcm_handle);
+         ALLEGRO_DEBUG("snd_pcm_start returned: %d\n", rc);
       }
 
       snd_pcm_wait(alsa_voice->pcm_handle, 10);
@@ -391,7 +440,8 @@ static void *alsa_update_rw(ALLEGRO_THREAD *self, void *arg)
          continue;
       }
       frames = err;
-      if (frames > alsa_voice->frag_len) frames = alsa_voice->frag_len;
+      if (frames > alsa_voice->frag_len)
+         frames = alsa_voice->frag_len;
       /* Write sample data into the buffer. */
       int bytes = frames * alsa_voice->frame_size;
       uint8_t data[bytes];
@@ -424,6 +474,8 @@ silence:
          }
       }
    }
+
+   ALLEGRO_INFO("ALSA update_rw thread stopped\n");
 
    return NULL;
 }
@@ -463,7 +515,11 @@ static void alsa_unload_voice(ALLEGRO_VOICE *voice)
 static int alsa_start_voice(ALLEGRO_VOICE *voice)
 {
    ALSA_VOICE *ex_data = voice->extra;
+
+   /* We already hold voice->mutex. */
    ex_data->stop = false;
+   al_signal_cond(ex_data->cond);
+
    return 0;
 }
 
@@ -475,7 +531,10 @@ static int alsa_stop_voice(ALLEGRO_VOICE *voice)
 {
    ALSA_VOICE *ex_data = voice->extra;
 
+   /* We already hold voice->mutex. */
    ex_data->stop = true;
+   al_signal_cond(ex_data->cond);
+
    if (!voice->is_streaming) {
       voice->attached_stream->pos = 0;
    }
@@ -586,8 +645,7 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
    ALSA_CHECK(snd_pcm_poll_descriptors(ex_data->pcm_handle, ex_data->ufds, ex_data->ufds_count));
 
    voice->extra = ex_data;
-   ex_data->quit_poll_thread = false;
-   
+
    if (ex_data->mmapped) {
       ex_data->poll_thread = al_create_thread(alsa_update_mmap, (void*)voice);
    }
@@ -618,7 +676,10 @@ static void alsa_deallocate_voice(ALLEGRO_VOICE *voice)
 {
    ALSA_VOICE *alsa_voice = (ALSA_VOICE*)voice->extra;
 
-   alsa_voice->quit_poll_thread = true;
+   al_lock_mutex(voice->mutex);
+   al_set_thread_should_stop(alsa_voice->poll_thread);
+   al_broadcast_cond(alsa_voice->cond);
+   al_unlock_mutex(voice->mutex);
    al_join_thread(alsa_voice->poll_thread, NULL);
 
    snd_pcm_drop(alsa_voice->pcm_handle);
