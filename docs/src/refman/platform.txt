@@ -21,12 +21,16 @@ The callbacks are executed in the same order they were added.
 
 Returns true if the callback was added.
 
+Since: 5.1.0
+
 ### API: al_remove_win_window_callback
 
 Removes the callback that was previously registered with 
 [al_add_win_window_callback]. 
 
 Returns true if the callback was removed.
+
+Since: 5.1.0
 
 ## iPhone
 
