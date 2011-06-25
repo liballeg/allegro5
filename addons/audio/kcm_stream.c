@@ -459,10 +459,19 @@ bool al_set_audio_stream_playing(ALLEGRO_AUDIO_STREAM *stream, bool val)
 
    if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
       ALLEGRO_VOICE *voice = stream->spl.parent.u.voice;
-      if (!al_set_voice_playing(voice, val)) {
-         return false;
+      bool rc;
+
+      if (val == stream->spl.is_playing) {
+         return true;
       }
+
+      rc = _al_kcm_set_voice_playing(voice, val);
+      if (rc) {
+         stream->spl.is_playing = val;
+      }
+      return rc;
    }
+
    stream->spl.is_playing = val;
 
    if (!val) {

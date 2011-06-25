@@ -51,6 +51,7 @@ struct ALLEGRO_AUDIO_DRIVER {
 extern ALLEGRO_AUDIO_DRIVER *_al_kcm_driver;
 
 const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned int *samples);
+bool _al_kcm_set_voice_playing(ALLEGRO_VOICE *voice, bool val);
 
 /* A voice structure that you'd attach a mixer or sample to. Ideally there
  * would be one ALLEGRO_VOICE per system/hardware voice.
