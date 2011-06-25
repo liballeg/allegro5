@@ -276,7 +276,9 @@ Return true if the voice is currently playing.
 ### API: al_set_voice_playing
 
 Change whether a voice is playing or not.
-The voice must have a sample or mixer attached to it.
+This can only work if the voice has a non-streaming
+object attached to it, e.g. a sample instance.
+On success the voice's current sample position is reset.
 
 Returns true on success, false on failure.
 
@@ -291,7 +293,7 @@ See also: [al_set_voice_position].
 ### API: al_set_voice_position
 
 Set the voice position.  This can only work if the voice has a non-streaming
-object attached to it, e.g. a sample.
+object attached to it, e.g. a sample instance.
 
 Returns true on success, false on failure.
 
