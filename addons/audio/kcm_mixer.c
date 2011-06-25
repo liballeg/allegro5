@@ -601,6 +601,7 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
    for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
       ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&mixer->streams, i);
       ALLEGRO_SAMPLE_INSTANCE *spl = *slot;
+      ASSERT(spl->spl_read);
       spl->spl_read(spl, (void **) &mixer->ss.spl_data.buffer.ptr, samples,
          m->ss.spl_data.depth, maxc);
    }
@@ -871,7 +872,8 @@ ALLEGRO_MIXER *al_create_mixer(unsigned int freq,
    mixer->ss.spl_data.chan_conf = chan_conf;
    mixer->ss.spl_data.frequency = freq;
 
-   mixer->ss.spl_read = _al_kcm_mixer_read;
+   mixer->ss.is_mixer = true;
+   mixer->ss.spl_read = NULL;
 
    mixer->quality = default_mixer_quality;
 
@@ -937,10 +939,13 @@ bool al_attach_sample_instance_to_mixer(ALLEGRO_SAMPLE_INSTANCE *spl,
          spl->step = -1;
    }
 
-   /* If this isn't a mixer, set the proper sample stream reader */
-   if (spl->spl_read == NULL) {
+   /* Set the proper sample stream reader. */
+   ASSERT(spl->spl_read == NULL);
+   if (spl->is_mixer) {
+      spl->spl_read = _al_kcm_mixer_read;
+   }
+   else {
       switch (mixer->ss.spl_data.depth) {
-
          case ALLEGRO_AUDIO_DEPTH_FLOAT32:
             switch (mixer->quality) {
                case ALLEGRO_MIXER_QUALITY_LINEAR:
@@ -1201,6 +1206,7 @@ bool al_detach_mixer(ALLEGRO_MIXER *mixer)
    ASSERT(mixer);
 
    _al_kcm_detach_from_parent(&mixer->ss);
+   ASSERT(mixer->ss.spl_read == NULL);
    return true;
 }
 

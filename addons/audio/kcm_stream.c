@@ -481,7 +481,8 @@ bool al_detach_audio_stream(ALLEGRO_AUDIO_STREAM *stream)
    ASSERT(stream);
 
    _al_kcm_detach_from_parent(&stream->spl);
-   return true;
+   ASSERT(stream->spl.spl_read == NULL);
+   return !al_get_audio_stream_attached(stream);
 }
 
 

@@ -48,7 +48,7 @@ void _al_kcm_stream_set_mutex(ALLEGRO_SAMPLE_INSTANCE *stream, ALLEGRO_MUTEX *mu
    /* If this is a mixer, we need to make sure all the attached streams also
     * set the same mutex.
     */
-   if (stream->spl_read == _al_kcm_mixer_read) {
+   if (stream->is_mixer) {
       ALLEGRO_MIXER *mixer = (ALLEGRO_MIXER *)stream;
       int i;
 
@@ -71,7 +71,7 @@ static void stream_free(ALLEGRO_SAMPLE_INSTANCE *spl)
       /* Make sure we free the mixer buffer and de-reference the attached
        * streams if this is a mixer stream.
        */
-      if (spl->spl_read == _al_kcm_mixer_read) {
+      if (spl->is_mixer) {
          ALLEGRO_MIXER *mixer = (ALLEGRO_MIXER *)spl;
          int i;
 
@@ -130,8 +130,7 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE_INSTANCE *spl)
          spl->parent.u.mixer = NULL;
          _al_kcm_stream_set_mutex(spl, NULL);
 
-         if (spl->spl_read != _al_kcm_mixer_read)
-            spl->spl_read = NULL;
+         spl->spl_read = NULL;
 
          maybe_unlock_mutex(mixer->ss.mutex);
 
@@ -173,6 +172,7 @@ ALLEGRO_SAMPLE_INSTANCE *al_create_sample_instance(ALLEGRO_SAMPLE *sample_data)
 
    spl->matrix = NULL;
 
+   spl->is_mixer = false;
    spl->spl_read = NULL;
 
    spl->mutex = NULL;
@@ -575,6 +575,7 @@ bool al_detach_sample_instance(ALLEGRO_SAMPLE_INSTANCE *spl)
    ASSERT(spl);
 
    _al_kcm_detach_from_parent(spl);
+   ASSERT(spl->spl_read == NULL);
    return true;
 }
 
