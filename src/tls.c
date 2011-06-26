@@ -124,7 +124,7 @@ static void initialize_tls_values(thread_local_state *tls)
    tls->new_window_y = INT_MAX;
 
    initialize_blender(&tls->current_blender);
-   tls->new_bitmap_flags = ALLEGRO_ANY_BITMAP;
+   tls->new_bitmap_flags = ALLEGRO_CONVERT_BITMAP;
    tls->new_bitmap_format = ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA;
    tls->new_file_interface = &_al_file_interface_stdio;
    tls->fs_interface = &_al_fs_interface_stdio;
@@ -643,12 +643,6 @@ void al_set_new_bitmap_flags(int flags)
 
    if ((tls = tls_get()) == NULL)
       return;
-
-   /* Assume ALLEGRO_ANY_BITMAP if neither VIDEO nor MEMORY are set
-    * explicitly.
-    */
-   if (!(flags & (ALLEGRO_MEMORY_BITMAP | ALLEGRO_VIDEO_BITMAP)))
-      flags |= ALLEGRO_ANY_BITMAP;
 
    tls->new_bitmap_flags = flags;
 }

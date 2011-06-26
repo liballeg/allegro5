@@ -42,6 +42,23 @@ static void *loading_thread(ALLEGRO_THREAD *thread, void *arg)
    return arg;
 }
 
+static void print_bitmap_flags(ALLEGRO_BITMAP *bitmap)
+{
+   ALLEGRO_USTR *ustr = al_ustr_new("");
+   if (al_get_bitmap_flags(bitmap) & ALLEGRO_VIDEO_BITMAP)
+      al_ustr_append_cstr(ustr, " VIDEO");
+   if (al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP)
+      al_ustr_append_cstr(ustr, " MEMORY");
+   if (al_get_bitmap_flags(bitmap) & ALLEGRO_CONVERT_BITMAP)
+      al_ustr_append_cstr(ustr, " CONVERT");
+   
+   al_ustr_trim_ws(ustr);
+   al_ustr_find_replace_cstr(ustr, 0, " ", " | ");
+   
+   printf("%s", al_cstr(ustr));
+   al_ustr_free(ustr);
+}
+
 int main(void)
 {
    ALLEGRO_DISPLAY *display;
@@ -49,7 +66,7 @@ int main(void)
    ALLEGRO_EVENT_QUEUE *queue;
    bool redraw = true;
    ALLEGRO_FONT *font;
-   ALLEGRO_BITMAP *spin;
+   ALLEGRO_BITMAP *spin, *spin2;
    int current_bitmap = 0, loaded_bitmap = 0;
    ALLEGRO_THREAD *thread;
 
@@ -62,27 +79,49 @@ int main(void)
    al_install_keyboard();
 
    spin = al_load_bitmap("data/cursor.tga");
+   printf("default bitmap without display: %p\n", spin);
+
+   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+   spin2 = al_load_bitmap("data/cursor.tga");
+   printf("video bitmap without display: %p\n", spin2);
+   
+   printf("%p before create_display: ", spin);
+   print_bitmap_flags(spin);
+   printf("\n");
 
    display = al_create_display(64, 64);
    
-   if (al_get_bitmap_flags(spin) & ALLEGRO_VIDEO_BITMAP) {
-      printf("video bitmap now.\n");
-   }
+   spin2 = al_load_bitmap("data/cursor.tga");
+   printf("video bitmap with display: %p\n", spin2);
+   
+   printf("%p after create_display: ", spin);
+   print_bitmap_flags(spin);
+   printf("\n");
+   
+   printf("%p after create_display: ", spin2);
+   print_bitmap_flags(spin2);
+   printf("\n");
 
    al_destroy_display(display);
    
-   if (al_get_bitmap_flags(spin) & ALLEGRO_MEMORY_BITMAP) {
-      printf("memory bitmap now.\n");
-   }
+   printf("%p after destroy_display: ", spin);
+   print_bitmap_flags(spin);
+   printf("\n");
+   
+   printf("%p after destroy_display: ", spin2);
+   print_bitmap_flags(spin2);
+   printf("\n");
 
    display = al_create_display(640, 480);
    
-   if (al_get_bitmap_flags(spin) & ALLEGRO_MEMORY_BITMAP) {
-      printf("Error: Could not convert to video bitmap.\n");
-   }
+   printf("%p after create_display: ", spin);
+   print_bitmap_flags(spin);
+   printf("\n");
    
-   return 0;
-   
+   printf("%p after create_display: ", spin2);
+   print_bitmap_flags(spin2);
+   printf("\n");
+
    font = al_load_font("data/fixed_font.tga", 0, 0);
 
    thread = al_create_thread(loading_thread, NULL);

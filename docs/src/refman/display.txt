@@ -149,6 +149,11 @@ The supported options are:
 *   ALLEGRO_SUPPORT_SEPARATE_ALPHA: This is set to 1 if the
     [al_set_separate_blender] function is supported. Otherwise the
     alpha parameters will be ignored.
+*   ALLEGRO_AUTO_CONVERT_BITMAPS: This is on by default. It causes any
+    existing memory bitmaps with the ALLEGRO_CONVERT_BITMAP flag to be
+    converted to a display bitmap of the newly created display with
+    the option set.
+    
 
 FIXME: document them all in detail
 

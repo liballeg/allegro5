@@ -64,7 +64,7 @@ enum {
    ALLEGRO_NO_PREMULTIPLIED_ALPHA   = 0x0200,
    ALLEGRO_VIDEO_BITMAP             = 0x0400,
    ALLEGRO_KEEP_INDEX               = 0x0800,
-   ALLEGRO_ANY_BITMAP               = 0x1000,
+   ALLEGRO_CONVERT_BITMAP           = 0x1000,
 };
 
 
@@ -186,7 +186,7 @@ AL_FUNC(bool, al_is_sub_bitmap, (ALLEGRO_BITMAP *bitmap));
 /* Miscellaneous */
 AL_FUNC(ALLEGRO_BITMAP *, al_clone_bitmap, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(void, al_convert_bitmap, (ALLEGRO_BITMAP *bitmap));
-AL_FUNC(void, al_convert_all_video_bitmaps, (void));
+AL_FUNC(void, al_convert_bitmaps, (void));
 AL_FUNC(bool, al_is_bitmap_locked, (ALLEGRO_BITMAP *bitmap));
 
 /* Blending */

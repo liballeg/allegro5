@@ -41,6 +41,8 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    ALLEGRO_DISPLAY_INTERFACE *driver;
    ALLEGRO_DISPLAY *display;
    ALLEGRO_TRANSFORM identity;
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *settings;
+   int flags;
 
    system = al_get_system_driver();
    driver = system->vt->get_display_driver();
@@ -51,6 +53,12 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
       return NULL;
    }
    
+   settings = &display->extra_settings;
+   flags = settings->required | settings->suggested;
+   if (!(flags & (1 << ALLEGRO_AUTO_CONVERT_BITMAPS))) {
+      settings->settings[ALLEGRO_AUTO_CONVERT_BITMAPS] = 1;
+   }
+
    display->vertex_cache = 0;
    display->num_cache_vertices = 0;
    display->cache_enabled = false;
@@ -61,7 +69,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    
    _al_vector_init(&display->bitmaps, sizeof(ALLEGRO_BITMAP*));
 
-   if (display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY])
+   if (settings->settings[ALLEGRO_COMPATIBLE_DISPLAY])
       al_set_target_bitmap(al_get_backbuffer(display));
    else {
       ALLEGRO_DEBUG("ALLEGRO_COMPATIBLE_DISPLAY not set\n");
@@ -72,7 +80,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    al_use_transform(&identity);
 
    /* Clear the screen */
-   if (display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY]) {
+   if (settings->settings[ALLEGRO_COMPATIBLE_DISPLAY]) {
       al_clear_to_color(al_map_rgb(0, 0, 0));
 
       /* on iphone, don't kill the initial splashscreen */
@@ -83,11 +91,13 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
 
    al_set_window_title(display, al_get_app_name());
    
-   /* We convert video bitmaps to memory bitmaps when the display is
-    * destroyed, so seems only fair to re-convertt hem when the display
-    * is re-created again.
-    */
-   al_convert_all_video_bitmaps();
+   if (settings->settings[ALLEGRO_AUTO_CONVERT_BITMAPS]) {
+      /* We convert video bitmaps to memory bitmaps when the display is
+       * destroyed, so seems only fair to re-convertt hem when the
+       * display is re-created again.
+       */
+      al_convert_bitmaps();
+   }
 
    return display;
 }

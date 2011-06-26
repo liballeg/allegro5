@@ -277,11 +277,11 @@ be an issue otherwise.
 If you create a bitmap without ALLEGRO_MEMORY_BITMAP set but there is
 no current display, a temporary memory bitmap will be created instead.
 You can later convert all such bitmap to video bitmap and assign to a
-display by calling [al_convert_all_video_bitmaps].
+display by calling [al_convert_bitmaps].
 
 See also: [al_set_new_bitmap_format], [al_set_new_bitmap_flags],
 [al_clone_bitmap], [al_create_sub_bitmap],
-[al_convert_all_video_bitmaps]
+[al_convert_bitmaps]
 
 ### API: al_create_sub_bitmap
 
@@ -328,11 +328,11 @@ Since: 5.1.0
 See also: [al_create_bitmap], [al_set_new_bitmap_format],
 [al_set_new_bitmap_flags], [al_clone_bitmap]
 
-### API: al_convert_all_video_bitmaps
+### API: al_convert_bitmaps
 
 If you create a bitmap when there is no current display (for example
 because you have not called al_create_display in the current
-thread) and are using the ALLEGRO_ANY_BITMAP bitmap flags (which is
+thread) and are using the ALLEGRO_CONVERT_BITMAP bitmap flag (which is
 set by default) then the bitmap will be created successfully, but as a
 memory bitmap. This function converts all such bitmaps to proper video
 bitmaps belonging to the current display.
@@ -385,15 +385,23 @@ ALLEGRO_VIDEO_BITMAP
     
     *Note:* Bitmaps created with this flag will be converted to memory
     bitmaps when the last display is destroyed. In most cases it is
-    therefore easier to use the ALLEGRO_ANY_BITMAP flag instead.
+    therefore easier to use the ALLEGRO_CONVERT_BITMAP flag instead.
 
-ALLEGRO_ANY_BITMAP
+ALLEGRO_CONVERT_BITMAP
 :   This is the default. It will try to create a video bitmap and if
     that fails create a memory bitmap. Bitmaps created with this flag
     when there is no active display will be converted to video bitmaps
     next time a display is created. They also will remain video bitmaps
     if the last display is destroyed and then another is created again.
     Since 5.1.0.
+    
+    *Note:* You can combine this flag with ALLEGRO_MEMORY_BITMAP or
+    ALLEGRO_VIDEO_BITMAP to force the initial type (and fail in the
+    latter case if no video bitmap can be created) - but usually neither
+    of those combinations is very useful.
+    
+    You can use the display option ALLEGRO_AUTO_CONVERT_BITMAPS to
+    control which displays will try to auto-convert bitmaps.
 
 ALLEGRO_KEEP_BITMAP_FORMAT
 :   Only used when loading bitmaps from disk files,

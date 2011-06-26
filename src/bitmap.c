@@ -54,7 +54,7 @@ static void check_to_be_converted_list_add(ALLEGRO_BITMAP *bitmap)
 {
    if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP))
       return;
-   if (bitmap->flags & ALLEGRO_ANY_BITMAP) {
+   if (bitmap->flags & ALLEGRO_CONVERT_BITMAP) {
       ALLEGRO_BITMAP **back;
       al_lock_mutex(to_be_converted.mutex);
       back = _al_vector_alloc_back(&to_be_converted.bitmaps);
@@ -68,7 +68,7 @@ static void check_to_be_converted_list_remove(ALLEGRO_BITMAP *bitmap)
 {
    if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP))
       return;
-   if (bitmap->flags & ALLEGRO_ANY_BITMAP) {
+   if (bitmap->flags & ALLEGRO_CONVERT_BITMAP) {
       al_lock_mutex(to_be_converted.mutex);
       _al_vector_find_and_delete(&to_be_converted.bitmaps, &bitmap);
       al_unlock_mutex(to_be_converted.mutex);
@@ -185,7 +185,7 @@ static ALLEGRO_BITMAP *do_create_bitmap(int w, int h)
       al_destroy_bitmap(bitmap);
       if (al_get_new_bitmap_flags() & ALLEGRO_VIDEO_BITMAP)
          return NULL;
-      /* With ALLEGRO_ANY_BITMAP, just use a memory bitmap instead if
+      /* With ALLEGRO_CONVERT_BITMAP, just use a memory bitmap instead if
        * video failed.
        */
       return _al_create_memory_bitmap(w, h);
@@ -875,9 +875,9 @@ void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
 }
 
 
-/* Function: al_convert_all_video_bitmaps
+/* Function: al_convert_bitmaps
  */
-void al_convert_all_video_bitmaps(void)
+void al_convert_bitmaps(void)
 {
    ALLEGRO_STATE backup;
    ALLEGRO_DISPLAY *display = al_get_current_display();
@@ -955,7 +955,7 @@ void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap)
 void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_STATE backup;
-   bool is_any = bitmap->flags & ALLEGRO_ANY_BITMAP;
+   bool is_any = bitmap->flags & ALLEGRO_CONVERT_BITMAP;
 
    /* Do nothing if it is a memory bitmap already. */
    if (bitmap->flags & ALLEGRO_MEMORY_BITMAP)
@@ -972,7 +972,7 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
        * keep the ANY flag if it was set so the bitmap can be
        * back-converted later.
        */
-      bitmap->flags |= ALLEGRO_ANY_BITMAP;
+      bitmap->flags |= ALLEGRO_CONVERT_BITMAP;
       check_to_be_converted_list_add(bitmap);
    }
    al_restore_state(&backup);
