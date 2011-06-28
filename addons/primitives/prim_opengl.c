@@ -399,6 +399,7 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const 
 
    return num_primitives;
 #else
+   (void)target;
    (void)texture;
    (void)vtxs;
    (void)start;
@@ -547,12 +548,13 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
 
    return num_primitives;
 #else
+   (void)target;
    (void)texture;
    (void)vtxs;
-   (void)start;
-   (void)end;
-   (void)type;
    (void)decl;
+   (void)indices;
+   (void)num_vtx;
+   (void)type;
 
    return 0;
 #endif
