@@ -30,7 +30,14 @@ static void generate_touch_input_event(unsigned int type, double timestamp, int 
    ALLEGRO_EVENT event;
 
    bool want_touch_event           = _al_event_source_needs_to_generate_event(&touch_input.es);
-   bool want_mouse_emulation_event = _al_event_source_needs_to_generate_event(&touch_input.mouse_emulation_es) && primary && al_is_mouse_installed();
+   bool want_mouse_emulation_event;
+
+   if (touch_input.mouse_emulation_mode == ALLEGRO_MOUSE_EMULATION_5_0_x) {
+      want_mouse_emulation_event = _al_event_source_needs_to_generate_event(&touch_input.mouse_emulation_es) && al_is_mouse_installed();
+   }
+   else {
+      want_mouse_emulation_event = _al_event_source_needs_to_generate_event(&touch_input.mouse_emulation_es) && primary && al_is_mouse_installed();
+   }
    
    if (touch_input.mouse_emulation_mode == ALLEGRO_MOUSE_EMULATION_NONE)
       want_mouse_emulation_event = false;
@@ -84,10 +91,17 @@ static void generate_touch_input_event(unsigned int type, double timestamp, int 
       event.mouse.dy        = (int)dy;
       event.mouse.dz        = 0;
       event.mouse.dw        = 0;
-      event.mouse.button    = 1;
+      if (touch_input.mouse_emulation_mode != ALLEGRO_MOUSE_EMULATION_5_0_x) {
+         event.mouse.button = 1;
+      }
+      else {
+         event.mouse.button = id;
+      }
       event.mouse.pressure  = 1.0;
 
-      al_set_mouse_xy(event.mouse.display, event.mouse.x, event.mouse.y);
+      if (touch_input.mouse_emulation_mode != ALLEGRO_MOUSE_EMULATION_5_0_x) {
+         al_set_mouse_xy(event.mouse.display, event.mouse.x, event.mouse.y);
+      }
 
       _al_event_source_lock(&touch_input.mouse_emulation_es);
       _al_event_source_emit_event(&touch_input.mouse_emulation_es, &event);
@@ -95,9 +109,9 @@ static void generate_touch_input_event(unsigned int type, double timestamp, int 
       mouse_state.x = (int)x;
       mouse_state.y = (int)y;
       if (type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
-         mouse_state.buttons = 1;
+         mouse_state.buttons |= id;
       else if (type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
-         mouse_state.buttons = 0;
+         mouse_state.buttons &= ~id;
 
       _al_event_source_unlock(&touch_input.mouse_emulation_es);
    }
