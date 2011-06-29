@@ -61,6 +61,15 @@ Sample and stream playback mode.
 * ALLEGRO_PLAYMODE_LOOP
 * ALLEGRO_PLAYMODE_BIDIR
 
+### API: ALLEGRO_AUDIO_EVENT_TYPE
+
+Defines types of audio events that can be retrieved from the audio
+event source.
+
+* ALLEGRO_EVENT_AUDIO_ROUTE_CHANGE
+* ALLEGRO_EVENT_AUDIO_INTERRUPTION
+* ALLEGRO_EVETN_AUDIO_END_INTERRUPTION
+
 ### API: ALLEGRO_SAMPLE_ID
 
 An ALLEGRO_SAMPLE_ID represents a sample being played via [al_play_sample].
@@ -1190,3 +1199,16 @@ handler.
 See also: [al_save_sample], [al_register_sample_saver_f],
 [al_init_acodec_addon]
 
+## Audio events
+
+Audio events are all user events and so must be handled as such, mainly
+calling al_uref_user_event on them.
+
+See also: [al_unref_user_event]
+
+### API: al_get_audio_event_source
+
+Get the audio event source. al_install_audio must be called prior to
+calling this function.
+
+See also: [ALLEGRO_AUDIO_EVENT_TYPE]

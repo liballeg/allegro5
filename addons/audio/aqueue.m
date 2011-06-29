@@ -28,16 +28,13 @@
 
 #ifdef ALLEGRO_IPHONE
 #import <AVFoundation/AVFoundation.h>
-#import <Foundation/NSAutoreleasePool.h>
 #endif
 
+#import <Foundation/NSAutoreleasePool.h>
 #import <AudioToolbox/AudioQueue.h>
 
 #define THREAD_BEGIN NSAutoreleasePool *___p = [[NSAutoreleasePool alloc] init];
-#define THREAD_DRAIN [___p drain];
-#define THREAD_RECREATE ___p = [[NSAutoreleasePool alloc] init];
-#define THREAD_END [___p release];
-
+#define THREAD_END [___p drain];
 
 // Make configurable
 #define BUFFER_SIZE 1024*2 // in samples
@@ -241,13 +238,7 @@ static void _aqueue_unload_voice(ALLEGRO_VOICE *voice)
 
 static void *stream_proc(void *in_data)
 {
-   #ifdef ALLEGRO_IPHONE
    THREAD_BEGIN
-   /* We need to periodically drain and recreate the autorelease pool
-    * so it doesn't fill up memory.
-    */
-   double last_drain = al_get_time();
-   #endif
 
    ALLEGRO_VOICE *voice = in_data;
    ALLEGRO_AQ_DATA *ex_data = voice->extra;
@@ -314,24 +305,16 @@ static void *stream_proc(void *in_data)
    playing = true;
 
    do {
+      THREAD_BEGIN
       CFRunLoopRunInMode(
          kCFRunLoopDefaultMode,
          0.05,
          false
       );
-      #ifdef ALLEGRO_IPHONE
-      double now = al_get_time();
-      if (now > last_drain+30) {
-         last_drain = now;
-         THREAD_DRAIN
-         THREAD_RECREATE
-      }
-      #endif
+      THREAD_END
    } while (playing);
 
-   #ifdef ALLEGRO_IPHONE
    THREAD_END
-   #endif
 
    return NULL;
 }
