@@ -35,6 +35,8 @@ AL_FUNC(void,   al_iphone_set_statusbar_orientation, (int orientation));
 AL_FUNC(double, al_iphone_get_last_shake_time,       (void));
 AL_FUNC(float,  al_iphone_get_battery_level,         (void));
 AL_FUNC(float,  al_iphone_get_screen_scale,          (void));
+AL_FUNC(UIWindow *, al_iphone_get_window             (void));
+AL_FUNC(UIView *,   al_iphone_get_view               (void));
 
 #ifdef __cplusplus
    }

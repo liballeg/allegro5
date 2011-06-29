@@ -18,6 +18,20 @@ static UIApplication *app;
 static volatile bool waiting_for_program_halt = false;
 static float scale_override = -1.0;
 
+/* Function: al_iphone_get_window
+ */
+UIWindow *al_iphone_get_window(void)
+{
+	return [global_delegate window];
+}
+
+/* Function: al_iphone_get_view
+ */
+UIView *al_iphone_get_view(void)
+{
+	return [global_delegate view];
+}
+
 static bool is_ipad(void)
 {
 #if (__IPHONE_OS_VERSION_MAX_ALLOWED >= 30200)

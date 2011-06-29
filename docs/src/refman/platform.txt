@@ -93,3 +93,15 @@ Since: 5.1.0
 *Not yet documented.*
 
 Since: 5.1.0
+
+### API: al_iphone_get_view
+
+Retrieves the UIView* (EAGLView*) associated with the Allegro display.
+
+Since: 5.1.0
+
+### API: al_iphone_get_window
+
+Retrieves the UIWindow* associated with the Allegro display.
+
+Since: 5.1.0
