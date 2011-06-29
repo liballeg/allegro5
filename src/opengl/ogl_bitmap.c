@@ -939,7 +939,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             ogl_bitmap->lock_buffer);
          e = glGetError();
          if (e) {
-            GLint tex_internalformat;
+            //GLint tex_internalformat;
             ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
                _al_format_name(lock_format), error_string(e));
 			#ifndef ALLEGRO_IPHONE

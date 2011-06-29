@@ -282,7 +282,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 
    touch_t* touch;
    
-   double now = al_get_time();
+   //double now = al_get_time();
    
 	// Enumerates through all touch objects
 	for (UITouch *nativeTouch in touches) {
@@ -309,7 +309,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
    
    touch_t* touch;
    
-   double now = al_get_time();
+  // double now = al_get_time();
    
 	// Enumerates through all touch objects
 	for (UITouch *nativeTouch in touches) {
@@ -347,7 +347,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
     
    touch_t* touch;
    
-   double now = al_get_time();
+   //double now = al_get_time();
 
 	// Enumerates through all touch objects
 	for (UITouch *nativeTouch in touches) {

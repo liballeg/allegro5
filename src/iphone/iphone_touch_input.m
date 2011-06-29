@@ -214,6 +214,8 @@ static ALLEGRO_TOUCH_STATE* find_touch_state_with_id(int id)
 void _al_iphone_touch_input_handle_begin(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
 {
    ALLEGRO_TOUCH_STATE* state = find_free_touch_state();
+   (void)primary;
+   
    if (NULL == state)
       return;
 
@@ -235,6 +237,8 @@ void _al_iphone_touch_input_handle_begin(int id, double timestamp, float x, floa
 void _al_iphone_touch_input_handle_end(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
 {
    ALLEGRO_TOUCH_STATE* state = find_touch_state_with_id(id);
+   (void)primary;
+
    if (NULL == state)
       return;
 
@@ -257,6 +261,8 @@ void _al_iphone_touch_input_handle_end(int id, double timestamp, float x, float 
 void _al_iphone_touch_input_handle_move(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
 {
    ALLEGRO_TOUCH_STATE* state = find_touch_state_with_id(id);
+   (void)primary;
+
    if (NULL == state)
       return;
 
@@ -275,6 +281,8 @@ void _al_iphone_touch_input_handle_move(int id, double timestamp, float x, float
 void _al_iphone_touch_input_handle_cancel(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp)
 {
    ALLEGRO_TOUCH_STATE* state = find_touch_state_with_id(id);
+   (void)primary;
+
    if (NULL == state)
       return;
 
