@@ -28,6 +28,7 @@
 #include "allegro5/internal/aintern_pixels.h"
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_tls.h"
+#include "allegro5/internal/aintern_iphone.h"
 
 ALLEGRO_DEBUG_CHANNEL("system")
 

@@ -229,6 +229,7 @@ int main(void)
    int w = 640, h = 480;
    bool done = false;
    bool need_redraw = true;
+   bool background = false;
    example.show_help = true;
 
    if (!al_init()) {
@@ -246,10 +247,11 @@ int main(void)
    al_get_num_video_adapters();
    
    al_get_monitor_info(0, &info);
-   if (info.x2 - info.x1 < w)
-      w = info.x2 - info.x1;
-   if (info.y2 - info.y1 < h)
-      h = info.y2 - info.y1;
+
+   #ifdef ALLEGRO_IPHONE
+   w = info.x2 - info.x1;
+   h = info.y2 - info.y1;
+   #endif
    example.display = al_create_display(w, h);
 
    if (!example.display) {
@@ -300,7 +302,7 @@ int main(void)
    while (!done) {
       ALLEGRO_EVENT event;
 
-      if (need_redraw && al_is_event_queue_empty(queue)) {
+      if (!background && need_redraw && al_is_event_queue_empty(queue)) {
          double t = -al_get_time();
          add_time();
          al_clear_to_color(al_map_rgb_f(0, 0, 0));
@@ -346,6 +348,16 @@ int main(void)
             done = true;
             break;
 
+         case ALLEGRO_EVENT_DISPLAY_SWITCH_OUT:
+            background = true;
+            al_iphone_program_has_halted();
+            break;
+         
+         case ALLEGRO_EVENT_DISPLAY_SWITCH_IN:
+              background = false;
+              break;
+
+              
          case ALLEGRO_EVENT_TIMER:
             update();
             need_redraw = true;

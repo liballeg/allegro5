@@ -250,11 +250,15 @@ int _al_iphone_get_orientation()
    ALLEGRO_DISPLAY *d = allegro_display;
    
    (void)notification;
+    
+   int orientation = _al_iphone_get_orientation();
+    
+   ALLEGRO_INFO("Orientation: %d\n", orientation);
 
    if (d == NULL)
       return;
       
-   iphone_send_orientation_event(d, _al_iphone_get_orientation());
+   iphone_send_orientation_event(d, orientation);
 }
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
@@ -280,6 +284,8 @@ int _al_iphone_get_orientation()
     ALLEGRO_DISPLAY *d = allegro_display;
     ALLEGRO_SYSTEM_IPHONE *iphone = (void *)al_get_system_driver();
     iphone->wants_shutdown = true;
+    
+    ALLEGRO_INFO("Terminating.\n");
    
    [[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
 
@@ -304,6 +310,8 @@ int _al_iphone_get_orientation()
    ALLEGRO_EVENT event;
    
    (void)application;
+    
+   ALLEGRO_INFO("Entering background.\n");
 
    waiting_for_program_halt = true;
 
@@ -326,6 +334,8 @@ int _al_iphone_get_orientation()
 	ALLEGRO_EVENT event;
 	
 	(void)application;
+    
+    ALLEGRO_INFO("Entering foreground.\n");
 
     _al_event_source_lock(&d->es);
     if (_al_event_source_needs_to_generate_event(&d->es)) {
