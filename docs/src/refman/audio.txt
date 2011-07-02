@@ -64,11 +64,13 @@ Sample and stream playback mode.
 ### API: ALLEGRO_AUDIO_EVENT_TYPE
 
 Defines types of audio events that can be retrieved from the audio
-event source.
+event source. Not all audio drivers will generate these events.
 
 * ALLEGRO_EVENT_AUDIO_ROUTE_CHANGE
 * ALLEGRO_EVENT_AUDIO_INTERRUPTION
-* ALLEGRO_EVETN_AUDIO_END_INTERRUPTION
+* ALLEGRO_EVENT_AUDIO_END_INTERRUPTION
+
+Since: 5.1.0
 
 ### API: ALLEGRO_SAMPLE_ID
 
@@ -1202,13 +1204,15 @@ See also: [al_save_sample], [al_register_sample_saver_f],
 ## Audio events
 
 Audio events are all user events and so must be handled as such, mainly
-calling al_uref_user_event on them.
+calling [al_unref_user_event] on them.
 
 See also: [al_unref_user_event]
 
 ### API: al_get_audio_event_source
 
-Get the audio event source. al_install_audio must be called prior to
+Get the audio event source. [al_install_audio] must be called prior to
 calling this function.
+
+Since: 5.1.0
 
 See also: [ALLEGRO_AUDIO_EVENT_TYPE]
