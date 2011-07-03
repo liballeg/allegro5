@@ -349,8 +349,12 @@ int main(void)
             break;
 
          case ALLEGRO_EVENT_DISPLAY_SWITCH_OUT:
+
+            #ifdef ALLEGRO_IPHONE
             background = true;
             al_iphone_program_has_halted();
+            #endif
+
             break;
          
          case ALLEGRO_EVENT_DISPLAY_SWITCH_IN:
