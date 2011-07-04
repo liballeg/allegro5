@@ -996,7 +996,7 @@ void Prog::redraw()
    al_flip_display();
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    Prog prog;
    prog.init();
@@ -1015,6 +1015,9 @@ int main(void)
    prog.run();
    /* Let Allegro handle the cleanup. */
    return 0;
+
+   (void)argc;
+   (void)argv;
 }
 
 /* vim: set sts=3 sw=3 et: */
