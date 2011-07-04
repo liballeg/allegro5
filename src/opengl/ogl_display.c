@@ -420,7 +420,7 @@ bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP *b, int w, int h)
     * OS X.
     */
 #ifdef ALLEGRO_MACOSX
-   b->bitmap.display->vt->set_projection(b->display);
+   b->display->vt->set_projection(b->display);
 #endif
 
 #if !defined(ALLEGRO_IPHONE) && !defined(ALLEGRO_GP2XWIZ)
