@@ -190,6 +190,7 @@ example(ex_stream_seek CONSOLE ${AUDIO} ${ACODEC} ${PRIM} ${FONT} ${IMAGE})
 example(ex_synth ex_synth.cpp ${NIHGUI} ${AUDIO} ${TTF})
 
 example(ex_native_filechooser ${DIALOG} ${FONT} ${IMAGE} ${COLOR})
+example(ex_menu ${DIALOG} ${PRIM})
 
 # In some configurations CURL pulls in dependencies which we don't check for.
 # This example isn't important so it's disabled by default to prevent problems.

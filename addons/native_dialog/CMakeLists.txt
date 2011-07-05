@@ -5,6 +5,7 @@ set_our_header_properties(${DIALOG_INCLUDE_FILES})
 set(DIALOG_SOURCES
     dialog.c
     textlog.c
+    menu.c
     )
 
 if(APPLE AND NOT IPHONE)

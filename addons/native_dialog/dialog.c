@@ -3,7 +3,9 @@
 #include "allegro5/internal/aintern_native_dialog.h"
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_system.h"
+#include "allegro5/internal/aintern_vector.h"
 
+static bool inited_addon = false;
 
 /* Function: al_create_native_file_dialog
  */
@@ -28,6 +30,17 @@ ALLEGRO_FILECHOOSER *al_create_native_file_dialog(
       (void (*)(void *))al_destroy_native_file_dialog);
 
    return (ALLEGRO_FILECHOOSER *)fc;
+}
+
+/* Function: al_init_native_dialog_addon
+ */
+bool al_init_native_dialog_addon(void)
+{
+   if (!inited_addon) {
+      inited_addon = true;
+      al_init_user_event_source(al_get_default_menu_event_source());
+   }
+   return true;
 }
 
 /* Function: al_show_native_file_dialog
@@ -114,7 +127,6 @@ int al_show_native_message_box(ALLEGRO_DISPLAY *display,
 
    return r;
 }
-
 
 /* Function: al_get_allegro_native_dialog_version
  */

@@ -1,6 +1,8 @@
 #ifndef __al_included_allegro_aintern_native_dialog_h
 #define __al_included_allegro_aintern_native_dialog_h
 
+#include "allegro5/internal/aintern_vector.h"
+
 typedef struct ALLEGRO_NATIVE_DIALOG ALLEGRO_NATIVE_DIALOG;
 
 /* We could use different structs for the different dialogs. But why
@@ -47,5 +49,63 @@ extern int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 extern bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog);
 extern void _al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog);
 extern void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog);
+
+typedef struct ALLEGRO_MENU_ITEM ALLEGRO_MENU_ITEM;
+
+struct ALLEGRO_MENU_ITEM
+{
+   ALLEGRO_MENU *parent;
+   ALLEGRO_MENU *popup;
+   ALLEGRO_USTR *caption;
+   int id;
+   int flags;
+   void *extra1;
+};
+
+struct ALLEGRO_MENU
+{
+   ALLEGRO_EVENT_SOURCE es;
+   ALLEGRO_DISPLAY *display;
+   ALLEGRO_MENU_ITEM *parent;
+   _AL_VECTOR items;
+
+   bool is_event_source;
+   bool is_popup_menu;
+
+   void *extra1;
+};
+
+/* Platform implementation must call this when a menu item is clicked.
+ *   display: the display associated with the menu
+ *   id:      the user supplied menu id
+ *
+ *  The function will find the appropriate ALLEGRO_MENU and emit the event.
+ */
+extern bool _al_emit_menu_event(ALLEGRO_DISPLAY *display, int id);
+
+/* Platform Specific Functions
+ * ---------------------------
+ * Each of these should return true if successful. If at all possible, they
+ * should all be implemented and always return true (if menus are implemented
+ * at all). All of the parameters will be valid.
+ */
+
+extern bool _al_init_menu(ALLEGRO_MENU *menu);
+extern bool _al_init_popup_menu(ALLEGRO_MENU *menu);
+
+/* The "int i" parameter represents the indexed location of the item in the
+ * item->parent->items vector. This should map up identically to what is displayed
+ * within the platform menu... However, if there are silent entries (e.g., on OS X),
+ * the index may not represent what is seen on screen. If such discrepencies exist,
+ * then the platform imlpementation must compensate accordingly. */
+
+extern bool _al_insert_menu_item_at(ALLEGRO_MENU_ITEM *item, int i);
+extern bool _al_destroy_menu_item_at(ALLEGRO_MENU_ITEM *item, int i);
+extern bool _al_update_menu_item_at(ALLEGRO_MENU_ITEM *item, int i);
+
+extern bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu);
+extern bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu);
+extern bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu,
+   int x, int y, int flags);
 
 #endif

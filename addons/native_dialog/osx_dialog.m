@@ -335,3 +335,60 @@ void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
                           waitUntilDone: NO];
 }
 
+bool _al_init_menu(ALLEGRO_MENU *menu)
+{
+   (void) menu;
+   return false;
+}
+
+bool _al_init_popup_menu(ALLEGRO_MENU *menu)
+{
+   (void) menu;
+   return false;
+}
+
+bool _al_insert_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
+{
+   (void) item;
+   (void) i;
+   return false;
+}
+
+bool _al_destroy_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
+{
+   (void) item;
+   (void) i;
+   return false;
+}
+
+bool _al_update_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
+{
+   (void) item;
+   (void) i;
+   return false;
+}
+
+bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
+{
+   (void) display;
+   (void) menu;
+   return false;
+}
+
+bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
+{
+   (void) display;
+   (void) menu;
+   return false;
+}
+
+bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu,
+   int x, int y, int flags)
+{
+   (void) display;
+   (void) menu;
+   (void) x;
+   (void) y;
+   (void) flags;
+   return false;
+}

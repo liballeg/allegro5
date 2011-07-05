@@ -23,6 +23,18 @@
 
 ALLEGRO_DEBUG_CHANNEL("win_dialog")
 
+/* It looks like Windows only shows popups if triggered from
+   the main thread. To get around that, the WM_SHOW_POPUP
+   message is posted along with the POPUP_INFO when the user
+   opens a popup window. */
+typedef struct POPUP_INFO POPUP_INFO;
+struct POPUP_INFO
+{
+   ALLEGRO_MENU *menu;
+   int x, y;
+   int flags;   
+};
+#define WM_SHOW_POPUP (WM_APP + 42)
 
 /* Non-zero if text log window class was registered. */
 static int wlog_class_registered = 0;
@@ -35,7 +47,6 @@ static wchar_t* wlog_edit_control = L"EDIT";
 
 /* True if output support unicode */
 static bool wlog_unicode = false;
-
 
 static bool select_folder(ALLEGRO_DISPLAY_WIN *win_display,
    ALLEGRO_NATIVE_DIALOG *fd)
@@ -600,6 +611,161 @@ void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    if (IsWindow(textlog->window)) {
       PostMessage(textlog->window, WM_USER, (WPARAM)textlog, 0);
    }
+}
+
+static bool menu_callback(ALLEGRO_DISPLAY *display, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+   if (msg == WM_COMMAND && lParam == 0) {
+      _al_emit_menu_event(display, LOWORD(wParam));
+      return true;
+   }
+   else if (msg == WM_SYSCOMMAND) {
+      if ((wParam & 0xfff0) == SC_KEYMENU && al_get_display_menu(display) != NULL) {
+         /* Allow the ALT key to open the menu
+		  * XXX: do we even want to do this? Should it be optional?
+		  */         
+         DefWindowProc(al_get_win_window_handle(display), msg, wParam, lParam);
+		 return true;
+      }
+   }
+   else if (msg == WM_SHOW_POPUP) {
+      POPUP_INFO *info = (POPUP_INFO *) lParam;
+      HWND hwnd = al_get_win_window_handle(display);
+      
+	  SetForegroundWindow(hwnd);
+	  TrackPopupMenuEx((HMENU) info->menu->extra1, TPM_LEFTALIGN | TPM_TOPALIGN | TPM_RIGHTBUTTON, info->x, info->y, hwnd, NULL);
+	  al_free(info);
+
+      return true;
+   }
+   else if (msg == WM_MENUSELECT) {
+      /* XXX: could use this as a way to indicate the popup menu was canceled */
+   }
+
+   return false;
+}
+
+static void init_menu_info(MENUITEMINFO *info, ALLEGRO_MENU_ITEM *menu)
+{
+   memset(info, 0, sizeof(*info));
+
+   info->cbSize = sizeof(*info);   
+   info->fMask = MIIM_FTYPE | MIIM_STATE | MIIM_ID | MIIM_SUBMENU | MIIM_STRING;
+   info->wID = menu->id;
+
+   if (!menu->caption) {
+      info->fType = MFT_SEPARATOR;
+   }
+   else {
+      info->fType = MFT_STRING;
+      info->dwTypeData = (LPSTR) al_cstr(menu->caption);
+	  info->cch = al_ustr_size(menu->caption);
+   }
+
+   if (menu->flags & ALLEGRO_MENU_ITEM_CHECKED) {
+      info->fState |= MFS_CHECKED;
+   }
+
+   if (menu->flags & ALLEGRO_MENU_ITEM_DISABLED) {
+      info->fState |= MFS_DISABLED;
+   }
+
+   if (menu->popup) {
+      info->hSubMenu = (HMENU) menu->popup->extra1;
+   }
+
+}
+
+bool _al_init_menu(ALLEGRO_MENU *menu)
+{
+   menu->extra1 = CreateMenu();
+   return menu->extra1 != NULL;
+}
+
+bool _al_init_popup_menu(ALLEGRO_MENU *menu)
+{
+   menu->extra1 = CreatePopupMenu();
+   return menu->extra1 != NULL;
+}
+
+bool _al_insert_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
+{
+   MENUITEMINFO info;
+   init_menu_info(&info, item);
+  
+   InsertMenuItem((HMENU) item->parent->extra1, i, TRUE, &info);
+
+   return true;
+}
+
+bool _al_update_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
+{
+   MENUITEMINFO info;
+
+   init_menu_info(&info, item);
+   SetMenuItemInfo((HMENU) item->parent->extra1, i, TRUE, &info);
+
+   if (item->parent->display)
+      DrawMenuBar(al_get_win_window_handle(item->parent->display));
+
+   return true;
+}
+
+bool _al_destroy_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
+{
+   DeleteMenu((HMENU) item->parent->extra1, i, MF_BYPOSITION);
+
+   if (item->parent->display)
+      DrawMenuBar(al_get_win_window_handle(item->parent->display));
+
+   return true;
+}
+
+bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
+{
+   HWND hwnd = al_get_win_window_handle(display);
+   if (!hwnd) return false;
+
+   ASSERT(menu->extra1);
+   SetMenu(hwnd, (HMENU) menu->extra1);
+
+   al_add_win_window_callback(display, menu_callback);
+   
+   return true;
+}
+
+bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
+{
+   HWND hwnd = al_get_win_window_handle(display);
+   if (!hwnd) return false;
+
+   SetMenu(hwnd, NULL);
+   al_remove_win_window_callback(display, menu_callback);
+   
+   return true;
+}
+
+bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu, 
+   int x, int y, int flags)
+{
+   /* (See earlier comment regarding Windows & popups) */
+   POPUP_INFO *info = al_malloc(sizeof(*info));
+   if (!info)
+      return false;
+
+   al_get_window_position(display, &info->x, &info->y);
+
+   /* XXX: maybe automatically add the height of the display menu (if present) */
+
+   info->flags = flags;
+   info->x += x;
+   info->y += y;
+   info->menu = menu;
+
+   al_add_win_window_callback(display, menu_callback);
+   PostMessage(al_get_win_window_handle(display), WM_SHOW_POPUP, 0, (LPARAM) info);
+
+   return true;
 }
 
 /* vim: set sts=3 sw=3 et: */

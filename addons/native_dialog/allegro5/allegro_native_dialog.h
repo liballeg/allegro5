@@ -37,6 +37,25 @@ typedef struct ALLEGRO_FILECHOOSER ALLEGRO_FILECHOOSER;
  */
 typedef struct ALLEGRO_TEXTLOG ALLEGRO_TEXTLOG;
 
+/* Type: ALLEGRO_MENU
+ */
+typedef struct ALLEGRO_MENU ALLEGRO_MENU;
+
+/* Type: ALLEGRO_MENU_INFO
+ */
+typedef struct ALLEGRO_MENU_INFO {
+   const char *caption;
+   int id;
+   int flags;
+   ALLEGRO_BITMAP *icon;
+} ALLEGRO_MENU_INFO;
+
+#define ALLEGRO_MENU_SEPARATOR             { NULL,          -1, 0, NULL }
+#define ALLEGRO_START_OF_MENU(caption, id) { caption##"->", id, 0, NULL }
+#define ALLEGRO_END_OF_MENU                { NULL,           0, 0, NULL }
+
+ALLEGRO_DIALOG_FUNC(bool, al_init_native_dialog_addon, (void));
+
 ALLEGRO_DIALOG_FUNC(ALLEGRO_FILECHOOSER *, al_create_native_file_dialog, (char const *initial_path,
    char const *title, char const *patterns, int mode));
 ALLEGRO_DIALOG_FUNC(bool, al_show_native_file_dialog, (ALLEGRO_DISPLAY *display, ALLEGRO_FILECHOOSER *dialog));
@@ -52,6 +71,40 @@ ALLEGRO_DIALOG_FUNC(ALLEGRO_TEXTLOG *, al_open_native_text_log, (char const *tit
 ALLEGRO_DIALOG_FUNC(void, al_close_native_text_log, (ALLEGRO_TEXTLOG *textlog));
 ALLEGRO_DIALOG_FUNC(void, al_append_native_text_log, (ALLEGRO_TEXTLOG *textlog, char const *format, ...));
 ALLEGRO_DIALOG_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_native_text_log_event_source, (ALLEGRO_TEXTLOG *textlog));
+
+/* creating/modifying menus */
+ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_create_menu, (void));
+ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_create_popup_menu, (void));
+ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_build_menu, (ALLEGRO_MENU_INFO *info));
+ALLEGRO_DIALOG_FUNC(int, al_append_menu_item, (ALLEGRO_MENU *parent, char const *title, int id, int flags,
+   ALLEGRO_BITMAP *icon, ALLEGRO_MENU *submenu));
+ALLEGRO_DIALOG_FUNC(int, al_insert_menu_item, (ALLEGRO_MENU *parent, int before_id, char const *title, int id,
+   int flags, ALLEGRO_BITMAP *icon, ALLEGRO_MENU *submenu));
+ALLEGRO_DIALOG_FUNC(bool, al_remove_menu_item, (ALLEGRO_MENU *menu, int id));
+ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_clone_menu, (ALLEGRO_MENU *menu));
+ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_clone_menu_for_popup, (ALLEGRO_MENU *menu));
+ALLEGRO_DIALOG_FUNC(void, al_destroy_menu, (ALLEGRO_MENU *menu));
+
+/* properties */
+ALLEGRO_DIALOG_FUNC(const char *, al_get_menu_item_caption, (ALLEGRO_MENU *menu, int id));
+ALLEGRO_DIALOG_FUNC(void, al_set_menu_item_caption, (ALLEGRO_MENU *menu, int id, const char *caption));
+ALLEGRO_DIALOG_FUNC(int, al_get_menu_item_flags, (ALLEGRO_MENU *menu, int id));
+ALLEGRO_DIALOG_FUNC(void, al_set_menu_item_flags, (ALLEGRO_MENU *menu, int id, int flags));
+ALLEGRO_DIALOG_FUNC(void, al_toggle_menu_item_flags, (ALLEGRO_MENU *menu, int id, int flags));
+ 
+/* querying menus */
+ALLEGRO_DIALOG_FUNC(bool, al_find_menu_item, (ALLEGRO_MENU *haystack, int id, ALLEGRO_MENU **menu, int *index));
+ 
+/* menu events */
+ALLEGRO_DIALOG_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_default_menu_event_source, (void));
+ALLEGRO_DIALOG_FUNC(ALLEGRO_EVENT_SOURCE *, al_enable_menu_event_source, (ALLEGRO_MENU *menu));
+ALLEGRO_DIALOG_FUNC(void, al_disable_menu_event_source, (ALLEGRO_MENU *menu));
+ 
+/* displaying menus */
+ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_get_display_menu, (ALLEGRO_DISPLAY *display));
+ALLEGRO_DIALOG_FUNC(bool, al_set_display_menu, (ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu));
+ALLEGRO_DIALOG_FUNC(bool, al_popup_menu, (ALLEGRO_MENU *popup, ALLEGRO_DISPLAY *display, int x, int y, int flags));
+ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_remove_display_menu, (ALLEGRO_DISPLAY *display));
 
 ALLEGRO_DIALOG_FUNC(uint32_t, al_get_allegro_native_dialog_version, (void));
 
@@ -78,8 +131,17 @@ enum {
 };
 
 enum {
-   ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE   = 600
+   ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE   = 600,
+   ALLEGRO_EVENT_MENU_CLICK            = 601
 };
+
+enum {
+   ALLEGRO_MENU_ITEM_ENABLED            = 0,
+   ALLEGRO_MENU_ITEM_UNCHECKED          = 0,
+   ALLEGRO_MENU_ITEM_CHECKED            = 1,
+   ALLEGRO_MENU_ITEM_DISABLED           = 2
+};
+
 
 #ifdef __cplusplus
    }
