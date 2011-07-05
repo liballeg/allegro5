@@ -57,7 +57,8 @@ int main()
    al_set_display_menu(display, menu);
 
    pmenu = al_create_popup_menu();
-   al_append_menu_item(pmenu, "E&xit", FILE_EXIT_ID, 0, NULL, NULL);
+   if (pmenu)
+      al_append_menu_item(pmenu, "E&xit", FILE_EXIT_ID, 0, NULL, NULL);
 	
    al_register_event_source(queue, al_get_display_event_source(display));
    al_register_event_source(queue, al_get_default_menu_event_source());

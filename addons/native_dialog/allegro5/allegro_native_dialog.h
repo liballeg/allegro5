@@ -50,9 +50,9 @@ typedef struct ALLEGRO_MENU_INFO {
    ALLEGRO_BITMAP *icon;
 } ALLEGRO_MENU_INFO;
 
-#define ALLEGRO_MENU_SEPARATOR             { NULL,          -1, 0, NULL }
-#define ALLEGRO_START_OF_MENU(caption, id) { caption##"->", id, 0, NULL }
-#define ALLEGRO_END_OF_MENU                { NULL,           0, 0, NULL }
+#define ALLEGRO_MENU_SEPARATOR             { NULL,         -1, 0, NULL }
+#define ALLEGRO_START_OF_MENU(caption, id) { caption "->", id, 0, NULL }
+#define ALLEGRO_END_OF_MENU                { NULL,          0, 0, NULL }
 
 ALLEGRO_DIALOG_FUNC(bool, al_init_native_dialog_addon, (void));
 

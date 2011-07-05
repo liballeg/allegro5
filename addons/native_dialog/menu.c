@@ -296,11 +296,13 @@ ALLEGRO_MENU *al_create_popup_menu(void)
          al_destroy_menu(m);
          m = NULL;
 	  }
+      else {
 
 	  /* Popups are slightly different... They can be used multiple times
 	   * with al_popup_menu(), but never as a display menu.
 	   */
 	  m->is_popup_menu = true;
+      }
    }
 
    return m;
