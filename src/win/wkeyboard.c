@@ -33,21 +33,22 @@ static ALLEGRO_KEYBOARD_STATE the_state;
 static int modifiers = 0;
 
 /* lookup table for converting virtualkey VK_* codes into Allegro ALLEGRO_KEY_* codes */
+/* For handling of extended keys, extkey_to_keycode() takes priority over this.
 /* Last unknown key sequence: 39*/
 static const unsigned char hw_to_mycode[256] =
 {
    /* 0x00 */    0,                       ALLEGRO_KEY_UNKNOWN+0,     ALLEGRO_KEY_UNKNOWN+1,      ALLEGRO_KEY_UNKNOWN+2,
    /* 0x04 */    ALLEGRO_KEY_UNKNOWN+3,   ALLEGRO_KEY_UNKNOWN+4,     ALLEGRO_KEY_UNKNOWN+5,      0,
    /* 0x08 */    ALLEGRO_KEY_BACKSPACE,   ALLEGRO_KEY_TAB,           0,                          0,
-   /* 0x0C */    ALLEGRO_KEY_UNKNOWN+39,  ALLEGRO_KEY_ENTER,         0,                          0,
-   /* 0x10 */    0/*L or R shift*/,       0/*L or R ctrl*/,          0/*L or R alt*/,            ALLEGRO_KEY_PAUSE,
+   /* 0x0C */    ALLEGRO_KEY_PAD_5,       ALLEGRO_KEY_ENTER,         0,                          0,
+   /* 0x10 */    0/*L or R shift*/,       ALLEGRO_KEY_LCTRL,         ALLEGRO_KEY_ALT,            ALLEGRO_KEY_PAUSE,
    /* 0x14 */    ALLEGRO_KEY_CAPSLOCK,    ALLEGRO_KEY_KANA,          0,                          ALLEGRO_KEY_UNKNOWN+6,
    /* 0x18 */    ALLEGRO_KEY_UNKNOWN+7,   ALLEGRO_KEY_KANJI,         0,                          ALLEGRO_KEY_ESCAPE,
    /* 0x1C */    ALLEGRO_KEY_CONVERT,     ALLEGRO_KEY_NOCONVERT,     ALLEGRO_KEY_UNKNOWN+8,      ALLEGRO_KEY_UNKNOWN+9,
-   /* 0x20 */    ALLEGRO_KEY_SPACE,       ALLEGRO_KEY_PGUP,          ALLEGRO_KEY_PGDN,           ALLEGRO_KEY_END,
-   /* 0x24 */    ALLEGRO_KEY_HOME,        ALLEGRO_KEY_LEFT,          ALLEGRO_KEY_UP,             ALLEGRO_KEY_RIGHT,
-   /* 0x28 */    ALLEGRO_KEY_DOWN,        ALLEGRO_KEY_UNKNOWN+10,    ALLEGRO_KEY_UNKNOWN+11,     ALLEGRO_KEY_UNKNOWN+12,
-   /* 0x2C */    ALLEGRO_KEY_PRINTSCREEN, ALLEGRO_KEY_INSERT,        ALLEGRO_KEY_DELETE,         ALLEGRO_KEY_UNKNOWN+13,
+   /* 0x20 */    ALLEGRO_KEY_SPACE,       ALLEGRO_KEY_PAD_9,         ALLEGRO_KEY_PAD_3,          ALLEGRO_KEY_PAD_1,
+   /* 0x24 */    ALLEGRO_KEY_PAD_7,       ALLEGRO_KEY_PAD_4,         ALLEGRO_KEY_PAD_8,          ALLEGRO_KEY_PAD_6,
+   /* 0x28 */    ALLEGRO_KEY_PAD_2,       ALLEGRO_KEY_UNKNOWN+10,    ALLEGRO_KEY_UNKNOWN+11,     ALLEGRO_KEY_UNKNOWN+12,
+   /* 0x2C */    ALLEGRO_KEY_PRINTSCREEN, ALLEGRO_KEY_PAD_0,         ALLEGRO_KEY_PAD_DELETE,     ALLEGRO_KEY_UNKNOWN+13,
    /* 0x30 */    ALLEGRO_KEY_0,           ALLEGRO_KEY_1,             ALLEGRO_KEY_2,              ALLEGRO_KEY_3,
    /* 0x34 */    ALLEGRO_KEY_4,           ALLEGRO_KEY_5,             ALLEGRO_KEY_6,              ALLEGRO_KEY_7,
    /* 0x38 */    ALLEGRO_KEY_8,           ALLEGRO_KEY_9,             0,                          0,
@@ -63,7 +64,7 @@ static const unsigned char hw_to_mycode[256] =
    /* 0x60 */    ALLEGRO_KEY_PAD_0,       ALLEGRO_KEY_PAD_1,         ALLEGRO_KEY_PAD_2,          ALLEGRO_KEY_PAD_3,
    /* 0x64 */    ALLEGRO_KEY_PAD_4,       ALLEGRO_KEY_PAD_5,         ALLEGRO_KEY_PAD_6,          ALLEGRO_KEY_PAD_7,
    /* 0x68 */    ALLEGRO_KEY_PAD_8,       ALLEGRO_KEY_PAD_9,         ALLEGRO_KEY_PAD_ASTERISK,   ALLEGRO_KEY_PAD_PLUS,
-   /* 0x6C */    ALLEGRO_KEY_UNKNOWN+15,  ALLEGRO_KEY_PAD_MINUS,     ALLEGRO_KEY_UNKNOWN+16,     ALLEGRO_KEY_PAD_SLASH,
+   /* 0x6C */    ALLEGRO_KEY_UNKNOWN+15,  ALLEGRO_KEY_PAD_MINUS,     ALLEGRO_KEY_PAD_DELETE,     ALLEGRO_KEY_PAD_SLASH,
    /* 0x70 */    ALLEGRO_KEY_F1,          ALLEGRO_KEY_F2,            ALLEGRO_KEY_F3,             ALLEGRO_KEY_F4,
    /* 0x74 */    ALLEGRO_KEY_F5,          ALLEGRO_KEY_F6,            ALLEGRO_KEY_F7,             ALLEGRO_KEY_F8,
    /* 0x78 */    ALLEGRO_KEY_F9,          ALLEGRO_KEY_F10,           ALLEGRO_KEY_F11,            ALLEGRO_KEY_F12,
@@ -203,6 +204,38 @@ static void get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
 }
 
 
+/* extkey_to_keycode:
+ *  Given a VK code, returns the Allegro keycode for the corresponding extended
+ *  key.  If no code is found, returns zero.
+ */
+static int extkey_to_keycode(int vcode)
+{
+   switch (vcode) {
+      /* These are ordered by VK value, lowest first. */
+      case VK_CANCEL:   return ALLEGRO_KEY_PAUSE;
+      case VK_RETURN:   return ALLEGRO_KEY_PAD_ENTER;
+      case VK_CONTROL:  return ALLEGRO_KEY_RCTRL;
+      case VK_MENU:     return ALLEGRO_KEY_ALTGR;
+      case VK_PRIOR:    return ALLEGRO_KEY_PGUP;
+      case VK_NEXT:     return ALLEGRO_KEY_PGDN;
+      case VK_END:      return ALLEGRO_KEY_END;
+      case VK_HOME:     return ALLEGRO_KEY_HOME;
+      case VK_LEFT:     return ALLEGRO_KEY_LEFT;
+      case VK_UP:       return ALLEGRO_KEY_UP;
+      case VK_RIGHT:    return ALLEGRO_KEY_RIGHT;
+      case VK_DOWN:     return ALLEGRO_KEY_DOWN;
+      case VK_SNAPSHOT: return ALLEGRO_KEY_PRINTSCREEN;
+      case VK_INSERT:   return ALLEGRO_KEY_INSERT;     
+      case VK_DELETE:   return ALLEGRO_KEY_DELETE;     
+      case VK_LWIN:     return ALLEGRO_KEY_LWIN;       
+      case VK_RWIN:     return ALLEGRO_KEY_RWIN;       
+      case VK_APPS:     return ALLEGRO_KEY_MENU;
+      case VK_DIVIDE:   return ALLEGRO_KEY_PAD_SLASH;
+      case VK_NUMLOCK:  return ALLEGRO_KEY_NUMLOCK;
+      default: return 0;
+   }
+}
+
 static void update_modifiers(int code, bool pressed)
 {
 #define ON_OFF2(code)         \
@@ -278,19 +311,17 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool extended,
    if (!installed)
       return;
 
-   /* Using MapVirtualKey for Ctrl and Alt doesn't work, since the right hand versions have
-      two-byte scan codes. On the other hand, none of the Shift keys are 'extended' keys. */
-   if (vcode == VK_CONTROL)
-      vcode = extended ? VK_RCONTROL : VK_LCONTROL;
-   else if (vcode == VK_MENU)
-      vcode = extended ? VK_RMENU : VK_LMENU;
-   else if (vcode == VK_SHIFT)
-      vcode = MapVirtualKey(scode, MAPVK_VSC_TO_VK_EX);
+   /* Check for an extended key first. */
+   my_code = 0;
+   if (extended)
+      my_code = extkey_to_keycode(vcode);
 
-   my_code = hw_to_mycode[vcode];
-   /* No VK_* code for numpad Enter, need to special case it. */
-   if (extended && my_code == ALLEGRO_KEY_ENTER) {
-      my_code = ALLEGRO_KEY_PAD_ENTER;
+   /* Map a non-extended key.  This also works as a fallback in case
+      the key was extended, but no extended mapping was found. */
+   if (my_code == 0) {
+      if (vcode == VK_SHIFT) /* Left or right Shift key? */
+         vcode = MapVirtualKey(scode, MAPVK_VSC_TO_VK_EX);
+      my_code = hw_to_mycode[vcode];
    }
    update_modifiers(my_code, true);   
 
@@ -317,8 +348,8 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool extended,
    /* Send char events, but not for modifier keys or dead keys. */
    if (my_code < ALLEGRO_KEY_MODIFIERS) {
       char_count = ToUnicode(vcode, scode, GetKeyboardState(ks) ? ks : NULL, buf, 8, 0);
-      /* Special case DELETE key. */
-      if (char_count == 0 && my_code == ALLEGRO_KEY_DELETE) {
+      /* Send ASCII code 127 for both Del keys. */
+      if (char_count == 0 && vcode == VK_DELETE) {
          char_count = 1;
          buf[0] = 127;
       }
@@ -365,16 +396,14 @@ void _al_win_kbd_handle_key_release(int scode, int vcode, bool extended, ALLEGRO
    if (!installed)
      return;
 
-   if (vcode == VK_CONTROL)
-      vcode = extended ? VK_RCONTROL : VK_LCONTROL;
-   else if (vcode == VK_MENU)
-      vcode = extended ? VK_RMENU : VK_LMENU;
-   else if (vcode == VK_SHIFT)
-      vcode = MapVirtualKey(scode, MAPVK_VSC_TO_VK_EX);
+   my_code = 0;
+   if (extended)
+      my_code = extkey_to_keycode(vcode);
 
-   my_code = hw_to_mycode[vcode];
-   if (extended && my_code == ALLEGRO_KEY_ENTER) {
-      my_code = ALLEGRO_KEY_PAD_ENTER;
+   if (my_code == 0) {
+      if (vcode == VK_SHIFT)
+         vcode = MapVirtualKey(scode, MAPVK_VSC_TO_VK_EX);
+      my_code = hw_to_mycode[vcode];
    }
    update_modifiers(my_code, false);
 
