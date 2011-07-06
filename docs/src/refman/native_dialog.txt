@@ -196,3 +196,365 @@ ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE
 
 Returns the (compiled) version of the addon, in the same format as
 [al_get_allegro_version].
+
+## Menus
+
+Menus are only implemented under Windows.
+
+A menu can be attached to a single display window or popped up as a context
+menu. If you wish to use the same menu on multiple displays or use a sub-menu
+as a context menu, you must make a copy via [al_clone_menu] or
+[al_clone_menu_for_popup].
+
+Each menu item can be given an ID of any integer greater than zero. When a user
+clicks on a menu item, an event will be generated only if it has an ID. This
+ID should be unique per menu; if you duplicate IDs, then there will be no way
+for you to determine exactly which item generated the event.
+
+There are many functions that take an ID as a parameter used for locating a
+particular menu item. In those cases, this ID actually represents one of two
+things: an ID (as expected) or zero-based index. Any value greater than zero
+will always be treated as an ID. Anything else (including zero) will be
+considered an index based on the absolute value. In other words, 0 is the first
+menu item, -1 is the second menu item, -2 is the third menu item, and so on.
+
+The event type is `ALLEGRO_EVENT_MENU_CLICK`. It contains three fields:
+   
+       event.user.data1 = id;
+       event.user.data2 = (intptr_t) display;
+       event.user.data3 = (intptr_t) menu;
+       
+The `display` and `menu` may be NULL if it was not possible to tell exactly
+which item generated the event.
+
+A basic example:
+
+       #define FILE_EXIT_ID 1
+       
+       ALLEGRO_MENU *menu = al_create_menu();
+       ALLEGRO_MENU *file_menu = al_create_menu();
+       al_append_menu_item(file_menu, "Exit", FILE_EXIT_ID, 0, NULL, NULL);
+       al_append_menu_item(menu, "File", 0, 0, NULL, file_menu);
+       al_set_display_menu(display, menu);
+       
+       al_register_event_source(queue, al_get_default_menu_event_source());
+       al_wait_for_event(queue, &event);
+       
+       if (event.type == ALLEGRO_EVENT_MENU_CLICK) {
+         if (event.user.data1 == FILE_EXIT_ID) {
+            exit_program();
+         }
+       }
+
+### API: ALLEGRO_MENU
+
+An opaque data type that represents a menu that contains menu items.
+Each of the menu items may optionally include a sub-menu.
+
+### API: ALLEGRO_MENU_INFO
+
+A structure that defines how to create a complete menu system. For
+standard menu items, the following format is used:
+
+       { caption, id, flags, icon }
+
+For special items, these macros are helpful:
+       
+       ALLEGRO_START_OF_MENU(caption, id)
+       ALLEGRO_MENU_SEPARATOR
+       ALLEGRO_END_OF_MENU
+       
+A well defined menu will begin with `ALLEGRO_START_OF_MENU`, contain
+one or more menu items, and end with `ALLEGRO_END_OF_MENU`. A menu
+may contain sub-menus. An example:
+
+       ALLEGRO_MENU_INFO menu_info[]  = {
+          ALLEGRO_START_OF_MENU("&File", 1),
+             { "&Open", 2, 0, NULL },
+             ALLEGRO_START_OF_MENU("Open &Recent...", 3),
+                { "Recent 1", 4, 0, NULL },
+                { "Recent 2", 5, 0, NULL },
+                ALLEGRO_END_OF_MENU,
+             ALLEGRO_MENU_SEPARATOR,
+             { "E&xit", 6, 0, NULL },
+             ALLEGRO_END_OF_MENU,
+          ALLEGRO_START_OF_MENU("&Help", 7),
+             {"&About", 8, 0, NULL },
+             ALLEGRO_END_OF_MENU
+       }
+       
+       ALLEGRO_MENU *menu = al_build_menu(menu_info);
+       
+Of course, if you prefer, you can build the menu without the structure
+by using [al_create_menu] and [al_insert_menu_item].
+
+See also: [al_build_menu]
+
+### API: al_create_menu
+
+Creates a menu container that can hold menu items.
+
+Returns `NULL` on failure.
+
+Since: 5.1.0
+
+See also: [al_create_popup_menu], [al_build_menu]
+
+### API: al_create_popup_menu
+
+Creates a menu container for popup menus. Only the root (outermost)
+menu should be created with this function. Sub menus of popups should
+be created with [al_create_menu].
+
+Returns `NULL` on failure.
+
+Since: 5.1.0
+
+See also: [al_create_menu], [al_build_menu]
+
+### API: al_build_menu
+
+Builds a menu based on the specifications of a sequence of 
+`ALLEGRO_MENU_INFO` elements.
+
+Returns a pointer to the root `ALLEGRO_MENU`, or `NULL` on failure.
+To gain access to the other menus and items, you will need to
+search for them using [al_find_menu_item].
+
+Since: 5.1.0
+
+See also: [ALLEGRO_MENU_INFO], [al_create_menu], [al_create_popup_menu]
+
+### API: al_append_menu_item
+
+Appends a menu item to the end of the menu. See [al_insert_menu_item] 
+for more information.
+
+Since: 5.1.0
+
+See also: [al_insert_menu_item], [al_remove_menu_item]
+
+### API: al_insert_menu_item
+
+Inserts a menu item at the spot specified. See the introductory text for a
+detailed explanation of how the `before_id` parameter is interpreted.
+
+The `parent` menu can be a popup menu or a regular menu. To underline
+one character in the `title`, prefix it with an ampersand. 
+
+The `flags` can be any combination of:
+
+ALLEGRO_MENU_ITEM_DISABLED
+:   The item is "grayed out" and cannot be selected.
+
+ALLEGRO_MENU_ITEM_CHECKED
+:   The item is checked. Note that Allegro does not automatically uncheck
+    the item after a user clicks on it. You must listen for the event and
+    respond accordingly.
+    
+The `icon` is not yet supported.
+
+The `submenu` parameter indicates that this item contains a child menu.
+The child menu must have previously been created with `al_create_menu`,
+and is not associated with any other menu.
+
+Returns `true` on success.
+
+Since: 5.1.0
+
+See also: [al_append_menu_item], [al_remove_menu_item]
+
+### API: al_remove_menu_item
+
+Removes the specified item from the menu. If the item contains a sub-menu,
+it too is destroyed. Any references to it are invalidated. If you want to
+preserve that sub-menu, you should first make a copy with [al_clone_menu].
+
+This is safe to call on a menu that is currently being displayed.
+
+Returns `true` if an item was removed.
+
+Since: 5.1.0
+
+See also: [al_append_menu_item], [al_insert_menu_item], [al_destroy_menu]
+
+### API: al_clone_menu
+
+Makes a copy of a menu so that it can be reused on another display. The
+menu being cloned can be anything: a regular menu, a popup menu, or a
+sub-menu.
+
+Returns the cloned menu.
+
+Since: 5.1.0
+
+See also: [al_clone_menu_for_popup]
+
+### API: al_clone_menu_for_popup
+
+Exactly like [al_clone_menu], except that the copy is for a popup menu.
+
+Since: 5.1.0
+
+See also: [al_clone_menu]
+
+### API: al_destroy_menu
+
+Destroys an entire menu, including its sub-menus. Any references to it or
+a sub-menu is no longer valid. It is safe to call this on a menu that is
+currently being displayed.
+
+Since: 5.1.0
+
+See also: [al_remove_menu_item]
+
+### API: al_get_menu_item_caption
+
+Returns the caption associated with the menu item. It is valid as long
+as the caption is not modified.
+
+Returns `NULL` if the item was not found.
+
+Since: 5.1.0
+
+See also: [al_set_menu_item_caption]
+
+### API: al_set_menu_item_caption
+
+Updates the menu item caption with the new `caption`. This will invalidate
+any previous calls to [al_get_menu_item_caption].
+
+Since: 5.1.0
+
+See also: [al_get_menu_item_caption]
+
+### API: al_get_menu_item_flags
+
+Returns the currently set flags. See [al_insert_menu_item] for a description
+of the available flags.
+
+Returns -1 if the item was not found.
+
+Since: 5.1.0
+
+See also: [al_set_menu_item_flags], [al_toggle_menu_item_flags]
+
+### API: al_set_menu_item_flags
+
+Updates the menu item's flags. See [al_insert_menu_item] for a description
+of the available flags. 
+
+Since: 5.1.0
+
+See also: [al_get_menu_item_flags], [al_toggle_menu_item_flags]
+
+### API: al_toggle_menu_item_flags
+
+Toggles the specified menu item's flags. See [al_insert_menu_item] for a
+description of the available flags. 
+
+Since: 5.1.0
+
+See also: [al_get_menu_item_flags], [al_set_menu_item_flags]
+ 
+### API: al_find_menu_item
+
+Searches in the `haystack` menu for an item with the given `id`. (Note that
+this only represents a literal ID, and cannot be used as an index.)
+
+If `menu` and `index` are not `NULL`, they will be set as the parent menu
+containing the item and the zero-based index of the item. (If the menu item
+was not found, then their values are undefined.)
+
+Returns true if the menu item was found.
+
+Since: 5.1.0
+ 
+### API: al_get_default_menu_event_source
+
+Returns the default event source used for menu clicks. If a menu was not
+given its own event source via [al_enable_menu_event_source], then
+it will use this default source.
+
+Since: 5.1.0
+
+See also: [al_register_event_source], [al_enable_menu_event_source],
+[al_disable_menu_event_source]
+
+### API: al_enable_menu_event_source
+
+Enables a unique event source for this menu. It and all of its sub-menus
+will use this event source. (It is safe to call this multiple times on the
+same menu.)
+
+Returns the event source.
+
+Since: 5.1.0
+
+See also: [al_register_event_source], [al_get_default_menu_event_source],
+[al_disable_menu_event_source]
+
+### API: al_disable_menu_event_source
+
+Disables a unique event source for the menu, causing it to use the 
+default event source.
+
+Since: 5.1.0
+
+See also: [al_get_default_menu_event_source], [al_enable_menu_event_source]
+
+### API: al_get_display_menu
+
+Returns the menu associated with the `display`, or `NULL` if it does not have
+a menu.
+
+Since: 5.1.0
+
+See also: [al_set_display_menu]
+
+### API: al_set_display_menu
+
+Associates the `menu` with the `display` and shows it. If there was a previous
+menu associated with the display, it will be destroyed. If you don't want that
+to happen, you should first remove the menu with [al_remove_display_menu].
+
+If the menu is already attached to a display, it will not be attached to the
+new display. If `menu` is `NULL`, the current menu will still be destroyed.
+
+Note that attaching a menu may cause the window as available to your application
+to be resized! You should listen for a resize event, check how much space was
+lost, and resize the window accordingly if you want to maintain your window's
+prior size.
+
+Returns true if successful. 
+
+Since: 5.1.0
+
+See also: [al_create_menu], [al_remove_display_menu]
+
+### API: al_popup_menu
+
+Displays a context menu on the given display at location (x,y). The menu
+must have been created with [al_create_popup_menu]. It generates events
+just like a regular display menu does. It is possible that the menu will
+be canceled without any selection being made.
+
+The `flags` parameter is currently unused.
+
+Returns `true` if the context menu was displayed.
+
+Since: 5.1.0
+
+See also: [al_create_popup_menu]
+
+### API: al_remove_display_menu
+
+Detaches the menu associated with the display and returns it. The menu
+can then be used on a different display.
+
+If you simply want to destroy the active menu, you can call
+[al_set_display_menu] with a `NULL` menu.
+
+Since: 5.1.0
+
+See also: [al_set_display_menu]
