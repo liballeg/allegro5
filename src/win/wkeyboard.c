@@ -205,17 +205,6 @@ static void get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
 
 static void update_modifiers(int code, bool pressed)
 {
-#define ON_OFF(code)          \
-{                             \
-   if (pressed) {             \
-      if (modifiers & code)   \
-         modifiers &= ~code;  \
-      else                    \
-         modifiers |= code;   \
-   }                          \
-   break;                     \
-}
-
 #define ON_OFF2(code)         \
 {                             \
    if (!pressed)              \
@@ -238,18 +227,36 @@ static void update_modifiers(int code, bool pressed)
          ON_OFF2(ALLEGRO_KEYMOD_ALT);
       case ALLEGRO_KEY_ALTGR:
          ON_OFF2(ALLEGRO_KEYMOD_ALTGR);
-
-      case ALLEGRO_KEY_SCROLLLOCK:
-         ON_OFF(ALLEGRO_KEYMOD_SCROLLLOCK);
-      case ALLEGRO_KEY_NUMLOCK:
-         ON_OFF(ALLEGRO_KEYMOD_NUMLOCK);
-      case ALLEGRO_KEY_CAPSLOCK:
-         ON_OFF(ALLEGRO_KEYMOD_CAPSLOCK);
    }
 
-#undef ON_OFF
 #undef ON_OFF2
 }
+
+
+
+/* update_toggle_modifiers:
+ *  Update the state of Num Lock, Caps Lock, and Scroll Lock.
+ */
+static void update_toggle_modifiers()
+{
+#define ON_OFF(code, on)      \
+{                             \
+   if (on)                    \
+         modifiers |= code;   \
+   else                       \
+         modifiers &= ~code;  \
+}
+   /* GetKeyState appears to be the only reliable way of doing this.  GetKeyboardState
+    * is updated a bit too late in some cases. Maybe it would work if WM_CHARs were
+    * used, since they arrive after the WM_KEYDOWNs that trigger them.
+    */
+   ON_OFF(ALLEGRO_KEYMOD_NUMLOCK, GetKeyState(VK_NUMLOCK) & 1);
+   ON_OFF(ALLEGRO_KEYMOD_CAPSLOCK, GetKeyState(VK_CAPITAL) & 1);
+   ON_OFF(ALLEGRO_KEYMOD_SCROLLLOCK, GetKeyState(VK_SCROLL) & 1);
+
+#undef ON_OFF
+}
+
 
 
 /* _al_win_kbd_handle_key_press:
@@ -318,6 +325,7 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool extended,
       if (char_count != -1) { /* -1 means it was a dead key. */
          event_count = char_count ? char_count : 1;
          event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
+         update_toggle_modifiers();
          event.keyboard.modifiers = modifiers;
          event.keyboard.repeat = actual_repeat;
          for (i = 0; i < event_count; i++) {
