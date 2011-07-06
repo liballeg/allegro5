@@ -14,7 +14,7 @@ struct DISPLAY_MENU
    ALLEGRO_MENU *menu;
 };
 
-_AL_VECTOR display_menus = _AL_VECTOR_INITIALIZER(DISPLAY_MENU);
+static _AL_VECTOR display_menus = _AL_VECTOR_INITIALIZER(DISPLAY_MENU);
 
 /* MENU_ID keeps track of menu / id pairs to help determine which
  * menu belongs to an id.
@@ -27,7 +27,7 @@ struct MENU_ID
    int id;
 };
 
-_AL_VECTOR menu_ids  = _AL_VECTOR_INITIALIZER(MENU_ID);
+static _AL_VECTOR menu_ids  = _AL_VECTOR_INITIALIZER(MENU_ID);
 
 /* The default event source is used with any menu that does not have
    its own event source enabled. */
@@ -72,13 +72,13 @@ static bool walk_over_menu(ALLEGRO_MENU *menu,
    ASSERT(proc);
 
    for (i = 0; i < _al_vector_size(&menu->items); ++i) {
-     slot = _al_vector_ref(&menu->items, i);
+      slot = _al_vector_ref(&menu->items, i);
 
-	 if ((*slot)->popup && walk_over_menu((*slot)->popup, proc, extra))
-        return true;
-	 
-	 if (proc(menu, *slot, i, extra))
-        return true;
+      if ((*slot)->popup && walk_over_menu((*slot)->popup, proc, extra))
+         return true;
+ 
+      if (proc(menu, *slot, i, extra))
+         return true;
    }
 
    return proc(menu, NULL, -1, extra);
@@ -106,9 +106,9 @@ static bool find_menu_item_r(ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int in
    ALLEGRO_MENU_ITEM *info = (ALLEGRO_MENU_ITEM *) extra;
    
    if (info->id == item->id) {
-	  info->id = index;
-	  info->parent = menu;
-	  return true;
+      info->id = index;
+      info->parent = menu;
+      return true;
    }
 
    return false;
@@ -127,7 +127,7 @@ static void destroy_menu_item(ALLEGRO_MENU_ITEM *item)
    }
    else {
       size_t i;
-	  for (i = 0; i < _al_vector_size(&item->parent->items); ++i) {
+      for (i = 0; i < _al_vector_size(&item->parent->items); ++i) {
          if (*(ALLEGRO_MENU_ITEM **)_al_vector_ref(&item->parent->items, i) == item) {
             /* Notify the platform that the item is to be removed. */
             _al_destroy_menu_item_at(item, i);
@@ -137,21 +137,21 @@ static void destroy_menu_item(ALLEGRO_MENU_ITEM *item)
                MENU_ID *menu_id;
                size_t j;
 
-			   for (j = 0; j < _al_vector_size(&menu_ids); ++j) {
+               for (j = 0; j < _al_vector_size(&menu_ids); ++j) {
                   menu_id = (MENU_ID *) _al_vector_ref(&menu_ids, j);
-			      if (menu_id->menu == item->parent && menu_id->id == item->id) {
+                  if (menu_id->menu == item->parent && menu_id->id == item->id) {
                      _al_vector_delete_at(&menu_ids, j);
                      break;
                   }
                }
-			}
+            }
 
-			/* Remove the menu from the parent's list. */
-			_al_vector_delete_at(&item->parent->items, i);
+            /* Remove the menu from the parent's list. */
+            _al_vector_delete_at(&item->parent->items, i);
 
             break;
-		 }
-	  }
+         }
+      }
    }
 
    if (item->caption)
@@ -159,10 +159,10 @@ static void destroy_menu_item(ALLEGRO_MENU_ITEM *item)
 
    if (item->popup) {
       /* Delete the sub-menu. Must set the parent/display to NULL ahead of time to
-	   * avoid recursing back here.
-	   */
+       * avoid recursing back here.
+       */
       item->popup->parent = NULL;
-	  item->popup->display = NULL;
+      item->popup->display = NULL;
       al_destroy_menu(item->popup);
    }  
 
@@ -182,28 +182,28 @@ static ALLEGRO_MENU_INFO *parse_menu_info(ALLEGRO_MENU *parent, ALLEGRO_MENU_INF
       if (!info->caption) {
          /* A separator */
          al_append_menu_item(parent, NULL, 0, 0, NULL, NULL);
-		 ++info;
+         ++info;
       }
       else if (strlen(info->caption) > 2 &&
          !strncmp("->", info->caption + strlen(info->caption) - 2, 2)) {
          /* An item with a sub-menu has a -> marker as part of its caption.
-		  * (e.g., "File->"). 
-		  */
+          * (e.g., "File->"). 
+          */
          ALLEGRO_MENU *menu = al_create_menu();
          if (menu) {
             /* Strip the -> mark off the end. */
             ALLEGRO_USTR *s = al_ustr_new(info->caption);
             al_ustr_remove_range(s, al_ustr_size(s) - 2, al_ustr_size(s));
             info = parse_menu_info(menu, info + 1);
-			al_append_menu_item(parent, al_cstr(s), info->id, 0, NULL, menu);
-			al_ustr_free(s);
+            al_append_menu_item(parent, al_cstr(s), info->id, 0, NULL, menu);
+            al_ustr_free(s);
          }
       }
-	  else {
+      else {
          /* Just ar regular item */
          al_append_menu_item(parent, info->caption, info->id, info->flags, info->icon, NULL);
-		 ++info;
-	  }
+         ++info;
+      }
    }
 
    return info + 1;
@@ -254,7 +254,7 @@ static ALLEGRO_MENU *clone_menu(ALLEGRO_MENU *menu, bool popup)
       
       for (i = 0; i < _al_vector_size(&menu->items); ++i) {
          const ALLEGRO_MENU_ITEM *item = *(ALLEGRO_MENU_ITEM **)_al_vector_ref(&menu->items, i);
-	     al_append_menu_item(clone, item->caption ? al_cstr(item->caption) : NULL,
+         al_append_menu_item(clone, item->caption ? al_cstr(item->caption) : NULL,
             item->id, item->flags, NULL, al_clone_menu(item->popup));
       }
    }
@@ -276,7 +276,7 @@ ALLEGRO_MENU *al_create_menu(void)
       if (!_al_init_menu(m)) {
          al_destroy_menu(m);
          m = NULL;
-	  }
+      }
    }
 
    return m;
@@ -295,13 +295,12 @@ ALLEGRO_MENU *al_create_popup_menu(void)
       if (!_al_init_popup_menu(m)) {
          al_destroy_menu(m);
          m = NULL;
-	  }
+      }
       else {
-
-	  /* Popups are slightly different... They can be used multiple times
-	   * with al_popup_menu(), but never as a display menu.
-	   */
-	  m->is_popup_menu = true;
+         /* Popups are slightly different... They can be used multiple times
+          * with al_popup_menu(), but never as a display menu.
+          */
+         m->is_popup_menu = true;
       }
    }
 
@@ -336,8 +335,8 @@ ALLEGRO_MENU *al_build_menu(ALLEGRO_MENU_INFO *info)
 
 /* Function: al_append_menu_item
  */
-int al_append_menu_item(ALLEGRO_MENU *parent, char const *title, int id, int flags,
-   ALLEGRO_BITMAP *icon, ALLEGRO_MENU *popup)
+int al_append_menu_item(ALLEGRO_MENU *parent, char const *title, int id,
+   int flags, ALLEGRO_BITMAP *icon, ALLEGRO_MENU *popup)
 {
    ASSERT(parent);
 
@@ -348,8 +347,8 @@ int al_append_menu_item(ALLEGRO_MENU *parent, char const *title, int id, int fla
 
 /* Function: al_insert_menu_item
  */
-int al_insert_menu_item(ALLEGRO_MENU *parent, int before_id, char const *title, int id,
-   int flags, ALLEGRO_BITMAP *icon, ALLEGRO_MENU *popup)
+int al_insert_menu_item(ALLEGRO_MENU *parent, int before_id, char const *title,
+   int id, int flags, ALLEGRO_BITMAP *icon, ALLEGRO_MENU *popup)
 {
    ALLEGRO_MENU_ITEM *item;
    ALLEGRO_MENU_ITEM **slot;
@@ -384,12 +383,12 @@ int al_insert_menu_item(ALLEGRO_MENU *parent, int before_id, char const *title, 
    }
    else {
       /* Insert */
-	  slot = _al_vector_alloc_mid(&parent->items, i);
+      slot = _al_vector_alloc_mid(&parent->items, i);
    }  
 
    if (!slot) {
       destroy_menu_item(item);
-	  return -1;
+      return -1;
    }
    *slot = item;
 
@@ -431,7 +430,8 @@ bool al_remove_menu_item(ALLEGRO_MENU *menu, int id)
 
 /* Function: al_find_menu_item
  */
-bool al_find_menu_item(ALLEGRO_MENU *haystack, int id, ALLEGRO_MENU **menu, int *index)
+bool al_find_menu_item(ALLEGRO_MENU *haystack, int id, ALLEGRO_MENU **menu,
+   int *index)
 {
    ALLEGRO_MENU_ITEM item; 
 
@@ -439,7 +439,7 @@ bool al_find_menu_item(ALLEGRO_MENU *haystack, int id, ALLEGRO_MENU **menu, int 
 
    /* Abuse the ALLEGRO_MENU_ITEM struct as a container for the walk_over_menu callback.
     * If found, it will return true, and the "parent" field will be the menu that and
-	* the "id" will be the index.
+    * the "id" will be the index.
     */
    item.id = id;
 
@@ -480,7 +480,7 @@ void al_set_menu_item_caption(ALLEGRO_MENU *menu, int id, const char *caption)
 
    if (item && item->caption) {
       al_ustr_free(item->caption);
-	  item->caption = al_ustr_new(caption);
+      item->caption = al_ustr_new(caption);
       _al_update_menu_item_at(item, id);
    }
 }
@@ -539,7 +539,7 @@ void al_destroy_menu(ALLEGRO_MENU *menu)
 
    if (menu->parent) {
       /* If the menu is attached to a menu item, then this is equivelant to
-	     removing that menu item. */
+         removing that menu item. */
       ALLEGRO_MENU *parent = menu->parent->parent;
       ASSERT(parent);
 
@@ -547,13 +547,13 @@ void al_destroy_menu(ALLEGRO_MENU *menu)
          slot = _al_vector_ref(&parent->items, i);
          if (*slot == menu->parent) {
             al_remove_menu_item(parent, 0 - (int) i);
-			return;
-		 }
+            return;
+         }
       }
-	  
-	  /* Should never get here. */
-	  ASSERT(false);
-	  return;
+
+      /* Should never get here. */
+      ASSERT(false);
+      return;
    }
    else if (menu->display) {
       /* This is an active, top-level menu. */
@@ -587,7 +587,7 @@ ALLEGRO_EVENT_SOURCE *al_enable_menu_event_source(ALLEGRO_MENU *menu)
 
    if (!menu->is_event_source) {
       al_init_user_event_source(&menu->es);
-	  menu->is_event_source = true;
+      menu->is_event_source = true;
    }
 
    return &menu->es;
@@ -601,7 +601,7 @@ void al_disable_menu_event_source(ALLEGRO_MENU *menu)
 
    if (menu->is_event_source) {
       al_destroy_user_event_source(&menu->es);
-	  menu->is_event_source = false;
+      menu->is_event_source = false;
    }
 }
 
@@ -616,7 +616,7 @@ ALLEGRO_MENU *al_get_display_menu(ALLEGRO_DISPLAY *display)
     * a menu associated with it. */
    for (i = 0; i < _al_vector_size(&display_menus); ++i) {
       DISPLAY_MENU *dm = (DISPLAY_MENU *) _al_vector_ref(&display_menus, i);
-	  if (dm->display == display)
+      if (dm->display == display)
          return dm->menu;
    }
 
@@ -635,7 +635,8 @@ bool al_set_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
    /* Check if this display has a menu associated with it */
    for (i = 0; i < _al_vector_size(&display_menus); ++i) {
       dm = (DISPLAY_MENU *) _al_vector_ref(&display_menus, i);
-	  if (dm->display == display) break;
+      if (dm->display == display)
+         break;
    }
 
    /* If no display was found, reset dm to NULL */
@@ -654,7 +655,7 @@ bool al_set_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
    }
    else {
       /* Setting the menu. It must not currently be attached to any 
-	   * display, and it cannot have a parent menu. */
+       * display, and it cannot have a parent menu. */
       if (menu->display || menu->parent)
          return false;
 
@@ -662,7 +663,7 @@ bool al_set_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
          /* hide the existing menu */
          _al_hide_display_menu(display, dm->menu);
          walk_over_menu(dm->menu, set_menu_display_r, NULL);
-	  }
+      }
 
       if (!_al_show_display_menu(display, menu)) {
          /* Unable to set the new menu, but already have hidden the 
@@ -670,7 +671,7 @@ bool al_set_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
          if (dm) 
             _al_vector_delete_at(&display_menus, i);
          return false;
-	  }
+      }
 
       /* Set the entire menu tree as owned by the display */
       walk_over_menu(menu, set_menu_display_r, display);
@@ -678,8 +679,8 @@ bool al_set_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
       if (!dm)
          dm = _al_vector_alloc_back(&display_menus);
 
-	  dm->display = display;
-	  dm->menu = menu;
+      dm->display = display;
+      dm->menu = menu;
    }
 
    return true;
@@ -687,7 +688,8 @@ bool al_set_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 
 /* Function: al_popup_menu
  */
-bool al_popup_menu(ALLEGRO_MENU *popup, ALLEGRO_DISPLAY *display, int x, int y, int flags)
+bool al_popup_menu(ALLEGRO_MENU *popup, ALLEGRO_DISPLAY *display, int x, int y,
+   int flags)
 {
    ASSERT(popup);
    ASSERT(display);
@@ -736,12 +738,12 @@ bool _al_emit_menu_event(ALLEGRO_DISPLAY *display, int id)
    /* try to find the menu that triggered the event */
    for (i = 0; i < _al_vector_size(&menu_ids); ++i) {
       menu_id = (MENU_ID *) _al_vector_ref(&menu_ids, i);
-	  if (menu_id->id == id) {
+      if (menu_id->id == id) {
          if (!display || menu_id->menu->display == display) {
             menu = menu_id->menu;
             break;
-		 }
-	  }
+         }
+      }
    }
 
    if (menu) {
@@ -751,17 +753,17 @@ bool _al_emit_menu_event(ALLEGRO_DISPLAY *display, int id)
       while (true) {
          if (m->is_event_source) {
             source = &m->es;
-			break;
-		 }
+            break;
+         }
          
-		 if (!m->parent)
+         if (!m->parent)
             break;
 
-		 /* m->parent is of type MENU_ITEM,
-		  *   which always has a parent of type MENU */
-		 ASSERT(m->parent->parent);
-		 m = m->parent->parent;
-	  }
+         /* m->parent is of type MENU_ITEM,
+          *   which always has a parent of type MENU */
+         ASSERT(m->parent->parent);
+         m = m->parent->parent;
+      }
    }
 
    event.user.type = ALLEGRO_EVENT_MENU_CLICK;

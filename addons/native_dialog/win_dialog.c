@@ -622,19 +622,19 @@ static bool menu_callback(ALLEGRO_DISPLAY *display, UINT msg, WPARAM wParam, LPA
    else if (msg == WM_SYSCOMMAND) {
       if ((wParam & 0xfff0) == SC_KEYMENU && al_get_display_menu(display) != NULL) {
          /* Allow the ALT key to open the menu
-		  * XXX: do we even want to do this? Should it be optional?
-		  */         
+          * XXX: do we even want to do this? Should it be optional?
+	  */         
          DefWindowProc(al_get_win_window_handle(display), msg, wParam, lParam);
-		 return true;
+         return true;
       }
    }
    else if (msg == WM_SHOW_POPUP) {
       POPUP_INFO *info = (POPUP_INFO *) lParam;
       HWND hwnd = al_get_win_window_handle(display);
       
-	  SetForegroundWindow(hwnd);
-	  TrackPopupMenuEx((HMENU) info->menu->extra1, TPM_LEFTALIGN | TPM_TOPALIGN | TPM_RIGHTBUTTON, info->x, info->y, hwnd, NULL);
-	  al_free(info);
+      SetForegroundWindow(hwnd);
+      TrackPopupMenuEx((HMENU) info->menu->extra1, TPM_LEFTALIGN | TPM_TOPALIGN | TPM_RIGHTBUTTON, info->x, info->y, hwnd, NULL);
+      al_free(info);
 
       return true;
    }
@@ -659,7 +659,7 @@ static void init_menu_info(MENUITEMINFO *info, ALLEGRO_MENU_ITEM *menu)
    else {
       info->fType = MFT_STRING;
       info->dwTypeData = (LPSTR) al_cstr(menu->caption);
-	  info->cch = al_ustr_size(menu->caption);
+      info->cch = al_ustr_size(menu->caption);
    }
 
    if (menu->flags & ALLEGRO_MENU_ITEM_CHECKED) {

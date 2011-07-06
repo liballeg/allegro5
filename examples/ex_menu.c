@@ -43,7 +43,7 @@ int main()
    ALLEGRO_EVENT_QUEUE *queue;
    bool menu_visible = true;
    ALLEGRO_MENU *pmenu;
-	
+
    al_init();
    al_init_native_dialog_addon();
    al_init_primitives_addon();
@@ -59,7 +59,7 @@ int main()
    pmenu = al_create_popup_menu();
    if (pmenu)
       al_append_menu_item(pmenu, "E&xit", FILE_EXIT_ID, 0, NULL, NULL);
-	
+
    al_register_event_source(queue, al_get_display_event_source(display));
    al_register_event_source(queue, al_get_default_menu_event_source());
    al_register_event_source(queue, al_get_keyboard_event_source());
@@ -112,7 +112,8 @@ int main()
       }
       else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
          if (event.mouse.display == display && event.mouse.button == 2) {
-            al_popup_menu(pmenu, display, event.mouse.x, event.mouse.y + menu_height, 0);
+            if (pmenu)
+               al_popup_menu(pmenu, display, event.mouse.x, event.mouse.y + menu_height, 0);
          }
       }
       else if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
@@ -122,7 +123,7 @@ int main()
                   al_remove_display_menu(display);
                else
                   al_set_display_menu(display, menu);
-	
+
                menu_visible = !menu_visible;
             }
          }
@@ -130,7 +131,7 @@ int main()
       else if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
          int dh;
 
-		 /* The Windows implementation currently uses part of the client's height to
+         /* The Windows implementation currently uses part of the client's height to
           * render the window. This triggers a resize event, which can be trapped and
           * used to upsize the window to be the size we expect it to be.
           */
