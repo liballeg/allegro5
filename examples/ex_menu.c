@@ -34,7 +34,7 @@ ALLEGRO_MENU_INFO child_menu_info[] = {
    ALLEGRO_END_OF_MENU
 };
 
-int main()
+int main(void)
 {
    int menu_height = 0;
 
