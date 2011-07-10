@@ -189,15 +189,15 @@ def redraw():
     al_draw_textf(example.font, example.white, 0, fh, 0, "size: %d",
         example.bitmap_size)
     al_draw_textf(example.font, example.white, 0, fh * 2, 0, "%s",
-        info[example.use_memory_bitmaps])
+        info[example.use_memory_bitmaps].encode("utf8"))
     al_draw_textf(example.font, example.white, 0, fh * 3, 0, "%s",
-        binfo[example.blending])
+        binfo[example.blending].encode("utf8"))
 
     f1, f2 = get_fps()
     al_draw_textf(example.font, example.white, w, 0, ALLEGRO_ALIGN_RIGHT, "%s",
-        "FPS: %4d +- %-4d" % (f1, f2))
+        ("FPS: %4d +- %-4d" % (f1, f2)).encode("utf8"))
     al_draw_textf(example.font, example.white, w, fh, ALLEGRO_ALIGN_RIGHT, "%s",
-        "%4d / sec" % int(1.0 / example.direct_speed_measure))
+        ("%4d / sec" % int(1.0 / example.direct_speed_measure)).encode("utf8"))
 
 def main():
     w, h = 640, 480

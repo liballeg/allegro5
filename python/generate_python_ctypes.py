@@ -7,6 +7,8 @@ This script will use the prototypes from "checkdocs.py -s" to concoct
 a 1:1 Python wrapper for Allegro.
 """
 
+class _AL_UTF8String: pass
+
 class Allegro:
     def __init__(self):
         self.types = {}
@@ -48,7 +50,7 @@ class Allegro:
             "double" : c_double,
             "al_fixed" : c_int,
             "HWND" : c_void_p,
-            "char*" : c_char_p,
+            "char*" : _AL_UTF8String,
             
             # hack: this probably shouldn't be in the public docs
             "postprocess_callback_t" : c_void_p,
@@ -296,7 +298,7 @@ def main():
     p.add_option("-t", "--type", help = "the library type to " +
         "use, e.g. debug")
     p.add_option("-v", "--version", help = "the library version to " +
-        "use, e.g. 4.9")
+        "use, e.g. 5.1")
     options, args = p.parse_args()
     
     if not options.protos:
@@ -384,6 +386,12 @@ def _dll(func, ret, params):
         except AttributeError: pass
     sys.stderr.write("Cannot find function " + func + "\n")
     return lambda *args: None
+
+# In Python3, all Python strings are unicode so we have to convert to
+# UTF8 byte strings before passing to Allegro.
+class _AL_UTF8String:
+    def from_param(x):
+        return x.encode("utf8")
 
 """ % locals())
 
