@@ -59,6 +59,7 @@ int main(void)
     */
    int menu_height = 0;
    int dcount = 0;
+   const int width = 400, height = 300;
    
    ALLEGRO_DISPLAY *display;
    ALLEGRO_MENU *menu;
@@ -74,7 +75,7 @@ int main(void)
 
    queue = al_create_event_queue();
 
-   display = al_create_display(640, 480);
+   display = al_create_display(width, height);
    
    menu = al_build_menu(main_menu_info);
    
@@ -103,10 +104,12 @@ int main(void)
       ALLEGRO_EVENT event;
       
       while (!al_wait_for_event_timed(queue, &event, 0.01)) {
+         /* Draw a little pattern that makes it easy to see if the aspect ratio
+          * and expected height are being honored even with a menu. */
          al_clear_to_color(al_map_rgb(0,0,255));
-         al_draw_filled_rectangle(0,0,640,32, al_map_rgb(255,0,0));
-         al_draw_filled_rectangle(0,480-32,640,480, al_map_rgb(255,0,0));
-         al_draw_line(0,0, 640,480, al_map_rgb(255,255,255), 3.0);
+         al_draw_filled_rectangle(0,0, width,32, al_map_rgb(255,0,0));
+         al_draw_filled_rectangle(0,height-32, width,height, al_map_rgb(255,0,0));
+         al_draw_line(0,0, width,height, al_map_rgb(255,255,255), 3.0);
          al_flip_display();
       }
 
@@ -140,8 +143,7 @@ int main(void)
                }
             }
             else if (event.user.data1 == DYNAMIC_CHECKBOX_ID) {
-               al_toggle_menu_item_flags(menu, DYNAMIC_DISABLED_ID, ALLEGRO_MENU_ITEM_DISABLED);
-               
+               al_toggle_menu_item_flags(menu, DYNAMIC_DISABLED_ID, ALLEGRO_MENU_ITEM_DISABLED);               
                al_set_menu_item_caption(menu, DYNAMIC_DISABLED_ID, 
                   (al_get_menu_item_flags(menu, DYNAMIC_DISABLED_ID) & ALLEGRO_MENU_ITEM_DISABLED) ?
                   "&Disabled" : "&Enabled");               
@@ -216,14 +218,14 @@ int main(void)
           */
 
          al_acknowledge_resize(display);
-         dh = 480 - al_get_display_height(display);
+         dh = height - al_get_display_height(display);
 
          if (dh > 0) {
-            al_resize_display(display, 640, 480 + dh);
+            al_resize_display(display, width, height + dh);
             menu_height = dh;
          }
          else if (dh < 0) {
-            al_resize_display(display, 640, 480);
+            al_resize_display(display, width, height);
             menu_height = 0;
          }
       }

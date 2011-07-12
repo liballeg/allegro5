@@ -199,7 +199,8 @@ Returns the (compiled) version of the addon, in the same format as
 
 ## Menus
 
-Menus are only implemented under Windows.
+Menus are only fully implemented under Windows. On Linux, popup menus are 
+implemented. OS X is not supported yet.
 
 A menu can be attached to a single display window or popped up as a context
 menu. If you wish to use the same menu on multiple displays or use a sub-menu
@@ -281,7 +282,7 @@ may contain sub-menus. An example:
           ALLEGRO_START_OF_MENU("&Help", 7),
              {"&About", 8, 0, NULL },
              ALLEGRO_END_OF_MENU
-       }
+       };
        
        ALLEGRO_MENU *menu = al_build_menu(menu_info);
        
@@ -456,6 +457,10 @@ See also: [al_get_menu_item_flags], [al_toggle_menu_item_flags]
 
 Toggles the specified menu item's flags. See [al_insert_menu_item] for a
 description of the available flags. 
+
+Returns a bitfield of only the specified flags that are set after the toggle.
+A flag that was not toggled will not be returned, even if it is set.
+Returns -1 if the id is invalid.
 
 Since: 5.1.0
 

@@ -532,7 +532,7 @@ void al_set_menu_item_flags(ALLEGRO_MENU *menu, int pos, int flags)
 
 /* Function: al_toggle_menu_item_flags
  */
-void al_toggle_menu_item_flags(ALLEGRO_MENU *menu, int pos, int flags)
+int al_toggle_menu_item_flags(ALLEGRO_MENU *menu, int pos, int flags)
 {
    ALLEGRO_MENU_ITEM *item;
 
@@ -540,10 +540,21 @@ void al_toggle_menu_item_flags(ALLEGRO_MENU *menu, int pos, int flags)
 
    item = interpret_menu_id_param(&menu, &pos);
 
-   if (item) {
-      item->flags ^= flags;
-      _al_update_menu_item_at(item, pos);
+   if (!item)
+      return -1;
+
+   /* The CHECKBOX flag is read-only after the menu is created, and
+    * the CHECKED flag can only be set if it is a CHECKBOX.
+    */
+   flags &= ~ALLEGRO_MENU_ITEM_CHECKBOX;   
+   if (!(item->flags & ALLEGRO_MENU_ITEM_CHECKBOX)) {
+      flags &= ~ALLEGRO_MENU_ITEM_CHECKED;
    }
+
+   item->flags ^= flags;
+   _al_update_menu_item_at(item, pos);
+
+   return item->flags & flags;
 }
 
 /* Function: al_destroy_menu
@@ -739,6 +750,26 @@ ALLEGRO_MENU *al_remove_display_menu(ALLEGRO_DISPLAY *display)
    return menu;
 }
 
+/* Tries to find the menu that has a child with the given id. If display
+ * is not NULL, then it must also match. The first match is returned.
+ */
+ALLEGRO_MENU *_al_find_parent_menu_by_id(ALLEGRO_DISPLAY *display, int id)
+{
+   MENU_ID *menu_id;
+   size_t i;
+
+   for (i = 0; i < _al_vector_size(&menu_ids); ++i) {
+      menu_id = (MENU_ID *) _al_vector_ref(&menu_ids, i);
+      if (menu_id->id == id) {
+         if (!display || menu_id->menu->display == display) {
+            return menu_id->menu;
+         }
+      }
+   }
+
+   return NULL;
+}
+
 /* Each platform implementation must call this when a menu has been clicked.
  * The display parameter should be sent if at all possible! If it isn't sent,
  * and the user is using non-unique ids, it won't know which display actually
@@ -746,8 +777,6 @@ ALLEGRO_MENU *al_remove_display_menu(ALLEGRO_DISPLAY *display)
  */
 bool _al_emit_menu_event(ALLEGRO_DISPLAY *display, int id)
 {
-   MENU_ID *menu_id;
-   size_t i;
    ALLEGRO_EVENT event;
    ALLEGRO_MENU *menu = NULL;
    ALLEGRO_EVENT_SOURCE *source = al_get_default_menu_event_source();
@@ -756,15 +785,7 @@ bool _al_emit_menu_event(ALLEGRO_DISPLAY *display, int id)
       return false;
 
    /* try to find the menu that triggered the event */
-   for (i = 0; i < _al_vector_size(&menu_ids); ++i) {
-      menu_id = (MENU_ID *) _al_vector_ref(&menu_ids, i);
-      if (menu_id->id == id) {
-         if (!display || menu_id->menu->display == display) {
-            menu = menu_id->menu;
-            break;
-         }
-      }
-   }
+   menu = _al_find_parent_menu_by_id(display, id);
 
    if (menu) {
       /* A menu was found associated with the id. See if it has an

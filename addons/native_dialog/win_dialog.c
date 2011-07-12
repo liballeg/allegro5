@@ -616,14 +616,20 @@ void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 static bool menu_callback(ALLEGRO_DISPLAY *display, UINT msg, WPARAM wParam, LPARAM lParam)
 {
    if (msg == WM_COMMAND && lParam == 0) {
-      _al_emit_menu_event(display, LOWORD(wParam));
+      const int id = LOWORD(wParam);
+      ALLEGRO_MENU *menu = _al_find_parent_menu_by_id(display, id);
+      if (menu && (al_get_menu_item_flags(menu, id) & ALLEGRO_MENU_ITEM_CHECKBOX)) {
+         /* Toggle the checkbox, since Windows doesn't do that automatically. */
+         al_toggle_menu_item_flags(menu, id, ALLEGRO_MENU_ITEM_CHECKED);
+      }
+      _al_emit_menu_event(display, id);
       return true;
    }
    else if (msg == WM_SYSCOMMAND) {
       if ((wParam & 0xfff0) == SC_KEYMENU && al_get_display_menu(display) != NULL) {
          /* Allow the ALT key to open the menu
           * XXX: do we even want to do this? Should it be optional?
-	  */         
+          */
          DefWindowProc(al_get_win_window_handle(display), msg, wParam, lParam);
          return true;
       }

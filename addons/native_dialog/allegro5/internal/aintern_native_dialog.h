@@ -82,9 +82,11 @@ struct ALLEGRO_MENU
  *  The function will find the appropriate ALLEGRO_MENU and emit the event.
  */
 extern bool _al_emit_menu_event(ALLEGRO_DISPLAY *display, int id);
+
 extern bool _al_walk_over_menu(ALLEGRO_MENU *menu, bool (*proc)
    (ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int index, void *extra),
    void *extra);
+ALLEGRO_MENU *_al_find_parent_menu_by_id(ALLEGRO_DISPLAY *display, int id);
    
 /* Platform Specific Functions
  * ---------------------------
