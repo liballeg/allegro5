@@ -211,12 +211,12 @@ clicks on a menu item, an event will be generated only if it has an ID. This
 ID should be unique per menu; if you duplicate IDs, then there will be no way
 for you to determine exactly which item generated the event.
 
-There are many functions that take an ID as a parameter used for locating a
-particular menu item. In those cases, this ID actually represents one of two
-things: an ID (as expected) or zero-based index. Any value greater than zero
-will always be treated as an ID. Anything else (including zero) will be
-considered an index based on the absolute value. In other words, 0 is the first
-menu item, -1 is the second menu item, -2 is the third menu item, and so on.
+There are many functions that take `pos` as a parameter used for locating a
+particular menu item. In those cases, it represents one of two things: an ID 
+or zero-based index. Any value greater than zero will always be treated as an ID.
+Anything else (including zero) will be considered an index based on the absolute
+value. In other words, 0 is the first menu item, -1 is the second menu item, -2
+is the third menu item, and so on.
 
 The event type is `ALLEGRO_EVENT_MENU_CLICK`. It contains three fields:
    
@@ -337,7 +337,7 @@ See also: [al_insert_menu_item], [al_remove_menu_item]
 ### API: al_insert_menu_item
 
 Inserts a menu item at the spot specified. See the introductory text for a
-detailed explanation of how the `before_id` parameter is interpreted.
+detailed explanation of how the `pos` parameter is interpreted.
 
 The `parent` menu can be a popup menu or a regular menu. To underline
 one character in the `title`, prefix it with an ampersand. 
@@ -347,10 +347,14 @@ The `flags` can be any combination of:
 ALLEGRO_MENU_ITEM_DISABLED
 :   The item is "grayed out" and cannot be selected.
 
+ALLEGRO_MENU_ITEM_CHECK_BOX
+:   The item is a check box. This flag can only be set at the time the
+    menu is created. If a check box is clicked, it will automatically be
+    toggled.
+
 ALLEGRO_MENU_ITEM_CHECKED
-:   The item is checked. Note that Allegro does not automatically uncheck
-    the item after a user clicks on it. You must listen for the event and
-    respond accordingly.
+:   The item is checked. If set, ALLEGRO_MENU_ITEM_CHECK_BOX will automatically
+    be set as well.
     
 The `icon` is not yet supported.
 
@@ -456,6 +460,17 @@ description of the available flags.
 Since: 5.1.0
 
 See also: [al_get_menu_item_flags], [al_set_menu_item_flags]
+
+### API: al_find_menu
+
+Searches in the `haystack` menu for any submenu with the given `id`. (Note
+that this only represents a literal ID, and cannot be used as an index.)
+
+Returns the menu, if found. Otherwise returns `NULL`.
+
+Since: 5.1.0
+
+See also: [al_find_menu_item]
  
 ### API: al_find_menu_item
 
@@ -469,6 +484,8 @@ was not found, then their values are undefined.)
 Returns true if the menu item was found.
 
 Since: 5.1.0
+
+See also: [al_find_menu]
  
 ### API: al_get_default_menu_event_source
 

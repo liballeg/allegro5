@@ -78,21 +78,22 @@ ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_create_popup_menu, (void));
 ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_build_menu, (ALLEGRO_MENU_INFO *info));
 ALLEGRO_DIALOG_FUNC(int, al_append_menu_item, (ALLEGRO_MENU *parent, char const *title, int id, int flags,
    ALLEGRO_BITMAP *icon, ALLEGRO_MENU *submenu));
-ALLEGRO_DIALOG_FUNC(int, al_insert_menu_item, (ALLEGRO_MENU *parent, int before_id, char const *title, int id,
+ALLEGRO_DIALOG_FUNC(int, al_insert_menu_item, (ALLEGRO_MENU *parent, int pos, char const *title, int id,
    int flags, ALLEGRO_BITMAP *icon, ALLEGRO_MENU *submenu));
-ALLEGRO_DIALOG_FUNC(bool, al_remove_menu_item, (ALLEGRO_MENU *menu, int id));
+ALLEGRO_DIALOG_FUNC(bool, al_remove_menu_item, (ALLEGRO_MENU *menu, int pos));
 ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_clone_menu, (ALLEGRO_MENU *menu));
 ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_clone_menu_for_popup, (ALLEGRO_MENU *menu));
 ALLEGRO_DIALOG_FUNC(void, al_destroy_menu, (ALLEGRO_MENU *menu));
 
 /* properties */
-ALLEGRO_DIALOG_FUNC(const char *, al_get_menu_item_caption, (ALLEGRO_MENU *menu, int id));
-ALLEGRO_DIALOG_FUNC(void, al_set_menu_item_caption, (ALLEGRO_MENU *menu, int id, const char *caption));
-ALLEGRO_DIALOG_FUNC(int, al_get_menu_item_flags, (ALLEGRO_MENU *menu, int id));
-ALLEGRO_DIALOG_FUNC(void, al_set_menu_item_flags, (ALLEGRO_MENU *menu, int id, int flags));
-ALLEGRO_DIALOG_FUNC(void, al_toggle_menu_item_flags, (ALLEGRO_MENU *menu, int id, int flags));
+ALLEGRO_DIALOG_FUNC(const char *, al_get_menu_item_caption, (ALLEGRO_MENU *menu, int pos));
+ALLEGRO_DIALOG_FUNC(void, al_set_menu_item_caption, (ALLEGRO_MENU *menu, int pos, const char *caption));
+ALLEGRO_DIALOG_FUNC(int, al_get_menu_item_flags, (ALLEGRO_MENU *menu, int pos));
+ALLEGRO_DIALOG_FUNC(void, al_set_menu_item_flags, (ALLEGRO_MENU *menu, int pos, int flags));
+ALLEGRO_DIALOG_FUNC(void, al_toggle_menu_item_flags, (ALLEGRO_MENU *menu, int pos, int flags));
  
 /* querying menus */
+ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_find_menu, (ALLEGRO_MENU *haystack, int id));
 ALLEGRO_DIALOG_FUNC(bool, al_find_menu_item, (ALLEGRO_MENU *haystack, int id, ALLEGRO_MENU **menu, int *index));
  
 /* menu events */
@@ -137,9 +138,9 @@ enum {
 
 enum {
    ALLEGRO_MENU_ITEM_ENABLED            = 0,
-   ALLEGRO_MENU_ITEM_UNCHECKED          = 0,
-   ALLEGRO_MENU_ITEM_CHECKED            = 1,
-   ALLEGRO_MENU_ITEM_DISABLED           = 2
+   ALLEGRO_MENU_ITEM_CHECKBOX           = 1,
+   ALLEGRO_MENU_ITEM_CHECKED            = 2,
+   ALLEGRO_MENU_ITEM_DISABLED           = 4
 };
 
 

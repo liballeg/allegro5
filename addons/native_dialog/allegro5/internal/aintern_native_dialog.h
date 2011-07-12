@@ -82,7 +82,10 @@ struct ALLEGRO_MENU
  *  The function will find the appropriate ALLEGRO_MENU and emit the event.
  */
 extern bool _al_emit_menu_event(ALLEGRO_DISPLAY *display, int id);
-
+extern bool _al_walk_over_menu(ALLEGRO_MENU *menu, bool (*proc)
+   (ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int index, void *extra),
+   void *extra);
+   
 /* Platform Specific Functions
  * ---------------------------
  * Each of these should return true if successful. If at all possible, they
@@ -92,6 +95,7 @@ extern bool _al_emit_menu_event(ALLEGRO_DISPLAY *display, int id);
 
 extern bool _al_init_menu(ALLEGRO_MENU *menu);
 extern bool _al_init_popup_menu(ALLEGRO_MENU *menu);
+extern bool _al_destroy_menu(ALLEGRO_MENU *menu);
 
 /* The "int i" parameter represents the indexed location of the item in the
  * item->parent->items vector. This should map up identically to what is displayed
