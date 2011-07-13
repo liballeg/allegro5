@@ -1,4 +1,5 @@
 #include <allegro5/internal/aintern_iphone.h>
+#include <allegro5/platform/aintiphone.h>
 #include <allegro5/platform/aintunix.h>
 
 ALLEGRO_DEBUG_CHANNEL("iphone")

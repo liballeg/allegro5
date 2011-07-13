@@ -25,7 +25,6 @@ void _al_iphone_flip_view(void);
 void _al_iphone_reset_framebuffer(void);
 ALLEGRO_SYSTEM_INTERFACE *_al_get_iphone_system_interface(void);
 ALLEGRO_DISPLAY_INTERFACE *_al_get_iphone_display_interface(void);
-ALLEGRO_PATH *_al_iphone_get_path(int id);
 ALLEGRO_KEYBOARD_DRIVER *_al_get_iphone_keyboard_driver(void);
 ALLEGRO_MOUSE_DRIVER *_al_get_iphone_mouse_driver(void);
 ALLEGRO_TOUCH_INPUT_DRIVER *_al_get_iphone_touch_input_driver(void);

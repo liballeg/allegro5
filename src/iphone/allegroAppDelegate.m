@@ -6,15 +6,13 @@
 
 #include "allegro5/allegro_iphone.h"
 
-
 ALLEGRO_DEBUG_CHANNEL("iphone")
 
 void _al_iphone_run_user_main(void);
 
 static allegroAppDelegate *global_delegate;
 static UIImageView *splashview;
-static UIWindow *splashwin;
-static UIApplication *app;
+static UIApplication *app = NULL;
 static volatile bool waiting_for_program_halt = false;
 static float scale_override = -1.0;
 
@@ -146,14 +144,21 @@ void _al_iphone_make_view_current(void)
 
 void _al_iphone_flip_view(void)
 {
-    [global_delegate.view flip];
-   if (splashview) {
-      [splashview removeFromSuperview];
-      [splashview release];
-      [splashwin removeFromSuperview];
-      [splashwin release];
-      splashview = nil;
-      splashwin = nil;
+   static bool splash_removed = false;
+
+   [global_delegate.view flip];
+
+   if (!splash_removed) {
+      splash_removed = true;
+
+      /* remove splash screen */
+      if (splashview) {
+         [splashview removeFromSuperview];
+         [splashview release];
+         splashview = nil;
+      }
+   
+      [global_delegate.view becomeFirstResponder];
    }
 }
 
@@ -234,15 +239,19 @@ int _al_iphone_get_orientation()
 - (void)display_splash_screen
 {
    UIScreen *screen = [UIScreen mainScreen];
-   splashwin = [[UIWindow alloc] initWithFrame:[screen bounds]];
-   UIImage *img;
+   window = [[UIWindow alloc] initWithFrame:[screen bounds]];
+   UIImage *img = nil;
    if (is_ipad())
    	img = [UIImage imageNamed:@"Default-Portrait.png"];
+   else if (al_iphone_get_screen_scale() == 2.0)
+        img = [UIImage imageNamed:@"Default@2x.png"];
    else
    	img = [UIImage imageNamed:@"Default.png"];
-   splashview = [[UIImageView alloc] initWithImage:img];
-   [splashwin addSubview:splashview];
-   [splashwin makeKeyAndVisible];
+   if (img != nil) {
+      splashview = [[UIImageView alloc] initWithImage:img];
+      [window addSubview:splashview];
+   }
+   [window makeKeyAndVisible];
 }
 
 - (void)orientation_change:(NSNotification *)notification
@@ -278,6 +287,7 @@ int _al_iphone_get_orientation()
    _al_iphone_run_user_main();
 }
 
+/* This may never get called on iOS 4 */
 - (void)applicationWillTerminate:(UIApplication *)application {
     (void)application;
     ALLEGRO_EVENT event;
@@ -354,12 +364,10 @@ int _al_iphone_get_orientation()
  * it and otherwise things simply don't work (the screen just stays black).
  */
 - (void)add_view {
-   window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
    view = [[EAGLView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
    [view set_allegro_display:allegro_display];
+
    [window addSubview:view];
-   [window makeKeyAndVisible];
-   [view becomeFirstResponder];
 }
 
 - (void)accelerometer:(UIAccelerometer*)accelerometer didAccelerate:(UIAcceleration*)acceleration
