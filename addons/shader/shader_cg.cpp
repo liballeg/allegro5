@@ -157,10 +157,8 @@ bool _al_attach_shader_source_cg(
          cgGetNamedParameter(cg_shader->vertex_program, "color");
       cg_shader->name_tex =
          cgGetNamedParameter(cg_shader->vertex_program, "texcoord");
-      cg_shader->name_proj =
-         cgGetNamedParameter(cg_shader->vertex_program, "proj_matrix");
-      cg_shader->name_view =
-         cgGetNamedParameter(cg_shader->vertex_program, "view_matrix");
+      cg_shader->name_projview =
+         cgGetNamedParameter(cg_shader->vertex_program, "projview_matrix");
    }
 
    return true;
@@ -186,18 +184,14 @@ void _al_use_shader_cg(ALLEGRO_SHADER *shader, bool use)
    ALLEGRO_DISPLAY *display = al_get_current_display();
 
    if (use) {
-      if (cg_shader->name_proj) {
+      if (cg_shader->name_projview) {
+         ALLEGRO_TRANSFORM t;
+	 al_copy_transform(&t, &display->view_transform);
+	 al_compose_transform(&t, &display->proj_transform);
          _al_set_shader_matrix_cg_name(
 	    shader,
-	    cg_shader->name_proj,
-	    (float *)display->proj_transform.m
-	 );
-      }
-      if (cg_shader->name_view) {
-         _al_set_shader_matrix_cg_name(
-	    shader,
-	    cg_shader->name_view,
-	    (float *)display->view_transform.m
+	    cg_shader->name_projview,
+	    (float *)display->t.m
 	 );
       }
       if (shader->platform & ALLEGRO_SHADER_GLSL) {

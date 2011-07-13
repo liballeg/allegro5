@@ -314,13 +314,12 @@ void _al_use_shader_glsl(ALLEGRO_SHADER *shader, bool use)
 
       glUseProgram(gl_shader->program_object);
 
-      handle = glGetUniformLocation(gl_shader->program_object, "proj_matrix");
+      handle = glGetUniformLocation(gl_shader->program_object, "projview_matrix");
       if (handle >= 0) {
-         glUniformMatrix4fv(handle, 1, false, (float *)display->proj_transform.m);
-      }
-      handle = glGetUniformLocation(gl_shader->program_object, "view_matrix");
-      if (handle >= 0) {
-         glUniformMatrix4fv(handle, 1, false, (float *)display->view_transform.m);
+         ALLEGRO_TRANSFORM t;
+	 al_copy_transform(&t, &display->view_transform);
+	 al_compose_transform(&t, &display->proj_transform);
+         glUniformMatrix4fv(handle, 1, false, (float *)t.m);
       }
 
       // Apply all deferred sets

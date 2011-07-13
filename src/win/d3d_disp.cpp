@@ -500,7 +500,11 @@ static void _al_d3d_set_ortho_projection(ALLEGRO_DISPLAY_D3D *disp, float w, flo
 #ifdef ALLEGRO_CFG_HLSL_SHADERS
       LPD3DXEFFECT effect = disp->effect;
       if (effect) {
-         disp->effect->SetMatrix("proj_matrix", (D3DXMATRIX *)display->proj_transform.m);
+         // HERE
+	 ALLEGRO_TRANSFORM t;
+	 al_copy_transform(&t, &display->view_transform);
+	 al_compose_transform(&t, &display->proj_transform);
+         disp->effect->SetMatrix("projview_matrix", (D3DXMATRIX *)&t.m);
       }
 #endif
    }
@@ -2902,7 +2906,8 @@ static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *tar
 #ifdef ALLEGRO_CFG_HLSL_SHADERS
       LPD3DXEFFECT effect = d3d_disp->effect;
       if (effect) {
-         d3d_disp->effect->SetMatrix("view_matrix", (D3DXMATRIX *)tmp_transform.m);
+	 al_compose_transform(&tmp_transform, &disp->proj_transform);
+         d3d_disp->effect->SetMatrix("projview_matrix", (D3DXMATRIX *)&tmp_transform.m);
       }
 #endif
    }
@@ -2921,7 +2926,10 @@ static void d3d_set_projection(ALLEGRO_DISPLAY *d)
 
 #ifdef ALLEGRO_CFG_HLSL_SHADERS
    if (d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-      d3d_disp->effect->SetMatrix("proj_matrix", (D3DXMATRIX *)d->proj_transform.m);
+      ALLEGRO_TRANSFORM t;
+      al_copy_transform(&t, &d->view_transform);
+      al_compose_transform(&t, &d->proj_transform);
+      d3d_disp->effect->SetMatrix("projview_matrix", (D3DXMATRIX *)&t.m);
    }
    else
 #endif

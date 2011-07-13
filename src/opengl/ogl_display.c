@@ -267,13 +267,12 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
          GLint handle;
          GLuint program_object = display->ogl_extras->program_object;
-         handle = glGetUniformLocation(program_object, "proj_matrix");
+         handle = glGetUniformLocation(program_object, "projview_matrix");
          if (handle >= 0) {
-            glUniformMatrix4fv(handle, 1, false, (float *)display->proj_transform.m);
-         }
-         handle = glGetUniformLocation(program_object, "view_matrix");
-         if (handle >= 0) {
-            glUniformMatrix4fv(handle, 1, false, (float *)display->view_transform.m);
+	    ALLEGRO_TRANSFORM t;
+	    al_copy_transform(&t, &display->view_transform);
+	    al_compose_transform(&t, &display->proj_transform);
+            glUniformMatrix4fv(handle, 1, false, (float *)t.m);
          }
       }
    }
@@ -521,18 +520,17 @@ void _al_ogl_destroy_backbuffer(ALLEGRO_BITMAP *b)
 void al_set_opengl_program_object(ALLEGRO_DISPLAY *display, GLuint program_object)
 {
    GLint handle;
+   ALLEGRO_TRANSFORM t;
    
    display->ogl_extras->program_object = program_object;
 
    glUseProgram(program_object);
       
-   handle = glGetUniformLocation(program_object, "view_matrix");
+   handle = glGetUniformLocation(program_object, "projview_matrix");
    if (handle >= 0) {
-      glUniformMatrix4fv(handle, 1, false, (float *)display->view_transform.m);
-   }
-   handle = glGetUniformLocation(program_object, "proj_matrix");
-   if (handle >= 0) {
-      glUniformMatrix4fv(handle, 1, false, (float *)display->proj_transform.m);
+      al_copy_transform(&t, &display->view_transform);
+      al_compose_transform(&t, &display->proj_transform);
+      glUniformMatrix4fv(handle, 1, false, (float *)t.m);
    }
 
    display->ogl_extras->pos_loc = glGetAttribLocation(program_object, "pos");

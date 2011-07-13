@@ -186,19 +186,10 @@ void _al_use_shader_hlsl(ALLEGRO_SHADER *shader, bool use)
    ALLEGRO_DISPLAY *display = al_get_current_display();
 
    if (use) {
-   /*
-      al_set_direct3d_effect(display, effect);
-      D3DXMATRIX m;
-      memcpy(m.m, (float *)display->proj_transform.m, sizeof(float)*16);
-      effect->SetMatrix("proj_matrix", &m);
-      memcpy(m.m, (float *)display->view_transform.m, sizeof(float)*16);
-      effect->SetMatrix("view_matrix", &m);
-      UINT r;
-      effect->Begin(&r, 0);
-      effect->BeginPass(0);
-      */
-      effect->SetMatrix("proj_matrix", (LPD3DXMATRIX)&display->proj_transform.m);
-      effect->SetMatrix("view_matrix", (LPD3DXMATRIX)&display->view_transform.m);
+      ALLEGRO_TRANSFORM t;
+      al_copy_transform(&t, &display->view_transform);
+      al_compose_transform(&t, &display->proj_transform);
+      effect->SetMatrix("proj_matrix", (LPD3DXMATRIX)&t.m);
    }
    else {
       //effect->EndPass();

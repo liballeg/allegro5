@@ -317,10 +317,13 @@ static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
       GLint handle;
 
       al_copy_transform(&disp->view_transform, &tmp);
+
+      al_compose_transform(&tmp, &disp->proj_transform);
+      
       program_object = disp->ogl_extras->program_object;
-      handle = glGetUniformLocation(program_object, "view_matrix");
+      handle = glGetUniformLocation(program_object, "projview_matrix");
       if (handle >= 0) {
-         glUniformMatrix4fv(handle, 1, false, (float *)disp->view_transform.m);
+         glUniformMatrix4fv(handle, 1, false, (float *)tmp.m);
       }
    }
    else {
@@ -333,9 +336,12 @@ static void ogl_set_projection(ALLEGRO_DISPLAY *d)
 {
    if (d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       GLuint program_object = d->ogl_extras->program_object;
-      GLint handle = glGetUniformLocation(program_object, "proj_matrix");
+      GLint handle = glGetUniformLocation(program_object, "projview_matrix");
       if (handle >= 0) {
-         glUniformMatrix4fv(handle, 1, false, (float *)d->proj_transform.m);
+         ALLEGRO_TRANSFORM t;
+	 al_copy_transform(&t, &d->view_transform);
+	 al_compose_transform(&t, &d->proj_transform);
+         glUniformMatrix4fv(handle, 1, false, (float *)t.m);
       }
    }
    else {

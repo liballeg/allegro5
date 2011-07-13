@@ -48,8 +48,7 @@
 
 #ifdef CG	
 static const char *cg_vertex_source =
-   "uniform float4x4 proj_matrix;\n"
-   "uniform float4x4 view_matrix;\n"
+   "uniform float4x4 projview_matrix;\n"
    "void vs_main(\n"
    "  in float3 pos        : POSITION,\n"
    "  in float4 color      : COLOR0,\n"
@@ -58,7 +57,7 @@ static const char *cg_vertex_source =
    "  out float4 colorO    : COLOR0,\n"
    "  out float2 texcoordO : TEXCOORD0)\n"
    "{\n"
-   "  posO = mul(mul(float4(pos, 1.0), view_matrix), proj_matrix);\n"
+   "  posO = mul(float4(pos, 1.0), projview_matrix);\n"
    "  colorO = color;\n"
    "  texcoordO = texcoord;\n"
    "}\n";
@@ -93,13 +92,12 @@ static const char *hlsl_vertex_source =
    "   float2 TexCoord  : TEXCOORD0;\n"
    "};\n"
    "\n"
-   "float4x4 proj_matrix;\n"
-   "float4x4 view_matrix;\n"
+   "float4x4 projview_matrix;\n"
    "\n"
    "VS_OUTPUT vs_main(VS_INPUT Input)\n"
    "{\n"
    "   VS_OUTPUT Output;\n"
-   "   Output.Position = mul(mul(Input.Position, view_matrix), proj_matrix);\n"
+   "   Output.Position = mul(Input.Position, projview_matrix);\n"
    "   Output.Color = Input.Color;\n"
    "   Output.TexCoord = Input.TexCoord;\n"
    "   return Output;\n"
@@ -126,15 +124,14 @@ static const char *glsl_vertex_source =
    "attribute vec4 pos;\n"
    "attribute vec4 color;\n"
    "attribute vec2 texcoord;\n"
-   "uniform mat4 proj_matrix;\n"
-   "uniform mat4 view_matrix;\n"
+   "uniform mat4 projview_matrix;\n"
    "varying vec4 varying_color;\n"
    "varying vec2 varying_texcoord;\n"
    "void main()\n"
    "{\n"
    "  varying_color = color;\n"
    "  varying_texcoord = texcoord;\n"
-   "  gl_Position = proj_matrix * view_matrix * pos;\n"
+   "  gl_Position = projview_matrix * pos;\n"
    "}\n";
 
 static const char *glsl_pixel_source =
