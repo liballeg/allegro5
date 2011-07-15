@@ -1,6 +1,6 @@
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_native_dialog.h"
-#include "allegro5/allegro_primitives.h"
+#include "allegro5/allegro_image.h"
 #include <stdio.h>
 
 /* The following is a list of menu item ids. They can be any non-zero, positive
@@ -59,25 +59,31 @@ int main(void)
     */
    int menu_height = 0;
    int dcount = 0;
-   const int width = 400, height = 300;
+   const int width = 320, height = 200;
    
    ALLEGRO_DISPLAY *display;
    ALLEGRO_MENU *menu;
    ALLEGRO_EVENT_QUEUE *queue;
    bool menu_visible = true;
    ALLEGRO_MENU *pmenu;
+   ALLEGRO_BITMAP *bg;
    
    al_init();
    al_init_native_dialog_addon();
-   al_init_primitives_addon();
+   al_init_image_addon();
    al_install_keyboard();
    al_install_mouse();
 
    queue = al_create_event_queue();
 
    display = al_create_display(width, height);
+   al_set_window_title(display, "ex_menu - Main Window");
    
    menu = al_build_menu(main_menu_info);
+   
+   /* Add an icon to the Help/About item. Note that Allegro assumes ownership
+    * of the bitmap. */
+   al_set_menu_item_icon(menu, HELP_ABOUT_ID, al_load_bitmap("data/icon.tga"));
    
    if (!al_set_display_menu(display, menu)) {
       /* Since the menu could not be attached to the window, then treat it as
@@ -94,22 +100,20 @@ int main(void)
          al_append_menu_item(pmenu, "E&xit", FILE_EXIT_ID, 0, NULL, NULL);
       }
    }
-
+   
    al_register_event_source(queue, al_get_display_event_source(display));
    al_register_event_source(queue, al_get_default_menu_event_source());
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_mouse_event_source());
+   
+   bg = al_load_bitmap("data/mysha.pcx");
 
    while (true) {
       ALLEGRO_EVENT event;
       
       while (!al_wait_for_event_timed(queue, &event, 0.01)) {
-         /* Draw a little pattern that makes it easy to see if the aspect ratio
-          * and expected height are being honored even with a menu. */
-         al_clear_to_color(al_map_rgb(0,0,255));
-         al_draw_filled_rectangle(0,0, width,32, al_map_rgb(255,0,0));
-         al_draw_filled_rectangle(0,height-32, width,height, al_map_rgb(255,0,0));
-         al_draw_line(0,0, width,height, al_map_rgb(255,255,255), 3.0);
+         if (bg)
+            al_draw_bitmap(bg, 0, 0, 0);
          al_flip_display();
       }
 
@@ -140,6 +144,7 @@ int main(void)
                   al_flip_display();                  
                   al_register_event_source(queue, al_get_display_event_source(d));
                   al_set_target_backbuffer(display);
+                  al_set_window_title(d, "ex_menu - Child Window");
                }
             }
             else if (event.user.data1 == DYNAMIC_CHECKBOX_ID) {

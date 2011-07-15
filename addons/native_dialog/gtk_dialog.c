@@ -673,6 +673,14 @@ static void checkbox_on_toggle(ALLEGRO_MENU_ITEM *item)
 }
 
 /* [gtk thread] */
+static void destroy_pixbuf(guchar *pixels, gpointer data)
+{
+   (void) data;
+   
+   al_free(pixels);
+}
+
+/* [gtk thread] */
 static GtkWidget *build_menu_item(ALLEGRO_MENU_ITEM *aitem)
 {
    GtkWidget *gitem;
@@ -695,7 +703,40 @@ static GtkWidget *build_menu_item(ALLEGRO_MENU_ITEM *aitem)
             (gpointer) aitem);
       }
       else {
-         gitem = gtk_menu_item_new_with_mnemonic(al_cstr(caption));
+         /* always create an image menu item, in case the user ever sets an icon */
+         gitem = gtk_image_menu_item_new_with_mnemonic(al_cstr(caption));
+         
+         if (aitem->icon) {
+            const int w = al_get_bitmap_width(aitem->icon), h = al_get_bitmap_height(aitem->icon);
+            const int stride = w * 4;
+            int x, y, i;
+            GdkPixbuf *pixbuf;
+            uint8_t *data = al_malloc(stride * h);
+            
+            if (data) {
+               for (y = 0, i = 0; y < h; ++y) {
+                  for (x = 0; x < w; ++x, i += 4) {
+                     al_unmap_rgba(al_get_pixel(aitem->icon, x, y),
+                        &data[i],
+                        &data[i + 1],
+                        &data[i + 2],
+                        &data[i + 3]
+                     );
+                  }
+               }
+               
+               pixbuf = gdk_pixbuf_new_from_data (data, GDK_COLORSPACE_RGB, TRUE, 8,
+                  w, h, stride, destroy_pixbuf, NULL);
+               
+               aitem->extra2 = gtk_image_new_from_pixbuf(pixbuf);
+               
+               gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(gitem), aitem->extra2);
+               
+               /* Subtract the main reference. the image still holds a reference, so the
+                * pixbuf won't be destroyed until the image itself is. */
+               gdk_pixbuf_unref(pixbuf);
+            }
+         }
       }
       
       al_ustr_free(caption);

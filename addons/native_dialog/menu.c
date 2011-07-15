@@ -42,6 +42,22 @@ static ALLEGRO_MENU_ITEM *interpret_menu_id_param(ALLEGRO_MENU **menu, int *id);
 static ALLEGRO_MENU_INFO *parse_menu_info(ALLEGRO_MENU *parent, ALLEGRO_MENU_INFO *info);
 static bool set_menu_display_r(ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int index, void *extra);
 
+/* The menu item owns the icon bitmap. It is converted to a memory bitmap
+ * when set to make sure any system threads will be able to read the data. 
+ */
+static void set_item_icon(ALLEGRO_MENU_ITEM *item, ALLEGRO_BITMAP *icon)
+{
+   item->icon = icon;
+   
+   if (icon && al_get_bitmap_flags(item->icon) & ALLEGRO_VIDEO_BITMAP) {
+      int old_flags = al_get_new_bitmap_flags();
+      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+      item->icon = al_clone_bitmap(icon);
+      al_destroy_bitmap(icon);
+      al_set_new_bitmap_flags(old_flags);
+   }
+}
+      
 static ALLEGRO_MENU_ITEM *create_menu_item(char const *title, int id, int flags, ALLEGRO_MENU *popup)
 {
    ALLEGRO_MENU_ITEM *item = al_malloc(sizeof(*item));
@@ -165,7 +181,11 @@ static void destroy_menu_item(ALLEGRO_MENU_ITEM *item)
       item->popup->parent = NULL;
       item->popup->display = NULL;
       al_destroy_menu(item->popup);
-   }  
+   }
+   
+   if (item->icon) {
+      al_destroy_bitmap(item->icon);
+   }
 
    al_free(item);
 }
@@ -255,8 +275,13 @@ static ALLEGRO_MENU *clone_menu(ALLEGRO_MENU *menu, bool popup)
       
       for (i = 0; i < _al_vector_size(&menu->items); ++i) {
          const ALLEGRO_MENU_ITEM *item = *(ALLEGRO_MENU_ITEM **)_al_vector_ref(&menu->items, i);
+         ALLEGRO_BITMAP *icon = item->icon;
+         
+         if (icon)
+            icon = al_clone_bitmap(icon);
+         
          al_append_menu_item(clone, item->caption ? al_cstr(item->caption) : NULL,
-            item->id, item->flags, NULL, al_clone_menu(item->popup));
+            item->id, item->flags, icon, al_clone_menu(item->popup));
       }
    }
 
@@ -356,8 +381,6 @@ int al_insert_menu_item(ALLEGRO_MENU *parent, int pos, char const *title,
    MENU_ID *menu_id;
    size_t i;
 
-   (void) icon;
-
    ASSERT(parent);
 
    /* If not found, then treat as an append. */
@@ -374,6 +397,8 @@ int al_insert_menu_item(ALLEGRO_MENU *parent, int pos, char const *title,
    if (!item)
       return -1;
    item->parent = parent;
+   
+   set_item_icon(item, icon);
 
    i = (size_t) pos;
 
@@ -555,6 +580,38 @@ int al_toggle_menu_item_flags(ALLEGRO_MENU *menu, int pos, int flags)
    _al_update_menu_item_at(item, pos);
 
    return item->flags & flags;
+}
+
+/* Function: al_get_menu_item_icon
+ */
+ALLEGRO_BITMAP *al_get_menu_item_icon(ALLEGRO_MENU *menu, int pos)
+{
+   ALLEGRO_MENU_ITEM *item;
+
+   ASSERT(menu);
+
+   item = interpret_menu_id_param(&menu, &pos);
+   return item ? item->icon : NULL;
+}
+
+
+/* Function: al_set_menu_item_icon
+ */
+void al_set_menu_item_icon(ALLEGRO_MENU *menu, int pos, ALLEGRO_BITMAP *icon)
+{
+   ALLEGRO_MENU_ITEM *item;
+
+   ASSERT(menu);
+
+   item = interpret_menu_id_param(&menu, &pos);
+
+   if (item) {
+      if (item->icon)
+         al_destroy_bitmap(item->icon);
+      
+      set_item_icon(item, icon);
+      _al_update_menu_item_at(item, pos);
+   }
 }
 
 /* Function: al_destroy_menu

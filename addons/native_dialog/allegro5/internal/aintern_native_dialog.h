@@ -57,9 +57,11 @@ struct ALLEGRO_MENU_ITEM
    ALLEGRO_MENU *parent;
    ALLEGRO_MENU *popup;
    ALLEGRO_USTR *caption;
+   ALLEGRO_BITMAP *icon;
+   
    int id;
    int flags;
-   void *extra1;
+   void *extra1, *extra2;
 };
 
 struct ALLEGRO_MENU

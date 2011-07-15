@@ -466,6 +466,33 @@ Since: 5.1.0
 
 See also: [al_get_menu_item_flags], [al_set_menu_item_flags]
 
+### API: al_get_menu_item_icon
+
+Returns the icon associated with the menu. It is safe to draw to the returned
+bitmap, but you must call [al_set_menu_item_icon] in order for the changes to
+be applied.
+
+Returns `NULL` if the item was not found or if it has no icon.
+
+Since: 5.1.0
+
+See also: [al_set_menu_item_icon]
+
+### API: al_set_menu_item_icon
+
+Sets the icon for the specified menu item. The menu assumes ownership of the
+`ALLEGRO_BITMAP` and may invalidate the pointer, so you must clone it if you
+wish to continue using it.
+
+If a video bitmap is passed, it will automatically be converted to a memory
+bitmap, so it is preferrable to pass a memory bitmap.
+
+Note: Icons are only implemented under Linux.
+
+Since: 5.1.0
+
+See also: [al_get_menu_item_icon], [al_clone_bitmap]
+
 ### API: al_find_menu
 
 Searches in the `haystack` menu for any submenu with the given `id`. (Note
