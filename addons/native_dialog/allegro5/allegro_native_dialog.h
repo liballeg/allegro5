@@ -104,7 +104,7 @@ ALLEGRO_DIALOG_FUNC(void, al_disable_menu_event_source, (ALLEGRO_MENU *menu));
 /* displaying menus */
 ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_get_display_menu, (ALLEGRO_DISPLAY *display));
 ALLEGRO_DIALOG_FUNC(bool, al_set_display_menu, (ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu));
-ALLEGRO_DIALOG_FUNC(bool, al_popup_menu, (ALLEGRO_MENU *popup, ALLEGRO_DISPLAY *display, int x, int y, int flags));
+ALLEGRO_DIALOG_FUNC(bool, al_popup_menu, (ALLEGRO_MENU *popup, ALLEGRO_DISPLAY *display));
 ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_remove_display_menu, (ALLEGRO_DISPLAY *display));
 
 ALLEGRO_DIALOG_FUNC(uint32_t, al_get_allegro_native_dialog_version, (void));

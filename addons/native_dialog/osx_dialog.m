@@ -382,13 +382,9 @@ bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
    return false;
 }
 
-bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu,
-   int x, int y, int flags)
+bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 {
    (void) display;
    (void) menu;
-   (void) x;
-   (void) y;
-   (void) flags;
    return false;
 }

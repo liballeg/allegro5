@@ -556,12 +556,14 @@ See also: [al_create_menu], [al_remove_display_menu]
 
 ### API: al_popup_menu
 
-Displays a context menu on the given display at location (x,y). The menu
-must have been created with [al_create_popup_menu]. It generates events
-just like a regular display menu does. It is possible that the menu will
-be canceled without any selection being made.
+Displays a context menu next to the mouse cursor. The menu must have been
+created with [al_create_popup_menu]. It generates events just like a regular
+display menu does. It is possible that the menu will be canceled without any
+selection being made.
 
-The `flags` parameter is currently unused.
+The `display` parameter indicates which window the menu is associated with 
+(when you process the menu click event), but does not actually affect where
+the menu is located on the screen.
 
 Returns `true` if the context menu was displayed.
 

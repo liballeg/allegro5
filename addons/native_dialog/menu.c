@@ -716,22 +716,20 @@ bool al_set_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 
 /* Function: al_popup_menu
  */
-bool al_popup_menu(ALLEGRO_MENU *popup, ALLEGRO_DISPLAY *display, int x, int y,
-   int flags)
+bool al_popup_menu(ALLEGRO_MENU *popup, ALLEGRO_DISPLAY *display)
 {
    ASSERT(popup);
-   ASSERT(display);
-
-   (void) flags;
 
    if (!popup->is_popup_menu || popup->parent)
       return false;
 
+   if (!display)
+      display = al_get_current_display();
+
    /* Set the entire menu tree as owned by the display */
    _al_walk_over_menu(popup, set_menu_display_r, display);
 
-   /* note the first two arguments are swapped */
-   return _al_show_popup_menu(display, popup, x, y, flags);
+   return _al_show_popup_menu(display, popup);
 }
 
 /* Function: al_remove_display_menu

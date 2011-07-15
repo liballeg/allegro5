@@ -111,7 +111,6 @@ extern bool _al_update_menu_item_at(ALLEGRO_MENU_ITEM *item, int i);
 
 extern bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu);
 extern bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu);
-extern bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu,
-   int x, int y, int flags);
+extern bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu);
 
 #endif

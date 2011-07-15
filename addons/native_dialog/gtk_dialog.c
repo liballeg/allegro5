@@ -568,8 +568,6 @@ struct ARGS
    ALLEGRO_MENU *menu;
    ALLEGRO_MENU_ITEM *item;
    int i;
-   int x, y;
-   int flags;
 };
 
 static void build_menu(GtkWidget *gmenu, ALLEGRO_MENU *amenu);
@@ -989,8 +987,7 @@ static gboolean do_show_popup_menu(gpointer data)
    return FALSE;
 }
 
-bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu,
-   int x, int y, int flags)
+bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 {
    ARGS *args;
    
@@ -1002,9 +999,6 @@ bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu,
    
    args->display = display;
    args->menu = menu;
-   args->x = x;
-   args->y = y;
-   args->flags = flags;
    
    return wait_for_args(do_show_popup_menu, args);
 }

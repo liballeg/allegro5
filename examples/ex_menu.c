@@ -193,7 +193,7 @@ int main(void)
          /* Popup a context menu on a right click. */
          if (event.mouse.display == display && event.mouse.button == 2) {
             if (pmenu)
-               al_popup_menu(pmenu, display, event.mouse.x, event.mouse.y + menu_height, 0);
+               al_popup_menu(pmenu, display);
          }
       }
       else if (event.type == ALLEGRO_EVENT_KEY_CHAR) {

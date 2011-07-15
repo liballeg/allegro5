@@ -23,17 +23,6 @@
 
 ALLEGRO_DEBUG_CHANNEL("win_dialog")
 
-/* It looks like Windows only shows popups if triggered from
-   the main thread. To get around that, the WM_SHOW_POPUP
-   message is posted along with the POPUP_INFO when the user
-   opens a popup window. */
-typedef struct POPUP_INFO POPUP_INFO;
-struct POPUP_INFO
-{
-   ALLEGRO_MENU *menu;
-   int x, y;
-   int flags;   
-};
 #define WM_SHOW_POPUP (WM_APP + 42)
 
 /* Non-zero if text log window class was registered. */
@@ -635,12 +624,12 @@ static bool menu_callback(ALLEGRO_DISPLAY *display, UINT msg, WPARAM wParam, LPA
       }
    }
    else if (msg == WM_SHOW_POPUP) {
-      POPUP_INFO *info = (POPUP_INFO *) lParam;
+      ALLEGRO_MENU *menu = (ALLEGRO_MENU *) lParam;
       HWND hwnd = al_get_win_window_handle(display);
-      
+      POINT pos;
+      GetCursorPos(&pos);      
       SetForegroundWindow(hwnd);
-      TrackPopupMenuEx((HMENU) info->menu->extra1, TPM_LEFTALIGN | TPM_TOPALIGN | TPM_RIGHTBUTTON, info->x, info->y, hwnd, NULL);
-      al_free(info);
+      TrackPopupMenuEx((HMENU) menu->extra1, TPM_LEFTALIGN | TPM_TOPALIGN | TPM_RIGHTBUTTON, pos.x, pos.y, hwnd, NULL);
 
       return true;
    }
@@ -747,29 +736,21 @@ bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 
    SetMenu(hwnd, NULL);
    al_remove_win_window_callback(display, menu_callback);
+
+   (void) menu;
    
    return true;
 }
 
-bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu, 
-   int x, int y, int flags)
+bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 {
-   /* (See earlier comment regarding Windows & popups) */
-   POPUP_INFO *info = al_malloc(sizeof(*info));
-   if (!info)
+   /* The popup request must come from the main thread. */
+
+   if (!display)
       return false;
 
-   al_get_window_position(display, &info->x, &info->y);
-
-   /* XXX: maybe automatically add the height of the display menu (if present) */
-
-   info->flags = flags;
-   info->x += x;
-   info->y += y;
-   info->menu = menu;
-
    al_add_win_window_callback(display, menu_callback);
-   PostMessage(al_get_win_window_handle(display), WM_SHOW_POPUP, 0, (LPARAM) info);
+   PostMessage(al_get_win_window_handle(display), WM_SHOW_POPUP, 0, (LPARAM) menu);
 
    return true;
 }
