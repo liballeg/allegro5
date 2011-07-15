@@ -337,19 +337,19 @@ ALLEGRO_MENU *al_build_menu(ALLEGRO_MENU_INFO *info)
 /* Function: al_append_menu_item
  */
 int al_append_menu_item(ALLEGRO_MENU *parent, char const *title, int id,
-   int flags, ALLEGRO_BITMAP *icon, ALLEGRO_MENU *popup)
+   int flags, ALLEGRO_BITMAP *icon, ALLEGRO_MENU *submenu)
 {
    ASSERT(parent);
 
    /* Same thing as inserting a menu item at position == -SIZE */
    return al_insert_menu_item(parent, 0 - (int) _al_vector_size(&parent->items),
-      title, id, flags, icon, popup);
+      title, id, flags, icon, submenu);
 }
 
 /* Function: al_insert_menu_item
  */
 int al_insert_menu_item(ALLEGRO_MENU *parent, int pos, char const *title,
-   int id, int flags, ALLEGRO_BITMAP *icon, ALLEGRO_MENU *popup)
+   int id, int flags, ALLEGRO_BITMAP *icon, ALLEGRO_MENU *submenu)
 {
    ALLEGRO_MENU_ITEM *item;
    ALLEGRO_MENU_ITEM **slot;
@@ -367,10 +367,10 @@ int al_insert_menu_item(ALLEGRO_MENU *parent, int pos, char const *title,
    /* At this point pos == the _index_ of where to insert */
 
    /* The sub-menu must not already be in use. */
-   if (popup && (popup->display || popup->parent || popup->is_popup_menu))
+   if (submenu && (submenu->display || submenu->parent || submenu->is_popup_menu))
       return -1;
 
-   item = create_menu_item(title, id, flags, popup);
+   item = create_menu_item(title, id, flags, submenu);
    if (!item)
       return -1;
    item->parent = parent;
@@ -393,11 +393,11 @@ int al_insert_menu_item(ALLEGRO_MENU *parent, int pos, char const *title,
    }
    *slot = item;
 
-   if (popup) {
-      popup->parent = item;
+   if (submenu) {
+      submenu->parent = item;
 
       if (parent->display)
-         _al_walk_over_menu(popup, set_menu_display_r, parent->display);
+         _al_walk_over_menu(submenu, set_menu_display_r, parent->display);
    }
 
    _al_insert_menu_item_at(item, (int) i);
