@@ -191,7 +191,7 @@ void _al_use_shader_cg(ALLEGRO_SHADER *shader, bool use)
          _al_set_shader_matrix_cg_name(
 	    shader,
 	    cg_shader->name_projview,
-	    (float *)display->t.m
+	    (float *)t.m
 	 );
       }
       if (shader->platform & ALLEGRO_SHADER_GLSL) {

@@ -13,8 +13,7 @@ struct ALLEGRO_SHADER_CG_S
    CGparameter name_pos;
    CGparameter name_col;
    CGparameter name_tex;
-   CGparameter name_proj;
-   CGparameter name_view;
+   CGparameter name_projview;
 #ifdef ALLEGRO_WINDOWS
    LPDIRECT3DVERTEXDECLARATION9 vertex_decl;
 #endif
