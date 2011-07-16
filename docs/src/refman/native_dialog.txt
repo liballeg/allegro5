@@ -487,8 +487,6 @@ wish to continue using it.
 If a video bitmap is passed, it will automatically be converted to a memory
 bitmap, so it is preferrable to pass a memory bitmap.
 
-Note: Icons are only implemented under Linux.
-
 Since: 5.1.0
 
 See also: [al_get_menu_item_icon], [al_clone_bitmap]

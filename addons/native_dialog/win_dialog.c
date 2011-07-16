@@ -645,7 +645,7 @@ static void init_menu_info(MENUITEMINFO *info, ALLEGRO_MENU_ITEM *menu)
    memset(info, 0, sizeof(*info));
 
    info->cbSize = sizeof(*info);   
-   info->fMask = MIIM_FTYPE | MIIM_STATE | MIIM_ID | MIIM_SUBMENU | MIIM_STRING;
+   info->fMask = MIIM_FTYPE | MIIM_STATE | MIIM_ID | MIIM_SUBMENU | MIIM_STRING | MIIM_CHECKMARKS;
    info->wID = menu->id;
 
    if (!menu->caption) {
@@ -663,6 +663,37 @@ static void init_menu_info(MENUITEMINFO *info, ALLEGRO_MENU_ITEM *menu)
 
    if (menu->flags & ALLEGRO_MENU_ITEM_DISABLED) {
       info->fState |= MFS_DISABLED;
+   }
+
+   if (menu->icon) {
+      /* convert ALLEGRO_BITMAP to HBITMAP (could be moved into a public function) */
+      const int h = al_get_bitmap_height(menu->icon), w = al_get_bitmap_width(menu->icon);
+      HDC hdc;
+      HBITMAP hbmp;
+      BITMAPINFO bi;
+      uint8_t *data = NULL;
+      ALLEGRO_LOCKED_REGION *lock;
+
+      ZeroMemory(&bi, sizeof(BITMAPINFO));
+      bi.bmiHeader.biSize = sizeof(BITMAPINFO);
+      bi.bmiHeader.biWidth = w;
+      bi.bmiHeader.biHeight = -h;
+      bi.bmiHeader.biPlanes = 1;
+      bi.bmiHeader.biBitCount = 32;
+      bi.bmiHeader.biCompression = BI_RGB;
+
+      hdc = GetDC(menu->parent->display ? al_get_win_window_handle(menu->parent->display) : NULL);
+      
+      hbmp = CreateDIBSection(hdc, (BITMAPINFO *)&bi, DIB_RGB_COLORS, (void **)&data, NULL, 0);
+
+      lock = al_lock_bitmap(menu->icon, ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_READONLY);
+      memcpy(data, lock->data, w * h * 4);
+      al_unlock_bitmap(menu->icon);
+      
+      info->hbmpUnchecked = hbmp;
+      menu->extra2 = hbmp;
+
+      ReleaseDC(menu->parent->display ? al_get_win_window_handle(menu->parent->display) : NULL, hdc);
    }
 
    if (menu->popup) {
