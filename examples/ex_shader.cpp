@@ -187,19 +187,24 @@ int main(int argc, char **argv)
    bmp = al_load_bitmap("data/mysha.pcx");
 
    shader = al_create_shader(PLATFORM);
+   if (!shader) {
+      fprintf(stderr, "Could not create shader\n");
+      return 1;
+   }
 
-   al_attach_shader_source(
-      shader,
-      ALLEGRO_VERTEX_SHADER,
-      vsource_name
-   );
-   al_attach_shader_source(
-      shader,
-      ALLEGRO_PIXEL_SHADER,
-      psource_name 
-   );
+   if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER, vsource_name)) {
+      fprintf(stderr, "%s\n", al_get_shader_log(shader));
+      return 1;
+   }
+   if (!al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER, psource_name)) {
+      fprintf(stderr, "%s\n", al_get_shader_log(shader));
+      return 1;
+   }
 
-   al_link_shader(shader);
+   if (!al_link_shader(shader)) {
+      fprintf(stderr, "%s\n", al_get_shader_log(shader));
+      return 1;
+   }
 
 #if defined GLSL
    al_set_opengl_program_object(display, al_get_opengl_program_object(shader));
