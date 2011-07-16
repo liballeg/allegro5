@@ -33,7 +33,7 @@ static ALLEGRO_KEYBOARD_STATE the_state;
 static int modifiers = 0;
 
 /* lookup table for converting virtualkey VK_* codes into Allegro ALLEGRO_KEY_* codes */
-/* For handling of extended keys, extkey_to_keycode() takes priority over this.
+/* For handling of extended keys, extkey_to_keycode() takes priority over this. */
 /* Last unknown key sequence: 39*/
 static const unsigned char hw_to_mycode[256] =
 {
@@ -270,7 +270,7 @@ static void update_modifiers(int code, bool pressed)
 /* update_toggle_modifiers:
  *  Update the state of Num Lock, Caps Lock, and Scroll Lock.
  */
-static void update_toggle_modifiers()
+static void update_toggle_modifiers(void)
 {
 #define ON_OFF(code, on)      \
 {                             \
