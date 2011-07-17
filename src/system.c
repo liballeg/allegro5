@@ -27,6 +27,7 @@
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/internal/aintern_pixels.h"
 #include "allegro5/internal/aintern_thread.h"
+#include "allegro5/internal/aintern_timer.h"
 #include "allegro5/internal/aintern_tls.h"
 
 ALLEGRO_DEBUG_CHANNEL("system")
@@ -224,7 +225,8 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
     * TODO: Maybe we want to do the check after the "bootstrap" system
     * is available at least?
     */
-   if (!compatible_versions(version, library_version)) return false;
+   if (!compatible_versions(version, library_version))
+      return false;
 
 #ifdef ALLEGRO_CFG_PTHREADS_TLS
    _al_pthreads_tls_init();
@@ -282,6 +284,8 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
    _al_init_iio_table();
    
    _al_init_to_be_converted_bitmaps();
+
+   _al_init_timers();
 
    if (atexit_ptr && atexit_virgin) {
       atexit_ptr(al_uninstall_system);

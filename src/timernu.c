@@ -23,6 +23,7 @@
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_system.h"
+#include "allegro5/internal/aintern_timer.h"
 
 #ifndef ALLEGRO_MSVC
 #ifndef ALLEGRO_BCC32
@@ -51,9 +52,10 @@ struct ALLEGRO_TIMER
  * The timer thread that runs in the background to drive the timers.
  */
 
-static _AL_THREAD timer_thread;
-static _AL_MUTEX timer_thread_mutex = _AL_MUTEX_UNINITED;
+static _AL_MUTEX timers_mutex = _AL_MUTEX_UNINITED;
 static _AL_VECTOR active_timers = _AL_VECTOR_INITIALIZER(ALLEGRO_TIMER *);
+static _AL_THREAD * volatile timer_thread = NULL;
+
 
 
 /* timer_thread_proc: [timer thread]
@@ -98,7 +100,7 @@ static void timer_thread_proc(_AL_THREAD *self, void *unused)
    while (!_al_get_thread_should_stop(self)) {
       al_rest(interval);
 
-      _al_mutex_lock(&timer_thread_mutex);
+      _al_mutex_lock(&timers_mutex);
       {
          /* Calculate actual time elapsed.  */
          new_time = al_get_time();
@@ -108,7 +110,7 @@ static void timer_thread_proc(_AL_THREAD *self, void *unused)
          /* Handle a tick.  */
          interval = timer_thread_handle_tick(interval);
       }
-      _al_mutex_unlock(&timer_thread_mutex);
+      _al_mutex_unlock(&timers_mutex);
    }
 
    (void)unused;
@@ -146,6 +148,24 @@ static double timer_thread_handle_tick(double interval)
 
 
 
+static void shutdown_timers(void)
+{
+   ASSERT(_al_vector_size(&active_timers) == 0);
+   ASSERT(timer_thread == NULL);
+
+   _al_mutex_destroy(&timers_mutex);
+}
+
+
+
+void _al_init_timers(void)
+{
+   _al_mutex_init(&timers_mutex);
+   _al_add_exit_func(shutdown_timers, "shutdown_timers");
+}
+
+
+
 /*
  * Timer objects
  */
@@ -153,7 +173,7 @@ static double timer_thread_handle_tick(double interval)
 
 /* Function: al_create_timer
  */
-ALLEGRO_TIMER* al_create_timer(double speed_secs)
+ALLEGRO_TIMER *al_create_timer(double speed_secs)
 {
    ASSERT(speed_secs > 0);
    {
@@ -205,7 +225,7 @@ void al_start_timer(ALLEGRO_TIMER *timer)
       if (timer->started)
          return;
 
-      _al_mutex_lock(&timer_thread_mutex);
+      _al_mutex_lock(&timers_mutex);
       {
          ALLEGRO_TIMER **slot;
 
@@ -217,11 +237,11 @@ void al_start_timer(ALLEGRO_TIMER *timer)
 
          new_size = _al_vector_size(&active_timers);
       }
-      _al_mutex_unlock(&timer_thread_mutex);
+      _al_mutex_unlock(&timers_mutex);
 
       if (new_size == 1) {
-         _al_mutex_init(&timer_thread_mutex);
-         _al_thread_create(&timer_thread, timer_thread_proc, NULL);
+         timer_thread = al_malloc(sizeof(_AL_THREAD));
+         _al_thread_create(timer_thread, timer_thread_proc, NULL);
       }
    }
 }
@@ -234,24 +254,27 @@ void al_stop_timer(ALLEGRO_TIMER *timer)
 {
    ASSERT(timer);
    {
-      size_t new_size;
+      _AL_THREAD *thread_to_join = NULL;
 
       if (!timer->started)
          return;
 
-      _al_mutex_lock(&timer_thread_mutex);
+      _al_mutex_lock(&timers_mutex);
       {
          _al_vector_find_and_delete(&active_timers, &timer);
          timer->started = false;
 
-         new_size = _al_vector_size(&active_timers);
+         if (_al_vector_size(&active_timers) == 0) {
+            _al_vector_free(&active_timers);
+            thread_to_join = timer_thread;
+            timer_thread = NULL;
+         }
       }
-      _al_mutex_unlock(&timer_thread_mutex);
+      _al_mutex_unlock(&timers_mutex);
 
-      if (new_size == 0) {
-         _al_thread_join(&timer_thread);
-         _al_mutex_destroy(&timer_thread_mutex);
-         _al_vector_free(&active_timers);
+      if (thread_to_join) {
+         _al_thread_join(thread_to_join);
+         al_free(thread_to_join);
       }
    }
 }
@@ -287,7 +310,7 @@ void al_set_timer_speed(ALLEGRO_TIMER *timer, double new_speed_secs)
    ASSERT(timer);
    ASSERT(new_speed_secs > 0);
 
-   _al_mutex_lock(&timer_thread_mutex);
+   _al_mutex_lock(&timers_mutex);
    {
       if (timer->started) {
          timer->counter -= timer->speed_secs;
@@ -296,7 +319,7 @@ void al_set_timer_speed(ALLEGRO_TIMER *timer, double new_speed_secs)
 
       timer->speed_secs = new_speed_secs;
    }
-   _al_mutex_unlock(&timer_thread_mutex);
+   _al_mutex_unlock(&timers_mutex);
 }
 
 
@@ -318,11 +341,11 @@ void al_set_timer_count(ALLEGRO_TIMER *timer, int64_t new_count)
 {
    ASSERT(timer);
 
-   _al_mutex_lock(&timer_thread_mutex);
+   _al_mutex_lock(&timers_mutex);
    {
       timer->count = new_count;
    }
-   _al_mutex_unlock(&timer_thread_mutex);
+   _al_mutex_unlock(&timers_mutex);
 }
 
 
@@ -333,11 +356,11 @@ void al_add_timer_count(ALLEGRO_TIMER *timer, int64_t diff)
 {
    ASSERT(timer);
 
-   _al_mutex_lock(&timer_thread_mutex);
+   _al_mutex_lock(&timers_mutex);
    {
       timer->count += diff;
    }
-   _al_mutex_unlock(&timer_thread_mutex);
+   _al_mutex_unlock(&timers_mutex);
 }
 
 
