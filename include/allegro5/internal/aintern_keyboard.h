@@ -21,9 +21,9 @@ typedef struct ALLEGRO_KEYBOARD_DRIVER
 } ALLEGRO_KEYBOARD_DRIVER;
 
 
-AL_ARRAY(_AL_DRIVER_INFO, _al_keyboard_driver_list);
+extern _AL_DRIVER_INFO _al_keyboard_driver_list[];
 
-AL_ARRAY(const char *, _al_keyboard_common_names);
+extern const char *_al_keyboard_common_names[];
 
 int _al_parse_key_binding(const char *s, unsigned int *modifiers);
 

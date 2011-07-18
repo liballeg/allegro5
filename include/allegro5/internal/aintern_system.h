@@ -53,8 +53,8 @@ struct ALLEGRO_SYSTEM
 };
 
 
-AL_FUNC(void, _al_register_system_interfaces, (void));
-AL_VAR(_AL_VECTOR, _al_system_interfaces);
+void _al_register_system_interfaces(void);
+extern _AL_VECTOR _al_system_interfaces;
 AL_VAR(_AL_DTOR_LIST *, _al_dtor_list);
 
 AL_FUNC(void *, _al_open_library, (const char *filename));

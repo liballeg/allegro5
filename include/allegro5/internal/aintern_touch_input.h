@@ -27,7 +27,7 @@ struct ALLEGRO_TOUCH_INPUT
    int mouse_emulation_mode;
 };
 
-AL_ARRAY(_AL_DRIVER_INFO, _al_touch_input_driver_list);
+extern _AL_DRIVER_INFO _al_touch_input_driver_list[];
 
 #ifdef __cplusplus
    }

@@ -13,18 +13,16 @@ typedef struct _AL_MUTEX _AL_MUTEX;
 typedef struct _AL_COND _AL_COND;
 
 
-AL_FUNC(void, _al_thread_create, (_AL_THREAD*,
-				  void (*proc)(_AL_THREAD*, void*),
-				  void *arg));
-AL_FUNC(void, _al_thread_set_should_stop, (_AL_THREAD *));
+void _al_thread_create(_AL_THREAD*, void (*proc)(_AL_THREAD*, void*), void *arg);
+void _al_thread_set_should_stop(_AL_THREAD *);
 /* static inline bool _al_get_thread_should_stop(_AL_THREAD *); */
-AL_FUNC(void, _al_thread_join, (_AL_THREAD*));
-AL_FUNC(void, _al_thread_detach, (_AL_THREAD*));
+void _al_thread_join(_AL_THREAD*);
+void _al_thread_detach(_AL_THREAD*);
 
 
-AL_FUNC(void, _al_mutex_init, (_AL_MUTEX*));
-AL_FUNC(void, _al_mutex_init_recursive, (_AL_MUTEX*));
-AL_FUNC(void, _al_mutex_destroy, (_AL_MUTEX*));
+void _al_mutex_init(_AL_MUTEX*);
+void _al_mutex_init_recursive(_AL_MUTEX*);
+void _al_mutex_destroy(_AL_MUTEX*);
 /* static inline void _al_mutex_lock(_AL_MUTEX*); */
 /* static inline void _al_mutex_unlock(_AL_MUTEX*); */
 
@@ -33,14 +31,14 @@ AL_FUNC(void, _al_mutex_destroy, (_AL_MUTEX*));
  * the same as the two functions above?
  */
 #ifdef ALLEGRO_WINDOWS
-AL_FUNC(void, _al_cond_init, (_AL_COND*));
-AL_FUNC(void, _al_cond_destroy, (_AL_COND*));
-AL_FUNC(void, _al_cond_wait, (_AL_COND*, _AL_MUTEX*));
-AL_FUNC(void, _al_cond_broadcast, (_AL_COND*));
-AL_FUNC(void, _al_cond_signal, (_AL_COND*));
+void _al_cond_init(_AL_COND*);
+void _al_cond_destroy(_AL_COND*);
+void _al_cond_wait(_AL_COND*, _AL_MUTEX*);
+void _al_cond_broadcast(_AL_COND*);
+void _al_cond_signal(_AL_COND*);
 #endif
 
-AL_FUNC(int, _al_cond_timedwait, (_AL_COND*, _AL_MUTEX*, const ALLEGRO_TIMEOUT *timeout));
+int _al_cond_timedwait(_AL_COND*, _AL_MUTEX*, const ALLEGRO_TIMEOUT *timeout);
 
 
 #ifdef __cplusplus

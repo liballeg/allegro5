@@ -26,7 +26,7 @@ typedef struct ALLEGRO_JOYSTICK_DRIVER
 } ALLEGRO_JOYSTICK_DRIVER;
 
 
-AL_ARRAY(_AL_DRIVER_INFO, _al_joystick_driver_list);
+extern _AL_DRIVER_INFO _al_joystick_driver_list[];
 
 
 /* macros for constructing the driver list */
