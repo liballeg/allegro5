@@ -5,7 +5,7 @@
    extern "C" {
 #endif
 
-AL_FUNC(void, _al_init_timers, (void));
+void _al_init_timers(void);
 
 #ifdef __cplusplus
    }
