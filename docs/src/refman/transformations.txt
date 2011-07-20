@@ -125,12 +125,24 @@ See also: [al_check_inverse]
 ## API: al_check_inverse
 
 Checks if the transformation has an inverse using the supplied tolerance. 
-Tolerance should be a small value between 0 and 1, with 0.001 being sufficient 
-for most applications. Note that this check is superfluous most of the time if 
-you never touched the transformation matrix values yourself. The only thing that
-would cause the transformation to not have an inverse is if you applied a 0 (or
-very small) scale to the transformation. As long as the scale is comfortably
-above 0, the transformation will be invertible.
+Tolerance should be a small value between 0 and 1, with 1e-7 being sufficient 
+for most applications.
+
+In this function tolerance specifies how close the determinant can be to
+0 (if the determinant is 0, the transformation has no inverse). Thus
+the smaller the tolerance you specify, the "worse" transformations will
+pass this test. Using a tolerance of 1e-7 will catch errors greater
+than 1/1000's of a pixel, but let smaller errors pass. That means that
+if you transformed a point by a transformation and then transformed it
+again by the inverse transformation that passed this check, the resultant
+point should less than 1/1000's of a pixel away from the original point.
+
+Note that this check is superfluous most of the time if 
+you never touched the transformation matrix values yourself. The only 
+thing that would cause the transformation to not have an inverse is if 
+you applied a 0 (or very small) scale to the transformation or you have 
+a really large translation. As long as the scale is comfortably above 0,
+the transformation will be invertible.
 
 *Parameters:*
 
