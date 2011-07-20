@@ -320,9 +320,26 @@ Draws an arc.
 * start_theta - The initial angle from which the arc is calculated
 * delta_theta - Angular span of the arc (pass a negative number to switch
     direction)
-* thickness - Thickness of the circle, pass `<= 0` to draw hairline circle
+* thickness - Thickness of the arc, pass `<= 0` to draw hairline arc
 
-See also: [al_calculate_arc]
+See also: [al_calculate_arc], [al_draw_elliptical_arc]
+
+### API: al_draw_elliptical_arc
+
+Draws an elliptical arc.
+
+*Parameters:*
+
+* cx, cy - Center of the arc
+* rx, ry - Radii of the arc
+* color - Color of the arc
+* start_theta - The initial angle from which the arc is calculated
+* delta_theta - Angular span of the arc (pass a negative number to switch
+    direction)
+* thickness - Thickness of the arc, pass `<= 0` to draw hairline arc
+
+See also: [al_calculate_arc], [al_draw_arc]
+
 
 ### API: al_calculate_spline
 
