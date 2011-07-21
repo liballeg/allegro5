@@ -439,35 +439,6 @@ void _al_d3d_get_current_ortho_projection_parameters(float *w, float *h)
    *h = d3d_ortho_h;
 }
 
-static void d3d_get_ortho_matrix(float w, float h, D3DMATRIX *matrix)
-{
-   float left = 0.0f;
-   float right = w;
-   float top = 0.0f;
-   float bottom = h;
-   float neer = -1.0f;
-   float farr = 1.0f;
-
-   matrix->m[1][0] = 0.0f;
-   matrix->m[2][0] = 0.0f;
-   matrix->m[0][1] = 0.0f;
-   matrix->m[2][1] = 0.0f;
-   matrix->m[0][2] = 0.0f;
-   matrix->m[1][2] = 0.0f;
-   matrix->m[0][3] = 0.0f;
-   matrix->m[1][3] = 0.0f;
-   matrix->m[2][3] = 0.0f;
-
-   matrix->m[0][0] = 2.0f / (right - left);
-   matrix->m[1][1] = 2.0f / (top - bottom);
-   matrix->m[2][2] = 2.0f / (farr - neer);
-
-   matrix->m[3][0] = -((right+left)/(right-left));
-   matrix->m[3][1] = -((top+bottom)/(top-bottom));
-   matrix->m[3][2] = -((farr+neer)/(farr-neer));
-   matrix->m[3][3] = 1.0f;
-}
-
 static void d3d_get_identity_matrix(D3DMATRIX *matrix)
 {
    int i, j;
@@ -500,7 +471,6 @@ static void _al_d3d_set_ortho_projection(ALLEGRO_DISPLAY_D3D *disp, float w, flo
 #ifdef ALLEGRO_CFG_HLSL_SHADERS
       LPD3DXEFFECT effect = disp->effect;
       if (effect) {
-         // HERE
 	 ALLEGRO_TRANSFORM t;
 	 al_copy_transform(&t, &display->view_transform);
 	 al_compose_transform(&t, &display->proj_transform);
@@ -509,11 +479,11 @@ static void _al_d3d_set_ortho_projection(ALLEGRO_DISPLAY_D3D *disp, float w, flo
 #endif
    }
    else {
-      D3DMATRIX matOrtho;
       D3DMATRIX matIdentity;
+      al_identity_transform(&display->proj_transform);
+      al_ortho_transform(&display->proj_transform, 0, w, h, 0, -1, 1);
       d3d_get_identity_matrix(&matIdentity);
-      d3d_get_ortho_matrix(w, h, &matOrtho);
-      disp->device->SetTransform(D3DTS_PROJECTION, &matOrtho);
+      disp->device->SetTransform(D3DTS_PROJECTION, (D3DXMATRIX *)&display->proj_transform.m);
       disp->device->SetTransform(D3DTS_WORLD, &matIdentity);
    }
 }
