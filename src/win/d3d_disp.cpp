@@ -483,7 +483,7 @@ static void _al_d3d_set_ortho_projection(ALLEGRO_DISPLAY_D3D *disp, float w, flo
       al_identity_transform(&display->proj_transform);
       al_ortho_transform(&display->proj_transform, 0, w, h, 0, -1, 1);
       d3d_get_identity_matrix(&matIdentity);
-      disp->device->SetTransform(D3DTS_PROJECTION, (D3DXMATRIX *)&display->proj_transform.m);
+      disp->device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&display->proj_transform.m);
       disp->device->SetTransform(D3DTS_WORLD, &matIdentity);
    }
 }
