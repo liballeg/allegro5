@@ -282,7 +282,7 @@ void _al_d3d_release_default_pool_textures(ALLEGRO_DISPLAY *disp)
    	ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&disp->bitmaps, i);
 	ALLEGRO_BITMAP *albmp = *bptr;
 	ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp;
-	if (albmp->flags & ALLEGRO_MEMORY_BITMAP)
+	if ((albmp->flags & ALLEGRO_MEMORY_BITMAP) || (albmp->parent))
 	   continue;
 	d3d_bmp = get_extra(albmp);
 	if (!d3d_bmp->is_backbuffer && d3d_bmp->render_target) {
@@ -557,6 +557,10 @@ void _al_d3d_refresh_texture_memory(ALLEGRO_DISPLAY *display)
       ALLEGRO_BITMAP *bmp = *bptr;
       ALLEGRO_BITMAP_EXTRA_D3D *extra = get_extra(bmp);
       ALLEGRO_DISPLAY_D3D *bmps_display = (ALLEGRO_DISPLAY_D3D *)bmp->display;
+
+      if ((bmp->flags & ALLEGRO_MEMORY_BITMAP) || (bmp->parent)) {
+         continue;
+      }
 
       d3d_create_textures(bmps_display, extra->texture_w,
          extra->texture_h, bmp->flags,
