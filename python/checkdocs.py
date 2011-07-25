@@ -111,6 +111,7 @@ def parse_header(lines, filename):
                 cline += subline
 
     for line in lines2:
+        line = line.replace("__attribute__((__stdcall__))", "")
         if line.startswith("enum"):
             add_struct(line)
         elif line.startswith("typedef"):
@@ -127,7 +128,7 @@ def parse_header(lines, filename):
                 symbols[name] = "typedef"
                 n += 1
             else:
-                print(line)
+                print("? " + line)
 
             add_struct(line)
 
@@ -169,6 +170,8 @@ def parse_all_headers():
     headers = [p + "/include/allegro5/allegro.h",
         p + "/addons/acodec/allegro5/allegro_acodec.h",
         p + "/include/allegro5/allegro_opengl.h"]
+    if options.windows:
+        headers += [p + "/include/allegro5/allegro_windows.h"]
 
     for addon in glob.glob(p + "/addons/*"):
         name = addon[len(p + "/addons/"):]
@@ -179,7 +182,7 @@ def parse_all_headers():
             includes += " -I " + os.path.join(p, "addons", name)
 
     for header in headers:
-        p = subprocess.Popen("gcc -E -dD - " + includes,
+        p = subprocess.Popen(options.compiler + " -E -dD - " + includes,
             stdout = subprocess.PIPE, stdin = subprocess.PIPE, shell = True)
         p.stdin.write("#include <allegro5/allegro.h>\n" + open(header).read())
         p.stdin.close()
@@ -233,13 +236,16 @@ addons and cmake build directory for global definitions and check against all
 references in the documentation - then report symbols which are not documented.
 """;
     p.add_option("-b", "--build", help = "Path to the build directory.")
+    p.add_option("-c", "--compiler", help = "Path to gcc.")
     p.add_option("-s", "--source", help = "Path to the source directory.")
     p.add_option("-l", "--list", action = "store_true", help = "List all symbols.")
     p.add_option("-p", "--protos",  help = "Write all public " +
         "prototypes to the given file.")
+    p.add_option("-w", "--windows", action = "store_true", help = "Include windows specific symbols.")
     options, args = p.parse_args()
     
     if not options.source: options.source = "."
+    if not options.compiler: options.compiler = "gcc"
 
     if not options.build:
         sys.stderr.write("Build path required (-p).\n")

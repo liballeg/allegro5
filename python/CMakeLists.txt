@@ -1,13 +1,26 @@
 include(FindPythonInterp)
 
-add_custom_command(
-    OUTPUT python_protos
-    DEPENDS ${ALL_SRC}
-    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/python/checkdocs.py
-        -p python_protos
-        -b ${CMAKE_BINARY_DIR}
-        -s ${CMAKE_SOURCE_DIR}
-    )
+if(WIN32)
+    add_custom_command(
+        OUTPUT python_protos
+        DEPENDS ${ALL_SRC}
+        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/python/checkdocs.py
+            -c ${CMAKE_C_COMPILER}
+            -p python_protos
+            -b ${CMAKE_BINARY_DIR}
+            -s ${CMAKE_SOURCE_DIR}
+            -w
+        )
+else(WIN32)
+    add_custom_command(
+        OUTPUT python_protos
+        DEPENDS ${ALL_SRC}
+        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/python/checkdocs.py
+            -p python_protos
+            -b ${CMAKE_BINARY_DIR}
+            -s ${CMAKE_SOURCE_DIR}
+        )
+endif(WIN32)
 
 SET(release "")
 append_lib_type_suffix(release)
