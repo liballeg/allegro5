@@ -632,7 +632,7 @@ HMODULE _al_win_safe_load_library(const char *filename)
    char buf[MAX_PATH];
    HMODULE lib;
    bool msvc_only = false;
-
+   
    /* MSVC only: if the executable is in the build configuration directory,
     * which is also just under the current directory, then also try to load the
     * library from the current directory.  This leads to less surprises when
@@ -645,15 +645,26 @@ HMODULE _al_win_safe_load_library(const char *filename)
    /* Try to load the library from the directory containing the running
     * executable.
     */
-   if (GetModuleFileName(NULL, buf, sizeof(buf)) < sizeof(buf)) {
-      ALLEGRO_PATH *path = al_create_path(buf);
-      lib = load_library_at_path(path, filename);
-      if (!lib && msvc_only) {
-         lib = maybe_load_library_at_cwd(path);
+   {
+      ALLEGRO_PATH *path = NULL;
+
+      if (al_is_system_installed()) {
+         path = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
       }
-      al_destroy_path(path);
-      if (lib)
-         return lib;
+      else {
+         if (GetModuleFileName(NULL, buf, sizeof(buf)) < sizeof(buf)) {
+            path = al_create_path(buf);
+         }
+      }
+      if (path) {
+         lib = load_library_at_path(path, filename);
+         if (!lib && msvc_only) {
+            lib = maybe_load_library_at_cwd(path);
+         }
+         al_destroy_path(path);
+         if (lib)
+            return lib;
+      }
    }
 
    /* Try to load the library from the Windows system directory. */

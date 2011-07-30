@@ -119,7 +119,19 @@ ALLEGRO_EXENAME_PATH
 Returns NULL on failure.  The returned path should be freed with
 [al_destroy_path].
 
-See also: [al_set_app_name], [al_set_org_name], [al_destroy_path]
+See also: [al_set_app_name], [al_set_org_name], [al_destroy_path], [al_set_exe_name]
+
+## API: al_set_exe_name
+
+This override the executable name used by [al_get_standard_path] for
+ALLEGRO_EXENAME_PATH and ALLEGRO_RESOURCES_PATH.
+
+One possibility where changing this can be useful is if you use the
+Python wrapper. Allegro would then by default think that the system's
+Python executable is the current executable - but you can set it to
+the .py file being executed instead.
+
+See also: [al_get_standard_path]
 
 ## API: al_set_app_name
 

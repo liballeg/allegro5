@@ -358,7 +358,7 @@ def _add_dll(name):
         # No need to fail here, might just be one of the addons.
         pass
       
-   # os.chdir("..")
+    # os.chdir("..")
 
 _add_dll("allegro")
 _add_dll("allegro_acodec")
