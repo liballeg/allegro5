@@ -11,6 +11,7 @@ set(ALLEGRO_SRC_FILES
     src/events.c
     src/evtsrc.c
     src/file.c
+    src/file_slice.c
     src/file_stdio.c
     src/fshook.c
     src/fshook_stdio.c
