@@ -785,7 +785,10 @@ static void transfer_bitmap_data(ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst)
  */
 ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP *clone = al_create_bitmap(bitmap->w, bitmap->h);
+   ALLEGRO_BITMAP *clone;
+   ASSERT(bitmap);
+
+   clone = al_create_bitmap(bitmap->w, bitmap->h);
    if (!clone)
       return NULL;
    transfer_bitmap_data(bitmap, clone);
