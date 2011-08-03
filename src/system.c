@@ -89,10 +89,10 @@ static void shutdown_system_driver(void)
 {
    if (active_sysdrv) {
       ALLEGRO_CONFIG *temp = active_sysdrv->config;
-      if (active_sysdrv->vt && active_sysdrv->vt->shutdown_system)
-         active_sysdrv->vt->shutdown_system();
       if (active_sysdrv->user_exe_path)
          al_destroy_path(active_sysdrv->user_exe_path);
+      if (active_sysdrv->vt && active_sysdrv->vt->shutdown_system)
+         active_sysdrv->vt->shutdown_system();
       active_sysdrv = NULL;
       /* active_sysdrv is not accessible here so we copied it */
       al_destroy_config(temp);
