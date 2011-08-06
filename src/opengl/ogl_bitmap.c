@@ -149,7 +149,7 @@ static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
 };
 #endif
 
-static ALLEGRO_BITMAP_INTERFACE *glbmp_vt;
+static ALLEGRO_BITMAP_INTERFACE glbmp_vt;
 
 
 #define SWAP(type, x, y) {type temp = x; x = y; y = temp;}
@@ -1013,20 +1013,18 @@ static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 /* Obtain a reference to this driver. */
 static ALLEGRO_BITMAP_INTERFACE *ogl_bitmap_driver(void)
 {
-   if (glbmp_vt)
-      return glbmp_vt;
+   if (glbmp_vt.draw_bitmap_region) {
+      return &glbmp_vt;
+   }
 
-   glbmp_vt = al_malloc(sizeof *glbmp_vt);
-   memset(glbmp_vt, 0, sizeof *glbmp_vt);
+   glbmp_vt.draw_bitmap_region = ogl_draw_bitmap_region;
+   glbmp_vt.upload_bitmap = ogl_upload_bitmap;
+   glbmp_vt.update_clipping_rectangle = ogl_update_clipping_rectangle;
+   glbmp_vt.destroy_bitmap = ogl_destroy_bitmap;
+   glbmp_vt.lock_region = ogl_lock_region;
+   glbmp_vt.unlock_region = ogl_unlock_region;
 
-   glbmp_vt->draw_bitmap_region = ogl_draw_bitmap_region;
-   glbmp_vt->upload_bitmap = ogl_upload_bitmap;
-   glbmp_vt->update_clipping_rectangle = ogl_update_clipping_rectangle;
-   glbmp_vt->destroy_bitmap = ogl_destroy_bitmap;
-   glbmp_vt->lock_region = ogl_lock_region;
-   glbmp_vt->unlock_region = ogl_unlock_region;
-
-   return glbmp_vt;
+   return &glbmp_vt;
 }
 
 
