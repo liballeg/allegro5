@@ -1119,7 +1119,21 @@ bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 void _al_win_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
-   SetWindowText(win_display->window, title);
+   ALLEGRO_USTR *text;
+   ALLEGRO_USTR_INFO info;
+   uint16_t *wide_title;
+   size_t title_len;
+
+   text = al_ref_cstr(&info, title);
+   title_len = al_ustr_size_utf16(text);
+   wide_title = al_malloc(title_len + 1);
+   if (!wide_title)
+      return;
+   al_ustr_encode_utf16(text, wide_title, title_len);
+
+   SetWindowTextW(win_display->window, (LPCWSTR) wide_title);
+
+   al_free(wide_title);
 }
 
 
