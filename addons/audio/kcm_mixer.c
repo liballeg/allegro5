@@ -539,9 +539,18 @@ static void NAME(void *source, void **vbuf, unsigned int *samples,            \
       s = (TYPE *) NEXT_SAMPLE_VALUE(&samp_buf, spl, maxc);                   \
                                                                               \
       for (c = 0; c < dest_maxc; c++) {                                       \
-         size_t i;                                                            \
-         for (i = 0; i < maxc; i++) {                                         \
-            *buf += s[i] * spl->matrix[c*maxc + i];                           \
+         ALLEGRO_STATIC_ASSERT(ALLEGRO_MAX_CHANNELS == 8);                    \
+         switch (maxc) {                                                      \
+            /* Each case falls through. */                                    \
+            case 8: *buf += s[7] * spl->matrix[c*maxc + 7];                   \
+            case 7: *buf += s[6] * spl->matrix[c*maxc + 6];                   \
+            case 6: *buf += s[5] * spl->matrix[c*maxc + 5];                   \
+            case 5: *buf += s[4] * spl->matrix[c*maxc + 4];                   \
+            case 4: *buf += s[3] * spl->matrix[c*maxc + 3];                   \
+            case 3: *buf += s[2] * spl->matrix[c*maxc + 2];                   \
+            case 2: *buf += s[1] * spl->matrix[c*maxc + 1];                   \
+            case 1: *buf += s[0] * spl->matrix[c*maxc + 0];                   \
+            default: break;                                                   \
          }                                                                    \
          buf++;                                                               \
       }                                                                       \
