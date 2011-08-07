@@ -259,7 +259,9 @@ static void xglx_shutdown_system(void)
 
    // Makes sure we wait for any commands sent to the X server when destroying the displays.
    // Should make sure we don't shutdown before modes are restored.
-   XSync(sx->x11display, False);
+   if (sx->x11display) {
+      XSync(sx->x11display, False);
+   }
    
    _al_xsys_mmon_exit(sx);
 
