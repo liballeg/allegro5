@@ -239,16 +239,53 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    UINT type = 0;
    int result;
 
+   uint16_t *wide_text, *wide_title;
+   size_t text_len, title_len;
+
    /* Note: the message box code cannot assume that Allegro is installed. */
 
-   if (fd->flags & ALLEGRO_MESSAGEBOX_QUESTION) type |= MB_ICONQUESTION;
-   if (fd->flags & ALLEGRO_MESSAGEBOX_WARN) type |= MB_ICONWARNING;
-   if (fd->flags & ALLEGRO_MESSAGEBOX_ERROR) type |= MB_ICONERROR;
-   if (fd->flags & ALLEGRO_MESSAGEBOX_YES_NO) type |= MB_YESNO;
-   if (fd->flags & ALLEGRO_MESSAGEBOX_OK_CANCEL) type |= MB_OKCANCEL;
+   if (fd->flags & ALLEGRO_MESSAGEBOX_QUESTION)
+      type |= MB_ICONQUESTION;
+   else if (fd->flags & ALLEGRO_MESSAGEBOX_WARN)
+      type |= MB_ICONWARNING;
+   else if (fd->flags & ALLEGRO_MESSAGEBOX_ERROR) 
+      type |= MB_ICONERROR;
+   else 
+      type |= MB_ICONINFORMATION;
 
-   result = MessageBox(al_get_win_window_handle(display),
-      al_cstr(fd->mb_text), al_cstr(fd->title), type);
+   if (fd->flags & ALLEGRO_MESSAGEBOX_YES_NO)
+      type |= MB_YESNO;
+   else if (fd->flags & ALLEGRO_MESSAGEBOX_OK_CANCEL)
+      type |= MB_OKCANCEL;
+
+   /* heading + text are combined together */
+
+   if (al_ustr_size(fd->mb_heading)) 
+      al_ustr_append_cstr(fd->mb_heading, "\n\n");
+
+   al_ustr_append(fd->mb_heading, fd->mb_text);
+
+   text_len = al_ustr_size_utf16(fd->mb_heading);
+   title_len = al_ustr_size_utf16(fd->title);
+
+   wide_text = al_malloc(text_len + 1);
+   if (!wide_text)
+      return 0;
+
+   wide_title = al_malloc(title_len + 1);
+   if (!wide_title) {
+      al_free(wide_text);
+      return 0;
+   }
+
+   al_ustr_encode_utf16(fd->mb_heading, wide_text, text_len);
+   al_ustr_encode_utf16(fd->title, wide_title, title_len);
+
+   result = MessageBoxW(al_get_win_window_handle(display),
+      (LPCWSTR) wide_text, (LPCWSTR) wide_title, type);
+
+   al_free(wide_text);
+   al_free(wide_title);
 
    if (result == IDYES || result == IDOK)
       return 1;

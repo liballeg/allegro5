@@ -336,7 +336,7 @@ restart:
       " This is your last chance to rethink your decision."
       " Do you really want to quit?",
       NULL,
-      ALLEGRO_MESSAGEBOX_YES_NO);
+      ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION);
    if (button != 1)
       goto restart;
 
