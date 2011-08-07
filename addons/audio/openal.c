@@ -163,6 +163,7 @@ static void *_openal_update(ALLEGRO_THREAD *self, void *arg)
    ALLEGRO_VOICE *voice = (ALLEGRO_VOICE*) arg;
    ALLEGRO_AL_DATA *ex_data = (ALLEGRO_AL_DATA*)voice->extra;
    unsigned int i, samples_per_update;
+   unsigned int bytes_per_sample;
    const void *data;
    void *silence;
 
@@ -175,7 +176,7 @@ static void *_openal_update(ALLEGRO_THREAD *self, void *arg)
       memset(silence, 0x80, ex_data->buffer_size);
    }
 
-   for (i = 0;i < ex_data->num_buffers;++i) {
+   for (i = 0; i < ex_data->num_buffers; i++) {
       alBufferData(ex_data->buffers[i], ex_data->format, silence,
          ex_data->buffer_size, voice->frequency);
    }
@@ -187,16 +188,18 @@ static void *_openal_update(ALLEGRO_THREAD *self, void *arg)
 
    switch (ex_data->format) {
       case AL_FORMAT_STEREO16:
-         samples_per_update = ex_data->buffer_size / 4;
+         bytes_per_sample = 4;
          break;
       case AL_FORMAT_STEREO8:
       case AL_FORMAT_MONO16:
-         samples_per_update = ex_data->buffer_size / 2;
+         bytes_per_sample = 2;
          break;
       default:
-         samples_per_update = ex_data->buffer_size;
+         bytes_per_sample = 1;
          break;
    }
+
+   samples_per_update = ex_data->buffer_size / bytes_per_sample;
 
    data = silence;
 
@@ -218,8 +221,8 @@ static void *_openal_update(ALLEGRO_THREAD *self, void *arg)
             data = silence;
 
          alSourceUnqueueBuffers(ex_data->source, 1, &buffer);
-         alBufferData(buffer, ex_data->format, data, ex_data->buffer_size,
-            voice->frequency);
+         alBufferData(buffer, ex_data->format, data,
+            samples_per_update * bytes_per_sample, voice->frequency);
          alSourceQueueBuffers(ex_data->source, 1, &buffer);
       }
       alGetSourcei(ex_data->source, AL_SOURCE_STATE, &status);
