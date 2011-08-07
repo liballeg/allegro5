@@ -219,6 +219,8 @@ static void xinerama_exit(ALLEGRO_SYSTEM_XGLX *s)
    s->xinerama_screen_info = NULL;
 }
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+
 static void xinerama_get_display_offset(ALLEGRO_SYSTEM_XGLX *s, int adapter, int *x, int *y)
 {
    ALLEGRO_ASSERT(adapter >= 0 && adapter < s->xinerama_screen_count);
@@ -284,6 +286,8 @@ static int xinerama_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter)
    (void)adapter;
    return 0;
 }
+
+#endif /* ALLEGRO_XWINDOWS_WITH_XF86VIDMODE */
 
 #endif /* ALLEGRO_XWINDOWS_WITH_XINERAMA */
 
