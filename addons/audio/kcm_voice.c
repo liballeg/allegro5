@@ -479,8 +479,6 @@ bool al_set_voice_playing(ALLEGRO_VOICE *voice, bool val)
 
    if (voice->attached_stream && !voice->is_streaming) {
       bool playing = al_get_voice_playing(voice);
-      bool ret;
-
       if (playing == val) {
          if (playing) {
             ALLEGRO_DEBUG("Voice is already playing\n");
@@ -491,19 +489,29 @@ bool al_set_voice_playing(ALLEGRO_VOICE *voice, bool val)
          return true;
       }
 
-      al_lock_mutex(voice->mutex);
-      // XXX change methods
-      if (val)
-         ret = voice->driver->start_voice(voice) == 0;
-      else
-         ret = voice->driver->stop_voice(voice) == 0;
-      al_unlock_mutex(voice->mutex);
-      return ret;
+      return _al_kcm_set_voice_playing(voice, val);
    }
    else {
       ALLEGRO_DEBUG("Voice has no sample or mixer attached\n");
       return false;
    }
+}
+
+
+bool _al_kcm_set_voice_playing(ALLEGRO_VOICE *voice, bool val)
+{
+   bool ret;
+   ASSERT(voice);
+
+   al_lock_mutex(voice->mutex);
+   // XXX change methods
+   if (val)
+      ret = voice->driver->start_voice(voice) == 0;
+   else
+      ret = voice->driver->stop_voice(voice) == 0;
+   al_unlock_mutex(voice->mutex);
+
+   return ret;
 }
 
 
