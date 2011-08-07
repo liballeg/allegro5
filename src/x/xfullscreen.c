@@ -460,6 +460,9 @@ static void xfvm_get_display_offset(ALLEGRO_SYSTEM_XGLX *s, int adapter, int *x,
    if (s->xinerama_available) {
       xinerama_get_display_offset(s, adapter, &tmp_x, &tmp_y);
    } //else 
+#else
+   (void)s;
+   (void)adapter;
 #endif
    /* don't set the output params if function fails */
    /* XXX I don't think this part makes sense at all.
