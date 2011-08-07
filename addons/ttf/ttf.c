@@ -292,10 +292,9 @@ static void cache_glyph(ALLEGRO_FONT const *f,
            else {
               for (x = 0; x < face->glyph->bitmap.width; x++) {
                  unsigned char c = *ptr;
-                 float cf = c / 255.0f;
-                 *dptr++ = 255 * cf;
-                 *dptr++ = 255 * cf;
-                 *dptr++ = 255 * cf;
+                 *dptr++ = c;
+                 *dptr++ = c;
+                 *dptr++ = c;
                  *dptr++ = c;
                  ptr++;
               }
