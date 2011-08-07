@@ -99,6 +99,9 @@ void al_destroy_voice(ALLEGRO_VOICE *voice)
       _al_kcm_unregister_destructor(voice);
 
       al_detach_voice(voice);
+      ASSERT(al_get_voice_playing(voice) == false);
+
+      /* We do NOT lock the voice mutex when calling this method. */
       voice->driver->deallocate_voice(voice);
       al_destroy_mutex(voice->mutex);
 
@@ -358,9 +361,9 @@ void al_detach_voice(ALLEGRO_VOICE *voice)
    if (!voice->is_streaming) {
       ALLEGRO_SAMPLE_INSTANCE *spl = voice->attached_stream;
 
-      spl->pos = al_get_voice_position(voice);
+      spl->pos = voice->driver->get_voice_position(voice);
       spl->pos <<= MIXER_FRAC_SHIFT;
-      spl->is_playing = al_get_voice_playing(voice);
+      spl->is_playing = voice->driver->voice_is_playing(voice);
 
       voice->driver->stop_voice(voice);
       voice->driver->unload_voice(voice);
@@ -393,8 +396,13 @@ unsigned int al_get_voice_position(const ALLEGRO_VOICE *voice)
 {
    ASSERT(voice);
 
-   if (voice->attached_stream && !voice->is_streaming)
-      return voice->driver->get_voice_position(voice);
+   if (voice->attached_stream && !voice->is_streaming) {
+      unsigned int ret;
+      al_lock_mutex(voice->mutex);
+      ret = voice->driver->get_voice_position(voice);
+      al_unlock_mutex(voice->mutex);
+      return ret;
+   }
    else
       return 0;
 }
@@ -427,11 +435,14 @@ bool al_get_voice_playing(const ALLEGRO_VOICE *voice)
    ASSERT(voice);
 
    if (voice->attached_stream && !voice->is_streaming) {
-      return voice->driver->voice_is_playing(voice);
+      bool ret;
+      al_lock_mutex(voice->mutex);
+      ret = voice->driver->voice_is_playing(voice);
+      al_unlock_mutex(voice->mutex);
+      return ret;
    }
-   else {
-      return voice->attached_stream ? true : false;
-   }
+
+   return voice->attached_stream ? true : false;
 }
 
 
@@ -442,8 +453,12 @@ bool al_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
    ASSERT(voice);
 
    if (voice->attached_stream && !voice->is_streaming) {
+      bool ret;
+      al_lock_mutex(voice->mutex);
       // XXX change method
-      return voice->driver->set_voice_position(voice, val) == 0;
+      ret = voice->driver->set_voice_position(voice, val) == 0;
+      al_unlock_mutex(voice->mutex);
+      return ret;
    }
 
    return false;
@@ -458,6 +473,7 @@ bool al_set_voice_playing(ALLEGRO_VOICE *voice, bool val)
 
    if (voice->attached_stream && !voice->is_streaming) {
       bool playing = al_get_voice_playing(voice);
+      bool ret;
 
       if (playing == val) {
          if (playing) {
@@ -469,11 +485,14 @@ bool al_set_voice_playing(ALLEGRO_VOICE *voice, bool val)
          return true;
       }
 
+      al_lock_mutex(voice->mutex);
       // XXX change methods
       if (val)
-         return voice->driver->start_voice(voice) == 0;
+         ret = voice->driver->start_voice(voice) == 0;
       else
-         return voice->driver->stop_voice(voice) == 0;
+         ret = voice->driver->stop_voice(voice) == 0;
+      al_unlock_mutex(voice->mutex);
+      return ret;
    }
    else {
       ALLEGRO_DEBUG("Voice has no sample or mixer attached\n");
