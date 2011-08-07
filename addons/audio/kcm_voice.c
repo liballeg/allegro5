@@ -477,7 +477,17 @@ bool al_set_voice_playing(ALLEGRO_VOICE *voice, bool val)
 {
    ASSERT(voice);
 
-   if (voice->attached_stream && !voice->is_streaming) {
+   if (!voice->attached_stream) {
+      ALLEGRO_DEBUG("Voice has no attachment\n");
+      return false;
+   }
+
+   if (voice->is_streaming) {
+      ALLEGRO_WARN("Attempted to change the playing state of a voice "
+         "with a streaming attachment (mixer or audiostreams)\n");
+      return false;
+   }
+   else {
       bool playing = al_get_voice_playing(voice);
       if (playing == val) {
          if (playing) {
@@ -490,10 +500,6 @@ bool al_set_voice_playing(ALLEGRO_VOICE *voice, bool val)
       }
 
       return _al_kcm_set_voice_playing(voice, val);
-   }
-   else {
-      ALLEGRO_DEBUG("Voice has no sample or mixer attached\n");
-      return false;
    }
 }
 
