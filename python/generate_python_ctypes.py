@@ -324,7 +324,7 @@ _dlls = []
 def _add_dll(name):
     release = "%(release)s"
     if os.name == "nt":
-        release = "%(release)s-$(version)s"
+        release = "%(release)s-%(version)s"
     
     # Under Windows, DLLs are found in the current directory, so this
     # would be an easy way to keep all your DLLs in a sub-folder.
