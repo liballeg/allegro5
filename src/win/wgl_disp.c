@@ -39,7 +39,7 @@
 
 ALLEGRO_DEBUG_CHANNEL("display")
 
-static ALLEGRO_DISPLAY_INTERFACE *vt = 0;
+static ALLEGRO_DISPLAY_INTERFACE vt;
 
 /* Forward declarations: */
 static void display_thread_proc(void *arg);
@@ -1056,7 +1056,7 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h)
    display->h = h;
    display->refresh_rate = al_get_new_display_refresh_rate();
    display->flags = al_get_new_display_flags();
-   display->vt = vt;
+   display->vt = &vt;
 
    display->ogl_extras = al_malloc(sizeof(ALLEGRO_OGL_EXTRAS));
    memset(display->ogl_extras, 0, sizeof(ALLEGRO_OGL_EXTRAS));
@@ -1546,41 +1546,38 @@ static void wgl_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
 {
-   if (vt)
-      return vt;
+   if (vt.create_display)
+      return &vt;
 
-   vt = al_malloc(sizeof *vt);
-   memset(vt, 0, sizeof *vt);
+   vt.create_display = wgl_create_display;
+   vt.destroy_display = wgl_destroy_display;
+   vt.resize_display = wgl_resize_display;
+   vt.set_current_display = wgl_set_current_display;
+   vt.unset_current_display = wgl_unset_current_display;
+   vt.flip_display = wgl_flip_display;
+   vt.update_display_region = wgl_update_display_region;
+   vt.acknowledge_resize = wgl_acknowledge_resize;
+   vt.create_bitmap = _al_ogl_create_bitmap;
+   vt.create_sub_bitmap = _al_ogl_create_sub_bitmap;
+   vt.get_backbuffer = _al_ogl_get_backbuffer;
+   vt.set_target_bitmap = _al_ogl_set_target_bitmap;
+   vt.is_compatible_bitmap = wgl_is_compatible_bitmap;
+   vt.switch_in = wgl_switch_in;
+   vt.switch_out = wgl_switch_out;
 
-   vt->create_display = wgl_create_display;
-   vt->destroy_display = wgl_destroy_display;
-   vt->resize_display = wgl_resize_display;
-   vt->set_current_display = wgl_set_current_display;
-   vt->unset_current_display = wgl_unset_current_display;
-   vt->flip_display = wgl_flip_display;
-   vt->update_display_region = wgl_update_display_region;
-   vt->acknowledge_resize = wgl_acknowledge_resize;
-   vt->create_bitmap = _al_ogl_create_bitmap;
-   vt->create_sub_bitmap = _al_ogl_create_sub_bitmap;
-   vt->get_backbuffer = _al_ogl_get_backbuffer;
-   vt->set_target_bitmap = _al_ogl_set_target_bitmap;
-   vt->is_compatible_bitmap = wgl_is_compatible_bitmap;
-   vt->switch_in = wgl_switch_in;
-   vt->switch_out = wgl_switch_out;
+   vt.set_mouse_cursor = _al_win_set_mouse_cursor;
+   vt.set_system_mouse_cursor = _al_win_set_system_mouse_cursor;
+   vt.show_mouse_cursor = _al_win_show_mouse_cursor;
+   vt.hide_mouse_cursor = _al_win_hide_mouse_cursor;
 
-   vt->set_mouse_cursor = _al_win_set_mouse_cursor;
-   vt->set_system_mouse_cursor = _al_win_set_system_mouse_cursor;
-   vt->show_mouse_cursor = _al_win_show_mouse_cursor;
-   vt->hide_mouse_cursor = _al_win_hide_mouse_cursor;
+   vt.set_icon = _al_win_set_display_icon;
+   vt.set_window_position = wgl_set_window_position;
+   vt.get_window_position = wgl_get_window_position;
+   vt.toggle_display_flag = _al_win_toggle_display_flag;
+   vt.set_window_title = _al_win_set_window_title;
+   _al_ogl_add_drawing_functions(&vt);
 
-   vt->set_icon = _al_win_set_display_icon;
-   vt->set_window_position = wgl_set_window_position;
-   vt->get_window_position = wgl_get_window_position;
-   vt->toggle_display_flag = _al_win_toggle_display_flag;
-   vt->set_window_title = _al_win_set_window_title;
-   _al_ogl_add_drawing_functions(vt);
-
-   return vt;
+   return &vt;
 }
 
 int _al_wgl_get_num_display_modes(int format, int refresh_rate, int flags)
