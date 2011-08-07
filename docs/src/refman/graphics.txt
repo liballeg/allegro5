@@ -649,7 +649,7 @@ The point at cx/cy relative to the upper left corner of the bitmap will be drawn
 bitmap is rotated around this point. If cx,cy is 0,0 the bitmap will rotate around its upper left corner.
 
 * cx - center x (relative to the bitmap)
-* cy - center y (relatice to the bitmap)
+* cy - center y (relative to the bitmap)
 * dx - destination x
 * dy - destination y
 * angle - angle by which to rotate
