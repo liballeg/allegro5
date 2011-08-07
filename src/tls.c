@@ -136,7 +136,6 @@ static void initialize_tls_values(thread_local_state *tls)
 // right now - instead of using DllMain we should simply initialize
 // on first request.
 #ifdef ALLEGRO_STATICLINK
-   #warning "TLS API not implemented with static linking."
    #undef ALLEGRO_CFG_DLL_TLS
 #endif
 
