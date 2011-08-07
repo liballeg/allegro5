@@ -552,10 +552,10 @@ void *al_get_opengl_proc_address(const char *name)
    
    disp = al_get_current_display();
    if (!disp)
-      return false;
+      return NULL;
 
    if (!(disp->flags & ALLEGRO_OPENGL))
-      return false;
+      return NULL;
 
 #if defined ALLEGRO_WINDOWS
    /* For once Windows is the easiest platform to use :)
@@ -567,7 +567,7 @@ void *al_get_opengl_proc_address(const char *name)
       ALLEGRO_DISPLAY_WGL *wgl_disp = (void*)disp;
 
       if (!wgl_disp->dc)
-         return false;
+         return NULL;
 
       symbol = wglGetProcAddress(name);
    }
