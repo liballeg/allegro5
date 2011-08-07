@@ -915,7 +915,7 @@ bool _al_xglx_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapter, ALLEGRO_MONI
    if (!_al_xglx_mmon_interface.get_monitor_info) {
       _al_mutex_lock(&s->lock);
       info->x1 = 0;
-      info->y2 = 0;
+      info->y1 = 0;
       info->x2 = DisplayWidth(s->x11display, DefaultScreen(s->x11display));
       info->y2 = DisplayHeight(s->x11display, DefaultScreen(s->x11display));
       _al_mutex_unlock(&s->lock);
