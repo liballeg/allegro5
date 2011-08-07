@@ -48,7 +48,25 @@ static void shader_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 	    const int dst_format = target->locked_region.format;
 	    uint8_t *dst_data = (uint8_t *) target->locked_region.data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
-	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ALPHA && src_alpha == ALLEGRO_ALPHA && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+
+	       {
+		  {
+		     for (; x1 <= x2; x1++) {
+			ALLEGRO_COLOR src_color = cur_color;
+
+			{
+			   ALLEGRO_COLOR dst_color;
+			   ALLEGRO_COLOR result;
+			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
+			   _al_blend_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, &result);
+			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
+			}
+
+		     }
+		  }
+	       }
+	    } else if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ALPHA && src_alpha == ALLEGRO_ALPHA && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
 
 	       {
 		  {
@@ -230,7 +248,30 @@ static void shader_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 	    const int dst_format = target->locked_region.format;
 	    uint8_t *dst_data = (uint8_t *) target->locked_region.data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
-	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ALPHA && src_alpha == ALLEGRO_ALPHA && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+
+	       {
+		  {
+		     for (; x1 <= x2; x1++) {
+			ALLEGRO_COLOR src_color = cur_color;
+
+			{
+			   ALLEGRO_COLOR dst_color;
+			   ALLEGRO_COLOR result;
+			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
+			   _al_blend_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, &result);
+			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
+			}
+
+			cur_color.r += gs->color_dx.r;
+			cur_color.g += gs->color_dx.g;
+			cur_color.b += gs->color_dx.b;
+			cur_color.a += gs->color_dx.a;
+
+		     }
+		  }
+	       }
+	    } else if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ALPHA && src_alpha == ALLEGRO_ALPHA && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
 
 	       {
 		  {
@@ -465,7 +506,104 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 	    const int dst_format = target->locked_region.format;
 	    uint8_t *dst_data = (uint8_t *) target->locked_region.data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
-	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ALPHA && src_alpha == ALLEGRO_ALPHA && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+
+	       if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+		  uint8_t *lock_data = texture->locked_region.data;
+		  const int src_pitch = texture->locked_region.pitch;
+		  const al_fixed du_dx = al_ftofix(s->du_dx);
+		  const al_fixed dv_dx = al_ftofix(s->dv_dx);
+
+		  {
+		     al_fixed uu = al_ftofix(u);
+		     al_fixed vv = al_ftofix(v);
+		     const int uu_ofs = offset_x - texture->lock_x;
+		     const int vv_ofs = offset_y - texture->lock_y;
+		     const al_fixed w = al_ftofix(s->w);
+		     const al_fixed h = al_ftofix(s->h);
+
+		     for (; x1 <= x2; x1++) {
+			const int src_x = (uu >> 16) + uu_ofs;
+			const int src_y = (vv >> 16) + vv_ofs;
+			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
+
+			ALLEGRO_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+
+			SHADE_COLORS(src_color, s->cur_color);
+
+			{
+			   ALLEGRO_COLOR dst_color;
+			   ALLEGRO_COLOR result;
+			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			   _al_blend_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, &result);
+			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			}
+
+			uu += du_dx;
+			vv += dv_dx;
+
+			if (_AL_EXPECT_FAIL(uu < 0))
+			   uu += w;
+			else if (_AL_EXPECT_FAIL(uu >= w))
+			   uu -= w;
+
+			if (_AL_EXPECT_FAIL(vv < 0))
+			   vv += h;
+			else if (_AL_EXPECT_FAIL(vv >= h))
+			   vv -= h;
+
+		     }
+		  }
+	       } else {
+		  uint8_t *lock_data = texture->locked_region.data;
+		  const int src_pitch = texture->locked_region.pitch;
+		  const al_fixed du_dx = al_ftofix(s->du_dx);
+		  const al_fixed dv_dx = al_ftofix(s->dv_dx);
+
+		  {
+		     al_fixed uu = al_ftofix(u);
+		     al_fixed vv = al_ftofix(v);
+		     const int uu_ofs = offset_x - texture->lock_x;
+		     const int vv_ofs = offset_y - texture->lock_y;
+		     const al_fixed w = al_ftofix(s->w);
+		     const al_fixed h = al_ftofix(s->h);
+
+		     for (; x1 <= x2; x1++) {
+			const int src_x = (uu >> 16) + uu_ofs;
+			const int src_y = (vv >> 16) + vv_ofs;
+			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
+
+			ALLEGRO_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
+
+			SHADE_COLORS(src_color, s->cur_color);
+
+			{
+			   ALLEGRO_COLOR dst_color;
+			   ALLEGRO_COLOR result;
+			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
+			   _al_blend_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, &result);
+			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
+			}
+
+			uu += du_dx;
+			vv += dv_dx;
+
+			if (_AL_EXPECT_FAIL(uu < 0))
+			   uu += w;
+			else if (_AL_EXPECT_FAIL(uu >= w))
+			   uu -= w;
+
+			if (_AL_EXPECT_FAIL(vv < 0))
+			   vv += h;
+			else if (_AL_EXPECT_FAIL(vv >= h))
+			   vv -= h;
+
+		     }
+		  }
+	       }
+	    } else if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ALPHA && src_alpha == ALLEGRO_ALPHA && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
 
 	       if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
 		  uint8_t *lock_data = texture->locked_region.data;
@@ -824,7 +962,100 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 	    const int dst_format = target->locked_region.format;
 	    uint8_t *dst_data = (uint8_t *) target->locked_region.data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
-	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ALPHA && src_alpha == ALLEGRO_ALPHA && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+
+	       if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+		  uint8_t *lock_data = texture->locked_region.data;
+		  const int src_pitch = texture->locked_region.pitch;
+		  const al_fixed du_dx = al_ftofix(s->du_dx);
+		  const al_fixed dv_dx = al_ftofix(s->dv_dx);
+
+		  {
+		     al_fixed uu = al_ftofix(u);
+		     al_fixed vv = al_ftofix(v);
+		     const int uu_ofs = offset_x - texture->lock_x;
+		     const int vv_ofs = offset_y - texture->lock_y;
+		     const al_fixed w = al_ftofix(s->w);
+		     const al_fixed h = al_ftofix(s->h);
+
+		     for (; x1 <= x2; x1++) {
+			const int src_x = (uu >> 16) + uu_ofs;
+			const int src_y = (vv >> 16) + vv_ofs;
+			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
+
+			ALLEGRO_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+
+			{
+			   ALLEGRO_COLOR dst_color;
+			   ALLEGRO_COLOR result;
+			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			   _al_blend_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, &result);
+			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			}
+
+			uu += du_dx;
+			vv += dv_dx;
+
+			if (_AL_EXPECT_FAIL(uu < 0))
+			   uu += w;
+			else if (_AL_EXPECT_FAIL(uu >= w))
+			   uu -= w;
+
+			if (_AL_EXPECT_FAIL(vv < 0))
+			   vv += h;
+			else if (_AL_EXPECT_FAIL(vv >= h))
+			   vv -= h;
+
+		     }
+		  }
+	       } else {
+		  uint8_t *lock_data = texture->locked_region.data;
+		  const int src_pitch = texture->locked_region.pitch;
+		  const al_fixed du_dx = al_ftofix(s->du_dx);
+		  const al_fixed dv_dx = al_ftofix(s->dv_dx);
+
+		  {
+		     al_fixed uu = al_ftofix(u);
+		     al_fixed vv = al_ftofix(v);
+		     const int uu_ofs = offset_x - texture->lock_x;
+		     const int vv_ofs = offset_y - texture->lock_y;
+		     const al_fixed w = al_ftofix(s->w);
+		     const al_fixed h = al_ftofix(s->h);
+
+		     for (; x1 <= x2; x1++) {
+			const int src_x = (uu >> 16) + uu_ofs;
+			const int src_y = (vv >> 16) + vv_ofs;
+			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
+
+			ALLEGRO_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
+
+			{
+			   ALLEGRO_COLOR dst_color;
+			   ALLEGRO_COLOR result;
+			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
+			   _al_blend_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, &result);
+			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
+			}
+
+			uu += du_dx;
+			vv += dv_dx;
+
+			if (_AL_EXPECT_FAIL(uu < 0))
+			   uu += w;
+			else if (_AL_EXPECT_FAIL(uu >= w))
+			   uu -= w;
+
+			if (_AL_EXPECT_FAIL(vv < 0))
+			   vv += h;
+			else if (_AL_EXPECT_FAIL(vv >= h))
+			   vv -= h;
+
+		     }
+		  }
+	       }
+	    } else if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ALPHA && src_alpha == ALLEGRO_ALPHA && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
 
 	       if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
 		  uint8_t *lock_data = texture->locked_region.data;
@@ -1776,7 +2007,114 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 	    const int dst_format = target->locked_region.format;
 	    uint8_t *dst_data = (uint8_t *) target->locked_region.data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
-	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ALPHA && src_alpha == ALLEGRO_ALPHA && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+
+	       if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
+		  uint8_t *lock_data = texture->locked_region.data;
+		  const int src_pitch = texture->locked_region.pitch;
+		  const al_fixed du_dx = al_ftofix(s->du_dx);
+		  const al_fixed dv_dx = al_ftofix(s->dv_dx);
+
+		  {
+		     al_fixed uu = al_ftofix(u);
+		     al_fixed vv = al_ftofix(v);
+		     const int uu_ofs = offset_x - texture->lock_x;
+		     const int vv_ofs = offset_y - texture->lock_y;
+		     const al_fixed w = al_ftofix(s->w);
+		     const al_fixed h = al_ftofix(s->h);
+
+		     for (; x1 <= x2; x1++) {
+			const int src_x = (uu >> 16) + uu_ofs;
+			const int src_y = (vv >> 16) + vv_ofs;
+			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
+
+			ALLEGRO_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, src_data, src_color, false);
+
+			SHADE_COLORS(src_color, cur_color);
+
+			{
+			   ALLEGRO_COLOR dst_color;
+			   ALLEGRO_COLOR result;
+			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
+			   _al_blend_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, &result);
+			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
+			}
+
+			uu += du_dx;
+			vv += dv_dx;
+
+			if (_AL_EXPECT_FAIL(uu < 0))
+			   uu += w;
+			else if (_AL_EXPECT_FAIL(uu >= w))
+			   uu -= w;
+
+			if (_AL_EXPECT_FAIL(vv < 0))
+			   vv += h;
+			else if (_AL_EXPECT_FAIL(vv >= h))
+			   vv -= h;
+
+			cur_color.r += gs->color_dx.r;
+			cur_color.g += gs->color_dx.g;
+			cur_color.b += gs->color_dx.b;
+			cur_color.a += gs->color_dx.a;
+
+		     }
+		  }
+	       } else {
+		  uint8_t *lock_data = texture->locked_region.data;
+		  const int src_pitch = texture->locked_region.pitch;
+		  const al_fixed du_dx = al_ftofix(s->du_dx);
+		  const al_fixed dv_dx = al_ftofix(s->dv_dx);
+
+		  {
+		     al_fixed uu = al_ftofix(u);
+		     al_fixed vv = al_ftofix(v);
+		     const int uu_ofs = offset_x - texture->lock_x;
+		     const int vv_ofs = offset_y - texture->lock_y;
+		     const al_fixed w = al_ftofix(s->w);
+		     const al_fixed h = al_ftofix(s->h);
+
+		     for (; x1 <= x2; x1++) {
+			const int src_x = (uu >> 16) + uu_ofs;
+			const int src_y = (vv >> 16) + vv_ofs;
+			uint8_t *src_data = lock_data + src_y * src_pitch + src_x * src_size;
+
+			ALLEGRO_COLOR src_color;
+			_AL_INLINE_GET_PIXEL(src_format, src_data, src_color, false);
+
+			SHADE_COLORS(src_color, cur_color);
+
+			{
+			   ALLEGRO_COLOR dst_color;
+			   ALLEGRO_COLOR result;
+			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
+			   _al_blend_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, &result);
+			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
+			}
+
+			uu += du_dx;
+			vv += dv_dx;
+
+			if (_AL_EXPECT_FAIL(uu < 0))
+			   uu += w;
+			else if (_AL_EXPECT_FAIL(uu >= w))
+			   uu -= w;
+
+			if (_AL_EXPECT_FAIL(vv < 0))
+			   vv += h;
+			else if (_AL_EXPECT_FAIL(vv >= h))
+			   vv -= h;
+
+			cur_color.r += gs->color_dx.r;
+			cur_color.g += gs->color_dx.g;
+			cur_color.b += gs->color_dx.b;
+			cur_color.a += gs->color_dx.a;
+
+		     }
+		  }
+	       }
+	    } else if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ALPHA && src_alpha == ALLEGRO_ALPHA && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
 
 	       if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
 		  uint8_t *lock_data = texture->locked_region.data;
