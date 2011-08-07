@@ -18,9 +18,11 @@
 
 #include "allegro5/internal/aintern_audio.h"
 
+ALLEGRO_DEBUG_CHANNEL("openal")
+
 /* OpenAL vars */
-static ALCdevice*  openal_dev;
-static ALCcontext* openal_context;
+static ALCdevice  *openal_dev;
+static ALCcontext *openal_context;
 
 /* TODO: make these configurable */
 static const size_t preferred_frag_size = 1024;
@@ -28,11 +30,10 @@ static const ALuint preferred_buf_count = 4;
 
 static const char *openal_get_err_str(ALenum err)
 {
-   switch (err)
-   {
+   switch (err) {
       case AL_NO_ERROR:
          return "There is no OpenAL error";
-      case AL_INVALID_NAME: 
+      case AL_INVALID_NAME:
          return "A bad name (ID) was passed to OpenAL";
       case AL_INVALID_ENUM:
          return "An invalid enum was passed to OpenAL";
@@ -49,11 +50,10 @@ static const char *openal_get_err_str(ALenum err)
 
 static const char *alc_get_err_str(ALCenum err)
 {
-   switch (err)
-   {
+   switch (err) {
       case ALC_NO_ERROR:
          return "There is no OpenAL error";
-      case ALC_INVALID_DEVICE: 
+      case ALC_INVALID_DEVICE:
          return "A bad device was passed to OpenAL";
       case ALC_INVALID_CONTEXT:
          return "An bad context was passed to OpenAL";
@@ -72,11 +72,11 @@ static const char *alc_get_err_str(ALCenum err)
    previously set paramters, or defaults. It shouldn't need to start sending
    audio data to the device yet, however. */
 static int _openal_open(void)
-{ 
+{
    ALenum openal_err;
    ALCenum alc_err;
 
-   fprintf(stderr, "Starting OpenAL...\n");
+   ALLEGRO_INFO("Starting OpenAL\n");
 
    /* clear the error state */
    openal_err = alGetError();
@@ -85,49 +85,40 @@ static int _openal_open(void)
    openal_dev = alcOpenDevice(NULL);
 
    alc_err = ALC_NO_ERROR;
-   if(!openal_dev || (alc_err = alcGetError(openal_dev)) != ALC_NO_ERROR)
-   {
-      fprintf(stderr, "Could not open audio device\n");
-      if (alc_err != ALC_NO_ERROR)
-         fprintf(stderr, "%s\n", alc_get_err_str(alc_err));
+   if (!openal_dev || (alc_err = alcGetError(openal_dev)) != ALC_NO_ERROR) {
+      ALLEGRO_ERROR("Could not open audio device: %s\n",
+         alc_get_err_str(alc_err));
       return 1;
    }
 
    openal_context = alcCreateContext(openal_dev, NULL);
    alc_err = ALC_NO_ERROR;
-   if (!openal_context || (alc_err = alcGetError(openal_dev)) != ALC_NO_ERROR)
-   {
-      fprintf(stderr, "Could not create current device context\n");
-      if (alc_err != ALC_NO_ERROR)
-         fprintf(stderr, "%s\n", alc_get_err_str(alc_err));
+   if (!openal_context || (alc_err = alcGetError(openal_dev)) != ALC_NO_ERROR) {
+      ALLEGRO_ERROR("Could not create current device context: %s\n",
+         alc_get_err_str(alc_err));
       return 1;
    }
 
    alcMakeContextCurrent(openal_context);
 #if !defined ALLEGRO_IPHONE
-   if ((alc_err = alcGetError(openal_dev)) != ALC_NO_ERROR)
-   {
-      fprintf(stderr, "Could not make context current\n");
-      fprintf(stderr, "%s\n", alc_get_err_str(alc_err));
+   if ((alc_err = alcGetError(openal_dev)) != ALC_NO_ERROR) {
+      ALLEGRO_ERROR("Could not make context current: %s\n",
+         alc_get_err_str(alc_err));
       return 1;
    }
 
    alDistanceModel(AL_NONE);
-   if ((openal_err = alGetError()) != AL_NO_ERROR)
-   {
-      fprintf(stderr, "Could not set distance model\n");
-      fprintf(stderr, "%s\n", openal_get_err_str(openal_err));
+   if ((openal_err = alGetError()) != AL_NO_ERROR) {
+      ALLEGRO_ERROR("Could not set distance model: %s\n",
+         openal_get_err_str(openal_err));
       return 1;
    }
 #endif
 
-   fprintf(stderr, "\n");
-   fprintf(stderr, "      Vendor: %s\n", alGetString(AL_VENDOR));
-   fprintf(stderr, "     Version: %s\n", alGetString(AL_VERSION));
-   fprintf(stderr, "    Renderer: %s\n", alGetString(AL_RENDERER));
-   fprintf(stderr, "  Extensions: %s\n", alGetString(AL_EXTENSIONS));
-
-   fprintf(stderr, "\n...done\n\n");
+   ALLEGRO_DEBUG("Vendor: %s\n", alGetString(AL_VENDOR));
+   ALLEGRO_DEBUG("Version: %s\n", alGetString(AL_VERSION));
+   ALLEGRO_DEBUG("Renderer: %s\n", alGetString(AL_RENDERER));
+   ALLEGRO_DEBUG("Extensions: %s\n", alGetString(AL_EXTENSIONS));
 
    return 0;
 }
@@ -168,69 +159,76 @@ typedef struct ALLEGRO_AL_DATA {
 /* Custom routine which runs in another thread to periodically check if OpenAL
    wants more data for a stream */
 /* TODO: review */
-static void *_openal_update(ALLEGRO_THREAD* self, void* arg)
+static void *_openal_update(ALLEGRO_THREAD *self, void *arg)
 {
+   ALLEGRO_VOICE *voice = (ALLEGRO_VOICE*) arg;
+   ALLEGRO_AL_DATA *ex_data = (ALLEGRO_AL_DATA*)voice->extra;
    unsigned int i, samples_per_update;
    const void *data;
    void *silence;
 
-   ALLEGRO_VOICE* voice = (ALLEGRO_VOICE*) arg;
-   ALLEGRO_AL_DATA *ex_data = (ALLEGRO_AL_DATA*)voice->extra;
-   
    (void)self;
 
    /* Streams should not be set to looping */
    alSourcei(ex_data->source, AL_LOOPING, AL_FALSE);
 
    silence = al_calloc(1, ex_data->buffer_size);
-   if(ex_data->format == AL_FORMAT_STEREO8 ||
-      ex_data->format == AL_FORMAT_MONO8)
+   if (ex_data->format == AL_FORMAT_STEREO8 ||
+         ex_data->format == AL_FORMAT_MONO8) {
       memset(silence, 0x80, ex_data->buffer_size);
+   }
 
-   for(i = 0;i < ex_data->num_buffers;++i)
+   for (i = 0;i < ex_data->num_buffers;++i) {
       alBufferData(ex_data->buffers[i], ex_data->format, silence,
-                   ex_data->buffer_size, voice->frequency);
+         ex_data->buffer_size, voice->frequency);
+   }
 
    alSourceQueueBuffers(ex_data->source, ex_data->num_buffers,
-                     ex_data->buffers);
+      ex_data->buffers);
 
    alSourcePlay(ex_data->source);
 
-   samples_per_update = ex_data->buffer_size /
-                        ((ex_data->format==AL_FORMAT_STEREO16) ? 4 :
-                          ((ex_data->format==AL_FORMAT_STEREO8 ||
-                            ex_data->format==AL_FORMAT_MONO16) ? 2 : 1));
+   switch (ex_data->format) {
+      case AL_FORMAT_STEREO16:
+         samples_per_update = ex_data->buffer_size / 4;
+         break;
+      case AL_FORMAT_STEREO8:
+      case AL_FORMAT_MONO16:
+         samples_per_update = ex_data->buffer_size / 2;
+         break;
+      default:
+         samples_per_update = ex_data->buffer_size;
+         break;
+   }
 
    data = silence;
 
-   while(!ex_data->stop_voice)
-   {
+   while (!ex_data->stop_voice) {
       ALint status = 0;
-	   
+
       alGetSourcei(ex_data->source, AL_BUFFERS_PROCESSED, &status);
-      if(status <= 0)
-      {
+      if (status <= 0) {
          /* FIXME what is this for ? */
          al_rest(0.001);
          continue;
       }
 
-      while(--status >= 0)
-      {
+      while (--status >= 0) {
          ALuint buffer;
 
          data = _al_voice_update(voice, &samples_per_update);
-         if(data == NULL)
+         if (data == NULL)
             data = silence;
 
          alSourceUnqueueBuffers(ex_data->source, 1, &buffer);
          alBufferData(buffer, ex_data->format, data, ex_data->buffer_size,
-                      voice->frequency);
+            voice->frequency);
          alSourceQueueBuffers(ex_data->source, 1, &buffer);
       }
       alGetSourcei(ex_data->source, AL_SOURCE_STATE, &status);
-      if(status == AL_STOPPED)
+      if (status == AL_STOPPED) {
          alSourcePlay(ex_data->source);
+      }
    }
 
    alSourceStop(ex_data->source);
@@ -250,42 +248,39 @@ static int _openal_load_voice(ALLEGRO_VOICE *voice, const void *data)
    ALLEGRO_AL_DATA *ex_data = voice->extra;
    ALenum openal_err;
 
-   if(voice->attached_stream->loop != ALLEGRO_PLAYMODE_ONCE &&
-           voice->attached_stream->loop != ALLEGRO_PLAYMODE_LOOP)
+   if (voice->attached_stream->loop != ALLEGRO_PLAYMODE_ONCE &&
+           voice->attached_stream->loop != ALLEGRO_PLAYMODE_LOOP) {
       return 1;
+   }
 
    ex_data->buffer_size = voice->buffer_size;
-   if(!ex_data->buffer_size)
-   {
-      fprintf(stderr, "Voice buffer and data buffer size mismatch\n");
+   if (!ex_data->buffer_size) {
+      ALLEGRO_ERROR("Voice buffer and data buffer size mismatch\n");
       return 1;
    }
    ex_data->num_buffers = 1;
 
    alGenSources(1, &ex_data->source);
-   if ((openal_err = alGetError()) != AL_NO_ERROR)
-   {
-      fprintf(stderr, "Could not Generate (voice) source\n");
-      fprintf(stderr, "%s\n", openal_get_err_str(openal_err));
+   if ((openal_err = alGetError()) != AL_NO_ERROR) {
+      ALLEGRO_ERROR("Could not generate (voice) source: %s\n",
+         openal_get_err_str(openal_err));
       return 1;
    }
 
    ex_data->buffers = al_malloc(sizeof(ALuint) * ex_data->num_buffers);
-   if(!ex_data->buffers)
-   {
+   if (!ex_data->buffers) {
       alDeleteSources(1, &ex_data->source);
-      fprintf(stderr, "Could not allocate voice buffer memory\n"); 
+      ALLEGRO_ERROR("Could not allocate voice buffer memory\n");
       return 1;
    }
 
    alGenBuffers(ex_data->num_buffers, ex_data->buffers);
-   if ((openal_err = alGetError()) != AL_NO_ERROR)
-   {
+   if ((openal_err = alGetError()) != AL_NO_ERROR) {
       alDeleteSources(1, &ex_data->source);
       al_free(ex_data->buffers);
       ex_data->buffers = NULL;
-      fprintf(stderr, "Could not Generate (voice) buffer\n");
-      fprintf(stderr, "%s\n", openal_get_err_str(openal_err));
+      ALLEGRO_ERROR("Could not generate (voice) buffer: %s\n",
+         openal_get_err_str(openal_err));
       return 1;
    }
 
@@ -303,14 +298,13 @@ static int _openal_load_voice(ALLEGRO_VOICE *voice, const void *data)
    /* make sure the volume is on */
    alSourcef(ex_data->source, AL_GAIN, 1.0f);
 
-   if((openal_err = alGetError()) != AL_NO_ERROR)
-   {
+   if ((openal_err = alGetError()) != AL_NO_ERROR) {
       alDeleteSources(1, &ex_data->source);
       alDeleteBuffers(ex_data->num_buffers, ex_data->buffers);
       al_free(ex_data->buffers);
       ex_data->buffers = NULL;
-      fprintf(stderr, "Could not attach voice source\n");
-      fprintf(stderr, "%s\n", openal_get_err_str(openal_err));
+      ALLEGRO_ERROR("Could not attach voice source: %s\n",
+         openal_get_err_str(openal_err));
       return 1;
    }
 
@@ -327,7 +321,7 @@ static void _openal_unload_voice(ALLEGRO_VOICE *voice)
    alDeleteBuffers(ex_data->num_buffers, ex_data->buffers);
    al_free(ex_data->buffers);
    ex_data->buffers = NULL;
-   alGetError();
+   alGetError(); /* required! */
 }
 
 
@@ -341,45 +335,51 @@ static int _openal_start_voice(ALLEGRO_VOICE *voice)
    ALenum openal_err;
 
    /* playing a sample instead of a stream */
-   if(!voice->is_streaming)
-   {
+   if (!voice->is_streaming) {
       alSourcePlay(ex_data->source);
-      if((openal_err = alGetError()) != AL_NO_ERROR)
-      {
-         fprintf(stderr, "Could not start voice\n");
-         fprintf(stderr, "%s\n", openal_get_err_str(openal_err));
+      if ((openal_err = alGetError()) != AL_NO_ERROR) {
+         ALLEGRO_ERROR("Could not start voice: %s\n",
+            openal_get_err_str(openal_err));
          return 1;
       }
-      fprintf(stderr, "Starting voice\n");
+
+      ALLEGRO_INFO("Starting voice\n");
       return 0;
    }
 
-   if(ex_data->stop_voice != 0)
-   {
+   if (ex_data->stop_voice != 0) {
       ex_data->buffer_size = voice->buffer_size;
-      if(!ex_data->buffer_size)
-         ex_data->buffer_size = preferred_frag_size *
-                          ((ex_data->format==AL_FORMAT_STEREO16) ? 4 :
-                            ((ex_data->format==AL_FORMAT_STEREO8 ||
-                              ex_data->format==AL_FORMAT_MONO16) ? 2 : 1));
+      if (!ex_data->buffer_size) {
+         switch (ex_data->format) {
+            case AL_FORMAT_STEREO16:
+               ex_data->buffer_size = preferred_frag_size * 4;
+               break;
+            case AL_FORMAT_STEREO8:
+            case AL_FORMAT_MONO16:
+               ex_data->buffer_size = preferred_frag_size * 2;
+               break;
+            default:
+               ex_data->buffer_size = preferred_frag_size;
+               break;
+         }
+      }
+
       ex_data->num_buffers = voice->num_buffers;
-      if(!ex_data->num_buffers)
+      if (!ex_data->num_buffers)
          ex_data->num_buffers = preferred_buf_count;
 
       alGenSources(1, &ex_data->source);
-      if(alGetError() != AL_NO_ERROR)
+      if (alGetError() != AL_NO_ERROR)
          return 1;
 
       ex_data->buffers = al_malloc(sizeof(ALuint) * ex_data->num_buffers);
-      if(!ex_data->buffers)
-      {
+      if (!ex_data->buffers) {
          alDeleteSources(1, &ex_data->source);
          return 1;
       }
 
       alGenBuffers(ex_data->num_buffers, ex_data->buffers);
-      if(alGetError() != AL_NO_ERROR)
-      {
+      if (alGetError() != AL_NO_ERROR) {
          alDeleteSources(1, &ex_data->source);
          al_free(ex_data->buffers);
          ex_data->buffers = NULL;
@@ -387,8 +387,7 @@ static int _openal_start_voice(ALLEGRO_VOICE *voice)
       }
 
       alSourcef(ex_data->source, AL_GAIN, 1.0f);
-      if(alGetError() != AL_NO_ERROR)
-      {
+      if (alGetError() != AL_NO_ERROR) {
          alDeleteSources(1, &ex_data->source);
          alDeleteBuffers(ex_data->num_buffers, ex_data->buffers);
          al_free(ex_data->buffers);
@@ -401,7 +400,9 @@ static int _openal_start_voice(ALLEGRO_VOICE *voice)
       al_start_thread(ex_data->thread);
 
    }
-      return 0;
+
+   ALLEGRO_INFO("Starting voice\n");
+   return 0;
 }
 
 /* The stop_voice method should stop playback. For non-streaming voices, it
@@ -411,27 +412,23 @@ static int _openal_stop_voice(ALLEGRO_VOICE* voice)
    ALLEGRO_AL_DATA *ex_data = voice->extra;
    ALenum openal_err;
 
-   if(!ex_data->buffers)
-   {
-      fprintf(stderr, "Trying to stop empty voice buffer\n"); 
+   if (!ex_data->buffers) {
+      ALLEGRO_WARN("Trying to stop empty voice buffer\n");
       return 1;
    }
 
    /* if playing a sample */
-   if(!voice->is_streaming)
-   {
+   if (!voice->is_streaming) {
       alSourceStop(ex_data->source);
-      if((openal_err = alGetError()) != AL_NO_ERROR)
-      {
-         fprintf(stderr, "Could not stop voice\n");
-         fprintf(stderr, "%s\n", openal_get_err_str(openal_err));
+      if ((openal_err = alGetError()) != AL_NO_ERROR) {
+         ALLEGRO_ERROR("Could not stop voice: %s\n",
+            openal_get_err_str(openal_err));
          return 1;
-      } 
+      }
       return 0;
    }
 
-   if(ex_data->stop_voice == 0)
-   {
+   if (ex_data->stop_voice == 0) {
       ex_data->stop_voice = 1;
       al_join_thread(ex_data->thread, NULL);
    }
@@ -440,7 +437,7 @@ static int _openal_stop_voice(ALLEGRO_VOICE* voice)
    al_free(ex_data->buffers);
    ex_data->buffers = NULL;
    alDeleteSources(1, &ex_data->source);
-   alGetError();
+   alGetError(); /* required! */
    return 0;
 }
 
@@ -451,7 +448,7 @@ static bool _openal_voice_is_playing(const ALLEGRO_VOICE *voice)
    ALLEGRO_AL_DATA *ex_data = voice->extra;
    ALint status;
 
-   if(!ex_data)
+   if (!ex_data)
       return false;
 
    alGetSourcei(ex_data->source, AL_SOURCE_STATE, &status);
@@ -464,73 +461,68 @@ static int _openal_allocate_voice(ALLEGRO_VOICE *voice)
 {
    ALLEGRO_AL_DATA *ex_data;
 
-   /* openal doesn't support very much! */
-   switch (voice->depth)
-   {
+   /* OpenAL doesn't support very much! */
+   switch (voice->depth) {
       case ALLEGRO_AUDIO_DEPTH_UINT8:
          /* format supported */
          break;
       case ALLEGRO_AUDIO_DEPTH_INT8:
-         fprintf(stderr, "OpenAL requires 8-bit data to be unsigned\n");
+         ALLEGRO_WARN("OpenAL requires 8-bit data to be unsigned\n");
          return 1;
       case ALLEGRO_AUDIO_DEPTH_UINT16:
-         fprintf(stderr, "OpenAL requires 16-bit data to be signed\n");
+         ALLEGRO_WARN("OpenAL requires 16-bit data to be signed\n");
          return 1;
       case ALLEGRO_AUDIO_DEPTH_INT16:
          /* format supported */
          break;
       case ALLEGRO_AUDIO_DEPTH_UINT24:
-         fprintf(stderr, "OpenAL does not support 24-bit data\n");
+         ALLEGRO_WARN("OpenAL does not support 24-bit data\n");
          return 1;
       case ALLEGRO_AUDIO_DEPTH_INT24:
-         fprintf(stderr, "OpenAL does not support 24-bit data\n");
+         ALLEGRO_WARN("OpenAL does not support 24-bit data\n");
          return 1;
       case ALLEGRO_AUDIO_DEPTH_FLOAT32:
-         fprintf(stderr, "OpenAL does not support 32-bit floating data\n");
+         ALLEGRO_WARN("OpenAL does not support 32-bit floating data\n");
          return 1;
       default:
-         fprintf(stderr, "Cannot allocate unknown voice depth\n");
+         ALLEGRO_WARN("Cannot allocate unknown voice depth\n");
          return 1;
    }
 
    ex_data = al_calloc(1, sizeof(*ex_data));
-   if(!ex_data)
-   {
-      fprintf(stderr, "Could not allocate voice data memory\n"); 
+   if (!ex_data) {
+      ALLEGRO_ERROR("Could not allocate voice data memory\n");
       return 1;
    }
 
-   switch (voice->chan_conf)
-   {
+   switch (voice->chan_conf) {
       case ALLEGRO_CHANNEL_CONF_1:
          /* format supported */
-         if(voice->depth == ALLEGRO_AUDIO_DEPTH_UINT8)
+         if (voice->depth == ALLEGRO_AUDIO_DEPTH_UINT8)
             ex_data->format = AL_FORMAT_MONO8;
          else
             ex_data->format = AL_FORMAT_MONO16;
          break;
       case ALLEGRO_CHANNEL_CONF_2:
          /* format supported */
-         if(voice->depth == ALLEGRO_AUDIO_DEPTH_UINT8)
+         if (voice->depth == ALLEGRO_AUDIO_DEPTH_UINT8)
             ex_data->format = AL_FORMAT_STEREO8;
          else
             ex_data->format = AL_FORMAT_STEREO16;
          break;
       case ALLEGRO_CHANNEL_CONF_3:
-         fprintf(stderr, "OpenAL does not support voice with 3 channel configuration\n");
+         ALLEGRO_ERROR("OpenAL does not support voice with 3 channel configuration\n");
          al_free(ex_data);
          return 1;
       case ALLEGRO_CHANNEL_CONF_4:
          ex_data->format = alGetEnumValue("AL_FORMAT_QUAD16");
-         if (ex_data->format)
-         {
-            fprintf(stderr, "OpenAL cannot allocate voice with 4.0 channel configuration\n");
+         if (ex_data->format) {
+            ALLEGRO_ERROR("OpenAL cannot allocate voice with 4.0 channel configuration\n");
             al_free(ex_data);
             return 1;
          }
-         if (voice->depth == ALLEGRO_AUDIO_DEPTH_INT16)
-         {
-            fprintf(stderr, "OpenAL requires 16-bit signed data for 4 channel configuration\n");
+         if (voice->depth == ALLEGRO_AUDIO_DEPTH_INT16) {
+            ALLEGRO_ERROR("OpenAL requires 16-bit signed data for 4 channel configuration\n");
             al_free(ex_data);
             return 1;
          }
@@ -538,15 +530,13 @@ static int _openal_allocate_voice(ALLEGRO_VOICE *voice)
          break;
       case ALLEGRO_CHANNEL_CONF_5_1:
          ex_data->format = alGetEnumValue("AL_FORMAT_51CHN_16");
-         if (!ex_data->format)
-         {
-            fprintf(stderr, "Cannot allocate voice with 5.1 channel configuration\n");
+         if (!ex_data->format) {
+            ALLEGRO_ERROR("Cannot allocate voice with 5.1 channel configuration\n");
             al_free(ex_data);
             return 1;
          }
-         if (voice->depth == ALLEGRO_AUDIO_DEPTH_UINT16)
-         {
-            fprintf(stderr, "5.1 channel requires 16-bit signed data\n");
+         if (voice->depth == ALLEGRO_AUDIO_DEPTH_UINT16) {
+            ALLEGRO_ERROR("5.1 channel requires 16-bit signed data\n");
             al_free(ex_data);
             return 1;
          }
@@ -554,15 +544,13 @@ static int _openal_allocate_voice(ALLEGRO_VOICE *voice)
          break;
       case ALLEGRO_CHANNEL_CONF_6_1:
          ex_data->format = alGetEnumValue("AL_FORMAT_61CHN_16");
-         if (!ex_data->format)
-         {
-            fprintf(stderr, "Cannot allocate voice with 6.1 channel configuration\n");
+         if (!ex_data->format) {
+            ALLEGRO_ERROR("Cannot allocate voice with 6.1 channel configuration\n");
             al_free(ex_data);
             return 1;
          }
-         if (voice->depth == ALLEGRO_AUDIO_DEPTH_UINT16)
-         {
-            fprintf(stderr, "6.1 channel requires 16-bit signed data\n");
+         if (voice->depth == ALLEGRO_AUDIO_DEPTH_UINT16) {
+            ALLEGRO_ERROR("6.1 channel requires 16-bit signed data\n");
             al_free(ex_data);
             return 1;
          }
@@ -570,22 +558,20 @@ static int _openal_allocate_voice(ALLEGRO_VOICE *voice)
          break;
       case ALLEGRO_CHANNEL_CONF_7_1:
          ex_data->format = alGetEnumValue("AL_FORMAT_71CHN_16");
-         if (!ex_data->format)
-         {
-            fprintf(stderr, "Cannot allocate voice with 7.1 channel configuration\n");
+         if (!ex_data->format) {
+            ALLEGRO_ERROR("Cannot allocate voice with 7.1 channel configuration\n");
             al_free(ex_data);
             return 1;
          }
-         if (voice->depth == ALLEGRO_AUDIO_DEPTH_UINT16)
-         {
-            fprintf(stderr, "7.1 channel requires 16-bit signed data\n");
+         if (voice->depth == ALLEGRO_AUDIO_DEPTH_UINT16) {
+            ALLEGRO_ERROR("7.1 channel requires 16-bit signed data\n");
             al_free(ex_data);
             return 1;
          }
          /* else it is supported */
          break;
       default:
-         fprintf(stderr, "Cannot allocate voice with unknown channel configuration\n");
+         ALLEGRO_ERROR("Cannot allocate voice with unknown channel configuration\n");
          al_free(ex_data);
          return 1;
    }
@@ -615,7 +601,7 @@ static unsigned int _openal_get_voice_position(const ALLEGRO_VOICE *voice)
    ALint pos;
 
    alGetSourcei(ex_data->source, AL_SAMPLE_OFFSET, &pos);
-   if(alGetError() != AL_NO_ERROR)
+   if (alGetError() != AL_NO_ERROR)
       return 0;
    return pos;
 }
@@ -628,7 +614,7 @@ static int _openal_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
    ALLEGRO_AL_DATA *ex_data = voice->extra;
 
    alSourcei(ex_data->source, AL_SAMPLE_OFFSET, val);
-   if(alGetError() != AL_NO_ERROR)
+   if (alGetError() != AL_NO_ERROR)
       return 1;
    return 0;
 }
@@ -653,3 +639,5 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_openal_driver = {
    _openal_get_voice_position,
    _openal_set_voice_position,
 };
+
+/* vim: set sts=3 sw=3 et: */
