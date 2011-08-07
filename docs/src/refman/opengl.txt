@@ -80,7 +80,7 @@ Example:
 
 Retrieves the size of the texture used for the bitmap. This can be different
 from the bitmap size if OpenGL only supports power-of-two sizes or if it is
-a sub-bitmap.
+a sub-bitmap. 0's are returned if the bitmap is not an OpenGL bitmap.
 
 ## API: al_get_opengl_texture_position
 
