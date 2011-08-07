@@ -23,6 +23,20 @@
 #include "allegro5/internal/aintern_fshook.h"
 #include "allegro5/internal/aintern_tls.h"
 
+#if defined(ALLEGRO_MINGW32) && !defined(ALLEGRO_CFG_DLL_TLS)
+   /*
+    * MinGW < 4.2.1 doesn't have builtin thread local storage, so we
+    * must use the Windows API.
+    */
+   #if __GNUC__ < 4
+      #define ALLEGRO_CFG_DLL_TLS
+   #elif __GNUC__ == 4 && __GNUC_MINOR__ < 2
+      #define ALLEGRO_CFG_DLL_TLS
+   #elif __GNUC__ == 4 && __GNUC_MINOR__ == 2 && __GNUC_PATCHLEVEL__ < 1
+      #define ALLEGRO_CFG_DLL_TLS
+   #endif
+#endif
+
 
 /* Thread local storage for various per-thread state. */
 typedef struct thread_local_state {
@@ -98,15 +112,7 @@ static void initialize_tls_values(thread_local_state *tls)
 }
 
 
-#if (defined ALLEGRO_MINGW32 && ( \
-   __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 2) || \
-   (__GNUC__ == 4 && __GNUC_MINOR__ == 2 && __GNUC_PATCHLEVEL__ < 1))) || \
-   defined ALLEGRO_CFG_DLL_TLS
-
-/*
- * MinGW 3.x doesn't have builtin thread local storage, so we
- * must use the Windows API.
- */
+#if defined(ALLEGRO_CFG_DLL_TLS)
 
 #include <windows.h>
 
@@ -177,7 +183,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 }
 
 
-#else /* not MinGW < 4.2.1 */
+#else /* not ALLEGRO_CFG_DLL_TLS */
 
 #if defined(ALLEGRO_MSVC) || defined(ALLEGRO_BCC32)
 
@@ -247,7 +253,7 @@ static thread_local_state *tls_get(void)
 #endif /* end HAVE_NATIVE_TLS */
 
 
-#endif /* end not MinGW < 4.2,1 */
+#endif /* end not ALLEGRO_CFG_DLL_TLS */
 
 
 
