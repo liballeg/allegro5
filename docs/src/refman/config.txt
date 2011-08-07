@@ -3,6 +3,50 @@
 These functions are declared in the main Allegro header file:
 
     #include <allegro5/allegro.h>
+    
+Allegro supports reading and writing of configuration files with a
+simple, INI file-like format. 
+
+A configuration file consists of key-value pairs separated by newlines. 
+Keys are separated from values by an equals sign (`=`). All whitespace 
+before the key, after the value and immediately adjacent to the equals 
+sign is ignored. Keys and values may have whitespace characters within 
+them. Keys do not need to be unique, but all but the last one are ignored.
+
+The hash (`#`) character is used a comment when it is the first 
+non-whitespace character on the line. All characters following that
+character are ignored to the end of the line. The hash character anywhere
+else on the line has no special significance.
+
+Key-value pairs can be optionally grouped into sections, which are
+declared by surrounding a section name with square brackets (`[` and `]`) on
+a single line. Whitespace before the opening bracket is ignored. All
+characters after the trailing bracket are also ignored.
+
+All key-value pairs that follow a section declaration belong to the last
+declared section. Key-value pairs that don't follow any section 
+declarations belong to the global section. Sections do not nest.
+
+Here is an example configuration file:
+
+    # Monster description
+    monster name = Allegro Developer
+
+    [weapon 0]
+    damage = 443
+    
+    [weapon 1]
+    damage = 503
+
+It can then be accessed like this (make sure to check for errors in
+an actual program):
+
+    ALLEGRO_CONFIG* cfg = al_load_config_file("test.cfg");
+    printf("%s\n", al_get_config_value(cfg, "", "monster name")); /* Prints: Allegro Developer */
+    printf("%s\n", al_get_config_value(cfg, "weapon 0", "damage")); /* Prints: 443 */
+    printf("%s\n", al_get_config_value(cfg, "weapon 1", "damage")); /* Prints: 503 */
+    al_destroy_config(cfg);
+
 
 ## API: ALLEGRO_CONFIG
 
@@ -108,16 +152,16 @@ See also: [al_get_next_config_section]
 
 ## API: al_get_next_config_section
 
-Returns the name of the next section in the given config file. The
-`iterator` must have been obtained with [al_get_first_config_section]
-first.
+Returns the name of the next section in the given config file or NULL if
+there are no more sections. The `iterator` must have been obtained with 
+[al_get_first_config_section] first.
 
 See also: [al_get_first_config_section]
 
 ## API: al_get_first_config_entry
 
 Returns the name of the first key in the given section in the given
-config. The `iterator` works like the one for
+config or NULL if the section is empty. The `iterator` works like the one for
 [al_get_first_config_section].
 
 The returned string and the iterator are only valid as long as no
@@ -128,7 +172,8 @@ See also: [al_get_next_config_entry]
 ## API: al_get_next_config_entry
 
 Returns the next key for the iterator obtained by
-[al_get_first_config_entry].
+[al_get_first_config_entry]. The `iterator` works like the one for
+[al_get_next_config_section].
 
 ## API: al_merge_config
 
