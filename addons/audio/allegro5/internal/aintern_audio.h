@@ -166,6 +166,7 @@ struct ALLEGRO_SAMPLE_INSTANCE {
                          * The gain is premultiplied in.
                          */
 
+   bool                 is_mixer;
    stream_reader_t      spl_read;
                         /* Reads sample data into the provided buffer, using
                          * the specified format, converting as necessary.

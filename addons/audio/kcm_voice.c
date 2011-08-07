@@ -44,6 +44,7 @@ const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned int *samples)
 
    al_lock_mutex(voice->mutex);
    if (voice->attached_stream) {
+      ASSERT(voice->attached_stream->spl_read);
       voice->attached_stream->spl_read(voice->attached_stream, &buf, samples,
          voice->depth, 0);
    }
@@ -277,6 +278,7 @@ bool al_attach_audio_stream_to_voice(ALLEGRO_AUDIO_STREAM *stream,
                         al_get_channel_count(stream->spl.spl_data.chan_conf) *
                         al_get_audio_depth_size(stream->spl.spl_data.depth);
 
+   ASSERT(stream->spl.spl_read == NULL);
    stream->spl.spl_read = stream_read;
 
    if (voice->driver->start_voice(voice) != 0) {
@@ -306,6 +308,7 @@ bool al_attach_mixer_to_voice(ALLEGRO_MIXER *mixer, ALLEGRO_VOICE *voice)
 
    ASSERT(voice);
    ASSERT(mixer);
+   ASSERT(mixer->ss.is_mixer);
 
    if (voice->attached_stream)
       return false;
@@ -320,6 +323,8 @@ bool al_attach_mixer_to_voice(ALLEGRO_MIXER *mixer, ALLEGRO_VOICE *voice)
    al_lock_mutex(voice->mutex);
 
    voice->attached_stream = &mixer->ss;
+   ASSERT(mixer->ss.spl_read == NULL);
+   mixer->ss.spl_read = _al_kcm_mixer_read;
 
    _al_kcm_stream_set_mutex(&mixer->ss, voice->mutex);
 
@@ -374,6 +379,7 @@ void al_detach_voice(ALLEGRO_VOICE *voice)
 
    _al_kcm_stream_set_mutex(voice->attached_stream, NULL);
    voice->attached_stream->parent.u.voice = NULL;
+   voice->attached_stream->spl_read = NULL;
    voice->attached_stream = NULL;
 
    al_unlock_mutex(voice->mutex);
