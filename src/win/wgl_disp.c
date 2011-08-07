@@ -324,6 +324,8 @@ static int decode_pixel_format_old(PIXELFORMATDESCRIPTOR *pfd,
    eds->settings[ALLEGRO_FLOAT_COLOR] = 0;
    eds->settings[ALLEGRO_FLOAT_DEPTH] = 0;
 
+   // FIXME
+
    eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
 
    return true;
@@ -771,6 +773,8 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_ext(int *cou
       eds_list[j] = read_pixel_format_ext(i, testdc);
       if (!eds_list[j])
          continue;
+      // Fill vsync setting here and enable/disable it after display creation
+      eds_list[j]->settings[ALLEGRO_VSYNC] = ref->settings[ALLEGRO_VSYNC];
       display_pixel_format(eds_list[j]);
       eds_list[j]->score = _al_score_display_settings(eds_list[j], ref);
       if (eds_list[j]->score == -1) {
@@ -920,7 +924,6 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
    return true;
 }
 
-
 static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
 {
    ALLEGRO_DISPLAY     *disp     = (void*)wgl_disp;
@@ -1007,6 +1010,20 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
       ALLEGRO_ERROR("Failed to create a backbuffer.\n");
       destroy_display_internals(wgl_disp);
       return false;
+   }
+
+   /* Try to enable or disable vsync as requested */
+   /* NOTE: my drivers claim I don't have WGL_EXT_swap_control
+    * (according to al_have_opengl_extension), but wglSwapIntervalEXT
+    * does get loaded, so just check for that.
+    */
+   if (wglSwapIntervalEXT) {
+      if (disp->extra_settings.settings[ALLEGRO_VSYNC] == 1) {
+         wglSwapIntervalEXT(1);
+      }
+      else if (disp->extra_settings.settings[ALLEGRO_VSYNC] == 2) {
+         wglSwapIntervalEXT(0);
+      }
    }
  
    win_disp->mouse_selected_hcursor = 0;
