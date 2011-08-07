@@ -398,6 +398,22 @@ These are the public fields:
 -   intptr_t data3;
 -   intptr_t data4;
 
+Note that like all other event types this structure is a part of the
+ALLEGRO_EVENT union. Therefore to create a new user event you would
+do this:
+
+    ALLEGRO_EVENT_SOURCE my_event_source;
+    ALLEGRO_EVENT my_event;
+    float some_var;
+    
+    al_init_user_event_source(&my_event_source);
+    
+    my_event.user.type = ALLEGRO_GET_EVENT_TYPE('M','I','N','E');
+    my_event.user.data1 = 1;
+    my_event.user.data2 = &some_var;
+    
+    al_emit_user_event(&my_event_source, &my_event, NULL);
+
 See also: [al_emit_user_event]
 
 ## API: ALLEGRO_EVENT_QUEUE
