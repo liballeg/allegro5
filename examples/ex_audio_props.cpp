@@ -90,7 +90,7 @@ void Prog::update_properties()
    al_set_sample_instance_gain(sample_inst, gain);
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
 
@@ -160,6 +160,9 @@ int main(int argc, char *argv[])
    al_destroy_font(font_gui);
 
    return 0;
+
+   (void)argc;
+   (void)argv;
 }
 
 /* vim: set sts=3 sw=3 et: */
