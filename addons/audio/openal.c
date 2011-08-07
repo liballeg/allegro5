@@ -153,7 +153,6 @@ typedef struct ALLEGRO_AL_DATA {
    ALuint format;
 
    ALLEGRO_THREAD *thread;
-   volatile bool stop_voice;
 } ALLEGRO_AL_DATA;
 
 /* Custom routine which runs in another thread to periodically check if OpenAL
@@ -166,8 +165,6 @@ static void *_openal_update(ALLEGRO_THREAD *self, void *arg)
    unsigned int i, samples_per_update;
    const void *data;
    void *silence;
-
-   (void)self;
 
    /* Streams should not be set to looping */
    alSourcei(ex_data->source, AL_LOOPING, AL_FALSE);
@@ -203,7 +200,7 @@ static void *_openal_update(ALLEGRO_THREAD *self, void *arg)
 
    data = silence;
 
-   while (!ex_data->stop_voice) {
+   while (!al_get_thread_should_stop(self)) {
       ALint status = 0;
 
       alGetSourcei(ex_data->source, AL_BUFFERS_PROCESSED, &status);
@@ -347,7 +344,7 @@ static int _openal_start_voice(ALLEGRO_VOICE *voice)
       return 0;
    }
 
-   if (ex_data->stop_voice != 0) {
+   {
       ex_data->buffer_size = voice->buffer_size;
       if (!ex_data->buffer_size) {
          switch (ex_data->format) {
@@ -395,10 +392,8 @@ static int _openal_start_voice(ALLEGRO_VOICE *voice)
          return 1;
       }
 
-      ex_data->stop_voice = 0;
-      ex_data->thread = al_create_thread(_openal_update, (void*) voice);
+      ex_data->thread = al_create_thread(_openal_update, (void *)voice);
       al_start_thread(ex_data->thread);
-
    }
 
    ALLEGRO_INFO("Starting voice\n");
@@ -428,9 +423,9 @@ static int _openal_stop_voice(ALLEGRO_VOICE* voice)
       return 0;
    }
 
-   if (ex_data->stop_voice == 0) {
-      ex_data->stop_voice = 1;
+   if (ex_data->thread) {
       al_join_thread(ex_data->thread, NULL);
+      ex_data->thread = NULL;
    }
 
    alDeleteBuffers(ex_data->num_buffers, ex_data->buffers);
@@ -576,9 +571,8 @@ static int _openal_allocate_voice(ALLEGRO_VOICE *voice)
          return 1;
    }
 
-   /* stop_voice to true */
-   ex_data->stop_voice = 1;
    voice->extra = ex_data;
+   ex_data->thread = NULL;
 
    return 0;
 }
@@ -588,6 +582,9 @@ static int _openal_allocate_voice(ALLEGRO_VOICE *voice)
    unloaded by the time this is called */
 static void _openal_deallocate_voice(ALLEGRO_VOICE *voice)
 {
+   ALLEGRO_AL_DATA *ex_data = voice->extra;
+   ASSERT(ex_data->thread == NULL);
+
    al_free(voice->extra);
    voice->extra = NULL;
 }
