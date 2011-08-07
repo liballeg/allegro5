@@ -158,18 +158,18 @@ static ALLEGRO_BITMAP *push_new_page(ALLEGRO_TTF_FONT_DATA *data)
 
     unlock_current_page(data);
 
-    old_format = al_get_new_bitmap_format();
-    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
-    page = al_create_bitmap(256, 256);
-    al_set_new_bitmap_format(old_format);
-
     /* The bitmap will be destroyed when the parent font is destroyed so
      * it is not safe to register a destructor for it.
      */
     _al_push_destructor_owner();
+    old_format = al_get_new_bitmap_format();
+    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
+    page = al_create_bitmap(256, 256);
+    al_set_new_bitmap_format(old_format);
+    _al_pop_destructor_owner();
+
     back = _al_vector_alloc_back(&data->page_bitmaps);
     *back = page;
-    _al_pop_destructor_owner();
 
     /* Sometimes OpenGL will partly sample texels from the border of
      * glyphs. So we better clear the texture to transparency.
