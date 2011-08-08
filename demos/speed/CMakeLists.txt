@@ -55,6 +55,10 @@ if(NOT BUILD_SHARED_LIBS)
     set_target_properties(speed PROPERTIES COMPILE_FLAGS "-DALLEGRO_STATICLINK")
 endif(NOT BUILD_SHARED_LIBS)
 
+set_source_files_properties(${A4_FONT} PROPERTIES
+    MACOSX_PACKAGE_LOCATION "Resources"
+)
+
 add_custom_command(
     OUTPUT ${A4_FONT}
     COMMAND "${CMAKE_COMMAND}" -E copy
