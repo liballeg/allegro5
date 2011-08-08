@@ -385,7 +385,8 @@ event.display.orientation
     - ALLEGRO_DISPLAY_ORIENTATION_FACE_UP
     - ALLEGRO_DISPLAY_ORIENTATION_FACE_DOWN
 
-See also: [ALLEGRO_EVENT_SOURCE], [ALLEGRO_EVENT_TYPE], [ALLEGRO_USER_EVENT]
+See also: [ALLEGRO_EVENT_SOURCE], [ALLEGRO_EVENT_TYPE], [ALLEGRO_USER_EVENT],
+[ALLEGRO_GET_EVENT_TYPE]
 
 ## API: ALLEGRO_USER_EVENT
 
@@ -414,7 +415,7 @@ do this:
     
     al_emit_user_event(&my_event_source, &my_event, NULL);
 
-See also: [al_emit_user_event]
+See also: [al_emit_user_event], [ALLEGRO_GET_EVENT_TYPE]
 
 ## API: ALLEGRO_EVENT_QUEUE
 
@@ -470,7 +471,7 @@ If you need multiple identifiers, you could define them like this:
        SQUAWK_EVENT
     };
 
-See also: [ALLEGRO_EVENT], [ALLEGRO_EVENT_TYPE_IS_USER]
+See also: [ALLEGRO_EVENT], [ALLEGRO_USER_EVENT], [ALLEGRO_EVENT_TYPE_IS_USER]
 
 ## API: ALLEGRO_EVENT_TYPE_IS_USER
 
@@ -654,8 +655,8 @@ However, it is only one technique and you are not obliged to use it.
 The user event source will never be destroyed automatically.
 You must destroy it manually with [al_destroy_user_event_source].
 
-See also: [ALLEGRO_EVENT_SOURCE], [al_emit_user_event],
-[al_destroy_user_event_source]
+See also: [ALLEGRO_EVENT_SOURCE], [al_destroy_user_event_source],
+[al_emit_user_event], [ALLEGRO_USER_EVENT]
 
 ## API: al_destroy_user_event_source
 
@@ -700,7 +701,7 @@ that you get from [al_get_next_event], [al_peek_next_event],
 [al_wait_for_event], etc. which is reference counted.
 This function does nothing if the event is not reference counted.
 
-See also: [al_emit_user_event]
+See also: [al_emit_user_event], [ALLEGRO_USER_EVENT]
 
 
 
