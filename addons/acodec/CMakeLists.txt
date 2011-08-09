@@ -207,6 +207,8 @@ elseif(WANT_VORBIS)
         if(COMPILER_GCC)
             # libm is required when linking statically.
             set(CMAKE_REQUIRED_LIBRARIES "${VORBIS_LIBRARIES};m")
+        else()
+            set(CMAKE_REQUIRED_LIBRARIES "${VORBIS_LIBRARIES}")
         endif(COMPILER_GCC)
         check_c_source_compiles("
             #include <vorbis/vorbisfile.h>
