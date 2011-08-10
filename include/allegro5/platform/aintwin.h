@@ -160,7 +160,7 @@ HWND _al_win_create_hidden_window(void);
 
 /* icon helpers */
 void  _al_win_set_display_icon(ALLEGRO_DISPLAY *display ,ALLEGRO_BITMAP *bitmap);
-HICON _al_win_create_icon(HWND wnd, ALLEGRO_BITMAP *sprite, int xfocus, int yfocus, bool is_cursor);
+HICON _al_win_create_icon(HWND wnd, ALLEGRO_BITMAP *sprite, int xfocus, int yfocus, bool is_cursor, bool resize);
 
 /* window decorations */
 void _al_win_set_window_position(HWND window, int x, int y);

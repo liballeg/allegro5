@@ -33,7 +33,7 @@ static void local_draw_to_hdc(HDC dc, ALLEGRO_BITMAP *bitmap, int x, int y);
 
 
 HICON _al_win_create_icon(HWND wnd,
-   ALLEGRO_BITMAP *sprite, int xfocus, int yfocus, bool is_cursor)
+   ALLEGRO_BITMAP *sprite, int xfocus, int yfocus, bool is_cursor, bool resize)
 {
    int x, y;
    int sys_sm_cx, sys_sm_cy;
@@ -47,18 +47,24 @@ HICON _al_win_create_icon(HWND wnd,
    HBITMAP hOldXorMaskBitmap;
    HICON icon;
 
-   if (is_cursor) {
-      /* Get allowed cursor size - Windows can't make cursors of arbitrary size */
-      sys_sm_cx = GetSystemMetrics(SM_CXCURSOR);
-      sys_sm_cy = GetSystemMetrics(SM_CYCURSOR);
+   if (resize) {
+      if (is_cursor) {
+         /* Get allowed cursor size - Windows can't make cursors of arbitrary size */
+         sys_sm_cx = GetSystemMetrics(SM_CXCURSOR);
+         sys_sm_cy = GetSystemMetrics(SM_CYCURSOR);
+      }
+      else {
+         sys_sm_cx = GetSystemMetrics(SM_CXICON);
+         sys_sm_cy = GetSystemMetrics(SM_CYICON);
+      }
+
+      if ((sprite->w > sys_sm_cx) || (sprite->h > sys_sm_cy)) {
+         return NULL;
+      }
    }
    else {
-      sys_sm_cx = GetSystemMetrics(SM_CXICON);
-      sys_sm_cy = GetSystemMetrics(SM_CYICON);
-   }
-
-   if ((sprite->w > sys_sm_cx) || (sprite->h > sys_sm_cy)) {
-      return NULL;
+      sys_sm_cx = al_get_bitmap_width(sprite);
+      sys_sm_cy = al_get_bitmap_height(sprite);
    }
 
    /* Create bitmap */
@@ -132,7 +138,7 @@ ALLEGRO_MOUSE_CURSOR *_al_win_create_mouse_cursor(ALLEGRO_BITMAP *sprite,
    /* A null HWND retrieves the DC for the entire screen. */
    wnd = NULL;
 
-   hcursor = (HCURSOR)_al_win_create_icon(wnd, sprite, xfocus, yfocus, true);
+   hcursor = (HCURSOR)_al_win_create_icon(wnd, sprite, xfocus, yfocus, true, true);
    if (!hcursor) {
       return NULL;
    }

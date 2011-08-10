@@ -927,8 +927,8 @@ void _al_win_set_display_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bmp)
 
    al_restore_state(&backup);
 
-   sm_icon = _al_win_create_icon(win_display->window, sm_bmp, 0, 0, false);
-   big_icon = _al_win_create_icon(win_display->window, big_bmp, 0, 0, false);
+   sm_icon = _al_win_create_icon(win_display->window, sm_bmp, 0, 0, false, false);
+   big_icon = _al_win_create_icon(win_display->window, big_bmp, 0, 0, false, false);
 
    old_small = (HICON)SendMessage(win_display->window, WM_SETICON,
       ICON_SMALL, (LPARAM)sm_icon);
