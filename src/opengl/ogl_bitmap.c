@@ -449,6 +449,8 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
          ogl_bitmap->true_w, ogl_bitmap->true_h, 0, glformats[bitmap->format][2],
          glformats[bitmap->format][1], bitmap->memory);
+      al_free(bitmap->memory);
+      bitmap->memory = NULL;
       e = glGetError();
    }
 #ifndef ALLEGRO_IPHONE
@@ -906,11 +908,12 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
       if (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY) {
          int dst_pitch = bitmap->lock_w * ogl_pixel_alignment(orig_pixel_size);
+	 unsigned char *tmpbuf = al_malloc(dst_pitch * bitmap->lock_h);
          _al_convert_bitmap_data(
             ogl_bitmap->lock_buffer,
             bitmap->locked_region.format,
             -bitmap->locked_region.pitch,
-	     bitmap->memory,
+            tmpbuf,
             orig_format,
             dst_pitch,
             0, 0, 0, 0,
@@ -922,7 +925,8 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             bitmap->lock_w, bitmap->lock_h,
             glformats[orig_format][2],
             glformats[orig_format][1],
-            bitmap->memory);
+            tmpbuf);
+         al_free(tmpbuf);
          e = glGetError();
          if (e) {
             ALLEGRO_ERROR("glTexSubImage2D for format %d failed (%s).\n",
