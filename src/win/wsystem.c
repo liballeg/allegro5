@@ -152,8 +152,7 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
    (void)flags;
    (void)result;
 
-   _al_win_system = al_malloc(sizeof *_al_win_system);
-   memset(_al_win_system, 0, sizeof *_al_win_system);
+   _al_win_system = al_calloc(1, sizeof *_al_win_system);
 
    // Request a 1ms resolution from our timer
    if (timeBeginPeriod(1) != TIMERR_NOCANDO) {
@@ -704,8 +703,7 @@ static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
 {
    if (vt) return vt;
 
-   vt = al_malloc(sizeof *vt);
-   memset(vt, 0, sizeof *vt);
+   vt = al_calloc(1, sizeof *vt);
 
    vt->initialize = win_initialize;
    vt->get_display_driver = win_get_display_driver;

@@ -84,8 +84,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_fbconfig(Display *dpy,
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds;
    XVisualInfo *v;
 
-   eds = al_malloc(sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
-   memset(eds, 0, sizeof *eds);
+   eds = al_calloc(1, sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
    eds->settings[ALLEGRO_RENDER_METHOD] = 2;
 
    if (glXGetFBConfigAttrib (dpy, fbc, GLX_RENDER_TYPE,
@@ -263,8 +262,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_xvisual(Display *dpy,
    if (v->class != TrueColor && v->class != DirectColor)
       return NULL;
 
-   eds = al_malloc(sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
-   memset(eds, 0, sizeof *eds);
+   eds = al_calloc(1, sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
    eds->settings[ALLEGRO_RENDER_METHOD] = 2;
 
    if (glXGetConfig (dpy, v, GLX_RGBA,         &rgba)

@@ -1100,13 +1100,11 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    /* iPhone/Wiz ports still expect the buffer to be present. */
    {
       size_t bytes = pitch * true_h;
-      bitmap->memory = al_malloc(bytes);
-
       /* We never allow un-initialized memory for OpenGL bitmaps, if it
        * is uploaded to a floating point texture it can lead to Inf and
        * NaN values which break all subsequent blending.
        */
-      memset(bitmap->memory, 0, bytes);
+      bitmap->memory = al_calloc(1, bytes);
    }
 #endif
 

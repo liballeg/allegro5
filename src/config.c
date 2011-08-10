@@ -30,10 +30,8 @@ static void *local_calloc1(size_t size)
 {
    void *p;
 
-   p = al_malloc(size);
-   if (p) {
-      memset(p, 0, size);
-   }
+   p = al_calloc(1, size);
+
    return p;
 }
 

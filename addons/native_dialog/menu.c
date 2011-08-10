@@ -60,13 +60,12 @@ static void set_item_icon(ALLEGRO_MENU_ITEM *item, ALLEGRO_BITMAP *icon)
       
 static ALLEGRO_MENU_ITEM *create_menu_item(char const *title, int id, int flags, ALLEGRO_MENU *popup)
 {
-   ALLEGRO_MENU_ITEM *item = al_malloc(sizeof(*item));
+   ALLEGRO_MENU_ITEM *item = al_calloc(1, sizeof(*item));
    if (!item) return NULL;
    
    if (flags & ALLEGRO_MENU_ITEM_CHECKED)
       flags |= ALLEGRO_MENU_ITEM_CHECKBOX;
    
-   memset(item, 0, sizeof(*item));
    if (title)
       item->caption = al_ustr_new(title);
    item->id = id;
@@ -292,10 +291,9 @@ static ALLEGRO_MENU *clone_menu(ALLEGRO_MENU *menu, bool popup)
  */
 ALLEGRO_MENU *al_create_menu(void)
 {
-   ALLEGRO_MENU *m = al_malloc(sizeof(*m));
+   ALLEGRO_MENU *m = al_calloc(1, sizeof(*m));
 
    if (m) {
-      memset(m, 0, sizeof(*m));
       _al_vector_init(&m->items, sizeof(ALLEGRO_MENU_ITEM*));
 
       /* Make sure the platform actually supports menus */
@@ -312,10 +310,9 @@ ALLEGRO_MENU *al_create_menu(void)
  */
 ALLEGRO_MENU *al_create_popup_menu(void)
 {
-   ALLEGRO_MENU *m = al_malloc(sizeof(*m));
+   ALLEGRO_MENU *m = al_calloc(1, sizeof(*m));
 
    if (m) {
-      memset(m, 0, sizeof(*m));
       _al_vector_init(&m->items, sizeof(ALLEGRO_MENU_ITEM*));
 
       if (!_al_init_popup_menu(m)) {

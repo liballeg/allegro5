@@ -430,8 +430,7 @@ bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP *b, int w, int h)
       /* FIXME: lazily manage memory */
       size_t bytes = pitch * h;
       al_free(b->memory);
-      b->memory = al_malloc(bytes);
-      memset(b->memory, 0, bytes);
+      b->memory = al_calloc(1, bytes);
    }
 #endif
 

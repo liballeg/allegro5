@@ -475,8 +475,7 @@ static FLACFILE *flac_open(ALLEGRO_FILE* f)
       return NULL;
    }
 
-   ff = al_malloc(sizeof *ff);
-   memset(ff, 0, sizeof *ff);
+   ff = al_calloc(1, sizeof *ff);
 
    ff->decoder = lib.FLAC__stream_decoder_new();
    if (!ff->decoder) {

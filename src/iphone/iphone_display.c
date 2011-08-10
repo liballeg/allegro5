@@ -188,13 +188,11 @@ void _al_iphone_update_visuals(void)
       return;
    }
    
-   system->visuals = al_malloc(VISUALS_COUNT * sizeof(*system->visuals));
+   system->visuals = al_calloc(1, VISUALS_COUNT * sizeof(*system->visuals));
    system->visuals_count = VISUALS_COUNT;
-   memset(system->visuals, 0, VISUALS_COUNT * sizeof(*system->visuals));
    
    for (int i = 0; i < VISUALS_COUNT; i++) {
-      ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = al_malloc(sizeof *eds);
-      memset(eds, 0, sizeof *eds);
+      ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = al_calloc(1, sizeof *eds);
       eds->settings[ALLEGRO_RENDER_METHOD] = 1;
       eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
       eds->settings[ALLEGRO_SWAP_METHOD] = 2;
@@ -224,11 +222,9 @@ void _al_iphone_update_visuals(void)
 
 static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
 {
-    ALLEGRO_DISPLAY_IPHONE *d = al_malloc(sizeof *d);
+    ALLEGRO_DISPLAY_IPHONE *d = al_calloc(1, sizeof *d);
     ALLEGRO_DISPLAY *display = (void*)d;
-    ALLEGRO_OGL_EXTRAS *ogl = al_malloc(sizeof *ogl);
-    memset(d, 0, sizeof *d);
-    memset(ogl, 0, sizeof *ogl);
+    ALLEGRO_OGL_EXTRAS *ogl = al_calloc(1, sizeof *ogl);
     display->ogl_extras = ogl;
     display->vt = _al_get_iphone_display_interface();
     display->w = w;
@@ -428,8 +424,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_iphone_display_interface(void)
     if (vt)
         return vt;
     
-    vt = al_malloc(sizeof *vt);
-    memset(vt, 0, sizeof *vt);
+    vt = al_calloc(1, sizeof *vt);
     
     vt->create_display = iphone_create_display;
     vt->destroy_display = iphone_destroy_display;

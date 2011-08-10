@@ -161,8 +161,7 @@ ALLEGRO_VERTEX_DECL* al_create_vertex_decl(const ALLEGRO_VERTEX_ELEMENT* element
    ASSERT(addon_initialized);
 
    ret = al_malloc(sizeof(ALLEGRO_VERTEX_DECL));
-   ret->elements = al_malloc(sizeof(ALLEGRO_VERTEX_ELEMENT) * ALLEGRO_PRIM_ATTR_NUM);
-   memset(ret->elements, 0, sizeof(ALLEGRO_VERTEX_ELEMENT) * ALLEGRO_PRIM_ATTR_NUM);
+   ret->elements = al_calloc(1, sizeof(ALLEGRO_VERTEX_ELEMENT) * ALLEGRO_PRIM_ATTR_NUM);
    while(elements->attribute) {
       ret->elements[elements->attribute] = *elements;
       elements++;

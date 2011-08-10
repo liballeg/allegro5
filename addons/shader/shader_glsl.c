@@ -46,14 +46,12 @@ static char *my_strdup(const char *src)
 
 ALLEGRO_SHADER *_al_create_shader_glsl(ALLEGRO_SHADER_PLATFORM platform)
 {
-   ALLEGRO_SHADER_GLSL_S *shader = al_malloc(sizeof(ALLEGRO_SHADER_GLSL_S));
+   ALLEGRO_SHADER_GLSL_S *shader = al_calloc(1, sizeof(ALLEGRO_SHADER_GLSL_S));
    
    (void)platform;
 
    if (!shader)
       return NULL;
-
-   memset(shader, 0, sizeof(ALLEGRO_SHADER_GLSL_S));
 
    shader->deferred_sets = al_malloc(sizeof(_AL_VECTOR));
    _al_vector_init(shader->deferred_sets, sizeof(GLSL_DEFERRED_SET));

@@ -196,8 +196,7 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp,
    w = al_get_bitmap_width(bmp);
    h = al_get_bitmap_height(bmp);
 
-   f = al_malloc(sizeof *f);
-   memset(f, 0, sizeof *f);
+   f = al_calloc(1, sizeof *f);
    f->vtable = &_al_font_vtable_color;
    
    al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
@@ -220,8 +219,7 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp,
       int first = ranges[i * 2];
       int last = ranges[i * 2 + 1];
       int n = 1 + last - first;
-      cf = al_malloc(sizeof(ALLEGRO_FONT_COLOR_DATA));
-      memset(cf, 0, sizeof *cf);
+      cf = al_calloc(1, sizeof(ALLEGRO_FONT_COLOR_DATA));
 
       if (prev)
          prev->next = cf;

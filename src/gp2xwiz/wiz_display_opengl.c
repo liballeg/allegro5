@@ -53,13 +53,11 @@ static ALLEGRO_DISPLAY *gp2xwiz_create_display_ogl(int w, int h)
    if (set_gfx_mode)
       return NULL;
 
-   ALLEGRO_DISPLAY_GP2XWIZ_OGL *d = al_malloc(sizeof *d);
+   ALLEGRO_DISPLAY_GP2XWIZ_OGL *d = al_calloc(sizeof *d);
    ALLEGRO_DISPLAY *display = (void*)d;
-   ALLEGRO_OGL_EXTRAS *ogl = al_malloc(sizeof *ogl);
+   ALLEGRO_OGL_EXTRAS *ogl = al_calloc(sizeof *ogl);
    EGLint numConfigs;
 
-   memset(d, 0, sizeof *d);
-   memset(ogl, 0, sizeof *ogl);
    display->ogl_extras = ogl;
 
    ALLEGRO_SYSTEM_GP2XWIZ *system = (void *)al_get_system_driver();
@@ -238,8 +236,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_gp2xwiz_opengl_driver(void)
    if (gp2xwiz_vt)
       return gp2xwiz_vt;
 
-   gp2xwiz_vt = al_malloc(sizeof *gp2xwiz_vt);
-   memset(gp2xwiz_vt, 0, sizeof *gp2xwiz_vt);
+   gp2xwiz_vt = al_calloc(sizeof *gp2xwiz_vt);
 
    gp2xwiz_vt->create_display = gp2xwiz_create_display_ogl;
    gp2xwiz_vt->destroy_display = gp2xwiz_destroy_display_ogl;

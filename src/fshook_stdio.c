@@ -379,13 +379,11 @@ static ALLEGRO_FS_ENTRY *fs_stdio_create_entry(const char *path)
    int trailing_slashes;
    char c;
 
-   fh = al_malloc(sizeof(*fh));
+   fh = al_calloc(1, sizeof(*fh));
    if (!fh) {
       al_set_errno(errno);
       return NULL;
    }
-
-   memset(fh, 0, sizeof(*fh));
 
    fh->fs_entry.vtable = &_al_fs_interface_stdio;
 

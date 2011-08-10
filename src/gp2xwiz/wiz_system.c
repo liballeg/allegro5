@@ -31,8 +31,7 @@ static ALLEGRO_SYSTEM *gp2xwiz_initialize(int flags)
 
    _al_unix_init_time();
 
-   s = al_malloc(sizeof *s);
-   memset(s, 0, sizeof *s);
+   s = al_calloc(sizeof *s);
 
    _al_vector_init(&s->system.displays, sizeof (ALLEGRO_DISPLAY *));
 
@@ -141,8 +140,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_gp2xwiz_driver(void)
    if (gp2xwiz_vt)
       return gp2xwiz_vt;
 
-   gp2xwiz_vt = al_malloc(sizeof *gp2xwiz_vt);
-   memset(gp2xwiz_vt, 0, sizeof *gp2xwiz_vt);
+   gp2xwiz_vt = al_calloc(sizeof *gp2xwiz_vt);
 
    gp2xwiz_vt->initialize = gp2xwiz_initialize;
    gp2xwiz_vt->get_display_driver = gp2xwiz_get_display_driver;

@@ -190,13 +190,11 @@ static const ALLEGRO_FILE_INTERFACE fi =
  */
 ALLEGRO_FILE *al_fopen_slice(ALLEGRO_FILE *fp, size_t initial_size, const char *mode)
 {
-   SLICE_DATA *userdata = al_malloc(sizeof(*userdata));
+   SLICE_DATA *userdata = al_calloc(1, sizeof(*userdata));
    
    if (!userdata) {
       return NULL;
    }
-   
-   memset(userdata, 0, sizeof(*userdata));
    
    if (strstr(mode, "r") || strstr(mode, "R")) {
       userdata->mode |= SLICE_READ;
