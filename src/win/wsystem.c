@@ -49,6 +49,7 @@ ALLEGRO_DEBUG_CHANNEL("system")
    #define _WIN32_IE 0x500
    #endif
    #include <shlobj.h>
+   #include <shlwapi.h>
 /* } */
 
 bool _al_win_disable_screensaver = false;
@@ -535,14 +536,18 @@ static bool win_inhibit_screensaver(bool inhibit)
    return true;
 }
 
-static HMODULE load_library_at_path(ALLEGRO_PATH *path, const char *filename)
+static HMODULE load_library_at_path(const char *path_str)
 {
-   const char *path_str;
    HMODULE lib;
 
-   al_set_path_filename(path, filename);
-   path_str = al_path_cstr(path, '\\');
+   /*
+    * XXX LoadLibrary will search the current directory for any dependencies of
+    * the library we are loading.  Using LoadLibraryEx with the appropriate
+    * flags would fix that, but when I tried it I was unable to load dsound.dll
+    * on Vista.
+    */
 
+   ALLEGRO_DEBUG("Calling LoadLibrary %s\n", path_str);
    lib = LoadLibraryA(path_str);
    if (lib) {
       ALLEGRO_INFO("Loaded %s\n", path_str);
@@ -567,58 +572,24 @@ static bool is_build_config_name(const char *s)
       || 0 == strcmp(s, "Profile"));
 }
 
-static bool same_dir(ALLEGRO_PATH *dir1, ALLEGRO_PATH *dir2)
+static ALLEGRO_PATH *maybe_parent_dir(const ALLEGRO_PATH *path)
 {
-   const char *s1;
-   const char *s2;
-   int i, n1, n2;
+   ALLEGRO_PATH *path2;
 
-   n1 = al_get_path_num_components(dir1);
-   n2 = al_get_path_num_components(dir2);
-   if (n1 != n2)
-      return false;
-
-   for (i = 0; i < n1; i++) {
-      s1 = al_get_path_component(dir1, i);
-      s2 = al_get_path_component(dir2, i);
-      if (strcmp(s1, s2) != 0)
-         return false;
-   }
-
-   s1 = al_get_path_drive(dir1);
-   s2 = al_get_path_drive(dir2);
-   if (!s1 || !s2 || strcmp(s1, s2) != 0)
-      return false;
-
-   return true;
-}
-
-static HMODULE maybe_load_library_at_cwd(ALLEGRO_PATH *path)
-{
-   char cwd_buf[MAX_PATH];
-   ALLEGRO_PATH *cwd;
-   const char *path_str;
-   HMODULE lib = NULL;
+   if (!path)
+      return NULL;
 
    if (!is_build_config_name(al_get_path_tail(path)))
       return NULL;
 
-   if (GetCurrentDirectoryA(sizeof(cwd_buf), cwd_buf) >= sizeof(cwd_buf)) {
-      ALLEGRO_WARN("GetCurrentDirectoryA failed\n");
-      return NULL;
+   path2 = al_clone_path(path);
+   if (path2) {
+      al_drop_path_tail(path2);
+      al_set_path_filename(path2, NULL);
+      ALLEGRO_DEBUG("Also searching %s\n", al_path_cstr(path2, '\\'));
    }
 
-   al_drop_path_tail(path);
-   path_str = al_path_cstr(path, '\\');
-
-   cwd = al_create_path_for_directory(cwd_buf);
-   if (same_dir(path, cwd)) {
-      ALLEGRO_DEBUG("Assuming MSVC build directory, trying %s\n", path_str);
-      lib = LoadLibraryA(path_str);
-   }
-   al_destroy_path(cwd);
-
-   return lib;
+   return path2;
 }
 
 /*
@@ -628,10 +599,13 @@ static HMODULE maybe_load_library_at_cwd(ALLEGRO_PATH *path)
  */
 HMODULE _al_win_safe_load_library(const char *filename)
 {
+   ALLEGRO_PATH *path1 = NULL;
+   ALLEGRO_PATH *path2 = NULL;
    char buf[MAX_PATH];
-   HMODULE lib;
+   const char *other_dirs[3];
+   HMODULE lib = NULL;
    bool msvc_only = false;
-   
+
    /* MSVC only: if the executable is in the build configuration directory,
     * which is also just under the current directory, then also try to load the
     * library from the current directory.  This leads to less surprises when
@@ -642,44 +616,37 @@ HMODULE _al_win_safe_load_library(const char *filename)
 #endif
 
    /* Try to load the library from the directory containing the running
-    * executable.
-    */
-   {
-      ALLEGRO_PATH *path = NULL;
-
-      if (al_is_system_installed()) {
-         path = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
-      }
-      else {
-         if (GetModuleFileName(NULL, buf, sizeof(buf)) < sizeof(buf)) {
-            path = al_create_path(buf);
-         }
-      }
-      if (path) {
-         lib = load_library_at_path(path, filename);
-         if (!lib && msvc_only) {
-            lib = maybe_load_library_at_cwd(path);
-         }
-         al_destroy_path(path);
-         if (lib)
-            return lib;
-      }
-   }
-
-   /* Try to load the library from the Windows system directory. */
-   if (GetSystemDirectoryA(buf, sizeof(buf)) < sizeof(buf)) {
-      ALLEGRO_PATH *path = al_create_path_for_directory(buf);
-      lib = load_library_at_path(path, filename);
-      al_destroy_path(path);
-      if (lib)
-         return lib;
-   }
-
-   /* Do NOT try to load the library from the current directory, or
-    * directories on the PATH.
+    * executable, the Windows system directories, or directories on the PATH.
+    * Do NOT try to load the library from the current directory.
     */
 
-   return NULL;
+   if (al_is_system_installed()) {
+      path1 = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
+   }
+   else if (GetModuleFileName(NULL, buf, sizeof(buf)) < sizeof(buf)) {
+      path1 = al_create_path(buf);
+   }
+   if (msvc_only) {
+      path2 = maybe_parent_dir(path1);
+   }
+
+   other_dirs[0] = path1 ? al_path_cstr(path1, '\\') : NULL;
+   other_dirs[1] = path2 ? al_path_cstr(path2, '\\') : NULL;
+   other_dirs[2] = NULL; /* sentinel */
+
+   _al_sane_strncpy(buf, filename, sizeof(buf));
+   if (PathFindOnPath(buf, other_dirs)) {
+      ALLEGRO_DEBUG("PathFindOnPath found: %s\n", buf);
+      lib = load_library_at_path(buf);
+   }
+   else {
+      ALLEGRO_WARN("PathFindOnPath failed to find %s\n", filename);
+   }
+
+   al_destroy_path(path1);
+   al_destroy_path(path2);
+
+   return lib;
 }
 
 static void *win_open_library(const char *filename)
