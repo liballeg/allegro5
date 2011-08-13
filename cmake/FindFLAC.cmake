@@ -14,8 +14,8 @@ find_path(FLAC_INCLUDE_DIR FLAC/stream_decoder.h)
 
 # MSVC built libraries can name them *_static, which is good as it
 # distinguishes import libraries from static libraries with the same extension.
-find_library(FLAC_LIBRARY NAMES FLAC libFLAC libFLAC_static)
-find_library(OGG_LIBRARY NAMES ogg ogg_static)
+find_library(FLAC_LIBRARY NAMES FLAC libFLAC libFLAC_dynamic libFLAC_static)
+find_library(OGG_LIBRARY NAMES ogg ogg_static libogg libogg_static)
 
 # Handle the QUIETLY and REQUIRED arguments and set FLAC_FOUND to TRUE if
 # all listed variables are TRUE.

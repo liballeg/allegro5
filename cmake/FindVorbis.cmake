@@ -13,9 +13,13 @@ if(NOT GP2XWIZ)
     find_path(OGG_INCLUDE_DIR ogg/ogg.h)
     find_path(VORBIS_INCLUDE_DIR vorbis/vorbisfile.h)
     # MSVC built ogg/vorbis may be named ogg_static and vorbis_static
-    find_library(OGG_LIBRARY NAMES ogg ogg_static)
-    find_library(VORBIS_LIBRARY NAMES vorbis vorbis_static)
-    find_library(VORBISFILE_LIBRARY NAMES vorbisfile vorbisfile_static)
+    # The provided project files name the library with the lib prefix.
+    find_library(OGG_LIBRARY
+        NAMES ogg ogg_static libogg libogg_static)
+    find_library(VORBIS_LIBRARY
+        NAMES vorbis vorbis_static libvorbis libvorbis_static)
+    find_library(VORBISFILE_LIBRARY
+        NAMES vorbisfile vorbisfile_static libvorbisfile libvorbisfile_static)
     # Handle the QUIETLY and REQUIRED arguments and set VORBIS_FOUND
     # to TRUE if all listed variables are TRUE.
     include(FindPackageHandleStandardArgs)
