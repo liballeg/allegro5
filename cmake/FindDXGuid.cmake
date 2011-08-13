@@ -6,7 +6,7 @@
 
 find_library(DXGUID_LIBRARY
     NAMES dxguid
-    PATHS "$ENV{DXSDK_DIR}/Lib/$ENV{PROCESSOR_ARCHITECTURE}"
+    HINTS "$ENV{DXSDK_DIR}/Lib/$ENV{PROCESSOR_ARCHITECTURE}"
     )
 
 # Handle the QUIETLY and REQUIRED arguments and set DXGUID_FOUND to TRUE if
