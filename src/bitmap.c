@@ -38,16 +38,21 @@ struct TO_BE_CONVERTED_LIST {
 
 static struct TO_BE_CONVERTED_LIST to_be_converted;
 
+static void cleanup_to_be_converted_bitmaps(void)
+{
+   _al_vector_free(&to_be_converted.bitmaps);
+   al_destroy_mutex(to_be_converted.mutex);    
+}
+
+/* This is called in al_install_system. Exit functions are called in
+ * al_uninstall_system.
+ */
 void _al_init_to_be_converted_bitmaps(void)
 {
    to_be_converted.mutex = al_create_mutex_recursive();
    _al_vector_init(&to_be_converted.bitmaps, sizeof(ALLEGRO_BITMAP *));
-}
-
-void _al_cleanup_to_be_converted_bitmaps(void)
-{
-   _al_vector_free(&to_be_converted.bitmaps);
-   al_destroy_mutex(to_be_converted.mutex);
+   _al_add_exit_func(cleanup_to_be_converted_bitmaps,
+      "cleanup_to_be_converted_bitmaps");
 }
 
 static void check_to_be_converted_list_add(ALLEGRO_BITMAP *bitmap)

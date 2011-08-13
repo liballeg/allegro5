@@ -149,7 +149,6 @@ bool _al_transform_is_translation(const ALLEGRO_TRANSFORM* trans,
 
 void _al_init_iio_table(void);
 void _al_init_to_be_converted_bitmaps(void);
-void _al_cleanup_to_be_converted_bitmaps(void);
 
 #ifdef __cplusplus
 }

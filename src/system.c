@@ -308,7 +308,12 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
  */
 void al_uninstall_system(void)
 {
-   _al_cleanup_to_be_converted_bitmaps();
+   /* Note: al_uninstall_system may get called multiple times without an
+    * al_install_system in between. For example if the user manually
+    * calls it at the end of the program it is called right again
+    * because it's installed as an atexit function by al_init.
+    */
+
    _al_run_destructors(_al_dtor_list);
    _al_run_exit_funcs();
    _al_shutdown_destructors(_al_dtor_list);
