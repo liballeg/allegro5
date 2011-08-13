@@ -303,7 +303,7 @@ int load_data(void)
    }
 
    /* Load other game resources. */
-   if ((GameError = load_game_resources()))
+   if ((GameError = load_game_resources(data_path)))
       return DEMO_ERROR_GAMEDATA;
 
    return DEMO_OK;

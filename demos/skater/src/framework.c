@@ -55,6 +55,21 @@ static TRANSITION *transition = NULL;
 
 
 
+static void drop_build_config_dir(ALLEGRO_PATH *path)
+{
+   const char *s = al_get_path_tail(path);
+   if (s) {
+      if (0 == strcmp(s, "Debug")
+         || 0 == strcmp(s, "Release")
+         || 0 == strcmp(s, "RelWithDebugInfo")
+         || 0 == strcmp(s, "Profile"))
+      {
+         al_drop_path_tail(path);
+      }
+   }
+}
+
+
 int init_framework(void)
 {
    int error = DEMO_OK;
@@ -80,9 +95,10 @@ int init_framework(void)
    strncpy(config_path, al_path_cstr(path, '/'), DEMO_PATH_LENGTH);
    al_destroy_path(path);
 
-   /* Construct aboslute path for the datafile containing game menu data. */
-   path = al_get_standard_path(ALLEGRO_EXENAME_PATH);
+   /* Construct absolute path for the datafile containing game menu data. */
+   path = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
    al_set_path_filename(path, "");
+   drop_build_config_dir(path);
    al_append_path_component(path, "data");
    strncpy(data_path, al_path_cstr(path, '/'), DEMO_PATH_LENGTH);
    al_destroy_path(path);

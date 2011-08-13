@@ -64,14 +64,13 @@ struct {
 } Clouds[8];
 double CloudX;
 
-char *load_game_resources(void)
+char *load_game_resources(const char *data_path)
 {
    int c;
    ALLEGRO_PATH *path;
 
    printf("load_game_resources\n");
-   path = al_get_standard_path(ALLEGRO_EXENAME_PATH);
-   al_append_path_component(path, "data");
+   path = al_create_path_for_directory(data_path);
    al_set_path_filename(path, "level.txt");
    Lvl = LoadLevel(al_path_cstr(path, '/'), 15);
    al_destroy_path(path);

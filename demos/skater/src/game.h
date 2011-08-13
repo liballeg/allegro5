@@ -8,7 +8,7 @@ extern void create_new_game(GAMESTATE * state);
 extern void create_continue_game(GAMESTATE * game);
 extern void destroy_game(void);
 
-extern char *load_game_resources(void);
+extern char *load_game_resources(const char *data_path);
 extern void unload_game_resources(void);
 
 /* global game state defines and variables */
