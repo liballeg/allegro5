@@ -124,15 +124,14 @@ int main(void)
       "attribute vec4 pos;\n"
       "attribute vec4 color;\n"
       "attribute vec2 texcoord;\n"
-      "uniform mat4 proj_matrix;\n"
-      "uniform mat4 view_matrix;\n"
+      "uniform mat4 projview_matrix;\n"
       "varying vec4 varying_color;\n"
       "varying vec2 varying_texcoord;\n"
       "void main()\n"
       "{\n"
       "  varying_color = color;\n"
       "  varying_texcoord = texcoord;\n"
-      "  gl_Position = proj_matrix * view_matrix * pos;\n"
+      "  gl_Position = projview_matrix * pos;\n"
       "}\n"
    );
    al_attach_shader_source(
