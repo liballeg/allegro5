@@ -427,7 +427,7 @@ void shadow_textprintf(ALLEGRO_FONT *font, int x, int y,
    demo_textprintf_ex(font, x, y, col, align, "%s", buf);
 }
 
-int stricmp(const char *s1, const char *s2)
+int my_stricmp(const char *s1, const char *s2)
 {
     char c1, c2;
     int v;

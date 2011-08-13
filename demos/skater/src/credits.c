@@ -137,7 +137,7 @@ static void load_text(void)
             inblank = true;
 
             for (i = 0; i < (int)(sizeof(sect) / sizeof(sect[0])); i++) {
-               if (stricmp(s, sect[i].desc) == 0) {
+               if (my_stricmp(s, sect[i].desc) == 0) {
                   sec = &sect[i];
                   break;
                }
@@ -235,7 +235,7 @@ static void sort_credit_list(void)
          n = 0;
 
          if (n == 0) {
-            n = stricmp(p->name, p->next->name);
+            n = my_stricmp(p->name, p->next->name);
          }
 
          if (n > 0) {
@@ -278,7 +278,7 @@ static void load_credits(void)
    }
 
    while (al_fgets(f, buf, sizeof(buf))) {
-      if (stricmp(buf, "Thanks!") == 0)
+      if (my_stricmp(buf, "Thanks!") == 0)
          break;
 
       while ((p = strstr(buf, "&lt")) != NULL) {

@@ -437,7 +437,7 @@ struct Level *LoadLevel(char const *name, int radius)
    Lines = 1;                   /* first line is line 1 */
 
    /* attempt to open named level file */
-   file = al_fopen(name, "rp");
+   file = al_fopen(name, "r");
    input = file;
 
    if (!input) {

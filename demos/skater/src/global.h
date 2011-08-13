@@ -10,6 +10,11 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_primitives.h>
 
+#ifdef ALLEGRO_MSVC
+   #define snprintf  _snprintf
+   #define vsnprintf _vsnprintf
+#endif
+
 /* Some configuration settings. All of these variables are recorded
    in the configuration file. */
 extern int fullscreen;           /* selects fullscreen or windowed mode */
@@ -193,7 +198,7 @@ int get_config_int(const ALLEGRO_CONFIG *cfg, const char *section,
 void set_config_int(ALLEGRO_CONFIG *cfg, const char *section, const char *name,
 		    int val);
 
-int stricmp(const char *s1, const char *s2);
+int my_stricmp(const char *s1, const char *s2);
 
 void allegro_message(const char *fmt, ...);
 
