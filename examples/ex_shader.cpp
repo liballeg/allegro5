@@ -41,9 +41,9 @@
 #endif
 
 #ifdef GLSL
-#define EX_SHADER_FLAGS | ALLEGRO_OPENGL
+#define EX_SHADER_FLAGS ALLEGRO_OPENGL
 #else
-#define EX_SHADER_FLAGS
+#define EX_SHADER_FLAGS 0
 #endif
 
 #ifdef CG	
@@ -181,9 +181,10 @@ int main(int argc, char **argv)
    al_install_keyboard();
    al_init_image_addon();
 
-   al_set_new_display_flags(ALLEGRO_USE_PROGRAMMABLE_PIPELINE EX_SHADER_FLAGS);
+   al_set_new_display_flags(ALLEGRO_USE_PROGRAMMABLE_PIPELINE | EX_SHADER_FLAGS);
 
    display = al_create_display(640, 480);
+
    bmp = al_load_bitmap("data/mysha.pcx");
 
    shader = al_create_shader(PLATFORM);
@@ -224,10 +225,8 @@ int main(int argc, char **argv)
       al_get_keyboard_state(&s);
       if (al_key_down(&s, ALLEGRO_KEY_ESCAPE))
          break;
-      al_set_target_bitmap(al_get_backbuffer(display));
-      al_clear_to_color(
-         al_map_rgb(140, 40, 40)
-      );
+
+      al_clear_to_color(al_map_rgb(140, 40, 40));
 
       al_set_shader_sampler(shader, "tex", bmp, 0);
       al_set_shader_float_vector(shader, "tint", 3, &tints[0], 1);
@@ -240,29 +239,28 @@ int main(int argc, char **argv)
       al_use_shader(shader, true);
       al_draw_bitmap(bmp, 320, 0, 0);
       al_use_shader(shader, false);
-
+      
       al_set_shader_sampler(shader, "tex", bmp, 0);
       al_set_shader_float_vector(shader, "tint", 3, &tints[6], 1);
       al_use_shader(shader, true);
       al_draw_bitmap(bmp, 0, 240, 0);
       al_use_shader(shader, false);
-
+      
       /* Draw the last one transformed */
       ALLEGRO_TRANSFORM trans, backup;
       al_copy_transform(&backup, al_get_current_transform());
       al_identity_transform(&trans);
       al_translate_transform(&trans, 320, 240);
-      al_use_transform(&trans);
-
       al_set_shader_sampler(shader, "tex", bmp, 0);
       al_set_shader_float_vector(shader, "tint", 3, &tints[9], 1);
       al_use_shader(shader, true);
+      al_use_transform(&trans);
       al_draw_bitmap(bmp, 0, 0, 0);
+      al_use_transform(&backup);
       al_use_shader(shader, false);
 
-      al_use_transform(&backup);
-
       al_flip_display();
+
       al_rest(0.01);
    }
 

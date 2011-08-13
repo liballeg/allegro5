@@ -7,7 +7,7 @@
 #include "allegro5/allegro_color.h"
 
 /* Note: It should be easy using Cg or HLSL instead of GLSL - for the
- * 5.2 release we should make this a config option andimplement all 3
+ * 5.2 release we should make this a config option and implement all 3
  * in any shader examples.
  */
 #include "allegro5/allegro_opengl.h"

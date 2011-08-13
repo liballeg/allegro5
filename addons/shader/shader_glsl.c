@@ -5,17 +5,18 @@
 #include "allegro5/internal/aintern_shader_glsl.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/transformations.h"
 #include "shader.h"
 #include "shader_glsl.h"
 
 ALLEGRO_DEBUG_CHANNEL("shader")
 
-#define LOG_GL_ERROR(proc)                                   \
+#define LOG_GL_ERROR(name)                                   \
    do {                                                      \
       GLenum err = glGetError();                             \
       if (err != 0) {                                        \
-         ALLEGRO_DEBUG(proc ": glGetError() = %d\n", err);   \
+         ALLEGRO_WARN("%s (%s)\n", name, _al_gl_error_string(err)); \
       }                                                      \
    } while (0)
 
@@ -198,18 +199,14 @@ static void shader_set_sampler(GLSL_DEFERRED_SET *s)
 
    handle = glGetUniformLocation(gl_shader->program_object, s->name);
 
-   // FIXME: support all
-   if (s->unit == 0) {
-      glActiveTexture(GL_TEXTURE0);
-   }
-   else if (s->unit == 1) {
-      glActiveTexture(GL_TEXTURE1);
-   }
+   glActiveTexture(GL_TEXTURE0 + s->unit);
 
    texture = s->bitmap ? al_get_opengl_texture(s->bitmap) : 0;
    glBindTexture(GL_TEXTURE_2D, texture);
+
    glUniform1i(handle, s->unit);
-   LOG_GL_ERROR("shader_set_sampler");
+
+   LOG_GL_ERROR(s->name);
 }
 
 static void shader_set_matrix(GLSL_DEFERRED_SET *s)
@@ -220,7 +217,7 @@ static void shader_set_matrix(GLSL_DEFERRED_SET *s)
    handle = glGetUniformLocation(gl_shader->program_object, s->name);
 
    glUniformMatrix4fv(handle, 1, false, (float *)s->transform->m);
-   LOG_GL_ERROR("shader_set_matrix");
+   LOG_GL_ERROR(s->name);
 }
 
 static void shader_set_int(GLSL_DEFERRED_SET *s)
@@ -231,7 +228,7 @@ static void shader_set_int(GLSL_DEFERRED_SET *s)
    handle = glGetUniformLocation(gl_shader->program_object, s->name);
 
    glUniform1i(handle, s->i);
-   LOG_GL_ERROR("shader_set_int");
+   LOG_GL_ERROR(s->name);
 }
 
 static void shader_set_float(GLSL_DEFERRED_SET *s)
@@ -242,7 +239,7 @@ static void shader_set_float(GLSL_DEFERRED_SET *s)
    handle = glGetUniformLocation(gl_shader->program_object, s->name);
 
    glUniform1f(handle, s->f);
-   LOG_GL_ERROR("shader_set_float");
+   LOG_GL_ERROR(s->name);
 }
 
 static void shader_set_int_vector(GLSL_DEFERRED_SET *s)
@@ -270,7 +267,7 @@ static void shader_set_int_vector(GLSL_DEFERRED_SET *s)
          break;
    }
 
-   LOG_GL_ERROR("shader_set_int_vector");
+   LOG_GL_ERROR(s->name);
 }
 
 static void shader_set_float_vector(GLSL_DEFERRED_SET *s)
@@ -298,7 +295,7 @@ static void shader_set_float_vector(GLSL_DEFERRED_SET *s)
          break;
    }
 
-   LOG_GL_ERROR("shader_set_float_vector");
+   LOG_GL_ERROR(s->name);
 }
 
 void _al_use_shader_glsl(ALLEGRO_SHADER *shader, bool use)
@@ -315,8 +312,8 @@ void _al_use_shader_glsl(ALLEGRO_SHADER *shader, bool use)
       handle = glGetUniformLocation(gl_shader->program_object, "projview_matrix");
       if (handle >= 0) {
          ALLEGRO_TRANSFORM t;
-	 al_copy_transform(&t, &display->view_transform);
-	 al_compose_transform(&t, &display->proj_transform);
+         al_copy_transform(&t, &display->view_transform);
+         al_compose_transform(&t, &display->proj_transform);
          glUniformMatrix4fv(handle, 1, false, (float *)t.m);
       }
 

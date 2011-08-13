@@ -518,9 +518,9 @@ void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
          new_display->vt &&
          new_display->vt->set_target_bitmap) {
       new_display->vt->set_target_bitmap(new_display, bitmap);
-
       new_display->vt->update_transformation(new_display, bitmap);
    }
+
 }
 
 

@@ -249,32 +249,20 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       if (display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
           display->ogl_extras->extension_list->ALLEGRO_GL_OES_framebuffer_object) {
          glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-      }      
+      }
 
       glViewport(0, 0, display->w, display->h);
-   
+
       al_identity_transform(&display->proj_transform);
       /* We use upside down coordinates compared to OpenGL, so the bottommost
        * coordinate is display->h not 0.
        */
       al_ortho_transform(&display->proj_transform, 0, display->w, display->h, 0, -1, 1);
-
-      display->vt->set_projection(display);
 #else
       glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
       _al_iphone_setup_opengl_view(display);
 #endif
-      if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-         GLint handle;
-         GLuint program_object = display->ogl_extras->program_object;
-         handle = glGetUniformLocation(program_object, "projview_matrix");
-         if (handle >= 0) {
-	    ALLEGRO_TRANSFORM t;
-	    al_copy_transform(&t, &display->view_transform);
-	    al_compose_transform(&t, &display->proj_transform);
-            glUniformMatrix4fv(handle, 1, false, (float *)t.m);
-         }
-      }
+      display->vt->set_projection(display);
    }
 #else
 
@@ -310,7 +298,7 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
     * is locked then don't do anything
     */
    if (!(bitmap->locked ||
-        (bitmap->parent && bitmap->parent->locked))){
+        (bitmap->parent && bitmap->parent->locked))) {
       setup_fbo(display, bitmap);
 
       if (display->ogl_extras->opengl_target == target) {

@@ -155,7 +155,7 @@ static ALLEGRO_BITMAP_INTERFACE glbmp_vt;
 #define SWAP(type, x, y) {type temp = x; x = y; y = temp;}
 
 #define ERR(e) case e: return #e;
-static char const *error_string(GLenum e)
+char const *_al_gl_error_string(GLenum e)
 {
    switch (e) {
       ERR(GL_NO_ERROR)
@@ -385,7 +385,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
    e = glGetError();
    if (e) {
       ALLEGRO_ERROR("glBindTexture for texture %d failed (%s).\n",
-         ogl_bitmap->texture, error_string(e));
+         ogl_bitmap->texture, _al_gl_error_string(e));
    }
 
    if (bitmap->flags & ALLEGRO_MIPMAP) {
@@ -461,7 +461,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       ALLEGRO_ERROR("glTexImage2D for format %s, size %dx%d failed (%s)\n",
          _al_format_name(bitmap->format),
          ogl_bitmap->true_w, ogl_bitmap->true_h,
-         error_string(e));
+         _al_gl_error_string(e));
       glDeleteTextures(1, &ogl_bitmap->texture);
       ogl_bitmap->texture = 0;
       // FIXME: Should we convert it into a memory bitmap? Or if the size is
@@ -498,7 +498,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       e = glGetError();
       if (e) {
          ALLEGRO_ERROR("glGenerateMipmapEXT for texture %d failed (%s).\n",
-            ogl_bitmap->texture, error_string(e));
+            ogl_bitmap->texture, _al_gl_error_string(e));
       }
    }
 
@@ -605,7 +605,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    e = glGetError();
    if (e) {
       ALLEGRO_ERROR("glPixelStorei(GL_PACK_ALIGNMENT, %d) failed (%s).\n",
-         pixel_alignment, error_string(e));
+         pixel_alignment, _al_gl_error_string(e));
    }
 
    if (ogl_bitmap->is_backbuffer) {
@@ -622,7 +622,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
          e = glGetError();
          if (e) {
             ALLEGRO_ERROR("glReadPixels for format %s failed (%s).\n",
-               _al_format_name(format), error_string(e));
+               _al_format_name(format), _al_gl_error_string(e));
          }
       }
       bitmap->locked_region.data = ogl_bitmap->lock_buffer +
@@ -676,7 +676,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
             e = glGetError();
             if (e) {
                ALLEGRO_ERROR("glReadPixels for format %s failed (%s).\n",
-                  _al_format_name(format), error_string(e));
+                  _al_format_name(format), _al_gl_error_string(e));
             }
 
             _al_convert_bitmap_data(
@@ -709,7 +709,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
          e = glGetError();
          if (e) {
             ALLEGRO_ERROR("glGetTexImage for format %s failed (%s).\n",
-               _al_format_name(format), error_string(e));
+               _al_format_name(format), _al_gl_error_string(e));
          }
 
          bitmap->locked_region.data = ogl_bitmap->lock_buffer +
@@ -789,7 +789,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    e = glGetError();
    if (e) {
       ALLEGRO_ERROR("glPixelStorei(GL_UNPACK_ALIGNMENT, %d) failed (%s).\n",
-         pixel_alignment, error_string(e));
+         pixel_alignment, _al_gl_error_string(e));
    }
 
    if (exactly_15bpp(lock_format)) {
@@ -836,7 +836,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       e = glGetError();
       if (e) {
          ALLEGRO_ERROR("glDrawPixels for format %s failed (%s).\n",
-            _al_format_name(lock_format), error_string(e));
+            _al_format_name(lock_format), _al_gl_error_string(e));
       }
       if (popmatrix) {
          al_copy_transform(&disp->proj_transform, &tmp);
@@ -866,7 +866,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       e = glGetError();
       if (e) {
          ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
-            _al_format_name(lock_format), error_string(e));
+            _al_format_name(lock_format), _al_gl_error_string(e));
       }
 
       if (bitmap->flags & ALLEGRO_MIPMAP) {
@@ -876,7 +876,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             e = glGetError();
             if (e) {
                ALLEGRO_ERROR("glGenerateMipmapEXT for texture %d failed (%s).\n",
-                  ogl_bitmap->texture, error_string(e));
+                  ogl_bitmap->texture, _al_gl_error_string(e));
             }
          }
       }
@@ -930,7 +930,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          e = glGetError();
          if (e) {
             ALLEGRO_ERROR("glTexSubImage2D for format %d failed (%s).\n",
-               lock_format, error_string(e));
+               lock_format, _al_gl_error_string(e));
          }
          #endif
       }
@@ -945,7 +945,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          if (e) {
             //GLint tex_internalformat;
             ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
-               _al_format_name(lock_format), error_string(e));
+               _al_format_name(lock_format), _al_gl_error_string(e));
 			#ifndef ALLEGRO_IPHONE
             glGetTexLevelParameteriv(GL_TEXTURE_2D, 0,
                GL_TEXTURE_INTERNAL_FORMAT, &tex_internalformat);
