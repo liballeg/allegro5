@@ -36,7 +36,7 @@ static ALLEGRO_DISPLAY *gp2xwiz_create_display_fb(int w, int h)
 
    lc_init_rest();
 
-   ALLEGRO_DISPLAY_GP2XWIZ_FB *d = al_calloc(sizeof *d);
+   ALLEGRO_DISPLAY_GP2XWIZ_FB *d = al_calloc(1, sizeof *d);
    ALLEGRO_DISPLAY *display = (void *)d;
 
    ALLEGRO_SYSTEM_GP2XWIZ *system = (void *)al_get_system_driver();
@@ -168,7 +168,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_gp2xwiz_framebuffer_driver(void)
    if (gp2xwiz_vt)
       return gp2xwiz_vt;
 
-   gp2xwiz_vt = al_calloc(sizeof *gp2xwiz_vt);
+   gp2xwiz_vt = al_calloc(1, sizeof *gp2xwiz_vt);
 
    gp2xwiz_vt->create_display = gp2xwiz_create_display_fb;
    gp2xwiz_vt->destroy_display = gp2xwiz_destroy_display_fb;
