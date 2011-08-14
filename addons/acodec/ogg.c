@@ -40,6 +40,7 @@ struct AL_OV_DATA {
 /* dynamic loading support (Windows only currently) */
 #ifdef ALLEGRO_CFG_ACODEC_VORBISFILE_DLL
 static void *ov_dll = NULL;
+static bool ov_virgin = true;
 #endif
 
 static struct
@@ -69,6 +70,7 @@ static void shutdown_dynlib(void)
    if (ov_dll) {
       _al_close_library(ov_dll);
       ov_dll = NULL;
+      ov_virgin = true;
    }
 }
 #endif
@@ -80,6 +82,12 @@ static bool init_dynlib(void)
    if (ov_dll) {
       return true;
    }
+
+   if (!ov_virgin) {
+      return false;
+   }
+
+   ov_virgin = false;
 
    ov_dll = _al_open_library(ALLEGRO_CFG_ACODEC_VORBISFILE_DLL);
    if (!ov_dll) {

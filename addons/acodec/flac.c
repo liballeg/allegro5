@@ -50,6 +50,7 @@ typedef struct FLACFILE {
 /* dynamic loading support (Windows only currently) */
 #ifdef ALLEGRO_CFG_ACODEC_FLAC_DLL
 static void *flac_dll = NULL;
+static bool flac_virgin = true;
 #endif
 
 static struct
@@ -82,6 +83,7 @@ static void shutdown_dynlib(void)
    if (flac_dll) {
       _al_close_library(flac_dll);
       flac_dll = NULL;
+      flac_virgin = true;
    }
 }
 #endif
@@ -93,6 +95,12 @@ static bool init_dynlib(void)
    if (flac_dll) {
       return true;
    }
+
+   if (!flac_virgin) {
+      return false;
+   }
+
+   flac_virgin = false;
 
    flac_dll = _al_open_library(ALLEGRO_CFG_ACODEC_FLAC_DLL);
    if (!flac_dll) {
