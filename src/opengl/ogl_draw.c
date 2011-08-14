@@ -339,12 +339,13 @@ static void ogl_set_projection(ALLEGRO_DISPLAY *d)
 {
    if (d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       GLuint program_object = d->ogl_extras->program_object;
+      GLint handle;
 
       // FIXME: In al_create_display we have no shader yet
       if (program_object == 0)
          return;
 
-      GLint handle = glGetUniformLocation(program_object, "projview_matrix");
+      handle = glGetUniformLocation(program_object, "projview_matrix");
       if (handle >= 0) {
          ALLEGRO_TRANSFORM t;
          al_copy_transform(&t, &d->view_transform);
