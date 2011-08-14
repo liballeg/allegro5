@@ -717,7 +717,7 @@ endif(SUPPORT_X11)
 if(WIN32)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WIN_FILES})
     list(APPEND PLATFORM_LIBS
-        kernel32 user32 gdi32 comdlg32 ole32 winmm psapi
+        kernel32 user32 gdi32 comdlg32 ole32 winmm psapi shlwapi
         )
     if(SUPPORT_D3D)
         list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_D3D_FILES})
