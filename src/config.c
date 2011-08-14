@@ -26,16 +26,6 @@
 
 
 
-static void *local_calloc1(size_t size)
-{
-   void *p;
-
-   p = al_calloc(1, size);
-
-   return p;
-}
-
-
 static int cmp_ustr(void const *a, void const *b)
 {
    return al_ustr_compare(a, b);
@@ -46,7 +36,7 @@ static int cmp_ustr(void const *a, void const *b)
  */
 ALLEGRO_CONFIG *al_create_config(void)
 {
-   ALLEGRO_CONFIG *config = local_calloc1(sizeof(ALLEGRO_CONFIG));
+   ALLEGRO_CONFIG *config = al_calloc(1, sizeof(ALLEGRO_CONFIG));
    ASSERT(config);
 
    return config;
@@ -95,7 +85,7 @@ static ALLEGRO_CONFIG_SECTION *config_add_section(ALLEGRO_CONFIG *config,
    if ((section = find_section(config, name)))
       return section;
 
-   section = local_calloc1(sizeof(ALLEGRO_CONFIG_SECTION));
+   section = al_calloc(1, sizeof(ALLEGRO_CONFIG_SECTION));
    section->name = al_ustr_dup(name);
 
    if (sec == NULL) {
@@ -143,7 +133,7 @@ static void config_set_value(ALLEGRO_CONFIG *config,
       }
    }
 
-   entry = local_calloc1(sizeof(ALLEGRO_CONFIG_ENTRY));
+   entry = al_calloc(1, sizeof(ALLEGRO_CONFIG_ENTRY));
    entry->is_comment = false;
    entry->key = al_ustr_dup(key);
    entry->value = al_ustr_dup(value);
@@ -202,7 +192,7 @@ static void config_add_comment(ALLEGRO_CONFIG *config,
 
    s = find_section(config, section);
 
-   entry = local_calloc1(sizeof(ALLEGRO_CONFIG_ENTRY));
+   entry = al_calloc(1, sizeof(ALLEGRO_CONFIG_ENTRY));
    entry->is_comment = true;
    entry->key = al_ustr_dup(comment);
 

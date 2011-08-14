@@ -101,7 +101,7 @@ static void _al_win_get_window_center(
    unsigned int i;
    unsigned int fullscreen_found = 0;
    num = al_get_num_video_adapters();
-   is_fullscreen = al_calloc(1, sizeof(bool)*num);
+   is_fullscreen = al_calloc(num, sizeof(bool));
    for (i = 0; i < sys->displays._size; i++) {
       ALLEGRO_DISPLAY **dptr = _al_vector_ref(&sys->displays, i);
       ALLEGRO_DISPLAY *d = *dptr;

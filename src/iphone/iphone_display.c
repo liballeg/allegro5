@@ -176,7 +176,7 @@ void _al_iphone_update_visuals(void)
       return;
    }
    
-   system->visuals = al_calloc(1, VISUALS_COUNT * sizeof(*system->visuals));
+   system->visuals = al_calloc(VISUALS_COUNT, sizeof(*system->visuals));
    system->visuals_count = VISUALS_COUNT;
    
    for (int i = 0; i < VISUALS_COUNT; i++) {

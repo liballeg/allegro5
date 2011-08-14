@@ -760,7 +760,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_ext(int *cou
 
    ALLEGRO_INFO("Got %i visuals.\n", maxindex);
 
-   eds_list = al_calloc(1, maxindex * sizeof(*eds_list));
+   eds_list = al_calloc(maxindex, sizeof(*eds_list));
    if (!eds_list)
       goto bail;
 
@@ -823,7 +823,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_old(int *cou
 
    ALLEGRO_INFO("Got %i visuals.\n", maxindex);
 
-   eds_list = al_calloc(1, maxindex * sizeof(*eds_list));
+   eds_list = al_calloc(maxindex, sizeof(*eds_list));
    if (!eds_list)
       return NULL;
 
