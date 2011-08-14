@@ -39,8 +39,7 @@ static const ALLEGRO_FS_INTERFACE fs_phys_vtable;
 static ALLEGRO_FS_ENTRY *fs_phys_create_entry(const char *path)
 {
    ALLEGRO_FS_ENTRY_PHYSFS *e;
-   e = al_malloc(sizeof *e);
-   memset(e, 0, sizeof *e);
+   e = al_calloc(1, sizeof *e);
    e->fs_entry.vtable = &fs_phys_vtable;
    e->path = al_create_path(path);
    e->path_cstr = al_path_cstr(e->path, '/');

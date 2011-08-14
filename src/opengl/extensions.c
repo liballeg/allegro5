@@ -237,13 +237,11 @@ int al_get_opengl_variant(void)
 /* Create the extension list */
 static ALLEGRO_OGL_EXT_LIST *create_extension_list(void)
 {
-   ALLEGRO_OGL_EXT_LIST *ret = al_malloc(sizeof(ALLEGRO_OGL_EXT_LIST));
+   ALLEGRO_OGL_EXT_LIST *ret = al_calloc(1, sizeof(ALLEGRO_OGL_EXT_LIST));
 
    if (!ret) {
       return NULL;
    }
-
-   memset(ret, 0, sizeof(ALLEGRO_OGL_EXT_LIST));
 
    return ret;
 }
@@ -253,13 +251,11 @@ static ALLEGRO_OGL_EXT_LIST *create_extension_list(void)
 /* Create the extension API table */
 static ALLEGRO_OGL_EXT_API *create_extension_api_table(void)
 {
-   ALLEGRO_OGL_EXT_API *ret = al_malloc(sizeof(ALLEGRO_OGL_EXT_API));
+   ALLEGRO_OGL_EXT_API *ret = al_calloc(1, sizeof(ALLEGRO_OGL_EXT_API));
 
    if (!ret) {
       return NULL;
    }
-
-   memset(ret, 0, sizeof(ALLEGRO_OGL_EXT_API));
 
    return ret;
 }

@@ -203,8 +203,7 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
 
    _al_unix_init_time();
 
-   s = al_malloc(sizeof *s);
-   memset(s, 0, sizeof *s);
+   s = al_calloc(1, sizeof *s);
 
    _al_mutex_init_recursive(&s->lock);
    _al_cond_init(&s->resized);
@@ -413,8 +412,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
    if (xglx_vt)
       return xglx_vt;
 
-   xglx_vt = al_malloc(sizeof *xglx_vt);
-   memset(xglx_vt, 0, sizeof *xglx_vt);
+   xglx_vt = al_calloc(1, sizeof *xglx_vt);
 
    xglx_vt->initialize = xglx_initialize;
    xglx_vt->get_display_driver = xglx_get_display_driver;

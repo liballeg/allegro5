@@ -280,11 +280,9 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    _al_mutex_lock(&system->lock);
 
-   ALLEGRO_DISPLAY_XGLX *d = al_malloc(sizeof *d);
+   ALLEGRO_DISPLAY_XGLX *d = al_calloc(1, sizeof *d);
    ALLEGRO_DISPLAY *display = (void*)d;
-   ALLEGRO_OGL_EXTRAS *ogl = al_malloc(sizeof *ogl);
-   memset(d, 0, sizeof *d);
-   memset(ogl, 0, sizeof *ogl);
+   ALLEGRO_OGL_EXTRAS *ogl = al_calloc(1, sizeof *ogl);
    display->ogl_extras = ogl;
 
    int major, minor;

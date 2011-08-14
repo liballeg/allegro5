@@ -14,8 +14,7 @@ ALLEGRO_FILECHOOSER *al_create_native_file_dialog(
    int mode)
 {
    ALLEGRO_NATIVE_DIALOG *fc;
-   fc = al_malloc(sizeof *fc);
-   memset(fc, 0, sizeof *fc);
+   fc = al_calloc(1, sizeof *fc);
 
    if (initial_path) {
       fc->fc_initial_path = al_create_path(initial_path);
@@ -95,8 +94,7 @@ int al_show_native_message_box(ALLEGRO_DISPLAY *display,
     * while this message box is open).
     */
 
-   fc = al_malloc(sizeof *fc);
-   memset(fc, 0, sizeof *fc);
+   fc = al_calloc(1, sizeof *fc);
 
    fc->title = al_ustr_new(title);
    fc->mb_heading = al_ustr_new(heading);

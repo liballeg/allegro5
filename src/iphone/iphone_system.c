@@ -10,8 +10,7 @@ static ALLEGRO_SYSTEM_INTERFACE *vt;
 ALLEGRO_SYSTEM *iphone_initialize(int flags)
 {
     (void)flags;
-    iphone = al_malloc(sizeof *iphone);
-    memset(iphone, 0, sizeof *iphone);
+    iphone = al_calloc(1, sizeof *iphone);
     
     ALLEGRO_SYSTEM *sys = &iphone->system;
 
@@ -73,8 +72,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_get_iphone_system_interface(void)
     if (vt)
        return vt;
     
-    vt = al_malloc(sizeof *vt);
-    memset(vt, 0, sizeof *vt);
+    vt = al_calloc(1, sizeof *vt);
     
     vt->initialize = iphone_initialize;
     vt->get_display_driver = iphone_get_display_driver;

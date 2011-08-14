@@ -41,8 +41,7 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
 
    format = _al_get_real_pixel_format(al_get_current_display(), format);
 
-   bitmap = al_malloc(sizeof *bitmap);
-   memset(bitmap, 0, sizeof(*bitmap));
+   bitmap = al_calloc(1, sizeof *bitmap);
    bitmap->size = sizeof(*bitmap);
 
    pitch = w * al_get_pixel_size(format);
@@ -648,8 +647,7 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
          parent->display, parent, x, y, w, h);
    }
    else {
-      bitmap = al_malloc(sizeof *bitmap);
-      memset(bitmap, 0, sizeof *bitmap);
+      bitmap = al_calloc(1, sizeof *bitmap);
       bitmap->size = sizeof *bitmap;
       bitmap->vt = parent->vt;
    }
