@@ -399,9 +399,16 @@ These are the public fields:
 -   intptr_t data3;
 -   intptr_t data4;
 
-Note that like all other event types this structure is a part of the
-ALLEGRO_EVENT union. Therefore to create a new user event you would
-do this:
+Like all other event types this structure is a part of the ALLEGRO_EVENT union.
+To access the fields in an ALLEGRO_EVENT variable `ev`, you would use:
+
+-   ev.user.source
+-   ev.user.data1
+-   ev.user.data2
+-   ev.user.data3
+-   ev.user.data4
+
+To create a new user event you would do this:
 
     ALLEGRO_EVENT_SOURCE my_event_source;
     ALLEGRO_EVENT my_event;
@@ -414,6 +421,10 @@ do this:
     my_event.user.data2 = &some_var;
     
     al_emit_user_event(&my_event_source, &my_event, NULL);
+
+Event type identifiers for user events are assigned by the user.
+Please see the documentation for [ALLEGRO_GET_EVENT_TYPE] for the rules you
+should follow when assigning identifiers.
 
 See also: [al_emit_user_event], [ALLEGRO_GET_EVENT_TYPE]
 
