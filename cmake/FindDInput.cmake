@@ -11,12 +11,12 @@ if(DINPUT_INCLUDE_DIR)
 endif(DINPUT_INCLUDE_DIR)
 
 find_path(DINPUT_INCLUDE_DIR dinput.h
-    PATHS "$ENV{DXSDK_DIR}/Include"
+    HINTS "$ENV{DXSDK_DIR}/Include"
     )
 
 find_library(DINPUT_LIBRARY
     NAMES dinput8
-    PATHS "$ENV{DXSDK_DIR}/Lib/$ENV{PROCESSOR_ARCHITECTURE}"
+    HINTS "$ENV{DXSDK_DIR}/Lib/$ENV{PROCESSOR_ARCHITECTURE}"
     )
 
 # Handle the QUIETLY and REQUIRED arguments and set DINPUT_FOUND to TRUE if

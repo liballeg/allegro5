@@ -11,12 +11,12 @@ if(D3D9_INCLUDE_DIR)
 endif(D3D9_INCLUDE_DIR)
 
 find_path(D3D9_INCLUDE_DIR d3d9.h
-    PATHS "$ENV{DXSDK_DIR}/Include"
+    HINTS "$ENV{DXSDK_DIR}/Include"
     )
 
 find_library(D3D9_LIBRARY
     NAMES d3d9
-    PATHS "$ENV{DXSDK_DIR}/Lib/$ENV{PROCESSOR_ARCHITECTURE}"
+    HINTS "$ENV{DXSDK_DIR}/Lib/$ENV{PROCESSOR_ARCHITECTURE}"
     )
 
 # Handle the QUIETLY and REQUIRED arguments and set D3D9_FOUND to TRUE if
