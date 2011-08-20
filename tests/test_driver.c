@@ -247,6 +247,8 @@ static int get_load_bitmap_flag(char const *value)
 {
    if (streq(value, "ALLEGRO_NO_PREMULTIPLIED_ALPHA"))
       return ALLEGRO_NO_PREMULTIPLIED_ALPHA;
+   if (streq(value, "ALLEGRO_KEEP_INDEX"))
+      return ALLEGRO_KEEP_INDEX;
    return atoi(value);
 }
 
