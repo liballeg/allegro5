@@ -16,14 +16,14 @@ typedef float CGFloat;
 ALLEGRO_DEBUG_CHANNEL("OSXIIO")
 
 
-static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
+static ALLEGRO_BITMAP *really_load_image(char *buffer, int size, int flags)
 {
    ALLEGRO_BITMAP *bmp = NULL;
    void *pixels = NULL;
    /* Note: buffer is now owned (and later freed) by the data object. */
    NSData *nsdata = [NSData dataWithBytesNoCopy:buffer length:size];
    NSImage *image = [[NSImage alloc] initWithData:nsdata];
-   bool premul = !(al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+   bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
    if (!image)
       return NULL;
@@ -134,7 +134,7 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
 }
 
 
-static ALLEGRO_BITMAP *_al_osx_load_image_f(ALLEGRO_FILE *f)
+static ALLEGRO_BITMAP *_al_osx_load_image_f(ALLEGRO_FILE *f, int flags)
 {
    ALLEGRO_BITMAP *bmp;
    ASSERT(f);
@@ -151,12 +151,12 @@ static ALLEGRO_BITMAP *_al_osx_load_image_f(ALLEGRO_FILE *f)
    al_fread(f, buffer, size);
 
    /* Really load the image now. */
-   bmp = really_load_image(buffer, size);
+   bmp = really_load_image(buffer, size, flags);
    return bmp;
 }
 
 
-static ALLEGRO_BITMAP *_al_osx_load_image(const char *filename)
+static ALLEGRO_BITMAP *_al_osx_load_image(const char *filename, int flags)
 {
    ALLEGRO_FILE *fp;
    ALLEGRO_BITMAP *bmp;
@@ -168,7 +168,7 @@ static ALLEGRO_BITMAP *_al_osx_load_image(const char *filename)
    if (!fp)
       return NULL;
 
-   bmp = _al_osx_load_image_f(fp);
+   bmp = _al_osx_load_image_f(fp, flags);
 
    al_fclose(fp);
 

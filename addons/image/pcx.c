@@ -4,7 +4,7 @@
 
 #include "iio.h"
 
-ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f)
+ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
 {
    ALLEGRO_BITMAP *b;
    int c;
@@ -59,7 +59,7 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f)
       return NULL;
    }
    
-   keep_index = al_get_bitmap_flags(b) & ALLEGRO_KEEP_INDEX;
+   keep_index = (flags & ALLEGRO_KEEP_INDEX);
 
    al_set_errno(0);
 
@@ -252,7 +252,7 @@ bool _al_save_pcx_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
       return true;
 }
 
-ALLEGRO_BITMAP *_al_load_pcx(const char *filename)
+ALLEGRO_BITMAP *_al_load_pcx(const char *filename, int flags)
 {
    ALLEGRO_FILE *f;
    ALLEGRO_BITMAP *bmp;
@@ -262,7 +262,7 @@ ALLEGRO_BITMAP *_al_load_pcx(const char *filename)
    if (!f)
       return NULL;
 
-   bmp = _al_load_pcx_f(f);
+   bmp = _al_load_pcx_f(f, flags);
 
    al_fclose(f);
 

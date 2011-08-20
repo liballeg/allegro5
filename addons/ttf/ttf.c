@@ -62,7 +62,6 @@ typedef struct ALLEGRO_TTF_FONT_DATA
 {
    FT_Face face;
    int flags;
-   bool no_premultiply_alpha;
    _AL_VECTOR glyph_ranges;  /* sorted array of of ALLEGRO_TTF_GLYPH_RANGE */
 
    _AL_VECTOR page_bitmaps;  /* of ALLEGRO_BITMAP pointers */
@@ -272,7 +271,7 @@ static void copy_glyph_mono(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
       unsigned char *dptr = glyph_data + pitch * y;
       int bit = 0;
 
-      if (font_data->no_premultiply_alpha) {
+      if (font_data->flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
          for (x = 0; x < face->glyph->bitmap.width; x++) {
             unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
             *dptr++ = 255;
@@ -312,7 +311,7 @@ static void copy_glyph_color(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
       unsigned char const *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
       unsigned char *dptr = glyph_data + pitch * y;
 
-      if (font_data->no_premultiply_alpha) {
+      if (font_data->flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
          for (x = 0; x < face->glyph->bitmap.width; x++) {
             unsigned char c = *ptr;
             *dptr++ = 255;
@@ -776,8 +775,6 @@ ALLEGRO_FONT *al_load_ttf_font_stretch_f(ALLEGRO_FILE *file,
 
     data->face = face;
     data->flags = flags;
-    data->no_premultiply_alpha =
-       (al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
     _al_vector_init(&data->glyph_ranges, sizeof(ALLEGRO_TTF_GLYPH_RANGE));
     _al_vector_init(&data->page_bitmaps, sizeof(ALLEGRO_BITMAP*));

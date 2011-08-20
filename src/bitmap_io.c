@@ -84,7 +84,7 @@ void _al_init_iio_table(void)
 /* Function: al_register_bitmap_loader
  */
 bool al_register_bitmap_loader(const char *extension,
-   ALLEGRO_BITMAP *(*loader)(const char *filename))
+   ALLEGRO_BITMAP *(*loader)(const char *filename, int flags))
 {
    Handler *ent;
 
@@ -143,7 +143,7 @@ bool al_register_bitmap_saver(const char *extension,
 /* Function: al_register_bitmap_loader_f
  */
 bool al_register_bitmap_loader_f(const char *extension,
-   ALLEGRO_BITMAP *(*loader_f)(ALLEGRO_FILE *fp))
+   ALLEGRO_BITMAP *(*loader_f)(ALLEGRO_FILE *fp, int flags))
 {
    Handler *ent;
 
@@ -203,6 +203,23 @@ bool al_register_bitmap_saver_f(const char *extension,
  */
 ALLEGRO_BITMAP *al_load_bitmap(const char *filename)
 {
+   int flags = 0;
+
+   /* For backwards compatibility with the 5.0 branch. */
+   if (al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
+      flags |= ALLEGRO_NO_PREMULTIPLIED_ALPHA;
+      ALLEGRO_WARN("ALLEGRO_NO_PREMULTIPLIED_ALPHA in new_bitmap_flags "
+         "is deprecated\n");
+   }
+
+   return al_load_bitmap_flags(filename, flags);
+}
+
+
+/* Function: al_load_bitmap_flags
+ */
+ALLEGRO_BITMAP *al_load_bitmap_flags(const char *filename, int flags)
+{
    const char *ext;
    Handler *h;
    ALLEGRO_BITMAP *ret;
@@ -216,7 +233,7 @@ ALLEGRO_BITMAP *al_load_bitmap(const char *filename)
 
    h = find_handler(ext);
    if (h) {
-      ret = h->loader(filename);
+      ret = h->loader(filename, flags);
       if (!ret)
          ALLEGRO_WARN("Failed loading %s with %s handler.\n", filename,
             ext);
@@ -256,9 +273,27 @@ bool al_save_bitmap(const char *filename, ALLEGRO_BITMAP *bitmap)
  */
 ALLEGRO_BITMAP *al_load_bitmap_f(ALLEGRO_FILE *fp, const char *ident)
 {
+   int flags = 0;
+
+   /* For backwards compatibility with the 5.0 branch. */
+   if (al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
+      flags |= ALLEGRO_NO_PREMULTIPLIED_ALPHA;
+      ALLEGRO_WARN("ALLEGRO_NO_PREMULTIPLIED_ALPHA in new_bitmap_flags "
+         "is deprecated\n");
+   }
+
+   return al_load_bitmap_flags_f(fp, ident, flags);
+}
+
+
+/* Function: al_load_bitmap_flags_f
+ */
+ALLEGRO_BITMAP *al_load_bitmap_flags_f(ALLEGRO_FILE *fp, const char *ident,
+   int flags)
+{
    Handler *h = find_handler(ident);
    if (h)
-      return h->fs_loader(fp);
+      return h->fs_loader(fp, flags);
    else
       return NULL;
 }

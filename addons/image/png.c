@@ -89,7 +89,8 @@ static int check_if_png(ALLEGRO_FILE *fp)
 /* really_load_png:
  *  Worker routine, used by load_png and load_memory_png.
  */
-static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
+static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
+   int flags)
 {
    ALLEGRO_BITMAP *bmp;
    png_uint_32 width, height, rowbytes;
@@ -103,7 +104,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
    ALLEGRO_LOCKED_REGION *lock;
    unsigned char *buf;
    unsigned char *rgba;
-   bool premul = !(al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+   bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
    ASSERT(png_ptr && info_ptr);
 
@@ -285,7 +286,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
 
 /* Load a PNG file from disk, doing colour coversion if required.
  */
-ALLEGRO_BITMAP *_al_load_png_f(ALLEGRO_FILE *fp)
+ALLEGRO_BITMAP *_al_load_png_f(ALLEGRO_FILE *fp, int flags)
 {
    jmp_buf jmpbuf;
    ALLEGRO_BITMAP *bmp;
@@ -333,7 +334,7 @@ ALLEGRO_BITMAP *_al_load_png_f(ALLEGRO_FILE *fp)
    png_set_sig_bytes(png_ptr, PNG_BYTES_TO_CHECK);
 
    /* Really load the image now. */
-   bmp = really_load_png(png_ptr, info_ptr);
+   bmp = really_load_png(png_ptr, info_ptr, flags);
 
    /* Clean up after the read, and free any memory allocated. */
    png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp) NULL);
@@ -345,7 +346,7 @@ ALLEGRO_BITMAP *_al_load_png_f(ALLEGRO_FILE *fp)
 
 
 
-ALLEGRO_BITMAP *_al_load_png(const char *filename)
+ALLEGRO_BITMAP *_al_load_png(const char *filename, int flags)
 {
    ALLEGRO_FILE *fp;
    ALLEGRO_BITMAP *bmp;
@@ -356,7 +357,7 @@ ALLEGRO_BITMAP *_al_load_png(const char *filename)
    if (!fp)
       return NULL;
 
-   bmp = _al_load_png_f(fp);
+   bmp = _al_load_png_f(fp, flags);
 
    al_fclose(fp);
 

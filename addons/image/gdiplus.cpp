@@ -216,7 +216,7 @@ public:
    }
 };
 
-ALLEGRO_BITMAP *_al_load_gdiplus_bitmap_f(ALLEGRO_FILE *fp)
+ALLEGRO_BITMAP *_al_load_gdiplus_bitmap_f(ALLEGRO_FILE *fp, int flags)
 {
    AllegroWindowsStream *s = new AllegroWindowsStream(fp);
    if (!s) {
@@ -243,8 +243,7 @@ ALLEGRO_BITMAP *_al_load_gdiplus_bitmap_f(ALLEGRO_FILE *fp)
             if (a_lock) {
                unsigned char *in = (unsigned char *)gdi_lock->Scan0;
                unsigned char *out = (unsigned char *)a_lock->data;
-               bool premul = 
-                  !(al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+               bool premul = (flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
                if (premul) {
                   int in_inc = gdi_lock->Stride - (w*4);
@@ -296,14 +295,14 @@ ALLEGRO_BITMAP *_al_load_gdiplus_bitmap_f(ALLEGRO_FILE *fp)
    return a_bmp;
 }
 
-ALLEGRO_BITMAP *_al_load_gdiplus_bitmap(const char *filename)
+ALLEGRO_BITMAP *_al_load_gdiplus_bitmap(const char *filename, int flags)
 {
    ALLEGRO_BITMAP *bmp = NULL;
    ALLEGRO_FILE *fp;
 	
    fp = al_fopen(filename, "rb");		
    if (fp) {
-      bmp = _al_load_gdiplus_bitmap_f(fp);
+      bmp = _al_load_gdiplus_bitmap_f(fp, flags);
       al_fclose(fp);
    }
 

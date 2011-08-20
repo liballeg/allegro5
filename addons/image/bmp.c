@@ -334,12 +334,13 @@ static void read_24bit_line(int length, ALLEGRO_FILE *f, unsigned char *data)
  *  Support function for reading the 32 bit bitmap file format, doing
  *  our best to convert it down to a 256 color palette.
  */
-static void read_32bit_line(int length, ALLEGRO_FILE *f, unsigned char *data)
+static void read_32bit_line(int length, ALLEGRO_FILE *f, unsigned char *data,
+   int flags)
 {
    int i;
    unsigned char c[4];
    unsigned char r, g, b, a;
-   bool premul = !(al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+   bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
    for (i = 0; i < length; i++) {
       al_fread(f, c, 4);
@@ -420,14 +421,14 @@ static void read_bitfields_image(ALLEGRO_FILE *f, const BMPINFOHEADER *infoheade
 /* read_image:
  *  For reading the noncompressed BMP image format.
  */
-static void read_image(ALLEGRO_FILE *f,
+static void read_image(ALLEGRO_FILE *f, int flags,
                        const BMPINFOHEADER *infoheader, PalEntry *pal,
                        ALLEGRO_LOCKED_REGION *lr)
 {
    int i, j, line, height, dir;
    unsigned char *buf;
    unsigned char *data;
-   bool keep_index = al_get_new_bitmap_flags() & ALLEGRO_KEEP_INDEX;
+   bool keep_index = (flags & ALLEGRO_KEEP_INDEX);
 
    height = infoheader->biHeight;
    line = height < 0 ? 0 : height - 1;
@@ -462,7 +463,7 @@ static void read_image(ALLEGRO_FILE *f,
             break;
 
          case 32:
-            read_32bit_line(infoheader->biWidth, f, data);
+            read_32bit_line(infoheader->biWidth, f, data, flags);
             break;
       }
       if (infoheader->biBitCount <= 8) {
@@ -653,7 +654,7 @@ static void read_RLE4_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
  *  i.e. you must either reset the offset to some known place or close the
  *  packfile. The packfile is not closed by this function.
  */
-ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
+ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
 {
    BMPFILEHEADER fileheader;
    BMPINFOHEADER infoheader;
@@ -663,7 +664,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
    unsigned char *buf = NULL;
    ALLEGRO_LOCKED_REGION *lr;
    int bpp;
-   bool keep_index = al_get_new_bitmap_flags() & ALLEGRO_KEEP_INDEX;
+   bool keep_index = (flags & ALLEGRO_KEEP_INDEX);
 
    ASSERT(f);
 
@@ -750,7 +751,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
    switch (infoheader.biCompression) {
 
       case BIT_RGB:
-         read_image(f, &infoheader, pal, lr);
+         read_image(f, flags, &infoheader, pal, lr);
          break;
 
       case BIT_RLE8:
@@ -900,7 +901,7 @@ bool _al_save_bmp_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 
 
 
-ALLEGRO_BITMAP *_al_load_bmp(const char *filename)
+ALLEGRO_BITMAP *_al_load_bmp(const char *filename, int flags)
 {
    ALLEGRO_FILE *f;
    ALLEGRO_BITMAP *bmp;
@@ -910,7 +911,7 @@ ALLEGRO_BITMAP *_al_load_bmp(const char *filename)
    if (!f)
       return NULL;
 
-   bmp = _al_load_bmp_f(f);
+   bmp = _al_load_bmp_f(f, flags);
 
    al_fclose(f);
 

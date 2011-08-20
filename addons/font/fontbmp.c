@@ -132,21 +132,26 @@ static int bitmap_font_count(ALLEGRO_BITMAP* bmp)
 
 
 
-ALLEGRO_FONT *_al_load_bitmap_font(const char *fname, int size, int flags)
+ALLEGRO_FONT *_al_load_bitmap_font(const char *fname, int size, int font_flags)
 {
    ALLEGRO_BITMAP *import_bmp;
    ALLEGRO_FONT *f;
    ALLEGRO_STATE backup;
    int range[2];
+   int bmp_flags;
    ASSERT(fname);
 
    (void)size;
-   (void)flags;
+
+   bmp_flags = 0;
+   if (font_flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
+      bmp_flags |= ALLEGRO_NO_PREMULTIPLIED_ALPHA;
+   }
 
    al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
-   import_bmp = al_load_bitmap(fname);
+   import_bmp = al_load_bitmap_flags(fname, bmp_flags);
    al_restore_state(&backup);
 
    if (!import_bmp) 
@@ -171,7 +176,23 @@ ALLEGRO_FONT *_al_load_bitmap_font(const char *fname, int size, int flags)
  */
 ALLEGRO_FONT *al_load_bitmap_font(const char *fname)
 {
-   return _al_load_bitmap_font(fname, 0, 0);
+   int flags = 0;
+
+   /* For backwards compatibility with the 5.0 branch. */
+   if (al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
+      flags |= ALLEGRO_NO_PREMULTIPLIED_ALPHA;
+   }
+
+   return _al_load_bitmap_font(fname, 0, flags);
+}
+
+
+
+/* Function: al_load_bitmap_font_flags
+ */
+ALLEGRO_FONT *al_load_bitmap_font_flags(const char *fname, int flags)
+{
+   return _al_load_bitmap_font(fname, 0, flags);
 }
 
 
@@ -278,3 +299,4 @@ cleanup_and_fail_on_error:
    return NULL;
 }
 
+/* vim: set sts=3 sw=3 et: */

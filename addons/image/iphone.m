@@ -8,7 +8,7 @@
 #include "iio.h"
 
 
-static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
+static ALLEGRO_BITMAP *really_load_image(char *buffer, int size, int flags)
 {
    /*
     * FIXME: We might need a more proper way of doing this, since
@@ -25,7 +25,7 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
    UIImage *uiimage = [UIImage imageWithData:nsdata];
    int w = uiimage.size.width;
    int h = uiimage.size.height;
-   bool premul = !(al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+   bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
    /* Now we need to draw the image into a memory buffer. */
    pixels = al_malloc(w * h * 4);
@@ -103,7 +103,7 @@ done:
 }
 
 
-ALLEGRO_BITMAP *_al_iphone_load_image_f(ALLEGRO_FILE *f)
+ALLEGRO_BITMAP *_al_iphone_load_image_f(ALLEGRO_FILE *f, int flags)
 {
    ALLEGRO_BITMAP *bmp;
    ASSERT(f);
@@ -120,12 +120,12 @@ ALLEGRO_BITMAP *_al_iphone_load_image_f(ALLEGRO_FILE *f)
    al_fread(f, buffer, size);
 
    /* Really load the image now. */
-   bmp = really_load_image(buffer, size);
+   bmp = really_load_image(buffer, size, flags);
    return bmp;
 }
 
 
-ALLEGRO_BITMAP *_al_iphone_load_image(const char *filename)
+ALLEGRO_BITMAP *_al_iphone_load_image(const char *filename, int flags)
 {
    ALLEGRO_FILE *fp;
    ALLEGRO_BITMAP *bmp;
@@ -136,7 +136,7 @@ ALLEGRO_BITMAP *_al_iphone_load_image(const char *filename)
    if (!fp)
       return NULL;
 
-   bmp = _al_iphone_load_image_f(fp);
+   bmp = _al_iphone_load_image_f(fp, flags);
 
    al_fclose(fp);
 

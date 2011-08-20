@@ -53,7 +53,7 @@ typedef enum ALLEGRO_PIXEL_FORMAT
  */
 enum {
    ALLEGRO_MEMORY_BITMAP            = 0x0001,
-   ALLEGRO_KEEP_BITMAP_FORMAT       = 0x0002,
+   _ALLEGRO_KEEP_BITMAP_FORMAT      = 0x0002,	/* now a bitmap loader flag */
    ALLEGRO_FORCE_LOCKING            = 0x0004,
    ALLEGRO_NO_PRESERVE_TEXTURE      = 0x0008,
    ALLEGRO_ALPHA_TEST               = 0x0010,
@@ -61,9 +61,8 @@ enum {
    ALLEGRO_MIN_LINEAR               = 0x0040,
    ALLEGRO_MAG_LINEAR               = 0x0080,
    ALLEGRO_MIPMAP                   = 0x0100,
-   ALLEGRO_NO_PREMULTIPLIED_ALPHA   = 0x0200,
+   _ALLEGRO_NO_PREMULTIPLIED_ALPHA  = 0x0200,	/* now a bitmap loader flag */
    ALLEGRO_VIDEO_BITMAP             = 0x0400,
-   ALLEGRO_KEEP_INDEX               = 0x0800,
    ALLEGRO_CONVERT_BITMAP           = 0x1000,
 };
 

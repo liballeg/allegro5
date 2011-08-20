@@ -233,7 +233,7 @@ static void rle_tga_read16(unsigned short *b, int w, ALLEGRO_FILE *f)
  *  i.e. you must either reset the offset to some known place or close the
  *  packfile. The packfile is not closed by this function.
  */
-ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f)
+ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
 {
    unsigned char image_id[256], image_palette[256][3];
    unsigned char id_length, palette_type, image_type, palette_entry_size;
@@ -248,7 +248,7 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f)
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_LOCKED_REGION *lr;
    unsigned char *buf;
-   bool premul = !(al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+   bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
    ASSERT(f);
 
    id_length = al_fgetc(f);
@@ -540,7 +540,7 @@ bool _al_save_tga_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 }
 
 
-ALLEGRO_BITMAP *_al_load_tga(const char *filename)
+ALLEGRO_BITMAP *_al_load_tga(const char *filename, int flags)
 {
    ALLEGRO_FILE *f;
    ALLEGRO_BITMAP *bmp;
@@ -550,7 +550,7 @@ ALLEGRO_BITMAP *_al_load_tga(const char *filename)
    if (!f)
       return NULL;
 
-   bmp = _al_load_tga_f(f);
+   bmp = _al_load_tga_f(f, flags);
 
    al_fclose(f);
 

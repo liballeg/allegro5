@@ -157,12 +157,17 @@ struct load_jpg_entry_helper_data {
 };
 
 static void load_jpg_entry_helper(ALLEGRO_FILE *fp,
-   struct load_jpg_entry_helper_data *data)
+   struct load_jpg_entry_helper_data *data, int flags)
 {
    struct jpeg_decompress_struct cinfo;
    struct my_err_mgr jerr;
    ALLEGRO_LOCKED_REGION *lock;
    int w, h, s;
+
+   /* ALLEGRO_NO_PREMULTIPLIED_ALPHA does not apply.
+    * ALLEGRO_KEEP_INDEX does not apply.
+    */
+   (void)flags;
 
    data->error = false;
 
@@ -268,12 +273,12 @@ static void load_jpg_entry_helper(ALLEGRO_FILE *fp,
    al_free(data->row);
 }
 
-ALLEGRO_BITMAP *_al_load_jpg_f(ALLEGRO_FILE *fp)
+ALLEGRO_BITMAP *_al_load_jpg_f(ALLEGRO_FILE *fp, int flags)
 {
    struct load_jpg_entry_helper_data data;
 
    memset(&data, 0, sizeof(data));
-   load_jpg_entry_helper(fp, &data);
+   load_jpg_entry_helper(fp, &data, flags);
 
    return data.bmp;
 }
@@ -357,7 +362,7 @@ bool _al_save_jpg_f(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
    return !data.error;
 }
 
-ALLEGRO_BITMAP *_al_load_jpg(char const *filename)
+ALLEGRO_BITMAP *_al_load_jpg(char const *filename, int flags)
 {
    ALLEGRO_FILE *fp;
    ALLEGRO_BITMAP *bmp;
@@ -368,7 +373,7 @@ ALLEGRO_BITMAP *_al_load_jpg(char const *filename)
    if (!fp)
       return NULL;
 
-   bmp = _al_load_jpg_f(fp);
+   bmp = _al_load_jpg_f(fp, flags);
 
    al_fclose(fp);
 

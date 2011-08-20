@@ -33,13 +33,15 @@ See also: [al_init_font_addon]
 
 ### API: al_load_font
 
-Loads a font from disk. This will use [al_load_bitmap_font] if you pass the
-name of a known bitmap format, or else [al_load_ttf_font].
+Loads a font from disk. This will use [al_load_bitmap_font_flags] if you pass
+the name of a known bitmap format, or else [al_load_ttf_font].
 
-Bitmap and TTF fonts are affected by the current bitmap flags at the time the
-font is loaded.
+The flags parameter is passed through to either of those functions.
+Bitmap and TTF fonts are also affected by the current bitmap flags at the time
+the font is loaded.
 
-See also: [al_destroy_font], [al_init_font_addon], [al_register_font_loader]
+See also: [al_destroy_font], [al_init_font_addon], [al_register_font_loader],
+[al_load_bitmap_font_flags], [al_load_ttf_font]
 
 ### API: al_destroy_font
 
@@ -252,10 +254,23 @@ See also: [al_load_bitmap], [al_grab_font_from_bitmap]
 
 ### API: al_load_bitmap_font
 
-Load a bitmap font from. It does this by first calling [al_load_bitmap] and then
+Load a bitmap font from. It does this by first calling [al_load_bitmap_flags]
+and then
 [al_grab_font_from_bitmap]. If you want to for example load an old A4 font,
 you could load the bitmap yourself, then call [al_convert_mask_to_alpha] on it
 and only then pass it to [al_grab_font_from_bitmap].
+
+See also: [al_load_bitmap_font_flags], [al_load_font], [al_load_bitmap_flags]
+
+### API: al_load_bitmap_font_flags
+
+Like [al_load_bitmap_font] but additionally takes a flags parameter
+which is a bitfield containing a combination of the following:
+
+ALLEGRO_NO_PREMULTIPLIED_ALPHA
+:  The same meaning as for [al_load_bitmap_flags].
+
+See also: [al_load_bitmap_font], [al_load_bitmap_flags]
 
 ## TTF fonts
 

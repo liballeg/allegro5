@@ -61,9 +61,8 @@ int main(void)
       abort_example("Error creating display\n");
    }
 
-   al_set_new_bitmap_flags(ALLEGRO_KEEP_INDEX);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_LUMINANCE_8);
-   bitmap = al_load_bitmap("data/alexlogo.bmp");
+   bitmap = al_load_bitmap_flags("data/alexlogo.bmp", ALLEGRO_KEEP_INDEX);
    if (!bitmap) {
       abort_example("alexlogo not found or failed to load\n");
    }

@@ -91,11 +91,11 @@ static char const *bmp_type_to_string(BmpType bmp_type)
    return "error";
 }
 
-static ALLEGRO_BITMAP *load_relative_bitmap(char const *filename)
+static ALLEGRO_BITMAP *load_relative_bitmap(char const *filename, int flags)
 {
    ALLEGRO_BITMAP *bmp;
 
-   bmp = al_load_bitmap(filename);
+   bmp = al_load_bitmap_flags(filename, flags);
    if (!bmp) {
       error("failed to load %s", filename);
    }
@@ -103,7 +103,7 @@ static ALLEGRO_BITMAP *load_relative_bitmap(char const *filename)
 }
 
 static void load_bitmaps(ALLEGRO_CONFIG const *cfg, const char *section,
-   BmpType bmp_type)
+   BmpType bmp_type, int flags)
 {
    int i = 0;
    ALLEGRO_CONFIG_ENTRY *iter;
@@ -115,7 +115,7 @@ static void load_bitmaps(ALLEGRO_CONFIG const *cfg, const char *section,
       value = al_get_config_value(cfg, section, key);
 
       bitmaps[i].name = al_ustr_new(key);
-      bitmaps[i].bitmap[bmp_type] = load_relative_bitmap(value);
+      bitmaps[i].bitmap[bmp_type] = load_relative_bitmap(value, flags);
 
       key = al_get_next_config_entry(&iter);
       i++;
@@ -142,7 +142,7 @@ static ALLEGRO_BITMAP **reserve_local_bitmap(const char *name, BmpType bmp_type)
    return NULL;
 }
 
-static void load_fonts(ALLEGRO_CONFIG const *cfg, const char *section)
+static void load_fonts(ALLEGRO_CONFIG const *cfg, const char *section, int flags)
 {
    int i = 0;
    ALLEGRO_CONFIG_ENTRY *iter;
@@ -154,7 +154,7 @@ static void load_fonts(ALLEGRO_CONFIG const *cfg, const char *section)
       value = al_get_config_value(cfg, section, key);
 
       fonts[i].name = al_ustr_new(key);
-      fonts[i].font = al_load_font(value, 24, 0);
+      fonts[i].font = al_load_font(value, 24, flags);
       if (!fonts[i].font)
          error("failed to load font: %s", value);
 
@@ -241,6 +241,13 @@ static ALLEGRO_BITMAP *get_bitmap(char const *value, BmpType bmp_type,
 
    error("undefined bitmap: %s", value);
    return NULL;
+}
+
+static int get_load_bitmap_flag(char const *value)
+{
+   if (streq(value, "ALLEGRO_NO_PREMULTIPLIED_ALPHA"))
+      return ALLEGRO_NO_PREMULTIPLIED_ALPHA;
+   return atoi(value);
 }
 
 static int get_draw_bitmap_flag(char const *value)
@@ -944,7 +951,12 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
 
       if (SCANLVAL("al_load_bitmap", 1)) {
          ALLEGRO_BITMAP **bmp = reserve_local_bitmap(lval, bmp_type);
-         (*bmp) = load_relative_bitmap(V(0));
+         (*bmp) = load_relative_bitmap(V(0), 0);
+         continue;
+      }
+      if (SCANLVAL("al_load_bitmap_flags", 2)) {
+         ALLEGRO_BITMAP **bmp = reserve_local_bitmap(lval, bmp_type);
+         (*bmp) = load_relative_bitmap(V(0), get_load_bitmap_flag(V(1)));
          continue;
       }
       if (SCAN("al_save_bitmap", 2)) {
@@ -1208,12 +1220,12 @@ static void sw_hw_test(ALLEGRO_CONFIG *cfg, char const *testname)
    int old_failed_tests = failed_tests;
    bool reliable;
 
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP | ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    do_test(cfg, testname, membuf, SW, true);
 
    reliable = (failed_tests == old_failed_tests);
 
-   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP | ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
    do_test(cfg, testname, al_get_backbuffer(display), HW, reliable);
 }
 
@@ -1339,12 +1351,12 @@ static void process_ini_files(void)
       argc--;
       argv++;
 
-      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP | ALLEGRO_NO_PREMULTIPLIED_ALPHA);
-      load_bitmaps(cfg, "bitmaps", SW);
+      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+      load_bitmaps(cfg, "bitmaps", SW, ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
-      al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP | ALLEGRO_NO_PREMULTIPLIED_ALPHA);
-      load_bitmaps(cfg, "bitmaps", HW);
-      load_fonts(cfg, "fonts");
+      al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+      load_bitmaps(cfg, "bitmaps", HW, ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+      load_fonts(cfg, "fonts", ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
       for (n = 0; n < argc; n++) {
          if (has_suffix(argv[n], ".ini"))
