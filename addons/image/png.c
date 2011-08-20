@@ -103,8 +103,9 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
    PalEntry pal[256];
    ALLEGRO_LOCKED_REGION *lock;
    unsigned char *buf;
-   unsigned char *rgba;
+   unsigned char *dest;
    bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+   bool index_only;
 
    ASSERT(png_ptr && info_ptr);
 
@@ -205,71 +206,98 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
 
    buf = al_malloc(((bpp + 7) / 8) * width);
 
-   lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
-      ALLEGRO_LOCK_WRITEONLY);
+   if (bpp == 8 && (color_type & PNG_COLOR_MASK_PALETTE) &&
+      (flags & ALLEGRO_KEEP_INDEX))
+   {
+      lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_LUMINANCE_8,
+         ALLEGRO_LOCK_WRITEONLY);
+      index_only = true;
+   }
+   else {
+      lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
+         ALLEGRO_LOCK_WRITEONLY);
+      index_only = false;
+   }
 
    /* Read the image, one line at a line (easier to debug!) */
    for (pass = 0; pass < number_passes; pass++) {
       png_uint_32 y;
       unsigned int i;
       unsigned char *ptr;
-      rgba = lock->data;
+      dest = lock->data;
+
       for (y = 0; y < height; y++) {
-         unsigned char *rgba_row_start = rgba;
+         unsigned char *dest_row_start = dest;
          png_read_row(png_ptr, buf, NULL);
          ptr = buf;
-         if (bpp == 8 && (color_type & PNG_COLOR_MASK_PALETTE)) {
-            for (i = 0; i < width; i++) {
-               int pix = ptr[0];
-               ptr++;
-               *(rgba++) = pal[pix].r;
-               *(rgba++) = pal[pix].g;
-               *(rgba++) = pal[pix].b;
-               *(rgba++) = 255;
-            }
-         }
-         else if (bpp == 8) {
-            for (i = 0; i < width; i++) {
-               int pix = ptr[0];
-               ptr++;
-               *(rgba++) = pix;
-               *(rgba++) = pix;
-               *(rgba++) = pix;
-               *(rgba++) = 255;
-            }
-         }
-         else if (bpp == 24) {
-            for (i = 0; i < width; i++) {
-               uint32_t pix = READ3BYTES(ptr);
-               ptr += 3;
-               *(rgba++) = pix & 0xff;
-               *(rgba++) = (pix >> 8) & 0xff;
-               *(rgba++) = (pix >> 16) & 0xff;
-               *(rgba++) = 255;
-            }
-         }
-         else {
-            for (i = 0; i < width; i++) {
-               uint32_t pix = bmp_read32(ptr);
-               int r = pix & 0xff;
-               int g = (pix >> 8) & 0xff;
-               int b = (pix >> 16) & 0xff;
-               int a = (pix >> 24) & 0xff;
-               ptr += 4;
 
-               if (premul) {
-                  r = r * a / 255;
-                  g = g * a / 255;
-                  b = b * a / 255;
+         switch (bpp) {
+            case 8:
+               if (index_only) {
+                  for (i = 0; i < width; i++) {
+                     *(dest++) = *(ptr++);
+                  }
                }
+               else if (color_type & PNG_COLOR_MASK_PALETTE) {
+                  for (i = 0; i < width; i++) {
+                     int pix = ptr[0];
+                     ptr++;
+                     *(dest++) = pal[pix].r;
+                     *(dest++) = pal[pix].g;
+                     *(dest++) = pal[pix].b;
+                     *(dest++) = 255;
+                  }
+               }
+               else {
+                  for (i = 0; i < width; i++) {
+                     int pix = ptr[0];
+                     ptr++;
+                     *(dest++) = pix;
+                     *(dest++) = pix;
+                     *(dest++) = pix;
+                     *(dest++) = 255;
+                  }
+               }
+               break;
 
-               *(rgba++) = r;
-               *(rgba++) = g;
-               *(rgba++) = b;
-               *(rgba++) = a;
-            }
+            case 24:
+               for (i = 0; i < width; i++) {
+                  uint32_t pix = READ3BYTES(ptr);
+                  ptr += 3;
+                  *(dest++) = pix & 0xff;
+                  *(dest++) = (pix >> 8) & 0xff;
+                  *(dest++) = (pix >> 16) & 0xff;
+                  *(dest++) = 255;
+               }
+               break;
+
+            case 32:
+               for (i = 0; i < width; i++) {
+                  uint32_t pix = bmp_read32(ptr);
+                  int r = pix & 0xff;
+                  int g = (pix >> 8) & 0xff;
+                  int b = (pix >> 16) & 0xff;
+                  int a = (pix >> 24) & 0xff;
+                  ptr += 4;
+
+                  if (premul) {
+                     r = r * a / 255;
+                     g = g * a / 255;
+                     b = b * a / 255;
+                  }
+
+                  *(dest++) = r;
+                  *(dest++) = g;
+                  *(dest++) = b;
+                  *(dest++) = a;
+               }
+               break;
+
+            default:
+               ASSERT(bpp == 8 || bpp == 24 || bpp == 32);
+               break;
          }
-         rgba = rgba_row_start + lock->pitch;
+         dest = dest_row_start + lock->pitch;
       }
    }
 
