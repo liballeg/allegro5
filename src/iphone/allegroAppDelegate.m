@@ -262,7 +262,7 @@ int _al_iphone_get_orientation()
       [window addSubview:splashview];
    }
    else {
-   	ALLEGRO_WARN("img is nil in display_splash_screen.\n")
+   	ALLEGRO_WARN("img is nil in display_splash_screen.\n");
    }
    [window makeKeyAndVisible];
 }
