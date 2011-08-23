@@ -404,55 +404,46 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
 #ifndef ALLEGRO_IPHONE
    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
 #endif
-   if (bitmap->memory == NULL) {
-      /* If there's unused space around the bitmap, we need to clear it
-       * else linear filtering will cause artifacts from the random
-       * data there. We also clear for floating point formats because
-       * NaN values in the texture cause some blending modes to fail on
-       * those pixels
-       */
-      if (ogl_bitmap->true_w != bitmap->w ||
-            ogl_bitmap->true_h != bitmap->h ||
-            bitmap->format == ALLEGRO_PIXEL_FORMAT_ABGR_F32) {
-         unsigned char *buf;
-         #ifdef ALLEGRO_IPHONE
-         {
-            int pix_size = al_get_pixel_size(bitmap->format);
-            buf = al_calloc(pix_size,
-               ogl_bitmap->true_h * ogl_bitmap->true_w);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, pix_size);
-            glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
-               ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
-               glformats[bitmap->format][2],
-               glformats[bitmap->format][1], buf);
-         }
-         #else
-         buf = al_calloc(ogl_bitmap->true_h, ogl_bitmap->true_w);
-         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+   /* If there's unused space around the bitmap, we need to clear it
+    * else linear filtering will cause artifacts from the random
+    * data there. We also clear for floating point formats because
+    * NaN values in the texture cause some blending modes to fail on
+    * those pixels
+    */
+   if (ogl_bitmap->true_w != bitmap->w ||
+         ogl_bitmap->true_h != bitmap->h ||
+         bitmap->format == ALLEGRO_PIXEL_FORMAT_ABGR_F32) {
+      unsigned char *buf;
+      #ifdef ALLEGRO_IPHONE
+      {
+         int pix_size = al_get_pixel_size(bitmap->format);
+         buf = al_calloc(pix_size,
+            ogl_bitmap->true_h * ogl_bitmap->true_w);
+         glPixelStorei(GL_UNPACK_ALIGNMENT, pix_size);
          glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
             ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
-            GL_ALPHA, GL_UNSIGNED_BYTE, buf);
-         #endif
-         e = glGetError();
-         al_free(buf);
+            glformats[bitmap->format][2],
+            glformats[bitmap->format][1], buf);
       }
-      else {
-         glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
-            ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
-            glformats[bitmap->format][2], glformats[bitmap->format][1],
-            NULL);
-         e = glGetError();
-      }
+      #else
+      buf = al_calloc(ogl_bitmap->true_h, ogl_bitmap->true_w);
+      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+      glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
+         ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
+         GL_ALPHA, GL_UNSIGNED_BYTE, buf);
+      #endif
+      e = glGetError();
+      al_free(buf);
    }
    else {
-      glPixelStorei(GL_UNPACK_ALIGNMENT, al_get_pixel_size(bitmap->format));
       glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
-         ogl_bitmap->true_w, ogl_bitmap->true_h, 0, glformats[bitmap->format][2],
-         glformats[bitmap->format][1], bitmap->memory);
-      al_free(bitmap->memory);
-      bitmap->memory = NULL;
+         ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
+         glformats[bitmap->format][2], glformats[bitmap->format][1],
+         NULL);
       e = glGetError();
    }
+
 #ifndef ALLEGRO_IPHONE
    glPopClientAttrib();
 #endif
@@ -1095,20 +1086,6 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 
    extra->true_w = true_w;
    extra->true_h = true_h;
-
-#if !defined(ALLEGRO_IPHONE) && !defined(ALLEGRO_GP2XWIZ)
-   bitmap->memory = NULL;
-#else
-   /* iPhone/Wiz ports still expect the buffer to be present. */
-   {
-      size_t bytes = pitch * true_h;
-      /* We never allow un-initialized memory for OpenGL bitmaps, if it
-       * is uploaded to a floating point texture it can lead to Inf and
-       * NaN values which break all subsequent blending.
-       */
-      bitmap->memory = al_calloc(1, bytes);
-   }
-#endif
 
    return bitmap;
 }
