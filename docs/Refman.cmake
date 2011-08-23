@@ -119,16 +119,19 @@ add_executable(make_search_index scripts/make_search_index.c ${DAWK_SOURCES})
 # won't be updated.  However that check is instantaneous.
 
 # ALL_SRCS is split into multiple lists, otherwise the make_protos command
-# line is too long for Windows >:-(
+# line is too long for Windows >:-( We use relative paths for the same reason.
 file(GLOB_RECURSE ALL_SRCS1
+    RELATIVE ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/src/*.[chm]
     ${CMAKE_SOURCE_DIR}/src/*.[ch]pp
     )
 file(GLOB_RECURSE ALL_SRCS2
+    RELATIVE ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/include/*.h
     ${CMAKE_SOURCE_DIR}/include/*.inl
     )
 file (GLOB_RECURSE ALL_SRCS3
+    RELATIVE ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/addons/*.[chm]
     ${CMAKE_SOURCE_DIR}/addons/*.[ch]pp
     )
@@ -136,6 +139,7 @@ file (GLOB_RECURSE ALL_SRCS3
 add_custom_command(
     OUTPUT ${PROTOS}
     DEPENDS ${ALL_SRCS} make_protos
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMAND ${MAKE_PROTOS} ${ALL_SRCS1} > ${PROTOS}
     COMMAND ${MAKE_PROTOS} ${ALL_SRCS2} >> ${PROTOS}
     COMMAND ${MAKE_PROTOS} ${ALL_SRCS3} >> ${PROTOS}
