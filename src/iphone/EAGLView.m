@@ -72,17 +72,23 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
       color_format, kEAGLDrawablePropertyColorFormat, nil];
 
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      ALLEGRO_INFO("Attempting to create ES2 context\n");
       context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
       if (context == nil) {
+         ALLEGRO_WARN("ES2 context could not be created. Attempting to create ES1 context instead.\n");
          display->flags &= ~ ALLEGRO_USE_PROGRAMMABLE_PIPELINE;
          context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
       }
    }
    else {
+      ALLEGRO_INFO("Attempting to create ES1 context.\n");
       context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
    }
+
+   ALLEGRO_INFO("Context is %p\n", context);
    
    if (!context || ![EAGLContext setCurrentContext:context]) {
+      ALLEGRO_ERROR("context is nil or setCurrentContext failed.\n");
       [self release];
       return;
    }
@@ -234,23 +240,19 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
    (void)event;
-   //UIAccelerometer *accelerometer = [UIAccelerometer sharedAccelerometer];
 
    // TODO: handle double-clicks (send two events?)
-	// NSUInteger numTaps = [[touches anyObject] tapCount];
-	// Enumerate through all the touch objects.
+   // NSUInteger numTaps = [[touches anyObject] tapCount];
+   // Enumerate through all the touch objects.
    
-	for (UITouch *nativeTouch in touches) {
-   
+   for (UITouch *nativeTouch in touches) {
       /* Create new touch_t and associate ID with UITouch. */
       touch_t* touch = al_malloc(sizeof(touch_t));
-
+      
       touch->touch = nativeTouch;
       
       if ([touch_id_set count] != 0) {
-
          touch->id = [touch_id_set firstIndex];
-         
          [touch_id_set removeIndex:touch->id];
       }
       else
@@ -264,42 +266,32 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
       
       if (NULL == primary_touch)
          primary_touch = nativeTouch;
-         
-      _al_iphone_touch_input_handle_begin(touch->id, al_get_time(),
-         p.x, p.y, primary_touch == nativeTouch, allegro_display);
       
-		//_al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_DOWN,
-      //                                p.x, p.y, touch->id, allegro_display);
-      //  _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
-      //                                  p.x, p.y, touch->id, allegro_display);
-	}
+      _al_iphone_touch_input_handle_begin(touch->id, al_get_time(),
+      p.x, p.y, primary_touch == nativeTouch, allegro_display);
+   }
 }
 
 // Handles the continuation of a touch.
 -(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {  
-	(void)event;
+   (void)event;
 
    touch_t* touch;
    
-   //double now = al_get_time();
-   
-	// Enumerates through all touch objects
-	for (UITouch *nativeTouch in touches) {
-   
+   // Enumerates through all touch objects
+   for (UITouch *nativeTouch in touches) {
       if ((touch = find_touch(touch_list, nativeTouch))) {
-      
+   
          CGPoint p = [nativeTouch locationInView:self];
          p.x *= al_iphone_get_screen_scale();
          p.y *= al_iphone_get_screen_scale();
-         
+   
          _al_iphone_touch_input_handle_move(touch->id, al_get_time(),
-            p.x, p.y, primary_touch == nativeTouch, allegro_display);         
-         
-         //_al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
-         //                                p.x, p.y, touch->id, allegro_display);
+         p.x, p.y, primary_touch == nativeTouch, allegro_display);         
+   
       }
-	}
+   }
 }
 
 // Handles the end of a touch event.
@@ -309,33 +301,25 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
    
    touch_t* touch;
    
-  // double now = al_get_time();
-   
-	// Enumerates through all touch objects
-	for (UITouch *nativeTouch in touches) {
-
+   // Enumerates through all touch objects
+   for (UITouch *nativeTouch in touches) {
       if ((touch = find_touch(touch_list, nativeTouch))) {
-   
+
          CGPoint p = [nativeTouch locationInView:self];
          p.x *= al_iphone_get_screen_scale();
          p.y *= al_iphone_get_screen_scale();
-         
-         
+
+
          _al_iphone_touch_input_handle_end(touch->id, al_get_time(),
             p.x, p.y, primary_touch == nativeTouch, allegro_display);  
-                     
-//           _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
-//                                           p.x, p.y, touch->id, allegro_display);
-//           _al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_UP,
-//                                           p.x, p.y, touch->id, allegro_display);
-                                           
+
          [touch_id_set addIndex:touch->id];
          _al_list_remove(touch_list, touch);
-         
+
          if (primary_touch == nativeTouch)
             primary_touch = NULL;
       }
-	}
+   }
 }
 
 // Qooting Apple docs:
@@ -343,33 +327,28 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 // puts the device to his or her face."
 -(void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    (void)event;
+   (void)event;
     
    touch_t* touch;
    
-   //double now = al_get_time();
-
-	// Enumerates through all touch objects
-	for (UITouch *nativeTouch in touches) {
-   
+   // Enumerates through all touch objects
+   for (UITouch *nativeTouch in touches) {
       if ((touch = find_touch(touch_list, nativeTouch))) {
    
-           CGPoint p = [nativeTouch locationInView:self];
+         CGPoint p = [nativeTouch locationInView:self];
          p.x *= al_iphone_get_screen_scale();
          p.y *= al_iphone_get_screen_scale();
-         //_al_iphone_generate_mouse_event(ALLEGRO_EVENT_MOUSE_BUTTON_UP,
-         //                                  p.x, p.y, touch->id, allegro_display);	
          
          _al_iphone_touch_input_handle_cancel(touch->id, al_get_time(),
-            p.x, p.y, primary_touch == nativeTouch, allegro_display);
-            
+         p.x, p.y, primary_touch == nativeTouch, allegro_display);
+         
          if (primary_touch == nativeTouch)
-            primary_touch = NULL;            
-                     
+         primary_touch = NULL;            
+         
          [touch_id_set addIndex:touch->id];
          _al_list_remove(touch_list, touch);
       }
-	}
+   }
 }
 
 -(BOOL)canBecomeFirstResponder {

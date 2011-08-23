@@ -15,63 +15,19 @@ static bool _screen_hack;
 
 void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d)
 {
-    int w, h;
+   int w, h;
 
-    //_al_iphone_get_screen_size(&w, &h);
+   w = d->w;
+   h = d->h;
 
-    w = d->w;
-    h = d->h;
+   _al_iphone_reset_framebuffer();
+   glViewport(0, 0, w, h);
 
-    _al_iphone_reset_framebuffer();
-    glViewport(0, 0, w, h);
+   _screen_w = w;
+   _screen_h = h;
 
-    _screen_w = w;
-    _screen_h = h;
-
-    al_identity_transform(&d->proj_transform);
-    al_ortho_transform(&d->proj_transform, 0, d->w, d->h, 0, -1, 1);
-
-#if 0
-    /* We automatically adjust the view if the user doesn't use 320x480. Users
-     * of the iphone port are adviced to provide a 320x480 mode and do their
-     * own adjustment - but for the sake of allowing ports without knowing
-     * any OpenGL and not having to change a single character in your
-     * application - here you go.
-     */
-    if (d->w != w || d->h != h) {
-       /* FIXME: The transformation is not working 100% correctly ATM */
-       double scale = 1, xoff = 0, yoff = 0;
-       if (d->w >= d->h) {
-          if (d->w * w > d->h * h) {
-             scale = h * 1.0 / d->w;
-             xoff = (w - d->h * scale) * 0.5;
-             _screen_y = 0.5 * (d->h - w / scale);
-          }
-          else {
-             scale = w * 1.0 / d->h;
-             yoff = (h - d->w * scale) * 0.5;
-             _screen_x = 0.5 * (d->w - h / scale);
-          }
-
-          al_scale_transform(&d->proj_transform, scale, scale);
-          al_rotate_transform(&d->proj_transform, -M_PI/2);
-       }
-       else {
-          // TODO
-       }
-        
-       if (!_screen_hack) {
-           _screen_hack = true;
-           _screen_scale = scale;
-           _screen_iscale = 1.0 / _screen_scale;
-           
-           ALLEGRO_INFO("Auto-scaling/rotating %dx%d display to %.fx%.f screen.\n",
-                        d->w, d->h, _screen_w, _screen_h);
-           ALLEGRO_DEBUG("x-off:%.f y-off:%.f scale:%.2f\n", _screen_x,
-                         _screen_y, _screen_scale);
-        }
-    }
-#endif
+   al_identity_transform(&d->proj_transform);
+   al_ortho_transform(&d->proj_transform, 0, d->w, d->h, 0, -1, 1);
 
    al_identity_transform(&d->view_transform);
 
@@ -188,7 +144,7 @@ void _al_iphone_update_visuals(void)
       return;
    }
    
-   system->visuals = al_calloc(VISUALS_COUNT, sizeof(*system->visuals));
+   system->visuals = al_calloc(1, VISUALS_COUNT * sizeof(*system->visuals));
    system->visuals_count = VISUALS_COUNT;
    
    for (int i = 0; i < VISUALS_COUNT; i++) {

@@ -91,13 +91,21 @@ void al_iphone_program_has_halted(void)
  */
 float al_iphone_get_screen_scale(void)
 {
+   float ret = 0.0;
+
    if (scale_override > 0.0) {
-   	return scale_override;
+      ret = scale_override;
    }
-   if ([[UIScreen mainScreen] respondsToSelector:NSSelectorFromString(@"scale")]) {
-      return [[UIScreen mainScreen] scale];
+   else if ([[UIScreen mainScreen] respondsToSelector:NSSelectorFromString(@"scale")]) {
+      ret = [[UIScreen mainScreen] scale];
    }
-   return 1.0f;
+   else {
+      ret = 1.0f;
+   }
+
+   ALLEGRO_INFO("Screen scale is %f\n", ret);
+
+   return ret;
 }
 
 /* Function: al_iphone_override_screen_scale
@@ -105,6 +113,8 @@ float al_iphone_get_screen_scale(void)
 void al_iphone_override_screen_scale(float scale)
 {
    scale_override = scale;
+
+   ALLEGRO_INFO("Scale overridden. New scale: %f\n", scale);
 }
 
 /* Function: al_iphone_set_statusbar_orientation
@@ -250,6 +260,9 @@ int _al_iphone_get_orientation()
    if (img != nil) {
       splashview = [[UIImageView alloc] initWithImage:img];
       [window addSubview:splashview];
+   }
+   else {
+   	ALLEGRO_WARN("img is nil in display_splash_screen.\n")
    }
    [window makeKeyAndVisible];
 }
