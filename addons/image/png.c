@@ -42,7 +42,7 @@ static double get_gamma(void)
 static void user_error_fn(png_structp png_ptr, png_const_charp message)
 {
    jmp_buf *jmpbuf = (jmp_buf *)png_get_error_ptr(png_ptr);
-   (void)message;
+   ALLEGRO_DEBUG("PNG error: %s\n", message);
    longjmp(*jmpbuf, 1);
 }
 
