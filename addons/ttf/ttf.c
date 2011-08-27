@@ -76,6 +76,8 @@ typedef struct ALLEGRO_TTF_FONT_DATA
    ALLEGRO_FILE *file;
    unsigned long base_offset;
    unsigned long offset;
+
+   int bitmap_format;
 } ALLEGRO_TTF_FONT_DATA;
 
 
@@ -162,7 +164,7 @@ static ALLEGRO_BITMAP *push_new_page(ALLEGRO_TTF_FONT_DATA *data)
      */
     _al_push_destructor_owner();
     old_format = al_get_new_bitmap_format();
-    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
+    al_set_new_bitmap_format(data->bitmap_format);
     page = al_create_bitmap(256, 256);
     al_set_new_bitmap_format(old_format);
     _al_pop_destructor_owner();
@@ -708,22 +710,24 @@ ALLEGRO_FONT *al_load_ttf_font_stretch_f(ALLEGRO_FILE *file,
     ALLEGRO_FONT *f;
     ALLEGRO_PATH *path;
     FT_Open_Args args;
+    int result;
 
-    data = al_malloc(sizeof *data);
-    memset(data, 0, sizeof *data);
+    data = al_calloc(1, sizeof *data);
     data->stream.read = ftread;
     data->stream.close = ftclose;
     data->stream.pathname.pointer = data;
     data->base_offset = al_ftell(file);
     data->stream.size = al_fsize(file);
     data->file = file;
+    data->bitmap_format = al_get_new_bitmap_format();
 
     memset(&args, 0, sizeof args);
     args.flags = FT_OPEN_STREAM;
     args.stream = &data->stream;
 
-    if (FT_Open_Face(ft, &args, 0, &face) != 0) {
-        ALLEGRO_DEBUG("Reading %s failed.\n", filename);
+    if ((result = FT_Open_Face(ft, &args, 0, &face)) != 0) {
+        ALLEGRO_ERROR("Reading %s failed. Freetype error code %d\n", filename,
+	   result);
         // Note: Freetype already closed the file for us.
         al_free(data);
         return NULL;
