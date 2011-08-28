@@ -221,10 +221,8 @@ static void call_user_main(void)
  */
 + (void)app_main: (id)arg
 {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     (void)arg;
     call_user_main();
-    [pool release];
 }
 
 
@@ -262,7 +260,6 @@ static void call_user_main(void)
 int _al_osx_run_main(int argc, char **argv,
    int (*real_main)(int, char **))
 {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     AllegroAppDelegate *app_delegate = [[AllegroAppDelegate alloc] init];
     NSMenu *menu;
     NSMenuItem *temp_item;
@@ -337,6 +334,5 @@ int _al_osx_run_main(int argc, char **argv,
     [NSApp run];
     /* Can never get here */
     [app_delegate release];
-    [pool release];
     return 0;
 }
