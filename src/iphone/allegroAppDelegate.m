@@ -155,6 +155,7 @@ void _al_iphone_make_view_current(void)
 void _al_iphone_flip_view(void)
 {
    static bool splash_removed = false;
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
    [global_delegate.view flip];
 
@@ -170,6 +171,8 @@ void _al_iphone_flip_view(void)
    
       [global_delegate.view becomeFirstResponder];
    }
+    
+   [pool drain];
 }
 
 void _al_iphone_reset_framebuffer(void)
@@ -229,9 +232,9 @@ int _al_iphone_get_orientation()
 @synthesize view;
 
 + (void)run:(int)argc:(char **)argv {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    //NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     UIApplicationMain(argc, argv, nil, @"allegroAppDelegate");
-    [pool release];
+    //[pool release];
 }
 
 /* When applicationDidFinishLaunching() returns, the current view gets visible

@@ -10,12 +10,6 @@
 
 static ALLEGRO_BITMAP *really_load_image(char *buffer, int size, int flags)
 {
-   /*
-    * FIXME: We might need a more proper way of doing this, since
-    * it could be a problem if the user calls this function from
-    * their own thread that already has an autorelease pool. But
-    * I'm not sure.
-    */
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
    ALLEGRO_BITMAP *bmp = NULL;

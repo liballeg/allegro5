@@ -15,10 +15,10 @@ extern int _al_mangled_main(int, char **);
 static void *user_main(ALLEGRO_THREAD *thread, void *arg)
 {
     (void)thread;
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    //NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     ALLEGRO_INFO("Starting user main.\n");
     _al_mangled_main(global_argc, global_argv);
-    [pool release];
+    //[pool release];
     ALLEGRO_INFO("User main has returned.\n");
     ALLEGRO_SYSTEM_IPHONE *iphone = (void *)al_get_system_driver();
     al_lock_mutex(iphone->mutex);
@@ -53,10 +53,12 @@ void _al_iphone_init_path(void)
      * the initial path to that. As each app is sandboxed, there is not much
      * else to access anyway.
      */
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     NSFileManager *fm = [NSFileManager defaultManager];
     NSBundle *mainBundle = [NSBundle mainBundle];
     NSString *string = [mainBundle resourcePath];
     [fm changeCurrentDirectoryPath:string];
+    [pool drain];
 }
 
 int main(int argc, char **argv) {
