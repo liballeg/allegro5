@@ -53,7 +53,6 @@
 
 typedef struct CURL_FILE CURL_FILE;
 struct CURL_FILE {
-   ALLEGRO_FILE file;
    CURL *curl;
    char *buffer;           /* buffer to store cached data */
    size_t buffer_len;      /* currently allocated buffers length */
@@ -74,7 +73,7 @@ static CURLM *multi_handle;
 static size_t write_callback(char *buffer, size_t size, size_t nitems,
    void *userp)
 {
-   CURL_FILE *cf = (CURL_FILE *)userp;
+   CURL_FILE *cf = userp;
    char *newbuff;
    size_t rembuff;
 
@@ -102,7 +101,7 @@ static size_t write_callback(char *buffer, size_t size, size_t nitems,
 }
 
 
-static ALLEGRO_FILE *curl_file_fopen(const char *path, const char *mode)
+static void *curl_file_fopen(const char *path, const char *mode)
 {
    CURL_FILE *cf;
 
@@ -110,12 +109,10 @@ static ALLEGRO_FILE *curl_file_fopen(const char *path, const char *mode)
    if (strcmp(mode, "r") != 0 && strcmp(mode, "rb") != 0)
       return NULL;
 
-   cf = malloc(sizeof(*cf));
+   cf = calloc(1, sizeof(*cf));
    if (!cf)
       return NULL;
-   memset(cf, 0, sizeof(*cf));
 
-   cf->file.vtable = &curl_file_vtable;
    cf->curl = curl_easy_init();
    curl_easy_setopt(cf->curl, CURLOPT_URL, path);
    curl_easy_setopt(cf->curl, CURLOPT_WRITEDATA, cf);
@@ -139,13 +136,13 @@ static ALLEGRO_FILE *curl_file_fopen(const char *path, const char *mode)
       cf = NULL;
    }
 
-   return (ALLEGRO_FILE *)cf;
+   return cf;
 }
 
 
 static void curl_file_fclose(ALLEGRO_FILE *f)
 {
-   CURL_FILE *cf = (CURL_FILE *)f;
+   CURL_FILE *cf = al_get_file_userdata(f);
 
    curl_multi_remove_handle(multi_handle, cf->curl);
    curl_easy_cleanup(cf->curl);
@@ -227,7 +224,7 @@ static void use_buffer(CURL_FILE *cf, size_t size)
 
 static size_t curl_file_fread(ALLEGRO_FILE *f, void *ptr, size_t size)
 {
-   CURL_FILE *cf = (CURL_FILE *)f;
+   CURL_FILE *cf = al_get_file_userdata(f);
 
    fill_buffer(cf, size);
    if (!cf->buffer_pos)
@@ -288,7 +285,7 @@ static bool curl_file_fseek(ALLEGRO_FILE *f, int64_t offset, int whence)
 
 static bool curl_file_feof(ALLEGRO_FILE *f)
 {
-   CURL_FILE *cf = (CURL_FILE *)f;
+   CURL_FILE *cf = al_get_file_userdata(f);
 
    return (cf->buffer_pos == 0 && !cf->still_running);
 }
