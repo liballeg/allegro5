@@ -103,8 +103,6 @@ float al_iphone_get_screen_scale(void)
       ret = 1.0f;
    }
 
-   ALLEGRO_INFO("Screen scale is %f\n", ret);
-
    return ret;
 }
 

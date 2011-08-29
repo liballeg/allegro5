@@ -15,10 +15,8 @@ extern int _al_mangled_main(int, char **);
 static void *user_main(ALLEGRO_THREAD *thread, void *arg)
 {
     (void)thread;
-    //NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     ALLEGRO_INFO("Starting user main.\n");
     _al_mangled_main(global_argc, global_argv);
-    //[pool release];
     ALLEGRO_INFO("User main has returned.\n");
     ALLEGRO_SYSTEM_IPHONE *iphone = (void *)al_get_system_driver();
     al_lock_mutex(iphone->mutex);
