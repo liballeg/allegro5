@@ -72,7 +72,7 @@ ALLEGRO_TEXTLOG *al_open_native_text_log(char const *title, int flags)
       al_unlock_mutex(textlog->tl_text_mutex);
    }
    else {
-      _al_open_native_text_log(textlog);
+      textlog->tl_init_error = !_al_open_native_text_log(textlog);
    }
 
    if (textlog->tl_init_error) {

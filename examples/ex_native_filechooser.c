@@ -183,9 +183,16 @@ int main(void)
    info = al_color_name("red");
 
    al_install_mouse();
+   al_install_touch_input();
    al_install_keyboard();
+    
+   al_set_mouse_emulation_mode(ALLEGRO_MOUSE_EMULATION_5_0_x);
 
-   message("Creating 640x480 window...");
+   message("Creating window...");
+    
+#ifdef ALLEGRO_IPHONE
+   al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+#endif
 
    display = al_create_display(640, 480);
    if (!display) {
@@ -210,6 +217,8 @@ restart:
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_mouse_event_source());
+   al_register_event_source(queue, al_get_touch_input_event_source());
+    al_register_event_source(queue, al_get_touch_input_mouse_emulation_event_source());
    al_register_event_source(queue, al_get_display_event_source(display));
    al_register_event_source(queue, al_get_timer_event_source(timer));
    if (textlog) {
@@ -230,7 +239,7 @@ restart:
          if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE && !cur_dialog)
             break;
       }
-
+       
       /* When a mouse button is pressed, and no native dialog is
        * shown already, we show a new one.
        */
