@@ -6,6 +6,7 @@
 #include "menu.h"
 #include "music.h"
 #include "vcontroller.h"
+#include "gamepad.h"
 
 #define MIN(x,y)     (((x) < (y)) ? (x) : (y))
 #define MAX(x,y)     (((x) > (y)) ? (x) : (y))
@@ -52,7 +53,7 @@ void init_demo_menu(DEMO_MENU * menu, int PlayMusic)
 
 int update_demo_menu(DEMO_MENU * menu)
 {
-   int tmp;
+   int tmp, c;
 
    update_background();
    update_credits();
@@ -123,10 +124,15 @@ int update_demo_menu(DEMO_MENU * menu)
          }
       }
    }
+    
+    c = unicode_char(true);
+    if(gamepad_button()) {
+        c = 32;
+    }
 
-   if (selected_item != -1 && unicode_char(false)) {
+   if (selected_item != -1 && c) {
       tmp = menu[selected_item].proc(&menu[selected_item],
-         DEMO_MENU_MSG_CHAR, unicode_char(true));
+         DEMO_MENU_MSG_CHAR, c);
       if (tmp == DEMO_MENU_LOCK) {
          locked = 1;
          return DEMO_MENU_CONTINUE;

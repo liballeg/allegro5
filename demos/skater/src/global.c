@@ -10,7 +10,13 @@
 #include "framework.h"
 
 /* Default values of some config varables */
+#ifdef ALLEGRO_IPHONE
+int fullscreen = 1;
+int controller_id = 1;
+#else
 int fullscreen = 0;
+int controller_id = 0;
+#endif
 int bit_depth = 32;
 int screen_width = 640;
 int screen_height = 480;
@@ -25,7 +31,6 @@ int display_framerate = 1;
 int reduce_cpu_usage = 1;
 int sound_volume = 8;
 int music_volume = 8;
-int controller_id = 0;
 
 int shadow_offset = 2;
 

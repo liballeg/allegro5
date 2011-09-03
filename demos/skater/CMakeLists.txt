@@ -33,6 +33,11 @@ set(DEMO_SRCS
 
     )
 
+file(GLOB SKATER_GRAPHICS data/graphics/*.png)
+file(GLOB SKATER_AUDIO data/audio/*)
+file(GLOB SKATER_MENU data/menu/*)
+set(SKATER_LEVEL data/level.txt)
+
 include_directories(
    ${CMAKE_SOURCE_DIR}/addons/acodec
    ${CMAKE_SOURCE_DIR}/addons/audio
@@ -57,9 +62,10 @@ if(SUPPORT_FONT AND SUPPORT_AUDIO AND SUPPORT_ACODEC AND SUPPORT_NATIVE_DIALOG)
     add_executable(skater
         ${DEMO_EXECUTABLE_TYPE}
         ${DEMO_SRCS}
-        ${DEMO_GFX}
-        ${DEMO_SFX}
-        ${DEMO_ICON}
+        ${SKATER_GRAPHICS}
+        ${SKATER_AUDIO}
+        ${SKATER_MENU}
+        ${SKATER_LEVEL}
         )
     
     fix_executable(skater)

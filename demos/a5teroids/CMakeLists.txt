@@ -57,7 +57,7 @@ if(SUPPORT_FONT AND SUPPORT_AUDIO AND SUPPORT_ACODEC)
     add_executable(a5teroids
         ${DEMO_EXECUTABLE_TYPE}
         ${DEMO_SRCS}
-	${DEMO_GFX}
+        ${DEMO_GFX}
         ${DEMO_SFX}
         ${DEMO_ICON}
         )

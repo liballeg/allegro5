@@ -5,5 +5,7 @@
 #include "vcontroller.h"
 
 VCONTROLLER *create_gamepad_controller(const char *config_path);
+void gamepad_event(ALLEGRO_EVENT *event);
+bool gamepad_button(void);
 
 #endif				/* __DEMO_GAMEPAD_H__ */

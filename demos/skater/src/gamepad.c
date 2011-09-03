@@ -4,6 +4,8 @@
 #include "global.h"
 #include "gamepad.h"
 
+static int button_down = 0;
+static float axis[3];
 
 static void read_config(VCONTROLLER * this, const char *config_path)
 {
@@ -45,33 +47,9 @@ static void write_config(VCONTROLLER * this, const char *config_path)
 
 static void poll(VCONTROLLER * this)
 {
-   (void)this;
-// FIXME
-#if 0
-   int i;
-
-   int *private_data = (int *)(this->private_data);
-
-   ALLEGRO_JOYSTICK_STATE joy = al_get_joystick_state();
-
-   for (i = 0; i < 3; i++) {
-      if (private_data[i] & 1) {
-         /* read a button */
-         this->button[i] =
-            joy[(private_data[i] >> 8) & 255].button[private_data[i] >> 16].b;
-      } else {
-         /* read an axis */
-         this->button[i] =
-            (private_data[i] & 2) ?
-            joy[(private_data[i] >> 8) & 255].
-            stick[(private_data[i] >> 16) & 255].
-            axis[(private_data[i] >> 24)].
-            d1 : joy[(private_data[i] >> 8) & 255].
-            stick[(private_data[i] >> 16) & 255].
-            axis[(private_data[i] >> 24)].d2;
-      }
-   }
-#endif
+    this->button[0] = axis[0] < 0;
+    this->button[1] = axis[0] > 0;
+    this->button[2] = button_down;
 }
 
 
@@ -161,4 +139,28 @@ VCONTROLLER *create_gamepad_controller(const char *config_path)
    read_config(ret, config_path);
 
    return ret;
+}
+
+void gamepad_event(ALLEGRO_EVENT *event)
+{
+    switch (event->type) {
+        case ALLEGRO_EVENT_TOUCH_BEGIN:
+            button_down = true;
+            break;
+            
+        case ALLEGRO_EVENT_TOUCH_END:
+            button_down = false;
+            break;
+        
+        case ALLEGRO_EVENT_JOYSTICK_AXIS:
+            if (event->joystick.axis < 3)
+                axis[event->joystick.axis] = event->joystick.pos;
+            break;
+    }
+}
+
+
+bool gamepad_button(void)
+{
+    return button_down != 0;
 }

@@ -21,6 +21,8 @@ void set_sound_volume(double v)
 void play_music(int id, int loop)
 {
    (void)loop;
+   if (!demo_data[id].dat)
+      return;
    if (id == currently_playing) {
       return;
    }
@@ -50,6 +52,8 @@ void stop_music(void)
 void play_sound(ALLEGRO_SAMPLE *s, int vol, int pan, int freq, int loop)
 {
    int playmode = loop ? ALLEGRO_PLAYMODE_LOOP : ALLEGRO_PLAYMODE_ONCE;
+    if (!s)
+        return;
    if (freq < 0) {
       freq = 1000 + rand() % (-freq) + freq / 2;
    }

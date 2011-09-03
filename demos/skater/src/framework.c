@@ -42,10 +42,6 @@ static GAMESTATE state[DEMO_MAX_GAMESTATES];
 static int current_state = 0, last_state;
 static int state_count = 0;
 
-static int joy_left;
-static int joy_right;
-static int joy_b1;
-
 ALLEGRO_EVENT_QUEUE *event_queue;
 
 /*
@@ -136,12 +132,15 @@ int init_framework(void)
    /* Attempt to install the joystick submodule. Note: no need to check
       the return value as joystick isn't really required! */
    al_install_joystick();
+    
+   al_install_touch_input();
    
    al_install_mouse();
 
    al_register_event_source(event_queue, al_get_keyboard_event_source());
    al_register_event_source(event_queue, al_get_mouse_event_source());
    al_register_event_source(event_queue, al_get_joystick_event_source());
+   al_register_event_source(event_queue, al_get_touch_input_event_source());
 
    /* Create a timer. */
    {
@@ -269,23 +268,24 @@ void run_framework(void)
             break;
 
          case ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN:
-            if (event.joystick.button == 0)
-               joy_b1 = 1;
+            gamepad_event(&event);
             break;
 
          case ALLEGRO_EVENT_JOYSTICK_BUTTON_UP:
-            if (event.joystick.button == 0)
-               joy_b1 = 0;
+            gamepad_event(&event);
             break;
 
          case ALLEGRO_EVENT_JOYSTICK_AXIS:
-            if (event.joystick.stick == 0 && event.joystick.axis == 0) {
-               double pos = event.joystick.pos;
-               joy_left = (pos < 0.0);
-               joy_right = (pos > 0.0);
-            }
+            gamepad_event(&event);
             break;
-      
+        
+         case ALLEGRO_EVENT_TOUCH_BEGIN:
+            gamepad_event(&event);
+            break;
+         case ALLEGRO_EVENT_TOUCH_END:
+              gamepad_event(&event);
+            break;
+
          case ALLEGRO_EVENT_DISPLAY_CLOSE:
             closed = true;
             break;

@@ -245,6 +245,10 @@ endfunction(add_our_executable)
 # Files are only copied if they don't are inside a .svn folder so we
 # won't end up with read-only .svn folders in the build folder.
 function(copy_data_dir_to_build target name destination)
+    if(IPHONE)
+        return()
+    endif(IPHONE)
+
     if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
         return()
     endif()
