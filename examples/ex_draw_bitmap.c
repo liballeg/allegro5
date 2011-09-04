@@ -1,6 +1,9 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
+#ifdef ALLEGRO_IPHONE
+#include <allegro5/allegro_iphone.h>
+#endif
 #include <stdlib.h>
 #include <math.h>
 
@@ -31,9 +34,6 @@ struct Example {
    int sprite_count;
    bool show_help;
    ALLEGRO_FONT *font;
-    
-   bool mouse_down;
-   int last_x, last_y;
 
    ALLEGRO_COLOR white;
    ALLEGRO_COLOR half_white;
@@ -201,7 +201,7 @@ static void redraw(void)
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    if (example.show_help) {
       for (i = 0; i < 5; i++)
-         al_draw_text(example.font, example.white, 0, h - 5 * fh + i * fh, 0, text[i]);
+         al_draw_text(example.font, example.white, 0, h - 10 * fh + i * fh * 2 + fh * 0.5, 0, text[i]);
    }
 
    al_draw_textf(example.font, example.white, 0, 0, 0, "count: %d",
@@ -252,6 +252,8 @@ int main(void)
    w = info.x2 - info.x1;
    h = info.y2 - info.y1;
    #endif
+   al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS,
+                             ALLEGRO_DISPLAY_ORIENTATION_ALL, ALLEGRO_SUGGEST);
    example.display = al_create_display(w, h);
 
    if (!example.display) {
@@ -268,6 +270,8 @@ int main(void)
         abort_example("Error installing mouse.\n");
         return 1;
     }
+   
+   al_install_touch_input();
 
    example.font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!example.font) {
@@ -295,12 +299,16 @@ int main(void)
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_mouse_event_source());
    al_register_event_source(queue, al_get_timer_event_source(timer));
+   al_register_event_source(queue, al_get_touch_input_event_source());
    al_register_event_source(queue, al_get_display_event_source(example.display));
 
    al_start_timer(timer);
 
    while (!done) {
+      float x, y;
       ALLEGRO_EVENT event;
+      w = al_get_display_width(example.display);
+      h = al_get_display_height(example.display);
 
       if (!background && need_redraw && al_is_event_queue_empty(queue)) {
          double t = -al_get_time();
@@ -358,64 +366,63 @@ int main(void)
             break;
          
          case ALLEGRO_EVENT_DISPLAY_SWITCH_IN:
-              background = false;
-              break;
-
+            background = false;
+            break;
+         
+         case ALLEGRO_EVENT_DISPLAY_RESIZE:
+            al_acknowledge_resize(event.display.source);
+            break;
               
          case ALLEGRO_EVENT_TIMER:
             update();
             need_redraw = true;
             break;
-        
-         case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
-            example.mouse_down = true;
-            example.last_x = event.mouse.x;
-            example.last_y = event.mouse.y;
-            break;
+         
+         case ALLEGRO_EVENT_TOUCH_BEGIN:
+            x = event.touch.x;
+            y = event.touch.y;
+            goto click;
 
-         case ALLEGRO_EVENT_MOUSE_BUTTON_UP: {
+         case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
+            x = event.mouse.x;
+            y = event.mouse.y;
+            goto click;
+            
+         click:
+         {
+            printf("%.f %.f %dx%d\n", x, y, w, h);
             int fh = al_get_font_line_height(example.font);
-            example.mouse_down = false;
-            if (event.mouse.x < 40 && event.mouse.y >= h - fh * 5) {
-                int button = (event.mouse.y - (h - fh * 5)) / fh;
-                if (button == 0) {
-                    example.use_memory_bitmaps ^= 1;
-                    change_size(example.bitmap_size);
-                }
-                if (button == 1) {
-                    example.blending++;
-                    if (example.blending == 4)
-                        example.blending = 0;
-                }
-                if (button == 4) {
-                    example.show_help ^= 1;
-                }
+            
+            if (x < 80 && y >= h - fh * 10) {
+               int button = (y - (h - fh * 10)) / (fh * 2);
+               if (button == 0) {
+                  example.use_memory_bitmaps ^= 1;
+                  change_size(example.bitmap_size);
+               }
+               if (button == 1) {
+                  example.blending++;
+                  if (example.blending == 4)
+                     example.blending = 0;
+               }
+               if (button == 3) {
+                  if (x < 40)
+                     remove_sprites(example.sprite_count / 2);
+                  else
+                     add_sprites(example.sprite_count);
+               }
+               if (button == 2) {
+                  int s = example.bitmap_size * 2;
+                  if (x < 40)
+                     s = example.bitmap_size / 2;
+                  change_size(s);
+               }
+               if (button == 4) {
+                  example.show_help ^= 1;
+               }
                 
             }
             break;
          }
-
-         case ALLEGRO_EVENT_MOUSE_AXES:
-            if (example.mouse_down) {
-                double dx = event.mouse.x - example.last_x;
-                double dy = event.mouse.y - example.last_y;
-                if (dy > 4) {
-                    add_sprites(dy / 4);
-                }
-                if (dy < -4) {
-                    remove_sprites(-dy / 4);
-                }
-                if (dx > 4) {
-                    change_size(example.bitmap_size + dx - 4);
-                }
-                if (dx < -4) {
-                    change_size(example.bitmap_size + dx + 4);
-                }
-                
-                example.last_x = event.mouse.x;
-                example.last_y = event.mouse.y;
-            }
-            break;
       }
    }
 
