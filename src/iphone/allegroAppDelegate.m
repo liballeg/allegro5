@@ -286,8 +286,6 @@ int _al_iphone_get_orientation()
    (void)notification;
     
    int orientation = _al_iphone_get_orientation();
-    
-   ALLEGRO_INFO("Orientation: %d\n", orientation);
 
    if (d == NULL)
       return;
