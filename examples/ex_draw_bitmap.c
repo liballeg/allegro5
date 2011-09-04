@@ -270,8 +270,6 @@ int main(void)
         abort_example("Error installing mouse.\n");
         return 1;
     }
-   
-   al_install_touch_input();
 
    example.font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!example.font) {
@@ -299,7 +297,9 @@ int main(void)
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_mouse_event_source());
    al_register_event_source(queue, al_get_timer_event_source(timer));
-   al_register_event_source(queue, al_get_touch_input_event_source());
+   
+   if (al_install_touch_input())
+      al_register_event_source(queue, al_get_touch_input_event_source());
    al_register_event_source(queue, al_get_display_event_source(example.display));
 
    al_start_timer(timer);

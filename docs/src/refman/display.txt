@@ -153,9 +153,20 @@ The supported options are:
     existing memory bitmaps with the ALLEGRO_CONVERT_BITMAP flag to be
     converted to a display bitmap of the newly created display with
     the option set.
-    
+*   ALLEGRO_SUPPORTED_ORIENTATIONS: This is a bit-combination of the
+    orientations supported by the applications. The orientations are
+    the same as for [al_get_display_orientation] with the additional
+    possibilities:
+    * ALLEGRO_DISPLAY_ORIENTATION_PORTRAIT
+    * ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE
+    * ALLEGRO_DISPLAY_ORIENTATION_ALL
 
-FIXME: document them all in detail
+    PORTRAIT means only the two portrait orientations are supported,
+    LANDSCAPE means only the two landscape orientations and ALL allows
+    all four orientations. When the orientation changes between a
+    portrait and a landscape orientation the display needs to be
+    resizes. This is done by sending an [ALLEGRO_EVENT]_DISPLAY_RESIZE
+    message which should be handled by calling [al_acknowledge_resize].
 
 See also: [al_set_new_display_flags]
 
