@@ -45,4 +45,5 @@ Note that setting the view non-opaque will only work if the EAGL surface has an 
 - (void)set_allegro_display:(ALLEGRO_DISPLAY *)display;
 - (BOOL) createFramebuffer;
 - (void) destroyFramebuffer;
+- (BOOL)orientation_supported:(UIInterfaceOrientation)o;
 @end

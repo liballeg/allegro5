@@ -101,6 +101,8 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 
 - (id)initWithFrame:(CGRect)frame {
     
+    ALLEGRO_DEBUG("Creating UIView.\n");
+
     self = [super initWithFrame:frame];
     
     touch_list = _al_list_create();
@@ -151,13 +153,49 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
     [context presentRenderbuffer:GL_RENDERBUFFER_OES];
 }
 
-- (void)layoutSubviews {
-    [EAGLContext setCurrentContext:context];
-    [self destroyFramebuffer];
-    [self createFramebuffer];
-    ALLEGRO_INFO("Initialized EAGLView.\n");
+- (void)send_resize_event {
+   ALLEGRO_DISPLAY *display = allegro_display;
+   
+   int x = self.frame.origin.x;
+   int y = self.frame.origin.y;
+   int w = self.frame.size.width;
+   int h = self.frame.size.height;
+
+   _al_event_source_lock(&display->es);
+   if (_al_event_source_needs_to_generate_event(&display->es)) {
+      ALLEGRO_EVENT event;
+      event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
+      event.display.timestamp = al_get_time();
+      event.display.x = x;
+      event.display.y = y;
+      event.display.width = w;
+      event.display.height = h;
+      event.display.orientation = _al_iphone_get_orientation();
+      _al_event_source_emit_event(&display->es, &event);
+   }
+   _al_event_source_unlock(&display->es);
 }
 
+- (void)layoutSubviews {
+    [EAGLContext setCurrentContext:context];
+    if (!viewRenderbuffer) {
+       [self createFramebuffer];
+    }
+    else {
+       [self send_resize_event];
+    }
+}
+
+- (BOOL)orientation_supported:(UIInterfaceOrientation) o {
+   if (!allegro_display) return NO;
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *options = &allegro_display->extra_settings;
+   int supported = options->settings[ALLEGRO_SUPPORTED_ORIENTATIONS];
+   if (o == UIInterfaceOrientationPortrait) return supported | ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES;
+   if (o == UIInterfaceOrientationLandscapeRight) return supported | ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES;
+   if (o == UIInterfaceOrientationPortraitUpsideDown) return supported | ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES;
+   if (o == UIInterfaceOrientationLandscapeLeft) return supported | ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES;
+   return NO;
+}
 
 - (BOOL)createFramebuffer {
     if ([self respondsToSelector:@selector(contentScaleFactor)]) {
@@ -165,7 +203,6 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
         ALLEGRO_INFO("Screen scale is %f\n", self.contentScaleFactor);
     }
 
-    ALLEGRO_INFO("Creating GL framebuffer.\n");
     glGenFramebuffersOES(1, &viewFramebuffer);
     glGenRenderbuffersOES(1, &viewRenderbuffer);
     
@@ -176,6 +213,8 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
     
     glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &backingWidth);
     glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeight);
+   
+    ALLEGRO_INFO("Creating GL framebuffer %dx%d.\n", backingWidth, backingHeight);
     
     if (allegro_display->extra_settings.settings[ALLEGRO_DEPTH_SIZE]) {
         glGenRenderbuffersOES(1, &depthRenderbuffer);

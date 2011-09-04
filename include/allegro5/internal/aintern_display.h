@@ -88,10 +88,10 @@ typedef struct ALLEGRO_BLENDER
 /* These are settings Allegro itself doesn't really care about on its
  * own, but which users may want to specify for a display anyway.
  */
-ALLEGRO_STATIC_ASSERT(ALLEGRO_DISPLAY_OPTIONS_COUNT <= 32);
+ALLEGRO_STATIC_ASSERT(ALLEGRO_DISPLAY_OPTIONS_COUNT <= 64);
 typedef struct
 {
-   int required, suggested; /* Bitfields. */
+   int64_t required, suggested; /* Bitfields. */
    int settings[ALLEGRO_DISPLAY_OPTIONS_COUNT];
 
    /* These are come in handy when creating a context. */

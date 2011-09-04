@@ -4,7 +4,9 @@
 #import <UIKit/UIKit.h>
 #include <pthread.h>
 
+#include "allegro5/allegro_opengl.h"
 #include "allegro5/allegro_iphone.h"
+#include "allegro5/internal/aintern_opengl.h"
 
 ALLEGRO_DEBUG_CHANNEL("iphone")
 
@@ -150,6 +152,16 @@ void _al_iphone_make_view_current(void)
     [global_delegate.view make_current];
 }
 
+void _al_iphone_recreate_framebuffer(ALLEGRO_DISPLAY *display)
+{
+   EAGLView *view = global_delegate.view;
+   [view destroyFramebuffer];
+   [view createFramebuffer];
+   display->w = view.backingWidth;
+   display->h = view.backingHeight;
+   _al_ogl_resize_backbuffer(display->ogl_extras->backbuffer, display->w, display->h);
+}
+
 void _al_iphone_flip_view(void)
 {
    static bool splash_removed = false;
@@ -228,11 +240,10 @@ int _al_iphone_get_orientation()
 
 @synthesize window;
 @synthesize view;
+@synthesize view_controller;
 
 + (void)run:(int)argc:(char **)argv {
-    //NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     UIApplicationMain(argc, argv, nil, @"allegroAppDelegate");
-    //[pool release];
 }
 
 /* When applicationDidFinishLaunching() returns, the current view gets visible
@@ -294,7 +305,8 @@ int _al_iphone_get_orientation()
 
    // Register for device orientation notifications
    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientation_change:) name:UIDeviceOrientationDidChangeNotification object:nil];
+   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientation_change:)
+        name:UIDeviceOrientationDidChangeNotification object:nil];
 
    [self display_splash_screen];
 
@@ -378,9 +390,10 @@ int _al_iphone_get_orientation()
  * it and otherwise things simply don't work (the screen just stays black).
  */
 - (void)add_view {
-   view = [[EAGLView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+   view_controller = [[ViewController alloc]init];
+   view = (EAGLView *)view_controller.view;
+    ALLEGRO_DEBUG("thread %p: view %p\n", pthread_self(), view);
    [view set_allegro_display:allegro_display];
-
    [window addSubview:view];
 }
 

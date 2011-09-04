@@ -23,6 +23,7 @@ void _al_iphone_add_view(ALLEGRO_DISPLAY *d);
 void _al_iphone_make_view_current(void);
 void _al_iphone_flip_view(void);
 void _al_iphone_reset_framebuffer(void);
+void _al_iphone_recreate_framebuffer(ALLEGRO_DISPLAY *);
 ALLEGRO_SYSTEM_INTERFACE *_al_get_iphone_system_interface(void);
 ALLEGRO_DISPLAY_INTERFACE *_al_get_iphone_display_interface(void);
 ALLEGRO_KEYBOARD_DRIVER *_al_get_iphone_keyboard_driver(void);

@@ -8,7 +8,7 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 
 static ALLEGRO_DISPLAY_INTERFACE *vt;
 
-static float _screen_scale = 1.0, _screen_iscale = 1.0;
+static float _screen_iscale = 1.0;
 static float _screen_x, _screen_y;
 static float _screen_w, _screen_h;
 static bool _screen_hack;
@@ -54,36 +54,10 @@ void _al_iphone_translate_from_screen(ALLEGRO_DISPLAY *d, int *x, int *y)
    }
 }
 
-void _al_iphone_translate_to_screen(ALLEGRO_DISPLAY *d, int *ox, int *oy)
-{
-    if (!_screen_hack) return;
-    // See _al_iphone_setup_opengl_view
-    float x = *ox, y = *oy;
-    
-    if (d->w >= d->h) {
-        *ox = _screen_w - (y - _screen_y) * _screen_scale;
-        *oy = (x - _screen_x) * _screen_scale;
-    }
-    else {
-        // TODO
-    }
-}
-
 void _al_iphone_clip(ALLEGRO_BITMAP const *bitmap, int x_1, int y_1, int x_2, int y_2)
 {
    ALLEGRO_BITMAP *oglb = (void *)(bitmap->parent ? bitmap->parent : bitmap);
-   ALLEGRO_BITMAP_EXTRA_OPENGL *e = oglb->extra;
    int h = oglb->h;
-   if (_screen_hack && e->is_backbuffer) {
-      _al_iphone_translate_to_screen(bitmap->display, &x_1, &y_1);
-      _al_iphone_translate_to_screen(bitmap->display, &x_2, &y_2);
-      if (x_1 > x_2) {
-         int t = x_1;
-         x_1 = x_2;
-         x_2 = t;
-      }
-      h = _screen_h;
-   }
    glScissor(x_1, h - y_2, x_2 - x_1, y_2 - y_1);
 }
 
@@ -345,8 +319,9 @@ static void iphone_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
 
 static bool iphone_acknowledge_resize(ALLEGRO_DISPLAY *d)
 {
-    (void)d;
-    return false;
+   _al_iphone_recreate_framebuffer(d);
+   _al_iphone_setup_opengl_view(d);
+   return true;
 }
 
 static bool iphone_set_mouse_cursor(ALLEGRO_DISPLAY *display,

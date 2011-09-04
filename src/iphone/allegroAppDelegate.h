@@ -1,5 +1,6 @@
 #import <UIKit/UIKit.h>
 #include <allegro5/allegro.h>
+#import "ViewController.h"
 
 @class EAGLView;
 
@@ -12,6 +13,7 @@
 
 @property (nonatomic, retain) UIWindow *window;
 @property (nonatomic, retain) EAGLView *view;
+@property (nonatomic, retain) ViewController *view_controller;
 
 + (void)run:(int)argc:(char **)argv;
 - (void)add_view;
