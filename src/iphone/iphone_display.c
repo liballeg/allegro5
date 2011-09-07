@@ -123,10 +123,13 @@ void _al_iphone_update_visuals(void)
    
    for (int i = 0; i < VISUALS_COUNT; i++) {
       ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = al_calloc(1, sizeof *eds);
+      ALLEGRO_EXTRA_DISPLAY_SETTINGS *extra = _al_get_new_display_settings();
       eds->settings[ALLEGRO_RENDER_METHOD] = 1;
       eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
       eds->settings[ALLEGRO_SWAP_METHOD] = 2;
       eds->settings[ALLEGRO_VSYNC] = 1;
+      eds->settings[ALLEGRO_SUPPORTED_ORIENTATIONS] =
+         extra->settings[ALLEGRO_SUPPORTED_ORIENTATIONS];
       switch (i) {
          case 0:
             set_rgba8888(eds);
