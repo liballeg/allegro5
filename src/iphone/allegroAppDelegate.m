@@ -339,13 +339,13 @@ int _al_iphone_get_orientation()
     _al_iphone_await_termination();
 }
 
-- (void)applicationDidEnterBackground:(UIApplication *)application {
+- (void)applicationWillResignActive:(UIApplication *)application {
    ALLEGRO_DISPLAY *d = allegro_display;
    ALLEGRO_EVENT event;
    
    (void)application;
     
-   ALLEGRO_INFO("Entering background.\n");
+   ALLEGRO_INFO("Application becoming inactive.\n");
 
    waiting_for_program_halt = true;
 
@@ -363,13 +363,16 @@ int _al_iphone_get_orientation()
    }
 }
 
-- (void)applicationWillEnterForeground:(UIApplication *)application {
+- (void)applicationDidBecomeActive:(UIApplication *)application {
     ALLEGRO_DISPLAY *d = allegro_display;
 	ALLEGRO_EVENT event;
 	
 	(void)application;
     
-    ALLEGRO_INFO("Entering foreground.\n");
+    ALLEGRO_INFO("Application becoming active...\n");
+
+   if (!d)
+      return;
 
     _al_event_source_lock(&d->es);
     if (_al_event_source_needs_to_generate_event(&d->es)) {
