@@ -4,6 +4,8 @@
 #include <allegro5/internal/aintern_opengl.h>
 #include <math.h>
 
+#include "iphone.h"
+
 ALLEGRO_DEBUG_CHANNEL("iphone")
 
 static ALLEGRO_DISPLAY_INTERFACE *vt;
@@ -388,6 +390,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_iphone_display_interface(void)
     vt->set_system_mouse_cursor = iphone_set_system_mouse_cursor;
     vt->show_mouse_cursor = iphone_show_mouse_cursor;
     vt->hide_mouse_cursor = iphone_hide_mouse_cursor;
+
+    vt->acknowledge_drawing_halt = _al_iphone_acknowledge_drawing_halt;
 
     _al_ogl_add_drawing_functions(vt);
     

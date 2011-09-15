@@ -519,4 +519,11 @@ void _al_set_display_invalidated_callback(ALLEGRO_DISPLAY* display, void (*displ
    display->display_invalidated = display_invalidated;
 }
 
+void al_acknowledge_drawing_halt(ALLEGRO_DISPLAY *display)
+{
+   if (display->vt->acknowledge_drawing_halt) {
+      display->vt->acknowledge_drawing_halt(display);
+   }
+}
+
 /* vim: set sts=3 sw=3 et: */

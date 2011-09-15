@@ -82,10 +82,9 @@ static void iphone_send_orientation_event(ALLEGRO_DISPLAY* display, int orientat
 }
 
 
-/* Function: al_iphone_program_has_halted
- */
-void al_iphone_program_has_halted(void)
+void _al_iphone_acknowledge_drawing_halt(ALLEGRO_DISPLAY *display)
 {
+   (void)display;
    waiting_for_program_halt = false;
 }
 
@@ -347,11 +346,48 @@ int _al_iphone_get_orientation()
     
    ALLEGRO_INFO("Application becoming inactive.\n");
 
+   _al_event_source_lock(&d->es);
+   if (_al_event_source_needs_to_generate_event(&d->es)) {
+       event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
+       event.display.timestamp = al_current_time();
+       _al_event_source_emit_event(&d->es, &event);
+   }
+   _al_event_source_unlock(&d->es);
+}
+
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    ALLEGRO_DISPLAY *d = allegro_display;
+	ALLEGRO_EVENT event;
+	
+	(void)application;
+    
+    ALLEGRO_INFO("Application becoming active.\n");
+
+   if (!d)
+      return;
+
+    _al_event_source_lock(&d->es);
+    if (_al_event_source_needs_to_generate_event(&d->es)) {
+        event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
+        event.display.timestamp = al_current_time();
+        _al_event_source_emit_event(&d->es, &event);
+    }
+    _al_event_source_unlock(&d->es);
+}
+
+- (void)applicationDidEnterBackground:(UIApplication *)application {
+   ALLEGRO_DISPLAY *d = allegro_display;
+   ALLEGRO_EVENT event;
+   
+   (void)application;
+    
+   ALLEGRO_INFO("Application entering background.\n");
+
    waiting_for_program_halt = true;
 
    _al_event_source_lock(&d->es);
    if (_al_event_source_needs_to_generate_event(&d->es)) {
-       event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
+       event.display.type = ALLEGRO_EVENT_DISPLAY_HALT_DRAWING;
        event.display.timestamp = al_current_time();
        _al_event_source_emit_event(&d->es, &event);
    }
@@ -363,20 +399,17 @@ int _al_iphone_get_orientation()
    }
 }
 
-- (void)applicationDidBecomeActive:(UIApplication *)application {
+- (void)applicationWillEnterForeground:(UIApplication *)application {
     ALLEGRO_DISPLAY *d = allegro_display;
 	ALLEGRO_EVENT event;
 	
 	(void)application;
     
-    ALLEGRO_INFO("Application becoming active...\n");
-
-   if (!d)
-      return;
+    ALLEGRO_INFO("Application coming back to foreground.\n");
 
     _al_event_source_lock(&d->es);
     if (_al_event_source_needs_to_generate_event(&d->es)) {
-        event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
+        event.display.type = ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING;
         event.display.timestamp = al_current_time();
         _al_event_source_emit_event(&d->es, &event);
     }

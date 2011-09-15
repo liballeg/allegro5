@@ -70,6 +70,8 @@ struct ALLEGRO_DISPLAY_INTERFACE
    void (*set_projection)(ALLEGRO_DISPLAY *d);
 
    void (*shutdown)(void);
+
+   void (*acknowledge_drawing_halt)(ALLEGRO_DISPLAY *d);
 };
 
 
