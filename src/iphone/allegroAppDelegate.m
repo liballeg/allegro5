@@ -136,14 +136,15 @@ void al_iphone_set_statusbar_orientation(int o)
 
 void _al_iphone_add_view(ALLEGRO_DISPLAY *display)
 {
-   [global_delegate set_allegro_display:display];
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc]init];
    /* This is the same as
     * [global_delegate.view add_view];
     * except it will run in the main thread.
     */
-   [global_delegate performSelectorOnMainThread: @selector(add_view) 
-      withObject:nil
-      waitUntilDone: YES];
+   [global_delegate performSelectorOnMainThread: @selector(add_view:) 
+                                     withObject: [NSValue valueWithPointer:display]
+                                  waitUntilDone: YES];
+   [pool drain];
 }
 
 void _al_iphone_make_view_current(void)
@@ -416,17 +417,13 @@ int _al_iphone_get_orientation()
     _al_event_source_unlock(&d->es);
 }
 
-- (void)set_allegro_display:(ALLEGRO_DISPLAY *)d {
-   allegro_display = d;
-}
-
 /* Note: This must be called from the main thread. Ask Apple why - but I tried
  * it and otherwise things simply don't work (the screen just stays black).
  */
-- (void)add_view {
+- (void)add_view:(NSValue *)value {
+   allegro_display = [value pointerValue];
    view_controller = [[ViewController alloc]init];
    view = (EAGLView *)view_controller.view;
-    ALLEGRO_DEBUG("thread %p: view %p\n", pthread_self(), view);
    [view set_allegro_display:allegro_display];
    [window addSubview:view];
 }

@@ -16,8 +16,7 @@
 @property (nonatomic, retain) ViewController *view_controller;
 
 + (void)run:(int)argc:(char **)argv;
-- (void)add_view;
-- (void)set_allegro_display:(ALLEGRO_DISPLAY *)d;
+- (void)add_view:(NSValue *)value;
 - (void)display_splash_screen;
 - (void)orientation_change:(NSNotification *)notification;
 

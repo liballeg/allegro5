@@ -1,9 +1,6 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
-#ifdef ALLEGRO_IPHONE
-#include <allegro5/allegro_iphone.h>
-#endif
 #include <stdlib.h>
 #include <math.h>
 
@@ -249,12 +246,13 @@ int main(void)
    al_get_monitor_info(0, &info);
 
    #ifdef ALLEGRO_IPHONE
-   w = info.x2 - info.x1;
-   h = info.y2 - info.y1;
+   al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
    #endif
    al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS,
                              ALLEGRO_DISPLAY_ORIENTATION_ALL, ALLEGRO_SUGGEST);
    example.display = al_create_display(w, h);
+   w = al_get_display_width(example.display);
+   h = al_get_display_height(example.display);
 
    if (!example.display) {
       abort_example("Error creating display.\n");
@@ -356,16 +354,14 @@ int main(void)
             done = true;
             break;
 
-         case ALLEGRO_EVENT_DISPLAY_SWITCH_OUT:
+         case ALLEGRO_EVENT_DISPLAY_HALT_DRAWING:
 
-            #ifdef ALLEGRO_IPHONE
             background = true;
-            al_iphone_program_has_halted();
-            #endif
+            al_acknowledge_drawing_halt(event.display.source);
 
             break;
          
-         case ALLEGRO_EVENT_DISPLAY_SWITCH_IN:
+         case ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING:
             background = false;
             break;
          
@@ -390,7 +386,6 @@ int main(void)
             
          click:
          {
-            printf("%.f %.f %dx%d\n", x, y, w, h);
             int fh = al_get_font_line_height(example.font);
             
             if (x < 80 && y >= h - fh * 10) {

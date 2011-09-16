@@ -180,6 +180,14 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
     [EAGLContext setCurrentContext:context];
     if (!viewRenderbuffer) {
        [self createFramebuffer];
+       /* Depending on the orientation, the initial framebuffer dimensions may be
+        * rotated so we need to update them. For example
+        * a call to al_create_display(480, 640) will create a display of
+        * 640x480 pixels in landscape mode.
+        */
+       allegro_display->w = backingWidth;
+       allegro_display->h = backingHeight;
+
     }
     else {
        [self send_resize_event];

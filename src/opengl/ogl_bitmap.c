@@ -380,6 +380,10 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
 
    if (ogl_bitmap->texture == 0) {
       glGenTextures(1, &ogl_bitmap->texture);
+      ALLEGRO_DEBUG("Created new OpenGL texture %d (%dx%d, format %s)\n",
+                    ogl_bitmap->texture,
+                    ogl_bitmap->true_w, ogl_bitmap->true_h,
+                    _al_format_name(bitmap->format));
    }
    glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
    e = glGetError();
@@ -1037,8 +1041,6 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    int pitch;
    (void)d;
 
-   ALLEGRO_DEBUG("Creating OpenGL bitmap\n");
-
 #if !defined ALLEGRO_GP2XWIZ
    if (d->ogl_extras->extension_list->ALLEGRO_GL_ARB_texture_non_power_of_two) {
       true_w = w;
@@ -1059,8 +1061,6 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    if (true_h < 16) true_h = 16;
 #endif
 
-   ALLEGRO_DEBUG("Using dimensions: %d %d\n", true_w, true_h);
-
 #if !defined ALLEGRO_GP2XWIZ
    format = _al_get_real_pixel_format(d, format);
 #else
@@ -1068,7 +1068,6 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
       format = ALLEGRO_PIXEL_FORMAT_RGBA_4444;
 #endif
 
-   ALLEGRO_DEBUG("Chose format %s for OpenGL bitmap\n", _al_format_name(format));
    ASSERT(_al_pixel_format_is_real(format));
 
    pitch = true_w * al_get_pixel_size(format);
