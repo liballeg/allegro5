@@ -24,6 +24,7 @@ extern int bit_depth;            /* screen colour depth (15/16/24/32)
                                     retrieved. */
 extern int screen_width;         /* horizontal screen resolution */
 extern int screen_height;        /* vertical screen resolution */
+extern int screen_orientation;
 extern int window_width;         /* remember last window width */
 extern int window_height;        /* remember last window height */
 extern int screen_samples;       /* super-sampling */

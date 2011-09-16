@@ -237,6 +237,8 @@ void run_framework(void)
    int need_to_redraw = 1;      /* do we need to draw the next frame? */
    int next_state = current_state;
    int i;
+   bool background_mode = false;
+   bool paused = false;
 
    /* Initialize the first game screen. */
    state[current_state].init();
@@ -291,7 +293,14 @@ void run_framework(void)
             break;
         
          case ALLEGRO_EVENT_TIMER:
-            timer++;
+            if (!paused)
+               timer++;
+            break;
+         
+         case ALLEGRO_EVENT_DISPLAY_ORIENTATION:
+            if (event.display.orientation == ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES ||
+                event.display.orientation == ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES)
+               screen_orientation = event.display.orientation;
             break;
          
          case ALLEGRO_EVENT_DISPLAY_RESIZE:
@@ -303,6 +312,24 @@ void run_framework(void)
                window_height = screen_height;
             }
             break;
+         
+         case ALLEGRO_EVENT_DISPLAY_HALT_DRAWING:
+            background_mode = true;
+            al_acknowledge_drawing_halt(screen);
+            break;
+         
+         case ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING:
+            background_mode = false;
+            break;
+            
+         case ALLEGRO_EVENT_DISPLAY_SWITCH_OUT:
+            paused = true;
+            break;
+            
+         case ALLEGRO_EVENT_DISPLAY_SWITCH_IN:
+            paused = false;
+            break;
+            
       }
       
       if (!al_is_event_queue_empty(event_queue)) continue;
@@ -403,7 +430,7 @@ void run_framework(void)
 
       /* In case a frame of logic has just been run or the user wants
          unlimited framerate, we must redraw the screen. */
-      if (need_to_redraw == 1) {
+      if (need_to_redraw == 1 && !background_mode) {
          /* Actually do the drawing. */
          draw_framework();
 

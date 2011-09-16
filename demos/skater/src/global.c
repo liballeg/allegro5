@@ -20,6 +20,7 @@ int controller_id = 0;
 int bit_depth = 32;
 int screen_width = 640;
 int screen_height = 480;
+int screen_orientation = ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES;
 int window_width = 640;
 int window_height = 480;
 int screen_samples = 1;
@@ -214,6 +215,9 @@ int change_gfx_mode(void)
       al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 0, ALLEGRO_SUGGEST);
       al_set_new_display_option(ALLEGRO_SAMPLES, 0, ALLEGRO_SUGGEST);
    }
+   
+   al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS,
+                             ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE, ALLEGRO_SUGGEST);
 
    /* Attempt to set the selected colour depth and gfx mode. */
    screen = al_create_display(screen_width, screen_height);
@@ -223,6 +227,7 @@ int change_gfx_mode(void)
    
    screen_width = al_get_display_width(screen);
    screen_height = al_get_display_height(screen);
+   screen_orientation = ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES;
    
    al_register_event_source(event_queue, al_get_display_event_source(screen));
 

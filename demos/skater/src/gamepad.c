@@ -44,12 +44,20 @@ static void write_config(VCONTROLLER * this, const char *config_path)
    al_destroy_config(c);
 }
 
-
+static float threshold = 0.1;
 static void poll(VCONTROLLER * this)
 {
-    this->button[0] = axis[0] < 0;
-    this->button[1] = axis[0] > 0;
-    this->button[2] = button_down;
+   //printf("%f %f %f\n", axis[0], axis[1], axis[2]);
+   float a = axis[0];
+   if (screen_orientation == ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES)
+      a = axis[1];
+   if (screen_orientation == ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES)
+      a = -axis[0];
+   if (screen_orientation == ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES)
+      a = -axis[1];
+   this->button[0] = a < -threshold;
+   this->button[1] = a > threshold;
+   this->button[2] = button_down;
 }
 
 

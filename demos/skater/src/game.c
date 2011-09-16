@@ -25,6 +25,7 @@ struct Level *Lvl = NULL;
 struct LevelState *LvlState = NULL;
 double LeftWindow = -120, RightWindow = 120;
 double Pusher = 0;
+static ALLEGRO_COLOR cloud_color;
 
 #define PLAYER_STRENGTH 0.14f
 
@@ -95,6 +96,8 @@ char *load_game_resources(const char *data_path)
                  )));
 
    WaveNoise = ObtainSample("wave");
+   
+   cloud_color = al_get_pixel(cloud, 0, 0);
 
    return NULL;
 }
@@ -268,7 +271,7 @@ static void GameDraw(void)
       }
 
       al_set_clipping_rectangle(0, 0, screen_width, lowy * screen_height / 480 + 1);
-      al_clear_to_color(al_get_pixel(cloud, 0, 0));
+      al_clear_to_color(cloud_color);
       DrawClouds();
       al_set_clipping_rectangle(0, 0, screen_width, screen_height);
    }
