@@ -191,7 +191,7 @@ ALLEGRO_AUTO_CONVERT_BITMAPS
 
 ALLEGRO_SUPPORTED_ORIENTATIONS
 :   This is a bit-combination of the
-    orientations supported by the applications. The orientations are
+    orientations supported by the application. The orientations are
     the same as for [al_get_display_orientation] with the additional
     possibilities:
 
@@ -625,7 +625,15 @@ to it.
 
 See also: [al_get_monitor_info]
 
+### API: al_acknowledge_drawing_halt
 
+Call this in response to the ALLEGRO_EVENT_DISPLAY_HALT_DRAWING event.
+This is currently necessary for iOS as you are not allowed to draw to
+your display while it is not being shown. If you do not call this
+function to let the operating system know that you have stopped
+drawing or if you call it to late the application likely will be
+considered misbehaving and get terminated.
 
+See also: [ALLEGRO_EVENT]
 
 

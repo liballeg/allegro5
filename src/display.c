@@ -519,6 +519,8 @@ void _al_set_display_invalidated_callback(ALLEGRO_DISPLAY* display, void (*displ
    display->display_invalidated = display_invalidated;
 }
 
+/* Function: al_acknowledge_drawing_halt
+ */
 void al_acknowledge_drawing_halt(ALLEGRO_DISPLAY *display)
 {
    if (display->vt->acknowledge_drawing_halt) {

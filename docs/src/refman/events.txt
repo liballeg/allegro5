@@ -24,6 +24,9 @@ By examining the `type` field you can then access type-specific fields.  The
 event.  The `any.timestamp` field tells you when the event was generated.  The
 time is referenced to the same starting point as [al_get_time].
 
+See also: [ALLEGRO_EVENT_SOURCE], [ALLEGRO_EVENT_TYPE], [ALLEGRO_USER_EVENT],
+[ALLEGRO_GET_EVENT_TYPE]
+
 Each event is of one of the following types, with the usable fields given.
 
 ALLEGRO_EVENT_JOYSTICK_AXIS
@@ -385,8 +388,62 @@ event.display.orientation
     - ALLEGRO_DISPLAY_ORIENTATION_FACE_UP
     - ALLEGRO_DISPLAY_ORIENTATION_FACE_DOWN
 
-See also: [ALLEGRO_EVENT_SOURCE], [ALLEGRO_EVENT_TYPE], [ALLEGRO_USER_EVENT],
-[ALLEGRO_GET_EVENT_TYPE]
+ALLEGRO_EVENT_DISPLAY_HALT_DRAWING
+----------------------------------
+When a display receives this event it should stop doing any drawing
+and then call [al_acknowledge_drawing_halt].
+
+This is currently only relevant for iOS. It will be sent when the
+application is switched to background mode, in addition to
+ALLEGRO_EVENT_DISPLAY_SWITCH_OUT. The latter may also be sent in
+situations where the application is not active but still should continue
+drawing, for example when a popup is display in front of it.
+
+ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING
+------------------------------------
+This is called under iOS when an application returns from background
+mode and is allowed to draw to the display again.
+
+ALLEGRO_EVENT_TOUCH_BEGIN
+-------------------------
+The touch input device registered a new touch.
+
+touch.display (ALLEGRO_DISPLAY)
+:   The display which was touched.
+touch.id (int)
+:   An identifier for this touch. If supported by the device it will
+    stay the same for events from the same finger until the touch
+    ends.
+touch.x (float)
+:   The x coordinate of the touch in pixels.
+touch.y (float)
+:   The y coordinate of the touch in pixels.
+touch.dx (float)
+:   Movement speed in pixels in x direction.
+touch.dy (float)
+:   Movement speed in pixels in y direction.
+touch.primary (bool)
+:   Wether this is the only/first touch or an additional touch.
+
+ALLEGRO_EVENT_TOUCH_END
+-----------------------
+A touch ended.
+
+Has the same fields as ALLEGRO_EVENT_TOUCH_BEGIN.
+
+ALLEGRO_EVENT_TOUCH_MOVE
+------------------------
+The position of a touch changed.
+
+Has the same fields as ALLEGRO_EVENT_TOUCH_BEGIN.
+
+ALLEGRO_EVENT_TOUCH_CANCEL
+--------------------------
+A touch was cancelled. This is device specific but could for example
+mean that a finger moved off the border of the device or moved so
+fast that it could not be tracked any longer.
+
+Has the same fields as ALLEGRO_EVENT_TOUCH_BEGIN.
 
 ## API: ALLEGRO_USER_EVENT
 
