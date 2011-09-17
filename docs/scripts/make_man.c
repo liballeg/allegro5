@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "aatree.h"
 #include "dawk.h"
 #include "make_doc.h"
@@ -28,33 +29,44 @@ static void call_pandoc_for_man(const char *input, const char *name)
 
 void make_man_pages(int argc, char *argv[])
 {
-   bool output = false;
+   int output_level = 0;
    dstr name = "";
    dstr line;
 
    d_init(argc, argv);
 
    while (d_getline(line)) {
-      if (line[0] == '#' && output) {
-         d_close_output();
-         call_pandoc_for_man(tmp_preprocess_output, name);
-         output = false;
+      /* Stop outputting the current man page at the first line beginning with
+       * the same or few number of hashes, i.e. at the same level or above.
+       */
+      if (d_match(line, "^(#+) ") && output_level > 0) {
+         int n = strlen(d_submatch(1));
+         if (n <= output_level) {
+            d_close_output();
+            call_pandoc_for_man(tmp_preprocess_output, name);
+            output_level = 0;
+         }
       }
 
-      if (d_match(line, "^ *#include ") && !output) {
+      if (d_match(line, "^ *#include ") && output_level == 0) {
          d_assign(last_header, line);
          continue;
       }
 
-      if (d_match(line, "^#+ API: *")) {
-         d_assign(name, d_after_match);
-         d_open_output(tmp_preprocess_output);
-         man_page_header(name);
-         output = true;
+      if (d_match(line, "^(#+) API: *")) {
+         if (output_level == 0) {
+            output_level = strlen(d_submatch(1));
+            d_assign(name, d_after_match);
+            d_open_output(tmp_preprocess_output);
+            man_page_header(name);
+         }
+         else {
+            d_printf("%s %s\n", d_submatch(1), d_after_match);
+         }
          continue;
       }
 
-      if (!output) {
+      if (!output_level) {
          continue;
       }
 
@@ -82,10 +94,10 @@ void make_man_pages(int argc, char *argv[])
       d_print(line);
    }
 
-   if (output) {
+   if (output_level == 0) {
       d_close_output();
       call_pandoc_for_man(tmp_preprocess_output, name);
-      output = false;
+      output_level = 0;
    }
 }
 
