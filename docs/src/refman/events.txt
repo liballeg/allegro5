@@ -24,9 +24,6 @@ By examining the `type` field you can then access type-specific fields.  The
 event.  The `any.timestamp` field tells you when the event was generated.  The
 time is referenced to the same starting point as [al_get_time].
 
-See also: [ALLEGRO_EVENT_SOURCE], [ALLEGRO_EVENT_TYPE], [ALLEGRO_USER_EVENT],
-[ALLEGRO_GET_EVENT_TYPE]
-
 Each event is of one of the following types, with the usable fields given.
 
 ALLEGRO_EVENT_JOYSTICK_AXIS
@@ -390,6 +387,8 @@ event.display.orientation
 
 ALLEGRO_EVENT_DISPLAY_HALT_DRAWING
 ----------------------------------
+(since: 5.1.0)
+
 When a display receives this event it should stop doing any drawing
 and then call [al_acknowledge_drawing_halt].
 
@@ -401,11 +400,15 @@ drawing, for example when a popup is display in front of it.
 
 ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING
 ------------------------------------
+(since: 5.1.0)
+
 This is called under iOS when an application returns from background
 mode and is allowed to draw to the display again.
 
 ALLEGRO_EVENT_TOUCH_BEGIN
 -------------------------
+(since: 5.1.0)
+
 The touch input device registered a new touch.
 
 touch.display (ALLEGRO_DISPLAY)
@@ -427,23 +430,32 @@ touch.primary (bool)
 
 ALLEGRO_EVENT_TOUCH_END
 -----------------------
+(since: 5.1.0)
+
 A touch ended.
 
 Has the same fields as ALLEGRO_EVENT_TOUCH_BEGIN.
 
 ALLEGRO_EVENT_TOUCH_MOVE
 ------------------------
+(since: 5.1.0)
+
 The position of a touch changed.
 
 Has the same fields as ALLEGRO_EVENT_TOUCH_BEGIN.
 
 ALLEGRO_EVENT_TOUCH_CANCEL
 --------------------------
+(since: 5.1.0)
+
 A touch was cancelled. This is device specific but could for example
 mean that a finger moved off the border of the device or moved so
 fast that it could not be tracked any longer.
 
 Has the same fields as ALLEGRO_EVENT_TOUCH_BEGIN.
+
+See also: [ALLEGRO_EVENT_SOURCE], [ALLEGRO_EVENT_TYPE], [ALLEGRO_USER_EVENT],
+[ALLEGRO_GET_EVENT_TYPE]
 
 ## API: ALLEGRO_USER_EVENT
 

@@ -189,6 +189,8 @@ ALLEGRO_AUTO_CONVERT_BITMAPS
     converted to a display bitmap of the newly created display with
     the option set.
 
+    Since: 5.1.0
+
 ALLEGRO_SUPPORTED_ORIENTATIONS
 :   This is a bit-combination of the
     orientations supported by the application. The orientations are
@@ -205,6 +207,8 @@ ALLEGRO_SUPPORTED_ORIENTATIONS
     portrait and a landscape orientation the display needs to be
     resizes. This is done by sending an [ALLEGRO_EVENT]_DISPLAY_RESIZE
     message which should be handled by calling [al_acknowledge_resize].
+
+    Since: 5.1.0
 
 See also: [al_set_new_display_flags]
 
@@ -633,6 +637,8 @@ your display while it is not being shown. If you do not call this
 function to let the operating system know that you have stopped
 drawing or if you call it to late the application likely will be
 considered misbehaving and get terminated.
+
+Since: 5.1.0
 
 See also: [ALLEGRO_EVENT]
 
