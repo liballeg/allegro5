@@ -78,6 +78,7 @@ typedef struct ALLEGRO_TTF_FONT_DATA
    unsigned long offset;
 
    int bitmap_format;
+   int bitmap_flags;
 } ALLEGRO_TTF_FONT_DATA;
 
 
@@ -154,7 +155,6 @@ static ALLEGRO_BITMAP *push_new_page(ALLEGRO_TTF_FONT_DATA *data)
 {
     ALLEGRO_BITMAP **back;
     ALLEGRO_BITMAP *page;
-    int old_format;
     ALLEGRO_STATE state;
 
     unlock_current_page(data);
@@ -163,10 +163,11 @@ static ALLEGRO_BITMAP *push_new_page(ALLEGRO_TTF_FONT_DATA *data)
      * it is not safe to register a destructor for it.
      */
     _al_push_destructor_owner();
-    old_format = al_get_new_bitmap_format();
+    al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
     al_set_new_bitmap_format(data->bitmap_format);
+    al_set_new_bitmap_flags(data->bitmap_flags);
     page = al_create_bitmap(256, 256);
-    al_set_new_bitmap_format(old_format);
+    al_restore_state(&state);
     _al_pop_destructor_owner();
 
     back = _al_vector_alloc_back(&data->page_bitmaps);
@@ -720,6 +721,7 @@ ALLEGRO_FONT *al_load_ttf_font_stretch_f(ALLEGRO_FILE *file,
     data->stream.size = al_fsize(file);
     data->file = file;
     data->bitmap_format = al_get_new_bitmap_format();
+    data->bitmap_flags = al_get_new_bitmap_flags();
 
     memset(&args, 0, sizeof args);
     args.flags = FT_OPEN_STREAM;
