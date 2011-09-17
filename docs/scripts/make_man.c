@@ -4,9 +4,12 @@
 #include "dawk.h"
 #include "make_doc.h"
 
+#define MAX_NAMES 64
+
 static const char *SECTION = "3";
 static const char *MANUAL = "Allegro reference manual";
 static dstr last_header;
+static dstr names[MAX_NAMES];
 
 static void man_page_header(const char *name)
 {
@@ -19,18 +22,21 @@ static void man_page_header(const char *name)
    d_print("\n# DESCRIPTION");
 }
 
-static void call_pandoc_for_man(const char *input, const char *name)
+static void call_pandoc_for_man(const char *input, int name_count)
 {
    dstr output_filename;
+   int i;
 
-   sprintf(output_filename, "%s.%s", name, SECTION);
-   call_pandoc(input, output_filename, "--standalone");
+   for (i = 0; i < name_count; i++) {
+      sprintf(output_filename, "%s.%s", names[i], SECTION);
+      call_pandoc(input, output_filename, "--standalone");
+   }
 }
 
 void make_man_pages(int argc, char *argv[])
 {
    int output_level = 0;
-   dstr name = "";
+   int name_count = 0;
    dstr line;
 
    d_init(argc, argv);
@@ -43,7 +49,8 @@ void make_man_pages(int argc, char *argv[])
          int n = strlen(d_submatch(1));
          if (n <= output_level) {
             d_close_output();
-            call_pandoc_for_man(tmp_preprocess_output, name);
+            call_pandoc_for_man(tmp_preprocess_output, name_count);
+            name_count = 0;
             output_level = 0;
          }
       }
@@ -53,15 +60,21 @@ void make_man_pages(int argc, char *argv[])
          continue;
       }
 
-      if (d_match(line, "^(#+) API: *")) {
+      if (d_match(line, "^(#+) API: *(.*)")) {
+         const char *hashes = d_submatch(1);
+         const char *name = d_submatch(2);
+
          if (output_level == 0) {
-            output_level = strlen(d_submatch(1));
-            d_assign(name, d_after_match);
+            output_level = strlen(hashes);
             d_open_output(tmp_preprocess_output);
             man_page_header(name);
          }
          else {
-            d_printf("%s %s\n", d_submatch(1), d_after_match);
+            d_printf("%s %s\n", hashes, name);
+         }
+         if (name_count < MAX_NAMES) {
+            d_assign(names[name_count], name);
+            name_count++;
          }
          continue;
       }
@@ -94,9 +107,10 @@ void make_man_pages(int argc, char *argv[])
       d_print(line);
    }
 
-   if (output_level == 0) {
+   if (output_level > 0) {
       d_close_output();
-      call_pandoc_for_man(tmp_preprocess_output, name);
+      call_pandoc_for_man(tmp_preprocess_output, name_count);
+      name_count = 0;
       output_level = 0;
    }
 }
