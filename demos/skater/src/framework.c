@@ -133,14 +133,14 @@ int init_framework(void)
       the return value as joystick isn't really required! */
    al_install_joystick();
     
-   al_install_touch_input();
+   if (al_install_touch_input())
+      al_register_event_source(event_queue, al_get_touch_input_event_source());
    
    al_install_mouse();
 
    al_register_event_source(event_queue, al_get_keyboard_event_source());
    al_register_event_source(event_queue, al_get_mouse_event_source());
    al_register_event_source(event_queue, al_get_joystick_event_source());
-   al_register_event_source(event_queue, al_get_touch_input_event_source());
 
    /* Create a timer. */
    {
