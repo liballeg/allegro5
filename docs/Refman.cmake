@@ -41,6 +41,7 @@ set(PAGES
     physfs
     primitives
     shader
+    video
     )
 
 set(PAGES_TXT)

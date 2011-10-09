@@ -11,6 +11,7 @@ include_directories(
     ../addons/primitives
     ../addons/shader
     ../addons/ttf
+    ../addons/video
     )
 
 if(SUPPORT_PHYSFS)
@@ -76,6 +77,7 @@ set(PHYSFS x${PHYSFS_LINK_WITH})
 set(PRIM x${PRIMITIVES_LINK_WITH})
 set(TTF x${TTF_LINK_WITH})
 set(SHADER x${SHADER_LINK_WITH})
+set(VIDEO x${VIDEO_LINK_WITH})
 
 set(NIHGUI nihgui.cpp ${FONT} ${PRIM})
 
@@ -154,6 +156,7 @@ example(ex_vsync ${FONT} ${IMAGE})
 example(ex_warp_mouse ${FONT} ${PRIM} ${IMAGE})
 example(ex_windows ${FONT} ${IMAGE})
 example(ex_winfull)
+example(ex_video ${AUDIO} ${IMAGE} ${FONT} ${PRIM} ${VIDEO})
 
 if(WANT_D3D AND D3DX9_FOUND)
     example(ex_d3d ex_d3d.cpp ${D3DX9_LIBRARY})

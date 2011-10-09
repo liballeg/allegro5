@@ -40,6 +40,7 @@
 * [PhysicsFS addon](physfs.html)
 * [Primitives addon](primitives.html)
 * [Shader addon](shader.html)
+* [Video streaming addon](video.html)
 </div>
 
 <div class="searchbox">

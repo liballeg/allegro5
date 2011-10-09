@@ -120,6 +120,7 @@ option(WANT_PHYSFS "Enable PhysicsFS addon" on)
 option(WANT_PRIMITIVES "Enable primitives addon" on)
 option(WANT_NATIVE_DIALOG "Enable native dialog addon" on)
 option(WANT_SHADERS "Enable shader addon" on)
+option(WANT_VIDEO "Enable video player addon" on)
 
 #
 # Wrappers.
@@ -878,6 +879,7 @@ set(PKG_CONFIG_FILES
     allegro_physfs
     allegro_primitives
     allegro_ttf
+    allegro_video
     )
 
 # Probably usable on Windows as well but we shouldn't install it

@@ -1,0 +1,98 @@
+# Video streaming addon
+
+These functions are declared in the following header file.
+Link with allegro_video.
+
+    #include <allegro5/allegro_video.h>
+    
+Right now the only backend is ffmpeg. See http://ffmpeg.org/ for
+installation instructions, licensing information and supported video
+formats.
+
+## API: ALLEGRO_VIDEO_EVENT_TYPE
+
+* ALLEGRO_EVENT_VIDEO_FRAME_ALLOC
+* ALLEGRO_EVENT_VIDEO_FRAME_SHOW
+
+## API: al_open_video
+
+Reads a video file. This does not start streaming yet but reads the
+meta info so you can query e.g. the size or audio rate.
+
+## API: al_close_video
+
+Closes the video and frees all allocated resources. The video pointer
+is invalid after the function returns.
+
+## API: al_start_video
+
+Starts streaming the video from the beginning.
+
+## API: al_start_video_with_voice
+
+Like [al_start_video] but audio is routed to the provided voice.
+
+## API: al_get_video_event_source
+
+Get an event source for the video. The possible events are described
+under [ALLEGRO_VIDEO_EVENT_TYPE].
+
+## API: al_pause_video
+
+Paused or resumes playback.
+
+## API: al_is_video_paused
+
+Returns true if the video is currently paused.
+
+## API: al_get_video_aspect_ratio
+
+Returns the aspect ratio of the video. Videos often do not use square
+pixels so you should always check the aspect ratio before displaying
+video frames.
+
+## API: al_get_video_audio_rate
+
+Returns the audio rate of the video, in Hz.
+
+## API: al_get_video_fps
+
+Returns the speed of the video in frames per second. Often this will
+not be an integer value.
+
+## API: al_get_video_width
+
+Returns the number of pixel raw pixel columns in the video stream.
+Multiply this with the aspect ratio to get the true width.
+
+See also: [al_get_video_aspect_ratio]
+
+## API: al_get_video_height
+
+Returns the number of rows in the video. Typically this will be
+720 or 1080.
+
+## API: al_get_video_frame
+
+Returns the current video frame. The bitmap is owned by the video so
+do not attempt to free it. The bitmap will stay valid until the next
+call to al_get_video_frame.
+
+## API: al_get_video_position
+
+Returns the current position of the video stream in seconds since the
+beginning. The parameter has the following meaning:
+
+* 0: Return the actual position.
+* 1: Return the video decoding position. If this lags behind video
+     decoding is taking too long and the video can't be displayed
+     properly.
+* 2: Return the audio decoding position. Audio gets easily out of sync
+     for some reason - but this addon does not provide any means to
+     do much about it.
+
+## API: al_seek_video
+
+Seek to a different position in the video. Right now this does not
+work very well in the ffmpeg backend when seeking backwards and will
+often lose audio/video synchronization if doing so.
