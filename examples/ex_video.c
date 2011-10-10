@@ -25,14 +25,16 @@ static void video_display(ALLEGRO_VIDEO *video)
    int w, h, x, y;
    ALLEGRO_COLOR tc = al_map_rgba_f(0, 0, 0, 0.5);
    ALLEGRO_COLOR bc = al_map_rgba_f(0.5, 0.5, 0.5, 0.5);
+   double p;
 
-   if (!frame) return;
+   if (!frame)
+      return;
 
    if (zoom == 0) {
       /* Always make the video fit into the window. */
       h = al_get_display_height(screen);
       w = (int)(h * aspect_ratio);
-      if(w > al_get_display_width(screen)) {
+      if (w > al_get_display_width(screen)) {
          w = al_get_display_width(screen);
          h = (int)(w / aspect_ratio);
       }
@@ -52,7 +54,7 @@ static void video_display(ALLEGRO_VIDEO *video)
    /* Show some video information. */
    al_draw_filled_rounded_rectangle(4, 4, al_get_display_width(screen) - 4,
       16 + 14 * 3, 8, 8, bc);
-   double p = al_get_video_position(video, 0);
+   p = al_get_video_position(video, 0);
    al_draw_textf(font, tc, 8, 8 , 0, "%s", filename);
    al_draw_textf(font, tc, 8, 8 + 14, 0, "%3d:%02d (V: %+5.2f A: %+5.2f)",
       (int)(p / 60),
@@ -168,11 +170,9 @@ int main(int argc, char *argv[])
                   goto do_seek;
 
                do_seek:
-                  
-                     al_seek_video(video, al_get_video_position(video, 0) + incr);
-
-                  
+                  al_seek_video(video, al_get_video_position(video, 0) + incr);
                   break;
+
                case ALLEGRO_KEY_F:
                   fullscreen = !fullscreen;
                   al_toggle_display_flag(screen,
