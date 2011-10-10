@@ -205,7 +205,7 @@ ALLEGRO_SUPPORTED_ORIENTATIONS
     LANDSCAPE means only the two landscape orientations and ALL allows
     all four orientations. When the orientation changes between a
     portrait and a landscape orientation the display needs to be
-    resizes. This is done by sending an [ALLEGRO_EVENT]_DISPLAY_RESIZE
+    resizes. This is done by sending an [ALLEGRO_EVENT_DISPLAY_RESIZE]
     message which should be handled by calling [al_acknowledge_resize].
 
     Since: 5.1.0
@@ -631,7 +631,7 @@ See also: [al_get_monitor_info]
 
 ### API: al_acknowledge_drawing_halt
 
-Call this in response to the ALLEGRO_EVENT_DISPLAY_HALT_DRAWING event.
+Call this in response to the [ALLEGRO_EVENT_DISPLAY_HALT_DRAWING] event.
 This is currently necessary for iOS as you are not allowed to draw to
 your display while it is not being shown. If you do not call this
 function to let the operating system know that you have stopped
