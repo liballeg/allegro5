@@ -40,11 +40,13 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_image.h>
-//#include <allegro5/allegro_font.h>
-//#include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_video.h>
 #include <stdio.h>
 #include <math.h>
+
+#if LIBAVCODEC_VERSION_MAJOR >= 53
+   #define FFMPEG_0_8 1
+#endif
 
 ALLEGRO_DEBUG_CHANNEL("video")
 
@@ -376,9 +378,14 @@ static int audio_decode_frame(VideoState * is, uint8_t * audio_buf, int buf_size
    for (;;) {
       while (is->audio_pkt_size > 0) {
          data_size = buf_size;
+#ifdef FFMPEG_0_8
+         len1 = avcodec_decode_audio3(is->audio_st->codec,
+                                      (int16_t *) audio_buf, &data_size, pkt);
+#else
          len1 = avcodec_decode_audio2(is->audio_st->codec,
                                       (int16_t *) audio_buf, &data_size,
                                       is->audio_pkt_data, is->audio_pkt_size);
+#endif
          if (len1 < 0) {
             /* if error, skip frame */
             is->audio_pkt_size = 0;
@@ -772,8 +779,13 @@ static void *video_thread(ALLEGRO_THREAD * t, void *arg)
       FIXME_global_video_pkt_pts = packet->pts;
    
       // Decode video frame
+#ifdef FFMPEG_0_8
+      len1 = avcodec_decode_video2(is->video_st->codec, pFrame, &frameFinished,
+                                  packet);
+#else
       len1 = avcodec_decode_video(is->video_st->codec, pFrame, &frameFinished,
                                   packet->data, packet->size);
+#endif
                                   
 
       if (packet->dts == NOPTS_VALUE
@@ -849,7 +861,8 @@ static int stream_component_open(VideoState * is, int stream_index)
    // Get a pointer to the codec context for the video stream
    codecCtx = format_context->streams[stream_index]->codec;
 
-   if (codecCtx->codec_type == CODEC_TYPE_AUDIO) {
+
+   if (codecCtx->codec_type == AVMEDIA_TYPE_AUDIO) {
       // Set audio settings from codec info
       is->video->audio =
           al_create_audio_stream(4, SDL_AUDIO_BUFFER_SIZE / 4,
@@ -875,7 +888,7 @@ static int stream_component_open(VideoState * is, int stream_index)
    }
 
    switch (codecCtx->codec_type) {
-      case CODEC_TYPE_AUDIO:
+      case AVMEDIA_TYPE_AUDIO:
          is->audioStream = stream_index;
          is->audio_st = format_context->streams[stream_index];
          is->audio_buf_size = 0;
@@ -891,7 +904,7 @@ static int stream_component_open(VideoState * is, int stream_index)
          packet_queue_init(&is->audioq);
 
          break;
-      case CODEC_TYPE_VIDEO:
+      case AVMEDIA_TYPE_VIDEO:
          is->videoStream = stream_index;
          is->video_st = format_context->streams[stream_index];
 
@@ -1092,12 +1105,14 @@ static bool open_video(ALLEGRO_VIDEO *video)
    is->video_index = -1;
    is->audio_index = -1;
    for (i = 0; i < (int)is->format_context->nb_streams; i++) {
-      if (is->format_context->streams[i]->codec->codec_type ==
-         CODEC_TYPE_VIDEO && is->video_index < 0) {
+      if (is->format_context->streams[i]->codec->codec_type
+         == AVMEDIA_TYPE_VIDEO && is->video_index < 0)
+      {
          is->video_index = i;
       }
-      if (is->format_context->streams[i]->codec->codec_type ==
-         CODEC_TYPE_AUDIO && is->audio_index < 0) {
+      if (is->format_context->streams[i]->codec->codec_type
+         == AVMEDIA_TYPE_AUDIO && is->audio_index < 0)
+      {
          is->audio_index = i;
       }
    }
