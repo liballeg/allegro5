@@ -144,6 +144,36 @@ void _al_iphone_add_view(ALLEGRO_DISPLAY *display)
    [global_delegate performSelectorOnMainThread: @selector(add_view:) 
                                      withObject: [NSValue valueWithPointer:display]
                                   waitUntilDone: YES];
+
+   /* There are two ways to get orientation information under ios - but they seem
+    * to be mutually exclusive (just my experience, the documentation never says
+    * they are).
+    * One method has 6 orientations including face up and face down and is
+    * independent of the screen orientations, just directly using the accelerometer
+    * to determine how the device is positioned relative to gravity. The other
+    * method has 4 orientations and simply tells how the view controller thinks
+    * the user interface should be rotated.
+    *
+    * Supporting both at the same time is a) slightly confusing since we'd need
+    * two sets of query functions and events and b) does not seem to work due to
+    * the mutual exclusivity.
+    *
+    * Now normally using just the 4-orientation way would appear to be the best
+    * choice as you can always use the accelerometer anyway to get the actual
+    * 3d orientation and otherwise are likely more concerned with the orientation
+    * things are being displayed at right now (instead of just seeing FACE_UP which
+    * would not tell you).
+    *
+    * But to stay compatible with how things worked at first we still support the
+    * 6-orientations way as well - but only if the display has a sole supported
+    * orientation of ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES.
+    */
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *options = &display->extra_settings;
+   int supported = options->settings[ALLEGRO_SUPPORTED_ORIENTATIONS];
+   if (supported == ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES) {
+      [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+   }
+   
    [pool drain];
 }
 
@@ -226,8 +256,18 @@ void _al_iphone_get_screen_size(int *w, int *h)
    }
 }
 
-int _al_iphone_get_orientation()
+int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 {
+   if (display) {
+      ALLEGRO_EXTRA_DISPLAY_SETTINGS *options = &display->extra_settings;
+      int supported = options->settings[ALLEGRO_SUPPORTED_ORIENTATIONS];
+      if (supported != ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES) {
+         UIInterfaceOrientation o = global_delegate.view_controller.interfaceOrientation;
+         UIDeviceOrientation od = (int)o; /* They are compatible. */
+         return iphone_orientation_to_allegro(od);
+      }
+   }
+   
    UIDevice* device = [UIDevice currentDevice];
   
    if (NULL != device)
@@ -285,24 +325,26 @@ int _al_iphone_get_orientation()
    
    (void)notification;
     
-   int orientation = _al_iphone_get_orientation();
+   int orientation = _al_iphone_get_orientation(NULL);
 
    if (d == NULL)
       return;
       
    iphone_send_orientation_event(d, orientation);
+    
+    
 }
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
 
    ALLEGRO_INFO("App launched.\n");
-    
-   //application.statusBarHidden = true;
+
    global_delegate = self;
    app = application;
 
    // Register for device orientation notifications
-   [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+   // Note: The notifications won't be generated unless they are enabled, which
+   // we do elsewhere.
    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientation_change:)
         name:UIDeviceOrientationDidChangeNotification object:nil];
 
@@ -401,7 +443,7 @@ int _al_iphone_get_orientation()
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-    ALLEGRO_DISPLAY *d = allegro_display;
+   ALLEGRO_DISPLAY *d = allegro_display;
 	ALLEGRO_EVENT event;
 	
 	(void)application;

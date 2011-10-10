@@ -170,7 +170,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
       event.display.y = y;
       event.display.width = w;
       event.display.height = h;
-      event.display.orientation = _al_iphone_get_orientation();
+      event.display.orientation = _al_iphone_get_orientation(display);
       _al_event_source_emit_event(&display->es, &event);
    }
    _al_event_source_unlock(&display->es);

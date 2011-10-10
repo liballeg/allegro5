@@ -216,8 +216,7 @@ static bool iphone_set_current_display(ALLEGRO_DISPLAY *d)
 
 static int iphone_get_orientation(ALLEGRO_DISPLAY *d)
 {
-   (void)d;
-   return _al_iphone_get_orientation();
+   return _al_iphone_get_orientation(d);
 }
 
 
