@@ -30,15 +30,12 @@
    #define ALLEGRO_VIDEO_FUNC      AL_FUNC
 #endif
 
-// FIXME: might collide with another addon, but i forgot what the
-// convention is. Maybe should be using ALLEGRO_ID here?
-
 /* Enum: ALLEGRO_VIDEO_EVENT_TYPE
  */
 enum ALLEGRO_VIDEO_EVENT_TYPE
 {
-   ALLEGRO_EVENT_VIDEO_FRAME_ALLOC       = 600,
-   ALLEGRO_EVENT_VIDEO_FRAME_SHOW       = 601,
+   ALLEGRO_EVENT_VIDEO_FRAME_ALLOC  = 550,
+   ALLEGRO_EVENT_VIDEO_FRAME_SHOW   = 551,
 };
 
 typedef struct ALLEGRO_VIDEO ALLEGRO_VIDEO;
