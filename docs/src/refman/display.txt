@@ -475,16 +475,16 @@ See also: [al_set_new_display_option]
 ### API: al_change_display_option
 
 Change an option that was previously set for a display. After displays are
-created, they take on the options set with al_set_new_display_option. Calling
-al_set_new_display_option subsequently only changes options for newly created
+created, they take on the options set with [al_set_new_display_option]. Calling
+[al_set_new_display_option] subsequently only changes options for newly created
 display, and doesn't touch the options of already created displays.
-al_change_display_option allows changing some of these values. Not all
+[al_change_display_option] allows changing some of these values. Not all
 display options can be changed or changing them will have no effect. Changing
 options other than those listed below is undefined.
 
 * ALLEGRO_SUPPORTED_ORIENTATIONS - This can be changed to allow new or restrict
     previously enabled orientations of the screen/device. See
-    [al_set_new_display_option] for more informations on this option.
+    [al_set_new_display_option] for more information on this option.
 
 Since: 5.1.0
 
