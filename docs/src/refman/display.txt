@@ -153,7 +153,7 @@ ALLEGRO_VSYNC
     in [al_flip_display], or to 2 to force vsync off. The default of
     0 means that Allegro does not try to modify the vsync behavior so
     it may be on or off.
-    Note that even in the case of 1 or 2 it is possile to override
+    Note that even in the case of 1 or 2 it is possible to override
     the vsync behavior in the graphics driver so you should not rely
     on it.
 
@@ -231,14 +231,14 @@ ALLEGRO_WINDOWED
 :   Prefer a windowed mode.
 
     Under multi-head X (not XRandR/TwinView), the use of more than one adapter is
-    impossible due to bugs in X and glX. [al_create_display] will fail if more than one
+    impossible due to bugs in X and GLX. [al_create_display] will fail if more than one
     adapter is attempted to be used.
     
 ALLEGRO_FULLSCREEN
 :   Prefer a fullscreen mode.
 
     Under X the use of more than one FULLSCREEN display when using multi-head X,
-    or true Xinerama is not possible due to bugs in X and glX,
+    or true Xinerama is not possible due to bugs in X and GLX,
     display creation will fail if more than one adapter is attempted to be used.
    
 ALLEGRO_FULLSCREEN_WINDOW
@@ -258,7 +258,7 @@ ALLEGRO_FULLSCREEN_WINDOW
     behave while your display is in fullscreen mode.
 
     Additionally under X, the use of more than one adapter in multi-head mode
-    or with true Xinerama enabled is impossible due to bugs in X/glX,
+    or with true Xinerama enabled is impossible due to bugs in X/GLX,
     creation will fail if more than one adapter is attempted to be used.
     
 ALLEGRO_RESIZABLE
@@ -287,8 +287,8 @@ ALLEGRO_DIRECT3D
 
 ALLEGRO_NOFRAME
 :   Try to create a window without a frame (i.e. no border or
-    titlebar). This usualy does nothing for fullscreen modes, and even in
-    windowed moded it depends on the underlying platform whether it is supported
+    titlebar). This usually does nothing for fullscreen modes, and even in
+    windowed modes it depends on the underlying platform whether it is supported
     or not.
 
 ALLEGRO_GENERATE_EXPOSE_EVENTS
@@ -477,7 +477,7 @@ See also: [al_set_new_display_option]
 Change an option that was previously set for a display. After displays are
 created, they take on the options set with [al_set_new_display_option]. Calling
 [al_set_new_display_option] subsequently only changes options for newly created
-display, and doesn't touch the options of already created displays.
+displays, and doesn't touch the options of already created displays.
 [al_change_display_option] allows changing some of these values. Not all
 display options can be changed or changing them will have no effect. Changing
 options other than those listed below is undefined.
