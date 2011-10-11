@@ -885,7 +885,7 @@ set(PKG_CONFIG_FILES
 # Probably usable on Windows as well but we shouldn't install it
 # indiscriminantly there.
 
-if(UNIX AND NOT WANT_FRAMEWORKS)
+if(UNIX AND NOT WANT_FRAMEWORKS AND NOT IPHONE)
     append_lib_type_suffix(lib_type)
     append_lib_linkage_suffix(lib_linkage)
 
@@ -906,7 +906,7 @@ if(UNIX AND NOT WANT_FRAMEWORKS)
             DESTINATION "lib${LIB_SUFFIX}/pkgconfig"
             )
     endforeach(name)
-endif(UNIX AND NOT WANT_FRAMEWORKS)
+endif(UNIX AND NOT WANT_FRAMEWORKS AND NOT IPHONE)
 
 #-----------------------------------------------------------------------------#
 #
