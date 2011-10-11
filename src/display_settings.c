@@ -67,6 +67,14 @@ int al_get_new_display_option(int option, int *importance)
    return 0;
 }
 
+/* Function: al_change_display_option
+ */
+void al_change_display_option(ALLEGRO_DISPLAY *display, int option, int value)
+{
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras;
+   extras = &display->extra_settings;
+   extras->settings[option] = value;
+}
 
 /* Function: al_get_display_option
  */
