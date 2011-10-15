@@ -162,6 +162,9 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
    ogl_bitmap = bitmap->extra;
 
 #if !defined ALLEGRO_GP2XWIZ
+   if (display->ogl_extras->opengl_target == bitmap)
+      return;
+
    if (!ogl_bitmap->is_backbuffer) {
       ALLEGRO_FBO_INFO *info = NULL;
 
@@ -265,6 +268,8 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       display->vt->set_projection(display);
    }
 #else
+   if (display->ogl_extras->opengl_target == ogl_bitmap)
+      return;
 
    ALLEGRO_DISPLAY_GP2XWIZ_OGL *wiz_disp = (ALLEGRO_DISPLAY_GP2XWIZ_OGL *)display;
    display->ogl_extras->opengl_target = ogl_bitmap;
