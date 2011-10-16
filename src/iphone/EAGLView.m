@@ -199,9 +199,9 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *options = &allegro_display->extra_settings;
    int supported = options->settings[ALLEGRO_SUPPORTED_ORIENTATIONS];
    if (o == UIInterfaceOrientationPortrait) return supported & ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES;
-   if (o == UIInterfaceOrientationLandscapeRight) return supported & ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES;
+   if (o == UIInterfaceOrientationLandscapeLeft) return supported & ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES;
    if (o == UIInterfaceOrientationPortraitUpsideDown) return supported & ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES;
-   if (o == UIInterfaceOrientationLandscapeLeft) return supported & ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES;
+   if (o == UIInterfaceOrientationLandscapeRight) return supported & ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES;
    return NO;
 }
 
