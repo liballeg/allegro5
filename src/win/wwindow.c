@@ -139,7 +139,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    bool center = false;
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
    WINDOWINFO wi;
-   int bw, bh;
+   int lsize, rsize, tsize, bsize; // left, right, top, bottom border sizes
 
    wi.cbSize = sizeof(WINDOWINFO);
 
@@ -159,11 +159,12 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    }
 
    al_get_new_window_position(&pos_x, &pos_y);
-   if (pos_x == INT_MAX) {
-   	pos_x = pos_y = 0;
-      if (!(flags & ALLEGRO_FULLSCREEN)) {
-         center = true;
-      }
+   if ((flags & ALLEGRO_FULLSCREEN) || (flags & ALLEGRO_FULLSCREEN_WINDOW)) {
+      pos_x = pos_y = 0;
+   }
+   else if (pos_x == INT_MAX) {
+      pos_x = pos_y = 0;
+      center = true;
    }
 
    if (center) {
@@ -180,21 +181,23 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
 
    GetWindowInfo(my_window, &wi);
 
-   bw = (wi.rcClient.left - wi.rcWindow.left) + (wi.rcWindow.right - wi.rcClient.right),
-   bh = (wi.rcClient.top - wi.rcWindow.top) + (wi.rcWindow.bottom - wi.rcClient.bottom),
+   lsize = (wi.rcClient.left - wi.rcWindow.left);
+   tsize = (wi.rcClient.top - wi.rcWindow.top);
+   rsize = (wi.rcWindow.right - wi.rcClient.right);
+   bsize = (wi.rcWindow.bottom - wi.rcClient.bottom);
 
    SetWindowPos(my_window, 0, 0, 0,
-      width+bw,
-      height+bh,
+      width+lsize+rsize,
+      height+tsize+bsize,
       SWP_NOZORDER | SWP_NOMOVE);
-   SetWindowPos(my_window, 0, pos_x-bw/2, pos_y-bh/2,
+   SetWindowPos(my_window, 0, pos_x-lsize, pos_y-tsize,
       0, 0,
       SWP_NOZORDER | SWP_NOSIZE);
 
    if (flags & ALLEGRO_NOFRAME) {
       SetWindowLong(my_window, GWL_STYLE, WS_VISIBLE);
       SetWindowLong(my_window, GWL_EXSTYLE, WS_EX_APPWINDOW);
-      SetWindowPos(my_window, 0, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+      SetWindowPos(my_window, 0, pos_x, pos_y, width, height, SWP_NOZORDER | SWP_FRAMECHANGED);
    }
 
    ShowWindow(my_window, SW_SHOW);

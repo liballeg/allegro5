@@ -1214,7 +1214,8 @@ static void display_thread_proc(void *arg)
    }
 
    /* FIXME: can't _al_win_create_window() do this? */
-   if (disp->flags & ALLEGRO_FULLSCREEN) {
+   if ((disp->flags & ALLEGRO_FULLSCREEN) ||
+         (disp->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
       RECT rect;
       rect.left = 0;
       rect.right = disp->w;
