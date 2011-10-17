@@ -690,11 +690,12 @@ bool al_is_sub_bitmap(ALLEGRO_BITMAP *bitmap)
  */
 ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP *clone = al_create_bitmap(bitmap->w, bitmap->h);
+   ALLEGRO_BITMAP *clone;
    ALLEGRO_LOCKED_REGION *dst_region;
    ALLEGRO_LOCKED_REGION *src_region;
    ASSERT(bitmap);
 
+   clone = al_create_bitmap(bitmap->w, bitmap->h);
    if (!clone)
       return NULL;
 
