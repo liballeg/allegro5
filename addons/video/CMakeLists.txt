@@ -8,7 +8,7 @@ set(VIDEO_INCLUDE_FILES allegro5/allegro_video.h)
 
 include_directories(../audio ../image .)
 
-set_our_header_properties(${AUDIO_INCLUDE_FILES})
+set_our_header_properties(${VIDEO_INCLUDE_FILES})
 
 # The platform conditions are not really necessary but prevent confusing the
 # user, e.g. it's pretty weird to get a warning about missing DSound on Unix.
