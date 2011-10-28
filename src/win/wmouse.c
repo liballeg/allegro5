@@ -169,9 +169,7 @@ static bool set_mouse_xy(ALLEGRO_DISPLAY *disp, int x, int y)
 
    _al_win_get_window_position(win_disp->window, &wx, &wy);
 
-   if (!(win_disp->display.flags & ALLEGRO_FULLSCREEN)) {
-      SetCursorPos(x+wx, y+wy);
-   }
+   SetCursorPos(x+wx, y+wy);
 
    return true;
 }
