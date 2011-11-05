@@ -243,7 +243,7 @@ ALLEGRO_BITMAP *_al_load_gdiplus_bitmap_f(ALLEGRO_FILE *fp, int flags)
             if (a_lock) {
                unsigned char *in = (unsigned char *)gdi_lock->Scan0;
                unsigned char *out = (unsigned char *)a_lock->data;
-               bool premul = (flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+               bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
                if (premul) {
                   int in_inc = gdi_lock->Stride - (w*4);
