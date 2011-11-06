@@ -233,9 +233,13 @@ void _al_iphone_get_screen_size(int *w, int *h)
     _al_iphone_await_termination();
 }
 
-- (void)applicationDidEnterBackground:(UIApplication *)application {
+- (void)applicationWillResignActive:(UIApplication *)application {
    ALLEGRO_DISPLAY *d = allegro_display;
    ALLEGRO_EVENT event;
+   
+   (void)application;
+    
+   ALLEGRO_INFO("Application becoming inactive.\n");
 
    waiting_for_program_halt = true;
 
@@ -253,9 +257,16 @@ void _al_iphone_get_screen_size(int *w, int *h)
    }
 }
 
-- (void)applicationWillEnterForeground:(UIApplication *)application {
+- (void)applicationDidBecomeActive:(UIApplication *)application {
     ALLEGRO_DISPLAY *d = allegro_display;
 	ALLEGRO_EVENT event;
+	
+	(void)application;
+    
+    ALLEGRO_INFO("Application becoming active...\n");
+
+   if (!d)
+      return;
 
     _al_event_source_lock(&d->es);
     if (_al_event_source_needs_to_generate_event(&d->es)) {
