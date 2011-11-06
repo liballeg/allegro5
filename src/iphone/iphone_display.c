@@ -215,9 +215,12 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
     ALLEGRO_OGL_EXTRAS *ogl = al_calloc(1, sizeof *ogl);
     display->ogl_extras = ogl;
     display->vt = _al_get_iphone_display_interface();
+    display->flags = al_get_new_display_flags();
+    if (display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+        _al_iphone_get_screen_size(&w, &h);
+    }
     display->w = w;
     display->h = h;
-    display->flags = al_get_new_display_flags();
 
     ALLEGRO_SYSTEM_IPHONE *system = (void *)al_get_system_driver();
 

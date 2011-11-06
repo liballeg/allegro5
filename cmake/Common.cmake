@@ -169,7 +169,6 @@ function(fix_executable nm)
 
         # FIXME:We want those as project attributes, not target attributes, but I don't know how
         set_target_properties(${nm} PROPERTIES XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer")
-        set_target_properties(${nm} PROPERTIES XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1/2")
         
         # We have to add an icon to every executable on IPhone else
         # cmake won't create a resource copy build phase for us.

@@ -115,6 +115,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 - (BOOL)createFramebuffer {
    if ([self respondsToSelector:@selector(contentScaleFactor)]) {
    	self.contentScaleFactor = _al_iphone_get_screen_scale();
+        ALLEGRO_INFO("Screen scale is %f\n", self.contentScaleFactor);
    }
 
     ALLEGRO_INFO("Creating GL framebuffer.\n");
