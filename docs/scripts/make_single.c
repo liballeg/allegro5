@@ -128,7 +128,7 @@ static void postprocess_texinfo(void)
 
    while (d_getline(line)) {
       /* Replace dummy references by real references (see make_dummy_refs). */
-      while (d_match(line, "@uref\\{DUMMY_REF,")) {
+      while (d_match(line, "@uref\\{DUMMYREF,")) {
          d_printf("%s@ref{", d_before_match);
          d_assign(line, d_after_match);
       }
