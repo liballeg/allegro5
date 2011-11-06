@@ -199,6 +199,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
 
    bmp = al_create_bitmap(width, height);
    if (!bmp) {
+      ALLEGRO_ERROR("al_create_bitmap failed while loading PNG.\n");
       return NULL;
    }
 
@@ -295,6 +296,7 @@ ALLEGRO_BITMAP *_al_load_png_f(ALLEGRO_FILE *fp)
    ASSERT(fp);
 
    if (!check_if_png(fp)) {
+      ALLEGRO_ERROR("Not a png.\n");
       return NULL;
    }
 
@@ -307,6 +309,7 @@ ALLEGRO_BITMAP *_al_load_png_f(ALLEGRO_FILE *fp)
    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
                                     (void *)NULL, NULL, NULL);
    if (!png_ptr) {
+      ALLEGRO_ERROR("png_ptr == NULL\n");
       return NULL;
    }
 
@@ -314,6 +317,7 @@ ALLEGRO_BITMAP *_al_load_png_f(ALLEGRO_FILE *fp)
    info_ptr = png_create_info_struct(png_ptr);
    if (!info_ptr) {
       png_destroy_read_struct(&png_ptr, (png_infopp) NULL, (png_infopp) NULL);
+      ALLEGRO_ERROR("png_create_info_struct failed\n");
       return NULL;
    }
 
@@ -322,6 +326,7 @@ ALLEGRO_BITMAP *_al_load_png_f(ALLEGRO_FILE *fp)
       /* Free all of the memory associated with the png_ptr and info_ptr */
       png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp) NULL);
       /* If we get here, we had a problem reading the file */
+      ALLEGRO_ERROR("Error reading PNG file\n");
       return NULL;
    }
    png_set_error_fn(png_ptr, jmpbuf, user_error_fn, NULL);
