@@ -4,6 +4,72 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 5.0.4 to 5.0.5 (November 2011)
+===========================================
+
+The main developers this time were: Elias Pschernig and Trent Gamblin.
+
+Graphics:
+
+-  Fixed several instances of windows being positioned wrong on Windows:
+   regular windows, WGL FULLSCREEN_WINDOW, and ALLEGRO_NOFRAME windows.
+
+-  Don't re-bind the FBO in al_set_target_bitmap if the new target
+   bitmap shares the parent bitmap with the new target bitmap (Paul Suntsov).
+
+-  Zero out fake refresh rate information from the nvidia proprietary driver
+   on X11 (Peter Wang).
+
+-  Implemented the ALLEGRO_FULLSCREEN_WINDOW flag for iOS.
+
+Input:
+
+-  Make al_set_mouse_xy work in fullscreen on Windows.
+
+-  Fixed a race condition in al_init_joystick.
+
+-  Fixed problem on OS X where having two identical gamepads attached would
+   cause joystick initialization to hang (Thanks to Todd Cope for pointing it
+   out.)
+
+-  Fixed iphone joystick events (it assumed a call to al_get_joystick but
+   that's not required when using events).
+
+TTF fonts:
+
+-  Save new bitmap flags and bitmap format at time of loading font and use them
+   when creating pages.
+
+Primitives addon:
+
+-  Very thin arcs/pieslices were not drawn due to an overzealous check
+   (Paul Suntsov).
+
+Native dialogs addon:
+
+-  Implemented al_show_native_message_box for iOS.
+
+Other:
+
+-  Use .../Library/Application Support for ALLEGRO_USER_SETTINGS_PATH and
+   ALLEGRO_USER_DATA_PATH on iOS.
+
+-  Listen for applicationDidBecomeActive and applicationWillResignActive
+   instead of applicationWillEnterForeground and applicationDidEnterBackground
+   on iOS. This makes all of the common situations where you want to pause your
+   game work, such as the lock button.
+
+-  Fix some memory leaks on iOS.
+
+Documentation:
+
+-  Various documentation updates.
+
+-  Generate multiple copies of a man page for all the API entries that it
+   documents.
+
+
+
 Changes from 5.0.3 to 5.0.4 (August 2011)
 =========================================
 
