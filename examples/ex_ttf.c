@@ -115,6 +115,9 @@ int main(int argc, const char *argv[])
     al_init_font_addon();
     al_init_ttf_addon();
 
+#ifdef ALLEGRO_IPHONE
+    al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+#endif
     display = al_create_display(640, 480);
     if (!display) {
         abort_example("Could not create display.\n");
