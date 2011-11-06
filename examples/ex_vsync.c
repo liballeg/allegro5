@@ -113,7 +113,7 @@ int main(void)
    
    /* Force fullscreen mode. */
    if (fullscreen) {
-      al_set_new_display_flags(ALLEGRO_FULLSCREEN);
+      al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
       /* Set a monitor frequency. */
       if (frequency)
          al_set_new_display_refresh_rate(frequency);
