@@ -62,7 +62,7 @@ typedef struct {
    long max[_AL_MAX_JOYSTICK_STICKS][_AL_MAX_JOYSTICK_AXES];
    CONFIG_STATE cfg_state;
    ALLEGRO_JOYSTICK_STATE state;
-   CFTypeRef product_id;
+   IOHIDDeviceRef ident;
 } ALLEGRO_JOYSTICK_OSX;
 
 static IOHIDManagerRef hidManagerRef;
@@ -130,12 +130,12 @@ static CFMutableDictionaryRef CreateDeviceMatchingDictionary(
    return result;
 }
 
-static ALLEGRO_JOYSTICK_OSX *find_joystick(CFTypeRef product_id)
+static ALLEGRO_JOYSTICK_OSX *find_joystick(IOHIDDeviceRef ident)
 {
    int i;
    for (i = 0; i < (int)_al_vector_size(&joysticks); i++) {
       ALLEGRO_JOYSTICK_OSX *joy = *(ALLEGRO_JOYSTICK_OSX **)_al_vector_ref(&joysticks, i);
-      if (CFEqual(product_id, joy->product_id)) {
+      if (ident == joy->ident) {
          return joy;
       }
    }
@@ -238,15 +238,6 @@ static void add_elements(CFArrayRef elements, ALLEGRO_JOYSTICK_OSX *joy)
    }
 }
 
-const char *get_device_product_id(IOHIDDeviceRef ref)
-{
-   CFStringRef s = CFSTR(kIOHIDProductIDKey);
-
-   CFTypeRef product_id = IOHIDDeviceGetProperty(ref, s);
-
-   return product_id;
-}
-
 static void osx_joy_generate_configure_event(void)
 {
    if (!initialized) return;
@@ -272,12 +263,10 @@ static void device_add_callback(
    
    al_lock_mutex(add_mutex);
 
-   CFTypeRef product_id  = get_device_product_id(ref);
-
-   ALLEGRO_JOYSTICK_OSX *joy = find_joystick(product_id);
+   ALLEGRO_JOYSTICK_OSX *joy = find_joystick(ref);
    if (joy == NULL) {
       joy = al_calloc(1, sizeof(ALLEGRO_JOYSTICK_OSX));
-      joy->product_id = product_id;
+      joy->ident = ref;
       ALLEGRO_JOYSTICK_OSX **back = _al_vector_alloc_back(&joysticks);
       *back = joy;
    }
@@ -329,7 +318,7 @@ static void device_remove_callback(
    int i;
    for (i = 0; i < (int)_al_vector_size(&joysticks); i++) {
       ALLEGRO_JOYSTICK_OSX *joy = *(ALLEGRO_JOYSTICK_OSX **)_al_vector_ref(&joysticks, i);
-      if (CFEqual(joy->product_id, get_device_product_id(ref))) {
+      if (joy->ident == ref) {
          joy->cfg_state = JOY_STATE_DYING;
          osx_joy_generate_configure_event();
          return;
@@ -393,8 +382,8 @@ static void value_callback(
    (void)sender;
 
    IOHIDElementRef elem = IOHIDValueGetElement(value);
-   IOHIDDeviceRef dev = IOHIDElementGetDevice(elem);
-   ALLEGRO_JOYSTICK_OSX *joy = find_joystick(get_device_product_id(dev));
+   IOHIDDeviceRef ref = IOHIDElementGetDevice(elem);
+   ALLEGRO_JOYSTICK_OSX *joy = find_joystick(ref);
 
    if (!joy) return;
    
