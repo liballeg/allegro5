@@ -809,7 +809,9 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    GLenum e;
    GLint gl_y = bitmap->h - bitmap->lock_y - bitmap->lock_h;
    int orig_format;
+#ifdef ALLEGRO_IPHONE
    int orig_pixel_size;
+#endif
    int lock_pixel_size;
    int pixel_alignment;
    bool biased_alpha = false;
@@ -821,7 +823,6 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 
    disp = al_get_current_display();
    orig_format = _al_get_real_pixel_format(disp, bitmap->format);
-   orig_pixel_size = al_get_pixel_size(orig_format);
 
    if (bitmap->display->ogl_extras->is_shared == false &&
        bitmap->display != disp) {
@@ -929,6 +930,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       }
    }
 #else /* ALLEGRO_GP2XWIZ or ALLEGRO_IPHONE */
+   orig_pixel_size = al_get_pixel_size(orig_format);
    if (ogl_bitmap->is_backbuffer) {
       ALLEGRO_DEBUG("Unlocking backbuffer\n");
       GLuint tmp_tex;
