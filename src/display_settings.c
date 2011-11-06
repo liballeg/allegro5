@@ -32,16 +32,16 @@ void al_set_new_display_option(int option, int value, int importance)
    extras = _al_get_new_display_settings();
    switch (importance) {
       case ALLEGRO_REQUIRE:
-         extras->required |= 1 << option;
-         extras->suggested &= ~(1 << option);
+         extras->required |= (int64_t)1 << option;
+         extras->suggested &= ~((int64_t)1 << option);
          break;
       case ALLEGRO_SUGGEST:
-         extras->suggested |= 1 << option;
-         extras->required &= ~(1 << option);
+         extras->suggested |= (int64_t)1 << option;
+         extras->required &= ~((int64_t)1 << option);
          break;
       case ALLEGRO_DONTCARE:
-         extras->required &= ~(1 << option);
-         extras->suggested &= ~(1 << option);
+         extras->required &= ~((int64_t)1 << option);
+         extras->suggested &= ~((int64_t)1 << option);
          break;
    }
    extras->settings[option] = value;
@@ -55,11 +55,11 @@ int al_get_new_display_option(int option, int *importance)
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras;
    extras = _al_get_new_display_settings();
-   if (extras->required & (1 << option)) {
+   if (extras->required & ((int64_t)1 << option)) {
       if (importance) *importance = ALLEGRO_REQUIRE;
       return extras->settings[option];
    }
-   if (extras->suggested & (1 << option)) {
+   if (extras->suggested & ((int64_t)1 << option)) {
       if (importance) *importance = ALLEGRO_SUGGEST;
       return extras->settings[option];
    }
