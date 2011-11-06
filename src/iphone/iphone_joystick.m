@@ -16,6 +16,28 @@ static bool initialized;
 
 static bool ijoy_init_joystick(void)
 {
+    ALLEGRO_JOYSTICK_IPHONE *ijoy;
+    ALLEGRO_JOYSTICK *joy;
+    
+    ijoy = &the_joystick;
+    
+    memset(ijoy, 0, sizeof *ijoy);
+    joy = (void *)ijoy;
+
+    /* Fill in the joystick information fields. */
+    joy->info.num_sticks = 1;
+    joy->info.num_buttons = 0;
+    joy->info.stick[0].name = "Accelerometer";
+    joy->info.stick[0].num_axes = 3;
+    joy->info.stick[0].axis[0].name = "X";
+    joy->info.stick[0].axis[1].name = "Y";
+    joy->info.stick[0].axis[2].name = "Z";
+    joy->info.stick[0].flags = ALLEGRO_JOYFLAG_ANALOGUE;
+    
+    // TODO: What's a good frequency to use here?
+    _al_iphone_accelerometer_control(60);
+    initialized = true;
+
     return true;
 }
 
@@ -42,36 +64,13 @@ static ALLEGRO_JOYSTICK *ijoy_get_joystick(int num)
     
     ALLEGRO_DEBUG("Joystick %d acquired.\n", num);
 
-    ALLEGRO_JOYSTICK_IPHONE *ijoy;
-    ALLEGRO_JOYSTICK *joy;
-
-    ijoy = &the_joystick;
-
-    memset(ijoy, 0, sizeof *ijoy);
-    joy = (void *)ijoy;
-
-    /* Fill in the joystick information fields. */
-    joy->info.num_sticks = 1;
-    joy->info.num_buttons = 0;
-    joy->info.stick[0].name = "Accelerometer";
-    joy->info.stick[0].num_axes = 3;
-    joy->info.stick[0].axis[0].name = "X";
-    joy->info.stick[0].axis[1].name = "Y";
-    joy->info.stick[0].axis[2].name = "Z";
-    joy->info.stick[0].flags = ALLEGRO_JOYFLAG_ANALOGUE;
-    
-    // TODO: What's a good frequency to use here?
-    _al_iphone_accelerometer_control(60);
-    initialized = true;
-
-    return joy;
+    return &the_joystick.parent;
 }
 
 static void ijoy_release_joystick(ALLEGRO_JOYSTICK *joy)
 {
     (void)joy;
     ALLEGRO_DEBUG("Joystick released.\n");
-    _al_iphone_accelerometer_control(0);
     initialized = false;
 }
 
