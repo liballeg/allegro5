@@ -15,18 +15,22 @@ typedef float CGFloat;
 
 ALLEGRO_DEBUG_CHANNEL("OSXIIO")
 
+// Just to make sure it's never al_malloc.
+#define apple_malloc malloc
 
 static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
 {
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc]init];
    ALLEGRO_BITMAP *bmp = NULL;
    void *pixels = NULL;
    /* Note: buffer is now owned (and later freed) by the data object. */
-   NSData *nsdata = [NSData dataWithBytesNoCopy:buffer length:size];
+   NSData *nsdata = [[NSData alloc] initWithBytesNoCopy:buffer length:size];
    NSImage *image = [[NSImage alloc] initWithData:nsdata];
+   [nsdata release];
    bool premul = !(al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
    if (!image)
-      return NULL;
+       goto done;
 
    /* Get the image representations */
    NSArray *reps = [image representations];
@@ -37,8 +41,8 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
    //CGImageRef cgimage = [image_rep CGImageForProposedRect: nil context: nil hints: nil];
    
    if (!image_rep) {
-	  [image release];
-      return NULL;
+      [image release];
+      goto done;
    }
 
    /* Get the actual size in pixels from the representation */
@@ -110,11 +114,14 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
                g = *src_ptr++;
                b = *src_ptr++;
                a = *src_ptr++;
-            // NOTE: avoid divide by zero by adding a fraction
-               float alpha_mul = 255.0f / (a+0.001f);
-               r *= alpha_mul;
-               g *= alpha_mul;
-               b *= alpha_mul;
+               if (a == 0) {
+                   r = g = b = 0;     
+               }
+               else {
+                  r *= 255 / a;
+                  g *= 255 / a;
+                  b *= 255 / a;
+               }
                *dest_ptr++ = r;
                *dest_ptr++ = g;
                *dest_ptr++ = b;
@@ -130,6 +137,8 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
       al_unlock_bitmap(bmp);
    }
    al_free(pixels);
+done:
+   [pool drain];
    return bmp;
 }
 
@@ -147,7 +156,7 @@ static ALLEGRO_BITMAP *_al_osx_load_image_f(ALLEGRO_FILE *f)
    /* Note: This *MUST* be the Apple malloc and not any wrapper, as the
     * buffer will be owned and freed by the NSData object not us.
     */
-   void *buffer = al_malloc(size);
+   void *buffer = apple_malloc(size);
    al_fread(f, buffer, size);
 
    /* Really load the image now. */

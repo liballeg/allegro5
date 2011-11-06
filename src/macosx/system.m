@@ -42,7 +42,6 @@ extern OSErr CPSEnableForegroundOperation(struct CPSProcessSerNum *psn, UInt32 _
 extern OSErr CPSSetFrontProcess(struct CPSProcessSerNum *psn);
 typedef struct THREAD_AND_POOL {
    ALLEGRO_THREAD *thread;
-   NSAutoreleasePool *pool;
 } THREAD_AND_POOL;
 
 
@@ -472,8 +471,6 @@ static void osx_thread_init(ALLEGRO_THREAD *thread)
    THREAD_AND_POOL *tap = al_malloc(sizeof(THREAD_AND_POOL));
 
    tap->thread = thread;
-   tap->pool = [[NSAutoreleasePool alloc] init];
-
    THREAD_AND_POOL **ptr = _al_vector_alloc_back(&_osx_threads);
    *ptr = tap;
 }
@@ -487,7 +484,6 @@ static void osx_thread_exit(ALLEGRO_THREAD *thread)
       tap = _al_vector_ref(&_osx_threads, i);
       if (tap->thread == thread) {
          _al_vector_delete_at(&_osx_threads, i);
-         [tap->pool drain];
          al_free(tap);
 	 return;
       }
