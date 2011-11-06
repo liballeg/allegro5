@@ -602,7 +602,7 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
       int ii;
 
       if (num_segments < 2)
-         return;
+         num_segments = 2;
 
       if (2 * num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
          num_segments = (ALLEGRO_VERTEX_CACHE_SIZE - 1) / 2;
@@ -621,7 +621,7 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
       int ii;
 
       if (num_segments < 2)
-         return;
+         num_segments = 2;
 
       if (num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
          num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1;
