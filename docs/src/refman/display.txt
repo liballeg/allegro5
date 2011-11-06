@@ -472,6 +472,8 @@ about a supported fullscreen display mode.
        int refresh_rate;   // The refresh rate of the mode
     } ALLEGRO_DISPLAY_MODE;
 
+The `refresh_rate` may be zero if unknown.
+
 See also: [al_get_display_mode]
 
 ### API: al_get_display_mode
