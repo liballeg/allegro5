@@ -315,20 +315,20 @@ See also: [al_resize_display], [ALLEGRO_EVENT]
 
 Copies or updates the front and back buffers so that what has
 been drawn previously on the currently selected display becomes
-visible on screen. Pointers to the special back and front buffer
-bitmaps remain valid and retain their semantics as back and front
-buffers respectively, although their contents may have changed.
+visible on screen. Pointers to the special back buffer
+bitmap remain valid and retain their semantics as the back buffer,
+although the contents may have changed.
 
 Several display options change how this function behaves:
 
-With ALLEGRO_SINGLE_BUFFER, no flipping is done. You still have to
+- With ALLEGRO_SINGLE_BUFFER, no flipping is done. You still have to
 call this function to display graphics, depending on how the used
 graphics system works.
 
-The ALLEGRO_SWAP_METHOD option may have additional information about what
+- The ALLEGRO_SWAP_METHOD option may have additional information about what
 kind of operation is used internally to flip the front and back buffers.
 
-If ALLEGRO_VSYNC is 1, this function will force waiting for vsync. If
+- If ALLEGRO_VSYNC is 1, this function will force waiting for vsync. If
 ALLEGRO_VSYNC is 2, this function will not wait for vsync. With many
 drivers the vsync behavior is controlled by the user and not the
 application, and ALLEGRO_VSYNC will not be set; in this case
