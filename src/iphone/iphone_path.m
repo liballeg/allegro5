@@ -24,12 +24,18 @@ ALLEGRO_PATH *_al_iphone_get_path(int id)
          break;
       case ALLEGRO_USER_SETTINGS_PATH:
       case ALLEGRO_USER_DATA_PATH:
+         array = NSSearchPathForDirectoriesInDomains(
+            NSApplicationSupportDirectory,
+            NSUserDomainMask,
+            TRUE);
+         string = (NSString *)[array objectAtIndex:0];
+         break;
+
       case ALLEGRO_USER_DOCUMENTS_PATH:
          array = NSSearchPathForDirectoriesInDomains(
             NSDocumentDirectory,
             NSUserDomainMask,
-            TRUE
-         );
+            TRUE);
          string = (NSString *)[array objectAtIndex:0];
          break;
       case ALLEGRO_EXENAME_PATH: {
