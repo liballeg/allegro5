@@ -33,6 +33,11 @@ float _al_iphone_get_screen_scale(void)
    return 1.0f;
 }
 
+void _al_iphone_get_view(void)
+{
+   return [global_delegate view];
+}
+
 /* Function: al_iphone_override_screen_scale
  */
 void al_iphone_override_screen_scale(float scale)
