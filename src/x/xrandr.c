@@ -90,6 +90,32 @@ static void xrandr_copy_mode(xrandr_mode *mode, XRRModeInfo *rrmode)
    }
 }
 
+static void xrandr_clear_fake_refresh_rates(xrandr_mode *modes, int nmode)
+{
+   int i;
+
+   if (nmode < 2)
+      return;
+
+   /* The Nvidia proprietary driver may return fake refresh rates when
+    * DynamicTwinView is enabled, so that all modes are unique.  The user has
+    * no use for that wrong information so zero it out if we detect it.
+    */
+
+   for (i = 1; i < nmode; i++) {
+      if (modes[i].refresh != modes[i-1].refresh + 1) {
+         return;
+      }
+   }
+
+   ALLEGRO_WARN("Zeroing out fake refresh rates from nvidia proprietary driver.\n");
+   ALLEGRO_WARN("Disable the DynamicTwinView driver option to avoid this.\n");
+
+   for (i = 0; i < nmode; i++) {
+      modes[i].refresh = 0;
+   }
+}
+
 static void xrandr_copy_output(xrandr_output *output, RROutput id, XRROutputInfo *rroutput)
 {
    output->id             = id;
@@ -172,11 +198,13 @@ static void xrandr_copy_screen(ALLEGRO_SYSTEM_XGLX *s, xrandr_screen *screen, XR
          xrandr_mode *mode = _al_vector_alloc_back(&screen->modes);
          xrandr_copy_mode(mode, &res->modes[j]);
       }
+
+      xrandr_clear_fake_refresh_rates(_al_vector_ref_front(&screen->modes), res->nmode);
    }
-   
+
    _al_vector_init(&screen->crtcs, sizeof(xrandr_crtc));
    if(res->ncrtc) {
-      ALLEGRO_DEBUG("fount %i crtcs.\n", res->ncrtc);
+      ALLEGRO_DEBUG("found %i crtcs.\n", res->ncrtc);
       for(j = 0; j < res->ncrtc; j++) {
          ALLEGRO_DEBUG("crtc[%i] %i.\n", j, (int)res->crtcs[j]);
          xrandr_crtc *crtc = _al_vector_alloc_back(&screen->crtcs);
