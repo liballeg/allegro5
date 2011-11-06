@@ -4,10 +4,10 @@
  * Generate a file containing dummy link definitions for each API
  * entry found.  e.g. for "# API: foo" we generate:
  *
- *   [foo]: DUMMY_REF
+ *   [foo]: DUMMYREF
  *
  * Then a reference in a source document will expand to something containing
- * "DUMMY_REF" in the output.  That makes it possible to post-process generated
+ * "DUMMYREF" in the output.  That makes it possible to post-process generated
  * TexInfo and LaTeX documents to fix up cross-references.  It's unfortunately
  * necessary as Pandoc currently doesn't have very good cross-reference
  * support.
@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 
    while ((d_getline(line))) {
       if (d_match(line, "^#+ API: *")) {
-         d_printf("[%s]: DUMMY_REF\n", d_after_match);
+         d_printf("[%s]: DUMMYREF\n", d_after_match);
       }
    }
 

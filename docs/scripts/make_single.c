@@ -105,11 +105,12 @@ static void postprocess_latex(void)
          continue;
       }
 
-      /* Change cross references from, to:  (notice the backslashes)
-       *   \href{DUMMY_REF}{foo\_bar\_baz}
+      /* Change cross references from:
+       *   \href{DUMMYREF}{foo\_bar\_baz}
+       * to:
        *   \alref{foo_bar_baz}
        */
-      while (d_match(line, "\\\\href\\{DUMMY_REF\\}\\{([^}]*)\\}")) {
+      while (d_match(line, "\\\\href\\{DUMMYREF\\}\\{([^}]*)\\}")) {
          const char *ref = d_submatch(1);
          d_printf("%s", d_before_match);
          d_printf("\\alref{", ref);
