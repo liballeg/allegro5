@@ -1,4 +1,5 @@
 #
+#
 # TODO:
 #
 # - some documentation targets still missing
@@ -584,7 +585,7 @@ if(SUPPORT_X11)
     endif(CAN_XCURSOR)
 
     if(WANT_X11_XF86VIDMODE)
-      check_include_files("X11/extensions/xf86vmode.h" HAVE_XF86VIFMODE_H)
+      check_include_file("X11/extensions/xf86vmode.h" HAVE_XF86VIFMODE_H)
       check_library_exists(Xxf86vm XF86VidModeQueryExtension "" CAN_XF86VIDMODE)
       if(CAN_XF86VIDMODE AND HAVE_XF86VIFMODE_H)
          set(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE 1)
@@ -593,7 +594,7 @@ if(SUPPORT_X11)
     endif(WANT_X11_XF86VIDMODE)
 
     if(WANT_X11_XINERAMA)
-      check_include_files("X11/extensions/Xinerama.h" HAVE_XINERAMA_H)
+      check_include_file("X11/extensions/Xinerama.h" HAVE_XINERAMA_H)
       check_library_exists(Xinerama XineramaQueryExtension "" CAN_XINERAMA)
       if(CAN_XINERAMA AND HAVE_XINERAMA_H)
          set(ALLEGRO_XWINDOWS_WITH_XINERAMA 1)
@@ -602,7 +603,7 @@ if(SUPPORT_X11)
     endif(WANT_X11_XINERAMA)
 
     if(WANT_X11_XRANDR)
-      check_include_files("X11/extensions/Xrandr.h" HAVE_XRANDR_H)
+      check_include_file("X11/extensions/Xrandr.h" HAVE_XRANDR_H)
       check_library_exists(Xrandr XRRQueryExtension "" CAN_XRANDR)
       if(CAN_XRANDR AND HAVE_XRANDR_H)
          set(ALLEGRO_XWINDOWS_WITH_XRANDR 1)
