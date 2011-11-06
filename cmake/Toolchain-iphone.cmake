@@ -1,4 +1,4 @@
 SET (IPHONE 1)
 
-SET (SDKROOT "/Developer/Platforms/iPhoneOS.platform/DeviceSupport/Latest/Symbols")
+SET (SDKROOT "iphoneos")
 SET (CMAKE_OSX_SYSROOT "${SDKROOT}")
