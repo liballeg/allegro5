@@ -139,16 +139,12 @@ in this order, independent of the endianness.
     Let the driver choose a format with alpha.
 * ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA -
     Let the driver choose a 15 bit format without alpha.
-* ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA -
-    Let the driver choose a 15 bit format with alpha.
 * ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA -
     Let the driver choose a 16 bit format without alpha.
 * ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA -
     Let the driver choose a 16 bit format with alpha.
 * ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA -
     Let the driver choose a 24 bit format without alpha.
-* ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA -
-    Let the driver choose a 24 bit format with alpha.
 * ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA -
     Let the driver choose a 32 bit format without alpha.
 * ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA -
@@ -173,6 +169,7 @@ in this order, independent of the endianness.
     Like the version without _LE, but the component order is guaranteed to be
     red, green, blue, alpha. This only makes a difference on big endian
     systems, on little endian it is just an alias.
+* ALLEGRO_PIXEL_FORMAT_RGBA_4444 - 16bit
 
 See also: [al_set_new_bitmap_format], [al_get_bitmap_format]
 
