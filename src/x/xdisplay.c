@@ -36,13 +36,27 @@ static void set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
    XSizeHints *hints = XAllocSizeHints();
+   hints->flags = 0;
 
    /* Do not force the size of the window on resizeable or fullscreen windows */
    /* on fullscreen windows, it confuses most X Window Managers */
    if (!(d->flags & ALLEGRO_RESIZABLE) && !(d->flags & ALLEGRO_FULLSCREEN)) {
-      hints->flags = PMinSize | PMaxSize | PBaseSize;
+      hints->flags |= PMinSize | PMaxSize | PBaseSize;
       hints->min_width  = hints->max_width  = hints->base_width  = d->w;
       hints->min_height = hints->max_height = hints->base_height = d->h;
+   }
+
+   /* Constrain the window if needed. */
+   if (d->flags & ALLEGRO_RESIZABLE &&
+      (d->min_w > 0 || d->min_h > 0 || d->max_w > 0 || d->max_h > 0))
+   {
+      hints->flags |= PMinSize | PMaxSize | PBaseSize;
+      hints->min_width = (d->min_w > 0) ? d->min_w : 0;
+      hints->min_height = (d->min_h > 0) ? d->min_h : 0;
+      hints->max_width = (d->max_w > 0) ? d->max_w : INT_MAX;
+      hints->max_height = (d->max_h > 0) ? d->max_h : INT_MAX;
+      hints->base_width  = d->w;
+      hints->base_height = d->h;
    }
 
    // Tell WMs to respect our chosen position, otherwise the x_off/y_off
@@ -175,6 +189,42 @@ static void xdpy_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
    _al_mutex_unlock(&system->lock);
 }
 
+
+static bool xdpy_set_window_constraints(ALLEGRO_DISPLAY *display,
+   int min_w, int min_h, int max_w, int max_h)
+{
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+
+   glx->display.min_w = min_w;
+   glx->display.min_h = min_h;
+   glx->display.max_w = max_w;
+   glx->display.max_h = max_h;
+
+   int w = glx->display.w;
+   int h = glx->display.h;
+   int posX;
+   int posY;
+
+   if (min_w > 0 && w < min_w) {
+      w = min_w;
+   }
+   if (min_h > 0 && h < min_h) {
+      h = min_h;
+   }
+   if (max_w > 0 && w > max_w) {
+      w = max_w;
+   }
+   if (max_h > 0 && h > max_h) {
+      h = max_h;
+   }
+
+   al_get_window_position(display, &posX, &posY);
+   set_size_hints(display, posX, posY);
+   /* Resize the display to its current size so constraints take effect. */
+   al_resize_display(display, w, h);
+
+   return true;
+}
 
 
 static void xdpy_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
@@ -1124,6 +1174,18 @@ static void xdpy_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
    *y = glx->y;
 }
 
+static bool xdpy_get_window_constraints(ALLEGRO_DISPLAY *display,
+   int *min_w, int *min_h, int *max_w, int * max_h)
+{
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+
+   *min_w = glx->display.min_w;
+   *min_h = glx->display.min_h;
+   *max_w = glx->display.max_w;
+   *max_h = glx->display.max_h;
+
+   return true;
+}
 
 
 static void xdpy_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
@@ -1183,6 +1245,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    xdpy_vt.set_window_title = xdpy_set_window_title;
    xdpy_vt.set_window_position = xdpy_set_window_position;
    xdpy_vt.get_window_position = xdpy_get_window_position;
+   xdpy_vt.set_window_constraints = xdpy_set_window_constraints;
+   xdpy_vt.get_window_constraints = xdpy_get_window_constraints;
    xdpy_vt.toggle_display_flag = xdpy_toggle_display_flag;
    xdpy_vt.wait_for_vsync = xdpy_wait_for_vsync;
 

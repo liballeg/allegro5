@@ -59,12 +59,17 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
       settings->settings[ALLEGRO_AUTO_CONVERT_BITMAPS] = 1;
    }
 
+   display->min_w = 0;
+   display->min_h = 0;
+   display->max_w = 0;
+   display->max_h = 0;
+
    display->vertex_cache = 0;
    display->num_cache_vertices = 0;
    display->cache_enabled = false;
    display->vertex_cache_size = 0;
    display->cache_texture = 0;
-   
+
    display->display_invalidated = 0;
    
    _al_vector_init(&display->bitmaps, sizeof(ALLEGRO_BITMAP*));
@@ -433,6 +438,65 @@ void al_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
    }
    else {
       *x = *y = -1;
+   }
+}
+
+
+/* Function: al_set_window_constraints
+ */
+bool al_set_window_constraints(ALLEGRO_DISPLAY *display,
+   int min_w, int min_h, int max_w, int max_h)
+{
+   ASSERT(display);
+
+  /* Perform some basic checks. */
+   if (min_w < 0 || min_h < 0 || max_w < 0 || max_h < 0) {
+      return false;
+   }
+   if (min_w > 0 && max_w > 0 && max_w < min_w) {
+      return false;
+   }
+   if (min_h > 0 && max_h > 0 && max_h < min_h) {
+      return false;
+   }
+
+   /* Cannot constrain when fullscreen. */
+   if (display->flags & ALLEGRO_FULLSCREEN) {
+      return false;
+   }
+
+   /* Cannot constrain if not resizable. */
+   if (!(display->flags & ALLEGRO_RESIZABLE)) {
+      return false;
+   }
+
+   if (display && display->vt && display->vt->set_window_constraints) {
+      return display->vt->set_window_constraints(display, min_w, min_h,
+         max_w, max_h);
+   }
+   else {
+      return false;
+   }
+}
+
+
+/* Function: al_get_window_constraints
+ */
+bool al_get_window_constraints(ALLEGRO_DISPLAY *display,
+   int *min_w, int *min_h, int *max_w, int *max_h)
+{
+   ASSERT(display);
+   ASSERT(min_w);
+   ASSERT(min_h);
+   ASSERT(max_w);
+   ASSERT(max_h);
+
+   if (display && display->vt && display->vt->get_window_constraints) {
+      return display->vt->get_window_constraints(display, min_w, min_h,
+         max_w, max_h);
+   }
+   else {
+      return false;
    }
 }
 

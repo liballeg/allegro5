@@ -438,6 +438,14 @@ Gets the position of a non-fullscreen display.
 
 See also: [al_set_window_position]
 
+### API: al_get_window_constraints
+
+Gets the constraints for a non-fullscreen resizable display.
+
+Since: 5.1.0
+
+See also: [al_set_window_constraints]
+
 ### API: al_inhibit_screensaver
 
 This function allows the user to stop the system
@@ -495,6 +503,18 @@ See also: [al_set_new_display_option]
 Sets the position on screen of a non-fullscreen display.
 
 See also: [al_get_window_position]
+
+### API: al_set_window_constraints
+
+Constrains a non-fullscreen resizable display.
+The constraints are a hint only, and are not necessarily respected
+by the window environment.
+A value of 0 for any of the parameters indicates no constraint
+for that parameter.
+
+Since: 5.1.0
+
+See also: [al_get_window_constraints]
 
 ### API: al_set_window_title
 

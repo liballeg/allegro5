@@ -264,6 +264,18 @@ static void iphone_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
     (void)y;
 }
 
+/* The window cannot be constrained. */
+static bool iphone_set_window_constraints(ALLEGRO_DISPLAY *display,
+   int min_w, int min_h, int max_w, int max_h)
+{
+   (void)display;
+   (void)min_w;
+   (void)min_h;
+   (void)max_w;
+   (void)max_h;
+   return false;
+}
+
 /* Always fullscreen. */
 static bool iphone_toggle_display_flag(ALLEGRO_DISPLAY *display,
    int flag, bool onoff)
@@ -279,6 +291,18 @@ static void iphone_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
     (void)display;
     *x = 0;
     *y = 0;
+}
+
+/* The window cannot be constrained. */
+static void iphone_get_window_constraints(ALLEGRO_DISPLAY *display,
+   int *min_w, int *min_h, int *max_w, int *max_h)
+{
+   (void)display;
+   (void)min_w;
+   (void)min_h;
+   (void)max_w;
+   (void)max_h;
+   return false;
 }
 
 static bool iphone_wait_for_vsync(ALLEGRO_DISPLAY *display)
@@ -382,6 +406,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_iphone_display_interface(void)
     vt->set_window_title = iphone_set_window_title;
     vt->set_window_position = iphone_set_window_position;
     vt->get_window_position = iphone_get_window_position;
+    vt->set_window_constraints = iphone_set_window_constraints;
+    vt->get_window_constraints = iphone_get_window_constraints;
     vt->toggle_display_flag = iphone_toggle_display_flag;
     vt->wait_for_vsync = iphone_wait_for_vsync;
 

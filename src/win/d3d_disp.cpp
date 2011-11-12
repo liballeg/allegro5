@@ -2943,6 +2943,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->set_icon = _al_win_set_display_icon;
    vt->set_window_position = d3d_set_window_position;
    vt->get_window_position = d3d_get_window_position;
+   vt->set_window_constraints = _al_win_set_window_constraints;
+   vt->get_window_constraints = _al_win_get_window_constraints;
    vt->toggle_display_flag = _al_win_toggle_display_flag;
    vt->set_window_title = _al_win_set_window_title;
    vt->shutdown = d3d_shutdown;

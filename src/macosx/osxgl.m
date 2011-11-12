@@ -1686,6 +1686,20 @@ static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h)
    NSRect current = [window frame];
    w = _ALLEGRO_MAX(w, MINIMUM_WIDTH);
    h = _ALLEGRO_MAX(h, MINIMUM_HEIGHT);
+
+   if (d->min_w > 0 && w < d->min_w) {
+      w = d->min_w;
+   }
+   if (d->min_h > 0 && h < d->min_h) {
+      h = d->min_h;
+   }
+   if (d->max_w > 0 && w > d->max_w) {
+      w = d->max_w;
+   }
+   if (d->max_h > 0 && h > d->max_h) {
+      h = d->max_h;
+   }
+
    NSRect rc = [window frameRectForContentRect: NSMakeRect(0.0f, 0.0f, (float) w, (float) h)];
    rc.origin = current.origin;
 
@@ -1816,6 +1830,71 @@ static void get_window_position(ALLEGRO_DISPLAY* display, int* px, int* py)
    *py = (int) (sc.size.height - rc.origin.y - rc.size.height);
 }
 
+static bool set_window_constraints(ALLEGRO_DISPLAY* display,
+   int min_w, int min_h, int max_w, int max_h)
+{
+   ALLEGRO_DISPLAY_OSX_WIN* d = (ALLEGRO_DISPLAY_OSX_WIN*) display;
+   NSWindow* window = d->win;
+
+   if (min_w > 0 && min_w < MINIMUM_WIDTH) {
+      min_w = MINIMUM_WIDTH;
+   }
+   if (min_h > 0 && min_h < MINIMUM_HEIGHT) {
+      min_h = MINIMUM_HEIGHT;
+   }
+
+   display->min_w = min_w;
+   display->min_h = min_h;
+   display->max_w = max_w;
+   display->max_h = max_h;
+
+   NSSize min_size = [window contentMinSize];
+   NSSize max_size = [window contentMaxSize];
+
+   if (display->min_w > 0) {
+      min_size.width = display->min_w;
+   }
+   else {
+      min_size.width = MINIMUM_WIDTH;
+   }
+   if (display->min_h > 0) {
+      min_size.height = display->min_h;
+   }
+   else {
+      min_size.height = MINIMUM_HEIGHT;
+   }
+   if (display->max_w > 0) {
+      max_size.width = display->max_w;
+   }
+   else {
+      max_size.width = 10000;	/* should be FLT_MAX */
+   }
+   if (display->max_h > 0) {
+      max_size.height = display->max_h;
+   }
+   else {
+     max_size.height = 10000;	/* should be FLT_MAX */
+   }
+
+  [window setContentMaxSize:max_size];
+  [window setContentMinSize:min_size];
+
+  al_resize_display(display, display->w, display->h);
+
+  return true;
+}
+
+static bool get_window_constraints(ALLEGRO_DISPLAY* display,
+   int* min_w, int* min_h, int* max_w, int* max_h)
+{
+   *min_w = display->min_w;
+   *min_h = display->min_h;
+   *max_w = display->max_w;
+   *max_h = display->max_h;
+
+   return true;
+}
+
 /* set_window_title:
  * Set the title of the window with this display
  */
@@ -1922,6 +2001,8 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void)
       vt->set_system_mouse_cursor = osx_set_system_mouse_cursor;
       vt->get_window_position = get_window_position;
       vt->set_window_position = set_window_position;
+      vt->get_window_constraints = get_window_constraints;
+      vt->set_window_constraints = set_window_constraints;
       vt->set_window_title = set_window_title;
       vt->toggle_display_flag = toggle_display_flag;
       vt->set_icon = set_icon;

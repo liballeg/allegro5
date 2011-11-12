@@ -171,6 +171,8 @@ AL_FUNC(void, al_set_new_window_position, (int x, int y));
 AL_FUNC(void, al_get_new_window_position, (int *x, int *y));
 AL_FUNC(void, al_set_window_position, (ALLEGRO_DISPLAY *display, int x, int y));
 AL_FUNC(void, al_get_window_position, (ALLEGRO_DISPLAY *display, int *x, int *y));
+AL_FUNC(bool, al_set_window_constraints, (ALLEGRO_DISPLAY *display, int min_w, int min_h, int max_w, int max_h));
+AL_FUNC(bool, al_get_window_constraints, (ALLEGRO_DISPLAY *display, int *min_w, int *min_h, int *max_w, int *max_h));
 
 AL_FUNC(void, al_set_window_title, (ALLEGRO_DISPLAY *display, const char *title));
 

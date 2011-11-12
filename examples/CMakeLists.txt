@@ -155,6 +155,7 @@ example(ex_transform ${FONT} ${IMAGE} ${PRIM})
 example(ex_vsync ${FONT} ${IMAGE})
 example(ex_warp_mouse ${FONT} ${PRIM} ${IMAGE})
 example(ex_windows ${FONT} ${IMAGE})
+example(ex_window_constraints ${FONT} ${IMAGE})
 example(ex_winfull)
 example(ex_video ${AUDIO} ${IMAGE} ${FONT} ${PRIM} ${VIDEO})
 
