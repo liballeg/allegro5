@@ -313,12 +313,12 @@ See also: [al_create_bitmap], [al_set_new_bitmap_format],
 ### API: al_convert_bitmap
 
 Converts the bitmap to the current bitmap flags and format. The bitmap
-will be as if it was created anew with al_create_bitmap but retain its
+will be as if it was created anew with [al_create_bitmap] but retain its
 contents.
 
-If the bitmap has sub-bitmaps you also must call al_convert_bitmap on
+If the bitmap has sub-bitmaps you also must call [al_convert_bitmap] on
 all its sub-bitmaps. If the bitmap is a sub-bitmap you must also call
-al_convert_bitmap on the parent.
+[al_convert_bitmap] on the parent.
 
 Since: 5.1.0
 
@@ -328,7 +328,7 @@ See also: [al_create_bitmap], [al_set_new_bitmap_format],
 ### API: al_convert_bitmaps
 
 If you create a bitmap when there is no current display (for example
-because you have not called al_create_display in the current
+because you have not called [al_create_display] in the current
 thread) and are using the ALLEGRO_CONVERT_BITMAP bitmap flag (which is
 set by default) then the bitmap will be created successfully, but as a
 memory bitmap. This function converts all such bitmaps to proper video
