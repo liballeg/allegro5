@@ -1867,13 +1867,13 @@ static bool set_window_constraints(ALLEGRO_DISPLAY* display,
       max_size.width = display->max_w;
    }
    else {
-      max_size.width = 10000;	/* should be FLT_MAX */
+      max_size.width = FLT_MAX;
    }
    if (display->max_h > 0) {
       max_size.height = display->max_h;
    }
    else {
-     max_size.height = 10000;	/* should be FLT_MAX */
+     max_size.height = FLT_MAX;
    }
 
   [window setContentMaxSize:max_size];
