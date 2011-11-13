@@ -44,6 +44,14 @@ Returns whether the Direct3D device supports textures that are not square.
 *Returns:*
 True if the Direct3D device suports non-square textures, false otherwise.
 
+## API: al_get_d3d_texture_size
+
+Retrieves the size of the texture used for the bitmap.
+
+**XXX will crash if the bitmap is not a Direct3D bitmap**
+
+Since: 5.1.0
+
 ## API: al_get_d3d_texture_position
 
 Returns the u/v coordinates for the top/left corner of the bitmap within the
@@ -67,5 +75,21 @@ belonging to the given display is in a lost state.
 ## API: al_set_direct3d_effect
 
 *Not yet documented.*
+
+Since: 5.1.0
+
+## API: al_d3d_set_release_callback
+
+The callback will be called whenever a d3d device is reset (minimize, toggle
+fullscreen window, etc).  In the callback you should release any d3d
+resources you have created yourself.
+
+Since: 5.1.0
+
+## API: al_d3d_set_restore_callback
+
+The callback will be called whenever a d3d device that has been reset is
+restored.  in the callback you should restore any d3d resources you have
+created yourself.
 
 Since: 5.1.0

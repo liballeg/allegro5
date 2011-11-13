@@ -289,18 +289,14 @@ static D3DFORMAT d3d_get_depth_stencil_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *se
    return (D3DFORMAT)0;
 }
 
-/*
- * This will be called whenever a d3d device is reset (minimize, toggle fullscreen window, etc)
- * User should release any d3d resources they created themselves here
+/* Function: al_d3d_set_release_callback
  */
 void al_d3d_set_release_callback(void (*callback)(void))
 {
    d3d_release_callback = callback;
 }
 
-/*
- * This will be called whenever a d3d device that has been reset is restored
- * User should restore any d3d resources they created themselves here
+/* Function: al_d3d_set_restore_callback
  */
 void al_d3d_set_restore_callback(void (*callback)(void))
 {
