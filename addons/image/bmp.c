@@ -27,6 +27,9 @@
 
 #include "iio.h"
 
+/* Do NOT simplify this to just (x), it doesn't work in MSVC. */
+#define INT_TO_BOOL(x)   ((x) != 0)
+
 
 #define BIT_RGB          0
 #define BIT_RLE8         1
@@ -428,7 +431,7 @@ static void read_image(ALLEGRO_FILE *f, int flags,
    int i, j, line, height, dir;
    unsigned char *buf;
    unsigned char *data;
-   bool keep_index = (flags & ALLEGRO_KEEP_INDEX);
+   bool keep_index = INT_TO_BOOL(flags & ALLEGRO_KEEP_INDEX);
 
    height = infoheader->biHeight;
    line = height < 0 ? 0 : height - 1;
@@ -664,7 +667,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
    unsigned char *buf = NULL;
    ALLEGRO_LOCKED_REGION *lr;
    int bpp;
-   bool keep_index = (flags & ALLEGRO_KEEP_INDEX);
+   bool keep_index = INT_TO_BOOL(flags & ALLEGRO_KEEP_INDEX);
 
    ASSERT(f);
 

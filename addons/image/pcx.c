@@ -4,6 +4,9 @@
 
 #include "iio.h"
 
+/* Do NOT simplify this to just (x), it doesn't work in MSVC. */
+#define INT_TO_BOOL(x)   ((x) != 0)
+
 ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
 {
    ALLEGRO_BITMAP *b;
@@ -59,7 +62,7 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
       return NULL;
    }
    
-   keep_index = (flags & ALLEGRO_KEEP_INDEX);
+   keep_index = INT_TO_BOOL(flags & ALLEGRO_KEEP_INDEX);
 
    al_set_errno(0);
 
