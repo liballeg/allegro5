@@ -134,23 +134,16 @@ function(texi2text source output)
 endfunction(texi2text)
 
 if(PANDOC)
-    pandoc(
-        src/changes-5.0.txt
-        html/changes-5.0.html
-        -c pandoc.css
-        )
+    pandoc(src/changes-5.0.txt html/changes-5.0.html -c pandoc.css)
+    pandoc(src/changes-5.1.txt html/changes-5.1.html -c pandoc.css)
 endif(PANDOC)
 
 if(PANDOC_WITH_TEXINFO)
-    pandoc(
-        src/changes-5.0.txt
-        texi/changes-5.0.texi
-        )
+    pandoc(src/changes-5.0.txt texi/changes-5.0.texi)
+    pandoc(src/changes-5.1.txt texi/changes-5.1.texi)
     if(MAKEINFO)
-        texi2text(
-            texi/changes-5.0.texi
-            txt/changes-5.0.txt
-            )
+        texi2text(texi/changes-5.0.texi txt/changes-5.0.txt)
+        texi2text(texi/changes-5.1.texi txt/changes-5.1.txt)
     endif(MAKEINFO)
 endif(PANDOC_WITH_TEXINFO)
 
