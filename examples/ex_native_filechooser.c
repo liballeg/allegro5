@@ -166,6 +166,7 @@ int main(void)
    bool close_log = false;
    int button;
    bool message_log = true;
+   bool touch;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -183,10 +184,12 @@ int main(void)
    info = al_color_name("red");
 
    al_install_mouse();
-   al_install_touch_input();
+   touch = al_install_touch_input();
    al_install_keyboard();
     
-   al_set_mouse_emulation_mode(ALLEGRO_MOUSE_EMULATION_5_0_x);
+   if (touch) {
+      al_set_mouse_emulation_mode(ALLEGRO_MOUSE_EMULATION_5_0_x);
+   }
 
    message("Creating window...");
     
@@ -217,8 +220,10 @@ restart:
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_mouse_event_source());
-   al_register_event_source(queue, al_get_touch_input_event_source());
-    al_register_event_source(queue, al_get_touch_input_mouse_emulation_event_source());
+   if (touch) {
+      al_register_event_source(queue, al_get_touch_input_event_source());
+      al_register_event_source(queue, al_get_touch_input_mouse_emulation_event_source());
+   }
    al_register_event_source(queue, al_get_display_event_source(display));
    al_register_event_source(queue, al_get_timer_event_source(timer));
    if (textlog) {
