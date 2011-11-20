@@ -227,16 +227,50 @@ ALLEGRO_BITMAP *_al_load_gdiplus_bitmap_f(ALLEGRO_FILE *fp, int flags)
    Gdiplus::Bitmap *gdi_bmp = Gdiplus::Bitmap::FromStream(s, false);
 
    if (gdi_bmp) {
-      const uint32_t w = gdi_bmp->GetWidth(), h = gdi_bmp->GetHeight();
+      const uint32_t w = gdi_bmp->GetWidth();
+      const uint32_t h = gdi_bmp->GetHeight();
+      const PixelFormat pf = gdi_bmp->GetPixelFormat();
 
       a_bmp = al_create_bitmap(w, h);
       if (a_bmp) {
          Gdiplus::Rect rect(0, 0, w, h);
          Gdiplus::BitmapData *gdi_lock = new Gdiplus::BitmapData();
 
+         /* Indexed mode. */
+         if (pf == PixelFormat8bppIndexed) {
+            if (!gdi_bmp->LockBits(&rect, Gdiplus::ImageLockModeRead,
+                  PixelFormat8bppIndexed, gdi_lock))
+            {
+               ALLEGRO_LOCKED_REGION *a_lock = al_lock_bitmap(a_bmp,
+                  ALLEGRO_PIXEL_FORMAT_LUMINANCE_8, ALLEGRO_LOCK_WRITEONLY);
+
+               if (a_lock) {
+                  unsigned char *in = (unsigned char *)gdi_lock->Scan0;
+                  unsigned char *out = (unsigned char *)a_lock->data;
+
+                  if (gdi_lock->Stride == a_lock->pitch) {
+                     memcpy(out, in, h * gdi_lock->Stride);
+                  }
+                  else {
+                     uint32_t rows = h;
+                     while (rows--) {
+                        memcpy(out, in, w);
+                        in += gdi_lock->Stride;
+                        out += a_lock->pitch;
+                     }
+                  }
+                  al_unlock_bitmap(a_bmp);
+               }
+
+               gdi_bmp->UnlockBits(gdi_lock);
+            }
+            goto skip;
+         }
+
+         /* Non-indexed. */
          if (!gdi_bmp->LockBits(&rect, Gdiplus::ImageLockModeRead,
-               PixelFormat32bppARGB, gdi_lock)) {
-               	
+               PixelFormat32bppARGB, gdi_lock))
+         {
             ALLEGRO_LOCKED_REGION *a_lock = al_lock_bitmap(a_bmp,
                ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_WRITEONLY);
 
@@ -284,7 +318,9 @@ ALLEGRO_BITMAP *_al_load_gdiplus_bitmap_f(ALLEGRO_FILE *fp, int flags)
             }
 
             gdi_bmp->UnlockBits(gdi_lock);
-         }			
+         }
+
+skip:
          delete gdi_lock;
       }
       delete gdi_bmp;
