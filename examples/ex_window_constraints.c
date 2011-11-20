@@ -39,7 +39,6 @@ int main(void)
       return 1;
    }
 
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    bmp = al_load_bitmap("data/mysha.pcx");
    if (!bmp) {
       abort_example("Unable to load image\n");
@@ -64,8 +63,8 @@ int main(void)
           constr_min_h ? min_h : 0,
           constr_max_w ? max_w : 0,
           constr_max_h ? max_h : 0)) {
-      abort_example("Unable to set window constrains\n");
-      return -1;
+      abort_example("Unable to set window constraints.\n");
+      return 1;
    }
 
    queue = al_create_event_queue();
@@ -90,7 +89,7 @@ int main(void)
                &ret_max_w, &ret_max_h))
          {
             abort_example("Unable to get window constraints\n");
-            return-1;
+            return 1;
          }
 
          al_draw_textf(f, al_map_rgb(255, 255, 255), 0,
@@ -138,8 +137,8 @@ int main(void)
                constr_min_h ? min_h : 0,
                constr_max_w ? max_w : 0,
                constr_max_h ? max_h : 0)) {
-            abort_example("Unable to set window constrains\n");
-            return -1;
+            abort_example("Unable to set window constraints.\n");
+            return 1;
          }
       }
       if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
