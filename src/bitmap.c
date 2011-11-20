@@ -820,7 +820,7 @@ void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP temp = *bitmap;
    ALLEGRO_BITMAP *clone;
-   bool want_memory = al_get_new_bitmap_flags() & ALLEGRO_MEMORY_BITMAP;
+   bool want_memory = (al_get_new_bitmap_flags() & ALLEGRO_MEMORY_BITMAP) != 0;
    bool clone_memory;
 
    /* TODO: Could check here if the bitmap isn't converted already.
@@ -828,7 +828,7 @@ void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
     */
 
    if (bitmap->parent) {
-      bool parent_mem = bitmap->parent->flags & ALLEGRO_MEMORY_BITMAP;
+      bool parent_mem = (bitmap->parent->flags & ALLEGRO_MEMORY_BITMAP) != 0;
       if (parent_mem != want_memory) {
          al_convert_bitmap(bitmap->parent);
       }
@@ -842,7 +842,7 @@ void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
    if (!clone)
       return;
 
-   clone_memory = clone->flags & ALLEGRO_MEMORY_BITMAP;
+   clone_memory = (clone->flags & ALLEGRO_MEMORY_BITMAP) != 0;
 
    if (clone_memory != want_memory) {
       /* We cannot convert. */
@@ -976,7 +976,7 @@ void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap)
 void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_STATE backup;
-   bool is_any = bitmap->flags & ALLEGRO_CONVERT_BITMAP;
+   bool is_any = (bitmap->flags & ALLEGRO_CONVERT_BITMAP) != 0;
 
    /* Do nothing if it is a memory bitmap already. */
    if (bitmap->flags & ALLEGRO_MEMORY_BITMAP)

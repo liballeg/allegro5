@@ -152,7 +152,7 @@ static void d3d_draw_textured_quad(
    vertices[3] = vertices[0]; \
    vertices[4] = vertices[2];
 
-   bool pp = aldisp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE;
+   bool pp = (aldisp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) != 0;
 
    if (pp) {
    	ALLEGRO_VERTEX *vertices = (ALLEGRO_VERTEX *)aldisp->vt->prepare_vertex_cache(aldisp, 6);
