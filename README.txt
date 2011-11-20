@@ -8,6 +8,10 @@ Currently supported platforms are Linux/Unix, Windows, MacOS X and iPhone.
 Note that Allegro 5 is wholly *incompatible* with Allegro 4 and earlier
 versions, but both may be installed at the same time without conflicts.
 
+>   *Note:* the Allegro 5.1 branch is *unstable*.
+    Any API additions since the 5.0 branch are subject to change, tinkering,
+    or outright removal at any time.
+
 This readme contains general information which applies to all platforms
 that Allegro builds on.
 

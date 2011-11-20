@@ -3,6 +3,10 @@
 <!-- If you change this you should change inc.a as well. -->
 <!-- Don't use #-sectioning in this file. -->
 
+>   *Note:* the Allegro 5.1 branch is *unstable*.
+    Any API additions since the 5.0 branch are subject to change, tinkering,
+    or outright removal at any time.
+
 * [Getting started guide](getting_started.html)
 
 API
