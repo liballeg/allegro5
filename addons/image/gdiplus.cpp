@@ -216,6 +216,102 @@ public:
    }
 };
 
+static void load_indexed_data(Gdiplus::Bitmap *gdi_bmp,
+   ALLEGRO_BITMAP *a_bmp, uint32_t w, uint32_t h)
+{
+   Gdiplus::BitmapData *gdi_lock = new Gdiplus::BitmapData();
+   Gdiplus::Rect rect(0, 0, w, h);
+
+   if (!gdi_bmp->LockBits(&rect, Gdiplus::ImageLockModeRead,
+         PixelFormat8bppIndexed, gdi_lock))
+   {
+      ALLEGRO_LOCKED_REGION *a_lock = al_lock_bitmap(a_bmp,
+         ALLEGRO_PIXEL_FORMAT_LUMINANCE_8, ALLEGRO_LOCK_WRITEONLY);
+
+      if (a_lock) {
+         unsigned char *in = (unsigned char *)gdi_lock->Scan0;
+         unsigned char *out = (unsigned char *)a_lock->data;
+
+         if (gdi_lock->Stride == a_lock->pitch) {
+            memcpy(out, in, h * gdi_lock->Stride);
+         }
+         else {
+            uint32_t rows = h;
+            while (rows--) {
+               memcpy(out, in, w);
+               in += gdi_lock->Stride;
+               out += a_lock->pitch;
+            }
+         }
+         al_unlock_bitmap(a_bmp);
+      }
+
+      gdi_bmp->UnlockBits(gdi_lock);
+   }
+
+   delete gdi_lock;
+}
+
+static void load_non_indexed_data(Gdiplus::Bitmap *gdi_bmp,
+   ALLEGRO_BITMAP *a_bmp, uint32_t w, uint32_t h, bool premul)
+{
+   Gdiplus::BitmapData *gdi_lock = new Gdiplus::BitmapData();
+   Gdiplus::Rect rect(0, 0, w, h);
+
+   if (!gdi_bmp->LockBits(&rect, Gdiplus::ImageLockModeRead,
+         PixelFormat32bppARGB, gdi_lock))
+   {
+      ALLEGRO_LOCKED_REGION *a_lock = al_lock_bitmap(a_bmp,
+         ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_WRITEONLY);
+
+      if (a_lock) {
+         unsigned char *in = (unsigned char *)gdi_lock->Scan0;
+         unsigned char *out = (unsigned char *)a_lock->data;
+
+         if (premul) {
+            int in_inc = gdi_lock->Stride - (w*4);
+            int out_inc = a_lock->pitch - (w*4);
+            for (unsigned int y = 0; y < h; y++) {
+               for (unsigned int x = 0; x < w; x++) {
+                  unsigned char r, g, b, a;
+                  b = *in++;
+                  g = *in++;
+                  r = *in++;
+                  a = *in++;
+                  b = b * a / 255;
+                  g = g * a / 255;
+                  r = r * a / 255;
+                  *out++ = b;
+                  *out++ = g;
+                  *out++ = r;
+                  *out++ = a;
+               }
+               in += in_inc;
+               out += out_inc;
+            }
+         }
+         else {
+            if (gdi_lock->Stride == a_lock->pitch) {
+               memcpy(out, in, h * gdi_lock->Stride);
+            }
+            else {
+               uint32_t rows = h;
+               while (rows--) {
+                  memcpy(out, in, w * 4);
+                  in += gdi_lock->Stride;
+                  out += a_lock->pitch;
+               }
+            }
+         }
+         al_unlock_bitmap(a_bmp);
+      }
+
+      gdi_bmp->UnlockBits(gdi_lock);
+   }
+
+   delete gdi_lock;
+}
+
 ALLEGRO_BITMAP *_al_load_gdiplus_bitmap_f(ALLEGRO_FILE *fp, int flags)
 {
    AllegroWindowsStream *s = new AllegroWindowsStream(fp);
@@ -223,105 +319,23 @@ ALLEGRO_BITMAP *_al_load_gdiplus_bitmap_f(ALLEGRO_FILE *fp, int flags)
       return NULL;
    }
 
-   ALLEGRO_BITMAP *a_bmp = NULL;	
+   ALLEGRO_BITMAP *a_bmp = NULL;
    Gdiplus::Bitmap *gdi_bmp = Gdiplus::Bitmap::FromStream(s, false);
 
    if (gdi_bmp) {
       const uint32_t w = gdi_bmp->GetWidth();
       const uint32_t h = gdi_bmp->GetHeight();
       const PixelFormat pf = gdi_bmp->GetPixelFormat();
+      bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
       a_bmp = al_create_bitmap(w, h);
       if (a_bmp) {
-         Gdiplus::Rect rect(0, 0, w, h);
-         Gdiplus::BitmapData *gdi_lock = new Gdiplus::BitmapData();
-
-         /* Indexed mode. */
          if (pf == PixelFormat8bppIndexed) {
-            if (!gdi_bmp->LockBits(&rect, Gdiplus::ImageLockModeRead,
-                  PixelFormat8bppIndexed, gdi_lock))
-            {
-               ALLEGRO_LOCKED_REGION *a_lock = al_lock_bitmap(a_bmp,
-                  ALLEGRO_PIXEL_FORMAT_LUMINANCE_8, ALLEGRO_LOCK_WRITEONLY);
-
-               if (a_lock) {
-                  unsigned char *in = (unsigned char *)gdi_lock->Scan0;
-                  unsigned char *out = (unsigned char *)a_lock->data;
-
-                  if (gdi_lock->Stride == a_lock->pitch) {
-                     memcpy(out, in, h * gdi_lock->Stride);
-                  }
-                  else {
-                     uint32_t rows = h;
-                     while (rows--) {
-                        memcpy(out, in, w);
-                        in += gdi_lock->Stride;
-                        out += a_lock->pitch;
-                     }
-                  }
-                  al_unlock_bitmap(a_bmp);
-               }
-
-               gdi_bmp->UnlockBits(gdi_lock);
-            }
-            goto skip;
+            load_indexed_data(gdi_bmp, a_bmp, w, h);
          }
-
-         /* Non-indexed. */
-         if (!gdi_bmp->LockBits(&rect, Gdiplus::ImageLockModeRead,
-               PixelFormat32bppARGB, gdi_lock))
-         {
-            ALLEGRO_LOCKED_REGION *a_lock = al_lock_bitmap(a_bmp,
-               ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_WRITEONLY);
-
-            if (a_lock) {
-               unsigned char *in = (unsigned char *)gdi_lock->Scan0;
-               unsigned char *out = (unsigned char *)a_lock->data;
-               bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
-
-               if (premul) {
-                  int in_inc = gdi_lock->Stride - (w*4);
-                  int out_inc = a_lock->pitch - (w*4);
-                  for (unsigned int y = 0; y < h; y++) {
-                     for (unsigned int x = 0; x < w; x++) {
-                        unsigned char r, g, b, a;
-                        b = *in++;
-                        g = *in++;
-                        r = *in++;
-                        a = *in++;
-                        b = b * a / 255;
-                        g = g * a / 255;
-                        r = r * a / 255;
-                        *out++ = b;
-                        *out++ = g;
-                        *out++ = r;
-                        *out++ = a;
-                     }
-                     in += in_inc;
-                     out += out_inc;
-                  }
-               }
-               else {
-                  if (gdi_lock->Stride == a_lock->pitch) {
-                     memcpy(out, in, h * gdi_lock->Stride);
-                  }
-                  else {
-                     uint32_t rows = h;
-                     while (rows--) {
-                        memcpy(out, in, w * 4);
-                        in += gdi_lock->Stride;
-                        out += a_lock->pitch;
-                     }
-                  }
-               }
-               al_unlock_bitmap(a_bmp);
-            }
-
-            gdi_bmp->UnlockBits(gdi_lock);
+         else {
+            load_non_indexed_data(gdi_bmp, a_bmp, w, h, premul);
          }
-
-skip:
-         delete gdi_lock;
       }
       delete gdi_bmp;
    }
