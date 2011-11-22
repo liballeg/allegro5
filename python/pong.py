@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
     Allegro Python port game example
     Original Author: Jeroen De Busser
@@ -5,6 +6,9 @@
 import os
 from allegro import *
 from random import randint,random
+import os
+
+examples_data = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "examples/data"))
 
 class Pallet:
     def __init__(self, x, y, w, h, speed, color):
@@ -153,7 +157,7 @@ def main():
     al_init_image_addon()
     al_init_font_addon()
 
-    font = al_load_font("fixed_font.tga",0,0)
+    font = al_load_font(os.path.join(examples_data, "fixed_font.tga"), 0, 0)
 
     finished = False
     need_redraw = True
