@@ -482,7 +482,9 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       y_off != INT_MAX ? y_off : 0,
       w, h, 0, d->xvinfo->depth,
       InputOutput, d->xvinfo->visual, mask, &swa);
-      
+
+   ALLEGRO_DEBUG("Window ID: %ld\n", (long)d->window);
+
    // Try to set full screen mode if requested, fail if we can't
    if (display->flags & ALLEGRO_FULLSCREEN) {
       /* According to the spec, the window manager is supposed to disable
@@ -1046,7 +1048,7 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
     * Unfortunately, we also end up ignoring the only event we receive in
     * response to a XMoveWindow request so we have to compensate for that.
     */
-   if (xevent->xconfigure.send_event) {
+   if (xevent->xconfigure.send_event || glx->embedder_window != None) {
       glx->x = xevent->xconfigure.x;
       glx->y = xevent->xconfigure.y;
    }
@@ -1116,14 +1118,23 @@ void _al_xwin_display_switch_handler(ALLEGRO_DISPLAY *display,
    if (xevent->mode != NotifyNormal)
       return;
 
+   _al_xwin_display_switch_handler_inner(display, (xevent->type == FocusIn));
+}
+
+
+
+/* Handle X11 switch event. [X11 thread]
+ */
+void _al_xwin_display_switch_handler_inner(ALLEGRO_DISPLAY *display, bool focus_in)
+{
    ALLEGRO_EVENT_SOURCE *es = &display->es;
    _al_event_source_lock(es);
    if (_al_event_source_needs_to_generate_event(es)) {
       ALLEGRO_EVENT event;
-      if (xevent->type == FocusOut)
-         event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
-      else
+      if (focus_in)
          event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
+      else
+         event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
       event.display.timestamp = al_get_time();
       _al_event_source_emit_event(es, &event);
    }

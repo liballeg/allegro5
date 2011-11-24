@@ -57,6 +57,7 @@ struct ALLEGRO_SYSTEM_XGLX
     */
 
    Atom AllegroAtom;
+   Atom XEmbedAtom;
 
    #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
    /* For VidMode extension. */
@@ -115,6 +116,11 @@ struct ALLEGRO_DISPLAY_XGLX
    GLXFBConfig *fbc; /* Used when creating the OpenGL context. */
    int glx_version; /* 130 means 1 major and 3 minor, aka 1.3 */
 
+   /* If our window is embedded by the XEmbed protocol, this gives
+    * the window ID of the embedder; Otherwise None.
+    */
+   Window embedder_window;
+
    _AL_COND mapped; /* Condition variable to wait for mapping a window. */
    bool is_mapped;  /* Set to true when mapped. */
 
@@ -148,12 +154,12 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *event);
 void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent);
 void _al_xwin_display_switch_handler(ALLEGRO_DISPLAY *d,
    XFocusChangeEvent *event);
+void _al_xwin_display_switch_handler_inner(ALLEGRO_DISPLAY *d, bool focus_in);
 void _al_xwin_display_expose(ALLEGRO_DISPLAY *display, XExposeEvent *xevent);
 
 /* keyboard */
 void _al_xwin_keyboard_handler(XKeyEvent *event, ALLEGRO_DISPLAY *display);
-void _al_xwin_keyboard_switch_handler(ALLEGRO_DISPLAY *display,
-   const XFocusChangeEvent *event);
+void _al_xwin_keyboard_switch_handler(ALLEGRO_DISPLAY *display, bool focus_in);
 
 /* mouse */
 void _al_xwin_mouse_button_press_handler(int button, ALLEGRO_DISPLAY *display);

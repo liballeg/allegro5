@@ -11,6 +11,7 @@ extern int _Xdebug; /* part of Xlib */
 
 #include "allegro5/allegro.h"
 #include "allegro5/platform/aintunix.h"
+#include "allegro5/internal/aintern_xembed.h"
 #include "allegro5/internal/aintern_xglx.h"
 
 ALLEGRO_DEBUG_CHANNEL("system")
@@ -53,11 +54,11 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
          break;
       case FocusIn:
          _al_xwin_display_switch_handler(&d->display, &event.xfocus);
-         _al_xwin_keyboard_switch_handler(&d->display, &event.xfocus);
+         _al_xwin_keyboard_switch_handler(&d->display, true);
          break;
       case FocusOut:
          _al_xwin_display_switch_handler(&d->display, &event.xfocus);
-         _al_xwin_keyboard_switch_handler(&d->display, &event.xfocus);
+         _al_xwin_keyboard_switch_handler(&d->display, false);
          break;
       case ButtonPress:
          _al_xwin_mouse_button_press_handler(event.xbutton.button,
@@ -89,6 +90,12 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
             _al_xwin_display_expose(&d->display, &event.xexpose);
          }
          break;
+      case ReparentNotify:
+         if (event.xreparent.parent == RootWindow(s->x11display, d->xscreen)) {
+            ALLEGRO_INFO("XEmbed protocol finished.\n");
+            d->embedder_window = None;
+         }
+         break;
       case ClientMessage:
          if ((Atom)event.xclient.data.l[0] == d->wm_delete_window_atom) {
             _al_display_xglx_closebutton(&d->display, &event);
@@ -96,6 +103,35 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
          }
          if (event.xclient.message_type == s->AllegroAtom) {
             d->mouse_warp = true;
+            break;
+         }
+         if (event.xclient.message_type == s->XEmbedAtom) {
+            const long xtime = event.xclient.data.l[0];
+            const long major = event.xclient.data.l[1];
+            const long detail = event.xclient.data.l[2];
+            const long data1 = event.xclient.data.l[3];
+            const long data2 = event.xclient.data.l[4];
+
+            (void)xtime;
+            (void)detail;
+            (void)data2;
+
+            switch (major) {
+               case XEMBED_EMBEDDED_NOTIFY:
+                  d->embedder_window = data1;
+                  ALLEGRO_INFO("XEmbed begin: embedder window = %ld\n", data1);
+                  break;
+               case XEMBED_FOCUS_IN:
+                  ALLEGRO_DEBUG("XEmbed focus in\n");
+                  _al_xwin_display_switch_handler_inner(&d->display, true);
+                  _al_xwin_keyboard_switch_handler(&d->display, true);
+                  break;
+               case XEMBED_FOCUS_OUT:
+                  ALLEGRO_DEBUG("XEmbed focus out\n");
+                  _al_xwin_display_switch_handler_inner(&d->display, false);
+                  _al_xwin_keyboard_switch_handler(&d->display, false);
+                  break;
+            }
             break;
          }
          break;
@@ -229,6 +265,9 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
        * for one here.
        */
       s->AllegroAtom = XInternAtom(x11display, "AllegroAtom", False);
+
+      /* Message type for XEmbed protocol. */
+      s->XEmbedAtom = XInternAtom(x11display, "_XEMBED", False);
 
       _al_thread_create(&s->thread, xglx_background_thread, s);
       ALLEGRO_INFO("events thread spawned.\n");
