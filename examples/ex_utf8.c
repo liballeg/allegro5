@@ -223,7 +223,6 @@ static void t11(void)
 {
    ALLEGRO_USTR *us1;
    ALLEGRO_USTR *us2;
-   bool rc;
    size_t sz;
 
    /* Insert in middle. */
@@ -237,8 +236,7 @@ static void t11(void)
    CHECK(0 == strcmp(al_cstr(us2), "lmnlmnoóoó"));
 
    /* Insert before start (not allowed). */
-   rc = al_ustr_insert(us2, -1, us2);
-   CHECK(! al_ustr_insert(us2, -1, us2));
+   CHECK(!al_ustr_insert(us2, -1, us2));
 
    /* Insert past end (will be padded with NULs). */
    sz = al_ustr_size(us2);
