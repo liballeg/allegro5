@@ -94,8 +94,8 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 #It is recommended to use the -mthumb compiler flag to force the generation
 #of 16-bit Thumb-1 instructions (the default being 32-bit ARM ones).
-SET(CMAKE_CXX_FLAGS "-fPIC -DANDROID -mthumb -Wno-psabi")
-SET(CMAKE_C_FLAGS "-fPIC -DANDROID -mthumb -Wno-psabi")
+SET(CMAKE_CXX_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -mthumb -Wno-psabi")
+SET(CMAKE_C_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -mthumb -Wno-psabi")
 
 #set(LIBCPP_LINK_DIR  ${ANDROID_NDK_TOOLCHAIN_ROOT}/user/lib/thumb)
 if(ARMEABI_V7A)  
@@ -116,8 +116,8 @@ SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}" CACHE STRING "c flags")
 #Also, this is *required* to use the following linker flags that routes around
 #a CPU bug in some Cortex-A8 implementations:
 
-SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--fix-cortex-a8 -L${CMAKE_INSTALL_PREFIX}/lib -lstdc++ -lsupc++" CACHE STRING "linker flags" FORCE)
-SET(CMAKE_MODULE_LINKER_FLAGS "-Wl,--fix-cortex-a8 -L${CMAKE_INSTALL_PREFIX}/lib -lstdc++ -lsupc++ " CACHE STRING "linker flags" FORCE)
+SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--fix-cortex-a8 -L${CMAKE_INSTALL_PREFIX}/lib" CACHE STRING "linker flags" FORCE)
+SET(CMAKE_MODULE_LINKER_FLAGS "-Wl,--fix-cortex-a8 -L${CMAKE_INSTALL_PREFIX}/lib" CACHE STRING "linker flags" FORCE)
 
 #set these global flags for cmake client scripts to change behavior
 set(ANDROID True)
