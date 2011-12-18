@@ -18,7 +18,7 @@ setup a standalone ndk toolchain.
 Assuming the ndk was extracted into $HOME/android-ndk run the following command:
 
 $ $HOME/android-ndk/build/tools/make-standalone-toolchain.sh \
-  --platform=android-4 --install-dir=$HOME/android-toolchain
+  --install-dir=$HOME/android-toolchain
 
 Then to build Allegro run the following from the Allegro's root source directory:
 
