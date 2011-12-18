@@ -27,6 +27,9 @@
 #include "allegro5/platform/alplatf.h"
 #include ALLEGRO_INTERNAL_HEADER
 
+#ifdef ALLEGRO_ANDROID
+#  include <android/log.h>
+#endif
 
 /* tracing */
 typedef struct TRACE_INFO
@@ -261,16 +264,36 @@ static void open_trace_file(void)
 }
 
 
-
+static char trace_buff[2048] = { 0 };
 static void do_trace(const char *msg, ...)
 {
    va_list ap;
 
+#ifdef ALLEGRO_ANDROID
+   {
+      // yay for buffer overflows.
+      char tmp[2048] = { 0 };
+      
+      va_start(ap, msg);
+      vsnprintf(tmp, 2048, msg, ap);
+      va_end(ap);
+
+      strncat(trace_buff, tmp, 2048);
+      
+      //__android_log_print(ANDROID_LOG_INFO, "do_trace", "blah");
+      
+      if(tmp[strlen(tmp)-1] == '\n') {
+         (void)__android_log_print(ANDROID_LOG_INFO, "allegro", trace_buff);
+         tmp[0] = 0;
+      }
+   }
+#else
    if (trace_info.trace_file) {
       va_start(ap, msg);
       vfprintf(trace_info.trace_file, msg, ap);
       va_end(ap);
    }
+#endif
 }
 
 
@@ -328,6 +351,14 @@ channel_included:
    if (level == 2) do_trace("W ");
    if (level == 3) do_trace("E ");
 
+#ifdef ALLEGRO_ANDROID
+   {
+      char pid_buf[16] = { 0 };
+      sprintf(pid_buf, "%i: ", gettid());
+      do_trace(pid_buf);
+   }
+#endif 
+   
 #ifdef ALLEGRO_MSVC
    name = strrchr(file, '\\');
 #else
@@ -364,12 +395,29 @@ void _al_trace_suffix(const char *msg, ...)
    int olderr = errno;
    va_list ap;
 
+#ifdef ALLEGRO_ANDROID
+
+   // yay for buffer overflows.
+   char tmp[2048] = { 0 };
+   
+   va_start(ap, msg);
+   vsnprintf(tmp, 2048, msg, ap);
+   va_end(ap);
+
+   strncat(trace_buff, tmp, 2048);
+
+   (void)__android_log_print(ANDROID_LOG_INFO, "allegro", trace_buff);
+   
+   trace_buff[0] = 0;
+      
+#else
    if (trace_info.trace_file) {
       va_start(ap, msg);
       vfprintf(trace_info.trace_file, msg, ap);
       va_end(ap);
       fflush(trace_info.trace_file);
    }
+#endif
 
    _al_mutex_unlock(&trace_info.trace_mutex);
 

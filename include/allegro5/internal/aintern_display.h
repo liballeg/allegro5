@@ -74,6 +74,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
    void (*shutdown)(void);
 
    void (*acknowledge_drawing_halt)(ALLEGRO_DISPLAY *d);
+   void (*acknowledge_drawing_resume)(ALLEGRO_DISPLAY *d);
 };
 
 

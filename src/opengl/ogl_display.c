@@ -28,11 +28,15 @@
 #include "allegro5/internal/aintern_iphone.h"
 #endif
 
+#ifdef ALLEGRO_ANDROID
+#include "allegro5/internal/aintern_android.h"
+#endif
+
 #include <float.h>
 
 ALLEGRO_DEBUG_CHANNEL("opengl")
 
-#ifdef ALLEGRO_IPHONE
+#if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
    #define glGenFramebuffersEXT glGenFramebuffersOES
    #define glBindFramebufferEXT glBindFramebufferOES
    #define GL_FRAMEBUFFER_BINDING_EXT GL_FRAMEBUFFER_BINDING_OES

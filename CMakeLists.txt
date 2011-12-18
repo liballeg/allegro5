@@ -26,6 +26,11 @@ endif()
 # Note: This needs to be done before the project command
 set(CMAKE_CONFIGURATION_TYPES "${CMAKE_BUILD_TYPE}" CACHE INTERNAL "internal")
 
+option(WANT_ANDROID "Build for Android" OFF)
+if(WANT_ANDROID)
+   include(${CMAKE_SOURCE_DIR}/cmake/Toolchain-android.cmake)
+endif(WANT_ANDROID)
+
 # Set the project name.
 # We use C++ in a few cases.
 project(ALLEGRO C CXX)
@@ -245,9 +250,9 @@ if(MINGW)
     endif(NOT HAVE_DM_POSITION)
 endif(MINGW)
 
-if(UNIX AND NOT APPLE)
+if(UNIX AND NOT APPLE AND NOT ANDROID)
     set(ALLEGRO_UNIX 1)
-endif(UNIX AND NOT APPLE)
+endif(UNIX AND NOT APPLE AND NOT ANDROID)
 
 if(APPLE AND NOT IPHONE)
     set(MACOSX 1)
@@ -278,6 +283,12 @@ endif(IPHONE)
 if(BORLAND)
     set(ALLEGRO_BCC32 1)
 endif(BORLAND)
+
+if(ANDROID)
+   set(ALLEGRO_ANDROID 1)
+   set(ALLEGRO_CFG_PTHREADS_TLS 1)
+   set(WANT_X11 off)
+endif(ANDROID)
 
 # Tell the compiler it can use SSE instructions on x86 architectures.
 # If compatibility with Pentium 2's and below is required then the user
@@ -538,7 +549,7 @@ endif(WANT_OPENGL)
 #
 
 if(UNIX) # includes MACOSX
-    if(NOT GP2XWIZ AND NOT IPHONE)
+    if(NOT GP2XWIZ AND NOT IPHONE AND NOT ANDROID)
         find_package(Threads)
         if(CMAKE_USE_PTHREADS_INIT)
             set(ALLEGRO_HAVE_LIBPTHREAD 1)
@@ -658,7 +669,7 @@ if(WIN32)
             include_directories(BEFORE SYSTEM ${D3DX9_INCLUDE_DIR})
             set(ALLEGRO_CFG_D3D9EX 1)
         endif(D3DX9_FOUND)
-    endif(WANT_D3D9EX AND SUPPORT_D3D)
+   endif(WANT_D3D9EX AND SUPPORT_D3D)
 
 endif(WIN32)
 
@@ -742,6 +753,11 @@ if(IPHONE)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_IPHONE_FILES})
 endif(IPHONE)
 
+if(ANDROID)
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_ANDROID_FILES})
+    list(APPEND PLATFORM_LIBS m android log)
+endif(ANDROID)
+
 # Header files that we need to install.
 set(ALLEGRO_PUBLIC_HEADERS
     ${ALLEGRO_INCLUDE_FILES}
@@ -760,6 +776,9 @@ if(IPHONE)
         ${ALLEGRO_INCLUDE_ALLEGRO_IPHONE_FILES}
         )
 endif(IPHONE)
+if(ANDROID)
+    list(APPEND ALLEGRO_PUBLIC_HEADERS ${ALLEGRO_INCLUDE_ALLEGRO_ANDROID_FILES})
+endif(ANDROID)
 if(SUPPORT_OPENGL)
     list(APPEND ALLEGRO_PUBLIC_HEADERS
         ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES}

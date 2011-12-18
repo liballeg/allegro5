@@ -137,7 +137,10 @@ enum
    ALLEGRO_KEY_BACKQUOTE	= 104,	/* MacOS X */
    ALLEGRO_KEY_SEMICOLON2	= 105,	/* MacOS X -- TODO: ask lillo what this should be */
    ALLEGRO_KEY_COMMAND	= 106,	/* MacOS X */
-   ALLEGRO_KEY_UNKNOWN      = 107,
+   
+   ALLEGRO_KEY_BACK = 107, /* Android back key */
+   
+   ALLEGRO_KEY_UNKNOWN      = 108,
 
    /* All codes up to before ALLEGRO_KEY_MODIFIERS can be freely
     * assignedas additional unknown keys, like various multimedia

@@ -51,6 +51,8 @@
    #include "allegro5/platform/alqnxcfg.h"
 #elif defined ALLEGRO_GP2XWIZ
    #include "allegro5/platform/alwizcfg.h"
+#elif defined ALLEGRO_ANDROID
+   #include "allegro5/platform/alandroidcfg.h"
 #elif defined ALLEGRO_UNIX
    #include "allegro5/platform/alucfg.h"
 #else

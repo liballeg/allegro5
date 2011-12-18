@@ -81,7 +81,7 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
  * GL_UNSIGNED_SHORT_1_5_5_5_REV when transferring pixel data, and ensure that
  * the alpha bit (the "1" component) is present by setting GL_ALPHA_BIAS.
  */
-#if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
+#if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE) && !defined(ALLEGRO_ANDROID)
 static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
    /* Skip pseudo formats */
    {0, 0, 0},
@@ -405,7 +405,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       }
    }
 
-#ifndef ALLEGRO_IPHONE
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
 #endif
 
@@ -448,7 +448,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       e = glGetError();
    }
 
-#ifndef ALLEGRO_IPHONE
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
    glPopClientAttrib();
 #endif
 
@@ -593,7 +593,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
     * See also pitfalls 7 & 8 from:
     * http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall/
     */
-#ifndef ALLEGRO_IPHONE
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
 #endif
    glPixelStorei(GL_PACK_ALIGNMENT, pixel_alignment);
@@ -636,7 +636,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       else {
          ALLEGRO_DEBUG("Locking non-backbuffer READWRITE\n");
 
-         #ifdef ALLEGRO_IPHONE
+         #if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
             GLint current_fbo;
             unsigned char *tmpbuf;
             int tmp_pitch;
@@ -726,7 +726,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       }
    }
 #endif
-#ifndef ALLEGRO_IPHONE
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
    glPopClientAttrib();
 #endif
 
@@ -754,7 +754,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    GLenum e;
    GLint gl_y = bitmap->h - bitmap->lock_y - bitmap->lock_h;
    int orig_format;
-#ifdef ALLEGRO_IPHONE
+#if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
    int orig_pixel_size;
 #endif
    int lock_pixel_size;
@@ -776,7 +776,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    }
 
    /* Keep this in sync with ogl_lock_region. */
-#ifndef ALLEGRO_IPHONE
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
 #endif
    lock_pixel_size = al_get_pixel_size(lock_format);
@@ -792,13 +792,13 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       /* OpenGL does not support 15-bpp internal format without an alpha,
        * so when storing such data we must ensure the alpha bit is set.
        */
-      #ifndef ALLEGRO_IPHONE
+      #if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
       glPixelTransferi(GL_ALPHA_BIAS, 1);
       biased_alpha = true;
       #endif
    }
 
-#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
+#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
    if (ogl_bitmap->is_backbuffer) {
       bool popmatrix = false;
       ALLEGRO_TRANSFORM tmp;
@@ -877,7 +877,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          }
       }
    }
-#else /* ALLEGRO_GP2XWIZ or ALLEGRO_IPHONE */
+#else /* ALLEGRO_GP2XWIZ or ALLEGRO_IPHONE or ALLEGRO_ANDROID */
    orig_pixel_size = al_get_pixel_size(orig_format);
    if (ogl_bitmap->is_backbuffer) {
       ALLEGRO_DEBUG("Unlocking backbuffer\n");
@@ -943,7 +943,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             //GLint tex_internalformat;
             ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
                _al_format_name(lock_format), _al_gl_error_string(e));
-			#ifndef ALLEGRO_IPHONE
+			#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
             glGetTexLevelParameteriv(GL_TEXTURE_2D, 0,
                GL_TEXTURE_INTERNAL_FORMAT, &tex_internalformat);
 
@@ -957,11 +957,11 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 #endif
 
    if (biased_alpha) {
-#ifndef ALLEGRO_IPHONE
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
       glPixelTransferi(GL_ALPHA_BIAS, 0);
 #endif
    }
-#ifndef ALLEGRO_IPHONE
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
    glPopClientAttrib();
 #endif
 
@@ -1151,7 +1151,7 @@ void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
    ASSERT(ogl_bitmap->fbo_info->fbo != 0);
    ALLEGRO_DEBUG("Deleting FBO: %u\n", ogl_bitmap->fbo_info->fbo);
 
-#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
+#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
    glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo_info->fbo);
 #elif defined ALLEGRO_IPHONE
    glDeleteFramebuffersOES(1, &ogl_bitmap->fbo_info->fbo);

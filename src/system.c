@@ -120,6 +120,8 @@ static ALLEGRO_PATH *early_get_exename_path(void)
    return _al_unix_get_path(ALLEGRO_EXENAME_PATH);
 #elif defined(ALLEGRO_IPHONE)
    return _al_iphone_get_path(ALLEGRO_EXENAME_PATH);
+#elif defined(ALLEGRO_ANDROID)
+   return _al_android_get_path(ALLEGRO_EXENAME_PATH);
 #else
    #error early_get_exename_path not implemented
 #endif

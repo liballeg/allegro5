@@ -71,13 +71,21 @@ function(add_our_library target sources extra_flags link_with)
     if(NOT BUILD_SHARED_LIBS)
         set(static_flag "-DALLEGRO_STATICLINK")
     endif(NOT BUILD_SHARED_LIBS)
-    set_target_properties(${target}
+    
+    if(NOT ANDROID)
+      set_target_properties(${target}
         PROPERTIES
         COMPILE_FLAGS "${extra_flags} ${static_flag} -DALLEGRO_LIB_BUILD"
         VERSION ${ALLEGRO_VERSION}
         SOVERSION ${ALLEGRO_SOVERSION}
         )
-
+    else(NOT ANDROID)
+      set_target_properties(${target}
+        PROPERTIES
+        COMPILE_FLAGS "${extra_flags} ${static_flag} -DALLEGRO_LIB_BUILD"
+        )
+    endif(NOT ANDROID)
+    
     # Construct the output name.
     set(output_name ${target})
     append_lib_type_suffix(output_name)

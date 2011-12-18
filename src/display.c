@@ -592,4 +592,13 @@ void al_acknowledge_drawing_halt(ALLEGRO_DISPLAY *display)
    }
 }
 
+/* Function: al_acknowledge_drawing_halt
+ */
+void al_acknowledge_drawing_resume(ALLEGRO_DISPLAY *display)
+{
+   if (display->vt->acknowledge_drawing_resume) {
+      display->vt->acknowledge_drawing_resume(display);
+   }
+}
+
 /* vim: set sts=3 sw=3 et: */

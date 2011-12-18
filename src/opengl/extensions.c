@@ -39,7 +39,7 @@
 #include <string.h>
 #if defined ALLEGRO_MACOSX
 #include <OpenGL/glu.h>
-#elif !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
+#elif !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
 #include <GL/glu.h>
 #endif
 
@@ -93,7 +93,7 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 
 
 
-#ifndef ALLEGRO_IPHONE
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
 static uint32_t parse_opengl_version(const char *s)
 {
    char *p = (char *) s;
@@ -127,7 +127,7 @@ static uint32_t parse_opengl_version(const char *s)
 /* Reads version info out of glGetString(GL_VERSION) */
 static uint32_t _al_ogl_version(void)
 {
-#ifndef ALLEGRO_IPHONE
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
    ALLEGRO_CONFIG *cfg;
    const char *str;
 
@@ -227,7 +227,7 @@ uint32_t al_get_opengl_version(void)
  */
 int al_get_opengl_variant(void)
 {
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_GP2XWIZ
+#if defined ALLEGRO_IPHONE || defined ALLEGRO_GP2XWIZ || defined ALLEGRO_ANDROID
    return ALLEGRO_OPENGL_ES;
 #else
    return ALLEGRO_DESKTOP_OPENGL;
@@ -420,7 +420,7 @@ static bool _ogl_is_extension_supported(const char *extension,
    return false;
 #endif
 
-#ifndef ALLEGRO_IPHONE
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
    if (al_get_opengl_version() >= _ALLEGRO_OPENGL_VERSION_3_0) {
       int i;
       GLint ext_cnt;

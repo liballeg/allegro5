@@ -65,6 +65,29 @@
 #include <wiz/GL/wizGLES.h>
 #include <wiz/GL/egl.h>
 
+#elif defined ALLEGRO_ANDROID
+
+#include <GLES/gl.h>
+#include <GLES/glext.h>
+
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+
+#define GL_RGBA8 GL_RGBA8_OES
+
+//#define GL_FUNC_ADD GL_FUNC_ADD_OES
+//#define GL_FUNC_SUBTRACT GL_FUNC_SUBTRACT_OES
+//#define GL_FUNC_REVERSE_SUBTRACT GL_FUNC_REVERSE_SUBTRACT_OES
+
+#define glBlendEquation glBlendEquationOES
+#define glBlendFuncSeparate glBlendFuncSeparateOES
+#define glBlendEquationSeparate glBlendEquationSeparateOES
+#define glGenerateMipmapEXT glGenerateMipmapOES
+
+/* hack to work around the ndk not containing GLchar,
+ * and the shader addon assuming it exists */
+typedef char GLchar;
+
 #else /* ALLEGRO_MACOSX */
 
 /* HACK: Prevent both Mesa and SGI's broken headers from screwing us */

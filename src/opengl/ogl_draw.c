@@ -39,7 +39,7 @@ bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
    /* glBlendFuncSeparate was only included with OpenGL 1.4 */
    /* (And not in OpenGL ES) */
 #if !defined ALLEGRO_GP2XWIZ
-#ifndef ALLEGRO_IPHONE
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
    if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_1_4) {
 #else
    if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {

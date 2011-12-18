@@ -163,6 +163,16 @@ set(ALLEGRO_SRC_IPHONE_FILES
     src/unix/uxthread.c
     )
 
+set(ALLEGRO_SRC_ANDROID_FILES
+   src/unix/utime.c
+   src/unix/uxthread.c
+   src/android/android_display.c
+   src/android/android_keyboard.c
+   src/android/android_system.c
+   src/android/android_touch.c
+   src/android/jni_helpers.c
+)
+
 set(ALLEGRO_MODULE_ALSADIGI_FILES
     )
 
@@ -271,6 +281,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES
    )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
+    include/allegro5/platform/aintandroid.h
     include/allegro5/platform/aintlnx.h
     include/allegro5/platform/aintosx.h
     include/allegro5/platform/aintunix.h
@@ -280,6 +291,8 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     include/allegro5/platform/al386gcc.h
     include/allegro5/platform/al386vc.h
     include/allegro5/platform/al386wat.h
+    include/allegro5/platform/alandroid.h
+    include/allegro5/platform/alandroidcfg.h
     include/allegro5/platform/albcc32.h
     include/allegro5/platform/almngw32.h
     include/allegro5/platform/almsvc.h
@@ -300,6 +313,10 @@ set(ALLEGRO_INCLUDE_ALLEGRO_WINDOWS_FILES
 
 set(ALLEGRO_INCLUDE_ALLEGRO_IPHONE_FILES
     include/allegro5/allegro_iphone.h
+    )
+
+set(ALLEGRO_INCLUDE_ALLEGRO_ANDROID_FILES
+    include/allegro5/allegro_android.h
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED
