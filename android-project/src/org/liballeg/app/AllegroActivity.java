@@ -264,7 +264,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
    @Override
    public void onConfigurationChanged(Configuration conf)
    {
-      //super.onConfigurationChanged();
+      super.onConfigurationChanged(conf);
       Log.d("AllegroActivity", "onConfigurationChanged");
       // compare conf.orientation with some saved value
    }
