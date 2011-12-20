@@ -23,13 +23,19 @@
 
 #include <allegro5/allegro_opengl.h>
 #include "allegro5/internal/aintern_opengl.h"
-#include <EGL/egl.h>
+
+/* Locking the screen causes a pause (good), then we resize (bad)
+ * 
+ * something isn't handling some onConfigChange events
+ * 
+ */
 
 ALLEGRO_DEBUG_CHANNEL("display")
 
 static ALLEGRO_DISPLAY_INTERFACE *vt;
 
 static void _al_android_update_visuals(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d);
+static void _al_android_resize_display(ALLEGRO_DISPLAY_ANDROID *d, int width, int height);
 
 JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnCreate(JNIEnv *env, jobject obj)
 {
@@ -88,6 +94,16 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnChange(JNIEn
    
    al_lock_mutex(d->mutex);
 
+   ALLEGRO_DEBUG("surface_object: %d recreate: %s", (int)d->surface_object, d->recreate ? "true" : "false");
+   if(d->surface_object && !d->recreate) {
+      // we got a resize event
+   
+      _al_android_resize_display(d, width, height);
+   
+      al_unlock_mutex(d->mutex);
+      return;
+   }
+   
    if(!d->surface_object || d->recreate)
       d->surface_object = (*env)->NewGlobalRef(env, obj);
    
@@ -303,6 +319,64 @@ bool _al_android_init_display(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *display)
 
 /* implementation helpers */
 
+static void _al_android_resize_display(ALLEGRO_DISPLAY_ANDROID *d, int width, int height)
+{
+   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)d;
+   
+   ALLEGRO_DEBUG("display resize");
+   d->resize_acknowledge = false;
+   
+   ALLEGRO_DEBUG("locking display event source: %p", d);
+   _al_event_source_lock(&display->es);
+
+   ALLEGRO_DEBUG("check generate event");
+   if(_al_event_source_needs_to_generate_event(&display->es)) {
+      ALLEGRO_EVENT event;
+      event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
+      event.display.timestamp = al_current_time();
+      event.display.x = 0; // FIXME: probably not correct
+      event.display.y = 0;
+      event.display.width = width;
+      event.display.height = height;
+      event.display.orientation = _al_android_get_orientation();
+      _al_event_source_emit_event(&display->es, &event);
+   }
+   
+   ALLEGRO_DEBUG("unlocking display event source");
+   _al_event_source_unlock(&display->es);
+
+   ALLEGRO_DEBUG("waiting for display resize acknowledge");
+   //al_lock_mutex(d->mutex);
+   //ALLEGRO_DEBUG("locked mutex");
+   while(!d->resize_acknowledge) {
+      ALLEGRO_DEBUG("calling al_wait_cond");
+      al_wait_cond(d->cond, d->mutex);
+   }
+   ALLEGRO_DEBUG("done waiting for display resize acknowledge");
+   
+   display->w = width;
+   display->h = height;
+   
+   ALLEGRO_DEBUG("resize backbuffer");
+   _al_ogl_resize_backbuffer(display->ogl_extras->backbuffer, width, height);
+
+   ALLEGRO_DEBUG("claim context");
+   _al_android_make_current(_jni_getEnv(), d);
+   
+   ALLEGRO_DEBUG("setup opengl view");
+   _al_android_setup_opengl_view(display);
+   
+   ALLEGRO_DEBUG("clear current context");
+   _al_android_clear_current(_jni_getEnv(), d);
+   
+   ALLEGRO_DEBUG("broadcast resize done");
+   d->resize_acknowledge = false;
+   al_broadcast_cond(d->cond);
+   
+   ALLEGRO_DEBUG("done");
+   return;
+}
+
 static void _al_android_update_visuals(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref;
@@ -481,8 +555,37 @@ static void android_update_display_region(ALLEGRO_DISPLAY *dpy, int x, int y, in
 
 static bool android_acknowledge_resize(ALLEGRO_DISPLAY *dpy)
 {
-   (void)dpy;
-   return false;
+   ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID*)dpy;
+   
+   ALLEGRO_DEBUG("clear current context");
+   _al_android_clear_current(_jni_getEnv(), (ALLEGRO_DISPLAY_ANDROID*)al_get_current_display());
+   
+   ALLEGRO_DEBUG("broadcasting display resize");
+   al_lock_mutex(d->mutex);
+   ALLEGRO_DEBUG("locked mutex");
+   d->resize_acknowledge = true;
+   al_broadcast_cond(d->cond);
+   ALLEGRO_DEBUG("broadcasted condvar");
+   al_unlock_mutex(d->mutex);
+   ALLEGRO_DEBUG("unlocked mutex");
+   
+   ALLEGRO_DEBUG("waiting for display resize acknowledge 2");
+   al_lock_mutex(d->mutex);
+   ALLEGRO_DEBUG("locked mutex");
+   while(d->resize_acknowledge) {
+      ALLEGRO_DEBUG("calling al_wait_cond");
+      al_wait_cond(d->cond, d->mutex);
+   }
+   ALLEGRO_DEBUG("done waiting for display resize acknowledge 2");
+   
+   ALLEGRO_DEBUG("acquire context");
+   _al_android_make_current(_jni_getEnv(), (ALLEGRO_DISPLAY_ANDROID*)dpy);
+   
+   al_unlock_mutex(d->mutex);
+   ALLEGRO_DEBUG("unlocked mutex");
+   
+   ALLEGRO_DEBUG("done");
+   return true;
 }
 
 static int android_get_orientation(ALLEGRO_DISPLAY *dpy)

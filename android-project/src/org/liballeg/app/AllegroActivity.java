@@ -17,6 +17,7 @@ import android.graphics.Canvas;
 import android.graphics.PixelFormat;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ActivityInfo;
 import android.util.Log;
 
 import java.lang.String;
@@ -26,6 +27,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.Runnable;
 
 import java.util.List;
+import java.util.BitSet;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -35,11 +37,24 @@ public class AllegroActivity extends Activity implements SensorEventListener
 {
    /* properties */
    
+   static final int ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN = 0;
+   static final int ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES = 1;
+   static final int ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES = 2;
+   static final int ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES = 4;
+   static final int ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES = 8;
+   static final int ALLEGRO_DISPLAY_ORIENTATION_PORTRAIT = 5;
+   static final int ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE = 10;
+   static final int ALLEGRO_DISPLAY_ORIENTATION_ALL = 15;
+   static final int ALLEGRO_DISPLAY_ORIENTATION_FACE_UP = 16;
+   static final int ALLEGRO_DISPLAY_ORIENTATION_FACE_DOWN = 32;
+   
    private static SensorManager sensorManager;
    private List<Sensor> sensors;
    
    private static AllegroSurface surface;
    private Handler handler;
+   
+   private Configuration currentConfig;
    
    /* native methods we call */
    public native boolean nativeOnCreate();
@@ -49,6 +64,8 @@ public class AllegroActivity extends Activity implements SensorEventListener
    public native void nativeOnAccel(int id, float x, float y, float z);
 
    public native void nativeCreateDisplay();
+   
+   public native void nativeOnOrientationChange(int orientation, boolean init);
    
    /* load allegro */
    static {
@@ -191,12 +208,16 @@ public class AllegroActivity extends Activity implements SensorEventListener
       handler = new Handler();
       initSensors();
       
+      currentConfig = getResources().getConfiguration();
+      
       Log.d("AllegroActivity", "before nativeOnCreate");
       if(!nativeOnCreate()) {
          finish();
          Log.d("AllegroActivity", "onCreate fail");
          return;
       }
+      
+      nativeOnOrientationChange(getAllegroOrientation(currentConfig), true);
       
       Log.d("AllegroActivity", "onCreate end");
    }
@@ -206,7 +227,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
    {
       super.onStart();
       Log.d("AllegroActivity", "onStart.");
-   }
+   } //
    
    @Override
    public void onRestart()
@@ -267,6 +288,50 @@ public class AllegroActivity extends Activity implements SensorEventListener
       super.onConfigurationChanged(conf);
       Log.d("AllegroActivity", "onConfigurationChanged");
       // compare conf.orientation with some saved value
+      
+      int changes = currentConfig.diff(conf);
+      
+      if((changes & ActivityInfo.CONFIG_FONT_SCALE) != 0)
+         Log.d("AllegroActivity", "font scale changed");
+
+      if((changes & ActivityInfo.CONFIG_MCC) != 0)
+         Log.d("AllegroActivity", "mcc changed");
+      
+      if((changes & ActivityInfo.CONFIG_MNC) != 0)
+         Log.d("AllegroActivity", " changed");
+      
+      if((changes & ActivityInfo.CONFIG_LOCALE) != 0)
+         Log.d("AllegroActivity", "locale changed");
+      
+      if((changes & ActivityInfo.CONFIG_TOUCHSCREEN) != 0)
+         Log.d("AllegroActivity", "touchscreen changed");
+      
+      if((changes & ActivityInfo.CONFIG_KEYBOARD) != 0)
+         Log.d("AllegroActivity", "keyboard changed");
+      
+      if((changes & ActivityInfo.CONFIG_NAVIGATION) != 0)
+         Log.d("AllegroActivity", "navigation changed");
+         
+      if((changes & ActivityInfo.CONFIG_ORIENTATION) != 0) {
+         Log.d("AllegroActivity", "orientation changed");
+         nativeOnOrientationChange(getAllegroOrientation(conf), false);
+      }
+         
+      if((changes & ActivityInfo.CONFIG_SCREEN_LAYOUT) != 0)
+         Log.d("AllegroActivity", "screen layout changed");
+      
+      if((changes & ActivityInfo.CONFIG_SCREEN_SIZE) != 0)
+         Log.d("AllegroActivity", "screen size changed");
+      
+      if((changes & ActivityInfo.CONFIG_SMALLEST_SCREEN_SIZE) != 0)
+         Log.d("AllegroActivity", "smallest screen size changed");
+      
+      if((changes & ActivityInfo.CONFIG_UI_MODE) != 0)
+         Log.d("AllegroActivity", "ui mode changed");
+      
+      if(currentConfig.screenLayout != conf.screenLayout) {
+         Log.d("AllegroActivity", "screenLayout changed!");
+      }
    }
    
    /** Called when app is frozen **/
@@ -316,6 +381,29 @@ public class AllegroActivity extends Activity implements SensorEventListener
       if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
          nativeOnAccel(idx, event.values[0], event.values[1], event.values[2]);
       }
+   }
+   
+   private int getAllegroOrientation(Configuration conf)
+   {
+      int allegro_orientation = ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN;
+      switch(conf.orientation) {
+         case Configuration.ORIENTATION_LANDSCAPE:
+            allegro_orientation = ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE;
+            break;
+            
+         case Configuration.ORIENTATION_PORTRAIT:
+            allegro_orientation = ALLEGRO_DISPLAY_ORIENTATION_PORTRAIT;
+            break;
+            
+         case Configuration.ORIENTATION_SQUARE:
+            // XXX: maybe add a ALLEGRO_DISPLAY_ORIENTATION_SQUARE?
+            // allegro_orientation = ALLEGRO_DISPLAY_ORIENTATION_SQUARE;
+            break;
+            
+         case Configuration.ORIENTATION_UNDEFINED:
+            break;
+      }
+      return allegro_orientation;
    }
 }
 

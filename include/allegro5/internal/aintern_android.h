@@ -24,6 +24,9 @@ typedef struct ALLEGRO_DISPLAY_ANDROID {
    
    bool recreate;
    bool created;
+   
+   bool resize_acknowledge;
+
 } ALLEGRO_DISPLAY_ANDROID;
 
 ALLEGRO_SYSTEM_INTERFACE *_al_system_android_interface();
@@ -59,6 +62,7 @@ void _al_android_destroy_surface(JNIEnv *env, jobject obj, bool post);
 bool _al_android_init_display(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *display);
 
 jobject _al_android_activity_object();
+int _al_android_get_orientation();
 
 #endif /* ALLEGRO_AINTERN_ANDROID_H */
 

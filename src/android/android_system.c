@@ -44,9 +44,11 @@ struct system_data_t {
    
    void *user_lib;
    int (*user_main)();
+   
+   int orientation;
 };
 
-static struct system_data_t system_data = { NULL, 0, NULL, NULL, NULL, NULL, false, NULL, NULL, NULL, NULL, NULL, NULL };
+static struct system_data_t system_data = { NULL, 0, NULL, NULL, NULL, NULL, false, NULL, NULL, NULL, NULL, NULL, NULL, 0 };
 static JavaVM* javavm;
 
 /* define here, so we have access to system_data */
@@ -58,6 +60,11 @@ JNIEnv *_jni_getEnv()
 jobject _al_android_activity_object()
 {
    return system_data.activity_object;
+}
+
+int _al_android_get_orientation()
+{
+   return system_data.orientation;
 }
 
 static void finish_activity(JNIEnv *env);
@@ -301,6 +308,47 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnAccel(JNIEn
 {
    (void)env; (void)obj; (void)id; (void)x; (void)y; (void)z;
    //ALLEGRO_DEBUG("got some accelerometer data!");
+}
+
+JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnOrientationChange(JNIEnv *env, jobject obj, int orientation, bool init)
+{
+   ALLEGRO_SYSTEM *sys = &system_data.system->system;
+   ALLEGRO_DISPLAY *d = NULL;
+   ALLEGRO_EVENT event;
+
+   (void)env; (void)obj;
+   
+   ALLEGRO_DEBUG("got orientation change!");
+   
+   system_data.orientation = orientation;
+      
+   if(!init) {
+         
+      /* no display, just skip */
+      if(!_al_vector_size(&sys->displays)) {
+         ALLEGRO_DEBUG("no display, not sending orientation change event");
+         return;
+      }
+      
+      d = *(ALLEGRO_DISPLAY**)_al_vector_ref(&sys->displays, 0);
+      ASSERT(d != NULL);
+      
+      ALLEGRO_DEBUG("locking display event source: %p %p", d, &d->es);
+      
+      _al_event_source_lock(&d->es);
+      
+      if(_al_event_source_needs_to_generate_event(&d->es)) {
+         ALLEGRO_DEBUG("emit event");
+         event.display.type = ALLEGRO_EVENT_DISPLAY_ORIENTATION;
+         event.display.timestamp = al_current_time();
+         event.display.orientation = orientation;
+         _al_event_source_emit_event(&d->es, &event);
+      }
+      
+      ALLEGRO_DEBUG("unlocking display event source");
+      _al_event_source_unlock(&d->es);
+   
+   }
 }
 
 JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeCreateDisplay(JNIEnv *env, jobject obj)

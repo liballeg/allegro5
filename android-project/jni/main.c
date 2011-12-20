@@ -17,10 +17,13 @@ int main(int argc, char **argv)
    ALLEGRO_EVENT event;
    ALLEGRO_TIMER *timer;
    
-   ALLEGRO_DEBUG("awesome!");
+   ALLEGRO_DEBUG("init allegro!");
 	al_init();
+   ALLEGRO_DEBUG("init primitives");
    al_init_primitives_addon();
+   ALLEGRO_DEBUG("init touch input");
    al_install_touch_input();
+   ALLEGRO_DEBUG("init keyboard");
    al_install_keyboard();
    
    queue = al_create_event_queue();
@@ -29,6 +32,11 @@ int main(int argc, char **argv)
    //sleep(4);
 	ALLEGRO_DEBUG("creating display");
    ALLEGRO_DISPLAY *dpy = al_create_display(800, 480);
+   if(!dpy) {
+      ALLEGRO_ERROR("failed to create display!");
+      return -1;
+   }
+   
    al_register_event_source(queue, al_get_display_event_source(dpy));
    al_register_event_source(queue, al_get_keyboard_event_source());
    
@@ -118,6 +126,12 @@ int main(int argc, char **argv)
                //al_set_target_backbuffer(dpy);
                //_al_android_setup_opengl_view(dpy);
                paused = false;
+               break;
+               
+            case ALLEGRO_EVENT_DISPLAY_RESIZE:
+               ALLEGRO_DEBUG("display resize");
+               al_acknowledge_resize(dpy);
+               ALLEGRO_DEBUG("done resize");
                break;
          }
       }
