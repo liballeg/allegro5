@@ -417,6 +417,15 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    static final int ALLEGRO_PIXEL_FORMAT_RGBA_5551 = 15;
    static final int ALLEGRO_PIXEL_FORMAT_RGBA_4444 = 26;
 
+   static final int ALLEGRO_RED_SIZE = 0;
+   static final int ALLEGRO_GREEN_SIZE = 1;
+   static final int ALLEGRO_BLUE_SIZE = 2;
+   static final int ALLEGRO_ALPHA_SIZE = 3;
+   static final int ALLEGRO_DEPTH_SIZE = 15;
+   static final int ALLEGRO_STENCIL_SIZE = 16;
+   static final int ALLEGRO_SAMPLE_BUFFERS = 17;
+   static final int ALLEGRO_SAMPLES = 18;
+   
    static final int ALLEGRO_KEY_A     = 1;
    static final int ALLEGRO_KEY_B     = 2;
    static final int ALLEGRO_KEY_C     = 3;
@@ -727,8 +736,47 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    {
       EGL10 egl = (EGL10)EGLContext.getEGL();
       
+      int egl_attr = 0;
+      switch(attr) {
+         case ALLEGRO_RED_SIZE:
+            egl_attr = egl.EGL_RED_SIZE;
+            break;
+            
+         case ALLEGRO_GREEN_SIZE:
+            egl_attr = egl.EGL_GREEN_SIZE;
+            break;
+            
+         case ALLEGRO_BLUE_SIZE:
+            egl_attr = egl.EGL_BLUE_SIZE;
+            break;
+
+         case ALLEGRO_ALPHA_SIZE:
+            egl_attr = egl.EGL_ALPHA_SIZE;
+            break;
+
+         case ALLEGRO_DEPTH_SIZE:
+            egl_attr = egl.EGL_DEPTH_SIZE;
+            break;
+
+         case ALLEGRO_STENCIL_SIZE:
+            egl_attr = egl.EGL_STENCIL_SIZE;
+            break;
+
+         case ALLEGRO_SAMPLE_BUFFERS:
+            egl_attr = egl.EGL_SAMPLE_BUFFERS;
+            break;
+
+         case ALLEGRO_SAMPLES:
+            egl_attr = egl.EGL_SAMPLES;
+            break;
+
+         default:
+            Log.e("AllegroSurface", "got unknown attribute?");
+            break;
+      }
+      
       int[] value = { 0 };
-      if(!egl.eglGetConfigAttrib(egl_Display, egl_Config[conf], attr, value))
+      if(!egl.eglGetConfigAttrib(egl_Display, egl_Config[conf], egl_attr, value))
          return -1;
       
       return value[0];

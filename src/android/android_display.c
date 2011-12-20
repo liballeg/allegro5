@@ -411,14 +411,14 @@ static void _al_android_update_visuals(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
       eds->settings[ALLEGRO_SWAP_METHOD] = 2;
       eds->settings[ALLEGRO_VSYNC] = 1;
       
-      eds->settings[ALLEGRO_RED_SIZE]       = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, EGL_RED_SIZE);
-      eds->settings[ALLEGRO_GREEN_SIZE]     = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, EGL_GREEN_SIZE);
-      eds->settings[ALLEGRO_BLUE_SIZE]      = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, EGL_BLUE_SIZE);
-      eds->settings[ALLEGRO_ALPHA_SIZE]     = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, EGL_ALPHA_SIZE);
-      eds->settings[ALLEGRO_DEPTH_SIZE]     = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, EGL_DEPTH_SIZE);
-      eds->settings[ALLEGRO_STENCIL_SIZE]   = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, EGL_STENCIL_SIZE);
-      eds->settings[ALLEGRO_SAMPLE_BUFFERS] = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, EGL_SAMPLE_BUFFERS);
-      eds->settings[ALLEGRO_SAMPLES]        = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, EGL_SAMPLES);
+      eds->settings[ALLEGRO_RED_SIZE]       = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_RED_SIZE);
+      eds->settings[ALLEGRO_GREEN_SIZE]     = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_GREEN_SIZE);
+      eds->settings[ALLEGRO_BLUE_SIZE]      = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_BLUE_SIZE);
+      eds->settings[ALLEGRO_ALPHA_SIZE]     = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_ALPHA_SIZE);
+      eds->settings[ALLEGRO_DEPTH_SIZE]     = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_DEPTH_SIZE);
+      eds->settings[ALLEGRO_STENCIL_SIZE]   = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_STENCIL_SIZE);
+      eds->settings[ALLEGRO_SAMPLE_BUFFERS] = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_SAMPLE_BUFFERS);
+      eds->settings[ALLEGRO_SAMPLES]        = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_SAMPLES);
 
       // this might be an issue, if it is, query EGL_SURFACE_TYPE for EGL_VG_ALPHA_FORMAT_PRE_BIT
       eds->settings[ALLEGRO_RED_SHIFT]      = 0;
