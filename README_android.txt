@@ -26,7 +26,8 @@ Then to build Allegro run the following from the Allegro's root source directory
 
 $ mkdir build
 $ cd build
-$ cmake -DANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain -DWANT_ANDROID \
+$ cmake .. -DANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain
+  -DWANT_ANDROID=on \
   -DCMAKE_INSTALL_PREFIX=$HOME/android-toolchain/user/armeabi-v7a \
   -DWANT_EXAMPLES=OFF -DWANT_DEMO=OFF
 $ make && make install
