@@ -3,6 +3,7 @@ package org.liballeg.app;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
+
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
@@ -10,6 +11,8 @@ import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.OrientationEventListener;
+
 import android.hardware.*;
 import android.content.res.Configuration;
 import android.content.Context;
@@ -208,7 +211,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
       handler = new Handler();
       initSensors();
       
-      currentConfig = getResources().getConfiguration();
+      currentConfig = new Configuration(getResources().getConfiguration());
       
       Log.d("AllegroActivity", "before nativeOnCreate");
       if(!nativeOnCreate()) {
@@ -217,7 +220,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
          return;
       }
       
-      nativeOnOrientationChange(getAllegroOrientation(currentConfig), true);
+      nativeOnOrientationChange(getAllegroOrientation(currentConfig.orientation), true);
       
       Log.d("AllegroActivity", "onCreate end");
    }
@@ -264,7 +267,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
       super.onResume();
       
       enableSensors();
-   
+      
       nativeOnResume();
       
       Log.d("AllegroActivity", "onResume end");
@@ -290,6 +293,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
       // compare conf.orientation with some saved value
       
       int changes = currentConfig.diff(conf);
+      Log.d("AllegroActivity", "changes: " + Integer.toBinaryString(changes));
       
       if((changes & ActivityInfo.CONFIG_FONT_SCALE) != 0)
          Log.d("AllegroActivity", "font scale changed");
@@ -314,7 +318,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
          
       if((changes & ActivityInfo.CONFIG_ORIENTATION) != 0) {
          Log.d("AllegroActivity", "orientation changed");
-         nativeOnOrientationChange(getAllegroOrientation(conf), false);
+         nativeOnOrientationChange(getAllegroOrientation(conf.orientation), false);
       }
          
       if((changes & ActivityInfo.CONFIG_SCREEN_LAYOUT) != 0)
@@ -332,6 +336,10 @@ public class AllegroActivity extends Activity implements SensorEventListener
       if(currentConfig.screenLayout != conf.screenLayout) {
          Log.d("AllegroActivity", "screenLayout changed!");
       }
+      
+      Log.d("AllegroActivity", "old orientation: " + currentConfig.orientation + ", new orientation: " + conf.orientation);
+      
+      currentConfig = new Configuration(conf);
    }
    
    /** Called when app is frozen **/
@@ -383,10 +391,10 @@ public class AllegroActivity extends Activity implements SensorEventListener
       }
    }
    
-   private int getAllegroOrientation(Configuration conf)
+   private int getAllegroOrientation(int orientation)
    {
       int allegro_orientation = ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN;
-      switch(conf.orientation) {
+      switch(orientation) {
          case Configuration.ORIENTATION_LANDSCAPE:
             allegro_orientation = ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE;
             break;

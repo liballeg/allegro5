@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rsync --progress -r -t ~/projects/allegro-5.1/android-project/ ~/projects/alandroid-project/
+#rsync --progress --exclude='*.svn*' -r -t ~/projects/allegro-5.1/android-project/ ~/projects/alandroid-project/
 
 cp ~/build/android-toolchain/user/armeabi-v7a/lib/liballegro-debug.so jni/armeabi-v7a/
 cp ~/build/android-toolchain/user/armeabi-v7a/lib/liballegro_primitives-debug.so jni/armeabi-v7a/
