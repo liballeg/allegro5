@@ -301,6 +301,134 @@ static int pulseaudio_set_voice_position(ALLEGRO_VOICE *voice, unsigned int pos)
    return 0;
 }
 
+/* Recording */
+
+typedef struct PULSEAUDIO_RECORDER {
+   pa_simple *s;
+   pa_sample_spec ss;
+   pa_buffer_attr ba;
+} PULSEAUDIO_RECORDER;
+
+static void *pulse_audio_update_recorder(ALLEGRO_THREAD *t, void *data)
+{
+   ALLEGRO_AUDIO_RECORDER *r = (ALLEGRO_AUDIO_RECORDER *) data;
+   PULSEAUDIO_RECORDER *pa = (PULSEAUDIO_RECORDER *) r->extra;
+   ALLEGRO_EVENT user_event;
+   uint8_t *null_buffer;
+   const size_t bytes_to_read = r->sample_size * r->sample_count;
+   
+   null_buffer = al_malloc(1024);
+   if (!null_buffer) {
+      ALLEGRO_ERROR("Unable to create buffer for draining PulseAudio.\n");
+      return NULL;
+   }
+   
+   while (!al_get_thread_should_stop(t))
+   {
+      al_lock_mutex(r->mutex);
+      if (!r->is_recording) {
+         /* Even if not recording, we still want to read from the PA server.
+            Otherwise it will buffer everything and spit it all out whenever
+            the recording resumes. */
+         al_unlock_mutex(r->mutex);
+         pa_simple_read(pa->s, null_buffer, 1024, NULL);
+      }
+      else {
+         while (!r->buffer) {
+            /* While the buffer is full, just wait around */
+            al_wait_cond(r->cond, r->mutex);
+            if (al_get_thread_should_stop(t))
+               goto stop_recording;
+         }
+         
+         if (pa_simple_read(pa->s, (void*) r->buffer, bytes_to_read, NULL) >= 0) {
+            user_event.user.type = ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT;
+            user_event.user.data1 = (intptr_t) r;
+            user_event.user.data2 = (intptr_t) r->buffer;
+            user_event.user.data3 = r->sample_count;
+            al_emit_user_event(&r->source, &user_event, NULL);
+         
+            r->buffer = (uint8_t *)r->buffer + bytes_to_read;
+         
+            r->remaining_buffer_size -= bytes_to_read;
+            if (r->remaining_buffer_size < bytes_to_read) {         
+               user_event.user.type = ALLEGRO_EVENT_AUDIO_RECORDER_UPDATE_BUFFER;
+               user_event.user.data1 = (intptr_t) r;
+               al_emit_user_event(&r->source, &user_event, NULL);
+               r->buffer = NULL;
+            }
+         }
+         al_unlock_mutex(r->mutex);
+      }
+   }
+
+stop_recording:
+   al_free(null_buffer);
+   return NULL;
+};
+
+static int pulseaudio_allocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
+{
+   PULSEAUDIO_RECORDER *pa;
+   
+   pa = al_calloc(1, sizeof(*pa));
+   if (!pa) {
+     ALLEGRO_ERROR("Unable to allocate memory for PULSEAUDIO_RECORDER.\n");
+     return 1;
+   }
+   
+   pa->ss.channels = al_get_channel_count(r->chan_conf);
+   pa->ss.rate = r->frequency;
+
+   if (r->depth == ALLEGRO_AUDIO_DEPTH_UINT8) 
+      pa->ss.format = PA_SAMPLE_U8;
+   else if (r->depth == ALLEGRO_AUDIO_DEPTH_INT16)
+      pa->ss.format = PA_SAMPLE_S16NE;
+#if PA_API_VERSION > 11
+   else if (r->depth == ALLEGRO_AUDIO_DEPTH_INT24)
+      pa->ss.format = PA_SAMPLE_S24NE;
+#endif
+   else if (r->depth == ALLEGRO_AUDIO_DEPTH_FLOAT32)
+      pa->ss.format = PA_SAMPLE_FLOAT32NE;
+   else {
+      ALLEGRO_ERROR("Unsupported PulseAudio sound format (depth).\n");
+      al_free(pa);
+      return 1;
+   }
+   
+   /* maximum length of the PulseAudio buffer. -1 => let the server decide. */
+   pa->ba.maxlength = -1;
+   
+   /* fragment size (bytes) controls how much data is returned back per read. 
+      The documentation recommends -1 for default behavior, but that sets a
+      latency of around 2 seconds. Lower value decreases latency but increases
+      overhead. 
+      
+      The following attempts to set it (the base latency) to 1/8 of a second. 
+    */
+   pa->ba.fragsize = (r->sample_size * r->frequency) / 8;
+   
+   pa->s = pa_simple_new(NULL, al_get_app_name(), PA_STREAM_RECORD, NULL, "Allegro Audio Recorder", &pa->ss, NULL, &pa->ba, NULL);
+   if (!pa->s) {
+      ALLEGRO_ERROR("pa_simple_new() failed.\n");
+      al_free(pa);
+      return 1;
+   }
+   
+   r->thread = al_create_thread(pulse_audio_update_recorder, r);
+   r->extra = pa;
+   
+   return 0;   
+};
+
+static void pulseaudio_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
+{
+   PULSEAUDIO_RECORDER *pa = (PULSEAUDIO_RECORDER *) r->extra;
+   
+   pa_simple_free(pa->s);
+   al_free(r->extra);
+}
+
 ALLEGRO_AUDIO_DRIVER _al_kcm_pulseaudio_driver =
 {
    "PulseAudio",
@@ -320,5 +448,8 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_pulseaudio_driver =
    pulseaudio_voice_is_playing,
 
    pulseaudio_get_voice_position,
-   pulseaudio_set_voice_position
+   pulseaudio_set_voice_position,
+   
+   pulseaudio_allocate_recorder,
+   pulseaudio_deallocate_recorder
 };

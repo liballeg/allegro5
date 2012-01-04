@@ -407,5 +407,8 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_aqueue_driver = {
 
    _aqueue_get_voice_position,
    _aqueue_set_voice_position,
+
+   NULL,
+   NULL
 };
 

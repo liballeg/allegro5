@@ -14,6 +14,7 @@ set(AUDIO_SOURCES
     kcm_sample.c
     kcm_stream.c
     kcm_voice.c
+    recorder.c
     )
 
 set(AUDIO_INCLUDE_FILES allegro5/allegro_audio.h)

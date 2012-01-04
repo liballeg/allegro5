@@ -530,6 +530,9 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_dsound_driver = {
 
    _dsound_get_voice_position,
    _dsound_set_voice_position,
+
+   NULL,
+   NULL
 };
 
 } /* End extern "C" */

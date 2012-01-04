@@ -46,6 +46,10 @@ struct ALLEGRO_AUDIO_DRIVER {
 
    unsigned int   (*get_voice_position)(const ALLEGRO_VOICE*);
    int            (*set_voice_position)(ALLEGRO_VOICE*, unsigned int);
+   
+   
+   int            (*allocate_recorder)(ALLEGRO_AUDIO_RECORDER *);
+   void           (*deallocate_recorder)(ALLEGRO_AUDIO_RECORDER *);
 };
 
 extern ALLEGRO_AUDIO_DRIVER *_al_kcm_driver;
@@ -315,6 +319,47 @@ ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_CHANNEL_CONF, _al_count_to_channel_conf, (int num
 ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_DEPTH, _al_word_size_to_depth_conf, (int word_size));
 
 ALLEGRO_KCM_AUDIO_FUNC(void, _al_emit_audio_event, (int event_type));
+
+
+/*
+ * Recording
+ */
+ 
+struct ALLEGRO_AUDIO_RECORDER {
+  ALLEGRO_EVENT_SOURCE source;
+  
+  ALLEGRO_THREAD           *thread;
+  ALLEGRO_MUTEX            *mutex;
+  ALLEGRO_COND             *cond;
+                           /* recording is done in its own thread as
+                              implemented by the driver */
+  
+  ALLEGRO_AUDIO_DEPTH      depth;
+  ALLEGRO_CHANNEL_CONF     chan_conf;
+  unsigned int             frequency;
+  
+  size_t                   sample_count;
+                           /* the number of samples the user would like to be returned
+                              at every FRAGMENT event */
+                              
+  unsigned int             sample_size;
+                           /* the size in bytes of each sample */
+  
+  volatile bool            is_recording; 
+                           /* true if the driver should actively be updating
+                              the buffer */
+                              
+  volatile void            *buffer;
+                           /* the user supplied buffer to record into */
+                           
+  volatile size_t          remaining_buffer_size;
+                           /* how many bytes are still available in the
+                              buffer */   
+                              
+  void                     *extra;
+                           /* custom data for the driver to use as needed */
+};
+
 
 #endif
 
