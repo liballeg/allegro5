@@ -50,7 +50,7 @@
 
 ALLEGRO_DEBUG_CHANNEL("video")
 
-#define SDL_AUDIO_BUFFER_SIZE (1024 * 8)
+#define AUDIO_BUFFER_SIZE (1024 * 8)
 #define MAX_AUDIOQ_SIZE (5 * 16 * 1024)
 #define MAX_VIDEOQ_SIZE (5 * 256 * 1024)
 #define AV_SYNC_THRESHOLD 0.10
@@ -633,7 +633,7 @@ static void retrieve_picture(VideoState *is)
                return;
             }
          }
-         sws_scale(img_convert_ctx, pFrame->data, pFrame->linesize,
+         sws_scale(img_convert_ctx, (uint8_t const *const*)pFrame->data, pFrame->linesize,
                    0, is->video_st->codec->height, pict.data, pict.linesize);
 
          al_unlock_bitmap(vp->bmp);
@@ -839,7 +839,7 @@ static void *stream_audio(ALLEGRO_THREAD *thread, void *data)
          void *buf = al_get_audio_stream_fragment(audio_stream);
          if (!buf)
             continue;
-         audio_callback(is, buf, SDL_AUDIO_BUFFER_SIZE);
+         audio_callback(is, buf, AUDIO_BUFFER_SIZE);
          al_set_audio_stream_fragment(audio_stream, buf);
       }
    }
@@ -865,7 +865,7 @@ static int stream_component_open(VideoState * is, int stream_index)
    if (codecCtx->codec_type == AVMEDIA_TYPE_AUDIO) {
       // Set audio settings from codec info
       is->video->audio =
-          al_create_audio_stream(4, SDL_AUDIO_BUFFER_SIZE / 4,
+          al_create_audio_stream(4, AUDIO_BUFFER_SIZE / 4,
                                  codecCtx->sample_rate,
                                  ALLEGRO_AUDIO_DEPTH_INT16,
                                  ALLEGRO_CHANNEL_CONF_1 + codecCtx->channels -
@@ -879,7 +879,7 @@ static int stream_component_open(VideoState * is, int stream_index)
       is->audio_thread = al_create_thread(stream_audio, is);
       al_start_thread(is->audio_thread);
 
-      is->audio_hw_buf_size = SDL_AUDIO_BUFFER_SIZE;
+      is->audio_hw_buf_size = AUDIO_BUFFER_SIZE;
    }
    codec = avcodec_find_decoder(codecCtx->codec_id);
    if (!codec || (avcodec_open(codecCtx, codec) < 0)) {
@@ -992,8 +992,12 @@ static void *decode_thread(ALLEGRO_THREAD *t, void *arg)
          continue;
       }
       if (av_read_frame(is->format_context, packet) < 0) {
+         #ifdef FFMPEG_0_8
+         if (!format_context->pb->eof_reached && !format_context->pb->error) {
+         #else
          if (url_ferror((void *)&format_context->pb) == 0) {
-            al_rest(0.1);
+         #endif
+            al_rest(0.01);
             continue;
          }
          else {
@@ -1089,14 +1093,17 @@ static bool open_video(ALLEGRO_VIDEO *video)
    is->av_sync_type = DEFAULT_AV_SYNC_TYPE;
 
    // Open video file
+   #ifdef FFMPEG_0_8
+   if (avformat_open_input(&is->format_context, is->filename, NULL,
+      NULL) != 0) { 	
+   #else
    if (av_open_input_file(&is->format_context, is->filename, NULL, 0,
       NULL) != 0) {
+   #endif
       av_free(is);
       return false;
    }
 
-   dump_format(is->format_context, 0, is->filename, 0);
-   
    if (av_find_stream_info(is->format_context) < 0) {
       av_free(is);
       return false;
