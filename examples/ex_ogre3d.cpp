@@ -1,10 +1,11 @@
 /*
  *    Example program for the Allegro library, by Peter Wang.
+ *    Windows support by AMCerasoli.
  *
  *    This is a test program to see if Allegro can be used alongside the OGRE
- *    graphics library.  It currently only works on Linux/GLX.  To run, you
- *    will need to have OGRE plugins.cfg and resources.cfg files in the
- *    current directory.
+ *    graphics library. It currently only works on Linux/GLX and Windows.
+ *    To run, you will need to have OGRE plugins.cfg and resources.cfg files in
+ *    the current directory.
  *
  *    Inputs: W A S D, mouse
  *
@@ -13,6 +14,9 @@
 
 #include <Ogre.h>
 #include <allegro5/allegro.h>
+#ifdef ALLEGRO_WINDOWS
+#include <allegro5/allegro_windows.h>
+#endif
 #include <allegro5/allegro_opengl.h>
 
 /*
@@ -104,13 +108,20 @@ private:
       mRoot->initialise(false);
 
       Ogre::NameValuePairList misc;
-      // Tell Ogre to use the current GL context.  This works on Linux/GLX but
-      // you *will* need something different on Windows or Mac.
+
+      #ifdef ALLEGRO_WINDOWS
+      unsigned long winHandle      = reinterpret_cast<size_t>(al_get_win_window_handle(al_get_current_display()));
+      unsigned long winGlContext   = reinterpret_cast<size_t>(wglGetCurrentContext());
+      misc["externalWindowHandle"] = StringConverter::toString(winHandle);
+      misc["externalGLContext"]    = StringConverter::toString(winGlContext);
+      misc["externalGLControl"]    = String("True");
+      #else
       misc["currentGLContext"] = String("True");
+      #endif
+      
 
       mWindow = mRoot->createRenderWindow("MainRenderWindow", w, h, false,
          &misc);
-      mWindow->setVisible(true);
    }
 
    void initializeResourceGroups()
@@ -454,5 +465,3 @@ int main(int argc, char *argv[])
 
    return 0;
 }
-
-/* vim: set sts=3 sw=3 et: */
