@@ -337,24 +337,25 @@ struct ALLEGRO_AUDIO_RECORDER {
   ALLEGRO_AUDIO_DEPTH      depth;
   ALLEGRO_CHANNEL_CONF     chan_conf;
   unsigned int             frequency;
-  
-  size_t                   sample_count;
-                           /* the number of samples the user would like to be returned
-                              at every FRAGMENT event */
-                              
+
+  void                     **fragments;
+                           /* the buffers to record into */
+
+  unsigned int             fragment_count;
+                           /* the number of fragments */
+
+  unsigned int             samples;
+                           /* the number of samples returned at every FRAGMENT event */
+                           
+  size_t                   fragment_size;
+                           /* size in bytes of each fragument */
+
   unsigned int             sample_size;
                            /* the size in bytes of each sample */
   
   volatile bool            is_recording; 
                            /* true if the driver should actively be updating
                               the buffer */
-                              
-  volatile void            *buffer;
-                           /* the user supplied buffer to record into */
-                           
-  volatile size_t          remaining_buffer_size;
-                           /* how many bytes are still available in the
-                              buffer */   
                               
   void                     *extra;
                            /* custom data for the driver to use as needed */

@@ -11,9 +11,12 @@ ALLEGRO_DEBUG_CHANNEL("audio")
 
 /* Function: al_create_audio_recorder
  */
-ALLEGRO_AUDIO_RECORDER *al_create_audio_recorder(unsigned int frequency,
-   size_t sample_count, ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf)
+ALLEGRO_AUDIO_RECORDER *al_create_audio_recorder(size_t fragment_count,
+   unsigned int samples, unsigned int frequency,
+   ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf)
 {
+   size_t i;
+
    ALLEGRO_AUDIO_RECORDER *r;
    ASSERT(_al_kcm_driver);
    
@@ -28,12 +31,35 @@ ALLEGRO_AUDIO_RECORDER *al_create_audio_recorder(unsigned int frequency,
       return false;
    }
    
-   r->frequency = frequency,
-   r->sample_count = sample_count;
+   r->fragment_count = fragment_count;
+   r->samples = samples;
+   r->frequency = frequency,   
    r->depth = depth;
    r->chan_conf = chan_conf;
    
    r->sample_size = al_get_channel_count(chan_conf) * al_get_audio_depth_size(depth);
+
+   r->fragments = al_malloc(r->fragment_count * sizeof(uint8_t *));
+   if (!r->fragments) {
+      al_free(r);
+      ALLEGRO_ERROR("Unable to allocate memory for ALLEGRO_AUDIO_RECORDER fragments\n");
+      return false;
+   }
+
+   r->fragment_size = r->samples * r->sample_size;
+   for (i = 0; i < fragment_count; ++i) {
+      r->fragments[i] = al_malloc(r->fragment_size);
+      if (!r->fragments[i]) {
+         size_t j;
+         for (j = 0; j < i; ++j) {
+            al_free(r->fragments[j]);
+         }
+         al_free(r->fragments);
+
+         ALLEGRO_ERROR("Unable to allocate memory for ALLEGRO_AUDIO_RECORDER fragments\n");
+         return false;
+      }
+   }
 
    if (_al_kcm_driver->allocate_recorder(r)) {
       ALLEGRO_ERROR("Failed to allocate recorder from driver\n");
@@ -56,14 +82,11 @@ ALLEGRO_AUDIO_RECORDER *al_create_audio_recorder(unsigned int frequency,
 
 /* Function: al_start_audio_recorder
  */
-bool al_start_audio_recorder(ALLEGRO_AUDIO_RECORDER *r, void *buffer, size_t buffer_bytes)
+bool al_start_audio_recorder(ALLEGRO_AUDIO_RECORDER *r)
 {
    ALLEGRO_ASSERT(r);
-   ALLEGRO_ASSERT(buffer);
    
    al_lock_mutex(r->mutex);
-   r->buffer = buffer;
-   r->remaining_buffer_size = buffer_bytes;
    r->is_recording = true;
    al_signal_cond(r->cond);
    al_unlock_mutex(r->mutex);
@@ -94,17 +117,6 @@ bool al_is_audio_recorder_recording(ALLEGRO_AUDIO_RECORDER *r)
    al_unlock_mutex(r->mutex);
    
    return is_recording;
-}
-
-/* Function: al_update_audio_recorder_buffer
- */
-void al_update_audio_recorder_buffer(ALLEGRO_AUDIO_RECORDER *r, void *buffer, size_t buffer_bytes) 
-{
-   al_lock_mutex(r->mutex);
-   r->buffer = buffer;
-   r->remaining_buffer_size = buffer_bytes;
-   al_signal_cond(r->cond);
-   al_unlock_mutex(r->mutex);
 }
 
 /* Function: al_get_audio_recorder_event_source

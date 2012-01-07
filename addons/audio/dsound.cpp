@@ -14,8 +14,8 @@
 /* I'm not sure what library this is supposed to be in, but I couldn't find it yet */
 const IID GUID_NULL = { 0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0 } };
 
-static const IID _al_IID_IDirectSoundBuffer8 = { 0x6825a449, 0x7524, 0x4d82, { 0x92, 0x0f, 0x50, 0xe3, 0x6a, 0xb3, 0xab, 0x1e } };
-
+static const IID _al_IID_IDirectSoundBuffer8 =        { 0x6825a449, 0x7524, 0x4d82, { 0x92, 0x0f, 0x50, 0xe3, 0x6a, 0xb3, 0xab, 0x1e } };
+static const IID _al_IID_IDirectSoundCaptureBuffer8 = { 0x00990df4, 0x0dbb, 0x4872, { 0x83, 0x3e, 0x6d, 0x30, 0x3e, 0x80, 0xae, 0xb6 } };
 #include "allegro5/allegro.h"
 
 extern "C" {
@@ -35,11 +35,15 @@ ALLEGRO_DEBUG_CHANNEL("audio-dsound")
 
 typedef HRESULT (WINAPI *DIRECTSOUNDCREATE8PROC)(LPCGUID pcGuidDevice, LPDIRECTSOUND8 *ppDS8, LPUNKNOWN pUnkOuter);
 
+typedef HRESULT (WINAPI *DIRECTSOUNDCAPTURECREATE8PROC)(LPCGUID pcGuidDevice, LPDIRECTSOUNDCAPTURE8 *ppDS8, LPUNKNOWN pUnkOuter);
+
 /* DirectSound vars */
 static const char* _al_dsound_module_name = "dsound.dll";
 static void *_al_dsound_module = NULL;
 static DIRECTSOUNDCREATE8PROC _al_dsound_create = (DIRECTSOUNDCREATE8PROC)NULL;
+static DIRECTSOUNDCAPTURECREATE8PROC _al_dsound_capture_create = (DIRECTSOUNDCAPTURECREATE8PROC)NULL;
 static IDirectSound8 *device;
+static IDirectSoundCapture8 *capture_device; 
 static char ds_err_str[100];
 static int buffer_size_in_samples = 4*1024; // default
 static int buffer_size; // in bytes
@@ -511,6 +515,198 @@ static int _dsound_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
    return 0;
 }
 
+typedef struct DSOUND_RECORD_DATA {
+   LPDIRECTSOUNDCAPTUREBUFFER buffer;
+   LPDIRECTSOUNDCAPTUREBUFFER8 buffer8;
+   DSCBUFFERDESC desc;
+} DSOUND_RECORD_DATA;
+
+static void *_dsound_update_recorder(ALLEGRO_THREAD *t, void *data)
+{
+   ALLEGRO_AUDIO_RECORDER *r = (ALLEGRO_AUDIO_RECORDER *) data;
+   DSOUND_RECORD_DATA *extra = (DSOUND_RECORD_DATA *) r->extra;
+   DWORD last_read_pos = 0;
+   ALLEGRO_EVENT user_event;
+   bool is_dsound_recording = false;
+
+   size_t fragment_i = 0;
+   size_t bytes_written = 0;
+
+   ALLEGRO_INFO("Starting recorder thread\n");
+
+   while (!al_get_thread_should_stop(t)) {
+      al_lock_mutex(r->mutex);
+      while (!r->is_recording) {
+         if (is_dsound_recording) {
+            extra->buffer8->Stop();
+            is_dsound_recording = false;
+         }
+         al_wait_cond(r->cond, r->mutex);
+         if (al_get_thread_should_stop(t))
+            goto stop_recording;
+      }
+
+      if (!is_dsound_recording) {
+         extra->buffer8->Start(DSCBSTART_LOOPING);
+         is_dsound_recording = true;
+         extra->buffer8->GetCurrentPosition(&last_read_pos, NULL);
+      }
+
+      void *buffer1, *buffer2;
+      DWORD buffer1_size, buffer2_size;
+      DWORD cap_pos, bytes_to_read;
+
+      extra->buffer8->GetCurrentPosition(&cap_pos, NULL);
+
+      if (last_read_pos <= cap_pos)
+         bytes_to_read = cap_pos - last_read_pos;
+      else
+         bytes_to_read = extra->desc.dwBufferBytes - last_read_pos;
+
+      if (bytes_to_read) {
+         uint8_t *buffer;
+         size_t buffer_size;
+
+         extra->buffer8->Lock(last_read_pos, bytes_to_read, &buffer1, &buffer1_size, &buffer2, &buffer2_size, 0);
+
+         buffer = (uint8_t *)buffer1;
+         buffer_size = buffer1_size;
+
+         while (buffer_size > 0) {
+            if (bytes_written + buffer_size <= r->fragment_size) {
+               memcpy((uint8_t*) r->fragments[fragment_i] + bytes_written, buffer, buffer_size);
+               bytes_written += buffer_size;
+               buffer_size = 0;
+            }
+            else {
+               size_t bytes_to_write = r->fragment_size - bytes_written;
+               memcpy((uint8_t*) r->fragments[fragment_i] + bytes_written, buffer, bytes_to_write);
+
+               buffer_size -= bytes_to_write;
+               buffer += bytes_to_write;
+
+               user_event.user.type = ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT;
+               user_event.user.data1 = (intptr_t) r;
+               user_event.user.data2 = (intptr_t) r->fragments[fragment_i];
+               user_event.user.data3 = r->samples;
+               al_emit_user_event(&r->source, &user_event, NULL);
+
+               /* advance to the next fragment */
+               if (++fragment_i == r->fragment_count) {
+                  fragment_i = 0;
+               }
+               bytes_written = 0;
+            }
+         }
+
+         extra->buffer8->Unlock(buffer1, buffer1_size, buffer2, buffer2_size);
+
+         /* advanced the last read position */
+         last_read_pos += bytes_to_read;
+         if (last_read_pos >= extra->desc.dwBufferBytes)
+            last_read_pos -= extra->desc.dwBufferBytes;
+      }
+      
+      al_unlock_mutex(r->mutex);
+      al_rest(0.10);
+   }
+
+stop_recording:
+
+   if (is_dsound_recording) {
+      extra->buffer8->Stop();
+   }
+
+   ALLEGRO_INFO("Leaving recorder thread\n");
+
+   return NULL;
+}
+
+static int _dsound_open_recorder(ALLEGRO_AUDIO_RECORDER *r)
+{
+   HRESULT hr;
+
+   ALLEGRO_ASSERT(_al_dsound_module);
+
+   if (capture_device != NULL) {
+      /* FIXME: It's wrong to assume only a single recording device, but since
+                there is no enumeration of devices, it doesn't matter for now. */
+      ALLEGRO_ERROR("Already recording.\n");
+      return 1;
+   }
+
+   /* import DirectInput create proc */
+   _al_dsound_capture_create = (DIRECTSOUNDCAPTURECREATE8PROC)_al_import_symbol(_al_dsound_module, "DirectSoundCaptureCreate8");
+   if (_al_dsound_capture_create == NULL) {
+      ALLEGRO_ERROR("DirectSoundCaptureCreate8 not in %s\n", _al_dsound_module_name);
+      return 1;
+   }
+
+   ALLEGRO_INFO("Creating default capture device.\n");
+
+   /* FIXME: Use default device until we have device enumeration */
+   hr = _al_dsound_capture_create(NULL, &capture_device, NULL);
+   if (FAILED(hr)) {
+      ALLEGRO_ERROR("DirectSoundCaptureCreate8 failed\n");
+      return 1;
+   }
+   
+   /* FIXME: The window specified here is probably very wrong. NULL won't work either. */
+   hr = device->SetCooperativeLevel(GetForegroundWindow(), DSSCL_PRIORITY);
+   if (FAILED(hr)) {
+      ALLEGRO_ERROR("SetCooperativeLevel failed\n");
+      _al_close_library(_al_dsound_module);
+      return 1;
+   }
+
+   DSOUND_RECORD_DATA *extra = (DSOUND_RECORD_DATA *) al_calloc(1, sizeof(*extra));
+
+   DSCCAPS dsccaps;   
+   dsccaps.dwSize = sizeof(DSCCAPS);
+   if (capture_device->GetCaps(&dsccaps) != DS_OK) {
+      ALLEGRO_ERROR("DirectSoundCaptureCreate8::GetCaps failed\n");
+   }
+   else {
+      ALLEGRO_INFO("caps: %d %d\n", dsccaps.dwFormats, dsccaps.dwFormats & WAVE_FORMAT_2M16);
+   }
+
+   WAVEFORMATEX format;
+   memset(&format, 0, sizeof(format));
+   format.wFormatTag = WAVE_FORMAT_PCM;
+   format.nChannels = al_get_channel_count(r->chan_conf);
+   format.nSamplesPerSec = r->frequency;
+   format.wBitsPerSample = al_get_audio_depth_size(r->depth) * 8;
+   format.nBlockAlign = format.nChannels * format.wBitsPerSample / 8;
+   format.nAvgBytesPerSec = format.nSamplesPerSec * format.nBlockAlign;
+   
+   memset(&extra->desc, 0, sizeof(extra->desc));
+   extra->desc.dwSize = sizeof(extra->desc);
+   extra->desc.lpwfxFormat = &format;
+   extra->desc.dwBufferBytes = format.nAvgBytesPerSec * 5;
+
+   hr = capture_device->CreateCaptureBuffer(&extra->desc, &extra->buffer, NULL);
+   if (FAILED(hr)) {
+      al_free(extra);
+      ALLEGRO_ERROR("Unable to create Capture Buffer\n");
+      return 1;
+   }
+
+   extra->buffer->QueryInterface(_al_IID_IDirectSoundCaptureBuffer8, (void **) &extra->buffer8);
+   
+   r->extra = extra;
+   r->thread = al_create_thread(_dsound_update_recorder, r);
+
+   return 0;
+}
+
+void _dsound_close_recorder(ALLEGRO_AUDIO_RECORDER *r) {
+   ALLEGRO_ASSERT(capture_device);
+   (void) r;
+
+   capture_device->Release();
+   capture_device = NULL;
+}
+
 ALLEGRO_AUDIO_DRIVER _al_kcm_dsound_driver = {
    "DirectSound",
 
@@ -531,8 +727,8 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_dsound_driver = {
    _dsound_get_voice_position,
    _dsound_set_voice_position,
 
-   NULL,
-   NULL
+   _dsound_open_recorder,
+   _dsound_close_recorder
 };
 
 } /* End extern "C" */

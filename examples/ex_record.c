@@ -11,7 +11,7 @@
 /* Frequency is the quality of audio. (Samples per second.) Higher
    quality consumes more memory. For speech, numbers as low as 8000
    can be good enough. 44100 is often used for high quality recording. */      
-#define FREQ 8000
+#define FREQ 11025
 
 int main()
 {
@@ -52,7 +52,7 @@ int main()
    
    /* Note: changing the depth to more than 8-bit or increasing the number of channels will break
             this demo, since it assumes 1 byte per sample. */
-   r = al_create_audio_recorder(FREQ, buffer_size, ALLEGRO_AUDIO_DEPTH_UINT8, ALLEGRO_CHANNEL_CONF_1);
+   r = al_create_audio_recorder(1000, buffer_size, FREQ, ALLEGRO_AUDIO_DEPTH_UINT8, ALLEGRO_CHANNEL_CONF_1);
    if (!r) {
       return 1;
    }
@@ -89,7 +89,7 @@ int main()
          int x;
          int R = sample_count / 320;
          al_clear_to_color(al_map_rgb(0,0,0));
-         
+        
          if (al_is_audio_recorder_recording(r)) {
             /* Draw a pathetic visualization. We may get this event after
                we've stopped recording, so that's why the check to see if
@@ -119,7 +119,7 @@ int main()
          /* The buffer is full. We must supply the driver with a new
             buffer before its internal buffer is full. In this case,
             we are just reusing the same buffer over and over. */
-         al_update_audio_recorder_buffer(r, buffer, buffer_size);
+         //al_update_audio_recorder_buffer(r, buffer, buffer_size);
       }         
       else if (e.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
          break;
@@ -155,7 +155,7 @@ int main()
                   al_fwrite32le(fp, 0); /* fill in the size later */
                }
                
-               al_start_audio_recorder(r, buffer, buffer_size);
+               al_start_audio_recorder(r);
                n = 0;
             }
             else {

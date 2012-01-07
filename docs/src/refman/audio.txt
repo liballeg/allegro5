@@ -1219,7 +1219,7 @@ See also: [ALLEGRO_AUDIO_EVENT_TYPE]
 
 ## Audio recording
 
-Only the PulseAudio driver supports audio recording.
+Only the PulseAudio and DirectSound8 drivers supports audio recording.
 
 ### API: ALLEGRO_AUDIO_RECORDER
 
@@ -1240,27 +1240,33 @@ are not guaranteed to be exactly what was originally specified.
 
 Since 5.1.1
 
-### API: ALLEGRO_EVENT_AUDIO_RECORDER_BUFFER_FULL
-
-Sent when the user-supplied buffer is full. You must immediately call
-[al_update_audio_recorder_buffer] so that recording can resume. It is safe
-to reuse the same buffer over and over again assuming you've already 
-processed the data. (This event will always be triggered after the 
-fragment event.)
-
-* .data1: pointer to the [ALLEGRO_AUDIO_RECORDER] object
-
-Since 5.1.1
-
 ### API: al_create_audio_recorder
 
 Creates an audio recorder using the system's default recording device.
 (So if the returned device does not work, try updating the system's default
 recording device.)
 
-frequency is the number of samples per second to record. sample_count is the
-number of samples each fragment event should contain. Allegro may not always
-return exactly that many samples per frame.
+Allegro will internally buffer several seconds of captured audio with minimal
+latency. (XXX: These settings need to be exposed via config or API calls.)
+Audio will be copied out of that private buffer into a fragment buffer 
+of the size specified by the samples parameter. Whenever a new fragment is
+ready an event will be generated.
+
+The total size of the fragment buffer is fragment_count * samples * bytes_per_sample.
+It is treated as a circular, never ending buffer. If you do not process the information
+fast enough, it will be overrun. Because of that, even if you only ever need to
+process one small fragment at a time, you should still use a large enough value for
+fragment_count to hold a few seconds of audio.
+
+frequency is the number of samples per second to record. Common values are:
+
+* 8000 - telephone quality speech
+* 11025
+* 22050
+* 44100 - CD quality music (if 16-bit, stereo)
+
+For maximum compatibility, use a depth of ALLEGRO_AUDIO_DEPTH_UINT8 or
+ALLEGRO_AUDIO_DEPTH_INT16, and a single (mono) channel.
 
 The recorder will not record until you start it with [al_start_audio_recorder].
 
@@ -1270,15 +1276,12 @@ Since: 5.1.1
 
 ### API: al_start_audio_recorder
 
-Begin recording into the buffer specified. The size is given by the number
-of bytes. Allegro will put audio into that buffer. Once it reaches the number
-of samples as specified in [al_create_audio_recorder], it will trigger an
-[ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT] event.
+Begin recording into the fragment buffer. Once a complete fragment has been
+captured (as specified in [al_create_audio_recorder]), an
+[ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT] event will be triggered.
 
-When the buffer is full, it will also send an
-[ALLEGRO_EVENT_AUDIO_RECORDER_BUFFER_FULL] event. At that point, you must send
-Allegro a new buffer with [al_update_audio_recorder_buffer]. You can reuse the
-same buffer if you no longer need it.
+If recording is stopped and then restarted, it will resume placing audio at
+the same spot in fragment buffer. 
 
 Returns true if it was able to begin recording.
 
@@ -1286,31 +1289,19 @@ Since 5.1.1
 
 ### API: al_stop_audio_recorder
 
-Stop recording. Note that the audio recorder is still active and consuming
-resources, so if you are finished recording you should destroy it with
-[al_destroy_audio_recorder].
+Stop capturing audio data. Note that the audio recorder is still active
+and consuming resources, so if you are finished recording you should destroy
+it with [al_destroy_audio_recorder].
 
-You may still receive events after you call this function as the device
+You may still receive a few events after you call this function as the device
 flushes the buffer.
 
 Since 5.1.1
 
 ### API: al_is_audio_recorder_recording
 
-Returns true if the audio recorder has been started. (Even if the buffer is
-full, it will return true.)
-
-Since 5.1.1
-
-### API: al_update_audio_recorder_buffer
-
-When the buffer is full, Allegro will send an
-[ALLEGRO_EVENT_AUDIO_RECORDER_BUFFER_FULL] event. At that point, you should
-call this function so that it can continue recording.
-
-Allegro will buffer internally, so you will have some time between receiving
-the event and calling this function. However, you should update the buffer
-as quickly as possible so that you don't miss any audio fragments.
+Returns true if the audio recorder is currently capturing data and generating
+events.
 
 Since 5.1.1
 
@@ -1328,7 +1319,7 @@ Since 5.1.1
 Destroys the audio recorder and frees all resources associated with it. It
 is safe to destroy a recorder that is playing.
 
-You may receive events after the recorder has been destroyed, so be sure
-not to accidentally reference the recorder object in that scenario.
+You may receive events after the recorder has been destroyed. They must be
+ignored, as the fragment buffer will no longer be valid.
 
 Since 5.1.1

@@ -315,7 +315,7 @@ static void *pulse_audio_update_recorder(ALLEGRO_THREAD *t, void *data)
    PULSEAUDIO_RECORDER *pa = (PULSEAUDIO_RECORDER *) r->extra;
    ALLEGRO_EVENT user_event;
    uint8_t *null_buffer;
-   const size_t bytes_to_read = r->sample_size * r->sample_count;
+   unsigned int fragment_i = 0;
    
    null_buffer = al_malloc(1024);
    if (!null_buffer) {
@@ -334,35 +334,21 @@ static void *pulse_audio_update_recorder(ALLEGRO_THREAD *t, void *data)
          pa_simple_read(pa->s, null_buffer, 1024, NULL);
       }
       else {
-         while (!r->buffer) {
-            /* While the buffer is full, just wait around */
-            al_wait_cond(r->cond, r->mutex);
-            if (al_get_thread_should_stop(t))
-               goto stop_recording;
-         }
-         
-         if (pa_simple_read(pa->s, (void*) r->buffer, bytes_to_read, NULL) >= 0) {
+         al_unlock_mutex(r->mutex);
+         if (pa_simple_read(pa->s, r->fragments[fragment_i], r->fragment_size, NULL) >= 0) {
             user_event.user.type = ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT;
             user_event.user.data1 = (intptr_t) r;
-            user_event.user.data2 = (intptr_t) r->buffer;
-            user_event.user.data3 = r->sample_count;
+            user_event.user.data2 = (intptr_t) r->fragments[fragment_i];
+            user_event.user.data3 = r->samples;
             al_emit_user_event(&r->source, &user_event, NULL);
          
-            r->buffer = (uint8_t *)r->buffer + bytes_to_read;
-         
-            r->remaining_buffer_size -= bytes_to_read;
-            if (r->remaining_buffer_size < bytes_to_read) {         
-               user_event.user.type = ALLEGRO_EVENT_AUDIO_RECORDER_UPDATE_BUFFER;
-               user_event.user.data1 = (intptr_t) r;
-               al_emit_user_event(&r->source, &user_event, NULL);
-               r->buffer = NULL;
+            if (++fragment_i == r->fragment_count) {
+               fragment_i = 0;
             }
          }
-         al_unlock_mutex(r->mutex);
       }
    }
 
-stop_recording:
    al_free(null_buffer);
    return NULL;
 };
