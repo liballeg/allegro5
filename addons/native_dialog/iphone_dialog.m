@@ -33,7 +33,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
     al_unlock_mutex(mutex);
 }
 -(void) createAlert:(id)alert {
-    [al_iphone_get_view() addSubview:alert];
+    [al_iphone_get_view(al_get_current_display()) addSubview:alert];
     [alert show];
     [alert release];
 }

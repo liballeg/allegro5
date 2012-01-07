@@ -64,6 +64,7 @@ enum {
    _ALLEGRO_NO_PREMULTIPLIED_ALPHA  = 0x0200,	/* now a bitmap loader flag */
    ALLEGRO_VIDEO_BITMAP             = 0x0400,
    ALLEGRO_CONVERT_BITMAP           = 0x1000,
+   ALLEGRO_PRESERVE_TEXTURE         = 0x2000,
 };
 
 

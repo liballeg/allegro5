@@ -245,7 +245,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
       return;
    if (disp->num_cache_vertices == 0)
       return;
-
+      
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       if (disp->ogl_extras->use_tex_loc >= 0) {
          glUniform1i(disp->ogl_extras->use_tex_loc, 1);
@@ -254,10 +254,11 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
          glUniform1i(disp->ogl_extras->use_tex_matrix_loc, 0);
       }
    }
-
-   glGetBooleanv(GL_TEXTURE_2D, &on);
-   if (!on) {
-      glEnable(GL_TEXTURE_2D);
+   else {
+      glGetBooleanv(GL_TEXTURE_2D, &on);
+      if (!on) {
+         glEnable(GL_TEXTURE_2D);
+      }
    }
    
    glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&current_texture);
@@ -290,13 +291,15 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    color_ptr_off(disp);
    
    disp->num_cache_vertices = 0;
-   if (!on) {
-      glDisable(GL_TEXTURE_2D);
-   }
 
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       if (disp->ogl_extras->use_tex_loc >= 0)
          glUniform1i(disp->ogl_extras->use_tex_loc, 0);
+   }
+   else {
+      if (!on) {
+         glDisable(GL_TEXTURE_2D);
+      }
    }
 }
 

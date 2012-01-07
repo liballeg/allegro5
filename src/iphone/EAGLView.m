@@ -2,6 +2,7 @@
 #import <OpenGLES/EAGLDrawable.h>
 
 #import "EAGLView.h"
+#import "allegroAppDelegate.h"
 #include <pthread.h>
 
 #include "allegro5/allegro_iphone.h"
@@ -57,6 +58,8 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 }
 
 - (void)set_allegro_display:(ALLEGRO_DISPLAY *)display {
+   ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)display;
+
    allegro_display = display;
 
    // Get the layer
@@ -95,7 +98,25 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
    
    /* FIXME: Make this depend on a display setting. */
    [self setMultipleTouchEnabled:YES];
-   
+
+
+   if (d->extra->adapter == 0) {
+      [UIDevice currentDevice].batteryMonitoringEnabled = YES;
+      if ([[UIDevice currentDevice] batteryState] == UIDeviceBatteryStateCharging || [[UIDevice currentDevice] batteryState] == UIDeviceBatteryStateFull || !([[UIDevice currentDevice] isBatteryMonitoringEnabled]))
+         allegro_iphone_battery_level = 1.0;
+      else
+         allegro_iphone_battery_level = [[UIDevice currentDevice] batteryLevel];
+
+      // Register for battery level and state change notifications.
+      [[NSNotificationCenter defaultCenter] addObserver:self
+         selector:@selector(batteryLevelDidChange:)
+         name:UIDeviceBatteryLevelDidChangeNotification object:nil];
+
+      [[NSNotificationCenter defaultCenter] addObserver:self
+         selector:@selector(batteryLevelDidChange:)
+         name:UIDeviceBatteryStateDidChangeNotification object:nil];
+   }
+
    ALLEGRO_INFO("Created EAGLView.\n");
 }
 
@@ -112,21 +133,6 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
     touch_id_set       = [[NSMutableIndexSet alloc] init];
     next_free_touch_id = 1;
 
-   [UIDevice currentDevice].batteryMonitoringEnabled = YES;
-   if ([[UIDevice currentDevice] batteryState] == UIDeviceBatteryStateCharging || [[UIDevice currentDevice] batteryState] == UIDeviceBatteryStateFull || !([[UIDevice currentDevice] isBatteryMonitoringEnabled]))
-      allegro_iphone_battery_level = 1.0;
-   else
-      allegro_iphone_battery_level = [[UIDevice currentDevice] batteryLevel];
-
-   // Register for battery level and state change notifications.
-   [[NSNotificationCenter defaultCenter] addObserver:self
-      selector:@selector(batteryLevelDidChange:)
-      name:UIDeviceBatteryLevelDidChangeNotification object:nil];
-
-   [[NSNotificationCenter defaultCenter] addObserver:self
-      selector:@selector(batteryLevelDidChange:)
-      name:UIDeviceBatteryStateDidChangeNotification object:nil];
-
     return self;
 }
 
@@ -140,8 +146,8 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 }
 
 - (void)make_current {
-    [EAGLContext setCurrentContext:context];
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
+   [EAGLContext setCurrentContext:context];
+   glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
 }
 
 - (void)reset_framebuffer {
@@ -196,6 +202,8 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 
 - (BOOL)orientation_supported:(UIInterfaceOrientation) o {
    if (!allegro_display) return NO;
+   ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)allegro_display;
+   if (d->extra->adapter != 0) return NO;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *options = &allegro_display->extra_settings;
    int supported = options->settings[ALLEGRO_SUPPORTED_ORIENTATIONS];
    if (o == UIInterfaceOrientationPortrait) return supported & ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES;
@@ -206,7 +214,9 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 }
 
 - (BOOL)createFramebuffer {
-    if ([self respondsToSelector:@selector(contentScaleFactor)]) {
+   ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)allegro_display;
+
+    if (d->extra->adapter == 0 && [self respondsToSelector:@selector(contentScaleFactor)]) {
         self.contentScaleFactor = al_iphone_get_screen_scale();
         ALLEGRO_INFO("Screen scale is %f\n", self.contentScaleFactor);
     }
@@ -251,6 +261,15 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
         glDeleteRenderbuffersOES(1, &depthRenderbuffer);
         depthRenderbuffer = 0;
     }
+}
+
+- (void)remove_observers
+{
+   [[NSNotificationCenter defaultCenter] removeObserver:self
+      name:UIDeviceBatteryLevelDidChangeNotification object:nil];
+
+   [[NSNotificationCenter defaultCenter] removeObserver:self
+      name:UIDeviceBatteryStateDidChangeNotification object:nil];
 }
 
 - (void)dealloc {
@@ -308,10 +327,10 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
       
       _al_list_push_back_ex(touch_list, touch, touch_item_dtor);
       
-      CGPoint p = [nativeTouch locationInView:self];
+      CGPoint p = [nativeTouch locationInView:[nativeTouch view]];
       p.x *= al_iphone_get_screen_scale();
       p.y *= al_iphone_get_screen_scale();
-      
+
       if (NULL == primary_touch)
          primary_touch = nativeTouch;
       
@@ -331,7 +350,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
    for (UITouch *nativeTouch in touches) {
       if ((touch = find_touch(touch_list, nativeTouch))) {
    
-         CGPoint p = [nativeTouch locationInView:self];
+         CGPoint p = [nativeTouch locationInView:[nativeTouch view]];
          p.x *= al_iphone_get_screen_scale();
          p.y *= al_iphone_get_screen_scale();
    
@@ -353,7 +372,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
    for (UITouch *nativeTouch in touches) {
       if ((touch = find_touch(touch_list, nativeTouch))) {
 
-         CGPoint p = [nativeTouch locationInView:self];
+         CGPoint p = [nativeTouch locationInView:[nativeTouch view]];
          p.x *= al_iphone_get_screen_scale();
          p.y *= al_iphone_get_screen_scale();
 
@@ -370,7 +389,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
    }
 }
 
-// Qooting Apple docs:
+// Quoting Apple docs:
 // "The system cancelled tracking for the touch, as when (for example) the user
 // puts the device to his or her face."
 -(void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
@@ -383,7 +402,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
    for (UITouch *nativeTouch in touches) {
       if ((touch = find_touch(touch_list, nativeTouch))) {
    
-         CGPoint p = [nativeTouch locationInView:self];
+         CGPoint p = [nativeTouch locationInView:[nativeTouch view]];
          p.x *= al_iphone_get_screen_scale();
          p.y *= al_iphone_get_screen_scale();
          

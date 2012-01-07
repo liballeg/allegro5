@@ -46,7 +46,10 @@ enum
    ALLEGRO_EVENT_TOUCH_BEGIN                 = 50,
    ALLEGRO_EVENT_TOUCH_END                   = 51,
    ALLEGRO_EVENT_TOUCH_MOVE                  = 52,
-   ALLEGRO_EVENT_TOUCH_CANCEL                = 53
+   ALLEGRO_EVENT_TOUCH_CANCEL                = 53,
+   
+   ALLEGRO_EVENT_DISPLAY_CONNECTED           = 60,
+   ALLEGRO_EVENT_DISPLAY_DISCONNECTED        = 61
 };
 
 

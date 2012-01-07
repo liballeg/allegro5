@@ -46,4 +46,5 @@ Note that setting the view non-opaque will only work if the EAGL surface has an 
 - (BOOL) createFramebuffer;
 - (void) destroyFramebuffer;
 - (BOOL)orientation_supported:(UIInterfaceOrientation)o;
+- (void) remove_observers;
 @end

@@ -7,6 +7,8 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 ALLEGRO_SYSTEM_IPHONE *iphone;
 static ALLEGRO_SYSTEM_INTERFACE *vt;
 
+extern ALLEGRO_MUTEX *_al_iphone_display_hotplug_mutex;
+
 /* al_init will call this. */
 ALLEGRO_SYSTEM *iphone_initialize(int flags)
 {
@@ -22,7 +24,15 @@ ALLEGRO_SYSTEM *iphone_initialize(int flags)
 
     _al_unix_init_time();
     _al_iphone_init_path();
+   
+    _al_iphone_display_hotplug_mutex = al_create_mutex_recursive();
+
     return sys;
+}
+
+static void iphone_shutdown_system(void)
+{
+    al_destroy_mutex(_al_iphone_display_hotplug_mutex);
 }
 
 /* This is called from the termination message - it has to return soon as the
@@ -45,14 +55,13 @@ static ALLEGRO_DISPLAY_INTERFACE *iphone_get_display_driver(void)
 
 static int iphone_get_num_video_adapters(void)
 {
-   return 1;
+   return _al_iphone_get_num_video_adapters();
 }
 
 static bool iphone_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
    int w, h;
-    (void)adapter;
-   _al_iphone_get_screen_size(&w, &h);
+   _al_iphone_get_screen_size(adapter, &w, &h);
    info->x1 = 0;
    info->y1 = 0;
    info->x2 = w;
@@ -84,6 +93,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_get_iphone_system_interface(void)
     //xglx_vt->get_num_display_modes = _al_xglx_get_num_display_modes;
     //xglx_vt->get_display_mode = _al_xglx_get_display_mode;
     //xglx_vt->shutdown_system = xglx_shutdown_system;
+    vt->shutdown_system = iphone_shutdown_system;
     vt->get_num_video_adapters = iphone_get_num_video_adapters;
     vt->get_monitor_info = iphone_get_monitor_info;
     vt->get_cursor_position = iphone_get_cursor_position;

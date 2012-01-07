@@ -39,8 +39,8 @@ ALLEGRO_PATH *_al_iphone_get_path(int id)
          string = (NSString *)[array objectAtIndex:0];
          break;
       case ALLEGRO_EXENAME_PATH: {
-            uint32_t size = sizeof(str);
-            if (_NSGetExecutablePath(str, &size) != 0) {
+         uint32_t size = sizeof(str);
+         if (_NSGetExecutablePath(str, &size) != 0) {
 	    [pool drain];
             return NULL;
          }

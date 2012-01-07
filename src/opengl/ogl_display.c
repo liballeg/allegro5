@@ -177,9 +177,10 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       if (ogl_bitmap->fbo_info == NULL && !(bitmap->flags & ALLEGRO_FORCE_LOCKING)) {
       
 #ifdef ALLEGRO_IPHONE
-         /* FIXME This is quite a hack but I don't know how the Allegro extension
-          * manager works to fix this properly (getting extensions properly reported
-          * on iphone.
+         /* FIXME This is quite a hack but I don't know how the Allegro
+          * extension manager works to fix this properly (getting extensions
+          * properly reported on iphone. All iOS devices support FBOs though
+          * (currently.)
           */
          if (true)
 #else
@@ -266,6 +267,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
        */
       al_ortho_transform(&display->proj_transform, 0, display->w, display->h, 0, -1, 1);
 #else
+
       glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
       _al_iphone_setup_opengl_view(display);
 #endif
@@ -300,8 +302,11 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP *target = bitmap;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
    if (bitmap->parent)
       target = bitmap->parent;
+
+   ogl_bitmap->dirty = true;
 
    /* if either this bitmap or its parent (in the case of subbitmaps)
     * is locked then don't do anything

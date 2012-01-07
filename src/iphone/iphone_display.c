@@ -15,6 +15,9 @@ static float _screen_x, _screen_y;
 static float _screen_w, _screen_h;
 static bool _screen_hack;
 
+bool _al_iphone_is_display_connected(ALLEGRO_DISPLAY *display);
+extern ALLEGRO_MUTEX *_al_iphone_display_hotplug_mutex;
+
 void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d)
 {
    int w, h;
@@ -22,7 +25,7 @@ void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d)
    w = d->w;
    h = d->h;
 
-   _al_iphone_reset_framebuffer();
+   _al_iphone_reset_framebuffer(d);
    glViewport(0, 0, w, h);
 
    _screen_w = w;
@@ -162,12 +165,19 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
     display->ogl_extras = ogl;
     display->vt = _al_get_iphone_display_interface();
     display->flags = al_get_new_display_flags();
+    int adapter;
+
+    adapter = al_get_new_display_adapter();
+    if (adapter < 0)
+       adapter = 0;
+
     if (display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
-        _al_iphone_get_screen_size(&w, &h);
+        _al_iphone_get_screen_size(adapter, &w, &h);
     }
+
     display->w = w;
     display->h = h;
-
+    
     ALLEGRO_SYSTEM_IPHONE *system = (void *)al_get_system_driver();
 
     /* Add ourself to the list of displays. */
@@ -189,8 +199,15 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
    memcpy(&display->extra_settings, eds[0], sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
 
    /* This will add an OpenGL view with an OpenGL context, then return. */
-   _al_iphone_add_view(display);
-   _al_iphone_make_view_current();
+   if (!_al_iphone_add_view(display)) {
+      /* FIXME: cleanup */
+      return NULL;
+   }
+
+   _al_iphone_make_view_current(display);
+
+   /* FIXME: there is some sort of race condition somewhere. */
+   al_rest(1.0);
 
    _al_ogl_manage_extensions(display);
    _al_ogl_set_extensions(ogl->extension_api);
@@ -203,14 +220,21 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
 
 static void iphone_destroy_display(ALLEGRO_DISPLAY *d)
 {
-    (void)d;
-    // FIXME: not supported yet
+   while (d->bitmaps._size > 0) {
+      ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref_back(&d->bitmaps);
+      ALLEGRO_BITMAP *b = *bptr;
+      if (b->flags & ALLEGRO_MEMORY_BITMAP) continue;
+      _al_convert_to_memory_bitmap(b);
+   }
+
+   _al_event_source_free(&d->es);
+   _al_iphone_destroy_screen(d);
 }
 
 static bool iphone_set_current_display(ALLEGRO_DISPLAY *d)
 {
     (void)d;
-    _al_iphone_make_view_current();
+    _al_iphone_make_view_current(d);
     return true;
 }
 
@@ -314,6 +338,38 @@ static bool iphone_wait_for_vsync(ALLEGRO_DISPLAY *display)
 static void iphone_flip_display(ALLEGRO_DISPLAY *d)
 {
    bool using_shader = false;
+   int i, y, line_size;
+
+   /* Preserve pixels of bitmaps with ALLEGRO_PRESERVE_TEXTURE flag */
+   al_lock_mutex(_al_iphone_display_hotplug_mutex);
+   if (_al_iphone_is_display_connected(d)) {
+      for (i = 0; i < (int)d->bitmaps._size; i++) {
+         ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&d->bitmaps, i);
+         ALLEGRO_BITMAP *b = *bptr;
+         ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = b->extra;
+         if ((b->flags & ALLEGRO_MEMORY_BITMAP) ||
+               !(b->flags & ALLEGRO_PRESERVE_TEXTURE) ||
+   	    !ogl_bitmap->dirty ||
+   	    ogl_bitmap->is_backbuffer)
+            continue;
+         ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(
+            b,
+   	 ALLEGRO_PIXEL_FORMAT_ANY,
+   	 ALLEGRO_LOCK_READONLY
+         );
+         if (lr) {
+            line_size = al_get_pixel_size(b->format) * b->w;
+            for (y = 0; y < b->h; y++) {
+               unsigned char *p = ((unsigned char *)lr->data) + lr->pitch * y;
+   	    unsigned char *p2 = ((unsigned char *)b->memory) + line_size * y;
+   	    memcpy(p2, p, line_size);
+            }
+            al_unlock_bitmap(b);
+         }
+         ogl_bitmap->dirty = false;
+      }
+   }
+   al_unlock_mutex(_al_iphone_display_hotplug_mutex);
 
    if (d->flags & ALLEGRO_OPENGL) {
       if (d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
@@ -327,7 +383,7 @@ static void iphone_flip_display(ALLEGRO_DISPLAY *d)
       glUseProgram(0);
    }
 
-    _al_iphone_flip_view();
+    _al_iphone_flip_view(d);
 
    if (using_shader) {
       glUseProgram(d->ogl_extras->program_object);

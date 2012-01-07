@@ -61,6 +61,8 @@ typedef struct ALLEGRO_BITMAP_EXTRA_OPENGL
 
    float left, top, right, bottom; /* Texture coordinates. */
    bool is_backbuffer; /* This is not a real bitmap, but the backbuffer. */
+
+   bool dirty;
 } ALLEGRO_BITMAP_EXTRA_OPENGL;
 
 typedef struct OPENGL_INFO {

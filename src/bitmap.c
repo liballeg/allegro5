@@ -835,12 +835,37 @@ void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
       clone = al_create_sub_bitmap(bitmap->parent,
          bitmap->xofs, bitmap->yofs, bitmap->w, bitmap->h);
    }
+   else if (bitmap->flags & ALLEGRO_PRESERVE_TEXTURE) {
+      ASSERT(bitmap->memory);
+      clone = al_create_bitmap(bitmap->w, bitmap->h);
+      clone->flags |= ALLEGRO_PRESERVE_TEXTURE;
+      temp.memory = clone->memory;
+      clone->memory = bitmap->memory;
+      if (!(clone->flags & ALLEGRO_MEMORY_BITMAP)) {
+         ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(
+            clone,
+            ALLEGRO_PIXEL_FORMAT_ANY,
+            ALLEGRO_LOCK_WRITEONLY
+         );
+         if (lr) {
+            int line_size, y;
+            line_size = al_get_pixel_size(bitmap->format) * bitmap->w;
+            for (y = 0; y < bitmap->h; y++) {
+               unsigned char *p = ((unsigned char *)lr->data) + lr->pitch * y;
+               unsigned char *p2 = ((unsigned char *)bitmap->memory) + line_size * y;
+               memcpy(p, p2, line_size);
+            }
+            al_unlock_bitmap(clone);
+         }
+      }
+   }
    else {
       clone = al_clone_bitmap(bitmap);
    }
 
-   if (!clone)
+   if (!clone) {
       return;
+   }
 
    clone_memory = (clone->flags & ALLEGRO_MEMORY_BITMAP) != 0;
 
@@ -891,7 +916,7 @@ void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
    
    check_to_be_converted_list_add(bitmap);
 
-   *clone = temp; /* So e.g. the extra point can be deleted properly. */
+   *clone = temp; /* So e.g. the extra pointer can be deleted properly. */
    al_destroy_bitmap(clone);
 }
 
@@ -928,10 +953,11 @@ void al_convert_bitmaps(void)
       al_set_new_bitmap_flags(flags);
       al_set_new_bitmap_format((*bptr)->format);
       
-      ALLEGRO_DEBUG("converting display bitmap %p to memory bitmap\n", *bptr);
+      ALLEGRO_DEBUG("converting memory bitmap %p to display bitmap\n", *bptr);
       
       al_convert_bitmap(*bptr);
    }
+
    _al_vector_free(&copy);
 
    al_unlock_mutex(to_be_converted.mutex);

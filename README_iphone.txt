@@ -42,6 +42,9 @@ adjust:
   * Architectures
   * Code Signing Identity
   * Targeted Device Family
+  * And if you want to support armv6 devices, you should add
+    "-mno-thumb" to Other C Flags to work around compiler bugs
+    (see: https://devforums.apple.com/thread/122059?tstart=15)
 
 - Find the correct libraries (cmake always thinks it is building for
   OSX instead of IPhone). They are all hacked in with linker flags right

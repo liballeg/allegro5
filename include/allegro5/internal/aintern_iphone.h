@@ -13,17 +13,21 @@ typedef struct ALLEGRO_SYSTEM_IPHONE {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS **visuals;    
 } ALLEGRO_SYSTEM_IPHONE;
 
+typedef struct ALLEGRO_DISPLAY_IPHONE_EXTRA ALLEGRO_DISPLAY_IPHONE_EXTRA;
+
 typedef struct ALLEGRO_DISPLAY_IPHONE {
     ALLEGRO_DISPLAY display;
+    ALLEGRO_DISPLAY_IPHONE_EXTRA *extra;
 } ALLEGRO_DISPLAY_IPHONE;
 
 
 void _al_iphone_init_path(void);
-void _al_iphone_add_view(ALLEGRO_DISPLAY *d);
-void _al_iphone_make_view_current(void);
-void _al_iphone_flip_view(void);
-void _al_iphone_reset_framebuffer(void);
+bool _al_iphone_add_view(ALLEGRO_DISPLAY *d);
+void _al_iphone_make_view_current(ALLEGRO_DISPLAY *display);
+void _al_iphone_flip_view(ALLEGRO_DISPLAY *display);
+void _al_iphone_reset_framebuffer(ALLEGRO_DISPLAY *display);
 void _al_iphone_recreate_framebuffer(ALLEGRO_DISPLAY *);
+void _al_iphone_destroy_screen(ALLEGRO_DISPLAY *display);
 ALLEGRO_SYSTEM_INTERFACE *_al_get_iphone_system_interface(void);
 ALLEGRO_DISPLAY_INTERFACE *_al_get_iphone_display_interface(void);
 ALLEGRO_KEYBOARD_DRIVER *_al_get_iphone_keyboard_driver(void);
@@ -38,7 +42,8 @@ void _al_iphone_update_visuals(void);
 void _al_iphone_accelerometer_control(int frequency);
 void _al_iphone_generate_joystick_event(float x, float y, float z);
 void _al_iphone_await_termination(void);
-void _al_iphone_get_screen_size(int *w, int *h);
+void _al_iphone_get_screen_size(int adapter, int *w, int *h);
+int _al_iphone_get_num_video_adapters(void);
 int _al_iphone_get_orientation();
 void _al_iphone_translate_from_screen(ALLEGRO_DISPLAY *d, int *x, int *y);
 void _al_iphone_translate_to_screen(ALLEGRO_DISPLAY *d, int *x, int *y);

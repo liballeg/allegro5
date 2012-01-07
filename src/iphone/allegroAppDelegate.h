@@ -2,23 +2,25 @@
 #include <allegro5/allegro.h>
 #import "ViewController.h"
 
+struct ALLEGRO_DISPLAY_IPHONE_EXTRA {
+   bool failed;
+   ViewController *vc;
+   UIWindow *window;
+   int adapter;
+};
+
 @class EAGLView;
 
 @interface allegroAppDelegate : NSObject <UIApplicationDelegate,
    UIAccelerometerDelegate> {
-   UIWindow *window;
-   EAGLView *view;
-   ALLEGRO_DISPLAY *allegro_display;
+@public
+   ALLEGRO_DISPLAY *main_display;
 }
-
-@property (nonatomic, retain) UIWindow *window;
-@property (nonatomic, retain) EAGLView *view;
-@property (nonatomic, retain) ViewController *view_controller;
 
 + (void)run:(int)argc:(char **)argv;
 - (void)add_view:(NSValue *)value;
-- (void)display_splash_screen;
 - (void)orientation_change:(NSNotification *)notification;
+- (void)setupScreenConnectionNotificationHandlers;
 
 @end
 

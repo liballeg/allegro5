@@ -18,7 +18,7 @@
  *  Public Objective-C iPhone-related API
  */
 
-AL_FUNC(UIWindow *, al_iphone_get_window,            (void));
-AL_FUNC(UIView *,   al_iphone_get_view,              (void));
+AL_FUNC(UIWindow *, al_iphone_get_window,            (ALLEGRO_DISPLAY *d));
+AL_FUNC(UIView *,   al_iphone_get_view,              (ALLEGRO_DISPLAY *d));
 
-#endif /* A5_IPONE_ALLEGRO_OBJC_H */
+#endif /* A5_IPHONE_ALLEGRO_OBJC_H */
