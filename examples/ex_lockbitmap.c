@@ -85,7 +85,7 @@ restart:
     * chances of uncovering bugs.
     */
    locked = al_lock_bitmap_region(bitmap, 193, 65, 3*127, 127,
-      ALLEGRO_PIXEL_FORMAT_RGBA_565, lock_flags);
+      ALLEGRO_PIXEL_FORMAT_RGB_565, lock_flags);
    for (j = 0; j < 127; j++) {
       ptr = (uint8_t *)locked->data + j * locked->pitch;
 
