@@ -917,7 +917,6 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
                0, 0, 0, 0,
                bitmap->lock_w, bitmap->lock_h);
 
-            glPixelStorei(GL_UNPACK_ALIGNMENT, ogl_pixel_alignment(orig_pixel_size));
             glTexSubImage2D(GL_TEXTURE_2D, 0,
                bitmap->lock_x, gl_y,
                bitmap->lock_w, bitmap->lock_h,
@@ -932,7 +931,6 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             }
          }
          else {
-            glPixelStorei(GL_UNPACK_ALIGNMENT, ogl_pixel_alignment(orig_pixel_size));
             glTexSubImage2D(GL_TEXTURE_2D, 0, bitmap->lock_x, gl_y,
                bitmap->lock_w, bitmap->lock_h,
                glformats[lock_format][2],
