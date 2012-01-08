@@ -91,9 +91,18 @@ int main()
          al_clear_to_color(al_map_rgb(0,0,0));
         
          if (al_is_audio_recorder_recording(r)) {
-            /* Draw a pathetic visualization. We may get this event after
-               we've stopped recording, so that's why the check to see if
-               it's playing is there. This just prevents a stale frame. */
+            /* We may get this event after we've stopped recording, so
+               that's why the check to see if it's playing is there. 
+               
+               Save the first 1000 fragments to wav file. (The limit is only
+               to prevent you from accidentally filling up your hard drive!)
+               */
+            if (fp && n < 1000) {
+               al_fwrite(fp, input, sample_count);
+               ++n;
+            }
+
+            /* Draw a pathetic visualization. */
             for (x = 0; x < 320; ++x) {
                int i, c = 0;
                
@@ -105,15 +114,6 @@ int main()
             }
          }
          al_flip_display();
-         
-         /* Save the first 1000 fragments to wav file. (The limit is only
-            to prevent you from accidentally filling up your hard drive!)
-          */
-         if (fp && n < 1000) {
-            al_fwrite(fp, input, sample_count);
-            ++n;
-         }
-            
       }
       else if (e.type == ALLEGRO_EVENT_AUDIO_RECORDER_UPDATE_BUFFER) {
          /* The buffer is full. We must supply the driver with a new
@@ -161,10 +161,10 @@ int main()
             else {
                /* Stop the recording, update the wav file. */
                int sample_size = 1;
-               int size = sample_size * n * SAMPLES_PER_FRAGMENT;
-               
-               if (size & 1) al_fputc(fp, 0);
+               int size = sample_size * (n * SAMPLES_PER_FRAGMENT);
       
+               if (size & 1) al_fputc(fp, 0x80);
+
                al_fseek(fp, 4, ALLEGRO_SEEK_SET);
                al_fwrite32le(fp, 44 + size + (size & 1)); 
       

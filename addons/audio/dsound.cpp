@@ -549,15 +549,16 @@ static void *_dsound_update_recorder(ALLEGRO_THREAD *t, void *data)
       if (!is_dsound_recording) {
          extra->buffer8->Start(DSCBSTART_LOOPING);
          is_dsound_recording = true;
-         extra->buffer8->GetCurrentPosition(&last_read_pos, NULL);
+         extra->buffer8->GetCurrentPosition(NULL, &last_read_pos);
       }
 
       void *buffer1, *buffer2;
       DWORD buffer1_size, buffer2_size;
       DWORD cap_pos, bytes_to_read;
 
-      extra->buffer8->GetCurrentPosition(&cap_pos, NULL);
+      extra->buffer8->GetCurrentPosition(NULL, &cap_pos);
 
+      /* never read past the end of the buffer; that way buffer2 is always NULL */
       if (last_read_pos <= cap_pos)
          bytes_to_read = cap_pos - last_read_pos;
       else
@@ -568,6 +569,8 @@ static void *_dsound_update_recorder(ALLEGRO_THREAD *t, void *data)
          size_t buffer_size;
 
          extra->buffer8->Lock(last_read_pos, bytes_to_read, &buffer1, &buffer1_size, &buffer2, &buffer2_size, 0);
+
+         ALLEGRO_ASSERT(buffer2 == NULL);
 
          buffer = (uint8_t *)buffer1;
          buffer_size = buffer1_size;
