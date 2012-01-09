@@ -79,10 +79,16 @@
 //#define GL_FUNC_SUBTRACT GL_FUNC_SUBTRACT_OES
 //#define GL_FUNC_REVERSE_SUBTRACT GL_FUNC_REVERSE_SUBTRACT_OES
 
+#define GL_FRAMEBUFFER_BINDING_EXT GL_FRAMEBUFFER_BINDING_OES
+#define GL_FRAMEBUFFER_EXT GL_FRAMEBUFFER_OES
+
 #define glBlendEquation glBlendEquationOES
 #define glBlendFuncSeparate glBlendFuncSeparateOES
 #define glBlendEquationSeparate glBlendEquationSeparateOES
 #define glGenerateMipmapEXT glGenerateMipmapOES
+
+#define glBindFramebufferEXT glBindFramebufferOES
+#define glDeleteFramebuffersEXT glDeleteFramebuffersOES
 
 /* hack to work around the ndk not containing GLchar,
  * and the shader addon assuming it exists */
