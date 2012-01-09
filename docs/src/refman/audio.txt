@@ -1213,9 +1213,13 @@ See also: [al_unref_user_event]
 Get the audio event source. [al_install_audio] must be called prior to
 calling this function.
 
+This emits events related to the core sound system. For events specific
+to streams or recorders, you must use their own unique event sources.
+
 Since: 5.1.0
 
-See also: [ALLEGRO_AUDIO_EVENT_TYPE]
+See also: [ALLEGRO_AUDIO_EVENT_TYPE], [al_get_audio_stream_event_source],
+[al_get_audio_recorder_event_source]
 
 ## Audio recording
 
@@ -1227,18 +1231,28 @@ An opaque datatype that represents a recording device.
 
 Since 5.1.1
 
+### API: ALLEGRO_AUDIO_RECORDER_EVENT
+
+Structure that holds the audio recorder event data. Every event type
+will contain:
+
+* .source: pointer to the audio recorder
+
+The following will be available depending on the event type:
+
+* .buffer: pointer to buffer containing the audio samples
+* .samples: number of samples (not bytes) that are available
+
+Since 5.1.1
+
+See also: [al_get_audio_recorder_event]
+
 ### API: ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT
 
 Sent after a user-specified number of samples have been recorded. 
 
-* .data1: pointer to the [ALLEGRO_AUDIO_RECORDER] object
-* .data2: pointer to the buffer
-* .data3: number of samples (not bytes) that are available
-
 You must always check the values for the buffer and samples as they
 are not guaranteed to be exactly what was originally specified.
-
-Since 5.1.1
 
 ### API: al_create_audio_recorder
 
@@ -1280,9 +1294,6 @@ Begin recording into the fragment buffer. Once a complete fragment has been
 captured (as specified in [al_create_audio_recorder]), an
 [ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT] event will be triggered.
 
-If recording is stopped and then restarted, it will resume placing audio at
-the same spot in fragment buffer. 
-
 Returns true if it was able to begin recording.
 
 Since 5.1.1
@@ -1296,6 +1307,9 @@ it with [al_destroy_audio_recorder].
 You may still receive a few events after you call this function as the device
 flushes the buffer.
 
+If you restart the recorder, it will begin recording at the beginning of the
+next fragment buffer.
+
 Since 5.1.1
 
 ### API: al_is_audio_recorder_recording
@@ -1305,12 +1319,16 @@ events.
 
 Since 5.1.1
 
+### API: al_get_audio_recorder_event
+
+Returns the event as an [ALLEGRO_AUDIO_RECORDER_EVENT].
+
+Since 5.1.1
+
 ### API: al_get_audio_recorder_event_source
 
-Returns the event source for the recorder that generates the fragment
-and buffer events.
-
-XXX: This should probably be merged with [al_get_audio_event_source].
+Returns the event source for the recorder that generates the various recording
+events.
 
 Since 5.1.1
 

@@ -9,6 +9,9 @@
 
 ALLEGRO_DEBUG_CHANNEL("audio")
 
+ALLEGRO_STATIC_ASSERT(sizeof(ALLEGRO_AUDIO_RECORDER_EVENT) <= sizeof(ALLEGRO_EVENT));
+
+
 /* Function: al_create_audio_recorder
  */
 ALLEGRO_AUDIO_RECORDER *al_create_audio_recorder(size_t fragment_count,
@@ -117,6 +120,14 @@ bool al_is_audio_recorder_recording(ALLEGRO_AUDIO_RECORDER *r)
    al_unlock_mutex(r->mutex);
    
    return is_recording;
+}
+
+/* Function: al_get_audio_recorder_event
+ */
+ALLEGRO_AUDIO_RECORDER_EVENT *al_get_audio_recorder_event(ALLEGRO_EVENT *event)
+{
+   ASSERT(event->any.type == ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT);
+   return (ALLEGRO_AUDIO_RECORDER_EVENT *) event;
 }
 
 /* Function: al_get_audio_recorder_event_source

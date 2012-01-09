@@ -582,6 +582,7 @@ static void *_dsound_update_recorder(ALLEGRO_THREAD *t, void *data)
                buffer_size = 0;
             }
             else {
+               ALLEGRO_AUDIO_RECORDER_EVENT *e;
                size_t bytes_to_write = r->fragment_size - bytes_written;
                memcpy((uint8_t*) r->fragments[fragment_i] + bytes_written, buffer, bytes_to_write);
 
@@ -589,9 +590,9 @@ static void *_dsound_update_recorder(ALLEGRO_THREAD *t, void *data)
                buffer += bytes_to_write;
 
                user_event.user.type = ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT;
-               user_event.user.data1 = (intptr_t) r;
-               user_event.user.data2 = (intptr_t) r->fragments[fragment_i];
-               user_event.user.data3 = r->samples;
+               e = al_get_audio_recorder_event(&user_event);
+               e->buffer = r->fragments[fragment_i];
+               e->samples = r->samples;
                al_emit_user_event(&r->source, &user_event, NULL);
 
                /* advance to the next fragment */

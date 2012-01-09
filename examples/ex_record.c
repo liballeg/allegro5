@@ -75,17 +75,9 @@ int main()
       al_wait_for_event(q, &e);
        
       if (e.type == ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT) {
-         /* Some samples are ready to be processed.
-            
-            .data1 => pointer to recorder struct
-            .data2 => pointer to buffer (it isn't always going to be 
-                      the same address you pass, since the buffer may
-                      hold more than one "frame" of audio)
-            .data3 => the number of samples that are available
-         
-          */
-         uint8_t *input = (uint8_t *) e.user.data2;          
-         int sample_count = e.user.data3;         
+         ALLEGRO_AUDIO_RECORDER_EVENT *re = al_get_audio_recorder_event(&e);
+         uint8_t *input = (uint8_t *) re->buffer;
+         int sample_count = re->samples; 
          int x;
          int R = sample_count / 320;
          al_clear_to_color(al_map_rgb(0,0,0));
@@ -115,12 +107,6 @@ int main()
          }
          al_flip_display();
       }
-      else if (e.type == ALLEGRO_EVENT_AUDIO_RECORDER_UPDATE_BUFFER) {
-         /* The buffer is full. We must supply the driver with a new
-            buffer before its internal buffer is full. In this case,
-            we are just reusing the same buffer over and over. */
-         //al_update_audio_recorder_buffer(r, buffer, buffer_size);
-      }         
       else if (e.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
          break;
       }

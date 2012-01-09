@@ -46,13 +46,21 @@ extern "C" {
 /* User event type emitted when a stream fragment is ready to be
  * refilled with more audio data.
  * Must be in 512 <= n < 1024
+ *
  */
 #define ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT  (513)
 #define ALLEGRO_EVENT_AUDIO_STREAM_FINISHED  (514)
 
 #define ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT       (515)
-#define ALLEGRO_EVENT_AUDIO_RECORDER_UPDATE_BUFFER  (516)
 
+typedef struct ALLEGRO_AUDIO_RECORDER_EVENT ALLEGRO_AUDIO_RECORDER_EVENT;
+struct ALLEGRO_AUDIO_RECORDER_EVENT
+{
+   _AL_EVENT_HEADER(struct ALLEGRO_AUDIO_RECORDER)
+   struct ALLEGRO_USER_EVENT_DESCRIPTOR *__internal__descr;
+   void *buffer;
+   unsigned int samples;
+};
 
 
 #ifndef __cplusplus
@@ -389,12 +397,12 @@ ALLEGRO_KCM_AUDIO_FUNC(void, al_stop_audio_recorder, (ALLEGRO_AUDIO_RECORDER *r)
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_is_audio_recorder_recording, (ALLEGRO_AUDIO_RECORDER *r));
 ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_audio_recorder_event_source,
    (ALLEGRO_AUDIO_RECORDER *r));
+ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_RECORDER_EVENT *, al_get_audio_recorder_event, (ALLEGRO_EVENT *event));
 ALLEGRO_KCM_AUDIO_FUNC(void, al_destroy_audio_recorder, (ALLEGRO_AUDIO_RECORDER *r));
    
 #ifdef __cplusplus
 } /* End extern "C" */
 #endif
-
 
 #endif
 

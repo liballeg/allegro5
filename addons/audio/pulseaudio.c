@@ -334,12 +334,13 @@ static void *pulse_audio_update_recorder(ALLEGRO_THREAD *t, void *data)
          pa_simple_read(pa->s, null_buffer, 1024, NULL);
       }
       else {
+         ALLEGRO_AUDIO_RECORDER_EVENT *e;
          al_unlock_mutex(r->mutex);
          if (pa_simple_read(pa->s, r->fragments[fragment_i], r->fragment_size, NULL) >= 0) {
             user_event.user.type = ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT;
-            user_event.user.data1 = (intptr_t) r;
-            user_event.user.data2 = (intptr_t) r->fragments[fragment_i];
-            user_event.user.data3 = r->samples;
+            e = al_get_audio_recorder_event(&user_event);
+            e->buffer = r->fragments[fragment_i];
+            e->samples = r->samples;           
             al_emit_user_event(&r->source, &user_event, NULL);
          
             if (++fragment_i == r->fragment_count) {

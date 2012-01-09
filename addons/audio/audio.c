@@ -18,6 +18,7 @@ ALLEGRO_DEBUG_CHANNEL("audio")
 
 static ALLEGRO_EVENT_SOURCE audio_event_source;
 
+
 void _al_set_error(int error, char* string)
 {
    ALLEGRO_ERROR("%s (error code: %d)\n", string, error);
