@@ -30,24 +30,24 @@ find_program(CMAKE_MAKE_PROGRAM make)
 
 # specify the cross compiler
 SET(CMAKE_C_COMPILER   
-  ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-gcc CACHE PATH "gcc" FORCE)
+  ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-gcc${CMAKE_EXECUTABLE_SUFFIX} CACHE PATH "gcc" FORCE)
 SET(CMAKE_CXX_COMPILER 
-  ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-g++ CACHE PATH "gcc" FORCE)
+  ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-g++${CMAKE_EXECUTABLE_SUFFIX} CACHE PATH "gcc" FORCE)
 #there may be a way to make cmake deduce these TODO deduce the rest of the tools
 set(CMAKE_AR
- ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-ar  CACHE PATH "archive" FORCE)
+ ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-ar${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "archive" FORCE)
 set(CMAKE_LINKER
- ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-ld  CACHE PATH "linker" FORCE)
+ ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-ld${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "linker" FORCE)
 set(CMAKE_NM
- ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-nm  CACHE PATH "nm" FORCE)
+ ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-nm${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "nm" FORCE)
 set(CMAKE_OBJCOPY
- ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-objcopy  CACHE PATH "objcopy" FORCE)
+ ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-objcopy${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "objcopy" FORCE)
 set(CMAKE_OBJDUMP
- ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-objdump  CACHE PATH "objdump" FORCE)
+ ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-objdump${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "objdump" FORCE)
 set(CMAKE_STRIP
-  ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-strip  CACHE PATH "strip" FORCE)
+  ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-strip${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "strip" FORCE)
 set(CMAKE_RANLIB
-  ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-ranlib  CACHE PATH "ranlib" FORCE)
+  ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-ranlib${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "ranlib" FORCE)
 #setup build targets, mutually exclusive
 set(PossibleArmTargets
   "armeabi;armeabi-v7a;armeabi-v7a with NEON")
