@@ -76,6 +76,8 @@ ALLEGRO_KEY_UP events and which you can pass to [al_key_down]:
     ALLEGRO_KEY_SEMICOLON2,
     ALLEGRO_KEY_COMMAND
 
+    ALLEGRO_KEY_BACK /* Android back key; since 5.1.1 */
+
 ## Keyboard modifier flags
 
     ALLEGRO_KEYMOD_SHIFT
