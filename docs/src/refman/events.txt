@@ -456,6 +456,18 @@ Has the same fields as ALLEGRO_EVENT_TOUCH_BEGIN.
 See also: [ALLEGRO_EVENT_SOURCE], [ALLEGRO_EVENT_TYPE], [ALLEGRO_USER_EVENT],
 [ALLEGRO_GET_EVENT_TYPE]
 
+## API: ALLEGRO_EVENT_DISPLAY_CONNECTED
+
+(since: 5.1.1)
+
+*Not yet documented.*
+
+## API: ALLEGRO_EVENT_DISPLAY_DISCONNECTED
+
+(since: 5.1.1)
+
+*Not yet documented.*
+
 ## API: ALLEGRO_USER_EVENT
 
 An event structure that can be emitted by user event sources.
