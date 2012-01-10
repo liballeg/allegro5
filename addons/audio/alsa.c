@@ -713,6 +713,142 @@ static int alsa_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
    return 0;
 }
 
+typedef struct ALSA_RECORDER_DATA
+{
+   snd_pcm_t *capture_handle;
+   snd_pcm_hw_params_t *hw_params;
+} ALSA_RECORDER_DATA;
+
+static void *alsa_update_recorder(ALLEGRO_THREAD *t, void *thread_data)
+{
+   ALLEGRO_AUDIO_RECORDER *r = thread_data;
+   ALSA_RECORDER_DATA *alsa = r->extra;
+   ALLEGRO_EVENT user_event;
+   uint8_t *null_buffer;
+   unsigned int fragment_i = 0;
+   
+   null_buffer = al_malloc(1024 * r->sample_size);
+   if (!null_buffer) {
+      ALLEGRO_ERROR("Unable to create buffer for draining ALSA.\n");
+      return NULL;
+   }
+   
+   while (!al_get_thread_should_stop(t))
+   {
+      al_lock_mutex(r->mutex);
+      if (!r->is_recording) {
+         /* Even if not recording, we still want to read from ALSA.
+            Otherwise it will buffer everything and spit it all out whenever
+            the recording resumes. (XXX: Just copied this from PulseAudio.
+            This current implementation is just a bare minimum effort...)
+          */
+         al_unlock_mutex(r->mutex);
+         snd_pcm_readi(alsa->capture_handle, null_buffer, 1024);
+      }
+      else {
+         ALLEGRO_AUDIO_RECORDER_EVENT *e;
+         snd_pcm_sframes_t count;
+         al_unlock_mutex(r->mutex);
+         if ((count = snd_pcm_readi(alsa->capture_handle, r->fragments[fragment_i], r->samples)) > 0) {
+            user_event.user.type = ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT;
+            e = al_get_audio_recorder_event(&user_event);
+            e->buffer = r->fragments[fragment_i];
+            e->samples = count;
+            al_emit_user_event(&r->source, &user_event, NULL);
+         
+            if (++fragment_i == r->fragment_count) {
+               fragment_i = 0;
+            }
+         }
+      }
+   }
+
+   al_free(null_buffer);
+   return NULL;
+}
+
+static int alsa_allocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
+{
+   ALSA_RECORDER_DATA *data;
+   unsigned int frequency = r->frequency;
+   snd_pcm_format_t format;
+   ALLEGRO_CONFIG *config = al_get_system_config();
+   const char *device = default_device;
+   
+   if (config) {
+      const char *config_device;
+      config_device = al_get_config_value(config, "alsa", "capture_device");
+      if (config_device && config_device[0] != '\0')
+         device = config_device;
+   }
+
+   data = al_calloc(1, sizeof(*data));
+   
+   if (!data) {
+      goto Error;
+   }
+   
+   if (r->depth == ALLEGRO_AUDIO_DEPTH_INT8)
+      format = SND_PCM_FORMAT_S8;
+   else if (r->depth == ALLEGRO_AUDIO_DEPTH_UINT8)
+      format = SND_PCM_FORMAT_U8;
+   else if (r->depth == ALLEGRO_AUDIO_DEPTH_INT16)
+      format = SND_PCM_FORMAT_S16;
+   else if (r->depth == ALLEGRO_AUDIO_DEPTH_UINT16)
+      format = SND_PCM_FORMAT_U16;
+   else if (r->depth == ALLEGRO_AUDIO_DEPTH_INT24)
+      format = SND_PCM_FORMAT_S24;
+   else if (r->depth == ALLEGRO_AUDIO_DEPTH_UINT24)
+      format = SND_PCM_FORMAT_U24;
+   else if (r->depth == ALLEGRO_AUDIO_DEPTH_FLOAT32)
+      format = SND_PCM_FORMAT_FLOAT;
+   else
+      goto Error;
+   
+   ALSA_CHECK(snd_pcm_open(&data->capture_handle, device, SND_PCM_STREAM_CAPTURE, 0));
+   ALSA_CHECK(snd_pcm_hw_params_malloc(&data->hw_params));
+   ALSA_CHECK(snd_pcm_hw_params_any(data->capture_handle, data->hw_params));
+   ALSA_CHECK(snd_pcm_hw_params_set_access(data->capture_handle, data->hw_params, SND_PCM_ACCESS_RW_INTERLEAVED));
+   ALSA_CHECK(snd_pcm_hw_params_set_format(data->capture_handle, data->hw_params, format));
+   ALSA_CHECK(snd_pcm_hw_params_set_rate_near(data->capture_handle, data->hw_params, &frequency, 0));
+   
+   if (frequency != r->frequency) {
+      ALLEGRO_ERROR("Unsupported rate! Requested %u, got %iu.\n", r->frequency, frequency);
+      goto Error;
+   }
+   
+   ALSA_CHECK(snd_pcm_hw_params_set_channels(data->capture_handle, data->hw_params, al_get_channel_count(r->chan_conf)));
+   ALSA_CHECK(snd_pcm_hw_params(data->capture_handle, data->hw_params));
+   
+   ALSA_CHECK(snd_pcm_prepare(data->capture_handle));
+   
+   r->extra = data;
+   r->thread = al_create_thread(alsa_update_recorder, r);
+   
+   return 0;
+   
+Error:
+   
+   if (data) {
+      if (data->hw_params) {
+         snd_pcm_hw_params_free(data->hw_params);
+      }
+      if (data->capture_handle) {
+         snd_pcm_close(data->capture_handle);
+      }
+      al_free(data);
+   }
+   
+   return 1;
+}
+
+static void alsa_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
+{
+   ALSA_RECORDER_DATA *data = r->extra;
+   
+   snd_pcm_hw_params_free(data->hw_params);
+   snd_pcm_close(data->capture_handle);
+}
 
 ALLEGRO_AUDIO_DRIVER _al_kcm_alsa_driver =
 {
@@ -735,8 +871,8 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_alsa_driver =
    alsa_get_voice_position,
    alsa_set_voice_position,
 
-   NULL,
-   NULL
+   alsa_allocate_recorder,
+   alsa_deallocate_recorder
 };
 
 /* vim: set sts=3 sw=3 et: */
