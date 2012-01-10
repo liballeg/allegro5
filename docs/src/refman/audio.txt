@@ -1229,7 +1229,7 @@ Only the PulseAudio and DirectSound8 drivers supports audio recording.
 
 An opaque datatype that represents a recording device. 
 
-Since 5.1.1
+Since: 5.1.1
 
 ### API: ALLEGRO_AUDIO_RECORDER_EVENT
 
@@ -1253,6 +1253,8 @@ Sent after a user-specified number of samples have been recorded.
 
 You must always check the values for the buffer and samples as they
 are not guaranteed to be exactly what was originally specified.
+
+Since: 5.1.1
 
 ### API: al_create_audio_recorder
 
@@ -1296,7 +1298,7 @@ captured (as specified in [al_create_audio_recorder]), an
 
 Returns true if it was able to begin recording.
 
-Since 5.1.1
+Since: 5.1.1
 
 ### API: al_stop_audio_recorder
 
@@ -1310,27 +1312,27 @@ flushes the buffer.
 If you restart the recorder, it will begin recording at the beginning of the
 next fragment buffer.
 
-Since 5.1.1
+Since: 5.1.1
 
 ### API: al_is_audio_recorder_recording
 
 Returns true if the audio recorder is currently capturing data and generating
 events.
 
-Since 5.1.1
+Since: 5.1.1
 
 ### API: al_get_audio_recorder_event
 
 Returns the event as an [ALLEGRO_AUDIO_RECORDER_EVENT].
 
-Since 5.1.1
+Since: 5.1.1
 
 ### API: al_get_audio_recorder_event_source
 
 Returns the event source for the recorder that generates the various recording
 events.
 
-Since 5.1.1
+Since: 5.1.1
 
 ### API: al_destroy_audio_recorder
 
@@ -1340,4 +1342,4 @@ is safe to destroy a recorder that is playing.
 You may receive events after the recorder has been destroyed. They must be
 ignored, as the fragment buffer will no longer be valid.
 
-Since 5.1.1
+Since: 5.1.1
