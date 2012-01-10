@@ -706,10 +706,10 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
             bitmap->locked_region.data = ogl_bitmap->lock_buffer +
                pitch * (h - 1);
          }
-#ifndef ALLEGRO_ANDROID
          else {
-				/* No FBO - fallback to reading the entire texture */
-				pitch = ogl_pitch(ogl_bitmap->true_w, pixel_size);
+#ifndef ALLEGRO_ANDROID
+            /* No FBO - fallback to reading the entire texture */
+            pitch = ogl_pitch(ogl_bitmap->true_w, pixel_size);
             ogl_bitmap->lock_buffer = al_malloc(pitch * ogl_bitmap->true_h);
 
             glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
@@ -723,8 +723,11 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
 
             bitmap->locked_region.data = ogl_bitmap->lock_buffer +
                pitch * (gl_y + h - 1) + pixel_size * x;
-         }
+#else
+            /* Unreachable on Android. */
+            abort();
 #endif /* !ALLEGRO_ANDROID */
+         }
       }
    }
 #else
@@ -916,6 +919,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             e = glGetError();
             if (e) {
                GLint tex_internalformat;
+               (void)tex_internalformat;
                ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
                   _al_format_name(lock_format), _al_gl_error_string(e));
 #if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
@@ -929,8 +933,8 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             }
          }
       }
-#ifndef ALLEGRO_ANDROID
       else {
+#ifndef ALLEGRO_ANDROID
          unsigned char *start_ptr;
          if (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY) {
             ALLEGRO_DEBUG("Unlocking non-backbuffer WRITEONLY\n");
@@ -953,8 +957,11 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
                _al_format_name(lock_format), _al_gl_error_string(e));
          }
-      }
+#else
+         /* Unreachable on Android. */
+         abort();
 #endif /* !ALLEGRO_ANDROID */
+      }
 
       if (bitmap->flags & ALLEGRO_MIPMAP) {
          /* If using FBOs, we need to regenerate mipmaps explicitly now. */
