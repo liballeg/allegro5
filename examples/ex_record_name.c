@@ -24,8 +24,10 @@ int main(int argc, char *argv[])
    int font_height;
    
    /* Frequency is the number of samples per second. */
-   const int frequency = 8000;
+   const int frequency = 44100;
    
+   const int channels = 2;
+
    /* The latency is used to determine the size of the fragment buffer.
       More accurately, it represents approximately how many seconds will
       pass between fragment events. (There may be overhead latency from
@@ -42,7 +44,7 @@ int main(int argc, char *argv[])
       actually change how the voice detection worked.)
     */
    const float latency = 0.10;
-   
+
    const int max_seconds = 3; /* number of seconds of voice recording */
    
    int16_t *name_buffer;      /* stores up to max_seconds of audio */
@@ -62,19 +64,19 @@ int main(int argc, char *argv[])
    al_init();
    
    if (!al_install_audio()) {
-      abort_example("Unable to initialize audio addon");
+      abort_example("Unable to initialize audio addon\n");
    }
    
    if (!al_init_acodec_addon()) {
-      abort_example("Unable to initialize acoded addon");
+      abort_example("Unable to initialize acoded addon\n");
    }
    
    if (!al_init_image_addon()) {
-      abort_example("Unable to initialize image addon");
+      abort_example("Unable to initialize image addon\n");
    }
    
    if (!al_init_primitives_addon()) {
-      abort_example("Unable to initialize primitives addon");
+      abort_example("Unable to initialize primitives addon\n");
    }
       
    al_init_font_addon();
@@ -82,12 +84,12 @@ int main(int argc, char *argv[])
    
    font = al_load_bitmap_font("data/bmpfont.tga");
    if (!font) {
-      abort_example("Unable to load data/a4_font.tga");
+      abort_example("Unable to load data/a4_font.tga\n");
    }
    
    font_height = al_get_font_line_height(font);
    
-   /* WARNING: This demo assumes an audio depth of INT16 and a single channel.
+   /* WARNING: This demo assumes an audio depth of INT16 and two channels.
       Changing those values will break the demo. Nothing here really needs to be
       changed. If you want to fiddle with things, adjust the constants at the
       beginning of the program.
@@ -99,25 +101,25 @@ int main(int argc, char *argv[])
                                         latency in seconds */
       frequency,                   /* samples per second (higher => better quality) */
       ALLEGRO_AUDIO_DEPTH_INT16,   /* 2-byte sample size */
-      ALLEGRO_CHANNEL_CONF_1       /* mono */
+      ALLEGRO_CHANNEL_CONF_2       /* stereo */
    );
    
    if (!recorder) {
-      abort_example("Unable to create audio recorder");
+      abort_example("Unable to create audio recorder\n");
    }
    
    display = al_create_display(640, 480);
    if (!display) {
-      abort_example("Unable to create display");
+      abort_example("Unable to create display\n");
    }
    
    /* Used to play back the voice recording. */
    al_reserve_samples(1);
    
    /* store up to three seconds */
-   name_buffer = al_calloc(frequency * max_seconds, sizeof(int16_t));
+   name_buffer = al_calloc(channels * frequency * max_seconds, sizeof(int16_t));
    name_buffer_pos = name_buffer;
-   name_buffer_end = name_buffer + frequency * max_seconds;
+   name_buffer_end = name_buffer + channels * frequency * max_seconds;
    
    queue = al_create_event_queue();
    timer = al_create_timer(1 / 60.0);
@@ -164,7 +166,7 @@ int main(int argc, char *argv[])
             large fragment size were used, then we'd have to inspect smaller portions 
             of it at a time to more accurately deterine when recording started and
             stopped. */
-         for (i = 0; i < re->samples; ++i) {
+         for (i = 0; i < channels * re->samples; ++i) {
             if (buffer[i] < low)
                low = buffer[i];
             else if (buffer[i] > high)
@@ -184,7 +186,7 @@ int main(int argc, char *argv[])
          if (is_recording) {
             /* Copy out of the fragment buffer into our own buffer that holds the
                name. */
-            int samples_to_copy = re->samples;
+            int samples_to_copy = channels * re->samples;
             
             /* Don't overfill up our name buffer... */
             if (samples_to_copy > name_buffer_end - name_buffer_pos)
@@ -204,7 +206,7 @@ int main(int argc, char *argv[])
          if (!is_recording && name_buffer_pos != name_buffer && !spl) {
             /* finished recording, but haven't created the sample yet */
             spl = al_create_sample(name_buffer, name_buffer_pos - name_buffer, frequency, 
-               ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_1, false);
+               ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2, false);
             
             /* We no longer need the recorder. Destroying it is the only way to unlock the device. */
             al_destroy_audio_recorder(recorder);
