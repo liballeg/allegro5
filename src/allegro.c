@@ -29,7 +29,10 @@
 
 #ifdef ALLEGRO_ANDROID
 #  include <android/log.h>
+
+static char android_trace_buf[2048];
 #endif
+
 
 /* tracing */
 typedef struct TRACE_INFO
@@ -264,27 +267,24 @@ static void open_trace_file(void)
 }
 
 
-static char trace_buff[2048] = { 0 };
 static void do_trace(const char *msg, ...)
 {
    va_list ap;
 
 #ifdef ALLEGRO_ANDROID
    {
-      // yay for buffer overflows.
-      char tmp[2048] = { 0 };
-      
+      char tmp[2048];
+
       va_start(ap, msg);
-      vsnprintf(tmp, 2048, msg, ap);
+      vsnprintf(tmp, sizeof(tmp), msg, ap);
       va_end(ap);
 
-      strncat(trace_buff, tmp, 2048);
-      
-      //__android_log_print(ANDROID_LOG_INFO, "do_trace", "blah");
-      
-      if(tmp[strlen(tmp)-1] == '\n') {
-         (void)__android_log_print(ANDROID_LOG_INFO, "allegro", trace_buff);
-         tmp[0] = 0;
+      strncat(android_trace_buf, tmp, sizeof(android_trace_buf));
+
+      if (tmp[strlen(tmp)-1] == '\n') {
+         (void)__android_log_print(ANDROID_LOG_INFO, "allegro",
+            android_trace_buf);
+         android_trace_buf[0] = '\0';
       }
    }
 #else
@@ -353,12 +353,12 @@ channel_included:
 
 #ifdef ALLEGRO_ANDROID
    {
-      char pid_buf[16] = { 0 };
-      sprintf(pid_buf, "%i: ", gettid());
+      char pid_buf[16];
+      snprintf(pid_buf, sizeof(pid_buf), "%i: ", gettid());
       do_trace(pid_buf);
    }
-#endif 
-   
+#endif
+
 #ifdef ALLEGRO_MSVC
    name = strrchr(file, '\\');
 #else
@@ -396,20 +396,18 @@ void _al_trace_suffix(const char *msg, ...)
    va_list ap;
 
 #ifdef ALLEGRO_ANDROID
+   {
+      char tmp[2048];
 
-   // yay for buffer overflows.
-   char tmp[2048] = { 0 };
-   
-   va_start(ap, msg);
-   vsnprintf(tmp, 2048, msg, ap);
-   va_end(ap);
+      va_start(ap, msg);
+      vsnprintf(tmp, sizeof(tmp), msg, ap);
+      va_end(ap);
 
-   strncat(trace_buff, tmp, 2048);
+      strncat(android_trace_buf, tmp, sizeof(android_trace_buf));
 
-   (void)__android_log_print(ANDROID_LOG_INFO, "allegro", trace_buff);
-   
-   trace_buff[0] = 0;
-      
+      (void)__android_log_print(ANDROID_LOG_INFO, "allegro", android_trace_buf);
+      android_trace_buf[0] = '\0';
+   }
 #else
    if (trace_info.trace_file) {
       va_start(ap, msg);
