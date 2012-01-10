@@ -592,7 +592,7 @@ void al_acknowledge_drawing_halt(ALLEGRO_DISPLAY *display)
    }
 }
 
-/* Function: al_acknowledge_drawing_halt
+/* Function: al_acknowledge_drawing_resume
  */
 void al_acknowledge_drawing_resume(ALLEGRO_DISPLAY *display)
 {

@@ -680,4 +680,8 @@ Since: 5.1.0
 
 See also: [ALLEGRO_EVENT]
 
+### API: al_acknowledge_drawing_resume
 
+*Not yet documented.*
+
+Since: 5.1.1
