@@ -1,4 +1,5 @@
 option(WANT_FFMPEG "Enable FFMPEG video driver" on)
+option(WANT_OGG_VIDEO "Enable Ogg video (requires Theora and Vorbis)" on)
 
 set(VIDEO_SOURCES
     video.c
@@ -20,12 +21,29 @@ if(WANT_FFMPEG)
     endif(FFMPEG_FOUND)
 endif(WANT_FFMPEG)
 
+if(WANT_OGG_VIDEO)
+    include(FindTheora)
+    include(FindVorbis)
+    if(THEORA_FOUND AND VORBIS_FOUND)
+        set(SUPPORT_OGG_VIDEO 1)
+    endif()
+endif(WANT_OGG_VIDEO)
+
 if(SUPPORT_FFMPEG)
     set(ALLEGRO_CFG_VIDEO_FFMPEG 1)
     list(APPEND VIDEO_SOURCES ffmpeg.c)
     set(SUPPORT_VIDEO 1)
     set(VIDEO_LIBRARIES ${FFMPEG_LIBRARIES})
 endif(SUPPORT_FFMPEG)
+
+if(SUPPORT_OGG_VIDEO)
+    include_directories(SYSTEM ${OGG_INCLUDE_DIR} ${VORBIS_INCLUDE_DIR})
+    include_directories(SYSTEM ${THEORA_INCLUDE_DIR})
+    set(ALLEGRO_CFG_VIDEO_OGG 1)
+    list(APPEND VIDEO_SOURCES ogv.c)
+    set(SUPPORT_VIDEO 1)
+    set(VIDEO_LIBRARIES ${THEORA_LIBRARIES} ${VORBIS_LIBRARIES})
+endif(SUPPORT_OGG_VIDEO)
 
 if(NOT SUPPORT_VIDEO)
     message("WARNING: allegro_video wanted but no supported backend found")
