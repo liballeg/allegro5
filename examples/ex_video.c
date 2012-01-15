@@ -106,6 +106,7 @@ int main(int argc, char *argv[])
    timer = al_create_timer(1.0 / 60);
 
    al_set_new_display_flags(ALLEGRO_RESIZABLE);
+   al_set_new_display_option(ALLEGRO_VSYNC, 1, ALLEGRO_SUGGEST);
    screen = al_create_display(640, 480);
    if (!screen) {
       fprintf(stderr, "SDL: could not set video mode - exiting\n");
@@ -117,6 +118,8 @@ int main(int argc, char *argv[])
       fprintf(stderr, "No font.\n");
       exit(1);
    }
+
+   al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
 
    filename = argv[1];
    video = al_open_video(filename);
