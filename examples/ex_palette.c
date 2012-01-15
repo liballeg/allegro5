@@ -143,7 +143,7 @@ int main(void)
       "void main()\n"
       "{\n"
       "  vec4 c = texture2D(tex, varying_texcoord);\n"
-      "  int index = int(c.r * 255);\n"
+      "  int index = int(c.r * 255.0);\n"
       "  if (index != 0) {;\n"
       "    gl_FragColor = vec4(pal[index], 1);\n"
       "  }\n"
