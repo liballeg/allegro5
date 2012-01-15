@@ -16,12 +16,11 @@ struct ALLEGRO_VIDEO {
    double video_position;
    double fps;
    int width, height;
-   
+   double aspect_ratio;
+
    /* audio */
    ALLEGRO_MIXER *mixer;
    ALLEGRO_VOICE *voice;
-   int audio_buffer_count;
-   int audio_samples_per_buffer;
    ALLEGRO_AUDIO_STREAM *audio;
    double audio_position;
    double audio_rate;
@@ -30,10 +29,8 @@ struct ALLEGRO_VIDEO {
    ALLEGRO_EVENT_SOURCE es;
    ALLEGRO_PATH *filename;
    bool paused;
-   double audio_offset;
    double position;
    double seek_to;
-   double aspect_ratio;
 
    /* implementation specific */
    void *data;
