@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
    ALLEGRO_TIMER *timer;
    ALLEGRO_VIDEO *video;
    bool fullscreen = false;
+   bool redraw = true;
 
    if (argc < 2) {
       fprintf(stderr, "Usage: test <file>\n");
@@ -93,7 +94,7 @@ int main(int argc, char *argv[])
    al_install_keyboard();
 
    al_install_audio();
-   al_reserve_samples(0);
+   al_reserve_samples(1);
    al_init_primitives_addon();
    
    /* In this example we use a fixed FPS timer. If the video is
@@ -145,6 +146,11 @@ int main(int argc, char *argv[])
    for (;;) {
       double incr;
 
+      if (redraw && al_event_queue_is_empty(queue)) {
+         video_display(video);
+         redraw = false;
+      }
+
       al_wait_for_event(queue, &event);
       switch (event.type) {
          case ALLEGRO_EVENT_KEY_DOWN:
@@ -191,10 +197,10 @@ int main(int argc, char *argv[])
             }
             break;
          
-          case ALLEGRO_EVENT_DISPLAY_RESIZE:
-               al_acknowledge_resize(screen);
-               al_clear_to_color(al_map_rgb(0, 0, 0));
-               break;
+         case ALLEGRO_EVENT_DISPLAY_RESIZE:
+            al_acknowledge_resize(screen);
+            al_clear_to_color(al_map_rgb(0, 0, 0));
+            break;
 
          case ALLEGRO_EVENT_TIMER:
             /*
@@ -203,7 +209,7 @@ int main(int argc, char *argv[])
                video_time = display_time + video_refresh_timer(is);
             }*/
 
-            video_display(video);
+            redraw = true;
             break;
 
          case ALLEGRO_EVENT_DISPLAY_CLOSE:
@@ -220,3 +226,5 @@ int main(int argc, char *argv[])
    }
    return 0;
 }
+
+/* vim: set sts=3 sw=3 et: */
