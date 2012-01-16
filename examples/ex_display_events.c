@@ -13,7 +13,6 @@ static char events[MAX_EVENTS][1024];
 static void add_event(char const *f, ...)
 {
    va_list args;
-   int i;
    memmove(events[1], events[0], (MAX_EVENTS - 1) * 1024);
    va_start(args, f);
    vsnprintf(events[0], 1024, f, args);
@@ -23,13 +22,11 @@ static void add_event(char const *f, ...)
 int main(void)
 {
    ALLEGRO_DISPLAY *display;
-   ALLEGRO_BITMAP *cursor;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_EVENT event;
    ALLEGRO_FONT *font;
 
    int i;
-   float p = 0.0;
    ALLEGRO_COLOR color, black, red, blue;
 
    if (!al_init()) {
