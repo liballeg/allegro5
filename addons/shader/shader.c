@@ -140,7 +140,7 @@ bool al_attach_shader_source_file(ALLEGRO_SHADER *shader,
 }
 
 /* Function: al_get_shader_log
-  */
+ */
 const char *al_get_shader_log(ALLEGRO_SHADER *shader)
 {
    ASSERT(shader);
@@ -311,7 +311,7 @@ bool al_set_shader_float_vector(ALLEGRO_SHADER *shader, const char *name,
    return false;
 }
 
-/* Function: al_set_shader_int
+/* Function: al_set_shader_bool
  */
 bool al_set_shader_bool(ALLEGRO_SHADER *shader, const char *name, bool b)
 {
