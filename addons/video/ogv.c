@@ -771,7 +771,7 @@ static bool handle_theora_data(ALLEGRO_VIDEO *video, THEORA_STREAM *tstream,
    if (framenum > expected_framenum) {
       /* Packet is for a later frame, don't decode it yet. */
       ALLEGRO_DEBUG("Expected frame %ld, got %ld\n",
-         expected_framenum, framenum);
+         (long)expected_framenum, (long)framenum);
       video->video_position += tstream->frame_duration;
       tstream->prev_framenum++;
       return false;
@@ -779,7 +779,7 @@ static bool handle_theora_data(ALLEGRO_VIDEO *video, THEORA_STREAM *tstream,
 
    if (framenum < expected_framenum) {
       ALLEGRO_DEBUG("Expected frame %ld, got %ld (decoding anyway)\n",
-         expected_framenum, framenum);
+         (long)expected_framenum, (long)framenum);
    }
 
    rc = th_decode_packetin(tstream->ctx, packet, NULL);
