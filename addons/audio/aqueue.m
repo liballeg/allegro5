@@ -17,7 +17,7 @@
 
 #include <stdio.h>
 
-#include "allegro5/allegro.h"
+#include "allegro5/allegro.h" 
 #include "allegro5/internal/aintern.h"
 #include "allegro5/allegro_audio.h"
 #include "allegro5/internal/aintern_audio.h"
@@ -39,6 +39,8 @@
 // Make configurable
 #define BUFFER_SIZE 1024*2 // in samples
 #define NUM_BUFFERS 4
+
+ALLEGRO_DEBUG_CHANNEL("AudioQueue")
 
 typedef struct ALLEGRO_AQ_DATA {
    int bits_per_sample;
@@ -388,6 +390,161 @@ static int _aqueue_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
    return 0;
 }
 
+typedef struct RECORDER_DATA
+{
+   AudioStreamBasicDescription data_format;
+   AudioQueueRef queue;
+   
+   /* AudioQueue buffer information */
+   AudioQueueBufferRef *buffers;   
+   int buffer_count;
+   uint32_t buffer_size;
+
+   /* User fragment buffer information.
+    *   Which buffer are we writing into, and
+    *   how much data has already been written?
+    */
+   unsigned int fragment_i;
+   unsigned int samples_written;
+
+} RECORDER_DATA;
+
+static void _aqueue_recording_callback(void *user_data, AudioQueueRef aq,                          
+                                       AudioQueueBufferRef aq_buffer, const AudioTimeStamp *start_time,
+                                       uint32_t sample_count, const AudioStreamPacketDescription *descs)
+{
+   ALLEGRO_AUDIO_RECORDER *recorder = (ALLEGRO_AUDIO_RECORDER *) user_data;
+   RECORDER_DATA *data = (RECORDER_DATA *) recorder->extra;
+   void *input = aq_buffer->mAudioData;
+ 
+   (void) aq;
+   (void) start_time;
+   (void) descs;   
+    
+   if (sample_count == 0 && data->data_format.mBytesPerPacket != 0) {
+      sample_count = aq_buffer->mAudioDataByteSize / data->data_format.mBytesPerPacket;
+   }
+   
+   al_lock_mutex(recorder->mutex);
+
+   if (recorder->is_recording) {
+      /* Process the full buffer, putting it into as many user fragments as it needs.
+       * Send an event for every full user fragment.
+       */
+      while (sample_count > 0) {
+         unsigned int samples_left = recorder->samples - data->samples_written;
+         unsigned int samples_to_write = sample_count < samples_left ? sample_count : samples_left;
+         
+         /* Copy the incoming data into the user's fragment buffer */
+         memcpy(recorder->fragments[data->fragment_i] + data->samples_written * recorder->sample_size,
+                input, samples_to_write * recorder->sample_size);
+         
+         input += samples_to_write * recorder->sample_size;
+         data->samples_written += samples_to_write;
+         sample_count -= samples_to_write;
+         
+         /* We should have never written more samples than the user asked for */
+         ALLEGRO_ASSERT(recorder->samples >= data->samples_written);
+         
+         if (data->samples_written == recorder->samples) {
+            ALLEGRO_EVENT user_event;
+            ALLEGRO_AUDIO_RECORDER_EVENT *e;
+            user_event.user.type = ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT;
+            e = al_get_audio_recorder_event(&user_event);
+            e->buffer = recorder->fragments[data->fragment_i];
+            e->samples = recorder->samples;
+            al_emit_user_event(&recorder->source, &user_event, NULL);
+            
+            if (++data->fragment_i == recorder->fragment_count) {
+               data->fragment_i = 0;
+            }
+            
+            data->samples_written = 0;
+         }
+      }
+   }
+   
+   al_unlock_mutex(recorder->mutex);
+
+       
+   AudioQueueEnqueueBuffer(data->queue, aq_buffer, 0, NULL);
+}
+
+static int _aqueue_allocate_recorder(ALLEGRO_AUDIO_RECORDER *recorder)
+{
+   RECORDER_DATA *data;
+   int i;
+   int ret;
+   
+   data = al_calloc(1, sizeof(*data));
+   if (!data) return 1;
+   
+   data->buffer_count = 3;
+   data->buffers = al_calloc(data->buffer_count, sizeof(AudioQueueBufferRef));
+   if (!data->buffers) {
+      al_free(data);
+      return 1;
+   }
+   
+   data->data_format.mFormatID = kAudioFormatLinearPCM;
+   data->data_format.mSampleRate = recorder->frequency;
+   data->data_format.mChannelsPerFrame = al_get_channel_count(recorder->chan_conf);
+   data->data_format.mFramesPerPacket = 1;
+   data->data_format.mBitsPerChannel = al_get_audio_depth_size(recorder->depth) * 8;
+   data->data_format.mBytesPerFrame = 
+   data->data_format.mBytesPerPacket = data->data_format.mChannelsPerFrame * al_get_audio_depth_size(recorder->depth);
+   
+   data->data_format.mFormatFlags = kLinearPCMFormatFlagIsPacked;   
+   if (recorder->depth == ALLEGRO_AUDIO_DEPTH_FLOAT32)
+      data->data_format.mFormatFlags |= kLinearPCMFormatFlagIsFloat;
+   else if (!(recorder->depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED))
+      data->data_format.mFormatFlags |= kLinearPCMFormatFlagIsSignedInteger;
+      
+   data->buffer_size = 2048; // in bytes
+  
+   ret = AudioQueueNewInput(
+      &data->data_format,
+      _aqueue_recording_callback,
+      recorder,
+      NULL,
+      kCFRunLoopCommonModes, 
+      0,
+      &data->queue
+   );
+   
+   if (ret) {
+      ALLEGRO_ERROR("AudioQueueNewInput failed (%d)\n", ret);
+      al_free(data->buffers);
+      al_free(data);
+      return 1;
+   }
+   
+   /* Create the buffers */
+   for (i = 0; i < data->buffer_count; ++i) {
+      AudioQueueAllocateBuffer(data->queue, data->buffer_size, &data->buffers[i]);
+      AudioQueueEnqueueBuffer(data->queue, data->buffers[i], 0, NULL);
+   }
+   
+   AudioQueueStart(data->queue, NULL);
+   
+   recorder->extra = data;
+
+   /* No thread is created. */
+   
+   return 0;
+}
+
+static void _aqueue_deallocate_recorder(ALLEGRO_AUDIO_RECORDER *recorder)
+{
+   RECORDER_DATA *data = (RECORDER_DATA *) recorder->extra;
+ 
+   AudioQueueStop(data->queue, true);   
+   AudioQueueDispose(data->queue, true);
+
+   al_free(data->buffers);
+   al_free(data);
+}
+
 ALLEGRO_AUDIO_DRIVER _al_kcm_aqueue_driver = {
    "Apple Audio Queues",
 
@@ -408,7 +565,7 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_aqueue_driver = {
    _aqueue_get_voice_position,
    _aqueue_set_voice_position,
 
-   NULL,
-   NULL
+   _aqueue_allocate_recorder,
+   _aqueue_deallocate_recorder
 };
 

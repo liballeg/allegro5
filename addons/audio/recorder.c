@@ -153,6 +153,10 @@ void al_destroy_audio_recorder(ALLEGRO_AUDIO_RECORDER *r)
       al_destroy_thread(r->thread);
     }
    
+   if (_al_kcm_driver->deallocate_recorder) {
+      _al_kcm_driver->deallocate_recorder(r);
+   }
+   
    al_destroy_user_event_source(&r->source);     
    al_destroy_mutex(r->mutex);
    al_destroy_cond(r->cond);
