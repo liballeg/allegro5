@@ -1223,7 +1223,15 @@ See also: [ALLEGRO_AUDIO_EVENT_TYPE], [al_get_audio_stream_event_source],
 
 ## Audio recording
 
-Only the PulseAudio and DirectSound8 drivers supports audio recording.
+Allegro's audio recording routines give you real-time access to raw,
+uncompressed audio input streams. Since Allegro hides all of the 
+platform specific implementation details with its own buffering, it will
+add a small amount of latency. However, for most applications that small
+overhead will not adversely affect performance.
+
+Recording is supported by the ALSA, AudioQueue, DirectSound8, and
+PulseAudio drivers. Enumerating or choosing other recording devices is not
+yet supported.
 
 ### API: ALLEGRO_AUDIO_RECORDER
 
