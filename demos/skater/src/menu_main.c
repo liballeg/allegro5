@@ -16,19 +16,12 @@ static int id(void)
 
 
 static DEMO_MENU menu[] = {
-   {demo_button_proc, "New Game", DEMO_MENU_SELECTABLE,
-    DEMO_STATE_NEW_GAME, 0, 0},
-   {demo_text_proc, "Continue Game", 0, DEMO_STATE_CONTINUE_GAME, 0,
-    0},
-   {demo_button_proc, "Options", DEMO_MENU_SELECTABLE,
-    DEMO_STATE_OPTIONS,
-    0, 0},
-   {demo_button_proc, "About", DEMO_MENU_SELECTABLE, DEMO_STATE_ABOUT,
-    0,
-    0},
-   {demo_button_proc, "Exit", DEMO_MENU_SELECTABLE, DEMO_STATE_EXIT,
-    0, 0},
-   {0, 0, 0, 0, 0, 0}
+   DEMO_MENU_ITEM4(demo_button_proc, "New Game", DEMO_MENU_SELECTABLE, DEMO_STATE_NEW_GAME),
+   DEMO_MENU_ITEM4(demo_text_proc, "Continue Game", 0, DEMO_STATE_CONTINUE_GAME),
+   DEMO_MENU_ITEM4(demo_button_proc, "Options", DEMO_MENU_SELECTABLE, DEMO_STATE_OPTIONS),
+   DEMO_MENU_ITEM4(demo_button_proc, "About", DEMO_MENU_SELECTABLE, DEMO_STATE_ABOUT),
+   DEMO_MENU_ITEM4(demo_button_proc, "Exit", DEMO_MENU_SELECTABLE, DEMO_STATE_EXIT),
+   DEMO_MENU_END
 };
 
 void enable_continue_game(void)

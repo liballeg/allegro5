@@ -14,21 +14,16 @@ static int id(void)
 
 
 static DEMO_MENU menu[] = {
-   {demo_text_proc, "Well done! Ted's stock is saved!", 0, 0, 0, 0},
-   {demo_text_proc, " ", 0, 0, 0, 0},
-   {demo_text_proc, "This demo has shown only a fraction", 0, 0, 0,
-    0},
-   {demo_text_proc, "of Allegro's capabilities.", 0, 0, 0, 0},
-   {demo_text_proc, " ", 0, 0, 0, 0},
-   {demo_text_proc, "Now it's up to you to show the world the rest!",
-    0, 0,
-    0, 0},
-   {demo_text_proc, "Get coding!", 0, 0, 0, 0},
-   {demo_text_proc, " ", 0, 0, 0, 0},
-   {demo_button_proc, "Back", DEMO_MENU_SELECTABLE,
-    DEMO_STATE_MAIN_MENU,
-    0, 0},
-   {0, 0, 0, 0, 0, 0}
+   DEMO_MENU_ITEM2(demo_text_proc, "Well done! Ted's stock is saved!"),
+   DEMO_MENU_ITEM2(demo_text_proc, " "),
+   DEMO_MENU_ITEM2(demo_text_proc, "This demo has shown only a fraction"),
+   DEMO_MENU_ITEM2(demo_text_proc, "of Allegro's capabilities."),
+   DEMO_MENU_ITEM2(demo_text_proc, " "),
+   DEMO_MENU_ITEM2(demo_text_proc, "Now it's up to you to show the world the rest!"),
+   DEMO_MENU_ITEM2(demo_text_proc, "Get coding!"),
+   DEMO_MENU_ITEM2(demo_text_proc, " "),
+   DEMO_MENU_ITEM4(demo_button_proc, "Back", DEMO_MENU_SELECTABLE, DEMO_STATE_MAIN_MENU),
+   DEMO_MENU_END
 };
 
 

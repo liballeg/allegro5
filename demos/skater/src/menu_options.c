@@ -13,22 +13,13 @@ static int id(void)
 
 
 static DEMO_MENU menu[] = {
-   {demo_text_proc, "OPTIONS", 0, 0, 0, 0},
-   {demo_button_proc, "Graphics", DEMO_MENU_SELECTABLE,
-    DEMO_STATE_GFX, 0,
-    0},
-   {demo_button_proc, "Sound", DEMO_MENU_SELECTABLE, DEMO_STATE_SOUND,
-    0,
-    0},
-   {demo_button_proc, "Controls", DEMO_MENU_SELECTABLE,
-    DEMO_STATE_CONTROLS, 0, 0},
-   {demo_button_proc, "System", DEMO_MENU_SELECTABLE, DEMO_STATE_MISC,
-    0,
-    0},
-   {demo_button_proc, "Back", DEMO_MENU_SELECTABLE,
-    DEMO_STATE_MAIN_MENU,
-    0, 0},
-   {0, 0, 0, 0, 0, 0}
+   DEMO_MENU_ITEM2(demo_text_proc, "OPTIONS"),
+   DEMO_MENU_ITEM4(demo_button_proc, "Graphics", DEMO_MENU_SELECTABLE, DEMO_STATE_GFX),
+   DEMO_MENU_ITEM4(demo_button_proc, "Sound", DEMO_MENU_SELECTABLE, DEMO_STATE_SOUND),
+   DEMO_MENU_ITEM4(demo_button_proc, "Controls", DEMO_MENU_SELECTABLE, DEMO_STATE_CONTROLS),
+   DEMO_MENU_ITEM4(demo_button_proc, "System", DEMO_MENU_SELECTABLE, DEMO_STATE_MISC),
+   DEMO_MENU_ITEM4(demo_button_proc, "Back", DEMO_MENU_SELECTABLE, DEMO_STATE_MAIN_MENU),
+   DEMO_MENU_END
 };
 
 

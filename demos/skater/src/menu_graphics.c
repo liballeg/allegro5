@@ -33,24 +33,15 @@ static void on_vsync(DEMO_MENU * item)
 }
 
 static DEMO_MENU menu[] = {
-   {demo_text_proc, "GFX SETTINGS", 0, 0, 0, 0},
-   {demo_choice_proc, "Mode", DEMO_MENU_SELECTABLE, 0,
-    (void *)choice_fullscreen, on_fullscreen},
-   {demo_choice_proc, "Bit Depth", DEMO_MENU_SELECTABLE, 0,
-    (void *)choice_bpp, 0},
-   {demo_choice_proc, "Screen Size", DEMO_MENU_SELECTABLE, 0,
-    NULL, 0},
-   {demo_choice_proc, "Supersampling", DEMO_MENU_SELECTABLE, 0,
-    (void *)choice_samples, 0},
-   {demo_choice_proc, "Vsync", DEMO_MENU_SELECTABLE, 0,
-    (void *)choice_on_off, on_vsync},
-   {demo_button_proc, "Apply", DEMO_MENU_SELECTABLE, DEMO_STATE_GFX,
-    0,
-    apply},
-   {demo_button_proc, "Back", DEMO_MENU_SELECTABLE,
-    DEMO_STATE_OPTIONS, 0,
-    0},
-   {0, 0, 0, 0, 0, 0}
+   DEMO_MENU_ITEM2(demo_text_proc, "GFX SETTINGS"),
+   DEMO_MENU_ITEM6(demo_choice_proc, "Mode", DEMO_MENU_SELECTABLE, 0, (void *)choice_fullscreen, on_fullscreen),
+   DEMO_MENU_ITEM6(demo_choice_proc, "Bit Depth", DEMO_MENU_SELECTABLE, 0, (void *)choice_bpp, 0),
+   DEMO_MENU_ITEM6(demo_choice_proc, "Screen Size", DEMO_MENU_SELECTABLE, 0, NULL, 0),
+   DEMO_MENU_ITEM6(demo_choice_proc, "Supersampling", DEMO_MENU_SELECTABLE, 0, (void *)choice_samples, 0),
+   DEMO_MENU_ITEM6(demo_choice_proc, "Vsync", DEMO_MENU_SELECTABLE, 0, (void *)choice_on_off, on_vsync),
+   DEMO_MENU_ITEM6(demo_button_proc, "Apply", DEMO_MENU_SELECTABLE, DEMO_STATE_GFX, 0, apply),
+   DEMO_MENU_ITEM6(demo_button_proc, "Back", DEMO_MENU_SELECTABLE, DEMO_STATE_OPTIONS, 0, 0),
+   DEMO_MENU_END
 };
 
 static void on_fullscreen(DEMO_MENU *item)

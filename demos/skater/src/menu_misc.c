@@ -35,17 +35,12 @@ static void on_yield(DEMO_MENU * item)
 
 
 static DEMO_MENU menu[] = {
-   {demo_text_proc, "SYSTEM SETTINGS", 0, 0, 0, 0},
-   {demo_choice_proc, "Show Framerate", DEMO_MENU_SELECTABLE, 0,
-    (void *)choice_yes_no, on_fps},
-   {demo_choice_proc, "Cap Framerate", DEMO_MENU_SELECTABLE, 0,
-    (void *)choice_yes_no, on_limit},
-   {demo_choice_proc, "Conserve Power", DEMO_MENU_SELECTABLE, 0,
-    (void *)choice_yes_no, on_yield},
-   {demo_button_proc, "Back", DEMO_MENU_SELECTABLE,
-    DEMO_STATE_OPTIONS, 0,
-    0},
-   {0, 0, 0, 0, 0, 0}
+   DEMO_MENU_ITEM2(demo_text_proc, "SYSTEM SETTINGS"),
+   DEMO_MENU_ITEM6(demo_choice_proc, "Show Framerate", DEMO_MENU_SELECTABLE, 0, (void *)choice_yes_no, on_fps),
+   DEMO_MENU_ITEM6(demo_choice_proc, "Cap Framerate", DEMO_MENU_SELECTABLE, 0, (void *)choice_yes_no, on_limit),
+   DEMO_MENU_ITEM6(demo_choice_proc, "Conserve Power", DEMO_MENU_SELECTABLE, 0, (void *)choice_yes_no, on_yield),
+   DEMO_MENU_ITEM4(demo_button_proc, "Back", DEMO_MENU_SELECTABLE, DEMO_STATE_OPTIONS),
+   DEMO_MENU_END
 };
 
 

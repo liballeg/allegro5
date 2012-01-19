@@ -15,21 +15,21 @@ static int id(void)
 
 
 static DEMO_MENU menu[] = {
-   {demo_text_proc, "Looks like rain. And soon!", 0, 0, 0, 0},
-   {demo_text_proc, " ", 0, 0, 0, 0},
-   {demo_text_proc, "Help coastal outdoor confectioner Ted collect the cherries,", 0, 0, 0, 0},
-   {demo_text_proc, "bananas, sliced oranges, sweets and ice creams he has on display", 0, 0, 0, 0},
-   {demo_text_proc, "before the rain begins!", 0, 0, 0, 0}, 
-   {demo_text_proc, "Luckily he has a skateboard so it should be a breeze!", 0, 0, 0, 0},
-   {demo_text_proc, " ", 0, 0, 0, 0},
-   {demo_text_proc, NULL, 0, 0, 0, 0},
-   {demo_text_proc, "by Shawn Hargreaves and many others", 0, 0, 0, 0},
-   {demo_text_proc, " ", 0, 0, 0, 0},
-   {demo_text_proc, "Allegro Demo Game", 0, 0, 0, 0},
-   {demo_text_proc, "By Miran Amon, Nick Davies, Elias Pschernig, Thomas Harte & Jakub Wasilewski", 0, 0, 0, 0},
-   {demo_text_proc, " ", 0, 0, 0, 0},
-   {demo_button_proc, "Back", DEMO_MENU_SELECTABLE, DEMO_STATE_MAIN_MENU, 0, 0},
-   {NULL, NULL, 0, 0, 0, 0}
+   DEMO_MENU_ITEM2(demo_text_proc, "Looks like rain. And soon!"),
+   DEMO_MENU_ITEM2(demo_text_proc, " "),
+   DEMO_MENU_ITEM2(demo_text_proc, "Help coastal outdoor confectioner Ted collect the cherries,"),
+   DEMO_MENU_ITEM2(demo_text_proc, "bananas, sliced oranges, sweets and ice creams he has on display"),
+   DEMO_MENU_ITEM2(demo_text_proc, "before the rain begins!"),
+   DEMO_MENU_ITEM2(demo_text_proc, "Luckily he has a skateboard so it should be a breeze!"),
+   DEMO_MENU_ITEM2(demo_text_proc, " "),
+   DEMO_MENU_ITEM2(demo_text_proc, NULL),
+   DEMO_MENU_ITEM2(demo_text_proc, "by Shawn Hargreaves and many others"),
+   DEMO_MENU_ITEM2(demo_text_proc, " "),
+   DEMO_MENU_ITEM2(demo_text_proc, "Allegro Demo Game"),
+   DEMO_MENU_ITEM2(demo_text_proc, "By Miran Amon, Nick Davies, Elias Pschernig, Thomas Harte & Jakub Wasilewski"),
+   DEMO_MENU_ITEM2(demo_text_proc, " "),
+   DEMO_MENU_ITEM4(demo_button_proc, "Back", DEMO_MENU_SELECTABLE, DEMO_STATE_MAIN_MENU),
+   DEMO_MENU_END
 };
 
 

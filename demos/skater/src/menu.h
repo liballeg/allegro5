@@ -35,6 +35,18 @@ struct DEMO_MENU {
    int x, y, w, h;
 };
 
+#define DEMO_MENU_ITEM2(proc, name) \
+   {proc, name, 0, 0, 0, 0, 0, 0, 0, 0}
+
+#define DEMO_MENU_ITEM4(proc, name, flags, extra) \
+   {proc, name, flags, extra, 0, 0, 0, 0, 0, 0}
+
+#define DEMO_MENU_ITEM6(proc, name, flags, extra, data, on_activate) \
+   {proc, name, flags, extra, data, on_activate, 0, 0, 0, 0}
+
+#define DEMO_MENU_END \
+   DEMO_MENU_ITEM2(0, 0)
+
 void init_demo_menu(DEMO_MENU * menu, int PlayMusic);
 int update_demo_menu(DEMO_MENU * menu);
 void draw_demo_menu(DEMO_MENU * menu);

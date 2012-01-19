@@ -20,19 +20,13 @@ static void on_controller(DEMO_MENU * item);
 
 
 static DEMO_MENU menu[] = {
-   {demo_text_proc, "SETUP CONTROLS", 0, 0, 0, 0},
-   {demo_choice_proc, "Controller", DEMO_MENU_SELECTABLE, 0,
-    (void *)choice_controls, on_controller},
-   {demo_key_proc, "Left", DEMO_MENU_SELECTABLE, DEMO_BUTTON_LEFT, 0,
-    0},
-   {demo_key_proc, "Right", DEMO_MENU_SELECTABLE, DEMO_BUTTON_RIGHT,
-    0, 0},
-   {demo_key_proc, "Jump", DEMO_MENU_SELECTABLE, DEMO_BUTTON_JUMP, 0,
-    0},
-   {demo_button_proc, "Back", DEMO_MENU_SELECTABLE,
-    DEMO_STATE_OPTIONS, 0,
-    0},
-   {0, 0, 0, 0, 0, 0}
+   DEMO_MENU_ITEM2(demo_text_proc, "SETUP CONTROLS"),
+   DEMO_MENU_ITEM6(demo_choice_proc, "Controller", DEMO_MENU_SELECTABLE, 0, (void *)choice_controls, on_controller),
+   DEMO_MENU_ITEM4(demo_key_proc, "Left", DEMO_MENU_SELECTABLE, DEMO_BUTTON_LEFT),
+   DEMO_MENU_ITEM4(demo_key_proc, "Right", DEMO_MENU_SELECTABLE, DEMO_BUTTON_RIGHT),
+   DEMO_MENU_ITEM4(demo_key_proc, "Jump", DEMO_MENU_SELECTABLE, DEMO_BUTTON_JUMP),
+   DEMO_MENU_ITEM4(demo_button_proc, "Back", DEMO_MENU_SELECTABLE, DEMO_STATE_OPTIONS),
+   DEMO_MENU_END
 };
 
 
