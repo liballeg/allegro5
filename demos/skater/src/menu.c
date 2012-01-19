@@ -7,6 +7,7 @@
 #include "music.h"
 #include "vcontroller.h"
 #include "gamepad.h"
+#include "mouse.h"
 
 #define MIN(x,y)     (((x) < (y)) ? (x) : (y))
 #define MAX(x,y)     (((x) > (y)) ? (x) : (y))
@@ -75,6 +76,29 @@ int update_demo_menu(DEMO_MENU * menu)
 
    if (key_pressed(ALLEGRO_KEY_ESCAPE)) {
       return DEMO_MENU_BACK;
+   }
+   
+   /* If a mouse button is pressed, select the item under it and send a
+    * DEMO_MENU_MSG_CHAR with 13 to it (which is the same effect as hitting
+    * the return key).
+    */
+   if (mouse_button_pressed(1)) {
+      int i;
+      for (i = 0; menu[i].proc != NULL; i++) {
+         if (mouse_x() >= menu[i].x && mouse_y() >= menu[i].y &&
+               mouse_x() < menu[i].x + menu[i].w &&
+               mouse_y() < menu[i].y + menu[i].h) {
+            if (menu[i].flags & DEMO_MENU_SELECTABLE) {
+               if (selected_item != -1) {
+                  menu[selected_item].flags &= ~DEMO_MENU_SELECTED;
+               }
+               selected_item = i;
+               menu[i].flags |= DEMO_MENU_SELECTED;
+               play_sound_id(DEMO_SAMPLE_BUTTON, 255, 128, -freq_variation, 0);
+               return menu[i].proc(&menu[i], DEMO_MENU_MSG_CHAR, 13);
+            }
+         }
+      }
    }
 
    if (key_pressed(ALLEGRO_KEY_UP)) {
@@ -173,6 +197,8 @@ void draw_demo_menu(DEMO_MENU * menu)
    w = 0;
    for (i = 0; menu[i].proc != NULL; i++) {
       tmp = menu[i].proc(&menu[i], DEMO_MENU_MSG_WIDTH, 0);
+      menu[i].w = tmp;
+      menu[i].x = (screen_width - tmp) / 2;
       if (tmp > w) {
          w = tmp;
       }
@@ -191,7 +217,10 @@ void draw_demo_menu(DEMO_MENU * menu)
    y += 8;
    for (i = 0; menu[i].proc != NULL; i++) {
       menu[i].proc(&menu[i], DEMO_MENU_MSG_DRAW, y);
-      y += menu[i].proc(&menu[i], DEMO_MENU_MSG_HEIGHT, 0);
+      menu[i].y = y;
+      tmp = menu[i].proc(&menu[i], DEMO_MENU_MSG_HEIGHT, 0);
+      menu[i].h = tmp;
+      y += tmp;
    }
 }
 
@@ -392,6 +421,15 @@ int demo_choice_proc(DEMO_MENU * item, int msg, int extra)
             }
          }
       }
+   } else if (msg == DEMO_MENU_MSG_CHAR && extra == 13) {
+      if (mouse_button_pressed(1)) {
+         x = (screen_width - slider_width) / 2;
+         item->extra = (mouse_x() - x) * choice_count / slider_width;
+         play_sound_id(DEMO_SAMPLE_BUTTON, 255, 128, -freq_variation, 0);
+         if (item->on_activate) {
+            item->on_activate(item);
+         }
+      }
    } else if (msg == DEMO_MENU_MSG_WIDTH) {
       cw = al_get_text_width(demo_font, item->name);
       for (i = 0; item->data[i] != 0; i++) {
@@ -537,6 +575,8 @@ int demo_color_proc(DEMO_MENU * item, int msg, int extra)
       rgb[0] = (c >> 0) & 255;
       rgb[1] = (c >> 8) & 255;
       rgb[2] = (c >> 16) & 255;
+   
+   
 
      if (key_pressed(ALLEGRO_KEY_LEFT)) {
          if (rgb[item->extra] > 0) {

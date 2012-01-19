@@ -12,6 +12,7 @@
 #include "global.h"
 #include "gamestate.h"
 #include "keyboard.h"
+#include "mouse.h"
 #include "menus.h"
 #include "screenshot.h"
 #include "transition.h"
@@ -256,6 +257,18 @@ void run_framework(void)
 
       al_wait_for_event(event_queue, &event);
       switch (event.type) {
+         
+         case ALLEGRO_EVENT_MOUSE_AXES:
+            mouse_event(&event);
+            break;
+         
+         case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
+            mouse_event(&event);
+            break;
+         
+         case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
+            mouse_event(&event);
+            break;
 
          case ALLEGRO_EVENT_KEY_DOWN:
             keyboard_event(&event);
@@ -426,6 +439,7 @@ void run_framework(void)
          fps_tick(fps);
 
          keyboard_tick();
+         mouse_tick();
       }
 
       /* In case a frame of logic has just been run or the user wants

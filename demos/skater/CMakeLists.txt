@@ -22,6 +22,7 @@ set(DEMO_SRCS
    src/menu_options.c
    src/menu_sound.c
    src/menu_success.c
+   src/mouse.c
    src/music.c
    src/physics.c
    src/quadtree.c

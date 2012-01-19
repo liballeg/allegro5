@@ -32,6 +32,7 @@ struct DEMO_MENU {
    int extra;
    void **data;
    void (*on_activate) (DEMO_MENU *);
+   int x, y, w, h;
 };
 
 void init_demo_menu(DEMO_MENU * menu, int PlayMusic);

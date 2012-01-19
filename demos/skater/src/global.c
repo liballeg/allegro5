@@ -224,6 +224,7 @@ int change_gfx_mode(void)
    if (!screen) {
       return DEMO_ERROR_ALLEGRO;
    }
+   al_set_window_constraints(screen, 320, 320, 0, 0);
    
    screen_width = al_get_display_width(screen);
    screen_height = al_get_display_height(screen);

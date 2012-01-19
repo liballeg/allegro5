@@ -4,6 +4,7 @@
 #include "global.h"
 #include "defines.h"
 #include "music.h"
+#include "mouse.h"
 
 
 static int _id = DEMO_STATE_INTRO;
@@ -33,9 +34,10 @@ static int update(void)
       return DEMO_STATE_MAIN_MENU;
    }
 
-   if (key_pressed(ALLEGRO_KEY_ESCAPE)) return DEMO_STATE_EXIT;
+   if (key_pressed(ALLEGRO_KEY_ESCAPE)) return DEMO_STATE_MAIN_MENU;
    if (key_pressed(ALLEGRO_KEY_SPACE)) return DEMO_STATE_MAIN_MENU;
    if (key_pressed(ALLEGRO_KEY_ENTER)) return DEMO_STATE_MAIN_MENU;
+   if (mouse_button_pressed(1)) return DEMO_STATE_MAIN_MENU;
 
    return id();
 }
