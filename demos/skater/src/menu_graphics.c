@@ -71,7 +71,6 @@ static void init(void)
 {
    if (!choice_res) {
       int i, n = al_get_num_display_modes(), j = 0;
-      printf("al_get_num_display_modes: %d\n", n);
       choice_res = calloc(n + 1, sizeof *choice_res);
       menu[3].data = (void *)choice_res;
       for (i = 0; i < n; i++) {
@@ -154,7 +153,9 @@ static void apply(DEMO_MENU * item)
 
    use_vsync = menu[5].extra;
 
-   if (fullscreen == old_fullscreen && bit_depth == old_bit_depth &&
+   if (fullscreen == old_fullscreen &&
+       bit_depth == old_bit_depth &&
+       use_vsync == old_use_vsync &&
        screen_width == old_screen_width &&
        screen_height == old_screen_height &&
        screen_samples == old_screen_samples) {

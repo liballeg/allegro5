@@ -35,7 +35,6 @@ static CREDIT_NAME *credits = NULL;
 static char *title_text;
 static int title_size;
 static int title_alloced;
-static char *end_text;
 
 /* for the text scroller */
 static int text_char;
@@ -90,9 +89,6 @@ static void load_text(void)
 {
    README_SECTION sect[] = {
       {NULL, NULL, NULL, "Introduction"},
-      {NULL, NULL, NULL, "Features"},
-      {NULL, NULL, NULL, "Copyright"},
-      {NULL, NULL, NULL, "Contact info"}
    };
 
 #define SPLITTER  "                                "
@@ -112,15 +108,14 @@ static void load_text(void)
    int inblank = true;
    char *s;
    int i;
-
-   
-   f = al_fopen("readme.txt", "r");
+   ALLEGRO_USTR *u = al_ustr_newf("%s/readme.txt", data_path);  
+   f = al_fopen(al_cstr(u), "r");
+   al_ustr_free(u);
    if (!f) {
       title_text =
          "Can't find readme.txt, so this scroller is empty.                ";
       title_size = strlen(title_text);
       title_alloced = false;
-      end_text = NULL;
       return;
    }
 
@@ -171,11 +166,6 @@ static void load_text(void)
    }
 
    al_fclose(f);
-
-   if (sect[2].head)
-      end_text = format_text(sect[2].head, "\n", "");
-   else
-      end_text = NULL;
 
    title_size = strlen(intro_msg);
 
@@ -257,7 +247,11 @@ static void sort_credit_list(void)
 /* helper to open thanks._tx */
 static ALLEGRO_FILE *open_thanks(const char *s)
 {
-   return al_fopen(s, "r");
+   ALLEGRO_FILE *f;
+   ALLEGRO_USTR *u = al_ustr_newf("%s/%s", data_path, s);
+   f = al_fopen(al_cstr(u), "r");
+   al_ustr_free(u);
+   return f;
 }
 
 
@@ -269,12 +263,8 @@ static void load_credits(void)
    ALLEGRO_FILE *f;
 
    /* parse thanks._tx, guessing at the relative location */
-   if ((f = open_thanks("../../../docs/src/thanks._tx")) == NULL) {
-      if ((f = open_thanks("../../docs/src/thanks._tx")) == NULL) {
-         if ((f = open_thanks("thanks._tx")) == NULL) {
-            return;
-         }
-      }
+   if ((f = open_thanks("thanks.txt")) == NULL) {
+      return;
    }
 
    while (al_fgets(f, buf, sizeof(buf))) {
@@ -483,7 +473,7 @@ void draw_credits(void)
             if ((c2 > 128) && (c2 <= 255)) {
                c2 = 255 - c2 + 64;
                cbuf[0] = *p;
-               demo_textout(plain_font, cbuf, c, y2, al_map_rgb(c2, c2, c2));
+               demo_textout(plain_font, cbuf, c, 0, al_map_rgb(c2, c2, c2));
             }
 
             p++;

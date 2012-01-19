@@ -187,9 +187,6 @@ int change_gfx_mode(void)
    int ret = DEMO_OK;
    int flags = 0;
 
-   /* First unload all previously loaded data, just in case. */
-   unload_data();
-
    /* Select appropriate (fullscreen or windowed) gfx mode driver. */
    if (fullscreen == 0) {
       flags |= ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE;
@@ -206,6 +203,9 @@ int change_gfx_mode(void)
    }
 
    al_set_new_display_flags(flags);
+   
+   // May be a good idea, but need to add a border to textures for it.
+   // al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
    
    if (screen_samples > 1) {
       al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
@@ -235,7 +235,6 @@ int change_gfx_mode(void)
    al_clear_to_color(al_map_rgb(0, 0, 0));
 
    /* Attempt to load game data. */
-   
    ret = load_data();
 
    /* If loading was successful, initialize the background scroller module. */
@@ -302,9 +301,8 @@ void unload_data_entries(DATA_ENTRY *data)
 
 int load_data(void)
 {
-   /* First unload any data that was previously loaded. We don't want any
-      nasty memory leaks. */
-   unload_data();
+   if (demo_data)
+      return DEMO_OK;
 
    /* Load the data for the game menus. */
    demo_data = load_data_entries(data_path);

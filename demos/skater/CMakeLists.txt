@@ -36,7 +36,7 @@ set(DEMO_SRCS
 file(GLOB SKATER_GRAPHICS data/graphics/*.png)
 file(GLOB SKATER_AUDIO data/audio/*)
 file(GLOB SKATER_MENU data/menu/*)
-set(SKATER_LEVEL data/level.txt)
+file(GLOB SKATER_LEVEL data/*.txt)
 
 include_directories(
    ${CMAKE_SOURCE_DIR}/addons/acodec
