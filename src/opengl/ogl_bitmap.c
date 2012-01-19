@@ -784,6 +784,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    (void)e;
 
    if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) {
+      ALLEGRO_DEBUG("Unlocking non-backbuffer READONLY\n");
       goto Done;
    }
 
@@ -886,12 +887,14 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    }
 #endif
    else {
-      ALLEGRO_DEBUG("Unlocking non-backbuffer\n");
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
       if (ogl_bitmap->fbo_info) {
          if (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY) {
             int dst_pitch = bitmap->lock_w * ogl_pixel_alignment(orig_pixel_size);
             unsigned char *tmpbuf = al_malloc(dst_pitch * bitmap->lock_h);
+            
+            ALLEGRO_DEBUG("Unlocking non-backbuffer WRITEONLY\n");
+            
             _al_convert_bitmap_data(
                ogl_bitmap->lock_buffer,
                bitmap->locked_region.format,
@@ -916,6 +919,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             }
          }
          else {
+            ALLEGRO_DEBUG("Unlocking non-backbuffer READWRITE\n");
             glTexSubImage2D(GL_TEXTURE_2D, 0, bitmap->lock_x, gl_y,
                bitmap->lock_w, bitmap->lock_h,
                glformats[lock_format][2],
@@ -942,11 +946,11 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 #ifndef ALLEGRO_ANDROID
          unsigned char *start_ptr;
          if (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY) {
-            ALLEGRO_DEBUG("Unlocking non-backbuffer WRITEONLY\n");
+            ALLEGRO_DEBUG("Unlocking non-backbuffer WRITEONLY (fallback)\n");
             start_ptr = ogl_bitmap->lock_buffer;
          }
          else {
-            ALLEGRO_DEBUG("Unlocking non-backbuffer READWRITE\n");
+            ALLEGRO_DEBUG("Unlocking non-backbuffer READWRITE (fallback)\n");
             glPixelStorei(GL_UNPACK_ROW_LENGTH, ogl_bitmap->true_w);
             start_ptr = (unsigned char *)bitmap->locked_region.data
                   + (bitmap->lock_h - 1) * bitmap->locked_region.pitch;
