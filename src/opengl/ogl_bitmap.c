@@ -572,6 +572,8 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    int pitch;
    ALLEGRO_DISPLAY *disp;
    ALLEGRO_DISPLAY *old_disp = NULL;
+   ALLEGRO_BITMAP *old_target;
+   bool need_to_restore_target = false;
    GLint gl_y = bitmap->h - y - h;
    GLenum e;
 
@@ -586,8 +588,8 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    pixel_size = al_get_pixel_size(format);
    pixel_alignment = ogl_pixel_alignment(pixel_size);
 
-   if (bitmap->display->ogl_extras->is_shared == false &&
-         bitmap->display != disp) {
+   if (!disp || (bitmap->display->ogl_extras->is_shared == false &&
+         bitmap->display != disp)) {
       old_disp = disp;
       _al_set_current_display_only(bitmap->display);
    }
@@ -649,14 +651,14 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
 
          /* Create an FBO if there isn't one. */
          if (!ogl_bitmap->fbo_info) {
-            ALLEGRO_STATE state;
-            al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP);
-            bitmap->locked = false; // hack :(
+            old_target = al_get_target_bitmap();
+            need_to_restore_target = true;
+            bitmap->locked = false; // FIXME: hack :(
             if (al_is_bitmap_drawing_held())
                al_hold_bitmap_drawing(false);
+
             al_set_target_bitmap(bitmap); // This creates the fbo
             bitmap->locked = true;
-            al_restore_state(&state);
          }
          
          if (ogl_bitmap->fbo_info) {
@@ -755,6 +757,9 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    if (old_disp) {
       _al_set_current_display_only(old_disp);
    }
+   
+   if (need_to_restore_target)
+      al_set_target_bitmap(old_target);
 
    return &bitmap->locked_region;
 }
@@ -785,8 +790,8 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    disp = al_get_current_display();
    orig_format = _al_get_real_pixel_format(disp, bitmap->format);
 
-   if (bitmap->display->ogl_extras->is_shared == false &&
-       bitmap->display != disp) {
+   if (!disp || (bitmap->display->ogl_extras->is_shared == false &&
+       bitmap->display != disp)) {
       old_disp = disp;
       _al_set_current_display_only(bitmap->display);
    }
