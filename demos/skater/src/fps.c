@@ -61,6 +61,6 @@ int get_fps(FPS * fps)
 void draw_fps(FPS * fps, ALLEGRO_FONT *font, int x, int y, ALLEGRO_COLOR fg,
               char *format)
 {
-   demo_textprintf(font, x, y, fg, format,
+   demo_textprintf_right(font, x, y, fg, format,
                    get_fps(fps));
 }

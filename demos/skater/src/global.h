@@ -1,14 +1,22 @@
 #ifndef		__DEMO_GLOBAL_H__
 #define		__DEMO_GLOBAL_H__
 
+#define mouse_event WIN32_mouse_event
 #include <stdio.h>
 #include <math.h>
-#include "defines.h"
-#include "keyboard.h"
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
+#include <allegro5/allegro_color.h>
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_image.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
+#include <allegro5/allegro_acodec.h>
+#undef mouse_event
+
+#include "defines.h"
+#include "keyboard.h"
 
 #ifdef ALLEGRO_MSVC
    #define snprintf  _snprintf

@@ -1,15 +1,9 @@
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_audio.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_font.h>
-#include <allegro5/allegro_ttf.h>
-#include <allegro5/allegro_acodec.h>
+#include "global.h"
 #include "credits.h"
 #include "fps.h"
 #include "framework.h"
 #include "game.h"
 #include "gamepad.h"
-#include "global.h"
 #include "gamestate.h"
 #include "keyboard.h"
 #include "mouse.h"
@@ -225,7 +219,7 @@ static void draw_framework(void)
 
    /* Draw the current framerate if required. */
    if (display_framerate) {
-      draw_fps(fps, plain_font, 0, 0, al_map_rgb(255, 255, 255), "%d FPS");
+      draw_fps(fps, plain_font, screen_width, 0, al_map_rgb(255, 255, 255), "%d FPS");
    }
 
    al_flip_display();

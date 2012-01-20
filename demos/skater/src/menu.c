@@ -1,8 +1,6 @@
-#include <allegro5/allegro.h>
-#include <stdio.h>
+#include "global.h"
 #include "background_scroller.h"
 #include "credits.h"
-#include "global.h"
 #include "menu.h"
 #include "music.h"
 #include "vcontroller.h"

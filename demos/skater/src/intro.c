@@ -1,7 +1,5 @@
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_color.h>
-#include "menus.h"
 #include "global.h"
+#include "menus.h"
 #include "defines.h"
 #include "music.h"
 #include "mouse.h"
