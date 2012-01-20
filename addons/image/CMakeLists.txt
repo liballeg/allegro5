@@ -16,7 +16,10 @@ endif(MACOSX)
 if(IPHONE)
     list(APPEND IMAGE_SOURCES iphone.m)
 endif(IPHONE)
-        
+
+if(ANDROID)
+    list(APPEND IMAGE_SOURCES android.c)
+endif(ANDROID)
 
 # ALLEGRO_CFG_IIO_HAVE_* are the available libraries.
 # ALLEGRO_CFG_IIO_SUPPORT_* are the supported formats.
@@ -71,6 +74,11 @@ if(WANT_NATIVE_IMAGE_LOADER)
         set(ALLEGRO_CFG_IIO_SUPPORT_PNG 1)
         set(ALLEGRO_CFG_IIO_SUPPORT_JPG 1)
     endif(MACOSX)
+    if(ANDROID)
+        set(ALLEGRO_CFG_IIO_HAVE_ANDROID 1)
+        set(ALLEGRO_CFG_IIO_SUPPORT_JPG 1)
+        set(ALLEGRO_CFG_IIO_SUPPORT_PNG 1)
+    endif(ANDROID)
 endif(WANT_NATIVE_IMAGE_LOADER)
 
 # Now look for third party libraries to handle the unsupported formats

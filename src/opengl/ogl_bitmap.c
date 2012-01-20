@@ -1158,6 +1158,119 @@ ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d,
    return bmp;
 }
 
+/* lets you setup the memory pointer to skip a lock/unlock copy
+ * if it's unsessesary */
+void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
+{
+   ALLEGRO_BITMAP_EXTRA_OPENGL *extra = NULL;
+   GLenum e;
+   bool remove_fbo = false;
+   GLint orig_fbo;
+   
+   ASSERT(bitmap != NULL);
+   ASSERT(ptr != NULL);
+   
+   extra = bitmap->extra;
+   
+   if(!extra->fbo_info) {
+      if(al_get_opengl_fbo(bitmap))
+         remove_fbo = true; /* if we didn't already have an fbo, we /probably/ don't want to keep it around */
+   }
+   
+   if(extra->fbo_info) {
+      glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &orig_fbo);
+      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, extra->fbo_info->fbo);
+   }
+   
+   if(!extra->texture) {
+      glGenTextures(1, &extra->texture);
+      ALLEGRO_DEBUG("Created new OpenGL texture %d (%dx%d, format %s)\n",
+                  extra->texture,
+                  extra->true_w, extra->true_h,
+                  _al_format_name(bitmap->format));
+   }
+   
+   glBindTexture(GL_TEXTURE_2D, extra->texture);
+   e = glGetError();
+   if (e) {
+      ALLEGRO_ERROR("glBindTexture for texture %d failed (%s).\n",
+         extra->texture, _al_gl_error_string(e));
+   }
+   
+   int src_pixel_size = al_get_pixel_size(format);
+   //int src_pixel_alignment = ogl_pixel_alignment(src_pixel_size);
+   int src_pitch = ogl_pitch(bitmap->w, src_pixel_size);
+   //void *src_buf = ptr + src_pitch * (bitmap->h - 1);
+   
+   if(format == bitmap->format) {
+      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
+         bitmap->w, bitmap->h,
+         glformats[format][2],
+         glformats[format][1],
+         ptr);
+      e = glGetError();
+      if (e) {
+         GLint tex_internalformat;
+         ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
+            _al_format_name(format), _al_gl_error_string(e));
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+         glGetTexLevelParameteriv(GL_TEXTURE_2D, 0,
+            GL_TEXTURE_INTERNAL_FORMAT, &tex_internalformat);
+
+         ALLEGRO_DEBUG("x/y/w/h: %d/%d/%d/%d, internal format: %d\n",
+            0, 0, bitmap->lock_w, bitmap->lock_h,
+            tex_internalformat);
+#endif
+      }
+   }
+   else {
+      // FIXME: this really needs tested, I highly doubt it works at all - TF
+      int dst_pixel_size = al_get_pixel_size(bitmap->format);
+      int dst_pitch = bitmap->lock_w * ogl_pixel_alignment(dst_pixel_size);
+      unsigned char *tmpbuf = al_malloc(dst_pitch * bitmap->lock_h);
+      
+      _al_convert_bitmap_data(
+               ptr,
+               format,
+               src_pitch,
+               tmpbuf,
+               bitmap->format,
+               dst_pitch,
+               0, 0, 0, 0,
+               bitmap->w, bitmap->h);
+      
+      glTexSubImage2D(GL_TEXTURE_2D, 0,
+               0, 0,
+               bitmap->w, bitmap->h,
+               glformats[bitmap->format][2],
+               glformats[bitmap->format][1],
+               tmpbuf);
+      al_free(tmpbuf);
+      e = glGetError();
+      if (e) {
+         ALLEGRO_ERROR("glTexSubImage2D for format %d failed (%s).\n",
+            format, _al_gl_error_string(e));
+      }
+   }
+   
+   if (bitmap->flags & ALLEGRO_MIPMAP) {
+      /* If using FBOs, we need to regenerate mipmaps explicitly now. */
+      if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object) {
+         glGenerateMipmapEXT(GL_TEXTURE_2D);
+         e = glGetError();
+         if (e) {
+            ALLEGRO_ERROR("glGenerateMipmapEXT for texture %d failed (%s).\n",
+               extra->texture, _al_gl_error_string(e));
+         }
+      }
+   }
+   
+   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, orig_fbo);
+   
+   if(remove_fbo) {
+      al_remove_opengl_fbo(bitmap);
+   }
+}
 
 /* Function: al_get_opengl_texture
  */

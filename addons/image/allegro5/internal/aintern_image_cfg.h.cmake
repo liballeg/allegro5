@@ -3,6 +3,7 @@
 /* which libraries are present and needed? */
 #cmakedefine ALLEGRO_CFG_IIO_HAVE_GDIPLUS
 #cmakedefine ALLEGRO_CFG_IIO_HAVE_GDIPLUS_LOWERCASE_H
+#cmakedefine ALLEGRO_CFG_IIO_HAVE_ANDROID
 #cmakedefine ALLEGRO_CFG_IIO_HAVE_PNG
 #cmakedefine ALLEGRO_CFG_IIO_HAVE_JPG
 

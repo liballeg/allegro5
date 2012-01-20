@@ -61,6 +61,8 @@ void _al_android_create_surface(JNIEnv *env, bool post);
 void _al_android_destroy_surface(JNIEnv *env, jobject obj, bool post);
 bool _al_android_init_display(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *display);
 
+ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags);
+
 jobject _al_android_activity_object();
 int _al_android_get_orientation();
 

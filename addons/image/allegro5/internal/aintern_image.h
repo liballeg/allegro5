@@ -49,6 +49,11 @@ ALLEGRO_IIO_FUNC(bool, _al_save_gdiplus_tif_f, (ALLEGRO_FILE *f, ALLEGRO_BITMAP 
 ALLEGRO_IIO_FUNC(bool, _al_save_gdiplus_gif_f, (ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp));
 #endif
 
+#ifdef ALLEGRO_CFG_IIO_HAVE_ANDROID
+ALLEGRO_BITMAP *_al_load_android_bitmap_f(ALLEGRO_FILE *fp, int flags);
+ALLEGRO_BITMAP *_al_load_android_bitmap(const char *filename, int flags);
+#endif
+
 /* ALLEGRO_CFG_IIO_HAVE_PNG/JPG implies that "native" loaders aren't available. */
 
 #ifdef ALLEGRO_CFG_IIO_HAVE_PNG

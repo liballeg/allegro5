@@ -129,6 +129,9 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h);
 ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *parent,
                                           int x, int y, int w, int h);
 
+/* helper to upload data directly to the gpu */
+void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr);
+
 /* common driver */
 void _al_ogl_reset_fbo_info(ALLEGRO_FBO_INFO *info);
 bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap);

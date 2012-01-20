@@ -11,16 +11,38 @@ struct touch {
    double x, y;
 } touch[10];
 
+#define paste(a,b) a##b
+
+#define print_standard_path(std) do {\
+   ALLEGRO_PATH *path = al_get_standard_path(std); \
+   ALLEGRO_DEBUG(#std ": %s", al_path_cstr(path, '/')); \
+} while(0)
+
+void print_standard_paths()
+{
+   print_standard_path(ALLEGRO_RESOURCES_PATH);
+   print_standard_path(ALLEGRO_TEMP_PATH);
+   print_standard_path(ALLEGRO_USER_DATA_PATH);
+   print_standard_path(ALLEGRO_USER_HOME_PATH);
+   print_standard_path(ALLEGRO_USER_SETTINGS_PATH);
+   print_standard_path(ALLEGRO_USER_DOCUMENTS_PATH);
+   print_standard_path(ALLEGRO_EXENAME_PATH);
+}
+
 int main(int argc, char **argv)
 {
-   ALLEGRO_EVENT_QUEUE *queue;
+   ALLEGRO_EVENT_QUEUE *queue = NULL;
    ALLEGRO_EVENT event;
-   ALLEGRO_TIMER *timer;
+   ALLEGRO_TIMER *timer = NULL;
+   ALLEGRO_BITMAP *image = NULL;
+   ALLEGRO_PATH *image_path = NULL;
    
    ALLEGRO_DEBUG("init allegro!");
 	al_init();
    ALLEGRO_DEBUG("init primitives");
    al_init_primitives_addon();
+   ALLEGRO_DEBUG("init image addon");
+   al_init_image_addon();
    ALLEGRO_DEBUG("init touch input");
    al_install_touch_input();
    ALLEGRO_DEBUG("init keyboard");
@@ -35,6 +57,15 @@ int main(int argc, char **argv)
    if(!dpy) {
       ALLEGRO_ERROR("failed to create display!");
       return -1;
+   }
+
+   image_path = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
+   al_set_path_filename(image_path, "alexlogo.png");
+   
+   ALLEGRO_DEBUG("loading %s", al_path_cstr(image_path, ALLEGRO_NATIVE_PATH_SEP));
+   image = al_load_bitmap(al_path_cstr(image_path, ALLEGRO_NATIVE_PATH_SEP));
+   if(!image) {
+      ALLEGRO_DEBUG("failed to load %s", al_path_cstr(image_path, ALLEGRO_NATIVE_PATH_SEP));
    }
    
    al_register_event_source(queue, al_get_display_event_source(dpy));
@@ -51,7 +82,12 @@ int main(int argc, char **argv)
    bool paused = false;
    int count = 0;
    
-   ALLEGRO_DEBUG("main check mutex");
+
+   print_standard_paths();
+   
+//   ALLEGRO_DEBUG("try open");
+//   ALLEGRO_PATH *path = al_get_standard_path(
+//   FILE *fh = fopen("
 
    
    while(running) {
@@ -141,6 +177,12 @@ int main(int argc, char **argv)
          
          al_clear_to_color(al_map_rgb(255,255,255));
       
+         if(image) {
+            al_draw_bitmap(image,
+                           al_get_display_width(dpy)/2 - al_get_bitmap_width(image)/2,
+                           al_get_display_height(dpy)/2 - al_get_bitmap_height(image)/2, 0);
+         }
+         
          int i;
          for(i=0; i<10; i++) {
             if(touch[i].down) {

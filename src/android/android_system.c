@@ -40,15 +40,17 @@ struct system_data_t {
    
    ALLEGRO_USTR *lib_dir;
    ALLEGRO_USTR *app_name;
+   ALLEGRO_USTR *resources_dir;
    ALLEGRO_USTR *data_dir;
-   
+	ALLEGRO_USTR *apk_path;
+	
    void *user_lib;
    int (*user_main)();
    
    int orientation;
 };
 
-static struct system_data_t system_data = { NULL, 0, NULL, NULL, NULL, NULL, false, NULL, NULL, NULL, NULL, NULL, NULL, 0 };
+static struct system_data_t system_data = { NULL, 0, NULL, NULL, NULL, NULL, false, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0 };
 static JavaVM* javavm;
 
 /* define here, so we have access to system_data */
@@ -154,8 +156,11 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
    ALLEGRO_DEBUG("get lib_dir, app_name, and data_dir");
    system_data.lib_dir  = _jni_callStringMethod(env, system_data.activity_object, "getLibraryDir", "()Ljava/lang/String;");
    system_data.app_name = _jni_callStringMethod(env, system_data.activity_object, "getAppName", "()Ljava/lang/String;");
-   system_data.data_dir = _jni_callStringMethod(env, system_data.activity_object, "getDataDir", "()Ljava/lang/String;");
-
+   system_data.resources_dir = _jni_callStringMethod(env, system_data.activity_object, "getResourcesDir", "()Ljava/lang/String;");
+	system_data.data_dir = _jni_callStringMethod(env, system_data.activity_object, "getPubDataDir", "()Ljava/lang/String;");
+   system_data.apk_path = _jni_callStringMethod(env, system_data.activity_object, "getApkPath", "()Ljava/lang/String;");
+	ALLEGRO_DEBUG("got lib_dir: %s, app_name: %s, resources_dir: %s, data_dir: %s, apk_path: %s", al_cstr(system_data.lib_dir), al_cstr(system_data.app_name), al_cstr(system_data.resources_dir), al_cstr(system_data.data_dir), al_cstr(system_data.apk_path));
+   
    ALLEGRO_DEBUG("creating ALLEGRO_SYSTEM_ANDROID struct");
    na_sys = system_data.system = (ALLEGRO_SYSTEM_ANDROID*)al_malloc(sizeof *na_sys);
    memset(na_sys, 0, sizeof *na_sys);
@@ -425,9 +430,8 @@ ALLEGRO_PATH *_al_android_get_path(int id)
    
    switch(id) {
       case ALLEGRO_RESOURCES_PATH:
-         /* bundle path */
-         path = al_create_path(al_cstr(system_data.data_dir));
-         al_append_path_component(path, al_cstr(system_data.app_name));
+         /* path to bundle's files */
+         path = al_create_path_for_directory(al_cstr(system_data.resources_dir));
          break;
          
       case ALLEGRO_TEMP_PATH:
@@ -436,20 +440,124 @@ ALLEGRO_PATH *_al_android_get_path(int id)
       case ALLEGRO_USER_SETTINGS_PATH:
       case ALLEGRO_USER_DOCUMENTS_PATH:
          /* path to sdcard */
-         path = al_create_path(al_cstr(system_data.data_dir));
-         /* maybe this should append the allegro app_name */
-         al_append_path_component(path, al_cstr(system_data.app_name));
+         path = al_create_path_for_directory(al_cstr(system_data.data_dir));
          break;
          
       case ALLEGRO_EXENAME_PATH:
          /* bundle path + bundle name */
-         // FIXME!
-         path = al_create_path(al_cstr(system_data.data_dir));
-         al_set_path_filename(path, al_cstr(system_data.app_name));
+         // FIXME! 
+         path = al_create_path(al_cstr(system_data.apk_path));
          break;
+			
+		default:
+			path = al_create_path_for_directory("/DANGER/WILL/ROBINSON");
+			break;
    }
    
    return path;
+}
+
+ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
+{
+	jobject byte_buffer;
+	jobject jbitmap;
+	void *buffer = 0;
+	int buffer_len = al_fsize(fh);
+	ALLEGRO_BITMAP *bitmap = NULL;
+   int bitmap_w = 0, bitmap_h = 0;
+   ALLEGRO_STATE state;
+   
+   ALLEGRO_DEBUG("load image begin");
+	/* we could implement a Java IO Stream class that call's allegro fshook functions
+	 * which would get rid of this first data copy on our end, but likely it doesn't save
+	 * the memory allocation at all */
+   /* looking at the skia image library that android uses for image loading,
+    * it at least loads png incrementally, so it will save this initiall buffer allocation */
+   
+   
+	buffer = al_malloc(buffer_len+10);
+	if(!buffer)
+		return NULL;
+	
+   ALLEGRO_DEBUG("malloced %i bytes ok", buffer_len);
+   
+	if(al_fread(fh, buffer, buffer_len) != buffer_len) {
+		al_free(buffer);
+		return NULL;
+	}
+	
+	ALLEGRO_DEBUG("fread ok");
+   
+	byte_buffer = (*system_data.env)->NewDirectByteBuffer(system_data.env, buffer, buffer_len);
+	_jni_checkException(system_data.env);
+	
+   ALLEGRO_DEBUG("NewDirectByteBuffer ok");
+   
+	jbitmap = _jni_callObjectMethod(system_data.env, system_data.activity_object, "decodeBitmap", "(Ljava/nio/ByteBuffer;)Landroid/graphics/Bitmap;");
+	
+   ALLEGRO_DEBUG("decodeBitmap ok");
+   
+   (*system_data.env)->DeleteLocalRef(system_data.env, byte_buffer);
+   _jni_checkException(system_data.env);
+   
+   ALLEGRO_DEBUG("DeleteLocalRef ok");
+   
+	free(buffer);
+	
+	
+	buffer_len = _jni_callIntMethod(system_data.env, jbitmap, "getByteCount");
+	
+   ALLEGRO_DEBUG("getByteCount ok");
+   
+	buffer = al_malloc(buffer_len);
+	if(!buffer)
+		return NULL;
+	
+   ALLEGRO_DEBUG("malloc %i bytes ok", buffer_len);
+   
+	byte_buffer = (*system_data.env)->NewDirectByteBuffer(system_data.env, buffer, buffer_len);
+	_jni_checkException(system_data.env);
+	
+   ALLEGRO_DEBUG("NewDirectByteBuffer 2 ok");
+   
+	_jni_callVoidMethodV(system_data.env, jbitmap, "copyPixelsToBuffer", "(Ljava/nio/ByteBuffer;)V", byte_buffer);
+
+   ALLEGRO_DEBUG("copyPixelsToBuffer ok");
+   
+   // tell java we don't need the byte_buffer object
+   (*system_data.env)->DeleteLocalRef(system_data.env, byte_buffer);
+   _jni_checkException(system_data.env);
+
+   ALLEGRO_DEBUG("DeleteLocalRef 2 ok");
+   
+   // tell java we're done with the bitmap as well
+   (*system_data.env)->DeleteLocalRef(system_data.env, jbitmap);
+   _jni_checkException(system_data.env);
+   
+   ALLEGRO_DEBUG("DeleteLocalRef 3 ok");
+   
+   bitmap_w = _jni_callIntMethod(system_data.env, jbitmap, "getWidth");
+   bitmap_h = _jni_callIntMethod(system_data.env, jbitmap, "getHeight");
+
+   al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
+   bitmap = al_create_bitmap(bitmap_w, bitmap_h);
+   al_restore_state(&state);
+   if(!bitmap) {
+      al_free(buffer);
+      return NULL;
+   }
+
+   ALLEGRO_DEBUG("create bitmap ok");
+   
+   _al_ogl_upload_bitmap_memory(bitmap, ALLEGRO_PIXEL_FORMAT_ARGB_8888, buffer);
+
+   ALLEGRO_DEBUG("upload bitmap memory ok");
+   
+   al_free(buffer);
+   
+   ALLEGRO_DEBUG("load image end");
+   return bitmap;
 }
 
 /* register system interfaces */

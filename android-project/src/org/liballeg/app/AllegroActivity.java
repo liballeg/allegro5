@@ -3,6 +3,7 @@ package org.liballeg.app;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Environment;
 
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -15,9 +16,12 @@ import android.view.OrientationEventListener;
 
 import android.hardware.*;
 import android.content.res.Configuration;
+import android.content.res.AssetManager;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.PixelFormat;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ActivityInfo;
@@ -31,6 +35,12 @@ import java.lang.Runnable;
 
 import java.util.List;
 import java.util.BitSet;
+
+import java.io.File;
+import java.io.InputStream;
+import java.io.FileOutputStream;
+
+import java.nio.ByteBuffer;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -75,6 +85,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
 		/* FIXME: see if we can't load the allegro library name, or type from the manifest here */
       System.loadLibrary("allegro-debug");
       System.loadLibrary("allegro_primitives-debug");
+      System.loadLibrary("allegro_image-debug");
    }
    
    public static AllegroActivity Self;
@@ -97,10 +108,22 @@ public class AllegroActivity extends Activity implements SensorEventListener
       }
    }
    
-   public String getDataDir()
+   public String getResourcesDir()
    {
-      return getApplicationInfo().dataDir;
+      //return getApplicationInfo().dataDir + "/assets";
+      //return getApplicationInfo().sourceDir + "/assets/";
+		return getFilesDir().getAbsolutePath();
    }
+   
+   public String getPubDataDir()
+   {
+      return getExternalFilesDir(null).getAbsolutePath();
+   }
+   
+   public String getApkPath()
+	{
+		return getApplicationInfo().sourceDir;
+	}
    
    public void postRunnable(Runnable runme)
    {
@@ -177,6 +200,26 @@ public class AllegroActivity extends Activity implements SensorEventListener
    
    public int getNumSensors() { return sensors.size(); }
    
+   /*
+	 * load passes in the buffer, will return the decoded bytebuffer
+	 * then I want to change lock/unlock_bitmap to accept a raw pointer
+	 * rather than allocating another buffer and making you copy shit again
+	 * images are loaded as ARGB_8888 by android by default
+	 */
+   public Bitmap decodeBitmap(ByteBuffer src)
+   {
+      Bitmap bmp = null;
+      Log.d("AllegroActivity", "decodeBitmap begin");
+      try {
+         byte array[] = src.array();
+         bmp = BitmapFactory.decodeByteArray(array, 0, array.length);
+      } catch(Exception ex) {
+         Log.e("AllegroActivity", "decodeBitmap exception: " + ex.getMessage());
+      }
+      Log.d("AllegroActivity", "decodeBitmap end");
+      return bmp;
+   }
+   
    public void postFinish()
    {
       try {
@@ -207,6 +250,38 @@ public class AllegroActivity extends Activity implements SensorEventListener
       Self = this;
       
       Log.d("AllegroActivity", "onCreate");
+      
+      Log.d("AllegroActivity", "Files Dir: " + getFilesDir());
+      File extdir = Environment.getExternalStorageDirectory();
+      
+      
+      
+      boolean mExternalStorageAvailable = false;
+      boolean mExternalStorageWriteable = false;
+      String state = Environment.getExternalStorageState();
+
+      if (Environment.MEDIA_MOUNTED.equals(state)) {
+         // We can read and write the media
+         mExternalStorageAvailable = mExternalStorageWriteable = true;
+      } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+         // We can only read the media
+         mExternalStorageAvailable = true;
+         mExternalStorageWriteable = false;
+      } else {
+         // Something else is wrong. It may be one of many other states, but all we need
+         //  to know is we can neither read nor write
+         mExternalStorageAvailable = mExternalStorageWriteable = false;
+      }
+   
+      Log.d("AllegroActivity", "External Storage Dir: " + extdir.getAbsolutePath());
+      Log.d("AllegroActivity", "External Files Dir: " + getExternalFilesDir(null));
+      
+      Log.d("AllegroActivity", "external: avail = " + mExternalStorageAvailable + " writable = " + mExternalStorageWriteable);
+      
+      Log.d("AllegroActivity", "sourceDir: " + getApplicationInfo().sourceDir);
+      Log.d("AllegroActivity", "publicSourceDir: " + getApplicationInfo().publicSourceDir);
+      
+      unpackAssets();
       
       handler = new Handler();
       initSensors();
@@ -412,6 +487,34 @@ public class AllegroActivity extends Activity implements SensorEventListener
             break;
       }
       return allegro_orientation;
+   }
+   
+   // FIXME: this is a horrible hack, needs to be replaced with something smarter
+   // FIXME:  or a fshook driver to access assets.
+   private void unpackAssets()
+   {
+      try {
+         AssetManager am = getResources().getAssets();
+         String list[] = am.list("");
+         for(int i = 0; i < list.length; i++) {
+            Log.d("AllegroActivity", "asset["+i+"]: " + list[i]);
+            InputStream is = am.open(list[i]);
+            FileOutputStream os = new FileOutputStream(getResourcesDir()+"/"+list[i]);
+            
+            byte buff[] = new byte[4096];
+            while(true) {
+               int read_ret = is.read(buff);
+               if(read_ret > 0) {
+                  os.write(buff, 0, read_ret);
+               }
+               else {
+                  break;
+               }
+            }
+         }
+      } catch(java.io.IOException ex) {
+         Log.e("AllegroActivity", "asset list exception: "+ex.getMessage());
+      }
    }
 }
 
