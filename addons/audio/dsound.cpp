@@ -671,7 +671,7 @@ static int _dsound_open_recorder(ALLEGRO_AUDIO_RECORDER *r)
       ALLEGRO_ERROR("DirectSoundCaptureCreate8::GetCaps failed\n");
    }
    else {
-      ALLEGRO_INFO("caps: %d %d\n", dsccaps.dwFormats, dsccaps.dwFormats & WAVE_FORMAT_2M16);
+      ALLEGRO_INFO("caps: %lu %lu\n", dsccaps.dwFormats, dsccaps.dwFormats & WAVE_FORMAT_2M16);
    }
 
    WAVEFORMATEX format;

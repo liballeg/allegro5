@@ -572,8 +572,9 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    int pitch;
    ALLEGRO_DISPLAY *disp;
    ALLEGRO_DISPLAY *old_disp = NULL;
-   ALLEGRO_BITMAP *old_target;
+   ALLEGRO_BITMAP *old_target = NULL;
    bool need_to_restore_target = false;
+   bool need_to_restore_display = false;
    GLint gl_y = bitmap->h - y - h;
    GLenum e;
 
@@ -590,6 +591,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
 
    if (!disp || (bitmap->display->ogl_extras->is_shared == false &&
          bitmap->display != disp)) {
+      need_to_restore_display = true;
       old_disp = disp;
       _al_set_current_display_only(bitmap->display);
    }
@@ -757,7 +759,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    if (need_to_restore_target)
       al_set_target_bitmap(old_target);
    
-   if (old_disp) {
+   if (need_to_restore_display) {
       _al_set_current_display_only(old_disp);
    }
 
@@ -1166,6 +1168,7 @@ void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
    GLenum e;
    bool remove_fbo = false;
    GLint orig_fbo;
+   int src_pixel_size, src_pitch;
    
    ASSERT(bitmap != NULL);
    ASSERT(ptr != NULL);
@@ -1197,9 +1200,9 @@ void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
          extra->texture, _al_gl_error_string(e));
    }
    
-   int src_pixel_size = al_get_pixel_size(format);
+   src_pixel_size = al_get_pixel_size(format);
    //int src_pixel_alignment = ogl_pixel_alignment(src_pixel_size);
-   int src_pitch = ogl_pitch(bitmap->w, src_pixel_size);
+   src_pitch = ogl_pitch(bitmap->w, src_pixel_size);
    //void *src_buf = ptr + src_pitch * (bitmap->h - 1);
    
    if(format == bitmap->format) {

@@ -2355,11 +2355,11 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
    int full_w, full_h;
    ALLEGRO_MONITOR_INFO mi;
    int adapter = win_display->adapter;
-   int orig_w, orig_h;
+   //int orig_w, orig_h;
    ALLEGRO_STATE backup;
 
-   orig_w = d->w;
-   orig_h = d->h;
+   //orig_w = d->w;
+   //orig_h = d->h;
 
    al_get_monitor_info(adapter, &mi);
    full_w = mi.x2 - mi.x1;

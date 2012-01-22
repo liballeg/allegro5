@@ -390,12 +390,12 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 {
    ALLEGRO_DISPLAY *d = NULL;
    ALLEGRO_DISPLAY_WIN *win_display = NULL;
-   WINDOWINFO wi;
+   //WINDOWINFO wi;
    unsigned int i;
    ALLEGRO_EVENT_SOURCE *es = NULL;
    ALLEGRO_SYSTEM *system = al_get_system_driver();
 
-   wi.cbSize = sizeof(WINDOWINFO);
+   //wi.cbSize = sizeof(WINDOWINFO);
 
    if (message == _al_win_msg_call_proc) {
       ((void (*)(void*))wParam) ((void*)lParam);
