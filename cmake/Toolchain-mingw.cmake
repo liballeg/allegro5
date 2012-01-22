@@ -34,6 +34,7 @@ elseif(EXISTS /usr/i686-w64-mingw32)
     set(CMAKE_C_COMPILER i686-w64-mingw32-gcc)
     set(CMAKE_CXX_COMPILER i686-w64-mingw32-g++)
     set(CMAKE_RC_COMPILER i686-w64-mingw32-windres)
+    set(CMAKE_AR:FILEPATH /usr/bin/i686-w64-mingw32-ar)
 elseif(EXISTS /opt/mingw)
     # Otherwise you can get a MinGW environment using the script at
     # <http://mingw-cross-env.nongnu.org>.  It downloads and builds MinGW and
