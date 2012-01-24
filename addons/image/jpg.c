@@ -140,8 +140,10 @@ static void jpeg_packfile_dest(j_compress_ptr cinfo, ALLEGRO_FILE *fp,
 
 static void my_error_exit(j_common_ptr cinfo)
 {
+   char buffer[JMSG_LENGTH_MAX];
    struct my_err_mgr *jerr = (void *)cinfo->err;
-
+   jerr->pub.format_message(cinfo, buffer);
+   ALLEGRO_ERROR("jpeg error: %s\n", buffer);
    longjmp(jerr->jmpenv, 1);
 }
 
@@ -197,12 +199,14 @@ static void load_jpg_entry_helper(ALLEGRO_FILE *fp,
    /* Only one and three components make sense in a JPG file. */
    if (s != 1 && s != 3) {
       data->error = true;
+      ALLEGRO_ERROR("%d components makes no sense\n", s);
       goto error;
    }
 
    data->bmp = al_create_bitmap(w, h);
    if (!data->bmp) {
       data->error = true;
+      ALLEGRO_ERROR("%dx%d bitmap creation failed\n", w, h);
       goto error;
    }
 
