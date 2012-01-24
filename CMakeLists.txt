@@ -127,6 +127,8 @@ option(WANT_NATIVE_DIALOG "Enable native dialog addon" on)
 option(WANT_SHADERS "Enable shader addon" on)
 option(WANT_VIDEO "Enable video player addon" on)
 
+option(WANT_MONOLITH "Include all addons in the main library" off)
+
 #
 # Wrappers.
 #
@@ -819,7 +821,21 @@ set(ALLEGRO_LINK_WITH allegro)
 #
 #-----------------------------------------------------------------------------#
 
+set(MONOLITH_SOURCES ${LIBRARY_SOURCES})
+
 add_subdirectory(addons)
+
+if(WANT_MONOLITH)
+
+message(STATUS ${MONOLITH_SOURCES})
+include_directories(SYSTEM ${MONOLITH_INCLUDE_DIRECTORIES})
+link_directories(${MONOLITH_LINK_DIRECTORIES})
+add_our_library(allegro-monolith
+    "${MONOLITH_SOURCES};${ALLEGRO_PUBLIC_HEADERS}"
+    "${LIBRARY_CFLAGS} -DALLEGRO_SRC"
+    "${PLATFORM_LIBS}"
+    )
+endif(WANT_MONOLITH)
 
 #-----------------------------------------------------------------------------#
 #
