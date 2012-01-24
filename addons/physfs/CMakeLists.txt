@@ -17,7 +17,7 @@ set_our_framework_properties(allegro_physfs AllegroPhysfs-${ALLEGRO_SOVERSION})
 install_our_library(allegro_physfs)
 install_our_headers(${PHYSFS_INCLUDE_FILES})
 
-set(PHYSFS_LINK_WITH allegro_physfs PARENT_SCOPE)
+add_addon(physfs)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

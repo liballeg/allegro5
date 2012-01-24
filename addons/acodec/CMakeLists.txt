@@ -269,8 +269,8 @@ set_our_framework_properties(allegro_acodec AllegroAcodec-${ALLEGRO_SOVERSION})
 install_our_library(allegro_acodec)
 install_our_headers(${ACODEC_INCLUDE_FILES})
 
-set(ACODEC_LINK_WITH allegro_acodec PARENT_SCOPE)
-set(SUPPORT_ACODEC 1 PARENT_SCOPE)
+add_addon(acodec)
+
 
 #-----------------------------------------------------------------------------#
 # vim: set ts=8 sts=4 sw=4 et:

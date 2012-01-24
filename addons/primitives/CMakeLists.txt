@@ -28,7 +28,7 @@ set_our_framework_properties(allegro_primitives AllegroPrimitives-${ALLEGRO_SOVE
 install_our_library(allegro_primitives)
 install_our_headers(${PRIMITIVES_INCLUDE_FILES})
 
-set(PRIMITIVES_LINK_WITH allegro_primitives PARENT_SCOPE)
+add_addon(primitives)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

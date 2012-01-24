@@ -15,7 +15,7 @@ set_our_framework_properties(allegro_font AllegroFont-${ALLEGRO_SOVERSION})
 install_our_library(allegro_font)
 install_our_headers(${FONT_INCLUDE_FILES})
 
-set(FONT_LINK_WITH allegro_font PARENT_SCOPE)
+add_addon(font)
 
 #-----------------------------------------------------------------------------#
 # vim: set ts=8 sts=4 sw=4 et:

@@ -16,7 +16,7 @@ set_our_framework_properties(allegro_memfile AllegroMemfile-${ALLEGRO_SOVERSION}
 install_our_library(allegro_memfile)
 install_our_headers(${MEMFILE_INCLUDE_FILES})
 
-set(MEMFILE_LINK_WITH allegro_memfile PARENT_SCOPE)
+add_addon(memfile)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

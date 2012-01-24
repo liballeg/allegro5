@@ -151,7 +151,7 @@ set_our_framework_properties(allegro_image AllegroImage-${ALLEGRO_SOVERSION})
 install_our_library(allegro_image)
 install_our_headers(${IMAGE_INCLUDE_FILES})
 
-set(IMAGE_LINK_WITH allegro_image PARENT_SCOPE)
+add_addon(image)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

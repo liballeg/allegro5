@@ -67,8 +67,8 @@ if(SUPPORT_PULSEAUDIO)
     set(ALLEGRO_CFG_KCM_PULSEAUDIO 1)
     list(APPEND AUDIO_SOURCES pulseaudio.c)
     list(APPEND AUDIO_LIBRARIES ${PULSEAUDIO_LIBRARIES})
-    include_directories(SYSTEM ${PULSEAUDIO_INCLUDE_DIRS})
-    link_directories(${PULSEAUDIO_LIBRARY_DIRS})
+    list(APPEND AUDIO_INCLUDE_DIRECTORIES ${PULSEAUDIO_INCLUDE_DIRS})
+    list(APPEND AUDIO_LINK_DIRECTORIES ${PULSEAUDIO_LIBRARY_DIRS})
     set(SUPPORT_AUDIO 1)
 endif(SUPPORT_PULSEAUDIO)
 
@@ -83,7 +83,7 @@ if(SUPPORT_ALSA)
     set(ALLEGRO_CFG_KCM_ALSA 1)
     list(APPEND AUDIO_SOURCES alsa.c)
     list(APPEND AUDIO_LIBRARIES ${ALSA_LIBRARIES})
-    include_directories(SYSTEM ${ALSA_INCLUDE_DIRS})
+    list(APPEND AUDIO_INCLUDE_DIRECTORIES ${ALSA_INCLUDE_DIRS})
     set(SUPPORT_AUDIO 1)
 endif(SUPPORT_ALSA)
 
@@ -98,7 +98,7 @@ if(SUPPORT_DSOUND)
     set(ALLEGRO_CFG_KCM_DSOUND 1)
     list(APPEND AUDIO_SOURCES dsound.cpp)
     list(APPEND AUDIO_LIBRARIES ${DSOUND_LIBRARIES})
-    include_directories(SYSTEM ${DSOUND_INCLUDE_DIR})
+    list(APPEND AUDIO_INCLUDE_DIRECTORIES ${DSOUND_INCLUDE_DIR})
     set(SUPPORT_AUDIO 1)
 endif(SUPPORT_DSOUND)
 
@@ -136,7 +136,7 @@ if(SUPPORT_OPENAL)
     set(ALLEGRO_CFG_KCM_OPENAL 1)
     list(APPEND AUDIO_SOURCES openal.c)
     list(APPEND AUDIO_LIBRARIES ${OPENAL_LIBRARY})
-    include_directories(SYSTEM ${OPENAL_INCLUDE_DIR})
+    list(APPEND AUDIO_INCLUDE_DIRECTORIES ${OPENAL_INCLUDE_DIR})
     set(SUPPORT_AUDIO 1)
 endif(SUPPORT_OPENAL)
 
@@ -150,9 +150,8 @@ if(NOT SUPPORT_AUDIO)
     return()
 endif(NOT SUPPORT_AUDIO)
 
-# Let examples know that audio is supported.
-set(SUPPORT_AUDIO 1 PARENT_SCOPE)
-
+include_directories(SYSTEM ${AUDIO_INCLUDE_DIRECTORIES})
+link_directories(${AUDIO_LINK_DIRECTORIES})
 add_our_library(allegro_audio
     "${AUDIO_SOURCES};${AUDIO_INCLUDE_FILES}"
     "-DALLEGRO_KCM_AUDIO_SRC"
@@ -164,7 +163,7 @@ set_our_framework_properties(allegro_audio AllegroAudio-${ALLEGRO_SOVERSION})
 install_our_library(allegro_audio)
 install_our_headers(${AUDIO_INCLUDE_FILES})
 
-set(AUDIO_LINK_WITH allegro_audio PARENT_SCOPE)
+add_addon(audio)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

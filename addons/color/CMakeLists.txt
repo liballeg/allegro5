@@ -17,7 +17,7 @@ set_our_framework_properties(allegro_color AllegroColor-${ALLEGRO_SOVERSION})
 install_our_library(allegro_color)
 install_our_headers(${COLOR_INCLUDE_FILES})
 
-set(COLOR_LINK_WITH allegro_color PARENT_SCOPE)
+add_addon(color)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

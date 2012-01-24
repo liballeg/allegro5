@@ -74,6 +74,6 @@ set_our_framework_properties(allegro_shader AllegroShader-${ALLEGRO_SOVERSION})
 install_our_library(allegro_shader)
 install_our_headers(${SHADER_INCLUDE_FILES})
 
-set(SHADER_LINK_WITH allegro_shader PARENT_SCOPE)
+add_addon(shader)
 
 # vim: set sts=4 sw=4 et:

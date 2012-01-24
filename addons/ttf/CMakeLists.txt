@@ -12,17 +12,20 @@ configure_file(
     ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_ttf_cfg.h
     )
 
+set(TTF_LIBRARIES ${FREETYPE_LIBRARIES})
+set(TTF_INCLUDE_DIRECTORIES ${FREETYPE_INCLUDE_DIRS})
+
 # FREETYPE_LIBRARIES should include zlib automatically if statically linking,
 # but it doesn't.
 find_package(ZLIB)
 if(ZLIB_FOUND AND NOT IPHONE)
-    list(APPEND FREETYPE_LIBRARIES ${ZLIB_LIBRARIES})
+    list(APPEND TTF_LIBRARIES ${ZLIB_LIBRARIES})
 endif()
 
 add_our_library(allegro_ttf
     "${TTF_SOURCES};${TTF_INCLUDE_FILES}"
     "-DALLEGRO_TTF_SRC"
-    "${FONT_LINK_WITH};${FREETYPE_LIBRARIES}"
+    "${FONT_LINK_WITH};${TTF_LIBRARIES}"
     )
 
 set_our_framework_properties(allegro_ttf AllegroTTF-${ALLEGRO_SOVERSION})
@@ -30,7 +33,7 @@ set_our_framework_properties(allegro_ttf AllegroTTF-${ALLEGRO_SOVERSION})
 install_our_library(allegro_ttf)
 install_our_headers(${TTF_INCLUDE_FILES})
 
-set(TTF_LINK_WITH allegro_ttf PARENT_SCOPE)
+add_addon(ttf)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

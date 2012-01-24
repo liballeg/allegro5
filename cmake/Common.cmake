@@ -195,7 +195,6 @@ endfunction(fix_executable)
 # specified, we assume an implied C source file.
 # 
 # Free variable: EXECUTABLE_TYPE
-#
 function(add_our_executable nm)
     set(srcs)
     set(libs)
@@ -283,6 +282,12 @@ function(copy_data_dir_to_build target name destination)
             )
     endforeach(file)
 endfunction(copy_data_dir_to_build)
+
+macro(add_addon addon)
+   string(TOUPPER ${addon} ADDON)
+   set(SUPPORT_${ADDON} 1 PARENT_SCOPE)
+   set(${ADDON}_LINK_WITH allegro_${addon} PARENT_SCOPE)
+endmacro(add_addon)
 
 #-----------------------------------------------------------------------------#
 # vim: set ft=cmake sts=4 sw=4 et:

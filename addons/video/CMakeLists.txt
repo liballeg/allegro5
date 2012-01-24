@@ -50,9 +50,6 @@ if(NOT SUPPORT_VIDEO)
     return()
 endif(NOT SUPPORT_VIDEO)
 
-# Let examples know that video is supported.
-set(SUPPORT_VIDEO 1 PARENT_SCOPE)
-
 add_our_library(allegro_video
     "${VIDEO_SOURCES};${VIDEO_INCLUDE_FILES}"
     "-DALLEGRO_VIDEO_SRC"
@@ -64,7 +61,7 @@ set_our_framework_properties(allegro_video AllegroVideo-${ALLEGRO_SOVERSION})
 install_our_library(allegro_video)
 install_our_headers(${VIDEO_INCLUDE_FILES})
 
-set(VIDEO_LINK_WITH allegro_video PARENT_SCOPE)
+add_addon(video)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

@@ -18,7 +18,6 @@ set_our_framework_properties(allegro_main AllegroMain-${ALLEGRO_SOVERSION})
 
 install_our_library(allegro_main)
 
-set(SUPPORT_ALLEGRO_MAIN 1 PARENT_SCOPE)
-set(ALLEGRO_MAIN_LINK_WITH allegro_main PARENT_SCOPE)
+add_addon(main)
 
 # vim: set sts=4 sw=4 et:
