@@ -833,7 +833,7 @@ link_directories(${MONOLITH_LINK_DIRECTORIES})
 add_our_library(allegro-monolith
     "${MONOLITH_SOURCES};${ALLEGRO_PUBLIC_HEADERS}"
     "${LIBRARY_CFLAGS} -DALLEGRO_SRC"
-    "${PLATFORM_LIBS}"
+    "${PLATFORM_LIBS};${MONOLITH_LIBRARIES}"
     )
 endif(WANT_MONOLITH)
 
