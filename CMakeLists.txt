@@ -827,14 +827,14 @@ add_subdirectory(addons)
 
 if(WANT_MONOLITH)
 
-message(STATUS ${MONOLITH_SOURCES})
 include_directories(SYSTEM ${MONOLITH_INCLUDE_DIRECTORIES})
 link_directories(${MONOLITH_LINK_DIRECTORIES})
-add_our_library(allegro-monolith
+add_our_library(allegro_monolith
     "${MONOLITH_SOURCES};${ALLEGRO_PUBLIC_HEADERS}"
-    "${LIBRARY_CFLAGS} -DALLEGRO_SRC"
+    "${LIBRARY_CFLAGS} -DALLEGRO_SRC ${MONOLITH_DEFINES}"
     "${PLATFORM_LIBS};${MONOLITH_LIBRARIES}"
     )
+install_our_library(allegro_monolith)
 endif(WANT_MONOLITH)
 
 #-----------------------------------------------------------------------------#
@@ -915,6 +915,7 @@ set(PKG_CONFIG_FILES
     allegro_primitives
     allegro_ttf
     allegro_video
+    allegro_monolith
     )
 
 # Probably usable on Windows as well but we shouldn't install it

@@ -9,14 +9,14 @@ set(SHADER_SOURCES
     shader.c
     )
 
-set(OUR_DEFINES "-DALLEGRO_SHADER_SRC")
+set(SHADER_DEFINES "-DALLEGRO_SHADER_SRC")
 set(OUR_LIBS "${ALLEGRO_LINK_WITH}")
 
 if(WANT_OPENGL)
     list(APPEND SHADER_SOURCES shader_glsl.c)
     list(APPEND SHADER_INCLUDE_FILES allegro5/allegro_shader_glsl.h)
     set_our_header_properties(${SHADER_INCLUDE_FILES})
-    set(OUR_DEFINES "${OUR_DEFINES} -DALLEGRO_CFG_WANT_GLSL_SHADERS")
+    set(SHADER_DEFINES "${SHADER_DEFINES} -DALLEGRO_CFG_WANT_GLSL_SHADERS")
     set(ALLEGRO_CFG_GLSL_SHADERS 1 PARENT_SCOPE)
 endif(WANT_OPENGL)
 
@@ -26,7 +26,7 @@ if(WANT_D3D AND WANT_D3D_SHADERS)
             list(APPEND SHADER_SOURCES shader_hlsl.cpp)
             list(APPEND SHADER_INCLUDE_FILES allegro5/allegro_shader_hlsl.h)
             set_our_header_properties(${SHADER_INCLUDE_FILES})
-            set(OUR_DEFINES "${OUR_DEFINES} -DALLEGRO_CFG_WANT_HLSL_SHADERS")
+            set(SHADER_DEFINES "${SHADER_DEFINES} -DALLEGRO_CFG_WANT_HLSL_SHADERS")
             set(OUR_LIBS "${D3DX9_LIBRARY};${OUR_LIBS}")
             set(ALLEGRO_CFG_HLSL_SHADERS 1 PARENT_SCOPE)
         endif(D3DX9_FOUND)
@@ -37,7 +37,7 @@ if(WANT_CG_SHADERS)
     find_package(Cg)
     if(CG_FOUND)
         list(APPEND SHADER_SOURCES shader_cg.cpp)
-        set(OUR_DEFINES "${OUR_DEFINES} -DALLEGRO_CFG_WANT_CG_SHADERS")
+        set(SHADER_DEFINES "${SHADER_DEFINES} -DALLEGRO_CFG_WANT_CG_SHADERS")
         set(OUR_LIBS "${CG_LIBRARY};${OUR_LIBS}")
         if(WANT_OPENGL)
             set(OUR_LIBS "${CG_GL_LIBRARY};${OUR_LIBS}")
@@ -65,7 +65,7 @@ include_directories(.)
 
 add_our_library(allegro_shader
    "${SHADER_SOURCES};${SHADER_INCLUDE_FILES}"
-   "${OUR_DEFINES}"
+   "${SHADER_DEFINES}"
    "${OUR_LIBS}"
    )
 

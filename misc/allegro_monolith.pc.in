@@ -1,0 +1,14 @@
+prefix=@prefix@
+exec_prefix=${prefix}
+libdir=@libdir@
+includedir=@includedir@
+version=@ALLEGRO_VERSION@
+soversion=@ALLEGRO_SOVERSION@
+suffix=@lib_type@@lib_linkage@
+
+Name: allegro_monolith
+Description: Allegro game programming library (all addons included)
+Version: ${version}
+Libs: -L${libdir} -lallegro_monolith${suffix}
+Libs.private: @link_with@
+Cflags: -I${includedir}
