@@ -882,7 +882,14 @@ static int stream_component_open(VideoState * is, int stream_index)
       is->audio_hw_buf_size = AUDIO_BUFFER_SIZE;
    }
    codec = avcodec_find_decoder(codecCtx->codec_id);
-   if (!codec || (avcodec_open(codecCtx, codec) < 0)) {
+   if (codec) {
+      #ifdef FFMPEG_0_8
+      if (avcodec_open2(codecCtx, codec, NULL) < 0) codec = NULL;
+      #else
+      if (avcodec_open(codecCtx, codec) < 0) codec = NULL;
+      #endif
+   }
+   if (!codec) {
       ALLEGRO_ERROR("Unsupported codec!\n");
       return -1;
    }
