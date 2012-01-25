@@ -28,7 +28,7 @@ static void render(void)
     int x, y, w, h, as, de, xpos, ypos;
     int target_w, target_h;
     ALLEGRO_USTR_INFO info, sub_info;
-    ALLEGRO_USTR *u;
+    const ALLEGRO_USTR *u;
 
     al_clear_to_color(white);
 

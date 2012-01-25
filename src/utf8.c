@@ -157,7 +157,7 @@ ALLEGRO_USTR *al_ustr_empty_string(void)
 
 /* Function: al_ref_cstr
  */
-ALLEGRO_USTR *al_ref_cstr(ALLEGRO_USTR_INFO *info, const char *s)
+const ALLEGRO_USTR *al_ref_cstr(ALLEGRO_USTR_INFO *info, const char *s)
 {
    struct _al_tagbstring *tb = (struct _al_tagbstring *) info;
    ASSERT(info);
@@ -170,7 +170,7 @@ ALLEGRO_USTR *al_ref_cstr(ALLEGRO_USTR_INFO *info, const char *s)
 
 /* Function: al_ref_buffer
  */
-ALLEGRO_USTR *al_ref_buffer(ALLEGRO_USTR_INFO *info, const char *s, size_t size)
+const ALLEGRO_USTR *al_ref_buffer(ALLEGRO_USTR_INFO *info, const char *s, size_t size)
 {
    struct _al_tagbstring *tb = (struct _al_tagbstring *) info;
    ASSERT(s);
@@ -182,7 +182,7 @@ ALLEGRO_USTR *al_ref_buffer(ALLEGRO_USTR_INFO *info, const char *s, size_t size)
 
 /* Function: al_ref_ustr
  */
-ALLEGRO_USTR *al_ref_ustr(ALLEGRO_USTR_INFO *info, const ALLEGRO_USTR *us,
+const ALLEGRO_USTR *al_ref_ustr(ALLEGRO_USTR_INFO *info, const ALLEGRO_USTR *us,
    int start_pos, int end_pos)
 {
    struct _al_tagbstring *tb = (struct _al_tagbstring *) info;
@@ -743,7 +743,7 @@ int al_ustr_find_set_cstr(const ALLEGRO_USTR *us, int start_pos,
    const char *accept)
 {
    ALLEGRO_USTR_INFO info;
-   ALLEGRO_USTR *accept_us = al_ref_cstr(&info, accept);
+   const ALLEGRO_USTR *accept_us = al_ref_cstr(&info, accept);
 
    return al_ustr_find_set(us, start_pos, accept_us);
 }
@@ -797,7 +797,7 @@ int al_ustr_find_cset_cstr(const ALLEGRO_USTR *us, int start_pos,
    const char *reject)
 {
    ALLEGRO_USTR_INFO info;
-   ALLEGRO_USTR *reject_us = al_ref_cstr(&info, reject);
+   const ALLEGRO_USTR *reject_us = al_ref_cstr(&info, reject);
 
    return al_ustr_find_cset(us, start_pos, reject_us);
 }
@@ -819,7 +819,7 @@ int al_ustr_find_cstr(const ALLEGRO_USTR *haystack, int start_pos,
    const char *needle)
 {
    ALLEGRO_USTR_INFO info;
-   ALLEGRO_USTR *needle_us = al_ref_cstr(&info, needle);
+   const ALLEGRO_USTR *needle_us = al_ref_cstr(&info, needle);
 
    return al_ustr_find_str(haystack, start_pos, needle_us);
 }
@@ -841,7 +841,7 @@ int al_ustr_rfind_cstr(const ALLEGRO_USTR *haystack, int end_pos,
    const char *needle)
 {
    ALLEGRO_USTR_INFO info;
-   ALLEGRO_USTR *needle_us = al_ref_cstr(&info, needle);
+   const ALLEGRO_USTR *needle_us = al_ref_cstr(&info, needle);
 
    return al_ustr_rfind_str(haystack, end_pos, needle_us);
 }
@@ -863,8 +863,8 @@ bool al_ustr_find_replace_cstr(ALLEGRO_USTR *us, int start_pos,
 {
    ALLEGRO_USTR_INFO find_info;
    ALLEGRO_USTR_INFO repl_info;
-   ALLEGRO_USTR *find_us = al_ref_cstr(&find_info, find);
-   ALLEGRO_USTR *repl_us = al_ref_cstr(&repl_info, replace);
+   const ALLEGRO_USTR *find_us = al_ref_cstr(&find_info, find);
+   const ALLEGRO_USTR *repl_us = al_ref_cstr(&repl_info, replace);
 
    return al_ustr_find_replace(us, start_pos, find_us, repl_us);
 }
@@ -938,7 +938,7 @@ bool al_ustr_has_prefix(const ALLEGRO_USTR *us1, const ALLEGRO_USTR *us2)
 bool al_ustr_has_prefix_cstr(const ALLEGRO_USTR *us1, const char *s2)
 {
    ALLEGRO_USTR_INFO info;
-   ALLEGRO_USTR *us2 = al_ref_cstr(&info, s2);
+   const ALLEGRO_USTR *us2 = al_ref_cstr(&info, s2);
 
    return al_ustr_has_prefix(us1, us2);
 }
@@ -962,7 +962,7 @@ bool al_ustr_has_suffix(const ALLEGRO_USTR *us1, const ALLEGRO_USTR *us2)
 bool al_ustr_has_suffix_cstr(const ALLEGRO_USTR *us1, const char *s2)
 {
    ALLEGRO_USTR_INFO info;
-   ALLEGRO_USTR *us2 = al_ref_cstr(&info, s2);
+   const ALLEGRO_USTR *us2 = al_ref_cstr(&info, s2);
 
    return al_ustr_has_suffix(us1, us2);
 }

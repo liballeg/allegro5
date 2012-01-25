@@ -40,10 +40,10 @@ AL_FUNC(ALLEGRO_USTR *, al_ustr_dup_substr, (const ALLEGRO_USTR *us,
 AL_FUNC(ALLEGRO_USTR *, al_ustr_empty_string, (void));
 
 /* Reference strings */
-AL_FUNC(ALLEGRO_USTR *, al_ref_cstr, (ALLEGRO_USTR_INFO *info, const char *s));
-AL_FUNC(ALLEGRO_USTR *, al_ref_buffer, (ALLEGRO_USTR_INFO *info, const char *s,
+AL_FUNC(const ALLEGRO_USTR *, al_ref_cstr, (ALLEGRO_USTR_INFO *info, const char *s));
+AL_FUNC(const ALLEGRO_USTR *, al_ref_buffer, (ALLEGRO_USTR_INFO *info, const char *s,
       size_t size));
-AL_FUNC(ALLEGRO_USTR *, al_ref_ustr, (ALLEGRO_USTR_INFO *info,
+AL_FUNC(const ALLEGRO_USTR *, al_ref_ustr, (ALLEGRO_USTR_INFO *info,
       const ALLEGRO_USTR *us, int start_pos, int end_pos));
 
 /* Sizes and offsets */

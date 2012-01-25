@@ -109,7 +109,7 @@ static ALLEGRO_CONFIG_SECTION *config_add_section(ALLEGRO_CONFIG *config,
 void al_add_config_section(ALLEGRO_CONFIG *config, const char *name)
 {
    ALLEGRO_USTR_INFO name_info;
-   ALLEGRO_USTR *uname;
+   const ALLEGRO_USTR *uname;
 
    uname = al_ref_cstr(&name_info, name);
    config_add_section(config, uname);
@@ -165,9 +165,9 @@ void al_set_config_value(ALLEGRO_CONFIG *config,
    ALLEGRO_USTR_INFO section_info;
    ALLEGRO_USTR_INFO key_info;
    ALLEGRO_USTR_INFO value_info;
-   ALLEGRO_USTR *usection;
-   ALLEGRO_USTR *ukey;
-   ALLEGRO_USTR *uvalue;
+   const ALLEGRO_USTR *usection;
+   const ALLEGRO_USTR *ukey;
+   const ALLEGRO_USTR *uvalue;
 
    if (section == NULL) {
       section = "";
@@ -224,8 +224,8 @@ void al_add_config_comment(ALLEGRO_CONFIG *config,
 {
    ALLEGRO_USTR_INFO section_info;
    ALLEGRO_USTR_INFO comment_info;
-   ALLEGRO_USTR *usection;
-   ALLEGRO_USTR *ucomment;
+   const ALLEGRO_USTR *usection;
+   const ALLEGRO_USTR *ucomment;
 
    if (section == NULL) {
       section = "";
@@ -242,7 +242,7 @@ void al_add_config_comment(ALLEGRO_CONFIG *config,
 
 static bool config_get_value(const ALLEGRO_CONFIG *config,
    const ALLEGRO_USTR *section, const ALLEGRO_USTR *key,
-   ALLEGRO_USTR **ret_value)
+   const ALLEGRO_USTR **ret_value)
 {
    ALLEGRO_CONFIG_SECTION *s;
    ALLEGRO_CONFIG_ENTRY *e;
@@ -267,9 +267,9 @@ const char *al_get_config_value(const ALLEGRO_CONFIG *config,
 {
    ALLEGRO_USTR_INFO section_info;
    ALLEGRO_USTR_INFO key_info;
-   ALLEGRO_USTR *usection;
-   ALLEGRO_USTR *ukey;
-   ALLEGRO_USTR *value;
+   const ALLEGRO_USTR *usection;
+   const ALLEGRO_USTR *ukey;
+   const ALLEGRO_USTR *value;
 
    if (section == NULL) {
       section = "";
@@ -607,7 +607,7 @@ char const *al_get_first_config_entry(ALLEGRO_CONFIG const *config,
    char const *section, ALLEGRO_CONFIG_ENTRY **iterator)
 {
    ALLEGRO_USTR_INFO section_info;
-   ALLEGRO_USTR *usection;
+   const ALLEGRO_USTR *usection;
    ALLEGRO_CONFIG_SECTION *s;
    ALLEGRO_CONFIG_ENTRY *e;
 

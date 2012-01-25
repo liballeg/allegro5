@@ -403,7 +403,7 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, ALLEGRO_DISPLAY *display)
       }
       buffer[len] = '\0';
       ALLEGRO_USTR_INFO info;
-      ALLEGRO_USTR *ustr = al_ref_cstr(&info, buffer);
+      const ALLEGRO_USTR *ustr = al_ref_cstr(&info, buffer);
       unicode = al_ustr_get(ustr, 0);
       if (unicode < 0)
          unicode = 0;

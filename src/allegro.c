@@ -175,7 +175,7 @@ static void configure_logging(void)
    v = al_get_config_value(config, "trace", "channels");
    if (v) {
       ALLEGRO_USTR_INFO uinfo;
-      ALLEGRO_USTR *u = al_ref_cstr(&uinfo, v);
+      const ALLEGRO_USTR *u = al_ref_cstr(&uinfo, v);
       int pos = 0;
 
       while (pos >= 0) {
