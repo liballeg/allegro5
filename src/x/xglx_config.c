@@ -204,7 +204,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_fbconfig(Display *dpy,
 
 static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_new(ALLEGRO_DISPLAY_XGLX *glx, int *eds_count)
 {
-   int num_fbconfigs, i;
+   int num_fbconfigs, i, j;
    GLXFBConfig *fbconfig;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds = NULL;
@@ -225,28 +225,34 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_new(ALLEGRO_DISPLAY_XGLX *gl
 
    ALLEGRO_INFO("%i formats.\n", num_fbconfigs);
 
-   for (i = 0; i < num_fbconfigs; i++) {
+   for (i = j = 0; i < num_fbconfigs; i++) {
       ALLEGRO_DEBUG("-- \n");
       ALLEGRO_DEBUG("Decoding visual no. %i...\n", i);
-      eds[i] = read_fbconfig(system->gfxdisplay, fbconfig[i]);
-      if (!eds[i])
+      eds[j] = read_fbconfig(system->gfxdisplay, fbconfig[i]);
+      if (!eds[j])
          continue;
 #ifdef DEBUGMODE
-      display_pixel_format(eds[i]);
+      display_pixel_format(eds[j]);
 #endif
-      eds[i]->score = _al_score_display_settings(eds[i], ref);
-      if (eds[i]->score == -1) {
+      eds[j]->score = _al_score_display_settings(eds[j], ref);
+      if (eds[j]->score == -1) {
          continue;
       }
-      eds[i]->index = i;
-      eds[i]->info = al_malloc(sizeof(GLXFBConfig));
-      memcpy(eds[i]->info, &fbconfig[i], sizeof(GLXFBConfig));
+      eds[j]->index = i;
+      eds[j]->info = al_malloc(sizeof(GLXFBConfig));
+      memcpy(eds[j]->info, &fbconfig[i], sizeof(GLXFBConfig));
+      j++;
    }
 
-   *eds_count = i;
-   ALLEGRO_INFO("%i visuals are good enough.\n", i);
+   *eds_count = j;
+   ALLEGRO_INFO("%i visuals are good enough.\n", j);
+   if (j == 0) {
+      al_free(eds);
+      eds = NULL;
+   }
 
    XFree(fbconfig);
+
    return eds;
 }
 
@@ -333,7 +339,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_xvisual(Display *dpy,
 
 static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_old(int *eds_count)
 {
-   int i, num_visuals;
+   int i, j, num_visuals;
    XVisualInfo *xv;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds;
@@ -349,28 +355,35 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_old(int *eds_count)
 
    ALLEGRO_INFO("%i formats.\n", num_visuals);
 
-   for (i = 0; i < num_visuals; i++) {
+   for (i = j = 0; i < num_visuals; i++) {
       ALLEGRO_DEBUG("-- \n");
       ALLEGRO_DEBUG("Decoding visual no. %i...\n", i);
-      eds[i] = read_xvisual(system->gfxdisplay, xv+i);
-      if (!eds[i])
+      eds[j] = read_xvisual(system->gfxdisplay, xv + i);
+      if (!eds[j])
          continue;
 #ifdef DEBUGMODE
-      display_pixel_format(eds[i]);
+      display_pixel_format(eds[j]);
 #endif
-      eds[i]->score = _al_score_display_settings(eds[i], ref);
-      if (eds[i]->score == -1) {
+      eds[j]->score = _al_score_display_settings(eds[j], ref);
+      if (eds[j]->score == -1) {
          continue;
       }
-      eds[i]->index = i;
+      eds[j]->index = i;
       /* Seems that XVinfo is static. */
-      eds[i]->info = al_malloc(sizeof(XVisualInfo));
-      memcpy(eds[i]->info, xv + i, sizeof(XVisualInfo));
+      eds[j]->info = al_malloc(sizeof(XVisualInfo));
+      memcpy(eds[j]->info, xv + i, sizeof(XVisualInfo));
+      j++;
    }
 
-   *eds_count = i;
-   ALLEGRO_INFO("%i visuals are good enough.\n", i);
+   *eds_count = j;
+   ALLEGRO_INFO("%i visuals are good enough.\n", j);
+   if (j == 0) {
+      al_free(eds);
+      eds = NULL;
+   }
+
    XFree(xv);
+
    return eds;
 }
 
@@ -383,10 +396,13 @@ static void select_best_visual(ALLEGRO_DISPLAY_XGLX *glx,
 
    qsort(eds, eds_count, sizeof(*eds), _al_display_settings_sorter);
 
+   ASSERT(eds_count > 0);
+   ASSERT(eds[0] != NULL);
+
    if (!eds[0]->info) {
-       ALLEGRO_ERROR("No matching displays found.\n");
-       glx->xvinfo = NULL;
-       return;
+      ALLEGRO_ERROR("No matching displays found.\n");
+      glx->xvinfo = NULL;
+      return;
    }
 
    ALLEGRO_INFO("Chose visual no. %i\n", eds[0]->index);
