@@ -13,6 +13,8 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#include <stdlib.h>
+
 ALLEGRO_DEBUG_CHANNEL("font")
 
 
@@ -163,9 +165,9 @@ static ALLEGRO_BITMAP *push_new_page(ALLEGRO_TTF_FONT_DATA *data)
      * it is not safe to register a destructor for it.
      */
     _al_push_destructor_owner();
-    al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS
-      | ALLEGRO_STATE_TARGET_BITMAP);
+    al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
     al_set_new_bitmap_format(data->bitmap_format);
+    al_set_new_bitmap_flags(data->bitmap_flags);
     page = al_create_bitmap(256, 256);
     al_restore_state(&state);
     _al_pop_destructor_owner();
@@ -252,6 +254,17 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
          data->lock_rect.x, data->lock_rect.y,
          data->lock_rect.w, data->lock_rect.h,
          ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
+
+      /* Clear the data so we don't get garbage when using filtering
+       * FIXME We could clear just the border but I'm not convinced that
+       * would be faster (yet)
+       */
+      memset(
+         ((unsigned char *)data->page_lr->data)
+            + (data->lock_rect.h-1)*data->page_lr->pitch,
+         0,
+         data->lock_rect.h * abs(data->page_lr->pitch)
+      );
    }
 
    ASSERT(data->page_lr);
