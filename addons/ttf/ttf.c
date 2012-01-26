@@ -163,10 +163,13 @@ static ALLEGRO_BITMAP *push_new_page(ALLEGRO_TTF_FONT_DATA *data)
      * it is not safe to register a destructor for it.
      */
     _al_push_destructor_owner();
-    al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
+    al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS
+      | ALLEGRO_STATE_TARGET_BITMAP);
     al_set_new_bitmap_format(data->bitmap_format);
     al_set_new_bitmap_flags(data->bitmap_flags);
     page = al_create_bitmap(256, 256);
+    al_set_target_bitmap(page);
+    al_clear_to_color(al_map_rgba(0, 0, 0, 0));
     al_restore_state(&state);
     _al_pop_destructor_owner();
 
