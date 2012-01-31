@@ -179,7 +179,6 @@ bool _al_save_pcx_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
    int i;
    int w, h;
    unsigned char *buf;
-   ALLEGRO_LOCKED_REGION *lr;
    ASSERT(f);
    ASSERT(bmp);
 
@@ -214,7 +213,7 @@ bool _al_save_pcx_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 
    buf = al_malloc(w * 3);
 
-   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+   al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
 
    for (y = 0; y < h; y++) {    /* for each scanline... */
       for (x = 0; x < w; x++) {

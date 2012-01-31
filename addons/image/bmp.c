@@ -818,7 +818,6 @@ bool _al_save_bmp_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 {
    int bfSize;
    int biSizeImage;
-   int depth;
    int bpp;
    int filler;
    int i, j;
@@ -830,7 +829,6 @@ bool _al_save_bmp_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
    w = al_get_bitmap_width(bmp);
    h = al_get_bitmap_height(bmp);
 
-   depth = al_get_pixel_format_bits(al_get_bitmap_format(bmp));
    bpp = 24;
    filler = 3 - ((w * (bpp / 8) - 1) & 3);
 

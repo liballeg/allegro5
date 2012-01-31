@@ -238,8 +238,8 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
    unsigned char image_id[256], image_palette[256][3];
    unsigned char id_length, palette_type, image_type, palette_entry_size;
    unsigned char bpp, descriptor_bits;
-   short unsigned int first_color, palette_colors;
-   short unsigned int left, top, image_width, image_height;
+   short unsigned int palette_colors;
+   short unsigned int image_width, image_height;
    bool left_to_right;
    bool top_to_bottom;
    unsigned int c, i;
@@ -254,11 +254,11 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
    id_length = al_fgetc(f);
    palette_type = al_fgetc(f);
    image_type = al_fgetc(f);
-   first_color = al_fread16le(f);
+   al_fread16le(f); /* first_color */
    palette_colors  = al_fread16le(f);
    palette_entry_size = al_fgetc(f);
-   left = al_fread16le(f);
-   top = al_fread16le(f);
+   al_fread16le(f); /* left */
+   al_fread16le(f); /* top */
    image_width = al_fread16le(f);
    image_height = al_fread16le(f);
    bpp = al_fgetc(f);
@@ -498,7 +498,6 @@ bool _al_save_tga_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 {
    int x, y;
    int w, h;
-   ALLEGRO_LOCKED_REGION *lr;
    ASSERT(f);
    ASSERT(bmp);
 
@@ -520,7 +519,7 @@ bool _al_save_tga_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
    al_fputc(f, 32);     /* bits per pixel */
    al_fputc(f, 8);      /* descriptor (bottom to top, 8-bit alpha) */
 
-   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+   al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
 
    for (y = h - 1; y >= 0; y--) {
       for (x = 0; x < w; x++) {
