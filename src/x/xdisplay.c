@@ -771,9 +771,9 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
       ALLEGRO_DEBUG("destroy context.\n");
    }
 
-   /* XXX quick pre-release hack */
-   /* In multi-window programs these result in a double-free bugs. */
-#if 0
+   /* In multi-window programs these once resulted in a double-free bugs. */
+   /* We will re-enable this code and see if anyone complains. */
+#if 1
    if (glx->fbc) {
       al_free(glx->fbc);
       glx->fbc = NULL;
