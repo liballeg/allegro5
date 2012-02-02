@@ -36,7 +36,7 @@ AL_INLINE(bool, _al_vector_is_nonempty, (const _AL_VECTOR *vec),
 AL_FUNC(void*, _al_vector_ref, (const _AL_VECTOR*, unsigned int index));
 AL_FUNC(void*, _al_vector_ref_front, (const _AL_VECTOR*));
 AL_FUNC(void*, _al_vector_ref_back, (const _AL_VECTOR*));
-AL_FUNC(void, _al_vector_append_array, (_AL_VECTOR *vec, unsigned int num, const void *arr));
+AL_FUNC(bool, _al_vector_append_array, (_AL_VECTOR *vec, unsigned int num, const void *arr));
 AL_FUNC(void*, _al_vector_alloc_back, (_AL_VECTOR*));
 AL_FUNC(void*, _al_vector_alloc_mid, (_AL_VECTOR*, unsigned int index));
 AL_FUNC(int,  _al_vector_find, (const _AL_VECTOR*, const void *ptr_item));
