@@ -231,7 +231,7 @@ int main(int argc, const char **argv)
                size_t bytes_read = 0, i;
                
                do {
-                  bytes_read += al_fread(fp, (void *)output + bytes_read,
+                  bytes_read += al_fread(fp, (uint8_t *)output + bytes_read,
                      bytes_to_read - bytes_read);                  
                } while (bytes_read < bytes_to_read && !al_feof(fp) &&
                   !al_ferror(fp));
