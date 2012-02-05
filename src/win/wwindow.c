@@ -841,9 +841,6 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             int wHeight;
             int cWidth;
             int cHeight;
-            int total_border_width;
-            int total_border_height;
-            POINT wmin, wmax;
 
             GetWindowRect(hWnd, &wRect);
             GetClientRect(hWnd, &cRect);
@@ -851,16 +848,21 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             wHeight = wRect.bottom - wRect.top;
             cWidth = cRect.right - cRect.left;
             cHeight = cRect.bottom - cRect.top;
-            total_border_width = wWidth - cWidth;
-            total_border_height = wHeight - cHeight;
 
-            wmin.x = (d->min_w > 0) ? d->min_w + total_border_width : p_info->ptMinTrackSize.x;
-            wmin.y = (d->min_h > 0) ? d->min_h + total_border_height : p_info->ptMinTrackSize.y;
-            wmax.x = (d->max_w > 0) ? d->max_w + total_border_width : p_info->ptMaxTrackSize.x;
-            wmax.y = (d->max_h > 0) ? d->max_h + total_border_height : p_info->ptMaxTrackSize.y;
+            /* Client size is zero when the window is restored. */
+            if (cWidth != 0 && cHeight != 0) {
+               int total_border_width = wWidth - cWidth;
+               int total_border_height = wHeight - cHeight;
+               POINT wmin, wmax;
 
-            p_info->ptMinTrackSize = wmin;
-            p_info->ptMaxTrackSize = wmax;
+               wmin.x = (d->min_w > 0) ? d->min_w + total_border_width : p_info->ptMinTrackSize.x;
+               wmin.y = (d->min_h > 0) ? d->min_h + total_border_height : p_info->ptMinTrackSize.y;
+               wmax.x = (d->max_w > 0) ? d->max_w + total_border_width : p_info->ptMaxTrackSize.x;
+               wmax.y = (d->max_h > 0) ? d->max_h + total_border_height : p_info->ptMaxTrackSize.y;
+
+               p_info->ptMinTrackSize = wmin;
+               p_info->ptMaxTrackSize = wmax;
+            }
          }
          break;
       case WM_SIZE:
