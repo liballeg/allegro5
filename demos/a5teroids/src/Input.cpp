@@ -31,8 +31,10 @@ float Input::lr(void)
       return -1.0f;
    else if (al_key_down(&kbdstate, ALLEGRO_KEY_RIGHT))
       return 1.0f;
-   else
-      return joystate.stick[0].axis[0];
+   else {
+      float pos = joystate.stick[0].axis[0];
+      return fabs(pos) > 0.1 ? pos : 0;
+   }
 }
 
 float Input::ud(void)
@@ -41,8 +43,10 @@ float Input::ud(void)
       return -1.0f;
    else if (al_key_down(&kbdstate, ALLEGRO_KEY_DOWN))
       return 1.0f;
-   else
-      return joystate.stick[0].axis[1];
+   else {
+      float pos = joystate.stick[0].axis[1];
+      return fabs(pos) > 0.1 ? pos : 0;
+   }
 }
 
 bool Input::esc(void)
