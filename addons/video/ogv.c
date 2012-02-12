@@ -979,7 +979,7 @@ static unsigned char clamp(int x)
    return x;
 }
 
-static inline void ycbcr_to_rgb(th_ycbcr_buffer buffer,
+static INLINE void ycbcr_to_rgb(th_ycbcr_buffer buffer,
    ALLEGRO_LOCKED_REGION *lr, int xshift, int yshift)
 {
    const int w = buffer[0].width;
