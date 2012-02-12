@@ -587,6 +587,7 @@ static void _openal_deallocate_voice(ALLEGRO_VOICE *voice)
 {
    ALLEGRO_AL_DATA *ex_data = voice->extra;
    ASSERT(ex_data->thread == NULL);
+   (void)ex_data;
 
    al_free(voice->extra);
    voice->extra = NULL;
