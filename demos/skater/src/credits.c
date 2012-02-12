@@ -84,6 +84,14 @@ static char *format_text(TEXT_LIST * head, char *eol, char *gap)
 
 
 
+/* ensures argument of isspace is within valid range */
+static bool safe_isspace(unsigned char c)
+{
+   return isspace(c);
+}
+
+
+
 /* loads the scroller message from readme.txt */
 static void load_text(void)
 {
@@ -123,7 +131,7 @@ static void load_text(void)
       if (buf[0] == '=') {
          s = strchr(buf, ' ');
          if (s) {
-            for (i = strlen(s) - 1; (isspace(s[i])) || (s[i] == '='); i--)
+            for (i = strlen(s) - 1; (safe_isspace(s[i])) || (s[i] == '='); i--)
                s[i] = 0;
 
             s++;
@@ -141,7 +149,7 @@ static void load_text(void)
       } else if (sec) {
          s = buf;
 
-         while ((*s) && (isspace(*s)))
+         while ((*s) && (safe_isspace(*s)))
             s++;
 
          for (i = strlen(s) - 1; (i >= 0) && (isspace(s[i])); i--)
@@ -283,12 +291,12 @@ static void load_credits(void)
 
       p = buf;
 
-      while ((*p) && (isspace(*p)))
+      while ((*p) && (safe_isspace(*p)))
          p++;
 
       p2 = p;
 
-      while ((*p2) && ((!isspace(*p2)) || (*(p2 + 1) != '(')))
+      while ((*p2) && ((!safe_isspace(*p2)) || (*(p2 + 1) != '(')))
          p2++;
 
       if ((strncmp(p2, " (<email>", 9) == 0) ||
@@ -307,7 +315,7 @@ static void load_credits(void)
       } else if (*p) {
          if (c) {
             p2 = p + strlen(p) - 1;
-            while ((p2 > p) && (isspace(*p2)))
+            while ((p2 > p) && (safe_isspace(*p2)))
                *(p2--) = 0;
 
             if (c->text) {
