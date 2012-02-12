@@ -4,6 +4,102 @@ See `changes-5.0.txt` for changes in Allegro 5.0.x.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 5.1.0 to 5.1.1 (February 2012)
+===========================================
+
+The main developers were: Thomas Fjellstrom, Trent Gamblin, Matthew Leverton,
+Elias Pschernig, Jon Rafkind, Peter Wang.
+
+Ports:
+
+-  Thomas Fjellstrom started an Android port.  Displays, keys and touch events
+   work.
+
+Core:
+
+-  Make al_ref_cstr, al_ref_ustr and al_ref_buffer return const ALLEGRO_USTR*
+   instead of just an ALLEGRO_USTR* (Paul Suntsov).
+
+Graphics:
+
+-  Fixed a bug in the OpenGL driver when drawing the backbuffer outside the
+   clipping rectangle of the target bitmap.
+
+Displays:
+
+-  Fixed a problem with wrong window size when restoring a minimised window, in
+   code that was added to support window constraints (jmasterx).
+
+-  Set ALLEGRO_MINIMIZED display flag on Windows (Zac Evans).
+
+-  Prevent a deadlock during display creation on X.
+
+-  Fallback to the 'old' visual selection method on X instead of crashing
+   if the 'new' visual selection doesn't work.
+
+-  Implement XEmbed protocol.
+
+-  Add hot plug display support on iOS (Airplay and wired.)
+
+Input:
+
+-  Use the same logic in set_mouse_xy for FULLSCREEN_WINDOW as was used for
+   FULLSCREEN. (Max OS X)
+
+Audio addons:
+
+-  Add audio recording API with implementations for ALSA, AudioQueue,
+   DirectSound8 and PulseAudio.
+
+-  Improve code to check that DLL symbols are loaded in the acodec addon.
+   The old method was hacky and broke under -O2 using GCC 4.6.1. (Paul Suntsov)
+
+Image addon:
+
+-  Some initial Android support.
+
+-  Write libjpeg errors to Allegro log.
+
+TTF addon:
+
+-  Clear locked region so pixel borders aren't random garbage that can be seen
+   sometimes with linear filtering on.
+
+Video addon:
+
+-  Added Ogg Theora/Vorbis backend.
+
+-  Fixed a few warnings with ffmpeg version 0.7/0.8.
+
+Build system:
+
+-  Add monolith library option.
+
+-  Detect the new MinGW cross-compiler in Ubuntu.
+
+Examples:
+
+-  Added new examples: ex_record, ex_record_name, ex_display_events.
+
+-  ex_ogre3d: Make it work under Windows (AMCerasoli).
+
+-  skater: small bug fixes, mouse support, add missing files for scrollers.
+
+-  a5teroids: Support gamepads that report small non-zero values for sticks
+   that are at rest.
+
+-  Added pong example in Python.
+
+Other:
+
+-  Added index to HTML version of the reference manual.
+
+-  Various documentation updates.
+
+-  Other minor bug fixes.
+
+
+
 Changes from 5.0.x to 5.1.0 (November 2011)
 ===========================================
 
