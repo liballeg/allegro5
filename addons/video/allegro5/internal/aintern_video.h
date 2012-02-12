@@ -26,6 +26,7 @@ struct ALLEGRO_VIDEO {
    double audio_rate;
 
    /* general */
+   bool es_inited;
    ALLEGRO_EVENT_SOURCE es;
    ALLEGRO_PATH *filename;
    bool paused;

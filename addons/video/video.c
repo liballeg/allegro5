@@ -61,6 +61,7 @@ ALLEGRO_VIDEO *al_open_video(char const *filename)
    }
    
    al_init_user_event_source(&video->es);
+   video->es_inited = true;
    
    return video;
 }
@@ -69,7 +70,14 @@ ALLEGRO_VIDEO *al_open_video(char const *filename)
  */
 void al_close_video(ALLEGRO_VIDEO *video)
 {
-   video->vtable->close_video(video);
+   if (video) {
+      video->vtable->close_video(video);
+      if (video->es_inited) {
+         al_destroy_user_event_source(&video->es);
+      }
+      al_destroy_path(video->filename);
+      al_free(video);
+   }
 }
 
 /* Function: al_get_video_event_source
