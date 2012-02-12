@@ -72,10 +72,9 @@ set(PROTOS ${CMAKE_CURRENT_BINARY_DIR}/protos)
 set(PROTOS_TIMESTAMP ${PROTOS}.timestamp)
 set(HTML_REFS ${CMAKE_CURRENT_BINARY_DIR}/html_refs)
 set(HTML_REFS_TIMESTAMP ${HTML_REFS}.timestamp)
-set(INDEX ${CMAKE_CURRENT_BINARY_DIR}/index)
-set(INDEX_TIMESTAMP ${INDEX}.timestamp)
 set(DUMMY_REFS ${CMAKE_CURRENT_BINARY_DIR}/dummy_refs)
 set(DUMMY_REFS_TIMESTAMP ${DUMMY_REFS}.timestamp)
+set(INDEX_ALL ${CMAKE_CURRENT_BINARY_DIR}/index_all.txt)
 set(SEARCH_INDEX_JS ${HTML_DIR}/search_index.js)
 
 set(SCRIPT_DIR ${CMAKE_SOURCE_DIR}/docs/scripts)
@@ -191,6 +190,12 @@ add_custom_command(
     )
 
 add_custom_command(
+    OUTPUT ${INDEX_ALL}
+    DEPENDS ${HTML_REFS_TIMESTAMP} make_index
+    COMMAND ${MAKE_INDEX} ${HTML_REFS} > ${INDEX_ALL}
+    )
+
+add_custom_command(
     OUTPUT ${SEARCH_INDEX_JS}
     DEPENDS ${HTML_REFS_TIMESTAMP} make_search_index
     COMMAND ${MAKE_SEARCH_INDEX} ${HTML_REFS} > ${SEARCH_INDEX_JS}
@@ -209,13 +214,18 @@ if(WANT_DOCS_HTML)
     endforeach(inc)
 
     set(HTML_PAGES)
-    foreach(page ${PAGES} index)
+    foreach(page ${PAGES} index index_all)
+        if(page STREQUAL "index_all")
+            set(page_src ${INDEX_ALL})
+        else()
+            set(page_src ${SRC_REFMAN_DIR}/${page}.txt)
+        endif()
         add_custom_command(
             OUTPUT ${HTML_DIR}/${page}.html
             DEPENDS
                 ${PROTOS_TIMESTAMP}
                 ${HTML_REFS_TIMESTAMP}
-                ${SRC_REFMAN_DIR}/${page}.txt
+                ${page_src}
                 ${CMAKE_CURRENT_BINARY_DIR}/inc.a.html
                 ${CMAKE_CURRENT_BINARY_DIR}/inc.z.html
                 ${SEARCH_INDEX_JS}
@@ -234,56 +244,12 @@ if(WANT_DOCS_HTML)
                 --include-in-header ${SRC_DIR}/custom_header.html
                 --standalone
                 --toc
-                -- ${SRC_REFMAN_DIR}/${page}.txt ${HTML_REFS}
+                -- ${page_src} ${HTML_REFS}
                 > ${HTML_DIR}/${page}.html
             )
         list(APPEND HTML_PAGES ${HTML_DIR}/${page}.html)
     endforeach(page)
 
-    add_custom_command(
-        OUTPUT ${INDEX}
-        DEPENDS ${HTML_REFS} make_index
-        COMMAND ${MAKE_INDEX} ${HTML_REFS} > ${INDEX}
-        )
-
-    add_custom_command(
-        OUTPUT ${INDEX_TIMESTAMP}
-        DEPENDS ${INDEX}
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                ${INDEX} ${INDEX_TIMESTAMP}
-        )
-
-    add_custom_target(gen_index DEPENDS ${INDEX})
-
-    add_custom_command(
-            OUTPUT ${HTML_DIR}/index_all.html
-            DEPENDS
-                ${PROTOS_TIMESTAMP}
-                ${HTML_REFS_TIMESTAMP}
-                ${INDEX_TIMESTAMP}
-                ${CMAKE_CURRENT_BINARY_DIR}/inc.a.html
-                ${CMAKE_CURRENT_BINARY_DIR}/inc.z.html
-                ${SEARCH_INDEX_JS}
-                make_doc
-                insert_timestamp
-            COMMAND
-                ${INSERT_TIMESTAMP} ${CMAKE_SOURCE_DIR}/include/allegro5/base.h > inc.timestamp.html
-            COMMAND
-                ${MAKE_DOC}
-                --to html
-                --raise-sections
-                --include-before-body inc.a.html
-                --include-after-body inc.timestamp.html
-                --include-after-body inc.z.html
-                --css pandoc.css
-                --include-in-header ${SRC_DIR}/custom_header.html
-                --standalone
-                --toc
-                -- ${INDEX} ${HTML_REFS}
-                > ${HTML_DIR}/index_all.html
-            )
-    list(APPEND HTML_PAGES ${HTML_DIR}/index_all.html)
-    
     set(HTML_IMAGES)
     foreach(image ${IMAGES})
         add_custom_command(
