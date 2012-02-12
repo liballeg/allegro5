@@ -1,7 +1,6 @@
 /* Ogg Theora/Vorbis video backend
  *
  * TODO:
- * - pausing
  * - seeking
  * - generate video frame events
  * - better ycbcr->rgb
@@ -669,7 +668,7 @@ static ALLEGRO_AUDIO_STREAM *create_audio_stream(const ALLEGRO_VIDEO *video,
 }
 
 static void update_audio_fragment(ALLEGRO_AUDIO_STREAM *audio_stream,
-   VORBIS_STREAM *vstream, bool reached_eof)
+   VORBIS_STREAM *vstream, bool paused, bool reached_eof)
 {
    float *frag;
 
@@ -677,8 +676,8 @@ static void update_audio_fragment(ALLEGRO_AUDIO_STREAM *audio_stream,
    if (!frag)
       return;
 
-   if (vstream->next_fragment_pos < FRAG_SAMPLES) {
-      if (!reached_eof) {
+   if (paused || vstream->next_fragment_pos < FRAG_SAMPLES) {
+      if (!paused && !reached_eof) {
          ALLEGRO_WARN("Next fragment not ready.\n");
       }
       memset(frag, 0, vstream->channels * FRAG_SAMPLES * sizeof(float));
@@ -922,12 +921,12 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
       al_wait_for_event(queue, &ev);
 
       if (ev.type == ALLEGRO_EVENT_TIMER) {
-         if (vstream_outer) {
+         if (vstream_outer && !video->paused) {
             poll_vorbis_decode(ogv, vstream_outer);
          }
 
          /* If no audio then video is master. */
-         if (!video->audio && !ogv->reached_eof) {
+         if (!video->audio && !video->paused && !ogv->reached_eof) {
             video->position += tstream->frame_duration;
          }
 
@@ -938,16 +937,17 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
 
       if (ev.type == ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT) {
          /* Audio clock is master when it exists. */
-         /* XXX This doesn't work well when process is paused then resumed,
+         /* XXX This doesn't work well when the process is paused then resumed,
           * due to a problem with the audio addon.  We get a flood of
           * fragment events which pushes the position field ahead of the
           * real audio position.
           */
-         if (!ogv->reached_eof) {
+         if (!video->paused && !ogv->reached_eof) {
             video->audio_position += audio_pos_step;
             video->position = video->audio_position;
          }
-         update_audio_fragment(video->audio, vstream, ogv->reached_eof);
+         update_audio_fragment(video->audio, vstream, video->paused,
+            ogv->reached_eof);
       }
    }
 
@@ -1160,9 +1160,8 @@ static bool ogv_start_video(ALLEGRO_VIDEO *video)
 
 static bool ogv_pause_video(ALLEGRO_VIDEO *video)
 {
-   /* XXX not yet implemented */
    (void)video;
-   return false;
+   return true;
 }
 
 static bool ogv_seek_video(ALLEGRO_VIDEO *video)
