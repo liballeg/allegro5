@@ -76,6 +76,7 @@ void al_close_video(ALLEGRO_VIDEO *video)
  */
 ALLEGRO_EVENT_SOURCE *al_get_video_event_source(ALLEGRO_VIDEO *video)
 {
+   ASSERT(video);
    return &video->es;
 }
 
@@ -83,6 +84,9 @@ ALLEGRO_EVENT_SOURCE *al_get_video_event_source(ALLEGRO_VIDEO *video)
  */
 void al_start_video(ALLEGRO_VIDEO *video, ALLEGRO_MIXER *mixer)
 {
+   ASSERT(video);
+
+   /* XXX why is this not just a parameter? */
    video->mixer = mixer;
    video->vtable->start_video(video);
 }
@@ -91,6 +95,9 @@ void al_start_video(ALLEGRO_VIDEO *video, ALLEGRO_MIXER *mixer)
  */
 void al_start_video_with_voice(ALLEGRO_VIDEO *video, ALLEGRO_VOICE *voice)
 {
+   ASSERT(video);
+
+   /* XXX why is voice not just a parameter? */
    video->voice = voice;
    video->vtable->start_video(video);
 }
@@ -99,15 +106,20 @@ void al_start_video_with_voice(ALLEGRO_VIDEO *video, ALLEGRO_VOICE *voice)
  */
 void al_pause_video(ALLEGRO_VIDEO *video, bool paused)
 {
-   if (paused == video->paused) return;
-   video->paused = paused;
-   video->vtable->pause_video(video);
+   ASSERT(video);
+
+   if (paused != video->paused) {
+      video->paused = paused;
+      video->vtable->pause_video(video);
+   }
 }
 
 /* Function: al_is_video_paused
  */
 bool al_is_video_paused(ALLEGRO_VIDEO *video)
 {
+   ASSERT(video);
+
    return video->paused;
 }
 
@@ -115,6 +127,8 @@ bool al_is_video_paused(ALLEGRO_VIDEO *video)
  */
 ALLEGRO_BITMAP *al_get_video_frame(ALLEGRO_VIDEO *video)
 {
+   ASSERT(video);
+
    video->vtable->update_video(video);
    return video->current_frame;
 }
@@ -123,8 +137,13 @@ ALLEGRO_BITMAP *al_get_video_frame(ALLEGRO_VIDEO *video)
  */
 double al_get_video_position(ALLEGRO_VIDEO *video, int which)
 {
-   if (which == 1) return video->video_position;
-   if (which == 2) return video->audio_position;
+   ASSERT(video);
+
+   /* XXX magic constants */
+   if (which == 1)
+      return video->video_position;
+   if (which == 2)
+      return video->audio_position;
    return video->position;
 }
 
@@ -132,41 +151,51 @@ double al_get_video_position(ALLEGRO_VIDEO *video, int which)
  */
 void al_seek_video(ALLEGRO_VIDEO *video, double pos_in_seconds)
 {
+   ASSERT(video);
+
+   /* XXX why is seek_to not just a parameter? */
    video->seek_to = pos_in_seconds;
    video->vtable->seek_video(video);
 }
 
 /* Function: al_get_video_aspect_ratio
  */
-double al_get_video_aspect_ratio(ALLEGRO_VIDEO *v)
+double al_get_video_aspect_ratio(ALLEGRO_VIDEO *video)
 {
-   return v->aspect_ratio;
+   ASSERT(video);
+   return video->aspect_ratio;
 }
 
 /* Function: al_get_video_audio_rate
  */
-double al_get_video_audio_rate(ALLEGRO_VIDEO *v)
+double al_get_video_audio_rate(ALLEGRO_VIDEO *video)
 {
-   return v->audio_rate;
+   ASSERT(video);
+   return video->audio_rate;
 }
 
 /* Function: al_get_video_fps
  */
-double al_get_video_fps(ALLEGRO_VIDEO *v)
+double al_get_video_fps(ALLEGRO_VIDEO *video)
 {
-   return v->fps;
+   ASSERT(video);
+   return video->fps;
 }
 
 /* Function: al_get_video_width
  */
-int al_get_video_width(ALLEGRO_VIDEO *v)
+int al_get_video_width(ALLEGRO_VIDEO *video)
 {
-   return v->width;
+   ASSERT(video);
+   return video->width;
 }
 
 /* Function: al_get_video_height
  */
-int al_get_video_height(ALLEGRO_VIDEO *v)
+int al_get_video_height(ALLEGRO_VIDEO *video)
 {
-   return v->height;
+   ASSERT(video);
+   return video->height;
 }
+
+/* vim: set sts=3 sw=3 et: */
