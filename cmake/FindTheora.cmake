@@ -13,15 +13,19 @@ endif(THEORA_INCLUDE_DIR)
 find_package(Ogg)
 if(OGG_FOUND)
     find_path(THEORA_INCLUDE_DIR theora/theora.h)
-    # MSVC built theora may be named theoradec_static
+    # MSVC built theora may be named *_static
     # The provided project files name the library with the lib prefix.
-    find_library(THEORA_LIBRARY
-	NAMES theoradec theoradec_static libtheoradec libtheoradec_static)
+    find_library(THEORA_LIBRARY NAMES
+          theoradec theoradec_static
+          libtheoradec libtheoradec_static
+          theora theora_static
+          libtheora libtheora_static
+          )
     # Handle the QUIETLY and REQUIRED arguments and set THEORA_FOUND
     # to TRUE if all listed variables are TRUE.
     include(FindPackageHandleStandardArgs)
     find_package_handle_standard_args(THEORA DEFAULT_MSG
-	THEORA_INCLUDE_DIR THEORA_LIBRARY)
+          THEORA_INCLUDE_DIR THEORA_LIBRARY)
 endif(OGG_FOUND)
 
 if(THEORA_FOUND)
