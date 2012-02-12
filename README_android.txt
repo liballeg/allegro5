@@ -17,20 +17,20 @@ setup a standalone ndk toolchain.
 
 Assuming the ndk was extracted into $HOME/android-ndk run the following command:
 
-$ $HOME/android-ndk/build/tools/make-standalone-toolchain.sh \
-  --platform=android-9 --install-dir=$HOME/android-toolchain
+    $ $HOME/android-ndk/build/tools/make-standalone-toolchain.sh \
+        --platform=android-9 --install-dir=$HOME/android-toolchain
 
 You can use any platform 9 or higher. This command was last tested on ndk7.
 
 Then to build Allegro run the following from the Allegro's root source directory:
 
-$ mkdir build
-$ cd build
-$ cmake .. -DANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain
-  -DWANT_ANDROID=on \
-  -DCMAKE_INSTALL_PREFIX=$HOME/android-toolchain/user/armeabi-v7a \
-  -DWANT_EXAMPLES=OFF -DWANT_DEMO=OFF
-$ make && make install
+    $ mkdir build
+    $ cd build
+    $ cmake .. -DANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain
+        -DWANT_ANDROID=on \
+        -DCMAKE_INSTALL_PREFIX=$HOME/android-toolchain/user/armeabi-v7a \
+        -DWANT_EXAMPLES=OFF -DWANT_DEMO=OFF
+    $ make && make install
 
 BIG FAT WARNING: building the examples and demos is not currently supported.
 

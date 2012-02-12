@@ -25,8 +25,8 @@ This can be combined with shell command substitution:
     gcc mygame.c -o mygame $(pkg-config --libs allegro-5.0 allegro_image-5.0)
 
 If Allegro is installed to a non-standard location, the compiler will need
-command line options to find the header files.  The pkg-config --cflags option
-provides that information.  You can combine it with --libs as well:
+command line options to find the header files.  The pkg-config `--cflags`
+option provides that information.  You can combine it with `--libs` as well:
 
     pkg-config --cflags --libs allegro-5.0 allegro_image-5.0
 
