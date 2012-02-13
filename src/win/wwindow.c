@@ -1274,9 +1274,9 @@ bool al_win_add_window_callback(ALLEGRO_DISPLAY *display,
    return true;
 }
 
-/* Function: al_remove_win_window_callback
+/* Function: al_win_remove_window_callback
  */
-bool al_remove_win_window_callback(ALLEGRO_DISPLAY *display,
+bool al_win_remove_window_callback(ALLEGRO_DISPLAY *display,
    bool (*callback)(ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM, void *), void *userdata)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
