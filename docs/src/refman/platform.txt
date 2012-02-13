@@ -24,7 +24,7 @@ The callbacks are executed in the same order they were added.
 
 Returns true if the callback was added.
 
-Since: 5.1.0
+Since: 5.1.2
 
 ### API: al_win_remove_window_callback
 
@@ -34,7 +34,7 @@ what was used during the registration of the callback.
 
 Returns true if the callback was removed.
 
-Since: 5.1.0
+Since: 5.1.2
 
 ## iPhone
 
