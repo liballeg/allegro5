@@ -639,8 +639,11 @@ void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    }
 }
 
-static bool menu_callback(ALLEGRO_DISPLAY *display, UINT msg, WPARAM wParam, LPARAM lParam)
+static bool menu_callback(ALLEGRO_DISPLAY *display, UINT msg, WPARAM wParam, LPARAM lParam,
+                             void *userdata)
 {
+   (void) userdata;
+
    if (msg == WM_COMMAND && lParam == 0) {
       const int id = LOWORD(wParam);
       ALLEGRO_MENU *menu = _al_find_parent_menu_by_id(display, id);
@@ -792,7 +795,7 @@ bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
    ASSERT(menu->extra1);
    SetMenu(hwnd, (HMENU) menu->extra1);
 
-   al_add_win_window_callback(display, menu_callback);
+   al_win_add_window_callback(display, menu_callback, NULL);
    
    return true;
 }
@@ -803,7 +806,7 @@ bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
    if (!hwnd) return false;
 
    SetMenu(hwnd, NULL);
-   al_remove_win_window_callback(display, menu_callback);
+   al_win_add_window_callback(display, menu_callback, NULL);
 
    (void) menu;
    
@@ -817,7 +820,7 @@ bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
    if (!display)
       return false;
 
-   al_add_win_window_callback(display, menu_callback);
+   al_win_add_window_callback(display, menu_callback, NULL);
    PostMessage(al_get_win_window_handle(display), WM_SHOW_POPUP, 0, (LPARAM) menu);
 
    return true;
