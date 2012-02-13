@@ -10,12 +10,15 @@ These functions are declared in the following header file:
 
 Returns the handle to the window that the passed display is using.
 
-### API: al_add_win_window_callback
+### API: al_win_add_window_callback
 
 The specified callback function will intercept the window's message
 before Allegro processes it. If the callback function consumes the event,
 then it should return true. In that case, Allegro will not do anything
-with the event. 
+with the event.
+
+The `userdata` pointer can be used to supply additional context to the
+callback function. 
 
 The callbacks are executed in the same order they were added.
 
@@ -23,10 +26,11 @@ Returns true if the callback was added.
 
 Since: 5.1.0
 
-### API: al_remove_win_window_callback
+### API: al_win_remove_window_callback
 
 Removes the callback that was previously registered with 
-[al_add_win_window_callback]. 
+[al_win_add_window_callback]. The `userdata` pointer must be the same as
+what was used during the registration of the callback.
 
 Returns true if the callback was removed.
 

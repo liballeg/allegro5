@@ -211,7 +211,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
       DrawMenuBar(my_window);
    }
 
-   _al_vector_init(&win_display->msg_callbacks, sizeof(bool (*)(ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM)));
+   _al_vector_init(&win_display->msg_callbacks, sizeof(ALLEGRO_DISPLAY_WIN_CALLBACK));
 
    return my_window;
 }
@@ -442,7 +442,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 
    for (i = 0; i < _al_vector_size(&win_display->msg_callbacks); ++i) {
       ALLEGRO_DISPLAY_WIN_CALLBACK *ptr = _al_vector_ref(&win_display->msg_callbacks, i);
-      if ((*ptr)(d, message, wParam, lParam))
+      if ((ptr->proc)(d, message, wParam, lParam, ptr->userdata))
          return TRUE;
    }
 
@@ -1246,10 +1246,10 @@ int _al_win_determine_adapter(void)
    return a;
 }
 
-/* Function: al_add_win_window_callback
+/* Function: al_win_add_window_callback
  */
-bool al_add_win_window_callback(ALLEGRO_DISPLAY *display,
-   bool (*callback)(ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM))
+bool al_win_add_window_callback(ALLEGRO_DISPLAY *display,
+   bool (*callback)(ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM, void *), void *userdata)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
    ALLEGRO_DISPLAY_WIN_CALLBACK *ptr;
@@ -1261,7 +1261,7 @@ bool al_add_win_window_callback(ALLEGRO_DISPLAY *display,
       size_t i;
       for (i = 0; i < _al_vector_size(&win_display->msg_callbacks); ++i) {
          ALLEGRO_DISPLAY_WIN_CALLBACK *ptr = _al_vector_ref(&win_display->msg_callbacks, i);
-         if (*ptr == callback)
+         if (ptr->proc == callback && ptr->userdata == userdata)
             return false;
       }
    }
@@ -1269,14 +1269,15 @@ bool al_add_win_window_callback(ALLEGRO_DISPLAY *display,
    if (!(ptr = _al_vector_alloc_back(&win_display->msg_callbacks)))
       return false;
 
-   *ptr = callback;
+   ptr->proc = callback;
+   ptr->userdata = userdata;
    return true;
 }
 
 /* Function: al_remove_win_window_callback
  */
 bool al_remove_win_window_callback(ALLEGRO_DISPLAY *display,
-   bool (*callback)(ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM))
+   bool (*callback)(ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM, void *), void *userdata)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
    
@@ -1284,7 +1285,7 @@ bool al_remove_win_window_callback(ALLEGRO_DISPLAY *display,
       size_t i;
       for (i = 0; i < _al_vector_size(&win_display->msg_callbacks); ++i) {
          ALLEGRO_DISPLAY_WIN_CALLBACK *ptr = _al_vector_ref(&win_display->msg_callbacks, i);
-         if (*ptr == callback) {
+         if (ptr->proc == callback && ptr->userdata == userdata) {
             _al_vector_delete_at(&win_display->msg_callbacks, i);
             return true;
          }

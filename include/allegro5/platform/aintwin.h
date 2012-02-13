@@ -41,10 +41,22 @@
    extern "C" {
 #endif
 
+/* user defined hooks into the main win32 event loop */
+
+typedef bool (*ALLEGRO_DISPLAY_WIN_CALLBACK_PROC)
+   (ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM, void *);
+
+typedef struct ALLEGRO_DISPLAY_WIN_CALLBACK ALLEGRO_DISPLAY_WIN_CALLBACK;
+
+struct ALLEGRO_DISPLAY_WIN_CALLBACK
+{
+   ALLEGRO_DISPLAY_WIN_CALLBACK_PROC proc;
+   void *userdata;
+};
+
+/* the extended display struct for Windows */
 
 typedef struct ALLEGRO_DISPLAY_WIN ALLEGRO_DISPLAY_WIN;
-
-typedef bool (*ALLEGRO_DISPLAY_WIN_CALLBACK)(ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM);
 
 struct ALLEGRO_DISPLAY_WIN
 {
