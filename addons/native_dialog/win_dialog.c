@@ -24,6 +24,8 @@
 ALLEGRO_DEBUG_CHANNEL("win_dialog")
 
 #define WM_SHOW_POPUP (WM_APP + 42)
+#define WM_HIDE_MENU (WM_APP + 43)
+#define WM_SHOW_MENU (WM_APP + 44)
 
 /* Non-zero if text log window class was registered. */
 static int wlog_class_registered = 0;
@@ -673,6 +675,15 @@ static bool menu_callback(ALLEGRO_DISPLAY *display, UINT msg, WPARAM wParam, LPA
 
       return true;
    }
+   else if (msg == WM_HIDE_MENU) {
+      SetMenu(al_get_win_window_handle(display), NULL);
+      return true;
+   }
+   else if (msg == WM_SHOW_MENU) {
+      ALLEGRO_MENU *menu = (ALLEGRO_MENU *) lParam;
+      SetMenu(al_get_win_window_handle(display), (HMENU) menu->extra1);
+      return true;
+   }
    else if (msg == WM_MENUSELECT) {
       /* XXX: could use this as a way to indicate the popup menu was canceled */
    }
@@ -793,9 +804,12 @@ bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
    if (!hwnd) return false;
 
    ASSERT(menu->extra1);
-   SetMenu(hwnd, (HMENU) menu->extra1);
-
+   
+   /* Note that duplicate callbacks are automatically filtered out, so it's safe
+      to call this many times. */
    al_win_add_window_callback(display, menu_callback, NULL);
+
+   PostMessage(al_get_win_window_handle(display), WM_SHOW_MENU, 0, (LPARAM) menu);
    
    return true;
 }
@@ -805,8 +819,8 @@ bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
    HWND hwnd = al_get_win_window_handle(display);
    if (!hwnd) return false;
 
-   SetMenu(hwnd, NULL);
-   al_win_add_window_callback(display, menu_callback, NULL);
+   /* Must be run from the main thread to avoid a crash. */
+   PostMessage(al_get_win_window_handle(display), WM_HIDE_MENU, 0, (LPARAM) menu);
 
    (void) menu;
    
