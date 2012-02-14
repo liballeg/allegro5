@@ -581,6 +581,8 @@ static int ttf_text_length(ALLEGRO_FONT const *f, const ALLEGRO_USTR *text)
       prev_ft_index = ft_index;
    }
 
+   unlock_current_page(data);
+
    al_hold_bitmap_drawing(hold);
 
    return x;
@@ -630,6 +632,8 @@ static void ttf_get_text_dimensions(ALLEGRO_FONT const *f,
    *bby = 0; // FIXME
    *bbw = x - *bbx;
    *bbh = f->height; // FIXME, we want the bounding box!
+
+   unlock_current_page(data);
 
    al_hold_bitmap_drawing(hold);
 }
