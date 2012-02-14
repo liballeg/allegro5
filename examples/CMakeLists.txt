@@ -85,6 +85,7 @@ set(NIHGUI nihgui.cpp ${FONT} ${PRIM})
 
 example(ex_config)
 example(ex_dir)
+example(ex_file_slice CONSOLE)
 example(ex_get_path)
 example(ex_memfile CONSOLE ${MEMFILE})
 example(ex_monitorinfo)
