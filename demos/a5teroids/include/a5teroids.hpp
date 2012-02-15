@@ -4,8 +4,9 @@
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_image.h"
 #include "allegro5/allegro_font.h"
-#include "allegro5/allegro_acodec.h"
 #include "allegro5/allegro_audio.h"
+#include "allegro5/allegro_acodec.h"
+#include "allegro5/allegro_primitives.h"
 
 #ifdef ALLEGRO_UNIX
 #define MAX_PATH 5000
@@ -55,8 +56,13 @@
 #include "gui.hpp"
 #include "logic.hpp"
 
-const int BB_W = 800;
-const int BB_H = 600;
+extern int BB_W;
+extern int BB_H;
+#ifdef ALLEGRO_IPHONE
+extern bool switched_out;
+void switch_game_out(bool halt);
+void switch_game_in(void);
+#endif
 
 #endif // A5TEROIDS_HPP
 

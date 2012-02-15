@@ -32,7 +32,7 @@ bool Wave::next(void)
       if (rand() % 2) dy = -dy;
       if (rand() % 2) da = -da;
       LargeAsteroid *la = new LargeAsteroid(x, y, dx, dy, da);
-      if ((rand() % 5) == 0) {
+      if ((rand() % 3) == 0) {
          la->setPowerUp(rand() % 2);
       }
       entities.push_back(la);

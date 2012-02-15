@@ -50,4 +50,3 @@ Asteroid::Asteroid(float radius, int bitmapID)
 Asteroid::~Asteroid()
 {
 }
-

@@ -59,3 +59,8 @@ Some Allegro examples use a font from DejaVu fonts, their license can
 be found here:
 <http://dejavu-fonts.org/wiki/index.php?title=License>
 
+-------------------------------------------------------------------------------
+
+The a5teroids demo game graphics were made by Tony Huisman, and are
+included under a Creative Commons BY Attribution license.
+

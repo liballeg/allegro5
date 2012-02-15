@@ -42,6 +42,21 @@ bool Player::logic(int step)
          dy = MIN_SPEED;
       draw_trail = true;
    }
+   else if (input->ud() > 0.0f) {
+      if (dx > 0)
+         dx -= ACCEL * step;
+      else if (dx < 0)
+         dx += ACCEL * step;
+      if (dx > -0.1f && dx < 0.1f)
+         dx = 0;
+      if (dy > 0)
+         dy -= ACCEL * step;
+      else if (dy < 0)
+         dy += ACCEL * step;
+      if (dy > -0.1f && dy < 0.1f)
+         dy = 0;
+      draw_trail = false;
+   }
    else {
       if (dx > 0)
          dx -= DECCEL * step;
@@ -124,7 +139,11 @@ void Player::render_extra(void)
       return;
    }
 
-   al_draw_bitmap(icon, 2, 2, 0);
+   ALLEGRO_STATE st;
+   al_store_state(&st, ALLEGRO_STATE_BLENDER);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+   al_draw_bitmap(icon, 1, 2, 0);
+   al_restore_state(&st);
    ALLEGRO_FONT *small_font = (ALLEGRO_FONT *)rm.getData(RES_SMALLFONT);
    al_draw_textf(small_font, al_map_rgb(255, 255, 255), 20, 2, 0, "x%d", lives);
    al_draw_textf(small_font, al_map_rgb(255, 255, 255), 2, 18, 0, "%d", score);
@@ -211,16 +230,16 @@ bool Player::load(void)
    ALLEGRO_STATE state;
    al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
 
-   bitmap = al_load_bitmap(getResource("gfx/ship.tga"));
+   bitmap = al_load_bitmap(getResource("gfx/ship.png"));
    if (!bitmap) {
-      debug_message("Error loading %s\n", getResource("gfx/ship.tga"));
+      debug_message("Error loading %s\n", getResource("gfx/ship.png"));
       return false;
    }
 
    trans_bitmap = al_create_bitmap(al_get_bitmap_width(bitmap),
       al_get_bitmap_height(bitmap));
    if (!trans_bitmap) {
-      debug_message("Error loading %s\n", getResource("gfx/ship_trans.tga"));
+      debug_message("Error loading %s\n", getResource("gfx/ship_trans.png"));
       al_destroy_bitmap(bitmap);
       return false;
    }
@@ -232,9 +251,9 @@ bool Player::load(void)
       0, 0, 0);
    al_restore_state(&state);
 
-   trail_bitmap = al_load_bitmap(getResource("gfx/trail.tga"));
+   trail_bitmap = al_load_bitmap(getResource("gfx/trail.png"));
    if (!trail_bitmap) {
-      debug_message("Error loading %s\n", getResource("gfx/trail.tga"));
+      debug_message("Error loading %s\n", getResource("gfx/trail.png"));
       al_destroy_bitmap(bitmap);
       al_destroy_bitmap(trans_bitmap);
       return false;
@@ -242,7 +261,7 @@ bool Player::load(void)
 
    icon = al_load_bitmap(getResource("gfx/ship_icon.tga"));
    if (!icon) {
-      debug_message("Error loading %s\n", getResource("gfx/icon.tga"));
+      debug_message("Error loading %s\n", getResource("gfx/ship_icon.tga"));
       al_destroy_bitmap(bitmap);
       al_destroy_bitmap(trans_bitmap);
       al_destroy_bitmap(trail_bitmap);
@@ -297,7 +316,7 @@ void Player::die(void)
    if (lives <= 0) {
       // game over
       isDestructable = false;
-      invincibleCount = 20000;
+      invincibleCount = 8000;
       ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
       al_set_target_bitmap(highscoreBitmap);
       int w = al_get_bitmap_width(highscoreBitmap);
@@ -338,3 +357,13 @@ int Player::getScore(void)
    return score;
 }
 
+float Player::getAngle(void)
+{
+   return angle;
+}
+
+void Player::getSpeed(float *dx, float *dy)
+{
+   *dx = this->dx;
+   *dy = this->dy;
+}

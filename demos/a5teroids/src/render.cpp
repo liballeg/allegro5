@@ -1,5 +1,7 @@
 #include "a5teroids.hpp"
 
+#include <ctime>
+
 static float waveAngle = 0.0f;
 static ALLEGRO_BITMAP *waveBitmap = 0;
 static float bgx = 0;
@@ -66,6 +68,11 @@ void shake(void)
 
 void render(int step)
 {
+#ifdef ALLEGRO_IPHONE
+   if (switched_out)
+      return;
+#endif
+
    ResourceManager& rm = ResourceManager::getInstance();
 
    ALLEGRO_BITMAP *bg = (ALLEGRO_BITMAP *)rm.getData(RES_BACKGROUND);
@@ -88,10 +95,12 @@ void render(int step)
          }
       }
    }
-
-   al_draw_scaled_bitmap(bg, 0, 0, 
-      al_get_bitmap_width(bg), al_get_bitmap_height(bg), 
-      bgx, bgy, BB_W, BB_H, 0);
+   
+   al_clear_to_color(al_map_rgb(0, 0, 0));
+      
+   float h = al_get_bitmap_height(bg);
+   float w = al_get_bitmap_width(bg);
+   al_draw_bitmap(bg, (BB_W-w)/2+bgx, (BB_H-h)/2+bgy, 0);
 
    std::list<Entity *>::iterator it;
    for (it = entities.begin(); it != entities.end(); it++) {
@@ -115,6 +124,18 @@ void render(int step)
          stopWave();
       }
    }
+   
+#ifdef ALLEGRO_IPHONE
+   Input *input = (Input *)rm.getData(RES_INPUT);
+   input->draw();
+      
+   int xx = BB_W-30;
+   int yy = 30;
+   
+   al_draw_line(xx-10, yy-10, xx+10, yy+10, al_map_rgb(255, 255, 255), 4);
+   al_draw_line(xx-10, yy+10, xx+10, yy-10, al_map_rgb(255, 255, 255), 4);
+   al_draw_circle(xx, yy, 20, al_map_rgb(255, 255, 255), 4);
+#endif
 
    al_flip_display();
 }

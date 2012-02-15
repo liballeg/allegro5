@@ -47,13 +47,23 @@ bool logic(int step)
 
    if (input->esc())
       return false;
-   /* Catch close button presses */
+
+      /* Catch close button presses */
    ALLEGRO_EVENT_QUEUE *events = ((DisplayResource *)rm.getResource(RES_DISPLAY))->getEventQueue();
    while (!al_is_event_queue_empty(events)) {
       ALLEGRO_EVENT event;
       al_get_next_event(events, &event);
+#ifdef ALLEGRO_IPHONE
+      if (event.type == ALLEGRO_EVENT_DISPLAY_HALT_DRAWING || event.type == ALLEGRO_EVENT_DISPLAY_SWITCH_OUT) {
+         switch_game_out(event.type == ALLEGRO_EVENT_DISPLAY_HALT_DRAWING);
+      }
+      else if (event.type == ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING || event.type == ALLEGRO_EVENT_DISPLAY_SWITCH_IN) {
+         switch_game_in();
+      }
+#else
       if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
-         return false;
+         exit(0);
+#endif
    }
 
    std::list<Entity *>::iterator it = entities.begin();

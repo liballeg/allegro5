@@ -25,6 +25,9 @@ public:
 
    void addScore(int points);
    int getScore(void);
+   
+   float getAngle(void);
+   void getSpeed(float *dx, float *dy);
 
    Player();
    ~Player();

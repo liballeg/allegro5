@@ -25,6 +25,7 @@ set(DEMO_SRCS
     src/SmallBullet.cpp
     src/UFO.cpp
     src/a5teroids.cpp
+    src/a5teroids_objc.m
     src/collision.cpp
     src/logic.cpp
     src/render.cpp
@@ -34,7 +35,7 @@ set(DEMO_SRCS
 
 set_source_files_properties(${DEMO_SRCS} PROPERTIES LANGUAGE "CXX")
 
-file(GLOB_RECURSE DEMO_GFX data/gfx/*.tga)
+file(GLOB_RECURSE DEMO_GFX data/gfx/*.png data/gfx/*.jpg data/gfx/*.tga)
 file(GLOB_RECURSE DEMO_SFX data/sfx/*.ogg)
 set(DEMO_ICON data/gfx/Icon.icns)
 
@@ -70,6 +71,7 @@ if(SUPPORT_FONT AND SUPPORT_AUDIO AND SUPPORT_ACODEC)
         ${IMAGE_LINK_WITH}
         ${AUDIO_LINK_WITH}
         ${ACODEC_LINK_WITH}
+        ${PRIMITIVES_LINK_WITH}
         )
 
     if(NOT BUILD_SHARED_LIBS) 

@@ -17,7 +17,7 @@ void ButtonWidget::render(bool selected)
       else {
          myfont = (ALLEGRO_FONT *)rm.getData(RES_SMALLFONT);
       }
-      al_draw_textf(myfont, al_map_rgb(255, 255, 255), x, y, ALLEGRO_ALIGN_CENTRE, "%s", text);
+      al_draw_textf(myfont, al_map_rgb(255, 255, 255), x, y-al_get_font_line_height(myfont)/2, ALLEGRO_ALIGN_CENTRE, "%s", text);
    }
 }
 

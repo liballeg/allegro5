@@ -4,6 +4,12 @@
 #include <allegro5/fshook.h>
 #include <allegro5/path.h>
 
+#ifdef USE_JOYPAD
+#if defined ALLEGRO_IPHONE || defined ALLEGRO_MACOSX
+#include "joypad_c.h"
+#endif
+#endif
+
 bool kb_installed = false;
 bool joy_installed = false;
 
@@ -80,9 +86,9 @@ bool loadResources(void)
    }
 
    // Load fonts
-   if (!rm.add(new FontResource(getResource("gfx/large_font.tga"))))
+   if (!rm.add(new FontResource(getResource("gfx/large_font.png"))))
       return false;
-   if (!rm.add(new FontResource(getResource("gfx/small_font.tga"))))
+   if (!rm.add(new FontResource(getResource("gfx/small_font.png"))))
       return false;
 
    for (int i = 0; BMP_NAMES[i]; i++) {
@@ -104,6 +110,12 @@ bool loadResources(void)
       }
    }
 
+#ifdef USE_JOYPAD
+#if defined ALLEGRO_IPHONE || defined ALLEGRO_MACOSX
+   joypad_start();
+#endif
+#endif
+
    return true;
 }
 
@@ -115,9 +127,14 @@ bool init(void)
       debug_message("Error initialising Allegro.\n");
       return false;
    }
+
+   al_set_org_name("Allegro");
+   al_set_app_name("a5teroids");
+   
    al_init_image_addon();
    al_init_font_addon();
    al_init_acodec_addon();
+   al_init_primitives_addon();
 
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
 
