@@ -10,7 +10,7 @@
 
 ALLEGRO_DEBUG_CHANNEL("iphone")
 
-static double allegro_iphone_shake_time = -DBL_MAX;
+static double allegro_iphone_shake_time = DBL_MIN;
 static float allegro_iphone_battery_level = 1.0;
 
 typedef struct touch_t
