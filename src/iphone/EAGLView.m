@@ -4,12 +4,13 @@
 #import "EAGLView.h"
 #import "allegroAppDelegate.h"
 #include <pthread.h>
+#include <float.h>
 
 #include "allegro5/allegro_iphone.h"
 
 ALLEGRO_DEBUG_CHANNEL("iphone")
 
-static double allegro_iphone_shake_time = 0.0;
+static double allegro_iphone_shake_time = -DBL_MAX;
 static float allegro_iphone_battery_level = 1.0;
 
 typedef struct touch_t
