@@ -1125,6 +1125,14 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
             C(6));
          continue;
       }
+      if (SCAN("al_draw_pieslice", 7)) {
+         al_draw_pieslice(F(0), F(1), F(2), F(3), F(4), C(5), F(6));
+         continue;
+      }
+      if (SCAN("al_draw_filled_pieslice", 6)) {
+         al_draw_filled_pieslice(F(0), F(1), F(2), F(3), F(4), C(5));
+         continue;
+      }
       if (SCAN("al_draw_ellipse", 6)) {
          al_draw_ellipse(F(0), F(1), F(2), F(3), C(4), F(5));
          continue;
@@ -1143,6 +1151,10 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
       }
       if (SCAN("al_draw_arc", 7)) {
          al_draw_arc(F(0), F(1), F(2), F(3), F(4), C(5), F(6));
+         continue;
+      }
+      if (SCAN("al_draw_elliptical_arc", 8)) {
+         al_draw_elliptical_arc(F(0), F(1), F(2), F(3), F(4), F(5), C(6), F(7));
          continue;
       }
       if (SCAN("al_draw_spline", 3)) {
