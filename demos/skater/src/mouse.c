@@ -20,12 +20,12 @@ bool mouse_button_pressed(int b)
    return mouse_array[b] & 2;
 }
 
-int mouse_x()
+int mouse_x(void)
 {
    return mx;
 }
 
-int mouse_y()
+int mouse_y(void)
 {
    return my;
 }
