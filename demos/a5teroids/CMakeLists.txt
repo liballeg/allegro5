@@ -25,6 +25,7 @@ set(DEMO_SRCS
     src/SmallBullet.cpp
     src/UFO.cpp
     src/a5teroids.cpp
+    src/a5teroids_objc.m
     src/collision.cpp
     src/logic.cpp
     src/render.cpp
