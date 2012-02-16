@@ -11,6 +11,8 @@
 
 #include "common.c"
 
+#define BUFFER_SIZE 1024
+
 static void pack_object(ALLEGRO_FILE *file, const void *object, size_t len)
 {
    /* First write the length of the object, so we know how big to make
@@ -27,8 +29,6 @@ static ALLEGRO_FILE *get_next_chunk(ALLEGRO_FILE *file)
    return !al_feof(file) ? al_fopen_slice(file, length, "rw") : NULL;
 }
 
-#define BUFFER_SIZE 1024
-
 int main(int argc, const char *argv[])
 {
    ALLEGRO_FILE *master, *slice;
@@ -44,7 +44,7 @@ int main(int argc, const char *argv[])
 
    master = al_make_temp_file("ex_file_slice_XXXX", &tmp_path);
    if (!master) {
-      abort_example("Unable to create temporary file");
+      abort_example("Unable to create temporary file\n");
    }
 
    /* Pack both strings into the master file. */
