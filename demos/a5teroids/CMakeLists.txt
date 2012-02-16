@@ -46,6 +46,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/addons/font
     ${CMAKE_SOURCE_DIR}/addons/audio
     ${CMAKE_SOURCE_DIR}/addons/acodec
+    ${CMAKE_SOURCE_DIR}/addons/primitives
     )
 
 if(APPLE)
