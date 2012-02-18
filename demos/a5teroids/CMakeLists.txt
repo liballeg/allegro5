@@ -25,13 +25,16 @@ set(DEMO_SRCS
     src/SmallBullet.cpp
     src/UFO.cpp
     src/a5teroids.cpp
-    src/a5teroids_objc.m
     src/collision.cpp
     src/logic.cpp
     src/render.cpp
     src/sound.cpp
     src/wave.cpp
     )
+
+if(IPHONE)
+list(APPEND DEMO_SRCS src/a5teroids_objc.m)
+endif(IPHONE)
 
 set_source_files_properties(${DEMO_SRCS} PROPERTIES LANGUAGE "CXX")
 
