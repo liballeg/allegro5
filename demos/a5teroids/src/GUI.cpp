@@ -270,43 +270,45 @@ void do_highscores(int score)
       if (entering && al_get_time() > next_input) {
          float lr = input->lr();
 
-	 if (lr != 0) {
+         if (lr != 0) {
             if (lr < 0) {
-              character--;
-              if (character < 0) character = 25;
-	      spin_dir = 1;
+               character--;
+               if (character < 0)
+                  character = 25;
+               spin_dir = 1;
             }
             else if (lr > 0) {
-              character++;
-              if (character >= 26) character = 0;
-	      spin_dir = -1;
+               character++;
+               if (character >= 26)
+                  character = 0;
+               spin_dir = -1;
             }
             next_input = al_get_time()+0.2;
-	    my_play_sample(RES_FIRESMALL);
-	    spin_start = al_get_time();
+            my_play_sample(RES_FIRESMALL);
+            spin_start = al_get_time();
          }
-	 
+
          if (input->b1() && letter_num < 3) {
-	    name[letter_num] = 'A' + character;
-	    letter_num++;
-	    if (letter_num >= 3) {
-	       entering = false;
-	       bail_time = al_get_time()+8;
-	       insert_score(name, score);
-    	       write_scores();
-	    }
-	    next_input = al_get_time()+0.2;
-	    my_play_sample(RES_FIRELARGE);
+            name[letter_num] = 'A' + character;
+            letter_num++;
+            if (letter_num >= 3) {
+               entering = false;
+               bail_time = al_get_time()+8;
+               insert_score(name, score);
+               write_scores();
+            }
+            next_input = al_get_time()+0.2;
+            my_play_sample(RES_FIRELARGE);
          }
       }
       else if (!entering) {
          if (al_get_time() > bail_time) {
-	    return;
-	 }
-	 else if (input->b1() && al_get_time() > next_input) {
+            return;
+         }
+         else if (input->b1() && al_get_time() > next_input) {
             al_rest(0.250);
-	    return;
-	 }
+            return;
+         }
       }
 
       al_rest(0.010);
@@ -318,47 +320,48 @@ void do_highscores(int score)
 #endif
 
       al_clear_to_color(al_map_rgb(0, 0, 0));
-      
+
       if (entering) {
          float a = ALLEGRO_PI*3/2;
-	 float ainc = ALLEGRO_PI*2 / 26;
-	 double elapsed = al_get_time() - spin_start;
-	 if (elapsed < 0.1) {
-	    a += (elapsed / 0.1) * ainc * spin_dir;
-	 }
-	 float scrh = BB_H / 2 - 32;
-	 float h = al_get_font_line_height(sm_font);
+         float ainc = ALLEGRO_PI*2 / 26;
+         double elapsed = al_get_time() - spin_start;
+         if (elapsed < 0.1) {
+            a += (elapsed / 0.1) * ainc * spin_dir;
+         }
+         float scrh = BB_H / 2 - 32;
+         float h = al_get_font_line_height(sm_font);
          for (int i = 0; i < 26; i++) {
-	    int c = character + i;
-	    if (c >= 26) c -= 26;
-	    char s[2];
-	    s[1] = 0;
-	    s[0] = 'A' +  c;
-	    int x = BB_W/2 + (cos(a) * scrh) - al_get_text_width(sm_font, s);
-	    int y = BB_H/2 + (sin(a) * scrh) - h/2;
+            int c = character + i;
+            if (c >= 26)
+               c -= 26;
+            char s[2];
+            s[1] = 0;
+            s[0] = 'A' +  c;
+            int x = BB_W/2 + (cos(a) * scrh) - al_get_text_width(sm_font, s);
+            int y = BB_H/2 + (sin(a) * scrh) - h/2;
             al_draw_textf(sm_font, i == 0 ? al_map_rgb(255, 255, 0) : al_map_rgb(200, 200, 200), x, y, 0, "%s", s);
-	    a += ainc;
-	 }
-	 char tmp[4] = { 0, };
-	 for (int i = 0; i < 3 && name[i] != ' '; i++) {
-	    tmp[i] = name[i];
-	 }
-	 al_draw_textf(big_font, al_map_rgb(0, 255, 0), BB_W/2, BB_H/2-20, ALLEGRO_ALIGN_CENTRE, "%s", tmp);
-	 al_draw_text(sm_font, al_map_rgb(200, 200, 200), BB_W/2, BB_H/2-20+5+al_get_font_line_height(big_font), ALLEGRO_ALIGN_CENTRE, "high score!");
+            a += ainc;
+         }
+         char tmp[4] = { 0, };
+         for (int i = 0; i < 3 && name[i] != ' '; i++) {
+            tmp[i] = name[i];
+         }
+         al_draw_textf(big_font, al_map_rgb(0, 255, 0), BB_W/2, BB_H/2-20, ALLEGRO_ALIGN_CENTRE, "%s", tmp);
+         al_draw_text(sm_font, al_map_rgb(200, 200, 200), BB_W/2, BB_H/2-20+5+al_get_font_line_height(big_font), ALLEGRO_ALIGN_CENTRE, "high score!");
       }
       else {
          int yy = BB_H/2 - al_get_font_line_height(big_font)*NUM_SCORES/2;
          for (int i = 0; i < NUM_SCORES; i++) {
-	    al_draw_textf(big_font, al_map_rgb(255, 255, 255), BB_W/2-10, yy, ALLEGRO_ALIGN_RIGHT, "%s", highScores[i].name);
-	    al_draw_textf(big_font, al_map_rgb(255, 255, 0), BB_W/2+10, yy, ALLEGRO_ALIGN_LEFT, "%d", highScores[i].score);
-	    yy += al_get_font_line_height(big_font);
-	 }
+            al_draw_textf(big_font, al_map_rgb(255, 255, 255), BB_W/2-10, yy, ALLEGRO_ALIGN_RIGHT, "%s", highScores[i].name);
+            al_draw_textf(big_font, al_map_rgb(255, 255, 0), BB_W/2+10, yy, ALLEGRO_ALIGN_LEFT, "%d", highScores[i].score);
+            yy += al_get_font_line_height(big_font);
+         }
       }
 
 #ifdef ALLEGRO_IPHONE
-	input->draw();
+      input->draw();
 #endif
-      
+
       al_flip_display();
    }
 }
