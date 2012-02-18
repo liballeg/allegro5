@@ -325,8 +325,8 @@ void do_highscores(int score)
       al_clear_to_color(al_map_rgb(0, 0, 0));
       
       if (entering) {
-         float a = M_PI*3/2;
-	 float ainc = M_PI*2 / 26;
+         float a = ALLEGRO_PI*3/2;
+	 float ainc = ALLEGRO_PI*2 / 26;
 	 double elapsed = al_get_time() - spin_start;
 	 if (elapsed < 0.1) {
 	    a += (elapsed / 0.1) * ainc * spin_dir;

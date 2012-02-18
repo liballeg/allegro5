@@ -217,31 +217,31 @@ float Input::ud(void)
    
    ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)rm.getData(RES_DISPLAY);
    if (al_get_display_orientation(display) == ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES)
-	player_a = player_a - M_PI;
+	player_a = player_a - ALLEGRO_PI;
    
-   while (player_a < 0) player_a += M_PI*2;
-   while (player_a > M_PI*2) player_a -= M_PI*2;
+   while (player_a < 0) player_a += ALLEGRO_PI*2;
+   while (player_a > ALLEGRO_PI*2) player_a -= ALLEGRO_PI*2;
    
    float device_a = atan2(-joyaxis0, -joyaxis1);
-   if (device_a < 0) device_a += M_PI*2;
+   if (device_a < 0) device_a += ALLEGRO_PI*2;
   
    float ab = fabs(player_a - device_a); 
-   if (ab < M_PI/4)
+   if (ab < ALLEGRO_PI/4)
       return -1;
   
    // brake against velocity vector
    float vel_a, dx, dy;
    player->getSpeed(&dx, &dy);
    vel_a = atan2(dy, dx);
-   vel_a -= M_PI;
+   vel_a -= ALLEGRO_PI;
    if (al_get_display_orientation(display) == ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES)
-	vel_a = vel_a - M_PI;
+	vel_a = vel_a - ALLEGRO_PI;
    
-   while (vel_a < 0) vel_a += M_PI*2;
-   while (vel_a > M_PI*2) vel_a -= M_PI*2;
+   while (vel_a < 0) vel_a += ALLEGRO_PI*2;
+   while (vel_a > ALLEGRO_PI*2) vel_a -= ALLEGRO_PI*2;
    
    ab = fabs(vel_a - device_a);
-   if (ab < M_PI/4)
+   if (ab < ALLEGRO_PI/4)
       return 1;
 
    return 0;
