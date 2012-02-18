@@ -9,6 +9,10 @@
 #include <sys/stat.h>
 #include <ctime>
 
+#ifdef ALLEGRO_MSVC
+   #define snprintf _snprintf
+#endif
+
 static int do_gui(const std::vector<Widget *>& widgets, unsigned int selected)
 {
    ResourceManager& rm = ResourceManager::getInstance();
@@ -131,7 +135,9 @@ struct HighScore {
    char name[4];
    int score;
 };
+
 #define NUM_SCORES 5
+
 static HighScore highScores[NUM_SCORES] = {
    { "AAA", 2000 },
    { "BAA", 1750 },
@@ -161,75 +167,64 @@ static void insert_score(char *name, int score)
    highScores[i].score = score;
 }
 
-static char *userResourcePath()
+static ALLEGRO_PATH *userResourcePath()
 {
-#ifndef MAX_PATH
-#define MAX_PATH 1000
+#ifdef ALLEGRO_IPHONE
+   return al_get_standard_path(ALLEGRO_USER_DOCUMENTS_PATH);
+#else
+   return al_get_standard_path(ALLEGRO_USER_SETTINGS_PATH);
 #endif
-
-	static char path[MAX_PATH];
-
-	#ifdef ALLEGRO_IPHONE
-	ALLEGRO_PATH *user_path = al_get_standard_path(ALLEGRO_USER_DOCUMENTS_PATH);
-	#else
-	ALLEGRO_PATH *user_path = al_get_standard_path(ALLEGRO_USER_SETTINGS_PATH);
-	#endif
-
-	sprintf(path, "%s/", al_path_cstr(user_path, '/'));
-	al_destroy_path(user_path);
-	return path;
 }
 
 static void read_scores(void)
 {
-   char fn[1000];
-   char tmp[1000] = "";
-   
-   strcpy(fn, userResourcePath());
-   while (fn[strlen(fn)-1] == '/' || fn[strlen(fn)-1] == '\\') fn[strlen(fn)-1] = 0;
-   for (unsigned int i = 0; i < strlen(fn); i++) {
-      if (fn[i] == '/' || fn[i] == '\\') {
-#ifdef ALLEGRO_WINDOWS
-         mkdir(tmp);
-#else
-         mkdir(tmp, 0776);
-#endif
+   ALLEGRO_PATH *fn = userResourcePath();
+
+   if (al_make_directory(al_path_cstr(fn, ALLEGRO_NATIVE_PATH_SEP))) {
+      al_set_path_filename(fn, "scores.cfg");
+      ALLEGRO_CONFIG *cfg = al_load_config_file(al_path_cstr(fn, ALLEGRO_NATIVE_PATH_SEP));
+      if (cfg) {
+         for (int i = 0; i < NUM_SCORES; i++) {
+            char name[]  = {'n', '0'+i, '\0'};
+            char score[] = {'s', '0'+i, '\0'};
+            const char *v;
+
+            v = al_get_config_value(cfg, "scores", name);
+            if (v && strlen(v) <= 3) {
+               strcpy(highScores[i].name, v);
+            }
+            v = al_get_config_value(cfg, "scores", score);
+            if (v) {
+               highScores[i].score = atoi(v);
+            }
+         }
+
+         al_destroy_config(cfg);
       }
-      tmp[i] = fn[i];
-      tmp[i+1] = 0;
    }
-#ifdef ALLEGRO_WINDOWS
-   mkdir(tmp);
-#else
-   mkdir(fn, 0776);
-#endif
-   
-   sprintf(fn, "%s/scores.txt", userResourcePath());
-   FILE *f = fopen(fn, "r");
-   if (!f) return;
-   for (int i = 0; i < NUM_SCORES; i++) {
-      char buf[1000];
-      char n[100];
-      int sc;
-      fgets(buf, 1000, f);
-      sscanf(buf, "%s %d", n, &sc);
-      if (strlen(n) > 3) continue;
-      strcpy(highScores[i].name, n);
-      highScores[i].score = sc;
-   }
-   fclose(f);
+
+   al_destroy_path(fn);
 }
 
 static void write_scores(void)
 {
-   char fn[1000];
-   sprintf(fn, "%s/scores.txt", userResourcePath());
-   FILE *f = fopen(fn, "w");
-   if (!f) return;
+   ALLEGRO_CONFIG *cfg = al_create_config();
    for (int i = 0; i < NUM_SCORES; i++) {
-      fprintf(f, "%s %d\n", highScores[i].name, highScores[i].score);
+      char name[]  = {'n', '0'+i, '\0'};
+      char score[] = {'s', '0'+i, '\0'};
+      char sc[32];
+
+      al_set_config_value(cfg, "scores", name, highScores[i].name);
+      snprintf(sc, sizeof(sc), "%d", highScores[i].score);
+      al_set_config_value(cfg, "scores", score, sc);
    }
-   fclose(f);
+
+   ALLEGRO_PATH *fn = userResourcePath();
+   al_set_path_filename(fn, "scores.cfg");
+   al_save_config_file(al_path_cstr(fn, ALLEGRO_NATIVE_PATH_SEP), cfg);
+   al_destroy_path(fn);
+
+   al_destroy_config(cfg);
 }
 
 void do_highscores(int score)
