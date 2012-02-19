@@ -298,9 +298,9 @@ formats:
 others*
 
 The *size* parameter determines the size the font will be rendered at,
-specified in pixel. The standard font size is measured in *units per
+specified in pixels. The standard font size is measured in *units per
 EM*, if you instead want to specify the size as the total height of
-glyphs in pixel, pass it as a negative value.
+glyphs in pixels, pass it as a negative value.
 
 > *Note:* If you want to display text at multiple sizes, load the font
 multiple times with different size parameters.
@@ -325,15 +325,19 @@ later time.
 
 ### API: al_load_ttf_font_stretch
 
-Works exactly like [al_load_ttf_font], except it takes separate width and height
-parameters instead of a single size parameter.  The font will be stretched
-according to these parameters, if they are both positive numbers.
-As with [al_load_ttf_font], if you specify h as negative value, to size will be
-determined as the total height in pixels. If w is negative, too, then both
-values will be used to determine the sizes of the stretched font.
+Like [al_load_ttf_font], except it takes separate width and height
+parameters instead of a single size parameter.
 
-> *Note:* Behaviour is undefined if one of w and h is positive while the other
-is negative.
+If the height is a positive value, and the width zero or positive, then font
+will be stretched according to those parameters. The width must not be negative
+if the height is positive.
+
+As with [al_load_ttf_font], the height may be a negative value to specify
+the total height in pixels.  Then the width must also be a negative value, or
+zero.
+
+The behaviour is undefined the height is positive while width is negative,
+or if the height is negative while the width is positive.
 
 Since: 5.1.0
 
