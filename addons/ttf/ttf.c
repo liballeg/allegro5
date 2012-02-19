@@ -784,6 +784,8 @@ ALLEGRO_FONT *al_load_ttf_font_stretch_f(ALLEGRO_FILE *file,
         * in pixels.
         */
        FT_Size_RequestRec req;
+       ASSERT(w <= 0);
+       ASSERT(h <= 0);
        req.type = FT_SIZE_REQUEST_TYPE_REAL_DIM;
        req.width = (-w) << 6;
        req.height = (-h) << 6;
