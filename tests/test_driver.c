@@ -70,6 +70,47 @@ int               failed_tests = 0;
 
 #define streq(a, b)  (0 == strcmp((a), (b)))
 
+/* Helper macros for scanning statements. */
+#define PAT       " %80[A-Za-z0-9_.$|#-] "
+#define PAT1      PAT
+#define PAT2      PAT1 "," PAT1
+#define PAT3      PAT2 "," PAT1
+#define PAT4      PAT3 "," PAT1
+#define PAT5      PAT4 "," PAT1
+#define PAT6      PAT5 "," PAT1
+#define PAT7      PAT6 "," PAT1
+#define PAT8      PAT7 "," PAT1
+#define PAT9      PAT8 "," PAT1
+#define PAT10     PAT9 "," PAT1
+#define PAT11     PAT10 "," PAT1
+#define PAT12     PAT11 "," PAT1
+#define PAT13     PAT12 "," PAT1
+#define PAT14     PAT13 "," PAT1
+#define ARGS1     arg[0]
+#define ARGS2     ARGS1, arg[1]
+#define ARGS3     ARGS2, arg[2]
+#define ARGS4     ARGS3, arg[3]
+#define ARGS5     ARGS4, arg[4]
+#define ARGS6     ARGS5, arg[5]
+#define ARGS7     ARGS6, arg[6]
+#define ARGS8     ARGS7, arg[7]
+#define ARGS9     ARGS8, arg[8]
+#define ARGS10    ARGS9, arg[9]
+#define ARGS11    ARGS10, arg[10]
+#define ARGS12    ARGS11, arg[11]
+#define ARGS13    ARGS12, arg[12]
+#define ARGS14    ARGS13, arg[13]
+#define V(a)      resolve_var(cfg, section, arg[(a)])
+#define I(a)      atoi(V(a))
+#define F(a)      atof(V(a))
+#define C(a)      get_color(V(a))
+#define B(a)      get_bitmap(V(a), bmp_type, target)
+#define SCAN(fn, arity) \
+      (sscanf(stmt, fn " (" PAT##arity " )", ARGS##arity) == arity)
+#define SCANLVAL(fn, arity) \
+      (sscanf(stmt, PAT " = " fn " (" PAT##arity " )", lval, ARGS##arity) \
+         == 1 + arity)
+
 static void error(char const *msg, ...)
 {
    va_list ap;
@@ -140,30 +181,6 @@ static ALLEGRO_BITMAP **reserve_local_bitmap(const char *name, BmpType bmp_type)
 
    error("bitmap limit reached");
    return NULL;
-}
-
-static void load_fonts(ALLEGRO_CONFIG const *cfg, const char *section, int flags)
-{
-   int i = 0;
-   ALLEGRO_CONFIG_ENTRY *iter;
-   char const *key;
-   char const *value;
-
-   key = al_get_first_config_entry(cfg, section, &iter);
-   while (key && i < MAX_FONTS) {
-      value = al_get_config_value(cfg, section, key);
-
-      fonts[i].name = al_ustr_new(key);
-      fonts[i].font = al_load_font(value, 24, flags);
-      if (!fonts[i].font)
-         error("failed to load font: %s", value);
-
-      key = al_get_next_config_entry(&iter);
-      i++;
-   }
-
-   if (i == MAX_FONTS)
-      error("font limit reached");
 }
 
 static void unload_data(void)
@@ -367,6 +384,56 @@ static void fill_lock_region(LockRegion *lr, float alphafactor, bool blended)
             al_put_pixel(lr->x + x, lr->y + y, c);
       }
    }
+}
+
+static int get_load_font_flags(char const *v)
+{
+   return streq(v, "ALLEGRO_NO_PREMULTIPLIED_ALPHA") ? ALLEGRO_NO_PREMULTIPLIED_ALPHA
+      : streq(v, "ALLEGRO_TTF_NO_KERNING") ? ALLEGRO_TTF_NO_KERNING
+      : streq(v, "ALLEGRO_TTF_MONOCHROME") ? ALLEGRO_TTF_MONOCHROME
+      : atoi(v);
+}
+
+static void load_fonts(ALLEGRO_CONFIG const *cfg, const char *section)
+{
+#define MAXBUF    80
+
+   int i = 0;
+   ALLEGRO_CONFIG_ENTRY *iter;
+   char const *key;
+   char arg[14][MAXBUF];
+
+   key = al_get_first_config_entry(cfg, section, &iter);
+   while (key && i < MAX_FONTS) {
+      char const *stmt = al_get_config_value(cfg, section, key);
+      ALLEGRO_FONT *font = NULL;
+      bool load_stmt = false;
+
+      if (SCAN("al_load_font", 3)) {
+         font = al_load_font(V(0), I(1), get_load_font_flags(V(2)));
+         load_stmt = true;
+      }
+      else if (SCAN("al_load_ttf_font", 3)) {
+         font = al_load_ttf_font(V(0), I(1), get_load_font_flags(V(2)));
+         load_stmt = true;
+      }
+
+      if (load_stmt) {
+         if (!font) {
+            error("failed to load font: %s", key);
+         }
+         fonts[i].name = al_ustr_new(key);
+         fonts[i].font = font;
+         i++;
+      }
+
+      key = al_get_next_config_entry(&iter);
+   }
+
+   if (i == MAX_FONTS)
+      error("font limit reached");
+
+#undef MAXBUF
 }
 
 static ALLEGRO_FONT *get_font(char const *name)
@@ -755,46 +822,8 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
    ALLEGRO_BITMAP *target, int bmp_type, bool reliable)
 {
 #define MAXBUF    80
-#define PAT       " %80[A-Za-z0-9_.$|#-] "
-#define PAT1      PAT
-#define PAT2      PAT1 "," PAT1
-#define PAT3      PAT2 "," PAT1
-#define PAT4      PAT3 "," PAT1
-#define PAT5      PAT4 "," PAT1
-#define PAT6      PAT5 "," PAT1
-#define PAT7      PAT6 "," PAT1
-#define PAT8      PAT7 "," PAT1
-#define PAT9      PAT8 "," PAT1
-#define PAT10     PAT9 "," PAT1
-#define PAT11     PAT10 "," PAT1
-#define PAT12     PAT11 "," PAT1
-#define PAT13     PAT12 "," PAT1
-#define PAT14     PAT13 "," PAT1
-#define ARGS1     arg[0]
-#define ARGS2     ARGS1, arg[1]
-#define ARGS3     ARGS2, arg[2]
-#define ARGS4     ARGS3, arg[3]
-#define ARGS5     ARGS4, arg[4]
-#define ARGS6     ARGS5, arg[5]
-#define ARGS7     ARGS6, arg[6]
-#define ARGS8     ARGS7, arg[7]
-#define ARGS9     ARGS8, arg[8]
-#define ARGS10    ARGS9, arg[9]
-#define ARGS11    ARGS10, arg[10]
-#define ARGS12    ARGS11, arg[11]
-#define ARGS13    ARGS12, arg[12]
-#define ARGS14    ARGS13, arg[13]
-#define V(a)      resolve_var(cfg, testname, arg[(a)])
-#define I(a)      atoi(V(a))
-#define F(a)      atof(V(a))
-#define C(a)      get_color(V(a))
-#define B(a)      get_bitmap(V(a), bmp_type, target)
-#define SCAN(fn, arity) \
-      (sscanf(stmt, fn " (" PAT##arity " )", ARGS##arity) == arity)
-#define SCANLVAL(fn, arity) \
-      (sscanf(stmt, PAT " = " fn " (" PAT##arity " )", lval, ARGS##arity) \
-         == 1 + arity)
 
+   const char *section = testname;
    int op;
    char const *stmt;
    char buf[MAXBUF];
@@ -1236,11 +1265,7 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
       transforms[i].name = NULL;
    }
 
-#undef B
-#undef C
-#undef F
-#undef I
-#undef SCAN
+#undef MAXBUF
 }
 
 static void sw_hw_test(ALLEGRO_CONFIG *cfg, char const *testname)
@@ -1384,7 +1409,7 @@ static void process_ini_files(void)
 
       al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
       load_bitmaps(cfg, "bitmaps", HW, ALLEGRO_NO_PREMULTIPLIED_ALPHA);
-      load_fonts(cfg, "fonts", ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+      load_fonts(cfg, "fonts");
 
       for (n = 0; n < argc; n++) {
          if (has_suffix(argv[n], ".ini"))
