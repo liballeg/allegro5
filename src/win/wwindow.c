@@ -781,6 +781,9 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          }
          return 1;
       case WM_ACTIVATE:
+         if (HIWORD(wParam) && LOWORD(wParam) != WA_INACTIVE)
+            break;
+
          if (HIWORD(wParam))
             d->flags |= ALLEGRO_MINIMIZED;
          else
