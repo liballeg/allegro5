@@ -24,7 +24,7 @@ ALLEGRO_DEBUG_CHANNEL("font")
  * There's not much we can do about that in general - if the user
  * locks a portion of a bitmap not conformin to this it will fail
  * with such a driver.
- * 
+ *
  * However in many programs this is no problem at all safe for rendering
  * glyphs and simply aligning to 4 pixels here fixes it.
  */
@@ -376,6 +376,8 @@ static void cache_glyph(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
     ft_load_flags = FT_LOAD_RENDER | FT_LOAD_NO_BITMAP;
     if (font_data->flags & ALLEGRO_TTF_MONOCHROME)
        ft_load_flags |= FT_LOAD_TARGET_MONO;
+    if (font_data->flags & ALLEGRO_TTF_NO_AUTOHINT)
+       ft_load_flags |= FT_LOAD_NO_AUTOHINT;
 
     e = FT_Load_Glyph(face, ft_index, ft_load_flags);
     if (e) {
@@ -647,9 +649,9 @@ static void debug_cache(ALLEGRO_FONT *f)
    _AL_VECTOR *v = &data->page_bitmaps;
    static int j = 0;
    int i;
-   
+
    al_init_image_addon();
-   
+
    for (i = 0; i < (int)_al_vector_size(v); i++) {
       ALLEGRO_BITMAP **bmp = _al_vector_ref(v, i);
       ALLEGRO_USTR *u = al_ustr_newf("font%d.png", j++);
@@ -867,7 +869,7 @@ bool al_init_ttf_addon(void)
    vt.render = ttf_render;
    vt.destroy = ttf_destroy;
    vt.get_text_dimensions = ttf_get_text_dimensions;
-    
+
    al_register_font_loader(".ttf", al_load_ttf_font);
    /* Can't fail right now - in the future we might dynamically load
     * the FreeType DLL here and/or initialize FreeType (which both
@@ -883,9 +885,9 @@ void al_shutdown_ttf_addon(void)
 {
    if (!inited) return;
    inited = false;
-   
+
    al_register_font_loader(".ttf", NULL);
-   
+
    FT_Done_FreeType(ft);
 }
 
