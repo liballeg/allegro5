@@ -497,27 +497,149 @@ void al_draw_pieslice(float cx, float cy, float r, float start_theta,
    
    ASSERT(r >= 0);
    
-   /* Only thickness less <= 0 is supported right now */
-   (void)thickness;
+   /* Just makes things a bit easier */
+   if(delta_theta < 0) {
+      delta_theta = -delta_theta;
+      start_theta -= delta_theta;
+   }
    
-   num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r));
+   if (thickness <= 0) {
+      num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r));
 
-   if (num_segments < 2)
-      num_segments = 2;
-   
-   if (num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
-      num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1;
-   }
+      if (num_segments < 2)
+         num_segments = 2;
       
-   al_calculate_arc(&(vertex_cache[1].x), sizeof(ALLEGRO_VERTEX), cx, cy, r, r, start_theta, delta_theta, 0, num_segments);
-   vertex_cache[0].x = cx; vertex_cache[0].y = cy;
-   
-   for (ii = 0; ii < num_segments + 1; ii++) {
-      vertex_cache[ii].color = color;
-      vertex_cache[ii].z = 0;
+      if (num_segments + 1 >= ALLEGRO_VERTEX_CACHE_SIZE) {
+         num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1 - 1;
+      }
+         
+      al_calculate_arc(&(vertex_cache[1].x), sizeof(ALLEGRO_VERTEX), cx, cy, r, r, start_theta, delta_theta, 0, num_segments);
+      vertex_cache[0].x = cx; vertex_cache[0].y = cy;
+      
+      for (ii = 0; ii < num_segments + 1; ii++) {
+         vertex_cache[ii].color = color;
+         vertex_cache[ii].z = 0;
+      }
+      
+      al_draw_prim(vertex_cache, 0, 0, 0, num_segments + 1, ALLEGRO_PRIM_LINE_LOOP);
+   } else {
+      float ht = thickness / 2;
+      float inner_side_angle = asinf(ht / (r - ht));
+      float outer_side_angle = asinf(ht / (r + ht));
+      float central_angle = delta_theta - 2 * inner_side_angle;
+      bool inverted_winding = ((int)(delta_theta / ALLEGRO_PI)) % 2 == 1;
+      float midangle = start_theta + (fmodf(delta_theta + ALLEGRO_PI, 2 * ALLEGRO_PI) - ALLEGRO_PI) / 2;
+      float midpoint_dir_x = cosf(midangle);
+      float midpoint_dir_y = sinf(midangle);
+      float side_dir_x = cosf(start_theta);
+      float side_dir_y = sinf(start_theta);
+      float sine_half_delta = fabs(side_dir_x * midpoint_dir_y - side_dir_y * midpoint_dir_x); /* Cross product */
+      float connect_len = ht / sine_half_delta;
+      bool blunt_tip = connect_len > 2 * thickness;
+      
+      /* The angle is big enough for there to be a hole in the middle */
+      if (central_angle > 0) {
+         float central_start_angle = start_theta + inner_side_angle;
+         size_t vtx_id;
+         int vtx_delta;
+         /* Two inner hole vertices and the apex (2 vertices if the apex is blunt) */
+         int extra_vtx = blunt_tip ? 4 : 3;
+         
+         al_draw_arc(cx, cy, r, central_start_angle, central_angle, color, thickness);
+         
+         vertex_cache[0].x = cx + (r - thickness / 2) * cosf(central_start_angle);
+         vertex_cache[0].y = cy + (r - thickness / 2) * sinf(central_start_angle);
+         
+         num_segments = (inner_side_angle + outer_side_angle) / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r + ht);
+         
+         if (num_segments < 2)
+            num_segments = 2;
+         
+         if (num_segments + extra_vtx >= ALLEGRO_VERTEX_CACHE_SIZE)
+            num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1 - extra_vtx;
+           
+         al_calculate_arc(&(vertex_cache[1].x), sizeof(ALLEGRO_VERTEX), cx, cy, r + ht, r + ht, central_start_angle, -(outer_side_angle + inner_side_angle), 0, num_segments);
+         
+         /* Do the tip */
+         vtx_id = num_segments + 1 + (inverted_winding ? (1 + (blunt_tip ? 1 : 0)) : 0);
+         vtx_delta = inverted_winding ? -1 : 1;
+         if (blunt_tip) {
+            float vx = ht * (side_dir_y * (inverted_winding ? -1 : 1) - side_dir_x);
+            float vy = ht * (-side_dir_x * (inverted_winding ? -1 : 1) - side_dir_y);
+            float dot = vx * midpoint_dir_x + vy * midpoint_dir_y;
+            
+            vertex_cache[vtx_id].x = cx + vx;
+            vertex_cache[vtx_id].y = cy + vy;
+            vtx_id += vtx_delta;
+            
+            vertex_cache[vtx_id].x = cx + dot * midpoint_dir_x;
+            vertex_cache[vtx_id].y = cy + dot * midpoint_dir_y;
+         } else {
+            vertex_cache[vtx_id].x = cx - connect_len * midpoint_dir_x;
+            vertex_cache[vtx_id].y = cy - connect_len * midpoint_dir_y;
+         }
+         vtx_id += vtx_delta;
+         
+         if(connect_len > r - ht)
+            connect_len = r - ht;
+         vertex_cache[vtx_id].x = cx + connect_len * midpoint_dir_x;
+         vertex_cache[vtx_id].y = cy + connect_len * midpoint_dir_y;
+         
+         for (ii = 0; ii < num_segments + extra_vtx; ii++) {
+            vertex_cache[ii].color = color;
+            vertex_cache[ii].z = 0;
+         }
+         
+         al_draw_prim(vertex_cache, 0, 0, 0, num_segments + extra_vtx, ALLEGRO_PRIM_TRIANGLE_FAN);
+         
+         /* Mirror the vertices and draw them again */
+         for (ii = 0; ii < num_segments + extra_vtx; ii++) {
+            float dot = (vertex_cache[ii].x - cx) * midpoint_dir_x + (vertex_cache[ii].y - cy) * midpoint_dir_y;
+            vertex_cache[ii].x = 2 * cx + 2 * dot * midpoint_dir_x - vertex_cache[ii].x;
+            vertex_cache[ii].y = 2 * cy + 2 * dot * midpoint_dir_y - vertex_cache[ii].y;
+         }
+         
+         al_draw_prim(vertex_cache, 0, 0, 0, num_segments + extra_vtx, ALLEGRO_PRIM_TRIANGLE_FAN);
+      } else {
+         /* Apex: 2 vertices if the apex is blunt) */
+         int extra_vtx = blunt_tip ? 2 : 1;
+         
+         num_segments = (2 * outer_side_angle) / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r + ht);
+         
+         if (num_segments < 2)
+            num_segments = 2;
+         
+         if (num_segments + extra_vtx >= ALLEGRO_VERTEX_CACHE_SIZE)
+            num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1 - extra_vtx;
+           
+         al_calculate_arc(&(vertex_cache[1].x), sizeof(ALLEGRO_VERTEX), cx, cy, r + ht, r + ht, start_theta - outer_side_angle, 2 * outer_side_angle + delta_theta, 0, num_segments);
+         
+         if (blunt_tip) {
+            float vx = ht * (side_dir_y - side_dir_x);
+            float vy = ht * (-side_dir_x - side_dir_y);
+            float dot = vx * midpoint_dir_x + vy * midpoint_dir_y;
+            
+            vertex_cache[0].x = cx + vx;
+            vertex_cache[0].y = cy + vy;
+            
+            vx = 2 * dot * midpoint_dir_x - vx;
+            vy = 2 * dot * midpoint_dir_y - vy;
+            
+            vertex_cache[num_segments + 1].x = cx + vx;
+            vertex_cache[num_segments + 1].y = cy + vy;
+         } else {
+            vertex_cache[0].x = cx - connect_len * midpoint_dir_x;
+            vertex_cache[0].y = cy - connect_len * midpoint_dir_y;
+         }
+         
+         for (ii = 0; ii < num_segments + extra_vtx; ii++) {
+            vertex_cache[ii].color = color;
+            vertex_cache[ii].z = 0;
+         }
+         
+         al_draw_prim(vertex_cache, 0, 0, 0, num_segments + extra_vtx, ALLEGRO_PRIM_TRIANGLE_FAN);
+      }
    }
-   
-   al_draw_prim(vertex_cache, 0, 0, 0, num_segments + 1, ALLEGRO_PRIM_LINE_LOOP);
 }
 
 /* Function: al_draw_filled_pieslice
@@ -536,8 +658,8 @@ void al_draw_filled_pieslice(float cx, float cy, float r, float start_theta,
    if (num_segments < 2)
       num_segments = 2;
    
-   if (num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
-      num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1;
+   if (num_segments + 1 >= ALLEGRO_VERTEX_CACHE_SIZE) {
+      num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1 - 1;
    }
       
    al_calculate_arc(&(vertex_cache[1].x), sizeof(ALLEGRO_VERTEX), cx, cy, r, r, start_theta, delta_theta, 0, num_segments);
