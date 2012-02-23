@@ -32,6 +32,7 @@ enum {
 };
 
 AL_FUNC(ALLEGRO_PATH *, al_get_standard_path, (int id));
+AL_FUNC(void, al_set_exe_name, (char const *path));
 
 AL_FUNC(void, al_set_org_name, (const char *org_name));
 AL_FUNC(void, al_set_app_name, (const char *app_name));

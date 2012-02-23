@@ -91,6 +91,8 @@ static void shutdown_system_driver(void)
       ALLEGRO_CONFIG *temp = active_sysdrv->config;
       if (active_sysdrv->vt && active_sysdrv->vt->shutdown_system)
          active_sysdrv->vt->shutdown_system();
+      if (active_sysdrv->user_exe_path)
+         al_destroy_path(active_sysdrv->user_exe_path);
       active_sysdrv = NULL;
       /* active_sysdrv is not accessible here so we copied it */
       al_destroy_config(temp);
@@ -293,6 +295,8 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
    /* Clear errnos set while searching for config files. */
    al_set_errno(0);
 
+   active_sysdrv->installed = true;
+
    return true;
 }
 
@@ -321,7 +325,7 @@ void al_uninstall_system(void)
  */
 bool al_is_system_installed(void)
 {
-   return (active_sysdrv) ? true : false;
+   return (active_sysdrv && active_sysdrv->installed) ? true : false;
 }
 
 
@@ -350,11 +354,32 @@ ALLEGRO_PATH *al_get_standard_path(int id)
    ASSERT(active_sysdrv);
    ASSERT(active_sysdrv->vt);
    ASSERT(active_sysdrv->vt->get_path);
+   
+   if (id == ALLEGRO_EXENAME_PATH && active_sysdrv->user_exe_path)
+      return al_clone_path(active_sysdrv->user_exe_path);
+   
+   if (id == ALLEGRO_RESOURCES_PATH && active_sysdrv->user_exe_path) {
+      ALLEGRO_PATH *exe_dir = al_clone_path(active_sysdrv->user_exe_path);
+      al_set_path_filename(exe_dir, NULL);
+      return exe_dir;
+   }
 
    if (active_sysdrv->vt->get_path)
       return active_sysdrv->vt->get_path(id);
 
    return NULL;
+}
+
+
+/* Function: al_set_exe_name
+ */
+void al_set_exe_name(char const *path)
+{
+   ASSERT(active_sysdrv);
+   if (active_sysdrv->user_exe_path) {
+      al_destroy_path(active_sysdrv->user_exe_path);
+   }
+   active_sysdrv->user_exe_path = al_create_path(path);
 }
 
 
