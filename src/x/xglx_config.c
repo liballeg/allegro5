@@ -506,7 +506,7 @@ bool _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
    if (glx->fbc) {
       /* Create a GLX context from FBC. */
       if (disp->flags & ALLEGRO_OPENGL_3_0) {
-         bool forward_compat = disp->flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE;
+         bool forward_compat = (disp->flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE) != 0;
          glx->context = create_context_new(glx->glx_version,
             system->gfxdisplay, *glx->fbc, existing_ctx, forward_compat, 3, 0);
          disp->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = !forward_compat;

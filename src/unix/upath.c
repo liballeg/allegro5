@@ -418,7 +418,7 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
          char *paths[] = { "/tmp/", "/var/tmp/", "/usr/tmp/", NULL };
          for (i=0; paths[i] != NULL; ++i) {
             ALLEGRO_FS_ENTRY *fse = al_create_fs_entry(paths[i]);
-            bool found = (al_get_fs_entry_mode(fse) & ALLEGRO_FILEMODE_ISDIR);
+            bool found = (al_get_fs_entry_mode(fse) & ALLEGRO_FILEMODE_ISDIR) != 0;
             al_destroy_fs_entry(fse);
             if (found) {
                return al_create_path(paths[i]);

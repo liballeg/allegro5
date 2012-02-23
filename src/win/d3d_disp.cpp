@@ -546,7 +546,7 @@ static void d3d_generate_display_format_list(void)
    eds_list_count = D3D_DISPLAY_COMBINATIONS;
    int count = 0;
 
-   fullscreen = al_get_new_display_flags() & ALLEGRO_FULLSCREEN;
+   fullscreen = (al_get_new_display_flags() & ALLEGRO_FULLSCREEN) != 0;
    adapter = al_get_new_display_adapter();
    if (adapter < 0)
       adapter = 0;
