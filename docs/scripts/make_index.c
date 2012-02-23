@@ -1,14 +1,8 @@
 /*
  * make_index HTML-REFS-FILE...
  *
- * Generate a file containing real pandoc links for each link reference found.
+ * Generate a file containing a list of links to all API entries.
  * The links are sorted using strcmp.
- *
- * Input:
- *   [al_create_bitmap]: graphics#al_create_bitmap
- *
- * Output:
- *   [al_create_bitmap][al_create_bitmap]
  */
 
 #include <string.h>
@@ -25,20 +19,20 @@ static char *xstrdup(const char *s)
    return p;
 }
 
-
-static void print_it(const char * value){
-   /* We need an extra newline to make pandoc know this is the only thing in the link */
-   d_printf("[%s][%s]\n\n", value, value);
+static void print_link(const char *value)
+{
+   d_printf("* [%s]\n", value, value);
 }
 
-static void pre_order_traversal(Aatree * node, void (*doit)(const char *)){
-   if (node->left != &aa_nil){
+static void pre_order_traversal(Aatree *node, void (*doit)(const char *))
+{
+   if (node->left != &aa_nil) {
       pre_order_traversal(node->left, doit);
    }
 
    doit(node->value);
 
-   if (node->right != &aa_nil){
+   if (node->right != &aa_nil) {
       pre_order_traversal(node->right, doit);
    }
 }
@@ -50,14 +44,17 @@ int main(int argc, char *argv[])
 
    d_init(argc, argv);
 
+   d_printf("# Index\n");
+
    while ((d_getline(line))) {
       if (d_match(line, "^\\[([^\\]]*)")) {
          const char *ref = d_submatch(1);
-         root = aa_insert(root, xstrdup(ref), xstrdup(ref));
+         char *s = xstrdup(ref);
+         root = aa_insert(root, s, s);
       }
    }
 
-   pre_order_traversal(root, print_it);
+   pre_order_traversal(root, print_link);
 
    aa_destroy(root);
 

@@ -2,7 +2,6 @@
 
 <div>
 * [**Contents**](index.html)
-* [**Index**](index_all.html)
 * [Configuration files](config.html)
 * [Display](display.html)
 * [Events](events.html)
@@ -39,6 +38,10 @@
 * [Native dialogs addon](native_dialog.html)
 * [PhysicsFS addon](physfs.html)
 * [Primitives addon](primitives.html)
+</div>
+
+<div>
+* [**Index**](index_all.html)
 </div>
 
 <div class="searchbox">
