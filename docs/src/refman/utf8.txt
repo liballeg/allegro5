@@ -205,7 +205,7 @@ The string is valid until the underlying C string disappears.
 Example:
 
     ALLEGRO_USTR_INFO info;
-    ALLEGRO_USTR us = al_ref_cstr(&info, "my string");
+    ALLEGRO_USTR *us = al_ref_cstr(&info, "my string");
 
 See also: [al_ref_buffer], [al_ref_ustr]
 
