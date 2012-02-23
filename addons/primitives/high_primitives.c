@@ -653,17 +653,17 @@ void al_draw_filled_circle(float cx, float cy, float r, ALLEGRO_COLOR color)
    al_draw_filled_ellipse(cx, cy, r, r, color);
 }
 
-/* Function: al_draw_arc
+/* Function: al_draw_elliptical_arc
  */
-void al_draw_arc(float cx, float cy, float r, float start_theta,
+void al_draw_elliptical_arc(float cx, float cy, float rx, float ry, float start_theta,
    float delta_theta, ALLEGRO_COLOR color, float thickness)
 {
    LOCAL_VERTEX_CACHE;
    float scale = get_scale();
 
-   ASSERT(r >= 0);
+   ASSERT(rx >= 0 && ry >= 0);
    if (thickness > 0) {
-      int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r));
+      int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f));
       int ii;
 
       if (num_segments < 2)
@@ -673,7 +673,7 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
          num_segments = (ALLEGRO_VERTEX_CACHE_SIZE - 1) / 2;
       }
 
-      al_calculate_arc(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), cx, cy, r, r, start_theta, delta_theta, thickness, num_segments);
+      al_calculate_arc(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), cx, cy, rx, ry, start_theta, delta_theta, thickness, num_segments);
       
       for (ii = 0; ii < 2 * num_segments; ii++) {
          vertex_cache[ii].color = color;
@@ -682,7 +682,7 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
       
       al_draw_prim(vertex_cache, 0, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
    } else {
-      int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r));
+      int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f));
       int ii;
 
       if (num_segments < 2)
@@ -692,7 +692,7 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
          num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1;
       }
       
-      al_calculate_arc(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), cx, cy, r, r, start_theta, delta_theta, 0, num_segments);
+      al_calculate_arc(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), cx, cy, rx, ry, start_theta, delta_theta, 0, num_segments);
       
       for (ii = 0; ii < num_segments; ii++) {
          vertex_cache[ii].color = color;
@@ -701,6 +701,14 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
       
       al_draw_prim(vertex_cache, 0, 0, 0, num_segments, ALLEGRO_PRIM_LINE_STRIP);
    }
+}
+
+/* Function: al_draw_arc
+ */
+void al_draw_arc(float cx, float cy, float r, float start_theta,
+   float delta_theta, ALLEGRO_COLOR color, float thickness)
+{
+   al_draw_elliptical_arc(cx, cy, r, r, start_theta, delta_theta, color, thickness);
 }
 
 /* Function: al_draw_rounded_rectangle

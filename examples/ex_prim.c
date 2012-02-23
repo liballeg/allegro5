@@ -320,6 +320,7 @@ static void HighPrimitives(int mode)
       al_draw_rounded_rectangle(-200, -125, 200, 125, 50, 100, al_map_rgba_f(0.2, 0.2, 0, 1), Thickness);
 
       al_draw_ellipse(0, 0, 300, 150, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
+      al_draw_elliptical_arc(-20, 0, 300, 200, -ALLEGRO_PI / 2, -ALLEGRO_PI, al_map_rgba_f(0.25, 0.25, 0.5, 1), Thickness);
       al_draw_arc(0, 0, 200, -ALLEGRO_PI / 2, ALLEGRO_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
       al_draw_spline(points, al_map_rgba_f(0.1, 0.2, 0.5, 1), Thickness);
       al_draw_pieslice(0, 25, 150, ALLEGRO_PI * 3 / 4, -ALLEGRO_PI / 2, al_map_rgba_f(0.4, 0.3, 0.1, 1), Thickness);
@@ -382,6 +383,7 @@ static void TransformationsPrimitives(int mode)
       al_draw_rounded_rectangle(-200, -125, 200, 125, 50, 100, al_map_rgba_f(0.2, 0.2, 0, 1), Thickness);
       
       al_draw_ellipse(0, 0, 300, 150, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
+      al_draw_elliptical_arc(-20, 0, 300, 200, -ALLEGRO_PI / 2, -ALLEGRO_PI, al_map_rgba_f(0.25, 0.25, 0.5, 1), Thickness);
       al_draw_arc(0, 0, 200, -ALLEGRO_PI / 2, ALLEGRO_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
       al_draw_spline(points, al_map_rgba_f(0.1, 0.2, 0.5, 1), Thickness);
       al_draw_pieslice(0, 25, 150, ALLEGRO_PI * 3 / 4, -ALLEGRO_PI / 2, al_map_rgba_f(0.4, 0.3, 0.1, 1), Thickness);

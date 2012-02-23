@@ -140,6 +140,7 @@ ALLEGRO_PRIM_FUNC(void, al_calculate_arc, (float* dest, int stride, float cx, fl
 ALLEGRO_PRIM_FUNC(void, al_draw_circle, (float cx, float cy, float r, ALLEGRO_COLOR color, float thickness));
 ALLEGRO_PRIM_FUNC(void, al_draw_ellipse, (float cx, float cy, float rx, float ry, ALLEGRO_COLOR color, float thickness));
 ALLEGRO_PRIM_FUNC(void, al_draw_arc, (float cx, float cy, float r, float start_theta, float delta_theta, ALLEGRO_COLOR color, float thickness));
+ALLEGRO_PRIM_FUNC(void, al_draw_elliptical_arc, (float cx, float cy, float rx, float ry, float start_theta, float delta_theta, ALLEGRO_COLOR color, float thickness));
 ALLEGRO_PRIM_FUNC(void, al_draw_pieslice, (float cx, float cy, float r, float start_theta, float delta_theta, ALLEGRO_COLOR color, float thickness));
 
 ALLEGRO_PRIM_FUNC(void, al_calculate_spline, (float* dest, int stride, float points[8], float thickness, int num_segments));
