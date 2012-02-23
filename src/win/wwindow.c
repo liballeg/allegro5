@@ -288,6 +288,10 @@ static void win_generate_resize_event(ALLEGRO_DISPLAY_WIN *win_display)
    w = wi.rcClient.right - wi.rcClient.left;
    h = wi.rcClient.bottom - wi.rcClient.top;
 
+   /* Don't generate events when restoring after minimise. */
+   if (w == 0 && h == 0 && x == -32000 && y == -32000)
+      return;
+
    if (display->w != w || display->h != h) {
       _al_event_source_lock(es);
       if (_al_event_source_needs_to_generate_event(es)) {
