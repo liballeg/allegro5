@@ -190,9 +190,7 @@ static void set_target_reset(ALLEGRO_BITMAP *target)
 
    al_set_target_bitmap(target);
    al_clear_to_color(al_map_rgb(0, 0, 0));
-   al_set_clipping_rectangle(0, 0,
-      al_get_bitmap_width(target),
-      al_get_bitmap_height(target));
+   al_reset_clipping_rectangle();
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
    al_identity_transform(&ident);
    al_use_transform(&ident);
