@@ -1,6 +1,8 @@
 #ifndef __al_included_allegro5_allegro_font_h
 #define __al_included_allegro5_allegro_font_h
 
+#include "allegro5/allegro.h"
+
 #if (defined ALLEGRO_MINGW32) || (defined ALLEGRO_MSVC) || (defined ALLEGRO_BCC32)
    #ifndef ALLEGRO_STATICLINK
       #ifdef ALLEGRO_FONT_SRC
