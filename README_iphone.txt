@@ -21,10 +21,10 @@ Building
 
 In theory, you build like this:
 
-mkdir build
-cd build
-cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-iphone.cmake -G Xcode ..
-xcodebuild (but does not work without manual changes, see below)
+    mkdir build
+    cd build
+    cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-iphone.cmake -G Xcode ..
+    xcodebuild # but does not work without manual changes, see below
 
 However, many things cannot be set up by cmake, so you have to do them
 by hand. (An Xcode project named ALLEGRO should be in your build folder
@@ -49,8 +49,8 @@ adjust:
   lot easier. For example if you have freetype for iphone you could do
   this:
   
-  mkdir deps
-  cp -r my_iphone_freetype/{libs,include} deps
+    mkdir deps
+    cp -r my_iphone_freetype/{libs,include} deps
 
   And cmake should pick it up if they use the standard names.
 
