@@ -338,6 +338,8 @@ Draws an elliptical arc.
     direction)
 * thickness - Thickness of the arc, pass `<= 0` to draw hairline arc
 
+Since: 5.1.0
+
 See also: [al_calculate_arc], [al_draw_arc]
 
 
