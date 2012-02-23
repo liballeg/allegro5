@@ -503,7 +503,7 @@ void al_draw_pieslice(float cx, float cy, float r, float start_theta,
    num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r));
 
    if (num_segments < 2)
-      return;
+      num_segments = 2;
    
    if (num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
       num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1;
@@ -534,7 +534,7 @@ void al_draw_filled_pieslice(float cx, float cy, float r, float start_theta,
    num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r));
 
    if (num_segments < 2)
-      return;
+      num_segments = 2;
    
    if (num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
       num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1;
