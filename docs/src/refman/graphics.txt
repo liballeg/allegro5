@@ -203,8 +203,9 @@ be faster if the bitmap is a video texture, as no data need to be read
 from the video card. You are required to fill in all pixels before
 unlocking the bitmap again, so be careful when using this flag.
 
-* ALLEGRO_LOCK_READWRITE - The locked region can be written to and read
-from.
+* ALLEGRO_LOCK_READWRITE - The locked region can be written to and read from.
+Use this flag if a partial number of pixels need to be written to, even if
+reading is not needed.
 
 'format' indicates the pixel format that the returned buffer will be in.
 To lock in the same format as the bitmap stores it's data internally,
@@ -621,10 +622,11 @@ See also: [al_draw_tinted_bitmap]
 
 ### API: al_draw_pixel
 
-Draws a single pixel at x, y. This function, unlike
-[al_put_pixel], does blending and, unlike [al_put_blended_pixel], respects the
-transformations. This function can be slow if called often; if you need to draw
-a lot of pixels consider using the primitives addon.
+Draws a single pixel at x, y. This function, unlike [al_put_pixel], does
+blending and, unlike [al_put_blended_pixel], respects the transformations. This
+function can be slow if called often; if you need to draw a lot of pixels
+consider using [al_draw_prim] with ALLEGRO_PRIM_POINT_LIST from the primitives
+addon.
 
 * x - destination x
 * y - destination y
