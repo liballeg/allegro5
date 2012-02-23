@@ -394,12 +394,12 @@ See also: [al_draw_ribbon], [al_calculate_arc], [al_calculate_spline]
 
 ### API: al_draw_ribbon
 
-Draws a ribbon given given an array of points. The ribbon will go through all
-of the passed points.
+Draws a series of straight lines given an array of points. The ribbon will go
+through all of the passed points.
 
 *Parameters:*
 
-* points - An array of pairs of coordinates for each point
+* points - An array of coordinate pairs (x and y) for each point
 * color - Color of the spline
 * thickness - Thickness of the spline, pass `<= 0` to draw hairline spline
 
