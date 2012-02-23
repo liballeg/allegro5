@@ -115,12 +115,12 @@ void* _al_vector_ref_back(const _AL_VECTOR *vec)
 /* Internal function: _al_vector_append_array
  *  Append `num` elements from `arr` array to _AL_VECTOR `vec`
  */
-void _al_vector_append_array(_AL_VECTOR *vec, unsigned int num, const void *arr)
+bool _al_vector_append_array(_AL_VECTOR *vec, unsigned int num, const void *arr)
 {
    ASSERT(vec);
    ASSERT(arr);
    ASSERT(num);
-   
+
    if (vec->_items == NULL) {
       ASSERT(vec->_size == 0);
       ASSERT(vec->_unused == 0);
@@ -128,24 +128,28 @@ void _al_vector_append_array(_AL_VECTOR *vec, unsigned int num, const void *arr)
       vec->_items = al_malloc(vec->_itemsize * num);
       ASSERT(vec->_items);
       if (!vec->_items)
-         return;
+         return false;
 
       vec->_unused = num;
    }
    else if (vec->_unused < num) {
-      char *new_items = al_realloc(vec->_items, (vec->_size + num) * vec->_itemsize);
+      char *new_items;
+      new_items = al_realloc(vec->_items, (vec->_size + num) * vec->_itemsize);
       ASSERT(new_items);
       if (!new_items)
-         return;
+         return false;
 
       vec->_items = new_items;
       vec->_unused = num;
    }
-   
+
+   memcpy(vec->_items + (vec->_size * vec->_itemsize),
+      arr, vec->_itemsize * num);
+
    vec->_size += num;
    vec->_unused -= num;
-   
-   memcpy(vec->_items, arr, vec->_itemsize * num); 
+
+   return true;
 }
 
 
