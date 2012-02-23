@@ -406,6 +406,11 @@ static void load_fonts(ALLEGRO_CONFIG const *cfg, const char *section)
          font = al_load_ttf_font(V(0), I(1), get_load_font_flags(V(2)));
          load_stmt = true;
       }
+      else if (SCAN("al_load_ttf_font_stretch", 4)) {
+         font = al_load_ttf_font_stretch(V(0), I(1), I(2),
+            get_load_font_flags(V(3)));
+         load_stmt = true;
+      }
 
       if (load_stmt) {
          if (!font) {
