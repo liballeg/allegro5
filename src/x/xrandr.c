@@ -868,12 +868,21 @@ void _al_xsys_xrandr_exit(ALLEGRO_SYSTEM_XGLX *s)
    for(i = 0; i < (int)_al_vector_size(&s->xrandr_screens); i++) {
       xrandr_screen *screen = _al_vector_ref(&s->xrandr_screens, i);
       int j;
-      
+
+      for (j = 0; j < (int)_al_vector_size(&screen->crtcs); j++) {
+         xrandr_crtc *crtc = _al_vector_ref(&screen->crtcs, j);
+         _al_vector_free(&crtc->connected);
+         _al_vector_free(&crtc->possible);
+      }
+
       for(j = 0; j < (int)_al_vector_size(&screen->outputs); j++) {
          xrandr_output *output = _al_vector_ref(&screen->outputs, j);
          free(output->name);
+         _al_vector_free(&output->crtcs);
+         _al_vector_free(&output->clones);
+         _al_vector_free(&output->modes);
       }
-      
+
       _al_vector_free(&screen->crtcs);
       _al_vector_free(&screen->outputs);
       _al_vector_free(&screen->modes);
