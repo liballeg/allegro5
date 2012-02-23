@@ -709,6 +709,9 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
 #define PAT9      PAT8 "," PAT1
 #define PAT10     PAT9 "," PAT1
 #define PAT11     PAT10 "," PAT1
+#define PAT12     PAT11 "," PAT1
+#define PAT13     PAT12 "," PAT1
+#define PAT14     PAT13 "," PAT1
 #define ARGS1     arg[0]
 #define ARGS2     ARGS1, arg[1]
 #define ARGS3     ARGS2, arg[2]
@@ -720,6 +723,9 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
 #define ARGS9     ARGS8, arg[8]
 #define ARGS10    ARGS9, arg[9]
 #define ARGS11    ARGS10, arg[10]
+#define ARGS12    ARGS11, arg[11]
+#define ARGS13    ARGS12, arg[12]
+#define ARGS14    ARGS13, arg[13]
 #define V(a)      resolve_var(cfg, testname, arg[(a)])
 #define I(a)      atoi(V(a))
 #define F(a)      atof(V(a))
@@ -734,7 +740,7 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
    int op;
    char const *stmt;
    char buf[MAXBUF];
-   char arg[11][MAXBUF];
+   char arg[14][MAXBUF];
    char lval[MAXBUF];
    int i;
 
@@ -863,6 +869,14 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
          al_draw_tinted_scaled_rotated_bitmap(B(0), C(1),
             F(2), F(3), F(4), F(5), F(6), F(7), F(8),
             get_draw_bitmap_flag(V(9)));
+         continue;
+      }
+      
+      if (SCAN("al_draw_tinted_scaled_rotated_bitmap_region", 14)) {
+         al_draw_tinted_scaled_rotated_bitmap_region(B(0), F(1), F(2),
+            F(3), F(4), C(5),
+            F(6), F(7), F(8), F(9), F(10), F(11), F(12),
+            get_draw_bitmap_flag(V(13)));
          continue;
       }
 
