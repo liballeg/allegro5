@@ -29,6 +29,11 @@ if(EXISTS /usr/i586-mingw32msvc)
     set(CMAKE_CXX_COMPILER i586-mingw32msvc-g++)
     set(CMAKE_RC_COMPILER i586-mingw32msvc-windres)
     set(CMAKE_FIND_ROOT_PATH /usr/i586-mingw32msvc)
+elseif(EXISTS /usr/i686-w64-mingw32)
+    # First look in standard location as used by Debian/Ubuntu/etc.
+    set(CMAKE_C_COMPILER i686-w64-mingw32-gcc)
+    set(CMAKE_CXX_COMPILER i686-w64-mingw32-g++)
+    set(CMAKE_RC_COMPILER i686-w64-mingw32-windres)
 elseif(EXISTS /opt/mingw)
     # Otherwise you can get a MinGW environment using the script at
     # <http://mingw-cross-env.nongnu.org>.  It downloads and builds MinGW and
