@@ -54,6 +54,11 @@ public:
       createViewports();
       createScene();
    }
+   
+   Application()
+   {
+      mRoot = NULL;
+   }
 
    ~Application()
    {
@@ -204,8 +209,8 @@ Example::Example(ALLEGRO_DISPLAY *display) :
 
 Example::~Example()
 {
-   al_destroy_timer(timer);
-   al_destroy_event_queue(queue);
+   if (timer) al_destroy_timer(timer);
+   if (queue) al_destroy_event_queue(queue);
 }
 
 void Example::createScene()
