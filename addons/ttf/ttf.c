@@ -238,6 +238,8 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
    }
 
    if (relock) {
+      char *ptr;
+      int n;
       unlock_current_page(data);
 
       data->lock_rect.x = glyph->region.x;
@@ -260,12 +262,13 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
        * FIXME We could clear just the border but I'm not convinced that
        * would be faster (yet)
        */
-      memset(
-         ((unsigned char *)data->page_lr->data)
-            + (data->lock_rect.h-1)*data->page_lr->pitch,
-         0,
-         data->lock_rect.h * abs(data->page_lr->pitch)
-      );
+      ptr = data->page_lr->data;
+      n = data->lock_rect.h * data->page_lr->pitch;
+      if (n < 0) {
+         ptr += n - data->page_lr->pitch;
+         n = -n;
+      }
+      memset(ptr, 0, n);
    }
 
    ASSERT(data->page_lr);
