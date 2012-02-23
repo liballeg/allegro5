@@ -80,7 +80,7 @@ AL_FUNC(void, al_register_assert_handler, (void (*handler)(char const *expr,
 
 /* We are lazy and use just ASSERT while Allegro itself is compiled. */
 #ifdef ALLEGRO_LIB_BUILD
-    #define ASSERT(x) assert(x)
+    #define ASSERT(x) ALLEGRO_ASSERT(x)
 #endif
 
 #ifdef __cplusplus
