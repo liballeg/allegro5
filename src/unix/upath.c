@@ -410,7 +410,7 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
          for (; envs[i] != NULL; ++i) {
             char *tmp = getenv(envs[i]);
             if (tmp) {
-               return al_create_path(tmp);
+               return al_create_path_for_directory(tmp);
             }
          }
 
@@ -421,7 +421,7 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
             bool found = (al_get_fs_entry_mode(fse) & ALLEGRO_FILEMODE_ISDIR) != 0;
             al_destroy_fs_entry(fse);
             if (found) {
-               return al_create_path(paths[i]);
+               return al_create_path_for_directory(paths[i]);
             }
          }
 
