@@ -44,12 +44,16 @@ ALLEGRO_AUDIO_DRIVER *_al_kcm_driver = NULL;
 
 /* Channel configuration helpers */
 
+/* Function: al_get_channel_count
+ */
 size_t al_get_channel_count(ALLEGRO_CHANNEL_CONF conf)
 {
    return (conf>>4)+(conf&0xF);
 }
 
 /* Depth configuration helpers */
+/* Function: al_get_audio_depth_size
+ */
 size_t al_get_audio_depth_size(ALLEGRO_AUDIO_DEPTH depth)
 {
    switch (depth) {
