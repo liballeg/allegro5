@@ -39,19 +39,37 @@ add_our_executable(
     ${PRIMITIVES_LINK_WITH}
     )
 
+set(test_files
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_bitmaps.ini
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_bitmaps2.ini
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_blend.ini
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_locking.ini
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_locking2.ini
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_backbuffer.ini
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_image.ini
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_fonts.ini
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_prim.ini
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_prim2.ini
+    )
+
 add_custom_target(run_tests
     DEPENDS test_driver
-    COMMAND test_driver
-            ${CMAKE_CURRENT_SOURCE_DIR}/test_bitmaps.ini
-            ${CMAKE_CURRENT_SOURCE_DIR}/test_bitmaps2.ini
-            ${CMAKE_CURRENT_SOURCE_DIR}/test_blend.ini
-            ${CMAKE_CURRENT_SOURCE_DIR}/test_locking.ini
-            ${CMAKE_CURRENT_SOURCE_DIR}/test_locking2.ini
-            ${CMAKE_CURRENT_SOURCE_DIR}/test_backbuffer.ini
-            ${CMAKE_CURRENT_SOURCE_DIR}/test_image.ini
-            ${CMAKE_CURRENT_SOURCE_DIR}/test_fonts.ini
-            ${CMAKE_CURRENT_SOURCE_DIR}/test_prim.ini
-            ${CMAKE_CURRENT_SOURCE_DIR}/test_prim2.ini
+    COMMAND test_driver ${test_files}
+    )
+
+add_custom_target(run_tests_gl
+    DEPENDS test_driver
+    COMMAND test_driver --force-opengl ${test_files}
+    )
+
+add_custom_target(run_tests_gl12
+    DEPENDS test_driver
+    COMMAND test_driver --force-opengl-1.2 ${test_files}
+    )
+
+add_custom_target(run_tests_d3d
+    DEPENDS test_driver
+    COMMAND test_driver --force-d3d ${test_files}
     )
 
 # vim: set sts=4 sw=4 et:
