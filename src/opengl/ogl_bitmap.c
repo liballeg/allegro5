@@ -354,10 +354,12 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
              * fails otherwise.
              */
             if (xtrans < target->cl) {
+               sx -= xtrans - target->cl;
                sw += xtrans - target->cl;
                xtrans = target->cl;
             }
             if (ytrans < target->ct) {
+               sy -= ytrans - target->ct;
                sh += ytrans - target->ct;
                ytrans = target->ct;
             }
