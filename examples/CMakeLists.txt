@@ -167,6 +167,7 @@ example(ex_ttf ${TTF} ${PRIM})
 
 example(ex_acodec CONSOLE ${AUDIO} ${ACODEC})
 example(ex_acodec_multi CONSOLE ${AUDIO} ${ACODEC})
+example(ex_audio_chain ex_audio_chain.cpp ${AUDIO} ${ACODEC} ${PRIM} ${FONT} ${TTF})
 example(ex_audio_props CONSOLE ex_audio_props.cpp ${NIHGUI} ${IMAGE} ${AUDIO} ${ACODEC})
 example(ex_audio_simple CONSOLE ${AUDIO} ${ACODEC})
 example(ex_haiku ${AUDIO} ${ACODEC} ${IMAGE})
