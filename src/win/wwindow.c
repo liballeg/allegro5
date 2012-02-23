@@ -686,6 +686,11 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          }
          return 1;
       case WM_ACTIVATE:
+         if (HIWORD(wParam))
+            d->flags |= ALLEGRO_MINIMIZED;
+         else
+            d->flags &= ~ALLEGRO_MINIMIZED;
+
          if (LOWORD(wParam) != WA_INACTIVE) {
             // Make fullscreen windows TOPMOST again
             if (d->flags & ALLEGRO_FULLSCREEN_WINDOW) {
