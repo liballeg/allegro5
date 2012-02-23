@@ -295,7 +295,8 @@ static bool osx_set_mouse_xy(ALLEGRO_DISPLAY *dpy_, int x, int y)
 	CGDirectDisplayID display = 0;
     ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN *)dpy_;
     
-    if ((dpy) && !(dpy->parent.flags & ALLEGRO_FULLSCREEN) && (dpy->win)) {
+    if ((dpy) && !(dpy->parent.flags & ALLEGRO_FULLSCREEN) && 
+            !(dpy->parent.flags & ALLEGRO_FULLSCREEN_WINDOW) && (dpy->win)) {
         NSWindow *window = dpy->win;
         NSRect content = [window contentRectForFrameRect: [window frame]];
         NSRect frame = [[window screen] frame];
