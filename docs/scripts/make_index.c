@@ -21,7 +21,10 @@ static char *xstrdup(const char *s)
 
 static void print_link(const char *value)
 {
-   d_printf("* [%s]\n", value, value);
+   d_printf("* [%s]\n", value);
+
+   /* Work around Pandoc issue #182. */
+   d_printf("<!-- -->\n");
 }
 
 static void pre_order_traversal(Aatree *node, void (*doit)(const char *))
