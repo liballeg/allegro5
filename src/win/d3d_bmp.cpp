@@ -651,15 +651,57 @@ static void d3d_draw_bitmap_region(
    }
 
    if (d3d_src->is_backbuffer) {
-      ALLEGRO_BITMAP_D3D *tmp_bmp = NULL;
-      tmp_bmp =
-         (ALLEGRO_BITMAP_D3D *)d3d_create_bitmap_from_surface(
-         ((ALLEGRO_BITMAP_D3D *)d3d_src)->display->render_target,
+      IDirect3DSurface9 *surface;
+      D3DSURFACE_DESC desc;
+      if (d3d_src->display->render_target->GetDesc(&desc) != D3D_OK) {
+         ALLEGRO_ERROR("d3d_draw_bitmap_region: GetDesc failed.\n");
+         return;
+      }
+      if (desc.MultiSampleType == D3DMULTISAMPLE_NONE) {
+         surface = d3d_src->display->render_target;
+      }
+      else {
+         RECT r;
+         if (d3d_src->display->device->CreateRenderTarget(
+		desc.Width,
+		desc.Height,
+		desc.Format,
+		D3DMULTISAMPLE_NONE,
+		0,
+		TRUE,
+		&surface,
+		NULL
+	) != D3D_OK) {
+            ALLEGRO_ERROR(
+	    	"d3d_draw_bitmap_region: CreateRenderTarget failed.\n");
+            return;
+         }
+	 r.top = 0;
+	 r.left = 0;
+	 r.right = desc.Width;
+	 r.bottom = desc.Height;
+	 if (d3d_src->display->device->StretchRect(
+	 	d3d_src->display->render_target,
+		&r,
+		surface,
+		&r,
+		D3DTEXF_NONE
+	 ) != D3D_OK) {
+	    ALLEGRO_ERROR("d3d_draw_bitmap_region: StretchRect failed.\n");
+	    surface->Release();
+	    return;
+	 }
+      }
+      ALLEGRO_BITMAP *tmp_bmp = d3d_create_bitmap_from_surface(
+         surface,
          src->flags);
       if (tmp_bmp) {
          d3d_draw_bitmap_region((ALLEGRO_BITMAP *)tmp_bmp, tint,
             sx, sy, sw, sh, flags);
-         al_destroy_bitmap((ALLEGRO_BITMAP *)tmp_bmp);
+         al_destroy_bitmap(tmp_bmp);
+	 if (desc.MultiSampleType != D3DMULTISAMPLE_NONE) {
+	    surface->Release();
+	 }
       }
       return;
    }
