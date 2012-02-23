@@ -28,6 +28,11 @@ private:
    HSlider speed_slider;
    Label gain_label;
    VSlider gain_slider;
+   Label mixer_gain_label;
+   VSlider mixer_gain_slider;
+   Label two_label;
+   Label one_label;
+   Label zero_label;
 
 public:
    Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
@@ -36,23 +41,35 @@ public:
 };
 
 Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
-   d(Dialog(theme, display, 20, 20)),
+   d(Dialog(theme, display, 40, 20)),
    pan_button(ToggleButton("Pan")),
    pan_slider(HSlider(1000, 2000)),
    speed_label(Label("Speed")),
    speed_slider(HSlider(1000, 5000)),
    gain_label(Label("Gain")),
-   gain_slider(VSlider(1000, 2000))
+   gain_slider(VSlider(1000, 2000)),
+   mixer_gain_label(Label("Mixer gain")),
+   mixer_gain_slider(VSlider(1000, 2000)),
+   two_label(Label("2.0")),
+   one_label(Label("1.0")),
+   zero_label(Label("0.0"))
 {
    pan_button.set_pushed(true);
-   d.add(pan_button, 1, 10,  2, 1);
-   d.add(pan_slider, 3, 10, 15, 1);
+   d.add(pan_button, 2, 10,  4, 1);
+   d.add(pan_slider, 6, 10, 22, 1);
 
-   d.add(speed_label,  1, 12,  2, 1);
-   d.add(speed_slider, 3, 12, 15, 1);
+   d.add(speed_label,  2, 12,  4, 1);
+   d.add(speed_slider, 6, 12, 22, 1);
 
-   d.add(gain_label,  18, 1, 1,  1);
-   d.add(gain_slider, 18, 2, 1, 17);
+   d.add(gain_label,  29, 1, 2,  1);
+   d.add(gain_slider, 29, 2, 2, 17);
+
+   d.add(mixer_gain_label,  33, 1, 6,  1);
+   d.add(mixer_gain_slider, 35, 2, 2, 17);
+
+   d.add(two_label,  32,  2, 2, 1);
+   d.add(one_label,  32, 10, 2, 1);
+   d.add(zero_label, 32, 18, 2, 1);
 }
 
 void Prog::run()
@@ -76,6 +93,7 @@ void Prog::update_properties()
    float pan;
    float speed;
    float gain;
+   float mixer_gain;
 
    if (pan_button.get_pushed())
       pan = pan_slider.get_cur_value() / 1000.0f - 1.0f;
@@ -88,15 +106,21 @@ void Prog::update_properties()
 
    gain = gain_slider.get_cur_value() / 1000.0f;
    al_set_sample_instance_gain(sample_inst, gain);
+
+   mixer_gain = mixer_gain_slider.get_cur_value() / 1000.0f;
+   al_set_mixer_gain(al_get_default_mixer(), mixer_gain);
 }
 
 int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
+   const char *filename;
 
-   if (argc < 2) {
-      fprintf(stderr, "Usage: %s {audio_file}\n", argv[0]);
-      return 1;
+   if (argc >= 2) {
+      filename = argv[1];
+   }
+   else {
+      filename = "data/testing.ogg";
    }
 
    if (!al_init()) {
@@ -122,9 +146,9 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   sample = al_load_sample(argv[1]);
+   sample = al_load_sample(filename);
    if (!sample) {
-      abort_example("Could not load sample from '%s'!\n", argv[1]);
+      abort_example("Could not load sample from '%s'!\n", filename);
    }
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);

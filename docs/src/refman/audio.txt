@@ -660,6 +660,24 @@ Return the mixer audio depth.
 
 See also: [ALLEGRO_AUDIO_DEPTH].
 
+### API: al_get_mixer_gain
+
+Return the mixer gain (amplification factor). The default is 1.0.
+
+Since: 5.1.0
+
+See also: [al_set_mixer_gain].
+
+### API: al_set_mixer_gain
+
+Set the mixer gain (amplification factor).
+
+Returns true on success, false on failure.
+
+Since: 5.1.0
+
+See also: [al_get_mixer_gain]
+
 ### API: al_get_mixer_quality
 
 Return the mixer quality.

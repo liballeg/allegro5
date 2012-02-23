@@ -141,6 +141,7 @@ void _al_kcm_mixer_rejig_sample_matrix(ALLEGRO_MIXER *mixer,
    ALLEGRO_SAMPLE_INSTANCE *spl)
 {
    float *mat;
+   float mixer_gain;
    size_t dst_chans;
    size_t src_chans;
    size_t i, j;
@@ -149,8 +150,9 @@ void _al_kcm_mixer_rejig_sample_matrix(ALLEGRO_MIXER *mixer,
       al_free(spl->matrix);
    }
 
+   mixer_gain = mixer->ss.gain;
    mat = _al_rechannel_matrix(spl->spl_data.chan_conf,
-      mixer->ss.spl_data.chan_conf, spl->gain, spl->pan);
+      mixer->ss.spl_data.chan_conf, mixer_gain * spl->gain, spl->pan);
 
    dst_chans = al_get_channel_count(mixer->ss.spl_data.chan_conf);
    src_chans = al_get_channel_count(spl->spl_data.chan_conf);
@@ -668,9 +670,43 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
       return;
    }
 
-   /* We're feeding to a voice, so we pass it back the mixed data (make sure
-    * to clamp and convert it).
+   /* We're feeding to a voice. */
+
+   /* Apply the gain if necessary.  If we were feeding another mixer the gain
+    * would be accounted for in the sample matrix.
     */
+   if (mixer->ss.gain != 1.0f) {
+      unsigned long i = samples_l;
+
+      switch (m->ss.spl_data.depth) {
+         case ALLEGRO_AUDIO_DEPTH_FLOAT32: {
+            float *p = mixer->ss.spl_data.buffer.f32;
+            while (i-- > 0) {
+               *p++ *= mixer->ss.gain;
+            }
+            break;
+         }
+
+         case ALLEGRO_AUDIO_DEPTH_INT16: {
+            int16_t *p = mixer->ss.spl_data.buffer.s16;
+            while (i-- > 0) {
+               *p++ *= mixer->ss.gain;
+            }
+            break;
+         }
+
+         case ALLEGRO_AUDIO_DEPTH_INT8:
+         case ALLEGRO_AUDIO_DEPTH_INT24:
+         case ALLEGRO_AUDIO_DEPTH_UINT8:
+         case ALLEGRO_AUDIO_DEPTH_UINT16:
+         case ALLEGRO_AUDIO_DEPTH_UINT24:
+            /* Unsupported mixer depths. */
+            ASSERT(false);
+            break;
+      }
+   }
+
+   /* Clamp and convert the mixed data for the voice. */
    *buf = mixer->ss.spl_data.buffer.ptr;
    switch (buffer_depth & ~ALLEGRO_AUDIO_DEPTH_UNSIGNED) {
 
@@ -1062,6 +1098,16 @@ ALLEGRO_MIXER_QUALITY al_get_mixer_quality(const ALLEGRO_MIXER *mixer)
 }
 
 
+/* Function: al_get_mixer_gain
+ */
+float al_get_mixer_gain(const ALLEGRO_MIXER *mixer)
+{
+   ASSERT(mixer);
+
+   return mixer->ss.gain;
+}
+
+
 /* Function: al_get_mixer_playing
  */
 bool al_get_mixer_playing(const ALLEGRO_MIXER *mixer)
@@ -1127,6 +1173,30 @@ bool al_set_mixer_quality(ALLEGRO_MIXER *mixer, ALLEGRO_MIXER_QUALITY new_qualit
    maybe_unlock_mutex(mixer->ss.mutex);
 
    return ret;
+}
+
+
+/* Function: al_set_mixer_gain
+ */
+bool al_set_mixer_gain(ALLEGRO_MIXER *mixer, float new_gain)
+{
+   int i;
+   ASSERT(mixer);
+
+   maybe_lock_mutex(mixer->ss.mutex);
+
+   if (mixer->ss.gain != new_gain) {
+      mixer->ss.gain = new_gain;
+
+      for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
+         ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&mixer->streams, i);
+         _al_kcm_mixer_rejig_sample_matrix(mixer, *slot);
+      }
+   }
+
+   maybe_unlock_mutex(mixer->ss.mutex);
+
+   return true;
 }
 
 
