@@ -386,6 +386,21 @@ void al_draw_tinted_scaled_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
 }
 
 
+/* Function: al_draw_tinted_scaled_rotated_bitmap_region
+ */
+void al_draw_tinted_scaled_rotated_bitmap_region(ALLEGRO_BITMAP *bitmap,
+   float sx, float sy, float sw, float sh,
+   ALLEGRO_COLOR tint,
+   float cx, float cy, float dx, float dy, float xscale, float yscale,
+   float angle, int flags)
+{
+   _draw_tinted_rotated_scaled_bitmap_region(bitmap, tint,
+      cx, cy, angle,
+      xscale, yscale,
+      sx, sy, sw, sh, dx, dy, flags);
+}
+
+
 /* Function: al_draw_scaled_rotated_bitmap
  */
 void al_draw_scaled_rotated_bitmap(ALLEGRO_BITMAP *bitmap,

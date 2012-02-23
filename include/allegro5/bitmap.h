@@ -138,6 +138,12 @@ AL_FUNC(void, al_draw_tinted_bitmap_region, (ALLEGRO_BITMAP *bitmap, ALLEGRO_COL
 AL_FUNC(void, al_draw_tinted_scaled_bitmap, (ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, int flags));
 AL_FUNC(void, al_draw_tinted_rotated_bitmap, (ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint, float cx, float cy, float dx, float dy, float angle, int flags));
 AL_FUNC(void, al_draw_tinted_scaled_rotated_bitmap, (ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint, float cx, float cy, float dx, float dy, float xscale, float yscale, float angle, int flags));
+AL_FUNC(void, al_draw_tinted_scaled_rotated_bitmap_region, (
+   ALLEGRO_BITMAP *bitmap,
+   float sx, float sy, float sw, float sh,
+   ALLEGRO_COLOR tint,
+   float cx, float cy, float dx, float dy, float xscale, float yscale,
+   float angle, int flags));
 
 /* Locking */
 AL_FUNC(ALLEGRO_LOCKED_REGION*, al_lock_bitmap, (ALLEGRO_BITMAP *bitmap, int format, int flags));

@@ -696,6 +696,21 @@ bitmap with the given color.
 
 See also: [al_draw_tinted_bitmap]
 
+### API: al_draw_tinted_scaled_rotated_bitmap_region
+
+Like [al_draw_tinted_scaled_rotated_bitmap] but you specify an area
+within the bitmap to be drawn.
+
+You can get the same effect with a sub bitmap:
+
+    al_draw_tinted_scaled_rotated_bitmap(bitmap, sx, sy, sw, sh, tint, cx, cy, dx, dy, xscale, yscale, angle, flags)
+    
+    /* This draws the same (note the different offset): */
+    sub_bitmap = al_create_sub_bitmap(bitmap, sx, sy, sw, sh)
+    al_draw_tinted_scaled_rotated_bitmap(sub_bitmap, tint, cx - sx, cy - sy, dx, dy, xscale, yscale, angle, flags)
+
+See also: [al_draw_tinted_bitmap]
+
 ### API: al_draw_scaled_bitmap
 
 Draws a scaled version of the given bitmap to the target bitmap.
