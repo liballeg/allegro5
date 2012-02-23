@@ -46,12 +46,12 @@ protected:
    Camera *mCamera;
 
 public:
-   void setup(int w, int h)
+   void setup(ALLEGRO_DISPLAY *display)
    {
       createRoot();
       defineResources();
       setupRenderSystem();
-      createRenderWindow(w, h);
+      createRenderWindow(display);
       initializeResourceGroups();
       chooseSceneManager();
       createCamera();
@@ -102,15 +102,17 @@ private:
       }
    }
 
-   void createRenderWindow(int w, int h)
+   void createRenderWindow(ALLEGRO_DISPLAY *display)
    {
+      int w = al_get_display_width(display);
+      int h = al_get_display_height(display);
+
       // Initialise Ogre without creating a window.
       mRoot->initialise(false);
 
       Ogre::NameValuePairList misc;
-
       #ifdef ALLEGRO_WINDOWS
-      unsigned long winHandle      = reinterpret_cast<size_t>(al_get_win_window_handle(al_get_current_display()));
+      unsigned long winHandle      = reinterpret_cast<size_t>(al_get_win_window_handle(display));
       unsigned long winGlContext   = reinterpret_cast<size_t>(wglGetCurrentContext());
       misc["externalWindowHandle"] = StringConverter::toString(winHandle);
       misc["externalGLContext"]    = StringConverter::toString(winGlContext);
@@ -118,7 +120,6 @@ private:
       #else
       misc["currentGLContext"] = String("True");
       #endif
-      
 
       mWindow = mRoot->createRenderWindow("MainRenderWindow", w, h, false,
          &misc);
@@ -261,9 +262,7 @@ void Example::createScene()
 
 void Example::setup()
 {
-   int w = al_get_display_width(display);
-   int h = al_get_display_height(display);
-   Application::setup(w, h);
+   Application::setup(display);
 
    const double BPS = 60.0;
    timer = al_create_timer(1.0 / BPS);
@@ -465,3 +464,5 @@ int main(int argc, char *argv[])
 
    return 0;
 }
+
+/* vim: set sts=3 sw=3 et: */
