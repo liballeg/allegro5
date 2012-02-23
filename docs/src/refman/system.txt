@@ -161,3 +161,9 @@ Returns the current system configuration structure, or NULL if
 there is no active system driver.
 This is mainly used for configuring Allegro and its addons.
 
+## API: al_register_assert_handler
+
+Register a function to be called when an internal Allegro assertion fails.
+Pass NULL to reset to the default behaviour, which is to do whatever the
+standard `assert()` macro does.
+

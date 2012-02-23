@@ -59,6 +59,11 @@ static TRACE_INFO trace_info =
 };
 
 
+/* run-time assertions */
+void (*_al_user_assert_handler)(char const *expr, char const *file,
+   int line, char const *func);
+
+
 /* dynamic registration system for cleanup code */
 struct al_exit_func {
    void (*funcptr)(void);
@@ -369,6 +374,16 @@ void _al_trace_suffix(const char *msg, ...)
    _al_mutex_unlock(&trace_info.trace_mutex);
 
    errno = olderr;
+}
+
+
+
+/* Function: al_register_assert_handler
+ */
+void al_register_assert_handler(void (*handler)(char const *expr,
+   char const *file, int line, char const *func))
+{
+   _al_user_assert_handler = handler;
 }
 
 
