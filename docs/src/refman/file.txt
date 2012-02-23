@@ -81,6 +81,42 @@ set with [al_set_new_file_interface].
 
 See also: [al_fopen]
 
+## API: al_fopen_slice
+
+Opens a slice (subset) of an already open random access file as if it were
+a stand alone file. While the slice is open, the parent file handle must
+not be used in any way.
+
+The slice is opened at the current location of the parent file, up through
+`initial_size` bytes. The `initial_size` may be any non-negative integer
+that will not exceed the bounds of the parent file.
+
+Seeking with `ALLEGRO_SEEK_SET` will be relative to this starting location.
+`ALLEGRO_SEEK_END` will be relative to the starting location plus the 
+size of the slice.
+
+The mode can be any combination of:
+
+* r: read access
+* w: write access
+* e: expandable
+
+For example, a mode of "rw" indicates the file can be read and written. 
+(Note that this is slightly different from the stdio modes.) Keep in mind
+that the parent file must support random access and be open in normal
+write mode (not append) for the slice to work in a well defined way.
+
+If the slice is marked as expandable, then reads and writes can happen
+after the initial end point, and the slice will grow accordingly. Otherwise,
+all activity is restricted to the initial size of the slice.
+
+A slice must be closed with [al_fclose]. The parent file will then be
+positioned immediately after the end of the slice.
+
+Since 5.1
+
+See also: [al_fopen]
+
 ## API: al_fclose
 
 Close the given file, writing any buffered output data (if any).

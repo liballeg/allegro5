@@ -80,6 +80,10 @@ AL_FUNC(ALLEGRO_FILE*, al_fopen_fd, (int fd, const char *mode));
 AL_FUNC(ALLEGRO_FILE*, al_make_temp_file, (const char *tmpl,
       ALLEGRO_PATH **ret_path));
 
+/* Specific to slices. */
+AL_FUNC(ALLEGRO_FILE*, al_fopen_slice, (ALLEGRO_FILE *fp,
+      size_t initial_size, const char *mode));
+
 /* Thread-local state. */
 AL_FUNC(const ALLEGRO_FILE_INTERFACE *, al_get_new_file_interface, (void));
 AL_FUNC(void, al_set_new_file_interface, (const ALLEGRO_FILE_INTERFACE *
