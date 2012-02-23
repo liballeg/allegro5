@@ -110,7 +110,15 @@ static bool init_dynlib(void)
 
    _al_add_exit_func(shutdown_dynlib, "shutdown_dynlib");
 
-   #define INITSYM(x)   (lib.x = _al_import_symbol(flac_dll, #x))
+   #define INITSYM(x)                                                         \
+      do                                                                      \
+      {                                                                       \
+         lib.x = _al_import_symbol(flac_dll, #x);                             \
+         if (lib.x == 0) {                                                    \
+            ALLEGRO_ERROR("undefined symbol in lib structure: " #x "\n");     \
+            return false;                                                     \
+         }                                                                    \
+      } while(0)
 #else
    #define INITSYM(x)   (lib.x = (x))
 #endif
@@ -126,20 +134,6 @@ static bool init_dynlib(void)
    INITSYM(FLAC__stream_decoder_seek_absolute);
    INITSYM(FLAC__stream_decoder_flush);
    INITSYM(FLAC__stream_decoder_finish);
-
-   /* Check that all symbols are defined. */
-   {
-      intptr_t *p = (void *) &lib;
-      size_t n = sizeof(lib) / sizeof(void *);
-      unsigned i;
-
-      for (i = 0; i < n; i++) {
-         if (p[i] == 0) {
-            ALLEGRO_ERROR("undefined symbol in lib structure\n");
-            return false;
-         }
-      }
-   }
 
    return true;
 
