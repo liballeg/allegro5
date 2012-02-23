@@ -2,6 +2,11 @@ if(NOT ALLEGRO_LINK_WITH OR NOT ALLEGRO_MAIN_LINK_WITH OR
         NOT IMAGE_LINK_WITH OR NOT COLOR_LINK_WITH OR
         NOT FONT_LINK_WITH OR NOT TTF_LINK_WITH OR
         NOT PRIMITIVES_LINK_WITH)
+    message(STATUS "Not building tests due to missing library. "
+        "Have: ${ALLEGRO_LINK_WITH} ${ALLEGRO_MAIN_LINK_WITH} "
+        "${IMAGE_LINK_WITH} ${COLOR_LINK_WITH} "
+        "${FONT_LINK_WITH} ${TTF_LINK_WITH} "
+        "${PRIMITIVES_LINK_WITH}")
     return()
 endif()
 
