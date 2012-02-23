@@ -937,7 +937,19 @@ Set the region of the target bitmap or display that
 pixels get clipped to. The default is to clip pixels
 to the entire bitmap.
 
-See also: [al_get_clipping_rectangle]
+See also: [al_get_clipping_rectangle], [al_reset_clipping_rectangle]
+
+### API: al_reset_clipping_rectangle
+
+Equivalent to calling `al_set_clipping_rectangle(0, 0, w, h)'
+where *w* and *h* are the width and height of the target bitmap
+respectively.
+
+Does nothing if there is no target bitmap.
+
+See also: [al_set_clipping_rectangle]
+
+Since: 5.1.0
 
 
 

@@ -611,6 +611,21 @@ void al_set_clipping_rectangle(int x, int y, int width, int height)
 
 
 
+/* Function: al_reset_clipping_rectangle
+ */
+void al_reset_clipping_rectangle(void)
+{
+   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
+
+   if (bitmap) {
+      int w = al_get_bitmap_width(bitmap);
+      int h = al_get_bitmap_height(bitmap);
+      al_set_clipping_rectangle(0, 0, w, h);
+   }
+}
+
+
+
 /* Function: al_get_clipping_rectangle
  */
 void al_get_clipping_rectangle(int *x, int *y, int *w, int *h)
