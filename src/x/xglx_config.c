@@ -236,6 +236,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_new(ALLEGRO_DISPLAY_XGLX *gl
 #endif
       eds[j]->score = _al_score_display_settings(eds[j], ref);
       if (eds[j]->score == -1) {
+         al_free(eds[j]);
          continue;
       }
       eds[j]->index = i;
@@ -366,6 +367,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_old(int *eds_count)
 #endif
       eds[j]->score = _al_score_display_settings(eds[j], ref);
       if (eds[j]->score == -1) {
+         al_free(eds[j]);
          continue;
       }
       eds[j]->index = i;
