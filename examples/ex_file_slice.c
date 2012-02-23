@@ -27,12 +27,12 @@ static ALLEGRO_FILE *get_next_chunk(ALLEGRO_FILE *file)
    return !al_feof(file) ? al_fopen_slice(file, length, "rw") : NULL;
 }
 
+#define BUFFER_SIZE 1024
+
 int main(int argc, const char *argv[])
 {
    ALLEGRO_FILE *master, *slice;
    ALLEGRO_PATH *tmp_path;
-
-   const int BUFFER_SIZE = 1024;
 
    const char *first_string = "Hello, World!";
    const char *second_string = "The quick brown fox jumps over the lazy dog.";
