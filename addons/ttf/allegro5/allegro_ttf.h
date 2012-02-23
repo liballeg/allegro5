@@ -8,8 +8,9 @@
    extern "C" {
 #endif
 
-#define ALLEGRO_TTF_NO_KERNING 1
-#define ALLEGRO_TTF_MONOCHROME 2
+#define ALLEGRO_TTF_NO_KERNING  1
+#define ALLEGRO_TTF_MONOCHROME  2
+#define ALLEGRO_TTF_NO_AUTOHINT 4
 
 #if (defined ALLEGRO_MINGW32) || (defined ALLEGRO_MSVC) || (defined ALLEGRO_BCC32)
    #ifndef ALLEGRO_STATICLINK
