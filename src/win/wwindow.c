@@ -442,8 +442,8 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
           RAWMOUSE *rm = &raw->data.mouse;
           int x = raw->data.mouse.lLastX;
           int y = raw->data.mouse.lLastY;
-          bool abs = rm->usFlags & (MOUSE_MOVE_ABSOLUTE
-                                 || MOUSE_VIRTUAL_DESKTOP);
+          bool abs = (rm->usFlags & (MOUSE_MOVE_ABSOLUTE
+                                    | MOUSE_VIRTUAL_DESKTOP)) != 0;
           if (abs || x || y)
              _al_win_mouse_handle_move(x, y, abs, win_display);
 
