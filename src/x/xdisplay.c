@@ -460,12 +460,16 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    
    set_size_hints(display, x_off, y_off);
    
+   XLockDisplay(system->x11display);
+   
    d->wm_delete_window_atom = XInternAtom(system->x11display,
       "WM_DELETE_WINDOW", False);
    XSetWMProtocols(system->x11display, d->window, &d->wm_delete_window_atom, 1);
 
    XMapWindow(system->x11display, d->window);
    ALLEGRO_DEBUG("X11 window mapped.\n");
+   
+   XUnlockDisplay(system->x11display);
 
    /* Send the pending request to the X server. */
    XSync(system->x11display, False);
