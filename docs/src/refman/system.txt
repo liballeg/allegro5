@@ -131,6 +131,8 @@ Python wrapper. Allegro would then by default think that the system's
 Python executable is the current executable - but you can set it to
 the .py file being executed instead.
 
+Since: 5.1.0
+
 See also: [al_get_standard_path]
 
 ## API: al_set_app_name
