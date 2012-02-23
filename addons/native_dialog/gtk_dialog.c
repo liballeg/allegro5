@@ -573,7 +573,7 @@ struct ARGS
 static void build_menu(GtkWidget *gmenu, ALLEGRO_MENU *amenu);
 
 /* [user thread] */
-bool clear_menu_extras(ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int index, void *extra)
+static bool clear_menu_extras(ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int index, void *extra)
 {
    (void) index;
    (void) extra;
@@ -607,7 +607,7 @@ static gboolean release_args(gpointer data)
 }
 
 /* [user thread] */
-void *create_args()
+static void *create_args(void)
 {
    ARGS *args = al_malloc(sizeof(*args));
    if (args) {
@@ -631,7 +631,7 @@ static ARGS *make_menu_item_args(ALLEGRO_MENU_ITEM *item, int i)
 }
 
 /* [user thread] */
-bool wait_for_args(GSourceFunc func, void *data)
+static bool wait_for_args(GSourceFunc func, void *data)
 {
    ARGS *args = (ARGS *) data;
    bool response;
