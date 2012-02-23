@@ -116,9 +116,9 @@ is 0xFFFF0000.
 > But you can *not* rely on this code:
 >
 >     *(pixel + 2)
-
-It will return the red component on little endian systems, but the
-green component on big endian systems.
+>
+> It will return the red component on little endian systems, but the
+> green component on big endian systems.
 
 Also note that Allegro's naming is different from OpenGL naming here,
 where a format of GL_RGBA8 merely defines the component order and the
