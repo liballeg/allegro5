@@ -294,8 +294,12 @@ The following flags are supported:
 
 * ALLEGRO_TTF_NO_KERNING - Do not use any kerning even if the font file
   supports it.
-* ALLEGRO_TTF_MONOCHROME - Load as a monochrome font (Which means no
-  anti-aliasing of the font is done)
+
+* ALLEGRO_TTF_MONOCHROME - Load as a monochrome font (which means no
+  anti-aliasing of the font is done).
+
+* ALLEGRO_TTF_NO_AUTOHINT - Disable the Auto Hinter which is enabled by default
+  in newer versions of FreeType. Since: 5.1.2
 
 See also: [al_init_ttf_addon], [al_load_ttf_font_f]
 
