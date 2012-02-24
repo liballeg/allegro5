@@ -31,7 +31,11 @@
 #endif
 
 #ifdef ALLEGRO_IPHONE
+#define GL_FRAMEBUFFER_EXT GL_FRAMEBUFFER_OES
+#define GL_FRAMEBUFFER_BINDING_EXT GL_FRAMEBUFFER_BINDING_OES
 #define glGenerateMipmapEXT glGenerateMipmapOES
+#define glBindFramebufferEXT glBindFramebufferOES
+#define glDeleteFramebuffersEXT glDeleteFramebuffersOES
 #endif
 
 ALLEGRO_DEBUG_CHANNEL("opengl")
@@ -382,10 +386,16 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
 
    if (ogl_bitmap->texture == 0) {
       glGenTextures(1, &ogl_bitmap->texture);
-      ALLEGRO_DEBUG("Created new OpenGL texture %d (%dx%d, format %s)\n",
+      e = glGetError();
+      if (e) {
+         ALLEGRO_ERROR("glGenTextures failed: %s\n", _al_gl_error_string(e));
+      }
+      else {
+         ALLEGRO_DEBUG("Created new OpenGL texture %d (%dx%d, format %s)\n",
                     ogl_bitmap->texture,
                     ogl_bitmap->true_w, ogl_bitmap->true_h,
                     _al_format_name(bitmap->format));
+      }
    }
    glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
    e = glGetError();
@@ -636,7 +646,8 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       if (flags & ALLEGRO_LOCK_WRITEONLY) {
          ALLEGRO_DEBUG("Locking non-backbuffer WRITEONLY\n");
 
-         pitch = ogl_pitch(w, pixel_size);
+         pitch = w * pixel_size;
+
          ogl_bitmap->lock_buffer = al_malloc(pitch * h);
          bitmap->locked_region.data = ogl_bitmap->lock_buffer +
             pitch * (h - 1);
@@ -648,9 +659,9 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
          unsigned char *tmpbuf;
          int tmp_pitch;
          #endif
-      
-         ALLEGRO_DEBUG("Locking non-backbuffer READWRITE\n");
 
+         ALLEGRO_DEBUG("Locking non-backbuffer READWRITE\n");
+      
          /* Create an FBO if there isn't one. */
          if (!ogl_bitmap->fbo_info) {
             old_target = al_get_target_bitmap();
@@ -663,6 +674,8 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
             bitmap->locked = true;
          }
          
+         ALLEGRO_DEBUG("Locking non-backbuffer READWRITE\n");
+
          if (ogl_bitmap->fbo_info) {
             glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &current_fbo);
             
@@ -670,7 +683,6 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
                glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ogl_bitmap->fbo_info->fbo);
             pitch = ogl_pitch(w, pixel_size);
             ogl_bitmap->lock_buffer = al_malloc(pitch * h);
-           
 
 #ifdef ALLEGRO_IPHONE
             tmp_pitch = ogl_pitch(w, 4);
@@ -711,7 +723,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
                pitch * (h - 1);
          }
          else {
-#ifndef ALLEGRO_ANDROID
+#if !defined ALLEGRO_ANDROID && !defined ALLEGRO_IPHONE
             /* No FBO - fallback to reading the entire texture */
             pitch = ogl_pitch(ogl_bitmap->true_w, pixel_size);
             ogl_bitmap->lock_buffer = al_malloc(pitch * ogl_bitmap->true_h);
@@ -805,10 +817,10 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 #endif
    lock_pixel_size = al_get_pixel_size(lock_format);
    pixel_alignment = ogl_pixel_alignment(lock_pixel_size);
-   glPixelStorei(GL_UNPACK_ALIGNMENT, pixel_alignment);
+   glPixelStorei(GL_PACK_ALIGNMENT, pixel_alignment);
    e = glGetError();
    if (e) {
-      ALLEGRO_ERROR("glPixelStorei(GL_UNPACK_ALIGNMENT, %d) failed (%s).\n",
+      ALLEGRO_ERROR("glPixelStorei(GL_PACK_ALIGNMENT, %d) failed (%s).\n",
          pixel_alignment, _al_gl_error_string(e));
    }
 
@@ -890,88 +902,58 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 #endif
    else {
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
-      if (ogl_bitmap->fbo_info) {
-         if (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY) {
-            int dst_pitch = bitmap->lock_w * ogl_pixel_alignment(orig_pixel_size);
-            unsigned char *tmpbuf = al_malloc(dst_pitch * bitmap->lock_h);
-            
-            ALLEGRO_DEBUG("Unlocking non-backbuffer WRITEONLY\n");
-            
-            _al_convert_bitmap_data(
-               ogl_bitmap->lock_buffer,
-               bitmap->locked_region.format,
-               -bitmap->locked_region.pitch,
-               tmpbuf,
-               orig_format,
-               dst_pitch,
-               0, 0, 0, 0,
-               bitmap->lock_w, bitmap->lock_h);
+      if (!ogl_bitmap->fbo_info ||
+            (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY)) {
+         int dst_pitch = bitmap->lock_w * ogl_pixel_alignment(orig_pixel_size);
+         unsigned char *tmpbuf = al_malloc(dst_pitch * bitmap->lock_h);
+         
+         ALLEGRO_DEBUG("Unlocking non-backbuffer with conversion\n");
 
-            glTexSubImage2D(GL_TEXTURE_2D, 0,
-               bitmap->lock_x, gl_y,
-               bitmap->lock_w, bitmap->lock_h,
-               glformats[orig_format][2],
-               glformats[orig_format][1],
-               tmpbuf);
-            al_free(tmpbuf);
-            e = glGetError();
-            if (e) {
-               ALLEGRO_ERROR("glTexSubImage2D for format %d failed (%s).\n",
-                  lock_format, _al_gl_error_string(e));
-            }
-         }
-         else {
-            ALLEGRO_DEBUG("Unlocking non-backbuffer READWRITE\n");
-            glTexSubImage2D(GL_TEXTURE_2D, 0, bitmap->lock_x, gl_y,
-               bitmap->lock_w, bitmap->lock_h,
-               glformats[lock_format][2],
-               glformats[lock_format][1],
-               ogl_bitmap->lock_buffer);
-            e = glGetError();
-            if (e) {
-               GLint tex_internalformat;
-               (void)tex_internalformat;
-               ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
-                  _al_format_name(lock_format), _al_gl_error_string(e));
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
-               glGetTexLevelParameteriv(GL_TEXTURE_2D, 0,
-                  GL_TEXTURE_INTERNAL_FORMAT, &tex_internalformat);
+         _al_convert_bitmap_data(
+            ogl_bitmap->lock_buffer,
+            bitmap->locked_region.format,
+            -bitmap->locked_region.pitch,
+            tmpbuf,
+            orig_format,
+            dst_pitch,
+            0, 0, 0, 0,
+            bitmap->lock_w, bitmap->lock_h);
 
-               ALLEGRO_DEBUG("x/y/w/h: %d/%d/%d/%d, internal format: %d\n",
-                  bitmap->lock_x, gl_y, bitmap->lock_w, bitmap->lock_h,
-                  tex_internalformat);
-#endif
-            }
-         }
-      }
-      else {
-#ifndef ALLEGRO_ANDROID
-         unsigned char *start_ptr;
-         if (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY) {
-            ALLEGRO_DEBUG("Unlocking non-backbuffer WRITEONLY (fallback)\n");
-            start_ptr = ogl_bitmap->lock_buffer;
-         }
-         else {
-            ALLEGRO_DEBUG("Unlocking non-backbuffer READWRITE (fallback)\n");
-            glPixelStorei(GL_UNPACK_ROW_LENGTH, ogl_bitmap->true_w);
-            start_ptr = (unsigned char *)bitmap->locked_region.data
-                  + (bitmap->lock_h - 1) * bitmap->locked_region.pitch;
-         }
          glTexSubImage2D(GL_TEXTURE_2D, 0,
             bitmap->lock_x, gl_y,
             bitmap->lock_w, bitmap->lock_h,
-            glformats[lock_format][2],
-            glformats[lock_format][1],
-            start_ptr);
+            glformats[orig_format][2],
+            glformats[orig_format][1],
+            tmpbuf);
+         al_free(tmpbuf);
          e = glGetError();
          if (e) {
+            ALLEGRO_ERROR("glTexSubImage2D for format %d failed (%s).\n",
+               lock_format, _al_gl_error_string(e));
+         }
+      }
+      else {
+         ALLEGRO_DEBUG("Unlocking non-backbuffer without conversion\n");
+         glTexSubImage2D(GL_TEXTURE_2D, 0, bitmap->lock_x, gl_y,
+            bitmap->lock_w, bitmap->lock_h,
+            glformats[lock_format][2],
+            glformats[lock_format][1],
+            ogl_bitmap->lock_buffer);
+         e = glGetError();
+         if (e) {
+            GLint tex_internalformat;
+            (void)tex_internalformat;
             ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
                _al_format_name(lock_format), _al_gl_error_string(e));
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+            glGetTexLevelParameteriv(GL_TEXTURE_2D, 0,
+               GL_TEXTURE_INTERNAL_FORMAT, &tex_internalformat);
+
+            ALLEGRO_DEBUG("x/y/w/h: %d/%d/%d/%d, internal format: %d\n",
+               bitmap->lock_x, gl_y, bitmap->lock_w, bitmap->lock_h,
+               tex_internalformat);
+#endif
          }
-#else
-         /* Unreachable on Android. */
-         abort();
-#endif /* !ALLEGRO_ANDROID */
       }
 
       if (bitmap->flags & ALLEGRO_MIPMAP) {
@@ -1169,7 +1151,7 @@ void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
    bool remove_fbo = false;
    GLint orig_fbo;
    int src_pixel_size, src_pitch;
-   
+
    ASSERT(bitmap != NULL);
    ASSERT(ptr != NULL);
    
