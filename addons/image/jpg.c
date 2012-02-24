@@ -371,7 +371,7 @@ ALLEGRO_BITMAP *_al_load_jpg(char const *filename, int flags)
    ALLEGRO_FILE *fp;
    ALLEGRO_BITMAP *bmp;
 
-   ASSERT(filename);
+   ALLEGRO_ASSERT(filename);
 
    fp = al_fopen(filename, "rb");
    if (!fp)
@@ -389,8 +389,8 @@ bool _al_save_jpg(char const *filename, ALLEGRO_BITMAP *bmp)
    ALLEGRO_FILE *fp;
    bool result;
 
-   ASSERT(filename);
-   ASSERT(bmp);
+   ALLEGRO_ASSERT(filename);
+   ALLEGRO_ASSERT(bmp);
 
    fp = al_fopen(filename, "wb");
    if (!fp) {

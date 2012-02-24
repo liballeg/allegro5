@@ -167,6 +167,8 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
     display->flags = al_get_new_display_flags();
     int adapter;
 
+    printf("1) e=%d\n", glGetError());
+
     adapter = al_get_new_display_adapter();
     if (adapter < 0)
        adapter = 0;
@@ -174,11 +176,13 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
     if (display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
         _al_iphone_get_screen_size(adapter, &w, &h);
     }
+    printf("2) e=%d\n", glGetError());
 
     display->w = w;
     display->h = h;
     
     ALLEGRO_SYSTEM_IPHONE *system = (void *)al_get_system_driver();
+    printf("3) e=%d\n", glGetError());
 
     /* Add ourself to the list of displays. */
     ALLEGRO_DISPLAY_IPHONE **add;
@@ -187,8 +191,10 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
     
     /* Each display is an event source. */
     _al_event_source_init(&display->es);
+    printf("4) e=%d\n", glGetError());
 
    _al_iphone_update_visuals();
+    printf("5) e=%d\n", glGetError());
 
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds[system->visuals_count];
    memcpy(eds, system->visuals, sizeof(*eds) * system->visuals_count);
@@ -197,21 +203,27 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
    ALLEGRO_INFO("Chose visual no. %i\n", eds[0]->index); 
 
    memcpy(&display->extra_settings, eds[0], sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
+    printf("6) e=%d\n", glGetError());
 
    /* This will add an OpenGL view with an OpenGL context, then return. */
    if (!_al_iphone_add_view(display)) {
       /* FIXME: cleanup */
       return NULL;
    }
+    printf("7) e=%d\n", glGetError());
 
    _al_iphone_make_view_current(display);
+    printf("8) e=%d\n", glGetError());
 
    /* FIXME: there is some sort of race condition somewhere. */
    al_rest(1.0);
 
    _al_ogl_manage_extensions(display);
+    printf("9) e=%d\n", glGetError());
    _al_ogl_set_extensions(ogl->extension_api);
+    printf("10) e=%d\n", glGetError());
    setup_gl(display);
+    printf("11) e=%d\n", glGetError());
     
    display->flags |= ALLEGRO_OPENGL;
 
@@ -318,7 +330,7 @@ static void iphone_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 }
 
 /* The window cannot be constrained. */
-static void iphone_get_window_constraints(ALLEGRO_DISPLAY *display,
+static bool iphone_get_window_constraints(ALLEGRO_DISPLAY *display,
    int *min_w, int *min_h, int *max_w, int *max_h)
 {
    (void)display;
