@@ -427,28 +427,16 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
     * NaN values in the texture cause some blending modes to fail on
     * those pixels
     */
+#ifndef ALLEGRO_IPHONE
    if (ogl_bitmap->true_w != bitmap->w ||
          ogl_bitmap->true_h != bitmap->h ||
          bitmap->format == ALLEGRO_PIXEL_FORMAT_ABGR_F32) {
       unsigned char *buf;
-      #ifdef ALLEGRO_IPHONE
-      {
-         int pix_size = al_get_pixel_size(bitmap->format);
-         buf = al_calloc(pix_size,
-            ogl_bitmap->true_h * ogl_bitmap->true_w);
-         glPixelStorei(GL_UNPACK_ALIGNMENT, pix_size);
-         glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
-            ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
-            glformats[bitmap->format][2],
-            glformats[bitmap->format][1], buf);
-      }
-      #else
       buf = al_calloc(ogl_bitmap->true_h, ogl_bitmap->true_w);
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
          ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
          GL_ALPHA, GL_UNSIGNED_BYTE, buf);
-      #endif
       e = glGetError();
       al_free(buf);
    }
@@ -459,6 +447,19 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
          NULL);
       e = glGetError();
    }
+#else
+   {
+      unsigned char *buf;
+      int pix_size = al_get_pixel_size(bitmap->format);
+      buf = al_calloc(pix_size,
+         ogl_bitmap->true_h * ogl_bitmap->true_w);
+      glPixelStorei(GL_UNPACK_ALIGNMENT, pix_size);
+      glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
+         ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
+         glformats[bitmap->format][2],
+         glformats[bitmap->format][1], buf);
+   }
+#endif
 
 #if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
    glPopClientAttrib();
@@ -817,10 +818,10 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 #endif
    lock_pixel_size = al_get_pixel_size(lock_format);
    pixel_alignment = ogl_pixel_alignment(lock_pixel_size);
-   glPixelStorei(GL_PACK_ALIGNMENT, pixel_alignment);
+   glPixelStorei(GL_UNPACK_ALIGNMENT, pixel_alignment);
    e = glGetError();
    if (e) {
-      ALLEGRO_ERROR("glPixelStorei(GL_PACK_ALIGNMENT, %d) failed (%s).\n",
+      ALLEGRO_ERROR("glPixelStorei(GL_UNPACK_ALIGNMENT, %d) failed (%s).\n",
          pixel_alignment, _al_gl_error_string(e));
    }
 
@@ -906,7 +907,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY)) {
          int dst_pitch = bitmap->lock_w * ogl_pixel_alignment(orig_pixel_size);
          unsigned char *tmpbuf = al_malloc(dst_pitch * bitmap->lock_h);
-         
+
          ALLEGRO_DEBUG("Unlocking non-backbuffer with conversion\n");
 
          _al_convert_bitmap_data(
@@ -918,6 +919,9 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             dst_pitch,
             0, 0, 0, 0,
             bitmap->lock_w, bitmap->lock_h);
+
+         pixel_alignment = ogl_pixel_alignment(orig_pixel_size);
+         glPixelStorei(GL_UNPACK_ALIGNMENT, pixel_alignment);
 
          glTexSubImage2D(GL_TEXTURE_2D, 0,
             bitmap->lock_x, gl_y,
