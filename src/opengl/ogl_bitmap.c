@@ -830,10 +830,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
        * so when storing such data we must ensure the alpha bit is set.
        */
       #if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
-      // Using 0.999 instead of 1 works around a bug on my macbook with
-      // IntelHD3000. With 1 the 555 bitmaps appear completely
-      // transparent.
-      glPixelTransferf(GL_ALPHA_BIAS, 0.999);
+      glPixelTransferf(GL_ALPHA_BIAS, 1.0);
       biased_alpha = true;
       #endif
    }
