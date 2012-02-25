@@ -643,6 +643,9 @@ static void fill_in_info_struct(const GLubyte *rendereru, OPENGL_INFO *info)
    else if (strstr(renderer, "Mesa DRI R200")) {
       info->is_ati_r200_chip = 1;
    }
+   else if (strstr(renderer, "Intel HD Graphics 3000 OpenGL Engine")) {
+      info->is_intel_hd_graphics_3000 = 1;
+   }
 
    if ((strncmp(renderer, "3Dfx/Voodoo3 ", 13) == 0)
        || (strncmp(renderer, "3Dfx/Voodoo2 ", 13) == 0)

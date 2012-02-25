@@ -825,7 +825,8 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          pixel_alignment, _al_gl_error_string(e));
    }
 
-   if (exactly_15bpp(lock_format)) {
+   if (!disp->ogl_extras->ogl_info.is_intel_hd_graphics_3000 &&
+         exactly_15bpp(lock_format)) {
       /* OpenGL does not support 15-bpp internal format without an alpha,
        * so when storing such data we must ensure the alpha bit is set.
        */

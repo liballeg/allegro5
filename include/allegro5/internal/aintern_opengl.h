@@ -76,6 +76,7 @@ typedef struct OPENGL_INFO {
    int is_ati_radeon_7000; /* Special cases for ATI Radeon 7000 */
    int is_ati_r200_chip;	/* Special cases for ATI card with chip R200 */
    int is_mesa_driver;     /* Special cases for MESA */
+   int is_intel_hd_graphics_3000;
 } OPENGL_INFO;
 
 
