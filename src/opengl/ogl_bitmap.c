@@ -833,7 +833,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       // Using 0.999 instead of 1 works around a bug on my macbook with
       // IntelHD3000. With 1 the 555 bitmaps appear completely
       // transparent.
-      glPixelTransferi(GL_ALPHA_BIAS, 0.999);
+      glPixelTransferf(GL_ALPHA_BIAS, 0.999);
       biased_alpha = true;
       #endif
    }
