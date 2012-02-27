@@ -1203,8 +1203,10 @@ void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
       e = glGetError();
       if (e) {
          ALLEGRO_ERROR("glTexImage2D for format %s failed (%s).\n",
-            _al_format_name(format), format, _al_gl_error_string(e));
+            _al_format_name(format), _al_gl_error_string(e));
+      }
 #if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+      if (e) {
          GLint tex_internalformat;
          glGetTexLevelParameteriv(GL_TEXTURE_2D, 0,
             GL_TEXTURE_INTERNAL_FORMAT, &tex_internalformat);
@@ -1212,8 +1214,8 @@ void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
          ALLEGRO_DEBUG("x/y/w/h: %d/%d/%d/%d, internal format: %d\n",
             0, 0, bitmap->lock_w, bitmap->lock_h,
             tex_internalformat);
-#endif
       }
+#endif
    }
    else {
       // FIXME: this really needs tested, I highly doubt it works at all - TF
