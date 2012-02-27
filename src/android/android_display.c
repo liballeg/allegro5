@@ -219,12 +219,12 @@ void _al_android_destroy_surface(JNIEnv *env, jobject surface, bool post)
 
 void  _al_android_make_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
 {
-   _jni_callBooleanMethodV(env, d->surface_object, "egl_makeCurrent", "()V");
+   _jni_callVoidMethodV(env, d->surface_object, "egl_makeCurrent", "()V");
 }
 
 void _al_android_clear_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
 {
-   _jni_callBooleanMethodV(env, d->surface_object, "egl_clearCurrent", "()V");
+   _jni_callVoidMethodV(env, d->surface_object, "egl_clearCurrent", "()V");
 }
 
 /*
@@ -311,7 +311,7 @@ bool _al_android_init_display(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *display)
    d->ogl_extras->backbuffer = _al_ogl_create_backbuffer(d);
 
    _al_android_setup_opengl_view(d);
-   _al_android_clear_current(_jni_getEnv(), display);
+   _al_android_clear_current(env, display);
    
    return true;
 }
@@ -415,6 +415,8 @@ static void _al_android_update_visuals(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
       eds->settings[ALLEGRO_GREEN_SIZE]     = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_GREEN_SIZE);
       eds->settings[ALLEGRO_BLUE_SIZE]      = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_BLUE_SIZE);
       eds->settings[ALLEGRO_ALPHA_SIZE]     = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_ALPHA_SIZE);
+      eds->settings[ALLEGRO_COLOR_SIZE]     = eds->settings[ALLEGRO_RED_SIZE] + eds->settings[ALLEGRO_GREEN_SIZE] + eds->settings[ALLEGRO_BLUE_SIZE] + eds->settings[ALLEGRO_ALPHA_SIZE];
+      
       eds->settings[ALLEGRO_DEPTH_SIZE]     = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_DEPTH_SIZE);
       eds->settings[ALLEGRO_STENCIL_SIZE]   = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_STENCIL_SIZE);
       eds->settings[ALLEGRO_SAMPLE_BUFFERS] = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_SAMPLE_BUFFERS);

@@ -52,12 +52,12 @@ bool al_init_image_addon(void)
             success |= al_register_bitmap_saver(extensions[i], _al_save_gdiplus_bitmap);
          }
 
-	     success |= al_register_bitmap_saver_f(".tif", _al_save_gdiplus_tif_f);
-	     success |= al_register_bitmap_saver_f(".tiff", _al_save_gdiplus_tif_f);
+         success |= al_register_bitmap_saver_f(".tif", _al_save_gdiplus_tif_f);
+         success |= al_register_bitmap_saver_f(".tiff", _al_save_gdiplus_tif_f);
          success |= al_register_bitmap_saver_f(".gif", _al_save_gdiplus_gif_f);
-	     success |= al_register_bitmap_saver_f(".png", _al_save_gdiplus_png_f);
-	     success |= al_register_bitmap_saver_f(".jpg", _al_save_gdiplus_jpg_f);
-	     success |= al_register_bitmap_saver_f(".jpeg", _al_save_gdiplus_jpg_f);	  
+         success |= al_register_bitmap_saver_f(".png", _al_save_gdiplus_png_f);
+         success |= al_register_bitmap_saver_f(".jpg", _al_save_gdiplus_jpg_f);
+         success |= al_register_bitmap_saver_f(".jpeg", _al_save_gdiplus_jpg_f);  
       }
    }
 #endif
@@ -74,15 +74,6 @@ bool al_init_image_addon(void)
          success |= al_register_bitmap_loader_f(extensions[i], _al_load_android_bitmap_f);
          //success |= al_register_bitmap_saver(extensions[i], _al_save_android_bitmap);
       }
-
-      /*
-      success |= al_register_bitmap_saver_f(".tif", _al_save_gdiplus_tif_f);
-      success |= al_register_bitmap_saver_f(".tiff", _al_save_gdiplus_tif_f);
-      success |= al_register_bitmap_saver_f(".gif", _al_save_gdiplus_gif_f);
-      success |= al_register_bitmap_saver_f(".png", _al_save_gdiplus_png_f);
-      success |= al_register_bitmap_saver_f(".jpg", _al_save_gdiplus_jpg_f);
-      success |= al_register_bitmap_saver_f(".jpeg", _al_save_gdiplus_jpg_f);    
-      */
    }
 #endif
 

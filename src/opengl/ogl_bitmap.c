@@ -1095,6 +1095,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    bitmap->extra = al_calloc(1, sizeof(ALLEGRO_BITMAP_EXTRA_OPENGL));
    ASSERT(bitmap->extra);
    extra = bitmap->extra;
+
    
    bitmap->vt = ogl_bitmap_driver();
    bitmap->pitch = pitch;
@@ -1162,6 +1163,14 @@ void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
    
    extra = bitmap->extra;
    
+   if(!extra->texture) {
+      glGenTextures(1, &extra->texture);
+      ALLEGRO_DEBUG("Created new OpenGL texture %d (%dx%d, format %s)\n",
+                  extra->texture,
+                  extra->true_w, extra->true_h,
+                  _al_format_name(bitmap->format));
+   }
+   
    if(!extra->fbo_info) {
       if(al_get_opengl_fbo(bitmap))
          remove_fbo = true; /* if we didn't already have an fbo, we /probably/ don't want to keep it around */
@@ -1170,14 +1179,6 @@ void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
    if(extra->fbo_info) {
       glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &orig_fbo);
       glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, extra->fbo_info->fbo);
-   }
-   
-   if(!extra->texture) {
-      glGenTextures(1, &extra->texture);
-      ALLEGRO_DEBUG("Created new OpenGL texture %d (%dx%d, format %s)\n",
-                  extra->texture,
-                  extra->true_w, extra->true_h,
-                  _al_format_name(bitmap->format));
    }
    
    glBindTexture(GL_TEXTURE_2D, extra->texture);
@@ -1194,16 +1195,17 @@ void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
    
    if(format == bitmap->format) {
       glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
-         bitmap->w, bitmap->h,
-         glformats[format][2],
-         glformats[format][1],
-         ptr);
+                      bitmap->w, bitmap->h,
+                      glformats[format][2],
+                      glformats[format][1],
+                      ptr);
+      
       e = glGetError();
       if (e) {
-         GLint tex_internalformat;
-         ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
-            _al_format_name(format), _al_gl_error_string(e));
+         ALLEGRO_ERROR("glTexImage2D for format %s failed (%s).\n",
+            _al_format_name(format), format, _al_gl_error_string(e));
 #if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+         GLint tex_internalformat;
          glGetTexLevelParameteriv(GL_TEXTURE_2D, 0,
             GL_TEXTURE_INTERNAL_FORMAT, &tex_internalformat);
 

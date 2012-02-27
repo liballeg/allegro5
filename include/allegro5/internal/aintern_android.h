@@ -41,14 +41,70 @@ bool _al_get_android_montior_info(int adapter, ALLEGRO_MONITOR_INFO *info);
 
 JNIEnv *_jni_getEnv();
 
-void _jni_checkException(JNIEnv *env);
+#define _jni_checkException(env) __jni_checkException(env, __FILE__, __FUNCTION__, __LINE__)
+void __jni_checkException(JNIEnv *env, const char *file, const char *fname, int line);
+
+#define _jni_call(env, rett, method, args...) ({ \
+   /*ALLEGRO_DEBUG("_jni_call: %s(%s)", #method, #args);*/ \
+   rett ret = (*env)->method(env, ##args); \
+   _jni_checkException(env); \
+   ret; \
+})
+
+#define _jni_callv(env, method, args...) ({ \
+   /*ALLEGRO_DEBUG("_jni_call: %s(%s)", #method, #args);*/ \
+   (*env)->method(env, ##args); \
+   _jni_checkException(env); \
+})
+
 jobject _jni_callObjectMethod(JNIEnv *env, jobject object, char *name, char *sig);
+jobject _jni_callObjectMethodV(JNIEnv *env, jobject object, char *name, char *sig, ...);
 ALLEGRO_USTR *_jni_getString(JNIEnv *env, jobject object);
 ALLEGRO_USTR *_jni_callStringMethod(JNIEnv *env, jobject obj, char *name, char *sig);
-void _jni_callVoidMethod(JNIEnv *env, jobject obj, char *name);
-void _jni_callVoidMethodV(JNIEnv *env, jobject obj, char *name, char *sig, ...);
-int _jni_callIntMethod(JNIEnv *env, jobject, char *name);
-int _jni_callIntMethodV(JNIEnv *env, jobject obj, char *name, char *sig, ...);
+//void _jni_callVoidMethod(JNIEnv *env, jobject obj, char *name);
+//void _jni_callVoidMethodV(JNIEnv *env, jobject obj, char *name, char *sig, ...);
+
+//int _jni_callIntMethod(JNIEnv *env, jobject, char *name);
+//int _jni_callIntMethodV(JNIEnv *env, jobject obj, char *name, char *sig, ...);
+
+#define _jni_callIntMethodV(env, obj, name, sig, args...) ({ \
+   /*ALLEGRO_DEBUG("_jni_callIntMethodV: %s (%s)", name, sig);*/ \
+   jclass class_id = _jni_call(env, jclass, GetObjectClass, obj); \
+   \
+   jmethodID method_id = _jni_call(env, jmethodID, GetMethodID, class_id, name, sig); \
+   \
+   int ret = -1; \
+   if(method_id == NULL) { \
+      ALLEGRO_DEBUG("couldn't find method :("); \
+   } \
+   else { \
+      ret = _jni_call(env, int, CallIntMethod, obj, method_id, ##args); \
+   } \
+   \
+   _jni_callv(env, DeleteLocalRef, class_id); \
+   \
+   ret; \
+})
+
+#define _jni_callIntMethod(env, obj, name) _jni_callIntMethodV(env, obj, name, "()I");
+
+#define _jni_callVoidMethodV(env, obj, name, sig, args...) ({ \
+   /*ALLEGRO_DEBUG("_jni_callVoidMethodV: %s (%s)", name, sig);*/ \
+   \
+   jclass class_id = _jni_call(env, jclass, GetObjectClass, obj); \
+   \
+   jmethodID method_id = _jni_call(env, jmethodID, GetMethodID, class_id, name, sig); \
+   if(method_id == NULL) { \
+      ALLEGRO_ERROR("couldn't find method :("); \
+   } else { \
+      _jni_callv(env, CallVoidMethod, obj, method_id, ##args); \
+   } \
+   \
+   _jni_callv(env, DeleteLocalRef, class_id); \
+})
+
+#define _jni_callVoidMethod(env, obj, name) _jni_callVoidMethodV(env, obj, name, "()V");
+
 bool _jni_callBooleanMethodV(JNIEnv *env, jobject obj, char *name, char *sig, ...);
 
 void _al_android_touch_input_handle_begin(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp);

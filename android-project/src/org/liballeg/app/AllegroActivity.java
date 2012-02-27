@@ -46,6 +46,8 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.egl.*;
 
+import org.liballeg.app.AllegroInputStream;
+
 public class AllegroActivity extends Activity implements SensorEventListener
 {
    /* properties */
@@ -206,18 +208,54 @@ public class AllegroActivity extends Activity implements SensorEventListener
 	 * rather than allocating another buffer and making you copy shit again
 	 * images are loaded as ARGB_8888 by android by default
 	 */
-   public Bitmap decodeBitmap(ByteBuffer src)
+   private Bitmap decodedBitmap;
+   private boolean bitmapLoaded;
+   
+   public Bitmap decodeBitmapByteArray(byte[] array)
    {
-      Bitmap bmp = null;
-      Log.d("AllegroActivity", "decodeBitmap begin");
+      Log.d("AllegroActivity", "decodeBitmapByteArray");
       try {
-         byte array[] = src.array();
-         bmp = BitmapFactory.decodeByteArray(array, 0, array.length);
+         BitmapFactory.Options options = new BitmapFactory.Options();
+         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+         Bitmap bmp = BitmapFactory.decodeByteArray(array, 0, array.length, options);
+         //Bitmap.Config conf = bmp.getConfig();
+         //switch(conf.
+         return bmp;
+      }
+      catch(Exception ex)
+      {
+         Log.e("AllegroActivity", "decodeBitmapByteArray exception: " + ex.getMessage());
+      }
+      
+      return null;
+   }
+   
+   public Bitmap decodeBitmap(final AllegroInputStream is)
+   {
+      Log.d("AllegroActivity", "decodeBitmap begin");
+      bitmapLoaded = false;
+      try {
+         //handler.post( new Runnable() {
+         //   public void run() {
+         //      Log.d("AllegroActivity", "calling decodeStream");
+         //      decodedBitmap = BitmapFactory.decodeStream(is);
+         //     bitmapLoaded = true;
+         //      Log.d("AllegroActivity", "done decodeStream");
+         //   }
+         //} );
+         
+         //Log.d("AllegroActivity", "waiting for decodeStream");
+         //while(bitmapLoaded == false) { Thread.sleep(20); }
+         BitmapFactory.Options options = new BitmapFactory.Options();
+         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+         decodedBitmap = BitmapFactory.decodeStream(is, null, options);
+         Log.d("AllegroActivity", "done waiting for decodeStream");
+         
       } catch(Exception ex) {
          Log.e("AllegroActivity", "decodeBitmap exception: " + ex.getMessage());
       }
       Log.d("AllegroActivity", "decodeBitmap end");
-      return bmp;
+      return decodedBitmap;
    }
    
    public void postFinish()
@@ -526,6 +564,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    static final int ALLEGRO_PIXEL_FORMAT_RGB_888 = 12;
    static final int ALLEGRO_PIXEL_FORMAT_RGB_565 = 13;
    static final int ALLEGRO_PIXEL_FORMAT_RGBA_5551 = 15;
+   static final int ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE = 25;
    static final int ALLEGRO_PIXEL_FORMAT_RGBA_4444 = 26;
 
    static final int ALLEGRO_RED_SIZE = 0;
@@ -1121,7 +1160,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
             break;
             
          case PixelFormat.RGBA_8888:
-            allegro_fmt = ALLEGRO_PIXEL_FORMAT_RGBA_8888;
+            allegro_fmt = ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE;
             break;
             
          case PixelFormat.RGB_565:
@@ -1336,5 +1375,6 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    
 
 }
+
 
 /* vim: set sts=3 sw=3 et: */

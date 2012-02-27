@@ -190,11 +190,11 @@ static ALLEGRO_BITMAP *do_create_bitmap(int w, int h)
       if (al_get_new_bitmap_flags() & ALLEGRO_VIDEO_BITMAP)
          return NULL;
       /* With ALLEGRO_CONVERT_BITMAP, just use a memory bitmap instead if
-       * video failed.
-       */
+      * video failed.
+      */
       return _al_create_memory_bitmap(w, h);
    }
-
+   
    /* We keep a list of bitmaps depending on the current display so that we can
     * convert them to memory bimaps when the display is destroyed. */
    back = _al_vector_alloc_back(&current_display->bitmaps);

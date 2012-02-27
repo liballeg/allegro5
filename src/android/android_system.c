@@ -25,11 +25,16 @@
 #include <dlfcn.h>
 #include <jni.h>
 
+#include "allegro5/allegro_opengl.h"
+#include "allegro5/internal/aintern_opengl.h"
+
 ALLEGRO_DEBUG_CHANNEL("android")
 
 struct system_data_t {
    JNIEnv *env;
    jobject activity_object;
+   jclass input_stream_class;
+   jclass illegal_argument_exception_class;
    
    ALLEGRO_SYSTEM_ANDROID *system;
    ALLEGRO_MUTEX *mutex;
@@ -50,13 +55,30 @@ struct system_data_t {
    int orientation;
 };
 
-static struct system_data_t system_data = { NULL, 0, NULL, NULL, NULL, NULL, false, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0 };
+static struct system_data_t system_data = { NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0 };
 static JavaVM* javavm;
 
 /* define here, so we have access to system_data */
 JNIEnv *_jni_getEnv()
 {
    return system_data.main_env;
+}
+
+void __jni_checkException(JNIEnv *env, const char *file, const char *func, int line)
+{
+   jthrowable exc;
+   
+   exc = (*env)->ExceptionOccurred(env);
+   if (exc) {
+      ALLEGRO_DEBUG("GOT AN EXCEPTION @ %s:%i %s", file, line, func);
+      /* We don't do much with the exception, except that
+         we print a debug message for it, clear it, and 
+         throw a new exception. */
+      (*env)->ExceptionDescribe(env);
+      (*env)->ExceptionClear(env);
+      (*env)->FatalError(env, "EXCEPTION");
+      //(*env)->ThrowNew(env, system_data.illegal_argument_exception_class, "thrown from C code");
+   }
 }
 
 jobject _al_android_activity_object()
@@ -131,6 +153,8 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
    ALLEGRO_USTR *lib_fname = NULL;
    const char *full_path = NULL;
    ALLEGRO_SYSTEM_ANDROID *na_sys = NULL;
+   jclass aisc;
+   jclass iae;
    
    // we're already initialized, we REALLY don't want to run all the stuff below again.
    if(system_data.system) {
@@ -148,6 +172,13 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
    ALLEGRO_DEBUG("grab activity global refs");
    system_data.env             = env;
    system_data.activity_object = (*env)->NewGlobalRef(env, obj);
+   
+   aisc = (*env)->FindClass(env, "org/liballeg/app/AllegroInputStream");
+   system_data.input_stream_class = (*env)->NewGlobalRef(env, aisc);
+   ALLEGRO_DEBUG("input_stream_class: %i", (int)system_data.input_stream_class);
+   
+   iae = (*env)->FindClass(env, "java/lang/IllegalArgumentException");
+   system_data.illegal_argument_exception_class = (*env)->NewGlobalRef(env, iae);
    
    ALLEGRO_DEBUG("create mutex and cond objects");
    system_data.mutex = al_create_mutex();
@@ -303,6 +334,8 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnDestroy(JNI
    }
    
    (*env)->DeleteGlobalRef(env, system_data.activity_object);
+   (*env)->DeleteGlobalRef(env, system_data.illegal_argument_exception_class);
+   (*env)->DeleteGlobalRef(env, system_data.input_stream_class);
    
    free(system_data.system);
    
@@ -366,6 +399,38 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeCreateDisplay
    ALLEGRO_DEBUG("nativeCreateDisplay end");
 }
 
+JNIEXPORT int JNICALL Java_org_liballeg_app_AllegroInputStream_nativeRead(JNIEnv *env, jobject obj, int handle, jbyteArray array, int offset, int length)
+{
+   ALLEGRO_FILE *fp = (ALLEGRO_FILE*)handle;
+   int ret = -1;
+   jbyte *array_ptr = NULL;
+   ASSERT(fp != NULL);
+   
+   (void)obj;
+   ALLEGRO_DEBUG("nativeRead begin: handle:%i fp:%p offset:%i length:%i", handle, fp, offset, length);
+   
+   int array_len = _jni_call(env, int, GetArrayLength, array);
+   ALLEGRO_DEBUG("array length: %i", array_len);
+   
+   array_ptr = _jni_call(env, jbyte *, GetByteArrayElements, array, NULL);
+   ASSERT(array_ptr != NULL);
+   
+   ALLEGRO_DEBUG("al_fread: p:%p, o:%i, l:%i", array_ptr, offset, length);
+   ret = al_fread(fp, array_ptr+offset, length);
+
+   _jni_callv(env, ReleaseByteArrayElements, array, array_ptr, 0);
+   
+   ALLEGRO_DEBUG("nativeRead end");
+   return ret;
+}
+
+JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroInputStream_nativeClose(JNIEnv *env, jobject obj, int hdnl)
+{
+   ALLEGRO_FILE *fp = (ALLEGRO_FILE*)hdnl;
+   (void)env;
+   (void)obj;
+   al_fclose(fp);
+}
 
 static void finish_activity(JNIEnv *env)
 {
@@ -457,90 +522,90 @@ ALLEGRO_PATH *_al_android_get_path(int id)
    return path;
 }
 
+/*
+ * load image using in memory buffer and a couple extra copies
 ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
 {
-	jobject byte_buffer;
-	jobject jbitmap;
-	void *buffer = 0;
-	int buffer_len = al_fsize(fh);
-	ALLEGRO_BITMAP *bitmap = NULL;
-   int bitmap_w = 0, bitmap_h = 0;
+   int buffer_len = al_fsize(fh);
+   ALLEGRO_BITMAP *bitmap = NULL;
+   int bitmap_w = 0, bitmap_h = 0, pitch = 0;
+   jbyteArray byteArray;
+   jbyte *buffer = NULL;
+   jobject jbitmap;
+   jobject byte_buffer;
    ALLEGRO_STATE state;
    
    ALLEGRO_DEBUG("load image begin");
-	/* we could implement a Java IO Stream class that call's allegro fshook functions
-	 * which would get rid of this first data copy on our end, but likely it doesn't save
-	 * the memory allocation at all */
-   /* looking at the skia image library that android uses for image loading,
-    * it at least loads png incrementally, so it will save this initiall buffer allocation */
    
+   // buffer +1 = 1, copies 1
+   byteArray = _jni_call(system_data.main_env, jbyteArray, NewByteArray, buffer_len);
+   buffer = _jni_call(system_data.main_env, jbyte*, GetByteArrayElements, byteArray, NULL);
    
-	buffer = al_malloc(buffer_len+10);
-	if(!buffer)
-		return NULL;
-	
-   ALLEGRO_DEBUG("malloced %i bytes ok", buffer_len);
+   int read_len = al_fread(fh, buffer, buffer_len);
+   if(read_len != buffer_len) {
+      ALLEGRO_ERROR("wanted %i bytes, only got %i", buffer_len, read_len);
+      return NULL;
+   }
    
-	if(al_fread(fh, buffer, buffer_len) != buffer_len) {
-		al_free(buffer);
-		return NULL;
-	}
-	
-	ALLEGRO_DEBUG("fread ok");
+   _jni_callv(system_data.main_env, ReleaseByteArrayElements, byteArray, buffer, 0);
    
-	byte_buffer = (*system_data.env)->NewDirectByteBuffer(system_data.env, buffer, buffer_len);
-	_jni_checkException(system_data.env);
-	
-   ALLEGRO_DEBUG("NewDirectByteBuffer ok");
+   // buffer +1 = 2, copies 2
+   jbitmap = _jni_callObjectMethodV(system_data.main_env, system_data.activity_object, "decodeBitmapByteArray", "([B)Landroid/graphics/Bitmap;", byteArray);
+   if(!jbitmap) {
+      ALLEGRO_ERROR("failed to decode bitmap :(");
+      return NULL;
+   }
    
-	jbitmap = _jni_callObjectMethod(system_data.env, system_data.activity_object, "decodeBitmap", "(Ljava/nio/ByteBuffer;)Landroid/graphics/Bitmap;");
-	
-   ALLEGRO_DEBUG("decodeBitmap ok");
+   // buffer -1 = 1
+   _jni_callv(system_data.main_env, DeleteLocalRef, byteArray);
    
-   (*system_data.env)->DeleteLocalRef(system_data.env, byte_buffer);
-   _jni_checkException(system_data.env);
+   bitmap_w = _jni_callIntMethod(system_data.main_env, jbitmap, "getWidth");
+   bitmap_h = _jni_callIntMethod(system_data.main_env, jbitmap, "getHeight");
+   pitch  = _jni_callIntMethod(system_data.main_env, jbitmap, "getRowBytes");
    
-   ALLEGRO_DEBUG("DeleteLocalRef ok");
+   buffer_len = pitch * bitmap_h;
    
-	free(buffer);
-	
-	
-	buffer_len = _jni_callIntMethod(system_data.env, jbitmap, "getByteCount");
-	
-   ALLEGRO_DEBUG("getByteCount ok");
+   ALLEGRO_DEBUG("bitmap w:%i, h:%i, pitch:%i, sz:%i bl:%i", bitmap_w, bitmap_h, pitch, bitmap_w * bitmap_h, buffer_len);
    
-	buffer = al_malloc(buffer_len);
-	if(!buffer)
-		return NULL;
-	
-   ALLEGRO_DEBUG("malloc %i bytes ok", buffer_len);
+   // buffer +1 = 2, copies 3
+   buffer = al_calloc(1, buffer_len);
+   if(!buffer) {
+      ALLEGRO_ERROR("failed to allocate memory");
+      return NULL;
+   }
    
-	byte_buffer = (*system_data.env)->NewDirectByteBuffer(system_data.env, buffer, buffer_len);
-	_jni_checkException(system_data.env);
-	
-   ALLEGRO_DEBUG("NewDirectByteBuffer 2 ok");
+   // FIXME: we can save a copy and allocation here by using the AndroidBitmap_lockPixels api, but that is only available on Android 2.2 and above.
+   byte_buffer = _jni_call(system_data.main_env, jobject, NewDirectByteBuffer, buffer, buffer_len);
+   if(!byte_buffer) {
+      ALLEGRO_ERROR("failed to allocate DirectByteBuffer");
+      return NULL;
+   }
    
-	_jni_callVoidMethodV(system_data.env, jbitmap, "copyPixelsToBuffer", "(Ljava/nio/ByteBuffer;)V", byte_buffer);
+   // copies 4
+   _jni_callVoidMethodV(system_data.main_env, jbitmap, "copyPixelsToBuffer", "(Ljava/nio/Buffer;)V", byte_buffer);
+   
+   // buffer -1 = 1
+   _jni_callv(system_data.main_env, DeleteLocalRef, jbitmap);
+   
+   // flip bitmap
+   ALLEGRO_DEBUG("do flip");
+   
+   // FIXME: this flipping code needs work.
 
-   ALLEGRO_DEBUG("copyPixelsToBuffer ok");
+   unsigned char *flipped = al_malloc(bitmap_w * bitmap_h * 4);
+   ASSERT(flipped != NULL);
    
-   // tell java we don't need the byte_buffer object
-   (*system_data.env)->DeleteLocalRef(system_data.env, byte_buffer);
-   _jni_checkException(system_data.env);
-
-   ALLEGRO_DEBUG("DeleteLocalRef 2 ok");
+   _al_convert_bitmap_data(buffer + pitch * (bitmap_h-1), ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, -pitch,
+                           flipped, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, bitmap_w * 4,
+                           0, 0, 0, 0, bitmap_w, bitmap_h);
    
-   // tell java we're done with the bitmap as well
-   (*system_data.env)->DeleteLocalRef(system_data.env, jbitmap);
-   _jni_checkException(system_data.env);
+   al_free(buffer);
    
-   ALLEGRO_DEBUG("DeleteLocalRef 3 ok");
+   ALLEGRO_DEBUG("done flip");
    
-   bitmap_w = _jni_callIntMethod(system_data.env, jbitmap, "getWidth");
-   bitmap_h = _jni_callIntMethod(system_data.env, jbitmap, "getHeight");
-
    al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE);
+   
    bitmap = al_create_bitmap(bitmap_w, bitmap_h);
    al_restore_state(&state);
    if(!bitmap) {
@@ -550,13 +615,105 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
 
    ALLEGRO_DEBUG("create bitmap ok");
    
-   _al_ogl_upload_bitmap_memory(bitmap, ALLEGRO_PIXEL_FORMAT_ARGB_8888, buffer);
+   // buffer +1, = 2, copies 5
+   ALLEGRO_DEBUG("bitmap->extra:%p", bitmap->extra);
+
+   _al_ogl_upload_bitmap_memory(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, flipped);
 
    ALLEGRO_DEBUG("upload bitmap memory ok");
+
+   // buffer -1 = 1
+   _jni_callv(system_data.main_env, DeleteLocalRef, byte_buffer);
+   //al_free(buffer);
+   
+   ALLEGRO_DEBUG("load image end");
+   return bitmap;
+   
+}*/
+
+
+ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
+{
+   jobject byte_buffer;
+   jobject jbitmap;
+
+   jmethodID input_stream_ctor;
+   jobject input_stream;
+   void *buffer = 0;
+   int buffer_len = al_fsize(fh);
+   ALLEGRO_BITMAP *bitmap = NULL;
+   int bitmap_w = 0, bitmap_h = 0;
+   ALLEGRO_STATE state;
+   
+   (void)flags;
+   
+   input_stream_ctor = _jni_call(system_data.main_env, jclass, GetMethodID, system_data.input_stream_class, "<init>", "(I)V");
+   
+   jint fhi = (jint)fh;
+   
+   input_stream = _jni_call(system_data.main_env, jobject, NewObject, system_data.input_stream_class, input_stream_ctor, fhi);
+
+   if(!input_stream) {
+      ALLEGRO_ERROR("failed to create new AllegroInputStream object");
+      return NULL;
+   }
+   
+   jbitmap = _jni_callObjectMethodV(system_data.main_env, system_data.activity_object, "decodeBitmap", "(Lorg/liballeg/app/AllegroInputStream;)Landroid/graphics/Bitmap;", input_stream);
+   ASSERT(jbitmap != NULL);
+   
+   _jni_callv(system_data.main_env, DeleteLocalRef, input_stream);
+
+   bitmap_w = _jni_callIntMethod(system_data.main_env, jbitmap, "getWidth");
+   bitmap_h = _jni_callIntMethod(system_data.main_env, jbitmap, "getHeight");
+   
+   int pitch = _jni_callIntMethod(system_data.main_env, jbitmap, "getRowBytes");
+   buffer_len = pitch * bitmap_h;
+   
+   ALLEGRO_DEBUG("bitmap size: %i", buffer_len);
+   
+   buffer = al_malloc(buffer_len);
+   if(!buffer)
+      return NULL;
+   
+   ALLEGRO_DEBUG("malloc %i bytes ok", buffer_len);
+   
+   // FIXME: at some point add support for the ndk AndroidBitmap api
+   //        need to check for header at build time, and android version at runtime
+   //        if thats even possible, might need to try and dynamically load the lib? I dunno.
+   //        That would get rid of this buffer allocation and copy.
+   byte_buffer = _jni_call(system_data.main_env, jobject, NewDirectByteBuffer, buffer, buffer_len);
+   
+   _jni_callVoidMethodV(system_data.main_env, jbitmap, "copyPixelsToBuffer", "(Ljava/nio/Buffer;)V", byte_buffer);
+   
+   // tell java we don't need the byte_buffer object
+   _jni_callv(system_data.main_env, DeleteLocalRef, byte_buffer);
+
+   // tell java we're done with the bitmap as well
+   _jni_callv(system_data.main_env, DeleteLocalRef, jbitmap);
+
+   unsigned char *flipped = al_malloc(bitmap_w * bitmap_h * 4);
+   ASSERT(flipped != NULL);
+   
+   _al_convert_bitmap_data(buffer + pitch * (bitmap_h-1), ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, -pitch,
+                           flipped, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, bitmap_w * 4,
+                           0, 0, 0, 0, bitmap_w, bitmap_h);
+   
+   al_free(buffer);
+   buffer = flipped;
+
+   al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE);
+   bitmap = al_create_bitmap(bitmap_w, bitmap_h);
+   al_restore_state(&state);
+   if(!bitmap) {
+      al_free(buffer);
+      return NULL;
+   }
+   
+   _al_ogl_upload_bitmap_memory(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, buffer);
    
    al_free(buffer);
    
-   ALLEGRO_DEBUG("load image end");
    return bitmap;
 }
 

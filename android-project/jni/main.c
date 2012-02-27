@@ -51,7 +51,6 @@ int main(int argc, char **argv)
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_touch_input_event_source());
    
-   //sleep(4);
 	ALLEGRO_DEBUG("creating display");
    ALLEGRO_DISPLAY *dpy = al_create_display(800, 480);
    if(!dpy) {
@@ -61,12 +60,14 @@ int main(int argc, char **argv)
 
    image_path = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
    al_set_path_filename(image_path, "alexlogo.png");
-   
+      
    ALLEGRO_DEBUG("loading %s", al_path_cstr(image_path, ALLEGRO_NATIVE_PATH_SEP));
    image = al_load_bitmap(al_path_cstr(image_path, ALLEGRO_NATIVE_PATH_SEP));
    if(!image) {
       ALLEGRO_DEBUG("failed to load %s", al_path_cstr(image_path, ALLEGRO_NATIVE_PATH_SEP));
    }
+   
+   al_convert_mask_to_alpha(image, al_map_rgb(255,0,255));
    
    al_register_event_source(queue, al_get_display_event_source(dpy));
    al_register_event_source(queue, al_get_keyboard_event_source());
@@ -88,7 +89,6 @@ int main(int argc, char **argv)
 //   ALLEGRO_DEBUG("try open");
 //   ALLEGRO_PATH *path = al_get_standard_path(
 //   FILE *fh = fopen("
-
    
    while(running) {
       al_wait_for_event(queue, &event);
