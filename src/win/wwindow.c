@@ -880,7 +880,11 @@ void _al_win_get_window_position(HWND window, int *x, int *y)
 void _al_win_toggle_window_frame(ALLEGRO_DISPLAY *display, HWND hWnd,
    int w, int h, bool onoff)
 {
-   if (onoff) {
+   if (!onoff && !(display->flags & ALLEGRO_NOFRAME)) {
+      return;
+   }
+
+   if (!onoff) {
       display->flags &= ~ALLEGRO_NOFRAME;
    }
    else {
