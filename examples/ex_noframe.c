@@ -14,7 +14,6 @@ int main(void)
    bool down = false;
    int down_x = 0, down_y = 0;
    ALLEGRO_TIMER *timer;
-   bool frame = false;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -57,8 +56,8 @@ int main(void)
             down_y = event.mouse.y;
          }
          if (event.mouse.button == 2) {
-            frame = !frame;
-            al_toggle_display_flag(display, ALLEGRO_NOFRAME, frame);
+            al_toggle_display_flag(display, ALLEGRO_NOFRAME,
+               !(al_get_display_flags(display) & ALLEGRO_NOFRAME));
          }
       }
       else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
