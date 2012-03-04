@@ -722,7 +722,8 @@ bool al_is_sub_bitmap(ALLEGRO_BITMAP *bitmap)
  */
 ALLEGRO_BITMAP *al_get_parent_bitmap(ALLEGRO_BITMAP *bitmap)
 {
-    return bitmap->parent;
+   ASSERT(bitmap);
+   return bitmap->parent;
 }
 
 

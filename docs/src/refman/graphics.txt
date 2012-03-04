@@ -550,6 +550,8 @@ See also: [al_create_sub_bitmap], [al_get_parent_bitmap]
 Returns the bitmap this bitmap is a sub-bitmap of. Returns NULL if this 
 bitmap is not a sub-bitmap.
 
+Since: 5.1.2
+
 See also: [al_create_sub_bitmap], [al_is_sub_bitmap]
 
 
