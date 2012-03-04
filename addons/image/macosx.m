@@ -118,9 +118,9 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
                    r = g = b = 0;     
                }
                else {
-                  r *= 255 / a;
-                  g *= 255 / a;
-                  b *= 255 / a;
+                  r = r * 255 / a;
+                  g = g * 255 / a;
+                  b = b * 255 / a;
                }
                *dest_ptr++ = r;
                *dest_ptr++ = g;
