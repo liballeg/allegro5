@@ -532,7 +532,7 @@ See also: [al_create_sub_bitmap], [al_get_parent_bitmap]
 Returns the bitmap this bitmap is a sub-bitmap of. Returns NULL if this 
 bitmap is not a sub-bitmap.
 
-Since: 5.1.2
+Since: 5.0.6, 5.1.2
 
 See also: [al_create_sub_bitmap], [al_is_sub_bitmap]
 
@@ -704,7 +704,7 @@ You can get the same effect with a sub bitmap:
     al_draw_tinted_scaled_rotated_bitmap(sub_bitmap, tint, cx, cy,
         dx, dy, xscale, yscale, angle, flags);
 
-Since: 5.1.0
+Since: 5.0.6, 5.1.0
 
 See also: [al_draw_tinted_bitmap]
 
@@ -990,7 +990,7 @@ Does nothing if there is no target bitmap.
 
 See also: [al_set_clipping_rectangle]
 
-Since: 5.1.0
+Since: 5.0.6, 5.1.0
 
 
 

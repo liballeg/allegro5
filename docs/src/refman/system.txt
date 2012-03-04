@@ -131,7 +131,7 @@ Python wrapper. Allegro would then by default think that the system's
 Python executable is the current executable - but you can set it to
 the .py file being executed instead.
 
-Since: 5.1.0
+Since: 5.0.6, 5.1.0
 
 See also: [al_get_standard_path]
 
@@ -181,4 +181,4 @@ Register a function to be called when an internal Allegro assertion fails.
 Pass NULL to reset to the default behaviour, which is to do whatever the
 standard `assert()` macro does.
 
-Since: 5.1.0
+Since: 5.0.6, 5.1.0

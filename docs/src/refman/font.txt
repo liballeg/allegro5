@@ -314,7 +314,7 @@ The following flags are supported:
   anti-aliasing of the font is done).
 
 * ALLEGRO_TTF_NO_AUTOHINT - Disable the Auto Hinter which is enabled by default
-  in newer versions of FreeType. Since: 5.1.2
+  in newer versions of FreeType. Since: 5.0.6, 5.1.2
 
 See also: [al_init_ttf_addon], [al_load_ttf_font_f]
 
@@ -343,7 +343,7 @@ zero.
 The behaviour is undefined the height is positive while width is negative,
 or if the height is negative while the width is positive.
 
-Since: 5.1.0
+Since: 5.0.6, 5.1.0
 
 See also: [al_load_ttf_font], [al_load_ttf_font_stretch_f]
 
@@ -356,7 +356,7 @@ filename is only used to find possible additional files next to a font file.
 be freed by the caller, as FreeType expects to be able to read from it at a
 later time.
 
-Since: 5.1.0
+Since: 5.0.6, 5.1.0
 
 See also: [al_load_ttf_font_stretch]
 
