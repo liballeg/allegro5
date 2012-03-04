@@ -106,7 +106,7 @@ done:
 ALLEGRO_BITMAP *_al_iphone_load_image_f(ALLEGRO_FILE *f)
 {
    ALLEGRO_BITMAP *bmp;
-   ASSERT(f);
+   ALLEGRO_ASSERT(f);
     
    int64_t size = al_fsize(f);
    if (size <= 0) {
@@ -130,7 +130,7 @@ ALLEGRO_BITMAP *_al_iphone_load_image(const char *filename)
    ALLEGRO_FILE *fp;
    ALLEGRO_BITMAP *bmp;
 
-   ASSERT(filename);
+   ALLEGRO_ASSERT(filename);
 
    fp = al_fopen(filename, "rb");
    if (!fp)

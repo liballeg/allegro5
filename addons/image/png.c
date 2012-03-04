@@ -76,7 +76,7 @@ static int check_if_png(ALLEGRO_FILE *fp)
 {
    unsigned char buf[PNG_BYTES_TO_CHECK];
 
-   ASSERT(fp);
+   ALLEGRO_ASSERT(fp);
 
    if (al_fread(fp, buf, PNG_BYTES_TO_CHECK) != PNG_BYTES_TO_CHECK)
       return 0;
@@ -105,7 +105,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
    unsigned char *rgba;
    bool premul = !(al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
-   ASSERT(png_ptr && info_ptr);
+   ALLEGRO_ASSERT(png_ptr && info_ptr);
 
    /* The call to png_read_info() gives us all of the information from the
     * PNG file before the first IDAT (image data chunk).
@@ -293,7 +293,7 @@ ALLEGRO_BITMAP *_al_load_png_f(ALLEGRO_FILE *fp)
    png_structp png_ptr;
    png_infop info_ptr;
 
-   ASSERT(fp);
+   ALLEGRO_ASSERT(fp);
 
    if (!check_if_png(fp)) {
       ALLEGRO_ERROR("Not a png.\n");
@@ -355,7 +355,7 @@ ALLEGRO_BITMAP *_al_load_png(const char *filename)
    ALLEGRO_FILE *fp;
    ALLEGRO_BITMAP *bmp;
 
-   ASSERT(filename);
+   ALLEGRO_ASSERT(filename);
 
    fp = al_fopen(filename, "rb");
    if (!fp)
@@ -514,8 +514,8 @@ bool _al_save_png(const char *filename, ALLEGRO_BITMAP *bmp)
    ALLEGRO_FILE *fp;
    bool result;
 
-   ASSERT(filename);
-   ASSERT(bmp);
+   ALLEGRO_ASSERT(filename);
+   ALLEGRO_ASSERT(bmp);
 
    fp = al_fopen(filename, "wb");
    if (!fp) {
