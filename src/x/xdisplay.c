@@ -177,7 +177,7 @@ static void xdpy_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 
 
 
-static void xdpy_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
+static void xdpy_set_frame(ALLEGRO_DISPLAY *display, bool frame_on)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
@@ -200,9 +200,14 @@ static void xdpy_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
          unsigned long decorations;
          long input_mode;
          unsigned long status;
-      } motif = {2, 0, onoff, 0, 0};
+      } motif = {2, 0, frame_on, 0, 0};
       XChangeProperty(x11, glx->window, hints, hints, 32, PropModeReplace,
          (void *)&motif, sizeof motif / 4);
+
+      if (frame_on)
+         display->flags &= ~ALLEGRO_NOFRAME;
+      else
+         display->flags |= ALLEGRO_NOFRAME;
    }
 #endif
 
@@ -231,14 +236,15 @@ static void xdpy_toggle_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
 
 
 static bool xdpy_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag,
-   bool onoff)
+   bool flag_onoff)
 {
-   switch(flag) {
+   switch (flag) {
       case ALLEGRO_NOFRAME:
-         xdpy_toggle_frame(display, onoff);
+         /* The ALLEGRO_NOFRAME flag is backwards. */
+         xdpy_set_frame(display, !flag_onoff);
          return true;
       case ALLEGRO_FULLSCREEN_WINDOW:
-         xdpy_toggle_fullscreen_window(display, onoff);
+         xdpy_toggle_fullscreen_window(display, flag_onoff);
          return true;
    }
    return false;
@@ -440,7 +446,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
        * However, some WMs may not be fully compliant, e.g. Fluxbox.
        */
       
-      xdpy_toggle_frame(display, false);
+      xdpy_set_frame(display, false);
 
       _al_xglx_toggle_above(display, 1);
       
@@ -453,8 +459,9 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       //XSync(system->x11display, False);
    }
 
-   if (display->flags & ALLEGRO_NOFRAME)
-      xdpy_toggle_frame(display, false);
+   if (display->flags & ALLEGRO_NOFRAME) {
+      xdpy_set_frame(display, false);
+   }
 
    ALLEGRO_DEBUG("X11 window created.\n");
    
