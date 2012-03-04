@@ -71,4 +71,9 @@ add_custom_target(run_tests_d3d
     COMMAND test_driver --force-d3d ${test_files}
     )
 
+add_custom_target(run_tests_wine
+    DEPENDS test_driver
+    COMMAND wine test_driver ${test_files}
+    )
+
 # vim: set sts=4 sw=4 et:
