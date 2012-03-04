@@ -1006,14 +1006,14 @@ static void t46(void)
 {
    ALLEGRO_USTR *us;
 
-   us = al_ustr_newf("%s %c %02d", "hõljuk", 'c', 42);
-   CHECK(0 == strcmp(al_cstr(us), "hõljuk c 42"));
+   us = al_ustr_newf("%s %c %.2f %.02d", "hõljuk", 'c', ALLEGRO_PI, 42);
+   CHECK(0 == strcmp(al_cstr(us), "hõljuk c 3.14 42"));
 
    CHECK(al_ustr_appendf(us, " %s", "Luftchüssiboot"));
-   CHECK(0 == strcmp(al_cstr(us), "hõljuk c 42 Luftchüssiboot"));
+   CHECK(0 == strcmp(al_cstr(us), "hõljuk c 3.14 42 Luftchüssiboot"));
 
    CHECK(call_vappendf(us, " %s", "χόβερκράφτ"));
-   CHECK(0 == strcmp(al_cstr(us), "hõljuk c 42 Luftchüssiboot χόβερκράφτ"));
+   CHECK(0 == strcmp(al_cstr(us), "hõljuk c 3.14 42 Luftchüssiboot χόβερκράφτ"));
 
    al_ustr_free(us);
 
