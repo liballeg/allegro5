@@ -4,6 +4,117 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 5.0.5 to 5.0.6 (March 2012)
+========================================
+
+The main developers this time were: Trent Gamblin, Matthew Leverton,
+Elias Pschernig, Paul Suntsov, Peter Wang.
+
+Core:
+
+-  Added al_register_assert_handler.
+
+Graphics:
+
+-  Added al_draw_tinted_scaled_rotated_bitmap_region.
+
+-  Added al_reset_clipping_rectangle convenience function.
+
+-  Added al_get_parent_bitmap.
+
+-  Fixed a bug in the OpenGL driver when drawing the backbuffer outside the
+   clipping rectangle of the target bitmap.
+
+-  Make blitting from backbuffer work when using multisampling on Windows/D3D.
+
+Displays:
+
+-  Set ALLEGRO_MINIMIZED display flag on Windows (Zac Evans).
+
+-  Don't generate bogus resize events after restoring minimised window on
+   Windows.
+
+-  Fixed bug on Windows where two SWITCH_IN events were fired when window was
+   minimized/restored (Michael Swiger).
+
+-  Fixed inverted al_toggle_display_flag(ALLEGRO_NOFRAME) logic under Windows
+   as well as a bug where repeatedly setting the flag to on would make the
+   window grow bigger and bigger (Michael Swiger).
+
+-  Fixed inverted al_toggle_display_flag(ALLEGRO_NOFRAME) logic in X11.
+
+-  Prevent a deadlock during display creation on X.
+
+-  Fallback to the 'old' visual selection method on X instead of crashing
+   if the 'new' visual selection doesn't work.
+
+Input:
+
+-  Use the same logic in set_mouse_xy for FULLSCREEN_WINDOW as was used for
+   FULLSCREEN. (Max OS X)
+
+Filesystem:
+
+-  Added al_fopen_slice.
+
+-  Added al_set_exe_name which allows overriding Allegro's idea of the path
+   to the current executable.
+
+-  Make al_get_standard_path(ALLEGRO_TEMP_PATH) treat the value of TMPDIR
+   et al. as a directory name even without a trailing slash. (Unix)
+
+-  Make stdio al_fopen implementation set proper errno on failure.
+
+Audio addons:
+
+-  Add mixer gain property and functions.
+
+-  Improve code to check that DLL symbols are loaded in the acodec addon.
+   The old method was hacky and broke under -O2 using GCC 4.6.1.
+
+Image I/O addon:
+
+-  Improved accuracy of un-alpha-premultiplying in the native OSX bitmap
+   loader.
+
+Primitives addon:
+
+-  Added al_draw_filled_pieslice and al_draw_pieslice.
+
+-  Added al_draw_elliptical_arc.
+
+TTF addon:
+
+-  Added al_load_ttf_font_stretch functions (tobing).
+
+-  Added ALLEGRO_TTF_NO_AUTOHINT font loading flag to disable the Auto Hinter
+   which is enabled by default in newer version of FreeType (Michał Cichoń).
+
+-  Clear locked region so pixel borders aren't random garbage that can be seen
+   sometimes with linear filtering on.
+
+-  Unlock glyph cache page at end of text_length and get_text_dimensions
+   (jmasterx).
+
+Examples:
+
+-  Added new examples: ex_audio_chain, ex_display_events, ex_file_slice.
+
+-  ex_ogre3d: Make it work under Windows (AMCerasoli).
+
+-  a5teroids: Support gamepads that report small non-zero values for sticks
+   that are at rest.
+
+Other:
+
+-  Added index to HTML version of the reference manual (Jon Rafkind).
+
+-  Various documentation updates.
+
+-  Other minor bug fixes.
+
+
+
 Changes from 5.0.4 to 5.0.5 (November 2011)
 ===========================================
 
