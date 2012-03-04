@@ -81,7 +81,7 @@ static void *file_stdio_fopen(const char *path, const char *mode)
 
    fp = fopen(path, mode);
    if (!fp) {
-      al_set_errno(ENOMEM);
+      al_set_errno(errno);
       return NULL;
    }
 
