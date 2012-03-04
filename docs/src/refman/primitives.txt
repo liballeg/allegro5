@@ -237,7 +237,7 @@ Draws a pieslice (outlined circular sector).
     direction)
 * thickness - Thickness of the circle, pass `<= 0` to draw hairline pieslice
 
-Since: 5.1.0
+Since: 5.0.6, 5.1.0
 
 See also: [al_draw_filled_pieslice]
 
@@ -254,7 +254,7 @@ Draws a filled pieslice (filled circular sector).
 * delta_theta - Angular span of the pieslice (pass a negative number to switch
     direction)
 
-Since: 5.1.0
+Since: 5.0.6, 5.1.0
 
 See also: [al_draw_pieslice]
 
@@ -338,7 +338,7 @@ Draws an elliptical arc.
     direction)
 * thickness - Thickness of the arc, pass `<= 0` to draw hairline arc
 
-Since: 5.1.0
+Since: 5.0.6, 5.1.0
 
 See also: [al_calculate_arc], [al_draw_arc]
 

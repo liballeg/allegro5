@@ -664,7 +664,7 @@ See also: [ALLEGRO_AUDIO_DEPTH].
 
 Return the mixer gain (amplification factor). The default is 1.0.
 
-Since: 5.1.0
+Since: 5.0.6, 5.1.0
 
 See also: [al_set_mixer_gain].
 
@@ -674,7 +674,7 @@ Set the mixer gain (amplification factor).
 
 Returns true on success, false on failure.
 
-Since: 5.1.0
+Since: 5.0.6, 5.1.0
 
 See also: [al_get_mixer_gain]
 

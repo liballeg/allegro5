@@ -113,7 +113,7 @@ all activity is restricted to the initial size of the slice.
 A slice must be closed with [al_fclose]. The parent file will then be
 positioned immediately after the end of the slice.
 
-Since 5.1
+Since: 5.0.6, 5.1.0
 
 See also: [al_fopen]
 
