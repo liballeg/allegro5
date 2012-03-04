@@ -543,7 +543,14 @@ false otherwise. If there is no current display, false is returned.
 
 Returns true if the specified bitmap is a sub-bitmap, false otherwise.
 
-See also: [al_create_sub_bitmap]
+See also: [al_create_sub_bitmap], [al_get_parent_bitmap]
+
+### API: al_get_parent_bitmap
+
+Returns the bitmap this bitmap is a sub-bitmap of. Returns NULL if this 
+bitmap is not a sub-bitmap.
+
+See also: [al_create_sub_bitmap], [al_is_sub_bitmap]
 
 
 

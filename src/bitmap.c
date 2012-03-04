@@ -718,6 +718,14 @@ bool al_is_sub_bitmap(ALLEGRO_BITMAP *bitmap)
 }
 
 
+/* Function: al_get_parent_bitmap
+ */
+ALLEGRO_BITMAP *al_get_parent_bitmap(ALLEGRO_BITMAP *bitmap)
+{
+    return bitmap->parent;
+}
+
+
 /* Function: al_clone_bitmap
  */
 ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
