@@ -340,7 +340,7 @@ As with [al_load_ttf_font], the height may be a negative value to specify
 the total height in pixels.  Then the width must also be a negative value, or
 zero.
 
-The behaviour is undefined the height is positive while width is negative,
+The behaviour is undefined if the height is positive while width is negative,
 or if the height is negative while the width is positive.
 
 Since: 5.0.6, 5.1.0
