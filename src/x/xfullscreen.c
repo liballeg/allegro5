@@ -995,7 +995,7 @@ void _al_xglx_handle_mmon_event(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d,
 /* Note: The system mutex must be locked (exactly once) before
  * calling this as we call _al_display_xglx_await_resize.
  */
-void _al_xglx_toggle_fullscreen_window(ALLEGRO_DISPLAY *display, int value)
+void _al_xglx_set_fullscreen_window(ALLEGRO_DISPLAY *display, int value)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
@@ -1030,7 +1030,7 @@ void _al_xglx_toggle_fullscreen_window(ALLEGRO_DISPLAY *display, int value)
    }
 }
 
-void _al_xglx_toggle_above(ALLEGRO_DISPLAY *display, int value)
+void _al_xglx_set_above(ALLEGRO_DISPLAY *display, int value)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;

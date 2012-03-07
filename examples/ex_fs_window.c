@@ -58,7 +58,7 @@ static void run(void)
                quit = true;
             else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
                bool opp = !(al_get_display_flags(display) & ALLEGRO_FULLSCREEN_WINDOW);
-               al_toggle_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, opp);
+               al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, opp);
                redraw();
             }
             else if (event.keyboard.keycode == ALLEGRO_KEY_ENTER) {

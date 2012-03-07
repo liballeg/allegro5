@@ -184,8 +184,8 @@ int main(int argc, char *argv[])
 
                case ALLEGRO_KEY_F:
                   fullscreen = !fullscreen;
-                  al_toggle_display_flag(screen,
-                     ALLEGRO_FULLSCREEN_WINDOW, fullscreen);
+                  al_set_display_flag(screen, ALLEGRO_FULLSCREEN_WINDOW,
+                     fullscreen);
                   break;
                
                case ALLEGRO_KEY_1:

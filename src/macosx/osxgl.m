@@ -134,7 +134,7 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver(void);
 ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void);
 ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_fs(void);
 static NSOpenGLContext* osx_create_shareable_context(NSOpenGLPixelFormat* fmt, unsigned int* group);
-static bool toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff);
+static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff);
 
 /* osx_change_cursor:
  * Actually change the current cursor. This can be called fom any thread 
@@ -1397,7 +1397,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 
    if (dpy->parent.flags & ALLEGRO_FULLSCREEN_WINDOW) {
       dpy->parent.flags ^= ALLEGRO_FULLSCREEN_WINDOW; /* Not set yet */
-      toggle_display_flag(&dpy->parent, ALLEGRO_FULLSCREEN_WINDOW, true);
+      set_display_flag(&dpy->parent, ALLEGRO_FULLSCREEN_WINDOW, true);
    }
 
    return &dpy->parent;
@@ -1914,10 +1914,10 @@ static void set_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP* bitmap)
    [NSApp setApplicationIconImage: NSImageFromAllegroBitmap(bitmap)];
 }
 
-/* toggle_display_flag:
+/* set_display_flag:
  * Change settings for an already active display
  */
-static bool toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
+static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 {
 #if MAC_OS_X_VERSION_MIN_REQUIRED < 1060
    return false;
@@ -2004,7 +2004,7 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void)
       vt->get_window_constraints = get_window_constraints;
       vt->set_window_constraints = set_window_constraints;
       vt->set_window_title = set_window_title;
-      vt->toggle_display_flag = toggle_display_flag;
+      vt->set_display_flag = set_display_flag;
       vt->set_icon = set_icon;
       _al_ogl_add_drawing_functions(vt);
    }

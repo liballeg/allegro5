@@ -211,7 +211,7 @@ void _al_xglx_store_video_mode(ALLEGRO_SYSTEM_XGLX *s);
 void _al_xglx_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter);
 void _al_xglx_fullscreen_to_display(ALLEGRO_SYSTEM_XGLX *s,
    ALLEGRO_DISPLAY_XGLX *d);
-void _al_xglx_toggle_fullscreen_window(ALLEGRO_DISPLAY *display, int value);
+void _al_xglx_set_fullscreen_window(ALLEGRO_DISPLAY *display, int value);
 void _al_display_xglx_await_resize(ALLEGRO_DISPLAY *d, int old_resize_count, bool delay_hack);
 void _al_xglx_get_display_offset(ALLEGRO_SYSTEM_XGLX *s, int adapter, int *x, int *y);
 
@@ -223,7 +223,7 @@ int _al_xglx_get_num_video_adapters(ALLEGRO_SYSTEM_XGLX *s);
 int _al_xglx_get_default_adapter(ALLEGRO_SYSTEM_XGLX *s);
 int _al_xglx_get_xscreen(ALLEGRO_SYSTEM_XGLX *s, int adapter);
 
-void _al_xglx_toggle_above(ALLEGRO_DISPLAY *display, int value);
+void _al_xglx_set_above(ALLEGRO_DISPLAY *display, int value);
 
 int _al_xglx_get_adapter(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, bool recalc);
 

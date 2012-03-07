@@ -256,7 +256,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_gp2xwiz_opengl_driver(void)
    gp2xwiz_vt->get_window_position = gp2xwiz_get_window_position_ogl;
    gp2xwiz_vt->set_window_constraints = NULL;
    gp2xwiz_vt->get_window_constraints = NULL;
-   gp2xwiz_vt->toggle_display_flag = NULL;
+   gp2xwiz_vt->set_display_flag = NULL;
    gp2xwiz_vt->wait_for_vsync = gp2xwiz_wait_for_vsync_ogl;
 
    _al_ogl_add_drawing_functions(gp2xwiz_vt);

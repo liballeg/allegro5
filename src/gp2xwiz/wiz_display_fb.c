@@ -188,7 +188,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_gp2xwiz_framebuffer_driver(void)
    gp2xwiz_vt->get_window_position = gp2xwiz_get_window_position_fb;
    gp2xwiz_vt->set_window_constraints = NULL;
    gp2xwiz_vt->get_window_constraints = NULL;
-   gp2xwiz_vt->toggle_frame = NULL;
+   gp2xwiz_vt->set_display_flag = NULL;
    gp2xwiz_vt->wait_for_vsync = gp2xwiz_wait_for_vsync_fb;
 
    return gp2xwiz_vt;

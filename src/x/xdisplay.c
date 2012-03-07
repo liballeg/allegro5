@@ -266,13 +266,13 @@ static void xdpy_set_frame(ALLEGRO_DISPLAY *display, bool frame_on)
 
 
 
-static void xdpy_toggle_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
+static void xdpy_set_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    if (onoff == !(display->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
       _al_mutex_lock(&system->lock);
       reset_size_hints(display);
-      _al_xglx_toggle_fullscreen_window(display, 2);
+      _al_xglx_set_fullscreen_window(display, 2);
       /* XXX Technically, the user may fiddle with the _NET_WM_STATE_FULLSCREEN
        * property outside of Allegro so this flag may not be in sync with
        * reality.
@@ -285,7 +285,7 @@ static void xdpy_toggle_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
 
 
 
-static bool xdpy_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag,
+static bool xdpy_set_display_flag(ALLEGRO_DISPLAY *display, int flag,
    bool flag_onoff)
 {
    switch (flag) {
@@ -294,7 +294,7 @@ static bool xdpy_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag,
          xdpy_set_frame(display, !flag_onoff);
          return true;
       case ALLEGRO_FULLSCREEN_WINDOW:
-         xdpy_toggle_fullscreen_window(display, flag_onoff);
+         xdpy_set_fullscreen_window(display, flag_onoff);
          return true;
    }
    return false;
@@ -500,7 +500,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       
       xdpy_set_frame(display, false);
 
-      _al_xglx_toggle_above(display, 1);
+      _al_xglx_set_above(display, 1);
       
       if (!_al_xglx_fullscreen_set_mode(system, d, w, h, 0, display->refresh_rate)) {
          ALLEGRO_DEBUG("xdpy: failed to set fullscreen mode.\n");
@@ -551,7 +551,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       ALLEGRO_INFO("Toggling fullscreen flag for %d x %d window.\n",
          display->w, display->h);
       reset_size_hints(display);
-      _al_xglx_toggle_fullscreen_window(display, 2);
+      _al_xglx_set_fullscreen_window(display, 2);
       set_size_hints(display, INT_MAX, INT_MAX);
 
       XWindowAttributes xwa;
@@ -568,8 +568,8 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       /* XXX compiz is quiky, can't seem to find a combination of hints that
        * make sure we are layerd over panels, and are positioned properly */
 
-      //_al_xglx_toggle_fullscreen_window(display, 1);
-      _al_xglx_toggle_above(display, 1);
+      //_al_xglx_set_fullscreen_window(display, 1);
+      _al_xglx_set_above(display, 1);
 
       _al_xglx_fullscreen_to_display(system, d);
 
@@ -967,7 +967,7 @@ static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
    }
 
    if (d->flags & ALLEGRO_FULLSCREEN) {
-      _al_xglx_toggle_fullscreen_window(d, 0);
+      _al_xglx_set_fullscreen_window(d, 0);
       if (!_al_xglx_fullscreen_set_mode(system, glx, w, h, 0, 0)) {
          ret = false;
          goto skip_resize;
@@ -1011,8 +1011,8 @@ static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
 skip_resize:
 
    if (d->flags & ALLEGRO_FULLSCREEN) {
-      _al_xglx_toggle_fullscreen_window(d, 1);
-      _al_xglx_toggle_above(d, 1);
+      _al_xglx_set_fullscreen_window(d, 1);
+      _al_xglx_set_above(d, 1);
       _al_xglx_fullscreen_to_display(system, glx);
       ALLEGRO_DEBUG("xdpy: resize fullscreen?\n");
    }
@@ -1269,7 +1269,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    xdpy_vt.get_window_position = xdpy_get_window_position;
    xdpy_vt.set_window_constraints = xdpy_set_window_constraints;
    xdpy_vt.get_window_constraints = xdpy_get_window_constraints;
-   xdpy_vt.toggle_display_flag = xdpy_toggle_display_flag;
+   xdpy_vt.set_display_flag = xdpy_set_display_flag;
    xdpy_vt.wait_for_vsync = xdpy_wait_for_vsync;
 
    _al_xglx_add_cursor_functions(&xdpy_vt);

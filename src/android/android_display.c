@@ -630,7 +630,7 @@ static void android_get_window_position(ALLEGRO_DISPLAY *dpy, int *x, int *y)
    *x = *y = 0;
 }
 
-static bool android_toggle_display_flag(ALLEGRO_DISPLAY *dpy, int flag, bool onoff)
+static bool android_set_display_flag(ALLEGRO_DISPLAY *dpy, int flag, bool onoff)
 {
    (void)dpy; (void)flag; (void)onoff;
    return false;
@@ -714,7 +714,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_android_display_driver(void)
    vt->set_window_title = android_set_window_title;
    vt->set_window_position = android_set_window_position;
    vt->get_window_position = android_get_window_position;
-   vt->toggle_display_flag = android_toggle_display_flag;
+   vt->set_display_flag = android_set_display_flag;
    vt->wait_for_vsync = android_wait_for_vsync;
 
    vt->set_mouse_cursor = android_set_mouse_cursor;

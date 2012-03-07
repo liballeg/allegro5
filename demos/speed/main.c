@@ -110,7 +110,7 @@ static int play_game()
       /* toggle fullscreen window */
       if (key[ALLEGRO_KEY_F]) {
          int flags = al_get_display_flags(screen);
-         al_toggle_display_flag(screen, ALLEGRO_FULLSCREEN_WINDOW,
+         al_set_display_flag(screen, ALLEGRO_FULLSCREEN_WINDOW,
             !(flags & ALLEGRO_FULLSCREEN_WINDOW));
 
          while (key[ALLEGRO_KEY_F])

@@ -301,7 +301,7 @@ static bool iphone_set_window_constraints(ALLEGRO_DISPLAY *display,
 }
 
 /* Always fullscreen. */
-static bool iphone_toggle_display_flag(ALLEGRO_DISPLAY *display,
+static bool iphone_set_display_flag(ALLEGRO_DISPLAY *display,
    int flag, bool onoff)
 {
    (void)display;
@@ -464,7 +464,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_iphone_display_interface(void)
     vt->get_window_position = iphone_get_window_position;
     vt->set_window_constraints = iphone_set_window_constraints;
     vt->get_window_constraints = iphone_get_window_constraints;
-    vt->toggle_display_flag = iphone_toggle_display_flag;
+    vt->set_display_flag = iphone_set_display_flag;
     vt->wait_for_vsync = iphone_wait_for_vsync;
 
     vt->set_mouse_cursor = iphone_set_mouse_cursor;

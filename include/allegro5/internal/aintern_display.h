@@ -62,7 +62,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
    void (*get_window_position)(ALLEGRO_DISPLAY *display, int *x, int *y);
    bool (*set_window_constraints)(ALLEGRO_DISPLAY *display, int min_w, int min_h, int max_w, int max_h);
    bool (*get_window_constraints)(ALLEGRO_DISPLAY *display,  int *min_w, int *min_h, int *max_w, int *max_h);
-   bool (*toggle_display_flag)(ALLEGRO_DISPLAY *display, int flag, bool onoff);
+   bool (*set_display_flag)(ALLEGRO_DISPLAY *display, int flag, bool onoff);
    void (*set_window_title)(ALLEGRO_DISPLAY *display, const char *title);
    
    void (*flush_vertex_cache)(ALLEGRO_DISPLAY *d);
