@@ -514,16 +514,6 @@ bool al_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 }
 
 
-/* Function: al_toggle_display_flag
- *  This is deprecated.
- *  On the 5.0 branch this needs to be a function for backwards compatibility.
- */
-bool al_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
-{
-   return al_set_display_flag(display, flag, onoff);
-}
-
-
 /* Function: al_set_window_title
  */
 void al_set_window_title(ALLEGRO_DISPLAY *display, const char *title)

@@ -133,7 +133,6 @@ AL_FUNC(int, al_get_display_refresh_rate, (ALLEGRO_DISPLAY *display));
 AL_FUNC(int, al_get_display_flags,  (ALLEGRO_DISPLAY *display));
 AL_FUNC(int, al_get_display_orientation, (ALLEGRO_DISPLAY* display));
 AL_FUNC(bool, al_set_display_flag, (ALLEGRO_DISPLAY *display, int flag, bool onoff));
-AL_FUNC(bool, al_toggle_display_flag, (ALLEGRO_DISPLAY *display, int flag, bool onoff));
 
 AL_FUNC(ALLEGRO_DISPLAY*, al_create_display, (int w, int h));
 AL_FUNC(void,             al_destroy_display, (ALLEGRO_DISPLAY *display));
