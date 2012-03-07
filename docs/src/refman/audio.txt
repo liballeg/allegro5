@@ -1174,7 +1174,7 @@ See also: [al_load_audio_stream], [al_register_audio_stream_loader_f],
 
 Writes a sample into a file.  Currently, wav is
 the only supported format, and the extension
-must be '.wav'.
+must be ".wav".
 
 Returns true on success, false on error.
 
@@ -1189,7 +1189,7 @@ See also: [al_save_sample_f], [al_register_sample_saver],
 
 Writes a sample into a [ALLEGRO_FILE] filestream.  Currently, wav is
 the only supported format, and the extension
-must be '.wav'.
+must be ".wav".
 
 Returns true on success, false on error.
 The file remains open afterwards.

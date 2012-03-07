@@ -282,7 +282,7 @@ Link with allegro_ttf.
 ### API: al_init_ttf_addon
 
 Call this after [al_init_font_addon] to make [al_load_font] recognize
-.ttf and other formats supported by [al_load_ttf_font].
+".ttf" and other formats supported by [al_load_ttf_font].
 
 ### API: al_shutdown_ttf_addon
 
