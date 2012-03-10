@@ -828,12 +828,19 @@ add_subdirectory(addons)
 if(WANT_MONOLITH)
 
 include_directories(SYSTEM ${MONOLITH_INCLUDE_DIRECTORIES})
+
+message(monolith headers: ${MONOLITH_HEADERS})
+set_our_header_properties(${MONOLITH_HEADERS})
+
 link_directories(${MONOLITH_LINK_DIRECTORIES})
 add_our_library(allegro_monolith
     "${MONOLITH_SOURCES};${ALLEGRO_PUBLIC_HEADERS}"
     "${LIBRARY_CFLAGS} -DALLEGRO_SRC ${MONOLITH_DEFINES}"
     "${PLATFORM_LIBS};${MONOLITH_LIBRARIES}"
     )
+
+set_our_framework_properties(allegro_monolith AllegroMonolith-${ALLEGRO_SOVERSION})
+
 install_our_library(allegro_monolith)
 endif(WANT_MONOLITH)
 

@@ -5,6 +5,7 @@ function(set_our_header_properties)
         string(REPLACE "${CMAKE_CURRENT_BINARY_DIR}/" "" loc ${loc})
         string(REGEX REPLACE "^include/" "" loc ${loc})
         string(REGEX REPLACE "/[-A-Za-z0-9_]+[.](h|inl)$" "" loc ${loc})
+        string(REGEX REPLACE "^addons/[^/]+/" "" loc ${loc})
 
         # If we have inferred correctly then it should be under allegro5.
         string(REGEX MATCH "^allegro5" matched ${loc})
@@ -66,6 +67,7 @@ endfunction(sanitize_cmake_link_flags)
 
 function(add_our_library target sources extra_flags link_with)
     # BUILD_SHARED_LIBS controls whether this is a shared or static library.
+
     add_library(${target} ${sources})
 
     if(NOT BUILD_SHARED_LIBS)
@@ -283,9 +285,9 @@ function(copy_data_dir_to_build target name destination)
     endforeach(file)
 endfunction(copy_data_dir_to_build)
 
-macro(add_monolith_sources addon sources)
+macro(add_monolith_sources var addon sources)
    foreach(s ${${sources}})
-      list(APPEND MONOLITH_SOURCES ${addon}/${s})
+      list(APPEND ${var} ${addon}/${s})
    endforeach(s ${sources})
 endmacro(add_monolith_sources addon sources)
 
@@ -293,8 +295,9 @@ macro(add_addon addon)
    string(TOUPPER ${addon} ADDON)
    set(SUPPORT_${ADDON} 1 PARENT_SCOPE)
    set(${ADDON}_LINK_WITH allegro_${addon} PARENT_SCOPE)
-   add_monolith_sources(addons/${addon} ${ADDON}_SOURCES)
-   add_monolith_sources(addons/${addon} ${ADDON}_INCLUDE_FILES)
+   add_monolith_sources(MONOLITH_SOURCES addons/${addon} ${ADDON}_SOURCES)
+   add_monolith_sources(MONOLITH_SOURCES addons/${addon} ${ADDON}_INCLUDE_FILES)
+   add_monolith_sources(MONOLITH_HEADERS addons/${addon} ${ADDON}_INCLUDE_FILES)
    set(MONOLITH_SOURCES ${MONOLITH_SOURCES} PARENT_SCOPE)
    list(APPEND MONOLITH_INCLUDE_DIRECTORIES ${${ADDON}_INCLUDE_DIRECTORIES})
    list(APPEND MONOLITH_INCLUDE_DIRECTORIES addons/${addon})
@@ -304,6 +307,7 @@ macro(add_addon addon)
    set(MONOLITH_INCLUDE_DIRECTORIES ${MONOLITH_INCLUDE_DIRECTORIES} PARENT_SCOPE)
    set(MONOLITH_LINK_DIRECTORIES ${MONOLITH_LINK_DIRECTORIES} PARENT_SCOPE)
    set(MONOLITH_LIBRARIES ${MONOLITH_LIBRARIES} PARENT_SCOPE)
+   set(MONOLITH_HEADERS ${MONOLITH_HEADERS} PARENT_SCOPE)
    set(MONOLITH_DEFINES ${MONOLITH_DEFINES} PARENT_SCOPE)
 endmacro(add_addon)
 
