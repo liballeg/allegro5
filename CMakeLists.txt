@@ -829,7 +829,12 @@ if(WANT_MONOLITH)
 
 include_directories(SYSTEM ${MONOLITH_INCLUDE_DIRECTORIES})
 
-message(monolith headers: ${MONOLITH_HEADERS})
+# For OSX, we need to set the header location inside the framework for each
+# file (relative to the current directory, so for example when the AllegroImage
+# framework is built we need to set the path for allegro5/allegro_image.h but
+# when the AllegroMonolith framework is built we need to set the path for
+# addons/image/allegro5/allegro_image.h - otherwise the header is silently
+# missing).
 set_our_header_properties(${MONOLITH_HEADERS})
 
 link_directories(${MONOLITH_LINK_DIRECTORIES})
