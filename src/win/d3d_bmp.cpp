@@ -640,7 +640,7 @@ static void d3d_draw_bitmap_region(
    
    ASSERT(src->parent == NULL);
 
-   if (!_al_d3d_render_to_texture_supported() || !_al_d3d_supports_separate_alpha_blend(al_get_current_display())) {
+   if (!_al_d3d_render_to_texture_supported()) {
       _al_draw_bitmap_region_memory(src, tint,
          (int)sx, (int)sy, (int)sw, (int)sh, 0, 0,
          (int)flags);
