@@ -128,6 +128,8 @@ void _al_osx_hid_free(HID_DEVICE_COLLECTION *);
 void _al_osx_switch_keyboard_focus(ALLEGRO_DISPLAY *, bool switch_in);
 // Record in the mouse state that the main window has changed
 void _al_osx_switch_mouse_focus(ALLEGRO_DISPLAY *, bool switch_in);
+// Clear the mouse state when a dialog closes in the dialog addon
+void _al_osx_clear_mouse_state(void);
 // Notify the display that the mouse driver was installed/uninstalled.
 void _al_osx_mouse_was_installed(BOOL);
 // Create and destroy mouse cursors
