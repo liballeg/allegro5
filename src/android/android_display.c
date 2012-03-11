@@ -405,7 +405,7 @@ static void _al_android_update_visuals(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
    for (i = 0; i < visuals_count; i++) {
       ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = al_malloc(sizeof *eds);
       memset(eds, 0, sizeof *eds);
-      
+
       eds->settings[ALLEGRO_RENDER_METHOD] = 1;
       eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
       eds->settings[ALLEGRO_SWAP_METHOD] = 2;
@@ -421,14 +421,24 @@ static void _al_android_update_visuals(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
       eds->settings[ALLEGRO_STENCIL_SIZE]   = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_STENCIL_SIZE);
       eds->settings[ALLEGRO_SAMPLE_BUFFERS] = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_SAMPLE_BUFFERS);
       eds->settings[ALLEGRO_SAMPLES]        = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_SAMPLES);
-
+      
       // this might be an issue, if it is, query EGL_SURFACE_TYPE for EGL_VG_ALPHA_FORMAT_PRE_BIT
       eds->settings[ALLEGRO_RED_SHIFT]      = 0;
       eds->settings[ALLEGRO_GREEN_SHIFT]    = eds->settings[ALLEGRO_RED_SIZE];
       eds->settings[ALLEGRO_BLUE_SHIFT]     = eds->settings[ALLEGRO_RED_SIZE] + eds->settings[ALLEGRO_GREEN_SIZE];
       eds->settings[ALLEGRO_ALPHA_SHIFT]    = eds->settings[ALLEGRO_RED_SIZE] + eds->settings[ALLEGRO_GREEN_SIZE] + eds->settings[ALLEGRO_BLUE_SIZE];
-      
-      eds->score = _al_score_display_settings(eds, ref);
+
+      /* Make sure we get a double buffered display */
+      const int _MIN_SWAP_INTERVAL = 1000;
+      const int _MAX_SWAP_INTERVAL = 1001;
+      int min_swap_interval = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, _MIN_SWAP_INTERVAL);
+      int max_swap_interval = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, _MAX_SWAP_INTERVAL);
+      if (min_swap_interval != 1 || max_swap_interval != 1) {
+         eds->score = -1;
+      }
+      else {
+         eds->score = _al_score_display_settings(eds, ref);
+      }
       eds->index = i;
       system->visuals[i] = eds;
    }

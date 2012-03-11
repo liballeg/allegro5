@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.OrientationEventListener;
+import android.view.WindowManager;
 
 import android.hardware.*;
 import android.content.res.Configuration;
@@ -109,19 +110,19 @@ public class AllegroActivity extends Activity implements SensorEventListener
          return new String();
       }
    }
-   
+
    public String getResourcesDir()
    {
       //return getApplicationInfo().dataDir + "/assets";
       //return getApplicationInfo().sourceDir + "/assets/";
-		return getFilesDir().getAbsolutePath();
+               return getFilesDir().getAbsolutePath();
    }
-   
+
    public String getPubDataDir()
    {
       return getExternalFilesDir(null).getAbsolutePath();
    }
-   
+
    public String getApkPath()
 	{
 		return getApplicationInfo().sourceDir;
@@ -290,6 +291,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
       Log.d("AllegroActivity", "onCreate");
       
       Log.d("AllegroActivity", "Files Dir: " + getFilesDir());
+
       File extdir = Environment.getExternalStorageDirectory();
       
       
@@ -334,6 +336,10 @@ public class AllegroActivity extends Activity implements SensorEventListener
       }
       
       nativeOnOrientationChange(getAllegroOrientation(currentConfig.orientation), true);
+
+      /* Go fullscreen */
+      requestWindowFeature(Window.FEATURE_NO_TITLE);
+      this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
       
       Log.d("AllegroActivity", "onCreate end");
    }
@@ -436,7 +442,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
          
       if((changes & ActivityInfo.CONFIG_SCREEN_LAYOUT) != 0)
          Log.d("AllegroActivity", "screen layout changed");
-      
+
       if((changes & ActivityInfo.CONFIG_SCREEN_SIZE) != 0)
          Log.d("AllegroActivity", "screen size changed");
       
@@ -445,6 +451,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
       
       if((changes & ActivityInfo.CONFIG_UI_MODE) != 0)
          Log.d("AllegroActivity", "ui mode changed");
+      
       
       if(currentConfig.screenLayout != conf.screenLayout) {
          Log.d("AllegroActivity", "screenLayout changed!");
@@ -575,6 +582,10 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    static final int ALLEGRO_STENCIL_SIZE = 16;
    static final int ALLEGRO_SAMPLE_BUFFERS = 17;
    static final int ALLEGRO_SAMPLES = 18;
+   static final int _MIN_SWAP_INTERVAL = 1000;
+   static final int _MAX_SWAP_INTERVAL = 1001;
+   static final int EGL_MIN_SWAP_INTERVAL = 0x303B;
+   static final int EGL_MAX_SWAP_INTERVAL = 0x303C;
    
    static final int ALLEGRO_KEY_A     = 1;
    static final int ALLEGRO_KEY_B     = 2;
@@ -920,8 +931,16 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
             egl_attr = egl.EGL_SAMPLES;
             break;
 
+         case _MIN_SWAP_INTERVAL:
+            egl_attr = EGL_MIN_SWAP_INTERVAL;
+            break;
+
+         case _MAX_SWAP_INTERVAL:
+            egl_attr = EGL_MAX_SWAP_INTERVAL;
+            break;
+
          default:
-            Log.e("AllegroSurface", "got unknown attribute?");
+            Log.e("AllegroSurface", "got unknown attribute " + attr);
             break;
       }
       
