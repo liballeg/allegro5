@@ -100,12 +100,17 @@ SET(CMAKE_C_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -mthumb -Wno-psabi")
 #set(LIBCPP_LINK_DIR  ${ANDROID_NDK_TOOLCHAIN_ROOT}/user/lib/thumb)
 if(ARMEABI_V7A)  
   #these are required flags for android armv7-a
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv7-a -mfloat-abi=softfp")
-  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv7-a -mfloat-abi=softfp")
-  if(NEON)
+  if(WANT_ANDROID_4)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv6")
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv6")
+  else(WANT_ANDROID_4)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv7-a -mfloat-abi=softfp")
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv7-a -mfloat-abi=softfp")
+    if(NEON)
       SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpu=neon")
       SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfpu=neon")
-  endif()
+    endif()
+  endif(WANT_ANDROID_4)
 endif()
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" CACHE STRING "c++ flags")
@@ -119,14 +124,19 @@ SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}" CACHE STRING "c flags")
 SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--fix-cortex-a8 -L${CMAKE_INSTALL_PREFIX}/lib" CACHE STRING "linker flags" FORCE)
 SET(CMAKE_MODULE_LINKER_FLAGS "-Wl,--fix-cortex-a8 -L${CMAKE_INSTALL_PREFIX}/lib" CACHE STRING "linker flags" FORCE)
 
+OPTION(WANT_GLES2 "Compile with GLES2 support" ON)
+
 #set these global flags for cmake client scripts to change behavior
 set(ANDROID True)
 set(BUILD_ANDROID True)
 
-set(OPENGL_LIBRARIES "-lGLESv1_CM -lGLESv2 -lEGL")
-set(OPENGL_gl_LIBRARY "-lGLESv1_CM -lGLESv2 -lEGL")
+IF(WANT_GLES2)
+  set(OPENGL_LIBRARIES "-lGLESv1_CM -lGLESv2 -lEGL")
+  set(OPENGL_gl_LIBRARY "-lGLESv1_CM -lGLESv2 -lEGL")
+ELSE(WANT_GLES2)
+  set(OPENGL_LIBRARIES "-lGLESv1_CM")
+  set(OPENGL_gl_LIBRARY "-lGLESv1_CM")
+ENDIF(WANT_GLES2)
+
 set(OPENGL_glu_LIBRARY "")
-
-
-
 
