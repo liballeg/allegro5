@@ -33,6 +33,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
 {
    ALLEGRO_DISPLAY *display = al_get_current_display();
 
+#ifndef ALLEGRO_NO_GLES2
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       if(decl) {
          ALLEGRO_VERTEX_ELEMENT* e;
@@ -123,6 +124,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
       }
    }
    else {
+#endif
       if(decl) {
          ALLEGRO_VERTEX_ELEMENT* e;
          e = &decl->elements[ALLEGRO_PRIM_POSITION];
@@ -193,7 +195,9 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          glColorPointer(4, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].color.r);
          glTexCoordPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].u);
       }
+#ifndef ALLEGRO_NO_GLES2
    }
+#endif
 
    if (texture) {
       GLuint gl_texture = al_get_opengl_texture(texture);
@@ -239,6 +243,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          }
       }
 
+#ifndef ALLEGRO_NO_GLES2
       if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
          float transposed[4][4];
          int x, y;
@@ -258,10 +263,13 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
             glUniform1i(handle, 1);
       }
       else {
+#endif
          glMatrixMode(GL_TEXTURE);
          glLoadMatrixf(mat[0]);
          glMatrixMode(GL_MODELVIEW);
+#ifndef ALLEGRO_NO_GLES2
       }
+#endif
    } else {
       glBindTexture(GL_TEXTURE_2D, 0);
    }
@@ -298,6 +306,7 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const 
    setup_state(vtx, decl, texture);
    
    if(texture) {
+#ifndef ALLEGRO_NO_GLES2
       if (ogl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
          if (ogl_disp->ogl_extras->use_tex_loc >= 0) {
             glUniform1i(ogl_disp->ogl_extras->use_tex_loc, 1);
@@ -311,10 +320,13 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const 
          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
       }
       else {
+#endif
          glEnable(GL_TEXTURE_2D);
          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+#ifndef ALLEGRO_NO_GLES2
       }
+#endif
    }
 
    switch (type) {
@@ -356,6 +368,7 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const 
    }
 
    if(texture) {
+#ifndef ALLEGRO_NO_GLES2
       if (ogl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
          float identity[16] = {
             1, 0, 0, 0,
@@ -374,13 +387,17 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const 
             glUniform1i(ogl_disp->ogl_extras->use_tex_loc, 0);
       }
       else {
+#endif
          glDisable(GL_TEXTURE_2D);
          glMatrixMode(GL_TEXTURE);
          glLoadIdentity();
          glMatrixMode(GL_MODELVIEW);
+#ifndef ALLEGRO_NO_GLES2
       }
+#endif
    }
 
+#ifndef ALLEGRO_NO_GLES2
    if (ogl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       if (ogl_disp->ogl_extras->pos_loc >= 0)
          glDisableVertexAttribArray(ogl_disp->ogl_extras->pos_loc);
@@ -390,10 +407,13 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const 
          glDisableVertexAttribArray(ogl_disp->ogl_extras->texcoord_loc);
    }
    else {
+#endif
       glDisableClientState(GL_COLOR_ARRAY);
       glDisableClientState(GL_VERTEX_ARRAY);
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+#ifndef ALLEGRO_NO_GLES2
    }
+#endif
 
    return num_primitives;
 #else
@@ -441,6 +461,7 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
    setup_state(vtx, decl, texture);
    
    if(texture) {
+#ifndef ALLEGRO_NO_GLES2
       if (ogl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
          if (ogl_disp->ogl_extras->use_tex_loc >= 0) {
             glUniform1i(ogl_disp->ogl_extras->use_tex_loc, 1);
@@ -450,8 +471,11 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
          }
       }
       else {
+#endif
          glEnable(GL_TEXTURE_2D);
+#ifndef ALLEGRO_NO_GLES2
       }
+#endif
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
    }
@@ -505,6 +529,7 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
    }
 
    if(texture) {
+#ifndef ALLEGRO_NO_GLES2
       if (ogl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
          float identity[16] = {
             1, 0, 0, 0,
@@ -523,13 +548,17 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
             glUniform1i(ogl_disp->ogl_extras->use_tex_loc, 0);
       }
       else {
+#endif
          glDisable(GL_TEXTURE_2D);
          glMatrixMode(GL_TEXTURE);
          glLoadIdentity();
          glMatrixMode(GL_MODELVIEW);
+#ifndef ALLEGRO_NO_GLES2
       }
+#endif
    }
    
+#ifndef ALLEGRO_NO_GLES2
    if (ogl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       if (ogl_disp->ogl_extras->pos_loc >= 0)
          glDisableVertexAttribArray(ogl_disp->ogl_extras->pos_loc);
@@ -539,10 +568,13 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
          glDisableVertexAttribArray(ogl_disp->ogl_extras->texcoord_loc);
    }
    else {
+#endif
       glDisableClientState(GL_COLOR_ARRAY);
       glDisableClientState(GL_VERTEX_ARRAY);
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+#ifndef ALLEGRO_NO_GLES2
    }
+#endif
 
    return num_primitives;
 #else

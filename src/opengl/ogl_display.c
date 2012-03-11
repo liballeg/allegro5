@@ -517,6 +517,7 @@ void _al_ogl_destroy_backbuffer(ALLEGRO_BITMAP *b)
 }
 
 
+#ifndef ALLEGRO_NO_GLES2
 /* Function: al_set_opengl_program_object
  */
 void al_set_opengl_program_object(ALLEGRO_DISPLAY *display, GLuint program_object)
@@ -543,5 +544,6 @@ void al_set_opengl_program_object(ALLEGRO_DISPLAY *display, GLuint program_objec
    display->ogl_extras->use_tex_matrix_loc = glGetUniformLocation(program_object, "use_tex_matrix");
    display->ogl_extras->tex_matrix_loc = glGetUniformLocation(program_object, "tex_matrix");
 }
+#endif
 
 /* vi: set sts=3 sw=3 et: */
