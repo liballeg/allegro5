@@ -680,8 +680,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
          if (ogl_bitmap->fbo_info) {
             glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &current_fbo);
             
-            if (ogl_bitmap)
-               glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ogl_bitmap->fbo_info->fbo);
+            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ogl_bitmap->fbo_info->fbo);
             pitch = ogl_pitch(w, pixel_size);
             ogl_bitmap->lock_buffer = al_malloc(pitch * h);
 
