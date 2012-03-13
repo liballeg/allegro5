@@ -365,7 +365,8 @@ ALLEGRO_BITMAP *_al_load_tga_f(ALLEGRO_FILE *f, int flags)
       return NULL;
    }
 
-   buf = al_malloc(image_width * ((bpp + 1 / 8)));
+   /* bpp + 1 accounts for 15 bpp. */
+   buf = al_malloc(image_width * ((bpp + 1) / 8));
    if (!buf) {
       al_unlock_bitmap(bmp);
       al_destroy_bitmap(bmp);
