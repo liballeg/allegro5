@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "logg.h"
 
 int main(int argc, char** argv)
