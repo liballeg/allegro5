@@ -390,7 +390,6 @@ static ALLEGRO_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface
    al_set_new_bitmap_flags(flags);
 
    bitmap = al_create_bitmap(desc.Width, desc.Height);
-   extra = get_extra(bitmap);
 
    al_restore_state(&backup);
 
@@ -398,6 +397,8 @@ static ALLEGRO_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface
       surface->UnlockRect();
       return NULL;
    }
+
+   extra = get_extra(bitmap);
 
    if (extra->system_texture->LockRect(0, &sys_locked_rect, 0, 0) != D3D_OK) {
       surface->UnlockRect();
