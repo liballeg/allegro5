@@ -242,7 +242,6 @@ static size_t wav_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    WAVFILE *wavfile = (WAVFILE *) stream->extra;
    bytes_per_sample = (wavfile->bits / 8) * wavfile->channels;
    ctime = wav_stream_get_position(stream);
-   bytes_per_sample = (wavfile->bits / 8) * wavfile->channels;
    btime = ((double)buf_size / (double)bytes_per_sample) / (double)(wavfile->freq);
    
    if (stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR && ctime + btime > wavfile->loop_end) {
@@ -465,12 +464,6 @@ bool _al_save_wav_f(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl)
       }
    }
    else if (spl->depth == ALLEGRO_AUDIO_DEPTH_UINT16) {
-      uint16_t *data = spl->buffer.u16;
-      for (i = 0; i < n; ++i) {
-         al_fwrite16le(pf, *data++ - 0x8000);
-      }
-   }
-   else if (spl->depth == ALLEGRO_AUDIO_DEPTH_INT16) {
       uint16_t *data = spl->buffer.u16;
       for (i = 0; i < n; ++i) {
          al_fwrite16le(pf, *data++ - 0x8000);
