@@ -484,7 +484,12 @@ ALLEGRO_BITMAP* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
    al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
    backbuffer = _al_ogl_create_bitmap(disp, disp->w, disp->h);
    al_restore_state(&backup);
-   
+
+   if (!backbuffer) {
+      ALLEGRO_DEBUG("Backbuffer bitmap creation failed.\n");
+      return NULL;
+   }
+
    backbuffer->w = disp->w;
    backbuffer->h = disp->h;
    backbuffer->cl = 0;
@@ -492,11 +497,6 @@ ALLEGRO_BITMAP* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
    backbuffer->cr_excl = disp->w;
    backbuffer->cb_excl = disp->h;
 
-   if (!backbuffer) {
-      ALLEGRO_DEBUG("Backbuffer bitmap creation failed.\n");
-      return NULL;
-   }
-   
    ALLEGRO_TRACE_CHANNEL_LEVEL("display", 1)(
       "Created backbuffer bitmap (actual format: %s)\n",
       _al_format_name(backbuffer->format));
