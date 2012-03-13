@@ -558,6 +558,7 @@ static bool generate_next_audio_fragment(VORBIS_STREAM *vstream)
       samples = FRAG_SAMPLES - vstream->next_fragment_pos;
    }
 
+   ASSERT(vstream->next_fragment);
    p = &vstream->next_fragment[
       vstream->channels * vstream->next_fragment_pos];
 
