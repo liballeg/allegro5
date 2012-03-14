@@ -67,12 +67,6 @@
 
 #elif defined ALLEGRO_ANDROID
 
-#if __ANDROID__ > 4
-#undef ALLEGRO_NO_GLES2
-#else
-#define ALLEGRO_NO_GLES2
-#endif
-
 #include <GLES/gl.h>
 #include <GLES/glext.h>
 
