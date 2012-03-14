@@ -27,7 +27,7 @@ endif()
 set(CMAKE_CONFIGURATION_TYPES "${CMAKE_BUILD_TYPE}" CACHE INTERNAL "internal")
 
 option(WANT_ANDROID "Build for Android" OFF)
-option(WANT_ANDROID_4 "Build for Android 4 (1.6)" OFF)
+option(WANT_ANDROID_LEGACY "Build for Android 4 (1.6)" OFF)
 if(WANT_ANDROID)
    include(${CMAKE_SOURCE_DIR}/cmake/Toolchain-android.cmake)
 endif(WANT_ANDROID)
@@ -758,11 +758,11 @@ endif(IPHONE)
 
 if(ANDROID)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_ANDROID_FILES})
-if(WANT_ANDROID_4)
+if(WANT_ANDROID_LEGACY)
     list(APPEND PLATFORM_LIBS m log)
-else(WANT_ANDROID_4)
+else(WANT_ANDROID_LEGACY)
     list(APPEND PLATFORM_LIBS m android log)
-endif(WANT_ANDROID_4)
+endif(WANT_ANDROID_LEGACY)
 endif(ANDROID)
 
 # Header files that we need to install.
