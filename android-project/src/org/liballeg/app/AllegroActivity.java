@@ -52,7 +52,7 @@ import org.liballeg.app.AllegroInputStream;
 public class AllegroActivity extends Activity implements SensorEventListener
 {
    /* properties */
-   
+
    static final int ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN = 0;
    static final int ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES = 1;
    static final int ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES = 2;
@@ -90,18 +90,18 @@ public class AllegroActivity extends Activity implements SensorEventListener
       System.loadLibrary("allegro_primitives-debug");
       System.loadLibrary("allegro_image-debug");
    }
-   
+
    public static AllegroActivity Self;
 
    /* methods native code calls */
-   
+
    public String getLibraryDir()
    {
       /* Android 1.6 doesn't have .nativeLibraryDir :( */
 		/* FIXME: use reflection here to detect the capabilities of the device */
       return getApplicationInfo().dataDir + "/lib";
    }
-   
+
    public String getAppName()
    {
       try {
@@ -115,7 +115,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
    {
       //return getApplicationInfo().dataDir + "/assets";
       //return getApplicationInfo().sourceDir + "/assets/";
-               return getFilesDir().getAbsolutePath();
+      return getFilesDir().getAbsolutePath();
    }
 
    public String getPubDataDir()
@@ -291,7 +291,6 @@ public class AllegroActivity extends Activity implements SensorEventListener
       Log.d("AllegroActivity", "onCreate");
       
       Log.d("AllegroActivity", "Files Dir: " + getFilesDir());
-
       File extdir = Environment.getExternalStorageDirectory();
       
       
@@ -321,23 +320,22 @@ public class AllegroActivity extends Activity implements SensorEventListener
       Log.d("AllegroActivity", "sourceDir: " + getApplicationInfo().sourceDir);
       Log.d("AllegroActivity", "publicSourceDir: " + getApplicationInfo().publicSourceDir);
       
-      unpackAssets();
+      unpackAssets("");
       
       handler = new Handler();
       initSensors();
-      
+
       currentConfig = new Configuration(getResources().getConfiguration());
-      
+
       Log.d("AllegroActivity", "before nativeOnCreate");
       if(!nativeOnCreate()) {
          finish();
          Log.d("AllegroActivity", "onCreate fail");
          return;
       }
-      
+
       nativeOnOrientationChange(getAllegroOrientation(currentConfig.orientation), true);
 
-      /* Go fullscreen */
       requestWindowFeature(Window.FEATURE_NO_TITLE);
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
       
@@ -445,13 +443,12 @@ public class AllegroActivity extends Activity implements SensorEventListener
 
       if((changes & ActivityInfo.CONFIG_SCREEN_SIZE) != 0)
          Log.d("AllegroActivity", "screen size changed");
-      
+       
       if((changes & ActivityInfo.CONFIG_SMALLEST_SCREEN_SIZE) != 0)
          Log.d("AllegroActivity", "smallest screen size changed");
       
       if((changes & ActivityInfo.CONFIG_UI_MODE) != 0)
          Log.d("AllegroActivity", "ui mode changed");
-      
       
       if(currentConfig.screenLayout != conf.screenLayout) {
          Log.d("AllegroActivity", "screenLayout changed!");
@@ -536,15 +533,26 @@ public class AllegroActivity extends Activity implements SensorEventListener
    
    // FIXME: this is a horrible hack, needs to be replaced with something smarter
    // FIXME:  or a fshook driver to access assets.
-   private void unpackAssets()
+   private void unpackAssets(String dir)
    {
       try {
          AssetManager am = getResources().getAssets();
-         String list[] = am.list("");
+         String list[] = am.list(dir);
          for(int i = 0; i < list.length; i++) {
-            Log.d("AllegroActivity", "asset["+i+"]: " + list[i]);
-            InputStream is = am.open(list[i]);
-            FileOutputStream os = new FileOutputStream(getResourcesDir()+"/"+list[i]);
+            String full = dir + (dir.equals("") ? "" : "/") + list[i];
+            InputStream is = null;
+            try {
+               is = am.open(full);
+            }
+            catch (Exception e) {
+               Log.d("AllegroActivity", "asset["+i+"] (directory): " + full);
+               File f = new File(getResourcesDir()+"/"+full);
+               f.mkdir();
+               unpackAssets(full);
+               continue;
+            }
+            Log.d("AllegroActivity", "asset["+i+"] (file): " + full);
+            FileOutputStream os = new FileOutputStream(getResourcesDir()+"/"+full);
             
             byte buff[] = new byte[4096];
             while(true) {
@@ -556,6 +564,9 @@ public class AllegroActivity extends Activity implements SensorEventListener
                   break;
                }
             }
+
+            is.close();
+            os.close();
          }
       } catch(java.io.IOException ex) {
          Log.e("AllegroActivity", "asset list exception: "+ex.getMessage());
@@ -582,10 +593,8 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    static final int ALLEGRO_STENCIL_SIZE = 16;
    static final int ALLEGRO_SAMPLE_BUFFERS = 17;
    static final int ALLEGRO_SAMPLES = 18;
-   static final int _MIN_SWAP_INTERVAL = 1000;
-   static final int _MAX_SWAP_INTERVAL = 1001;
-   static final int EGL_MIN_SWAP_INTERVAL = 0x303B;
-   static final int EGL_MAX_SWAP_INTERVAL = 0x303C;
+   static final int _BIND_TO_TEXTURE_RGBA = 0x1002;
+   static final int EGL_BIND_TO_TEXTURE_RGBA = 0x303A;
    
    static final int ALLEGRO_KEY_A     = 1;
    static final int ALLEGRO_KEY_B     = 2;
@@ -892,7 +901,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    public int egl_getMajorVersion() { return egl_Version[0]; }
    public int egl_getMinorVersion() { return egl_Version[1]; }
    public int egl_getNumConfigs()   { return egl_numConfigs; }
-   
+
    public int egl_getConfigAttrib(int conf, int attr)
    {
       EGL10 egl = (EGL10)EGLContext.getEGL();
@@ -931,20 +940,18 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
             egl_attr = egl.EGL_SAMPLES;
             break;
 
-         case _MIN_SWAP_INTERVAL:
-            egl_attr = EGL_MIN_SWAP_INTERVAL;
-            break;
-
-         case _MAX_SWAP_INTERVAL:
-            egl_attr = EGL_MAX_SWAP_INTERVAL;
+         case _BIND_TO_TEXTURE_RGBA:
+            egl_attr = _BIND_TO_TEXTURE_RGBA;
             break;
 
          default:
             Log.e("AllegroSurface", "got unknown attribute " + attr);
             break;
       }
+
       
       int[] value = { 0 };
+
       if(!egl.eglGetConfigAttrib(egl_Display, egl_Config[conf], egl_attr, value))
          return -1;
       
@@ -955,7 +962,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    {
       Log.d("AllegroSurface", "egl_createContext");
       EGL10 egl = (EGL10)EGLContext.getEGL();
-      
+
       EGLContext ctx = egl.eglCreateContext(egl_Display, egl_Config[conf], EGL10.EGL_NO_CONTEXT, null);
       if(ctx == EGL10.EGL_NO_CONTEXT) {
          Log.d("AllegroSurface", "egl_createContext no context");
@@ -1078,10 +1085,6 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
                try {
                   EGL10 egl = (EGL10)EGLContext.getEGL();
                   
-                  egl.eglWaitNative(EGL10.EGL_NATIVE_RENDERABLE, null);
-
-                  egl.eglWaitGL();
-
                   egl.eglSwapBuffers(egl_Display, egl_Surface);
                   switch(egl.eglGetError()) {
                      case EGL10.EGL_SUCCESS:
@@ -1390,8 +1393,6 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       //Log.d("AllegroSurface", "onTouch end");
       return true;
    }
-
-   
 
 }
 
