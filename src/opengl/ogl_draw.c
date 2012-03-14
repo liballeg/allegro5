@@ -81,116 +81,92 @@ bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
 static void vert_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, void *v)
 {
 /* Only use this shader stuff with GLES2+ or equivalent */
-#ifndef ALLEGRO_NO_GLES2
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+#ifndef ALLEGRO_NO_GLES2
       if (display->ogl_extras->pos_loc >= 0) {
          glVertexAttribPointer(display->ogl_extras->pos_loc, n, t, false, stride, v);
          glEnableVertexAttribArray(display->ogl_extras->pos_loc);
       }
+#endif
    }
    else {
-#else
-   (void)display;
-#endif
       glEnableClientState(GL_VERTEX_ARRAY);
       glVertexPointer(n, t, stride, v);
-#ifndef ALLEGRO_NO_GLES2
    }
-#endif
 }
 
 static void vert_ptr_off(ALLEGRO_DISPLAY *display)
 {
-#ifndef ALLEGRO_NO_GLES2
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+#ifndef ALLEGRO_NO_GLES2
       if (display->ogl_extras->pos_loc >= 0) {
          glDisableVertexAttribArray(display->ogl_extras->pos_loc);
       }
+#endif
    }
    else {
-#else
-   (void)display;
-#endif
       glDisableClientState(GL_VERTEX_ARRAY);
-#ifndef ALLEGRO_NO_GLES2
    }
-#endif
 }
 
 static void color_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, void *v)
 {
-#ifndef ALLEGRO_NO_GLES2
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+#ifndef ALLEGRO_NO_GLES2
       if (display->ogl_extras->color_loc >= 0) {
          glVertexAttribPointer(display->ogl_extras->color_loc, n, t, false, stride, v);
          glEnableVertexAttribArray(display->ogl_extras->color_loc);
       }
+#endif
    }
    else {
-#else
-   (void)display;
-#endif
       glEnableClientState(GL_COLOR_ARRAY);
       glColorPointer(n, t, stride, v);
-#ifndef ALLEGRO_NO_GLES2
    }
-#endif
 }
 
 static void color_ptr_off(ALLEGRO_DISPLAY *display)
 {
-#ifndef ALLEGRO_NO_GLES2
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+#ifndef ALLEGRO_NO_GLES2
       if (display->ogl_extras->color_loc >= 0) {
          glDisableVertexAttribArray(display->ogl_extras->color_loc);
       }
+#endif
    }
    else {
-#else
-   (void)display;
-#endif
       glDisableClientState(GL_COLOR_ARRAY);
-#ifndef ALLEGRO_NO_GLES2
    }
-#endif
 }
 
 static void tex_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, void *v)
 {
-#ifndef ALLEGRO_NO_GLES2
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+#ifndef ALLEGRO_NO_GLES2
       if (display->ogl_extras->texcoord_loc >= 0) {
          glVertexAttribPointer(display->ogl_extras->texcoord_loc, n, t, false, stride, v);
          glEnableVertexAttribArray(display->ogl_extras->texcoord_loc);
       }
+#endif
    }
    else {
-#else
-   (void)display;
-#endif
       glEnableClientState(GL_TEXTURE_COORD_ARRAY);
       glTexCoordPointer(n, t, stride, v);
-#ifndef ALLEGRO_NO_GLES2
    }
-#endif
 }
 
 static void tex_ptr_off(ALLEGRO_DISPLAY *display)
 {
-#ifndef ALLEGRO_NO_GLES2
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+#ifndef ALLEGRO_NO_GLES2
       if (display->ogl_extras->texcoord_loc >= 0) {
          glDisableVertexAttribArray(display->ogl_extras->texcoord_loc);
       }
+#endif
    }
    else {
-#else
-   (void)display;
-#endif
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-#ifndef ALLEGRO_NO_GLES2
    }
-#endif
 }
 
 /* Dummy implementation of clear. */
@@ -282,35 +258,33 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    if (disp->num_cache_vertices == 0)
       return;
 
-#ifndef ALLEGRO_NO_GLES2
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+#ifndef ALLEGRO_NO_GLES2
       if (disp->ogl_extras->use_tex_loc >= 0) {
          glUniform1i(disp->ogl_extras->use_tex_loc, 1);
       }
       if (disp->ogl_extras->use_tex_matrix_loc >= 0) {
          glUniform1i(disp->ogl_extras->use_tex_matrix_loc, 0);
       }
+#endif
    }
    else {
-#endif
       glGetBooleanv(GL_TEXTURE_2D, &on);
       if (!on) {
          glEnable(GL_TEXTURE_2D);
       }
-#ifndef ALLEGRO_NO_GLES2
    }
-#endif
    
    glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&current_texture);
    if (current_texture != disp->cache_texture) {
-#ifndef ALLEGRO_NO_GLES2
       if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+#ifndef ALLEGRO_NO_GLES2
          /* Use texture unit 0 */
          glActiveTexture(GL_TEXTURE0);
          if (disp->ogl_extras->tex_loc >= 0)
             glUniform1i(disp->ogl_extras->tex_loc, 0);
-      }
 #endif
+      }
       glBindTexture(GL_TEXTURE_2D, disp->cache_texture);
    }
 
@@ -334,28 +308,23 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    
    disp->num_cache_vertices = 0;
 
-#ifndef ALLEGRO_NO_GLES2
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+#ifndef ALLEGRO_NO_GLES2
       if (disp->ogl_extras->use_tex_loc >= 0)
          glUniform1i(disp->ogl_extras->use_tex_loc, 0);
+#endif
    }
    else {
-#endif
       if (!on) {
          glDisable(GL_TEXTURE_2D);
       }
-#ifndef ALLEGRO_NO_GLES2
    }
-#endif
 }
 
 static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
    ALLEGRO_BITMAP *target)
 {
    ALLEGRO_TRANSFORM tmp;
-#ifdef ALLEGRO_NO_GLES2
-   (void)disp;
-#endif
    
    al_copy_transform(&tmp, &target->transform);
 
@@ -364,8 +333,8 @@ static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
       al_translate_transform(&tmp, target->xofs, target->yofs);
    }
 
-#ifndef ALLEGRO_NO_GLES2
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+#ifndef ALLEGRO_NO_GLES2
       GLuint program_object = disp->ogl_extras->program_object;
       GLint handle;
       
@@ -381,20 +350,18 @@ static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
       if (handle >= 0) {
          glUniformMatrix4fv(handle, 1, GL_FALSE, (float *)tmp.m);
       }
+#endif
    }
    else {
-#endif
       glMatrixMode(GL_MODELVIEW);
       glLoadMatrixf((float *)tmp.m);
-#ifndef ALLEGRO_NO_GLES2
    }
-#endif
 }
 
 static void ogl_set_projection(ALLEGRO_DISPLAY *d)
 {
-#ifndef ALLEGRO_NO_GLES2
    if (d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+#ifndef ALLEGRO_NO_GLES2
       GLuint program_object = d->ogl_extras->program_object;
       GLint handle;
 
@@ -409,15 +376,13 @@ static void ogl_set_projection(ALLEGRO_DISPLAY *d)
          al_compose_transform(&t, &d->proj_transform);
          glUniformMatrix4fv(handle, 1, false, (float *)t.m);
       }
+#endif
    }
    else {
-#endif
       glMatrixMode(GL_PROJECTION);
       glLoadMatrixf((float *)d->proj_transform.m);
       glMatrixMode(GL_MODELVIEW);
-#ifndef ALLEGRO_NO_GLES2
    }
-#endif
 }
 
 /* Add drawing commands to the vtable. */
