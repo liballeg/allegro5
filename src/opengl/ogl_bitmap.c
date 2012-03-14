@@ -1147,6 +1147,7 @@ ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d,
    return bmp;
 }
 
+#if 0 // Don't think we need this as it is
 /* lets you setup the memory pointer to skip a lock/unlock copy
  * if it's unsessesary */
 void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
@@ -1264,6 +1265,7 @@ void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
       al_remove_opengl_fbo(bitmap);
    }
 }
+#endif
 
 /* Function: al_get_opengl_texture
  */

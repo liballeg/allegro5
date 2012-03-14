@@ -64,6 +64,12 @@ JNIEnv *_jni_getEnv()
    return system_data.main_env;
 }
 
+/* This is needed to do threading with JNI */
+JavaVM *_jni_getJavaVM()
+{
+   return javavm;
+}
+
 void __jni_checkException(JNIEnv *env, const char *file, const char *func, int line)
 {
    jthrowable exc;
@@ -634,12 +640,13 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
 
 ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
 {
+   int x, y;
    jobject byte_buffer;
    jobject jbitmap;
 
    jmethodID input_stream_ctor;
    jobject input_stream;
-   void *buffer = 0;
+   uint8_t *buffer = 0;
    int buffer_len = al_fsize(fh);
    ALLEGRO_BITMAP *bitmap = NULL;
    int bitmap_w = 0, bitmap_h = 0;
@@ -691,16 +698,6 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
    // tell java we're done with the bitmap as well
    _jni_callv(system_data.main_env, DeleteLocalRef, jbitmap);
 
-   unsigned char *flipped = al_malloc(bitmap_w * bitmap_h * 4);
-   ASSERT(flipped != NULL);
-   
-   _al_convert_bitmap_data(buffer + pitch * (bitmap_h-1), ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, -pitch,
-                           flipped, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, bitmap_w * 4,
-                           0, 0, 0, 0, bitmap_w, bitmap_h);
-   
-   al_free(buffer);
-   buffer = flipped;
-
    al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE);
    bitmap = al_create_bitmap(bitmap_w, bitmap_h);
@@ -710,7 +707,20 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
       return NULL;
    }
    
-   _al_ogl_upload_bitmap_memory(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, buffer);
+   //_al_ogl_upload_bitmap_memory(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, buffer);
+   ALLEGRO_DEBUG("HERE");
+   ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
+   for (y = 0; y < bitmap_h; y++) {
+      for (x = 0; x < bitmap->w; x++) {
+         memcpy(
+            ((uint8_t *)lr->data)+lr->pitch*y,
+            buffer+pitch*y,
+            bitmap_w*4
+         );
+      }
+   }
+   al_unlock_bitmap(bitmap);
+   ALLEGRO_DEBUG("HERE2");
    
    al_free(buffer);
    
