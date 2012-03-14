@@ -1318,17 +1318,16 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
          int ptr_idx = this.<Integer>callMethod(event, "getActionIndex", no_args);
          pointer_id = this.<Integer>callMethod(event, "getPointerId", int_arg, ptr_idx);
       } else {
-         int mask = 0xff;
          int raw_action = event.getAction();
          
          if(fieldExists(event, "ACTION_MASK")) { // android-5 / 2.0
-            mask = this.<Integer>getField(event, "ACTION_MASK");
+            int mask = this.<Integer>getField(event, "ACTION_MASK");
             action = raw_action & mask;
             
             int ptr_id_mask = this.<Integer>getField(event, "ACTION_POINTER_ID_MASK");
             int ptr_id_shift = this.<Integer>getField(event, "ACTION_POINTER_ID_SHIFT");
             
-            pointer_id = (raw_action & ptr_id_mask) >> ptr_id_shift;
+            pointer_id = event.getPointerId((raw_action & ptr_id_mask) >> ptr_id_shift);
          }
          else { // android-4 / 1.6
             /* no ACTION_MASK? no multi touch, no pointer_id, */
