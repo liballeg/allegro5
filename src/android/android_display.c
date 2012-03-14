@@ -428,12 +428,10 @@ static void _al_android_update_visuals(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
       eds->settings[ALLEGRO_BLUE_SHIFT]     = eds->settings[ALLEGRO_RED_SIZE] + eds->settings[ALLEGRO_GREEN_SIZE];
       eds->settings[ALLEGRO_ALPHA_SHIFT]    = eds->settings[ALLEGRO_RED_SIZE] + eds->settings[ALLEGRO_GREEN_SIZE] + eds->settings[ALLEGRO_BLUE_SIZE];
 
-      /* Make sure we get a double buffered display */
-      const int _MIN_SWAP_INTERVAL = 1000;
-      const int _MAX_SWAP_INTERVAL = 1001;
-      int min_swap_interval = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, _MIN_SWAP_INTERVAL);
-      int max_swap_interval = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, _MAX_SWAP_INTERVAL);
-      if (min_swap_interval != 1 || max_swap_interval != 1) {
+      /* Make sure we get an ES 1.1 display. This is a bit of a hack and needs testing on other devices. */
+      const int _BIND_TO_TEXTURE_RGBA = 1002;
+      int bind_to_texture_rgba = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, _BIND_TO_TEXTURE_RGBA);
+      if (bind_to_texture_rgba == 0) {
          eds->score = -1;
       }
       else {
@@ -450,6 +448,13 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_android_display_driver(void);
 static ALLEGRO_DISPLAY *android_create_display(int w, int h)
 {
    ALLEGRO_DEBUG("begin");
+
+   int flags = al_get_new_display_flags();
+#ifdef ALLEGRO_NO_GLES2
+   if (flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      return NULL;
+   }
+#endif
    
    ALLEGRO_DISPLAY_ANDROID *d = al_malloc(sizeof *d);
    ALLEGRO_DISPLAY *display = (void *)d;
@@ -461,7 +466,7 @@ static ALLEGRO_DISPLAY *android_create_display(int w, int h)
    display->vt = _al_get_android_display_driver();
    display->w = w;
    display->h = h;
-   display->flags = al_get_new_display_flags();
+   display->flags = flags;
    
    _al_event_source_init(&display->es);
    
@@ -489,13 +494,13 @@ static ALLEGRO_DISPLAY *android_create_display(int w, int h)
    ALLEGRO_DEBUG("done waiting for surface onChange");
 
    al_unlock_mutex(d->mutex);
-   
+
    display->flags |= ALLEGRO_OPENGL;
    
    ALLEGRO_DEBUG("display: %p %ix%i", display, display->w, display->h);
    
    _al_android_make_current(_jni_getEnv(), d);
-   
+
    ALLEGRO_DEBUG("end");
    return display;
 }
