@@ -40,6 +40,7 @@ ALLEGRO_JOYSTICK_DRIVER *_al_get_android_joystick_driver(void);
 bool _al_get_android_montior_info(int adapter, ALLEGRO_MONITOR_INFO *info);
 
 JNIEnv *_jni_getEnv();
+JavaVM *_jni_getJavaVM();
 
 #define _jni_checkException(env) __jni_checkException(env, __FILE__, __FUNCTION__, __LINE__)
 void __jni_checkException(JNIEnv *env, const char *file, const char *fname, int line);
