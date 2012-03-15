@@ -458,6 +458,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
          ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
          glformats[bitmap->format][2],
          glformats[bitmap->format][1], buf);
+      al_free(buf);
    }
 #endif
 
