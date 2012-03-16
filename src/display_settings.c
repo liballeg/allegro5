@@ -74,6 +74,9 @@ void al_change_display_option(ALLEGRO_DISPLAY *display, int option, int value)
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras;
    extras = &display->extra_settings;
    extras->settings[option] = value;
+   if (display->vt->change_display_option) {
+      display->vt->change_display_option(display, option, value);
+   }
 }
 
 /* Function: al_get_display_option
