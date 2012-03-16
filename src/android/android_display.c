@@ -428,17 +428,20 @@ static void _al_android_update_visuals(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
       eds->settings[ALLEGRO_BLUE_SHIFT]     = eds->settings[ALLEGRO_RED_SIZE] + eds->settings[ALLEGRO_GREEN_SIZE];
       eds->settings[ALLEGRO_ALPHA_SHIFT]    = eds->settings[ALLEGRO_RED_SIZE] + eds->settings[ALLEGRO_GREEN_SIZE] + eds->settings[ALLEGRO_BLUE_SIZE];
 
-      /* Make sure we get an ES 1.1 display. This is a bit of a hack and needs testing on other devices. */
-      const int _BIND_TO_TEXTURE_RGBA = 1002;
-      int bind_to_texture_rgba = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, _BIND_TO_TEXTURE_RGBA);
-      if (bind_to_texture_rgba == 0) {
-         eds->score = -1;
-      }
-      else {
-         eds->score = _al_score_display_settings(eds, ref);
-      }
+      eds->score = _al_score_display_settings(eds, ref);
       eds->index = i;
       system->visuals[i] = eds;
+   }
+}
+
+static void android_change_display_option(ALLEGRO_DISPLAY *d, int o, int v)
+{
+   (void)d;
+   if (o == ALLEGRO_SUPPORTED_ORIENTATIONS) {
+      int orientation = _jni_callIntMethodV(_jni_getEnv(),
+         _al_android_activity_object(), "getAndroidOrientation", "(I)I", v);
+      _jni_callVoidMethodV(_jni_getEnv(), _al_android_activity_object(),
+         "setRequestedOrientation", "(I)V", orientation);
    }
 }
 
@@ -500,6 +503,9 @@ static ALLEGRO_DISPLAY *android_create_display(int w, int h)
    ALLEGRO_DEBUG("display: %p %ix%i", display, display->w, display->h);
    
    _al_android_make_current(_jni_getEnv(), d);
+
+   /* Don't need to repeat what this does */
+   android_change_display_option(display, ALLEGRO_SUPPORTED_ORIENTATIONS, display->extra_settings.settings[ALLEGRO_SUPPORTED_ORIENTATIONS]);
 
    ALLEGRO_DEBUG("end");
    return display;
@@ -608,7 +614,7 @@ static bool android_acknowledge_resize(ALLEGRO_DISPLAY *dpy)
 static int android_get_orientation(ALLEGRO_DISPLAY *dpy)
 {
    (void)dpy;
-   return ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES;
+   return _al_android_get_display_orientation();
 }
 
 static bool android_is_compatible_bitmap(ALLEGRO_DISPLAY *dpy, ALLEGRO_BITMAP *bmp)
@@ -738,6 +744,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_android_display_driver(void)
    vt->hide_mouse_cursor = android_hide_mouse_cursor;
 
    vt->acknowledge_drawing_resume = android_acknowledge_drawing_resume;
+
+   vt->change_display_option = android_change_display_option;
    
    _al_ogl_add_drawing_functions(vt);
     

@@ -40,7 +40,7 @@ ALLEGRO_JOYSTICK_DRIVER *_al_get_android_joystick_driver(void);
 bool _al_get_android_montior_info(int adapter, ALLEGRO_MONITOR_INFO *info);
 
 JNIEnv *_jni_getEnv();
-JavaVM *_jni_getJavaVM();
+int _al_android_get_display_orientation(void);
 
 #define _jni_checkException(env) __jni_checkException(env, __FILE__, __FUNCTION__, __LINE__)
 void __jni_checkException(JNIEnv *env, const char *file, const char *fname, int line);
@@ -119,9 +119,12 @@ void _al_android_destroy_surface(JNIEnv *env, jobject obj, bool post);
 bool _al_android_init_display(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *display);
 
 ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags);
+ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags);
 
 jobject _al_android_activity_object();
 int _al_android_get_orientation();
+
+void _al_android_generate_joystick_event(float x, float y, float z);
 
 #endif /* ALLEGRO_AINTERN_ANDROID_H */
 

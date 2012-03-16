@@ -64,10 +64,10 @@ JNIEnv *_jni_getEnv()
    return system_data.main_env;
 }
 
-/* This is needed to do threading with JNI */
-JavaVM *_jni_getJavaVM()
+int _al_android_get_display_orientation(void)
 {
-   return javavm;
+   int o = system_data.orientation;
+   return o;
 }
 
 void __jni_checkException(JNIEnv *env, const char *file, const char *func, int line)
@@ -159,7 +159,6 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
    ALLEGRO_USTR *lib_fname = NULL;
    const char *full_path = NULL;
    ALLEGRO_SYSTEM_ANDROID *na_sys = NULL;
-   jclass aisc;
    jclass iae;
    
    // we're already initialized, we REALLY don't want to run all the stuff below again.
@@ -178,10 +177,6 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
    ALLEGRO_DEBUG("grab activity global refs");
    system_data.env             = env;
    system_data.activity_object = (*env)->NewGlobalRef(env, obj);
-   
-   aisc = (*env)->FindClass(env, "org/liballeg/app/AllegroInputStream");
-   system_data.input_stream_class = (*env)->NewGlobalRef(env, aisc);
-   ALLEGRO_DEBUG("input_stream_class: %i", (int)system_data.input_stream_class);
    
    iae = (*env)->FindClass(env, "java/lang/IllegalArgumentException");
    system_data.illegal_argument_exception_class = (*env)->NewGlobalRef(env, iae);
@@ -350,8 +345,9 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnDestroy(JNI
 
 JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnAccel(JNIEnv *env, jobject obj, jint id, jfloat x, jfloat y, jfloat z)
 {
-   (void)env; (void)obj; (void)id; (void)x; (void)y; (void)z;
+   (void)env; (void)obj; (void)id;
    //ALLEGRO_DEBUG("got some accelerometer data!");
+   _al_android_generate_joystick_event(x, y, z);
 }
 
 JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnOrientationChange(JNIEnv *env, jobject obj, int orientation, bool init)
@@ -405,39 +401,6 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeCreateDisplay
    ALLEGRO_DEBUG("nativeCreateDisplay end");
 }
 
-JNIEXPORT int JNICALL Java_org_liballeg_app_AllegroInputStream_nativeRead(JNIEnv *env, jobject obj, int handle, jbyteArray array, int offset, int length)
-{
-   ALLEGRO_FILE *fp = (ALLEGRO_FILE*)handle;
-   int ret = -1;
-   jbyte *array_ptr = NULL;
-   ASSERT(fp != NULL);
-   
-   (void)obj;
-   ALLEGRO_DEBUG("nativeRead begin: handle:%i fp:%p offset:%i length:%i", handle, fp, offset, length);
-   
-   int array_len = _jni_call(env, int, GetArrayLength, array);
-   ALLEGRO_DEBUG("array length: %i", array_len);
-   
-   array_ptr = _jni_call(env, jbyte *, GetByteArrayElements, array, NULL);
-   ASSERT(array_ptr != NULL);
-   
-   ALLEGRO_DEBUG("al_fread: p:%p, o:%i, l:%i", array_ptr, offset, length);
-   ret = al_fread(fp, array_ptr+offset, length);
-
-   _jni_callv(env, ReleaseByteArrayElements, array, array_ptr, 0);
-   
-   ALLEGRO_DEBUG("nativeRead end");
-   return ret;
-}
-
-JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroInputStream_nativeClose(JNIEnv *env, jobject obj, int hdnl)
-{
-   ALLEGRO_FILE *fp = (ALLEGRO_FILE*)hdnl;
-   (void)env;
-   (void)obj;
-   al_fclose(fp);
-}
-
 static void finish_activity(JNIEnv *env)
 {
    ALLEGRO_DEBUG("pre post");
@@ -486,7 +449,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_android_interface()
    android_vt->get_keyboard_driver = _al_get_android_keyboard_driver;
    //android_vt->get_mouse_driver = _al_get_android_na_mouse_driver;
    android_vt->get_touch_input_driver = _al_get_android_touch_input_driver;
-   //android_vt->get_joystick_driver = _al_get_android_na_joystick_driver;
+   android_vt->get_joystick_driver = _al_get_android_joystick_driver;
    android_vt->get_num_video_adapters = android_get_num_video_adapters;
    //android_vt->get_monitor_info = _al_get_android_na_montior_info;
    android_vt->get_path = _al_android_get_path;
@@ -637,7 +600,6 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
    
 }*/
 
-
 ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
 {
    int x, y;
@@ -665,7 +627,7 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
       return NULL;
    }
    
-   jbitmap = _jni_callObjectMethodV(system_data.main_env, system_data.activity_object, "decodeBitmap", "(Lorg/liballeg/app/AllegroInputStream;)Landroid/graphics/Bitmap;", input_stream);
+   jbitmap = _jni_callObjectMethodV(system_data.main_env, system_data.activity_object, "decodeBitmap_f", "(Lorg/liballeg/app/AllegroInputStream;)Landroid/graphics/Bitmap;", input_stream);
    ASSERT(jbitmap != NULL);
    
    _jni_callv(system_data.main_env, DeleteLocalRef, input_stream);
@@ -724,6 +686,66 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
    
    al_free(buffer);
    
+   return bitmap;
+}
+
+ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags)
+{
+   int x, y;
+   jobject jbitmap;
+   ALLEGRO_BITMAP *bitmap = NULL;
+   int bitmap_w = 0, bitmap_h = 0;
+   ALLEGRO_STATE state;
+   
+   (void)flags;
+   
+   jbitmap = _jni_callObjectMethodV(system_data.main_env, system_data.activity_object, "decodeBitmap_f", "(Ljava/lang/String;)Landroid/graphics/Bitmap;",
+      (*system_data.main_env)->NewStringUTF(system_data.main_env, filename));
+   ASSERT(jbitmap != NULL);
+   
+   bitmap_w = _jni_callIntMethod(system_data.main_env, jbitmap, "getWidth");
+   bitmap_h = _jni_callIntMethod(system_data.main_env, jbitmap, "getHeight");
+   
+   ALLEGRO_DEBUG("bitmap dimensions: %d, %d", bitmap_w, bitmap_h);
+   
+   al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE);
+   bitmap = al_create_bitmap(bitmap_w, bitmap_h);
+   al_restore_state(&state);
+   if(!bitmap) {
+      return NULL;
+   }
+
+   ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
+
+   jintArray ia = jbitmap = _jni_callObjectMethodV(system_data.main_env, system_data.activity_object, "getPixels", "(Landroid/graphics/Bitmap;)[I", jbitmap);
+   jint *arr = (*system_data.main_env)->GetIntArrayElements(system_data.main_env, ia, 0);
+   uint32_t *src = (uint32_t *)arr;
+   uint32_t c;
+   uint8_t a;
+   for (y = 0; y < bitmap_h; y++) {
+      /* Can use this for NO_PREMULTIPLIED_ALPHA I think
+      _al_convert_bitmap_data(
+         ((uint8_t *)arr) + (bitmap_w * 4) * y, ALLEGRO_PIXEL_FORMAT_ARGB_8888, bitmap_w*4,
+         ((uint8_t *)lr->data) + lr->pitch * y, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, lr->pitch,
+         0, 0, 0, 0, bitmap_w, 1
+      );
+      else use this: */
+      uint32_t *dst = (uint32_t *)(((uint8_t *)lr->data) + lr->pitch * y);
+      for (x = 0; x < bitmap_w; x++) {
+         c = *src++;
+         a = (c >> 24) & 0xff;
+         c = (a << 24) | (((c >> 16) & 0xff) * a / 255) | ((((c >> 8) & 0xff) * a / 255) << 8) | (((c & 0xff) * a / 255) << 16);
+         *dst++ = c;
+      }
+   }
+   (*system_data.main_env)->ReleaseIntArrayElements(system_data.main_env, ia, arr, JNI_ABORT);
+
+   // tell java we're done with the bitmap as well
+   _jni_callv(system_data.main_env, DeleteLocalRef, jbitmap);
+
+   al_unlock_bitmap(bitmap);
+
    return bitmap;
 }
 

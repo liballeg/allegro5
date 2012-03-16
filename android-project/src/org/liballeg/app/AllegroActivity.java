@@ -7,6 +7,7 @@ import android.os.Environment;
 
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
 import android.view.View;
@@ -48,6 +49,21 @@ import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.egl.*;
 
 import org.liballeg.app.AllegroInputStream;
+
+class Utils
+{
+   public static boolean methodExists(Object obj, String methName)
+   {
+      try {
+         Class cls = obj.getClass();
+         Method m = cls.getMethod(methName);
+         return true;
+      } catch(Exception x) {
+         return false;
+      }
+   }
+   
+}
 
 public class AllegroActivity extends Activity implements SensorEventListener
 {
@@ -122,12 +138,12 @@ public class AllegroActivity extends Activity implements SensorEventListener
    {
       return getExternalFilesDir(null).getAbsolutePath();
    }
-
+   
    public String getApkPath()
 	{
 		return getApplicationInfo().sourceDir;
 	}
-   
+
    public void postRunnable(Runnable runme)
    {
       try {
@@ -137,7 +153,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
          Log.d("AllegroActivity", "postRunnable exception: " + x.getMessage());
       }
    }
-   
+
    public void createSurface()
    {
       try {
@@ -157,7 +173,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
          Log.d("AllegroActivity", "createSurface exception: " + x.getMessage());
       }
    }
-   
+
    public void postCreateSurface()
    {
       try {
@@ -230,10 +246,37 @@ public class AllegroActivity extends Activity implements SensorEventListener
       
       return null;
    }
-   
-   public Bitmap decodeBitmap(final AllegroInputStream is)
+
+   public int[] getPixels(Bitmap bmp)
+   {
+      int width = bmp.getWidth();
+      int height = bmp.getHeight();
+      int[] pixels = new int[width*height];
+      bmp.getPixels(pixels, 0, width, 0, 0, width, height);
+      return pixels;
+   }
+
+   public Bitmap decodeBitmap(final String filename)
    {
       Log.d("AllegroActivity", "decodeBitmap begin");
+      bitmapLoaded = false;
+      try {
+         BitmapFactory.Options options = new BitmapFactory.Options();
+         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+         InputStream is = getResources().getAssets().open(filename);;
+         decodedBitmap = BitmapFactory.decodeStream(is, null, options);
+         is.close();
+         Log.d("AllegroActivity", "done waiting for decodeStream");
+      } catch(Exception ex) {
+         Log.e("AllegroActivity", "decodeBitmap exception: " + ex.getMessage());
+      }
+      Log.d("AllegroActivity", "decodeBitmap end");
+      return decodedBitmap;
+   }
+
+   public Bitmap decodeBitmap_f(final AllegroInputStream is)
+   {
+      Log.d("AllegroActivity", "decodeBitmap_f begin");
       bitmapLoaded = false;
       try {
          //handler.post( new Runnable() {
@@ -253,9 +296,9 @@ public class AllegroActivity extends Activity implements SensorEventListener
          Log.d("AllegroActivity", "done waiting for decodeStream");
          
       } catch(Exception ex) {
-         Log.e("AllegroActivity", "decodeBitmap exception: " + ex.getMessage());
+         Log.e("AllegroActivity", "decodeBitmap_f exception: " + ex.getMessage());
       }
-      Log.d("AllegroActivity", "decodeBitmap end");
+      Log.d("AllegroActivity", "decodeBitmap_f end");
       return decodedBitmap;
    }
    
@@ -320,7 +363,8 @@ public class AllegroActivity extends Activity implements SensorEventListener
       Log.d("AllegroActivity", "sourceDir: " + getApplicationInfo().sourceDir);
       Log.d("AllegroActivity", "publicSourceDir: " + getApplicationInfo().publicSourceDir);
       
-      unpackAssets("");
+      //unpackAssets("");
+      unpackAssets("unpack");
       
       handler = new Handler();
       initSensors();
@@ -334,7 +378,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
          return;
       }
 
-      nativeOnOrientationChange(getAllegroOrientation(currentConfig.orientation), true);
+      nativeOnOrientationChange(getAllegroOrientation(), true);
 
       requestWindowFeature(Window.FEATURE_NO_TITLE);
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -435,7 +479,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
          
       if((changes & ActivityInfo.CONFIG_ORIENTATION) != 0) {
          Log.d("AllegroActivity", "orientation changed");
-         nativeOnOrientationChange(getAllegroOrientation(conf.orientation), false);
+         nativeOnOrientationChange(getAllegroOrientation(), false);
       }
          
       if((changes & ActivityInfo.CONFIG_SCREEN_LAYOUT) != 0)
@@ -446,7 +490,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
        
       if((changes & ActivityInfo.CONFIG_SMALLEST_SCREEN_SIZE) != 0)
          Log.d("AllegroActivity", "smallest screen size changed");
-      
+       
       if((changes & ActivityInfo.CONFIG_UI_MODE) != 0)
          Log.d("AllegroActivity", "ui mode changed");
       
@@ -507,27 +551,84 @@ public class AllegroActivity extends Activity implements SensorEventListener
          nativeOnAccel(idx, event.values[0], event.values[1], event.values[2]);
       }
    }
-   
-   private int getAllegroOrientation(int orientation)
+
+   public int getAndroidOrientation(int alleg_orientation)
    {
-      int allegro_orientation = ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN;
-      switch(orientation) {
-         case Configuration.ORIENTATION_LANDSCAPE:
-            allegro_orientation = ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE;
+      int android_orientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+
+      switch (alleg_orientation)
+      {
+         case ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES:
+            android_orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
             break;
-            
-         case Configuration.ORIENTATION_PORTRAIT:
-            allegro_orientation = ALLEGRO_DISPLAY_ORIENTATION_PORTRAIT;
+
+         case ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES:
+            android_orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
             break;
-            
-         case Configuration.ORIENTATION_SQUARE:
-            // XXX: maybe add a ALLEGRO_DISPLAY_ORIENTATION_SQUARE?
-            // allegro_orientation = ALLEGRO_DISPLAY_ORIENTATION_SQUARE;
+
+         case ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES:
+            android_orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
             break;
-            
-         case Configuration.ORIENTATION_UNDEFINED:
+
+         case ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES:
+            android_orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+            break;
+
+         case ALLEGRO_DISPLAY_ORIENTATION_PORTRAIT:
+            android_orientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT;
+            break;
+
+         case ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE:
+            android_orientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
+            break;
+
+         case ALLEGRO_DISPLAY_ORIENTATION_ALL:
+            android_orientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
             break;
       }
+
+      return android_orientation;
+   }
+   
+   private int getAllegroOrientation()
+   {
+      int allegro_orientation = ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN;
+      int rotation;
+
+      if (Utils.methodExists(getWindowManager().getDefaultDisplay(), "getRotation")) {
+         /* 2.2+ */
+         rotation = getWindowManager().getDefaultDisplay().getRotation();
+      }
+      else {
+         rotation = getWindowManager().getDefaultDisplay().getOrientation();
+      }
+
+      switch (rotation) {
+         case Surface.ROTATION_0:
+            allegro_orientation = ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES;
+            break;
+
+         case Surface.ROTATION_180:
+            allegro_orientation = ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES;
+            break;
+
+         /* Big fat notice here: Android device orientations are the opposite of Allegro ones.
+          * Allegro orientations are the orientation of the device, with 0 being holding the
+          * device at normal orientation, 90 with the device rotated 90 degrees clockwise and
+          * so on. Android orientations are the orientations of the GRAPHICS. By rotating the
+          * device by 90 degrees clockwise, the graphics are actually rotated 270 degrees, and
+          * that's what Android uses.
+          */
+
+         case Surface.ROTATION_90:
+            allegro_orientation = ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES;
+            break;
+
+         case Surface.ROTATION_270:
+            allegro_orientation = ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES;
+            break;
+      }
+
       return allegro_orientation;
    }
    
@@ -535,6 +636,10 @@ public class AllegroActivity extends Activity implements SensorEventListener
    // FIXME:  or a fshook driver to access assets.
    private void unpackAssets(String dir)
    {
+      // create directories
+      File f = new File(getResourcesDir()+"/"+dir);
+      f.mkdir();
+
       try {
          AssetManager am = getResources().getAssets();
          String list[] = am.list(dir);
@@ -545,9 +650,8 @@ public class AllegroActivity extends Activity implements SensorEventListener
                is = am.open(full);
             }
             catch (Exception e) {
+               // Directory
                Log.d("AllegroActivity", "asset["+i+"] (directory): " + full);
-               File f = new File(getResourcesDir()+"/"+full);
-               f.mkdir();
                unpackAssets(full);
                continue;
             }
@@ -593,8 +697,6 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    static final int ALLEGRO_STENCIL_SIZE = 16;
    static final int ALLEGRO_SAMPLE_BUFFERS = 17;
    static final int ALLEGRO_SAMPLES = 18;
-   static final int _BIND_TO_TEXTURE_RGBA = 0x1002;
-   static final int EGL_BIND_TO_TEXTURE_RGBA = 0x303A;
    
    static final int ALLEGRO_KEY_A     = 1;
    static final int ALLEGRO_KEY_B     = 2;
@@ -940,10 +1042,6 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
             egl_attr = egl.EGL_SAMPLES;
             break;
 
-         case _BIND_TO_TEXTURE_RGBA:
-            egl_attr = _BIND_TO_TEXTURE_RGBA;
-            break;
-
          default:
             Log.e("AllegroSurface", "got unknown attribute " + attr);
             break;
@@ -1084,6 +1182,9 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       //      public void run() {
                try {
                   EGL10 egl = (EGL10)EGLContext.getEGL();
+
+                  egl.eglWaitNative(EGL10.EGL_NATIVE_RENDERABLE, null);
+                  egl.eglWaitGL();
                   
                   egl.eglSwapBuffers(egl_Display, egl_Surface);
                   switch(egl.eglGetError()) {
@@ -1244,17 +1345,6 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       }
    }
    
-   private boolean methodExists(Object obj, String methName)
-   {
-      try {
-         Class cls = obj.getClass();
-         Method m = cls.getMethod(methName);
-         return true;
-      } catch(Exception x) {
-         return false;
-      }
-   }
-   
    private <T> T callMethod(Object obj, String methName, Class [] types, Object... args)
    {
       try {
@@ -1299,7 +1389,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
          
       return false;
    }
-   
+
    // FIXME: pull out android version detection into the setup
    // and just check some flags here, rather than checking for
    // the existance of the fields and methods over and over
@@ -1313,7 +1403,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       Class[] int_arg = new Class[1];
       int_arg[0] = int.class;
       
-      if(methodExists(event, "getActionMasked")) { // android-8 / 2.2.x
+      if(Utils.methodExists(event, "getActionMasked")) { // android-8 / 2.2.x
          action = this.<Integer>callMethod(event, "getActionMasked", no_args);
          int ptr_idx = this.<Integer>callMethod(event, "getActionIndex", no_args);
          pointer_id = this.<Integer>callMethod(event, "getPointerId", int_arg, ptr_idx);
@@ -1368,7 +1458,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
          return false;
       }
       
-      if(methodExists(event, "getPointerCount")) { // android-5 / 2.0
+      if(Utils.methodExists(event, "getPointerCount")) { // android-5 / 2.0
          int pointer_count = this.<Integer>callMethod(event, "getPointerCount", no_args);
          for(int i = 0; i < pointer_count; i++) {
             float x = this.<Float>callMethod(event, "getX", int_arg, i);
