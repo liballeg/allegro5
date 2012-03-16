@@ -221,6 +221,7 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
    vert_ptr_on(d, 2, GL_FLOAT, 2*sizeof(float), vert);
    color_ptr_on(d, 4, GL_FLOAT, 4*sizeof(float), color_array);
 
+   // Should this be here if it's in the if above?
    if (!_al_opengl_set_blender(d)) {
       return;
    }
@@ -251,7 +252,6 @@ static void* ogl_prepare_vertex_cache(ALLEGRO_DISPLAY* disp,
 
 static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 {
-   GLboolean on = false;
    GLuint current_texture;
    if (!disp->vertex_cache)
       return;
@@ -269,12 +269,9 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 #endif
    }
    else {
-      glGetBooleanv(GL_TEXTURE_2D, &on);
-      if (!on) {
-         glEnable(GL_TEXTURE_2D);
-      }
+      glEnable(GL_TEXTURE_2D);
    }
-   
+
    glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&current_texture);
    if (current_texture != disp->cache_texture) {
       if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
@@ -288,17 +285,13 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
       glBindTexture(GL_TEXTURE_2D, disp->cache_texture);
    }
 
-///* Figure out what this is here for
-#ifdef ALLEGRO_IPHONE
-      if (!_al_opengl_set_blender(disp)) {
-         return;
-      }
-#endif
-//*/
-
    vert_ptr_on(disp, 2, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX), (char *)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, x));
    tex_ptr_on(disp, 2, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX), (char*)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, tx));
    color_ptr_on(disp, 4, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX), (char*)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, r));
+
+   if (!(disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
+      glDisableClientState(GL_NORMAL_ARRAY);
+   }
 
    glDrawArrays(GL_TRIANGLES, 0, disp->num_cache_vertices);
 
@@ -313,11 +306,6 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
       if (disp->ogl_extras->use_tex_loc >= 0)
          glUniform1i(disp->ogl_extras->use_tex_loc, 0);
 #endif
-   }
-   else {
-      if (!on) {
-         glDisable(GL_TEXTURE_2D);
-      }
    }
 }
 
