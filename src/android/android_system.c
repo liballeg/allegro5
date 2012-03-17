@@ -699,7 +699,7 @@ ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags)
    
    (void)flags;
    
-   jbitmap = _jni_callObjectMethodV(system_data.main_env, system_data.activity_object, "decodeBitmap_f", "(Ljava/lang/String;)Landroid/graphics/Bitmap;",
+   jbitmap = _jni_callObjectMethodV(system_data.main_env, system_data.activity_object, "decodeBitmap", "(Ljava/lang/String;)Landroid/graphics/Bitmap;",
       (*system_data.main_env)->NewStringUTF(system_data.main_env, filename));
    ASSERT(jbitmap != NULL);
    
