@@ -6,7 +6,7 @@ SET(CMAKE_SYSTEM_VERSION 1)
 
 set(ANDROID_NDK_TOOLCHAIN_ROOT "$ENV{HOME}/android-toolchain" CACHE PATH "Path to the Android NDK Standalone Toolchain" )
 
-message( WARNING "selected ${ANDROID_NDK_TOOLCHAIN_ROOT} android toolchain" )
+message( STATUS "Selected Android toolchain: ${ANDROID_NDK_TOOLCHAIN_ROOT}" )
 if(NOT EXISTS ${ANDROID_NDK_TOOLCHAIN_ROOT})
    set(ANDROID_NDK_TOOLCHAIN_ROOT "/opt/android-toolchain" CACHE PATH "Path to the Android NDK Standalone Toolchain" )
    message( STATUS "Using default path for toolchain ${ANDROID_NDK_TOOLCHAIN_ROOT}")
