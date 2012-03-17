@@ -2,100 +2,129 @@ Android
 =======
 
 This port should support Android 1.6 (Donut) and above.
+XXX in truth only Android 2.3 and above currently?
 
 Dependencies
 ============
 
-This port depends on having cmake, the android SDK, and the android ndk
+This port depends on having CMake, the Android SDK, and the Android NDK
 version r5b or better.
 
 Building on Linux
 =================
 
-After extracting the android sdk and ndk to known locations, you need to
-setup a standalone ndk toolchain.
+After extracting the Android SDK and NDK to known locations, you need to
+setup a standalone NDK toolchain.  Assuming the NDK was extracted into
+$HOME/android-ndk run the following command:
 
-Assuming the ndk was extracted into $HOME/android-ndk run the following command:
-
-    $ $HOME/android-ndk/build/tools/make-standalone-toolchain.sh \
+    $HOME/android-ndk/build/tools/make-standalone-toolchain.sh \
         --platform=android-9 --install-dir=$HOME/android-toolchain
 
 You can use any platform 9 or higher. This command was last tested on ndk7.
 
-Then to build Allegro run the following from the Allegro's root source directory:
+The following steps will build Allegro and install it to the Android toolchain
+directory.
 
-    $ mkdir build
-    $ cd build
-    $ cmake .. -DANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain
+    mkdir build
+    cd build
+    cmake .. -DANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain
         -DWANT_ANDROID=on \
         -DCMAKE_INSTALL_PREFIX=$HOME/android-toolchain/user/armeabi-v7a \
         -DWANT_EXAMPLES=OFF -DWANT_DEMO=OFF
-    $ make && make install
+    make && make install
 
 BIG FAT WARNING: building the examples and demos is not currently supported.
 
-Using Allegro on Android
-========================
+Using Allegro in an Android project
+===================================
 
-Copy the android-project folder to a convenient location.
+An Android project has a specific structure which you will need to replicate.
+Start by copying the `android-project` folder to a location of your choice.
+This will become your project folder.  Several files will need to be modified.
 
-Several files in the android-project folder will need to be modified.
+First, change the name of the package.
 
-The first thing that you will want to do is change the name of the package.
-To do that, open up the src/org/liballeg/app/AllegroActivity.java and locate
-the line containing "package org.liballeg.app;" and change the "org.liballeg.app"
-text to something else, usually it is based on your domain name, but reversed.
-If you do not have a domain name of your own, you can make something up, so long
-as it doesn't clash with a package in android or java. Also you need to open up
-the AndroidManifest.xml file, and replace the value of the package property
-in the manifest tag.
+ *  In `src/org/liballeg/app/AllegroActivity.java` replace the line
+    "package org.liballeg.app;" with your own package name.  Usually the
+    package name is based on your domain name, in reverse.  You can make
+    something up if you do not have a domain name, so long as it doesn't clash
+    with an Android or Java package.
 
-Optionally you can also change the name of the AllegroActivity and
-AllegroSurface classes, however that is not recommended.
-If you do change the name of the AllegroActivity class, you must also change
-the android:name property in the activity tag in the AndroidManifest.xml file.
+ *  In `AndroidManifest.xml` replace the value of the "package" property
+    in the "manifest" tag, at the top of the file.
 
-Next you will want to change the name of your app's executable (library),
-to do that change the value of the meta-data tag in the AndroidManifest.xml
-file from allegro-example to whatever you want, you will also need to open up
-the jni/Android.mk file and change the LOCAL_MODULE variable to the same value
-you gave to the meta-data tag above. While in the jni/Android.mk file,
-notice the LOCAL_SRC_FILES variable, that is where you tell the android ndk-build
-script which files to build as part of your project.
+ *  Though not recommended, you can also change the name of the AllegroActivity
+    and AllegroSurface classes.  Then you must also change the "android:name"
+    property in the "activity" tag in `AndroidManifest.xml`.
 
-Now you will also probably want to change the name Android will show for your
-app. Open up the res/values/strings.xml file and change the text inside the
-string tag named "app_name".
+Next, change the name of your app's executable (library).
 
-Lastly, you need to change the name property of the project tag in the
-build.xml file.
+ *  In `AndroidManifest.xml` change the value of the
+    "meta-data" tag from "allegro-example" to something else.
 
-After all that is done, you need to try and build your shiny new android
-project.
+ *  In `jni/Android.mk` change the LOCAL_MODULE variable to the same
+    value as the meta-data tag above.
 
-To build your project, first copy the allegro libraries you are going to use
-to the jni/armeabi-v7a folder of your project, then run the ndk-build script
-from the ndk from the root directory of your project folder. Say you installed
-the ndk into `/home/username/build/android-ndk` you will make sure the current
-directory is the root of your project and run:
-ANDROID_NDK_TOOLCHAIN_ROOT=pathtotoolchain /home/username/build/android-ndk/ndk-build
-where `pathtotoolchain` is the path you installed the standalone toolchain to.
-Then run 'ant debug'. that should have completely built your project.
+ *  In `jni/Android.mk` notice the LOCAL_SRC_FILES variable.
+    That is where you tell the Android ndk-build script which files to build
+    as part of your project.
 
-Last but not least, time to install your project on your android device.
-If your app has already been installed once already, you need to uninstall it
-first. That can either be done from inside android itself, or using the
-following command: `adb -d uninstall package.name.here` where
-"package.name.here" is the package name you previously gave to your project.
-To install, run `adb -d install bin/project-name-here.apk` where
-project-name-here is the same value you gave the name property of the project
-tag in the build.xml file above.
+Next, change the name Android will show for your app:
 
-If you wish to start your app without touching the device, you can run
-`adb -d shell 'am start -a android.intent.action.MAIN -n package.name.here/.ActivityNameHere'`
-where package.name.here is the package name you gave to your project, and
-ActivityNameHere here is the name of the Activity class in the java source
-file. Which should normally be AllegroActivity.
+ *  In `res/values/strings.xml` change the text inside the
+    string tag named "app_name".
+
+ *  In `build.xml` change the "name" property of the "project" tag,
+    at the top of the file.
+
+Now to build your Android project.
+
+ *  Copy the Allegro libraries you require to the `jni/armeabi-v7a`
+    folder of your project.
+
+ *  Run the ndk-build script from the NDK while in the root directory of your
+    project.  e.g. if you installed the standalone NDK toolchain to
+    /path/to/toolchain
+
+        ANDROID_NDK_TOOLCHAIN_ROOT=/path/to/toolchain \
+            /home/username/build/android-ndk/ndk-build
+
+ *  Run `ant debug`.  This should completely build your project
+    resulting in an installable `.apk` file.
+
+Finally, install and run your project on your Android device.
+We assume you have the adb tool (the Android Debug Bridge) set up, and USB
+debugging enabled on your device.  This can be quite involved, so please refer
+to the Android tool documentation.
+
+ *  If your app has already been installed once already, you need to uninstall
+    it first. That can either be done from the device itself, or using this
+    command:
+
+        adb -d uninstall your.package.name
+
+    where "your.package.name" is obviously the package name you previously gave
+    to your project.
+
+ *  To install, use the command:
+
+        adb -d install bin/your-project-name.apk
+
+    where "your-project-name" is the project name you gave in the build.xml
+    file.
+
+ *  To reinstall, you can add the `-r` option to the adb install command.
+
+ *  To start your app without touching the device, you can run:
+
+        adb -d shell 'am start -a android.intent.action.MAIN -n your.package.name/.AllegroActivity'
+
+    If you changed it earlier, you should replace "AllegroActivity" with the
+    name of your Activity class.
+
+ *  To view the device log, use the command:
+
+        adb logcat
 
 TODO
 ====
