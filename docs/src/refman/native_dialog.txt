@@ -265,11 +265,11 @@ For special items, these macros are helpful:
        ALLEGRO_MENU_SEPARATOR
        ALLEGRO_END_OF_MENU
        
-A well defined menu will begin with `ALLEGRO_START_OF_MENU`, contain
+A well-defined menu will begin with `ALLEGRO_START_OF_MENU`, contain
 one or more menu items, and end with `ALLEGRO_END_OF_MENU`. A menu
 may contain sub-menus. An example:
 
-       ALLEGRO_MENU_INFO menu_info[]  = {
+       ALLEGRO_MENU_INFO menu_info[] = {
           ALLEGRO_START_OF_MENU("&File", 1),
              { "&Open", 2, 0, NULL },
              ALLEGRO_START_OF_MENU("Open &Recent...", 3),
@@ -281,12 +281,13 @@ may contain sub-menus. An example:
              ALLEGRO_END_OF_MENU,
           ALLEGRO_START_OF_MENU("&Help", 7),
              {"&About", 8, 0, NULL },
-             ALLEGRO_END_OF_MENU
+             ALLEGRO_END_OF_MENU,
+          ALLEGRO_END_OF_MENU
        };
        
        ALLEGRO_MENU *menu = al_build_menu(menu_info);
        
-Of course, if you prefer, you can build the menu without the structure
+If you prefer, you can build the menu without the structure
 by using [al_create_menu] and [al_insert_menu_item].
 
 See also: [al_build_menu]
