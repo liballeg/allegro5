@@ -539,7 +539,7 @@ static void NAME(void *source, void **vbuf, unsigned int *samples,            \
       s = (TYPE *) NEXT_SAMPLE_VALUE(&samp_buf, spl, maxc);                   \
                                                                               \
       for (c = 0; c < dest_maxc; c++) {                                       \
-         ALLEGRO_STATIC_ASSERT(ALLEGRO_MAX_CHANNELS == 8);                    \
+         ALLEGRO_STATIC_ASSERT(kcm_mixer, ALLEGRO_MAX_CHANNELS == 8);         \
          switch (maxc) {                                                      \
             /* Each case falls through. */                                    \
             case 8: *buf += s[7] * spl->matrix[c*maxc + 7];                   \

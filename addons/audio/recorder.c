@@ -9,7 +9,8 @@
 
 ALLEGRO_DEBUG_CHANNEL("audio")
 
-ALLEGRO_STATIC_ASSERT(sizeof(ALLEGRO_AUDIO_RECORDER_EVENT) <= sizeof(ALLEGRO_EVENT));
+ALLEGRO_STATIC_ASSERT(recorder,
+   sizeof(ALLEGRO_AUDIO_RECORDER_EVENT) <= sizeof(ALLEGRO_EVENT));
 
 
 /* Function: al_create_audio_recorder

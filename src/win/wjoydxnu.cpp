@@ -95,8 +95,8 @@ ALLEGRO_DEBUG_CHANNEL("dinput")
 
 /* make sure all the constants add up */
 /* the first two sticks are (x,y,z) and (rx,ry,rz) */
-ALLEGRO_STATIC_ASSERT(_AL_MAX_JOYSTICK_STICKS >= (2 + MAX_SLIDERS + MAX_POVS));
-ALLEGRO_STATIC_ASSERT(_AL_MAX_JOYSTICK_BUTTONS >= MAX_BUTTONS);
+ALLEGRO_STATIC_ASSERT(wjoydxnu, _AL_MAX_JOYSTICK_STICKS >= (2 + MAX_SLIDERS + MAX_POVS));
+ALLEGRO_STATIC_ASSERT(wjoydxnu, _AL_MAX_JOYSTICK_BUTTONS >= MAX_BUTTONS);
 
 
 #define GUID_EQUAL(a, b)     (0 == memcmp(&(a), &(b), sizeof(GUID)))

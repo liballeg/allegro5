@@ -22,7 +22,8 @@
 
 #include <mmsystem.h>
 
-ALLEGRO_STATIC_ASSERT(sizeof(ALLEGRO_TIMEOUT_WIN) <= sizeof(ALLEGRO_TIMEOUT));
+ALLEGRO_STATIC_ASSERT(wtime,
+   sizeof(ALLEGRO_TIMEOUT_WIN) <= sizeof(ALLEGRO_TIMEOUT));
 
 
 #define LARGE_INTEGER_TO_INT64(li) (((int64_t)li.HighPart << 32) | \
