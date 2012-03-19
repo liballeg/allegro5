@@ -201,7 +201,6 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
       GLuint gl_texture = al_get_opengl_texture(texture);
       int true_w, true_h;
       int tex_x, tex_y;
-      GLuint current_texture;
       float mat[4][4] = {
          {1,  0,  0, 0},
          {0, -1,  0, 0},
@@ -235,10 +234,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
       }
 
       if (!(display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
-         glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&current_texture);
-         if (current_texture != gl_texture) {
-            glBindTexture(GL_TEXTURE_2D, gl_texture);
-         }
+         glBindTexture(GL_TEXTURE_2D, gl_texture);
       }
 
       if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
