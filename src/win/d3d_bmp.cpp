@@ -506,14 +506,14 @@ void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp)
       ALLEGRO_BITMAP *bmp = *bptr;
       ALLEGRO_BITMAP_EXTRA_D3D *extra = get_extra(bmp);
       if ((void *)bmp->display == (void *)disp) {
-         //d3d_sync_bitmap_memory(al_bmp);
-         if (!bmp->preserve_texture) {
-            extra->modified = false;
-         }
-         else if (!extra->is_backbuffer && extra->modified && !(bmp->flags & ALLEGRO_MEMORY_BITMAP)) {
-            _al_d3d_sync_bitmap(bmp);
-            extra->modified = false;
-         }
+         if ((bmp->flags & ALLEGRO_MEMORY_BITMAP) ||
+            !bmp->preserve_texture ||
+   	    !ogl_bitmap->dirty ||
+   	    extra_bitmap->is_backbuffer ||
+	    bmp->parent)
+	    continue;
+         _al_d3d_sync_bitmap(bmp);
+         extra->dirty = false;
       }
    }
 
@@ -720,8 +720,6 @@ static void d3d_draw_bitmap_region(
    d3d_draw_textured_quad(
       d3d_dest->display, src, tint,
       sx, sy, sw, sh, flags);
-
-   d3d_dest->modified = true;
 }
 
 static void d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
@@ -755,6 +753,8 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
    int flags)
 {
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
+   
+   d3d_bmp->dirty = true;
 
    if (d3d_bmp->display->device_lost)
       return NULL;
@@ -823,8 +823,6 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
 static void d3d_unlock_region(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
-
-   d3d_bmp->modified = true;
 
    if (bitmap->locked_region.format != 0 && bitmap->locked_region.format != bitmap->format) {
       if (!(bitmap->lock_flags & ALLEGRO_LOCK_READONLY)) {

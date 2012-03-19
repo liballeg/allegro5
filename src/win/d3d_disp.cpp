@@ -2132,13 +2132,24 @@ void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
 
 static void d3d_clear(ALLEGRO_DISPLAY *al_display, ALLEGRO_COLOR *color)
 {
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP_EXTRA_D3D *d3d_target;
    ALLEGRO_DISPLAY_D3D* d3d_display = (ALLEGRO_DISPLAY_D3D*)al_display;
+   
+   if (target->parent) target = target->parent;
+   
+   d3d_target = target->extra;
+
    if (d3d_display->device_lost)
       return;
    if (d3d_display->device->Clear(0, NULL, D3DCLEAR_TARGET,
       D3DCOLOR_ARGB((int)(color->a*255), (int)(color->r*255), (int)(color->g*255), (int)(color->b*255)),
       0, 0) != D3D_OK) {
          ALLEGRO_ERROR("Clear failed\n");
+   }
+
+   if (!d3d_target->is_backbuffer) {
+      d3d_target->dirty = true;
    }
 }
 
@@ -2507,7 +2518,7 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    extra->initialized = false;
    extra->is_backbuffer = false;
    extra->render_target = NULL;
-   extra->modified = true;
+   extra->dirty = !(flags & ALLEGRO_NO_PRESERVE_TEXTURE);
 
    extra->display = (ALLEGRO_DISPLAY_D3D *)d;
 
@@ -2554,6 +2565,8 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
 
    if (d3d_display->device_lost)
       return;
+
+   d3d_target->dirty = true;
 
    if (bitmap->parent) {
       target = bitmap->parent;
