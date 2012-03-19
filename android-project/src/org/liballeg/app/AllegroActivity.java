@@ -1256,7 +1256,6 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    public void surfaceDestroyed(SurfaceHolder holder)
    {
       Log.d("AllegroSurface", "surfaceDestroyed");
-      nativeOnDestroy();
       
       egl_destroySurface();
       egl_destroyContext();
@@ -1265,42 +1264,15 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       egl.eglTerminate(egl_Display);
       egl_Display = null;
       
+      nativeOnDestroy();
+      
       Log.d("AllegroSurface", "surfaceDestroyed end");
    }
 
    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
    {
       Log.d("AllegroSurface", "surfaceChanged");
-      int allegro_fmt = ALLEGRO_PIXEL_FORMAT_RGB_565;
-      
-      switch(format) {
-         case PixelFormat.RGBA_4444:
-            allegro_fmt = ALLEGRO_PIXEL_FORMAT_RGBA_4444;
-            break;
-            
-         case PixelFormat.RGBA_5551:
-            allegro_fmt = ALLEGRO_PIXEL_FORMAT_RGBA_5551;
-            break;
-            
-         case PixelFormat.RGBA_8888:
-            allegro_fmt = ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE;
-            break;
-            
-         case PixelFormat.RGB_565:
-            allegro_fmt = ALLEGRO_PIXEL_FORMAT_RGB_565;
-            break;
-            
-         case PixelFormat.RGB_888:
-            allegro_fmt = ALLEGRO_PIXEL_FORMAT_RGB_888;
-            break;
-            
-         default:
-            Log.v("AllegroSurface", "unkown pixel format " + format);
-            break;
-      }
-      
-      nativeOnChange(allegro_fmt, width, height);
-
+      nativeOnChange(0xdeadbeef, width, height);
       Log.d("AllegroSurface", "surfaceChanged end");
    }
    
