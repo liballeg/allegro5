@@ -107,10 +107,6 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnChange(JNIEn
    
    _al_android_init_display(env, d, d->first_run);
 
-   if (d->first_run) {
-       _al_android_clear_current(env, d);
-   }
-   
    _al_android_clear_current(env, d);
 
    d->created = true;
