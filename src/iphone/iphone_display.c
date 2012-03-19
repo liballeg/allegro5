@@ -348,9 +348,10 @@ static void iphone_flip_display(ALLEGRO_DISPLAY *d)
          ALLEGRO_BITMAP *b = *bptr;
          ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = b->extra;
          if ((b->flags & ALLEGRO_MEMORY_BITMAP) ||
-               !(b->flags & ALLEGRO_PRESERVE_TEXTURE) ||
+            !b->preserve_texture ||
    	    !ogl_bitmap->dirty ||
-   	    ogl_bitmap->is_backbuffer)
+   	    ogl_bitmap->is_backbuffer ||
+	    b->parent)
             continue;
          ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(
             b,
