@@ -4,6 +4,7 @@
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_display.h"
+#include "allegro5/allegro_opengl.h"
 
 #include <jni.h>
 
@@ -22,11 +23,12 @@ typedef struct ALLEGRO_DISPLAY_ANDROID {
    ALLEGRO_COND *cond;
    ALLEGRO_MUTEX *mutex;
    
-   bool recreate;
    bool created;
-   
+   bool recreate;
+   bool first_run;
    bool resize_acknowledge;
-
+   bool resize_acknowledge2;
+   bool resumed;
 } ALLEGRO_DISPLAY_ANDROID;
 
 ALLEGRO_SYSTEM_INTERFACE *_al_system_android_interface();
@@ -116,7 +118,6 @@ void _al_android_keyboard_handle_event(ALLEGRO_DISPLAY *display, int scancode, b
 
 void _al_android_create_surface(JNIEnv *env, bool post);
 void _al_android_destroy_surface(JNIEnv *env, jobject obj, bool post);
-bool _al_android_init_display(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *display);
 
 ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags);
 ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags);
@@ -125,6 +126,9 @@ jobject _al_android_activity_object();
 int _al_android_get_orientation();
 
 void _al_android_generate_joystick_event(float x, float y, float z);
+
+extern GLint _al_android_get_curr_fbo(void);
+extern void _al_android_set_curr_fbo(GLint fbo);
 
 #endif /* ALLEGRO_AINTERN_ANDROID_H */
 
