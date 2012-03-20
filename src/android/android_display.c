@@ -24,6 +24,8 @@
 #include <allegro5/allegro_opengl.h>
 #include "allegro5/internal/aintern_opengl.h"
 
+#include "EGL/egl.h"
+
 /* Locking the screen causes a pause (good), then we resize (bad)
  * 
  * something isn't handling some onConfigChange events
@@ -90,13 +92,12 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnChange(JNIEn
    ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY*)d;
    ASSERT(display != NULL);
 
-   al_lock_mutex(d->mutex);
-
    if (!d->first_run && !d->recreate) {
-      al_unlock_mutex(d->mutex);
       _al_android_resize_display(d, width, height);
       return;
    }
+   
+   al_lock_mutex(d->mutex);
   
    if (d->first_run || d->recreate) {
       d->surface_object = (*env)->NewGlobalRef(env, obj);
@@ -243,38 +244,28 @@ void _al_android_clear_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
 }
 
 /*
- * create_display -> postCreateSurface, wait for onCreate
+ * create_display -> postCreateSurface, wait for onChange
  *  - postCreateSurface
  *     - Surface::onCreate && Surface::onChange ->
  *    ( egl_Init, update_visuals, egl_createContext, ogl extensions, setup opengl view ), signal display init, send SWITCH_IN
  *
- * nativeOnResume -> createSurface -> wait for on create
+ * nativeOnResume -> createSurface -> wait for on change
  *  - Surface::onCreate && Surface::onChange ->
  *    ( egl_Init, update_visuals, egl_createContext, ogl extensions, setup opengl view ), send SWITCH_IN
  */
 
 void _al_android_setup_opengl_view(ALLEGRO_DISPLAY *d)
 {
-   int w, h;
-
    ALLEGRO_DEBUG("setup opengl view");
    
-   w = d->w;
-   h = d->h;
-
-   glViewport(0, 0, w, h);
+   glViewport(0, 0, d->w, d->h);
 
    al_identity_transform(&d->proj_transform);
    al_ortho_transform(&d->proj_transform, 0, d->w, d->h, 0, -1, 1);
+   al_set_projection_transform(d, &d->proj_transform);
 
    al_identity_transform(&d->view_transform);
-
-   if (!(d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
-      glMatrixMode(GL_PROJECTION);
-      glLoadMatrixf((float *)d->proj_transform.m);
-      glMatrixMode(GL_MODELVIEW);
-      glLoadMatrixf((float *)d->view_transform.m);
-   }
+   al_use_transform(&d->view_transform);
 }
 
 static bool _al_android_init_display(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *display, bool first_run)
@@ -340,9 +331,10 @@ static void _al_android_resize_display(ALLEGRO_DISPLAY_ANDROID *d, int width, in
 
    ALLEGRO_DEBUG("display resize");
    
-   al_lock_mutex(d->mutex);
    d->resize_acknowledge = false;
    d->resize_acknowledge2 = false;
+   
+   al_lock_mutex(d->mutex);
    
    ALLEGRO_DEBUG("locking display event source: %p", d);
    _al_event_source_lock(&display->es);
@@ -356,13 +348,13 @@ static void _al_android_resize_display(ALLEGRO_DISPLAY_ANDROID *d, int width, in
       event.display.y = 0;
       event.display.width = width;
       event.display.height = height;
-      event.display.orientation = _al_android_get_orientation();
+      event.display.orientation = _al_android_get_display_orientation();
       _al_event_source_emit_event(&display->es, &event);
    }
    
    ALLEGRO_DEBUG("unlocking display event source");
    _al_event_source_unlock(&display->es);
-
+   
    ALLEGRO_DEBUG("waiting for display resize acknowledge");
    while (!d->resize_acknowledge) {
       ALLEGRO_DEBUG("calling al_wait_cond");
@@ -377,6 +369,7 @@ static void _al_android_resize_display(ALLEGRO_DISPLAY_ANDROID *d, int width, in
    ALLEGRO_DEBUG("resize backbuffer");
    _al_ogl_resize_backbuffer(display->ogl_extras->backbuffer, width, height);
 
+   /*
    ALLEGRO_DEBUG("claim context");
    _al_android_make_current(_jni_getEnv(), d);
    
@@ -385,6 +378,7 @@ static void _al_android_resize_display(ALLEGRO_DISPLAY_ANDROID *d, int width, in
    
    ALLEGRO_DEBUG("clear current context");
    _al_android_clear_current(_jni_getEnv(), d);
+   */
 
    al_lock_mutex(d->mutex);
    d->resize_acknowledge2 = true;
@@ -509,10 +503,11 @@ static ALLEGRO_DISPLAY *android_create_display(int w, int h)
 
    ALLEGRO_DEBUG("display: %p %ix%i", display, display->w, display->h);
 
+   _al_android_clear_current(_jni_getEnv(), d);
    _al_android_make_current(_jni_getEnv(), d);
 
    /* Don't need to repeat what this does */
-   android_change_display_option(display, ALLEGRO_SUPPORTED_ORIENTATIONS, display->extra_settings.settings[ALLEGRO_SUPPORTED_ORIENTATIONS]);
+   android_change_display_option(display, ALLEGRO_SUPPORTED_ORIENTATIONS, al_get_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS, NULL));
 
    ALLEGRO_DEBUG("end");
    return display;
@@ -565,12 +560,18 @@ static bool android_set_current_display(ALLEGRO_DISPLAY *dpy)
 {
    ALLEGRO_DEBUG("make current %p", dpy);
       
-   if(al_get_current_display() == dpy)
+   if (al_get_current_display() == dpy)
       return true;
    
    _al_android_clear_current(_jni_getEnv(), (ALLEGRO_DISPLAY_ANDROID*)al_get_current_display());
    if (dpy) _al_android_make_current(_jni_getEnv(), (ALLEGRO_DISPLAY_ANDROID*)dpy);
    return true;
+}
+
+static void android_unset_current_display(ALLEGRO_DISPLAY *dpy)
+{
+   ALLEGRO_DEBUG("unset current %p", dpy);
+   _al_android_clear_current(_jni_getEnv(), (ALLEGRO_DISPLAY_ANDROID*)dpy);
 }
 
 /* Copy texture data into system memory as backup */
@@ -640,7 +641,7 @@ static bool android_acknowledge_resize(ALLEGRO_DISPLAY *dpy)
    ALLEGRO_DEBUG("android_acknowledge_resize");
    
    ALLEGRO_DEBUG("clear current context");
-   _al_android_clear_current(_jni_getEnv(), (ALLEGRO_DISPLAY_ANDROID*)al_get_current_display());
+   _al_android_clear_current(_jni_getEnv(), d);
 
    ALLEGRO_DEBUG("locking mutex");
    al_lock_mutex(d->mutex);
@@ -655,9 +656,9 @@ static bool android_acknowledge_resize(ALLEGRO_DISPLAY *dpy)
    }
    al_unlock_mutex(d->mutex);
    ALLEGRO_DEBUG("done waiting for display resize acknowledge 2");
-   
+
    ALLEGRO_DEBUG("acquire context");
-   _al_android_make_current(_jni_getEnv(), (ALLEGRO_DISPLAY_ANDROID*)dpy);
+   _al_android_make_current(_jni_getEnv(), d);
    
    ALLEGRO_DEBUG("done");
    return true;
@@ -809,6 +810,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_android_display_driver(void)
    vt->create_display = android_create_display;
    vt->destroy_display = android_destroy_display;
    vt->set_current_display = android_set_current_display;
+   vt->unset_current_display = android_unset_current_display;
    vt->flip_display = android_flip_display;
    vt->update_display_region = android_update_display_region;
    vt->acknowledge_resize = android_acknowledge_resize;

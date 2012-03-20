@@ -123,12 +123,12 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags);
 ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags);
 
 jobject _al_android_activity_object();
-int _al_android_get_orientation();
 
 void _al_android_generate_joystick_event(float x, float y, float z);
 
-extern GLint _al_android_get_curr_fbo(void);
-extern void _al_android_set_curr_fbo(GLint fbo);
+GLint _al_android_get_curr_fbo(void);
+void _al_android_set_curr_fbo(GLint fbo);
+bool _al_android_is_os_2_1(void);
 
 #endif /* ALLEGRO_AINTERN_ANDROID_H */
 

@@ -70,7 +70,7 @@
 #include <GLES/gl.h>
 #include <GLES/glext.h>
 
-#ifndef ALLEGRO_NO_GLES2
+#ifndef ALLEGRO_CFG_NO_GLES2
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #else
@@ -92,10 +92,6 @@
 
 #define glBindFramebufferEXT glBindFramebufferOES
 #define glDeleteFramebuffersEXT glDeleteFramebuffersOES
-
-/* hack to work around the ndk not containing GLchar,
- * and the shader addon assuming it exists */
-typedef char GLchar;
 
 #else /* ALLEGRO_MACOSX */
 

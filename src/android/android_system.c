@@ -30,6 +30,8 @@
 
 ALLEGRO_DEBUG_CHANNEL("android")
 
+static const char *_android_get_os_version(JNIEnv *env);
+
 struct system_data_t {
    JNIEnv *env;
    jobject activity_object;
@@ -47,15 +49,17 @@ struct system_data_t {
    ALLEGRO_USTR *app_name;
    ALLEGRO_USTR *resources_dir;
    ALLEGRO_USTR *data_dir;
-	ALLEGRO_USTR *apk_path;
+   ALLEGRO_USTR *apk_path;
 	
    void *user_lib;
    int (*user_main)();
    
    int orientation;
+
+   bool is_2_1; // is running on Android OS 2.1?
 };
 
-static struct system_data_t system_data = { NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0 };
+static struct system_data_t system_data = { NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, false };
 static JavaVM* javavm;
 
 /* define here, so we have access to system_data */
@@ -66,8 +70,7 @@ JNIEnv *_jni_getEnv()
 
 int _al_android_get_display_orientation(void)
 {
-   int o = system_data.orientation;
-   return o;
+   return system_data.orientation;
 }
 
 void __jni_checkException(JNIEnv *env, const char *file, const char *func, int line)
@@ -90,11 +93,6 @@ void __jni_checkException(JNIEnv *env, const char *file, const char *func, int l
 jobject _al_android_activity_object()
 {
    return system_data.activity_object;
-}
-
-int _al_android_get_orientation()
-{
-   return system_data.orientation;
 }
 
 static void finish_activity(JNIEnv *env);
@@ -218,6 +216,15 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
    
    full_path = al_path_cstr(lib_path, ALLEGRO_NATIVE_PATH_SEP);
 
+   // Android 2.1 has a bug with glClear we have to work around
+   const char *ver = _android_get_os_version(env);
+   if (!strncmp(ver, "2.1", 3)) {
+      system_data.is_2_1 = true;
+   }
+   else {
+      system_data.is_2_1 = false;
+   }
+   
    ALLEGRO_DEBUG("load user lib: %s", full_path);
    system_data.user_lib = dlopen(full_path, RTLD_LAZY|RTLD_GLOBAL);
    if(!system_data.user_lib) {
@@ -243,7 +250,7 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
       al_wait_cond(system_data.cond, system_data.mutex);
    }
    al_unlock_mutex(system_data.mutex);
-   
+
    ALLEGRO_DEBUG("setup done. returning to dalkvik.");
    
    return true;
@@ -362,10 +369,10 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnOrientation
    
    system_data.orientation = orientation;
       
-   if(!init) {
+   if (!init) {
          
       /* no display, just skip */
-      if(!_al_vector_size(&sys->displays)) {
+      if (!_al_vector_size(&sys->displays)) {
          ALLEGRO_DEBUG("no display, not sending orientation change event");
          return;
       }
@@ -747,6 +754,20 @@ ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags)
    al_unlock_bitmap(bitmap);
 
    return bitmap;
+}
+
+static const char *_android_get_os_version(JNIEnv *env)
+{
+   static char buffer[25];
+   ALLEGRO_USTR *s = _jni_callStringMethod(env, system_data.activity_object, "getOsVersion", "()Ljava/lang/String;");
+   strncpy(buffer, al_cstr(s), 25);
+   al_ustr_free(s);
+   return buffer;
+}
+
+bool _al_android_is_os_2_1(void)
+{
+   return system_data.is_2_1;
 }
 
 /* register system interfaces */
