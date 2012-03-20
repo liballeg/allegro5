@@ -18,6 +18,10 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_opengl.h"
 
+#ifdef ALLEGRO_ANDROID
+#include "allegro5/internal/aintern_android.h"
+#endif
+
 ALLEGRO_DEBUG_CHANNEL("opengl")
 
 bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
@@ -82,7 +86,7 @@ static void vert_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, vo
 {
 /* Only use this shader stuff with GLES2+ or equivalent */
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_NO_GLES2
+#ifndef ALLEGRO_CFG_NO_GLES2
       if (display->ogl_extras->pos_loc >= 0) {
          glVertexAttribPointer(display->ogl_extras->pos_loc, n, t, false, stride, v);
          glEnableVertexAttribArray(display->ogl_extras->pos_loc);
@@ -98,7 +102,7 @@ static void vert_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, vo
 static void vert_ptr_off(ALLEGRO_DISPLAY *display)
 {
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_NO_GLES2
+#ifndef ALLEGRO_CFG_NO_GLES2
       if (display->ogl_extras->pos_loc >= 0) {
          glDisableVertexAttribArray(display->ogl_extras->pos_loc);
       }
@@ -112,7 +116,7 @@ static void vert_ptr_off(ALLEGRO_DISPLAY *display)
 static void color_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, void *v)
 {
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_NO_GLES2
+#ifndef ALLEGRO_CFG_NO_GLES2
       if (display->ogl_extras->color_loc >= 0) {
          glVertexAttribPointer(display->ogl_extras->color_loc, n, t, false, stride, v);
          glEnableVertexAttribArray(display->ogl_extras->color_loc);
@@ -128,7 +132,7 @@ static void color_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, v
 static void color_ptr_off(ALLEGRO_DISPLAY *display)
 {
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_NO_GLES2
+#ifndef ALLEGRO_CFG_NO_GLES2
       if (display->ogl_extras->color_loc >= 0) {
          glDisableVertexAttribArray(display->ogl_extras->color_loc);
       }
@@ -142,7 +146,7 @@ static void color_ptr_off(ALLEGRO_DISPLAY *display)
 static void tex_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, void *v)
 {
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_NO_GLES2
+#ifndef ALLEGRO_CFG_NO_GLES2
       if (display->ogl_extras->texcoord_loc >= 0) {
          glVertexAttribPointer(display->ogl_extras->texcoord_loc, n, t, false, stride, v);
          glEnableVertexAttribArray(display->ogl_extras->texcoord_loc);
@@ -158,7 +162,7 @@ static void tex_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, voi
 static void tex_ptr_off(ALLEGRO_DISPLAY *display)
 {
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_NO_GLES2
+#ifndef ALLEGRO_CFG_NO_GLES2
       if (display->ogl_extras->texcoord_loc >= 0) {
          glDisableVertexAttribArray(display->ogl_extras->texcoord_loc);
       }
@@ -187,9 +191,57 @@ static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
       _al_clear_memory(color);
       return;
    }
-
+   
    al_unmap_rgba_f(*color, &r, &g, &b, &a);
 
+   /* There's a very nasty bug in Android 2.1 that makes glClear cause
+    * screen flicker (appears to me it's swapping buffers.) Work around
+    * by drawing two triangles instead on that OS.
+    */
+#ifdef ALLEGRO_ANDROID
+   if (ogl_target->is_backbuffer && _al_android_is_os_2_1()) {
+      GLfloat v[8] = {
+         0, d->h,
+         0, 0,
+         d->w, d->h,
+         d->w, 0
+      };
+      GLfloat c[16] = {
+         r, g, b, a,
+         r, g, b, a,
+         r, g, b, a,
+         r, g, b, a
+      };
+      ALLEGRO_TRANSFORM bak1, bak2, t;
+
+      al_copy_transform(&bak1, &d->proj_transform);
+      al_copy_transform(&bak2, al_get_current_transform());
+
+      al_identity_transform(&t);
+      al_ortho_transform(&t, 0, d->w, d->h, 0, -1, 1);
+      al_set_projection_transform(d, &t);
+      al_identity_transform(&t);
+      al_use_transform(&t);
+
+      vert_ptr_on(d, 2, GL_FLOAT, 2*sizeof(float), v);
+      color_ptr_on(d, 4, GL_FLOAT, 4*sizeof(float), c);
+
+      if (!(d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
+         glDisableClientState(GL_NORMAL_ARRAY);
+      }
+
+      glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+      vert_ptr_off(d);
+      color_ptr_off(d);
+
+      al_set_projection_transform(d, &bak1);
+      al_use_transform(&bak2);
+
+      return;
+   }
+#endif
+   
    glClearColor(r, g, b, a);
    glClear(GL_COLOR_BUFFER_BIT);
 }
@@ -259,7 +311,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
       return;
 
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_NO_GLES2
+#ifndef ALLEGRO_CFG_NO_GLES2
       if (disp->ogl_extras->use_tex_loc >= 0) {
          glUniform1i(disp->ogl_extras->use_tex_loc, 1);
       }
@@ -275,7 +327,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&current_texture);
    if (current_texture != disp->cache_texture) {
       if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_NO_GLES2
+#ifndef ALLEGRO_CFG_NO_GLES2
          /* Use texture unit 0 */
          glActiveTexture(GL_TEXTURE0);
          if (disp->ogl_extras->tex_loc >= 0)
@@ -302,7 +354,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    disp->num_cache_vertices = 0;
 
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_NO_GLES2
+#ifndef ALLEGRO_CFG_NO_GLES2
       if (disp->ogl_extras->use_tex_loc >= 0)
          glUniform1i(disp->ogl_extras->use_tex_loc, 0);
 #endif
@@ -322,7 +374,7 @@ static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
    }
 
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_NO_GLES2
+#ifndef ALLEGRO_CFG_NO_GLES2
       GLuint program_object = disp->ogl_extras->program_object;
       GLint handle;
       
@@ -349,7 +401,7 @@ static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
 static void ogl_set_projection(ALLEGRO_DISPLAY *d)
 {
    if (d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_NO_GLES2
+#ifndef ALLEGRO_CFG_NO_GLES2
       GLuint program_object = d->ogl_extras->program_object;
       GLint handle;
 
