@@ -20,6 +20,8 @@
 #cmakedefine ALLEGRO_CFG_HLSL_SHADERS
 #cmakedefine ALLEGRO_CFG_CG_SHADERS
 
+#cmakedefine ALLEGRO_CFG_NO_GLES2
+
 /*---------------------------------------------------------------------------*/
 
 /* TODO: rename this */
