@@ -34,7 +34,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
    ALLEGRO_DISPLAY *display = al_get_current_display();
 
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_NO_GLES2
+#ifndef ALLEGRO_CFG_NO_GLES2
       if(decl) {
          ALLEGRO_VERTEX_ELEMENT* e;
          e = &decl->elements[ALLEGRO_PRIM_POSITION];
@@ -238,7 +238,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
       }
 
       if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_NO_GLES2
+#ifndef ALLEGRO_CFG_NO_GLES2
          float transposed[4][4];
          int x, y;
          GLint handle;
@@ -299,7 +299,7 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const 
    
    if(texture) {
       if (ogl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_NO_GLES2
+#ifndef ALLEGRO_CFG_NO_GLES2
          if (ogl_disp->ogl_extras->use_tex_loc >= 0) {
             glUniform1i(ogl_disp->ogl_extras->use_tex_loc, 1);
          }
@@ -359,7 +359,7 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const 
 
    if(texture) {
       if (ogl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_NO_GLES2
+#ifndef ALLEGRO_CFG_NO_GLES2
          float identity[16] = {
             1, 0, 0, 0,
             0, 1, 0, 0,
@@ -386,7 +386,7 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const 
    }
 
    if (ogl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_NO_GLES2
+#ifndef ALLEGRO_CFG_NO_GLES2
       if (ogl_disp->ogl_extras->pos_loc >= 0)
          glDisableVertexAttribArray(ogl_disp->ogl_extras->pos_loc);
       if (ogl_disp->ogl_extras->color_loc >= 0)
@@ -448,7 +448,7 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
    
    if(texture) {
       if (ogl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_NO_GLES2
+#ifndef ALLEGRO_CFG_NO_GLES2
          if (ogl_disp->ogl_extras->use_tex_loc >= 0) {
             glUniform1i(ogl_disp->ogl_extras->use_tex_loc, 1);
          }
@@ -514,7 +514,7 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
 
    if(texture) {
       if (ogl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_NO_GLES2
+#ifndef ALLEGRO_CFG_NO_GLES2
          float identity[16] = {
             1, 0, 0, 0,
             0, 1, 0, 0,
@@ -541,7 +541,7 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
    }
    
    if (ogl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_NO_GLES2
+#ifndef ALLEGRO_CFG_NO_GLES2
       if (ogl_disp->ogl_extras->pos_loc >= 0)
          glDisableVertexAttribArray(ogl_disp->ogl_extras->pos_loc);
       if (ogl_disp->ogl_extras->color_loc >= 0)
