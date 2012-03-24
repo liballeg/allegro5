@@ -163,3 +163,6 @@
 	I haven't tested it.
 
 	Released: version 1.5.
+
+From December 2007, loadpng lives in the Allegro repository.
+This file is no longer updated.
