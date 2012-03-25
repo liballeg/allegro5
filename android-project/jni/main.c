@@ -171,15 +171,15 @@ int main(int argc, char **argv)
                break;
 
 	    case ALLEGRO_EVENT_DISPLAY_ORIENTATION: {
-               int w = al_get_display_width(display);
-               int h = al_get_display_height(display);
+               int w = al_get_display_width(dpy);
+               int h = al_get_display_height(dpy);
             
                glViewport(0, 0, w, h);
             
                ALLEGRO_TRANSFORM t;
                al_identity_transform(&t);
                al_ortho_transform(&t, 0, w, h, 0, -1, 1);
-               al_set_projection_transform(display, &t);
+               al_set_projection_transform(dpy, &t);
                break;
 	    }
          }

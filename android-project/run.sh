@@ -7,8 +7,8 @@ cp ~/build/android-toolchain/user/armeabi-v7a/lib/liballegro_primitives-debug.so
 cp ~/build/android-toolchain/user/armeabi-v7a/lib/liballegro_image-debug.so jni/armeabi-v7a/
 
 export ANDROID_NDK_TOOLCHAIN_ROOT=~/build/android-toolchain
-V=1 ~/build/android-ndk-r7/ndk-build clean
-V=1 ~/build/android-ndk-r7/ndk-build
+V=1 ~/build/android-ndk/ndk-build clean
+V=1 ~/build/android-ndk/ndk-build
 
 ant clean
 ant debug
