@@ -18,9 +18,14 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 
 if(NOT CMAKE_BUILD_TYPE)
+  # A bug in CMake 2.8.7 makes Xcode only work if the configuration is named Debug
+  if(${CMAKE_GENERATOR} STREQUAL Xcode)
+  set(CMAKE_BUILD_TYPE Debug CACHE INTERNAL "internal")
+  else()
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel Profile."
       FORCE)
+  endif()
 endif()
 # Restrict configuration types to the selected build type.
 # Note: This needs to be done before the project command
