@@ -676,6 +676,11 @@ public class AllegroActivity extends Activity implements SensorEventListener
          Log.e("AllegroActivity", "asset list exception: "+ex.getMessage());
       }
    }
+   
+   public String getOsVersion()
+   {
+      return android.os.Build.VERSION.RELEASE;
+   }
 }
 
 class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback, 
