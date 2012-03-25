@@ -2138,7 +2138,7 @@ static void d3d_clear(ALLEGRO_DISPLAY *al_display, ALLEGRO_COLOR *color)
    
    if (target->parent) target = target->parent;
    
-   d3d_target = target->extra;
+   d3d_target = get_extra(target);
 
    if (d3d_display->device_lost)
       return;
@@ -2566,15 +2566,16 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    if (d3d_display->device_lost)
       return;
 
-   d3d_target->dirty = true;
-
    if (bitmap->parent) {
       target = bitmap->parent;
    }
    else {
       target = bitmap;
    }
+
    d3d_target = get_extra(target);
+   
+   d3d_target->dirty = true;
 
    /* Release the previous target bitmap if it was not the backbuffer */
 

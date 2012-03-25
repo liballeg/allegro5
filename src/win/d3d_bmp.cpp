@@ -509,7 +509,7 @@ void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp)
          if ((bmp->flags & ALLEGRO_MEMORY_BITMAP) ||
             !bmp->preserve_texture ||
    	    !extra->dirty ||
-   	    extra_bitmap->is_backbuffer ||
+   	    extra->is_backbuffer ||
 	    bmp->parent)
 	    continue;
          _al_d3d_sync_bitmap(bmp);
