@@ -338,37 +338,11 @@ static bool iphone_wait_for_vsync(ALLEGRO_DISPLAY *display)
 static void iphone_flip_display(ALLEGRO_DISPLAY *d)
 {
    bool using_shader = false;
-   int i, y, line_size;
 
-   /* Preserve pixels of bitmaps with ALLEGRO_PRESERVE_TEXTURE flag */
+   /* Preserve pixels of bitmaps without ALLEGRO_NO_PRESERVE_TEXTURE flag */
    al_lock_mutex(_al_iphone_display_hotplug_mutex);
    if (_al_iphone_is_display_connected(d)) {
-      for (i = 0; i < (int)d->bitmaps._size; i++) {
-         ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&d->bitmaps, i);
-         ALLEGRO_BITMAP *b = *bptr;
-         ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = b->extra;
-         if ((b->flags & ALLEGRO_MEMORY_BITMAP) ||
-            !b->preserve_texture ||
-   	    !ogl_bitmap->dirty ||
-   	    ogl_bitmap->is_backbuffer ||
-	    b->parent)
-            continue;
-         ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(
-            b,
-   	 ALLEGRO_PIXEL_FORMAT_ANY,
-   	 ALLEGRO_LOCK_READONLY
-         );
-         if (lr) {
-            line_size = al_get_pixel_size(b->format) * b->w;
-            for (y = 0; y < b->h; y++) {
-               unsigned char *p = ((unsigned char *)lr->data) + lr->pitch * y;
-   	    unsigned char *p2 = ((unsigned char *)b->memory) + line_size * y;
-   	    memcpy(p2, p, line_size);
-            }
-            al_unlock_bitmap(b);
-         }
-         ogl_bitmap->dirty = false;
-      }
+      _al_opengl_backup_dirty_bitmaps(d);
    }
    al_unlock_mutex(_al_iphone_display_hotplug_mutex);
 

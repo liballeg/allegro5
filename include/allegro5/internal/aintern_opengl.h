@@ -144,6 +144,7 @@ ALLEGRO_BITMAP *_al_ogl_get_backbuffer(ALLEGRO_DISPLAY *d);
 ALLEGRO_BITMAP* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp);
 void _al_ogl_destroy_backbuffer(ALLEGRO_BITMAP *b);
 bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP *b, int w, int h);
+void _al_opengl_backup_dirty_bitmaps(ALLEGRO_DISPLAY *);
 
 struct ALLEGRO_DISPLAY_INTERFACE;
 

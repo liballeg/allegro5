@@ -507,7 +507,7 @@ void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp)
       ALLEGRO_BITMAP_EXTRA_D3D *extra = get_extra(bmp);
       if ((void *)bmp->display == (void *)disp) {
          if ((bmp->flags & ALLEGRO_MEMORY_BITMAP) ||
-            !bmp->preserve_texture ||
+            (bmp->flags & ALLEGRO_NO_PRESERVE_TEXTURE) ||
    	    !extra->dirty ||
    	    extra->is_backbuffer ||
 	    bmp->parent)

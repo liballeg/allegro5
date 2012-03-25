@@ -659,7 +659,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       else {
          GLint current_fbo;
          /* NOTE: GLES 1.1 can only read 4 byte pixels, we have to convert */
-         #if defined ALLEGRO_IPHONE // || defined ALLEGRO_ANDROID
+         #if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
          unsigned char *tmpbuf;
          int tmp_pitch;
          #endif
@@ -693,7 +693,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
             pitch = ogl_pitch(w, pixel_size);
             ogl_bitmap->lock_buffer = al_malloc(pitch * h);
 
-#if defined ALLEGRO_IPHONE // || defined ALLEGRO_ANDROID // OPENGLES1
+#if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID // OPENGLES1
             tmp_pitch = ogl_pitch(w, 4);
             tmpbuf = al_malloc(tmp_pitch * h);
             glReadPixels(x, gl_y, w, h,
@@ -712,7 +712,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
                   _al_format_name(format), _al_gl_error_string(e));
             }
 
-#if defined ALLEGRO_IPHONE // || defined ALLEGRO_ANDROID
+#if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
             _al_convert_bitmap_data(
                tmpbuf,
                ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
@@ -1070,7 +1070,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    int pitch;
    (void)d;
 
-#if !defined ALLEGRO_GP2XWIZ
+#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    if (d->extra_settings.settings[ALLEGRO_SUPPORT_NPOT_BITMAP]) {
       true_w = w;
       true_h = h;
@@ -1107,7 +1107,6 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    ASSERT(bitmap->extra);
    extra = bitmap->extra;
 
-   
    bitmap->vt = ogl_bitmap_driver();
    bitmap->pitch = pitch;
    bitmap->format = format;
@@ -1117,7 +1116,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    extra->true_h = true_h;
    extra->dirty = !(flags & ALLEGRO_NO_PRESERVE_TEXTURE);
 
-   if (flags & ALLEGRO_PRESERVE_TEXTURE) {
+   if (!(flags & ALLEGRO_NO_PRESERVE_TEXTURE)) {
       bitmap->memory = al_calloc(1, al_get_pixel_size(format)*w*h);
    }
 
@@ -1304,6 +1303,38 @@ void al_get_opengl_texture_position(ALLEGRO_BITMAP *bitmap, int *u, int *v)
 {
    *u = bitmap->xofs;
    *v = bitmap->yofs;
+}
+
+void _al_opengl_backup_dirty_bitmaps(ALLEGRO_DISPLAY *d)
+{
+   int i, y;
+
+   for (i = 0; i < (int)d->bitmaps._size; i++) {
+      ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&d->bitmaps, i);
+      ALLEGRO_BITMAP *b = *bptr;
+      ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = b->extra;
+      if ((b->flags & ALLEGRO_MEMORY_BITMAP) ||
+         (b->flags & ALLEGRO_NO_PRESERVE_TEXTURE) ||
+         !ogl_bitmap->dirty ||
+         ogl_bitmap->is_backbuffer ||
+         b->parent)
+         continue;
+      ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(
+         b,
+         ALLEGRO_PIXEL_FORMAT_ANY,
+         ALLEGRO_LOCK_READONLY
+      );
+      if (lr) {
+         int line_size = al_get_pixel_size(b->format) * b->w;
+         for (y = 0; y < b->h; y++) {
+            unsigned char *p = ((unsigned char *)lr->data) + lr->pitch * y;
+            unsigned char *p2 = ((unsigned char *)b->memory) + line_size * (b->h-1-y); // restore upside down to match
+            memcpy(p2, p, line_size);
+         }
+         al_unlock_bitmap(b);
+         ogl_bitmap->dirty = false;
+      }
+   }
 }
 
 /* vim: set sts=3 sw=3 et: */

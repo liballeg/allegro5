@@ -574,58 +574,12 @@ static void android_unset_current_display(ALLEGRO_DISPLAY *dpy)
    _al_android_clear_current(_jni_getEnv(), (ALLEGRO_DISPLAY_ANDROID*)dpy);
 }
 
-/* Copy texture data into system memory as backup */
-static void _android_sync_to_memory(ALLEGRO_BITMAP *bmp)
-{
-   ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
-   int w = al_get_bitmap_width(bmp);
-   int h = al_get_bitmap_height(bmp);
-   int pixel_size = al_get_pixel_size(bmp->format);
-   int y;
-
-   if (lr == NULL) {
-      return;
-   }
-
-   if (bmp->memory == NULL) {
-      bmp->memory = al_malloc(w * pixel_size * h);
-   }
-
-   uint8_t *src = (uint8_t *)lr->data;
-   uint8_t *dst = ((uint8_t *)bmp->memory) + (w * pixel_size) * (h-1);
-
-   for (y = 0; y < h; y++) {
-      memcpy(dst, src, w * pixel_size);
-      src += lr->pitch;
-      dst += -w * pixel_size;
-   }
-
-   al_unlock_bitmap(bmp);
-}
-
 static void android_flip_display(ALLEGRO_DISPLAY *dpy)
 {
-   int i;
-
    _jni_callVoidMethod(_jni_getEnv(), ((ALLEGRO_DISPLAY_ANDROID*)dpy)->surface_object, "egl_SwapBuffers");
 
-   //ALLEGRO_DEBUG("FLIP");
-
    /* Backup bitmaps created without ALLEGRO_NO_PRESERVE_TEXTURE that are dirty, to system memory */
-   for (i = 0; i < (int)dpy->bitmaps._size; i++) {
-      ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&dpy->bitmaps, i);
-      ALLEGRO_BITMAP *bmp = *bptr;
-      ALLEGRO_BITMAP_EXTRA_OPENGL *extra = bmp->extra;
-      if ((void *)bmp->display == (void *)dpy) {
-         if (!bmp->preserve_texture) {
-            extra->dirty = false;
-         }
-         else if (!extra->is_backbuffer && extra->dirty && !(bmp->flags & ALLEGRO_MEMORY_BITMAP) && !bmp->parent) {
-	    _android_sync_to_memory(bmp);
-            extra->dirty = false;
-         }
-      }
-   }
+   _al_opengl_backup_dirty_bitmaps(dpy);
 }
 
 static void android_update_display_region(ALLEGRO_DISPLAY *dpy, int x, int y, int width, int height)
@@ -755,7 +709,7 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
    ALLEGRO_DEBUG("made current");
 
    /* Restore bitmaps.
-    * Ones with ALLEGRO_PRESERVE_TEXTURE will get data re-uploaded.
+    * Ones without ALLEGRO_NO_PRESERVE_TEXTURE will get data re-uploaded.
     * Others will just have textures recreated (because at this point ALL
     * textures are lost.)
     */
@@ -765,7 +719,7 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
       ALLEGRO_BITMAP_EXTRA_OPENGL *extra = bmp->extra;
       if (!(bmp->flags & ALLEGRO_MEMORY_BITMAP) && !bmp->parent) {
          void *ptr;
-         if (bmp->preserve_texture) {
+         if (!(bmp->flags & ALLEGRO_NO_PRESERVE_TEXTURE)) {
             ptr = bmp->memory;
          }
          else {

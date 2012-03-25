@@ -117,7 +117,6 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    bitmap->parent = NULL;
    bitmap->xofs = bitmap->yofs = 0;
    bitmap->memory = al_malloc(pitch * h);
-   bitmap->preserve_texture = !(al_get_new_bitmap_flags() & ALLEGRO_NO_PRESERVE_TEXTURE);
    
    check_to_be_converted_list_add(bitmap);
    return bitmap;
@@ -176,7 +175,6 @@ static ALLEGRO_BITMAP *do_create_bitmap(int w, int h)
    bitmap->parent = NULL;
    bitmap->xofs = 0;
    bitmap->yofs = 0;
-   bitmap->preserve_texture = !(al_get_new_bitmap_flags() & ALLEGRO_NO_PRESERVE_TEXTURE);
    bitmap->flags |= ALLEGRO_VIDEO_BITMAP;
 
    ASSERT(bitmap->pitch >= w * al_get_pixel_size(bitmap->format));
@@ -846,10 +844,10 @@ void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
       clone = al_create_sub_bitmap(bitmap->parent,
          bitmap->xofs, bitmap->yofs, bitmap->w, bitmap->h);
    }
-   else if (bitmap->flags & ALLEGRO_PRESERVE_TEXTURE) {
+   else if (!(bitmap->flags & ALLEGRO_NO_PRESERVE_TEXTURE)) {
       ASSERT(bitmap->memory);
       clone = al_create_bitmap(bitmap->w, bitmap->h);
-      clone->flags |= ALLEGRO_PRESERVE_TEXTURE;
+      clone->flags &= ~ALLEGRO_NO_PRESERVE_TEXTURE;
       temp.memory = clone->memory;
       clone->memory = bitmap->memory;
       if (!(clone->flags & ALLEGRO_MEMORY_BITMAP)) {
