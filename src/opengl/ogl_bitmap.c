@@ -1313,13 +1313,14 @@ void _al_opengl_backup_dirty_bitmaps(ALLEGRO_DISPLAY *d)
       ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&d->bitmaps, i);
       ALLEGRO_BITMAP *b = *bptr;
       ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = b->extra;
+      ALLEGRO_LOCKED_REGION *lr;
       if ((b->flags & ALLEGRO_MEMORY_BITMAP) ||
          (b->flags & ALLEGRO_NO_PRESERVE_TEXTURE) ||
          !ogl_bitmap->dirty ||
          ogl_bitmap->is_backbuffer ||
          b->parent)
          continue;
-      ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(
+      lr = al_lock_bitmap(
          b,
          ALLEGRO_PIXEL_FORMAT_ANY,
          ALLEGRO_LOCK_READONLY
