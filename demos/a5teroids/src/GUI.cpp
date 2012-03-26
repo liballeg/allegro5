@@ -49,7 +49,11 @@ static int do_gui(const std::vector<Widget *>& widgets, unsigned int selected)
       input->poll();
 #if defined ALLEGRO_IPHONE
       float ud;
+#ifdef USE_JOYPAD
       if (is_joypad_connected()) {
+#else	
+      if (false) {
+#endif
          ud = input->ud();
       }
       else {

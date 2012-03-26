@@ -3,6 +3,7 @@
 #ifdef ALLEGRO_IPHONE
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 #include "a5teroids_objc.h"
 
