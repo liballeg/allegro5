@@ -1188,9 +1188,6 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
                try {
                   EGL10 egl = (EGL10)EGLContext.getEGL();
 
-                  egl.eglWaitNative(EGL10.EGL_NATIVE_RENDERABLE, null);
-                  egl.eglWaitGL();
-                  
                   egl.eglSwapBuffers(egl_Display, egl_Surface);
                   switch(egl.eglGetError()) {
                      case EGL10.EGL_SUCCESS:

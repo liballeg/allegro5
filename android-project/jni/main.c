@@ -29,13 +29,25 @@ void print_standard_paths()
    print_standard_path(ALLEGRO_EXENAME_PATH);
 }
 
+void set_transform(ALLEGRO_DISPLAY *dpy)
+{
+   int w = al_get_display_width(dpy);
+   int h = al_get_display_height(dpy);
+   
+   glViewport(0, 0, w, h);
+   
+   ALLEGRO_TRANSFORM t;
+   al_identity_transform(&t);
+   al_ortho_transform(&t, 0, w, h, 0, -1, 1);
+   al_set_projection_transform(dpy, &t);
+}
+
 int main(int argc, char **argv)
 {
    ALLEGRO_EVENT_QUEUE *queue = NULL;
    ALLEGRO_EVENT event;
    ALLEGRO_TIMER *timer = NULL;
    ALLEGRO_BITMAP *image = NULL;
-   ALLEGRO_PATH *image_path = NULL;
    
    ALLEGRO_DEBUG("init allegro!");
 	al_init();
@@ -58,13 +70,10 @@ int main(int argc, char **argv)
       return -1;
    }
 
-   image_path = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
-   al_set_path_filename(image_path, "alexlogo.png");
-      
-   ALLEGRO_DEBUG("loading %s", al_path_cstr(image_path, ALLEGRO_NATIVE_PATH_SEP));
-   image = al_load_bitmap(al_path_cstr(image_path, ALLEGRO_NATIVE_PATH_SEP));
+   /* This is loaded from assets in the apk */
+   image = al_load_bitmap("alexlogo.png");
    if(!image) {
-      ALLEGRO_DEBUG("failed to load %s", al_path_cstr(image_path, ALLEGRO_NATIVE_PATH_SEP));
+      ALLEGRO_DEBUG("failed to load alexlogo.png");
    }
    
    al_convert_mask_to_alpha(image, al_map_rgb(255,0,255));
@@ -150,6 +159,7 @@ int main(int argc, char **argv)
                ALLEGRO_DEBUG("after set target");
                paused = true;
                draw = false;
+	       al_acknowledge_drawing_halt(dpy);
                break;
                
             case ALLEGRO_EVENT_DISPLAY_SWITCH_IN:
@@ -168,18 +178,11 @@ int main(int argc, char **argv)
                ALLEGRO_DEBUG("display resize");
                al_acknowledge_resize(dpy);
                ALLEGRO_DEBUG("done resize");
+	       set_transform(dpy);
                break;
 
 	    case ALLEGRO_EVENT_DISPLAY_ORIENTATION: {
-               int w = al_get_display_width(dpy);
-               int h = al_get_display_height(dpy);
-            
-               glViewport(0, 0, w, h);
-            
-               ALLEGRO_TRANSFORM t;
-               al_identity_transform(&t);
-               al_ortho_transform(&t, 0, w, h, 0, -1, 1);
-               al_set_projection_transform(dpy, &t);
+	       set_transform(dpy);
                break;
 	    }
          }

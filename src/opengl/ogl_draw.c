@@ -223,12 +223,18 @@ static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
       al_identity_transform(&t);
       al_use_transform(&t);
 
+      _al_opengl_set_blender(d);
+
       vert_ptr_on(d, 2, GL_FLOAT, 2*sizeof(float), v);
       color_ptr_on(d, 4, GL_FLOAT, 4*sizeof(float), c);
 
       if (!(d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
          glDisableClientState(GL_NORMAL_ARRAY);
+         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
       }
+
+      glDisable(GL_TEXTURE_2D);
+      glBindTexture(GL_TEXTURE_2D, 0);
 
       glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
@@ -241,7 +247,7 @@ static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
       return;
    }
 #endif
-   
+  
    glClearColor(r, g, b, a);
    glClear(GL_COLOR_BUFFER_BIT);
 }
