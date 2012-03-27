@@ -144,8 +144,6 @@ void switch_game_out(bool halt)
    if (!isMultitaskingSupported()) {
       exit(0);
    }
-   if (!switched_out)
-	sb_stop();
    if (halt) {
       ResourceManager& rm = ResourceManager::getInstance();
       ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)rm.getData(RES_DISPLAY);
@@ -156,8 +154,6 @@ void switch_game_out(bool halt)
 
 void switch_game_in(void)
 {
-   if (switched_out)
-      sb_start();
    switched_out = false;
 }
 #endif
