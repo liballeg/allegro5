@@ -1,13 +1,8 @@
 #include "a5teroids.hpp"
+#include "joypad_c.h"
 
 #ifdef ALLEGRO_IPHONE
 #include <allegro5/allegro_iphone.h>
-#endif
-
-#ifdef USE_JOYPAD
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_MACOSX
-#include "joypad_c.h"
-#endif
 #endif
 
 #ifdef ALLEGRO_MSVC
@@ -83,14 +78,11 @@ bool Input::button_pressed(int x, int y, int w, int h, bool check_if_controls_at
 
 void Input::poll(void)
 {
-#ifdef USE_JOYPAD
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_MACOSX
    if (is_joypad_connected()) {
       get_joypad_state(&joypad_u, &joypad_d, &joypad_l, &joypad_r, &joypad_b, &joypad_esc);
       return;
    }
-#endif
-#endif
+
 #ifdef ALLEGRO_IPHONE
    while (!al_event_queue_is_empty(input_queue)) {
       ALLEGRO_EVENT e;
@@ -170,15 +162,12 @@ void Input::poll(void)
 
 float Input::lr(void)
 {
-#ifdef USE_JOYPAD
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_MACOSX
    if (is_joypad_connected()) {
       if (joypad_l) return -1;
       if (joypad_r) return 1;
       return 0;
    }
-#endif
-#endif
+
 #ifdef ALLEGRO_IPHONE
    if (button_pressed(0, BB_H-size, size, size))
       return -1;
@@ -199,15 +188,12 @@ float Input::lr(void)
 
 float Input::ud(void)
 {
-#ifdef USE_JOYPAD
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_MACOSX
    if (is_joypad_connected()) {
       if (joypad_u) return -1;
       if (joypad_d) return 1;
       return 0;
    }
-#endif
-#endif
+
 #ifdef ALLEGRO_IPHONE
    float magnitude = fabs(joyaxis0) + fabs(joyaxis1);
    if (magnitude < 0.3) return 0;
@@ -262,13 +248,10 @@ float Input::ud(void)
 
 bool Input::esc(void)
 {
-#ifdef USE_JOYPAD
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_MACOSX
    if (is_joypad_connected()) {
       return joypad_esc;
    }
-#endif
-#endif
+
 #ifdef ALLEGRO_IPHONE
    return ((al_get_time() > 2 && al_get_time() < al_iphone_get_last_shake_time()+2) ||
 	button_pressed(BB_W-50, 10, 40, 40, false));
@@ -284,13 +267,10 @@ bool Input::esc(void)
 
 bool Input::b1(void)
 {
-#ifdef USE_JOYPAD
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_MACOSX
    if (is_joypad_connected()) {
       return joypad_b;
    }
-#endif
-#endif
+
 #ifdef ALLEGRO_IPHONE
    return button_pressed(BB_W-size, BB_H-size, size, size) ? 1 : 0;
 #else

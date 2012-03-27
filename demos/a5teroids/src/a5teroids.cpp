@@ -1,13 +1,8 @@
 #include "a5teroids.hpp"
+#include "joypad_c.h"
 
 ALLEGRO_VOICE *voice;
 ALLEGRO_MIXER *mixer;
-
-#ifdef USE_JOYPAD
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_MACOSX
-#include "joypad_c.h"
-#endif
-#endif
 
 #ifdef ALLEGRO_IPHONE
 #include "a5teroids_objc.h"
@@ -82,11 +77,7 @@ int main(int argc, char **argv)
          al_set_audio_stream_playing(title_music, true);
       }
 
-#ifdef USE_JOYPAD
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_MACOSX
       joypad_find();
-#endif
-#endif
 
       while (true) {
          int result = do_menu();
@@ -107,12 +98,8 @@ int main(int argc, char **argv)
          al_rewind_audio_stream(title_music);
       }
 
-#ifdef USE_JOYPAD
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_MACOSX
       joypad_stop_finding();
-#endif
-#endif
-      
+
       ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)rm.getData(RES_DISPLAY);
       int o = al_get_display_orientation(display);
       al_change_display_option(display, ALLEGRO_SUPPORTED_ORIENTATIONS, o);

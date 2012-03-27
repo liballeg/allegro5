@@ -1,14 +1,9 @@
 #include "a5teroids.hpp"
+#include "joypad_c.h"
 #include <stdio.h>
 
 #include <allegro5/fshook.h>
 #include <allegro5/path.h>
-
-#ifdef USE_JOYPAD
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_MACOSX
-#include "joypad_c.h"
-#endif
-#endif
 
 bool kb_installed = false;
 bool joy_installed = false;
@@ -110,11 +105,7 @@ bool loadResources(void)
       }
    }
 
-#ifdef USE_JOYPAD
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_MACOSX
    joypad_start();
-#endif
-#endif
 
    return true;
 }

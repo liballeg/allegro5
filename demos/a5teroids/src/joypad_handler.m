@@ -191,11 +191,8 @@ void joypad_stop_finding(void)
 	[joypad performSelectorOnMainThread: @selector(stop_finding_devices) withObject:nil waitUntilDone:YES];
 }
 
-#endif // USE_JOYPAD
-
 void get_joypad_state(bool *u, bool *d, bool *l, bool *r, bool *b, bool *esc)
 {
-#ifdef USE_JOYPAD
 	if (!joypad || !joypad->connected) {
 		*u = *d = *l = *r = *b = *esc = false;
 		return;
@@ -207,16 +204,11 @@ void get_joypad_state(bool *u, bool *d, bool *l, bool *r, bool *b, bool *esc)
 	*r = joypad->right;
 	*b = joypad->bb;
 	*esc = joypad->bx;
-#else
-	*u = *d = *l = *r = *b = *esc = false;
-#endif
 }
 
 bool is_joypad_connected(void)
 {
-#ifdef USE_JOYPAD
 	return joypad && joypad->connected;
-#else
-	return false;
-#endif
 }
+
+#endif // USE_JOYPAD

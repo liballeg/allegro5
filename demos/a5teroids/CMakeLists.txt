@@ -26,6 +26,7 @@ set(DEMO_SRCS
     src/UFO.cpp
     src/a5teroids.cpp
     src/collision.cpp
+    src/joypad_dummy.cpp
     src/logic.cpp
     src/render.cpp
     src/sound.cpp

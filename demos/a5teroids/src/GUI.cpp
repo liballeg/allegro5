@@ -1,10 +1,5 @@
 #include "a5teroids.hpp"
-
-#ifdef USE_JOYPAD
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_MACOSX
 #include "joypad_c.h"
-#endif
-#endif
 
 #include <sys/stat.h>
 #include <ctime>
@@ -49,11 +44,7 @@ static int do_gui(const std::vector<Widget *>& widgets, unsigned int selected)
       input->poll();
 #if defined ALLEGRO_IPHONE
       float ud;
-#ifdef USE_JOYPAD
       if (is_joypad_connected()) {
-#else	
-      if (false) {
-#endif
          ud = input->ud();
       }
       else {
