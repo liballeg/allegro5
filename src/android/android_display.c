@@ -328,6 +328,7 @@ static bool _al_android_init_display(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *displ
 static void _al_android_resize_display(ALLEGRO_DISPLAY_ANDROID *d, int width, int height)
 {
    ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)d;
+   bool emitted_event = true;
 
    ALLEGRO_DEBUG("display resize");
    
@@ -351,17 +352,22 @@ static void _al_android_resize_display(ALLEGRO_DISPLAY_ANDROID *d, int width, in
       event.display.orientation = _al_android_get_display_orientation();
       _al_event_source_emit_event(&display->es, &event);
    }
+   else {
+   	emitted_event = false;
+   }
    
    ALLEGRO_DEBUG("unlocking display event source");
    _al_event_source_unlock(&display->es);
-   
-   ALLEGRO_DEBUG("waiting for display resize acknowledge");
-   while (!d->resize_acknowledge) {
-      ALLEGRO_DEBUG("calling al_wait_cond");
-      al_wait_cond(d->cond, d->mutex);
+
+   if (emitted_event) {
+      ALLEGRO_DEBUG("waiting for display resize acknowledge");
+      while (!d->resize_acknowledge) {
+         ALLEGRO_DEBUG("calling al_wait_cond");
+         al_wait_cond(d->cond, d->mutex);
+      }
+      al_unlock_mutex(d->mutex);
+      ALLEGRO_DEBUG("done waiting for display resize acknowledge");
    }
-   al_unlock_mutex(d->mutex);
-   ALLEGRO_DEBUG("done waiting for display resize acknowledge");
 
    display->w = width;
    display->h = height;
@@ -369,21 +375,12 @@ static void _al_android_resize_display(ALLEGRO_DISPLAY_ANDROID *d, int width, in
    ALLEGRO_DEBUG("resize backbuffer");
    _al_ogl_resize_backbuffer(display->ogl_extras->backbuffer, width, height);
 
-   /*
-   ALLEGRO_DEBUG("claim context");
-   _al_android_make_current(_jni_getEnv(), d);
-   
-   ALLEGRO_DEBUG("setup opengl view");
-   _al_android_setup_opengl_view(display);
-   
-   ALLEGRO_DEBUG("clear current context");
-   _al_android_clear_current(_jni_getEnv(), d);
-   */
-
-   al_lock_mutex(d->mutex);
-   d->resize_acknowledge2 = true;
-   al_broadcast_cond(d->cond);
-   al_unlock_mutex(d->mutex);
+   if (emitted_event) {
+      al_lock_mutex(d->mutex);
+      d->resize_acknowledge2 = true;
+      al_broadcast_cond(d->cond);
+      al_unlock_mutex(d->mutex);
+   }
    
    ALLEGRO_DEBUG("done");
 }
@@ -488,7 +485,7 @@ static ALLEGRO_DISPLAY *android_create_display(int w, int h)
    al_lock_mutex(d->mutex);
 
    // post create surface request and wait
-   _al_android_create_surface(_jni_getEnv(), true);
+   _al_android_create_surface(_al_android_get_jnienv(), true);
    
    // wait for sizing to happen
    ALLEGRO_DEBUG("waiting for surface onChange");
@@ -503,8 +500,8 @@ static ALLEGRO_DISPLAY *android_create_display(int w, int h)
 
    ALLEGRO_DEBUG("display: %p %ix%i", display, display->w, display->h);
 
-   _al_android_clear_current(_jni_getEnv(), d);
-   _al_android_make_current(_jni_getEnv(), d);
+   _al_android_clear_current(_al_android_get_jnienv(), d);
+   _al_android_make_current(_al_android_get_jnienv(), d);
 
    /* Don't need to repeat what this does */
    android_change_display_option(display, ALLEGRO_SUPPORTED_ORIENTATIONS, al_get_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS, NULL));
@@ -517,11 +514,11 @@ static void android_destroy_display(ALLEGRO_DISPLAY *dpy)
 {
    ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID*)dpy;
    
-   _al_android_clear_current(_jni_getEnv(), d);
+   _al_android_clear_current(_al_android_get_jnienv(), d);
    
    al_lock_mutex(d->mutex);
    
-   _al_android_destroy_surface(_jni_getEnv(), d, true);
+   _al_android_destroy_surface(_al_android_get_jnienv(), d, true);
 
    /* I don't think we can use a condition for this, because there are two possibilities
     * of how a nativeOnDestroy/surfaceDestroyed callback can be called. One is from here,
@@ -563,20 +560,20 @@ static bool android_set_current_display(ALLEGRO_DISPLAY *dpy)
    if (al_get_current_display() == dpy)
       return true;
    
-   _al_android_clear_current(_jni_getEnv(), (ALLEGRO_DISPLAY_ANDROID*)al_get_current_display());
-   if (dpy) _al_android_make_current(_jni_getEnv(), (ALLEGRO_DISPLAY_ANDROID*)dpy);
+   _al_android_clear_current(_al_android_get_jnienv(), (ALLEGRO_DISPLAY_ANDROID*)al_get_current_display());
+   if (dpy) _al_android_make_current(_al_android_get_jnienv(), (ALLEGRO_DISPLAY_ANDROID*)dpy);
    return true;
 }
 
 static void android_unset_current_display(ALLEGRO_DISPLAY *dpy)
 {
    ALLEGRO_DEBUG("unset current %p", dpy);
-   _al_android_clear_current(_jni_getEnv(), (ALLEGRO_DISPLAY_ANDROID*)dpy);
+   _al_android_clear_current(_al_android_get_jnienv(), (ALLEGRO_DISPLAY_ANDROID*)dpy);
 }
 
 static void android_flip_display(ALLEGRO_DISPLAY *dpy)
 {
-   _jni_callVoidMethod(_jni_getEnv(), ((ALLEGRO_DISPLAY_ANDROID*)dpy)->surface_object, "egl_SwapBuffers");
+   _jni_callVoidMethod(_al_android_get_jnienv(), ((ALLEGRO_DISPLAY_ANDROID*)dpy)->surface_object, "egl_SwapBuffers");
 
    /* Backup bitmaps created without ALLEGRO_NO_PRESERVE_TEXTURE that are dirty, to system memory */
    _al_opengl_backup_dirty_bitmaps(dpy);
@@ -595,7 +592,7 @@ static bool android_acknowledge_resize(ALLEGRO_DISPLAY *dpy)
    ALLEGRO_DEBUG("android_acknowledge_resize");
    
    ALLEGRO_DEBUG("clear current context");
-   _al_android_clear_current(_jni_getEnv(), d);
+   _al_android_clear_current(_al_android_get_jnienv(), d);
 
    ALLEGRO_DEBUG("locking mutex");
    al_lock_mutex(d->mutex);
@@ -612,7 +609,7 @@ static bool android_acknowledge_resize(ALLEGRO_DISPLAY *dpy)
    ALLEGRO_DEBUG("done waiting for display resize acknowledge 2");
 
    ALLEGRO_DEBUG("acquire context");
-   _al_android_make_current(_jni_getEnv(), d);
+   _al_android_make_current(_al_android_get_jnienv(), d);
    
    ALLEGRO_DEBUG("done");
    return true;
@@ -704,7 +701,7 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
    
    ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID *)dpy;
    
-   _al_android_make_current(_jni_getEnv(), d);
+   _al_android_make_current(_al_android_get_jnienv(), d);
 
    ALLEGRO_DEBUG("made current");
 
@@ -745,9 +742,9 @@ static void android_change_display_option(ALLEGRO_DISPLAY *d, int o, int v)
 {
    (void)d;
    if (o == ALLEGRO_SUPPORTED_ORIENTATIONS) {
-      int orientation = _jni_callIntMethodV(_jni_getEnv(),
+      int orientation = _jni_callIntMethodV(_al_android_get_jnienv(),
          _al_android_activity_object(), "getAndroidOrientation", "(I)I", v);
-      _jni_callVoidMethodV(_jni_getEnv(), _al_android_activity_object(),
+      _jni_callVoidMethodV(_al_android_get_jnienv(), _al_android_activity_object(),
          "setRequestedOrientation", "(I)V", orientation);
    }
 }

@@ -168,6 +168,7 @@ set(ALLEGRO_SRC_ANDROID_FILES
    src/unix/uxthread.c
    src/android/android_display.c
    src/android/android_joystick.c
+   src/android/android_mouse.c
    src/android/android_keyboard.c
    src/android/android_system.c
    src/android/android_touch.c

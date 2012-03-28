@@ -129,6 +129,8 @@ void _al_android_generate_joystick_event(float x, float y, float z);
 GLint _al_android_get_curr_fbo(void);
 void _al_android_set_curr_fbo(GLint fbo);
 bool _al_android_is_os_2_1(void);
+void _al_android_thread_created(void);
+void _al_android_thread_ended(void);
 
 #endif /* ALLEGRO_AINTERN_ANDROID_H */
 

@@ -43,7 +43,6 @@ struct system_data_t {
    ALLEGRO_COND *cond;
    ALLEGRO_THREAD *trampoline;
    bool trampoline_running;
-   JNIEnv *main_env;
    
    ALLEGRO_USTR *lib_dir;
    ALLEGRO_USTR *app_name;
@@ -59,14 +58,9 @@ struct system_data_t {
    bool is_2_1; // is running on Android OS 2.1?
 };
 
-static struct system_data_t system_data = { NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, false };
+static struct system_data_t system_data = { NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, false };
 static JavaVM* javavm;
-
-/* define here, so we have access to system_data */
-JNIEnv *_jni_getEnv()
-{
-   return system_data.main_env;
-}
+static JNIEnv *main_env;
 
 int _al_android_get_display_orientation(void)
 {
@@ -95,20 +89,45 @@ jobject _al_android_activity_object()
    return system_data.activity_object;
 }
 
+JNIEXPORT int JNICALL Java_org_liballeg_app_AllegroInputStream_nativeRead(JNIEnv *env, jobject obj, int handle, jbyteArray array, int offset, int length)
+{
+   ALLEGRO_FILE *fp = (ALLEGRO_FILE*)handle;
+   int ret = -1;
+   jbyte *array_ptr = NULL;
+   ASSERT(fp != NULL);
+   
+   (void)obj;
+   ALLEGRO_DEBUG("nativeRead begin: handle:%i fp:%p offset:%i length:%i", handle, fp, offset, length);
+   
+   int array_len = _jni_call(env, int, GetArrayLength, array);
+   ALLEGRO_DEBUG("array length: %i", array_len);
+   
+   array_ptr = _jni_call(env, jbyte *, GetByteArrayElements, array, NULL);
+   ASSERT(array_ptr != NULL);
+   
+   ALLEGRO_DEBUG("al_fread: p:%p, o:%i, l:%i", array_ptr, offset, length);
+   ret = al_fread(fp, array_ptr+offset, length);
+
+   _jni_callv(env, ReleaseByteArrayElements, array, array_ptr, 0);
+   
+   ALLEGRO_DEBUG("nativeRead end");
+   return ret;
+}
+
+JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroInputStream_nativeClose(JNIEnv *env, jobject obj, int hdnl)
+{
+   ALLEGRO_FILE *fp = (ALLEGRO_FILE*)hdnl;
+   (void)env;
+   (void)obj;
+   al_fclose(fp);
+}
+
 static void finish_activity(JNIEnv *env);
 
 void *android_app_trampoline(ALLEGRO_THREAD *thr, void *arg)
 {
    const char *argv[2] = { al_cstr(system_data.app_name), NULL };
    (void)thr; (void)arg;
-   
-   // setup main_env
-   JavaVMAttachArgs attach_args = { JNI_VERSION_1_4, "main_trampoline", NULL };
-   jint attach_ret = (*javavm)->AttachCurrentThread(javavm, &system_data.main_env, &attach_args);
-   if(attach_ret != 0) {
-      ALLEGRO_ERROR("failed to attach trampoline to jvm >:(");
-      return NULL;
-   }
    
    // chdir(al_cstr(system_data.data_dir));
    
@@ -132,7 +151,7 @@ void *android_app_trampoline(ALLEGRO_THREAD *thr, void *arg)
    al_uninstall_system();
    
    ALLEGRO_DEBUG("calling finish_activity");
-   finish_activity(system_data.main_env);
+   finish_activity(_al_android_get_jnienv());
    ALLEGRO_DEBUG("returning/exit-thread");
    
    jint detach_ret = (*javavm)->DetachCurrentThread(javavm);
@@ -158,6 +177,7 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
    const char *full_path = NULL;
    ALLEGRO_SYSTEM_ANDROID *na_sys = NULL;
    jclass iae;
+   jclass aisc;
    
    // we're already initialized, we REALLY don't want to run all the stuff below again.
    if(system_data.system) {
@@ -178,6 +198,9 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
    
    iae = (*env)->FindClass(env, "java/lang/IllegalArgumentException");
    system_data.illegal_argument_exception_class = (*env)->NewGlobalRef(env, iae);
+   
+   aisc = (*env)->FindClass(env, "org/liballeg/app/AllegroInputStream");
+   system_data.input_stream_class = (*env)->NewGlobalRef(env, aisc);
    
    ALLEGRO_DEBUG("create mutex and cond objects");
    system_data.mutex = al_create_mutex();
@@ -419,7 +442,13 @@ static ALLEGRO_SYSTEM *android_initialize(int flags)
 {
    (void)flags;
    
-   ALLEGRO_DEBUG("init dummy");
+   ALLEGRO_DEBUG("android_initialize");
+
+   /* This was stored before user main ran, to make it easy and accessible
+    * the same way for all threads, we set it in tls
+    */
+   _al_android_set_jnienv(main_env);
+
    return &system_data.system->system;
 }
 
@@ -454,7 +483,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_android_interface()
    android_vt->initialize = android_initialize;
    android_vt->get_display_driver = _al_get_android_display_driver;
    android_vt->get_keyboard_driver = _al_get_android_keyboard_driver;
-   //android_vt->get_mouse_driver = _al_get_android_na_mouse_driver;
+   android_vt->get_mouse_driver = _al_get_android_mouse_driver;
    android_vt->get_touch_input_driver = _al_get_android_touch_input_driver;
    android_vt->get_joystick_driver = _al_get_android_joystick_driver;
    android_vt->get_num_video_adapters = android_get_num_video_adapters;
@@ -498,115 +527,6 @@ ALLEGRO_PATH *_al_android_get_path(int id)
    return path;
 }
 
-/*
- * load image using in memory buffer and a couple extra copies
-ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
-{
-   int buffer_len = al_fsize(fh);
-   ALLEGRO_BITMAP *bitmap = NULL;
-   int bitmap_w = 0, bitmap_h = 0, pitch = 0;
-   jbyteArray byteArray;
-   jbyte *buffer = NULL;
-   jobject jbitmap;
-   jobject byte_buffer;
-   ALLEGRO_STATE state;
-   
-   ALLEGRO_DEBUG("load image begin");
-   
-   // buffer +1 = 1, copies 1
-   byteArray = _jni_call(system_data.main_env, jbyteArray, NewByteArray, buffer_len);
-   buffer = _jni_call(system_data.main_env, jbyte*, GetByteArrayElements, byteArray, NULL);
-   
-   int read_len = al_fread(fh, buffer, buffer_len);
-   if(read_len != buffer_len) {
-      ALLEGRO_ERROR("wanted %i bytes, only got %i", buffer_len, read_len);
-      return NULL;
-   }
-   
-   _jni_callv(system_data.main_env, ReleaseByteArrayElements, byteArray, buffer, 0);
-   
-   // buffer +1 = 2, copies 2
-   jbitmap = _jni_callObjectMethodV(system_data.main_env, system_data.activity_object, "decodeBitmapByteArray", "([B)Landroid/graphics/Bitmap;", byteArray);
-   if(!jbitmap) {
-      ALLEGRO_ERROR("failed to decode bitmap :(");
-      return NULL;
-   }
-   
-   // buffer -1 = 1
-   _jni_callv(system_data.main_env, DeleteLocalRef, byteArray);
-   
-   bitmap_w = _jni_callIntMethod(system_data.main_env, jbitmap, "getWidth");
-   bitmap_h = _jni_callIntMethod(system_data.main_env, jbitmap, "getHeight");
-   pitch  = _jni_callIntMethod(system_data.main_env, jbitmap, "getRowBytes");
-   
-   buffer_len = pitch * bitmap_h;
-   
-   ALLEGRO_DEBUG("bitmap w:%i, h:%i, pitch:%i, sz:%i bl:%i", bitmap_w, bitmap_h, pitch, bitmap_w * bitmap_h, buffer_len);
-   
-   // buffer +1 = 2, copies 3
-   buffer = al_calloc(1, buffer_len);
-   if(!buffer) {
-      ALLEGRO_ERROR("failed to allocate memory");
-      return NULL;
-   }
-   
-   // FIXME: we can save a copy and allocation here by using the AndroidBitmap_lockPixels api, but that is only available on Android 2.2 and above.
-   byte_buffer = _jni_call(system_data.main_env, jobject, NewDirectByteBuffer, buffer, buffer_len);
-   if(!byte_buffer) {
-      ALLEGRO_ERROR("failed to allocate DirectByteBuffer");
-      return NULL;
-   }
-   
-   // copies 4
-   _jni_callVoidMethodV(system_data.main_env, jbitmap, "copyPixelsToBuffer", "(Ljava/nio/Buffer;)V", byte_buffer);
-   
-   // buffer -1 = 1
-   _jni_callv(system_data.main_env, DeleteLocalRef, jbitmap);
-   
-   // flip bitmap
-   ALLEGRO_DEBUG("do flip");
-   
-   // FIXME: this flipping code needs work.
-
-   unsigned char *flipped = al_malloc(bitmap_w * bitmap_h * 4);
-   ASSERT(flipped != NULL);
-   
-   _al_convert_bitmap_data(buffer + pitch * (bitmap_h-1), ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, -pitch,
-                           flipped, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, bitmap_w * 4,
-                           0, 0, 0, 0, bitmap_w, bitmap_h);
-   
-   al_free(buffer);
-   
-   ALLEGRO_DEBUG("done flip");
-   
-   al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE);
-   
-   bitmap = al_create_bitmap(bitmap_w, bitmap_h);
-   al_restore_state(&state);
-   if(!bitmap) {
-      al_free(buffer);
-      return NULL;
-   }
-
-   ALLEGRO_DEBUG("create bitmap ok");
-   
-   // buffer +1, = 2, copies 5
-   ALLEGRO_DEBUG("bitmap->extra:%p", bitmap->extra);
-
-   _al_ogl_upload_bitmap_memory(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, flipped);
-
-   ALLEGRO_DEBUG("upload bitmap memory ok");
-
-   // buffer -1 = 1
-   _jni_callv(system_data.main_env, DeleteLocalRef, byte_buffer);
-   //al_free(buffer);
-   
-   ALLEGRO_DEBUG("load image end");
-   return bitmap;
-   
-}*/
-
 ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
 {
    int x, y;
@@ -620,29 +540,31 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
    ALLEGRO_BITMAP *bitmap = NULL;
    int bitmap_w = 0, bitmap_h = 0;
    ALLEGRO_STATE state;
+
+   JNIEnv *jnienv = (JNIEnv *)_al_android_get_jnienv();
    
    (void)flags;
    
-   input_stream_ctor = _jni_call(system_data.main_env, jclass, GetMethodID, system_data.input_stream_class, "<init>", "(I)V");
+   input_stream_ctor = _jni_call(jnienv, jclass, GetMethodID, system_data.input_stream_class, "<init>", "(I)V");
    
    jint fhi = (jint)fh;
    
-   input_stream = _jni_call(system_data.main_env, jobject, NewObject, system_data.input_stream_class, input_stream_ctor, fhi);
+   input_stream = _jni_call(jnienv, jobject, NewObject, system_data.input_stream_class, input_stream_ctor, fhi);
 
    if(!input_stream) {
       ALLEGRO_ERROR("failed to create new AllegroInputStream object");
       return NULL;
    }
    
-   jbitmap = _jni_callObjectMethodV(system_data.main_env, system_data.activity_object, "decodeBitmap_f", "(Lorg/liballeg/app/AllegroInputStream;)Landroid/graphics/Bitmap;", input_stream);
+   jbitmap = _jni_callObjectMethodV(jnienv, system_data.activity_object, "decodeBitmap_f", "(Lorg/liballeg/app/AllegroInputStream;)Landroid/graphics/Bitmap;", input_stream);
    ASSERT(jbitmap != NULL);
    
-   _jni_callv(system_data.main_env, DeleteLocalRef, input_stream);
+   _jni_callv(jnienv, DeleteLocalRef, input_stream);
 
-   bitmap_w = _jni_callIntMethod(system_data.main_env, jbitmap, "getWidth");
-   bitmap_h = _jni_callIntMethod(system_data.main_env, jbitmap, "getHeight");
+   bitmap_w = _jni_callIntMethod(jnienv, jbitmap, "getWidth");
+   bitmap_h = _jni_callIntMethod(jnienv, jbitmap, "getHeight");
    
-   int pitch = _jni_callIntMethod(system_data.main_env, jbitmap, "getRowBytes");
+   int pitch = _jni_callIntMethod(jnienv, jbitmap, "getRowBytes");
    buffer_len = pitch * bitmap_h;
    
    ALLEGRO_DEBUG("bitmap size: %i", buffer_len);
@@ -657,15 +579,15 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
    //        need to check for header at build time, and android version at runtime
    //        if thats even possible, might need to try and dynamically load the lib? I dunno.
    //        That would get rid of this buffer allocation and copy.
-   byte_buffer = _jni_call(system_data.main_env, jobject, NewDirectByteBuffer, buffer, buffer_len);
+   byte_buffer = _jni_call(jnienv, jobject, NewDirectByteBuffer, buffer, buffer_len);
    
-   _jni_callVoidMethodV(system_data.main_env, jbitmap, "copyPixelsToBuffer", "(Ljava/nio/Buffer;)V", byte_buffer);
+   _jni_callVoidMethodV(jnienv, jbitmap, "copyPixelsToBuffer", "(Ljava/nio/Buffer;)V", byte_buffer);
    
    // tell java we don't need the byte_buffer object
-   _jni_callv(system_data.main_env, DeleteLocalRef, byte_buffer);
+   _jni_callv(jnienv, DeleteLocalRef, byte_buffer);
 
    // tell java we're done with the bitmap as well
-   _jni_callv(system_data.main_env, DeleteLocalRef, jbitmap);
+   _jni_callv(jnienv, DeleteLocalRef, jbitmap);
 
    al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE);
@@ -677,7 +599,6 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
    }
    
    //_al_ogl_upload_bitmap_memory(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, buffer);
-   ALLEGRO_DEBUG("HERE");
    ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
    for (y = 0; y < bitmap_h; y++) {
       for (x = 0; x < bitmap->w; x++) {
@@ -689,7 +610,6 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
       }
    }
    al_unlock_bitmap(bitmap);
-   ALLEGRO_DEBUG("HERE2");
    
    al_free(buffer);
    
@@ -703,15 +623,17 @@ ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags)
    ALLEGRO_BITMAP *bitmap = NULL;
    int bitmap_w = 0, bitmap_h = 0;
    ALLEGRO_STATE state;
+
+   JNIEnv *jnienv = _al_android_get_jnienv();
    
    (void)flags;
    
-   jbitmap = _jni_callObjectMethodV(system_data.main_env, system_data.activity_object, "decodeBitmap", "(Ljava/lang/String;)Landroid/graphics/Bitmap;",
-      (*system_data.main_env)->NewStringUTF(system_data.main_env, filename));
+   jbitmap = _jni_callObjectMethodV(jnienv, system_data.activity_object, "decodeBitmap", "(Ljava/lang/String;)Landroid/graphics/Bitmap;",
+      (*jnienv)->NewStringUTF(jnienv, filename));
    ASSERT(jbitmap != NULL);
    
-   bitmap_w = _jni_callIntMethod(system_data.main_env, jbitmap, "getWidth");
-   bitmap_h = _jni_callIntMethod(system_data.main_env, jbitmap, "getHeight");
+   bitmap_w = _jni_callIntMethod(jnienv, jbitmap, "getWidth");
+   bitmap_h = _jni_callIntMethod(jnienv, jbitmap, "getHeight");
    
    ALLEGRO_DEBUG("bitmap dimensions: %d, %d", bitmap_w, bitmap_h);
    
@@ -725,8 +647,8 @@ ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags)
 
    ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
 
-   jintArray ia = jbitmap = _jni_callObjectMethodV(system_data.main_env, system_data.activity_object, "getPixels", "(Landroid/graphics/Bitmap;)[I", jbitmap);
-   jint *arr = (*system_data.main_env)->GetIntArrayElements(system_data.main_env, ia, 0);
+   jintArray ia = jbitmap = _jni_callObjectMethodV(jnienv, system_data.activity_object, "getPixels", "(Landroid/graphics/Bitmap;)[I", jbitmap);
+   jint *arr = (*jnienv)->GetIntArrayElements(jnienv, ia, 0);
    uint32_t *src = (uint32_t *)arr;
    uint32_t c;
    uint8_t a;
@@ -746,10 +668,10 @@ ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags)
          *dst++ = c;
       }
    }
-   (*system_data.main_env)->ReleaseIntArrayElements(system_data.main_env, ia, arr, JNI_ABORT);
+   (*jnienv)->ReleaseIntArrayElements(jnienv, ia, arr, JNI_ABORT);
 
    // tell java we're done with the bitmap as well
-   _jni_callv(system_data.main_env, DeleteLocalRef, jbitmap);
+   _jni_callv(jnienv, DeleteLocalRef, jbitmap);
 
    al_unlock_bitmap(bitmap);
 
@@ -768,6 +690,28 @@ static const char *_android_get_os_version(JNIEnv *env)
 bool _al_android_is_os_2_1(void)
 {
    return system_data.is_2_1;
+}
+
+void _al_android_thread_created(void)
+{
+   JNIEnv *env;
+   JavaVMAttachArgs attach_args = { JNI_VERSION_1_4, "trampoline", NULL };
+   (*javavm)->AttachCurrentThread(javavm, &env, &attach_args);
+   /* This function runs once before al_init, so before TLS is initialized
+    * so we save the environment and set it later in that case.
+    */
+   ALLEGRO_SYSTEM *s = al_get_system_driver();
+   if (s && s->installed) {
+      _al_android_set_jnienv(env);
+   }
+   else {
+      main_env = env;
+   }
+}
+
+void _al_android_thread_ended(void)
+{
+   (*javavm)->DetachCurrentThread(javavm);
 }
 
 /* register system interfaces */

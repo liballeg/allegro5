@@ -67,44 +67,40 @@ static void generate_touch_input_event(unsigned int type, double timestamp, int 
       _al_event_source_unlock(&touch_input.es);
    }
 
-   if (want_mouse_emulation_event) {
-
-      //ALLEGRO_MOUSE_STATE state;
-
-      switch (type) {
-         case ALLEGRO_EVENT_TOUCH_BEGIN: type = ALLEGRO_EVENT_MOUSE_BUTTON_DOWN; break;
-         case ALLEGRO_EVENT_TOUCH_CANCEL:
-         case ALLEGRO_EVENT_TOUCH_END:   type = ALLEGRO_EVENT_MOUSE_BUTTON_UP;   break;
-         case ALLEGRO_EVENT_TOUCH_MOVE:  type = ALLEGRO_EVENT_MOUSE_AXES;        break;
-      }
-
-      //al_get_mouse_state(&state);
-
-      event.mouse.type      = type;
-      event.mouse.timestamp = timestamp;
-      event.mouse.display   = (ALLEGRO_DISPLAY*)disp;
-      event.mouse.x         = (int)x;
-      event.mouse.y         = (int)y;
-      //event.mouse.z         = state.z;
-      //event.mouse.w         = state.w;
-      event.mouse.dx        = (int)dx;
-      event.mouse.dy        = (int)dy;
-      event.mouse.dz        = 0;
-      event.mouse.dw        = 0;
-      if (touch_input.mouse_emulation_mode != ALLEGRO_MOUSE_EMULATION_5_0_x) {
-         event.mouse.button = 1;
-      }
-      else {
-         event.mouse.button = id;
-      }
-      event.mouse.pressure  = 1.0;
-
-      if (touch_input.mouse_emulation_mode != ALLEGRO_MOUSE_EMULATION_5_0_x) {
-         al_set_mouse_xy(event.mouse.display, event.mouse.x, event.mouse.y);
-      }
-
+   if (touch_input.mouse_emulation_mode != ALLEGRO_MOUSE_EMULATION_NONE) {
       _al_event_source_lock(&touch_input.mouse_emulation_es);
-      _al_event_source_emit_event(&touch_input.mouse_emulation_es, &event);
+      if (want_mouse_emulation_event) {
+
+         switch (type) {
+            case ALLEGRO_EVENT_TOUCH_BEGIN: type = ALLEGRO_EVENT_MOUSE_BUTTON_DOWN; break;
+            case ALLEGRO_EVENT_TOUCH_CANCEL:
+            case ALLEGRO_EVENT_TOUCH_END:   type = ALLEGRO_EVENT_MOUSE_BUTTON_UP;   break;
+            case ALLEGRO_EVENT_TOUCH_MOVE:  type = ALLEGRO_EVENT_MOUSE_AXES;        break;
+         }
+   
+         event.mouse.type      = type;
+         event.mouse.timestamp = timestamp;
+         event.mouse.display   = (ALLEGRO_DISPLAY*)disp;
+         event.mouse.x         = (int)x;
+         event.mouse.y         = (int)y;
+         event.mouse.dx        = (int)dx;
+         event.mouse.dy        = (int)dy;
+         event.mouse.dz        = 0;
+         event.mouse.dw        = 0;
+         if (touch_input.mouse_emulation_mode != ALLEGRO_MOUSE_EMULATION_5_0_x) {
+            event.mouse.button = 1;
+         }
+         else {
+            event.mouse.button = id;
+         }
+         event.mouse.pressure  = 1.0;
+   
+         if (touch_input.mouse_emulation_mode != ALLEGRO_MOUSE_EMULATION_5_0_x) {
+            al_set_mouse_xy(event.mouse.display, event.mouse.x, event.mouse.y);
+         }
+   
+         _al_event_source_emit_event(&touch_input.mouse_emulation_es, &event);
+      }
 
       mouse_state.x = (int)x;
       mouse_state.y = (int)y;
