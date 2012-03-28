@@ -900,8 +900,7 @@ void al_set_errno(int errnum)
 }
 
 
-
-
+#ifdef ALLEGRO_ANDROID
 /* Function: _al_android_get_jnienv
  */
 JNIEnv *_al_android_get_jnienv(void)
@@ -925,7 +924,7 @@ void _al_android_set_jnienv(JNIEnv *jnienv)
       return;
    tls->jnienv = jnienv;
 }
-
+#endif
 
 
 int *_al_tls_get_dtor_owner_count(void)
