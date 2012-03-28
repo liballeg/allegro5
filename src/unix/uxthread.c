@@ -33,7 +33,14 @@
 static void *thread_proc_trampoline(void *data)
 {
    _AL_THREAD *thread = data;
+   /* Android is special and needs to attach/detach threads with Java */
+#ifdef ALLEGRO_ANDROID
+   _al_android_thread_created();
+#endif
    (*thread->proc)(thread, thread->arg);
+#ifdef ALLEGRO_ANDROID
+   _al_android_thread_ended();
+#endif
    return NULL;
 }
 

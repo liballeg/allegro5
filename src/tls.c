@@ -89,6 +89,10 @@ typedef struct thread_local_state {
    /* Error code */
    int allegro_errno;
 
+#ifdef ALLEGRO_ANDROID
+   JNIEnv *jnienv;
+#endif
+
    /* Destructor ownership count */
    int dtor_owner_count;
 } thread_local_state;
@@ -893,6 +897,33 @@ void al_set_errno(int errnum)
    if ((tls = tls_get()) == NULL)
       return;
    tls->allegro_errno = errnum;
+}
+
+
+
+
+/* Function: _al_android_get_jnienv
+ */
+JNIEnv *_al_android_get_jnienv(void)
+{
+   thread_local_state *tls;
+
+   if ((tls = tls_get()) == NULL)
+      return 0;
+   return tls->jnienv;
+}
+
+
+
+/* Function: _al_android_set_jnienv
+ */
+void _al_android_set_jnienv(JNIEnv *jnienv)
+{
+   thread_local_state *tls;
+
+   if ((tls = tls_get()) == NULL)
+      return;
+   tls->jnienv = jnienv;
 }
 
 
