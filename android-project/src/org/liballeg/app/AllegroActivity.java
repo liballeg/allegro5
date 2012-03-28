@@ -106,18 +106,18 @@ public class AllegroActivity extends Activity implements SensorEventListener
       System.loadLibrary("allegro_primitives-debug");
       System.loadLibrary("allegro_image-debug");
    }
-
+	
    public static AllegroActivity Self;
 
    /* methods native code calls */
-
+   
    public String getLibraryDir()
    {
       /* Android 1.6 doesn't have .nativeLibraryDir :( */
 		/* FIXME: use reflection here to detect the capabilities of the device */
       return getApplicationInfo().dataDir + "/lib";
    }
-
+   
    public String getAppName()
    {
       try {
@@ -126,14 +126,14 @@ public class AllegroActivity extends Activity implements SensorEventListener
          return new String();
       }
    }
-
+   
    public String getResourcesDir()
    {
       //return getApplicationInfo().dataDir + "/assets";
       //return getApplicationInfo().sourceDir + "/assets/";
-      return getFilesDir().getAbsolutePath();
+		return getFilesDir().getAbsolutePath();
    }
-
+   
    public String getPubDataDir()
    {
       return getExternalFilesDir(null).getAbsolutePath();
@@ -143,7 +143,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
 	{
 		return getApplicationInfo().sourceDir;
 	}
-
+   
    public void postRunnable(Runnable runme)
    {
       try {
@@ -153,7 +153,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
          Log.d("AllegroActivity", "postRunnable exception: " + x.getMessage());
       }
    }
-
+   
    public void createSurface()
    {
       try {
@@ -173,7 +173,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
          Log.d("AllegroActivity", "createSurface exception: " + x.getMessage());
       }
    }
-
+   
    public void postCreateSurface()
    {
       try {
@@ -378,7 +378,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
          return;
       }
 
-      nativeOnOrientationChange(getAllegroOrientation(), true);
+      nativeOnOrientationChange(0, true);
 
       requestWindowFeature(Window.FEATURE_NO_TITLE);
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -676,7 +676,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
          Log.e("AllegroActivity", "asset list exception: "+ex.getMessage());
       }
    }
-   
+
    public String getOsVersion()
    {
       return android.os.Build.VERSION.RELEASE;
@@ -1046,7 +1046,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
          case ALLEGRO_SAMPLES:
             egl_attr = egl.EGL_SAMPLES;
             break;
-
+         
          default:
             Log.e("AllegroSurface", "got unknown attribute " + attr);
             break;
@@ -1071,6 +1071,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
          Log.d("AllegroSurface", "egl_createContext no context");
          return false;
       }
+      Log.d("AllegroSurface", "EGL context created");
       
       egl_Context = ctx;
       
@@ -1188,6 +1189,10 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
                try {
                   EGL10 egl = (EGL10)EGLContext.getEGL();
 
+                  // FIXME: Pretty sure flush is implicit with SwapBuffers
+                  //egl.eglWaitNative(EGL10.EGL_NATIVE_RENDERABLE, null);
+                  //egl.eglWaitGL();
+                  
                   egl.eglSwapBuffers(egl_Display, egl_Surface);
                   switch(egl.eglGetError()) {
                      case EGL10.EGL_SUCCESS:
