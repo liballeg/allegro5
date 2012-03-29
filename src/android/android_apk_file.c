@@ -1,7 +1,7 @@
 #include <allegro5/allegro.h>
 #include <allegro5/internal/aintern_android.h>
 
-ALLEGRO_DEBUG_CHANNEL("android");
+ALLEGRO_DEBUG_CHANNEL("android")
 
 
 typedef struct ALLEGRO_FILE_APK ALLEGRO_FILE_APK;
