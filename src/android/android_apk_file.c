@@ -44,7 +44,11 @@ static jobject APK_openRead(const char *filename)
 
    jmethodID ctor = _jni_call(jnienv, jclass, GetMethodID, _al_android_apk_stream_class(), "<init>", "(Lorg/liballeg/app/AllegroActivity;Ljava/lang/String;)V");
 
-   jobject is = _jni_call(jnienv, jobject, NewObject, _al_android_apk_stream_class(), ctor, _al_android_activity_object(), (*jnienv)->NewStringUTF(jnienv, filename));
+   jstring str = (*jnienv)->NewStringUTF(jnienv, filename);
+
+   jobject is = _jni_call(jnienv, jobject, NewObject, _al_android_apk_stream_class(), ctor, _al_android_activity_object(), str);
+
+   _jni_callv(jnienv, DeleteLocalRef, str);
    
    jboolean res = _jni_callBooleanMethodV(_al_android_get_jnienv(), is, "open", "()Z");
 
@@ -57,6 +61,7 @@ static jobject APK_openRead(const char *filename)
 static void APK_close(jobject apk_stream)
 {
    _jni_callVoidMethod(_al_android_get_jnienv(), apk_stream, "close");
+   _jni_callv(_al_android_get_jnienv(), DeleteLocalRef, apk_stream);
 }
 
 static bool APK_seek(jobject apk_stream, long bytes)

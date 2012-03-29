@@ -640,10 +640,19 @@ ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags)
    JNIEnv *jnienv = _al_android_get_jnienv();
    
    (void)flags;
+
+   jstring str = (*jnienv)->NewStringUTF(jnienv, filename);
    
-   jbitmap = _jni_callObjectMethodV(jnienv, system_data.activity_object, "decodeBitmap", "(Ljava/lang/String;)Landroid/graphics/Bitmap;",
-      (*jnienv)->NewStringUTF(jnienv, filename));
+   jbitmap = _jni_callObjectMethodV(jnienv, system_data.activity_object, "decodeBitmap", "(Ljava/lang/String;)Landroid/graphics/Bitmap;", str);
    ASSERT(jbitmap != NULL);
+
+   /* For future Java noobs like me: If the calling thread is a Java
+    * thread, it will clean up these references when the native method
+    * returns. But here that's not the case (though technically we were
+    * spawned ultimately by a Java thread, we never return.) In any case,
+    * it never does any harm to release the reference anyway.
+    */
+   (*jnienv)->DeleteLocalRef(jnienv, str);
    
    bitmap_w = _jni_callIntMethod(jnienv, jbitmap, "getWidth");
    bitmap_h = _jni_callIntMethod(jnienv, jbitmap, "getHeight");
