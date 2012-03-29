@@ -58,13 +58,6 @@ AL_FUNC(void, al_store_state, (ALLEGRO_STATE *state, int flags));
 AL_FUNC(void, al_restore_state, (ALLEGRO_STATE const *state));
 
 
-#ifdef ALLEGRO_ANDROID
-#include <jni.h>
-void _al_android_set_jnienv(JNIEnv *jnienv);
-JNIEnv *_al_android_get_jnienv(void);
-#endif
-
-
 #ifdef __cplusplus
    }
 #endif

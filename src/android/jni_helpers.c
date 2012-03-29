@@ -132,6 +132,7 @@ int _jni_callIntMethodV(JNIEnv *env, jobject obj, char *name, char *sig, ...)
    return res;
 }*/
 
+/*
 bool _jni_callBooleanMethodV(JNIEnv *env, jobject obj, char *name, char *sig, ...)
 {
    va_list ap;
@@ -156,3 +157,4 @@ bool _jni_callBooleanMethodV(JNIEnv *env, jobject obj, char *name, char *sig, ..
    
    return res;
 }
+*/

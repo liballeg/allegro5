@@ -21,6 +21,7 @@
 /*
  *  Public android-related API
  */
+void al_set_apk_file_interface(void);
 
 
 #ifdef __cplusplus

@@ -37,6 +37,7 @@ struct system_data_t {
    jobject activity_object;
    jclass input_stream_class;
    jclass illegal_argument_exception_class;
+   jclass apk_stream_class;
    
    ALLEGRO_SYSTEM_ANDROID *system;
    ALLEGRO_MUTEX *mutex;
@@ -58,13 +59,18 @@ struct system_data_t {
    bool is_2_1; // is running on Android OS 2.1?
 };
 
-static struct system_data_t system_data = { NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, false };
+static struct system_data_t system_data = { NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, false };
 static JavaVM* javavm;
 static JNIEnv *main_env;
 
 int _al_android_get_display_orientation(void)
 {
    return system_data.orientation;
+}
+
+jclass _al_android_apk_stream_class(void)
+{
+   return system_data.apk_stream_class;
 }
 
 void __jni_checkException(JNIEnv *env, const char *file, const char *func, int line)
@@ -178,6 +184,7 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
    ALLEGRO_SYSTEM_ANDROID *na_sys = NULL;
    jclass iae;
    jclass aisc;
+   jclass asc;
    
    // we're already initialized, we REALLY don't want to run all the stuff below again.
    if(system_data.system) {
@@ -202,6 +209,9 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
    aisc = (*env)->FindClass(env, "org/liballeg/app/AllegroInputStream");
    system_data.input_stream_class = (*env)->NewGlobalRef(env, aisc);
    
+   asc = (*env)->FindClass(env, "org/liballeg/app/AllegroAPKStream");
+   system_data.apk_stream_class = (*env)->NewGlobalRef(env, asc);
+
    ALLEGRO_DEBUG("create mutex and cond objects");
    system_data.mutex = al_create_mutex();
    system_data.cond  = al_create_cond();
@@ -292,7 +302,7 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnPause(JNIEn
    
    /* no display, just skip */
    if(!_al_vector_size(&sys->displays)) {
-      ALLEGRO_DEBUG("no display, not sending SWITCH_OUT event");
+      ALLEGRO_DEBUG("no display, not sending LOST/HALT event");
       return;
    }
    
@@ -305,7 +315,10 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnPause(JNIEn
    
    if(_al_event_source_needs_to_generate_event(&d->es)) {
       ALLEGRO_DEBUG("emit event");
-      event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
+      event.display.type = ALLEGRO_EVENT_DISPLAY_LOST;
+      event.display.timestamp = al_current_time();
+      _al_event_source_emit_event(&d->es, &event);
+      event.display.type = ALLEGRO_EVENT_DISPLAY_HALT_DRAWING;
       event.display.timestamp = al_current_time();
       _al_event_source_emit_event(&d->es, &event);
    }

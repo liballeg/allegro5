@@ -120,7 +120,10 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnChange(JNIEn
    
       ALLEGRO_DEBUG("check generate event");
       if (_al_event_source_needs_to_generate_event(&display->es)) {
-         event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
+         event.display.type = ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING;
+         event.display.timestamp = al_current_time();
+         _al_event_source_emit_event(&display->es, &event);
+         event.display.type = ALLEGRO_EVENT_DISPLAY_FOUND;
          event.display.timestamp = al_current_time();
          _al_event_source_emit_event(&display->es, &event);
       }

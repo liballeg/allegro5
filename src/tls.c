@@ -44,6 +44,10 @@
 #include "allegro5/internal/aintern_fshook.h"
 #include "allegro5/internal/aintern_tls.h"
 
+#ifdef ALLEGRO_ANDROID
+#include "allegro5/internal/aintern_android.h"
+#endif
+
 #if defined(ALLEGRO_MINGW32) && !defined(ALLEGRO_CFG_DLL_TLS)
    /*
     * MinGW < 4.2.1 doesn't have builtin thread local storage, so we

@@ -166,6 +166,7 @@ set(ALLEGRO_SRC_IPHONE_FILES
 set(ALLEGRO_SRC_ANDROID_FILES
    src/unix/utime.c
    src/unix/uxthread.c
+   src/android/android_apk_file.c
    src/android/android_display.c
    src/android/android_joystick.c
    src/android/android_mouse.c

@@ -41,7 +41,6 @@ ALLEGRO_TOUCH_INPUT_DRIVER *_al_get_android_touch_input_driver(void);
 ALLEGRO_JOYSTICK_DRIVER *_al_get_android_joystick_driver(void);
 bool _al_get_android_montior_info(int adapter, ALLEGRO_MONITOR_INFO *info);
 
-JNIEnv *_jni_getEnv();
 int _al_android_get_display_orientation(void);
 
 #define _jni_checkException(env) __jni_checkException(env, __FILE__, __FUNCTION__, __LINE__)
@@ -58,6 +57,24 @@ void __jni_checkException(JNIEnv *env, const char *file, const char *fname, int 
    /*ALLEGRO_DEBUG("_jni_call: %s(%s)", #method, #args);*/ \
    (*env)->method(env, ##args); \
    _jni_checkException(env); \
+})
+
+#define _jni_callBooleanMethodV(env, obj, name, sig, args...) ({ \
+   jclass class_id = _jni_call(env, jclass, GetObjectClass, obj); \
+   \
+   jmethodID method_id = _jni_call(env, jmethodID, GetMethodID, class_id, name, sig); \
+   \
+   bool ret = false; \
+   if(method_id == NULL) { \
+      ALLEGRO_DEBUG("couldn't find method :("); \
+   } \
+   else { \
+      ret = _jni_call(env, bool, CallBooleanMethod, obj, method_id, ##args); \
+   } \
+   \
+   _jni_callv(env, DeleteLocalRef, class_id); \
+   \
+   ret; \
 })
 
 jobject _jni_callObjectMethod(JNIEnv *env, jobject object, char *name, char *sig);
@@ -91,6 +108,27 @@ ALLEGRO_USTR *_jni_callStringMethod(JNIEnv *env, jobject obj, char *name, char *
 
 #define _jni_callIntMethod(env, obj, name) _jni_callIntMethodV(env, obj, name, "()I");
 
+#define _jni_callLongMethodV(env, obj, name, sig, args...) ({ \
+   /*ALLEGRO_DEBUG("_jni_callLongMethodV: %s (%s)", name, sig);*/ \
+   jclass class_id = _jni_call(env, jclass, GetObjectClass, obj); \
+   \
+   jmethodID method_id = _jni_call(env, jmethodID, GetMethodID, class_id, name, sig); \
+   \
+   long ret = -1; \
+   if(method_id == NULL) { \
+      ALLEGRO_DEBUG("couldn't find method :("); \
+   } \
+   else { \
+      ret = _jni_call(env, long, CallLongMethod, obj, method_id, ##args); \
+   } \
+   \
+   _jni_callv(env, DeleteLocalRef, class_id); \
+   \
+   ret; \
+})
+
+#define _jni_callLongMethod(env, obj, name) _jni_callLongMethodV(env, obj, name, "()J");
+
 #define _jni_callVoidMethodV(env, obj, name, sig, args...) ({ \
    /*ALLEGRO_DEBUG("_jni_callVoidMethodV: %s (%s)", name, sig);*/ \
    \
@@ -108,8 +146,6 @@ ALLEGRO_USTR *_jni_callStringMethod(JNIEnv *env, jobject obj, char *name, char *
 
 #define _jni_callVoidMethod(env, obj, name) _jni_callVoidMethodV(env, obj, name, "()V");
 
-bool _jni_callBooleanMethodV(JNIEnv *env, jobject obj, char *name, char *sig, ...);
-
 void _al_android_touch_input_handle_begin(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp);
 void _al_android_touch_input_handle_end(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp);
 void _al_android_touch_input_handle_move(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp);
@@ -123,6 +159,7 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags);
 ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags);
 
 jobject _al_android_activity_object();
+jclass _al_android_apk_stream_class(void);
 
 void _al_android_generate_joystick_event(float x, float y, float z);
 
@@ -131,6 +168,10 @@ void _al_android_set_curr_fbo(GLint fbo);
 bool _al_android_is_os_2_1(void);
 void _al_android_thread_created(void);
 void _al_android_thread_ended(void);
+
+void _al_android_set_jnienv(JNIEnv *jnienv);
+JNIEnv *_al_android_get_jnienv(void);
+
 
 #endif /* ALLEGRO_AINTERN_ANDROID_H */
 
