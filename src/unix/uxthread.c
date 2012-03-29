@@ -26,6 +26,10 @@
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/platform/aintunix.h"
 
+#ifdef ALLEGRO_ANDROID
+#include "allegro5/internal/aintern_android.h"
+#endif
+
 
 
 /* threads */
