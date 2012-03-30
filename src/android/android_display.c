@@ -41,6 +41,8 @@ static void android_change_display_option(ALLEGRO_DISPLAY *d, int o, int v);
 static void _al_android_resize_display(ALLEGRO_DISPLAY_ANDROID *d, int width, int height);
 static bool _al_android_init_display(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *display, bool first_run);
 void _al_android_clear_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d);
+void  _al_android_make_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d);
+void _al_android_clear_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d);
 
 JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnCreate(JNIEnv *env, jobject obj)
 {
@@ -61,15 +63,53 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnCreate(JNIEn
 
 JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnDestroy(JNIEnv *env, jobject obj)
 {
-   ALLEGRO_SYSTEM *system = (void *)al_get_system_driver();
+   ALLEGRO_SYSTEM *sys = (void *)al_get_system_driver();
    ASSERT(system != NULL);
-   ALLEGRO_DISPLAY_ANDROID *d = *(ALLEGRO_DISPLAY_ANDROID**)_al_vector_ref(&system->displays, 0);
-   ASSERT(d != NULL);
+
+   ALLEGRO_DISPLAY_ANDROID *display = *(ALLEGRO_DISPLAY_ANDROID**)_al_vector_ref(&sys->displays, 0);
+   ASSERT(display != NULL);
+
+   ALLEGRO_DISPLAY *d = (ALLEGRO_DISPLAY *)display;
+   ALLEGRO_EVENT event;
 
    ALLEGRO_DEBUG("AllegroSurface_nativeOnDestroy");
-   (void)env; (void)obj;
+   (void)env;
+   (void)obj;
 
-   d->created = false;
+   display->created = false;
+   
+   /* no display, just skip */
+   if(!_al_android_is_paused()) {
+      ALLEGRO_DEBUG("system not paused");
+      return;
+   }
+   if (!_al_vector_size(&sys->displays)) {
+      ALLEGRO_DEBUG("no display, not sending LOST/HALT event");
+      return;
+   }
+   
+   ALLEGRO_DEBUG("locking display event source: %p %p", d, &d->es);
+   
+   _al_event_source_lock(&d->es);
+   
+   if(_al_event_source_needs_to_generate_event(&d->es)) {
+      event.display.type = ALLEGRO_EVENT_DISPLAY_LOST;
+      event.display.timestamp = al_current_time();
+      _al_event_source_emit_event(&d->es, &event);
+      event.display.type = ALLEGRO_EVENT_DISPLAY_HALT_DRAWING;
+      event.display.timestamp = al_current_time();
+      _al_event_source_emit_event(&d->es, &event);
+   }
+   
+   _al_android_clear_current(env, display);
+   
+   ALLEGRO_DEBUG("unlocking display event source");
+   _al_event_source_unlock(&d->es);
+
+   // wait for acknowledge_drawing_halt
+   al_lock_mutex(display->mutex);
+   al_wait_cond(display->cond, display->mutex);
+   al_unlock_mutex(display->mutex);
    
    ALLEGRO_DEBUG("AllegroSurface_nativeOnDestroy end");
 }
@@ -259,7 +299,9 @@ void _al_android_clear_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
 
 void _al_android_setup_opengl_view(ALLEGRO_DISPLAY *d)
 {
-   ALLEGRO_DEBUG("setup opengl view");
+   ALLEGRO_DEBUG("setup opengl view d->w=%d d->h=%d", d->w, d->h);
+
+   al_set_target_backbuffer(d);
    
    glViewport(0, 0, d->w, d->h);
 
@@ -320,7 +362,6 @@ static bool _al_android_init_display(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *displ
    _al_ogl_set_extensions(d->ogl_extras->extension_api);
 
    d->ogl_extras->backbuffer = _al_ogl_create_backbuffer(d);
-   _al_android_setup_opengl_view(d);
 
    return true;
 }
@@ -505,6 +546,8 @@ static ALLEGRO_DISPLAY *android_create_display(int w, int h)
 
    _al_android_clear_current(_al_android_get_jnienv(), d);
    _al_android_make_current(_al_android_get_jnienv(), d);
+   
+   _al_android_setup_opengl_view(display);
 
    /* Don't need to repeat what this does */
    android_change_display_option(display, ALLEGRO_SUPPORTED_ORIENTATIONS, al_get_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS, NULL));
@@ -694,6 +737,17 @@ static bool android_hide_mouse_cursor(ALLEGRO_DISPLAY *dpy)
    return false;
 }
 
+static void android_acknowledge_drawing_halt(ALLEGRO_DISPLAY *dpy)
+{
+   ALLEGRO_DEBUG("android_acknowledge_drawing_halt");
+
+   ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID *)dpy;
+
+   al_broadcast_cond(d->cond);
+
+   ALLEGRO_DEBUG("acknowledged drawing halt");
+}
+
 static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
 {
    int i;
@@ -704,9 +758,12 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
    
    ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID *)dpy;
    
+   _al_android_clear_current(_al_android_get_jnienv(), d);
    _al_android_make_current(_al_android_get_jnienv(), d);
-
+   
    ALLEGRO_DEBUG("made current");
+   
+   _al_android_setup_opengl_view(dpy);
 
    /* Restore bitmaps.
     * Ones without ALLEGRO_NO_PRESERVE_TEXTURE will get data re-uploaded.
@@ -730,7 +787,7 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
          extra->dirty = false;
       }
    }
-   
+  
    ALLEGRO_DEBUG("Broadcasting resume");
    al_lock_mutex(d->mutex);
    d->resumed = true;
@@ -789,6 +846,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_android_display_driver(void)
    vt->show_mouse_cursor = android_show_mouse_cursor;
    vt->hide_mouse_cursor = android_hide_mouse_cursor;
 
+   vt->acknowledge_drawing_halt = android_acknowledge_drawing_halt;
    vt->acknowledge_drawing_resume = android_acknowledge_drawing_resume;
 
    vt->change_display_option = android_change_display_option;

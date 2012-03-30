@@ -56,12 +56,18 @@ struct system_data_t {
    
    int orientation;
 
-   bool is_2_1; // is running on Android OS 2.1?
+  bool is_2_1; // is running on Android OS 2.1?
+  bool paused;
 };
 
-static struct system_data_t system_data = { NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, false };
+static struct system_data_t system_data = { NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, false, false };
 static JavaVM* javavm;
 static JNIEnv *main_env;
+
+bool _al_android_is_paused(void)
+{
+   return system_data.paused;
+}
 
 int _al_android_get_display_orientation(void)
 {
@@ -292,39 +298,11 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
 
 JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnPause(JNIEnv *env, jobject obj)
 {
-   ALLEGRO_SYSTEM *sys = &system_data.system->system;
-   ALLEGRO_DISPLAY *d = NULL;
-   ALLEGRO_EVENT event;
-
    (void)env; (void)obj;
    
    ALLEGRO_DEBUG("pause activity\n");
-   
-   /* no display, just skip */
-   if(!_al_vector_size(&sys->displays)) {
-      ALLEGRO_DEBUG("no display, not sending LOST/HALT event");
-      return;
-   }
-   
-   d = *(ALLEGRO_DISPLAY**)_al_vector_ref(&sys->displays, 0);
-   ASSERT(d != NULL);
-   
-   ALLEGRO_DEBUG("locking display event source: %p %p", d, &d->es);
-   
-   _al_event_source_lock(&d->es);
-   
-   if(_al_event_source_needs_to_generate_event(&d->es)) {
-      ALLEGRO_DEBUG("emit event");
-      event.display.type = ALLEGRO_EVENT_DISPLAY_LOST;
-      event.display.timestamp = al_current_time();
-      _al_event_source_emit_event(&d->es, &event);
-      event.display.type = ALLEGRO_EVENT_DISPLAY_HALT_DRAWING;
-      event.display.timestamp = al_current_time();
-      _al_event_source_emit_event(&d->es, &event);
-   }
-   
-   ALLEGRO_DEBUG("unlocking display event source");
-   _al_event_source_unlock(&d->es);
+
+   system_data.paused = true;
 }
 
 JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnResume(JNIEnv *env, jobject obj)
@@ -333,6 +311,8 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnResume(JNIE
    ALLEGRO_DISPLAY *d = NULL;
    
    (void)obj;
+   
+   system_data.paused = false;
    
    ALLEGRO_DEBUG("resume activity");
    

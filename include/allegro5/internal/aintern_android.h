@@ -171,6 +171,7 @@ void _al_android_thread_ended(void);
 
 void _al_android_set_jnienv(JNIEnv *jnienv);
 JNIEnv *_al_android_get_jnienv(void);
+bool _al_android_is_paused(void);
 
 
 #endif /* ALLEGRO_AINTERN_ANDROID_H */
