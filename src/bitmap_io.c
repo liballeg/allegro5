@@ -20,7 +20,7 @@
 
 #include <string.h>
 
-ALLEGRO_DEBUG_CHANNEL("bitmap");
+ALLEGRO_DEBUG_CHANNEL("bitmap")
 
 #define MAX_EXTENSION   (32)
 
