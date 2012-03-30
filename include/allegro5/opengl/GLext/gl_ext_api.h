@@ -2198,7 +2198,7 @@ AGL_API(void, ActiveVaryingNV,       (GLuint, const GLchar *))
 AGL_API(void, GetTransformFeedbackVaryingNV, (GLuint, GLuint, GLint *))
 #if !defined _ALLEGRO_GL_EXT_draw_buffers2
 AGL_API(void, GetBooleanIndexedvEXT, (GLenum, GLuint, GLboolean *))
-//AGL_API(void, GetIntegerIndexedvEXT, (GLenum, GLuint, GLint *))
+/*AGL_API(void, GetIntegerIndexedvEXT, (GLenum, GLuint, GLint *))*/
 #endif
 #endif
 
