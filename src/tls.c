@@ -483,6 +483,15 @@ void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
 
    ASSERT(!al_is_bitmap_drawing_held());
 
+   if (bitmap) {
+      if (bitmap->parent) {
+         bitmap->parent->dirty = true;
+      }
+      else {
+         bitmap->dirty = true;
+      }
+   }
+
    if ((tls = tls_get()) == NULL)
       return;
 

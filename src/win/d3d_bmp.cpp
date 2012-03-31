@@ -508,12 +508,12 @@ void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp)
       if ((void *)bmp->display == (void *)disp) {
          if ((bmp->flags & ALLEGRO_MEMORY_BITMAP) ||
             (bmp->flags & ALLEGRO_NO_PRESERVE_TEXTURE) ||
-   	    !extra->dirty ||
+   	    !bmp->dirty ||
    	    extra->is_backbuffer ||
 	    bmp->parent)
 	    continue;
          _al_d3d_sync_bitmap(bmp);
-         extra->dirty = false;
+         bmp->dirty = false;
       }
    }
 
@@ -754,8 +754,6 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
 {
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
    
-   d3d_bmp->dirty = true;
-
    if (d3d_bmp->display->device_lost)
       return NULL;
 

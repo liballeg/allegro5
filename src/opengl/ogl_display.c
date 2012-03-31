@@ -357,11 +357,8 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP *target = bitmap;
-   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
    if (bitmap->parent)
       target = bitmap->parent;
-
-   ogl_bitmap->dirty = true;
 
    /* if either this bitmap or its parent (in the case of subbitmaps)
     * is locked then don't do anything

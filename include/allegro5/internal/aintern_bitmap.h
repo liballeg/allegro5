@@ -67,6 +67,9 @@ struct ALLEGRO_BITMAP
 
    /* Extra data for display bitmaps, like texture id and so on. */
    void *extra;
+
+   /* set_target_bitmap and lock_bitmap mark bitmaps as dirty for preservation */
+   bool dirty;
 };
 
 struct ALLEGRO_BITMAP_INTERFACE

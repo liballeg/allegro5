@@ -592,8 +592,6 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    GLint gl_y = bitmap->h - y - h;
    GLenum e;
 
-   ogl_bitmap->dirty = true;
-
    if (format == ALLEGRO_PIXEL_FORMAT_ANY)
       format = bitmap->format;
 
@@ -1114,7 +1112,6 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 
    extra->true_w = true_w;
    extra->true_h = true_h;
-   extra->dirty = !(flags & ALLEGRO_NO_PRESERVE_TEXTURE);
 
    if (!(flags & ALLEGRO_NO_PRESERVE_TEXTURE)) {
       bitmap->memory = al_calloc(1, al_get_pixel_size(format)*w*h);
@@ -1305,7 +1302,7 @@ void al_get_opengl_texture_position(ALLEGRO_BITMAP *bitmap, int *u, int *v)
    *v = bitmap->yofs;
 }
 
-void _al_opengl_backup_dirty_bitmaps(ALLEGRO_DISPLAY *d)
+void _al_opengl_backup_dirty_bitmaps(ALLEGRO_DISPLAY *d, bool flip)
 {
    int i, y;
 
@@ -1316,7 +1313,7 @@ void _al_opengl_backup_dirty_bitmaps(ALLEGRO_DISPLAY *d)
       ALLEGRO_LOCKED_REGION *lr;
       if ((b->flags & ALLEGRO_MEMORY_BITMAP) ||
          (b->flags & ALLEGRO_NO_PRESERVE_TEXTURE) ||
-         !ogl_bitmap->dirty ||
+         !b->dirty ||
          ogl_bitmap->is_backbuffer ||
          b->parent)
          continue;
@@ -1329,11 +1326,17 @@ void _al_opengl_backup_dirty_bitmaps(ALLEGRO_DISPLAY *d)
          int line_size = al_get_pixel_size(b->format) * b->w;
          for (y = 0; y < b->h; y++) {
             unsigned char *p = ((unsigned char *)lr->data) + lr->pitch * y;
-            unsigned char *p2 = ((unsigned char *)b->memory) + line_size * (b->h-1-y); // restore upside down to match
+            unsigned char *p2;
+            if (flip) {
+               p2 = ((unsigned char *)b->memory) + line_size * (b->h-1-y);
+            }
+            else {
+               p2 = ((unsigned char *)b->memory) + line_size * y;
+            }
             memcpy(p2, p, line_size);
          }
          al_unlock_bitmap(b);
-         ogl_bitmap->dirty = false;
+         b->dirty = false;
       }
    }
 }

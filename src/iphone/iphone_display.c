@@ -223,7 +223,6 @@ static void iphone_destroy_display(ALLEGRO_DISPLAY *d)
    while (d->bitmaps._size > 0) {
       ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref_back(&d->bitmaps);
       ALLEGRO_BITMAP *b = *bptr;
-      if (b->flags & ALLEGRO_MEMORY_BITMAP) continue;
       _al_convert_to_memory_bitmap(b);
    }
 
@@ -342,7 +341,7 @@ static void iphone_flip_display(ALLEGRO_DISPLAY *d)
    /* Preserve pixels of bitmaps without ALLEGRO_NO_PRESERVE_TEXTURE flag */
    al_lock_mutex(_al_iphone_display_hotplug_mutex);
    if (_al_iphone_is_display_connected(d)) {
-      _al_opengl_backup_dirty_bitmaps(d);
+      _al_opengl_backup_dirty_bitmaps(d, false);
    }
    al_unlock_mutex(_al_iphone_display_hotplug_mutex);
 

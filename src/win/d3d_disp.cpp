@@ -2147,10 +2147,6 @@ static void d3d_clear(ALLEGRO_DISPLAY *al_display, ALLEGRO_COLOR *color)
       0, 0) != D3D_OK) {
          ALLEGRO_ERROR("Clear failed\n");
    }
-
-   if (!d3d_target->is_backbuffer) {
-      d3d_target->dirty = true;
-   }
 }
 
 
@@ -2518,7 +2514,6 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    extra->initialized = false;
    extra->is_backbuffer = false;
    extra->render_target = NULL;
-   extra->dirty = !(flags & ALLEGRO_NO_PRESERVE_TEXTURE);
 
    extra->display = (ALLEGRO_DISPLAY_D3D *)d;
 
@@ -2575,8 +2570,6 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
 
    d3d_target = get_extra(target);
    
-   d3d_target->dirty = true;
-
    /* Release the previous target bitmap if it was not the backbuffer */
 
    ALLEGRO_BITMAP *currtarget = al_get_target_bitmap();

@@ -622,7 +622,7 @@ static void android_flip_display(ALLEGRO_DISPLAY *dpy)
    _jni_callVoidMethod(_al_android_get_jnienv(), ((ALLEGRO_DISPLAY_ANDROID*)dpy)->surface_object, "egl_SwapBuffers");
 
    /* Backup bitmaps created without ALLEGRO_NO_PRESERVE_TEXTURE that are dirty, to system memory */
-   _al_opengl_backup_dirty_bitmaps(dpy);
+   _al_opengl_backup_dirty_bitmaps(dpy, true);
 }
 
 static void android_update_display_region(ALLEGRO_DISPLAY *dpy, int x, int y, int width, int height)
@@ -773,7 +773,6 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
    for (i = 0; i < (int)dpy->bitmaps._size; i++) {
       ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&dpy->bitmaps, i);
       ALLEGRO_BITMAP *bmp = *bptr;
-      ALLEGRO_BITMAP_EXTRA_OPENGL *extra = bmp->extra;
       if (!(bmp->flags & ALLEGRO_MEMORY_BITMAP) && !bmp->parent) {
          void *ptr;
          if (!(bmp->flags & ALLEGRO_NO_PRESERVE_TEXTURE)) {
@@ -784,7 +783,7 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
          }
          _al_ogl_upload_bitmap_memory(bmp, bmp->format, bmp->memory);
          /* FIXME: Should we free bmp->memory here? We'd likely have to re-alloc later */
-         extra->dirty = false;
+         bmp->dirty = false;
       }
    }
   

@@ -176,6 +176,7 @@ static ALLEGRO_BITMAP *do_create_bitmap(int w, int h)
    bitmap->xofs = 0;
    bitmap->yofs = 0;
    bitmap->flags |= ALLEGRO_VIDEO_BITMAP;
+   bitmap->dirty = !(bitmap->flags & ALLEGRO_NO_PRESERVE_TEXTURE);
 
    ASSERT(bitmap->pitch >= w * al_get_pixel_size(bitmap->format));
 
@@ -491,6 +492,8 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
 
    if (bitmap->locked)
       return NULL;
+
+   bitmap->dirty = true;
 
    ASSERT(x+width <= bitmap->w);
    ASSERT(y+height <= bitmap->h);
