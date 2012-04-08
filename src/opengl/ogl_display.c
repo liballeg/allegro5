@@ -213,7 +213,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
        */
       if (ogl_bitmap->fbo_info == NULL && !(bitmap->flags & ALLEGRO_FORCE_LOCKING)) {
       
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
+#if defined ALLEGRO_IPHONE
          /* FIXME This is quite a hack but I don't know how the Allegro
           * extension manager works to fix this properly (getting extensions
           * properly reported on iphone. All iOS devices support FBOs though
@@ -246,7 +246,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 
       if (info && info->fbo) {
          /* Bind to the FBO. */
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+#if !defined ALLEGRO_IPHONE
          ASSERT(display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
             display->ogl_extras->extension_list->ALLEGRO_GL_OES_framebuffer_object);
 #endif
@@ -302,7 +302,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
    else {
       display->ogl_extras->opengl_target = bitmap;
 
-#if defined ALLEGRO_ANDROID || defined ALLEGRO_IPHONE
+#if defined ALLEGRO_IPHONE
       if (true) { // Hack
 #else
       if (display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
