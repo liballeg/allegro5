@@ -62,8 +62,8 @@ void usage(void)
    printf("\ta - 8 bit ASCII (Latin-1 codepage)\n");
    printf("\tb - 7 bit bare ASCII or codepage loaded via -f\n");
    printf("\tu - UTF-8 encoding\n");
-   printf("\tw - 16 bit Unicode (current machine endianess)\n");
-   printf("\tW - 16 bit Unicode (flip endianess)\n");
+   printf("\tw - 16 bit Unicode (current machine endianness)\n");
+   printf("\tW - 16 bit Unicode (flip endianness)\n");
    printf("\n");
    printf("Option flags:\n");
    printf("\t-f{file} = load alternate codepage file\n");
@@ -71,7 +71,7 @@ void usage(void)
    printf("\t-h = output data in hex format (default is binary)\n");
    printf("\t-d = output line breaks in DOS (CR/LF) format\n");
    printf("\t-u = output line breaks in Unix (LF) format\n");
-   printf("\t-w = add an endianess watermark to Unicode output files\n");
+   printf("\t-w = add an endianness watermark to Unicode output files\n");
    printf("\t-v = verbose output\n");
    printf("\n");
    printf("If filenames are not specified, stdin and stdout will be used\n");
@@ -99,12 +99,12 @@ UTYPE_INFO *get_format_info(int type, char **desc, int *flip)
 	 return _find_utype(U_UTF8);
 
       case 'w': 
-	 *desc = "Unicode (default endianess)";
+	 *desc = "Unicode (default endianness)";
 	 *flip = FALSE;
 	 return _find_utype(U_UNICODE);
 
       case 'W': 
-	 *desc = "Unicode (flip endianess)";
+	 *desc = "Unicode (flip endianness)";
 	 *flip = TRUE;
 	 return _find_utype(U_UNICODE);
    }
@@ -430,7 +430,7 @@ int main(int argc, char *argv[])
 
    if (flag_watermark) {
       if (flag_verbose)
-	 printf("Adding Unicode endianess watermark\n");
+	 printf("Adding Unicode endianness watermark\n");
       write_output(out_file, 0xFEFF);
    }
 
@@ -452,13 +452,13 @@ int main(int argc, char *argv[])
 
 	 case 0xFEFF:
 	    if (flag_verbose)
-	       printf("Endianess watermark ok\n");
+	       printf("Endianness watermark ok\n");
 	    was_cr = FALSE;
 	    continue;
 
 	 case 0xFFFE:
 	    if (flag_verbose)
-	       printf("Bad endianess watermark! Toggling input format...\n");
+	       printf("Bad endianness watermark! Toggling input format...\n");
 	    in_flip = !in_flip;
 	    was_cr = FALSE;
 	    continue;
