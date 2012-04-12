@@ -16,6 +16,7 @@ static void man_page_header(const char *name)
    d_printf("%% %s(%s) %s\n", name, SECTION, MANUAL);
    d_print("# NAME");
    d_print(name);
+   d_print(" \\- Allegro 5 API");
    d_print("\n# SYNOPSIS");
    d_print(last_header);
    d_print(lookup_prototype(name));
