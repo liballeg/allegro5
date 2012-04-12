@@ -73,7 +73,7 @@ void keypress_handler(int scancode)
    color = scancode & 0x80 ? makecol(255, 255, 0) : makecol(128, 0, 0);
    rectfill(screen, x, y, x + 95, y + 8, color);
    ustrzncpy(str, sizeof(str), scancode_to_name(i), 12);
-   textprintf_ex(screen, font, x + 1, y + 1, makecol(0, 0, 0), -1, "%s", str);
+   textout_ex(screen, font, str, x + 1, y + 1, makecol(0, 0, 0), -1);
 }
 END_OF_FUNCTION(keypress_handler)
 
@@ -234,7 +234,7 @@ int main(void)
       if (key[KEY_8]) buf[8] = '8'; else buf[8] = ' ';
       if (key[KEY_9]) buf[9] = '9'; else buf[9] = ' ';
       buf[10] = 0;
-      textprintf_ex(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0), makecol(255, 255, 255), "%s", buf);
+      textout_ex(screen, font, buf, 8, SCREEN_H-16, makecol(0, 0, 0), makecol(255, 255, 255));
       rest(1);
    } while (!keypressed() || (readkey() >> 8) != KEY_ESC);
 

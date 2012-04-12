@@ -1163,7 +1163,7 @@ static void plot_joystick_state(BITMAP *bmp, int i)
 	 textprintf_ex(bmp, font, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1, -1, uconvert_ascii("%s (%d/%d)", tmp),
                     joystick_driver->name, i+1, num_joysticks);
       else
-	 textprintf_ex(bmp, font, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1, -1, "%s", joystick_driver->name);
+	 textout_ex(bmp, font, joystick_driver->name, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1, -1);
       c++;
    }
 
