@@ -63,6 +63,7 @@ int               num_global_bitmaps;
 float             delay = 0.0;
 bool              save_outputs = false;
 bool              quiet = false;
+bool              want_display = true;
 int               verbose = 0;
 int               total_tests = 0;
 int               passed_tests = 0;
@@ -1283,8 +1284,10 @@ static void sw_hw_test(ALLEGRO_CONFIG *cfg, char const *testname)
 
    reliable = (failed_tests == old_failed_tests);
 
-   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
-   do_test(cfg, testname, al_get_backbuffer(display), HW, reliable);
+   if (display) {
+      al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+      do_test(cfg, testname, al_get_backbuffer(display), HW, reliable);
+   }
 }
 
 static bool section_exists(ALLEGRO_CONFIG const *cfg, char const *section)
@@ -1412,8 +1415,11 @@ static void process_ini_files(void)
       al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
       load_bitmaps(cfg, "bitmaps", SW, ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
-      al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
-      load_bitmaps(cfg, "bitmaps", HW, ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+      if (display) {
+         al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+         load_bitmaps(cfg, "bitmaps", HW, ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+      }
+
       load_fonts(cfg, "fonts");
 
       for (n = 0; n < argc; n++) {
@@ -1462,6 +1468,10 @@ int main(const int _argc, char const *_argv[])
       else if (streq(opt, "-q") || streq(opt, "--quiet")) {
          quiet = true;
       }
+      else if (streq(opt, "-n") || streq(opt, "--no-display")) {
+         want_display = false;
+         quiet = true;
+      }
       else if (streq(opt, "-v") || streq(opt, "--verbose")) {
          verbose++;
       }
@@ -1482,15 +1492,23 @@ int main(const int _argc, char const *_argv[])
       }
    }
 
-   display = al_create_display(640, 480);
-   if (!display) {
-      error("failed to create display");
+   if (want_display) {
+      display = al_create_display(640, 480);
+      if (!display) {
+         error("failed to create display");
+      }
    }
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   membuf = al_create_bitmap(
-      al_get_display_width(display),
-      al_get_display_height(display));
+
+   if (want_display) {
+      membuf = al_create_bitmap(
+         al_get_display_width(display),
+         al_get_display_height(display));
+   }
+   else {
+      membuf = al_create_bitmap(640, 480);
+   }
 
    process_ini_files();
 
