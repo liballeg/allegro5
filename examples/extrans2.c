@@ -211,7 +211,7 @@ int main(int argc, char **argv)
       } else {
          msg = "no flipping";
       }
-      textprintf_ex(buffer, font, 1, 1, makecol(255, 255, 255), -1, msg);
+      textprintf_ex(buffer, font, 1, 1, makecol(255, 255, 255), -1, "%s", msg);
 
       /* finally blit the back buffer on the screen */
       blit(buffer, screen, 0, 0, 0, 0, buffer->w, buffer->h);

@@ -1163,7 +1163,7 @@ static void plot_joystick_state(BITMAP *bmp, int i)
 	 textprintf_ex(bmp, font, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1, -1, uconvert_ascii("%s (%d/%d)", tmp),
                     joystick_driver->name, i+1, num_joysticks);
       else
-	 textprintf_ex(bmp, font, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1, -1, joystick_driver->name);
+	 textprintf_ex(bmp, font, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1, -1, "%s", joystick_driver->name);
       c++;
    }
 
@@ -2879,7 +2879,7 @@ int main(void)
       alert(uconvert_ascii("Error loading " SETUP_DATA_FILE, tmp1), NULL, NULL, uconvert_ascii("OK", tmp2), NULL, 13, 0);
     #else
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-      allegro_message(uconvert_ascii("Error loading " SETUP_DATA_FILE "\n", tmp1));
+      allegro_message("%s", uconvert_ascii("Error loading " SETUP_DATA_FILE "\n", tmp1));
     #endif
       return 1;
    }

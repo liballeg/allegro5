@@ -93,7 +93,7 @@ static int joy_init(void)
 
       if (ioctl(joy_fd[i], JSIOCGVERSION, &raw_version) < 0) {
          /* NOTE: IOCTL fails if the joystick API is version 0.x */
-         uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Your Linux joystick API is version 0.x which is unsupported."));
+         uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, "%s", get_config_text("Your Linux joystick API is version 0.x which is unsupported."));
          return -1; 
       }
       

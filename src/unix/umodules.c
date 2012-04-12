@@ -126,11 +126,11 @@ void _unix_load_modules(int system_driver)
 	 continue;
 
       if (!fullpath_slash) {
-         snprintf(fullpath, sizeof fullpath, filename);
+         snprintf(fullpath, sizeof fullpath, "%s", filename);
 	 fullpath[(sizeof fullpath) - 1] = 0;
       }
       else {
-	 snprintf(fullpath_slash+1, (sizeof fullpath) - (fullpath_slash - fullpath) - 1, filename);
+	 snprintf(fullpath_slash+1, (sizeof fullpath) - (fullpath_slash - fullpath) - 1, "%s", filename);
 	 fullpath[(sizeof fullpath) - 1] = 0;
       }
       

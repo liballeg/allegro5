@@ -42,7 +42,7 @@ static void err(char *s1, char *s2)
       printf(": %s", s1);
 
    if (s2)
-      printf(s2);
+      printf("%s", s2);
 
    printf("\n");
 

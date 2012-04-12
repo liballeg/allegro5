@@ -74,7 +74,7 @@ void usage(void)
 
    strcat(msg, "\nIf you don't specify the card, Allegro will auto-detect (ie. guess :-)\n");
 
-   allegro_message(msg);
+   allegro_message("%s", msg);
    free(msg);
 }
 
