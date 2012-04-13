@@ -683,7 +683,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
     * We should use glGetStringi(GL_EXTENSIONS, i) for OpenGL 3.0+
     * but it doesn't seem to work until later.
     */
-   if (_al_ogl_version_3_only(gl_disp->flags)) {
+   if (!_al_ogl_version_3_only(gl_disp->flags)) {
       ALLEGRO_DEBUG("OpenGL Extensions:\n");
       print_extensions((char const *)glGetString(GL_EXTENSIONS));
    }
