@@ -873,6 +873,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             bitmap->lock_y + bitmap->lock_h - 1e-4f);
          popmatrix = true;
       }
+      glDisable(GL_TEXTURE_2D);
       glDisable(GL_BLEND);
       glDrawPixels(bitmap->lock_w, bitmap->lock_h,
          glformats[lock_format][2],
