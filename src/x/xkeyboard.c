@@ -670,6 +670,7 @@ static void x_set_leds(int leds)
 static int x_keyboard_init(void)
 {
 #ifdef ALLEGRO_XWINDOWS_WITH_XIM
+   char *old_locale;
    XIMStyles *xim_styles;
    XIMStyle xim_style = 0;
    char *imvalret;
@@ -699,8 +700,11 @@ static int x_keyboard_init(void)
 #ifdef ALLEGRO_XWINDOWS_WITH_XIM
    ALLEGRO_INFO("Using X Input Method.\n");
 
+   old_locale = setlocale(LC_CTYPE, NULL);
+   ALLEGRO_DEBUG("Old locale: %s\n", old_locale);
+
    /* Otherwise we are restricted to ISO-8859-1 characters. */
-   if (setlocale(LC_ALL, "") == NULL) {
+   if (setlocale(LC_CTYPE, "") == NULL) {
       ALLEGRO_WARN("Could not set default locale.\n");
    }
 
@@ -714,6 +718,11 @@ static int x_keyboard_init(void)
    xim = XOpenIM(s->x11display, NULL, NULL, NULL);
    if (xim == NULL) {
       ALLEGRO_WARN("XOpenIM failed.\n");
+   }
+
+   if (old_locale) {
+      ALLEGRO_DEBUG("Restoring old locale: %s\n", old_locale);
+      setlocale(LC_CTYPE, old_locale);
    }
 
    if (xim) {
