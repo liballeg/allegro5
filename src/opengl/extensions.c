@@ -198,8 +198,23 @@ static void print_extensions(char const *extension)
       }
       *start = '\0';
       if (*extension != '\0')
-	  extension++;
+         extension++;
       ALLEGRO_DEBUG("%s\n", buf);
+   }
+}
+
+
+
+/* Print all extensions the OpenGL 3.0 way. */ 
+static void print_extensions_3_0(void)
+{
+   int i;
+   GLint n;
+   GLubyte const *name;
+   glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+   for (i = 0; i < n; i++) {
+      name = glGetStringi(GL_EXTENSIONS, i);
+      ALLEGRO_DEBUG("%s\n", name);
    }
 }
 
@@ -270,6 +285,7 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
    if (!ext) {
       return;
    }
+   
 #ifdef ALLEGRO_UNIX
 #ifdef ALLEGRO_HAVE_DYNAMIC_LINK
    if (!alXGetProcAddress) {
@@ -300,7 +316,7 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
 
    #define AGL_API(type, name, args)                                               \
       ext->name = (_ALLEGRO_gl##name##_t)alXGetProcAddress((const GLubyte*)"gl" #name);  \
-      if (ext->name) { ALLEGRO_DEBUG("gl" #name " successfully loaded\n"); }
+      if (ext->name) { ALLEGRO_DEBUG("gl" #name " successfully loaded (%p)\n", ext->name); }
 
       #include "allegro5/opengl/GLext/gl_ext_api.h"
 
@@ -325,6 +341,7 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
    #undef AGL_API
 
 #endif
+
 }
 
 
@@ -414,6 +431,7 @@ static bool _ogl_is_extension_supported(const char *extension,
 {
    int ret = 0;
    GLubyte const *ext_str;
+   int v = al_get_opengl_version();
    (void)disp;
 
 #if defined ALLEGRO_GP2XWIZ
@@ -421,7 +439,7 @@ static bool _ogl_is_extension_supported(const char *extension,
 #endif
 
 #if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
-   if (al_get_opengl_version() >= _ALLEGRO_OPENGL_VERSION_3_0) {
+   if (disp->flags & ALLEGRO_OPENGL_3_0 || v >= _ALLEGRO_OPENGL_VERSION_3_0) {
       int i;
       GLint ext_cnt;
       glGetIntegerv(GL_NUM_EXTENSIONS, &ext_cnt);
@@ -697,14 +715,14 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    __libgl_handle = dlopen("libGL.so", RTLD_LAZY);
    if (__libgl_handle) {
       alXGetProcAddress = (GLXGETPROCADDRESSARBPROC) dlsym(__libgl_handle,
-                                                            "glXGetProcAddressARB");
+         "glXGetProcAddressARB");
       if (!alXGetProcAddress) {
          alXGetProcAddress = (GLXGETPROCADDRESSARBPROC) dlsym(__libgl_handle,
-                                                             "glXGetProcAddress");
-	      if (!alXGetProcAddress) {
-		 alXGetProcAddress = (GLXGETPROCADDRESSARBPROC) dlsym(__libgl_handle,
-								     "eglGetProcAddress");
-	      }
+            "glXGetProcAddress");
+         if (!alXGetProcAddress) {
+            alXGetProcAddress = (GLXGETPROCADDRESSARBPROC) dlsym(__libgl_handle,
+               "eglGetProcAddress");
+         }
       }
    }
    else {
@@ -748,6 +766,14 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    ext_api = create_extension_api_table();
    load_extensions(ext_api);
    gl_disp->ogl_extras->extension_api = ext_api;
+   
+   /* Need that symbol already so can't wait until it is assigned later. */
+   glGetStringi = ext_api->GetStringi;
+
+   if (_al_ogl_version_3_only(gl_disp->flags)) {
+      ALLEGRO_DEBUG("OpenGL Extensions:\n");
+      print_extensions_3_0();
+   }
 
    /* Create the list of supported extensions. */
    ext_list = create_extension_list();
@@ -790,15 +816,6 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    __allegro_gl_texture_read_format[4] = GL_UNSIGNED_BYTE;
    __allegro_gl_texture_components[4] = GL_RGBA;
 #endif /* #if 0 */
-
-   /* Get number of texture units */
-   if (ext_list->ALLEGRO_GL_ARB_multitexture) {
-      glGetIntegerv(GL_MAX_TEXTURE_UNITS,
-                    (GLint *) & gl_disp->ogl_extras->ogl_info.num_texture_units);
-   }
-   else {
-      gl_disp->ogl_extras->ogl_info.num_texture_units = 1;
-   }
 
    /* Get max texture size */
    glGetIntegerv(GL_MAX_TEXTURE_SIZE,

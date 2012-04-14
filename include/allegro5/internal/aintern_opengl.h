@@ -67,7 +67,6 @@ typedef struct ALLEGRO_BITMAP_EXTRA_OPENGL
 
 typedef struct OPENGL_INFO {
    uint32_t version;       /* OpenGL version */
-   int num_texture_units;  /* Number of texture units */
    int max_texture_size;   /* Maximum texture size */
    int is_voodoo3_and_under; /* Special cases for Voodoo 1-3 */
    int is_voodoo;          /* Special cases for Voodoo cards */
