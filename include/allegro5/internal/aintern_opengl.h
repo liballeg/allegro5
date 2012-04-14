@@ -108,6 +108,9 @@ typedef struct ALLEGRO_OGL_EXTRAS
    GLint use_tex_matrix_loc;
    GLint tex_matrix_loc;
 
+   /* For OpenGL 3.0+ we use a single vao and vbo. */
+   GLuint vao, vbo;
+
 } ALLEGRO_OGL_EXTRAS;
 
 typedef struct ALLEGRO_OGL_BITMAP_VERTEX

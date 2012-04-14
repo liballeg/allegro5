@@ -14,14 +14,16 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
 
-   glViewport(0, 0, d->w, d->h);
+   if (!(d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
+      glViewport(0, 0, d->w, d->h);
 
-   glMatrixMode(GL_PROJECTION);
-   glLoadIdentity();
-   glOrtho(0, d->w, d->h, 0, -1, 1);
+      glMatrixMode(GL_PROJECTION);
+      glLoadIdentity();
+      glOrtho(0, d->w, d->h, 0, -1, 1);
 
-   glMatrixMode(GL_MODELVIEW);
-   glLoadIdentity();
+      glMatrixMode(GL_MODELVIEW);
+      glLoadIdentity();
+   }
 
    if (ogl->backbuffer)
       _al_ogl_resize_backbuffer(ogl->backbuffer, d->w, d->h);
@@ -623,15 +625,6 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       }
       display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;
    }
-#if 0
-   // Apparently, you can get a OpenGL 3.0 context without specifically creating
-   // it with glXCreateContextAttribsARB, and not every OpenGL 3.0 is evil, but we
-   // can't tell the difference at this stage.
-   else if (display->ogl_extras->ogl_info.version > _ALLEGRO_OPENGL_VERSION_2_1) {
-      /* We don't have OpenGL3 a driver. */
-      display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;
-   }
-#endif
 
    if (display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY])
       setup_gl(display);

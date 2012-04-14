@@ -527,7 +527,13 @@ bool _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
          bool forward_compat = (disp->flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE) != 0;
          glx->context = create_context_new(glx->glx_version,
             system->gfxdisplay, *glx->fbc, existing_ctx, forward_compat, 3, 0);
-         disp->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = !forward_compat;
+         /* TODO: Right now Allegro's own OpenGL driver only works with a 3.0+
+          * context when using the programmable pipeline, for some reason. All
+          * that's missing is probably a default shader though.
+          */
+         disp->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
+         if (forward_compat && !(disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE))
+            disp->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;
       }
       else {
          glx->context = glXCreateNewContext(system->gfxdisplay, *glx->fbc,

@@ -308,9 +308,10 @@ static void* ogl_prepare_vertex_cache(ALLEGRO_DISPLAY* disp,
          (disp->num_cache_vertices - num_new_vertices);
 }
 
-static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
+static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
 {
    GLuint current_texture;
+   ALLEGRO_OGL_EXTRAS *o = disp->ogl_extras;
    if (!disp->vertex_cache)
       return;
    if (disp->num_cache_vertices == 0)
@@ -342,21 +343,89 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
       }
       glBindTexture(GL_TEXTURE_2D, disp->cache_texture);
    }
+   
+#ifndef ALLEGRO_CFG_NO_GLES2
+   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      int stride = sizeof(ALLEGRO_OGL_BITMAP_VERTEX);
+      int bytes = disp->num_cache_vertices * stride;
 
-   vert_ptr_on(disp, 2, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX), (char *)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, x));
-   tex_ptr_on(disp, 2, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX), (char*)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, tx));
-   color_ptr_on(disp, 4, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX), (char*)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, r));
+      /* We create the VAO and VBO on first use. */
+      if (o->vao == 0) {
+         glGenVertexArrays(1, &o->vao);
+         ALLEGRO_DEBUG("new VAO: %u\n", o->vao);
+      }
+      glBindVertexArray(o->vao);
 
-   if (!(disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
+      if (o->vbo == 0) {
+         glGenBuffers(1, &o->vbo);
+         ALLEGRO_DEBUG("new VBO: %u\n", o->vbo);
+      }
+      glBindBuffer(GL_ARRAY_BUFFER, o->vbo);
+
+      /* Then we upload data into it. */
+      glBufferData(GL_ARRAY_BUFFER, bytes, disp->vertex_cache, GL_STREAM_DRAW);
+      
+      /* Finally set the "pos", "texccord" and "color" attributes used by our
+       * shader and enable them.
+       */
+      if (o->pos_loc >= 0)  {
+         glVertexAttribPointer(o->pos_loc, 2, GL_FLOAT, false, stride,
+            (void *)offsetof(ALLEGRO_OGL_BITMAP_VERTEX, x));
+         glEnableVertexAttribArray(o->pos_loc);
+      }
+
+      if (o->texcoord_loc >= 0) {
+         glVertexAttribPointer(o->texcoord_loc, 2, GL_FLOAT, false, stride,
+            (void *)offsetof(ALLEGRO_OGL_BITMAP_VERTEX, tx));
+         glEnableVertexAttribArray(o->texcoord_loc);
+      }
+      
+      if (o->color_loc >= 0) {
+         glVertexAttribPointer(o->color_loc, 4, GL_FLOAT, false, stride,
+            (void *)offsetof(ALLEGRO_OGL_BITMAP_VERTEX, r));
+         glEnableVertexAttribArray(o->color_loc);
+      }
+   }
+   else
+#endif
+   {
+      vert_ptr_on(disp, 2, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX),
+         (char *)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, x));
+      tex_ptr_on(disp, 2, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX),
+         (char*)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, tx));
+      color_ptr_on(disp, 4, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX),
+         (char*)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, r));
+
       glDisableClientState(GL_NORMAL_ARRAY);
    }
 
    glDrawArrays(GL_TRIANGLES, 0, disp->num_cache_vertices);
 
-   vert_ptr_off(disp);
-   tex_ptr_off(disp);
-   color_ptr_off(disp);
-   
+   #ifdef DEBUGMODE
+   {
+      int e = glGetError();
+      if (e) {
+         ALLEGRO_WARN("glDrawArrays failed: %s\n", _al_gl_error_string(e));
+      }
+   }
+   #endif
+
+#ifndef ALLEGRO_CFG_NO_GLES2
+   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      if (o->pos_loc >= 0) glDisableVertexAttribArray(o->pos_loc);
+      if (o->texcoord_loc >= 0) glDisableVertexAttribArray(o->texcoord_loc);
+      if (o->color_loc >= 0) glDisableVertexAttribArray(o->color_loc);
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+      glBindVertexArray(0);
+   }
+   else
+#endif
+   {
+      vert_ptr_off(disp);
+      tex_ptr_off(disp);
+      color_ptr_off(disp);
+   }
+
    disp->num_cache_vertices = 0;
 
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {

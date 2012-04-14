@@ -86,74 +86,87 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
  * GL does not support RGB_555 and BGR_555 directly so we use
  * GL_UNSIGNED_SHORT_1_5_5_5_REV when transferring pixel data, and ensure that
  * the alpha bit (the "1" component) is present by setting GL_ALPHA_BIAS.
+ * 
+ * Desktop OpenGL 3.0+ has no GL_LUMINANCE, so we have to adjust depending on
+ * the runtime version.
  */
-#if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE) && !defined(ALLEGRO_ANDROID)
-static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
-   /* Skip pseudo formats */
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   /* Actual formats */
-   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_BGRA}, /* ARGB_8888 */
-   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA}, /* RGBA_8888 */
-   {GL_RGBA4, GL_UNSIGNED_SHORT_4_4_4_4_REV, GL_BGRA}, /* ARGB_4444 */
-   {GL_RGB8, GL_UNSIGNED_BYTE, GL_BGR}, /* RGB_888 */
-   {GL_RGB, GL_UNSIGNED_SHORT_5_6_5, GL_RGB}, /* RGB_565 */
-   {GL_RGB5, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_BGRA}, /* RGB_555 - see above */
-   {GL_RGB5_A1, GL_UNSIGNED_SHORT_5_5_5_1, GL_RGBA}, /* RGBA_5551 */
-   {GL_RGB5_A1, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_BGRA}, /* ARGB_1555 */
-   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_RGBA}, /* ABGR_8888 */
-   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_RGBA}, /* XBGR_8888 */
-   {GL_RGB8, GL_UNSIGNED_BYTE, GL_RGB}, /* BGR_888 */
-   {GL_RGB, GL_UNSIGNED_SHORT_5_6_5_REV, GL_RGB}, /* BGR_565 */
-   {GL_RGB5, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_RGBA}, /* BGR_555 - see above */
-   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA}, /* RGBX_8888 */
-   {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_BGRA}, /* XRGB_8888 */
-   {GL_RGBA32F_ARB, GL_FLOAT, GL_RGBA}, /* ABGR_F32 */
-   {GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA}, /* ABGR_8888_LE */
-   {GL_RGBA4, GL_UNSIGNED_SHORT_4_4_4_4, GL_RGBA}, /* RGBA_4444 */
-   {GL_LUMINANCE, GL_UNSIGNED_BYTE, GL_LUMINANCE}, /* LUMINANCE_8 */
-};
-#else
-static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
-   /* Skip pseudo formats */
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   /* Actual formats */
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {GL_RGB, GL_UNSIGNED_SHORT_5_6_5, GL_RGB}, /* RGB_565 */
-   {0, 0, 0},
-   {GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, GL_RGBA}, /* RGBA_5551 */
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
-   {GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA}, /* ABGR_8888_LE */
-   {GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, GL_RGBA}, /* RGBA_4444 */
-   {GL_LUMINANCE, GL_UNSIGNED_BYTE, GL_LUMINANCE}, /* LUMINANCE_8 */
-};
-#endif
+static int get_glformat(int format, int component)
+{
+   #if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE) && !defined(ALLEGRO_ANDROID)
+   static int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
+      /* Skip pseudo formats */
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      /* Actual formats */
+      {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_BGRA}, /* ARGB_8888 */
+      {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA}, /* RGBA_8888 */
+      {GL_RGBA4, GL_UNSIGNED_SHORT_4_4_4_4_REV, GL_BGRA}, /* ARGB_4444 */
+      {GL_RGB8, GL_UNSIGNED_BYTE, GL_BGR}, /* RGB_888 */
+      {GL_RGB, GL_UNSIGNED_SHORT_5_6_5, GL_RGB}, /* RGB_565 */
+      {GL_RGB5, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_BGRA}, /* RGB_555 - see above */
+      {GL_RGB5_A1, GL_UNSIGNED_SHORT_5_5_5_1, GL_RGBA}, /* RGBA_5551 */
+      {GL_RGB5_A1, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_BGRA}, /* ARGB_1555 */
+      {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_RGBA}, /* ABGR_8888 */
+      {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_RGBA}, /* XBGR_8888 */
+      {GL_RGB8, GL_UNSIGNED_BYTE, GL_RGB}, /* BGR_888 */
+      {GL_RGB, GL_UNSIGNED_SHORT_5_6_5_REV, GL_RGB}, /* BGR_565 */
+      {GL_RGB5, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_RGBA}, /* BGR_555 - see above */
+      {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA}, /* RGBX_8888 */
+      {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_BGRA}, /* XRGB_8888 */
+      {GL_RGBA32F_ARB, GL_FLOAT, GL_RGBA}, /* ABGR_F32 */
+      {GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA}, /* ABGR_8888_LE */
+      {GL_RGBA4, GL_UNSIGNED_SHORT_4_4_4_4, GL_RGBA}, /* RGBA_4444 */
+      {GL_LUMINANCE, GL_UNSIGNED_BYTE, GL_LUMINANCE}, /* LUMINANCE_8 */
+   };
+  
+   if (al_get_opengl_version() >= _ALLEGRO_OPENGL_VERSION_3_0) {
+      glformats[ALLEGRO_PIXEL_FORMAT_LUMINANCE_8][0] = GL_RED;
+      glformats[ALLEGRO_PIXEL_FORMAT_LUMINANCE_8][2] = GL_RED;
+   }
+   #else
+   static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
+      /* Skip pseudo formats */
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      /* Actual formats */
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      {GL_RGB, GL_UNSIGNED_SHORT_5_6_5, GL_RGB}, /* RGB_565 */
+      {0, 0, 0},
+      {GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, GL_RGBA}, /* RGBA_5551 */
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      {0, 0, 0},
+      {GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA}, /* ABGR_8888_LE */
+      {GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, GL_RGBA}, /* RGBA_4444 */
+      {GL_LUMINANCE, GL_UNSIGNED_BYTE, GL_LUMINANCE}, /* LUMINANCE_8 */
+   };
+   #endif
+   
+   return glformats[format][component];
+}
 
 static ALLEGRO_BITMAP_INTERFACE glbmp_vt;
 
@@ -419,10 +432,6 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       }
    }
 
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
-   glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
-#endif
-
    /* If there's unused space around the bitmap, we need to clear it
     * else linear filtering will cause artifacts from the random
     * data there. We also clear for floating point formats because
@@ -436,16 +445,16 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       unsigned char *buf;
       buf = al_calloc(ogl_bitmap->true_h, ogl_bitmap->true_w);
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-      glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
+      glTexImage2D(GL_TEXTURE_2D, 0, get_glformat(bitmap->format, 0),
          ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
          GL_ALPHA, GL_UNSIGNED_BYTE, buf);
       e = glGetError();
       al_free(buf);
    }
    else {
-      glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
+      glTexImage2D(GL_TEXTURE_2D, 0, get_glformat(bitmap->format, 0),
          ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
-         glformats[bitmap->format][2], glformats[bitmap->format][1],
+         get_glformat(bitmap->format, 2), get_glformat(bitmap->format, 1),
          NULL);
       e = glGetError();
    }
@@ -462,10 +471,6 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
          glformats[bitmap->format][1], buf);
       al_free(buf);
    }
-#endif
-
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
-   glPopClientAttrib();
 #endif
 
    if (e) {
@@ -613,9 +618,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
     * See also pitfalls 7 & 8 from:
     * http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall/
     */
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
-   glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
-#endif
+
    glPixelStorei(GL_PACK_ALIGNMENT, pixel_alignment);
    e = glGetError();
    if (e) {
@@ -631,8 +634,8 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
 
       if (!(flags & ALLEGRO_LOCK_WRITEONLY)) {
          glReadPixels(x, gl_y, w, h,
-            glformats[format][2],
-            glformats[format][1],
+            get_glformat(format, 2),
+            get_glformat(format, 1),
             ogl_bitmap->lock_buffer);
          e = glGetError();
          if (e) {
@@ -699,8 +702,8 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
                tmpbuf);
 #else
             glReadPixels(x, gl_y, w, h,
-               glformats[format][2],
-               glformats[format][1],
+               get_glformat(format, 2),
+               get_glformat(format, 1),
                ogl_bitmap->lock_buffer);
 #endif
 
@@ -739,8 +742,8 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
             ogl_bitmap->lock_buffer = al_malloc(pitch * ogl_bitmap->true_h);
 
             glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
-            glGetTexImage(GL_TEXTURE_2D, 0, glformats[format][2],
-               glformats[format][1], ogl_bitmap->lock_buffer);
+            glGetTexImage(GL_TEXTURE_2D, 0, get_glformat(format, 2),
+               get_glformat(format, 1), ogl_bitmap->lock_buffer);
             e = glGetError();
             if (e) {
                ALLEGRO_ERROR("glGetTexImage for format %s failed (%s).\n",
@@ -769,9 +772,6 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
          return NULL;
       }
    }
-#endif
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
-   glPopClientAttrib();
 #endif
 
    bitmap->locked_region.format = format;
@@ -822,9 +822,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    }
 
    /* Keep this in sync with ogl_lock_region. */
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
-   glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
-#endif
+
    lock_pixel_size = al_get_pixel_size(lock_format);
    pixel_alignment = ogl_pixel_alignment(lock_pixel_size);
    glPixelStorei(GL_UNPACK_ALIGNMENT, pixel_alignment);
@@ -876,8 +874,8 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       glDisable(GL_TEXTURE_2D);
       glDisable(GL_BLEND);
       glDrawPixels(bitmap->lock_w, bitmap->lock_h,
-         glformats[lock_format][2],
-         glformats[lock_format][1],
+         get_glformat(lock_format, 2),
+         get_glformat(lock_format, 1),
          ogl_bitmap->lock_buffer);
       e = glGetError();
       if (e) {
@@ -937,8 +935,8 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          glTexSubImage2D(GL_TEXTURE_2D, 0,
             bitmap->lock_x, gl_y,
             bitmap->lock_w, bitmap->lock_h,
-            glformats[orig_format][2],
-            glformats[orig_format][1],
+            get_glformat(orig_format, 2),
+            get_glformat(orig_format, 1),
             tmpbuf);
          al_free(tmpbuf);
          e = glGetError();
@@ -951,8 +949,8 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          ALLEGRO_DEBUG("Unlocking non-backbuffer without conversion\n");
          glTexSubImage2D(GL_TEXTURE_2D, 0, bitmap->lock_x, gl_y,
             bitmap->lock_w, bitmap->lock_h,
-            glformats[lock_format][2],
-            glformats[lock_format][1],
+            get_glformat(lock_format, 2),
+            get_glformat(lock_format, 1),
             ogl_bitmap->lock_buffer);
          e = glGetError();
          if (e) {
@@ -989,9 +987,6 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       glPixelTransferi(GL_ALPHA_BIAS, 0);
 #endif
    }
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
-   glPopClientAttrib();
-#endif
 
    if (old_disp) {
       _al_set_current_display_only(old_disp);
@@ -1189,10 +1184,10 @@ void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
    }
    
    glTexImage2D(GL_TEXTURE_2D, 0,
-       glformats[format][0],
+       get_glformat(format, 0),
        bitmap->w, bitmap->h, 0,
-       glformats[format][2],
-       glformats[format][1],
+       get_glformat(format, 2),
+       get_glformat(format, 1),
        ptr);
    e = glGetError();
    if (e) {
