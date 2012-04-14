@@ -568,12 +568,14 @@ void _al_d3d_refresh_texture_memory(ALLEGRO_DISPLAY *display)
       d3d_create_textures(bmps_display, extra->texture_w,
          extra->texture_h, bmp->flags,
 	 &extra->video_texture, /*&bmp->system_texture*/0, bmp->format);
-      d3d_sync_bitmap_texture(bmp,
-	 0, 0, bmp->w, bmp->h);
-      if (_al_d3d_render_to_texture_supported()) {
-	 bmps_display->device->UpdateTexture(
-	    (IDirect3DBaseTexture9 *)extra->system_texture,
-	    (IDirect3DBaseTexture9 *)extra->video_texture);
+      if (!(bmp->flags & ALLEGRO_NO_PRESERVE_TEXTURE)) {
+         d3d_sync_bitmap_texture(bmp,
+	    0, 0, bmp->w, bmp->h);
+         if (_al_d3d_render_to_texture_supported()) {
+	    bmps_display->device->UpdateTexture(
+	       (IDirect3DBaseTexture9 *)extra->system_texture,
+               (IDirect3DBaseTexture9 *)extra->video_texture);
+         }
       }
    }
 }
@@ -722,32 +724,6 @@ static void d3d_draw_bitmap_region(
       sx, sy, sw, sh, flags);
 }
 
-static void d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
-{
-   ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
-
-   if (!al_is_sub_bitmap(bitmap)) {
-      if (d3d_bmp->video_texture) {
-         if (d3d_bmp->video_texture->Release() != 0) {
-            ALLEGRO_WARN("d3d_destroy_bitmap: Release video texture failed.\n");
-         }
-      }
-      if (d3d_bmp->system_texture) {
-         if (d3d_bmp->system_texture->Release() != 0) {
-            ALLEGRO_WARN("d3d_destroy_bitmap: Release system texture failed.\n");
-         }
-      }
-
-      if (d3d_bmp->render_target) {
-         if (d3d_bmp->render_target->Release() != 0) {
-            ALLEGRO_WARN("d3d_destroy_bitmap: Release render target failed.\n");
-         }
-      }
-   }
-
-   al_free(bitmap->extra);
-}
-
 static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
    int x, int y, int w, int h, int format,
    int flags)
@@ -869,7 +845,7 @@ ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void)
    vt->draw_bitmap_region = d3d_draw_bitmap_region;
    vt->upload_bitmap = d3d_upload_bitmap;
    vt->update_clipping_rectangle = NULL;
-   vt->destroy_bitmap = d3d_destroy_bitmap;
+   vt->destroy_bitmap = _al_d3d_destroy_bitmap;
    vt->lock_region = d3d_lock_region;
    vt->unlock_region = d3d_unlock_region;
    vt->update_clipping_rectangle = d3d_update_clipping_rectangle;

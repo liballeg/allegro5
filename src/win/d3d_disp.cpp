@@ -44,6 +44,8 @@ ALLEGRO_DEBUG_CHANNEL("d3d")
 
 static ALLEGRO_DISPLAY_INTERFACE *vt = 0;
 
+static ALLEGRO_BITMAP *previous_target = NULL;
+
 static HMODULE _al_d3d_module = 0;
 
 typedef LPDIRECT3D9 (WINAPI *DIRECT3DCREATE9PROC)(UINT);
@@ -1147,9 +1149,12 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
 
 void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 {
+   ALLEGRO_DISPLAY *al_display = (ALLEGRO_DISPLAY *)disp;
    if (d3d_release_callback) {
       (*d3d_release_callback)();
    }
+   if (al_display->display_invalidated)
+      al_display->display_invalidated(al_display);
    _al_d3d_release_default_pool_textures((ALLEGRO_DISPLAY *)disp);
    while (disp->render_target && disp->render_target->Release() != 0) {
       ALLEGRO_WARN("_al_d3d_prepare_for_reset: (bb) ref count not 0\n");
@@ -2547,6 +2552,36 @@ static ALLEGRO_BITMAP *d3d_create_sub_bitmap(ALLEGRO_DISPLAY *display,
    return bitmap;
 }
 
+void _al_d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
+{
+   ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
+
+   if (bitmap == previous_target) {
+      previous_target = NULL;
+   }
+
+   if (!al_is_sub_bitmap(bitmap)) {
+      if (d3d_bmp->video_texture) {
+         if (d3d_bmp->video_texture->Release() != 0) {
+            ALLEGRO_WARN("d3d_destroy_bitmap: Release video texture failed.\n");
+         }
+      }
+      if (d3d_bmp->system_texture) {
+         if (d3d_bmp->system_texture->Release() != 0) {
+            ALLEGRO_WARN("d3d_destroy_bitmap: Release system texture failed.\n");
+         }
+      }
+
+      if (d3d_bmp->render_target) {
+         if (d3d_bmp->render_target->Release() != 0) {
+            ALLEGRO_WARN("d3d_destroy_bitmap: Release render target failed.\n");
+         }
+      }
+   }
+
+   al_free(bitmap->extra);
+}
+
 static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP *target;
@@ -2572,13 +2607,10 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    
    /* Release the previous target bitmap if it was not the backbuffer */
 
-   ALLEGRO_BITMAP *currtarget = al_get_target_bitmap();
-   if (currtarget) {
-      ALLEGRO_BITMAP_EXTRA_D3D *cextra = get_extra(currtarget);
-      if (!cextra->is_backbuffer && cextra->render_target) {
-         cextra->render_target->Release();
-         cextra->render_target = NULL;
-      }
+   if (previous_target) {
+      ALLEGRO_BITMAP_EXTRA_D3D *e = get_extra(previous_target);
+      e->render_target->Release();
+      previous_target = NULL;
    }
 
    /* Set the render target */
@@ -2600,6 +2632,7 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    else {
       d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
       if (_al_d3d_render_to_texture_supported()) {
+         previous_target = bitmap;
          if (d3d_target->video_texture->GetSurfaceLevel(0, &d3d_target->render_target) != D3D_OK) {
             ALLEGRO_ERROR("d3d_set_target_bitmap: Unable to get texture surface level.\n");
             return;
