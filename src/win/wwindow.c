@@ -1074,7 +1074,7 @@ bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 
    switch(flag) {
       case ALLEGRO_NOFRAME:
-         _al_win_set_window_frame(display, win_display->window, display->w, display->h, onoff);
+         _al_win_set_window_frame(display, win_display->window, display->w, display->h, !onoff);
          return true;
 
       case ALLEGRO_FULLSCREEN_WINDOW:
