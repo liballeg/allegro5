@@ -89,15 +89,22 @@ static bool ensure_gtk_thread(void)
 {
    bool ok = true;
 
+   #if !GLIB_CHECK_VERSION(2, 31, 0)
    if (!g_thread_supported())
       g_thread_init(NULL);
+   #endif
 
    g_static_mutex_lock(&gtk_lock);
 
    if (!gtk_thread) {
       GAsyncQueue *queue = g_async_queue_new();
+      #if GLIB_CHECK_VERSION(2, 31, 0)
+      gtk_thread = g_thread_new("gtk thread", gtk_thread_func, queue);
+      #else
       bool joinable = FALSE;
       gtk_thread = g_thread_create(gtk_thread_func, queue, joinable, NULL);
+      g_thread_unref(gtk_thread);
+      #endif
       if (!gtk_thread) {
          ok = false;
       }
@@ -734,7 +741,7 @@ static GtkWidget *build_menu_item(ALLEGRO_MENU_ITEM *aitem)
                
                /* Subtract the main reference. the image still holds a reference, so the
                 * pixbuf won't be destroyed until the image itself is. */
-               gdk_pixbuf_unref(pixbuf);
+               g_object_unref(pixbuf);
             }
          }
       }
