@@ -359,10 +359,10 @@
 /*ARB_provoking_vertex*/
 /*ARB_sync*/
 /*ARB_texture_multisample*/
-#define glglGetInteger64i_v _al_glglGetInteger64i_v
-#define glglGetBufferParameteri64v _al_glglGetBufferParameteri64v
-#define glglProgramParameteri _al_glglProgramParameteri
-#define glglFramebufferTexture _al_glglFramebufferTexture
+#define glGetInteger64i_v _al_glGetInteger64i_v
+#define glGetBufferParameteri64v _al_glGetBufferParameteri64v
+#define glProgramParameteri _al_glProgramParameteri
+#define glFramebufferTexture _al_glFramebufferTexture
 #endif
 
 #if defined _ALLEGRO_GL_VERSION_3_3
