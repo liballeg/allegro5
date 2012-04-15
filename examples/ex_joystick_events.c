@@ -9,8 +9,8 @@
 
 #include "common.c"
 
-#define MAX_STICKS   8
 #define MAX_AXES     3
+#define MAX_STICKS   16
 #define MAX_BUTTONS  32
 
 
@@ -107,8 +107,10 @@ static void draw_all(void)
    al_clear_to_color(al_map_rgb(0xff, 0xff, 0xc0));
 
    for (i = 0; i < num_sticks; i++) {
-      int cx = (i + 0.5) * width / num_sticks;
-      int cy = height / 2;
+      int u = i%4;
+      int v = i/4;
+      int cx = (u + 0.5) * width/4;
+      int cy = (v + 0.5) * height/6;
       draw_joystick_axes(cx, cy, i);
    }
 
