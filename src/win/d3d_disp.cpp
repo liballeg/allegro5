@@ -1150,6 +1150,9 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
 void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 {
    ALLEGRO_DISPLAY *al_display = (ALLEGRO_DISPLAY *)disp;
+
+   previous_target = NULL;
+
    if (d3d_release_callback) {
       (*d3d_release_callback)();
    }
@@ -1907,7 +1910,6 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
 
    d3d_reset_state(d3d_display);
 
-   //d3d_display->backbuffer_bmp.render_target = d3d_display->render_target;
    d3d_display->backbuffer_bmp.extra = &d3d_display->backbuffer_bmp_extra;
    d3d_display->backbuffer_bmp_extra.is_backbuffer = true;
    d3d_display->backbuffer_bmp.display = al_display;
@@ -2635,7 +2637,7 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    else {
       d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
       if (_al_d3d_render_to_texture_supported()) {
-         previous_target = bitmap;
+         previous_target = target;
          if (d3d_target->video_texture->GetSurfaceLevel(0, &d3d_target->render_target) != D3D_OK) {
             ALLEGRO_ERROR("d3d_set_target_bitmap: Unable to get texture surface level.\n");
             return;
