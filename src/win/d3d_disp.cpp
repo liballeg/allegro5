@@ -2609,7 +2609,10 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
 
    if (previous_target) {
       ALLEGRO_BITMAP_EXTRA_D3D *e = get_extra(previous_target);
-      e->render_target->Release();
+      if (e->render_target) {
+         e->render_target->Release();
+         e->render_target = NULL;
+      }
       previous_target = NULL;
    }
 
