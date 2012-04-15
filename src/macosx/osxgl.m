@@ -788,7 +788,7 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    NSWindow* win = dpy->win = [ALWindow alloc]; 
    int adapter = al_get_new_display_adapter();
    NSScreen *screen;
-   unsigned int mask = (dpy->parent.flags & ALLEGRO_NOFRAME) ? NSBorderlessWindowMask : 
+   unsigned int mask = (dpy->parent.flags & ALLEGRO_FRAMELESS) ? NSBorderlessWindowMask :
       (NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask);
    if (dpy->parent.flags & ALLEGRO_RESIZABLE)
       mask |= NSResizableWindowMask;
@@ -1933,7 +1933,7 @@ static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
       return false;
 
    switch (flag) {
-      case ALLEGRO_NOFRAME:
+      case ALLEGRO_FRAMELESS:
          mask = [win styleMask];
          if (onoff)
             mask |= NSBorderlessWindowMask;

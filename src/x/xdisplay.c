@@ -257,9 +257,9 @@ static void xdpy_set_frame(ALLEGRO_DISPLAY *display, bool frame_on)
          (void *)&motif, sizeof motif / 4);
 
       if (frame_on)
-         display->flags &= ~ALLEGRO_NOFRAME;
+         display->flags &= ~ALLEGRO_FRAMELESS;
       else
-         display->flags |= ALLEGRO_NOFRAME;
+         display->flags |= ALLEGRO_FRAMELESS;
    }
 #endif
 
@@ -291,8 +291,8 @@ static bool xdpy_set_display_flag(ALLEGRO_DISPLAY *display, int flag,
    bool flag_onoff)
 {
    switch (flag) {
-      case ALLEGRO_NOFRAME:
-         /* The ALLEGRO_NOFRAME flag is backwards. */
+      case ALLEGRO_FRAMELESS:
+         /* The ALLEGRO_FRAMELESS flag is backwards. */
          xdpy_set_frame(display, !flag_onoff);
          return true;
       case ALLEGRO_FULLSCREEN_WINDOW:
@@ -513,7 +513,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       //XSync(system->x11display, False);
    }
 
-   if (display->flags & ALLEGRO_NOFRAME) {
+   if (display->flags & ALLEGRO_FRAMELESS) {
       xdpy_set_frame(display, false);
    }
 

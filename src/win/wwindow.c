@@ -194,7 +194,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
       0, 0,
       SWP_NOZORDER | SWP_NOSIZE);
 
-   if (flags & ALLEGRO_NOFRAME) {
+   if (flags & ALLEGRO_FRAMELESS) {
       SetWindowLong(my_window, GWL_STYLE, WS_VISIBLE);
       SetWindowLong(my_window, GWL_EXSTYLE, WS_EX_APPWINDOW);
       SetWindowPos(my_window, 0, pos_x, pos_y, width, height, SWP_NOZORDER | SWP_FRAMECHANGED);
@@ -1018,21 +1018,21 @@ void _al_win_get_window_position(HWND window, int *x, int *y)
 }
 
 
-void _al_win_set_window_frame(ALLEGRO_DISPLAY *display, HWND hWnd,
-   int w, int h, bool onoff)
+void _al_win_set_window_frameless(ALLEGRO_DISPLAY *display, HWND hWnd,
+   int w, int h, bool frameless)
 {
-   if (!onoff && !(display->flags & ALLEGRO_NOFRAME)) {
+   if (!frameless && !(display->flags & ALLEGRO_FRAMELESS)) {
       return;
    }
 
-   if (!onoff) {
-      display->flags &= ~ALLEGRO_NOFRAME;
+   if (!frameless) {
+      display->flags &= ~ALLEGRO_FRAMELESS;
    }
    else {
-      display->flags |= ALLEGRO_NOFRAME;
+      display->flags |= ALLEGRO_FRAMELESS;
    }
 
-   if (display->flags & ALLEGRO_NOFRAME) {
+   if (display->flags & ALLEGRO_FRAMELESS) {
       SetWindowLong(hWnd, GWL_STYLE, WS_VISIBLE);
       SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_APPWINDOW);
       SetWindowPos(hWnd, 0, 0, 0, w, h, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
@@ -1072,10 +1072,13 @@ bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 
    memset(&mi, 0, sizeof(mi));
 
-   switch(flag) {
-      case ALLEGRO_NOFRAME:
-         _al_win_set_window_frame(display, win_display->window, display->w, display->h, !onoff);
+   switch (flag) {
+      case ALLEGRO_FRAMELESS: {
+         bool frameless = onoff;
+         _al_win_set_window_frameless(display, win_display->window,
+            display->w, display->h, frameless);
          return true;
+      }
 
       case ALLEGRO_FULLSCREEN_WINDOW:
          if ((display->flags & ALLEGRO_FULLSCREEN_WINDOW) && onoff) {
@@ -1087,7 +1090,12 @@ bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
             return true;
          }
 
-         _al_win_set_display_flag(display, ALLEGRO_NOFRAME, !onoff);
+         /* Frameless if fullscreen, framed if windowed. */
+         {
+            bool frameless = onoff;
+            _al_win_set_window_frameless(display, win_display->window,
+               display->w, display->h, frameless);
+         }
 
          if (onoff) {
             int adapter = win_display->adapter;
