@@ -100,14 +100,11 @@ static void main_loop(void)
       al_wait_for_event(event_queue, &event);
 
       switch (event.type) {
-
          /* ALLEGRO_EVENT_JOYSTICK_AXIS - a joystick axis value changed.
-          * For simplicity, in this example we only work with the first
-          * 'stick' on the first joystick on the system.
           */
          case ALLEGRO_EVENT_JOYSTICK_AXIS:
             if (event.joystick.stick < MAX_STICKS && event.joystick.axis < MAX_AXES) {
-                  joys[event.joystick.stick][event.joystick.axis] = event.joystick.pos;
+               joys[event.joystick.stick][event.joystick.axis] = event.joystick.pos;
             }
             break;
 
@@ -163,12 +160,7 @@ int main(void)
       return 1;
    }
 
-#ifndef ALLEGRO_GP2XWIZ
-   if (!al_install_keyboard()) {
-      abort_example("al_install_keyboard failed\n");
-      return 1;
-   }
-#endif
+   al_install_keyboard();
 
    black = al_map_rgb(0, 0, 0);
    grey = al_map_rgb(0xe0, 0xe0, 0xe0);
@@ -187,9 +179,9 @@ int main(void)
       return 1;
    }
 
-#ifndef ALLEGRO_GP2XWIZ
-   al_register_event_source(event_queue, al_get_keyboard_event_source());
-#endif
+   if (al_get_keyboard_event_source()) {
+      al_register_event_source(event_queue, al_get_keyboard_event_source());
+   }
    al_register_event_source(event_queue, al_get_display_event_source(display));
    al_register_event_source(event_queue, al_get_joystick_event_source());
 
