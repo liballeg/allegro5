@@ -499,8 +499,6 @@ void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp)
    if (!_al_d3d_render_to_texture_supported())
       return;
 
-   al_lock_mutex(_al_d3d_lost_device_mutex);
-
    for (i = 0; i < display->bitmaps._size; i++) {
       ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&display->bitmaps, i);
       ALLEGRO_BITMAP *bmp = *bptr;
@@ -516,8 +514,6 @@ void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp)
          bmp->dirty = false;
       }
    }
-
-   al_unlock_mutex(_al_d3d_lost_device_mutex);
 }
 
 /*

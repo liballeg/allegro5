@@ -76,7 +76,6 @@ static int num_faux_fullscreen_windows = 0;
 static bool already_fullscreen = false; /* real fullscreen */
 
 static ALLEGRO_MUTEX *present_mutex;
-ALLEGRO_MUTEX *_al_d3d_lost_device_mutex;
 
 #ifdef ALLEGRO_CFG_HLSL_SHADERS
 /* Function: al_set_direct3d_effect
@@ -772,10 +771,6 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
 
    d->device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &d->render_target);
 
-   if (d->depth_stencil_format)
-      d->device->GetDepthStencilSurface(&d->depth_stencil);
-   //d->device->GetRenderTarget(0, &d->render_target);
-
    ALLEGRO_INFO("Fullscreen Direct3D device created.\n");
 
    d->device->BeginScene();
@@ -889,7 +884,6 @@ bool _al_d3d_init_display()
    ALLEGRO_INFO("Render-to-texture: %d\n", render_to_texture_supported);
 
    present_mutex = al_create_mutex();
-   _al_d3d_lost_device_mutex = al_create_mutex();
 
    _al_d3d_bmp_init();
 
@@ -1054,13 +1048,6 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
       return 0;
    }
 
-   if (d->depth_stencil_format) {
-      if (d->device->GetDepthStencilSurface(&d->depth_stencil) != D3D_OK) {
-         ALLEGRO_ERROR("d3d_create_device: GetDepthStencilSurface failed.\n");
-         return 0;
-      }
-   }
-
    if (d->device->BeginScene() != D3D_OK) {
       ALLEGRO_ERROR("BeginScene failed in create_device\n");
    }
@@ -1151,11 +1138,12 @@ void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 {
    ALLEGRO_DISPLAY *al_display = (ALLEGRO_DISPLAY *)disp;
 
-   previous_target = NULL;
-
    if (d3d_release_callback) {
       (*d3d_release_callback)();
    }
+
+   previous_target = NULL;
+
    if (al_display->display_invalidated)
       al_display->display_invalidated(al_display);
    _al_d3d_release_default_pool_textures((ALLEGRO_DISPLAY *)disp);
@@ -1163,17 +1151,12 @@ void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
       ALLEGRO_WARN("_al_d3d_prepare_for_reset: (bb) ref count not 0\n");
    }
    disp->render_target = NULL;
-   if (disp->depth_stencil_format) {
-      disp->depth_stencil->Release();
-   }
 }
 
 static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
    ALLEGRO_DISPLAY *al_display = &win_display->display;
-
-   al_lock_mutex(_al_d3d_lost_device_mutex);
 
     _al_d3d_prepare_for_reset(d3d_display);
 
@@ -1255,7 +1238,6 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
                 ALLEGRO_ERROR("Direct3D Device reset failed (unknown reason).\n");
                 break;
           }
-          al_unlock_mutex(_al_d3d_lost_device_mutex);
           return 0;
        }
     }
@@ -1298,28 +1280,17 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
 
        if (d3d_display->device->Reset(&d3d_pp) != D3D_OK) {
           ALLEGRO_WARN("Reset failed\n");
-          al_unlock_mutex(_al_d3d_lost_device_mutex);
           return 0;
        }
     }
 
    d3d_display->device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &d3d_display->render_target);
 
-   if (d3d_display->depth_stencil_format) {
-      d3d_display->device->GetDepthStencilSurface(&d3d_display->depth_stencil);
-   }
-
    _al_d3d_refresh_texture_memory(al_display);
    
-   if (d3d_restore_callback) {
-      (*d3d_restore_callback)();
-   }
-
    d3d_display->device->BeginScene();
 
    d3d_reset_state(d3d_display);
-
-   al_unlock_mutex(_al_d3d_lost_device_mutex);
 
    return 1;
 }
@@ -1705,12 +1676,18 @@ static void *d3d_display_thread_proc(void *arg)
             }
             _al_event_source_unlock(&al_display->es);
             lost_event_generated = false;
+            if (d3d_restore_callback) {
+               (*d3d_restore_callback)();
+            }
          }
       }
       if (d3d_display->do_reset) {
          d3d_display->reset_success = _al_d3d_reset_device(d3d_display);
          d3d_display->do_reset = false;
          d3d_display->reset_done = true;
+         if (d3d_restore_callback) {
+            (*d3d_restore_callback)();
+         }
       }
    }
 
@@ -2626,7 +2603,6 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
          return;
       }
       d3d_target->render_target = d3d_display->render_target;
-      d3d_display->device->SetDepthStencilSurface(d3d_display->depth_stencil);
 
       viewport.Width = display->w;
       viewport.Height = display->h;
@@ -2771,7 +2747,6 @@ static void d3d_shutdown(void)
    }
    _al_d3d->Release();
    al_destroy_mutex(present_mutex);
-   al_destroy_mutex(_al_d3d_lost_device_mutex);
 
    _al_d3d_bmp_destroy();
 
