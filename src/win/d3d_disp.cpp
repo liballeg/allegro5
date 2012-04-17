@@ -76,6 +76,7 @@ static int num_faux_fullscreen_windows = 0;
 static bool already_fullscreen = false; /* real fullscreen */
 
 static ALLEGRO_MUTEX *present_mutex;
+ALLEGRO_MUTEX *_al_d3d_lost_device_mutex;
 
 #ifdef ALLEGRO_CFG_HLSL_SHADERS
 /* Function: al_set_direct3d_effect
@@ -884,6 +885,7 @@ bool _al_d3d_init_display()
    ALLEGRO_INFO("Render-to-texture: %d\n", render_to_texture_supported);
 
    present_mutex = al_create_mutex();
+   _al_d3d_lost_device_mutex = al_create_mutex();
 
    _al_d3d_bmp_init();
 
@@ -1158,6 +1160,8 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
    ALLEGRO_DISPLAY *al_display = &win_display->display;
 
+   al_lock_mutex(_al_d3d_lost_device_mutex);
+
     _al_d3d_prepare_for_reset(d3d_display);
 
     if (al_display->flags & ALLEGRO_FULLSCREEN) {
@@ -1238,6 +1242,7 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
                 ALLEGRO_ERROR("Direct3D Device reset failed (unknown reason).\n");
                 break;
           }
+          al_unlock_mutex(_al_d3d_lost_device_mutex);
           return 0;
        }
     }
@@ -1280,6 +1285,7 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
 
        if (d3d_display->device->Reset(&d3d_pp) != D3D_OK) {
           ALLEGRO_WARN("Reset failed\n");
+          al_unlock_mutex(_al_d3d_lost_device_mutex);
           return 0;
        }
     }
@@ -1291,6 +1297,8 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
    d3d_display->device->BeginScene();
 
    d3d_reset_state(d3d_display);
+
+   al_unlock_mutex(_al_d3d_lost_device_mutex);
 
    return 1;
 }
@@ -1683,11 +1691,11 @@ static void *d3d_display_thread_proc(void *arg)
       }
       if (d3d_display->do_reset) {
          d3d_display->reset_success = _al_d3d_reset_device(d3d_display);
-         d3d_display->do_reset = false;
-         d3d_display->reset_done = true;
          if (d3d_restore_callback) {
             (*d3d_restore_callback)();
          }
+         d3d_display->do_reset = false;
+         d3d_display->reset_done = true;
       }
    }
 
@@ -2587,7 +2595,12 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    /* Release the previous target bitmap if it was not the backbuffer */
 
    if (previous_target) {
-      ALLEGRO_BITMAP_EXTRA_D3D *e = get_extra(previous_target);
+      ALLEGRO_BITMAP *parent;
+      if (previous_target->parent)
+         parent = previous_target->parent;
+      else
+         parent = previous_target;
+      ALLEGRO_BITMAP_EXTRA_D3D *e = get_extra(parent);
       if (e->render_target) {
          e->render_target->Release();
          e->render_target = NULL;
@@ -2613,7 +2626,7 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    else {
       d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
       if (_al_d3d_render_to_texture_supported()) {
-         previous_target = target;
+         previous_target = bitmap;
          if (d3d_target->video_texture->GetSurfaceLevel(0, &d3d_target->render_target) != D3D_OK) {
             ALLEGRO_ERROR("d3d_set_target_bitmap: Unable to get texture surface level.\n");
             return;
@@ -2747,6 +2760,7 @@ static void d3d_shutdown(void)
    }
    _al_d3d->Release();
    al_destroy_mutex(present_mutex);
+   al_destroy_mutex(_al_d3d_lost_device_mutex);
 
    _al_d3d_bmp_destroy();
 
