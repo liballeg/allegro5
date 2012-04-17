@@ -45,6 +45,7 @@ static void mainloop(void)
    }
 
    queue = al_create_event_queue();
+   al_register_event_source(queue, al_get_keyboard_event_source());
    for (i = 0; i < N; i++) {
       al_register_event_source(queue,
          al_get_audio_stream_event_source(stream[i]));
@@ -77,12 +78,6 @@ static void mainloop(void)
             }
 
             for (i = 0; i < SAMPLES_PER_BUFFER; i++) {
-               /* Crude saw wave at maximum amplitude. Please keep this compatible
-                * to the A4 example so we know when something has broken for now.
-                * 
-                * It would be nice to have a better example with user interface
-                * and some simple synth effects.
-                */
                double t = samplepos[si]++ / (double)frequency[si];
                buf[i] = sin(t * pitch * ALLEGRO_PI * 2) / N;
             }
@@ -90,18 +85,23 @@ static void mainloop(void)
             if (!al_set_audio_stream_fragment(stream[si], buf)) {
                log_printf("Error setting stream fragment.\n");
             }
-            
+
             n++;
             log_printf("%d", si);
-            if ((n % 80) == 0) log_printf("\n");
-            
+            if ((n % 80) == 0)
+               log_printf("\n");
          }
       }
       
       if (event.type == ALLEGRO_EVENT_TIMER) {
          redraw = true;
       }
-      
+
+      if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
+            event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+         break;
+      }
+
       if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
          break;
       }
@@ -128,13 +128,13 @@ static void mainloop(void)
    al_destroy_event_queue(queue);
 }
 
-static int last_pos = 0;
 static void update_waveform(void *buf, unsigned int samples, void *data)
 {
+   static int last_pos = 0;
    float *fbuf = (float *)buf;
+   ALLEGRO_COLOR black = al_map_rgb(0, 0, 0);
    int i;
    (void)data;
-   ALLEGRO_COLOR black = al_map_rgb(0, 0, 0);
 
    al_set_target_bitmap(waveform);
    for (i = 0; i < (int)samples; i++) {
@@ -152,11 +152,17 @@ int main(void)
       abort_example("Could not init Allegro.\n");
       return 1;
    }
-   
+
+   al_install_keyboard();
+
    open_log();
    
    display = al_create_display(640, 100);
-   
+   if (!display) {
+      abort_example("Could not create display.\n");
+      return 1;
+   }
+
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    waveform = al_create_bitmap(640, 100);
    al_set_target_bitmap(waveform);
@@ -168,7 +174,7 @@ int main(void)
       return 1;
    }
    al_reserve_samples(N);
-   
+
    al_set_mixer_postprocess_callback(al_get_default_mixer(), update_waveform, NULL);
 
    mainloop();
