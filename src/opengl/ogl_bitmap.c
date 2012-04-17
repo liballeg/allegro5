@@ -465,10 +465,10 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       buf = al_calloc(pix_size,
          ogl_bitmap->true_h * ogl_bitmap->true_w);
       glPixelStorei(GL_UNPACK_ALIGNMENT, pix_size);
-      glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
+      glTexImage2D(GL_TEXTURE_2D, 0, get_glformat(bitmap->format, 0),
          ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
-         glformats[bitmap->format][2],
-         glformats[bitmap->format][1], buf);
+         get_glformat(bitmap->format, 2),
+         get_glformat(bitmap->format, 1), buf);
       al_free(buf);
    }
 #endif
@@ -891,8 +891,8 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       GLuint tmp_tex;
       glGenTextures(1, &tmp_tex);
       glBindTexture(GL_TEXTURE_2D, tmp_tex);
-      glTexImage2D(GL_TEXTURE_2D, 0, glformats[lock_format][0], bitmap->lock_w, bitmap->lock_h,
-                   0, glformats[lock_format][2], glformats[lock_format][1],
+      glTexImage2D(GL_TEXTURE_2D, 0, get_glformat(lock_format, 0), bitmap->lock_w, bitmap->lock_h,
+                   0, get_glformat(lock_format, 2), get_glformat(lock_format, 1),
                    ogl_bitmap->lock_buffer);
       e = glGetError();
       if (e) {

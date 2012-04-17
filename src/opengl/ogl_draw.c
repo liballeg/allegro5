@@ -344,7 +344,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
       glBindTexture(GL_TEXTURE_2D, disp->cache_texture);
    }
    
-#ifndef ALLEGRO_CFG_NO_GLES2
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       int stride = sizeof(ALLEGRO_OGL_BITMAP_VERTEX);
       int bytes = disp->num_cache_vertices * stride;
@@ -364,7 +364,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
 
       /* Then we upload data into it. */
       glBufferData(GL_ARRAY_BUFFER, bytes, disp->vertex_cache, GL_STREAM_DRAW);
-      
+
       /* Finally set the "pos", "texccord" and "color" attributes used by our
        * shader and enable them.
        */
@@ -410,7 +410,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
    }
    #endif
 
-#ifndef ALLEGRO_CFG_NO_GLES2
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       if (o->pos_loc >= 0) glDisableVertexAttribArray(o->pos_loc);
       if (o->texcoord_loc >= 0) glDisableVertexAttribArray(o->texcoord_loc);

@@ -205,6 +205,7 @@ static void print_extensions(char const *extension)
 
 
 
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
 /* Print all extensions the OpenGL 3.0 way. */ 
 static void print_extensions_3_0(void)
 {
@@ -217,6 +218,7 @@ static void print_extensions_3_0(void)
       ALLEGRO_DEBUG("%s\n", name);
    }
 }
+#endif
 
 
 
@@ -431,7 +433,9 @@ static bool _ogl_is_extension_supported(const char *extension,
 {
    int ret = 0;
    GLubyte const *ext_str;
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
    int v = al_get_opengl_version();
+#endif
    (void)disp;
 
 #if defined ALLEGRO_GP2XWIZ
@@ -767,6 +771,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    load_extensions(ext_api);
    gl_disp->ogl_extras->extension_api = ext_api;
    
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
    /* Need that symbol already so can't wait until it is assigned later. */
    glGetStringi = ext_api->GetStringi;
 
@@ -774,6 +779,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
       ALLEGRO_DEBUG("OpenGL Extensions:\n");
       print_extensions_3_0();
    }
+#endif
 
    /* Create the list of supported extensions. */
    ext_list = create_extension_list();

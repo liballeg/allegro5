@@ -507,9 +507,12 @@ ALLEGRO_BITMAP* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
 #ifdef ALLEGRO_GP2XWIZ
    format = ALLEGRO_PIXEL_FORMAT_RGB_565; /* Only support display format */
 #elif defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
-   format = ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE;
-   // TODO: This one is also supported
-   //format = ALLEGRO_PIXEL_FORMAT_RGB_565;
+   if (disp->extra_settings.settings[ALLEGRO_COLOR_SIZE] == 16) {
+      format = ALLEGRO_PIXEL_FORMAT_RGB_565;
+   }
+   else {
+      format = ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE;
+   }
 #else
    format = _al_deduce_color_format(&disp->extra_settings);
    /* Eww. No OpenGL hardware in the world does that - let's just
