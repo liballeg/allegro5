@@ -524,6 +524,8 @@ static void NAME(void *source, void **vbuf, unsigned int *samples,            \
    size_t maxc = al_get_channel_count(spl->spl_data.chan_conf);               \
    size_t samples_l = *samples;                                               \
    size_t c;                                                                  \
+   size_t idx = 0;                                                            \
+   int old_pos, new_pos;                                                      \
    SAMP_BUF samp_buf;                                                         \
                                                                               \
    if (!spl->is_playing)                                                      \
@@ -554,9 +556,13 @@ static void NAME(void *source, void **vbuf, unsigned int *samples,            \
          }                                                                    \
          buf++;                                                               \
       }                                                                       \
+      /* Compute the exact amount we should increment spl->pos by. */         \
+      old_pos = idx * spl->step / spl->step_denom;                            \
+      new_pos = (idx + 1) * spl->step / spl->step_denom;                      \
                                                                               \
-      spl->pos += spl->step;                                                  \
+      spl->pos += new_pos - old_pos;                                          \
       samples_l--;                                                            \
+      idx++;                                                                  \
    }                                                                          \
    fix_looped_position(spl);                                                  \
    (void)buffer_depth;                                                        \
@@ -938,8 +944,8 @@ bool al_attach_sample_instance_to_mixer(ALLEGRO_SAMPLE_INSTANCE *spl,
    }
    (*slot) = spl;
 
-   spl->step = (spl->spl_data.frequency<<MIXER_FRAC_SHIFT) * spl->speed /
-               mixer->ss.spl_data.frequency;
+   spl->step = (spl->spl_data.frequency<<MIXER_FRAC_SHIFT) * spl->speed;
+   spl->step_denom = mixer->ss.spl_data.frequency;
    /* Don't want to be trapped with a step value of 0. */
    if (spl->step == 0) {
       if (spl->speed > 0.0f)

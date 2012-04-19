@@ -424,8 +424,8 @@ bool al_set_sample_instance_speed(ALLEGRO_SAMPLE_INSTANCE *spl, float val)
 
       maybe_lock_mutex(spl->mutex);
 
-      spl->step = (spl->spl_data.frequency << MIXER_FRAC_SHIFT) *
-         spl->speed / mixer->ss.spl_data.frequency;
+      spl->step = (spl->spl_data.frequency << MIXER_FRAC_SHIFT) * spl->speed;
+      spl->step_denom = mixer->ss.spl_data.frequency;
       /* Don't wanna be trapped with a step value of 0 */
       if (spl->step == 0) {
          if (spl->speed > 0.0f)
