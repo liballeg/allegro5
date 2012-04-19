@@ -33,6 +33,9 @@ directory.
         -DWANT_EXAMPLES=OFF -DWANT_DEMO=OFF
     make && make install
 
+NOTE: On OS X, add -DCMAKE_INSTALL_NAME_TOOL=/usr/bin/install_name_tool to
+the cmake command line.
+
 BIG FAT WARNING: building the examples and demos is not currently supported.
 
 Using Allegro in an Android project
