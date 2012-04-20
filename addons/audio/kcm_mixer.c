@@ -255,18 +255,18 @@ static INLINE const void *point_spl16(SAMP_BUF *samp_buf,
    for (i = 0; i < maxc; i++) {
       switch (spl->spl_data.depth) {
          case ALLEGRO_AUDIO_DEPTH_INT24:
-            s[i] = buf->s24[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
+            s[i] = buf->s24[(spl->pos)*maxc + i]
 	    	>> 9;
             break;
          case ALLEGRO_AUDIO_DEPTH_INT16:
-            s[i] = buf->s16[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i];
+            s[i] = buf->s16[(spl->pos)*maxc + i];
             break;
          case ALLEGRO_AUDIO_DEPTH_INT8:
-            s[i] = buf->s8[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
+            s[i] = buf->s8[(spl->pos)*maxc + i]
 	    	<< 7;
             break;
          case ALLEGRO_AUDIO_DEPTH_FLOAT32:
-            s[i] = buf->f32[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
+            s[i] = buf->f32[(spl->pos)*maxc + i]
 	    	* 0x7FFF;
             break;
 
@@ -294,19 +294,19 @@ static INLINE const void *point_spl32(SAMP_BUF *samp_buf,
    for (i = 0; i < maxc; i++) {
       switch (spl->spl_data.depth) {
          case ALLEGRO_AUDIO_DEPTH_INT24:
-            s[i] = (float) buf->s24[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
+            s[i] = (float) buf->s24[(spl->pos)*maxc + i]
                / ((float)0x7FFFFF + 0.5f);
             break;
          case ALLEGRO_AUDIO_DEPTH_INT16:
-            s[i] = (float) buf->s16[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
+            s[i] = (float) buf->s16[(spl->pos)*maxc + i]
                / ((float)0x7FFF + 0.5f);
             break;
          case ALLEGRO_AUDIO_DEPTH_INT8:
-            s[i] = (float) buf->s8[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
+            s[i] = (float) buf->s8[(spl->pos)*maxc + i]
                / ((float)0x7F + 0.5f);
             break;
          case ALLEGRO_AUDIO_DEPTH_FLOAT32:
-            s[i] = buf->f32[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i];
+            s[i] = buf->f32[(spl->pos)*maxc + i];
             break;
 
          case ALLEGRO_AUDIO_DEPTH_UINT8:
@@ -333,19 +333,19 @@ static INLINE const void *point_spl32u(SAMP_BUF *samp_buf,
    for (i = 0; i < maxc; i++) {
       switch (spl->spl_data.depth) {
          case ALLEGRO_AUDIO_DEPTH_UINT24:
-            s[i] = (float)buf->u24[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
+            s[i] = (float)buf->u24[(spl->pos)*maxc + i]
                / ((float)0x7FFFFF+0.5f) - 1.0;
             break;
          case ALLEGRO_AUDIO_DEPTH_UINT16:
-            s[i] = (float)buf->u16[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
+            s[i] = (float)buf->u16[(spl->pos)*maxc + i]
                / ((float)0x7FFF+0.5f) - 1.0;
             break;
          case ALLEGRO_AUDIO_DEPTH_UINT8:
-            s[i] = (float)buf->u8[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
+            s[i] = (float)buf->u8[(spl->pos)*maxc + i]
                / ((float)0x7F+0.5f) - 1.0;
             break;
          case ALLEGRO_AUDIO_DEPTH_FLOAT32:
-            s[i] = buf->f32[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i] - 1.0;
+            s[i] = buf->f32[(spl->pos)*maxc + i] - 1.0;
             break;
 
          case ALLEGRO_AUDIO_DEPTH_INT8:
@@ -370,27 +370,27 @@ static INLINE const void *linear_spl32(SAMP_BUF *samp_buf,
    float frac;
    float *s = samp_buf->f32;
 
-   p1 = (spl->pos>>MIXER_FRAC_SHIFT)*maxc;
+   p1 = (spl->pos)*maxc;
    p2 = p1 + maxc;
 
    switch (spl->loop) {
       case ALLEGRO_PLAYMODE_ONCE:
       case _ALLEGRO_PLAYMODE_STREAM_ONCE:
       case _ALLEGRO_PLAYMODE_STREAM_ONEDIR:
-         if (spl->pos+MIXER_FRAC_ONE >= spl->spl_data.len)
+         if (spl->pos+1 >= spl->spl_data.len)
             p2 = p1;
          break;
       case ALLEGRO_PLAYMODE_LOOP:
-         if (spl->pos+MIXER_FRAC_ONE >= spl->loop_end)
-            p2 = (spl->loop_start>>MIXER_FRAC_SHIFT)*maxc;
+         if (spl->pos+1 >= spl->loop_end)
+            p2 = (spl->loop_start)*maxc;
          break;
       case ALLEGRO_PLAYMODE_BIDIR:
-         if (spl->pos+MIXER_FRAC_ONE >= spl->loop_end)
-            p2 = ((spl->loop_end>>MIXER_FRAC_SHIFT)-1)*maxc;
+         if (spl->pos+1 >= spl->loop_end)
+            p2 = ((spl->loop_end)-1)*maxc;
          break;
    }
-
-   frac = (float)(spl->pos & MIXER_FRAC_MASK) / (float)MIXER_FRAC_ONE;
+   
+   frac = (float)spl->pos_bresenham_error / spl->step_denom;
 
    for (i = 0; i < maxc; i++) {
       float s1 = 0, s2 = 0;
@@ -437,27 +437,27 @@ static INLINE const void *linear_spl32u(SAMP_BUF *samp_buf,
    float frac;
    float *s = samp_buf->f32;
 
-   p1 = (spl->pos>>MIXER_FRAC_SHIFT)*maxc;
+   p1 = (spl->pos)*maxc;
    p2 = p1 + maxc;
 
    switch (spl->loop) {
       case ALLEGRO_PLAYMODE_ONCE:
       case _ALLEGRO_PLAYMODE_STREAM_ONCE:
       case _ALLEGRO_PLAYMODE_STREAM_ONEDIR:
-         if (spl->pos+MIXER_FRAC_ONE >= spl->spl_data.len)
+         if (spl->pos+1 >= spl->spl_data.len)
             p2 = p1;
          break;
       case ALLEGRO_PLAYMODE_LOOP:
-         if (spl->pos+MIXER_FRAC_ONE >= spl->loop_end)
-            p2 = (spl->loop_start>>MIXER_FRAC_SHIFT)*maxc;
+         if (spl->pos+1 >= spl->loop_end)
+            p2 = (spl->loop_start)*maxc;
          break;
       case ALLEGRO_PLAYMODE_BIDIR:
-         if (spl->pos+MIXER_FRAC_ONE >= spl->loop_end)
-            p2 = ((spl->loop_end>>MIXER_FRAC_SHIFT)-1)*maxc;
+         if (spl->pos+1 >= spl->loop_end)
+            p2 = ((spl->loop_end)-1)*maxc;
          break;
    }
 
-   frac = (float)(spl->pos & MIXER_FRAC_MASK) / (float)MIXER_FRAC_ONE;
+   frac = (float)spl->pos_bresenham_error / spl->step_denom;
 
    for (i = 0; i < maxc; i++) {
       float s1 = 0, s2 = 0;
@@ -951,7 +951,7 @@ bool al_attach_sample_instance_to_mixer(ALLEGRO_SAMPLE_INSTANCE *spl,
    }
    (*slot) = spl;
 
-   spl->step = (spl->spl_data.frequency<<MIXER_FRAC_SHIFT) * spl->speed;
+   spl->step = (spl->spl_data.frequency) * spl->speed;
    spl->step_denom = mixer->ss.spl_data.frequency;
    /* Don't want to be trapped with a step value of 0. */
    if (spl->step == 0) {

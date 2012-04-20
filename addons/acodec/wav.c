@@ -430,7 +430,7 @@ bool _al_save_wav_f(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl)
    if (channels < 1 || channels > 2)
       return false;
 
-   samples = spl->len >> MIXER_FRAC_SHIFT;
+   samples = spl->len;
    data_size = samples * channels * bits / 8;
    n = samples * channels;
 

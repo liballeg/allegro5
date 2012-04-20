@@ -244,7 +244,7 @@ unsigned int al_get_sample_instance_length(const ALLEGRO_SAMPLE_INSTANCE *spl)
 {
    ASSERT(spl);
 
-   return spl->spl_data.len >> MIXER_FRAC_SHIFT;
+   return spl->spl_data.len;
 }
 
 
@@ -259,7 +259,7 @@ unsigned int al_get_sample_instance_position(const ALLEGRO_SAMPLE_INSTANCE *spl)
       return al_get_voice_position(voice);
    }
 
-   return spl->pos >> MIXER_FRAC_SHIFT;
+   return spl->pos;
 }
 
 
@@ -299,7 +299,7 @@ float al_get_sample_instance_time(const ALLEGRO_SAMPLE_INSTANCE *spl)
 {
    ASSERT(spl);
 
-   return (float)(spl->spl_data.len >> MIXER_FRAC_SHIFT)
+   return (float)(spl->spl_data.len)
       / (float)spl->spl_data.frequency;
 }
 
@@ -374,7 +374,7 @@ bool al_set_sample_instance_position(ALLEGRO_SAMPLE_INSTANCE *spl,
    }
    else {
       maybe_lock_mutex(spl->mutex);
-      spl->pos = val << MIXER_FRAC_SHIFT;
+      spl->pos = val;
       maybe_unlock_mutex(spl->mutex);
    }
 
@@ -395,7 +395,7 @@ bool al_set_sample_instance_length(ALLEGRO_SAMPLE_INSTANCE *spl,
       return false;
    }
 
-   spl->spl_data.len = val << MIXER_FRAC_SHIFT;
+   spl->spl_data.len = val;
    return true;
 }
 
@@ -424,7 +424,7 @@ bool al_set_sample_instance_speed(ALLEGRO_SAMPLE_INSTANCE *spl, float val)
 
       maybe_lock_mutex(spl->mutex);
 
-      spl->step = (spl->spl_data.frequency << MIXER_FRAC_SHIFT) * spl->speed;
+      spl->step = (spl->spl_data.frequency) * spl->speed;
       spl->step_denom = mixer->ss.spl_data.frequency;
       /* Don't wanna be trapped with a step value of 0 */
       if (spl->step == 0) {
@@ -526,8 +526,8 @@ bool al_set_sample_instance_playmode(ALLEGRO_SAMPLE_INSTANCE *spl,
    if (spl->loop != ALLEGRO_PLAYMODE_ONCE) {
       if (spl->pos < spl->loop_start)
          spl->pos = spl->loop_start;
-      else if (spl->pos > spl->loop_end-MIXER_FRAC_ONE)
-         spl->pos = spl->loop_end-MIXER_FRAC_ONE;
+      else if (spl->pos > spl->loop_end-1)
+         spl->pos = spl->loop_end-1;
    }
 
    maybe_unlock_mutex(spl->mutex);
