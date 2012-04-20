@@ -514,6 +514,8 @@ static INLINE int32_t clamp(int32_t val, int32_t min, int32_t max)
  *
  * TYPE is the type of the sample values in the mixer buffer, and
  * NEXT_SAMPLE_VALUE must return a buffer of the same type.
+ * 
+ * Note: Uses Bresenham to keep the precise sample position.
  */
 #define MAKE_MIXER(NAME, NEXT_SAMPLE_VALUE, TYPE)                             \
 static void NAME(void *source, void **vbuf, unsigned int *samples,            \
@@ -525,7 +527,9 @@ static void NAME(void *source, void **vbuf, unsigned int *samples,            \
    size_t samples_l = *samples;                                               \
    size_t c;                                                                  \
    size_t idx = 0;                                                            \
-   int old_pos, new_pos;                                                      \
+   int delta = spl->step / spl->step_denom;                                   \
+   int delta_error = spl->step - delta * spl->step_denom;                     \
+   int error = 0;                                                             \
    SAMP_BUF samp_buf;                                                         \
                                                                               \
    if (!spl->is_playing)                                                      \
@@ -556,11 +560,13 @@ static void NAME(void *source, void **vbuf, unsigned int *samples,            \
          }                                                                    \
          buf++;                                                               \
       }                                                                       \
-      /* Compute the exact amount we should increment spl->pos by. */         \
-      old_pos = idx * spl->step / spl->step_denom;                            \
-      new_pos = (idx + 1) * spl->step / spl->step_denom;                      \
                                                                               \
-      spl->pos += new_pos - old_pos;                                          \
+      spl->pos += delta;                                                      \
+      error += delta_error;                                                   \
+      if (error >= spl->step_denom) {                                         \
+         spl->pos++;                                                          \
+         error -= spl->step_denom;                                            \
+      }                                                                       \
       samples_l--;                                                            \
       idx++;                                                                  \
    }                                                                          \
