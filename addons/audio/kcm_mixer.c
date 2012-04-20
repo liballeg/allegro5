@@ -529,7 +529,7 @@ static void NAME(void *source, void **vbuf, unsigned int *samples,            \
    size_t idx = 0;                                                            \
    int delta = spl->step / spl->step_denom;                                   \
    int delta_error = spl->step - delta * spl->step_denom;                     \
-   int error = 0;                                                             \
+   int error = spl->pos_bresenham_error;                                      \
    SAMP_BUF samp_buf;                                                         \
                                                                               \
    if (!spl->is_playing)                                                      \
@@ -570,6 +570,7 @@ static void NAME(void *source, void **vbuf, unsigned int *samples,            \
       samples_l--;                                                            \
       idx++;                                                                  \
    }                                                                          \
+   spl->pos_bresenham_error = error;                                          \
    fix_looped_position(spl);                                                  \
    (void)buffer_depth;                                                        \
 }
@@ -594,7 +595,7 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
    const ALLEGRO_MIXER *mixer;
    ALLEGRO_MIXER *m = (ALLEGRO_MIXER *)source;
    int maxc = al_get_channel_count(m->ss.spl_data.chan_conf);
-   unsigned long samples_l = *samples;
+   int samples_l = *samples;
    int i;
 
    if (!m->ss.is_playing)

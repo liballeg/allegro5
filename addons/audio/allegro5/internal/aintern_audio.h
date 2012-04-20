@@ -105,7 +105,7 @@ struct ALLEGRO_SAMPLE {
    ALLEGRO_AUDIO_DEPTH  depth;
    ALLEGRO_CHANNEL_CONF chan_conf;
    unsigned int         frequency;
-   unsigned int         len;
+   int                  len;
    any_buffer_t         buffer;
    bool                 free_buf;
                         /* Whether `buffer' needs to be freed when the sample
@@ -160,9 +160,14 @@ struct ALLEGRO_SAMPLE_INSTANCE {
    float                gain;
    float                pan;
 
-   unsigned int         pos;
-   unsigned int         loop_start;
-   unsigned int         loop_end;
+   /* When resampling an audio stream there will be fractional sample
+    * positions due to the difference in frequencies.
+    */
+   int                  pos;
+   int                  pos_bresenham_error;
+
+   int                  loop_start;
+   int                  loop_end;
 
    int                  step;
    int                  step_denom;
