@@ -520,8 +520,7 @@ static INLINE int32_t clamp(int32_t val, int32_t min, int32_t max)
 #define BRESENHAM \
    delta = spl->step > 0 ? spl->step : spl->step - spl->step_denom + 1;       \
    delta /= spl->step_denom;                                                  \
-   delta_error = spl->step - delta * spl->step_denom;                         \
-   error = spl->pos_bresenham_error;
+   delta_error = spl->step - delta * spl->step_denom;
 #define MAKE_MIXER(NAME, NEXT_SAMPLE_VALUE, TYPE)                             \
 static void NAME(void *source, void **vbuf, unsigned int *samples,            \
    ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc)                        \
@@ -532,7 +531,7 @@ static void NAME(void *source, void **vbuf, unsigned int *samples,            \
    size_t samples_l = *samples;                                               \
    size_t c;                                                                  \
    size_t idx = 0;                                                            \
-   int delta, delta_error, error;                                             \
+   int delta, delta_error;                                                    \
    SAMP_BUF samp_buf;                                                         \
    BRESENHAM                                                                  \
    if (!spl->is_playing)                                                      \
@@ -569,15 +568,14 @@ static void NAME(void *source, void **vbuf, unsigned int *samples,            \
       }                                                                       \
                                                                               \
       spl->pos += delta;                                                      \
-      error += delta_error;                                                   \
-      if (error >= spl->step_denom) {                                         \
+      spl->pos_bresenham_error += delta_error;                                \
+      if (spl->pos_bresenham_error >= spl->step_denom) {                      \
          spl->pos++;                                                          \
-         error -= spl->step_denom;                                            \
+         spl->pos_bresenham_error -= spl->step_denom;                         \
       }                                                                       \
       samples_l--;                                                            \
       idx++;                                                                  \
    }                                                                          \
-   spl->pos_bresenham_error = error;                                          \
    fix_looped_position(spl);                                                  \
    (void)buffer_depth;                                                        \
 }
