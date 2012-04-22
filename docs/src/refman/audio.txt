@@ -103,6 +103,8 @@ or to an [ALLEGRO_MIXER] object which is itself attached to an
 ALLEGRO_VOICE object (or to another ALLEGRO_MIXER object which is attached
 to an ALLEGRO_VOICE object, etc).
 
+See also: [ALLEGRO_SAMPLE]
+
 ### API: ALLEGRO_AUDIO_STREAM
 
 An ALLEGRO_AUDIO_STREAM object is used to stream generated audio to the sound
@@ -141,6 +143,7 @@ A voice represents an audio device on the system, which may be a real device,
 or an abstract device provided by the operating system.
 To play back audio, you would attach a mixer or sample or stream to a voice.
 
+See also: [ALLEGRO_MIXER], [ALLEGRO_SAMPLE], [ALLEGRO_AUDIO_STREAM]
 
 
 ## Setting up audio
@@ -230,7 +233,10 @@ See also: [al_create_voice]
 
 ### API: al_detach_voice
 
-Detaches the sample or mixer stream from the voice.
+Detaches the mixer or sample or stream from the voice.
+
+See also: [al_attach_mixer_to_voice], [al_attach_sample_instance_to_voice],
+[al_attach_audio_stream_to_voice]
 
 ### API: al_attach_audio_stream_to_voice
 
@@ -245,12 +251,16 @@ attaching audio streams directly to voices.  Use a mixer in between.
 
 Returns true on success, false on failure.
 
+See also: [al_detach_voice]
+
 ### API: al_attach_mixer_to_voice
 
 Attaches a mixer to a voice. The same rules as [al_attach_sample_instance_to_voice]
 apply, with the exception of the depth requirement.
 
 Returns true on success, false on failure.
+
+See also: [al_detach_voice]
 
 ### API: al_attach_sample_instance_to_voice
 
@@ -263,6 +273,8 @@ At this time, we don't recommend attaching samples directly to voices.
 Use a mixer in between.
 
 Returns true on success, false on failure.
+
+See also: [al_detach_voice]
 
 ### API: al_get_voice_frequency
 
@@ -284,6 +296,8 @@ See also: [ALLEGRO_AUDIO_DEPTH].
 
 Return true if the voice is currently playing.
 
+See also: [al_set_voice_playing]
+
 ### API: al_set_voice_playing
 
 Change whether a voice is playing or not.
@@ -292,6 +306,8 @@ object attached to it, e.g. a sample instance.
 On success the voice's current sample position is reset.
 
 Returns true on success, false on failure.
+
+See also: [al_get_voice_playing]
 
 ### API: al_get_voice_position
 
@@ -373,25 +389,36 @@ See also: [al_stop_sample]
 
 Return the channel configuration.
 
-See also: [ALLEGRO_CHANNEL_CONF].
+See also: [ALLEGRO_CHANNEL_CONF], [al_get_sample_depth],
+[al_get_sample_frequency], [al_get_sample_length], [al_get_sample_data]
 
 ### API: al_get_sample_depth
 
 Return the audio depth.
 
-See also: [ALLEGRO_AUDIO_DEPTH].
+See also: [ALLEGRO_AUDIO_DEPTH], [al_get_sample_channels],
+[al_get_sample_frequency], [al_get_sample_length], [al_get_sample_data]
 
 ### API: al_get_sample_frequency
 
 Return the frequency of the sample.
 
+See also: [al_get_sample_channels], [al_get_sample_depth],
+[al_get_sample_length], [al_get_sample_data]
+
 ### API: al_get_sample_length
 
 Return the length of the sample in sample values.
 
+See also: [al_get_sample_channels], [al_get_sample_depth],
+[al_get_sample_frequency], [al_get_sample_data]
+
 ### API: al_get_sample_data
 
 Return a pointer to the raw sample data.
+
+See also: [al_get_sample_channels], [al_get_sample_depth],
+[al_get_sample_frequency], [al_get_sample_length]
 
 
 ## Sample instance functions
@@ -403,19 +430,27 @@ to a voice or mixer before it can be played.
 The argument may be NULL. You can then set the data later with
 [al_set_sample].
 
+See also: [al_destroy_sample_instance]
+
 ### API: al_destroy_sample_instance
 
 Detaches the sample stream from anything it may be attached to and frees
 it (the sample data is *not* freed!).
+
+See also: [al_create_sample_instance]
 
 ### API: al_play_sample_instance
 
 Play an instance of a sample data.
 Returns true on success, false on failure.
 
+See also: [al_stop_sample_instance]
+
 ### API: al_stop_sample_instance
 
 Stop an sample instance playing.
+
+See also: [al_play_sample_instance]
 
 ### API: al_get_sample_instance_channels
 
@@ -437,6 +472,8 @@ Return the frequency of the sample instance.
 
 Return the length of the sample instance in sample values.
 
+See also: [al_set_sample_instance_length], [al_get_sample_instance_time]
+
 ### API: al_set_sample_instance_length
 
 Set the length of the sample instance in sample values.
@@ -444,9 +481,13 @@ Set the length of the sample instance in sample values.
 Return true on success, false on failure.  Will fail if the sample instance is
 currently playing.
 
+See also: [al_get_sample_instance_length]
+
 ### API: al_get_sample_instance_position
 
 Get the playback position of a sample instance.
+
+See also: [al_set_sample_instance_position]
 
 ### API: al_set_sample_instance_position
 
@@ -454,9 +495,13 @@ Set the playback position of a sample instance.
 
 Returns true on success, false on failure.
 
+See also: [al_get_sample_instance_position]
+
 ### API: al_get_sample_instance_speed
 
 Return the relative playback speed.
+
+See also: [al_set_sample_instance_speed]
 
 ### API: al_set_sample_instance_speed
 
@@ -465,9 +510,13 @@ Set the relative playback speed.  1.0 is normal speed.
 Return true on success, false on failure.  Will fail if the sample instance is
 attached directly to a voice.
 
+See also: [al_get_sample_instance_speed]
+
 ### API: al_get_sample_instance_gain
 
 Return the playback gain.
+
+See also: [al_set_sample_instance_gain]
 
 ### API: al_set_sample_instance_gain
 
@@ -475,6 +524,8 @@ Set the playback gain.
 
 Returns true on success, false on failure.  Will fail if the sample instance
 is attached directly to a voice.
+
+See also: [al_get_sample_instance_gain]
 
 ### API: al_get_sample_instance_pan
 
@@ -507,9 +558,13 @@ See also: [al_get_sample_instance_pan].
 Return the length of the sample instance in seconds,
 assuming a playback speed of 1.0.
 
+See also: [al_get_sample_instance_length]
+
 ### API: al_get_sample_instance_playmode
 
 Return the playback mode.
+
+See also: [ALLEGRO_PLAYMODE], [al_set_sample_instance_playmode]
 
 ### API: al_set_sample_instance_playmode
 
@@ -517,9 +572,13 @@ Set the playback mode.
 
 Returns true on success, false on failure.
 
+See also: [ALLEGRO_PLAYMODE], [al_get_sample_instance_playmode]
+
 ### API: al_get_sample_instance_playing
 
 Return true if the sample instance is playing.
+
+See also: [al_set_sample_instance_playing]
 
 ### API: al_set_sample_instance_playing
 
@@ -527,9 +586,14 @@ Change whether the sample instance is playing.
 
 Returns true on success, false on failure.
 
+See also: [al_get_sample_instance_playing]
+
 ### API: al_get_sample_instance_attached
 
 Return whether the sample instance is attached to something.
+
+See also: [al_attach_sample_instance_to_mixer],
+[al_attach_sample_instance_to_voice], [al_detach_sample_instance]
 
 ### API: al_detach_sample_instance
 
@@ -537,6 +601,9 @@ Detach the sample instance from whatever it's attached to,
 if anything.
 
 Returns true on success.
+
+See also: [al_attach_sample_instance_to_mixer],
+[al_attach_sample_instance_to_voice], [al_get_sample_instance_attached]
 
 ### API: al_get_sample
 
@@ -546,6 +613,8 @@ Note this returns a pointer to an internal structure, *not* the
 [ALLEGRO_SAMPLE] that you may have passed to [al_set_sample].
 You may, however, check which sample buffer is being played by the sample
 instance with [al_get_sample_data], and so on.
+
+See also: [al_set_sample]
 
 ### API: al_set_sample
 
@@ -568,6 +637,7 @@ unchanged.
 Returns true on success, false on failure.  On failure, the sample will
 be stopped and detached from its parent.
 
+See also: [al_get_sample]
 
 
 ## Mixer functions
@@ -652,12 +722,16 @@ See also: [al_detach_audio_stream].
 
 Return the mixer frequency.
 
+See also: [al_set_mixer_frequency]
+
 ### API: al_set_mixer_frequency
 
 Set the mixer frequency.  This will only work if the mixer is not attached to
 anything.
 
 Returns true on success, false on failure.
+
+See also: [al_get_mixer_frequency]
 
 ### API: al_get_mixer_channels
 
@@ -693,7 +767,7 @@ See also: [al_get_mixer_gain]
 
 Return the mixer quality.
 
-See also: [ALLEGRO_MIXER_QUALITY].
+See also: [ALLEGRO_MIXER_QUALITY], [al_set_mixer_quality]
 
 ### API: al_set_mixer_quality
 
@@ -702,7 +776,7 @@ anything attached to it.
 
 Returns true on success, false on failure.
 
-See also: [ALLEGRO_MIXER_QUALITY].
+See also: [ALLEGRO_MIXER_QUALITY], [al_get_mixer_quality]
 
 ### API: al_get_mixer_playing
 
@@ -723,7 +797,7 @@ See also: [al_get_mixer_playing].
 Return true if the mixer is attached to something.
 
 See also: [al_attach_sample_instance_to_mixer], [al_attach_audio_stream_to_mixer],
-[al_attach_mixer_to_mixer]
+[al_attach_mixer_to_mixer], [al_detach_mixer]
 
 ### API: al_detach_mixer
 
@@ -809,6 +883,8 @@ You should call this to finalise an audio stream that you will no longer
 be feeding, to wait for all pending buffers to finish playing.
 The stream's playing state will change to false.
 
+See also: [al_destroy_audio_stream]
+
 ### API: al_rewind_audio_stream
 
 Set the streaming file playing position to the beginning. Returns true on
@@ -881,8 +957,6 @@ speaker; 0.0 means the sample is centre balanced.
 Returns true on success, false on failure.
 Will fail if the sample instance is attached directly to a voice.
 
-See also: [al_get_audio_stream_playing].
-
 ### API: al_get_audio_stream_playing
 
 Return true if the stream is playing.
@@ -894,6 +968,8 @@ See also: [al_set_audio_stream_playing].
 Change whether the stream is playing.
 
 Returns true on success, false on failure.
+
+See also: [al_get_audio_stream_playing]
 
 ### API: al_get_audio_stream_playmode
 
@@ -971,11 +1047,16 @@ Currently this can only be called on streams created with
 [al_load_audio_stream], [al_load_audio_stream_f] and the format-specific
 functions underlying those functions.
 
+See also: [al_get_audio_stream_position_secs],
+[al_get_audio_stream_length_secs]
+
 ### API: al_get_audio_stream_position_secs
 
 Return the position of the stream in seconds.
 Currently this can only be called on streams created with
 [al_load_audio_stream].
+
+See also: [al_get_audio_stream_length_secs]
 
 ### API: al_get_audio_stream_length_secs
 
@@ -985,6 +1066,8 @@ Otherwise returns zero.
 Currently this can only be called on streams created with
 [al_load_audio_stream], [al_load_audio_stream_f] and the format-specific
 functions underlying those functions.
+
+See also: [al_get_audio_stream_position_secs]
 
 ### API: al_set_audio_stream_loop_secs
 
@@ -1008,7 +1091,7 @@ The `loader` argument may be NULL to unregister an entry.
 Returns true on success, false on error.
 Returns false if unregistering an entry that doesn't exist.
 
-See also: [al_register_sample_loader_f]
+See also: [al_register_sample_loader_f], [al_register_sample_saver]
 
 ### API: al_register_sample_loader_f
 
@@ -1038,7 +1121,7 @@ The `saver` argument may be NULL to unregister an entry.
 Returns true on success, false on error.
 Returns false if unregistering an entry that doesn't exist.
 
-See also: [al_register_sample_saver_f]
+See also: [al_register_sample_saver_f], [al_register_sample_loader]
 
 ### API: al_register_sample_saver_f
 
