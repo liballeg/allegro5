@@ -90,7 +90,8 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
  * Desktop OpenGL 3.0+ has no GL_LUMINANCE, so we have to adjust depending on
  * the runtime version.
  */
-static int get_glformat(int format, int component)
+#define get_glformat(f, c) _al_ogl_get_glformat((f), (c))
+int _al_ogl_get_glformat(int format, int component)
 {
    #if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE) && !defined(ALLEGRO_ANDROID)
    static int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
@@ -543,6 +544,14 @@ static void ogl_update_clipping_rectangle(ALLEGRO_BITMAP *bitmap)
 }
 
 
+
+/* "Old" implementation of ogl_lock_region and ogl_unlock_region.
+ * The refactored version is in ogl_lock.c.
+ * The support for mobile platforms should be migrated there,
+ * then this version can be deleted.
+ */
+#if defined(ALLEGRO_IPHONE) || defined(ALLEGRO_ANDROID) || defined(ALLEGRO_GP2XWIZ)
+
 static int ogl_pixel_alignment(int pixel_size)
 {
    /* Valid alignments are: 1, 2, 4, 8 bytes. */
@@ -580,7 +589,7 @@ static bool exactly_15bpp(int pixel_format)
 /* OpenGL cannot "lock" pixels, so instead we update our memory copy and
  * return a pointer into that.
  */
-static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
+static ALLEGRO_LOCKED_REGION *ogl_lock_region_old(ALLEGRO_BITMAP *bitmap,
    int x, int y, int w, int h, int format, int flags)
 {
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
@@ -790,7 +799,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
 
 /* Synchronizes the texture back to the (possibly modified) bitmap data.
  */
-static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
+static void ogl_unlock_region_old(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
    const int lock_format = bitmap->locked_region.format;
@@ -996,6 +1005,8 @@ Done:
    ogl_bitmap->lock_buffer = NULL;
 }
 
+#endif /* old locking implementation - only for mobile now */
+
 
 
 static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
@@ -1043,8 +1054,13 @@ static ALLEGRO_BITMAP_INTERFACE *ogl_bitmap_driver(void)
    glbmp_vt.upload_bitmap = ogl_upload_bitmap;
    glbmp_vt.update_clipping_rectangle = ogl_update_clipping_rectangle;
    glbmp_vt.destroy_bitmap = ogl_destroy_bitmap;
-   glbmp_vt.lock_region = ogl_lock_region;
-   glbmp_vt.unlock_region = ogl_unlock_region;
+#if defined(ALLEGRO_ANDROID) || defined(ALLEGRO_IPHONE) || defined(ALLEGRO_GP2XWIZ)
+   glbmp_vt.lock_region = ogl_lock_region_old;
+   glbmp_vt.unlock_region = ogl_unlock_region_old;
+#else
+   glbmp_vt.lock_region = _al_ogl_lock_region_new;
+   glbmp_vt.unlock_region = _al_ogl_unlock_region_new;
+#endif
 
    return &glbmp_vt;
 }

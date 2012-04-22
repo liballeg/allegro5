@@ -68,8 +68,9 @@ set(ALLEGRO_SRC_D3D_FILES
 set(ALLEGRO_SRC_OPENGL_FILES
     src/opengl/extensions.c
     src/opengl/ogl_bitmap.c
-    src/opengl/ogl_draw.c
     src/opengl/ogl_display.c
+    src/opengl/ogl_draw.c
+    src/opengl/ogl_lock.c
     )
 
 set(ALLEGRO_SRC_WGL_FILES

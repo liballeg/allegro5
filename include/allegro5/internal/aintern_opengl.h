@@ -128,12 +128,16 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *disp);
 void _al_ogl_unmanage_extensions(ALLEGRO_DISPLAY *disp);
 
 /* bitmap */
+int _al_ogl_get_glformat(int format, int component);
 ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h);
 ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *parent,
                                           int x, int y, int w, int h);
-
-/* helper to upload data directly to the gpu */
 void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr);
+
+/* locking */
+ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_new(ALLEGRO_BITMAP *bitmap,
+   int x, int y, int w, int h, int format, int flags);
+void _al_ogl_unlock_region_new(ALLEGRO_BITMAP *bitmap);
 
 /* common driver */
 void _al_ogl_reset_fbo_info(ALLEGRO_FBO_INFO *info);
@@ -148,9 +152,8 @@ void _al_ogl_destroy_backbuffer(ALLEGRO_BITMAP *b);
 bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP *b, int w, int h);
 void _al_opengl_backup_dirty_bitmaps(ALLEGRO_DISPLAY *d, bool flip);
 
-struct ALLEGRO_DISPLAY_INTERFACE;
-
 /* draw */
+struct ALLEGRO_DISPLAY_INTERFACE;
 void _al_ogl_add_drawing_functions(struct ALLEGRO_DISPLAY_INTERFACE *vt);
 
 AL_FUNC(bool, _al_opengl_set_blender, (ALLEGRO_DISPLAY *disp));
