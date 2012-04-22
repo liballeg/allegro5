@@ -517,10 +517,13 @@ static INLINE int32_t clamp(int32_t val, int32_t min, int32_t max)
  * 
  * Note: Uses Bresenham to keep the precise sample position.
  */
-#define BRESENHAM \
-   delta = spl->step > 0 ? spl->step : spl->step - spl->step_denom + 1;       \
-   delta /= spl->step_denom;                                                  \
-   delta_error = spl->step - delta * spl->step_denom;
+#define BRESENHAM                                                             \
+   do {                                                                       \
+      delta = spl->step > 0 ? spl->step : spl->step - spl->step_denom + 1;    \
+      delta /= spl->step_denom;                                               \
+      delta_error = spl->step - delta * spl->step_denom;                      \
+   } while (0)
+
 #define MAKE_MIXER(NAME, NEXT_SAMPLE_VALUE, TYPE)                             \
 static void NAME(void *source, void **vbuf, unsigned int *samples,            \
    ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc)                        \
@@ -530,10 +533,11 @@ static void NAME(void *source, void **vbuf, unsigned int *samples,            \
    size_t maxc = al_get_channel_count(spl->spl_data.chan_conf);               \
    size_t samples_l = *samples;                                               \
    size_t c;                                                                  \
-   size_t idx = 0;                                                            \
    int delta, delta_error;                                                    \
    SAMP_BUF samp_buf;                                                         \
-   BRESENHAM                                                                  \
+                                                                              \
+   BRESENHAM;                                                                 \
+                                                                              \
    if (!spl->is_playing)                                                      \
       return;                                                                 \
                                                                               \
@@ -544,7 +548,7 @@ static void NAME(void *source, void **vbuf, unsigned int *samples,            \
       if (!fix_looped_position(spl))                                          \
          return;                                                              \
       if (old_step != spl->step) {                                            \
-         BRESENHAM                                                            \
+         BRESENHAM;                                                           \
       }                                                                       \
                                                                               \
       /* It might be worth preparing multiple sample values at once. */       \
@@ -574,7 +578,6 @@ static void NAME(void *source, void **vbuf, unsigned int *samples,            \
          spl->pos_bresenham_error -= spl->step_denom;                         \
       }                                                                       \
       samples_l--;                                                            \
-      idx++;                                                                  \
    }                                                                          \
    fix_looped_position(spl);                                                  \
    (void)buffer_depth;                                                        \
