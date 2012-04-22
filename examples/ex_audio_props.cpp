@@ -26,6 +26,7 @@ private:
    HSlider pan_slider;
    Label speed_label;
    HSlider speed_slider;
+   ToggleButton bidir_button;
    Label gain_label;
    VSlider gain_slider;
    Label mixer_gain_label;
@@ -46,6 +47,7 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    pan_slider(HSlider(1000, 2000)),
    speed_label(Label("Speed")),
    speed_slider(HSlider(1000, 5000)),
+   bidir_button(ToggleButton("Bidir")),
    gain_label(Label("Gain")),
    gain_slider(VSlider(1000, 2000)),
    mixer_gain_label(Label("Mixer gain")),
@@ -60,6 +62,8 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
 
    d.add(speed_label,  2, 12,  4, 1);
    d.add(speed_slider, 6, 12, 22, 1);
+
+   d.add(bidir_button, 2, 14, 4, 1);
 
    d.add(gain_label,  29, 1, 2,  1);
    d.add(gain_slider, 29, 2, 2, 17);
@@ -103,6 +107,11 @@ void Prog::update_properties()
 
    speed = speed_slider.get_cur_value() / 1000.0f;
    al_set_sample_instance_speed(sample_inst, speed);
+
+   if (bidir_button.get_pushed())
+      al_set_sample_instance_playmode(sample_inst, ALLEGRO_PLAYMODE_BIDIR);
+   else
+      al_set_sample_instance_playmode(sample_inst, ALLEGRO_PLAYMODE_LOOP);
 
    gain = gain_slider.get_cur_value() / 1000.0f;
    al_set_sample_instance_gain(sample_inst, gain);
