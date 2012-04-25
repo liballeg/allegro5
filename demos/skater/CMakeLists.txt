@@ -38,6 +38,7 @@ file(GLOB SKATER_GRAPHICS data/graphics/*.png)
 file(GLOB SKATER_AUDIO data/audio/*)
 file(GLOB SKATER_MENU data/menu/*)
 file(GLOB SKATER_LEVEL data/*.txt)
+file(GLOB SKATER_FONTS ../../examples/data/*.ttf)
 
 include_directories(
    ${CMAKE_SOURCE_DIR}/addons/acodec
@@ -48,7 +49,7 @@ include_directories(
    ${CMAKE_SOURCE_DIR}/addons/main
    ${CMAKE_SOURCE_DIR}/addons/memfile
    ${CMAKE_SOURCE_DIR}/addons/native_dialog
-   ${CMAKE_SOURCE_DIR}/addons/physfs
+   ${CMAKE_SOURCE_DIR}/addons/physics
    ${CMAKE_SOURCE_DIR}/addons/primitives
    ${CMAKE_SOURCE_DIR}/addons/ttf
    )
@@ -67,6 +68,7 @@ if(SUPPORT_FONT AND SUPPORT_TTF AND SUPPORT_AUDIO AND SUPPORT_ACODEC AND SUPPORT
         ${SKATER_AUDIO}
         ${SKATER_MENU}
         ${SKATER_LEVEL}
+        ${SKATER_FONTS}
         )
     
     fix_executable(skater)
@@ -92,12 +94,30 @@ if(SUPPORT_FONT AND SUPPORT_TTF AND SUPPORT_AUDIO AND SUPPORT_ACODEC AND SUPPORT
     # Mac OS X bundle support.
     set_target_properties(skater PROPERTIES
 	MACOSX_BUNDLE_COPYRIGHT "Copyright 2010 Allegro Developers"
-	MACOSX_BUNDLE_ICON_FILE "Icon.icns"
+	#MACOSX_BUNDLE_ICON_FILE "Icon.icns"
 	MACOSX_BUNDLE_INFO_STRING "5.1, Copyright 2010 Allegro Developers"
 	MACOSX_BUNDLE_SHORT_VERSION_STRING "5.1"
 	MACOSX_BUNDLE_LONG_VERSION_STRING "Allegro Skater Demo v5.1"
 	MACOSX_BUNDLE_GUI_IDENTIFIER "org.liballeg.skater"
 	)
+
+    set_source_files_properties(${SKATER_GRAPHICS} PROPERTIES
+	MACOSX_PACKAGE_LOCATION "Resources/data/graphics"
+	)
+     set_source_files_properties(${SKATER_AUDIO} PROPERTIES
+	MACOSX_PACKAGE_LOCATION "Resources/data/audio"
+	)
+     set_source_files_properties(${SKATER_MENU} PROPERTIES
+	MACOSX_PACKAGE_LOCATION "Resources/data/menu"
+	)
+     set_source_files_properties(${SKATER_LEVEL} PROPERTIES
+	MACOSX_PACKAGE_LOCATION "Resources/data"
+	)
+    set_source_files_properties(${SKATER_FONTS} PROPERTIES
+	MACOSX_PACKAGE_LOCATION "Resources/data/examples/data"
+	)
+   
+    
 
 else()
     message(STATUS "Not building skater demo")
