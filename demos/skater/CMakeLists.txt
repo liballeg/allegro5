@@ -49,7 +49,7 @@ include_directories(
    ${CMAKE_SOURCE_DIR}/addons/main
    ${CMAKE_SOURCE_DIR}/addons/memfile
    ${CMAKE_SOURCE_DIR}/addons/native_dialog
-   ${CMAKE_SOURCE_DIR}/addons/physics
+   ${CMAKE_SOURCE_DIR}/addons/physfs
    ${CMAKE_SOURCE_DIR}/addons/primitives
    ${CMAKE_SOURCE_DIR}/addons/ttf
    )
