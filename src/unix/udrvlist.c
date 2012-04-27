@@ -112,3 +112,16 @@ void _unix_register_midi_driver(int id, MIDI_DRIVER *driver, int autodetect, int
 
 #endif
 
+/* This is a function each platform must define to register all available
+ * system drivers.
+ */
+void _al_register_system_interfaces(void)
+{
+#ifdef ALLEGRO_WITH_XWINDOWS
+   ALLEGRO_SYSTEM_INTERFACE **add;
+   /* This is the only system driver right now */
+   add = _al_vector_alloc_back(&_al_system_interfaces);
+   *add = _al_system_xglx_driver();
+#endif
+}
+

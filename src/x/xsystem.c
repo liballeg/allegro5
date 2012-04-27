@@ -476,18 +476,5 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
    return xglx_vt;
 }
 
-/* This is a function each platform must define to register all available
- * system drivers.
- */
-void _al_register_system_interfaces(void)
-{
-   ALLEGRO_SYSTEM_INTERFACE **add;
-
-#if defined ALLEGRO_UNIX
-   /* This is the only system driver right now */
-   add = _al_vector_alloc_back(&_al_system_interfaces);
-   *add = _al_system_xglx_driver();
-#endif
-}
 
 /* vim: set sts=3 sw=3 et: */
