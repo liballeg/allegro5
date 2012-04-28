@@ -9,16 +9,19 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_primitives.h>
 #include <ctype.h>
+#include <math.h>
 
 #include "common.c"
 
 #define MAX_VERTICES 64
 #define RADIUS       5
+#define MAX_HOLES    9
 
 enum {
    MODE_POLYLINE = 0,
    MODE_POLYGON,
    MODE_FILLED_POLYGON,
+   MODE_FILLED_HOLES,
    MODE_MAX
 };
 
@@ -38,6 +41,8 @@ struct Example {
    ALLEGRO_COLOR     fg;
    Vertex            vertices[MAX_VERTICES];
    int               vertex_count;
+   int               holes[MAX_HOLES + 1];
+   int               holes_count;
    int               cur_vertex; /* -1 = none */
    int               mode;
    ALLEGRO_LINE_CAP  cap_style;
@@ -45,6 +50,9 @@ struct Example {
    float             thickness;
    float             miter_limit;
    bool              software;
+   float             zoom;
+   float_t           scroll_x, scroll_y;
+   int               add_hole; /* 0) no, else vertex 1) starts 2) grows hole */
 };
 
 static struct Example ex;
@@ -52,6 +60,7 @@ static struct Example ex;
 static void reset(void)
 {
    ex.vertex_count = 0;
+   ex.holes_count = 0;
    ex.cur_vertex = -1;
    ex.mode = MODE_POLYLINE;
    ex.cap_style = ALLEGRO_LINE_CAP_NONE;
@@ -59,6 +68,18 @@ static void reset(void)
    ex.thickness = 1.0f;
    ex.miter_limit = 1.0f;
    ex.software = false;
+   ex.zoom = 1;
+   ex.scroll_x = 0;
+   ex.scroll_y = 0;
+   ex.add_hole = 0;
+}
+
+void transform(float *x, float *y)
+{
+   *x /= ex.zoom;
+   *y /= ex.zoom;
+   *x -= ex.scroll_x;
+   *y -= ex.scroll_y;
 }
 
 static int hit_vertex(int mx, int my)
@@ -85,13 +106,18 @@ static void lclick(int mx, int my)
       ex.vertices[i].x = mx;
       ex.vertices[i].y = my;
       ex.cur_vertex = i;
+
+      if (ex.add_hole == 1 && ex.holes_count < MAX_HOLES) {
+         ex.holes[ex.holes_count++] = i;
+         ex.add_hole = 2;
+      }
    }
 }
 
 static void rclick(int mx, int my)
 {
    const int i = hit_vertex(mx, my);
-   if (i >= 0) {
+   if (i >= 0 && !ex.add_hole) {
       ex.vertex_count--;
       memmove(&ex.vertices[i], &ex.vertices[i + 1],
          sizeof(Vertex) * (ex.vertex_count - i));
@@ -105,6 +131,12 @@ static void drag(int mx, int my)
       ex.vertices[ex.cur_vertex].x = mx;
       ex.vertices[ex.cur_vertex].y = my;
    }
+}
+
+static void scroll(int mx, int my)
+{
+   ex.scroll_x += mx;
+   ex.scroll_y += my;
 }
 
 static const char *join_style_to_string(ALLEGRO_LINE_JOIN x)
@@ -169,8 +201,14 @@ static void draw_all(void)
    float texth = al_get_font_line_height(f) * 1.5;
    float textx = 5;
    float texty = 5;
+   ALLEGRO_TRANSFORM t;
 
    al_clear_to_color(ex.bg);
+
+   al_identity_transform(&t);
+   al_translate_transform(&t, ex.scroll_x, ex.scroll_y);
+   al_scale_transform(&t, ex.zoom, ex.zoom);
+   al_use_transform(&t);
 
    if (ex.mode == MODE_POLYLINE) {
       if (ex.vertex_count >= 2) {
@@ -178,18 +216,12 @@ static void draw_all(void)
             (float *)ex.vertices, sizeof(Vertex), ex.vertex_count,
             ex.join_style, ex.cap_style, ex.fg, ex.thickness, ex.miter_limit);
       }
-      al_draw_textf(f, textc, textx, texty, 0,
-         "al_draw_polyline (SPACE)");
-      texty += texth;
    }
    else if (ex.mode == MODE_FILLED_POLYGON) {
       if (ex.vertex_count >= 2) {
          al_draw_filled_polygon(
             (float *)ex.vertices, ex.vertex_count, ex.fg);
       }
-      al_draw_textf(f, textc, textx, texty, 0,
-         "al_draw_filled_polygon (SPACE)");
-      texty += texth;
    }
    else if (ex.mode == MODE_POLYGON) {
       if (ex.vertex_count >= 2) {
@@ -197,12 +229,41 @@ static void draw_all(void)
             (float *)ex.vertices, ex.vertex_count,
             ex.join_style, ex.fg, ex.thickness, ex.miter_limit);
       }
+   }
+   else if (ex.mode == MODE_FILLED_HOLES) {
+      if (ex.vertex_count >= 2) {
+         ex.holes[ex.holes_count] = ex.vertex_count;
+         al_draw_filled_polygon_with_holes(
+            (float *)ex.vertices, ex.vertex_count, ex.holes, 1 + ex.holes_count,
+            ex.fg);
+      }
+   }
+
+   draw_vertices();
+
+   al_identity_transform(&t);
+   al_use_transform(&t);
+
+   if (ex.mode == MODE_POLYLINE) {
+      al_draw_textf(f, textc, textx, texty, 0,
+         "al_draw_polyline (SPACE)");
+      texty += texth;
+   }
+   else if (ex.mode == MODE_FILLED_POLYGON) {
+      al_draw_textf(f, textc, textx, texty, 0,
+         "al_draw_filled_polygon (SPACE)");
+      texty += texth;
+   }
+   else if (ex.mode == MODE_POLYGON) {
       al_draw_textf(f, textc, textx, texty, 0,
          "al_draw_polygon (SPACE)");
       texty += texth;
    }
-
-   draw_vertices();
+   else if (ex.mode == MODE_FILLED_HOLES) {
+      al_draw_textf(f, textc, textx, texty, 0,
+         "al_draw_filled_polygon_with_holes (SPACE)");
+      texty += texth;
+   }
 
    al_draw_textf(f, textc, textx, texty, 0,
       "Line join style: %s (J)", join_style_to_string(ex.join_style));
@@ -221,11 +282,19 @@ static void draw_all(void)
    texty += texth;
 
    al_draw_textf(f, textc, textx, texty, 0,
+      "Zoom:            %.2f (wheel)", ex.zoom);
+   texty += texth;
+
+   al_draw_textf(f, textc, textx, texty, 0,
       "%s (S)", (ex.software ? "Software rendering" : "Hardware rendering"));
    texty += texth;
 
    al_draw_textf(f, textc, textx, texty, 0,
       "Reset (R)");
+   texty += texth;
+
+   al_draw_textf(f, textc, textx, texty, 0,
+      "Add Hole (%d) (H)", ex.holes_count);
    texty += texth;
 }
 
@@ -245,6 +314,7 @@ int main(void)
 {
    ALLEGRO_EVENT event;
    bool have_touch_input;
+   bool mdown = false;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -350,19 +420,36 @@ int main(void)
             case 'P':
                print_vertices();
                break;
+            case 'H':
+               ex.add_hole = 1;
+               break;
          }
       }
       if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+         float x = event.mouse.x, y = event.mouse.y;
+         transform(&x, &y);
          if (event.mouse.button == 1)
-            lclick(event.mouse.x, event.mouse.y);
+            lclick(x, y);
          if (event.mouse.button == 2)
-            rclick(event.mouse.x, event.mouse.y);
+            rclick(x, y);
+         if (event.mouse.button == 3)
+            mdown = true;
       }
       if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
          ex.cur_vertex = -1;
+         if (event.mouse.button == 3)
+            mdown = false;
       }
       if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
-         drag(event.mouse.x, event.mouse.y);
+         float x = event.mouse.x, y = event.mouse.y;
+         transform(&x, &y);
+
+         if (mdown)
+            scroll(event.mouse.dx, event.mouse.dy);
+         else
+            drag(x, y);
+
+         ex.zoom *= pow(0.9, event.mouse.dz);
       }
    }
 

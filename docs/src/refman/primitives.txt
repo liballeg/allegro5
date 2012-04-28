@@ -628,11 +628,12 @@ See also: [al_draw_polygon]
 
 ### API: al_draw_filled_polygon
 
-Draw a filled, simple polygon.
+Draw a filled, simple polygon. Simple means it does not have to be convex but
+must not be self-overlapping.
 
-* vertex - Interleaved array of (x, y) vertex coordinates
+* vertices - Interleaved array of (x, y) vertex coordinates
 * vertex_count - Number of vertices in the array
-* color - Color of the line
+* color - Color of the filled polygon
 
 When the y-axis is facing downwards (the usual), the coordinates must be
 ordered anti-clockwise.
@@ -643,7 +644,43 @@ See also: [al_draw_polygon], [al_draw_filled_polygon_with_holes]
 
 ### API: al_draw_filled_polygon_with_holes
 
-*Not yet documented.*
+Like [al_draw_filled_polygon] but removes multiple holes out of the polygon.
+
+* vertices - Interleaved array of (x, y) vertex coordinates, including holes
+* vertex_count - Number of vertices in the array
+* holes - Integer array with hole indices. The main polygon must be included as
+          the first "hole". Each index is past one of the last vertex index of
+          the hole.
+* holes_count - Number of hole indices. Must be at least 1.
+* color - Color of the filled polygon
+
+All hole vertices must use the opposit order (clockwise with y down) of the
+polygon vertices.
+
+All hole vertices must be inside the main polygon and no hole may overlap the
+main polygon.
+
+For example:
+
+    float vertices[] = {
+          0,   0, // #0, upper left corner
+        100,   0, // #1, lower left corner
+        100, 100, // #2, lower right corner
+        100,   0, // #3, upper right corner
+         10,  10, // #4, hole upper left
+         90,  10, // #4, hole upper right
+         90,  90, // #4, hole lower right
+         10,  90};// #4, hole lower left
+    int vertex_count = 8;
+    int holes[] = {
+       4, // vertices 0, 1, 2, 3
+       8};// vertices 4, 5, 6, 7
+    int holes_count = 2;
+
+There are 8 vertices, 4 for an outer sqare from 0/0 to 100/100 in anti clockwise
+order. And then 4 more for an inner square from 10/10 to 90/90 in clockwise
+order. The outer main polygon uses vertices 0 to 3 inclusive and the hole uses
+vertices 4 to 7 inclusive.
 
 Since: 5.1.0
 
