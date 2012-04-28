@@ -52,6 +52,8 @@ endforeach(page)
 set(IMAGES
     primitives1
     primitives2
+    LINE_CAP
+    LINE_JOIN
     )
 
 

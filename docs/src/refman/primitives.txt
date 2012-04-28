@@ -841,9 +841,16 @@ corresponds to error of less than half of a pixel.
 * ALLEGRO_LINE_JOIN_ROUND
 * ALLEGRO_LINE_JOIN_MITER
 
-*Not yet documented.*
+![*ALLEGRO_LINE_JOIN styles*](images/LINE_JOIN.png)
+
+See the picture for the difference.
+
+The maximum miter length (relative to the line width) can be specified as
+parameter to the polygon functions.
 
 Since: 5.1.0
+
+See also: [al_draw_polygon]
 
 ### API: ALLEGRO_LINE_CAP
 
@@ -853,6 +860,14 @@ Since: 5.1.0
 * ALLEGRO_LINE_CAP_TRIANGLE
 * ALLEGRO_LINE_CAP_CLOSED
 
-*Not yet documented.*
+![*ALLEGRO_LINE_CAP styles*](images/LINE_CAP.png)
+
+See the picture for the difference.
+
+ALLEGRO_LINE_CAP_CLOSED is different from the others - it causes the polygon
+to have no caps. (And the [ALLEGRO_LINE_JOIN] style will determine how the
+vertex looks.)
 
 Since: 5.1.0
+
+See also: [al_draw_polygon]
