@@ -620,7 +620,15 @@ See also: [al_draw_filled_polygon], [al_draw_polyline], [ALLEGRO_LINE_JOIN]
 
 ### API: al_draw_polygon_with_holes
 
-*Not yet documented.*
+Like [al_draw_polygon] but draws multiple polygons. Additional parameters
+are:
+
+* holes - An integer array with one entry for each polygon to be drawn. For
+          each polygon (also the first) the integer specifies one past the
+          last vertex index of the polygon's vertices. The first polygon
+          starts with index 0, all subsequent polygons start with the vertex
+          after the previous polygon's last vertex.
+* holes_count - Number of integers in 'holes'
 
 Since: 5.1.0
 
@@ -654,7 +662,7 @@ Like [al_draw_filled_polygon] but removes multiple holes out of the polygon.
 * holes_count - Number of hole indices. Must be at least 1.
 * color - Color of the filled polygon
 
-All hole vertices must use the opposit order (clockwise with y down) of the
+All hole vertices must use the opposite order (clockwise with y down) of the
 polygon vertices.
 
 All hole vertices must be inside the main polygon and no hole may overlap the
@@ -668,19 +676,19 @@ For example:
         100, 100, // #2, lower right corner
         100,   0, // #3, upper right corner
          10,  10, // #4, hole upper left
-         90,  10, // #4, hole upper right
-         90,  90, // #4, hole lower right
-         10,  90};// #4, hole lower left
+         90,  10, // #5, hole upper right
+         90,  90, // #6, hole lower right
+         10,  90};// #7, hole lower left
     int vertex_count = 8;
     int holes[] = {
        4, // vertices 0, 1, 2, 3
        8};// vertices 4, 5, 6, 7
     int holes_count = 2;
 
-There are 8 vertices, 4 for an outer sqare from 0/0 to 100/100 in anti clockwise
-order. And then 4 more for an inner square from 10/10 to 90/90 in clockwise
-order. The outer main polygon uses vertices 0 to 3 inclusive and the hole uses
-vertices 4 to 7 inclusive.
+There are 8 vertices, 4 for an outer square from 0/0 to 100/100 in anti
+clockwise order. And then 4 more for an inner square from 10/10 to 90/90 in
+clockwise order. The outer main polygon uses vertices 0 to 3 inclusive and the
+hole uses vertices 4 to 7 inclusive.
 
 Since: 5.1.0
 
