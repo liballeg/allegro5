@@ -68,10 +68,13 @@ Next, change the name of your app's executable (library).
  *  In `jni/Android.mk` change the LOCAL_MODULE variable to the same
     value as the meta-data tag above.
 
+ *  In `jni/Application.mk`, in the APP_MODULES line, change allegro-example
+    to the same value you used above.
+
  *  In `jni/Android.mk` notice the LOCAL_SRC_FILES variable.
     That is where you tell the Android ndk-build script which files to build
     as part of your project.
-
+ 
 Next, change the name Android will show for your app:
 
  *  In `res/values/strings.xml` change the text inside the
