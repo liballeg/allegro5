@@ -21,9 +21,9 @@
 #include <fcntl.h>
 
 #ifdef __cplusplus
-extern "C" int main();
+extern "C" int main(int argc, char ** argv);
 #else
-extern int main();
+extern int main(int argc, char ** argv);
 #endif
 
 #include "allegro5/platform/aintuthr.h"
