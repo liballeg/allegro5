@@ -29,6 +29,9 @@ ALLEGRO_AUDIO_DRIVER *_al_kcm_driver = NULL;
 #if defined(ALLEGRO_CFG_KCM_OPENAL)
    extern struct ALLEGRO_AUDIO_DRIVER _al_kcm_openal_driver;
 #endif
+#if defined(ALLEGRO_CFG_KCM_OPENSL)
+   extern struct ALLEGRO_AUDIO_DRIVER _al_kcm_opensl_driver;
+#endif
 #if defined(ALLEGRO_CFG_KCM_ALSA)
    extern struct ALLEGRO_AUDIO_DRIVER _al_kcm_alsa_driver;
 #endif
@@ -149,6 +152,9 @@ static ALLEGRO_AUDIO_DRIVER_ENUM get_config_audio_driver(void)
 
    if (0 == _al_stricmp(value, "OPENAL"))
       return ALLEGRO_AUDIO_DRIVER_OPENAL;
+   
+   if (0 == _al_stricmp(value, "OPENSL"))
+      return ALLEGRO_AUDIO_DRIVER_OPENSL;
 
    if (0 == _al_stricmp(value, "OSS"))
       return ALLEGRO_AUDIO_DRIVER_OSS;
@@ -214,6 +220,12 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
          if (retVal)
             return retVal;
 #endif
+#if defined(ALLEGRO_CFG_KCM_OPENSL)
+         retVal = do_install_audio(ALLEGRO_AUDIO_DRIVER_OPENSL);
+         if (retVal)
+            return retVal;
+#endif
+
          _al_set_error(ALLEGRO_INVALID_PARAM, "No audio driver can be used.");
          _al_kcm_driver = NULL;
          return false;
@@ -241,6 +253,19 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
             return false;
          #else
             _al_set_error(ALLEGRO_INVALID_PARAM, "OpenAL not available on this platform");
+            return false;
+         #endif
+
+      case ALLEGRO_AUDIO_DRIVER_OPENSL:
+         #if defined(ALLEGRO_CFG_KCM_OPENSL)
+            if (_al_kcm_opensl_driver.open() == 0) {
+               ALLEGRO_INFO("Using OpenSL driver\n"); 
+               _al_kcm_driver = &_al_kcm_opensl_driver;
+               return true;
+            }
+            return false;
+         #else
+            _al_set_error(ALLEGRO_INVALID_PARAM, "OpenSL not available on this platform");
             return false;
          #endif
 

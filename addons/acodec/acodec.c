@@ -1,4 +1,7 @@
 #include "allegro5/allegro_acodec.h"
+/* FIXME: allegro_audio.h is only needed for the register* functions. If they
+ * are moved to the main library then acodec won't need to depend on audio.
+ */
 #include "allegro5/allegro_audio.h"
 #include "allegro5/internal/aintern_acodec_cfg.h"
 #include "acodec.h"

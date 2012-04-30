@@ -2,6 +2,7 @@ option(WANT_ALSA "Enable ALSA digital audio driver (Unix)" on)
 option(WANT_OSS "Enable OSS digital audio driver (Unix)" on)
 option(WANT_PULSEAUDIO "Enable PulseAudio audio driver (Unix)" on)
 option(WANT_OPENAL "Enable OpenAL digital audio driver" on)
+option(WANT_OPENSL "Enable OpenSL digital audio driver" off)
 option(WANT_DSOUND "Enable DSound digital audio driver (Windows)" on)
 option(WANT_AQUEUE "Enable AudioQueue digital audio driver (Mac)" on)
 
@@ -139,6 +140,28 @@ if(SUPPORT_OPENAL)
     list(APPEND AUDIO_INCLUDE_DIRECTORIES ${OPENAL_INCLUDE_DIR})
     set(SUPPORT_AUDIO 1)
 endif(SUPPORT_OPENAL)
+
+if(WANT_OPENSL)
+    # TODO: Uncomment these lines and make them work, right now they are
+    # copy/pasted from openal above
+
+    # find_package(OpenAL)
+    #mark_as_advanced(OPENAL_INCLUDE_DIR OPENAL_LIBRARY)
+    #if(OPENAL_FOUND)
+    #    set(SUPPORT_OPENAL 1)
+    #endif(OPENAL_FOUND)
+
+    set(SUPPORT_OPENSL 1)
+endif(WANT_OPENSL)
+
+if(SUPPORT_OPENSL)
+    set(ALLEGRO_CFG_KCM_OPENSL 1)
+    list(APPEND AUDIO_SOURCES opensl.c)
+    # TODO: fix the next two lines
+    #list(APPEND AUDIO_LIBRARIES ${OPENAL_LIBRARY})
+    #list(APPEND AUDIO_INCLUDE_DIRECTORIES ${OPENAL_INCLUDE_DIR})
+    set(SUPPORT_AUDIO 1)
+endif(SUPPORT_OPENSL)
 
 configure_file(
     allegro5/internal/aintern_audio_cfg.h.cmake
