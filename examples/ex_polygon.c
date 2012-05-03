@@ -74,7 +74,7 @@ static void reset(void)
    ex.add_hole = 0;
 }
 
-void transform(float *x, float *y)
+static void transform(float *x, float *y)
 {
    *x /= ex.zoom;
    *y /= ex.zoom;
