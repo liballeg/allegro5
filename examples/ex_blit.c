@@ -28,11 +28,10 @@ static ALLEGRO_BITMAP *example_bitmap(int w, int h)
    float mx = w * 0.5;
    float my = h * 0.5;
    ALLEGRO_STATE state;
-   ALLEGRO_LOCKED_REGION *lock;
    ALLEGRO_BITMAP *pattern = al_create_bitmap(w, h);
    al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP);
    al_set_target_bitmap(pattern);
-   lock = al_lock_bitmap(pattern, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
+   al_lock_bitmap(pattern, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
    for (i = 0; i < w; i++) {
       for (j = 0; j < h; j++) {
          float a = atan2(i - mx, j - my);

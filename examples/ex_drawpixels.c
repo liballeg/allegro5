@@ -27,7 +27,6 @@ int main(void)
    double program_start;
    double length;
    int layer, star;
-   ALLEGRO_LOCKED_REGION *lr;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -75,7 +74,7 @@ int main(void)
             Point *p = &stars[0][star];
             al_draw_pixel(p->x, p->y, colors[0]);
          }
-         lr = al_lock_bitmap(al_get_backbuffer(display), ALLEGRO_PIXEL_FORMAT_ANY, 0);
+         al_lock_bitmap(al_get_backbuffer(display), ALLEGRO_PIXEL_FORMAT_ANY, 0);
 
          for (layer = 1; layer < 3; layer++) {
             for (star = 0; star < NUM_STARS/3; star++) {

@@ -259,7 +259,6 @@ void Prog::draw_bitmap(const std::string & str,
 
 void Prog::blending_test(bool memory)
 {
-   ALLEGRO_COLOR opaque_white = al_map_rgba_f(1, 1, 1, 1);
    ALLEGRO_COLOR transparency = al_map_rgba_f(0, 0, 0, 0);
    int op = str_to_blend_mode(operations[4].get_selected_item_text());
    int aop = str_to_blend_mode(operations[5].get_selected_item_text());

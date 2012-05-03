@@ -153,10 +153,9 @@ static void *thread_func(ALLEGRO_THREAD *thr, void *arg)
    ThreadInfo *info = (ThreadInfo *) arg;
    Viewport viewport;
    unsigned char palette[256][3];
-   int y, w, h;
+   int y, h;
 
    y = 0;
-   w = al_get_bitmap_width(info->bitmap);
    h = al_get_bitmap_height(info->bitmap);
 
    viewport.centre_x = info->target_x;

@@ -191,7 +191,6 @@ int main(void)
    ALLEGRO_DISPLAY *display;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_TIMER *timer;
-   int n;
    bool redraw = false;
 
    if (!al_init()) {
@@ -224,7 +223,6 @@ int main(void)
 
    modes_count = al_get_num_display_modes();
    options_count = sizeof(options) / sizeof(options[0]);
-   n = 0;
    font_h = al_get_font_line_height(font);
    
    update_ui();

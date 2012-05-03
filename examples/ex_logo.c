@@ -74,7 +74,6 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
    ALLEGRO_STATE state;
    ALLEGRO_BITMAP *blur, *light, *logo;
    int left, right, top, bottom;
-   ALLEGRO_LOCKED_REGION *lock1, *lock2;
    float cx, cy;
 
    dw = al_get_bitmap_width(al_get_target_bitmap());
@@ -123,8 +122,8 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
    light = al_create_bitmap(dw, dh);
    al_set_target_bitmap(light);
    al_clear_to_color(transparent);
-   lock1 = al_lock_bitmap(blur, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
-   lock2 = al_lock_bitmap_region(light, left, top,
+   al_lock_bitmap(blur, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+   al_lock_bitmap_region(light, left, top,
       1 + right - left, 1 + bottom - top,
       ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
    for (y = top; y <= bottom; y++) {
@@ -315,10 +314,9 @@ static void render(void)
          strtod(param_values[8], NULL),
          &fullflash);
       ALLEGRO_BITMAP *crop;
-      ALLEGRO_LOCKED_REGION *lock;
       int x, y, left = 640, top = 480, right = -1, bottom = -1;
       /* Crop out the non-transparent part. */
-      lock = al_lock_bitmap(fulllogo, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+      al_lock_bitmap(fulllogo, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
       for (y = 0; y < 480; y++) {
          for (x = 0; x < 640; x++) {
             ALLEGRO_COLOR c = al_get_pixel(fulllogo, x, y);
