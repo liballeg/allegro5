@@ -454,7 +454,7 @@ static ALLEGRO_DISPLAY_MODE *xrandr_get_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter
 
 static bool xrandr_realign_crtc_origin(ALLEGRO_SYSTEM_XGLX *s, int xscreen, xrandr_crtc *crtc, int new_w, int new_h, int *x, int *y)
 {
-   bool ret = false;
+   bool ret;
    
    if(crtc->align_to == 0)
       return false;
@@ -488,8 +488,9 @@ static bool xrandr_realign_crtc_origin(ALLEGRO_SYSTEM_XGLX *s, int xscreen, xran
       
       default:
          ALLEGRO_WARN("unknown crtc alignment flag (%i)!", crtc->align);
+         ret = false;
          break;
-   };
+   }
    
    return ret;
 }
