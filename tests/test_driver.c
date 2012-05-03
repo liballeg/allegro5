@@ -49,7 +49,7 @@ typedef struct {
 } Font;
 
 int               argc;
-char const        **argv;
+char              **argv;
 ALLEGRO_DISPLAY   *display;
 ALLEGRO_BITMAP    *membuf;
 Bitmap            bitmaps[MAX_BITMAPS];
