@@ -1480,6 +1480,11 @@ int main(int _argc, char *_argv[])
          al_set_config_value(cfg, "opengl", "force_opengl_version", "1.2");
          al_set_new_display_flags(ALLEGRO_OPENGL);
       }
+      else if (streq(opt, "--force-opengl-2.0")) {
+         ALLEGRO_CONFIG *cfg = al_get_system_config();
+         al_set_config_value(cfg, "opengl", "force_opengl_version", "2.0");
+         al_set_new_display_flags(ALLEGRO_OPENGL);
+      }
       else if (streq(opt, "--force-opengl")) {
          al_set_new_display_flags(ALLEGRO_OPENGL);
       }
