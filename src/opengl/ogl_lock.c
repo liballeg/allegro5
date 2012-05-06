@@ -313,8 +313,8 @@ static void ogl_lock_region_nonbb_readwrite_nonfbo(
 
 static void ogl_unlock_region_non_readonly(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap);
-static void ogl_unlock_region_backbuffer(ALLEGRO_DISPLAY *disp,
-   ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap, int gl_y);
+static void ogl_unlock_region_backbuffer(ALLEGRO_BITMAP *bitmap,
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap, int gl_y);
 static void ogl_unlock_region_nonbb_fbo(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap, int gl_y, int orig_format);
 static void ogl_unlock_region_nonbb_fbo_writeonly(ALLEGRO_BITMAP *bitmap,
@@ -386,7 +386,7 @@ static void ogl_unlock_region_non_readonly(ALLEGRO_BITMAP *bitmap,
 
    if (ogl_bitmap->is_backbuffer) {
       ALLEGRO_DEBUG("Unlocking backbuffer\n");
-      ogl_unlock_region_backbuffer(disp, bitmap, ogl_bitmap, gl_y);
+      ogl_unlock_region_backbuffer(bitmap, ogl_bitmap, gl_y);
    }
    else {
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
@@ -424,12 +424,11 @@ static void ogl_unlock_region_non_readonly(ALLEGRO_BITMAP *bitmap,
 }
 
 
-static void ogl_unlock_region_backbuffer(ALLEGRO_DISPLAY *disp,
-   ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap, int gl_y)
+static void ogl_unlock_region_backbuffer(ALLEGRO_BITMAP *bitmap,
+      ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap, int gl_y)
 {
    const int lock_format = bitmap->locked_region.format;
-   bool restore_trans = false;
-   ALLEGRO_TRANSFORM trans;
+   bool popmatrix = false;
    GLenum e;
 
    /* glWindowPos2i may not be available. */
@@ -445,11 +444,10 @@ static void ogl_unlock_region_backbuffer(ALLEGRO_DISPLAY *disp,
        * Consider using glWindowPos2fMESAemulate from:
        * http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall/
        */
-      al_copy_transform(&trans, &disp->proj_transform);
-      al_identity_transform(&disp->proj_transform);
-      disp->vt->set_projection(disp);
+      glPushMatrix();
+      glLoadIdentity();
       glRasterPos2f(bitmap->lock_x, bitmap->lock_y + bitmap->lock_h - 1e-4f);
-      restore_trans = true;
+      popmatrix = true;
    }
 
    glDisable(GL_TEXTURE_2D);
@@ -464,9 +462,8 @@ static void ogl_unlock_region_backbuffer(ALLEGRO_DISPLAY *disp,
          _al_format_name(lock_format), _al_gl_error_string(e));
    }
 
-   if (restore_trans) {
-      al_copy_transform(&disp->proj_transform, &trans);
-      disp->vt->set_projection(disp);
+   if (popmatrix) {
+      glPopMatrix();
    }
 }
 
