@@ -78,7 +78,7 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
    }
 
    if (bpp == 8 && keep_index) {
-      lr = al_lock_bitmap(b, ALLEGRO_PIXEL_FORMAT_LUMINANCE_8, ALLEGRO_LOCK_WRITEONLY);
+      lr = al_lock_bitmap(b, ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8, ALLEGRO_LOCK_WRITEONLY);
    }
    else {
       lr = al_lock_bitmap(b, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);

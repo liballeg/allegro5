@@ -394,7 +394,7 @@ static void argb_8888_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_8888_to_luminance_8(void *src, int src_pitch,
+static void argb_8888_to_single_channel_8(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -408,7 +408,7 @@ static void argb_8888_to_luminance_8(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint8_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_ARGB_8888_TO_LUMINANCE_8(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_ARGB_8888_TO_SINGLE_CHANNEL_8(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -808,7 +808,7 @@ static void rgba_8888_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_8888_to_luminance_8(void *src, int src_pitch,
+static void rgba_8888_to_single_channel_8(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -822,7 +822,7 @@ static void rgba_8888_to_luminance_8(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint8_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_RGBA_8888_TO_LUMINANCE_8(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_RGBA_8888_TO_SINGLE_CHANNEL_8(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -1222,7 +1222,7 @@ static void argb_4444_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_4444_to_luminance_8(void *src, int src_pitch,
+static void argb_4444_to_single_channel_8(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -1236,7 +1236,7 @@ static void argb_4444_to_luminance_8(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint8_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_ARGB_4444_TO_LUMINANCE_8(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_ARGB_4444_TO_SINGLE_CHANNEL_8(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -1712,7 +1712,7 @@ static void rgb_888_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_888_to_luminance_8(void *src, int src_pitch,
+static void rgb_888_to_single_channel_8(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -1731,7 +1731,7 @@ static void rgb_888_to_luminance_8(void *src, int src_pitch,
          #else
          int src_pixel = src_ptr[0] | (src_ptr[1] << 8) | (src_ptr[2] << 16);
          #endif
-         *dst_ptr = ALLEGRO_CONVERT_RGB_888_TO_LUMINANCE_8(src_pixel);
+         *dst_ptr = ALLEGRO_CONVERT_RGB_888_TO_SINGLE_CHANNEL_8(src_pixel);
          src_ptr += 1 * 3;
          dst_ptr += 1;
       }
@@ -2131,7 +2131,7 @@ static void rgb_565_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_565_to_luminance_8(void *src, int src_pitch,
+static void rgb_565_to_single_channel_8(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -2145,7 +2145,7 @@ static void rgb_565_to_luminance_8(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint8_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_RGB_565_TO_LUMINANCE_8(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_RGB_565_TO_SINGLE_CHANNEL_8(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -2545,7 +2545,7 @@ static void rgb_555_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_555_to_luminance_8(void *src, int src_pitch,
+static void rgb_555_to_single_channel_8(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -2559,7 +2559,7 @@ static void rgb_555_to_luminance_8(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint8_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_RGB_555_TO_LUMINANCE_8(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_RGB_555_TO_SINGLE_CHANNEL_8(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -2959,7 +2959,7 @@ static void rgba_5551_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_5551_to_luminance_8(void *src, int src_pitch,
+static void rgba_5551_to_single_channel_8(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -2973,7 +2973,7 @@ static void rgba_5551_to_luminance_8(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint8_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_RGBA_5551_TO_LUMINANCE_8(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_RGBA_5551_TO_SINGLE_CHANNEL_8(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -3373,7 +3373,7 @@ static void argb_1555_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_1555_to_luminance_8(void *src, int src_pitch,
+static void argb_1555_to_single_channel_8(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -3387,7 +3387,7 @@ static void argb_1555_to_luminance_8(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint8_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_ARGB_1555_TO_LUMINANCE_8(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_ARGB_1555_TO_SINGLE_CHANNEL_8(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -3787,7 +3787,7 @@ static void abgr_8888_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_to_luminance_8(void *src, int src_pitch,
+static void abgr_8888_to_single_channel_8(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -3801,7 +3801,7 @@ static void abgr_8888_to_luminance_8(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint8_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_ABGR_8888_TO_LUMINANCE_8(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_ABGR_8888_TO_SINGLE_CHANNEL_8(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -4201,7 +4201,7 @@ static void xbgr_8888_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xbgr_8888_to_luminance_8(void *src, int src_pitch,
+static void xbgr_8888_to_single_channel_8(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -4215,7 +4215,7 @@ static void xbgr_8888_to_luminance_8(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint8_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_XBGR_8888_TO_LUMINANCE_8(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_XBGR_8888_TO_SINGLE_CHANNEL_8(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -4691,7 +4691,7 @@ static void bgr_888_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_888_to_luminance_8(void *src, int src_pitch,
+static void bgr_888_to_single_channel_8(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -4710,7 +4710,7 @@ static void bgr_888_to_luminance_8(void *src, int src_pitch,
          #else
          int src_pixel = src_ptr[0] | (src_ptr[1] << 8) | (src_ptr[2] << 16);
          #endif
-         *dst_ptr = ALLEGRO_CONVERT_BGR_888_TO_LUMINANCE_8(src_pixel);
+         *dst_ptr = ALLEGRO_CONVERT_BGR_888_TO_SINGLE_CHANNEL_8(src_pixel);
          src_ptr += 1 * 3;
          dst_ptr += 1;
       }
@@ -5110,7 +5110,7 @@ static void bgr_565_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_565_to_luminance_8(void *src, int src_pitch,
+static void bgr_565_to_single_channel_8(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -5124,7 +5124,7 @@ static void bgr_565_to_luminance_8(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint8_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_BGR_565_TO_LUMINANCE_8(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_BGR_565_TO_SINGLE_CHANNEL_8(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -5524,7 +5524,7 @@ static void bgr_555_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_555_to_luminance_8(void *src, int src_pitch,
+static void bgr_555_to_single_channel_8(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -5538,7 +5538,7 @@ static void bgr_555_to_luminance_8(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint8_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_BGR_555_TO_LUMINANCE_8(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_BGR_555_TO_SINGLE_CHANNEL_8(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -5938,7 +5938,7 @@ static void rgbx_8888_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgbx_8888_to_luminance_8(void *src, int src_pitch,
+static void rgbx_8888_to_single_channel_8(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -5952,7 +5952,7 @@ static void rgbx_8888_to_luminance_8(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint8_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_RGBX_8888_TO_LUMINANCE_8(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_RGBX_8888_TO_SINGLE_CHANNEL_8(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -6352,7 +6352,7 @@ static void xrgb_8888_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xrgb_8888_to_luminance_8(void *src, int src_pitch,
+static void xrgb_8888_to_single_channel_8(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -6366,7 +6366,7 @@ static void xrgb_8888_to_luminance_8(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint8_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_XRGB_8888_TO_LUMINANCE_8(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_XRGB_8888_TO_SINGLE_CHANNEL_8(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -6766,7 +6766,7 @@ static void abgr_f32_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_f32_to_luminance_8(void *src, int src_pitch,
+static void abgr_f32_to_single_channel_8(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -6780,7 +6780,7 @@ static void abgr_f32_to_luminance_8(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint8_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_ABGR_F32_TO_LUMINANCE_8(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_ABGR_F32_TO_SINGLE_CHANNEL_8(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -7180,7 +7180,7 @@ static void abgr_8888_le_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_le_to_luminance_8(void *src, int src_pitch,
+static void abgr_8888_le_to_single_channel_8(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -7194,7 +7194,7 @@ static void abgr_8888_le_to_luminance_8(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint8_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_ABGR_8888_LE_TO_LUMINANCE_8(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_ABGR_8888_LE_TO_SINGLE_CHANNEL_8(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -7594,7 +7594,7 @@ static void rgba_4444_to_abgr_8888_le(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_4444_to_luminance_8(void *src, int src_pitch,
+static void rgba_4444_to_single_channel_8(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -7608,7 +7608,7 @@ static void rgba_4444_to_luminance_8(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint8_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_RGBA_4444_TO_LUMINANCE_8(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_RGBA_4444_TO_SINGLE_CHANNEL_8(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -7616,7 +7616,7 @@ static void rgba_4444_to_luminance_8(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void luminance_8_to_argb_8888(void *src, int src_pitch,
+static void single_channel_8_to_argb_8888(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -7630,7 +7630,7 @@ static void luminance_8_to_argb_8888(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint32_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_LUMINANCE_8_TO_ARGB_8888(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_ARGB_8888(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -7638,7 +7638,7 @@ static void luminance_8_to_argb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void luminance_8_to_rgba_8888(void *src, int src_pitch,
+static void single_channel_8_to_rgba_8888(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -7652,7 +7652,7 @@ static void luminance_8_to_rgba_8888(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint32_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_LUMINANCE_8_TO_RGBA_8888(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_RGBA_8888(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -7660,7 +7660,7 @@ static void luminance_8_to_rgba_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void luminance_8_to_argb_4444(void *src, int src_pitch,
+static void single_channel_8_to_argb_4444(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -7674,7 +7674,7 @@ static void luminance_8_to_argb_4444(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint16_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_LUMINANCE_8_TO_ARGB_4444(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_ARGB_4444(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -7682,7 +7682,7 @@ static void luminance_8_to_argb_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void luminance_8_to_rgb_888(void *src, int src_pitch,
+static void single_channel_8_to_rgb_888(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -7696,7 +7696,7 @@ static void luminance_8_to_rgb_888(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint8_t *dst_end = dst_ptr + width * 3;
       while (dst_ptr < dst_end) {
-         int dst_pixel = ALLEGRO_CONVERT_LUMINANCE_8_TO_RGB_888(*src_ptr);
+         int dst_pixel = ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_RGB_888(*src_ptr);
          #ifdef ALLEGRO_BIG_ENDIAN
          dst_ptr[0] = dst_pixel >> 16;
          dst_ptr[1] = dst_pixel >> 8;
@@ -7713,7 +7713,7 @@ static void luminance_8_to_rgb_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void luminance_8_to_rgb_565(void *src, int src_pitch,
+static void single_channel_8_to_rgb_565(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -7727,7 +7727,7 @@ static void luminance_8_to_rgb_565(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint16_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_LUMINANCE_8_TO_RGB_565(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_RGB_565(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -7735,7 +7735,7 @@ static void luminance_8_to_rgb_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void luminance_8_to_rgb_555(void *src, int src_pitch,
+static void single_channel_8_to_rgb_555(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -7749,7 +7749,7 @@ static void luminance_8_to_rgb_555(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint16_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_LUMINANCE_8_TO_RGB_555(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_RGB_555(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -7757,7 +7757,7 @@ static void luminance_8_to_rgb_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void luminance_8_to_rgba_5551(void *src, int src_pitch,
+static void single_channel_8_to_rgba_5551(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -7771,7 +7771,7 @@ static void luminance_8_to_rgba_5551(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint16_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_LUMINANCE_8_TO_RGBA_5551(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_RGBA_5551(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -7779,7 +7779,7 @@ static void luminance_8_to_rgba_5551(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void luminance_8_to_argb_1555(void *src, int src_pitch,
+static void single_channel_8_to_argb_1555(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -7793,7 +7793,7 @@ static void luminance_8_to_argb_1555(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint16_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_LUMINANCE_8_TO_ARGB_1555(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_ARGB_1555(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -7801,7 +7801,7 @@ static void luminance_8_to_argb_1555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void luminance_8_to_abgr_8888(void *src, int src_pitch,
+static void single_channel_8_to_abgr_8888(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -7815,7 +7815,7 @@ static void luminance_8_to_abgr_8888(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint32_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_LUMINANCE_8_TO_ABGR_8888(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_ABGR_8888(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -7823,7 +7823,7 @@ static void luminance_8_to_abgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void luminance_8_to_xbgr_8888(void *src, int src_pitch,
+static void single_channel_8_to_xbgr_8888(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -7837,7 +7837,7 @@ static void luminance_8_to_xbgr_8888(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint32_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_LUMINANCE_8_TO_XBGR_8888(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_XBGR_8888(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -7845,7 +7845,7 @@ static void luminance_8_to_xbgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void luminance_8_to_bgr_888(void *src, int src_pitch,
+static void single_channel_8_to_bgr_888(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -7859,7 +7859,7 @@ static void luminance_8_to_bgr_888(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint8_t *dst_end = dst_ptr + width * 3;
       while (dst_ptr < dst_end) {
-         int dst_pixel = ALLEGRO_CONVERT_LUMINANCE_8_TO_BGR_888(*src_ptr);
+         int dst_pixel = ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_BGR_888(*src_ptr);
          #ifdef ALLEGRO_BIG_ENDIAN
          dst_ptr[0] = dst_pixel >> 16;
          dst_ptr[1] = dst_pixel >> 8;
@@ -7876,7 +7876,7 @@ static void luminance_8_to_bgr_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void luminance_8_to_bgr_565(void *src, int src_pitch,
+static void single_channel_8_to_bgr_565(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -7890,7 +7890,7 @@ static void luminance_8_to_bgr_565(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint16_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_LUMINANCE_8_TO_BGR_565(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_BGR_565(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -7898,7 +7898,7 @@ static void luminance_8_to_bgr_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void luminance_8_to_bgr_555(void *src, int src_pitch,
+static void single_channel_8_to_bgr_555(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -7912,7 +7912,7 @@ static void luminance_8_to_bgr_555(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint16_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_LUMINANCE_8_TO_BGR_555(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_BGR_555(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -7920,7 +7920,7 @@ static void luminance_8_to_bgr_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void luminance_8_to_rgbx_8888(void *src, int src_pitch,
+static void single_channel_8_to_rgbx_8888(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -7934,7 +7934,7 @@ static void luminance_8_to_rgbx_8888(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint32_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_LUMINANCE_8_TO_RGBX_8888(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_RGBX_8888(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -7942,7 +7942,7 @@ static void luminance_8_to_rgbx_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void luminance_8_to_xrgb_8888(void *src, int src_pitch,
+static void single_channel_8_to_xrgb_8888(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -7956,7 +7956,7 @@ static void luminance_8_to_xrgb_8888(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint32_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_LUMINANCE_8_TO_XRGB_8888(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_XRGB_8888(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -7964,7 +7964,7 @@ static void luminance_8_to_xrgb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void luminance_8_to_abgr_f32(void *src, int src_pitch,
+static void single_channel_8_to_abgr_f32(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -7978,7 +7978,7 @@ static void luminance_8_to_abgr_f32(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       ALLEGRO_COLOR *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_LUMINANCE_8_TO_ABGR_F32(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_ABGR_F32(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -7986,7 +7986,7 @@ static void luminance_8_to_abgr_f32(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void luminance_8_to_abgr_8888_le(void *src, int src_pitch,
+static void single_channel_8_to_abgr_8888_le(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -8000,7 +8000,7 @@ static void luminance_8_to_abgr_8888_le(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint32_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_LUMINANCE_8_TO_ABGR_8888_LE(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_ABGR_8888_LE(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -8008,7 +8008,7 @@ static void luminance_8_to_abgr_8888_le(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void luminance_8_to_rgba_4444(void *src, int src_pitch,
+static void single_channel_8_to_rgba_4444(void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -8022,7 +8022,7 @@ static void luminance_8_to_rgba_4444(void *src, int src_pitch,
    for (y = 0; y < height; y++) {
       uint16_t *dst_end = dst_ptr + width;
       while (dst_ptr < dst_end) {
-         *dst_ptr = ALLEGRO_CONVERT_LUMINANCE_8_TO_RGBA_4444(*src_ptr);
+         *dst_ptr = ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_RGBA_4444(*src_ptr);
          dst_ptr++;
          src_ptr++;
       }
@@ -8061,7 +8061,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       argb_8888_to_abgr_f32,
       argb_8888_to_abgr_8888_le,
       argb_8888_to_rgba_4444,
-      argb_8888_to_luminance_8,
+      argb_8888_to_single_channel_8,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8083,7 +8083,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       rgba_8888_to_abgr_f32,
       rgba_8888_to_abgr_8888_le,
       rgba_8888_to_rgba_4444,
-      rgba_8888_to_luminance_8,
+      rgba_8888_to_single_channel_8,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8105,7 +8105,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       argb_4444_to_abgr_f32,
       argb_4444_to_abgr_8888_le,
       argb_4444_to_rgba_4444,
-      argb_4444_to_luminance_8,
+      argb_4444_to_single_channel_8,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8127,7 +8127,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       rgb_888_to_abgr_f32,
       rgb_888_to_abgr_8888_le,
       rgb_888_to_rgba_4444,
-      rgb_888_to_luminance_8,
+      rgb_888_to_single_channel_8,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8149,7 +8149,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       rgb_565_to_abgr_f32,
       rgb_565_to_abgr_8888_le,
       rgb_565_to_rgba_4444,
-      rgb_565_to_luminance_8,
+      rgb_565_to_single_channel_8,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8171,7 +8171,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       rgb_555_to_abgr_f32,
       rgb_555_to_abgr_8888_le,
       rgb_555_to_rgba_4444,
-      rgb_555_to_luminance_8,
+      rgb_555_to_single_channel_8,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8193,7 +8193,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       rgba_5551_to_abgr_f32,
       rgba_5551_to_abgr_8888_le,
       rgba_5551_to_rgba_4444,
-      rgba_5551_to_luminance_8,
+      rgba_5551_to_single_channel_8,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8215,7 +8215,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       argb_1555_to_abgr_f32,
       argb_1555_to_abgr_8888_le,
       argb_1555_to_rgba_4444,
-      argb_1555_to_luminance_8,
+      argb_1555_to_single_channel_8,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8237,7 +8237,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       abgr_8888_to_abgr_f32,
       abgr_8888_to_abgr_8888_le,
       abgr_8888_to_rgba_4444,
-      abgr_8888_to_luminance_8,
+      abgr_8888_to_single_channel_8,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8259,7 +8259,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       xbgr_8888_to_abgr_f32,
       xbgr_8888_to_abgr_8888_le,
       xbgr_8888_to_rgba_4444,
-      xbgr_8888_to_luminance_8,
+      xbgr_8888_to_single_channel_8,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8281,7 +8281,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       bgr_888_to_abgr_f32,
       bgr_888_to_abgr_8888_le,
       bgr_888_to_rgba_4444,
-      bgr_888_to_luminance_8,
+      bgr_888_to_single_channel_8,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8303,7 +8303,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       bgr_565_to_abgr_f32,
       bgr_565_to_abgr_8888_le,
       bgr_565_to_rgba_4444,
-      bgr_565_to_luminance_8,
+      bgr_565_to_single_channel_8,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8325,7 +8325,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       bgr_555_to_abgr_f32,
       bgr_555_to_abgr_8888_le,
       bgr_555_to_rgba_4444,
-      bgr_555_to_luminance_8,
+      bgr_555_to_single_channel_8,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8347,7 +8347,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       rgbx_8888_to_abgr_f32,
       rgbx_8888_to_abgr_8888_le,
       rgbx_8888_to_rgba_4444,
-      rgbx_8888_to_luminance_8,
+      rgbx_8888_to_single_channel_8,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8369,7 +8369,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       xrgb_8888_to_abgr_f32,
       xrgb_8888_to_abgr_8888_le,
       xrgb_8888_to_rgba_4444,
-      xrgb_8888_to_luminance_8,
+      xrgb_8888_to_single_channel_8,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8391,7 +8391,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       NULL,
       abgr_f32_to_abgr_8888_le,
       abgr_f32_to_rgba_4444,
-      abgr_f32_to_luminance_8,
+      abgr_f32_to_single_channel_8,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8413,7 +8413,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       abgr_8888_le_to_abgr_f32,
       NULL,
       abgr_8888_le_to_rgba_4444,
-      abgr_8888_le_to_luminance_8,
+      abgr_8888_le_to_single_channel_8,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8435,28 +8435,28 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       rgba_4444_to_abgr_f32,
       rgba_4444_to_abgr_8888_le,
       NULL,
-      rgba_4444_to_luminance_8,
+      rgba_4444_to_single_channel_8,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-      luminance_8_to_argb_8888,
-      luminance_8_to_rgba_8888,
-      luminance_8_to_argb_4444,
-      luminance_8_to_rgb_888,
-      luminance_8_to_rgb_565,
-      luminance_8_to_rgb_555,
-      luminance_8_to_rgba_5551,
-      luminance_8_to_argb_1555,
-      luminance_8_to_abgr_8888,
-      luminance_8_to_xbgr_8888,
-      luminance_8_to_bgr_888,
-      luminance_8_to_bgr_565,
-      luminance_8_to_bgr_555,
-      luminance_8_to_rgbx_8888,
-      luminance_8_to_xrgb_8888,
-      luminance_8_to_abgr_f32,
-      luminance_8_to_abgr_8888_le,
-      luminance_8_to_rgba_4444,
+      single_channel_8_to_argb_8888,
+      single_channel_8_to_rgba_8888,
+      single_channel_8_to_argb_4444,
+      single_channel_8_to_rgb_888,
+      single_channel_8_to_rgb_565,
+      single_channel_8_to_rgb_555,
+      single_channel_8_to_rgba_5551,
+      single_channel_8_to_argb_1555,
+      single_channel_8_to_abgr_8888,
+      single_channel_8_to_xbgr_8888,
+      single_channel_8_to_bgr_888,
+      single_channel_8_to_bgr_565,
+      single_channel_8_to_bgr_555,
+      single_channel_8_to_rgbx_8888,
+      single_channel_8_to_xrgb_8888,
+      single_channel_8_to_abgr_f32,
+      single_channel_8_to_abgr_8888_le,
+      single_channel_8_to_rgba_4444,
       NULL,
    },
 };

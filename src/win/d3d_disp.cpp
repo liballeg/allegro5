@@ -116,7 +116,7 @@ static int allegro_formats[] = {
    ALLEGRO_PIXEL_FORMAT_RGB_565,
    //ALLEGRO_PIXEL_FORMAT_ARGB_1555,  this format seems not to be allowed
    ALLEGRO_PIXEL_FORMAT_ABGR_F32,
-   ALLEGRO_PIXEL_FORMAT_LUMINANCE_8,
+   ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8,
    -1
 };
 

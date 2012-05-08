@@ -226,7 +226,7 @@ static void load_indexed_data(Gdiplus::Bitmap *gdi_bmp,
          PixelFormat8bppIndexed, gdi_lock))
    {
       ALLEGRO_LOCKED_REGION *a_lock = al_lock_bitmap(a_bmp,
-         ALLEGRO_PIXEL_FORMAT_LUMINANCE_8, ALLEGRO_LOCK_WRITEONLY);
+         ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8, ALLEGRO_LOCK_WRITEONLY);
 
       if (a_lock) {
          unsigned char *in = (unsigned char *)gdi_lock->Scan0;

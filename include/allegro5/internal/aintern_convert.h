@@ -1,6 +1,6 @@
 // Warning: This file was created by make_converters.py - do not edit.
-#ifndef _ALLEGRO_CONVERT_H
-#define _ALLEGRO_CONVERT_H
+#ifndef __al_included_allegro5_aintern_convert_h
+#define __al_included_allegro5_aintern_convert_h
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_pixels.h"
@@ -76,7 +76,7 @@
     ((x) & 0x000000f0)              /* B */ | \
     (((x) & 0x0000f000) >>  4)        /* G */ | \
     (((x) & 0x00f00000) >>  8)        /* R */)   
-#define ALLEGRO_CONVERT_ARGB_8888_TO_LUMINANCE_8(x) \
+#define ALLEGRO_CONVERT_ARGB_8888_TO_SINGLE_CHANNEL_8(x) \
    (((x) >> 16) & 0xff)
 #define ALLEGRO_CONVERT_RGBA_8888_TO_ARGB_8888(x) \
    ((((x) & 0x000000ff) << 24)        /* A */ | \
@@ -151,7 +151,7 @@
     (((x) & 0x0000f000) >>  8)        /* B */ | \
     (((x) & 0x00f00000) >> 12)        /* G */ | \
     (((x) & 0xf0000000) >> 16)        /* R */)   
-#define ALLEGRO_CONVERT_RGBA_8888_TO_LUMINANCE_8(x) \
+#define ALLEGRO_CONVERT_RGBA_8888_TO_SINGLE_CHANNEL_8(x) \
    (((x) >> 24) & 0xff)
 #define ALLEGRO_CONVERT_ARGB_4444_TO_ARGB_8888(x) \
    ((_al_rgb_scale_4[((x) & 0xf000) >> 12] << 24) /* A */ | \
@@ -235,8 +235,8 @@
 #define ALLEGRO_CONVERT_ARGB_4444_TO_RGBA_4444(x) \
    ((((x) & 0xf000) >> 12)        /* A */ | \
     (((x) & 0x0fff) <<  4)        /* BGR */)   
-#define ALLEGRO_CONVERT_ARGB_4444_TO_LUMINANCE_8(x) \
-   (((x) >> 8) & 0xf)
+#define ALLEGRO_CONVERT_ARGB_4444_TO_SINGLE_CHANNEL_8(x) \
+   (_al_rgb_scale_4[(((x) >> 8) & 0xf)])
 #define ALLEGRO_CONVERT_RGB_888_TO_ARGB_8888(x) \
    ((0xff000000)        /* A */ | \
     ((x) & 0xffffff)              /* BGR */)   
@@ -311,7 +311,7 @@
     ((x) & 0x0000f0)              /* B */ | \
     (((x) & 0x00f000) >>  4)        /* G */ | \
     (((x) & 0xf00000) >>  8)        /* R */)   
-#define ALLEGRO_CONVERT_RGB_888_TO_LUMINANCE_8(x) \
+#define ALLEGRO_CONVERT_RGB_888_TO_SINGLE_CHANNEL_8(x) \
    (((x) >> 16) & 0xff)
 #define ALLEGRO_CONVERT_RGB_565_TO_ARGB_8888(x) \
    ((0xff000000)        /* A */ | \
@@ -394,8 +394,8 @@
     (((x) & 0x001e) <<  3)        /* B */ | \
     (((x) & 0x0780) <<  1)        /* G */ | \
     ((x) & 0xf000)              /* R */)   
-#define ALLEGRO_CONVERT_RGB_565_TO_LUMINANCE_8(x) \
-   (((x) >> 11) & 0x1f)
+#define ALLEGRO_CONVERT_RGB_565_TO_SINGLE_CHANNEL_8(x) \
+   (_al_rgb_scale_5[(((x) >> 11) & 0x1f)])
 #define ALLEGRO_CONVERT_RGB_555_TO_ARGB_8888(x) \
    ((0xff000000)        /* A */ | \
     (_al_rgb_scale_5[((x) & 0x01f) >>  0]       ) /* B */ | \
@@ -475,8 +475,8 @@
     (((x) & 0x01e) <<  3)        /* B */ | \
     (((x) & 0x3c0) <<  2)        /* G */ | \
     (((x) & 0x7800) <<  1)        /* R */)   
-#define ALLEGRO_CONVERT_RGB_555_TO_LUMINANCE_8(x) \
-   (((x) >> 10) & 0x1f)
+#define ALLEGRO_CONVERT_RGB_555_TO_SINGLE_CHANNEL_8(x) \
+   (_al_rgb_scale_5[(((x) >> 10) & 0x1f)])
 #define ALLEGRO_CONVERT_RGBA_5551_TO_ARGB_8888(x) \
    ((_al_rgb_scale_1[((x) & 0x0001) >>  0] << 24) /* A */ | \
     (_al_rgb_scale_5[((x) & 0x003e) >>  1]       ) /* B */ | \
@@ -556,8 +556,8 @@
     (((x) & 0x003c) <<  2)        /* B */ | \
     (((x) & 0x0780) <<  1)        /* G */ | \
     ((x) & 0xf000)              /* R */)   
-#define ALLEGRO_CONVERT_RGBA_5551_TO_LUMINANCE_8(x) \
-   (((x) >> 11) & 0x1f)
+#define ALLEGRO_CONVERT_RGBA_5551_TO_SINGLE_CHANNEL_8(x) \
+   (_al_rgb_scale_5[(((x) >> 11) & 0x1f)])
 #define ALLEGRO_CONVERT_ARGB_1555_TO_ARGB_8888(x) \
    ((_al_rgb_scale_1[((x) & 0x8000) >> 15] << 24) /* A */ | \
     (_al_rgb_scale_5[((x) & 0x001f) >>  0]       ) /* B */ | \
@@ -637,8 +637,8 @@
     (((x) & 0x001e) <<  3)        /* B */ | \
     (((x) & 0x03c0) <<  2)        /* G */ | \
     (((x) & 0x7800) <<  1)        /* R */)   
-#define ALLEGRO_CONVERT_ARGB_1555_TO_LUMINANCE_8(x) \
-   (((x) >> 10) & 0x1f)
+#define ALLEGRO_CONVERT_ARGB_1555_TO_SINGLE_CHANNEL_8(x) \
+   (_al_rgb_scale_5[(((x) >> 10) & 0x1f)])
 #define ALLEGRO_CONVERT_ABGR_8888_TO_ARGB_8888(x) \
    ((((x) & 0x00ff0000) >> 16)        /* B */ | \
     (((x) & 0x000000ff) << 16)        /* R */ | \
@@ -715,7 +715,7 @@
     (((x) & 0x00f00000) >> 16)        /* B */ | \
     (((x) & 0x0000f000) >>  4)        /* G */ | \
     (((x) & 0x000000f0) <<  8)        /* R */)   
-#define ALLEGRO_CONVERT_ABGR_8888_TO_LUMINANCE_8(x) \
+#define ALLEGRO_CONVERT_ABGR_8888_TO_SINGLE_CHANNEL_8(x) \
    (((x) >> 0) & 0xff)
 #define ALLEGRO_CONVERT_XBGR_8888_TO_ARGB_8888(x) \
    ((0xff000000)        /* A */ | \
@@ -795,7 +795,7 @@
     (((x) & 0x00f00000) >> 16)        /* B */ | \
     (((x) & 0x0000f000) >>  4)        /* G */ | \
     (((x) & 0x000000f0) <<  8)        /* R */)   
-#define ALLEGRO_CONVERT_XBGR_8888_TO_LUMINANCE_8(x) \
+#define ALLEGRO_CONVERT_XBGR_8888_TO_SINGLE_CHANNEL_8(x) \
    (((x) >> 0) & 0xff)
 #define ALLEGRO_CONVERT_BGR_888_TO_ARGB_8888(x) \
    ((0xff000000)        /* A */ | \
@@ -875,7 +875,7 @@
     (((x) & 0xf00000) >> 16)        /* B */ | \
     (((x) & 0x00f000) >>  4)        /* G */ | \
     (((x) & 0x0000f0) <<  8)        /* R */)   
-#define ALLEGRO_CONVERT_BGR_888_TO_LUMINANCE_8(x) \
+#define ALLEGRO_CONVERT_BGR_888_TO_SINGLE_CHANNEL_8(x) \
    (((x) >> 0) & 0xff)
 #define ALLEGRO_CONVERT_BGR_565_TO_ARGB_8888(x) \
    ((0xff000000)        /* A */ | \
@@ -960,8 +960,8 @@
     (((x) & 0xf000) >>  8)        /* B */ | \
     (((x) & 0x0780) <<  1)        /* G */ | \
     (((x) & 0x001e) << 11)        /* R */)   
-#define ALLEGRO_CONVERT_BGR_565_TO_LUMINANCE_8(x) \
-   (((x) >> 0) & 0x1f)
+#define ALLEGRO_CONVERT_BGR_565_TO_SINGLE_CHANNEL_8(x) \
+   (_al_rgb_scale_5[(((x) >> 0) & 0x1f)])
 #define ALLEGRO_CONVERT_BGR_555_TO_ARGB_8888(x) \
    ((0xff000000)        /* A */ | \
     (_al_rgb_scale_5[((x) & 0x7c00) >> 10]       ) /* B */ | \
@@ -1045,8 +1045,8 @@
     (((x) & 0x7800) >>  7)        /* B */ | \
     (((x) & 0x3c0) <<  2)        /* G */ | \
     (((x) & 0x01e) << 11)        /* R */)   
-#define ALLEGRO_CONVERT_BGR_555_TO_LUMINANCE_8(x) \
-   (((x) >> 0) & 0x1f)
+#define ALLEGRO_CONVERT_BGR_555_TO_SINGLE_CHANNEL_8(x) \
+   (_al_rgb_scale_5[(((x) >> 0) & 0x1f)])
 #define ALLEGRO_CONVERT_RGBX_8888_TO_ARGB_8888(x) \
    ((0xff000000)        /* A */ | \
     (((x) & 0xffffff00) >>  8)        /* BGR */)   
@@ -1121,7 +1121,7 @@
     (((x) & 0x0000f000) >>  8)        /* B */ | \
     (((x) & 0x00f00000) >> 12)        /* G */ | \
     (((x) & 0xf0000000) >> 16)        /* R */)   
-#define ALLEGRO_CONVERT_RGBX_8888_TO_LUMINANCE_8(x) \
+#define ALLEGRO_CONVERT_RGBX_8888_TO_SINGLE_CHANNEL_8(x) \
    (((x) >> 24) & 0xff)
 #define ALLEGRO_CONVERT_XRGB_8888_TO_ARGB_8888(x) \
    ((0xff000000)        /* A */ | \
@@ -1197,7 +1197,7 @@
     ((x) & 0x000000f0)              /* B */ | \
     (((x) & 0x0000f000) >>  4)        /* G */ | \
     (((x) & 0x00f00000) >>  8)        /* R */)   
-#define ALLEGRO_CONVERT_XRGB_8888_TO_LUMINANCE_8(x) \
+#define ALLEGRO_CONVERT_XRGB_8888_TO_SINGLE_CHANNEL_8(x) \
    (((x) >> 16) & 0xff)
 #define ALLEGRO_CONVERT_ABGR_F32_TO_ARGB_8888(x) \
    (((uint32_t)((x).a * 255) << 24) | \
@@ -1283,7 +1283,7 @@
     ((uint32_t)((x).b * 15) << 4) | \
     ((uint32_t)((x).g * 15) << 8) | \
     ((uint32_t)((x).r * 15) << 12))
-#define ALLEGRO_CONVERT_ABGR_F32_TO_LUMINANCE_8(x) \
+#define ALLEGRO_CONVERT_ABGR_F32_TO_SINGLE_CHANNEL_8(x) \
    (uint32_t)((x).r * 255)
 #ifdef ALLEGRO_BIG_ENDIAN
 #define ALLEGRO_CONVERT_ABGR_8888_LE_TO_ARGB_8888(x) \
@@ -1470,10 +1470,10 @@
     (((x) & 0x000000f0) <<  8)        /* R */)   
 #endif
 #ifdef ALLEGRO_BIG_ENDIAN
-#define ALLEGRO_CONVERT_ABGR_8888_LE_TO_LUMINANCE_8(x) \
+#define ALLEGRO_CONVERT_ABGR_8888_LE_TO_SINGLE_CHANNEL_8(x) \
    (((x) >> 24) & 0xff)
 #else
-#define ALLEGRO_CONVERT_ABGR_8888_LE_TO_LUMINANCE_8(x) \
+#define ALLEGRO_CONVERT_ABGR_8888_LE_TO_SINGLE_CHANNEL_8(x) \
    (((x) >> 0) & 0xff)
 #endif
 #define ALLEGRO_CONVERT_RGBA_4444_TO_ARGB_8888(x) \
@@ -1558,93 +1558,57 @@
     (_al_rgb_scale_4[((x) & 0x0f00) >>  8] <<  8) /* G */ | \
     (_al_rgb_scale_4[((x) & 0xf000) >> 12]       ) /* R */)   
 #endif
-#define ALLEGRO_CONVERT_RGBA_4444_TO_LUMINANCE_8(x) \
-   (((x) >> 12) & 0xf)
-#define ALLEGRO_CONVERT_LUMINANCE_8_TO_ARGB_8888(x) \
+#define ALLEGRO_CONVERT_RGBA_4444_TO_SINGLE_CHANNEL_8(x) \
+   (_al_rgb_scale_4[(((x) >> 12) & 0xf)])
+#define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_ARGB_8888(x) \
    (0xff000000 | \
-   ((x) & 0xff) | \
-   (((x) << 8) & 0xff00) | \
    (((x) << 16) & 0xff0000))
-#define ALLEGRO_CONVERT_LUMINANCE_8_TO_RGBA_8888(x) \
+#define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_RGBA_8888(x) \
    (0xff | \
-   (((x) << 8) & 0xff00) | \
-   (((x) << 16) & 0xff0000) | \
    (((x) << 24) & 0xff000000))
-#define ALLEGRO_CONVERT_LUMINANCE_8_TO_ARGB_4444(x) \
+#define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_ARGB_4444(x) \
    (0xf000 | \
-   (((x) >> 4) & 0xf) | \
-   ((x) & 0xf0) | \
    (((x) << 4) & 0xf00))
-#define ALLEGRO_CONVERT_LUMINANCE_8_TO_RGB_888(x) \
-   (((x) & 0xff) | \
-   (((x) << 8) & 0xff00) | \
-   (((x) << 16) & 0xff0000))
-#define ALLEGRO_CONVERT_LUMINANCE_8_TO_RGB_565(x) \
-   ((((x) >> 3) & 0x1f) | \
-   (((x) << 3) & 0x7e0) | \
-   (((x) << 8) & 0xf800))
-#define ALLEGRO_CONVERT_LUMINANCE_8_TO_RGB_555(x) \
-   ((((x) >> 3) & 0x1f) | \
-   (((x) << 2) & 0x3e0) | \
-   (((x) << 7) & 0x7c00))
-#define ALLEGRO_CONVERT_LUMINANCE_8_TO_RGBA_5551(x) \
+#define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_RGB_888(x) \
+   ((((x) << 16) & 0xff0000))
+#define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_RGB_565(x) \
+   ((((x) << 8) & 0xf800))
+#define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_RGB_555(x) \
+   ((((x) << 7) & 0x7c00))
+#define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_RGBA_5551(x) \
    (0x1 | \
-   (((x) >> 2) & 0x3e) | \
-   (((x) << 3) & 0x7c0) | \
    (((x) << 8) & 0xf800))
-#define ALLEGRO_CONVERT_LUMINANCE_8_TO_ARGB_1555(x) \
+#define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_ARGB_1555(x) \
    (0x8000 | \
-   (((x) >> 3) & 0x1f) | \
-   (((x) << 2) & 0x3e0) | \
    (((x) << 7) & 0x7c00))
-#define ALLEGRO_CONVERT_LUMINANCE_8_TO_ABGR_8888(x) \
+#define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_ABGR_8888(x) \
    (0xff000000 | \
-   (((x) << 16) & 0xff0000) | \
-   (((x) << 8) & 0xff00) | \
    ((x) & 0xff))
-#define ALLEGRO_CONVERT_LUMINANCE_8_TO_XBGR_8888(x) \
-   ((((x) << 16) & 0xff0000) | \
-   (((x) << 8) & 0xff00) | \
-   ((x) & 0xff))
-#define ALLEGRO_CONVERT_LUMINANCE_8_TO_BGR_888(x) \
-   ((((x) << 16) & 0xff0000) | \
-   (((x) << 8) & 0xff00) | \
-   ((x) & 0xff))
-#define ALLEGRO_CONVERT_LUMINANCE_8_TO_BGR_565(x) \
-   ((((x) << 8) & 0xf800) | \
-   (((x) << 3) & 0x7e0) | \
-   (((x) >> 3) & 0x1f))
-#define ALLEGRO_CONVERT_LUMINANCE_8_TO_BGR_555(x) \
-   ((((x) << 7) & 0x7c00) | \
-   (((x) << 2) & 0x3e0) | \
-   (((x) >> 3) & 0x1f))
-#define ALLEGRO_CONVERT_LUMINANCE_8_TO_RGBX_8888(x) \
-   ((((x) << 8) & 0xff00) | \
-   (((x) << 16) & 0xff0000) | \
-   (((x) << 24) & 0xff000000))
-#define ALLEGRO_CONVERT_LUMINANCE_8_TO_XRGB_8888(x) \
-   (((x) & 0xff) | \
-   (((x) << 8) & 0xff00) | \
-   (((x) << 16) & 0xff0000))
-#define ALLEGRO_CONVERT_LUMINANCE_8_TO_ABGR_F32(x) \
-   al_map_rgb(x, x, x)
+#define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_XBGR_8888(x) \
+   (((x) & 0xff))
+#define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_BGR_888(x) \
+   (((x) & 0xff))
+#define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_BGR_565(x) \
+   ((((x) >> 3) & 0x1f))
+#define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_BGR_555(x) \
+   ((((x) >> 3) & 0x1f))
+#define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_RGBX_8888(x) \
+   ((((x) << 24) & 0xff000000))
+#define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_XRGB_8888(x) \
+   ((((x) << 16) & 0xff0000))
+#define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_ABGR_F32(x) \
+   al_map_rgb(x, 0, 0)
 #ifdef ALLEGRO_BIG_ENDIAN
-#define ALLEGRO_CONVERT_LUMINANCE_8_TO_ABGR_8888_LE(x) \
+#define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_ABGR_8888_LE(x) \
    (0xff | \
-   (((x) << 8) & 0xff00) | \
-   (((x) << 16) & 0xff0000) | \
    (((x) << 24) & 0xff000000))
 #else
-#define ALLEGRO_CONVERT_LUMINANCE_8_TO_ABGR_8888_LE(x) \
+#define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_ABGR_8888_LE(x) \
    (0xff000000 | \
-   (((x) << 16) & 0xff0000) | \
-   (((x) << 8) & 0xff00) | \
    ((x) & 0xff))
 #endif
-#define ALLEGRO_CONVERT_LUMINANCE_8_TO_RGBA_4444(x) \
+#define ALLEGRO_CONVERT_SINGLE_CHANNEL_8_TO_RGBA_4444(x) \
    (0xf | \
-   ((x) & 0xf0) | \
-   (((x) << 4) & 0xf00) | \
    (((x) << 8) & 0xf000))
 #endif
 // Warning: This file was created by make_converters.py - do not edit.

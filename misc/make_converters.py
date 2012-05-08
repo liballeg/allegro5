@@ -35,17 +35,17 @@ def parse_format(format):
     info = Info()
     info.components = {}
     info.name = format
-    info.little_endian = "LE" in format
+    info.little_endian = "_LE" in format
     info.float = False
-    info.luminance = False
+    info.single_channel = False
 
     if "F32" in format:
         info.float = True
         info.size = 128
         return info
    
-    if "LUMINANCE" in format:
-        info.luminance = True
+    if "SINGLE_CHANNEL" in format:
+        info.single_channel = True
         info.size = 8
         return info
     
@@ -74,7 +74,7 @@ def macro_lines(info_a, info_b):
     names.sort()
 
     if info_a.float:
-        if info_b.luminance:
+        if info_b.single_channel:
             return "   (uint32_t)((x).r * 255)\n"
         lines = []
         for name in names:
@@ -90,8 +90,8 @@ def macro_lines(info_a, info_b):
         return r
 
     if info_b.float:
-        if info_a.luminance:
-            return "   al_map_rgb(x, x, x)\n"
+        if info_a.single_channel:
+            return "   al_map_rgb(x, 0, 0)\n"
         lines = []
         for name in "RGBA":
             if name not in info_a.components: break
@@ -107,10 +107,12 @@ def macro_lines(info_a, info_b):
         r += ")\n"
         return r
 
-    if info_a.luminance:
+    if info_a.single_channel:
         lines = []
         for name in names:
-           if name == "X": continue
+           # Only map to R, and let A=1
+           if name in ["X", "G", "B"]:
+               continue
            c = info_b.components[name]
            shift = 8 - c.size - c.position
            m = hex(((1 << c.size) - 1) << c.position)
@@ -127,11 +129,16 @@ def macro_lines(info_a, info_b):
         r += " | \\\n   ".join(lines)
         r += ")\n"
         return r
-    
-    if info_b.luminance:
+
+    if info_b.single_channel:
         c = info_a.components["R"]
         m = (1 << c.size) - 1
-        r += "   (((x) >> " + str(c.position) + ") & " + hex(m) + ")\n"
+        extract = "(((x) >> " + str(c.position) + ") & " + hex(m) + ")"
+        if (c.size != 8):
+            scale = "(_al_rgb_scale_" + str(c.size) + "[" + extract + "])"
+        else:
+            scale = extract
+        r += "   " + scale + "\n"
         return r
 
     # Generate a list of (mask, shift, add) tuples for all components.
@@ -243,7 +250,7 @@ def converter_macro(info_a, info_b):
         elif info_b.name == "ABGR_8888_LE":
             r += macro_lines(info_a, formats_by_name["RGBA_8888"])
         else:
-            r += "#error Conversion %s -> %s not understood by make_converts.py" % (
+            r += "#error Conversion %s -> %s not understood by make_converters.py\n" % (
                 info_a.name, info_b.name)
         r += "#else\n"
         r += "#define " + name + "(x) \\\n"
@@ -262,8 +269,8 @@ def write_convert_h(filename):
     f = open(filename, "w")
     f.write("""\
 // Warning: This file was created by make_converters.py - do not edit.
-#ifndef _ALLEGRO_CONVERT_H
-#define _ALLEGRO_CONVERT_H
+#ifndef __al_included_allegro5_aintern_convert_h
+#define __al_included_allegro5_aintern_convert_h
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_pixels.h"

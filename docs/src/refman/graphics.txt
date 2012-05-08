@@ -170,8 +170,14 @@ in this order, independent of the endianness.
     red, green, blue, alpha. This only makes a difference on big endian
     systems, on little endian it is just an alias.
 * ALLEGRO_PIXEL_FORMAT_RGBA_4444 - 16bit
-* ALLEGRO_PIXEL_FORMAT_LUMINANCE_8 - 8 bit.
-    Since 5.1.0.
+* ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8 -
+    A single 8-bit channel.  A pixel value maps onto the red channel when
+    displayed, but it is undefined how it maps onto green, blue and alpha
+    channels.  When drawing to bitmaps of this format, only the red channel is
+    taken into account.  Allegro may have to use fallback methods to render to
+    bitmaps of this format.  This pixel format is mainly intended for storing
+    the color indices of an indexed (paletted) image, usually in conjunction
+    with a pixel shader that maps indices to RGBA values.  Since 5.1.2.
 
 See also: [al_set_new_bitmap_format], [al_get_bitmap_format]
 

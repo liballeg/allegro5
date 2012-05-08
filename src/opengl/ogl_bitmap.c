@@ -124,12 +124,12 @@ int _al_ogl_get_glformat(int format, int component)
       {GL_RGBA32F_ARB, GL_FLOAT, GL_RGBA}, /* ABGR_F32 */
       {GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA}, /* ABGR_8888_LE */
       {GL_RGBA4, GL_UNSIGNED_SHORT_4_4_4_4, GL_RGBA}, /* RGBA_4444 */
-      {GL_LUMINANCE, GL_UNSIGNED_BYTE, GL_LUMINANCE}, /* LUMINANCE_8 */
+      {GL_LUMINANCE, GL_UNSIGNED_BYTE, GL_LUMINANCE}, /* SINGLE_CHANNEL_8 */
    };
   
    if (al_get_opengl_version() >= _ALLEGRO_OPENGL_VERSION_3_0) {
-      glformats[ALLEGRO_PIXEL_FORMAT_LUMINANCE_8][0] = GL_RED;
-      glformats[ALLEGRO_PIXEL_FORMAT_LUMINANCE_8][2] = GL_RED;
+      glformats[ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8][0] = GL_RED;
+      glformats[ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8][2] = GL_RED;
    }
    #else
    static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
@@ -162,7 +162,7 @@ int _al_ogl_get_glformat(int format, int component)
       {0, 0, 0},
       {GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA}, /* ABGR_8888_LE */
       {GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, GL_RGBA}, /* RGBA_4444 */
-      {GL_LUMINANCE, GL_UNSIGNED_BYTE, GL_LUMINANCE}, /* LUMINANCE_8 */
+      {GL_LUMINANCE, GL_UNSIGNED_BYTE, GL_LUMINANCE}, /* SINGLE_CHANNEL_8 */
    };
    #endif
    

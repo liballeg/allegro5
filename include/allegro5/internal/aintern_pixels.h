@@ -227,7 +227,7 @@
             break;                                                            \
          }                                                                    \
                                                                               \
-         case ALLEGRO_PIXEL_FORMAT_LUMINANCE_8: {                             \
+         case ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8: {                        \
             uint8_t c = *(uint8_t *)(data);                                   \
             _AL_MAP_RGBA(color, c, c, c, 255);                                \
             if (advance)                                                      \
@@ -435,7 +435,7 @@
                data += 2;                                                     \
             break;                                                            \
                                                                               \
-         case ALLEGRO_PIXEL_FORMAT_LUMINANCE_8: {                             \
+         case ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8: {                        \
             uint8_t c = color.r;                                              \
             *(uint8_t *)data = c;                                             \
             if (advance)                                                      \

@@ -208,7 +208,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
    if (bpp == 8 && (color_type & PNG_COLOR_MASK_PALETTE) &&
       (flags & ALLEGRO_KEEP_INDEX))
    {
-      lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_LUMINANCE_8,
+      lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8,
          ALLEGRO_LOCK_WRITEONLY);
       index_only = true;
    }
