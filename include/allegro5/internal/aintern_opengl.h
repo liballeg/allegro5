@@ -4,6 +4,10 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 enum {
    _ALLEGRO_OPENGL_VERSION_0     = 0, /* dummy */
@@ -61,8 +65,6 @@ typedef struct ALLEGRO_BITMAP_EXTRA_OPENGL
 
    float left, top, right, bottom; /* Texture coordinates. */
    bool is_backbuffer; /* This is not a real bitmap, but the backbuffer. */
-
-   bool dirty;
 } ALLEGRO_BITMAP_EXTRA_OPENGL;
 
 typedef struct OPENGL_INFO {
@@ -158,5 +160,10 @@ void _al_ogl_add_drawing_functions(struct ALLEGRO_DISPLAY_INTERFACE *vt);
 
 AL_FUNC(bool, _al_opengl_set_blender, (ALLEGRO_DISPLAY *disp));
 AL_FUNC(char const *, _al_gl_error_string, (GLenum e));
+void ogl_setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

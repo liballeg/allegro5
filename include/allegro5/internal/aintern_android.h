@@ -11,8 +11,7 @@
 typedef struct ALLEGRO_SYSTEM_ANDROID {
    ALLEGRO_SYSTEM system;
    
-   int visuals_count;
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS **visuals;    
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS visual;
    
 } ALLEGRO_SYSTEM_ANDROID;
 

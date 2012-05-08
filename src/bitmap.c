@@ -135,12 +135,13 @@ static void _al_destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
 
 
 
-static ALLEGRO_BITMAP *do_create_bitmap(int w, int h)
+static ALLEGRO_BITMAP *do_create_bitmap(int w, int h, bool (*custom_upload)(ALLEGRO_BITMAP *bitmap, void *data), void *custom_data)
 {
    ALLEGRO_BITMAP *bitmap;
    ALLEGRO_BITMAP **back;
    ALLEGRO_SYSTEM *system = al_get_system_driver();
    ALLEGRO_DISPLAY *current_display = al_get_current_display();
+   bool result;
 
    if ((al_get_new_bitmap_flags() & ALLEGRO_MEMORY_BITMAP) ||
          (!current_display || !current_display->vt ||
@@ -178,13 +179,22 @@ static ALLEGRO_BITMAP *do_create_bitmap(int w, int h)
    bitmap->flags |= ALLEGRO_VIDEO_BITMAP;
    bitmap->dirty = !(bitmap->flags & ALLEGRO_NO_PRESERVE_TEXTURE);
 
-   ASSERT(bitmap->pitch >= w * al_get_pixel_size(bitmap->format));
+   if (custom_upload == NULL) {
+      ASSERT(bitmap->pitch >= w * al_get_pixel_size(bitmap->format));
+   }
 
    /* The display driver should have set the bitmap->memory field if
     * appropriate; video bitmaps may leave it NULL.
     */
 
-   if (!bitmap->vt->upload_bitmap(bitmap)) {
+   if (custom_upload) {
+      result = custom_upload(bitmap, custom_data);
+   }
+   else {
+      result = bitmap->vt->upload_bitmap(bitmap);
+   }
+
+   if (!result) {
       al_destroy_bitmap(bitmap);
       if (al_get_new_bitmap_flags() & ALLEGRO_VIDEO_BITMAP)
          return NULL;
@@ -207,7 +217,21 @@ static ALLEGRO_BITMAP *do_create_bitmap(int w, int h)
  */
 ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 {
-   ALLEGRO_BITMAP *bitmap = do_create_bitmap(w, h);
+   ALLEGRO_BITMAP *bitmap = do_create_bitmap(w, h, NULL, NULL);
+   if (bitmap) {
+      _al_register_destructor(_al_dtor_list, bitmap,
+         (void (*)(void *))al_destroy_bitmap);
+   }
+   
+   return bitmap;
+}
+
+
+/* Function: al_create_custom_bitmap
+ */
+ALLEGRO_BITMAP *al_create_custom_bitmap(int w, int h, bool (*upload)(ALLEGRO_BITMAP *bitmap, void *data), void *data)
+{
+   ALLEGRO_BITMAP *bitmap = do_create_bitmap(w, h, upload, data);
    if (bitmap) {
       _al_register_destructor(_al_dtor_list, bitmap,
          (void (*)(void *))al_destroy_bitmap);
@@ -493,7 +517,9 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
    if (bitmap->locked)
       return NULL;
 
-   bitmap->dirty = true;
+   if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP) &&
+         !(flags && ALLEGRO_LOCK_READONLY))
+      bitmap->dirty = true;
 
    ASSERT(x+width <= bitmap->w);
    ASSERT(y+height <= bitmap->h);
