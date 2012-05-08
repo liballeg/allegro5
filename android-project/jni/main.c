@@ -71,10 +71,12 @@ int main(int argc, char **argv)
    }
 
    /* This is loaded from assets in the apk */
+   al_set_apk_file_interface();
    image = al_load_bitmap("alexlogo.png");
    if(!image) {
       ALLEGRO_DEBUG("failed to load alexlogo.png");
    }
+   al_set_standard_file_interface();
    
    al_convert_mask_to_alpha(image, al_map_rgb(255,0,255));
    
