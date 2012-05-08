@@ -16,12 +16,14 @@ public class AllegroAPKStream
 
 	private long pos;
 	long fsize;
+	boolean at_eof;
 
 	public AllegroAPKStream(AllegroActivity activity, String filename)
 	{
 		this.activity = activity;
 		fn = filename;
 		pos = 0;
+		at_eof = false;
 	}
 
 	private boolean reopen()
@@ -92,6 +94,8 @@ public class AllegroAPKStream
 
 	public boolean seek(long seekto)
 	{
+		at_eof = false;
+
 		if (seekto >= pos) {
 			long seek_ahead = seekto - pos;
 			force_skip(seek_ahead);
@@ -120,6 +124,9 @@ public class AllegroAPKStream
 			int ret = in.read(b);
 			if (ret > 0)
 				pos += ret;
+			else if (ret == -1) {
+				at_eof = true;
+			}
 			return ret;
 		}
 		catch (IOException e) {
@@ -135,7 +142,7 @@ public class AllegroAPKStream
 
 	public boolean eof()
 	{
-		return pos >= fsize;
+		return at_eof;
 	}
 
 	public void ungetc(int c)
