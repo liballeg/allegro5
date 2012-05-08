@@ -149,8 +149,6 @@ ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_new(ALLEGRO_BITMAP *bitmap,
          x, gl_y, w, h, format);
    }
 
-   ogl_bitmap->dirty = true;
-
    glPopClientAttrib();
 
    if (old_disp != NULL) {
