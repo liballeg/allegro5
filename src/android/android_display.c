@@ -1,5 +1,5 @@
 /*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
+ *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
@@ -35,6 +35,7 @@
 ALLEGRO_DEBUG_CHANNEL("display")
 
 static ALLEGRO_DISPLAY_INTERFACE *vt;
+static ALLEGRO_EXTRA_DISPLAY_SETTINGS main_thread_display_settings;
 
 static void _al_android_update_visuals(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d);
 static void android_change_display_option(ALLEGRO_DISPLAY *d, int o, int v);
@@ -84,7 +85,7 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnDestroy(JNIE
       return;
    }
    if (!_al_vector_size(&sys->displays)) {
-      ALLEGRO_DEBUG("no display, not sending LOST/HALT event");
+      ALLEGRO_DEBUG("no display, not sending HALT event");
       return;
    }
    
@@ -93,15 +94,10 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnDestroy(JNIE
    _al_event_source_lock(&d->es);
    
    if(_al_event_source_needs_to_generate_event(&d->es)) {
-      event.display.type = ALLEGRO_EVENT_DISPLAY_LOST;
-      event.display.timestamp = al_current_time();
-      _al_event_source_emit_event(&d->es, &event);
       event.display.type = ALLEGRO_EVENT_DISPLAY_HALT_DRAWING;
       event.display.timestamp = al_current_time();
       _al_event_source_emit_event(&d->es, &event);
    }
-   
-   _al_android_clear_current(env, display);
    
    ALLEGRO_DEBUG("unlocking display event source");
    _al_event_source_unlock(&d->es);
@@ -110,7 +106,7 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnDestroy(JNIE
    al_lock_mutex(display->mutex);
    al_wait_cond(display->cond, display->mutex);
    al_unlock_mutex(display->mutex);
-   
+
    ALLEGRO_DEBUG("AllegroSurface_nativeOnDestroy end");
 }
 
@@ -163,15 +159,12 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnChange(JNIEn
          event.display.type = ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING;
          event.display.timestamp = al_current_time();
          _al_event_source_emit_event(&display->es, &event);
-         event.display.type = ALLEGRO_EVENT_DISPLAY_FOUND;
-         event.display.timestamp = al_current_time();
-         _al_event_source_emit_event(&display->es, &event);
       }
       
       ALLEGRO_DEBUG("unlocking display event source");
       _al_event_source_unlock(&display->es);
    }
-   
+  
    if (d->first_run) {
       al_broadcast_cond(d->cond);
       d->first_run = false;
@@ -183,7 +176,7 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnChange(JNIEn
       }
       ALLEGRO_DEBUG("Got al_acknowledge_drawing_resume");
    }
-   
+
    al_unlock_mutex(d->mutex);
 }
 
@@ -317,6 +310,7 @@ static bool _al_android_init_display(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *displ
 {
    ALLEGRO_SYSTEM_ANDROID *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY *d = (ALLEGRO_DISPLAY *)display;
+   int version, ret;
       
    ASSERT(system != NULL);
    ASSERT(display != NULL);
@@ -335,23 +329,29 @@ static bool _al_android_init_display(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *displ
       ALLEGRO_DEBUG("done updating visuals");
    }
    
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds[system->visuals_count];
-   memcpy(eds, system->visuals, sizeof(*eds) * system->visuals_count);
-   qsort(eds, system->visuals_count, sizeof(*eds), _al_display_settings_sorter);
+   memcpy(&d->extra_settings, &system->visual, sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
 
-   ALLEGRO_INFO("Chose visual no. %i\n", eds[0]->index); 
-
-   memcpy(&d->extra_settings, eds[0], sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
+   if (d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   	version = 2;
+   }
+   else {
+   	version = 1;
+   }
 
    ALLEGRO_DEBUG("calling egl_createContext");
-   if(!_jni_callBooleanMethodV(env, display->surface_object, "egl_createContext", "(I)Z", eds[0]->index)) {
+   if (!(ret = _jni_callIntMethodV(env, display->surface_object, "egl_createContext", "(I)I", version))) {
       // XXX should probably destroy the AllegroSurface here
       ALLEGRO_ERROR("failed to create egl context!");
       return false;
    }
+
+   if (ret == 2 && (d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
+   	ALLEGRO_DEBUG("DAMNIT");
+   	d->flags &= ~ALLEGRO_USE_PROGRAMMABLE_PIPELINE;
+   }
    
    ALLEGRO_DEBUG("calling egl_createSurface");
-   if(!_jni_callBooleanMethodV(env, display->surface_object, "egl_createSurface", "(I)Z", eds[0]->index)) {
+   if (!_jni_callBooleanMethodV(env, display->surface_object, "egl_createSurface", "()Z")) {
       // XXX should probably destroy the AllegroSurface here
       ALLEGRO_ERROR("failed to create egl surface!");
       return false;
@@ -362,7 +362,7 @@ static bool _al_android_init_display(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *displ
    _al_ogl_set_extensions(d->ogl_extras->extension_api);
 
    d->ogl_extras->backbuffer = _al_ogl_create_backbuffer(d);
-
+   
    return true;
 }
 
@@ -431,59 +431,61 @@ static void _al_android_resize_display(ALLEGRO_DISPLAY_ANDROID *d, int width, in
 
 static void _al_android_update_visuals(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
 {
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref;
+   const int RENDERABLE_TYPE = 0x3040;
+   const int OPENGLES2_BIT = 4;
+
    ALLEGRO_SYSTEM_ANDROID *system = (void *)al_get_system_driver();
+   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)d;
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref = &main_thread_display_settings;
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = &system->visual;
    
-   ref = _al_get_new_display_settings();
-   
-   /* If we aren't called the first time, only updated scores. */
-   if (system->visuals) {
-      int i;
-      for (i = 0; i < system->visuals_count; i++) {
-         ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = system->visuals[i];
-         eds->score = _al_score_display_settings(eds, ref);
+   eds->settings[ALLEGRO_RENDER_METHOD] = 1;
+   eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
+   eds->settings[ALLEGRO_SWAP_METHOD] = 2;
+   eds->settings[ALLEGRO_VSYNC] = 1;
+
+   /* FIXME: after setting our values and calling eglChooseConfig, read the values back into system->visual */
+   if ((ref->required & ((int64_t)1 << ALLEGRO_COLOR_SIZE)) || (ref->suggested & ((int64_t)1 << ALLEGRO_COLOR_SIZE))) {
+      if (ref->settings[ALLEGRO_COLOR_SIZE] == 16) {
+         _jni_callVoidMethodV(env, d->surface_object, "egl_setConfigAttrib", "(II)V", ALLEGRO_RED_SIZE, 5);
+         _jni_callVoidMethodV(env, d->surface_object, "egl_setConfigAttrib", "(II)V", ALLEGRO_GREEN_SIZE, 6);
+         _jni_callVoidMethodV(env, d->surface_object, "egl_setConfigAttrib", "(II)V", ALLEGRO_BLUE_SIZE, 5);
       }
-      return;
+      else { // only other thing supported is 32 bit
+         _jni_callVoidMethodV(env, d->surface_object, "egl_setConfigAttrib", "(II)V", ALLEGRO_RED_SIZE, 8);
+         _jni_callVoidMethodV(env, d->surface_object, "egl_setConfigAttrib", "(II)V", ALLEGRO_GREEN_SIZE, 8);
+         _jni_callVoidMethodV(env, d->surface_object, "egl_setConfigAttrib", "(II)V", ALLEGRO_BLUE_SIZE, 8);
+      }
+   }
+
+   /* There is no equivalent ot COLOR_SIZE in EGL except setting the individual components */
+
+   #define MAYBE_SET(v) (((ref->required & ((int64_t)1 << v)) || (ref->suggested & ((int64_t)1 << v))) ? \
+      _jni_callVoidMethodV(env, d->surface_object, "egl_setConfigAttrib", "(II)V", v, ref->settings[v]) : 0)
+
+   MAYBE_SET(ALLEGRO_RED_SIZE);
+   MAYBE_SET(ALLEGRO_GREEN_SIZE);
+   MAYBE_SET(ALLEGRO_BLUE_SIZE);
+   MAYBE_SET(ALLEGRO_ALPHA_SIZE);
+   MAYBE_SET(ALLEGRO_DEPTH_SIZE);
+   MAYBE_SET(ALLEGRO_STENCIL_SIZE);
+   MAYBE_SET(ALLEGRO_SAMPLE_BUFFERS);
+   MAYBE_SET(ALLEGRO_SAMPLES);
+
+   #undef MAYBE_SET
+
+   if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      _jni_callVoidMethodV(env, d->surface_object, "egl_setConfigAttrib", "(II)V", RENDERABLE_TYPE, OPENGLES2_BIT);
    }
    
-   int visuals_count = _jni_callIntMethod(env, d->surface_object, "egl_getNumConfigs");
-   
-   system->visuals = al_malloc(visuals_count * sizeof(*system->visuals));
-   system->visuals_count = visuals_count;
-   memset(system->visuals, 0, visuals_count * sizeof(*system->visuals));
-   
-   // if this is all too slow due to all the jni calls, try returning the settings as a single array
-   int i;
-   for (i = 0; i < visuals_count; i++) {
-      ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = al_malloc(sizeof *eds);
-      memset(eds, 0, sizeof *eds);
-
-      eds->settings[ALLEGRO_RENDER_METHOD] = 1;
-      eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
-      eds->settings[ALLEGRO_SWAP_METHOD] = 2;
-      eds->settings[ALLEGRO_VSYNC] = 1;
-      
-      eds->settings[ALLEGRO_RED_SIZE]       = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_RED_SIZE);
-      eds->settings[ALLEGRO_GREEN_SIZE]     = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_GREEN_SIZE);
-      eds->settings[ALLEGRO_BLUE_SIZE]      = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_BLUE_SIZE);
-      eds->settings[ALLEGRO_ALPHA_SIZE]     = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_ALPHA_SIZE);
-      eds->settings[ALLEGRO_COLOR_SIZE]     = eds->settings[ALLEGRO_RED_SIZE] + eds->settings[ALLEGRO_GREEN_SIZE] + eds->settings[ALLEGRO_BLUE_SIZE] + eds->settings[ALLEGRO_ALPHA_SIZE];
-      
-      eds->settings[ALLEGRO_DEPTH_SIZE]     = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_DEPTH_SIZE);
-      eds->settings[ALLEGRO_STENCIL_SIZE]   = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_STENCIL_SIZE);
-      eds->settings[ALLEGRO_SAMPLE_BUFFERS] = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_SAMPLE_BUFFERS);
-      eds->settings[ALLEGRO_SAMPLES]        = _jni_callIntMethodV(env, d->surface_object, "egl_getConfigAttrib", "(II)I", i, ALLEGRO_SAMPLES);
-      
-      // this might be an issue, if it is, query EGL_SURFACE_TYPE for EGL_VG_ALPHA_FORMAT_PRE_BIT
-      eds->settings[ALLEGRO_RED_SHIFT]      = 0;
-      eds->settings[ALLEGRO_GREEN_SHIFT]    = eds->settings[ALLEGRO_RED_SIZE];
-      eds->settings[ALLEGRO_BLUE_SHIFT]     = eds->settings[ALLEGRO_RED_SIZE] + eds->settings[ALLEGRO_GREEN_SIZE];
-      eds->settings[ALLEGRO_ALPHA_SHIFT]    = eds->settings[ALLEGRO_RED_SIZE] + eds->settings[ALLEGRO_GREEN_SIZE] + eds->settings[ALLEGRO_BLUE_SIZE];
-
-      eds->score = _al_score_display_settings(eds, ref);
-      eds->index = i;
-      system->visuals[i] = eds;
-   }
+   // Are these really needed?
+   /*
+   // this might be an issue, if it is, query EGL_SURFACE_TYPE for EGL_VG_ALPHA_FORMAT_PRE_BIT
+   eds->settings[ALLEGRO_RED_SHIFT]      = 0;
+   eds->settings[ALLEGRO_GREEN_SHIFT]    = eds->settings[ALLEGRO_RED_SIZE];
+   eds->settings[ALLEGRO_BLUE_SHIFT]     = eds->settings[ALLEGRO_RED_SIZE] + eds->settings[ALLEGRO_GREEN_SIZE];
+   eds->settings[ALLEGRO_ALPHA_SHIFT]    = eds->settings[ALLEGRO_RED_SIZE] + eds->settings[ALLEGRO_GREEN_SIZE] + eds->settings[ALLEGRO_BLUE_SIZE];
+   */
 }
 
 /* driver implementation hooks */
@@ -514,6 +516,9 @@ static ALLEGRO_DISPLAY *android_create_display(int w, int h)
    
    _al_event_source_init(&display->es);
    
+   /* Java thread needs this but it's thread local. For now we assume display is created and set up in main thread */
+   memcpy(&main_thread_display_settings, _al_get_new_display_settings(), sizeof(main_thread_display_settings));
+
    d->mutex = al_create_mutex();
    d->cond = al_create_cond();
    d->recreate = true;
@@ -739,9 +744,25 @@ static bool android_hide_mouse_cursor(ALLEGRO_DISPLAY *dpy)
 
 static void android_acknowledge_drawing_halt(ALLEGRO_DISPLAY *dpy)
 {
+   int i;
    ALLEGRO_DEBUG("android_acknowledge_drawing_halt");
 
+   for (i = 0; i < (int)dpy->bitmaps._size; i++) {
+      ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&dpy->bitmaps, i);
+      ALLEGRO_BITMAP *bmp = *bptr;
+      if (!(bmp->flags & ALLEGRO_MEMORY_BITMAP) && !bmp->parent) { // &&
+	    if (!(bmp->flags & ALLEGRO_NO_PRESERVE_TEXTURE)) {
+               ALLEGRO_BITMAP_EXTRA_OPENGL *extra = bmp->extra;
+               al_remove_opengl_fbo(bmp);
+               glDeleteTextures(1, &extra->texture);
+	       extra->texture = 0;
+	    }
+      }
+   }
+
    ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID *)dpy;
+   
+   _al_android_clear_current(_al_android_get_jnienv(), d);
 
    al_broadcast_cond(d->cond);
 
@@ -750,7 +771,7 @@ static void android_acknowledge_drawing_halt(ALLEGRO_DISPLAY *dpy)
 
 static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
 {
-   int i;
+   int i, size;
 
    ALLEGRO_DEBUG("begin");
 
@@ -765,35 +786,26 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
    
    _al_android_setup_opengl_view(dpy);
 
-   /* Restore bitmaps.
-    * Ones without ALLEGRO_NO_PRESERVE_TEXTURE will get data re-uploaded.
-    * Others will just have textures recreated (because at this point ALL
-    * textures are lost.)
-    */
-   for (i = 0; i < (int)dpy->bitmaps._size; i++) {
+   // Restore bitmaps
+   // have to get this because new bitmaps could be created below
+   size = (int)dpy->bitmaps._size;
+   for (i = 0; i < size; i++) {
       ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&dpy->bitmaps, i);
       ALLEGRO_BITMAP *bmp = *bptr;
-      if (!(bmp->flags & ALLEGRO_MEMORY_BITMAP) && !bmp->parent) {
-         void *ptr;
-         if (!(bmp->flags & ALLEGRO_NO_PRESERVE_TEXTURE)) {
-            ptr = bmp->memory;
-         }
-         else {
-            ptr = NULL;
-         }
+      if (!(bmp->flags & ALLEGRO_MEMORY_BITMAP) && !bmp->parent &&
+	       !(bmp->flags & ALLEGRO_NO_PRESERVE_TEXTURE)) {
          _al_ogl_upload_bitmap_memory(bmp, bmp->format, bmp->memory);
-         /* FIXME: Should we free bmp->memory here? We'd likely have to re-alloc later */
          bmp->dirty = false;
       }
    }
-  
+
    ALLEGRO_DEBUG("Broadcasting resume");
    al_lock_mutex(d->mutex);
    d->resumed = true;
    al_broadcast_cond(d->cond);
    al_unlock_mutex(d->mutex);
-   ALLEGRO_DEBUG("Broadcasting resume end");
-   
+   ALLEGRO_DEBUG("done broadcasting resume");
+
    ALLEGRO_DEBUG("acknowledge_drawing_resume end");
 }
 
