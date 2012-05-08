@@ -15,6 +15,7 @@
  */
 
 #include "allegro5/allegro.h"
+#include "allegro5/allegro_android.h"
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/internal/aintern_android.h"
 #include "allegro5/internal/aintern_tls.h"
@@ -29,8 +30,6 @@
 #include "allegro5/internal/aintern_opengl.h"
 
 ALLEGRO_DEBUG_CHANNEL("android")
-
-static const char *_android_get_os_version(JNIEnv *env);
 
 struct system_data_t {
    JNIEnv *env;
@@ -256,7 +255,7 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
    full_path = al_path_cstr(lib_path, ALLEGRO_NATIVE_PATH_SEP);
 
    // Android 2.1 has a bug with glClear we have to work around
-   const char *ver = _android_get_os_version(env);
+   const char *ver = al_android_get_os_version();
    if (!strncmp(ver, "2.1", 3)) {
       system_data.is_2_1 = true;
    }
@@ -680,10 +679,10 @@ ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags)
    return bitmap;
 }
 
-static const char *_android_get_os_version(JNIEnv *env)
+const char *al_android_get_os_version(void)
 {
    static char buffer[25];
-   ALLEGRO_USTR *s = _jni_callStringMethod(env, system_data.activity_object, "getOsVersion", "()Ljava/lang/String;");
+   ALLEGRO_USTR *s = _jni_callStringMethod(system_data.env, system_data.activity_object, "getOsVersion", "()Ljava/lang/String;");
    strncpy(buffer, al_cstr(s), 25);
    al_ustr_free(s);
    return buffer;
@@ -714,6 +713,12 @@ void _al_android_thread_created(void)
 void _al_android_thread_ended(void)
 {
    (*javavm)->DetachCurrentThread(javavm);
+}
+
+void _al_android_set_capture_volume_keys(ALLEGRO_DISPLAY *display, bool onoff)
+{
+   ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID *)display;
+   _jni_callVoidMethodV(_al_android_get_jnienv(), d->surface_object, "setCaptureVolumeKeys", "(Z)V", onoff);
 }
 
 /* register system interfaces */
