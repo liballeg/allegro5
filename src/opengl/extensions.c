@@ -880,7 +880,8 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
          s[ALLEGRO_SUPPORT_SEPARATE_ALPHA] = 1;
 
       s[ALLEGRO_SUPPORT_NPOT_BITMAP] =
-         ext_list->ALLEGRO_GL_ARB_texture_non_power_of_two;
+         ext_list->ALLEGRO_GL_ARB_texture_non_power_of_two ||
+         ext_list->ALLEGRO_GL_OES_texture_npot;
    ALLEGRO_INFO("Use of non-power-of-two textures %s.\n",
       s[ALLEGRO_SUPPORT_NPOT_BITMAP] ? "enabled" : "disabled");
 #if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
