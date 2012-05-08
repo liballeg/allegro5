@@ -79,6 +79,7 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap;
    ALLEGRO_FBO_INFO *info;
    GLint old_fbo;
+   ALLEGRO_DISPLAY *display = bitmap->display;
 
    if (bitmap->parent)
       bitmap = bitmap->parent;
@@ -119,8 +120,10 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
    /* You'll see this a couple times in this file: some ES 1.1 functions aren't implemented on
     * Android. This is an ugly workaround.
     */
-#if defined ALLEGRO_CFG_ANDROID_LEGACY
-   if (false)
+#if defined ALLEGRO_ANDROID
+   if ((display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) &&
+      glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) !=
+      GL_FRAMEBUFFER_COMPLETE_EXT)
 #else
    if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) !=
       GL_FRAMEBUFFER_COMPLETE_EXT)
@@ -193,9 +196,10 @@ static ALLEGRO_FBO_INFO *ogl_find_unused_fbo(ALLEGRO_DISPLAY *display)
 }
 
 
-static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
+void ogl_setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap;
+   GLint e;
 
    if (bitmap->parent)
       bitmap = bitmap->parent;
@@ -213,7 +217,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
        */
       if (ogl_bitmap->fbo_info == NULL && !(bitmap->flags & ALLEGRO_FORCE_LOCKING)) {
       
-#if defined ALLEGRO_IPHONE
+#if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
          /* FIXME This is quite a hack but I don't know how the Allegro
           * extension manager works to fix this properly (getting extensions
           * properly reported on iphone. All iOS devices support FBOs though
@@ -237,7 +241,13 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
             }
 
             glGenFramebuffersEXT(1, &info->fbo);
-            ALLEGRO_DEBUG("Created FBO: %u\n", info->fbo);
+            e = glGetError();
+            if (e) {
+               ALLEGRO_DEBUG("glGenFramebuffersEXT failed");
+            }
+            else {
+               ALLEGRO_DEBUG("Created FBO: %u\n", info->fbo);
+            }
          }
       }
       else {
@@ -246,7 +256,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 
       if (info && info->fbo) {
          /* Bind to the FBO. */
-#if !defined ALLEGRO_IPHONE
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
          ASSERT(display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
             display->ogl_extras->extension_list->ALLEGRO_GL_OES_framebuffer_object);
 #endif
@@ -265,9 +275,16 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
          glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
             GL_TEXTURE_2D, ogl_bitmap->texture, 0);
 
+         e = glGetError();
+         if (e) {
+            ALLEGRO_DEBUG("glFrameBufferTexture2DEXT failed! fbo=%d texture=%d (%s)", info->fbo, ogl_bitmap->texture, _al_gl_error_string(e));
+         }
+
          /* See comment about unimplemented functions on Android above */
-#if defined ALLEGRO_CFG_ANDROID_LEGACY
-         if (false) {
+#if defined ALLEGRO_ANDROID
+         if ((display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) &&
+            glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) !=
+            GL_FRAMEBUFFER_COMPLETE_EXT) {
 #else
          if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) !=
             GL_FRAMEBUFFER_COMPLETE_EXT) {
@@ -302,7 +319,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
    else {
       display->ogl_extras->opengl_target = bitmap;
 
-#if defined ALLEGRO_IPHONE
+#if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
       if (true) { // Hack
 #else
       if (display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
@@ -365,7 +382,7 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
     */
    if (!(bitmap->locked ||
         (bitmap->parent && bitmap->parent->locked))) {
-      setup_fbo(display, bitmap);
+      ogl_setup_fbo(display, bitmap);
       if (display->ogl_extras->opengl_target == target) {
          _al_ogl_setup_bitmap_clipping(bitmap);
       }
