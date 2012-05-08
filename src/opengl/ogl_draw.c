@@ -396,7 +396,8 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
       color_ptr_on(disp, 4, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX),
          (char*)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, r));
 
-      glDisableClientState(GL_NORMAL_ARRAY);
+      if (!(disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE))
+         glDisableClientState(GL_NORMAL_ARRAY);
    }
 
    glDrawArrays(GL_TRIANGLES, 0, disp->num_cache_vertices);
