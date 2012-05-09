@@ -135,7 +135,9 @@ static void _al_destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
 
 
 
-static ALLEGRO_BITMAP *do_create_bitmap(int w, int h, bool (*custom_upload)(ALLEGRO_BITMAP *bitmap, void *data), void *custom_data)
+static ALLEGRO_BITMAP *do_create_bitmap(int w, int h,
+   bool (*custom_upload)(ALLEGRO_BITMAP *bitmap, void *data),
+   void *custom_data)
 {
    ALLEGRO_BITMAP *bitmap;
    ALLEGRO_BITMAP **back;
@@ -229,7 +231,8 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 
 /* Function: al_create_custom_bitmap
  */
-ALLEGRO_BITMAP *al_create_custom_bitmap(int w, int h, bool (*upload)(ALLEGRO_BITMAP *bitmap, void *data), void *data)
+ALLEGRO_BITMAP *al_create_custom_bitmap(int w, int h,
+   bool (*upload)(ALLEGRO_BITMAP *bitmap, void *data), void *data)
 {
    ALLEGRO_BITMAP *bitmap = do_create_bitmap(w, h, upload, data);
    if (bitmap) {

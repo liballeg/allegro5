@@ -309,6 +309,12 @@ longer be used.
 
 See also: [al_create_bitmap]
 
+### API: al_create_custom_bitmap
+
+*Not yet documented.*
+
+Since: 5.1.2
+
 ### API: al_clone_bitmap
 
 Create a new bitmap with [al_create_bitmap], and copy the pixel data
