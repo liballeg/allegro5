@@ -142,6 +142,7 @@ ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_new(ALLEGRO_BITMAP *bitmap,
 void _al_ogl_unlock_region_new(ALLEGRO_BITMAP *bitmap);
 
 /* common driver */
+GLint _al_ogl_bind_framebuffer(GLint fbo);
 void _al_ogl_reset_fbo_info(ALLEGRO_FBO_INFO *info);
 bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap);
 ALLEGRO_FBO_INFO *_al_ogl_persist_fbo(ALLEGRO_DISPLAY *display,

@@ -678,15 +678,9 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_old(ALLEGRO_BITMAP *bitmap,
          }
 
          if (ogl_bitmap->fbo_info) {
-            GLint fbo = 0;
-#ifdef ALLEGRO_ANDROID
-            fbo = _al_android_get_curr_fbo();
-#else
-            glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &fbo);
-#endif
+            GLint old_fbo;
+            old_fbo = _al_ogl_bind_framebuffer(ogl_bitmap->fbo_info->fbo);
 
-            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ogl_bitmap->fbo_info->fbo);
-            
             e = glGetError();
             if (e) {
                ALLEGRO_ERROR("glBindFramebufferEXT failed (%s).\n",
@@ -732,7 +726,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_old(ALLEGRO_BITMAP *bitmap,
             bitmap->locked_region.data = ogl_bitmap->lock_buffer +
                pitch * (h - 1);
       
-            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+            _al_ogl_bind_framebuffer(old_fbo);
          }
          else {
 #if !defined ALLEGRO_ANDROID && !defined ALLEGRO_IPHONE
