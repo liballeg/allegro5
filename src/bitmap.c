@@ -181,10 +181,6 @@ static ALLEGRO_BITMAP *do_create_bitmap(int w, int h,
    bitmap->flags |= ALLEGRO_VIDEO_BITMAP;
    bitmap->dirty = !(bitmap->flags & ALLEGRO_NO_PRESERVE_TEXTURE);
 
-   if (custom_upload == NULL) {
-      ASSERT(bitmap->pitch >= w * al_get_pixel_size(bitmap->format));
-   }
-
    /* The display driver should have set the bitmap->memory field if
     * appropriate; video bitmaps may leave it NULL.
     */
@@ -193,6 +189,7 @@ static ALLEGRO_BITMAP *do_create_bitmap(int w, int h,
       result = custom_upload(bitmap, custom_data);
    }
    else {
+      ASSERT(bitmap->pitch >= w * al_get_pixel_size(bitmap->format));
       result = bitmap->vt->upload_bitmap(bitmap);
    }
 
