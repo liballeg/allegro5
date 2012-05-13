@@ -291,6 +291,18 @@ macro(add_monolith_sources var addon sources)
    endforeach(s ${sources})
 endmacro(add_monolith_sources addon sources)
 
+# This macro is called by each addon. It expects the following variables to
+# exist:
+#
+# ${ADDON}_SOURCES
+# ${ADDON}_INCLUDE_FILES
+# ${ADDON}_INCLUDE_DIRECTORIES
+# ${ADDON}_LINK_DIRECTORIES
+# ${ADDON}_DEFINES
+# ${ADDON}_LIBRARIES
+#
+# This is useful so we can build the monolith library without having any other
+# special code for it in the addon CMakeLists.txt files.
 macro(add_addon addon)
    string(TOUPPER ${addon} ADDON)
    set(SUPPORT_${ADDON} 1 PARENT_SCOPE)
