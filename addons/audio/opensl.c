@@ -3,8 +3,6 @@
  * http://www.khronos.org/registry/sles/specs/OpenSL_ES_Specification_1.1.pdf
  */
 
-/* 4/29/2012: dummy implementation */
-
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_audio.h"
 
