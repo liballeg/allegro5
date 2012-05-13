@@ -190,7 +190,9 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
    jclass iae;
    jclass aisc;
    jclass asc;
-   
+
+   ALLEGRO_DEBUG("entered nativeOnCreate");
+
    // we're already initialized, we REALLY don't want to run all the stuff below again.
    if(system_data.system) {
       return true;
@@ -221,14 +223,18 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
    system_data.mutex = al_create_mutex();
    system_data.cond  = al_create_cond();
 
-   ALLEGRO_DEBUG("get lib_dir, app_name, and data_dir");
+   ALLEGRO_DEBUG("get directories");
    system_data.lib_dir  = _jni_callStringMethod(env, system_data.activity_object, "getLibraryDir", "()Ljava/lang/String;");
    system_data.app_name = _jni_callStringMethod(env, system_data.activity_object, "getAppName", "()Ljava/lang/String;");
    system_data.resources_dir = _jni_callStringMethod(env, system_data.activity_object, "getResourcesDir", "()Ljava/lang/String;");
-	system_data.data_dir = _jni_callStringMethod(env, system_data.activity_object, "getPubDataDir", "()Ljava/lang/String;");
+   system_data.data_dir = _jni_callStringMethod(env, system_data.activity_object, "getPubDataDir", "()Ljava/lang/String;");
    system_data.apk_path = _jni_callStringMethod(env, system_data.activity_object, "getApkPath", "()Ljava/lang/String;");
-	ALLEGRO_DEBUG("got lib_dir: %s, app_name: %s, resources_dir: %s, data_dir: %s, apk_path: %s", al_cstr(system_data.lib_dir), al_cstr(system_data.app_name), al_cstr(system_data.resources_dir), al_cstr(system_data.data_dir), al_cstr(system_data.apk_path));
-   
+   ALLEGRO_DEBUG("lib_dir: %s", al_cstr(system_data.lib_dir));
+   ALLEGRO_DEBUG("app_name: %s", al_cstr(system_data.app_name));
+   ALLEGRO_DEBUG("resources_dir: %s", al_cstr(system_data.resources_dir));
+   ALLEGRO_DEBUG("data_dir: %s", al_cstr(system_data.data_dir));
+   ALLEGRO_DEBUG("apk_path: %s", al_cstr(system_data.apk_path));
+
    ALLEGRO_DEBUG("creating ALLEGRO_SYSTEM_ANDROID struct");
    na_sys = system_data.system = (ALLEGRO_SYSTEM_ANDROID*)al_malloc(sizeof *na_sys);
    memset(na_sys, 0, sizeof *na_sys);
@@ -266,10 +272,11 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
    ALLEGRO_DEBUG("load user lib: %s", full_path);
    system_data.user_lib = dlopen(full_path, RTLD_LAZY|RTLD_GLOBAL);
    if(!system_data.user_lib) {
-      ALLEGRO_ERROR("failed to load user app: '%s': %s", full_path, dlerror());
+      ALLEGRO_ERROR("failed to load user app: '%s'", full_path);
+      ALLEGRO_ERROR("%s", dlerror());
       return false;
    }
-   
+
    ALLEGRO_DEBUG("grab user main");
    system_data.user_main = dlsym(system_data.user_lib, "main");
    if(!system_data.user_main) {
@@ -277,7 +284,7 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
       dlclose(system_data.user_lib);
       return false;
    }
-   
+
    ALLEGRO_DEBUG("creating trampoline for app thread");
    system_data.trampoline = al_create_thread(android_app_trampoline, NULL);
    al_start_thread(system_data.trampoline);
@@ -289,7 +296,7 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
    }
    al_unlock_mutex(system_data.mutex);
 
-   ALLEGRO_DEBUG("setup done. returning to dalkvik.");
+   ALLEGRO_DEBUG("setup done. returning to dalvik.");
    
    return true;
 }
