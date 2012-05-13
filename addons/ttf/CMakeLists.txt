@@ -22,7 +22,7 @@ if(ZLIB_FOUND AND NOT IPHONE)
     list(APPEND TTF_LIBRARIES ${ZLIB_LIBRARIES})
 endif()
 
-add_our_library(allegro_ttf
+add_our_addon_library(allegro_ttf
     "${TTF_SOURCES};${TTF_INCLUDE_FILES}"
     "-DALLEGRO_TTF_SRC"
     "${FONT_LINK_WITH};${TTF_LIBRARIES}"
@@ -30,7 +30,6 @@ add_our_library(allegro_ttf
 
 set_our_framework_properties(allegro_ttf AllegroTTF-${ALLEGRO_SOVERSION})
 
-install_our_library(allegro_ttf)
 install_our_headers(${TTF_INCLUDE_FILES})
 
 add_addon(ttf)

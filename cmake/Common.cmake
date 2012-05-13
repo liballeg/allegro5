@@ -67,7 +67,6 @@ endfunction(sanitize_cmake_link_flags)
 
 function(add_our_library target sources extra_flags link_with)
     # BUILD_SHARED_LIBS controls whether this is a shared or static library.
-
     add_library(${target} ${sources})
 
     if(NOT BUILD_SHARED_LIBS)
@@ -128,7 +127,14 @@ function(add_our_library target sources extra_flags link_with)
         PROPERTIES
         static_link_with "${return}"
         )
+    install_our_library(${target})
 endfunction(add_our_library)
+
+macro(add_our_addon_library target sources extra_flags link_with)
+if(NOT WANT_MONOLITH)
+add_our_library(${target} "${sources}" "${extra_flags}" "${link_with}")
+endif()
+endmacro(add_our_addon_library)
 
 function(set_our_framework_properties target nm)
     if(WANT_FRAMEWORKS)

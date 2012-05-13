@@ -73,19 +73,25 @@ if(SUPPORT_FONT AND SUPPORT_TTF AND SUPPORT_AUDIO AND SUPPORT_ACODEC AND SUPPORT
     
     fix_executable(skater)
 
-    target_link_libraries(skater
-      ${ACODEC_LINK_WITH}
-      ${AUDIO_LINK_WITH}
-      ${COLOR_LINK_WITH}
-      ${FONT_LINK_WITH}
-      ${IMAGE_LINK_WITH}
-      ${ALLEGRO_MAIN_LINK_WITH}
-      ${MEMFILE_LINK_WITH}
-      ${NATIVE_DIALOG_LINK_WITH}
-      ${PHYSFS_LINK_WITH}
-      ${PRIMITIVES_LINK_WITH}
-      ${TTF_LINK_WITH}
-      )
+    if(WANT_MONOLITH)
+       target_link_libraries(skater
+         ${ALLEGRO_MONOLITH_LINK_WITH}
+         )
+    else(WANT_MONOLITH)
+       target_link_libraries(skater
+         ${ACODEC_LINK_WITH}
+         ${AUDIO_LINK_WITH}
+         ${COLOR_LINK_WITH}
+         ${FONT_LINK_WITH}
+         ${IMAGE_LINK_WITH}
+         ${ALLEGRO_MAIN_LINK_WITH}
+         ${MEMFILE_LINK_WITH}
+         ${NATIVE_DIALOG_LINK_WITH}
+         ${PHYSFS_LINK_WITH}
+         ${PRIMITIVES_LINK_WITH}
+         ${TTF_LINK_WITH}
+         )
+    endif(WANT_MONOLITH)
 
     if(NOT BUILD_SHARED_LIBS) 
         set_target_properties(skater PROPERTIES COMPILE_FLAGS "-DALLEGRO_STATICLINK")

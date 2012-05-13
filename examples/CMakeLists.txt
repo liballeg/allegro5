@@ -57,7 +57,9 @@ function(example name)
 endfunction(example)
 
 macro(add_example nm)
-    if(WANT_POPUP_EXAMPLES AND SUPPORT_NATIVE_DIALOG)
+    if(WANT_MONOLITH)
+        add_our_executable(${nm} ${ARGN} ${ALLEGRO_MONOLITH_LINK_WITH})
+    elseif(WANT_POPUP_EXAMPLES AND SUPPORT_NATIVE_DIALOG)
         add_our_executable(${nm} ${ARGN} ${ALLEGRO_LINK_WITH} ${ALLEGRO_MAIN_LINK_WITH} ${NATIVE_DIALOG_LINK_WITH})
     else()
         add_our_executable(${nm} ${ARGN} ${ALLEGRO_LINK_WITH} ${ALLEGRO_MAIN_LINK_WITH} )
@@ -66,6 +68,7 @@ endmacro(add_example nm)
 
 #-----------------------------------------------------------------------------#
 
+if(NOT WANT_MONOLITH)
 set(AUDIO x${AUDIO_LINK_WITH})
 set(ACODEC x${ACODEC_LINK_WITH})
 set(COLOR x${COLOR_LINK_WITH})
@@ -78,6 +81,7 @@ set(PRIM x${PRIMITIVES_LINK_WITH})
 set(TTF x${TTF_LINK_WITH})
 set(SHADER x${SHADER_LINK_WITH})
 set(VIDEO x${VIDEO_LINK_WITH})
+endif(NOT WANT_MONOLITH)
 
 set(NIHGUI nihgui.cpp ${FONT} ${PRIM})
 

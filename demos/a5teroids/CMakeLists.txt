@@ -70,14 +70,20 @@ if(SUPPORT_FONT AND SUPPORT_AUDIO AND SUPPORT_ACODEC)
     
     fix_executable(a5teroids)
 
-    target_link_libraries(a5teroids
-        ${ALLEGRO_MAIN_LINK_WITH}
-        ${FONT_LINK_WITH}
-        ${IMAGE_LINK_WITH}
-        ${AUDIO_LINK_WITH}
-        ${ACODEC_LINK_WITH}
-        ${PRIMITIVES_LINK_WITH}
-        )
+    if(WANT_MONOLITH)
+       target_link_libraries(a5teroids
+           ${ALLEGRO_MONOLITH_LINK_WITH}
+           )
+    else(WANT_MONOLITH)
+       target_link_libraries(a5teroids
+           ${ALLEGRO_MAIN_LINK_WITH}
+           ${FONT_LINK_WITH}
+           ${IMAGE_LINK_WITH}
+           ${AUDIO_LINK_WITH}
+           ${ACODEC_LINK_WITH}
+           ${PRIMITIVES_LINK_WITH}
+           )
+    endif(WANT_MONOLITH)
 
     if(NOT BUILD_SHARED_LIBS) 
         set_target_properties(a5teroids PROPERTIES COMPILE_FLAGS "-DALLEGRO_STATICLINK")

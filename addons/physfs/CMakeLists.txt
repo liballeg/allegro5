@@ -6,7 +6,7 @@ set(PHYSFS_INCLUDE_FILES allegro5/allegro_physfs.h)
 
 set_our_header_properties(${PHYSFS_INCLUDE_FILES})
 
-add_our_library(allegro_physfs
+add_our_addon_library(allegro_physfs
    "${PHYSFS_SOURCES};${PHYSFS_INCLUDE_FILES}"
    "-DALLEGRO_PHYSFS_SRC"
    "${ALLEGRO_LINK_WITH};${PHYSFS_LIBRARIES}"
@@ -14,7 +14,6 @@ add_our_library(allegro_physfs
 
 set_our_framework_properties(allegro_physfs AllegroPhysfs-${ALLEGRO_SOVERSION})
 
-install_our_library(allegro_physfs)
 install_our_headers(${PHYSFS_INCLUDE_FILES})
 
 add_addon(physfs)

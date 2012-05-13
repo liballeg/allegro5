@@ -6,7 +6,7 @@ set(COLOR_INCLUDE_FILES
 
 set_our_header_properties(${COLOR_INCLUDE_FILES})
 
-add_our_library(allegro_color
+add_our_addon_library(allegro_color
     "${COLOR_SOURCES};${COLOR_INCLUDE_FILES}"
     "-DALLEGRO_COLOR_SRC"
     "${ALLEGRO_LINK_WITH}"
@@ -14,7 +14,6 @@ add_our_library(allegro_color
 
 set_our_framework_properties(allegro_color AllegroColor-${ALLEGRO_SOVERSION})
 
-install_our_library(allegro_color)
 install_our_headers(${COLOR_INCLUDE_FILES})
 
 add_addon(color)

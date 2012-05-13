@@ -8,15 +8,13 @@ if(NOT SUPPORT_ALLEGRO_MAIN)
     set(SUPPORT_ALLEGRO_MAIN 1)
 endif(NOT SUPPORT_ALLEGRO_MAIN)
 
-add_our_library(allegro_main
+add_our_addon_library(allegro_main
    "${SOURCES}"
    "-DALLEGRO_SRC"
    "${ALLEGRO_LINK_WITH}"
    )
 
 set_our_framework_properties(allegro_main AllegroMain-${ALLEGRO_SOVERSION})
-
-install_our_library(allegro_main)
 
 add_addon(main)
 

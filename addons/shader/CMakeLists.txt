@@ -10,7 +10,6 @@ set(SHADER_SOURCES
     )
 
 set(SHADER_DEFINES "-DALLEGRO_SHADER_SRC")
-set(SHADER_LIBRARIES "${ALLEGRO_LINK_WITH}")
 
 if(WANT_OPENGL)
     list(APPEND SHADER_SOURCES shader_glsl.c)
@@ -63,7 +62,7 @@ endif(WANT_CG_SHADERS)
 
 include_directories(.)
 
-add_our_library(allegro_shader
+add_our_addon_library(allegro_shader
    "${SHADER_SOURCES};${SHADER_INCLUDE_FILES}"
    "${SHADER_DEFINES}"
    "${SHADER_LIBRARIES}"
@@ -71,7 +70,6 @@ add_our_library(allegro_shader
 
 set_our_framework_properties(allegro_shader AllegroShader-${ALLEGRO_SOVERSION})
 
-install_our_library(allegro_shader)
 install_our_headers(${SHADER_INCLUDE_FILES})
 
 add_addon(shader)

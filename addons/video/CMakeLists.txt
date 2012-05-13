@@ -50,7 +50,7 @@ if(NOT SUPPORT_VIDEO)
     return()
 endif(NOT SUPPORT_VIDEO)
 
-add_our_library(allegro_video
+add_our_addon_library(allegro_video
     "${VIDEO_SOURCES};${VIDEO_INCLUDE_FILES}"
     "-DALLEGRO_VIDEO_SRC"
     "${ALLEGRO_LINK_WITH};${VIDEO_LIBRARIES}"
@@ -58,7 +58,6 @@ add_our_library(allegro_video
 
 set_our_framework_properties(allegro_video AllegroVideo-${ALLEGRO_SOVERSION})
 
-install_our_library(allegro_video)
 install_our_headers(${VIDEO_INCLUDE_FILES})
 
 add_addon(video)

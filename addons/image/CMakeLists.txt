@@ -143,7 +143,7 @@ configure_file(
     ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_image_cfg.h
     )
 
-add_our_library(allegro_image
+add_our_addon_library(allegro_image
     "${IMAGE_SOURCES};${IMAGE_INCLUDE_FILES}"
     "-DALLEGRO_IIO_SRC"
     "${ALLEGRO_LINK_WITH};${IMAGE_LIBRARIES}"
@@ -151,7 +151,6 @@ add_our_library(allegro_image
 
 set_our_framework_properties(allegro_image AllegroImage-${ALLEGRO_SOVERSION})
 
-install_our_library(allegro_image)
 install_our_headers(${IMAGE_INCLUDE_FILES})
 
 add_addon(image)

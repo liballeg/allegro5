@@ -258,7 +258,7 @@ configure_file(
     ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_acodec_cfg.h
     )
 
-add_our_library(allegro_acodec
+add_our_addon_library(allegro_acodec
     "${ACODEC_SOURCES};${ACODEC_INCLUDE_FILES}"
     "-DALLEGRO_ACODEC_SRC ${FLAC__NO_DLL}"
     "${AUDIO_LINK_WITH};${ACODEC_LIBRARIES}"
@@ -266,7 +266,6 @@ add_our_library(allegro_acodec
 
 set_our_framework_properties(allegro_acodec AllegroAcodec-${ALLEGRO_SOVERSION})
 
-install_our_library(allegro_acodec)
 install_our_headers(${ACODEC_INCLUDE_FILES})
 
 add_addon(acodec)

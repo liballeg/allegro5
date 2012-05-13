@@ -43,13 +43,19 @@ add_executable(speed ${DEMO_EXECUTABLE_TYPE} ${SPEED_SRCS} ${A4_FONT})
 
 fix_executable(speed)
 
-target_link_libraries(speed
-    ${ALLEGRO_MAIN_LINK_WITH}
-    ${AUDIO_LINK_WITH}
-    ${PRIMITIVES_LINK_WITH}
-    ${FONT_LINK_WITH}
-    ${IMAGE_LINK_WITH}
-    )
+if(WANT_MONOLITH)
+   target_link_libraries(speed
+       ${ALLEGRO_MONOLITH_LINK_WITH}
+       )
+else(WANT_MONOLITH)
+   target_link_libraries(speed
+       ${ALLEGRO_MAIN_LINK_WITH}
+       ${AUDIO_LINK_WITH}
+       ${PRIMITIVES_LINK_WITH}
+       ${FONT_LINK_WITH}
+       ${IMAGE_LINK_WITH}
+       )
+endif(WANT_MONOLITH)
 
 if(NOT BUILD_SHARED_LIBS)
     set_target_properties(speed PROPERTIES COMPILE_FLAGS "-DALLEGRO_STATICLINK")

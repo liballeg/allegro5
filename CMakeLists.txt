@@ -801,6 +801,7 @@ endforeach(genfile)
 
 set_our_header_properties(${ALLEGRO_PUBLIC_HEADERS})
 
+if(NOT WANT_MONOLITH)
 # ALLEGRO_LIB_BUILD is defined for all Allegro sources (core and addon)
 # ALLEGRO_SRC is defined only while compiling the core sources (its use is
 # to get the DLL #defines right under Windows for creating DLL export functions
@@ -814,11 +815,12 @@ add_our_library(allegro
 # Allegro 4 has taken "Allegro" as the name of the framework.
 set_our_framework_properties(allegro Allegro-${ALLEGRO_SOVERSION})
 
-install_our_library(allegro)
-install_our_headers(${ALLEGRO_PUBLIC_HEADERS})
+endif(NOT WANT_MONOLITH)
 
 # Addons and examples should link with this target.
 set(ALLEGRO_LINK_WITH allegro)
+
+install_our_headers(${ALLEGRO_PUBLIC_HEADERS})
 
 #-----------------------------------------------------------------------------#
 #
@@ -851,7 +853,8 @@ add_our_library(allegro_monolith
 
 set_our_framework_properties(allegro_monolith AllegroMonolith-${ALLEGRO_SOVERSION})
 
-install_our_library(allegro_monolith)
+set(ALLEGRO_MONOLITH_LINK_WITH allegro_monolith)
+
 endif(WANT_MONOLITH)
 
 #-----------------------------------------------------------------------------#

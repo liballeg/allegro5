@@ -28,16 +28,23 @@ if(MSVC)
     set(EXECUTABLE_TYPE)
 endif(MSVC)
 
-add_our_executable(
-    test_driver
-    ${ALLEGRO_LINK_WITH}
-    ${ALLEGRO_MAIN_LINK_WITH}
-    ${IMAGE_LINK_WITH}
-    ${COLOR_LINK_WITH}
-    ${FONT_LINK_WITH}
-    ${TTF_LINK_WITH}
-    ${PRIMITIVES_LINK_WITH}
-    )
+if(WANT_MONOLITH)
+   add_our_executable(
+       test_driver
+       ${ALLEGRO_MONOLITH_LINK_WITH}
+       )
+else(WANT_MONOLITH)
+   add_our_executable(
+       test_driver
+       ${ALLEGRO_LINK_WITH}
+       ${ALLEGRO_MAIN_LINK_WITH}
+       ${IMAGE_LINK_WITH}
+       ${COLOR_LINK_WITH}
+       ${FONT_LINK_WITH}
+       ${TTF_LINK_WITH}
+       ${PRIMITIVES_LINK_WITH}
+       )
+endif(WANT_MONOLITH)
 
 set(test_files
     ${CMAKE_CURRENT_SOURCE_DIR}/test_bitmaps.ini
