@@ -350,7 +350,7 @@ ALLEGRO_CONFIG *al_load_config_file_f(ALLEGRO_FILE *file)
 
       if (al_ustr_has_prefix_cstr(line, "#") || al_ustr_size(line) == 0) {
          /* Preserve comments and blank lines */
-         ALLEGRO_USTR *name;
+         const ALLEGRO_USTR *name;
          if (current_section)
             name = current_section->name;
          else

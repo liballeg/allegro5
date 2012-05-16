@@ -148,7 +148,7 @@ ALLEGRO_USTR *al_ustr_dup_substr(const ALLEGRO_USTR *us, int start_pos,
 
 /* Function: al_ustr_empty_string
  */
-ALLEGRO_USTR *al_ustr_empty_string(void)
+const ALLEGRO_USTR *al_ustr_empty_string(void)
 {
    static struct _al_tagbstring empty = _al_bsStatic("");
    return &empty;
