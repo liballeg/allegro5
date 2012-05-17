@@ -65,7 +65,7 @@ include_directories(.)
 add_our_addon_library(allegro_shader
    "${SHADER_SOURCES};${SHADER_INCLUDE_FILES}"
    "${SHADER_DEFINES}"
-   "${SHADER_LIBRARIES}"
+   "${ALLEGRO_LINK_WITH};${SHADER_LIBRARIES}"
    )
 
 set_our_framework_properties(allegro_shader AllegroShader-${ALLEGRO_SOVERSION})
