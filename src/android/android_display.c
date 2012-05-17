@@ -74,16 +74,11 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnDestroy(JNIE
    ALLEGRO_EVENT event;
 
    ALLEGRO_DEBUG("AllegroSurface_nativeOnDestroy");
-   (void)env;
    (void)obj;
+   (void)env;
 
    display->created = false;
    
-   /* no display, just skip */
-   if(!_al_android_is_paused()) {
-      ALLEGRO_DEBUG("system not paused");
-      return;
-   }
    if (!_al_vector_size(&sys->displays)) {
       ALLEGRO_DEBUG("no display, not sending HALT event");
       return;
@@ -792,7 +787,11 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
    for (i = 0; i < size; i++) {
       ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&dpy->bitmaps, i);
       ALLEGRO_BITMAP *bmp = *bptr;
-      if (!(bmp->flags & ALLEGRO_MEMORY_BITMAP) && !bmp->parent &&
+      if (bmp->parent) {
+         ALLEGRO_BITMAP_EXTRA_OPENGL *extra = (ALLEGRO_BITMAP_EXTRA_OPENGL *)bmp->extra;
+	 extra->texture = al_get_opengl_texture(bmp->parent);
+      }
+      else if (!(bmp->flags & ALLEGRO_MEMORY_BITMAP) &&
 	       !(bmp->flags & ALLEGRO_NO_PRESERVE_TEXTURE)) {
          _al_ogl_upload_bitmap_memory(bmp, bmp->format, bmp->memory);
          bmp->dirty = false;
