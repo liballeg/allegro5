@@ -190,6 +190,8 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          glEnableClientState(GL_COLOR_ARRAY);
          glEnableClientState(GL_VERTEX_ARRAY);
          glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+         if (!(display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE))
+	    glDisableClientState(GL_NORMAL_ARRAY);
    
          glVertexPointer(3, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].x);
          glColorPointer(4, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].color.r);
