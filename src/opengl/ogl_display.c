@@ -211,9 +211,11 @@ void ogl_setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
    ogl_bitmap = bitmap->extra;
 
 #if !defined ALLEGRO_GP2XWIZ
+   /* We can't return here. Target's FBO can be taken away by locking
+      a lot of bitmaps consecutively.
    if (display->ogl_extras->opengl_target == bitmap) {
-      return;
    }
+   */
 
    if (!ogl_bitmap->is_backbuffer) {
       ALLEGRO_FBO_INFO *info = NULL;
@@ -266,6 +268,7 @@ void ogl_setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
          ASSERT(display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
             display->ogl_extras->extension_list->ALLEGRO_GL_OES_framebuffer_object);
 #endif
+
          if (info->fbo_state == FBO_INFO_UNUSED)
             info->fbo_state = FBO_INFO_TRANSIENT;
          info->owner = bitmap;
