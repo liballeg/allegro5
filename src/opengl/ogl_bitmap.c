@@ -664,12 +664,6 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_old(ALLEGRO_BITMAP *bitmap,
             pitch * (h - 1);
       }
       else {
-         /* NOTE: GLES 1.1 can only read 4 byte pixels, we have to convert */
-         #if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
-         unsigned char *tmpbuf;
-         int tmp_pitch;
-         #endif
-
          ALLEGRO_DEBUG("Locking non-backbuffer %s\n", flags & ALLEGRO_LOCK_READONLY ? "READONLY" : "READWRITE");
       
          /* Create an FBO if there isn't one. */
@@ -688,14 +682,17 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_old(ALLEGRO_BITMAP *bitmap,
             }
 
             pitch = ogl_pitch(w, pixel_size);
-            ogl_bitmap->lock_buffer = al_malloc(pitch * h);
+            /* Allocate a buffer big enough for both purposes. This requires more
+             * memory to be held for the period of the lock, but overall less
+             * memory is needed to complete the lock.
+             */
+            ogl_bitmap->lock_buffer = al_malloc(_ALLEGRO_MAX(pitch * h, ogl_pitch(w, 4) * h));
 
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID // OPENGLES1 (and 2?)
-            tmp_pitch = ogl_pitch(w, 4);
-            tmpbuf = al_malloc(tmp_pitch * h);
+            /* NOTE: GLES (1.1?) can only read 4 byte pixels, we have to convert */
+#if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
             glReadPixels(x, gl_y, w, h,
                GL_RGBA, GL_UNSIGNED_BYTE,
-               tmpbuf);
+               ogl_bitmap->lock_buffer);
 #else
             glReadPixels(x, gl_y, w, h, 
                get_glformat(format, 2),
@@ -710,17 +707,16 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_old(ALLEGRO_BITMAP *bitmap,
             }
 
 #if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
+            /* That's right, we convert in-place 8-) (safe as long as dst size <= src size, which it always is) */
             _al_convert_bitmap_data(
-               tmpbuf,
+               ogl_bitmap->lock_buffer,
                ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
-               tmp_pitch,
+               ogl_pitch(w, 4),
                ogl_bitmap->lock_buffer,
                format,
                pitch,
                0, 0, 0, 0,
                w, h);
-
-            al_free(tmpbuf);
 #endif
 
             bitmap->locked_region.data = ogl_bitmap->lock_buffer +
@@ -887,6 +883,16 @@ static void ogl_unlock_region_old(ALLEGRO_BITMAP *bitmap)
    }
 #endif
    else {
+      GLint fbo;
+#ifdef ALLEGRO_ANDROID
+      fbo = _al_android_get_curr_fbo();
+#else
+      glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &fbo);
+#endif
+      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+#ifdef ALLEGRO_ANDROID
+      _al_android_set_curr_fbo(0);
+#endif
 
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
 
@@ -963,6 +969,11 @@ static void ogl_unlock_region_old(ALLEGRO_BITMAP *bitmap)
             }
          }
       }
+      
+      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+#ifdef ALLEGRO_ANDROID
+      _al_android_set_curr_fbo(fbo);
+#endif
    }
 
    if (biased_alpha) {
