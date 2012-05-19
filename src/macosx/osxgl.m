@@ -2006,6 +2006,7 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void)
       vt->set_window_title = set_window_title;
       vt->set_display_flag = set_display_flag;
       vt->set_icon = set_icon;
+      vt->update_render_state = _al_ogl_update_render_state;
       _al_ogl_add_drawing_functions(vt);
    }
    return vt;
