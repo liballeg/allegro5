@@ -822,6 +822,7 @@ static bool xdpy_set_current_display(ALLEGRO_DISPLAY *d)
    }
 
    _al_ogl_set_extensions(ogl->extension_api);
+   _al_ogl_update_render_state(d);
 
    return true;
 }
@@ -1271,6 +1272,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    xdpy_vt.get_window_constraints = xdpy_get_window_constraints;
    xdpy_vt.set_display_flag = xdpy_set_display_flag;
    xdpy_vt.wait_for_vsync = xdpy_wait_for_vsync;
+   xdpy_vt.update_render_state = _al_ogl_update_render_state;
 
    _al_xglx_add_cursor_functions(&xdpy_vt);
    _al_ogl_add_drawing_functions(&xdpy_vt);

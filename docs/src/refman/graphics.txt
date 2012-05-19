@@ -560,7 +560,18 @@ the last display created in a thread.
 
 Clear the complete target bitmap, but confined by the clipping rectangle.
 
-See also: [ALLEGRO_COLOR], [al_set_clipping_rectangle]
+See also: [ALLEGRO_COLOR], [al_set_clipping_rectangle], [al_clear_depth_buffer]
+
+### API: al_clear_depth_buffer
+
+Clear the depth buffer (confined by the clipping rectangle) to the given
+value. A depth buffer is only availabe if it was requested with
+[al_set_new_display_option] and the requirement could be met by the
+[al_crate_display] call creating the current display. Operations involving the
+depth buffer are also affected by [al_set_render_state].
+
+See also: [al_clear_to_color], [al_set_clipping_rectangle], [al_set_render_state],
+   [al_set_new_display_option]
 
 ### API: al_draw_bitmap
 
@@ -1290,3 +1301,72 @@ handler.
 
 See also: [al_save_bitmap], [al_register_bitmap_saver_f], [al_init_image_addon]
 
+
+## Render State
+
+### API: ALLEGRO_RENDER_STATE
+
+Possible render states are:
+
+ALLEGRO_ALPHA_TEST
+:   If this is set to 1, the values of ALLEGRO_ALPHA_FUNCTION and
+    ALLEGRO_ALPHA_TEST_VALUE define a comparison function which is performed
+    for each pixel. Only if it evaluates to true the pixel is written. Otherwise
+    no subsequent processing (like depth test or blending) is performed.
+
+ALLEGRO_ALPHA_FUNCTION
+:   One of [ALLEGRO_RENDER_FUNCTION], only used when ALLEGRO_ALPHA_TEST is 1.
+
+ALLEGRO_ALPHA_TEST_VALUE
+:   Only used when ALLEGRO_ALPHA_TEST is 1.
+
+ALLEGRO_WRITE_MASK
+:   This determines how the framebuffer and depthbuffer are updated whenever a
+    pixel is written (in case alpha and/or depth testing is enabled, after all
+    such enabled tests succeed). Depth values are only written if
+    ALLEGRO_DEPTH_TEST is 1, in addition to the write mask flag being set.
+
+ALLEGRO_DEPTH_TEST
+:   If this is set to 1, compare the depth value of any newly written pixels with
+    the depth value already in the buffer, according to ALLEGRO_DEPTH_FUNCTION.
+    Allegro primitives with no explicit z coordinate will write a value of 0 into
+    the depth buffer.
+
+ALLEGRO_DEPTH_FUNCTION
+:   One of [ALLEGRO_RENDER_FUNCTION], only used when ALLEGRO_DEPTH_TEST is 1.
+
+See also: [al_set_render_state]
+
+### API: ALLEGRO_RENDER_FUNCTION
+
+Possible functions are:
+
+-   ALLEGRO_RENDER_NEVER
+-   ALLEGRO_RENDER_ALWAYS
+-   ALLEGRO_RENDER_LESS
+-   ALLEGRO_RENDER_EQUAL 
+-   ALLEGRO_RENDER_LESS_EQUAL   
+-   ALLEGRO_RENDER_GREATER        
+-   ALLEGRO_RENDER_NOT_EQUAL
+-   ALLEGRO_RENDER_GREATER_EQUAL
+
+### API: ALLEGRO_WRITE_MASK_FLAGS
+
+Each enabled bit means the corresponding value is written, a disabled bit
+means it is not.
+
+-  ALLEGRO_MASK_RED
+-  ALLEGRO_MASK_GREEN
+-  ALLEGRO_MASK_BLUE
+-  ALLEGRO_MASK_ALPHA
+-  ALLEGRO_MASK_DEPTH
+-  ALLEGRO_MASK_RGB Same as RED | GREEN | BLUE.
+-  ALLEGRO_MASK_RGBA Same as RGB | ALPHA.
+
+### API: al_set_render_state
+
+Set one of several render attributes. This function does nothing if the target
+bitmap is a memory bitmap.
+
+See also: [ALLEGRO_RENDER_STATE], [ALLEGRO_RENDER_FUNCTION],
+   [ALLEGRO_WRITE_MASK_FLAGS]

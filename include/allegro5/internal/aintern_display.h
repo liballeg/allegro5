@@ -77,6 +77,9 @@ struct ALLEGRO_DISPLAY_INTERFACE
    void (*acknowledge_drawing_resume)(ALLEGRO_DISPLAY *d);
       
    void (*change_display_option)(ALLEGRO_DISPLAY *display, int option, int val);
+
+   void (*clear_depth_buffer)(ALLEGRO_DISPLAY *display, float x);
+   void (*update_render_state)(ALLEGRO_DISPLAY *display);
 };
 
 
@@ -91,6 +94,13 @@ typedef struct ALLEGRO_BLENDER
    int blend_alpha_source;
    int blend_alpha_dest;
 } ALLEGRO_BLENDER;
+
+typedef struct _ALLEGRO_RENDER_STATE {
+   int write_mask;
+   int depth_test, depth_function;
+   int alpha_test, alpha_function, alpha_test_value;
+} _ALLEGRO_RENDER_STATE;
+
 
 /* These are settings Allegro itself doesn't really care about on its
  * own, but which users may want to specify for a display anyway.
@@ -136,6 +146,8 @@ struct ALLEGRO_DISPLAY
 
    ALLEGRO_TRANSFORM proj_transform;
    ALLEGRO_TRANSFORM view_transform;
+
+   _ALLEGRO_RENDER_STATE render_state; 
 };
 
 int  _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref);

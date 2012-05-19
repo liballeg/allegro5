@@ -3,6 +3,7 @@
 
 #include "allegro5/display.h"
 #include "allegro5/bitmap.h"
+#include "allegro5/render_state.h"
 
 #ifdef __cplusplus
 extern "C" {

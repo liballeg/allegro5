@@ -2031,6 +2031,7 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_fs(void)
       vt->get_backbuffer = _al_ogl_get_backbuffer;
       vt->is_compatible_bitmap = is_compatible_bitmap;
       vt->create_sub_bitmap = _al_ogl_create_sub_bitmap;
+      vt->update_render_state = _al_ogl_update_render_state;
       _al_ogl_add_drawing_functions(vt);
    }
    return vt;

@@ -419,11 +419,11 @@ static void d3d_reset_state(ALLEGRO_DISPLAY_D3D *disp)
    disp->scissor_state.left   = -1;
    disp->scissor_state.right  = -1;
 
-   disp->device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
-   disp->device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
    disp->device->SetRenderState(D3DRS_LIGHTING, FALSE);
    disp->device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
    disp->device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+
+   _al_d3d_update_render_state((ALLEGRO_DISPLAY *)disp);
 
    if (disp->device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP) != D3D_OK)
       ALLEGRO_ERROR("SetSamplerState failed\n");
@@ -2006,6 +2006,8 @@ static bool d3d_set_current_display(ALLEGRO_DISPLAY *d)
    if (d3d_display->do_reset)
       return false;
 
+   _al_d3d_update_render_state(d);
+
    return true;
 }
 
@@ -2125,19 +2127,31 @@ void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
 static void d3d_clear(ALLEGRO_DISPLAY *al_display, ALLEGRO_COLOR *color)
 {
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_BITMAP_EXTRA_D3D *d3d_target;
    ALLEGRO_DISPLAY_D3D* d3d_display = (ALLEGRO_DISPLAY_D3D*)al_display;
    
    if (target->parent) target = target->parent;
    
-   d3d_target = get_extra(target);
-
    if (d3d_display->device_lost)
       return;
    if (d3d_display->device->Clear(0, NULL, D3DCLEAR_TARGET,
-      D3DCOLOR_ARGB((int)(color->a*255), (int)(color->r*255), (int)(color->g*255), (int)(color->b*255)),
-      0, 0) != D3D_OK) {
-         ALLEGRO_ERROR("Clear failed\n");
+         D3DCOLOR_ARGB((int)(color->a*255), (int)(color->r*255),
+         (int)(color->g*255), (int)(color->b*255)), 0, 0) != D3D_OK) {
+      ALLEGRO_ERROR("Clear failed\n");
+   }
+}
+
+static void d3d_clear_depth_buffer(ALLEGRO_DISPLAY *al_display, float z)
+{
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_DISPLAY_D3D* d3d_display = (ALLEGRO_DISPLAY_D3D*)al_display;
+   
+   if (target->parent) target = target->parent;
+
+   if (d3d_display->device_lost)
+      return;
+   if (d3d_display->device->Clear(0, NULL, D3DCLEAR_ZBUFFER, 0, z, 0)
+         != D3D_OK) {
+      ALLEGRO_ERROR("Clear zbuffer failed\n");
    }
 }
 
@@ -2950,6 +2964,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->destroy_display = d3d_destroy_display;
    vt->set_current_display = d3d_set_current_display;
    vt->clear = d3d_clear;
+   vt->clear_depth_buffer = d3d_clear_depth_buffer;
    vt->draw_pixel = d3d_draw_pixel;
    vt->flip_display = d3d_flip_display;
    vt->update_display_region = d3d_update_display_region;
@@ -2984,6 +2999,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
 
    vt->update_transformation = d3d_update_transformation;
    vt->set_projection = d3d_set_projection;
+
+   vt->update_render_state = _al_d3d_update_render_state;
 
    return vt;
 }

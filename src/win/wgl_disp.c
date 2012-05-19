@@ -98,6 +98,8 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
 
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
+
+   _al_ogl_update_render_state(d);
 }
 
 static bool is_wgl_extension_supported(const char *extension, HDC dc)
@@ -1575,6 +1577,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
    vt.get_window_constraints = _al_win_get_window_constraints;
    vt.set_display_flag = _al_win_set_display_flag;
    vt.set_window_title = _al_win_set_window_title;
+
+   vt.update_render_state = _al_ogl_update_render_state;
    _al_ogl_add_drawing_functions(&vt);
 
    return &vt;

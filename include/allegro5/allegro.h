@@ -48,6 +48,7 @@
 #include "allegro5/transformations.h"
 #include "allegro5/bitmap_io.h"
 #include "allegro5/bitmap.h"
+#include "allegro5/render_state.h"
 
 #include "allegro5/tls.h"
 

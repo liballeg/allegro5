@@ -501,11 +501,22 @@ static void ogl_set_projection(ALLEGRO_DISPLAY *d)
    }
 }
 
+static void ogl_clear_depth_buffer(ALLEGRO_DISPLAY *display, float x)
+{
+   (void)display;
+   glClearDepth(x);
+   /* We may want to defer this to the next glClear call as a combined
+    * color/depth clear may be faster.
+    */
+   glClear(GL_DEPTH_BUFFER_BIT);
+}
+
 /* Add drawing commands to the vtable. */
 void _al_ogl_add_drawing_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
 {
    vt->clear = ogl_clear;
    vt->draw_pixel = ogl_draw_pixel;
+   vt->clear_depth_buffer = ogl_clear_depth_buffer;
    
    vt->flush_vertex_cache = ogl_flush_vertex_cache;
    vt->prepare_vertex_cache = ogl_prepare_vertex_cache;

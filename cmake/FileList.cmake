@@ -63,6 +63,7 @@ set(ALLEGRO_SRC_WIN_FILES
 set(ALLEGRO_SRC_D3D_FILES
     src/win/d3d_bmp.cpp
     src/win/d3d_disp.cpp
+    src/win/d3d_render_state.cpp
     )
 
 set(ALLEGRO_SRC_OPENGL_FILES
@@ -71,6 +72,7 @@ set(ALLEGRO_SRC_OPENGL_FILES
     src/opengl/ogl_display.c
     src/opengl/ogl_draw.c
     src/opengl/ogl_lock.c
+    src/opengl/ogl_render_state.c
     )
 
 set(ALLEGRO_SRC_WGL_FILES

@@ -160,6 +160,7 @@ AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_display_event_source, (ALLEGRO_DISPLAY *d
 /* Primitives */
 AL_FUNC(void, al_clear_to_color, (ALLEGRO_COLOR color));
 AL_FUNC(void, al_draw_pixel, (float x, float y, ALLEGRO_COLOR color));
+AL_FUNC(void, al_clear_depth_buffer, (float x));
 
 AL_FUNC(void, al_set_display_icon, (ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *icon));
 

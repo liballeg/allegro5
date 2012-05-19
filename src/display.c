@@ -71,6 +71,13 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    display->cache_texture = 0;
 
    display->display_invalidated = 0;
+
+   display->render_state.write_mask = ALLEGRO_MASK_RGBA | ALLEGRO_MASK_DEPTH;
+   display->render_state.depth_test = false;
+   display->render_state.depth_function = ALLEGRO_RENDER_LESS;
+   display->render_state.alpha_test = false;
+   display->render_state.alpha_function = ALLEGRO_RENDER_ALWAYS;
+   display->render_state.alpha_test_value = 0;
    
    _al_vector_init(&display->bitmaps, sizeof(ALLEGRO_BITMAP*));
 
@@ -214,6 +221,25 @@ void al_clear_to_color(ALLEGRO_COLOR color)
       ALLEGRO_DISPLAY *display = target->display;
       ASSERT(display);
       display->vt->clear(display, &color);
+   }
+}
+
+
+
+/* Function: al_clear_depth_buffer
+ */
+void al_clear_depth_buffer(float z)
+{
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ASSERT(target);
+
+   if (target->flags & ALLEGRO_MEMORY_BITMAP) {
+      /* has no depth buffer */
+   }
+   else {
+      ALLEGRO_DISPLAY *display = target->display;
+      ASSERT(display);
+      display->vt->clear_depth_buffer(display, z);
    }
 }
 
@@ -598,6 +624,40 @@ void al_acknowledge_drawing_resume(ALLEGRO_DISPLAY *display)
 {
    if (display->vt->acknowledge_drawing_resume) {
       display->vt->acknowledge_drawing_resume(display);
+   }
+}
+
+/* Function: al_set_render_state
+ */
+void al_set_render_state(ALLEGRO_RENDER_STATE state, int value)
+{
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+
+   if (!display) return;
+
+   switch (state) {
+      case ALLEGRO_ALPHA_TEST:
+         display->render_state.alpha_test = value;
+         break;
+      case ALLEGRO_WRITE_MASK:
+         display->render_state.write_mask = value;
+         break;
+      case ALLEGRO_DEPTH_TEST:
+         display->render_state.depth_test = value;
+         break;
+      case ALLEGRO_DEPTH_FUNCTION:
+         display->render_state.depth_function = value;
+         break;
+      case ALLEGRO_ALPHA_FUNCTION:
+         display->render_state.alpha_function = value;
+         break;
+      case ALLEGRO_ALPHA_TEST_VALUE:
+         display->render_state.alpha_test_value = value;
+         break;
+   }
+
+   if (display->vt && display->vt->update_render_state) {
+      display->vt->update_render_state(display);
    }
 }
 
