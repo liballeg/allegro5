@@ -455,8 +455,17 @@ static void _al_android_update_visuals(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
 
    /* There is no equivalent ot COLOR_SIZE in EGL except setting the individual components */
 
-   #define MAYBE_SET(v) (((ref->required & ((int64_t)1 << v)) || (ref->suggested & ((int64_t)1 << v))) ? \
-      _jni_callVoidMethodV(env, d->surface_object, "egl_setConfigAttrib", "(II)V", v, ref->settings[v]) : 0)
+   #define MAYBE_SET(v)                                                       \
+      do {                                                                    \
+         if ((ref->required & ((int64_t)1 << v)) ||                           \
+             (ref->suggested & ((int64_t)1 << v)))                            \
+         {                                                                    \
+            ALLEGRO_DEBUG("calling egl_setConfigAttrib(%d, %d)",              \
+               v, ref->settings[v]);                                          \
+            _jni_callVoidMethodV(env, d->surface_object,                      \
+               "egl_setConfigAttrib", "(II)V", v, ref->settings[v]);          \
+         }                                                                    \
+      } while (0)
 
    MAYBE_SET(ALLEGRO_RED_SIZE);
    MAYBE_SET(ALLEGRO_GREEN_SIZE);
