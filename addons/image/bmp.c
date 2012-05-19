@@ -38,8 +38,12 @@ ALLEGRO_DEBUG_CHANNEL("image")
 #define BIT_RLE4         2
 #define BIT_BITFIELDS    3
 
-#define OS2INFOHEADERSIZE  12
-#define WININFOHEADERSIZE  40
+#define OS2INFOHEADERSIZE     12
+#define WININFOHEADERSIZE     40
+#define WININFOHEADERSIZEV2   52
+#define WININFOHEADERSIZEV3   56
+#define WININFOHEADERSIZEV4   108
+#define WININFOHEADERSIZEV5   124
 
 
 typedef struct BMPFILEHEADER
@@ -62,6 +66,8 @@ typedef struct BMPINFOHEADER
    unsigned short biBitCount;
    unsigned long biCompression;
    unsigned long biClrUsed;
+   bool biHaveAlphaMask;
+   uint32_t biAlphaMask;
 } BMPINFOHEADER;
 
 
@@ -343,8 +349,8 @@ static void read_24bit_line(int length, ALLEGRO_FILE *f, unsigned char *data)
 
 
 /* read_32bit_line:
- *  Support function for reading the 32 bit bitmap file format, doing
- *  our best to convert it down to a 256 color palette.
+ *  Support function for reading the 32 bit bitmap file format,
+ *  treating fourth byte as alpha.
  */
 static void read_32bit_line(int length, ALLEGRO_FILE *f, unsigned char *data,
    int flags)
@@ -380,8 +386,8 @@ static void read_32bit_line(int length, ALLEGRO_FILE *f, unsigned char *data,
 /* read_bitfields_image:
  *  For reading the bitfield compressed BMP image format.
  */
-static void read_bitfields_image(ALLEGRO_FILE *f, const BMPINFOHEADER *infoheader, int bpp,
-   ALLEGRO_LOCKED_REGION *lr)
+static void read_bitfields_image(ALLEGRO_FILE *f,
+   const BMPINFOHEADER *infoheader, int bpp, ALLEGRO_LOCKED_REGION *lr)
 {
    int k, i, line, height, dir;
    int bytes_per_pixel;
@@ -393,7 +399,6 @@ static void read_bitfields_image(ALLEGRO_FILE *f, const BMPINFOHEADER *infoheade
    dir = height < 0 ? 1 : -1;
    height = abs(height);
 
-   //bpp = _al_get_pixel_format_bits(bmp->format);
    bytes_per_pixel = (bpp + 1) / 8;
 
    for (i = 0; i < height; i++, line += dir) {
@@ -404,13 +409,23 @@ static void read_bitfields_image(ALLEGRO_FILE *f, const BMPINFOHEADER *infoheade
          al_fread(f, &buffer, bytes_per_pixel);
 
          if (bpp == 15) {
-            pix = ALLEGRO_CONVERT_RGB_555_TO_ARGB_8888(buffer);
+            if (infoheader->biAlphaMask == 0x8000) {
+               pix = ALLEGRO_CONVERT_ARGB_1555_TO_ARGB_8888(buffer);
+            }
+            else {
+               pix = ALLEGRO_CONVERT_RGB_555_TO_ARGB_8888(buffer);
+            }
          }
          else if (bpp == 16) {
             pix = ALLEGRO_CONVERT_RGB_565_TO_ARGB_8888(buffer);
          }
          else {
-            pix = ALLEGRO_CONVERT_XRGB_8888_TO_ARGB_8888(buffer);
+            if (infoheader->biAlphaMask == 0xFF000000) {
+               pix = buffer;
+            }
+            else {
+               pix = ALLEGRO_CONVERT_XRGB_8888_TO_ARGB_8888(buffer);
+            }
          }
 
          data[2] = pix & 255;
@@ -511,7 +526,7 @@ static void read_RGB_image(ALLEGRO_FILE *f, int flags,
  *
  *  Note that V3 headers include an alpha bit mask, which can properly indicate
  *  the presence or absence of an alpha channel.
- *  We don't yet support such headers.
+ *  This hack is not required then.
  */
 static void read_RGB_image_32bit_alpha_hack(ALLEGRO_FILE *f, int flags,
    const BMPINFOHEADER *infoheader, ALLEGRO_LOCKED_REGION *lr)
@@ -755,6 +770,33 @@ static void read_RLE4_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
 
 
 
+/* alpha_mask_supported:
+ *  Return true if we support the combination of compressed, bit depth
+ *  and alpha mask.
+ */
+static bool alpha_mask_supported(int biCompression, int biBitCount,
+   uint32_t biAlphaMask)
+{
+   if (biAlphaMask == 0) {
+      return true;
+   }
+
+   if (biCompression == BIT_RGB) {
+      return (biBitCount == 24 && biAlphaMask == 0xff000000)
+         || (biBitCount == 32 && biAlphaMask == 0xff000000);
+   }
+
+   if (biCompression == BIT_BITFIELDS) {
+      return (biBitCount == 16 && biAlphaMask == 0x8000)
+         || (biBitCount == 24 && biAlphaMask == 0xff000000)
+         || (biBitCount == 32 && biAlphaMask == 0xff000000);
+   }
+
+   return false;
+}
+
+
+
 /*  Like load_bmp, but starts loading from the current place in the ALLEGRO_FILE
  *  specified. If successful the offset into the file will be left just after
  *  the image data. If unsuccessful the offset into the file is unspecified,
@@ -791,28 +833,33 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       return NULL;
    }
 
-   if (biSize == WININFOHEADERSIZE) {
-      if (read_win_bminfoheader(f, &infoheader) != 0) {
+   switch (biSize) {
+      case WININFOHEADERSIZE:
+      case WININFOHEADERSIZEV2:
+      case WININFOHEADERSIZEV3:
+      case WININFOHEADERSIZEV4:
+      case WININFOHEADERSIZEV5:
+         if (read_win_bminfoheader(f, &infoheader) != 0) {
+            return NULL;
+         }
+         break;
+
+      case OS2INFOHEADERSIZE:
+         if (read_os2_bminfoheader(f, &infoheader) != 0) {
+            return NULL;
+         }
+         ASSERT(infoheader.biCompression == BIT_RGB);
+         break;
+
+      default:
+         ALLEGRO_WARN("Unsupported header size: %ld\n", biSize);
          return NULL;
-      }
-   }
-   else if (biSize == OS2INFOHEADERSIZE) {
-      if (read_os2_bminfoheader(f, &infoheader) != 0) {
-         return NULL;
-      }
-      ASSERT(infoheader.biCompression == BIT_RGB);
-   }
-   else {
-      ALLEGRO_WARN("Unsupported header size: %ld\n", biSize);
-      return NULL;
    }
 
-   /* End of header. */
-   /* Note: In BITMAPV2INFOHEADER and above, the RGB bit masks are part of the
-    * header.  BITMAPV3INFOHEADER adds an Alpha bit mask to the header.
-    * Therefore this sanity check will need to occur after reading those in.
-    */
-   ASSERT(al_ftell(f) == header_start + (int64_t) biSize);
+   /* End of header for OS/2 and BITMAPV2INFOHEADER (V1). */
+   if (biSize == OS2INFOHEADERSIZE || biSize == WININFOHEADERSIZE) {
+      ASSERT(al_ftell(f) == header_start + (int64_t) biSize);
+   }
 
    if ((int)infoheader.biWidth < 0) {
       ALLEGRO_WARN("negative width: %ld\n", infoheader.biWidth);
@@ -828,27 +875,56 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
    else
       bpp = 8;
 
-   /* In BITMAPINFOHEADER (V1) the RGB bit masks are not part of the header. */
-   if (infoheader.biCompression == BIT_BITFIELDS) {
+   /* In BITMAPINFOHEADER (V1) the RGB bit masks are not part of the header.
+    * In BITMAPV2INFOHEADER they form part of the header, but only valid when
+    * for BITFIELDS images.
+    */
+   if (infoheader.biCompression == BIT_BITFIELDS
+      || biSize >= WININFOHEADERSIZEV2)
+   {
       uint32_t redMask = al_fread32le(f);
       uint32_t grnMask = al_fread32le(f);
       uint32_t bluMask = al_fread32le(f);
 
       (void)grnMask;
 
-      if ((bluMask == 0x001f) && (redMask == 0x7C00))
-         bpp = 15;
-      else if ((bluMask == 0x001f) && (redMask == 0xF800))
-         bpp = 16;
-      else if ((bluMask == 0x0000FF) && (redMask == 0xFF0000))
-         bpp = 32;
-      else {
-         /* Unrecognised bit masks/depth, refuse to load. */
-         ALLEGRO_WARN("Unrecognised RGB masks: %x, %x, %x\n",
-            redMask, grnMask, bluMask);
+      if (infoheader.biCompression == BIT_BITFIELDS) {
+         if ((bluMask == 0x001f) && (redMask == 0x7C00))
+            bpp = 15;
+         else if ((bluMask == 0x001f) && (redMask == 0xF800))
+            bpp = 16;
+         else if ((bluMask == 0x0000FF) && (redMask == 0xFF0000))
+            bpp = 32;
+         else {
+            /* Unrecognised bit masks/depth, refuse to load. */
+            ALLEGRO_WARN("Unrecognised RGB masks: %x, %x, %x\n",
+               redMask, grnMask, bluMask);
+            return NULL;
+         }
+      }
+   }
+
+   /* BITMAPV3INFOHEADER and above include an Alpha bit mask. */
+   if (biSize < WININFOHEADERSIZEV3) {
+      infoheader.biHaveAlphaMask = false;
+      infoheader.biAlphaMask = 0x0;
+   }
+   else {
+      infoheader.biHaveAlphaMask = true;
+      infoheader.biAlphaMask = al_fread32le(f);
+
+      if (!alpha_mask_supported(infoheader.biCompression,
+            infoheader.biBitCount, infoheader.biAlphaMask))
+      {
+         ALLEGRO_WARN(
+            "Unsupported: compression=%ld, bit count=%d, alpha mask=%x\n",
+            infoheader.biCompression, infoheader.biBitCount,
+            infoheader.biAlphaMask);
          return NULL;
       }
    }
+
+   /* End of header for BITMAPV2INFOHEADER and above. */
 
    /* Read the palette, if any.  Higher bit depth images _may_ have an optional
     * palette but we don't use it and don't read it.
@@ -915,7 +991,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
    switch (infoheader.biCompression) {
 
       case BIT_RGB:
-         if (infoheader.biBitCount == 32) {
+         if (infoheader.biBitCount == 32 && !infoheader.biHaveAlphaMask) {
             read_RGB_image_32bit_alpha_hack(f, flags, &infoheader, lr);
          }
          else {
