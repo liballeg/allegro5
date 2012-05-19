@@ -987,7 +987,8 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    private int         egl_numConfigs = 0;
    private int[]       egl_attribs;
    ArrayList<Integer>  egl_attribWork = new ArrayList<Integer>();
-   EGLConfig[]         egl_Config = new EGLConfig[1];
+   EGLConfig[]         egl_Config = new EGLConfig[] { null };
+   int[]               es2_attrib;
 
    private Context context;
    private boolean captureVolume = false;
@@ -1101,60 +1102,58 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
     */
    public int egl_createContext(int version)
    {
-      Log.d("AllegroSurface", "egl_createContext, version: " + version);
+      Log.d("AllegroSurface", "egl_createContext");
       EGL10 egl = (EGL10)EGLContext.getEGL();
       int ret = 1;
 
-      int[] attrib;
-      if (version == 2) {
-         if (checkGL20Support(context)) {
-            attrib = new int[3];
-            attrib[0] = EGL_CONTEXT_CLIENT_VERSION;
-            attrib[1] = 2;
-            attrib[2] = EGL10.EGL_NONE;
-         }
-         else {
-            Log.d("AllegroSurface", "checkGL20Support failed");
-            attrib = null;
-            ret = 2;
-         }
-      }
-      else {
-         attrib = null;
-      }
-
-      boolean color_size_specified = false;
-      for (int i = 0; i < egl_attribWork.size(); i++) {
-         Log.d("AllegroSurface", "egl_attribs[" + i + "] = " + egl_attribWork.get(i));
-         if (i % 2 == 0) {
-            if (egl_attribWork.get(i) == EGL10.EGL_RED_SIZE || egl_attribWork.get(i) == EGL10.EGL_GREEN_SIZE ||
-                  egl_attribWork.get(i) == EGL10.EGL_BLUE_SIZE) {
-               color_size_specified = true;
+      if (egl_Config[0] == null) {
+         if (version == 2) {
+            if (checkGL20Support(context)) {
+               es2_attrib = new int[3];
+               es2_attrib[0] = EGL_CONTEXT_CLIENT_VERSION;
+               es2_attrib[1] = 2;
+               es2_attrib[2] = EGL10.EGL_NONE;
+            }
+            else {
+               es2_attrib = null;
+               ret = 2;
             }
          }
-      }
-      if (!color_size_specified) {
-         egl_setConfigAttrib(ALLEGRO_RED_SIZE, 5);
-         egl_setConfigAttrib(ALLEGRO_GREEN_SIZE, 6);
-         egl_setConfigAttrib(ALLEGRO_BLUE_SIZE, 5);
+         else {
+            es2_attrib = null;
+         }
+
+         boolean color_size_specified = false;
+         for (int i = 0; i < egl_attribWork.size(); i++) {
+            Log.d("AllegroSurface", "egl_attribs[" + i + "] = " + egl_attribWork.get(i));
+            if (i % 2 == 0) {
+               if (egl_attribWork.get(i) == EGL10.EGL_RED_SIZE || egl_attribWork.get(i) == EGL10.EGL_GREEN_SIZE ||
+                     egl_attribWork.get(i) == EGL10.EGL_BLUE_SIZE) {
+                  color_size_specified = true;
+               }
+            }
+         }
+         if (!color_size_specified) {
+            egl_setConfigAttrib(ALLEGRO_RED_SIZE, 5);
+            egl_setConfigAttrib(ALLEGRO_GREEN_SIZE, 6);
+            egl_setConfigAttrib(ALLEGRO_BLUE_SIZE, 5);
+         }
+
+         egl_attribs = new int[egl_attribWork.size()+1];
+         for (int i = 0; i < egl_attribWork.size(); i++) {
+            egl_attribs[i] = egl_attribWork.get(i);
+         }
+         egl_attribs[egl_attribWork.size()] = EGL10.EGL_NONE;
+         
+         int[] num = new int[1];
+         egl.eglChooseConfig(egl_Display, egl_attribs, egl_Config, 1, num);
+         if (num[0] < 1) {
+            Log.e("AllegroSurface", "No matching config");
+            return 0;
+         }
       }
 
-      egl_attribs = new int[egl_attribWork.size()+1];
-      for (int i = 0; i < egl_attribWork.size(); i++) {
-         egl_attribs[i] = egl_attribWork.get(i);
-      }
-      egl_attribs[egl_attribWork.size()] = EGL10.EGL_NONE;
-      egl_attribWork = null;
-      
-      
-      int[] num = new int[1];
-      egl.eglChooseConfig(egl_Display, egl_attribs, egl_Config, 1, num);
-      if (num[0] < 1) {
-         Log.e("AllegroSurface", "No matching config");
-         return 0;
-      }
-
-      EGLContext ctx = egl.eglCreateContext(egl_Display, egl_Config[0], EGL10.EGL_NO_CONTEXT, attrib);
+      EGLContext ctx = egl.eglCreateContext(egl_Display, egl_Config[0], EGL10.EGL_NO_CONTEXT, es2_attrib);
       if (ctx == EGL10.EGL_NO_CONTEXT) {
          checkEglError("AllegroSurface", egl);
          Log.d("AllegroSurface", "egl_createContext no context");
