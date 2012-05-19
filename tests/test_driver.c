@@ -15,7 +15,7 @@
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
 
-#define MAX_BITMAPS  8
+#define MAX_BITMAPS  128
 #define MAX_TRANS    8
 #define MAX_FONTS    8
 #define MAX_VERTICES 100
