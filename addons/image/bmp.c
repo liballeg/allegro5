@@ -720,9 +720,9 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       bpp = 8;
 
    if (infoheader.biCompression == BIT_BITFIELDS) {
-      unsigned long redMask = al_fread32le(f);
-      unsigned long grnMask = al_fread32le(f);
-      unsigned long bluMask = al_fread32le(f);
+      uint32_t redMask = al_fread32le(f);
+      uint32_t grnMask = al_fread32le(f);
+      uint32_t bluMask = al_fread32le(f);
 
       (void)grnMask;
 
@@ -734,7 +734,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
          bpp = 32;
       else {
          /* Unrecognised bit masks/depth, refuse to load. */
-         ALLEGRO_WARN("Unrecognised RGB masks: %lx, %lx, %lx\n",
+         ALLEGRO_WARN("Unrecognised RGB masks: %x, %x, %x\n",
             redMask, grnMask, bluMask);
          return NULL;
       }
