@@ -197,11 +197,31 @@ void _al_fill_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref)
    }
 }
 
+static void debug_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
+{
+   ALLEGRO_DEBUG("color: %d (rgba %d%d%d%d), depth: %d, stencil: %d, "
+         "acc: %d%d%d%d, samples: %d/%d\n",
+      eds->settings[ALLEGRO_COLOR_SIZE],
+      eds->settings[ALLEGRO_RED_SIZE],
+      eds->settings[ALLEGRO_GREEN_SIZE],
+      eds->settings[ALLEGRO_BLUE_SIZE],
+      eds->settings[ALLEGRO_ALPHA_SIZE],
+      eds->settings[ALLEGRO_DEPTH_SIZE],
+      eds->settings[ALLEGRO_STENCIL_SIZE],
+      eds->settings[ALLEGRO_ACC_RED_SIZE],
+      eds->settings[ALLEGRO_ACC_RED_SIZE],
+      eds->settings[ALLEGRO_ACC_RED_SIZE],
+      eds->settings[ALLEGRO_ACC_RED_SIZE],
+      eds->settings[ALLEGRO_SAMPLES],
+      eds->settings[ALLEGRO_SAMPLE_BUFFERS]);
+}
 
 int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
                                ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref)
 {
    int score = 0;
+
+   debug_display_settings(eds);
 
    if (eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] != ref->settings[ALLEGRO_COMPATIBLE_DISPLAY]) {
       if (req & (1<<ALLEGRO_COMPATIBLE_DISPLAY)) {

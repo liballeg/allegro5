@@ -261,6 +261,20 @@ static int d3d_fmt_desc[][ALLEGRO_DISPLAY_OPTIONS_COUNT+2] =
 
 static const int D3D_DISPLAY_COMBINATIONS = sizeof(d3d_fmt_desc) / sizeof(*d3d_fmt_desc);
 
+#define ERR(e) case e: return #e;
+static char const *_al_d3d_error_string(HRESULT e)
+{
+   switch (e) {
+      ERR(D3D_OK)
+      ERR(D3DERR_NOTAVAILABLE)
+      ERR(D3DERR_DEVICELOST)
+      ERR(D3DERR_INVALIDCALL)
+      ERR(D3DERR_OUTOFVIDEOMEMORY)
+      ERR(E_OUTOFMEMORY)
+   }
+   return "UNKNOWN";
+}
+#undef ERR
 
 static D3DFORMAT d3d_get_depth_stencil_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *settings)
 {
@@ -1006,38 +1020,23 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
          D3DDEVTYPE_HAL, win_display->window,
          D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
          &d3d_pp, (LPDIRECT3DDEVICE9 *)&d->device)) != D3D_OK) {
+      ALLEGRO_DEBUG("trying D3DCREATE_SOFTWARE_VERTEXPROCESSING\n");
       if ((hr = _al_d3d->CreateDevice(adapter,
             D3DDEVTYPE_HAL, win_display->window,
             D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
             &d3d_pp, (LPDIRECT3DDEVICE9 *)&d->device)) != D3D_OK) {
-         ALLEGRO_DEBUG("Trying reference device\n");
+         ALLEGRO_DEBUG("trying D3DDEVTYPE_REF\n");
          if ((hr = _al_d3d->CreateDevice(adapter,
                D3DDEVTYPE_REF, win_display->window,
                D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
                &d3d_pp, (LPDIRECT3DDEVICE9 *)&d->device)) != D3D_OK) {
+            ALLEGRO_DEBUG("trying D3DDEVTYPE_REF|D3DCREATE_SOFTWARE_VERTEXPROCESSING\n");
             if ((hr = _al_d3d->CreateDevice(adapter,
                   D3DDEVTYPE_REF, win_display->window,
                   D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
                   &d3d_pp, (LPDIRECT3DDEVICE9 *)&d->device)) != D3D_OK) {
-               if (hr == D3DERR_NOTAVAILABLE) {
-                  ALLEGRO_ERROR("CreateDevice failed: 1\n");
-               }
-               else if (hr == D3DERR_DEVICELOST) {
-                  ALLEGRO_ERROR("CreateDevice failed: 2\n");
-               }
-               else if (hr == D3DERR_INVALIDCALL) {
-                  ALLEGRO_ERROR("CreateDevice failed: 3\n");
-               }
-               else if (hr == D3DERR_OUTOFVIDEOMEMORY) {
-                  ALLEGRO_ERROR("CreateDevice failed: 4\n");
-               }
-               else if (hr == E_OUTOFMEMORY) {
-                  ALLEGRO_ERROR("CreateDevice failed: 5\n");
-               }
-               else {
-                  ALLEGRO_ERROR("Unknown error %u\n", (unsigned)hr);
-               }
-               ALLEGRO_ERROR("d3d_create_device: CreateDevice failed.\n");
+               
+               ALLEGRO_ERROR("CreateDevice failed: %s\n", _al_d3d_error_string(hr));
                return 0;
             }
          }
@@ -1093,11 +1092,12 @@ static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
 
    d3d_release_bitmaps((ALLEGRO_DISPLAY *)d3d_display);
 
+   ALLEGRO_DEBUG("waiting for display %p's thread to end\n", d3d_display);
    if (win_display->window) {
-   SendMessage(win_display->window, _al_win_msg_suicide, 0, 0);
-   while (!win_display->thread_ended)
-      al_rest(0.001);
-}
+      SendMessage(win_display->window, _al_win_msg_suicide, 0, 0);
+      while (!win_display->thread_ended)
+         al_rest(0.001);
+   }
 }
 
 static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
@@ -1105,6 +1105,8 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
    ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_get_system_driver();
    ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
    ALLEGRO_DISPLAY *old_disp = al_get_current_display();
+
+   ALLEGRO_INFO("destroying display %p (current %p)\n", display, old_disp);
 
    if (old_disp != display)
       _al_set_current_display_only(display);
