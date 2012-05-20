@@ -1102,7 +1102,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
     */
    public int egl_createContext(int version)
    {
-      Log.d("AllegroSurface", "egl_createContext");
+      Log.d("AllegroSurface", "egl_createContext, version: " + version);
       EGL10 egl = (EGL10)EGLContext.getEGL();
       int ret = 1;
 
@@ -1115,6 +1115,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
                es2_attrib[2] = EGL10.EGL_NONE;
             }
             else {
+               Log.d("AllegroSurface", "checkGL20Support failed");
                es2_attrib = null;
                ret = 2;
             }
