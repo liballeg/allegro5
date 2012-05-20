@@ -172,8 +172,8 @@ int main(int argc, char **argv)
             running = false;
             break;
 
-         case ALLEGRO_EVENT_DISPLAY_SWITCH_OUT:
-            ALLEGRO_DEBUG("switch out!");
+         case ALLEGRO_EVENT_DISPLAY_HALT_DRAWING:
+            ALLEGRO_DEBUG("halt drawing");
             // Stop the timer so we don't run at all while our display isn't
             // active.
             al_stop_timer(timer);
@@ -184,8 +184,8 @@ int main(int argc, char **argv)
             al_acknowledge_drawing_halt(dpy);
             break;
 
-         case ALLEGRO_EVENT_DISPLAY_SWITCH_IN:
-            ALLEGRO_DEBUG("switch in!");
+         case ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING:
+            ALLEGRO_DEBUG("resume drawing");
 
             al_acknowledge_drawing_resume(dpy);
             ALLEGRO_DEBUG("done waiting for surface recreated");
