@@ -1,7 +1,7 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_android.h>     /* for al_set_apk_file_interface */
+#include <allegro5/allegro_android.h> /* al_android_set_apk_file_interface */
 
 ALLEGRO_DEBUG_CHANNEL("main")
 
@@ -96,7 +96,7 @@ int main(int argc, char **argv)
    print_standard_paths();
 
    /* This is loaded from assets in the apk. */
-   al_set_apk_file_interface();
+   al_android_set_apk_file_interface();
    image = al_load_bitmap("alexlogo.png");
    if (!image) {
       ALLEGRO_DEBUG("failed to load alexlogo.png");

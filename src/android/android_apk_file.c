@@ -276,20 +276,11 @@ static const ALLEGRO_FILE_INTERFACE file_apk_vtable =
 };
 
 
-/* Function: al_set_apk_file_interface
+/* Function: al_set_android_apk_file_interface
  */
-void al_set_apk_file_interface(void)
+void al_android_set_apk_file_interface(void)
 {
    al_set_new_file_interface(&file_apk_vtable);
-   //_al_set_apk_fs_interface();
-}
-
-
-/* Function: al_get_allegro_apk_file_version
- */
-uint32_t al_get_allegro_apk_file_version(void)
-{
-   return ALLEGRO_VERSION_INT;
 }
 
 

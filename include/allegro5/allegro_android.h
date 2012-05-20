@@ -21,9 +21,11 @@
 /*
  *  Public android-related API
  */
-void al_set_apk_file_interface(void);
-void _al_android_set_capture_volume_keys(ALLEGRO_DISPLAY *display, bool onoff);
+void al_android_set_apk_file_interface(void);
 const char *al_android_get_os_version(void);
+
+/* XXX decide if this should be public */
+void _al_android_set_capture_volume_keys(ALLEGRO_DISPLAY *display, bool onoff);
 
 #ifdef __cplusplus
    }
