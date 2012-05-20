@@ -51,7 +51,7 @@ struct Example {
    float             miter_limit;
    bool              software;
    float             zoom;
-   float_t           scroll_x, scroll_y;
+   float             scroll_x, scroll_y;
    int               add_hole; /* 0) no, else vertex 1) starts 2) grows hole */
 };
 
