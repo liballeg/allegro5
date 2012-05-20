@@ -95,3 +95,21 @@ Since: 5.1.0
 Retrieves the UIWindow* associated with the Allegro display.
 
 Since: 5.1.0
+
+## Android
+
+These functions are declared in the following header file:
+
+    #include <allegro5/allegro_android.h>
+
+### API: al_android_set_apk_file_interface
+
+*Not yet documented.*
+
+Since: 5.1.2
+
+### API: al_android_get_os_version
+
+*Not yet documented.*
+
+Since: 5.1.2
