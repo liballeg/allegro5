@@ -1134,11 +1134,6 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
                }
             }
          }
-         if (!color_size_specified) {
-            egl_setConfigAttrib(ALLEGRO_RED_SIZE, 5);
-            egl_setConfigAttrib(ALLEGRO_GREEN_SIZE, 6);
-            egl_setConfigAttrib(ALLEGRO_BLUE_SIZE, 5);
-         }
 
          egl_attribs = new int[egl_attribWork.size()+1];
          for (int i = 0; i < egl_attribWork.size(); i++) {
