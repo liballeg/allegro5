@@ -68,14 +68,14 @@ endmacro(add_example nm)
 
 #-----------------------------------------------------------------------------#
 
-macro(set_link_with example link_with)
-if(WANT_MONOLITH)
-   if (${link_with} STREQUAL "x")
-      set(${example} "x")
-   endif()
-else(WANT_MONOLITH)
-   set(${example} ${link_with})
-endif(WANT_MONOLITH)
+macro(set_link_with var maybe_link_with)
+    if(WANT_MONOLITH)
+        if (${maybe_link_with} STREQUAL "x")
+            set(${var} "x")
+        endif()
+    else(WANT_MONOLITH)
+        set(${var} ${maybe_link_with})
+    endif(WANT_MONOLITH)
 endmacro(set_link_with)
 
 set_link_with(AUDIO x${AUDIO_LINK_WITH})
