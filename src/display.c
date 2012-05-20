@@ -637,7 +637,8 @@ void al_set_render_state(ALLEGRO_RENDER_STATE state, int value)
 {
    ALLEGRO_DISPLAY *display = al_get_current_display();
 
-   if (!display) return;
+   if (!display)
+      return;
 
    switch (state) {
       case ALLEGRO_ALPHA_TEST:
@@ -657,6 +658,9 @@ void al_set_render_state(ALLEGRO_RENDER_STATE state, int value)
          break;
       case ALLEGRO_ALPHA_TEST_VALUE:
          display->render_state.alpha_test_value = value;
+         break;
+      default:
+         ALLEGRO_WARN("unknown state to change: %d\n", state);
          break;
    }
 
