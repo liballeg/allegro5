@@ -98,8 +98,6 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
 
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
-
-   _al_ogl_update_render_state(d);
 }
 
 static bool is_wgl_extension_supported(const char *extension, HDC dc)
@@ -1152,6 +1150,8 @@ static bool wgl_set_current_display(ALLEGRO_DISPLAY *d)
       _al_ogl_set_extensions(d->ogl_extras->extension_api);
    }
 
+   _al_ogl_update_render_state(d);
+
    return true;
 }
 
@@ -1454,6 +1454,7 @@ static bool wgl_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
       _al_ogl_resize_backbuffer(ogl_disp->ogl_extras->backbuffer, width, height);
 
       setup_gl(d);
+      _al_ogl_update_render_state(d);
    }
 
    return true;
