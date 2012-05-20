@@ -212,6 +212,7 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
    _al_ogl_manage_extensions(display);
    _al_ogl_set_extensions(ogl->extension_api);
    setup_gl(display);
+   _al_ogl_update_render_state(display);
     
    display->flags |= ALLEGRO_OPENGL;
 
@@ -447,6 +448,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_iphone_display_interface(void)
     vt->hide_mouse_cursor = iphone_hide_mouse_cursor;
 
     vt->acknowledge_drawing_halt = _al_iphone_acknowledge_drawing_halt;
+    vt->update_render_state = _al_ogl_update_render_state;
 
     _al_ogl_add_drawing_functions(vt);
     
