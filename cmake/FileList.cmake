@@ -225,8 +225,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/memory.h
     include/allegro5/mouse.h
     include/allegro5/path.h
-    include/allegro5/allegro_opengl.h
-    include/allegro5/allegro_direct3d.h
+    include/allegro5/render_state.h
     include/allegro5/system.h
     include/allegro5/threads.h
     include/allegro5/tls.h
@@ -234,6 +233,8 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/timer.h
     include/allegro5/transformations.h
     include/allegro5/utf8.h
+    include/allegro5/allegro_opengl.h
+    include/allegro5/allegro_direct3d.h
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES
