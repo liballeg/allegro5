@@ -36,11 +36,16 @@ include $(CLEAR_VARS)
 LOCAL_ALLOW_UNDEFINED_SYMBOLS := true
 LOCAL_MODULE    := allegro-example
 LOCAL_SRC_FILES := main.c
-LOCAL_LDLIBS    :=  
-LOCAL_CFLAGS    := -I$(ANDROID_NDK_TOOLCHAIN_ROOT)/user/armeabi-v7a/include -DDEBUGMODE
+LOCAL_CFLAGS    := -I$(ANDROID_NDK_TOOLCHAIN_ROOT)/user/$(TARGET_ARCH_ABI)/include
+LOCAL_CFLAGS    += -DDEBUGMODE
 LOCAL_CFLAGS    += -W -Wall
 
-LOCAL_LDLIBS    := -L$(ANDROID_NDK_TOOLCHAIN_ROOT)/user/armeabi-v7a/lib -L$(LOCAL_PATH)/$(TARGET_ARCH_ABI) -llog libs/$(TARGET_ARCH_ABI)/liballegro-debug.so libs/$(TARGET_ARCH_ABI)/liballegro_primitives-debug.so libs/$(TARGET_ARCH_ABI)/liballegro_image-debug.so
+LOCAL_LDLIBS    := -L$(ANDROID_NDK_TOOLCHAIN_ROOT)/user/$(TARGET_ARCH_ABI)/lib
+LOCAL_LDLIBS    += -L$(LOCAL_PATH)/$(TARGET_ARCH_ABI)
+LOCAL_LDLIBS    += -llog
+LOCAL_LDLIBS    += libs/$(TARGET_ARCH_ABI)/liballegro-debug.so
+LOCAL_LDLIBS    += libs/$(TARGET_ARCH_ABI)/liballegro_primitives-debug.so
+LOCAL_LDLIBS    += libs/$(TARGET_ARCH_ABI)/liballegro_image-debug.so
 
 include $(BUILD_SHARED_LIBRARY)
 
