@@ -12,7 +12,7 @@ static int _gl_funcs[] = {
    GL_LEQUAL,       
    GL_GREATER,        
    GL_NOTEQUAL, 
-   GL_GEQUAL,
+   GL_GEQUAL
 };
 
 void _al_ogl_update_render_state(ALLEGRO_DISPLAY *display)

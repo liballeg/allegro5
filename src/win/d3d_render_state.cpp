@@ -11,7 +11,7 @@ static int _d3d_funcs[] = {
    D3DCMP_LESSEQUAL,       
    D3DCMP_GREATER,        
    D3DCMP_NOTEQUAL, 
-   D3DCMP_GREATEREQUAL,
+   D3DCMP_GREATEREQUAL
 };
 
 void _al_d3d_update_render_state(ALLEGRO_DISPLAY *display)
