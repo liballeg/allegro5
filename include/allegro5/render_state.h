@@ -8,8 +8,10 @@
 /* Enum: ALLEGRO_RENDER_STATE
  */
 typedef enum ALLEGRO_RENDER_STATE {
-   /* We re-use the ALPHA_TEST value, just must make sure to not duplicate. */
-   ALLEGRO_RENDER_STATE_ALPHA_TEST = 0x0010,
+   /* ALLEGRO_ALPHA_TEST was the name of a rare bitmap flag only used on the
+    * Wiz port.  Reuse the name but retain the same value.
+    */
+   ALLEGRO_ALPHA_TEST = 0x0010,
    ALLEGRO_WRITE_MASK,
    ALLEGRO_DEPTH_TEST,
    ALLEGRO_DEPTH_FUNCTION,

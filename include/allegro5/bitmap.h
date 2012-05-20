@@ -56,7 +56,7 @@ enum {
    _ALLEGRO_KEEP_BITMAP_FORMAT      = 0x0002,	/* now a bitmap loader flag */
    ALLEGRO_FORCE_LOCKING            = 0x0004,
    ALLEGRO_NO_PRESERVE_TEXTURE      = 0x0008,
-   ALLEGRO_ALPHA_TEST               = 0x0010,
+   _ALLEGRO_ALPHA_TEST              = 0x0010,   /* now a render state flag */
    _ALLEGRO_INTERNAL_OPENGL         = 0x0020,
    ALLEGRO_MIN_LINEAR               = 0x0040,
    ALLEGRO_MAG_LINEAR               = 0x0080,
