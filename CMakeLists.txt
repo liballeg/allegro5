@@ -758,11 +758,7 @@ endif(IPHONE)
 
 if(ANDROID)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_ANDROID_FILES})
-if(WANT_ANDROID_LEGACY)
     list(APPEND PLATFORM_LIBS m log)
-else(WANT_ANDROID_LEGACY)
-    list(APPEND PLATFORM_LIBS m android log)
-endif(WANT_ANDROID_LEGACY)
 endif(ANDROID)
 
 # Header files that we need to install.
