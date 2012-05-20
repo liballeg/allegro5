@@ -25,6 +25,7 @@ struct Example {
 static void redraw(void)
 {
    ALLEGRO_TRANSFORM t;
+   int i;
 
    /* We first draw the Obp background and clear the depth buffer to 1. */
 
@@ -49,7 +50,6 @@ static void redraw(void)
    al_set_render_state(ALLEGRO_DEPTH_FUNCTION, ALLEGRO_RENDER_ALWAYS);   
    al_set_render_state(ALLEGRO_WRITE_MASK, ALLEGRO_MASK_DEPTH);
 
-   int i;
    for (i = 0; i < COUNT; i++) {
       struct Sprite *s = example.sprites + i;
       int x, y;
@@ -84,18 +84,19 @@ static void redraw(void)
       ALLEGRO_ALIGN_RIGHT, "%.1f FPS", 1.0 / example.direct_speed_measure);
 }
 
-void update(void)
+static void update(void)
 {
    int i;
    for (i = 0; i < COUNT; i++) {
       struct Sprite *s = example.sprites + i;
       s->x -= 4;
-      if (s->x < 80) s->x += 640;
+      if (s->x < 80)
+         s->x += 640;
       s->angle += i * ALLEGRO_PI / 180 / COUNT;
    }
 }
 
-void init(void)
+static void init(void)
 {
    int i;
    for (i = 0; i < COUNT; i++) {
