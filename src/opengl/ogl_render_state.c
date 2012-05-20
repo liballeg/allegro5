@@ -25,10 +25,6 @@ void _al_ogl_update_render_state(ALLEGRO_DISPLAY *display)
     * avoid so many redundant OpenGL calls.
     */
 
-   ALLEGRO_DEBUG("alpha_test: %d\n", r->alpha_test);
-   ALLEGRO_DEBUG("depth_test: %d\n", r->depth_test);
-   ALLEGRO_DEBUG("write_mask: %x\n", r->write_mask);
-
    if (r->alpha_test == 0)
       glDisable(GL_ALPHA_TEST);
    else
