@@ -570,8 +570,10 @@ value. A depth buffer is only availabe if it was requested with
 [al_crate_display] call creating the current display. Operations involving the
 depth buffer are also affected by [al_set_render_state].
 
-See also: [al_clear_to_color], [al_set_clipping_rectangle], [al_set_render_state],
-   [al_set_new_display_option]
+Since: 5.1.2
+
+See also: [al_clear_to_color], [al_set_clipping_rectangle],
+[al_set_render_state], [al_set_new_display_option]
 
 ### API: al_draw_bitmap
 
@@ -1335,6 +1337,8 @@ ALLEGRO_DEPTH_TEST
 ALLEGRO_DEPTH_FUNCTION
 :   One of [ALLEGRO_RENDER_FUNCTION], only used when ALLEGRO_DEPTH_TEST is 1.
 
+Since: 5.1.2
+
 See also: [al_set_render_state]
 
 ### API: ALLEGRO_RENDER_FUNCTION
@@ -1350,6 +1354,8 @@ Possible functions are:
 -   ALLEGRO_RENDER_NOT_EQUAL
 -   ALLEGRO_RENDER_GREATER_EQUAL
 
+Since: 5.1.2
+
 ### API: ALLEGRO_WRITE_MASK_FLAGS
 
 Each enabled bit means the corresponding value is written, a disabled bit
@@ -1360,13 +1366,17 @@ means it is not.
 -  ALLEGRO_MASK_BLUE
 -  ALLEGRO_MASK_ALPHA
 -  ALLEGRO_MASK_DEPTH
--  ALLEGRO_MASK_RGB Same as RED | GREEN | BLUE.
--  ALLEGRO_MASK_RGBA Same as RGB | ALPHA.
+-  ALLEGRO_MASK_RGB - Same as RED | GREEN | BLUE.
+-  ALLEGRO_MASK_RGBA - Same as RGB | ALPHA.
+
+Since: 5.1.2
 
 ### API: al_set_render_state
 
 Set one of several render attributes. This function does nothing if the target
 bitmap is a memory bitmap.
+
+Since: 5.1.2
 
 See also: [ALLEGRO_RENDER_STATE], [ALLEGRO_RENDER_FUNCTION],
    [ALLEGRO_WRITE_MASK_FLAGS]
