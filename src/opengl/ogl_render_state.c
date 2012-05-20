@@ -23,12 +23,16 @@ void _al_ogl_update_render_state(ALLEGRO_DISPLAY *display)
     * avoid so many redundant OpenGL calls.
     */
 
-   if (r->alpha_test == 0) glDisable(GL_ALPHA_TEST);
-   else glEnable(GL_ALPHA_TEST);
+   if (r->alpha_test == 0)
+      glDisable(GL_ALPHA_TEST);
+   else
+      glEnable(GL_ALPHA_TEST);
    glAlphaFunc(_gl_funcs[r->alpha_function], r->alpha_test_value);
 
-   if (r->depth_test == 0) glDisable(GL_DEPTH_TEST);
-   else glEnable(GL_DEPTH_TEST);
+   if (r->depth_test == 0)
+      glDisable(GL_DEPTH_TEST);
+   else
+      glEnable(GL_DEPTH_TEST);
    glDepthFunc(_gl_funcs[r->depth_function]);
 
    glDepthMask((r->write_mask & ALLEGRO_MASK_DEPTH) ? GL_TRUE : GL_FALSE);
