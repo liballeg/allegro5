@@ -504,7 +504,13 @@ static void ogl_set_projection(ALLEGRO_DISPLAY *d)
 static void ogl_clear_depth_buffer(ALLEGRO_DISPLAY *display, float x)
 {
    (void)display;
+
+#if defined(ALLEGRO_IPHONE) || defined(ALLEGRO_ANDROID)
+   glClearDepthf(x);
+#else
    glClearDepth(x);
+#endif
+
    /* We may want to defer this to the next glClear call as a combined
     * color/depth clear may be faster.
     */
