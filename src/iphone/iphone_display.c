@@ -212,7 +212,6 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
    _al_ogl_manage_extensions(display);
    _al_ogl_set_extensions(ogl->extension_api);
    setup_gl(display);
-   _al_ogl_update_render_state(display);
     
    display->flags |= ALLEGRO_OPENGL;
 
@@ -233,9 +232,10 @@ static void iphone_destroy_display(ALLEGRO_DISPLAY *d)
 
 static bool iphone_set_current_display(ALLEGRO_DISPLAY *d)
 {
-    (void)d;
-    _al_iphone_make_view_current(d);
-    return true;
+   (void)d;
+   _al_iphone_make_view_current(d);
+   _al_ogl_update_render_state(d);
+   return true;
 }
 
 static int iphone_get_orientation(ALLEGRO_DISPLAY *d)
