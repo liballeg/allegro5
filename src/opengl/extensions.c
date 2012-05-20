@@ -885,8 +885,13 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    ALLEGRO_INFO("Use of non-power-of-two textures %s.\n",
       s[ALLEGRO_SUPPORT_NPOT_BITMAP] ? "enabled" : "disabled");
 #if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
-   s[ALLEGRO_CAN_DRAW_INTO_BITMAP] =
-      ext_list->ALLEGRO_GL_OES_framebuffer_object;
+   if (gl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      s[ALLEGRO_CAN_DRAW_INTO_BITMAP] = true;
+   }
+   else {
+      s[ALLEGRO_CAN_DRAW_INTO_BITMAP] =
+         ext_list->ALLEGRO_GL_OES_framebuffer_object;
+   }
    ALLEGRO_INFO("Use of FBO to draw to textures %s.\n",
       s[ALLEGRO_CAN_DRAW_INTO_BITMAP] ? "enabled" :
       "disabled");
