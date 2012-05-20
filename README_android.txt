@@ -2,7 +2,7 @@ Android
 =======
 
 This port should support Android 1.6 (Donut) and above.
-XXX in truth only Android 2.3 and above currently?
+Confirmed working on Android 2.1 and 2.2 devices at least.
 
 Dependencies
 ============
@@ -14,11 +14,16 @@ Building on Linux
 =================
 
 After extracting the Android SDK and NDK to known locations, you need to
-setup a standalone NDK toolchain.  Assuming the NDK was extracted into
-$HOME/android-ndk run the following command:
+setup a standalone NDK toolchain.  Set an environment variable to point to the
+desired location of the Android toolchain:
+
+    export TC=$HOME/android-toolchain
+
+Assuming the NDK was extracted into $HOME/android-ndk run the following
+command:
 
     $HOME/android-ndk/build/tools/make-standalone-toolchain.sh \
-        --platform=android-9 --install-dir=$HOME/android-toolchain
+        --platform=android-9 --install-dir=$TC
 
 You can use any platform 9 or higher. This command was last tested on ndk7.
 
@@ -27,11 +32,12 @@ directory.
 
     mkdir build
     cd build
-    cmake .. -DANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain
-        -DWANT_ANDROID=on \
-        -DCMAKE_INSTALL_PREFIX=$HOME/android-toolchain/user/armeabi-v7a \
-        -DWANT_EXAMPLES=OFF -DWANT_DEMO=OFF
+    cmake .. -DANDROID_NDK_TOOLCHAIN_ROOT=$TC -DWANT_ANDROID=on \
+        -DWANT_EXAMPLES=OFF -DWANT_DEMO=OFF \
+        -DCMAKE_BUILD_TYPE=Debug
     make && make install
+
+Stick with the Debug build configuration for now.
 
 NOTE: On OS X, add -DCMAKE_INSTALL_NAME_TOOL=/usr/bin/install_name_tool to
 the cmake command line.
@@ -85,15 +91,13 @@ Next, change the name Android will show for your app:
 
 Now to build your Android project.
 
- *  Copy the Allegro libraries you require to the `jni/armeabi-v7a`
+ *  Copy or link the Allegro libraries you require to the `jni/armeabi-v7a`
     folder of your project.
 
  *  Run the ndk-build script from the NDK while in the root directory of your
-    project.  e.g. if you installed the standalone NDK toolchain to
-    /path/to/toolchain
+    project.
 
-        ANDROID_NDK_TOOLCHAIN_ROOT=/path/to/toolchain \
-            /home/username/build/android-ndk/ndk-build
+        ANDROID_NDK_TOOLCHAIN_ROOT=$TC /home/username/android-ndk/ndk-build
 
  *  Run `ant debug`.  This should completely build your project
     resulting in an installable `.apk` file.
