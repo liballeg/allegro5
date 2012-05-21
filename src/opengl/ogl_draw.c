@@ -312,7 +312,6 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
 {
    GLuint current_texture;
    ALLEGRO_OGL_EXTRAS *o = disp->ogl_extras;
-   (void) o;
 
    if (!disp->vertex_cache)
       return;
@@ -346,8 +345,8 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
       glBindTexture(GL_TEXTURE_2D, disp->cache_texture);
    }
    
-   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
 #if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       int stride = sizeof(ALLEGRO_OGL_BITMAP_VERTEX);
       int bytes = disp->num_cache_vertices * stride;
 
@@ -387,9 +386,10 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
             (void *)offsetof(ALLEGRO_OGL_BITMAP_VERTEX, r));
          glEnableVertexAttribArray(o->color_loc);
       }
-#endif
    }
-   else {
+   else
+#endif
+   {
       vert_ptr_on(disp, 2, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX),
          (char *)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, x));
       tex_ptr_on(disp, 2, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX),
@@ -412,15 +412,17 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
    }
 #endif
 
-   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
 #if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       if (o->pos_loc >= 0) glDisableVertexAttribArray(o->pos_loc);
       if (o->texcoord_loc >= 0) glDisableVertexAttribArray(o->texcoord_loc);
       if (o->color_loc >= 0) glDisableVertexAttribArray(o->color_loc);
       glBindBuffer(GL_ARRAY_BUFFER, 0);
       glBindVertexArray(0);
+   }
+   else
 #endif
-   } else {
+   {
       vert_ptr_off(disp);
       tex_ptr_off(disp);
       color_ptr_off(disp);
