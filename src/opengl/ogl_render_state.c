@@ -9,11 +9,11 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 static int _gl_funcs[] = {
    GL_NEVER,
    GL_ALWAYS,
-   GL_LESS, 
-   GL_EQUAL,     
-   GL_LEQUAL,       
-   GL_GREATER,        
-   GL_NOTEQUAL, 
+   GL_LESS,
+   GL_EQUAL,
+   GL_LEQUAL,
+   GL_GREATER,
+   GL_NOTEQUAL,
    GL_GEQUAL
 };
 
