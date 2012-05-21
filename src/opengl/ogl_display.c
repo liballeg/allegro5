@@ -70,7 +70,13 @@ void _al_android_set_curr_fbo(GLint fbo)
 GLint _al_ogl_bind_framebuffer(GLint fbo)
 {
    GLint old_fbo = _al_android_get_curr_fbo();
+   GLint e;
    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+   e = glGetError();
+   if (e) {
+      ALLEGRO_DEBUG("glBindFramebufferEXT failed (%s)",
+         _al_ogl_error_string(e));
+   }
    _al_android_set_curr_fbo(fbo);
    return old_fbo;
 }
@@ -101,7 +107,7 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap;
    ALLEGRO_FBO_INFO *info;
-   GLint old_fbo;
+   GLint old_fbo, e;
 
    if (bitmap->parent)
       bitmap = bitmap->parent;
@@ -130,6 +136,11 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
 
    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
       GL_TEXTURE_2D, ogl_bitmap->texture, 0);
+
+   e = glGetError();
+   if (e) {
+      ALLEGRO_DEBUG("glFrameBufferTexture2DEXT failed! fbo=%d texture=%d (%s)", info->fbo, ogl_bitmap->texture, _al_gl_error_string(e));
+   }
 
    /* You'll see this a couple times in this file: some ES 1.1 functions aren't implemented on
     * Android. This is an ugly workaround.
@@ -306,14 +317,23 @@ void ogl_setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
             ogl_bitmap->fbo_info = NULL;
          }
          else {
+            bool set_projection = true;
+
             display->ogl_extras->opengl_target = bitmap;
 
             glViewport(0, 0, bitmap->w, bitmap->h);
 
-            al_identity_transform(&display->proj_transform);
-            al_ortho_transform(&display->proj_transform, 0, bitmap->w, bitmap->h, 0, -1, 1);
+            if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+               if (display->ogl_extras->program_object <= 0) {
+                  set_projection = false;
+               }
+            }
 
-            display->vt->set_projection(display);
+            if (set_projection) {
+               al_identity_transform(&display->proj_transform);
+               al_ortho_transform(&display->proj_transform, 0, bitmap->w, bitmap->h, 0, -1, 1);
+               display->vt->set_projection(display);
+            }
          }
       }
    }
