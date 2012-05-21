@@ -161,7 +161,6 @@ void _al_ogl_add_drawing_functions(struct ALLEGRO_DISPLAY_INTERFACE *vt);
 
 AL_FUNC(bool, _al_opengl_set_blender, (ALLEGRO_DISPLAY *disp));
 AL_FUNC(char const *, _al_gl_error_string, (GLenum e));
-void ogl_setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
 
 void _al_ogl_update_render_state(ALLEGRO_DISPLAY *display);
 

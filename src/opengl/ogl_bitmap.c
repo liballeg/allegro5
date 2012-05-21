@@ -599,6 +599,8 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_old(ALLEGRO_BITMAP *bitmap,
    int pitch;
    ALLEGRO_DISPLAY *disp;
    ALLEGRO_DISPLAY *old_disp = NULL;
+   ALLEGRO_BITMAP *old_target = NULL;
+   bool need_to_restore_target = false;
    bool need_to_restore_display = false;
    GLint gl_y = bitmap->h - y - h;
    GLenum e;
@@ -668,7 +670,14 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_old(ALLEGRO_BITMAP *bitmap,
       
          /* Create an FBO if there isn't one. */
          if (!ogl_bitmap->fbo_info) {
-            ogl_setup_fbo(disp, bitmap);
+            old_target = al_get_target_bitmap();
+            need_to_restore_target = true;
+            bitmap->locked = false; // FIXME: hack :(
+            if (al_is_bitmap_drawing_held())
+               al_hold_bitmap_drawing(false);
+
+            al_set_target_bitmap(bitmap); // This creates the fbo
+            bitmap->locked = true;
          }
 
          if (ogl_bitmap->fbo_info) {
@@ -767,6 +776,9 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_old(ALLEGRO_BITMAP *bitmap,
    bitmap->locked_region.pitch = -pitch;
    bitmap->locked_region.pixel_size = pixel_size;
 
+   if (need_to_restore_target)
+      al_set_target_bitmap(old_target);
+   
    if (need_to_restore_display) {
       _al_set_current_display_only(old_disp);
    }

@@ -212,7 +212,7 @@ static ALLEGRO_FBO_INFO *ogl_find_unused_fbo(ALLEGRO_DISPLAY *display)
 }
 
 
-void ogl_setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
+static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap;
    GLint e;
@@ -402,7 +402,7 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
     */
    if (!(bitmap->locked ||
         (bitmap->parent && bitmap->parent->locked))) {
-      ogl_setup_fbo(display, bitmap);
+      setup_fbo(display, bitmap);
       if (display->ogl_extras->opengl_target == target) {
          _al_ogl_setup_bitmap_clipping(bitmap);
       }
