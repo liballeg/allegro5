@@ -7,6 +7,7 @@ struct ALLEGRO_DISPLAY_IPHONE_EXTRA {
    ViewController *vc;
    UIWindow *window;
    int adapter;
+   bool disconnected;
 };
 
 @class EAGLView;

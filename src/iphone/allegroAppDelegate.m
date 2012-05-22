@@ -16,6 +16,7 @@ static allegroAppDelegate *global_delegate;
 static UIApplication *app = NULL;
 static volatile bool waiting_for_program_halt = false;
 static float scale_override = -1.0;
+static bool disconnect_wait = false;
 
 ALLEGRO_MUTEX *_al_iphone_display_hotplug_mutex = NULL;
 
@@ -34,6 +35,13 @@ ALLEGRO_MUTEX *_al_iphone_display_hotplug_mutex = NULL;
 
 @implementation iphone_screen
 @end
+
+void _al_iphone_disconnect(ALLEGRO_DISPLAY *display)
+{
+   (void)display;
+
+   disconnect_wait = false;
+}
 
 static NSMutableArray *iphone_screens;
 
@@ -307,7 +315,7 @@ bool _al_iphone_add_view(ALLEGRO_DISPLAY *display)
    
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    
-   d->extra = al_malloc(sizeof(ALLEGRO_DISPLAY_IPHONE_EXTRA));
+   d->extra = al_calloc(1, sizeof(ALLEGRO_DISPLAY_IPHONE_EXTRA));
    int adapter = al_get_new_display_adapter();
    if (adapter < 0)
       adapter = 0;
@@ -721,14 +729,17 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 }
  
 - (void)handleScreenDisconnectNotification:(NSNotification*)aNotification
-{
-   al_lock_mutex(_al_iphone_display_hotplug_mutex);
-   iphone_remove_screen([aNotification object]);
-   al_unlock_mutex(_al_iphone_display_hotplug_mutex);
-   
+{   
    ALLEGRO_DISPLAY *display = main_display;
+   ALLEGRO_DISPLAY_IPHONE *idisplay = (ALLEGRO_DISPLAY_IPHONE *)display;
+   ALLEGRO_DISPLAY_IPHONE_EXTRA *extra;
 
    if (!display) return;
+
+   extra = idisplay->extra;
+   extra->disconnected = true;
+
+   disconnect_wait = true;
 
    _al_event_source_lock(&display->es);
    if (_al_event_source_needs_to_generate_event(&display->es)) {
@@ -739,6 +750,14 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
       _al_event_source_emit_event(&display->es, &event);
    }
    _al_event_source_unlock(&display->es);
+
+   // wait for user to destroy display
+   while (disconnect_wait)
+      al_rest(0.001);
+         
+   al_lock_mutex(_al_iphone_display_hotplug_mutex);
+   iphone_remove_screen([aNotification object]);
+   al_unlock_mutex(_al_iphone_display_hotplug_mutex);
 } 
 
 - (void)dealloc {

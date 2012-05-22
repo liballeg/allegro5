@@ -1,3 +1,6 @@
+#ifndef ALLEGRO_INTERNAL_IPHONE
+#define ALLEGRO_INTERNAL_IPHONE
+
 #include "allegro5/allegro.h"
 #include <allegro5/internal/aintern_system.h>
 #include <allegro5/internal/aintern_display.h>
@@ -53,3 +56,7 @@ void _al_iphone_touch_input_handle_begin(int id, double timestamp, float x, floa
 void _al_iphone_touch_input_handle_end(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp);
 void _al_iphone_touch_input_handle_move(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp);
 void _al_iphone_touch_input_handle_cancel(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp);
+
+void _al_iphone_disconnect(ALLEGRO_DISPLAY *display);
+
+#endif // ALLEGRO_INTERNAL_IPHONE

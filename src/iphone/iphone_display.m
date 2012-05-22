@@ -5,6 +5,7 @@
 #include <math.h>
 
 #include "iphone.h"
+#include "allegroAppDelegate.h"
 
 ALLEGRO_DEBUG_CHANNEL("iphone")
 
@@ -220,6 +221,12 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
 
 static void iphone_destroy_display(ALLEGRO_DISPLAY *d)
 {
+   ALLEGRO_DISPLAY_IPHONE *idisplay = (ALLEGRO_DISPLAY_IPHONE *)d;
+   ALLEGRO_DISPLAY_IPHONE_EXTRA *extra = idisplay->extra;
+   bool disconnected = extra->disconnected;
+
+   _al_set_current_display_only(d);
+
    while (d->bitmaps._size > 0) {
       ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref_back(&d->bitmaps);
       ALLEGRO_BITMAP *b = *bptr;
@@ -228,6 +235,10 @@ static void iphone_destroy_display(ALLEGRO_DISPLAY *d)
 
    _al_event_source_free(&d->es);
    _al_iphone_destroy_screen(d);
+   
+   if (disconnected) {
+      _al_iphone_disconnect(d);
+   }
 }
 
 static bool iphone_set_current_display(ALLEGRO_DISPLAY *d)

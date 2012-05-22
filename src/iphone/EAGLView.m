@@ -7,6 +7,7 @@
 #include <float.h>
 
 #include "allegro5/allegro_iphone.h"
+#include "allegro5/internal/aintern_iphone.h"
 
 ALLEGRO_DEBUG_CHANNEL("iphone")
 
