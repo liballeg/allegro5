@@ -2,6 +2,7 @@
 #include <allegro5/allegro_opengl.h>
 #include <allegro5/internal/aintern_iphone.h>
 #include <allegro5/internal/aintern_opengl.h>
+#include <allegro5/internal/aintern_vector.h>
 #include <math.h>
 
 #include "iphone.h"
@@ -215,6 +216,9 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
    setup_gl(display);
     
    display->flags |= ALLEGRO_OPENGL;
+    
+   int ndisplays = system->system.displays._size;
+   [[UIApplication sharedApplication] setIdleTimerDisabled:(ndisplays > 1)];
 
    return display;
 }
@@ -239,6 +243,11 @@ static void iphone_destroy_display(ALLEGRO_DISPLAY *d)
    if (disconnected) {
       _al_iphone_disconnect(d);
    }
+   
+   ALLEGRO_SYSTEM_IPHONE *system = (void *)al_get_system_driver();
+   _al_vector_find_and_delete(&system->system.displays, &d);
+
+   [[UIApplication sharedApplication] setIdleTimerDisabled:FALSE];
 }
 
 static bool iphone_set_current_display(ALLEGRO_DISPLAY *d)
