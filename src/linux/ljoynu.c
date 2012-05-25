@@ -469,7 +469,10 @@ static void ljoy_config_dev_changed(void *data)
    struct itimerspec spec;
    (void)data;
 
-   /* Empty the event buffer.  Right now we don't use the information. */
+   /* Empty the event buffer. We only care that some inotify event was sent but it
+    * doesn't matter what it is since we are going to do a full scan anyway once
+    * the timer_fd fires.
+    */
    while (read(inotify_fd, buf, sizeof(buf)) > 0) {
    }
 
@@ -524,7 +527,7 @@ static bool ljoy_init_joystick(void)
    timer_fd = timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK);
    if (inotify_fd != -1 && timer_fd != -1) {
       /* Modern Linux probably only needs to monitor /dev/input. */
-      inotify_add_watch(inotify_fd, "/dev", IN_CREATE|IN_DELETE);
+      inotify_add_watch(inotify_fd, "/dev/input", IN_CREATE|IN_DELETE);
       _al_unix_start_watching_fd(inotify_fd, ljoy_config_dev_changed, NULL);
       _al_unix_start_watching_fd(timer_fd, ljoy_config_rescan, NULL);
       ALLEGRO_INFO("Hotplugging enabled\n");
