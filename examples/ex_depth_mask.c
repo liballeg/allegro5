@@ -148,9 +148,6 @@ int main(void)
    al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
 
    example.display = al_create_display(w, h);
-   w = al_get_display_width(example.display);
-   h = al_get_display_height(example.display);
-
    if (!example.display) {
       abort_example("Error creating display.\n");
       return 1;
