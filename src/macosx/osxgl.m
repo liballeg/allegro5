@@ -1943,8 +1943,10 @@ static void set_window_title(ALLEGRO_DISPLAY *display, const char *title)
 static void set_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP* bitmap)
 {
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+   NSImage *image = NSImageFromAllegroBitmap(bitmap);
    (void)display;
-   [NSApp setApplicationIconImage: NSImageFromAllegroBitmap(bitmap)];
+   [NSApp setApplicationIconImage: image];
+   [image release];
    [pool drain];
 }
 

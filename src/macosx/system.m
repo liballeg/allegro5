@@ -452,7 +452,7 @@ NSImage* NSImageFromAllegroBitmap(ALLEGRO_BITMAP* bmp)
    al_unlock_bitmap(bmp);
    [img addRepresentation:rep];
    [rep release];
-   return [img autorelease];
+   return img;
 }
 
 /* This works as long as there is only one screen */
