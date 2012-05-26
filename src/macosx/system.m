@@ -533,6 +533,7 @@ void _al_register_system_interfaces()
 /* Implementation of get_path */
 ALLEGRO_PATH *_al_osx_get_path(int id)
 {
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    NSString* ans = nil;
    NSArray* paths = nil;
    NSString *org_name = [[NSString alloc] initWithUTF8String: al_get_org_name()];
@@ -607,6 +608,7 @@ ALLEGRO_PATH *_al_osx_get_path(int id)
    }
    [org_name release];
    [app_name release];
+   [pool drain];
 
    return path;
 }

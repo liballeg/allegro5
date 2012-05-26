@@ -265,6 +265,7 @@ bool _al_osx_save_gif_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 
 bool _al_osx_register_image_loader(void)
 {
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    bool success = false;
    int num_types;
    int i;
@@ -299,6 +300,8 @@ bool _al_osx_register_image_loader(void)
    success |= al_register_bitmap_saver_f(".png", _al_osx_save_png_f);
    success |= al_register_bitmap_saver_f(".jpg", _al_osx_save_jpg_f);
    success |= al_register_bitmap_saver_f(".jpeg", _al_osx_save_jpg_f);
+   
+   [pool drain];
 
    return success;
 }

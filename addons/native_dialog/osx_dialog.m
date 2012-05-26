@@ -319,6 +319,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 
 void _al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    NSWindow *win = (NSWindow *)textlog->window;
    if ([win isVisible]) {
       [win close];
@@ -328,17 +329,22 @@ void _al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    textlog->is_active = false;
    textlog->tl_done = true;
    al_signal_cond(textlog->tl_text_cond);
+   [pool drain];
 }
 
 void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
-   if (textlog->tl_have_pending)
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+   if (textlog->tl_have_pending) {
+      [pool drain];
       return;
+   }
    textlog->tl_have_pending = true;
    
    [LogView performSelectorOnMainThread: @selector(appendText:) 
                              withObject: [NSValue valueWithPointer: textlog]
                           waitUntilDone: NO];
+   [pool drain];
 }
 
 bool _al_init_menu(ALLEGRO_MENU *menu)

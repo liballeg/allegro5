@@ -260,6 +260,7 @@ static void call_user_main(void)
 int _al_osx_run_main(int argc, char **argv,
    int (*real_main)(int, char **))
 {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     AllegroAppDelegate *app_delegate = [[AllegroAppDelegate alloc] init];
     NSMenu *menu;
     NSMenuItem *temp_item;
@@ -331,6 +332,7 @@ int _al_osx_run_main(int argc, char **argv,
     // setDelegate: doesn't retain the delegate here (a Cocoa convention)
     // therefore we don't release it.
     [NSApp setDelegate: app_delegate];
+    [pool drain];
     [NSApp run];
     /* Can never get here */
     [app_delegate release];
