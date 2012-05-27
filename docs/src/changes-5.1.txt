@@ -4,6 +4,269 @@ See `changes-5.0.txt` for changes in Allegro 5.0.x.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 5.1.1 to 5.1.2 (May 2012)
+======================================
+
+The main developers this time were: Thomas Fjellstrom, Trent Gamblin,
+Elias Pschernig, Peter Wang.
+
+Core:
+
+-  Add userdata to Windows window callbacks and rename the functions
+   (Matthew Leverton).
+
+-  Fix ALLEGRO_STATIC_ASSERT collisions from different files included in the
+   same translation unit.  Reported by tobing.
+
+-  Make al_ustr_empty_string const correct.
+
+-  Fix many memory leak/warnings on MacOS X (Pär Arvidsson).
+
+Filesystem:
+
+-  Make stdio al_fopen implementation set proper errno on failure.
+
+-  Make al_get_standard_path(ALLEGRO_TEMP_PATH) treat environment values
+   as directory names even without a trailing slash on Unix.
+
+-  Fix typo preventing get_executable_name from using System V procfs
+   correctly.  Reported by Max Savenkov.
+
+Displays:
+
+-  Fixed bug on Windows where two SWITCH_IN events were fired when window was
+   minimized/restored (Michael Swiger).
+
+-  Fixed inverted al_toggle_display_flag(ALLEGRO_NOFRAME) logic under Windows
+   as well as a bug where repeatedly setting the flag to on would make the
+   window grow bigger and bigger (Michael Swiger).
+
+-  Fixed inverted al_toggle_display_flag(ALLEGRO_NOFRAME) logic in X11.
+
+-  Rename al_toggle_display_flag to al_set_display_flag, retaining
+   the older name for compatibility.
+
+-  Add ALLEGRO_FRAMELESS as a preferred synonym for the confusing
+   ALLEGRO_NOFRAME flag.
+
+-  Set WM_NAME for some window managers (X11).
+
+-  Disable the idle timer on iOS (screen lock) when entering airplay mode.
+
+-  Make al_destroy_display handle display disconnection properly.
+   The user will need to clean up then call al_destroy_display after receiving
+   ALLEGRO_EVENT_DISPLAY_DISCONNECTED (iOS).
+
+Graphics:
+
+-  Added al_get_parent_bitmap (Paul Suntsov).
+
+-  Make blitting from backbuffer work when using multisampling on Windows/D3D.
+
+-  Redefine pixel format LUMINANCE_8 as SINGLE_CHANNEL_8.
+
+-  Map SINGLE_CHANNEL_8 to red channel only.  Fix some software pixel format
+   conversion bugs previously present with the LUMINANCE_8 format.
+
+-  Added al_create_custom_bitmap.
+
+-  Remove ALLEGRO_PRESERVE_TEXTURE flag. The idea is to always preserve
+   textures unless directed otherwise by the user with
+   ALLEGRO_NO_PRESERVE_TEXTURE.
+
+-  Added al_clear_depth_buffer and al_set_render_state functions.
+
+-  Force al_create_bitmap to not create oversized bitmaps, to mitigate
+   integer overflow problems.
+
+-  Removed initial black frame on all Allegro programs.
+
+OpenGL:
+
+-  Fix null pointer dereference if backbuffer creation fails.
+   Reported by Max Savenkov.
+
+-  Made the ALLEGRO_OPENGL_FORWARD_COMPATIBLE flag work with al_draw_bitmap.
+
+-  Texture should be 'complete' (min/mag and wrap set) before glTexImage2D.
+
+-  Restore matrix manipulation code for unlocking backbuffer in GL <1.4 case.
+
+-  Fixed a bug in al_unlock_bitmap where the pixel alignment mistakenly was
+   used as row length.
+
+-  Never set the projection when using programmable pipeline mode unless a
+   program object is bound.
+
+-  Do not preserve bound texture state.
+
+-  Disable GL_NORMAL_ARRAY in non-programmable pipeline mode.
+
+-  Fixed typo in names of some OpenGL extension functions.
+
+-  Display list of OpenGL extensions in allegro.log also for OpenGL 3.0.
+
+-  Check for OES_texture_npot as well for non-power-of-two support.
+
+-  Fix loading of some textures on iOS.
+
+Direct3D:
+
+-  Fixed a bug in the D3D driver where separate alpha blending was being
+   tested for when it shouldn't have been (Max Savenkov).
+
+-  Do not manage depth stencil surface.
+
+-  Arrange code so that sleep and hibernate work using the release and restore
+   callbacks.
+
+-  Fix device reset problem in D3D.
+
+-  Make sub-bitmap restore properly on lost device.
+
+Input:
+
+-  Increase max number of joystick "sticks".  Due to analogue buttons being
+   mapped to axes, the number of sticks on a single device may be much higher
+   than expected.
+
+-  Monitor /dev/input instead of /dev on Linux for hotplugging joysticks
+   (Jon Rafkind).
+
+-  Do not permanently change the locale for the X11 keyboard driver.
+   Set LC_CTYPE only, not LC_ALL.
+
+-  Update ALLEGRO_MOUSE_STATE even if mouse emulation event source isn't
+   attached to an event queue (Android and iOS).
+
+-  Don't report shakes at program start accidentally (iOS).
+
+Android port:
+
+-  Many graphics-related changes (too many to list).
+
+-  Make Android port always choose a double buffered graphics mode.
+
+-  Don't force 16-bit mode if no COLOR_SIZE specified.
+
+-  Go fullscreen (no title/status bar).
+
+-  Generate ALLEGRO_EVENT_DISPLAY_HALT_DRAWING, RESUME_DRAWING events instead
+   of SWITCH_IN/OUT.
+
+-  Add an APK file driver for reading assets directly from Android app bundles.
+
+-  Additions and fixes to accelerometer and orientation code.
+
+-  Support for volume keys.
+
+-  Added a dummy mouse driver, enough to get al_get_mouse_state working.
+
+-  Improve compatibility of touch input emulation driver with iOS touch input
+   emulation.
+
+-  Add al_android_get_os_version().
+
+-  Fix linking problem on Android 2.2 and below.
+
+-  Update and clean up sample project.
+
+Audio addon:
+
+-  Fix desychronization due to inaccurate sample positions when resampling.
+   Thanks to _Bnu for discovering the issue and Paul Suntsov for devising the
+   correct solution.
+
+-  Fix linear interpolation across audio stream buffer fragments.
+
+-  Add stub OpenSL driver (Jon Rafkind).
+
+Image addon:
+
+-  Improved accuracy of un-alpha-premultiplying in the native OSX bitmap loader.
+
+-  Improve compatibility of BMP loader.  In particular, support bitmaps with
+   V2-V5 headers and certain alpha bit masks.
+
+-  Improve robustness of BMP loader against some corrupt files.
+
+-  Fix TGA loader using more memory than necessary.  Reported by Max Savenkov.
+
+-  Image loading in Android now works.
+
+Font addon:
+
+-  Use user set pixel format for fonts.
+
+TTF addon:
+
+-  Added ALLEGRO_TTF_NO_AUTOHINT font loading flag to disable the Auto Hinter
+   which is enabled by default in newer version of FreeType (Michał Cichoń).
+
+-  Unlock glyph cache page at end of text_length and get_text_dimensions
+   (jmasterx).
+
+Primitives addon:
+
+-  Use GL_REPEAT so textures can be tiled again.
+
+-  Always set the texture due to missing glGetInteger on some GLES 1.0/1.1
+   devices.
+
+Native dialogs addon:
+
+-  Only call SetMenu from within the window thread (Matthew Leverton).
+
+-  Clear mouse state after dialogs or else it gets messed up (OSX).
+
+-  Fix some warnings in gtk_dialog.c.
+
+Build system:
+
+-  Added OSX Framework support for the monolith library.
+
+-  Make examples build with monolith build.
+
+-  Add WANT_ANDROID_LEGACY to allow compiling for older Android platforms.
+
+Examples:
+
+-  a5teroids: Added high scores and other improvements.
+   New graphics by Tony Huisman.
+
+-  Add ex_file_slice.
+
+-  Add ex_resample_test.
+
+-  Add ex_depth_mask.
+
+-  ex_audio_props: Add bidir button.
+
+-  ex_joystick_events: Support hotplugging and fix display of 3-axis sticks.
+
+-  ex_polygon: Test al_draw_filled_polygon_with_holes.
+
+-  ex_get_path: Test al_set_exe_name.
+
+-  Made the skater demo run from within xcode.
+
+-  Add test_driver --no-display flag. (Tobias Hansen)
+
+-  Add test_driver --force-opengl-2.0 option.
+
+-  Make .png and .tga loading tests to not require a backbuffer with an alpha
+   channel.
+
+Other:
+
+-  Many minor bug fixes.
+
+-  Many documentation updates.
+
+-  Fix whatis entries of man pages. (Tobias Hansen)
+
+
+
 Changes from 5.1.0 to 5.1.1 (February 2012)
 ===========================================
 
