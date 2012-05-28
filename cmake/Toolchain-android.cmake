@@ -28,32 +28,39 @@ endif()
 
 find_program(CMAKE_MAKE_PROGRAM make)
 
-# specify the cross compiler
-SET(CMAKE_C_COMPILER   
-  ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-gcc${CMAKE_EXECUTABLE_SUFFIX} CACHE PATH "gcc" FORCE)
-SET(CMAKE_CXX_COMPILER 
-  ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-g++${CMAKE_EXECUTABLE_SUFFIX} CACHE PATH "gcc" FORCE)
-#there may be a way to make cmake deduce these TODO deduce the rest of the tools
-set(CMAKE_AR
- ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-ar${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "archive" FORCE)
-set(CMAKE_LINKER
- ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-ld${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "linker" FORCE)
-set(CMAKE_NM
- ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-nm${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "nm" FORCE)
-set(CMAKE_OBJCOPY
- ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-objcopy${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "objcopy" FORCE)
-set(CMAKE_OBJDUMP
- ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-objdump${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "objdump" FORCE)
-set(CMAKE_STRIP
-  ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-strip${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "strip" FORCE)
-set(CMAKE_RANLIB
-  ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/arm-linux-androideabi-ranlib${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "ranlib" FORCE)
 #setup build targets, mutually exclusive
 set(PossibleArmTargets
-  "armeabi;armeabi-v7a;armeabi-v7a with NEON")
+  "i686;armeabi;armeabi-v7a;armeabi-v7a with NEON")
 set(ARM_TARGETS "armeabi-v7a" CACHE STRING 
     "the arm targets for android, recommend armeabi-v7a 
     for floating point support and NEON.")
+
+if(ARM_TARGETS STREQUAL "i686")
+    set(ANDROID_ARCH "i686-android-linux")
+else()
+    set(ANDROID_ARCH "arm-linux-androideabi")
+endif()
+
+# specify the cross compiler
+SET(CMAKE_C_COMPILER   
+  ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/${ANDROID_ARCH}-gcc${CMAKE_EXECUTABLE_SUFFIX} CACHE PATH "gcc" FORCE)
+SET(CMAKE_CXX_COMPILER 
+  ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/${ANDROID_ARCH}-g++${CMAKE_EXECUTABLE_SUFFIX} CACHE PATH "gcc" FORCE)
+#there may be a way to make cmake deduce these TODO deduce the rest of the tools
+set(CMAKE_AR
+ ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/${ANDROID_ARCH}-ar${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "archive" FORCE)
+set(CMAKE_LINKER
+ ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/${ANDROID_ARCH}-ld${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "linker" FORCE)
+set(CMAKE_NM
+ ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/${ANDROID_ARCH}-nm${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "nm" FORCE)
+set(CMAKE_OBJCOPY
+ ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/${ANDROID_ARCH}-objcopy${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "objcopy" FORCE)
+set(CMAKE_OBJDUMP
+ ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/${ANDROID_ARCH}-objdump${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "objdump" FORCE)
+set(CMAKE_STRIP
+ ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/${ANDROID_ARCH}-strip${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "strip" FORCE)
+set(CMAKE_RANLIB
+ ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/${ANDROID_ARCH}-ranlib${CMAKE_EXECUTABLE_SUFFIX}  CACHE PATH "ranlib" FORCE)
 
 set_property(CACHE ARM_TARGETS PROPERTY STRINGS ${PossibleArmTargets} )
 
@@ -69,6 +76,11 @@ if(ARM_TARGETS STREQUAL "armeabi")
   set(CMAKE_INSTALL_PREFIX ${ANDROID_NDK_TOOLCHAIN_ROOT}/user/armeabi
       CACHE STRING "path for installing" FORCE)
   set(NEON false)
+elseif(ARM_TARGETS STREQUAL "i686")
+  set( LIBRARY_OUTPUT_PATH ${LIBRARY_OUTPUT_PATH_ROOT}/libs/i686
+       CACHE PATH "path for android libs" FORCE)
+  set(  CMAKE_INSTALL_PREFIX ${ANDROID_NDK_TOOLCHAIN_ROOT}/user/i686
+      CACHE STRING "path for installing" FORCE)
 else()
   if(ARM_TARGETS STREQUAL "armeabi-v7a with NEON")
     set(NEON true)
@@ -92,36 +104,42 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 
-#It is recommended to use the -mthumb compiler flag to force the generation
-#of 16-bit Thumb-1 instructions (the default being 32-bit ARM ones).
-SET(CMAKE_CXX_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -mthumb -Wno-psabi")
-SET(CMAKE_C_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -mthumb -Wno-psabi")
+if(ARM_TARGETS STREQUAL "i686")
+  SET(CMAKE_CXX_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -Wno-psabi")
+  SET(CMAKE_C_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -Wno-psabi")
+else()
+  #Setup arm specific stuff
+  #It is recommended to use the -mthumb compiler flag to force the generation
+  #of 16-bit Thumb-1 instructions (the default being 32-bit ARM ones).
+  SET(CMAKE_CXX_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -mthumb -Wno-psabi")
+  SET(CMAKE_C_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -mthumb -Wno-psabi")
 
-#these are required flags for android armv7-a
-if(WANT_ANDROID_LEGACY)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv6")
-  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv6")
-  SET(ALLEGRO_CFG_ANDROID_LEGACY 1)
-else(WANT_ANDROID_LEGACY)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv7-a -mfloat-abi=softfp")
-  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv7-a -mfloat-abi=softfp")
-  if(NEON)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpu=neon")
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfpu=neon")
-  endif()
-endif(WANT_ANDROID_LEGACY)
+  #these are required flags for android armv7-a
+  if(WANT_ANDROID_LEGACY)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv6")
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv6")
+    SET(ALLEGRO_CFG_ANDROID_LEGACY 1)
+  else(WANT_ANDROID_LEGACY)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv7-a -mfloat-abi=softfp")
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv7-a -mfloat-abi=softfp")
+    if(NEON)
+      SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpu=neon")
+      SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfpu=neon")
+    endif()
+  endif(WANT_ANDROID_LEGACY)
+ 
+  #-Wl,-L${LIBCPP_LINK_DIR},-lstdc++,-lsupc++
+  #-L${LIBCPP_LINK_DIR} -lstdc++ -lsupc++
+  #Also, this is *required* to use the following linker flags that routes around
+  #a CPU bug in some Cortex-A8 implementations:
+
+  SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--fix-cortex-a8 -L${CMAKE_INSTALL_PREFIX}/lib" CACHE STRING "linker flags" FORCE)
+  SET(CMAKE_MODULE_LINKER_FLAGS "-Wl,--fix-cortex-a8 -L${CMAKE_INSTALL_PREFIX}/lib" CACHE STRING "linker flags" FORCE)
+endif()
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" CACHE STRING "c++ flags")
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}" CACHE STRING "c flags")
-      
-#-Wl,-L${LIBCPP_LINK_DIR},-lstdc++,-lsupc++
-#-L${LIBCPP_LINK_DIR} -lstdc++ -lsupc++
-#Also, this is *required* to use the following linker flags that routes around
-#a CPU bug in some Cortex-A8 implementations:
-
-SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--fix-cortex-a8 -L${CMAKE_INSTALL_PREFIX}/lib" CACHE STRING "linker flags" FORCE)
-SET(CMAKE_MODULE_LINKER_FLAGS "-Wl,--fix-cortex-a8 -L${CMAKE_INSTALL_PREFIX}/lib" CACHE STRING "linker flags" FORCE)
-
+     
 OPTION(WANT_GLES2 "Compile with GLES2 support" ON)
 
 #set these global flags for cmake client scripts to change behavior
