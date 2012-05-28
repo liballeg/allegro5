@@ -75,7 +75,7 @@ GLint _al_ogl_bind_framebuffer(GLint fbo)
    e = glGetError();
    if (e) {
       ALLEGRO_DEBUG("glBindFramebufferEXT failed (%s)",
-         _al_ogl_error_string(e));
+         _al_gl_error_string(e));
    }
    _al_android_set_curr_fbo(fbo);
    return old_fbo;
