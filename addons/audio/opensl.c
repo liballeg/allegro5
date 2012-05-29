@@ -147,6 +147,7 @@ typedef struct OpenSLData{
     int position;
     int length;
     int frame_size;
+    ALLEGRO_THREAD * poll_thread;
 } OpenSLData;
 
 static int _opensl_allocate_voice(ALLEGRO_VOICE *voice)
@@ -173,6 +174,11 @@ static int _opensl_allocate_voice(ALLEGRO_VOICE *voice)
 
 static void _opensl_deallocate_voice(ALLEGRO_VOICE *voice)
 {
+    OpenSLData * data = (OpenSLData*) voice->extra;
+    al_set_thread_should_stop(data->poll_thread);
+    al_join_thread(data->poll_thread, NULL);
+    al_destroy_thread(data->poll_thread);
+
     al_free(voice->extra);
     voice->extra = NULL;
 }
@@ -180,6 +186,7 @@ static void _opensl_deallocate_voice(ALLEGRO_VOICE *voice)
 static int _opensl_load_voice(ALLEGRO_VOICE *voice, const void *data)
 {
     OpenSLData * extra = (OpenSLData*) voice->extra;
+    ALLEGRO_DEBUG("Load voice data %p\n", data);
     extra->data = data;
     extra->position = 0;
 
@@ -370,9 +377,110 @@ static void updateQueue(SLBufferQueueItf queue, void * context){
         }
 
         SLresult result;
+        ALLEGRO_DEBUG("Enqueue %d bytes\n", bytes);
         result = (*queue)->Enqueue(queue, (char*) data->data + data->position, bytes);
         data->position += bytes;
     }
+}
+
+static void enqueue(SLObjectItf player, const void * data, int bytes){
+    SLresult result;
+    SLBufferQueueItf queue;
+    SLPlayItf play;
+    SLBufferQueueState state;
+
+    result = (*player)->GetInterface(player, SL_IID_BUFFERQUEUE, &queue);
+    if (result != SL_RESULT_SUCCESS){
+        ALLEGRO_ERROR("Could not get bufferqueue interface: %s\n", opensl_get_error_string(result));
+        return;
+    }
+
+    // ALLEGRO_DEBUG("Play voice data %p\n", data);
+        
+    result = (*queue)->Enqueue(queue, data, bytes);
+    if (result != SL_RESULT_SUCCESS){
+        ALLEGRO_ERROR("Could not enqueue data: %s\n", opensl_get_error_string(result));
+        return;
+    }
+
+    // result = (*volume)->SetVolumeLevel(volume, -300);
+
+    result = (*player)->GetInterface(player, SL_IID_PLAY, &play);
+    result = (*play)->SetPlayState(play, SL_PLAYSTATE_PLAYING);
+
+    if (result == SL_RESULT_SUCCESS){
+        // ALLEGRO_DEBUG("Started new OpenSL stream\n");
+    }
+
+    result = (*queue)->GetState(queue, &state);
+    if (result == SL_RESULT_SUCCESS){
+        // ALLEGRO_DEBUG("Buffer queue state count %d index %d\n", state.count, state.playIndex);
+    }
+}
+
+static int bufferCount(SLObjectItf player){
+    SLresult result;
+    SLBufferQueueItf queue;
+    SLBufferQueueState state;
+
+    result = (*player)->GetInterface(player, SL_IID_BUFFERQUEUE, &queue);
+    result = (*queue)->GetState(queue, &state);
+    return state.count;
+}
+
+static void * opensl_update(ALLEGRO_THREAD * self, void * data){
+    ALLEGRO_VOICE *voice = data;
+    OpenSLData * opensl = voice->extra;
+
+    while (!al_get_thread_should_stop(self)) {
+        if (/*pv->status == PV_PLAYING*/ 1) {
+            // unsigned int frames = 4096;
+            unsigned int frames = 4096;
+            if (voice->is_streaming) { 
+                // streaming audio           
+                if (bufferCount(opensl->player) == 0){
+                    const void * data = _al_voice_update(voice, &frames);
+                    if (data){
+                        enqueue(opensl->player, data, frames * opensl->frame_size);
+                    }
+                } else {
+                    al_rest(0.001);
+                }
+            } else {
+                ALLEGRO_DEBUG("Unimplemented direct audio\n");
+                /*
+                // direct buffer audio
+                al_lock_mutex(pv->buffer_mutex);
+                const char *data = pv->buffer;
+                unsigned int len = frames * pv->frame_size;
+                pv->buffer += frames * pv->frame_size;
+                if (pv->buffer > pv->buffer_end) {
+                    len = pv->buffer_end - data;
+                    pv->buffer = voice->attached_stream->spl_data.buffer.ptr;
+                    voice->attached_stream->pos = 0;
+                    if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_ONCE) {
+                        pv->status = PV_STOPPING;
+                    }
+                } else {
+                    voice->attached_stream->pos += frames;
+                }
+                al_unlock_mutex(pv->buffer_mutex);
+
+                pa_simple_write(pv->s, data, len, NULL);
+                */
+            }
+        } else if (/*pv->status == PV_STOPPING*/ 0) {
+            /*
+            pa_simple_flush(pv->s, NULL);
+            pv->status = PV_STOPPED;
+            */
+        } else if (/*pv->status == PV_STOPPED*/ 0) {
+            al_rest(0.001);
+        }
+    }
+
+    return NULL;
+
 }
 
 static int _opensl_start_voice(ALLEGRO_VOICE *voice)
@@ -387,9 +495,10 @@ static int _opensl_start_voice(ALLEGRO_VOICE *voice)
     SLDataLocator_OutputMix output;
     SLVolumeItf volume;
     SLPlayItf play;
+    SLBufferQueueState state;
 
     bufferQueue.locatorType = SL_DATALOCATOR_BUFFERQUEUE;
-    bufferQueue.numBuffers = 2;
+    bufferQueue.numBuffers = 1;
 
     audioSource.pFormat = (void*) &format;
     audioSource.pLocator = (void*) &bufferQueue;
@@ -413,13 +522,29 @@ static int _opensl_start_voice(ALLEGRO_VOICE *voice)
         return 1;
     }
 
+    extra->poll_thread = al_create_thread(opensl_update, (void*)voice);
+    al_start_thread(extra->poll_thread);
+
+    /*
     result = (*extra->player)->GetInterface(extra->player, SL_IID_BUFFERQUEUE, &queue);
     if (result != SL_RESULT_SUCCESS){
         ALLEGRO_ERROR("Could not get bufferqueue interface: %s\n", opensl_get_error_string(result));
         return 1;
     }
 
+    ALLEGRO_DEBUG("Start playing voice data %p\n", extra->data);
+        
+    result = (*queue)->Enqueue(queue, (char*) extra->data + extra->position, extra->frame_size * 32);
+    if (result != SL_RESULT_SUCCESS){
+        ALLEGRO_ERROR("Could not enqueue data: %s\n", opensl_get_error_string(result));
+    }
+    extra->position += extra->frame_size * 32;
+
     result = (*queue)->RegisterCallback(queue, updateQueue, extra);
+
+    if (result != SL_RESULT_SUCCESS){
+        ALLEGRO_ERROR("Could not register callback: %s\n", opensl_get_error_string(result));
+    }
 
     // result = (*volume)->SetVolumeLevel(volume, -300);
 
@@ -430,7 +555,13 @@ static int _opensl_start_voice(ALLEGRO_VOICE *voice)
         ALLEGRO_DEBUG("Started new OpenSL stream\n");
     }
 
-    return 1;
+    result = (*queue)->GetState(queue, &state);
+    if (result == SL_RESULT_SUCCESS){
+        ALLEGRO_DEBUG("Buffer queue state count %d index %d\n", state.count, state.playIndex);
+    }
+    */
+
+    return 0;
 }
 
 static int _opensl_stop_voice(ALLEGRO_VOICE* voice)
@@ -442,8 +573,15 @@ static int _opensl_stop_voice(ALLEGRO_VOICE* voice)
 
 static bool _opensl_voice_is_playing(const ALLEGRO_VOICE *voice)
 {
-    /* TODO */
-    ALLEGRO_ERROR("Unimplemented: _opensl_voice_is_playing\n");
+    SLresult result;
+    OpenSLData * extra = (OpenSLData*) voice->extra;
+    SLPlayItf play;
+    SLuint32 state;
+    result = (*extra->player)->GetInterface(extra->player, SL_IID_PLAY, &play);
+    result = (*play)->GetPlayState(play, &state);
+    if (result == SL_RESULT_SUCCESS){
+        return state == SL_PLAYSTATE_PLAYING;
+    }
     return false;
 }
 
