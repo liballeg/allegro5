@@ -11,16 +11,15 @@
 /* Not sure if this one is needed, yet */
 #include <SLES/OpenSLES_Android.h>
 
+/* Feel free to change MAX_FRAMES and MAX_BUFFERS if it affects
+ * choppiness for your device.
+ */
+
 /* Number of samples to read in one call to al_voice_update */
 static const int MAX_FRAMES = 4096;
 
-/* Number of opensl buffers to use.
- * This number is integrated tightly with the number of bufferN fields
- * in the OpenSLData struct below. If you modify this number you must
- * add more char*bufferX fields and change the logic in the
- * opensl_update polling function
- */
-static const int MAX_BUFFERS = 2;
+/* Number of opensl buffers to use */
+#define MAX_BUFFERS 2
 
 ALLEGRO_DEBUG_CHANNEL("opensl")
 
@@ -162,13 +161,13 @@ typedef struct OpenSLData{
     /* local buffers to keep opensl fed since it doesn't copy
      * data by default.
      */
-    char * buffer1;
-    char * buffer2;
+    char * buffers[MAX_BUFFERS];
 } OpenSLData;
 
 static int _opensl_allocate_voice(ALLEGRO_VOICE *voice)
 {
     OpenSLData * data;
+    int i;
 
     data = al_calloc(1, sizeof(*data));
     data->output = createOutputMixer(getEngine(engine));
@@ -182,8 +181,9 @@ static int _opensl_allocate_voice(ALLEGRO_VOICE *voice)
     data->position = 0;
     data->length = voice->buffer_size;
     data->frame_size = al_get_channel_count(voice->chan_conf) * al_get_audio_depth_size(voice->depth);
-    data->buffer1 = al_malloc(data->frame_size * MAX_FRAMES);
-    data->buffer2 = al_malloc(data->frame_size * MAX_FRAMES);
+    for (i = 0; i < MAX_BUFFERS; i++){
+        data->buffers[i] = al_malloc(data->frame_size * MAX_FRAMES);
+    }
 
     voice->extra = data;
 
@@ -193,12 +193,14 @@ static int _opensl_allocate_voice(ALLEGRO_VOICE *voice)
 static void _opensl_deallocate_voice(ALLEGRO_VOICE *voice)
 {
     OpenSLData * data = (OpenSLData*) voice->extra;
+    int i;
     al_set_thread_should_stop(data->poll_thread);
     al_join_thread(data->poll_thread, NULL);
     al_destroy_thread(data->poll_thread);
 
-    al_free(data->buffer1);
-    al_free(data->buffer2);
+    for (i = 0; i < MAX_BUFFERS; i++){
+        al_free(data->buffers[i]);
+    }
     al_free(voice->extra);
     voice->extra = NULL;
 }
@@ -452,7 +454,7 @@ static void * opensl_update(ALLEGRO_THREAD * self, void * data){
     ALLEGRO_VOICE *voice = data;
     OpenSLData * opensl = voice->extra;
 
-    char * buffer = opensl->buffer1;
+    int bufferIndex = 0;
     while (!al_get_thread_should_stop(self)) {
         if (/*pv->status == PV_PLAYING*/ 1) {
             // unsigned int frames = 4096;
@@ -468,15 +470,11 @@ static void * opensl_update(ALLEGRO_THREAD * self, void * data){
                          * to corrupt memory when the next call to al_voice_update
                          * is made.
                          */
+                        char * buffer = opensl->buffers[bufferIndex];
                         memcpy(buffer, data, frames * opensl->frame_size);
                         enqueue(opensl->player, buffer, frames * opensl->frame_size);
 
-                        /* flip buffers */
-                        if (buffer == opensl->buffer1){
-                            buffer = opensl->buffer2;
-                        } else {
-                            buffer = opensl->buffer1;
-                        }
+                        bufferIndex = (bufferIndex + 1) % MAX_BUFFERS;
                     }
                 } else {
                     al_rest(0.001);
