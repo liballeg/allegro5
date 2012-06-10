@@ -35,7 +35,8 @@ ALLEGRO_DEBUG_CHANNEL("d3d")
 static ALLEGRO_BITMAP_INTERFACE *vt;
 
 // C++ needs to cast void pointers
-#define get_extra(b) ((ALLEGRO_BITMAP_EXTRA_D3D *)b->extra)
+#define get_extra(b) ((ALLEGRO_BITMAP_EXTRA_D3D *)\
+   (b->parent ? b->parent->extra : b->extra))
 
 /* Function: al_get_d3d_texture_size
  */

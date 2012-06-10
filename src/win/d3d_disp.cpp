@@ -36,7 +36,8 @@
 #include "d3d.h"
 
 // C++ needs to cast void pointers
-#define get_extra(b) ((ALLEGRO_BITMAP_EXTRA_D3D *)b->extra)
+#define get_extra(b) ((ALLEGRO_BITMAP_EXTRA_D3D *)\
+   (b->parent ? b->parent->extra : b->extra))
 
 static const char* _al_d3d_module_name = "d3d9.dll";
 
@@ -2528,33 +2529,6 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    return bitmap;
 }
 
-static ALLEGRO_BITMAP *d3d_create_sub_bitmap(ALLEGRO_DISPLAY *display,
-   ALLEGRO_BITMAP *parent, int x, int y, int width, int height)
-{
-   ALLEGRO_BITMAP *bitmap = (ALLEGRO_BITMAP *)al_malloc(sizeof *bitmap);
-   ALLEGRO_BITMAP_EXTRA_D3D *extra;
-   ALLEGRO_BITMAP_EXTRA_D3D *pextra = get_extra(parent);
-   extra = (ALLEGRO_BITMAP_EXTRA_D3D *)al_calloc(1, sizeof *extra);
-   bitmap->extra = extra;
-
-   (void)x;
-   (void)y;
-   (void)width;
-   (void)height;
-
-   extra->texture_w = 0;
-   extra->texture_h = 0;
-   extra->video_texture = pextra->video_texture;
-   extra->system_texture = pextra->system_texture;
-   extra->initialized = false;
-   extra->is_backbuffer = pextra->is_backbuffer;
-   extra->display = (ALLEGRO_DISPLAY_D3D *)display;
-   extra->render_target = pextra->render_target;
-
-   bitmap->vt = parent->vt;
-   return bitmap;
-}
-
 void _al_d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
@@ -2979,7 +2953,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->switch_out = d3d_switch_out;
    vt->switch_in = d3d_switch_in;
    vt->draw_memory_bitmap_region = NULL;
-   vt->create_sub_bitmap = d3d_create_sub_bitmap;
+   vt->create_sub_bitmap = NULL;
    vt->wait_for_vsync = d3d_wait_for_vsync;
 
    vt->set_mouse_cursor = _al_win_set_mouse_cursor;
