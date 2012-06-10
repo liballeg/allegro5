@@ -2953,7 +2953,6 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->switch_out = d3d_switch_out;
    vt->switch_in = d3d_switch_in;
    vt->draw_memory_bitmap_region = NULL;
-   vt->create_sub_bitmap = NULL;
    vt->wait_for_vsync = d3d_wait_for_vsync;
 
    vt->set_mouse_cursor = _al_win_set_mouse_cursor;

@@ -445,7 +445,6 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_iphone_display_interface(void)
     vt->update_display_region = iphone_update_display_region;
     vt->acknowledge_resize = iphone_acknowledge_resize;
     vt->create_bitmap = _al_ogl_create_bitmap;
-    vt->create_sub_bitmap = _al_ogl_create_sub_bitmap;
     vt->get_backbuffer = _al_ogl_get_backbuffer;
     vt->set_target_bitmap = _al_ogl_set_target_bitmap;
     

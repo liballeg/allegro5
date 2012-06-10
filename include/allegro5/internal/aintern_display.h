@@ -44,9 +44,6 @@ struct ALLEGRO_DISPLAY_INTERFACE
    void (*draw_memory_bitmap_region)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap,
       float sx, float sy, float sw, float sh, int flags);
 
-   ALLEGRO_BITMAP *(*create_sub_bitmap)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *parent,
-      int x, int y, int width, int height);
-
    bool (*wait_for_vsync)(ALLEGRO_DISPLAY *display);
 
    bool (*set_mouse_cursor)(ALLEGRO_DISPLAY *display,

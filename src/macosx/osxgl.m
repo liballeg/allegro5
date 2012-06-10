@@ -2036,7 +2036,6 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void)
       vt->set_target_bitmap = _al_ogl_set_target_bitmap;
       vt->get_backbuffer = _al_ogl_get_backbuffer;
       vt->is_compatible_bitmap = is_compatible_bitmap;
-      vt->create_sub_bitmap = NULL;
       vt->show_mouse_cursor = show_cursor;
       vt->hide_mouse_cursor = hide_cursor;
       vt->set_mouse_cursor = osx_set_mouse_cursor;
@@ -2073,7 +2072,6 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_fs(void)
       vt->set_system_mouse_cursor = osx_set_system_mouse_cursor;
       vt->get_backbuffer = _al_ogl_get_backbuffer;
       vt->is_compatible_bitmap = is_compatible_bitmap;
-      vt->create_sub_bitmap = NULL;
       vt->update_render_state = _al_ogl_update_render_state;
       _al_ogl_add_drawing_functions(vt);
    }

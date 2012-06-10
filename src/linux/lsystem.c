@@ -80,7 +80,6 @@ SYSTEM_DRIVER system_linux =
    sys_linux_restore_console_state,
    NULL, /* create_bitmap */
    NULL, /* created_bitmap */
-   NULL, /* create_sub_bitmap */
    NULL, /* created_sub_bitmap */
    NULL, /* destroy_bitmap */
    NULL, /* read_hardware_palette */

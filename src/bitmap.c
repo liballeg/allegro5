@@ -769,15 +769,8 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
       parent = parent->parent;
    }
    
-   if (parent->display && parent->display->vt &&
-         parent->display->vt->create_sub_bitmap) {
-      bitmap = parent->display->vt->create_sub_bitmap(
-         parent->display, parent, x, y, w, h);
-   }
-   else {
-      bitmap = al_calloc(1, sizeof *bitmap);
-      bitmap->vt = parent->vt;
-   }
+   bitmap = al_calloc(1, sizeof *bitmap);
+   bitmap->vt = parent->vt;
 
    bitmap->format = parent->format;
    bitmap->flags = parent->flags;
