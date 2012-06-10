@@ -1132,40 +1132,6 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 }
 
 
-ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d,
-                                          ALLEGRO_BITMAP *parent,
-                                          int x, int y, int w, int h)
-{
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_BITMAP_EXTRA_OPENGL *extra;
-   ALLEGRO_BITMAP_EXTRA_OPENGL *parent_extra = parent->extra;
-   (void)d;
-
-   bmp = al_calloc(1, sizeof *bmp);
-   extra = al_calloc(1, sizeof *extra);
-   bmp->extra = extra;
-
-   extra->true_w = parent_extra->true_w;
-   extra->true_h = parent_extra->true_h;
-   extra->texture = parent_extra->texture;
-
-#if !defined ALLEGRO_GP2XWIZ
-   extra->fbo_info = parent_extra->fbo_info;
-#endif
-
-   extra->left = x / (float)parent_extra->true_w;
-   extra->right = (x + w) / (float)parent_extra->true_w;
-   extra->top = (parent->h - y) / (float)parent_extra->true_h;
-   extra->bottom = (parent->h - y - h) / (float)parent_extra->true_h;
-
-   extra->is_backbuffer = parent_extra->is_backbuffer;
-
-   bmp->vt = parent->vt;
-   
-   bmp->flags |= _ALLEGRO_INTERNAL_OPENGL;
-
-   return bmp;
-}
 
 /* lets you setup the memory pointer to skip a lock/unlock copy
  * if it's unsessesary
@@ -1217,9 +1183,12 @@ void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
  */
 GLuint al_get_opengl_texture(ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP_EXTRA_OPENGL *extra = bitmap->extra;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *extra;
+   if (bitmap->parent)
+      bitmap = bitmap->parent;
    if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL))
       return 0;
+   extra = bitmap->extra;
    return extra->texture;
 }
 
@@ -1227,10 +1196,12 @@ GLuint al_get_opengl_texture(ALLEGRO_BITMAP *bitmap)
  */
 void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
-
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap;
+   if (bitmap->parent)
+      bitmap = bitmap->parent;
    if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL))
       return;
+   ogl_bitmap = bitmap->extra;
    if (!ogl_bitmap->fbo_info)
       return;
 
@@ -1254,11 +1225,14 @@ void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
  */
 GLuint al_get_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 {
-#if !defined ALLEGRO_GP2XWIZ
-   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap;
+   if (bitmap->parent)
+      bitmap = bitmap->parent;
 
    if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL))
       return 0;
+
+   ogl_bitmap = bitmap->extra;
 
    if (!ogl_bitmap->fbo_info) {
       if (!_al_ogl_create_persistent_fbo(bitmap)) {
@@ -1271,10 +1245,6 @@ GLuint al_get_opengl_fbo(ALLEGRO_BITMAP *bitmap)
          ogl_bitmap->fbo_info);
    }
    return ogl_bitmap->fbo_info->fbo;
-#else
-   (void)bitmap;
-   return 0;
-#endif
 }
 
 /* Function: al_get_opengl_texture_size
@@ -1285,12 +1255,17 @@ void al_get_opengl_texture_size(ALLEGRO_BITMAP *bitmap, int *w, int *h)
     * texture sizes, so this will be the only way there to get the texture
     * size. On normal OpenGL also glGetTexLevelParameter could be used.
     */
-   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap;
+   if (bitmap->parent)
+      bitmap = bitmap->parent;
+   
    if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL)) {
       *w = 0;
       *h = 0;
       return;
    }
+
+   ogl_bitmap = bitmap->extra;
    *w = ogl_bitmap->true_w;
    *h = ogl_bitmap->true_h;
 }

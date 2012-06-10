@@ -132,8 +132,6 @@ void _al_ogl_unmanage_extensions(ALLEGRO_DISPLAY *disp);
 /* bitmap */
 int _al_ogl_get_glformat(int format, int component);
 ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h);
-ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *parent,
-                                          int x, int y, int w, int h);
 void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr);
 
 /* locking */
