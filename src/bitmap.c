@@ -527,9 +527,7 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
    if (bitmap->locked)
       return NULL;
 
-   if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP) &&
-         !(flags && ALLEGRO_LOCK_READONLY))
-      bitmap->dirty = true;
+   bitmap->dirty = true;
 
    ASSERT(x+width <= bitmap->w);
    ASSERT(y+height <= bitmap->h);
