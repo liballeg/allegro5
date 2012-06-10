@@ -804,7 +804,13 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
                styleMask: mask
                 backing: NSBackingStoreBuffered
                   defer: NO
-                 screen: screen];
+                 screen: screen
+    ];
+   if (dpy->parent.flags & ALLEGRO_RESIZABLE) {
+#ifdef MAC_OS_X_VERSION_10_7
+      [win setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
+#endif
+   }
    NSOpenGLPixelFormat* fmt =
       [[NSOpenGLPixelFormat alloc] initWithAttributes: dpy->attributes];
    ALOpenGLView* view = [[ALOpenGLView alloc] initWithFrame: rc];
