@@ -796,11 +796,9 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
    for (i = 0; i < size; i++) {
       ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&dpy->bitmaps, i);
       ALLEGRO_BITMAP *bmp = *bptr;
-      if (bmp->parent) {
-         ALLEGRO_BITMAP_EXTRA_OPENGL *extra = (ALLEGRO_BITMAP_EXTRA_OPENGL *)bmp->extra;
-	 extra->texture = al_get_opengl_texture(bmp->parent);
-      }
-      else if (!(bmp->flags & ALLEGRO_MEMORY_BITMAP) &&
+      if (bmp->parent)
+         continue;
+      if (!(bmp->flags & ALLEGRO_MEMORY_BITMAP) &&
 	       !(bmp->flags & ALLEGRO_NO_PRESERVE_TEXTURE)) {
          _al_ogl_upload_bitmap_memory(bmp, bmp->format, bmp->memory);
          bmp->dirty = false;

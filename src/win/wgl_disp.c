@@ -1388,11 +1388,12 @@ static bool wgl_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
 
       target_bmp = al_get_target_bitmap();
       if (target_bmp->vt) {
-         ALLEGRO_BITMAP_EXTRA_OPENGL *extra = target_bmp->extra;
+         ALLEGRO_BITMAP_EXTRA_OPENGL *extra = target_bmp->parent ?
+            target_bmp->parent->extra : target_bmp->extra;
          was_backbuffer = extra->is_backbuffer;
       }
 
-      /* Remeber display bitmaps. */
+      /* Remember display bitmaps. */
       _al_vector_init(&disp_bmps, sizeof(ALLEGRO_BITMAP*));
       for (i = 0; i < _al_vector_size(&d->bitmaps); i++) {
          ALLEGRO_BITMAP **dis = _al_vector_ref(&d->bitmaps, i);

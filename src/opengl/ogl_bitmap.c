@@ -1287,11 +1287,12 @@ void _al_opengl_backup_dirty_bitmaps(ALLEGRO_DISPLAY *d, bool flip)
       ALLEGRO_BITMAP *b = *bptr;
       ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = b->extra;
       ALLEGRO_LOCKED_REGION *lr;
+      if (b->parent)
+         continue;
       if ((b->flags & ALLEGRO_MEMORY_BITMAP) ||
          (b->flags & ALLEGRO_NO_PRESERVE_TEXTURE) ||
          !b->dirty ||
-         ogl_bitmap->is_backbuffer ||
-         b->parent)
+         ogl_bitmap->is_backbuffer)
          continue;
       lr = al_lock_bitmap(
          b,
