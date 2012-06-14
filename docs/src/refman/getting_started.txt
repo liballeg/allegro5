@@ -45,6 +45,15 @@ The header file for the core library is `allegro5/allegro.h`.  The header
 files for the addons are named `allegro5/allegro_image.h`, `allegro5/allegro_font.h`,
 etc. The allegro_main addon does not have a header file.
 
+## The main function
+
+For the purposes of cross-platform compatibility Allegro puts some requirements
+on your main function. First, you must include the core header
+(`allegro5/allegro.h`) in the same file as your main function. Second, if your
+main function is inside a C++ file, then it must have this signature:
+`int main(int argc, char **argv)`. Third, if you're using C/C++ then you need
+to link with the allegro_main addon when building your program.
+
 ## Initialisation
 
 Before using Allegro you must call [al_init].  Some addons have their own

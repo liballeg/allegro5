@@ -36,6 +36,7 @@ set(PAGES
     color
     font
     image
+    main
     memfile
     native_dialog
     physfs
