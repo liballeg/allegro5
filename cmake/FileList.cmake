@@ -154,7 +154,7 @@ set(ALLEGRO_SRC_IPHONE_FILES
     src/iphone/allegroAppDelegate.m
     src/iphone/EAGLView.m
     src/iphone/ViewController.m
-    src/iphone/iphone_display.c
+    src/iphone/iphone_display.m
     src/iphone/iphone_joystick.m
     src/iphone/iphone_keyboard.c
     src/iphone/iphone_main.m
