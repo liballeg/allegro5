@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_native_dialog.h>
+#include <allegro5/allegro_primitives.h>
 
 #include "common.c"
 
@@ -45,14 +46,30 @@ static void log_key(char const *how, int keycode, int unichar, int modifiers)
 static void main_loop(void)
 {
    ALLEGRO_EVENT event;
-
+   ALLEGRO_KEYBOARD_STATE key_state;
+   int i;
+   int j;
+   
+   memset(&key_state, 0, sizeof key_state);
+   
    log_printf("Focus on the main window (black) and press keys to see events. ");
    log_printf("Escape quits.\n\n");
 
    while (true) {
-      /* Take the next event out of the event queue, and store it in `event'. */
-      al_wait_for_event(event_queue, &event);
+      /* screw around with keyboard state in windows for debugging */
+      al_get_keyboard_state(&key_state);
 
+      al_set_target_bitmap(al_get_backbuffer(display));
+      al_clear_to_color(al_map_rgb(0,0,0));
+        
+      for(i=0; i<8; i++)
+        for(j=0; j<32; j++)
+          al_draw_line(i*32+j, 0, i*32+j, 16, (key_state.__key_down__internal__[i] & (1 << j)) ? al_map_rgb(255,255,255) : al_map_rgb(0,0,0), 1.0);
+
+      al_flip_display();
+        
+      /* Take the next event out of the event queue, and store it in `event'. */
+      if(al_get_next_event(event_queue, &event))
       /* Check what type of event we got and act accordingly.  ALLEGRO_EVENT
        * is a union type and interpretation of its contents is dependent on
        * the event type, which is given by the 'type' field.
@@ -118,6 +135,12 @@ int main(void)
    if (!display) {
       abort_example("al_create_display failed\n");
       return 1;
+   }
+
+   if (!al_init_primitives_addon())
+   {
+     abort_example("al_init_primitives_addon failed\n");
+     return 1;
    }
 
    if (!al_install_keyboard()) {

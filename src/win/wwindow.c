@@ -784,6 +784,9 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          if (HIWORD(wParam) && LOWORD(wParam) != WA_INACTIVE)
             break;
 
+         if (LOWORD(wParam) == WA_INACTIVE) // switching away, clear keyboard state to eliminate keys getting 'stuck' in the state when they were pressed while switching away
+           _al_win_kbd_clear_state();
+
          if (HIWORD(wParam))
             d->flags |= ALLEGRO_MINIMIZED;
          else
