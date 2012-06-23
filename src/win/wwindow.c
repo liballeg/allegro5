@@ -784,7 +784,9 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          if (HIWORD(wParam) && LOWORD(wParam) != WA_INACTIVE)
             break;
 
-         if (LOWORD(wParam) == WA_INACTIVE) // switching away, clear keyboard state to eliminate keys getting 'stuck' in the state when they were pressed while switching away
+         // on switching away/back in, clear keyboard state to eliminate keys getting 'stuck' in the state when they were pressed while switching away
+         if (LOWORD(wParam) == WA_INACTIVE || LOWORD(wParam) == WA_ACTIVE || LOWORD(wParam) == WA_CLICKACTIVE) 
+
            _al_win_kbd_clear_state();
 
          if (HIWORD(wParam))
