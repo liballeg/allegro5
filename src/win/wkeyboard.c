@@ -184,24 +184,23 @@ static ALLEGRO_KEYBOARD *get_keyboard(void)
 }
 
 
-
-/* fill_windows_keyboard_state
- *  Copy the current keyboard state into win_key_state.
+/* fill_windows_keyboard_state:
+ *  Copy the current keyboard state into param.
  */
-static void fill_windows_keyboard_state(void* param)
+static void fill_windows_keyboard_state(void *param)
 {
-  *(bool*)param = GetKeyboardState((PBYTE)win_key_state);
+   *(bool*)param = GetKeyboardState((PBYTE)win_key_state);
 }
 
 
-/* _al_win_kbd_clear_state
+/* _al_win_kbd_clear_state:
  *  Clear the current keyboard state.
  */
 void _al_win_kbd_clear_state(void)
 {
-  memset(&the_state, 0, sizeof the_state);
-  memset(&win_key_state, 0, sizeof win_key_state);
-  update_toggle_modifiers();
+   memset(&the_state, 0, sizeof the_state);
+   memset(&win_key_state, 0, sizeof win_key_state);
+   update_toggle_modifiers();
 }
 
 
@@ -211,13 +210,12 @@ void _al_win_kbd_clear_state(void)
 static void get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
 {
    unsigned int i;
-
    ALLEGRO_DISPLAY *disp = NULL;
    ALLEGRO_SYSTEM *sys;
    HWND windowHandle = NULL;
    bool ret_val = 0;
 
-   // determine the current foreground window 
+   /* Determine the current foreground window. */
    sys = al_get_system_driver();
    for (i = 0; i < sys->displays._size; i++) {
       ALLEGRO_DISPLAY_WIN **d = (void*)_al_vector_ref(&sys->displays, i);
@@ -229,27 +227,23 @@ static void get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
    }
    the_state.display = disp;
 
-   if(windowHandle != NULL)
-   {
-     // get real most current state from windows api call
-     _al_win_wnd_call_proc(windowHandle, fill_windows_keyboard_state, &ret_val); 
-  
-     if(ret_val) // windows state filled succesfully?
-     {
-       // translate windows keyboard key states to allegro keyboard key states
-       for(i = 0; i < 256; i++)
-       {
-         if(win_key_state[i] & 0x80)
-           _AL_KEYBOARD_STATE_SET_KEY_DOWN(the_state, hw_to_mycode[i]);
-         else
-           _AL_KEYBOARD_STATE_CLEAR_KEY_DOWN(the_state, hw_to_mycode[i]);
-       }
-
-       update_toggle_modifiers();
+   if (windowHandle != NULL) {
+     /* Get real most current state from Windows API call. */
+     _al_win_wnd_call_proc(windowHandle, fill_windows_keyboard_state,
+        &ret_val);
+     if (ret_val) {
+        /* Translate Windows key states to Allegro key states. */
+        for (i = 0; i < 256; i++) {
+           if (win_key_state[i] & 0x80)
+              _AL_KEYBOARD_STATE_SET_KEY_DOWN(the_state, hw_to_mycode[i]);
+           else
+              _AL_KEYBOARD_STATE_CLEAR_KEY_DOWN(the_state, hw_to_mycode[i]);
+        }
+        update_toggle_modifiers();
      }
    }
-     
-   *ret_state = the_state; // just return the last successfully grabbed state
+
+   *ret_state = the_state;
 }
 
 
