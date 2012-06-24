@@ -47,7 +47,7 @@ See also: [al_set_target_bitmap]
 Get the display flags to be used when creating new displays on the calling
 thread.
 
-See also: [al_set_new_display_flags], [al_toggle_display_flag]
+See also: [al_set_new_display_flags], [al_set_display_flag]
 
 ### API: al_get_new_display_refresh_rate
 
@@ -443,7 +443,7 @@ Set the title on a display.
 
 See also: [al_set_display_icon]
 
-### API: al_toggle_display_flag
+### API: al_set_display_flag
 
 Enable or disable one of the display flags. The flags are the same
 as for [al_set_new_display_flags]. The only flags that can be changed
@@ -456,7 +456,13 @@ Returns true if the driver supports toggling the specified flag else
 false. You can use [al_get_display_flags] to query whether the given
 display property actually changed.
 
+Since: 5.1.2
+
 See also: [al_set_new_display_flags], [al_get_display_flags]
+
+### API: al_toggle_display_flag
+
+Deprecated synonym for [al_set_display_flag].
 
 ### API: al_update_display_region
 

@@ -411,16 +411,26 @@ void al_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 }
 
 
-/* Function: al_toggle_display_flag
+/* Function: al_set_display_flag
  */
-bool al_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
+bool al_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 {
    ASSERT(display);
 
-   if (display && display->vt && display->vt->toggle_display_flag) {
-      return display->vt->toggle_display_flag(display, flag, onoff);
+   if (display && display->vt && display->vt->set_display_flag) {
+      return display->vt->set_display_flag(display, flag, onoff);
    }
    return false;
+}
+
+
+/* Function: al_toggle_display_flag
+ *  This is deprecated.
+ *  On the 5.0 branch this needs to be a function for backwards compatibility.
+ */
+bool al_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
+{
+   return al_set_display_flag(display, flag, onoff);
 }
 
 

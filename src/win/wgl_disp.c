@@ -1226,7 +1226,7 @@ static void display_thread_proc(void *arg)
    }
    
    if (disp->flags & ALLEGRO_FULLSCREEN_WINDOW) {
-      _al_win_toggle_window_frame(disp, win_disp->window, disp->w, disp->h, false);
+      _al_win_set_window_frame(disp, win_disp->window, disp->w, disp->h, false);
    }
 
    /* Yep, the following is really needed sometimes. */
@@ -1567,7 +1567,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
    vt.set_icon = _al_win_set_display_icon;
    vt.set_window_position = wgl_set_window_position;
    vt.get_window_position = wgl_get_window_position;
-   vt.toggle_display_flag = _al_win_toggle_display_flag;
+   vt.set_display_flag = _al_win_set_display_flag;
    vt.set_window_title = _al_win_set_window_title;
    _al_ogl_add_drawing_functions(&vt);
 

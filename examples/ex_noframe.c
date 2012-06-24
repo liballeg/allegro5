@@ -56,7 +56,7 @@ int main(void)
             down_y = event.mouse.y;
          }
          if (event.mouse.button == 2) {
-            al_toggle_display_flag(display, ALLEGRO_NOFRAME,
+            al_set_display_flag(display, ALLEGRO_NOFRAME,
                !(al_get_display_flags(display) & ALLEGRO_NOFRAME));
          }
       }

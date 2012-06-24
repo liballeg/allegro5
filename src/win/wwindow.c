@@ -877,7 +877,7 @@ void _al_win_get_window_position(HWND window, int *x, int *y)
 }
 
 
-void _al_win_toggle_window_frame(ALLEGRO_DISPLAY *display, HWND hWnd,
+void _al_win_set_window_frame(ALLEGRO_DISPLAY *display, HWND hWnd,
    int w, int h, bool onoff)
 {
    if (!onoff && !(display->flags & ALLEGRO_NOFRAME)) {
@@ -923,7 +923,7 @@ void _al_win_toggle_window_frame(ALLEGRO_DISPLAY *display, HWND hWnd,
 }
 
 
-bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
+bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (void*)display;
    //double timeout;
@@ -932,8 +932,8 @@ bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
    memset(&mi, 0, sizeof(mi));
 
    switch(flag) {
-      case ALLEGRO_NOFRAME: 
-         _al_win_toggle_window_frame(display, win_display->window, display->w, display->h, onoff);
+      case ALLEGRO_NOFRAME:
+         _al_win_set_window_frame(display, win_display->window, display->w, display->h, onoff);
          return true;
 
       case ALLEGRO_FULLSCREEN_WINDOW:
@@ -946,7 +946,7 @@ bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
             return true;
          }
 
-         _al_win_toggle_display_flag(display, ALLEGRO_NOFRAME, !onoff);
+         _al_win_set_display_flag(display, ALLEGRO_NOFRAME, !onoff);
 
          if (onoff) {
             int adapter = win_display->adapter;
