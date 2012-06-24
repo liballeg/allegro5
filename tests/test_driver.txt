@@ -26,6 +26,9 @@ where options are:
     --force-opengl-1.2
 	restrict Allegro to OpenGL 1.2
 
+    --force-opengl-2.0
+	restrict Allegro to OpenGL 2.0
+
     --force-d3d
 	select Direct3D driver
 

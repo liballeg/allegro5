@@ -66,6 +66,11 @@ add_custom_target(run_tests_gl12
     COMMAND test_driver --force-opengl-1.2 ${test_files}
     )
 
+add_custom_target(run_tests_gl20
+    DEPENDS test_driver copy_tests_example_data
+    COMMAND test_driver --force-opengl-2.0 ${test_files}
+    )
+
 add_custom_target(run_tests_d3d
     DEPENDS test_driver copy_tests_example_data
     COMMAND test_driver --force-d3d ${test_files}
