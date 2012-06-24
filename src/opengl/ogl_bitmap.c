@@ -231,7 +231,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
     float sx, float sy, float sw, float sh,
     int flags)
 {
-   float tex_l, tex_t, tex_r, tex_b, w, h, tex_w, tex_h;
+   float tex_l, tex_t, tex_r, tex_b, w, h, true_w, true_h;
    float dw = sw, dh = sh;
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    ALLEGRO_OGL_BITMAP_VERTEX *verts;
@@ -253,13 +253,13 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
 
    w = bitmap->w;
    h = bitmap->h;
-   tex_w = 1.0 / ogl_bitmap->true_w;
-   tex_h = 1.0 / ogl_bitmap->true_h;
+   true_w = ogl_bitmap->true_w;
+   true_h = ogl_bitmap->true_h;
 
-   tex_l += sx * tex_w;
-   tex_t -= sy * tex_h;
-   tex_r -= (w - sx - sw) * tex_w;
-   tex_b += (h - sy - sh) * tex_h;
+   tex_l += sx / true_w;
+   tex_t -= sy / true_h;
+   tex_r -= (w - sx - sw) / true_w;
+   tex_b += (h - sy - sh) / true_h;
 
    verts[0].x = 0;
    verts[0].y = dh;
