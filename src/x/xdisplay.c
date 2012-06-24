@@ -1148,11 +1148,13 @@ static void xdpy_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
 
    _al_mutex_lock(&system->lock);
+   Atom WM_NAME = XInternAtom(system->x11display, "WM_NAME", False);
    Atom _NET_WM_NAME = XInternAtom(system->x11display, "_NET_WM_NAME", False);
    char *list[] = {(void *)title};
    XTextProperty property;
    Xutf8TextListToTextProperty(system->x11display, list, 1, XUTF8StringStyle,
       &property);
+   XSetTextProperty(system->x11display, glx->window, &property, WM_NAME);
    XSetTextProperty(system->x11display, glx->window, &property, _NET_WM_NAME);
    XFree(property.value);
    _al_mutex_unlock(&system->lock);
