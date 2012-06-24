@@ -159,7 +159,7 @@ static int read_os2_bminfoheader(ALLEGRO_FILE *f, BMPINFOHEADER *infoheader)
    infoheader->biWidth = os2_infoheader.biWidth;
    infoheader->biHeight = os2_infoheader.biHeight;
    infoheader->biBitCount = os2_infoheader.biBitCount;
-   infoheader->biCompression = 0;
+   infoheader->biCompression = BIT_RGB;
 
    if (al_feof(f) || al_ferror(f)) {
       ALLEGRO_ERROR("Failed to read file header\n");
@@ -173,6 +173,8 @@ static int read_os2_bminfoheader(ALLEGRO_FILE *f, BMPINFOHEADER *infoheader)
 
 /* read_bmicolors:
  *  Loads the color palette for 1,4,8 bit formats.
+ *  OS/2 bitmaps take 3 bytes per color.
+ *  Windows bitmaps take 4 bytes per color.
  */
 static void read_bmicolors(int bytes, PalEntry *pal, ALLEGRO_FILE *f,
    int win_flag)
@@ -676,6 +678,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
    BMPINFOHEADER infoheader;
    ALLEGRO_BITMAP *bmp;
    PalEntry pal[256];
+   int64_t header_start;
    unsigned long biSize;
    unsigned char *buf = NULL;
    ALLEGRO_LOCKED_REGION *lr;
@@ -685,6 +688,8 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
    if (read_bmfileheader(f, &fileheader) != 0) {
       return NULL;
    }
+
+   header_start = al_ftell(f);
 
    biSize = al_fread32le(f);
    if (al_feof(f) || al_ferror(f)) {
@@ -696,20 +701,24 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
       if (read_win_bminfoheader(f, &infoheader) != 0) {
          return NULL;
       }
-      if (infoheader.biCompression != BIT_BITFIELDS)
-         read_bmicolors(fileheader.bfOffBits - 54, pal, f, 1);
    }
    else if (biSize == OS2INFOHEADERSIZE) {
       if (read_os2_bminfoheader(f, &infoheader) != 0) {
          return NULL;
       }
-      if (infoheader.biCompression != BIT_BITFIELDS)
-         read_bmicolors(fileheader.bfOffBits - 26, pal, f, 0);
+      ASSERT(infoheader.biCompression == BIT_RGB);
    }
    else {
       ALLEGRO_WARN("Unsupported header size: %ld\n", biSize);
       return NULL;
    }
+
+   /* End of header. */
+   /* Note: In BITMAPV2INFOHEADER and above, the RGB bit masks are part of the
+    * header.  BITMAPV3INFOHEADER adds an Alpha bit mask to the header.
+    * Therefore this sanity check will need to occur after reading those in.
+    */
+   ASSERT(al_ftell(f) == header_start + (int64_t) biSize);
 
    if ((int)infoheader.biWidth < 0) {
       ALLEGRO_WARN("negative width: %ld\n", infoheader.biWidth);
@@ -725,6 +734,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
    else
       bpp = 8;
 
+   /* In BITMAPINFOHEADER (V1) the RGB bit masks are not part of the header. */
    if (infoheader.biCompression == BIT_BITFIELDS) {
       uint32_t redMask = al_fread32le(f);
       uint32_t grnMask = al_fread32le(f);
@@ -744,6 +754,14 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
             redMask, grnMask, bluMask);
          return NULL;
       }
+   }
+
+   /* Palette (color table), if any. */
+   if (infoheader.biCompression != BIT_BITFIELDS) {
+      if (biSize == OS2INFOHEADERSIZE)
+         read_bmicolors(fileheader.bfOffBits - 26, pal, f, 0);
+      else
+         read_bmicolors(fileheader.bfOffBits - 54, pal, f, 1);
    }
 
    bmp = al_create_bitmap(infoheader.biWidth, abs(infoheader.biHeight));
