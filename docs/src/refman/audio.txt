@@ -205,11 +205,13 @@ Creates a voice structure and allocates a voice from the digital sound driver.
 The passed frequency, sample format and channel configuration are used as a
 hint to what kind of data will be sent to the voice. However, the underlying
 sound driver is free to use non-matching values. For example it may be the
-native format of the sound hardware. If you attach a mixer to the voice, the
-mixer will convert from the mixer's format to the voice format and you do not
-have to care about this. If you access the voice directly, make sure to not
-rely on the parameters passed to this function, but query the returned voice
-for the actual settings.
+native format of the sound hardware. If a mixer is attached to the voice, the
+mixer will convert from the mixer's format to the voice format and care does
+not have to be taken for the this.
+
+However if you access the voice directly, make sure to not rely on the
+parameters passed to this function, but instead query the returned voice for
+the actual settings.
 
 See also: [al_destroy_voice]
 
