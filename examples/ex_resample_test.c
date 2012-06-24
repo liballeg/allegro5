@@ -17,7 +17,7 @@ double samplepos[N];
 ALLEGRO_AUDIO_STREAM *stream[N];
 ALLEGRO_DISPLAY *display;
 
-float waveform[640];
+float waveform[640], waveform_buffer[640];
 
 static void mainloop(void)
 {
@@ -140,6 +140,7 @@ static void update_waveform(void *buf, unsigned int samples, void *data)
    float *fbuf = (float *)buf;
    int i;
    (void)data;
+   static int pos;
    int n = samples;
    
    /* Yes, we could do something more advanced, but an oscilloscope of the
@@ -148,7 +149,12 @@ static void update_waveform(void *buf, unsigned int samples, void *data)
    if (n > 640) n = 640;
 
    for (i = 0; i < n; i++) {
-      waveform[i] = fbuf[i];
+      waveform_buffer[pos++] = fbuf[i * 2];
+      if (pos == 640) {
+         memcpy(waveform, waveform_buffer, 640 * sizeof(float));
+         pos = 0;
+         break;
+      }
    }
 }
 
