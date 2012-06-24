@@ -28,7 +28,7 @@ enum {
    ALLEGRO_USER_SETTINGS_PATH,
    ALLEGRO_USER_DOCUMENTS_PATH,
    ALLEGRO_EXENAME_PATH,
-   ALLEGRO_LAST_PATH // must be last
+   ALLEGRO_LAST_PATH /* must be last */
 };
 
 AL_FUNC(ALLEGRO_PATH *, al_get_standard_path, (int id));

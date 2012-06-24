@@ -320,7 +320,7 @@
 
 
 /* generic versions of the video memory access helpers */
-// FIXME: why do we need macros for this?
+/* FIXME: why do we need macros for this? */
 #define bmp_write16(addr, c)        (*((uint16_t *)(addr)) = (c))
 #define bmp_write32(addr, c)        (*((uint32_t *)(addr)) = (c))
 

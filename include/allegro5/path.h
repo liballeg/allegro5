@@ -22,7 +22,7 @@ AL_FUNC(ALLEGRO_PATH*, al_create_path, (const char *str));
 AL_FUNC(ALLEGRO_PATH*, al_create_path_for_directory, (const char *str));
 AL_FUNC(ALLEGRO_PATH*, al_clone_path, (const ALLEGRO_PATH *path));
 
-// FIXME: rename to, al_path_num_dir_components
+/* FIXME: rename to, al_path_num_dir_components */
 AL_FUNC(int, al_get_path_num_components, (const ALLEGRO_PATH *path));
 AL_FUNC(const char*, al_get_path_component, (const ALLEGRO_PATH *path, int i));
 AL_FUNC(void, al_replace_path_component, (ALLEGRO_PATH *path, int i, const char *s));

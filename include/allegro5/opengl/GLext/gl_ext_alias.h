@@ -2199,7 +2199,7 @@
 #define glGetTransformFeedbackVaryingNV _al_glGetTransformFeedbackVaryingNV
 #if !defined _ALLEGRO_GL_EXT_draw_buffers2
 #define glGetBooleanIndexedvEXT _al_glGetBooleanIndexedvEXT
-//AGL_API(void,GetIntegerIndexedvEXT,(GLenum,GLuint,GLint*))
+/*AGL_API(void,GetIntegerIndexedvEXT,(GLenum,GLuint,GLint*))*/
 #endif
 #endif
 

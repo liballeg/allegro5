@@ -22,7 +22,7 @@
 #ifdef ALLEGRO_HAVE_SYS_TYPES_H
    #include <sys/types.h>
 #else
-// 4 Gig max offsets if sys/types doesn't exist.
+/* 4 Gig max offsets if sys/types doesn't exist. */
 typedef unsigned int off_t;
 #endif
 
