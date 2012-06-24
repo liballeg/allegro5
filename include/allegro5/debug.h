@@ -74,8 +74,8 @@ AL_FUNC(void, al_register_assert_handler, (void (*handler)(char const *expr,
 /* Compile time assertions. */
 #define ALLEGRO_ASSERT_CONCAT_(a, b)   a##b
 #define ALLEGRO_ASSERT_CONCAT(a, b)    ALLEGRO_ASSERT_CONCAT_(a, b)
-#define ALLEGRO_STATIC_ASSERT(e) \
-   struct ALLEGRO_ASSERT_CONCAT(static_assert_line_, __LINE__) \
+#define ALLEGRO_STATIC_ASSERT(module, e) \
+   struct ALLEGRO_ASSERT_CONCAT(static_assert_##module##_line_, __LINE__) \
       { unsigned int bf : !!(e); }
 
 /* We are lazy and use just ASSERT while Allegro itself is compiled. */

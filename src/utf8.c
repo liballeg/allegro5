@@ -22,7 +22,7 @@
 #include "allegro5/internal/bstrlib.h"
 #include "allegro5/internal/aintern.h"
 
-ALLEGRO_STATIC_ASSERT(
+ALLEGRO_STATIC_ASSERT(utf8,
    sizeof(ALLEGRO_USTR_INFO) >= sizeof(struct _al_tagbstring));
 
 #ifdef ALLEGRO_MSVC

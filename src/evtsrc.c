@@ -26,7 +26,7 @@
 #include "allegro5/internal/aintern_system.h"
 
 
-ALLEGRO_STATIC_ASSERT(
+ALLEGRO_STATIC_ASSERT(evtsrc,
    sizeof(ALLEGRO_EVENT_SOURCE_REAL) <= sizeof(ALLEGRO_EVENT_SOURCE));
 
 

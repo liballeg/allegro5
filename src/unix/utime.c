@@ -24,7 +24,8 @@
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/platform/aintuthr.h"
 
-ALLEGRO_STATIC_ASSERT(sizeof(ALLEGRO_TIMEOUT_UNIX) <= sizeof(ALLEGRO_TIMEOUT));
+ALLEGRO_STATIC_ASSERT(utime,
+   sizeof(ALLEGRO_TIMEOUT_UNIX) <= sizeof(ALLEGRO_TIMEOUT));
 
 
 /* Marks the time Allegro was initialised, for al_get_time(). */

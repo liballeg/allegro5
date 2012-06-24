@@ -100,7 +100,7 @@ typedef struct INTERNAL_STATE {
    int flags;
 } INTERNAL_STATE;
 
-ALLEGRO_STATIC_ASSERT(
+ALLEGRO_STATIC_ASSERT(tls,
    sizeof(ALLEGRO_STATE) > sizeof(INTERNAL_STATE));
 
 

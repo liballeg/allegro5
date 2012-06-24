@@ -106,7 +106,7 @@ const char *_al_keyboard_common_names[/* leave empty */] =
    "SCROLLLOCK", "NUMLOCK",    "CAPSLOCK"
 };
 
-ALLEGRO_STATIC_ASSERT(
+ALLEGRO_STATIC_ASSERT(keybdnu,
    sizeof(_al_keyboard_common_names) / sizeof(_al_keyboard_common_names[0])
    == ALLEGRO_KEY_MAX);
 
