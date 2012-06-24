@@ -37,7 +37,7 @@ AL_FUNC(ALLEGRO_USTR *, al_ustr_dup_substr, (const ALLEGRO_USTR *us,
       int start_pos, int end_pos));
 
 /* Predefined string */
-AL_FUNC(ALLEGRO_USTR *, al_ustr_empty_string, (void));
+AL_FUNC(const ALLEGRO_USTR *, al_ustr_empty_string, (void));
 
 /* Reference strings */
 AL_FUNC(const ALLEGRO_USTR *, al_ref_cstr, (ALLEGRO_USTR_INFO *info, const char *s));
