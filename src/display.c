@@ -75,8 +75,12 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    if (display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY]) {
       al_clear_to_color(al_map_rgb(0, 0, 0));
 
-      /* on iphone, don't kill the initial splashscreen */
-#ifndef ALLEGRO_IPHONE
+      /* TODO:
+       * on iphone, don't kill the initial splashscreen - in fact, it's also
+       * annoying in linux to have an extra black frame as first frame and I
+       * suppose we never really want it
+       */
+#if 0
       al_flip_display();
 #endif
    }
