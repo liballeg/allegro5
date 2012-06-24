@@ -22,7 +22,7 @@ ALLEGRO_COLOR        white;
 
 int num_sticks = 0;
 int num_buttons = 0;
-int num_axes[MAX_AXES] = { 0 };
+int num_axes[MAX_STICKS] = { 0 };
 float joys[MAX_STICKS][MAX_AXES] = {{ 0 }};
 bool joys_buttons[MAX_BUTTONS] = { 0 };
 
@@ -41,9 +41,11 @@ static void draw_joystick_axes(int cx, int cy, int stick)
    al_draw_rectangle(cx-osize+0.5, cy-osize+0.5, cx+osize-0.5, cy+osize-0.5, black, 0);
    al_draw_filled_rectangle(x-5, y-5, x+5, y+5, black);
 
-   al_draw_filled_rectangle(zx-csize, cy-osize, zx+csize, cy+osize, grey);
-   al_draw_rectangle(zx-csize+0.5f, cy-osize+0.5f, zx+csize-0.5f, cy+osize-0.5f, black, 0);
-   al_draw_filled_rectangle(zx-5, z-5, zx+5, z+5, black);
+   if (num_axes[stick] == 3) {
+      al_draw_filled_rectangle(zx-csize, cy-osize, zx+csize, cy+osize, grey);
+      al_draw_rectangle(zx-csize+0.5f, cy-osize+0.5f, zx+csize-0.5f, cy+osize-0.5f, black, 0);
+      al_draw_filled_rectangle(zx-5, z-5, zx+5, z+5, black);
+   }
 }
 
 
