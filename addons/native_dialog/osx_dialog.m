@@ -111,6 +111,9 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
                                 withObject: [NSValue valueWithPointer:fd]
                              waitUntilDone: YES];
    [pool drain];
+
+   _al_osx_clear_mouse_state();
+
    return true;
 }
 
@@ -153,6 +156,9 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    fd->mb_pressed_button = [box runModal] + 1 - NSAlertFirstButtonReturn;
 
    [pool drain];
+
+   _al_osx_clear_mouse_state();
+
    return fd->mb_pressed_button;
 }
 

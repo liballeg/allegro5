@@ -52,6 +52,11 @@ static struct {
 	NSCursor* cursor;
 } osx_mouse;
 
+void _al_osx_clear_mouse_state(void)
+{
+   memset(&osx_mouse.state, 0, sizeof(ALLEGRO_MOUSE_STATE));
+}
+
 /* _al_osx_switch_keyboard_focus:
  *  Handle a focus switch event.
  */
