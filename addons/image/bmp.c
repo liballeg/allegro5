@@ -515,6 +515,11 @@ static void read_RLE8_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
          count = al_fgetc(f);
          if (count == EOF)
             return;
+         if (pos + count > (int)infoheader->biWidth) {
+            ALLEGRO_WARN("overlong compressed line\n");
+            count = infoheader->biWidth - pos;
+         }
+
          val = al_fgetc(f);
 
          if (count > 0) {       /* repeat pixel count times */
@@ -594,6 +599,11 @@ static void read_RLE4_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
          count = al_fgetc(f);
          if (count == EOF)
             return;
+         if (pos + count > (int)infoheader->biWidth) {
+            ALLEGRO_WARN("overlong compressed line\n");
+            count = infoheader->biWidth - pos;
+         }
+
          val = al_fgetc(f);
 
          if (count > 0) {       /* repeat pixels count times */
