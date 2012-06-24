@@ -667,8 +667,8 @@ Some fields of the event being passed in may be modified by the function.
 Reference counting will be performed if `dtor` is not NULL.
 Whenever a copy of the event is made, the reference count increases.
 You need to call [al_unref_user_event] to decrease the reference count
-once you are done a user event that you have received from [al_get_next_event],
-[al_peek_next_event], [al_wait_for_event], etc.
+once you are done with a user event that you have received from
+[al_get_next_event], [al_peek_next_event], [al_wait_for_event], etc.
 
 Once the reference count drops to zero `dtor` will be called with a copy of
 the event as an argument.  It should free the resources associated with
