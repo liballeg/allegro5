@@ -101,8 +101,9 @@ static int pulseaudio_open(void)
       pa_mainloop_free(mainloop);
       return 1;
    }*/
-
+   pa_operation_unref(op);
    pa_context_disconnect(c);
+   pa_context_unref(c);
    pa_mainloop_free(mainloop);
    return 0;
 }
