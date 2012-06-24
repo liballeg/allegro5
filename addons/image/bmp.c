@@ -27,6 +27,7 @@
 
 #include "iio.h"
 
+ALLEGRO_DEBUG_CHANNEL("image")
 
 #define BIT_RGB          0
 #define BIT_RLE8         1
@@ -95,11 +96,15 @@ static int read_bmfileheader(ALLEGRO_FILE *f, BMPFILEHEADER *fileheader)
    fileheader->bfReserved2 = al_fread16le(f);
    fileheader->bfOffBits = al_fread32le(f);
 
-   if (fileheader->bfType != 19778)
+   if (fileheader->bfType != 19778) {
+      ALLEGRO_ERROR("Not BMP format\n");
       return -1;
+   }
 
-   if (al_feof(f) || al_ferror(f))
+   if (al_feof(f) || al_ferror(f)) {
+      ALLEGRO_ERROR("Failed to read file header\n");
       return -1;
+   }
 
    return 0;
 }
@@ -129,8 +134,10 @@ static int read_win_bminfoheader(ALLEGRO_FILE *f, BMPINFOHEADER *infoheader)
    infoheader->biBitCount = win_infoheader.biBitCount;
    infoheader->biCompression = win_infoheader.biCompression;
 
-   if (al_feof(f) || al_ferror(f))
+   if (al_feof(f) || al_ferror(f)) {
+      ALLEGRO_ERROR("Failed to read file header\n");
       return -1;
+   }
 
    return 0;
 }
@@ -154,8 +161,10 @@ static int read_os2_bminfoheader(ALLEGRO_FILE *f, BMPINFOHEADER *infoheader)
    infoheader->biBitCount = os2_infoheader.biBitCount;
    infoheader->biCompression = 0;
 
-   if (al_feof(f) || al_ferror(f))
+   if (al_feof(f) || al_ferror(f)) {
+      ALLEGRO_ERROR("Failed to read file header\n");
       return -1;
+   }
 
    return 0;
 }
@@ -665,6 +674,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
 
    biSize = al_fread32le(f);
    if (al_feof(f) || al_ferror(f)) {
+      ALLEGRO_ERROR("EOF or file error\n");
       return NULL;
    }
 
@@ -683,6 +693,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
          read_bmicolors(fileheader.bfOffBits - 26, pal, f, 0);
    }
    else {
+      ALLEGRO_WARN("Unsupported header size: %ld\n", biSize);
       return NULL;
    }
 
@@ -710,18 +721,22 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
          bpp = 32;
       else {
          /* Unrecognised bit masks/depth, refuse to load. */
+         ALLEGRO_WARN("Unrecognised RGB masks: %lx, %lx, %lx\n",
+            redMask, grnMask, bluMask);
          return NULL;
       }
    }
 
    bmp = al_create_bitmap(infoheader.biWidth, abs(infoheader.biHeight));
    if (!bmp) {
+      ALLEGRO_ERROR("Failed to create bitmap\n");
       return NULL;
    }
 
    lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
       ALLEGRO_LOCK_WRITEONLY);
    if (!lr) {
+      ALLEGRO_ERROR("Failed to lock region\n");
       al_destroy_bitmap(bmp);
       return NULL;
    }
@@ -750,6 +765,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
          break;
 
       default:
+         ALLEGRO_WARN("Unknown compression: %ld\n", infoheader.biCompression);
          al_unlock_bitmap(bmp);
          al_destroy_bitmap(bmp);
          bmp = NULL;
