@@ -155,11 +155,11 @@ static ALLEGRO_PATH *get_executable_name(void)
    int fd;
    sprintf(linkname, "/proc/%d/exe", (int)pid);
    fd = open(linkname, O_RDONLY);
-   if (!fd == -1) {
+   if (fd != -1) {
       ioctl(fd, PIOCPSINFO, &psinfo);
       close(fd);
    
-   /* Use argv[0] directly if we can */
+      /* Use argv[0] directly if we can */
 #ifdef ALLEGRO_HAVE_PROCFS_ARGCV
       if (psinfo.pr_argv && psinfo.pr_argc) {
           path = _find_executable_file(psinfo.pr_argv[0]);
