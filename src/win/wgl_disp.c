@@ -886,7 +886,7 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
       return false;
    }
 
-   qsort(eds, eds_count, sizeof(eds), _al_display_settings_sorter);
+   qsort(eds, eds_count, sizeof(eds[0]), _al_display_settings_sorter);
 
    for (i = 0; i < eds_count ; i++) {
       if (SetPixelFormat(d->dc, eds[i]->index, NULL)) {
