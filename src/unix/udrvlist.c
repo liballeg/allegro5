@@ -15,11 +15,13 @@
  *      See readme.txt for copyright information.
  */
 
+#include "allegro5/allegro.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_system.h"
+
 // FIXME: will need to wire this back in
 #if 0
 
-#include "allegro5/allegro.h"
-#include "allegro5/internal/aintern.h"
 #include "allegro5/platform/aintunix.h"
 
 
