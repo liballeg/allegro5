@@ -1002,11 +1002,15 @@ static NSOpenGLContext* osx_create_shareable_context(NSOpenGLPixelFormat* fmt, u
  */
 static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
 {
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    ALLEGRO_DEBUG("Switching to fullscreen mode sized %dx%d\n", w, h);
-   if (al_get_new_display_adapter() >= al_get_num_video_adapters())
+   if (al_get_new_display_adapter() >= al_get_num_video_adapters()) {
+      [pool drain];
       return NULL;
+   }
    ALLEGRO_DISPLAY_OSX_WIN* dpy = al_malloc(sizeof(ALLEGRO_DISPLAY_OSX_WIN));
    if (dpy == NULL) {
+      [pool drain];
       return NULL;
    }
    memset(dpy, 0, sizeof(*dpy));
@@ -1041,6 +1045,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
       [[NSOpenGLPixelFormat alloc] initWithAttributes: dpy->attributes];
    if (fmt == nil) {
       ALLEGRO_DEBUG("Could not set pixel format\n");
+      [pool drain];
       return NULL;
    }
 
@@ -1049,6 +1054,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    [fmt release];
    if (context == nil) {
       ALLEGRO_DEBUG("Could not create rendering context\n");
+      [pool drain];
       return NULL;
    }
    [context makeCurrentContext];
@@ -1107,6 +1113,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
       [dpy->ctx clearDrawable];
       CGDisplayRelease(dpy->display_id);
       al_free(dpy);
+      [pool drain];
       return NULL;
    }
 
@@ -1156,6 +1163,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
                                      withObject: [NSValue valueWithPointer:dpy] 
                                   waitUntilDone: NO];
 
+   [pool drain];
    return &dpy->parent;
 }
 #if 0
@@ -1305,6 +1313,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
 * to be its content view
 */
 static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    /* Create a temporary view so that we can check whether a fullscreen
     * window can be created.
     */
@@ -1315,16 +1324,20 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
                   @selector(enterFullScreenMode:withOptions:)]) {
          ALLEGRO_DEBUG("Cannot create FULLSCREEN_WINDOW");
          [view release];
+         [pool drain];
          return NULL;
       }
       [view release];
    }
 
    ALLEGRO_DEBUG("Creating window sized %dx%d\n", w, h);
-   if (al_get_new_display_adapter() >= al_get_num_video_adapters())
+   if (al_get_new_display_adapter() >= al_get_num_video_adapters()) {
+      [pool drain];
       return NULL;
+   }
    ALLEGRO_DISPLAY_OSX_WIN* dpy = al_malloc(sizeof(ALLEGRO_DISPLAY_OSX_WIN));
    if (dpy == NULL) {
+      [pool drain];
       return NULL;
    }
    memset(dpy, 0, sizeof(*dpy));
@@ -1406,6 +1419,8 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
       set_display_flag(&dpy->parent, ALLEGRO_FULLSCREEN_WINDOW, true);
    }
 
+   [pool drain];
+
    return &dpy->parent;
 }
 
@@ -1414,6 +1429,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
  */
 static void destroy_display(ALLEGRO_DISPLAY* d)
 {
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    ALLEGRO_DISPLAY *old_dpy = al_get_current_display();
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
    ALLEGRO_DISPLAY_OSX_WIN* other = NULL;
@@ -1475,6 +1491,7 @@ static void destroy_display(ALLEGRO_DISPLAY* d)
 
    al_free(d->vertex_cache);
    al_free(d);
+   [pool drain];
 }
 
 /* create_display:
@@ -1523,16 +1540,20 @@ static void update_display_region(ALLEGRO_DISPLAY *disp,
 ALLEGRO_MOUSE_CURSOR *_al_osx_create_mouse_cursor(ALLEGRO_BITMAP *bmp,
    int x_focus, int y_focus)
 {
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    ALLEGRO_MOUSE_CURSOR_OSX *cursor = NULL;
    
-   if (!bmp)
+   if (!bmp) {
+      [pool drain];
       return NULL;
+   }
 
    NSImage* cursor_image = NSImageFromAllegroBitmap(bmp);
    cursor = al_malloc(sizeof *cursor);
    cursor->cursor = [[NSCursor alloc] initWithImage: cursor_image
                             hotSpot: NSMakePoint(x_focus, y_focus)];
    [cursor_image release];
+   [pool drain];
 
    return (ALLEGRO_MOUSE_CURSOR *)cursor;
 }
@@ -1650,6 +1671,7 @@ static bool hide_cursor(ALLEGRO_DISPLAY *d)
 
 static bool acknowledge_resize_display_win(ALLEGRO_DISPLAY *d)
 {
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN *)d;
    NSWindow* window = dpy->win;
    NSRect frame = [window frame];
@@ -1661,6 +1683,7 @@ static bool acknowledge_resize_display_win(ALLEGRO_DISPLAY *d)
    _al_ogl_resize_backbuffer(d->ogl_extras->backbuffer, d->w, d->h);
    setup_gl(d);
 
+   [pool drain]; 
    return true;
 }
 
@@ -1669,6 +1692,7 @@ static bool acknowledge_resize_display_win(ALLEGRO_DISPLAY *d)
  */
 static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h)
 {
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
    NSWindow* window = dpy->win;
    NSRect current = [window frame];
@@ -1678,8 +1702,10 @@ static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h)
    rc.origin = current.origin;
 
    /* Don't resize a fullscreen window */
-   if (d->flags & ALLEGRO_FULLSCREEN_WINDOW)
+   if (d->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+      [pool drain];
       return false;
+   }
 
 
    /* Finalise setting the frame on the main thread. Because this is where
@@ -1693,6 +1719,7 @@ static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h)
                                      withObject: [NSValue valueWithPointer:param]
                                   waitUntilDone: YES];
 
+   [pool drain];
    return acknowledge_resize_display_win(d);
 }
 
@@ -1771,6 +1798,7 @@ static bool is_compatible_bitmap(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP* bmp)
  */
 static void set_window_position(ALLEGRO_DISPLAY* display, int x, int y) 
 {
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    ALLEGRO_DISPLAY_OSX_WIN* d = (ALLEGRO_DISPLAY_OSX_WIN*) display;
    NSWindow* window = d->win;
    NSRect rc = [window frame];
@@ -1788,6 +1816,8 @@ static void set_window_position(ALLEGRO_DISPLAY* display, int x, int y)
    [ALSetWindowFrame performSelectorOnMainThread: @selector(set_frame:) 
                                      withObject: [NSValue valueWithPointer:param]
                                   waitUntilDone: YES];
+   
+   [pool drain];
 }
 
 /* get_window_position:
@@ -1809,8 +1839,10 @@ static void get_window_position(ALLEGRO_DISPLAY* display, int* px, int* py)
  */
 static void set_window_title(ALLEGRO_DISPLAY *display, const char *title)
 {
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) display;
    [dpy->win setTitle: [NSString stringWithUTF8String:title]];
+   [pool drain];
 }
 
 /* set_icon:
@@ -1819,8 +1851,10 @@ static void set_window_title(ALLEGRO_DISPLAY *display, const char *title)
  */
 static void set_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP* bitmap)
 {
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    (void)display;
    [NSApp setApplicationIconImage: NSImageFromAllegroBitmap(bitmap)];
+   [pool drain];
 }
 
 /* set_display_flag:

@@ -204,6 +204,7 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 */
 static bool osx_init_mouse(void)
 {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	HID_DEVICE_COLLECTION devices={0,0,NULL};
 	int i = 0, j = 0;
 	int axes = 0, buttons = 0;
@@ -256,6 +257,7 @@ static bool osx_init_mouse(void)
 	osx_mouse.warped = FALSE;
 	memset(&osx_mouse.state, 0, sizeof(ALLEGRO_MOUSE_STATE));
    _al_osx_mouse_was_installed(YES);
+   [pool drain];
 	return true;
 }
 
