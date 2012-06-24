@@ -444,7 +444,7 @@ static INLINE const void *linear_spl32(SAMP_BUF *samp_buf,
 static INLINE const void *linear_spl32u(SAMP_BUF *samp_buf,
    const ALLEGRO_SAMPLE_INSTANCE *spl, unsigned int maxc)
 {
-   unsigned long p1, p2;
+   long p1, p2;
    unsigned int i;
    float frac;
    float *s = samp_buf->f32;
