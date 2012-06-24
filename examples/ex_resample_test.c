@@ -8,16 +8,16 @@
 
 #include "common.c"
 
-#define SAMPLES_PER_BUFFER    1024
+#define SAMPLES_PER_BUFFER 1024
 
-#define N 2
+#define N 1
 
 int frequency[N];
 double samplepos[N];
 ALLEGRO_AUDIO_STREAM *stream[N];
 ALLEGRO_DISPLAY *display;
 
-ALLEGRO_BITMAP *waveform;
+float waveform[640];
 
 static void mainloop(void)
 {
@@ -88,7 +88,7 @@ static void mainloop(void)
 
             n++;
             log_printf("%d", si);
-            if ((n % 80) == 0)
+            if ((n % 60) == 0)
                log_printf("\n");
          }
       }
@@ -113,7 +113,14 @@ static void mainloop(void)
 #endif
 
       if (redraw &&al_is_event_queue_empty(queue)) {
-         al_draw_bitmap(waveform, 0, 0, 0);
+         ALLEGRO_COLOR c = al_map_rgb(0, 0, 0);
+         int i;
+         al_clear_to_color(al_map_rgb_f(1, 1, 1));
+        
+         for (i = 0; i < 640; i++) {
+            al_draw_pixel(i, 50 + waveform[i] * 50, c);
+         }
+
          al_flip_display();
          redraw = false;
       }
@@ -130,18 +137,19 @@ static void mainloop(void)
 
 static void update_waveform(void *buf, unsigned int samples, void *data)
 {
-   static int last_pos = 0;
    float *fbuf = (float *)buf;
-   ALLEGRO_COLOR black = al_map_rgb(0, 0, 0);
    int i;
    (void)data;
+   int n = samples;
+   
+   /* Yes, we could do something more advanced, but an oscilloscope of the
+    * first 640 samples of each buffer is enough for our purpose here.
+    */
+   if (n > 640) n = 640;
 
-   al_set_target_bitmap(waveform);
-   for (i = 0; i < (int)samples; i++) {
-      al_put_pixel((last_pos + i) % 640, 50 + fbuf[i] * 50, black);
+   for (i = 0; i < n; i++) {
+      waveform[i] = fbuf[i];
    }
-   last_pos += samples;
-   al_set_target_backbuffer(al_get_current_display());
 }
 
 int main(void)
@@ -162,12 +170,6 @@ int main(void)
       abort_example("Could not create display.\n");
       return 1;
    }
-
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   waveform = al_create_bitmap(640, 100);
-   al_set_target_bitmap(waveform);
-   al_clear_to_color(al_map_rgb_f(1, 1, 1));
-   al_set_target_backbuffer(al_get_current_display());
 
    if (!al_install_audio()) {
       abort_example("Could not init sound.\n");
