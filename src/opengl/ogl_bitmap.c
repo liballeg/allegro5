@@ -602,10 +602,7 @@ static int ogl_pixel_alignment(int pixel_size)
 static int ogl_pitch(int w, int pixel_size)
 {
    int pitch = w * pixel_size;
-   if (pixel_size == 3)
-      return (pitch + 3) & ~0x3; /* round up to four bytes */
-   else
-      return pitch;
+   return pitch;
 }
 
 
