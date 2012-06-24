@@ -626,7 +626,7 @@ static void d3d_draw_bitmap_region(
    ALLEGRO_BITMAP_D3D *d3d_dest = (ALLEGRO_BITMAP_D3D *)dest;
    ALLEGRO_BITMAP_D3D *d3d_src = (ALLEGRO_BITMAP_D3D *)src;
 
-   if (!_al_d3d_render_to_texture_supported() || !_al_d3d_supports_separate_alpha_blend(al_get_current_display())) {
+   if (!_al_d3d_render_to_texture_supported()) {
       _al_draw_bitmap_region_memory(src, tint,
          (int)sx, (int)sy, (int)sw, (int)sh, 0, 0,
          (int)flags);
