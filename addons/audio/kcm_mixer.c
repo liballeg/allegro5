@@ -517,6 +517,11 @@ static INLINE int32_t clamp(int32_t val, int32_t min, int32_t max)
  * 
  * Note: Uses Bresenham to keep the precise sample position.
  */
+#define BRESENHAM \
+   delta = spl->step > 0 ? spl->step : spl->step - spl->step_denom + 1;       \
+   delta /= spl->step_denom;                                                  \
+   delta_error = spl->step - delta * spl->step_denom;                         \
+   error = spl->pos_bresenham_error;
 #define MAKE_MIXER(NAME, NEXT_SAMPLE_VALUE, TYPE)                             \
 static void NAME(void *source, void **vbuf, unsigned int *samples,            \
    ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc)                        \
@@ -527,19 +532,21 @@ static void NAME(void *source, void **vbuf, unsigned int *samples,            \
    size_t samples_l = *samples;                                               \
    size_t c;                                                                  \
    size_t idx = 0;                                                            \
-   int delta = spl->step / spl->step_denom;                                   \
-   int delta_error = spl->step - delta * spl->step_denom;                     \
-   int error = spl->pos_bresenham_error;                                      \
+   int delta, delta_error, error;                                             \
    SAMP_BUF samp_buf;                                                         \
-                                                                              \
+   BRESENHAM                                                                  \
    if (!spl->is_playing)                                                      \
       return;                                                                 \
                                                                               \
    while (samples_l > 0) {                                                    \
       const TYPE *s;                                                          \
+      int old_step = spl->step;                                               \
                                                                               \
       if (!fix_looped_position(spl))                                          \
          return;                                                              \
+      if (old_step != spl->step) {                                            \
+         BRESENHAM                                                            \
+      }                                                                       \
                                                                               \
       /* It might be worth preparing multiple sample values at once. */       \
       s = (TYPE *) NEXT_SAMPLE_VALUE(&samp_buf, spl, maxc);                   \
