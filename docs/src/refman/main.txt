@@ -1,18 +1,22 @@
 # Main addon
 
-Main addon has no public API, but contains functionality that enables
-code that uses Allegro to run without changes on all platforms Allegro supports.
+The `main` addon has no public API, but contains functionality to enable
+programs using Allegro to build and run without platform-specific changes.
 
-On platforms that require this functionality (e.g. OSX) this addon contains the
-C main function that calls [al_run_main] with the user's main function that had
-its name mangled. This mangling is performed by macros included by the core library
-header (`allegro5/allegro.h`), so it must be included it in the same file as 
-the user's main function. If the main function is inside a C++ file, then the
-main function must have this signature, `int main(int argc, char **argv)`, for
-this addon to work.
+On platforms that require this functionality (e.g. OSX) this addon contains a
+C `main` function that invokes [al_run_main] with the user's own `main`
+function, where the user's `main` function has had its name mangled to
+something else. The file that defines the user `main` function must include
+the header file `allegro5/allegro.h`; that header performs the name mangling
+using some macros.
 
-On platforms that don't require this functionality, this addon does nothing,
-but you should still keep it in mind in case you need to port to the platforms
-that do require it.
+If the user `main` function is defined in C++, then it must have the
+following signature for this addon to work:
+
+    int main(int argc, char **argv)
+
+This addon does nothing on platforms that don't require its functionality, but
+you should keep it in mind in case you need to port to platforms that do
+require it.
 
 Link with allegro_main.
