@@ -159,7 +159,12 @@ struct ALLEGRO_SAMPLE_INSTANCE {
    unsigned int         pos;
    unsigned int         loop_start;
    unsigned int         loop_end;
+
    int                  step;
+   int                  step_denom;
+                        /* The numerator and denominator of the step are 
+                         * stored separately. The actual step is obtained by 
+                         * dividing step by step_denom */
 
    float                *matrix;
                         /* Used to convert from this format to the attached
