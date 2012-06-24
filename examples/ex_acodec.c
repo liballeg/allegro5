@@ -17,10 +17,20 @@ int main(int argc, char **argv)
    ALLEGRO_MIXER *mixer;
    ALLEGRO_SAMPLE_INSTANCE *sample;
    int i;
+   char const **filenames;
+   int n;
 
    if (argc < 2) {
-      fprintf(stderr, "Usage: %s {audio_files}\n", argv[0]);
-      return 1;
+      n = 1;
+      filenames = malloc(sizeof *filenames);
+      filenames[0] = "data/testing.ogg";
+   }
+   else {
+      n = argc - 1;
+      filenames = malloc(sizeof *filenames * n);
+      for (i = 1; i < argc; ++i) {
+         filenames[i - 1] = argv[i];
+      }
    }
 
    if (!al_init()) {
@@ -60,9 +70,9 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   for (i = 1; i < argc; ++i) {
+   for (i = 0; i < n; ++i) {
       ALLEGRO_SAMPLE *sample_data = NULL;
-      const char *filename = argv[i];
+      const char *filename = filenames[i];
       float sample_time = 0;
 
       /* Load the entire sound file from disk. */
