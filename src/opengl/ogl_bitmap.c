@@ -163,6 +163,7 @@ static char const *error_string(GLenum e)
       ERR(GL_STACK_OVERFLOW)
       ERR(GL_STACK_UNDERFLOW)
       ERR(GL_OUT_OF_MEMORY)
+      ERR(GL_INVALID_FRAMEBUFFER_OPERATION)
    }
    return "UNKNOWN";
 }
