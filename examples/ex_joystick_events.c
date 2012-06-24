@@ -27,6 +27,38 @@ float joys[MAX_STICKS][MAX_AXES] = {{ 0 }};
 bool joys_buttons[MAX_BUTTONS] = { 0 };
 
 
+static void setup_joystick_values(ALLEGRO_JOYSTICK *joy)
+{
+   ALLEGRO_JOYSTICK_STATE jst;
+   int i, j;
+
+   if (joy == NULL) {
+      num_sticks = 0;
+      num_buttons = 0;
+      return;
+   }
+
+   al_get_joystick_state(joy, &jst);
+
+   num_sticks = al_get_joystick_num_sticks(joy);
+   if (num_sticks > MAX_STICKS)
+      num_sticks = MAX_STICKS;
+   for (i = 0; i < num_sticks; i++) {
+      num_axes[i] = al_get_joystick_num_axes(joy, i);
+      for (j = 0; j < num_axes[i]; ++j)
+         joys[i][j] = jst.stick[i].axis[j];
+   }
+
+   num_buttons = al_get_joystick_num_buttons(joy);
+   if (num_buttons > MAX_BUTTONS) {
+      num_buttons = MAX_BUTTONS;
+   }
+   for (i = 0; i < num_buttons; i++) {
+      joys_buttons[i] = (jst.button[i] >= 16384);
+   }
+}
+
+
 static void draw_joystick_axes(int cx, int cy, int stick)
 {
    const int size = 30;
@@ -130,6 +162,11 @@ static void main_loop(void)
          case ALLEGRO_EVENT_DISPLAY_CLOSE:
             return;
 
+         case ALLEGRO_EVENT_JOYSTICK_CONFIGURATION:
+            al_reconfigure_joysticks();
+            setup_joystick_values(al_get_joystick(0));
+            break;
+
          /* We received an event of some type we don't know about.
           * Just ignore it.
           */
@@ -144,9 +181,6 @@ static void main_loop(void)
 int main(void)
 {
    ALLEGRO_DISPLAY *display;
-   ALLEGRO_JOYSTICK *zero_joy;
-   ALLEGRO_JOYSTICK_STATE jst;
-   int i, j;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -167,11 +201,6 @@ int main(void)
    white = al_map_rgb(255, 255, 255);
 
    al_install_joystick();
-   if (al_get_num_joysticks() == 0) {
-      abort_example("No joysticks found.\n");
-      return 1;
-   }
-   zero_joy = al_get_joystick(0);
 
    event_queue = al_create_event_queue();
    if (!event_queue) {
@@ -185,25 +214,7 @@ int main(void)
    al_register_event_source(event_queue, al_get_display_event_source(display));
    al_register_event_source(event_queue, al_get_joystick_event_source());
 
-   /* Initialise values. */
-   al_get_joystick_state(zero_joy, &jst);
-
-   num_sticks = al_get_joystick_num_sticks(zero_joy);
-   if (num_sticks > MAX_STICKS)
-      num_sticks = MAX_STICKS;
-   for (i = 0; i < num_sticks; i++) {
-      num_axes[i] = al_get_joystick_num_axes(zero_joy, i);
-      for (j = 0; j < num_axes[i]; ++j)
-         joys[i][j] = jst.stick[i].axis[j];
-   }
-
-   num_buttons = al_get_joystick_num_buttons(zero_joy);
-   if (num_buttons > MAX_BUTTONS) {
-      num_buttons = MAX_BUTTONS;
-   }
-   for (i = 0; i < num_buttons; i++) {
-      joys_buttons[i] = (jst.button[i] >= 16384);
-   }
+   setup_joystick_values(al_get_joystick(0));
 
    main_loop();
 
