@@ -9,11 +9,6 @@
 #include "allegro5/internal/aintern_vector.h"
 #include "../allegro_audio.h"
 
-/* This can probably be set to 16, or higher, if long is 64-bit */
-#define MIXER_FRAC_SHIFT  8
-#define MIXER_FRAC_ONE    (1<<MIXER_FRAC_SHIFT)
-#define MIXER_FRAC_MASK   (MIXER_FRAC_ONE-1)
-
 typedef enum ALLEGRO_AUDIO_DRIVER_ENUM
 {
    /* Various driver modes. */

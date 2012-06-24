@@ -148,7 +148,7 @@ ALLEGRO_SAMPLE *al_create_sample(void *buf, unsigned int samples,
    spl->depth = depth;
    spl->chan_conf = chan_conf;
    spl->frequency = freq;
-   spl->len = samples << MIXER_FRAC_SHIFT;
+   spl->len = samples;
    spl->buffer.ptr = buf;
    spl->free_buf = free_buf;
 
@@ -422,7 +422,7 @@ unsigned int al_get_sample_length(const ALLEGRO_SAMPLE *spl)
 {
    ASSERT(spl);
 
-   return spl->len >> MIXER_FRAC_SHIFT;
+   return spl->len;
 }
 
 

@@ -245,7 +245,7 @@ static int pulseaudio_load_voice(ALLEGRO_VOICE *voice, const void *data)
    voice->attached_stream->pos = 0;
 
    pv->buffer = voice->attached_stream->spl_data.buffer.ptr;
-   pv->buffer_end = pv->buffer + (voice->attached_stream->spl_data.len >> MIXER_FRAC_SHIFT) * pv->frame_size;
+   pv->buffer_end = pv->buffer + (voice->attached_stream->spl_data.len) * pv->frame_size;
 
    return 0;
    (void)data;

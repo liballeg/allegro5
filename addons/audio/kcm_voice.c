@@ -152,7 +152,7 @@ bool al_attach_sample_instance_to_voice(ALLEGRO_SAMPLE_INSTANCE *spl,
 
    voice->is_streaming = false;
    voice->num_buffers = 1;
-   voice->buffer_size = (spl->spl_data.len >> MIXER_FRAC_SHIFT) *
+   voice->buffer_size = (spl->spl_data.len) *
                         al_get_channel_count(voice->chan_conf) *
                         al_get_audio_depth_size(voice->depth);
 
@@ -190,8 +190,8 @@ static void stream_read(void *source, void **vbuf, unsigned int *samples,
    ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc)
 {
    ALLEGRO_AUDIO_STREAM *stream = (ALLEGRO_AUDIO_STREAM*)source;
-   unsigned int len = stream->spl.spl_data.len >> MIXER_FRAC_SHIFT;
-   unsigned int pos = stream->spl.pos >> MIXER_FRAC_SHIFT;
+   unsigned int len = stream->spl.spl_data.len;
+   unsigned int pos = stream->spl.pos;
 
    if (!stream->spl.is_playing) {
       *vbuf = NULL;
@@ -225,7 +225,7 @@ static void stream_read(void *source, void **vbuf, unsigned int *samples,
       pos += *samples;
    }
 
-   stream->spl.pos = pos << MIXER_FRAC_SHIFT;
+   stream->spl.pos = pos;
 
    (void)dest_maxc;
    (void)buffer_depth;
@@ -274,7 +274,7 @@ bool al_attach_audio_stream_to_voice(ALLEGRO_AUDIO_STREAM *stream,
 
    voice->is_streaming = true;
    voice->num_buffers = stream->buf_count;
-   voice->buffer_size = (stream->spl.spl_data.len >> MIXER_FRAC_SHIFT) *
+   voice->buffer_size = (stream->spl.spl_data.len) *
                         al_get_channel_count(stream->spl.spl_data.chan_conf) *
                         al_get_audio_depth_size(stream->spl.spl_data.depth);
 
@@ -367,7 +367,6 @@ void al_detach_voice(ALLEGRO_VOICE *voice)
       ALLEGRO_SAMPLE_INSTANCE *spl = voice->attached_stream;
 
       spl->pos = voice->driver->get_voice_position(voice);
-      spl->pos <<= MIXER_FRAC_SHIFT;
       spl->is_playing = voice->driver->voice_is_playing(voice);
 
       voice->driver->stop_voice(voice);

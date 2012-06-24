@@ -81,7 +81,7 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
    stream->spl.pan       = 0.0f;
 
    stream->spl.step = 0;
-   stream->spl.pos  = samples << MIXER_FRAC_SHIFT;
+   stream->spl.pos  = samples;
    stream->spl.spl_data.len  = stream->spl.pos;
 
    stream->buf_count = fragment_count;
@@ -175,7 +175,7 @@ unsigned int al_get_audio_stream_length(const ALLEGRO_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
-   return stream->spl.spl_data.len >> MIXER_FRAC_SHIFT;
+   return stream->spl.spl_data.len;
 }
 
 
@@ -344,7 +344,7 @@ bool al_set_audio_stream_speed(ALLEGRO_AUDIO_STREAM *stream, float val)
        */
       stream->spl.step = 1;
 
-      i = (stream->spl.spl_data.frequency << MIXER_FRAC_SHIFT) *
+      i = (stream->spl.spl_data.frequency) *
          stream->spl.speed / mixer->ss.spl_data.frequency;
 
       /* Don't wanna be trapped with a step value of 0. */
@@ -595,7 +595,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
             continue;
          }
 
-         bytes = (stream->spl.spl_data.len >> MIXER_FRAC_SHIFT) *
+         bytes = (stream->spl.spl_data.len) *
                al_get_channel_count(stream->spl.spl_data.chan_conf) *
                al_get_audio_depth_size(stream->spl.spl_data.depth);
 
