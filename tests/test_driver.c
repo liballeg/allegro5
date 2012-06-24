@@ -1354,7 +1354,7 @@ static void process_ini_files(void)
    }
 }
 
-int main(const int _argc, char const *_argv[])
+int main(int _argc, char *_argv[])
 {
    argc = _argc;
    argv = _argv;
