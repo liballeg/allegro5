@@ -35,7 +35,7 @@ public:
 class UString
 {
    ALLEGRO_USTR_INFO info;
-   ALLEGRO_USTR *ustr;
+   const ALLEGRO_USTR *ustr;
 
 public:
    UString(const ALLEGRO_USTR *s, int first, int end = -1)

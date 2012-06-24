@@ -90,7 +90,7 @@ static ALLEGRO_PATH *_find_executable_file(const char *filename)
          if (next_start_pos < 0)
             end_pos = al_ustr_size(us);
          ALLEGRO_USTR_INFO info;
-         ALLEGRO_USTR *sub = al_ref_ustr(&info, us, start_pos, end_pos);
+         const ALLEGRO_USTR *sub = al_ref_ustr(&info, us, start_pos, end_pos);
 
          ALLEGRO_PATH *path = al_create_path_for_directory(al_cstr(sub));
          al_set_path_filename(path, filename);

@@ -113,7 +113,7 @@ void al_draw_justified_ustr(const ALLEGRO_FONT *font,
 {
    const char *whitespace = " \t\n\r";
    ALLEGRO_USTR_INFO word_info;
-   ALLEGRO_USTR *word;
+   const ALLEGRO_USTR *word;
    int pos1, pos2;
    int minlen;
    int num_words;
@@ -260,7 +260,7 @@ int al_get_ustr_width(const ALLEGRO_FONT *f, ALLEGRO_USTR const *ustr)
 int al_get_text_width(const ALLEGRO_FONT *f, const char *str)
 {
    ALLEGRO_USTR_INFO str_info;
-   ALLEGRO_USTR *ustr;
+   const ALLEGRO_USTR *ustr;
    ASSERT(f);
    ASSERT(str);
 

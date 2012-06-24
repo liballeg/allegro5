@@ -73,7 +73,7 @@ static void t2(void)
 static void t3(void)
 {
    ALLEGRO_USTR_INFO info;
-   ALLEGRO_USTR *us = al_ref_cstr(&info, "A static string.");
+   const ALLEGRO_USTR *us = al_ref_cstr(&info, "A static string.");
 
    CHECK(0 == strcmp(al_cstr(us), "A static string."));
 }
@@ -84,7 +84,7 @@ static void t4(void)
 {
    const char *s = "This contains an embedded NUL: \0 <-- here";
    ALLEGRO_USTR_INFO info;
-   ALLEGRO_USTR *us = al_ref_buffer(&info, s, sizeof(s));
+   const ALLEGRO_USTR *us = al_ref_buffer(&info, s, sizeof(s));
 
    CHECK(al_ustr_size(us) == sizeof(s));
    CHECK(0 == memcmp(al_cstr(us), s, sizeof(s)));
@@ -94,7 +94,7 @@ static void t4(void)
 static void t5(void)
 {
    ALLEGRO_USTR *us1;
-   ALLEGRO_USTR *us2;
+   const ALLEGRO_USTR *us2;
    ALLEGRO_USTR_INFO us2_info;
 
    us1 = al_ustr_new("aábdðeéfghiíjklmnoóprstuúvxyýþæö");
@@ -179,7 +179,7 @@ static void t9(void)
 {
    ALLEGRO_USTR *us1;
    ALLEGRO_USTR_INFO us2_info;
-   ALLEGRO_USTR *us2;
+   const ALLEGRO_USTR *us2;
 
    /* Append a string to itself. */
    us1 = al_ustr_new("aábdðeéfghiíjklm");
@@ -200,7 +200,7 @@ static void t10(void)
 {
    ALLEGRO_USTR *us1;
    ALLEGRO_USTR *us2;
-   ALLEGRO_USTR *us3;
+   const ALLEGRO_USTR *us3;
    ALLEGRO_USTR_INFO us3_info;
    const char us3_data[] = "aábdð\0eéfgh";
 
@@ -436,7 +436,7 @@ static void t20(void)
 static void t21(void)
 {
    ALLEGRO_USTR_INFO info;
-   ALLEGRO_USTR *us;
+   const ALLEGRO_USTR *us;
 
    us = al_ref_buffer(&info, "", 1);
    CHECK(al_ustr_get(us, 0) == 0);
@@ -467,7 +467,7 @@ static void t21(void)
 static void t22(void)
 {
    ALLEGRO_USTR_INFO info;
-   ALLEGRO_USTR *us;
+   const ALLEGRO_USTR *us;
 
    /* Empty string. */
    al_set_errno(0);
@@ -500,7 +500,7 @@ static void t22(void)
 static void t23(void)
 {
    ALLEGRO_USTR_INFO info;
-   ALLEGRO_USTR *us;
+   const ALLEGRO_USTR *us;
 
    /* Examples of an overlong ASCII character */
    us = al_ref_cstr(&info, "\xc0\xaf");
@@ -552,7 +552,7 @@ static void t24(void)
 {
    const char str[] = "a\0þ€\xf4\x8f\xbf\xbf";
    ALLEGRO_USTR_INFO info;
-   ALLEGRO_USTR *us = al_ref_buffer(&info, str, sizeof(str) - 1);
+   const ALLEGRO_USTR *us = al_ref_buffer(&info, str, sizeof(str) - 1);
    int pos = 0;
 
    CHECK(al_ustr_next(us, &pos));   /* a */
@@ -579,7 +579,7 @@ static void t25(void)
 {
    const char str[] = "þ\xf4\x8f\xbf.";
    ALLEGRO_USTR_INFO info;
-   ALLEGRO_USTR *us = al_ref_buffer(&info, str, sizeof(str) - 1);
+   const ALLEGRO_USTR *us = al_ref_buffer(&info, str, sizeof(str) - 1);
    int pos;
 
    /* Starting in middle of a sequence. */
@@ -1086,7 +1086,7 @@ static void t47(void)
 static void t48(void)
 {
    ALLEGRO_USTR_INFO i1;
-   ALLEGRO_USTR *us1 = al_ref_cstr(&i1, "Thú mỏ vịt");
+   const ALLEGRO_USTR *us1 = al_ref_cstr(&i1, "Thú mỏ vịt");
 
    /* The _cstr versions are simple wrappers around the real functions so its
     * okay to test them only.
@@ -1107,8 +1107,8 @@ static void t49(void)
    ALLEGRO_USTR *us;
    ALLEGRO_USTR_INFO findi;
    ALLEGRO_USTR_INFO repli;
-   ALLEGRO_USTR *find;
-   ALLEGRO_USTR *repl;
+   const ALLEGRO_USTR *find;
+   const ALLEGRO_USTR *repl;
 
    us = al_ustr_new("aábdðeéfghiíaábdðeéfghií");
    find = al_ref_cstr(&findi, "ðeéf");
@@ -1178,7 +1178,7 @@ static void t50(void)
 static void t51(void)
 {
    char str[256];
-   ALLEGRO_USTR *us;
+   const ALLEGRO_USTR *us;
    ALLEGRO_USTR_INFO info;
 
    us = al_ref_buffer(&info, "Allegro", 3);
@@ -1188,8 +1188,6 @@ static void t51(void)
    CHECK(0 == memcmp(str, "All", 4));
    al_ustr_to_buffer(us, str, 3);
    CHECK(0 == memcmp(str, "Al", 3));
-
-   al_ustr_free(us);
 }
 
 /*---------------------------------------------------------------------------*/

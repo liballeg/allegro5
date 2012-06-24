@@ -316,7 +316,7 @@ static gboolean create_native_message_box(gpointer data)
          if (next == -1)
 	     pos2 = al_ustr_size(fd->mb_buttons);
          ALLEGRO_USTR_INFO info;
-         ALLEGRO_USTR *button_text;
+         const ALLEGRO_USTR *button_text;
          button_text = al_ref_ustr(&info, fd->mb_buttons, pos, pos2);
          pos = pos2 + 1;
          char buffer[256];

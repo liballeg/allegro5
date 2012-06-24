@@ -53,7 +53,7 @@ static void print(int x, int y, bool vertical, char const *format, ...)
       if (vertical) {
          int i;
          ALLEGRO_USTR_INFO ui;
-         ALLEGRO_USTR *us = al_ref_cstr(&ui, message);
+         const ALLEGRO_USTR *us = al_ref_cstr(&ui, message);
          for (i = 0; i < (int)al_ustr_length(us); i++) {
             ALLEGRO_USTR_INFO letter;
             al_draw_ustr(ex.myfont, color, x + 1 - j, y + 1 - j + h * i, 0,
