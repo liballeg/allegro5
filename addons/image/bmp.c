@@ -57,6 +57,7 @@ typedef struct BMPINFOHEADER
    signed long biHeight;
    unsigned short biBitCount;
    unsigned long biCompression;
+   unsigned long biClrUsed;
 } BMPINFOHEADER;
 
 
@@ -133,6 +134,7 @@ static int read_win_bminfoheader(ALLEGRO_FILE *f, BMPINFOHEADER *infoheader)
    infoheader->biHeight = win_infoheader.biHeight;
    infoheader->biBitCount = win_infoheader.biBitCount;
    infoheader->biCompression = win_infoheader.biCompression;
+   infoheader->biClrUsed = win_infoheader.biClrUsed;
 
    if (al_feof(f) || al_ferror(f)) {
       ALLEGRO_ERROR("Failed to read file header\n");
@@ -160,6 +162,7 @@ static int read_os2_bminfoheader(ALLEGRO_FILE *f, BMPINFOHEADER *infoheader)
    infoheader->biHeight = os2_infoheader.biHeight;
    infoheader->biBitCount = os2_infoheader.biBitCount;
    infoheader->biCompression = BIT_RGB;
+   infoheader->biClrUsed = 0; /* default */
 
    if (al_feof(f) || al_ferror(f)) {
       ALLEGRO_ERROR("Failed to read file header\n");
@@ -171,31 +174,25 @@ static int read_os2_bminfoheader(ALLEGRO_FILE *f, BMPINFOHEADER *infoheader)
 
 
 
-/* read_bmicolors:
+/* read_palette:
  *  Loads the color palette for 1,4,8 bit formats.
  *  OS/2 bitmaps take 3 bytes per color.
  *  Windows bitmaps take 4 bytes per color.
  */
-static void read_bmicolors(int bytes, PalEntry *pal, ALLEGRO_FILE *f,
+static void read_palette(int ncolors, PalEntry *pal, ALLEGRO_FILE *f,
    int win_flag)
 {
-   int i, j;
+   int i;
 
-   for (i = j = 0; (i + 3 <= bytes && j < 256); j++) {
-      pal[j].b = al_fgetc(f);
-      pal[j].g = al_fgetc(f);
-      pal[j].r = al_fgetc(f);
+   for (i = 0; i < ncolors; i++) {
+      pal[i].b = al_fgetc(f);
+      pal[i].g = al_fgetc(f);
+      pal[i].r = al_fgetc(f);
 
-      i += 3;
-
-      if (win_flag && i < bytes) {
+      if (win_flag) {
          al_fgetc(f);
-         i++;
       }
    }
-
-   for (; i < bytes; i++)
-      al_fgetc(f);
 }
 
 
@@ -678,12 +675,15 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
    BMPINFOHEADER infoheader;
    ALLEGRO_BITMAP *bmp;
    PalEntry pal[256];
+   int64_t file_start;
    int64_t header_start;
    unsigned long biSize;
    unsigned char *buf = NULL;
    ALLEGRO_LOCKED_REGION *lr;
    int bpp;
    ASSERT(f);
+
+   file_start = al_ftell(f);
 
    if (read_bmfileheader(f, &fileheader) != 0) {
       return NULL;
@@ -756,12 +756,33 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
       }
    }
 
-   /* Palette (color table), if any. */
-   if (infoheader.biCompression != BIT_BITFIELDS) {
-      if (biSize == OS2INFOHEADERSIZE)
-         read_bmicolors(fileheader.bfOffBits - 26, pal, f, 0);
-      else
-         read_bmicolors(fileheader.bfOffBits - 54, pal, f, 1);
+   /* Read the palette, if any.  Higher bit depth images _may_ have an optional
+    * palette but we don't use it and don't read it.
+    */
+   if (infoheader.biCompression != BIT_BITFIELDS
+      && infoheader.biBitCount <= 8)
+   {
+      int win_flag = (biSize != OS2INFOHEADERSIZE);
+      int ncolors = infoheader.biClrUsed;
+      if (ncolors == 0) {
+         ncolors = (1 << infoheader.biBitCount);
+      }
+      if (ncolors > 256) {
+         ALLEGRO_ERROR("Too many colors: %d\n", ncolors);
+         return NULL;
+      }
+
+      read_palette(ncolors, pal, f, win_flag);
+      if (al_feof(f) || al_ferror(f)) {
+         ALLEGRO_ERROR("EOF or I/O error\n");
+         return NULL;
+      }
+   }
+
+   /* Skip to the pixel storage. */
+   if (!al_fseek(f, file_start + fileheader.bfOffBits, ALLEGRO_SEEK_SET)) {
+      ALLEGRO_ERROR("Seek error\n");
+      return NULL;
    }
 
    bmp = al_create_bitmap(infoheader.biWidth, abs(infoheader.biHeight));
