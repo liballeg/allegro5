@@ -36,7 +36,7 @@ static void maybe_unlock_mutex(ALLEGRO_MUTEX *mutex)
 /* Function: al_create_audio_stream
  */
 ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
-   unsigned int samples, unsigned int freq, ALLEGRO_AUDIO_DEPTH depth,
+   unsigned int frag_samples, unsigned int freq, ALLEGRO_AUDIO_DEPTH depth,
    ALLEGRO_CHANNEL_CONF chan_conf)
 {
    ALLEGRO_AUDIO_STREAM *stream;
@@ -49,7 +49,7 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
          "Attempted to create stream with no buffers");
       return NULL;
    }
-   if (!samples) {
+   if (!frag_samples) {
       _al_set_error(ALLEGRO_INVALID_PARAM,
           "Attempted to create stream with no buffer size");
       return NULL;
@@ -62,7 +62,7 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
 
    bytes_per_sample = al_get_channel_count(chan_conf) *
          al_get_audio_depth_size(depth);
-   bytes_per_frag_buf = samples * bytes_per_sample;
+   bytes_per_frag_buf = frag_samples * bytes_per_sample;
 
    stream = al_calloc(1, sizeof(*stream));
    if (!stream) {
@@ -83,7 +83,7 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
    stream->spl.pan       = 0.0f;
 
    stream->spl.step = 0;
-   stream->spl.pos  = samples;
+   stream->spl.pos  = frag_samples;
    stream->spl.spl_data.len  = stream->spl.pos;
 
    stream->buf_count = fragment_count;

@@ -745,7 +745,7 @@ Parameters:
     you usually will use fewer samples for one, so there always will be
     (small) fragments available to be filled with new data.
 
-* samples - The size of a fragment in samples. See note below.
+* frag_samples - The size of a fragment in samples. See note below.
 
 * freq - The frequency, in Hertz.
 
@@ -753,10 +753,10 @@ Parameters:
 
 * chan_conf - Must be one of the values listed for [ALLEGRO_CHANNEL_CONF].
 
-The choice of *fragment_count*, *samples* and *freq* directly influences the
-audio delay. The delay in seconds can be expressed as:
+The choice of *fragment_count*, *frag_samples* and *freq* directly influences
+the audio delay. The delay in seconds can be expressed as:
 
-    delay = fragment_count * samples / freq
+    delay = fragment_count * frag_samples / freq
 
 This is only the delay due to Allegro's streaming, there may be additional
 delay caused by sound drivers and/or hardware.
