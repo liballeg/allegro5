@@ -491,7 +491,7 @@ static bool xrandr_realign_crtc_origin(ALLEGRO_SYSTEM_XGLX *s, int xscreen, xran
          break;
    };
    
-   return false;
+   return ret;
 }
 
 static bool xrandr_set_mode(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, int w, int h, int format, int refresh)
