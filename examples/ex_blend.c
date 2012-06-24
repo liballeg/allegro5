@@ -101,7 +101,6 @@ static ALLEGRO_BITMAP *create_example_bitmap(void)
 /* Draw our example scene. */
 static void draw(void)
 {
-   ALLEGRO_COLOR white;
    ALLEGRO_COLOR test[5];
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
@@ -113,8 +112,6 @@ static void draw(void)
    int i, j;
 
    al_clear_to_color(al_map_rgb_f(0.5, 0.5, 0.5));
-
-   white = al_map_rgba_f(1, 1, 1, 1);
 
    test[0] = al_map_rgba_f(1, 1, 1, 1);
    test[1] = al_map_rgba_f(1, 1, 1, 0.5);

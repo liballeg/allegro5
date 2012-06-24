@@ -19,8 +19,6 @@ int main(void)
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_BITMAP *mem_bmp;
    ALLEGRO_BITMAP *src_bmp;
-   int bmp_w;
-   int bmp_h;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_EVENT event;
    double theta = 0;
@@ -74,9 +72,6 @@ int main(void)
       abort_example("Unable to load image\n");
       return 1;
    }
-
-   bmp_w = al_get_bitmap_width(bmp);
-   bmp_h = al_get_bitmap_height(bmp);
 
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());

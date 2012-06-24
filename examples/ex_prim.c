@@ -484,7 +484,6 @@ int main(void)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP* bkg;
-   ALLEGRO_COLOR white;
    ALLEGRO_COLOR black;
    ALLEGRO_EVENT_QUEUE *queue;
 
@@ -528,7 +527,6 @@ int main(void)
    Texture = al_load_bitmap("data/texture.tga");
    
    // Make and set some color to draw with
-   white = al_map_rgba_f(1.0, 1.0, 1.0, 1.0);
    black = al_map_rgba_f(0.0, 0.0, 0.0, 1.0);
    
    // Start the event queue to handle keyboard input and our timer
