@@ -499,11 +499,13 @@ static void read_RLE8_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
    int count;
    unsigned char val;
    unsigned char val0;
-   int j, pos, line;
+   int j, pos, line, height, dir;
    int eolflag, eopicflag;
 
    eopicflag = 0;
-   line = infoheader->biHeight - 1;
+   height = abs(infoheader->biHeight);
+   line = (infoheader->biHeight < 0) ? 0 : height - 1;
+   dir = (infoheader->biHeight < 0) ? 1 : -1;
 
    while (eopicflag == 0) {
       pos = 0;                  /* x position in bitmap */
@@ -538,7 +540,7 @@ static void read_RLE8_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
                      return;
                   val = al_fgetc(f);
                   pos += count;
-                  line -= val;
+                  line += dir * val;
                   break;
 
                default:                      /* read in absolute mode */
@@ -559,8 +561,8 @@ static void read_RLE8_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
             eolflag = 1;
       }
 
-      line--;
-      if (line < 0)
+      line += dir;
+      if (line < 0 || line >= height)
          eopicflag = 1;
    }
 }
@@ -576,11 +578,13 @@ static void read_RLE4_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
    unsigned char b[8];
    int count;
    unsigned short val0, val;
-   int j, k, pos, line;
+   int j, k, pos, line, height, dir;
    int eolflag, eopicflag;
 
    eopicflag = 0;               /* end of picture flag */
-   line = infoheader->biHeight - 1;
+   height = abs(infoheader->biHeight);
+   line = (infoheader->biHeight < 0) ? 0 : height - 1;
+   dir = (infoheader->biHeight < 0) ? 1 : -1;
 
    while (eopicflag == 0) {
       pos = 0;
@@ -617,7 +621,7 @@ static void read_RLE4_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
                      return;
                   val = al_fgetc(f);
                   pos += count;
-                  line -= val;
+                  line += dir * val;
                   break;
 
                default:        /* read in absolute mode */
@@ -642,8 +646,8 @@ static void read_RLE4_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
             eolflag = 1;
       }
 
-      line--;
-      if (line < 0)
+      line += dir;
+      if (line < 0 || line >= height)
          eopicflag = 1;
    }
 }
@@ -747,8 +751,13 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
    }
 
    if (infoheader.biCompression == BIT_RLE8
-       || infoheader.biCompression == BIT_RLE4) {
-      buf = al_malloc(infoheader.biWidth * infoheader.biHeight);
+       || infoheader.biCompression == BIT_RLE4)
+   {
+      /* Questionable but most loaders handle this, so we should. */
+      if (infoheader.biHeight < 0) {
+         ALLEGRO_WARN("compressed bitmap with negative height\n");
+      }
+      buf = al_malloc(infoheader.biWidth * abs(infoheader.biHeight));
    }
 
    switch (infoheader.biCompression) {
@@ -782,7 +791,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
       int x, y;
       unsigned char *data;
 
-      for (y = 0; y < infoheader.biHeight; y++) {
+      for (y = 0; y < abs(infoheader.biHeight); y++) {
          data = (unsigned char *)lr->data + lr->pitch * y;
          for (x = 0; x < (int)infoheader.biWidth; x++) {
             data[0] = pal[buf[y * infoheader.biWidth + x]].r;
