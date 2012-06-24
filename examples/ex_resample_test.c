@@ -10,7 +10,7 @@
 
 #define SAMPLES_PER_BUFFER 1024
 
-#define N 1
+#define N 2
 
 int frequency[N];
 double samplepos[N];
