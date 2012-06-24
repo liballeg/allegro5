@@ -258,11 +258,15 @@ ALLEGRO_DIRECT3D
 :   Require the driver to do rendering with Direct3D and
     provide a Direct3D device.
 
+ALLEGRO_FRAMELESS
+:   Try to create a window without a frame (i.e. no border or titlebar).
+    This usually does nothing for fullscreen modes, and even in windowed modes
+    it depends on the underlying platform whether it is supported or not.
+    Since: 5.1.2
+
 ALLEGRO_NOFRAME
-:   Try to create a window without a frame (i.e. no border or
-    titlebar). This usually does nothing for fullscreen modes, and even in
-    windowed modes it depends on the underlying platform whether it is supported
-    or not.
+:   Original name for ALLEGRO_FRAMELESS.
+    This works with older versions of Allegro.
 
 ALLEGRO_GENERATE_EXPOSE_EVENTS
 :   Let the display generate expose events.
@@ -450,7 +454,7 @@ as for [al_set_new_display_flags]. The only flags that can be changed
 after creation are:
 
 - ALLEGRO_FULLSCREEN_WINDOW
-- ALLEGRO_NOFRAME
+- ALLEGRO_FRAMELESS
 
 Returns true if the driver supports toggling the specified flag else
 false. You can use [al_get_display_flags] to query whether the given

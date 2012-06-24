@@ -159,7 +159,7 @@ HICON _al_win_create_icon(HWND wnd, ALLEGRO_BITMAP *sprite, int xfocus, int yfoc
 /* window decorations */
 void _al_win_set_window_position(HWND window, int x, int y);
 void _al_win_get_window_position(HWND window, int *x, int *y);
-void _al_win_set_window_frame(ALLEGRO_DISPLAY *display, HWND window, int w, int h, bool onoff);
+void _al_win_set_window_frameless(ALLEGRO_DISPLAY *display, HWND window, int w, int h, bool frameless);
 bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff);
 void _al_win_set_window_title(ALLEGRO_DISPLAY *display, const char *title);
 

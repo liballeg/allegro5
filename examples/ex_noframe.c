@@ -24,7 +24,7 @@ int main(void)
    al_install_keyboard();
    al_init_image_addon();
 
-   al_set_new_display_flags(ALLEGRO_NOFRAME);
+   al_set_new_display_flags(ALLEGRO_FRAMELESS);
    display = al_create_display(300, 200);
    if (!display) {
       abort_example("Error creating display\n");
@@ -56,8 +56,8 @@ int main(void)
             down_y = event.mouse.y;
          }
          if (event.mouse.button == 2) {
-            al_set_display_flag(display, ALLEGRO_NOFRAME,
-               !(al_get_display_flags(display) & ALLEGRO_NOFRAME));
+            al_set_display_flag(display, ALLEGRO_FRAMELESS,
+		!(al_get_display_flags(display) & ALLEGRO_FRAMELESS));
          }
       }
       else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {

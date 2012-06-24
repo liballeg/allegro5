@@ -15,7 +15,8 @@ enum {
    ALLEGRO_OPENGL                      = 1 << 2,
    ALLEGRO_DIRECT3D_INTERNAL           = 1 << 3,
    ALLEGRO_RESIZABLE                   = 1 << 4,
-   ALLEGRO_NOFRAME                     = 1 << 5,
+   ALLEGRO_FRAMELESS                   = 1 << 5,
+   ALLEGRO_NOFRAME                     = ALLEGRO_FRAMELESS, /* older synonym */
    ALLEGRO_GENERATE_EXPOSE_EVENTS      = 1 << 6,
    ALLEGRO_OPENGL_3_0                  = 1 << 7,
    ALLEGRO_OPENGL_FORWARD_COMPATIBLE   = 1 << 8,
