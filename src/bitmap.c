@@ -82,6 +82,16 @@ static ALLEGRO_BITMAP *do_create_bitmap(int w, int h)
    ALLEGRO_BITMAP **back;
    ALLEGRO_SYSTEM *system = al_get_system_driver();
    ALLEGRO_DISPLAY *current_display = al_get_current_display();
+   int64_t mul;
+
+   /* Reject bitmaps where a calculation pixel_size*w*h would overflow
+    * int.  Supporting such bitmaps would require a lot more work.
+    */
+   mul = 4 * (int64_t) w * (int64_t) h;
+   if (mul > (int64_t) INT_MAX) {
+      ALLEGRO_WARN("Rejecting %dx%d bitmap\n", w, h);
+      return NULL;
+   }
 
    if ((al_get_new_bitmap_flags() & ALLEGRO_MEMORY_BITMAP) ||
          (!current_display || !current_display->vt || current_display->vt->create_bitmap == NULL) ||
