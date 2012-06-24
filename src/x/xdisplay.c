@@ -796,6 +796,11 @@ static void xdpy_unset_current_display(ALLEGRO_DISPLAY *d)
 /* Dummy implementation of flip. */
 static void xdpy_flip_display(ALLEGRO_DISPLAY *d)
 {
+   int e = glGetError();
+   if (e) {
+      ALLEGRO_ERROR("OpenGL error was not 0: %d\n", e);
+   }
+
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
    if (d->extra_settings.settings[ALLEGRO_SINGLE_BUFFER])
