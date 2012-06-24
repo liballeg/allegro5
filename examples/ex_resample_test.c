@@ -137,11 +137,11 @@ static void mainloop(void)
 
 static void update_waveform(void *buf, unsigned int samples, void *data)
 {
+   static int pos;
    float *fbuf = (float *)buf;
    int i;
-   (void)data;
-   static int pos;
    int n = samples;
+   (void)data;
    
    /* Yes, we could do something more advanced, but an oscilloscope of the
     * first 640 samples of each buffer is enough for our purpose here.
