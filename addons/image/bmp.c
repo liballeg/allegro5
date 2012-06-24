@@ -767,7 +767,9 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
       if (infoheader.biHeight < 0) {
          ALLEGRO_WARN("compressed bitmap with negative height\n");
       }
-      buf = al_malloc(infoheader.biWidth * abs(infoheader.biHeight));
+
+      /* RLE decoding may skip pixels so clear the buffer first. */
+      buf = al_calloc(infoheader.biWidth, abs(infoheader.biHeight));
    }
 
    switch (infoheader.biCompression) {
