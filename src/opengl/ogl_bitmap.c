@@ -441,6 +441,40 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
          ogl_bitmap->texture, error_string(e));
    }
 
+   /* Wrap, Min/Mag should always come before glTexImage2D so the texture is "complete" */
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+   filter = (bitmap->flags & ALLEGRO_MIPMAP) ? 2 : 0;
+   if (bitmap->flags & ALLEGRO_MIN_LINEAR) {
+      filter++;
+   }
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filters[filter]);
+
+   filter = 0;
+   if (bitmap->flags & ALLEGRO_MAG_LINEAR) {
+      filter++;
+   }
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filters[filter]);
+
+   if (post_generate_mipmap) {
+      glGenerateMipmapEXT(GL_TEXTURE_2D);
+      e = glGetError();
+      if (e) {
+         ALLEGRO_ERROR("glGenerateMipmapEXT for texture %d failed (%s).\n",
+            ogl_bitmap->texture, error_string(e));
+      }
+   }
+
+// TODO: To support anisotropy, we would need an API for it. Something
+// like:
+// al_set_new_bitmap_option(ALLEGRO_ANISOTROPY, 16.0);
+#if 0
+   if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_texture_filter_anisotropic) {
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
+   }
+#endif
+
    if (bitmap->flags & ALLEGRO_MIPMAP) {
       /* If using FBOs, use glGenerateMipmapEXT instead of the GL_GENERATE_MIPMAP
        * texture parameter.  GL_GENERATE_MIPMAP is deprecated in GL 3.0 so we
