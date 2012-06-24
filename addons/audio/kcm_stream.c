@@ -40,7 +40,8 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
    ALLEGRO_CHANNEL_CONF chan_conf)
 {
    ALLEGRO_AUDIO_STREAM *stream;
-   unsigned long bytes_per_buffer;
+   unsigned long bytes_per_sample;
+   unsigned long bytes_per_frag_buf;
    size_t i;
 
    if (!fragment_count) {
@@ -59,8 +60,9 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
       return NULL;
    }
 
-   bytes_per_buffer = samples * al_get_channel_count(chan_conf) *
-      al_get_audio_depth_size(depth);
+   bytes_per_sample = al_get_channel_count(chan_conf) *
+         al_get_audio_depth_size(depth);
+   bytes_per_frag_buf = samples * bytes_per_sample;
 
    stream = al_calloc(1, sizeof(*stream));
    if (!stream) {
@@ -96,7 +98,13 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
    }
    stream->pending_bufs = stream->used_bufs + fragment_count;
 
-   stream->main_buffer = al_calloc(1, bytes_per_buffer * fragment_count);
+   /* The main_buffer holds all the buffer fragments in contiguous memory.
+    * To support linear interpolation across buffer fragments, we allocate an
+    * extra sample at the start of each buffer fragment, to hold the last
+    * sample value which came before that fragment.
+    */
+   stream->main_buffer = al_calloc(1,
+      (bytes_per_sample + bytes_per_frag_buf) * fragment_count);
    if (!stream->main_buffer) {
       al_free(stream->used_bufs);
       al_free(stream);
@@ -106,8 +114,9 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
    }
 
    for (i = 0; i < fragment_count; i++) {
-      stream->pending_bufs[i] =
-         (char *) stream->main_buffer + i * bytes_per_buffer;
+      stream->pending_bufs[i] = (char *) stream->main_buffer
+         + i * (bytes_per_sample + bytes_per_frag_buf)
+         + bytes_per_sample;
    }
 
    al_init_user_event_source(&stream->spl.es);
@@ -531,7 +540,9 @@ bool al_set_audio_stream_fragment(ALLEGRO_AUDIO_STREAM *stream, void *val)
  */
 bool _al_kcm_refill_stream(ALLEGRO_AUDIO_STREAM *stream)
 {
-   void *old_buf = stream->spl.spl_data.buffer.ptr;
+   ALLEGRO_SAMPLE_INSTANCE *spl = &stream->spl;
+   void *old_buf = spl->spl_data.buffer.ptr;
+   void *new_buf;
    size_t i;
 
    if (old_buf) {
@@ -550,9 +561,25 @@ bool _al_kcm_refill_stream(ALLEGRO_AUDIO_STREAM *stream)
       stream->used_bufs[i] = old_buf;
    }
 
-   stream->spl.spl_data.buffer.ptr = stream->pending_bufs[0];
-   if (!stream->spl.spl_data.buffer.ptr)
+   new_buf = stream->pending_bufs[0];
+   stream->spl.spl_data.buffer.ptr = new_buf;
+   if (!new_buf) {
+      ALLEGRO_WARN("Out of buffers\n");
       return false;
+   }
+
+   /* Copy the last sample value to the front of the new buffer,
+    * for interpolation.
+    */
+   if (old_buf) {
+      const int bytes_per_sample =
+         al_get_channel_count(spl->spl_data.chan_conf) *
+         al_get_audio_depth_size(spl->spl_data.depth);
+      memcpy(
+         (char *) new_buf - bytes_per_sample,
+         (char *) old_buf + bytes_per_sample * (spl->pos - 1),
+         bytes_per_sample);
+   }
 
    stream->spl.pos = 0;
 

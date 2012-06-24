@@ -215,13 +215,14 @@ struct ALLEGRO_AUDIO_STREAM {
 
    void                 *main_buffer;
                         /* Pointer to a single buffer big enough to hold all
-                         * the fragments.
+                         * the fragments. Each fragment has one additional
+                         * sample at the start for linear interpolation.
                          */
 
    void                 **pending_bufs;
    void                 **used_bufs;
                         /* Arrays of offsets into the main_buffer.
-                         * The arrays are each 'buf_count' long.
+                         * The arrays are each 'buf_count + 1' long.
                          *
                          * 'pending_bufs' holds pointers to fragments supplied
                          * by the user which are yet to be handed off to the
@@ -231,6 +232,7 @@ struct ALLEGRO_AUDIO_STREAM {
                          * have been sent to the audio driver and so are
                          * ready to receive new data.
                          */
+
    volatile bool         is_draining;
                          /* Set to true if sample data is not going to be passed
                           * to the stream any more. The stream must change its

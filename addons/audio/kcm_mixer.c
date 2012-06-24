@@ -365,7 +365,7 @@ static INLINE const void *point_spl32u(SAMP_BUF *samp_buf,
 static INLINE const void *linear_spl32(SAMP_BUF *samp_buf,
    const ALLEGRO_SAMPLE_INSTANCE *spl, unsigned int maxc)
 {
-   unsigned long p1, p2;
+   long p1, p2;
    unsigned int i;
    float frac;
    float *s = samp_buf->f32;
@@ -375,8 +375,6 @@ static INLINE const void *linear_spl32(SAMP_BUF *samp_buf,
 
    switch (spl->loop) {
       case ALLEGRO_PLAYMODE_ONCE:
-      case _ALLEGRO_PLAYMODE_STREAM_ONCE:
-      case _ALLEGRO_PLAYMODE_STREAM_ONEDIR:
          if (spl->pos+1 >= spl->spl_data.len)
             p2 = p1;
          break;
@@ -388,8 +386,22 @@ static INLINE const void *linear_spl32(SAMP_BUF *samp_buf,
          if (spl->pos+1 >= spl->loop_end)
             p2 = ((spl->loop_end)-1)*maxc;
          break;
+      case _ALLEGRO_PLAYMODE_STREAM_ONCE:
+      case _ALLEGRO_PLAYMODE_STREAM_ONEDIR:
+         /* For audio streams, sample i+1 may be in the next buffer fragment,
+          * which may not even be generated yet.  So we lag by one sample and
+          * interpolate between sample i-1 and sample i.
+          *
+          * We arrange the buffers in memory such that indexing i-1 is always
+          * valid, even after wrapping around from the last buffer fragment to
+          * the first buffer fragment.  See _al_kcm_refill_stream.
+          */
+         p1 -= maxc;
+         p2 -= maxc;
+         ASSERT(p1 < p2);
+         break;
    }
-   
+
    frac = (float)spl->pos_bresenham_error / spl->step_denom;
 
    for (i = 0; i < maxc; i++) {
@@ -442,8 +454,6 @@ static INLINE const void *linear_spl32u(SAMP_BUF *samp_buf,
 
    switch (spl->loop) {
       case ALLEGRO_PLAYMODE_ONCE:
-      case _ALLEGRO_PLAYMODE_STREAM_ONCE:
-      case _ALLEGRO_PLAYMODE_STREAM_ONEDIR:
          if (spl->pos+1 >= spl->spl_data.len)
             p2 = p1;
          break;
@@ -454,6 +464,15 @@ static INLINE const void *linear_spl32u(SAMP_BUF *samp_buf,
       case ALLEGRO_PLAYMODE_BIDIR:
          if (spl->pos+1 >= spl->loop_end)
             p2 = ((spl->loop_end)-1)*maxc;
+         break;
+      case _ALLEGRO_PLAYMODE_STREAM_ONCE:
+      case _ALLEGRO_PLAYMODE_STREAM_ONEDIR:
+         /* Lag by one sample for audio streams.
+          * See linear_spl32 and _al_kcm_refill_stream.
+          */
+         p1 -= maxc;
+         p2 -= maxc;
+         ASSERT(p1 < p2);
          break;
    }
 
