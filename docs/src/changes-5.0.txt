@@ -4,6 +4,116 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 5.0.6 to 5.0.7 (June 2012)
+=======================================
+
+The main developers this time were: Trent Gamblin, Elias Pschernig, Peter Wang.
+
+Core:
+
+-  Fix ALLEGRO_STATIC_ASSERT collisions from different files included in the
+   same translation unit.  Reported by tobing.
+
+-  Make al_ref_cstr, al_ref_ustr and al_ref_buffer return const ALLEGRO_USTR*
+   instead of just an ALLEGRO_USTR* (Paul Suntsov).
+
+-  Make al_ustr_empty_string const correct.
+
+-  Fix many memory leak/warnings on MacOS X (Pär Arvidsson).
+
+-  Fix typo preventing get_executable_name from using System V procfs
+   correctly.  Reported by Max Savenkov.
+
+Displays:
+
+-  Add ALLEGRO_FRAMELESS as a preferred synonym for the confusing
+   ALLEGRO_NOFRAME flag.
+
+-  Rename al_toggle_display_flag to al_set_display_flag, retaining
+   the older name for compatibility.
+
+-  Set WM_NAME for some window managers (X11).
+
+Graphics:
+
+-  Force al_create_bitmap to not create oversized bitmaps, to mitigate
+   integer overflow problems.
+
+-  Removed initial black frame on all Allegro programs.
+
+OpenGL:
+
+-  Texture should be 'complete' (min/mag and wrap set) before glTexImage2D.
+
+-  Fixed a bug in al_unlock_bitmap where the pixel alignment mistakenly was
+   used as row length.
+
+-  Fixed typo in names of some OpenGL extension functions.
+
+-  Display list of OpenGL extensions in allegro.log also for OpenGL 3.0.
+
+Direct3D:
+
+-  Fixed a bug in the D3D driver where separate alpha blending was being
+   tested for when it shouldn't have been (Max Savenkov).
+
+Input:
+
+-  Monitor /dev/input instead of /dev on Linux for hotplugging joysticks
+   (Jon Rafkind).
+
+-  Do not permanently change the locale for the X11 keyboard driver.
+   Set LC_CTYPE only, not LC_ALL.
+
+Audio addon:
+
+-  Fix desychronization due to inaccurate sample positions when resampling.
+   Thanks to _Bnu for discovering the issue and Paul Suntsov for devising the
+   correct solution.
+
+-  Fix linear interpolation across audio stream buffer fragments.
+
+-  Fix two minor memory leaks in the PulseAudio driver.
+
+Image I/O addon:
+
+-  Improve compatibility of BMP loader.  In particular, support bitmaps with
+   V2-V5 headers and certain alpha bit masks.
+
+-  Fix TGA loader using more memory than necessary.  Reported by Max Savenkov.
+
+Font addon:
+
+-  Use user set pixel format for fonts.
+
+Native dialogs addon:
+
+-  Clear mouse state after dialogs or else it gets messed up (OSX).
+
+-  Fix some warnings in gtk_dialog.c.
+
+-  Wrap use of NSAlert so it can be run on the main thread with return value.
+
+Examples:
+
+-  Add ex_resample_test.
+
+-  ex_audio_props: Add bidir button.
+
+-  ex_joystick_events: Support hotplugging and fix display of 3-axis sticks.
+
+-  Add test_driver --no-display flag. (Tobias Hansen)
+
+Other:
+
+-  Various documentation updates.
+
+-  Other minor bug fixes.
+
+-  Fix whatis entries of man pages. (Tobias Hansen)
+
+
+
 Changes from 5.0.5 to 5.0.6 (March 2012)
 ========================================
 
