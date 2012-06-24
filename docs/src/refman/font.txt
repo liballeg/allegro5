@@ -114,7 +114,7 @@ See also: [al_get_text_width], [al_get_ustr_dimensions]
 
 ### API: al_draw_text
 
-Writes the 0-terminated string `text` onto `bmp` at position `x`, `y`, using 
+Writes the NUL-terminated string `text` onto `bmp` at position `x`, `y`, using
 the specified `font`.
 
 The `flags` parameter can be 0 or one of the following flags:
@@ -128,32 +128,40 @@ See also: [al_draw_ustr], [al_draw_textf], [al_draw_justified_text]
 ### API: al_draw_ustr
 
 Like [al_draw_text], except the text is passed as an ALLEGRO_USTR instead of
-a 0-terminated char array.
+a NUL-terminated char array.
 
 See also: [al_draw_text], [al_draw_justified_ustr]
 
 ### API: al_draw_justified_text
 
-Like [al_draw_text], but justifies the string to the specified area.
+Like [al_draw_text], but justifies the string to the region x1-x2.
+
+The *diff* parameter is the maximum amount of horizontal space to
+allow between words.  If justisfying the text would exceed *diff* pixels,
+or the string contains less than two words, then the string will be drawn
+left aligned.
 
 See also: [al_draw_justified_textf], [al_draw_justified_ustr]
 
 ### API: al_draw_justified_ustr
 
-Like [al_draw_ustr], but justifies the string to the specified area.
+Like [al_draw_justified_text], except the text is passed as an ALLEGRO_USTR
+instead of a NUL-terminated char array.
 
 See also: [al_draw_justified_text], [al_draw_justified_textf].
 
 ### API: al_draw_textf
 
-Formatted text output, using a printf() style format string, all parameters
-have the same meaning as with [al_draw_text] otherwise.
+Formatted text output, using a printf() style format string.
+All parameters have the same meaning as with [al_draw_text] otherwise.
 
 See also: [al_draw_text], [al_draw_ustr]
 
 ### API: al_draw_justified_textf
 
-Like [al_draw_justified_text] and [al_draw_textf].
+Formatted text output, using a printf() style format string.
+All parameters have the same meaning as with [al_draw_justified_text]
+otherwise.
 
 See also: [al_draw_justified_text], [al_draw_justified_ustr].
 
