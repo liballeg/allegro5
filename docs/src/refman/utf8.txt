@@ -455,7 +455,7 @@ See also: [al_ustr_remove_range], [al_ustr_ltrim_ws], [al_ustr_rtrim_ws],
 Remove leading whitespace characters from a string, as defined by the C
 function `isspace()`.
 
-Returns true on success, or false if the function was passed an empty string.
+Returns true on success, or false on error.
 
 See also: [al_ustr_rtrim_ws], [al_ustr_trim_ws]
 
@@ -464,7 +464,7 @@ See also: [al_ustr_rtrim_ws], [al_ustr_trim_ws]
 Remove trailing ("right") whitespace characters from a string, as defined by
 the C function `isspace()`.
 
-Returns true on success, or false if the function was passed an empty string.
+Returns true on success, or false on error.
 
 See also: [al_ustr_ltrim_ws], [al_ustr_trim_ws]
 
@@ -472,7 +472,7 @@ See also: [al_ustr_ltrim_ws], [al_ustr_trim_ws]
 
 Remove both leading and trailing whitespace characters from a string.
 
-Returns true on success, or false if the function was passed an empty string.
+Returns true on success, or false on error.
 
 See also: [al_ustr_ltrim_ws], [al_ustr_rtrim_ws]
 

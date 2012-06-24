@@ -322,9 +322,11 @@ static void t16(void)
    ALLEGRO_USTR *us1;
 
    /* Check return value when passed empty strings. */
-   CHECK(! al_ustr_ltrim_ws(al_ustr_empty_string()));
-   CHECK(! al_ustr_rtrim_ws(al_ustr_empty_string()));
-   CHECK(! al_ustr_trim_ws(al_ustr_empty_string()));
+   us1 = al_ustr_new("");
+   CHECK(al_ustr_ltrim_ws(us1));
+   CHECK(al_ustr_rtrim_ws(us1));
+   CHECK(al_ustr_trim_ws(us1));
+   al_ustr_free(us1);
 
    /* Check nothing bad happens if the whole string is whitespace. */
    us1 = al_ustr_new(" \f\n\r\t\v");
