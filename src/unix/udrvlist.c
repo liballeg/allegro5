@@ -19,6 +19,10 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_system.h"
 
+#ifdef ALLEGRO_WITH_XWINDOWS
+#include "allegro5/internal/aintern_xglx.h"
+#endif
+
 // FIXME: will need to wire this back in
 #if 0
 
@@ -113,6 +117,8 @@ void _unix_register_midi_driver(int id, MIDI_DRIVER *driver, int autodetect, int
 }
 
 #endif
+
+
 
 /* This is a function each platform must define to register all available
  * system drivers.
