@@ -426,12 +426,13 @@ static void read_bitfields_image(ALLEGRO_FILE *f, const BMPINFOHEADER *infoheade
 }
 
 
-/* read_image:
- *  For reading the noncompressed BMP image format.
+
+/* read_RGB_image:
+ *  For reading the non-compressed BMP image format (all except 32-bit with
+ *  alpha hack).
  */
-static void read_image(ALLEGRO_FILE *f,
-                       const BMPINFOHEADER *infoheader, PalEntry *pal,
-                       ALLEGRO_LOCKED_REGION *lr)
+static void read_RGB_image(ALLEGRO_FILE *f,
+   const BMPINFOHEADER *infoheader, PalEntry *pal, ALLEGRO_LOCKED_REGION *lr)
 {
    int i, j, line, height, dir;
    unsigned char *buf;
@@ -485,6 +486,86 @@ static void read_image(ALLEGRO_FILE *f,
    }
 
    al_free(buf);
+}
+
+
+
+/* read_RGB_image_32bit_alpha_hack:
+ *  For reading the non-compressed BMP image format (32-bit).
+ *  These are treatly specially because some programs put alpha information in
+ *  the fourth byte of each pixel, which is normally just padding (and zero).
+ *  We use a heuristic: if every pixel has zero in that fourth byte then assume
+ *  the whole image is opaque (a=255).  Otherwise treat the fourth byte as an
+ *  alpha channel.
+ *
+ *  Note that V3 headers include an alpha bit mask, which can properly indicate
+ *  the presence or absence of an alpha channel.
+ *  We don't yet support such headers.
+ */
+static void read_RGB_image_32bit_alpha_hack(ALLEGRO_FILE *f,
+   const BMPINFOHEADER *infoheader, ALLEGRO_LOCKED_REGION *lr)
+{
+   int i, j, line, height, dir;
+   unsigned char *data;
+   unsigned char r, g, b, a;
+   unsigned char have_alpha = 0;
+   const bool premul = !(al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+
+   height = infoheader->biHeight;
+   line = height < 0 ? 0 : height - 1;
+   dir = height < 0 ? 1 : -1;
+   height = abs(height);
+
+   /* Read data. */
+   for (i = 0; i < height; i++, line += dir) {
+      data = (unsigned char *)lr->data + lr->pitch * line;
+
+      for (j = 0; j < (int)infoheader->biWidth; j++) {
+         b = al_fgetc(f);
+         g = al_fgetc(f);
+         r = al_fgetc(f);
+         a = al_fgetc(f);
+         have_alpha |= a;
+
+         data[0] = r;
+         data[1] = g;
+         data[2] = b;
+         data[3] = a;
+         data += 4;
+      }
+   }
+
+   /* Fixup pass. */
+   if (!have_alpha) {
+      for (i = 0; i < height; i++) {
+         data = (unsigned char *)lr->data + lr->pitch * i;
+         for (j = 0; j < (int)infoheader->biWidth; j++) {
+            data[3] = 255; /* a */
+            data += 4;
+         }
+      }
+   }
+   else if (premul) {
+      for (i = 0; i < height; i++) {
+         data = (unsigned char *)lr->data + lr->pitch * i;
+         for (j = 0; j < (int)infoheader->biWidth; j++) {
+            r = data[0];
+            g = data[1];
+            b = data[2];
+            a = data[3];
+
+            r = r * a / 255;
+            g = g * a / 255;
+            b = b * a / 255;
+
+            data[0] = r;
+            data[1] = g;
+            data[2] = b;
+            data[3] = a;
+            data += 4;
+         }
+      }
+   }
 }
 
 
@@ -814,7 +895,12 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
    switch (infoheader.biCompression) {
 
       case BIT_RGB:
-         read_image(f, &infoheader, pal, lr);
+         if (infoheader.biBitCount == 32) {
+            read_RGB_image_32bit_alpha_hack(f, &infoheader, lr);
+         }
+         else {
+            read_RGB_image(f, &infoheader, pal, lr);
+         }
          break;
 
       case BIT_RLE8:
