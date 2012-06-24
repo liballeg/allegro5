@@ -589,6 +589,7 @@ static int ogl_pixel_alignment(int pixel_size)
       case 8:
          return pixel_size;
       case 3:
+         return 1;
       case 16: /* float32 */
          return 4;
       default:
@@ -774,8 +775,8 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       if (flags & ALLEGRO_LOCK_WRITEONLY) {
          pitch = ogl_pitch(w, pixel_size);
          ogl_bitmap->lock_buffer = al_malloc(pitch * h);
-	 bitmap->locked_region.data = ogl_bitmap->lock_buffer;
-	 pitch = -pitch;
+         bitmap->locked_region.data = ogl_bitmap->lock_buffer;
+         pitch = -pitch;
       }
       else {
          /* FIXME: implement */
@@ -958,7 +959,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       ALLEGRO_DEBUG("Unlocking non-backbuffer\n");
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
       if (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY) {
-         int dst_pitch = bitmap->lock_w * ogl_pixel_alignment(orig_pixel_size);
+         int dst_pitch = bitmap->lock_w * orig_pixel_size;
 	 unsigned char *tmpbuf = al_malloc(dst_pitch * bitmap->lock_h);
          _al_convert_bitmap_data(
             ogl_bitmap->lock_buffer,
