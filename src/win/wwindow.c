@@ -976,16 +976,6 @@ bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 
          al_resize_display(display, display->w, display->h);
 
-         /* acknowledge resize is no longer needed after al_resize_display (or so I think)
-         timeout = al_get_time() + 3; // 3 seconds...
-         while (al_get_time() < timeout) {
-            if (win_display->can_acknowledge) {
-               al_acknowledge_resize(display);
-               break;
-            }
-         }
-         */
-
          if (onoff) {
             // Re-set the TOPMOST flag and move to position
             SetWindowPos(win_display->window, HWND_TOPMOST, mi.x1, mi.y1, 0, 0, SWP_NOSIZE);
