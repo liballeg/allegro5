@@ -96,6 +96,18 @@
 }
 @end
 
+/* Wrapper to run NSAlert on main thread */
+@interface NSAlertWrapper : NSObject {
+@public
+   int retval;
+}
+-(void) go : (NSAlert *)param;
+@end
+@implementation NSAlertWrapper
+-(void) go : (NSAlert *) param {
+   retval = [param runModal];
+}
+@end
 
 bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    ALLEGRO_NATIVE_DIALOG *fd)
@@ -153,7 +165,11 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    for (i = 0; i < [buttons count]; ++i)
       [box addButtonWithTitle: [buttons objectAtIndex: i]];
 
-   fd->mb_pressed_button = [box runModal] + 1 - NSAlertFirstButtonReturn;
+   NSAlertWrapper *wrap = [[NSAlertWrapper alloc] init];
+   [wrap performSelectorOnMainThread: @selector(go:) withObject: box
+      waitUntilDone: YES];
+   fd->mb_pressed_button = wrap->retval + 1 - NSAlertFirstButtonReturn;
+   [wrap release];
 
    [pool drain];
 
