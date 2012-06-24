@@ -697,6 +697,11 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
       return NULL;
    }
 
+   if ((int)infoheader.biWidth < 0) {
+      ALLEGRO_WARN("negative width: %ld\n", infoheader.biWidth);
+      return NULL;
+   }
+
    if (infoheader.biBitCount == 24)
       bpp = 24;
    else if (infoheader.biBitCount == 16)
