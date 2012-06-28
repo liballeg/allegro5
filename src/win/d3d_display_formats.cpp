@@ -1,135 +1,47 @@
 #include "d3d.h"
 
-static const int _16BIT_DS = 2; /* # 16 bit depth stencil formats */
-static const int _32BIT_DS = 4; /* # 32 bit depth stencil formats */
+ALLEGRO_DEBUG_CHANNEL("d3d")
 
-/*
- * This is a list of all supported display modes. Some other information will be
- * filled in later like multisample type and samples. This is for display scoring.
- */
-// +2 for friendly mode and d3d depth/stencil format
-static int d3d_fmt_desc[][ALLEGRO_DISPLAY_OPTIONS_COUNT+2] =
-{
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32,  0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, 0 },
-   //{ 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 32, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, D3DFMT_D32 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 8, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, D3DFMT_D24S8 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, D3DFMT_D24X8 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 4, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, D3DFMT_D24X4S4 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32,  0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, 0 },
-   //{ 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 32, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, D3DFMT_D32 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 8, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, D3DFMT_D24S8 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, D3DFMT_D24X8 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 4, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, D3DFMT_D24X4S4 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32,  0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, 0 },
-   //{ 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 32, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, D3DFMT_D32 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 8, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, D3DFMT_D24S8 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, D3DFMT_D24X8 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 4, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, D3DFMT_D24X4S4 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32,  0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, 0 },
-   //{ 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 32, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, D3DFMT_D32 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 8, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, D3DFMT_D24S8 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, D3DFMT_D24X8 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 4, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, D3DFMT_D24X4S4 },
-   //
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32,  0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 11, 0 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 32, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 11, D3DFMT_D32 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 8, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 11, D3DFMT_D24S8 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 11, D3DFMT_D24X8 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 4, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 11, D3DFMT_D24X4S4 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32,  0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 11, 0 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 32, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 11, D3DFMT_D32 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 8, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 11, D3DFMT_D24S8 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 11, D3DFMT_D24X8 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 4, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 11, D3DFMT_D24X4S4 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32,  0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 11, 0 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 32, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 11, D3DFMT_D32 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 8, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 11, D3DFMT_D24S8 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 11, D3DFMT_D24X8 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 4, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 11, D3DFMT_D24X4S4 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32,  0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 11, 0 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 32, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 11, D3DFMT_D32 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 8, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 11, D3DFMT_D24S8 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 11, D3DFMT_D24X8 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 4, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 11, D3DFMT_D24X4S4 },
-
-
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16,  0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 14, 0 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 15, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 14, D3DFMT_D15S1 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 16, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 14, D3DFMT_D16 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 32, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 14, D3DFMT_D32 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 8, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 14, D3DFMT_D24S8 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 14, D3DFMT_D24X8 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 4, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 14, D3DFMT_D24X4S4 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16,  0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 14, 0 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 15, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 14, D3DFMT_D15S1 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 16, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 14, D3DFMT_D16 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 32, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 14, D3DFMT_D32 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 8, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 14, D3DFMT_D24S8 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 14, D3DFMT_D24X8 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 4, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 14, D3DFMT_D24X4S4 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16,  0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 14, 0 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 15, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 14, D3DFMT_D15S1 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 16, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 14, D3DFMT_D16 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 32, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 14, D3DFMT_D32 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 8, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 14, D3DFMT_D24S8 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 14, D3DFMT_D24X8 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 4, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 14, D3DFMT_D24X4S4 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16,  0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 14, 0 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 15, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 14, D3DFMT_D15S1 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 16, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 14, D3DFMT_D16 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 32, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 14, D3DFMT_D32 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 8, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 14, D3DFMT_D24S8 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 14, D3DFMT_D24X8 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 4, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 14, D3DFMT_D24X4S4 },
-   //
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16,  0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 14, 0 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 15, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 14, D3DFMT_D15S1 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 16, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 14, D3DFMT_D16 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 32, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 14, D3DFMT_D32 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 8, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 14, D3DFMT_D24S8 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 14, D3DFMT_D24X8 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 4, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 14, D3DFMT_D24X4S4 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16,  0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 14, 0 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 15, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 14, D3DFMT_D15S1 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 16, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 14, D3DFMT_D16 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 32, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 14, D3DFMT_D32 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 8, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 14, D3DFMT_D24S8 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 14, D3DFMT_D24X8 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 4, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 14, D3DFMT_D24X4S4 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16,  0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 14, 0 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 15, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 14, D3DFMT_D15S1 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 16, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 14, D3DFMT_D16 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 32, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 14, D3DFMT_D32 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 8, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 14, D3DFMT_D24S8 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 14, D3DFMT_D24X8 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 4, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 14, D3DFMT_D24X4S4 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16,  0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 14, 0 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 15, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 14, D3DFMT_D15S1 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 16, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 14, D3DFMT_D16 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 32, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 14, D3DFMT_D32 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 8, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 14, D3DFMT_D24S8 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 14, D3DFMT_D24X8 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 4, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 14, D3DFMT_D24X4S4 }
+struct DEPTH_STENCIL_DESC {
+   int d;
+   int s;
+   D3DFORMAT format;
 };
 
-static const int D3D_DISPLAY_COMBINATIONS = sizeof(d3d_fmt_desc) / sizeof(*d3d_fmt_desc);
+static DEPTH_STENCIL_DESC depth_stencil_formats[] = {
+   {  0, 0, (D3DFORMAT)0 },
+   { 32, 0, D3DFMT_D32 },
+   { 15, 1, D3DFMT_D15S1 },
+   { 24, 8, D3DFMT_D24S8 },
+   { 24, 0, D3DFMT_D24X8 },
+   { 24, 4, D3DFMT_D24X4S4 },
+   { 16, 0, D3DFMT_D16 },
+};
 
+static BOOL IsDepthFormatExisting(D3DFORMAT DepthFormat, D3DFORMAT AdapterFormat) 
+{
+   HRESULT hr = _al_d3d->CheckDeviceFormat(D3DADAPTER_DEFAULT,
+      D3DDEVTYPE_HAL,
+      AdapterFormat,
+      D3DUSAGE_DEPTHSTENCIL,
+      D3DRTYPE_SURFACE,
+      DepthFormat);
 
-static ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds_list = NULL;
-static int eds_list_count = 0;
+   return SUCCEEDED(hr);
+}
+
+static const int D3D_DEPTH_FORMATS = sizeof(depth_stencil_formats) / sizeof(*depth_stencil_formats);
+
+static _AL_VECTOR eds_list;
 
 void _al_d3d_destroy_display_format_list(void)
 {
-   if (!eds_list)
-      return;
-
    /* Free the display format list */
-   for (int j = 0; j < eds_list_count; j++) {
-      al_free(eds_list[j]);
+   for (int j = 0; j < (int)_al_vector_size(&eds_list); j++) {
+      void **eds = (void **)_al_vector_ref(&eds_list, j);
+      al_free(*eds);
    }
-   al_free(eds_list);
-   eds_list = 0;
-   eds_list_count = 0;
+   _al_vector_free(&eds_list);
 }
 
 void _al_d3d_generate_display_format_list(void)
@@ -138,91 +50,111 @@ void _al_d3d_generate_display_format_list(void)
    static int adapter = ~al_get_new_display_adapter(); /* stop warning */
    int i;
 
-   if ((eds_list != NULL) && (fullscreen == (bool)(al_get_new_display_flags() & ALLEGRO_FULLSCREEN))
+   if (!_al_vector_is_empty(&eds_list) && (fullscreen == (bool)(al_get_new_display_flags() & ALLEGRO_FULLSCREEN))
          && (adapter == al_get_new_display_adapter())) {
       return;
    }
-   else if (eds_list != NULL) {
+   else if (!_al_vector_is_empty(&eds_list)) {
      _al_d3d_destroy_display_format_list();
    }
-
-   // Create display format list
-   int n = _al_d3d_num_display_formats();
-   DWORD quality_levels[n];
-   eds_list_count = D3D_DISPLAY_COMBINATIONS;
-   int count = 0;
 
    fullscreen = (al_get_new_display_flags() & ALLEGRO_FULLSCREEN) != 0;
    adapter = al_get_new_display_adapter();
    if (adapter < 0)
       adapter = 0;
 
-   for (i = 0; i < n; i++) {
-      quality_levels[i] = 0;
-      int allegro_format_i;
-      D3DFORMAT d3d_format_i;
-      _al_d3d_get_nth_format(i, &allegro_format_i, &d3d_format_i);
-      if (allegro_format_i < 0)
-         break;
-      if (_al_pixel_format_is_real(allegro_format_i) && !_al_format_has_alpha(allegro_format_i)) {
-         if (_al_d3d->CheckDeviceMultiSampleType(adapter, D3DDEVTYPE_HAL, d3d_format_i,
-            !fullscreen, D3DMULTISAMPLE_NONMASKABLE, &quality_levels[count]) != D3D_OK) {
-            _al_d3d->CheckDeviceMultiSampleType(adapter, D3DDEVTYPE_REF, d3d_format_i,
-               !fullscreen, D3DMULTISAMPLE_NONMASKABLE, &quality_levels[count]);
-         }
-         if (quality_levels[count] > 0) {
-            if (al_get_pixel_size(allegro_format_i) == 4) {
-               eds_list_count += (quality_levels[count]-1) * (_32BIT_DS+1) * 4; /* +1 for no DepthStencil */
+   _al_vector_init(&eds_list, sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS *));
+
+   /* Loop through each bit combination of:
+    * bit 0: 16/32 bit
+    * bit 1: single-buffer
+    * bit 2: vsync
+    */
+   for (i = 0; i < 8; i++) {
+      int format_num = !!(i & 1);
+      int single_buffer = !!(i & 2);
+      int vsync = !!(i & 4);
+      int allegro_format = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
+      if (format_num == 1) allegro_format = ALLEGRO_PIXEL_FORMAT_RGB_565;
+      D3DFORMAT d3d_format = (D3DFORMAT)_al_format_to_d3d(allegro_format);
+
+     /* Count available multisample quality levels. */
+      DWORD quality_levels = 0;
+
+      if (_al_d3d->CheckDeviceMultiSampleType(adapter, D3DDEVTYPE_HAL, d3d_format,
+         !fullscreen, D3DMULTISAMPLE_NONMASKABLE, &quality_levels) != D3D_OK) {
+         _al_d3d->CheckDeviceMultiSampleType(adapter, D3DDEVTYPE_REF, d3d_format,
+            !fullscreen, D3DMULTISAMPLE_NONMASKABLE, &quality_levels);
+      }
+
+      /* Loop through available depth/stencil formats. */
+      for (int j = 0; j < D3D_DEPTH_FORMATS; j++) {
+         if (j == 0 || IsDepthFormatExisting(
+               depth_stencil_formats[j].format, d3d_format)) {
+            DEPTH_STENCIL_DESC *ds = depth_stencil_formats + j;
+            for (int k = 0; k < (int)quality_levels + 1; k++) {
+               ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, **peds;
+               peds = (ALLEGRO_EXTRA_DISPLAY_SETTINGS **)_al_vector_alloc_back(&eds_list);
+               eds = *peds = (ALLEGRO_EXTRA_DISPLAY_SETTINGS *)al_malloc(sizeof *eds);               
+               memset(eds->settings, 0, sizeof(int) * ALLEGRO_DISPLAY_OPTIONS_COUNT);
+
+               eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
+
+               if (format_num == 0) {
+                  eds->settings[ALLEGRO_RED_SIZE] = 8;
+                  eds->settings[ALLEGRO_GREEN_SIZE] = 8;
+                  eds->settings[ALLEGRO_BLUE_SIZE] = 8;
+                  eds->settings[ALLEGRO_RED_SHIFT] = 16;
+                  eds->settings[ALLEGRO_GREEN_SHIFT] = 8;
+                  eds->settings[ALLEGRO_BLUE_SHIFT] = 0;
+                  eds->settings[ALLEGRO_COLOR_SIZE] = 32;
+               }
+               else if (format_num == 1) {
+                  eds->settings[ALLEGRO_RED_SIZE] = 5;
+                  eds->settings[ALLEGRO_GREEN_SIZE] = 6;
+                  eds->settings[ALLEGRO_BLUE_SIZE] = 5;
+                  eds->settings[ALLEGRO_RED_SHIFT] = 11;
+                  eds->settings[ALLEGRO_GREEN_SHIFT] = 5;
+                  eds->settings[ALLEGRO_BLUE_SHIFT] = 0;
+                  eds->settings[ALLEGRO_COLOR_SIZE] = 16;
+               }
+
+               if (single_buffer) {
+                  eds->settings[ALLEGRO_SINGLE_BUFFER] = 1;
+                  eds->settings[ALLEGRO_UPDATE_DISPLAY_REGION] = 1;
+               }
+
+               if (vsync) {
+                  eds->settings[ALLEGRO_VSYNC] = 1;
+               }
+
+               eds->settings[ALLEGRO_DEPTH_SIZE] = ds->d;
+               eds->settings[ALLEGRO_STENCIL_SIZE] = ds->s;
+               
+               if (k > 1) {
+                  eds->settings[ALLEGRO_SAMPLE_BUFFERS] = 1;
+                  // TODO: Is it ok to use the quality level here?
+                  eds->settings[ALLEGRO_SAMPLES] = k;
+               }
             }
-            else {
-               eds_list_count += (quality_levels[count]-1) * (_16BIT_DS+_32BIT_DS+1) * 4;
-            }
-         }
-         count++;
-      }
-   }
-
-   eds_list = (ALLEGRO_EXTRA_DISPLAY_SETTINGS **)al_malloc(
-      eds_list_count * sizeof(*eds_list)
-   );
-   memset(eds_list, 0, eds_list_count * sizeof(*eds_list));
-   for (i = 0; i < eds_list_count; i++) {
-      eds_list[i] = (ALLEGRO_EXTRA_DISPLAY_SETTINGS *)al_malloc(sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
-      memset(eds_list[i], 0, sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
-   }
-
-   count = 0;
-
-   int fmt_num = 0;
-   int curr_fmt = d3d_fmt_desc[0][ALLEGRO_DISPLAY_OPTIONS_COUNT];
-
-   for (i = 0; i < D3D_DISPLAY_COMBINATIONS; i++) {
-      if (d3d_fmt_desc[i][ALLEGRO_SAMPLE_BUFFERS]) {
-         for (int k = 0; k < (int)quality_levels[fmt_num]; k++) {
-            memcpy(eds_list[count]->settings, &d3d_fmt_desc[i], sizeof(int)*ALLEGRO_DISPLAY_OPTIONS_COUNT);
-            eds_list[count]->settings[ALLEGRO_SAMPLES] = k;
-            count++;
          }
       }
-      else {
-         memcpy(eds_list[count]->settings, &d3d_fmt_desc[i], sizeof(int)*ALLEGRO_DISPLAY_OPTIONS_COUNT);
-         count++;
-      }
-      if (d3d_fmt_desc[i][ALLEGRO_DISPLAY_OPTIONS_COUNT] != curr_fmt) {
-         curr_fmt = d3d_fmt_desc[i][ALLEGRO_DISPLAY_OPTIONS_COUNT];
-         fmt_num++;
-      }
+      
    }
+   ALLEGRO_INFO("found %d format combinations\n", _al_vector_size(&eds_list));
 }
 
 void _al_d3d_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref)
 {
-   for (int i = 0; i < eds_list_count; i++) {
-      eds_list[i]->score = _al_score_display_settings(eds_list[i], ref);
-      eds_list[i]->index = i;
+   for (int i = 0; i < (int)_al_vector_size(&eds_list); i++) {
+      ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, **peds;
+      peds = (ALLEGRO_EXTRA_DISPLAY_SETTINGS **)_al_vector_ref(&eds_list, i);
+      eds = *peds;
+      eds->score = _al_score_display_settings(eds, ref);
+      eds->index = i;
    }
 
-   qsort(eds_list, eds_list_count, sizeof(void*), _al_display_settings_sorter);
+   qsort(eds_list._items, eds_list._size, eds_list._itemsize, _al_display_settings_sorter);
 }
 
 /* Helper function for sorting pixel formats by index */
@@ -248,12 +180,12 @@ static int d3d_display_list_resorter(const void *p0, const void *p1)
 
 void _al_d3d_resort_display_settings(void)
 {
-   qsort(eds_list, eds_list_count, sizeof(void*), d3d_display_list_resorter);
+   qsort(eds_list._items, eds_list._size, eds_list._itemsize, d3d_display_list_resorter);
 }
 
 ALLEGRO_EXTRA_DISPLAY_SETTINGS *_al_d3d_get_display_settings(int i)
 {
-   if (i < eds_list_count)
-      return eds_list[i];
+   if (i < (int)_al_vector_size(&eds_list))
+      return *(ALLEGRO_EXTRA_DISPLAY_SETTINGS **)_al_vector_ref(&eds_list, i);
    return NULL;
 }
