@@ -64,6 +64,7 @@ set(ALLEGRO_SRC_D3D_FILES
     src/win/d3d_bmp.cpp
     src/win/d3d_disp.cpp
     src/win/d3d_render_state.cpp
+    src/win/d3d_display_formats.cpp
     )
 
 set(ALLEGRO_SRC_OPENGL_FILES

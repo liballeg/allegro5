@@ -1,3 +1,4 @@
+#include "allegro5/allegro.h"
 #include "allegro5/allegro_direct3d.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_display.h"
@@ -37,6 +38,8 @@ struct D3D_FIXED_VERTEX {
 
 typedef struct ALLEGRO_SYSTEM_D3D ALLEGRO_SYSTEM_D3D;
 
+extern LPDIRECT3D9 _al_d3d;
+
 ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void);
 
 AL_FUNC(ALLEGRO_BITMAP *, _al_d3d_create_bitmap,
@@ -57,6 +60,14 @@ void _al_d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap);
 bool _al_d3d_supports_separate_alpha_blend(ALLEGRO_DISPLAY *display);
 void _al_d3d_bmp_init(void);
 void _al_d3d_bmp_destroy(void);
+
+void _al_d3d_generate_display_format_list(void);
+int _al_d3d_num_display_formats(void);
+void _al_d3d_get_nth_format(int i, int *allegro, D3DFORMAT *d3d);
+void _al_d3d_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref);
+void _al_d3d_destroy_display_format_list(void);
+ALLEGRO_EXTRA_DISPLAY_SETTINGS *_al_d3d_get_display_settings(int i);
+void _al_d3d_resort_display_settings(void);
 
 extern ALLEGRO_MUTEX *_al_d3d_lost_device_mutex;
 
