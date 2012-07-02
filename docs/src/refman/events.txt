@@ -80,7 +80,7 @@ keyboard.keycode (int)
 keyboard.display (ALLEGRO_DISPLAY *)
 :   The display which had keyboard focus when the event occurred.
 
-> *Note:* this event is about the physical keys being press on the keyboard.
+> *Note:* this event is about the physical keys being pressed on the keyboard.
 Look for ALLEGRO_EVENT_KEY_CHAR events for character input.
 
 ### API: ALLEGRO_EVENT_KEY_UP
