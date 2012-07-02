@@ -26,11 +26,9 @@ Convert beats per minute to seconds.
 
 ## API: al_create_timer
 
-Install a new timer. If successful, a pointer to a new timer object is
-returned, otherwise NULL is returned.  *speed_secs* is in seconds per
+Allocates and initializes a timer. If successful, a pointer to a new timer
+object is returned, otherwise NULL is returned.  *speed_secs* is in seconds per
 "tick", and must be positive. The new timer is initially stopped.
-
-The system driver must be installed before this function can be called.
 
 Usage note: typical granularity is on the order of microseconds, but with
 some drivers might only be milliseconds.
@@ -93,7 +91,8 @@ See also: [al_set_timer_count]
 
 ## API: al_get_timer_speed
 
-Return the timer's speed, in seconds.
+Return the timer's speed, in seconds. (The same value passed to
+[al_create_timer] or [al_set_timer_speed].)
 
 See also: [al_set_timer_speed]
 
