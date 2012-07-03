@@ -274,6 +274,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
 - (void) reshape 
 {
    if ([NSOpenGLContext currentContext] != nil) {
+      ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
       NSRect rc = [self bounds];
       glViewport(0, 0, NSWidth(rc), NSHeight(rc));
       
@@ -281,9 +282,10 @@ void _al_osx_mouse_was_installed(BOOL install) {
       glLoadIdentity();
       glOrtho(0, NSWidth(rc), NSHeight(rc), 0, -1, 1);
       
-      glMatrixMode(GL_MODELVIEW);
-      glLoadIdentity();
-      // To do: update the tracking rect
+      if ( dpy->tracking ) {
+         [self removeTrackingRect:dpy->tracking];
+         dpy->tracking = [self addTrackingRect:[self bounds] owner:self userData:nil assumeInside:NO];
+      }
    }
 }
 
