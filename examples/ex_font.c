@@ -43,7 +43,8 @@ int main(void)
 {
     ALLEGRO_DISPLAY *display;
     ALLEGRO_BITMAP *bitmap, *font_bitmap;
-    ALLEGRO_FONT *f, *a4f;
+    ALLEGRO_FONT *f1, *f2, *f3;
+
     int ranges[] = {
        0x0020, 0x007F,  /* ASCII */
        0x00A1, 0x00FF,  /* Latin 1 */
@@ -71,8 +72,8 @@ int main(void)
         return 1;
     }
 
-    f = al_load_font("data/bmpfont.tga", 0, 0);
-    if (!f) {
+    f1 = al_load_font("data/bmpfont.tga", 0, 0);
+    if (!f1) {
         abort_example("Failed to load bmpfont.tga\n");
         return 1;
     }
@@ -82,19 +83,29 @@ int main(void)
         abort_example("Failed to load a4_font.tga\n");
         return 1;
     }
-    a4f = al_grab_font_from_bitmap(font_bitmap, 4, ranges);
+    f2 = al_grab_font_from_bitmap(font_bitmap, 4, ranges);
+
+    f3 = al_create_builtin_font();
+    if (!f3) {
+        abort_example("Failed to create builtin font.\n");
+        return 1;
+    }
 
     /* Draw background */
     al_draw_bitmap(bitmap, 0, 0, 0);
 
     /* Draw red text */
-    al_draw_textf(f, al_map_rgb(255, 0, 0), 10, 10, 0, "red");
+    al_draw_textf(f1, al_map_rgb(255, 0, 0), 10, 10, 0, "red");
 
     /* Draw green text */
-    al_draw_textf(f, al_map_rgb(0, 255, 0), 10, 50, 0, "green");
+    al_draw_textf(f1, al_map_rgb(0, 255, 0), 120, 10, 0, "green");
     
     /* Draw a unicode symbol */
-    al_draw_textf(a4f, al_map_rgb(0, 0, 255), 10, 90, 0, "Mysha's 0.02" EURO);
+    al_draw_textf(f2, al_map_rgb(0, 0, 255), 60, 60, 0, "Mysha's 0.02" EURO);
+
+    /* Draw a yellow text with the builtin font */
+    al_draw_textf(f3, al_map_rgb(255, 255, 0), 160, 160, ALLEGRO_ALIGN_CENTER,
+        "a string from builtin font data");
 
     al_flip_display();
 
@@ -102,8 +113,9 @@ int main(void)
 
     al_destroy_bitmap(bitmap);
     al_destroy_bitmap(font_bitmap);
-    al_destroy_font(f);
-    al_destroy_font(a4f);
+    al_destroy_font(f1);
+    al_destroy_font(f2);
+    al_destroy_font(f3);
     return 0;
 }
 

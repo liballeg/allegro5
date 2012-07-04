@@ -265,6 +265,30 @@ Load a bitmap font from. It does this by first calling [al_load_bitmap] and then
 you could load the bitmap yourself, then call [al_convert_mask_to_alpha] on it
 and only then pass it to [al_grab_font_from_bitmap].
 
+### API: al_create_builtin_font
+
+Creates a monochrome bitmap font (8x8 pixels per character).
+
+This font is primarily intended to be used for displaying information in
+environments or during early runtime states where no external font data is
+available or loaded (e.g. for debugging).
+
+The builtin font contains the following unicode character ranges:
+
+    0x0020 to 0x007F (ASCII)
+    0x00A1 to 0x00FF (Latin 1)
+    0x0100 to 0x017F (Extended A)
+    0x20AC to 0x20AC (euro currency symbol)
+
+Returns NULL on an error.
+
+The font memory must be freed the same way as for any other font,
+using [al_destroy_font].
+
+Since: 5.1.3
+
+See also: [al_load_bitmap_font], [al_destroy_font]
+
 ## TTF fonts
 
 These functions are declared in the following header file.
