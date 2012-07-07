@@ -107,7 +107,6 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    rgba_label[1] = Label("RGBA");
    d.add(rgba_label[0], 1, 32, 4, 1);
    d.add(rgba_label[1], 7, 32, 4, 1);
-   d.add(rgba_label[2], 13, 32, 4, 1);
 
    for (int i = 0; i < 2; i++) {
       r[i] = VSlider(255, 255);
