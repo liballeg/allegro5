@@ -446,7 +446,7 @@ void al_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 {
    ASSERT(display);
 
-   if (display->flags & ALLEGRO_FULLSCREEN) {
+   if (display && display->flags & ALLEGRO_FULLSCREEN) {
       return;
    }
 
