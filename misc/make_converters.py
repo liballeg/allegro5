@@ -176,12 +176,12 @@ def macro_lines(info_a, info_b):
         else: cont = " | \\"
         if (size_a != 8 and size_b == 8):
             shift = shift+(mask_pos-(8-size_a))
-                if (shift > 0):
-                    backshift = " << %2d)" % shift
-                elif (shift < 0):
-                    backshift = " >> %2d)" % -shift
-                else:
-                    backshift = "       )"
+            if (shift > 0):
+                backshift = " << %2d)" % shift
+            elif (shift < 0):
+                backshift = " >> %2d)" % -shift
+            else:
+                backshift = "       )"
         else:
             backshift = "       "
         r += start + line + backshift + " /* " + name + " */" + cont + "\n"
