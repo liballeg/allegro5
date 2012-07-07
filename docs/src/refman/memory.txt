@@ -48,28 +48,28 @@ See also: [al_malloc], [al_calloc_with_context]
 ## API: al_malloc_with_context
 
 This calls malloc() from the Allegro library (this matters on Windows),
-unless overriden with [al_set_memory_interface],
+unless overridden with [al_set_memory_interface],
 
 Generally you should use the [al_malloc] macro.
 
 ## API: al_free_with_context
 
 This calls free() from the Allegro library (this matters on Windows),
-unless overriden with [al_set_memory_interface].
+unless overridden with [al_set_memory_interface].
 
 Generally you should use the [al_free] macro.
 
 ## API: al_realloc_with_context
 
 This calls realloc() from the Allegro library (this matters on Windows),
-unless overriden with [al_set_memory_interface],
+unless overridden with [al_set_memory_interface],
 
 Generally you should use the [al_realloc] macro.
 
 ## API: al_calloc_with_context
 
 This calls calloc() from the Allegro library (this matters on Windows),
-unless overriden with [al_set_memory_interface],
+unless overridden with [al_set_memory_interface],
 
 Generally you should use the [al_calloc] macro.
 
