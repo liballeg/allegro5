@@ -9,7 +9,7 @@ These functions are declared in the main Allegro header file:
 ### API: ALLEGRO_COLOR
 
 An ALLEGRO_COLOR structure describes a color in a device
-independant way. Use [al_map_rgb] et al. and [al_unmap_rgb] et al. to
+independent way. Use [al_map_rgb] et al. and [al_unmap_rgb] et al. to
 translate from and to various color representations.
 
 ### API: al_map_rgb
