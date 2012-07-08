@@ -1,5 +1,10 @@
 #!/usr/bin/env python
-import optparse, subprocess, sys, os, re, glob
+import optparse
+import subprocess
+import sys
+import os
+import re
+import glob
 
 links = {}
 symbols = {}
@@ -9,13 +14,14 @@ anonymous_enums = {}
 functions = {}
 constants = {}
 
+
 def check_references():
     """
     Check if each [link] in the reference manual actually exists. Also fills
     in global variable "links".
     """
     print("Checking References...")
-    
+
     html_refs = os.path.join(options.build, "docs", "html_refs")
     for line in open(html_refs):
         mob = re.match(r"\[(.*?)\]", line)
@@ -24,11 +30,12 @@ def check_references():
 
     docs = glob.glob("docs/src/refman/*.txt")
     for doc in docs:
-        text =  file(doc).read()
+        text = file(doc).read()
         text = re.compile("<script.*?>.*?</script>", re.S).sub("", text)
         for link in re.findall(r" \[(.*?)\][^(]", text):
             if not link in links:
                 print("Missing: %s: %s" % (doc, link))
+
 
 def add_struct(line):
     if options.protos:
@@ -37,18 +44,21 @@ def add_struct(line):
             mob = None
             if kind != "typedef":
                 mob = re.match(kind + "\s+(\w+)", line)
-            if not mob: mob = re.match(".*?(\w+);$", line)
+            if not mob:
+                mob = re.match(".*?(\w+);$", line)
             if not mob and kind == "typedef":
                 mob = re.match("typedef.*?\(\s*\*\s*(\w+)\)", line)
             if not mob:
                 anonymous_enums[line] = 1
             else:
                 sname = mob.group(1)
-                if sname.startswith("_ALLEGRO_gl"): return
+                if sname.startswith("_ALLEGRO_gl"):
+                    return
                 if kind == "typedef":
                     types[sname] = line
                 else:
                     structs[sname] = line
+
 
 def parse_header(lines, filename):
     """
@@ -62,7 +72,8 @@ def parse_header(lines, filename):
     cline = ""
     for line in lines:
         line = line.strip()
-        if not line: continue
+        if not line:
+            continue
 
         if line.startswith("#"):
             if line.startswith("#define"):
@@ -86,11 +97,13 @@ def parse_header(lines, filename):
                 if match:
                     name = match.group(1)
                     if name == "<stdin>" or name.startswith(options.build) or \
-                        name.startswith("include") or name.startswith("addons") or\
-                        name.startswith(options.source):
+                            name.startswith("include") or \
+                            name.startswith("addons") or\
+                            name.startswith(options.source):
                         ok = True
             continue
-        if not ok: continue
+        if not ok:
+            continue
 
         sublines = line.split(";")
 
@@ -160,12 +173,14 @@ def parse_header(lines, filename):
                 print(e)
     return n
 
+
 def parse_all_headers():
     """
     Call parse_header() on all of Allegro's public include files.
     """
     p = options.source
-    includes = " -I " + p + "/include -I " + os.path.join(options.build, "include")
+    includes = " -I " + p + "/include -I " + os.path.join(options.build,
+        "include")
     includes += " -I " + p + "/addons/acodec"
     headers = [p + "/include/allegro5/allegro.h",
         p + "/addons/acodec/allegro5/allegro_acodec.h",
@@ -183,12 +198,13 @@ def parse_all_headers():
 
     for header in headers:
         p = subprocess.Popen(options.compiler + " -E -dD - " + includes,
-            stdout = subprocess.PIPE, stdin = subprocess.PIPE, shell = True)
+            stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
         p.stdin.write("#include <allegro5/allegro.h>\n" + open(header).read())
         p.stdin.close()
         text = p.stdout.read()
         parse_header(text.splitlines(), header)
         #print("%d definitions in %s" % (n, header))
+
 
 def check_undocumented_functions():
     """
@@ -211,21 +227,23 @@ def check_undocumented_functions():
                 print("Missing: " + link)
             else:
                 if link and not link.startswith("GL") and \
-                    not link.startswith("gl") and \
-                    not link.startswith("_al_gl") and \
-                    not link.startswith("_ALLEGRO_gl") and \
-                    not link.startswith("_ALLEGRO_GL") and \
-                    not link.startswith("ALLEGRO_"):
+                        not link.startswith("gl") and \
+                        not link.startswith("_al_gl") and \
+                        not link.startswith("_ALLEGRO_gl") and \
+                        not link.startswith("_ALLEGRO_GL") and \
+                        not link.startswith("ALLEGRO_"):
                     others.append(link)
 
     print("Also leaking:")
-    others.sort();
+    others.sort()
     print(", ".join(others))
+
 
 def list_all_symbols():
     parse_all_headers()
     for name in sorted(symbols.keys()):
         print(name)
+
 
 def main(argv):
     global options
@@ -234,18 +252,22 @@ def main(argv):
 When run from the toplevel A5 directory, this script will parse the include,
 addons and cmake build directory for global definitions and check against all
 references in the documentation - then report symbols which are not documented.
-""";
-    p.add_option("-b", "--build", help = "Path to the build directory.")
-    p.add_option("-c", "--compiler", help = "Path to gcc.")
-    p.add_option("-s", "--source", help = "Path to the source directory.")
-    p.add_option("-l", "--list", action = "store_true", help = "List all symbols.")
-    p.add_option("-p", "--protos",  help = "Write all public " +
+"""
+    p.add_option("-b", "--build", help="Path to the build directory.")
+    p.add_option("-c", "--compiler", help="Path to gcc.")
+    p.add_option("-s", "--source", help="Path to the source directory.")
+    p.add_option("-l", "--list", action="store_true",
+        help="List all symbols.")
+    p.add_option("-p", "--protos",  help="Write all public " +
         "prototypes to the given file.")
-    p.add_option("-w", "--windows", action = "store_true", help = "Include windows specific symbols.")
+    p.add_option("-w", "--windows", action="store_true",
+        help="Include windows specific symbols.")
     options, args = p.parse_args()
-    
-    if not options.source: options.source = "."
-    if not options.compiler: options.compiler = "gcc"
+
+    if not options.source:
+        options.source = "."
+    if not options.compiler:
+        options.compiler = "gcc"
 
     if not options.build:
         sys.stderr.write("Build path required (-p).\n")
@@ -272,6 +294,6 @@ references in the documentation - then report symbols which are not documented.
         print("")
         check_undocumented_functions()
 
+
 if __name__ == "__main__":
     main(sys.argv)
-
