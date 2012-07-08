@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import sys, re, optparse, os
+import sys, re, optparse
 from ctypes import *
 
 """
