@@ -3,7 +3,6 @@
     Allegro Python port game example
     Original Author: Jeroen De Busser
 """
-import os
 from allegro import *
 from random import randint,random
 import os
@@ -202,7 +201,7 @@ def main():
                 al_draw_text(font, al_map_rgb_f(1,1,1), w/2, 10, ALLEGRO_ALIGN_CENTRE, "Press R to reset, ESC to exit.")
             al_draw_text(font, al_map_rgb_f(1,1,1), w/2, h - 20, ALLEGRO_ALIGN_CENTRE, "{0} - {1}".format(*score))
             al_flip_display()
-            redraw = False
+            need_redraw = False
         
         ev = ALLEGRO_EVENT()
         al_wait_for_event(queue,byref(ev))
@@ -222,7 +221,7 @@ def main():
             if random() < upgrade_probability:
                 i = randint(0,len(upgrade_types)-1)
                 upgrades.append(Upgrade(w/2,h/2,ball_speed,players,upgrade_types[i][0],upgrade_types[i][1]))
-            redraw = True
+            need_redraw = True
         elif (ev.type == ALLEGRO_EVENT_KEY_DOWN and ev.keyboard.keycode == ALLEGRO_KEY_ESCAPE) or ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE:
             break
         elif ev.type == ALLEGRO_EVENT_KEY_DOWN and ev.keyboard.keycode == ALLEGRO_KEY_R:

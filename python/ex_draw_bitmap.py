@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from __future__ import division
-import sys, os, glob
+import sys, os
 from random import *
 from math import *
 from ctypes import *

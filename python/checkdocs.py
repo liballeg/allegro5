@@ -187,7 +187,7 @@ def parse_all_headers():
         p.stdin.write("#include <allegro5/allegro.h>\n" + open(header).read())
         p.stdin.close()
         text = p.stdout.read()
-        n = parse_header(text.splitlines(), header)
+        parse_header(text.splitlines(), header)
         #print("%d definitions in %s" % (n, header))
 
 def check_undocumented_functions():
