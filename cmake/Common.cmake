@@ -40,10 +40,10 @@ endfunction(append_lib_linkage_suffix)
 # Oh my. CMake really is bad for this - but I couldn't find a better
 # way.
 function(sanitize_cmake_link_flags ...)
-   SET(return)
+   set(return)
    foreach(lib ${ARGV})
       # Watch out for -framework options (OS X)
-      IF (NOT lib MATCHES "-framework.*" AND NOT lib MATCHES ".*framework")
+      if(NOT lib MATCHES "-framework.*" AND NOT lib MATCHES ".*framework")
          # Remove absolute path.
          string(REGEX REPLACE "/.*/(.*)" "\\1" lib ${lib})
    
@@ -57,10 +57,10 @@ function(sanitize_cmake_link_flags ...)
          
          # Make sure we don't include our own libraries.
          # FIXME: Use a global list instead of a very unstable regexp.
-         IF(NOT lib MATCHES "allegro_.*" AND NOT lib STREQUAL "allegro" AND NOT lib STREQUAL "allegro_audio")
+         if(NOT lib MATCHES "allegro_.*" AND NOT lib STREQUAL "allegro" AND NOT lib STREQUAL "allegro_audio")
             set(return "${return} -l${lib}")
-         ENDIF()
-      ENDIF(NOT lib MATCHES "-framework.*" AND NOT lib MATCHES ".*framework")  
+         endif()
+      endif(NOT lib MATCHES "-framework.*" AND NOT lib MATCHES ".*framework")
    endforeach(lib)
    set(return ${return} PARENT_SCOPE)
 endfunction(sanitize_cmake_link_flags)
@@ -74,17 +74,17 @@ function(add_our_library target sources extra_flags link_with)
     endif(NOT BUILD_SHARED_LIBS)
     
     if(NOT ANDROID)
-      set_target_properties(${target}
-        PROPERTIES
-        COMPILE_FLAGS "${extra_flags} ${static_flag} -DALLEGRO_LIB_BUILD"
-        VERSION ${ALLEGRO_VERSION}
-        SOVERSION ${ALLEGRO_SOVERSION}
-        )
+        set_target_properties(${target}
+            PROPERTIES
+            COMPILE_FLAGS "${extra_flags} ${static_flag} -DALLEGRO_LIB_BUILD"
+            VERSION ${ALLEGRO_VERSION}
+            SOVERSION ${ALLEGRO_SOVERSION}
+            )
     else(NOT ANDROID)
-      set_target_properties(${target}
-        PROPERTIES
-        COMPILE_FLAGS "${extra_flags} ${static_flag} -DALLEGRO_LIB_BUILD"
-        )
+        set_target_properties(${target}
+            PROPERTIES
+            COMPILE_FLAGS "${extra_flags} ${static_flag} -DALLEGRO_LIB_BUILD"
+            )
     endif(NOT ANDROID)
     
     # Construct the output name.
@@ -132,9 +132,9 @@ endfunction(add_our_library)
 
 macro(add_our_addon_library target sources extra_flags link_with)
 if(WANT_MONOLITH)
-set(MONOLITH_DEFINES "${MONOLITH_DEFINES} ${extra_flags}")
+    set(MONOLITH_DEFINES "${MONOLITH_DEFINES} ${extra_flags}")
 else()
-add_our_library(${target} "${sources}" "${extra_flags}" "${link_with}")
+    add_our_library(${target} "${sources}" "${extra_flags}" "${link_with}")
 endif()
 endmacro(add_our_addon_library)
 
@@ -229,8 +229,8 @@ function(add_our_executable nm)
     endif(NOT srcs)
     
     if(IPHONE)
-    set(EXECUTABLE_TYPE MACOSX_BUNDLE)
-    set(srcs ${srcs} "${CMAKE_SOURCE_DIR}/misc/icon.png")
+        set(EXECUTABLE_TYPE MACOSX_BUNDLE)
+        set(srcs ${srcs} "${CMAKE_SOURCE_DIR}/misc/icon.png")
     endif(IPHONE)
 
     add_executable(${nm} ${EXECUTABLE_TYPE} ${srcs})

@@ -4,7 +4,7 @@ set(PHYSFS_SOURCES a5_physfs.c a5_physfs_dir.c)
 
 set(PHYSFS_INCLUDE_FILES allegro5/allegro_physfs.h)
 
-#set *_INCLUDE_DIRECTORIES for add_addon (so monolith build will find files)
+# This allows the monolith build to find the files.
 set(PHYSFS_INCLUDE_DIRECTORIES ${PHYSFS_INCLUDE_DIR})
 
 set_our_header_properties(${PHYSFS_INCLUDE_FILES})

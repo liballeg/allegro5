@@ -46,8 +46,8 @@ if(WANT_CG_SHADERS)
         endif(WANT_D3D)
 
         include_directories(SYSTEM ${CG_INCLUDE_PATH})
-        
-        #append to *_INCLUDE_DIRECTORIES for add_addon (so monolith build will find files)
+
+        # This allows the monolith build to find the files.
         list(APPEND SHADER_INCLUDE_DIRECTORIES ${CG_INCLUDE_PATH})
 
         foreach(arg ${CG_CFLAGS})
