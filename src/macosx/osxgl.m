@@ -91,7 +91,7 @@ static const unsigned int allegro_to_osx_settings[][3] = {
    { ALLEGRO_STENCIL_SIZE,       NSOpenGLPFAStencilSize, 1},
    { ALLEGRO_SAMPLE_BUFFERS,     NSOpenGLPFASampleBuffers, 1},
    { ALLEGRO_SAMPLES,            NSOpenGLPFASamples, 1},
-   { ALLEGRO_RENDER_METHOD,      NSOpenGLPFAAccelerated, 0},
+   //{ ALLEGRO_RENDER_METHOD,      NSOpenGLPFAAccelerated, 0}, handled separately
    { ALLEGRO_FLOAT_COLOR,        NSOpenGLPFAColorFloat, 0},
    { ALLEGRO_FLOAT_DEPTH,        0, 0},
    { ALLEGRO_SINGLE_BUFFER ,     0, 0},   // Only have inverse of this
@@ -649,6 +649,13 @@ static void osx_set_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
             ALLEGRO_DEBUG("Passing pixel format attribute %s = %d\n", allegro_pixel_format_names[n], extras->settings[i]);
          }
       }
+   }
+
+   /* Accelerated is always preferred, so we only set this for required not
+    * for suggested.
+    */
+   if (extras->required & ALLEGRO_RENDER_METHOD) {
+      *a++ = NSOpenGLPFAAccelerated;
    }
 }
 
