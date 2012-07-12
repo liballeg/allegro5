@@ -1,22 +1,22 @@
 #!/bin/bash
 
-export ANDROID_NDK_TOOLCHAIN_ROOT=~/code/android-toolchain
-if [ "x$1" = "xCLEAN" ] ; then
-	V=1 ~/code/android-ndk-r7b/ndk-build clean
-fi
-V=1 ~/code/android-ndk-r7b/ndk-build
+rsync --progress --exclude='*.svn*' -r -t ~/projects/allegro-5.1/android-project/ ~/projects/alandroid-project/
+
+cp ~/build/android-toolchain/user/armeabi-v7a/lib/liballegro-debug.so jni/armeabi-v7a/
+cp ~/build/android-toolchain/user/armeabi-v7a/lib/liballegro_primitives-debug.so jni/armeabi-v7a/
+cp ~/build/android-toolchain/user/armeabi-v7a/lib/liballegro_image-debug.so jni/armeabi-v7a/
+
+export ANDROID_NDK_TOOLCHAIN_ROOT=~/build/android-toolchain
+V=1 ~/build/android-ndk/ndk-build clean
+V=1 ~/build/android-ndk/ndk-build
 
 ant clean
 ant debug
 
-if [ "x$1" = "xNORUN" ] ; then
-	exit 0
-fi
-
-#echo uninstall
-#/Users/trent/code/android-sdk-macosx/platform-tools/adb -d uninstall org.liballeg.app
+echo uninstall
+adb -d uninstall org.liballeg.app
 echo install
-/Users/trent/code/android-sdk-macosx/platform-tools/adb -d install -r bin/alandroid-project-debug.apk
+adb -d install bin/alandroid-project-debug.apk
 echo start
-/Users/trent/code/android-sdk-macosx/platform-tools/adb -d shell 'am start -a android.intent.action.MAIN -n org.liballeg.app/.AllegroActivity'
+adb -d shell 'am start -a android.intent.action.MAIN -n org.liballeg.app/.AllegroActivity'
 
