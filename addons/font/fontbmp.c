@@ -179,7 +179,7 @@ ALLEGRO_FONT *al_load_bitmap_font(const char *fname)
 /* Function: al_grab_font_from_bitmap
  */
 ALLEGRO_FONT *al_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp,
-   int ranges_n, int ranges[])
+   int ranges_n, const int ranges[])
 {
    ALLEGRO_FONT *f;
    ALLEGRO_FONT_COLOR_DATA *cf, *prev = NULL;
