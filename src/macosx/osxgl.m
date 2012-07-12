@@ -25,6 +25,7 @@
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/platform/aintosx.h"
 #include "./osxgl.h"
+#include "allegro5/allegro_osx.h"
 #ifndef ALLEGRO_MACOSX
 #error something is wrong with the makefile
 #endif
@@ -1991,5 +1992,11 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver(void)
       vt->create_display = create_display;
    }
    return vt;
-}   
+}
 
+NSWindow* al_osx_get_window(ALLEGRO_DISPLAY *display)
+{
+   if (!display)
+      return NULL;
+   return ((ALLEGRO_DISPLAY_OSX_WIN *)display)->win;
+}
