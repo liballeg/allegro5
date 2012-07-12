@@ -17,7 +17,7 @@
 
 #define MAX_BITMAPS  128
 #define MAX_TRANS    8
-#define MAX_FONTS    8
+#define MAX_FONTS    16
 #define MAX_VERTICES 100
 
 typedef struct {
@@ -106,6 +106,8 @@ int               failed_tests = 0;
 #define F(a)      atof(V(a))
 #define C(a)      get_color(V(a))
 #define B(a)      get_bitmap(V(a), bmp_type, target)
+#define SCAN0(fn) \
+      (sscanf(stmt, fn " (" " )") == 0)
 #define SCAN(fn, arity) \
       (sscanf(stmt, fn " (" PAT##arity " )", ARGS##arity) == arity)
 #define SCANLVAL(fn, arity) \
@@ -421,6 +423,10 @@ static void load_fonts(ALLEGRO_CONFIG const *cfg, const char *section)
       else if (SCAN("al_load_ttf_font_stretch", 4)) {
          font = al_load_ttf_font_stretch(V(0), I(1), I(2),
             get_load_font_flags(V(3)));
+         load_stmt = true;
+      }
+      else if (SCAN0("al_create_builtin_font")) {
+         font = al_create_builtin_font();
          load_stmt = true;
       }
 
