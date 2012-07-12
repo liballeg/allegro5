@@ -389,26 +389,26 @@ static ALLEGRO_BITMAP *create_builtin_font_sheet(void)
    const int glyphs_per_row = 32;
    const int alloc_rows = (glyph_count + glyphs_per_row - 1) / glyphs_per_row;
 
-   ALLEGRO_BITMAP *bmp_glyphs_mem;
-   ALLEGRO_LOCKED_REGION *bmp_locked_region;
-   ALLEGRO_BITMAP *bmp_glyphs_vid;
-   ALLEGRO_BITMAP *bmp_prev_target;
-   ALLEGRO_BITMAP *bmp_ret;
+   ALLEGRO_STATE state;
+   ALLEGRO_BITMAP *bmp;
+   ALLEGRO_LOCKED_REGION *lr;
    int i, j, k;
+
+   al_store_state(&state,
+      ALLEGRO_STATE_NEW_BITMAP_PARAMETERS |
+      ALLEGRO_STATE_TARGET_BITMAP);
 
    /* putting pixels is much faster on a memory bitmap */
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
 
    /* create bitmap onto which to render the glyphs */
-   bmp_glyphs_mem = al_create_bitmap(glyphs_per_row * 8 + glyphs_per_row + 1,
-                                     alloc_rows * 8 + alloc_rows + 1);
-   if (bmp_glyphs_mem != NULL) {
-      /* remember current render target */
-      bmp_prev_target = al_get_target_bitmap();
-
-      al_set_target_bitmap(bmp_glyphs_mem);
+   bmp = al_create_bitmap(glyphs_per_row * 8 + glyphs_per_row + 1,
+                          alloc_rows * 8 + alloc_rows + 1);
+   if (bmp) {
+      al_set_target_bitmap(bmp);
       al_clear_to_color(al_map_rgba(255, 255, 0, 255));
-      bmp_locked_region = al_lock_bitmap(bmp_glyphs_mem,
+      lr = al_lock_bitmap(bmp,
          ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_READWRITE);
 
       /* decode and render glyph pixels */
@@ -419,7 +419,7 @@ static ALLEGRO_BITMAP *create_builtin_font_sheet(void)
             for (k = 0; k < 8; k++) {
                bool set = (builtin_rom_font_8x8[i * 8 + j] >> (7 - k)) & 0x01;
 
-               put_pixel_abgr8888_le(bmp_locked_region,
+               put_pixel_abgr8888_le(lr,
                   (i % glyphs_per_row) * 9 + 1 + k,
                   (i / glyphs_per_row) * 9 + 1 + j,
                   set ? 0xFFFFFFFF : 0x00000000);
@@ -427,28 +427,12 @@ static ALLEGRO_BITMAP *create_builtin_font_sheet(void)
          }
       }
 
-      al_unlock_bitmap(bmp_glyphs_mem);
+      al_unlock_bitmap(bmp);
+   }
 
-      /* blitting of the characters/rendering will be much faster from a
-       * video bitmap
-       */
-      al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
-      bmp_glyphs_vid = al_clone_bitmap(bmp_glyphs_mem);
+   al_restore_state(&state);
 
-      /* determine whether to return video or memory bitmap version */
-      if (bmp_glyphs_vid != NULL) {
-         al_destroy_bitmap(bmp_glyphs_mem);
-         bmp_ret = bmp_glyphs_vid;
-      } else
-         bmp_ret = bmp_glyphs_mem;
-
-      /* restore previous render target */
-      if (bmp_prev_target != NULL)
-         al_set_target_bitmap(bmp_prev_target);
-   } else
-      bmp_ret = NULL;
-
-   return bmp_ret;
+   return bmp;
 }
 
 
