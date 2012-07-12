@@ -318,6 +318,10 @@ set(ALLEGRO_INCLUDE_ALLEGRO_WINDOWS_FILES
     include/allegro5/allegro_windows.h
     )
 
+set(ALLEGRO_INCLUDE_ALLEGRO_MACOSX_FILES
+    include/allegro5/allegro_osx.h
+    )
+
 set(ALLEGRO_INCLUDE_ALLEGRO_IPHONE_FILES
     include/allegro5/allegro_iphone.h
     )
