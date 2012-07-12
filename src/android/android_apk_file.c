@@ -212,8 +212,6 @@ static bool file_apk_seek(ALLEGRO_FILE *f, int64_t offset, int whence)
          return false;
    }
 
-   ALLEGRO_DEBUG("in allegro, seek to base=%ld ofs=%lld total=%lld", base, offset, base+offset);
-
    if (!APK_seek(fp->apk, base + offset)) {
       apk_set_errno(fp);
       return false;

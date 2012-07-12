@@ -345,7 +345,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
       glBindTexture(GL_TEXTURE_2D, disp->cache_texture);
    }
    
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID && !defined ALLEGRO_MACOSX
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       int stride = sizeof(ALLEGRO_OGL_BITMAP_VERTEX);
       int bytes = disp->num_cache_vertices * stride;
@@ -412,7 +412,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
    }
 #endif
 
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID && !defined ALLEGRO_MACOSX
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       if (o->pos_loc >= 0) glDisableVertexAttribArray(o->pos_loc);
       if (o->texcoord_loc >= 0) glDisableVertexAttribArray(o->texcoord_loc);

@@ -63,6 +63,8 @@ static struct system_data_t system_data = { NULL, 0, NULL, NULL, NULL, NULL, NUL
 static JavaVM* javavm;
 static JNIEnv *main_env;
 
+static const char *_real_al_android_get_os_version(JNIEnv *env);
+
 bool _al_android_is_paused(void)
 {
    return system_data.paused;
@@ -140,8 +142,6 @@ void *android_app_trampoline(ALLEGRO_THREAD *thr, void *arg)
    const char *argv[2] = { al_cstr(system_data.app_name), NULL };
    (void)thr; (void)arg;
    
-   // chdir(al_cstr(system_data.data_dir));
-   
    ALLEGRO_DEBUG("signaling running");
    
    al_lock_mutex(system_data.mutex);
@@ -197,8 +197,6 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
    if(system_data.system) {
       return true;
    }
-   
-   //_al_pthreads_tls_init();
    
    pthread_t self = pthread_self();
    ALLEGRO_DEBUG("pthread_self:%p", (void*)self);
@@ -261,7 +259,7 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
    full_path = al_path_cstr(lib_path, ALLEGRO_NATIVE_PATH_SEP);
 
    // Android 2.1 has a bug with glClear we have to work around
-   const char *ver = al_android_get_os_version();
+   const char *ver = _real_al_android_get_os_version(env);
    if (!strncmp(ver, "2.1", 3)) {
       system_data.is_2_1 = true;
    }
@@ -309,6 +307,23 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnPause(JNIEn
    ALLEGRO_DEBUG("pause activity\n");
 
    system_data.paused = true;
+   
+   ALLEGRO_SYSTEM *sys = (void *)al_get_system_driver();
+   ASSERT(system != NULL);
+
+   ALLEGRO_DISPLAY *display = *(ALLEGRO_DISPLAY**)_al_vector_ref(&sys->displays, 0);
+
+   if (display) {
+      ALLEGRO_EVENT event;
+      _al_event_source_lock(&display->es);
+      
+      if(_al_event_source_needs_to_generate_event(&display->es)) {
+         event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
+         event.display.timestamp = al_current_time();
+         _al_event_source_emit_event(&display->es, &event);
+      }
+      _al_event_source_unlock(&display->es);
+   }
 }
 
 JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnResume(JNIEnv *env, jobject obj)
@@ -335,16 +350,23 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnResume(JNIE
    d = *(ALLEGRO_DISPLAY**)_al_vector_ref(&sys->displays, 0);
    ALLEGRO_DEBUG("got display: %p", d);
    
-   //if(!((ALLEGRO_DISPLAY_ANDROID*)d)->surface_object) {
-   //   ALLEGRO_DEBUG("display is not fully initialized yet, skip re-init and display switch in");
-   //   return;
-   //}
-   
    if(!((ALLEGRO_DISPLAY_ANDROID*)d)->created) {
       _al_android_create_surface(env, true); // request android create our surface
    }
    
-   // ??
+   ALLEGRO_DISPLAY *display = *(ALLEGRO_DISPLAY**)_al_vector_ref(&sys->displays, 0);
+
+   if (display) {
+      ALLEGRO_EVENT event;
+      _al_event_source_lock(&display->es);
+      
+      if(_al_event_source_needs_to_generate_event(&display->es)) {
+         event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
+         event.display.timestamp = al_current_time();
+         _al_event_source_emit_event(&display->es, &event);
+      }
+      _al_event_source_unlock(&display->es);
+   }
 }
 
 JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnDestroy(JNIEnv *env, jobject obj)
@@ -375,7 +397,6 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnDestroy(JNI
 JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnAccel(JNIEnv *env, jobject obj, jint id, jfloat x, jfloat y, jfloat z)
 {
    (void)env; (void)obj; (void)id;
-   //ALLEGRO_DEBUG("got some accelerometer data!");
    _al_android_generate_joystick_event(x, y, z);
 }
 
@@ -469,6 +490,11 @@ static void android_shutdown_system()
    _al_vector_free(&s->displays);  
 }
 
+static bool android_inhibit_screensaver(bool inhibit)
+{
+   return _jni_callBooleanMethodV(_al_android_get_jnienv(), system_data.activity_object, "inhibitScreenLock", "(Z)Z", inhibit);
+}
+
 static ALLEGRO_SYSTEM_INTERFACE *android_vt;
 
 ALLEGRO_SYSTEM_INTERFACE *_al_system_android_interface()
@@ -486,9 +512,9 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_android_interface()
    android_vt->get_touch_input_driver = _al_get_android_touch_input_driver;
    android_vt->get_joystick_driver = _al_get_android_joystick_driver;
    android_vt->get_num_video_adapters = android_get_num_video_adapters;
-   //android_vt->get_monitor_info = _al_get_android_na_montior_info;
    android_vt->get_path = _al_android_get_path;
    android_vt->shutdown_system = android_shutdown_system;
+   android_vt->inhibit_screensaver = android_inhibit_screensaver;
    
    return android_vt;
 }
@@ -686,13 +712,18 @@ ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags)
    return bitmap;
 }
 
-const char *al_android_get_os_version(void)
+static const char *_real_al_android_get_os_version(JNIEnv *env)
 {
    static char buffer[25];
-   ALLEGRO_USTR *s = _jni_callStringMethod(system_data.env, system_data.activity_object, "getOsVersion", "()Ljava/lang/String;");
+   ALLEGRO_USTR *s = _jni_callStringMethod(env, system_data.activity_object, "getOsVersion", "()Ljava/lang/String;");
    strncpy(buffer, al_cstr(s), 25);
    al_ustr_free(s);
    return buffer;
+}
+
+const char *al_android_get_os_version(void)
+{
+   return _real_al_android_get_os_version(_al_android_get_jnienv());
 }
 
 bool _al_android_is_os_2_1(void)

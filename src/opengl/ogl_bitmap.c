@@ -667,7 +667,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_old(ALLEGRO_BITMAP *bitmap,
       }
       else {
          ALLEGRO_DEBUG("Locking non-backbuffer %s\n", flags & ALLEGRO_LOCK_READONLY ? "READONLY" : "READWRITE");
-      
+
          /* Create an FBO if there isn't one. */
          if (!ogl_bitmap->fbo_info) {
             old_target = al_get_target_bitmap();
@@ -679,7 +679,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_old(ALLEGRO_BITMAP *bitmap,
             al_set_target_bitmap(bitmap); // This creates the fbo
             bitmap->locked = true;
          }
-
+         
          if (ogl_bitmap->fbo_info) {
             GLint old_fbo;
             old_fbo = _al_ogl_bind_framebuffer(ogl_bitmap->fbo_info->fbo);
@@ -690,12 +690,26 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_old(ALLEGRO_BITMAP *bitmap,
                   _al_gl_error_string(e));
             }
 
+            /* Some Android devices only want to read POT chunks with glReadPixels.
+             * This adds yet more overhead, but AFAICT it fails any other way.
+             * Test device was gen 1 Galaxy Tab. Also read 16x16 minimum.
+             */
+#if defined ALLEGRO_ANDROID
+            glPixelStorei(GL_PACK_ALIGNMENT, 4);
+            int start_h = h;
+            w = pot(w);
+            while (w < 16) w = pot(w+1);
+            h = pot(h);
+            while (h < 16) h = pot(h+1);
+#endif
+
             pitch = ogl_pitch(w, pixel_size);
             /* Allocate a buffer big enough for both purposes. This requires more
              * memory to be held for the period of the lock, but overall less
              * memory is needed to complete the lock.
              */
             ogl_bitmap->lock_buffer = al_malloc(_ALLEGRO_MAX(pitch * h, ogl_pitch(w, 4) * h));
+
 
             /* NOTE: GLES (1.1?) can only read 4 byte pixels, we have to convert */
 #if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
@@ -729,7 +743,11 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_old(ALLEGRO_BITMAP *bitmap,
 #endif
 
             bitmap->locked_region.data = ogl_bitmap->lock_buffer +
+#ifdef ALLEGRO_ANDROID // See comments above about POT chunks
+               pitch * (start_h - 1);
+#else
                pitch * (h - 1);
+#endif
       
             _al_ogl_bind_framebuffer(old_fbo);
          }
@@ -795,7 +813,9 @@ static void ogl_unlock_region_old(ALLEGRO_BITMAP *bitmap)
    ALLEGRO_DISPLAY *disp;
    ALLEGRO_DISPLAY *old_disp = NULL;
    GLenum e;
-   GLint gl_y = bitmap->h - bitmap->lock_y - bitmap->lock_h;
+   int w = bitmap->lock_w;
+   int h = bitmap->lock_h;
+   GLint gl_y = bitmap->h - bitmap->lock_y - h;
    int orig_format;
    int orig_pixel_size;
    int pixel_alignment;
@@ -852,12 +872,12 @@ static void ogl_unlock_region_old(ALLEGRO_BITMAP *bitmap)
          al_identity_transform(&disp->proj_transform);
          disp->vt->set_projection(disp);
          glRasterPos2f(bitmap->lock_x,
-            bitmap->lock_y + bitmap->lock_h - 1e-4f);
+            bitmap->lock_y + h - 1e-4f);
          popmatrix = true;
       }
       glDisable(GL_TEXTURE_2D);
       glDisable(GL_BLEND);
-      glDrawPixels(bitmap->lock_w, bitmap->lock_h,
+      glDrawPixels(bitmap->lock_w, h,
          get_glformat(lock_format, 2),
          get_glformat(lock_format, 1),
          ogl_bitmap->lock_buffer);
@@ -877,7 +897,7 @@ static void ogl_unlock_region_old(ALLEGRO_BITMAP *bitmap)
       GLuint tmp_tex;
       glGenTextures(1, &tmp_tex);
       glBindTexture(GL_TEXTURE_2D, tmp_tex);
-      glTexImage2D(GL_TEXTURE_2D, 0, get_glformat(lock_format, 0), bitmap->lock_w, bitmap->lock_h,
+      glTexImage2D(GL_TEXTURE_2D, 0, get_glformat(lock_format, 0), bitmap->lock_w, h,
                    0, get_glformat(lock_format, 2), get_glformat(lock_format, 1),
                    ogl_bitmap->lock_buffer);
       e = glGetError();
@@ -885,7 +905,7 @@ static void ogl_unlock_region_old(ALLEGRO_BITMAP *bitmap)
          int printf(const char *, ...);
          printf("glTexImage2D failed: %d\n", e);
       }
-      glDrawTexiOES(bitmap->lock_x, bitmap->lock_y, 0, bitmap->lock_w, bitmap->lock_h);
+      glDrawTexiOES(bitmap->lock_x, bitmap->lock_y, 0, bitmap->lock_w, h);
       e = glGetError();
       if (e) {
          int printf(const char *, ...);
@@ -908,11 +928,17 @@ static void ogl_unlock_region_old(ALLEGRO_BITMAP *bitmap)
 
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
 
+#ifdef ALLEGRO_ANDROID
+      if (!(bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY)) {
+         w = pot(w);
+      }
+#endif
+         
       if (!ogl_bitmap->fbo_info ||
             (bitmap->locked_region.format != orig_format)) {
-         
-         int dst_pitch = bitmap->lock_w * orig_pixel_size;
-         unsigned char *tmpbuf = al_malloc(dst_pitch * bitmap->lock_h);
+
+         int dst_pitch = w * orig_pixel_size;
+         unsigned char *tmpbuf = al_malloc(dst_pitch * h);
 
          ALLEGRO_DEBUG("Unlocking non-backbuffer with conversion\n");
          
@@ -924,14 +950,14 @@ static void ogl_unlock_region_old(ALLEGRO_BITMAP *bitmap)
             orig_format,
             dst_pitch,
             0, 0, 0, 0,
-            bitmap->lock_w, bitmap->lock_h);
+            w, h);
 	    
          pixel_alignment = ogl_pixel_alignment(orig_pixel_size);
          glPixelStorei(GL_UNPACK_ALIGNMENT, pixel_alignment);
 
          glTexSubImage2D(GL_TEXTURE_2D, 0,
             bitmap->lock_x, gl_y,
-            bitmap->lock_w, bitmap->lock_h,
+            w, h,
             get_glformat(orig_format, 2),
             get_glformat(orig_format, 1),
             tmpbuf);
@@ -949,7 +975,7 @@ static void ogl_unlock_region_old(ALLEGRO_BITMAP *bitmap)
          glPixelStorei(GL_UNPACK_ALIGNMENT, pixel_alignment);
 
          glTexSubImage2D(GL_TEXTURE_2D, 0, bitmap->lock_x, gl_y,
-            bitmap->lock_w, bitmap->lock_h,
+            w, h,
             get_glformat(lock_format, 2),
             get_glformat(lock_format, 1),
             ogl_bitmap->lock_buffer);
@@ -964,7 +990,7 @@ static void ogl_unlock_region_old(ALLEGRO_BITMAP *bitmap)
                GL_TEXTURE_INTERNAL_FORMAT, &tex_internalformat);
 
             ALLEGRO_DEBUG("x/y/w/h: %d/%d/%d/%d, internal format: %d\n",
-               bitmap->lock_x, gl_y, bitmap->lock_w, bitmap->lock_h,
+               bitmap->lock_x, gl_y, w, h,
                tex_internalformat);
 #endif
          }
@@ -1097,6 +1123,14 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 #if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
    if (true_w < 16) true_w = 16;
    if (true_h < 16) true_h = 16;
+#endif
+
+/* glReadPixels requires 32 byte aligned rows */
+#if defined ALLEGRO_ANDROID
+   int mod = true_w % 32;
+   if (mod != 0) {
+      true_w += 32 - mod;
+   }
 #endif
 
 #if !defined ALLEGRO_GP2XWIZ

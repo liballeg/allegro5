@@ -190,7 +190,7 @@ AL_FUNC(void, al_hold_bitmap_drawing, (bool hold));
 AL_FUNC(bool, al_is_bitmap_drawing_held, (void));
 
 AL_FUNC(void, al_acknowledge_drawing_halt, (ALLEGRO_DISPLAY *display));
-AL_FUNC(void, al_acknowledge_drawing_resume, (ALLEGRO_DISPLAY *display));
+AL_FUNC(void, al_acknowledge_drawing_resume, (ALLEGRO_DISPLAY *display, void (*user_reload)(void)));
 
 #ifdef __cplusplus
    }

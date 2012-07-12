@@ -28,6 +28,7 @@ typedef struct ALLEGRO_DISPLAY_ANDROID {
    bool resize_acknowledge;
    bool resize_acknowledge2;
    bool resumed;
+   bool failed;
 } ALLEGRO_DISPLAY_ANDROID;
 
 ALLEGRO_SYSTEM_INTERFACE *_al_system_android_interface();
