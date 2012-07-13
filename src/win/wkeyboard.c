@@ -145,6 +145,7 @@ static bool init_keyboard(void)
 {
    memset(&the_keyboard, 0, sizeof the_keyboard);
    memset(&the_state, 0, sizeof the_state);
+   modifiers = 0;
 
    /* Initialise the keyboard object for use as an event source. */
    _al_event_source_init(&the_keyboard.es);
@@ -168,6 +169,16 @@ static void exit_keyboard(void)
    memset(&the_keyboard, 0, sizeof the_keyboard);
 
    installed = false;
+}
+
+
+
+/* _al_win_fix_modifiers:
+ *  Fix the modifiers.
+ */
+void _al_win_fix_modifiers(void)
+{
+   modifiers = 0;
 }
 
 
@@ -260,6 +271,12 @@ static void update_modifiers(int code, bool pressed)
          ON_OFF2(ALLEGRO_KEYMOD_ALT);
       case ALLEGRO_KEY_ALTGR:
          ON_OFF2(ALLEGRO_KEYMOD_ALTGR);
+      case ALLEGRO_KEY_LWIN:
+          ON_OFF2(ALLEGRO_KEYMOD_LWIN);
+       case ALLEGRO_KEY_RWIN:
+          ON_OFF2(ALLEGRO_KEYMOD_RWIN);
+       case ALLEGRO_KEY_MENU:
+          ON_OFF2(ALLEGRO_KEYMOD_MENU);
    }
 
 #undef ON_OFF2
