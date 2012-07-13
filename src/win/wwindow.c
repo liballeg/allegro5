@@ -701,6 +701,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             }
             if (d->vt->switch_in)
                d->vt->switch_in(d);
+            _al_win_fix_modifiers();
             _al_event_source_lock(es);
             if (_al_event_source_needs_to_generate_event(es)) {
                ALLEGRO_EVENT event;
