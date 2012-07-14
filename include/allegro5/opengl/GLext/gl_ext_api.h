@@ -358,10 +358,10 @@ AGL_API(void, PrimitiveRestartIndex, (GLuint))
 /* ARB_provoking_vertex */
 /* ARB_sync */
 /* ARB_texture_multisample */
-AGL_API(void, glGetInteger64i_v, (GLenum target, GLuint index, GLint64 *data))
-AGL_API(void, glGetBufferParameteri64v, (GLenum target, GLenum pname, GLint64 *params))
-AGL_API(void, glProgramParameteri, (GLuint program, GLenum pname, GLint value))
-AGL_API(void, glFramebufferTexture, (GLenum target, GLenum attachment, GLuint texture, GLint level))
+AGL_API(void, GetInteger64i_v, (GLenum target, GLuint index, GLint64 *data))
+AGL_API(void, GetBufferParameteri64v, (GLenum target, GLenum pname, GLint64 *params))
+AGL_API(void, ProgramParameteri, (GLuint program, GLenum pname, GLint value))
+AGL_API(void, FramebufferTexture, (GLenum target, GLenum attachment, GLuint texture, GLint level))
 #endif
 
 #if defined _ALLEGRO_GL_VERSION_3_3
