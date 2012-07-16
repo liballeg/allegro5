@@ -1993,6 +1993,8 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver(void)
    return vt;
 }
 
+/* Function: al_osx_get_window
+ */
 NSWindow* al_osx_get_window(ALLEGRO_DISPLAY *display)
 {
    if (!display)

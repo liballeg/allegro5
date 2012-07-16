@@ -10,6 +10,18 @@ These functions are declared in the following header file:
 
 Returns the handle to the window that the passed display is using.
 
+## Mac OS X
+
+These functions are declared in the following header file:
+
+    #include <allegro5/allegro_osx.h>
+
+### API: al_osx_get_window
+
+Retrieves the NSWindow handle associated with the Allegro display.
+
+Since: 5.1.3
+
 ## iPhone
 
 These functions are declared in the following header file:
