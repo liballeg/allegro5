@@ -110,8 +110,15 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
    ALLEGRO_COLOR *color)
 {
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
+   ALLEGRO_BITMAP_OGL *ogl_target;
    GLfloat vert[2];
+
+   /* For sub-bitmaps */
+   if (target->parent) {
+      target = target->parent;
+   }
+
+   ogl_target = (void *)target;
 
    if ((!ogl_target->is_backbuffer &&
       d->ogl_extras->opengl_target != ogl_target) ||
