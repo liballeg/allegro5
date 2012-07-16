@@ -443,6 +443,9 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
          glUniform1i(disp->ogl_extras->use_tex_loc, 0);
 #endif
    }
+   else {
+      glDisable(GL_TEXTURE_2D);
+   }
 }
 
 static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
