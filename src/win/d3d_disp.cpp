@@ -2208,8 +2208,6 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
          win_size.bottom-win_size.top,
          SWP_NOMOVE|SWP_NOZORDER)) != 0;
 
-      PostMessage(win_display->window, WM_USER+0, 0, 0);
-
       if (!(d->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
          win_display->toggle_w = width;
          win_display->toggle_h = height;
