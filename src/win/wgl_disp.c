@@ -1437,8 +1437,6 @@ static bool wgl_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
          SWP_NOMOVE|SWP_NOZORDER))
             return false;
 
-      PostMessage(win_disp->window, WM_USER+0, 0, 0);
-
       d->w = width;
       d->h = height;
       if (!(d->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
