@@ -2146,15 +2146,11 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
 {
    ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)d;
    ALLEGRO_DISPLAY_WIN *win_display = &disp->win_display;
-   bool ret;
    int full_w, full_h;
    ALLEGRO_MONITOR_INFO mi;
    int adapter = win_display->adapter;
-   //int orig_w, orig_h;
-   ALLEGRO_STATE backup;
 
-   //orig_w = d->w;
-   //orig_h = d->h;
+   ALLEGRO_STATE backup;
 
    al_get_monitor_info(adapter, &mi);
    full_w = mi.x2 - mi.x1;
@@ -2186,7 +2182,9 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
       al_set_target_bitmap(al_get_backbuffer(d));
       _al_d3d_recreate_bitmap_textures(disp);
 
-      ret = true;
+      disp->backbuffer_bmp.w = width;
+      disp->backbuffer_bmp.h = height;
+
    }
    else {
       RECT win_size;
@@ -2202,11 +2200,12 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
 
       AdjustWindowRectEx(&win_size, wi.dwStyle, false, wi.dwExStyle);
 
-      ret = (SetWindowPos(win_display->window, HWND_TOP,
+      // FIXME: Handle failure (for example if window constraints are active?)
+      SetWindowPos(win_display->window, HWND_TOP,
          0, 0,
          win_size.right-win_size.left,
          win_size.bottom-win_size.top,
-         SWP_NOMOVE|SWP_NOZORDER)) != 0;
+         SWP_NOMOVE|SWP_NOZORDER);
 
       if (!(d->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
          win_display->toggle_w = width;
@@ -2225,13 +2224,9 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
       _al_d3d_set_bitmap_clip(&disp->backbuffer_bmp);
       al_restore_state(&backup);
 
-      ret = true;
    }
 
-   disp->backbuffer_bmp.w = width;
-   disp->backbuffer_bmp.h = height;
-
-   return ret;
+   return true;
 }
 
 static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
