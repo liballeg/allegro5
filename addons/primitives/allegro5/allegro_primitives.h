@@ -87,6 +87,17 @@ typedef enum ALLEGRO_LINE_CAP
    ALLEGRO_LINE_CAP_CLOSED
 } ALLEGRO_LINE_CAP;
 
+/* Enum: ALLEGRO_BUFFER_USAGE_HINTS
+ */
+typedef enum ALLEGRO_BUFFER_USAGE_HINTS
+{
+   ALLEGRO_BUFFER_STREAM  = 0x01,
+   ALLEGRO_BUFFER_STATIC  = 0x02,
+   ALLEGRO_BUFFER_DYNAMIC = 0x04,
+   ALLEGRO_BUFFER_DRAW    = 0x08,
+   ALLEGRO_BUFFER_READ    = 0x10,
+   ALLEGRO_BUFFER_COPY    = 0x20
+} ALLEGRO_BUFFER_USAGE_HINTS;
 
 /* Enum: ALLEGRO_VERTEX_CACHE_SIZE
  */
@@ -125,6 +136,10 @@ struct ALLEGRO_VERTEX {
 };
 #endif
 
+/* Type: ALLEGRO_VERTEX_BUFFER
+ */
+typedef struct ALLEGRO_VERTEX_BUFFER ALLEGRO_VERTEX_BUFFER;
+
 ALLEGRO_PRIM_FUNC(uint32_t, al_get_allegro_primitives_version, (void));
 
 /*
@@ -137,6 +152,14 @@ ALLEGRO_PRIM_FUNC(int, al_draw_indexed_prim, (const void* vtxs, const ALLEGRO_VE
 
 ALLEGRO_PRIM_FUNC(ALLEGRO_VERTEX_DECL*, al_create_vertex_decl, (const ALLEGRO_VERTEX_ELEMENT* elements, int stride));
 ALLEGRO_PRIM_FUNC(void, al_destroy_vertex_decl, (ALLEGRO_VERTEX_DECL* decl));
+
+/*
+ * Vertex buffers
+ */
+ALLEGRO_PRIM_FUNC(ALLEGRO_VERTEX_BUFFER*, al_create_vertex_buffer, (ALLEGRO_VERTEX_DECL* decl, const void* initial_data, size_t num_vertices, bool write_only, int usage_hints));
+ALLEGRO_PRIM_FUNC(void, al_destroy_vertex_buffer, (ALLEGRO_VERTEX_BUFFER* buffer));
+ALLEGRO_PRIM_FUNC(void*, al_lock_vertex_buffer, (ALLEGRO_VERTEX_BUFFER* buffer, size_t start, size_t end, int flags));
+ALLEGRO_PRIM_FUNC(void, al_unlock_vertex_buffer, (ALLEGRO_VERTEX_BUFFER* buffer));
 
 /*
 * Utilities for high level primitives.

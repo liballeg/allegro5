@@ -187,3 +187,73 @@ void al_destroy_vertex_decl(ALLEGRO_VERTEX_DECL* decl)
     */
    al_free(decl);
 }
+
+/* Function: al_create_vertex_buffer
+ */
+ALLEGRO_VERTEX_BUFFER* al_create_vertex_buffer(ALLEGRO_VERTEX_DECL* decl,
+   const void* initial_data, size_t num_vertices, bool write_only, int hints)
+{
+   ALLEGRO_VERTEX_BUFFER* ret = al_calloc(1, sizeof(ALLEGRO_VERTEX_BUFFER));
+   ret->write_only = write_only;
+   ret->decl = decl;
+
+   if (al_get_display_flags(al_get_current_display()) & ALLEGRO_OPENGL) {
+      _al_create_vertex_buffer_opengl(ret, initial_data, num_vertices, hints);
+   }
+
+   return ret;
+}
+
+/* Function: al_destroy_vertex_buffer
+ */
+void al_destroy_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer)
+{
+   if (buffer == 0)
+      return;
+
+   al_unlock_vertex_buffer(buffer);
+
+   if (al_get_display_flags(al_get_current_display()) & ALLEGRO_OPENGL) {
+      _al_destroy_vertex_buffer_opengl(buffer);
+   }
+
+   al_free(buffer);
+}
+
+/* Function: al_lock_vertex_buffer
+ */
+void* al_lock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer, size_t start,
+   size_t end, int flags)
+{
+   ASSERT(buffer);
+   if (buffer->is_locked || (buffer->write_only && flags != ALLEGRO_LOCK_WRITEONLY) || start >= end)
+      return 0;
+
+   buffer->lock_start = start;
+   buffer->lock_end = end;
+   buffer->lock_flags = flags;
+
+   if (al_get_display_flags(al_get_current_display()) & ALLEGRO_OPENGL) {
+      _al_lock_vertex_buffer_opengl(buffer);
+   }
+
+   buffer->is_locked = true;
+
+   return buffer->locked_memory;
+}
+
+/* Function: al_unlock_vertex_buffer
+ */
+void al_unlock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer)
+{
+   ASSERT(buffer);
+
+   if (!buffer->is_locked)
+      return;
+
+   if (al_get_display_flags(al_get_current_display()) & ALLEGRO_OPENGL) {
+      _al_unlock_vertex_buffer_opengl(buffer);
+   }
+
+   buffer->is_locked = false;
+}

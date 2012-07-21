@@ -28,7 +28,7 @@
 
 typedef void (*Screen)(int);
 int ScreenW = 800, ScreenH = 600;
-#define NUM_SCREENS 10
+#define NUM_SCREENS 11
 #define ROTATE_SPEED 0.0001f
 Screen Screens[NUM_SCREENS];
 const char *ScreenName[NUM_SCREENS];
@@ -480,6 +480,73 @@ static void IndexedPrimitives(int mode)
    }
 }
 
+static void VertexBuffers(int mode)
+{
+   if (mode == INIT) {
+      ALLEGRO_VERTEX_BUFFER* buf;
+      ALLEGRO_VERTEX vtx[2];
+      ALLEGRO_VERTEX* vtx2;
+      int ii;
+      for (ii = 0; ii < 2; ii++)
+      {
+         vtx[ii].x = ii;
+         vtx[ii].y = 2 - ii;
+         vtx[ii].z = 0;
+         vtx[ii].u = 0;
+         vtx[ii].v = 0;
+         vtx[ii].color = al_map_rgb_f(ii, ii, ii);
+      }
+      buf = al_create_vertex_buffer(0, vtx, 2, false, 0);
+
+      vtx2 = al_lock_vertex_buffer(buf, 0, 2, ALLEGRO_LOCK_READWRITE);
+      if (vtx2 == 0) {
+         printf("lock failed\n");
+         return;
+      }
+
+      for (ii = 0; ii < 2; ii++)
+      {
+         if (vtx[ii].x != vtx2[ii].x)
+            printf("Fail! %d\n", __LINE__);
+         if (vtx[ii].y != vtx2[ii].y)
+            printf("Fail! %d\n", __LINE__);
+         if (vtx[ii].z != vtx2[ii].z)
+            printf("Fail! %d\n", __LINE__);
+         if (vtx[ii].u != vtx2[ii].u)
+            printf("Fail! %d\n", __LINE__);
+         if (vtx[ii].v != vtx2[ii].v)
+            printf("Fail! %d\n", __LINE__);
+         if (vtx[ii].color.r != vtx2[ii].color.r)
+            printf("Fail! %d\n", __LINE__);
+
+         vtx[ii].x = 2 * ii;
+         vtx2[ii].x = 2 * ii;
+      }
+
+      al_unlock_vertex_buffer(buf);
+
+      vtx2 = al_lock_vertex_buffer(buf, 0, 2, ALLEGRO_LOCK_READONLY);
+
+      for (ii = 0; ii < 2; ii++)
+      {
+         if (vtx[ii].x != vtx2[ii].x)
+            printf("Fail! %d\n", __LINE__);
+         if (vtx[ii].y != vtx2[ii].y)
+            printf("Fail! %d\n", __LINE__);
+         if (vtx[ii].z != vtx2[ii].z)
+            printf("Fail! %d\n", __LINE__);
+         if (vtx[ii].u != vtx2[ii].u)
+            printf("Fail! %d\n", __LINE__);
+         if (vtx[ii].v != vtx2[ii].v)
+            printf("Fail! %d\n", __LINE__);
+         if (vtx[ii].color.r != vtx2[ii].color.r)
+            printf("Fail! %d\n", __LINE__);
+      }
+
+      al_destroy_vertex_buffer(buf);
+   }
+}
+
 int main(void)
 {
    ALLEGRO_DISPLAY *display;
@@ -574,6 +641,7 @@ int main(void)
    Screens[7] = TexturePrimitives;
    Screens[8] = FilledTexturePrimitives;
    Screens[9] = CustomVertexFormatPrimitives;
+   Screens[10] = VertexBuffers;
 
    ScreenName[0] = "Low Level Primitives";
    ScreenName[1] = "Indexed Primitives";
@@ -585,6 +653,7 @@ int main(void)
    ScreenName[7] = "Textured Primitives";
    ScreenName[8] = "Filled Textured Primitives";
    ScreenName[9] = "Custom Vertex Format";
+   ScreenName[10] = "Vertex Buffers";
 
    for (ii = 0; ii < NUM_SCREENS; ii++)
       Screens[ii](INIT);

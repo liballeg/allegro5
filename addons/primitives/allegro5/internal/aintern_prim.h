@@ -25,6 +25,17 @@ typedef struct ALLEGRO_PRIM_VERTEX_CACHE {
    void*           user_data;
 } ALLEGRO_PRIM_VERTEX_CACHE;
 
+struct ALLEGRO_VERTEX_BUFFER {
+   ALLEGRO_VERTEX_DECL* decl;
+   uintptr_t handle;
+   bool write_only;
+
+   bool is_locked;
+   void* locked_memory;
+   size_t lock_start;
+   size_t lock_end;
+   int lock_flags;
+};
 
 /* Internal cache for primitives. */
 void _al_prim_cache_init(ALLEGRO_PRIM_VERTEX_CACHE* cache, int prim_type, ALLEGRO_COLOR color);

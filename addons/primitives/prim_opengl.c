@@ -499,3 +499,102 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
    return 0;
 #endif
 }
+
+void _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* initial_data, size_t num_vertices, int usage_hints)
+{
+#ifdef ALLEGRO_CFG_OPENGL
+   GLuint vbo;
+   GLenum usage;
+
+   switch (usage_hints)
+   {
+      case ALLEGRO_BUFFER_STREAM | ALLEGRO_BUFFER_DRAW:
+         usage = GL_STREAM_DRAW;
+         break;
+      case ALLEGRO_BUFFER_STREAM | ALLEGRO_BUFFER_READ:
+         usage = GL_STREAM_READ;
+         break;
+      case ALLEGRO_BUFFER_STREAM | ALLEGRO_BUFFER_COPY:
+         usage = GL_STREAM_COPY;
+         break;
+      case ALLEGRO_BUFFER_STATIC | ALLEGRO_BUFFER_DRAW:
+         usage = GL_STATIC_DRAW;
+         break;
+      case ALLEGRO_BUFFER_STATIC | ALLEGRO_BUFFER_READ:
+         usage = GL_STATIC_READ;
+         break;
+      case ALLEGRO_BUFFER_STATIC | ALLEGRO_BUFFER_COPY:
+         usage = GL_STATIC_COPY;
+         break;
+      case ALLEGRO_BUFFER_DYNAMIC | ALLEGRO_BUFFER_DRAW:
+         usage = GL_DYNAMIC_DRAW;
+         break;
+      case ALLEGRO_BUFFER_DYNAMIC | ALLEGRO_BUFFER_READ:
+         usage = GL_DYNAMIC_READ;
+         break;
+      case ALLEGRO_BUFFER_DYNAMIC | ALLEGRO_BUFFER_COPY:
+         usage = GL_DYNAMIC_COPY;
+         break;
+      default:
+         usage = GL_STATIC_DRAW;
+   }
+
+   glGenBuffers(1, &vbo);
+   glBindBuffer(GL_ARRAY_BUFFER, vbo);
+   glBufferData(GL_ARRAY_BUFFER, (buf->decl == 0 ? (int)sizeof(ALLEGRO_VERTEX) : buf->decl->stride) * num_vertices, initial_data, usage);
+   glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+   buf->handle = vbo;
+#else
+   (void)buf;
+   (void)decl;
+   (void)initial_data;
+   (void)num_vertices;
+   (void)write_only;
+   (void)hints;
+#endif
+}
+
+void _al_destroy_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf)
+{
+#ifdef ALLEGRO_CFG_OPENGL
+   glDeleteBuffers(1, (GLuint*)&buf->handle);
+   al_free(buf->locked_memory);
+#else
+   (void)buf;
+
+   return 0;
+#endif
+}
+
+void _al_lock_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf)
+{
+#ifdef ALLEGRO_CFG_OPENGL
+   int stride = buf->decl == 0 ? (int)sizeof(ALLEGRO_VERTEX) : buf->decl->stride;
+
+   buf->locked_memory = al_realloc(buf->locked_memory, (buf->lock_end - buf->lock_start) * stride);
+
+   if (buf->lock_flags != ALLEGRO_LOCK_WRITEONLY) {
+      glBindBuffer(GL_ARRAY_BUFFER, (GLuint)buf->handle);
+      glGetBufferSubData(GL_ARRAY_BUFFER, buf->lock_start * stride, (buf->lock_end - buf->lock_start) * stride, buf->locked_memory);
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+   }
+#else
+   (void)buf;
+#endif
+}
+
+void _al_unlock_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf)
+{
+#ifdef ALLEGRO_CFG_OPENGL
+   int stride = buf->decl == 0 ? (int)sizeof(ALLEGRO_VERTEX) : buf->decl->stride;
+
+   if (buf->lock_flags != ALLEGRO_LOCK_READONLY) {
+      glBindBuffer(GL_ARRAY_BUFFER, (GLuint)buf->handle);
+      glBufferSubData(GL_ARRAY_BUFFER, buf->lock_start * stride, (buf->lock_end - buf->lock_start) * stride, buf->locked_memory);
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+   }
+#else
+   (void)buf;
+#endif
+}

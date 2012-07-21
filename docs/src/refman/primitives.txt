@@ -567,6 +567,60 @@ The line is drawn top to bottom.
 
 See also: [al_draw_line]
 
+## Vertex buffer routines
+
+### API: al_create_vertex_buffer
+
+Creates a vertex buffer.
+
+*Parameters:*
+
+* decl - Vertex type that this buffer will hold. 0 implies that this buffer will
+   hold ALLEGRO_VERTEX] vertices
+* initial_data - Memory buffer to copy from to initialize the vertex buffer. Can
+   be 0, in which case the buffer is uninitialized.
+* num_vertices - Number of vertices the buffer will hold
+* write_only - Whether the buffer will be read from by your code
+* usage_hints - A combination of the [ALLEGRO_BUFFER_USAGE_HINTS] flags
+   specifying how this buffer will be used
+
+Since: 5.1.0
+
+See also: [ALLEGRO_VERTEX_BUFFER], [al_destroy_vertex_buffer]
+
+### API: al_destroy_vertex_buffer
+
+Destroys a vertex buffer. Does nothing if passed 0.
+
+Since: 5.1.0
+
+See also: [ALLEGRO_VERTEX_BUFFER], [al_create_vertex_buffer]
+
+### API: al_lock_vertex_buffer
+
+Locks a vertex buffer so you can access its data. Will return 0 if the
+parameters are invalid, if reading is requested from a write only buffer and
+if the buffer is already locked.
+
+*Parameters:*
+
+* buffer - Vertex buffer to lock
+* start - Vertex index of the start of the locked range
+* end - One vertex past the end of the locked range
+* flags - ALLEGRO_LOCK_READONLY, ALLEGRO_LOCK_WRITEONLY or ALLEGRO_LOCK_READWRITE
+
+Since: 5.1.0
+
+See also: [ALLEGRO_VERTEX_BUFFER], [al_unlock_vertex_buffer]
+
+### API: al_unlock_vertex_buffer
+
+Unlocks a previously locked vertex buffer.
+
+Since: 5.1.0
+
+See also: [ALLEGRO_VERTEX_BUFFER], [al_lock_vertex_buffer]
+
 ## Polygon routines
 
 ### API: al_draw_polyline
@@ -877,3 +931,41 @@ vertex looks.)
 Since: 5.1.0
 
 See also: [al_draw_polygon]
+
+### API: ALLEGRO_VERTEX_BUFFER
+
+A GPU vertex buffer that you can use to store vertices on the GPU instead of
+uploading them afresh during every drawing operation.
+
+Since: 5.1.0
+
+See also: [al_create_vertex_buffer], [al_destroy_vertex_buffer]
+
+### API: ALLEGRO_BUFFER_USAGE_HINTS
+
+Flags to provide hints to the GPU about how to best handle your vertex buffer.
+Valid combinations of these flags are a single flag from the usage frequency
+group and a single flag from the usage type group.
+
+Usage frequency:
+
+* ALLEGRO_BUFFER_STREAM - The buffer is written to often, but used only a few
+   times per frame
+
+* ALLEGRO_BUFFER_STATIC - The buffer is written to once and is used often
+
+* ALLEGRO_BUFFER_DYNAMIC - The buffer is written to often and is used often
+
+Usage type:
+
+* ALLEGRO_BUFFER_DRAW - The buffer is meant to be used for drawing operations
+
+* ALLEGRO_BUFFER_READ - The buffer is meant to be used for returning data from
+   the GPU
+
+* ALLEGRO_BUFFER_COPY - The buffer is meant to be written to and read only by
+   the GPU
+
+Since: 5.1.0
+
+See also: [al_create_vertex_buffer]
