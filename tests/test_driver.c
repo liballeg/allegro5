@@ -980,7 +980,7 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
       }
 
       if (SCAN("al_draw_pixel", 3)) {
-         al_draw_pixel(I(0), I(1), C(2));
+         al_draw_pixel(F(0), F(1), C(2));
          continue;
       }
 
