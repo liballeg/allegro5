@@ -233,7 +233,7 @@ static void* convert_to_legacy_vertices(const void* vtxs, int num_vertices, cons
 }
 
 
-static int _al_draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
+static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    const void* vtx, const ALLEGRO_VERTEX_DECL* decl,
    const int* indices, int num_vtx, int type)
 {
@@ -554,7 +554,7 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const
 {
 #ifdef ALLEGRO_CFG_D3D
    int stride = decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX);
-   return _al_draw_prim_raw(target, texture, (const char*)vtxs + start * stride, decl, 0, end - start, type);
+   return draw_prim_raw(target, texture, (const char*)vtxs + start * stride, decl, 0, end - start, type);
 #else
    (void)target;
    (void)texture;
@@ -571,7 +571,7 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const
 int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, const int* indices, int num_vtx, int type)
 {
 #ifdef ALLEGRO_CFG_D3D
-   return _al_draw_prim_raw(target, texture, vtxs, decl, indices, num_vtx, type);
+   return draw_prim_raw(target, texture, vtxs, decl, indices, num_vtx, type);
 #else
    (void)target;
    (void)texture;
