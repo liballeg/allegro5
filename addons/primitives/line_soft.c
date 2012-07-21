@@ -373,7 +373,8 @@ static void line_stepper(uintptr_t state, shader_first first, shader_step step, 
 #define FIRST                                                              \
    first(state, x, y, vtx1, vtx2);                                         \
    if((x2 - x1) * ((float)x - x1) + (y2 - y1) * ((float)y - y1) >= 0)      \
-      draw(state, x, y);
+      draw(state, x, y);                                                   \
+   (void)minor;
    
 #define STEP                                                               \
    step(state, minor);                                                     \
