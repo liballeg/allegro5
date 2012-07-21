@@ -292,7 +292,10 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
   
    if ((!extra->is_backbuffer && ogl_disp->ogl_extras->opengl_target !=
       opengl_target) || al_is_bitmap_locked(target)) {
-      return _al_draw_prim_soft(texture, vtx, decl, 0, num_vtx, type);
+      if(!indices)
+         return _al_draw_prim_soft(texture, vtx, decl, 0, num_vtx, type);
+      else
+         return _al_draw_prim_indexed_soft(texture, vtx, decl, indices, num_vtx, type);
    }
 
    #if defined ALLEGRO_GP2XWIZ || defined ALLEGRO_IPHONE
