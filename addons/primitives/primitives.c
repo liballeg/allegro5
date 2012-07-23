@@ -194,7 +194,12 @@ ALLEGRO_VERTEX_BUFFER* al_create_vertex_buffer(ALLEGRO_VERTEX_DECL* decl,
    const void* initial_data, size_t num_vertices, bool write_only, int hints)
 {
    ALLEGRO_VERTEX_BUFFER* ret = al_calloc(1, sizeof(ALLEGRO_VERTEX_BUFFER));
+#if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
+   (void)write_only;
+   ret->write_only = true;
+#else
    ret->write_only = write_only;
+#endif
    ret->decl = decl;
 
    if (al_get_display_flags(al_get_current_display()) & ALLEGRO_OPENGL) {
@@ -226,6 +231,7 @@ void* al_lock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer, size_t start,
    size_t end, int flags)
 {
    ASSERT(buffer);
+   void* ret = 0;
    if (buffer->is_locked || (buffer->write_only && flags != ALLEGRO_LOCK_WRITEONLY) || start >= end)
       return 0;
 
@@ -234,12 +240,12 @@ void* al_lock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer, size_t start,
    buffer->lock_flags = flags;
 
    if (al_get_display_flags(al_get_current_display()) & ALLEGRO_OPENGL) {
-      _al_lock_vertex_buffer_opengl(buffer);
+      ret = _al_lock_vertex_buffer_opengl(buffer);
    }
 
    buffer->is_locked = true;
 
-   return buffer->locked_memory;
+   return ret;
 }
 
 /* Function: al_unlock_vertex_buffer
