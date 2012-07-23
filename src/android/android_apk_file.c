@@ -42,7 +42,7 @@ static jobject APK_openRead(const char *filename)
 {
    JNIEnv *jnienv = _al_android_get_jnienv();
 
-   jmethodID ctor = _jni_call(jnienv, jclass, GetMethodID, _al_android_apk_stream_class(), "<init>", "(Lorg/liballeg/app/AllegroActivity;Ljava/lang/String;)V");
+   jmethodID ctor = _jni_call(jnienv, jclass, GetMethodID, _al_android_apk_stream_class(), "<init>", "(L" ALLEGRO_CFG_ANDROID_APP_NAME_SLASH "/AllegroActivity;Ljava/lang/String;)V");
 
    jstring str = (*jnienv)->NewStringUTF(jnienv, filename);
 

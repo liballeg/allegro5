@@ -1,5 +1,5 @@
 /*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
+ *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
@@ -102,7 +102,7 @@ jobject _al_android_activity_object()
    return system_data.activity_object;
 }
 
-JNIEXPORT int JNICALL Java_org_liballeg_app_AllegroInputStream_nativeRead(JNIEnv *env, jobject obj, int handle, jbyteArray array, int offset, int length)
+JNI_FUNC(int, AllegroInputStream, nativeRead, (JNIEnv *env, jobject obj, int handle, jbyteArray array, int offset, int length))
 {
    ALLEGRO_FILE *fp = (ALLEGRO_FILE*)handle;
    int ret = -1;
@@ -127,7 +127,7 @@ JNIEXPORT int JNICALL Java_org_liballeg_app_AllegroInputStream_nativeRead(JNIEnv
    return ret;
 }
 
-JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroInputStream_nativeClose(JNIEnv *env, jobject obj, int hdnl)
+JNI_FUNC(void, AllegroInputStream, nativeClose, (JNIEnv *env, jobject obj, int hdnl))
 {
    ALLEGRO_FILE *fp = (ALLEGRO_FILE*)hdnl;
    (void)env;
@@ -181,7 +181,7 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
    return JNI_VERSION_1_4;
 }
 
-JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env, jobject obj)
+JNI_FUNC(bool, AllegroActivity, nativeOnCreate, (JNIEnv *env, jobject obj))
 {
    ALLEGRO_PATH *lib_path = NULL;
    ALLEGRO_USTR *lib_fname = NULL;
@@ -211,10 +211,10 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
    iae = (*env)->FindClass(env, "java/lang/IllegalArgumentException");
    system_data.illegal_argument_exception_class = (*env)->NewGlobalRef(env, iae);
    
-   aisc = (*env)->FindClass(env, "org/liballeg/app/AllegroInputStream");
+   aisc = (*env)->FindClass(env, ALLEGRO_CFG_ANDROID_APP_NAME_SLASH "/AllegroInputStream");
    system_data.input_stream_class = (*env)->NewGlobalRef(env, aisc);
    
-   asc = (*env)->FindClass(env, "org/liballeg/app/AllegroAPKStream");
+   asc = (*env)->FindClass(env, ALLEGRO_CFG_ANDROID_APP_NAME_SLASH "/AllegroAPKStream");
    system_data.apk_stream_class = (*env)->NewGlobalRef(env, asc);
 
    ALLEGRO_DEBUG("create mutex and cond objects");
@@ -300,7 +300,7 @@ JNIEXPORT bool Java_org_liballeg_app_AllegroActivity_nativeOnCreate(JNIEnv *env,
 }
 
 
-JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnPause(JNIEnv *env, jobject obj)
+JNI_FUNC(void, AllegroActivity, nativeOnPause, (JNIEnv *env, jobject obj))
 {
    (void)env; (void)obj;
    
@@ -326,7 +326,7 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnPause(JNIEn
    }
 }
 
-JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnResume(JNIEnv *env, jobject obj)
+JNI_FUNC(void, AllegroActivity, nativeOnResume, (JNIEnv *env, jobject obj))
 {
    ALLEGRO_SYSTEM *sys = &system_data.system->system;
    ALLEGRO_DISPLAY *d = NULL;
@@ -369,7 +369,7 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnResume(JNIE
    }
 }
 
-JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnDestroy(JNIEnv *env, jobject obj)
+JNI_FUNC(void, AllegroActivity, nativeOnDestroy, (JNIEnv *env, jobject obj))
 {
    (void)obj;
    
@@ -394,13 +394,13 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnDestroy(JNI
    memset(&system_data, 0, sizeof(system_data));
 }
 
-JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnAccel(JNIEnv *env, jobject obj, jint id, jfloat x, jfloat y, jfloat z)
+JNI_FUNC(void, AllegroActivity, nativeOnAccel, (JNIEnv *env, jobject obj, jint id, jfloat x, jfloat y, jfloat z))
 {
    (void)env; (void)obj; (void)id;
    _al_android_generate_joystick_event(x, y, z);
 }
 
-JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnOrientationChange(JNIEnv *env, jobject obj, int orientation, bool init)
+JNI_FUNC(void, AllegroActivity, nativeOnOrientationChange, (JNIEnv *env, jobject obj, int orientation, bool init))
 {
    ALLEGRO_SYSTEM *sys = &system_data.system->system;
    ALLEGRO_DISPLAY *d = NULL;
@@ -441,7 +441,7 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeOnOrientation
    }
 }
 
-JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroActivity_nativeCreateDisplay(JNIEnv *env, jobject obj)
+JNI_FUNC(void, AllegroActivity, nativeCreateDisplay, (JNIEnv *env, jobject obj))
 {
    (void)obj;
    ALLEGRO_DEBUG("nativeCreateDisplay begin");
@@ -581,7 +581,7 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
       return NULL;
    }
    
-   jbitmap = _jni_callObjectMethodV(jnienv, system_data.activity_object, "decodeBitmap_f", "(Lorg/liballeg/app/AllegroInputStream;)Landroid/graphics/Bitmap;", input_stream);
+   jbitmap = _jni_callObjectMethodV(jnienv, system_data.activity_object, "decodeBitmap_f", "(L" ALLEGRO_CFG_ANDROID_APP_NAME_SLASH "/AllegroInputStream;)Landroid/graphics/Bitmap;", input_stream);
    ASSERT(jbitmap != NULL);
    
    _jni_callv(jnienv, DeleteLocalRef, input_stream);

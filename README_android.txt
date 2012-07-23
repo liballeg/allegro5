@@ -136,6 +136,13 @@ to the Android tool documentation.
 
         adb logcat
 
+MISCELLANEOUS
+=============
+
+You probably want to rename your program something other than org.liballeg.app,
+so to help with that, you can pass CMake -DANDROID_APP_NAME=... where you give
+it a application/domain name like com.mydomain.myapp.
+
 TODO
 ====
 
