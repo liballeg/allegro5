@@ -584,7 +584,8 @@ Creates a vertex buffer.
    platforms (e.g. OpenGL ES) only support writing to vertex buffers, which
    means that this value will be ignored.
 * usage_hints - A combination of the [ALLEGRO_BUFFER_USAGE_HINTS] flags
-   specifying how this buffer will be used
+   specifying how this buffer will be used. Passing 0 implies
+   `ALLEGRO_BUFFER_STATIC | ALLEGRO_BUFFER_DRAW`.
 
 Since: 5.1.3
 
