@@ -45,7 +45,7 @@ void _al_android_clear_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d);
 void  _al_android_make_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d);
 void _al_android_clear_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d);
 
-JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnCreate(JNIEnv *env, jobject obj)
+JNI_FUNC(void, AllegroSurface, nativeOnCreate, (JNIEnv *env, jobject obj))
 {
    ALLEGRO_DEBUG("nativeOnCreate");
    (void)env;
@@ -62,7 +62,7 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnCreate(JNIEn
    d->recreate = true;
 }
 
-JNIEXPORT bool JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnDestroy(JNIEnv *env, jobject obj)
+JNI_FUNC(bool, AllegroSurface, nativeOnDestroy, (JNIEnv *env, jobject obj))
 {
    ALLEGRO_SYSTEM *sys = (void *)al_get_system_driver();
    ASSERT(system != NULL);
@@ -108,7 +108,7 @@ JNIEXPORT bool JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnDestroy(JNIE
 }
 
 // FIXME: need to loop over the display list looking for the right surface object in the following jni callbacks
-JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnChange(JNIEnv *env, jobject obj, jint format, jint width, jint height)
+JNI_FUNC(void, AllegroSurface, nativeOnChange, (JNIEnv *env, jobject obj, jint format, jint width, jint height))
 {
    ALLEGRO_EVENT event;
 
@@ -181,7 +181,7 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnChange(JNIEn
    al_unlock_mutex(d->mutex);
 }
 
-JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnKeyDown(JNIEnv *env, jobject obj, jint scancode)
+JNI_FUNC(void, AllegroSurface, nativeOnKeyDown, (JNIEnv *env, jobject obj, jint scancode))
 {
    (void)env; (void)obj;
    
@@ -194,7 +194,7 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnKeyDown(JNIE
    _al_android_keyboard_handle_event(display, scancode, true);
 }
 
-JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnKeyUp(JNIEnv *env, jobject obj, jint scancode)
+JNI_FUNC(void, AllegroSurface, nativeOnKeyUp, (JNIEnv *env, jobject obj, jint scancode))
 {
    (void)env; (void)obj;
    
@@ -207,7 +207,7 @@ JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnKeyUp(JNIEnv
    _al_android_keyboard_handle_event(display, scancode, false);
 }
 
-JNIEXPORT void JNICALL Java_org_liballeg_app_AllegroSurface_nativeOnTouch(JNIEnv *env, jobject obj, jint id, jint action, jfloat x, jfloat y, jboolean primary)
+JNI_FUNC(void, AllegroSurface, nativeOnTouch, (JNIEnv *env, jobject obj, jint id, jint action, jfloat x, jfloat y, jboolean primary))
 {
    (void)env; (void)obj;
    
