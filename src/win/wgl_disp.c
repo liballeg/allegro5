@@ -1341,6 +1341,9 @@ static void wgl_flip_display(ALLEGRO_DISPLAY *d)
       glFlush();
    else
       SwapBuffers(disp->dc);
+
+   /* Backup bitmaps created without ALLEGRO_NO_PRESERVE_TEXTURE that are dirty, to system memory */
+   _al_opengl_backup_dirty_bitmaps(d, false);
 }
 
 
