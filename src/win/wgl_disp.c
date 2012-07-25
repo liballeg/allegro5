@@ -1009,6 +1009,8 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
       return false;
    }
 
+   al_identity_transform(&al_get_backbuffer(disp)->transform);
+
    /* Try to enable or disable vsync as requested */
    /* NOTE: my drivers claim I don't have WGL_EXT_swap_control
     * (according to al_have_opengl_extension), but wglSwapIntervalEXT
@@ -1444,10 +1446,6 @@ static bool wgl_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
          win_disp->toggle_w = width;
          win_disp->toggle_h = height;
       }
-
-      _al_ogl_resize_backbuffer(ogl_disp->ogl_extras->backbuffer, width, height);
-
-      setup_gl(d);
    }
 
    return true;
@@ -1490,9 +1488,8 @@ static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d)
    d->w = w;
    d->h = h;
 
-   _al_ogl_resize_backbuffer(ogl_disp->ogl_extras->backbuffer, w, h);
-
    setup_gl(d);
+   _al_ogl_resize_backbuffer(ogl_disp->ogl_extras->backbuffer, w, h);
 
    return true;
 }
