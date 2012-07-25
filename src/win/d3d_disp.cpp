@@ -2247,12 +2247,12 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
    if (!d3d_resize_helper(d, width, height)) {
       d3d_resize_helper(d, orig_w, orig_h);
       ret = false;
-   }
-   else {
+   } else {
       ret = true;
+      d3d_acknowledge_resize(d);
    }
 
-   d3d_acknowledge_resize(d);
+   win_display->ignore_resize = false;
 
    return ret;
 }

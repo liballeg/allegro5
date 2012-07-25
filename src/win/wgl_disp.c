@@ -44,6 +44,7 @@ static ALLEGRO_DISPLAY_INTERFACE vt;
 /* Forward declarations: */
 static void display_thread_proc(void *arg);
 static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp);
+static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d);
 
 /* Prevents switching to desktop resolution when destroying the display. Used
    on full screen resize. */
@@ -1471,10 +1472,12 @@ static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
    if (!wgl_resize_helper(d, width, height)) {
       wgl_resize_helper(d, orig_w, orig_h);
       ret = false;
-   }
-   else {
+   } else {
       ret = true;
+      wgl_acknowledge_resize(d);
    }
+
+   win_display->ignore_resize = false;
 
    return ret;
 }
