@@ -1589,6 +1589,10 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    int num_modes;
    int i;
    int window_x, window_y;
+   /* save width and height in case new fullscreen-mode
+    * fails inside d3d_display_thread_proc and destroys al_display */
+   int pre_destroy_w = al_display->w;
+   int pre_destroy_h = al_display->h;
 
    params.display = d3d_display;
 
@@ -1659,7 +1663,7 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
       ALLEGRO_INFO("Format %d failed.\n", i);
 
       // Display has been destroyed in d3d_display_thread_proc, create empty template again
-      d3d_display = d3d_create_display_helper(al_display->w, al_display->h);
+      d3d_display = d3d_create_display_helper(pre_destroy_w, pre_destroy_h);
       win_display = &d3d_display->win_display;
       al_display = &win_display->display;
       params.display = d3d_display;
@@ -2169,6 +2173,8 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
       d3d_destroy_display_internals(disp);
       d->w = width;
       d->h = height;
+      /* reset refresh rate (let new mode choose one) */
+      d->refresh_rate = 0;
       win_display->end_thread = false;
       win_display->thread_ended = false;
       /* What's this? */
