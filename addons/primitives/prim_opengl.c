@@ -284,6 +284,55 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
    }
 }
 
+static void revert_state(ALLEGRO_BITMAP* texture)
+{
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+
+   if(texture) {
+      if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+#ifndef ALLEGRO_CFG_NO_GLES2
+         float identity[16] = {
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+         };
+         GLint handle;
+         handle = display->ogl_extras->tex_matrix_loc;
+         if (handle >= 0)
+            glUniformMatrix4fv(handle, 1, false, identity);
+         handle = display->ogl_extras->use_tex_matrix_loc;
+         if (handle >= 0)
+            glUniform1i(handle, 0);
+         if (display->ogl_extras->use_tex_loc >= 0)
+            glUniform1i(display->ogl_extras->use_tex_loc, 0);
+#endif
+      }
+      else {
+         glDisable(GL_TEXTURE_2D);
+         glMatrixMode(GL_TEXTURE);
+         glLoadIdentity();
+         glMatrixMode(GL_MODELVIEW);
+      }
+   }
+
+   if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+#ifndef ALLEGRO_CFG_NO_GLES2
+      if (display->ogl_extras->pos_loc >= 0)
+         glDisableVertexAttribArray(display->ogl_extras->pos_loc);
+      if (display->ogl_extras->color_loc >= 0)
+         glDisableVertexAttribArray(display->ogl_extras->color_loc);
+      if (display->ogl_extras->texcoord_loc >= 0)
+         glDisableVertexAttribArray(display->ogl_extras->texcoord_loc);
+#endif
+   }
+   else {
+      glDisableClientState(GL_COLOR_ARRAY);
+      glDisableClientState(GL_VERTEX_ARRAY);
+      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+   }
+}
+
 static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    const void* vtx, const ALLEGRO_VERTEX_DECL* decl,
    const int* indices, int num_vtx, int type)
@@ -409,49 +458,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
       }
    }
 
-   if(texture) {
-      if (ogl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_CFG_NO_GLES2
-         float identity[16] = {
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1
-         };
-         GLint handle;
-         handle = ogl_disp->ogl_extras->tex_matrix_loc;
-         if (handle >= 0)
-            glUniformMatrix4fv(handle, 1, false, identity);
-         handle = ogl_disp->ogl_extras->use_tex_matrix_loc;
-         if (handle >= 0)
-            glUniform1i(handle, 0);
-         if (ogl_disp->ogl_extras->use_tex_loc >= 0)
-            glUniform1i(ogl_disp->ogl_extras->use_tex_loc, 0);
-#endif
-      }
-      else {
-         glDisable(GL_TEXTURE_2D);
-         glMatrixMode(GL_TEXTURE);
-         glLoadIdentity();
-         glMatrixMode(GL_MODELVIEW);
-      }
-   }
-
-   if (ogl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_CFG_NO_GLES2
-      if (ogl_disp->ogl_extras->pos_loc >= 0)
-         glDisableVertexAttribArray(ogl_disp->ogl_extras->pos_loc);
-      if (ogl_disp->ogl_extras->color_loc >= 0)
-         glDisableVertexAttribArray(ogl_disp->ogl_extras->color_loc);
-      if (ogl_disp->ogl_extras->texcoord_loc >= 0)
-         glDisableVertexAttribArray(ogl_disp->ogl_extras->texcoord_loc);
-#endif
-   }
-   else {
-      glDisableClientState(GL_COLOR_ARRAY);
-      glDisableClientState(GL_VERTEX_ARRAY);
-      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-   }
+   revert_state(texture);
 
    return num_primitives;
 }
