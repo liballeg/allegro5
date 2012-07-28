@@ -188,7 +188,7 @@ endif(SUPPORT_OPENGL AND NOT IPHONE)
 example(ex_font ${FONT} ${IMAGE})
 example(ex_font_justify ex_font_justify.cpp ${NIHGUI} ${IMAGE} ${TTF})
 example(ex_logo ${FONT} ${TTF} ${IMAGE} ${PRIM})
-example(ex_projection ${TTF} ${PRIM})
+example(ex_projection ${TTF} ${PRIM} ${IMAGE})
 example(ex_ttf ${TTF} ${PRIM})
 
 example(ex_acodec CONSOLE ${AUDIO} ${ACODEC})
