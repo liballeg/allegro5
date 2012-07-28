@@ -131,6 +131,7 @@ void draw_scrolling_text(void)
    float y = 0;
 
    float c = 1 + (y - scroll_y) / 360 / 2.0;
+   if (c < 0) c = 0;
    al_draw_tinted_bitmap(logo, al_map_rgba_f(c, c, c, c),
       x - bw / 2, y, 0);
    y += bh;
@@ -168,7 +169,7 @@ static void draw_intro_text(void)
       fade = (scroll_y - 50) * 4;
    
    al_identity_transform(&projection);
-   al_translate_transform_3d(&projection, 0, -scroll_y / 3, -180);
+   al_translate_transform_3d(&projection, 0, -scroll_y / 3, -181);
    setup_3d_projection(&projection);
 
    print(font, 0, 0, 0, 0.9, 1, fade, "A long time ago, in a galaxy");
