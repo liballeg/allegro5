@@ -248,20 +248,79 @@ and then applying `other` and not the other way around.
 
 See also: [al_translate_transform], [al_rotate_transform], [al_scale_transform]
 
-## API: al_ortho_transform
+## API: al_orthographic_transform
 
-*Not yet documented.*
+Combines the given transformation with an orthographic transformation which
+maps the screen rectangle to the given left/top and right/bottom coordinates.
+near/far is the z-buffer range, if there is no z-buffer you can set it to
+-1/1.
 
-Since: 5.1.0
+Since: 5.3.0
+
+See also: [al_set_projection_transform], [al_perspective_transform]
+
+## API: al_perspective_transform
+
+Like [al_orthographic_transform] but honors perspective. If everything is at
+a z-position of -near it will look the same as with an orthographic
+transformation.
+
+To use a specific horizontal field of view you can use the relation:
+
+    tan(hfov / 2) = (right - left) / 2 / near
+
+Since: 5.3.0
+
+See also: [al_set_projection_transform], [al_orthographic_transform]
+
+## API: al_translate_transform_3d
+
+Combines the given transformation with a transformation which translates
+coordinates by the given vector.
+
+Since: 5.3.0
+
+See also: [al_set_projection_transform]
+
+## API: al_scale_transform_3d
+
+Combines the given transformation with a transformation which scales
+coordinates by the given vector.
+
+Since: 5.3.0
+
+See also: [al_set_projection_transform]
+
+## API: al_rotate_transform_3d
+
+Combines the given transformation with a transformation which rotates
+coordinates around the given vector by the given angle in radians.
+
+Since: 5.3.0
+
+See also: [al_set_projection_transform]
 
 ## API: al_get_projection_transform
 
-*Not yet documented.*
+Returns the projection transformation of the display as set with
+[al_set_projection_transform].
 
 Since: 5.1.0
+
+See also: [al_set_projection_transform]
 
 ## API: al_set_projection_transform
 
-*Not yet documented.*
+Replaces the projection transformation of the given display.
+
+> *Note:* Unlike the regular 2D transformations, the projection transformation
+> affects all drawing operations done to the current display. This means
+> for example that it is not affected by calls to al_set_target_bitmap (if
+> the bitmap belongs to the same display).
+
+> *Note:* Drawing to memory bitmaps is not affected by the projection
+> transformation.
 
 Since: 5.1.0
+
+See also: [al_get_projection_transform]

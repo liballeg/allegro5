@@ -348,7 +348,7 @@ bool _al_transform_is_translation(const ALLEGRO_TRANSFORM* trans,
    return false;
 }
 
-/* Function: al_ortho_transform
+/* Function: al_orthographic_transform
  */
 void al_orthographic_transform(ALLEGRO_TRANSFORM *trans,
    float left, float top, float n,
