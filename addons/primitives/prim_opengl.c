@@ -257,12 +257,27 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          handle = display->ogl_extras->use_tex_matrix_loc;
          if (handle >= 0)
             glUniform1i(handle, 1);
+
+         if (display->ogl_extras->use_tex_loc >= 0) {
+            glUniform1i(display->ogl_extras->use_tex_loc, 1);
+         }
+         if (display->ogl_extras->tex_loc >= 0) {
+            glBindTexture(GL_TEXTURE_2D, al_get_opengl_texture(texture));
+            glActiveTexture(GL_TEXTURE0);
+            glUniform1i(display->ogl_extras->tex_loc, 0); // 0th sampler
+         }
+         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 #endif
       }
       else {
          glMatrixMode(GL_TEXTURE);
          glLoadMatrixf(mat[0]);
          glMatrixMode(GL_MODELVIEW);
+
+         glEnable(GL_TEXTURE_2D);
+         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
       }
    } else {
       glBindTexture(GL_TEXTURE_2D, 0);
@@ -312,28 +327,6 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
 
    _al_opengl_set_blender(ogl_disp);
    setup_state(vtx, decl, texture);
-   
-   if(texture) {
-      if (ogl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_CFG_NO_GLES2
-         if (ogl_disp->ogl_extras->use_tex_loc >= 0) {
-            glUniform1i(ogl_disp->ogl_extras->use_tex_loc, 1);
-         }
-         if (ogl_disp->ogl_extras->tex_loc >= 0) {
-            glBindTexture(GL_TEXTURE_2D, al_get_opengl_texture(texture));
-            glActiveTexture(GL_TEXTURE0);
-            glUniform1i(ogl_disp->ogl_extras->tex_loc, 0); // 0th sampler
-         }
-         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-#endif
-      }
-      else {
-         glEnable(GL_TEXTURE_2D);
-         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-      }
-   }
 
    if(idx)
    {
