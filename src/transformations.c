@@ -208,6 +208,20 @@ void al_translate_transform(ALLEGRO_TRANSFORM *trans, float x, float y)
    trans->m[3][1] += y;
 }
 
+
+/* Function: al_translate_transform_3d
+ */
+void al_translate_transform_3d(ALLEGRO_TRANSFORM *trans, float x, float y,
+    float z)
+{
+   ASSERT(trans);
+   
+   trans->m[3][0] += x;
+   trans->m[3][1] += y;
+   trans->m[3][2] += z;
+}
+
+
 /* Function: al_rotate_transform
  */
 void al_rotate_transform(ALLEGRO_TRANSFORM *trans, float theta)
@@ -246,6 +260,31 @@ void al_scale_transform(ALLEGRO_TRANSFORM *trans, float sx, float sy)
    
    trans->m[3][0] *= sx;
    trans->m[3][1] *= sy;
+}
+
+
+/* Function: al_scale_transform_3d
+ */
+void al_scale_transform_3d(ALLEGRO_TRANSFORM *trans, float sx, float sy,
+    float sz)
+{
+   ASSERT(trans);
+   
+   trans->m[0][0] *= sx;
+   trans->m[0][1] *= sy;
+   trans->m[0][2] *= sz;
+   
+   trans->m[1][0] *= sx;
+   trans->m[1][1] *= sy;
+   trans->m[1][2] *= sz;
+
+   trans->m[2][0] *= sx;
+   trans->m[2][1] *= sy;
+   trans->m[2][2] *= sz;
+   
+   trans->m[3][0] *= sx;
+   trans->m[3][1] *= sy;
+   trans->m[3][2] *= sz;
 }
 
 /* Function: al_transform_coordinates
@@ -309,11 +348,11 @@ bool _al_transform_is_translation(const ALLEGRO_TRANSFORM* trans,
    return false;
 }
 
-/* Function: al_ortho_transform
+/* Function: al_orthographic_transform
  */
-void al_ortho_transform(ALLEGRO_TRANSFORM *trans,
-   float left, float right, float bottom, float top,
-   float n, float f)
+void al_orthographic_transform(ALLEGRO_TRANSFORM *trans,
+   float left, float top, float n,
+   float right, float bottom, float f)
 {
    float delta_x = right - left;
    float delta_y = top - bottom;
@@ -332,6 +371,68 @@ void al_ortho_transform(ALLEGRO_TRANSFORM *trans,
 
    al_compose_transform(trans, &tmp);
 }
+
+
+/* Function: al_rotate_transform_3d
+ */
+void al_rotate_transform_3d(ALLEGRO_TRANSFORM *trans,
+   float x, float y, float z, float angle)
+{
+   double s = sin(angle);
+   double c = cos(angle);
+   double cc = 1 - c;
+   ALLEGRO_TRANSFORM tmp;
+
+   al_identity_transform(&tmp);
+
+   tmp.m[0][0] = (cc * x * x) + c;
+   tmp.m[0][1] = (cc * x * y) + (z * s);
+   tmp.m[0][2] = (cc * x * z) - (y * s);
+   tmp.m[0][3] = 0;
+
+   tmp.m[1][0] = (cc * x * y) - (z * s);
+   tmp.m[1][1] = (cc * y * y) + c;
+   tmp.m[1][2] = (cc * z * y) + (x * s);
+   tmp.m[1][3] = 0;
+
+   tmp.m[2][0] = (cc * x * z) + (y * s);
+   tmp.m[2][1] = (cc * y * z) - (x * s);
+   tmp.m[2][2] = (cc * z * z) + c;
+   tmp.m[2][3] = 0;
+
+   tmp.m[3][0] = 0;
+   tmp.m[3][1] = 0;
+   tmp.m[3][2] = 0;
+   tmp.m[3][3] = 1;
+
+   al_compose_transform(trans, &tmp);
+}
+
+
+/* Function: al_perspective_transform
+ */
+void al_perspective_transform(ALLEGRO_TRANSFORM *trans,
+   float left, float top, float n,
+   float right, float bottom, float f)
+{
+   float delta_x = right - left;
+   float delta_y = top - bottom;
+   float delta_z = f - n;
+   ALLEGRO_TRANSFORM tmp;
+
+   al_identity_transform(&tmp);
+
+   tmp.m[0][0] = 2.0f * n / delta_x;
+   tmp.m[1][1] = 2.0f * n / delta_y;
+   tmp.m[2][0] = (right + left) / delta_x;
+   tmp.m[2][1] = (top + bottom) / delta_y;
+   tmp.m[2][2] = -(f + n) / delta_z;
+   tmp.m[2][3] = -1.0f;
+   tmp.m[3][2] = -2.0f * f * n / delta_z;
+
+   al_compose_transform(trans, &tmp);
+}
+
 
 /* Function: al_get_projection_transform
  */

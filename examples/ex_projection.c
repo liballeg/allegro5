@@ -1,0 +1,255 @@
+#include <stdio.h>
+#include <stdarg.h>
+#include <math.h>
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_image.h>
+#include <allegro5/allegro_ttf.h>
+#include <allegro5/allegro_primitives.h>
+
+#include "common.c"
+
+/* How far has the text been scrolled. */
+float scroll_y;
+
+/* Total length of the scrolling text in pixels. */
+int text_length;
+
+/* The Alex logo. */
+ALLEGRO_BITMAP *logo;
+
+/* The star particle. */
+ALLEGRO_BITMAP *particle;
+
+/* The font we use for everything. */
+ALLEGRO_FONT *font;
+
+
+/* Load a bitmap or font and exit with a message if it's missing. */
+static void *load(char const *path, char const *type, ...)
+{
+   void *data = NULL;
+   va_list args;
+   va_start(args, type);
+   if (!strcmp(type, "bitmap")) {
+      data = al_load_bitmap(path);
+   }
+   else if (!strcmp(type, "font")) {
+      int size = va_arg(args, int);
+      int flags = va_arg(args, int);
+      data = al_load_font(path, size, flags);
+   }
+   va_end(args);
+   if (!data) {
+      abort_example("Could not load %s %s", type, path);
+   }
+   return data;
+}
+
+
+/* Print fading text. */
+static int print(ALLEGRO_FONT *font, float x, float y, float r, float g,
+   float b, float fade, char const *text)
+{
+   float c = 1 + (y - fade) / 360 / 2.0;
+   if (c > 1)
+      c = 1;
+   if (c < 0)
+      c = 0;
+   al_draw_text(font, al_map_rgba_f(c * r, c * g, c * b, c), x, y,
+      ALLEGRO_ALIGN_CENTER, text);
+   return y + al_get_font_line_height(font);
+}
+
+
+/* Set up a perspective transform. We make the screen span
+ * 180 vertical units with square pixel aspect and 90° vertical
+ * FoV.
+ */
+static void setup_3d_projection(ALLEGRO_TRANSFORM *projection)
+{
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   
+   int dw = al_get_display_width(display);
+   int dh = al_get_display_height(display);
+   al_perspective_transform(projection, -180 * dw / dh, -180, 180,
+      180 * dw / dh, 180, 3000);
+   al_set_projection_transform(display, projection);
+}
+
+
+/* 3D transformations make it very easy to draw a starfield. */
+static void draw_stars(void)
+{
+   ALLEGRO_TRANSFORM projection;
+   int i;
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+
+   srand(0);
+   for (i = 0; i < 100; i++) {
+      al_identity_transform(&projection);
+      al_translate_transform_3d(&projection, 0, 0, -2000 +
+         ((int)scroll_y * 1000 / text_length + rand()) % 2000 - 180);
+      setup_3d_projection(&projection);
+      al_draw_bitmap(particle, rand() % 4000 - 2000,
+         rand() % 2000 - 1000, 0);
+   }
+}
+
+
+/* The main part of this example. */
+void draw_scrolling_text(void)
+{
+   ALLEGRO_TRANSFORM projection;
+   int bw = al_get_bitmap_width(logo);
+   int bh = al_get_bitmap_height(logo);
+
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+
+   al_identity_transform(&projection);
+
+   /* First, we scroll the text in in the y direction (inside the x/z
+    * plane) and move it away from the camera (in the z direction).
+    * We move it as far as half the display height to get a vertical
+    * FOV of 90 degrees.
+    */
+   al_translate_transform_3d(&projection, 0, -scroll_y, -180);
+
+   /* Then we tilt it backwards 30 degrees. */
+   al_rotate_transform_3d(&projection, 1, 0, 0,
+      30 * ALLEGRO_PI / 180.0);
+
+   /* And finally move it down so the 0 position ends up
+    * at the bottom of the screen.
+    */
+   al_translate_transform_3d(&projection, 0, 180, 0);
+
+   setup_3d_projection(&projection);
+
+   #define T(_) y = print(font, x, y, 1, 0.9, 0.3, scroll_y, _);
+
+   float x = 0;
+   float y = 0;
+
+   float c = 1 + (y - scroll_y) / 360 / 2.0;
+   al_draw_tinted_bitmap(logo, al_map_rgba_f(c, c, c, c),
+      x - bw / 2, y, 0);
+   y += bh;
+
+   T("Allegro 5")
+   T("")
+   T("It is a period of game programming.")
+   T("Game coders have won their first")
+   T("victory against the evil")
+   T("General Protection Fault.")
+   T("")
+   T("During the battle, hackers managed")
+   T("to steal the secret source to the")
+   T("General's ultimate weapon,")
+   T("the ACCESS VIOLATION, a kernel")
+   T("exception with enough power to")
+   T("destroy an entire program.")
+   T("")
+   T("Pursued by sinister bugs the")
+   T("Allegro developers race home")
+   T("aboard their library to save")
+   T("all game programmers and restore")
+   T("freedom to the open source world.")
+}
+
+static void draw_intro_text(void)
+{
+   ALLEGRO_TRANSFORM projection;
+   int fade;
+   int fh = al_get_font_line_height(font);
+
+   if (scroll_y < 50)
+      fade = (50 - scroll_y) * 12;
+   else
+      fade = (scroll_y - 50) * 4;
+   
+   al_identity_transform(&projection);
+   al_translate_transform_3d(&projection, 0, -scroll_y / 3, -180);
+   setup_3d_projection(&projection);
+
+   print(font, 0, 0, 0, 0.9, 1, fade, "A long time ago, in a galaxy");
+   print(font, 0, 0 + fh, 0, 0.9, 1, fade, "not too far away...");
+}
+
+
+int main()
+{
+   ALLEGRO_DISPLAY *display;
+   ALLEGRO_TIMER *timer;
+   ALLEGRO_EVENT_QUEUE *queue;
+   int redraw = 0;
+
+   al_init();
+   al_init_image_addon();
+   al_init_font_addon();
+   al_init_ttf_addon();
+   al_install_keyboard();
+
+   al_set_new_display_flags(ALLEGRO_RESIZABLE);
+   display = al_create_display(640, 360);
+
+   al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR |
+      ALLEGRO_MIPMAP);
+
+   font = load("data/DejaVuSans.ttf", "font", 40, 0);
+   logo = load("data/alexlogo.png", "bitmap");
+   particle = load("data/haiku/air_effect.png", "bitmap");
+
+   al_convert_mask_to_alpha(logo, al_map_rgb(255, 0, 255));
+
+   text_length = al_get_bitmap_height(logo) +
+      19 * al_get_font_line_height(font);
+
+   timer = al_create_timer(1.0 / 60);
+
+   queue = al_create_event_queue();
+   al_register_event_source(queue, al_get_keyboard_event_source());
+   al_register_event_source(queue, al_get_display_event_source(display));
+   al_register_event_source(queue, al_get_timer_event_source(timer));
+
+   al_start_timer(timer);
+   while (true) {
+      ALLEGRO_EVENT event;
+
+      al_wait_for_event(queue, &event);
+      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+         break;
+      else if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
+         al_acknowledge_resize(display);
+      }
+      else if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
+            event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+         break;
+      }
+      else if (event.type == ALLEGRO_EVENT_TIMER) {
+         scroll_y++;
+         if (scroll_y > text_length * 2)
+            scroll_y -= text_length * 2;
+
+         redraw = 1;
+      }
+
+      if (redraw  && al_is_event_queue_empty(queue)) {
+         ALLEGRO_COLOR black = al_map_rgba_f(0, 0, 0, 1);
+
+         al_clear_to_color(black);
+
+         draw_stars();
+
+         draw_scrolling_text();
+         
+         draw_intro_text();
+
+         al_flip_display();
+         redraw = 0;
+       }
+   }
+
+   return 0;
+}
+
+/* vim: set sts=4 sw=4 et: */

@@ -1353,12 +1353,6 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    _al_event_source_init(&dpy->parent.es);
    osx_change_cursor(dpy, [NSCursor arrowCursor]);
    dpy->show_cursor = YES;
-
-   if (dpy->parent.flags & ALLEGRO_FULLSCREEN_WINDOW) {
-      NSRect sc = [[dpy->win screen] frame];
-      dpy->parent.w = sc.size.width;
-      dpy->parent.h = sc.size.height;
-   }
    
    // Set up a pixel format to describe the mode we want.
    osx_set_opengl_pixelformat_attributes(dpy);
@@ -1380,6 +1374,12 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    [ALDisplayHelper performSelectorOnMainThread: @selector(initialiseDisplay:) 
       withObject: [NSValue valueWithPointer:dpy] 
       waitUntilDone: YES];
+   
+   if (dpy->parent.flags & ALLEGRO_FULLSCREEN_WINDOW) {
+      NSRect sc = [[dpy->win screen] frame];
+      dpy->parent.w = sc.size.width;
+      dpy->parent.h = sc.size.height;
+   }
 
    [dpy->ctx makeCurrentContext];
 

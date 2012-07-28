@@ -69,7 +69,7 @@ See also: [al_get_errno], [ALLEGRO_FILE_MODE]
 
 ## API: al_get_fs_entry_atime
 
-Returns the time in seonds since the epoch since the entry was last
+Returns the time in seconds since the epoch since the entry was last
 accessed.
 
 Warning: some filesystem either don't support this flag, or people turn it
@@ -82,7 +82,7 @@ See also: [al_get_fs_entry_ctime], [al_get_fs_entry_mtime],
 ## API: al_get_fs_entry_ctime
 
 Returns the time in seconds since the epoch this entry was created on the
-filsystem.
+filesystem.
 
 See also: [al_get_fs_entry_atime], [al_get_fs_entry_mtime],
 [al_update_fs_entry]
@@ -106,7 +106,9 @@ See also: [al_update_fs_entry]
 
 Check if the given entry exists on in the filesystem.
 Returns true if it does exist or false if it doesn't exist, or an error occured.
-Error is indicated in Allegro' errno.
+Error is indicated in Allegro's errno.
+
+See also: [al_filename_exists]
 
 ## API: al_remove_fs_entry
 

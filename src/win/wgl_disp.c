@@ -44,6 +44,7 @@ static ALLEGRO_DISPLAY_INTERFACE vt;
 /* Forward declarations: */
 static void display_thread_proc(void *arg);
 static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp);
+static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d);
 
 /* Prevents switching to desktop resolution when destroying the display. Used
    on full screen resize. */
@@ -1008,6 +1009,8 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
       return false;
    }
 
+   al_identity_transform(&al_get_backbuffer(disp)->transform);
+
    /* Try to enable or disable vsync as requested */
    /* NOTE: my drivers claim I don't have WGL_EXT_swap_control
     * (according to al_have_opengl_extension), but wglSwapIntervalEXT
@@ -1338,6 +1341,9 @@ static void wgl_flip_display(ALLEGRO_DISPLAY *d)
       glFlush();
    else
       SwapBuffers(disp->dc);
+
+   /* Backup bitmaps created without ALLEGRO_NO_PRESERVE_TEXTURE that are dirty, to system memory */
+   _al_opengl_backup_dirty_bitmaps(d, false);
 }
 
 
@@ -1449,11 +1455,6 @@ static bool wgl_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
          win_disp->toggle_w = width;
          win_disp->toggle_h = height;
       }
-
-      _al_ogl_resize_backbuffer(ogl_disp->ogl_extras->backbuffer, width, height);
-
-      setup_gl(d);
-      _al_ogl_update_render_state(d);
    }
 
    return true;
@@ -1471,10 +1472,12 @@ static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
    if (!wgl_resize_helper(d, width, height)) {
       wgl_resize_helper(d, orig_w, orig_h);
       ret = false;
-   }
-   else {
+   } else {
       ret = true;
+      wgl_acknowledge_resize(d);
    }
+
+   win_display->ignore_resize = false;
 
    return ret;
 }
@@ -1494,9 +1497,9 @@ static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d)
    d->w = w;
    d->h = h;
 
-   _al_ogl_resize_backbuffer(ogl_disp->ogl_extras->backbuffer, w, h);
-
    setup_gl(d);
+   _al_ogl_resize_backbuffer(ogl_disp->ogl_extras->backbuffer, w, h);
+   _al_ogl_update_render_state(d);
 
    return true;
 }
