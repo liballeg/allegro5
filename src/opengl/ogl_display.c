@@ -331,7 +331,8 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 
             if (set_projection) {
                al_identity_transform(&display->proj_transform);
-               al_ortho_transform(&display->proj_transform, 0, bitmap->w, bitmap->h, 0, -1, 1);
+               al_orthographic_transform(&display->proj_transform,
+                  0, 0, -1, bitmap->w, bitmap->h, 1);
                display->vt->set_projection(display);
             }
          }
@@ -358,7 +359,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       /* We use upside down coordinates compared to OpenGL, so the bottommost
        * coordinate is display->h not 0.
        */
-      al_ortho_transform(&display->proj_transform, 0, display->w, display->h, 0, -1, 1);
+      al_orthographic_transform(&display->proj_transform, 0, 0, -1, display->w, display->h, 1);
 #else
       glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
       _al_iphone_setup_opengl_view(display);
