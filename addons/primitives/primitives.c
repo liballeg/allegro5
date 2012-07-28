@@ -230,8 +230,8 @@ void al_destroy_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer)
 void* al_lock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer, size_t start,
    size_t end, int flags)
 {
+   void* ret;
    ASSERT(buffer);
-   void* ret = 0;
    if (buffer->is_locked || (buffer->write_only && flags != ALLEGRO_LOCK_WRITEONLY) || start >= end)
       return 0;
 
@@ -241,6 +241,9 @@ void* al_lock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer, size_t start,
 
    if (al_get_display_flags(al_get_current_display()) & ALLEGRO_OPENGL) {
       ret = _al_lock_vertex_buffer_opengl(buffer);
+   }
+   else {
+      ret = NULL;
    }
 
    buffer->is_locked = true;
