@@ -1367,7 +1367,6 @@ static void wgl_update_display_region(ALLEGRO_DISPLAY *d,
 static bool wgl_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
 {
    ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)d;
-   ALLEGRO_DISPLAY *ogl_disp = (ALLEGRO_DISPLAY *)d;
    ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)d;
    int full_w, full_h;
    ALLEGRO_MONITOR_INFO mi;
