@@ -412,13 +412,18 @@ See also: [al_calculate_ribbon]
 
 Low level drawing routines allow for more advanced usage of the addon, allowing
 you to pass arbitrary sequences of vertices to draw to the screen. These
-routines also support using textures on the primitives with some restrictions. 
+routines also support using textures on the primitives with the following
+restrictions:
+
 For maximum portability, you should only use textures that have dimensions that 
 are a power of two, as not every videocard supports them completely. This 
 warning is relaxed, however, if the texture coordinates never exit the
 boundaries of a single bitmap (i.e. you are not having the texture repeat/tile).
 As long as that is the case, any texture can be used safely. Sub-bitmaps work
 as textures, but cannot be tiled.
+
+Some platforms also dictate a minimum texture size, which means that textures
+smaller than that size will not tile properly. This minimum size is 16 by 16.
 
 A note about pixel coordinates. In OpenGL the texture coordinate (0, 0) refers
 to the top left corner of the pixel. This confuses some drivers, because due to
