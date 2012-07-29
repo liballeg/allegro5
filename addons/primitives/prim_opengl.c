@@ -335,7 +335,76 @@ static void revert_state(ALLEGRO_BITMAP* texture)
 
 static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    const void* vtx, const ALLEGRO_VERTEX_DECL* decl,
-   const int* indices, int num_vtx, int type)
+   int start, int end, int type)
+{
+   int num_primitives = 0;
+   ALLEGRO_DISPLAY *ogl_disp = target->display;
+   ALLEGRO_BITMAP *opengl_target = target;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *extra;
+   int stride = decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX);
+   int num_vtx = end - start;
+
+   vtx = (const char*)vtx + start * stride;
+
+   if (target->parent) {
+       opengl_target = target->parent;
+   }
+   extra = opengl_target->extra;
+
+   if ((!extra->is_backbuffer && ogl_disp->ogl_extras->opengl_target !=
+      opengl_target) || al_is_bitmap_locked(target)) {
+      return _al_draw_prim_soft(texture, vtx, decl, 0, num_vtx, type);
+   }
+
+   _al_opengl_set_blender(ogl_disp);
+   setup_state(vtx, decl, texture);
+
+   switch (type) {
+      case ALLEGRO_PRIM_LINE_LIST: {
+         glDrawArrays(GL_LINES, 0, num_vtx);
+         num_primitives = num_vtx / 2;
+         break;
+      };
+      case ALLEGRO_PRIM_LINE_STRIP: {
+         glDrawArrays(GL_LINE_STRIP, 0, num_vtx);
+         num_primitives = num_vtx - 1;
+         break;
+      };
+      case ALLEGRO_PRIM_LINE_LOOP: {
+         glDrawArrays(GL_LINE_LOOP, 0, num_vtx);
+         num_primitives = num_vtx;
+         break;
+      };
+      case ALLEGRO_PRIM_TRIANGLE_LIST: {
+         glDrawArrays(GL_TRIANGLES, 0, num_vtx);
+         num_primitives = num_vtx / 3;
+         break;
+      };
+      case ALLEGRO_PRIM_TRIANGLE_STRIP: {
+         glDrawArrays(GL_TRIANGLE_STRIP, 0, num_vtx);
+         num_primitives = num_vtx - 2;
+         break;
+      };
+      case ALLEGRO_PRIM_TRIANGLE_FAN: {
+         glDrawArrays(GL_TRIANGLE_FAN, 0, num_vtx);
+         num_primitives = num_vtx - 2;
+         break;
+      };
+      case ALLEGRO_PRIM_POINT_LIST: {
+         glDrawArrays(GL_POINTS, 0, num_vtx);
+         num_primitives = num_vtx;
+         break;
+      };
+   }
+
+   revert_state(texture);
+
+   return num_primitives;
+}
+
+static int draw_prim_indexed_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
+   const void* vtx, const ALLEGRO_VERTEX_DECL* decl, const int* indices,
+   int num_vtx, int type)
 {
    int num_primitives = 0;
    ALLEGRO_DISPLAY *ogl_disp = target->display;
@@ -348,28 +417,23 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    GLushort ind[num_vtx];
    int ii;
 #endif
-   
+
    if (target->parent) {
        opengl_target = target->parent;
    }
    extra = opengl_target->extra;
-  
+
    if ((!extra->is_backbuffer && ogl_disp->ogl_extras->opengl_target !=
       opengl_target) || al_is_bitmap_locked(target)) {
-      if(!indices)
-         return _al_draw_prim_soft(texture, vtx, decl, 0, num_vtx, type);
-      else
-         return _al_draw_prim_indexed_soft(texture, vtx, decl, indices, num_vtx, type);
+      return _al_draw_prim_indexed_soft(texture, vtx, decl, indices, num_vtx, type);
    }
 
 #if defined ALLEGRO_GP2XWIZ || defined ALLEGRO_IPHONE
-   if (idx) {
-      for (ii = 0; ii < num_vtx; ii++) {
-         ind[ii] = (GLushort)indices[ii];
-      }
-      idx = ind;
-      idx_size = GL_UNSIGNED_SHORT;
+   for (ii = 0; ii < num_vtx; ii++) {
+      ind[ii] = (GLushort)indices[ii];
    }
+   idx = ind;
+   idx_size = GL_UNSIGNED_SHORT;
 #else
    idx_size = GL_UNSIGNED_INT;
 #endif
@@ -377,89 +441,46 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    _al_opengl_set_blender(ogl_disp);
    setup_state(vtx, decl, texture);
 
-   if(idx)
-   {
-      switch (type) {
-         case ALLEGRO_PRIM_LINE_LIST: {
-            glDrawElements(GL_LINES, num_vtx, idx_size, idx);
-            num_primitives = num_vtx / 2;
-            break;
-         };
-         case ALLEGRO_PRIM_LINE_STRIP: {
-            glDrawElements(GL_LINE_STRIP, num_vtx, idx_size, idx);
-            num_primitives = num_vtx - 1;
-            break;
-         };
-         case ALLEGRO_PRIM_LINE_LOOP: {
-            glDrawElements(GL_LINE_LOOP, num_vtx, idx_size, idx);
-            num_primitives = num_vtx;
-            break;
-         };
-         case ALLEGRO_PRIM_TRIANGLE_LIST: {
-            glDrawElements(GL_TRIANGLES, num_vtx, idx_size, idx);
-            num_primitives = num_vtx / 3;
-            break;
-         };
-         case ALLEGRO_PRIM_TRIANGLE_STRIP: {
-            glDrawElements(GL_TRIANGLE_STRIP, num_vtx, idx_size, idx);
-            num_primitives = num_vtx - 2;
-            break;
-         };
-         case ALLEGRO_PRIM_TRIANGLE_FAN: {
-            glDrawElements(GL_TRIANGLE_FAN, num_vtx, idx_size, idx);
-            num_primitives = num_vtx - 2;
-            break;
-         };
-         case ALLEGRO_PRIM_POINT_LIST: {
-            glDrawElements(GL_POINTS, num_vtx, idx_size, idx);
-            num_primitives = num_vtx;
-            break;
-         };
-      }
-   }
-   else
-   {
-      switch (type) {
-         case ALLEGRO_PRIM_LINE_LIST: {
-            glDrawArrays(GL_LINES, 0, num_vtx);
-            num_primitives = num_vtx / 2;
-            break;
-         };
-         case ALLEGRO_PRIM_LINE_STRIP: {
-            glDrawArrays(GL_LINE_STRIP, 0, num_vtx);
-            num_primitives = num_vtx - 1;
-            break;
-         };
-         case ALLEGRO_PRIM_LINE_LOOP: {
-            glDrawArrays(GL_LINE_LOOP, 0, num_vtx);
-            num_primitives = num_vtx;
-            break;
-         };
-         case ALLEGRO_PRIM_TRIANGLE_LIST: {
-            glDrawArrays(GL_TRIANGLES, 0, num_vtx);
-            num_primitives = num_vtx / 3;
-            break;
-         };
-         case ALLEGRO_PRIM_TRIANGLE_STRIP: {
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, num_vtx);
-            num_primitives = num_vtx - 2;
-            break;
-         };
-         case ALLEGRO_PRIM_TRIANGLE_FAN: {
-            glDrawArrays(GL_TRIANGLE_FAN, 0, num_vtx);
-            num_primitives = num_vtx - 2;
-            break;
-         };
-         case ALLEGRO_PRIM_POINT_LIST: {
-            glDrawArrays(GL_POINTS, 0, num_vtx);
-            num_primitives = num_vtx;
-            break;
-         };
-      }
+   switch (type) {
+      case ALLEGRO_PRIM_LINE_LIST: {
+         glDrawElements(GL_LINES, num_vtx, idx_size, idx);
+         num_primitives = num_vtx / 2;
+         break;
+      };
+      case ALLEGRO_PRIM_LINE_STRIP: {
+         glDrawElements(GL_LINE_STRIP, num_vtx, idx_size, idx);
+         num_primitives = num_vtx - 1;
+         break;
+      };
+      case ALLEGRO_PRIM_LINE_LOOP: {
+         glDrawElements(GL_LINE_LOOP, num_vtx, idx_size, idx);
+         num_primitives = num_vtx;
+         break;
+      };
+      case ALLEGRO_PRIM_TRIANGLE_LIST: {
+         glDrawElements(GL_TRIANGLES, num_vtx, idx_size, idx);
+         num_primitives = num_vtx / 3;
+         break;
+      };
+      case ALLEGRO_PRIM_TRIANGLE_STRIP: {
+         glDrawElements(GL_TRIANGLE_STRIP, num_vtx, idx_size, idx);
+         num_primitives = num_vtx - 2;
+         break;
+      };
+      case ALLEGRO_PRIM_TRIANGLE_FAN: {
+         glDrawElements(GL_TRIANGLE_FAN, num_vtx, idx_size, idx);
+         num_primitives = num_vtx - 2;
+         break;
+      };
+      case ALLEGRO_PRIM_POINT_LIST: {
+         glDrawElements(GL_POINTS, num_vtx, idx_size, idx);
+         num_primitives = num_vtx;
+         break;
+      };
    }
 
    revert_state(texture);
-
+   
    return num_primitives;
 }
 
@@ -468,8 +489,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
 int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, int start, int end, int type)
 {
 #ifdef ALLEGRO_CFG_OPENGL
-   int stride = decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX);
-   return draw_prim_raw(target, texture, (const char*)vtxs + start * stride, decl, 0, end - start, type);
+   return draw_prim_raw(target, texture, vtxs, decl, start, end, type);
 #else
    (void)target;
    (void)texture;
@@ -486,7 +506,7 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const 
 int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, const int* indices, int num_vtx, int type)
 {
 #ifdef ALLEGRO_CFG_OPENGL
-   return draw_prim_raw(target, texture, vtxs, decl, indices, num_vtx, type);
+   return draw_prim_indexed_raw(target, texture, vtxs, decl, indices, num_vtx, type);
 #else
    (void)target;
    (void)texture;
