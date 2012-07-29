@@ -68,7 +68,6 @@ static int print(ALLEGRO_FONT *font, float x, float y, float r, float g,
 static void setup_3d_projection(ALLEGRO_TRANSFORM *projection)
 {
    ALLEGRO_DISPLAY *display = al_get_current_display();
-   
    int dw = al_get_display_width(display);
    int dh = al_get_display_height(display);
    al_perspective_transform(projection, -180 * dw / dh, -180, 180,
@@ -102,6 +101,7 @@ void draw_scrolling_text(void)
    ALLEGRO_TRANSFORM projection;
    int bw = al_get_bitmap_width(logo);
    int bh = al_get_bitmap_height(logo);
+   float x, y, c;
 
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
 
@@ -125,15 +125,16 @@ void draw_scrolling_text(void)
 
    setup_3d_projection(&projection);
 
-   #define T(_) y = print(font, x, y, 1, 0.9, 0.3, scroll_y, _);
-
-   float x = 0;
-   float y = 0;
-
-   float c = 1 + (y - scroll_y) / 360 / 2.0;
+   x = 0;
+   y = 0;
+   c = 1 + (y - scroll_y) / 360 / 2.0;
+   if (c < 0)
+      c = 0;
    al_draw_tinted_bitmap(logo, al_map_rgba_f(c, c, c, c),
       x - bw / 2, y, 0);
    y += bh;
+
+#define T(str) (y = print(font, x, y, 1, 0.9, 0.3, scroll_y, (str)));
 
    T("Allegro 5")
    T("")
@@ -154,6 +155,8 @@ void draw_scrolling_text(void)
    T("aboard their library to save")
    T("all game programmers and restore")
    T("freedom to the open source world.")
+
+#undef T
 }
 
 static void draw_intro_text(void)
@@ -168,7 +171,7 @@ static void draw_intro_text(void)
       fade = (scroll_y - 50) * 4;
    
    al_identity_transform(&projection);
-   al_translate_transform_3d(&projection, 0, -scroll_y / 3, -180);
+   al_translate_transform_3d(&projection, 0, -scroll_y / 3, -181);
    setup_3d_projection(&projection);
 
    print(font, 0, 0, 0, 0.9, 1, fade, "A long time ago, in a galaxy");
@@ -241,15 +244,15 @@ int main()
          draw_stars();
 
          draw_scrolling_text();
-         
+
          draw_intro_text();
 
          al_flip_display();
          redraw = 0;
-       }
+      }
    }
 
    return 0;
 }
 
-/* vim: set sts=4 sw=4 et: */
+/* vim: set sts=3 sw=3 et: */

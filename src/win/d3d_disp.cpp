@@ -2700,7 +2700,29 @@ static void d3d_set_projection(ALLEGRO_DISPLAY *d)
    else
 #endif
    {
-      d3d_disp->device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)d->proj_transform.m);
+      /* Direct3D uses different clipping in projection space than OpenGL.
+       * In OpenGL the final clip space is [-1..1] x [-1..1] x [-1..1].
+       *
+       * In D3D the clip space is [-1..1] x [-1..1] x [0..1].
+       *
+       * So we need to scale and translate the final z component from [-1..1]
+       * to [0..1]. We do that by scaling with 0.5 then translating by 0.5
+       * below.
+       *
+       * The effect can be seen for example ex_projection - it is broken
+       * without this.
+       */
+
+      ALLEGRO_TRANSFORM tmp = d->proj_transform;
+
+      ALLEGRO_TRANSFORM fix_d3d = d->proj_transform;
+      al_identity_transform(&fix_d3d);
+      al_scale_transform_3d(&fix_d3d, 1, 1, 0.5);
+      al_translate_transform_3d(&fix_d3d, 0, 0, 0.5);
+
+      al_compose_transform(&tmp, &fix_d3d);
+      
+      d3d_disp->device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)tmp.m);
    }
 }
 

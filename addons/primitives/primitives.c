@@ -193,7 +193,9 @@ void al_destroy_vertex_decl(ALLEGRO_VERTEX_DECL* decl)
 ALLEGRO_VERTEX_BUFFER* al_create_vertex_buffer(ALLEGRO_VERTEX_DECL* decl,
    const void* initial_data, size_t num_vertices, bool write_only, int hints)
 {
-   ALLEGRO_VERTEX_BUFFER* ret = al_calloc(1, sizeof(ALLEGRO_VERTEX_BUFFER));
+   ALLEGRO_VERTEX_BUFFER* ret;
+   ASSERT(addon_initialized);
+   ret = al_calloc(1, sizeof(ALLEGRO_VERTEX_BUFFER));
 #if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
    (void)write_only;
    ret->write_only = true;
@@ -213,6 +215,8 @@ ALLEGRO_VERTEX_BUFFER* al_create_vertex_buffer(ALLEGRO_VERTEX_DECL* decl,
  */
 void al_destroy_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer)
 {
+   ASSERT(addon_initialized);
+
    if (buffer == 0)
       return;
 
@@ -230,8 +234,9 @@ void al_destroy_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer)
 void* al_lock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer, size_t start,
    size_t end, int flags)
 {
+   void* ret;
    ASSERT(buffer);
-   void* ret = 0;
+   ASSERT(addon_initialized);
    if (buffer->is_locked || (buffer->write_only && flags != ALLEGRO_LOCK_WRITEONLY) || start >= end)
       return 0;
 
@@ -241,6 +246,9 @@ void* al_lock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer, size_t start,
 
    if (al_get_display_flags(al_get_current_display()) & ALLEGRO_OPENGL) {
       ret = _al_lock_vertex_buffer_opengl(buffer);
+   }
+   else {
+      ret = NULL;
    }
 
    buffer->is_locked = true;
@@ -253,6 +261,7 @@ void* al_lock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer, size_t start,
 void al_unlock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer)
 {
    ASSERT(buffer);
+   ASSERT(addon_initialized);
 
    if (!buffer->is_locked)
       return;
@@ -262,4 +271,35 @@ void al_unlock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer)
    }
 
    buffer->is_locked = false;
+}
+
+/* Function: al_draw_vertex_buffer
+ */
+int al_draw_vertex_buffer(ALLEGRO_VERTEX_BUFFER* vertex_buffer,
+   ALLEGRO_BITMAP* texture, int start, int end, int type)
+{
+   ALLEGRO_BITMAP *target;
+   int ret = 0;
+
+   ASSERT(addon_initialized);
+   ASSERT(end >= start);
+   ASSERT(type >= 0 && type < ALLEGRO_PRIM_NUM_TYPES);
+   ASSERT(vertex_buffer);
+   ASSERT(!vertex_buffer->is_locked);
+
+   target = al_get_target_bitmap();
+
+   if (target->flags & ALLEGRO_MEMORY_BITMAP || (texture && texture->flags & ALLEGRO_MEMORY_BITMAP)) {
+      void* vtx = al_lock_vertex_buffer(vertex_buffer, start, end, ALLEGRO_LOCK_READONLY);
+      if(vtx) {
+         ret = _al_draw_prim_soft(texture, vtx, vertex_buffer->decl, 0, end - start, type);
+      }
+      al_unlock_vertex_buffer(vertex_buffer);
+   } else {
+      if (al_get_display_flags(al_get_current_display()) & ALLEGRO_OPENGL) {
+         ret = _al_draw_vertex_buffer_opengl(target, texture, vertex_buffer, start, end, type);
+      }
+   }
+
+   return ret;
 }

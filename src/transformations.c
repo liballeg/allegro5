@@ -429,6 +429,7 @@ void al_perspective_transform(ALLEGRO_TRANSFORM *trans,
    tmp.m[2][2] = -(f + n) / delta_z;
    tmp.m[2][3] = -1.0f;
    tmp.m[3][2] = -2.0f * f * n / delta_z;
+   tmp.m[3][3] = 0;
 
    al_compose_transform(trans, &tmp);
 }
