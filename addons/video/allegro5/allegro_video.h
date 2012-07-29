@@ -54,7 +54,7 @@ ALLEGRO_VIDEO_FUNC(int, al_get_video_width, (ALLEGRO_VIDEO *video));
 ALLEGRO_VIDEO_FUNC(int, al_get_video_height, (ALLEGRO_VIDEO *video));
 ALLEGRO_VIDEO_FUNC(ALLEGRO_BITMAP *, al_get_video_frame, (ALLEGRO_VIDEO *video));
 ALLEGRO_VIDEO_FUNC(double, al_get_video_position, (ALLEGRO_VIDEO *video, int which));
-ALLEGRO_VIDEO_FUNC(void, al_seek_video, (ALLEGRO_VIDEO *video, double pos_in_seconds));
+ALLEGRO_VIDEO_FUNC(bool, al_seek_video, (ALLEGRO_VIDEO *video, double pos_in_seconds));
 
 #ifdef __cplusplus
    }

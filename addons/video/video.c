@@ -157,11 +157,11 @@ double al_get_video_position(ALLEGRO_VIDEO *video, int which)
 
 /* Function: al_seek_video
  */
-void al_seek_video(ALLEGRO_VIDEO *video, double pos_in_seconds)
+bool al_seek_video(ALLEGRO_VIDEO *video, double pos_in_seconds)
 {
    ASSERT(video);
 
-   video->vtable->seek_video(video, pos_in_seconds);
+   return video->vtable->seek_video(video, pos_in_seconds);
 }
 
 /* Function: al_get_video_aspect_ratio
