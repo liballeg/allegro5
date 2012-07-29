@@ -482,31 +482,28 @@ Number of primitives drawn
 See also:
 [ALLEGRO_VERTEX], [ALLEGRO_PRIM_TYPE], [ALLEGRO_VERTEX_DECL], [al_draw_prim]
 
-### API: al_create_vertex_decl
+### API: al_draw_vertex_buffer
 
-Creates a vertex declaration, which describes a custom vertex format.
+Draws a subset of the passed vertex buffer. The vertex buffer must not be
+locked. Additionally, to draw onto memory bitmaps or with memory bitmap textures
+the vertex buffer must support reading (so it must not be created write only).
 
 *Parameters:*
 
-* elements - An array of ALLEGRO_VERTEX_ELEMENT structures.
-* stride - Size of the custom vertex structure
+* texture - Texture to use, pass 0 to use only color shaded primitves
+* vertex_buffer - Vertex buffer to draw
+* start - Start index of the subset of the vertex buffer to draw
+* end - One past the last index of the subset of the vertex buffer to draw
+* type - A member of the [ALLEGRO_PRIM_TYPE] enumeration, specifying what kind
+         of primitive to draw
 
 *Returns:*
-Newly created vertex declaration.
+Number of primitives drawn
+
+Since: 5.1.3
 
 See also:
-[ALLEGRO_VERTEX_ELEMENT], [ALLEGRO_VERTEX_DECL], [al_destroy_vertex_decl]
-
-### API: al_destroy_vertex_decl
-
-Destroys a vertex declaration.
-
-*Parameters:*
-
-* decl - Vertex declaration to destroy
-
-See also:
-[ALLEGRO_VERTEX_ELEMENT], [ALLEGRO_VERTEX_DECL], [al_create_vertex_decl]
+[ALLEGRO_VERTEX_BUFFER], [ALLEGRO_PRIM_TYPE], [ALLEGRO_VERTEX_DECL]
 
 ### API: al_draw_soft_triangle
 
@@ -567,6 +564,34 @@ The line is drawn top to bottom.
 
 See also: [al_draw_line]
 
+## Custom vertex declaration routines
+
+### API: al_create_vertex_decl
+
+Creates a vertex declaration, which describes a custom vertex format.
+
+*Parameters:*
+
+* elements - An array of ALLEGRO_VERTEX_ELEMENT structures.
+* stride - Size of the custom vertex structure
+
+*Returns:*
+Newly created vertex declaration.
+
+See also:
+[ALLEGRO_VERTEX_ELEMENT], [ALLEGRO_VERTEX_DECL], [al_destroy_vertex_decl]
+
+### API: al_destroy_vertex_decl
+
+Destroys a vertex declaration.
+
+*Parameters:*
+
+* decl - Vertex declaration to destroy
+
+See also:
+[ALLEGRO_VERTEX_ELEMENT], [ALLEGRO_VERTEX_DECL], [al_create_vertex_decl]
+
 ## Vertex buffer routines
 
 ### API: al_create_vertex_buffer
@@ -623,29 +648,6 @@ Unlocks a previously locked vertex buffer.
 Since: 5.1.3
 
 See also: [ALLEGRO_VERTEX_BUFFER], [al_lock_vertex_buffer]
-
-### API: al_draw_vertex_buffer
-
-Draws a subset of the passed vertex buffer. The vertex buffer must not be
-locked. Additionally, to draw onto memory bitmaps or with memory bitmap textures
-the vertex buffer must support reading (so it must not be created write only).
-
-*Parameters:*
-
-* texture - Texture to use, pass 0 to use only color shaded primitves
-* vertex_buffer - Vertex buffer to draw
-* start - Start index of the subset of the vertex buffer to draw
-* end - One past the last index of the subset of the vertex buffer to draw
-* type - A member of the [ALLEGRO_PRIM_TYPE] enumeration, specifying what kind
-         of primitive to draw
-
-*Returns:*
-Number of primitives drawn
-
-Since: 5.1.3
-
-See also:
-[ALLEGRO_VERTEX_BUFFER], [ALLEGRO_PRIM_TYPE], [ALLEGRO_VERTEX_DECL]
 
 ## Polygon routines
 
