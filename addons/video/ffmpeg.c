@@ -1197,12 +1197,12 @@ static bool pause_video(ALLEGRO_VIDEO *video)
    return true;
 }
 
-static bool seek_video(ALLEGRO_VIDEO *video)
+static bool seek_video(ALLEGRO_VIDEO *video, double seek_to)
 {
    VideoState *is = video->data;
    if (!is->seek_req) {
-      is->seek_pos = video->seek_to * AV_TIME_BASE;
-      is->seek_flags = video->seek_to < video->position ? AVSEEK_FLAG_BACKWARD : 0;
+      is->seek_pos = seek_to * AV_TIME_BASE;
+      is->seek_flags = seek_to < video->position ? AVSEEK_FLAG_BACKWARD : 0;
       is->seek_req = 1;
       return true;
    }

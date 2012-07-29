@@ -161,9 +161,7 @@ void al_seek_video(ALLEGRO_VIDEO *video, double pos_in_seconds)
 {
    ASSERT(video);
 
-   /* XXX why is seek_to not just a parameter? */
-   video->seek_to = pos_in_seconds;
-   video->vtable->seek_video(video);
+   video->vtable->seek_video(video, pos_in_seconds);
 }
 
 /* Function: al_get_video_aspect_ratio

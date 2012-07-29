@@ -4,7 +4,7 @@ typedef struct ALLEGRO_VIDEO_INTERFACE {
    bool (*close_video)(ALLEGRO_VIDEO *video);
    bool (*start_video)(ALLEGRO_VIDEO *video);
    bool (*pause_video)(ALLEGRO_VIDEO *video);
-   bool (*seek_video)(ALLEGRO_VIDEO *video);
+   bool (*seek_video)(ALLEGRO_VIDEO *video, double seek_to);
    bool (*update_video)(ALLEGRO_VIDEO *video);
 } ALLEGRO_VIDEO_INTERFACE;
 
@@ -31,7 +31,6 @@ struct ALLEGRO_VIDEO {
    ALLEGRO_PATH *filename;
    bool paused;
    double position;
-   double seek_to;
 
    /* implementation specific */
    void *data;

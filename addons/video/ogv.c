@@ -1177,10 +1177,11 @@ static bool ogv_pause_video(ALLEGRO_VIDEO *video)
    return true;
 }
 
-static bool ogv_seek_video(ALLEGRO_VIDEO *video)
+static bool ogv_seek_video(ALLEGRO_VIDEO *video, double seek_to)
 {
    /* XXX not yet implemented */
    (void)video;
+   (void)seek_to;
    return false;
 }
 
