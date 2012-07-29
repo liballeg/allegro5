@@ -337,10 +337,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    ALLEGRO_DISPLAY *ogl_disp = target->display;
    ALLEGRO_BITMAP *opengl_target = target;
    ALLEGRO_BITMAP_EXTRA_OPENGL *extra;
-   int stride = decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX);
    int num_vtx = end - start;
-
-   vtx = (const char*)vtx + start * stride;
 
    if (target->parent) {
        opengl_target = target->parent;
@@ -349,7 +346,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
 
    if ((!extra->is_backbuffer && ogl_disp->ogl_extras->opengl_target !=
       opengl_target) || al_is_bitmap_locked(target)) {
-      return _al_draw_prim_soft(texture, vtx, decl, 0, num_vtx, type);
+      return _al_draw_prim_soft(texture, vtx, decl, start, end, type);
    }
 
    _al_opengl_set_blender(ogl_disp);
@@ -357,37 +354,37 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
 
    switch (type) {
       case ALLEGRO_PRIM_LINE_LIST: {
-         glDrawArrays(GL_LINES, 0, num_vtx);
+         glDrawArrays(GL_LINES, start, num_vtx);
          num_primitives = num_vtx / 2;
          break;
       };
       case ALLEGRO_PRIM_LINE_STRIP: {
-         glDrawArrays(GL_LINE_STRIP, 0, num_vtx);
+         glDrawArrays(GL_LINE_STRIP, start, num_vtx);
          num_primitives = num_vtx - 1;
          break;
       };
       case ALLEGRO_PRIM_LINE_LOOP: {
-         glDrawArrays(GL_LINE_LOOP, 0, num_vtx);
+         glDrawArrays(GL_LINE_LOOP, start, num_vtx);
          num_primitives = num_vtx;
          break;
       };
       case ALLEGRO_PRIM_TRIANGLE_LIST: {
-         glDrawArrays(GL_TRIANGLES, 0, num_vtx);
+         glDrawArrays(GL_TRIANGLES, start, num_vtx);
          num_primitives = num_vtx / 3;
          break;
       };
       case ALLEGRO_PRIM_TRIANGLE_STRIP: {
-         glDrawArrays(GL_TRIANGLE_STRIP, 0, num_vtx);
+         glDrawArrays(GL_TRIANGLE_STRIP, start, num_vtx);
          num_primitives = num_vtx - 2;
          break;
       };
       case ALLEGRO_PRIM_TRIANGLE_FAN: {
-         glDrawArrays(GL_TRIANGLE_FAN, 0, num_vtx);
+         glDrawArrays(GL_TRIANGLE_FAN, start, num_vtx);
          num_primitives = num_vtx - 2;
          break;
       };
       case ALLEGRO_PRIM_POINT_LIST: {
-         glDrawArrays(GL_POINTS, 0, num_vtx);
+         glDrawArrays(GL_POINTS, start, num_vtx);
          num_primitives = num_vtx;
          break;
       };
