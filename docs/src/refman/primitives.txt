@@ -626,7 +626,9 @@ See also: [ALLEGRO_VERTEX_BUFFER], [al_lock_vertex_buffer]
 
 ### API: al_draw_vertex_buffer
 
-Draws a subset of the passed vertex buffer.
+Draws a subset of the passed vertex buffer. The vertex buffer must not be
+locked. Additionally, to draw onto memory bitmaps or with memory bitmap textures
+the vertex buffer must support reading (so it must not be created write only).
 
 *Parameters:*
 
