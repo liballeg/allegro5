@@ -97,6 +97,7 @@ struct OGG_VIDEO {
    ALLEGRO_BITMAP *frame_bmp;
    ALLEGRO_BITMAP *pic_bmp;         /* frame_bmp, or subbitmap thereof */
 
+   ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_MUTEX *mutex;
    ALLEGRO_THREAD *thread;
 };
@@ -871,7 +872,6 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
    THEORA_STREAM *tstream = NULL;
    STREAM *vstream_outer;
    VORBIS_STREAM *vstream = NULL;
-   ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_TIMER *timer;
    double audio_pos_step = 0.0;
    double timer_dur;
@@ -904,8 +904,6 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
       return NULL;
    }
 
-   queue = al_create_event_queue();
-
    timer_dur = 1.0;
    if (audio_pos_step != 0.0) {
       timer_dur = audio_pos_step / NUM_FRAGS;
@@ -914,10 +912,10 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
       timer_dur = tstream->frame_duration;
    }
    timer = al_create_timer(timer_dur);
-   al_register_event_source(queue, al_get_timer_event_source(timer));
+   al_register_event_source(ogv->queue, al_get_timer_event_source(timer));
 
    if (video->audio) {
-      al_register_event_source(queue,
+      al_register_event_source(ogv->queue,
          al_get_audio_stream_event_source(video->audio));
    }
 
@@ -928,7 +926,7 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
    while (!al_get_thread_should_stop(thread)) {
       ALLEGRO_EVENT ev;
 
-      al_wait_for_event(queue, &ev);
+      al_wait_for_event(ogv->queue, &ev);
 
       if (ev.type == ALLEGRO_EVENT_TIMER) {
          if (vstream_outer && !video->paused) {
@@ -969,7 +967,6 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
       video->audio = NULL;
    }
    al_destroy_timer(timer);
-   al_destroy_event_queue(queue);
 
    ALLEGRO_DEBUG("Thread exit.\n");
 
@@ -1127,6 +1124,7 @@ static bool ogv_close_video(ALLEGRO_VIDEO *video)
    if (ogv) {
       if (ogv->thread) {
          al_join_thread(ogv->thread, NULL);
+         al_destroy_event_queue(ogv->queue);
          al_destroy_mutex(ogv->mutex);
          al_destroy_thread(ogv->thread);
       }
@@ -1160,12 +1158,14 @@ static bool ogv_start_video(ALLEGRO_VIDEO *video)
       return false;
    }
 
-   ogv->mutex = al_create_mutex();
    ogv->thread = al_create_thread(decode_thread_func, video);
    if (!ogv->thread) {
       ALLEGRO_ERROR("Could not create thread.\n");
       return false;
    }
+
+   ogv->queue = al_create_event_queue();
+   ogv->mutex = al_create_mutex();
 
    al_start_thread(ogv->thread);
    return true;
