@@ -193,7 +193,9 @@ void al_destroy_vertex_decl(ALLEGRO_VERTEX_DECL* decl)
 ALLEGRO_VERTEX_BUFFER* al_create_vertex_buffer(ALLEGRO_VERTEX_DECL* decl,
    const void* initial_data, size_t num_vertices, bool write_only, int hints)
 {
-   ALLEGRO_VERTEX_BUFFER* ret = al_calloc(1, sizeof(ALLEGRO_VERTEX_BUFFER));
+   ALLEGRO_VERTEX_BUFFER* ret;
+   ASSERT(addon_initialized);
+   ret = al_calloc(1, sizeof(ALLEGRO_VERTEX_BUFFER));
 #if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
    (void)write_only;
    ret->write_only = true;
@@ -213,6 +215,8 @@ ALLEGRO_VERTEX_BUFFER* al_create_vertex_buffer(ALLEGRO_VERTEX_DECL* decl,
  */
 void al_destroy_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer)
 {
+   ASSERT(addon_initialized);
+
    if (buffer == 0)
       return;
 
@@ -232,6 +236,7 @@ void* al_lock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer, size_t start,
 {
    void* ret;
    ASSERT(buffer);
+   ASSERT(addon_initialized);
    if (buffer->is_locked || (buffer->write_only && flags != ALLEGRO_LOCK_WRITEONLY) || start >= end)
       return 0;
 
@@ -256,6 +261,7 @@ void* al_lock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer, size_t start,
 void al_unlock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer)
 {
    ASSERT(buffer);
+   ASSERT(addon_initialized);
 
    if (!buffer->is_locked)
       return;
