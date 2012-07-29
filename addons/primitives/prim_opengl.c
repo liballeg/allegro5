@@ -330,6 +330,7 @@ static void revert_state(ALLEGRO_BITMAP* texture)
 }
 
 static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
+   ALLEGRO_VERTEX_BUFFER* vertex_buffer,
    const void* vtx, const ALLEGRO_VERTEX_DECL* decl,
    int start, int end, int type)
 {
@@ -346,7 +347,21 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
 
    if ((!extra->is_backbuffer && ogl_disp->ogl_extras->opengl_target !=
       opengl_target) || al_is_bitmap_locked(target)) {
-      return _al_draw_prim_soft(texture, vtx, decl, start, end, type);
+      if (vertex_buffer) {
+         vtx = al_lock_vertex_buffer(vertex_buffer, start, end, ALLEGRO_LOCK_READONLY);
+         if (vtx) {
+            num_primitives = _al_draw_prim_soft(texture, vtx, decl, 0, num_vtx, type);
+         }
+         al_unlock_vertex_buffer(vertex_buffer);
+         return num_primitives;
+      }
+      else {
+         return _al_draw_prim_soft(texture, vtx, decl, start, end, type);
+      }
+   }
+
+   if (vertex_buffer) {
+      glBindBuffer(GL_ARRAY_BUFFER, (GLuint)vertex_buffer->handle);
    }
 
    _al_opengl_set_blender(ogl_disp);
@@ -391,6 +406,10 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    }
 
    revert_state(texture);
+
+   if (vertex_buffer) {
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+   }
 
    return num_primitives;
 }
@@ -482,7 +501,24 @@ static int draw_prim_indexed_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture
 int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, int start, int end, int type)
 {
 #ifdef ALLEGRO_CFG_OPENGL
-   return draw_prim_raw(target, texture, vtxs, decl, start, end, type);
+   return draw_prim_raw(target, texture, 0, vtxs, decl, start, end, type);
+#else
+   (void)target;
+   (void)texture;
+   (void)vtxs;
+   (void)start;
+   (void)end;
+   (void)type;
+   (void)decl;
+
+   return 0;
+#endif
+}
+
+int _al_draw_vertex_buffer_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX_BUFFER* vertex_buffer, int start, int end, int type)
+{
+#ifdef ALLEGRO_CFG_OPENGL
+   return draw_prim_raw(target, texture, vertex_buffer, 0, vertex_buffer->decl, start, end, type);
 #else
    (void)target;
    (void)texture;

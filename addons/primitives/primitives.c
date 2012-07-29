@@ -266,3 +266,34 @@ void al_unlock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer)
 
    buffer->is_locked = false;
 }
+
+/* Function: al_draw_vertex_buffer
+ */
+int al_draw_vertex_buffer(ALLEGRO_VERTEX_BUFFER* vertex_buffer,
+   ALLEGRO_BITMAP* texture, int start, int end, int type)
+{
+   ALLEGRO_BITMAP *target;
+   int ret = 0;
+
+   ASSERT(addon_initialized);
+   ASSERT(end >= start);
+   ASSERT(type >= 0 && type < ALLEGRO_PRIM_NUM_TYPES);
+   ASSERT(vertex_buffer);
+   ASSERT(!vertex_buffer->is_locked);
+
+   target = al_get_target_bitmap();
+
+   if (target->flags & ALLEGRO_MEMORY_BITMAP || (texture && texture->flags & ALLEGRO_MEMORY_BITMAP)) {
+      void* vtx = al_lock_vertex_buffer(vertex_buffer, start, end, ALLEGRO_LOCK_READONLY);
+      if(vtx) {
+         ret = _al_draw_prim_soft(texture, vtx, vertex_buffer->decl, 0, end - start, type);
+      }
+      al_unlock_vertex_buffer(vertex_buffer);
+   } else {
+      if (al_get_display_flags(al_get_current_display()) & ALLEGRO_OPENGL) {
+         ret = _al_draw_vertex_buffer_opengl(target, texture, vertex_buffer, start, end, type);
+      }
+   }
+
+   return ret;
+}

@@ -432,7 +432,7 @@ See also: [Pixel-precise output]
 
 ### API: al_draw_prim
 
-Draws a subset of the passed vertex buffer.
+Draws a subset of the passed vertex array.
 
 *Parameters:*
 
@@ -440,8 +440,8 @@ Draws a subset of the passed vertex buffer.
 * vtxs - Pointer to an array of vertices
 * decl - Pointer to a vertex declaration. If set to NULL, the vertices
       are assumed to be of the ALLEGRO_VERTEX type
-* start - Start index of the subset of the vertex buffer to draw
-* end - One past the last index of subset of the vertex buffer to draw
+* start - Start index of the subset of the vertex array to draw
+* end - One past the last index of subset of the vertex array to draw
 * type - A member of the [ALLEGRO_PRIM_TYPE] enumeration, specifying what kind
          of primitive to draw
 
@@ -462,7 +462,7 @@ See also:
 
 ### API: al_draw_indexed_prim
 
-Draws a subset of the passed vertex buffer. This function uses an index array
+Draws a subset of the passed vertex array. This function uses an index array
 to specify which vertices to use.
 
 *Parameters:*
@@ -471,7 +471,7 @@ to specify which vertices to use.
 * vtxs - Pointer to an array of vertices
 * decl - Pointer to a vertex declaration. If set to 0, the vtxs are assumed
       to be of the ALLEGRO_VERTEX type
-* indices - An array of indices into the vertex buffer
+* indices - An array of indices into the vertex array
 * num_vtx - Number of indices from the indices array you want to draw
 * type - A member of the [ALLEGRO_PRIM_TYPE] enumeration, specifying what kind
          of primitive to draw
@@ -623,6 +623,27 @@ Unlocks a previously locked vertex buffer.
 Since: 5.1.3
 
 See also: [ALLEGRO_VERTEX_BUFFER], [al_lock_vertex_buffer]
+
+### API: al_draw_vertex_buffer
+
+Draws a subset of the passed vertex buffer.
+
+*Parameters:*
+
+* texture - Texture to use, pass 0 to use only color shaded primitves
+* vertex_buffer - Vertex buffer to draw
+* start - Start index of the subset of the vertex buffer to draw
+* end - One past the last index of the subset of the vertex buffer to draw
+* type - A member of the [ALLEGRO_PRIM_TYPE] enumeration, specifying what kind
+         of primitive to draw
+
+*Returns:*
+Number of primitives drawn
+
+Since: 5.1.3
+
+See also:
+[ALLEGRO_VERTEX_BUFFER], [ALLEGRO_PRIM_TYPE], [ALLEGRO_VERTEX_DECL]
 
 ## Polygon routines
 

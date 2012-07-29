@@ -482,68 +482,44 @@ static void IndexedPrimitives(int mode)
 
 static void VertexBuffers(int mode)
 {
+   static ALLEGRO_VERTEX vtx[13];
+   static ALLEGRO_VERTEX vtx2[13];
+   static ALLEGRO_VERTEX_BUFFER* vbuff;
+   static ALLEGRO_VERTEX_BUFFER* vbuff2;
    if (mode == INIT) {
-      ALLEGRO_VERTEX_BUFFER* buf;
-      ALLEGRO_VERTEX vtx[2];
-      ALLEGRO_VERTEX* vtx2;
-      int ii;
-      for (ii = 0; ii < 2; ii++)
-      {
-         vtx[ii].x = ii;
-         vtx[ii].y = 2 - ii;
-         vtx[ii].z = 0;
-         vtx[ii].u = 0;
-         vtx[ii].v = 0;
-         vtx[ii].color = al_map_rgb_f(ii, ii, ii);
+      int ii = 0;
+      ALLEGRO_COLOR color;
+      for (ii = 0; ii < 13; ii++) {
+         float x, y;
+         x = 200 * cosf((float)ii / 13.0f * 2 * ALLEGRO_PI);
+         y = 200 * sinf((float)ii / 13.0f * 2 * ALLEGRO_PI);
+
+         color = al_map_rgb((ii + 1) % 3 * 64, (ii + 2) % 3 * 64, (ii) % 3 * 64);
+
+         vtx[ii].x = x; vtx[ii].y = y; vtx[ii].z = 0;
+         vtx2[ii].x = 0.1 * x; vtx2[ii].y = 0.1 * y;
+         vtx[ii].color = color;
+         vtx2[ii].color = color;
       }
-      buf = al_create_vertex_buffer(0, vtx, 2, false, 0);
+      vbuff = al_create_vertex_buffer(0, vtx, 13, false, 0);
+      vbuff2 = al_create_vertex_buffer(0, vtx2, 13, false, 0);
+   } else if (mode == LOGIC) {
+      Theta += Speed;
+      al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
+   } else if (mode == DRAW) {
+      if (Blend)
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+      else
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
 
-      vtx2 = al_lock_vertex_buffer(buf, 0, 2, ALLEGRO_LOCK_READWRITE);
-      if (vtx2 == 0) {
-         printf("lock failed\n");
-         return;
-      }
+      al_use_transform(&MainTrans);
 
-      for (ii = 0; ii < 2; ii++)
-      {
-         if (vtx[ii].x != vtx2[ii].x)
-            printf("Fail! %d\n", __LINE__);
-         if (vtx[ii].y != vtx2[ii].y)
-            printf("Fail! %d\n", __LINE__);
-         if (vtx[ii].z != vtx2[ii].z)
-            printf("Fail! %d\n", __LINE__);
-         if (vtx[ii].u != vtx2[ii].u)
-            printf("Fail! %d\n", __LINE__);
-         if (vtx[ii].v != vtx2[ii].v)
-            printf("Fail! %d\n", __LINE__);
-         if (vtx[ii].color.r != vtx2[ii].color.r)
-            printf("Fail! %d\n", __LINE__);
+      al_draw_vertex_buffer(vbuff, 0, 0, 4, ALLEGRO_PRIM_LINE_LIST);
+      al_draw_vertex_buffer(vbuff, 0, 4, 9, ALLEGRO_PRIM_LINE_STRIP);
+      al_draw_vertex_buffer(vbuff, 0, 9, 13, ALLEGRO_PRIM_LINE_LOOP);
+      al_draw_vertex_buffer(vbuff2, 0, 0, 13, ALLEGRO_PRIM_POINT_LIST);
 
-         vtx[ii].x = 2 * ii;
-         vtx2[ii].x = 2 * ii;
-      }
-
-      al_unlock_vertex_buffer(buf);
-
-      vtx2 = al_lock_vertex_buffer(buf, 0, 2, ALLEGRO_LOCK_READONLY);
-
-      for (ii = 0; ii < 2; ii++)
-      {
-         if (vtx[ii].x != vtx2[ii].x)
-            printf("Fail! %d\n", __LINE__);
-         if (vtx[ii].y != vtx2[ii].y)
-            printf("Fail! %d\n", __LINE__);
-         if (vtx[ii].z != vtx2[ii].z)
-            printf("Fail! %d\n", __LINE__);
-         if (vtx[ii].u != vtx2[ii].u)
-            printf("Fail! %d\n", __LINE__);
-         if (vtx[ii].v != vtx2[ii].v)
-            printf("Fail! %d\n", __LINE__);
-         if (vtx[ii].color.r != vtx2[ii].color.r)
-            printf("Fail! %d\n", __LINE__);
-      }
-
-      al_destroy_vertex_buffer(buf);
+      al_use_transform(&Identity);
    }
 }
 

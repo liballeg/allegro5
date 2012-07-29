@@ -160,6 +160,7 @@ ALLEGRO_PRIM_FUNC(ALLEGRO_VERTEX_BUFFER*, al_create_vertex_buffer, (ALLEGRO_VERT
 ALLEGRO_PRIM_FUNC(void, al_destroy_vertex_buffer, (ALLEGRO_VERTEX_BUFFER* buffer));
 ALLEGRO_PRIM_FUNC(void*, al_lock_vertex_buffer, (ALLEGRO_VERTEX_BUFFER* buffer, size_t start, size_t end, int flags));
 ALLEGRO_PRIM_FUNC(void, al_unlock_vertex_buffer, (ALLEGRO_VERTEX_BUFFER* buffer));
+ALLEGRO_PRIM_FUNC(int, al_draw_vertex_buffer, (ALLEGRO_VERTEX_BUFFER* vertex_buffer, ALLEGRO_BITMAP* texture, int start, int end, int type));
 
 /*
 * Utilities for high level primitives.

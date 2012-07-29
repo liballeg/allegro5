@@ -7,5 +7,6 @@ void _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* ini
 void _al_destroy_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf);
 void* _al_lock_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf);
 void _al_unlock_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf);
+int _al_draw_vertex_buffer_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX_BUFFER* vertex_buffer, int start, int end, int type);
 
 #endif
