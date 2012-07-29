@@ -423,7 +423,8 @@ As long as that is the case, any texture can be used safely. Sub-bitmaps work
 as textures, but cannot be tiled.
 
 Some platforms also dictate a minimum texture size, which means that textures
-smaller than that size will not tile properly. This minimum size is 16 by 16.
+smaller than that size will not tile properly. The minimum size that will work
+on all platforms is 32 by 32.
 
 A note about pixel coordinates. In OpenGL the texture coordinate (0, 0) refers
 to the top left corner of the pixel. This confuses some drivers, because due to

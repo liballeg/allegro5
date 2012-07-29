@@ -261,7 +261,7 @@ bitmap. Some platforms also dictate a minimum texture size, which is
 relevant if you plan to use this bitmap with the primitives addon. If
 you try to create a bitmap smaller than this, this call will not fail
 but the returned bitmap will be a section of a larger bitmap with the
-minimum size. This minimum size is 16 by 16.
+minimum size.  The minimum size that will work on all platforms is 32 by 32.
 
 Some platforms do not directly support display bitmaps whose dimensions
 are not powers of two. Allegro handles this by creating a larger bitmap
