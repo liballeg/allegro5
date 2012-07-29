@@ -105,20 +105,18 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
             }
          }
       } else {
-         const ALLEGRO_VERTEX* vtx = (const ALLEGRO_VERTEX*)vtxs;
-            
          if (display->ogl_extras->pos_loc >= 0) {
-            glVertexAttribPointer(display->ogl_extras->pos_loc, 3, GL_FLOAT, false, sizeof(ALLEGRO_VERTEX), &vtx[0].x);
+            glVertexAttribPointer(display->ogl_extras->pos_loc, 3, GL_FLOAT, false, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, x));
             glEnableVertexAttribArray(display->ogl_extras->pos_loc);
          }
          
          if (display->ogl_extras->texcoord_loc >= 0) {
-            glVertexAttribPointer(display->ogl_extras->texcoord_loc, 2, GL_FLOAT, false, sizeof(ALLEGRO_VERTEX), &vtx[0].u);
+            glVertexAttribPointer(display->ogl_extras->texcoord_loc, 2, GL_FLOAT, false, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, u));
             glEnableVertexAttribArray(display->ogl_extras->texcoord_loc);
          }
          
          if (display->ogl_extras->color_loc >= 0) {
-            glVertexAttribPointer(display->ogl_extras->color_loc, 4, GL_FLOAT, true, sizeof(ALLEGRO_VERTEX), &vtx[0].color);
+            glVertexAttribPointer(display->ogl_extras->color_loc, 4, GL_FLOAT, true, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, color));
             glEnableVertexAttribArray(display->ogl_extras->color_loc);
          }
       }
@@ -185,17 +183,15 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
             glColor4f(1, 1, 1, 1);
          }
       } else {
-         const ALLEGRO_VERTEX* vtx = (const ALLEGRO_VERTEX*)vtxs;
-      
          glEnableClientState(GL_COLOR_ARRAY);
          glEnableClientState(GL_VERTEX_ARRAY);
          glEnableClientState(GL_TEXTURE_COORD_ARRAY);
          if (!(display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE))
             glDisableClientState(GL_NORMAL_ARRAY);
    
-         glVertexPointer(3, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].x);
-         glColorPointer(4, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].color.r);
-         glTexCoordPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].u);
+         glVertexPointer(3, GL_FLOAT, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, x));
+         glColorPointer(4, GL_FLOAT, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, color));
+         glTexCoordPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, u));
       }
    }
 
