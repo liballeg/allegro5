@@ -19,6 +19,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_pixels.h"
+#include "allegro5/transformations.h"	
 
 #ifdef ALLEGRO_GP2XWIZ
 #include "allegro5/internal/aintern_gp2xwiz.h"

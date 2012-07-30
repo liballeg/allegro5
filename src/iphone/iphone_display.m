@@ -34,7 +34,7 @@ void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d)
    _screen_h = h;
 
    al_identity_transform(&d->proj_transform);
-   al_ortho_transform(&d->proj_transform, 0, d->w, d->h, 0, -1, 1);
+   al_orthographic_transform(&d->proj_transform, 0, 0, -1, d->w, d->h, 1);
 
    al_identity_transform(&d->view_transform);
 
