@@ -196,19 +196,22 @@ ALLEGRO_VERTEX_BUFFER* al_create_vertex_buffer(ALLEGRO_VERTEX_DECL* decl,
    ALLEGRO_VERTEX_BUFFER* ret;
    ASSERT(addon_initialized);
    ret = al_calloc(1, sizeof(ALLEGRO_VERTEX_BUFFER));
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
-   (void)write_only;
-   ret->write_only = true;
-#else
    ret->write_only = write_only;
-#endif
    ret->decl = decl;
 
+#if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
+   if (!write_only)
+      goto fail;
+#endif
+
    if (al_get_display_flags(al_get_current_display()) & ALLEGRO_OPENGL) {
-      _al_create_vertex_buffer_opengl(ret, initial_data, num_vertices, hints);
+      if (_al_create_vertex_buffer_opengl(ret, initial_data, num_vertices, hints))
+         return ret;
    }
 
-   return ret;
+fail:
+   al_free(ret);
+   return 0;
 }
 
 /* Function: al_destroy_vertex_buffer
@@ -290,10 +293,11 @@ int al_draw_vertex_buffer(ALLEGRO_VERTEX_BUFFER* vertex_buffer,
    target = al_get_target_bitmap();
 
    if (target->flags & ALLEGRO_MEMORY_BITMAP || (texture && texture->flags & ALLEGRO_MEMORY_BITMAP)) {
-      void* vtx = al_lock_vertex_buffer(vertex_buffer, start, end, ALLEGRO_LOCK_READONLY);
-      if(vtx) {
-         ret = _al_draw_prim_soft(texture, vtx, vertex_buffer->decl, 0, end - start, type);
-      }
+      void* vtx;
+      ASSERT(!vertex_buffer->write_only);
+      vtx = al_lock_vertex_buffer(vertex_buffer, start, end, ALLEGRO_LOCK_READONLY);
+      ASSERT(vtx);
+      ret = _al_draw_prim_soft(texture, vtx, vertex_buffer->decl, 0, end - start, type);
       al_unlock_vertex_buffer(vertex_buffer);
    } else {
       if (al_get_display_flags(al_get_current_display()) & ALLEGRO_OPENGL) {

@@ -348,10 +348,10 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    if ((!extra->is_backbuffer && ogl_disp->ogl_extras->opengl_target !=
       opengl_target) || al_is_bitmap_locked(target)) {
       if (vertex_buffer) {
+         ASSERT(!vertex_buffer->write_only);
          vtx = al_lock_vertex_buffer(vertex_buffer, start, end, ALLEGRO_LOCK_READONLY);
-         if (vtx) {
-            num_primitives = _al_draw_prim_soft(texture, vtx, decl, 0, num_vtx, type);
-         }
+         ASSERT(vtx);
+         num_primitives = _al_draw_prim_soft(texture, vtx, decl, 0, num_vtx, type);
          al_unlock_vertex_buffer(vertex_buffer);
          return num_primitives;
       }
@@ -549,7 +549,7 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
 #endif
 }
 
-void _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* initial_data, size_t num_vertices, int usage_hints)
+bool _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* initial_data, size_t num_vertices, int usage_hints)
 {
 #ifdef ALLEGRO_CFG_OPENGL
    GLuint vbo;
@@ -599,7 +599,12 @@ void _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* ini
    glBufferData(GL_ARRAY_BUFFER, (buf->decl == 0 ? (int)sizeof(ALLEGRO_VERTEX) : buf->decl->stride) * num_vertices, initial_data, usage);
    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+   if (glGetError())
+      return false;
+
    buf->handle = vbo;
+
+   return true;
 #else
    (void)buf;
    (void)decl;
@@ -607,6 +612,8 @@ void _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* ini
    (void)num_vertices;
    (void)write_only;
    (void)hints;
+
+   return false;
 #endif
 }
 

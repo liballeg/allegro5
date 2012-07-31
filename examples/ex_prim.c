@@ -49,7 +49,8 @@ ALLEGRO_TRANSFORM MainTrans;
 enum MODE {
    INIT,
    LOGIC,
-   DRAW
+   DRAW,
+   DEINIT
 };
 
 typedef struct
@@ -486,6 +487,8 @@ static void VertexBuffers(int mode)
    static ALLEGRO_VERTEX vtx2[13];
    static ALLEGRO_VERTEX_BUFFER* vbuff;
    static ALLEGRO_VERTEX_BUFFER* vbuff2;
+   static bool no_soft;
+   static bool no_soft2;
    if (mode == INIT) {
       int ii = 0;
       ALLEGRO_COLOR color;
@@ -502,7 +505,22 @@ static void VertexBuffers(int mode)
          vtx2[ii].color = color;
       }
       vbuff = al_create_vertex_buffer(0, vtx, 13, false, 0);
+      if (!vbuff) {
+         vbuff = al_create_vertex_buffer(0, vtx, 13, true, 0);
+         no_soft = true;
+      }
+      else {
+         no_soft = false;
+      }
+
       vbuff2 = al_create_vertex_buffer(0, vtx2, 13, false, 0);
+      if (!vbuff2) {
+         vbuff2 = al_create_vertex_buffer(0, vtx2, 13, true, 0);
+         no_soft2 = true;
+      }
+      else {
+         no_soft2 = false;
+      }
    } else if (mode == LOGIC) {
       Theta += Speed;
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
@@ -514,12 +532,26 @@ static void VertexBuffers(int mode)
 
       al_use_transform(&MainTrans);
 
-      al_draw_vertex_buffer(vbuff, 0, 0, 4, ALLEGRO_PRIM_LINE_LIST);
-      al_draw_vertex_buffer(vbuff, 0, 4, 9, ALLEGRO_PRIM_LINE_STRIP);
-      al_draw_vertex_buffer(vbuff, 0, 9, 13, ALLEGRO_PRIM_LINE_LOOP);
-      al_draw_vertex_buffer(vbuff2, 0, 0, 13, ALLEGRO_PRIM_POINT_LIST);
+      if (vbuff && !(Soft && no_soft)) {
+         al_draw_vertex_buffer(vbuff, 0, 0, 4, ALLEGRO_PRIM_LINE_LIST);
+         al_draw_vertex_buffer(vbuff, 0, 4, 9, ALLEGRO_PRIM_LINE_STRIP);
+         al_draw_vertex_buffer(vbuff, 0, 9, 13, ALLEGRO_PRIM_LINE_LOOP);
+      }
+      else {
+         al_draw_text(Font, al_map_rgb_f(1, 1, 1), 0, -40, 0, "Vertex buffers not supported");
+      }
+
+      if (vbuff2 && !(Soft && no_soft)) {
+         al_draw_vertex_buffer(vbuff2, 0, 0, 13, ALLEGRO_PRIM_POINT_LIST);
+      }
+      else {
+         al_draw_text(Font, al_map_rgb_f(1, 1, 1), 0, 40, 0, "Vertex buffers not supported");
+      }
 
       al_use_transform(&Identity);
+   } else if (mode == DEINIT) {
+      al_destroy_vertex_buffer(vbuff);
+      al_destroy_vertex_buffer(vbuff2);
    }
 }
 
@@ -783,6 +815,10 @@ int main(void)
       al_flip_display();
       frames_done++;
    }
+
+   for (ii = 0; ii < NUM_SCREENS; ii++)
+      Screens[ii](DEINIT);
+
    }
    
    return 0;
