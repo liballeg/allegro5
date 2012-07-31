@@ -46,7 +46,7 @@ static ALLEGRO_MUTEX *d3d_mutex;
 static bool legacy_card = false;
 static bool know_card_type = false;
 
-static void check_legacy_card(void)
+static bool is_legacy_card(void)
 {
    if (!know_card_type) {
       D3DCAPS9 caps;
@@ -56,6 +56,7 @@ static void check_legacy_card(void)
          legacy_card = true;
       know_card_type = true;
    }
+   return legacy_card;
 }
 
 typedef struct LEGACY_VERTEX
@@ -267,7 +268,7 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
    
       if(!state.old_vtx_shader) {
          /* Prepare the default shader */
-         if(!legacy_card) {
+         if(!is_legacy_card()) {
             if(decl)
                _al_setup_shader(device, decl);
             else
@@ -280,7 +281,7 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
    }
 
    /* Set the vertex declarations */
-   if(legacy_card) {
+   if(is_legacy_card()) {
       device->SetFVF(A5V_LEGACY_FVF);
    } else {
       if(decl) {
@@ -333,7 +334,7 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
 #endif
          }
          else {
-            if(legacy_card) {
+            if(is_legacy_card()) {
                device->GetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, &state.old_ttf_state);
                device->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
                device->SetTransform(D3DTS_TEXTURE0, (D3DMATRIX *)&mat);
@@ -373,7 +374,7 @@ void revert_state(D3D_STATE state, LPDIRECT3DDEVICE9 device, ALLEGRO_BITMAP* tar
    device->SetSamplerState(0, D3DSAMP_ADDRESSU, state.old_wrap_state[0]);
    device->SetSamplerState(0, D3DSAMP_ADDRESSV, state.old_wrap_state[1]);
 
-   if(!state.old_vtx_shader && legacy_card && texture) {
+   if(!state.old_vtx_shader && is_legacy_card() && texture) {
       device->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, state.old_ttf_state);
    }
 
@@ -401,11 +402,10 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
       return 0;
    }
 
-   check_legacy_card();
-   stride = legacy_card ? (int)sizeof(LEGACY_VERTEX) : (decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX));
+   stride = is_legacy_card() ? (int)sizeof(LEGACY_VERTEX) : (decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX));
 
    /* Check for early exit */
-   if((legacy_card && decl) || (decl && decl->d3d_decl == 0)) {
+   if((is_legacy_card() && decl) || (decl && decl->d3d_decl == 0)) {
       if(!indices)
          return _al_draw_prim_soft(texture, vtx, decl, 0, num_vtx, type);
       else
@@ -434,7 +434,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    state = setup_state(device, decl, target, texture);
 
    /* Convert vertices for legacy cards */
-   if(legacy_card) {
+   if(is_legacy_card()) {
       al_lock_mutex(d3d_mutex);
       vtx = convert_to_legacy_vertices(vtx, num_vtx, indices, type == ALLEGRO_PRIM_LINE_LOOP);
    }
@@ -452,7 +452,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
       }
 #endif
 
-      if (!indices || legacy_card)
+      if (!indices || is_legacy_card())
       {
          switch (type) {
             case ALLEGRO_PRIM_LINE_LIST: {
@@ -468,7 +468,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
             case ALLEGRO_PRIM_LINE_LOOP: {
                num_primitives = num_vtx - 1;
                device->DrawPrimitiveUP(D3DPT_LINESTRIP, num_primitives, vtx, stride);
-               if(!legacy_card) {
+               if(!is_legacy_card()) {
                   int in[2];
                   in[0] = 0;
                   in[1] = num_vtx-1;
@@ -567,7 +567,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
 #endif
    }
 
-   if(legacy_card)
+   if(is_legacy_card())
       al_unlock_mutex(d3d_mutex);
 
    revert_state(state, device, target, texture);
@@ -716,10 +716,8 @@ bool _al_create_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf, const void* in
    void* locked_memory;
    (void)usage_hints;
 
-   check_legacy_card();
-
    /* There's just no point */
-   if (legacy_card)
+   if (is_legacy_card())
       return false;
 
    device = al_get_d3d_device(al_get_current_display());
