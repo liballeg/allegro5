@@ -683,3 +683,86 @@ void _al_set_d3d_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL* ret)
    ret->d3d_decl = 0;
 #endif
 }
+
+bool _al_create_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf, const void* initial_data, size_t num_vertices, int usage_hints)
+{
+#ifdef ALLEGRO_CFG_D3D
+   LPDIRECT3DDEVICE9 device;
+   IDirect3DVertexBuffer9* d3d_vbuff;
+   DWORD fvf = A5V_FVF;
+   int stride = buf->decl ? buf->decl->stride : (int)sizeof(ALLEGRO_VERTEX);
+   HRESULT res;
+   void* locked_memory;
+   (void)usage_hints;
+
+   check_legacy_card();
+
+   /* There's just no point */
+   if (legacy_card)
+      return false;
+
+   device = al_get_d3d_device(al_get_current_display());
+
+   if (buf->decl) {
+      device->SetVertexDeclaration((IDirect3DVertexDeclaration9*)buf->decl->d3d_decl);
+      fvf = 0;
+   }
+
+   res = device->CreateVertexBuffer(stride * num_vertices, buf->write_only ? D3DUSAGE_WRITEONLY : 0, fvf, D3DPOOL_MANAGED, &d3d_vbuff, 0);
+   if (res != D3D_OK)
+      return false;
+
+   d3d_vbuff->Lock(0, 0, &locked_memory, 0);
+   memcpy(locked_memory, initial_data, stride * num_vertices);
+   d3d_vbuff->Unlock();
+
+   buf->handle = (uintptr_t)d3d_vbuff;
+
+   return true;
+#else
+   (void)buf;
+   (void)decl;
+   (void)initial_data;
+   (void)num_vertices;
+   (void)write_only;
+   (void)hints;
+
+   return false;
+#endif
+}
+
+void _al_destroy_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf)
+{
+#ifdef ALLEGRO_CFG_D3D
+   ((IDirect3DVertexBuffer9*)buf->handle)->Release();
+#else
+   (void)buf;
+#endif
+}
+
+void* _al_lock_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf)
+{
+#ifdef ALLEGRO_CFG_D3D
+   DWORD flags = buf->lock_flags == ALLEGRO_LOCK_READONLY ? D3DLOCK_READONLY : 0;
+   HRESULT res;
+
+   res = ((IDirect3DVertexBuffer9*)buf->handle)->Lock((UINT)buf->lock_offset, (UINT)buf->lock_length, &buf->locked_memory, flags);
+   if (res != D3D_OK)
+      return 0;
+
+   return buf->locked_memory;
+#else
+   (void)buf;
+
+   return 0;
+#endif
+}
+
+void _al_unlock_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf)
+{
+#ifdef ALLEGRO_CFG_D3D
+   ((IDirect3DVertexBuffer9*)buf->handle)->Unlock();
+#else
+   (void)buf;
+#endif
+}
