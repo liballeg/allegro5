@@ -648,6 +648,7 @@ void* _al_lock_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf)
    return buf->locked_memory;
 #else
    (void)buf;
+   return 0;
 #endif
 }
 
