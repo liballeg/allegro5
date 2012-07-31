@@ -234,17 +234,17 @@ void al_destroy_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer)
 
 /* Function: al_lock_vertex_buffer
  */
-void* al_lock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer, size_t start,
-   size_t end, int flags)
+void* al_lock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer, size_t offset,
+   size_t length, int flags)
 {
    void* ret;
    ASSERT(buffer);
    ASSERT(addon_initialized);
-   if (buffer->is_locked || (buffer->write_only && flags != ALLEGRO_LOCK_WRITEONLY) || start >= end)
+   if (buffer->is_locked || (buffer->write_only && flags != ALLEGRO_LOCK_WRITEONLY))
       return 0;
 
-   buffer->lock_start = start;
-   buffer->lock_end = end;
+   buffer->lock_offset = offset;
+   buffer->lock_length = length;
    buffer->lock_flags = flags;
 
    if (al_get_display_flags(al_get_current_display()) & ALLEGRO_OPENGL) {

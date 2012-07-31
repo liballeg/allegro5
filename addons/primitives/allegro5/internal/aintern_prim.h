@@ -32,8 +32,8 @@ struct ALLEGRO_VERTEX_BUFFER {
 
    bool is_locked;
    void* locked_memory;
-   size_t lock_start;
-   size_t lock_end;
+   size_t lock_offset;
+   size_t lock_length;
    int lock_flags;
 };
 

@@ -640,8 +640,8 @@ if the buffer is already locked.
 *Parameters:*
 
 * buffer - Vertex buffer to lock
-* start - Vertex index of the start of the locked range
-* end - One vertex past the end of the locked range
+* offset - Vertex index of the start of the locked range
+* length - How many vertices to lock
 * flags - ALLEGRO_LOCK_READONLY, ALLEGRO_LOCK_WRITEONLY or ALLEGRO_LOCK_READWRITE
 
 Since: 5.1.3
