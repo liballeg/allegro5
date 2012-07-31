@@ -244,67 +244,28 @@ static void* convert_to_legacy_vertices(const void* vtxs, int num_vertices, cons
    return legacy_buffer;
 }
 
-
-static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
-   const void* vtx, const ALLEGRO_VERTEX_DECL* decl,
-   const int* indices, int num_vtx, int type)
+struct D3D_STATE
 {
-   int stride = decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX);
-   int num_primitives = 0;
-
-   LPDIRECT3DDEVICE9 device;
-   LPDIRECT3DTEXTURE9 d3d_texture;
    DWORD old_wrap_state[2];
    DWORD old_ttf_state;
-   int min_idx = 0, max_idx = num_vtx - 1;
    IDirect3DVertexShader9* old_vtx_shader;
-   IDirect3DPixelShader9* old_pix_shader;
+};
+
+static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL* decl, ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture)
+{
+   D3D_STATE state;
    ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)(target->display);
-   UINT required_passes = 1;
-   unsigned int i;
-
-   if (al_is_d3d_device_lost(target->display)) {
-      return 0;
-   }
-
-   if(indices)
-   {
-      int ii;
-      for(ii = 0; ii < num_vtx; ii++)
-      {
-         int idx = indices[ii];
-         if(ii == 0) {
-            min_idx = idx;
-            max_idx = idx;
-         } else if (idx < min_idx) {
-            min_idx = idx;
-         } else if (idx > max_idx) {
-            max_idx = idx;
-         }
-      }
-   }
-
-   device = al_get_d3d_device(target->display);
 
    if (!(target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
-      device->GetVertexShader(&old_vtx_shader);
+      IDirect3DPixelShader9* old_pix_shader;
+      device->GetVertexShader(&state.old_vtx_shader);
       device->GetPixelShader(&old_pix_shader);
-   
-      check_legacy_card();
-   
-      /* Check for early exit */
-      if((legacy_card && decl) || (decl && decl->d3d_decl == 0)) {
-         if(!indices)
-            return _al_draw_prim_soft(texture, vtx, decl, 0, num_vtx, type);
-         else
-            return _al_draw_prim_indexed_soft(texture, vtx, decl, indices, num_vtx, type);
-      }
 
       if(!old_pix_shader) {
          _al_d3d_set_blender(d3d_disp);
       }
    
-      if(!old_vtx_shader) {
+      if(!state.old_vtx_shader) {
          /* Prepare the default shader */
          if(!legacy_card) {
             if(decl)
@@ -321,7 +282,6 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    /* Set the vertex declarations */
    if(legacy_card) {
       device->SetFVF(A5V_LEGACY_FVF);
-      stride = sizeof(LEGACY_VERTEX);
    } else {
       if(decl) {
          device->SetVertexDeclaration((IDirect3DVertexDeclaration9*)decl->d3d_decl);
@@ -330,9 +290,10 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
       }
    }
 
-   if(!old_vtx_shader || (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
+   if(!state.old_vtx_shader || (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
       /* Set up the texture */
       if (texture) {
+         LPDIRECT3DTEXTURE9 d3d_texture;
          int tex_x, tex_y;
          D3DSURFACE_DESC desc;
          float mat[4][4] = {
@@ -365,34 +326,112 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
 
          if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
 #ifdef ALLEGRO_CFG_HLSL_SHADERS
-	    d3d_disp->effect->SetMatrix("tex_matrix", (D3DXMATRIX *)mat);
-	    d3d_disp->effect->SetBool("use_tex_matrix", true);
-	    d3d_disp->effect->SetBool("use_tex", true);
-	    d3d_disp->effect->SetTexture("tex", d3d_texture);
+            d3d_disp->effect->SetMatrix("tex_matrix", (D3DXMATRIX *)mat);
+            d3d_disp->effect->SetBool("use_tex_matrix", true);
+            d3d_disp->effect->SetBool("use_tex", true);
+            d3d_disp->effect->SetTexture("tex", d3d_texture);
 #endif
-	 }
-	 else {
+         }
+         else {
             if(legacy_card) {
-               device->GetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, &old_ttf_state);
+               device->GetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, &state.old_ttf_state);
                device->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
                device->SetTransform(D3DTS_TEXTURE0, (D3DMATRIX *)&mat);
             } else {
                _al_set_texture_matrix(device, mat[0]);
             }
-	 }
-	 
-	 device->SetTexture(0, d3d_texture);
+         }
+
+         device->SetTexture(0, d3d_texture);
 
       } else {
          device->SetTexture(0, NULL);
       }
    }
 
-   device->GetSamplerState(0, D3DSAMP_ADDRESSU, &old_wrap_state[0]);
-   device->GetSamplerState(0, D3DSAMP_ADDRESSV, &old_wrap_state[1]);
+   device->GetSamplerState(0, D3DSAMP_ADDRESSU, &state.old_wrap_state[0]);
+   device->GetSamplerState(0, D3DSAMP_ADDRESSV, &state.old_wrap_state[1]);
 
    device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
    device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
+
+   return state;
+}
+
+void revert_state(D3D_STATE state, LPDIRECT3DDEVICE9 device, ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture)
+{
+   ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)(target->display);
+   (void)d3d_disp;
+#ifdef ALLEGRO_CFG_HLSL_SHADERS
+   if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      d3d_disp->effect->End();
+      d3d_disp->effect->SetBool("use_tex_matrix", false);
+      d3d_disp->effect->SetBool("use_tex", false);
+   }
+#endif
+
+   device->SetSamplerState(0, D3DSAMP_ADDRESSU, state.old_wrap_state[0]);
+   device->SetSamplerState(0, D3DSAMP_ADDRESSV, state.old_wrap_state[1]);
+
+   if(!state.old_vtx_shader && legacy_card && texture) {
+      device->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, state.old_ttf_state);
+   }
+
+   if (!(target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
+      if(!state.old_vtx_shader)
+         device->SetVertexShader(0);
+   }
+}
+
+static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
+   const void* vtx, const ALLEGRO_VERTEX_DECL* decl,
+   const int* indices, int num_vtx, int type)
+{
+   int stride;
+   int num_primitives = 0;
+   LPDIRECT3DDEVICE9 device;
+   int min_idx = 0, max_idx = num_vtx - 1;
+   ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)(target->display);
+   UINT required_passes = 1;
+   unsigned int i;
+   D3D_STATE state;
+   (void)d3d_disp;
+
+   if (al_is_d3d_device_lost(target->display)) {
+      return 0;
+   }
+
+   check_legacy_card();
+   stride = legacy_card ? (int)sizeof(LEGACY_VERTEX) : (decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX));
+
+   /* Check for early exit */
+   if((legacy_card && decl) || (decl && decl->d3d_decl == 0)) {
+      if(!indices)
+         return _al_draw_prim_soft(texture, vtx, decl, 0, num_vtx, type);
+      else
+         return _al_draw_prim_indexed_soft(texture, vtx, decl, indices, num_vtx, type);
+   }
+
+   if(indices)
+   {
+      int ii;
+      for(ii = 0; ii < num_vtx; ii++)
+      {
+         int idx = indices[ii];
+         if(ii == 0) {
+            min_idx = idx;
+            max_idx = idx;
+         } else if (idx < min_idx) {
+            min_idx = idx;
+         } else if (idx > max_idx) {
+            max_idx = idx;
+         }
+      }
+   }
+
+   device = al_get_d3d_device(target->display);
+
+   state = setup_state(device, decl, target, texture);
 
    /* Convert vertices for legacy cards */
    if(legacy_card) {
@@ -528,28 +567,10 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
 #endif
    }
 
-#ifdef ALLEGRO_CFG_HLSL_SHADERS
-   if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-      d3d_disp->effect->End();
-      d3d_disp->effect->SetBool("use_tex_matrix", false);
-      d3d_disp->effect->SetBool("use_tex", false);
-   }
-#endif
-
    if(legacy_card)
       al_unlock_mutex(d3d_mutex);
 
-   device->SetSamplerState(0, D3DSAMP_ADDRESSU, old_wrap_state[0]);
-   device->SetSamplerState(0, D3DSAMP_ADDRESSV, old_wrap_state[1]);
-
-   if(!old_vtx_shader && legacy_card && texture) {
-      device->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, old_ttf_state);
-   }
-
-   if (!(target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
-      if(!old_vtx_shader)
-         device->SetVertexShader(0);
-   }
+   revert_state(state, device, target, texture);
 
    return num_primitives;
 }
