@@ -46,6 +46,18 @@ static ALLEGRO_MUTEX *d3d_mutex;
 static bool legacy_card = false;
 static bool know_card_type = false;
 
+static void check_legacy_card(void)
+{
+   if (!know_card_type) {
+      D3DCAPS9 caps;
+      LPDIRECT3DDEVICE9 device = al_get_d3d_device(al_get_current_display());
+      device->GetDeviceCaps(&caps);
+      if (caps.PixelShaderVersion < D3DPS_VERSION(3, 0))
+         legacy_card = true;
+      know_card_type = true;
+   }
+}
+
 typedef struct LEGACY_VERTEX
 {
    float x, y, z;
@@ -278,13 +290,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
       device->GetVertexShader(&old_vtx_shader);
       device->GetPixelShader(&old_pix_shader);
    
-      if(!know_card_type) {
-         D3DCAPS9 caps;
-         device->GetDeviceCaps(&caps);
-         if(caps.PixelShaderVersion < D3DPS_VERSION(3, 0))
-            legacy_card = true;
-         know_card_type = true;
-      }
+      check_legacy_card();
    
       /* Check for early exit */
       if((legacy_card && decl) || (decl && decl->d3d_decl == 0)) {
