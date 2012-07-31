@@ -16,6 +16,7 @@ bool _al_create_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf, const void* in
 void _al_destroy_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf);
 void* _al_lock_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf);
 void _al_unlock_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf);
+int _al_draw_vertex_buffer_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX_BUFFER* vertex_buffer, int start, int end, int type);
 
 bool _al_init_d3d_driver(void);
 void _al_shutdown_d3d_driver(void);

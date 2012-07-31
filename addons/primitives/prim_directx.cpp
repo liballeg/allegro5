@@ -612,6 +612,120 @@ int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textur
 #endif
 }
 
+int _al_draw_vertex_buffer_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX_BUFFER* vertex_buffer, int start, int end, int type)
+{
+#ifdef ALLEGRO_CFG_D3D
+   int stride;
+   int num_primitives = 0;
+   int num_vtx = end - start;
+   LPDIRECT3DDEVICE9 device;
+   ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)(target->display);
+   UINT required_passes = 1;
+   unsigned int i;
+   D3D_STATE state;
+   (void)d3d_disp;
+
+   if (al_is_d3d_device_lost(target->display)) {
+      return 0;
+   }
+
+   stride = vertex_buffer->decl ? vertex_buffer->decl->stride : (int)sizeof(ALLEGRO_VERTEX);
+
+   /* Check for early exit */
+   if(vertex_buffer->decl && vertex_buffer->decl->d3d_decl == 0) {
+      void* vtx;
+      ASSERT(!vertex_buffer->write_only);
+      vtx = al_lock_vertex_buffer(vertex_buffer, start, end, ALLEGRO_LOCK_READONLY);
+      ASSERT(vtx);
+      num_primitives = _al_draw_prim_soft(texture, vtx, vertex_buffer->decl, 0, num_vtx, type);
+      al_unlock_vertex_buffer(vertex_buffer);
+      return num_primitives;
+   }
+
+   device = al_get_d3d_device(target->display);
+
+   state = setup_state(device, vertex_buffer->decl, target, texture);
+
+   device->SetStreamSource(0, (IDirect3DVertexBuffer9*)vertex_buffer->handle, 0, stride);
+
+#ifdef ALLEGRO_CFG_HLSL_SHADERS
+   if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      d3d_disp->effect->Begin(&required_passes, 0);
+   }
+#endif
+
+   for (i = 0; i < required_passes; i++) {
+#ifdef ALLEGRO_CFG_HLSL_SHADERS
+      if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+         d3d_disp->effect->BeginPass(i);
+      }
+#endif
+
+      switch (type) {
+         case ALLEGRO_PRIM_LINE_LIST: {
+            num_primitives = num_vtx / 2;
+            device->DrawPrimitive(D3DPT_LINELIST, start, num_primitives);
+            break;
+         };
+         case ALLEGRO_PRIM_LINE_STRIP: {
+            num_primitives = num_vtx - 1;
+            device->DrawPrimitive(D3DPT_LINESTRIP, start, num_primitives);
+            break;
+         };
+         case ALLEGRO_PRIM_LINE_LOOP: {
+            num_primitives = num_vtx - 1;
+            device->DrawPrimitive(D3DPT_LINESTRIP, start, num_primitives);
+            /* TODO */
+            break;
+         };
+         case ALLEGRO_PRIM_TRIANGLE_LIST: {
+            num_primitives = num_vtx / 3;
+            device->DrawPrimitive(D3DPT_TRIANGLELIST, start, num_primitives);
+            break;
+         };
+         case ALLEGRO_PRIM_TRIANGLE_STRIP: {
+            num_primitives = num_vtx - 2;
+            device->DrawPrimitive(D3DPT_TRIANGLESTRIP, start, num_primitives);
+            break;
+         };
+         case ALLEGRO_PRIM_TRIANGLE_FAN: {
+            num_primitives = num_vtx - 2;
+            device->DrawPrimitive(D3DPT_TRIANGLEFAN, start, num_primitives);
+            break;
+         };
+         case ALLEGRO_PRIM_POINT_LIST: {
+            num_primitives = num_vtx;
+            device->DrawPrimitive(D3DPT_POINTLIST, start, num_primitives);
+            break;
+         };
+      }
+
+#ifdef ALLEGRO_CFG_HLSL_SHADERS
+      if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+         d3d_disp->effect->EndPass();
+      }
+#endif
+   }
+
+   if (is_legacy_card())
+      al_unlock_mutex(d3d_mutex);
+
+   revert_state(state, device, target, texture);
+
+   return num_primitives;
+#else
+   (void)target;
+   (void)texture;
+   (void)vtxs;
+   (void)start;
+   (void)end;
+   (void)type;
+   (void)decl;
+
+   return 0;
+#endif
+}
+
 void _al_set_d3d_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL* ret)
 {
 #ifdef ALLEGRO_CFG_D3D

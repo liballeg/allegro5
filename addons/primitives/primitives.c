@@ -321,8 +321,12 @@ int al_draw_vertex_buffer(ALLEGRO_VERTEX_BUFFER* vertex_buffer,
       ret = _al_draw_prim_soft(texture, vtx, vertex_buffer->decl, 0, end - start, type);
       al_unlock_vertex_buffer(vertex_buffer);
    } else {
-      if (al_get_display_flags(al_get_current_display()) & ALLEGRO_OPENGL) {
+      int flags = al_get_display_flags(al_get_current_display());
+      if (flags & ALLEGRO_OPENGL) {
          ret = _al_draw_vertex_buffer_opengl(target, texture, vertex_buffer, start, end, type);
+      }
+      else if (flags & ALLEGRO_DIRECT3D) {
+         ret = _al_draw_vertex_buffer_directx(target, texture, vertex_buffer, start, end, type);
       }
    }
 
