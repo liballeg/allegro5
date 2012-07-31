@@ -631,14 +631,12 @@ void _al_destroy_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf)
 void* _al_lock_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf)
 {
 #ifdef ALLEGRO_CFG_OPENGL
-   int stride = buf->decl ? buf->decl->stride : (int)sizeof(ALLEGRO_VERTEX);
-
-   buf->locked_memory = al_realloc(buf->locked_memory, (buf->lock_length) * stride);
+   buf->locked_memory = al_realloc(buf->locked_memory, buf->lock_length);
 
    if (buf->lock_flags != ALLEGRO_LOCK_WRITEONLY) {
 #if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
       glBindBuffer(GL_ARRAY_BUFFER, (GLuint)buf->handle);
-      glGetBufferSubData(GL_ARRAY_BUFFER, buf->lock_offset * stride, lock_length * stride, buf->locked_memory);
+      glGetBufferSubData(GL_ARRAY_BUFFER, buf->lock_offset, buf->lock_length, buf->locked_memory);
       glBindBuffer(GL_ARRAY_BUFFER, 0);
 
       if (glGetError())
@@ -658,11 +656,9 @@ void* _al_lock_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf)
 void _al_unlock_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf)
 {
 #ifdef ALLEGRO_CFG_OPENGL
-   int stride = buf->decl ? buf->decl->stride : (int)sizeof(ALLEGRO_VERTEX);
-
    if (buf->lock_flags != ALLEGRO_LOCK_READONLY) {
       glBindBuffer(GL_ARRAY_BUFFER, (GLuint)buf->handle);
-      glBufferSubData(GL_ARRAY_BUFFER, buf->lock_offset * stride, lock_length * stride, buf->locked_memory);
+      glBufferSubData(GL_ARRAY_BUFFER, buf->lock_offset, buf->lock_length, buf->locked_memory);
       glBindBuffer(GL_ARRAY_BUFFER, 0);
    }
 #else

@@ -238,13 +238,15 @@ void* al_lock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer, size_t offset,
    size_t length, int flags)
 {
    void* ret;
+   int stride;
    ASSERT(buffer);
    ASSERT(addon_initialized);
    if (buffer->is_locked || (buffer->write_only && flags != ALLEGRO_LOCK_WRITEONLY))
       return 0;
 
-   buffer->lock_offset = offset;
-   buffer->lock_length = length;
+   stride = buf->decl ? buf->decl->stride : (int)sizeof(ALLEGRO_VERTEX);
+   buffer->lock_offset = offset * stride;
+   buffer->lock_length = length * stride;
    buffer->lock_flags = flags;
 
    if (al_get_display_flags(al_get_current_display()) & ALLEGRO_OPENGL) {
