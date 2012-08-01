@@ -541,7 +541,7 @@ static void VertexBuffers(int mode)
          al_draw_text(Font, al_map_rgb_f(1, 1, 1), 0, -40, 0, "Vertex buffers not supported");
       }
 
-      if (vbuff2 && !(Soft && no_soft)) {
+      if (vbuff2 && !(Soft && no_soft2)) {
          al_draw_vertex_buffer(vbuff2, 0, 0, 13, ALLEGRO_PRIM_POINT_LIST);
       }
       else {
