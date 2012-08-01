@@ -716,11 +716,10 @@ int _al_draw_vertex_buffer_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textu
 #else
    (void)target;
    (void)texture;
-   (void)vtxs;
+   (void)vertex_buffer;
    (void)start;
    (void)end;
    (void)type;
-   (void)decl;
 
    return 0;
 #endif
@@ -854,11 +853,9 @@ bool _al_create_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf, const void* in
    return true;
 #else
    (void)buf;
-   (void)decl;
    (void)initial_data;
    (void)num_vertices;
-   (void)write_only;
-   (void)hints;
+   (void)usage_hints;
 
    return false;
 #endif
