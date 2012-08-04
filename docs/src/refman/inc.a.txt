@@ -25,6 +25,8 @@
 * [Platform-specific](platform.html)
 * [Direct3D](direct3d.html)
 * [OpenGL](opengl.html)
+
+<!-- The preceding blank line forces pandoc to terminate the list -->
 </div>
 
 <div>
@@ -39,16 +41,20 @@
 * [Native dialogs addon](native_dialog.html)
 * [PhysicsFS addon](physfs.html)
 * [Primitives addon](primitives.html)
+
+<!-- The preceding blank line forces pandoc to terminate the list -->
 </div>
 
 <div>
 * [**Index**](index_all.html)
+
+<!-- The preceding blank line forces pandoc to terminate the list -->
 </div>
 
 <div class="searchbox">
 <script type="text/javascript">
 function on_search(index, control) {
-    for (i = 0; i < search_index.length; i++) {
+    for (i = 0; i &lt; search_index.length; i++) {
         if (search_index[i] == control.keywords[index]) {
             break;
         }
