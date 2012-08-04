@@ -29,7 +29,7 @@ set(CMAKE_CONFIGURATION_TYPES "${CMAKE_BUILD_TYPE}" CACHE INTERNAL "internal")
 option(WANT_ANDROID "Build for Android" OFF)
 option(WANT_ANDROID_LEGACY "Build for Android 4 (1.6)" OFF)
 if(WANT_ANDROID)
-   include(${CMAKE_SOURCE_DIR}/cmake/Toolchain-android.cmake)
+    include(${CMAKE_SOURCE_DIR}/cmake/Toolchain-android.cmake)
 endif(WANT_ANDROID)
 
 # Set the project name.
@@ -79,8 +79,8 @@ include(Common)
 #-----------------------------------------------------------------------------#
 
 if(NOT IPHONE)
-option(SHARED "Build shared libraries" on)
-set(BUILD_SHARED_LIBS ${SHARED})    # actual CMake variable
+    option(SHARED "Build shared libraries" on)
+    set(BUILD_SHARED_LIBS ${SHARED})    # actual CMake variable
 endif(NOT IPHONE)
 
 # On some 64-bit platforms, libraries should be installed into `lib64'
@@ -115,8 +115,8 @@ option(WANT_AUDIO "Enable allegro_audio engine" on)
 option(WANT_IMAGE "Enable image load/save addon" on)
 
 if (NOT IPHONE)
-option(WANT_IMAGE_JPG "Enable JPEG support in image addon" on)
-option(WANT_IMAGE_PNG "Enable PNG support in image addon" on)
+    option(WANT_IMAGE_JPG "Enable JPEG support in image addon" on)
+    option(WANT_IMAGE_PNG "Enable PNG support in image addon" on)
 endif (NOT IPHONE)
 
 option(WANT_TTF "Enable TTF addon" on)
@@ -159,7 +159,7 @@ option(WANT_MUDFLAP "Enable gcc mudflap (requires gcc 4.0+)" off)
 #
 
 if(NOT IPHONE)
-option(WANT_ALLOW_SSE "Allow compiler to use SSE instructions (x86)" on)
+    option(WANT_ALLOW_SSE "Allow compiler to use SSE instructions (x86)" on)
 endif(NOT IPHONE)
 
 option(NO_FPU "No floating point unit" off)
@@ -428,7 +428,7 @@ include(FindPkgConfig)
 include(TestBigEndian)
 
 if(NOT IPHONE)
-test_big_endian(ALLEGRO_BIG_ENDIAN)
+    test_big_endian(ALLEGRO_BIG_ENDIAN)
 endif(NOT IPHONE)
 
 if(NOT ALLEGRO_BIG_ENDIAN)
@@ -601,30 +601,30 @@ if(SUPPORT_X11)
     endif(CAN_XCURSOR)
 
     if(WANT_X11_XF86VIDMODE)
-      check_include_file("X11/extensions/xf86vmode.h" HAVE_XF86VIDMODE_H)
-      check_library_exists(Xxf86vm XF86VidModeQueryExtension "" CAN_XF86VIDMODE)
-      if(CAN_XF86VIDMODE AND HAVE_XF86VIDMODE_H)
-         set(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE 1)
-         list(APPEND X11_LIBRARIES "Xxf86vm")
-      endif()
+        check_include_file("X11/extensions/xf86vmode.h" HAVE_XF86VIDMODE_H)
+        check_library_exists(Xxf86vm XF86VidModeQueryExtension "" CAN_XF86VIDMODE)
+        if(CAN_XF86VIDMODE AND HAVE_XF86VIDMODE_H)
+            set(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE 1)
+            list(APPEND X11_LIBRARIES "Xxf86vm")
+        endif()
     endif(WANT_X11_XF86VIDMODE)
 
     if(WANT_X11_XINERAMA)
-      check_include_file("X11/extensions/Xinerama.h" HAVE_XINERAMA_H)
-      check_library_exists(Xinerama XineramaQueryExtension "" CAN_XINERAMA)
-      if(CAN_XINERAMA AND HAVE_XINERAMA_H)
-         set(ALLEGRO_XWINDOWS_WITH_XINERAMA 1)
-         list(APPEND X11_LIBRARIES "Xinerama")
-      endif()
+        check_include_file("X11/extensions/Xinerama.h" HAVE_XINERAMA_H)
+        check_library_exists(Xinerama XineramaQueryExtension "" CAN_XINERAMA)
+        if(CAN_XINERAMA AND HAVE_XINERAMA_H)
+            set(ALLEGRO_XWINDOWS_WITH_XINERAMA 1)
+            list(APPEND X11_LIBRARIES "Xinerama")
+        endif()
     endif(WANT_X11_XINERAMA)
 
     if(WANT_X11_XRANDR)
-      check_include_file("X11/extensions/Xrandr.h" HAVE_XRANDR_H)
-      check_library_exists(Xrandr XRRQueryExtension "" CAN_XRANDR)
-      if(CAN_XRANDR AND HAVE_XRANDR_H)
-         set(ALLEGRO_XWINDOWS_WITH_XRANDR 1)
-         list(APPEND X11_LIBRARIES "Xrandr")
-      endif()
+        check_include_file("X11/extensions/Xrandr.h" HAVE_XRANDR_H)
+        check_library_exists(Xrandr XRRQueryExtension "" CAN_XRANDR)
+        if(CAN_XRANDR AND HAVE_XRANDR_H)
+            set(ALLEGRO_XWINDOWS_WITH_XRANDR 1)
+            list(APPEND X11_LIBRARIES "Xrandr")
+        endif()
     endif(WANT_X11_XRANDR)
 
     check_library_exists(X11 XOpenIM "" CAN_XIM)
@@ -803,19 +803,18 @@ endforeach(genfile)
 set_our_header_properties(${ALLEGRO_PUBLIC_HEADERS})
 
 if(NOT WANT_MONOLITH)
-# ALLEGRO_LIB_BUILD is defined for all Allegro sources (core and addon)
-# ALLEGRO_SRC is defined only while compiling the core sources (its use is
-# to get the DLL #defines right under Windows for creating DLL export functions
-# when it is defined or import DLL functions when it is not).
-add_our_library(allegro
-    "${LIBRARY_SOURCES};${ALLEGRO_PUBLIC_HEADERS}"
-    "${LIBRARY_CFLAGS} -DALLEGRO_SRC"
-    "${PLATFORM_LIBS}"
-    )
+    # ALLEGRO_LIB_BUILD is defined for all Allegro sources (core and addon)
+    # ALLEGRO_SRC is defined only while compiling the core sources (its use is
+    # to get the DLL #defines right under Windows for creating DLL export
+    # functions when it is defined or import DLL functions when it is not).
+    add_our_library(allegro
+        "${LIBRARY_SOURCES};${ALLEGRO_PUBLIC_HEADERS}"
+        "${LIBRARY_CFLAGS} -DALLEGRO_SRC"
+        "${PLATFORM_LIBS}"
+        )
 
-# Allegro 4 has taken "Allegro" as the name of the framework.
-set_our_framework_properties(allegro Allegro-${ALLEGRO_SOVERSION})
-
+    # Allegro 4 has taken "Allegro" as the name of the framework.
+    set_our_framework_properties(allegro Allegro-${ALLEGRO_SOVERSION})
 endif(NOT WANT_MONOLITH)
 
 # Addons and examples should link with this target.
@@ -834,28 +833,26 @@ set(MONOLITH_SOURCES ${LIBRARY_SOURCES})
 add_subdirectory(addons)
 
 if(WANT_MONOLITH)
+    include_directories(SYSTEM ${MONOLITH_INCLUDE_DIRECTORIES})
 
-include_directories(SYSTEM ${MONOLITH_INCLUDE_DIRECTORIES})
+    # For OSX, we need to set the header location inside the framework for each
+    # file (relative to the current directory, so for example when the
+    # AllegroImage framework is built we need to set the path for
+    # allegro5/allegro_image.h but when the AllegroMonolith framework is built
+    # we need to set the path for addons/image/allegro5/allegro_image.h -
+    # otherwise the header is silently missing).
+    set_our_header_properties(${MONOLITH_HEADERS})
 
-# For OSX, we need to set the header location inside the framework for each
-# file (relative to the current directory, so for example when the AllegroImage
-# framework is built we need to set the path for allegro5/allegro_image.h but
-# when the AllegroMonolith framework is built we need to set the path for
-# addons/image/allegro5/allegro_image.h - otherwise the header is silently
-# missing).
-set_our_header_properties(${MONOLITH_HEADERS})
+    link_directories(${MONOLITH_LINK_DIRECTORIES})
+    add_our_library(allegro_monolith
+        "${MONOLITH_SOURCES};${ALLEGRO_PUBLIC_HEADERS}"
+        "${LIBRARY_CFLAGS} -DALLEGRO_SRC ${MONOLITH_DEFINES}"
+        "${PLATFORM_LIBS};${MONOLITH_LIBRARIES}"
+        )
 
-link_directories(${MONOLITH_LINK_DIRECTORIES})
-add_our_library(allegro_monolith
-    "${MONOLITH_SOURCES};${ALLEGRO_PUBLIC_HEADERS}"
-    "${LIBRARY_CFLAGS} -DALLEGRO_SRC ${MONOLITH_DEFINES}"
-    "${PLATFORM_LIBS};${MONOLITH_LIBRARIES}"
-    )
+    set_our_framework_properties(allegro_monolith AllegroMonolith-${ALLEGRO_SOVERSION})
 
-set_our_framework_properties(allegro_monolith AllegroMonolith-${ALLEGRO_SOVERSION})
-
-set(ALLEGRO_MONOLITH_LINK_WITH allegro_monolith)
-
+    set(ALLEGRO_MONOLITH_LINK_WITH allegro_monolith)
 endif(WANT_MONOLITH)
 
 #-----------------------------------------------------------------------------#
@@ -984,7 +981,6 @@ endif(WANT_DOCS)
 if(WANT_PYTHON_WRAPPER)
     add_subdirectory(python)
 endif(WANT_PYTHON_WRAPPER)
-
 
 #-----------------------------------------------------------------------------#
 # vim: set sts=4 sw=4 et:
