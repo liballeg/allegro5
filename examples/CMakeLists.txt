@@ -13,7 +13,8 @@ include_directories(
     )
 
 if(SUPPORT_PHYSFS)
-include_directories(${PHYSFS_INCLUDE_DIR}) # the physfs example directly includes physfs
+    # The physfs example directly includes physfs.h
+    include_directories(${PHYSFS_INCLUDE_DIR})
 endif()
 
 #-----------------------------------------------------------------------------#

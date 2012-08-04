@@ -73,8 +73,8 @@ include(Common)
 #-----------------------------------------------------------------------------#
 
 if(NOT IPHONE)
-option(SHARED "Build shared libraries" on)
-set(BUILD_SHARED_LIBS ${SHARED})    # actual CMake variable
+    option(SHARED "Build shared libraries" on)
+    set(BUILD_SHARED_LIBS ${SHARED})    # actual CMake variable
 endif(NOT IPHONE)
 
 # On some 64-bit platforms, libraries should be installed into `lib64'
@@ -109,8 +109,8 @@ option(WANT_AUDIO "Enable allegro_audio engine" on)
 option(WANT_IMAGE "Enable image load/save addon" on)
 
 if (NOT IPHONE)
-option(WANT_IMAGE_JPG "Enable JPEG support in image addon" on)
-option(WANT_IMAGE_PNG "Enable PNG support in image addon" on)
+    option(WANT_IMAGE_JPG "Enable JPEG support in image addon" on)
+    option(WANT_IMAGE_PNG "Enable PNG support in image addon" on)
 endif (NOT IPHONE)
 
 option(WANT_TTF "Enable TTF addon" on)
@@ -149,7 +149,7 @@ option(WANT_MUDFLAP "Enable gcc mudflap (requires gcc 4.0+)" off)
 #
 
 if(NOT IPHONE)
-option(WANT_ALLOW_SSE "Allow compiler to use SSE instructions (x86)" on)
+    option(WANT_ALLOW_SSE "Allow compiler to use SSE instructions (x86)" on)
 endif(NOT IPHONE)
 
 option(NO_FPU "No floating point unit" off)
@@ -412,7 +412,7 @@ include(FindPkgConfig)
 include(TestBigEndian)
 
 if(NOT IPHONE)
-test_big_endian(ALLEGRO_BIG_ENDIAN)
+    test_big_endian(ALLEGRO_BIG_ENDIAN)
 endif(NOT IPHONE)
 
 if(NOT ALLEGRO_BIG_ENDIAN)
@@ -585,30 +585,30 @@ if(SUPPORT_X11)
     endif(CAN_XCURSOR)
 
     if(WANT_X11_XF86VIDMODE)
-      check_include_file("X11/extensions/xf86vmode.h" HAVE_XF86VIDMODE_H)
-      check_library_exists(Xxf86vm XF86VidModeQueryExtension "" CAN_XF86VIDMODE)
-      if(CAN_XF86VIDMODE AND HAVE_XF86VIDMODE_H)
-         set(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE 1)
-         list(APPEND X11_LIBRARIES "Xxf86vm")
-      endif()
+        check_include_file("X11/extensions/xf86vmode.h" HAVE_XF86VIDMODE_H)
+        check_library_exists(Xxf86vm XF86VidModeQueryExtension "" CAN_XF86VIDMODE)
+        if(CAN_XF86VIDMODE AND HAVE_XF86VIDMODE_H)
+            set(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE 1)
+            list(APPEND X11_LIBRARIES "Xxf86vm")
+        endif()
     endif(WANT_X11_XF86VIDMODE)
 
     if(WANT_X11_XINERAMA)
-      check_include_file("X11/extensions/Xinerama.h" HAVE_XINERAMA_H)
-      check_library_exists(Xinerama XineramaQueryExtension "" CAN_XINERAMA)
-      if(CAN_XINERAMA AND HAVE_XINERAMA_H)
-         set(ALLEGRO_XWINDOWS_WITH_XINERAMA 1)
-         list(APPEND X11_LIBRARIES "Xinerama")
-      endif()
+        check_include_file("X11/extensions/Xinerama.h" HAVE_XINERAMA_H)
+        check_library_exists(Xinerama XineramaQueryExtension "" CAN_XINERAMA)
+        if(CAN_XINERAMA AND HAVE_XINERAMA_H)
+            set(ALLEGRO_XWINDOWS_WITH_XINERAMA 1)
+            list(APPEND X11_LIBRARIES "Xinerama")
+        endif()
     endif(WANT_X11_XINERAMA)
 
     if(WANT_X11_XRANDR)
-      check_include_file("X11/extensions/Xrandr.h" HAVE_XRANDR_H)
-      check_library_exists(Xrandr XRRQueryExtension "" CAN_XRANDR)
-      if(CAN_XRANDR AND HAVE_XRANDR_H)
-         set(ALLEGRO_XWINDOWS_WITH_XRANDR 1)
-         list(APPEND X11_LIBRARIES "Xrandr")
-      endif()
+        check_include_file("X11/extensions/Xrandr.h" HAVE_XRANDR_H)
+        check_library_exists(Xrandr XRRQueryExtension "" CAN_XRANDR)
+        if(CAN_XRANDR AND HAVE_XRANDR_H)
+            set(ALLEGRO_XWINDOWS_WITH_XRANDR 1)
+            list(APPEND X11_LIBRARIES "Xrandr")
+        endif()
     endif(WANT_X11_XRANDR)
 
     check_library_exists(X11 XOpenIM "" CAN_XIM)
@@ -928,7 +928,6 @@ endif(WANT_DOCS)
 if(WANT_PYTHON_WRAPPER)
     add_subdirectory(python)
 endif(WANT_PYTHON_WRAPPER)
-
 
 #-----------------------------------------------------------------------------#
 # vim: set sts=4 sw=4 et:
