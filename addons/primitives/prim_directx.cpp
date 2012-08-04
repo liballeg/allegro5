@@ -359,7 +359,7 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
    return state;
 }
 
-void revert_state(D3D_STATE state, LPDIRECT3DDEVICE9 device, ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture)
+static void revert_state(D3D_STATE state, LPDIRECT3DDEVICE9 device, ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture)
 {
    ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)(target->display);
    (void)d3d_disp;
