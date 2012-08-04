@@ -405,7 +405,7 @@ static void shader_texture_grad_any_step(uintptr_t state, int minor)
 
 
 /* Include generated routines. */
-#include "scanline_drawers.c"
+#include "scanline_drawers.inc"
 
 
 static void triangle_stepper(uintptr_t state,
