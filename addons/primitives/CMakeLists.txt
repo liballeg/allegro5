@@ -9,6 +9,12 @@ set(PRIMITIVES_SOURCES
     directx_shaders.c
     )
 
+if(WIN32)
+    # Add this file conditionally.
+    # The Debian folks want to remove it because it contains precompiled code.
+    list(APPEND PRIMITIVES_SOURCES directx_shaders.c)
+endif(WIN32)
+
 set(PRIMITIVES_INCLUDE_FILES allegro5/allegro_primitives.h)
 
 set_our_header_properties(${PRIMITIVES_INCLUDE_FILES})
