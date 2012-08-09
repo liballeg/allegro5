@@ -650,12 +650,15 @@ if(WIN32)
         endif(D3D9_FOUND)
     endif(WANT_D3D)
 
-    if(WANT_D3D9EX AND SUPPORT_D3D)
+    if(SUPPORT_D3D)
         find_package(D3DX9)
         if(D3DX9_FOUND)
             include_directories(BEFORE SYSTEM ${D3DX9_INCLUDE_DIR})
-            set(ALLEGRO_CFG_D3D9EX 1)
         endif(D3DX9_FOUND)
+    endif(SUPPORT_D3D)
+
+    if(WANT_D3D9EX AND SUPPORT_D3D)
+        set(ALLEGRO_CFG_D3D9EX 1)
     endif(WANT_D3D9EX AND SUPPORT_D3D)
 
 endif(WIN32)
