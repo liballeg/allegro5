@@ -33,6 +33,7 @@ struct ALLEGRO_VERTEX_BUFFER {
    bool is_locked;
    void* locked_memory;
    /* These two are in bytes */
+   size_t local_buffer_length;
    size_t lock_offset;
    size_t lock_length;
    int lock_flags;

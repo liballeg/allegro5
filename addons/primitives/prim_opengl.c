@@ -602,6 +602,7 @@ bool _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* ini
    if (glGetError())
       return false;
 
+   buf->local_buffer_length = 0;
    buf->handle = vbo;
 
    return true;
@@ -628,7 +629,10 @@ void _al_destroy_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf)
 void* _al_lock_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf)
 {
 #ifdef ALLEGRO_CFG_OPENGL
-   buf->locked_memory = al_realloc(buf->locked_memory, buf->lock_length);
+   if (buf->local_buffer_length < buf->lock_length) {
+      buf->locked_memory = al_realloc(buf->locked_memory, buf->lock_length);
+      buf->local_buffer_length = buf->lock_length;
+   }
 
    if (buf->lock_flags != ALLEGRO_LOCK_WRITEONLY) {
 #if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
