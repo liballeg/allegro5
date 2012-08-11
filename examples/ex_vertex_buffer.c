@@ -61,6 +61,7 @@ static void draw_method(METHOD *md, ALLEGRO_FONT *font, ALLEGRO_VERTEX* new_vert
       al_draw_prim(md->vertices, 0, 0, 0, NUM_VERTICES, ALLEGRO_PRIM_TRIANGLE_STRIP);
    }
 
+   /* Force the completion of the previous commands by reading from screen */
    c = al_get_pixel(al_get_backbuffer(al_get_current_display()), 0, 0);
    (void)c;
 
