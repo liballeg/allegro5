@@ -4,6 +4,117 @@ See `changes-5.0.txt` for changes in Allegro 5.0.x.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 5.1.2 to 5.1.3 (August 2012)
+=========================================
+
+The main developers this time were: Dennis Busch, Trent Gamblin,
+Elias Pschernig, Jon Rafkind, Paul Suntsov, Peter Wang.
+
+Displays:
+
+-  Rewrite D3D display format listing code, which was broken.  This should
+   re-enable multi-sampling and fix ex_depth_mask being slow with D3D.
+
+-  Fixed a case where changing fullscreen mode in D3D via al_resize_display
+   caused a crash and loss of loaded bitmaps information.
+
+-  Fixed a case where changing fullscreen mode in OpenGL (on Windows) via
+   al_resize_display cause nothing to be rendered after the mode change.
+
+-  Fixed OpenGL (Windows) bitmap preservation between fullscreen mode changes.
+
+-  Fixed missing/incorrect resize events under Windows.
+
+-  Fixed ALLEGRO_FULLSCREEN_WINDOW under OS X.
+
+-  Fix al_set_new_display_adapter on OS X.
+
+-  Enable fullscreen icon on resizable windows on OS X 10.7 and up.
+
+-  Added al_osx_get_window function (Dennis Gooden).
+
+Graphics:
+
+-  Rename al_ortho_transform to al_orthographic_transform
+   and give it a more consistent parameter order.
+
+-  Add al_perspective_transform and al_translate|scale|rotate_transform_3d.
+
+-  al_draw_pixel was crashing when drawn on sub-bitmaps on OpenGL.
+
+-  Make ogl_flush_vertex_cache disable GL_TEXTURE_2D state.
+
+-  Don't use NSOpenGLPFAAccelerated unnecessarily (OS X).
+
+Input:
+
+-  Fix incorrect keyboard modifier flags after leaving and re-entering a window
+   (Windows).
+
+-  Fixed a bug with mouse enter/leave events for resized windows under OSX
+   (Dennis Gooden).
+
+Audio addon:
+
+-  Add OpenSL ES driver for Android.
+
+Font addons:
+
+-  Add builtin font creation function.
+
+-  Preserve projection transformation when caching glyphs in the TTF addon.
+
+Image addon:
+
+-  Don't include native image loader source files when the native image loaders
+   are disabled.
+
+Primitives addon:
+
+-  Add vertex buffer API.
+
+Native dialogs addon:
+
+-  Run NSAlert on the main thread (OS X).
+
+Android port:
+
+-  Many bug and compatibility fixes.
+
+-  Support al_inhibit_screensaver on Android.
+
+-  Generate SWITCH_IN/OUT events on Android similar to iOS.
+
+-  Support render state API on Android.
+
+-  Make al_acknowledge_drawing_resume take a user callback parameter for
+   interdependant textures.
+
+-  Support building Android port for x86.
+
+-  Add an ANDROID_APP_NAME CMake variable which will replace all
+   org/liballeg/app and org_liballeg_app with your own app name
+
+Build system:
+
+-  Make the monolith dll under Windows use proper dll exports with MSVC.
+
+-  Properly include the main addon in the monolith build.
+
+-  Add Physfs and Cg include directories.
+
+Examples:
+
+-  Added new examples: ex_projection, ex_vertex_buffer.
+
+Other:
+
+-  Documented the allegro_main addon.
+
+-  Various minor bug fixes and cleanups.
+
+
+
 Changes from 5.1.1 to 5.1.2 (May 2012)
 ======================================
 
