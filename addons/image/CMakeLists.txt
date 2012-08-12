@@ -59,26 +59,23 @@ if(WANT_NATIVE_IMAGE_LOADER)
             message("WARNING: cannot use GDI+. Will try other libraries.")
         endif(SUPPORT_GDIPLUS)
     endif(WIN32)
+
     if (MACOSX)
         set(ALLEGRO_CFG_IIO_SUPPORT_PNG 1)
         set(ALLEGRO_CFG_IIO_SUPPORT_JPG 1)
+        list(APPEND IMAGE_SOURCES macosx.m)
     endif(MACOSX)
+
     if(ANDROID)
         set(ALLEGRO_CFG_IIO_HAVE_ANDROID 1)
         set(ALLEGRO_CFG_IIO_SUPPORT_JPG 1)
         set(ALLEGRO_CFG_IIO_SUPPORT_PNG 1)
+        list(APPEND IMAGE_SOURCES android.c)
     endif(ANDROID)
-    if(MACOSX)
-        list(APPEND IMAGE_SOURCES macosx.m)
-    endif(MACOSX)
 
     if(IPHONE)
         list(APPEND IMAGE_SOURCES iphone.m)
     endif(IPHONE)
-
-    if(ANDROID)
-        list(APPEND IMAGE_SOURCES android.c)
-    endif(ANDROID)
 endif(WANT_NATIVE_IMAGE_LOADER)
 
 # Now look for third party libraries to handle the unsupported formats
