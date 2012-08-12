@@ -43,7 +43,7 @@ typedef struct {
  * some problems with deadlocks so switched to this.
  */
 
-static GStaticMutex gtk_lock = G_STATIC_MUTEX_INIT;
+static GMutex gtk_lock;
 static GThread *gtk_thread = NULL;
 static int window_counter = 0;
 
@@ -71,14 +71,14 @@ static void *gtk_thread_func(void *data)
       /* Re-enter the main loop if a new window was created soon after the last
        * one was destroyed, which caused us to drop out of the GTK main loop.
        */
-      g_static_mutex_lock(&gtk_lock);
+      g_mutex_lock(&gtk_lock);
       if (window_counter == 0) {
          gtk_thread = NULL;
          again = false;
       } else {
          again = true;
       }
-      g_static_mutex_unlock(&gtk_lock);
+      g_mutex_unlock(&gtk_lock);
    } while (again);
 
    ALLEGRO_INFO("GTK stopped.\n");
@@ -94,7 +94,7 @@ static bool ensure_gtk_thread(void)
       g_thread_init(NULL);
    #endif
 
-   g_static_mutex_lock(&gtk_lock);
+   g_mutex_lock(&gtk_lock);
 
    if (!gtk_thread) {
       GAsyncQueue *queue = g_async_queue_new();
@@ -118,7 +118,7 @@ static bool ensure_gtk_thread(void)
       ALLEGRO_DEBUG("++window_counter = %d\n", window_counter);
    }
 
-   g_static_mutex_unlock(&gtk_lock);
+   g_mutex_unlock(&gtk_lock);
 
    return ok;
 }
@@ -159,14 +159,14 @@ static void make_transient(ALLEGRO_DISPLAY *display, GtkWidget *window)
 
 static void decrease_window_counter()
 {
-   g_static_mutex_lock(&gtk_lock);
+   g_mutex_lock(&gtk_lock);
    --window_counter;
    ALLEGRO_DEBUG("--window_counter = %d\n", window_counter);
    if (window_counter == 0) {
       gtk_main_quit();
       ALLEGRO_DEBUG("Called gtk_main_quit.\n");
    }
-   g_static_mutex_unlock(&gtk_lock);
+   g_mutex_unlock(&gtk_lock);
 }
 
 static void dialog_destroy(GtkWidget *w, gpointer data)
