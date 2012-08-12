@@ -36,6 +36,7 @@
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
+#include <libavutil/mathematics.h>
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_audio.h>
@@ -757,7 +758,7 @@ static void *video_thread(ALLEGRO_THREAD * t, void *arg)
 {
    VideoState *is = (VideoState *) arg;
    AVPacket pkt1, *packet = &pkt1;
-   int len1, frameFinished;
+   int frameFinished;
    AVFrame *pFrame;
    double pts;
    (void)t;
@@ -780,11 +781,11 @@ static void *video_thread(ALLEGRO_THREAD * t, void *arg)
    
       // Decode video frame
 #ifdef FFMPEG_0_8
-      len1 = avcodec_decode_video2(is->video_st->codec, pFrame, &frameFinished,
-                                  packet);
+      avcodec_decode_video2(is->video_st->codec, pFrame, &frameFinished,
+                            packet);
 #else
-      len1 = avcodec_decode_video(is->video_st->codec, pFrame, &frameFinished,
-                                  packet->data, packet->size);
+      avcodec_decode_video(is->video_st->codec, pFrame, &frameFinished,
+                           packet->data, packet->size);
 #endif
                                   
 
@@ -1037,7 +1038,7 @@ static void *decode_thread(ALLEGRO_THREAD *t, void *arg)
 static void *timer_thread(ALLEGRO_THREAD *t, void *arg)
 {
    VideoState *is = (VideoState *) arg;
-   double ot = 0, nt = 0;
+   //double ot = 0, nt = 0;
    while (!is->quit) {
       ALLEGRO_EVENT event;
       double d;
@@ -1061,9 +1062,9 @@ static void *timer_thread(ALLEGRO_THREAD *t, void *arg)
          al_rest(d);
       }
 
-      nt = get_master_clock(is);
+      //nt = get_master_clock(is);
       //printf("event after %4.1f ms\n", (nt - ot) * 1000);
-      ot = nt;
+      //ot = nt;
       /* Now is the time. */
       event.type = ALLEGRO_EVENT_VIDEO_FRAME_SHOW;
       event.user.data1 = (intptr_t)is->video;
