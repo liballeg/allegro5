@@ -168,14 +168,13 @@ int main(void)
             loaded_bitmap++;
          }
          if (current_bitmap < loaded_bitmap) {
-            int bw, bh;
+            int bw;
             al_draw_bitmap(bitmaps[current_bitmap], 0, 0, 0);
             if (current_bitmap + 1 < loaded_bitmap)
                current_bitmap++;
 
             for (i = 0; i <= current_bitmap; i++) {
                bw = al_get_bitmap_width(bitmaps[i]);
-               bh = al_get_bitmap_width(bitmaps[i]);
                al_draw_scaled_rotated_bitmap(bitmaps[i],
                   0, 0, (i % 20) * 640 / 20, 360 + (i / 20) * 24,
                   32.0 / bw, 32.0 / bw, 0, 0);

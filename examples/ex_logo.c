@@ -363,11 +363,9 @@ static void render(void)
    /* For half a second, display our flash animation. */
    if (t - anim < 0.5) {
       ALLEGRO_STATE state;
-      int w, h, i, j;
+      int i, j;
       float f = sin(ALLEGRO_PI * ((t - anim) / 0.5));
       ALLEGRO_COLOR c = al_map_rgb_f(f * 0.3, f * 0.3, f * 0.3);
-      w = al_get_bitmap_width(logo);
-      h = al_get_bitmap_height(logo);
       al_store_state(&state, ALLEGRO_STATE_BLENDER);
       al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
       al_draw_tinted_bitmap(logo, al_map_rgba_f(1, 1, 1, 1 - f), logo_x, logo_y, 0);
