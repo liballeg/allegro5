@@ -441,7 +441,7 @@ struct Level *LoadLevel(char const *name, int radius)
    input = file;
 
    if (!input) {
-      snprintf(ErrorText, sizeof(ErrorText), "Unable to load level.txt");
+      snprintf(ErrorText, sizeof(ErrorText), "Unable to load %s", name);
       goto error;
    }
 

@@ -52,7 +52,7 @@ static void drop_build_config_dir(ALLEGRO_PATH *path)
    if (s) {
       if (0 == strcmp(s, "Debug")
          || 0 == strcmp(s, "Release")
-         || 0 == strcmp(s, "RelWithDebugInfo")
+         || 0 == strcmp(s, "RelWithDebInfo")
          || 0 == strcmp(s, "Profile"))
       {
          al_drop_path_tail(path);
