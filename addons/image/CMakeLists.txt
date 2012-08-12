@@ -62,9 +62,6 @@ if(WANT_NATIVE_IMAGE_LOADER)
     if (MACOSX)
         set(ALLEGRO_CFG_IIO_SUPPORT_PNG 1)
         set(ALLEGRO_CFG_IIO_SUPPORT_JPG 1)
-    endif(MACOSX)
-
-    if(MACOSX)
         list(APPEND IMAGE_SOURCES macosx.m)
     endif(MACOSX)
 
