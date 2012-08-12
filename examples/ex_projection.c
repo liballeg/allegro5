@@ -96,7 +96,7 @@ static void draw_stars(void)
 
 
 /* The main part of this example. */
-void draw_scrolling_text(void)
+static void draw_scrolling_text(void)
 {
    ALLEGRO_TRANSFORM projection;
    int bw = al_get_bitmap_width(logo);
@@ -179,7 +179,7 @@ static void draw_intro_text(void)
 }
 
 
-int main()
+int main(void)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_TIMER *timer;

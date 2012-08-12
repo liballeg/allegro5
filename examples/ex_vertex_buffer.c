@@ -79,7 +79,7 @@ static void draw_method(METHOD *md, ALLEGRO_FONT *font, ALLEGRO_VERTEX* new_vert
    al_use_transform(&t);
 }
 
-int main()
+int main(void)
 {
    ALLEGRO_TIMER *timer;
    ALLEGRO_EVENT_QUEUE *queue;
