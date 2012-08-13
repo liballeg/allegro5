@@ -123,6 +123,9 @@
 /* Define to enable Linux console VGA driver. */
 #cmakedefine ALLEGRO_LINUX_VGA
 
+/* Define to enable Linux console tslib mouse driver. */
+#cmakedefine ALLEGRO_LINUX_TSLIB
+
 /*---------------------------------------------------------------------------*/
 
 /* Define to the installed ALSA version. */

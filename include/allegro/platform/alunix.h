@@ -178,6 +178,7 @@ AL_VAR(GFX_DRIVER, gfx_xdga2_soft);
 #define MOUSEDRV_LINUX_MS        AL_ID('M','S',' ',' ')
 #define MOUSEDRV_LINUX_IMS       AL_ID('I','M','S',' ')
 #define MOUSEDRV_LINUX_EVDEV     AL_ID('E','V',' ',' ')
+#define MOUSEDRV_LINUX_TSLIB     AL_ID('T','S','L','I')
 
 #define JOY_TYPE_LINUX_ANALOGUE  AL_ID('L','N','X','A')
 
@@ -214,6 +215,7 @@ AL_VAR(MOUSE_DRIVER, mousedrv_linux_gpmdata);
 AL_VAR(MOUSE_DRIVER, mousedrv_linux_ms);
 AL_VAR(MOUSE_DRIVER, mousedrv_linux_ims);
 AL_VAR(MOUSE_DRIVER, mousedrv_linux_evdev);
+AL_VAR(MOUSE_DRIVER, mousedrv_linux_tslib);
 
 AL_FUNC_DEPRECATED(void, split_modex_screen, (int lyne));
 

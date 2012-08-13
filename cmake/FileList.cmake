@@ -245,6 +245,7 @@ set(ALLEGRO_SRC_LINUX_FILES
         src/linux/lvgahelp.c
         src/linux/svgalib.c
         src/linux/svgalibs.s
+        src/linux/tslib.c
         src/linux/vtswitch.c
         src/misc/vbeaf.c
         src/misc/vbeafs.s

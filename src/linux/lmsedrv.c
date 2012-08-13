@@ -31,7 +31,9 @@ _DRIVER_INFO _linux_mouse_driver_list[] =
 #ifdef ALLEGRO_HAVE_LINUX_INPUT_H
    {  MOUSEDRV_LINUX_EVDEV,    &mousedrv_linux_evdev,    TRUE  },
 #endif
+#ifdef ALLEGRO_LINUX_TSLIB
+   {  MOUSEDRV_LINUX_TSLIB,    &mousedrv_linux_tslib,    TRUE  },
+#endif
    {  MOUSEDRV_NONE,           &mousedrv_none,           TRUE  },
    {  0,                       NULL,                     0     }
 };
-
