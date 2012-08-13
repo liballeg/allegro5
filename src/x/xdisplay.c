@@ -23,6 +23,10 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
 
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
+
+      al_identity_transform(&d->proj_transform);
+      al_orthographic_transform(&d->proj_transform, 0, 0, -1, d->w, d->h, 1);
+      d->vt->set_projection(d);
    }
 
    if (ogl->backbuffer)
