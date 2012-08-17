@@ -204,6 +204,14 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 */
 static bool osx_init_mouse(void)
 {
+    /* NOTE: This function is deprecated, however until we have a better fix
+     * or it is removed, we can used it. The problem without calling this
+     * function is that after synthesizing events (as with al_set_mouse_xy)
+     * there is an unacceptably long delay in receiving new events (mouse
+     * locks up for about 0.5 seconds.)
+     */
+    CGSetLocalEventsSuppressionInterval(0.0);
+
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	HID_DEVICE_COLLECTION devices={0,0,NULL};
 	int i = 0, j = 0;
