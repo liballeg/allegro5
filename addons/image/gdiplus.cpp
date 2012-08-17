@@ -327,10 +327,11 @@ ALLEGRO_BITMAP *_al_load_gdiplus_bitmap_f(ALLEGRO_FILE *fp, int flags)
       const uint32_t h = gdi_bmp->GetHeight();
       const PixelFormat pf = gdi_bmp->GetPixelFormat();
       bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+      bool keep_index = (flags & ALLEGRO_KEEP_INDEX);
 
       a_bmp = al_create_bitmap(w, h);
       if (a_bmp) {
-         if (pf == PixelFormat8bppIndexed) {
+         if (pf == PixelFormat8bppIndexed && keep_index) {
             load_indexed_data(gdi_bmp, a_bmp, w, h);
          }
          else {
