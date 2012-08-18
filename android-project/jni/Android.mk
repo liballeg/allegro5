@@ -14,6 +14,8 @@
 #
 LOCAL_PATH := $(call my-dir)
 
+TARGET_ARCH_ABI := armeabi-v7a
+
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := liballegro-prebuilt

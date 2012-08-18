@@ -10,6 +10,9 @@ Dependencies
 This port depends on having CMake, the Android SDK, and the Android NDK
 version r5b or better.
 
+FIXME: NDK versions r8 and r8b don't work - CMake will be unable to determine
+    endianness.
+
 Building on Linux
 =================
 
@@ -39,6 +42,9 @@ directory.
 
 Stick with the Debug build configuration for now.
 
+You may want to add -DWANT_MONOLITH=ON if you prefer a single Allegro library
+instead of one for each addon.
+
 NOTE: On OS X, add -DCMAKE_INSTALL_NAME_TOOL=/usr/bin/install_name_tool to
 the cmake command line.
 
@@ -58,6 +64,10 @@ First, change the name of the package.
     package name is based on your domain name, in reverse.  You can make
     something up if you do not have a domain name, so long as it doesn't clash
     with an Android or Java package.
+
+    Near the top under the comment /* load allegro */ adjust which addons you
+    want to load. FIXME: It should just use all addons which were compiled by
+    default.
 
  *  In `AndroidManifest.xml` replace the value of the "package" property
     in the "manifest" tag, at the top of the file.
@@ -94,10 +104,19 @@ Now to build your Android project.
  *  Copy or link the Allegro libraries you require to the `jni/armeabi-v7a`
     folder of your project.
 
+ *  Add the following line to the top of Android.mk:
+ 
+    ANDROID_NDK_TOOLCHAIN_ROOT := <put here the path in $TC>
+
+ *  Adjust Android.mk and Application.mk to only contain the addons you are
+    using.
+
  *  Run the ndk-build script from the NDK while in the root directory of your
     project.
 
         ANDROID_NDK_TOOLCHAIN_ROOT=$TC /home/username/android-ndk/ndk-build
+
+ *  Run "android update -p .".
 
  *  Run `ant debug`.  This should completely build your project
     resulting in an installable `.apk` file.
@@ -114,7 +133,8 @@ to the Android tool documentation.
         adb -d uninstall your.package.name
 
     where "your.package.name" is obviously the package name you previously gave
-    to your project.
+    to your project. (The -d option is to direct the command to a connected USB
+    device.)
 
  *  To install, use the command:
 
