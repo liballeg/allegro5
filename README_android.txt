@@ -116,7 +116,7 @@ Now to build your Android project.
 
         ANDROID_NDK_TOOLCHAIN_ROOT=$TC /home/username/android-ndk/ndk-build
 
- *  Run "android update -p .".
+ *  Run "android update project -p .".
 
  *  Run `ant debug`.  This should completely build your project
     resulting in an installable `.apk` file.
