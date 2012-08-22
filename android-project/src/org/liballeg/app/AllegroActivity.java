@@ -111,6 +111,11 @@ public class AllegroActivity extends Activity implements SensorEventListener
       System.loadLibrary("allegro-debug");
       System.loadLibrary("allegro_primitives-debug");
       System.loadLibrary("allegro_image-debug");
+      //System.loadLibrary("allegro_font-debug");
+      //System.loadLibrary("allegro_ttf-debug");
+      //System.loadLibrary("allegro_audio-debug");
+      //System.loadLibrary("allegro_acodec-debug");
+      //System.loadLibrary("allegro_monolith-debug");
    }
 	
         
