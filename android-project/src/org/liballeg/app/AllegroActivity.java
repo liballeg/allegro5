@@ -1032,7 +1032,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    private int[]       egl_attribs;
    ArrayList<Integer>  egl_attribWork = new ArrayList<Integer>();
    EGLConfig[]         egl_Config = new EGLConfig[] { null };
-   int[]               es2_attrib;
+   int[]               es2_attrib = {EGL_CONTEXT_CLIENT_VERSION, 1, EGL10.EGL_NONE};
 
    private Context context;
    private boolean captureVolume = false;
@@ -1181,7 +1181,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       EGL10 egl = (EGL10)EGLContext.getEGL();
       int ret = 1;
 
-      es2_attrib = null;
+      es2_attrib[1] = version;
       
       egl_setConfigAttrib(EGL10.EGL_RENDERABLE_TYPE, version == 2 ? EGL_OPENGL_ES2_BIT : EGL_OPENGL_ES_BIT);
 
