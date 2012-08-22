@@ -40,6 +40,7 @@ import java.lang.Runnable;
 import java.util.List;
 import java.util.BitSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import java.io.File;
 import java.io.InputStream;
@@ -1139,10 +1140,28 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       return num_config[0] > 0;
    }
 
+   static HashMap<Integer, String> eglErrors;
    private static void checkEglError(String prompt, EGL10 egl) {
+      if (eglErrors == null) {
+          eglErrors = new HashMap<Integer, String>();
+          eglErrors.put(EGL10.EGL_BAD_DISPLAY, "EGL_BAD_DISPLAY");
+          eglErrors.put(EGL10.EGL_NOT_INITIALIZED, "EGL_NOT_INITIALIZED");
+          eglErrors.put(EGL10.EGL_BAD_SURFACE, "EGL_BAD_SURFACE");
+          eglErrors.put(EGL10.EGL_BAD_CONTEXT, "EGL_BAD_CONTEXT");
+          eglErrors.put(EGL10.EGL_BAD_MATCH, "EGL_BAD_MATCH");
+          eglErrors.put(EGL10.EGL_BAD_ACCESS, "EGL_BAD_ACCESS");
+          eglErrors.put(EGL10.EGL_BAD_NATIVE_PIXMAP, "EGL_BAD_NATIVE_PIXMAP");
+          eglErrors.put(EGL10.EGL_BAD_NATIVE_WINDOW, "EGL_BAD_NATIVE_WINDOW");
+          eglErrors.put(EGL10.EGL_BAD_CURRENT_SURFACE, "EGL_BAD_CURRENT_SURFACE");
+          eglErrors.put(EGL10.EGL_BAD_ALLOC, "EGL_BAD_ALLOC");
+          eglErrors.put(EGL10.EGL_BAD_CONFIG, "EGL_BAD_CONFIG");
+          eglErrors.put(EGL10.EGL_BAD_ATTRIBUTE, "EGL_BAD_ATTRIBUTE");
+          eglErrors.put(EGL11.EGL_CONTEXT_LOST, "EGL_CONTEXT_LOST");
+      }
       int error;
       while ((error = egl.eglGetError()) != EGL10.EGL_SUCCESS) {
-         Log.e("Allegro", String.format("%s: EGL error: 0x%x", prompt, error));
+         Log.e("Allegro", String.format("%s: EGL error: %s", prompt,
+            eglErrors.get(error)));
       }
    }
 
@@ -1187,7 +1206,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
 
       EGLContext ctx = egl.eglCreateContext(egl_Display, egl_Config[0], EGL10.EGL_NO_CONTEXT, es2_attrib);
       if (ctx == EGL10.EGL_NO_CONTEXT) {
-         checkEglError("AllegroSurface", egl);
+         checkEglError("eglCreateContext", egl);
          Log.d("AllegroSurface", "egl_createContext no context");
          return 0;
       }
@@ -1261,43 +1280,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       //   egl.eglTerminate(egl_Display);
       //   egl_Display = null;
          Log.d("AllegroSurface", "can't make thread current: ");
-         
-         switch(egl.eglGetError()) {
-            case EGL10.EGL_BAD_DISPLAY:
-               Log.d("AllegroSurface", "Bad Display");
-               break;
-            case EGL10.EGL_NOT_INITIALIZED:
-               Log.d("AllegroSurface", "Not Initialized");
-               break;
-            case EGL10.EGL_BAD_SURFACE:
-               Log.d("AllegroSurface", "Bad Surface");
-               break;
-            case EGL10.EGL_BAD_CONTEXT:
-               Log.d("AllegroSurface", "Bad Context");
-               break;
-            case EGL10.EGL_BAD_MATCH:
-               Log.d("AllegroSurface", "Bad Match");
-               break;
-            case EGL10.EGL_BAD_ACCESS:
-               Log.d("AllegroSurface", "Bad Access");
-               break;
-            case EGL10.EGL_BAD_NATIVE_PIXMAP:
-               Log.d("AllegroSurface", "Bad Native Pixmap");
-               break;
-            case EGL10.EGL_BAD_NATIVE_WINDOW:
-               Log.d("AllegroSurface", "Bad Native Window");
-               break;
-            case EGL10.EGL_BAD_CURRENT_SURFACE:
-               Log.d("AllegroSurface", "Bad Current Surface");
-               break;
-            case EGL10.EGL_BAD_ALLOC:
-               Log.d("AllegroSurface", "Bad Alloc");
-               break;
-            
-            default:
-               Log.d("AllegroSurface", "unknown error");
-         }
-         
+         checkEglError("eglMakeCurrent", egl);
          return;
       }  
    }
@@ -1316,34 +1299,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
                   //egl.eglWaitGL();
                   
                   egl.eglSwapBuffers(egl_Display, egl_Surface);
-                  switch(egl.eglGetError()) {
-                     case EGL10.EGL_SUCCESS:
-                        break; // things are ok
-                     
-                     case EGL10.EGL_BAD_DISPLAY:
-                        Log.e("AllegroSurface", "SwapBuffers: Bad Display");
-                        break;
-                        
-                     case EGL10.EGL_NOT_INITIALIZED:
-                        Log.e("AllegroSurface", "SwapBuffers: display not initialized");
-                        break;
-                        
-                     case EGL10.EGL_BAD_SURFACE:
-                        Log.e("AllegroSurface", "SwapBuffers: Bad Surface: " + egl_Surface + " " + (egl_Surface == EGL10.EGL_NO_SURFACE));
-                        break;
-                        
-                     case EGL11.EGL_CONTEXT_LOST:
-                        Log.e("AllegroSurface", "SwapBuffers: Context Lost");
-                        break;
-                        
-                     case EGL10.EGL_BAD_NATIVE_WINDOW:
-                        Log.d("AllegroSurface", "SwapBuffers: Bad native window");
-                        break;
-                        
-                     default:
-                        Log.d("AllegroSurface", "Unhandled SwapBuffers Error");
-                        break;
-                  }
+                  checkEglError("eglSwapBuffers", egl);
                   
                } catch(Exception x) {
                   Log.d("AllegroSurface", "inner exception: " + x.getMessage());
