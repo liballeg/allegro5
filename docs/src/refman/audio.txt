@@ -643,7 +643,7 @@ and ALLEGRO_AUDIO_DEPTH_INT16 (not yet complete).
 
 Returns true on success, false on error.
 
-See also: [al_destroy_mixer]
+See also: [al_destroy_mixer], [ALLEGRO_AUDIO_DEPTH], [ALLEGRO_CHANNEL_CONF]
 
 ### API: al_destroy_mixer
 
@@ -1019,17 +1019,21 @@ See also: [al_set_audio_stream_fragment], [al_get_audio_stream_event_source],
 This function needs to be called for every successful call of
 [al_get_audio_stream_fragment] to indicate that the buffer is filled with new data.
 
+See also: [al_get_audio_stream_fragment]
+
 ### API: al_get_audio_stream_fragments
 
 Returns the number of fragments this stream uses. This is the same value as
 passed to [al_create_audio_stream] when a new stream is created.
+
+See also: [al_get_available_audio_stream_fragments]
 
 ### API: al_get_available_audio_stream_fragments
 
 Returns the number of available fragments in the stream, that is, fragments
 which are not currently filled with data for playback.
 
-See also: [al_get_audio_stream_fragment]
+See also: [al_get_audio_stream_fragment], [al_get_audio_stream_fragments]
 
 ### API: al_seek_audio_stream_secs
 
