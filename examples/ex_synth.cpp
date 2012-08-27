@@ -54,6 +54,9 @@ ALLEGRO_AUDIO_STREAM *stream3;
 ALLEGRO_AUDIO_STREAM *stream4;
 ALLEGRO_AUDIO_STREAM *stream5;
 
+bool saving = false;
+ALLEGRO_FILE *save_fp = NULL;
+
 
 static void generate_wave(Waveform type, float *buf, size_t samples, double t,
    float frequency, float phase)
@@ -126,7 +129,7 @@ static void triangle(float *buf, size_t samples, double t,
 }
 
 
-void sawtooth(float *buf, size_t samples, double t,
+static void sawtooth(float *buf, size_t samples, double t,
    float frequency, float phase)
 {
    const double w = TWOPI * frequency;
@@ -138,6 +141,32 @@ void sawtooth(float *buf, size_t samples, double t,
 
       buf[i] = (-1.0 + tu);
    }
+}
+
+
+static void mixer_pp_callback(void *buf, unsigned int samples, void *userdata)
+{
+   ALLEGRO_MIXER *mixer = (ALLEGRO_MIXER *)userdata;
+   int nch;
+   int sample_size;
+
+   if (!saving)
+      return;
+
+   switch (al_get_mixer_channels(mixer)) {
+      case ALLEGRO_CHANNEL_CONF_1:
+         nch = 1;
+         break;
+      case ALLEGRO_CHANNEL_CONF_2:
+         nch = 2;
+         break;
+      default:
+         /* Not supported. */
+         break;
+   }
+
+   sample_size = al_get_audio_depth_size(al_get_mixer_depth(mixer));
+   al_fwrite(save_fp, buf, nch * samples * sample_size);
 }
 
 
@@ -270,6 +299,30 @@ bool Group::get_pan_if_changed(float *pan)
 }
 
 
+class SaveButton : public ToggleButton {
+public:
+   SaveButton() : ToggleButton("Save raw") {}
+   void on_click(int mx, int my);
+};
+
+
+void SaveButton::on_click(int, int)
+{
+   if (saving) {
+      printf("Stopped saving waveform.\n");
+      saving = false;
+      return;
+   }
+   if (!save_fp) {
+      save_fp = al_fopen("ex_synth.raw", "wb");
+   }
+   if (save_fp) {
+      printf("Started saving waveform.\n");
+      saving = true;
+   }
+}
+
+
 class Prog : public EventHandler {
 private:
    Dialog   d;
@@ -278,6 +331,7 @@ private:
    Group    group3;
    Group    group4;
    Group    group5;
+   SaveButton save_button;
    double   t;
 
 public:
@@ -290,6 +344,7 @@ public:
 
 Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    d(Dialog(theme, display, 30, 26)),
+   save_button(SaveButton()),
    t(0.0)
 {
    group1.add_to_dialog(d, 1, 1);
@@ -297,6 +352,7 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    group3.add_to_dialog(d, 1, 11);
    group4.add_to_dialog(d, 1, 16);
    group5.add_to_dialog(d, 1, 21);
+   d.add(save_button, 27, 25, 3, 1);
 }
 
 
@@ -446,6 +502,8 @@ int main(int argc, char *argv[])
       return 1;
    }
 
+   al_set_mixer_postprocess_callback(mixer, mixer_pp_callback, mixer);
+
    /* Prog is destroyed at the end of this scope. */
    {
       Theme theme(font_gui);
@@ -461,6 +519,8 @@ int main(int argc, char *argv[])
    al_uninstall_audio();
 
    al_destroy_font(font_gui);
+
+   al_fclose(save_fp);
 
    return 0;
 }
