@@ -886,7 +886,7 @@ void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
          if (!(clone->flags & ALLEGRO_MEMORY_BITMAP)) {
             ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(
                                                        clone,
-                                                       ALLEGRO_PIXEL_FORMAT_ANY,
+                                                       bitmap->format,
                                                        ALLEGRO_LOCK_WRITEONLY
                                                       );
             if (lr) {
