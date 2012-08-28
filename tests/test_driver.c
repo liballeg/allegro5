@@ -364,6 +364,13 @@ static int get_lock_bitmap_flags(char const *v)
       : atoi(v);
 }
 
+static int get_bitmap_flags(char const *v)
+{
+   return streq(v, "ALLEGRO_MEMORY_BITMAP") ? ALLEGRO_MEMORY_BITMAP
+      : streq(v, "ALLEGRO_VIDEO_BITMAP") ? ALLEGRO_VIDEO_BITMAP
+      : atoi(v);
+}
+
 static void fill_lock_region(LockRegion *lr, float alphafactor, bool blended)
 {
    int x, y;
@@ -899,6 +906,16 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
          continue;
       }
 
+      if (SCAN("al_set_new_bitmap_flags", 1)) {
+         al_set_new_bitmap_flags(get_bitmap_flags(V(0)));
+         continue;
+      }
+
+      if (SCAN("al_set_new_bitmap_format", 1)) {
+         al_set_new_bitmap_format(get_pixel_format(V(0)));
+         continue;
+      }
+
       if (SCAN("al_clear_to_color", 1)) {
          al_clear_to_color(C(0));
          continue;
@@ -1055,6 +1072,13 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
       }
       if (SCAN("al_compose_transform", 2)) {
          al_compose_transform(get_transform(V(0)), get_transform(V(1)));
+         continue;
+      }
+
+      /* Conversion */
+      if (SCAN("al_convert_bitmap", 1)) {
+         ALLEGRO_BITMAP *bmp = B(0);
+         al_convert_bitmap(bmp);
          continue;
       }
 
