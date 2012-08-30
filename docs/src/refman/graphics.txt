@@ -599,9 +599,10 @@ See also: [al_draw_bitmap_region], [al_draw_scaled_bitmap],
 Like [al_draw_bitmap] but multiplies all colors in the bitmap with
 the given color. For example:
 
-    al_draw_tinted_bitmap(bitmap, al_map_rgba_f(1, 1, 1, 0.5), x, y, 0);
+    al_draw_tinted_bitmap(bitmap, al_map_rgba_f(0.5, 0.5, 0.5, 0.5), x, y, 0);
 
-The above will draw the bitmap 50% transparently.
+The above will draw the bitmap 50% transparently (r/g/b values need
+to be pre-multiplied with the alpha component with the default blend mode).
 
     al_draw_tinted_bitmap(bitmap, al_map_rgba_f(1, 0, 0, 1), x, y, 0);
 
