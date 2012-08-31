@@ -876,32 +876,6 @@ void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
       clone = al_create_sub_bitmap(bitmap->parent,
          bitmap->xofs, bitmap->yofs, bitmap->w, bitmap->h);
    }
-   else if (!(bitmap->flags & ALLEGRO_NO_PRESERVE_TEXTURE)) {
-      ASSERT(bitmap->memory);
-      clone = al_create_bitmap(bitmap->w, bitmap->h);
-      if (clone != 0){
-         clone->flags &= ~ALLEGRO_NO_PRESERVE_TEXTURE;
-         temp.memory = clone->memory;
-         clone->memory = bitmap->memory;
-         if (!(clone->flags & ALLEGRO_MEMORY_BITMAP)) {
-            ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(
-                                                       clone,
-                                                       bitmap->format,
-                                                       ALLEGRO_LOCK_WRITEONLY
-                                                      );
-            if (lr) {
-               int line_size, y;
-               line_size = al_get_pixel_size(bitmap->format) * bitmap->w;
-               for (y = 0; y < bitmap->h; y++) {
-                  unsigned char *p = ((unsigned char *)lr->data) + lr->pitch * y;
-                  unsigned char *p2 = ((unsigned char *)bitmap->memory) + line_size * y;
-                  memcpy(p, p2, line_size);
-               }
-               al_unlock_bitmap(clone);
-            }
-         }
-      }
-   }
    else {
       clone = al_clone_bitmap(bitmap);
    }
