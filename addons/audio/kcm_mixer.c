@@ -337,6 +337,7 @@ static void NAME(void *source, void **vbuf, unsigned int *samples,            \
 
 MAKE_MIXER(read_to_mixer_point_float_32, point_spl32, float)
 MAKE_MIXER(read_to_mixer_linear_float_32, linear_spl32, float)
+MAKE_MIXER(read_to_mixer_cubic_float_32, cubic_spl32, float)
 MAKE_MIXER(read_to_mixer_point_int16_t_16, point_spl16, int16_t)
 MAKE_MIXER(read_to_mixer_linear_int16_t_16, linear_spl16, int16_t)
 
@@ -617,10 +618,18 @@ ALLEGRO_MIXER *al_create_mixer(unsigned int freq,
       const char *p;
       p = al_get_config_value(config, "audio", "default_mixer_quality");
       if (p && p[0] != '\0') {
-         if (!_al_stricmp(p, "point"))
+         if (!_al_stricmp(p, "point")) {
+            ALLEGRO_INFO("Point sampling\n");
             default_mixer_quality = ALLEGRO_MIXER_QUALITY_POINT;
-         else if (!_al_stricmp(p, "linear"))
+         }
+         else if (!_al_stricmp(p, "linear")) {
+            ALLEGRO_INFO("Linear interpolation\n");
             default_mixer_quality = ALLEGRO_MIXER_QUALITY_LINEAR;
+         }
+         else if (!_al_stricmp(p, "cubic")) {
+            ALLEGRO_INFO("Cubic interpolation\n");
+            default_mixer_quality = ALLEGRO_MIXER_QUALITY_CUBIC;
+         }
       }
    }
 
@@ -729,24 +738,28 @@ bool al_attach_sample_instance_to_mixer(ALLEGRO_SAMPLE_INSTANCE *spl,
       switch (mixer->ss.spl_data.depth) {
          case ALLEGRO_AUDIO_DEPTH_FLOAT32:
             switch (mixer->quality) {
+               case ALLEGRO_MIXER_QUALITY_POINT:
+                  spl->spl_read = read_to_mixer_point_float_32;
+                  break;
                case ALLEGRO_MIXER_QUALITY_LINEAR:
                   spl->spl_read = read_to_mixer_linear_float_32;
                   break;
-
-               case ALLEGRO_MIXER_QUALITY_POINT:
-                  spl->spl_read = read_to_mixer_point_float_32;
+               case ALLEGRO_MIXER_QUALITY_CUBIC:
+                  spl->spl_read = read_to_mixer_cubic_float_32;
                   break;
             }
             break;
 
          case ALLEGRO_AUDIO_DEPTH_INT16:
             switch (mixer->quality) {
-               case ALLEGRO_MIXER_QUALITY_LINEAR:
-                  spl->spl_read = read_to_mixer_linear_int16_t_16;
-                  break;
-
                case ALLEGRO_MIXER_QUALITY_POINT:
                   spl->spl_read = read_to_mixer_point_int16_t_16;
+                  break;
+               case ALLEGRO_MIXER_QUALITY_CUBIC:
+                  ALLEGRO_WARN("Falling back to linear interpolation\n");
+                  /* fallthrough */
+               case ALLEGRO_MIXER_QUALITY_LINEAR:
+                  spl->spl_read = read_to_mixer_linear_int16_t_16;
                   break;
             }
             break;
