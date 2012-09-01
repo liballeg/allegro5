@@ -16,6 +16,13 @@
 
 ALLEGRO_DEBUG_CHANNEL("audio")
 
+/*
+ * The highest quality interpolator is a cubic interpolator requiring
+ * four sample points.  In the streaming case we lag the true sample
+ * position by three.
+ */
+#define MAX_LAG   (3)
+
 
 static void maybe_lock_mutex(ALLEGRO_MUTEX *mutex)
 {
@@ -99,12 +106,12 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
    stream->pending_bufs = stream->used_bufs + fragment_count;
 
    /* The main_buffer holds all the buffer fragments in contiguous memory.
-    * To support linear interpolation across buffer fragments, we allocate an
-    * extra sample at the start of each buffer fragment, to hold the last
-    * sample value which came before that fragment.
+    * To support interpolation across buffer fragments, we allocate extra
+    * MAX_LAG samples at the start of each buffer fragment, to hold the
+    * last few sample values which came before that fragment.
     */
    stream->main_buffer = al_calloc(1,
-      (bytes_per_sample + bytes_per_frag_buf) * fragment_count);
+      (MAX_LAG * bytes_per_sample + bytes_per_frag_buf) * fragment_count);
    if (!stream->main_buffer) {
       al_free(stream->used_bufs);
       al_free(stream);
@@ -114,9 +121,10 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
    }
 
    for (i = 0; i < fragment_count; i++) {
-      stream->pending_bufs[i] = (char *) stream->main_buffer
-         + i * (bytes_per_sample + bytes_per_frag_buf)
-         + bytes_per_sample;
+      stream->pending_bufs[i] =
+         (char *) stream->main_buffer
+         + i * (MAX_LAG*bytes_per_sample + bytes_per_frag_buf)
+         + MAX_LAG*bytes_per_sample;
    }
 
    al_init_user_event_source(&stream->spl.es);
@@ -568,7 +576,7 @@ bool _al_kcm_refill_stream(ALLEGRO_AUDIO_STREAM *stream)
       return false;
    }
 
-   /* Copy the last sample value to the front of the new buffer,
+   /* Copy the last MAX_LAG sample values to the front of the new buffer
     * for interpolation.
     */
    if (old_buf) {
@@ -576,9 +584,9 @@ bool _al_kcm_refill_stream(ALLEGRO_AUDIO_STREAM *stream)
          al_get_channel_count(spl->spl_data.chan_conf) *
          al_get_audio_depth_size(spl->spl_data.depth);
       memcpy(
-         (char *) new_buf - bytes_per_sample,
-         (char *) old_buf + bytes_per_sample * (spl->pos - 1),
-         bytes_per_sample);
+         (char *) new_buf - bytes_per_sample * MAX_LAG,
+         (char *) old_buf + bytes_per_sample * (spl->pos-MAX_LAG),
+         bytes_per_sample * MAX_LAG);
    }
 
    stream->spl.pos = 0;

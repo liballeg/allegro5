@@ -204,6 +204,95 @@ def make_linear_interpolator(name, fmt):
       return samp_buf-> #{fmt};
    }""")
 
+def make_cubic_interpolator(name, fmt):
+   assert fmt == "f32"
+
+   print interp("""\
+   static INLINE const void *
+      #{name}
+      (SAMP_BUF *samp_buf,
+       const ALLEGRO_SAMPLE_INSTANCE *spl,
+       unsigned int maxc)
+   {
+      int p0 = spl->pos-1;
+      int p1 = spl->pos;
+      int p2 = spl->pos+1;
+      int p3 = spl->pos+2;
+
+      switch (spl->loop) {
+         case ALLEGRO_PLAYMODE_ONCE:
+            if (p0 < 0)
+               p0 = 0;
+            if (p2 >= spl->spl_data.len)
+               p2 = spl->spl_data.len - 1;
+            if (p3 >= spl->spl_data.len)
+               p3 = spl->spl_data.len - 1;
+            break;
+         case ALLEGRO_PLAYMODE_LOOP:
+         case ALLEGRO_PLAYMODE_BIDIR:
+            /* These positions should really wrap/bounce instead of clamping
+             * but it's probably unnoticeable.
+             */
+            if (p0 < spl->loop_start)
+               p0 = spl->loop_end - 1;
+            if (p2 >= spl->loop_end)
+               p2 = spl->loop_start;
+            if (p3 >= spl->loop_end)
+               p3 = spl->loop_start;
+            break;
+         case _ALLEGRO_PLAYMODE_STREAM_ONCE:
+         case _ALLEGRO_PLAYMODE_STREAM_ONEDIR:
+            /* Lag by three samples in total. */
+            p0 -= 2;
+            p1 -= 2;
+            p2 -= 2;
+            p3 -= 2;
+            break;
+      }
+
+      p0 *= maxc;
+      p1 *= maxc;
+      p2 *= maxc;
+      p3 *= maxc;
+
+      switch (spl->spl_data.depth) {
+      """)
+
+   for depth in depths:
+      value0 = depth.index(fmt)("spl->spl_data.buffer", "p0 + i")
+      value1 = depth.index(fmt)("spl->spl_data.buffer", "p1 + i")
+      value2 = depth.index(fmt)("spl->spl_data.buffer", "p2 + i")
+      value3 = depth.index(fmt)("spl->spl_data.buffer", "p3 + i")
+      # 4-point, cubic Hermite interpolation
+      # Code transcribed from "Polynomial Interpolators for High-Quality
+      # Resampling of Oversampled Audio" by Olli Niemitalo
+      # http://yehar.com/blog/?p=197
+      print interp("""\
+         case #{depth.constant()}:
+         {
+            const float t = (float)spl->pos_bresenham_error / spl->step_denom;
+            signed int i;
+            for (i = 0; i < (signed int)maxc; i++) {
+               float x0 = #{value0};
+               float x1 = #{value1};
+               float x2 = #{value2};
+               float x3 = #{value3};
+               float c0 = x1;
+               float c1 = 0.5f * (x2 - x0);
+               float c2 = x0 - (2.5f * x1) + (2.0f * x2) - (0.5f * x3);
+               float c3 = (0.5f * (x3 - x0)) + (1.5f * (x1 - x2));
+               float s = (((((c3 * t) + c2) * t) + c1) * t) + c0;
+               samp_buf->f32[i] = s;
+            }
+         }
+         break;
+         """)
+
+   print interp("""\
+      }
+      return samp_buf-> #{fmt} ;
+   }""")
+
 if __name__ == "__main__":
    print "// Warning: This file was created by make_resamplers.py - do not edit."
    print "// vim: set ft=c:"
@@ -212,5 +301,6 @@ if __name__ == "__main__":
    make_point_interpolator("point_spl16", "s16")
    make_linear_interpolator("linear_spl32", "f32")
    make_linear_interpolator("linear_spl16", "s16")
+   make_cubic_interpolator("cubic_spl32", "f32")
 
 # vim: set sts=3 sw=3 et:
