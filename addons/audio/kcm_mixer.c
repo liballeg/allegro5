@@ -338,6 +338,7 @@ static void NAME(void *source, void **vbuf, unsigned int *samples,            \
 MAKE_MIXER(read_to_mixer_point_float_32, point_spl32, float)
 MAKE_MIXER(read_to_mixer_linear_float_32, linear_spl32, float)
 MAKE_MIXER(read_to_mixer_point_int16_t_16, point_spl16, int16_t)
+MAKE_MIXER(read_to_mixer_linear_int16_t_16, linear_spl16, int16_t)
 
 #undef MAKE_MIXER
 
@@ -739,8 +740,15 @@ bool al_attach_sample_instance_to_mixer(ALLEGRO_SAMPLE_INSTANCE *spl,
             break;
 
          case ALLEGRO_AUDIO_DEPTH_INT16:
-            /* Linear interpolation not supported yet. */
-            spl->spl_read = read_to_mixer_point_int16_t_16;
+            switch (mixer->quality) {
+               case ALLEGRO_MIXER_QUALITY_LINEAR:
+                  spl->spl_read = read_to_mixer_linear_int16_t_16;
+                  break;
+
+               case ALLEGRO_MIXER_QUALITY_POINT:
+                  spl->spl_read = read_to_mixer_point_int16_t_16;
+                  break;
+            }
             break;
 
          case ALLEGRO_AUDIO_DEPTH_INT8:
