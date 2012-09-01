@@ -117,6 +117,8 @@ def make_point_interpolator(name, fmt):
    }""")
 
 def make_linear_interpolator(name, fmt):
+   assert fmt == "f32" or fmt == "s16"
+
    print interp("""\
    static INLINE const void *
       #{name}
@@ -167,11 +169,12 @@ def make_linear_interpolator(name, fmt):
    for depth in depths:
       x0 = depth.index(fmt)("spl->spl_data.buffer", "p0 + i")
       x1 = depth.index(fmt)("spl->spl_data.buffer", "p1 + i")
-      # This still only works for float.
-      assert fmt == "f32"
       print interp("""\
          case #{depth.constant()}:
-         {
+         {""")
+
+      if fmt == "f32":
+         print interp("""\
             const float t = (float)spl->pos_bresenham_error / spl->step_denom;
             int i;
             for (i = 0; i < (int)maxc; i++) {
@@ -179,7 +182,19 @@ def make_linear_interpolator(name, fmt):
                const float x1 = #{x1};
                const float s = (x0 * (1.0f - t)) + (x1 * t);
                samp_buf->f32[i] = s;
-            }
+            }""")
+      elif fmt == "s16":
+         print interp("""\
+            const int32_t t = 256 * spl->pos_bresenham_error / spl->step_denom;
+            int i;
+            for (i = 0; i < (int)maxc; i++) {
+               const int32_t x0 = #{x0};
+               const int32_t x1 = #{x1};
+               const int32_t s = ((x0 * (256 - t))>>8) + ((x1 * t)>>8);
+               samp_buf->s16[i] = (int16_t)s;
+            }""")
+
+      print interp("""\
          }
          break;
          """)
@@ -196,5 +211,6 @@ if __name__ == "__main__":
    make_point_interpolator("point_spl32", "f32")
    make_point_interpolator("point_spl16", "s16")
    make_linear_interpolator("linear_spl32", "f32")
+   make_linear_interpolator("linear_spl16", "s16")
 
 # vim: set sts=3 sw=3 et:
