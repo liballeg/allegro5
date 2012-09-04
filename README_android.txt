@@ -10,9 +10,6 @@ Dependencies
 This port depends on having CMake, the Android SDK, and the Android NDK
 version r5b or better.
 
-FIXME: NDK versions r8 and r8b don't work - CMake will be unable to determine
-    endianness.
-
 Building on Linux
 =================
 
