@@ -456,10 +456,11 @@ Number of primitives drawn
 
 For example to draw a textured triangle you could use:
 
+    ALLEGRO_COLOR white = al_map_rgb_f(1, 1, 1);
     ALLEGRO_VERTEX v[] = {
-        {.x = 128, .y = 0, .z = 0, .u = 128, .v = 0},
-        {.x = 0, .y = 256, .z = 0, .u = 0, .v = 256},
-        {.x = 256, .y = 256, .z = 0, .u = 256, .v = 256}};
+        {.x = 128, .y = 0, .z = 0, .color = white, .u = 128, .v = 0},
+        {.x = 0, .y = 256, .z = 0, .color = white, .u = 0, .v = 256},
+        {.x = 256, .y = 256, .z = 0, .color = white, .u = 256, .v = 256}};
     al_draw_prim(v, NULL, texture, 0, 3, ALLEGRO_PRIM_TRIANGLE_LIST);
 
 See also:
