@@ -483,7 +483,7 @@ See also: [ALLEGRO_PIXEL_FORMAT], [al_get_new_bitmap_format],
 
 ### API: al_get_bitmap_flags
 
-Return the flags user to create the bitmap.
+Return the flags used to create the bitmap.
 
 See also: [al_set_new_bitmap_flags]
 
