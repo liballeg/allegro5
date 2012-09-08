@@ -23,6 +23,7 @@
 #include "allegro5/platform/aintwin.h"
 #include "allegro5/internal/aintern_display.h"
 
+ALLEGRO_DEBUG_CHANNEL("touch")
 
 static ALLEGRO_TOUCH_INPUT_STATE touch_input_state;
 static ALLEGRO_TOUCH_INPUT touch_input;
@@ -79,13 +80,13 @@ bool _al_win_init_touch_input_api(void)
 
       /* Mark as 'do not try this again'. */
       touch_input_api_reference_counter = -1;
-
+	  ALLEGRO_WARN("failed loading the touch input API\n");
       return false;
    }
 
    /* Set initial reference count. */
    touch_input_api_reference_counter = 1;
-
+   ALLEGRO_INFO("touch input API installed successfully\n");
    return true;
 }
 
@@ -184,6 +185,33 @@ static void generate_touch_input_event(int type, double timestamp, int id, float
 }
 
 
+static char* get_error_desc(DWORD err)
+{
+   #define MSGLEN 2048
+   static char err_msg[MSGLEN];
+   memset(err_msg, 0, MSGLEN);
+
+   /* Get the formatting error string from Windows. Note that only the
+    * bottom 14 bits matter - the rest are reserved for various library
+    * IDs and type of error.
+    */
+   if (!FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM
+                    | FORMAT_MESSAGE_IGNORE_INSERTS,
+                      NULL, err & 0x3FFF,
+                      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                     (LPTSTR) &err_msg, MSGLEN, NULL)) {
+      strcpy(err_msg, "(Unable to decode the error code)");
+   }
+   else {
+      /* Remove two trailing characters */
+      if (strlen(err_msg) > 1)
+         *(err_msg + strlen(err_msg) - 2) = '\0';
+   }
+
+   return err_msg;
+}
+
+
 static bool init_touch_input(void)
 {
    unsigned i;
@@ -206,9 +234,14 @@ static bool init_touch_input(void)
 
    system = al_get_system_driver();
    for (i = 0; i < _al_vector_size(&system->displays); ++i) {
-      ALLEGRO_DISPLAY_WIN* win_display = *((ALLEGRO_DISPLAY_WIN**)_al_vector_ref(&system->displays, i));
-
-      _al_win_register_touch_window(win_display->window, 0);
+      bool r;
+      ALLEGRO_DISPLAY_WIN *win_display = *((ALLEGRO_DISPLAY_WIN**)_al_vector_ref(&system->displays, i));
+      r = _al_win_register_touch_window(win_display->window, 0);
+	  ALLEGRO_INFO("registering touch window %p: %d\n", win_display, r);
+	  if (!r) {
+		 ALLEGRO_ERROR("RegisterTouchWindow failed: %s\n", get_error_desc(GetLastError()));
+	     return false;
+	  }
    }
 
    return true;
