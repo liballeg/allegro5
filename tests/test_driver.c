@@ -1261,7 +1261,7 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
       error("statement didn't scan: %s", stmt);
    }
 
-   al_set_new_bitmap_format(0);
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
 
    if (bmp_type == SW) {
       al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
