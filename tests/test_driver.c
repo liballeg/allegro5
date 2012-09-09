@@ -1261,10 +1261,16 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
       error("statement didn't scan: %s", stmt);
    }
 
-   if (bmp_type == SW)
+   al_set_new_bitmap_format(0);
+
+   if (bmp_type == SW) {
+      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
       check_hash(cfg, testname, target, bmp_type);
-   else
+   }
+   else {
+      al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
       check_similarity(cfg, testname, target, membuf, bmp_type, reliable);
+   }
 
    total_tests++;
 
