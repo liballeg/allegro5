@@ -170,7 +170,7 @@ static ALLEGRO_BITMAP *do_create_bitmap(int w, int h,
 
    bitmap = current_display->vt->create_bitmap(current_display, w, h);
    if (!bitmap) {
-      ALLEGRO_ERROR("failed to create display bitmap");
+      ALLEGRO_ERROR("failed to create display bitmap\n");
       return NULL;
    }
 
