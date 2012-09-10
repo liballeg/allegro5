@@ -361,8 +361,9 @@ static bool d3d_create_textures(ALLEGRO_DISPLAY_D3D *disp, int w, int h,
    }
 }
 
-static ALLEGRO_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface,
-   int flags)
+static ALLEGRO_BITMAP
+   *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface,
+   int format, int flags)
 {
    ALLEGRO_BITMAP *bitmap;
    ALLEGRO_BITMAP_EXTRA_D3D *extra;
@@ -370,7 +371,6 @@ static ALLEGRO_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface
    D3DLOCKED_RECT surf_locked_rect;
    D3DLOCKED_RECT sys_locked_rect;
    ALLEGRO_STATE backup;
-   int format;
    unsigned int y;
 
    if (surface->GetDesc(&desc) != D3D_OK) {
@@ -384,8 +384,6 @@ static ALLEGRO_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface
    }
 
    al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
-
-   format = _al_d3d_format_to_allegro(desc.Format);
 
    al_set_new_bitmap_format(format);
    al_set_new_bitmap_flags(flags);
@@ -412,7 +410,7 @@ static ALLEGRO_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface
       memcpy(
          ((char*)sys_locked_rect.pBits)+(sys_locked_rect.Pitch*y),
          ((char*)surf_locked_rect.pBits)+(surf_locked_rect.Pitch*y),
-         desc.Width*4
+         desc.Width*al_get_pixel_size(format)
       );
    }
 
@@ -726,7 +724,9 @@ static void d3d_draw_bitmap_region(
       }
       ALLEGRO_BITMAP *tmp_bmp = d3d_create_bitmap_from_surface(
          surface,
-         src->flags);
+	 src->format,
+         src->flags
+      );
       if (tmp_bmp) {
          d3d_draw_bitmap_region(tmp_bmp, tint,
             sx, sy, sw, sh, flags);
