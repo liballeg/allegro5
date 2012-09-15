@@ -105,7 +105,7 @@ See also: [al_update_fs_entry]
 ## API: al_fs_entry_exists
 
 Check if the given entry exists on in the filesystem.
-Returns true if it does exist or false if it doesn't exist, or an error occured.
+Returns true if it does exist or false if it doesn't exist, or an error occurred.
 Error is indicated in Allegro's errno.
 
 See also: [al_filename_exists]
@@ -115,7 +115,7 @@ See also: [al_filename_exists]
 Delete this filesystem entry from the filesystem.  Only files and empty
 directories may be deleted.
 
-Returns true on success, and false on failure, error is indicated in Allegro'
+Returns true on success, and false on failure, error is indicated in Allegro's
 errno.
 
 See also: [al_filename_exists]
