@@ -150,7 +150,7 @@ void _al_android_touch_input_handle_begin(int id, double timestamp, float x, flo
 void _al_android_touch_input_handle_end(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp);
 void _al_android_touch_input_handle_move(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp);
 void _al_android_touch_input_handle_cancel(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp);
-void _al_android_keyboard_handle_event(ALLEGRO_DISPLAY *display, int scancode, bool down);
+void _al_android_keyboard_handle_event(ALLEGRO_DISPLAY *display, int scancode, ALLEGRO_EVENT_TYPE event_type);
 
 void _al_android_create_surface(JNIEnv *env, bool post);
 void _al_android_destroy_surface(JNIEnv *env, jobject obj, bool post);

@@ -191,7 +191,7 @@ JNI_FUNC(void, AllegroSurface, nativeOnKeyDown, (JNIEnv *env, jobject obj, jint 
    ALLEGRO_DISPLAY *display = *(ALLEGRO_DISPLAY**)_al_vector_ref(&system->displays, 0);
    ASSERT(display != NULL);
    
-   _al_android_keyboard_handle_event(display, scancode, true);
+   _al_android_keyboard_handle_event(display, scancode, ALLEGRO_EVENT_KEY_DOWN);
 }
 
 JNI_FUNC(void, AllegroSurface, nativeOnKeyUp, (JNIEnv *env, jobject obj, jint scancode))
@@ -204,7 +204,7 @@ JNI_FUNC(void, AllegroSurface, nativeOnKeyUp, (JNIEnv *env, jobject obj, jint sc
    ALLEGRO_DISPLAY *display = *(ALLEGRO_DISPLAY**)_al_vector_ref(&system->displays, 0);
    ASSERT(display != NULL);
 
-   _al_android_keyboard_handle_event(display, scancode, false);
+   _al_android_keyboard_handle_event(display, scancode, ALLEGRO_EVENT_KEY_UP);
 }
 
 JNI_FUNC(void, AllegroSurface, nativeOnTouch, (JNIEnv *env, jobject obj, jint id, jint action, jfloat x, jfloat y, jboolean primary))
