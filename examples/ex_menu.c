@@ -54,10 +54,7 @@ ALLEGRO_MENU_INFO child_menu_info[] = {
 
 int main(void)
 {
-   /* On Windows, the menu steals space from our drawable area. The menu_height
-    * variable represents how much space is lost. (See the resize event.) 
-    */
-   int menu_height = 0;
+   int menu_height;
    int dcount = 0;
    const int width = 320, height = 200;
    
@@ -225,14 +222,14 @@ int main(void)
          al_acknowledge_resize(display);
          dh = height - al_get_display_height(display);
 
-         if (dh > 0) {
-            al_resize_display(display, width, height + dh);
+         /* On Windows, the menu steals space from our drawable area.
+          * The menu_height variable represents how much space is lost.
+          */
+         if (dh > 0)
             menu_height = dh;
-         }
-         else if (dh < 0) {
-            al_resize_display(display, width, height);
+         else
             menu_height = 0;
-         }
+         al_resize_display(display, width, height + menu_height);
       }
    }
    
