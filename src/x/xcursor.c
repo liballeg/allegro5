@@ -20,18 +20,13 @@ ALLEGRO_MOUSE_CURSOR *_al_xwin_create_mouse_cursor(ALLEGRO_BITMAP *bmp,
 
    int bmp_w;
    int bmp_h;
-   ALLEGRO_LOCKED_REGION *lr;
    ALLEGRO_MOUSE_CURSOR_XGLX *xcursor;
    XcursorImage *image;
    int c, ix, iy;
+   bool was_locked;
 
    bmp_w = al_get_bitmap_width(bmp);
    bmp_h = al_get_bitmap_height(bmp);
-
-   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
-   if (!lr) {
-      return NULL;
-   }
 
    xcursor = al_malloc(sizeof *xcursor);
    if (!xcursor) {
@@ -42,6 +37,11 @@ ALLEGRO_MOUSE_CURSOR *_al_xwin_create_mouse_cursor(ALLEGRO_BITMAP *bmp,
    if (image == None) {
       al_free(xcursor);
       return NULL;
+   }
+
+   was_locked = al_is_bitmap_locked(bmp);
+   if (!was_locked) {
+      al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
    }
 
    c = 0;
@@ -56,6 +56,10 @@ ALLEGRO_MOUSE_CURSOR *_al_xwin_create_mouse_cursor(ALLEGRO_BITMAP *bmp,
       }
    }
 
+   if (!was_locked) {
+      al_unlock_bitmap(bmp);
+   }
+
    image->xhot = x_focus;
    image->yhot = y_focus;
 
@@ -64,8 +68,6 @@ ALLEGRO_MOUSE_CURSOR *_al_xwin_create_mouse_cursor(ALLEGRO_BITMAP *bmp,
    _al_mutex_unlock(&system->lock);
 
    XcursorImageDestroy(image);
-
-   al_unlock_bitmap(bmp);
 
    return (ALLEGRO_MOUSE_CURSOR *)xcursor;
 }
