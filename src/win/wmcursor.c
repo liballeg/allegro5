@@ -46,6 +46,7 @@ HICON _al_win_create_icon(HWND wnd,
    HBITMAP hOldAndMaskBitmap;
    HBITMAP hOldXorMaskBitmap;
    HICON icon;
+   bool was_locked;
 
    if (resize) {
       if (is_cursor) {
@@ -86,6 +87,12 @@ HICON _al_win_create_icon(HWND wnd,
       }
    }
 
+   /* Lock sprite to speed up repeated get pixel calls. */
+   was_locked = al_is_bitmap_locked(sprite);
+   if (!was_locked) {
+      al_lock_bitmap(sprite, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+   }
+
    local_draw_to_hdc(h_xor_dc, sprite, 0, 0);
 
    /* Make cursor background transparent */
@@ -105,6 +112,10 @@ HICON _al_win_create_icon(HWND wnd,
 	    SetPixel(h_xor_dc, x, y, WINDOWS_RGB(0, 0, 0));
 	 }
       }
+   }
+
+   if (!was_locked) {
+      al_unlock_bitmap(sprite);
    }
 
    SelectObject(h_and_dc, hOldAndMaskBitmap);
