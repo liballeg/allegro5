@@ -62,7 +62,7 @@ AL_FUNC(void, al_register_assert_handler, (void (*handler)(char const *expr,
    char const *file, int line, char const *func)));
 
 #ifdef NDEBUG
-   #define ALLEGRO_ASSERT(e)	((void) 0)
+   #define ALLEGRO_ASSERT(e)	((void)(0 && (e)))
 #else
    #define ALLEGRO_ASSERT(e)                                                  \
       ((e) ? (void) 0                                                         \
