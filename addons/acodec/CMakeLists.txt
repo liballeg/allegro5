@@ -175,7 +175,7 @@ if(WANT_TREMOR)
     find_package(Tremor)
     if(TREMOR_FOUND)
         set(CMAKE_REQUIRED_INCLUDES ${TREMOR_INCLUDE_DIR})
-        set(CMAKE_REQUIRED_LIBRARIES ${TREMOR_LIBRARY})
+        set(CMAKE_REQUIRED_LIBRARIES ${TREMOR_LIBRARIES})
         check_c_source_compiles("
             #include <tremor/ivorbisfile.h>
             int main(void)
@@ -197,7 +197,7 @@ if(WANT_TREMOR)
         # mimic regular libogg/libvorbis
         set(OGG_INCLUDE_DIR ${TREMOR_INCLUDE_DIR})
         set(VORBIS_INCLUDE_DIR )
-        set(VORBIS_LIBRARIES ${TREMOR_LIBRARY})
+        set(VORBIS_LIBRARIES ${TREMOR_LIBRARIES})
         set(ALLEGRO_CFG_ACODEC_TREMOR 1)
     endif(NOT SUPPORT_VORBIS)
 elseif(WANT_VORBIS)
