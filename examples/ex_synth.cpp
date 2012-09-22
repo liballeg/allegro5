@@ -162,7 +162,7 @@ static void mixer_pp_callback(void *buf, unsigned int samples, void *userdata)
          break;
       default:
          /* Not supported. */
-         break;
+         return;
    }
 
    sample_size = al_get_audio_depth_size(al_get_mixer_depth(mixer));
