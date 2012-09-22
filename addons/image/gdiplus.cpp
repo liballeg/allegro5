@@ -75,6 +75,10 @@ public:
       this->fp = fp;
    }
 
+   virtual ~AllegroWindowsStream()
+   {
+   }
+
    /* IUnknown */
    virtual ULONG STDMETHODCALLTYPE AddRef(void)
    {
