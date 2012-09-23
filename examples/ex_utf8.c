@@ -82,7 +82,7 @@ static void t3(void)
 /* No memory needs to be freed. */
 static void t4(void)
 {
-   const char *s = "This contains an embedded NUL: \0 <-- here";
+   const char s[] = "This contains an embedded NUL: \0 <-- here";
    ALLEGRO_USTR_INFO info;
    const ALLEGRO_USTR *us = al_ref_buffer(&info, s, sizeof(s));
 
