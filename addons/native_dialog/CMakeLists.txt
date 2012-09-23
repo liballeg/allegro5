@@ -65,17 +65,20 @@ if(SUPPORT_NATIVE_DIALOG)
    
    include_directories(SYSTEM ${NATIVE_DIALOG_INCLUDE_DIRECTORIES})
 
-   add_our_addon_library(allegro_native_dialog
+   # Note: allegro_dialog NOT allegro_native_dialog.
+   add_our_addon_library(allegro_dialog
        "${NATIVE_DIALOG_SOURCES};${NATIVE_DIALOG_INCLUDE_FILES}"
        "-DALLEGRO_NATIVE_DIALOG_SRC"
        "${NATIVE_DIALOG_LIBRARIES};${ALLEGRO_LINK_WITH}"
        )
 
-   set_our_framework_properties(allegro_native_dialog AllegroDialog-${ALLEGRO_SOVERSION})
+   # Note: allegro_dialog NOT allegro_native_dialog.
+   set_our_framework_properties(allegro_dialog AllegroDialog-${ALLEGRO_SOVERSION})
 
    install_our_headers(${NATIVE_DIALOG_INCLUDE_FILES})
 
-   add_addon(native_dialog)
+   # Note: allegro_dialog NOT allegro_native_dialog.
+   add_addon2(native_dialog allegro_dialog)
 endif(SUPPORT_NATIVE_DIALOG)
 
 # vim: set sts=4 sw=4 et:

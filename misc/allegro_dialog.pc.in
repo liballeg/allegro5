@@ -9,7 +9,7 @@ suffix=@lib_type@@lib_linkage@
 Name: allegro_dialog
 Description: Allegro game programming library, native dialog addon
 Version: ${version}
-Libs: -L${libdir} -lallegro_native_dialog${suffix}
+Libs: -L${libdir} -lallegro_dialog${suffix}
 Libs.private: @link_with@
 Requires: allegro${suffix}-${soversion} >= ${version}
 Cflags: -I${includedir}

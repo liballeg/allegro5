@@ -312,9 +312,13 @@ endmacro(add_monolith_sources addon sources)
 # This is useful so we can build the monolith library without having any other
 # special code for it in the addon CMakeLists.txt files.
 macro(add_addon addon)
+   add_addon2(${addon} allegro_${addon})
+endmacro(add_addon)
+
+macro(add_addon2 addon addon_target)
    string(TOUPPER ${addon} ADDON)
    set(SUPPORT_${ADDON} 1 PARENT_SCOPE)
-   set(${ADDON}_LINK_WITH allegro_${addon} PARENT_SCOPE)
+   set(${ADDON}_LINK_WITH ${addon_target} PARENT_SCOPE)
    add_monolith_sources(MONOLITH_SOURCES addons/${addon} ${ADDON}_SOURCES)
    add_monolith_sources(MONOLITH_SOURCES addons/${addon} ${ADDON}_INCLUDE_FILES)
    add_monolith_sources(MONOLITH_HEADERS addons/${addon} ${ADDON}_INCLUDE_FILES)
@@ -329,7 +333,7 @@ macro(add_addon addon)
    set(MONOLITH_LIBRARIES ${MONOLITH_LIBRARIES} PARENT_SCOPE)
    set(MONOLITH_HEADERS ${MONOLITH_HEADERS} PARENT_SCOPE)
    set(MONOLITH_DEFINES ${MONOLITH_DEFINES} PARENT_SCOPE)
-endmacro(add_addon)
+endmacro(add_addon2)
 
 #-----------------------------------------------------------------------------#
 # vim: set ft=cmake sts=4 sw=4 et:

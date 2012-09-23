@@ -927,7 +927,7 @@ set(PKG_CONFIG_FILES
     allegro_acodec
     allegro_audio
     allegro_color
-    allegro_native_dialog
+    allegro_dialog
     allegro_font
     allegro_image
     allegro_main
