@@ -180,8 +180,8 @@ static void read_scores(void)
       ALLEGRO_CONFIG *cfg = al_load_config_file(al_path_cstr(fn, ALLEGRO_NATIVE_PATH_SEP));
       if (cfg) {
          for (int i = 0; i < NUM_SCORES; i++) {
-            char name[]  = {'n', '0'+i, '\0'};
-            char score[] = {'s', '0'+i, '\0'};
+            char name[]  = {'n', (char)('0'+i), '\0'};
+            char score[] = {'s', (char)('0'+i), '\0'};
             const char *v;
 
             v = al_get_config_value(cfg, "scores", name);
@@ -205,8 +205,8 @@ static void write_scores(void)
 {
    ALLEGRO_CONFIG *cfg = al_create_config();
    for (int i = 0; i < NUM_SCORES; i++) {
-      char name[]  = {'n', '0'+i, '\0'};
-      char score[] = {'s', '0'+i, '\0'};
+      char name[]  = {'n', (char)('0'+i), '\0'};
+      char score[] = {'s', (char)('0'+i), '\0'};
       char sc[32];
 
       al_set_config_value(cfg, "scores", name, highScores[i].name);
