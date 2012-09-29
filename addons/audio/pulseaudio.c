@@ -224,6 +224,9 @@ static void pulseaudio_deallocate_voice(ALLEGRO_VOICE *voice)
 {
    PULSEAUDIO_VOICE *pv = voice->extra;
 
+   /* We do NOT hold the voice mutex here, so this does NOT result in a
+    * deadlock when the thread calls _al_voice_update.
+    */
    al_set_thread_should_stop(pv->poll_thread);
    al_join_thread(pv->poll_thread, NULL);
    al_destroy_thread(pv->poll_thread);
