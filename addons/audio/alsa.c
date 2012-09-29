@@ -58,12 +58,6 @@ typedef struct ALSA_VOICE {
 
    snd_pcm_t *pcm_handle;
    bool mmapped;
-   
-   /* When waiting for the voice to stop. */
-   /* FIXME: Almost certainly all drivers and not just ALSA require this
-    * and so it should be in ALLEGRO_VOICE.
-    */
-   ALLEGRO_COND *cond;
 } ALSA_VOICE;
 
 
@@ -264,7 +258,7 @@ static void *alsa_update_mmap(ALLEGRO_THREAD *self, void *arg)
          snd_pcm_drop(alsa_voice->pcm_handle);
          al_lock_mutex(voice->mutex);
          alsa_voice->stopped = true;
-         al_signal_cond(alsa_voice->cond);
+         al_signal_cond(voice->cond);
          al_unlock_mutex(voice->mutex);
       }
 
@@ -277,7 +271,7 @@ static void *alsa_update_mmap(ALLEGRO_THREAD *self, void *arg)
           */
          al_lock_mutex(voice->mutex);
          while (alsa_voice->stop && !al_get_thread_should_stop(self)) {
-            al_wait_cond(alsa_voice->cond, voice->mutex);
+            al_wait_cond(voice->cond, voice->mutex);
          }
          al_unlock_mutex(voice->mutex);
          continue;
@@ -390,7 +384,7 @@ static void *alsa_update_rw(ALLEGRO_THREAD *self, void *arg)
          snd_pcm_drop(alsa_voice->pcm_handle);
          al_lock_mutex(voice->mutex);
          alsa_voice->stopped = true;
-         al_signal_cond(alsa_voice->cond);
+         al_signal_cond(voice->cond);
          al_unlock_mutex(voice->mutex);
       }
 
@@ -403,7 +397,7 @@ static void *alsa_update_rw(ALLEGRO_THREAD *self, void *arg)
           */
          al_lock_mutex(voice->mutex);
          while (alsa_voice->stop && !al_get_thread_should_stop(self)) {
-            al_wait_cond(alsa_voice->cond, voice->mutex);
+            al_wait_cond(voice->cond, voice->mutex);
          }
          al_unlock_mutex(voice->mutex);
          continue;
@@ -518,7 +512,7 @@ static int alsa_start_voice(ALLEGRO_VOICE *voice)
 
    /* We already hold voice->mutex. */
    ex_data->stop = false;
-   al_signal_cond(ex_data->cond);
+   al_signal_cond(voice->cond);
 
    return 0;
 }
@@ -533,14 +527,14 @@ static int alsa_stop_voice(ALLEGRO_VOICE *voice)
 
    /* We already hold voice->mutex. */
    ex_data->stop = true;
-   al_signal_cond(ex_data->cond);
+   al_signal_cond(voice->cond);
 
    if (!voice->is_streaming) {
       voice->attached_stream->pos = 0;
    }
 
    while (!ex_data->stopped) {
-      al_wait_cond(ex_data->cond, voice->mutex);
+      al_wait_cond(voice->cond, voice->mutex);
    }
 
    return 0;
@@ -654,7 +648,6 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
       snd_pcm_nonblock(ex_data->pcm_handle, 0);
       ex_data->poll_thread = al_create_thread(alsa_update_rw, (void*)voice);
    }
-   ex_data->cond = al_create_cond();
    al_start_thread(ex_data->poll_thread);
 
    return 0;
@@ -678,7 +671,7 @@ static void alsa_deallocate_voice(ALLEGRO_VOICE *voice)
 
    al_lock_mutex(voice->mutex);
    al_set_thread_should_stop(alsa_voice->poll_thread);
-   al_broadcast_cond(alsa_voice->cond);
+   al_broadcast_cond(voice->cond);
    al_unlock_mutex(voice->mutex);
    al_join_thread(alsa_voice->poll_thread, NULL);
 
@@ -686,7 +679,6 @@ static void alsa_deallocate_voice(ALLEGRO_VOICE *voice)
    snd_pcm_close(alsa_voice->pcm_handle);
 
    al_destroy_thread(alsa_voice->poll_thread);
-   al_destroy_cond(alsa_voice->cond);
    al_free(alsa_voice->ufds);
    al_free(voice->extra);
    voice->extra = NULL;

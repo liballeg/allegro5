@@ -75,6 +75,7 @@ struct ALLEGRO_VOICE {
                         /* True for voices with an attached mixer. */
 
    ALLEGRO_MUTEX        *mutex;
+   ALLEGRO_COND         *cond;
 
    ALLEGRO_AUDIO_DRIVER *driver;
                         /* XXX shouldn't there only be one audio driver active

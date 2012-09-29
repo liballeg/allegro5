@@ -76,12 +76,14 @@ ALLEGRO_VOICE *al_create_voice(unsigned int freq,
    voice->frequency = freq;
 
    voice->mutex = al_create_mutex();
+   voice->cond = al_create_cond();
    /* XXX why is this needed? there should only be one active driver */
    voice->driver = _al_kcm_driver;
 
    ASSERT(_al_kcm_driver);
    if (_al_kcm_driver->allocate_voice(voice) != 0) {
       al_destroy_mutex(voice->mutex);
+      al_destroy_cond(voice->cond);
       al_free(voice);
       return NULL;
    }
@@ -105,6 +107,7 @@ void al_destroy_voice(ALLEGRO_VOICE *voice)
       /* We do NOT lock the voice mutex when calling this method. */
       voice->driver->deallocate_voice(voice);
       al_destroy_mutex(voice->mutex);
+      al_destroy_cond(voice->cond);
 
       al_free(voice);
    }
