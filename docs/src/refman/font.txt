@@ -123,6 +123,10 @@ The `flags` parameter can be 0 or one of the following flags:
 - ALLEGRO_ALIGN_CENTRE - Draw the text centered around the given position.
 - ALLEGRO_ALIGN_RIGHT - Draw the text right-aligned to the given position.
 
+It can also be combined with this flag:
+
+- ALLEGRO_ALIGN_INTEGER - Always draw text aligned to an integer pixel position.
+
 See also: [al_draw_ustr], [al_draw_textf], [al_draw_justified_text]
 
 ### API: al_draw_ustr
