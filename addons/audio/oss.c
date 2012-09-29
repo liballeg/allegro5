@@ -93,7 +93,6 @@ typedef struct OSS_VOICE {
    volatile bool stop;
 
    ALLEGRO_THREAD *poll_thread;
-   volatile bool quit_poll_thread;
 } OSS_VOICE;
 
 
@@ -284,7 +283,10 @@ static void oss_deallocate_voice(ALLEGRO_VOICE *voice)
 {
    OSS_VOICE *oss_voice = voice->extra;
 
-   oss_voice->quit_poll_thread = true;
+   /* We do NOT hold the voice mutex here, so this does NOT result in a
+    * deadlock when oss_update calls _al_voice_update (which tries to
+    * acquire the voice->mutex).
+    */
    al_join_thread(oss_voice->poll_thread, NULL);
    al_destroy_thread(oss_voice->poll_thread);
 
@@ -411,7 +413,7 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
    OSS_VOICE *oss_voice = voice->extra;
    (void)self;
 
-   while (!oss_voice->quit_poll_thread) {
+   while (!al_get_thread_should_stop(self)) {
       /*
       For possible eventual non-blocking mode:
 
@@ -576,7 +578,6 @@ static int oss_allocate_voice(ALLEGRO_VOICE *voice)
    }
 
    voice->extra = ex_data;
-   ex_data->quit_poll_thread = false;
    ex_data->poll_thread = al_create_thread(oss_update, (void*)voice);
    al_start_thread(ex_data->poll_thread);
 
