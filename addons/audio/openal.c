@@ -153,6 +153,7 @@ typedef struct ALLEGRO_AL_DATA {
    ALuint format;
 
    ALLEGRO_THREAD *thread;
+   bool stopped;
 } ALLEGRO_AL_DATA;
 
 /* Custom routine which runs in another thread to periodically check if OpenAL
@@ -234,6 +235,9 @@ static void *_openal_update(ALLEGRO_THREAD *self, void *arg)
    alSourceStop(ex_data->source);
 
    al_free(silence);
+
+   ex_data->stopped = true;
+   al_broadcast_cond(voice->cond);
 
    return NULL;
 }
@@ -395,6 +399,7 @@ static int _openal_start_voice(ALLEGRO_VOICE *voice)
          return 1;
       }
 
+      ex_data->stopped = false;
       ex_data->thread = al_create_thread(_openal_update, (void *)voice);
       al_start_thread(ex_data->thread);
    }
@@ -427,8 +432,13 @@ static int _openal_stop_voice(ALLEGRO_VOICE* voice)
    }
 
    if (ex_data->thread) {
+      al_set_thread_should_stop(ex_data->thread);
+      while (!ex_data->stopped) {
+         al_wait_cond(voice->cond, voice->mutex);
+      }
       al_join_thread(ex_data->thread, NULL);
       ex_data->thread = NULL;
+      ex_data->stopped = false;
    }
 
    alDeleteBuffers(ex_data->num_buffers, ex_data->buffers);
@@ -576,6 +586,7 @@ static int _openal_allocate_voice(ALLEGRO_VOICE *voice)
 
    voice->extra = ex_data;
    ex_data->thread = NULL;
+   ex_data->stopped = false;
 
    return 0;
 }
