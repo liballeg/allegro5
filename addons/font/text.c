@@ -44,11 +44,6 @@
  * translated x by 0.5. So we simply apply the transformation,
  * round to nearest integer, and backtransform that.
  */
-// TODO: In case someone actually *wants* to draw their text to
-// sub-pixel positions, for example because multisampling is used,
-// this should not be done. We most likely want either a new alignment
-// flag to disable this, or even a per-font or per-display setting to
-// do so.
 static void align_to_integer_pixel(float *x, float *y)
 {
    ALLEGRO_TRANSFORM const *t;
@@ -73,19 +68,13 @@ void al_draw_ustr(const ALLEGRO_FONT *font,
    ASSERT(font);
    ASSERT(ustr);
 
-   switch (flags) {
-      case ALLEGRO_ALIGN_CENTRE:
-         x -= font->vtable->text_length(font, ustr) * 0.5;
-         break;
-      case ALLEGRO_ALIGN_RIGHT:
-         x -= font->vtable->text_length(font, ustr);
-         break;
-      case ALLEGRO_ALIGN_LEFT:
-      default:
-         break;
-   }
+   if (flags & ALLEGRO_ALIGN_CENTRE)
+      x -= font->vtable->text_length(font, ustr) * 0.5;
+   else if (flags & ALLEGRO_ALIGN_RIGHT)
+      x -= font->vtable->text_length(font, ustr);
 
-   align_to_integer_pixel(&x, &y);
+   if (flags & ALLEGRO_ALIGN_INTEGER)
+      align_to_integer_pixel(&x, &y);
 
    font->vtable->render(font, color, ustr, x, y);
 }
