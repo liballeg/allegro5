@@ -116,7 +116,7 @@ typedef struct ALLEGRO_DS_DATA {
    WAVEFORMATEX wave_fmt;
    LPDIRECTSOUNDBUFFER ds_buffer;
    LPDIRECTSOUNDBUFFER8 ds8_buffer;
-   bool stop_voice;
+   int stop_voice;
    ALLEGRO_THREAD *thread;
 } ALLEGRO_DS_DATA;
 
@@ -187,10 +187,12 @@ static void* _dsound_update(ALLEGRO_THREAD* self, void* arg)
       al_rest(0.005);
    } while (!ex_data->stop_voice);
 
-
    ex_data->ds8_buffer->Stop();
 
    al_free(silence);
+
+   ex_data->stop_voice = 0;
+   al_broadcast_cond(voice->cond);
 
    return NULL;
 }
@@ -502,6 +504,9 @@ static int _dsound_stop_voice(ALLEGRO_VOICE* voice)
    if (ex_data->stop_voice == 0) {
       ALLEGRO_DEBUG("Joining thread\n");
       ex_data->stop_voice = 1;
+      while (ex_data->stop_voice == 1) {
+	  al_wait_cond(voice->cond, voice->mutex);
+      }
       al_join_thread(ex_data->thread, NULL);
       ALLEGRO_DEBUG("Joined thread\n");
 
