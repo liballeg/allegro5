@@ -198,6 +198,7 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
 {
    ALLEGRO_BITMAP *page;
    bool relock;
+   int w4, h4;
 
    if (_al_vector_is_empty(&data->page_bitmaps) || new) {
       page = push_new_page(data);
@@ -209,18 +210,20 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
       relock = !data->page_lr;
    }
 
-   w = align4(w);
-   h = align4(h);
+   w4 = align4(w);
+   h4 = align4(h);
 
-   if (data->page_pos_x + w > al_get_bitmap_width(page)) {
-      data->page_pos_y += data->page_line_height + 2;
+   ALLEGRO_DEBUG("glyph %dx%d (%dx%d)%s\n", w, h, w4, h4, new ? " new" : "");
+
+   if (data->page_pos_x + w4 > al_get_bitmap_width(page)) {
+      data->page_pos_y += data->page_line_height;
       data->page_pos_y = align4(data->page_pos_y);
       data->page_pos_x = 0;
       data->page_line_height = 0;
       relock = true;
    }
 
-   if (data->page_pos_y + h > al_get_bitmap_height(page)) {
+   if (data->page_pos_y + h4 > al_get_bitmap_height(page)) {
       return alloc_glyph_region(data, w, h, true, glyph, lock_more);
    }
 
@@ -230,9 +233,9 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
    glyph->region.w = w;
    glyph->region.h = h;
 
-   data->page_pos_x = align4(data->page_pos_x + w + 2);
+   data->page_pos_x = align4(data->page_pos_x + w4);
    if (h > data->page_line_height) {
-      data->page_line_height = h;
+      data->page_line_height = h4;
       relock = true;
    }
 
@@ -243,14 +246,17 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
 
       data->lock_rect.x = glyph->region.x;
       data->lock_rect.y = glyph->region.y;
-      data->lock_rect.h = data->page_line_height;
       /* Do we lock up to the right edge in anticipation of caching more
        * glyphs, or just enough for the current glyph?
        */
-      if (lock_more)
+      if (lock_more) {
          data->lock_rect.w = al_get_bitmap_width(page) - data->lock_rect.x;
-      else
-         data->lock_rect.w = glyph->region.w;
+         data->lock_rect.h = data->page_line_height;
+      }
+      else {
+         data->lock_rect.w = w4;
+         data->lock_rect.h = h4;
+      }
 
       data->page_lr = al_lock_bitmap_region(page,
          data->lock_rect.x, data->lock_rect.y,
@@ -398,12 +404,18 @@ static void cache_glyph(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
        return;
     }
 
-    glyph_data = alloc_glyph_region(font_data, w, h, false, glyph, lock_more);
+    /* Each glyph has a 1-pixel border to the right and down. */
+    glyph_data = alloc_glyph_region(font_data, w + 1, h + 1, false, glyph,
+      lock_more);
 
     if (font_data->flags & ALLEGRO_TTF_MONOCHROME)
        copy_glyph_mono(font_data, face, glyph_data);
     else
        copy_glyph_color(font_data, face, glyph_data);
+
+    if (!lock_more) {
+       unlock_current_page(font_data);
+    }
 }
 
 
@@ -438,14 +450,14 @@ static int render_glyph(ALLEGRO_FONT const *f,
     * performance.
     */
    cache_glyph(data, face, ft_index, glyph, false);
-   unlock_current_page(data);
 
    advance += get_kerning(data, face, prev_ft_index, ft_index);
 
    if (glyph->page_bitmap) {
+      /* Each glyph has a 1-pixel border to the right and down. */
       al_draw_tinted_bitmap_region(glyph->page_bitmap, color,
          glyph->region.x, glyph->region.y,
-         glyph->region.w, glyph->region.h,
+         glyph->region.w - 1, glyph->region.h - 1,
          xpos + glyph->offset_x + advance,
          ypos + glyph->offset_y, 0);
    }
