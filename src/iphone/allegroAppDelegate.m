@@ -121,6 +121,7 @@ static void iphone_add_screen(UIScreen *screen)
 	ViewController *vc = [[ViewController alloc] init];
 	vc->adapter = i;
 	[vc create_view];
+	window.rootViewController = vc;
 	
 	if (add)
 	   scr = [[iphone_screen alloc] init];

@@ -26,6 +26,15 @@ ALLEGRO_DEBUG_CHANNEL("iphone");
     [super viewDidUnload];
 }
 
+- (BOOL)shouldAutorotate
+{
+   return YES;
+}
+
+- (NSUInteger)supportedInterfaceOrientations {
+   return UIInterfaceOrientationMaskLandscapeLeft | UIInterfaceOrientationMaskLandscapeRight;
+}
+
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
    if (display == NULL)
