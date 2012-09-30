@@ -72,7 +72,6 @@ typedef struct ALLEGRO_TTF_FONT_DATA
    int page_line_height;
    REGION lock_rect;
    ALLEGRO_LOCKED_REGION *page_lr;
-   ALLEGRO_LOCKED_REGION glyph_lr;
 
    FT_StreamRec stream;
    ALLEGRO_FILE *file;
@@ -399,23 +398,6 @@ static void cache_glyph(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
     }
 
     glyph_data = alloc_glyph_region(font_data, w, h, false, glyph, lock_more);
-
-    #ifdef ALIGN_TO_4_PIXEL
-    {
-       /* clear the extra borders we added */
-       int pitch = font_data->page_lr->pitch;
-       int bw = glyph->region.w;
-       int bh = glyph->region.h;
-       int i;
-
-       for (i = 0; i < (bh - h); i++) {
-          memset(glyph_data + (bh - 1 - i) * pitch, 0, 4 * bw);
-       }
-       for (i = 0; i < bh; i++) {
-          memset(glyph_data + i * pitch + 4 * w, 0, 4 * (bw - w));
-       }
-    }
-    #endif
 
     if (font_data->flags & ALLEGRO_TTF_MONOCHROME)
        copy_glyph_mono(font_data, face, glyph_data);
