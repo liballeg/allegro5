@@ -1009,8 +1009,8 @@ int main(int argc, char **argv)
    prog.add_sample("data/haiku/fire_1.ogg");
    prog.add_sample("data/haiku/water_0.ogg");
    prog.add_sample("data/haiku/water_1.ogg");
-   prog.add_stream_path("../demos/a5teroids/data/sfx/game_music.ogg");
-   prog.add_stream_path("../demos/a5teroids/data/sfx/title_music.ogg");
+   prog.add_stream_path("../demos/cosmic_protector/data/sfx/game_music.ogg");
+   prog.add_stream_path("../demos/cosmic_protector/data/sfx/title_music.ogg");
    prog.initial_config();
    prog.run();
    /* Let Allegro handle the cleanup. */
