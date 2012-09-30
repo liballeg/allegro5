@@ -4,7 +4,7 @@
  * 
  * In the window without multi-sampling, the edge of the colored lines will not
  * be anti-aliased - each pixel is either filled completely with the primitive
- * color ot not at all.
+ * color or not at all.
  *
  * The same is true for bitmaps. They will always be drawn at the nearest
  * full-pixel position. However this is only true for the bitmap outline -
@@ -19,7 +19,7 @@
  * In the multi-sampled version the colored lines will be anti-aliased.
  *
  * Same with the bitmaps. This means the bitmap outlines will always move in
- * smooth sub-pixel steps. However if texture filtering is turned of the
+ * smooth sub-pixel steps. However if texture filtering is turned off the
  * texels still are rounded to the next integer position.
  *
  * Therefore in the case where multi-sampling is enabled but texture-filtering
@@ -46,12 +46,13 @@ static float bitmap_t;
 
 static ALLEGRO_BITMAP *create_bitmap(void)
 {
-   static ALLEGRO_BITMAP *bitmap;
+   const int checkers_size = 8;
+   const int bitmap_size = 24;
+   ALLEGRO_BITMAP *bitmap;
    ALLEGRO_LOCKED_REGION *locked;
    int x, y, p;
    unsigned char *rgba;
-   int checkers_size = 8;
-   static int bitmap_size = 24;
+
    bitmap = al_create_bitmap(bitmap_size, bitmap_size);
    locked = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888, 0);
    rgba = locked->data;
@@ -69,11 +70,10 @@ static ALLEGRO_BITMAP *create_bitmap(void)
    return bitmap;
 }
 
-
-
 static void bitmap_move(void)
 {
    int i;
+
    bitmap_t++;
    for (i = 0; i < 8; i++) {
       float a = 2 * ALLEGRO_PI * i / 16;
@@ -84,12 +84,11 @@ static void bitmap_move(void)
    }
 }
 
-
 static void draw(ALLEGRO_BITMAP *bitmap, int y, char const *text)
 {
    int i;
-   ALLEGRO_COLOR color = al_color_name("black");
-   al_draw_text(font_ms, color, 0, y, 0, text);
+
+   al_draw_text(font_ms, al_map_rgb(0, 0, 0), 0, y, 0, text);
 
    for (i = 0; i < 16; i++) {
       float a = 2 * ALLEGRO_PI * i / 16;
@@ -180,28 +179,28 @@ int main(void)
    al_register_event_source(queue, al_get_display_event_source(ms_display));
    al_register_event_source(queue, al_get_timer_event_source(timer));
 
-   create_bitmap();
-   
    al_start_timer(timer);
    while (!quit) {
       ALLEGRO_EVENT event;
+
       /* Check for ESC key or close button event and quit in either case. */
       al_wait_for_event(queue, &event);
       switch (event.type) {
          case ALLEGRO_EVENT_DISPLAY_CLOSE:
             quit = true;
+            break;
 
          case ALLEGRO_EVENT_KEY_DOWN:
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
                quit = true;
             break;
-         
+
          case ALLEGRO_EVENT_TIMER:
             bitmap_move();
             redraw = true;
             break;
       }
-      
+
       if (redraw && al_is_event_queue_empty(queue)) {
          /* Draw the multi-sampled version into the first window. */
          al_set_target_backbuffer(ms_display);
@@ -220,9 +219,9 @@ int main(void)
 
          draw(bitmap_filter, 0, "filtered");
          draw(bitmap_normal, 250, "no filter");
-         
+
          al_flip_display();
-         
+
          redraw = false;
       }
    }
