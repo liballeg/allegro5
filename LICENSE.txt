@@ -61,6 +61,6 @@ be found here:
 
 -------------------------------------------------------------------------------
 
-The a5teroids demo game graphics were made by Tony Huisman, and are
+The Cosmic Protector demo game graphics were made by Tony Huisman, and are
 included under a Creative Commons BY Attribution license.
 
