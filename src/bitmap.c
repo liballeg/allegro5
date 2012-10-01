@@ -855,11 +855,55 @@ ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
 }
 
 
+/* This swaps the contents of the two bitmaps. */
+static void _al_swap_bitmaps(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *other)
+{
+   ALLEGRO_BITMAP temp = *bitmap;
+
+   check_to_be_converted_list_remove(bitmap);
+   check_to_be_converted_list_remove(other);
+
+   *bitmap = *other;
+   *other = temp;
+
+   /* We are basically done already. Except we now have to update everything
+    * possibly referencing any of the two bitmaps.
+    */
+
+   if (bitmap->display && !other->display) {
+      /* This means before the swap, other was the display bitmap, and we
+       * now should replace it with the swapped pointer.
+       */
+      ALLEGRO_BITMAP **back;
+      int pos = _al_vector_find(&bitmap->display->bitmaps, &other);
+      ASSERT(pos >= 0);
+      back = _al_vector_ref(&bitmap->display->bitmaps, pos);
+      *back = bitmap;
+   }
+
+   if (other->display && !bitmap->display) {
+      ALLEGRO_BITMAP **back;
+      int pos = _al_vector_find(&other->display->bitmaps, &bitmap);
+      ASSERT(pos >= 0);
+      back = _al_vector_ref(&other->display->bitmaps, pos);
+      *back = other;
+   }
+
+   check_to_be_converted_list_add(bitmap);
+   check_to_be_converted_list_add(other);
+
+   if (bitmap->vt && bitmap->vt->bitmap_pointer_changed)
+      bitmap->vt->bitmap_pointer_changed(bitmap, other);
+
+   if (other->vt && other->vt->bitmap_pointer_changed)
+      other->vt->bitmap_pointer_changed(other, bitmap);
+}
+
+
 /* Function: al_convert_bitmap
  */
 void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP temp = *bitmap;
    ALLEGRO_BITMAP *clone;
    bool want_memory = (al_get_new_bitmap_flags() & ALLEGRO_MEMORY_BITMAP) != 0;
    bool clone_memory;
@@ -892,50 +936,20 @@ void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
       return;
    }
 
-   /* TODO: Managing those lists is a pain, maybe there is a way to
-    * do this more easily?
-    */
+   _al_swap_bitmaps(bitmap, clone);
 
-   /* Manually remove the clone from various lists it can end up in. */
-   if (clone->display) {
-      _al_vector_find_and_delete(&clone->display->bitmaps, &clone);
-   }
-   
-   check_to_be_converted_list_remove(clone);
-
-   /* Manually remove the bitmap from lists it should not be in after
-    * the conversion.
-    */
-   if (bitmap->display && !clone->display) {
-      _al_vector_find_and_delete(&bitmap->display->bitmaps, &bitmap);
-   }
-   
-   check_to_be_converted_list_remove(bitmap);
-
-   /* Manually add the bitmap to lists it should be in after the
-    * conversion.
-    */
-   if (!bitmap->display && clone->display) {
-      ALLEGRO_BITMAP **back;
-      back = _al_vector_alloc_back(&clone->display->bitmaps);
-      *back = bitmap;
-   }
-
-   *bitmap = *clone; /* We get the new bitmap's extra pointer. */
    /* Preserve bitmap state. */
-   bitmap->cl = temp.cl;
-   bitmap->ct = temp.ct;
-   bitmap->cr_excl = temp.cr_excl;
-   bitmap->cb_excl = temp.cb_excl;
-   bitmap->transform = temp.transform;
-   bitmap->inverse_transform = temp.inverse_transform;
-   bitmap->inverse_transform_dirty = temp.inverse_transform_dirty;
+   bitmap->cl = clone->cl;
+   bitmap->ct = clone->ct;
+   bitmap->cr_excl = clone->cr_excl;
+   bitmap->cb_excl = clone->cb_excl;
+   bitmap->transform = clone->transform;
+   bitmap->inverse_transform = clone->inverse_transform;
+   bitmap->inverse_transform_dirty = clone->inverse_transform_dirty;
    
-   check_to_be_converted_list_add(bitmap);
-
-   *clone = temp; /* So e.g. the extra pointer can be deleted properly. */
    al_destroy_bitmap(clone);
 }
+
 
 
 /* Function: al_convert_bitmaps

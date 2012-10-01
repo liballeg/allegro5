@@ -1068,6 +1068,18 @@ static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 
 
 
+static void ogl_bitmap_pointer_changed(ALLEGRO_BITMAP *bitmap,
+      ALLEGRO_BITMAP *old)
+{
+   ALLEGRO_BITMAP_EXTRA_OPENGL *extra = bitmap->extra;
+   if (extra->fbo_info) {
+      ASSERT(extra->fbo_info->owner == old);
+      extra->fbo_info->owner = bitmap;
+   }
+}
+
+
+
 /* Obtain a reference to this driver. */
 static ALLEGRO_BITMAP_INTERFACE *ogl_bitmap_driver(void)
 {
@@ -1079,6 +1091,7 @@ static ALLEGRO_BITMAP_INTERFACE *ogl_bitmap_driver(void)
    glbmp_vt.upload_bitmap = ogl_upload_bitmap;
    glbmp_vt.update_clipping_rectangle = ogl_update_clipping_rectangle;
    glbmp_vt.destroy_bitmap = ogl_destroy_bitmap;
+   glbmp_vt.bitmap_pointer_changed = ogl_bitmap_pointer_changed;
 #if defined(ALLEGRO_ANDROID) || defined(ALLEGRO_IPHONE) || defined(ALLEGRO_GP2XWIZ)
    glbmp_vt.lock_region = ogl_lock_region_old;
    glbmp_vt.unlock_region = ogl_unlock_region_old;

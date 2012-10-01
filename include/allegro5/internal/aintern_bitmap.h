@@ -86,10 +86,6 @@ struct ALLEGRO_BITMAP_INTERFACE
     * might create/update a texture. Returns false on failure.
     */
    bool (*upload_bitmap)(ALLEGRO_BITMAP *bitmap);
-   /* If the display version of the bitmap has been modified, use this to update
-    * the memory copy accordingly. E.g. with an OpenGL driver, this might
-    * read the contents of an associated texture.
-    */
 
    void (*update_clipping_rectangle)(ALLEGRO_BITMAP *bitmap);
 
@@ -100,6 +96,9 @@ struct ALLEGRO_BITMAP_INTERFACE
 	int flags);
 
    void (*unlock_region)(ALLEGRO_BITMAP *bitmap);
+
+   /* Used to update any dangling pointers the bitmap driver might keep. */
+   void (*bitmap_pointer_changed)(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *old);
 };
 
 extern void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
