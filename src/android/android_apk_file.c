@@ -70,7 +70,7 @@ static bool APK_seek(jobject apk_stream, long bytes)
    return res;
 }
 
-static bool APK_tell(jobject apk_stream)
+static long APK_tell(jobject apk_stream)
 {
    long res = _jni_callLongMethodV(_al_android_get_jnienv(), apk_stream, "tell", "()J");
    return res;
