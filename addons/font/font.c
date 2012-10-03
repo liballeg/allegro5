@@ -240,6 +240,23 @@ static void color_destroy(ALLEGRO_FONT* f)
 }
 
 
+static int color_get_font_ranges(ALLEGRO_FONT *font, int ranges_count,
+   int *ranges)
+{
+   ALLEGRO_FONT_COLOR_DATA *cf = font->data;
+   int i = 0;
+   while (cf) {
+      if (i < ranges_count) {
+         ranges[i * 2 + 0] = cf->begin;
+         ranges[i * 2 + 1] = cf->end - 1;
+      }
+      i++;
+      cf = cf->next;
+   }
+   return i;
+}
+
+
 /********
  * vtable declarations
  ********/
@@ -254,6 +271,7 @@ ALLEGRO_FONT_VTABLE _al_font_vtable_color = {
     color_render,
     color_destroy,
     color_get_text_dimensions,
+    color_get_font_ranges,
 };
 
 

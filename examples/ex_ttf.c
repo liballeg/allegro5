@@ -5,11 +5,14 @@
 
 #include "common.c"
 
+const char *font_file = "data/DejaVuSans.ttf";
+
 struct Example
 {
     double fps;
     ALLEGRO_FONT *f1, *f2, *f3, *f4, *f5;
     ALLEGRO_CONFIG *config;
+    int ranges_count;
 } ex;
 
 static const char *get_string(const char *key)
@@ -92,13 +95,15 @@ static void render(void)
 
     al_draw_textf(ex.f3, black, target_w, 0, ALLEGRO_ALIGN_RIGHT,
        "%.1f FPS", ex.fps);
+
+    al_draw_textf(ex.f3, black, 0, 0, 0, "%s: %d unicode ranges", font_file,
+       ex.ranges_count);
        
     al_hold_bitmap_drawing(false);
 }
 
 int main(int argc, const char *argv[])
 {
-    const char *font_file = "data/DejaVuSans.ttf";
     ALLEGRO_DISPLAY *display;
     ALLEGRO_TIMER *timer;
     ALLEGRO_EVENT_QUEUE *queue;
@@ -109,6 +114,8 @@ int main(int argc, const char *argv[])
         abort_example("Could not init Allegro.\n");
         return 1;
     }
+
+    open_log_monospace();
 
     al_init_primitives_addon();
     al_install_mouse();
@@ -130,6 +137,19 @@ int main(int argc, const char *argv[])
     }
 
     ex.f1 = al_load_font(font_file, 48, 0);
+
+    ex.ranges_count = al_get_font_ranges(ex.f1, 0, NULL);
+    {
+       int i, ranges[ex.ranges_count * 2];
+       al_get_font_ranges(ex.f1, ex.ranges_count, ranges);
+       for (i = 0; i < ex.ranges_count; i++) {
+          int begin = ranges[i * 2];
+          int end = ranges[i * 2 + 1];
+          log_printf("range %3d: %08x-%08x (%d glyph%s)\n", i, begin, end,
+            1 + end - begin, begin == end ? "" : "s");
+      }
+    }
+    
     ex.f2 = al_load_font(font_file, 48, ALLEGRO_TTF_NO_KERNING);
     ex.f3 = al_load_font(font_file, 12, 0);
     /* Specifying negative values means we specify the glyph height
@@ -190,6 +210,8 @@ int main(int argc, const char *argv[])
     al_destroy_font(ex.f4);
     al_destroy_font(ex.f5);
     al_destroy_config(ex.config);
+
+    close_log(false);
 
     return 0;
 }

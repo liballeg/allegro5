@@ -68,6 +68,8 @@ struct ALLEGRO_FONT_VTABLE
    ALLEGRO_FONT_METHOD(void, destroy, (ALLEGRO_FONT *f));
    ALLEGRO_FONT_METHOD(void, get_text_dimensions, (const ALLEGRO_FONT *f,
       const ALLEGRO_USTR *text, int *bbx, int *bby, int *bbw, int *bbh));
+   ALLEGRO_FONT_METHOD(int, get_font_ranges, (ALLEGRO_FONT *font,
+      int ranges_count, int *ranges));
 };
 
 enum {
@@ -107,6 +109,8 @@ ALLEGRO_FONT_FUNC(void, al_get_text_dimensions, (const ALLEGRO_FONT *f,
 ALLEGRO_FONT_FUNC(void, al_init_font_addon, (void));
 ALLEGRO_FONT_FUNC(void, al_shutdown_font_addon, (void));
 ALLEGRO_FONT_FUNC(uint32_t, al_get_allegro_font_version, (void));
+ALLEGRO_FONT_FUNC(int, al_get_font_ranges, (ALLEGRO_FONT *font,
+   int ranges_count, int *ranges));
 
 
 #ifdef __cplusplus

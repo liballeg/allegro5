@@ -202,6 +202,24 @@ See also: [al_get_text_dimensions]
 Returns the (compiled) version of the addon, in the same format as
 [al_get_allegro_version].
 
+### API: al_get_font_ranges
+
+Gets information about all glyphs contained in a font, as a list of ranges.
+Ranges have the same format as with [al_grab_font_from_bitmap].
+
+*ranges_count* is the maximum number of ranges that will be returned.
+
+*ranges* should be an array with room for _ranges_count * 2_ elements. The
+even integers are the first unicode point in a range, the odd integers the
+last unicode point in a range.
+
+Returns the number of ranges contained in the font (even if it is bigger
+than *ranges_count*).
+
+Since: 5.1.4
+
+See also: [al_grab_font_from_bitmap]
+
 ## Bitmap fonts
 
 ### API: al_grab_font_from_bitmap

@@ -333,4 +333,11 @@ void al_destroy_font(ALLEGRO_FONT *f)
 }
 
 
+/* Function: al_get_font_ranges
+ */
+int al_get_font_ranges(ALLEGRO_FONT *f, int ranges_count, int *ranges)
+{
+   return f->vtable->get_font_ranges(f, ranges_count, ranges);
+}
+
 /* vim: set sts=3 sw=3 et: */

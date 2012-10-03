@@ -844,6 +844,37 @@ ALLEGRO_FONT *al_load_ttf_font_stretch(char const *filename, int w, int h,
 }
 
 
+static int ttf_get_font_ranges(ALLEGRO_FONT *font, int ranges_count,
+   int *ranges)
+{
+   ALLEGRO_TTF_FONT_DATA *data = font->data;
+   FT_UInt g;
+   FT_ULong unicode = FT_Get_First_Char(data->face, &g);
+   int i = 0;
+   if (i < ranges_count) {
+      ranges[i * 2 + 0] = unicode;
+      ranges[i * 2 + 1] = unicode;
+   }
+   while (g) {
+      FT_ULong unicode2 = FT_Get_Next_Char(data->face, unicode, &g);
+      if (unicode + 1 != unicode2) {
+         if (i < ranges_count) {
+            ranges[i * 2 + 1] = unicode;
+            if (i + 1 < ranges_count) {
+               ranges[(i + 1) * 2 + 0] = unicode2;
+            }
+         }
+         i++;
+      }
+      if (i < ranges_count) {
+         ranges[i * 2 + 1] = unicode2;
+      }
+      unicode = unicode2;
+   }
+   return i;
+}
+
+
 /* Function: al_init_ttf_addon
  */
 bool al_init_ttf_addon(void)
@@ -861,6 +892,7 @@ bool al_init_ttf_addon(void)
    vt.render = ttf_render;
    vt.destroy = ttf_destroy;
    vt.get_text_dimensions = ttf_get_text_dimensions;
+   vt.get_font_ranges = ttf_get_font_ranges;
 
    al_register_font_loader(".ttf", al_load_ttf_font);
    /* Can't fail right now - in the future we might dynamically load
