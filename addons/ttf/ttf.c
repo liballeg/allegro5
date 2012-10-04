@@ -185,8 +185,8 @@ static ALLEGRO_BITMAP *push_new_page(ALLEGRO_TTF_FONT_DATA *data)
     al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
     al_restore_state(&state);
 
-    data->page_pos_x = 0;
-    data->page_pos_y = 0;
+    data->page_pos_x = 1;
+    data->page_pos_y = 1;
     data->page_line_height = 0;
 
     return page;
@@ -218,7 +218,7 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
    if (data->page_pos_x + w4 > al_get_bitmap_width(page)) {
       data->page_pos_y += data->page_line_height;
       data->page_pos_y = align4(data->page_pos_y);
-      data->page_pos_x = 0;
+      data->page_pos_x = 1;
       data->page_line_height = 0;
       relock = true;
    }
