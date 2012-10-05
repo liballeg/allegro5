@@ -185,8 +185,8 @@ static ALLEGRO_BITMAP *push_new_page(ALLEGRO_TTF_FONT_DATA *data)
     al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
     al_restore_state(&state);
 
-    data->page_pos_x = 1;
-    data->page_pos_y = 1;
+    data->page_pos_x = 0;
+    data->page_pos_y = 0;
     data->page_line_height = 0;
 
     return page;
@@ -218,7 +218,7 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
    if (data->page_pos_x + w4 > al_get_bitmap_width(page)) {
       data->page_pos_y += data->page_line_height;
       data->page_pos_y = align4(data->page_pos_y);
-      data->page_pos_x = 1;
+      data->page_pos_x = 0;
       data->page_line_height = 0;
       relock = true;
    }
@@ -280,8 +280,8 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
 
    /* Copy a displaced pointer for the glyph. */
    return (unsigned char *)data->page_lr->data
-      + (glyph->region.y - data->lock_rect.y) * data->page_lr->pitch
-      + (glyph->region.x - data->lock_rect.x) * sizeof(int32_t);
+      + ((glyph->region.y + 1) - data->lock_rect.y) * data->page_lr->pitch
+      + ((glyph->region.x + 1) - data->lock_rect.x) * sizeof(int32_t);
 }
 
 
@@ -404,8 +404,10 @@ static void cache_glyph(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
        return;
     }
 
-    /* Each glyph has a 1-pixel border to the right and down. */
-    glyph_data = alloc_glyph_region(font_data, w + 1, h + 1, false, glyph,
+    /* Each glyph has a 1-pixel border all around. Note: The border is kept
+     * even against the outer bitmap edge, to ensure consistent rendering.
+     */
+    glyph_data = alloc_glyph_region(font_data, w + 2, h + 2, false, glyph,
       lock_more);
 
     if (font_data->flags & ALLEGRO_TTF_MONOCHROME)
@@ -454,10 +456,10 @@ static int render_glyph(ALLEGRO_FONT const *f,
    advance += get_kerning(data, face, prev_ft_index, ft_index);
 
    if (glyph->page_bitmap) {
-      /* Each glyph has a 1-pixel border to the right and down. */
+      /* Each glyph has a 1-pixel border all around. */
       al_draw_tinted_bitmap_region(glyph->page_bitmap, color,
-         glyph->region.x, glyph->region.y,
-         glyph->region.w - 1, glyph->region.h - 1,
+         glyph->region.x + 1, glyph->region.y + 1,
+         glyph->region.w - 2, glyph->region.h - 2,
          xpos + glyph->offset_x + advance,
          ypos + glyph->offset_y, 0);
    }
