@@ -905,12 +905,19 @@ static void _al_swap_bitmaps(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *other)
 void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP *clone;
-   bool want_memory = (al_get_new_bitmap_flags() & ALLEGRO_MEMORY_BITMAP) != 0;
+   int bitmap_flags = bitmap->format;
+   int new_bitmap_flags = al_get_new_bitmap_flags();
+   bool want_memory = (new_bitmap_flags & ALLEGRO_MEMORY_BITMAP) != 0;
    bool clone_memory;
+   
+   bitmap_flags &= ~_ALLEGRO_INTERNAL_OPENGL;
 
-   /* TODO: Could check here if the bitmap isn't converted already.
-    * However both flags and format need to be checked.
-    */
+   /* If a cloned bitmap would be identical, we can just do nothing. */
+   if (bitmap->format == al_get_new_bitmap_format() &&
+         bitmap_flags == new_bitmap_flags &&
+         bitmap->display == al_get_current_display()) {
+      return;
+   }
 
    if (bitmap->parent) {
       bool parent_mem = (bitmap->parent->flags & ALLEGRO_MEMORY_BITMAP) != 0;
