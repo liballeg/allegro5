@@ -205,9 +205,10 @@ int al_fgetc(ALLEGRO_FILE *f)
  */
 int al_fputc(ALLEGRO_FILE *f, int c)
 {
+   uint8_t b = (c & 0xff);
    ASSERT(f);
 
-   if (al_fwrite(f, &c, 1) != 1) {
+   if (al_fwrite(f, &b, 1) != 1) {
       return EOF;
    }
 
