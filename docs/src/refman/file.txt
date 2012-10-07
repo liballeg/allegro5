@@ -250,13 +250,15 @@ See also: [al_fungetc]
 ## API: al_fputc
 
 Write a single byte to the given file.
+The byte written is the value of c cast to an unsigned char.
 
 Parameters:
 
 * c - byte value to write
 * f - file to write to
 
-Returns c on success, or EOF on error.
+Returns the written byte (cast back to an int) on success,
+or EOF on error.
 
 ## API: al_fread16le
 

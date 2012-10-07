@@ -212,7 +212,7 @@ int al_fputc(ALLEGRO_FILE *f, int c)
       return EOF;
    }
 
-   return c;
+   return b;
 }
 
 
@@ -251,7 +251,7 @@ int32_t al_fread32le(ALLEGRO_FILE *f)
  */
 size_t al_fwrite16le(ALLEGRO_FILE *f, int16_t w)
 {
-   int8_t b1, b2;
+   uint8_t b1, b2;
    ASSERT(f);
 
    b1 = (w & 0xFF00) >> 8;
@@ -271,7 +271,7 @@ size_t al_fwrite16le(ALLEGRO_FILE *f, int16_t w)
  */
 size_t al_fwrite32le(ALLEGRO_FILE *f, int32_t l)
 {
-   int8_t b1, b2, b3, b4;
+   uint8_t b1, b2, b3, b4;
    ASSERT(f);
 
    b1 = ((l & 0xFF000000L) >> 24);
@@ -330,7 +330,7 @@ int32_t al_fread32be(ALLEGRO_FILE *f)
  */
 size_t al_fwrite16be(ALLEGRO_FILE *f, int16_t w)
 {
-   int b1, b2;
+   uint8_t b1, b2;
    ASSERT(f);
 
    b1 = (w & 0xFF00) >> 8;
@@ -350,7 +350,7 @@ size_t al_fwrite16be(ALLEGRO_FILE *f, int16_t w)
  */
 size_t al_fwrite32be(ALLEGRO_FILE *f, int32_t l)
 {
-   int b1, b2, b3, b4;
+   uint8_t b1, b2, b3, b4;
    ASSERT(f);
 
    b1 = ((l & 0xFF000000L) >> 24);
@@ -358,11 +358,12 @@ size_t al_fwrite32be(ALLEGRO_FILE *f, int32_t l)
    b3 = ((l & 0x0000FF00L) >> 8);
    b4 = l & 0x00FF;
 
-   if (al_fputc(f, b1)==b1) {
-      if (al_fputc(f, b2)==b2) {
-         if (al_fputc(f, b3)==b3) {
-            if (al_fputc(f, b4)==b4)
+   if (al_fputc(f, b1) == b1) {
+      if (al_fputc(f, b2) == b2) {
+         if (al_fputc(f, b3) == b3) {
+            if (al_fputc(f, b4) == b4) {
                return 4;
+            }
             return 3;
          }
          return 2;
