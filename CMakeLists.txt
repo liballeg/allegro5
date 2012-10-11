@@ -886,10 +886,16 @@ set(PKG_CONFIG_FILES
     allegro_ttf
     )
 
-# Probably usable on Windows as well but we shouldn't install it
-# indiscriminantly there.
+# Install pkg-config files on Unix, and when cross-compiling on Unix.
 
 if(UNIX AND NOT WANT_FRAMEWORKS AND NOT IPHONE)
+    set(INSTALL_PKG_CONFIG_FILES true)
+endif()
+if(CMAKE_CROSSCOMPILING AND CMAKE_HOST_UNIX)
+    set(INSTALL_PKG_CONFIG_FILES true)
+endif()
+
+if(INSTALL_PKG_CONFIG_FILES)
     append_lib_type_suffix(lib_type)
     append_lib_linkage_suffix(lib_linkage)
 
@@ -910,7 +916,7 @@ if(UNIX AND NOT WANT_FRAMEWORKS AND NOT IPHONE)
             DESTINATION "lib${LIB_SUFFIX}/pkgconfig"
             )
     endforeach(name)
-endif(UNIX AND NOT WANT_FRAMEWORKS AND NOT IPHONE)
+endif(INSTALL_PKG_CONFIG_FILES)
 
 #-----------------------------------------------------------------------------#
 #
