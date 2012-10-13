@@ -1072,7 +1072,7 @@ static void ogl_bitmap_pointer_changed(ALLEGRO_BITMAP *bitmap,
       ALLEGRO_BITMAP *old)
 {
    ALLEGRO_BITMAP_EXTRA_OPENGL *extra = bitmap->extra;
-   if (extra->fbo_info) {
+   if (extra && extra->fbo_info) {
       ASSERT(extra->fbo_info->owner == old);
       extra->fbo_info->owner = bitmap;
    }
