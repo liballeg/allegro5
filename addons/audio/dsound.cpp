@@ -49,6 +49,8 @@ static int buffer_size_in_samples = 4*1024; // default
 static int buffer_size; // in bytes
 
 #define MIN_BUFFER_SIZE    1024
+#define MIN_FILL           512
+#define MAX_FILL           1024
 
 static void dsound_set_buffer_size(int bits_per_sample)
 {
@@ -167,32 +169,52 @@ static void* _dsound_update(ALLEGRO_THREAD *self, void *arg)
       if (!_dsound_voice_is_playing(voice)) {
          ex_data->ds8_buffer->Play(0, 0, DSBPLAY_LOOPING);
       }
-      ex_data->ds8_buffer->GetCurrentPosition(&play_cursor, &write_cursor);
-      if (play_cursor != saved_play_cursor) {
-         int d = play_cursor - saved_play_cursor;
-         if (d < 0)
-            d += buffer_size;
-         samples = d / bytes_per_sample / ex_data->channels;
-         data = (unsigned char *) _al_voice_update(voice, &samples);
-         if (data == NULL) {
-            data = silence;
-         }
 
-         hr = ex_data->ds8_buffer->Lock(saved_play_cursor, d,
-            &ptr1, &block1_bytes, &ptr2, &block2_bytes, 0);
-         if (!FAILED(hr)) {
-            memcpy(ptr1, data, block1_bytes);
-            memcpy(ptr2, data + block1_bytes, block2_bytes);
-            hr = ex_data->ds8_buffer->Unlock(ptr1, block1_bytes,
-               ptr2, block2_bytes);
-            if (FAILED(hr)) {
-               ALLEGRO_ERROR("Unlock failed: %s\n", ds_get_error(hr));
-            }
-         }
-         saved_play_cursor += block1_bytes + block2_bytes;
-         saved_play_cursor %= buffer_size;
+      ex_data->ds8_buffer->GetCurrentPosition(&play_cursor, &write_cursor);
+
+      /* We try to fill the gap between the saved_play_cursor and the
+       * play_cursor.
+       */
+      int d = play_cursor - saved_play_cursor;
+      if (d < 0)
+         d += buffer_size;
+
+      /* Don't fill small gaps.  Let it accumulate to amortise the cost of
+       * mixing the samples and locking/unlocking the buffer.
+       */
+      if (d < MIN_FILL) {
+         al_rest(0.005);
+         continue;
       }
-      al_rest(0.005);
+
+      /* Don't generate too many samples at once.  The buffer may underrun
+       * while we wait for _al_voice_update to complete.
+       */
+      samples = d / bytes_per_sample / ex_data->channels;
+      if (samples > MAX_FILL) {
+         samples = MAX_FILL;
+      }
+
+      /* Generate the samples. */
+      data = (unsigned char *) _al_voice_update(voice, &samples);
+      if (data == NULL) {
+         data = silence;
+      }
+
+      hr = ex_data->ds8_buffer->Lock(saved_play_cursor,
+         samples * bytes_per_sample * ex_data->channels,
+         &ptr1, &block1_bytes, &ptr2, &block2_bytes, 0);
+      if (!FAILED(hr)) {
+         memcpy(ptr1, data, block1_bytes);
+         memcpy(ptr2, data + block1_bytes, block2_bytes);
+         hr = ex_data->ds8_buffer->Unlock(ptr1, block1_bytes,
+            ptr2, block2_bytes);
+         if (FAILED(hr)) {
+            ALLEGRO_ERROR("Unlock failed: %s\n", ds_get_error(hr));
+         }
+      }
+      saved_play_cursor += block1_bytes + block2_bytes;
+      saved_play_cursor %= buffer_size;
    } while (!ex_data->stop_voice);
 
    ex_data->ds8_buffer->Stop();
