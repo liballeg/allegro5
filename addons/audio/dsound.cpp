@@ -47,15 +47,13 @@ static int buffer_size; // in bytes
 static void dsound_set_buffer_size(int bits_per_sample)
 {
    ALLEGRO_CONFIG *config = al_get_system_config();
+
    if (config) {
-      const char *dsound_buffer_size;
-      dsound_buffer_size = al_get_config_value(
-         config,
-	 "directsound",
-	 "buffer_size"
-      );
-      if (dsound_buffer_size && dsound_buffer_size[0] != '\0')
-         buffer_size_in_samples = atoi(dsound_buffer_size);
+      const char *val = al_get_config_value(config,
+         "directsound", "buffer_size");
+      if (val && val[0] != '\0') {
+         buffer_size_in_samples = atoi(val);
+      }
    }
 
    buffer_size = buffer_size_in_samples * (bits_per_sample/8);
@@ -122,17 +120,18 @@ static bool _dsound_voice_is_playing(const ALLEGRO_VOICE *voice);
 
 /* Custom routine which runs in another thread to periodically check if DirectSound
    wants more data for a stream */
-static void* _dsound_update(ALLEGRO_THREAD* self, void* arg)
+static void* _dsound_update(ALLEGRO_THREAD *self, void *arg)
 {
    ALLEGRO_VOICE *voice = (ALLEGRO_VOICE *)arg;
    ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA*)voice->extra;
-   DWORD play_cursor = 0, write_cursor, saved_play_cursor = 0;
+   const int bytes_per_sample = ex_data->bits_per_sample / 8;
+   DWORD play_cursor = 0;
+   DWORD write_cursor;
+   DWORD saved_play_cursor = 0;
    unsigned int samples;
-   int d;
    LPVOID ptr1, ptr2;
    DWORD block1_bytes, block2_bytes;
-   const void *data;
-   const int bytes_per_sample = ex_data->bits_per_sample / 8;
+   unsigned char *data;
    HRESULT hr;
 
    (void)self;
@@ -142,12 +141,14 @@ static void* _dsound_update(ALLEGRO_THREAD* self, void* arg)
    memset(silence, silence_value, buffer_size);
 
    /* Fill buffer */
-   hr = ex_data->ds8_buffer->Lock(0, buffer_size, &ptr1, &block1_bytes, &ptr2, &block2_bytes, DSBLOCK_ENTIREBUFFER);
+   hr = ex_data->ds8_buffer->Lock(0, buffer_size,
+      &ptr1, &block1_bytes, &ptr2, &block2_bytes,
+      DSBLOCK_ENTIREBUFFER);
    if (!FAILED(hr)) {
       samples = buffer_size / bytes_per_sample / ex_data->channels;
-      data = _al_voice_update(voice, &samples);
+      data = (unsigned char *) _al_voice_update(voice, &samples);
       memcpy(ptr1, data, block1_bytes);
-      memcpy(ptr2, ((unsigned char *)data)+block1_bytes, block2_bytes);
+      memcpy(ptr2, data + block1_bytes, block2_bytes);
       ex_data->ds8_buffer->Unlock(ptr1, block1_bytes, ptr2, block2_bytes);
    }
 
@@ -159,20 +160,22 @@ static void* _dsound_update(ALLEGRO_THREAD* self, void* arg)
       }
       ex_data->ds8_buffer->GetCurrentPosition(&play_cursor, &write_cursor);
       if (play_cursor != saved_play_cursor) {
-         d = play_cursor - saved_play_cursor;
+         int d = play_cursor - saved_play_cursor;
          if (d < 0)
             d += buffer_size;
          samples = d / bytes_per_sample / ex_data->channels;
-         data = _al_voice_update(voice, &samples);
+         data = (unsigned char *) _al_voice_update(voice, &samples);
          if (data == NULL) {
             data = silence;
          }
 
-         hr = ex_data->ds8_buffer->Lock(saved_play_cursor, d, &ptr1, &block1_bytes, &ptr2, &block2_bytes, 0);
+         hr = ex_data->ds8_buffer->Lock(saved_play_cursor, d,
+            &ptr1, &block1_bytes, &ptr2, &block2_bytes, 0);
          if (!FAILED(hr)) {
             memcpy(ptr1, data, block1_bytes);
-            memcpy(ptr2, ((unsigned char *)data)+block1_bytes, block2_bytes);
-            hr = ex_data->ds8_buffer->Unlock(ptr1, block1_bytes, ptr2, block2_bytes);
+            memcpy(ptr2, data + block1_bytes, block2_bytes);
+            hr = ex_data->ds8_buffer->Unlock(ptr1, block1_bytes,
+               ptr2, block2_bytes);
             if (FAILED(hr)) {
                ALLEGRO_ERROR("Unlock failed: %s\n", ds_get_error(hr));
             }
@@ -345,7 +348,7 @@ static void _dsound_deallocate_voice(ALLEGRO_VOICE *voice)
    'buffer_size' field will be the total length in bytes of the sample data.
    The voice's attached sample's looping mode should be honored, and loading
    must fail if it cannot be. */
-static int _dsound_load_voice(ALLEGRO_VOICE *voice, const void *data)
+static int _dsound_load_voice(ALLEGRO_VOICE *voice, const void *_data)
 {
    ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
    HRESULT hr;
@@ -379,15 +382,16 @@ static int _dsound_load_voice(ALLEGRO_VOICE *voice, const void *data)
 
    ex_data->ds_buffer->QueryInterface(_al_IID_IDirectSoundBuffer8, u.v);
 
-   hr = ex_data->ds8_buffer->Lock(0, voice->buffer_size, &ptr1, &block1_bytes, &ptr2, &block2_bytes,
-      0);
+   hr = ex_data->ds8_buffer->Lock(0, voice->buffer_size,
+      &ptr1, &block1_bytes, &ptr2, &block2_bytes, 0);
    if (FAILED(hr)) {
       ALLEGRO_ERROR("Locking buffer failed\n");
       return 1;
    }
 
+   unsigned char *data = (unsigned char *) _data;
    memcpy(ptr1, data, block1_bytes);
-   memcpy(ptr2, ((unsigned char *)data)+block1_bytes, block2_bytes);
+   memcpy(ptr2, data + block1_bytes, block2_bytes);
 
    ex_data->ds8_buffer->Unlock(ptr1, block1_bytes, ptr2, block2_bytes);
 
