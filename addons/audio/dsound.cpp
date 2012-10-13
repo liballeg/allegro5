@@ -41,7 +41,7 @@ static void *_al_dsound_module = NULL;
 static DIRECTSOUNDCREATE8PROC _al_dsound_create = (DIRECTSOUNDCREATE8PROC)NULL;
 static IDirectSound8 *device;
 static char ds_err_str[100];
-static int buffer_size_in_samples = 4*1024; // default
+static int buffer_size_in_samples = 8192; // default
 static int buffer_size; // in bytes
 
 #define MIN_BUFFER_SIZE    1024
