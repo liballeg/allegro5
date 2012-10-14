@@ -4,6 +4,112 @@ See `changes-5.0.txt` for changes in Allegro 5.0.x.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 5.1.3 to 5.1.4 (October 2012)
+==========================================
+
+The main developers this time were: Trent Gamblin, Elias Pschernig, Peter Wang.
+
+Graphics:
+
+-  Fixed al_convert_bitmap using the target instead of the source format when
+   converting its data.
+
+-  Fix a crash in Direct3D in al_set_target_bitmap when switching from a memory
+   target.
+
+-  Fix a potential crash when drawing the screen to a bitmap with D3D.
+
+-  WGL shouldn't need to preserve bitmaps.
+
+-  Update the projection transform when setting up the OpenGL context
+   on X11 (SiegeLord).
+
+-  Lock bitmap to prevent slowness when creating a cursor from a non-memory
+   bitmap on Windows.
+
+-  Conditionally lock bitmap when creating cursor on X11 (previously it did
+   so even if already locked).
+
+Input:
+
+-  Make al_install_touch_input fail under Windows if there is no touch device.
+
+-  Temporary fix for delay after mouse warp on OS X.
+
+File I/O:
+
+-  Fix al_fputc on big-endian.  Reported by Andreas Rönnquist and
+   Tobias Hansen.
+
+-  Make al_fputc return value like fputc when out of range.
+
+Image addon:
+
+-  gdiplus: Only preserve indexed images with KEEP_INDEX flag on.
+
+Font addons:
+
+-  Added ALLEGRO_ALIGN_INTEGER text drawing flag (Todd Cope).
+
+-  Added a new al_get_font_ranges function.
+
+-  Made TTF addon include padding on the top and left edges of pages
+   (Todd Cope).
+
+Audio addon:
+
+-  Use programmatically generated interpolators.  They cover an additional
+   case which was missed and should be slightly more efficient.
+
+-  Support linear interpolation for 16-bit mixers.
+
+-  Add cubic interpolation for mixers (off by default).
+
+-  Fix potential deadlock in stop_voice for OpenAL.
+
+-  Fix potential deadlock in stop_voice for DirectSound.
+
+-  Improve buffer filling behaviour for DirectSound, reducing pops and
+   crackles significantly on slower machines.
+
+-  Increase default buffer size for DirectSound to 8192 samples.
+
+Android port:
+
+-  Support ALLEGRO_KEYBOARD_STATE.
+
+-  Fix return type of APK_tell (Todd Cope).
+
+-  Allow use of OpenGL ES 2 under Android.
+
+iOS port:
+
+-  Make orientation changes work on iOS with SDK 6.
+
+Build system:
+
+-  Rename native dialog library back to allegro_dialog to match 5.0.
+
+-  Install pkg-config files when cross-compiling on Unix.
+
+Python:
+
+-  Make the Python wrapper also check for the monolith DLL.
+
+Examples:
+
+-  ex_synth: Add button to save waveform to a file.
+
+-  ex_multisample: Demonstrate using moving bitmaps.
+
+-  Renamed a5teroids to Cosmic Protector
+
+Other:
+
+-  Minor bug fixes and documentation updates.
+
+
+
 Changes from 5.1.2 to 5.1.3 (August 2012)
 =========================================
 
