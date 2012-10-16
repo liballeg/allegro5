@@ -27,8 +27,8 @@ ALLEGRO_DEBUG_CHANNEL("win_dialog")
 #define WM_HIDE_MENU (WM_APP + 43)
 #define WM_SHOW_MENU (WM_APP + 44)
 
-/* Non-zero if text log window class was registered. */
-static int wlog_class_registered = 0;
+/* Reference count for shared resources. */
+static int wlog_count = 0;
 
 /* Handle of RichEdit module */
 static void *wlog_rich_edit_module = 0;
@@ -448,61 +448,16 @@ static LRESULT CALLBACK wlog_text_log_callback(HWND hWnd, UINT uMsg, WPARAM wPar
 }
 
 
-bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+/* We hold textlog->tl_text_mutex. */
+static bool open_native_text_log_inner(ALLEGRO_NATIVE_DIALOG *textlog)
 {
    LPCSTR font_name;
    HWND hWnd;
    HWND hLog;
-   WNDCLASSA text_log_class;
    RECT client_rect;
    HFONT hFont;
    MSG msg;
    BOOL ret;
-
-   al_lock_mutex(textlog->tl_text_mutex);
-
-   /* Prepare text log class info. */
-   if (!wlog_class_registered) {
-      memset(&text_log_class, 0, sizeof(text_log_class));
-      text_log_class.hInstance      = (HINSTANCE)GetModuleHandle(NULL);
-      text_log_class.lpszClassName  = "Allegro Text Log";
-      text_log_class.lpfnWndProc    = wlog_text_log_callback;
-      text_log_class.hIcon          = NULL;
-      text_log_class.hCursor        = NULL;
-      text_log_class.lpszMenuName   = NULL;
-      text_log_class.hbrBackground  = (HBRUSH)GetStockObject(GRAY_BRUSH);
-
-      if (RegisterClassA(&text_log_class) == 0) {
-         /* Failure, window class is a basis and we do not have one. */
-         al_unlock_mutex(textlog->tl_text_mutex);
-         return false;
-      }
-
-      wlog_class_registered++;
-   }
-
-   /* Load RichEdit control. */
-   if (!wlog_rich_edit_module) {
-      if ((wlog_rich_edit_module = _al_open_library("msftedit.dll"))) {
-         /* 4.1 and emulation of 3.0, 2.0, 1.0 */
-         wlog_edit_control = L"RICHEDIT50W"; /*MSFTEDIT_CLASS*/
-         wlog_unicode      = true;
-      }
-      else if ((wlog_rich_edit_module = _al_open_library("riched20.dll"))) {
-         /* 3.0, 2.0 */
-         wlog_edit_control = L"RichEdit20W"; /*RICHEDIT_CLASS*/
-         wlog_unicode      = true;
-      }
-      else if ((wlog_rich_edit_module = _al_open_library("riched32.dll"))) {
-         /* 1.0 */
-         wlog_edit_control = L"RichEdit"; /*RICHEDIT_CLASS*/
-         wlog_unicode      = false;
-      }
-      else {
-         wlog_edit_control = L"EDIT";
-         wlog_unicode      = false;
-      }
-   }
 
    /* Create text log window. */
    hWnd = CreateWindowA("Allegro Text Log", al_cstr(textlog->title),
@@ -510,12 +465,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       CW_USEDEFAULT, CW_USEDEFAULT, 640, 480, NULL, NULL,
       (HINSTANCE)GetModuleHandle(NULL), textlog);
    if (!hWnd) {
-      if (wlog_rich_edit_module) {
-         _al_close_library(wlog_rich_edit_module);
-         wlog_rich_edit_module = NULL;
-      }
-      UnregisterClassA("Allegro Text Log", (HINSTANCE)GetModuleHandle(NULL));
-      al_unlock_mutex(textlog->tl_text_mutex);
+      ALLEGRO_ERROR("CreateWindowA failed\n");
       return false;
    }
 
@@ -528,13 +478,8 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       client_rect.left, client_rect.top, client_rect.right - client_rect.left, client_rect.bottom - client_rect.top,
       hWnd, NULL, (HINSTANCE)GetModuleHandle(NULL), NULL);
    if (!hLog) {
-      if (wlog_rich_edit_module) {
-         _al_close_library(wlog_rich_edit_module);
-         wlog_rich_edit_module = NULL;
-      }
+      ALLEGRO_ERROR("CreateWindowW failed\n");
       DestroyWindow(hWnd);
-      UnregisterClassA("Allegro Text Log", (HINSTANCE)GetModuleHandle(NULL));
-      al_unlock_mutex(textlog->tl_text_mutex);
       return false;
    }
 
@@ -598,24 +543,96 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    /* Release font. We don't want to leave any garbage. */
    DeleteObject(hFont);
 
+   /* Notify everyone that we're gone. */
+   al_lock_mutex(textlog->tl_text_mutex);
+   textlog->tl_done = true;
+   al_signal_cond(textlog->tl_text_cond);
+
+   return true;
+}
+
+bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+{
+   WNDCLASSA text_log_class;
+   bool rc;
+
+   al_lock_mutex(textlog->tl_text_mutex);
+
+   /* Note: the class registration and rich edit module loading are not
+    * implemented in a thread-safe manner (pretty unlikely).
+    */
+
+   /* Prepare text log class info. */
+   if (wlog_count == 0) {
+      ALLEGRO_DEBUG("Register text log class\n");
+
+      memset(&text_log_class, 0, sizeof(text_log_class));
+      text_log_class.hInstance      = (HINSTANCE)GetModuleHandle(NULL);
+      text_log_class.lpszClassName  = "Allegro Text Log";
+      text_log_class.lpfnWndProc    = wlog_text_log_callback;
+      text_log_class.hIcon          = NULL;
+      text_log_class.hCursor        = NULL;
+      text_log_class.lpszMenuName   = NULL;
+      text_log_class.hbrBackground  = (HBRUSH)GetStockObject(GRAY_BRUSH);
+
+      if (RegisterClassA(&text_log_class) == 0) {
+         /* Failure, window class is a basis and we do not have one. */
+         ALLEGRO_ERROR("RegisterClassA failed\n");
+         al_unlock_mutex(textlog->tl_text_mutex);
+         return false;
+      }
+   }
+
+   /* Load RichEdit control. */
+   if (wlog_count == 0) {
+      ALLEGRO_DEBUG("Load rich edit module\n");
+      ALLEGRO_ASSERT(!wlog_rich_edit_module);
+
+      if ((wlog_rich_edit_module = _al_open_library("msftedit.dll"))) {
+         /* 4.1 and emulation of 3.0, 2.0, 1.0 */
+         wlog_edit_control = L"RICHEDIT50W"; /*MSFTEDIT_CLASS*/
+         wlog_unicode      = true;
+      }
+      else if ((wlog_rich_edit_module = _al_open_library("riched20.dll"))) {
+         /* 3.0, 2.0 */
+         wlog_edit_control = L"RichEdit20W"; /*RICHEDIT_CLASS*/
+         wlog_unicode      = true;
+      }
+      else if ((wlog_rich_edit_module = _al_open_library("riched32.dll"))) {
+         /* 1.0 */
+         wlog_edit_control = L"RichEdit"; /*RICHEDIT_CLASS*/
+         wlog_unicode      = false;
+      }
+      else {
+         wlog_edit_control = L"EDIT";
+         wlog_unicode      = false;
+      }
+   }
+
+   wlog_count++;
+   ALLEGRO_DEBUG("wlog_count = %d\n", wlog_count);
+
+   rc = open_native_text_log_inner(textlog);
+
+   wlog_count--;
+   ALLEGRO_DEBUG("wlog_count = %d\n", wlog_count);
+
    /* Release RichEdit module. */
-   if (wlog_rich_edit_module) {
+   if (wlog_count == 0) {
+      ALLEGRO_DEBUG("Unload rich edit module\n");
       _al_close_library(wlog_rich_edit_module);
       wlog_rich_edit_module = NULL;
    }
 
    /* Unregister window class. */
-   if (--wlog_class_registered == 0) {
+   if (wlog_count == 0) {
+      ALLEGRO_DEBUG("Unregister text log class\n");
       UnregisterClassA("Allegro Text Log", (HINSTANCE)GetModuleHandle(NULL));
    }
 
-   /* Notify everyone that we're gone. */
-   al_lock_mutex(textlog->tl_text_mutex);
-   textlog->tl_done = true;
-   al_signal_cond(textlog->tl_text_cond);
    al_unlock_mutex(textlog->tl_text_mutex);
 
-   return true;
+   return rc;
 }
 
 void _al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
