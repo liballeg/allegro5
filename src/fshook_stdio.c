@@ -111,7 +111,7 @@ typedef struct
    struct dirent dd_dir;
 
    /* _findnext handle */
-   long dd_handle;
+   intptr_t dd_handle;
 
    /*
     * Status of search:
