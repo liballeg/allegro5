@@ -820,6 +820,7 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
                  screen: screen
     ];
    if (dpy->parent.flags & ALLEGRO_RESIZABLE) {
+      // FIXME: this should be a runtime test
 #ifdef MAC_OS_X_VERSION_10_7
       [win setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
 #endif
@@ -881,7 +882,7 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
       origin.y = sc.origin.y + sc.size.height/2 - rc.size.height/2;
       [win setFrameOrigin: origin];
    }
-   [win makeKeyAndOrderFront:self];
+   [win performSelector:@selector(makeKeyAndOrderFront:) withObject:nil afterDelay:0.0]; 
    if (!(mask & NSBorderlessWindowMask)) [win makeMainWindow];
    [fmt release];
    [view release];
