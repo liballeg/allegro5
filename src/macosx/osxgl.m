@@ -882,7 +882,7 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
       origin.y = sc.origin.y + sc.size.height/2 - rc.size.height/2;
       [win setFrameOrigin: origin];
    }
-   [win performSelector:@selector(makeKeyAndOrderFront:) withObject:nil afterDelay:0.0]; 
+   [win makeKeyAndOrderFront:self]; 
    if (!(mask & NSBorderlessWindowMask)) [win makeMainWindow];
    [fmt release];
    [view release];
