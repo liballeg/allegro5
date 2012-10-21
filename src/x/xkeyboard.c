@@ -603,8 +603,11 @@ static void _al_xwin_get_keyboard_mapping(void)
       char str[1024];
       sprintf(str, "Modifier %d:", i + 1);
       for (j = 0; j < xmodmap->max_keypermod; j++) {
-         KeySym sym = XKeycodeToKeysym(system->x11display,
-            xmodmap->modifiermap[i * xmodmap->max_keypermod + j], 0);
+         KeyCode keycode = xmodmap->modifiermap[i * xmodmap->max_keypermod + j];
+         // XKeycodeToKeysym is deprecated
+         //KeySym sym = XKeycodeToKeysym(system->x11display, keycode, 0);
+         KeySym sym = XkbKeycodeToKeysym(system->x11display, keycode, 0, 0);
+
          char *sym_str = XKeysymToString(sym);
          sprintf(str + strlen(str), " %s", sym_str ? sym_str : "NULL");
       }
