@@ -33,8 +33,8 @@ ALLEGRO_DEBUG_CHANNEL("iphone");
    return YES;
 }
 
+#if defined __IPHONE_OS_VERSION_MAX_REQUIRED && !(__IPHONE_OS_VERSION_MAX_REQUIRED > __IPHONE_5_1)
 // Taken from Apple docs
-#if !(__IPHONE_OS_VERSION_MAX_REQUIRED > __IPHONE_5_1)
 typedef enum {
    UIInterfaceOrientationMaskPortrait = (1 << UIInterfaceOrientationPortrait),
    UIInterfaceOrientationMaskLandscapeLeft = (1 << UIInterfaceOrientationLandscapeLeft),
