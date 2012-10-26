@@ -53,22 +53,26 @@ static void phys_set_errno(ALLEGRO_FILE_PHYSFS *fp)
 
 static void *file_phys_fopen(const char *filename, const char *mode)
 {
-   char combined_path[__FS_PHYS_CWD_MAX];
+   ALLEGRO_USTR *us;
    PHYSFS_file *phys;
    ALLEGRO_FILE_PHYSFS *fp;
+
+   us = _al_physfs_apply_cwd(filename);
 
    /* XXX handle '+' modes */
    /* It might be worth adding a function to parse mode strings, to be
     * shared amongst these kinds of addons.
     */
    if (streq(mode, "r") || streq(mode, "rb"))
-      phys = PHYSFS_openRead(_al_fs_phys_get_path_with_cwd(filename, combined_path));
+      phys = PHYSFS_openRead(al_cstr(us));
    else if (streq(mode, "w") || streq(mode, "wb"))
-      phys = PHYSFS_openWrite(_al_fs_phys_get_path_with_cwd(filename, combined_path));
+      phys = PHYSFS_openWrite(al_cstr(us));
    else if (streq(mode, "a") || streq(mode, "ab"))
-      phys = PHYSFS_openAppend(_al_fs_phys_get_path_with_cwd(filename, combined_path));
+      phys = PHYSFS_openAppend(al_cstr(us));
    else
       phys = NULL;
+
+   al_ustr_free(us);
 
    if (!phys) {
       phys_set_errno(NULL);
