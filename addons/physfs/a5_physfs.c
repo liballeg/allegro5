@@ -53,6 +53,7 @@ static void phys_set_errno(ALLEGRO_FILE_PHYSFS *fp)
 
 static void *file_phys_fopen(const char *filename, const char *mode)
 {
+   char combined_path[__FS_PHYS_CWD_MAX];
    PHYSFS_file *phys;
    ALLEGRO_FILE_PHYSFS *fp;
 
@@ -61,11 +62,11 @@ static void *file_phys_fopen(const char *filename, const char *mode)
     * shared amongst these kinds of addons.
     */
    if (streq(mode, "r") || streq(mode, "rb"))
-      phys = PHYSFS_openRead(filename);
+      phys = PHYSFS_openRead(_al_fs_phys_get_path_with_cwd(filename, combined_path));
    else if (streq(mode, "w") || streq(mode, "wb"))
-      phys = PHYSFS_openWrite(filename);
+      phys = PHYSFS_openWrite(_al_fs_phys_get_path_with_cwd(filename, combined_path));
    else if (streq(mode, "a") || streq(mode, "ab"))
-      phys = PHYSFS_openAppend(filename);
+      phys = PHYSFS_openAppend(_al_fs_phys_get_path_with_cwd(filename, combined_path));
    else
       phys = NULL;
 

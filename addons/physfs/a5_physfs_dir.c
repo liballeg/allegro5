@@ -36,46 +36,137 @@ struct ALLEGRO_FS_ENTRY_PHYSFS
 /* forward declaration */
 static const ALLEGRO_FS_INTERFACE fs_phys_vtable;
 
+/* current working directory */
+static char fs_phys_cwd[__FS_PHYS_CWD_MAX] = {'/'};
+
+static bool fs_phys_path_is_absolute(const char * path)
+{
+   if (path && path[0] == '/')
+      return true;
+   return false;
+}
+
+/* returns a new ALLEGRO_PATH structure containing the specified path, taking
+ * into account the current working directory.
+ */
+const char * _al_fs_phys_get_path_with_cwd(const char * path, char * buffer)
+{
+   ALLEGRO_USTR * final_path;
+
+   /* returned as-is if path is absolute or cwd not set */
+   if (fs_phys_path_is_absolute(path))
+      return path;
+
+   /* start with fs_phys_cwd */
+   final_path = al_ustr_new(fs_phys_cwd);
+   if (!final_path) {
+	   return NULL;
+   }
+   /* append our relative path to the CWD */
+   al_ustr_append_cstr(final_path, path);
+
+   /* copy the data to the internal buffer */
+   al_ustr_to_buffer(final_path, buffer, __FS_PHYS_CWD_MAX);
+
+   al_ustr_free(final_path);
+
+   return buffer;
+}
+
 static ALLEGRO_FS_ENTRY *fs_phys_create_entry(const char *path)
 {
+   char combined_path[__FS_PHYS_CWD_MAX];
    ALLEGRO_FS_ENTRY_PHYSFS *e;
    e = al_calloc(1, sizeof *e);
+   if (!e)
+      return NULL;
    e->fs_entry.vtable = &fs_phys_vtable;
-   e->path = al_create_path(path);
+
+   e->path = al_create_path(_al_fs_phys_get_path_with_cwd(path, combined_path));
+   if (!e->path) {
+      al_free(e);
+      return NULL;
+   }
    e->path_cstr = al_path_cstr(e->path, '/');
    return &e->fs_entry;
 }
 
 static char *fs_phys_get_current_directory(void)
 {
-   char *s = al_malloc(2);
-   if (s) {
-      s[0] = '/';
-      s[1] = '\0';
-   }
-   return s;
+   const ALLEGRO_USTR * ustr;
+   ALLEGRO_USTR_INFO info;
+   char * current_dir = NULL;
+   int size;
+
+   ustr = al_ref_cstr(&info, fs_phys_cwd);
+   size = al_ustr_size(ustr);
+   current_dir = al_malloc(size);
+   if (!current_dir)
+      return NULL;
+   memcpy(current_dir, fs_phys_cwd, size);
+   return current_dir;
 }
 
 static bool fs_phys_change_directory(const char *path)
 {
-   (void)path;
-   al_set_errno(NOTSUP);
+   char combined_path[__FS_PHYS_CWD_MAX];
+   const ALLEGRO_USTR * ustr;
+   ALLEGRO_USTR * ustr2;
+   ALLEGRO_USTR_INFO info;
+   const char * apath;
+   bool is_absolute;
+
+   /* figure out which directory we are trying to change to */
+   is_absolute = fs_phys_path_is_absolute(path);
+   if (is_absolute)
+      apath = path;
+   else
+      apath = _al_fs_phys_get_path_with_cwd(path, combined_path);
+
+   ustr = al_ref_cstr(&info, apath);
+
+   /* '/' root is gauranteed to exist and PHYSFS won't find it */
+   if (al_ustr_length(ustr) < 2 && al_ustr_get(ustr, 0) == '/') {
+      fs_phys_cwd[0] = '/';
+      fs_phys_cwd[1] = '\0';
+      return true;
+   }
+   /* if the path exists and is a directory, replace current working dir */
+   else if(PHYSFS_exists(apath) && PHYSFS_isDirectory(apath)) {
+      ustr2 = al_ustr_new(apath);
+      if(!ustr2)
+         return false;
+
+      /* make sure current working directory always ends in '/' */
+      if (al_ustr_get(ustr2, al_ustr_length(ustr2) - 1) != '/')
+		  al_ustr_append_chr(ustr2, '/');
+
+      /* copy ustr to static buffer */
+      al_ustr_to_buffer(ustr2, fs_phys_cwd, __FS_PHYS_CWD_MAX);
+      al_ustr_free(ustr2);
+      return true;
+   }
    return false;
 }
 
 static bool fs_phys_filename_exists(const char *path)
 {
-   return PHYSFS_exists(path) != 0;
+   char combined_path[__FS_PHYS_CWD_MAX];
+   if (PHYSFS_exists(_al_fs_phys_get_path_with_cwd(path, combined_path)))
+      return true;
+   return false;
 }
 
 static bool fs_phys_remove_filename(const char *path)
 {
-   return PHYSFS_delete(path) != 0;
+   char combined_path[__FS_PHYS_CWD_MAX];
+   return  PHYSFS_delete(_al_fs_phys_get_path_with_cwd(path, combined_path)) != 0;
 }
 
 static bool fs_phys_make_directory(const char *path)
 {
-   return PHYSFS_mkdir(path) != 0;
+   char combined_path[__FS_PHYS_CWD_MAX];
+   return PHYSFS_mkdir(_al_fs_phys_get_path_with_cwd(path, combined_path)) != 0;
 }
 
 static const char *fs_phys_entry_name(ALLEGRO_FS_ENTRY *fse)
@@ -147,6 +238,7 @@ static ALLEGRO_FS_ENTRY *fs_phys_read_directory(ALLEGRO_FS_ENTRY *fse)
    ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
    ALLEGRO_FS_ENTRY *next;
    ALLEGRO_USTR *tmp;
+   int len;
 
    if (!e->file_list_pos)
       return NULL;
@@ -154,7 +246,9 @@ static ALLEGRO_FS_ENTRY *fs_phys_read_directory(ALLEGRO_FS_ENTRY *fse)
       return NULL;
 
    tmp = al_ustr_new(e->path_cstr);
-   if (al_ustr_length(tmp) > 0)
+   len = al_ustr_length(tmp);
+   /* append '/' to path string if it doesn't already end with it */
+   if (len > 0 && al_ustr_get(tmp, len - 1) != '/')
       al_ustr_append_chr(tmp, '/');
    al_ustr_append_cstr(tmp, *e->file_list_pos);
    next = fs_phys_create_entry(al_cstr(tmp));
