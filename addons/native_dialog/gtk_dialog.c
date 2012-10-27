@@ -46,18 +46,23 @@ typedef struct {
 // G_STATIC_MUTEX_INIT causes a warning about a missing initializer, so if we
 // have version 2.32 or newer don't use it to avoid the warning.
 #if GLIB_CHECK_VERSION(2, 32, 0)
-static GMutex lock;
-static void gtk_lock(void) {g_mutex_lock(&lock);}
-static void gtk_unlock(void) {g_mutex_unlock(&lock);}
+   #define NEWER_GLIB   1
 #else
-static GStaticMutex lock = G_STATIC_MUTEX_INIT;
-static void gtk_lock(void) {g_static_mutex_lock(&lock);}
-static void gtk_unlock(void) {g_static_mutex_unlock(&lock);}
+   #define NEWER_GLIB   0
 #endif
-static GThread *gtk_thread = NULL;
-static int window_counter = 0;
+#if NEWER_GLIB
+   static GMutex nd_gtk_mutex;
+   static void nd_gtk_lock(void)    { g_mutex_lock(&nd_gtk_mutex); }
+   static void nd_gtk_unlock(void)  { g_mutex_unlock(&nd_gtk_mutex); }
+#else
+   static GStaticMutex nd_gtk_mutex = G_STATIC_MUTEX_INIT;
+   static void nd_gtk_lock(void)    { g_static_mutex_lock(&nd_gtk_mutex); }
+   static void nd_gtk_unlock(void)  { g_static_mutex_unlock(&nd_gtk_mutex); }
+#endif
+static GThread *nd_gtk_thread = NULL;
+static int nd_gtk_window_counter = 0;
 
-static void *gtk_thread_func(void *data)
+static void *nd_gtk_thread_func(void *data)
 {
    GAsyncQueue *queue = data;
    int argc = 0;
@@ -85,40 +90,40 @@ static void *gtk_thread_func(void *data)
       /* Re-enter the main loop if a new window was created soon after the last
        * one was destroyed, which caused us to drop out of the GTK main loop.
        */
-      gtk_lock();
-      if (window_counter == 0) {
-         gtk_thread = NULL;
+      nd_gtk_lock();
+      if (nd_gtk_window_counter == 0) {
+         nd_gtk_thread = NULL;
          again = false;
       } else {
          again = true;
       }
-      gtk_unlock();
+      nd_gtk_unlock();
    } while (again);
 
    ALLEGRO_INFO("GTK stopped.\n");
    return NULL;
 }
 
-static bool ensure_gtk_thread(void)
+static bool ensure_nd_gtk_thread(void)
 {
    bool ok = true;
 
-   #if !GLIB_CHECK_VERSION(2, 32, 0)
+#if NEWER_GLIB
    if (!g_thread_supported())
       g_thread_init(NULL);
-   #endif
+#endif
 
-   gtk_lock();
+   nd_gtk_lock();
 
-   if (!gtk_thread) {
+   if (!nd_gtk_thread) {
       GAsyncQueue *queue = g_async_queue_new();
-      #if GLIB_CHECK_VERSION(2, 32, 0)
-      gtk_thread = g_thread_new("gtk thread", gtk_thread_func, queue);
-      #else
+#if NEWER_GLIB
+      nd_gtk_thread = g_thread_new("gtk thread", nd_gtk_thread_func, queue);
+#else
       bool joinable = FALSE;
-      gtk_thread = g_thread_create(gtk_thread_func, queue, joinable, NULL);
-      #endif
-      if (!gtk_thread) {
+      nd_gtk_thread = g_thread_create(nd_gtk_thread_func, queue, joinable, NULL);
+#endif
+      if (!nd_gtk_thread) {
          ok = false;
       }
       else {
@@ -128,11 +133,11 @@ static bool ensure_gtk_thread(void)
    }
 
    if (ok) {
-      ++window_counter;
-      ALLEGRO_DEBUG("++window_counter = %d\n", window_counter);
+      ++nd_gtk_window_counter;
+      ALLEGRO_DEBUG("++nd_gtk_window_counter = %d\n", nd_gtk_window_counter);
    }
 
-   gtk_unlock();
+   nd_gtk_unlock();
 
    return ok;
 }
@@ -173,14 +178,14 @@ static void make_transient(ALLEGRO_DISPLAY *display, GtkWidget *window)
 
 static void decrease_window_counter()
 {
-   gtk_lock();
-   --window_counter;
-   ALLEGRO_DEBUG("--window_counter = %d\n", window_counter);
-   if (window_counter == 0) {
+   nd_gtk_lock();
+   --nd_gtk_window_counter;
+   ALLEGRO_DEBUG("--nd_gtk_window_counter = %d\n", nd_gtk_window_counter);
+   if (nd_gtk_window_counter == 0) {
       gtk_main_quit();
       ALLEGRO_DEBUG("Called gtk_main_quit.\n");
    }
-   gtk_unlock();
+   nd_gtk_unlock();
 }
 
 static void dialog_destroy(GtkWidget *w, gpointer data)
@@ -214,7 +219,7 @@ static void filesel_ok(GtkWidget *w, GtkFileSelection *fs)
    g_strfreev(paths);
 }
 
-/* [gtk thread] */
+/* [nd_gtk thread] */
 static gboolean create_native_file_dialog(gpointer data)
 {
    Msg *msg = data;
@@ -261,7 +266,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
 {
    Msg msg;
 
-   if (!ensure_gtk_thread())
+   if (!ensure_nd_gtk_thread())
       return false;
 
    fd->async_queue = g_async_queue_new();
@@ -369,7 +374,7 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 {
    Msg msg;
 
-   if (!ensure_gtk_thread())
+   if (!ensure_nd_gtk_thread())
       return 0; /* "cancelled" */
 
    fd->async_queue = g_async_queue_new();
@@ -476,7 +481,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
    Msg msg;
 
-   if (!ensure_gtk_thread()) {
+   if (!ensure_nd_gtk_thread()) {
       textlog->tl_init_error = true;
       return false;
    }
@@ -1052,7 +1057,7 @@ bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 {
    ARGS *args;
    
-   if (!ensure_gtk_thread()) {
+   if (!ensure_nd_gtk_thread()) {
       return false;
    }
    
