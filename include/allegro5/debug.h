@@ -31,7 +31,7 @@ AL_FUNC(bool, _al_trace_prefix, (char const *channel, int level,
 
 AL_PRINTFUNC(void, _al_trace_suffix, (const char *msg, ...), 1, 2);
 
-#ifdef DEBUGMODE
+#if defined(DEBUGMODE) || defined(ALLEGRO_CFG_RELEASE_LOGGING)
    /* Must not be used with a trailing semicolon. */
    #ifdef ALLEGRO_GCC
       #define ALLEGRO_DEBUG_CHANNEL(x) \

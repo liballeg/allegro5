@@ -27,10 +27,10 @@
 #include "allegro5/platform/alplatf.h"
 #include ALLEGRO_INTERNAL_HEADER
 
+static char static_trace_buffer[2048];
+
 #ifdef ALLEGRO_ANDROID
 #  include <android/log.h>
-
-static char android_trace_buf[2048];
 #endif
 
 
@@ -68,6 +68,11 @@ static TRACE_INFO trace_info =
 /* run-time assertions */
 void (*_al_user_assert_handler)(char const *expr, char const *file,
    int line, char const *func);
+
+AL_FUNC(bool, _al_trace_prefix, (char const *channel, int level,
+   char const *file, int line, char const *function));
+   
+void (*_al_user_trace_handler)(char const *message);
 
 
 /* dynamic registration system for cleanup code */
@@ -272,28 +277,22 @@ static void do_trace(const char *msg, ...)
    va_list ap;
 
 #ifdef ALLEGRO_ANDROID
-   {
-      char tmp[2048];
-
-      va_start(ap, msg);
-      vsnprintf(tmp, sizeof(tmp), msg, ap);
-      va_end(ap);
-
-      strncat(android_trace_buf, tmp, sizeof(android_trace_buf));
-
-      if (tmp[strlen(tmp)-1] == '\n') {
-         (void)__android_log_print(ANDROID_LOG_INFO, "allegro",
-            android_trace_buf);
-         android_trace_buf[0] = '\0';
-      }
-   }
+   if (true)
 #else
-   if (trace_info.trace_file) {
+   if (_al_user_trace_handler)
+#endif
+   {
+      int s = strlen(static_trace_buffer);
+      va_start(ap, msg);
+      vsnprintf(static_trace_buffer + s, sizeof(static_trace_buffer) - s,
+         msg, ap);
+      va_end(ap);
+   }
+   else if (trace_info.trace_file) {
       va_start(ap, msg);
       vfprintf(trace_info.trace_file, msg, ap);
       va_end(ap);
    }
-#endif
 }
 
 
@@ -343,7 +342,8 @@ channel_included:
    /* Avoid interleaved output from different threads. */
    _al_mutex_lock(&trace_info.trace_mutex);
 
-   open_trace_file();
+   if (!_al_user_trace_handler)
+      open_trace_file();
 
    do_trace("%-8s ", channel);
    if (level == 0) do_trace("D ");
@@ -396,26 +396,34 @@ void _al_trace_suffix(const char *msg, ...)
    va_list ap;
 
 #ifdef ALLEGRO_ANDROID
+   if (true)
+#else
+   if (_al_user_trace_handler)
+#endif
    {
-      char tmp[2048];
-
+      int s = strlen(static_trace_buffer);
       va_start(ap, msg);
-      vsnprintf(tmp, sizeof(tmp), msg, ap);
+      vsnprintf(static_trace_buffer + s, sizeof(static_trace_buffer) - s,
+         msg, ap);
       va_end(ap);
 
-      strncat(android_trace_buf, tmp, sizeof(android_trace_buf));
-
-      (void)__android_log_print(ANDROID_LOG_INFO, "allegro", android_trace_buf);
-      android_trace_buf[0] = '\0';
+      if (_al_user_trace_handler) {
+         _al_user_trace_handler(static_trace_buffer);
+      }
+      #ifdef ALLEGRO_ANDROID
+      else {
+         (void)__android_log_print(ANDROID_LOG_INFO, "allegro",
+            static_trace_buffer);
+      }
+      #endif
+      static_trace_buffer[0] = '\0';
    }
-#else
-   if (trace_info.trace_file) {
+   else if (trace_info.trace_file) {
       va_start(ap, msg);
       vfprintf(trace_info.trace_file, msg, ap);
       va_end(ap);
       fflush(trace_info.trace_file);
    }
-#endif
 
    _al_mutex_unlock(&trace_info.trace_mutex);
 
@@ -430,6 +438,15 @@ void al_register_assert_handler(void (*handler)(char const *expr,
    char const *file, int line, char const *func))
 {
    _al_user_assert_handler = handler;
+}
+
+
+
+/* Function: al_register_trace_handler
+ */
+void al_register_trace_handler(void (*handler)(char const *))
+{
+   _al_user_trace_handler = handler;
 }
 
 
