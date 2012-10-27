@@ -156,7 +156,7 @@ option(WANT_MUDFLAP "Enable gcc mudflap (requires gcc 4.0+)" off)
 option(WANT_RELEASE_LOGGING "Enable logging even in release mode" off)
 
 if(WANT_RELEASE_LOGGING)
-set(ALLEGRO_CFG_RELEASE_LOGGING 1)
+    set(ALLEGRO_CFG_RELEASE_LOGGING 1)
 endif()
 
 #
@@ -394,10 +394,6 @@ if(WANT_MUDFLAP AND COMPILER_GCC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmudflapth")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fmudflapth -lmudflapth")
 endif(WANT_MUDFLAP AND COMPILER_GCC)
-
-if(WANT_RELEASE_LOGGING)
-   
-endif(WANT_RELEASE_LOGGING)
 
 # Debugging.
 
