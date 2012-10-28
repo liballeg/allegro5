@@ -47,6 +47,13 @@ int main(void)
 
    value = al_get_config_value(cfg, "", "mysha.xpm");
    TEST("long value", value && strlen(value) == 1394);
+
+   /* Test removing. */
+   al_set_config_value(cfg, "empty", "key_remove", "to be removed");
+   al_remove_config_key(cfg, "empty", "key_remove");
+   
+   al_set_config_value(cfg, "schrödinger", "box", "cat");
+   al_remove_config_section(cfg, "schrödinger");
    
    /* Test whether iterating through our whole sample.cfg returns all
     * sections and entries, in order.
@@ -81,6 +88,12 @@ int main(void)
    
    value = al_get_next_config_entry(&iterator2);
    TEST("entry7", value == NULL);
+   
+   value = al_get_next_config_section(&iterator);
+   TEST("empty", value && !strcmp(value, "empty"));
+   
+   value = al_get_first_config_entry(cfg, value, &iterator2);
+   TEST("empty entry", value == NULL);
    
    value = al_get_next_config_section(&iterator);
    TEST("section4", value == NULL);

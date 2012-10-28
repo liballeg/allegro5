@@ -7,7 +7,7 @@ struct ALLEGRO_CONFIG_ENTRY {
    bool is_comment;
    ALLEGRO_USTR *key;    /* comment if is_comment is true */
    ALLEGRO_USTR *value;
-   ALLEGRO_CONFIG_ENTRY *next;
+   ALLEGRO_CONFIG_ENTRY *prev, *next;
 };
 
 struct ALLEGRO_CONFIG_SECTION {
@@ -15,7 +15,7 @@ struct ALLEGRO_CONFIG_SECTION {
    ALLEGRO_CONFIG_ENTRY *head;
    ALLEGRO_CONFIG_ENTRY *last;
    _AL_AATREE *tree;
-   ALLEGRO_CONFIG_SECTION *next;
+   ALLEGRO_CONFIG_SECTION *prev, *next;
 };
 
 struct ALLEGRO_CONFIG {

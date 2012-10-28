@@ -95,6 +95,7 @@ static ALLEGRO_CONFIG_SECTION *config_add_section(ALLEGRO_CONFIG *config,
    else {
       ASSERT(config->last->next == NULL);
       config->last->next = section;
+      section->prev = config->last;
       config->last = section;
    }
 
@@ -150,6 +151,7 @@ static void config_set_value(ALLEGRO_CONFIG *config,
    else {
       ASSERT(s->last->next == NULL);
       s->last->next = entry;
+      entry->prev = s->last;
       s->last = entry;
    }
 
@@ -212,6 +214,7 @@ static void config_add_comment(ALLEGRO_CONFIG *config,
    else {
       ASSERT(s->last->next == NULL);
       s->last->next = entry;
+      entry->prev = s->last;
       s->last = entry;
    }
 }
@@ -537,11 +540,32 @@ ALLEGRO_CONFIG *al_merge_config(const ALLEGRO_CONFIG *cfg1,
 }
 
 
+static void destroy_entry(ALLEGRO_CONFIG_ENTRY *e)
+{
+   al_ustr_free(e->key);
+   al_ustr_free(e->value);
+   al_free(e);
+}
+
+
+static void destroy_section(ALLEGRO_CONFIG_SECTION *s)
+{
+   ALLEGRO_CONFIG_ENTRY *e = s->head;
+   while (e) {
+      ALLEGRO_CONFIG_ENTRY *tmp = e->next;
+      destroy_entry(e);
+      e = tmp;
+   }
+   al_ustr_free(s->name);
+   _al_aa_free(s->tree);
+   al_free(s);
+}
+
+   
 /* Function: al_destroy_config
  */
 void al_destroy_config(ALLEGRO_CONFIG *config)
 {
-   ALLEGRO_CONFIG_ENTRY *e;
    ALLEGRO_CONFIG_SECTION *s;
 
    if (!config) {
@@ -551,17 +575,7 @@ void al_destroy_config(ALLEGRO_CONFIG *config)
    s = config->head;
    while (s) {
       ALLEGRO_CONFIG_SECTION *tmp = s->next;
-      e = s->head;
-      while (e) {
-         ALLEGRO_CONFIG_ENTRY *tmp = e->next;
-         al_ustr_free(e->key);
-         al_ustr_free(e->value);
-         al_free(e);
-         e = tmp;
-      }
-      al_ustr_free(s->name);
-      _al_aa_free(s->tree);
-      al_free(s);
+      destroy_section(s);
       s = tmp;
    }
 
@@ -644,6 +658,83 @@ char const *al_get_next_config_entry(ALLEGRO_CONFIG_ENTRY **iterator)
       e = e->next;
    *iterator = e;
    return e ? al_cstr(e->key) : NULL;
+}
+
+
+bool al_remove_config_section(ALLEGRO_CONFIG *config,
+		char const *section)
+{
+   ALLEGRO_USTR_INFO section_info;
+   ALLEGRO_USTR const *usection = al_ref_cstr(&section_info, section);
+   void *value;
+   ALLEGRO_CONFIG_SECTION *s;
+   
+   config->tree = _al_aa_delete(config->tree, usection, cmp_ustr, &value);
+   if (!value)
+      return false;
+   
+   s = value;
+
+   if (s->prev) {
+      s->prev->next = s->next;
+   }
+   else {
+      ASSERT(config->head == s);
+      config->head = s->next;
+   }
+   
+   if (s->next) {
+      s->next->prev = s->prev;
+   }
+   else {
+      ASSERT(config->last == s);
+      config->last = s->prev;
+   }
+
+   destroy_section(s);
+   return true;
+}
+
+
+bool al_remove_config_key(ALLEGRO_CONFIG *config, char const *section,
+      char const *key)
+{
+   ALLEGRO_USTR_INFO section_info;
+   ALLEGRO_USTR_INFO key_info;
+   ALLEGRO_USTR const *usection = al_ref_cstr(&section_info, section);
+   ALLEGRO_USTR const *ukey = al_ref_cstr(&key_info, key);
+   void *value;
+   ALLEGRO_CONFIG_ENTRY * e;
+
+   ALLEGRO_CONFIG_SECTION *s = find_section(config, usection);
+   if (!s)
+      return false;
+
+   s->tree = _al_aa_delete(s->tree, ukey, cmp_ustr, &value);
+   if (!value)
+      return false;
+   
+   e = value;
+   
+   if (e->prev) {
+      e->prev->next = e->next;
+   }
+   else {
+      ASSERT(s->head == e);
+      s->head = e->next;
+   }
+   
+   if (e->next) {
+      e->next->prev = e->prev;
+   }
+   else {
+      ASSERT(s->last == e);
+      s->last = e->prev;
+   }
+   
+   destroy_entry(e);
+
+   return true;
 }
 
 /* vim: set sts=3 sw=3 et: */
