@@ -182,7 +182,7 @@ functions.
 * trans - Transformation to alter
 * x, y - Translation
 * sx, sy - Scale
-* theta - Rotation angle
+* theta - Rotation angle in radians
 
 See also: [al_translate_transform], [al_rotate_transform],
 [al_scale_transform], [al_compose_transform]
@@ -205,7 +205,7 @@ Apply a rotation to a transformation.
 *Parameters:*
 
 * trans - Transformation to alter
-* theta - Rotation angle
+* theta - Rotation angle in radians
 
 See also: [al_translate_transform], [al_scale_transform], [al_build_transform]
 
