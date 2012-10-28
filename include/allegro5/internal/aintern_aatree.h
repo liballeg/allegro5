@@ -16,6 +16,7 @@ typedef int (*_al_cmp_t)(const void *a, const void *b);
 
 _AL_AATREE *_al_aa_insert(_AL_AATREE *T, const void *key, void *value, _al_cmp_t compare);
 void *_al_aa_search(const _AL_AATREE *T, const void *key, _al_cmp_t compare);
+_AL_AATREE *_al_aa_delete(_AL_AATREE *T, const void *key, _al_cmp_t compare, void **ret_value);
 void _al_aa_free(_AL_AATREE *T);
 
 #endif
