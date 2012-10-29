@@ -661,8 +661,9 @@ char const *al_get_next_config_entry(ALLEGRO_CONFIG_ENTRY **iterator)
 }
 
 
-bool al_remove_config_section(ALLEGRO_CONFIG *config,
-		char const *section)
+/* Function: al_remove_config_section
+ */
+bool al_remove_config_section(ALLEGRO_CONFIG *config, char const *section)
 {
    ALLEGRO_USTR_INFO section_info;
    ALLEGRO_USTR const *usection = al_ref_cstr(&section_info, section);
@@ -697,8 +698,10 @@ bool al_remove_config_section(ALLEGRO_CONFIG *config,
 }
 
 
+/* Function: al_remove_config_key
+ */
 bool al_remove_config_key(ALLEGRO_CONFIG *config, char const *section,
-      char const *key)
+   char const *key)
 {
    ALLEGRO_USTR_INFO section_info;
    ALLEGRO_USTR_INFO key_info;

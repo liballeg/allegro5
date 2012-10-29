@@ -103,6 +103,15 @@ See also: [al_save_config_file]
 Add a section to a configuration structure with the given name.
 If the section already exists then nothing happens.
 
+## API: al_remove_config_section
+
+Remove a section of a configuration.
+
+Returns true if the section was removed, or false if the section did not
+exist.
+
+Since: 5.1.5
+
 ## API: al_add_config_comment
 
 Add a comment in a section of a configuration.  If the section doesn't yet
@@ -137,6 +146,14 @@ whitespace you wish to preserve, you should add your own quote characters
 and remove them when reading the values back in.
 
 See also: [al_get_config_value]
+
+## API: al_remove_config_key
+
+Remove a key and its associated value in a section of a configuration.
+
+Returns true if the entry was removed, or false if the entry did not exist.
+
+Since: 5.1.5
 
 ## API: al_get_first_config_section
 
