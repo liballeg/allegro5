@@ -157,6 +157,10 @@ static Aatree *dodelete(struct DelInfo *info, Aatree *T, void **ret_value)
    return T;
 }
 
+/* ret_value is only set if the item was found and deleted.
+ * The caller should set it to some distinct value, e.g. NULL,
+ * to detect if no item was found.
+ */
 Aatree *_al_aa_delete(Aatree *T, const void *key, _al_cmp_t compare,
    void **ret_value)
 {

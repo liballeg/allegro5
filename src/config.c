@@ -669,6 +669,7 @@ bool al_remove_config_section(ALLEGRO_CONFIG *config,
    void *value;
    ALLEGRO_CONFIG_SECTION *s;
    
+   value = NULL;
    config->tree = _al_aa_delete(config->tree, usection, cmp_ustr, &value);
    if (!value)
       return false;
@@ -710,6 +711,7 @@ bool al_remove_config_key(ALLEGRO_CONFIG *config, char const *section,
    if (!s)
       return false;
 
+   value = NULL;
    s->tree = _al_aa_delete(s->tree, ukey, cmp_ustr, &value);
    if (!value)
       return false;
