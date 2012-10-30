@@ -108,7 +108,7 @@ static bool ensure_nd_gtk_thread(void)
 {
    bool ok = true;
 
-#if NEWER_GLIB
+#ifndef NEWER_GLIB
    if (!g_thread_supported())
       g_thread_init(NULL);
 #endif
