@@ -61,6 +61,8 @@ AL_FUNCPTR(void, _al_user_assert_handler, (char const *expr, char const *file,
 AL_FUNC(void, al_register_assert_handler, (void (*handler)(char const *expr,
    char const *file, int line, char const *func)));
 
+AL_FUNC(void, al_register_trace_handler, (void (*handler)(char const *)));
+
 #ifdef NDEBUG
    #define ALLEGRO_ASSERT(e)	((void)(0 && (e)))
 #else
