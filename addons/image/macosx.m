@@ -209,6 +209,8 @@ bool _al_osx_save_image_f(ALLEGRO_FILE *f, const char *ident, ALLEGRO_BITMAP *bm
    else {
       return false;
    }
+
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc]init];
    
    NSImage *image = NSImageFromAllegroBitmap(bmp);
    NSArray *reps = [image representations];
@@ -218,6 +220,8 @@ bool _al_osx_save_image_f(ALLEGRO_FILE *f, const char *ident, ALLEGRO_BITMAP *bm
    bool ret = al_fwrite(f, [nsdata bytes], size) == size;
    
    [image release];
+
+   [pool drain];
    
    return ret;
 }
