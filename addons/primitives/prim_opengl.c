@@ -557,10 +557,10 @@ bool _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* ini
 
    switch (usage_hints)
    {
+#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
       case ALLEGRO_BUFFER_STREAM | ALLEGRO_BUFFER_DRAW:
          usage = GL_STREAM_DRAW;
          break;
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
       case ALLEGRO_BUFFER_STREAM | ALLEGRO_BUFFER_READ:
          usage = GL_STREAM_READ;
          break;

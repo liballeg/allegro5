@@ -185,7 +185,9 @@ char const *_al_gl_error_string(GLenum e)
       ERR(GL_STACK_OVERFLOW)
       ERR(GL_STACK_UNDERFLOW)
       ERR(GL_OUT_OF_MEMORY)
+#ifndef ALLEGRO_CFG_NO_GLES2
       ERR(GL_INVALID_FRAMEBUFFER_OPERATION)
+#endif
    }
    return "UNKNOWN";
 }
