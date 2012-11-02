@@ -1,6 +1,7 @@
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_direct3d.h"
 #include <d3dx9.h>
+#include <stdio.h>
 #include "allegro5/allegro_shader.h"
 #include "allegro5/allegro_shader_hlsl.h"
 #include "allegro5/transformations.h"
@@ -14,6 +15,13 @@
 #include "shader_hlsl.h"
 
 ALLEGRO_DEBUG_CHANNEL("shader")
+
+typedef HRESULT (WINAPI *D3DXCREATEEFFECTPROC)(LPDIRECT3DDEVICE9, LPCVOID, UINT,
+   CONST D3DXMACRO*, LPD3DXINCLUDE, DWORD, LPD3DXEFFECTPOOL, LPD3DXEFFECT*,
+   LPD3DXBUFFER*);
+
+static HMODULE _imp_d3dx9_module = 0;
+static D3DXCREATEEFFECTPROC _imp_D3DXCreateEffect = NULL;
 
 static const char *null_source = "";
 
@@ -47,6 +55,76 @@ static const char *technique_source_both =
    "   }\n"
    "}\n";
 
+static void _imp_unload_d3dx9_module(void* handle)
+{
+   _al_unregister_destructor(_al_dtor_list, handle);
+
+   FreeLibrary(_imp_d3dx9_module);
+   _imp_d3dx9_module = NULL;
+}
+
+static bool _imp_load_d3dx9_module_version(int version)
+{
+   char module_name[16];
+
+   // Sanity check
+   if (version < 24 || version > 43) {
+      ALLEGRO_ERROR("Error: Requested version (%d) of D3DX9 library is invalid.\n", version);
+      return false;
+   }
+
+   sprintf(module_name, "d3dx9_%d.dll", version);
+
+   _imp_d3dx9_module = _al_win_safe_load_library(module_name);
+   if (NULL == _imp_d3dx9_module)
+      return false;
+
+   _imp_D3DXCreateEffect = (D3DXCREATEEFFECTPROC)GetProcAddress(_imp_d3dx9_module, "D3DXCreateEffect");
+   if (NULL == _imp_D3DXCreateEffect) {
+      FreeLibrary(_imp_d3dx9_module);
+      _imp_d3dx9_module = NULL;
+      return false;
+   }
+
+   _al_register_destructor(_al_dtor_list, (void*)_imp_d3dx9_module, _imp_unload_d3dx9_module);
+
+   ALLEGRO_INFO("Module \"%s\" loaded.\n", module_name);
+
+   return true;
+}
+
+static bool _imp_load_d3dx9_module()
+{
+   ALLEGRO_CONFIG *cfg;
+   const char *str;
+   long version;
+
+   cfg = al_get_system_config();
+   if (cfg) {
+      char const *value = al_get_config_value(cfg,
+         "shader", "force_d3dx9_version");
+      if (value) {
+         errno = 0;
+         version = strtol(value, NULL, 10);
+         if (errno) {
+            ALLEGRO_ERROR("Failed to override D3DX9 version. \"%s\" is not valid integer number.", value);
+            return false;
+         }
+         else
+            return _imp_load_d3dx9_module_version((int)version);
+      }
+   }
+
+   // Iterate over all valid versions.
+   for (version = 43; version >= 24; --version)
+      if (_imp_load_d3dx9_module_version((int)version))
+         return true;
+
+   ALLEGRO_ERROR("Failed to load D3DX9 library. Library is not installed.");
+
+   return false;
+}
+
 ALLEGRO_SHADER *_al_create_shader_hlsl(ALLEGRO_SHADER_PLATFORM platform)
 {
    ALLEGRO_SHADER_HLSL_S *shader = (ALLEGRO_SHADER_HLSL_S *)al_malloc(
@@ -57,6 +135,9 @@ ALLEGRO_SHADER *_al_create_shader_hlsl(ALLEGRO_SHADER_PLATFORM platform)
 
    if (!shader)
       return NULL;
+
+   if (NULL == _imp_D3DXCreateEffect && !_imp_load_d3dx9_module())
+      return false;
 
    memset(shader, 0, sizeof(ALLEGRO_SHADER_HLSL_S));
 
@@ -145,7 +226,7 @@ bool _al_attach_shader_source_hlsl(
    full_source = al_ustr_newf("%s\n%s\n%s\n",
       vertex_source, pixel_source, technique_source);
 
-   DWORD ok = D3DXCreateEffect(
+   DWORD ok = _imp_D3DXCreateEffect(
       al_get_d3d_device(al_get_current_display()),
       al_cstr(full_source),
       al_ustr_size(full_source),
@@ -170,7 +251,7 @@ bool _al_attach_shader_source_hlsl(
       ALLEGRO_ERROR("Error: %s\n", msg);
       return false;
    }
-   
+
    D3DXHANDLE hTech;
    hTech = hlsl_shader->hlsl_shader->GetTechniqueByName("TECH");
    hlsl_shader->hlsl_shader->ValidateTechnique(hTech);

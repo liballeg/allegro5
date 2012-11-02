@@ -7,7 +7,7 @@
 struct ALLEGRO_SHADER_HLSL_S
 {
 	ALLEGRO_SHADER shader;
-        LPD3DXEFFECT hlsl_shader;
+	LPD3DXEFFECT hlsl_shader;
 };
 
 typedef struct ALLEGRO_SHADER_HLSL_S ALLEGRO_SHADER_HLSL_S;
