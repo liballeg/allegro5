@@ -8,6 +8,8 @@
 #include "allegro5/allegro_shader.h"
 #include "allegro5/transformations.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_system.h"
+#include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
 
@@ -20,6 +22,200 @@
 
 ALLEGRO_DEBUG_CHANNEL("shader")
 
+typedef CGcontext (CGENTRY *CGCREATECONTEXTPROC)(void);
+typedef CGprogram (CGENTRY *CGCREATEPROGRAMPROC)(CGcontext context, CGenum program_type, const char *program, CGprofile profile, const char *entry, const char **args);
+typedef void (CGENTRY *CGDESTROYCONTEXTPROC)(CGcontext context);
+typedef void (CGENTRY *CGDESTROYPROGRAMPROC)(CGprogram program);
+typedef const char * (CGENTRY *CGGETLASTLISTINGPROC)(CGcontext context);
+typedef CGparameter (CGENTRY *CGGETNAMEDPARAMETERPROC)(CGprogram program, const char *name);
+typedef void (CGENTRY *CGSETMATRIXPARAMETERFRPROC)(CGparameter param, const float *matrix);
+typedef void (CGENTRY *CGSETPARAMETER1IPROC)(CGparameter param, int x);
+typedef void (CGENTRY *CGSETPARAMETERVALUEFCPROC)(CGparameter param, int nelements, const float *vals);
+typedef void (CGENTRY *CGSETPARAMETERVALUEICPROC)(CGparameter param, int nelements, const int *vals);
+
+typedef void (CGGLENTRY *CGGLBINDPROGRAMPROC)(CGprogram program);
+typedef void (CGGLENTRY *CGGLENABLECLIENTSTATEPROC)(CGparameter param);
+typedef void (CGGLENTRY *CGGLENABLEPROFILEPROC)(CGprofile profile);
+typedef void (CGGLENTRY *CGGLLOADPROGRAMPROC)(CGprogram program);
+typedef void (CGGLENTRY *CGGLSETTEXTUREPARAMETERPROC)(CGparameter param, GLuint texobj);
+typedef void (CGGLENTRY *CGGLUNBINDPROGRAMPROC)(CGprofile profile);
+
+#ifdef ALLEGRO_WINDOWS
+typedef HRESULT (CGD3D9ENTRY *CGD3D9BINDPROGRAMPROC)(CGprogram prog);
+typedef HRESULT (CGD3D9ENTRY *CGD3D9LOADPROGRAMPROC)(CGprogram prog, CGbool paramShadowing, DWORD assemFlags);
+typedef HRESULT (CGD3D9ENTRY *CGD3D9SETDEVICEPROC)(IDirect3DDevice9 *pDevice);
+typedef HRESULT (CGD3D9ENTRY *CGD3D9SETTEXTUREPROC)(CGparameter param, IDirect3DBaseTexture9 *tex);
+typedef HRESULT (CGD3D9ENTRY *CGD3D9SETUNIFORMPROC)(CGparameter param, const void *floats);
+#endif
+
+static void* _imp_cg_module = 0;
+static void* _imp_cggl_module = 0;
+#ifdef ALLEGRO_WINDOWS
+static void* _imp_cgd3d9_module = 0;
+#endif
+
+CGCREATECONTEXTPROC           _imp_cgCreateContext = NULL;
+CGCREATEPROGRAMPROC           _imp_cgCreateProgram = NULL;
+CGDESTROYCONTEXTPROC          _imp_cgDestroyContext = NULL;
+CGDESTROYPROGRAMPROC          _imp_cgDestroyProgram = NULL;
+CGGETLASTLISTINGPROC          _imp_cgGetLastListing = NULL;
+CGGETNAMEDPARAMETERPROC       _imp_cgGetNamedParameter = NULL;
+CGSETMATRIXPARAMETERFRPROC    _imp_cgSetMatrixParameterfr = NULL;
+CGSETPARAMETER1IPROC          _imp_cgSetParameter1i = NULL;
+CGSETPARAMETERVALUEFCPROC     _imp_cgSetParameterValuefc = NULL;
+CGSETPARAMETERVALUEICPROC     _imp_cgSetParameterValueic = NULL;
+
+CGGLBINDPROGRAMPROC           _imp_cgGLBindProgram = NULL;
+CGGLENABLECLIENTSTATEPROC     _imp_cgGLEnableClientState = NULL;
+CGGLENABLEPROFILEPROC         _imp_cgGLEnableProfile = NULL;
+CGGLLOADPROGRAMPROC           _imp_cgGLLoadProgram = NULL;
+CGGLSETTEXTUREPARAMETERPROC   _imp_cgGLSetTextureParameter = NULL;
+CGGLUNBINDPROGRAMPROC         _imp_cgGLUnbindProgram = NULL;
+
+#ifdef ALLEGRO_WINDOWS
+CGD3D9BINDPROGRAMPROC         _imp_cgD3D9BindProgram = NULL;
+CGD3D9LOADPROGRAMPROC         _imp_cgD3D9LoadProgram = NULL;
+CGD3D9SETDEVICEPROC           _imp_cgD3D9SetDevice = NULL;
+CGD3D9SETTEXTUREPROC          _imp_cgD3D9SetTexture = NULL;
+CGD3D9SETUNIFORMPROC          _imp_cgD3D9SetUniform = NULL;
+#endif
+
+static void _imp_unload_cg_module(void* module)
+{
+   _al_unregister_destructor(_al_dtor_list, module);
+
+   _al_close_library(_imp_cg_module);
+   _imp_cg_module = NULL;
+
+   _imp_cgCreateContext = NULL;
+   _imp_cgCreateProgram = NULL;
+   _imp_cgDestroyContext = NULL;
+   _imp_cgDestroyProgram = NULL;
+   _imp_cgGetLastListing = NULL;
+   _imp_cgGetNamedParameter = NULL;
+   _imp_cgSetMatrixParameterfr = NULL;
+   _imp_cgSetParameter1i = NULL;
+   _imp_cgSetParameterValuefc = NULL;
+   _imp_cgSetParameterValueic = NULL;
+}
+
+static bool _imp_load_cg_module()
+{
+   _imp_cg_module = _al_open_library("cg.dll");
+   if (NULL == _imp_cg_module) {
+      ALLEGRO_ERROR("Failed to load cg.dll.");
+      return false;
+   }
+
+   _imp_cgCreateContext        = (CGCREATECONTEXTPROC)       _al_import_symbol(_imp_cg_module, "cgCreateContext");
+   _imp_cgCreateProgram        = (CGCREATEPROGRAMPROC)       _al_import_symbol(_imp_cg_module, "cgCreateProgram");
+   _imp_cgDestroyContext       = (CGDESTROYCONTEXTPROC)      _al_import_symbol(_imp_cg_module, "cgDestroyContext");
+   _imp_cgDestroyProgram       = (CGDESTROYPROGRAMPROC)      _al_import_symbol(_imp_cg_module, "cgDestroyProgram");
+   _imp_cgGetLastListing       = (CGGETLASTLISTINGPROC)      _al_import_symbol(_imp_cg_module, "cgGetLastListing");
+   _imp_cgGetNamedParameter    = (CGGETNAMEDPARAMETERPROC)   _al_import_symbol(_imp_cg_module, "cgGetNamedParameter");
+   _imp_cgSetMatrixParameterfr = (CGSETMATRIXPARAMETERFRPROC)_al_import_symbol(_imp_cg_module, "cgSetMatrixParameterfr");
+   _imp_cgSetParameter1i       = (CGSETPARAMETER1IPROC)      _al_import_symbol(_imp_cg_module, "cgSetParameter1i");
+   _imp_cgSetParameterValuefc  = (CGSETPARAMETERVALUEFCPROC) _al_import_symbol(_imp_cg_module, "cgSetParameterValuefc");
+   _imp_cgSetParameterValueic  = (CGSETPARAMETERVALUEICPROC) _al_import_symbol(_imp_cg_module, "cgSetParameterValueic");
+
+   if (!_imp_cgCreateContext || !_imp_cgCreateProgram || !_imp_cgDestroyContext ||
+       !_imp_cgDestroyProgram || !_imp_cgGetLastListing || !_imp_cgGetNamedParameter ||
+       !_imp_cgSetMatrixParameterfr || !_imp_cgSetParameter1i || !_imp_cgSetParameterValuefc ||
+       !_imp_cgSetParameterValueic) {
+      ALLEGRO_ERROR("Failed to import required symbols from cg.dll.");
+      _imp_unload_cg_module(_imp_cg_module);
+      return false;
+   }
+
+   _al_register_destructor(_al_dtor_list, _imp_cg_module, _imp_unload_cg_module);
+
+   return true;
+}
+
+static void _imp_unload_cggl_module(void* module)
+{
+   _al_unregister_destructor(_al_dtor_list, module);
+
+   _al_close_library(_imp_cggl_module);
+   _imp_cggl_module = NULL;
+
+   _imp_cgGLBindProgram = NULL;
+   _imp_cgGLEnableClientState = NULL;
+   _imp_cgGLEnableProfile = NULL;
+   _imp_cgGLLoadProgram = NULL;
+   _imp_cgGLSetTextureParameter = NULL;
+   _imp_cgGLUnbindProgram = NULL;
+}
+
+static bool _imp_load_cggl_module()
+{
+   _imp_cggl_module = _al_open_library("cgGL.dll");
+   if (NULL == _imp_cggl_module) {
+      ALLEGRO_ERROR("Failed to load cgGL.dll.");
+      return false;
+   }
+
+   _imp_cgGLBindProgram         = (CGGLBINDPROGRAMPROC)        _al_import_symbol(_imp_cggl_module, "cgGLBindProgram");
+   _imp_cgGLEnableClientState   = (CGGLENABLECLIENTSTATEPROC)  _al_import_symbol(_imp_cggl_module, "cgGLEnableClientState");
+   _imp_cgGLEnableProfile       = (CGGLENABLEPROFILEPROC)      _al_import_symbol(_imp_cggl_module, "cgGLEnableProfile");
+   _imp_cgGLLoadProgram         = (CGGLLOADPROGRAMPROC)        _al_import_symbol(_imp_cggl_module, "cgGLLoadProgram");
+   _imp_cgGLSetTextureParameter = (CGGLSETTEXTUREPARAMETERPROC)_al_import_symbol(_imp_cggl_module, "cgGLSetTextureParameter");
+   _imp_cgGLUnbindProgram       = (CGGLUNBINDPROGRAMPROC)      _al_import_symbol(_imp_cggl_module, "cgGLUnbindProgram");
+
+   if (!_imp_cgGLBindProgram || !_imp_cgGLEnableClientState || !_imp_cgGLEnableProfile ||
+       !_imp_cgGLLoadProgram || !_imp_cgGLSetTextureParameter || !_imp_cgGLUnbindProgram) {
+      ALLEGRO_ERROR("Failed to import required symbols from cgGL.dll.");
+      _imp_unload_cggl_module(_imp_cggl_module);
+      return false;
+   }
+
+   _al_register_destructor(_al_dtor_list, _imp_cggl_module, _imp_unload_cggl_module);
+
+   return true;
+}
+
+#ifdef ALLEGRO_WINDOWS
+static void _imp_unload_cgd3d9_module(void* module)
+{
+   _al_unregister_destructor(_al_dtor_list, module);
+
+   _al_close_library(_imp_cgd3d9_module);
+   _imp_cgd3d9_module = NULL;
+
+   _imp_cgD3D9BindProgram = NULL;
+   _imp_cgD3D9LoadProgram = NULL;
+   _imp_cgD3D9SetDevice = NULL;
+   _imp_cgD3D9SetTexture = NULL;
+   _imp_cgD3D9SetUniform = NULL;
+}
+
+static bool _imp_load_cgd3d9_module()
+{
+   _imp_cgd3d9_module = _al_open_library("cgD3D9.dll");
+   if (NULL == _imp_cgd3d9_module) {
+      ALLEGRO_ERROR("Failed to load cgD3D9.dll.");
+      return false;
+   }
+
+    _imp_cgD3D9BindProgram = (CGD3D9BINDPROGRAMPROC)_al_import_symbol(_imp_cgd3d9_module, "cgD3D9BindProgram");
+    _imp_cgD3D9LoadProgram = (CGD3D9LOADPROGRAMPROC)_al_import_symbol(_imp_cgd3d9_module, "cgD3D9LoadProgram");
+    _imp_cgD3D9SetDevice   = (CGD3D9SETDEVICEPROC)  _al_import_symbol(_imp_cgd3d9_module, "cgD3D9SetDevice");
+    _imp_cgD3D9SetTexture  = (CGD3D9SETTEXTUREPROC) _al_import_symbol(_imp_cgd3d9_module, "cgD3D9SetTexture");
+    _imp_cgD3D9SetUniform  = (CGD3D9SETUNIFORMPROC) _al_import_symbol(_imp_cgd3d9_module, "cgD3D9SetUniform");
+
+   if (!_imp_cgD3D9BindProgram || !_imp_cgD3D9LoadProgram || !_imp_cgD3D9SetDevice ||
+       !_imp_cgD3D9SetTexture || !_imp_cgD3D9SetUniform) {
+      ALLEGRO_ERROR("Failed to import required symbols from cgD3D9.dll.");
+      _imp_unload_cgd3d9_module(_imp_cgd3d9_module);
+      return false;
+   }
+
+   _al_register_destructor(_al_dtor_list, _imp_cgd3d9_module, _imp_unload_cgd3d9_module);
+
+   return true;
+}
+#endif
+
 ALLEGRO_SHADER *_al_create_shader_cg(ALLEGRO_SHADER_PLATFORM platform)
 {
    ALLEGRO_SHADER_CG_S *shader = (ALLEGRO_SHADER_CG_S *)al_malloc(
@@ -31,9 +227,24 @@ ALLEGRO_SHADER *_al_create_shader_cg(ALLEGRO_SHADER_PLATFORM platform)
    if (!shader)
       return NULL;
 
+   if (!_imp_cg_module && !_imp_load_cg_module())
+      return NULL;
+
+   if (platform & ALLEGRO_SHADER_GLSL) {
+      if (!_imp_cggl_module && !_imp_load_cggl_module())
+         return NULL;
+   }
+
+#ifdef ALLEGRO_WINDOWS
+   if (platform & ALLEGRO_SHADER_HLSL) {
+      if (!_imp_cgd3d9_module && !_imp_load_cgd3d9_module())
+         return NULL;
+   }
+#endif
+
    memset(shader, 0, sizeof(ALLEGRO_SHADER_CG_S));
 
-   shader->context = cgCreateContext();
+   shader->context = _imp_cgCreateContext();
    if (shader->context == 0) {
       al_free(shader);
       return NULL;
@@ -42,7 +253,7 @@ ALLEGRO_SHADER *_al_create_shader_cg(ALLEGRO_SHADER_PLATFORM platform)
 #ifdef ALLEGRO_WINDOWS
    if (platform & ALLEGRO_SHADER_HLSL) {
       ALLEGRO_DISPLAY *display = al_get_current_display();
-      cgD3D9SetDevice(al_get_d3d_device(display));
+      _imp_cgD3D9SetDevice(al_get_d3d_device(display));
    }
 #endif
 
@@ -89,8 +300,8 @@ bool _al_attach_shader_source_cg(
    else {
       program = &cg_shader->pixel_program;
    }
-   
-   *program = cgCreateProgram(
+
+   *program = _imp_cgCreateProgram(
       cg_shader->context,
       CG_SOURCE,
       source,
@@ -98,9 +309,9 @@ bool _al_attach_shader_source_cg(
       type == ALLEGRO_VERTEX_SHADER ? "vs_main" : "ps_main",
       NULL
    );
-   
+
    if (*program == 0) {
-      const char *msg = cgGetLastListing(cg_shader->context);
+      const char *msg = _imp_cgGetLastListing(cg_shader->context);
       if (shader->log) {
          al_ustr_truncate(shader->log, 0);
          al_ustr_append_cstr(shader->log, msg);
@@ -142,23 +353,23 @@ bool _al_attach_shader_source_cg(
 
 #ifdef ALLEGRO_WINDOWS
    if (shader->platform & ALLEGRO_SHADER_HLSL) {
-      cgD3D9LoadProgram(*program, CG_FALSE, 0);
+      _imp_cgD3D9LoadProgram(*program, CG_FALSE, 0);
    }
 #endif
    if (shader->platform & ALLEGRO_SHADER_GLSL) {
-      cgGLLoadProgram(*program);
+      _imp_cgGLLoadProgram(*program);
    }
-   
+
    if (cg_shader->vertex_program) {
       // get named params
       cg_shader->name_pos =
-         cgGetNamedParameter(cg_shader->vertex_program, "pos");
+         _imp_cgGetNamedParameter(cg_shader->vertex_program, "pos");
       cg_shader->name_col =
-         cgGetNamedParameter(cg_shader->vertex_program, "color");
+         _imp_cgGetNamedParameter(cg_shader->vertex_program, "color");
       cg_shader->name_tex =
-         cgGetNamedParameter(cg_shader->vertex_program, "texcoord");
+         _imp_cgGetNamedParameter(cg_shader->vertex_program, "texcoord");
       cg_shader->name_projview =
-         cgGetNamedParameter(cg_shader->vertex_program, "projview_matrix");
+         _imp_cgGetNamedParameter(cg_shader->vertex_program, "projview_matrix");
    }
 
    return true;
@@ -169,11 +380,11 @@ static void _al_set_shader_matrix_cg_name(ALLEGRO_SHADER *shader,
 {
 #ifdef ALLEGRO_WINDOWS
    if (shader->platform & ALLEGRO_SHADER_HLSL) {
-      cgD3D9SetUniform(name, m);
+      _imp_cgD3D9SetUniform(name, m);
    }
 #endif
    if (shader->platform & ALLEGRO_SHADER_GLSL) {
-      cgSetMatrixParameterfr(name, m);
+      _imp_cgSetMatrixParameterfr(name, m);
    }
 }
 
@@ -196,18 +407,18 @@ void _al_use_shader_cg(ALLEGRO_SHADER *shader, bool use)
       }
       if (shader->platform & ALLEGRO_SHADER_GLSL) {
          if (cg_shader->vertex_program) {
-            cgGLBindProgram(cg_shader->vertex_program);
-            cgGLEnableProfile(CG_PROFILE_ARBVP1);
+            _imp_cgGLBindProgram(cg_shader->vertex_program);
+            _imp_cgGLEnableProfile(CG_PROFILE_ARBVP1);
             if (cg_shader->name_pos)
-               cgGLEnableClientState(cg_shader->name_pos);
+               _imp_cgGLEnableClientState(cg_shader->name_pos);
             if (cg_shader->name_col)
-               cgGLEnableClientState(cg_shader->name_col);
+               _imp_cgGLEnableClientState(cg_shader->name_col);
             if (cg_shader->name_tex)
-               cgGLEnableClientState(cg_shader->name_tex);
+               _imp_cgGLEnableClientState(cg_shader->name_tex);
          }
          if (cg_shader->pixel_program) {
-            cgGLBindProgram(cg_shader->pixel_program);
-            cgGLEnableProfile(CG_PROFILE_ARBFP1);
+            _imp_cgGLBindProgram(cg_shader->pixel_program);
+            _imp_cgGLEnableProfile(CG_PROFILE_ARBFP1);
          }
       }
 #ifdef ALLEGRO_WINDOWS
@@ -215,10 +426,10 @@ void _al_use_shader_cg(ALLEGRO_SHADER *shader, bool use)
          if (cg_shader->vertex_program) {
 	    //LPDIRECT3DDEVICE9 dev = al_get_d3d_device(al_get_current_display());
 	    //IDirect3DDevice9_SetVertexDeclaration(dev, cg_shader->vertex_decl);
-            cgD3D9BindProgram(cg_shader->vertex_program);
+            _imp_cgD3D9BindProgram(cg_shader->vertex_program);
          }
          if (cg_shader->pixel_program) {
-            cgD3D9BindProgram(cg_shader->pixel_program);
+            _imp_cgD3D9BindProgram(cg_shader->pixel_program);
       }
     }
 #endif
@@ -226,9 +437,9 @@ void _al_use_shader_cg(ALLEGRO_SHADER *shader, bool use)
    else {
       if (shader->platform & ALLEGRO_SHADER_GLSL) {
          if (cg_shader->vertex_program)
-            cgGLUnbindProgram(CG_PROFILE_ARBVP1);
+            _imp_cgGLUnbindProgram(CG_PROFILE_ARBVP1);
          if (cg_shader->pixel_program)
-            cgGLUnbindProgram(CG_PROFILE_ARBFP1);
+            _imp_cgGLUnbindProgram(CG_PROFILE_ARBFP1);
       }
 #ifdef ALLEGRO_WINDOWS
       else {
@@ -244,16 +455,16 @@ void _al_destroy_shader_cg(ALLEGRO_SHADER *shader)
 
 #ifdef ALLEGRO_WINDOWS
    if (shader->platform & ALLEGRO_SHADER_HLSL) {
-      cgD3D9SetDevice(0);
+      _imp_cgD3D9SetDevice(0);
    }
 #endif
 
    if (cg_shader->vertex_program)
-      cgDestroyProgram(cg_shader->vertex_program);
+      _imp_cgDestroyProgram(cg_shader->vertex_program);
    if (cg_shader->pixel_program)
-      cgDestroyProgram(cg_shader->pixel_program);
+      _imp_cgDestroyProgram(cg_shader->pixel_program);
 
-   cgDestroyContext(cg_shader->context);
+   _imp_cgDestroyContext(cg_shader->context);
 
    al_free(shader);
 }
@@ -268,9 +479,9 @@ bool _al_set_shader_sampler_cg(ALLEGRO_SHADER *shader, const char *name,
 
    if (bitmap->flags & ALLEGRO_MEMORY_BITMAP)
       return false;
-   
-   v_param = cgGetNamedParameter(cg_shader->vertex_program, name);
-   p_param = cgGetNamedParameter(cg_shader->pixel_program, name);
+
+   v_param = _imp_cgGetNamedParameter(cg_shader->vertex_program, name);
+   p_param = _imp_cgGetNamedParameter(cg_shader->pixel_program, name);
 
    if (v_param == 0 && p_param == 0)
       return false;
@@ -278,22 +489,22 @@ bool _al_set_shader_sampler_cg(ALLEGRO_SHADER *shader, const char *name,
 #ifdef ALLEGRO_WINDOWS
    if (shader->platform & ALLEGRO_SHADER_HLSL) {
       if (v_param != 0) {
-         cgD3D9SetTexture(v_param, al_get_d3d_video_texture(bitmap));
+         _imp_cgD3D9SetTexture(v_param, al_get_d3d_video_texture(bitmap));
       }
       if (p_param != 0) {
-         cgD3D9SetTexture(p_param, al_get_d3d_video_texture(bitmap));
+         _imp_cgD3D9SetTexture(p_param, al_get_d3d_video_texture(bitmap));
       }
    }
 #endif
    if (shader->platform & ALLEGRO_SHADER_GLSL) {
       if (v_param != 0) {
-         cgGLSetTextureParameter(v_param, al_get_opengl_texture(bitmap));
+         _imp_cgGLSetTextureParameter(v_param, al_get_opengl_texture(bitmap));
       }
       if (p_param != 0) {
-         cgGLSetTextureParameter(p_param, al_get_opengl_texture(bitmap));
+         _imp_cgGLSetTextureParameter(p_param, al_get_opengl_texture(bitmap));
       }
    }
-     
+
    return true;
 }
 
@@ -303,14 +514,14 @@ bool _al_set_shader_matrix_cg(ALLEGRO_SHADER *shader, const char *name,
    ALLEGRO_SHADER_CG_S *cg_shader = (ALLEGRO_SHADER_CG_S *)shader;
    CGparameter v_param;
 
-   v_param = cgGetNamedParameter(cg_shader->vertex_program, name);
+   v_param = _imp_cgGetNamedParameter(cg_shader->vertex_program, name);
 
    if (v_param == 0) {
       return false;
    }
 
    _al_set_shader_matrix_cg_name(shader, v_param, (float *)matrix->m);
-   
+
    return true;
 }
 
@@ -319,17 +530,17 @@ bool _al_set_shader_int_cg(ALLEGRO_SHADER *shader, const char *name, int i)
    ALLEGRO_SHADER_CG_S *cg_shader = (ALLEGRO_SHADER_CG_S *)shader;
    CGparameter v_param, p_param;
 
-   v_param = cgGetNamedParameter(cg_shader->vertex_program, name);
-   p_param = cgGetNamedParameter(cg_shader->pixel_program, name);
+   v_param = _imp_cgGetNamedParameter(cg_shader->vertex_program, name);
+   p_param = _imp_cgGetNamedParameter(cg_shader->pixel_program, name);
 
    if (v_param == 0 && p_param == 0)
       return false;
 
    if (v_param != 0) {
-      cgSetParameterValueic(v_param, 1, &i);
+      _imp_cgSetParameterValueic(v_param, 1, &i);
    }
    if (p_param != 0) {
-      cgSetParameterValueic(p_param, 1, &i);
+      _imp_cgSetParameterValueic(p_param, 1, &i);
    }
 
    return true;
@@ -340,17 +551,17 @@ bool _al_set_shader_float_cg(ALLEGRO_SHADER *shader, const char *name, float f)
    ALLEGRO_SHADER_CG_S *cg_shader = (ALLEGRO_SHADER_CG_S *)shader;
    CGparameter v_param, p_param;
 
-   v_param = cgGetNamedParameter(cg_shader->vertex_program, name);
-   p_param = cgGetNamedParameter(cg_shader->pixel_program, name);
+   v_param = _imp_cgGetNamedParameter(cg_shader->vertex_program, name);
+   p_param = _imp_cgGetNamedParameter(cg_shader->pixel_program, name);
 
    if (v_param == 0 && p_param == 0)
       return false;
 
    if (v_param != 0) {
-      cgSetParameterValuefc(v_param, 1, &f);
+      _imp_cgSetParameterValuefc(v_param, 1, &f);
    }
    if (p_param != 0) {
-      cgSetParameterValuefc(p_param, 1, &f);
+      _imp_cgSetParameterValuefc(p_param, 1, &f);
    }
 
    return true;
@@ -362,17 +573,17 @@ bool _al_set_shader_int_vector_cg(ALLEGRO_SHADER *shader, const char *name,
    ALLEGRO_SHADER_CG_S *cg_shader = (ALLEGRO_SHADER_CG_S *)shader;
    CGparameter v_param, p_param;
 
-   v_param = cgGetNamedParameter(cg_shader->vertex_program, name);
-   p_param = cgGetNamedParameter(cg_shader->pixel_program, name);
+   v_param = _imp_cgGetNamedParameter(cg_shader->vertex_program, name);
+   p_param = _imp_cgGetNamedParameter(cg_shader->pixel_program, name);
 
    if (v_param == 0 && p_param == 0)
       return false;
 
    if (v_param != 0) {
-      cgSetParameterValueic(v_param, elem_size * num_elems, i);
+      _imp_cgSetParameterValueic(v_param, elem_size * num_elems, i);
    }
    if (p_param != 0) {
-      cgSetParameterValueic(p_param, elem_size, i);
+      _imp_cgSetParameterValueic(p_param, elem_size, i);
    }
 
    return true;
@@ -384,19 +595,19 @@ bool _al_set_shader_float_vector_cg(ALLEGRO_SHADER *shader, const char *name,
    ALLEGRO_SHADER_CG_S *cg_shader = (ALLEGRO_SHADER_CG_S *)shader;
    CGparameter v_param, p_param;
 
-   v_param = cgGetNamedParameter(cg_shader->vertex_program, name);
-   p_param = cgGetNamedParameter(cg_shader->pixel_program, name);
+   v_param = _imp_cgGetNamedParameter(cg_shader->vertex_program, name);
+   p_param = _imp_cgGetNamedParameter(cg_shader->pixel_program, name);
 
    if (v_param == 0 && p_param == 0)
       return false;
 
    if (v_param != 0) {
-      cgSetParameterValuefc(v_param, elem_size * num_elems, f);
+      _imp_cgSetParameterValuefc(v_param, elem_size * num_elems, f);
    }
    if (p_param != 0) {
-      cgSetParameterValuefc(p_param, elem_size * num_elems, f);
+      _imp_cgSetParameterValuefc(p_param, elem_size * num_elems, f);
    }
-   
+
    return true;
 }
 
@@ -405,17 +616,17 @@ bool _al_set_shader_bool_cg(ALLEGRO_SHADER *shader, const char *name, bool b)
    ALLEGRO_SHADER_CG_S *cg_shader = (ALLEGRO_SHADER_CG_S *)shader;
    CGparameter v_param, p_param;
 
-   v_param = cgGetNamedParameter(cg_shader->vertex_program, name);
-   p_param = cgGetNamedParameter(cg_shader->pixel_program, name);
+   v_param = _imp_cgGetNamedParameter(cg_shader->vertex_program, name);
+   p_param = _imp_cgGetNamedParameter(cg_shader->pixel_program, name);
 
    if (v_param == 0 && p_param == 0)
       return false;
 
    if (v_param != 0) {
-      cgSetParameter1i(v_param, b);
+      _imp_cgSetParameter1i(v_param, b);
    }
    if (p_param != 0) {
-      cgSetParameter1i(p_param, b);
+      _imp_cgSetParameter1i(p_param, b);
    }
 
    return true;
