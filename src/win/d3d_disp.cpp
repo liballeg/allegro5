@@ -535,8 +535,9 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
          }
       }
    }
-   else {
+   else
 #endif
+   {
       if ((ret = _al_d3d->CreateDevice(win_display->adapter,
                D3DDEVTYPE_HAL, fullscreen_focus_window,
                D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
@@ -575,9 +576,7 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
             }
          }
       }
-#ifdef ALLEGRO_CFG_D3D9EX
    }
-#endif
 
    d->device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &d->render_target);
 
@@ -658,8 +657,9 @@ bool _al_d3d_init_display()
       }
    }
 
-   if (!is_vista) {
+   if (!is_vista)
 #endif
+   {
       _al_d3d_create = (DIRECT3DCREATE9PROC)GetProcAddress(_al_d3d_module, "Direct3DCreate9");
       if (_al_d3d_create != NULL) {
          if ((_al_d3d = _al_d3d_create(D3D9b_SDK_VERSION)) == NULL) {
@@ -673,10 +673,7 @@ bool _al_d3d_init_display()
          FreeLibrary(_al_d3d_module);
          return false;
       }
-
-#ifdef ALLEGRO_CFG_D3D9EX
    }
-#endif
 
    _al_d3d->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &d3d_dm);
 
@@ -1018,12 +1015,11 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
           mode.ScanLineOrdering = D3DSCANLINEORDERING_PROGRESSIVE;
           hr = dev->ResetEx(&d3d_pp, &mode);
        }
-       else {
+       else
 #endif
+       {
           hr = d3d_display->device->Reset(&d3d_pp);
-#ifdef ALLEGRO_CFG_D3D9EX
        }
-#endif
        if (hr != D3D_OK) {
           switch (hr) {
              case D3DERR_INVALIDCALL:
@@ -1534,8 +1530,9 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
    al_display->vt = vt;
 
 #ifdef ALLEGRO_CFG_D3D9EX
-   if (!is_vista) {
+   if (!is_vista)
 #endif
+   {
       if (al_display->flags & ALLEGRO_FULLSCREEN) {
          if (already_fullscreen || system->system.displays._size != 0) {
             d3d_display->faux_fullscreen = true;
@@ -1559,8 +1556,8 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
          win_display->toggle_w = w;
          win_display->toggle_h = h;
       }
-#ifdef ALLEGRO_CFG_D3D9EX
    }
+#ifdef ALLEGRO_CFG_D3D9EX
    else {
       d3d_display->faux_fullscreen = false;
    }
