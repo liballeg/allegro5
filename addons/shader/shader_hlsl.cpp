@@ -68,10 +68,14 @@ static bool _imp_load_d3dx9_module_version(int version)
    char module_name[16];
 
    // Sanity check
+   // Comented out, to not reject choice of the user if any new version
+   // appears. See force_d3dx9_version entry in config file.
+   /*
    if (version < 24 || version > 43) {
       ALLEGRO_ERROR("Error: Requested version (%d) of D3DX9 library is invalid.\n", version);
       return false;
    }
+   */
 
    sprintf(module_name, "d3dx9_%d.dll", version);
 
