@@ -129,7 +129,7 @@ static bool _imp_load_d3dx9_module()
    //
    // However, if any new version appears anyway, range in this
    // loop should be changed.
-   for (version = 43; version >= 24; --version)
+   for (version = 43; version >= 24; version--)
       if (_imp_load_d3dx9_module_version((int)version))
          return true;
 
