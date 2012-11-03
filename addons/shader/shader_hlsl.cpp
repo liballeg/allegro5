@@ -100,7 +100,6 @@ static bool _imp_load_d3dx9_module_version(int version)
 static bool _imp_load_d3dx9_module()
 {
    ALLEGRO_CONFIG *cfg;
-   const char *str;
    long version;
 
    cfg = al_get_system_config();
@@ -150,7 +149,7 @@ ALLEGRO_SHADER *_al_create_shader_hlsl(ALLEGRO_SHADER_PLATFORM platform)
       return NULL;
 
    if (NULL == _imp_D3DXCreateEffect && !_imp_load_d3dx9_module())
-      return false;
+      return NULL;
 
    memset(shader, 0, sizeof(ALLEGRO_SHADER_HLSL_S));
 
