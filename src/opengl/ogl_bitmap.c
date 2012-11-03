@@ -858,6 +858,8 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 
    disp = al_get_current_display();
    orig_format = _al_get_real_pixel_format(disp, bitmap->format);
+   /* Not used in all code paths. */
+   (void)orig_format;
 
    if (bitmap->display->ogl_extras->is_shared == false &&
        bitmap->display != disp) {
