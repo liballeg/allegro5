@@ -120,6 +120,15 @@ static bool _imp_load_d3dx9_module()
    }
 
    // Iterate over all valid versions.
+   //
+   // DXSDK redistributable install d3dx9_xx.dll from version
+   // 24 to 43. It's unlikely that any new version will come,
+   // since HLSL compiler was moved to D3DCompiler_xx.dll and
+   // most recent versions of this utility library are bound
+   // to DirectX 11.
+   //
+   // However, if any new version appears anyway, range in this
+   // loop should be changed.
    for (version = 43; version >= 24; --version)
       if (_imp_load_d3dx9_module_version((int)version))
          return true;
