@@ -9,15 +9,6 @@ set_our_header_properties(${IMAGE_INCLUDE_FILES})
 set(IMAGE_LIBRARIES)
 set(IMAGE_DEFINES)
 
-if(MACOSX)
-    list(APPEND IMAGE_SOURCES macosx.m)
-endif(MACOSX)
-
-if(IPHONE)
-    list(APPEND IMAGE_SOURCES iphone.m)
-endif(IPHONE)
-        
-
 # ALLEGRO_CFG_IIO_HAVE_* are the available libraries.
 # ALLEGRO_CFG_IIO_SUPPORT_* are the supported formats.
 
@@ -67,10 +58,19 @@ if(WANT_NATIVE_IMAGE_LOADER)
             message("WARNING: cannot use GDI+. Will try other libraries.")
         endif(SUPPORT_GDIPLUS)
     endif(WIN32)
+
     if (MACOSX)
         set(ALLEGRO_CFG_IIO_SUPPORT_PNG 1)
         set(ALLEGRO_CFG_IIO_SUPPORT_JPG 1)
     endif(MACOSX)
+
+    if(MACOSX)
+        list(APPEND IMAGE_SOURCES macosx.m)
+    endif(MACOSX)
+
+    if(IPHONE)
+        list(APPEND IMAGE_SOURCES iphone.m)
+    endif(IPHONE)
 endif(WANT_NATIVE_IMAGE_LOADER)
 
 # Now look for third party libraries to handle the unsupported formats
