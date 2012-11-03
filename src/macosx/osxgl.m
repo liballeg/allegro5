@@ -63,6 +63,8 @@ static unsigned int next_display_group = 1;
 static int new_window_pos_x;
 static int new_window_pos_y;
 
+static int new_display_adapter;
+
 /* Dictionary to map Allegro's DISPLAY_OPTIONS to OS X
  * PixelFormatAttributes. 
  * The first column is Allegro's name, the second column is the OS X
@@ -795,7 +797,6 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    ALLEGRO_DISPLAY_OSX_WIN* dpy = [display_object pointerValue];
    NSRect rc = NSMakeRect(0, 0, dpy->parent.w,  dpy->parent.h);
    NSWindow* win = dpy->win = [ALWindow alloc]; 
-   int adapter = al_get_new_display_adapter();
    NSScreen *screen;
    unsigned int mask = (dpy->parent.flags & ALLEGRO_FRAMELESS) ? NSBorderlessWindowMask :
       (NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask);
@@ -804,8 +805,8 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    if (dpy->parent.flags & ALLEGRO_FULLSCREEN)
       mask |= NSResizableWindowMask;
   
-   if ((adapter >= 0) && (adapter < al_get_num_video_adapters())) {
-      screen = [[NSScreen screens] objectAtIndex: adapter];
+   if ((new_display_adapter >= 0) && (new_display_adapter < al_get_num_video_adapters())) {
+      screen = [[NSScreen screens] objectAtIndex: new_display_adapter];
    } else {
       screen = [NSScreen mainScreen];
    }
@@ -849,6 +850,7 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
     * the range -16000 ... 16000 (approximately, probably the range of a
     * signed 16 bit integer). Should we check for this?
     */
+
    if ((new_window_pos_x != INT_MAX) && (new_window_pos_y != INT_MAX)) {
       /* The user gave us window coordinates */
       NSRect rc = [win frame];
@@ -859,28 +861,16 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
       origin.x = sc.origin.x + new_window_pos_x;
       origin.y = sc.origin.y + sc.size.height - rc.size.height - new_window_pos_y;
       [win setFrameOrigin: origin];
-   } 
+   }
    else {
-      /* The window manager decides where to place the window */
-      NSRect screen_rect = [screen frame];
-      if (NSEqualPoints(last_window_pos, NSZeroPoint)) {
-         /* We haven't positioned a window before, centre it */
-         [win center];
-      }
+      /* Center the window */
+      NSRect rc = [win frame];
+      NSRect sc = [[win screen] frame];
+      NSPoint origin;
 
-      /* We measure window positions relative to the origin of whatever the
-       * screen we're placing the window on is, but OS X measures these
-       * relative to a coordinate system spanning all of the screens, so we
-       * need to translate to the new origin.
-       * DON'T store the translated coordinates though, or the next window
-       * may not end up where the user expects (so translate them back at
-       * the end).
-       */
-      last_window_pos.x += screen_rect.origin.x;
-      last_window_pos.y += screen_rect.origin.y;
-      last_window_pos = [win cascadeTopLeftFromPoint:last_window_pos];
-      last_window_pos.x -= screen_rect.origin.x;
-      last_window_pos.y -= screen_rect.origin.y;
+      origin.x = sc.origin.x + sc.size.width/2 - rc.size.width/2;
+      origin.y = sc.origin.y + sc.size.height/2 - rc.size.height/2;
+      [win setFrameOrigin: origin];
    }
    [win makeKeyAndOrderFront:self];
    if (!(mask & NSBorderlessWindowMask)) [win makeMainWindow];
@@ -1374,6 +1364,8 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
     * threat.
     */
    al_get_new_window_position(&new_window_pos_x, &new_window_pos_y);
+   
+   new_display_adapter = al_get_new_display_adapter();
 
    /* OSX specific part - finish the initialisation on the main thread */
    [ALDisplayHelper performSelectorOnMainThread: @selector(initialiseDisplay:) 
