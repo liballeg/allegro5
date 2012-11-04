@@ -73,6 +73,16 @@ static void init_flags(void)
    #undef X
 }
 
+static void load_font(void)
+{
+   font = al_load_font("data/fixed_font.tga", 0, 0);
+   if (!font) {
+      abort_example("data/fixed_font.tga not found\n");
+      exit(1);
+   }
+   font_h = al_get_font_line_height(font);
+}
+
 static void display_options(ALLEGRO_DISPLAY *display)
 {
    int i, y = 10;
@@ -212,17 +222,12 @@ int main(void)
       return 1;
    }
 
-   font = al_load_font("data/fixed_font.tga", 0, 0);
-   if (!font) {
-      abort_example("data/fixed_font.tga not found\n");
-      return 1;
-   }
-   
+   load_font();
+
    timer = al_create_timer(1.0 / 60);
 
    modes_count = al_get_num_display_modes();
    options_count = sizeof(options) / sizeof(options[0]);
-   font_h = al_get_font_line_height(font);
    
    update_ui();
    
@@ -315,19 +320,25 @@ int main(void)
                     al_set_new_display_flags(ALLEGRO_WINDOWED);
                 }
 
+                al_destroy_font(font);
+                font = NULL;
+
                 new_display = al_create_display(
                    mode.width, mode.height);
                 if (new_display) {
                    al_destroy_display(display);
                    display = new_display;
+                   al_set_target_backbuffer(display);
                    al_register_event_source(queue,
-                     al_get_display_event_source(display));
+                      al_get_display_event_source(display));
                    update_ui();
                    sprintf(status, "Display creation succeeded.");
                 }
                 else {
                    sprintf(status, "Display creation failed.");
                 }
+
+                load_font();
              }
              if (selected_column == 1) {
                  options[selected_option].required += 1;
@@ -380,3 +391,5 @@ int main(void)
 
    return 0;
 }
+
+/* vim: set sts=3 sw=3 et: */
