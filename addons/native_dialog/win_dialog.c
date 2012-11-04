@@ -616,7 +616,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    ALLEGRO_DEBUG("wlog_count = %d\n", wlog_count);
 
    /* Release RichEdit module. */
-   if (wlog_count == 0) {
+   if (wlog_count == 0 && wlog_rich_edit_module) {
       ALLEGRO_DEBUG("Unload rich edit module\n");
       _al_close_library(wlog_rich_edit_module);
       wlog_rich_edit_module = NULL;
