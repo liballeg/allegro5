@@ -131,6 +131,10 @@ int main(void)
    al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 0, ALLEGRO_REQUIRE);
    al_set_new_display_option(ALLEGRO_SAMPLES, 0, ALLEGRO_SUGGEST);
    display = al_create_display(300, 450);
+   if (!display) {
+      printf("Could not create display.\n");
+      return 1;
+   }
    al_set_window_title(display, "Normal");
 
    /* Create bitmaps for the normal display. */
