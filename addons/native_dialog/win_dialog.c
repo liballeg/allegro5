@@ -311,15 +311,8 @@ static void wlog_emit_close_event(ALLEGRO_NATIVE_DIALOG *textlog, bool keypress)
 static void wlog_do_append_native_text_log_ansi(ALLEGRO_NATIVE_DIALOG *textlog)
 {
    int index;
-   CHARFORMATA format;
-   memset(&format, 0, sizeof(format));
-   format.cbSize      = sizeof(format);
-   format.dwMask      = CFM_COLOR;
-   format.crTextColor = RGB(128, 255, 128);
-
    index = GetWindowTextLength(textlog->tl_textview);
    SendMessageA(textlog->tl_textview, EM_SETSEL, (WPARAM)index, (LPARAM)index);
-   SendMessageA(textlog->tl_textview, EM_SETCHARFORMAT, (WPARAM)SCF_SELECTION, (LPARAM)&format);
    SendMessageA(textlog->tl_textview, EM_REPLACESEL, 0, (LPARAM)al_cstr(textlog->tl_pending_text));
 
    al_ustr_truncate(textlog->tl_pending_text, 0);
@@ -334,15 +327,8 @@ static void wlog_do_append_native_text_log_unicode(ALLEGRO_NATIVE_DIALOG *textlo
    int index, ch, next;
    static WCHAR buffer[BUFFER_SIZE + 1] = { 0 };
 
-   CHARFORMATW format;
-   memset(&format, 0, sizeof(format));
-   format.cbSize      = sizeof(format);
-   format.dwMask      = CFM_COLOR;
-   format.crTextColor = RGB(128, 255, 128);
-
    index = GetWindowTextLength(textlog->tl_textview);
    SendMessageW(textlog->tl_textview, EM_SETSEL, (WPARAM)index, (LPARAM)index);
-   SendMessageW(textlog->tl_textview, EM_SETCHARFORMAT, (WPARAM)SCF_SELECTION, (LPARAM)&format);
 
    next = 0;
    index = 0;
@@ -391,12 +377,6 @@ static LRESULT CALLBACK wlog_text_log_callback(HWND hWnd, UINT uMsg, WPARAM wPar
    ALLEGRO_NATIVE_DIALOG* textlog = (ALLEGRO_NATIVE_DIALOG*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
    switch (uMsg) {
-      case WM_CTLCOLORSTATIC:
-         /* Set colors for text and background */
-         SetBkColor((HDC)wParam, RGB(16, 16, 16));
-         SetTextColor((HDC)wParam, RGB(128, 255, 128));
-         return (LRESULT)CreateSolidBrush(RGB(16, 16, 16));
-
       case WM_CREATE:
          /* Set user data for window, so we will be able to retieve text log structure any time */
          create_struct = (CREATESTRUCT*)lParam;
@@ -500,11 +480,6 @@ static bool open_native_text_log_inner(ALLEGRO_NATIVE_DIALOG *textlog)
    /* Assign font to the text log. */
    if (hFont) {
       SendMessage(hLog, WM_SETFONT, (WPARAM)hFont, 0);
-   }
-
-   /* Set background color of RichEdit control. */
-   if (wlog_rich_edit_module) {
-      SendMessage(hLog, EM_SETBKGNDCOLOR, 0, (LPARAM)RGB(16, 16, 16));
    }
 
    /* We are ready to show our window. */
