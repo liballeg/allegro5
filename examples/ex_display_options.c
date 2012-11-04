@@ -118,10 +118,9 @@ static void display_options(ALLEGRO_DISPLAY *display)
          al_draw_textf(font, c, x, y, 0, "...");
       }
       else {
-         al_draw_textf(font, c, x, y, 0, "%s %d x %d (%d, %d)",
+         al_draw_textf(font, c, x, y, 0, "%s %d x %d (fmt: %x, %d Hz)",
             i > 1 ? "Fullscreen" : i == 0 ? "Windowed" : "FS Window",
-            mode.width,
-            mode.height, mode.format, mode.refresh_rate);
+            mode.width, mode.height, mode.format, mode.refresh_rate);
       }
       y += font_h;
    }
