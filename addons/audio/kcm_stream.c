@@ -352,21 +352,14 @@ bool al_set_audio_stream_speed(ALLEGRO_AUDIO_STREAM *stream, float val)
    stream->spl.speed = val;
    if (stream->spl.parent.u.mixer) {
       ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;
-      long i;
 
       maybe_lock_mutex(stream->spl.mutex);
 
-      /* Make step 1 before applying the freq difference
-       * (so we play forward).
-       */
-      stream->spl.step = 1;
-
-      i = (stream->spl.spl_data.frequency) *
-         stream->spl.speed / mixer->ss.spl_data.frequency;
-
-      /* Don't wanna be trapped with a step value of 0. */
-      if (i != 0) {
-         stream->spl.step *= i;
+      stream->spl.step = (stream->spl.spl_data.frequency) * stream->spl.speed;
+      stream->spl.step_denom = mixer->ss.spl_data.frequency;
+      /* Don't wanna be trapped with a step value of 0 */
+      if (stream->spl.step == 0) {
+         stream->spl.step = 1;
       }
 
       maybe_unlock_mutex(stream->spl.mutex);
