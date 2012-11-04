@@ -185,7 +185,8 @@ static void xrandr_copy_crtc(xrandr_crtc *crtc, RRCrtc id, XRRCrtcInfo *rrcrtc)
    crtc->original_mode = crtc->mode;
    crtc->original_xoff = crtc->x;
    crtc->original_yoff = crtc->y;
-   
+   crtc->align_to = 0;
+   crtc->align = CRTC_POS_NONE;
 }
 
 static void xrandr_copy_screen(ALLEGRO_SYSTEM_XGLX *s, xrandr_screen *screen, XRRScreenResources *res)
