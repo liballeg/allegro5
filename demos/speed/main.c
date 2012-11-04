@@ -48,6 +48,7 @@ static int play_game()
    ALLEGRO_TIMER *inc_counter;
    int gameover = 0;
    int cyclenum = 0;
+   int redraw = 1;
 
    /* init */
    score = 0;
@@ -89,6 +90,7 @@ static int play_game()
 	 gameover = update_player();
 
 	 al_set_timer_count(inc_counter, al_get_timer_count(inc_counter)-1);
+	 redraw = 1;
       }
 
       /* take a screenshot? */
@@ -118,7 +120,13 @@ static int play_game()
       }
 
       /* draw everyone */
-      draw_view();
+      if (redraw) {
+         draw_view();
+         redraw = 0;
+      }
+      else {
+         rest(1);
+      }
    }
 
    /* cleanup */
