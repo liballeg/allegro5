@@ -50,7 +50,9 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
       ALLEGRO_DEBUG("Failed to create display (NULL)\n");
       return NULL;
    }
-   
+
+   ASSERT(display->vt);
+
    display->vertex_cache = 0;
    display->num_cache_vertices = 0;
    display->cache_enabled = false;
@@ -109,6 +111,7 @@ void al_destroy_display(ALLEGRO_DISPLAY *display)
       if (display == al_get_current_display())
          _al_set_current_display_only(NULL);
 
+      ASSERT(display->vt);
       display->vt->destroy_display(display);
    }
 }
@@ -119,10 +122,11 @@ void al_destroy_display(ALLEGRO_DISPLAY *display)
  */
 ALLEGRO_BITMAP *al_get_backbuffer(ALLEGRO_DISPLAY *display)
 {
-   if (display)
+   if (display) {
+      ASSERT(display->vt);
       return display->vt->get_backbuffer(display);
-   else
-      return NULL;
+   }
+   return NULL;
 }
 
 
@@ -133,8 +137,10 @@ void al_flip_display(void)
 {
    ALLEGRO_DISPLAY *display = al_get_current_display();
 
-   if (display)
+   if (display) {
+      ASSERT(display->vt);
       display->vt->flip_display(display);
+   }
 }
 
 
@@ -145,8 +151,10 @@ void al_update_display_region(int x, int y, int width, int height)
 {
    ALLEGRO_DISPLAY *display = al_get_current_display();
 
-   if (display)
+   if (display) {
+      ASSERT(display->vt);
       display->vt->update_display_region(display, x, y, width, height);
+   }
 }
 
 
@@ -156,6 +164,7 @@ void al_update_display_region(int x, int y, int width, int height)
 bool al_acknowledge_resize(ALLEGRO_DISPLAY *display)
 {
    ASSERT(display);
+   ASSERT(display->vt);
 
    if (!(display->flags & ALLEGRO_FULLSCREEN)) {
       if (display->vt->acknowledge_resize) {
@@ -172,6 +181,7 @@ bool al_acknowledge_resize(ALLEGRO_DISPLAY *display)
 bool al_resize_display(ALLEGRO_DISPLAY *display, int width, int height)
 {
    ASSERT(display);
+   ASSERT(display->vt);
 
    ALLEGRO_INFO("Requested display resize %dx%d\n", width, height);
 
@@ -196,6 +206,7 @@ void al_clear_to_color(ALLEGRO_COLOR color)
    else {
       ALLEGRO_DISPLAY *display = target->display;
       ASSERT(display);
+      ASSERT(display->vt);
       display->vt->clear(display, &color);
    }
 }
@@ -216,6 +227,7 @@ void al_draw_pixel(float x, float y, ALLEGRO_COLOR color)
    else {
       ALLEGRO_DISPLAY *display = target->display;
       ASSERT(display);
+      ASSERT(display->vt);
       display->vt->draw_pixel(display, x, y, &color);
    }
 }
@@ -230,10 +242,12 @@ bool al_is_compatible_bitmap(ALLEGRO_BITMAP *bitmap)
    ALLEGRO_DISPLAY *display = al_get_current_display();
    ASSERT(bitmap);
 
-   if (display)
+   if (display) {
+      ASSERT(display->vt);
       return display->vt->is_compatible_bitmap(display, bitmap);
-   else
-      return false;
+   }
+
+   return false;
 }
 
 
