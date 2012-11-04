@@ -703,7 +703,7 @@ bool _al_d3d_init_display()
 }
 
 
-static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *display);
+static ALLEGRO_DISPLAY_D3D *d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display);
 static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *display);
 
 
@@ -739,7 +739,11 @@ static void d3d_make_faux_fullscreen_stage_two(ALLEGRO_DISPLAY_D3D *d3d_display)
          if (disp != d3d_display) {// && (disp->win_display.display.flags & ALLEGRO_FULLSCREEN)) {
             if (disp->win_display.display.flags & ALLEGRO_FULLSCREEN)
                disp->faux_fullscreen = true;
-            d3d_create_display_internals(disp);
+            disp = d3d_create_display_internals(disp);
+            if (!disp) {
+               ALLEGRO_ERROR("d3d_create_display_internals failed.\n");
+            }
+            ASSERT(disp);
             _al_d3d_recreate_bitmap_textures(disp);
          }
       }
@@ -1396,9 +1400,9 @@ static void *d3d_display_thread_proc(void *arg)
    if (!win_display->window) {
          ALLEGRO_DEBUG("Failed to create regular window.\n");
       d3d_destroy_display(al_display);
-         params->init_failed = true;
+      params->init_failed = true;
       SetEvent(params->AckEvent);
-         return NULL;
+      return NULL;
    }
 
    if (!(al_display->flags & ALLEGRO_FULLSCREEN) || d3d_display->faux_fullscreen) {
@@ -1528,6 +1532,7 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
    al_display->refresh_rate = al_get_new_display_refresh_rate();
    al_display->flags = al_get_new_display_flags();
    al_display->vt = vt;
+   ASSERT(al_display->vt);
 
 #ifdef ALLEGRO_CFG_D3D9EX
    if (!is_vista)
@@ -1566,7 +1571,10 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
    return d3d_display;
 }
 
-static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
+/* This function may return the original d3d_display argument,
+ * or a new one, or NULL on error.
+ */
+static ALLEGRO_DISPLAY_D3D *d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
    D3D_DISPLAY_PARAMETERS params;
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
@@ -1609,7 +1617,8 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
          // This helps determining if the window message thread needs
          // to be destroyed.
          win_display->window = NULL;
-         return false;
+         al_free(d3d_display);
+         return NULL;
       }
    }
 
@@ -1653,6 +1662,11 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
       win_display = &d3d_display->win_display;
       al_display = &win_display->display;
       params.display = d3d_display;
+
+      ALLEGRO_DEBUG("d3d_display = %p\n", d3d_display);
+      ALLEGRO_DEBUG("win_display = %p\n", win_display);
+      ALLEGRO_DEBUG("al_display  = %p\n", al_display);
+      ASSERT(al_display->vt);
    }
 
    // Re-sort the display format list for use later
@@ -1660,7 +1674,8 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
 
    if (!eds) {
       ALLEGRO_WARN("All %d formats failed.\n", i);
-      return false;
+      al_free(d3d_display);
+      return NULL;
    }
 
    ALLEGRO_INFO("Format %d succeeded.\n", eds->index);
@@ -1686,7 +1701,8 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    d3d_display->device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
    d3d_display->device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
-   return true;
+   ALLEGRO_DEBUG("Returning d3d_display: %p\n", d3d_display);
+   return d3d_display;
 }
 
 static ALLEGRO_DISPLAY *d3d_create_display_locked(int w, int h)
@@ -1699,12 +1715,20 @@ static ALLEGRO_DISPLAY *d3d_create_display_locked(int w, int h)
    D3DCAPS9 caps;
 
    ALLEGRO_INFO("faux_fullscreen=%d\n", d3d_display->faux_fullscreen);
+   ALLEGRO_DEBUG("al_display=%p\n", al_display);
+   ALLEGRO_DEBUG("al_display->vt=%p\n", al_display->vt);
+   ASSERT(al_display->vt);
 
-   if (!d3d_create_display_internals(d3d_display)) {
+   d3d_display = d3d_create_display_internals(d3d_display);
+   if (!d3d_display) {
       ALLEGRO_ERROR("d3d_create_display failed.\n");
-      al_free(d3d_display);
       return NULL;
    }
+   win_display = &d3d_display->win_display;
+   al_display = &win_display->display;
+   ALLEGRO_DEBUG("al_display=%p\n", al_display);
+   ALLEGRO_DEBUG("al_display->vt=%p\n", al_display->vt);
+   ASSERT(al_display->vt);
 
    /* Add ourself to the list of displays. */
    add = (ALLEGRO_DISPLAY_D3D **)_al_vector_alloc_back(&system->system.displays);
@@ -1746,6 +1770,7 @@ static ALLEGRO_DISPLAY *d3d_create_display_locked(int w, int h)
          ((caps.PrimitiveMiscCaps & D3DPMISCCAPS_SEPARATEALPHABLEND) != 0);
    }
 
+   ASSERT(al_display->vt);
    return al_display;
 }
 
@@ -1759,6 +1784,11 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    display = d3d_create_display_locked(w, h);
    win_display = (ALLEGRO_DISPLAY_WIN *)display;
    al_unlock_mutex(present_mutex);
+
+   if (!display)
+      return NULL;
+
+   ASSERT(display->vt);
 
    s = display->extra_settings.settings;
    s[ALLEGRO_MAX_BITMAP_SIZE] = d3d_get_max_texture_size(win_display->adapter);
@@ -2117,7 +2147,9 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
       if (system->displays._size <= 1) {
          ffw_set = false;
       }
-      if (!d3d_create_display_internals(disp)) {
+      disp = d3d_create_display_internals(disp);
+      if (!disp) {
+         ALLEGRO_ERROR("d3d_create_display_internals failed.\n");
          return false;
       }
       al_set_target_bitmap(al_get_backbuffer(d));
