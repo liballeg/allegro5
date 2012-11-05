@@ -44,17 +44,26 @@
  * translated x by 0.5. So we simply apply the transformation,
  * round to nearest integer, and backtransform that.
  */
-static void align_to_integer_pixel(float *x, float *y)
+static void align_to_integer_pixel_inner(
+   ALLEGRO_TRANSFORM const *fwd,
+   ALLEGRO_TRANSFORM const *inv,
+   float *x, float *y)
 {
-   ALLEGRO_TRANSFORM const *t;
-   ALLEGRO_TRANSFORM inverse;
-   t = al_get_current_transform();
-   al_transform_coordinates(t, x, y);
+   al_transform_coordinates(fwd, x, y);
    *x = floor(*x + 0.5);
    *y = floor(*y + 0.5);
-   al_copy_transform(&inverse, t);
-   al_invert_transform(&inverse);
-   al_transform_coordinates(&inverse, x, y);
+   al_transform_coordinates(inv, x, y);
+}
+
+static void align_to_integer_pixel(float *x, float *y)
+{
+   ALLEGRO_TRANSFORM const *fwd;
+   ALLEGRO_TRANSFORM inv;
+
+   fwd = al_get_current_transform();
+   al_copy_transform(&inv, fwd);
+   al_invert_transform(&inv);
+   align_to_integer_pixel_inner(fwd, &inv, x, y);
 }
 
 
@@ -113,9 +122,10 @@ void al_draw_justified_ustr(const ALLEGRO_FONT *font,
    int num_words;
    int space;
    float fleft, finc;
+   int advance;
+   ALLEGRO_TRANSFORM const *fwd;
+   ALLEGRO_TRANSFORM inv;
 
-   (void)flags;
-   
    ASSERT(font);
 
    /* count words and measure min length (without spaces) */ 
@@ -142,6 +152,8 @@ void al_draw_justified_ustr(const ALLEGRO_FONT *font,
 
    if ((space <= 0) || (space > diff) || (num_words < 2)) {
       /* can't justify */
+      if (flags & ALLEGRO_ALIGN_INTEGER)
+         align_to_integer_pixel(&x1, &y);
       font->vtable->render(font, color, ustr, x1, y);
       return; 
    }
@@ -150,6 +162,13 @@ void al_draw_justified_ustr(const ALLEGRO_FONT *font,
    fleft = (float)x1;
    finc = (float)space / (float)(num_words-1);
    pos1 = 0;
+
+   if (flags & ALLEGRO_ALIGN_INTEGER) {
+      fwd = al_get_current_transform();
+      al_copy_transform(&inv, fwd);
+      al_invert_transform(&inv);
+   }
+
    for (;;) {
       pos1 = al_ustr_find_cset_cstr(ustr, pos1, whitespace);
       if (pos1 == -1)
@@ -159,9 +178,16 @@ void al_draw_justified_ustr(const ALLEGRO_FONT *font,
          pos2 = al_ustr_size(ustr);
 
       word = al_ref_ustr(&word_info, ustr, pos1, pos2);
-      fleft += font->vtable->render(font, color, word, (int)fleft, y);
-      fleft += finc;
-
+      if (flags & ALLEGRO_ALIGN_INTEGER) {
+         float drawx = fleft;
+         float drawy = y;
+         align_to_integer_pixel_inner(fwd, &inv, &drawx, &drawy);
+         advance = font->vtable->render(font, color, word, drawx, drawy);
+      }
+      else {
+         advance = font->vtable->render(font, color, word, fleft, y);
+      }
+      fleft += advance + finc;
       pos1 = pos2;
    }
 }
