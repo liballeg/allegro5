@@ -78,7 +78,7 @@ void Prog::draw_text()
    const int th = al_get_font_line_height(font);
 
    al_draw_justified_text(font, al_map_rgb_f(1, 1, 1), x1, x2, 50, diff,
-      0, text_entry.get_text());
+      ALLEGRO_ALIGN_INTEGER, text_entry.get_text());
 
    al_draw_rectangle(x1, 50, x2, 50 + th, al_map_rgb(0, 0, 255), 0);
 
