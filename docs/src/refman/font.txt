@@ -146,6 +146,11 @@ allow between words.  If justisfying the text would exceed *diff* pixels,
 or the string contains less than two words, then the string will be drawn
 left aligned.
 
+The `flags` parameter can be 0 or one of the following flags:
+
+- ALLEGRO_ALIGN_INTEGER - Draw text aligned to integer pixel positions.
+  Since: 5.1.5
+
 See also: [al_draw_justified_textf], [al_draw_justified_ustr]
 
 ### API: al_draw_justified_ustr
