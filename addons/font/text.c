@@ -68,10 +68,15 @@ void al_draw_ustr(const ALLEGRO_FONT *font,
    ASSERT(font);
    ASSERT(ustr);
 
-   if (flags & ALLEGRO_ALIGN_CENTRE)
-      x -= font->vtable->text_length(font, ustr) * 0.5;
-   else if (flags & ALLEGRO_ALIGN_RIGHT)
+   if (flags & ALLEGRO_ALIGN_CENTRE) {
+      /* Use integer division to avoid introducing a fractional
+       * component to an integer x value.
+       */
+      x -= font->vtable->text_length(font, ustr) / 2;
+   }
+   else if (flags & ALLEGRO_ALIGN_RIGHT) {
       x -= font->vtable->text_length(font, ustr);
+   }
 
    if (flags & ALLEGRO_ALIGN_INTEGER)
       align_to_integer_pixel(&x, &y);
