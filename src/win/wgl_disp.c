@@ -1386,7 +1386,7 @@ static bool wgl_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
       size_t i;
 
       target_bmp = al_get_target_bitmap();
-      if (target_bmp->vt)
+      if (target_bmp && target_bmp->vt)
          was_backbuffer = ((ALLEGRO_BITMAP_OGL*)target_bmp)->is_backbuffer;
 
       /* Remeber display bitmaps. */
@@ -1407,16 +1407,16 @@ static bool wgl_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
       if (!create_display_internals(wgl_disp))
          return false;
 
+      /* We have a new backbuffer now. */
+      if (was_backbuffer)
+         al_set_target_bitmap(al_get_backbuffer(d));
+
       /* Reupload bitmaps. */
       while (_al_vector_is_nonempty(&disp_bmps)) {
          ALLEGRO_BITMAP **back = _al_vector_ref_back(&disp_bmps);
          _al_convert_to_display_bitmap(*back);
          _al_vector_delete_at(&disp_bmps, _al_vector_size(&disp_bmps) - 1);
       }
-
-      /* We have a new backbuffer now. */
-      if (was_backbuffer)
-         al_set_target_bitmap(al_get_backbuffer(d));
    }
    else {
       RECT win_size;
