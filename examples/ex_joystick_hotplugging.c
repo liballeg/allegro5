@@ -88,6 +88,7 @@ int main(void)
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_joystick_event_source());
+   al_register_event_source(queue, al_get_display_event_source(display));
 
    num_joysticks = al_get_num_joysticks();
    log_printf("Num joysticks: %d\n", num_joysticks);
@@ -107,6 +108,9 @@ int main(void)
       al_wait_for_event(queue, &event);
       if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
             event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+         break;
+      }
+      else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
          break;
       }
       else if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
