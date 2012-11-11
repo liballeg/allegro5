@@ -703,7 +703,7 @@ bool _al_d3d_init_display()
 }
 
 
-static ALLEGRO_DISPLAY_D3D *d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display);
+static ALLEGRO_DISPLAY_D3D *d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display, bool free_on_error);
 static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *display);
 
 
@@ -739,9 +739,11 @@ static void d3d_make_faux_fullscreen_stage_two(ALLEGRO_DISPLAY_D3D *d3d_display)
          if (disp != d3d_display) {// && (disp->win_display.display.flags & ALLEGRO_FULLSCREEN)) {
             if (disp->win_display.display.flags & ALLEGRO_FULLSCREEN)
                disp->faux_fullscreen = true;
-            disp = d3d_create_display_internals(disp);
+            disp = d3d_create_display_internals(disp, true);
             if (!disp) {
                ALLEGRO_ERROR("d3d_create_display_internals failed.\n");
+               /* XXX we don't try to recover from this yet */
+               abort();
             }
             ASSERT(disp);
             _al_d3d_recreate_bitmap_textures(disp);
@@ -905,6 +907,8 @@ static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
       while (!win_display->thread_ended)
          al_rest(0.001);
    }
+
+   ASSERT(al_display->vt);
 }
 
 static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
@@ -1574,7 +1578,8 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
 /* This function may return the original d3d_display argument,
  * or a new one, or NULL on error.
  */
-static ALLEGRO_DISPLAY_D3D *d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
+static ALLEGRO_DISPLAY_D3D *d3d_create_display_internals(
+   ALLEGRO_DISPLAY_D3D *d3d_display, bool free_on_error)
 {
    D3D_DISPLAY_PARAMETERS params;
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
@@ -1617,7 +1622,9 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3
          // This helps determining if the window message thread needs
          // to be destroyed.
          win_display->window = NULL;
-         al_free(d3d_display);
+         if (free_on_error) {
+            al_free(d3d_display);
+         }
          return NULL;
       }
    }
@@ -1674,7 +1681,9 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3
 
    if (!eds) {
       ALLEGRO_WARN("All %d formats failed.\n", i);
-      al_free(d3d_display);
+      if (free_on_error) {
+         al_free(d3d_display);
+      }
       return NULL;
    }
 
@@ -1719,7 +1728,7 @@ static ALLEGRO_DISPLAY *d3d_create_display_locked(int w, int h)
    ALLEGRO_DEBUG("al_display->vt=%p\n", al_display->vt);
    ASSERT(al_display->vt);
 
-   d3d_display = d3d_create_display_internals(d3d_display);
+   d3d_display = d3d_create_display_internals(d3d_display, true);
    if (!d3d_display) {
       ALLEGRO_ERROR("d3d_create_display failed.\n");
       return NULL;
@@ -2116,6 +2125,7 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
 {
    ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)d;
    ALLEGRO_DISPLAY_WIN *win_display = &disp->win_display;
+   ALLEGRO_DISPLAY_D3D *new_disp;
    int full_w, full_h;
    ALLEGRO_MONITOR_INFO mi;
    int adapter = win_display->adapter;
@@ -2147,11 +2157,17 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
       if (system->displays._size <= 1) {
          ffw_set = false;
       }
-      disp = d3d_create_display_internals(disp);
-      if (!disp) {
+      /* The original display needs to remain intact so we can
+       * recover if resizing a display fails.
+       */
+      new_disp = d3d_create_display_internals(disp, false);
+      if (!new_disp) {
          ALLEGRO_ERROR("d3d_create_display_internals failed.\n");
+         ASSERT(d->vt);
          return false;
       }
+      ASSERT(new_disp == disp);
+      ASSERT(d->vt);
       al_set_target_bitmap(al_get_backbuffer(d));
       _al_d3d_recreate_bitmap_textures(disp);
 
@@ -2212,7 +2228,12 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
    win_display->ignore_resize = true;
 
    if (!d3d_resize_helper(d, width, height)) {
-      d3d_resize_helper(d, orig_w, orig_h);
+      ALLEGRO_WARN("trying to restore original size: %d, %d\n",
+         orig_w, orig_h);
+      if (!d3d_resize_helper(d, orig_w, orig_h)) {
+         ALLEGRO_ERROR("failed to restore original size: %d, %d\n",
+            orig_w, orig_h);
+      }
       ret = false;
    } else {
       ret = true;
