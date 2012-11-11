@@ -551,6 +551,15 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             }
          }
 
+         /* WM_SETCURSOR messages are not received while the mouse is
+          * captured.  We call SetCursor here so that changing the mouse
+          * cursor has an effect while the user is holding down the mouse
+          * button.
+          */
+         if (GetCapture() == hWnd && win_display->mouse_cursor_shown) {
+            SetCursor(win_display->mouse_selected_hcursor);
+         }
+
          break;
       }
       case WM_MOUSELEAVE: {
