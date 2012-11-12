@@ -31,70 +31,27 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size, int flags)
 
    if (!image)
        goto done;
-
+   
    /* Get the image representations */
    NSArray *reps = [image representations];
    NSImageRep *image_rep = [reps objectAtIndex: 0];
 
-   // Note: Do we want to support this on OSX 10.5? It doesn't have
-   // CGImageForProposedRect...
-   //CGImageRef cgimage = [image_rep CGImageForProposedRect: nil context: nil hints: nil];
-   
    if (!image_rep) {
       [image release];
       goto done;
    }
 
    /* Get the actual size in pixels from the representation */
+   unsigned char *data[5];
+   // TODO: We should check it really is a bitmap representation.
+   NSBitmapImageRep *bitmap_rep = (NSBitmapImageRep *)image_rep;
+   [bitmap_rep getBitmapDataPlanes:data];
+   pixels = data[0];
    int w = [image_rep pixelsWide];
    int h = [image_rep pixelsHigh];
-
-   ALLEGRO_DEBUG("Read image of size %dx%d\n", w, h);
-
-   /* Now we need to draw the image into a memory buffer. */
-   pixels = al_malloc(w * h * 4);
-
-   CGFloat whitePoint[3] = {
-      1, 1, 1
-   };
-   CGFloat blackPoint[3] = {
-      0, 0, 0
-   };
-   CGFloat gamma[3] = {
-      2.2, 2.2, 2.2
-   };
-   CGFloat matrix[9] = {
-      1, 1, 1,
-      1, 1, 1,
-      1, 1, 1
-   };
-   /* This sets up a color space that results in identical values
-    * as the image data itself, which is the same as the standalone
-    * libpng loader
-    */
-   CGColorSpaceRef colour_space =
-      CGColorSpaceCreateCalibratedRGB(
-         whitePoint, blackPoint, gamma, matrix
-      );
-   CGContextRef context = CGBitmapContextCreate(pixels, w, h, 8, w * 4,
-      colour_space,
-      kCGImageAlphaPremultipliedLast);
-      
-   [NSGraphicsContext saveGraphicsState];
-   [NSGraphicsContext setCurrentContext:[NSGraphicsContext
-      graphicsContextWithGraphicsPort:context flipped:NO]];
-   [image drawInRect:NSMakeRect(0, 0, w, h)
-      fromRect:NSZeroRect
-      operation : NSCompositeCopy
-      fraction : 1.0];
-   [NSGraphicsContext restoreGraphicsState];
-   
-   //CGContextDrawImage(context, CGRectMake(0.0, 0.0, (CGFloat)w, (CGFloat)h),
-   //   cgimage);
-   CGContextRelease(context);
-   CGColorSpaceRelease(colour_space);
-   
-   [image release];
+   int bits = [bitmap_rep bitsPerPixel];
+   int samples = bits / 8;
+   ALLEGRO_DEBUG("Read image of size %dx%dx%d\n", w, h, bits);
 
    /* Then create a bitmap out of the memory buffer. */
    bmp = al_create_bitmap(w, h);
@@ -102,41 +59,41 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size, int flags)
       ALLEGRO_LOCKED_REGION *lock = al_lock_bitmap(bmp,
             ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
       int i;
-      if (!premul) {
-         int x;
+      {
          for (i = 0; i < h; i++) {
-            unsigned char *src_ptr = (unsigned char *)pixels + w * 4 * i;
-            unsigned char *dest_ptr = (unsigned char *)lock->data +
-	       lock->pitch * i;
-            for (x = 0; x < w; x++) {
-               unsigned char r, g, b, a;
-               r = *src_ptr++;
-               g = *src_ptr++;
-               b = *src_ptr++;
-               a = *src_ptr++;
-               if (a == 0) {
-                   r = g = b = 0;     
+            uint8_t *data_row = lock->data + lock->pitch * i;
+            uint8_t *source_row = pixels + w * samples * i;
+            if (samples == 4) {
+               if (premul) {
+                  for (int j = 0; j < w; j++) {
+                     int r, g, b, a;
+                     r = source_row[j * 4 + 0];
+                     g = source_row[j * 4 + 1];
+                     b = source_row[j * 4 + 2];
+                     a = source_row[j * 4 + 3];
+                     data_row[j * 4 + 0] = r * a / 255;
+                     data_row[j * 4 + 1] = g * a / 255;
+                     data_row[j * 4 + 2] = b * a / 255;
+                     data_row[j * 4 + 3] = a;
+                  }
                }
-               else {
-                  r = r * 255 / a;
-                  g = g * 255 / a;
-                  b = b * 255 / a;
-               }
-               *dest_ptr++ = r;
-               *dest_ptr++ = g;
-               *dest_ptr++ = b;
-               *dest_ptr++ = a;
+               else
+                  memcpy(data_row, source_row, w * 4);
             }
-         }
-      }
-      else {
-         for (i = 0; i < h; i++) {
-            memcpy(lock->data + lock->pitch * i, pixels + w * 4 * i, w * 4);
+            else if (samples == 3) {
+               for (int j = 0; j < w; j++) {
+                  data_row[j * 4 + 0] = source_row[j * 3 + 0];
+                  data_row[j * 4 + 1] = source_row[j * 3 + 1];
+                  data_row[j * 4 + 2] = source_row[j * 3 + 2];
+                  data_row[j * 4 + 3] = 255;
+               }
+            }
          }
       }
       al_unlock_bitmap(bmp);
    }
-   al_free(pixels);
+
+   [image release];
 done:
    [pool drain];
    return bmp;
