@@ -285,7 +285,7 @@ display by calling [al_convert_bitmaps].
 
 See also: [al_set_new_bitmap_format], [al_set_new_bitmap_flags],
 [al_clone_bitmap], [al_create_sub_bitmap],
-[al_convert_bitmaps]
+[al_convert_bitmaps], [al_destroy_bitmap]
 
 ### API: al_create_sub_bitmap
 
@@ -358,6 +358,11 @@ See also: [al_convert_bitmap], [al_create_bitmap]
 
 Destroys the given bitmap, freeing all resources used by it.
 Does nothing if given the null pointer.
+
+It is an error to destroy a bitmap while it (or a sub-bitmap)
+are the target bitmap of any thread.
+
+See also: [al_create_bitmap]
 
 ### API: al_get_new_bitmap_flags
 
