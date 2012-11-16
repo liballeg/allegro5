@@ -220,6 +220,20 @@ Since: 5.1.0
 
 Since: 5.1.0
 
+## API: al_get_default_glsl_vertex_shader
+
+Returns a string containing the GLSL source code to Allegro's default vertex
+shader.
+
+Since: 5.1.5
+
+## API: al_get_default_glsl_pixel_shader
+
+Returns a string containing the GLSL source code to Allegro's default fragment
+shader (or "pixel shader").
+
+Since: 5.1.5
+
 ## API: al_get_direct3d_effect
 
 *Not yet documented.*

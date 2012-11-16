@@ -15,6 +15,10 @@
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
 
+#ifdef ALLEGRO_CFG_GLSL_SHADERS
+#include "allegro5/allegro_shader_glsl.h"
+#endif
+
 #define MAX_BITMAPS  128
 #define MAX_TRANS    8
 #define MAX_FONTS    16
@@ -46,7 +50,7 @@ typedef struct {
 typedef struct {
    ALLEGRO_USTR   *name;
    ALLEGRO_FONT   *font;
-} Font;
+} NamedFont;
 
 int               argc;
 char              **argv;
@@ -55,7 +59,7 @@ ALLEGRO_BITMAP    *membuf;
 Bitmap            bitmaps[MAX_BITMAPS];
 LockRegion        lock_region;
 Transform         transforms[MAX_TRANS];
-Font              fonts[MAX_FONTS];
+NamedFont         fonts[MAX_FONTS];
 ALLEGRO_VERTEX    vertices[MAX_VERTICES];
 float             simple_vertices[2 * MAX_VERTICES];
 int               num_simple_vertices;
@@ -68,6 +72,9 @@ int               verbose = 0;
 int               total_tests = 0;
 int               passed_tests = 0;
 int               failed_tests = 0;
+#ifdef ALLEGRO_CFG_GLSL_SHADERS
+ALLEGRO_SHADER    *shader;
+#endif
 
 #define streq(a, b)  (0 == strcmp((a), (b)))
 
@@ -1528,6 +1535,11 @@ int main(int _argc, char *_argv[])
          /* Don't try this at home. */
          al_set_new_display_flags(ALLEGRO_DIRECT3D_INTERNAL);
       }
+      else if (streq(opt, "--use-shaders")) {
+         #ifdef ALLEGRO_CFG_GLSL_SHADERS
+         al_set_new_display_flags(ALLEGRO_OPENGL | ALLEGRO_USE_PROGRAMMABLE_PIPELINE);
+         #endif
+      }
       else {
          break;
       }
@@ -1539,6 +1551,18 @@ int main(int _argc, char *_argv[])
          error("failed to create display");
       }
    }
+
+   #ifdef ALLEGRO_CFG_GLSL_SHADERS
+   if (al_get_new_display_flags() & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      shader = al_create_shader(ALLEGRO_SHADER_GLSL);
+      al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER,
+         al_get_default_glsl_vertex_shader());
+      al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER,
+         al_get_default_glsl_pixel_shader());
+      al_link_shader(shader);
+      al_set_shader(display, shader);
+   }
+   #endif
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
 

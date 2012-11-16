@@ -9,6 +9,8 @@ extern "C" {
 #endif
 
 ALLEGRO_SHADER_FUNC(GLuint, al_get_opengl_program_object, (ALLEGRO_SHADER *shader));
+ALLEGRO_SHADER_FUNC(char const *, al_get_default_glsl_vertex_shader, (void));
+ALLEGRO_SHADER_FUNC(char const *, al_get_default_glsl_pixel_shader, (void));
 
 #ifdef __cplusplus
 }

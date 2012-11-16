@@ -13,6 +13,7 @@ set(SHADER_DEFINES "-DALLEGRO_SHADER_SRC")
 
 if(WANT_OPENGL)
     list(APPEND SHADER_SOURCES shader_glsl.c)
+    list(APPEND SHADER_SOURCES default_glsl.c)
     list(APPEND SHADER_INCLUDE_FILES allegro5/allegro_shader_glsl.h)
     set_our_header_properties(${SHADER_INCLUDE_FILES})
     set(SHADER_DEFINES "${SHADER_DEFINES} -DALLEGRO_CFG_WANT_GLSL_SHADERS")
