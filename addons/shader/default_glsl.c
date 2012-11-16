@@ -1,3 +1,5 @@
+#include "allegro5/allegro.h"
+#include "allegro5/allegro_shader_glsl.h"
 
 // FIXME: Ignores use_tex_matrix and tex_matrix.
 
@@ -37,3 +39,5 @@ char const *al_get_default_glsl_pixel_shader(void)
       "    gl_FragColor = varying_color;\n"
       "}\n";
 }
+
+/* vim: set sts=4 sw=4 et: */
