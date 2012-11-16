@@ -53,6 +53,23 @@ UINT _al_win_msg_suicide = 0;
 
 
 
+static void display_flags_to_window_styles(int flags,
+   DWORD *style, DWORD *ex_style)
+{
+   if (flags & ALLEGRO_FULLSCREEN) {
+      *style = WS_POPUP;
+      *ex_style = WS_EX_APPWINDOW;
+   }
+   else if (flags & ALLEGRO_RESIZABLE) {
+      *style = WS_OVERLAPPEDWINDOW;
+      *ex_style = WS_EX_APPWINDOW | WS_EX_OVERLAPPEDWINDOW;
+   }
+   else {
+      *style = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+      *ex_style = WS_EX_APPWINDOW;
+   }
+}
+
 /*
  * Find the top left position of the client area of a window.
  */
@@ -143,20 +160,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
 
    wi.cbSize = sizeof(WINDOWINFO);
 
-   if (!(flags & ALLEGRO_FULLSCREEN)) {
-      if  (flags & ALLEGRO_RESIZABLE) {
-         style = WS_OVERLAPPEDWINDOW;
-         ex_style = WS_EX_APPWINDOW|WS_EX_OVERLAPPEDWINDOW;
-      }
-      else {
-         style = WS_SYSMENU | WS_MINIMIZEBOX;
-         ex_style = WS_EX_APPWINDOW;
-      }
-   }
-   else {
-      style = WS_POPUP;
-      ex_style = WS_EX_APPWINDOW;
-   }
+   display_flags_to_window_styles(flags, &style, &ex_style);
 
    al_get_new_window_position(&pos_x, &pos_y);
    if ((flags & ALLEGRO_FULLSCREEN) || (flags & ALLEGRO_FULLSCREEN_WINDOW)) {
@@ -924,14 +928,8 @@ void _al_win_set_window_frameless(ALLEGRO_DISPLAY *display, HWND hWnd,
       DWORD style;
       DWORD exStyle;
 
-      if (display->flags & ALLEGRO_RESIZABLE) {
-         style = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
-         exStyle = WS_EX_OVERLAPPEDWINDOW | WS_EX_APPWINDOW;
-      }
-      else {
-         style = WS_CAPTION | WS_SYSMENU | WS_VISIBLE;
-         exStyle = WS_EX_APPWINDOW;
-      }
+      display_flags_to_window_styles(display->flags, &style, &exStyle);
+      style |= WS_VISIBLE;
 
       GetWindowRect(hWnd, &r);
       AdjustWindowRectEx(&r, style, false, exStyle);
