@@ -21,6 +21,7 @@ include_directories(
     ../addons/native_dialog
     ../addons/physfs
     ../addons/primitives
+    ../addons/shader
     ../addons/ttf
     )
 
@@ -43,6 +44,7 @@ else(WANT_MONOLITH)
        ${FONT_LINK_WITH}
        ${TTF_LINK_WITH}
        ${PRIMITIVES_LINK_WITH}
+       ${SHADER_LINK_WITH}
        )
 endif(WANT_MONOLITH)
 
