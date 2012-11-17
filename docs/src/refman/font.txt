@@ -328,7 +328,7 @@ Returns NULL on an error.
 The font memory must be freed the same way as for any other font,
 using [al_destroy_font].
 
-Since: 5.1.3
+Since: 5.0.8, 5.1.3
 
 See also: [al_load_bitmap_font], [al_destroy_font]
 

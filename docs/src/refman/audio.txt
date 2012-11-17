@@ -52,7 +52,7 @@ single buffer.
 
 * ALLEGRO_MIXER_QUALITY_POINT - point sampling
 * ALLEGRO_MIXER_QUALITY_LINEAR - linear interpolation
-* ALLEGRO_MIXER_QUALITY_CUBIC - cubic interpolation (since: 5.1.4)
+* ALLEGRO_MIXER_QUALITY_CUBIC - cubic interpolation (since: 5.0.8, 5.1.4)
 
 ### API: ALLEGRO_PLAYMODE
 
