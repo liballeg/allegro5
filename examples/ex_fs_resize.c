@@ -43,18 +43,31 @@ static void main_loop(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *picture)
 {
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_EVENT event;
+   bool can_draw;
    int new_res;
 
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_display_event_source(display));
 
+   can_draw = true;
+
    while (1) {
-      if (al_is_event_queue_empty(queue)) {
+      if (al_is_event_queue_empty(queue) && can_draw) {
          redraw(picture);
       }
       al_wait_for_event(queue, &event);
 
+      if (event.type == ALLEGRO_EVENT_DISPLAY_LOST) {
+         log_printf("Display lost\n");
+         can_draw = false;
+         continue;
+      }
+      if (event.type == ALLEGRO_EVENT_DISPLAY_FOUND) {
+         log_printf("Display found\n");
+         can_draw = true;
+         continue;
+      }
       if (event.type != ALLEGRO_EVENT_KEY_CHAR) {
          continue;
       }
