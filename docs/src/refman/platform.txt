@@ -20,7 +20,7 @@ These functions are declared in the following header file:
 
 Retrieves the NSWindow handle associated with the Allegro display.
 
-Since: 5.1.3
+Since: 5.0.8, 5.1.3
 
 ## iPhone
 
