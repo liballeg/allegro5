@@ -1233,7 +1233,7 @@ static void display_thread_proc(void *arg)
    
    if (disp->flags & ALLEGRO_FULLSCREEN_WINDOW) {
       bool frameless = true;
-      _al_win_set_window_frameless(disp, win_disp->window, disp->w, disp->h, frameless);
+      _al_win_set_window_frameless(disp, win_disp->window, frameless);
    }
 
    /* Yep, the following is really needed sometimes. */
