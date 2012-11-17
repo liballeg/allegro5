@@ -428,6 +428,19 @@ static void ogl_unlock_region_backbuffer(ALLEGRO_BITMAP *bitmap,
    const int lock_format = bitmap->locked_region.format;
    bool popmatrix = false;
    GLenum e;
+   GLint program = 0;
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+
+   if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      // FIXME: This is a hack where we temporarily disable the active shader.
+      // It will only work on Desktop OpenGL in non-strict mode where we even
+      // can switch back to the fixed pipeline. The correct way would be to not
+      // use any OpenGL 2 functions (like glDrawPixels). Probably we will want
+      // separate OpenGL <= 2 (including OpenGL ES 1) and OpenGL >= 3 (including
+      // OpenGL ES >= 2) drivers at some point.
+      glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+      glUseProgram(0);
+   }
 
    /* glWindowPos2i may not be available. */
    if (al_get_opengl_version() >= _ALLEGRO_OPENGL_VERSION_1_4) {
@@ -462,6 +475,10 @@ static void ogl_unlock_region_backbuffer(ALLEGRO_BITMAP *bitmap,
 
    if (popmatrix) {
       glPopMatrix();
+   }
+
+   if (program != 0) {
+      glUseProgram(program);
    }
 }
 
