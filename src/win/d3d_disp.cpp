@@ -2357,6 +2357,13 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    else {
       d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
       if (_al_d3d_render_to_texture_supported()) {
+         if (!d3d_target->video_texture) {
+            /* This can happen if the user tries to set the target bitmap as
+             * the device is lost, before the DISPLAY_LOST event is received.
+             */
+            ALLEGRO_WARN("d3d_set_target_bitmap: No video texture.\n");
+            return;
+         }
          if (d3d_target->video_texture->GetSurfaceLevel(0, &d3d_target->render_target) != D3D_OK) {
             ALLEGRO_ERROR("d3d_set_target_bitmap: Unable to get texture surface level.\n");
             return;
