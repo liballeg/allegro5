@@ -1463,17 +1463,23 @@ static void *d3d_display_thread_proc(void *arg)
       else if (hr == D3DERR_DEVICELOST) {
          /* device remains lost */
          if (!lost_event_generated) {
-            _al_event_source_lock(&al_display->es);
-            if (_al_event_source_needs_to_generate_event(&al_display->es)) {
-               ALLEGRO_EVENT event;
-               memset(&event, 0, sizeof(event));
-               event.display.type = ALLEGRO_EVENT_DISPLAY_LOST;
-               event.display.timestamp = al_get_time();
-               _al_event_source_emit_event(&al_display->es, &event);
-            }
-            _al_event_source_unlock(&al_display->es);
+            ALLEGRO_DEBUG("D3DERR_DEVICELOST: d3d_display=%p\n", d3d_display);
             lost_event_generated = true;
-            al_rest(0.5); // give user time to respond
+            if (d3d_display->suppress_lost_events) {
+               ALLEGRO_DEBUG("DISPLAY_LOST event suppressed\n");
+            }
+            else {
+               _al_event_source_lock(&al_display->es);
+               if (_al_event_source_needs_to_generate_event(&al_display->es)) {
+                  ALLEGRO_EVENT event;
+                  memset(&event, 0, sizeof(event));
+                  event.display.type = ALLEGRO_EVENT_DISPLAY_LOST;
+                  event.display.timestamp = al_get_time();
+                  _al_event_source_emit_event(&al_display->es, &event);
+               }
+               _al_event_source_unlock(&al_display->es);
+               al_rest(0.5); // give user time to respond
+            }
          }
       }
       else if (hr == D3DERR_DEVICENOTRESET) {
@@ -2145,7 +2151,12 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
    win_display->can_acknowledge = false;
 
    if (d->flags & ALLEGRO_FULLSCREEN) {
+      /* Don't generate ALLEGRO_EVENT_DISPLAY_LOST events when destroying a
+       * display for resizing.
+       */
+      disp->suppress_lost_events = true;
       d3d_destroy_display_internals(disp);
+
       d->w = width;
       d->h = height;
       /* reset refresh rate (let new mode choose one) */
@@ -2168,6 +2179,9 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
       }
       ASSERT(new_disp == disp);
       ASSERT(d->vt);
+
+      disp->suppress_lost_events = false;
+
       al_set_target_bitmap(al_get_backbuffer(d));
       _al_d3d_recreate_bitmap_textures(disp);
 
