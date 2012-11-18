@@ -237,18 +237,12 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
 
       if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
 #ifndef ALLEGRO_CFG_NO_GLES2
-         float transposed[4][4];
          int x, y;
          GLint handle;
-         for (y = 0; y < 4; y++) {
-            for (x = 0; x < 4; x++) {
-               transposed[y][x] = mat[x][y];
-            }
-         }
 
          handle = display->ogl_extras->tex_matrix_loc;
          if (handle >= 0)
-            glUniformMatrix4fv(handle, 1, false, (float *)transposed);
+            glUniformMatrix4fv(handle, 1, false, (float *)mat);
 
          handle = display->ogl_extras->use_tex_matrix_loc;
          if (handle >= 0)
