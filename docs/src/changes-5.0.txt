@@ -4,6 +4,161 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 5.0.7 to 5.0.8 (November 2012)
+===========================================
+
+The main developers this time were: Dennis Busch, Trent Gamblin,
+Elias Pschernig, Paul Suntsov, Peter Wang.
+
+Core:
+
+-  Added alternate spelling: ALLEGRO_ALIGN_CENTER.
+
+Displays:
+
+-  Rewrite D3D display format listing code, which was broken.  This should
+   re-enable multi-sampling and fix ex_depth_mask being slow with D3D.
+
+-  Fixed a case where changing fullscreen mode in D3D via al_resize_display
+   caused a crash and loss of loaded bitmaps information.
+
+-  Fixed a case where changing fullscreen mode in OpenGL (on Windows) via
+   al_resize_display cause nothing to be rendered after the mode change.
+
+-  Fix crashes when resizing a WGL fullscreen window.
+
+-  Fixed missing/incorrect resize events under Windows.
+
+-  Fix al_set_new_display_adapter on OS X.
+
+-  Fix use of invalidated pointers in D3D driver when the first format fails.
+
+-  Fix bug where setting the mouse cursor had no effect when
+   the mouse was captured (mouse button held down).
+
+-  Fix windows not having a minimise button when set to
+   windowed state from fullscreen window state.
+
+-  Respect ALLEGRO_FRAMELESS flag properly when toggling from
+   fullscreen window state to windowed state (Windows).
+
+-  Don't generate DISPLAY_LOST events when resizing a fullscreen display.
+
+-  Scale window icon to sizes returned by GetSystemMetrics (Windows).
+
+-  Fixed ALLEGRO_FULLSCREEN_WINDOW under OS X.
+
+-  Added al_osx_get_window function (Dennis Gooden).
+
+Graphics:
+
+-  al_draw_pixel was crashing when drawn on sub-bitmaps on OpenGL.
+
+-  Fix a potential crash when drawing the screen to a bitmap with D3D.
+
+-  Avoid null pointer dereference when setting a target bitmap after
+   its video_texture has already been released (D3D).
+
+-  Lock bitmap to prevent slowness when creating a cursor from a non-memory
+   bitmap on Windows.
+
+-  Conditionally lock bitmap when creating cursor on X11 (previously it did
+   so even if already locked).
+
+-  Don't use NSOpenGLPFAAccelerated unnecessarily (OS X).
+
+Input:
+
+-  Fix incorrect keyboard modifier flags after leaving and re-entering a window
+   (Windows).
+
+-  Fixed a bug with mouse enter/leave events for resized windows under OSX
+   (Dennis Gooden).
+
+-  Temporary fix for delay after mouse warp on OS X.
+
+File I/O:
+
+-  Fix al_fputc on big-endian.  Reported by Andreas Rönnquist and
+   Tobias Hansen.
+
+-  Make al_fputc return value like fputc when out of range.
+
+-  Fix al_read_directory crash on 64-bit Windows (simast).
+
+Image addon:
+
+-  Don't include native image loader source files in builds with the native
+   image loaders disabled (OSX, iOS).
+
+-  Added a missing autorelease-pool to the OSX bitmap saving function
+   (sleepywind).
+
+-  Fix OSX native image loader for loading not-premultiplied RGB data.
+   Previously the data was "de-multiplied", with possibly all information lost.
+
+-  Fix OSX native image loader for loading bitmaps without an alpha channel.
+   They appeared completely black previously.
+
+Font addons:
+
+-  Add builtin font creation function.
+
+-  Added ALLEGRO_ALIGN_INTEGER text drawing flag (Todd Cope).
+
+-  Made TTF addon include padding on the top and left edges of pages
+   (Todd Cope).
+
+Audio addon:
+
+-  Use programmatically generated interpolators.  They cover an additional
+   case which was missed and should be slightly more efficient.
+
+-  Support linear interpolation for 16-bit mixers.
+
+-  Add cubic interpolation for mixers (off by default).
+
+-  Fix potential deadlock in stop_voice for OpenAL.
+
+-  Fix potential deadlock in stop_voice for DirectSound.
+
+-  Improve buffer filling behaviour for DirectSound, reducing pops and
+   crackles significantly on slower machines.
+
+-  Increase default buffer size for DirectSound to 8192 samples.
+
+-  Fix setting the speed of an audio stream after it was attached to the mixer.
+
+Native dialogs addon:
+
+-  Do not unload of rich edit module when closing one text log window while
+   another exists.  Reported by URB753.
+
+-  Use default colours for Windows text log implementation, avoiding problems
+   when the previous custom colours failed, leading to black text on a
+   nearly black background.
+
+Build system:
+
+-  Install pkg-config files when cross-compiling on Unix.
+
+Examples:
+
+-  ex_synth: Add button to save waveform to a file.
+
+-  ex_multisample: Demonstrate using moving bitmaps.
+
+-  speed: Avoid poor performance due to needless redraws.
+
+-  Renamed a5teroids to Cosmic Protector
+
+Other:
+
+-  Many minor bug fixes.
+
+-  Various documentation updates.
+
+
 Changes from 5.0.6 to 5.0.7 (June 2012)
 =======================================
 
