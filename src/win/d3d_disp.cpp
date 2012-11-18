@@ -919,14 +919,6 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
 
    ALLEGRO_INFO("destroying display %p (current %p)\n", display, old_disp);
 
-   /* Don't generate ALLEGRO_EVENT_DISPLAY_LOST events when destroying a
-    * display.  They are normally harmless because they will soon be removed
-    * from any event queues, but not when resizing a fullscreen display.
-    * The user would see a DISPLAY_LOST event but no corresponding
-    * DISPLAY_FOUND event.
-    */
-   d3d_display->suppress_lost_found_events = true;
-
    if (old_disp != display)
       _al_set_current_display_only(display);
 
@@ -1414,7 +1406,7 @@ static void *d3d_display_thread_proc(void *arg)
    }
 
    if (!win_display->window) {
-      ALLEGRO_DEBUG("Failed to create regular window.\n");
+         ALLEGRO_DEBUG("Failed to create regular window.\n");
       d3d_destroy_display(al_display);
       params->init_failed = true;
       SetEvent(params->AckEvent);
@@ -1475,40 +1467,34 @@ static void *d3d_display_thread_proc(void *arg)
       else if (hr == D3DERR_DEVICELOST) {
          /* device remains lost */
          if (!lost_event_generated) {
-            ALLEGRO_DEBUG("D3DERR_DEVICELOST: d3d_display=%p\n", d3d_display);
-            lost_event_generated = true;
-            if (d3d_display->suppress_lost_found_events) {
-               _al_event_source_lock(&al_display->es);
-               if (_al_event_source_needs_to_generate_event(&al_display->es)) {
-                  ALLEGRO_EVENT event;
-                  memset(&event, 0, sizeof(event));
-                  event.display.type = ALLEGRO_EVENT_DISPLAY_LOST;
-                  event.display.timestamp = al_get_time();
-                  _al_event_source_emit_event(&al_display->es, &event);
-               }
-               _al_event_source_unlock(&al_display->es);
-               al_rest(0.5); // give user time to respond
+            _al_event_source_lock(&al_display->es);
+            if (_al_event_source_needs_to_generate_event(&al_display->es)) {
+               ALLEGRO_EVENT event;
+               memset(&event, 0, sizeof(event));
+               event.display.type = ALLEGRO_EVENT_DISPLAY_LOST;
+               event.display.timestamp = al_get_time();
+               _al_event_source_emit_event(&al_display->es, &event);
             }
+            _al_event_source_unlock(&al_display->es);
+            lost_event_generated = true;
+            al_rest(0.5); // give user time to respond
          }
       }
       else if (hr == D3DERR_DEVICENOTRESET) {
-         ALLEGRO_DEBUG("D3DERR_DEVICENOTRESET: d3d_display=%p\n", d3d_display);
          if (_al_d3d_reset_device(d3d_display)) {
             d3d_display->device_lost = false;
             d3d_reset_state(d3d_display);
             _al_d3d_set_ortho_projection(d3d_display,
                al_display->w, al_display->h);
-            if (d3d_display->suppress_lost_found_events) {
-               _al_event_source_lock(&al_display->es);
-               if (_al_event_source_needs_to_generate_event(&al_display->es)) {
-                  ALLEGRO_EVENT event;
-                  memset(&event, 0, sizeof(event));
-                  event.display.type = ALLEGRO_EVENT_DISPLAY_FOUND;
-                  event.display.timestamp = al_get_time();
-                  _al_event_source_emit_event(&al_display->es, &event);
-               }
-               _al_event_source_unlock(&al_display->es);
+            _al_event_source_lock(&al_display->es);
+            if (_al_event_source_needs_to_generate_event(&al_display->es)) {
+               ALLEGRO_EVENT event;
+               memset(&event, 0, sizeof(event));
+               event.display.type = ALLEGRO_EVENT_DISPLAY_FOUND;
+               event.display.timestamp = al_get_time();
+               _al_event_source_emit_event(&al_display->es, &event);
             }
+            _al_event_source_unlock(&al_display->es);
             lost_event_generated = false;
             if (d3d_restore_callback) {
                (*d3d_restore_callback)();
@@ -1525,7 +1511,6 @@ static void *d3d_display_thread_proc(void *arg)
       }
    }
 
-   ALLEGRO_DEBUG("calling d3d_destroy_device: %p\n", d3d_display);
    d3d_destroy_device(d3d_display);
 
    if (d3d_display->faux_fullscreen) {
@@ -2243,7 +2228,6 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
          ASSERT(d->vt);
          return false;
       }
-      ALLEGRO_DEBUG("d3d_create_display_internals succeeded.\n");
       ASSERT(new_disp == disp);
       ASSERT(d->vt);
       al_set_target_bitmap(al_get_backbuffer(d));
@@ -2252,7 +2236,6 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
       disp->backbuffer_bmp.w = width;
       disp->backbuffer_bmp.h = height;
 
-      ALLEGRO_DEBUG("here.\n");
    }
    else {
       RECT win_size;

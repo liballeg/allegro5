@@ -48,7 +48,6 @@ typedef struct ALLEGRO_DISPLAY_D3D
    ALLEGRO_BITMAP_EXTRA_D3D backbuffer_bmp_extra;
 
    bool device_lost;
-   bool suppress_lost_found_events;
 
    bool faux_fullscreen;
 
