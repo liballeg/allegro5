@@ -55,7 +55,7 @@
 
 #define ALLEGRO_VERSION          5
 #define ALLEGRO_SUB_VERSION      0
-#define ALLEGRO_WIP_VERSION      8
+#define ALLEGRO_WIP_VERSION      9
 
 /* Not sure we need it, but since ALLEGRO_VERSION_STR contains it:
  * 0 = SVN
@@ -67,9 +67,9 @@
  */
 #define ALLEGRO_RELEASE_NUMBER   1
 
-#define ALLEGRO_VERSION_STR      "5.0.8"
+#define ALLEGRO_VERSION_STR      "5.0.9 (WIP)"
 #define ALLEGRO_DATE_STR         "2012"
-#define ALLEGRO_DATE             20121118    /* yyyymmdd */
+#define ALLEGRO_DATE             20121120    /* yyyymmdd */
 #define ALLEGRO_VERSION_INT \
     ((ALLEGRO_VERSION << 24) | (ALLEGRO_SUB_VERSION << 16) | \
     (ALLEGRO_WIP_VERSION << 8) | ALLEGRO_RELEASE_NUMBER)
