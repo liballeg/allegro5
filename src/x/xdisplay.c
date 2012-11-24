@@ -14,20 +14,20 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
 
-   if (!(d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
-      glViewport(0, 0, d->w, d->h);
+   glViewport(0, 0, d->w, d->h);
 
+   if (!(d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
       glMatrixMode(GL_PROJECTION);
       glLoadIdentity();
       glOrtho(0, d->w, d->h, 0, -1, 1);
 
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
-
-      al_identity_transform(&d->proj_transform);
-      al_orthographic_transform(&d->proj_transform, 0, 0, -1, d->w, d->h, 1);
-      d->vt->set_projection(d);
    }
+
+   al_identity_transform(&d->proj_transform);
+   al_orthographic_transform(&d->proj_transform, 0, 0, -1, d->w, d->h, 1);
+   d->vt->set_projection(d);
 
    if (ogl->backbuffer)
       _al_ogl_resize_backbuffer(ogl->backbuffer, d->w, d->h);
