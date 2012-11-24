@@ -93,7 +93,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
    int flags)
 {
    ALLEGRO_BITMAP *bmp;
-   png_uint_32 width, height, rowbytes;
+   png_uint_32 width, height, rowbytes, real_rowbytes;
    int bit_depth, color_type, interlace_type;
    double image_gamma, screen_gamma;
    int intent;
@@ -203,7 +203,12 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
       return NULL;
    }
 
-   buf = al_malloc(((bpp + 7) / 8) * width);
+   // TODO: can this be different from rowbytes?
+   real_rowbytes = ((bpp + 7) / 8) * width;
+   if (interlace_type == PNG_INTERLACE_ADAM7)
+      buf = al_malloc(real_rowbytes * height);
+   else
+      buf = al_malloc(real_rowbytes);
 
    if (bpp == 8 && (color_type & PNG_COLOR_MASK_PALETTE) &&
       (flags & ALLEGRO_KEEP_INDEX))
@@ -218,7 +223,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
       index_only = false;
    }
 
-   /* Read the image, one line at a line (easier to debug!) */
+   /* Read the image, one line at a time (easier to debug!) */
    for (pass = 0; pass < number_passes; pass++) {
       png_uint_32 y;
       unsigned int i;
@@ -227,9 +232,15 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
 
       for (y = 0; y < height; y++) {
          unsigned char *dest_row_start = dest;
-         png_read_row(png_ptr, buf, NULL);
-         ptr = buf;
-
+         /* For interlaced pictures, the row needs to be initialized with
+          * the contents of the previous pass.
+          */
+         if (interlace_type == PNG_INTERLACE_ADAM7)
+            ptr = buf + y * real_rowbytes;
+         else
+             ptr = buf;
+         png_read_row(png_ptr, ptr, NULL);
+   
          switch (bpp) {
             case 8:
                if (index_only) {
