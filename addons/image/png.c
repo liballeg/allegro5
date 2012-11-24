@@ -239,7 +239,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
             ptr = buf + y * real_rowbytes;
          else
              ptr = buf;
-         png_read_row(png_ptr, ptr, NULL);
+         png_read_row(png_ptr, NULL, ptr);
    
          switch (bpp) {
             case 8:
