@@ -97,6 +97,11 @@ add_custom_target(run_tests_wine_gl
     COMMAND wine test_driver --force-opengl ${test_files}
     )
 
+add_custom_target(run_tests_shaders
+    DEPENDS test_driver copy_tests_example_data
+    COMMAND test_driver --use-shaders ${test_files}
+    )
+
 copy_data_dir_to_build(copy_tests_example_data ../examples/data .)
 
 # vim: set sts=4 sw=4 et:
