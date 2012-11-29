@@ -25,16 +25,120 @@ static DISPMANX_UPDATE_HANDLE_T dispman_update;
 static DISPMANX_RESOURCE_HANDLE_T cursor_resource;
 static DISPMANX_DISPLAY_HANDLE_T dispman_display;
 static DISPMANX_ELEMENT_HANDLE_T cursor_element;
+static VC_RECT_T dst_rect;
+static VC_RECT_T src_rect;
 static bool stop_cursor_thread = false;
 
 struct ALLEGRO_DISPLAY_RASPBERRYPI_EXTRA {
 };
 
+static void add_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
+{
+      ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)d;
+      uint32_t crap;
+      cursor_resource = vc_dispmanx_resource_create(VC_IMAGE_ARGB8888, DEFAULT_CURSOR_WIDTH, DEFAULT_CURSOR_HEIGHT, &crap);
+      VC_RECT_T r;
+      r.x = 0;
+      r.y = 0;
+      r.width = DEFAULT_CURSOR_WIDTH;
+      r.height = DEFAULT_CURSOR_HEIGHT;
+      char default_cursor[DEFAULT_CURSOR_HEIGHT][DEFAULT_CURSOR_WIDTH] = {
+         { 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+         { 1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+         { 1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+         { 1,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+         { 1,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0 },
+         { 1,2,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0 },
+         { 1,2,2,2,2,1,1,0,0,0,0,0,0,0,0,0,0 },
+         { 1,2,2,2,2,2,1,1,0,0,0,0,0,0,0,0,0 },
+         { 1,2,2,2,2,2,2,1,1,0,0,0,0,0,0,0,0 },
+         { 1,2,2,2,2,2,2,2,1,1,0,0,0,0,0,0,0 },
+         { 1,2,2,2,2,2,2,2,2,1,1,0,0,0,0,0,0 },
+         { 1,2,2,2,2,2,2,2,2,2,1,1,0,0,0,0,0 },
+         { 1,2,2,2,2,2,2,2,2,2,2,1,1,0,0,0,0 },
+         { 1,2,2,2,2,2,2,2,2,2,2,2,1,1,0,0,0 },
+         { 1,2,2,2,2,2,2,2,2,2,2,2,2,1,1,0,0 },
+         { 1,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,0 },
+         { 1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1 },
+         { 1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1 },
+         { 1,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1 },
+         { 1,2,2,2,2,2,2,2,2,2,1,1,1,1,0,0,0 },
+         { 1,2,2,2,2,2,2,2,2,2,1,1,0,0,0,0,0 },
+         { 1,2,2,2,2,2,2,2,2,2,2,1,0,0,0,0,0 },
+         { 1,2,2,2,1,1,1,1,2,2,2,1,1,0,0,0,0 },
+         { 1,2,1,1,0,0,0,1,1,2,2,2,1,0,0,0,0 },
+         { 1,1,0,0,0,0,0,0,1,2,2,2,1,1,0,0,0 },
+         { 0,0,0,0,0,0,0,0,1,1,2,2,2,1,0,0,0 },
+         { 0,0,0,0,0,0,0,0,0,1,1,2,2,1,0,0,0 },
+         { 0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0 },
+      };
+      int x, y;
+      for (y = 0; y < DEFAULT_CURSOR_HEIGHT; y++) {
+         uint32_t *p = (uint32_t *)((uint8_t *)d->cursor_data + y * PITCH);
+         for (x = 0; x < DEFAULT_CURSOR_WIDTH; x++) {
+            char c = default_cursor[y][x];
+            uint32_t color;
+            if (c == 0) {
+               color = 0x00000000;
+            }
+            else if (c == 1) {
+               color = 0xff000000;
+            }
+            else {
+               color = 0xffffffff;
+            }
+            *p++ = color;
+         }
+      }
+      dispman_update = vc_dispmanx_update_start(0);
+      vc_dispmanx_resource_write_data(cursor_resource, VC_IMAGE_ARGB8888, PITCH, d->cursor_data, &r);
+      vc_dispmanx_update_submit_sync(dispman_update); 
+      dst_rect.x = display->w/2+d->cursor_offset_x;
+      dst_rect.y = display->w/2+d->cursor_offset_y;
+      dst_rect.width = DEFAULT_CURSOR_WIDTH;
+      dst_rect.height = DEFAULT_CURSOR_HEIGHT;
+      src_rect.x = 0;
+      src_rect.y = 0;
+      src_rect.width = DEFAULT_CURSOR_WIDTH << 16;
+      src_rect.height = DEFAULT_CURSOR_HEIGHT << 16;
+      dispman_update = vc_dispmanx_update_start(0);
+      cursor_element = vc_dispmanx_element_add(
+         dispman_update,
+         dispman_display,
+         0/*layer*/,
+         &dst_rect,
+         cursor_resource,
+         &src_rect,
+         DISPMANX_PROTECTION_NONE,
+         0 /*alpha*/,
+         0/*clamp*/,
+         0/*transform*/
+      );
+      vc_dispmanx_update_submit_sync(dispman_update); 
+}
+
+static void remove_cursor(void)
+{
+      dispman_update = vc_dispmanx_update_start(0);
+      vc_dispmanx_element_remove(dispman_update, cursor_element);
+      vc_dispmanx_update_submit_sync(dispman_update); 
+      vc_dispmanx_resource_delete(cursor_resource);
+}
+
 static void *cursor_thread(void *_d)
 {
    ALLEGRO_DISPLAY *disp = (void *)_d;
    ALLEGRO_DISPLAY_RASPBERRYPI *d = (void *)_d;
+   bool cursor_on = false;
    while (!stop_cursor_thread) {
+      if (al_is_mouse_installed() && !cursor_on) {
+         cursor_on = true;
+         add_cursor(d);
+      }
+      else if (!al_is_mouse_installed() && cursor_on) {
+         cursor_on = false;
+         remove_cursor();
+      }
       if (!d->hide_cursor && al_is_mouse_installed()) {
          VC_RECT_T src, dst;
          src.x = 0;
@@ -221,8 +325,6 @@ static bool pi_create_display(ALLEGRO_DISPLAY *display)
 
    static EGL_DISPMANX_WINDOW_T nativewindow;
    DISPMANX_ELEMENT_HANDLE_T dispman_element;
-   VC_RECT_T dst_rect;
-   VC_RECT_T src_rect;
 
    int dx, dy, screen_width, screen_height;
    _al_raspberrypi_get_screen_info(&dx, &dy, &screen_width, &screen_height);
@@ -274,90 +376,6 @@ static bool pi_create_display(ALLEGRO_DISPLAY *display)
       return false;
    }
  
-   // FIXME: branch into a function, apply/remove this as mouse installed/removed
-   if (al_is_mouse_installed()) { 
-      uint32_t crap;
-      cursor_resource = vc_dispmanx_resource_create(VC_IMAGE_ARGB8888, DEFAULT_CURSOR_WIDTH, DEFAULT_CURSOR_HEIGHT, &crap);
-      VC_RECT_T r;
-      r.x = 0;
-      r.y = 0;
-      r.width = DEFAULT_CURSOR_WIDTH;
-      r.height = DEFAULT_CURSOR_HEIGHT;
-      char default_cursor[DEFAULT_CURSOR_HEIGHT][DEFAULT_CURSOR_WIDTH] = {
-         { 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-         { 1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-         { 1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-         { 1,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-         { 1,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0 },
-         { 1,2,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0 },
-         { 1,2,2,2,2,1,1,0,0,0,0,0,0,0,0,0,0 },
-         { 1,2,2,2,2,2,1,1,0,0,0,0,0,0,0,0,0 },
-         { 1,2,2,2,2,2,2,1,1,0,0,0,0,0,0,0,0 },
-         { 1,2,2,2,2,2,2,2,1,1,0,0,0,0,0,0,0 },
-         { 1,2,2,2,2,2,2,2,2,1,1,0,0,0,0,0,0 },
-         { 1,2,2,2,2,2,2,2,2,2,1,1,0,0,0,0,0 },
-         { 1,2,2,2,2,2,2,2,2,2,2,1,1,0,0,0,0 },
-         { 1,2,2,2,2,2,2,2,2,2,2,2,1,1,0,0,0 },
-         { 1,2,2,2,2,2,2,2,2,2,2,2,2,1,1,0,0 },
-         { 1,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,0 },
-         { 1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1 },
-         { 1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1 },
-         { 1,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1 },
-         { 1,2,2,2,2,2,2,2,2,2,1,1,1,1,0,0,0 },
-         { 1,2,2,2,2,2,2,2,2,2,1,1,0,0,0,0,0 },
-         { 1,2,2,2,2,2,2,2,2,2,2,1,0,0,0,0,0 },
-         { 1,2,2,2,1,1,1,1,2,2,2,1,1,0,0,0,0 },
-         { 1,2,1,1,0,0,0,1,1,2,2,2,1,0,0,0,0 },
-         { 1,1,0,0,0,0,0,0,1,2,2,2,1,1,0,0,0 },
-         { 0,0,0,0,0,0,0,0,1,1,2,2,2,1,0,0,0 },
-         { 0,0,0,0,0,0,0,0,0,1,1,2,2,1,0,0,0 },
-         { 0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0 },
-      };
-      int x, y;
-      for (y = 0; y < DEFAULT_CURSOR_HEIGHT; y++) {
-         uint32_t *p = (uint32_t *)((uint8_t *)d->cursor_data + y * PITCH);
-         for (x = 0; x < DEFAULT_CURSOR_WIDTH; x++) {
-            char c = default_cursor[y][x];
-            uint32_t color;
-            if (c == 0) {
-               color = 0x00000000;
-            }
-            else if (c == 1) {
-               color = 0xff000000;
-            }
-            else {
-               color = 0xffffffff;
-            }
-            *p++ = color;
-         }
-      }
-      dispman_update = vc_dispmanx_update_start(0);
-      vc_dispmanx_resource_write_data(cursor_resource, VC_IMAGE_ARGB8888, PITCH, d->cursor_data, &r);
-      vc_dispmanx_update_submit_sync(dispman_update); 
-      dst_rect.x = display->w/2+d->cursor_offset_x;
-      dst_rect.y = display->w/2+d->cursor_offset_y;
-      dst_rect.width = DEFAULT_CURSOR_WIDTH;
-      dst_rect.height = DEFAULT_CURSOR_HEIGHT;
-      src_rect.x = 0;
-      src_rect.y = 0;
-      src_rect.width = DEFAULT_CURSOR_WIDTH << 16;
-      src_rect.height = DEFAULT_CURSOR_HEIGHT << 16;
-      dispman_update = vc_dispmanx_update_start(0);
-      cursor_element = vc_dispmanx_element_add(
-         dispman_update,
-         dispman_display,
-         0/*layer*/,
-         &dst_rect,
-         cursor_resource,
-         &src_rect,
-         DISPMANX_PROTECTION_NONE,
-         0 /*alpha*/,
-         0/*clamp*/,
-         0/*transform*/
-      );
-      vc_dispmanx_update_submit_sync(dispman_update); 
-   }
-
    return true;
 }
 

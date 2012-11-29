@@ -301,6 +301,7 @@ endif(ANDROID)
 
 if(ALLEGRO_RASPBERRYPI)
     set(ALLEGRO_HAVE_LIBPTHREAD 1)
+    set(ALLEGRO_CFG_PTHREADS_TLS 1)
 endif(ALLEGRO_RASPBERRYPI)
 
 # Tell the compiler it can use SSE instructions on x86 architectures.
