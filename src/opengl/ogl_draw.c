@@ -1,5 +1,5 @@
 /*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
+ *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
@@ -42,8 +42,7 @@ bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
       &op_alpha, &src_alpha, &dst_alpha);
    /* glBlendFuncSeparate was only included with OpenGL 1.4 */
    /* (And not in OpenGL ES) */
-#if !defined ALLEGRO_GP2XWIZ
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+#if !defined ALLEGRO_CFG_OPENGLES
    if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_1_4) {
 #else
    if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
@@ -71,10 +70,6 @@ bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
          return false;
       }
    }
-#else
-   glEnable(GL_BLEND);
-   glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
-#endif
    return true;
 }
 
@@ -319,7 +314,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
 {
    GLuint current_texture;
    ALLEGRO_OGL_EXTRAS *o = disp->ogl_extras;
-
+   
    if (!disp->vertex_cache)
       return;
    if (disp->num_cache_vertices == 0)
@@ -351,8 +346,8 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
       }
       glBindTexture(GL_TEXTURE_2D, disp->cache_texture);
    }
-   
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID && !defined ALLEGRO_MACOSX
+
+#if !defined ALLEGRO_CFG_OPENGLES && !defined ALLEGRO_MACOSX
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       int stride = sizeof(ALLEGRO_OGL_BITMAP_VERTEX);
       int bytes = disp->num_cache_vertices * stride;
@@ -419,7 +414,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
    }
 #endif
 
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID && !defined ALLEGRO_MACOSX
+#if !defined ALLEGRO_CFG_OPENGLES && !defined ALLEGRO_MACOSX
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       if (o->pos_loc >= 0) glDisableVertexAttribArray(o->pos_loc);
       if (o->texcoord_loc >= 0) glDisableVertexAttribArray(o->texcoord_loc);
@@ -516,7 +511,7 @@ static void ogl_clear_depth_buffer(ALLEGRO_DISPLAY *display, float x)
 {
    (void)display;
 
-#if defined(ALLEGRO_IPHONE) || defined(ALLEGRO_ANDROID)
+#if defined(ALLEGRO_CFG_OPENGLES)
    glClearDepthf(x);
 #else
    glClearDepth(x);

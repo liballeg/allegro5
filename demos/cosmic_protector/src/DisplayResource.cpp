@@ -27,7 +27,6 @@ bool DisplayResource::load(void)
 #else
    int flags = useFullScreenMode ? ALLEGRO_FULLSCREEN : ALLEGRO_WINDOWED;
 #endif
-
    al_set_new_display_flags(flags);
    display = al_create_display(BB_W, BB_H);
    if (!display)

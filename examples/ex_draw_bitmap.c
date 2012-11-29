@@ -245,7 +245,7 @@ int main(void)
    
    al_get_monitor_info(0, &info);
 
-   #ifdef ALLEGRO_IPHONE
+   #if defined ALLEGRO_CFG_OPENGLES
    al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
    #endif
    al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS,
@@ -263,11 +263,11 @@ int main(void)
       abort_example("Error installing keyboard.\n");
       return 1;
    }
-    
+  
    if (!al_install_mouse()) {
         abort_example("Error installing mouse.\n");
         return 1;
-    }
+   }
 
    example.font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!example.font) {

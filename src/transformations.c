@@ -52,7 +52,6 @@ void al_use_transform(const ALLEGRO_TRANSFORM *trans)
     */
 
    if (trans != &target->transform) {
-   
       al_copy_transform(&target->transform, trans);
       
       target->inverse_transform_dirty = true;

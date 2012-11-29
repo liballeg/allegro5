@@ -77,7 +77,6 @@ ALLEGRO_DEBUG_CHANNEL("fshook")
    #endif
 #endif
 
-
 /*
  * MSVC is missing the whole dirent.h so we implement the bits we need here.
  * The following block is coppied from dirent.c from MinGW Runtime sources

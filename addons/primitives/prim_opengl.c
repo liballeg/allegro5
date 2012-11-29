@@ -551,7 +551,7 @@ bool _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* ini
 
    switch (usage_hints)
    {
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+#if !defined ALLEGRO_CFG_OPENGLES
       case ALLEGRO_BUFFER_STREAM | ALLEGRO_BUFFER_DRAW:
          usage = GL_STREAM_DRAW;
          break;
@@ -565,7 +565,7 @@ bool _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* ini
       case ALLEGRO_BUFFER_STATIC | ALLEGRO_BUFFER_DRAW:
          usage = GL_STATIC_DRAW;
          break;
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+#if !defined ALLEGRO_CFG_OPENGLES
       case ALLEGRO_BUFFER_STATIC | ALLEGRO_BUFFER_READ:
          usage = GL_STATIC_READ;
          break;
@@ -576,7 +576,7 @@ bool _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* ini
       case ALLEGRO_BUFFER_DYNAMIC | ALLEGRO_BUFFER_DRAW:
          usage = GL_DYNAMIC_DRAW;
          break;
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+#if !defined ALLEGRO_CFG_OPENGLES
       case ALLEGRO_BUFFER_DYNAMIC | ALLEGRO_BUFFER_READ:
          usage = GL_DYNAMIC_READ;
          break;
@@ -629,7 +629,7 @@ void* _al_lock_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf)
    }
 
    if (buf->lock_flags != ALLEGRO_LOCK_WRITEONLY) {
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+#if !defined ALLEGRO_CFG_OPENGLES
       glBindBuffer(GL_ARRAY_BUFFER, (GLuint)buf->handle);
       glGetBufferSubData(GL_ARRAY_BUFFER, buf->lock_offset, buf->lock_length, buf->locked_memory);
       glBindBuffer(GL_ARRAY_BUFFER, 0);

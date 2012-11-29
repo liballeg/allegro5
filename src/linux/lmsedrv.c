@@ -19,6 +19,11 @@
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/platform/aintunix.h"
+#include "allegro5/platform/aintlnx.h"
+
+#ifdef ALLEGRO_RASPBERRYPI
+#include "allegro5/internal/aintern_raspberrypi.h"
+#endif
 
 /* list the available drivers */
 _AL_DRIVER_INFO _al_linux_mouse_driver_list[] =
@@ -32,7 +37,7 @@ _AL_DRIVER_INFO _al_linux_mouse_driver_list[] =
 /* {  MOUSEDRV_LINUX_IMS,      &mousedrv_linux_ims,      true  },*/
 /* {  MOUSEDRV_LINUX_PS2,      &mousedrv_linux_ps2,      true  },*/
 /* {  MOUSEDRV_LINUX_IPS2,     &mousedrv_linux_ips2,     true  },*/
-#ifdef ALLEGRO_HAVE_LINUX_INPUT_H
+#if defined ALLEGRO_HAVE_LINUX_INPUT_H || defined ALLEGRO_RASPBERRYPI
    {  AL_MOUSEDRV_LINUX_EVDEV, &_al_mousedrv_linux_evdev, true  },
 #endif
    {  0,                       NULL,                     0     }

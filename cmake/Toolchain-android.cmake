@@ -2,6 +2,8 @@
 SET(CMAKE_SYSTEM_NAME Linux)
 SET(CMAKE_SYSTEM_VERSION 1)
 
+SET(ALLEGRO_CFG_OPENGLES 1)
+
 #set path for android toolchain -- look
 
 set(ANDROID_NDK_TOOLCHAIN_ROOT "$ENV{HOME}/android-toolchain" CACHE PATH "Path to the Android NDK Standalone Toolchain" )
@@ -139,8 +141,6 @@ endif()
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" CACHE STRING "c++ flags")
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}" CACHE STRING "c flags")
-     
-OPTION(WANT_GLES2 "Compile with GLES2 support" ON)
 
 #set these global flags for cmake client scripts to change behavior
 set(ANDROID True)

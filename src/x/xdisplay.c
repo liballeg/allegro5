@@ -1,6 +1,7 @@
 #include "allegro5/internal/aintern_xglx.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_opengl.h"
+#include "allegro5/internal/aintern_x.h"
 
 
 ALLEGRO_DEBUG_CHANNEL("display")
@@ -33,79 +34,6 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
       _al_ogl_resize_backbuffer(ogl->backbuffer, d->w, d->h);
    else
       ogl->backbuffer = _al_ogl_create_backbuffer(d);
-}
-
-
-
-static void set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
-{
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
-   XSizeHints *hints = XAllocSizeHints();
-   hints->flags = 0;
-
-   /* Do not force the size of the window on resizeable or fullscreen windows */
-   /* on fullscreen windows, it confuses most X Window Managers */
-   if (!(d->flags & ALLEGRO_RESIZABLE) && !(d->flags & ALLEGRO_FULLSCREEN)) {
-      hints->flags |= PMinSize | PMaxSize | PBaseSize;
-      hints->min_width  = hints->max_width  = hints->base_width  = d->w;
-      hints->min_height = hints->max_height = hints->base_height = d->h;
-   }
-
-   /* Constrain the window if needed. */
-   if (d->flags & ALLEGRO_RESIZABLE &&
-      (d->min_w > 0 || d->min_h > 0 || d->max_w > 0 || d->max_h > 0))
-   {
-      hints->flags |= PMinSize | PMaxSize | PBaseSize;
-      hints->min_width = (d->min_w > 0) ? d->min_w : 0;
-      hints->min_height = (d->min_h > 0) ? d->min_h : 0;
-      hints->max_width = (d->max_w > 0) ? d->max_w : INT_MAX;
-      hints->max_height = (d->max_h > 0) ? d->max_h : INT_MAX;
-      hints->base_width  = d->w;
-      hints->base_height = d->h;
-   }
-
-   // Tell WMs to respect our chosen position, otherwise the x_off/y_off
-   // positions passed to XCreateWindow will be ignored by most WMs.
-   if (x_off != INT_MAX && y_off != INT_MAX) {
-      ALLEGRO_DEBUG("Force window position to %d, %d.\n", x_off, y_off);
-      hints->flags |= PPosition;
-      hints->x = x_off;
-      hints->y = y_off;
-   }
-
-   if (d->flags & ALLEGRO_FULLSCREEN) {
-      /* kwin will improperly layer a panel over our window on a second display without this.
-       * some other Size flags may cause glitches with various WMs, but this seems to be ok
-       * with metacity and kwin. As noted in xdpy_create_display, compiz is just broken.
-       */
-      hints->flags |= PBaseSize;
-      hints->base_width  = d->w;
-      hints->base_height = d->h;
-   }
-
-   XSetWMNormalHints(system->x11display, glx->window, hints);
-
-   XFree(hints);
-}
-
-
-
-static void reset_size_hints(ALLEGRO_DISPLAY *d)
-{
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
-   XSizeHints *hints = XAllocSizeHints();
-
-   hints->flags = PMinSize | PMaxSize;
-   hints->min_width  = 0;
-   hints->min_height = 0;
-   // FIXME: Is there a way to remove/reset max dimensions?
-   hints->max_width  = 32768;
-   hints->max_height = 32768;
-   XSetWMNormalHints(system->x11display, glx->window, hints);
-
-   XFree(hints);
 }
 
 
@@ -225,7 +153,7 @@ static bool xdpy_set_window_constraints(ALLEGRO_DISPLAY *display,
    }
 
    al_get_window_position(display, &posX, &posY);
-   set_size_hints(display, posX, posY);
+   _al_xwin_set_size_hints(display, posX, posY);
    /* Resize the display to its current size so constraints take effect. */
    al_resize_display(display, w, h);
 
@@ -277,14 +205,14 @@ static void xdpy_set_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    if (onoff == !(display->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
       _al_mutex_lock(&system->lock);
-      reset_size_hints(display);
-      _al_xglx_set_fullscreen_window(display, 2);
+      _al_xwin_reset_size_hints(display);
+      _al_xwin_set_fullscreen_window(display, 2);
       /* XXX Technically, the user may fiddle with the _NET_WM_STATE_FULLSCREEN
        * property outside of Allegro so this flag may not be in sync with
        * reality.
        */
       display->flags ^= ALLEGRO_FULLSCREEN_WINDOW;
-      set_size_hints(display, INT_MAX, INT_MAX);
+      _al_xwin_set_size_hints(display, INT_MAX, INT_MAX);
       _al_mutex_unlock(&system->lock);
    }
 }
@@ -523,7 +451,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    ALLEGRO_DEBUG("X11 window created.\n");
    
-   set_size_hints(display, x_off, y_off);
+   _al_xwin_set_size_hints(display, x_off, y_off);
    
    XLockDisplay(system->x11display);
    
@@ -556,9 +484,9 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    if ((display->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
       ALLEGRO_INFO("Toggling fullscreen flag for %d x %d window.\n",
          display->w, display->h);
-      reset_size_hints(display);
-      _al_xglx_set_fullscreen_window(display, 2);
-      set_size_hints(display, INT_MAX, INT_MAX);
+      _al_xwin_reset_size_hints(display);
+      _al_xwin_set_fullscreen_window(display, 2);
+      _al_xwin_set_size_hints(display, INT_MAX, INT_MAX);
 
       XWindowAttributes xwa;
       XGetWindowAttributes(system->x11display, d->window, &xwa);
@@ -574,7 +502,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       /* XXX compiz is quiky, can't seem to find a combination of hints that
        * make sure we are layerd over panels, and are positioned properly */
 
-      //_al_xglx_set_fullscreen_window(display, 1);
+      //_al_xwin_set_fullscreen_window(display, 1);
       _al_xglx_set_above(display, 1);
 
       _al_xglx_fullscreen_to_display(system, d);
@@ -970,7 +898,7 @@ static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
    }
 
    if (d->flags & ALLEGRO_FULLSCREEN) {
-      _al_xglx_set_fullscreen_window(d, 0);
+      _al_xwin_set_fullscreen_window(d, 0);
       if (!_al_xglx_fullscreen_set_mode(system, glx, w, h, 0, 0)) {
          ret = false;
          goto skip_resize;
@@ -990,13 +918,13 @@ static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
    for (; attempts >= 0; attempts--) {
       const int old_resize_count = glx->resize_count;
       ALLEGRO_DEBUG("calling XResizeWindow, attempts=%d\n", attempts);
-      reset_size_hints(d);
+      _al_xwin_reset_size_hints(d);
       glx->programmatic_resize = true;
       XResizeWindow(system->x11display, glx->window, w, h);
       _al_display_xglx_await_resize(d, old_resize_count,
          (d->flags & ALLEGRO_FULLSCREEN));
       glx->programmatic_resize = false;
-      set_size_hints(d, INT_MAX, INT_MAX);
+      _al_xwin_set_size_hints(d, INT_MAX, INT_MAX);
 
       if (d->w == w && d->h == h) {
          ret = true;
@@ -1014,7 +942,7 @@ static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
 skip_resize:
 
    if (d->flags & ALLEGRO_FULLSCREEN) {
-      _al_xglx_set_fullscreen_window(d, 1);
+      _al_xwin_set_fullscreen_window(d, 1);
       _al_xglx_set_above(d, 1);
       _al_xglx_fullscreen_to_display(system, glx);
       ALLEGRO_DEBUG("xdpy: resize fullscreen?\n");
@@ -1096,27 +1024,6 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
    
    _al_event_source_unlock(es);
    
-}
-
-
-
-/* Handle an X11 close button event. [X11 thread]
- * Only called from the event handler with the system locked.
- */
-void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent)
-{
-   ALLEGRO_EVENT_SOURCE *es = &d->es;
-   (void)xevent;
-
-   _al_event_source_lock(es);
-
-   if (_al_event_source_needs_to_generate_event(es)) {
-      ALLEGRO_EVENT event;
-      event.display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
-      event.display.timestamp = al_get_time();
-      _al_event_source_emit_event(es, &event);
-   }
-   _al_event_source_unlock(es);
 }
 
 
@@ -1228,6 +1135,10 @@ static void xdpy_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
    XSetTextProperty(system->x11display, glx->window, &property, WM_NAME);
    XSetTextProperty(system->x11display, glx->window, &property, _NET_WM_NAME);
    XFree(property.value);
+   XClassHint hint;
+   hint.res_name = strdup(title); // Leak? (below too...)
+   hint.res_class = strdup(title);
+   XSetClassHint(system->x11display, glx->window, &hint);
    _al_mutex_unlock(&system->lock);
 }
 
@@ -1277,10 +1188,41 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    xdpy_vt.wait_for_vsync = xdpy_wait_for_vsync;
    xdpy_vt.update_render_state = _al_ogl_update_render_state;
 
-   _al_xglx_add_cursor_functions(&xdpy_vt);
+   _al_xwin_add_cursor_functions(&xdpy_vt);
    _al_ogl_add_drawing_functions(&xdpy_vt);
 
    return &xdpy_vt;
+}
+
+#define X11_ATOM(x)  XInternAtom(x11, #x, False);
+
+void _al_xglx_set_above(ALLEGRO_DISPLAY *display, int value)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   Display *x11 = system->x11display;
+
+   ALLEGRO_DEBUG("Toggling _NET_WM_STATE_ABOVE hint: %d\n", value);
+
+   XEvent xev;
+   xev.xclient.type = ClientMessage;
+   xev.xclient.serial = 0;
+   xev.xclient.send_event = True;
+   xev.xclient.message_type = X11_ATOM(_NET_WM_STATE);
+   xev.xclient.window = glx->window;
+   xev.xclient.format = 32;
+
+   // Note: It seems 0 is not reliable except when mapping a window -
+   // 2 is all we need though.
+   xev.xclient.data.l[0] = value; /* 0 = off, 1 = on, 2 = toggle */
+
+   xev.xclient.data.l[1] = X11_ATOM(_NET_WM_STATE_ABOVE);
+   xev.xclient.data.l[2] = 0;
+   xev.xclient.data.l[3] = 0;
+   xev.xclient.data.l[4] = 1;
+
+   XSendEvent(x11, DefaultRootWindow(x11), False,
+      SubstructureRedirectMask | SubstructureNotifyMask, &xev);
 }
 
 /* vi: set sts=3 sw=3 et: */

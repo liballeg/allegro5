@@ -132,19 +132,6 @@ typedef void (*ALLEGRO_MEMORY_BLENDER)(
 void _al_blend_memory(ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dest,
    int dx, int dy, ALLEGRO_COLOR *result);
 
-#ifdef ALLEGRO_GP2XWIZ
-/* Optimized blitters */
-void _al_draw_bitmap_region_optimized_rgba_4444_to_rgb_565(
-   ALLEGRO_BITMAP *src, int sx, int sy, int sw, int sh,
-   ALLEGRO_BITMAP *dest, int dx, int dy, int flags);
-void _al_draw_bitmap_region_optimized_rgb_565_to_rgb_565(
-   ALLEGRO_BITMAP *src, int sx, int sy, int sw, int sh,
-   ALLEGRO_BITMAP *dest, int dx, int dy, int flags);
-void _al_draw_bitmap_region_optimized_rgba_4444_to_rgba_4444(
-   ALLEGRO_BITMAP *src, int sx, int sy, int sw, int sh,
-   ALLEGRO_BITMAP *dest, int dx, int dy, int flags);
-#endif
-
 bool _al_transform_is_translation(const ALLEGRO_TRANSFORM* trans,
    float *dx, float *dy);
 

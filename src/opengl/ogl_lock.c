@@ -26,7 +26,7 @@
  * #ifdefs everywhere.  Combined with huge functions, that made the previous
  * version very hard to follow and prone to break.
  */
-#if !defined(ALLEGRO_IPHONE) && !defined(ALLEGRO_ANDROID) && !defined(ALLEGRO_GP2XWIZ)
+#if !defined(ALLEGRO_CFG_OPENGLES)
 
 ALLEGRO_DEBUG_CHANNEL("opengl")
 

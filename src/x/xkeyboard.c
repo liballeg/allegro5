@@ -35,7 +35,13 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_keyboard.h"
+
+#ifndef ALLEGRO_RASPBERRYPI
 #include "allegro5/internal/aintern_xglx.h"
+#else
+#include "allegro5/internal/aintern_raspberrypi.h"
+#define ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_RASPBERRYPI
+#endif
 
 ALLEGRO_DEBUG_CHANNEL("keyboard")
 
@@ -517,6 +523,7 @@ static void _al_xwin_get_keyboard_mapping(void)
    int i;
    int count;
    int missing = 0;
+
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
 
    memset(used, 0, sizeof used);
@@ -1002,6 +1009,8 @@ static void handle_key_press(int mycode, int unichar, int filtered,
    }
    _al_event_source_unlock(&the_keyboard.parent.es);
 
+// FIXME?
+#ifndef ALLEGRO_RASPBERRYPI
    /* Toggle mouse grab key.  The system driver should not be locked here. */
    if (last_press_code && !is_repeat) {
       ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
@@ -1015,6 +1024,7 @@ static void handle_key_press(int mycode, int unichar, int filtered,
             al_grab_mouse(display);
       }
    }
+#endif
 
    /* Exit by Ctrl-Alt-End.  */
    if ((_al_three_finger_flag)

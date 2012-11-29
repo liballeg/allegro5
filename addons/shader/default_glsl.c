@@ -32,6 +32,9 @@ char const *al_get_default_glsl_vertex_shader(void)
 char const *al_get_default_glsl_pixel_shader(void)
 {
    return
+#ifdef ALLEGRO_CFG_OPENGLES
+      "precision mediump float;\n"
+#endif
       "uniform sampler2D tex;\n"
       "uniform bool use_tex;\n"
       "varying vec4 varying_color;\n"

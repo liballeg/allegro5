@@ -58,14 +58,7 @@
 #define GL_GLEXT_PROTOTYPES
 #endif
 
-#elif defined ALLEGRO_GP2XWIZ
-
-#include <wiz/GL/gl.h>
-#include <wiz/GL/nanogl.h>
-#include <wiz/GL/wizGLES.h>
-#include <wiz/GL/egl.h>
-
-#elif defined ALLEGRO_ANDROID
+#elif defined ALLEGRO_ANDROID || defined ALLEGRO_RASPBERRYPI
 
 #include <GLES/gl.h>
 #include <GLES/glext.h>
@@ -77,21 +70,29 @@
 #define GL_FUNC_ADD GL_FUNC_ADD_OES
 #define GL_FUNC_SUBTRACT GL_FUNC_SUBTRACT_OES
 #define GL_FUNC_REVERSE_SUBTRACT GL_FUNC_REVERSE_SUBTRACT_OES
-
 #endif
 
 #define GL_RGBA8 GL_RGBA8_OES
 
+#ifndef ALLEGRO_RASPBERRYPI
 #define GL_FRAMEBUFFER_BINDING_EXT GL_FRAMEBUFFER_BINDING_OES
 #define GL_FRAMEBUFFER_EXT GL_FRAMEBUFFER_OES
-
 #define glBlendEquation glBlendEquationOES
 #define glBlendFuncSeparate glBlendFuncSeparateOES
 #define glBlendEquationSeparate glBlendEquationSeparateOES
 #define glGenerateMipmapEXT glGenerateMipmapOES
-
 #define glBindFramebufferEXT glBindFramebufferOES
 #define glDeleteFramebuffersEXT glDeleteFramebuffersOES
+#else
+#define GL_FRAMEBUFFER_BINDING_EXT GL_FRAMEBUFFER_BINDING
+#define GL_FRAMEBUFFER_EXT GL_FRAMEBUFFER
+#define glBlendEquation glBlendEquation
+#define glBlendFuncSeparate glBlendFuncSeparate
+#define glBlendEquationSeparate glBlendEquationSeparate
+#define glGenerateMipmapEXT glGenerateMipmap
+#define glBindFramebufferEXT glBindFramebuffer
+#define glDeleteFramebuffersEXT glDeleteFramebuffers
+#endif
 
 #else /* ALLEGRO_MACOSX */
 
@@ -103,6 +104,11 @@
 #undef  __glxext_h_
 
 #endif /* ALLEGRO_MACOSX */
+
+#ifdef ALLEGRO_RASPBERRYPI
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#endif
 
 #include "allegro5/opengl/gl_ext.h"
 

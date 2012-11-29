@@ -40,7 +40,7 @@ static void game_loop()
       if (!logic(step))
          break;
       render(step);
-      al_rest(0.010);
+      al_rest(1.0/60.0);
       long end = (long) (al_get_time() * 1000);
       step = end - start;
       start = end;
@@ -60,7 +60,6 @@ int main(int argc, char **argv)
 {
    if (check_arg(argc, argv, "-fullscreen"))
       useFullScreenMode = true;
-
    if (!init()) {
       debug_message("Error in initialization.\n");
       return 1;

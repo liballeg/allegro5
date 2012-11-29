@@ -39,7 +39,7 @@
 #include <string.h>
 #if defined ALLEGRO_MACOSX
 #include <OpenGL/glu.h>
-#elif !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+#elif !defined ALLEGRO_CFG_OPENGLES
 #include <GL/glu.h>
 #endif
 
@@ -60,7 +60,7 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
     */
    #if defined ALLEGRO_GLXGETPROCADDRESSARB
       #define alXGetProcAddress glXGetProcAddressARB
-   #elif defined ALLEGRO_GP2XWIZ
+   #elif defined ALLEGRO_RASPBERRYPI
       #define alXGetProcAddress eglGetProcAddress
    #else
       #define alXGetProcAddress glXGetProcAddress
@@ -93,7 +93,7 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 
 
 
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+#if !defined ALLEGRO_CFG_OPENGLES
 static uint32_t parse_opengl_version(const char *s)
 {
    char *p = (char *) s;
@@ -127,7 +127,7 @@ static uint32_t parse_opengl_version(const char *s)
 /* Reads version info out of glGetString(GL_VERSION) */
 static uint32_t _al_ogl_version(void)
 {
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+#if !defined ALLEGRO_CFG_OPENGLES
    ALLEGRO_CONFIG *cfg;
    const char *str;
 
@@ -205,7 +205,7 @@ static void print_extensions(char const *extension)
 
 
 
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+#if !defined ALLEGRO_CFG_OPENGLES
 /* Print all extensions the OpenGL 3.0 way. */ 
 static void print_extensions_3_0(void)
 {
@@ -244,7 +244,7 @@ uint32_t al_get_opengl_version(void)
  */
 int al_get_opengl_variant(void)
 {
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_GP2XWIZ || defined ALLEGRO_ANDROID
+#if defined ALLEGRO_CFG_OPENGLES
    return ALLEGRO_OPENGL_ES;
 #else
    return ALLEGRO_DESKTOP_OPENGL;
@@ -433,16 +433,12 @@ static bool _ogl_is_extension_supported(const char *extension,
 {
    int ret = 0;
    GLubyte const *ext_str;
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+#if !defined ALLEGRO_CFG_OPENGLES
    int v = al_get_opengl_version();
 #endif
    (void)disp;
 
-#if defined ALLEGRO_GP2XWIZ
-   return false;
-#endif
-
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+#if !defined ALLEGRO_CFG_OPENGLES
    if (disp->flags & ALLEGRO_OPENGL_3_0 || v >= _ALLEGRO_OPENGL_VERSION_3_0) {
       int i;
       GLint ext_cnt;
@@ -598,7 +594,7 @@ void *al_get_opengl_proc_address(const char *name)
        * address. Unfortunately glXGetProcAddress is an extension
        * and may not be available on all platforms
        */
-#ifdef ALLEGRO_GP2XWIZ
+#if defined ALLEGRO_RASPBERRYPI
       symbol = alXGetProcAddress(name);
 #else
       symbol = alXGetProcAddress((const GLubyte *)name);
@@ -771,7 +767,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    load_extensions(ext_api);
    gl_disp->ogl_extras->extension_api = ext_api;
    
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+#if !defined ALLEGRO_CFG_OPENGLES
    /* Need that symbol already so can't wait until it is assigned later. */
    glGetStringi = ext_api->GetStringi;
 
@@ -884,7 +880,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
          ext_list->ALLEGRO_GL_OES_texture_npot;
    ALLEGRO_INFO("Use of non-power-of-two textures %s.\n",
       s[ALLEGRO_SUPPORT_NPOT_BITMAP] ? "enabled" : "disabled");
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
+#if defined ALLEGRO_CFG_OPENGLES
    if (gl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       s[ALLEGRO_CAN_DRAW_INTO_BITMAP] = true;
    }

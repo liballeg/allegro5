@@ -302,22 +302,25 @@ static bool lkeybd_init_keyboard(void)
 
    memset(&the_keyboard, 0, sizeof the_keyboard);
 
+/*
    if (__al_linux_use_console())
       return false;
-
-   the_keyboard.fd = dup(__al_linux_console_fd);
+*/
+   the_keyboard.fd = open("/dev/tty", O_RDWR);
 
    /* Save the current terminal attributes, which we will restore when
     * we close up shop.
     */
-   if (tcgetattr(the_keyboard.fd, &the_keyboard.startup_termio) != 0)
+   if (tcgetattr(the_keyboard.fd, &the_keyboard.startup_termio) != 0) {
       goto Error;
+   }
 
    /* Save previous keyboard mode (probably XLATE). */
-   if (ioctl(the_keyboard.fd, KDGKBMODE, &the_keyboard.startup_kbmode) != 0)
-      goto Error;
+   if (ioctl(the_keyboard.fd, KDGKBMODE, &the_keyboard.startup_kbmode) != 0) {
+      //goto Error;
+   }
 
-   can_restore_termio_and_kbmode = true;
+   can_restore_termio_and_kbmode = false;
 
    /* Set terminal attributes we need.
     *
@@ -343,12 +346,14 @@ static bool lkeybd_init_keyboard(void)
    the_keyboard.work_termio.c_cflag |= CS8;
    the_keyboard.work_termio.c_lflag &= ~(ICANON | ECHO | ISIG);
 
-   if (tcsetattr(the_keyboard.fd, TCSANOW, &the_keyboard.work_termio) != 0)
+   if (tcsetattr(the_keyboard.fd, TCSANOW, &the_keyboard.work_termio) != 0) {
       goto Error;
+   }
 
    /* Set the keyboard mode to mediumraw. */
-   if (ioctl(the_keyboard.fd, KDSKBMODE, K_MEDIUMRAW) != 0)
-      goto Error;
+   if (ioctl(the_keyboard.fd, KDSKBMODE, K_MEDIUMRAW) != 0) {
+      //goto Error;
+   }
 
    /* Initialise the keyboard object for use as an event source. */
    _al_event_source_init(&the_keyboard.parent.es);
@@ -370,7 +375,9 @@ static bool lkeybd_init_keyboard(void)
 
    close(the_keyboard.fd);
 
+/*
    __al_linux_leave_console();
+*/
 
    return false;
 }
@@ -393,7 +400,7 @@ static void lkeybd_exit_keyboard(void)
 
    close(the_keyboard.fd);
 
-   __al_linux_leave_console();
+   //__al_linux_leave_console();
 
    /* This may help catch bugs in the user program, since the pointer
     * we return to the user is always the same.
@@ -529,8 +536,6 @@ static void process_character(unsigned char ch)
        && (the_keyboard.modifiers & ALLEGRO_KEYMOD_CTRL)
        && (the_keyboard.modifiers & ALLEGRO_KEYMOD_ALT))
    {
-      TRACE(PREFIX_W "Three finger combo detected. SIGTERMing "
-	 "pid %d\n", main_pid);
       kill(main_pid, SIGTERM);
    }
 }
@@ -546,7 +551,7 @@ static void handle_key_press(int mycode, unsigned int ascii)
    ALLEGRO_EVENT event;
 
    event_type = (_AL_KEYBOARD_STATE_KEY_DOWN(the_keyboard.state, mycode)
-                 ? ALLEGRO_EVENT_KEY_REPEAT
+                 ? ALLEGRO_EVENT_KEY_CHAR
                  : ALLEGRO_EVENT_KEY_DOWN);
    
    /* Maintain the key_down array. */

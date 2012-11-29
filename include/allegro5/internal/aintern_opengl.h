@@ -52,14 +52,7 @@ typedef struct ALLEGRO_BITMAP_EXTRA_OPENGL
 
    GLuint texture; /* 0 means, not uploaded yet. */
 
-#if defined ALLEGRO_GP2XWIZ
-   EGLSurface pbuffer;
-   EGLContext context;
-   NativeWindowType pbuf_native_wnd;
-   bool changed;
-#else
    ALLEGRO_FBO_INFO *fbo_info;
-#endif
 
    unsigned char *lock_buffer;
 

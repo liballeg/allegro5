@@ -143,7 +143,7 @@ static void read_allegro_cfg(void)
 
    active_sysdrv->config = NULL;
 
-#if defined(ALLEGRO_UNIX) && !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
+#if defined(ALLEGRO_UNIX) && !defined(ALLEGRO_IPHONE)
    active_sysdrv->config = al_load_config_file("/etc/allegro5rc");
 
    path = _al_unix_get_path(ALLEGRO_USER_HOME_PATH);
@@ -220,7 +220,7 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
    ALLEGRO_SYSTEM bootstrap;
    ALLEGRO_SYSTEM *real_system;
    int library_version = al_get_allegro_version();
-   
+
    if (active_sysdrv) {
       return true;
    }
@@ -235,7 +235,7 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
 #ifdef ALLEGRO_CFG_PTHREADS_TLS
    _al_pthreads_tls_init();
 #endif
-   
+
    _al_vector_init(&_al_system_interfaces, sizeof(ALLEGRO_SYSTEM_INTERFACE *));
 
    /* We want active_sysdrv->config to be available as soon as

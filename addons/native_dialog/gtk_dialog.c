@@ -15,7 +15,8 @@
 #include "allegro5/allegro_native_dialog.h"
 #include "allegro5/internal/aintern_native_dialog.h"
 
-#ifdef ALLEGRO_WITH_XWINDOWS
+#if defined ALLEGRO_WITH_XWINDOWS && !defined ALLEGRO_RASPBERRYPI
+#define WITH_XGLX
 #include "allegro5/internal/aintern_xglx.h"
 #endif
 
@@ -146,7 +147,7 @@ static bool ensure_nd_gtk_thread(void)
 /* Shared functions                                                          */
 /*---------------------------------------------------------------------------*/
 
-#ifdef ALLEGRO_WITH_XWINDOWS
+#ifdef WITH_XGLX
 static void really_make_transient(GtkWidget *window, ALLEGRO_DISPLAY_XGLX *glx)
 {
    GdkDisplay *gdk = gdk_drawable_get_display(GDK_DRAWABLE(window->window));
@@ -160,12 +161,12 @@ static void realized(GtkWidget *window, gpointer data)
 {
    really_make_transient(window, (void *)data);
 }
-#endif /* ALLEGRO_WITH_XWINDOWS */
+#endif /* WITH_XGLX */
 
 static void make_transient(ALLEGRO_DISPLAY *display, GtkWidget *window)
 {
    /* Set the current display window (if any) as the parent of the dialog. */
-   #ifdef ALLEGRO_WITH_XWINDOWS
+   #ifdef WITH_XGLX
    ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
    if (glx) {
       if (!GTK_WIDGET_REALIZED(window))

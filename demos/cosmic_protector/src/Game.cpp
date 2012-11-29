@@ -56,7 +56,6 @@ const char* getResource(const char* fmt, ...)
 bool loadResources(void)
 {
    ResourceManager& rm = ResourceManager::getInstance();
-
    if (!rm.add(new DisplayResource())) {
       printf("Failed to create display.\n");
       return false;
@@ -113,21 +112,16 @@ bool loadResources(void)
 bool init(void)
 {
    srand(time(NULL));
-
    if (!al_init()) {
       debug_message("Error initialising Allegro.\n");
       return false;
    }
-
    al_set_org_name("Allegro");
    al_set_app_name("Cosmic Protector");
-   
    al_init_image_addon();
    al_init_font_addon();
    al_init_acodec_addon();
    al_init_primitives_addon();
-
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
 
    if (!loadResources()) {
       debug_message("Error loading resources.\n");

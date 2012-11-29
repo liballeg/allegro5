@@ -32,7 +32,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_joystick.h"
-#include ALLEGRO_INTERNAL_HEADER
+#include "allegro5/platform/aintunix.h"
 
 #ifdef ALLEGRO_HAVE_LINUX_JOYSTICK_H
 

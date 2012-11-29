@@ -10,9 +10,8 @@ if(VORBIS_INCLUDE_DIR)
     set(VORBIS_FIND_QUIETLY TRUE)
 endif(VORBIS_INCLUDE_DIR)
 
-if(NOT GP2XWIZ)
-    find_package(Ogg)
-    if(OGG_FOUND)
+find_package(Ogg)
+if(OGG_FOUND)
 	find_path(VORBIS_INCLUDE_DIR vorbis/vorbisfile.h)
 	# MSVC built vorbis may be named vorbis_static
 	# The provided project files name the library with the lib prefix.
@@ -26,21 +25,11 @@ if(NOT GP2XWIZ)
 	find_package_handle_standard_args(VORBIS DEFAULT_MSG
 	    VORBIS_INCLUDE_DIR
 	    VORBIS_LIBRARY VORBISFILE_LIBRARY)
-    endif(OGG_FOUND)
-else(NOT GP2XWIZ)
-    find_path(VORBIS_INCLUDE_DIR tremor/ivorbisfile.h)
-    find_library(VORBIS_LIBRARY NAMES vorbis_dec)
-    find_package_handle_standard_args(VORBIS DEFAULT_MSG
-        VORBIS_INCLUDE_DIR VORBIS_LIBRARY)
-endif(NOT GP2XWIZ)
+endif(OGG_FOUND)
 
 if(VORBIS_FOUND)
-  if(NOT GP2XWIZ)
-     set(VORBIS_LIBRARIES ${VORBISFILE_LIBRARY} ${VORBIS_LIBRARY}
-           ${OGG_LIBRARY})
-  else(NOT GP2XWIZ)
-     set(VORBIS_LIBRARIES ${VORBIS_LIBRARY})
-  endif(NOT GP2XWIZ)
+  set(VORBIS_LIBRARIES ${VORBISFILE_LIBRARY} ${VORBIS_LIBRARY}
+        ${OGG_LIBRARY})
 else(VORBIS_FOUND)
   set(VORBIS_LIBRARIES)
 endif(VORBIS_FOUND)

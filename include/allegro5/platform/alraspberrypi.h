@@ -8,23 +8,16 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      List of Unix joystick drivers.
- *
- *      By Shawn Hargreaves.
+ *      Raspberry Pi-specific header defines.
  *
  *      See readme.txt for copyright information.
  */
 
 
-#include "allegro5/allegro.h"
-#include "allegro5/platform/aintunix.h"
-#include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_joystick.h"
-
-
-
-_AL_BEGIN_JOYSTICK_DRIVER_LIST
-#if defined ALLEGRO_HAVE_LINUX_JOYSTICK_H && (defined ALLEGRO_WITH_XWINDOWS || defined ALLEGRO_RASPBERRYPI)
-   { _ALLEGRO_JOYDRV_LINUX,   &_al_joydrv_linux,   true  },
+#ifndef ALLEGRO_RASPBERRYPI
+   #error bad include
 #endif
-_AL_END_JOYSTICK_DRIVER_LIST
+
+#include "allegro5/platform/aintuthr.h"
+
+/* Nothing left */

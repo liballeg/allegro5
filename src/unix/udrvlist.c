@@ -19,8 +19,12 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_system.h"
 
-#ifdef ALLEGRO_WITH_XWINDOWS
+#if defined ALLEGRO_WITH_XWINDOWS
+#ifndef ALLEGRO_RASPBERRYPI
 #include "allegro5/internal/aintern_xglx.h"
+#else
+#include "allegro5/internal/aintern_raspberrypi.h"
+#endif
 #endif
 
 // FIXME: will need to wire this back in
@@ -125,11 +129,13 @@ void _unix_register_midi_driver(int id, MIDI_DRIVER *driver, int autodetect, int
  */
 void _al_register_system_interfaces(void)
 {
-#ifdef ALLEGRO_WITH_XWINDOWS
    ALLEGRO_SYSTEM_INTERFACE **add;
-   /* This is the only system driver right now */
+#if defined ALLEGRO_WITH_XWINDOWS && !defined ALLEGRO_RASPBERRYPI
    add = _al_vector_alloc_back(&_al_system_interfaces);
    *add = _al_system_xglx_driver();
+#elif defined ALLEGRO_RASPBERRYPI
+   add = _al_vector_alloc_back(&_al_system_interfaces);
+   *add = _al_system_raspberrypi_driver();
 #endif
 }
 

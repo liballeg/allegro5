@@ -21,10 +21,6 @@
 #include "allegro5/internal/aintern_pixels.h"
 #include "allegro5/transformations.h"	
 
-#ifdef ALLEGRO_GP2XWIZ
-#include "allegro5/internal/aintern_gp2xwiz.h"
-#endif
-
 #ifdef ALLEGRO_IPHONE
 #include "allegro5/internal/aintern_iphone.h"
 #endif
@@ -37,7 +33,18 @@
 
 ALLEGRO_DEBUG_CHANNEL("opengl")
 
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
+#if defined ALLEGRO_RASPBERRYPI
+   #define glGenFramebuffersEXT glGenFramebuffers
+   #define glBindFramebufferEXT glBindFramebuffer
+   #define GL_FRAMEBUFFER_BINDING_EXT GL_FRAMEBUFFER_BINDING
+   #define GL_FRAMEBUFFER_EXT GL_FRAMEBUFFER
+   #define GL_COLOR_ATTACHMENT0_EXT GL_COLOR_ATTACHMENT0
+   #define glCheckFramebufferStatusEXT glCheckFramebufferStatus
+   #define glFramebufferTexture2DEXT glFramebufferTexture2D
+   #define GL_FRAMEBUFFER_COMPLETE_EXT GL_FRAMEBUFFER_COMPLETE
+   #define glDeleteFramebuffersEXT glDeleteFramebuffers
+   #define glOrtho glOrthof
+#elif defined ALLEGRO_CFG_OPENGLES
    #define glGenFramebuffersEXT glGenFramebuffersOES
    #define glBindFramebufferEXT glBindFramebufferOES
    #define GL_FRAMEBUFFER_BINDING_EXT GL_FRAMEBUFFER_BINDING_OES
@@ -147,7 +154,7 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
     * Android. This is an ugly workaround.
     */
    if (
-#ifdef ALLEGRO_ANDROID
+#if defined ALLEGRO_ANDROID || defined ALLEGRO_RASPBERRYPI
       (bitmap->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) &&
 #endif
       glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT
@@ -229,7 +236,6 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
    if (false && display->ogl_extras->opengl_target == bitmap)
       return;
 
-#if !defined ALLEGRO_GP2XWIZ
    if (!ogl_bitmap->is_backbuffer) {
       ALLEGRO_FBO_INFO *info = NULL;
 
@@ -238,7 +244,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       if (ogl_bitmap->fbo_info == NULL && !(bitmap->flags & ALLEGRO_FORCE_LOCKING)) {
 
          if (
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
+#if defined ALLEGRO_CFG_OPENGLES
             /* FIXME This is quite a hack but I don't know how the Allegro
              * extension manager works to fix this properly (getting extensions
              * properly reported on iphone). All iOS devices support FBOs though
@@ -277,7 +283,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 
       if (info && info->fbo) {
          /* Bind to the FBO. */
-#if !defined ALLEGRO_IPHONE && !defined ALLEGRO_ANDROID
+#if !defined ALLEGRO_CFG_OPENGLES
          ASSERT(display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
             display->ogl_extras->extension_list->ALLEGRO_GL_OES_framebuffer_object);
 #endif
@@ -344,7 +350,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       display->ogl_extras->opengl_target = bitmap;
 
       if (
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
+#if defined ALLEGRO_CFG_OPENGLES
          true // Hack
 #else
          display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
@@ -368,26 +374,6 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 #endif
       display->vt->set_projection(display);
    }
-#else
-   ALLEGRO_DISPLAY_GP2XWIZ_OGL *wiz_disp = (ALLEGRO_DISPLAY_GP2XWIZ_OGL *)display;
-   display->ogl_extras->opengl_target = ogl_bitmap;
-
-   if (!ogl_bitmap->is_backbuffer) {
-      /* FIXME: implement */
-   }
-   else {
-      eglMakeCurrent(wiz_disp->egl_display, wiz_disp->egl_surface, wiz_disp->egl_surface, wiz_disp->egl_context); 
-
-      glViewport(0, 0, display->w, display->h);
-
-      glMatrixMode(GL_PROJECTION);
-      glLoadIdentity();
-      /* We use upside down coordinates compared to OpenGL, so the bottommost
-       * coordinate is display->h not 0.
-       */
-      glOrtho(0, display->w, display->h, 0, -1, 1);
-   }
-#endif
 }
 
 
@@ -512,10 +498,10 @@ bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP *b, int w, int h)
    b->display->vt->set_projection(b->display);
 #endif
 
-#if !defined(ALLEGRO_IPHONE) && !defined(ALLEGRO_GP2XWIZ)
+#if !defined(ALLEGRO_IPHONE)
    b->memory = NULL;
 #else
-   /* iPhone/Wiz ports still expect the buffer to be present. */
+   /* iPhone port still expects the buffer to be present. */
    {
       /* FIXME: lazily manage memory */
       size_t bytes = pitch * h;
@@ -540,10 +526,8 @@ ALLEGRO_BITMAP* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
    al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
 
    // FIXME: _al_deduce_color_format would work fine if the display paramerers
-   // are filled in, for WIZ and IPOD
-#ifdef ALLEGRO_GP2XWIZ
-   format = ALLEGRO_PIXEL_FORMAT_RGB_565; /* Only support display format */
-#elif defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
+   // are filled in, for OpenGL ES
+#if defined ALLEGRO_CFG_OPENGLES
    if (disp->extra_settings.settings[ALLEGRO_COLOR_SIZE] == 16) {
       format = ALLEGRO_PIXEL_FORMAT_RGB_565;
    }

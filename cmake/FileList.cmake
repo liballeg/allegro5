@@ -121,10 +121,12 @@ set(ALLEGRO_SRC_X_FILES
     src/x/xkeyboard.c
     src/x/xmousenu.c
     src/x/xdisplay.c
+    src/x/xevents.c
     src/x/xfullscreen.c
     src/x/xglx_config.c
     src/x/xrandr.c
     src/x/xsystem.c
+    src/x/xwindow.c
     src/linux/ljoynu.c
     )
 
@@ -139,15 +141,6 @@ set(ALLEGRO_SRC_MACOSX_FILES
     src/macosx/osx_app_delegate.m
     src/unix/utime.c
     src/unix/uxthread.c
-    )
-
-set(ALLEGRO_SRC_GP2XWIZ_FILES
-    src/gp2xwiz/wiz_display_opengl.c
-    src/gp2xwiz/wiz_display_fb.c
-    src/gp2xwiz/wiz_system.c
-    src/gp2xwiz/wiz_joystick.c
-    src/optimized.c
-    src/linux/ljoynu.c
     )
 
 set(ALLEGRO_SRC_IPHONE_FILES
@@ -179,6 +172,21 @@ set(ALLEGRO_SRC_ANDROID_FILES
    src/android/android_touch.c
    src/android/jni_helpers.c
 )
+
+set(ALLEGRO_SRC_RASPBERRYPI_FILES
+   src/unix/utime.c
+   src/unix/uxthread.c
+   src/linux/lkeybdnu.c
+   src/linux/lmseev.c
+   src/linux/lmsedrv.c
+   src/linux/ljoynu.c
+   src/x/xevents.c
+   src/x/xkeyboard.c
+   src/x/xmousenu.c
+   src/x/xwindow.c
+   src/raspberrypi/pisystem.c
+   src/raspberrypi/pidisplay.c
+   )
 
 set(ALLEGRO_MODULE_ALSADIGI_FILES
     )
@@ -266,6 +274,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
     include/allegro5/internal/aintern_touch_input.h
     include/allegro5/internal/aintern_vector.h
     include/allegro5/internal/alconfig.h
+    include/allegro5/internal/aintern_raspberrypi.h
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES
@@ -291,6 +300,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     include/allegro5/platform/aintandroid.h
     include/allegro5/platform/aintlnx.h
     include/allegro5/platform/aintosx.h
+    include/allegro5/platform/aintraspberrypi.h
     include/allegro5/platform/aintunix.h
     include/allegro5/platform/aintuthr.h
     include/allegro5/platform/aintwin.h
@@ -300,11 +310,13 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     include/allegro5/platform/al386wat.h
     include/allegro5/platform/alandroid.h
     include/allegro5/platform/alandroidcfg.h
+    include/allegro5/platform/alraspberrypicfg.h
     include/allegro5/platform/albcc32.h
     include/allegro5/platform/almngw32.h
     include/allegro5/platform/almsvc.h
     include/allegro5/platform/alosx.h
     include/allegro5/platform/alosxcfg.h
+    include/allegro5/platform/alraspberrypi.h
     include/allegro5/platform/alucfg.h
     include/allegro5/platform/alunix.h
     include/allegro5/platform/alwatcom.h

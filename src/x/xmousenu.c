@@ -20,10 +20,20 @@
 
 #define ALLEGRO_NO_COMPATIBILITY
 
+#include <stdio.h>
+
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_mouse.h"
+
+#ifndef ALLEGRO_RASPBERRYPI
 #include "allegro5/internal/aintern_xglx.h"
+#else
+#include "allegro5/internal/aintern_raspberrypi.h"
+#include "allegro5/internal/aintern_vector.h"
+#define ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_RASPBERRYPI
+#define ALLEGRO_DISPLAY_XGLX ALLEGRO_DISPLAY_RASPBERRYPI
+#endif
 
 ALLEGRO_DEBUG_CHANNEL("mouse")
 
@@ -90,6 +100,24 @@ ALLEGRO_MOUSE_DRIVER *_al_xwin_mouse_driver(void)
    return &mousedrv_xwin;
 }
 
+
+static void scale_xy(int *x, int *y)
+{
+#ifdef ALLEGRO_RASPBERRYPI
+   ALLEGRO_SYSTEM *s = al_get_system_driver();
+   if (s && s->displays._size > 0) {
+      ALLEGRO_DISPLAY **ref = _al_vector_ref(&s->displays, 0);
+      ALLEGRO_DISPLAY *d = *ref;
+      if (d) {
+         ALLEGRO_DISPLAY_RASPBERRYPI *disp = (void *)d;
+         /* Not sure what's a better approach than adding 0.5 to
+          * get an accurate last pixel */
+         *x = ((*x)+0.5) * d->w / disp->screen_width;
+         *y = ((*y)+0.5) * d->h / disp->screen_height;
+      }
+   }
+#endif
+}
 
 
 /* xmouse_init:
@@ -414,6 +442,8 @@ void _al_xwin_mouse_motion_notify_handler(int x, int y,
    }
 
    _al_event_source_lock(&the_mouse.parent.es);
+   scale_xy(&x, &y);
+
    int dx = x - the_mouse.state.x;
    int dy = y - the_mouse.state.y;
 
@@ -538,7 +568,38 @@ void _al_xwin_mouse_switch_handler(ALLEGRO_DISPLAY *display,
    _al_event_source_unlock(&the_mouse.parent.es);
 }
 
+bool _al_xwin_grab_mouse(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   int grab;
+   bool ret;
 
+   _al_mutex_lock(&system->lock);
+   grab = XGrabPointer(system->x11display, glx->window, False,
+      PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
+      GrabModeAsync, GrabModeAsync, glx->window, None, CurrentTime);
+   if (grab == GrabSuccess) {
+      system->mouse_grab_display = display;
+      ret = true;
+   }
+   else {
+      ret = false;
+   }
+   _al_mutex_unlock(&system->lock);
+   return ret;
+}
+
+bool _al_xwin_ungrab_mouse(void)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+
+   _al_mutex_lock(&system->lock);
+   XUngrabPointer(system->x11display, CurrentTime);
+   system->mouse_grab_display = NULL;
+   _al_mutex_unlock(&system->lock);
+   return true;
+}
 
 /*
  * Local Variables:

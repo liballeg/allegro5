@@ -25,12 +25,20 @@
 
 #include "allegro5/allegro.h"
 
-#ifdef ALLEGRO_HAVE_LINUX_INPUT_H
+#if defined ALLEGRO_HAVE_LINUX_INPUT_H || defined ALLEGRO_RASPBERRYPI
+
+ALLEGRO_DEBUG_CHANNEL("lmseev");
 
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_mouse.h"
 #include "allegro5/platform/aintunix.h"
-#include "allegro5/linalleg.h"
+#include "allegro5/platform/aintlnx.h"
+
+#ifdef ALLEGRO_RASPBERRYPI
+#include "allegro5/internal/aintern_system.h"
+#include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_vector.h"
+#endif
 
 #include <stdio.h>
 #include <string.h>
@@ -64,6 +72,7 @@ static void generate_mouse_event(unsigned int type,
                                  int x, int y, int z,
                                  int dx, int dy, int dz,
                                  unsigned int button);
+bool _al_evdev_set_mouse_range(int x1, int y1, int x2, int y2);
 
 
 
@@ -222,7 +231,7 @@ static void get_axis_value(int fd, AXIS *axis, int type)
 static int has_event(int fd, unsigned short type, unsigned short code)
 {
    const unsigned int len = sizeof(unsigned long)*8;
-   const unsigned int max = MAX(EV_MAX, MAX(KEY_MAX, MAX(REL_MAX, MAX(ABS_MAX, MAX(LED_MAX, MAX(SND_MAX, FF_MAX))))));
+   const unsigned int max = _ALLEGRO_MAX(EV_MAX, _ALLEGRO_MAX(KEY_MAX, _ALLEGRO_MAX(REL_MAX, _ALLEGRO_MAX(ABS_MAX, _ALLEGRO_MAX(LED_MAX, _ALLEGRO_MAX(SND_MAX, FF_MAX))))));
    unsigned long bits[(max+len-1)/len];
    if (ioctl(fd, EVIOCGBIT(type, max), bits)) {
      return (bits[code/len] >> (code%len)) & 1;
@@ -264,21 +273,18 @@ static AXIS z_axis;
  */
 static void init_axis(int fd, AXIS *axis, const char *name, const char *section, int type)
 {
+#if 0
    char tmp1[256]; /* config string */
    char tmp2[256]; /* format string */
    char tmp3[256]; /* Converted 'name' */
+#endif
    int abs[5]; /* values given by the input */
    int config_speed;
 
-   uszprintf(tmp1, sizeof(tmp1), uconvert_ascii("ev_min_%s", tmp2), uconvert_ascii(name, tmp3));
-   axis->in_min = get_config_int(section, tmp1, 0);
-   uszprintf(tmp1, sizeof(tmp1), uconvert_ascii("ev_max_%s", tmp2), uconvert_ascii(name, tmp3));
-   axis->in_max = get_config_int(section, tmp1, 0);
+   (void)name;
+   (void)section;
 
-   uszprintf(tmp1, sizeof(tmp1), uconvert_ascii("ev_abs_to_rel_%s", tmp2), uconvert_ascii(name, tmp3));
-   config_speed = get_config_int(section, tmp1, 1);
-   if (config_speed<=0)
-      config_speed = 1;
+   config_speed = 1;
    axis->scale = 1;
 
    /* Ask the input */
@@ -309,12 +315,8 @@ static void init_axis(int fd, AXIS *axis, const char *name, const char *section,
  */
 static void init_tablet(int fd)
 {
-   char tmp[256];
-   char *mouse_str = uconvert_ascii("mouse", tmp);
-   char tmp2[256];
    int default_abs = default_tool->mode==MODE_ABSOLUTE;
 
-   default_abs = get_config_int(mouse_str, uconvert_ascii("ev_absolute", tmp2), default_abs);
    if (default_abs) {
       default_tool->mode = MODE_ABSOLUTE;
    }
@@ -322,9 +324,9 @@ static void init_tablet(int fd)
       default_tool->mode = MODE_RELATIVE;
    }
 
-   init_axis(fd, &x_axis, "x", mouse_str, ABS_X);
-   init_axis(fd, &y_axis, "y", mouse_str, ABS_Y);
-   init_axis(fd, &z_axis, "z", mouse_str, ABS_Z);
+   init_axis(fd, &x_axis, "x", "mouse", ABS_X);
+   init_axis(fd, &y_axis, "y", "mouse", ABS_Y);
+   init_axis(fd, &z_axis, "z", "mouse", ABS_Z);
 }
 
 
@@ -478,8 +480,8 @@ static void process_abs(const struct input_event *event)
 static void handle_axis_event(int dx, int dy, int dz)
 {
    if (current_tool != no_tool) {
-      x_axis.out_abs = CLAMP(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
-      y_axis.out_abs = CLAMP(y_axis.out_min, y_axis.out_abs, y_axis.out_max);
+      x_axis.out_abs = _ALLEGRO_CLAMP(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
+      y_axis.out_abs = _ALLEGRO_CLAMP(y_axis.out_min, y_axis.out_abs, y_axis.out_max);
       /* There's no range for z */
 
       the_mouse.state.x = x_axis.out_abs;
@@ -506,13 +508,13 @@ static int open_mouse_device (const char *device_file)
 
    fd = open (device_file, O_RDONLY | O_NONBLOCK);
    if (fd >= 0) {
-      TRACE(PREFIX_I "Opened device %s\n", device_file);
+      ALLEGRO_DEBUG("Opened device %s\n", device_file);
       /* The device is a mouse if it has a BTN_MOUSE */
       if (has_event(fd, EV_KEY, BTN_MOUSE)) {
-	 TRACE(PREFIX_I "Device %s was a mouse.\n", device_file);
+	 ALLEGRO_DEBUG("Device %s was a mouse.\n", device_file);
       }
       else {
-	 TRACE(PREFIX_I "Device %s was not mouse, closing.\n", device_file);
+	 ALLEGRO_DEBUG("Device %s was not mouse, closing.\n", device_file);
 	 close(fd);
 	 fd = -1;
       }
@@ -529,50 +531,33 @@ static int open_mouse_device (const char *device_file)
  */
 static bool mouse_init (void)
 {
+/*
    char tmp1[128], tmp2[128];
    const char *udevice;
+*/
 
    /* Set the current tool */
    current_tool = default_tool;
 
-   /* Find the device filename */
-   udevice = get_config_string (uconvert_ascii ("mouse", tmp1),
-                                uconvert_ascii ("mouse_device", tmp2),
-                                NULL);
+   /* try several /dev/input/event<n>
+    * devices. */
+   const char *device_name[] = { "/dev/input/event0",
+                                 "/dev/input/event1",
+                                 "/dev/input/event2",
+                                 "/dev/input/event3",
+                                 NULL };
+   int i;
 
-   /* Open mouse device.  Devices are cool. */
-   if (udevice) {
-      TRACE(PREFIX_I "Trying %s device\n", udevice);
-      the_mouse.fd = open (uconvert_toascii (udevice, tmp1), O_RDONLY | O_NONBLOCK);
-      if (the_mouse.fd < 0) {
-         uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to open %s: %s"),
-                    udevice, ustrerror (errno));
-         return false;
-      }
-   }
-   else {
-      /* If not specified in the config file, try several /dev/input/event<n>
-       * devices. */
-      const char *device_name[] = { "/dev/input/event0",
-                                    "/dev/input/event1",
-                                    "/dev/input/event2",
-                                    "/dev/input/event3",
-                                    NULL };
-      int i;
+   ALLEGRO_DEBUG("Trying /dev/input/event[0-3] devices\n");
 
-      TRACE(PREFIX_I "Trying /dev/input/event[0-3] devices\n");
-
-      for (i=0; device_name[i]; i++) {
-         the_mouse.fd = open_mouse_device (device_name[i]);
-         if (the_mouse.fd >= 0)
+   for (i=0; device_name[i]; i++) {
+      the_mouse.fd = open_mouse_device (device_name[i]);
+      if (the_mouse.fd >= 0)
 	    break;
-      }
+   }
 
-      if (!device_name[i]) {
-	 uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to open a mouse device: %s"),
-		    ustrerror (errno));
+   if (!device_name[i]) {
 	 return false;
-      }
    }
 
    /* Init the tablet data */
@@ -583,6 +568,16 @@ static bool mouse_init (void)
 
    /* Start watching for data on the fd. */
    _al_unix_start_watching_fd(the_mouse.fd, process_new_data, &the_mouse);
+
+#ifdef ALLEGRO_RASPBERRYPI
+   ALLEGRO_SYSTEM *s = al_get_system_driver();
+   if (s && s->displays._size > 0) {
+      ALLEGRO_DISPLAY *d = _al_vector_ref(&s->displays, 0);
+      if (d) {
+         _al_evdev_set_mouse_range(0, 0, d->w-1, d->h-1);
+      }
+   }
+#endif
 
    return true;
 }
@@ -649,12 +644,16 @@ static unsigned int mouse_get_mouse_num_axes(void)
  */
 static bool mouse_set_mouse_xy(int x, int y)
 {
+   /* FIXME: should these do something? */
+   (void)x;
+   (void)y;
+
    _al_event_source_lock(&the_mouse.parent.es);
    {
       int dx, dy;
 
-      x_axis.out_abs = CLAMP(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
-      y_axis.out_abs = CLAMP(y_axis.out_min, y_axis.out_abs, y_axis.out_max);
+      x_axis.out_abs = _ALLEGRO_CLAMP(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
+      y_axis.out_abs = _ALLEGRO_CLAMP(y_axis.out_min, y_axis.out_abs, y_axis.out_max);
       x_axis.mickeys = 0;
       y_axis.mickeys = 0;
 
@@ -717,7 +716,7 @@ static bool mouse_set_mouse_axis(int which, int z)
 /* mouse_set_mouse_range:
  *
  */
-static bool mouse_set_mouse_range(int x1, int y1, int x2, int y2)
+bool _al_evdev_set_mouse_range(int x1, int y1, int x2, int y2)
 {
    _al_event_source_lock(&the_mouse.parent.es);
    {
@@ -728,8 +727,8 @@ static bool mouse_set_mouse_range(int x1, int y1, int x2, int y2)
       x_axis.out_max = x2;
       y_axis.out_max = y2;
 
-      x_axis.out_abs = CLAMP(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
-      y_axis.out_abs = CLAMP(y_axis.out_min, y_axis.out_abs, y_axis.out_max);
+      x_axis.out_abs = _ALLEGRO_CLAMP(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
+      y_axis.out_abs = _ALLEGRO_CLAMP(y_axis.out_min, y_axis.out_abs, y_axis.out_max);
 
       dx = x_axis.out_abs - the_mouse.state.x;
       dy = y_axis.out_abs - the_mouse.state.y;
@@ -849,7 +848,6 @@ ALLEGRO_MOUSE_DRIVER _al_mousedrv_linux_evdev =
    mouse_get_mouse_num_axes,
    mouse_set_mouse_xy,
    mouse_set_mouse_axis,
-   mouse_set_mouse_range,
    mouse_get_state
 };
 

@@ -225,7 +225,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 #define THREAD_LOCAL __declspec(thread)
 #define HAVE_NATIVE_TLS
 
-#elif defined ALLEGRO_MACOSX || defined ALLEGRO_GP2XWIZ || defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
+#elif defined ALLEGRO_MACOSX || defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
 
 #define THREAD_LOCAL
 
@@ -266,12 +266,12 @@ static thread_local_state* tls_get(void)
    return ptr;
 }
 
-#else /* not MSVC/BCC32, not OSX */
+#else
 
 #define THREAD_LOCAL __thread
 #define HAVE_NATIVE_TLS
 
-#endif /* end not MSVC/BCC32, not OSX */
+#endif
 
 static THREAD_LOCAL thread_local_state _tls;
 
