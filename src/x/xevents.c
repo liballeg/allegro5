@@ -13,6 +13,8 @@
 #define ALLEGRO_DISPLAY_XGLX ALLEGRO_DISPLAY_RASPBERRYPI
 #endif
 
+ALLEGRO_DEBUG_CHANNEL("xevents")
+
 /* Handle an X11 close button event. [X11 thread]
  * Only called from the event handler with the system locked.
  */

@@ -116,6 +116,9 @@ static void scale_xy(int *x, int *y)
          *y = ((*y)+0.5) * d->h / disp->screen_height;
       }
    }
+#else
+   (void)x;
+   (void)y;
 #endif
 }
 
