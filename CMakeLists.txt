@@ -904,7 +904,7 @@ if(WANT_TESTS)
     add_subdirectory(tests)
 endif(WANT_TESTS)
 
-add_subdirectory(benchmarks)
+# add_subdirectory(benchmarks)
 
 #-----------------------------------------------------------------------------#
 #
