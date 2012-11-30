@@ -270,8 +270,6 @@ void _al_android_setup_opengl_view(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DEBUG("setup opengl view d->w=%d d->h=%d", d->w, d->h);
 
-   al_set_target_backbuffer(d);
-   
    glViewport(0, 0, d->w, d->h);
 
    al_identity_transform(&d->proj_transform);
