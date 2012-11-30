@@ -99,7 +99,9 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
    int intent;
    int bpp;
    int number_passes, pass;
+   int num_trans = 0;
    PalEntry pal[256];
+   png_bytep trans;
    ALLEGRO_LOCKED_REGION *lock;
    unsigned char *buf;
    unsigned char *dest;
@@ -127,15 +129,11 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
 
    /* Adds a full alpha channel if there is transparency information
     * in a tRNS chunk.
-    * (If the picture has a palette, this won't do anything unless conversion
-    * to RGB or grayscale is also turned on.)
     */
    if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
-      png_set_tRNS_to_alpha(png_ptr);
-   }
-
-   if (color_type == PNG_COLOR_TYPE_PALETTE && !(flags & ALLEGRO_KEEP_INDEX)) {
-       png_set_palette_to_rgb(png_ptr);
+      if (!(color_type & PNG_COLOR_MASK_PALETTE))
+         png_set_tRNS_to_alpha(png_ptr);
+      png_get_tRNS(png_ptr, info_ptr, &trans, &num_trans, NULL);
    }
 
    /* Convert 16-bits per colour component to 8-bits per colour component. */
@@ -258,11 +256,19 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
                else if (color_type & PNG_COLOR_MASK_PALETTE) {
                   for (i = 0; i < width; i++) {
                      int pix = ptr[0];
+                     int ti;
                      ptr++;
-                     *(dest++) = pal[pix].r;
-                     *(dest++) = pal[pix].g;
-                     *(dest++) = pal[pix].b;
-                     *(dest++) = 255;
+                     dest[0] = pal[pix].r;
+                     dest[1] = pal[pix].g;
+                     dest[2] = pal[pix].b;
+                     dest[3] = 255;
+                     for (ti = 0; ti < num_trans; ti++) {
+                        if (trans[ti] == pix) {
+                           dest[0] = dest[1] = dest[2] = dest[3] = 0;
+                           break;
+                        }
+                     }
+                     dest += 4;
                   }
                }
                else {
