@@ -126,9 +126,16 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
       png_set_expand(png_ptr);
 
    /* Adds a full alpha channel if there is transparency information
-    * in a tRNS chunk. */
+    * in a tRNS chunk.
+    * (If the picture has a palette, this won't do anything unless conversion
+    * to RGB or grayscale is also turned on.)
+    */
    if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
       png_set_tRNS_to_alpha(png_ptr);
+   }
+
+   if (color_type == PNG_COLOR_TYPE_PALETTE && !(flags & ALLEGRO_KEEP_INDEX)) {
+       png_set_palette_to_rgb(png_ptr);
    }
 
    /* Convert 16-bits per colour component to 8-bits per colour component. */
