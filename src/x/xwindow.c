@@ -19,14 +19,23 @@ void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
    XSizeHints *hints = XAllocSizeHints();
+   int w, h;
    hints->flags = 0;
+
+#ifdef ALLEGRO_RASPBERRYPI
+   int x, y;
+   _al_raspberrypi_get_screen_info(&x, &y, &w, &h);
+#else
+   w = d->w;
+   h = d->h;
+#endif
 
    /* Do not force the size of the window on resizeable or fullscreen windows */
    /* on fullscreen windows, it confuses most X Window Managers */
    if (!(d->flags & ALLEGRO_RESIZABLE) && !(d->flags & ALLEGRO_FULLSCREEN)) {
       hints->flags |= PMinSize | PMaxSize | PBaseSize;
-      hints->min_width  = hints->max_width  = hints->base_width  = d->w;
-      hints->min_height = hints->max_height = hints->base_height = d->h;
+      hints->min_width  = hints->max_width  = hints->base_width  = w;
+      hints->min_height = hints->max_height = hints->base_height = h;
    }
 
    /* Constrain the window if needed. */
@@ -38,8 +47,8 @@ void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
       hints->min_height = (d->min_h > 0) ? d->min_h : 0;
       hints->max_width = (d->max_w > 0) ? d->max_w : INT_MAX;
       hints->max_height = (d->max_h > 0) ? d->max_h : INT_MAX;
-      hints->base_width  = d->w;
-      hints->base_height = d->h;
+      hints->base_width  = w;
+      hints->base_height = h;
    }
 
    // Tell WMs to respect our chosen position, otherwise the x_off/y_off
@@ -57,8 +66,8 @@ void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
        * with metacity and kwin. As noted in xdpy_create_display, compiz is just broken.
        */
       hints->flags |= PBaseSize;
-      hints->base_width  = d->w;
-      hints->base_height = d->h;
+      hints->base_width  = w;
+      hints->base_height = h;
    }
 
    XSetWMNormalHints(system->x11display, glx->window, hints);

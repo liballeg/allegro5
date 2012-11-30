@@ -472,7 +472,7 @@ static ALLEGRO_DISPLAY *raspberrypi_create_display(int w, int h)
 
    d->hide_cursor = false;
 
-   if (al_is_mouse_installed()) {
+   if (al_is_mouse_installed() && !getenv("DISPLAY")) {
       _al_evdev_set_mouse_range(0, 0, display->w-1, display->h-1);
    }
 
