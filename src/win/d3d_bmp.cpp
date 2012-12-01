@@ -427,7 +427,7 @@ static ALLEGRO_BITMAP
 }
 
 /* Copies video texture to system texture and bitmap->memory */
-static void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest)
+static bool _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest)
 {
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_dest;
    LPDIRECT3DSURFACE9 system_texture_surface;
@@ -435,17 +435,21 @@ static void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest)
    bool ok;
    UINT i;
 
-   if (!_al_d3d_render_to_texture_supported())
-      return;
+   if (!_al_d3d_render_to_texture_supported()) {
+      ALLEGRO_ERROR("Render-to-texture not supported.\n");
+      return false;
+   }
 
    if (dest->locked) {
-      return;
+      ALLEGRO_ERROR("Already locked.\n");
+      return false;
    }
 
    d3d_dest = get_extra(dest);
 
    if (d3d_dest->system_texture == NULL || d3d_dest->video_texture == NULL) {
-      return;
+      ALLEGRO_ERROR("A texture is null.\n");
+      return false;
    }
 
    if (dest->parent) {
@@ -490,6 +494,8 @@ static void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest)
    if (ok) {
       d3d_sync_bitmap_memory(dest);
    }
+
+   return ok;
 }
 
 /*
@@ -790,7 +796,9 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
 	  * Sync bitmap->memory with texture
           */
 	 bitmap->locked = false;
-         _al_d3d_sync_bitmap(bitmap);
+         if (!_al_d3d_sync_bitmap(bitmap)) {
+            return NULL;
+         }
 	 bitmap->locked = true;
          texture = d3d_bmp->system_texture;
       }
