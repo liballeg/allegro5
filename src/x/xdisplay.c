@@ -39,52 +39,74 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
  * pixmaps.  For colour icons, perhaps you're supposed use the icon_window,
  * and draw the window yourself?
  */
+static bool xdpy_set_icon_inner(Display *x11display, Window window,
+   ALLEGRO_BITMAP *bitmap, int prop_mode)
+{
+   int w, h;
+   int data_size;
+   unsigned long *data; /* Yes, unsigned long, even on 64-bit platforms! */
+   ALLEGRO_LOCKED_REGION *lr;
+   bool ret;
+
+   w = al_get_bitmap_width(bitmap);
+   h = al_get_bitmap_height(bitmap);
+   data_size = 2 + w * h;
+   data = al_malloc(data_size * sizeof(data[0]));
+   if (!data)
+      return false;
+
+   lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,
+      ALLEGRO_LOCK_READONLY);
+   if (lr) {
+      int x, y;
+      ALLEGRO_COLOR c;
+      unsigned char r, g, b, a;
+      Atom _NET_WM_ICON;
+
+      data[0] = w;
+      data[1] = h;
+      for (y = 0; y < h; y++) {
+         for (x = 0; x < w; x++) {
+            c = al_get_pixel(bitmap, x, y);
+            al_unmap_rgba(c, &r, &g, &b, &a);
+            data[2 + y*w + x] = (a << 24) | (r << 16) | (g << 8) | b;
+         }
+      }
+
+      _NET_WM_ICON = XInternAtom(x11display, "_NET_WM_ICON", False);
+      XChangeProperty(x11display, window, _NET_WM_ICON, XA_CARDINAL, 32,
+         prop_mode, (unsigned char *)data, data_size);
+
+      al_unlock_bitmap(bitmap);
+      ret = true;
+   }
+   else {
+      ret = false;
+   }
+
+   al_free(data);
+
+   return ret;
+}
+
 static void xdpy_set_icons(ALLEGRO_DISPLAY *d,
    int num_icons, ALLEGRO_BITMAP *bitmaps[])
 {
-   /* Multiple icons not yet implemented. */
-   ALLEGRO_BITMAP *bitmap = bitmaps[num_icons - 1];
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
-   int w = al_get_bitmap_width(bitmap);
-   int h = al_get_bitmap_height(bitmap);
-   int data_size;
-   unsigned long *data; /* Yes, unsigned long, even on 64-bit platforms! */
+   int prop_mode = PropModeReplace;
+   int i;
 
-   data_size = 2 + w * h;
-   data = al_malloc(data_size * sizeof(data[0]));
+   _al_mutex_lock(&system->lock);
 
-   if (data) {
-      ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(bitmap,
-         ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA, ALLEGRO_LOCK_READONLY);
-
-      if (lr) {
-         int x, y;
-         ALLEGRO_COLOR c;
-         unsigned char r, g, b, a;
-         Atom _NET_WM_ICON;
-
-         data[0] = w;
-         data[1] = h;
-         for (y = 0; y < h; y++) {
-            for (x = 0; x < w; x++) {
-               c = al_get_pixel(bitmap, x, y);
-               al_unmap_rgba(c, &r, &g, &b, &a);
-               data[2 + y*w + x] = (a << 24) | (r << 16) | (g << 8) | b;
-            }
-         }
-
-         _al_mutex_lock(&system->lock);
-         _NET_WM_ICON = XInternAtom(system->x11display, "_NET_WM_ICON", False);
-         XChangeProperty(system->x11display, glx->window, _NET_WM_ICON,
-            XA_CARDINAL, 32, PropModeReplace, (unsigned char *)data, data_size);
-         _al_mutex_unlock(&system->lock);
-
-         al_unlock_bitmap(bitmap);
+   for (i = 0; i < num_icons; i++) {
+      if (xdpy_set_icon_inner(system->x11display, glx->window, bitmaps[i],
+            prop_mode)) {
+         prop_mode = PropModeAppend;
       }
-
-      al_free(data);
    }
+
+   _al_mutex_unlock(&system->lock);
 }
 
 
