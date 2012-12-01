@@ -419,7 +419,7 @@ static int draw_prim_indexed_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture
    const void* idx = indices;
    GLenum idx_size;
 
-#if defined ALLEGRO_GP2XWIZ || defined ALLEGRO_IPHONE
+#if defined ALLEGRO_IPHONE
    GLushort ind[num_vtx];
    int ii;
 #endif
@@ -434,7 +434,7 @@ static int draw_prim_indexed_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture
       return _al_draw_prim_indexed_soft(texture, vtx, decl, indices, num_vtx, type);
    }
 
-#if defined ALLEGRO_GP2XWIZ || defined ALLEGRO_IPHONE
+#if defined ALLEGRO_IPHONE
    for (ii = 0; ii < num_vtx; ii++) {
       ind[ii] = (GLushort)indices[ii];
    }
