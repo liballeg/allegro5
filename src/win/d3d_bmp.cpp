@@ -432,6 +432,7 @@ static void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest)
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_dest;
    LPDIRECT3DSURFACE9 system_texture_surface;
    LPDIRECT3DSURFACE9 video_texture_surface;
+   bool ok;
    UINT i;
 
    if (!_al_d3d_render_to_texture_supported())
@@ -451,35 +452,44 @@ static void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest)
       dest = dest->parent;
    }
 
+   ok = true;
+   system_texture_surface = NULL;
+   video_texture_surface = NULL;
+
    if (d3d_dest->system_texture->GetSurfaceLevel(
          0, &system_texture_surface) != D3D_OK) {
       ALLEGRO_ERROR("_al_d3d_sync_bitmap: GetSurfaceLevel failed while updating video texture.\n");
-      return;
+      ok = false;
    }
 
-   if (d3d_dest->video_texture->GetSurfaceLevel(
+   if (ok && d3d_dest->video_texture->GetSurfaceLevel(
          0, &video_texture_surface) != D3D_OK) {
       ALLEGRO_ERROR("_al_d3d_sync_bitmap: GetSurfaceLevel failed while updating video texture.\n");
-      return;
+      ok = false;
    }
 
-   if (d3d_dest->display->device->GetRenderTargetData(
+   if (ok && d3d_dest->display->device->GetRenderTargetData(
          video_texture_surface,
          system_texture_surface) != D3D_OK) {
       ALLEGRO_ERROR("_al_d3d_sync_bitmap: GetRenderTargetData failed.\n");
-      return;
+      ok = false;
    }
 
-   if ((i = system_texture_surface->Release()) != 0) {
-      ALLEGRO_DEBUG("_al_d3d_sync_bitmap (system) ref count == %d\n", i);
+   if (system_texture_surface) {
+       if ((i = system_texture_surface->Release()) != 0) {
+	  ALLEGRO_DEBUG("_al_d3d_sync_bitmap (system) ref count == %d\n", i);
+       }
+   }
+   if (video_texture_surface) {
+       if ((i = video_texture_surface->Release()) != 0) {
+	  // This can be non-zero
+	  ALLEGRO_DEBUG("_al_d3d_sync_bitmap (video) ref count == %d\n", i);
+       }
    }
 
-   if ((i = video_texture_surface->Release()) != 0) {
-      // This can be non-zero
-      ALLEGRO_DEBUG("_al_d3d_sync_bitmap (video) ref count == %d\n", i);
+   if (ok) {
+      d3d_sync_bitmap_memory(dest);
    }
-
-   d3d_sync_bitmap_memory(dest);
 }
 
 /*
