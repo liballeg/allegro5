@@ -824,8 +824,11 @@ int _al_win_init_window()
 }
 
 
-void _al_win_set_display_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bmp)
+void _al_win_set_display_icons(ALLEGRO_DISPLAY *display,
+   int num_icons, ALLEGRO_BITMAP *bmps[])
 {
+   /* Multiple icons not yet implemented. */
+   ALLEGRO_BITMAP *bmp = bmps[num_icons - 1];
    ALLEGRO_BITMAP *sm_bmp, *big_bmp;
    HICON sm_icon, big_icon, old_small, old_big;
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;

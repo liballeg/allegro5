@@ -55,7 +55,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
    bool (*show_mouse_cursor)(ALLEGRO_DISPLAY *display);
    bool (*hide_mouse_cursor)(ALLEGRO_DISPLAY *display);
 
-   void (*set_icon)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
+   void (*set_icons)(ALLEGRO_DISPLAY *display, int num_icons, ALLEGRO_BITMAP *bitmap[]);
 
    void (*set_window_position)(ALLEGRO_DISPLAY *display, int x, int y);
    void (*get_window_position)(ALLEGRO_DISPLAY *display, int *x, int *y);

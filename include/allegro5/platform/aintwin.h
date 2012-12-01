@@ -154,7 +154,7 @@ int  _al_win_init_window(void);
 HWND _al_win_create_hidden_window(void);
 
 /* icon helpers */
-void  _al_win_set_display_icon(ALLEGRO_DISPLAY *display ,ALLEGRO_BITMAP *bitmap);
+void  _al_win_set_display_icons(ALLEGRO_DISPLAY *display, int num_icons, ALLEGRO_BITMAP *bitmap[]);
 HICON _al_win_create_icon(HWND wnd, ALLEGRO_BITMAP *sprite, int xfocus, int yfocus, bool is_cursor, bool resize);
 
 /* window decorations */

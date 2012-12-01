@@ -1847,12 +1847,14 @@ static void set_window_title(ALLEGRO_DISPLAY *display, const char *title)
    [pool drain];
 }
 
-/* set_icon:
+/* set_icons:
  * Set the icon - OS X doesn't have per-window icons so 
  * ignore the display parameter
  */
-static void set_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP* bitmap)
+static void set_icons(ALLEGRO_DISPLAY *display, int num_icons, ALLEGRO_BITMAP* bitmaps[])
 {
+   /* Multiple icons not yet implemented. */
+   ALLEGRO_BITMAP *bitmap = bitmaps[num_icons - 1];
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    NSImage *image = NSImageFromAllegroBitmap(bitmap);
    (void)display;
@@ -1950,7 +1952,7 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void)
       vt->set_window_position = set_window_position;
       vt->set_window_title = set_window_title;
       vt->set_display_flag = set_display_flag;
-      vt->set_icon = set_icon;
+      vt->set_icons = set_icons;
       _al_ogl_add_drawing_functions(vt);
    }
    return vt;

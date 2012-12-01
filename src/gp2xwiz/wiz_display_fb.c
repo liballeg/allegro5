@@ -182,7 +182,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_gp2xwiz_framebuffer_driver(void)
    gp2xwiz_vt->set_target_bitmap = NULL;
    gp2xwiz_vt->is_compatible_bitmap = gp2xwiz_is_compatible_bitmap_fb;
    gp2xwiz_vt->resize_display = gp2xwiz_resize_display_fb;
-   gp2xwiz_vt->set_icon = NULL;
+   gp2xwiz_vt->set_icons = NULL;
    gp2xwiz_vt->set_window_title = NULL;
    gp2xwiz_vt->set_window_position = NULL;
    gp2xwiz_vt->get_window_position = gp2xwiz_get_window_position_fb;
