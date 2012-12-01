@@ -669,9 +669,11 @@ static bool android_resize_display(ALLEGRO_DISPLAY *dpy, int w, int h)
    return false;
 }
 
-static void android_set_icon(ALLEGRO_DISPLAY *dpy, ALLEGRO_BITMAP *bmp)
+static void android_set_icons(ALLEGRO_DISPLAY *dpy, int num_icons, ALLEGRO_BITMAP *bmps[])
 {
-   (void)dpy; (void)bmp;
+   (void)dpy;
+   (void)num_icons;
+   (void)bmps;
 }
 
 static void android_set_window_title(ALLEGRO_DISPLAY *dpy, const char *title)
@@ -837,7 +839,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_android_display_driver(void)
 
    vt->is_compatible_bitmap = android_is_compatible_bitmap;
    vt->resize_display = android_resize_display;
-   vt->set_icon = android_set_icon;
+   vt->set_icons = android_set_icons;
    vt->set_window_title = android_set_window_title;
    vt->set_window_position = android_set_window_position;
    vt->get_window_position = android_get_window_position;

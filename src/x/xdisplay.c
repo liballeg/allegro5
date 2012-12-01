@@ -45,8 +45,11 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
  * pixmaps.  For colour icons, perhaps you're supposed use the icon_window,
  * and draw the window yourself?
  */
-static void xdpy_set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
+static void xdpy_set_icons(ALLEGRO_DISPLAY *d,
+   int num_icons, ALLEGRO_BITMAP *bitmaps[])
 {
+   /* Multiple icons not yet implemented. */
+   ALLEGRO_BITMAP *bitmap = bitmaps[num_icons - 1];
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
    int w = al_get_bitmap_width(bitmap);
@@ -1178,7 +1181,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    xdpy_vt.set_target_bitmap = _al_ogl_set_target_bitmap;
    xdpy_vt.is_compatible_bitmap = xdpy_is_compatible_bitmap;
    xdpy_vt.resize_display = xdpy_resize_display;
-   xdpy_vt.set_icon = xdpy_set_icon;
+   xdpy_vt.set_icons = xdpy_set_icons;
    xdpy_vt.set_window_title = xdpy_set_window_title;
    xdpy_vt.set_window_position = xdpy_set_window_position;
    xdpy_vt.get_window_position = xdpy_get_window_position;

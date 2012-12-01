@@ -2830,7 +2830,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->show_mouse_cursor = _al_win_show_mouse_cursor;
    vt->hide_mouse_cursor = _al_win_hide_mouse_cursor;
 
-   vt->set_icon = _al_win_set_display_icon;
+   vt->set_icons = _al_win_set_display_icons;
    vt->set_window_position = d3d_set_window_position;
    vt->get_window_position = d3d_get_window_position;
    vt->set_window_constraints = _al_win_set_window_constraints;

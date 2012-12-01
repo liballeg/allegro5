@@ -401,11 +401,29 @@ bool al_wait_for_vsync(void)
  */
 void al_set_display_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *icon)
 {
-   ASSERT(display);
-   ASSERT(icon);
+   ALLEGRO_BITMAP *icons[1] = { icon };
 
-   if (display->vt->set_icon) {
-      display->vt->set_icon(display, icon);
+   al_set_display_icons(display, 1, icons);
+}
+
+
+
+/* Function: al_set_display_icons
+ */
+void al_set_display_icons(ALLEGRO_DISPLAY *display,
+   int num_icons, ALLEGRO_BITMAP *icons[])
+{
+   int i;
+
+   ASSERT(display);
+   ASSERT(num_icons >= 1);
+   ASSERT(icons);
+   for (i = 0; i < num_icons; i++) {
+      ASSERT(icons[i]);
+   }
+
+   if (display->vt->set_icons) {
+      display->vt->set_icons(display, num_icons, icons);
    }
 }
 

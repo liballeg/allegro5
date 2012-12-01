@@ -163,6 +163,7 @@ AL_FUNC(void, al_draw_pixel, (float x, float y, ALLEGRO_COLOR color));
 AL_FUNC(void, al_clear_depth_buffer, (float x));
 
 AL_FUNC(void, al_set_display_icon, (ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *icon));
+AL_FUNC(void, al_set_display_icons, (ALLEGRO_DISPLAY *display, int num_icons, ALLEGRO_BITMAP *icons[]));
 
 /* Stuff for multihead/window management */
 AL_FUNC(int, al_get_num_video_adapters, (void));

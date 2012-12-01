@@ -287,10 +287,11 @@ static bool iphone_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
 /* The icon must be provided in the Info.plist file, it cannot be changed
  * at runtime.
  */
-static void iphone_set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
+static void iphone_set_icons(ALLEGRO_DISPLAY *d, int num_icons, ALLEGRO_BITMAP *bitmaps[])
 {
     (void)d;
-    (void)bitmap;
+    (void)num_icons;
+    (void)bitmaps;
 }
 
 /* There is no way to leave fullscreen so no window title is visible. */
@@ -452,7 +453,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_iphone_display_interface(void)
 
     vt->is_compatible_bitmap = iphone_is_compatible_bitmap;
     vt->resize_display = iphone_resize_display;
-    vt->set_icon = iphone_set_icon;
+    vt->set_icons = iphone_set_icons;
     vt->set_window_title = iphone_set_window_title;
     vt->set_window_position = iphone_set_window_position;
     vt->get_window_position = iphone_get_window_position;
