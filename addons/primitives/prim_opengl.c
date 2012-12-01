@@ -237,7 +237,6 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
 
       if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
 #ifndef ALLEGRO_CFG_NO_GLES2
-         int x, y;
          GLint handle;
 
          handle = display->ogl_extras->tex_matrix_loc;

@@ -314,6 +314,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
 {
    GLuint current_texture;
    ALLEGRO_OGL_EXTRAS *o = disp->ogl_extras;
+   (void)o; /* not used in all ports */
    
    if (!disp->vertex_cache)
       return;
