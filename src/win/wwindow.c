@@ -953,61 +953,108 @@ int _al_win_init_window()
 }
 
 
+static int win_choose_icon_bitmap(const int sys_w, const int sys_h,
+   const int num_icons, ALLEGRO_BITMAP *bmps[])
+{
+   int best_i = 0;
+   int best_score = INT_MAX;
+   int i;
+
+   for (i = 0; i < num_icons; i++) {
+      int bmp_w = al_get_bitmap_width(bmps[i]);
+      int bmp_h = al_get_bitmap_height(bmps[i]);
+      int score;
+
+      if (bmp_w == sys_w && bmp_h == sys_h)
+         return i;
+
+      /* We prefer to scale up smaller bitmaps to the desired size than to
+       * scale down larger bitmaps.  At these resolutions, scaled up bitmaps
+       * look blocky, but scaled down bitmaps can look even worse due to to
+       * dropping crucial pixels.
+       */
+      if (bmp_w * bmp_h <= sys_w * sys_h)
+         score = (sys_w * sys_h) - (bmp_w * bmp_h);
+      else
+         score = bmp_w * bmp_h;
+
+      if (score < best_score) {
+         best_score = score;
+         best_i = i;
+      }
+   }
+
+   return best_i;
+}
+
+static void win_set_display_icon(ALLEGRO_DISPLAY_WIN *win_display,
+   const WPARAM icon_type, const int sys_w, const int sys_h,
+   const int num_icons, ALLEGRO_BITMAP *bmps[])
+{
+   HICON icon;
+   HICON old_icon;
+   ALLEGRO_BITMAP *bmp;
+   int bmp_w;
+   int bmp_h;
+   int i;
+
+   i = win_choose_icon_bitmap(sys_w, sys_h, num_icons, bmps);
+   bmp = bmps[i];
+   bmp_w = al_get_bitmap_width(bmp);
+   bmp_h = al_get_bitmap_height(bmp);
+
+   if (bmp_w == sys_w && bmp_h == sys_h) {
+      icon = _al_win_create_icon(win_display->window, bmp, 0, 0, false, false);
+   }
+   else {
+      ALLEGRO_BITMAP *tmp_bmp;
+      ALLEGRO_STATE backup;
+
+      tmp_bmp = al_create_bitmap(sys_w, sys_h);
+      if (!tmp_bmp)
+         return;
+
+      al_store_state(&backup, ALLEGRO_STATE_BITMAP | ALLEGRO_STATE_BLENDER);
+      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+      al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
+
+      al_set_target_bitmap(tmp_bmp);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+      al_draw_scaled_bitmap(bmp, 0, 0, bmp_w, bmp_h, 0, 0, sys_w, sys_h, 0);
+
+      al_restore_state(&backup);
+
+      icon = _al_win_create_icon(win_display->window, tmp_bmp, 0, 0, false,
+         false);
+
+      al_destroy_bitmap(tmp_bmp);
+   }
+
+   old_icon = (HICON)SendMessage(win_display->window, WM_SETICON,
+      icon_type, (LPARAM)icon);
+
+   if (old_icon)
+      DestroyIcon(old_icon);
+}
+
 void _al_win_set_display_icons(ALLEGRO_DISPLAY *display,
    int num_icons, ALLEGRO_BITMAP *bmps[])
 {
-   /* Multiple icons not yet implemented. */
-   ALLEGRO_BITMAP *bmp = bmps[num_icons - 1];
-   ALLEGRO_BITMAP *sm_bmp, *big_bmp;
-   HICON sm_icon, big_icon, old_small, old_big;
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
-   ALLEGRO_STATE backup;
-   int sm_w, sm_h, big_w, big_h;
+   int sys_w;
+   int sys_h;
 
-   al_store_state(&backup, ALLEGRO_STATE_BITMAP | ALLEGRO_STATE_BLENDER);
+   sys_w = GetSystemMetrics(SM_CXSMICON);
+   sys_h = GetSystemMetrics(SM_CYSMICON);
+   win_set_display_icon(win_display, ICON_SMALL, sys_w, sys_h,
+      num_icons, bmps);
 
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
-
-   sm_w = GetSystemMetrics(SM_CXSMICON);
-   sm_h = GetSystemMetrics(SM_CYSMICON);
-   big_w = GetSystemMetrics(SM_CXICON);
-   big_h = GetSystemMetrics(SM_CYICON);
-
-   sm_bmp = al_create_bitmap(sm_w, sm_h);
-   al_set_target_bitmap(sm_bmp);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-   al_draw_scaled_bitmap(bmp, 0, 0,
-      al_get_bitmap_width(bmp),
-      al_get_bitmap_height(bmp),
-      0, 0, sm_w, sm_h, 0);
-
-   big_bmp = al_create_bitmap(big_w, big_h);
-   al_set_target_bitmap(big_bmp);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-   al_draw_scaled_bitmap(bmp, 0, 0,
-      al_get_bitmap_width(bmp),
-      al_get_bitmap_height(bmp),
-      0, 0, big_w, big_h, 0);
-
-   al_restore_state(&backup);
-
-   sm_icon = _al_win_create_icon(win_display->window, sm_bmp, 0, 0, false, false);
-   big_icon = _al_win_create_icon(win_display->window, big_bmp, 0, 0, false, false);
-
-   old_small = (HICON)SendMessage(win_display->window, WM_SETICON,
-      ICON_SMALL, (LPARAM)sm_icon);
-   old_big = (HICON)SendMessage(win_display->window, WM_SETICON,
-      ICON_BIG, (LPARAM)big_icon);
-
-   if (old_small)
-      DestroyIcon(old_small);
-   if (old_big)
-      DestroyIcon(old_big);
-
-   al_destroy_bitmap(sm_bmp);
-   al_destroy_bitmap(big_bmp);
+   sys_w = GetSystemMetrics(SM_CXICON);
+   sys_h = GetSystemMetrics(SM_CYICON);
+   win_set_display_icon(win_display, ICON_BIG, sys_w, sys_h,
+      num_icons, bmps);
 }
+
 
 void _al_win_set_window_position(HWND window, int x, int y)
 {
