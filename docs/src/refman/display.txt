@@ -423,11 +423,23 @@ See also: [al_acknowledge_resize]
 ### API: al_set_display_icon
 
 Changes the icon associated with the display (window).
+Same as [al_set_display_icons] with one icon.
 
-> *Note:* If the underlying OS can not use an icon with the size of the
-provided bitmap, it will be scaled.
+See also: [al_set_display_icons], [al_set_window_title]
 
-See also: [al_set_window_title]
+### API: al_set_display_icons
+
+Changes the icons associated with the display (window).
+Multiple icons can be provided for use in different contexts, e.g. window
+frame, taskbar, alt-tab popup.  The number of icons must be at least one.
+
+> *Note:* If the underlying OS requires an icon of a size not provided
+then one of the bitmaps will be scaled up or down to the required size.
+The choice of bitmap is implementation dependent.
+
+Since: 5.1.5
+
+See also: [al_set_display_icon], [al_set_window_title]
 
 ### API: al_get_display_option
 
@@ -445,7 +457,7 @@ See also: [al_get_window_position]
 
 Set the title on a display.
 
-See also: [al_set_display_icon]
+See also: [al_set_display_icon], [al_set_display_icons]
 
 ### API: al_set_display_flag
 
