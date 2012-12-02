@@ -60,6 +60,8 @@ ALLEGRO_PATH *_al_osx_get_path(int id);
       #endif
       #ifdef __cplusplus
          extern "C" int _al_mangled_main(int, char **);
+      #else
+         extern int _al_mangled_main(int, char **);
       #endif
    #endif
 #endif
