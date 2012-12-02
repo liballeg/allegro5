@@ -1466,6 +1466,10 @@ static void *d3d_display_thread_proc(void *arg)
       }
       else if (hr == D3DERR_DEVICELOST) {
          /* device remains lost */
+         /* Set device_lost flag immediately.  This prevents a crash in
+          * the DrawPrimitiveUP call in d3d_flush_vertex_cache.
+          */
+         d3d_display->device_lost = true;
          if (!lost_event_generated) {
             ALLEGRO_DEBUG("D3DERR_DEVICELOST: d3d_display=%p\n", d3d_display);
             lost_event_generated = true;
