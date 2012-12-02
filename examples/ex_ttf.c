@@ -5,6 +5,8 @@
 
 #include "common.c"
 
+#define MAX_RANGES  256
+
 const char *font_file = "data/DejaVuSans.ttf";
 
 struct Example
@@ -14,6 +16,21 @@ struct Example
     ALLEGRO_CONFIG *config;
     int ranges_count;
 } ex;
+
+static void print_ranges(ALLEGRO_FONT *f)
+{
+    int ranges[MAX_RANGES * 2];
+    int count;
+    int i;
+
+    count = al_get_font_ranges(f, MAX_RANGES, ranges);
+    for (i = 0; i < count; i++) {
+        int begin = ranges[i * 2];
+        int end = ranges[i * 2 + 1];
+        log_printf("range %3d: %08x-%08x (%d glyph%s)\n", i, begin, end,
+            1 + end - begin, begin == end ? "" : "s");
+    }
+}
 
 static const char *get_string(const char *key)
 {
@@ -137,18 +154,8 @@ int main(int argc, const char *argv[])
     }
 
     ex.f1 = al_load_font(font_file, 48, 0);
-
     ex.ranges_count = al_get_font_ranges(ex.f1, 0, NULL);
-    {
-       int i, ranges[ex.ranges_count * 2];
-       al_get_font_ranges(ex.f1, ex.ranges_count, ranges);
-       for (i = 0; i < ex.ranges_count; i++) {
-          int begin = ranges[i * 2];
-          int end = ranges[i * 2 + 1];
-          log_printf("range %3d: %08x-%08x (%d glyph%s)\n", i, begin, end,
-            1 + end - begin, begin == end ? "" : "s");
-      }
-    }
+    print_ranges(ex.f1);
     
     ex.f2 = al_load_font(font_file, 48, ALLEGRO_TTF_NO_KERNING);
     ex.f3 = al_load_font(font_file, 12, 0);
