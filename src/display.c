@@ -362,26 +362,6 @@ int al_get_display_orientation(ALLEGRO_DISPLAY* display)
 }
 
 
-/* Function: al_get_num_display_modes
- */
-int al_get_num_display_modes(void)
-{
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
-   return system->vt->get_num_display_modes();
-}
-
-
-
-/* Function: al_get_display_mode
- */
-ALLEGRO_DISPLAY_MODE *al_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode)
-{
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
-   return system->vt->get_display_mode(index, mode);
-}
-
-
-
 /* Function: al_wait_for_vsync
  */
 bool al_wait_for_vsync(void)

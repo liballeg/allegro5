@@ -15,6 +15,7 @@ set(ALLEGRO_SRC_FILES
     src/file_stdio.c
     src/fshook.c
     src/fshook_stdio.c
+    src/fullscreen_mode.c
     src/inline.c
     src/joynu.c
     src/keybdnu.c
@@ -228,6 +229,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/fixed.h
     include/allegro5/fmaths.h
     include/allegro5/fshook.h
+    include/allegro5/fullscreen_mode.h
     include/allegro5/joystick.h
     include/allegro5/keyboard.h
     include/allegro5/keycodes.h
