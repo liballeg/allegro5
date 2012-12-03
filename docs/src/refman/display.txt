@@ -49,19 +49,90 @@ thread.
 
 See also: [al_set_new_display_flags], [al_set_display_flag]
 
-### API: al_get_new_display_refresh_rate
+### API: al_set_new_display_flags
 
-Get the requested refresh rate to be used when creating new displays on the
-calling thread.
+Sets various flags to be used when creating new displays on the calling thread.
+flags is a bitfield containing any reasonable combination of the following:
 
-See also: [al_set_new_display_refresh_rate]
+ALLEGRO_WINDOWED
+:   Prefer a windowed mode.
 
-### API: al_get_new_window_position
+    Under multi-head X (not XRandR/TwinView), the use of more than one adapter is
+    impossible due to bugs in X and GLX. [al_create_display] will fail if more than one
+    adapter is attempted to be used.
 
-Get the position where new non-fullscreen displays created by the calling
-thread will be placed.
+ALLEGRO_FULLSCREEN
+:   Prefer a fullscreen mode.
 
-See also: [al_set_new_window_position]
+    Under X the use of more than one FULLSCREEN display when using multi-head X,
+    or true Xinerama is not possible due to bugs in X and GLX,
+    display creation will fail if more than one adapter is attempted to be used.
+
+ALLEGRO_FULLSCREEN_WINDOW
+:   Make the window span the entire screen. Unlike ALLEGRO_FULLSCREEN this
+    will never attempt to modify the screen resolution. Instead the pixel
+    dimensions of the created display will be the same as the desktop.
+
+    The passed width and height are only used if the window is switched
+    out of fullscreen mode later but will be ignored initially.
+
+    Under Windows and X11 a fullscreen display created with this flag
+    will behave differently from one created with the ALLEGRO_FULLSCREEN
+    flag - even if the ALLEGRO_FULLSCREEN display is passed the desktop
+    dimensions. The exact difference is platform dependent, but some
+    things which may be different is how alt-tab works, how fast you can
+    toggle between fullscreen/windowed mode or how additional monitors
+    behave while your display is in fullscreen mode.
+
+    Additionally under X, the use of more than one adapter in multi-head mode
+    or with true Xinerama enabled is impossible due to bugs in X/GLX,
+    creation will fail if more than one adapter is attempted to be used.
+
+ALLEGRO_RESIZABLE
+:   The display is resizable (only applicable if combined with
+    ALLEGRO_WINDOWED).
+
+ALLEGRO_OPENGL
+:   Require the driver to provide an initialized OpenGL context after returning
+    successfully.
+
+ALLEGRO_OPENGL_3_0
+:   Require the driver to provide an initialized OpenGL
+    context compatible with OpenGL version 3.0.
+
+ALLEGRO_OPENGL_FORWARD_COMPATIBLE
+:   If this flag is set, the OpenGL
+    context created with ALLEGRO_OPENGL_3_0 will be forward compatible *only*,
+    meaning that all of the OpenGL API declared deprecated in OpenGL 3.0 will not
+    be supported. Currently, a display created with this flag will *not* be
+    compatible with Allegro drawing routines; the display option
+    ALLEGRO_COMPATIBLE_DISPLAY will be set to false.
+
+ALLEGRO_DIRECT3D
+:   Require the driver to do rendering with Direct3D and
+    provide a Direct3D device.
+
+ALLEGRO_FRAMELESS
+:   Try to create a window without a frame (i.e. no border or titlebar).
+    This usually does nothing for fullscreen modes, and even in windowed modes
+    it depends on the underlying platform whether it is supported or not.
+    Since: 5.1.2
+
+ALLEGRO_NOFRAME
+:   Original name for ALLEGRO_FRAMELESS.
+    This works with older versions of Allegro.
+
+ALLEGRO_GENERATE_EXPOSE_EVENTS
+:   Let the display generate expose events.
+
+0 can be used for default values.
+
+See also: [al_set_new_display_option], [al_get_display_option], [al_change_display_option]
+
+### API: al_get_new_display_option
+
+Retrieve an extra display setting which was previously set with
+[al_set_new_display_option].
 
 ### API: al_set_new_display_option
 
@@ -185,106 +256,17 @@ ALLEGRO_SUPPORT_SEPARATE_ALPHA
 
 See also: [al_set_new_display_flags]
 
-### API: al_get_new_display_option
-
-Retrieve an extra display setting which was previously set with
-[al_set_new_display_option].
-
 ### API: al_reset_new_display_options
 
 This undoes any previous call to [al_set_new_display_option]
 on the calling thread.
 
-### API: al_set_new_display_flags
+### API: al_get_new_window_position
 
-Sets various flags to be used when creating new displays on the calling thread.
-flags is a bitfield containing any reasonable combination of the following:
+Get the position where new non-fullscreen displays created by the calling
+thread will be placed.
 
-ALLEGRO_WINDOWED
-:   Prefer a windowed mode.
-
-    Under multi-head X (not XRandR/TwinView), the use of more than one adapter is
-    impossible due to bugs in X and GLX. [al_create_display] will fail if more than one
-    adapter is attempted to be used.
-    
-ALLEGRO_FULLSCREEN
-:   Prefer a fullscreen mode.
-
-    Under X the use of more than one FULLSCREEN display when using multi-head X,
-    or true Xinerama is not possible due to bugs in X and GLX,
-    display creation will fail if more than one adapter is attempted to be used.
-   
-ALLEGRO_FULLSCREEN_WINDOW
-:   Make the window span the entire screen. Unlike ALLEGRO_FULLSCREEN this
-    will never attempt to modify the screen resolution. Instead the pixel
-    dimensions of the created display will be the same as the desktop.
-
-    The passed width and height are only used if the window is switched
-    out of fullscreen mode later but will be ignored initially.
-
-    Under Windows and X11 a fullscreen display created with this flag
-    will behave differently from one created with the ALLEGRO_FULLSCREEN
-    flag - even if the ALLEGRO_FULLSCREEN display is passed the desktop
-    dimensions. The exact difference is platform dependent, but some
-    things which may be different is how alt-tab works, how fast you can
-    toggle between fullscreen/windowed mode or how additional monitors
-    behave while your display is in fullscreen mode.
-
-    Additionally under X, the use of more than one adapter in multi-head mode
-    or with true Xinerama enabled is impossible due to bugs in X/GLX,
-    creation will fail if more than one adapter is attempted to be used.
-    
-ALLEGRO_RESIZABLE
-:   The display is resizable (only applicable if combined with
-    ALLEGRO_WINDOWED).
-
-ALLEGRO_OPENGL
-:   Require the driver to provide an initialized OpenGL context after returning
-    successfully.
-
-ALLEGRO_OPENGL_3_0
-:   Require the driver to provide an initialized OpenGL
-    context compatible with OpenGL version 3.0.
-
-ALLEGRO_OPENGL_FORWARD_COMPATIBLE
-:   If this flag is set, the OpenGL
-    context created with ALLEGRO_OPENGL_3_0 will be forward compatible *only*,
-    meaning that all of the OpenGL API declared deprecated in OpenGL 3.0 will not
-    be supported. Currently, a display created with this flag will *not* be
-    compatible with Allegro drawing routines; the display option
-    ALLEGRO_COMPATIBLE_DISPLAY will be set to false.
-
-ALLEGRO_DIRECT3D
-:   Require the driver to do rendering with Direct3D and
-    provide a Direct3D device.
-
-ALLEGRO_FRAMELESS
-:   Try to create a window without a frame (i.e. no border or titlebar).
-    This usually does nothing for fullscreen modes, and even in windowed modes
-    it depends on the underlying platform whether it is supported or not.
-    Since: 5.1.2
-
-ALLEGRO_NOFRAME
-:   Original name for ALLEGRO_FRAMELESS.
-    This works with older versions of Allegro.
-
-ALLEGRO_GENERATE_EXPOSE_EVENTS
-:   Let the display generate expose events.
-
-0 can be used for default values. 
-
-See also: [al_set_new_display_option], [al_get_display_option]
-
-### API: al_set_new_display_refresh_rate
-
-Sets the refresh rate to use when creating new displays on the calling thread.
-If the refresh rate is not available, [al_create_display] will fail.
-A list of modes with refresh rates can be found with [al_get_num_display_modes]
-and [al_get_display_mode].
-
-The default setting is zero (don't care).
-
-See also: [al_get_new_display_refresh_rate]
+See also: [al_set_new_window_position]
 
 ### API: al_set_new_window_position
 
@@ -297,23 +279,48 @@ To reset to the default behaviour, pass (INT_MAX, INT_MAX).
 
 See also: [al_get_new_window_position]
 
+### API: al_get_new_display_refresh_rate
+
+Get the requested refresh rate to be used when creating new displays on the
+calling thread.
+
+See also: [al_set_new_display_refresh_rate]
+
+### API: al_set_new_display_refresh_rate
+
+Sets the refresh rate to use when creating new displays on the calling thread.
+If the refresh rate is not available, [al_create_display] will fail.
+A list of modes with refresh rates can be found with [al_get_num_display_modes]
+and [al_get_display_mode].
+
+The default setting is zero (don't care).
+
+See also: [al_get_new_display_refresh_rate]
+
 
 
 ## Display operations
 
-### API: al_acknowledge_resize
+### API: al_get_display_event_source
 
-When the user receives a resize event from a resizable display,
-if they wish the display to be resized they must call this
-function to let the graphics driver know that it can now resize
-the display. Returns true on success.
+Retrieve the associated event source.
 
-Adjusts the clipping rectangle to the full size of the backbuffer.
+### API: al_get_backbuffer
 
-Note that a resize event may be outdated by the time you acknowledge it;
-there could be further resize events generated in the meantime.
+Return a special bitmap representing the back-buffer of the
+display.
 
-See also: [al_resize_display], [ALLEGRO_EVENT]
+Care should be taken when using the backbuffer bitmap (and its
+sub-bitmaps) as the source bitmap (e.g as the bitmap argument to
+[al_draw_bitmap]). Only untransformed operations are hardware
+accelerated. This consists of [al_draw_bitmap] and
+[al_draw_bitmap_region] when the current transformation is the identity.
+If the tranformation is not the identity, or some other drawing
+operation is used, the call will be routed through the memory bitmap
+routines, which are slow. If you need those operations to be accelerated,
+then first copy a region of the backbuffer into a temporary bitmap (via
+the [al_draw_bitmap] and [al_draw_bitmap_region]), and then use that
+temporary bitmap as the source bitmap.
 
 ### API: al_flip_display
 
@@ -341,145 +348,6 @@ in the system's graphics preferences.
 
 See also: [al_set_new_display_flags], [al_set_new_display_option]
 
-### API: al_get_backbuffer
-
-Return a special bitmap representing the back-buffer of the
-display.
-
-Care should be taken when using the backbuffer bitmap (and its 
-sub-bitmaps) as the source bitmap (e.g as the bitmap argument to
-[al_draw_bitmap]). Only untransformed operations are hardware 
-accelerated. This consists of [al_draw_bitmap] and 
-[al_draw_bitmap_region] when the current transformation is the identity.
-If the tranformation is not the identity, or some other drawing 
-operation is used, the call will be routed through the memory bitmap
-routines, which are slow. If you need those operations to be accelerated, 
-then first copy a region of the backbuffer into a temporary bitmap (via 
-the [al_draw_bitmap] and [al_draw_bitmap_region]), and then use that 
-temporary bitmap as the source bitmap.
-
-### API: al_get_display_flags
-
-Gets the flags of the display.
-
-In addition to the flags set for the display at creation time with
-[al_set_new_display_flags] it can also have the ALLEGRO_MINIMIZED flag
-set, indicating that the window is currently minimized. This flag
-is very platform-dependent as even a minimized application may still
-render a preview version so normally you should not care whether it
-is minimized or not.
-
-See also: [al_set_new_display_flags]
-
-### API: al_get_display_format
-
-Gets the pixel format of the display.
-
-See also: [ALLEGRO_PIXEL_FORMAT]
-
-### API: al_get_display_height
-
-Gets the height of the display. This is like SCREEN_H in Allegro 4.x.
-
-See also: [al_get_display_width]
-
-### API: al_get_display_refresh_rate
-
-Gets the refresh rate of the display.
-
-See also: [al_set_new_display_refresh_rate]
-
-### API: al_get_display_width
-
-Gets the width of the display. This is like SCREEN_W in Allegro 4.x.
-
-See also: [al_get_display_height]
-
-### API: al_get_window_position
-
-Gets the position of a non-fullscreen display.
-
-See also: [al_set_window_position]
-
-### API: al_inhibit_screensaver
-
-This function allows the user to stop the system
-screensaver from starting up if true is passed,
-or resets the system back to the default state
-(the state at program start) if false is passed.
-It returns true if the state was set successfully,
-otherwise false.
-
-### API: al_resize_display
-
-Resize the display. Returns true on success, or false on error.
-This works on both fullscreen and windowed displays, regardless of the
-ALLEGRO_RESIZABLE flag.
-
-Adjusts the clipping rectangle to the full size of the backbuffer.
-
-See also: [al_acknowledge_resize]
-
-### API: al_set_display_icon
-
-Changes the icon associated with the display (window).
-Same as [al_set_display_icons] with one icon.
-
-See also: [al_set_display_icons], [al_set_window_title]
-
-### API: al_set_display_icons
-
-Changes the icons associated with the display (window).
-Multiple icons can be provided for use in different contexts, e.g. window
-frame, taskbar, alt-tab popup.  The number of icons must be at least one.
-
-> *Note:* If the underlying OS requires an icon of a size not provided
-then one of the bitmaps will be scaled up or down to the required size.
-The choice of bitmap is implementation dependent.
-
-Since: 5.1.5
-
-See also: [al_set_display_icon], [al_set_window_title]
-
-### API: al_get_display_option
-
-Return an extra display setting of the display.
-
-See also: [al_set_new_display_option]
-
-### API: al_set_window_position
-
-Sets the position on screen of a non-fullscreen display.
-
-See also: [al_get_window_position]
-
-### API: al_set_window_title
-
-Set the title on a display.
-
-See also: [al_set_display_icon], [al_set_display_icons]
-
-### API: al_set_display_flag
-
-Enable or disable one of the display flags. The flags are the same
-as for [al_set_new_display_flags]. The only flags that can be changed
-after creation are:
-
-- ALLEGRO_FULLSCREEN_WINDOW
-- ALLEGRO_FRAMELESS
-
-Returns true if the driver supports toggling the specified flag else
-false. You can use [al_get_display_flags] to query whether the given
-display property actually changed.
-
-Since: 5.1.2
-
-See also: [al_set_new_display_flags], [al_get_display_flags]
-
-### API: al_toggle_display_flag
-
-Deprecated synonym for [al_set_display_flag].
-
 ### API: al_update_display_region
 
 Does the same as [al_flip_display], but tries to update only the
@@ -506,8 +374,149 @@ Returns false if not possible, true if successful.
 See also: [al_flip_display]
 
 
-### API: al_get_display_event_source
 
-Retrieve the associated event source.
+## Display size and position
+
+### API: al_get_display_width
+
+Gets the width of the display. This is like SCREEN_W in Allegro 4.x.
+
+See also: [al_get_display_height]
+
+### API: al_get_display_height
+
+Gets the height of the display. This is like SCREEN_H in Allegro 4.x.
+
+See also: [al_get_display_width]
+
+### API: al_resize_display
+
+Resize the display. Returns true on success, or false on error.
+This works on both fullscreen and windowed displays, regardless of the
+ALLEGRO_RESIZABLE flag.
+
+Adjusts the clipping rectangle to the full size of the backbuffer.
+
+See also: [al_acknowledge_resize]
+
+### API: al_acknowledge_resize
+
+When the user receives a resize event from a resizable display,
+if they wish the display to be resized they must call this
+function to let the graphics driver know that it can now resize
+the display. Returns true on success.
+
+Adjusts the clipping rectangle to the full size of the backbuffer.
+
+Note that a resize event may be outdated by the time you acknowledge it;
+there could be further resize events generated in the meantime.
+
+See also: [al_resize_display], [ALLEGRO_EVENT]
+
+### API: al_get_window_position
+
+Gets the position of a non-fullscreen display.
+
+See also: [al_set_window_position]
+
+### API: al_set_window_position
+
+Sets the position on screen of a non-fullscreen display.
+
+See also: [al_get_window_position]
 
 
+
+## Display settings
+
+### API: al_get_display_flags
+
+Gets the flags of the display.
+
+In addition to the flags set for the display at creation time with
+[al_set_new_display_flags] it can also have the ALLEGRO_MINIMIZED flag
+set, indicating that the window is currently minimized. This flag
+is very platform-dependent as even a minimized application may still
+render a preview version so normally you should not care whether it
+is minimized or not.
+
+See also: [al_set_new_display_flags], [al_set_display_flag]
+
+### API: al_set_display_flag
+
+Enable or disable one of the display flags. The flags are the same
+as for [al_set_new_display_flags]. The only flags that can be changed
+after creation are:
+
+- ALLEGRO_FULLSCREEN_WINDOW
+- ALLEGRO_FRAMELESS
+
+Returns true if the driver supports toggling the specified flag else
+false. You can use [al_get_display_flags] to query whether the given
+display property actually changed.
+
+Since: 5.1.2
+
+See also: [al_set_new_display_flags], [al_get_display_flags]
+
+### API: al_toggle_display_flag
+
+Deprecated synonym for [al_set_display_flag].
+
+### API: al_get_display_option
+
+Return an extra display setting of the display.
+
+See also: [al_set_new_display_option]
+
+### API: al_get_display_format
+
+Gets the pixel format of the display.
+
+See also: [ALLEGRO_PIXEL_FORMAT]
+
+### API: al_get_display_refresh_rate
+
+Gets the refresh rate of the display.
+
+See also: [al_set_new_display_refresh_rate]
+
+### API: al_set_window_title
+
+Set the title on a display.
+
+See also: [al_set_display_icon], [al_set_display_icons]
+
+### API: al_set_display_icon
+
+Changes the icon associated with the display (window).
+Same as [al_set_display_icons] with one icon.
+
+See also: [al_set_display_icons], [al_set_window_title]
+
+### API: al_set_display_icons
+
+Changes the icons associated with the display (window).
+Multiple icons can be provided for use in different contexts, e.g. window
+frame, taskbar, alt-tab popup.  The number of icons must be at least one.
+
+> *Note:* If the underlying OS requires an icon of a size not provided
+then one of the bitmaps will be scaled up or down to the required size.
+The choice of bitmap is implementation dependent.
+
+Since: 5.1.5
+
+See also: [al_set_display_icon], [al_set_window_title]
+
+
+
+## Screensaver
+
+### API: al_inhibit_screensaver
+
+This function allows the user to stop the system
+screensaver from starting up if true is passed,
+or resets the system back to the default state
+(the state at program start) if false is passed.
+It returns true if the state was set successfully,
+otherwise false.
