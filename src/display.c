@@ -364,37 +364,6 @@ void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d)
 }
 
 
-/* Function: al_get_num_video_adapters
- */
-int al_get_num_video_adapters(void)
-{
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
-
-   if (system && system->vt && system->vt->get_num_video_adapters) {
-      return system->vt->get_num_video_adapters();
-   }
-
-   return 0;
-}
-
-
-/* Function: al_get_monitor_info
- */
-bool al_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
-{
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
-
-   if (adapter < al_get_num_video_adapters()) {
-      if (system && system->vt && system->vt->get_monitor_info) {
-         return system->vt->get_monitor_info(adapter, info);
-      }
-   }
-
-   info->x1 = info->y1 = info->x2 = info->y2 = INT_MAX;
-   return false;
-}
-
-
 /* Function: al_set_window_position
  */
 void al_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
