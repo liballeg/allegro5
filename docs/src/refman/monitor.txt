@@ -1,0 +1,60 @@
+# Monitors
+
+These functions are declared in the main Allegro header file:
+
+    #include <allegro5/allegro.h>
+
+## API: ALLEGRO_MONITOR_INFO
+
+Describes a monitors size and position relative to other
+monitors. x1, y1 will be 0, 0 on the primary display.
+Other monitors can have negative values if they are to the
+left or above the primary display.
+
+    typedef struct ALLEGRO_MONITOR_INFO
+    {
+       int x1;
+       int y1;
+       int x2;
+       int y2;
+    } ALLEGRO_MONITOR_INFO;
+
+See also: [al_get_monitor_info]
+
+## API: al_get_new_display_adapter
+
+Gets the video adapter index where new displays
+will be created by the calling thread, if previously set with
+[al_set_new_display_adapter].
+Otherwise returns `ALLEGRO_DEFAULT_DISPLAY_ADAPTER`.
+
+See also: [al_set_new_display_adapter]
+
+## API: al_set_new_display_adapter
+
+Sets the adapter to use for new displays created by the calling thread.
+The adapter has a monitor attached to it. Information
+about the monitor can be gotten using [al_get_num_video_adapters]
+and [al_get_monitor_info].
+
+To return to the default behaviour, pass `ALLEGRO_DEFAULT_DISPLAY_ADAPTER`.
+
+See also: [al_get_num_video_adapters], [al_get_monitor_info]
+
+## API: al_get_monitor_info
+
+Get information about a monitor's position on the desktop.
+adapter is a number from 0 to al_get_num_video_adapters()-1.
+
+Returns true on success, false on failure.
+
+See also: [ALLEGRO_MONITOR_INFO], [al_get_num_video_adapters]
+
+## API: al_get_num_video_adapters
+
+Get the number of video "adapters" attached to the computer. Each
+video card attached to the computer counts as one or more adapters.
+An adapter is thus really a video port that can have a monitor connected
+to it.
+
+See also: [al_get_monitor_info]

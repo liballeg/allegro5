@@ -1,4 +1,4 @@
-# Display routines
+# Displays
 
 These functions are declared in the main Allegro header file:
 
@@ -589,105 +589,6 @@ See also: [al_flip_display]
 
 Retrieve the associated event source.
 
-
-## Fullscreen display modes
-
-### API: ALLEGRO_DISPLAY_MODE
-
-Used for display mode queries. Contains information
-about a supported fullscreen display mode.
-
-    typedef struct ALLEGRO_DISPLAY_MODE {
-       int width;          // Screen width
-       int height;         // Screen height
-       int format;         // The pixel format of the mode
-       int refresh_rate;   // The refresh rate of the mode
-    } ALLEGRO_DISPLAY_MODE;
-
-The `refresh_rate` may be zero if unknown.
-
-See also: [al_get_display_mode]
-
-### API: al_get_display_mode
-
-Retrieves a display mode. Display parameters should not be
-changed between a call of [al_get_num_display_modes] and
-[al_get_display_mode]. index must be between 0 and the number
-returned from al_get_num_display_modes-1. mode must be an
-allocated ALLEGRO_DISPLAY_MODE structure. This function will
-return NULL on failure, and the mode parameter that was passed
-in on success.
-
-See also: [ALLEGRO_DISPLAY_MODE], [al_get_num_display_modes]
-
-### API: al_get_num_display_modes
-
-Get the number of available fullscreen display modes
-for the current set of display parameters. This will
-use the values set with [al_set_new_display_refresh_rate],
-and [al_set_new_display_flags] to find the number of modes
-that match. Settings the new display parameters to zero will
-give a list of all modes for the default driver.
-
-See also: [al_get_display_mode]
-
-
-## Monitors
-
-### API: ALLEGRO_MONITOR_INFO
-
-Describes a monitors size and position relative to other
-monitors. x1, y1 will be 0, 0 on the primary display.
-Other monitors can have negative values if they are to the
-left or above the primary display.
-
-    typedef struct ALLEGRO_MONITOR_INFO
-    {
-       int x1;
-       int y1;
-       int x2;
-       int y2;
-    } ALLEGRO_MONITOR_INFO;
-
-See also: [al_get_monitor_info]
-
-### API: al_get_new_display_adapter
-
-Gets the video adapter index where new displays
-will be created by the calling thread, if previously set with
-[al_set_new_display_adapter].
-Otherwise returns `ALLEGRO_DEFAULT_DISPLAY_ADAPTER`.
-
-See also: [al_set_new_display_adapter]
-
-### API: al_set_new_display_adapter
-
-Sets the adapter to use for new displays created by the calling thread.
-The adapter has a monitor attached to it. Information
-about the monitor can be gotten using [al_get_num_video_adapters]
-and [al_get_monitor_info].
-
-To return to the default behaviour, pass `ALLEGRO_DEFAULT_DISPLAY_ADAPTER`.
-
-See also: [al_get_num_video_adapters], [al_get_monitor_info]
-
-### API: al_get_monitor_info
-
-Get information about a monitor's position on the desktop.
-adapter is a number from 0 to al_get_num_video_adapters()-1.
-
-Returns true on success, false on failure.
-
-See also: [ALLEGRO_MONITOR_INFO], [al_get_num_video_adapters]
-
-### API: al_get_num_video_adapters
-
-Get the number of video "adapters" attached to the computer. Each
-video card attached to the computer counts as one or more adapters.
-An adapter is thus really a video port that can have a monitor connected
-to it.
-
-See also: [al_get_monitor_info]
 
 ### API: al_acknowledge_drawing_halt
 

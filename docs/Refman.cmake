@@ -9,13 +9,15 @@ set(PAGES
     display
     events
     file
-    fshook
     fixed
+    fshook
+    fullscreen_mode
     graphics
     joystick
     keyboard
     memory
     misc
+    monitor
     mouse
     path
     state
