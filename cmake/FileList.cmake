@@ -1,7 +1,8 @@
 set(ALLEGRO_SRC_FILES
     src/allegro.c
-    src/bitmap_io.c
     src/bitmap.c
+    src/bitmap_draw.c
+    src/bitmap_io.c
     src/blenders.c
     src/config.c
     src/convert.c
@@ -219,8 +220,9 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/alcompat.h
     include/allegro5/altime.h
     include/allegro5/base.h
-    include/allegro5/bitmap_io.h
     include/allegro5/bitmap.h
+    include/allegro5/bitmap_draw.h
+    include/allegro5/bitmap_io.h
     include/allegro5/color.h
     include/allegro5/config.h
     include/allegro5/debug.h
