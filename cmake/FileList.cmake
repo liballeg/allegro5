@@ -6,6 +6,7 @@ set(ALLEGRO_SRC_FILES
     src/blenders.c
     src/config.c
     src/convert.c
+    src/debug.c
     src/display.c
     src/display_settings.c
     src/drawing.c
