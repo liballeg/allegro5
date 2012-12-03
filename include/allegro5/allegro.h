@@ -37,6 +37,7 @@
 #include "allegro5/events.h"
 
 #include "allegro5/mouse.h"
+#include "allegro5/mouse_cursor.h"
 #include "allegro5/timer.h"
 #include "allegro5/keyboard.h"
 #include "allegro5/joystick.h"

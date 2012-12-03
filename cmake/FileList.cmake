@@ -29,6 +29,7 @@ set(ALLEGRO_SRC_FILES
     src/memory.c
     src/monitor.c
     src/mousenu.c
+    src/mouse_cursor.c
     src/path.c
     src/pixels.c
     src/system.c
@@ -242,6 +243,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/memory.h
     include/allegro5/monitor.h
     include/allegro5/mouse.h
+    include/allegro5/mouse_cursor.h
     include/allegro5/path.h
     include/allegro5/render_state.h
     include/allegro5/system.h
