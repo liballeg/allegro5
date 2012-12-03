@@ -9,15 +9,17 @@ API
 ===
 
 * [Configuration files](config.html)
-* [Display routines](display.html)
+* [Displays](display.html)
 * [Events](events.html)
 * [File I/O](file.html)
 * [Filesystem](fshook.html)
 * [Fixed point math](fixed.html)
+* [Fullscreen modes](fullscreen_mode.html)
 * [Graphics routines](graphics.html)
 * [Joystick routines](joystick.html)
 * [Keyboard routines](keyboard.html)
 * [Memory management](memory.html)
+* [Monitors](monitor.html)
 * [Mouse routines](mouse.html)
 * [Path structures](path.html)
 * [State](state.html)
