@@ -50,6 +50,7 @@
 #include "allegro5/monitor.h"
 #include "allegro5/bitmap_io.h"
 #include "allegro5/bitmap.h"
+#include "allegro5/bitmap_draw.h"
 
 #include "allegro5/tls.h"
 
