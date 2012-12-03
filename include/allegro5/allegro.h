@@ -45,6 +45,7 @@
 
 #include "allegro5/display.h"
 #include "allegro5/transformations.h"
+#include "allegro5/fullscreen_mode.h"
 #include "allegro5/bitmap_io.h"
 #include "allegro5/bitmap.h"
 

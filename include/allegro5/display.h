@@ -87,17 +87,6 @@ enum ALLEGRO_DISPLAY_ORIENTATION
 typedef struct ALLEGRO_DISPLAY ALLEGRO_DISPLAY;
 
 
-/* Type: ALLEGRO_DISPLAY_MODE
- */
-typedef struct ALLEGRO_DISPLAY_MODE
-{
-   int width;
-   int height;
-   int format;
-   int refresh_rate;
-} ALLEGRO_DISPLAY_MODE;
-
-
 /* Type: ALLEGRO_MONITOR_INFO
  */
 typedef struct ALLEGRO_MONITOR_INFO
@@ -140,10 +129,6 @@ AL_FUNC(bool, al_resize_display,     (ALLEGRO_DISPLAY *display, int width, int h
 AL_FUNC(void, al_flip_display,       (void));
 AL_FUNC(void, al_update_display_region, (int x, int y, int width, int height));
 AL_FUNC(bool, al_is_compatible_bitmap, (ALLEGRO_BITMAP *bitmap));
-
-AL_FUNC(int, al_get_num_display_modes, (void));
-AL_FUNC(ALLEGRO_DISPLAY_MODE*, al_get_display_mode, (int index,
-        ALLEGRO_DISPLAY_MODE *mode));
 
 AL_FUNC(bool, al_wait_for_vsync, (void));
 
