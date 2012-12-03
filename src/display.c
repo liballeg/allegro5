@@ -193,48 +193,6 @@ bool al_resize_display(ALLEGRO_DISPLAY *display, int width, int height)
 
 
 
-/* Function: al_clear_to_color
- */
-void al_clear_to_color(ALLEGRO_COLOR color)
-{
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ASSERT(target);
-
-   if (target->flags & ALLEGRO_MEMORY_BITMAP) {
-      _al_clear_memory(&color);
-   }
-   else {
-      ALLEGRO_DISPLAY *display = target->display;
-      ASSERT(display);
-      ASSERT(display->vt);
-      display->vt->clear(display, &color);
-   }
-}
-
-
-
-/* Function: al_draw_pixel
- */
-void al_draw_pixel(float x, float y, ALLEGRO_COLOR color)
-{
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-
-   ASSERT(target);
-
-   if (target->flags & ALLEGRO_MEMORY_BITMAP) {
-      _al_draw_pixel_memory(target, x, y, &color);
-   }
-   else {
-      ALLEGRO_DISPLAY *display = target->display;
-      ASSERT(display);
-      ASSERT(display->vt);
-      display->vt->draw_pixel(display, x, y, &color);
-   }
-}
-
-
-
-
 /* Function: al_is_compatible_bitmap
  */
 bool al_is_compatible_bitmap(ALLEGRO_BITMAP *bitmap)

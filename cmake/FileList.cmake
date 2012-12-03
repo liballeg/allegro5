@@ -7,6 +7,7 @@ set(ALLEGRO_SRC_FILES
     src/convert.c
     src/display.c
     src/display_settings.c
+    src/drawing.c
     src/dtor.c
     src/events.c
     src/evtsrc.c
@@ -199,6 +200,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/config.h
     include/allegro5/debug.h
     include/allegro5/display.h
+    include/allegro5/drawing.h
     include/allegro5/error.h
     include/allegro5/events.h
     include/allegro5/file.h

@@ -44,6 +44,7 @@
 #include "allegro5/threads.h"
 
 #include "allegro5/display.h"
+#include "allegro5/drawing.h"
 #include "allegro5/transformations.h"
 #include "allegro5/fullscreen_mode.h"
 #include "allegro5/monitor.h"
