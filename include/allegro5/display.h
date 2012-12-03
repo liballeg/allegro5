@@ -95,22 +95,6 @@ enum ALLEGRO_DISPLAY_ORIENTATION
 typedef struct ALLEGRO_DISPLAY ALLEGRO_DISPLAY;
 
 
-/* Type: ALLEGRO_MONITOR_INFO
- */
-typedef struct ALLEGRO_MONITOR_INFO
-{
-   int x1;
-   int y1;
-   int x2;
-   int y2;
-} ALLEGRO_MONITOR_INFO;
-
-
-enum {
-   ALLEGRO_DEFAULT_DISPLAY_ADAPTER = -1
-};
-
-
 AL_FUNC(void, al_set_new_display_refresh_rate, (int refresh_rate));
 AL_FUNC(void, al_set_new_display_flags, (int flags));
 AL_FUNC(int,  al_get_new_display_refresh_rate, (void));
@@ -151,8 +135,6 @@ AL_FUNC(void, al_set_display_icon, (ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *ic
 AL_FUNC(void, al_set_display_icons, (ALLEGRO_DISPLAY *display, int num_icons, ALLEGRO_BITMAP *icons[]));
 
 /* Stuff for multihead/window management */
-AL_FUNC(int, al_get_num_video_adapters, (void));
-AL_FUNC(bool, al_get_monitor_info, (int adapter, ALLEGRO_MONITOR_INFO *info));
 AL_FUNC(int, al_get_new_display_adapter, (void));
 AL_FUNC(void, al_set_new_display_adapter, (int adapter));
 AL_FUNC(void, al_set_new_window_position, (int x, int y));

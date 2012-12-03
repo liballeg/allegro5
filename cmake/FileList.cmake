@@ -24,6 +24,7 @@ set(ALLEGRO_SRC_FILES
     src/memblit.c
     src/memdraw.c
     src/memory.c
+    src/monitor.c
     src/mousenu.c
     src/path.c
     src/pixels.c
@@ -234,6 +235,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/keyboard.h
     include/allegro5/keycodes.h
     include/allegro5/memory.h
+    include/allegro5/monitor.h
     include/allegro5/mouse.h
     include/allegro5/path.h
     include/allegro5/render_state.h
