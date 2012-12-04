@@ -63,11 +63,6 @@ AL_FUNC(ALLEGRO_BITMAP *, al_create_sub_bitmap, (ALLEGRO_BITMAP *parent, int x, 
 AL_FUNC(bool, al_is_sub_bitmap, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(ALLEGRO_BITMAP *, al_get_parent_bitmap, (ALLEGRO_BITMAP *bitmap));
 
-/* Miscellaneous */
-AL_FUNC(ALLEGRO_BITMAP *, al_clone_bitmap, (ALLEGRO_BITMAP *bitmap));
-AL_FUNC(void, al_convert_bitmap, (ALLEGRO_BITMAP *bitmap));
-AL_FUNC(void, al_convert_bitmaps, (void));
-
 AL_FUNC(void, _al_put_pixel, (ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color));
 
 #ifdef __cplusplus

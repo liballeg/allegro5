@@ -27,6 +27,7 @@
 
 #include "allegro5/altime.h"
 #include "allegro5/bitmap.h"
+#include "allegro5/bitmap_convert.h"
 #include "allegro5/bitmap_draw.h"
 #include "allegro5/bitmap_io.h"
 #include "allegro5/bitmap_lock.h"

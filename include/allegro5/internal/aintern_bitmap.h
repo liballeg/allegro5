@@ -106,6 +106,9 @@ extern void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
    int, int, int, int, int, int);
 
 /* Bitmap conversion */
+void _al_init_to_be_converted_bitmaps(void);
+void _al_check_to_be_converted_list_add(ALLEGRO_BITMAP *bitmap);
+void _al_check_to_be_converted_list_remove(ALLEGRO_BITMAP *bitmap);
 void _al_convert_bitmap_data(
 	void *src, int src_format, int src_pitch,
 	void *dst, int dst_format, int dst_pitch,
@@ -113,6 +116,8 @@ void _al_convert_bitmap_data(
 	int width, int height);
 void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap);
 void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap);
+
+/* Pixel formats */
 bool _al_format_has_alpha(int format);
 bool _al_pixel_format_is_real(int format);
 int _al_get_real_pixel_format(ALLEGRO_DISPLAY *display, int format);
@@ -136,7 +141,6 @@ bool _al_transform_is_translation(const ALLEGRO_TRANSFORM* trans,
    float *dx, float *dy);
 
 void _al_init_iio_table(void);
-void _al_init_to_be_converted_bitmaps(void);
 
 #ifdef __cplusplus
 }
