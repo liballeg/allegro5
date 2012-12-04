@@ -68,16 +68,6 @@ enum {
 
 
 /*
- * Locking flags
- */
-enum {
-   ALLEGRO_LOCK_READWRITE  = 0,
-   ALLEGRO_LOCK_READONLY   = 1,
-   ALLEGRO_LOCK_WRITEONLY  = 2
-};
-
-
-/*
  * Blending modes
  */
 enum ALLEGRO_BLEND_MODE {
@@ -99,17 +89,6 @@ enum ALLEGRO_BLEND_OPERATIONS {
 };
 
 
-/* Type: ALLEGRO_LOCKED_REGION
- */
-typedef struct ALLEGRO_LOCKED_REGION ALLEGRO_LOCKED_REGION;
-struct ALLEGRO_LOCKED_REGION {
-   void *data;
-   int format;
-   int pitch;
-   int pixel_size;
-};
-
-
 AL_FUNC(void, al_set_new_bitmap_format, (int format));
 AL_FUNC(void, al_set_new_bitmap_flags, (int flags));
 AL_FUNC(int, al_get_new_bitmap_format, (void));
@@ -124,11 +103,6 @@ AL_FUNC(int, al_get_bitmap_flags, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(ALLEGRO_BITMAP*, al_create_bitmap, (int w, int h));
 AL_FUNC(ALLEGRO_BITMAP*, al_create_custom_bitmap, (int w, int h, bool (*upload)(ALLEGRO_BITMAP *bitmap, void *data), void *data));
 AL_FUNC(void, al_destroy_bitmap, (ALLEGRO_BITMAP *bitmap));
-
-/* Locking */
-AL_FUNC(ALLEGRO_LOCKED_REGION*, al_lock_bitmap, (ALLEGRO_BITMAP *bitmap, int format, int flags));
-AL_FUNC(ALLEGRO_LOCKED_REGION*, al_lock_bitmap_region, (ALLEGRO_BITMAP *bitmap, int x, int y, int width, int height, int format, int flags));
-AL_FUNC(void, al_unlock_bitmap, (ALLEGRO_BITMAP *bitmap));
 
 AL_FUNC(void, al_put_pixel, (int x, int y, ALLEGRO_COLOR color));
 AL_FUNC(void, al_put_blended_pixel, (int x, int y, ALLEGRO_COLOR color));
@@ -167,7 +141,6 @@ AL_FUNC(ALLEGRO_BITMAP *, al_get_parent_bitmap, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(ALLEGRO_BITMAP *, al_clone_bitmap, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(void, al_convert_bitmap, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(void, al_convert_bitmaps, (void));
-AL_FUNC(bool, al_is_bitmap_locked, (ALLEGRO_BITMAP *bitmap));
 
 /* Blending */
 AL_FUNC(void, al_set_blender, (int op, int source, int dest));
