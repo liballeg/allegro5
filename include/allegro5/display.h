@@ -1,8 +1,9 @@
 #ifndef __al_included_allegro5_display_h
 #define __al_included_allegro5_display_h
 
-#include "allegro5/color.h"
 #include "allegro5/bitmap.h"
+#include "allegro5/color.h"
+#include "allegro5/events.h"
 
 #ifdef __cplusplus
    extern "C" {

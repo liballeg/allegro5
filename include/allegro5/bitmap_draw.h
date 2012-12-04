@@ -1,6 +1,8 @@
 #ifndef __al_included_allegro5_bitmap_draw_h
 #define __al_included_allegro5_bitmap_draw_h
 
+#include "allegro5/bitmap.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
