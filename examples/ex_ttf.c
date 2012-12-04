@@ -154,9 +154,6 @@ int main(int argc, const char *argv[])
     }
 
     ex.f1 = al_load_font(font_file, 48, 0);
-    ex.ranges_count = al_get_font_ranges(ex.f1, 0, NULL);
-    print_ranges(ex.f1);
-    
     ex.f2 = al_load_font(font_file, 48, ALLEGRO_TTF_NO_KERNING);
     ex.f3 = al_load_font(font_file, 12, 0);
     /* Specifying negative values means we specify the glyph height
@@ -169,6 +166,9 @@ int main(int argc, const char *argv[])
         abort_example("Could not load font: %s\n", font_file);
         return 1;
     }
+
+    ex.ranges_count = al_get_font_ranges(ex.f1, 0, NULL);
+    print_ranges(ex.f1);
 
     ex.config = al_load_config_file("data/ex_ttf.ini");
     if (!ex.config) {
