@@ -17,6 +17,7 @@
 #define __al_included_allegro5_fshook_h
 
 #include "allegro5/base.h"
+#include "allegro5/file.h"
 #include "allegro5/path.h"
 
 #ifdef ALLEGRO_HAVE_SYS_TYPES_H
