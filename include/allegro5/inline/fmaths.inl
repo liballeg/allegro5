@@ -19,6 +19,8 @@
 #ifndef __al_included_allegro5_inline_fmaths_inl
 #define __al_included_allegro5_inline_fmaths_inl
 
+#include "allegro5/error.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
