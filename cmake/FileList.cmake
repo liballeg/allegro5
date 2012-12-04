@@ -227,6 +227,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/bitmap_draw.h
     include/allegro5/bitmap_io.h
     include/allegro5/bitmap_lock.h
+    include/allegro5/blender.h
     include/allegro5/color.h
     include/allegro5/config.h
     include/allegro5/debug.h
