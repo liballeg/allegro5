@@ -65,24 +65,6 @@ enum {
 };
 
 
-/*
- * Blending modes
- */
-enum ALLEGRO_BLEND_MODE {
-   ALLEGRO_ZERO = 0,
-   ALLEGRO_ONE = 1,
-   ALLEGRO_ALPHA = 2,
-   ALLEGRO_INVERSE_ALPHA = 3
-};
-
-enum ALLEGRO_BLEND_OPERATIONS {
-   ALLEGRO_ADD = 0,
-   ALLEGRO_SRC_MINUS_DEST = 1,
-   ALLEGRO_DEST_MINUS_SRC = 2,
-   ALLEGRO_NUM_BLEND_OPERATIONS
-};
-
-
 AL_FUNC(void, al_set_new_bitmap_format, (int format));
 AL_FUNC(void, al_set_new_bitmap_flags, (int flags));
 AL_FUNC(int, al_get_new_bitmap_format, (void));
@@ -132,14 +114,6 @@ AL_FUNC(ALLEGRO_BITMAP *, al_get_parent_bitmap, (ALLEGRO_BITMAP *bitmap));
 
 /* Miscellaneous */
 AL_FUNC(ALLEGRO_BITMAP *, al_clone_bitmap, (ALLEGRO_BITMAP *bitmap));
-
-/* Blending */
-AL_FUNC(void, al_set_blender, (int op, int source, int dest));
-AL_FUNC(void, al_get_blender, (int *op, int *source, int *dest));
-AL_FUNC(void, al_set_separate_blender, (int op, int source, int dest,
-   int alpha_op, int alpha_source, int alpha_dest));
-AL_FUNC(void, al_get_separate_blender, (int *op, int *source, int *dest,
-   int *alpha_op, int *alpha_src, int *alpha_dest));
 
 AL_FUNC(void, _al_put_pixel, (ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color));
 
