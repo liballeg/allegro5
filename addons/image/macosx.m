@@ -88,6 +88,14 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size, int flags)
                   data_row[j * 4 + 3] = 255;
                }
             }
+            else if (samples == 1) {
+               for (int j = 0; j < w; j++) {
+                  data_row[j * 4 + 0] = source_row[j];
+                  data_row[j * 4 + 1] = source_row[j];
+                  data_row[j * 4 + 2] = source_row[j];
+                  data_row[j * 4 + 3] = 255;
+               }
+            }
          }
       }
       al_unlock_bitmap(bmp);
