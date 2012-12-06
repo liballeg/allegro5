@@ -341,6 +341,12 @@ manager" that can reload them back to the desired state. Then, when you
 receive an ALLEGRO_EVENT_DISPLAY_FOUND event, tell the bitmap manager
 (or whatever your mechanism is) to restore your bitmaps.
 
+> *Note:* This event merely means that the display was lost, that is,
+DirectX suddenly lost the contents of all video bitmaps. In particular,
+you can keep calling drawing functions -- they just most likely won't
+do anything. If Allegro's restoration of the bitmaps works well for you
+then no further action is required when you receive this event.
+
 display.source (ALLEGRO_DISPLAY *)
 :   The display which was lost.
 
@@ -386,25 +392,63 @@ event.display.orientation
 
 ### API: ALLEGRO_EVENT_DISPLAY_HALT_DRAWING
 
-(since: 5.1.0)
-
 When a display receives this event it should stop doing any drawing
-and then call [al_acknowledge_drawing_halt].
+and then call [al_acknowledge_drawing_halt] immediately.
 
-This is currently only relevant for iOS. It will be sent when the
+This is currently only relevant for Android and iOS. It will be sent when the
 application is switched to background mode, in addition to
-ALLEGRO_EVENT_DISPLAY_SWITCH_OUT. The latter may also be sent in
+[ALLEGRO_EVENT_DISPLAY_SWITCH_OUT]. The latter may also be sent in
 situations where the application is not active but still should continue
-drawing, for example when a popup is display in front of it.
+drawing, for example when a popup is displayed in front of it.
+
+> *Note:* This event means that the next time you call a drawing function, your
+program will crash. So you must stop drawing and you must immediately reply
+with [al_acknowledge_drawing_halt]. Allegro sends this event because it cannot
+handle this automatically. Your program might be doing the drawing in a
+different thread from the event handling, in which case the drawing thread
+needs to be signaled to stop drawing before acknowledging this event.
+
+Since: 5.1.0
+
+See also: [ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING]
 
 ### API: ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING
 
-(since: 5.1.0)
+When a display receives this event, it may resume drawing again, and it must
+call [al_acknowledge_drawing_resume] immediately.
 
-This is called under iOS when an application returns from background
-mode and is allowed to draw to the display again.
+This is currently only relevant for Android and iOS. The event will be sent
+when an application returns from background mode and is allowed to draw to the
+display again, in addition to [ALLEGRO_EVENT_DISPLAY_SWITCH_IN]. The latter
+event may also be sent in a situation where the application is already active,
+for example when a popup in front of it closes.
 
-### API: ALLEGRO_EVENT_TOUCH_BEGIN
+> *Note:* Unlike [ALLEGRO_EVENT_DISPLAY_FOUND] it is not necessary to reload
+any bitmaps when you receive this event.
+
+Since: 5.1.0
+
+See also: [ALLEGRO_EVENT_DISPLAY_HALT_DRAWING]
+
+### API: ALLEGRO_EVENT_DISPLAY_CONNECTED
+
+This event is sent when a physical display is connected to the device
+Allegro runs on. Currently, on most platforms, Allegro supports only a single
+physical display. However, on iOS, a secondary physical display is suported.
+
+display.source (ALLEGRO_DISPLAY *)
+:   The display which was connected.
+
+Since: 5.1.1
+
+### API: ALLEGRO_EVENT_DISPLAY_DISCONNECTED
+
+This event is sent when a physical display is disconnected from the device
+Allegro runs on. Currently, on most platforms, Allegro supports only a single
+physical display. However, on iOS, a secondary physical display is suported.
+
+display.source (ALLEGRO_DISPLAY *)
+:   The display which was disconnected.
 
 The touch input device registered a new touch.
 
@@ -456,17 +500,6 @@ Since: 5.1.0
 See also: [ALLEGRO_EVENT_SOURCE], [ALLEGRO_EVENT_TYPE], [ALLEGRO_USER_EVENT],
 [ALLEGRO_GET_EVENT_TYPE]
 
-### API: ALLEGRO_EVENT_DISPLAY_CONNECTED
-
-(since: 5.1.1)
-
-*Not yet documented.*
-
-### API: ALLEGRO_EVENT_DISPLAY_DISCONNECTED
-
-(since: 5.1.1)
-
-*Not yet documented.*
 
 ## API: ALLEGRO_USER_EVENT
 
