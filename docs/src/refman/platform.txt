@@ -74,27 +74,37 @@ This function should be called BEFORE calling al_create_display.
 
 ### API: al_iphone_set_statusbar_orientation
 
-*Not yet documented.*
+Sets the orientation of the status bar, which can be one of the following:
+
+-  ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_PORTRAIT
+-  ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_PORTRAIT_UPSIDE_DOWN
+-  ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_LANDSCAPE_RIGHT
+-  ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_LANDSCAPE_LEFT
 
 Since: 5.1.0
 
 ### API: al_iphone_get_last_shake_time
 
-*Not yet documented.*
+Returns the time as reported by [al_get_time] when the device was last shaken.
 
 Since: 5.1.0
 
 ### API: al_iphone_get_battery_level
 
-*Not yet documented.*
+Returns the level of the charge of the battery as a number between 0.0 (empty)
+and 1.0 (full). If the device is currently being charged or connected
+to a power supply, this function will also return 1.0 regardless of the real
+battery charge level.
 
 Since: 5.1.0
 
 ### API: al_iphone_get_screen_scale
 
-*Not yet documented.*
+Gets the current scaling factor of the screen.
 
 Since: 5.1.0
+
+See also: [al_iphone_override_screen_scale]
 
 ### API: al_iphone_get_view
 
