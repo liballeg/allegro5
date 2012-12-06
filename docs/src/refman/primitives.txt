@@ -791,7 +791,21 @@ See also: [al_draw_filled_polygon], [al_draw_filled_polygon_with_holes]
 
 ### API: al_triangulate_polygon
 
-*Not yet documented.*
+Divides an arbitrary polygon into triangles.
+
+*Parameters:*
+
+* vertices - an array of vertices of the polygon to triangulate.
+* vertex_stride - distance (in bytes) between successive pairs of vertices in
+  the array.
+* vertex_count - number of vertices in the vertex array.
+* splits - XXX what is this for?
+* split_stride - XXX what is this for?
+* split_count - XXX what is this for?
+* emit_triangle -
+  a function to be called for every set of three points that form a triangle.
+  The function is passed the indexes of the points in `vertices` and `userdata`.
+* userdata - arbitrary data to be passed to emit_triangle.
 
 Since: 5.1.0
 
