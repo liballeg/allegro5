@@ -49,22 +49,25 @@ ALLEGRO_SHADER *al_create_shader(ALLEGRO_SHADER_PLATFORM platform)
 #ifdef ALLEGRO_CFG_WANT_CG_SHADERS
    if (platform & ALLEGRO_SHADER_CG) {
       shader = _al_create_shader_cg(platform);
-      shader->platform = platform;
-      return shader;
+      goto skip;
    }
 #endif
+
    if (platform & ALLEGRO_SHADER_GLSL) {
       shader = _al_create_shader_glsl(platform);
-      shader->platform = platform;
-      return shader;
+      goto skip;
    }
+
 #ifdef ALLEGRO_CFG_WANT_HLSL_SHADERS
    shader = _al_create_shader_hlsl(platform);
-   shader->platform = platform;
 #endif
-   
-   return shader;
 
+skip:
+
+   if (shader) {
+      shader->platform = platform;
+   }
+   return shader;
 }
 
 /* Function: al_link_shader
