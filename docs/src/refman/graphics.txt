@@ -311,7 +311,20 @@ See also: [al_create_bitmap]
 
 ### API: al_create_custom_bitmap
 
-*Not yet documented.*
+Creates a new bitmap using the bitmap format and flags for the current
+thread as by [al_create_bitmap] but allows you to customize how
+the bitmap is uploaded to the display.
+
+If the `upload` callback is not NULL and the bitmap is created as a display
+bitmap, then `upload` will be called with the newly created bitmap and the
+supplied `data`, instead of the display's default upload function.
+
+Return TRUE from the `upload` callback to signifiy success and FALSE to signify
+failure to upload.
+
+If the `upload` callback is NULL, or if the [ALLEGRO_MEMORY_BITMAP] flag is set
+for the current thread, then this function is identical to calling
+[al_create_bitmap].
 
 Since: 5.1.2
 
