@@ -406,8 +406,6 @@ mode and is allowed to draw to the display again.
 
 ### API: ALLEGRO_EVENT_TOUCH_BEGIN
 
-(since: 5.1.0)
-
 The touch input device registered a new touch.
 
 touch.display (ALLEGRO_DISPLAY)
@@ -425,33 +423,35 @@ touch.dx (float)
 touch.dy (float)
 :   Movement speed in pixels in y direction.
 touch.primary (bool)
-:   Wether this is the only/first touch or an additional touch.
+:   Whether this is the only/first touch or an additional touch.
+
+Since: 5.1.0
 
 ### API: ALLEGRO_EVENT_TOUCH_END
-
-(since: 5.1.0)
 
 A touch ended.
 
 Has the same fields as ALLEGRO_EVENT_TOUCH_BEGIN.
 
-### API: ALLEGRO_EVENT_TOUCH_MOVE
+Since: 5.1.0
 
-(since: 5.1.0)
+### API: ALLEGRO_EVENT_TOUCH_MOVE
 
 The position of a touch changed.
 
 Has the same fields as ALLEGRO_EVENT_TOUCH_BEGIN.
 
-### API: ALLEGRO_EVENT_TOUCH_CANCEL
+Since: 5.1.0
 
-(since: 5.1.0)
+### API: ALLEGRO_EVENT_TOUCH_CANCEL
 
 A touch was cancelled. This is device specific but could for example
 mean that a finger moved off the border of the device or moved so
 fast that it could not be tracked any longer.
 
 Has the same fields as ALLEGRO_EVENT_TOUCH_BEGIN.
+
+Since: 5.1.0
 
 See also: [ALLEGRO_EVENT_SOURCE], [ALLEGRO_EVENT_TYPE], [ALLEGRO_USER_EVENT],
 [ALLEGRO_GET_EVENT_TYPE]

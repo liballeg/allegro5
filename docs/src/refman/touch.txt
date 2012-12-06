@@ -1,73 +1,135 @@
 # Touch input
 
+These functions are declared in the main Allegro header file:
+
+    #include <allegro5/allegro.h>
+
 ## API: ALLEGRO_TOUCH_INPUT
 
-*Not yet documented.*
+An abstract data type representing a physical touch screen or touch pad.
 
 Since: 5.1.0
 
-## API: ALLEGRO_TOUCH_INPUT_STATE
+## API: ALLEGRO_TOUCH_INPUT_MAX_TOUCH_COUNT
 
-*Not yet documented.*
+The maximum amount of simultaneous touches that can be detected.
 
 Since: 5.1.0
 
 ## API: ALLEGRO_TOUCH_STATE
 
-*Not yet documented.*
+This is a structure that is used to hold a "snapshot" of a touch at
+a particular instant.
+
+Public fields (read only):
+
+* id - identifier of the touch. If the touch is valid, this is positive.
+* x - touch x position
+* y - touch y position
+* dx - touch relative x position
+* dy - touch relative y position
+* primary - TRUE if this touch is the primary one (usually the first one).
+* display - The [ALLEGRO_DISPLAY] that was touched.
+
+Since: 5.1.0
+
+## API: ALLEGRO_TOUCH_INPUT_STATE
+
+This is a structure that holds a snapshot of all simultaneous touches at a
+particular instant.
+
+Public fields (read only):
+
+* touches - an array of [ALLEGRO_TOUCH_STATE]
 
 Since: 5.1.0
 
 ## API: ALLEGRO_MOUSE_EMULATION_MODE
 
-*Not yet documented.*
+Type of mouse emulation to apply.
 
-Since: 5.1.0
+ALLEGRO_MOUSE_EMULATION_NONE
+:   Disables mouse emulation.
 
-## API: al_is_touch_input_installed
+ALLEGRO_MOUSE_EMULATION_TRANSPARENT
+:   Enables transparent mouse emulation.
 
-*Not yet documented.*
+ALLEGRO_MOUSE_EMULATION_INCLUSIVE
+:   Enable inclusive mouse emulation.
+
+ALLEGRO_MOUSE_EMULATION_EXCLUSIVE
+:   Enables exclusive mouse emulation.
+
+ALLEGRO_MOUSE_EMULATION_5_0_x
+:   Enables mouse emulation that is backwards compatible with Allegro 5.0.x.
 
 Since: 5.1.0
 
 ## API: al_install_touch_input
 
-*Not yet documented.*
+Install a touch input driver, returning true if successful.  If a
+touch input driver was already installed, returns true immediately.
 
 Since: 5.1.0
 
+See also: [al_uninstall_touch_input]
+
 ## API: al_uninstall_touch_input
 
-*Not yet documented.*
+Uninstalls the active touch input driver. If no touch input driver was active,
+this function does nothing.
+
+This function is automatically called when Allegro is shut down.
+
+Since: 5.1.0
+
+See also: [al_install_touch_input]
+
+## API: al_is_touch_input_installed
+
+Returns true if [al_install_touch_input] was called successfully.
 
 Since: 5.1.0
 
 ## API: al_get_touch_input_state
 
-*Not yet documented.*
+Gets the current touch input state. The touch information is copied into the
+[ALLEGRO_TOUCH_INPUT_STATE] you provide to this function.
 
 Since: 5.1.0
 
 ## API: al_set_mouse_emulation_mode
 
-*Not yet documented.*
+Sets the kind of mouse emulation for the touch input subsystem to perform.
 
 Since: 5.1.0
+
+See also: [ALLEGRO_MOUSE_EMULATION_MODE], [al_get_mouse_emulation_mode].
 
 ## API: al_get_mouse_emulation_mode
 
-*Not yet documented.*
+Returns the kind of mouse emulation which the touch input subsystem is
+set to perform.
 
 Since: 5.1.0
+
+See also: [ALLEGRO_MOUSE_EMULATION_MODE], [al_set_mouse_emulation_mode].
 
 ## API: al_get_touch_input_event_source
 
-*Not yet documented.*
+Returns the global touch input event source.  This event source generates
+touch input events.
 
 Since: 5.1.0
 
+See also: [ALLEGRO_EVENT_SOURCE], [al_register_event_source]
+
 ## API: al_get_touch_input_mouse_emulation_event_source
 
-*Not yet documented.*
+Returns the global touch input event source for emulated mouse events.
+This event source generates emulated mouse events that are based on touch
+events.
+
+See also: [ALLEGRO_EVENT_SOURCE], [al_register_event_source]
 
 Since: 5.1.0
