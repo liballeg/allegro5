@@ -207,11 +207,7 @@ int main(int argc, char **argv)
       return 1;
    }
 
-#if defined GLSL
-   al_set_opengl_program_object(display, al_get_opengl_program_object(shader));
-#elif defined HLSL
-   al_set_direct3d_effect(display, al_get_direct3d_effect(shader));
-#endif
+   al_set_shader(display, shader);
       
    float tints[12] = {
       4.0, 0.0, 1.0,
