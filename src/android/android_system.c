@@ -721,6 +721,8 @@ static const char *_real_al_android_get_os_version(JNIEnv *env)
    return buffer;
 }
 
+/* Function: al_android_get_os_version
+ */
 const char *al_android_get_os_version(void)
 {
    return _real_al_android_get_os_version(_al_android_get_jnienv());

@@ -126,12 +126,17 @@ These functions are declared in the following header file:
 
 ### API: al_android_set_apk_file_interface
 
-*Not yet documented.*
+This function will set up a custom [ALLEGRO_FILE_INTERFACE] that makes all
+future calls of [al_fopen] read from the applicatons's APK file.
+
+> *Note:* Currently, access to the APK file after calling this function is read
+only.
 
 Since: 5.1.2
 
 ### API: al_android_get_os_version
 
-*Not yet documented.*
+Returns a pointer to a static buffer that contains the version string of the
+Android platform that the calling Allegro program is running on.
 
 Since: 5.1.2
