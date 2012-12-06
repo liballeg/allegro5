@@ -105,7 +105,11 @@ A pointer to the current transformation.
 
 ## API: al_get_current_inverse_transform
 
-*Not yet documented.*
+Returns the inverse of the current transformation of the target bitmap.
+If there is no target bitmap, this function returns NULL.
+
+This is similar to calling `al_invert_transform(al_get_current_transform())`
+but the result of this function is cached.
 
 Since: 5.1.0
 
