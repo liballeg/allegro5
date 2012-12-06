@@ -22,6 +22,11 @@
 
 ALLEGRO_DEBUG_CHANNEL("shader")
 
+/* Module loading only used on Windows, at least for now. */
+#ifdef ALLEGRO_WINDOWS
+   #define CG_MODULE_LOADING
+#endif
+
 typedef CGcontext (CGENTRY *CGCREATECONTEXTPROC)(void);
 typedef CGprogram (CGENTRY *CGCREATEPROGRAMPROC)(CGcontext context, CGenum program_type, const char *program, CGprofile profile, const char *entry, const char **args);
 typedef void (CGENTRY *CGDESTROYCONTEXTPROC)(CGcontext context);
@@ -48,38 +53,42 @@ typedef HRESULT (CGD3D9ENTRY *CGD3D9SETTEXTUREPROC)(CGparameter param, IDirect3D
 typedef HRESULT (CGD3D9ENTRY *CGD3D9SETUNIFORMPROC)(CGparameter param, const void *floats);
 #endif
 
-static void* _imp_cg_module = 0;
-static void* _imp_cggl_module = 0;
-#ifdef ALLEGRO_WINDOWS
-static void* _imp_cgd3d9_module = 0;
+#ifdef CG_MODULE_LOADING
+   #define INITSYM(sym) (NULL)
+   static void* _imp_cg_module = 0;
+   static void* _imp_cggl_module = 0;
+   static void* _imp_cgd3d9_module = 0;
+#else
+   #define INITSYM(sym) (sym)
 #endif
 
-CGCREATECONTEXTPROC           _imp_cgCreateContext = NULL;
-CGCREATEPROGRAMPROC           _imp_cgCreateProgram = NULL;
-CGDESTROYCONTEXTPROC          _imp_cgDestroyContext = NULL;
-CGDESTROYPROGRAMPROC          _imp_cgDestroyProgram = NULL;
-CGGETLASTLISTINGPROC          _imp_cgGetLastListing = NULL;
-CGGETNAMEDPARAMETERPROC       _imp_cgGetNamedParameter = NULL;
-CGSETMATRIXPARAMETERFRPROC    _imp_cgSetMatrixParameterfr = NULL;
-CGSETPARAMETER1IPROC          _imp_cgSetParameter1i = NULL;
-CGSETPARAMETERVALUEFCPROC     _imp_cgSetParameterValuefc = NULL;
-CGSETPARAMETERVALUEICPROC     _imp_cgSetParameterValueic = NULL;
+CGCREATECONTEXTPROC           _imp_cgCreateContext = INITSYM(cgCreateContext);
+CGCREATEPROGRAMPROC           _imp_cgCreateProgram = INITSYM(cgCreateProgram);
+CGDESTROYCONTEXTPROC          _imp_cgDestroyContext = INITSYM(cgDestroyContext);
+CGDESTROYPROGRAMPROC          _imp_cgDestroyProgram = INITSYM(cgDestroyProgram);
+CGGETLASTLISTINGPROC          _imp_cgGetLastListing = INITSYM(cgGetLastListing);
+CGGETNAMEDPARAMETERPROC       _imp_cgGetNamedParameter = INITSYM(cgGetNamedParameter);
+CGSETMATRIXPARAMETERFRPROC    _imp_cgSetMatrixParameterfr = INITSYM(cgSetMatrixParameterfr);
+CGSETPARAMETER1IPROC          _imp_cgSetParameter1i = INITSYM(cgSetParameter1i);
+CGSETPARAMETERVALUEFCPROC     _imp_cgSetParameterValuefc = INITSYM(cgSetParameterValuefc);
+CGSETPARAMETERVALUEICPROC     _imp_cgSetParameterValueic = INITSYM(cgSetParameterValueic);
 
-CGGLBINDPROGRAMPROC           _imp_cgGLBindProgram = NULL;
-CGGLENABLECLIENTSTATEPROC     _imp_cgGLEnableClientState = NULL;
-CGGLENABLEPROFILEPROC         _imp_cgGLEnableProfile = NULL;
-CGGLLOADPROGRAMPROC           _imp_cgGLLoadProgram = NULL;
-CGGLSETTEXTUREPARAMETERPROC   _imp_cgGLSetTextureParameter = NULL;
-CGGLUNBINDPROGRAMPROC         _imp_cgGLUnbindProgram = NULL;
+CGGLBINDPROGRAMPROC           _imp_cgGLBindProgram = INITSYM(cgGLBindProgram);
+CGGLENABLECLIENTSTATEPROC     _imp_cgGLEnableClientState = INITSYM(cgGLEnableClientState);
+CGGLENABLEPROFILEPROC         _imp_cgGLEnableProfile = INITSYM(cgGLEnableProfile);
+CGGLLOADPROGRAMPROC           _imp_cgGLLoadProgram = INITSYM(cgGLLoadProgram);
+CGGLSETTEXTUREPARAMETERPROC   _imp_cgGLSetTextureParameter = INITSYM(cgGLSetTextureParameter);
+CGGLUNBINDPROGRAMPROC         _imp_cgGLUnbindProgram = INITSYM(cgGLUnbindProgram);
 
 #ifdef ALLEGRO_WINDOWS
-CGD3D9BINDPROGRAMPROC         _imp_cgD3D9BindProgram = NULL;
-CGD3D9LOADPROGRAMPROC         _imp_cgD3D9LoadProgram = NULL;
-CGD3D9SETDEVICEPROC           _imp_cgD3D9SetDevice = NULL;
-CGD3D9SETTEXTUREPROC          _imp_cgD3D9SetTexture = NULL;
-CGD3D9SETUNIFORMPROC          _imp_cgD3D9SetUniform = NULL;
+CGD3D9BINDPROGRAMPROC         _imp_cgD3D9BindProgram = INITSYM(cgD3D9BindProgram);
+CGD3D9LOADPROGRAMPROC         _imp_cgD3D9LoadProgram = INITSYM(cgD3D9LoadProgram);
+CGD3D9SETDEVICEPROC           _imp_cgD3D9SetDevice = INITSYM(cgD3D9SetDevice);
+CGD3D9SETTEXTUREPROC          _imp_cgD3D9SetTexture = INITSYM(cgD3D9SetTexture);
+CGD3D9SETUNIFORMPROC          _imp_cgD3D9SetUniform = INITSYM(cgD3D9SetUniform);
 #endif
 
+#ifdef CG_MODULE_LOADING
 static void _imp_unload_cg_module(void* module)
 {
    _al_unregister_destructor(_al_dtor_list, module);
@@ -214,19 +223,19 @@ static bool _imp_load_cgd3d9_module()
 
    return true;
 }
-#endif
+#endif /* ALLEGRO_WINDOWS */
+#endif /* CG_MODULE_LOADING */
 
 ALLEGRO_SHADER *_al_create_shader_cg(ALLEGRO_SHADER_PLATFORM platform)
 {
-   ALLEGRO_SHADER_CG_S *shader = (ALLEGRO_SHADER_CG_S *)al_malloc(
-      sizeof(ALLEGRO_SHADER_CG_S)
-   );
-
+   ALLEGRO_SHADER_CG_S *shader;
    (void)platform;
 
+   shader = (ALLEGRO_SHADER_CG_S *)al_malloc(sizeof(ALLEGRO_SHADER_CG_S));
    if (!shader)
       return NULL;
 
+#ifdef CG_MODULE_LOADING
    if (!_imp_cg_module && !_imp_load_cg_module())
       return NULL;
 
@@ -235,12 +244,13 @@ ALLEGRO_SHADER *_al_create_shader_cg(ALLEGRO_SHADER_PLATFORM platform)
          return NULL;
    }
 
-#ifdef ALLEGRO_WINDOWS
+   #ifdef ALLEGRO_WINDOWS
    if (platform & ALLEGRO_SHADER_HLSL) {
       if (!_imp_cgd3d9_module && !_imp_load_cgd3d9_module())
          return NULL;
    }
-#endif
+   #endif /* ALLEGRO_WINDOWS */
+#endif /* CG_MODULE_LOADING */
 
    memset(shader, 0, sizeof(ALLEGRO_SHADER_CG_S));
 
