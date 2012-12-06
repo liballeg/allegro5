@@ -208,7 +208,8 @@ Since: 5.1.0
 
 ## API: al_set_shader
 
-*Not yet documented.*
+Sets the given display to use the given shader. Should be called after
+[al_link_shader], but before actually drawing using the shader.
 
 FIXME: Maybe this is not even needed as we have al_use_shader?
 
@@ -216,9 +217,13 @@ Since: 5.1.0
 
 ## API: al_get_opengl_program_object
 
-*Not yet documented.*
+Gets the OpenGL program object for this shader. Can only be called after
+calling [al_link_shader] successfully, and only if the shader is compatible
+with OpenGL.
 
 Since: 5.1.0
+
+See also: [al_set_opengl_program_object]
 
 ## API: al_get_default_glsl_vertex_shader
 
@@ -236,7 +241,8 @@ Since: 5.1.5
 
 ## API: al_get_direct3d_effect
 
-*Not yet documented.*
+Gets the Direct3D effect for this shader. Can only be called after
+calling [al_link_shader] sucessfully and only if the shader is compatible
+with Direct3D.
 
 Since: 5.1.0
-

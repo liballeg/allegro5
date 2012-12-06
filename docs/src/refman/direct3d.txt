@@ -74,7 +74,14 @@ belonging to the given display is in a lost state.
 
 ## API: al_set_direct3d_effect
 
-*Not yet documented.*
+Sets the Direct3D effect that the given display should use when rendering.
+Fetch this program object by calling [al_get_direct3d_effect] on
+an [ALLEGRO_SHADER].
+
+*Parameters:*
+
+* display - The display that the 3D effect is set to.
+* effect - The LPD3DXEFFECT that is set to the display.
 
 Since: 5.1.0
 

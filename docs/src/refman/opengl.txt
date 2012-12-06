@@ -165,7 +165,9 @@ to [al_set_target_bitmap].
 
 ## API: al_set_opengl_program_object
 
-*Not yet documented.*
+Sets the opengl program object that the given display should use when rendering.
+Fetch this program object by calling [al_get_opengl_program_object] on
+an [ALLEGRO_SHADER].
 
 Since: 5.1.0
 
