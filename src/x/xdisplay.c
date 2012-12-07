@@ -3,8 +3,11 @@
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_x.h"
 
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+#ifdef ALLEGRO_CFG_USE_GTK
 #include <gtk/gtk.h>
+#endif
+
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
 #include <gtk/gtkgl.h>
 #include <gdk/gdkx.h>
 #include <gdk/x11/gdkglx.h>
@@ -1512,7 +1515,7 @@ void _al_xglx_set_above(ALLEGRO_DISPLAY *display, int value)
       SubstructureRedirectMask | SubstructureNotifyMask, &xev);
 }
 
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+#ifdef ALLEGRO_CFG_USE_GTK
 #define ACK_OK       ((void *)0x1111)
 
 /*---------------------------------------------------------------------------*/
@@ -1570,6 +1573,10 @@ bool _al_gtk_ensure_thread(void)
    if (!g_thread_supported())
       g_thread_init(NULL);
 #endif
+   
+   int argc = 0;
+   char **argv = NULL;
+   gtk_init(&argc, &argv);
 
    nd_gtk_lock();
 
@@ -1594,7 +1601,9 @@ bool _al_gtk_ensure_thread(void)
 
    return ok;
 }
+#endif
 
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
 GtkWidget *al_gtk_get_window(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_XGLX *d = (void *)display;

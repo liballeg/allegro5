@@ -464,6 +464,7 @@ struct ARGS
    int i;
 };
 
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
 static void build_menu(GtkWidget *gmenu, ALLEGRO_MENU *amenu);
 
 /* [user thread] */
@@ -668,23 +669,35 @@ static void build_menu(GtkWidget *gmenu, ALLEGRO_MENU *amenu)
       gtk_menu_shell_append(GTK_MENU_SHELL(gmenu), gitem);
    }
 }
+#endif
 
 /* [user thread] */
 bool _al_init_menu(ALLEGRO_MENU *menu)
 {
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
+   (void)menu;
+   return false;
+#else
    (void) menu;
    
    /* Do nothing here, because menu creation is defered until it is displayed. */
    
    return true;
+#endif
 }
 
 /* [user thread] */
 bool _al_init_popup_menu(ALLEGRO_MENU *menu)
 {
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
+   (void)menu;
+   return false;
+#else
    return _al_init_menu(menu);
+#endif
 }
 
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
 /* [gtk thread] */
 static gboolean do_destroy_menu(gpointer data)
 {
@@ -695,10 +708,15 @@ static gboolean do_destroy_menu(gpointer data)
    
    return release_args(args);
 }
+#endif
 
 /* [user thread] */
 bool _al_destroy_menu(ALLEGRO_MENU *menu)
 {
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
+   (void)menu;
+   return false;
+#else
    ARGS *args;
    
    if (!menu->extra1)
@@ -711,8 +729,10 @@ bool _al_destroy_menu(ALLEGRO_MENU *menu)
    _al_walk_over_menu(menu, clear_menu_extras, NULL);
    
    return true;
+#endif
 }
 
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
 /* [gtk thread] */
 static gboolean do_insert_menu_item_at(gpointer data)
 {
@@ -724,10 +744,16 @@ static gboolean do_insert_menu_item_at(gpointer data)
    
    return release_args(data);
 }
+#endif
 
 /* [user thread] */
 bool _al_insert_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
 {
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
+   (void)item;
+   (void)i;
+   return false;
+#else
    if (item->parent->extra1) {
       ARGS *args = create_args();
       if (!args)
@@ -740,8 +766,10 @@ bool _al_insert_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
    }
    
    return true;
+#endif
 }
 
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
 /* [gtk thread] */
 static gboolean do_destroy_menu_item_at(gpointer data)
 {
@@ -752,10 +780,16 @@ static gboolean do_destroy_menu_item_at(gpointer data)
    
    return release_args(args);
 }
+#endif
 
 /* [user thread] */
 bool _al_destroy_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
 {
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
+   (void)item;
+   (void)i;
+   return false;
+#else
    if (item->extra1) {
       ARGS *args = make_menu_item_args(item, i);
       if (!args)
@@ -770,8 +804,10 @@ bool _al_destroy_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
       }
    }
    return true;
+#endif
 }
 
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
 /* [gtk thread] */
 static gboolean do_update_menu_item_at(gpointer data)
 {
@@ -786,10 +822,16 @@ static gboolean do_update_menu_item_at(gpointer data)
    
    return release_args(args);
 }
+#endif
 
 /* [user thread] */
 bool _al_update_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
 {
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
+   (void)item;
+   (void)i;
+   return false;
+#else
    if (item->extra1) {
       ARGS *args = make_menu_item_args(item, i);
       if (!args)
@@ -798,6 +840,7 @@ bool _al_update_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
       g_timeout_add(0, do_update_menu_item_at, args);
    }
    return true;
+#endif
 }
 
 /* [gtk thread] */
@@ -888,6 +931,7 @@ bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 #endif
 }
 
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
 /* [gtk thread] */
 static void popop_on_hide(ALLEGRO_MENU *menu)
 {
@@ -919,9 +963,15 @@ static gboolean do_show_popup_menu(gpointer data)
    
    return FALSE;
 }
+#endif
 
 bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 {
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
+   (void)display;
+   (void)menu;
+   return false;
+#else
    ARGS *args;
    
    if (!_al_gtk_ensure_thread()) {
@@ -934,6 +984,7 @@ bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
    args->menu = menu;
    
    return wait_for_args(do_show_popup_menu, args);
+#endif
 }
 
 /* vim: set sts=3 sw=3 et: */

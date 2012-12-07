@@ -26,18 +26,21 @@ if(WIN32)
    set(SUPPORT_NATIVE_DIALOG 1)
 endif(WIN32)
 
-if(NOT SUPPORT_NATIVE_DIALOG AND NOT IPHONE AND ALLEGRO_CFG_USE_GTKGLEXT)
-    list(APPEND NATIVE_DIALOG_SOURCES gtk_dialog.c)
+if(NOT SUPPORT_NATIVE_DIALOG AND NOT IPHONE)
+    if(HAVE_GTK)
+        list(APPEND NATIVE_DIALOG_SOURCES gtk_dialog.c)
+        list(APPEND NATIVE_DIALOG_INCLUDE_DIRECTORIES ${GTK_INCLUDE_DIRS})
+ 
+        set_source_files_properties(
+            gtk_dialog.c
+            PROPERTIES
+            COMPILE_FLAGS "${GTK_CFLAGS_STRING}"
+            )
 
-    set_source_files_properties(
-        gtk_dialog.c
-        PROPERTIES
-        COMPILE_FLAGS "${GTK_CFLAGS_STRING}"
-        )
-
-    set(ALLEGRO_CFG_NATIVE_DIALOG_GTK 1)
-    set(SUPPORT_NATIVE_DIALOG 1)
-endif()
+        set(ALLEGRO_CFG_NATIVE_DIALOG_GTK 1)
+        set(SUPPORT_NATIVE_DIALOG 1)
+    endif(HAVE_GTK)
+endif(NOT SUPPORT_NATIVE_DIALOG AND NOT IPHONE)
 
 if(SUPPORT_NATIVE_DIALOG)
    configure_file(
