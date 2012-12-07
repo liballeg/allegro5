@@ -8,6 +8,7 @@
 #include "allegro5/allegro_audio.h"
 #include "allegro5/internal/aintern_audio.h"
 #include "acodec.h"
+#include "helper.h"
 
 ALLEGRO_DEBUG_CHANNEL("wav")
 
@@ -265,13 +266,9 @@ static size_t wav_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
 static void wav_stream_close(ALLEGRO_AUDIO_STREAM *stream)
 {
    WAVFILE *wavfile = (WAVFILE *) stream->extra;
-   ALLEGRO_EVENT quit_event;
 
-   quit_event.type = _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE;
-   al_emit_user_event(al_get_audio_stream_event_source(stream), &quit_event, NULL);
-   al_join_thread(stream->feed_thread, NULL);
-   al_destroy_thread(stream->feed_thread);
-
+   _acodec_stop_feed_thread(stream);
+   
    al_fclose(wavfile->f);
    wav_close(wavfile);
    stream->extra = NULL;

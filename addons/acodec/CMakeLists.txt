@@ -17,6 +17,7 @@ set_our_header_properties(${ACODEC_INCLUDE_FILES})
 set(ACODEC_SOURCES
     acodec.c
     wav.c
+    helper.c
     )
 set(ACODEC_LIBRARIES)
 

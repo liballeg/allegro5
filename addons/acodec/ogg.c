@@ -11,6 +11,7 @@
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_system.h"
 #include "acodec.h"
+#include "helper.h"
 
 #ifndef ALLEGRO_CFG_ACODEC_VORBIS
    #error configuration problem, ALLEGRO_CFG_ACODEC_VORBIS not set
@@ -359,12 +360,8 @@ static bool ogg_stream_set_loop(ALLEGRO_AUDIO_STREAM *stream, double start, doub
 static void ogg_stream_close(ALLEGRO_AUDIO_STREAM *stream)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
-   ALLEGRO_EVENT quit_event;
 
-   quit_event.type = _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE;
-   al_emit_user_event(al_get_audio_stream_event_source(stream), &quit_event, NULL);
-   al_join_thread(stream->feed_thread, NULL);
-   al_destroy_thread(stream->feed_thread);
+   _acodec_stop_feed_thread(stream);
 
    al_fclose(extra->file);
 
@@ -372,7 +369,6 @@ static void ogg_stream_close(ALLEGRO_AUDIO_STREAM *stream)
    al_free(extra->vf);
    al_free(extra);
    stream->extra = NULL;
-   stream->feed_thread = NULL;
 }
 
 
