@@ -418,6 +418,13 @@ static size_t flac_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
 static void flac_stream_close(ALLEGRO_AUDIO_STREAM *stream)
 {
    FLACFILE *ff = stream->extra;
+   ALLEGRO_EVENT quit_event;
+
+   quit_event.type = _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE;
+   al_emit_user_event(al_get_audio_stream_event_source(stream), &quit_event, NULL);
+   al_join_thread(stream->feed_thread, NULL);
+   al_destroy_thread(stream->feed_thread);
+
    al_fclose(ff->fh);
    flac_close(ff);
 }
