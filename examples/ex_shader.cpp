@@ -21,132 +21,23 @@
 */
 
 #ifdef HLSL
-#define TOP 0
-#define BOT 1
-#define vsource_name hlsl_vertex_source
-#define psource_name hlsl_pixel_source
-#define PLATFORM ALLEGRO_SHADER_HLSL
+   #define PLATFORM     ALLEGRO_SHADER_HLSL
+   #define VSOURCE_NAME "data/ex_shader_vertex.hlsl"
+   #define PSOURCE_NAME "data/ex_shader_pixel.hlsl"
 #elif defined GLSL
-#define TOP 1
-#define BOT 0
-#define vsource_name glsl_vertex_source
-#define psource_name glsl_pixel_source
-#define PLATFORM ALLEGRO_SHADER_GLSL
+   #define PLATFORM     ALLEGRO_SHADER_GLSL
+   #define VSOURCE_NAME "data/ex_shader_vertex.glsl"
+   #define PSOURCE_NAME "data/ex_shader_pixel.glsl"
 #else
-#define TOP 1
-#define BOT 0
-#define vsource_name cg_vertex_source
-#define psource_name cg_pixel_source
-#define PLATFORM ALLEGRO_SHADER_CG
+   #define PLATFORM     ALLEGRO_SHADER_CG
+   #define VSOURCE_NAME "data/ex_shader_vertex.cg"
+   #define PSOURCE_NAME "data/ex_shader_pixel.cg"
 #endif
 
 #ifdef GLSL
 #define EX_SHADER_FLAGS ALLEGRO_OPENGL
 #else
 #define EX_SHADER_FLAGS 0
-#endif
-
-#ifdef CG	
-static const char *cg_vertex_source =
-   "uniform float4x4 projview_matrix;\n"
-   "void vs_main(\n"
-   "  in float3 pos        : POSITION,\n"
-   "  in float4 color      : COLOR0,\n"
-   "  in float2 texcoord   : TEXCOORD0,\n"
-   "  out float4 posO      : POSITION,\n"
-   "  out float4 colorO    : COLOR0,\n"
-   "  out float2 texcoordO : TEXCOORD0)\n"
-   "{\n"
-   "  posO = mul(float4(pos, 1.0), projview_matrix);\n"
-   "  colorO = color;\n"
-   "  texcoordO = texcoord;\n"
-   "}\n";
-
-static const char *cg_pixel_source =
-   "uniform sampler2D tex;\n"
-   "uniform float3 tint;\n"
-   "void ps_main(\n"
-   "  in float4 color    : COLOR0,\n"
-   "  in float2 texcoord : TEXCOORD0,\n"
-   "  out float4 colorO  : COLOR0)\n"
-   "{\n"
-   "  colorO = color * tex2D(tex, texcoord);\n"
-   "  colorO.r *= tint.r;\n"
-   "  colorO.g *= tint.g;\n"
-   "  colorO.b *= tint.b;\n"
-   "}\n";
-#endif
-
-#ifdef HLSL
-static const char *hlsl_vertex_source =
-   "struct VS_INPUT\n"
-   "{\n"
-   "   float4 Position  : POSITION0;\n"
-   "   float2 TexCoord  : TEXCOORD0;\n"
-   "   float4 Color     : TEXCOORD1;\n"
-   "};\n"
-   "struct VS_OUTPUT\n"
-   "{\n"
-   "   float4 Position  : POSITION0;\n"
-   "   float4 Color     : COLOR0;\n"
-   "   float2 TexCoord  : TEXCOORD0;\n"
-   "};\n"
-   "\n"
-   "float4x4 projview_matrix;\n"
-   "\n"
-   "VS_OUTPUT vs_main(VS_INPUT Input)\n"
-   "{\n"
-   "   VS_OUTPUT Output;\n"
-   "   Output.Position = mul(Input.Position, projview_matrix);\n"
-   "   Output.Color = Input.Color;\n"
-   "   Output.TexCoord = Input.TexCoord;\n"
-   "   return Output;\n"
-   "}\n";
-
-static const char *hlsl_pixel_source =
-   "texture tex;\n"
-   "sampler2D s = sampler_state {\n"
-   "   texture = <tex>;\n"
-   "};\n"
-   "float3 tint;\n"
-   "float4 ps_main(VS_OUTPUT Input) : COLOR0\n"
-   "{\n"
-   "   float4 pixel = tex2D(s, Input.TexCoord.xy);\n"
-   "   pixel.r *= tint.r;\n"
-   "   pixel.g *= tint.g;\n"
-   "   pixel.b *= tint.b;\n"
-   "   return pixel;\n"
-   "}\n";
-#endif
-
-#ifdef GLSL
-static const char *glsl_vertex_source =
-   "attribute vec4 pos;\n"
-   "attribute vec4 color;\n"
-   "attribute vec2 texcoord;\n"
-   "uniform mat4 projview_matrix;\n"
-   "varying vec4 varying_color;\n"
-   "varying vec2 varying_texcoord;\n"
-   "void main()\n"
-   "{\n"
-   "  varying_color = color;\n"
-   "  varying_texcoord = texcoord;\n"
-   "  gl_Position = projview_matrix * pos;\n"
-   "}\n";
-
-static const char *glsl_pixel_source =
-   "uniform sampler2D tex;\n"
-   "uniform vec3 tint;\n"
-   "varying vec4 varying_color;\n"
-   "varying vec2 varying_texcoord;\n"
-   "void main()\n"
-   "{\n"
-   "  vec4 tmp = varying_color * texture2D(tex, varying_texcoord);\n"
-   "  tmp.r *= tint.r;\n"
-   "  tmp.g *= tint.g;\n"
-   "  tmp.b *= tint.b;\n"
-   "  gl_FragColor = tmp;\n"
-   "}\n";
 #endif
 
 #if defined HLSL && !defined CG
@@ -193,11 +84,13 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER, vsource_name)) {
+   if (!al_attach_shader_source_file(shader, ALLEGRO_VERTEX_SHADER,
+         VSOURCE_NAME)) {
       fprintf(stderr, "%s\n", al_get_shader_log(shader));
       return 1;
    }
-   if (!al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER, psource_name)) {
+   if (!al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER,
+         PSOURCE_NAME)) {
       fprintf(stderr, "%s\n", al_get_shader_log(shader));
       return 1;
    }
@@ -264,3 +157,5 @@ int main(int argc, char **argv)
 
    return 0;
 }
+
+/* vim: set sts=3 sw=3 et: */
