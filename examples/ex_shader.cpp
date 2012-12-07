@@ -1,96 +1,143 @@
+#include <cstdio>
 #include "allegro5/allegro5.h"
-#include "allegro5/allegro_shader.h"
 #include "allegro5/allegro_image.h"
 #include "allegro5/allegro_primitives.h"
-#include <cstdio>
+#include "allegro5/allegro_shader.h"
 
-// FIXME: supported drivers should go in alplatf.h
-// Uncomment one of these three blocks depending what driver you want
-
-//#define HLSL
-//#include "allegro5/allegro_direct3d.h"
-//#include "allegro5/allegro_shader_hlsl.h"
-
-#define GLSL
-#include "allegro5/allegro_opengl.h"
-#include "allegro5/allegro_shader_glsl.h"
-
-/*
-#define CG
-#include <Cg/cg.h>
-*/
-
-#ifdef HLSL
-   #define PLATFORM     ALLEGRO_SHADER_HLSL
-   #define VSOURCE_NAME "data/ex_shader_vertex.hlsl"
-   #define PSOURCE_NAME "data/ex_shader_pixel.hlsl"
-#elif defined GLSL
-   #define PLATFORM     ALLEGRO_SHADER_GLSL
-   #define VSOURCE_NAME "data/ex_shader_vertex.glsl"
-   #define PSOURCE_NAME "data/ex_shader_pixel.glsl"
-#else
-   #define PLATFORM     ALLEGRO_SHADER_CG
-   #define VSOURCE_NAME "data/ex_shader_vertex.cg"
-   #define PSOURCE_NAME "data/ex_shader_pixel.cg"
+/* The ALLEGRO_CFG_* defines are actually internal to Allegro so don't use them
+ * in your own programs.
+ */
+#ifdef ALLEGRO_CFG_DIRECT3D
+   #include "allegro5/allegro_direct3d.h"
+#endif
+#ifdef ALLEGRO_CFG_OPENGL
+   #include "allegro5/allegro_opengl.h"
+#endif
+#ifdef ALLEGRO_CFG_HLSL_SHADERS
+   #include "allegro5/allegro_shader_hlsl.h"
+#endif
+#ifdef ALLEGRO_CFG_GLSL_SHADERS
+   #include "allegro5/allegro_shader_glsl.h"
+#endif
+#ifdef ALLEGRO_CFG_CG_SHADERS
+   #include <Cg/cg.h>
 #endif
 
-#ifdef GLSL
-#define EX_SHADER_FLAGS ALLEGRO_OPENGL
-#else
-#define EX_SHADER_FLAGS 0
-#endif
+static int display_flags = 0;
+static ALLEGRO_SHADER_PLATFORM shader_platform = ALLEGRO_SHADER_AUTO;
 
-#if defined HLSL && !defined CG
-#include <allegro5/allegro_direct3d.h>
-#include <d3d9.h>
-#include <d3dx9.h>
-
-#define A5V_FVF (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
-
-void drawD3D(ALLEGRO_VERTEX *v, int start, int count)
+static void parse_args(int argc, char **argv)
 {
-   ALLEGRO_DISPLAY *display = al_get_current_display();
-   LPDIRECT3DDEVICE9 device = al_get_d3d_device(display);
+   int i;
 
-   device->SetFVF(A5V_FVF);
+   /*
+    * --opengl and --d3d specify the display type.
+    * --hlsl, --glsl, --cg specify the shader platform.
+    * --cg can be combined with --opengl or --d3d.
+    */
 
-   device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, count / 3,
-      &v[start].x, sizeof(ALLEGRO_VERTEX));
-}
+   for (i = 1; i < argc; i++) {
+      if (0 == strcmp(argv[i], "--opengl")) {
+         display_flags = ALLEGRO_OPENGL;
+         continue;
+      }
+#ifdef ALLEGRO_DIRECT3D
+      if (0 == strcmp(argv[i], "--d3d")) {
+         display_flags = ALLEGRO_DIRECT3D;
+         continue;
+      }
 #endif
+      if (0 == strcmp(argv[i], "--hlsl")) {
+         shader_platform = ALLEGRO_SHADER_HLSL;
+         continue;
+      }
+      if (0 == strcmp(argv[i], "--glsl")) {
+         shader_platform = ALLEGRO_SHADER_GLSL;
+         continue;
+      }
+      if (0 == strcmp(argv[i], "--cg")) {
+         shader_platform = ALLEGRO_SHADER_CG;
+         continue;
+      }
+      fprintf(stderr, "Warning: unrecognised argument: %s\n", argv[i]);
+   }
+}
+
+static void choose_vertex_source(int display_flags,
+   ALLEGRO_SHADER_PLATFORM shader_platform,
+   char const **vsource, char const **psource)
+{
+   if (shader_platform == 0) {
+      /* Shader platform depends on display type. */
+      if (display_flags & ALLEGRO_OPENGL)
+         shader_platform = ALLEGRO_SHADER_GLSL;
+      else
+         shader_platform = ALLEGRO_SHADER_HLSL;
+   }
+
+   if (shader_platform & ALLEGRO_SHADER_CG) {
+      *vsource = "data/ex_shader_vertex.cg";
+      *psource = "data/ex_shader_pixel.cg";
+   }
+   else if (shader_platform & ALLEGRO_SHADER_HLSL) {
+      *vsource = "data/ex_shader_vertex.hlsl";
+      *psource = "data/ex_shader_pixel.hlsl";
+   }
+   else if (shader_platform & ALLEGRO_SHADER_GLSL) {
+      *vsource = "data/ex_shader_vertex.glsl";
+      *psource = "data/ex_shader_pixel.glsl";
+   }
+   else {
+      /* Shouldn't happen. */
+      *vsource = NULL;
+      *psource = NULL;
+   }
+}
 
 int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_SHADER *shader;
+   const char *vsource;
+   const char *psource;
 
-   (void)argc;
-   (void)argv;
+   parse_args(argc, argv);
 
    al_init();
    al_install_keyboard();
    al_init_image_addon();
 
-   al_set_new_display_flags(ALLEGRO_USE_PROGRAMMABLE_PIPELINE | EX_SHADER_FLAGS);
+   al_set_new_display_flags(ALLEGRO_USE_PROGRAMMABLE_PIPELINE | display_flags);
 
    display = al_create_display(640, 480);
+   if (!display) {
+      fprintf(stderr, "Could not create display\n");
+      return 1;
+   }
 
    bmp = al_load_bitmap("data/mysha.pcx");
+   if (!bmp) {
+      fprintf(stderr, "Could not load bitmap\n");
+      return 1;
+   }
 
-   shader = al_create_shader(PLATFORM);
+   shader = al_create_shader(shader_platform);
    if (!shader) {
       fprintf(stderr, "Could not create shader\n");
       return 1;
    }
 
-   if (!al_attach_shader_source_file(shader, ALLEGRO_VERTEX_SHADER,
-         VSOURCE_NAME)) {
+   choose_vertex_source(al_get_display_flags(display), shader_platform,
+      &vsource, &psource);
+   if (!vsource|| !psource)
+      return 1;
+
+   if (!al_attach_shader_source_file(shader, ALLEGRO_VERTEX_SHADER, vsource)) {
       fprintf(stderr, "%s\n", al_get_shader_log(shader));
       return 1;
    }
-   if (!al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER,
-         PSOURCE_NAME)) {
+   if (!al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, psource)) {
       fprintf(stderr, "%s\n", al_get_shader_log(shader));
       return 1;
    }
