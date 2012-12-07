@@ -249,7 +249,7 @@ void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent);
 bool _al_gtk_ensure_thread(void);
 #endif
 #ifdef ALLEGRO_CFG_USE_GTKGLEXT
-GtkWidget *al_gtk_get_window(ALLEGRO_DISPLAY *display);
+GtkWidget *_al_gtk_get_window(ALLEGRO_DISPLAY *display);
 #endif
 
 #endif

@@ -1604,7 +1604,7 @@ bool _al_gtk_ensure_thread(void)
 #endif
 
 #ifdef ALLEGRO_CFG_USE_GTKGLEXT
-GtkWidget *al_gtk_get_window(ALLEGRO_DISPLAY *display)
+GtkWidget *_al_gtk_get_window(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_XGLX *d = (void *)display;
    return d->gtkwindow;

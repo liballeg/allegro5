@@ -854,7 +854,7 @@ static gboolean do_show_display_menu(gpointer data)
       
       build_menu(menu_bar, args->menu);
 
-      GtkWidget *gtk_window = al_gtk_get_window(args->display);
+      GtkWidget *gtk_window = _al_gtk_get_window(args->display);
       GtkWidget *vbox = gtk_bin_get_child(GTK_BIN(gtk_window));
       gtk_box_pack_start(GTK_BOX(vbox), menu_bar, FALSE, FALSE, 0);
       gtk_box_reorder_child(GTK_BOX(vbox), menu_bar, 0);
