@@ -114,6 +114,9 @@
 /* Define if you need support for X-Windows. */
 #cmakedefine ALLEGRO_WITH_XWINDOWS
 
+/* Define to use GTK windows, enabling support for native menus */
+#cmakedefine ALLEGRO_CFG_USE_GTKGLEXT
+
 /* Define if MIT-SHM extension is supported. */
 #cmakedefine ALLEGRO_XWINDOWS_WITH_SHM
 

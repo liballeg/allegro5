@@ -22,130 +22,20 @@
 
 ALLEGRO_DEBUG_CHANNEL("gtk")
 
-typedef struct {
-   ALLEGRO_DISPLAY         *display;
-   ALLEGRO_NATIVE_DIALOG   *dialog;
-} Msg;
-
 #define ACK_OK       ((void *)0x1111)
 #define ACK_ERROR    ((void *)0x2222)
 #define ACK_OPENED   ((void *)0x3333)
 #define ACK_CLOSED   ((void *)0x4444)
 
-/*---------------------------------------------------------------------------*/
-/* GTK thread                                                                */
-/*---------------------------------------------------------------------------*/
-
-/* GTK is not thread safe.  We launch a single thread which runs the GTK main
- * loop, and it is the only thread which calls into GTK.  (g_timeout_add may be
- * called from other threads without locking.)
- *
- * We used to attempt to use gdk_threads_enter/gdk_threads_leave but hit
- * some problems with deadlocks so switched to this.
- */
-
-// G_STATIC_MUTEX_INIT causes a warning about a missing initializer, so if we
-// have version 2.32 or newer don't use it to avoid the warning.
-#if GLIB_CHECK_VERSION(2, 32, 0)
-   #define NEWER_GLIB   1
-#else
-   #define NEWER_GLIB   0
-#endif
-#if NEWER_GLIB
-   static GMutex nd_gtk_mutex;
-   static void nd_gtk_lock(void)    { g_mutex_lock(&nd_gtk_mutex); }
-   static void nd_gtk_unlock(void)  { g_mutex_unlock(&nd_gtk_mutex); }
-#else
-   static GStaticMutex nd_gtk_mutex = G_STATIC_MUTEX_INIT;
-   static void nd_gtk_lock(void)    { g_static_mutex_lock(&nd_gtk_mutex); }
-   static void nd_gtk_unlock(void)  { g_static_mutex_unlock(&nd_gtk_mutex); }
-#endif
-static GThread *nd_gtk_thread = NULL;
-static int nd_gtk_window_counter = 0;
-
-static void *nd_gtk_thread_func(void *data)
-{
-   GAsyncQueue *queue = data;
-   int argc = 0;
-   char **argv = NULL;
-   bool again;
-
-   ALLEGRO_DEBUG("GLIB %d.%d.%d\n",
-      GLIB_MAJOR_VERSION,
-      GLIB_MINOR_VERSION,
-      GLIB_MICRO_VERSION);
-   ALLEGRO_DEBUG("Calling gtk_init_check.\n");
-   if (gtk_init_check(&argc, &argv)) {
-      g_async_queue_push(queue, ACK_OK);
-   }
-   else {
-      ALLEGRO_ERROR("GTK initialisation failed.\n");
-      g_async_queue_push(queue, ACK_ERROR);
-      return NULL;
-   }
-
-   do {
-      ALLEGRO_INFO("Entering GTK main loop.\n");
-      gtk_main();
-
-      /* Re-enter the main loop if a new window was created soon after the last
-       * one was destroyed, which caused us to drop out of the GTK main loop.
-       */
-      nd_gtk_lock();
-      if (nd_gtk_window_counter == 0) {
-         nd_gtk_thread = NULL;
-         again = false;
-      } else {
-         again = true;
-      }
-      nd_gtk_unlock();
-   } while (again);
-
-   ALLEGRO_INFO("GTK stopped.\n");
-   return NULL;
-}
-
-static bool ensure_nd_gtk_thread(void)
-{
-   bool ok = true;
-
-#if !NEWER_GLIB
-   if (!g_thread_supported())
-      g_thread_init(NULL);
-#endif
-
-   nd_gtk_lock();
-
-   if (!nd_gtk_thread) {
-      GAsyncQueue *queue = g_async_queue_new();
-#if NEWER_GLIB
-      nd_gtk_thread = g_thread_new("gtk thread", nd_gtk_thread_func, queue);
-#else
-      bool joinable = FALSE;
-      nd_gtk_thread = g_thread_create(nd_gtk_thread_func, queue, joinable, NULL);
-#endif
-      if (!nd_gtk_thread) {
-         ok = false;
-      }
-      else {
-         ok = (g_async_queue_pop(queue) == ACK_OK);
-      }
-      g_async_queue_unref(queue);
-   }
-
-   if (ok) {
-      ++nd_gtk_window_counter;
-      ALLEGRO_DEBUG("++nd_gtk_window_counter = %d\n", nd_gtk_window_counter);
-   }
-
-   nd_gtk_unlock();
-
-   return ok;
-}
+typedef struct {
+   ALLEGRO_DISPLAY         *display;
+   ALLEGRO_NATIVE_DIALOG   *dialog;
+} Msg;
 
 /*---------------------------------------------------------------------------*/
 /* Shared functions                                                          */
 /*---------------------------------------------------------------------------*/
+
 
 #ifdef WITH_XGLX
 static void really_make_transient(GtkWidget *window, ALLEGRO_DISPLAY_XGLX *glx)
@@ -177,18 +67,6 @@ static void make_transient(ALLEGRO_DISPLAY *display, GtkWidget *window)
    #endif
 }
 
-static void decrease_window_counter()
-{
-   nd_gtk_lock();
-   --nd_gtk_window_counter;
-   ALLEGRO_DEBUG("--nd_gtk_window_counter = %d\n", nd_gtk_window_counter);
-   if (nd_gtk_window_counter == 0) {
-      gtk_main_quit();
-      ALLEGRO_DEBUG("Called gtk_main_quit.\n");
-   }
-   nd_gtk_unlock();
-}
-
 static void dialog_destroy(GtkWidget *w, gpointer data)
 {
    ALLEGRO_NATIVE_DIALOG *nd = data;
@@ -196,8 +74,6 @@ static void dialog_destroy(GtkWidget *w, gpointer data)
 
    ASSERT(nd->async_queue);
    g_async_queue_push(nd->async_queue, ACK_CLOSED);
-
-   decrease_window_counter();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -267,7 +143,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
 {
    Msg msg;
 
-   if (!ensure_nd_gtk_thread())
+   if (!_al_gtk_ensure_thread())
       return false;
 
    fd->async_queue = g_async_queue_new();
@@ -375,7 +251,7 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 {
    Msg msg;
 
-   if (!ensure_nd_gtk_thread())
+   if (!_al_gtk_ensure_thread())
       return 0; /* "cancelled" */
 
    fd->async_queue = g_async_queue_new();
@@ -482,7 +358,7 @@ bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
    Msg msg;
 
-   if (!ensure_nd_gtk_thread()) {
+   if (!_al_gtk_ensure_thread()) {
       textlog->tl_init_error = true;
       return false;
    }
@@ -568,14 +444,6 @@ void _al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 /*---------------------------------------------------------------------------*/
 /* Menus                                                                     */
 /*---------------------------------------------------------------------------*/
-
-/* Uncomment the following define if you want to enable support for menu bars.
- * It's left disabled by default because it causes a second window to be
- * created for the menu bar. If left disabled, al_show/hide_display_menu()
- * will return false, but popups can still be used.
- */
- 
-/* #define CREATE_WINDOW_FOR_MENU */
 
 /* The API is assumed to be synchronous, but the user calls will not be
  * on the GTK thread. The following structure is used to pass data from the 
@@ -840,7 +708,6 @@ bool _al_destroy_menu(ALLEGRO_MENU *menu)
    args->menu = menu;
    
    wait_for_args(do_destroy_menu, args);
-   /* TODO: decrease_window_counter(); ... but only if this is a top level menu */
    _al_walk_over_menu(menu, clear_menu_extras, NULL);
    
    return true;
@@ -934,23 +801,22 @@ bool _al_update_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
 }
 
 /* [gtk thread] */
-#ifdef CREATE_WINDOW_FOR_MENU
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
 static gboolean do_show_display_menu(gpointer data)
 {
    ARGS *args = lock_args(data);
    
    if (!args->menu->extra1) {
-      GtkWidget *gtk_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
       GtkWidget *menu_bar = gtk_menu_bar_new();
       
-      gtk_window_set_deletable(GTK_WINDOW(gtk_window), FALSE);
-   
       build_menu(menu_bar, args->menu);
-       
-      gtk_container_add(GTK_CONTAINER(gtk_window), menu_bar);
+
+      GtkWidget *gtk_window = al_gtk_get_window(args->display);
+      GtkWidget *vbox = gtk_bin_get_child(GTK_BIN(gtk_window));
+      gtk_box_pack_start(GTK_BOX(vbox), menu_bar, FALSE, FALSE, 0);
+      gtk_box_reorder_child(GTK_BOX(vbox), menu_bar, 0);
       gtk_widget_show(menu_bar);
-   
-      gtk_window_set_default_size(GTK_WINDOW(gtk_window), 320, 32);
+
       args->menu->extra1 = menu_bar;
    }
    
@@ -963,10 +829,10 @@ static gboolean do_show_display_menu(gpointer data)
 /* [user thread] */
 bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 {
-#ifdef CREATE_WINDOW_FOR_MENU
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
    ARGS *args;
    
-   if (!ensure_gtk_thread()) {
+   if (!_al_gtk_ensure_thread()) {
       return false;
    }
    
@@ -987,12 +853,12 @@ bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 }
 
 /* [gtk thread] */
-#ifdef CREATE_WINDOW_FOR_MENU
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
 static gboolean do_hide_display_menu(gpointer data)
 {
    ARGS *args = lock_args(data);
    
-   gtk_widget_destroy(GTK_WIDGET(gtk_widget_get_parent(args->menu->extra1)));
+   gtk_widget_destroy(GTK_WIDGET(args->menu->extra1));
    args->menu->extra1 = NULL;
    
    return release_args(data);
@@ -1002,7 +868,7 @@ static gboolean do_hide_display_menu(gpointer data)
 /* [user thread] */
 bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 {
-#ifdef CREATE_WINDOW_FOR_MENU
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
    ARGS *args;
    
    if (!(args = create_args()))
@@ -1058,7 +924,7 @@ bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 {
    ARGS *args;
    
-   if (!ensure_nd_gtk_thread()) {
+   if (!_al_gtk_ensure_thread()) {
       return false;
    }
    

@@ -18,7 +18,7 @@ ALLEGRO_DEBUG_CHANNEL("xevents")
 /* Handle an X11 close button event. [X11 thread]
  * Only called from the event handler with the system locked.
  */
-static void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent)
+void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent)
 {
    ALLEGRO_EVENT_SOURCE *es = &d->es;
    (void)xevent;

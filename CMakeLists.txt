@@ -103,6 +103,7 @@ option(WANT_X11 "X11 support" on)
 option(WANT_X11_XF86VIDMODE "X11 XF86VidMode Extension support" on)
 option(WANT_X11_XINERAMA "X11 Xinerama Extension support" on)
 option(WANT_X11_XRANDR "X11 XRandR Extension support" on)
+option(WANT_GTKGLEXT_WINDOWS "Use GTK/GtkGLExt windows (so menus work on X)" off)
 option(WANT_D3D "Enable Direct3D graphics driver (Windows)" on)
 option(WANT_D3D9EX "Enable Direct3D 9Ex extensions (Vista)" off)
 option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11, OS X))" on)
@@ -494,7 +495,7 @@ check_c_source_compiles("
 
 include(CheckCtors)
 check_ctors(ALLEGRO_USE_CONSTRUCTOR)
-
+    
 #-----------------------------------------------------------------------------#
 #
 #   Driver configuration
@@ -712,6 +713,17 @@ endif(ALLEGRO_UNIX)
 if(SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_X_FILES})
     list(APPEND PLATFORM_LIBS ${X11_LIBRARIES})
+    if(WANT_GTKGLEXT_WINDOWS)
+        find_package(GtkGLExt)
+        if(GTKGLEXT_FOUND)
+           include_directories(${GTKGLEXT_INCLUDE_DIRS})
+           link_directories(${GTKGLEXT_LIBRARY_DIRS})
+           list(APPEND PLATFORM_LIBS "${GTKGLEXT_LIBRARIES}")
+           set(ALLEGRO_CFG_USE_GTKGLEXT 1)
+        else(GTKGLEXT_FOUND)
+           message(FATAL_ERROR "GtkGLExt requested but not found.")
+        endif(GTKGLEXT_FOUND)
+    endif(WANT_GTKGLEXT_WINDOWS)
 endif(SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
 
 if(WIN32)

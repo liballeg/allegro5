@@ -26,35 +26,17 @@ if(WIN32)
    set(SUPPORT_NATIVE_DIALOG 1)
 endif(WIN32)
 
-if(NOT SUPPORT_NATIVE_DIALOG AND NOT IPHONE)
-    pkg_check_modules(GTK gtk+-2.0)
-    pkg_check_modules(GT gthread-2.0)
-    if(GTK_FOUND AND GT_FOUND)
-        list(APPEND NATIVE_DIALOG_SOURCES gtk_dialog.c)
-        list(APPEND NATIVE_DIALOG_INCLUDE_DIRECTORIES ${GTK_INCLUDE_DIRS})
+if(NOT SUPPORT_NATIVE_DIALOG AND NOT IPHONE AND ALLEGRO_CFG_USE_GTKGLEXT)
+    list(APPEND NATIVE_DIALOG_SOURCES gtk_dialog.c)
 
-        # For example, on Windows, GTK+ requires gcc -mms-bitfields (MinGW).
-        foreach(arg ${GTK_CFLAGS})
-            set(GTK_CFLAGS_STRING "${GTK_CFLAGS_STRING} ${arg}")
-        endforeach(arg)
+    set_source_files_properties(
+        gtk_dialog.c
+        PROPERTIES
+        COMPILE_FLAGS "${GTK_CFLAGS_STRING}"
+        )
 
-        # STRICT_WARN will cause gcc to warn about a function prototype in
-        # gtkitemfactory.h so disable that warning explicitly.
-        if(COMPILER_GCC)
-            set(GTK_CFLAGS_STRING "${GTK_CFLAGS_STRING} -Wno-strict-prototypes")
-        endif(COMPILER_GCC)
-
-        set_source_files_properties(
-            gtk_dialog.c
-            PROPERTIES
-            COMPILE_FLAGS "${GTK_CFLAGS_STRING}"
-            )
-
-        set(NATIVE_DIALOG_LIBRARIES ${GTK_LIBRARIES} ${GT_LIBRARIES})
-
-        set(ALLEGRO_CFG_NATIVE_DIALOG_GTK 1)
-        set(SUPPORT_NATIVE_DIALOG 1)
-    endif(GTK_FOUND AND GT_FOUND)
+    set(ALLEGRO_CFG_NATIVE_DIALOG_GTK 1)
+    set(SUPPORT_NATIVE_DIALOG 1)
 endif()
 
 if(SUPPORT_NATIVE_DIALOG)

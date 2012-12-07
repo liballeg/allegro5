@@ -80,8 +80,10 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
       /* Message type for XEmbed protocol. */
       s->XEmbedAtom = XInternAtom(x11display, "_XEMBED", False);
 
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
       _al_thread_create(&s->thread, _al_x_background_thread, s);
       ALLEGRO_INFO("events thread spawned.\n");
+#endif
    }
 
    return &s->system;

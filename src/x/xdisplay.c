@@ -3,12 +3,21 @@
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_x.h"
 
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+#include <gtk/gtk.h>
+#include <gtk/gtkgl.h>
+#include <gdk/gdkx.h>
+#include <gdk/x11/gdkglx.h>
+gboolean _al_gtk_handle_motion_event(GtkWidget *drawing_area, GdkEventMotion *event, ALLEGRO_DISPLAY *display);
+gboolean _al_gtk_handle_button_event(GtkWidget *drawing_area, GdkEventButton *event, ALLEGRO_DISPLAY *display);
+gboolean _al_gtk_handle_key_event(GtkWidget *drawing_area, GdkEventKey *event, ALLEGRO_DISPLAY *display);
+static gboolean _al_gtk_handle_structure_event(GtkWidget *window, GdkEventConfigure *event, ALLEGRO_DISPLAY *display);
+static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d);
+#endif
 
 ALLEGRO_DEBUG_CHANNEL("display")
 
 static ALLEGRO_DISPLAY_INTERFACE xdpy_vt;
-
-
 
 /* Helper to set up GL state as we want it. */
 static void setup_gl(ALLEGRO_DISPLAY *d)
@@ -119,12 +128,20 @@ static void xdpy_set_icons(ALLEGRO_DISPLAY *d,
 
 static void xdpy_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+
+   gtk_window_move(GTK_WINDOW(glx->gtkwindow), x, y);
+
+#else
+
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    Window root, parent, child, *children;
    unsigned int n;
 
    _al_mutex_lock(&system->lock);
+
 
    /* To account for the window border, we have to find the parent window which
     * draws the border. If the parent is the root though, then we should not
@@ -146,12 +163,18 @@ static void xdpy_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
    glx->y = y;
 
    _al_mutex_unlock(&system->lock);
+#endif
 }
 
 
 static bool xdpy_set_window_constraints(ALLEGRO_DISPLAY *display,
    int min_w, int min_h, int max_w, int max_h)
 {
+// FIXME
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+   return true;
+#endif
+
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
 
    glx->display.min_w = min_w;
@@ -227,6 +250,31 @@ static void xdpy_set_frame(ALLEGRO_DISPLAY *display, bool frame_on)
 
 static void xdpy_set_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
 {
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+   ALLEGRO_DISPLAY_XGLX *d = (void *)display;
+   if (onoff == (display->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
+      return;
+   }
+   display->flags ^= ALLEGRO_FULLSCREEN_WINDOW;
+   d->ignore_configure_event = true;
+   if (onoff) {
+      ALLEGRO_MONITOR_INFO mi;
+      ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX*)al_get_system_driver();
+      d->toggle_w = display->w;
+      d->toggle_h = display->h;
+      gtk_window_fullscreen(GTK_WINDOW(d->gtkwindow));
+      _al_xglx_get_monitor_info(system, d->adapter, &mi);
+      d->cfg_w = mi.x2 - mi.x1;
+      d->cfg_h = mi.y2 - mi.y1;
+   }
+   else {
+      gtk_window_unfullscreen(GTK_WINDOW(d->gtkwindow));
+      d->cfg_w = d->toggle_w;
+      d->cfg_h = d->toggle_h;
+   }
+   al_rest(0.2);
+   xdpy_acknowledge_resize(display);
+#else
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    if (onoff == !(display->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
       _al_mutex_lock(&system->lock);
@@ -240,6 +288,7 @@ static void xdpy_set_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
       _al_xwin_set_size_hints(display, INT_MAX, INT_MAX);
       _al_mutex_unlock(&system->lock);
    }
+#endif
 }
 
 
@@ -275,8 +324,156 @@ static void _al_xglx_unuse_adapter(ALLEGRO_SYSTEM_XGLX *s, int adapter)
 
 static void xdpy_destroy_display(ALLEGRO_DISPLAY *d);
 
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+static gboolean quit_callback(GtkWidget *widget, GdkEvent *event, ALLEGRO_DISPLAY *display) 
+{
+   (void)widget;
+   (void)event;
+   _al_display_xglx_closebutton(display, NULL);
+   return TRUE;
+}
 
+static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
 
+   _al_mutex_lock(&system->lock);
+
+   ALLEGRO_DISPLAY_XGLX *d = al_calloc(1, sizeof *d);
+   ALLEGRO_DISPLAY *display = (void*)d;
+   ALLEGRO_OGL_EXTRAS *ogl = al_calloc(1, sizeof *ogl);
+   display->ogl_extras = ogl;
+
+   /* FIXME: Use user preferences */
+   display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
+   display->extra_settings.settings[ALLEGRO_RED_SIZE] = 8;
+   display->extra_settings.settings[ALLEGRO_GREEN_SIZE] = 8;
+   display->extra_settings.settings[ALLEGRO_BLUE_SIZE] = 8;
+   display->extra_settings.settings[ALLEGRO_ALPHA_SIZE] = 8;
+   display->extra_settings.settings[ALLEGRO_COLOR_SIZE] = 32;
+   display->extra_settings.settings[ALLEGRO_RED_SHIFT] = 16;
+   display->extra_settings.settings[ALLEGRO_GREEN_SHIFT] = 8;
+   display->extra_settings.settings[ALLEGRO_BLUE_SHIFT] = 0;
+   display->extra_settings.settings[ALLEGRO_ALPHA_SHIFT] = 24;
+      
+   int argc = 0;
+   char **argv = NULL;
+   gtk_init(&argc, &argv);
+   gtk_gl_init(&argc, &argv);
+   
+   GdkGLConfig *glconfig = gdk_gl_config_new_by_mode (GDK_GL_MODE_RGB    |
+                                           GDK_GL_MODE_DOUBLE);
+   
+   GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+   d->gtkwindow = window;
+  
+   g_signal_connect(G_OBJECT(window), "delete-event", G_CALLBACK(quit_callback), display);
+
+   /* Get automatically redrawn if any of their children changed allocation. */
+   gtk_container_set_reallocate_redraws (GTK_CONTAINER (window), TRUE);
+
+   display->w = w;
+   display->h = h;
+   display->vt = &xdpy_vt;
+   display->refresh_rate = 60;
+   display->flags = al_get_new_display_flags();
+   display->flags |= ALLEGRO_OPENGL;
+
+   d->ignore_configure_event = true;
+
+   if (display->flags & ALLEGRO_RESIZABLE) {
+      gtk_window_set_resizable(GTK_WINDOW(d->gtkwindow), true);
+   }
+   else {
+      gtk_window_set_resizable(GTK_WINDOW(d->gtkwindow), false);
+   }
+
+   GtkWidget *vbox = gtk_vbox_new(FALSE, 0);
+   gtk_container_add(GTK_CONTAINER(window), vbox);
+
+   d->gtkdrawing_area = gtk_drawing_area_new();
+
+   gtk_widget_set_size_request(d->gtkdrawing_area, w, h);
+
+   /* Set OpenGL-capability to the widget. */
+   gtk_widget_set_gl_capability (d->gtkdrawing_area, glconfig, NULL, TRUE, GDK_GL_RGBA_TYPE);
+
+   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "motion-notify-event", G_CALLBACK(_al_gtk_handle_motion_event), display);
+   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "button-press-event", G_CALLBACK(_al_gtk_handle_button_event), display);
+   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "button-release-event", G_CALLBACK(_al_gtk_handle_button_event), display);
+   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "key-press-event", G_CALLBACK(_al_gtk_handle_key_event), display);
+   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "key-release-event", G_CALLBACK(_al_gtk_handle_key_event), display);
+   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "configure-event", G_CALLBACK(_al_gtk_handle_structure_event), display);
+
+   gtk_box_pack_start(GTK_BOX(vbox), d->gtkdrawing_area, TRUE, TRUE, 0);
+   gtk_widget_set_events(d->gtkdrawing_area,
+      GDK_POINTER_MOTION_MASK |
+      GDK_BUTTON_PRESS_MASK |
+      GDK_BUTTON_RELEASE_MASK |
+      GDK_KEY_PRESS_MASK |
+      GDK_KEY_RELEASE_MASK |
+      GDK_STRUCTURE_MASK
+   );
+   GTK_WIDGET_SET_FLAGS(d->gtkdrawing_area, GTK_CAN_FOCUS);
+   
+   gtk_widget_show_all(window);
+   
+   _al_gtk_ensure_thread();
+   
+   d->gtkcontext = gtk_widget_get_gl_context(d->gtkdrawing_area);
+   d->gtkdrawable = gtk_widget_get_gl_drawable(d->gtkdrawing_area);
+   d->context = gdk_x11_gl_context_get_glxcontext(d->gtkcontext);
+
+   d->window = GDK_WINDOW_XWINDOW (d->gtkdrawing_area->window);
+
+   d->is_mapped = false;
+   _al_cond_init(&d->mapped);
+
+   d->resize_count = 0;
+   d->programmatic_resize = false;
+   
+   ALLEGRO_DISPLAY_XGLX **add;
+   add = _al_vector_alloc_back(&system->system.displays);
+   *add = d;
+
+   /* Each display is an event source. */
+   _al_event_source_init(&display->es);
+
+   XLockDisplay(system->x11display);
+   
+   d->wm_delete_window_atom = XInternAtom(system->x11display,
+      "WM_DELETE_WINDOW", False);
+   XSetWMProtocols(system->x11display, d->window, &d->wm_delete_window_atom, 1);
+
+   XMapWindow(system->x11display, d->window);
+   ALLEGRO_DEBUG("X11 window mapped.\n");
+   
+   XUnlockDisplay(system->x11display);
+
+   gdk_gl_drawable_gl_begin (d->gtkdrawable, d->gtkcontext);
+
+   _al_ogl_manage_extensions(display);
+   _al_ogl_set_extensions(ogl->extension_api);
+      
+   setup_gl(display);
+
+   d->invisible_cursor = None; /* Will be created on demand. */
+   d->current_cursor = None; /* Initially, we use the root cursor. */
+   d->cursor_hidden = false;
+
+   d->icon = None;
+   d->icon_mask = None;
+
+   _al_mutex_unlock(&system->lock);
+
+   if (display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+      display->flags &= ~ALLEGRO_FULLSCREEN_WINDOW;
+      xdpy_set_fullscreen_window(display, true);
+   }
+
+   return display;
+}
+#else
 /* Create a new X11 display, which maps directly to a GLX window. */
 static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 {
@@ -630,6 +827,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    return display;
 }
+#endif
 
 
 
@@ -671,14 +869,19 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
       }
    }
 
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
    _al_xglx_unuse_adapter(s, glx->adapter);
+#endif
    
    _al_ogl_unmanage_extensions(d);
    ALLEGRO_DEBUG("unmanaged extensions.\n");
 
    _al_mutex_lock(&s->lock);
    _al_vector_find_and_delete(&s->system.displays, &d);
+
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
    XDestroyWindow(s->x11display, glx->window);
+#endif
 
    if (s->mouse_grab_display == d) {
       s->mouse_grab_display = NULL;
@@ -722,6 +925,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
       ALLEGRO_DEBUG("destroy backbuffer.\n");
    }
 
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
    if (glx->context) {
       glXDestroyContext(s->gfxdisplay, glx->context);
       glx->context = NULL;
@@ -742,6 +946,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
       glx->xvinfo = NULL;
    }
 #endif
+#endif
 
    _al_cond_destroy(&glx->mapped);
 
@@ -754,6 +959,12 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
 
    _al_mutex_unlock(&s->lock);
 
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+   if (s->system.displays._size <= 0) {
+      gtk_main_quit();
+   }
+#endif
+
    ALLEGRO_DEBUG("destroy display finished.\n");
 }
 
@@ -761,9 +972,16 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
 
 static bool xdpy_set_current_display(ALLEGRO_DISPLAY *d)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
    ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
+
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+
+   gdk_gl_drawable_make_current(glx->gtkdrawable, glx->gtkcontext);
+
+#else
+   
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
 
    /* Make our GLX context current for reading and writing in the current
     * thread.
@@ -778,6 +996,8 @@ static bool xdpy_set_current_display(ALLEGRO_DISPLAY *d)
          return false;
    }
 
+#endif
+
    _al_ogl_set_extensions(ogl->extension_api);
    _al_ogl_update_render_state(d);
 
@@ -788,10 +1008,14 @@ static bool xdpy_set_current_display(ALLEGRO_DISPLAY *d)
 
 static void xdpy_unset_current_display(ALLEGRO_DISPLAY *d)
 {
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    (void)d;
 
    glXMakeContextCurrent(system->gfxdisplay, None, None, NULL);
+#else
+   gdk_gl_drawable_make_current(NULL, NULL);
+#endif
 }
 
 
@@ -799,17 +1023,24 @@ static void xdpy_unset_current_display(ALLEGRO_DISPLAY *d)
 /* Dummy implementation of flip. */
 static void xdpy_flip_display(ALLEGRO_DISPLAY *d)
 {
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+   gdk_gl_drawable_swap_buffers (glx->gtkdrawable);
+   gdk_gl_drawable_gl_end (glx->gtkdrawable);
+   gdk_gl_drawable_gl_begin (glx->gtkdrawable, glx->gtkcontext);
+#else
    int e = glGetError();
    if (e) {
       ALLEGRO_ERROR("OpenGL error was not 0: %s\n", _al_gl_error_string(e));
    }
 
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
    if (d->extra_settings.settings[ALLEGRO_SINGLE_BUFFER])
       glFlush();
    else
       glXSwapBuffers(system->gfxdisplay, glx->glxwindow);
+#endif
 }
 
 static void xdpy_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
@@ -831,6 +1062,19 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
 
    _al_mutex_lock(&system->lock);
 
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+   (void)xwa;
+   (void)w;
+   (void)h;
+
+   if (glx->context) {
+      d->w = glx->cfg_w;
+      d->h = glx->cfg_h;
+
+      setup_gl(d);
+   }
+#else
+
    /* glXQueryDrawable is GLX 1.3+. */
    /*
    glXQueryDrawable(system->x11display, glx->glxwindow, GLX_WIDTH, &w);
@@ -850,9 +1094,11 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
       /* No context yet means this is a stray call happening during
        * initialization.
        */
-      if (glx->context)
+      if (glx->context) {
          setup_gl(d);
+      }
    }
+#endif
 
    _al_mutex_unlock(&system->lock);
 
@@ -901,8 +1147,18 @@ void _al_display_xglx_await_resize(ALLEGRO_DISPLAY *d, int old_resize_count,
 
 static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+   glx->ignore_configure_event = true;
+   gtk_window_resize(GTK_WINDOW(glx->gtkwindow), w, h);
+   al_rest(0.2);
+   d->cfg_w = w;
+   d->cfg_h = h;
+   xdpy_acknowledge_resize(display);
+   return true;
+#else
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    XWindowAttributes xwa;
    int attempts;
    bool ret = false;
@@ -975,14 +1231,11 @@ skip_resize:
 
    _al_mutex_unlock(&system->lock);
    return ret;
+#endif
 }
 
 
-
-/* Handle an X11 configure event. [X11 thread]
- * Only called from the event handler with the system locked.
- */
-void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
+static void _x_configure(ALLEGRO_DISPLAY *d, int x, int y, int width, int height, bool setglxy)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
 
@@ -995,40 +1248,33 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
     * Here we merely add the event to the queue.
     */
    if (!glx->programmatic_resize &&
-         (d->w != xevent->xconfigure.width ||
-          d->h != xevent->xconfigure.height)) {
+         (d->w != width ||
+          d->h != height)) {
       if (_al_event_source_needs_to_generate_event(es)) {
          ALLEGRO_EVENT event;
          event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
          event.display.timestamp = al_get_time();
-         event.display.x = xevent->xconfigure.x;
-         event.display.y = xevent->xconfigure.y;
-         event.display.width = xevent->xconfigure.width;
-         event.display.height = xevent->xconfigure.height;
+         event.display.x = x;
+         event.display.y = y;
+         event.display.width = width;
+         event.display.height = height;
          _al_event_source_emit_event(es, &event);
       }
    }
 
-   /* We receive two configure events when toggling the window frame.
-    * We ignore the first one as it has bogus coordinates.
-    * The only way to tell them apart seems to be the send_event field.
-    * Unfortunately, we also end up ignoring the only event we receive in
-    * response to a XMoveWindow request so we have to compensate for that.
-    */
-   if (xevent->xconfigure.send_event || glx->embedder_window != None) {
-      glx->x = xevent->xconfigure.x;
-      glx->y = xevent->xconfigure.y;
+   if (setglxy) {
+      glx->x = x;
+      glx->y = y;
    }
-   
 
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX*)al_get_system_driver();
    ALLEGRO_MONITOR_INFO mi;
-   int center_x = (glx->x + (glx->x + xevent->xconfigure.width)) / 2;
-   int center_y = (glx->y + (glx->y + xevent->xconfigure.height)) / 2;
+   int center_x = (glx->x + (glx->x + width)) / 2;
+   int center_y = (glx->y + (glx->y + height)) / 2;
          
    _al_xglx_get_monitor_info(system, glx->adapter, &mi);
    
-   ALLEGRO_DEBUG("xconfigure event! %ix%i\n", xevent->xconfigure.x, xevent->xconfigure.y);
+   ALLEGRO_DEBUG("xconfigure event! %ix%i\n", x, y);
    
    /* check if we're no longer inside the stored adapter */
    if ((center_x < mi.x1 && center_x > mi.x2) ||
@@ -1049,6 +1295,22 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
    
    _al_event_source_unlock(es);
    
+}
+
+/* Handle an X11 configure event. [X11 thread]
+ * Only called from the event handler with the system locked.
+ */
+void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
+{
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+   /* We receive two configure events when toggling the window frame.
+    * We ignore the first one as it has bogus coordinates.
+    * The only way to tell them apart seems to be the send_event field.
+    * Unfortunately, we also end up ignoring the only event we receive in
+    * response to a XMoveWindow request so we have to compensate for that.
+    */
+   bool setglxy = (xevent->xconfigure.send_event || glx->embedder_window != None);
+   _x_configure(d, xevent->xconfigure.x, xevent->xconfigure.y, xevent->xconfigure.width, xevent->xconfigure.height, setglxy);
 }
 
 
@@ -1249,5 +1511,109 @@ void _al_xglx_set_above(ALLEGRO_DISPLAY *display, int value)
    XSendEvent(x11, DefaultRootWindow(x11), False,
       SubstructureRedirectMask | SubstructureNotifyMask, &xev);
 }
+
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+#define ACK_OK       ((void *)0x1111)
+
+/*---------------------------------------------------------------------------*/
+/* GTK thread                                                                */
+/*---------------------------------------------------------------------------*/
+
+/* GTK is not thread safe.  We launch a single thread which runs the GTK main
+ * loop, and it is the only thread which calls into GTK.  (g_timeout_add may be
+ * called from other threads without locking.)
+ *
+ * We used to attempt to use gdk_threads_enter/gdk_threads_leave but hit
+ * some problems with deadlocks so switched to this.
+ */
+
+// G_STATIC_MUTEX_INIT causes a warning about a missing initializer, so if we
+// have version 2.32 or newer don't use it to avoid the warning.
+#if GLIB_CHECK_VERSION(2, 32, 0)
+   #define NEWER_GLIB   1
+#else
+   #define NEWER_GLIB   0
+#endif
+#if NEWER_GLIB
+   static GMutex nd_gtk_mutex;
+   void nd_gtk_lock(void)    { g_mutex_lock(&nd_gtk_mutex); }
+   void nd_gtk_unlock(void)  { g_mutex_unlock(&nd_gtk_mutex); }
+#else
+   static GStaticMutex nd_gtk_mutex = G_STATIC_MUTEX_INIT;
+   void nd_gtk_lock(void)    { g_static_mutex_lock(&nd_gtk_mutex); }
+   void nd_gtk_unlock(void)  { g_static_mutex_unlock(&nd_gtk_mutex); }
+#endif
+static GThread *nd_gtk_thread = NULL;
+
+static void *nd_gtk_thread_func(void *data)
+{
+   GAsyncQueue *queue = data;
+
+   ALLEGRO_DEBUG("GLIB %d.%d.%d\n",
+      GLIB_MAJOR_VERSION,
+      GLIB_MINOR_VERSION,
+      GLIB_MICRO_VERSION);
+   
+   g_async_queue_push(queue, ACK_OK);
+
+   gtk_main();
+
+   ALLEGRO_INFO("GTK stopped.\n");
+   return NULL;
+}
+
+bool _al_gtk_ensure_thread(void)
+{
+   bool ok = true;
+
+#if !NEWER_GLIB
+   if (!g_thread_supported())
+      g_thread_init(NULL);
+#endif
+
+   nd_gtk_lock();
+
+   if (!nd_gtk_thread) {
+      GAsyncQueue *queue = g_async_queue_new();
+#if NEWER_GLIB
+      nd_gtk_thread = g_thread_new("gtk thread", nd_gtk_thread_func, queue);
+#else
+      bool joinable = FALSE;
+      nd_gtk_thread = g_thread_create(nd_gtk_thread_func, queue, joinable, NULL);
+#endif
+      if (!nd_gtk_thread) {
+         ok = false;
+      }
+      else {
+         ok = (g_async_queue_pop(queue) == ACK_OK);
+      }
+      g_async_queue_unref(queue);
+   }
+
+   nd_gtk_unlock();
+
+   return ok;
+}
+
+GtkWidget *al_gtk_get_window(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_DISPLAY_XGLX *d = (void *)display;
+   return d->gtkwindow;
+}
+
+static gboolean _al_gtk_handle_structure_event(GtkWidget *widget, GdkEventConfigure *event, ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_DISPLAY_XGLX *d = (void *)display;
+   (void)widget;
+   if (d->ignore_configure_event) {
+      d->ignore_configure_event = false;
+      return TRUE;
+   }
+   d->cfg_w = event->width;
+   d->cfg_h = event->height;
+   _x_configure(display, event->x, event->y, d->cfg_w, d->cfg_h, false /* FIXME: don't know what to pass for this */);
+   return TRUE;
+}
+#endif
 
 /* vi: set sts=3 sw=3 et: */

@@ -28,6 +28,12 @@
 #include <X11/extensions/Xrandr.h>
 #endif
 
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+#include <gtk/gtk.h>
+#include <gtk/gtkgl.h>
+#include <gdk/gdkx.h>
+#endif
+
 typedef struct ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_XGLX;
 typedef struct ALLEGRO_DISPLAY_XGLX ALLEGRO_DISPLAY_XGLX;
 
@@ -105,6 +111,15 @@ struct ALLEGRO_DISPLAY_XGLX
 
    /* Driver specifics. */
 
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+   GtkWidget *gtkwindow;
+   GtkWidget *gtkdrawing_area;
+   GdkGLContext *gtkcontext;
+   GdkGLDrawable *gtkdrawable;
+   int cfg_w, cfg_h;
+   int toggle_w, toggle_h;
+   bool ignore_configure_event;
+#endif
    Window window;
    int xscreen; /* X Screen ID */
    int adapter; /* allegro virtual adapter id/index */
@@ -225,5 +240,12 @@ void _al_xsys_xrandr_exit(ALLEGRO_SYSTEM_XGLX *s);
 /* glx_config */
 void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx);
 bool _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx);
+
+void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent);
+
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+bool _al_gtk_ensure_thread(void);
+GtkWidget *al_gtk_get_window(ALLEGRO_DISPLAY *display);
+#endif
 
 #endif

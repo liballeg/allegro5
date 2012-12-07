@@ -35,6 +35,10 @@
 #define ALLEGRO_DISPLAY_XGLX ALLEGRO_DISPLAY_RASPBERRYPI
 #endif
 
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+#include <gtk/gtk.h>
+#endif
+
 ALLEGRO_DEBUG_CHANNEL("mouse")
 
 typedef struct ALLEGRO_MOUSE_XWIN
@@ -67,10 +71,10 @@ static void xmouse_get_state(ALLEGRO_MOUSE_STATE *ret_state);
 static void wheel_motion_handler(int x_button, ALLEGRO_DISPLAY *display);
 static unsigned int x_button_to_al_button(unsigned int x_button);
 static void generate_mouse_event(unsigned int type,
-                                 int x, int y, int z, int w,
-                                 int dx, int dy, int dz, int dw,
-                                 unsigned int button,
-                                 ALLEGRO_DISPLAY *display);
+   int x, int y, int z, int w,
+   int dx, int dy, int dz, int dw,
+   unsigned int button,
+   ALLEGRO_DISPLAY *display);
 
 
 
@@ -603,6 +607,75 @@ bool _al_xwin_ungrab_mouse(void)
    _al_mutex_unlock(&system->lock);
    return true;
 }
+
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+static int _gtk_button_to_allegro_button(int b)
+{
+   if (b == 2) return 3;
+   if (b == 3) return 2;
+   return b;
+}
+
+gboolean _al_gtk_handle_motion_event(GtkWidget *drawing_area, GdkEventMotion *event, ALLEGRO_DISPLAY *display)
+{
+   int dx = event->x - the_mouse.state.x;
+   int dy = event->y - the_mouse.state.y;
+   
+   (void)drawing_area;
+
+   the_mouse.state.x = event->x;
+   the_mouse.state.y = event->y;
+   the_mouse.state.z = 0;
+   the_mouse.state.w = 0;
+   
+   generate_mouse_event(
+      ALLEGRO_EVENT_MOUSE_AXES,
+      event->x,
+      event->y,
+      0,
+      0,
+      dx,
+      dy,
+      0,
+      0,
+      0,
+      display
+   );
+   
+   return TRUE;
+}
+
+gboolean _al_gtk_handle_button_event(GtkWidget *drawing_area, GdkEventButton *event, ALLEGRO_DISPLAY *display)
+{
+   int type;
+   int button;
+
+   (void)drawing_area;
+
+   button = _gtk_button_to_allegro_button(event->button);
+
+   if (event->type == GDK_BUTTON_PRESS) {
+      the_mouse.state.buttons |= (1 << (button-1));
+      type = ALLEGRO_EVENT_MOUSE_BUTTON_DOWN;
+   }
+   else if (event->type == GDK_BUTTON_RELEASE) {
+      type = ALLEGRO_EVENT_MOUSE_BUTTON_UP;
+      the_mouse.state.buttons &= ~(1 << (button-1));
+   }
+   else  {
+      return TRUE;
+   }
+
+   generate_mouse_event(
+      type,
+      the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
+      the_mouse.state.w,
+      0, 0, 0, 0,
+      button, display);
+
+   return TRUE;
+}
+#endif
 
 /*
  * Local Variables:
