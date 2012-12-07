@@ -75,7 +75,9 @@ struct ALLEGRO_SYSTEM_XGLX
    } *xfvm_screen;
    #endif
 
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
    _AL_THREAD thread; /* background thread. */
+#endif
    _AL_MUTEX lock; /* thread lock for whenever we access internals. */
    // FIXME: One condition variable really would be enough.
    _AL_COND resized; /* Condition variable to wait for resizing a window. */
