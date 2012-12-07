@@ -1008,13 +1008,13 @@ static bool xdpy_set_current_display(ALLEGRO_DISPLAY *d)
 
 static void xdpy_unset_current_display(ALLEGRO_DISPLAY *d)
 {
-#ifndef ALLEGRO_CFG_USE_GTKGLEXT
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    (void)d;
 
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    glXMakeContextCurrent(system->gfxdisplay, None, None, NULL);
 #else
-   gdk_gl_drawable_make_current(NULL, NULL);
+   //gdk_gl_drawable_make_current(NULL, NULL);
 #endif
 }
 
@@ -1153,9 +1153,9 @@ static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
    glx->ignore_configure_event = true;
    gtk_window_resize(GTK_WINDOW(glx->gtkwindow), w, h);
    al_rest(0.2);
-   d->cfg_w = w;
-   d->cfg_h = h;
-   xdpy_acknowledge_resize(display);
+   glx->cfg_w = w;
+   glx->cfg_h = h;
+   xdpy_acknowledge_resize(d);
    return true;
 #else
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
