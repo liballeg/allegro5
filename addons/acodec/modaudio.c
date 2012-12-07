@@ -132,7 +132,7 @@ static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
 static void modaudio_stream_close(ALLEGRO_AUDIO_STREAM *stream)
 {
    MOD_FILE *const df = stream->extra;
-   _acodec_stop_feed_thread(stream);
+   _al_acodec_stop_feed_thread(stream);
       
    lib.duh_end_sigrenderer(df->sig);
    lib.unload_duh(df->duh);

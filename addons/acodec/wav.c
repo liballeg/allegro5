@@ -267,7 +267,7 @@ static void wav_stream_close(ALLEGRO_AUDIO_STREAM *stream)
 {
    WAVFILE *wavfile = (WAVFILE *) stream->extra;
 
-   _acodec_stop_feed_thread(stream);
+   _al_acodec_stop_feed_thread(stream);
    
    al_fclose(wavfile->f);
    wav_close(wavfile);

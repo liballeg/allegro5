@@ -361,7 +361,7 @@ static void ogg_stream_close(ALLEGRO_AUDIO_STREAM *stream)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
 
-   _acodec_stop_feed_thread(stream);
+   _al_acodec_stop_feed_thread(stream);
 
    al_fclose(extra->file);
 
