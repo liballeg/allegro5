@@ -56,7 +56,8 @@ Since: 5.1.0
 
 Specify one of the [ALLEGRO_SHADER_PLATFORM] values to create a new shader
 object. The ALLEGRO_SHADER_AUTO value means GLSL is used if OpenGL is being
-used otherwise HLSL. 
+used otherwise HLSL. ALLEGRO_SHADER_AUTO and ALLEGRO_SHADER_CG require that
+there is a current display set on the calling thread.
 
 Since: 5.1.0
 
