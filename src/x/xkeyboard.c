@@ -1082,7 +1082,7 @@ gboolean _al_gtk_handle_key_event(GtkWidget *drawing_area, GdkEventKey *event, A
    (void)drawing_area;
 
    keycode = keycode_to_scancode[event->hardware_keycode];
-   memcpy(&unichar, event->string, event->length);
+   memcpy(&unichar, event->string, _ALLEGRO_MIN(4, event->length));
 
    if (event->type == GDK_KEY_PRESS) {
       _AL_KEYBOARD_STATE_SET_KEY_DOWN(the_keyboard.state, keycode);
