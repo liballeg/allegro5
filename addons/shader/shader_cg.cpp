@@ -498,8 +498,8 @@ static void cg_use_shader(ALLEGRO_SHADER *shader, bool use)
          }
          if (cg_shader->pixel_program) {
             _imp_cgD3D9BindProgram(cg_shader->pixel_program);
+         }
       }
-    }
 #endif
    }
    else {
