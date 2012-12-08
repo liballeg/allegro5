@@ -139,21 +139,66 @@ static bool _imp_load_d3dx9_module()
    return false;
 }
 
+
+static bool hlsl_link_shader(ALLEGRO_SHADER *shader);
+static bool hlsl_attach_shader_source(ALLEGRO_SHADER *shader,
+               ALLEGRO_SHADER_TYPE type, const char *source);
+static void hlsl_use_shader(ALLEGRO_SHADER *shader, bool use);
+static void hlsl_destroy_shader(ALLEGRO_SHADER *shader);
+static bool hlsl_set_shader_sampler(ALLEGRO_SHADER *shader,
+               const char *name, ALLEGRO_BITMAP *bitmap, int unit);
+static bool hlsl_set_shader_matrix(ALLEGRO_SHADER *shader,
+               const char *name, ALLEGRO_TRANSFORM *matrix);
+static bool hlsl_set_shader_int(ALLEGRO_SHADER *shader,
+               const char *name, int i);
+static bool hlsl_set_shader_float(ALLEGRO_SHADER *shader,
+               const char *name, float f);
+static bool hlsl_set_shader_int_vector(ALLEGRO_SHADER *shader,
+               const char *name, int elem_size, int *i, int num_elems);
+static bool hlsl_set_shader_float_vector(ALLEGRO_SHADER *shader,
+               const char *name, int elem_size, float *f, int num_elems);
+static bool hlsl_set_shader_bool(ALLEGRO_SHADER *shader,
+               const char *name, bool b);
+static bool hlsl_set_shader_vertex_array(ALLEGRO_SHADER *shader,
+               float *v, int stride);
+static bool hlsl_set_shader_color_array(ALLEGRO_SHADER *shader,
+               unsigned char *c, int stride);
+static bool hlsl_set_shader_texcoord_array(ALLEGRO_SHADER *shader,
+               float *u, int stride);
+static void hlsl_set_shader(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader);
+
+static struct ALLEGRO_SHADER_INTERFACE shader_hlsl_vt =
+{
+   hlsl_link_shader,
+   hlsl_attach_shader_source,
+   hlsl_use_shader,
+   hlsl_destroy_shader,
+   hlsl_set_shader_sampler,
+   hlsl_set_shader_matrix,
+   hlsl_set_shader_int,
+   hlsl_set_shader_float,
+   hlsl_set_shader_int_vector,
+   hlsl_set_shader_float_vector,
+   hlsl_set_shader_bool,
+   hlsl_set_shader_vertex_array,
+   hlsl_set_shader_color_array,
+   hlsl_set_shader_texcoord_array,
+   hlsl_set_shader
+};
+
+
 ALLEGRO_SHADER *_al_create_shader_hlsl(ALLEGRO_SHADER_PLATFORM platform)
 {
-   ALLEGRO_SHADER_HLSL_S *shader = (ALLEGRO_SHADER_HLSL_S *)al_malloc(
-      sizeof(ALLEGRO_SHADER_HLSL_S)
-   );
-
-   (void)platform;
-
-   if (!shader)
-      return NULL;
+   ALLEGRO_SHADER_HLSL_S *shader;
 
    if (NULL == _imp_D3DXCreateEffect && !_imp_load_d3dx9_module())
       return NULL;
 
-   memset(shader, 0, sizeof(ALLEGRO_SHADER_HLSL_S));
+   shader = (ALLEGRO_SHADER_HLSL_S *)al_calloc(1, sizeof(ALLEGRO_SHADER_HLSL_S));
+   if (!shader)
+      return NULL;
+   shader->shader.platform = platform;
+   shader->shader.vt = &shader_hlsl_vt;
 
    // For simplicity, these fields are never NULL in this backend.
    shader->shader.pixel_copy = al_ustr_new("");
@@ -162,16 +207,14 @@ ALLEGRO_SHADER *_al_create_shader_hlsl(ALLEGRO_SHADER_PLATFORM platform)
    return (ALLEGRO_SHADER *)shader;
 }
 
-bool _al_link_shader_hlsl(ALLEGRO_SHADER *shader)
+static bool hlsl_link_shader(ALLEGRO_SHADER *shader)
 {
    (void)shader;
    return true;
 }
 
-bool _al_attach_shader_source_hlsl(
-   ALLEGRO_SHADER *shader,
-   ALLEGRO_SHADER_TYPE type,
-   const char *source)
+static bool hlsl_attach_shader_source(ALLEGRO_SHADER *shader,
+   ALLEGRO_SHADER_TYPE type, const char *source)
 {
    bool add_technique;
    ALLEGRO_USTR *full_source;
@@ -274,7 +317,7 @@ bool _al_attach_shader_source_hlsl(
    return true;
 }
 
-void _al_use_shader_hlsl(ALLEGRO_SHADER *shader, bool use)
+static void hlsl_use_shader(ALLEGRO_SHADER *shader, bool use)
 {
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
    LPD3DXEFFECT effect = hlsl_shader->hlsl_shader;
@@ -292,7 +335,7 @@ void _al_use_shader_hlsl(ALLEGRO_SHADER *shader, bool use)
    }
 }
 
-void _al_destroy_shader_hlsl(ALLEGRO_SHADER *shader)
+static void hlsl_destroy_shader(ALLEGRO_SHADER *shader)
 {
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
 
@@ -301,8 +344,8 @@ void _al_destroy_shader_hlsl(ALLEGRO_SHADER *shader)
    al_free(shader);
 }
 
-bool _al_set_shader_sampler_hlsl(ALLEGRO_SHADER *shader, const char *name,
-   ALLEGRO_BITMAP *bitmap, int unit)
+static bool hlsl_set_shader_sampler(ALLEGRO_SHADER *shader,
+   const char *name, ALLEGRO_BITMAP *bitmap, int unit)
 {
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
    HRESULT result;
@@ -319,8 +362,8 @@ bool _al_set_shader_sampler_hlsl(ALLEGRO_SHADER *shader, const char *name,
    return result == D3D_OK;
 }
 
-bool _al_set_shader_matrix_hlsl(ALLEGRO_SHADER *shader, const char *name,
-   ALLEGRO_TRANSFORM *matrix)
+static bool hlsl_set_shader_matrix(ALLEGRO_SHADER *shader,
+   const char *name, ALLEGRO_TRANSFORM *matrix)
 {
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
    HRESULT result;
@@ -334,7 +377,8 @@ bool _al_set_shader_matrix_hlsl(ALLEGRO_SHADER *shader, const char *name,
    return result == D3D_OK;
 }
 
-bool _al_set_shader_int_hlsl(ALLEGRO_SHADER *shader, const char *name, int i)
+static bool hlsl_set_shader_int(ALLEGRO_SHADER *shader,
+   const char *name, int i)
 {
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
    HRESULT result;
@@ -344,7 +388,8 @@ bool _al_set_shader_int_hlsl(ALLEGRO_SHADER *shader, const char *name, int i)
    return result == D3D_OK;
 }
 
-bool _al_set_shader_float_hlsl(ALLEGRO_SHADER *shader, const char *name, float f)
+static bool hlsl_set_shader_float(ALLEGRO_SHADER *shader,
+   const char *name, float f)
 {
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
    HRESULT result;
@@ -354,8 +399,8 @@ bool _al_set_shader_float_hlsl(ALLEGRO_SHADER *shader, const char *name, float f
    return result == D3D_OK;
 }
 
-bool _al_set_shader_int_vector_hlsl(ALLEGRO_SHADER *shader, const char *name,
-   int elem_size, int *i, int num_elems)
+static bool hlsl_set_shader_int_vector(ALLEGRO_SHADER *shader,
+   const char *name, int elem_size, int *i, int num_elems)
 {
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
    HRESULT result;
@@ -366,8 +411,8 @@ bool _al_set_shader_int_vector_hlsl(ALLEGRO_SHADER *shader, const char *name,
    return result == D3D_OK;
 }
 
-bool _al_set_shader_float_vector_hlsl(ALLEGRO_SHADER *shader, const char *name,
-   int elem_size, float *f, int num_elems)
+static bool hlsl_set_shader_float_vector(ALLEGRO_SHADER *shader,
+   const char *name, int elem_size, float *f, int num_elems)
 {
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
    HRESULT result;
@@ -378,7 +423,8 @@ bool _al_set_shader_float_vector_hlsl(ALLEGRO_SHADER *shader, const char *name,
    return result == D3D_OK;
 }
 
-bool _al_set_shader_bool_hlsl(ALLEGRO_SHADER *shader, const char *name, bool b)
+static bool hlsl_set_shader_bool(ALLEGRO_SHADER *shader,
+   const char *name, bool b)
 {
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
    HRESULT result;
@@ -388,7 +434,8 @@ bool _al_set_shader_bool_hlsl(ALLEGRO_SHADER *shader, const char *name, bool b)
    return result == D3D_OK;
 }
 
-bool _al_set_shader_vertex_array_hlsl(ALLEGRO_SHADER *shader, float *v, int stride)
+static bool hlsl_set_shader_vertex_array(ALLEGRO_SHADER *shader,
+   float *v, int stride)
 {
    (void)shader;
    (void)v;
@@ -396,7 +443,8 @@ bool _al_set_shader_vertex_array_hlsl(ALLEGRO_SHADER *shader, float *v, int stri
    return true;
 }
 
-bool _al_set_shader_color_array_hlsl(ALLEGRO_SHADER *shader, unsigned char *c, int stride)
+static bool hlsl_set_shader_color_array(ALLEGRO_SHADER *shader,
+   unsigned char *c, int stride)
 {
    (void)shader;
    (void)c;
@@ -404,7 +452,8 @@ bool _al_set_shader_color_array_hlsl(ALLEGRO_SHADER *shader, unsigned char *c, i
    return true;
 }
 
-bool _al_set_shader_texcoord_array_hlsl(ALLEGRO_SHADER *shader, float *u, int stride)
+static bool hlsl_set_shader_texcoord_array(ALLEGRO_SHADER *shader,
+   float *u, int stride)
 {
    (void)shader;
    (void)u;
@@ -412,16 +461,16 @@ bool _al_set_shader_texcoord_array_hlsl(ALLEGRO_SHADER *shader, float *u, int st
    return true;
 }
 
+static void hlsl_set_shader(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader)
+{
+   al_set_direct3d_effect(display, al_get_direct3d_effect(shader));
+}
+
 /* Function: al_get_direct3d_effect
  */
 LPD3DXEFFECT al_get_direct3d_effect(ALLEGRO_SHADER *shader)
 {
    return ((ALLEGRO_SHADER_HLSL_S *)shader)->hlsl_shader;
-}
-
-void _al_set_shader_hlsl(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader)
-{
-   al_set_direct3d_effect(display, al_get_direct3d_effect(shader));
 }
 
 /* vim: set sts=3 sw=3 et: */

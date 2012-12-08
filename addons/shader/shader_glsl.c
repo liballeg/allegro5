@@ -20,6 +20,7 @@ ALLEGRO_DEBUG_CHANNEL("shader")
       }                                                      \
    } while (0)
 
+
 typedef struct GLSL_DEFERRED_SET {
    void (*fptr)(struct GLSL_DEFERRED_SET *s);
    // dump every parameter possible from the setters below
@@ -37,6 +38,11 @@ typedef struct GLSL_DEFERRED_SET {
    ALLEGRO_SHADER *shader;
 } GLSL_DEFERRED_SET;
 
+
+/* forward declaration */
+static struct ALLEGRO_SHADER_INTERFACE shader_glsl_vt;
+
+
 static char *my_strdup(const char *src)
 {
    size_t n = strlen(src) + 1; /* including NUL */
@@ -48,11 +54,12 @@ static char *my_strdup(const char *src)
 ALLEGRO_SHADER *_al_create_shader_glsl(ALLEGRO_SHADER_PLATFORM platform)
 {
    ALLEGRO_SHADER_GLSL_S *shader = al_calloc(1, sizeof(ALLEGRO_SHADER_GLSL_S));
-   
-   (void)platform;
 
    if (!shader)
       return NULL;
+
+   shader->shader.platform = platform;
+   shader->shader.vt = &shader_glsl_vt;
 
    shader->deferred_sets = al_malloc(sizeof(_AL_VECTOR));
    _al_vector_init(shader->deferred_sets, sizeof(GLSL_DEFERRED_SET));
@@ -60,7 +67,7 @@ ALLEGRO_SHADER *_al_create_shader_glsl(ALLEGRO_SHADER_PLATFORM platform)
    return (ALLEGRO_SHADER *)shader;
 }
 
-bool _al_link_shader_glsl(ALLEGRO_SHADER *shader)
+static bool glsl_link_shader(ALLEGRO_SHADER *shader)
 {
    GLint status;
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
@@ -104,10 +111,8 @@ bool _al_link_shader_glsl(ALLEGRO_SHADER *shader)
    return true;
 }
 
-bool _al_attach_shader_source_glsl(
-   ALLEGRO_SHADER *shader,
-   ALLEGRO_SHADER_TYPE type,
-   const char *source)
+static bool glsl_attach_shader_source(ALLEGRO_SHADER *shader,
+   ALLEGRO_SHADER_TYPE type, const char *source)
 {
    GLint status;
    GLchar error_buf[4096];
@@ -179,7 +184,7 @@ static void free_deferred_sets(_AL_VECTOR *vec, bool free_vector)
    }
 }
 
-void _al_destroy_shader_glsl(ALLEGRO_SHADER *shader)
+static void glsl_destroy_shader(ALLEGRO_SHADER *shader)
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
 
@@ -298,7 +303,7 @@ static void shader_set_float_vector(GLSL_DEFERRED_SET *s)
    LOG_GL_ERROR(s->name);
 }
 
-void _al_use_shader_glsl(ALLEGRO_SHADER *shader, bool use)
+static void glsl_use_shader(ALLEGRO_SHADER *shader, bool use)
 {
    ALLEGRO_DISPLAY *display = al_get_current_display();
    unsigned i;
@@ -382,8 +387,8 @@ static bool shader_add_deferred_set(
    return true;
 }
 
-bool _al_set_shader_sampler_glsl(ALLEGRO_SHADER *shader, const char *name,
-   ALLEGRO_BITMAP *bitmap, int unit)
+static bool glsl_set_shader_sampler(ALLEGRO_SHADER *shader,
+   const char *name, ALLEGRO_BITMAP *bitmap, int unit)
 {
    if (bitmap && bitmap->flags & ALLEGRO_MEMORY_BITMAP) {
       ALLEGRO_WARN("Cannot use memory bitmap for sampler\n");
@@ -407,8 +412,8 @@ bool _al_set_shader_sampler_glsl(ALLEGRO_SHADER *shader, const char *name,
    );
 }
 
-bool _al_set_shader_matrix_glsl(ALLEGRO_SHADER *shader, const char *name,
-   ALLEGRO_TRANSFORM *matrix)
+static bool glsl_set_shader_matrix(ALLEGRO_SHADER *shader,
+   const char *name, ALLEGRO_TRANSFORM *matrix)
 {
    return shader_add_deferred_set(
       shader_set_matrix, // void (*fptr)(GLSL_DEFERRED_SET *s)
@@ -427,7 +432,8 @@ bool _al_set_shader_matrix_glsl(ALLEGRO_SHADER *shader, const char *name,
    );
 }
 
-bool _al_set_shader_int_glsl(ALLEGRO_SHADER *shader, const char *name, int i)
+static bool glsl_set_shader_int(ALLEGRO_SHADER *shader,
+   const char *name, int i)
 {
    return shader_add_deferred_set(
       shader_set_int, // void (*fptr)(GLSL_DEFERRED_SET *s)
@@ -446,8 +452,8 @@ bool _al_set_shader_int_glsl(ALLEGRO_SHADER *shader, const char *name, int i)
    );
 }
 
-bool _al_set_shader_float_glsl(ALLEGRO_SHADER *shader, const char *name,
-   float f)
+static bool glsl_set_shader_float(ALLEGRO_SHADER *shader,
+   const char *name, float f)
 {
    return shader_add_deferred_set(
       shader_set_float, // void (*fptr)(GLSL_DEFERRED_SET *s)
@@ -466,8 +472,8 @@ bool _al_set_shader_float_glsl(ALLEGRO_SHADER *shader, const char *name,
    );
 }
 
-bool _al_set_shader_int_vector_glsl(ALLEGRO_SHADER *shader, const char *name,
-   int elem_size, int *i, int num_elems)
+static bool glsl_set_shader_int_vector(ALLEGRO_SHADER *shader,
+   const char *name, int elem_size, int *i, int num_elems)
 {
    return shader_add_deferred_set(
       shader_set_int_vector, // void (*fptr)(GLSL_DEFERRED_SET *s)
@@ -486,8 +492,8 @@ bool _al_set_shader_int_vector_glsl(ALLEGRO_SHADER *shader, const char *name,
    );
 }
 
-bool _al_set_shader_float_vector_glsl(ALLEGRO_SHADER *shader, const char *name,
-   int elem_size, float *f, int num_elems)
+static bool glsl_set_shader_float_vector(ALLEGRO_SHADER *shader,
+   const char *name, int elem_size, float *f, int num_elems)
 {
    return shader_add_deferred_set(
       shader_set_float_vector, // void (*fptr)(GLSL_DEFERRED_SET *s)
@@ -506,7 +512,8 @@ bool _al_set_shader_float_vector_glsl(ALLEGRO_SHADER *shader, const char *name,
    );
 }
 
-bool _al_set_shader_bool_glsl(ALLEGRO_SHADER *shader, const char *name, bool b)
+static bool glsl_set_shader_bool(ALLEGRO_SHADER *shader,
+   const char *name, bool b)
 {
    return shader_add_deferred_set(
       shader_set_int, // void (*fptr)(GLSL_DEFERRED_SET *s)
@@ -525,7 +532,8 @@ bool _al_set_shader_bool_glsl(ALLEGRO_SHADER *shader, const char *name, bool b)
    );
 }
 
-bool _al_set_shader_vertex_array_glsl(ALLEGRO_SHADER *shader, float *v, int stride)
+static bool glsl_set_shader_vertex_array(ALLEGRO_SHADER *shader,
+   float *v, int stride)
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
 
@@ -544,7 +552,8 @@ bool _al_set_shader_vertex_array_glsl(ALLEGRO_SHADER *shader, float *v, int stri
    return true;
 }
 
-bool _al_set_shader_color_array_glsl(ALLEGRO_SHADER *shader, unsigned char *c, int stride)
+static bool glsl_set_shader_color_array(ALLEGRO_SHADER *shader,
+   unsigned char *c, int stride)
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
 
@@ -563,7 +572,8 @@ bool _al_set_shader_color_array_glsl(ALLEGRO_SHADER *shader, unsigned char *c, i
    return true;
 }
 
-bool _al_set_shader_texcoord_array_glsl(ALLEGRO_SHADER *shader, float *u, int stride)
+static bool glsl_set_shader_texcoord_array(ALLEGRO_SHADER *shader,
+   float *u, int stride)
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
 
@@ -582,6 +592,31 @@ bool _al_set_shader_texcoord_array_glsl(ALLEGRO_SHADER *shader, float *u, int st
    return true;
 }
 
+void glsl_set_shader(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader)
+{
+   al_set_opengl_program_object(display, al_get_opengl_program_object(shader));
+}
+
+static struct ALLEGRO_SHADER_INTERFACE shader_glsl_vt =
+{
+   glsl_link_shader,
+   glsl_attach_shader_source,
+   glsl_use_shader,
+   glsl_destroy_shader,
+   glsl_set_shader_sampler,
+   glsl_set_shader_matrix,
+   glsl_set_shader_int,
+   glsl_set_shader_float,
+   glsl_set_shader_int_vector,
+   glsl_set_shader_float_vector,
+   glsl_set_shader_bool,
+   glsl_set_shader_vertex_array,
+   glsl_set_shader_color_array,
+   glsl_set_shader_texcoord_array,
+   glsl_set_shader
+};
+
+
 /* Function: al_get_opengl_program_object
  */
 GLuint al_get_opengl_program_object(ALLEGRO_SHADER *shader)
@@ -589,9 +624,5 @@ GLuint al_get_opengl_program_object(ALLEGRO_SHADER *shader)
    return ((ALLEGRO_SHADER_GLSL_S *)shader)->program_object;
 }
 
-void _al_set_shader_glsl(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader)
-{
-   al_set_opengl_program_object(display, al_get_opengl_program_object(shader));
-}
 
 /* vim: set sts=3 sw=3 et: */

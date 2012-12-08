@@ -226,10 +226,57 @@ static bool _imp_load_cgd3d9_module()
 #endif /* ALLEGRO_WINDOWS */
 #endif /* CG_MODULE_LOADING */
 
+
+static bool cg_link_shader(ALLEGRO_SHADER *shader);
+static bool cg_attach_shader_source(ALLEGRO_SHADER *shader,
+               ALLEGRO_SHADER_TYPE type, const char *source);
+static void cg_use_shader(ALLEGRO_SHADER *shader, bool use);
+static void cg_destroy_shader(ALLEGRO_SHADER *shader);
+static bool cg_set_shader_sampler(ALLEGRO_SHADER *shader,
+               const char *name, ALLEGRO_BITMAP *bitmap, int unit);
+static bool cg_set_shader_matrix(ALLEGRO_SHADER *shader,
+               const char *name, ALLEGRO_TRANSFORM *matrix);
+static bool cg_set_shader_int(ALLEGRO_SHADER *shader,
+               const char *name, int i);
+static bool cg_set_shader_float(ALLEGRO_SHADER *shader,
+               const char *name, float f);
+static bool cg_set_shader_int_vector(ALLEGRO_SHADER *shader,
+               const char *name, int elem_size, int *i, int num_elems);
+static bool cg_set_shader_float_vector(ALLEGRO_SHADER *shader,
+               const char *name, int elem_size, float *f, int num_elems);
+static bool cg_set_shader_bool(ALLEGRO_SHADER *shader,
+               const char *name, bool b);
+static bool cg_set_shader_vertex_array(ALLEGRO_SHADER *shader,
+               float *v, int stride);
+static bool cg_set_shader_color_array(ALLEGRO_SHADER *shader,
+               unsigned char *c, int stride);
+static bool cg_set_shader_texcoord_array(ALLEGRO_SHADER *shader,
+               float *u, int stride);
+static void cg_set_shader(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader);
+
+static struct ALLEGRO_SHADER_INTERFACE shader_cg_vt =
+{
+   cg_link_shader,
+   cg_attach_shader_source,
+   cg_use_shader,
+   cg_destroy_shader,
+   cg_set_shader_sampler,
+   cg_set_shader_matrix,
+   cg_set_shader_int,
+   cg_set_shader_float,
+   cg_set_shader_int_vector,
+   cg_set_shader_float_vector,
+   cg_set_shader_bool,
+   cg_set_shader_vertex_array,
+   cg_set_shader_color_array,
+   cg_set_shader_texcoord_array,
+   cg_set_shader
+};
+
+
 ALLEGRO_SHADER *_al_create_shader_cg(ALLEGRO_SHADER_PLATFORM platform)
 {
    ALLEGRO_SHADER_CG_S *shader;
-   (void)platform;
 
    shader = (ALLEGRO_SHADER_CG_S *)al_malloc(sizeof(ALLEGRO_SHADER_CG_S));
    if (!shader)
@@ -253,6 +300,8 @@ ALLEGRO_SHADER *_al_create_shader_cg(ALLEGRO_SHADER_PLATFORM platform)
 #endif /* CG_MODULE_LOADING */
 
    memset(shader, 0, sizeof(ALLEGRO_SHADER_CG_S));
+   shader->shader.platform = platform;
+   shader->shader.vt = &shader_cg_vt;
 
    shader->context = _imp_cgCreateContext();
    if (shader->context == 0) {
@@ -270,16 +319,8 @@ ALLEGRO_SHADER *_al_create_shader_cg(ALLEGRO_SHADER_PLATFORM platform)
    return (ALLEGRO_SHADER *)shader;
 }
 
-bool _al_link_shader_cg(ALLEGRO_SHADER *shader)
-{
-   (void)shader;
-   return true;
-}
-
-bool _al_attach_shader_source_cg(
-   ALLEGRO_SHADER *shader,
-   ALLEGRO_SHADER_TYPE type,
-   const char *source)
+static bool cg_attach_shader_source(ALLEGRO_SHADER *shader,
+   ALLEGRO_SHADER_TYPE type, const char *source)
 {
    ALLEGRO_SHADER_CG_S *cg_shader = (ALLEGRO_SHADER_CG_S *)shader;
    CGprofile profile = CG_PROFILE_VS_2_0; // initialize to silence warning
@@ -385,7 +426,13 @@ bool _al_attach_shader_source_cg(
    return true;
 }
 
-static void _al_set_shader_matrix_cg_name(ALLEGRO_SHADER *shader,
+static bool cg_link_shader(ALLEGRO_SHADER *shader)
+{
+   (void)shader;
+   return true;
+}
+
+static void do_set_shader_matrix(ALLEGRO_SHADER *shader,
    CGparameter name, float *m)
 {
 #ifdef ALLEGRO_WINDOWS
@@ -398,8 +445,7 @@ static void _al_set_shader_matrix_cg_name(ALLEGRO_SHADER *shader,
    }
 }
 
-
-void _al_use_shader_cg(ALLEGRO_SHADER *shader, bool use)
+static void cg_use_shader(ALLEGRO_SHADER *shader, bool use)
 {
    ALLEGRO_SHADER_CG_S *cg_shader = (ALLEGRO_SHADER_CG_S *)shader;
    ALLEGRO_DISPLAY *display = al_get_current_display();
@@ -409,11 +455,7 @@ void _al_use_shader_cg(ALLEGRO_SHADER *shader, bool use)
          ALLEGRO_TRANSFORM t;
 	 al_copy_transform(&t, &display->view_transform);
 	 al_compose_transform(&t, &display->proj_transform);
-         _al_set_shader_matrix_cg_name(
-	    shader,
-	    cg_shader->name_projview,
-	    (float *)t.m
-	 );
+         do_set_shader_matrix(shader, cg_shader->name_projview, (float *)t.m);
       }
       if (shader->platform & ALLEGRO_SHADER_GLSL) {
          if (cg_shader->vertex_program) {
@@ -459,7 +501,7 @@ void _al_use_shader_cg(ALLEGRO_SHADER *shader, bool use)
    }
 }
 
-void _al_destroy_shader_cg(ALLEGRO_SHADER *shader)
+static void cg_destroy_shader(ALLEGRO_SHADER *shader)
 {
    ALLEGRO_SHADER_CG_S *cg_shader = (ALLEGRO_SHADER_CG_S *)shader;
 
@@ -479,8 +521,8 @@ void _al_destroy_shader_cg(ALLEGRO_SHADER *shader)
    al_free(shader);
 }
 
-bool _al_set_shader_sampler_cg(ALLEGRO_SHADER *shader, const char *name,
-   ALLEGRO_BITMAP *bitmap, int unit)
+static bool cg_set_shader_sampler(ALLEGRO_SHADER *shader,
+   const char *name, ALLEGRO_BITMAP *bitmap, int unit)
 {
    ALLEGRO_SHADER_CG_S *cg_shader = (ALLEGRO_SHADER_CG_S *)shader;
    CGparameter v_param, p_param;
@@ -518,8 +560,8 @@ bool _al_set_shader_sampler_cg(ALLEGRO_SHADER *shader, const char *name,
    return true;
 }
 
-bool _al_set_shader_matrix_cg(ALLEGRO_SHADER *shader, const char *name,
-   ALLEGRO_TRANSFORM *matrix)
+static bool cg_set_shader_matrix(ALLEGRO_SHADER *shader,
+   const char *name, ALLEGRO_TRANSFORM *matrix)
 {
    ALLEGRO_SHADER_CG_S *cg_shader = (ALLEGRO_SHADER_CG_S *)shader;
    CGparameter v_param;
@@ -530,12 +572,12 @@ bool _al_set_shader_matrix_cg(ALLEGRO_SHADER *shader, const char *name,
       return false;
    }
 
-   _al_set_shader_matrix_cg_name(shader, v_param, (float *)matrix->m);
+   do_set_shader_matrix(shader, v_param, (float *)matrix->m);
 
    return true;
 }
 
-bool _al_set_shader_int_cg(ALLEGRO_SHADER *shader, const char *name, int i)
+static bool cg_set_shader_int(ALLEGRO_SHADER *shader, const char *name, int i)
 {
    ALLEGRO_SHADER_CG_S *cg_shader = (ALLEGRO_SHADER_CG_S *)shader;
    CGparameter v_param, p_param;
@@ -556,7 +598,8 @@ bool _al_set_shader_int_cg(ALLEGRO_SHADER *shader, const char *name, int i)
    return true;
 }
 
-bool _al_set_shader_float_cg(ALLEGRO_SHADER *shader, const char *name, float f)
+static bool cg_set_shader_float(ALLEGRO_SHADER *shader,
+   const char *name, float f)
 {
    ALLEGRO_SHADER_CG_S *cg_shader = (ALLEGRO_SHADER_CG_S *)shader;
    CGparameter v_param, p_param;
@@ -577,8 +620,8 @@ bool _al_set_shader_float_cg(ALLEGRO_SHADER *shader, const char *name, float f)
    return true;
 }
 
-bool _al_set_shader_int_vector_cg(ALLEGRO_SHADER *shader, const char *name,
-   int elem_size, int *i, int num_elems)
+static bool cg_set_shader_int_vector(ALLEGRO_SHADER *shader,
+   const char *name, int elem_size, int *i, int num_elems)
 {
    ALLEGRO_SHADER_CG_S *cg_shader = (ALLEGRO_SHADER_CG_S *)shader;
    CGparameter v_param, p_param;
@@ -599,8 +642,8 @@ bool _al_set_shader_int_vector_cg(ALLEGRO_SHADER *shader, const char *name,
    return true;
 }
 
-bool _al_set_shader_float_vector_cg(ALLEGRO_SHADER *shader, const char *name,
-   int elem_size, float *f, int num_elems)
+static bool cg_set_shader_float_vector(ALLEGRO_SHADER *shader,
+   const char *name, int elem_size, float *f, int num_elems)
 {
    ALLEGRO_SHADER_CG_S *cg_shader = (ALLEGRO_SHADER_CG_S *)shader;
    CGparameter v_param, p_param;
@@ -621,7 +664,8 @@ bool _al_set_shader_float_vector_cg(ALLEGRO_SHADER *shader, const char *name,
    return true;
 }
 
-bool _al_set_shader_bool_cg(ALLEGRO_SHADER *shader, const char *name, bool b)
+static bool cg_set_shader_bool(ALLEGRO_SHADER *shader,
+   const char *name, bool b)
 {
    ALLEGRO_SHADER_CG_S *cg_shader = (ALLEGRO_SHADER_CG_S *)shader;
    CGparameter v_param, p_param;
@@ -642,7 +686,8 @@ bool _al_set_shader_bool_cg(ALLEGRO_SHADER *shader, const char *name, bool b)
    return true;
 }
 
-bool _al_set_shader_vertex_array_cg(ALLEGRO_SHADER *shader, float *v, int stride)
+static bool cg_set_shader_vertex_array(ALLEGRO_SHADER *shader,
+   float *v, int stride)
 {
   if (shader->platform & ALLEGRO_SHADER_GLSL) {
      if (v == NULL) {
@@ -657,7 +702,8 @@ bool _al_set_shader_vertex_array_cg(ALLEGRO_SHADER *shader, float *v, int stride
    return true;
 }
 
-bool _al_set_shader_color_array_cg(ALLEGRO_SHADER *shader, unsigned char *c, int stride)
+static bool cg_set_shader_color_array(ALLEGRO_SHADER *shader,
+   unsigned char *c, int stride)
 {
   if (shader->platform & ALLEGRO_SHADER_GLSL) {
      if (c == NULL) {
@@ -672,7 +718,8 @@ bool _al_set_shader_color_array_cg(ALLEGRO_SHADER *shader, unsigned char *c, int
    return true;
 }
 
-bool _al_set_shader_texcoord_array_cg(ALLEGRO_SHADER *shader, float *u, int stride)
+static bool cg_set_shader_texcoord_array(ALLEGRO_SHADER *shader,
+   float *u, int stride)
 {
   if (shader->platform & ALLEGRO_SHADER_GLSL) {
      if (u == NULL) {
@@ -685,6 +732,14 @@ bool _al_set_shader_texcoord_array_cg(ALLEGRO_SHADER *shader, float *u, int stri
   }
 
    return true;
+}
+
+static void cg_set_shader(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader)
+{
+   /* XXX this was never implemented */
+   (void)display;
+   (void)shader;
+   ALLEGRO_WARN("cg_set_shader not implemented\n");
 }
 
 /* vim: set sts=3 sw=3 et: */

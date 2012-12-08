@@ -1,12 +1,15 @@
 #ifndef _AINTERN_SHADER_H
 #define _AINTERN_SHADER_H
 
+typedef struct ALLEGRO_SHADER_INTERFACE ALLEGRO_SHADER_INTERFACE;
+
 struct ALLEGRO_SHADER
 {
    ALLEGRO_USTR *vertex_copy;
    ALLEGRO_USTR *pixel_copy;
    ALLEGRO_USTR *log;
    ALLEGRO_SHADER_PLATFORM platform;
+   ALLEGRO_SHADER_INTERFACE *vt;
 };
 
 #endif
