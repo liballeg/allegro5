@@ -6,21 +6,37 @@
 #endif
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/allegro_shader.h"
-#include "allegro5/transformations.h"
 #include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_system.h"
-#include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_dtor.h"
+#include "allegro5/internal/aintern_system.h"
 
 #include <Cg/cg.h>
 #include <Cg/cgGL.h>
 
 #include "shader.h"
-#include "shader_cg.h"
-#include "allegro5/internal/aintern_shader_cg.h"
 
 ALLEGRO_DEBUG_CHANNEL("shader")
+
+
+typedef struct ALLEGRO_SHADER_CG_S ALLEGRO_SHADER_CG_S;
+
+struct ALLEGRO_SHADER_CG_S
+{
+   ALLEGRO_SHADER shader;
+   CGcontext context;
+   CGprogram vertex_program;
+   CGprogram pixel_program;
+   CGparameter name_pos;
+   CGparameter name_col;
+   CGparameter name_tex;
+   CGparameter name_projview;
+#ifdef ALLEGRO_WINDOWS
+   LPDIRECT3DVERTEXDECLARATION9 vertex_decl;
+#endif
+};
+
 
 /* Module loading only used on Windows, at least for now. */
 #ifdef ALLEGRO_WINDOWS

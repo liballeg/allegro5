@@ -2,13 +2,10 @@
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/allegro_shader.h"
 #include "allegro5/allegro_shader_glsl.h"
-#include "allegro5/internal/aintern_shader_glsl.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_opengl.h"
-#include "allegro5/transformations.h"
 #include "shader.h"
-#include "shader_glsl.h"
 
 ALLEGRO_DEBUG_CHANNEL("shader")
 
@@ -21,7 +18,19 @@ ALLEGRO_DEBUG_CHANNEL("shader")
    } while (0)
 
 
-typedef struct GLSL_DEFERRED_SET {
+typedef struct ALLEGRO_SHADER_GLSL_S ALLEGRO_SHADER_GLSL_S;
+typedef struct GLSL_DEFERRED_SET GLSL_DEFERRED_SET;
+
+struct ALLEGRO_SHADER_GLSL_S
+{
+   ALLEGRO_SHADER shader;
+   GLuint vertex_shader;
+   GLuint pixel_shader;
+   GLuint program_object;
+   _AL_VECTOR *deferred_sets;
+};
+
+struct GLSL_DEFERRED_SET {
    void (*fptr)(struct GLSL_DEFERRED_SET *s);
    // dump every parameter possible from the setters below
    char *name;
@@ -36,7 +45,7 @@ typedef struct GLSL_DEFERRED_SET {
    ALLEGRO_BITMAP *bitmap;
    int unit;
    ALLEGRO_SHADER *shader;
-} GLSL_DEFERRED_SET;
+};
 
 
 /* forward declaration */

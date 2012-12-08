@@ -1,12 +1,13 @@
 #ifndef _AL_SHADER_H
 #define _AL_SHADER_H
 
-#include "allegro5/internal/aintern_shader.h"
+#include "allegro5/allegro_shader.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+typedef struct ALLEGRO_SHADER_INTERFACE ALLEGRO_SHADER_INTERFACE;
 
 struct ALLEGRO_SHADER_INTERFACE
 {
@@ -33,6 +34,29 @@ struct ALLEGRO_SHADER_INTERFACE
 
    void (*set_shader)(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader);
 };
+
+struct ALLEGRO_SHADER
+{
+   ALLEGRO_USTR *vertex_copy;
+   ALLEGRO_USTR *pixel_copy;
+   ALLEGRO_USTR *log;
+   ALLEGRO_SHADER_PLATFORM platform;
+   ALLEGRO_SHADER_INTERFACE *vt;
+};
+
+#ifdef ALLEGRO_CFG_SHADER_GLSL
+ALLEGRO_SHADER *_al_create_shader_glsl(ALLEGRO_SHADER_PLATFORM platform);
+void _al_set_shader_glsl(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader);
+#endif
+
+#ifdef ALLEGRO_CFG_SHADER_HLSL
+ALLEGRO_SHADER *_al_create_shader_hlsl(ALLEGRO_SHADER_PLATFORM platform);
+void _al_set_shader_hlsl(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader);
+#endif
+
+#ifdef ALLEGRO_CFG_SHADER_CG
+ALLEGRO_SHADER *_al_create_shader_cg(ALLEGRO_SHADER_PLATFORM platform);
+#endif
 
 
 #ifdef __cplusplus

@@ -4,17 +4,24 @@
 #include <stdio.h>
 #include "allegro5/allegro_shader.h"
 #include "allegro5/allegro_shader_hlsl.h"
-#include "allegro5/transformations.h"
 #include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_shader_hlsl.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_direct3d.h"
 
 #include "shader.h"
-#include "shader_hlsl.h"
 
 ALLEGRO_DEBUG_CHANNEL("shader")
+
+
+typedef struct ALLEGRO_SHADER_HLSL_S ALLEGRO_SHADER_HLSL_S;
+
+struct ALLEGRO_SHADER_HLSL_S
+{
+   ALLEGRO_SHADER shader;
+   LPD3DXEFFECT hlsl_shader;
+};
+
 
 // DXSDK redistributable install d3dx9_xx.dll from version
 // 24 to 43. It's unlikely that any new version will come,
@@ -33,6 +40,7 @@ typedef HRESULT (WINAPI *D3DXCREATEEFFECTPROC)(LPDIRECT3DDEVICE9, LPCVOID, UINT,
 
 static HMODULE _imp_d3dx9_module = 0;
 static D3DXCREATEEFFECTPROC _imp_D3DXCreateEffect = NULL;
+
 
 static const char *null_source = "";
 

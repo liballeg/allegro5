@@ -1,19 +1,13 @@
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_shader.h"
-#include "allegro5/internal/aintern_shader.h"
 #include "shader.h"
 
 #ifdef ALLEGRO_CFG_SHADER_GLSL
 #include "allegro5/allegro_opengl.h"
-#include "shader_glsl.h"
 #include "allegro5/allegro_shader_glsl.h"
-#endif
-#ifdef ALLEGRO_CFG_SHADER_HLSL
-#include "shader_hlsl.h"
 #endif
 #ifdef ALLEGRO_CFG_SHADER_CG
 #include <Cg/cg.h>
-#include "shader_cg.h"
 #endif
 
 ALLEGRO_DEBUG_CHANNEL("shader")
