@@ -13,13 +13,13 @@
 #ifdef ALLEGRO_CFG_OPENGL
    #include "allegro5/allegro_opengl.h"
 #endif
-#ifdef ALLEGRO_CFG_HLSL_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_HLSL
    #include "allegro5/allegro_shader_hlsl.h"
 #endif
-#ifdef ALLEGRO_CFG_GLSL_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_GLSL
    #include "allegro5/allegro_shader_glsl.h"
 #endif
-#ifdef ALLEGRO_CFG_CG_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_CG
    #include <Cg/cg.h>
 #endif
 

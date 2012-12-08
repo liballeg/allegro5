@@ -71,7 +71,7 @@ typedef struct ALLEGRO_DISPLAY_D3D
 
    RECT scissor_state;
 
-#ifdef ALLEGRO_CFG_HLSL_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_HLSL
    LPD3DXEFFECT effect;
 #endif
 } ALLEGRO_DISPLAY_D3D;

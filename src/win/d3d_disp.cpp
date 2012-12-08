@@ -79,7 +79,7 @@ static bool already_fullscreen = false; /* real fullscreen */
 static ALLEGRO_MUTEX *present_mutex;
 ALLEGRO_MUTEX *_al_d3d_lost_device_mutex;
 
-#ifdef ALLEGRO_CFG_HLSL_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_HLSL
 /* Function: al_set_direct3d_effect
  */
 void al_set_direct3d_effect(ALLEGRO_DISPLAY *display, LPD3DXEFFECT effect)
@@ -375,7 +375,7 @@ static void _al_d3d_set_ortho_projection(ALLEGRO_DISPLAY_D3D *disp, float w, flo
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       al_identity_transform(&display->proj_transform);
       al_ortho_transform(&display->proj_transform, 0, w, h, 0, -1, 1);
-#ifdef ALLEGRO_CFG_HLSL_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_HLSL
       LPD3DXEFFECT effect = disp->effect;
       if (effect) {
 	 ALLEGRO_TRANSFORM t;
@@ -1996,7 +1996,7 @@ static void d3d_draw_pixel(ALLEGRO_DISPLAY *disp, float x, float y, ALLEGRO_COLO
 
    _al_d3d_set_blender(d3d_disp);
 
-#ifdef ALLEGRO_CFG_HLSL_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_HLSL
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       UINT required_passes;
       ALLEGRO_VERTEX vertices[1];
@@ -2674,7 +2674,7 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
       d3d_disp->device->SetFVF(D3DFVF_ALLEGRO_VERTEX);
    }
 
-#ifdef ALLEGRO_CFG_HLSL_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_HLSL
    UINT required_passes;
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       d3d_disp->effect->SetBool("use_tex", true);
@@ -2691,7 +2691,7 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 
    int size;
 
-#ifdef ALLEGRO_CFG_HLSL_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_HLSL
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       size = sizeof(ALLEGRO_VERTEX);
       for (unsigned int i = 0; i < required_passes; i++) {
@@ -2717,7 +2717,7 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    }
 
    disp->num_cache_vertices = 0;
-#ifdef ALLEGRO_CFG_HLSL_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_HLSL
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       d3d_disp->effect->End();
       d3d_disp->effect->SetBool("use_tex", false);
@@ -2744,7 +2744,7 @@ static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *tar
       tmp_transform.m[3][0] -= 0.5;
       tmp_transform.m[3][1] -= 0.5;
       al_copy_transform(&disp->view_transform, &tmp_transform);
-#ifdef ALLEGRO_CFG_HLSL_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_HLSL
       LPD3DXEFFECT effect = d3d_disp->effect;
       if (effect) {
 	 al_compose_transform(&tmp_transform, &disp->proj_transform);
@@ -2765,7 +2765,7 @@ static void d3d_set_projection(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)d;
 
-#ifdef ALLEGRO_CFG_HLSL_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_HLSL
    if (d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       ALLEGRO_TRANSFORM t;
       al_copy_transform(&t, &d->view_transform);

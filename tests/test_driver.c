@@ -15,7 +15,7 @@
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
 
-#ifdef ALLEGRO_CFG_GLSL_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_GLSL
 #include "allegro5/allegro_shader_glsl.h"
 #endif
 
@@ -72,7 +72,7 @@ int               verbose = 0;
 int               total_tests = 0;
 int               passed_tests = 0;
 int               failed_tests = 0;
-#ifdef ALLEGRO_CFG_GLSL_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_GLSL
 ALLEGRO_SHADER    *shader;
 #endif
 
@@ -1536,7 +1536,7 @@ int main(int _argc, char *_argv[])
          al_set_new_display_flags(ALLEGRO_DIRECT3D_INTERNAL);
       }
       else if (streq(opt, "--use-shaders")) {
-         #ifdef ALLEGRO_CFG_GLSL_SHADERS
+         #ifdef ALLEGRO_CFG_SHADER_GLSL
          al_set_new_display_flags(ALLEGRO_OPENGL | ALLEGRO_USE_PROGRAMMABLE_PIPELINE);
          #endif
       }
@@ -1552,7 +1552,7 @@ int main(int _argc, char *_argv[])
       }
    }
 
-   #ifdef ALLEGRO_CFG_GLSL_SHADERS
+   #ifdef ALLEGRO_CFG_SHADER_GLSL
    if (al_get_new_display_flags() & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       shader = al_create_shader(ALLEGRO_SHADER_GLSL);
       al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER,

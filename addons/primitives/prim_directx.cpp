@@ -326,7 +326,7 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
          
 
          if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_HLSL_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_HLSL
             d3d_disp->effect->SetMatrix("tex_matrix", (D3DXMATRIX *)mat);
             d3d_disp->effect->SetBool("use_tex_matrix", true);
             d3d_disp->effect->SetBool("use_tex", true);
@@ -363,7 +363,7 @@ static void revert_state(D3D_STATE state, LPDIRECT3DDEVICE9 device, ALLEGRO_BITM
 {
    ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)(target->display);
    (void)d3d_disp;
-#ifdef ALLEGRO_CFG_HLSL_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_HLSL
    if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       d3d_disp->effect->End();
       d3d_disp->effect->SetBool("use_tex_matrix", false);
@@ -439,14 +439,14 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
       vtx = convert_to_legacy_vertices(vtx, num_vtx, indices, type == ALLEGRO_PRIM_LINE_LOOP);
    }
 
-#ifdef ALLEGRO_CFG_HLSL_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_HLSL
    if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       d3d_disp->effect->Begin(&required_passes, 0);
    }
 #endif
 
    for (i = 0; i < required_passes; i++) {
-#ifdef ALLEGRO_CFG_HLSL_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_HLSL
       if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
          d3d_disp->effect->BeginPass(i);
       }
@@ -560,7 +560,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
          }
       }
       
-#ifdef ALLEGRO_CFG_HLSL_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_HLSL
       if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
          d3d_disp->effect->EndPass();
       }
@@ -648,14 +648,14 @@ int _al_draw_vertex_buffer_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textu
 
    device->SetStreamSource(0, (IDirect3DVertexBuffer9*)vertex_buffer->handle, 0, stride);
 
-#ifdef ALLEGRO_CFG_HLSL_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_HLSL
    if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       d3d_disp->effect->Begin(&required_passes, 0);
    }
 #endif
 
    for (i = 0; i < required_passes; i++) {
-#ifdef ALLEGRO_CFG_HLSL_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_HLSL
       if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
          d3d_disp->effect->BeginPass(i);
       }
@@ -700,7 +700,7 @@ int _al_draw_vertex_buffer_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textu
          };
       }
 
-#ifdef ALLEGRO_CFG_HLSL_SHADERS
+#ifdef ALLEGRO_CFG_SHADER_HLSL
       if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
          d3d_disp->effect->EndPass();
       }
