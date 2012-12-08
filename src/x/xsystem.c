@@ -97,8 +97,10 @@ static void xglx_shutdown_system(void)
    ALLEGRO_INFO("shutting down.\n");
 
    if (sx->x11display) {
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
       /* Events thread only runs if we are connected to an X server. */
       _al_thread_join(&sx->thread);
+#endif
    }
 
    /* Close all open displays. */

@@ -75,7 +75,9 @@ struct ALLEGRO_SYSTEM_XGLX
    } *xfvm_screen;
    #endif
 
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
    _AL_THREAD thread; /* background thread. */
+#endif
    _AL_MUTEX lock; /* thread lock for whenever we access internals. */
    // FIXME: One condition variable really would be enough.
    _AL_COND resized; /* Condition variable to wait for resizing a window. */
@@ -247,7 +249,7 @@ void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent);
 bool _al_gtk_ensure_thread(void);
 #endif
 #ifdef ALLEGRO_CFG_USE_GTKGLEXT
-GtkWidget *al_gtk_get_window(ALLEGRO_DISPLAY *display);
+GtkWidget *_al_gtk_get_window(ALLEGRO_DISPLAY *display);
 #endif
 
 #endif

@@ -419,7 +419,7 @@ static size_t flac_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
 static void flac_stream_close(ALLEGRO_AUDIO_STREAM *stream)
 {
    FLACFILE *ff = stream->extra;
-   _acodec_stop_feed_thread(stream);
+   _al_acodec_stop_feed_thread(stream);
 
    al_fclose(ff->fh);
    flac_close(ff);
