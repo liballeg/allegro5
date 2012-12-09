@@ -347,6 +347,8 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    ALLEGRO_OGL_EXTRAS *ogl = al_calloc(1, sizeof *ogl);
    display->ogl_extras = ogl;
 
+   display->ogl_extras->is_shared = true;
+
    /* FIXME: Use user preferences */
    display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
    display->extra_settings.settings[ALLEGRO_RED_SIZE] = 8;
@@ -971,6 +973,10 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    if (s->system.displays._size <= 0) {
       gtk_main_quit();
    }
+   /* FIXME:  is there a better way to tell if gtk is finished? Avoids
+    * having multiple threads accessing GL on shutdown.
+    */
+   al_rest(0.2);
 #endif
 
    ALLEGRO_DEBUG("destroy display finished.\n");
