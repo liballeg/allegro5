@@ -229,6 +229,9 @@ static bool hlsl_attach_shader_source(ALLEGRO_SHADER *shader,
    LPD3DXBUFFER errors;
    const char *vertex_source, *pixel_source, *technique_source;
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
+   ASSERT(display->flags & ALLEGRO_DIRECT3D);
 
    if (source == NULL) {
       if (type == ALLEGRO_VERTEX_SHADER) {
@@ -292,7 +295,7 @@ static bool hlsl_attach_shader_source(ALLEGRO_SHADER *shader,
       vertex_source, pixel_source, technique_source);
 
    DWORD ok = _imp_D3DXCreateEffect(
-      al_get_d3d_device(al_get_current_display()),
+      al_get_d3d_device(display),
       al_cstr(full_source),
       al_ustr_size(full_source),
       NULL,
@@ -330,6 +333,8 @@ static void hlsl_use_shader(ALLEGRO_SHADER *shader, bool use)
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
    LPD3DXEFFECT effect = hlsl_shader->hlsl_shader;
    ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
+   ASSERT(display->flags & ALLEGRO_DIRECT3D);
 
    if (use) {
       ALLEGRO_TRANSFORM t;
@@ -471,6 +476,9 @@ static bool hlsl_set_shader_texcoord_array(ALLEGRO_SHADER *shader,
 
 static void hlsl_set_shader(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader)
 {
+   ASSERT(display);
+   ASSERT(display->flags & ALLEGRO_DIRECT3D);
+
    al_set_direct3d_effect(display, al_get_direct3d_effect(shader));
 }
 

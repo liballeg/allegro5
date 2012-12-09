@@ -126,6 +126,9 @@ static bool glsl_attach_shader_source(ALLEGRO_SHADER *shader,
    GLint status;
    GLchar error_buf[4096];
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
+   ASSERT(display->flags & ALLEGRO_OPENGL);
 
    if (source == NULL) {
       if (type == ALLEGRO_VERTEX_SHADER) {
@@ -316,6 +319,9 @@ static void glsl_use_shader(ALLEGRO_SHADER *shader, bool use)
 {
    ALLEGRO_DISPLAY *display = al_get_current_display();
    unsigned i;
+
+   ASSERT(display);
+   ASSERT(display->flags & ALLEGRO_OPENGL);
 
    if (use) {
       ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
@@ -603,6 +609,9 @@ static bool glsl_set_shader_texcoord_array(ALLEGRO_SHADER *shader,
 
 void glsl_set_shader(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader)
 {
+   ASSERT(display);
+   ASSERT(display->flags & ALLEGRO_OPENGL);
+
    al_set_opengl_program_object(display, al_get_opengl_program_object(shader));
 }
 
