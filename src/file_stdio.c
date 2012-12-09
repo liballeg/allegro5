@@ -32,6 +32,7 @@
 
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_file.h"
+#include "allegro5/internal/aintern_wunicode.h"
 
 #ifdef ALLEGRO_HAVE_SYS_STAT_H
 #include <sys/stat.h>
@@ -79,7 +80,18 @@ static void *file_stdio_fopen(const char *path, const char *mode)
 {
    FILE *fp;
 
+#ifdef ALLEGRO_WINDOWS
+   {
+      wchar_t *wpath = _al_win_utf16(path);
+      wchar_t *wmode = _al_win_utf16(mode);
+      fp = _wfopen(wpath, wmode);
+      al_free(wpath);
+      al_free(wmode);
+   }
+#else
    fp = fopen(path, mode);
+#endif
+
    if (!fp) {
       al_set_errno(errno);
       return NULL;
