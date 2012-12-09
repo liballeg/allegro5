@@ -607,7 +607,7 @@ static bool glsl_set_shader_texcoord_array(ALLEGRO_SHADER *shader,
    return true;
 }
 
-void glsl_set_shader(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader)
+static void glsl_set_shader(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader)
 {
    ASSERT(display);
    ASSERT(display->flags & ALLEGRO_OPENGL);
