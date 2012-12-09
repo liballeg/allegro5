@@ -23,6 +23,8 @@
    #include <Cg/cg.h>
 #endif
 
+#include "common.c"
+
 static int display_flags = 0;
 static ALLEGRO_SHADER_PLATFORM shader_platform = ALLEGRO_SHADER_AUTO;
 
@@ -59,7 +61,7 @@ static void parse_args(int argc, char **argv)
          shader_platform = ALLEGRO_SHADER_CG;
          continue;
       }
-      fprintf(stderr, "Warning: unrecognised argument: %s\n", argv[i]);
+      abort_example("Unrecognised argument: %s\n", argv[i]);
    }
 }
 
@@ -112,39 +114,36 @@ int main(int argc, char **argv)
 
    display = al_create_display(640, 480);
    if (!display) {
-      fprintf(stderr, "Could not create display\n");
-      return 1;
+      abort_example("Could not create display.\n");
    }
 
    bmp = al_load_bitmap("data/mysha.pcx");
    if (!bmp) {
-      fprintf(stderr, "Could not load bitmap\n");
-      return 1;
+      abort_example("Could not load bitmap.\n");
    }
 
    shader = al_create_shader(shader_platform);
    if (!shader) {
-      fprintf(stderr, "Could not create shader\n");
-      return 1;
+      abort_example("Could not create shader.\n");
    }
 
    choose_vertex_source(al_get_display_flags(display), shader_platform,
       &vsource, &psource);
-   if (!vsource|| !psource)
-      return 1;
+   if (!vsource|| !psource) {
+      abort_example("Could not load source files.\n");
+   }
 
    if (!al_attach_shader_source_file(shader, ALLEGRO_VERTEX_SHADER, vsource)) {
-      fprintf(stderr, "%s\n", al_get_shader_log(shader));
-      return 1;
+      abort_example("al_attach_shader_source_file failed: %s\n",
+         al_get_shader_log(shader));
    }
    if (!al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, psource)) {
-      fprintf(stderr, "%s\n", al_get_shader_log(shader));
-      return 1;
+      abort_example("al_attach_shader_source_file failed: %s\n",
+         al_get_shader_log(shader));
    }
 
    if (!al_link_shader(shader)) {
-      fprintf(stderr, "%s\n", al_get_shader_log(shader));
-      return 1;
+      abort_example("al_link_shader failed: %s\n", al_get_shader_log(shader));
    }
 
    al_set_shader(display, shader);
