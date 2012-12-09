@@ -1166,6 +1166,7 @@ static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
 #ifdef ALLEGRO_CFG_USE_GTKGLEXT
    glx->ignore_configure_event = true;
    gtk_window_resize(GTK_WINDOW(glx->gtkwindow), w, h);
+   gtk_container_check_resize(GTK_CONTAINER(glx->gtkwindow));
    al_rest(0.2);
    glx->cfg_w = w;
    glx->cfg_h = h;
