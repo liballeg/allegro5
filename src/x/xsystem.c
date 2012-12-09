@@ -15,13 +15,6 @@ extern int _Xdebug; /* part of Xlib */
 #include "allegro5/internal/aintern_x.h"
 #include "allegro5/internal/aintern_xglx.h"
 
-#ifdef ALLEGRO_CFG_USE_GTK
-#include <gtk/gtk.h>
-#endif
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-#include <gdk/gdkx.h>
-#endif
-
 ALLEGRO_DEBUG_CHANNEL("system")
 
 static ALLEGRO_SYSTEM_INTERFACE *xglx_vt;
