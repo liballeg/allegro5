@@ -117,6 +117,20 @@ int main(int argc, char **argv)
       abort_example("Could not create display.\n");
    }
 
+   display_flags = al_get_display_flags(display);
+
+   /* Reject incompatible display and shader types. */
+   if ((display_flags & ALLEGRO_OPENGL)
+         && (shader_platform & ALLEGRO_SHADER_HLSL)) {
+      abort_example("Shader platform incompatible with display type.\n");
+   }
+#ifdef ALLEGRO_DIRECT3D
+   if ((display_flags & ALLEGRO_DIRECT3D)
+         && (shader_platform & ALLEGRO_SHADER_GLSL)) {
+      abort_example("Shader platform incompatible with display type.\n");
+   }
+#endif
+
    bmp = al_load_bitmap("data/mysha.pcx");
    if (!bmp) {
       abort_example("Could not load bitmap.\n");
@@ -127,8 +141,7 @@ int main(int argc, char **argv)
       abort_example("Could not create shader.\n");
    }
 
-   choose_vertex_source(al_get_display_flags(display), shader_platform,
-      &vsource, &psource);
+   choose_vertex_source(display_flags, shader_platform, &vsource, &psource);
    if (!vsource|| !psource) {
       abort_example("Could not load source files.\n");
    }
