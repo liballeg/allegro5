@@ -63,6 +63,9 @@ ALLEGRO_SHADER *al_create_shader(ALLEGRO_SHADER_PLATFORM platform)
       ASSERT(shader->platform);
       ASSERT(shader->vt);
    }
+   else {
+      ALLEGRO_WARN("Failed to create shader\n");
+   }
    return shader;
 }
 
@@ -93,8 +96,12 @@ bool al_attach_shader_source_file(ALLEGRO_SHADER *shader,
    bool ret;
 
    fp = al_fopen(filename, "r");
-   if (!fp)
+   if (!fp) {
+      ALLEGRO_WARN("Failed to open %s\n", filename);
+      al_ustr_free(shader->log);
+      shader->log = al_ustr_newf("Failed to open %s", filename);
       return false;
+   }
    str = al_ustr_new("");
    for (;;) {
       char buf[512];
