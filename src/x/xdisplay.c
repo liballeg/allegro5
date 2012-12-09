@@ -358,15 +358,14 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    display->extra_settings.settings[ALLEGRO_GREEN_SHIFT] = 8;
    display->extra_settings.settings[ALLEGRO_BLUE_SHIFT] = 0;
    display->extra_settings.settings[ALLEGRO_ALPHA_SHIFT] = 24;
-      
+
    int argc = 0;
    char **argv = NULL;
    gtk_init(&argc, &argv);
    gtk_gl_init(&argc, &argv);
-   
-   GdkGLConfig *glconfig = gdk_gl_config_new_by_mode (GDK_GL_MODE_RGB    |
-                                           GDK_GL_MODE_DOUBLE);
-   
+
+   //system->x11display = gdk_x11_get_default_xdisplay();
+
    GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
    d->gtkwindow = window;
   
@@ -399,6 +398,9 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    gtk_widget_set_size_request(d->gtkdrawing_area, w, h);
 
    /* Set OpenGL-capability to the widget. */
+   GdkGLConfig *glconfig =
+      gdk_gl_config_new_by_mode(GDK_GL_MODE_RGB | GDK_GL_MODE_DOUBLE);
+
    gtk_widget_set_gl_capability (d->gtkdrawing_area, glconfig, NULL, TRUE, GDK_GL_RGBA_TYPE);
 
    g_signal_connect(G_OBJECT(d->gtkdrawing_area), "motion-notify-event", G_CALLBACK(_al_gtk_handle_motion_event), display);
@@ -422,25 +424,23 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    gtk_widget_show_all(window);
    
    _al_gtk_ensure_thread();
-   
+
    d->gtkcontext = gtk_widget_get_gl_context(d->gtkdrawing_area);
    d->gtkdrawable = gtk_widget_get_gl_drawable(d->gtkdrawing_area);
    d->context = gdk_x11_gl_context_get_glxcontext(d->gtkcontext);
 
    d->window = GDK_WINDOW_XWINDOW (d->gtkdrawing_area->window);
 
+   ALLEGRO_DISPLAY_XGLX **add;
+   add = _al_vector_alloc_back(&system->system.displays);
+   *add = d;
+
+#if 0
    d->is_mapped = false;
    _al_cond_init(&d->mapped);
 
    d->resize_count = 0;
    d->programmatic_resize = false;
-   
-   ALLEGRO_DISPLAY_XGLX **add;
-   add = _al_vector_alloc_back(&system->system.displays);
-   *add = d;
-
-   /* Each display is an event source. */
-   _al_event_source_init(&display->es);
 
    XLockDisplay(system->x11display);
    
@@ -452,6 +452,10 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    ALLEGRO_DEBUG("X11 window mapped.\n");
    
    XUnlockDisplay(system->x11display);
+#endif
+ 
+   /* Each display is an event source. */
+   _al_event_source_init(&display->es);
 
    gdk_gl_drawable_gl_begin (d->gtkdrawable, d->gtkcontext);
 
@@ -949,9 +953,9 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
       glx->xvinfo = NULL;
    }
 #endif
-#endif
 
    _al_cond_destroy(&glx->mapped);
+#endif
 
    _al_vector_free(&d->bitmaps);
    _al_event_source_free(&d->es);
@@ -963,6 +967,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    _al_mutex_unlock(&s->lock);
 
 #ifdef ALLEGRO_CFG_USE_GTKGLEXT
+   gtk_widget_destroy(glx->gtkwindow);
    if (s->system.displays._size <= 0) {
       gtk_main_quit();
    }
@@ -1412,9 +1417,10 @@ static bool xdpy_get_window_constraints(ALLEGRO_DISPLAY *display,
 
 static void xdpy_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
 
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    _al_mutex_lock(&system->lock);
    Atom WM_NAME = XInternAtom(system->x11display, "WM_NAME", False);
    Atom _NET_WM_NAME = XInternAtom(system->x11display, "_NET_WM_NAME", False);
@@ -1430,6 +1436,9 @@ static void xdpy_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
    hint.res_class = strdup(title);
    XSetClassHint(system->x11display, glx->window, &hint);
    _al_mutex_unlock(&system->lock);
+#else
+   gtk_window_set_title(GTK_WINDOW(glx->gtkwindow), title);
+#endif
 }
 
 
@@ -1573,10 +1582,12 @@ bool _al_gtk_ensure_thread(void)
    if (!g_thread_supported())
       g_thread_init(NULL);
 #endif
-   
+
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
    int argc = 0;
    char **argv = NULL;
    gtk_init(&argc, &argv);
+#endif
 
    nd_gtk_lock();
 

@@ -15,6 +15,13 @@ extern int _Xdebug; /* part of Xlib */
 #include "allegro5/internal/aintern_x.h"
 #include "allegro5/internal/aintern_xglx.h"
 
+#ifdef ALLEGRO_CFG_USE_GTK
+#include <gtk/gtk.h>
+#endif
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+#include <gdk/gdkx.h>
+#endif
+
 ALLEGRO_DEBUG_CHANNEL("system")
 
 static ALLEGRO_SYSTEM_INTERFACE *xglx_vt;
@@ -49,7 +56,7 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
       ALLEGRO_INFO("XOpenDisplay failed; assuming headless mode.\n");
       gfxdisplay = NULL;
    }
-
+   
    _al_unix_init_time();
 
    s = al_calloc(1, sizeof *s);
@@ -60,11 +67,12 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
 
    _al_vector_init(&s->system.displays, sizeof (ALLEGRO_DISPLAY_XGLX *));
 
+   s->system.vt = xglx_vt;
+
    s->gfxdisplay = gfxdisplay;
    s->x11display = x11display;
 
-   s->system.vt = xglx_vt;
-
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
    if (s->x11display) {
       ALLEGRO_INFO("XGLX driver connected to X11 (%s %d).\n",
          ServerVendor(s->x11display), VendorRelease(s->x11display));
@@ -80,11 +88,10 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
       /* Message type for XEmbed protocol. */
       s->XEmbedAtom = XInternAtom(x11display, "_XEMBED", False);
 
-#ifndef ALLEGRO_CFG_USE_GTKGLEXT
       _al_thread_create(&s->thread, _al_x_background_thread, s);
       ALLEGRO_INFO("events thread spawned.\n");
-#endif
    }
+#endif
 
    return &s->system;
 }
@@ -114,6 +121,7 @@ static void xglx_shutdown_system(void)
 
    // Makes sure we wait for any commands sent to the X server when destroying the displays.
    // Should make sure we don't shutdown before modes are restored.
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
    if (sx->x11display) {
       XSync(sx->x11display, False);
    }
@@ -125,6 +133,7 @@ static void xglx_shutdown_system(void)
       sx->x11display = None;
       ALLEGRO_DEBUG("xsys: close x11display.\n");
    }
+#endif
 
    if (sx->gfxdisplay) {
       /* XXX for some reason, crashes if both XCloseDisplay calls are made */
