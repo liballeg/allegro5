@@ -58,9 +58,10 @@ set(ALLEGRO_SRC_WIN_FILES
     src/win/wmcursor.c
     src/win/wmouse.c
     src/win/wsystem.c
-    src/win/wwindow.c
     src/win/wthread.c
     src/win/wtime.c
+    src/win/wunicode.c
+    src/win/wwindow.c
     src/win/wxthread.c
     )
 
