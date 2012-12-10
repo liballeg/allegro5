@@ -231,6 +231,8 @@ static ALLEGRO_FS_ENTRY *fs_stdio_create_entry(const char *orig_path)
 
 static void fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio)
 {
+   fp_stdio->stat_mode = 0;
+
    if (S_ISDIR(fp_stdio->st.st_mode))
       fp_stdio->stat_mode |= ALLEGRO_FILEMODE_ISDIR;
    else /* marks special unix files as files... might want to add enum items for symlink, CHAR, BLOCK and SOCKET files. */
