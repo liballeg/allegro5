@@ -446,7 +446,9 @@ static int render_glyph(ALLEGRO_FONT const *f,
    ALLEGRO_TRANSFORM old_projection_transform;
 
    /* Workabout for bug 3484535 */
-   al_copy_transform(&old_projection_transform, al_get_projection_transform(al_get_current_display()));
+   if (al_get_current_display() != NULL){
+      al_copy_transform(&old_projection_transform, al_get_projection_transform(al_get_current_display()));
+   }
 
    /* We don't try to cache all glyphs in a pre-pass before drawing them.
     * While that would indeed save us making separate texture uploads, it
@@ -457,7 +459,9 @@ static int render_glyph(ALLEGRO_FONT const *f,
    cache_glyph(data, face, ft_index, glyph, false);
 
    /* Workabout for bug 3484535 */
-   al_set_projection_transform(al_get_current_display(), &old_projection_transform);
+   if (al_get_current_display() != NULL){
+      al_set_projection_transform(al_get_current_display(), &old_projection_transform);
+   }
 
    advance += get_kerning(data, face, prev_ft_index, ft_index);
 
