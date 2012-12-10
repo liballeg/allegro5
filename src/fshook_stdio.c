@@ -110,7 +110,6 @@ typedef struct ALLEGRO_FS_ENTRY_STDIO ALLEGRO_FS_ENTRY_STDIO;
 struct ALLEGRO_FS_ENTRY_STDIO {
    ALLEGRO_FS_ENTRY fs_entry; /* must be first */
 
-   bool isdir;
    DIR *dir;
 
    struct stat st;
@@ -255,28 +254,27 @@ static bool fs_stdio_open_directory(ALLEGRO_FS_ENTRY *fp)
       return false;
    }
 
-   fp_stdio->isdir = true;
    return true;
 }
 
 static bool fs_stdio_close_directory(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
-   bool ret;
+   int rc;
 
-   fp_stdio->isdir = false;
-
-   if (closedir(fp_stdio->dir) == -1) {
-      al_set_errno(errno);
-      ret = false;
-   }
-   else {
-      ret = true;
+   if (!fp_stdio->dir) {
+      al_set_errno(ENOTDIR);
+      return false;
    }
 
+   rc = closedir(fp_stdio->dir);
    fp_stdio->dir = NULL;
+   if (rc == -1) {
+      al_set_errno(errno);
+      return false;
+   }
 
-   return ret;
+   return true;
 }
 
 static ALLEGRO_FS_ENTRY *fs_stdio_read_directory(ALLEGRO_FS_ENTRY *fp)
@@ -319,7 +317,7 @@ static void fs_stdio_destroy_entry(ALLEGRO_FS_ENTRY *fh_)
    if (fh->apath)
       al_destroy_path(fh->apath);
 
-   if (fh->isdir)
+   if (fh->dir)
       fs_stdio_close_directory(fh_);
 
    memset(fh, 0, sizeof(*fh));
