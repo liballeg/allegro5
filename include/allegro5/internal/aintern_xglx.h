@@ -121,6 +121,7 @@ struct ALLEGRO_DISPLAY_XGLX
    int cfg_w, cfg_h;
    int toggle_w, toggle_h;
    bool ignore_configure_event;
+   bool is_fullscreen;
 #endif
    Window window;
    int xscreen; /* X Screen ID */

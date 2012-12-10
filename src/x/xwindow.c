@@ -16,8 +16,9 @@ ALLEGRO_DEBUG_CHANNEL("xwindow")
 
 void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    XSizeHints *hints = XAllocSizeHints();
    int w, h;
    hints->flags = 0;
@@ -73,12 +74,23 @@ void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
    XSetWMNormalHints(system->x11display, glx->window, hints);
 
    XFree(hints);
+#else
+   GdkGeometry geo;
+   // FIXME: obey these
+   (void)x_off;
+   (void)y_off;
+   geo.min_width = geo.max_width = geo.base_width = d->w;
+   geo.min_height = geo.max_height = geo.base_height = d->h;
+   gdk_window_set_geometry_hints(GDK_WINDOW(glx->gtkwindow->window),
+      &geo, GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE | GDK_HINT_BASE_SIZE);
+#endif
 }
 
 void _al_xwin_reset_size_hints(ALLEGRO_DISPLAY *d)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
+#if !defined ALLEGRO_CFG_USE_GTKGLEXT
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    XSizeHints *hints = XAllocSizeHints();
 
    hints->flags = PMinSize | PMaxSize;
@@ -90,6 +102,13 @@ void _al_xwin_reset_size_hints(ALLEGRO_DISPLAY *d)
    XSetWMNormalHints(system->x11display, glx->window, hints);
 
    XFree(hints);
+#else
+   GdkGeometry geo;
+   geo.min_width = geo.min_height = 0;
+   geo.max_width = geo.max_height = 32768;
+   gdk_window_set_geometry_hints(GDK_WINDOW(glx->gtkwindow->window),
+      &geo, GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE);
+#endif
 }
 
 #define X11_ATOM(x)  XInternAtom(x11, #x, False);
@@ -127,7 +146,7 @@ void _al_xwin_set_fullscreen_window(ALLEGRO_DISPLAY *display, int value)
 
    XSendEvent(
       x11,
-#ifndef ALLEGRO_RASPBERRYPI
+#if !defined ALLEGRO_RASPBERRYPI
       RootWindowOfScreen(ScreenOfDisplay(x11, glx->xscreen)),
 #else
       RootWindowOfScreen(ScreenOfDisplay(x11, DefaultScreen(x11))),
@@ -135,7 +154,7 @@ void _al_xwin_set_fullscreen_window(ALLEGRO_DISPLAY *display, int value)
       False,
       SubstructureRedirectMask | SubstructureNotifyMask, &xev);
 
-#ifndef ALLEGRO_RASPBERRYPI
+#if !defined ALLEGRO_RASPBERRYPI
    if (value == 2) {
       /* Only wait for a resize if toggling. */
       _al_display_xglx_await_resize(display, old_resize_count, true);

@@ -255,14 +255,15 @@ static void xdpy_set_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
 {
 #ifdef ALLEGRO_CFG_USE_GTKGLEXT
    ALLEGRO_DISPLAY_XGLX *d = (void *)display;
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX*)al_get_system_driver();
    if (onoff == (display->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
       return;
    }
    display->flags ^= ALLEGRO_FULLSCREEN_WINDOW;
    d->ignore_configure_event = true;
+   _al_xwin_reset_size_hints(display);
    if (onoff) {
       ALLEGRO_MONITOR_INFO mi;
-      ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX*)al_get_system_driver();
       d->toggle_w = display->w;
       d->toggle_h = display->h;
       gtk_window_fullscreen(GTK_WINDOW(d->gtkwindow));
@@ -275,8 +276,15 @@ static void xdpy_set_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
       d->cfg_w = d->toggle_w;
       d->cfg_h = d->toggle_h;
    }
-   al_rest(0.2);
+
    xdpy_acknowledge_resize(display);
+
+   /* window-state-event sets this upon fullscreen change */
+   while (d->is_fullscreen != onoff) {
+      al_rest(0.001);
+   }
+
+   _al_xwin_set_size_hints(display, INT_MAX, INT_MAX);
 #else
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    if (onoff == !(display->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
@@ -336,6 +344,17 @@ static gboolean quit_callback(GtkWidget *widget, GdkEvent *event, ALLEGRO_DISPLA
    return TRUE;
 }
 
+static gboolean window_state_callback(GtkWidget *widget, GdkEventWindowState *event, ALLEGRO_DISPLAY *display)
+{
+   (void)widget;
+   ALLEGRO_DISPLAY_XGLX *d = (void *)display;
+   if (event->changed_mask & GDK_WINDOW_STATE_FULLSCREEN) {
+      d->is_fullscreen = !d->is_fullscreen;
+      return TRUE;
+   }
+   return FALSE;
+}
+
 static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
@@ -370,8 +389,13 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
    d->gtkwindow = window;
-  
+
    g_signal_connect(G_OBJECT(window), "delete-event", G_CALLBACK(quit_callback), display);
+   g_signal_connect(G_OBJECT(window), "window-state-event", G_CALLBACK(window_state_callback), display);
+
+   gtk_widget_set_events(window,
+      GDK_STRUCTURE_MASK
+   );
 
    /* Get automatically redrawn if any of their children changed allocation. */
    gtk_container_set_reallocate_redraws (GTK_CONTAINER (window), TRUE);
@@ -384,13 +408,9 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    display->flags |= ALLEGRO_OPENGL;
 
    d->ignore_configure_event = true;
+   d->is_fullscreen = false;
 
-   if (display->flags & ALLEGRO_RESIZABLE) {
-      gtk_window_set_resizable(GTK_WINDOW(d->gtkwindow), true);
-   }
-   else {
-      gtk_window_set_resizable(GTK_WINDOW(d->gtkwindow), false);
-   }
+   gtk_window_set_resizable(GTK_WINDOW(d->gtkwindow), true);
 
    GtkWidget *vbox = gtk_vbox_new(FALSE, 0);
    gtk_container_add(GTK_CONTAINER(window), vbox);
@@ -424,25 +444,28 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    GTK_WIDGET_SET_FLAGS(d->gtkdrawing_area, GTK_CAN_FOCUS);
    
    gtk_widget_show_all(window);
-   
+  
    _al_gtk_ensure_thread();
 
    d->gtkcontext = gtk_widget_get_gl_context(d->gtkdrawing_area);
    d->gtkdrawable = gtk_widget_get_gl_drawable(d->gtkdrawing_area);
    d->context = gdk_x11_gl_context_get_glxcontext(d->gtkcontext);
 
-   d->window = GDK_WINDOW_XWINDOW (d->gtkdrawing_area->window);
+   d->window = GDK_WINDOW_XWINDOW(d->gtkdrawing_area->window);
 
    ALLEGRO_DISPLAY_XGLX **add;
    add = _al_vector_alloc_back(&system->system.displays);
    *add = d;
 
+   d->resize_count = 0;
+   d->programmatic_resize = false;
+
+   if (!(display->flags & ALLEGRO_RESIZABLE)) 
+      _al_xwin_set_size_hints(display, 0, 0);
+
 #if 0
    d->is_mapped = false;
    _al_cond_init(&d->mapped);
-
-   d->resize_count = 0;
-   d->programmatic_resize = false;
 
    XLockDisplay(system->x11display);
    
@@ -1041,6 +1064,7 @@ static void xdpy_flip_display(ALLEGRO_DISPLAY *d)
 
 #ifdef ALLEGRO_CFG_USE_GTKGLEXT
    gdk_gl_drawable_swap_buffers (glx->gtkdrawable);
+   /* In current GtkGLExt, gl_end is a no-op */
    gdk_gl_drawable_gl_end (glx->gtkdrawable);
    gdk_gl_drawable_gl_begin (glx->gtkdrawable, glx->gtkcontext);
 #else
@@ -1164,13 +1188,21 @@ static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
 
 #ifdef ALLEGRO_CFG_USE_GTKGLEXT
+   if (d->w == w && d->h == h) {
+      return true;
+   }
    glx->ignore_configure_event = true;
+   _al_xwin_reset_size_hints(d);
    gtk_window_resize(GTK_WINDOW(glx->gtkwindow), w, h);
    gtk_container_check_resize(GTK_CONTAINER(glx->gtkwindow));
+   /* FIXME: for some reason ex_resize never gets a configure-event
+    * for 100x100, so using that instead of a rest isn't working.
+    */
    al_rest(0.2);
    glx->cfg_w = w;
    glx->cfg_h = h;
    xdpy_acknowledge_resize(d);
+   _al_xwin_set_size_hints(d, INT_MAX, INT_MAX);
    return true;
 #else
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
