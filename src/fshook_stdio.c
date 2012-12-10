@@ -116,7 +116,6 @@ struct ALLEGRO_FS_ENTRY_STDIO {
    struct stat st;
    char *path;                /* stores the path given by the user */
    ALLEGRO_PATH *apath;       /* for al_get_fs_entry_name */
-   uint32_t ulink;
    uint32_t stat_mode;
 };
 
@@ -313,9 +312,6 @@ static ALLEGRO_FS_ENTRY *fs_stdio_read_directory(ALLEGRO_FS_ENTRY *fp)
 static void fs_stdio_destroy_entry(ALLEGRO_FS_ENTRY *fh_)
 {
    ALLEGRO_FS_ENTRY_STDIO *fh = (ALLEGRO_FS_ENTRY_STDIO *) fh_;
-
-   if (fh->ulink)
-      unlink(fh->path);
 
    if (fh->path)
       al_free(fh->path);
