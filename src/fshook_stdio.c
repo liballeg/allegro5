@@ -326,7 +326,9 @@ static ALLEGRO_FS_ENTRY *fs_stdio_read_directory(ALLEGRO_FS_ENTRY *fp)
    // FIXME: Must use readdir_r as Allegro allows file functions being
    // called from different threads.
    struct dirent *ent;
-   ALLEGRO_PATH *path;
+   int abs_path_len;
+   int ent_name_len;
+   char *buf;
    ALLEGRO_FS_ENTRY *ret;
    
    ASSERT(fp_stdio->dir);
@@ -340,13 +342,19 @@ static ALLEGRO_FS_ENTRY *fs_stdio_read_directory(ALLEGRO_FS_ENTRY *fp)
       /* Don't bother the user with these entries. */
    } while (0 == strcmp(ent->d_name, ".") || 0 == strcmp(ent->d_name, ".."));
 
-   /* TODO: Maybe we should keep an ALLEGRO_PATH for each entry in
-    * the first place?
-    */
-   path = al_create_path_for_directory(fp_stdio->abs_path);
-   al_set_path_filename(path, ent->d_name);
-   ret = fs_stdio_create_entry(al_path_cstr(path, '/'));
-   al_destroy_path(path);
+   abs_path_len = strlen(fp_stdio->abs_path);
+   ent_name_len = strlen(ent->d_name);
+   buf = al_malloc(abs_path_len + 1 + ent_name_len + 1);
+   if (!buf) {
+      al_set_errno(ENOMEM);
+      return NULL;
+   }
+   memcpy(buf, fp_stdio->abs_path, abs_path_len);
+   buf[abs_path_len] = ALLEGRO_NATIVE_PATH_SEP;
+   memcpy(buf + abs_path_len + 1, ent->d_name, ent_name_len);
+   buf[abs_path_len + 1 + ent_name_len] = '\0';
+   ret = fs_stdio_create_entry(buf);
+   al_free(buf);
    return ret;
 }
 
