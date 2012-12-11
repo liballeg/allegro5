@@ -107,15 +107,14 @@ static int stat_unslash(const char *s, struct stat *st)
 
 
 typedef struct ALLEGRO_FS_ENTRY_STDIO ALLEGRO_FS_ENTRY_STDIO;
-struct ALLEGRO_FS_ENTRY_STDIO {
+
+struct ALLEGRO_FS_ENTRY_STDIO
+{
    ALLEGRO_FS_ENTRY fs_entry; /* must be first */
-
-   DIR *dir;
-
-   struct stat st;
-   char *path;                /* stores the path given by the user */
-   ALLEGRO_PATH *apath;       /* for al_get_fs_entry_name */
+   char *abs_path;
    uint32_t stat_mode;
+   struct stat st;
+   DIR *dir;
 };
 
 
@@ -123,12 +122,72 @@ static void fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio);
 static bool fs_stdio_update_entry(ALLEGRO_FS_ENTRY *fp);
 
 
-static ALLEGRO_FS_ENTRY *fs_stdio_create_entry(const char *path)
+/* Make an absolute path given a potentially relative path.
+ * The result must be freed with free(), NOT al_free().
+ */
+static char *make_absolute_path(const char *tail)
+{
+#ifdef ALLEGRO_WINDOWS
+   /* We use _fullpath to get the proper drive letter semantics on Windows. */
+   return _fullpath(NULL, tail, MAX_PATH);
+#else
+   char cwd[PATH_MAX];
+   ALLEGRO_PATH *cwdpath = NULL;
+   ALLEGRO_PATH *tailpath = NULL;
+   char *ret = NULL;
+
+   if (!getcwd(cwd, sizeof(cwd))) {
+      ALLEGRO_WARN("Unable to get current working directory.\n");
+      al_set_errno(errno);
+      goto Error;
+   }
+
+   cwdpath = al_create_path_for_directory(cwd);
+   if (!cwdpath) {
+      goto Error;
+   }
+
+   tailpath = al_create_path(tail);
+   if (!tailpath) {
+      goto Error;
+   }
+
+   if (al_rebase_path(cwdpath, tailpath)) {
+      al_make_path_canonical(tailpath);
+   }
+
+   ret = strdup(al_path_cstr(tailpath, ALLEGRO_NATIVE_PATH_SEP));
+
+Error:
+
+   al_destroy_path(cwdpath);
+   al_destroy_path(tailpath);
+   return ret;
+#endif
+}
+
+
+/* At least under Windows 7, a trailing slash or backslash makes
+ * all calls to stat() with the given filename fail - making the
+ * filesystem entry useless.
+ * But don't trim the root path "/" to nothing.
+ */
+static void trim_unnecessary_trailing_slashes(char *s)
+{
+   char *p = s + strlen(s) - 1;
+
+   for (; p > s; p--) {
+      if (*p != '/' && *p != ALLEGRO_NATIVE_PATH_SEP) {
+         break;
+      }
+      *p = '\0';
+   }
+}
+
+
+static ALLEGRO_FS_ENTRY *fs_stdio_create_entry(const char *orig_path)
 {
    ALLEGRO_FS_ENTRY_STDIO *fh;
-   int len;
-   int trailing_slashes;
-   char c;
 
    fh = al_calloc(1, sizeof(*fh));
    if (!fh) {
@@ -138,32 +197,15 @@ static ALLEGRO_FS_ENTRY *fs_stdio_create_entry(const char *path)
 
    fh->fs_entry.vtable = &_al_fs_interface_stdio;
 
-   len = strlen(path);
-   trailing_slashes = 0;
-
-   /* At least under Windows 7, a trailing slash or backslash makes
-    * all calls to stat() with the given filename fail - making the
-    * filesystem entry useless.
-    * But don't trim the root path "/" to nothing.
-    */
-   while (len - trailing_slashes > 1) {
-      c = path[len - 1 - trailing_slashes];
-      if (c != '/' && c != '\\')
-         break;
-      trailing_slashes++;
-   }
-
-   fh->path = al_malloc(len + 1 - trailing_slashes);
-   if (!fh->path) {
-      al_set_errno(errno);
+   fh->abs_path = make_absolute_path(orig_path);
+   if (!fh->abs_path) {
       al_free(fh);
       return NULL;
    }
 
-   memcpy(fh->path, path, len - trailing_slashes);
-   fh->path[len - trailing_slashes] = 0;
+   trim_unnecessary_trailing_slashes(fh->abs_path);
 
-   ALLEGRO_DEBUG("Creating entry for %s\n", fh->path);
+   ALLEGRO_DEBUG("Creating entry for %s\n", fh->abs_path);
 
    fs_stdio_update_entry((ALLEGRO_FS_ENTRY *) fh);
 
@@ -204,7 +246,7 @@ static void fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio)
 
 #ifdef ALLEGRO_WINDOWS
    {
-      DWORD attrib = GetFileAttributes(fp_stdio->path);
+      DWORD attrib = GetFileAttributes(fp_stdio->abs_path);
       if (attrib & FILE_ATTRIBUTE_HIDDEN)
          fp_stdio->stat_mode |= ALLEGRO_FILEMODE_HIDDEN;
    }
@@ -219,7 +261,8 @@ static void fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio)
          fp_stdio->stat_mode |= ALLEGRO_FILEMODE_HIDDEN;
    }
 #endif
-   fp_stdio->stat_mode |= (fp_stdio->path[0] == '.' ? ALLEGRO_FILEMODE_HIDDEN : 0);
+   /* XXX wrong */
+   fp_stdio->stat_mode |= (fp_stdio->abs_path[0] == '.' ? ALLEGRO_FILEMODE_HIDDEN : 0);
 #endif
 
    return;
@@ -230,7 +273,7 @@ static bool fs_stdio_update_entry(ALLEGRO_FS_ENTRY *fp)
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    int ret;
 
-   ret = stat(fp_stdio->path, &(fp_stdio->st));
+   ret = stat(fp_stdio->abs_path, &(fp_stdio->st));
    if (ret == -1) {
       al_set_errno(errno);
       return false;
@@ -248,7 +291,7 @@ static bool fs_stdio_open_directory(ALLEGRO_FS_ENTRY *fp)
    if (!(fp_stdio->stat_mode & ALLEGRO_FILEMODE_ISDIR))
       return false;
 
-   fp_stdio->dir = opendir(fp_stdio->path);
+   fp_stdio->dir = opendir(fp_stdio->abs_path);
    if (!fp_stdio->dir) {
       al_set_errno(errno);
       return false;
@@ -300,7 +343,7 @@ static ALLEGRO_FS_ENTRY *fs_stdio_read_directory(ALLEGRO_FS_ENTRY *fp)
    /* TODO: Maybe we should keep an ALLEGRO_PATH for each entry in
     * the first place?
     */
-   path = al_create_path_for_directory(fp_stdio->path);
+   path = al_create_path_for_directory(fp_stdio->abs_path);
    al_set_path_filename(path, ent->d_name);
    ret = fs_stdio_create_entry(al_path_cstr(path, '/'));
    al_destroy_path(path);
@@ -311,16 +354,12 @@ static void fs_stdio_destroy_entry(ALLEGRO_FS_ENTRY *fh_)
 {
    ALLEGRO_FS_ENTRY_STDIO *fh = (ALLEGRO_FS_ENTRY_STDIO *) fh_;
 
-   if (fh->path)
-      al_free(fh->path);
-
-   if (fh->apath)
-      al_destroy_path(fh->apath);
+   /* abs_path is created by make_absolute_path. free() is correct here. */
+   free(fh->abs_path);
 
    if (fh->dir)
       fs_stdio_close_directory(fh_);
 
-   memset(fh, 0, sizeof(*fh));
    al_free(fh);
 }
 
@@ -450,14 +489,11 @@ static bool fs_stdio_entry_exists(ALLEGRO_FS_ENTRY *fp)
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    struct stat st;
 
-   if (stat(fp_stdio->path, &st) != 0) {
-      if (errno == ENOENT) {
-         return false;
-      }
-      else {
+   if (stat(fp_stdio->abs_path, &st) != 0) {
+      if (errno != ENOENT) {
          al_set_errno(errno);
-         return false;
       }
+      return false;
    }
 
    return true;
@@ -486,10 +522,10 @@ static bool fs_stdio_remove_entry(ALLEGRO_FS_ENTRY *fp)
    ASSERT(fp);
 
    if (fs_stdio_entry_mode(fp) & ALLEGRO_FILEMODE_ISDIR) {
-      err = rmdir(fp_stdio->path);
+      err = rmdir(fp_stdio->abs_path);
    }
    else if (fs_stdio_entry_mode(fp) & ALLEGRO_FILEMODE_ISFILE) {
-      err = unlink(fp_stdio->path);
+      err = unlink(fp_stdio->abs_path);
    }
    else {
       al_set_errno(ENOENT);
@@ -523,21 +559,15 @@ static const char *fs_stdio_name(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
 
-   if (!fp_stdio->apath) {
-      if (al_get_fs_entry_mode(fp) & ALLEGRO_FILEMODE_ISDIR) {
-         fp_stdio->apath = al_create_path_for_directory(fp_stdio->path);
-      }
-      else {
-         fp_stdio->apath = al_create_path(fp_stdio->path);
-      }
-   }
-
-   return al_path_cstr(fp_stdio->apath, ALLEGRO_NATIVE_PATH_SEP);
+   return fp_stdio->abs_path;
 }
 
 static ALLEGRO_FILE *fs_stdio_open_file(ALLEGRO_FS_ENTRY *fp, const char *mode)
 {
-   return al_fopen_interface(&_al_file_interface_stdio, fs_stdio_name(fp), mode);
+   ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
+
+   return al_fopen_interface(&_al_file_interface_stdio,
+      fp_stdio->abs_path, mode);
 }
 
 struct ALLEGRO_FS_INTERFACE _al_fs_interface_stdio = {
