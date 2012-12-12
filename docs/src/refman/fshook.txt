@@ -39,14 +39,17 @@ Does nothing if passed NULL.
 
 ## API: al_get_fs_entry_name
 
-Returns the entry's filename path. Note that the path will not be an
-absolute path if the entry wasn't created from an absolute path. Also note
-that the filesystem encoding may not be known and the conversion to UTF-8
+Returns the entry's filename path.
+Note that the filesystem encoding may not be known and the conversion to UTF-8
 could in very rare cases cause this to return an invalid path. Therefore it's
 always safest to access the file over its [ALLEGRO_FS_ENTRY] and not the path.
 
 On success returns a read only string which you must not modify or
 destroy. Returns NULL on failure.
+
+> Note: prior to 5.1.5 it was written: "... the path will not be an absolute
+path if the entry wasn't created from an absolute path". This is no longer
+true.
 
 ## API: al_update_fs_entry
 
