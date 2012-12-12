@@ -185,6 +185,23 @@ static void trim_unnecessary_trailing_slashes(char *s)
 }
 
 
+static bool unix_hidden_file(const char *path)
+{
+#if defined(ALLEGRO_UNIX) || defined(ALLEGRO_MACOSX)
+   /* Filenames beginning with dot are considered hidden. */
+   const char *p = strrchr(path, ALLEGRO_NATIVE_PATH_SEP);
+   if (p)
+      p++;
+   else
+      p = path;
+   return (p[0] == '.');
+#else
+   (void)path;
+   return false;
+#endif
+}
+
+
 static ALLEGRO_FS_ENTRY *fs_stdio_create_entry(const char *orig_path)
 {
    ALLEGRO_FS_ENTRY_STDIO *fh;
@@ -244,14 +261,14 @@ static void fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio)
       fp_stdio->stat_mode |= ALLEGRO_FILEMODE_EXECUTE;
 #endif
 
-#ifdef ALLEGRO_WINDOWS
+#if defined(ALLEGRO_WINDOWS)
    {
       DWORD attrib = GetFileAttributes(fp_stdio->abs_path);
       if (attrib & FILE_ATTRIBUTE_HIDDEN)
          fp_stdio->stat_mode |= ALLEGRO_FILEMODE_HIDDEN;
    }
-#else
-#if defined ALLEGRO_MACOSX && defined UF_HIDDEN
+#endif
+#if defined(ALLEGRO_MACOSX) && defined(UF_HIDDEN)
    {
       /* OSX hidden files can both start with the dot as well as having this flag set...
        * Note that this flag does not exist on all versions of OS X (Tiger
@@ -261,11 +278,11 @@ static void fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio)
          fp_stdio->stat_mode |= ALLEGRO_FILEMODE_HIDDEN;
    }
 #endif
-   /* XXX wrong */
-   fp_stdio->stat_mode |= (fp_stdio->abs_path[0] == '.' ? ALLEGRO_FILEMODE_HIDDEN : 0);
-#endif
-
-   return;
+   if (0 == (fp_stdio->stat_mode & ALLEGRO_FILEMODE_HIDDEN)) {
+      if (unix_hidden_file(fp_stdio->abs_path)) {
+         fp_stdio->stat_mode |= ALLEGRO_FILEMODE_HIDDEN;
+      }
+   }
 }
 
 static bool fs_stdio_update_entry(ALLEGRO_FS_ENTRY *fp)
