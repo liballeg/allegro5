@@ -233,5 +233,8 @@ int main(void)
       }
    }
    
+   /* You must remove the menu before destroying the display to free resources */
+   al_set_display_menu(display, NULL);
+   
    return 0;
 }
