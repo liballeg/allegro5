@@ -496,6 +496,8 @@ typedef struct DISPLAY_INFO {
 
 static _AL_VECTOR menus = _AL_VECTOR_INITIALIZER(ALLEGRO_MENU *);
 static _AL_VECTOR displays = _AL_VECTOR_INITIALIZER(DISPLAY_INFO *);
+static ALLEGRO_EVENT_QUEUE *queue = NULL;
+static ALLEGRO_MUTEX *mutex;
 
 #define add_menu(name, sel, eq)                                          \
         [menu addItem: [[[NSMenuItem allocWithZone: [NSMenu menuZone]]   \
@@ -539,11 +541,6 @@ static NSMenu *init_apple_menu(void)
       return main_menu;
 }
 
-static ALLEGRO_EVENT_QUEUE *queue = NULL;
-static ALLEGRO_MUTEX *mutex;
-
-bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu);
-
 static void *event_thread(void *unused)
 {
    (void)unused;
@@ -560,6 +557,7 @@ static void *event_thread(void *unused)
 	 for (i = 0; i < (int)displays._size; i++) {
 	    DISPLAY_INFO *d = *(DISPLAY_INFO **)_al_vector_ref(&displays, i);
 	    if (d->display == event.display.source) {
+	       /* The rest gives time for the window to be fully focussed */
 	       al_rest(0.1);
 	       _al_show_display_menu(d->display, d->toplevel_menu);
 	       break;
@@ -575,7 +573,7 @@ static void *event_thread(void *unused)
    queue = NULL;
 }
 
-void ensure_event_thread(void)
+static  void ensure_event_thread(void)
 {
    if (queue)
       return;
@@ -723,7 +721,7 @@ static void destroy_menu_hierarchy(ALLEGRO_MENU *amenu)
    }
 }
 
-NSMenu *show_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu, bool popup)
+static NSMenu *show_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu, bool popup)
 {
    int i;
    NSMenu *main_menu;

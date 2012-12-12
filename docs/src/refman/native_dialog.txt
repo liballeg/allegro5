@@ -247,6 +247,10 @@ A basic example:
          }
        }
 
+Because there is no "DISPLAY_DESTROYED" event, you must call
+al_set_display_menu(display, NULL) before destroying any display with a
+menu attached, to avoid leaking resources.
+
 ### API: ALLEGRO_MENU
 
 An opaque data type that represents a menu that contains menu items.
