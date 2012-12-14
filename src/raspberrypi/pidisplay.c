@@ -242,7 +242,10 @@ void _al_raspberrypi_get_screen_info(int *dx, int *dy,
                      cfg, "", "disable_overscan"
                   );
                // If overscan parameters are disabled don't process
-               if (!strcasecmp(disable_overscan, "false") || atoi(disable_overscan) == 0) {
+               if (!disable_overscan ||
+                   (disable_overscan &&
+                    (!strcasecmp(disable_overscan, "false") ||
+                     atoi(disable_overscan) == 0))) {
                   const char *left = al_get_config_value(
                      cfg, "", "overscan_left");
                   const char *right = al_get_config_value(
