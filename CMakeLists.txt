@@ -968,7 +968,7 @@ if(INSTALL_PKG_CONFIG_FILES)
     # work across branches. Allegro 5.0.8 and prior used the names
     # allegro*-5.0.pc so on the 5.0 branch we will continue to install
     # those files, for backwards compatibility.
-    foreach(versuffix 5 ${ALLEGRO_SOVERSION})
+    foreach(versuffix 5)
         foreach(name ${PKG_CONFIG_FILES})
             if (SHARED)
                 set(outname ${name}${lib_type}-${versuffix}.pc)
