@@ -871,20 +871,7 @@ set(bindir "\${exec_prefix}/bin")
 set(includedir "\${prefix}/include")
 set(libdir "\${exec_prefix}/lib${LIB_SUFFIX}")
 
-set(PKG_CONFIG_FILES
-    allegro
-    allegro_acodec
-    allegro_audio
-    allegro_color
-    allegro_dialog
-    allegro_font
-    allegro_image
-    allegro_main
-    allegro_memfile
-    allegro_physfs
-    allegro_primitives
-    allegro_ttf
-    )
+set(PKG_CONFIG_FILES allegro ${ADDON_PKG_CONFIG_FILES})
 
 # Install pkg-config files on Unix, and when cross-compiling on Unix.
 
