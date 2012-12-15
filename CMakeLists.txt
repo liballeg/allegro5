@@ -964,23 +964,29 @@ if(INSTALL_PKG_CONFIG_FILES)
     append_lib_type_suffix(lib_type)
     append_lib_linkage_suffix(lib_linkage)
 
-    foreach(name ${PKG_CONFIG_FILES})
-        if (SHARED)
-            set(outname ${name}${lib_type}-${ALLEGRO_SOVERSION}.pc)
-        else (SHARED)
-            # For static linking: get extra libraries to link with.
-            get_target_property(link_with ${name} static_link_with)
-            set(outname ${name}${lib_type}-static-${ALLEGRO_SOVERSION}.pc)
-        endif (SHARED)
-        configure_file(
-            misc/${name}.pc.in
-            ${LIBRARY_OUTPUT_PATH}/pkgconfig/${outname}
-            @ONLY
-            )
-        install(FILES ${LIBRARY_OUTPUT_PATH}/pkgconfig/${outname}
-            DESTINATION "lib${LIB_SUFFIX}/pkgconfig"
-            )
-    endforeach(name)
+    # Our pkg-config files are now named allegro*-5.pc, which will
+    # work across branches. Allegro 5.0.8 and prior used the names
+    # allegro*-5.0.pc so on the 5.0 branch we will continue to install
+    # those files, for backwards compatibility.
+    foreach(versuffix 5 ${ALLEGRO_SOVERSION})
+        foreach(name ${PKG_CONFIG_FILES})
+            if (SHARED)
+                set(outname ${name}${lib_type}-${versuffix}.pc)
+            else (SHARED)
+                # For static linking: get extra libraries to link with.
+                get_target_property(link_with ${name} static_link_with)
+                set(outname ${name}${lib_type}-static-${versuffix}.pc)
+            endif (SHARED)
+            configure_file(
+                misc/${name}.pc.in
+                ${LIBRARY_OUTPUT_PATH}/pkgconfig/${outname}
+                @ONLY
+                )
+            install(FILES ${LIBRARY_OUTPUT_PATH}/pkgconfig/${outname}
+                DESTINATION "lib${LIB_SUFFIX}/pkgconfig"
+                )
+        endforeach(name)
+    endforeach(versuffix)
 endif(INSTALL_PKG_CONFIG_FILES)
 
 #-----------------------------------------------------------------------------#
