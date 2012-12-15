@@ -40,29 +40,29 @@ endfunction(append_lib_linkage_suffix)
 # Oh my. CMake really is bad for this - but I couldn't find a better
 # way.
 function(sanitize_cmake_link_flags ...)
-   set(return)
-   foreach(lib ${ARGV})
-      # Watch out for -framework options (OS X)
-      if(NOT lib MATCHES "-framework.*" AND NOT lib MATCHES ".*framework")
-         # Remove absolute path.
-         string(REGEX REPLACE "/.*/(.*)" "\\1" lib ${lib})
-   
-         # Remove .a/.so/.dylib.
-         string(REGEX REPLACE "lib(.*)\\.a" "\\1" lib ${lib})
-         string(REGEX REPLACE "lib(.*)\\.so" "\\1" lib ${lib})
-         string(REGEX REPLACE "lib(.*)\\.dylib" "\\1" lib ${lib})
+    set(return)
+    foreach(lib ${ARGV})
+        # Watch out for -framework options (OS X)
+        if(NOT lib MATCHES "-framework.*" AND NOT lib MATCHES ".*framework")
+            # Remove absolute path.
+            string(REGEX REPLACE "/.*/(.*)" "\\1" lib ${lib})
 
-         # Remove -l prefix if it's there already.
-         string(REGEX REPLACE "-l(.*)" "\\1" lib ${lib})
-         
-         # Make sure we don't include our own libraries.
-         # FIXME: Use a global list instead of a very unstable regexp.
-         if(NOT lib MATCHES "allegro_.*" AND NOT lib STREQUAL "allegro" AND NOT lib STREQUAL "allegro_audio")
-            set(return "${return} -l${lib}")
-         endif()
-      endif(NOT lib MATCHES "-framework.*" AND NOT lib MATCHES ".*framework")
-   endforeach(lib)
-   set(return ${return} PARENT_SCOPE)
+            # Remove .a/.so/.dylib.
+            string(REGEX REPLACE "lib(.*)\\.a" "\\1" lib ${lib})
+            string(REGEX REPLACE "lib(.*)\\.so" "\\1" lib ${lib})
+            string(REGEX REPLACE "lib(.*)\\.dylib" "\\1" lib ${lib})
+
+            # Remove -l prefix if it's there already.
+            string(REGEX REPLACE "-l(.*)" "\\1" lib ${lib})
+
+            # Make sure we don't include our own libraries.
+            # FIXME: Use a global list instead of a very unstable regexp.
+            if(NOT lib MATCHES "allegro_.*" AND NOT lib STREQUAL "allegro" AND NOT lib STREQUAL "allegro_audio")
+                set(return "${return} -l${lib}")
+            endif()
+        endif(NOT lib MATCHES "-framework.*" AND NOT lib MATCHES ".*framework")
+    endforeach(lib)
+    set(return ${return} PARENT_SCOPE)
 endfunction(sanitize_cmake_link_flags)
 
 function(add_our_library target sources extra_flags link_with)
@@ -131,11 +131,11 @@ function(add_our_library target sources extra_flags link_with)
 endfunction(add_our_library)
 
 macro(add_our_addon_library target sources extra_flags link_with)
-if(WANT_MONOLITH)
-    set(MONOLITH_DEFINES "${MONOLITH_DEFINES} ${extra_flags}")
-else()
-    add_our_library(${target} "${sources}" "${extra_flags}" "${link_with}")
-endif()
+    if(WANT_MONOLITH)
+        set(MONOLITH_DEFINES "${MONOLITH_DEFINES} ${extra_flags}")
+    else()
+        add_our_library(${target} "${sources}" "${extra_flags}" "${link_with}")
+    endif()
 endmacro(add_our_addon_library)
 
 function(set_our_framework_properties target nm)
@@ -250,9 +250,9 @@ function(add_our_executable nm)
         if(NOT CMAKE_BUILD_TYPE STREQUAL Debug)
             set_target_properties(${nm} PROPERTIES LINK_FLAGS "-Wl,-subsystem,windows")
         endif(NOT CMAKE_BUILD_TYPE STREQUAL Debug)
-   endif(MINGW)
+    endif(MINGW)
    
-   fix_executable(${nm})
+    fix_executable(${nm})
 endfunction(add_our_executable)
 
 # Recreate data directory for out-of-source builds.
@@ -294,9 +294,9 @@ function(copy_data_dir_to_build target name destination)
 endfunction(copy_data_dir_to_build)
 
 macro(add_monolith_sources var addon sources)
-   foreach(s ${${sources}})
-      list(APPEND ${var} ${addon}/${s})
-   endforeach(s ${sources})
+    foreach(s ${${sources}})
+        list(APPEND ${var} ${addon}/${s})
+    endforeach(s ${sources})
 endmacro(add_monolith_sources addon sources)
 
 # This macro is called by each addon. It expects the following variables to
@@ -312,27 +312,27 @@ endmacro(add_monolith_sources addon sources)
 # This is useful so we can build the monolith library without having any other
 # special code for it in the addon CMakeLists.txt files.
 macro(add_addon addon)
-   add_addon2(${addon} allegro_${addon})
+    add_addon2(${addon} allegro_${addon})
 endmacro(add_addon)
 
 macro(add_addon2 addon addon_target)
-   string(TOUPPER ${addon} ADDON)
-   set(SUPPORT_${ADDON} 1 PARENT_SCOPE)
-   set(${ADDON}_LINK_WITH ${addon_target} PARENT_SCOPE)
-   add_monolith_sources(MONOLITH_SOURCES addons/${addon} ${ADDON}_SOURCES)
-   add_monolith_sources(MONOLITH_SOURCES addons/${addon} ${ADDON}_INCLUDE_FILES)
-   add_monolith_sources(MONOLITH_HEADERS addons/${addon} ${ADDON}_INCLUDE_FILES)
-   set(MONOLITH_SOURCES ${MONOLITH_SOURCES} PARENT_SCOPE)
-   list(APPEND MONOLITH_INCLUDE_DIRECTORIES ${${ADDON}_INCLUDE_DIRECTORIES})
-   list(APPEND MONOLITH_INCLUDE_DIRECTORIES addons/${addon})
-   list(APPEND MONOLITH_LINK_DIRECTORIES ${${ADDON}_LINK_DIRECTORIES})
-   list(APPEND MONOLITH_LIBRARIES ${${ADDON}_LIBRARIES})
-   set(MONOLITH_DEFINES "${MONOLITH_DEFINES} ${${ADDON}_DEFINES}")
-   set(MONOLITH_INCLUDE_DIRECTORIES ${MONOLITH_INCLUDE_DIRECTORIES} PARENT_SCOPE)
-   set(MONOLITH_LINK_DIRECTORIES ${MONOLITH_LINK_DIRECTORIES} PARENT_SCOPE)
-   set(MONOLITH_LIBRARIES ${MONOLITH_LIBRARIES} PARENT_SCOPE)
-   set(MONOLITH_HEADERS ${MONOLITH_HEADERS} PARENT_SCOPE)
-   set(MONOLITH_DEFINES ${MONOLITH_DEFINES} PARENT_SCOPE)
+    string(TOUPPER ${addon} ADDON)
+    set(SUPPORT_${ADDON} 1 PARENT_SCOPE)
+    set(${ADDON}_LINK_WITH ${addon_target} PARENT_SCOPE)
+    add_monolith_sources(MONOLITH_SOURCES addons/${addon} ${ADDON}_SOURCES)
+    add_monolith_sources(MONOLITH_SOURCES addons/${addon} ${ADDON}_INCLUDE_FILES)
+    add_monolith_sources(MONOLITH_HEADERS addons/${addon} ${ADDON}_INCLUDE_FILES)
+    set(MONOLITH_SOURCES ${MONOLITH_SOURCES} PARENT_SCOPE)
+    list(APPEND MONOLITH_INCLUDE_DIRECTORIES ${${ADDON}_INCLUDE_DIRECTORIES})
+    list(APPEND MONOLITH_INCLUDE_DIRECTORIES addons/${addon})
+    list(APPEND MONOLITH_LINK_DIRECTORIES ${${ADDON}_LINK_DIRECTORIES})
+    list(APPEND MONOLITH_LIBRARIES ${${ADDON}_LIBRARIES})
+    set(MONOLITH_DEFINES "${MONOLITH_DEFINES} ${${ADDON}_DEFINES}")
+    set(MONOLITH_INCLUDE_DIRECTORIES ${MONOLITH_INCLUDE_DIRECTORIES} PARENT_SCOPE)
+    set(MONOLITH_LINK_DIRECTORIES ${MONOLITH_LINK_DIRECTORIES} PARENT_SCOPE)
+    set(MONOLITH_LIBRARIES ${MONOLITH_LIBRARIES} PARENT_SCOPE)
+    set(MONOLITH_HEADERS ${MONOLITH_HEADERS} PARENT_SCOPE)
+    set(MONOLITH_DEFINES ${MONOLITH_DEFINES} PARENT_SCOPE)
 endmacro(add_addon2)
 
 #-----------------------------------------------------------------------------#
