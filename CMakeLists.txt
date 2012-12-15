@@ -956,6 +956,7 @@ set(PKG_CONFIG_FILES
     allegro_memfile
     allegro_physfs
     allegro_primitives
+    allegro_shader
     allegro_ttf
     allegro_video
     allegro_monolith
