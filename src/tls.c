@@ -875,6 +875,15 @@ void al_set_fs_interface(const ALLEGRO_FS_INTERFACE *fs_interface)
 
 
 
+/* Function: al_set_standard_fs_interface
+ */
+void al_set_standard_fs_interface(void)
+{
+   al_set_fs_interface(&_al_fs_interface_stdio);
+}
+
+
+
 /* Function: al_get_errno
  */
 int al_get_errno(void)

@@ -737,11 +737,4 @@ struct ALLEGRO_FS_INTERFACE _al_fs_interface_stdio = {
    fs_stdio_open_file
 };
 
-/* Function: al_set_standard_fs_interface
- */
-void al_set_standard_fs_interface(void)
-{
-   al_set_fs_interface(&_al_fs_interface_stdio);
-}
-
 /* vim: set sts=3 sw=3 et: */
