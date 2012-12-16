@@ -71,15 +71,11 @@ ALLEGRO_DEBUG_CHANNEL("fshook")
    #endif
 #endif
 
-#if defined ALLEGRO_HAVE_TIME_H && defined ALLEGRO_HAVE_SYS_TIME
+#ifdef ALLEGRO_HAVE_SYS_TIME
    #include <sys/time.h>
+#endif
+#ifdef ALLEGRO_HAVE_TIME_H
    #include <time.h>
-#else
-   #ifdef ALLEGRO_HAVE_SYS_TIME_H
-      #include <sys/time.h>
-   #else
-      #include <time.h>
-   #endif
 #endif
 
 #ifdef ALLEGRO_WINDOWS
