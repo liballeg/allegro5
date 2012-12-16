@@ -71,6 +71,16 @@ ALLEGRO_DEBUG_CHANNEL("fshook")
    #endif
 #endif
 
+#ifndef S_IRGRP
+   #define S_IRGRP   (0)
+#endif
+#ifndef S_IWGRP
+   #define S_IWGRP   (0)
+#endif
+#ifndef S_IXGRP
+   #define S_IXGRP   (0)
+#endif
+
 #ifdef ALLEGRO_HAVE_SYS_TIME
    #include <sys/time.h>
 #endif
@@ -278,25 +288,14 @@ static void fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio)
       fh->stat_mode |= ALLEGRO_FILEMODE_ISFILE;
    */
 
-#ifndef ALLEGRO_WINDOWS
-   if (fp_stdio->st.st_mode & S_IRUSR || fp_stdio->st.st_mode & S_IRGRP)
+   if (fp_stdio->st.st_mode & (S_IRUSR | S_IRGRP))
       fp_stdio->stat_mode |= ALLEGRO_FILEMODE_READ;
 
-   if (fp_stdio->st.st_mode & S_IWUSR || fp_stdio->st.st_mode & S_IWGRP)
+   if (fp_stdio->st.st_mode & (S_IWUSR | S_IWGRP))
       fp_stdio->stat_mode |= ALLEGRO_FILEMODE_WRITE;
 
-   if (fp_stdio->st.st_mode & S_IXUSR || fp_stdio->st.st_mode & S_IXGRP)
+   if (fp_stdio->st.st_mode & (S_IXUSR | S_IXGRP))
       fp_stdio->stat_mode |= ALLEGRO_FILEMODE_EXECUTE;
-#else
-   if (fp_stdio->st.st_mode & S_IRUSR)
-      fp_stdio->stat_mode |= ALLEGRO_FILEMODE_READ;
-
-   if (fp_stdio->st.st_mode & S_IWUSR)
-      fp_stdio->stat_mode |= ALLEGRO_FILEMODE_WRITE;
-
-   if (fp_stdio->st.st_mode & S_IXUSR)
-      fp_stdio->stat_mode |= ALLEGRO_FILEMODE_EXECUTE;
-#endif
 
 #if defined(ALLEGRO_WINDOWS)
    {
