@@ -13,7 +13,7 @@
  *      See LICENSE.txt for copyright information.
  */
 
-#ifdef ALLEGRO_MSVC
+#if defined(ALLEGRO_MSVC)
 
 #define	S_ISDIR(m)	(((m) & S_IFMT) == S_IFDIR)
 
@@ -21,18 +21,28 @@
 /*
  * MSVC is missing the whole dirent.h so we implement the bits we need here.
  * The following block is copied from dirent.c from MinGW Runtime sources
- * version 3.15.1 with minor modifications.
+ * version 3.15.1 with minor modifications.  The code was public domain.
  */
+
+#ifdef _UNICODE
+   #define _TDIR        _WDIR
+   #define _tdirent     _wdirent
+   #define _topendir    _wopendir
+   #define _tclosedir   _wclosedir
+   #define _treaddir    _wreaddir
+#else
+   #error _UNICODE not defined
+#endif
 
 #define  SUFFIX _T("*")
 #define  SLASH _T("\\")
 
-struct dirent
+struct _wdirent
 {
-   long d_ino;                /* Always zero. */
-   unsigned short	d_reclen;   /* Always zero. */
-   unsigned short	d_namlen;   /* Length of name in d_name. */
-   char d_name[FILENAME_MAX]; /* File name. */
+   long           d_ino;            /* Always zero. */
+   unsigned short d_reclen;         /* Always zero. */
+   unsigned short d_namlen;         /* Length of name in d_name. */
+   wchar_t        d_name[FILENAME_MAX]; /* File name. */
 };
 
 /*
@@ -43,12 +53,12 @@ struct dirent
 typedef struct
 {
    /* disk transfer area for this dir */
-   struct _finddata_t dd_dta;
+   struct _wfinddata_t dd_dta;
 
    /* dirent struct to return from dir (NOTE: this makes this thread
     * safe as long as only one thread uses a particular DIR struct at
     * a time) */
-   struct dirent dd_dir;
+   struct _wdirent dd_dir;
 
    /* _findnext handle */
    intptr_t dd_handle;
@@ -62,27 +72,8 @@ typedef struct
    int dd_stat;
 
    /* given path for dir with search pattern (struct is extended) */
-   char dd_name[1];
-} DIR;
-
-
-/* Helper for opendir().  */
-static unsigned __inline _tGetFileAttributes(const _TCHAR * tPath)
-{
-#ifdef _UNICODE
-  /* GetFileAttributesW does not work on W9x, so convert to ANSI */
-  if (_osver & 0x8000)
-    {
-      char aPath [MAX_PATH];
-      WideCharToMultiByte(CP_ACP, 0, tPath, -1, aPath, MAX_PATH, NULL,
-         NULL);
-      return GetFileAttributesA(aPath);
-    }
-  return GetFileAttributesW(tPath);
-#else
-  return GetFileAttributesA(tPath);
-#endif
-}
+   wchar_t dd_name[1];
+} _WDIR;
 
 
 /*
@@ -91,9 +82,9 @@ static unsigned __inline _tGetFileAttributes(const _TCHAR * tPath)
  * Returns a pointer to a DIR structure appropriately filled in to begin
  * searching a directory.
  */
-static DIR *opendir(const _TCHAR *szPath)
+static _TDIR *_topendir(const _TCHAR *szPath)
 {
-   DIR *nd;
+   _TDIR *nd;
    unsigned int rc;
    _TCHAR szFullPath[MAX_PATH];
 
@@ -101,39 +92,39 @@ static DIR *opendir(const _TCHAR *szPath)
 
    if (!szPath) {
       errno = EFAULT;
-      return (DIR *) 0;
+      return (_TDIR *) 0;
    }
 
    if (szPath[0] == _T('\0')) {
       errno = ENOTDIR;
-      return (DIR*) 0;
+      return (_TDIR*) 0;
    }
 
    /* Attempt to determine if the given path really is a directory. */
-   rc = _tGetFileAttributes(szPath);
+   rc = GetFileAttributes(szPath);
    if (rc == (unsigned int)-1) {
       /* call GetLastError for more error info */
       errno = ENOENT;
-      return (DIR*) 0;
+      return (_TDIR*) 0;
    }
    if (!(rc & FILE_ATTRIBUTE_DIRECTORY)) {
       /* Error, entry exists but not a directory. */
       errno = ENOTDIR;
-      return (DIR*) 0;
+      return (_TDIR*) 0;
    }
 
    /* Make an absolute pathname.  */
    _tfullpath(szFullPath, szPath, MAX_PATH);
 
    /* Allocate enough space to store DIR structure and the complete
-   * directory path given. */
-   nd = (DIR *) al_malloc(sizeof (DIR) + (_tcslen(szFullPath) + _tcslen(SLASH)
+    * directory path given. */
+   nd = (_TDIR *) al_malloc(sizeof (_TDIR) + (_tcslen(szFullPath) + _tcslen(SLASH)
       + _tcslen(SUFFIX) + 1) * sizeof(_TCHAR));
 
    if (!nd) {
       /* Error, out of memory. */
       errno = ENOMEM;
-      return (DIR*) 0;
+      return (_TDIR*) 0;
    }
 
    /* Create the search expression. */
@@ -177,20 +168,20 @@ static DIR *opendir(const _TCHAR *szPath)
  * Return a pointer to a dirent structure filled with the information on the
  * next entry in the directory.
  */
-static struct dirent* readdir(DIR* dirp)
+static struct _tdirent* _treaddir(_TDIR* dirp)
 {
    errno = 0;
 
    /* Check for valid DIR struct. */
    if (!dirp) {
      errno = EFAULT;
-     return (struct dirent*) 0;
+     return (struct _tdirent*) 0;
    }
 
    if (dirp->dd_stat < 0) {
       /* We have already returned all files in the directory
        * (or the structure has an invalid dd_stat). */
-      return (struct dirent*) 0;
+      return (struct _tdirent*) 0;
    }
    else if (dirp->dd_stat == 0) {
       /* We haven't started the search yet. */
@@ -235,7 +226,7 @@ static struct dirent* readdir(DIR* dirp)
       return &dirp->dd_dir;
    }
 
-   return (struct dirent*) 0;
+   return (struct _tdirent*) 0;
 }
 
 
@@ -244,7 +235,7 @@ static struct dirent* readdir(DIR* dirp)
  *
  * Frees up resources allocated by opendir.
  */
-static int closedir(DIR* dirp)
+static int _tclosedir(_TDIR* dirp)
 {
   int rc;
 
