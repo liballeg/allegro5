@@ -496,7 +496,7 @@ typedef struct DISPLAY_INFO {
 
 static _AL_VECTOR menus = _AL_VECTOR_INITIALIZER(ALLEGRO_MENU *);
 static _AL_VECTOR displays = _AL_VECTOR_INITIALIZER(DISPLAY_INFO *);
-static ALLEGRO_EVENT_QUEUE *queue = NULL;
+static volatile ALLEGRO_EVENT_QUEUE *queue = NULL;
 static ALLEGRO_MUTEX *mutex;
 
 #define add_menu(name, sel, eq)                                          \
@@ -580,7 +580,8 @@ static  void ensure_event_thread(void)
    
    al_run_detached_thread(event_thread, NULL);
 
-   while (!queue);
+   while (!queue)
+      al_rest(0.001);
 }
 
 bool _al_init_menu(ALLEGRO_MENU *amenu)
