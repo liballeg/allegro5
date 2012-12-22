@@ -10,6 +10,7 @@ set(NATIVE_DIALOG_SOURCES
 
 set(GTK_NATIVE_DIALOG_SOURCES
     gtk_dialog.c
+    gtk_filesel.c
     gtk_menu.c
     gtk_msgbox.c
     gtk_textlog.c
