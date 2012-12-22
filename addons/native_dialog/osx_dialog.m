@@ -550,7 +550,7 @@ static void *event_thread(void *unused)
 
    while (true) {
       ALLEGRO_EVENT event;
-      al_wait_for_event(queue, &event);
+      al_wait_for_event((ALLEGRO_EVENT_QUEUE *)queue, &event);
       if (event.type == ALLEGRO_EVENT_DISPLAY_SWITCH_IN) {
          int i;
 	 al_lock_mutex(mutex);
@@ -569,7 +569,7 @@ static void *event_thread(void *unused)
 
    al_destroy_mutex(mutex);
    mutex = NULL;
-   al_destroy_event_queue(queue);
+   al_destroy_event_queue((ALLEGRO_EVENT_QUEUE *)queue);
    queue = NULL;
 }
 
@@ -654,6 +654,10 @@ bool _al_update_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
 
    NSMenuItem *menu_item = mit->menu_item;
 
+   char buf[200];
+   get_accelerator(item->caption, buf);
+   [menu_item setTitle:[[NSString alloc] initWithUTF8String:buf]];
+
    if (item->flags & ALLEGRO_MENU_ITEM_CHECKBOX) {
       update_checked_state(mit->menu_item, item->flags & ALLEGRO_MENU_ITEM_CHECKED);
    }
@@ -736,7 +740,7 @@ static NSMenu *show_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu, bool pop
          for (i = 0; i < (int)displays._size; i++) {
             DISPLAY_INFO *d = *(DISPLAY_INFO **)_al_vector_ref(&displays, i);
    	 if (d->display == display) {
-   	    al_unregister_event_source(queue, (ALLEGRO_EVENT_SOURCE *)display);
+            al_unregister_event_source((ALLEGRO_EVENT_QUEUE *)queue, (ALLEGRO_EVENT_SOURCE *)display);
    	    _al_vector_find_and_delete(&displays, &d);
    	    /* Free whole hierarchy */
                destroy_menu_hierarchy(d->toplevel_menu);
@@ -754,7 +758,7 @@ static NSMenu *show_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu, bool pop
       al_lock_mutex(mutex);
       DISPLAY_INFO **ptr = _al_vector_alloc_back(&displays);
       *ptr = d;
-      al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)display);
+      al_register_event_source((ALLEGRO_EVENT_QUEUE *)queue, (ALLEGRO_EVENT_SOURCE *)display);
       al_unlock_mutex(mutex);
       
       main_menu = init_apple_menu();
