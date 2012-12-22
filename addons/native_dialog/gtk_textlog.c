@@ -24,8 +24,7 @@
 #include "allegro5/internal/aintern_xglx.h"
 #endif
 
-#define ACK_OPENED   ((void *)0x3333)
-#define ACK_CLOSED   ((void *)0x4444)
+#include "gtk_dialog.h"
 
 
 typedef struct {
