@@ -11,6 +11,7 @@ set(NATIVE_DIALOG_SOURCES
 set(GTK_NATIVE_DIALOG_SOURCES
     gtk_dialog.c
     gtk_menu.c
+    gtk_textlog.c
     )
 
 if(APPLE AND NOT IPHONE)
