@@ -8,8 +8,6 @@
  * 
  */
 #include <gtk/gtk.h>
-#include <gdk/gdkkeysyms.h>
-#include <pango/pango.h>
 
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_native_dialog.h"
