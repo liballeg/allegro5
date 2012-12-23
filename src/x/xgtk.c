@@ -117,6 +117,8 @@ static gboolean xgtk_handle_button_press_event(GtkWidget *drawing_area,
    GdkEventButton *event, ALLEGRO_DISPLAY *display);
 static gboolean xgtk_handle_button_release_event(GtkWidget *drawing_area,
    GdkEventButton *event, ALLEGRO_DISPLAY *display);
+static gboolean xgtk_handle_scroll_event(GtkWidget *drawing_area,
+   GdkEventScroll *event, ALLEGRO_DISPLAY *display);
 static gboolean xgtk_handle_key_press_event(GtkWidget *drawing_area,
    GdkEventKey *event, ALLEGRO_DISPLAY *display);
 static gboolean xgtk_handle_key_release_event(GtkWidget *drawing_area,
@@ -201,6 +203,8 @@ ALLEGRO_DISPLAY *_al_gtk_create_display(int w, int h)
       G_CALLBACK(xgtk_handle_button_press_event), display);
    g_signal_connect(G_OBJECT(d->gtkdrawing_area), "button-release-event",
       G_CALLBACK(xgtk_handle_button_release_event), display);
+   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "scroll-event",
+      G_CALLBACK(xgtk_handle_scroll_event), display);
    g_signal_connect(G_OBJECT(d->gtkdrawing_area), "key-press-event",
       G_CALLBACK(xgtk_handle_key_press_event), display);
    g_signal_connect(G_OBJECT(d->gtkdrawing_area), "key-release-event",
@@ -213,6 +217,7 @@ ALLEGRO_DISPLAY *_al_gtk_create_display(int w, int h)
       GDK_POINTER_MOTION_MASK |
       GDK_BUTTON_PRESS_MASK |
       GDK_BUTTON_RELEASE_MASK |
+      GDK_SCROLL_MASK |
       GDK_KEY_PRESS_MASK |
       GDK_KEY_RELEASE_MASK |
       GDK_STRUCTURE_MASK
@@ -329,6 +334,30 @@ static gboolean xgtk_handle_button_release_event(GtkWidget *drawing_area,
 {
    (void)drawing_area;
    _al_xwin_mouse_button_release_handler(event->button, display);
+   return TRUE;
+}
+
+
+static gboolean xgtk_handle_scroll_event(GtkWidget *drawing_area,
+   GdkEventScroll *event, ALLEGRO_DISPLAY *display)
+{
+   (void)drawing_area;
+
+   /* This is silly but consistent with the usual X event handling. */
+   switch (event->direction) {
+      case GDK_SCROLL_DOWN:
+         _al_xwin_mouse_button_press_handler(Button4, display);
+         break;
+      case GDK_SCROLL_UP:
+         _al_xwin_mouse_button_press_handler(Button5, display);
+         break;
+      case GDK_SCROLL_LEFT:
+         _al_xwin_mouse_button_press_handler(6, display);
+         break;
+      case GDK_SCROLL_RIGHT:
+         _al_xwin_mouse_button_press_handler(7, display);
+         break;
+   }
    return TRUE;
 }
 
