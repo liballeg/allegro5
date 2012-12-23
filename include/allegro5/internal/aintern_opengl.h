@@ -138,6 +138,7 @@ void _al_ogl_reset_fbo_info(ALLEGRO_FBO_INFO *info);
 bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap);
 ALLEGRO_FBO_INFO *_al_ogl_persist_fbo(ALLEGRO_DISPLAY *display,
                                       ALLEGRO_FBO_INFO *transient_fbo_info);
+void _al_ogl_setup_gl(ALLEGRO_DISPLAY *d);
 void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
 void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap);
 ALLEGRO_BITMAP *_al_ogl_get_backbuffer(ALLEGRO_DISPLAY *d);

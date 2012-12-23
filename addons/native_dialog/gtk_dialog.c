@@ -16,6 +16,7 @@
 #if defined ALLEGRO_WITH_XWINDOWS && !defined ALLEGRO_RASPBERRYPI
 #define WITH_XGLX
 #include "allegro5/internal/aintern_xglx.h"
+#include "allegro5/internal/aintern_xgtk.h"
 #endif
 
 #include "gtk_dialog.h"

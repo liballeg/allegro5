@@ -21,7 +21,7 @@
 
 #if defined ALLEGRO_WITH_XWINDOWS && !defined ALLEGRO_RASPBERRYPI
 /* for _al_gtk_get_window */
-#include "allegro5/internal/aintern_xglx.h"
+#include "allegro5/internal/aintern_xgtk.h"
 #endif
 
 

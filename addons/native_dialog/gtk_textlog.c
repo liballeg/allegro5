@@ -21,7 +21,7 @@
 #include "allegro5/internal/aintern_native_dialog.h"
 
 #if defined ALLEGRO_WITH_XWINDOWS && !defined ALLEGRO_RASPBERRYPI
-#include "allegro5/internal/aintern_xglx.h"
+#include "allegro5/internal/aintern_xgtk.h"
 #endif
 
 #include "gtk_dialog.h"

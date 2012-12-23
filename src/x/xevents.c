@@ -129,7 +129,7 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
          _al_xwin_keyboard_switch_handler(&d->display, false);
          break;
       case ConfigureNotify:
-         _al_display_xglx_configure(&d->display,  &event);
+         _al_xglx_display_configure_event(&d->display,  &event);
          d->resize_count++;
          _al_cond_signal(&s->resized);
          break;
