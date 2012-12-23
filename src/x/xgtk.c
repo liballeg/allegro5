@@ -389,7 +389,7 @@ static gboolean xgtk_handle_key_release_event(GtkWidget *drawing_area,
 static gboolean xgtk_handle_configure_event(GtkWidget *widget,
    GdkEventConfigure *event, ALLEGRO_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_XGLX *d = (void *)display;
+   ALLEGRO_DISPLAY_XGLX *d = (ALLEGRO_DISPLAY_XGLX *)display;
    (void)widget;
    if (d->gtk.ignore_configure_event) {
       d->gtk.ignore_configure_event = false;
@@ -401,6 +401,100 @@ static gboolean xgtk_handle_configure_event(GtkWidget *widget,
       d->gtk.cfg_w, d->gtk.cfg_h,
       false /* FIXME: don't know what to pass for this */);
    return TRUE;
+}
+
+
+void _al_gtk_destroy_display_hook(ALLEGRO_DISPLAY *d)
+{
+   ALLEGRO_SYSTEM_XGLX *s = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+
+   gtk_widget_destroy(glx->gtk.gtkwindow);
+   if (s->system.displays._size <= 0) {
+      gtk_main_quit();
+   }
+   /* FIXME:  is there a better way to tell if gtk is finished? Avoids
+    * having multiple threads accessing GL on shutdown.
+    */
+   al_rest(0.2);
+}
+
+
+bool _al_gtk_make_current(ALLEGRO_DISPLAY *d)
+{
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+
+   return gdk_gl_drawable_make_current(glx->gtk.gtkdrawable, glx->gtk.gtkcontext);
+}
+
+
+void _al_gtk_unmake_current(ALLEGRO_DISPLAY *d)
+{
+   // FIXME
+   //gdk_gl_drawable_make_current(NULL, NULL);
+   (void)d;
+}
+
+
+void _al_gtk_flip_display(ALLEGRO_DISPLAY *d)
+{
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+
+   gdk_gl_drawable_swap_buffers (glx->gtk.gtkdrawable);
+   /* In current GtkGLExt, gl_end is a no-op */
+   gdk_gl_drawable_gl_end (glx->gtk.gtkdrawable);
+   gdk_gl_drawable_gl_begin (glx->gtk.gtkdrawable, glx->gtk.gtkcontext);
+}
+
+
+bool _al_gtk_acknowledge_resize(ALLEGRO_DISPLAY *d)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+
+   _al_mutex_lock(&system->lock);
+
+   if (glx->context) {
+      d->w = glx->gtk.cfg_w;
+      d->h = glx->gtk.cfg_h;
+
+      _al_ogl_setup_gl(d);
+   }
+
+   _al_mutex_unlock(&system->lock);
+
+   return true;
+}
+
+
+bool _al_gtk_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
+{
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+
+   if (d->w == w && d->h == h) {
+      return true;
+   }
+   glx->gtk.ignore_configure_event = true;
+   _al_xwin_reset_size_hints(d);
+   gtk_window_resize(GTK_WINDOW(glx->gtk.gtkwindow), w, h);
+   gtk_container_check_resize(GTK_CONTAINER(glx->gtk.gtkwindow));
+   /* FIXME: for some reason ex_resize never gets a configure-event
+    * for 100x100, so using that instead of a rest isn't working.
+    */
+   al_rest(0.2);
+   glx->gtk.cfg_w = w;
+   glx->gtk.cfg_h = h;
+   _al_gtk_acknowledge_resize(d);
+   _al_xwin_set_size_hints(d, INT_MAX, INT_MAX);
+   return true;
+}
+
+
+void _al_gtk_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
+{
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+
+   gtk_window_set_title(GTK_WINDOW(glx->gtk.gtkwindow), title);
 }
 
 
@@ -440,23 +534,52 @@ void _al_gtk_set_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
 }
 
 
-bool _al_gtk_acknowledge_resize(ALLEGRO_DISPLAY *d)
+void _al_gtk_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
 
-   _al_mutex_lock(&system->lock);
+   gtk_window_move(GTK_WINDOW(glx->gtk.gtkwindow), x, y);
+}
 
-   if (glx->context) {
-      d->w = glx->gtk.cfg_w;
-      d->h = glx->gtk.cfg_h;
 
-      _al_ogl_setup_gl(d);
-   }
-
-   _al_mutex_unlock(&system->lock);
-
+bool _al_gtk_set_window_constraints(ALLEGRO_DISPLAY *display,
+   int min_w, int min_h, int max_w, int max_h)
+{
+   // FIXME
+   (void)display;
+   (void)min_w;
+   (void)min_h;
+   (void)max_w;
+   (void)max_h;
    return true;
+}
+
+
+void _al_gtk_set_size_hints(ALLEGRO_DISPLAY *display, int x_off, int y_off)
+{
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   GdkGeometry geo;
+
+   // FIXME: obey these
+   (void)x_off;
+   (void)y_off;
+
+   geo.min_width = geo.max_width = geo.base_width = display->w;
+   geo.min_height = geo.max_height = geo.base_height = display->h;
+   gdk_window_set_geometry_hints(GDK_WINDOW(glx->gtk.gtkwindow->window),
+      &geo, GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE | GDK_HINT_BASE_SIZE);
+}
+
+
+void _al_gtk_reset_size_hints(ALLEGRO_DISPLAY *d)
+{
+   ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
+   GdkGeometry geo;
+
+   geo.min_width = geo.min_height = 0;
+   geo.max_width = geo.max_height = 32768;
+   gdk_window_set_geometry_hints(GDK_WINDOW(glx->gtk.gtkwindow->window),
+      &geo, GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE);
 }
 
 

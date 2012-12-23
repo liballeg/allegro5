@@ -7,6 +7,9 @@
 #define ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_RASPBERRYPI
 #define ALLEGRO_DISPLAY_XGLX ALLEGRO_DISPLAY_RASPBERRYPI
 #endif
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+#include "allegro5/internal/aintern_xgtk.h"
+#endif
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -14,13 +17,17 @@
 
 ALLEGRO_DEBUG_CHANNEL("xwindow")
 
-void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
+#define X11_ATOM(x)  XInternAtom(x11, #x, False);
+
+
+static void xwin_set_size_hints_default(ALLEGRO_DISPLAY *d, int x_off, int y_off)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
-#ifndef ALLEGRO_CFG_USE_GTKGLEXT
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   XSizeHints *hints = XAllocSizeHints();
+   ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
+   XSizeHints *hints;
    int w, h;
+
+   hints = XAllocSizeHints();
    hints->flags = 0;
 
 #ifdef ALLEGRO_RASPBERRYPI
@@ -74,25 +81,27 @@ void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
    XSetWMNormalHints(system->x11display, glx->window, hints);
 
    XFree(hints);
+}
+
+
+void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
+{
+    (void) xwin_set_size_hints_default;
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+    _al_gtk_set_size_hints(d, x_off, y_off);
 #else
-   GdkGeometry geo;
-   // FIXME: obey these
-   (void)x_off;
-   (void)y_off;
-   geo.min_width = geo.max_width = geo.base_width = d->w;
-   geo.min_height = geo.max_height = geo.base_height = d->h;
-   gdk_window_set_geometry_hints(GDK_WINDOW(glx->gtk.gtkwindow->window),
-      &geo, GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE | GDK_HINT_BASE_SIZE);
+    xwin_set_size_hints_default(d, x_off, y_off);
 #endif
 }
 
-void _al_xwin_reset_size_hints(ALLEGRO_DISPLAY *d)
-{
-   ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
-#if !defined ALLEGRO_CFG_USE_GTKGLEXT
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   XSizeHints *hints = XAllocSizeHints();
 
+static void xwin_reset_size_hints_default(ALLEGRO_DISPLAY *d)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
+   XSizeHints *hints;
+
+   hints  = XAllocSizeHints();
    hints->flags = PMinSize | PMaxSize;
    hints->min_width  = 0;
    hints->min_height = 0;
@@ -102,16 +111,19 @@ void _al_xwin_reset_size_hints(ALLEGRO_DISPLAY *d)
    XSetWMNormalHints(system->x11display, glx->window, hints);
 
    XFree(hints);
+}
+
+
+void _al_xwin_reset_size_hints(ALLEGRO_DISPLAY *d)
+{
+    (void) xwin_reset_size_hints_default;
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+    _al_gtk_reset_size_hints(d);
 #else
-   GdkGeometry geo;
-   geo.min_width = geo.min_height = 0;
-   geo.max_width = geo.max_height = 32768;
-   gdk_window_set_geometry_hints(GDK_WINDOW(glx->gtk.gtkwindow->window),
-      &geo, GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE);
+    xwin_reset_size_hints_default(d);
 #endif
 }
 
-#define X11_ATOM(x)  XInternAtom(x11, #x, False);
 
 /* Note: The system mutex must be locked (exactly once) before
  * calling this as we call _al_display_xglx_await_resize.

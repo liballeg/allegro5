@@ -2,9 +2,7 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_x.h"
-
 #ifdef ALLEGRO_CFG_USE_GTK
-#include <gtk/gtk.h>
 #include "allegro5/internal/aintern_xgtk.h"
 #endif
 
@@ -92,16 +90,9 @@ static void xdpy_set_icons(ALLEGRO_DISPLAY *d,
 
 
 
-static void xdpy_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
+static void xdpy_set_window_position_default(ALLEGRO_DISPLAY *display, int x, int y)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
-
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-
-   gtk_window_move(GTK_WINDOW(glx->gtk.gtkwindow), x, y);
-
-#else
-
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    Window root, parent, child, *children;
    unsigned int n;
@@ -129,18 +120,23 @@ static void xdpy_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
    glx->y = y;
 
    _al_mutex_unlock(&system->lock);
+}
+
+
+static void xdpy_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
+{
+   (void) xdpy_set_window_position_default;
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+   _al_gtk_set_window_position(display, x, y);
+#else
+   xdpy_set_window_position_default(display, x, y);
 #endif
 }
 
 
-static bool xdpy_set_window_constraints(ALLEGRO_DISPLAY *display,
+static bool xdpy_set_window_constraints_default(ALLEGRO_DISPLAY *display,
    int min_w, int min_h, int max_w, int max_h)
 {
-// FIXME
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-   return true;
-#endif
-
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
 
    glx->display.min_w = min_w;
@@ -172,6 +168,18 @@ static bool xdpy_set_window_constraints(ALLEGRO_DISPLAY *display,
    al_resize_display(display, w, h);
 
    return true;
+}
+
+
+static bool xdpy_set_window_constraints(ALLEGRO_DISPLAY *display,
+   int min_w, int min_h, int max_w, int max_h)
+{
+   (void)xdpy_set_window_constraints_default;
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+   return _al_gtk_set_window_constraints(display, min_w, min_h, max_w, max_h);
+#else
+   return xdpy_set_window_constraints(display, min_w, min_h, max_w, max_h);
+#endif
 }
 
 
@@ -743,9 +751,6 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
       ALLEGRO_DEBUG("destroy context.\n");
    }
 
-   /* In multi-window programs these once resulted in a double-free bugs. */
-   /* We will re-enable this code and see if anyone complains. */
-#if 1
    if (glx->fbc) {
       al_free(glx->fbc);
       glx->fbc = NULL;
@@ -756,7 +761,6 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
       al_free(glx->xvinfo);
       glx->xvinfo = NULL;
    }
-#endif
 
    _al_cond_destroy(&glx->mapped);
 #endif
@@ -771,94 +775,98 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    _al_mutex_unlock(&s->lock);
 
 #ifdef ALLEGRO_CFG_USE_GTKGLEXT
-   gtk_widget_destroy(glx->gtk.gtkwindow);
-   if (s->system.displays._size <= 0) {
-      gtk_main_quit();
-   }
-   /* FIXME:  is there a better way to tell if gtk is finished? Avoids
-    * having multiple threads accessing GL on shutdown.
-    */
-   al_rest(0.2);
+   _al_gtk_destroy_display_hook(d);
 #endif
 
    ALLEGRO_DEBUG("destroy display finished.\n");
 }
 
 
-
-static bool xdpy_set_current_display(ALLEGRO_DISPLAY *d)
+static bool xdpy_make_current(ALLEGRO_DISPLAY *d)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
-   ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
-
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-
-   gdk_gl_drawable_make_current(glx->gtk.gtkdrawable, glx->gtk.gtkcontext);
-
-#else
-   
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
 
    /* Make our GLX context current for reading and writing in the current
     * thread.
     */
    if (glx->fbc) {
-      if (!glXMakeContextCurrent(system->gfxdisplay, glx->glxwindow,
-                                glx->glxwindow, glx->context))
-         return false;
+      return glXMakeContextCurrent(system->gfxdisplay, glx->glxwindow,
+         glx->glxwindow, glx->context);
    }
    else {
-      if (!glXMakeCurrent(system->gfxdisplay, glx->glxwindow, glx->context))
-         return false;
+      return glXMakeCurrent(system->gfxdisplay, glx->glxwindow, glx->context);
    }
-
-#endif
-
-   _al_ogl_set_extensions(ogl->extension_api);
-   _al_ogl_update_render_state(d);
-
-   return true;
 }
 
+
+static bool xdpy_set_current_display(ALLEGRO_DISPLAY *d)
+{
+   bool rc;
+
+   (void) xdpy_make_current;
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+   rc = _al_gtk_make_current(d);
+#else
+   rc = xdpy_make_current(d);
+#endif
+
+   if (rc) {
+      ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
+      _al_ogl_set_extensions(ogl->extension_api);
+      _al_ogl_update_render_state(d);
+   }
+
+   return rc;
+}
+
+
+static void xdpy_unset_current_display_default(ALLEGRO_DISPLAY *d)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+   glXMakeContextCurrent(system->gfxdisplay, None, None, NULL);
+   (void)d;
+}
 
 
 static void xdpy_unset_current_display(ALLEGRO_DISPLAY *d)
 {
-   (void)d;
-
-#ifndef ALLEGRO_CFG_USE_GTKGLEXT
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-   glXMakeContextCurrent(system->gfxdisplay, None, None, NULL);
+   (void) xdpy_unset_current_display_default;
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+   _al_gtk_unmake_current(d);
 #else
-   //gdk_gl_drawable_make_current(NULL, NULL);
+   xdpy_unset_current_display_default(d);
 #endif
 }
 
 
-
-/* Dummy implementation of flip. */
-static void xdpy_flip_display(ALLEGRO_DISPLAY *d)
+static void xdpy_flip_display_default(ALLEGRO_DISPLAY *d)
 {
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
 
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-   gdk_gl_drawable_swap_buffers (glx->gtk.gtkdrawable);
-   /* In current GtkGLExt, gl_end is a no-op */
-   gdk_gl_drawable_gl_end (glx->gtk.gtkdrawable);
-   gdk_gl_drawable_gl_begin (glx->gtk.gtkdrawable, glx->gtk.gtkcontext);
-#else
    int e = glGetError();
    if (e) {
       ALLEGRO_ERROR("OpenGL error was not 0: %s\n", _al_gl_error_string(e));
    }
 
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    if (d->extra_settings.settings[ALLEGRO_SINGLE_BUFFER])
       glFlush();
    else
       glXSwapBuffers(system->gfxdisplay, glx->glxwindow);
+}
+
+
+static void xdpy_flip_display(ALLEGRO_DISPLAY *d)
+{
+   (void) xdpy_flip_display_default;
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+   _al_gtk_flip_display(d);
+#else
+   xdpy_flip_display_default(d);
 #endif
 }
+
 
 static void xdpy_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
    int w, int h)
@@ -958,30 +966,10 @@ void _al_display_xglx_await_resize(ALLEGRO_DISPLAY *d, int old_resize_count,
 }
 
 
-
-static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
+static bool xdpy_resize_display_default(ALLEGRO_DISPLAY *d, int w, int h)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
-
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-   if (d->w == w && d->h == h) {
-      return true;
-   }
-   glx->gtk.ignore_configure_event = true;
-   _al_xwin_reset_size_hints(d);
-   gtk_window_resize(GTK_WINDOW(glx->gtk.gtkwindow), w, h);
-   gtk_container_check_resize(GTK_CONTAINER(glx->gtk.gtkwindow));
-   /* FIXME: for some reason ex_resize never gets a configure-event
-    * for 100x100, so using that instead of a rest isn't working.
-    */
-   al_rest(0.2);
-   glx->gtk.cfg_w = w;
-   glx->gtk.cfg_h = h;
-   xdpy_acknowledge_resize(d);
-   _al_xwin_set_size_hints(d, INT_MAX, INT_MAX);
-   return true;
-#else
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
    XWindowAttributes xwa;
    int attempts;
    bool ret = false;
@@ -1054,6 +1042,16 @@ skip_resize:
 
    _al_mutex_unlock(&system->lock);
    return ret;
+}
+
+
+static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
+{
+   (void) xdpy_resize_display_default;
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+   return _al_gtk_resize_display(d, w, h);
+#else
+   return xdpy_resize_display_default(d, w, h);
 #endif
 }
 
@@ -1232,29 +1230,41 @@ static bool xdpy_get_window_constraints(ALLEGRO_DISPLAY *display,
 }
 
 
-static void xdpy_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
+static void xdpy_set_window_title_default(ALLEGRO_DISPLAY *display, const char *title)
 {
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
 
-#ifndef ALLEGRO_CFG_USE_GTKGLEXT
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    _al_mutex_lock(&system->lock);
-   Atom WM_NAME = XInternAtom(system->x11display, "WM_NAME", False);
-   Atom _NET_WM_NAME = XInternAtom(system->x11display, "_NET_WM_NAME", False);
-   char *list[] = {(void *)title};
-   XTextProperty property;
-   Xutf8TextListToTextProperty(system->x11display, list, 1, XUTF8StringStyle,
-      &property);
-   XSetTextProperty(system->x11display, glx->window, &property, WM_NAME);
-   XSetTextProperty(system->x11display, glx->window, &property, _NET_WM_NAME);
-   XFree(property.value);
-   XClassHint hint;
-   hint.res_name = strdup(title); // Leak? (below too...)
-   hint.res_class = strdup(title);
-   XSetClassHint(system->x11display, glx->window, &hint);
+   {
+      Atom WM_NAME = XInternAtom(system->x11display, "WM_NAME", False);
+      Atom _NET_WM_NAME = XInternAtom(system->x11display, "_NET_WM_NAME", False);
+      char *list[] = {(void *)title};
+      XTextProperty property;
+
+      Xutf8TextListToTextProperty(system->x11display, list, 1, XUTF8StringStyle,
+         &property);
+      XSetTextProperty(system->x11display, glx->window, &property, WM_NAME);
+      XSetTextProperty(system->x11display, glx->window, &property, _NET_WM_NAME);
+      XFree(property.value);
+   }
+   {
+      XClassHint hint;
+      hint.res_name = strdup(title); // Leak? (below too...)
+      hint.res_class = strdup(title);
+      XSetClassHint(system->x11display, glx->window, &hint);
+   }
    _al_mutex_unlock(&system->lock);
+}
+
+
+static void xdpy_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
+{
+   (void) xdpy_set_window_title_default;
+#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+   _al_gtk_set_window_title(display, title);
 #else
-   gtk_window_set_title(GTK_WINDOW(glx->gtk.gtkwindow), title);
+   xdpy_set_window_title_default(display, title);
 #endif
 }
 
