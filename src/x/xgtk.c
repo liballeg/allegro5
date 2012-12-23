@@ -111,6 +111,12 @@ static gboolean xgtk_quit_callback(GtkWidget *widget, GdkEvent *event,
    ALLEGRO_DISPLAY *display);
 static gboolean xgtk_window_state_callback(GtkWidget *widget,
    GdkEventWindowState *event, ALLEGRO_DISPLAY *display);
+static gboolean xgtk_handle_motion_event(GtkWidget *drawing_area,
+   GdkEventMotion *event, ALLEGRO_DISPLAY *display);
+static gboolean xgtk_handle_button_press_event(GtkWidget *drawing_area,
+   GdkEventButton *event, ALLEGRO_DISPLAY *display);
+static gboolean xgtk_handle_button_release_event(GtkWidget *drawing_area,
+   GdkEventButton *event, ALLEGRO_DISPLAY *display);
 static gboolean xgtk_handle_key_press_event(GtkWidget *drawing_area,
    GdkEventKey *event, ALLEGRO_DISPLAY *display);
 static gboolean xgtk_handle_key_release_event(GtkWidget *drawing_area,
@@ -189,9 +195,12 @@ ALLEGRO_DISPLAY *_al_gtk_create_display(int w, int h)
 
    gtk_widget_set_gl_capability (d->gtkdrawing_area, glconfig, NULL, TRUE, GDK_GL_RGBA_TYPE);
 
-   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "motion-notify-event", G_CALLBACK(_al_gtk_handle_motion_event), display);
-   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "button-press-event", G_CALLBACK(_al_gtk_handle_button_event), display);
-   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "button-release-event", G_CALLBACK(_al_gtk_handle_button_event), display);
+   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "motion-notify-event",
+      G_CALLBACK(xgtk_handle_motion_event), display);
+   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "button-press-event",
+      G_CALLBACK(xgtk_handle_button_press_event), display);
+   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "button-release-event",
+      G_CALLBACK(xgtk_handle_button_release_event), display);
    g_signal_connect(G_OBJECT(d->gtkdrawing_area), "key-press-event",
       G_CALLBACK(xgtk_handle_key_press_event), display);
    g_signal_connect(G_OBJECT(d->gtkdrawing_area), "key-release-event",
@@ -294,6 +303,33 @@ static gboolean xgtk_window_state_callback(GtkWidget *widget,
       return TRUE;
    }
    return FALSE;
+}
+
+
+static gboolean xgtk_handle_motion_event(GtkWidget *drawing_area,
+   GdkEventMotion *event, ALLEGRO_DISPLAY *display)
+{
+   (void)drawing_area;
+   _al_xwin_mouse_motion_notify_handler(event->x, event->y, display);
+   return TRUE;
+}
+
+
+static gboolean xgtk_handle_button_press_event(GtkWidget *drawing_area,
+   GdkEventButton *event, ALLEGRO_DISPLAY *display)
+{
+   (void)drawing_area;
+   _al_xwin_mouse_button_press_handler(event->button, display);
+   return TRUE;
+}
+
+
+static gboolean xgtk_handle_button_release_event(GtkWidget *drawing_area,
+   GdkEventButton *event, ALLEGRO_DISPLAY *display)
+{
+   (void)drawing_area;
+   _al_xwin_mouse_button_release_handler(event->button, display);
+   return TRUE;
 }
 
 

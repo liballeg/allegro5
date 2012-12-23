@@ -12,8 +12,6 @@
 #include <gdk/gdkx.h>
 #include <gdk/x11/gdkglx.h>
 #include "allegro5/internal/aintern_xgtk.h"
-gboolean _al_gtk_handle_motion_event(GtkWidget *drawing_area, GdkEventMotion *event, ALLEGRO_DISPLAY *display);
-gboolean _al_gtk_handle_button_event(GtkWidget *drawing_area, GdkEventButton *event, ALLEGRO_DISPLAY *display);
 #endif
 
 ALLEGRO_DEBUG_CHANNEL("display")
