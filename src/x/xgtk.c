@@ -111,6 +111,10 @@ static gboolean xgtk_quit_callback(GtkWidget *widget, GdkEvent *event,
    ALLEGRO_DISPLAY *display);
 static gboolean xgtk_window_state_callback(GtkWidget *widget,
    GdkEventWindowState *event, ALLEGRO_DISPLAY *display);
+static gboolean xgtk_handle_key_press_event(GtkWidget *drawing_area,
+   GdkEventKey *event, ALLEGRO_DISPLAY *display);
+static gboolean xgtk_handle_key_release_event(GtkWidget *drawing_area,
+   GdkEventKey *event, ALLEGRO_DISPLAY *display);
 static gboolean xgtk_handle_configure_event(GtkWidget *widget,
    GdkEventConfigure *event, ALLEGRO_DISPLAY *display);
 
@@ -188,8 +192,10 @@ ALLEGRO_DISPLAY *_al_gtk_create_display(int w, int h)
    g_signal_connect(G_OBJECT(d->gtkdrawing_area), "motion-notify-event", G_CALLBACK(_al_gtk_handle_motion_event), display);
    g_signal_connect(G_OBJECT(d->gtkdrawing_area), "button-press-event", G_CALLBACK(_al_gtk_handle_button_event), display);
    g_signal_connect(G_OBJECT(d->gtkdrawing_area), "button-release-event", G_CALLBACK(_al_gtk_handle_button_event), display);
-   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "key-press-event", G_CALLBACK(_al_gtk_handle_key_event), display);
-   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "key-release-event", G_CALLBACK(_al_gtk_handle_key_event), display);
+   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "key-press-event",
+      G_CALLBACK(xgtk_handle_key_press_event), display);
+   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "key-release-event",
+      G_CALLBACK(xgtk_handle_key_release_event), display);
    g_signal_connect(G_OBJECT(d->gtkdrawing_area), "configure-event",
       G_CALLBACK(xgtk_handle_configure_event), display);
 
@@ -288,6 +294,30 @@ static gboolean xgtk_window_state_callback(GtkWidget *widget,
       return TRUE;
    }
    return FALSE;
+}
+
+
+static gboolean xgtk_handle_key_press_event(GtkWidget *drawing_area,
+   GdkEventKey *event, ALLEGRO_DISPLAY *display)
+{
+   uint32_t unichar = 0;
+   (void)drawing_area;
+
+   memcpy(&unichar, event->string, _ALLEGRO_MIN(4, event->length));
+   _al_xwin_keyboard_handler_alternative(true, event->hardware_keycode,
+      unichar, display);
+   return TRUE;
+}
+
+
+static gboolean xgtk_handle_key_release_event(GtkWidget *drawing_area,
+   GdkEventKey *event, ALLEGRO_DISPLAY *display)
+{
+   (void)drawing_area;
+
+   _al_xwin_keyboard_handler_alternative(false, event->hardware_keycode,
+      0, display);
+   return TRUE;
 }
 
 

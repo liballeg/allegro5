@@ -160,6 +160,7 @@ struct ALLEGRO_DISPLAY_XGLX
 };
 
 /* Functions private to the X11 driver. */
+/* XXX the distinction between this and aintern_x.h is a mess */
 
 /* display */
 void _al_xglx_setup_gl(ALLEGRO_DISPLAY *d);
