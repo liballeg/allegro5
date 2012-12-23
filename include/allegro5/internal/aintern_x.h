@@ -23,7 +23,7 @@ void _al_xwin_add_cursor_functions(ALLEGRO_DISPLAY_INTERFACE *vt);
 void _al_xwin_keyboard_handler(XKeyEvent *event, ALLEGRO_DISPLAY *display);
 void _al_xwin_keyboard_handler_alternative(bool press, int hardware_keycode,
    uint32_t unichar, ALLEGRO_DISPLAY *display);
-void _al_x_background_thread(_AL_THREAD *self, void *arg);
+void _al_xwin_background_thread(_AL_THREAD *self, void *arg);
 bool _al_xwin_grab_mouse(ALLEGRO_DISPLAY *display);
 bool _al_xwin_ungrab_mouse(void);
 void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off);

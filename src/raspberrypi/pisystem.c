@@ -33,7 +33,7 @@ static ALLEGRO_SYSTEM *pi_initialize(int flags)
    if (getenv("DISPLAY")) {
       _al_mutex_init_recursive(&s->lock);
       s->x11display = XOpenDisplay(0);
-      _al_thread_create(&s->thread, _al_x_background_thread, s);
+      _al_thread_create(&s->thread, _al_xwin_background_thread, s);
       ALLEGRO_INFO("events thread spawned.\n");
       /* We need to put *some* atom into the ClientMessage we send for
        * faking mouse movements with al_set_mouse_xy - so let's ask X11
