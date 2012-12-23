@@ -160,7 +160,7 @@ ALLEGRO_DISPLAY *_al_gtk_create_display(int w, int h)
    //system->x11display = gdk_x11_get_default_xdisplay();
 
    GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-   d->gtkwindow = window;
+   d->gtk.gtkwindow = window;
 
    g_signal_connect(G_OBJECT(window), "delete-event",
       G_CALLBACK(xgtk_quit_callback), display);
@@ -179,41 +179,41 @@ ALLEGRO_DISPLAY *_al_gtk_create_display(int w, int h)
    display->flags = al_get_new_display_flags();
    display->flags |= ALLEGRO_OPENGL;
 
-   d->ignore_configure_event = true;
-   d->is_fullscreen = false;
+   d->gtk.ignore_configure_event = true;
+   d->gtk.is_fullscreen = false;
 
-   gtk_window_set_resizable(GTK_WINDOW(d->gtkwindow), true);
+   gtk_window_set_resizable(GTK_WINDOW(d->gtk.gtkwindow), true);
 
    GtkWidget *vbox = gtk_vbox_new(FALSE, 0);
    gtk_container_add(GTK_CONTAINER(window), vbox);
 
-   d->gtkdrawing_area = gtk_drawing_area_new();
+   d->gtk.gtkdrawing_area = gtk_drawing_area_new();
 
-   gtk_widget_set_size_request(d->gtkdrawing_area, w, h);
+   gtk_widget_set_size_request(d->gtk.gtkdrawing_area, w, h);
 
    /* Set OpenGL-capability to the widget. */
    GdkGLConfig *glconfig =
       gdk_gl_config_new_by_mode(GDK_GL_MODE_RGB | GDK_GL_MODE_DOUBLE);
 
-   gtk_widget_set_gl_capability (d->gtkdrawing_area, glconfig, NULL, TRUE, GDK_GL_RGBA_TYPE);
+   gtk_widget_set_gl_capability(d->gtk.gtkdrawing_area, glconfig, NULL, TRUE, GDK_GL_RGBA_TYPE);
 
-   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "motion-notify-event",
+   g_signal_connect(G_OBJECT(d->gtk.gtkdrawing_area), "motion-notify-event",
       G_CALLBACK(xgtk_handle_motion_event), display);
-   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "button-press-event",
+   g_signal_connect(G_OBJECT(d->gtk.gtkdrawing_area), "button-press-event",
       G_CALLBACK(xgtk_handle_button_press_event), display);
-   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "button-release-event",
+   g_signal_connect(G_OBJECT(d->gtk.gtkdrawing_area), "button-release-event",
       G_CALLBACK(xgtk_handle_button_release_event), display);
-   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "scroll-event",
+   g_signal_connect(G_OBJECT(d->gtk.gtkdrawing_area), "scroll-event",
       G_CALLBACK(xgtk_handle_scroll_event), display);
-   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "key-press-event",
+   g_signal_connect(G_OBJECT(d->gtk.gtkdrawing_area), "key-press-event",
       G_CALLBACK(xgtk_handle_key_press_event), display);
-   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "key-release-event",
+   g_signal_connect(G_OBJECT(d->gtk.gtkdrawing_area), "key-release-event",
       G_CALLBACK(xgtk_handle_key_release_event), display);
-   g_signal_connect(G_OBJECT(d->gtkdrawing_area), "configure-event",
+   g_signal_connect(G_OBJECT(d->gtk.gtkdrawing_area), "configure-event",
       G_CALLBACK(xgtk_handle_configure_event), display);
 
-   gtk_box_pack_start(GTK_BOX(vbox), d->gtkdrawing_area, TRUE, TRUE, 0);
-   gtk_widget_set_events(d->gtkdrawing_area,
+   gtk_box_pack_start(GTK_BOX(vbox), d->gtk.gtkdrawing_area, TRUE, TRUE, 0);
+   gtk_widget_set_events(d->gtk.gtkdrawing_area,
       GDK_POINTER_MOTION_MASK |
       GDK_BUTTON_PRESS_MASK |
       GDK_BUTTON_RELEASE_MASK |
@@ -222,17 +222,17 @@ ALLEGRO_DISPLAY *_al_gtk_create_display(int w, int h)
       GDK_KEY_RELEASE_MASK |
       GDK_STRUCTURE_MASK
    );
-   GTK_WIDGET_SET_FLAGS(d->gtkdrawing_area, GTK_CAN_FOCUS);
+   GTK_WIDGET_SET_FLAGS(d->gtk.gtkdrawing_area, GTK_CAN_FOCUS);
 
    gtk_widget_show_all(window);
 
    _al_gtk_ensure_thread();
 
-   d->gtkcontext = gtk_widget_get_gl_context(d->gtkdrawing_area);
-   d->gtkdrawable = gtk_widget_get_gl_drawable(d->gtkdrawing_area);
-   d->context = gdk_x11_gl_context_get_glxcontext(d->gtkcontext);
+   d->gtk.gtkcontext = gtk_widget_get_gl_context(d->gtk.gtkdrawing_area);
+   d->gtk.gtkdrawable = gtk_widget_get_gl_drawable(d->gtk.gtkdrawing_area);
+   d->context = gdk_x11_gl_context_get_glxcontext(d->gtk.gtkcontext);
 
-   d->window = GDK_WINDOW_XWINDOW(d->gtkdrawing_area->window);
+   d->window = GDK_WINDOW_XWINDOW(d->gtk.gtkdrawing_area->window);
 
    ALLEGRO_DISPLAY_XGLX **add;
    add = _al_vector_alloc_back(&system->system.displays);
@@ -263,7 +263,7 @@ ALLEGRO_DISPLAY *_al_gtk_create_display(int w, int h)
    /* Each display is an event source. */
    _al_event_source_init(&display->es);
 
-   gdk_gl_drawable_gl_begin (d->gtkdrawable, d->gtkcontext);
+   gdk_gl_drawable_gl_begin(d->gtk.gtkdrawable, d->gtk.gtkcontext);
 
    _al_ogl_manage_extensions(display);
    _al_ogl_set_extensions(ogl->extension_api);
@@ -304,7 +304,7 @@ static gboolean xgtk_window_state_callback(GtkWidget *widget,
    (void)widget;
    ALLEGRO_DISPLAY_XGLX *d = (void *)display;
    if (event->changed_mask & GDK_WINDOW_STATE_FULLSCREEN) {
-      d->is_fullscreen = !d->is_fullscreen;
+      d->gtk.is_fullscreen = !d->gtk.is_fullscreen;
       return TRUE;
    }
    return FALSE;
@@ -391,13 +391,14 @@ static gboolean xgtk_handle_configure_event(GtkWidget *widget,
 {
    ALLEGRO_DISPLAY_XGLX *d = (void *)display;
    (void)widget;
-   if (d->ignore_configure_event) {
-      d->ignore_configure_event = false;
+   if (d->gtk.ignore_configure_event) {
+      d->gtk.ignore_configure_event = false;
       return TRUE;
    }
-   d->cfg_w = event->width;
-   d->cfg_h = event->height;
-   _al_xglx_display_configure(display, event->x, event->y, d->cfg_w, d->cfg_h,
+   d->gtk.cfg_w = event->width;
+   d->gtk.cfg_h = event->height;
+   _al_xglx_display_configure(display, event->x, event->y,
+      d->gtk.cfg_w, d->gtk.cfg_h,
       false /* FIXME: don't know what to pass for this */);
    return TRUE;
 }
@@ -411,27 +412,27 @@ void _al_gtk_set_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
       return;
    }
    display->flags ^= ALLEGRO_FULLSCREEN_WINDOW;
-   d->ignore_configure_event = true;
+   d->gtk.ignore_configure_event = true;
    _al_xwin_reset_size_hints(display);
    if (onoff) {
       ALLEGRO_MONITOR_INFO mi;
-      d->toggle_w = display->w;
-      d->toggle_h = display->h;
-      gtk_window_fullscreen(GTK_WINDOW(d->gtkwindow));
+      d->gtk.toggle_w = display->w;
+      d->gtk.toggle_h = display->h;
+      gtk_window_fullscreen(GTK_WINDOW(d->gtk.gtkwindow));
       _al_xglx_get_monitor_info(system, d->adapter, &mi);
-      d->cfg_w = mi.x2 - mi.x1;
-      d->cfg_h = mi.y2 - mi.y1;
+      d->gtk.cfg_w = mi.x2 - mi.x1;
+      d->gtk.cfg_h = mi.y2 - mi.y1;
    }
    else {
-      gtk_window_unfullscreen(GTK_WINDOW(d->gtkwindow));
-      d->cfg_w = d->toggle_w;
-      d->cfg_h = d->toggle_h;
+      gtk_window_unfullscreen(GTK_WINDOW(d->gtk.gtkwindow));
+      d->gtk.cfg_w = d->gtk.toggle_w;
+      d->gtk.cfg_h = d->gtk.toggle_h;
    }
 
    _al_gtk_acknowledge_resize(display);
 
    /* window-state-event sets this upon fullscreen change */
-   while (d->is_fullscreen != onoff) {
+   while (d->gtk.is_fullscreen != onoff) {
       al_rest(0.001);
    }
 
@@ -447,8 +448,8 @@ bool _al_gtk_acknowledge_resize(ALLEGRO_DISPLAY *d)
    _al_mutex_lock(&system->lock);
 
    if (glx->context) {
-      d->w = glx->cfg_w;
-      d->h = glx->cfg_h;
+      d->w = glx->gtk.cfg_w;
+      d->h = glx->gtk.cfg_h;
 
       _al_ogl_setup_gl(d);
    }
@@ -462,7 +463,7 @@ bool _al_gtk_acknowledge_resize(ALLEGRO_DISPLAY *d)
 GtkWidget *_al_gtk_get_window(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_XGLX *d = (void *)display;
-   return d->gtkwindow;
+   return d->gtk.gtkwindow;
 }
 
 

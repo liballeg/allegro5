@@ -114,14 +114,16 @@ struct ALLEGRO_DISPLAY_XGLX
    /* Driver specifics. */
 
 #ifdef ALLEGRO_CFG_USE_GTKGLEXT
-   GtkWidget *gtkwindow;
-   GtkWidget *gtkdrawing_area;
-   GdkGLContext *gtkcontext;
-   GdkGLDrawable *gtkdrawable;
-   int cfg_w, cfg_h;
-   int toggle_w, toggle_h;
-   bool ignore_configure_event;
-   bool is_fullscreen;
+   struct {
+       GtkWidget *gtkwindow;
+       GtkWidget *gtkdrawing_area;
+       GdkGLContext *gtkcontext;
+       GdkGLDrawable *gtkdrawable;
+       int cfg_w, cfg_h;
+       int toggle_w, toggle_h;
+       bool ignore_configure_event;
+       bool is_fullscreen;
+   } gtk;
 #endif
    Window window;
    int xscreen; /* X Screen ID */

@@ -81,7 +81,7 @@ void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
    (void)y_off;
    geo.min_width = geo.max_width = geo.base_width = d->w;
    geo.min_height = geo.max_height = geo.base_height = d->h;
-   gdk_window_set_geometry_hints(GDK_WINDOW(glx->gtkwindow->window),
+   gdk_window_set_geometry_hints(GDK_WINDOW(glx->gtk.gtkwindow->window),
       &geo, GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE | GDK_HINT_BASE_SIZE);
 #endif
 }
@@ -106,7 +106,7 @@ void _al_xwin_reset_size_hints(ALLEGRO_DISPLAY *d)
    GdkGeometry geo;
    geo.min_width = geo.min_height = 0;
    geo.max_width = geo.max_height = 32768;
-   gdk_window_set_geometry_hints(GDK_WINDOW(glx->gtkwindow->window),
+   gdk_window_set_geometry_hints(GDK_WINDOW(glx->gtk.gtkwindow->window),
       &geo, GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE);
 #endif
 }

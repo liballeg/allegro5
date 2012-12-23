@@ -98,7 +98,7 @@ static void xdpy_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 
 #ifdef ALLEGRO_CFG_USE_GTKGLEXT
 
-   gtk_window_move(GTK_WINDOW(glx->gtkwindow), x, y);
+   gtk_window_move(GTK_WINDOW(glx->gtk.gtkwindow), x, y);
 
 #else
 
@@ -771,7 +771,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    _al_mutex_unlock(&s->lock);
 
 #ifdef ALLEGRO_CFG_USE_GTKGLEXT
-   gtk_widget_destroy(glx->gtkwindow);
+   gtk_widget_destroy(glx->gtk.gtkwindow);
    if (s->system.displays._size <= 0) {
       gtk_main_quit();
    }
@@ -793,7 +793,7 @@ static bool xdpy_set_current_display(ALLEGRO_DISPLAY *d)
 
 #ifdef ALLEGRO_CFG_USE_GTKGLEXT
 
-   gdk_gl_drawable_make_current(glx->gtkdrawable, glx->gtkcontext);
+   gdk_gl_drawable_make_current(glx->gtk.gtkdrawable, glx->gtk.gtkcontext);
 
 #else
    
@@ -842,10 +842,10 @@ static void xdpy_flip_display(ALLEGRO_DISPLAY *d)
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
 
 #ifdef ALLEGRO_CFG_USE_GTKGLEXT
-   gdk_gl_drawable_swap_buffers (glx->gtkdrawable);
+   gdk_gl_drawable_swap_buffers (glx->gtk.gtkdrawable);
    /* In current GtkGLExt, gl_end is a no-op */
-   gdk_gl_drawable_gl_end (glx->gtkdrawable);
-   gdk_gl_drawable_gl_begin (glx->gtkdrawable, glx->gtkcontext);
+   gdk_gl_drawable_gl_end (glx->gtk.gtkdrawable);
+   gdk_gl_drawable_gl_begin (glx->gtk.gtkdrawable, glx->gtk.gtkcontext);
 #else
    int e = glGetError();
    if (e) {
@@ -967,16 +967,16 @@ static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
    if (d->w == w && d->h == h) {
       return true;
    }
-   glx->ignore_configure_event = true;
+   glx->gtk.ignore_configure_event = true;
    _al_xwin_reset_size_hints(d);
-   gtk_window_resize(GTK_WINDOW(glx->gtkwindow), w, h);
-   gtk_container_check_resize(GTK_CONTAINER(glx->gtkwindow));
+   gtk_window_resize(GTK_WINDOW(glx->gtk.gtkwindow), w, h);
+   gtk_container_check_resize(GTK_CONTAINER(glx->gtk.gtkwindow));
    /* FIXME: for some reason ex_resize never gets a configure-event
     * for 100x100, so using that instead of a rest isn't working.
     */
    al_rest(0.2);
-   glx->cfg_w = w;
-   glx->cfg_h = h;
+   glx->gtk.cfg_w = w;
+   glx->gtk.cfg_h = h;
    xdpy_acknowledge_resize(d);
    _al_xwin_set_size_hints(d, INT_MAX, INT_MAX);
    return true;
@@ -1254,7 +1254,7 @@ static void xdpy_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
    XSetClassHint(system->x11display, glx->window, &hint);
    _al_mutex_unlock(&system->lock);
 #else
-   gtk_window_set_title(GTK_WINDOW(glx->gtkwindow), title);
+   gtk_window_set_title(GTK_WINDOW(glx->gtk.gtkwindow), title);
 #endif
 }
 
