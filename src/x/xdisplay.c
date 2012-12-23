@@ -5,12 +5,6 @@
 
 #ifdef ALLEGRO_CFG_USE_GTK
 #include <gtk/gtk.h>
-#endif
-
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-#include <gtk/gtkgl.h>
-#include <gdk/gdkx.h>
-#include <gdk/x11/gdkglx.h>
 #include "allegro5/internal/aintern_xgtk.h"
 #endif
 
