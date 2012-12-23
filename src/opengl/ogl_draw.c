@@ -79,7 +79,6 @@ static bool set_opengl_blending(ALLEGRO_DISPLAY *d)
 
 
 
-/* Dummy implementation of clear. */
 static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 {
    ALLEGRO_DISPLAY *ogl_disp = (void *)d;

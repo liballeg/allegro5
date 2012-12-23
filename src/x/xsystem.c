@@ -1,8 +1,3 @@
-/* This is only a dummy driver, not implementing most required things,
- * it's just here to give me some understanding of the base framework of a
- * system driver.
- */
-
 #ifdef DEBUG_X11
 extern int _Xdebug; /* part of Xlib */
 #endif
@@ -18,7 +13,6 @@ ALLEGRO_DEBUG_CHANNEL("system")
 
 static ALLEGRO_SYSTEM_INTERFACE *xglx_vt;
 
-/* Create a new system object for the dummy X11 driver. */
 static ALLEGRO_SYSTEM *xglx_initialize(int flags)
 {
    Display *x11display;
