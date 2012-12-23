@@ -3,33 +3,9 @@
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_x.h"
 
-
 ALLEGRO_DEBUG_CHANNEL("display")
 
 static ALLEGRO_DISPLAY_INTERFACE xdpy_vt;
-
-
-
-/* Helper to set up GL state as we want it. */
-static void setup_gl(ALLEGRO_DISPLAY *d)
-{
-   ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
-
-   glViewport(0, 0, d->w, d->h);
-
-   glMatrixMode(GL_PROJECTION);
-   glLoadIdentity();
-   glOrtho(0, d->w, d->h, 0, -1, 1);
-
-   glMatrixMode(GL_MODELVIEW);
-   glLoadIdentity();
-
-   if (ogl->backbuffer)
-      _al_ogl_resize_backbuffer(ogl->backbuffer, d->w, d->h);
-   else
-      ogl->backbuffer = _al_ogl_create_backbuffer(d);
-}
-
 
 
 /* Helper to set a window icon.  We use the _NET_WM_ICON property which is
@@ -234,7 +210,6 @@ static void _al_xglx_unuse_adapter(ALLEGRO_SYSTEM_XGLX *s, int adapter)
 static void xdpy_destroy_display(ALLEGRO_DISPLAY *d);
 
 
-
 /* Create a new X11 display, which maps directly to a GLX window. */
 static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 {
@@ -265,7 +240,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    display->w = w;
    display->h = h;
-   display->vt = &xdpy_vt;
+   display->vt = _al_display_xglx_driver();
    display->refresh_rate = al_get_new_display_refresh_rate();
    display->flags = al_get_new_display_flags();
 
@@ -549,7 +524,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 #endif
 
    if (display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY])
-      setup_gl(display);
+      _al_ogl_setup_gl(display);
 
    /* vsync */
 
@@ -595,7 +570,6 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    return display;
 }
-
 
 
 static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
@@ -786,6 +760,7 @@ static void xdpy_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
    xdpy_flip_display(d);
 }
 
+
 static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
@@ -814,15 +789,15 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
       /* No context yet means this is a stray call happening during
        * initialization.
        */
-      if (glx->context)
-         setup_gl(d);
+      if (glx->context) {
+         _al_ogl_setup_gl(d);
+      }
    }
 
    _al_mutex_unlock(&system->lock);
 
    return true;
 }
-
 
 
 /* Note: The system mutex must be locked (exactly once) so when we
@@ -942,11 +917,8 @@ skip_resize:
 }
 
 
-
-/* Handle an X11 configure event. [X11 thread]
- * Only called from the event handler with the system locked.
- */
-void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
+void _al_xglx_display_configure(ALLEGRO_DISPLAY *d, int x, int y,
+   int width, int height, bool setglxy)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
 
@@ -959,16 +931,16 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
     * Here we merely add the event to the queue.
     */
    if (!glx->programmatic_resize &&
-         (d->w != xevent->xconfigure.width ||
-          d->h != xevent->xconfigure.height)) {
+         (d->w != width ||
+          d->h != height)) {
       if (_al_event_source_needs_to_generate_event(es)) {
          ALLEGRO_EVENT event;
          event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
          event.display.timestamp = al_get_time();
-         event.display.x = xevent->xconfigure.x;
-         event.display.y = xevent->xconfigure.y;
-         event.display.width = xevent->xconfigure.width;
-         event.display.height = xevent->xconfigure.height;
+         event.display.x = x;
+         event.display.y = y;
+         event.display.width = width;
+         event.display.height = height;
          _al_event_source_emit_event(es, &event);
       }
    }
@@ -979,20 +951,20 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
     * Unfortunately, we also end up ignoring the only event we receive in
     * response to a XMoveWindow request so we have to compensate for that.
     */
-   if (xevent->xconfigure.send_event) {
-      glx->x = xevent->xconfigure.x;
-      glx->y = xevent->xconfigure.y;
+   if (setglxy) {
+      glx->x = x;
+      glx->y = y;
    }
    
 
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX*)al_get_system_driver();
    ALLEGRO_MONITOR_INFO mi;
-   int center_x = (glx->x + (glx->x + xevent->xconfigure.width)) / 2;
-   int center_y = (glx->y + (glx->y + xevent->xconfigure.height)) / 2;
+   int center_x = (glx->x + (glx->x + width)) / 2;
+   int center_y = (glx->y + (glx->y + height)) / 2;
          
    _al_xglx_get_monitor_info(system, glx->adapter, &mi);
    
-   ALLEGRO_DEBUG("xconfigure event! %ix%i\n", xevent->xconfigure.x, xevent->xconfigure.y);
+   ALLEGRO_DEBUG("xconfigure event! %ix%i\n", x, y);
    
    /* check if we're no longer inside the stored adapter */
    if ((center_x < mi.x1 && center_x > mi.x2) ||
@@ -1012,7 +984,23 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
    }
    
    _al_event_source_unlock(es);
-   
+}
+
+
+/* Handle an X11 configure event. [X11 thread]
+ * Only called from the event handler with the system locked.
+ */
+void _al_xglx_display_configure_event(ALLEGRO_DISPLAY *d, XEvent *xevent)
+{
+   /* We receive two configure events when toggling the window frame.
+    * We ignore the first one as it has bogus coordinates.
+    * The only way to tell them apart seems to be the send_event field.
+    * Unfortunately, we also end up ignoring the only event we receive in
+    * response to a XMoveWindow request so we have to compensate for that.
+    */
+   bool setglxy = (xevent->xconfigure.send_event);
+   _al_xglx_display_configure(d, xevent->xconfigure.x, xevent->xconfigure.y,
+      xevent->xconfigure.width, xevent->xconfigure.height, setglxy);
 }
 
 

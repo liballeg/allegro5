@@ -138,7 +138,9 @@ struct ALLEGRO_DISPLAY_XGLX
 /* Functions private to the X11 driver. */
 
 /* display */
-void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *event);
+void _al_xglx_setup_gl(ALLEGRO_DISPLAY *d);
+void _al_xglx_display_configure(ALLEGRO_DISPLAY *d, int x, int y, int width, int height, bool setglxy);
+void _al_xglx_display_configure_event(ALLEGRO_DISPLAY *d, XEvent *event);
 void _al_xwin_display_switch_handler(ALLEGRO_DISPLAY *d,
    XFocusChangeEvent *event);
 void _al_xwin_display_expose(ALLEGRO_DISPLAY *display, XExposeEvent *xevent);
