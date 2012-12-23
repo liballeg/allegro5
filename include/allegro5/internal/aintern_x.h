@@ -21,7 +21,7 @@ void _al_xwin_mouse_button_release_handler(int button, ALLEGRO_DISPLAY *d);
 void _al_xwin_mouse_motion_notify_handler(int x, int y, ALLEGRO_DISPLAY *d);
 void _al_xwin_add_cursor_functions(ALLEGRO_DISPLAY_INTERFACE *vt);
 void _al_xwin_keyboard_handler(XKeyEvent *event, ALLEGRO_DISPLAY *display);
-void _al_x_background_thread(_AL_THREAD *self, void *arg);
+void _al_xwin_background_thread(_AL_THREAD *self, void *arg);
 bool _al_xwin_grab_mouse(ALLEGRO_DISPLAY *display);
 bool _al_xwin_ungrab_mouse(void);
 void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off);

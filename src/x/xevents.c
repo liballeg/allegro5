@@ -112,7 +112,7 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
    }
 }
 
-void _al_x_background_thread(_AL_THREAD *self, void *arg)
+void _al_xwin_background_thread(_AL_THREAD *self, void *arg)
 {
    ALLEGRO_SYSTEM_XGLX *s = arg;
    XEvent event;
