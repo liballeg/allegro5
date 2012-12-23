@@ -168,7 +168,6 @@ static void tex_ptr_off(ALLEGRO_DISPLAY *display)
    }
 }
 
-/* Dummy implementation of clear. */
 static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 {
    ALLEGRO_DISPLAY *ogl_disp = (void *)d;

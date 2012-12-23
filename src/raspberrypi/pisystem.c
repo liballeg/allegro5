@@ -15,7 +15,6 @@ ALLEGRO_DEBUG_CHANNEL("system")
 
 static ALLEGRO_SYSTEM_INTERFACE *pi_vt;
 
-/* Create a new system object for the dummy X11 driver. */
 static ALLEGRO_SYSTEM *pi_initialize(int flags)
 {
    (void)flags;
