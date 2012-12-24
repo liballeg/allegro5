@@ -10,84 +10,7 @@ ALLEGRO_DEBUG_CHANNEL("display")
 
 static ALLEGRO_DISPLAY_INTERFACE xdpy_vt;
 
-
-/* Helper to set a window icon.  We use the _NET_WM_ICON property which is
- * supported by modern window managers.
- *
- * The old method is XSetWMHints but the (antiquated) ICCCM talks about 1-bit
- * pixmaps.  For colour icons, perhaps you're supposed use the icon_window,
- * and draw the window yourself?
- */
-static bool xdpy_set_icon_inner(Display *x11display, Window window,
-   ALLEGRO_BITMAP *bitmap, int prop_mode)
-{
-   int w, h;
-   int data_size;
-   unsigned long *data; /* Yes, unsigned long, even on 64-bit platforms! */
-   ALLEGRO_LOCKED_REGION *lr;
-   bool ret;
-
-   w = al_get_bitmap_width(bitmap);
-   h = al_get_bitmap_height(bitmap);
-   data_size = 2 + w * h;
-   data = al_malloc(data_size * sizeof(data[0]));
-   if (!data)
-      return false;
-
-   lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,
-      ALLEGRO_LOCK_READONLY);
-   if (lr) {
-      int x, y;
-      ALLEGRO_COLOR c;
-      unsigned char r, g, b, a;
-      Atom _NET_WM_ICON;
-
-      data[0] = w;
-      data[1] = h;
-      for (y = 0; y < h; y++) {
-         for (x = 0; x < w; x++) {
-            c = al_get_pixel(bitmap, x, y);
-            al_unmap_rgba(c, &r, &g, &b, &a);
-            data[2 + y*w + x] = (a << 24) | (r << 16) | (g << 8) | b;
-         }
-      }
-
-      _NET_WM_ICON = XInternAtom(x11display, "_NET_WM_ICON", False);
-      XChangeProperty(x11display, window, _NET_WM_ICON, XA_CARDINAL, 32,
-         prop_mode, (unsigned char *)data, data_size);
-
-      al_unlock_bitmap(bitmap);
-      ret = true;
-   }
-   else {
-      ret = false;
-   }
-
-   al_free(data);
-
-   return ret;
-}
-
-static void xdpy_set_icons(ALLEGRO_DISPLAY *d,
-   int num_icons, ALLEGRO_BITMAP *bitmaps[])
-{
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
-   int prop_mode = PropModeReplace;
-   int i;
-
-   _al_mutex_lock(&system->lock);
-
-   for (i = 0; i < num_icons; i++) {
-      if (xdpy_set_icon_inner(system->x11display, glx->window, bitmaps[i],
-            prop_mode)) {
-         prop_mode = PropModeAppend;
-      }
-   }
-
-   _al_mutex_unlock(&system->lock);
-}
-
+static void xdpy_destroy_display(ALLEGRO_DISPLAY *d);
 
 
 static void xdpy_set_window_position_default(ALLEGRO_DISPLAY *display, int x, int y)
@@ -183,45 +106,6 @@ static bool xdpy_set_window_constraints(ALLEGRO_DISPLAY *display,
 }
 
 
-static void xdpy_set_frame(ALLEGRO_DISPLAY *display, bool frame_on)
-{
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
-   Display *x11 = system->x11display;
-   Atom hints;
-
-   _al_mutex_lock(&system->lock);
-
-#if 1
-   /* This code is taken from the GDK sources. So it works perfectly in Gnome,
-    * no idea if it will work anywhere else. X11 documentation itself only
-    * describes a way how to make the window completely unmanaged, but that
-    * would also require special care in the event handler.
-    */
-   hints = XInternAtom(x11, "_MOTIF_WM_HINTS", True);
-   if (hints) {
-      struct {
-         unsigned long flags;
-         unsigned long functions;
-         unsigned long decorations;
-         long input_mode;
-         unsigned long status;
-      } motif = {2, 0, frame_on, 0, 0};
-      XChangeProperty(x11, glx->window, hints, hints, 32, PropModeReplace,
-         (void *)&motif, sizeof motif / 4);
-
-      if (frame_on)
-         display->flags &= ~ALLEGRO_FRAMELESS;
-      else
-         display->flags |= ALLEGRO_FRAMELESS;
-   }
-#endif
-
-   _al_mutex_unlock(&system->lock);
-}
-
-
-
 static void xdpy_set_fullscreen_window_default(ALLEGRO_DISPLAY *display, bool onoff)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
@@ -251,14 +135,13 @@ static void xdpy_set_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
 }
 
 
-
 static bool xdpy_set_display_flag(ALLEGRO_DISPLAY *display, int flag,
    bool flag_onoff)
 {
    switch (flag) {
       case ALLEGRO_FRAMELESS:
          /* The ALLEGRO_FRAMELESS flag is backwards. */
-         xdpy_set_frame(display, !flag_onoff);
+         _al_xwin_set_frame(display, !flag_onoff);
          return true;
       case ALLEGRO_FULLSCREEN_WINDOW:
          xdpy_set_fullscreen_window(display, flag_onoff);
@@ -280,8 +163,6 @@ static void _al_xglx_unuse_adapter(ALLEGRO_SYSTEM_XGLX *s, int adapter)
    s->adapter_use_count--;
    s->adapter_map[adapter]--;
 }
-
-static void xdpy_destroy_display(ALLEGRO_DISPLAY *d);
 
 
 /* Create a new X11 display, which maps directly to a GLX window. */
@@ -464,9 +345,9 @@ static ALLEGRO_DISPLAY *xdpy_create_display_default(int w, int h)
        * However, some WMs may not be fully compliant, e.g. Fluxbox.
        */
       
-      xdpy_set_frame(display, false);
+      _al_xwin_set_frame(display, false);
 
-      _al_xglx_set_above(display, 1);
+      _al_xwin_set_above(display, 1);
       
       if (!_al_xglx_fullscreen_set_mode(system, d, w, h, 0, display->refresh_rate)) {
          ALLEGRO_DEBUG("xdpy: failed to set fullscreen mode.\n");
@@ -478,7 +359,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display_default(int w, int h)
    }
 
    if (display->flags & ALLEGRO_FRAMELESS) {
-      xdpy_set_frame(display, false);
+      _al_xwin_set_frame(display, false);
    }
 
    ALLEGRO_DEBUG("X11 window created.\n");
@@ -535,7 +416,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display_default(int w, int h)
        * make sure we are layerd over panels, and are positioned properly */
 
       //_al_xwin_set_fullscreen_window(display, 1);
-      _al_xglx_set_above(display, 1);
+      _al_xwin_set_above(display, 1);
 
       _al_xglx_fullscreen_to_display(system, d);
 
@@ -1035,7 +916,7 @@ skip_resize:
 
    if (d->flags & ALLEGRO_FULLSCREEN) {
       _al_xwin_set_fullscreen_window(d, 1);
-      _al_xglx_set_above(d, 1);
+      _al_xwin_set_above(d, 1);
       _al_xglx_fullscreen_to_display(system, glx);
       ALLEGRO_DEBUG("xdpy: resize fullscreen?\n");
    }
@@ -1304,7 +1185,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    xdpy_vt.set_target_bitmap = _al_ogl_set_target_bitmap;
    xdpy_vt.is_compatible_bitmap = xdpy_is_compatible_bitmap;
    xdpy_vt.resize_display = xdpy_resize_display;
-   xdpy_vt.set_icons = xdpy_set_icons;
+   xdpy_vt.set_icons = _al_xwin_set_icons;
    xdpy_vt.set_window_title = xdpy_set_window_title;
    xdpy_vt.set_window_position = xdpy_set_window_position;
    xdpy_vt.get_window_position = xdpy_get_window_position;
@@ -1320,35 +1201,5 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    return &xdpy_vt;
 }
 
-#define X11_ATOM(x)  XInternAtom(x11, #x, False);
-
-void _al_xglx_set_above(ALLEGRO_DISPLAY *display, int value)
-{
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
-   Display *x11 = system->x11display;
-
-   ALLEGRO_DEBUG("Toggling _NET_WM_STATE_ABOVE hint: %d\n", value);
-
-   XEvent xev;
-   xev.xclient.type = ClientMessage;
-   xev.xclient.serial = 0;
-   xev.xclient.send_event = True;
-   xev.xclient.message_type = X11_ATOM(_NET_WM_STATE);
-   xev.xclient.window = glx->window;
-   xev.xclient.format = 32;
-
-   // Note: It seems 0 is not reliable except when mapping a window -
-   // 2 is all we need though.
-   xev.xclient.data.l[0] = value; /* 0 = off, 1 = on, 2 = toggle */
-
-   xev.xclient.data.l[1] = X11_ATOM(_NET_WM_STATE_ABOVE);
-   xev.xclient.data.l[2] = 0;
-   xev.xclient.data.l[3] = 0;
-   xev.xclient.data.l[4] = 1;
-
-   XSendEvent(x11, DefaultRootWindow(x11), False,
-      SubstructureRedirectMask | SubstructureNotifyMask, &xev);
-}
 
 /* vi: set sts=3 sw=3 et: */
