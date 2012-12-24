@@ -70,32 +70,6 @@ static void display_flags_to_window_styles(int flags,
    }
 }
 
-/*
- * Find the top left position of the client area of a window.
- */
-static void get_window_pos(HWND window, RECT *pos)
-{
-   RECT with_decorations;
-   RECT adjusted;
-   int top;
-   int left;
-   WINDOWINFO wi;
-
-   wi.cbSize = sizeof(WINDOWINFO);
-
-   GetWindowRect(window, &with_decorations);
-   memcpy(&adjusted, &with_decorations, sizeof(RECT));
-
-   GetWindowInfo(window, &wi);
-   AdjustWindowRectEx(&adjusted, wi.dwStyle, false, wi.dwExStyle);
-
-   top = with_decorations.top - adjusted.top;
-   left = with_decorations.left - adjusted.left;
-
-   pos->top = with_decorations.top + top;
-   pos->left = with_decorations.left + left;
-}
-
 HWND _al_win_create_hidden_window()
 {
    HWND window = CreateWindowEx(0, 
@@ -942,8 +916,7 @@ void _al_win_set_window_position(HWND window, int x, int y)
 void _al_win_get_window_position(HWND window, int *x, int *y)
 {
    RECT r;
-
-   get_window_pos(window, &r);
+   GetWindowRect(window, &r);
 
    if (x) {
       *x = r.left;
