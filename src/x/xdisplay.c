@@ -30,33 +30,96 @@ static void _al_xglx_unuse_adapter(ALLEGRO_SYSTEM_XGLX *s, int adapter)
 }
 
 
-/* Create a new X11 display, which maps directly to a GLX window. */
-static ALLEGRO_DISPLAY *xdpy_create_display_default(int w, int h)
+static bool check_adapter_use_count(ALLEGRO_SYSTEM_XGLX *system)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   int adapter = al_get_new_display_adapter();
+   /* If we're in multi-head X mode, bail out if we try to use more than one
+    * display as there are bugs in X/glX that cause us to hang in X if we try
+    * to use more than one.
+    * If we're in real xinerama mode, also bail out, X makes mouse use evil.
+    */
+   bool true_xinerama_active = false;
+#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+   bool xrandr_active = false;
+#ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
+   xrandr_active = system->xrandr_available;
+#endif
+   true_xinerama_active = !xrandr_active && system->xinerama_available;
+#endif
 
-   if (system->x11display == NULL) {
-      ALLEGRO_WARN("Not connected to X server.\n");
-      return NULL;
+   if ((true_xinerama_active || ScreenCount(system->x11display) > 1)
+         && system->adapter_use_count > 0)
+   {
+      int i, adapter_use_count = 0;
+
+      /* XXX magic constant */
+      for (i = 0; i < 32; i++) {
+         if (system->adapter_map[i])
+            adapter_use_count++;
+      }
+
+      if (adapter_use_count > 1) {
+         ALLEGRO_ERROR("Use of more than one adapter at once in "
+            "multi-head X or X with true Xinerama active is not possible.\n");
+         return false;
+      }
    }
 
-   if (w <= 0 || h <= 0) {
-      ALLEGRO_ERROR("Invalid window size %dx%d\n", w, h);
-      return NULL;
+   return true;
+}
+
+
+static int query_glx_version(ALLEGRO_SYSTEM_XGLX *system)
+{
+   int major, minor;
+   int version;
+
+   glXQueryVersion(system->x11display, &major, &minor);
+   version = major * 100 + minor * 10;
+   ALLEGRO_INFO("GLX %.1f.\n", version / 100.f);
+   return version;
+}
+
+
+static int xdpy_swap_control(ALLEGRO_DISPLAY *display, int vsync_setting)
+{
+   /* We set the swap interval to 0 if vsync is forced off, and to 1
+    * if it is forced on.
+    * http://www.opengl.org/registry/specs/SGI/swap_control.txt
+    * If the option is set to 0, we simply use the system default. The
+    * above extension specifies vsync on as default though, so in the
+    * end with GLX we can't force vsync on, just off.
+    */
+   ALLEGRO_DEBUG("requested vsync=%d.\n", vsync_setting);
+
+   if (vsync_setting) {
+      if (display->ogl_extras->extension_list->ALLEGRO_GLX_SGI_swap_control) {
+         int x = (vsync_setting == 2) ? 0 : 1;
+         if (glXSwapIntervalSGI(x)) {
+            ALLEGRO_WARN("glXSwapIntervalSGI(%d) failed.\n", x);
+         }
+      }
+      else {
+         ALLEGRO_WARN("no vsync, GLX_SGI_swap_control missing.\n");
+         /* According to the specification that means it's on, but
+          * the driver might have disabled it. So we do not know.
+          */
+         vsync_setting = 0;
+      }
    }
 
-   _al_mutex_lock(&system->lock);
+   return vsync_setting;
+}
 
+
+static ALLEGRO_DISPLAY *xdpy_create_display_default_locked(
+   ALLEGRO_SYSTEM_XGLX *system, int w, int h, int adapter)
+{
    ALLEGRO_DISPLAY_XGLX *d = al_calloc(1, sizeof *d);
-   ALLEGRO_DISPLAY *display = (void*)d;
+   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)d;
    ALLEGRO_OGL_EXTRAS *ogl = al_calloc(1, sizeof *ogl);
    display->ogl_extras = ogl;
 
-   int major, minor;
-   glXQueryVersion(system->x11display, &major, &minor);
-   d->glx_version = major * 100 + minor * 10;
-   ALLEGRO_INFO("GLX %.1f.\n", d->glx_version / 100.f);
+   d->glx_version = query_glx_version(system);
 
    display->w = w;
    display->h = h;
@@ -70,53 +133,22 @@ static ALLEGRO_DISPLAY *xdpy_create_display_default(int w, int h)
    /* Store our initial virtual adapter, used by fullscreen and positioning
     * code.
     */
-   d->adapter = adapter;
    ALLEGRO_DEBUG("selected adapter %i\n", adapter);
-   if (d->adapter < 0) {
+   if (adapter < 0)
       d->adapter = _al_xglx_get_default_adapter(system);
-   }
+   else
+      d->adapter = adapter;
 
-   _al_xglx_use_adapter(system, d->adapter);
-
-   /* If we're in multi-head X mode, bail out if we try to use more than one
-    * display as there are bugs in X/glX that cause us to hang in X if we try
-    * to use more than one.
-    * If we're in real xinerama mode, also bail out, X makes mouse use evil.
-    */
-
-   bool true_xinerama_active = false;
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
-   bool xrandr_active = false;
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
-   xrandr_active = system->xrandr_available;
-#endif
-
-   true_xinerama_active = !xrandr_active && system->xinerama_available;
-#endif
-
-   if ((true_xinerama_active || ScreenCount(system->x11display) > 1) && system->adapter_use_count) {
-      uint32_t i, adapter_use_count = 0;
-      for (i = 0; i < 32; i++) {
-         if (system->adapter_map[i])
-            adapter_use_count++;
-      }
-
-      if (adapter_use_count > 1) {
-         ALLEGRO_ERROR("Use of more than one adapter at once in multi-head X or X with true Xinerama active is not possible.\n");
-         al_free(d);
-         al_free(ogl);
-         _al_mutex_unlock(&system->lock);
-         return NULL;
-      }
-   }
    ALLEGRO_DEBUG("xdpy: selected adapter %i\n", d->adapter);
+   _al_xglx_use_adapter(system, d->adapter);
+   if (!check_adapter_use_count(system)) {
+      goto EarlyError;
+   }
 
    /* Store our initial X Screen, used by window creation, fullscreen, and glx
     * visual code.
     */
    d->xscreen = _al_xglx_get_xscreen(system, d->adapter);
-
    ALLEGRO_DEBUG("xdpy: selected xscreen %i\n", d->xscreen);
 
    d->is_mapped = false;
@@ -130,10 +162,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display_default(int w, int h)
    if (!d->xvinfo) {
       ALLEGRO_ERROR("FIXME: Need better visual selection.\n");
       ALLEGRO_ERROR("No matching visual found.\n");
-      al_free(d);
-      al_free(ogl);
-      _al_mutex_unlock(&system->lock);
-      return NULL;
+      goto EarlyError;
    }
 
    ALLEGRO_INFO("Selected X11 visual %lu.\n", d->xvinfo->visualid);
@@ -179,7 +208,8 @@ static ALLEGRO_DISPLAY *xdpy_create_display_default(int w, int h)
       swa.background_pixel = BlackPixel(system->x11display, d->xvinfo->screen);
    }
 
-   int x_off = INT_MAX, y_off = INT_MAX;
+   int x_off = INT_MAX;
+   int y_off = INT_MAX;
    if (display->flags & ALLEGRO_FULLSCREEN) {
       _al_xglx_get_display_offset(system, d->adapter, &x_off, &y_off);
    }
@@ -189,7 +219,6 @@ static ALLEGRO_DISPLAY *xdpy_create_display_default(int w, int h)
        */
       int xscr_x = 0;
       int xscr_y = 0;
-
       al_get_new_window_position(&x_off, &y_off);
 
       if (adapter >= 0) {
@@ -219,19 +248,13 @@ static ALLEGRO_DISPLAY *xdpy_create_display_default(int w, int h)
        * window decorations when _NET_WM_STATE_FULLSCREEN is in effect.
        * However, some WMs may not be fully compliant, e.g. Fluxbox.
        */
-
       _al_xwin_set_frame(display, false);
-
       _al_xwin_set_above(display, 1);
-
       if (!_al_xglx_fullscreen_set_mode(system, d, w, h, 0,
             display->refresh_rate)) {
          ALLEGRO_DEBUG("xdpy: failed to set fullscreen mode.\n");
-         xdpy_destroy_display(display);
-         _al_mutex_unlock(&system->lock);
-         return NULL;
+         goto LateError;
       }
-      //XSync(system->x11display, False);
    }
 
    if (display->flags & ALLEGRO_FRAMELESS) {
@@ -308,9 +331,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display_default(int w, int h)
    }
 
    if (!_al_xglx_config_create_context(d)) {
-      xdpy_destroy_display(display);
-      _al_mutex_unlock(&system->lock);
-      return NULL;
+      goto LateError;
    }
 
    /* Make our GLX context current for reading and writing in the current
@@ -340,9 +361,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display_default(int w, int h)
       ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = _al_get_new_display_settings();
       if (eds->required & (1<<ALLEGRO_COMPATIBLE_DISPLAY)) {
          ALLEGRO_ERROR("Allegro requires at least OpenGL version 1.2 to work.\n");
-         xdpy_destroy_display(display);
-         _al_mutex_unlock(&system->lock);
-         return NULL;
+         goto LateError;
       }
       display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;
    }
@@ -351,37 +370,9 @@ static ALLEGRO_DISPLAY *xdpy_create_display_default(int w, int h)
       _al_ogl_setup_gl(display);
 
    /* vsync */
-
-   /* Fill in the user setting. */
-   display->extra_settings.settings[ALLEGRO_VSYNC] =
-      _al_get_new_display_settings()->settings[ALLEGRO_VSYNC];
-
-   /* We set the swap interval to 0 if vsync is forced off, and to 1
-    * if it is forced on.
-    * http://www.opengl.org/registry/specs/SGI/swap_control.txt
-    * If the option is set to 0, we simply use the system default. The
-    * above extension specifies vsync on as default though, so in the
-    * end with GLX we can't force vsync on, just off.
-    */
-   ALLEGRO_DEBUG("requested vsync=%d.\n",
-      display->extra_settings.settings[ALLEGRO_VSYNC]);
-   if (display->extra_settings.settings[ALLEGRO_VSYNC]) {
-      if (display->ogl_extras->extension_list->ALLEGRO_GLX_SGI_swap_control) {
-         int x = 1;
-         if (display->extra_settings.settings[ALLEGRO_VSYNC] == 2)
-            x = 0;
-         if (glXSwapIntervalSGI(x)) {
-            ALLEGRO_WARN("glXSwapIntervalSGI(%d) failed.\n", x);
-         }
-      }
-      else {
-         ALLEGRO_WARN("no vsync, GLX_SGI_swap_control missing.\n");
-         /* According to the specification that means it's on, but
-          * the driver might have disabled it. So we do not know.
-          */
-         display->extra_settings.settings[ALLEGRO_VSYNC] = 0;
-      }
-   }
+   int vsync_setting = _al_get_new_display_settings()->settings[ALLEGRO_VSYNC];
+   vsync_setting = xdpy_swap_control(display, vsync_setting);
+   display->extra_settings.settings[ALLEGRO_VSYNC] = vsync_setting;
 
    d->invisible_cursor = None; /* Will be created on demand. */
    d->current_cursor = None; /* Initially, we use the root cursor. */
@@ -389,6 +380,41 @@ static ALLEGRO_DISPLAY *xdpy_create_display_default(int w, int h)
 
    d->icon = None;
    d->icon_mask = None;
+
+   return display;
+
+EarlyError:
+   al_free(d);
+   al_free(ogl);
+   return NULL;
+
+LateError:
+   xdpy_destroy_display(display);
+   return NULL;
+}
+
+
+/* Create a new X11 display, which maps directly to a GLX window. */
+static ALLEGRO_DISPLAY *xdpy_create_display_default(int w, int h)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+   ALLEGRO_DISPLAY *display;
+   int adapter;
+
+   if (system->x11display == NULL) {
+      ALLEGRO_WARN("Not connected to X server.\n");
+      return NULL;
+   }
+
+   if (w <= 0 || h <= 0) {
+      ALLEGRO_ERROR("Invalid window size %dx%d\n", w, h);
+      return NULL;
+   }
+
+   _al_mutex_lock(&system->lock);
+
+   adapter = al_get_new_display_adapter();
+   display = xdpy_create_display_default_locked(system, w, h, adapter);
 
    _al_mutex_unlock(&system->lock);
 
