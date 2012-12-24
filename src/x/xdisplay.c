@@ -601,36 +601,11 @@ static void restore_mode_if_last_fullscreen_display(ALLEGRO_SYSTEM_XGLX *s,
 }
 
 
-static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
+static void xdpy_destroy_display_hook_default(ALLEGRO_SYSTEM_XGLX *s,
+   ALLEGRO_DISPLAY *d)
 {
-   ALLEGRO_SYSTEM_XGLX *s = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
-   ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
 
-   ALLEGRO_DEBUG("destroying display.\n");
-
-   /* If we're the last display, convert all bitmaps to display independent
-    * (memory) bitmaps. Otherwise, pass all bitmaps to any other living
-    * display. We assume all displays are compatible.)
-    */
-   if (s->system.displays._size == 1)
-      convert_display_bitmaps_to_memory_bitmap(d);
-   else
-      transfer_display_bitmaps_to_any_other_display(s, d);
-
-   _al_ogl_unmanage_extensions(d);
-   ALLEGRO_DEBUG("unmanaged extensions.\n");
-
-   _al_mutex_lock(&s->lock);
-   _al_vector_find_and_delete(&s->system.displays, &d);
-
-   if (ogl->backbuffer) {
-      _al_ogl_destroy_backbuffer(ogl->backbuffer);
-      ogl->backbuffer = NULL;
-      ALLEGRO_DEBUG("destroy backbuffer.\n");
-   }
-
-#ifndef ALLEGRO_CFG_USE_GTKGLEXT
    if (glx->context) {
       glXDestroyContext(s->gfxdisplay, glx->context);
       glx->context = NULL;
@@ -658,6 +633,40 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    if (d->flags & ALLEGRO_FULLSCREEN) {
       restore_mode_if_last_fullscreen_display(s, glx);
    }
+}
+
+
+static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
+{
+   ALLEGRO_SYSTEM_XGLX *s = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+   ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
+
+   ALLEGRO_DEBUG("destroying display.\n");
+
+   /* If we're the last display, convert all bitmaps to display independent
+    * (memory) bitmaps. Otherwise, pass all bitmaps to any other living
+    * display. We assume all displays are compatible.)
+    */
+   if (s->system.displays._size == 1)
+      convert_display_bitmaps_to_memory_bitmap(d);
+   else
+      transfer_display_bitmaps_to_any_other_display(s, d);
+
+   _al_ogl_unmanage_extensions(d);
+   ALLEGRO_DEBUG("unmanaged extensions.\n");
+
+   _al_mutex_lock(&s->lock);
+   _al_vector_find_and_delete(&s->system.displays, &d);
+
+   if (ogl->backbuffer) {
+      _al_ogl_destroy_backbuffer(ogl->backbuffer);
+      ogl->backbuffer = NULL;
+      ALLEGRO_DEBUG("destroy backbuffer.\n");
+   }
+
+   (void) xdpy_destroy_display_hook_default;
+#ifndef ALLEGRO_CFG_USE_GTKGLEXT
+   xdpy_destroy_display_hook_default(s, d);
 #else
    _al_gtk_destroy_display_hook(d);
 #endif
