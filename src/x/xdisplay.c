@@ -618,29 +618,11 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    else
       transfer_display_bitmaps_to_any_other_display(s, d);
 
-#ifndef ALLEGRO_CFG_USE_GTKGLEXT
-   _al_xglx_unuse_adapter(s, glx->adapter);
-#endif
-   
    _al_ogl_unmanage_extensions(d);
    ALLEGRO_DEBUG("unmanaged extensions.\n");
 
    _al_mutex_lock(&s->lock);
    _al_vector_find_and_delete(&s->system.displays, &d);
-
-#ifndef ALLEGRO_CFG_USE_GTKGLEXT
-   XDestroyWindow(s->x11display, glx->window);
-#endif
-
-   if (s->mouse_grab_display == d) {
-      s->mouse_grab_display = NULL;
-   }
-
-   ALLEGRO_DEBUG("destroy window.\n");
-
-   if (d->flags & ALLEGRO_FULLSCREEN) {
-      restore_mode_if_last_fullscreen_display(s, glx);
-   }
 
    if (ogl->backbuffer) {
       _al_ogl_destroy_backbuffer(ogl->backbuffer);
@@ -667,7 +649,22 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    }
 
    _al_cond_destroy(&glx->mapped);
+
+   ALLEGRO_DEBUG("destroy window.\n");
+   XDestroyWindow(s->x11display, glx->window);
+
+   _al_xglx_unuse_adapter(s, glx->adapter);
+
+   if (d->flags & ALLEGRO_FULLSCREEN) {
+      restore_mode_if_last_fullscreen_display(s, glx);
+   }
+#else
+   _al_gtk_destroy_display_hook(d);
 #endif
+
+   if (s->mouse_grab_display == d) {
+      s->mouse_grab_display = NULL;
+   }
 
    _al_vector_free(&d->bitmaps);
    _al_event_source_free(&d->es);
@@ -677,10 +674,6 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    al_free(d);
 
    _al_mutex_unlock(&s->lock);
-
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-   _al_gtk_destroy_display_hook(d);
-#endif
 
    ALLEGRO_DEBUG("destroy display finished.\n");
 }
