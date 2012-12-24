@@ -531,43 +531,92 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 }
 
 
-static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
+static void convert_display_bitmaps_to_memory_bitmap(ALLEGRO_DISPLAY *d)
 {
-   ALLEGRO_SYSTEM_XGLX *s = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
-   ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
+   ALLEGRO_DEBUG("converting display bitmaps to memory bitmaps.\n");
 
-   ALLEGRO_DEBUG("destroy display.\n");
+   while (d->bitmaps._size > 0) {
+      ALLEGRO_BITMAP **bptr = _al_vector_ref_back(&d->bitmaps);
+      ALLEGRO_BITMAP *b = *bptr;
+      _al_convert_to_memory_bitmap(b);
+   }
+}
 
-   /* If we're the last display, convert all bitmaps to display independent
-    * (memory) bitmaps. */
-   if (s->system.displays._size == 1) {
-      while (d->bitmaps._size > 0) {
-         ALLEGRO_BITMAP **bptr = _al_vector_ref_back(&d->bitmaps);
-         ALLEGRO_BITMAP *b = *bptr;
-         _al_convert_to_memory_bitmap(b);
+
+static void transfer_display_bitmaps_to_any_other_display(
+   ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY *d)
+{
+   size_t i;
+   ALLEGRO_DISPLAY *living;
+   ASSERT(s->system.displays._size > 1);
+
+   for (i = 0; i < s->system.displays._size; i++) {
+      ALLEGRO_DISPLAY **slot = _al_vector_ref(&s->system.displays, i);
+      living = *slot;
+      if (living != d)
+         break;
+   }
+
+   ALLEGRO_DEBUG("transferring display bitmaps to other display.\n");
+
+   for (i = 0; i < d->bitmaps._size; i++) {
+      ALLEGRO_BITMAP **add = _al_vector_alloc_back(&(living->bitmaps));
+      ALLEGRO_BITMAP **ref = _al_vector_ref(&d->bitmaps, i);
+      *add = *ref;
+      (*add)->display = living;
+   }
+}
+
+
+static void restore_mode_if_last_fullscreen_display(ALLEGRO_SYSTEM_XGLX *s,
+   ALLEGRO_DISPLAY_XGLX *d)
+{
+   bool last_fullscreen = true;
+   size_t i;
+
+   /* If any other fullscreen display is still active on the same adapter,
+    * we must not touch the video mode.
+    */
+   for (i = 0; i < s->system.displays._size; i++) {
+      ALLEGRO_DISPLAY_XGLX **slot = _al_vector_ref(&s->system.displays, i);
+      ALLEGRO_DISPLAY_XGLX *living = *slot;
+
+      if (living == d)
+         continue;
+
+      /* Check for fullscreen displays on the same adapter. */
+      if (living->adapter == d->adapter
+            && (living->display.flags & ALLEGRO_FULLSCREEN)) {
+         last_fullscreen = false;
       }
+   }
+
+   if (last_fullscreen) {
+      ALLEGRO_DEBUG("restore mode.\n");
+      _al_xglx_restore_video_mode(s, d->adapter);
    }
    else {
-      /* Pass all bitmaps to any other living display. (We assume all displays
-       * are compatible.) */
-      size_t i;
-      ALLEGRO_DISPLAY **living = NULL;
-      ASSERT(s->system.displays._size > 1);
-
-      for (i = 0; i < s->system.displays._size; i++) {
-         living = _al_vector_ref(&s->system.displays, i);
-         if (*living != d)
-            break;
-      }
-
-      for (i = 0; i < d->bitmaps._size; i++) {
-         ALLEGRO_BITMAP **add = _al_vector_alloc_back(&(*living)->bitmaps);
-         ALLEGRO_BITMAP **ref = _al_vector_ref(&d->bitmaps, i);
-         *add = *ref;
-         (*add)->display = *living;
-      }
+      ALLEGRO_DEBUG("*not* restoring mode.\n");
    }
+}
+
+
+static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
+{
+   ALLEGRO_SYSTEM_XGLX *s = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+   ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
+
+   ALLEGRO_DEBUG("destroying display.\n");
+
+   /* If we're the last display, convert all bitmaps to display independent
+    * (memory) bitmaps. Otherwise, pass all bitmaps to any other living
+    * display. We assume all displays are compatible.)
+    */
+   if (s->system.displays._size == 1)
+      convert_display_bitmaps_to_memory_bitmap(d);
+   else
+      transfer_display_bitmaps_to_any_other_display(s, d);
 
 #ifndef ALLEGRO_CFG_USE_GTKGLEXT
    _al_xglx_unuse_adapter(s, glx->adapter);
@@ -590,33 +639,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    ALLEGRO_DEBUG("destroy window.\n");
 
    if (d->flags & ALLEGRO_FULLSCREEN) {
-      size_t i;
-      ALLEGRO_DISPLAY **living = NULL;
-      bool last_fullscreen = true;
-      /* If any other fullscreen display is still active on the same adapter,
-       * we must not touch the video mode.
-       */
-      for (i = 0; i < s->system.displays._size; i++) {
-         living = _al_vector_ref(&s->system.displays, i);
-         ALLEGRO_DISPLAY_XGLX *living_glx = (void*)*living;
-         
-         if (*living == d) continue;
-         
-         /* check for fullscreen displays on the same adapter */
-         if (living_glx->adapter == glx->adapter &&
-             al_get_display_flags(*living) & ALLEGRO_FULLSCREEN)
-         {
-            last_fullscreen = false;
-         }
-      }
-      
-      if (last_fullscreen) {
-         ALLEGRO_DEBUG("restore modes.\n");
-         _al_xglx_restore_video_mode(s, glx->adapter);
-      }
-      else {
-         ALLEGRO_DEBUG("*not* restoring modes.\n");
-      }
+      restore_mode_if_last_fullscreen_display(s, glx);
    }
 
    if (ogl->backbuffer) {
