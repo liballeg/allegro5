@@ -20,15 +20,18 @@
 
 #define ALLEGRO_NO_COMPATIBILITY
 
+#include <X11/Xlib.h>
 #include <stdio.h>
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_mouse.h"
+#include "allegro5/internal/aintern_x.h"
+#include "allegro5/internal/aintern_xdisplay.h"
+#include "allegro5/internal/aintern_xmouse.h"
+#include "allegro5/internal/aintern_xsystem.h"
 
-#ifndef ALLEGRO_RASPBERRYPI
-#include "allegro5/internal/aintern_xglx.h"
-#else
+#ifdef ALLEGRO_RASPBERRYPI
 #include "allegro5/internal/aintern_raspberrypi.h"
 #include "allegro5/internal/aintern_vector.h"
 #define ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_RASPBERRYPI

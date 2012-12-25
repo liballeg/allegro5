@@ -35,10 +35,12 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_keyboard.h"
+#include "allegro5/internal/aintern_x.h"
+#include "allegro5/internal/aintern_xdisplay.h"
+#include "allegro5/internal/aintern_xkeyboard.h"
+#include "allegro5/internal/aintern_xsystem.h"
 
-#ifndef ALLEGRO_RASPBERRYPI
-#include "allegro5/internal/aintern_xglx.h"
-#else
+#ifdef ALLEGRO_RASPBERRYPI
 #include "allegro5/internal/aintern_raspberrypi.h"
 #define ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_RASPBERRYPI
 #endif

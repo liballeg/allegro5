@@ -6,6 +6,8 @@
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/platform/aintlnx.h"
 #include "allegro5/internal/aintern_x.h"
+#include "allegro5/internal/aintern_xevents.h"
+#include "allegro5/internal/aintern_xmouse.h"
 
 #include "bcm_host.h"
 

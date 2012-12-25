@@ -1,5 +1,5 @@
 /*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
+ *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
@@ -11,32 +11,30 @@
  *      OpenGL extensions management subsystem
  *
  *      By Elias Pschernig and Milan Mimica.
+ *
  *      Based on AllegroGL extensions management.
  */
 
-/* Title: OpenGL extensions
- */
-
+#include <math.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_opengl.h"
-#include "allegro5/display.h"
 #include "allegro5/opengl/gl_ext.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_system.h"
-#include <stdio.h>
-#include <math.h>
 
 /* We need some driver specific details not worth of a vtable entry. */
 #if defined ALLEGRO_WINDOWS
    #include "../win/wgl.h"
 #elif defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX
-   #include "allegro5/internal/aintern_xglx.h"
+   #include "allegro5/internal/aintern_xdisplay.h"
+   #include "allegro5/internal/aintern_xsystem.h"
 #endif
 
-#include <string.h>
 #if defined ALLEGRO_MACOSX
 #include <OpenGL/glu.h>
 #elif !defined ALLEGRO_CFG_OPENGLES
