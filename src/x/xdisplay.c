@@ -449,7 +449,7 @@ static void transfer_display_bitmaps_to_any_other_display(
    ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY *d)
 {
    size_t i;
-   ALLEGRO_DISPLAY *living;
+   ALLEGRO_DISPLAY *living = NULL;
    ASSERT(s->system.displays._size > 1);
 
    for (i = 0; i < s->system.displays._size; i++) {
