@@ -1,3 +1,5 @@
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_native_dialog.h>
 #include "global.h"
 #include "credits.h"
 #include "fps.h"
@@ -69,6 +71,9 @@ int init_framework(void)
 
    /* Attempt to initialize Allegro. */
    if (!al_init()) {
+      return DEMO_ERROR_ALLEGRO;
+   }
+   if (!al_init_native_dialog_addon()) {
       return DEMO_ERROR_ALLEGRO;
    }
    
