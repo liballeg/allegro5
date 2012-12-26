@@ -15,7 +15,10 @@ bool _al_init_native_dialog_addon(void)
 {
    int argc = 0;
    char **argv = NULL;
-   gtk_init(&argc, &argv);
+   if (!gtk_init_check(&argc, &argv)) {
+      ALLEGRO_ERROR("gtk_init_check failed\n");
+      return false;
+   }
 
 #ifdef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
    return _al_gtk_set_display_overridable_interface(true);
