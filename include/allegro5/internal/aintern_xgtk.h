@@ -7,6 +7,21 @@ bool _al_gtk_ensure_thread(void);
 
 #ifdef ALLEGRO_CFG_USE_GTKGLEXT
 
+#include <gtk/gtk.h>
+#include <gtk/gtkgl.h>
+#include <gdk/gdkx.h>
+
+struct ALLEGRO_DISPLAY_XGLX_GTKGLEXT {
+   GtkWidget *gtkwindow;
+   GtkWidget *gtkdrawing_area;
+   GdkGLContext *gtkcontext;
+   GdkGLDrawable *gtkdrawable;
+   int cfg_w, cfg_h;
+   int toggle_w, toggle_h;
+   bool ignore_configure_event;
+   bool is_fullscreen;
+};
+
 ALLEGRO_DISPLAY *_al_gtk_create_display(int w, int h);
 void _al_gtk_destroy_display_hook(ALLEGRO_DISPLAY *d);
 

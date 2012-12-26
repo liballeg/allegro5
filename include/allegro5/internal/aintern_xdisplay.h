@@ -9,14 +9,10 @@
 
 #include <GL/glx.h>
 
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-#include <gtk/gtk.h>
-#include <gtk/gtkgl.h>
-#include <gdk/gdkx.h>
-#endif
-
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_x.h"
+
+typedef struct ALLEGRO_DISPLAY_XGLX_GTKGLEXT ALLEGRO_DISPLAY_XGLX_GTKGLEXT;
 
 /* This is our version of ALLEGRO_DISPLAY with driver specific extra data. */
 struct ALLEGRO_DISPLAY_XGLX
@@ -26,18 +22,13 @@ struct ALLEGRO_DISPLAY_XGLX
 
    /* Driver specifics. */
 
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-   struct {
-       GtkWidget *gtkwindow;
-       GtkWidget *gtkdrawing_area;
-       GdkGLContext *gtkcontext;
-       GdkGLDrawable *gtkdrawable;
-       int cfg_w, cfg_h;
-       int toggle_w, toggle_h;
-       bool ignore_configure_event;
-       bool is_fullscreen;
-   } gtk;
-#endif
+   /* If GtkGLExt is used then this points to a structure containing fields
+    * specific to that backend, otherwise it is NULL.  Some following fields
+    * are inapplicable in GtkGLExt mode; precisely which should be made
+    * obvious, but isn't yet.
+    */
+   ALLEGRO_DISPLAY_XGLX_GTKGLEXT *gtk;
+
    Window window;
    int xscreen; /* X Screen ID */
    int adapter; /* allegro virtual adapter id/index */
