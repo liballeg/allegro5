@@ -13,6 +13,30 @@ Opaque handle to a native file dialog.
 
 Opaque handle to a text log window.
 
+## API: al_init_native_dialog_addon
+
+Initialise the native dialog addon.
+
+Returns true on success, false on error.
+
+Since: 5.1.0
+
+> *Note:* Prior to Allegro 5.1.0 native dialog functions could be called
+without explicit initialisation, but that is now deprecated.
+Future functionality may require explicit initialisation.
+An exception is [al_show_native_message_box], which may be useful to show
+an error message if Allegro fails to initialise.
+
+See also: [al_shutdown_native_dialog_addon]
+
+## API: al_shutdown_native_dialog_addon
+
+Shut down the native dialog addon.
+
+Since: 5.1.5
+
+See also: [al_init_native_dialog_addon]
+
 ## API: al_create_native_file_dialog
 
 Creates a new native file dialog.  You should only have one such dialog opened
