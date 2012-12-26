@@ -65,6 +65,19 @@ bool _al_gtk_ensure_thread(void)
       g_thread_init(NULL);
 #endif
 
+   /* al_init_native_dialog_addon() didn't always exist so GTK might not have
+    * been initialised.  gtk_init_check knows if it's been initialised already
+    * so we can just call it again.
+    */
+   {
+      int argc = 0;
+      char **argv = NULL;
+      if (!gtk_init_check(&argc, &argv)) {
+         ALLEGRO_ERROR("gtk_init_check failed\n");
+         return false;
+      }
+   }
+
    nd_gtk_lock();
 
    if (!nd_gtk_thread) {
