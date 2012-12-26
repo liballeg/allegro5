@@ -6,7 +6,8 @@
 #endif
 
 
-#if defined ALLEGRO_MACOSX || defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
+/* XXX do it properly */
+#if defined(ALLEGRO_MACOSX) || defined(ALLEGRO_IPHONE) || defined(ALLEGRO_ANDROID) || defined(ALLEGRO_RASPBERRYPI)
 // Do some one-time initialisation for the thread support
 void _al_pthreads_tls_init(void);
 #endif
