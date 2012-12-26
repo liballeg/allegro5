@@ -35,7 +35,7 @@ struct ARGS
    bool done;
    bool response;
    
-   ALLEGRO_DISPLAY *display;
+   GtkWidget *gtk_window;
    ALLEGRO_MENU *menu;
    ALLEGRO_MENU_ITEM *item;
    int i;
@@ -432,8 +432,7 @@ static gboolean do_show_display_menu(gpointer data)
       
       build_menu(menu_bar, args->menu);
 
-      GtkWidget *gtk_window = _al_gtk_get_window(args->display);
-      GtkWidget *vbox = gtk_bin_get_child(GTK_BIN(gtk_window));
+      GtkWidget *vbox = gtk_bin_get_child(GTK_BIN(args->gtk_window));
       gtk_box_pack_start(GTK_BOX(vbox), menu_bar, FALSE, FALSE, 0);
       gtk_box_reorder_child(GTK_BOX(vbox), menu_bar, 0);
       gtk_widget_show(menu_bar);
@@ -451,18 +450,24 @@ static gboolean do_show_display_menu(gpointer data)
 bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 {
 #ifdef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
+   GtkWidget *gtk_window;
    ARGS *args;
-   
+
    if (!_al_gtk_ensure_thread()) {
       return false;
    }
-   
+
+   gtk_window = _al_gtk_get_window(display);
+   if (!gtk_window) {
+      return false;
+   }
+
    args = create_args();
    if (!args) {
       return false;
    }
    
-   args->display = display;
+   args->gtk_window = gtk_window;
    args->menu = menu;
    
    return wait_for_args(do_show_display_menu, args);
@@ -490,12 +495,16 @@ static gboolean do_hide_display_menu(gpointer data)
 bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 {
 #ifdef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
+   GtkWidget *gtk_window;
    ARGS *args;
+
+   if (!(gtk_window = _al_gtk_get_window(display)))
+      return false;
    
    if (!(args = create_args()))
       return false;
    
-   args->display = display;
+   args->gtk_window = gtk_window;
    args->menu = menu;      
    wait_for_args(do_hide_display_menu, args);   
    _al_walk_over_menu(menu, clear_menu_extras, NULL);
@@ -551,14 +560,18 @@ bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
    return false;
 #else
    ARGS *args;
+   (void)display;
    
    if (!_al_gtk_ensure_thread()) {
       return false;
    }
-   
+
    args = create_args();
+   if (!args) {
+      return false;
+   }
    
-   args->display = display;
+   args->gtk_window = NULL;
    args->menu = menu;
    
    return wait_for_args(do_show_popup_menu, args);
