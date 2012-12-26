@@ -1,9 +1,32 @@
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_native_dialog.h"
+#include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_native_dialog.h"
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_system.h"
 
+static bool inited_addon = false;
+
+/* Function: al_init_native_dialog_addon
+ */
+bool al_init_native_dialog_addon(void)
+{
+   if (!inited_addon) {
+      inited_addon = true;
+      _al_add_exit_func(al_shutdown_native_dialog_addon,
+         "al_shutdown_native_dialog_addon");
+   }
+   return true;
+}
+
+/* Function: al_shutdown_native_dialog_addon
+ */
+void al_shutdown_native_dialog_addon(void)
+{
+   if (inited_addon) {
+      inited_addon = false;
+   }
+}
 
 /* Function: al_create_native_file_dialog
  */

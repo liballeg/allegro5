@@ -37,6 +37,9 @@ typedef struct ALLEGRO_FILECHOOSER ALLEGRO_FILECHOOSER;
  */
 typedef struct ALLEGRO_TEXTLOG ALLEGRO_TEXTLOG;
 
+ALLEGRO_DIALOG_FUNC(bool, al_init_native_dialog_addon, (void));
+ALLEGRO_DIALOG_FUNC(void, al_shutdown_native_dialog_addon, (void));
+
 ALLEGRO_DIALOG_FUNC(ALLEGRO_FILECHOOSER *, al_create_native_file_dialog, (char const *initial_path,
    char const *title, char const *patterns, int mode));
 ALLEGRO_DIALOG_FUNC(bool, al_show_native_file_dialog, (ALLEGRO_DISPLAY *display, ALLEGRO_FILECHOOSER *dialog));
