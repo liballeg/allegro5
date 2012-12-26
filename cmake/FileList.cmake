@@ -129,7 +129,6 @@ set(ALLEGRO_SRC_X_FILES
     src/x/xevents.c
     src/x/xfullscreen.c
     src/x/xglx_config.c
-    src/x/xgtk.c
     src/x/xkeyboard.c
     src/x/xmousenu.c
     src/x/xrandr.c

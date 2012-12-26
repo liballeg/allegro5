@@ -80,6 +80,14 @@ struct ALLEGRO_DISPLAY_INTERFACE
 };
 
 
+#ifdef ALLEGRO_WITH_XWINDOWS
+/* The GTK backend of the native dialog addon may override the behaviour of the
+ * X display interface implementation.
+ */
+struct ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE;
+#endif
+
+
 struct ALLEGRO_OGL_EXTRAS;
 
 typedef struct ALLEGRO_BLENDER
@@ -118,6 +126,9 @@ struct ALLEGRO_DISPLAY
    /* Must be first, so the display can be used as event source. */
    ALLEGRO_EVENT_SOURCE es;
    ALLEGRO_DISPLAY_INTERFACE *vt;
+#ifdef ALLEGRO_WITH_XWINDOWS
+   const struct ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE *overridable_vt;
+#endif
    int refresh_rate;
    int flags;
    int w, h;

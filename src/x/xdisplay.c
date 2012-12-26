@@ -10,13 +10,12 @@
 #include "allegro5/internal/aintern_xsystem.h"
 #include "allegro5/internal/aintern_xwindow.h"
 #include "allegro5/platform/aintxglx.h"
-#ifdef ALLEGRO_CFG_USE_GTK
-#include "allegro5/internal/aintern_xgtk.h"
-#endif
 
 ALLEGRO_DEBUG_CHANNEL("display")
 
 static ALLEGRO_DISPLAY_INTERFACE xdpy_vt;
+static const ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE default_overridable_vt;
+static const ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE *override_vt = &default_overridable_vt;
 
 static void xdpy_destroy_display(ALLEGRO_DISPLAY *d);
 
@@ -432,12 +431,15 @@ static ALLEGRO_DISPLAY *xdpy_create_display_default(int w, int h)
 
 static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 {
-   (void) xdpy_create_display_default;
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-   return _al_gtk_create_display(w, h);
-#else
-   return xdpy_create_display_default(w, h);
-#endif
+   ALLEGRO_DISPLAY *d;
+
+   ASSERT(override_vt);
+   ASSERT(override_vt->create_display);
+   d = override_vt->create_display(w, h);
+   if (d) {
+      d->overridable_vt = override_vt;
+   }
+   return d;
 }
 
 
@@ -511,9 +513,9 @@ static void restore_mode_if_last_fullscreen_display(ALLEGRO_SYSTEM_XGLX *s,
 }
 
 
-static void xdpy_destroy_display_hook_default(ALLEGRO_SYSTEM_XGLX *s,
-   ALLEGRO_DISPLAY *d)
+static void xdpy_destroy_display_hook_default(ALLEGRO_DISPLAY *d)
 {
+   ALLEGRO_SYSTEM_XGLX *s = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
 
    if (glx->context) {
@@ -574,12 +576,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
       ALLEGRO_DEBUG("destroy backbuffer.\n");
    }
 
-   (void) xdpy_destroy_display_hook_default;
-#ifndef ALLEGRO_CFG_USE_GTKGLEXT
-   xdpy_destroy_display_hook_default(s, d);
-#else
-   _al_gtk_destroy_display_hook(d);
-#endif
+   d->overridable_vt->destroy_display_hook(d);
 
    if (s->mouse_grab_display == d) {
       s->mouse_grab_display = NULL;
@@ -620,13 +617,7 @@ static bool xdpy_set_current_display(ALLEGRO_DISPLAY *d)
 {
    bool rc;
 
-   (void) xdpy_make_current;
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-   rc = _al_gtk_make_current(d);
-#else
-   rc = xdpy_make_current(d);
-#endif
-
+   rc = d->overridable_vt->make_current(d);
    if (rc) {
       ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
       _al_ogl_set_extensions(ogl->extension_api);
@@ -637,7 +628,7 @@ static bool xdpy_set_current_display(ALLEGRO_DISPLAY *d)
 }
 
 
-static void xdpy_unset_current_display_default(ALLEGRO_DISPLAY *d)
+static void xdpy_unmake_current(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    glXMakeContextCurrent(system->gfxdisplay, None, None, NULL);
@@ -647,12 +638,7 @@ static void xdpy_unset_current_display_default(ALLEGRO_DISPLAY *d)
 
 static void xdpy_unset_current_display(ALLEGRO_DISPLAY *d)
 {
-   (void) xdpy_unset_current_display_default;
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-   _al_gtk_unmake_current(d);
-#else
-   xdpy_unset_current_display_default(d);
-#endif
+   d->overridable_vt->unmake_current(d);
 }
 
 
@@ -675,12 +661,7 @@ static void xdpy_flip_display_default(ALLEGRO_DISPLAY *d)
 
 static void xdpy_flip_display(ALLEGRO_DISPLAY *d)
 {
-   (void) xdpy_flip_display_default;
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-   _al_gtk_flip_display(d);
-#else
-   xdpy_flip_display_default(d);
-#endif
+   d->overridable_vt->flip_display(d);
 }
 
 
@@ -736,12 +717,7 @@ static bool xdpy_acknowledge_resize_default(ALLEGRO_DISPLAY *d)
 
 static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
 {
-   (void) xdpy_acknowledge_resize_default;
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-   return _al_gtk_acknowledge_resize(d);
-#else
-   return xdpy_acknowledge_resize_default(d);
-#endif
+   return d->overridable_vt->acknowledge_resize(d);
 }
 
 
@@ -863,12 +839,7 @@ skip_resize:
 
 static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
 {
-   (void) xdpy_resize_display_default;
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-   return _al_gtk_resize_display(d, w, h);
-#else
-   return xdpy_resize_display_default(d, w, h);
-#endif
+   return d->overridable_vt->resize_display(d, w, h);
 }
 
 
@@ -1048,12 +1019,7 @@ static void xdpy_set_window_title_default(ALLEGRO_DISPLAY *display, const char *
 
 static void xdpy_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
 {
-   (void) xdpy_set_window_title_default;
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-   _al_gtk_set_window_title(display, title);
-#else
-   xdpy_set_window_title_default(display, title);
-#endif
+   display->overridable_vt->set_window_title(display, title);
 }
 
 
@@ -1092,12 +1058,7 @@ static void xdpy_set_window_position_default(ALLEGRO_DISPLAY *display,
 
 static void xdpy_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 {
-   (void) xdpy_set_window_position_default;
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-   _al_gtk_set_window_position(display, x, y);
-#else
-   xdpy_set_window_position_default(display, x, y);
-#endif
+   display->overridable_vt->set_window_position(display, x, y);
 }
 
 
@@ -1153,12 +1114,8 @@ static bool xdpy_set_window_constraints_default(ALLEGRO_DISPLAY *display,
 static bool xdpy_set_window_constraints(ALLEGRO_DISPLAY *display,
    int min_w, int min_h, int max_w, int max_h)
 {
-   (void)xdpy_set_window_constraints_default;
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-   return _al_gtk_set_window_constraints(display, min_w, min_h, max_w, max_h);
-#else
-   return xdpy_set_window_constraints(display, min_w, min_h, max_w, max_h);
-#endif
+   return display->overridable_vt->set_window_constraints(display,
+      min_w, min_h, max_w, max_h);
 }
 
 
@@ -1196,12 +1153,7 @@ static void xdpy_set_fullscreen_window_default(ALLEGRO_DISPLAY *display, bool on
 
 static void xdpy_set_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
 {
-   (void) xdpy_set_fullscreen_window_default;
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-   _al_gtk_set_fullscreen_window(display, onoff);
-#else
-   xdpy_set_fullscreen_window_default(display, onoff);
-#endif
+   display->overridable_vt->set_fullscreen_window(display, onoff);
 }
 
 
@@ -1268,6 +1220,40 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    _al_ogl_add_drawing_functions(&xdpy_vt);
 
    return &xdpy_vt;
+}
+
+
+static const ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE default_overridable_vt =
+{
+   xdpy_create_display_default,
+   xdpy_destroy_display_hook_default,
+   xdpy_make_current,
+   xdpy_unmake_current,
+   xdpy_flip_display_default,
+   xdpy_acknowledge_resize_default,
+   xdpy_resize_display_default,
+   xdpy_set_window_title_default,
+   xdpy_set_fullscreen_window_default,
+   xdpy_set_window_position_default,
+   xdpy_set_window_constraints_default
+};
+
+
+bool _al_xwin_set_display_overridable_interface(uint32_t check_version,
+   const ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE *vt)
+{
+   /* The version of the native dialogs addon must exactly match the core
+    * library version.
+    */
+   if (vt && check_version == ALLEGRO_VERSION_INT) {
+      ALLEGRO_DEBUG("display vtable overridden\n");
+      override_vt = vt;
+      return true;
+   }
+
+   ALLEGRO_DEBUG("display vtable reset to default\n");
+   override_vt = &default_overridable_vt;
+   return (vt == NULL);
 }
 
 

@@ -19,12 +19,8 @@
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_native_dialog.h"
 #include "allegro5/internal/aintern_native_dialog.h"
-
-#if defined ALLEGRO_WITH_XWINDOWS && !defined ALLEGRO_RASPBERRYPI
-#include "allegro5/internal/aintern_xgtk.h"
-#endif
-
 #include "gtk_dialog.h"
+#include "gtk_xgtk.h"
 
 
 typedef struct {

@@ -6,6 +6,8 @@
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_vector.h"
 
+ALLEGRO_DEBUG_CHANNEL("native_dialog")
+
 static bool inited_addon = false;
 
 /* Function: al_init_native_dialog_addon
@@ -13,6 +15,10 @@ static bool inited_addon = false;
 bool al_init_native_dialog_addon(void)
 {
    if (!inited_addon) {
+      if (!_al_init_native_dialog_addon()) {
+         ALLEGRO_ERROR("_al_init_native_dialog_addon failed.\n");
+         return false;
+      }
       inited_addon = true;
       al_init_user_event_source(al_get_default_menu_event_source());
       _al_add_exit_func(al_shutdown_native_dialog_addon,
@@ -26,8 +32,9 @@ bool al_init_native_dialog_addon(void)
 void al_shutdown_native_dialog_addon(void)
 {
    if (inited_addon) {
-      inited_addon = false;
       al_destroy_user_event_source(al_get_default_menu_event_source());
+      _al_shutdown_native_dialog_addon();
+      inited_addon = false;
    }
 }
 

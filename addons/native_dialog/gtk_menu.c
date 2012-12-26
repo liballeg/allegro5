@@ -18,11 +18,8 @@
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_native_dialog.h"
 #include "allegro5/internal/aintern_native_dialog.h"
-
-#if defined ALLEGRO_WITH_XWINDOWS && !defined ALLEGRO_RASPBERRYPI
-/* for _al_gtk_get_window */
-#include "allegro5/internal/aintern_xgtk.h"
-#endif
+#include "allegro5/internal/aintern_native_dialog_cfg.h"
+#include "gtk_xgtk.h"
 
 
 /* The API is assumed to be synchronous, but the user calls will not be
@@ -45,7 +42,7 @@ struct ARGS
 };
 
 
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+#ifdef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
 static void build_menu(GtkWidget *gmenu, ALLEGRO_MENU *amenu);
 
 /* [user thread] */
@@ -255,7 +252,7 @@ static void build_menu(GtkWidget *gmenu, ALLEGRO_MENU *amenu)
 /* [user thread] */
 bool _al_init_menu(ALLEGRO_MENU *menu)
 {
-#ifndef ALLEGRO_CFG_USE_GTKGLEXT
+#ifndef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
    (void)menu;
    return false;
 #else
@@ -270,7 +267,7 @@ bool _al_init_menu(ALLEGRO_MENU *menu)
 /* [user thread] */
 bool _al_init_popup_menu(ALLEGRO_MENU *menu)
 {
-#ifndef ALLEGRO_CFG_USE_GTKGLEXT
+#ifndef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
    (void)menu;
    return false;
 #else
@@ -278,7 +275,7 @@ bool _al_init_popup_menu(ALLEGRO_MENU *menu)
 #endif
 }
 
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+#ifdef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
 /* [gtk thread] */
 static gboolean do_destroy_menu(gpointer data)
 {
@@ -294,7 +291,7 @@ static gboolean do_destroy_menu(gpointer data)
 /* [user thread] */
 bool _al_destroy_menu(ALLEGRO_MENU *menu)
 {
-#ifndef ALLEGRO_CFG_USE_GTKGLEXT
+#ifndef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
    (void)menu;
    return false;
 #else
@@ -313,7 +310,7 @@ bool _al_destroy_menu(ALLEGRO_MENU *menu)
 #endif
 }
 
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+#ifdef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
 /* [gtk thread] */
 static gboolean do_insert_menu_item_at(gpointer data)
 {
@@ -330,7 +327,7 @@ static gboolean do_insert_menu_item_at(gpointer data)
 /* [user thread] */
 bool _al_insert_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
 {
-#ifndef ALLEGRO_CFG_USE_GTKGLEXT
+#ifndef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
    (void)item;
    (void)i;
    return false;
@@ -350,7 +347,7 @@ bool _al_insert_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
 #endif
 }
 
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+#ifdef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
 /* [gtk thread] */
 static gboolean do_destroy_menu_item_at(gpointer data)
 {
@@ -366,7 +363,7 @@ static gboolean do_destroy_menu_item_at(gpointer data)
 /* [user thread] */
 bool _al_destroy_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
 {
-#ifndef ALLEGRO_CFG_USE_GTKGLEXT
+#ifndef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
    (void)item;
    (void)i;
    return false;
@@ -388,7 +385,7 @@ bool _al_destroy_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
 #endif
 }
 
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+#ifdef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
 /* [gtk thread] */
 static gboolean do_update_menu_item_at(gpointer data)
 {
@@ -408,7 +405,7 @@ static gboolean do_update_menu_item_at(gpointer data)
 /* [user thread] */
 bool _al_update_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
 {
-#ifndef ALLEGRO_CFG_USE_GTKGLEXT
+#ifndef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
    (void)item;
    (void)i;
    return false;
@@ -425,7 +422,7 @@ bool _al_update_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
 }
 
 /* [gtk thread] */
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+#ifdef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
 static gboolean do_show_display_menu(gpointer data)
 {
    ARGS *args = lock_args(data);
@@ -453,7 +450,7 @@ static gboolean do_show_display_menu(gpointer data)
 /* [user thread] */
 bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 {
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+#ifdef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
    ARGS *args;
    
    if (!_al_gtk_ensure_thread()) {
@@ -477,7 +474,7 @@ bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 }
 
 /* [gtk thread] */
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+#ifdef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
 static gboolean do_hide_display_menu(gpointer data)
 {
    ARGS *args = lock_args(data);
@@ -492,7 +489,7 @@ static gboolean do_hide_display_menu(gpointer data)
 /* [user thread] */
 bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 {
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+#ifdef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
    ARGS *args;
    
    if (!(args = create_args()))
@@ -512,7 +509,7 @@ bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 #endif
 }
 
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
+#ifdef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
 /* [gtk thread] */
 static void popop_on_hide(ALLEGRO_MENU *menu)
 {
@@ -548,7 +545,7 @@ static gboolean do_show_popup_menu(gpointer data)
 
 bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 {
-#ifndef ALLEGRO_CFG_USE_GTKGLEXT
+#ifndef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
    (void)display;
    (void)menu;
    return false;

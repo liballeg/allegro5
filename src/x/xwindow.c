@@ -13,16 +13,13 @@
 #define ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_RASPBERRYPI
 #define ALLEGRO_DISPLAY_XGLX ALLEGRO_DISPLAY_RASPBERRYPI
 #endif
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-#include "allegro5/internal/aintern_xgtk.h"
-#endif
 
 ALLEGRO_DEBUG_CHANNEL("xwindow")
 
 #define X11_ATOM(x)  XInternAtom(x11, #x, False);
 
 
-static void xwin_set_size_hints_default(ALLEGRO_DISPLAY *d, int x_off, int y_off)
+void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
@@ -86,18 +83,7 @@ static void xwin_set_size_hints_default(ALLEGRO_DISPLAY *d, int x_off, int y_off
 }
 
 
-void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
-{
-    (void) xwin_set_size_hints_default;
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-    _al_gtk_set_size_hints(d, x_off, y_off);
-#else
-    xwin_set_size_hints_default(d, x_off, y_off);
-#endif
-}
-
-
-static void xwin_reset_size_hints_default(ALLEGRO_DISPLAY *d)
+void _al_xwin_reset_size_hints(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
@@ -113,17 +99,6 @@ static void xwin_reset_size_hints_default(ALLEGRO_DISPLAY *d)
    XSetWMNormalHints(system->x11display, glx->window, hints);
 
    XFree(hints);
-}
-
-
-void _al_xwin_reset_size_hints(ALLEGRO_DISPLAY *d)
-{
-    (void) xwin_reset_size_hints_default;
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-    _al_gtk_reset_size_hints(d);
-#else
-    xwin_reset_size_hints_default(d);
-#endif
 }
 
 

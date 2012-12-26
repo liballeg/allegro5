@@ -13,6 +13,7 @@
 #include "allegro5/internal/aintern_x.h"
 
 typedef struct ALLEGRO_DISPLAY_XGLX_GTKGLEXT ALLEGRO_DISPLAY_XGLX_GTKGLEXT;
+typedef struct ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE;
 
 /* This is our version of ALLEGRO_DISPLAY with driver specific extra data. */
 struct ALLEGRO_DISPLAY_XGLX
@@ -73,6 +74,30 @@ void _al_xwin_display_switch_handler(ALLEGRO_DISPLAY *d,
 void _al_xwin_display_switch_handler_inner(ALLEGRO_DISPLAY *d, bool focus_in);
 void _al_xwin_display_expose(ALLEGRO_DISPLAY *display, XExposeEvent *xevent);
 
+
+/* An ad-hoc interface to allow the GtkGLExt backend to override some of the
+ * normal X display interface implementation.
+ */
+struct ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE
+{
+   ALLEGRO_DISPLAY *(*create_display)(int w, int h);
+   void (*destroy_display_hook)(ALLEGRO_DISPLAY *d);
+   bool (*make_current)(ALLEGRO_DISPLAY *d);
+   void (*unmake_current)(ALLEGRO_DISPLAY *d);
+   void (*flip_display)(ALLEGRO_DISPLAY *d);
+   bool (*acknowledge_resize)(ALLEGRO_DISPLAY *d);
+   bool (*resize_display)(ALLEGRO_DISPLAY *d, int w, int h);
+   void (*set_window_title)(ALLEGRO_DISPLAY *display, const char *title);
+   void (*set_fullscreen_window)(ALLEGRO_DISPLAY *display, bool onoff);
+   void (*set_window_position)(ALLEGRO_DISPLAY *display, int x, int y);
+   bool (*set_window_constraints)(ALLEGRO_DISPLAY *display, int min_w, int min_h, int max_w, int max_h);
+};
+
+bool _al_xwin_set_display_overridable_interface(uint32_t check_version,
+   const ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE *vt);
+
 #endif /* !ALLEGRO_RASPBERRYPI */
 
 #endif
+
+/* vim: set sts=3 sw=3 et: */

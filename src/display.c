@@ -54,6 +54,9 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    }
 
    ASSERT(display->vt);
+#ifdef ALLEGRO_WITH_XWINDOWS
+   ASSERT(display->overridable_vt);
+#endif
 
    settings = &display->extra_settings;
    flags = settings->required | settings->suggested;

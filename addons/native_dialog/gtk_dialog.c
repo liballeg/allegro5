@@ -1,28 +1,38 @@
-/* Each of these files implements the same, for different GUI toolkits:
- * 
- * dialog.c - code shared between all platforms
- * gtk_dialog.c - GTK file open dialog
- * osx_dialog.m - OSX file open dialog
- * qt_dialog.cpp  - Qt file open dialog
- * win_dialog.c - Windows file open dialog
- * 
- */
 #include <gtk/gtk.h>
 
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_native_dialog.h"
 #include "allegro5/internal/aintern_native_dialog.h"
-
-#if defined ALLEGRO_WITH_XWINDOWS && !defined ALLEGRO_RASPBERRYPI
-#define WITH_XGLX
+#include "allegro5/internal/aintern_native_dialog_cfg.h"
 #include "allegro5/internal/aintern_xdisplay.h"
-#include "allegro5/internal/aintern_xgtk.h"
-#endif
-
 #include "gtk_dialog.h"
+#include "gtk_xgtk.h"
+
+ALLEGRO_DEBUG_CHANNEL("gtk_dialog")
 
 
-#ifdef WITH_XGLX
+bool _al_init_native_dialog_addon(void)
+{
+   int argc = 0;
+   char **argv = NULL;
+   gtk_init(&argc, &argv);
+
+#ifdef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
+   return _al_gtk_set_display_overridable_interface(true);
+#else
+   return true;
+#endif
+}
+
+
+void _al_shutdown_native_dialog_addon(void)
+{
+#ifdef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
+   _al_gtk_set_display_overridable_interface(false);
+#endif
+}
+
+
 static void really_make_transient(GtkWidget *window, ALLEGRO_DISPLAY_XGLX *glx)
 {
    GdkDisplay *gdk = gdk_drawable_get_display(GDK_DRAWABLE(window->window));
@@ -32,16 +42,16 @@ static void really_make_transient(GtkWidget *window, ALLEGRO_DISPLAY_XGLX *glx)
    gdk_window_set_transient_for(window->window, parent);
 }
 
+
 static void realized(GtkWidget *window, gpointer data)
 {
    really_make_transient(window, (void *)data);
 }
-#endif /* WITH_XGLX */
+
 
 void _al_gtk_make_transient(ALLEGRO_DISPLAY *display, GtkWidget *window)
 {
    /* Set the current display window (if any) as the parent of the dialog. */
-   #ifdef WITH_XGLX
    ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
    if (glx) {
       if (!GTK_WIDGET_REALIZED(window))
@@ -49,7 +59,6 @@ void _al_gtk_make_transient(ALLEGRO_DISPLAY *display, GtkWidget *window)
       else
          really_make_transient(window, glx);
    }
-   #endif
 }
 
 /* vim: set sts=3 sw=3 et: */
