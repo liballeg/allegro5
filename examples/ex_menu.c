@@ -65,8 +65,10 @@ int main(void)
    ALLEGRO_MENU *pmenu;
    ALLEGRO_BITMAP *bg;
    
-   al_init();
-   al_init_native_dialog_addon();
+   if (!al_init())
+      return 1;
+   if (!al_init_native_dialog_addon())
+      return 1;
    al_init_image_addon();
    al_install_keyboard();
    al_install_mouse();
@@ -77,6 +79,8 @@ int main(void)
    al_set_window_title(display, "ex_menu - Main Window");
    
    menu = al_build_menu(main_menu_info);
+   if (!menu)
+      return 1;
    
    /* Add an icon to the Help/About item. Note that Allegro assumes ownership
     * of the bitmap. */
