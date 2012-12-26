@@ -170,6 +170,9 @@ int main(void)
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
    }
+   if (!al_init_native_dialog_addon()) {
+      abort_example("Could not init native dialog addon.\n");
+   }
 
    textlog = al_open_native_text_log("Log", 0);
    message("Starting up log window.\n");
