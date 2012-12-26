@@ -18,7 +18,8 @@
 /* This is our version of ALLEGRO_SYSTEM with driver specific extra data. */
 struct ALLEGRO_SYSTEM_XGLX
 {
-   ALLEGRO_SYSTEM system; /* This must be the first member, we "derive" from it. */
+   /* This must be the first member, we "derive" from it. */
+   ALLEGRO_SYSTEM system;
 
    /* Driver specifics. */
 
@@ -44,17 +45,6 @@ struct ALLEGRO_SYSTEM_XGLX
    Atom AllegroAtom;
    Atom XEmbedAtom;
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
-   /* For VidMode extension. */
-   int xfvm_available;
-   int xfvm_screen_count;
-   struct {
-      int mode_count;
-      XF86VidModeModeInfo **modes;
-      XF86VidModeModeInfo *original_mode;
-   } *xfvm_screen;
-#endif
-
    /* Background thread to process X events.
     * Not used if GTK main loop is used.
     */
@@ -74,10 +64,19 @@ struct ALLEGRO_SYSTEM_XGLX
    int xinerama_screen_count;
    XineramaScreenInfo *xinerama_screen_info;
 #endif
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+   /* For VidMode extension. */
+   int xfvm_available;
+   int xfvm_screen_count;
+   struct {
+      int mode_count;
+      XF86VidModeModeInfo **modes;
+      XF86VidModeModeInfo *original_mode;
+   } *xfvm_screen;
+#endif
 #ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
    int xrandr_available;
    int xrandr_event_base;
-
    _AL_VECTOR xrandr_screens;
    _AL_VECTOR xrandr_adaptermap;
 #endif
