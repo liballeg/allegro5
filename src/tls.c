@@ -93,6 +93,7 @@ typedef struct thread_local_state {
    int dtor_owner_count;
 } thread_local_state;
 
+
 typedef struct INTERNAL_STATE {
    thread_local_state tls;
    ALLEGRO_BLENDER stored_blender;
@@ -100,8 +101,7 @@ typedef struct INTERNAL_STATE {
    int flags;
 } INTERNAL_STATE;
 
-ALLEGRO_STATIC_ASSERT(tls,
-   sizeof(ALLEGRO_STATE) > sizeof(INTERNAL_STATE));
+ALLEGRO_STATIC_ASSERT(tls, sizeof(ALLEGRO_STATE) > sizeof(INTERNAL_STATE));
 
 
 static void initialize_blender(ALLEGRO_BLENDER *b)
@@ -132,6 +132,7 @@ static void initialize_tls_values(thread_local_state *tls)
    _al_fill_display_settings(&tls->new_display_settings);
 }
 
+
 // FIXME: The TLS implementation below only works for dynamic linking
 // right now - instead of using DllMain we should simply initialize
 // on first request.
@@ -140,147 +141,12 @@ static void initialize_tls_values(thread_local_state *tls)
 #endif
 
 #if defined(ALLEGRO_CFG_DLL_TLS)
-
-#include <windows.h>
-
-
-/* Forward declaration to bypass strict warning. */
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved);
-
-
-static DWORD tls_index;
-
-
-static thread_local_state *tls_get(void)
-{
-   thread_local_state *t = TlsGetValue(tls_index);
-   return t;
-}
-
-
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{ 
-   thread_local_state *data;
-
-   (void)hinstDLL;
-   (void)fdwReason;
-   (void)lpvReserved;
- 
-   switch (fdwReason) { 
-      case DLL_PROCESS_ATTACH: 
-         if ((tls_index = TlsAlloc()) == TLS_OUT_OF_INDEXES) {
-            return false;
-	 }
-         // No break: Initialize the index for first thread.
-         // The attached process creates a new thread. 
-
-      case DLL_THREAD_ATTACH: 
-          // Initialize the TLS index for this thread.
-          data = al_malloc(sizeof(*data));
-          if (data != NULL) {
-             TlsSetValue(tls_index, data);
-             initialize_tls_values(data);
-          }
-          break; 
- 
-        // The thread of the attached process terminates.
-      case DLL_THREAD_DETACH: 
-         // Release the allocated memory for this thread.
-         data = TlsGetValue(tls_index); 
-         if (data != NULL) 
-            al_free(data);
- 
-         break; 
- 
-      // DLL unload due to process termination or FreeLibrary. 
-      case DLL_PROCESS_DETACH: 
-         // Release the allocated memory for this thread.
-         data = TlsGetValue(tls_index); 
-         if (data != NULL) 
-            al_free(data);
-         // Release the TLS index.
-         TlsFree(tls_index); 
-         break; 
- 
-      default: 
-         break; 
-   } 
- 
-   return true; 
-}
-
-
-#else /* not ALLEGRO_CFG_DLL_TLS */
-
-#if defined(ALLEGRO_MSVC) || defined(ALLEGRO_BCC32)
-
-#define THREAD_LOCAL __declspec(thread)
-#define HAVE_NATIVE_TLS
-
-#elif defined ALLEGRO_MACOSX || defined ALLEGRO_GP2XWIZ || defined ALLEGRO_IPHONE
-
-#define THREAD_LOCAL
-
-static pthread_key_t tls_key = 0;
-
-static void pthreads_thread_destroy(void* ptr)
-{
-   al_free(ptr);
-}
-
-
-void _al_pthreads_tls_init(void)
-{
-   pthread_key_create(&tls_key, pthreads_thread_destroy);
-}
-
-static thread_local_state _tls;
-
-static thread_local_state* pthreads_thread_init(void)
-{
-   /* Allocate and copy the 'template' object */
-   thread_local_state* ptr = (thread_local_state*)al_malloc(sizeof(thread_local_state));
-   memcpy(ptr, &_tls, sizeof(thread_local_state));
-   pthread_setspecific(tls_key, ptr);
-   return ptr;
-}
-
-/* This function is short so it can hopefully be inlined. */
-static thread_local_state* tls_get(void)
-{
-   thread_local_state* ptr = (thread_local_state*)pthread_getspecific(tls_key);
-   if (ptr == NULL)
-   {
-      /* Must create object */
-      ptr = pthreads_thread_init();
-      initialize_tls_values(ptr);
-   }
-   return ptr;
-}
-
-#else /* not MSVC/BCC32, not OSX */
-
-#define THREAD_LOCAL __thread
-#define HAVE_NATIVE_TLS
-
-#endif /* end not MSVC/BCC32, not OSX */
-
-static THREAD_LOCAL thread_local_state _tls;
-
-#ifdef HAVE_NATIVE_TLS
-static thread_local_state *tls_get(void)
-{
-   static THREAD_LOCAL thread_local_state *ptr = NULL;
-   if (!ptr) {
-      ptr = &_tls;
-      initialize_tls_values(ptr);
-   }
-   return ptr;
-}
-#endif /* end HAVE_NATIVE_TLS */
-
-
-#endif /* end not ALLEGRO_CFG_DLL_TLS */
+   #include "tls_dll.inc"
+#elif defined(ALLEGRO_MACOSX) || defined(ALLEGRO_IPHONE)
+   #include "tls_pthread.inc"
+#else
+   #include "tls_native.inc"
+#endif
 
 
 
