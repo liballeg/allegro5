@@ -30,7 +30,7 @@ int mouse_y(void)
    return my;
 }
 
-void mouse_event(ALLEGRO_EVENT *event)
+void mouse_handle_event(ALLEGRO_EVENT *event)
 {
    switch (event->type) {
       case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:

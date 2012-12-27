@@ -258,15 +258,15 @@ void run_framework(void)
       switch (event.type) {
          
          case ALLEGRO_EVENT_MOUSE_AXES:
-            mouse_event(&event);
+            mouse_handle_event(&event);
             break;
          
          case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
-            mouse_event(&event);
+            mouse_handle_event(&event);
             break;
          
          case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
-            mouse_event(&event);
+            mouse_handle_event(&event);
             break;
 
          case ALLEGRO_EVENT_KEY_DOWN:
