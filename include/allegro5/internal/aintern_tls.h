@@ -6,12 +6,7 @@
 #endif
 
 
-/* XXX do it properly */
-#if defined(ALLEGRO_MACOSX) || defined(ALLEGRO_IPHONE) || defined(ALLEGRO_ANDROID) || defined(ALLEGRO_RASPBERRYPI)
-// Do some one-time initialisation for the thread support
-void _al_pthreads_tls_init(void);
-#endif
-
+void _al_tls_init_once(void);
 
 int *_al_tls_get_dtor_owner_count(void);
 

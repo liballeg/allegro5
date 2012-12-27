@@ -24,7 +24,7 @@ static void tls_dtor(void *ptr)
 }
 
 
-void _al_pthreads_tls_init(void)
+void _al_tls_init_once(void)
 {
    pthread_key_create(&tls_key, tls_dtor);
 }
