@@ -23,6 +23,12 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved);
 static DWORD tls_index;
 
 
+void _al_tls_init_once(void)
+{
+   /* nothing */
+}
+
+
 static thread_local_state *tls_get(void)
 {
    thread_local_state *t = TlsGetValue(tls_index);

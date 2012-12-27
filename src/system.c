@@ -230,10 +230,8 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
    if (!compatible_versions(version, library_version))
       return false;
 
-#ifdef ALLEGRO_CFG_PTHREADS_TLS
-   _al_pthreads_tls_init();
-#endif
-   
+   _al_tls_init_once();
+
    _al_vector_init(&_al_system_interfaces, sizeof(ALLEGRO_SYSTEM_INTERFACE *));
 
    /* We want active_sysdrv->config to be available as soon as

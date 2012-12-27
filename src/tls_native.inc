@@ -22,6 +22,12 @@
 static THREAD_LOCAL_QUALIFIER thread_local_state _tls;
 
 
+void _al_tls_init_once(void)
+{
+   /* nothing */
+}
+
+
 static thread_local_state *tls_get(void)
 {
    static THREAD_LOCAL_QUALIFIER thread_local_state *ptr = NULL;
