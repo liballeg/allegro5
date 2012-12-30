@@ -61,6 +61,7 @@ int main(void)
    al_attach_shader_source(
       shader,
       ALLEGRO_PIXEL_SHADER,
+      "#version 120\n"
       #ifdef ALLEGRO_CFG_OPENGLES
       "precision mediump float;\n"
       #endif
