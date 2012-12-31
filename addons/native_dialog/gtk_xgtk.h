@@ -1,8 +1,6 @@
 #ifndef __al_included_allegro5_native_dialog_gtk_xgtk_h
 #define __al_included_allegro5_native_dialog_gtk_xgtk_h
 
-bool _al_gtk_ensure_thread(void);
-
 #ifdef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
 
 #include <gtk/gtk.h>

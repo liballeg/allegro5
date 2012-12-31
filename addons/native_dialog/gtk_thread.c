@@ -103,4 +103,64 @@ bool _al_gtk_ensure_thread(void)
 }
 
 
+/* [user thread] */
+void *_al_gtk_create_args(size_t size)
+{
+   ARGS_BASE *args = al_calloc(1, size);
+   if (args) {
+      args->mutex = al_create_mutex();
+      args->cond = al_create_cond();
+      args->done = false;
+      args->response = true;
+   }
+   return args;
+}
+
+
+/* [user thread] */
+bool _al_gtk_wait_for_args(GSourceFunc func, void *data)
+{
+   ARGS_BASE *args = (ARGS_BASE *) data;
+   bool response;
+
+   al_lock_mutex(args->mutex);
+   g_timeout_add(0, func, data);
+   while (args->done == false) {
+      al_wait_cond(args->cond, args->mutex);
+   }
+   al_unlock_mutex(args->mutex);
+
+   response = args->response;
+
+   al_destroy_mutex(args->mutex);
+   al_destroy_cond(args->cond);
+
+   al_free(args);
+
+   return response;
+}
+
+
+/* [gtk thread] */
+void *_al_gtk_lock_args(gpointer data)
+{
+   ARGS_BASE *args = (ARGS_BASE *) data;
+   al_lock_mutex(args->mutex);
+   return args;
+}
+
+
+/* [gtk thread] */
+gboolean _al_gtk_release_args(gpointer data)
+{
+   ARGS_BASE *args = (ARGS_BASE *) data;
+
+   args->done = true;
+   al_signal_cond(args->cond);
+   al_unlock_mutex(args->mutex);
+
+   return FALSE;
+}
+
+
 /* vim: set sts=3 sw=3 et: */
