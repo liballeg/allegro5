@@ -81,7 +81,12 @@ int main(void)
 
    queue = al_create_event_queue();
 
+#ifdef ALLEGRO_GTK_TOPLEVEL
+   /* ALLEGRO_GTK_TOPLEVEL is necessary for menus with GTK. */
+   al_set_new_display_flags(ALLEGRO_RESIZABLE | ALLEGRO_GTK_TOPLEVEL);
+#else
    al_set_new_display_flags(ALLEGRO_RESIZABLE);
+#endif
    display = al_create_display(initial_width, initial_height);
    if (!display)
       return 1;
