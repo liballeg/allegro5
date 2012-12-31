@@ -474,6 +474,10 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
          ALLEGRO_ERROR("GTK requested but unavailable\n");
          return NULL;
       }
+      if (flags & ALLEGRO_FULLSCREEN) {
+         ALLEGRO_ERROR("GTK incompatible with fullscreen\n");
+         return NULL;
+      }
    }
 
    _al_mutex_lock(&system->lock);
