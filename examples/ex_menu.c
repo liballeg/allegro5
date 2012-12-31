@@ -2,6 +2,7 @@
 #include "allegro5/allegro_native_dialog.h"
 #include "allegro5/allegro_image.h"
 #include <stdio.h>
+#include <math.h>
 
 /* The following is a list of menu item ids. They can be any non-zero, positive
  * integer. A menu item must have an id in order for it to generate an event.
@@ -61,6 +62,8 @@ int main(void)
    ALLEGRO_DISPLAY *display;
    ALLEGRO_MENU *menu;
    ALLEGRO_EVENT_QUEUE *queue;
+   ALLEGRO_TIMER *timer;
+   bool redraw = true;
    bool menu_visible = true;
    ALLEGRO_MENU *pmenu;
    ALLEGRO_BITMAP *bg;
@@ -76,6 +79,8 @@ int main(void)
    queue = al_create_event_queue();
 
    display = al_create_display(width, height);
+   if (!display)
+      return 1;
    al_set_window_title(display, "ex_menu - Main Window");
    
    menu = al_build_menu(main_menu_info);
@@ -102,21 +107,40 @@ int main(void)
       }
    }
    
+   timer = al_create_timer(1.0 / 60);
+
    al_register_event_source(queue, al_get_display_event_source(display));
    al_register_event_source(queue, al_get_default_menu_event_source());
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_mouse_event_source());
-   
+   al_register_event_source(queue, al_get_timer_event_source(timer));
+
    bg = al_load_bitmap("data/mysha.pcx");
+
+   al_start_timer(timer);
 
    while (true) {
       ALLEGRO_EVENT event;
-      
-      while (!al_wait_for_event_timed(queue, &event, 0.01)) {
-         if (bg)
-            al_draw_bitmap(bg, 0, 0, 0);
+
+      if (redraw && al_is_event_queue_empty(queue)) {
+         redraw = false;
+         if (bg) {
+            float t = al_get_timer_count(timer) * 0.1;
+            float sw = al_get_bitmap_width(bg);
+            float sh = al_get_bitmap_height(bg);
+            float dw = al_get_display_width(display);
+            float dh = al_get_display_height(display);
+            float cx = dw/2;
+            float cy = dh/2;
+            dw *= 1.2 + 0.2 * cos(t);
+            dh *= 1.2 + 0.2 * cos(1.1 * t);
+            al_draw_scaled_bitmap(bg, 0, 0, sw, sh,
+               cx - dw/2, cy - dh/2, dw, dh, 0);
+	 }
          al_flip_display();
       }
+
+      al_wait_for_event(queue, &event);
 
       if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
          if (event.display.source == display) {
@@ -234,6 +258,9 @@ int main(void)
          else
             menu_height = 0;
          al_resize_display(display, width, height + menu_height);
+      }
+      else if (event.type == ALLEGRO_EVENT_TIMER) {
+         redraw = true;
       }
    }
    
