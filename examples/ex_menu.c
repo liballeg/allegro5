@@ -81,6 +81,7 @@ int main(void)
 
    queue = al_create_event_queue();
 
+   al_set_new_display_flags(ALLEGRO_RESIZABLE);
    display = al_create_display(initial_width, initial_height);
    if (!display)
       return 1;
