@@ -223,8 +223,10 @@ Returns the (compiled) version of the addon, in the same format as
 
 ## Menus
 
-Menus are only fully implemented under Windows. On Linux, popup menus are 
-implemented. OS X is not supported yet.
+Menus are implemented on Windows, X and OS X.
+Menus on X are implemented with GTK, and have a special requirement: you must
+set the ALLEGRO_GTK_TOPLEVEL display flag prior to creating the display
+which will have menus attached.
 
 A menu can be attached to a single display window or popped up as a context
 menu. If you wish to use the same menu on multiple displays or use a sub-menu
