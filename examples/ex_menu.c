@@ -11,6 +11,8 @@
 enum {
    FILE_ID = 1,
    FILE_OPEN_ID,
+   FILE_RESIZE_ID,
+   FILE_FULLSCREEN_ID,
    FILE_CLOSE_ID,
    FILE_EXIT_ID,
    DYNAMIC_ID,
@@ -55,10 +57,11 @@ ALLEGRO_MENU_INFO child_menu_info[] = {
 
 int main(void)
 {
-   int menu_height;
+   const int initial_width = 320;
+   const int initial_height = 200;
+   int windows_menu_height = 0;
    int dcount = 0;
-   const int width = 320, height = 200;
-   
+
    ALLEGRO_DISPLAY *display;
    ALLEGRO_MENU *menu;
    ALLEGRO_EVENT_QUEUE *queue;
@@ -78,7 +81,7 @@ int main(void)
 
    queue = al_create_event_queue();
 
-   display = al_create_display(width, height);
+   display = al_create_display(initial_width, initial_height);
    if (!display)
       return 1;
    al_set_window_title(display, "ex_menu - Main Window");
@@ -103,6 +106,8 @@ int main(void)
       pmenu = al_create_popup_menu();
       if (pmenu) {
          al_append_menu_item(pmenu, "&Open", FILE_OPEN_ID, 0, NULL, NULL);
+         al_append_menu_item(pmenu, "&Resize", FILE_RESIZE_ID, 0, NULL, NULL);
+         al_append_menu_item(pmenu, "&Fullscreen window", FILE_FULLSCREEN_ID, 0, NULL, NULL);
          al_append_menu_item(pmenu, "E&xit", FILE_EXIT_ID, 0, NULL, NULL);
       }
    }
@@ -205,8 +210,26 @@ int main(void)
                   "This is a sample program that shows how to use menus",
                   "OK", 0);
             }
-            else if (event.user.data1 == FILE_EXIT_ID)
+            else if (event.user.data1 == FILE_EXIT_ID) {
                break;
+            }
+            else if (event.user.data1 == FILE_RESIZE_ID) {
+               int w = al_get_display_width(display) * 2;
+               int h = al_get_display_height(display) * 2;
+               if (w > 960)
+                  w = 960;
+               if (h > 600)
+                  h = 600;
+               if (menu_visible)
+                  al_resize_display(display, w, h + windows_menu_height);
+               else
+                  al_resize_display(display, w, h);
+            }
+            else if (event.user.data1 == FILE_FULLSCREEN_ID) {
+               int flags = al_get_display_flags(display);
+               bool value = (flags & ALLEGRO_FULLSCREEN_WINDOW) ? true : false;
+               al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, !value);
+            }
          }
          else {
             /* The child window  */
@@ -240,24 +263,20 @@ int main(void)
          }
       }
       else if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
-         int dh;
-
-         /* The Windows implementation currently uses part of the client's height to
-          * render the window. This triggers a resize event, which can be trapped and
-          * used to upsize the window to be the size we expect it to be.
-          */
-
          al_acknowledge_resize(display);
-         dh = height - al_get_display_height(display);
+         redraw = true;
 
-         /* On Windows, the menu steals space from our drawable area.
-          * The menu_height variable represents how much space is lost.
+#ifdef ALLEGRO_WINDOWS
+         /* XXX The Windows implementation currently uses part of the client's
+          * height to render the window. This triggers a resize event, which
+          * can be trapped and used to compute the menu height, and then
+          * resize the display again to what we expect it to be.
           */
-         if (dh > 0)
-            menu_height = dh;
-         else
-            menu_height = 0;
-         al_resize_display(display, width, height + menu_height);
+         if (event.display.source == display && windows_menu_height == 0) {
+            windows_menu_height = initial_height - al_get_display_height(display);
+            al_resize_display(display, initial_width, initial_height + windows_menu_height);
+         }
+#endif
       }
       else if (event.type == ALLEGRO_EVENT_TIMER) {
          redraw = true;
