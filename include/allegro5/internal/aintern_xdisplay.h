@@ -89,7 +89,7 @@ struct ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE
    bool (*set_window_constraints)(ALLEGRO_DISPLAY *display, int min_w, int min_h, int max_w, int max_h);
 };
 
-bool _al_xwin_set_display_overridable_interface(uint32_t check_version,
+bool _al_xwin_set_gtk_display_overridable_interface(uint32_t check_version,
    const ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE *vt);
 
 #endif /* !ALLEGRO_RASPBERRYPI */

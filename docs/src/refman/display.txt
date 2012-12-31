@@ -125,6 +125,13 @@ ALLEGRO_NOFRAME
 ALLEGRO_GENERATE_EXPOSE_EVENTS
 :   Let the display generate expose events.
 
+ALLEGRO_GTK_TOPLEVEL
+:   Create a GTK toplevel window for the display, on X.
+    This flag is conditionally defined by the native dialog addon.
+    You must call [al_init_native_dialog_addon] for it to succeed.
+    ALLEGRO_GTK_TOPLEVEL is incompatible with ALLEGRO_FULLSCREEN.
+    Since: 5.1.5
+
 0 can be used for default values.
 
 See also: [al_set_new_display_option], [al_get_display_option], [al_set_display_option]

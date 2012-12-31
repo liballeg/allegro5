@@ -427,7 +427,7 @@ static struct ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE xgtk_override_vt =
 
 bool _al_gtk_set_display_overridable_interface(bool on)
 {
-   return _al_xwin_set_display_overridable_interface(ALLEGRO_VERSION_INT,
+   return _al_xwin_set_gtk_display_overridable_interface(ALLEGRO_VERSION_INT,
       (on) ? &xgtk_override_vt : NULL);
 }
 

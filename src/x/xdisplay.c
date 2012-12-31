@@ -15,7 +15,7 @@ ALLEGRO_DEBUG_CHANNEL("display")
 
 static ALLEGRO_DISPLAY_INTERFACE xdpy_vt;
 static const ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE default_overridable_vt;
-static const ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE *override_vt = &default_overridable_vt;
+static const ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE *gtk_override_vt = NULL;
 
 static void xdpy_destroy_display(ALLEGRO_DISPLAY *d);
 
@@ -218,7 +218,7 @@ static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
 
 
 static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
-   ALLEGRO_SYSTEM_XGLX *system, int w, int h, int adapter)
+   ALLEGRO_SYSTEM_XGLX *system, int flags, int w, int h, int adapter)
 {
    ALLEGRO_DISPLAY_XGLX *d = al_calloc(1, sizeof *d);
    ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)d;
@@ -231,8 +231,7 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
    display->h = h;
    display->vt = _al_display_xglx_driver();
    display->refresh_rate = al_get_new_display_refresh_rate();
-   display->flags = al_get_new_display_flags();
-
+   display->flags = flags;
    // FIXME: default? Is this the right place to set this?
    display->flags |= ALLEGRO_OPENGL;
 
@@ -293,10 +292,20 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
     */
    XSync(system->x11display, False);
 
-   ASSERT(override_vt && override_vt->create_display_hook);
-   if (!override_vt->create_display_hook(display, w, h)) {
-      goto LateError;
+   if (display->flags & ALLEGRO_GTK_TOPLEVEL_INTERNAL) {
+      ASSERT(gtk_override_vt);
+      if (!gtk_override_vt->create_display_hook(display, w, h)) {
+         goto LateError;
+      }
    }
+   else {
+      if (!default_overridable_vt.create_display_hook(display, w, h)) {
+         goto LateError;
+      }
+   }
+
+   /* overridable_vt should be set by the create_display_hook. */
+   ASSERT(d->overridable_vt);
 
    /* Send any pending requests to the X server. */
    XSync(system->x11display, False);
@@ -446,6 +455,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 {
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *display;
+   int flags;
    int adapter;
 
    if (system->x11display == NULL) {
@@ -458,10 +468,18 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       return NULL;
    }
 
+   flags = al_get_new_display_flags();
+   if (flags & ALLEGRO_GTK_TOPLEVEL_INTERNAL) {
+      if (gtk_override_vt == NULL) {
+         ALLEGRO_ERROR("GTK requested but unavailable\n");
+         return NULL;
+      }
+   }
+
    _al_mutex_lock(&system->lock);
 
    adapter = al_get_new_display_adapter();
-   display = xdpy_create_display_locked(system, w, h, adapter);
+   display = xdpy_create_display_locked(system, flags, w, h, adapter);
 
    _al_mutex_unlock(&system->lock);
 
@@ -1254,20 +1272,20 @@ static const ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE default_overridable_vt =
 };
 
 
-bool _al_xwin_set_display_overridable_interface(uint32_t check_version,
+bool _al_xwin_set_gtk_display_overridable_interface(uint32_t check_version,
    const ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE *vt)
 {
    /* The version of the native dialogs addon must exactly match the core
     * library version.
     */
    if (vt && check_version == ALLEGRO_VERSION_INT) {
-      ALLEGRO_DEBUG("display vtable overridden\n");
-      override_vt = vt;
+      ALLEGRO_DEBUG("GTK vtable made available\n");
+      gtk_override_vt = vt;
       return true;
    }
 
-   ALLEGRO_DEBUG("display vtable reset to default\n");
-   override_vt = &default_overridable_vt;
+   ALLEGRO_DEBUG("GTK vtable reset\n");
+   gtk_override_vt = NULL;
    return (vt == NULL);
 }
 
