@@ -354,7 +354,7 @@ bool _al_update_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
       if (!args)
          return false;
          
-      g_timeout_add(0, do_update_menu_item_at, args);
+      _al_gtk_wait_for_args(do_update_menu_item_at, args);
    }
    return true;
 #endif
