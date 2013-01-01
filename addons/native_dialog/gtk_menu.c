@@ -350,10 +350,6 @@ bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
    GtkWidget *gtk_window;
    ARGS args;
 
-   if (!_al_gtk_ensure_thread()) {
-      return false;
-   }
-
    gtk_window = _al_gtk_get_window(display);
    if (!gtk_window) {
       return false;
@@ -437,10 +433,6 @@ bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
    ARGS args;
    (void)display;
    
-   if (!_al_gtk_ensure_thread()) {
-      return false;
-   }
-
    if (!_al_gtk_init_args(&args, sizeof(args))) {
       return false;
    }
