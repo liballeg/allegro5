@@ -28,7 +28,6 @@ void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent)
    (void)xevent;
 
    _al_event_source_lock(es);
-
    if (_al_event_source_needs_to_generate_event(es)) {
       ALLEGRO_EVENT event;
       event.display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
@@ -83,7 +82,9 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
             d->mouse_warp = true;
             break;
          }
-         if ((Atom)event.xclient.data.l[0] == d->wm_delete_window_atom) {
+         if (d->wm_delete_window_atom != None &&
+            (Atom)event.xclient.data.l[0] == d->wm_delete_window_atom)
+         {
             _al_display_xglx_closebutton(&d->display, &event);
             break;
          }

@@ -1072,23 +1072,4 @@ static void handle_key_release(int mycode, ALLEGRO_DISPLAY *display)
 }
 
 
-
-/* Another way of getting events in, used by GTK key event callback.
- * XXX non-ASCII chars or compose key combinations don't work
- */
-void _al_xwin_keyboard_handler_alternative(bool press, int hardware_keycode,
-   uint32_t unichar, ALLEGRO_DISPLAY *display)
-{
-   int keycode = keycode_to_scancode[hardware_keycode];
-
-   if (press) {
-      _AL_KEYBOARD_STATE_SET_KEY_DOWN(the_keyboard.state, keycode);
-      handle_key_press(keycode, unichar, 0, 0, display); // modifiers and filtered need to be set FIXME
-   }
-   else {
-      _AL_KEYBOARD_STATE_CLEAR_KEY_DOWN(the_keyboard.state, keycode);
-      handle_key_release(keycode, display);
-   }
-}
-
 /* vim: set sts=3 sw=3 et: */

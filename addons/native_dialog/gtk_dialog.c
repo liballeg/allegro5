@@ -20,19 +20,13 @@ bool _al_init_native_dialog_addon(void)
       return false;
    }
 
-#ifdef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
    return _al_gtk_set_display_overridable_interface(true);
-#else
-   return true;
-#endif
 }
 
 
 void _al_shutdown_native_dialog_addon(void)
 {
-#ifdef ALLEGRO_CFG_NATIVE_DIALOG_GTKGLEXT
    _al_gtk_set_display_overridable_interface(false);
-#endif
 }
 
 

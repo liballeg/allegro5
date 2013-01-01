@@ -28,12 +28,12 @@ ALLEGRO_DEBUG_CHANNEL("gtk")
 #endif
 #if NEWER_GLIB
    static GMutex nd_gtk_mutex;
-   void nd_gtk_lock(void)    { g_mutex_lock(&nd_gtk_mutex); }
-   void nd_gtk_unlock(void)  { g_mutex_unlock(&nd_gtk_mutex); }
+   static void nd_gtk_lock(void)    { g_mutex_lock(&nd_gtk_mutex); }
+   static void nd_gtk_unlock(void)  { g_mutex_unlock(&nd_gtk_mutex); }
 #else
    static GStaticMutex nd_gtk_mutex = G_STATIC_MUTEX_INIT;
-   void nd_gtk_lock(void)    { g_static_mutex_lock(&nd_gtk_mutex); }
-   void nd_gtk_unlock(void)  { g_static_mutex_unlock(&nd_gtk_mutex); }
+   static void nd_gtk_lock(void)    { g_static_mutex_lock(&nd_gtk_mutex); }
+   static void nd_gtk_unlock(void)  { g_static_mutex_unlock(&nd_gtk_mutex); }
 #endif
 static GThread *nd_gtk_thread = NULL;
 
