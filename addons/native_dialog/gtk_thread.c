@@ -104,15 +104,21 @@ bool _al_gtk_ensure_thread(void)
 
 
 /* [user thread] */
-void *_al_gtk_create_args(size_t size)
+bool _al_gtk_init_args(void *ptr, size_t size)
 {
-   ARGS_BASE *args = al_calloc(1, size);
-   if (args) {
-      args->mutex = al_create_mutex();
-      args->cond = al_create_cond();
-      args->done = false;
-      args->response = true;
+   ARGS_BASE *args = (ARGS_BASE *)ptr;
+   memset(args, 0, size);
+   args->mutex = al_create_mutex();
+   if (!args->mutex) {
+      return false;
    }
+   args->cond = al_create_cond();
+   if (!args->cond) {
+      al_destroy_mutex(args->mutex);
+      return false;
+   }
+   args->done = false;
+   args->response = true;
    return args;
 }
 
@@ -134,8 +140,6 @@ bool _al_gtk_wait_for_args(GSourceFunc func, void *data)
 
    al_destroy_mutex(args->mutex);
    al_destroy_cond(args->cond);
-
-   al_free(args);
 
    return response;
 }

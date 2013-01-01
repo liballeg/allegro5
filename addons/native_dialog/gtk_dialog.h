@@ -26,7 +26,7 @@ struct ARGS_BASE
    bool response;
 };
 
-void *_al_gtk_create_args(size_t size);
+bool _al_gtk_init_args(void *ptr, size_t size);
 bool _al_gtk_wait_for_args(GSourceFunc func, void *data);
 void *_al_gtk_lock_args(gpointer data);
 gboolean _al_gtk_release_args(gpointer data);
