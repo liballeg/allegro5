@@ -58,14 +58,14 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
    if (bmp) {
       ALLEGRO_LOCKED_REGION *lock = al_lock_bitmap(bmp,
             ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
-      int i;
+      int i, j;
       {
          for (i = 0; i < h; i++) {
             uint8_t *data_row = lock->data + lock->pitch * i;
             uint8_t *source_row = pixels + w * samples * i;
             if (samples == 4) {
                if (premul) {
-                  for (int j = 0; j < w; j++) {
+                  for (j = 0; j < w; j++) {
                      int r, g, b, a;
                      r = source_row[j * 4 + 0];
                      g = source_row[j * 4 + 1];
@@ -81,7 +81,7 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
                   memcpy(data_row, source_row, w * 4);
             }
             else if (samples == 3) {
-               for (int j = 0; j < w; j++) {
+               for (j = 0; j < w; j++) {
                   data_row[j * 4 + 0] = source_row[j * 3 + 0];
                   data_row[j * 4 + 1] = source_row[j * 3 + 1];
                   data_row[j * 4 + 2] = source_row[j * 3 + 2];
@@ -89,7 +89,7 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
                }
             }
             else if (samples == 2) {
-               for (int j = 0; j < w; j++) {
+               for (j = 0; j < w; j++) {
                   int a = data_row[j * 4 + 3] = source_row[j * 2 + 1];
                   if (!premul)
                      a = 255;
@@ -100,7 +100,7 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
                }
             }
             else if (samples == 1) {
-               for (int j = 0; j < w; j++) {
+               for (j = 0; j < w; j++) {
                   data_row[j * 4 + 0] = source_row[j];
                   data_row[j * 4 + 1] = source_row[j];
                   data_row[j * 4 + 2] = source_row[j];
