@@ -1386,8 +1386,11 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    ALLEGRO_INFO("Vendor: %s\n", glGetString(GL_VENDOR));
    ALLEGRO_INFO("Renderer: %s\n", glGetString(GL_RENDERER));
    
-   // Set up a pixel format to describe the mode we want.
+   /* Set up a pixel format to describe the mode we want. */
    osx_set_opengl_pixelformat_attributes(dpy);
+   /* Retrieve the options that were set */
+   // Note: This initializes dpy->extra_settings
+   osx_get_opengl_pixelformat_attributes(dpy);
 
    // Set up the Allegro OpenGL implementation
    dpy->parent.ogl_extras = al_malloc(sizeof(ALLEGRO_OGL_EXTRAS));
@@ -1396,8 +1399,6 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    _al_ogl_set_extensions(dpy->parent.ogl_extras->extension_api);
    dpy->parent.ogl_extras->is_shared = true;
 
-   /* Retrieve the options that were set */
-   osx_get_opengl_pixelformat_attributes(dpy);
    dpy->parent.ogl_extras->backbuffer = _al_ogl_create_backbuffer(&dpy->parent);
    if (_al_get_new_display_settings()->settings[ALLEGRO_VSYNC] == 1) {
       GLint swapInterval = 1;
