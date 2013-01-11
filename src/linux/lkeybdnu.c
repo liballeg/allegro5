@@ -569,6 +569,13 @@ static void handle_key_press(int mycode, unsigned int ascii)
    event.keyboard.modifiers = the_keyboard.modifiers;
 
    _al_event_source_emit_event(&the_keyboard.parent.es, &event);
+
+   /* The first press should generate a KEY_CHAR also */
+   if (event_type == ALLEGRO_EVENT_KEY_DOWN) {
+      event.keyboard.type = ALLEGRO_EVENT_KEY_CHAR;
+      event.keyboard.timestamp = al_get_time();
+      _al_event_source_emit_event(&the_keyboard.parent.es, &event);
+   }
 }
 
 
