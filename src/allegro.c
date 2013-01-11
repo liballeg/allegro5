@@ -432,6 +432,27 @@ void _al_trace_suffix(const char *msg, ...)
 
 
 
+void _al_shutdown_logging(void)
+{
+   if (trace_info.configured) {
+      _al_mutex_destroy(&trace_info.trace_mutex);
+
+      delete_string_list(&trace_info.channels);
+      delete_string_list(&trace_info.excluded);
+
+      trace_info.configured = false;
+   }
+
+   if (trace_info.trace_file && trace_info.trace_file != stderr) {
+      fclose(trace_info.trace_file);
+   }
+
+   trace_info.trace_file = NULL;
+   trace_info.trace_virgin = true;
+}
+
+
+
 /* Function: al_register_assert_handler
  */
 void al_register_assert_handler(void (*handler)(char const *expr,
