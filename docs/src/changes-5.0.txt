@@ -1123,10 +1123,6 @@ TTF addon:
 
 -  Add a flag for loading TTFs without anti-aliasing (ALLEGRO_TTF_MONOCHROME).
 
-PhysicsFS addon:
-
--  Make PhysFS implementation of al_get_current_directory return "/", not NULL.
-
 Primitives addon:
 
 -  Fix several failed sub-bitmap related unit tests on Windows.
