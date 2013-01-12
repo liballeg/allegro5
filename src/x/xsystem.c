@@ -120,8 +120,7 @@ static void xglx_shutdown_system(void)
    }
 
    if (sx->gfxdisplay) {
-      /* XXX for some reason, crashes if both XCloseDisplay calls are made */
-      /* XCloseDisplay(sx->gfxdisplay); */
+      XCloseDisplay(sx->gfxdisplay);
       sx->gfxdisplay = None;
    }
 
