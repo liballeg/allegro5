@@ -123,7 +123,7 @@ void al_draw_justified_ustr(const ALLEGRO_FONT *font,
    int space;
    float fleft, finc;
    int advance;
-   ALLEGRO_TRANSFORM const *fwd;
+   ALLEGRO_TRANSFORM const *fwd = NULL;
    ALLEGRO_TRANSFORM inv;
 
    ASSERT(font);
