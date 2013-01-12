@@ -4,7 +4,6 @@
 #include "allegro5/internal/aintern_native_dialog_cfg.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
-#include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_x.h"
 #include "allegro5/internal/aintern_xdisplay.h"
 #include "allegro5/internal/aintern_xevents.h"
