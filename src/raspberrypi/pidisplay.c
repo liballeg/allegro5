@@ -7,6 +7,7 @@
 #include <allegro5/internal/aintern_vector.h>
 #include <allegro5/internal/aintern_raspberrypi.h>
 #include "allegro5/internal/aintern_x.h"
+#include "allegro5/internal/aintern_xwindow.h"
 
 #include "GLES/gl.h"
 #include "EGL/egl.h"

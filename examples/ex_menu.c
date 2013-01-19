@@ -2,6 +2,7 @@
 #include "allegro5/allegro_native_dialog.h"
 #include "allegro5/allegro_image.h"
 #include <stdio.h>
+#include <math.h>
 
 /* The following is a list of menu item ids. They can be any non-zero, positive
  * integer. A menu item must have an id in order for it to generate an event.
@@ -10,6 +11,8 @@
 enum {
    FILE_ID = 1,
    FILE_OPEN_ID,
+   FILE_RESIZE_ID,
+   FILE_FULLSCREEN_ID,
    FILE_CLOSE_ID,
    FILE_EXIT_ID,
    DYNAMIC_ID,
@@ -54,29 +57,44 @@ ALLEGRO_MENU_INFO child_menu_info[] = {
 
 int main(void)
 {
-   int menu_height;
+   const int initial_width = 320;
+   const int initial_height = 200;
+   int windows_menu_height = 0;
    int dcount = 0;
-   const int width = 320, height = 200;
-   
+
    ALLEGRO_DISPLAY *display;
    ALLEGRO_MENU *menu;
    ALLEGRO_EVENT_QUEUE *queue;
+   ALLEGRO_TIMER *timer;
+   bool redraw = true;
    bool menu_visible = true;
    ALLEGRO_MENU *pmenu;
    ALLEGRO_BITMAP *bg;
    
-   al_init();
-   al_init_native_dialog_addon();
+   if (!al_init())
+      return 1;
+   if (!al_init_native_dialog_addon())
+      return 1;
    al_init_image_addon();
    al_install_keyboard();
    al_install_mouse();
 
    queue = al_create_event_queue();
 
-   display = al_create_display(width, height);
+#ifdef ALLEGRO_GTK_TOPLEVEL
+   /* ALLEGRO_GTK_TOPLEVEL is necessary for menus with GTK. */
+   al_set_new_display_flags(ALLEGRO_RESIZABLE | ALLEGRO_GTK_TOPLEVEL);
+#else
+   al_set_new_display_flags(ALLEGRO_RESIZABLE);
+#endif
+   display = al_create_display(initial_width, initial_height);
+   if (!display)
+      return 1;
    al_set_window_title(display, "ex_menu - Main Window");
    
    menu = al_build_menu(main_menu_info);
+   if (!menu)
+      return 1;
    
    /* Add an icon to the Help/About item. Note that Allegro assumes ownership
     * of the bitmap. */
@@ -94,25 +112,46 @@ int main(void)
       pmenu = al_create_popup_menu();
       if (pmenu) {
          al_append_menu_item(pmenu, "&Open", FILE_OPEN_ID, 0, NULL, NULL);
+         al_append_menu_item(pmenu, "&Resize", FILE_RESIZE_ID, 0, NULL, NULL);
+         al_append_menu_item(pmenu, "&Fullscreen window", FILE_FULLSCREEN_ID, 0, NULL, NULL);
          al_append_menu_item(pmenu, "E&xit", FILE_EXIT_ID, 0, NULL, NULL);
       }
    }
    
+   timer = al_create_timer(1.0 / 60);
+
    al_register_event_source(queue, al_get_display_event_source(display));
    al_register_event_source(queue, al_get_default_menu_event_source());
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_mouse_event_source());
-   
+   al_register_event_source(queue, al_get_timer_event_source(timer));
+
    bg = al_load_bitmap("data/mysha.pcx");
+
+   al_start_timer(timer);
 
    while (true) {
       ALLEGRO_EVENT event;
-      
-      while (!al_wait_for_event_timed(queue, &event, 0.01)) {
-         if (bg)
-            al_draw_bitmap(bg, 0, 0, 0);
+
+      if (redraw && al_is_event_queue_empty(queue)) {
+         redraw = false;
+         if (bg) {
+            float t = al_get_timer_count(timer) * 0.1;
+            float sw = al_get_bitmap_width(bg);
+            float sh = al_get_bitmap_height(bg);
+            float dw = al_get_display_width(display);
+            float dh = al_get_display_height(display);
+            float cx = dw/2;
+            float cy = dh/2;
+            dw *= 1.2 + 0.2 * cos(t);
+            dh *= 1.2 + 0.2 * cos(1.1 * t);
+            al_draw_scaled_bitmap(bg, 0, 0, sw, sh,
+               cx - dw/2, cy - dh/2, dw, dh, 0);
+	 }
          al_flip_display();
       }
+
+      al_wait_for_event(queue, &event);
 
       if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
          if (event.display.source == display) {
@@ -177,8 +216,26 @@ int main(void)
                   "This is a sample program that shows how to use menus",
                   "OK", 0);
             }
-            else if (event.user.data1 == FILE_EXIT_ID)
+            else if (event.user.data1 == FILE_EXIT_ID) {
                break;
+            }
+            else if (event.user.data1 == FILE_RESIZE_ID) {
+               int w = al_get_display_width(display) * 2;
+               int h = al_get_display_height(display) * 2;
+               if (w > 960)
+                  w = 960;
+               if (h > 600)
+                  h = 600;
+               if (menu_visible)
+                  al_resize_display(display, w, h + windows_menu_height);
+               else
+                  al_resize_display(display, w, h);
+            }
+            else if (event.user.data1 == FILE_FULLSCREEN_ID) {
+               int flags = al_get_display_flags(display);
+               bool value = (flags & ALLEGRO_FULLSCREEN_WINDOW) ? true : false;
+               al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, !value);
+            }
          }
          else {
             /* The child window  */
@@ -212,24 +269,23 @@ int main(void)
          }
       }
       else if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
-         int dh;
-
-         /* The Windows implementation currently uses part of the client's height to
-          * render the window. This triggers a resize event, which can be trapped and
-          * used to upsize the window to be the size we expect it to be.
-          */
-
          al_acknowledge_resize(display);
-         dh = height - al_get_display_height(display);
+         redraw = true;
 
-         /* On Windows, the menu steals space from our drawable area.
-          * The menu_height variable represents how much space is lost.
+#ifdef ALLEGRO_WINDOWS
+         /* XXX The Windows implementation currently uses part of the client's
+          * height to render the window. This triggers a resize event, which
+          * can be trapped and used to compute the menu height, and then
+          * resize the display again to what we expect it to be.
           */
-         if (dh > 0)
-            menu_height = dh;
-         else
-            menu_height = 0;
-         al_resize_display(display, width, height + menu_height);
+         if (event.display.source == display && windows_menu_height == 0) {
+            windows_menu_height = initial_height - al_get_display_height(display);
+            al_resize_display(display, initial_width, initial_height + windows_menu_height);
+         }
+#endif
+      }
+      else if (event.type == ALLEGRO_EVENT_TIMER) {
+         redraw = true;
       }
    }
    

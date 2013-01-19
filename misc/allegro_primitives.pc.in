@@ -3,13 +3,13 @@ exec_prefix=${prefix}
 libdir=@libdir@
 includedir=@includedir@
 version=@ALLEGRO_VERSION@
-soversion=@ALLEGRO_SOVERSION@
 suffix=@lib_type@@lib_linkage@
+versuffix=@versuffix@
 
 Name: allegro_primitives
 Description: Allegro game programming library, primitives addon
 Version: ${version}
 Libs: -L${libdir} -lallegro_primitives${suffix}
 Libs.private: @link_with@
-Requires: allegro${suffix}-${soversion} >= ${version}
+Requires: allegro${suffix}-${versuffix} >= ${version}
 Cflags: -I${includedir}

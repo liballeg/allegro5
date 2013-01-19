@@ -1,26 +1,32 @@
-#include "allegro5/allegro.h"
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
 
-#ifndef ALLEGRO_RASPBERRYPI
-#include "allegro5/internal/aintern_xglx.h"
-#else
+#include "allegro5/allegro.h"
+#include "allegro5/internal/aintern_x.h"
+#include "allegro5/internal/aintern_xdisplay.h"
+#include "allegro5/internal/aintern_xsystem.h"
+#include "allegro5/internal/aintern_xwindow.h"
+
+#ifdef ALLEGRO_RASPBERRYPI
 #include "allegro5/internal/aintern_raspberrypi.h"
 #define ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_RASPBERRYPI
 #define ALLEGRO_DISPLAY_XGLX ALLEGRO_DISPLAY_RASPBERRYPI
 #endif
 
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xatom.h>
-
 ALLEGRO_DEBUG_CHANNEL("xwindow")
+
+#define X11_ATOM(x)  XInternAtom(x11, #x, False);
+
 
 void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
-#ifndef ALLEGRO_CFG_USE_GTKGLEXT
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   XSizeHints *hints = XAllocSizeHints();
+   ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
+   XSizeHints *hints;
    int w, h;
+
+   hints = XAllocSizeHints();
    hints->flags = 0;
 
 #ifdef ALLEGRO_RASPBERRYPI
@@ -74,25 +80,16 @@ void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
    XSetWMNormalHints(system->x11display, glx->window, hints);
 
    XFree(hints);
-#else
-   GdkGeometry geo;
-   // FIXME: obey these
-   (void)x_off;
-   (void)y_off;
-   geo.min_width = geo.max_width = geo.base_width = d->w;
-   geo.min_height = geo.max_height = geo.base_height = d->h;
-   gdk_window_set_geometry_hints(GDK_WINDOW(glx->gtkwindow->window),
-      &geo, GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE | GDK_HINT_BASE_SIZE);
-#endif
 }
+
 
 void _al_xwin_reset_size_hints(ALLEGRO_DISPLAY *d)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
-#if !defined ALLEGRO_CFG_USE_GTKGLEXT
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   XSizeHints *hints = XAllocSizeHints();
+   ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
+   XSizeHints *hints;
 
+   hints  = XAllocSizeHints();
    hints->flags = PMinSize | PMaxSize;
    hints->min_width  = 0;
    hints->min_height = 0;
@@ -102,16 +99,8 @@ void _al_xwin_reset_size_hints(ALLEGRO_DISPLAY *d)
    XSetWMNormalHints(system->x11display, glx->window, hints);
 
    XFree(hints);
-#else
-   GdkGeometry geo;
-   geo.min_width = geo.min_height = 0;
-   geo.max_width = geo.max_height = 32768;
-   gdk_window_set_geometry_hints(GDK_WINDOW(glx->gtkwindow->window),
-      &geo, GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE);
-#endif
 }
 
-#define X11_ATOM(x)  XInternAtom(x11, #x, False);
 
 /* Note: The system mutex must be locked (exactly once) before
  * calling this as we call _al_display_xglx_await_resize.
@@ -162,3 +151,152 @@ void _al_xwin_set_fullscreen_window(ALLEGRO_DISPLAY *display, int value)
 #endif
 }
 
+
+void _al_xwin_set_above(ALLEGRO_DISPLAY *display, int value)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   Display *x11 = system->x11display;
+
+   ALLEGRO_DEBUG("Toggling _NET_WM_STATE_ABOVE hint: %d\n", value);
+
+   XEvent xev;
+   xev.xclient.type = ClientMessage;
+   xev.xclient.serial = 0;
+   xev.xclient.send_event = True;
+   xev.xclient.message_type = X11_ATOM(_NET_WM_STATE);
+   xev.xclient.window = glx->window;
+   xev.xclient.format = 32;
+
+   // Note: It seems 0 is not reliable except when mapping a window -
+   // 2 is all we need though.
+   xev.xclient.data.l[0] = value; /* 0 = off, 1 = on, 2 = toggle */
+
+   xev.xclient.data.l[1] = X11_ATOM(_NET_WM_STATE_ABOVE);
+   xev.xclient.data.l[2] = 0;
+   xev.xclient.data.l[3] = 0;
+   xev.xclient.data.l[4] = 1;
+
+   XSendEvent(x11, DefaultRootWindow(x11), False,
+      SubstructureRedirectMask | SubstructureNotifyMask, &xev);
+}
+
+
+void _al_xwin_set_frame(ALLEGRO_DISPLAY *display, bool frame_on)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   Display *x11 = system->x11display;
+   Atom hints;
+
+   _al_mutex_lock(&system->lock);
+
+#if 1
+   /* This code is taken from the GDK sources. So it works perfectly in Gnome,
+    * no idea if it will work anywhere else. X11 documentation itself only
+    * describes a way how to make the window completely unmanaged, but that
+    * would also require special care in the event handler.
+    */
+   hints = XInternAtom(x11, "_MOTIF_WM_HINTS", True);
+   if (hints) {
+      struct {
+         unsigned long flags;
+         unsigned long functions;
+         unsigned long decorations;
+         long input_mode;
+         unsigned long status;
+      } motif = {2, 0, frame_on, 0, 0};
+      XChangeProperty(x11, glx->window, hints, hints, 32, PropModeReplace,
+         (void *)&motif, sizeof motif / 4);
+
+      if (frame_on)
+         display->flags &= ~ALLEGRO_FRAMELESS;
+      else
+         display->flags |= ALLEGRO_FRAMELESS;
+   }
+#endif
+
+   _al_mutex_unlock(&system->lock);
+}
+
+
+/* Helper to set a window icon.  We use the _NET_WM_ICON property which is
+ * supported by modern window managers.
+ *
+ * The old method is XSetWMHints but the (antiquated) ICCCM talks about 1-bit
+ * pixmaps.  For colour icons, perhaps you're supposed use the icon_window,
+ * and draw the window yourself?
+ */
+static bool xdpy_set_icon_inner(Display *x11display, Window window,
+   ALLEGRO_BITMAP *bitmap, int prop_mode)
+{
+   int w, h;
+   int data_size;
+   unsigned long *data; /* Yes, unsigned long, even on 64-bit platforms! */
+   ALLEGRO_LOCKED_REGION *lr;
+   bool ret;
+
+   w = al_get_bitmap_width(bitmap);
+   h = al_get_bitmap_height(bitmap);
+   data_size = 2 + w * h;
+   data = al_malloc(data_size * sizeof(data[0]));
+   if (!data)
+      return false;
+
+   lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,
+      ALLEGRO_LOCK_READONLY);
+   if (lr) {
+      int x, y;
+      ALLEGRO_COLOR c;
+      unsigned char r, g, b, a;
+      Atom _NET_WM_ICON;
+
+      data[0] = w;
+      data[1] = h;
+      for (y = 0; y < h; y++) {
+         for (x = 0; x < w; x++) {
+            c = al_get_pixel(bitmap, x, y);
+            al_unmap_rgba(c, &r, &g, &b, &a);
+            data[2 + y*w + x] = (a << 24) | (r << 16) | (g << 8) | b;
+         }
+      }
+
+      _NET_WM_ICON = XInternAtom(x11display, "_NET_WM_ICON", False);
+      XChangeProperty(x11display, window, _NET_WM_ICON, XA_CARDINAL, 32,
+         prop_mode, (unsigned char *)data, data_size);
+
+      al_unlock_bitmap(bitmap);
+      ret = true;
+   }
+   else {
+      ret = false;
+   }
+
+   al_free(data);
+
+   return ret;
+}
+
+
+void _al_xwin_set_icons(ALLEGRO_DISPLAY *d,
+   int num_icons, ALLEGRO_BITMAP *bitmaps[])
+{
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+   int prop_mode = PropModeReplace;
+   int i;
+
+   _al_mutex_lock(&system->lock);
+
+   for (i = 0; i < num_icons; i++) {
+      if (xdpy_set_icon_inner(system->x11display, glx->window, bitmaps[i],
+            prop_mode)) {
+         prop_mode = PropModeAppend;
+      }
+   }
+
+   _al_mutex_unlock(&system->lock);
+}
+
+
+/* vim: set sts=3 sw=3 et: */

@@ -35,16 +35,14 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_keyboard.h"
+#include "allegro5/internal/aintern_x.h"
+#include "allegro5/internal/aintern_xdisplay.h"
+#include "allegro5/internal/aintern_xkeyboard.h"
+#include "allegro5/internal/aintern_xsystem.h"
 
-#ifndef ALLEGRO_RASPBERRYPI
-#include "allegro5/internal/aintern_xglx.h"
-#else
+#ifdef ALLEGRO_RASPBERRYPI
 #include "allegro5/internal/aintern_raspberrypi.h"
 #define ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_RASPBERRYPI
-#endif
-
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-#include <gtk/gtk.h>
 #endif
 
 ALLEGRO_DEBUG_CHANNEL("keyboard")
@@ -1073,28 +1071,5 @@ static void handle_key_release(int mycode, ALLEGRO_DISPLAY *display)
    _al_event_source_unlock(&the_keyboard.parent.es);
 }
 
-#ifdef ALLEGRO_CFG_USE_GTKGLEXT
-gboolean _al_gtk_handle_key_event(GtkWidget *drawing_area, GdkEventKey *event, ALLEGRO_DISPLAY *display)
-{
-   int keycode;
-   uint32_t unichar = 0;
-
-   (void)drawing_area;
-
-   keycode = keycode_to_scancode[event->hardware_keycode];
-   memcpy(&unichar, event->string, _ALLEGRO_MIN(4, event->length));
-
-   if (event->type == GDK_KEY_PRESS) {
-      _AL_KEYBOARD_STATE_SET_KEY_DOWN(the_keyboard.state, keycode);
-      handle_key_press(keycode, unichar, 0, 0, display); // modifiers and filtered need to be set FIXME
-   }
-   else if (event->type == GDK_KEY_RELEASE) {
-      _AL_KEYBOARD_STATE_CLEAR_KEY_DOWN(the_keyboard.state, keycode);
-      handle_key_release(keycode, display);
-   }
-
-   return TRUE;
-}
-#endif
 
 /* vim: set sts=3 sw=3 et: */

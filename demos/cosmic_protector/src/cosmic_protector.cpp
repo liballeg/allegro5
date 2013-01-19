@@ -101,7 +101,7 @@ int main(int argc, char **argv)
 
       ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)rm.getData(RES_DISPLAY);
       int o = al_get_display_orientation(display);
-      al_change_display_option(display, ALLEGRO_SUPPORTED_ORIENTATIONS, o);
+      al_set_display_option(display, ALLEGRO_SUPPORTED_ORIENTATIONS, o);
 
       if (game_music) {
          al_set_audio_stream_playing(game_music, true);
@@ -117,7 +117,7 @@ int main(int argc, char **argv)
          al_rewind_audio_stream(game_music);
       }
 
-      al_change_display_option(display, ALLEGRO_SUPPORTED_ORIENTATIONS, ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE);
+      al_set_display_option(display, ALLEGRO_SUPPORTED_ORIENTATIONS, ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE);
 
    }
 

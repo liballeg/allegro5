@@ -47,26 +47,26 @@ static NSMutableArray *iphone_screens;
 
 static int iphone_get_adapter(ALLEGRO_DISPLAY *display)
 {
-	ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)display;
-	return d->extra->adapter;
+   ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)display;
+   return d->extra->adapter;
 }
 
 static iphone_screen *iphone_get_screen_by_adapter(int adapter)
 {
-	int num = [iphone_screens count];
-	int i;
-	for (i = 0; i < num; i++) {
-		iphone_screen *scr = [iphone_screens objectAtIndex:i];
-		if (scr->adapter == adapter)
-			return scr;
-	}
-	return NULL;
+   int num = [iphone_screens count];
+   int i;
+   for (i = 0; i < num; i++) {
+      iphone_screen *scr = [iphone_screens objectAtIndex:i];
+      if (scr->adapter == adapter)
+         return scr;
+   }
+   return NULL;
 }
 
 static iphone_screen *iphone_get_screen(ALLEGRO_DISPLAY *display)
 {
-	int adapter = iphone_get_adapter(display);
-	return iphone_get_screen_by_adapter(adapter);
+   int adapter = iphone_get_adapter(display);
+   return iphone_get_screen_by_adapter(adapter);
 }
 
 bool _al_iphone_is_display_connected(ALLEGRO_DISPLAY *display)
@@ -77,97 +77,103 @@ bool _al_iphone_is_display_connected(ALLEGRO_DISPLAY *display)
 
 static void iphone_add_screen(UIScreen *screen)
 {
-	int i;
-	
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
-	if (screen == [UIScreen mainScreen]) {
-		i = 0;
-	}
-	else {
-		for (i = 0; i < (int)[[UIScreen screens] count]; i++) {
-			if ([[UIScreen screens] objectAtIndex:i] == screen)
-				break;
-		}
-	}
+   int i;
+   
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+   
+   if (screen == [UIScreen mainScreen]) {
+      i = 0;
+   }
+   else {
+      for (i = 0; i < (int)[[UIScreen screens] count]; i++) {
+         if ([[UIScreen screens] objectAtIndex:i] == screen)
+            break;
+      }
+   }
 
-	if (i != 0) {
-		if ([screen respondsToSelector:NSSelectorFromString(@"availableModes")]) {
-		   NSArray *a = [screen availableModes];
-		   int j;
-		   UIScreenMode *largest = NULL;
-		   for (j = 0; j < (int)[a count]; j++) {
-		      UIScreenMode *m = [a objectAtIndex:j];
-		      float w = m.size.width;
-		      float h = m.size.height;
-		      if ((largest == NULL) || (w+h > largest.size.width+largest.size.height)) {
-			 largest = m;
-		      }
-		   }
-		   if (largest) {
-		      screen.currentMode = largest;
-		   }
-		}
-	}
-  	
-	iphone_screen *scr = iphone_get_screen_by_adapter(i);
-	bool add = scr == NULL;
+   if (i != 0) {
+      if ([screen respondsToSelector:NSSelectorFromString(@"availableModes")]) {
+         NSArray *a = [screen availableModes];
+         int j;
+         UIScreenMode *largest = NULL;
+         for (j = 0; j < (int)[a count]; j++) {
+            UIScreenMode *m = [a objectAtIndex:j];
+            float w = m.size.width;
+            float h = m.size.height;
+            if ((largest == NULL) || (w+h > largest.size.width+largest.size.height)) {
+          largest = m;
+            }
+         }
+         if (largest) {
+            screen.currentMode = largest;
+         }
+      }
+   }
+     
+   iphone_screen *scr = iphone_get_screen_by_adapter(i);
+   bool add = scr == NULL;
 
-	UIWindow *window = [[UIWindow alloc] initWithFrame:[screen bounds]];
-	if ([window respondsToSelector:NSSelectorFromString(@"screen")]) {
- 	   window.screen = screen;
-	}
-	
-	ViewController *vc = [[ViewController alloc] init];
-	vc->adapter = i;
-	[vc create_view];
-	window.rootViewController = vc;
-	
-	if (add)
-	   scr = [[iphone_screen alloc] init];
-		
-	scr->adapter = i;
-	scr->screen = screen;
-	scr->window = window;
-	scr->vc = vc;
-	scr->view = (EAGLView *)vc.view;
-	scr->display = NULL;
-	
-	if (add)
-	   [iphone_screens addObject:scr];
-	
-	[pool drain];
+   UIWindow *window = [[UIWindow alloc] initWithFrame:[screen bounds]];
+   if ([window respondsToSelector:NSSelectorFromString(@"screen")]) {
+       window.screen = screen;
+   }
+   
+   ViewController *vc = [[ViewController alloc] init];
+   vc->adapter = i;
+   [vc create_view];
+   // Doesn't work on iOS < 4.
+   NSString *reqSysVer = @"4.0";
+   NSString *currSysVer = [[UIDevice currentDevice] systemVersion];
+   BOOL osVersionSupported = ([currSysVer compare:reqSysVer options:NSNumericSearch] != NSOrderedAscending);
+   if (osVersionSupported) {
+      window.rootViewController = vc;
+   }
+   
+   if (add)
+      scr = [[iphone_screen alloc] init];
+      
+   scr->adapter = i;
+   scr->screen = screen;
+   scr->window = window;
+   scr->vc = vc;
+   scr->view = (EAGLView *)vc.view;
+   scr->display = NULL;
+   
+   if (add)
+      [iphone_screens addObject:scr];
+   
+   [pool drain];
 }
 
 static void iphone_remove_screen(UIScreen *screen)
 {
-	int num_screens = [iphone_screens count];
-	int i;
-	
-	for (i = 1; i < num_screens; i++) {
-		iphone_screen *scr = iphone_get_screen_by_adapter(i);
-		if (scr->screen == screen) {
-			[iphone_screens removeObjectAtIndex:i];
-			return;
-		}
-	}
+   int num_screens = [iphone_screens count];
+   int i;
+   
+   for (i = 1; i < num_screens; i++) {
+      iphone_screen *scr = iphone_get_screen_by_adapter(i);
+      if (scr->screen == screen) {
+         [iphone_screens removeObjectAtIndex:i];
+         return;
+      }
+   }
 }
 
 void _al_iphone_destroy_screen(ALLEGRO_DISPLAY *display)
 {
-	ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)display;
+   ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)display;
 
-	if (d->extra->adapter == 0) {
-		global_delegate->main_display = NULL;
-	}
+   if (d->extra->adapter == 0) {
+      global_delegate->main_display = NULL;
+   }
 
-	[(EAGLView *)d->extra->vc.view remove_observers];
-	
-	[d->extra->vc.view release];
-	[d->extra->vc release];
-	[d->extra->window release];
+   [(EAGLView *)d->extra->vc.view remove_observers];
+   
+   [d->extra->vc.view release];
+   [d->extra->vc release];
+   [d->extra->window release];
 
-	al_free(d->extra);
+   al_free(d->extra);
 }
 
 // create iphone_screen for all currently attached screens
@@ -193,14 +199,14 @@ static void iphone_create_screens(void)
  */
 UIWindow *al_iphone_get_window(ALLEGRO_DISPLAY *display)
 {
-	al_lock_mutex(_al_iphone_display_hotplug_mutex);
-	iphone_screen *scr = iphone_get_screen(display);
-	if (scr == NULL) {
-		al_unlock_mutex(_al_iphone_display_hotplug_mutex);
-		return NULL;
-	}
-	al_unlock_mutex(_al_iphone_display_hotplug_mutex);
-	return scr->window;
+   al_lock_mutex(_al_iphone_display_hotplug_mutex);
+   iphone_screen *scr = iphone_get_screen(display);
+   if (scr == NULL) {
+      al_unlock_mutex(_al_iphone_display_hotplug_mutex);
+      return NULL;
+   }
+   al_unlock_mutex(_al_iphone_display_hotplug_mutex);
+   return scr->window;
 }
 
 /* Function: al_iphone_get_view
@@ -296,18 +302,18 @@ void al_iphone_override_screen_scale(float scale)
  */
 void al_iphone_set_statusbar_orientation(int o)
 {
-	UIInterfaceOrientation orientation = UIInterfaceOrientationPortrait;
+   UIInterfaceOrientation orientation = UIInterfaceOrientationPortrait;
 
-	if (o == ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_PORTRAIT)
-		orientation = UIInterfaceOrientationPortrait;
-	else if (o == ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_PORTRAIT_UPSIDE_DOWN)
-		orientation = UIInterfaceOrientationPortraitUpsideDown;
-	else if (o == ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_LANDSCAPE_RIGHT)
-		orientation = UIInterfaceOrientationLandscapeRight;
-	else if (o == ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_LANDSCAPE_LEFT)
-		orientation = UIInterfaceOrientationLandscapeLeft;
+   if (o == ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_PORTRAIT)
+      orientation = UIInterfaceOrientationPortrait;
+   else if (o == ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_PORTRAIT_UPSIDE_DOWN)
+      orientation = UIInterfaceOrientationPortraitUpsideDown;
+   else if (o == ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_LANDSCAPE_RIGHT)
+      orientation = UIInterfaceOrientationLandscapeRight;
+   else if (o == ALLEGRO_IPHONE_STATUSBAR_ORIENTATION_LANDSCAPE_LEFT)
+      orientation = UIInterfaceOrientationLandscapeLeft;
 
-	[app setStatusBarOrientation:orientation animated:NO];
+   [app setStatusBarOrientation:orientation animated:NO];
 }
 
 bool _al_iphone_add_view(ALLEGRO_DISPLAY *display)
@@ -329,7 +335,7 @@ bool _al_iphone_add_view(ALLEGRO_DISPLAY *display)
    [global_delegate performSelectorOnMainThread: @selector(add_view:) 
                                      withObject: [NSValue valueWithPointer:display]
                                   waitUntilDone: YES];
-				  
+              
    if (d->extra->failed) {
       [pool drain];
       return false;
@@ -574,9 +580,9 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     ALLEGRO_DISPLAY *d = main_display;
-	ALLEGRO_EVENT event;
-	
-	(void)application;
+   ALLEGRO_EVENT event;
+   
+   (void)application;
     
     ALLEGRO_INFO("Application becoming active.\n");
 
@@ -611,15 +617,15 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
    _al_event_source_unlock(&d->es);
 
    while (waiting_for_program_halt) {
-   	// do nothing, this should be quick
-	al_rest(0.001);
+      // do nothing, this should be quick
+   al_rest(0.001);
    }
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
    ALLEGRO_DISPLAY *d = main_display;
    ALLEGRO_EVENT event;
-	
+   
    (void)application;
     
    ALLEGRO_INFO("Application coming back to foreground.\n");
@@ -649,7 +655,6 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
    
    iphone_screen *scr = iphone_get_screen_by_adapter(adapter);
 
-	
    if (adapter == 0) {
       iphone_add_screen([UIScreen mainScreen]);
    }

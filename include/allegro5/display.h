@@ -23,7 +23,8 @@ enum {
    ALLEGRO_OPENGL_FORWARD_COMPATIBLE   = 1 << 8,
    ALLEGRO_FULLSCREEN_WINDOW           = 1 << 9,
    ALLEGRO_MINIMIZED                   = 1 << 10,
-   ALLEGRO_USE_PROGRAMMABLE_PIPELINE   = 1 << 11
+   ALLEGRO_USE_PROGRAMMABLE_PIPELINE   = 1 << 11,
+   ALLEGRO_GTK_TOPLEVEL_INTERNAL       = 1 << 12
 };
 
 /* Possible parameters for al_set_display_option.
@@ -146,7 +147,7 @@ AL_FUNC(void, al_set_window_title, (ALLEGRO_DISPLAY *display, const char *title)
 AL_FUNC(void, al_set_new_display_option, (int option, int value, int importance));
 AL_FUNC(int, al_get_new_display_option, (int option, int *importance));
 AL_FUNC(void, al_reset_new_display_options, (void));
-AL_FUNC(void, al_change_display_option, (ALLEGRO_DISPLAY *display, int option, int value));
+AL_FUNC(void, al_set_display_option, (ALLEGRO_DISPLAY *display, int option, int value));
 AL_FUNC(int, al_get_display_option, (ALLEGRO_DISPLAY *display, int option));
 
 /*Deferred drawing*/

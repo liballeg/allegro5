@@ -29,6 +29,10 @@
    #define ALLEGRO_DIALOG_FUNC      AL_FUNC
 #endif
 
+#ifdef ALLEGRO_WITH_XWINDOWS
+   #define ALLEGRO_GTK_TOPLEVEL  ALLEGRO_GTK_TOPLEVEL_INTERNAL
+#endif
+
 /* Type: ALLEGRO_FILECHOOSER
  */
 typedef struct ALLEGRO_FILECHOOSER ALLEGRO_FILECHOOSER;
@@ -55,6 +59,7 @@ typedef struct ALLEGRO_MENU_INFO {
 #define ALLEGRO_END_OF_MENU                { NULL,          0, 0, NULL }
 
 ALLEGRO_DIALOG_FUNC(bool, al_init_native_dialog_addon, (void));
+ALLEGRO_DIALOG_FUNC(void, al_shutdown_native_dialog_addon, (void));
 
 ALLEGRO_DIALOG_FUNC(ALLEGRO_FILECHOOSER *, al_create_native_file_dialog, (char const *initial_path,
    char const *title, char const *patterns, int mode));

@@ -8,6 +8,16 @@ set(NATIVE_DIALOG_SOURCES
     menu.c
     )
 
+set(GTK_NATIVE_DIALOG_SOURCES
+    gtk_dialog.c
+    gtk_filesel.c
+    gtk_menu.c
+    gtk_msgbox.c
+    gtk_textlog.c
+    gtk_thread.c
+    gtk_xgtk.c
+    )
+
 if(APPLE AND NOT IPHONE)
    list(APPEND NATIVE_DIALOG_SOURCES osx_dialog.m)
    set(ALLEGRO_CFG_NATIVE_DIALOG_OSX 1)
@@ -26,21 +36,23 @@ if(WIN32)
    set(SUPPORT_NATIVE_DIALOG 1)
 endif(WIN32)
 
-if(NOT SUPPORT_NATIVE_DIALOG AND NOT IPHONE)
-    if(HAVE_GTK)
-        list(APPEND NATIVE_DIALOG_SOURCES gtk_dialog.c)
-        list(APPEND NATIVE_DIALOG_INCLUDE_DIRECTORIES ${GTK_INCLUDE_DIRS})
- 
+if(NOT SUPPORT_NATIVE_DIALOG AND SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
+    pkg_check_modules(GTK gtk+-2.0)
+    pkg_check_modules(GT gthread-2.0)
+    if(GTK_FOUND AND GT_FOUND)
+        list(APPEND NATIVE_DIALOG_SOURCES ${GTK_NATIVE_DIALOG_SOURCES})
+        list(APPEND NATIVE_DIALOG_INCLUDE_DIRECTORIES
+            ${GTK_INCLUDE_DIRS} ${GT_INCLUDE_DIRS})
+        list(APPEND NATIVE_DIALOG_LIBRARIES ${GTK_LIBRARIES} ${GT_LIBRARIES})
         set_source_files_properties(
-            gtk_dialog.c
+            ${GTK_NATIVE_DIALOG_SOURCES}
             PROPERTIES
             COMPILE_FLAGS "${GTK_CFLAGS_STRING}"
             )
-
         set(ALLEGRO_CFG_NATIVE_DIALOG_GTK 1)
         set(SUPPORT_NATIVE_DIALOG 1)
-    endif(HAVE_GTK)
-endif(NOT SUPPORT_NATIVE_DIALOG AND NOT IPHONE)
+    endif()
+endif()
 
 if(SUPPORT_NATIVE_DIALOG)
    configure_file(

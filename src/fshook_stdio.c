@@ -154,7 +154,22 @@ static WRAP_CHAR *make_absolute_path_inner(const WRAP_CHAR *tail)
 {
 #ifdef ALLEGRO_WINDOWS
    /* We use _wfullpath to get the proper drive letter semantics on Windows. */
-   return _wfullpath(NULL, tail, 0);
+   wchar_t *abs_path = _wfullpath(NULL, tail, 0);
+
+   /* Remove trailing backslash (_wstat fails otherwise), but NOT directly
+    * following the drive letter.
+    */
+   if (abs_path) {
+      const size_t abs_len = WRAP_STRLEN(abs_path);
+      if (abs_len == 3 && abs_path[1] == ':' && abs_path[2] == '\\') {
+         /* Do not strip "C:\" */
+      }
+      else if (abs_len > 1 && abs_path[abs_len - 1] == '\\') {
+         abs_path[abs_len - 1] = '\0';
+      }
+   }
+
+   return abs_path;
 #else
    char cwd[PATH_MAX];
    ALLEGRO_PATH *cwdpath = NULL;

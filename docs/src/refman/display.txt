@@ -125,9 +125,16 @@ ALLEGRO_NOFRAME
 ALLEGRO_GENERATE_EXPOSE_EVENTS
 :   Let the display generate expose events.
 
+ALLEGRO_GTK_TOPLEVEL
+:   Create a GTK toplevel window for the display, on X.
+    This flag is conditionally defined by the native dialog addon.
+    You must call [al_init_native_dialog_addon] for it to succeed.
+    ALLEGRO_GTK_TOPLEVEL is incompatible with ALLEGRO_FULLSCREEN.
+    Since: 5.1.5
+
 0 can be used for default values.
 
-See also: [al_set_new_display_option], [al_get_display_option], [al_change_display_option]
+See also: [al_set_new_display_option], [al_get_display_option], [al_set_display_option]
 
 ### API: al_get_new_display_option
 
@@ -516,13 +523,13 @@ Return an extra display setting of the display.
 
 See also: [al_set_new_display_option]
 
-### API: al_change_display_option
+### API: al_set_display_option
 
 Change an option that was previously set for a display. After displays are
 created, they take on the options set with [al_set_new_display_option]. Calling
 [al_set_new_display_option] subsequently only changes options for newly created
 displays, and doesn't touch the options of already created displays.
-[al_change_display_option] allows changing some of these values. Not all
+[al_set_display_option] allows changing some of these values. Not all
 display options can be changed or changing them will have no effect. Changing
 options other than those listed below is undefined.
 
@@ -530,7 +537,7 @@ options other than those listed below is undefined.
     previously enabled orientations of the screen/device. See
     [al_set_new_display_option] for more information on this option.
 
-Since: 5.1.0
+Since: 5.1.5
 
 See also: [al_set_new_display_option]
 

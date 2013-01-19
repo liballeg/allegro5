@@ -23,19 +23,28 @@ void abort_example(char const *format, ...)
    vsnprintf(str, sizeof str, format, args);
    va_end(args);
 
-   display = al_is_system_installed() ? al_get_current_display() : NULL;
-   al_show_native_message_box(display, "Error", "Cannot run example", str, NULL, 0);
+   if (al_init_native_dialog_addon()) {
+      display = al_is_system_installed() ? al_get_current_display() : NULL;
+      al_show_native_message_box(display, "Error", "Cannot run example", str, NULL, 0);
+   }
+   else {
+      fprintf(stderr, "%s", str);
+   }
    exit(1);
 }
 
 void open_log(void)
 {
-   textlog = al_open_native_text_log("Log", 0);
+   if (al_init_native_dialog_addon()) {
+      textlog = al_open_native_text_log("Log", 0);
+   }
 }
 
 void open_log_monospace(void)
 {
-   textlog = al_open_native_text_log("Log", ALLEGRO_TEXTLOG_MONOSPACE);
+   if (al_init_native_dialog_addon()) {
+      textlog = al_open_native_text_log("Log", ALLEGRO_TEXTLOG_MONOSPACE);
+   }
 }
 
 void close_log(bool wait_for_user)

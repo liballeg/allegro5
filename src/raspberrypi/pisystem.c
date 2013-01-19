@@ -6,6 +6,8 @@
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/platform/aintlnx.h"
 #include "allegro5/internal/aintern_x.h"
+#include "allegro5/internal/aintern_xevents.h"
+#include "allegro5/internal/aintern_xmouse.h"
 
 #include "bcm_host.h"
 
@@ -15,7 +17,6 @@ ALLEGRO_DEBUG_CHANNEL("system")
 
 static ALLEGRO_SYSTEM_INTERFACE *pi_vt;
 
-/* Create a new system object for the dummy X11 driver. */
 static ALLEGRO_SYSTEM *pi_initialize(int flags)
 {
    (void)flags;
@@ -33,7 +34,7 @@ static ALLEGRO_SYSTEM *pi_initialize(int flags)
    if (getenv("DISPLAY")) {
       _al_mutex_init_recursive(&s->lock);
       s->x11display = XOpenDisplay(0);
-      _al_thread_create(&s->thread, _al_x_background_thread, s);
+      _al_thread_create(&s->thread, _al_xwin_background_thread, s);
       ALLEGRO_INFO("events thread spawned.\n");
       /* We need to put *some* atom into the ClientMessage we send for
        * faking mouse movements with al_set_mouse_xy - so let's ask X11

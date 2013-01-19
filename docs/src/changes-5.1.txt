@@ -4,6 +4,192 @@ See `changes-5.0.txt` for changes in Allegro 5.0.x.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 5.1.4 to 5.1.5 (January 2013)
+==========================================
+
+The main developers this time were: Trent Gamblin, Elias Pschernig,
+Jon Rafkind, Peter Wang.
+
+Ports:
+
+-  Initial port to Raspberry Pi by Trent Gamblin.
+
+Core:
+
+-  Added an al_register_trace_handler function.
+
+-  Clean up logging subsystem at shutdown (muhkuh).
+
+-  Fix a problem with creating a display after Allegro is shut down
+   then re-initialised on X11.
+
+Displays:
+
+-  Fix crashes when resizing a WGL fullscreen window.
+
+-  Fix use of invalidated pointers in D3D driver when the first format fails.
+
+-  Fix bug where setting the mouse cursor had no effect when
+   the mouse was captured (mouse button held down).
+
+-  Fix windows not having a minimise button when set to
+   windowed state from fullscreen window state.
+
+-  Respect ALLEGRO_FRAMELESS flag properly when toggling from
+   fullscreen window state to windowed state (Windows).
+
+-  Don't generate DISPLAY_LOST events when resizing a fullscreen display.
+
+-  Fix al_set/get_window position on Windows so getting/setting
+   to the same position continuosly doesn't move the window.
+   (Michael Swiger)
+
+-  Rename al_change_display_option to al_set_display_option.
+
+-  Add al_set_display_icons (plural), implemented for X11 and Windows.
+
+-  Add ALLEGRO_GTK_TOPLEVEL display flag for X11.
+
+-  Fix window resizing when using shaders (X11).
+
+Graphics:
+
+-  Avoid null pointer dereference when setting a target bitmap after
+   its video_texture has already been released (D3D).
+
+-  Make d3d_lock_region fail immediately if _al_d3d_sync_bitmap
+   failed, likely because the device was lost.
+
+-  Set device_lost flag immediately when d3d_display_thread_proc
+   finds the device is lost.
+
+-  Fix OpenGL extensions being completely ignored on OS X.
+
+-  Added a quick hack to fix bitmap locking on desktop OpenGL when using
+   shaders.
+
+Config:
+
+-  Added al_remove_config_key and al_remove_config_section functions.
+
+File I/O:
+
+-  Fix al_read_directory crash on 64-bit Windows (simast).
+
+Filesystem:
+
+-  Keep absolute path in ALLEGRO_FS_ENTRYs so that later changes to the
+   current working directory do not affect the interpretation of the path.
+
+-  Set ALLEGRO_FILEMODE_HIDDEN properly on Unix.
+
+-  Make sure stat mode bits are cleared in default implementation of
+   al_update_fs_entry.
+
+-  Support Unicode paths on Windows.
+
+-  Change description of al_get_fs_entry_name about not returning absolute
+   path if created from relative path; no longer true for either the default
+   or Physfs implementations.
+
+Audio addons:
+
+-  Fix setting the speed of an audio stream after it was attached to the mixer
+   (Paul Suntsov).
+
+-  Shut down threads properly when when destroying FLAC and modaudio streams.
+
+Font addon:
+
+-  Avoid making x offset non-integral for ALLEGRO_ALIGN_CENTRE.
+
+-  Make al_draw_justified_* respect ALLEGRO_ALIGN_INTEGER.
+
+TTF addon:
+
+-  Don't save the projection transform if no display is set.
+
+Image addon:
+
+-  Added a missing autorelease-pool to the OSX bitmap saving function
+   (sleepywind).
+
+-  Fix OSX native image loader for loading not-premultiplied RGB data.
+   Previously the data was "de-multiplied", with possibly all information lost.
+
+-  Fix OSX native image loader for loading bitmaps without an alpha channel.
+   They appeared completely black previously.
+
+-  Fixed loading interlaced .png files with libpng.
+
+Native dialogs addon:
+
+-  Do not unload of rich edit module when closing one text log window while
+   another exists.  Reported by URB753.
+
+-  Use default colours for Windows text log implementation, avoiding problems
+   when the previous custom colours failed, leading to black text on a
+   nearly black background.
+
+-  Add al_shutdown_native_dialog_addon.
+
+-  Add native menu support on X11 (requires ALLEGRO_GTK_TOPLEVEL).
+
+-  Add native menu support on OS X.
+
+PhysicsFS addon:
+
+-  Implement al_change_directory semantics (Todd Cope).
+
+Primitives addon:
+
+-  Fixed textured primitives when using shaders (OpenGL).
+
+Shader addon:
+
+-  Add dynamic loading of d3dx9_xx.dll (Michał Cichoń).
+
+-  Add dynamic loading of Cg DLLs (Michał Cichoń).
+
+-  Started implementing default shaders. Only GLSL so far.
+
+-  Fix null pointer dereference in al_create_shader if backend init fails.
+
+Android port:
+
+-  Fix setting the current display on Android.
+
+-  Don't set the backbuffer when setting up the OpenGL view.
+
+Build system:
+
+-  Rename allegro\*-5.1.pc files to allegro\*-5.pc.
+   The new names will be available in future 5.0.x releases.
+
+-  Generate and install allegro_shader pkg-config file.
+
+-  Only generate and install pkg-config files for libraries that we build.
+
+Examples:
+
+-  ex_icon2: New example.
+
+-  ex_shader_multitex: New example.
+
+-  ex_shader: Choose shader platform on command-line; external shader sources.
+
+-  ex_menu: Various changes.
+
+-  speed: Avoid poor performance due to needless redraws.
+
+Other:
+
+-  Documentation updates, many thanks to beoran.
+
+-  A lot of code refactoring.
+
+
+
 Changes from 5.1.3 to 5.1.4 (October 2012)
 ==========================================
 

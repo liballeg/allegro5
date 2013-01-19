@@ -232,9 +232,7 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
    if (!compatible_versions(version, library_version))
       return false;
 
-#ifdef ALLEGRO_CFG_PTHREADS_TLS
-   _al_pthreads_tls_init();
-#endif
+   _al_tls_init_once();
 
    _al_vector_init(&_al_system_interfaces, sizeof(ALLEGRO_SYSTEM_INTERFACE *));
 
@@ -320,7 +318,7 @@ void al_uninstall_system(void)
    _al_run_exit_funcs();
    _al_shutdown_destructors(_al_dtor_list);
    _al_dtor_list = NULL;
-
+   _al_shutdown_logging();
 
    /* shutdown_system_driver is registered as an exit func so we don't need
     * to do any more here.

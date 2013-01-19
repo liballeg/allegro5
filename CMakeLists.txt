@@ -37,7 +37,7 @@ endif(WANT_ANDROID)
 # We use C++ in a few cases.
 project(ALLEGRO C CXX)
 
-set(ALLEGRO_VERSION 5.1.5)
+set(ALLEGRO_VERSION 5.1.6)
 string(REGEX MATCH "^[0-9]+[.][0-9]+" ALLEGRO_SOVERSION ${ALLEGRO_VERSION})
 string(REPLACE "." "" ALLEGRO_DLL_SHORTVER ${ALLEGRO_SOVERSION})
 
@@ -103,8 +103,6 @@ option(WANT_X11 "X11 support" on)
 option(WANT_X11_XF86VIDMODE "X11 XF86VidMode Extension support" on)
 option(WANT_X11_XINERAMA "X11 Xinerama Extension support" on)
 option(WANT_X11_XRANDR "X11 XRandR Extension support" on)
-option(WANT_GTKGLEXT_WINDOWS "Use GTK/GtkGLExt windows (so menus work on X)" off)
-option(WITHOUT_GTK "Don't use GTK at all" off)
 option(WANT_D3D "Enable Direct3D graphics driver (Windows)" on)
 option(WANT_D3D9EX "Enable Direct3D 9Ex extensions (Vista)" off)
 option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11, OS X))" on)
@@ -714,30 +712,6 @@ endif(ALLEGRO_UNIX)
 if(SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_X_FILES})
     list(APPEND PLATFORM_LIBS ${X11_LIBRARIES})
-    if(WANT_GTKGLEXT_WINDOWS)
-        find_package(GtkGLExt)
-        if(GTKGLEXT_FOUND)
-            include_directories(${GTKGLEXT_INCLUDE_DIRS})
-            link_directories(${GTKGLEXT_LIBRARY_DIRS})
-            list(APPEND PLATFORM_LIBS "${GTKGLEXT_LIBRARIES}")
-            set(ALLEGRO_CFG_USE_GTKGLEXT 1)
-            set(HAVE_GTK 1)
-            set(ALLEGRO_CFG_USE_GTK 1)
-            set(SUPPORT_GTKGLEXT_WINDOWS 1)
-        else(GTKGLEXT_FOUND)
-            message(FATAL_ERROR "GtkGLExt requested but not found.")
-        endif(GTKGLEXT_FOUND)
-    elseif(NOT WITHOUT_GTK)
-        pkg_check_modules(GTK gtk+-2.0)
-        pkg_check_modules(GT gthread-2.0)
-        if(GTK_FOUND AND GT_FOUND)
-            include_directories(${GTK_INCLUDE_DIRS})
-            link_directories(${GTK_LIBRARY_DIRS})
-            list(APPEND PLATFORM_LIBS "${GTK_LIBRARIES}")
-            set(HAVE_GTK 1)
-            set(ALLEGRO_CFG_USE_GTK 1)
-        endif(GTK_FOUND AND GT_FOUND)
-    endif(WANT_GTKGLEXT_WINDOWS)
 endif(SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
 
 if(WIN32)
@@ -930,8 +904,6 @@ if(WANT_TESTS)
     add_subdirectory(tests)
 endif(WANT_TESTS)
 
-# add_subdirectory(benchmarks)
-
 #-----------------------------------------------------------------------------#
 #
 #   pkg-config files
@@ -964,23 +936,29 @@ if(INSTALL_PKG_CONFIG_FILES)
     append_lib_type_suffix(lib_type)
     append_lib_linkage_suffix(lib_linkage)
 
-    foreach(name ${PKG_CONFIG_FILES})
-        if (SHARED)
-            set(outname ${name}${lib_type}-${ALLEGRO_SOVERSION}.pc)
-        else (SHARED)
-            # For static linking: get extra libraries to link with.
-            get_target_property(link_with ${name} static_link_with)
-            set(outname ${name}${lib_type}-static-${ALLEGRO_SOVERSION}.pc)
-        endif (SHARED)
-        configure_file(
-            misc/${name}.pc.in
-            ${LIBRARY_OUTPUT_PATH}/pkgconfig/${outname}
-            @ONLY
-            )
-        install(FILES ${LIBRARY_OUTPUT_PATH}/pkgconfig/${outname}
-            DESTINATION "lib${LIB_SUFFIX}/pkgconfig"
-            )
-    endforeach(name)
+    # Our pkg-config files are now named allegro*-5.pc, which will
+    # work across branches. Allegro 5.0.8 and prior used the names
+    # allegro*-5.0.pc so on the 5.0 branch we will continue to install
+    # those files, for backwards compatibility.
+    foreach(versuffix 5)
+        foreach(name ${PKG_CONFIG_FILES})
+            if (SHARED)
+                set(outname ${name}${lib_type}-${versuffix}.pc)
+            else (SHARED)
+                # For static linking: get extra libraries to link with.
+                get_target_property(link_with ${name} static_link_with)
+                set(outname ${name}${lib_type}-static-${versuffix}.pc)
+            endif (SHARED)
+            configure_file(
+                misc/${name}.pc.in
+                ${LIBRARY_OUTPUT_PATH}/pkgconfig/${outname}
+                @ONLY
+                )
+            install(FILES ${LIBRARY_OUTPUT_PATH}/pkgconfig/${outname}
+                DESTINATION "lib${LIB_SUFFIX}/pkgconfig"
+                )
+        endforeach(name)
+    endforeach(versuffix)
 endif(INSTALL_PKG_CONFIG_FILES)
 
 #-----------------------------------------------------------------------------#

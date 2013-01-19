@@ -17,11 +17,12 @@
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_system.h"
 
 #if defined ALLEGRO_WITH_XWINDOWS
 #ifndef ALLEGRO_RASPBERRYPI
-#include "allegro5/internal/aintern_xglx.h"
+#include "allegro5/platform/aintxglx.h"
 #else
 #include "allegro5/internal/aintern_raspberrypi.h"
 #endif

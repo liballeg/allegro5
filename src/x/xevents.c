@@ -2,12 +2,16 @@
 
 #include "allegro5/allegro.h"
 #include "allegro5/platform/aintunix.h"
-#include "allegro5/internal/aintern_xembed.h"
 #include "allegro5/internal/aintern_x.h"
+#include "allegro5/internal/aintern_xdisplay.h"
+#include "allegro5/internal/aintern_xembed.h"
+#include "allegro5/internal/aintern_xevents.h"
+#include "allegro5/internal/aintern_xfullscreen.h"
+#include "allegro5/internal/aintern_xkeyboard.h"
+#include "allegro5/internal/aintern_xmouse.h"
+#include "allegro5/internal/aintern_xsystem.h"
 
-#ifndef ALLEGRO_RASPBERRYPI
-#include "allegro5/internal/aintern_xglx.h"
-#else
+#ifdef ALLEGRO_RASPBERRYPI
 #include "allegro5/internal/aintern_raspberrypi.h"
 #define ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_RASPBERRYPI
 #define ALLEGRO_DISPLAY_XGLX ALLEGRO_DISPLAY_RASPBERRYPI
@@ -24,7 +28,6 @@ void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent)
    (void)xevent;
 
    _al_event_source_lock(es);
-
    if (_al_event_source_needs_to_generate_event(es)) {
       ALLEGRO_EVENT event;
       event.display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
@@ -79,7 +82,9 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
             d->mouse_warp = true;
             break;
          }
-         if ((Atom)event.xclient.data.l[0] == d->wm_delete_window_atom) {
+         if (d->wm_delete_window_atom != None &&
+            (Atom)event.xclient.data.l[0] == d->wm_delete_window_atom)
+         {
             _al_display_xglx_closebutton(&d->display, &event);
             break;
          }
@@ -129,7 +134,7 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
          _al_xwin_keyboard_switch_handler(&d->display, false);
          break;
       case ConfigureNotify:
-         _al_display_xglx_configure(&d->display,  &event);
+         _al_xglx_display_configure_event(&d->display,  &event);
          d->resize_count++;
          _al_cond_signal(&s->resized);
          break;
@@ -160,7 +165,7 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
    }
 }
 
-void _al_x_background_thread(_AL_THREAD *self, void *arg)
+void _al_xwin_background_thread(_AL_THREAD *self, void *arg)
 {
    ALLEGRO_SYSTEM_XGLX *s = arg;
    XEvent event;

@@ -162,6 +162,7 @@ example(ex_resize2 ${IMAGE})
 example(ex_rotate ${IMAGE})
 example(ex_scale ${IMAGE})
 example(ex_shader ex_shader.cpp ${IMAGE} ${SHADER})
+example(ex_shader_multitex ${IMAGE} ${SHADER})
 example(ex_subbitmap ${IMAGE} ${PRIM})
 example(ex_threads ${PRIM})
 example(ex_threads2)
@@ -212,9 +213,7 @@ example(ex_stream_seek CONSOLE ${AUDIO} ${ACODEC} ${PRIM} ${FONT} ${IMAGE})
 example(ex_synth ex_synth.cpp ${NIHGUI} ${AUDIO} ${TTF})
 
 example(ex_native_filechooser ${DIALOG} ${FONT} ${IMAGE} ${COLOR})
-if(NOT SUPPORT_X11 OR SUPPORT_GTKGLEXT_WINDOWS)
-    example(ex_menu ${DIALOG} ${IMAGE})
-endif()
+example(ex_menu ${DIALOG} ${IMAGE})
 
 # In some configurations CURL pulls in dependencies which we don't check for.
 # This example isn't important so it's disabled by default to prevent problems.

@@ -1,3 +1,5 @@
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_native_dialog.h>
 #include "global.h"
 #include "credits.h"
 #include "fps.h"
@@ -69,6 +71,9 @@ int init_framework(void)
 
    /* Attempt to initialize Allegro. */
    if (!al_init()) {
+      return DEMO_ERROR_ALLEGRO;
+   }
+   if (!al_init_native_dialog_addon()) {
       return DEMO_ERROR_ALLEGRO;
    }
    
@@ -253,15 +258,15 @@ void run_framework(void)
       switch (event.type) {
          
          case ALLEGRO_EVENT_MOUSE_AXES:
-            mouse_event(&event);
+            mouse_handle_event(&event);
             break;
          
          case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
-            mouse_event(&event);
+            mouse_handle_event(&event);
             break;
          
          case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
-            mouse_event(&event);
+            mouse_handle_event(&event);
             break;
 
          case ALLEGRO_EVENT_KEY_DOWN:

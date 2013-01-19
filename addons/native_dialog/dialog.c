@@ -1,11 +1,42 @@
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_native_dialog.h"
+#include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_native_dialog.h"
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_vector.h"
 
+ALLEGRO_DEBUG_CHANNEL("native_dialog")
+
 static bool inited_addon = false;
+
+/* Function: al_init_native_dialog_addon
+ */
+bool al_init_native_dialog_addon(void)
+{
+   if (!inited_addon) {
+      if (!_al_init_native_dialog_addon()) {
+         ALLEGRO_ERROR("_al_init_native_dialog_addon failed.\n");
+         return false;
+      }
+      inited_addon = true;
+      al_init_user_event_source(al_get_default_menu_event_source());
+      _al_add_exit_func(al_shutdown_native_dialog_addon,
+         "al_shutdown_native_dialog_addon");
+   }
+   return true;
+}
+
+/* Function: al_shutdown_native_dialog_addon
+ */
+void al_shutdown_native_dialog_addon(void)
+{
+   if (inited_addon) {
+      al_destroy_user_event_source(al_get_default_menu_event_source());
+      _al_shutdown_native_dialog_addon();
+      inited_addon = false;
+   }
+}
 
 /* Function: al_create_native_file_dialog
  */
@@ -29,17 +60,6 @@ ALLEGRO_FILECHOOSER *al_create_native_file_dialog(
       (void (*)(void *))al_destroy_native_file_dialog);
 
    return (ALLEGRO_FILECHOOSER *)fc;
-}
-
-/* Function: al_init_native_dialog_addon
- */
-bool al_init_native_dialog_addon(void)
-{
-   if (!inited_addon) {
-      inited_addon = true;
-      al_init_user_event_source(al_get_default_menu_event_source());
-   }
-   return true;
 }
 
 /* Function: al_show_native_file_dialog

@@ -39,6 +39,17 @@ static wchar_t* wlog_edit_control = L"EDIT";
 /* True if output support unicode */
 static bool wlog_unicode = false;
 
+
+bool _al_init_native_dialog_addon(void)
+{
+   return true;
+}
+
+void _al_shutdown_native_dialog_addon(void)
+{
+}
+
+
 static bool select_folder(ALLEGRO_DISPLAY_WIN *win_display,
    ALLEGRO_NATIVE_DIALOG *fd)
 {

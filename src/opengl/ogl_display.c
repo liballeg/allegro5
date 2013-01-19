@@ -377,6 +377,33 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 }
 
 
+/* Helper to set up GL state as we want it. */
+void _al_ogl_setup_gl(ALLEGRO_DISPLAY *d)
+{
+   ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
+
+   glViewport(0, 0, d->w, d->h);
+
+   if (!(d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
+      glMatrixMode(GL_PROJECTION);
+      glLoadIdentity();
+      glOrtho(0, d->w, d->h, 0, -1, 1);
+
+      glMatrixMode(GL_MODELVIEW);
+      glLoadIdentity();
+   }
+
+   al_identity_transform(&d->proj_transform);
+   al_orthographic_transform(&d->proj_transform, 0, 0, -1, d->w, d->h, 1);
+   d->vt->set_projection(d);
+
+   if (ogl->backbuffer)
+      _al_ogl_resize_backbuffer(ogl->backbuffer, d->w, d->h);
+   else
+      ogl->backbuffer = _al_ogl_create_backbuffer(d);
+}
+
+
 void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP *target = bitmap;

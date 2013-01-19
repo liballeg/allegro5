@@ -13,6 +13,30 @@ Opaque handle to a native file dialog.
 
 Opaque handle to a text log window.
 
+## API: al_init_native_dialog_addon
+
+Initialise the native dialog addon.
+
+Returns true on success, false on error.
+
+Since: 5.1.0
+
+> *Note:* Prior to Allegro 5.1.0 native dialog functions could be called
+without explicit initialisation, but that is now deprecated.
+Future functionality may require explicit initialisation.
+An exception is [al_show_native_message_box], which may be useful to show
+an error message if Allegro fails to initialise.
+
+See also: [al_shutdown_native_dialog_addon]
+
+## API: al_shutdown_native_dialog_addon
+
+Shut down the native dialog addon.
+
+Since: 5.1.5
+
+See also: [al_init_native_dialog_addon]
+
 ## API: al_create_native_file_dialog
 
 Creates a new native file dialog.  You should only have one such dialog opened
@@ -199,8 +223,10 @@ Returns the (compiled) version of the addon, in the same format as
 
 ## Menus
 
-Menus are only fully implemented under Windows. On Linux, popup menus are 
-implemented. OS X is not supported yet.
+Menus are implemented on Windows, X and OS X.
+Menus on X are implemented with GTK, and have a special requirement: you must
+set the ALLEGRO_GTK_TOPLEVEL display flag prior to creating the display
+which will have menus attached.
 
 A menu can be attached to a single display window or popped up as a context
 menu. If you wish to use the same menu on multiple displays or use a sub-menu

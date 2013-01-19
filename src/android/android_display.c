@@ -38,7 +38,7 @@ static ALLEGRO_DISPLAY_INTERFACE *vt;
 static ALLEGRO_EXTRA_DISPLAY_SETTINGS main_thread_display_settings;
 
 static void _al_android_update_visuals(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d);
-static void android_change_display_option(ALLEGRO_DISPLAY *d, int o, int v);
+static void android_set_display_option(ALLEGRO_DISPLAY *d, int o, int v);
 static void _al_android_resize_display(ALLEGRO_DISPLAY_ANDROID *d, int width, int height);
 static bool _al_android_init_display(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *display);
 void _al_android_clear_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d);
@@ -539,7 +539,7 @@ static ALLEGRO_DISPLAY *android_create_display(int w, int h)
    _al_android_setup_opengl_view(display);
 
    /* Don't need to repeat what this does */
-   android_change_display_option(display, ALLEGRO_SUPPORTED_ORIENTATIONS, al_get_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS, NULL));
+   android_set_display_option(display, ALLEGRO_SUPPORTED_ORIENTATIONS, al_get_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS, NULL));
 
    ALLEGRO_DEBUG("end");
    return display;
@@ -804,7 +804,7 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy, void (*user
    ALLEGRO_DEBUG("acknowledge_drawing_resume end");
 }
 
-static void android_change_display_option(ALLEGRO_DISPLAY *d, int o, int v)
+static void android_set_display_option(ALLEGRO_DISPLAY *d, int o, int v)
 {
    (void)d;
    if (o == ALLEGRO_SUPPORTED_ORIENTATIONS) {
@@ -854,7 +854,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_android_display_driver(void)
    vt->acknowledge_drawing_halt = android_acknowledge_drawing_halt;
    vt->acknowledge_drawing_resume = android_acknowledge_drawing_resume;
 
-   vt->change_display_option = android_change_display_option;
+   vt->set_display_option = android_set_display_option;
 
    vt->update_render_state = _al_ogl_update_render_state;
    
