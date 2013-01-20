@@ -89,20 +89,23 @@ static int check_if_png(ALLEGRO_FILE *fp)
 /* really_load_png:
  *  Worker routine, used by load_png and load_memory_png.
  */
-static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
+static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
+   int flags)
 {
    ALLEGRO_BITMAP *bmp;
-   png_uint_32 width, height, rowbytes;
+   png_uint_32 width, height, rowbytes, real_rowbytes;
    int bit_depth, color_type, interlace_type;
    double image_gamma, screen_gamma;
    int intent;
    int bpp;
    int number_passes, pass;
+   int num_trans = 0;
    PalEntry pal[256];
+   png_bytep trans;
    ALLEGRO_LOCKED_REGION *lock;
    unsigned char *buf;
-   unsigned char *rgba;
-   bool premul = !(al_get_new_bitmap_flags() & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+   unsigned char *dest;
+   bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
    ALLEGRO_ASSERT(png_ptr && info_ptr);
 
@@ -124,9 +127,12 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
       png_set_expand(png_ptr);
 
    /* Adds a full alpha channel if there is transparency information
-    * in a tRNS chunk. */
+    * in a tRNS chunk.
+    */
    if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
-      png_set_tRNS_to_alpha(png_ptr);
+      if (!(color_type & PNG_COLOR_MASK_PALETTE))
+         png_set_tRNS_to_alpha(png_ptr);
+      png_get_tRNS(png_ptr, info_ptr, &trans, &num_trans, NULL);
    }
 
    /* Convert 16-bits per colour component to 8-bits per colour component. */
@@ -201,73 +207,104 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
       return NULL;
    }
 
-   buf = al_malloc(((bpp + 7) / 8) * width);
+   // TODO: can this be different from rowbytes?
+   real_rowbytes = ((bpp + 7) / 8) * width;
+   if (interlace_type == PNG_INTERLACE_ADAM7)
+      buf = al_malloc(real_rowbytes * height);
+   else
+      buf = al_malloc(real_rowbytes);
 
    lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
       ALLEGRO_LOCK_WRITEONLY);
 
-   /* Read the image, one line at a line (easier to debug!) */
+   /* Read the image, one line at a time (easier to debug!) */
    for (pass = 0; pass < number_passes; pass++) {
       png_uint_32 y;
       unsigned int i;
       unsigned char *ptr;
-      rgba = lock->data;
+      dest = lock->data;
+
       for (y = 0; y < height; y++) {
-         unsigned char *rgba_row_start = rgba;
-         png_read_row(png_ptr, buf, NULL);
-         ptr = buf;
-         if (bpp == 8 && (color_type & PNG_COLOR_MASK_PALETTE)) {
-            for (i = 0; i < width; i++) {
-               int pix = ptr[0];
-               ptr++;
-               *(rgba++) = pal[pix].r;
-               *(rgba++) = pal[pix].g;
-               *(rgba++) = pal[pix].b;
-               *(rgba++) = 255;
-            }
-         }
-         else if (bpp == 8) {
-            for (i = 0; i < width; i++) {
-               int pix = ptr[0];
-               ptr++;
-               *(rgba++) = pix;
-               *(rgba++) = pix;
-               *(rgba++) = pix;
-               *(rgba++) = 255;
-            }
-         }
-         else if (bpp == 24) {
-            for (i = 0; i < width; i++) {
-               uint32_t pix = READ3BYTES(ptr);
-               ptr += 3;
-               *(rgba++) = pix & 0xff;
-               *(rgba++) = (pix >> 8) & 0xff;
-               *(rgba++) = (pix >> 16) & 0xff;
-               *(rgba++) = 255;
-            }
-         }
-         else {
-            for (i = 0; i < width; i++) {
-               uint32_t pix = bmp_read32(ptr);
-               int r = pix & 0xff;
-               int g = (pix >> 8) & 0xff;
-               int b = (pix >> 16) & 0xff;
-               int a = (pix >> 24) & 0xff;
-               ptr += 4;
-
-               if (premul) {
-                  r = r * a / 255;
-                  g = g * a / 255;
-                  b = b * a / 255;
+         unsigned char *dest_row_start = dest;
+         /* For interlaced pictures, the row needs to be initialized with
+          * the contents of the previous pass.
+          */
+         if (interlace_type == PNG_INTERLACE_ADAM7)
+            ptr = buf + y * real_rowbytes;
+         else
+             ptr = buf;
+         png_read_row(png_ptr, NULL, ptr);
+   
+         switch (bpp) {
+            case 8:
+               if (color_type & PNG_COLOR_MASK_PALETTE) {
+                  for (i = 0; i < width; i++) {
+                     int pix = ptr[0];
+                     int ti;
+                     ptr++;
+                     dest[0] = pal[pix].r;
+                     dest[1] = pal[pix].g;
+                     dest[2] = pal[pix].b;
+                     dest[3] = 255;
+                     for (ti = 0; ti < num_trans; ti++) {
+                        if (trans[ti] == pix) {
+                           dest[0] = dest[1] = dest[2] = dest[3] = 0;
+                           break;
+                        }
+                     }
+                     dest += 4;
+                  }
                }
+               else {
+                  for (i = 0; i < width; i++) {
+                     int pix = ptr[0];
+                     ptr++;
+                     *(dest++) = pix;
+                     *(dest++) = pix;
+                     *(dest++) = pix;
+                     *(dest++) = 255;
+                  }
+               }
+               break;
 
-               *(rgba++) = r;
-               *(rgba++) = g;
-               *(rgba++) = b;
-               *(rgba++) = a;
-            }
+            case 24:
+               for (i = 0; i < width; i++) {
+                  uint32_t pix = READ3BYTES(ptr);
+                  ptr += 3;
+                  *(dest++) = pix & 0xff;
+                  *(dest++) = (pix >> 8) & 0xff;
+                  *(dest++) = (pix >> 16) & 0xff;
+                  *(dest++) = 255;
+               }
+               break;
+
+            case 32:
+               for (i = 0; i < width; i++) {
+                  uint32_t pix = bmp_read32(ptr);
+                  int r = pix & 0xff;
+                  int g = (pix >> 8) & 0xff;
+                  int b = (pix >> 16) & 0xff;
+                  int a = (pix >> 24) & 0xff;
+                  ptr += 4;
+
+                  if (premul) {
+                     r = r * a / 255;
+                     g = g * a / 255;
+                     b = b * a / 255;
+                  }
+
+                  *(dest++) = r;
+                  *(dest++) = g;
+                  *(dest++) = b;
+                  *(dest++) = a;
+               }
+               break;
+
+            default:
+               ALLEGRO_ASSERT(bpp == 8 || bpp == 24 || bpp == 32);
+               break;
          }
-         rgba = rgba_row_start + lock->pitch;
+         dest = dest_row_start + lock->pitch;
       }
    }
 
@@ -284,7 +321,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
 
 /* Load a PNG file from disk, doing colour coversion if required.
  */
-ALLEGRO_BITMAP *_al_load_png_f(ALLEGRO_FILE *fp)
+static ALLEGRO_BITMAP *load_png_f(ALLEGRO_FILE *fp, int flags)
 {
    jmp_buf jmpbuf;
    ALLEGRO_BITMAP *bmp;
@@ -336,7 +373,7 @@ ALLEGRO_BITMAP *_al_load_png_f(ALLEGRO_FILE *fp)
    png_set_sig_bytes(png_ptr, PNG_BYTES_TO_CHECK);
 
    /* Really load the image now. */
-   bmp = really_load_png(png_ptr, info_ptr);
+   bmp = really_load_png(png_ptr, info_ptr, flags);
 
    /* Clean up after the read, and free any memory allocated. */
    png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp) NULL);
@@ -345,6 +382,11 @@ ALLEGRO_BITMAP *_al_load_png_f(ALLEGRO_FILE *fp)
 }
 
 
+
+ALLEGRO_BITMAP *_al_load_png_f(ALLEGRO_FILE *fp)
+{
+   return load_png_f(fp, al_get_new_bitmap_flags());
+}
 
 
 
