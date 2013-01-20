@@ -154,8 +154,10 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
     * Android. This is an ugly workaround.
     */
    if (
-#if defined ALLEGRO_ANDROID || defined ALLEGRO_RASPBERRYPI
+#if defined ALLEGRO_ANDROID
       (bitmap->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) &&
+#elif defined ALLEGRO_RASPBERRYPI
+      false &&
 #endif
       glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT
    ) {
@@ -307,8 +309,10 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 
          /* See comment about unimplemented functions on Android above */
          if (
-#if defined ALLEGRO_ANDROID || defined ALLEGRO_RASPBERRYPI
+#if defined ALLEGRO_ANDROID
             (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) &&
+#elif defined ALLEGRO_RASPBERRYPI
+            false &&
 #endif
             glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT
          ) {
