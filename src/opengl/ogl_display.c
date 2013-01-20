@@ -307,7 +307,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 
          /* See comment about unimplemented functions on Android above */
          if (
-#ifdef ALLEGRO_ANDROID
+#if defined ALLEGRO_ANDROID || defined ALLEGRO_RASPBERRYPI
             (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) &&
 #endif
             glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT
