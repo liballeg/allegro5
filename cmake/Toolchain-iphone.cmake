@@ -11,6 +11,7 @@ endif()
 SET (IPHONE 1)
 SET (ALLEGRO_CFG_OPENGLES 1)
 SET (SDKROOT iphone)
+SET (AL_DEPS deps_iphone)
 
 include(CMakeForceCompiler)
 CMAKE_FORCE_C_COMPILER(clang GNU)

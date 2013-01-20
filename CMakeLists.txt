@@ -45,18 +45,20 @@ string(REPLACE "." "" ALLEGRO_DLL_SHORTVER ${ALLEGRO_SOVERSION})
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 # Search in `deps' directories for dependency files.
-file(GLOB deps_subdirs
-    "${CMAKE_SOURCE_DIR}/deps"
-    "${CMAKE_SOURCE_DIR}/deps/*"
-    "${CMAKE_BINARY_DIR}/deps"
-    "${CMAKE_BINARY_DIR}/deps/*"
-    )
-foreach(subdir ${deps_subdirs})
-    if(EXISTS "${subdir}/include" OR EXISTS "${subdir}/lib")
-        message(STATUS "Adding ${subdir} to CMAKE_FIND_ROOT_PATH")
-        list(APPEND CMAKE_FIND_ROOT_PATH "${subdir}")
-    endif()
-endforeach(subdir)
+if (AL_DEPS)
+    file(GLOB deps_subdirs
+        "${CMAKE_SOURCE_DIR}/${AL_DEPS}"
+        "${CMAKE_SOURCE_DIR}/${AL_DEPS}/*"
+        "${CMAKE_BINARY_DIR}/${AL_DEPS}"
+        "${CMAKE_BINARY_DIR}/${AL_DEPS}/*"
+        )
+    foreach(subdir ${deps_subdirs})
+        if(EXISTS "${subdir}/include" OR EXISTS "${subdir}/lib")
+            message(STATUS "Adding ${subdir} to CMAKE_FIND_ROOT_PATH")
+            list(APPEND CMAKE_FIND_ROOT_PATH "${subdir}")
+        endif()
+    endforeach(subdir)
+endif()
 
 # Search for C header files in these directories.
 include_directories(
@@ -494,7 +496,7 @@ check_c_source_compiles("
 
 include(CheckCtors)
 check_ctors(ALLEGRO_USE_CONSTRUCTOR)
-    
+
 #-----------------------------------------------------------------------------#
 #
 #   Driver configuration

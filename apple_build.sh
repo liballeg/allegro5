@@ -8,7 +8,7 @@
 #       - Rebuild iOS without creating new project files (after git pull)
 #           apple_build.sh --ios
 #       - Build and create iOS universal libraries.
-#           apple_build.sh --ios --install
+#           apple_build.sh --ios -u
 #
 # WARNING!
 #   Make sure you have the most recent version of the build tools. Apple moved
@@ -22,17 +22,17 @@
 BUILD_OSX=0
 BUILD_IPHONE=0
 BUILD_IPHONESIM=0
-BUILD_INSTALL=0
+BUILD_UNIVERSAL=0
 MAKE_LIBS=0
 NEW_BUILD=0
 CONFIG=RelWithDebInfo
 
-AL5_OPTIONS="-SHARED=0 -D WANT_FRAMEWORKS=0"
-AL5_OPTIONS="$AL5_OPTIONS -D WANT_EXAMPLES=0 -D WANT_DEMO=0"
+AL5_OPTIONS="-D SHARED=0 -D WANT_FRAMEWORKS=0"
+AL5_OPTIONS="$AL5_OPTIONS -D WANT_EXAMPLES=0 -D WANT_DEMO=1"
 AL5_OPTIONS="$AL5_OPTIONS -D WANT_FLAC=0 -D WANT_VORBIS=0 -D WANT_TREMOR=0"
 
 # Allegro5 library dependencies for iOS, e.g. Freetype and Vorbis.
-DEPS=./deps
+DEPS=./deps_iphone
 
 # Version of SDK you have and the lowest you'd like to support.
 OSX_SDK_VERSION="10.7"
@@ -71,9 +71,9 @@ do
         echo Building iOS: iphone and simulator.
         ;;
 
-        -i|--install)
-        BUILD_INSTALL=1
-        echo Will install once built.
+        -u|--universal)
+        BUILD_UNIVERSAL=1
+        echo Will create universal binaries once built.
         ;;
 
         -c=*|--config=*)
@@ -160,9 +160,11 @@ if [ $BUILD_IPHONESIM -o $BUILD_IPHONE ]; then
 fi
 
 # Generate Xcode project for iOS.
+# args: (name, install_dir, cmake_options)
 function cmake_ios {
     echo Generate Allegro Xcode $1 project;
-    "$CMAKE" $IOS_TOOLCHAIN $AL5_OPTIONS -D CMAKE_INSTALL_PREFIX=$2 -G Xcode .. ;
+    "$CMAKE" $IOS_TOOLCHAIN $AL5_OPTIONS -D CMAKE_INSTALL_PREFIX=$2 $3 \
+        -G Xcode .. ;
 }
 
 if [ $BUILD_IPHONESIM -eq 1 ]; then
@@ -224,9 +226,9 @@ if [ $BUILD_IPHONE -eq 1 ]; then
 fi
 
 ######################################################################
-# Install
+# Create universal binaries
 
-if [ $BUILD_INSTALL -eq 1 ]; then
+if [ $BUILD_UNIVERSAL -eq 1 ]; then
 
 # Source directories: iphone arm and iphone sim i386 libs built against iOS SDK.
 LIBS_SIM=install_isim/lib
@@ -246,9 +248,9 @@ cp -r $DEPS/* $IOS_INSTALL_DIR
 cp -r $HEADERS/* $IOS_INSTALL_DIR/include
 
 function make_universal {
-    lipo -output $IOS_INSTALL_DIR/lib/$1 -create $LIBS_SIM/$1 $LIBS_IOS/$1 ;
-    echo Created $1
-    lipo -detailed_info $IOS_INSTALL_DIR/lib/$1 ;
+    lipo -output $IOS_INSTALL_DIR/lib/$1 -create $LIBS_SIM/$1 $LIBS_IOS/$1;
+    echo Created $1;
+    lipo -detailed_info $IOS_INSTALL_DIR/lib/$1;
 }
 
 # Main library
