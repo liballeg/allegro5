@@ -6,6 +6,15 @@
 
 #include "allegro5/allegro_iphone_objc.h"
 
+bool _al_init_native_dialog_addon(void)
+{
+    return true;
+}
+
+void _al_shutdown_native_dialog_addon(void)
+{
+}
+
 bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
                                  ALLEGRO_NATIVE_DIALOG *fd)
 {
