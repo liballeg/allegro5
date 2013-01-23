@@ -1,5 +1,5 @@
 /*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
+ *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
@@ -1102,8 +1102,29 @@ static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    _al_ogl_unmanage_extensions(disp);
 
    PostMessage(win_disp->window, _al_win_msg_suicide, (WPARAM)win_disp, 0);
+
    while (!win_disp->thread_ended)
       al_rest(0.001);
+
+   if (wgl_disp->glrc) {
+      wglDeleteContext(wgl_disp->glrc);
+      wgl_disp->glrc = NULL;
+   }
+   if (wgl_disp->dc) {
+      ReleaseDC(win_disp->window, wgl_disp->dc);
+      wgl_disp->dc = NULL;
+   }
+   // FIXME:
+   printf("Context deleted\n");
+
+   if (disp->flags & ALLEGRO_FULLSCREEN && !_wgl_do_not_change_display_mode) {
+      ChangeDisplaySettings(NULL, 0);
+   }
+
+   if (win_disp->window) {
+      DestroyWindow(win_disp->window);
+      win_disp->window = NULL;
+   }
 }
 
 
@@ -1309,24 +1330,6 @@ static void display_thread_proc(void *arg)
          DispatchMessage(&msg);
       else
          break;                 /* WM_QUIT received or error (GetMessage returned -1)  */
-   }
-
-   if (wgl_disp->glrc) {
-      wglDeleteContext(wgl_disp->glrc);
-      wgl_disp->glrc = NULL;
-   }
-   if (wgl_disp->dc) {
-      ReleaseDC(win_disp->window, wgl_disp->dc);
-      wgl_disp->dc = NULL;
-   }
-
-   if (disp->flags & ALLEGRO_FULLSCREEN && !_wgl_do_not_change_display_mode) {
-      ChangeDisplaySettings(NULL, 0);
-   }
-
-   if (win_disp->window) {
-      DestroyWindow(win_disp->window);
-      win_disp->window = NULL;
    }
 
    ALLEGRO_INFO("wgl display thread exits\n");
