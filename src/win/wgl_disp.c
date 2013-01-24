@@ -1114,8 +1114,6 @@ static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
       ReleaseDC(win_disp->window, wgl_disp->dc);
       wgl_disp->dc = NULL;
    }
-   // FIXME:
-   printf("Context deleted\n");
 
    if (disp->flags & ALLEGRO_FULLSCREEN && !_wgl_do_not_change_display_mode) {
       ChangeDisplaySettings(NULL, 0);
