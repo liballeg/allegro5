@@ -2,14 +2,6 @@
 #
 # Purpose: Build Allegro 5 for OSX and iOS.
 #
-#   Example usage:
-#       - Build OSX only from scratch, or start again:
-#           apple_build.sh --new --osx
-#       - Rebuild iOS without creating new project files (after git pull)
-#           apple_build.sh --ios
-#       - Build and create iOS universal libraries.
-#           apple_build.sh --ios -u
-#
 # WARNING!
 #   Make sure you have the most recent version of the build tools. Apple moved
 #   installation of Xcode 4.3 from /Developer to /Applications. cmake has been
@@ -19,31 +11,64 @@
 #       changelog: http://public.kitware.com/Bug/changelog_page.php?version_id=100
 #       download: http://cmake.org/cmake/resources/software.html
 
+function print_usage {
+cat <<"EOT"
+Usage: apple_build [options]
+
+Options:
+    --new       Start a clean build.
+    --config=CONFIG,-c=CONFIG
+                Config to build: Debug,Release,RelWithDebInfo.
+    --uni,-u    Create universal libraries from iPhone & sim after build.
+    --dummy,-d  Dummy run, print options, nothing done.
+    --help,-h   This help information.
+
+Target:
+    --osx,-o        OSX.
+    --ios           iPhone & iPhone simulator.
+    --iphone,-p     iPhone.
+    --isim,-s       iPhone simulator.
+
+Example usage:
+    - Build OSX only from scratch. Will delete previous build directory:
+        apple_build.sh --new --osx
+
+    - Rebuild iOS without creating new project files, e.g. after git pull:
+        apple_build.sh --ios
+
+    - Build and create iOS universal libraries:
+        apple_build.sh --ios --uni
+
+EOT
+}
+
 BUILD_OSX=0
 BUILD_IPHONE=0
 BUILD_IPHONESIM=0
 BUILD_UNIVERSAL=0
 MAKE_LIBS=0
 NEW_BUILD=0
-CONFIG=RelWithDebInfo
+DUMMY_RUN=0
 
-AL5_OPTIONS="-D SHARED=0 -D WANT_FRAMEWORKS=0"
-AL5_OPTIONS="$AL5_OPTIONS -D WANT_EXAMPLES=0 -D WANT_DEMO=1"
-AL5_OPTIONS="$AL5_OPTIONS -D WANT_FLAC=0 -D WANT_VORBIS=0 -D WANT_TREMOR=0"
+CONFIG=RelWithDebInfo
+AL_EGS=0
+AL_DEMOS=0
 
 # Allegro5 library dependencies for iOS, e.g. Freetype and Vorbis.
-DEPS=./deps_iphone
+# Dependencies copied into build directory so Allegro finds them in "deps".
+DEPS_IPHONE=./deps_iphone
 
 # Version of SDK you have and the lowest you'd like to support.
-OSX_SDK_VERSION="10.7"
-OSX_SDK_DEPLOYMENT="10.7"
-IOS_SDK_VERSION="6.0"
-IOS_SDK_DEPLOYMENT="5.1"
+# If, when you run an executable you get "Illegal instruction: 4" it is because
+# your exe is linked against an SDK version higher than your OSX version. To fix
+# this you need to lower the deployment version.
+AL_OSX_DEPLOYMENT="10.7"
+AL_IOS_DEPLOYMENT="5.1"
 
 # Parse the command-line arguments:
-for i in $*
+for opt in $*
 do
-    case $i in
+    case $opt in
         --new)
         NEW_BUILD=1
         echo Reseting and starting new build...
@@ -71,24 +96,48 @@ do
         echo Building iOS: iphone and simulator.
         ;;
 
-        -u|--universal)
+        -u|--uni)
         BUILD_UNIVERSAL=1
         echo Will create universal binaries once built.
         ;;
 
         -c=*|--config=*)
-        CONFIG=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
+        CONFIG=`echo $opt | sed 's/[-a-zA-Z0-9]*=//'`
+        ;;
+
+        --egs|--examples)
+        AL_EGS=1
+        ;;
+
+        --demos)
+        AL_DEMOS=1
+        ;;
+
+        -d|--dummy)
+        DUMMY_RUN=1
+        ;;
+
+        -h|--help)
+        print_usage
+        exit 0
         ;;
 
         *)
-        echo error: Unknown option.
+        echo error: Unrecognised option \"$opt\"
+        echo
+        print_usage
         exit 1
         ;;
     esac
 done
 
+AL_CMAKE_OPTIONS="\
+    -D CMAKE_BUILD_TYPE=$CONFIG -D SHARED=0 -D WANT_FRAMEWORKS=0 \
+    -D WANT_EXAMPLES=$AL_EGS -D WANT_DEMO=$AL_DEMOS \
+    -D WANT_FLAC=0 -D WANT_VORBIS=0 -D WANT_TREMOR=0"
+
 echo "Building config: $CONFIG"
-echo "Allegro5 options: $AL_OPTIONS"
+echo "Allegro5 options: $AL_CMAKE_OPTIONS"
 
 ######################################################################
 
@@ -114,8 +163,15 @@ if [ -n "${SDKROOT}" ]; then
     echo "Warning: Your SDKROOT environment setting will override script."
 fi
 
+if [ $DUMMY_RUN -eq 1 ]; then
+    echo "Dummy run."
+    exit 0
+fi
+
 function reset_dir_tree {
-    rm -r $1
+    if [ -d $1 ]; then
+        rm -r $1
+    fi
     mkdir $1
 }
 
@@ -133,7 +189,9 @@ if [ $BUILD_OSX -eq 1 ]; then
         cd $BUILD_DIR
 
         echo Generate Allegro Xcode OSX project
-        "$CMAKE" $AL5_OPTIONS -D CMAKE_INSTALL_PREFIX=$INSTALL_DIR -G Xcode ..
+        "$CMAKE" $AL_CMAKE_OPTIONS -D CMAKE_INSTALL_PREFIX=$INSTALL_DIR \
+            -D CMAKE_OSX_DEPLOYMENT_TARGET=$AL_OSX_DEPLOYMENT \
+            -G Xcode ..
         cd ..
     fi
 
@@ -152,9 +210,10 @@ fi
 
 IOS_TOOLCHAIN="-D CMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-iphone.cmake"
 
-if [ $BUILD_IPHONESIM -o $BUILD_IPHONE ]; then
+#if [ $BUILD_IPHONESIM -o $BUILD_IPHONE ]; then
+if [ $BUILD_IPHONE -eq 1 ]; then
     if [ ! -d $DEPS ]; then
-        echo "You have no \"deps\" directory."
+        echo "You have no \"$DEPS\" directory."
         exit 1
     fi
 fi
@@ -163,7 +222,7 @@ fi
 # args: (name, install_dir, cmake_options)
 function cmake_ios {
     echo Generate Allegro Xcode $1 project;
-    "$CMAKE" $IOS_TOOLCHAIN $AL5_OPTIONS -D CMAKE_INSTALL_PREFIX=$2 $3 \
+    "$CMAKE" $IOS_TOOLCHAIN $AL_CMAKE_OPTIONS -D CMAKE_INSTALL_PREFIX=$2 $3 \
         -G Xcode .. ;
 }
 
@@ -205,6 +264,12 @@ if [ $BUILD_IPHONE -eq 1 ]; then
     # Nuke the build dir and start again?
     if [ $NEW_BUILD -eq 1 ]; then
         reset_dir_tree $BUILD_DIR
+
+        # If we have iphone dependencies, copy and rename them.
+        if [ -d $DEPS_IPHONE ]; then
+            cp -r $DEPS_IPHONE $BUILD_DIR/deps
+        fi
+
         cd $BUILD_DIR
 
         cmake_ios "iphone" $INSTALL_DIR
@@ -230,6 +295,8 @@ fi
 
 if [ $BUILD_UNIVERSAL -eq 1 ]; then
 
+echo Creating iOS universal libraries.
+
 # Source directories: iphone arm and iphone sim i386 libs built against iOS SDK.
 LIBS_SIM=install_isim/lib
 LIBS_IOS=install_iphone/lib
@@ -242,7 +309,7 @@ IOS_INSTALL_DIR=./install_ios
 reset_dir_tree $IOS_INSTALL_DIR
 
 # Copy our dependencies. Creates include & lib.
-cp -r $DEPS/* $IOS_INSTALL_DIR
+cp -r $DEPS_IPHONE/* $IOS_INSTALL_DIR
 
 # Copy Allegro headers.
 cp -r $HEADERS/* $IOS_INSTALL_DIR/include
