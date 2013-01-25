@@ -21,13 +21,15 @@ Options:
                 Config to build: Debug,Release,RelWithDebInfo.
     --uni,-u    Create universal libraries from iPhone & sim after build.
     --dummy,-d  Dummy run, print options, nothing done.
+    --egs       Include examples in Allegro build.
+    --demos     Include demos in Allegro build.
     --help,-h   This help information.
 
 Target:
-    --osx,-o        OSX.
-    --ios           iPhone & iPhone simulator.
-    --iphone,-p     iPhone.
-    --isim,-s       iPhone simulator.
+    --osx,-o    OSX.
+    --ios       iPhone & iPhone simulator.
+    --iphone,-p iPhone.
+    --isim,-s   iPhone simulator.
 
 Example usage:
     - Build OSX only from scratch. Will delete previous build directory:
@@ -105,7 +107,7 @@ do
         CONFIG=`echo $opt | sed 's/[-a-zA-Z0-9]*=//'`
         ;;
 
-        --egs|--examples)
+        --egs)
         AL_EGS=1
         ;;
 
