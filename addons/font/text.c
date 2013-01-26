@@ -50,8 +50,8 @@ static void align_to_integer_pixel_inner(
    float *x, float *y)
 {
    al_transform_coordinates(fwd, x, y);
-   *x = floor(*x + 0.5);
-   *y = floor(*y + 0.5);
+   *x = floorf(*x + 0.5f);
+   *y = floorf(*y + 0.5f);
    al_transform_coordinates(inv, x, y);
 }
 

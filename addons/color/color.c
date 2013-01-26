@@ -255,7 +255,7 @@ void al_color_hsv_to_rgb(float hue, float saturation, float value,
 {
    int d;
    float e, a, b, c;
-   hue = fmod(hue, 360);
+   hue = fmodf(hue, 360);
    if (hue < 0) hue += 360;
    d = hue / 60;
    e = hue / 60 - d;
@@ -338,7 +338,7 @@ void al_color_hsl_to_rgb(float hue, float saturation, float lightness,
    float *red, float *green, float *blue)
 {
    float a, b, h;
-   hue = fmod(hue, 360);
+   hue = fmodf(hue, 360);
    if (hue < 0) hue += 360;
    h = hue / 360;
    if (lightness < 0.5)
