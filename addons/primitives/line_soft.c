@@ -89,8 +89,8 @@ static void get_interpolation_parameters(int start_x, int start_y, ALLEGRO_VERTE
       *param /= lensq;
    }
    
-   dx = fabs(dx);
-   dy = fabs(dy);
+   dx = fabsf(dx);
+   dy = fabsf(dy);
    if (dx > dy)
       *minor_delta_param = dx / lensq;
    else
