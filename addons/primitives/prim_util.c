@@ -71,33 +71,6 @@ float _al_prim_wrap_two_pi(float angle)
 
 
 /*
- *  Wraps angle to the range [-pi, pi).
- */
-float _al_prim_wrap_pi_to_pi(float angle)
-{
-   angle = _al_prim_wrap_two_pi(angle);
-   if (angle >= ALLEGRO_PI)
-      angle = -2.0f * ALLEGRO_PI + angle;
-   return angle;
-}
-
-
-/*
- *  Returns angle between two edges.
- *
- *  Angle is in range [-2 pi, 2 pi], so it is good idea to
- *  use _al_prim_wrap_two_pi() for normalization.
- */
-float _al_prim_get_angle(const float* p0, const float* origin, const float* p1)
-{
-   float angle1 = atan2f(origin[1] - p0[1], origin[0] - p0[0]);
-   float angle2 = atan2f(origin[1] - p1[1], origin[0] - p1[0]);
-
-   return angle2 - angle1;
-}
-
-
-/*
  *  Tests on which side of the line point is placed.
  *  Positive value will be returned if point is on half plane
  *  determined by normal vector. Negative value will be returned
