@@ -206,19 +206,11 @@ if [ $BUILD_OSX -eq 1 ]; then
 fi
 
 ######################################################################
-# iOS: phone & sim
+# iOS simulator
 #   - Keep iphone and sim directories separate to avoid problems.
 #     We could build in same build_XXX dir if all target paths separate.
 
 IOS_TOOLCHAIN="-D CMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-iphone.cmake"
-
-#if [ $BUILD_IPHONESIM -o $BUILD_IPHONE ]; then
-if [ $BUILD_IPHONE -eq 1 ]; then
-    if [ ! -d $DEPS ]; then
-        echo "You have no \"$DEPS\" directory."
-        exit 1
-    fi
-fi
 
 # Generate Xcode project for iOS.
 # args: (name, install_dir, cmake_options)
@@ -257,7 +249,18 @@ if [ $BUILD_IPHONESIM -eq 1 ]; then
 	cd ..
 fi
 
+######################################################################
+# iOS
+
 if [ $BUILD_IPHONE -eq 1 ]; then
+
+    # Check if our dependencies directory exists. We build against this.
+    if [ ! -d $DEPS_IPHONE ]; then
+        echo "Error: You have no \"$DEPS_IPHONE\" directory."
+        echo "This should contain your iPhone library dependencies."
+        exit 1
+    fi
+
     BUILD_DIR=build_iphone
     INSTALL_DIR=`pwd`/install_iphone
 
@@ -294,12 +297,14 @@ fi
 
 ######################################################################
 # Create universal binaries
+#   We take the install_ios and install_isim directories and combine them
+#   to make an install_ios directory. This contains univeral libraries.
 
 if [ $BUILD_UNIVERSAL -eq 1 ]; then
 
 echo Creating iOS universal libraries.
 
-# Source directories: iphone arm and iphone sim i386 libs built against iOS SDK.
+# Source directories
 LIBS_SIM=install_isim/lib
 LIBS_IOS=install_iphone/lib
 HEADERS=$LIBS_IOS/../include
@@ -307,7 +312,6 @@ HEADERS=$LIBS_IOS/../include
 # Where we'll install the combined iphone/iphonesim universal library.
 IOS_INSTALL_DIR=./install_ios
 
-# Nuke target directory
 reset_dir_tree $IOS_INSTALL_DIR
 
 # Copy our dependencies. Creates include & lib.
@@ -316,6 +320,7 @@ cp -r $DEPS_IPHONE/* $IOS_INSTALL_DIR
 # Copy Allegro headers.
 cp -r $HEADERS/* $IOS_INSTALL_DIR/include
 
+# args: (library)
 function make_universal {
     lipo -output $IOS_INSTALL_DIR/lib/$1 -create $LIBS_SIM/$1 $LIBS_IOS/$1;
     echo Created $1;
