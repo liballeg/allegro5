@@ -171,7 +171,7 @@ static void emit_arc(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pivot, float
    v0[0] = cp[0] + pivot[0];
    v0[1] = cp[1] + pivot[1];
 
-   for (i = 0; i < segments; ++i)
+   for (i = 0; i < segments - 1; ++i)
    {
       t = cp[0];
       cp[0] = c * cp[0] - s * cp[1];
@@ -185,6 +185,10 @@ static void emit_arc(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pivot, float
       v0[0] = v1[0];
       v0[1] = v1[1];
    }
+
+   v1[0] = cosf(end) * radius + pivot[0];
+   v1[1] = sinf(end) * radius + pivot[1];
+   _al_prim_cache_push_triangle(cache, v0, pivot, v1);
 }
 
 /*
