@@ -32,8 +32,10 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
     al_signal_cond(button_pressed);
     al_unlock_mutex(mutex);
 }
--(void) createAlert:(id)alert {
-    [al_iphone_get_view(al_get_current_display()) addSubview:alert];
+- (void) createAlert:(NSArray*)array {
+    UIView *view = [array objectAtIndex:0];
+    UIAlertView *alert = [array objectAtIndex:1];
+    [view addSubview:alert];
     [alert show];
     [alert release];
 }
@@ -54,6 +56,9 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
     AlertDelegate *delegate = [[AlertDelegate alloc]init];
     delegate.mutex = al_create_mutex();
     delegate.button_pressed = al_create_cond();
+    
+    // This needs to be done on the thread with the display due to TLS.
+    UIView *view = al_iphone_get_view(al_get_current_display());
 
     UIAlertView *alert = [[UIAlertView alloc]
                           initWithTitle:title
@@ -63,9 +68,8 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
                           otherButtonTitles:nil];
 
     [delegate performSelectorOnMainThread:@selector(createAlert:)
-                               withObject:alert
-                            waitUntilDone:YES];
-    
+                               withObject:@[view,alert]
+                            waitUntilDone:YES];    
 
     al_lock_mutex(delegate.mutex);
     al_wait_cond(delegate.button_pressed, delegate.mutex);
