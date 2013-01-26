@@ -185,13 +185,13 @@ int al_check_inverse(const ALLEGRO_TRANSFORM *trans, float tol)
    float det, norm, c0, c1, c3;
    ASSERT(trans);
    
-   det = fabs( trans->m[0][0] *  trans->m[1][1] -  trans->m[1][0] *  trans->m[0][1]);
+   det = fabsf(trans->m[0][0] *  trans->m[1][1] -  trans->m[1][0] *  trans->m[0][1]);
    /*
    We'll use the 1-norm, as it is the easiest to compute
    */
-   c0 = fabs(trans->m[0][0]) + fabs(trans->m[0][1]);
-   c1 = fabs(trans->m[1][0]) + fabs(trans->m[1][1]);
-   c3 = fabs(trans->m[3][0]) + fabs(trans->m[3][1]) + 1;
+   c0 = fabsf(trans->m[0][0]) + fabsf(trans->m[0][1]);
+   c1 = fabsf(trans->m[1][0]) + fabsf(trans->m[1][1]);
+   c3 = fabsf(trans->m[3][0]) + fabsf(trans->m[3][1]) + 1;
    norm = _ALLEGRO_MAX(_ALLEGRO_MAX(1, c0), _ALLEGRO_MAX(c1, c3));
 
    return det > tol * norm;

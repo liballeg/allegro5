@@ -406,7 +406,7 @@ bool al_set_sample_instance_speed(ALLEGRO_SAMPLE_INSTANCE *spl, float val)
 {
    ASSERT(spl);
 
-   if (fabs(val) < (1.0f/64.0f)) {
+   if (fabsf(val) < (1.0f/64.0f)) {
       _al_set_error(ALLEGRO_INVALID_PARAM,
          "Attempted to set zero speed");
       return false;
