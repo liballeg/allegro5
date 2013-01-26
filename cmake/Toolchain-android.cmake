@@ -38,7 +38,7 @@ set(ARM_TARGETS "armeabi-v7a" CACHE STRING
     for floating point support and NEON.")
 
 if(ARM_TARGETS STREQUAL "x86")
-    set(ANDROID_ARCH "i686-android-linux")
+    set(ANDROID_ARCH "i686-linux-android")
 else()
     set(ANDROID_ARCH "arm-linux-androideabi")
 endif()
