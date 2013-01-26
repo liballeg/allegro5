@@ -116,10 +116,10 @@ static ALLEGRO_PATH *early_get_exename_path(void)
    return _al_win_get_path(ALLEGRO_EXENAME_PATH);
 #elif defined(ALLEGRO_MACOSX)
    return _al_osx_get_path(ALLEGRO_EXENAME_PATH);
-#elif defined(ALLEGRO_UNIX)
-   return _al_unix_get_path(ALLEGRO_EXENAME_PATH);
 #elif defined(ALLEGRO_IPHONE)
    return _al_iphone_get_path(ALLEGRO_EXENAME_PATH);
+#elif defined(ALLEGRO_UNIX)
+   return _al_unix_get_path(ALLEGRO_EXENAME_PATH);
 #elif defined(ALLEGRO_ANDROID)
    return _al_android_get_path(ALLEGRO_EXENAME_PATH);
 #else
