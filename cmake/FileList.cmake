@@ -296,6 +296,8 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     include/allegro5/platform/almsvc.h
     include/allegro5/platform/alosx.h
     include/allegro5/platform/alosxcfg.h
+    include/allegro5/platform/aliphone.h
+    include/allegro5/platform/aliphonecfg.h
     include/allegro5/platform/alucfg.h
     include/allegro5/platform/alunix.h
     include/allegro5/platform/alwatcom.h
