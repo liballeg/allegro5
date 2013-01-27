@@ -59,18 +59,6 @@ float _al_prim_normalize(float* vector)
 
 
 /*
- *  Wraps angle to the range [0, 2 pi).
- */
-float _al_prim_wrap_two_pi(float angle)
-{
-   angle = fmodf(angle, 2.0f * ALLEGRO_PI);
-   if (angle < 0)
-      angle += 2.0f * ALLEGRO_PI;
-   return angle;
-}
-
-
-/*
  *  Tests on which side of the line point is placed.
  *  Positive value will be returned if point is on half plane
  *  determined by normal vector. Negative value will be returned
