@@ -183,8 +183,11 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
 
 static void win_shutdown(void)
 {
+   ALLEGRO_SYSTEM *s;
+   ASSERT(vt);
+
    /* Close all open displays. */
-   ALLEGRO_SYSTEM *s = al_get_system_driver();
+   s = al_get_system_driver();
    while (_al_vector_size(&s->displays) > 0) {
       ALLEGRO_DISPLAY **dptr = _al_vector_ref(&s->displays, 0);
       ALLEGRO_DISPLAY *d = *dptr;
@@ -204,7 +207,6 @@ static void win_shutdown(void)
       timeEndPeriod(1);
    }
 
-   ASSERT(vt);
    al_free(vt);
    vt = NULL;
 
