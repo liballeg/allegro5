@@ -142,25 +142,17 @@ if(SUPPORT_OPENAL)
 endif(SUPPORT_OPENAL)
 
 if(WANT_OPENSL)
-    # TODO: Uncomment these lines and make them work, right now they are
-    # copy/pasted from openal above
-
-    # find_package(OpenAL)
-    #mark_as_advanced(OPENAL_INCLUDE_DIR OPENAL_LIBRARY)
-    #if(OPENAL_FOUND)
-    #    set(SUPPORT_OPENAL 1)
-    #endif(OPENAL_FOUND)
-
-    set(SUPPORT_OPENSL 1)
+    find_package(OpenSL)
+    if(OPENSL_FOUND)
+        set(SUPPORT_OPENSL 1)
+    endif(OPENSL_FOUND)
 endif(WANT_OPENSL)
 
 if(SUPPORT_OPENSL)
     set(ALLEGRO_CFG_KCM_OPENSL 1)
     list(APPEND AUDIO_SOURCES opensl.c)
-    # TODO: fix the next two lines
-    list(APPEND AUDIO_LIBRARIES -lOpenSLES)
-    #list(APPEND AUDIO_LIBRARIES ${OPENAL_LIBRARY})
-    #list(APPEND AUDIO_INCLUDE_DIRECTORIES ${OPENAL_INCLUDE_DIR})
+    list(APPEND AUDIO_LIBRARIES ${OPENSL_LIBRARY})
+    list(APPEND AUDIO_INCLUDE_DIRECTORIES ${OPENSL_INCLUDE_DIR})
     set(SUPPORT_AUDIO 1)
 endif(SUPPORT_OPENSL)
 
