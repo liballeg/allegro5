@@ -111,11 +111,13 @@ static void run(void)
                   goto done;
 
                case ALLEGRO_EVENT_KEY_DOWN:
-                  if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+                  if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
                      quit = true;
                      goto done;
-                  if (event.keyboard.keycode == ALLEGRO_KEY_SPACE)
-                     goto done;
+                  }
+                  if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+                      goto done;
+                  }
                   break;
             }
          }
