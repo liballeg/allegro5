@@ -10,7 +10,6 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_font.h>
-#include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
 
 #include "speed.h"
@@ -179,37 +178,9 @@ static void usage()
 
 
 
-/* drop build configuration directory tail */
-static ALLEGRO_PATH *get_resources_path(void)
-{
-   ALLEGRO_PATH *path;
-   const char *last;
-
-   path = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
-   if (!path)
-      return al_create_path("");
-
-   /* If the last directory component is the name of an MSVC build
-    * configuration, then drop it.
-    */
-   last = al_get_path_tail(path);
-   if (last &&
-         (0 == strcmp(last, "Debug") ||
-          0 == strcmp(last, "Release") ||
-          0 == strcmp(last, "RelWithDebInfo") ||
-          0 == strcmp(last, "Profile"))) {
-      al_drop_path_tail(path);
-   }
-
-   return path;
-}
-
-
-
 /* the main program body */
 int main(int argc, char *argv[])
 {
-   ALLEGRO_PATH *font_path;
    int w = 0, h = 0;
    int www = FALSE;
    int i, n;
@@ -315,33 +286,25 @@ int main(int argc, char *argv[])
       return 1;
    }
 
-   al_init_image_addon();
-
-   /* The Allegro 5 port introduced an external data dependency, sorry.
-    * To avoid performance problems on graphics drivers that don't support
+   /* To avoid performance problems on graphics drivers that don't support
     * drawing to textures, we build up transition screens on memory bitmaps.
     * We need a font loaded into a memory bitmap for those, then a font
     * loaded into a video bitmap for the game view. Blech!
     */
-   font_path = get_resources_path();
-   al_set_path_filename(font_path, "a4_font.tga");
-
    al_init_font_addon();
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   font = al_load_bitmap_font(al_path_cstr(font_path, '/'));
+   font = al_create_builtin_font();
    if (!font) {
-      fprintf(stderr, "Error loading %s\n", al_path_cstr(font_path, '/'));
+      fprintf(stderr, "Error creating builtin font\n");
       return 1;
    }
 
    al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
-   font_video = al_load_bitmap_font(al_path_cstr(font_path, '/'));
+   font_video = al_create_builtin_font();
    if (!font_video) {
-      fprintf(stderr, "Error loading %s\n", al_path_cstr(font_path, '/'));
+      fprintf(stderr, "Error creating builtin font\n");
       return 1;
    }
-   
-   al_destroy_path(font_path);
 
    /* set up everything else */
    al_install_keyboard();
