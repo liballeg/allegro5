@@ -153,6 +153,22 @@ to the Android tool documentation.
 
         adb logcat
 
+Android on x86
+==============
+
+It is possible to build Allegro for Android on x86.  Only slightly tested with
+NDK r8b and AndroVM (<http://androvm.org/>).  You must get hardware OpenGL
+acceleration working in AndroVM or else the Allegro program will crash.
+
+When running creating the toolchain directory, run make-standalone-toolchain.sh
+with `--arch=x86`.
+
+When configuring Allegro, run the cmake command with -DARM_TARGETS=x86
+XXX Fix the option name.
+
+When building the native libraries, run `ndk-build TARGET_ARCH_ABI=x86`
+or change the TARGET_ARCH_ABI=armeabi lines in Android.mk and Application.mk.
+
 MISCELLANEOUS
 =============
 
