@@ -2,7 +2,7 @@ option(WANT_ALSA "Enable ALSA digital audio driver (Unix)" on)
 option(WANT_OSS "Enable OSS digital audio driver (Unix)" on)
 option(WANT_PULSEAUDIO "Enable PulseAudio audio driver (Unix)" on)
 option(WANT_OPENAL "Enable OpenAL digital audio driver" on)
-option(WANT_OPENSL "Enable OpenSL digital audio driver" off)
+option(WANT_OPENSL "Enable OpenSL digital audio driver (Android)" on)
 option(WANT_DSOUND "Enable DSound digital audio driver (Windows)" on)
 option(WANT_AQUEUE "Enable AudioQueue digital audio driver (Mac)" on)
 
