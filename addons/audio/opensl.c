@@ -101,11 +101,10 @@ static int _opensl_open(void)
     SLresult result;
     SLuint32 state;
     SLEngineOption options[] = {
-        (SLuint32) SL_ENGINEOPTION_THREADSAFE,
-        (SLuint32) SL_BOOLEAN_TRUE,
+	{ SL_ENGINEOPTION_THREADSAFE, (SLuint32) SL_BOOLEAN_TRUE },
         /*
-        (SLuint32) SL_ENGINEOPTION_MAJORVERSION, (SLuint32) 1,
-        (SLuint32) SL_ENGINEOPTION_MINORVERSION, (SLuint32) 1,
+	{ SL_ENGINEOPTION_MAJORVERSION, (SLuint32) 1 },
+	{ SL_ENGINEOPTION_MINORVERSION, (SLuint32) 1 },
         */
     };
 
