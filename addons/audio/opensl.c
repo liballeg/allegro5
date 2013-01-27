@@ -22,7 +22,7 @@
  */
 
 /* Number of samples to read in one call to al_voice_update */
-static const int MAX_FRAMES = 4096;
+static const int MAX_FRAMES = 2048;
 
 /* Number of opensl buffers to use */
 #define MAX_BUFFERS 2
