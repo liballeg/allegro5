@@ -1620,6 +1620,27 @@ ALLEGRO_DISPLAY_MODE *_al_wgl_get_display_mode(int index, int format,
    mode->width = dm.dmPelsWidth;
    mode->height = dm.dmPelsHeight;
    mode->refresh_rate = dm.dmDisplayFrequency;
+   mode->format = format;
+   switch(dm.dmBitsPerPel)
+   {
+   case 32:
+       if(format == ALLEGRO_PIXEL_FORMAT_ANY)
+          mode->format = ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA;
+       else if(format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
+          mode->format = ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA;
+       break;
+   case 24:
+       mode->format = ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA;
+       break;
+   case 16:
+       if(format == ALLEGRO_PIXEL_FORMAT_ANY)
+          mode->format = ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA;
+       else if(format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
+          mode->format = ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA;
+       break;
+   default:
+       break;
+   }
 
    return mode;
 }
