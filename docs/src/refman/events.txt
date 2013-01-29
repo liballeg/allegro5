@@ -451,6 +451,8 @@ physical display. However, on iOS, a secondary physical display is suported.
 display.source (ALLEGRO_DISPLAY *)
 :   The display which was disconnected.
 
+### API: ALLEGRO_EVENT_TOUCH_BEGIN
+
 The touch input device registered a new touch.
 
 touch.display (ALLEGRO_DISPLAY)
