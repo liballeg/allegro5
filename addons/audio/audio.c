@@ -331,6 +331,8 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
  */
 bool al_install_audio(void)
 {
+   bool ret;
+
    if (_al_kcm_driver)
       return true;
 
@@ -340,9 +342,11 @@ bool al_install_audio(void)
    _al_kcm_init_destructors();
    _al_add_exit_func(al_uninstall_audio, "al_uninstall_audio");
 
-   al_init_user_event_source((ALLEGRO_EVENT_SOURCE *)&audio_event_source);
-
-   return do_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT);
+   ret = do_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT);
+   if (ret) {
+      al_init_user_event_source(&audio_event_source);
+   }
+   return ret;
 }
 
 /* Function: al_uninstall_audio
@@ -354,6 +358,7 @@ void al_uninstall_audio(void)
       _al_kcm_shutdown_destructors();
       _al_kcm_driver->close();
       _al_kcm_driver = NULL;
+      al_destroy_user_event_source(&audio_event_source);
    }
    else {
       _al_kcm_shutdown_destructors();
@@ -385,6 +390,8 @@ static void destroy_audio_event(ALLEGRO_USER_EVENT *e)
 void _al_emit_audio_event(int event_type)
 {
    ALLEGRO_EVENT event;
+   ASSERT(_al_kcm_driver);
+
    event.type = event_type;
    al_emit_user_event(&audio_event_source, &event, destroy_audio_event);
 }
