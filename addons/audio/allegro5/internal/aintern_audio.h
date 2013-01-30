@@ -216,14 +216,14 @@ struct ALLEGRO_AUDIO_STREAM {
 
    void                 *main_buffer;
                         /* Pointer to a single buffer big enough to hold all
-                         * the fragments. Each fragment has one additional
-                         * sample at the start for linear interpolation.
+                         * the fragments. Each fragment has additional samples
+                         * at the start for linear/cubic interpolation.
                          */
 
    void                 **pending_bufs;
    void                 **used_bufs;
                         /* Arrays of offsets into the main_buffer.
-                         * The arrays are each 'buf_count + 1' long.
+                         * The arrays are each 'buf_count' long.
                          *
                          * 'pending_bufs' holds pointers to fragments supplied
                          * by the user which are yet to be handed off to the
