@@ -75,21 +75,28 @@ static int pulseaudio_open(void)
 
    pa_context_connect(c, NULL, PA_CONTEXT_NOAUTOSPAWN, NULL);
 
-   // TODO: We could set a timeout here if PA decides to try connecting
-   // forever.
    while (1) {
-      pa_mainloop_iterate(mainloop, 1, NULL);
+      /* Don't block or it will hang if there is no server to connect to. */
+      const bool blocking = 0;
+      if (pa_mainloop_iterate(mainloop, blocking, NULL) < 0) {
+         ALLEGRO_ERROR("pa_mainloop_iterate failed\n");
+         pa_context_disconnect(c);
+         pa_mainloop_free(mainloop);
+         break;
+      }
       pa_context_state_t s = pa_context_get_state(c);
+      if (s == PA_CONTEXT_READY) {
+         ALLEGRO_DEBUG("PA_CONTEXT_READY\n");
+         break;
+      }
       if (s == PA_CONTEXT_FAILED) {
+         ALLEGRO_ERROR("PA_CONTEXT_FAILED\n");
          pa_context_disconnect(c);
          pa_mainloop_free(mainloop);
          return 1;
       }
-      if (s == PA_CONTEXT_READY ) {
-         break;
-      }
    }
-   
+
    pa_sink_state_t state = 0;
    pa_operation *op = pa_context_get_sink_info_list(c, sink_info_cb,
       &state);
@@ -326,3 +333,5 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_pulseaudio_driver =
    pulseaudio_get_voice_position,
    pulseaudio_set_voice_position
 };
+
+/* vim: set sts=3 sw=3 et: */
