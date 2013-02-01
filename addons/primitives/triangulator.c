@@ -499,7 +499,7 @@ static int poly_compute_vertex_attributes(_AL_LIST* vertices, _AL_LIST_ITEM* ite
    float* v0;
    float* v1;
    float* v2;
-   float angle;
+   float cross;
 
    // Oops, degenerate triangle in store.
    if (_al_list_size(vertices) < 3)
@@ -510,8 +510,8 @@ static int poly_compute_vertex_attributes(_AL_LIST* vertices, _AL_LIST_ITEM* ite
    v1 = (float*)_al_list_item_data(item);
    v2 = (float*)_al_list_item_data(next);
 
-   // Get angle between edges of current vertex.
-   angle = _al_prim_wrap_two_pi(_al_prim_get_angle(v0, v1, v2));
+   // Compute the cross product between the two edges
+   cross = (v0[0] - v1[0]) * (v2[1] - v1[1]) - (v0[1] - v1[1]) * (v2[0] - v1[0]);
 
 # if POLY_DEBUG
    if (g_poly_debug_step == g_poly_debug_step_current) {
@@ -521,7 +521,7 @@ static int poly_compute_vertex_attributes(_AL_LIST* vertices, _AL_LIST_ITEM* ite
       float dir0[2] = { v0[0] - v1[0], v0[1] - v1[1] };
       float dir2[2] = { v2[0] - v1[0], v2[1] - v1[1] };
 
-      POLY_DEBUG_TEXT(v1[0], v1[1], "%.1f", angle * 180.0f / 3.1415f);
+      POLY_DEBUG_TEXT(v1[0], v1[1], "%d", cross > 0);
 
       al_draw_line(v1[0], v1[1], v1[0] + dir0[0] * step, v1[1] + dir0[1] * step, al_map_rgb(255, 0, 0), 4.0f * g_poly_debug_scale);
       al_draw_line(v1[0], v1[1], v1[0] + dir2[0] * step, v1[1] + dir2[1] * step, al_map_rgb(255, 0, 0), 4.0f * g_poly_debug_scale);
@@ -530,7 +530,7 @@ static int poly_compute_vertex_attributes(_AL_LIST* vertices, _AL_LIST_ITEM* ite
 
    // If internal angle is less than 180 degrees then we may
    // have an ear clip vertex, otherwise we have reflex.
-   if (angle <= ALLEGRO_PI)
+   if (cross >= 0)
    {
       if (flags & POLY_VERTEX_ATTR_EAR_CLIP)
       {

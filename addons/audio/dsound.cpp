@@ -612,6 +612,7 @@ typedef struct DSOUND_RECORD_DATA {
    LPDIRECTSOUNDCAPTUREBUFFER buffer;
    LPDIRECTSOUNDCAPTUREBUFFER8 buffer8;
    DSCBUFFERDESC desc;
+   WAVEFORMATEX wave_fmt;
 } DSOUND_RECORD_DATA;
 
 static void *_dsound_update_recorder(ALLEGRO_THREAD *t, void *data)
@@ -767,19 +768,18 @@ static int _dsound_open_recorder(ALLEGRO_AUDIO_RECORDER *r)
       ALLEGRO_INFO("caps: %lu %lu\n", dsccaps.dwFormats, dsccaps.dwFormats & WAVE_FORMAT_2M16);
    }
 
-   WAVEFORMATEX format;
-   memset(&format, 0, sizeof(format));
-   format.wFormatTag = WAVE_FORMAT_PCM;
-   format.nChannels = al_get_channel_count(r->chan_conf);
-   format.nSamplesPerSec = r->frequency;
-   format.wBitsPerSample = al_get_audio_depth_size(r->depth) * 8;
-   format.nBlockAlign = format.nChannels * format.wBitsPerSample / 8;
-   format.nAvgBytesPerSec = format.nSamplesPerSec * format.nBlockAlign;
+   memset(&extra->wave_fmt, 0, sizeof(extra->wave_fmt));
+   extra->wave_fmt.wFormatTag = WAVE_FORMAT_PCM;
+   extra->wave_fmt.nChannels = al_get_channel_count(r->chan_conf);
+   extra->wave_fmt.nSamplesPerSec = r->frequency;
+   extra->wave_fmt.wBitsPerSample = al_get_audio_depth_size(r->depth) * 8;
+   extra->wave_fmt.nBlockAlign = extra->wave_fmt.nChannels * extra->wave_fmt.wBitsPerSample / 8;
+   extra->wave_fmt.nAvgBytesPerSec = extra->wave_fmt.nSamplesPerSec * extra->wave_fmt.nBlockAlign;
    
    memset(&extra->desc, 0, sizeof(extra->desc));
    extra->desc.dwSize = sizeof(extra->desc);
-   extra->desc.lpwfxFormat = &format;
-   extra->desc.dwBufferBytes = format.nAvgBytesPerSec * 5;
+   extra->desc.lpwfxFormat = &extra->wave_fmt;
+   extra->desc.dwBufferBytes = extra->wave_fmt.nAvgBytesPerSec * 5;
 
    hr = capture_device->CreateCaptureBuffer(&extra->desc, &extra->buffer, NULL);
    if (FAILED(hr)) {

@@ -96,7 +96,8 @@ static ALLEGRO_PATH *_find_executable_file(const char *filename)
          al_set_path_filename(path, filename);
 
          if (stat(al_path_cstr(path, '/'), &finfo) == 0 &&
-            !S_ISDIR (finfo.st_mode)) {
+               !S_ISDIR (finfo.st_mode)) {
+            al_ustr_free(us);
             return path;
          }
 
@@ -104,6 +105,7 @@ static ALLEGRO_PATH *_find_executable_file(const char *filename)
 
          start_pos = next_start_pos;
       }
+      al_ustr_free(us);
    }
 
    return NULL;

@@ -767,7 +767,7 @@ For example:
 
     float vertices[] = {
           0,   0, // #0, upper left corner
-        100,   0, // #1, lower left corner
+          0, 100, // #1, lower left corner
         100, 100, // #2, lower right corner
         100,   0, // #3, upper right corner
          10,  10, // #4, hole upper left

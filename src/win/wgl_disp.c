@@ -1,5 +1,5 @@
 /*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
+ *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
@@ -1102,8 +1102,27 @@ static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    _al_ogl_unmanage_extensions(disp);
 
    PostMessage(win_disp->window, _al_win_msg_suicide, (WPARAM)win_disp, 0);
+
    while (!win_disp->thread_ended)
       al_rest(0.001);
+
+   if (wgl_disp->glrc) {
+      wglDeleteContext(wgl_disp->glrc);
+      wgl_disp->glrc = NULL;
+   }
+   if (wgl_disp->dc) {
+      ReleaseDC(win_disp->window, wgl_disp->dc);
+      wgl_disp->dc = NULL;
+   }
+
+   if (disp->flags & ALLEGRO_FULLSCREEN && !_wgl_do_not_change_display_mode) {
+      ChangeDisplaySettings(NULL, 0);
+   }
+
+   if (win_disp->window) {
+      DestroyWindow(win_disp->window);
+      win_disp->window = NULL;
+   }
 }
 
 
@@ -1309,24 +1328,6 @@ static void display_thread_proc(void *arg)
          DispatchMessage(&msg);
       else
          break;                 /* WM_QUIT received or error (GetMessage returned -1)  */
-   }
-
-   if (wgl_disp->glrc) {
-      wglDeleteContext(wgl_disp->glrc);
-      wgl_disp->glrc = NULL;
-   }
-   if (wgl_disp->dc) {
-      ReleaseDC(win_disp->window, wgl_disp->dc);
-      wgl_disp->dc = NULL;
-   }
-
-   if (disp->flags & ALLEGRO_FULLSCREEN && !_wgl_do_not_change_display_mode) {
-      ChangeDisplaySettings(NULL, 0);
-   }
-
-   if (win_disp->window) {
-      DestroyWindow(win_disp->window);
-      win_disp->window = NULL;
    }
 
    ALLEGRO_INFO("wgl display thread exits\n");
@@ -1629,6 +1630,26 @@ ALLEGRO_DISPLAY_MODE *_al_wgl_get_display_mode(int index, int format,
    mode->width = dm.dmPelsWidth;
    mode->height = dm.dmPelsHeight;
    mode->refresh_rate = dm.dmDisplayFrequency;
+   mode->format = format;
+   switch (dm.dmBitsPerPel) {
+      case 32:
+         if (format == ALLEGRO_PIXEL_FORMAT_ANY)
+            mode->format = ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA;
+         else if (format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
+            mode->format = ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA;
+         break;
+      case 24:
+         mode->format = ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA;
+         break;
+      case 16:
+         if (format == ALLEGRO_PIXEL_FORMAT_ANY)
+            mode->format = ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA;
+         else if(format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
+            mode->format = ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA;
+         break;
+      default:
+         break;
+   }
 
    return mode;
 }

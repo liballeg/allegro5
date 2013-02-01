@@ -27,9 +27,18 @@ For convenience:
 
 ### API: ALLEGRO_AUDIO_PAN_NONE
 
-Special value for the ALLEGRO_AUDIOPROP_PAN property.
-Use this value to play samples at their original volume with panning
-disabled.
+A special value for the pan property of samples and audio streams.
+Use this value to disable panning on samples and audio streams, and play
+them without attentuation implied by panning support.
+
+ALLEGRO_AUDIO_PAN_NONE is different from a pan value of 0.0 (centered) because,
+when panning is enabled, we try to maintain a constant sound power level as a
+sample is panned from left to right.  A sound coming out of one speaker
+should sound as loud as it does when split over two speakers.
+As a consequence, a sample with pan value 0.0 will be 3 dB softer than the
+original level.
+
+(Please correct us if this is wrong.)
 
 ### API: ALLEGRO_CHANNEL_CONF
 
@@ -541,20 +550,15 @@ See also: [al_set_sample_instance_pan].
 Set the pan value on a sample instance.  A value of -1.0 means to play the
 sample only through the left speaker; +1.0 means only through the right
 speaker; 0.0 means the sample is centre balanced.
+A special value [ALLEGRO_AUDIO_PAN_NONE] disables panning and plays the
+sample at its original level.  This will be louder than a pan value of 0.0.
 
-A constant sound power level is maintained as the sample is panned from left
-to right.  As a consequence, a pan value of 0.0 will play the sample 3 dB
-softer than the original level.  To disable panning and play a sample at its
-original level, set the pan value to [ALLEGRO_AUDIO_PAN_NONE].
+> Note: panning samples with more than two channels doesn't work yet.
 
 Returns true on success, false on failure.
 Will fail if the sample instance is attached directly to a voice.
 
-(A sound guy should explain that better; I only implemented it.
-Also this might be more properly called a balance control than pan.
-Also we don't attempt anything with more than two channels yet.)
-
-See also: [al_get_sample_instance_pan].
+See also: [al_get_sample_instance_pan], [ALLEGRO_AUDIO_PAN_NONE]
 
 ### API: al_get_sample_instance_time
 
@@ -953,12 +957,16 @@ See also: [al_set_audio_stream_pan].
 
 ### API: al_set_audio_stream_pan
 
-Set the pan value on a sample instance.  A value of -1.0 means to play the
-sample only through the left speaker; +1.0 means only through the right
+Set the pan value on an audio stream.  A value of -1.0 means to play the
+stream only through the left speaker; +1.0 means only through the right
 speaker; 0.0 means the sample is centre balanced.
+A special value [ALLEGRO_AUDIO_PAN_NONE] disables panning and plays the
+stream at its original level.  This will be louder than a pan value of 0.0.
 
 Returns true on success, false on failure.
 Will fail if the sample instance is attached directly to a voice.
+
+See also: [al_get_audio_stream_pan], [ALLEGRO_AUDIO_PAN_NONE]
 
 ### API: al_get_audio_stream_playing
 

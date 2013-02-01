@@ -214,7 +214,7 @@ unsigned int al_get_available_audio_stream_fragments(
    unsigned int i;
    ASSERT(stream);
 
-   for (i = 0; stream->used_bufs[i] && i < stream->buf_count; i++)
+   for (i = 0; i < stream->buf_count && stream->used_bufs[i]; i++)
       ;
    return i;
 }
@@ -319,7 +319,7 @@ void *al_get_audio_stream_fragment(const ALLEGRO_AUDIO_STREAM *stream)
    }
    else {
       fragment = stream->used_bufs[0];
-      for (i = 0; stream->used_bufs[i] && i < stream->buf_count-1; i++) {
+      for (i = 0; i < stream->buf_count-1 && stream->used_bufs[i]; i++) {
          stream->used_bufs[i] = stream->used_bufs[i+1];
       }
       stream->used_bufs[i] = NULL;
@@ -515,7 +515,7 @@ bool al_set_audio_stream_fragment(ALLEGRO_AUDIO_STREAM *stream, void *val)
 
    maybe_lock_mutex(stream->spl.mutex);
 
-   for (i = 0; stream->pending_bufs[i] && i < stream->buf_count; i++)
+   for (i = 0; i < stream->buf_count && stream->pending_bufs[i] ; i++)
       ;
    if (i < stream->buf_count) {
       stream->pending_bufs[i] = val;
@@ -551,7 +551,7 @@ bool _al_kcm_refill_stream(ALLEGRO_AUDIO_STREAM *stream)
        * completed buffer into the used array to be refilled.
        */
       for (i = 0;
-            stream->pending_bufs[i] && i < stream->buf_count-1;
+            i < stream->buf_count-1 && stream->pending_bufs[i];
             i++) {
          stream->pending_bufs[i] = stream->pending_bufs[i+1];
       }

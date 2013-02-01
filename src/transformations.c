@@ -185,7 +185,7 @@ int al_check_inverse(const ALLEGRO_TRANSFORM *trans, float tol)
    float det, norm, c0, c1, c3;
    ASSERT(trans);
    
-   det = fabsf( trans->m[0][0] *  trans->m[1][1] -  trans->m[1][0] *  trans->m[0][1]);
+   det = fabsf(trans->m[0][0] *  trans->m[1][1] -  trans->m[1][0] *  trans->m[0][1]);
    /*
    We'll use the 1-norm, as it is the easiest to compute
    */

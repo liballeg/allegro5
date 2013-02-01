@@ -138,9 +138,11 @@ static void compute_cross_points(const float* v0, const float* v1, const float* 
  */
 static void emit_arc(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pivot, float start, float end, float radius, int segments)
 {
-   float step, angle, arc;
+   float arc;
+   float c, s, t;
    float v0[2];
    float v1[2];
+   float cp[2];
    int i;
 
    /* This is very small arc, we will draw nothing. */
@@ -162,22 +164,31 @@ static void emit_arc(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* pivot, float
    if (segments < 1)
       segments = 1;
 
-   step = arc / segments;
+   c = cosf(arc / segments);
+   s = sinf(arc / segments);
+   cp[0] = cosf(start) * radius;
+   cp[1] = sinf(start) * radius;
+   v0[0] = cp[0] + pivot[0];
+   v0[1] = cp[1] + pivot[1];
 
-   angle = start;
-
-   v0[0] = pivot[0] + cosf(angle) * radius;
-   v0[1] = pivot[1] + sinf(angle) * radius;
-   for (i = 0; i < segments; ++i, angle += step)
+   for (i = 0; i < segments - 1; ++i)
    {
-      v1[0] = pivot[0] + cosf(angle + step) * radius;
-      v1[1] = pivot[1] + sinf(angle + step) * radius;
+      t = cp[0];
+      cp[0] = c * cp[0] - s * cp[1];
+      cp[1] = s * t     + c * cp[1];
+
+      v1[0] = cp[0] + pivot[0];
+      v1[1] = cp[1] + pivot[1];
 
       _al_prim_cache_push_triangle(cache, v0, pivot, v1);
 
       v0[0] = v1[0];
       v0[1] = v1[1];
    }
+
+   v1[0] = cosf(end) * radius + pivot[0];
+   v1[1] = sinf(end) * radius + pivot[1];
+   _al_prim_cache_push_triangle(cache, v0, pivot, v1);
 }
 
 /*

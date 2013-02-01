@@ -451,6 +451,8 @@ physical display. However, on iOS, a secondary physical display is suported.
 display.source (ALLEGRO_DISPLAY *)
 :   The display which was disconnected.
 
+### API: ALLEGRO_EVENT_TOUCH_BEGIN
+
 The touch input device registered a new touch.
 
 touch.display (ALLEGRO_DISPLAY)
@@ -476,7 +478,7 @@ Since: 5.1.0
 
 A touch ended.
 
-Has the same fields as ALLEGRO_EVENT_TOUCH_BEGIN.
+Has the same fields as [ALLEGRO_EVENT_TOUCH_BEGIN].
 
 Since: 5.1.0
 
@@ -484,7 +486,7 @@ Since: 5.1.0
 
 The position of a touch changed.
 
-Has the same fields as ALLEGRO_EVENT_TOUCH_BEGIN.
+Has the same fields as [ALLEGRO_EVENT_TOUCH_BEGIN].
 
 Since: 5.1.0
 
@@ -494,7 +496,7 @@ A touch was cancelled. This is device specific but could for example
 mean that a finger moved off the border of the device or moved so
 fast that it could not be tracked any longer.
 
-Has the same fields as ALLEGRO_EVENT_TOUCH_BEGIN.
+Has the same fields as [ALLEGRO_EVENT_TOUCH_BEGIN].
 
 Since: 5.1.0
 

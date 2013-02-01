@@ -3,7 +3,6 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/addons/main
     ${CMAKE_SOURCE_DIR}/addons/audio
     ${CMAKE_SOURCE_DIR}/addons/font
-    ${CMAKE_SOURCE_DIR}/addons/image
     ${CMAKE_SOURCE_DIR}/addons/primitives
     )
 
@@ -53,7 +52,6 @@ else(WANT_MONOLITH)
        ${AUDIO_LINK_WITH}
        ${PRIMITIVES_LINK_WITH}
        ${FONT_LINK_WITH}
-       ${IMAGE_LINK_WITH}
        )
 endif(WANT_MONOLITH)
 

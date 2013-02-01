@@ -5,6 +5,7 @@
 #include "allegro5/allegro.h"
 #include "allegro5/fshook.h"
 #include "allegro5/allegro_image.h"
+#include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_image.h"
 
 #include "iio.h"
@@ -257,6 +258,11 @@ bool _al_osx_register_image_loader(void)
       NSString *str = @".";
       NSString *type_str = [str stringByAppendingString: [file_types objectAtIndex: i]];
       const char *s = [type_str UTF8String];
+
+      /* Skip image types Allegro supports built-in */
+      if (!_al_stricmp(s, ".tga") || !_al_stricmp(s, ".bmp") || !_al_stricmp(s, ".pcx")) {
+         continue;
+      }
 
       /* Unload previous loader, if any */
       al_register_bitmap_loader(s, NULL);
