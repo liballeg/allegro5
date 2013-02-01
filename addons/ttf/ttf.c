@@ -193,7 +193,8 @@ static ALLEGRO_BITMAP *push_new_page(ALLEGRO_TTF_FONT_DATA *data)
 
 
 static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
-   int w, int h, bool new, ALLEGRO_TTF_GLYPH_DATA *glyph, bool lock_more)
+   int ft_index, int w, int h, bool new, ALLEGRO_TTF_GLYPH_DATA *glyph,
+   bool lock_more)
 {
    ALLEGRO_BITMAP *page;
    bool relock;
@@ -212,7 +213,8 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
    w4 = align4(w);
    h4 = align4(h);
 
-   ALLEGRO_DEBUG("glyph %dx%d (%dx%d)%s\n", w, h, w4, h4, new ? " new" : "");
+   ALLEGRO_DEBUG("Glyph %d: %dx%d (%dx%d)%s\n",
+      ft_index, w, h, w4, h4, new ? " new" : "");
 
    if (data->page_pos_x + w4 > al_get_bitmap_width(page)) {
       data->page_pos_y += data->page_line_height;
@@ -223,7 +225,7 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
    }
 
    if (data->page_pos_y + h4 > al_get_bitmap_height(page)) {
-      return alloc_glyph_region(data, w, h, true, glyph, lock_more);
+      return alloc_glyph_region(data, ft_index, w, h, true, glyph, lock_more);
    }
 
    glyph->page_bitmap = page;
@@ -400,14 +402,15 @@ static void cache_glyph(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
        /* Mark this glyph so we won't try to cache it next time. */
        glyph->region.x = -1;
        glyph->region.y = -1;
+       ALLEGRO_DEBUG("Glyph %d has zero size.\n", ft_index);
        return;
     }
 
     /* Each glyph has a 1-pixel border all around. Note: The border is kept
      * even against the outer bitmap edge, to ensure consistent rendering.
      */
-    glyph_data = alloc_glyph_region(font_data, w + 2, h + 2, false, glyph,
-      lock_more);
+    glyph_data = alloc_glyph_region(font_data, ft_index,
+       w + 2, h + 2, false, glyph, lock_more);
 
     if (font_data->flags & ALLEGRO_TTF_MONOCHROME)
        copy_glyph_mono(font_data, face, glyph_data);
@@ -475,6 +478,9 @@ static int render_glyph(ALLEGRO_FONT const *f,
          glyph->region.w - 2, glyph->region.h - 2,
          xpos + glyph->offset_x + advance,
          ypos + glyph->offset_y, 0);
+   }
+   else if (glyph->region.x > 0) {
+      ALLEGRO_ERROR("Glyph %d not on any page.\n", ft_index);
    }
 
    advance += glyph->advance;
