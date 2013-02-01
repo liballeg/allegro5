@@ -713,7 +713,13 @@ static int x_keyboard_init(void)
    ALLEGRO_INFO("Using X Input Method.\n");
 
    old_locale = setlocale(LC_CTYPE, NULL);
-   ALLEGRO_DEBUG("Old locale: %s\n", old_locale);
+   ALLEGRO_DEBUG("Old locale: %s\n", old_locale ? old_locale : "(null)");
+   if (old_locale) {
+      /* The return value of setlocale() may be clobbered by the next call
+       * to setlocale() so we must copy it.
+       */
+      old_locale = strdup(old_locale);
+   }
 
    /* Otherwise we are restricted to ISO-8859-1 characters. */
    if (setlocale(LC_CTYPE, "") == NULL) {
@@ -735,6 +741,7 @@ static int x_keyboard_init(void)
    if (old_locale) {
       ALLEGRO_DEBUG("Restoring old locale: %s\n", old_locale);
       setlocale(LC_CTYPE, old_locale);
+      free(old_locale);
    }
 
    if (xim) {
