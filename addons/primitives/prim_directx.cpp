@@ -742,6 +742,7 @@ void _al_set_d3d_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL* ret)
          ret->d3d_decl = 0;
       } else {
          int color_idx = 0;
+         int i;
          e = &ret->elements[ALLEGRO_PRIM_POSITION];
          if(e->attribute) {
             int type = 0;
@@ -798,6 +799,32 @@ void _al_set_d3d_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL* ret)
             d3delements[idx].Usage = D3DDECLUSAGE_TEXCOORD;
             d3delements[idx].UsageIndex = color_idx;
             idx++;
+         }
+
+         for (i = 0; i < ALLEGRO_MAX_USER_ATTRIBUTES; i++) {
+            e = &ret->elements[ALLEGRO_PRIM_USER + i];
+            if (e->attribute) {
+               int type = 0;
+               switch(e->storage) {
+                  case ALLEGRO_PRIM_FLOAT_2:
+                     type = D3DDECLTYPE_FLOAT2;
+                  break;
+                  case ALLEGRO_PRIM_FLOAT_3:
+                     type = D3DDECLTYPE_FLOAT3;
+                  break;
+                  case ALLEGRO_PRIM_SHORT_2:
+                     type = D3DDECLTYPE_SHORT2;
+                  break;
+               }
+
+               d3delements[idx].Stream = 0;
+               d3delements[idx].Offset = e->offset;
+               d3delements[idx].Type = type;
+               d3delements[idx].Method = D3DDECLMETHOD_DEFAULT;
+               d3delements[idx].Usage = D3DDECLUSAGE_TEXCOORD;
+               d3delements[idx].UsageIndex = 2 + i;
+               idx++;
+            }
          }
 
          d3delements[idx].Stream = 0xFF;

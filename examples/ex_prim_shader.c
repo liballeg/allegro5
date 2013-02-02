@@ -5,8 +5,16 @@
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_primitives.h"
 #include "allegro5/allegro_shader.h"
-#include "allegro5/allegro_opengl.h"
-#include "allegro5/allegro_shader_glsl.h"
+
+/* The ALLEGRO_CFG_* defines are actually internal to Allegro so don't use them
+ * in your own programs.
+ */
+#ifdef ALLEGRO_CFG_SHADER_HLSL
+   #include "allegro5/allegro_shader_hlsl.h"
+#endif
+#ifdef ALLEGRO_CFG_SHADER_GLSL
+   #include "allegro5/allegro_shader_glsl.h"
+#endif
 
 #include "common.c"
 
@@ -34,6 +42,9 @@ int main(void)
    CUSTOM_VERTEX vertices[4];
    bool quit = false;
    float mouse_pos[2];
+   const char* vertex_shader_file;
+   const char* pixel_shader_file;
+   bool opengl = true;
 
    mouse_pos[0] = 0;
    mouse_pos[1] = 0;
@@ -47,11 +58,13 @@ int main(void)
    if (!al_init_primitives_addon()) {
       abort_example("Could not init primitives addon.\n");
    }
-   al_set_new_display_flags(ALLEGRO_USE_PROGRAMMABLE_PIPELINE | ALLEGRO_OPENGL);
+   al_set_new_display_flags(ALLEGRO_USE_PROGRAMMABLE_PIPELINE);
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Error creating display.\n");
    }
+   
+   opengl = al_get_display_flags(display) & ALLEGRO_OPENGL;
 
    vertex_decl = al_create_vertex_decl(vertex_elems, sizeof(CUSTOM_VERTEX));
    if (!vertex_decl) {
@@ -70,7 +83,7 @@ int main(void)
    vertices[1].r = 0;
    vertices[1].g = 0;
    vertices[1].b = 1;
-   vertices[1].color = al_map_rgb_f(0.1, 0.1, 0.1);
+   vertices[1].color = al_map_rgb_f(1, 0.1, 0.1);
 
    vertices[2].x = al_get_display_width(display);
    vertices[2].y = al_get_display_height(display);
@@ -86,13 +99,16 @@ int main(void)
    vertices[3].b = 0;
    vertices[3].color = al_map_rgb_f(0.1, 0.1, 0.1);
 
-   shader = al_create_shader(ALLEGRO_SHADER_GLSL);
+   shader = al_create_shader(opengl ? ALLEGRO_SHADER_GLSL : ALLEGRO_SHADER_HLSL);
+   
+   vertex_shader_file = opengl ? "data/ex_prim_shader_vertex.glsl" : "data/ex_prim_shader_vertex.hlsl";
+   pixel_shader_file = opengl ? "data/ex_prim_shader_pixel.glsl" : "data/ex_prim_shader_pixel.hlsl";
 
-   if (!al_attach_shader_source_file(shader, ALLEGRO_VERTEX_SHADER, "data/ex_prim_shader_vertex.glsl")) {
+   if (!al_attach_shader_source_file(shader, ALLEGRO_VERTEX_SHADER, vertex_shader_file)) {
       abort_example("al_attach_shader_source_file failed: %s\n",
          al_get_shader_log(shader));
    }
-   if (!al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, "data/ex_prim_shader_pixel.glsl")) {
+   if (!al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, pixel_shader_file)) {
       abort_example("al_attach_shader_source_file failed: %s\n",
          al_get_shader_log(shader));
    }
