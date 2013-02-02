@@ -37,6 +37,8 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
 #ifndef ALLEGRO_CFG_NO_GLES2
       if(decl) {
          ALLEGRO_VERTEX_ELEMENT* e;
+         int i;
+
          e = &decl->elements[ALLEGRO_PRIM_POSITION];
          if(e->attribute) {
             int ncoord = 0;
@@ -102,6 +104,38 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          } else {
             if (display->ogl_extras->color_loc >= 0) {
                glDisableVertexAttribArray(display->ogl_extras->color_loc);
+            }
+         }
+
+         for (i = 0; i < ALLEGRO_MAX_USER_ATTRIBUTES; i++) {
+            e = &decl->elements[ALLEGRO_PRIM_USER + i];
+            if (e->attribute) {
+               int ncoord = 0;
+               GLenum type = 0;
+
+               switch(e->storage) {
+                  case ALLEGRO_PRIM_FLOAT_2:
+                     ncoord = 2;
+                     type = GL_FLOAT;
+                  break;
+                  case ALLEGRO_PRIM_FLOAT_3:
+                     ncoord = 3;
+                     type = GL_FLOAT;
+                  break;
+                  case ALLEGRO_PRIM_SHORT_2:
+                     ncoord = 2;
+                     type = GL_SHORT;
+                  break;
+               }
+
+               if (display->ogl_extras->user_attr_loc[i] >= 0) {
+                  glVertexAttribPointer(display->ogl_extras->user_attr_loc[i], ncoord, type, false, decl->stride, vtxs + e->offset);
+                  glEnableVertexAttribArray(display->ogl_extras->user_attr_loc[i]);
+               }
+            } else {
+               if (display->ogl_extras->user_attr_loc[i] >= 0) {
+                  glDisableVertexAttribArray(display->ogl_extras->user_attr_loc[i]);
+               }
             }
          }
       } else {

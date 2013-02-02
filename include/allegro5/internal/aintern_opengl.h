@@ -29,6 +29,7 @@ enum {
 };
 
 #define ALLEGRO_MAX_OPENGL_FBOS 8
+#define ALLEGRO_MAX_USER_ATTRIBUTES 10
 
 enum {
    FBO_INFO_UNUSED      = 0,
@@ -103,6 +104,8 @@ typedef struct ALLEGRO_OGL_EXTRAS
    GLint tex_loc;
    GLint use_tex_matrix_loc;
    GLint tex_matrix_loc;
+   /* Make sure this corresponds to the number of custom attributes in addons/primitives/allegro5/allegro_primitives.h */
+   GLint user_attr_loc[ALLEGRO_MAX_USER_ATTRIBUTES];
 
    /* For OpenGL 3.0+ we use a single vao and vbo. */
    GLuint vao, vbo;
