@@ -916,6 +916,21 @@ Enumerates the types of vertex attributes that a custom vertex may have.
    only in ALLEGRO_PRIM_FLOAT_2 and ALLEGRO_PRIM_SHORT_2. These coordinates are
    measured in pixels.
 
+* ALLEGRO_PRIM_USER_ATTR - A user specified attribute. You can use any storage
+    for this attribute. You may have at most 10 of these that you can specify by
+    adding an index to the value of ALLEGRO_PRIM_USER_ATTR. E.g. the first user
+    attribute is `ALLEGRO_PRIM_USER_ATTR + 0`, the second is
+    `ALLEGRO_PRIM_USER_ATTR + 1` and so on.
+
+    To access these custom attributes from GLSL shaders you need to declare
+    attributes that follow this nomenclature: `user_attr_#` where # is the index
+    of the attribute.
+
+    To access these custom attributes from HLSL you need to declare paremter with
+    the following semantics: `TEXCOORD{# + 2}` where # is the index of the
+    attribute. E.g. the first attribute can be accessed via `TEXCOORD2`, second
+    via `TEXCOORD3` and so on.
+
 See also:
 [ALLEGRO_VERTEX_DECL], [ALLEGRO_PRIM_STORAGE]
 
