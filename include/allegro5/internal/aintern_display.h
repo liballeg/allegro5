@@ -7,6 +7,8 @@
 #include "allegro5/bitmap.h"
 #include "allegro5/internal/aintern_events.h"
 
+/* Make sure this corresponds to the number of custom attributes in addons/primitives/allegro5/allegro_primitives.h */
+#define ALLEGRO_MAX_USER_ATTRIBUTES 10
 
 #ifdef __cplusplus
 extern "C" {
