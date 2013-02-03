@@ -926,10 +926,12 @@ Enumerates the types of vertex attributes that a custom vertex may have.
     attributes that follow this nomenclature: `user_attr_#` where # is the index
     of the attribute.
 
-    To access these custom attributes from HLSL you need to declare paremter with
-    the following semantics: `TEXCOORD{# + 2}` where # is the index of the
+    To access these custom attributes from HLSL you need to declare a parameter
+    with the following semantics: `TEXCOORD{# + 2}` where # is the index of the
     attribute. E.g. the first attribute can be accessed via `TEXCOORD2`, second
     via `TEXCOORD3` and so on.
+
+    Since: 5.1.6
 
 See also:
 [ALLEGRO_VERTEX_DECL], [ALLEGRO_PRIM_STORAGE]
