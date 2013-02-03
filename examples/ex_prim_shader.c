@@ -83,7 +83,7 @@ int main(void)
    vertices[1].r = 0;
    vertices[1].g = 0;
    vertices[1].b = 1;
-   vertices[1].color = al_map_rgb_f(1, 0.1, 0.1);
+   vertices[1].color = al_map_rgb_f(0.1, 0.1, 0.1);
 
    vertices[2].x = al_get_display_width(display);
    vertices[2].y = al_get_display_height(display);
