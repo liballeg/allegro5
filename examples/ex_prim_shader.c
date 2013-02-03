@@ -6,16 +6,6 @@
 #include "allegro5/allegro_primitives.h"
 #include "allegro5/allegro_shader.h"
 
-/* The ALLEGRO_CFG_* defines are actually internal to Allegro so don't use them
- * in your own programs.
- */
-#ifdef ALLEGRO_CFG_SHADER_HLSL
-   #include "allegro5/allegro_shader_hlsl.h"
-#endif
-#ifdef ALLEGRO_CFG_SHADER_GLSL
-   #include "allegro5/allegro_shader_glsl.h"
-#endif
-
 #include "common.c"
 
 typedef struct
