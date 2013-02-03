@@ -10,12 +10,10 @@
  *
  *      This program is used to pre-compile some dummy shaders from
  *      nshader.fx to be used in directx_shaders.c file. You will need 
- *      fxc.exe and vsa.exe to run this program, which can be found in
- *      the April 2008 DirectX SDK (it has been removed in the newer SDK
- *      versions).
+ *      fxc.exe which can be found in a Direct3D SDK (June 2010 has it).
  * 
- *      Usage: Just run this program, and copy the output (tables.h)
- *      into the appropriate location in directx_shaders.c.
+ *      Usage: Run the program and it will regenerate precompiled_shaders.inc.
+ *      (Make a backup of the old ones if you need them).
  * 
  *      Note, that this is not supposed to be compiled into the library.
  *      Compile this manually if needed.
@@ -52,12 +50,12 @@ typedef vector<technique_t> technique_vector_t;
 
 int compile(const string& source, const string& dest)
 {
-  return system(("fxc /nologo /Tfx_2_0 /Op /O3 /Fc " + dest + " " + source + " > nul").c_str());
+  return system(("fxc /nologo /Tfx_2_0 /Fc " + dest + " " + source + " > nul").c_str());
 }
 
-int assemble(const string& source, const string& dest)
+int assemble(const string& source, const string& dest, const string& entrypoint)
 {
-  return system(("vsa /nologo /Fo " + dest + " " + source + " > nul").c_str());
+  return system(("fxc /nologo /O3 /Fo " + dest + " " + source + " /E " + entrypoint + " > nul").c_str());
 }
 
 bool extract_shader(technique_t& technique, istream& stream)
@@ -147,17 +145,11 @@ int extract_techniques(technique_vector_t& techniques, const string& filename)
   return (int)techniques.size();
 }
 
-int assemble_technique(technique_t& technique)
+int assemble_technique(const string& filename, technique_t& technique)
 {
-  const string source = "vshader.vs";
   const string dest   = "vshader.vso";
 
-  {
-    ofstream file(source.c_str());
-    file << technique.shader;
-  }
-
-  int result = assemble(source, dest);
+  int result = assemble(filename, dest, "vs_" + technique.name);
   if (result)
     return result;
 
@@ -165,7 +157,6 @@ int assemble_technique(technique_t& technique)
   if (!file)
   {
     _unlink(dest.c_str());
-    _unlink(source.c_str());
 
     return 1;
   }
@@ -177,12 +168,11 @@ int assemble_technique(technique_t& technique)
   file.close();
 
   _unlink(dest.c_str());
-  _unlink(source.c_str());
 
   return 0;
 }
 
-int assemble_techniques(technique_vector_t& techniques)
+int assemble_techniques(const string& filename, technique_vector_t& techniques)
 {
   int count = 0;
 
@@ -192,7 +182,7 @@ int assemble_techniques(technique_vector_t& techniques)
     technique_t& technique = *it;
 
     cout << "  Processing: " << technique.name << endl;
-    int assembled = assemble_technique(technique);
+    int assembled = assemble_technique(filename, technique);
     if (assembled)
     {
       cerr << "    Failed." << endl;
@@ -259,6 +249,8 @@ int generate_table(ostream& output, technique_t& technique)
 int generate_tables(ostream& output, technique_vector_t& techniques)
 {
   int count = 0;
+  
+  output << "/* Generated using nshader.cpp. Do not hand edit. */" << endl;
 
   technique_vector_t::iterator it, it_end = techniques.end();
   for (it = techniques.begin(); it != it_end; ++it)
@@ -285,7 +277,7 @@ int main()
 {
   const string source   = "nshader.fx";
   const string compiled = "nshader.fxc";
-  const string output   = "tables.h";
+  const string output   = "precompiled_shaders.inc";
 
   cout << "Compiling NULL shader..." << endl;
   if (int result = compile(source, compiled))
@@ -309,7 +301,7 @@ int main()
     return 0;
 
   cout << "Assembling techniques..." << endl;
-  int assembled = assemble_techniques(techniques);
+  int assembled = assemble_techniques(source, techniques);
   if (assembled)
     cout << "Done. " << assembled << " technique(s) assembled." << endl << endl;
   else
