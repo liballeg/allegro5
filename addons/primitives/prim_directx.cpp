@@ -800,7 +800,7 @@ void _al_set_d3d_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL* ret)
          }
 
          for (i = 0; i < ALLEGRO_MAX_USER_ATTRIBUTES; i++) {
-            e = &ret->elements[ALLEGRO_PRIM_USER + i];
+            e = &ret->elements[ALLEGRO_PRIM_USER_ATTR + i];
             if (e->attribute) {
                int type = 0;
                switch(e->storage) {

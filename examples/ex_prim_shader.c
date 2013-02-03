@@ -26,7 +26,7 @@ int main(void)
    ALLEGRO_VERTEX_ELEMENT vertex_elems[] = {
       {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_FLOAT_2, offsetof(CUSTOM_VERTEX, x)},
       {ALLEGRO_PRIM_COLOR_ATTR, 0, offsetof(CUSTOM_VERTEX, color)},
-      {ALLEGRO_PRIM_USER, ALLEGRO_PRIM_FLOAT_3, offsetof(CUSTOM_VERTEX, r)},
+      {ALLEGRO_PRIM_USER_ATTR, ALLEGRO_PRIM_FLOAT_3, offsetof(CUSTOM_VERTEX, r)},
       {0, 0, 0}
    };
    CUSTOM_VERTEX vertices[4];
