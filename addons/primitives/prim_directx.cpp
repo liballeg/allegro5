@@ -741,7 +741,6 @@ void _al_set_d3d_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL* ret)
       if(caps.PixelShaderVersion < D3DPS_VERSION(3, 0)) {
          ret->d3d_decl = 0;
       } else {
-         int color_idx = 0;
          int i;
          e = &ret->elements[ALLEGRO_PRIM_POSITION];
          if(e->attribute) {
@@ -787,7 +786,6 @@ void _al_set_d3d_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL* ret)
             d3delements[idx].Usage = D3DDECLUSAGE_TEXCOORD;
             d3delements[idx].UsageIndex = 0;
             idx++;
-            color_idx++;
          }
 
          e = &ret->elements[ALLEGRO_PRIM_COLOR_ATTR];
@@ -797,7 +795,7 @@ void _al_set_d3d_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL* ret)
             d3delements[idx].Type = D3DDECLTYPE_FLOAT4;
             d3delements[idx].Method = D3DDECLMETHOD_DEFAULT;
             d3delements[idx].Usage = D3DDECLUSAGE_TEXCOORD;
-            d3delements[idx].UsageIndex = color_idx;
+            d3delements[idx].UsageIndex = 1;
             idx++;
          }
 
