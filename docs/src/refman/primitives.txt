@@ -917,9 +917,10 @@ Enumerates the types of vertex attributes that a custom vertex may have.
    measured in pixels.
 
 * ALLEGRO_PRIM_USER_ATTR - A user specified attribute. You can use any storage
-    for this attribute. You may have at most 10 of these that you can specify by
-    adding an index to the value of ALLEGRO_PRIM_USER_ATTR. E.g. the first user
-    attribute is `ALLEGRO_PRIM_USER_ATTR + 0`, the second is
+    for this attribute. You may have at most ALLEGRO_PRIM_MAX_USER_ATTR
+    (currently 10) of these that you can specify by adding an index to the
+    value of ALLEGRO_PRIM_USER_ATTR, e.g. the first user attribute is
+    `ALLEGRO_PRIM_USER_ATTR + 0`, the second is
     `ALLEGRO_PRIM_USER_ATTR + 1` and so on.
 
     To access these custom attributes from GLSL shaders you need to declare

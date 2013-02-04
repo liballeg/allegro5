@@ -107,7 +107,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
             }
          }
 
-         for (i = 0; i < ALLEGRO_MAX_USER_ATTRIBUTES; i++) {
+         for (i = 0; i < _ALLEGRO_PRIM_MAX_USER_ATTR; i++) {
             e = &decl->elements[ALLEGRO_PRIM_USER_ATTR + i];
             if (e->attribute) {
                int ncoord = 0;

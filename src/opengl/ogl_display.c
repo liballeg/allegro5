@@ -653,7 +653,7 @@ void al_set_opengl_program_object(ALLEGRO_DISPLAY *display, GLuint program_objec
    display->ogl_extras->use_tex_matrix_loc = glGetUniformLocation(program_object, "use_tex_matrix");
    display->ogl_extras->tex_matrix_loc = glGetUniformLocation(program_object, "tex_matrix");
 
-   for (i = 0; i < ALLEGRO_MAX_USER_ATTRIBUTES; i++) {
+   for (i = 0; i < _ALLEGRO_PRIM_MAX_USER_ATTR; i++) {
       snprintf(user_attr_name, sizeof(user_attr_name), "user_attr_%d", i);
       display->ogl_extras->user_attr_loc[i] = glGetAttribLocation(program_object, user_attr_name);
    }

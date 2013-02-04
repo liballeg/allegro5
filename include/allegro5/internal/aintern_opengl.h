@@ -103,7 +103,7 @@ typedef struct ALLEGRO_OGL_EXTRAS
    GLint tex_loc;
    GLint use_tex_matrix_loc;
    GLint tex_matrix_loc;
-   GLint user_attr_loc[ALLEGRO_MAX_USER_ATTRIBUTES];
+   GLint user_attr_loc[_ALLEGRO_PRIM_MAX_USER_ATTR];
 
    /* For OpenGL 3.0+ we use a single vao and vbo. */
    GLuint vao, vbo;
