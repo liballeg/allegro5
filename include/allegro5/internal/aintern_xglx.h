@@ -30,7 +30,6 @@
 
 typedef struct ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_XGLX;
 typedef struct ALLEGRO_DISPLAY_XGLX ALLEGRO_DISPLAY_XGLX;
-typedef struct ALLEGRO_MOUSE_CURSOR_XGLX ALLEGRO_MOUSE_CURSOR_XGLX;
 
 /* This is our version of ALLEGRO_SYSTEM with driver specific extra data. */
 struct ALLEGRO_SYSTEM_XGLX
@@ -136,29 +135,18 @@ struct ALLEGRO_DISPLAY_XGLX
    bool mouse_warp;
 };
 
-struct ALLEGRO_MOUSE_CURSOR_XGLX
-{
-   Cursor cursor;
-};
-
 /* Functions private to the X11 driver. */
 
 /* display */
 void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *event);
-void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent);
 void _al_xwin_display_switch_handler(ALLEGRO_DISPLAY *d,
    XFocusChangeEvent *event);
 void _al_xwin_display_expose(ALLEGRO_DISPLAY *display, XExposeEvent *xevent);
 
 /* keyboard */
-void _al_xwin_keyboard_handler(XKeyEvent *event, ALLEGRO_DISPLAY *display);
-void _al_xwin_keyboard_switch_handler(ALLEGRO_DISPLAY *display,
-   const XFocusChangeEvent *event);
+void _al_xwin_keyboard_switch_handler(ALLEGRO_DISPLAY *display, bool focus_in);
 
 /* mouse */
-void _al_xwin_mouse_button_press_handler(int button, ALLEGRO_DISPLAY *display);
-void _al_xwin_mouse_button_release_handler(int button, ALLEGRO_DISPLAY *d);
-void _al_xwin_mouse_motion_notify_handler(int x, int y, ALLEGRO_DISPLAY *d);
 void _al_xwin_mouse_switch_handler(ALLEGRO_DISPLAY *display,
    const XCrossingEvent *event);
 
@@ -166,7 +154,6 @@ void _al_xwin_mouse_switch_handler(ALLEGRO_DISPLAY *display,
 ALLEGRO_MOUSE_CURSOR *_al_xwin_create_mouse_cursor(ALLEGRO_BITMAP *bmp,
    int x_focus, int y_focus);
 void _al_xwin_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor);
-void _al_xglx_add_cursor_functions(ALLEGRO_DISPLAY_INTERFACE *vt);
 
 /* fullscreen and multi monitor stuff */
 

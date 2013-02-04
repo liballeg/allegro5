@@ -8,9 +8,7 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Configuration defines for use on GP2X Wiz
- *
- *      By Trent Gamblin
+ *      Configuration defines for use on iOS.
  *
  *      See readme.txt for copyright information.
  */

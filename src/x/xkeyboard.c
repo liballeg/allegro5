@@ -446,24 +446,21 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, ALLEGRO_DISPLAY *display)
 /* _al_xwin_keyboard_switch_handler:
  *  Handle a focus switch event.
  */
-void _al_xwin_keyboard_switch_handler(ALLEGRO_DISPLAY *display,
-   const XFocusChangeEvent *event)
+void _al_xwin_keyboard_switch_handler(ALLEGRO_DISPLAY *display, bool focus_in)
 {
    _al_event_source_lock(&the_keyboard.parent.es);
 
-   switch (event->type) {
-      case FocusIn:
-         the_keyboard.state.display = display;
+   if (focus_in) {
+      the_keyboard.state.display = display;
 #ifdef ALLEGRO_XWINDOWS_WITH_XIM
-         if (xic) {
-            ALLEGRO_DISPLAY_XGLX *display_glx = (void *)display;
-            XSetICValues(xic, XNClientWindow, display_glx->window, NULL);
-         }
+      if (xic) {
+         ALLEGRO_DISPLAY_XGLX *display_glx = (void *)display;
+         XSetICValues(xic, XNClientWindow, display_glx->window, NULL);
+      }
 #endif
-         break;
-      case FocusOut:
-         the_keyboard.state.display = NULL;
-         break;
+   }
+   else {
+      the_keyboard.state.display = NULL;
    }
 
    _al_event_source_unlock(&the_keyboard.parent.es);

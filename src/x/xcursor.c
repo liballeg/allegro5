@@ -1,4 +1,7 @@
 #include "allegro5/allegro.h"
+
+#include "allegro5/internal/aintern_x.h"
+#include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_xglx.h"
 
 #include <X11/cursorfont.h>
@@ -20,7 +23,7 @@ ALLEGRO_MOUSE_CURSOR *_al_xwin_create_mouse_cursor(ALLEGRO_BITMAP *bmp,
 
    int bmp_w;
    int bmp_h;
-   ALLEGRO_MOUSE_CURSOR_XGLX *xcursor;
+   ALLEGRO_MOUSE_CURSOR_XWIN *xcursor;
    XcursorImage *image;
    int c, ix, iy;
    bool was_locked;
@@ -76,7 +79,7 @@ ALLEGRO_MOUSE_CURSOR *_al_xwin_create_mouse_cursor(ALLEGRO_BITMAP *bmp,
 
 void _al_xwin_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
 {
-   ALLEGRO_MOUSE_CURSOR_XGLX *xcursor = (ALLEGRO_MOUSE_CURSOR_XGLX *)cursor;
+   ALLEGRO_MOUSE_CURSOR_XWIN *xcursor = (ALLEGRO_MOUSE_CURSOR_XWIN *)cursor;
    ALLEGRO_SYSTEM *sys = al_get_system_driver();
    ALLEGRO_SYSTEM_XGLX *sysx = (ALLEGRO_SYSTEM_XGLX *)sys;
    unsigned i;
@@ -106,7 +109,7 @@ static bool xdpy_set_mouse_cursor(ALLEGRO_DISPLAY *display,
    ALLEGRO_MOUSE_CURSOR *cursor)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
-   ALLEGRO_MOUSE_CURSOR_XGLX *xcursor = (ALLEGRO_MOUSE_CURSOR_XGLX *)cursor;
+   ALLEGRO_MOUSE_CURSOR_XWIN *xcursor = (ALLEGRO_MOUSE_CURSOR_XWIN *)cursor;
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    Display *xdisplay = system->x11display;
    Window xwindow = glx->window;
@@ -274,7 +277,7 @@ static bool xdpy_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
 
 
 
-void _al_xglx_add_cursor_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
+void _al_xwin_add_cursor_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
 {
    vt->set_mouse_cursor = xdpy_set_mouse_cursor;
    vt->set_system_mouse_cursor = xdpy_set_system_mouse_cursor;
