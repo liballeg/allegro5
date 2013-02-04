@@ -494,7 +494,7 @@ check_c_source_compiles("
 
 include(CheckCtors)
 check_ctors(ALLEGRO_USE_CONSTRUCTOR)
-    
+
 #-----------------------------------------------------------------------------#
 #
 #   Driver configuration
