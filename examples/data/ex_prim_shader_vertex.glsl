@@ -1,3 +1,4 @@
+#version 120
 attribute vec4 pos;
 attribute vec4 color;
 attribute vec3 user_attr_0;
