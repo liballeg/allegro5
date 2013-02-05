@@ -95,16 +95,16 @@ int main(void)
    pixel_shader_file = opengl ? "data/ex_prim_shader_pixel.glsl" : "data/ex_prim_shader_pixel.hlsl";
 
    if (!al_attach_shader_source_file(shader, ALLEGRO_VERTEX_SHADER, vertex_shader_file)) {
-      abort_example("al_attach_shader_source_file failed: %s\n",
+      abort_example("al_attach_shader_source_file for vertex shader failed: %s\n",
          al_get_shader_log(shader));
    }
    if (!al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, pixel_shader_file)) {
-      abort_example("al_attach_shader_source_file failed: %s\n",
+      abort_example("al_attach_shader_source_file for pixel shader failed: %s\n",
          al_get_shader_log(shader));
    }
 
    if (!al_link_shader(shader)) {
-      abort_example("al_link_shader failed: %s\n", al_get_shader_log(shader));
+      abort_example("al_link_shader for link failed: %s\n", al_get_shader_log(shader));
    }
    al_set_shader(display, shader);
 
