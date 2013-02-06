@@ -1,16 +1,12 @@
-#include "allegro5/allegro.h"
-
-#ifndef ALLEGRO_RASPBERRYPI
-#include "allegro5/internal/aintern_xglx.h"
-#else
-#include "allegro5/internal/aintern_raspberrypi.h"
-#define ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_RASPBERRYPI
-#define ALLEGRO_DISPLAY_XGLX ALLEGRO_DISPLAY_RASPBERRYPI
-#endif
-
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
+
+#include "allegro5/allegro.h"
+#include "allegro5/internal/aintern_x.h"
+#include "allegro5/internal/aintern_xdisplay.h"
+#include "allegro5/internal/aintern_xsystem.h"
+#include "allegro5/internal/aintern_xwindow.h"
 
 ALLEGRO_DEBUG_CHANNEL("xwindow")
 

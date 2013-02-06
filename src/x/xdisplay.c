@@ -1,7 +1,17 @@
-#include "allegro5/internal/aintern_xglx.h"
+#include <X11/Xatom.h>
+
+#include "allegro5/allegro.h"
+#include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_x.h"
+#include "allegro5/internal/aintern_xcursor.h"
+#include "allegro5/internal/aintern_xdisplay.h"
+#include "allegro5/internal/aintern_xfullscreen.h"
+#include "allegro5/internal/aintern_xglx_config.h"
+#include "allegro5/internal/aintern_xsystem.h"
+#include "allegro5/internal/aintern_xwindow.h"
+#include "allegro5/platform/aintxglx.h"
 
 ALLEGRO_DEBUG_CHANNEL("display")
 

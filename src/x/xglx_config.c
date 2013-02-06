@@ -1,7 +1,16 @@
-#include "allegro5/internal/aintern_xglx.h"
+#include "allegro5/allegro.h"
+#include "allegro5/allegro_opengl.h"
+#include "allegro5/opengl/gl_ext.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_pixels.h"
+#include "allegro5/internal/aintern_x.h"
+#include "allegro5/internal/aintern_xdisplay.h"
+#include "allegro5/internal/aintern_xglx_config.h"
+#include "allegro5/internal/aintern_xsystem.h"
 
-ALLEGRO_DEBUG_CHANNEL("display")
+ALLEGRO_DEBUG_CHANNEL("xglx_config")
 
 #ifdef DEBUGMODE
 static void display_pixel_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)

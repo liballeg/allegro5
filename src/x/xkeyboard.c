@@ -35,7 +35,10 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_keyboard.h"
-#include "allegro5/internal/aintern_xglx.h"
+#include "allegro5/internal/aintern_x.h"
+#include "allegro5/internal/aintern_xdisplay.h"
+#include "allegro5/internal/aintern_xkeyboard.h"
+#include "allegro5/internal/aintern_xsystem.h"
 
 ALLEGRO_DEBUG_CHANNEL("keyboard")
 

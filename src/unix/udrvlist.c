@@ -17,10 +17,11 @@
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_system.h"
 
-#ifdef ALLEGRO_WITH_XWINDOWS
-#include "allegro5/internal/aintern_xglx.h"
+#if defined ALLEGRO_WITH_XWINDOWS
+#include "allegro5/platform/aintxglx.h"
 #endif
 
 // FIXME: will need to wire this back in

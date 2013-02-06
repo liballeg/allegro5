@@ -1,5 +1,8 @@
 #include "allegro5/allegro.h"
-#include "allegro5/internal/aintern_xglx.h"
+#include "allegro5/internal/aintern_x.h"
+#include "allegro5/internal/aintern_xdisplay.h"
+#include "allegro5/internal/aintern_xfullscreen.h"
+#include "allegro5/internal/aintern_xsystem.h"
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
 

@@ -1,8 +1,10 @@
+#include <X11/Xlib.h>
 #include "allegro5/allegro.h"
-
-#include "allegro5/internal/aintern_x.h"
 #include "allegro5/internal/aintern_bitmap.h"
-#include "allegro5/internal/aintern_xglx.h"
+#include "allegro5/internal/aintern_x.h"
+#include "allegro5/internal/aintern_xcursor.h"
+#include "allegro5/internal/aintern_xdisplay.h"
+#include "allegro5/internal/aintern_xsystem.h"
 
 #include <X11/cursorfont.h>
 

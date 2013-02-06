@@ -3,7 +3,14 @@
 #include "allegro5/allegro.h"
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/internal/aintern_x.h"
-#include "allegro5/internal/aintern_xglx.h"
+#include "allegro5/internal/aintern_xdisplay.h"
+#include "allegro5/internal/aintern_xevents.h"
+#include "allegro5/internal/aintern_xfullscreen.h"
+#include "allegro5/internal/aintern_xkeyboard.h"
+#include "allegro5/internal/aintern_xmouse.h"
+#include "allegro5/internal/aintern_xsystem.h"
+
+ALLEGRO_DEBUG_CHANNEL("xevents")
 
 /* Handle an X11 close button event. [X11 thread]
  * Only called from the event handler with the system locked.

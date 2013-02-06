@@ -1,8 +1,10 @@
 #ifndef __al_included_allegro5_aintern_bitmap_h
 #define __al_included_allegro5_aintern_bitmap_h
 
-#include "allegro5/display.h"
 #include "allegro5/bitmap.h"
+#include "allegro5/bitmap_lock.h"
+#include "allegro5/display.h"
+#include "allegro5/transformations.h"
 
 #ifdef __cplusplus
 extern "C" {

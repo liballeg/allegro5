@@ -15,8 +15,8 @@
 #include "allegro5/allegro_native_dialog.h"
 #include "allegro5/internal/aintern_native_dialog.h"
 
-#ifdef ALLEGRO_WITH_XWINDOWS
-#include "allegro5/internal/aintern_xglx.h"
+#if defined ALLEGRO_WITH_XWINDOWS
+#include "allegro5/internal/aintern_xdisplay.h"
 #endif
 
 ALLEGRO_DEBUG_CHANNEL("gtk")
