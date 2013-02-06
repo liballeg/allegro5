@@ -4,6 +4,16 @@
 
 #import <Cocoa/Cocoa.h>
 
+bool _al_init_native_dialog_addon(void)
+{
+   return true;
+}
+
+void _al_shutdown_native_dialog_addon(void)
+{
+}
+
+
 /* We need to run the dialog box on the main thread because AppKit is not
  * re-entrant and running it from another thread can cause unpredictable
  * crashes.

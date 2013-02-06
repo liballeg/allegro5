@@ -40,6 +40,8 @@ struct ALLEGRO_NATIVE_DIALOG
    void *async_queue;
 };
 
+extern bool _al_init_native_dialog_addon(void);
+extern void _al_shutdown_native_dialog_addon(void);
 extern bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    ALLEGRO_NATIVE_DIALOG *fd);
 extern int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
