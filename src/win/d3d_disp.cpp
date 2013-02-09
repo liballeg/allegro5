@@ -2300,10 +2300,13 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
 
 static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
 {
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)d;
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)d;
    int orig_w = d->w;
    int orig_h = d->h;
    bool ret;
+
+   _al_d3d_prepare_bitmaps_for_reset(d3d_display);
 
    win_display->ignore_resize = true;
 
