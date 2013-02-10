@@ -58,6 +58,10 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
    #define glOrtho glOrthof
 #endif
 
+#ifdef ALLEGRO_MSVC
+   #define snprintf _snprintf
+#endif
+
 
 /* glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT..) not supported on some Androids.
  * We keep track of it manually.

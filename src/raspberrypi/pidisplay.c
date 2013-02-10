@@ -391,9 +391,6 @@ static ALLEGRO_DISPLAY *raspberrypi_create_display(int w, int h)
     display->ogl_extras = ogl;
     display->vt = _al_get_raspberrypi_display_interface();
     display->flags = al_get_new_display_flags();
-//    if (display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
-//        _al_raspberrypi_get_screen_size(adapter, &w, &h);
-//    }
 
     ALLEGRO_SYSTEM_RASPBERRYPI *system = (void *)al_get_system_driver();
 
@@ -406,13 +403,6 @@ static ALLEGRO_DISPLAY *raspberrypi_create_display(int w, int h)
     _al_event_source_init(&display->es);
 
     display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
-//   ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds[system->visuals_count];
-//   memcpy(eds, system->visuals, sizeof(*eds) * system->visuals_count);
-//   qsort(eds, system->visuals_count, sizeof(*eds), _al_display_settings_sorter);
-
-//   ALLEGRO_INFO("Chose visual no. %i\n", eds[0]->index); 
-
-//   memcpy(&display->extra_settings, eds[0], sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
 
    display->w = w;
    display->h = h;
@@ -446,14 +436,8 @@ static ALLEGRO_DISPLAY *raspberrypi_create_display(int w, int h)
          system->x11display,
          d->window,
          PointerMotionMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask
-/*
-         StructureNotifyMask | FocusChangeMask | PointerMotionMask
-         | KeyPressMask | KeyReleaseMask | ButtonPressMask
-         | ButtonReleaseMask | PropertyChangeMask
-*/
       );
       XMapWindow(system->x11display, d->window);
-      //XSetInputFocus(system->x11display, d->window, RevertToParent, CurrentTime);
       _al_xwin_reset_size_hints(display);
       _al_xwin_set_fullscreen_window(display, 2);
       _al_xwin_set_size_hints(display, INT_MAX, INT_MAX);
@@ -668,14 +652,15 @@ static bool raspberrypi_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
 
 static bool raspberrypi_show_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
-    (void)display;
-    return false;
+    add_cursor((ALLEGRO_DISPLAY_RASPBERRYPI *)display);
+    return true;
 }
 
 static bool raspberrypi_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
     (void)display;
-    return false;
+    remove_cursor();
+    return true;
 }
 
 /* Obtain a reference to this driver. */
@@ -709,8 +694,6 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_raspberrypi_display_interface(void)
     vt->set_display_flag = raspberrypi_set_display_flag;
     vt->wait_for_vsync = raspberrypi_wait_for_vsync;
 
-
-    //vt->acknowledge_drawing_halt = _al_raspberrypi_acknowledge_drawing_halt;
     vt->update_render_state = _al_ogl_update_render_state;
 
     _al_ogl_add_drawing_functions(vt);

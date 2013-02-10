@@ -871,7 +871,23 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    static final int ALLEGRO_KEY_VOLUME_UP   = 108;
    static final int ALLEGRO_KEY_VOLUME_DOWN = 109;
    
-   static final int ALLEGRO_KEY_UNKNOWN    = 110;
+   /* Some more standard Android keys.
+    * These happen to be the ones used by the Xperia Play.
+    */
+   static final int ALLEGRO_KEY_SEARCH       = 110;
+   static final int ALLEGRO_KEY_DPAD_CENTER  = 111;
+   static final int ALLEGRO_KEY_BUTTON_X     = 112;
+   static final int ALLEGRO_KEY_BUTTON_Y     = 113;
+   static final int ALLEGRO_KEY_DPAD_UP      = 114;
+   static final int ALLEGRO_KEY_DPAD_DOWN    = 115;
+   static final int ALLEGRO_KEY_DPAD_LEFT    = 116;
+   static final int ALLEGRO_KEY_DPAD_RIGHT   = 117;
+   static final int ALLEGRO_KEY_SELECT       = 118;
+   static final int ALLEGRO_KEY_START        = 119;
+   static final int ALLEGRO_KEY_L1           = 120;
+   static final int ALLEGRO_KEY_R1           = 121;
+
+   static final int ALLEGRO_KEY_UNKNOWN      = 122;
 
       /* All codes up to before ALLEGRO_KEY_MODIFIERS can be freely
       * assignedas additional unknown keys, like various multimedia
@@ -980,7 +996,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       ALLEGRO_KEY_PAD_PLUS,    // KeyEvent.KEYCODE_PLUS
       ALLEGRO_KEY_MENU,        // KeyEvent.KEYCODE_MENU
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_NOTIFICATION
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_SEARCH
+      ALLEGRO_KEY_SEARCH,      // KeyEvent.KEYCODE_SEARCH
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_MEDIA_STOP
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_MEDIA_NEXT
@@ -995,17 +1011,17 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_A
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_B
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_C
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_X
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_Y
+      ALLEGRO_KEY_BUTTON_X,    // KeyEvent.KEYCODE_BUTTON_X
+      ALLEGRO_KEY_BUTTON_Y,    // KeyEvent.KEYCODE_BUTTON_Y
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_Z
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_L1
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_R1
+      ALLEGRO_KEY_L1,          // KeyEvent.KEYCODE_BUTTON_L1
+      ALLEGRO_KEY_R1,          // KeyEvent.KEYCODE_BUTTON_R1
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_L2
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_R2
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_THUMBL
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_THUMBR
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_START
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_SELECT
+      ALLEGRO_KEY_START,       // KeyEvent.KEYCODE_START
+      ALLEGRO_KEY_SELECT,      // KeyEvent.KEYCODE_SELECT
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_MODE
    };
    
@@ -1020,6 +1036,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    public native void nativeOnChange(int format, int width, int height);
    public native void nativeOnKeyDown(int key);
    public native void nativeOnKeyUp(int key);
+   public native void nativeOnKeyChar(int key);
    public native void nativeOnTouch(int id, int action, float x, float y, boolean primary);
    
    /** functions that native code calls */
@@ -1489,7 +1506,13 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
                return true;
             }
          }
-         nativeOnKeyDown(keyMap[keyCode]);
+         if (event.getRepeatCount() == 0) {
+            nativeOnKeyDown(keyMap[keyCode]);
+            nativeOnKeyChar(keyMap[keyCode]);
+         }
+         else {
+            nativeOnKeyChar(keyMap[keyCode]);
+         }
          return true;
       }
       else if (event.getAction() == KeyEvent.ACTION_UP) {
