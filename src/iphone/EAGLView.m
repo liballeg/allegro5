@@ -131,10 +131,20 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
     glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeight);
     
     if (allegro_display->extra_settings.settings[ALLEGRO_DEPTH_SIZE]) {
+        GLint depth_stencil_format;
+        if (allegro_display->extra_settings.settings[ALLEGRO_STENCIL_SIZE]) {
+	    depth_stencil_format = GL_DEPTH24_STENCIL8_OES;
+	}
+	else {
+	    depth_stencil_format = GL_DEPTH_COMPONENT16_OES;
+	}
         glGenRenderbuffersOES(1, &depthRenderbuffer);
         glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthRenderbuffer);
-        glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT16_OES, backingWidth, backingHeight);
+        glRenderbufferStorageOES(GL_RENDERBUFFER_OES, depth_stencil_format, backingWidth, backingHeight);
         glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthRenderbuffer);
+        if (allegro_display->extra_settings.settings[ALLEGRO_STENCIL_SIZE]) {
+        	glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_STENCIL_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthRenderbuffer);
+	}
     }
     
     if (glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES) {
