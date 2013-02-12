@@ -2005,7 +2005,9 @@ static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 
       case ALLEGRO_FULLSCREEN_WINDOW:
          if (onoff) {
-            [[win contentView] enterFullScreenMode: [win screen] withOptions: nil];
+            NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+	    [dict setObject:[NSNumber numberWithInt:NSApplicationPresentationHideDock | NSApplicationPresentationHideMenuBar] forKey:NSFullScreenModeApplicationPresentationOptions];
+            [[win contentView] enterFullScreenMode: [win screen] withOptions: dict];
             NSRect sc = [[win screen] frame];
             resize_display_win(display, sc.size.width, sc.size.height);
             display->flags |= ALLEGRO_FULLSCREEN_WINDOW;
