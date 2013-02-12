@@ -108,7 +108,7 @@ static void set_rgb565(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
    eds->settings[ALLEGRO_COLOR_SIZE] = 16;
 }
 
-#define VISUALS_COUNT 4
+#define VISUALS_COUNT 6
 void _al_iphone_update_visuals(void)
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref;
@@ -150,6 +150,16 @@ void _al_iphone_update_visuals(void)
          case 3:
             set_rgb565(eds);
             eds->settings[ALLEGRO_DEPTH_SIZE] = 16;
+            break;
+         case 4:
+            set_rgba8888(eds);
+            eds->settings[ALLEGRO_DEPTH_SIZE] = 24;
+            eds->settings[ALLEGRO_STENCIL_SIZE] = 8;
+            break;
+         case 5:
+            set_rgb565(eds);
+            eds->settings[ALLEGRO_DEPTH_SIZE] = 24;
+            eds->settings[ALLEGRO_STENCIL_SIZE] = 8;
             break;
             
       }
