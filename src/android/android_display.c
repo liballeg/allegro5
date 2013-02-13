@@ -795,6 +795,8 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy, void (*user
    _al_android_make_current(_al_android_get_jnienv(), d);
    
    ALLEGRO_DEBUG("made current");
+
+   al_set_target_backbuffer(dpy);
    
    _al_android_setup_opengl_view(dpy);
 
