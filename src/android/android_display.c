@@ -589,14 +589,17 @@ static void android_destroy_display(ALLEGRO_DISPLAY *dpy)
    al_destroy_cond(d->cond);
    
    ALLEGRO_DEBUG("free ogl_extras");
-   free(dpy->ogl_extras);
-   
-   ALLEGRO_DEBUG("free display");
-   free(d);
+   al_free(dpy->ogl_extras);
    
    ALLEGRO_DEBUG("remove display from system list");
    ALLEGRO_SYSTEM *s = al_get_system_driver();
    _al_vector_find_and_delete(&s->displays, &d);
+
+   _al_vector_free(&dpy->bitmaps);
+   al_free(dpy->vertex_cache);
+
+   ALLEGRO_DEBUG("free display");
+   al_free(d);
    
    ALLEGRO_DEBUG("done");
 }
