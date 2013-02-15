@@ -266,6 +266,7 @@ function(copy_data_dir_to_build target name)
     foreach(file ${files})
         add_custom_command(
             OUTPUT ${file}
+            DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${file}"
             COMMAND "${CMAKE_COMMAND}" -E copy
                     "${CMAKE_CURRENT_SOURCE_DIR}/${file}" ${file}
             )
