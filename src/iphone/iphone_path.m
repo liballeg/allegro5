@@ -9,8 +9,6 @@ ALLEGRO_PATH *_al_iphone_get_path(int id)
    NSArray *array;
    NSBundle *mainBundle;
 
-   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-  
    switch (id) {
       case ALLEGRO_USER_HOME_PATH:
          string = NSHomeDirectory();
@@ -41,20 +39,15 @@ ALLEGRO_PATH *_al_iphone_get_path(int id)
       case ALLEGRO_EXENAME_PATH: {
          uint32_t size = sizeof(str);
          if (_NSGetExecutablePath(str, &size) != 0) {
-	    [pool drain];
             return NULL;
          }
-	 [pool drain];
          return al_create_path(str);
       }
       default:
-         [pool drain];
          return NULL;
    }
 
    sprintf(str, "%s", [string UTF8String]);
-
-   [pool drain];
 
    return al_create_path_for_directory(str);
 }
