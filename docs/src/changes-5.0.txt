@@ -4,6 +4,121 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 5.0.8 to 5.0.9 (February 2013)
+===========================================
+
+The main developers this time were: Trent Gamblin, Elias Pschernig,
+Peter Wang.
+
+Core:
+
+-  Clean up logging subsystem at shutdown (muhkuh).
+
+-  Fix a problem with creating a display after Allegro is shut down
+   then re-initialised on X11.
+
+-  Fix use of clobbered return value from setlocale() on X11.
+
+-  Fix use of double math functions for float arguments (Nick Trout).
+
+Displays:
+
+-  Fix al_set/get_window position on Windows so getting/setting to the
+   same position continuosly doesn't move the window. (Michael Swiger)
+
+-  Add al_set_display_icons (plural). Implemented on X11 and Windows.
+
+-  Made al_get_display_mode return the closest thing to a pixel format
+   possible with the WGL driver (tobing).
+
+-  Move WGL context destruction out of the message pump thread and into
+   the user/main thread.
+
+-  Allow command-tab to work in fullscreen window mode on OS X.
+
+Graphics:
+
+-  Avoid null pointer dereference when setting a target bitmap after
+   its video_texture has already been released (D3D).
+
+-  Make d3d_lock_region fail immediately if _al_d3d_sync_bitmap
+   failed, likely because the device was lost.
+
+-  Set device_lost flag immediately when d3d_display_thread_proc
+   finds the device is lost.
+
+-  Sync bitmaps before resizing display to prevent changes being lost
+   after the resize (D3D).
+
+-  Revert a faulty FBO rebinding optimisation in al_set_target_bitmap.
+
+-  Fix OpenGL extensions being completely ignored on OS X.
+
+-  Support stencil buffer on iOS.
+
+Input:
+
+-  Partially fix mouse buttons "sticking" on Mac, e.g. holding the
+   mouse and toggling fullscreen window.
+
+Filesystem:
+
+-  Keep absolute path in ALLEGRO_FS_ENTRYs so that later changes to the
+   working directory do not affect the interpretation of the path.
+
+-  Set ALLEGRO_FILEMODE_HIDDEN properly on Unix.
+
+-  Make sure stat mode bits are cleared in default implementation of
+   al_update_fs_entry.
+
+-  Support Unicode paths on Windows.
+
+-  Change description of al_get_fs_entry_name about not returning absolute
+   path if created from relative path; no longer true for either the default
+   or Physfs implementations.
+
+Audio addons:
+
+-  Shut down threads properly when when destroying FLAC and modaudio streams.
+
+-  Fix PulseAudio driver trying to connect to a non-existent server forever.
+
+Image I/O addon:
+
+-  Fixed loading interlaced .png files with libpng.
+
+-  Use Allegro built-in loaders in preference to OS X loaders for BMP/TGA/PCX.
+   The OS X TGA loader doesn't support alpha and this is also more consistent.
+
+-  Restored ability of the native OSX image loader to load grayscale pictures.
+
+Native dialog addon:
+
+-  Add al_init_native_dialog_addon and al_shutdown_native_dialog_addon.
+
+Build system:
+
+-  Rename allegro\*-5.0.pc files to allegro\*-5.pc.  The old names are
+   deprecated but retained on the 5.0 branch for backwards compatibility.
+
+-  Only generate and install pkg-config files for libraries that we build.
+
+-  Install iPhone internals headers (Nick Trout).
+
+Examples:
+
+-  ex_icon2: New example.
+
+-  speed: Use builtin font.
+
+Other:
+
+-  Documentation updates.
+
+-  A lot of code refactoring.
+
+
+
 Changes from 5.0.7 to 5.0.8 (November 2012)
 ===========================================
 
