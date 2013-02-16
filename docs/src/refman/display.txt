@@ -590,7 +590,7 @@ frame, taskbar, alt-tab popup.  The number of icons must be at least one.
 then one of the bitmaps will be scaled up or down to the required size.
 The choice of bitmap is implementation dependent.
 
-Since: 5.1.5
+Since: 5.0.9, 5.1.5
 
 See also: [al_set_display_icon], [al_set_window_title]
 
