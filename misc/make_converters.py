@@ -4,7 +4,7 @@ import optparse, re, sys
 formats_by_name = {}
 formats_list = []
 
-def read_bitmap_h(filename):
+def read_color_h(filename):
     """
     Read in the list of formats.
     """
@@ -394,8 +394,8 @@ convert.c files containing all the low-level color conversion macros and
 functions."""
     options, args = p.parse_args()
 
-    # Read in bitmap.h to get the available formats.
-    formats = read_bitmap_h("include/allegro5/bitmap.h")
+    # Read in color.h to get the available formats.
+    formats = read_color_h("include/allegro5/color.h")
     
     print(formats)
 
