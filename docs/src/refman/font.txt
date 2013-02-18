@@ -128,7 +128,7 @@ The `flags` parameter can be 0 or one of the following flags:
 It can also be combined with this flag:
 
 - ALLEGRO_ALIGN_INTEGER - Always draw text aligned to an integer pixel
-  position.  This is formerly the default behaviour.  Since: 5.1.4
+  position.  This is formerly the default behaviour.  Since: 5.0.8, 5.1.4
 
 See also: [al_draw_ustr], [al_draw_textf], [al_draw_justified_text]
 
@@ -151,7 +151,7 @@ left aligned.
 The `flags` parameter can be 0 or one of the following flags:
 
 - ALLEGRO_ALIGN_INTEGER - Draw text aligned to integer pixel positions.
-  Since: 5.1.5
+  Since: 5.0.8, 5.1.5
 
 See also: [al_draw_justified_textf], [al_draw_justified_ustr]
 

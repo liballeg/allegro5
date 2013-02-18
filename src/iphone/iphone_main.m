@@ -51,12 +51,10 @@ void _al_iphone_init_path(void)
      * the initial path to that. As each app is sandboxed, there is not much
      * else to access anyway.
      */
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     NSFileManager *fm = [NSFileManager defaultManager];
     NSBundle *mainBundle = [NSBundle mainBundle];
     NSString *string = [mainBundle resourcePath];
     [fm changeCurrentDirectoryPath:string];
-    [pool drain];
 }
 
 int main(int argc, char **argv) {

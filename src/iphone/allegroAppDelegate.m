@@ -79,8 +79,6 @@ static void iphone_add_screen(UIScreen *screen)
 {
    int i;
    
-   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-   
    if (screen == [UIScreen mainScreen]) {
       i = 0;
    }
@@ -141,8 +139,6 @@ static void iphone_add_screen(UIScreen *screen)
    
    if (add)
       [iphone_screens addObject:scr];
-   
-   [pool drain];
 }
 
 static void iphone_remove_screen(UIScreen *screen)
@@ -320,8 +316,6 @@ bool _al_iphone_add_view(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)display;
    
-   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-   
    d->extra = al_calloc(1, sizeof(ALLEGRO_DISPLAY_IPHONE_EXTRA));
    int adapter = al_get_new_display_adapter();
    if (adapter < 0)
@@ -337,7 +331,6 @@ bool _al_iphone_add_view(ALLEGRO_DISPLAY *display)
                                   waitUntilDone: YES];
               
    if (d->extra->failed) {
-      [pool drain];
       return false;
    }
 
@@ -370,8 +363,6 @@ bool _al_iphone_add_view(ALLEGRO_DISPLAY *display)
       [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
    }
    
-   [pool drain];
-   
    return true;
 }
 
@@ -403,14 +394,10 @@ void _al_iphone_flip_view(ALLEGRO_DISPLAY *display)
 {
    al_lock_mutex(_al_iphone_display_hotplug_mutex);
    
-   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
    iphone_screen *scr = iphone_get_screen(display);
    if (scr)
       [scr->view flip];
 
-   [pool drain];
-   
    al_unlock_mutex(_al_iphone_display_hotplug_mutex);
 }
 
@@ -694,8 +681,6 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 
 - (void)setupScreenConnectionNotificationHandlers
 {
-   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-   
    /* Screen connect/disconnect notifications were added in iOS 3.2 */
    NSString *reqSysVer = @"3.2";
    NSString *currSysVer = [[UIDevice currentDevice] systemVersion];
@@ -709,8 +694,6 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
       [center addObserver:self selector:@selector(handleScreenDisconnectNotification:)
          name:UIScreenDidDisconnectNotification object:nil];
    }
-   
-   [pool drain];
 }
 
 - (void)handleScreenConnectNotification:(NSNotification*)aNotification

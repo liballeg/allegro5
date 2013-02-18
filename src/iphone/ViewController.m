@@ -33,8 +33,9 @@ ALLEGRO_DEBUG_CHANNEL("iphone");
    return YES;
 }
 
-#if defined __IPHONE_OS_VERSION_MAX_REQUIRED && !(__IPHONE_OS_VERSION_MAX_REQUIRED > __IPHONE_5_1)
-// Taken from Apple docs
+/* Taken from Apple docs
+ * For iOS SDK 5.1 or earlier, comment this out (have found no way to automate this yet)
+ */
 typedef enum {
    UIInterfaceOrientationMaskPortrait = (1 << UIInterfaceOrientationPortrait),
    UIInterfaceOrientationMaskLandscapeLeft = (1 << UIInterfaceOrientationLandscapeLeft),
@@ -49,7 +50,6 @@ typedef enum {
    (UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskLandscapeLeft |
    UIInterfaceOrientationMaskLandscapeRight),
 } UIInterfaceOrientationMask;
-#endif
 
 - (NSUInteger)supportedInterfaceOrientations
 {

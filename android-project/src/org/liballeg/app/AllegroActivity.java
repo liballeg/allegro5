@@ -871,7 +871,23 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    static final int ALLEGRO_KEY_VOLUME_UP   = 108;
    static final int ALLEGRO_KEY_VOLUME_DOWN = 109;
    
-   static final int ALLEGRO_KEY_UNKNOWN    = 110;
+   /* Some more standard Android keys.
+    * These happen to be the ones used by the Xperia Play.
+    */
+   static final int ALLEGRO_KEY_SEARCH       = 110;
+   static final int ALLEGRO_KEY_DPAD_CENTER  = 111;
+   static final int ALLEGRO_KEY_BUTTON_X     = 112;
+   static final int ALLEGRO_KEY_BUTTON_Y     = 113;
+   static final int ALLEGRO_KEY_DPAD_UP      = 114;
+   static final int ALLEGRO_KEY_DPAD_DOWN    = 115;
+   static final int ALLEGRO_KEY_DPAD_LEFT    = 116;
+   static final int ALLEGRO_KEY_DPAD_RIGHT   = 117;
+   static final int ALLEGRO_KEY_SELECT       = 118;
+   static final int ALLEGRO_KEY_START        = 119;
+   static final int ALLEGRO_KEY_L1           = 120;
+   static final int ALLEGRO_KEY_R1           = 121;
+
+   static final int ALLEGRO_KEY_UNKNOWN      = 122;
 
       /* All codes up to before ALLEGRO_KEY_MODIFIERS can be freely
       * assignedas additional unknown keys, like various multimedia
@@ -963,7 +979,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_EXPLORER
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ENVELOPE
       ALLEGRO_KEY_ENTER,       // KeyEvent.KEYCODE_ENTER
-      ALLEGRO_KEY_DELETE,      // KeyEvent.KEYCODE_DEL
+      ALLEGRO_KEY_BACKSPACE,   // KeyEvent.KEYCODE_DEL
       ALLEGRO_KEY_TILDE,       // KeyEvent.KEYCODE_GRAVE
       ALLEGRO_KEY_MINUS,       // KeyEvent.KEYCODE_MINUS
       ALLEGRO_KEY_EQUALS,      // KeyEvent.KEYCODE_EQUALS
@@ -980,7 +996,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       ALLEGRO_KEY_PAD_PLUS,    // KeyEvent.KEYCODE_PLUS
       ALLEGRO_KEY_MENU,        // KeyEvent.KEYCODE_MENU
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_NOTIFICATION
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_SEARCH
+      ALLEGRO_KEY_SEARCH,      // KeyEvent.KEYCODE_SEARCH
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_MEDIA_STOP
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_MEDIA_NEXT
@@ -995,18 +1011,163 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_A
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_B
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_C
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_X
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_Y
+      ALLEGRO_KEY_BUTTON_X,    // KeyEvent.KEYCODE_BUTTON_X
+      ALLEGRO_KEY_BUTTON_Y,    // KeyEvent.KEYCODE_BUTTON_Y
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_Z
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_L1
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_R1
+      ALLEGRO_KEY_L1,          // KeyEvent.KEYCODE_BUTTON_L1
+      ALLEGRO_KEY_R1,          // KeyEvent.KEYCODE_BUTTON_R1
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_L2
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_R2
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_THUMBL
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_THUMBR
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_START
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_SELECT
+      ALLEGRO_KEY_START,       // KeyEvent.KEYCODE_START
+      ALLEGRO_KEY_SELECT,      // KeyEvent.KEYCODE_SELECT
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_MODE
+      ALLEGRO_KEY_ESCAPE,      // KeyEvent.KEYCODE_ESCAPE (111)
+      ALLEGRO_KEY_DELETE,      // KeyEvent.KEYCODE_FORWARD_DELETE (112)
+      ALLEGRO_KEY_LCTRL,       // KeyEvent.KEYCODE_CTRL_LEFT (113)
+      ALLEGRO_KEY_RCTRL,       // KeyEvent.KEYCODE_CONTROL_RIGHT (114)
+      ALLEGRO_KEY_CAPSLOCK,    // KeyEvent.KEYCODE_CAPS_LOCK (115)
+      ALLEGRO_KEY_SCROLLLOCK,  // KeyEvent.KEYCODE_SCROLL_LOCK (116)
+      ALLEGRO_KEY_LWIN,        // KeyEvent.KEYCODE_META_LEFT (117)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (118)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (119)
+      ALLEGRO_KEY_PRINTSCREEN, // KeyEvent.KEYCODE_SYSRQ (120)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (121)
+      ALLEGRO_KEY_HOME,        // KeyEvent.KEYCODE_MOVE_HOME (122)
+      ALLEGRO_KEY_END,         // KeyEvent.KEYCODE_MOVE_END (123)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (124)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (125)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (126)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (127)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (128)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (129)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (130)
+      ALLEGRO_KEY_F1,          // KeyEvent.KEYCODE_ (131)
+      ALLEGRO_KEY_F2,          // KeyEvent.KEYCODE_ (132)
+      ALLEGRO_KEY_F3,          // KeyEvent.KEYCODE_ (133)
+      ALLEGRO_KEY_F4,          // KeyEvent.KEYCODE_ (134)
+      ALLEGRO_KEY_F5,          // KeyEvent.KEYCODE_ (135)
+      ALLEGRO_KEY_F6,          // KeyEvent.KEYCODE_ (136)
+      ALLEGRO_KEY_F7,          // KeyEvent.KEYCODE_ (137)
+      ALLEGRO_KEY_F8,          // KeyEvent.KEYCODE_ (138)
+      ALLEGRO_KEY_F9,          // KeyEvent.KEYCODE_ (139)
+      ALLEGRO_KEY_F10,         // KeyEvent.KEYCODE_ (140)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (141)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (142)
+      ALLEGRO_KEY_NUMLOCK,     // KeyEvent.KEYCODE_NUM_LOCK (143)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (144)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (145)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (146)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (147)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (148)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (149)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (150)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (151)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (152)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (153)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (154)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (155)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (156)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (157)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (158)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (159)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (160)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (161)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (162)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (163)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (164)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (165)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (166)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (167)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (168)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (169)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (170)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (171)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (172)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (173)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (174)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (175)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (176)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (177)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (178)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (179)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (180)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (181)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (182)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (183)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (184)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (185)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (186)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (187)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (188)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (189)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (190)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (191)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (192)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (193)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (194)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (195)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (196)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (197)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (198)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (199)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (200)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (201)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (202)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (203)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (204)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (205)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (206)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (207)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (208)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (209)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (210)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (211)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (212)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (213)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (214)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (215)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (216)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (217)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (218)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (219)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (220)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (221)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (222)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (223)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (224)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (225)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (226)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (227)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (228)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (229)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (230)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (231)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (232)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (233)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (234)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (235)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (236)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (237)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (238)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (239)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (240)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (241)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (242)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (243)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (244)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (245)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (246)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (247)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (248)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (249)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (250)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (251)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (252)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (253)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (254)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (255)
    };
    
    final int ALLEGRO_EVENT_TOUCH_BEGIN  = 50;
@@ -1020,6 +1181,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    public native void nativeOnChange(int format, int width, int height);
    public native void nativeOnKeyDown(int key);
    public native void nativeOnKeyUp(int key);
+   public native void nativeOnKeyChar(int key);
    public native void nativeOnTouch(int id, int action, float x, float y, boolean primary);
    
    /** functions that native code calls */
@@ -1489,7 +1651,13 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
                return true;
             }
          }
-         nativeOnKeyDown(keyMap[keyCode]);
+         if (event.getRepeatCount() == 0) {
+            nativeOnKeyDown(keyMap[keyCode]);
+            nativeOnKeyChar(keyMap[keyCode]);
+         }
+         else {
+            nativeOnKeyChar(keyMap[keyCode]);
+         }
          return true;
       }
       else if (event.getAction() == KeyEvent.ACTION_UP) {

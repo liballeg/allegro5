@@ -207,6 +207,19 @@ JNI_FUNC(void, AllegroSurface, nativeOnKeyUp, (JNIEnv *env, jobject obj, jint sc
    _al_android_keyboard_handle_event(display, scancode, ALLEGRO_EVENT_KEY_UP);
 }
 
+JNI_FUNC(void, AllegroSurface, nativeOnKeyChar, (JNIEnv *env, jobject obj, jint scancode))
+{
+   (void)env; (void)obj;
+   
+   ALLEGRO_SYSTEM *system = (void *)al_get_system_driver();
+   ASSERT(system != NULL);
+   
+   ALLEGRO_DISPLAY *display = *(ALLEGRO_DISPLAY**)_al_vector_ref(&system->displays, 0);
+   ASSERT(display != NULL);
+
+   _al_android_keyboard_handle_event(display, scancode, ALLEGRO_EVENT_KEY_CHAR);
+}
+
 JNI_FUNC(void, AllegroSurface, nativeOnTouch, (JNIEnv *env, jobject obj, jint id, jint action, jfloat x, jfloat y, jboolean primary))
 {
    (void)env; (void)obj;
@@ -576,14 +589,17 @@ static void android_destroy_display(ALLEGRO_DISPLAY *dpy)
    al_destroy_cond(d->cond);
    
    ALLEGRO_DEBUG("free ogl_extras");
-   free(dpy->ogl_extras);
-   
-   ALLEGRO_DEBUG("free display");
-   free(d);
+   al_free(dpy->ogl_extras);
    
    ALLEGRO_DEBUG("remove display from system list");
    ALLEGRO_SYSTEM *s = al_get_system_driver();
    _al_vector_find_and_delete(&s->displays, &d);
+
+   _al_vector_free(&dpy->bitmaps);
+   al_free(dpy->vertex_cache);
+
+   ALLEGRO_DEBUG("free display");
+   al_free(d);
    
    ALLEGRO_DEBUG("done");
 }
@@ -779,6 +795,8 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy, void (*user
    _al_android_make_current(_al_android_get_jnienv(), d);
    
    ALLEGRO_DEBUG("made current");
+
+   al_set_target_backbuffer(dpy);
    
    _al_android_setup_opengl_view(dpy);
 

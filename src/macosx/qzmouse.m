@@ -89,7 +89,7 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 {
 	NSPoint pos;
 	int type, b_change = 0, dx = 0, dy = 0, dz = 0, dw = 0, b = 0;
-   float pressure = 0.0;
+        float pressure = 0.0;
 	switch ([evt type])
 	{
 		case NSMouseMoved:
@@ -113,6 +113,7 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 			type = ALLEGRO_EVENT_MOUSE_BUTTON_DOWN;
 			b = [evt buttonNumber]+1;
 			b_change = 1;
+			osx_mouse.state.buttons |= (1 << (b-1));
          pressure = [evt pressure];
 			break;
 		case NSLeftMouseUp:
@@ -121,7 +122,8 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 			type = ALLEGRO_EVENT_MOUSE_BUTTON_UP;
 			b = [evt buttonNumber]+1;
 			b_change = 1;
-         pressure = [evt pressure];
+			osx_mouse.state.buttons &= ~(1 << (b-1));
+                        pressure = [evt pressure];
 			break;
 		case NSScrollWheel:
 			type = ALLEGRO_EVENT_MOUSE_AXES;
@@ -175,7 +177,7 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 		// Note: we use 'allegro time' rather than the time stamp 
 		// from the event 
 		mouse_event->timestamp = al_get_time();
-        mouse_event->display = dpy;
+                mouse_event->display = dpy;
 		mouse_event->button = b;
 		mouse_event->x = pos.x;
 		mouse_event->y = pos.y; 
@@ -185,7 +187,7 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 		mouse_event->dy = dy;
 		mouse_event->dz = dz;
 		mouse_event->dw = dw;
-      mouse_event->pressure = pressure;
+                mouse_event->pressure = pressure;
 		_al_event_source_emit_event(&osx_mouse.parent.es, &new_event);
 	}
 	// Record current state
@@ -193,9 +195,7 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 	osx_mouse.state.y = pos.y;
 	osx_mouse.state.w = osx_mouse.w_axis;
 	osx_mouse.state.z = osx_mouse.z_axis;
-   osx_mouse.state.pressure = pressure;
-	if (b_change)
-		osx_mouse.state.buttons ^= (1<<(b-1));
+        osx_mouse.state.pressure = pressure;
 	_al_event_source_unlock(&osx_mouse.parent.es);
 }
 
