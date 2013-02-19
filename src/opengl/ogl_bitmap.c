@@ -15,6 +15,7 @@
  *
  */
 
+#include <math.h>
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern.h"
@@ -22,11 +23,12 @@
 #include "allegro5/internal/aintern_pixels.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_system.h"
-#include <math.h>
 
 #if defined ALLEGRO_ANDROID
 #include "allegro5/internal/aintern_android.h"
 #endif
+
+#include "ogl_helpers.h"
 
 #if defined ALLEGRO_IPHONE
 #define GL_FRAMEBUFFER_EXT GL_FRAMEBUFFER_OES
@@ -474,28 +476,28 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
     * NaN values in the texture cause some blending modes to fail on
     * those pixels
     */
-#if !defined ALLEGRO_CFG_OPENGLES
-   if (ogl_bitmap->true_w != bitmap->w ||
-         ogl_bitmap->true_h != bitmap->h ||
-         bitmap->format == ALLEGRO_PIXEL_FORMAT_ABGR_F32) {
-      unsigned char *buf;
-      buf = al_calloc(ogl_bitmap->true_h, ogl_bitmap->true_w);
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-      glTexImage2D(GL_TEXTURE_2D, 0, get_glformat(bitmap->format, 0),
-         ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
-         GL_ALPHA, GL_UNSIGNED_BYTE, buf);
-      e = glGetError();
-      al_free(buf);
+   if (!IS_OPENGLES) {
+      if (ogl_bitmap->true_w != bitmap->w ||
+            ogl_bitmap->true_h != bitmap->h ||
+            bitmap->format == ALLEGRO_PIXEL_FORMAT_ABGR_F32) {
+         unsigned char *buf;
+         buf = al_calloc(ogl_bitmap->true_h, ogl_bitmap->true_w);
+         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+         glTexImage2D(GL_TEXTURE_2D, 0, get_glformat(bitmap->format, 0),
+            ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
+            GL_ALPHA, GL_UNSIGNED_BYTE, buf);
+         e = glGetError();
+         al_free(buf);
+      }
+      else {
+         glTexImage2D(GL_TEXTURE_2D, 0, get_glformat(bitmap->format, 0),
+            ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
+            get_glformat(bitmap->format, 2), get_glformat(bitmap->format, 1),
+            NULL);
+         e = glGetError();
+      }
    }
    else {
-      glTexImage2D(GL_TEXTURE_2D, 0, get_glformat(bitmap->format, 0),
-         ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
-         get_glformat(bitmap->format, 2), get_glformat(bitmap->format, 1),
-         NULL);
-      e = glGetError();
-   }
-#else
-   {
       unsigned char *buf;
       int pix_size = al_get_pixel_size(bitmap->format);
       buf = al_calloc(pix_size,
@@ -507,7 +509,6 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
          get_glformat(bitmap->format, 1), buf);
       al_free(buf);
    }
-#endif
 
    if (e) {
       ALLEGRO_ERROR("glTexImage2D for format %s, size %dx%d failed (%s)\n",
@@ -581,16 +582,10 @@ static int ogl_pitch(int w, int pixel_size)
 }
 
 
-static bool exactly_15bpp(int pixel_format)
-{
-   return pixel_format == ALLEGRO_PIXEL_FORMAT_RGB_555
-      || pixel_format == ALLEGRO_PIXEL_FORMAT_BGR_555;
-}
-
 /* OpenGL cannot "lock" pixels, so instead we update our memory copy and
  * return a pointer into that.
  */
-static ALLEGRO_LOCKED_REGION *ogl_lock_region_old(ALLEGRO_BITMAP *bitmap,
+static ALLEGRO_LOCKED_REGION *ogl_lock_region_old_gles(ALLEGRO_BITMAP *bitmap,
    int x, int y, int w, int h, int format, int flags)
 {
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
@@ -666,12 +661,13 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_old(ALLEGRO_BITMAP *bitmap,
             pitch * (h - 1);
 
          // Not sure why this is needed on Pi
-#ifdef ALLEGRO_RASPBERRYPI
-         glFlush();
-#endif
+         if (IS_RASPBERRYPI) {
+            glFlush();
+         }
       }
       else {
-         ALLEGRO_DEBUG("Locking non-backbuffer %s\n", flags & ALLEGRO_LOCK_READONLY ? "READONLY" : "READWRITE");
+         ALLEGRO_DEBUG("Locking non-backbuffer %s\n",
+            flags & ALLEGRO_LOCK_READONLY ? "READONLY" : "READWRITE");
 
          /* Create an FBO if there isn't one. */
          if (!ogl_bitmap->fbo_info) {
@@ -687,6 +683,8 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_old(ALLEGRO_BITMAP *bitmap,
          
          if (ogl_bitmap->fbo_info) {
             GLint old_fbo;
+            int start_h;
+
             old_fbo = _al_ogl_bind_framebuffer(ogl_bitmap->fbo_info->fbo);
 
             e = glGetError();
@@ -695,18 +693,19 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_old(ALLEGRO_BITMAP *bitmap,
                   _al_gl_error_string(e));
             }
 
+            start_h = h;
+
             /* Some Android devices only want to read POT chunks with glReadPixels.
              * This adds yet more overhead, but AFAICT it fails any other way.
              * Test device was gen 1 Galaxy Tab. Also read 16x16 minimum.
              */
-#if defined ALLEGRO_ANDROID
-            glPixelStorei(GL_PACK_ALIGNMENT, 4);
-            int start_h = h;
-            w = pot(w);
-            while (w < 16) w = pot(w+1);
-            h = pot(h);
-            while (h < 16) h = pot(h+1);
-#endif
+            if (IS_ANDROID) {
+               glPixelStorei(GL_PACK_ALIGNMENT, 4);
+               w = pot(w);
+               while (w < 16) w = pot(w+1);
+               h = pot(h);
+               while (h < 16) h = pot(h+1);
+            }
 
             pitch = ogl_pitch(w, pixel_size);
             /* Allocate a buffer big enough for both purposes. This requires more
@@ -716,25 +715,18 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_old(ALLEGRO_BITMAP *bitmap,
             ogl_bitmap->lock_buffer = al_malloc(_ALLEGRO_MAX(pitch * h, ogl_pitch(w, 4) * h));
 
             /* NOTE: GLES (1.1?) can only read 4 byte pixels, we have to convert */
-#if defined ALLEGRO_CFG_OPENGLES
             glReadPixels(x, gl_y, w, h,
                GL_RGBA, GL_UNSIGNED_BYTE,
                ogl_bitmap->lock_buffer);
-#else
-            glReadPixels(x, gl_y, w, h, 
-               get_glformat(format, 2),
-               get_glformat(format, 1),
-               ogl_bitmap->lock_buffer);
-#endif
-
             e = glGetError();
             if (e) {
                ALLEGRO_ERROR("glReadPixels for format %s failed (%s).\n",
                   _al_format_name(format), _al_gl_error_string(e));
             }
 
-#if defined ALLEGRO_CFG_OPENGLES
-            /* That's right, we convert in-place 8-) (safe as long as dst size <= src size, which it always is) */
+            /* That's right, we convert in-place.
+             * (safe as long as dst size <= src size, which it always is)
+             */
             _al_convert_bitmap_data(
                ogl_bitmap->lock_buffer,
                ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
@@ -744,38 +736,15 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_old(ALLEGRO_BITMAP *bitmap,
                pitch,
                0, 0, 0, 0,
                w, h);
-#endif
 
-            bitmap->locked_region.data = ogl_bitmap->lock_buffer +
-#if defined ALLEGRO_ANDROID
-               pitch * (start_h - 1);
-#else
-               pitch * (h - 1);
-#endif
-      
+            bitmap->locked_region.data =
+               ogl_bitmap->lock_buffer + pitch * (start_h - 1);
+
             _al_ogl_bind_framebuffer(old_fbo);
          }
          else {
-#if !defined ALLEGRO_CFG_OPENGLES
-            /* No FBO - fallback to reading the entire texture */
-            pitch = ogl_pitch(ogl_bitmap->true_w, pixel_size);
-            ogl_bitmap->lock_buffer = al_malloc(pitch * ogl_bitmap->true_h);
-
-            glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
-            glGetTexImage(GL_TEXTURE_2D, 0, get_glformat(format, 2),
-               get_glformat(format, 1), ogl_bitmap->lock_buffer);
-            e = glGetError();
-            if (e) {
-               ALLEGRO_ERROR("glGetTexImage for format %s failed (%s).\n",
-                  _al_format_name(format), _al_gl_error_string(e));
-            }
-
-            bitmap->locked_region.data = ogl_bitmap->lock_buffer +
-               pitch * (gl_y + h - 1) + pixel_size * x;
-#else
-            /* Unreachable on Android. */
+            /* Unreachable on Android. (OpenGLES?) */
             abort();
-#endif /* !ALLEGRO_ANDROID */
          }
       }
    }
@@ -794,9 +763,10 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_old(ALLEGRO_BITMAP *bitmap,
    return &bitmap->locked_region;
 }
 
+
 /* Synchronizes the texture back to the (possibly modified) bitmap data.
  */
-static void ogl_unlock_region_old(ALLEGRO_BITMAP *bitmap)
+static void ogl_unlock_region_old_gles(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
    const int lock_format = bitmap->locked_region.format;
@@ -809,7 +779,6 @@ static void ogl_unlock_region_old(ALLEGRO_BITMAP *bitmap)
    int orig_format;
    int orig_pixel_size;
    int pixel_alignment;
-   bool biased_alpha = false;
    (void)e;
 
    if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) {
@@ -826,62 +795,8 @@ static void ogl_unlock_region_old(ALLEGRO_BITMAP *bitmap)
       _al_set_current_display_only(bitmap->display);
    }
 
-   if (!disp->ogl_extras->ogl_info.is_intel_hd_graphics_3000 &&
-         exactly_15bpp(lock_format)) {
-      /* OpenGL does not support 15-bpp internal format without an alpha,
-       * so when storing such data we must ensure the alpha bit is set.
-       */
-      #if !defined ALLEGRO_CFG_OPENGLES
-      glPixelTransferf(GL_ALPHA_BIAS, 1.0);
-      biased_alpha = true;
-      #endif
-   }
-
    orig_pixel_size = al_get_pixel_size(orig_format);
 
-#if !defined ALLEGRO_CFG_OPENGLES
-   if (ogl_bitmap->is_backbuffer) {
-      bool popmatrix = false;
-      ALLEGRO_TRANSFORM tmp;
-      ALLEGRO_DEBUG("Unlocking backbuffer\n");
-         
-      /* glWindowPos2i may not be available. */
-      if (al_get_opengl_version() >= _ALLEGRO_OPENGL_VERSION_1_4) {
-         glWindowPos2i(bitmap->lock_x, gl_y);
-      }
-      else {
-         /* glRasterPos is affected by the current modelview and projection
-          * matrices (so maybe we actually need to reset both of them?).
-          * The coordinate is also clipped; the small offset was required to
-          * prevent it being culled on one of my machines. --pw
-          *
-          * Consider using glWindowPos2fMESAemulate from:
-          * http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall/
-          */
-         al_copy_transform(&tmp, &disp->proj_transform);
-         al_identity_transform(&disp->proj_transform);
-         disp->vt->set_projection(disp);
-         glRasterPos2f(bitmap->lock_x,
-            bitmap->lock_y + h - 1e-4f);
-         popmatrix = true;
-      }
-      glDisable(GL_TEXTURE_2D);
-      glDisable(GL_BLEND);
-      glDrawPixels(bitmap->lock_w, h,
-         get_glformat(lock_format, 2),
-         get_glformat(lock_format, 1),
-         ogl_bitmap->lock_buffer);
-      e = glGetError();
-      if (e) {
-         ALLEGRO_ERROR("glDrawPixels for format %s failed (%s).\n",
-            _al_format_name(lock_format), _al_gl_error_string(e));
-      }
-      if (popmatrix) {
-         al_copy_transform(&disp->proj_transform, &tmp);
-         disp->vt->set_projection(disp);
-      }
-   }
-#else /* ALLEGRO_CFG_OPENGLES */
    if (ogl_bitmap->is_backbuffer) {
       ALLEGRO_DEBUG("Unlocking backbuffer\n");
 #ifdef ALLEGRO_RASPBERRYPI
@@ -940,7 +855,6 @@ static void ogl_unlock_region_old(ALLEGRO_BITMAP *bitmap)
       glDeleteTextures(1, &tmp_tex);
 #endif	
    }
-#endif
    else {
       GLint fbo;
 #ifdef ALLEGRO_ANDROID
@@ -955,11 +869,9 @@ static void ogl_unlock_region_old(ALLEGRO_BITMAP *bitmap)
 
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
 
-#if defined ALLEGRO_ANDROID
-      if (!(bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY)) {
+      if (IS_ANDROID && !(bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY)) {
          w = pot(w);
       }
-#endif
 
       if (!ogl_bitmap->fbo_info ||
             (bitmap->locked_region.format != orig_format)) {
@@ -1012,14 +924,6 @@ static void ogl_unlock_region_old(ALLEGRO_BITMAP *bitmap)
             (void)tex_internalformat;
             ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
                _al_format_name(lock_format), _al_gl_error_string(e));
-#if !defined ALLEGRO_CFG_OPENGLES
-            glGetTexLevelParameteriv(GL_TEXTURE_2D, 0,
-               GL_TEXTURE_INTERNAL_FORMAT, &tex_internalformat);
-
-            ALLEGRO_DEBUG("x/y/w/h: %d/%d/%d/%d, internal format: %d\n",
-               bitmap->lock_x, gl_y, w, h,
-               tex_internalformat);
-#endif
          }
       }
 
@@ -1041,12 +945,6 @@ static void ogl_unlock_region_old(ALLEGRO_BITMAP *bitmap)
 #endif
    }
 
-   if (biased_alpha) {
-#if !defined ALLEGRO_CFG_OPENGLES
-      glPixelTransferi(GL_ALPHA_BIAS, 0);
-#endif
-   }
-
    if (old_disp) {
       _al_set_current_display_only(old_disp);
    }
@@ -1057,7 +955,7 @@ Done:
    ogl_bitmap->lock_buffer = NULL;
 }
 
-#endif /* old locking implementation - only for mobile now */
+#endif /* old locking implementation - only for OPENGL ES now */
 
 
 
@@ -1120,8 +1018,8 @@ static ALLEGRO_BITMAP_INTERFACE *ogl_bitmap_driver(void)
    glbmp_vt.destroy_bitmap = ogl_destroy_bitmap;
    glbmp_vt.bitmap_pointer_changed = ogl_bitmap_pointer_changed;
 #if defined(ALLEGRO_CFG_OPENGLES)
-   glbmp_vt.lock_region = ogl_lock_region_old;
-   glbmp_vt.unlock_region = ogl_unlock_region_old;
+   glbmp_vt.lock_region = ogl_lock_region_old_gles;
+   glbmp_vt.unlock_region = ogl_unlock_region_old_gles;
 #else
    glbmp_vt.lock_region = _al_ogl_lock_region_new;
    glbmp_vt.unlock_region = _al_ogl_unlock_region_new;
@@ -1143,9 +1041,10 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    int pitch;
    (void)d;
 
-/* Android included because some devices require POT FBOs */
-#if !defined ALLEGRO_CFG_OPENGLES
-   if (d->extra_settings.settings[ALLEGRO_SUPPORT_NPOT_BITMAP]) {
+   /* Android included because some devices require POT FBOs */
+   if (!IS_OPENGLES &&
+      d->extra_settings.settings[ALLEGRO_SUPPORT_NPOT_BITMAP])
+   {
       true_w = w;
       true_h = h;
    }
@@ -1153,24 +1052,20 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
       true_w = pot(w);
       true_h = pot(h);
    }
-#else
-   true_w = pot(w);
-   true_h = pot(h);
-#endif
 
-/* FBOs are 16x16 minimum on iPhone, this is a workaround. (Some Androids too) */
-#if defined ALLEGRO_CFG_OPENGLES
-   if (true_w < 16) true_w = 16;
-   if (true_h < 16) true_h = 16;
-#endif
-
-/* glReadPixels requires 32 byte aligned rows */
-#if defined ALLEGRO_ANDROID
-   int mod = true_w % 32;
-   if (mod != 0) {
-      true_w += 32 - mod;
+   /* FBOs are 16x16 minimum on iPhone, this is a workaround. (Some Androids too) */
+   if (IS_OPENGLES) {
+      if (true_w < 16) true_w = 16;
+      if (true_h < 16) true_h = 16;
    }
-#endif
+
+   /* glReadPixels requires 32 byte aligned rows */
+   if (IS_ANDROID) {
+      int mod = true_w % 32;
+      if (mod != 0) {
+         true_w += 32 - mod;
+      }
+   }
 
    format = _al_get_real_pixel_format(d, format);
 

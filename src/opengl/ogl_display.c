@@ -29,6 +29,8 @@
 #include "allegro5/internal/aintern_android.h"
 #endif
 
+#include "ogl_helpers.h"
+
 #include <float.h>
 #include <stdio.h>
 
@@ -57,29 +59,6 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
    #define GL_FRAMEBUFFER_COMPLETE_EXT GL_FRAMEBUFFER_COMPLETE_OES
    #define glDeleteFramebuffersEXT glDeleteFramebuffersOES
    #define glOrtho glOrthof
-#endif
-
-#ifdef ALLEGRO_CFG_OPENGLES
-   #define IS_OPENGLES  (true)
-#else
-   #define IS_OPENGLES  (false)
-#endif
-
-/* Android uses different functions/symbol names depending on ES version */
-#ifdef ALLEGRO_ANDROID
-   #define ANDROID_PROGRAMMABLE_PIPELINE(dpy) \
-      (al_get_display_flags(dpy) & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)
-#else
-   #define ANDROID_PROGRAMMABLE_PIPELINE(dpy) (0 && (dpy))
-#endif
-
-/* You'll see this a couple times in this file: some ES 1.1 functions aren't
- * implemented on Android. This is an ugly workaround.
- */
-#if defined ALLEGRO_ANDROID || defined ALLEGRO_RASPBERRYPI
-   #define UNLESS_ANDROID_OR_RPI(x) (0)
-#else
-   #define UNLESS_ANDROID_OR_RPI(x) (x)
 #endif
 
 #ifdef ALLEGRO_MSVC
@@ -200,6 +179,9 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
       ALLEGRO_DEBUG("glFrameBufferTexture2DEXT failed! fbo=%d texture=%d (%s)", info->fbo, ogl_bitmap->texture, _al_gl_error_string(e));
    }
 
+   /* You'll see this a couple times in this file: some ES 1.1 functions aren't
+    * implemented on Android. This is an ugly workaround.
+    */
    if (UNLESS_ANDROID_OR_RPI(
          glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT))
    {
@@ -431,14 +413,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
        */
       al_orthographic_transform(&display->proj_transform, 0, 0, -1, display->w, display->h, 1);
 #else
-      if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
-#if defined ALLEGRO_ANDROID
-         glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
-#endif
-      }
-      else {
-         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-      }
+      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
       _al_iphone_setup_opengl_view(display);
 #endif
       display->vt->set_projection(display);
@@ -594,17 +569,16 @@ bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP *b, int w, int h)
    b->display->vt->set_projection(b->display);
 #endif
 
-#if !defined(ALLEGRO_IPHONE)
-   b->memory = NULL;
-#else
-   /* iPhone port still expects the buffer to be present. */
-   {
+   if (!IS_IPHONE) {
+      b->memory = NULL;
+   }
+   else {
+      /* iPhone port still expects the buffer to be present. */
       /* FIXME: lazily manage memory */
       size_t bytes = pitch * h;
       al_free(b->memory);
       b->memory = al_calloc(1, bytes);
    }
-#endif
 
    return true;
 }
@@ -623,23 +597,24 @@ ALLEGRO_BITMAP* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
 
    // FIXME: _al_deduce_color_format would work fine if the display paramerers
    // are filled in, for OpenGL ES
-#if defined ALLEGRO_CFG_OPENGLES
-   if (disp->extra_settings.settings[ALLEGRO_COLOR_SIZE] == 16) {
-      format = ALLEGRO_PIXEL_FORMAT_RGB_565;
+   if (IS_OPENGLES) {
+      if (disp->extra_settings.settings[ALLEGRO_COLOR_SIZE] == 16) {
+         format = ALLEGRO_PIXEL_FORMAT_RGB_565;
+      }
+      else {
+         format = ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE;
+      }
    }
    else {
-      format = ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE;
+      format = _al_deduce_color_format(&disp->extra_settings);
+      /* Eww. No OpenGL hardware in the world does that - let's just
+       * switch to some default.
+       */
+      if (al_get_pixel_size(format) == 3) {
+         /* Or should we use RGBA? Maybe only if not Nvidia cards? */
+         format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+      }
    }
-#else
-   format = _al_deduce_color_format(&disp->extra_settings);
-   /* Eww. No OpenGL hardware in the world does that - let's just
-    * switch to some default.
-    */
-   if (al_get_pixel_size(format) == 3) {
-      /* Or should we use RGBA? Maybe only if not Nvidia cards? */
-      format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
-   }
-#endif
    ALLEGRO_TRACE_CHANNEL_LEVEL("display", 1)("Deduced format %s for backbuffer.\n",
       _al_format_name(format));
 
