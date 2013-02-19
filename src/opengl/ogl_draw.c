@@ -22,6 +22,8 @@
 #include "allegro5/internal/aintern_android.h"
 #endif
 
+#include "ogl_helpers.h"
+
 ALLEGRO_DEBUG_CHANNEL("opengl")
 
 bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
@@ -168,15 +170,68 @@ static void tex_ptr_off(ALLEGRO_DISPLAY *display)
    }
 }
 
+/* There's a very nasty bug in Android 2.1 that makes glClear cause
+ * screen flicker (appears to me it's swapping buffers.) Work around
+ * by drawing two triangles instead on that OS.
+ */
+static void ogl_clear_android_2_1_workaround(ALLEGRO_DISPLAY *d,
+   float r, float g, float b, float a)
+{
+   GLfloat v[8] = {
+      0, d->h,
+      0, 0,
+      d->w, d->h,
+      d->w, 0
+   };
+   GLfloat c[16] = {
+      r, g, b, a,
+      r, g, b, a,
+      r, g, b, a,
+      r, g, b, a
+   };
+   ALLEGRO_TRANSFORM bak1, bak2, t;
+
+   al_copy_transform(&bak1, &d->proj_transform);
+   al_copy_transform(&bak2, al_get_current_transform());
+
+   al_identity_transform(&t);
+   al_ortho_transform(&t, 0, d->w, d->h, 0, -1, 1);
+   al_set_projection_transform(d, &t);
+   al_identity_transform(&t);
+   al_use_transform(&t);
+
+   _al_opengl_set_blender(d);
+
+   vert_ptr_on(d, 2, GL_FLOAT, 2*sizeof(float), v);
+   color_ptr_on(d, 4, GL_FLOAT, 4*sizeof(float), c);
+
+   if (!(d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
+      glDisableClientState(GL_NORMAL_ARRAY);
+      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+   }
+
+   glDisable(GL_TEXTURE_2D);
+   glBindTexture(GL_TEXTURE_2D, 0);
+
+   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+   vert_ptr_off(d);
+   color_ptr_off(d);
+
+   al_set_projection_transform(d, &bak1);
+   al_use_transform(&bak2);
+}
+
 static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 {
    ALLEGRO_DISPLAY *ogl_disp = (void *)d;
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_target;
    float r, g, b, a;
-   
-   if (target->parent) target = target->parent;
-   
+
+   if (target->parent)
+      target = target->parent;
+
    ogl_target = target->extra;
 
    if ((!ogl_target->is_backbuffer &&
@@ -185,63 +240,14 @@ static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
       _al_clear_memory(color);
       return;
    }
-   
+
    al_unmap_rgba_f(*color, &r, &g, &b, &a);
 
-   /* There's a very nasty bug in Android 2.1 that makes glClear cause
-    * screen flicker (appears to me it's swapping buffers.) Work around
-    * by drawing two triangles instead on that OS.
-    */
-#ifdef ALLEGRO_ANDROID
-   if (ogl_target->is_backbuffer && _al_android_is_os_2_1()) {
-      GLfloat v[8] = {
-         0, d->h,
-         0, 0,
-         d->w, d->h,
-         d->w, 0
-      };
-      GLfloat c[16] = {
-         r, g, b, a,
-         r, g, b, a,
-         r, g, b, a,
-         r, g, b, a
-      };
-      ALLEGRO_TRANSFORM bak1, bak2, t;
-
-      al_copy_transform(&bak1, &d->proj_transform);
-      al_copy_transform(&bak2, al_get_current_transform());
-
-      al_identity_transform(&t);
-      al_ortho_transform(&t, 0, d->w, d->h, 0, -1, 1);
-      al_set_projection_transform(d, &t);
-      al_identity_transform(&t);
-      al_use_transform(&t);
-
-      _al_opengl_set_blender(d);
-
-      vert_ptr_on(d, 2, GL_FLOAT, 2*sizeof(float), v);
-      color_ptr_on(d, 4, GL_FLOAT, 4*sizeof(float), c);
-
-      if (!(d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
-         glDisableClientState(GL_NORMAL_ARRAY);
-         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-      }
-
-      glDisable(GL_TEXTURE_2D);
-      glBindTexture(GL_TEXTURE_2D, 0);
-
-      glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-      vert_ptr_off(d);
-      color_ptr_off(d);
-
-      al_set_projection_transform(d, &bak1);
-      al_use_transform(&bak2);
-
+   if (ogl_target->is_backbuffer && IS_ANDROID_AND(_al_android_is_os_2_1())) {
+      ogl_clear_android_2_1_workaround(d, r, g, b, a);
       return;
    }
-#endif
-  
+
    glClearColor(r, g, b, a);
    glClear(GL_COLOR_BUFFER_BIT);
 }
