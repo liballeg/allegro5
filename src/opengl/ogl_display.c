@@ -176,7 +176,8 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
 
    e = glGetError();
    if (e) {
-      ALLEGRO_DEBUG("glFrameBufferTexture2DEXT failed! fbo=%d texture=%d (%s)", info->fbo, ogl_bitmap->texture, _al_gl_error_string(e));
+      ALLEGRO_DEBUG("glFrameBufferTexture2DEXT failed! fbo=%d texture=%d (%s)",
+         info->fbo, ogl_bitmap->texture, _al_gl_error_string(e));
    }
 
    /* You'll see this a couple times in this file: some ES 1.1 functions aren't
@@ -345,7 +346,8 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
          }
          e = glGetError();
          if (e) {
-            ALLEGRO_DEBUG("glFrameBufferTexture2DEXT failed! fbo=%d texture=%d (%s)", info->fbo, ogl_bitmap->texture, _al_gl_error_string(e));
+            ALLEGRO_DEBUG("glFrameBufferTexture2DEXT failed! fbo=%d texture=%d (%s)",
+               info->fbo, ogl_bitmap->texture, _al_gl_error_string(e));
          }
 
          /* See comment about unimplemented functions on Android above */
