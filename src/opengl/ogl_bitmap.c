@@ -16,6 +16,8 @@
  */
 
 #include <math.h>
+#include <stdio.h>
+
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern.h"
@@ -555,6 +557,11 @@ static void ogl_update_clipping_rectangle(ALLEGRO_BITMAP *bitmap)
  */
 #if defined(ALLEGRO_CFG_OPENGLES)
 
+static void ogl_unlock_region_old_gles_backbuffer(ALLEGRO_BITMAP *bitmap);
+static void ogl_unlock_region_old_rpi_backbuffer(ALLEGRO_BITMAP *bitmap,
+   ALLEGRO_DISPLAY *disp);
+
+
 static int ogl_pixel_alignment(int pixel_size)
 {
    /* Valid alignments are: 1, 2, 4, 8 bytes. */
@@ -799,61 +806,10 @@ static void ogl_unlock_region_old_gles(ALLEGRO_BITMAP *bitmap)
 
    if (ogl_bitmap->is_backbuffer) {
       ALLEGRO_DEBUG("Unlocking backbuffer\n");
-#ifdef ALLEGRO_RASPBERRYPI
-      ALLEGRO_BITMAP *start_target = al_get_target_bitmap();
-      bool already_is_target = start_target == bitmap;
-      ALLEGRO_STATE st;
-      al_store_state(&st, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS | (already_is_target ? 0 : ALLEGRO_STATE_TARGET_BITMAP));
-      al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
-      ALLEGRO_TRANSFORM t, backup1, backup2;
-      al_copy_transform(&backup1, al_get_projection_transform(disp));
-      al_copy_transform(&backup2, al_get_current_transform());
-      al_identity_transform(&t);
-      al_use_transform(&t);
-      al_orthographic_transform(&t, 0, 0, -1, disp->w, disp->h, 1);
-      al_set_projection_transform(disp, &t);
-      ALLEGRO_BITMAP *tmp = al_create_bitmap(bitmap->lock_w, h);
-      ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(tmp, lock_format, ALLEGRO_LOCK_WRITEONLY);
-      int y;
-      for (y = 0; y < h; y++) {
-         uint8_t *p = ((uint8_t *)lr->data + lr->pitch * y);
-         int pitch2 = ogl_pitch(bitmap->lock_w, al_get_pixel_size(lock_format));
-         uint8_t *p2 = ((uint8_t *)ogl_bitmap->lock_buffer + pitch2 * y);
-         memcpy(p, p2, _ALLEGRO_MIN(abs(lr->pitch), pitch2));
-//FIMXE
-      }
-      al_unlock_bitmap(tmp);
-      if (!already_is_target) {
-         al_set_target_backbuffer(disp);
-      }
-      bool held = al_is_bitmap_drawing_held();
-      al_hold_bitmap_drawing(false);
-      al_draw_bitmap(tmp, bitmap->lock_x, bitmap->lock_y, ALLEGRO_FLIP_VERTICAL);
-      al_hold_bitmap_drawing(held);
-      al_destroy_bitmap(tmp);
-      al_restore_state(&st);
-      al_set_projection_transform(disp, &backup1);
-      al_use_transform(&backup2);
-#else
-      GLuint tmp_tex;
-      glGenTextures(1, &tmp_tex);
-      glBindTexture(GL_TEXTURE_2D, tmp_tex);
-      glTexImage2D(GL_TEXTURE_2D, 0, get_glformat(lock_format, 0), bitmap->lock_w, h,
-                   0, get_glformat(lock_format, 2), get_glformat(lock_format, 1),
-                   ogl_bitmap->lock_buffer);
-      e = glGetError();
-      if (e) {
-         int printf(const char *, ...);
-         printf("glTexImage2D failed: %d\n", e);
-      }
-      glDrawTexiOES(bitmap->lock_x, bitmap->lock_y, 0, bitmap->lock_w, h);
-      e = glGetError();
-      if (e) {
-         int printf(const char *, ...);
-         printf("glDrawTexiOES failed: %d\n", e);
-      }
-      glDeleteTextures(1, &tmp_tex);
-#endif	
+      if (IS_RASPBERRYPI)
+         ogl_unlock_region_old_rpi_backbuffer(bitmap, disp);
+      else
+         ogl_unlock_region_old_gles_backbuffer(bitmap);
    }
    else {
       GLint fbo;
@@ -954,6 +910,86 @@ Done:
    al_free(ogl_bitmap->lock_buffer);
    ogl_bitmap->lock_buffer = NULL;
 }
+
+
+static void ogl_unlock_region_old_gles_backbuffer(ALLEGRO_BITMAP *bitmap)
+{
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
+   const int lock_format = bitmap->locked_region.format;
+   GLuint tmp_tex;
+   int e;
+
+   glGenTextures(1, &tmp_tex);
+   glBindTexture(GL_TEXTURE_2D, tmp_tex);
+   glTexImage2D(GL_TEXTURE_2D, 0, get_glformat(lock_format, 0),
+      bitmap->lock_w, bitmap->lock_h,
+      0, get_glformat(lock_format, 2), get_glformat(lock_format, 1),
+      ogl_bitmap->lock_buffer);
+   e = glGetError();
+   if (e) {
+      printf("glTexImage2D failed: %d\n", e);
+   }
+
+   glDrawTexiOES(bitmap->lock_x, bitmap->lock_y, 0, bitmap->lock_w,
+      bitmap->lock_h);
+   e = glGetError();
+   if (e) {
+      printf("glDrawTexiOES failed: %d\n", e);
+   }
+
+   glDeleteTextures(1, &tmp_tex);
+}
+
+
+static void ogl_unlock_region_old_rpi_backbuffer(ALLEGRO_BITMAP *bitmap,
+   ALLEGRO_DISPLAY *disp)
+{
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
+   const int lock_format = bitmap->locked_region.format;
+   ALLEGRO_BITMAP *start_target = al_get_target_bitmap();
+   const bool already_is_target = (start_target == bitmap);
+   ALLEGRO_STATE st;
+
+   al_store_state(&st,
+      ALLEGRO_STATE_NEW_BITMAP_PARAMETERS |
+      (already_is_target ? 0 : ALLEGRO_STATE_TARGET_BITMAP));
+   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+
+   ALLEGRO_TRANSFORM t, backup1, backup2;
+   al_copy_transform(&backup1, al_get_projection_transform(disp));
+   al_copy_transform(&backup2, al_get_current_transform());
+   al_identity_transform(&t);
+   al_use_transform(&t);
+   al_orthographic_transform(&t, 0, 0, -1, disp->w, disp->h, 1);
+   al_set_projection_transform(disp, &t);
+
+   ALLEGRO_BITMAP *tmp = al_create_bitmap(bitmap->lock_w, bitmap->lock_h);
+   ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(tmp, lock_format, ALLEGRO_LOCK_WRITEONLY);
+   int y;
+   for (y = 0; y < bitmap->h; y++) {
+      uint8_t *p = ((uint8_t *)lr->data + lr->pitch * y);
+      int pitch2 = ogl_pitch(bitmap->lock_w, al_get_pixel_size(lock_format));
+      uint8_t *p2 = ((uint8_t *)ogl_bitmap->lock_buffer + pitch2 * y);
+      memcpy(p, p2, _ALLEGRO_MIN(abs(lr->pitch), pitch2));
+      //FIXME
+   }
+   al_unlock_bitmap(tmp);
+
+   if (!already_is_target) {
+      al_set_target_backbuffer(disp);
+   }
+
+   bool held = al_is_bitmap_drawing_held();
+   al_hold_bitmap_drawing(false);
+   al_draw_bitmap(tmp, bitmap->lock_x, bitmap->lock_y, ALLEGRO_FLIP_VERTICAL);
+   al_hold_bitmap_drawing(held);
+   al_destroy_bitmap(tmp);
+
+   al_restore_state(&st);
+   al_set_projection_transform(disp, &backup1);
+   al_use_transform(&backup2);
+}
+
 
 #endif /* old locking implementation - only for OPENGL ES now */
 
