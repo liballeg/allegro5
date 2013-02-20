@@ -1,5 +1,5 @@
 /*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
+ *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
@@ -147,7 +147,7 @@ static unsigned int get_num_axes(void)
 static bool set_mouse_xy(ALLEGRO_DISPLAY *disp, int x, int y)
 {
    int dx, dy;
-   int wx, wy;
+   POINT pt;
    ALLEGRO_DISPLAY_WIN *win_disp = (void*)disp;
 
    if (!installed)
@@ -167,9 +167,12 @@ static bool set_mouse_xy(ALLEGRO_DISPLAY *disp, int x, int y)
          0, (void*)win_disp);
    }
 
-   _al_win_get_window_position(win_disp->window, &wx, &wy);
+   pt.x = x;
+   pt.y = y;
 
-   SetCursorPos(x+wx, y+wy);
+   ClientToScreen(win_disp->window, &pt);
+
+   SetCursorPos(pt.x, pt.y);
 
    return true;
 }
