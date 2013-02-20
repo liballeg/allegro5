@@ -2276,6 +2276,7 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    ASSERT(bitmap);
    (void)h;
 
+   memset(bitmap, 0, sizeof(*bitmap));
    bitmap->bitmap.size = sizeof *bitmap;
 
    format = al_get_new_bitmap_format();
