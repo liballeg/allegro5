@@ -330,7 +330,8 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
 
    ogl_target = (ALLEGRO_BITMAP_OGL *)target;
 
-   if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP)) {
+   if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP) && !bitmap->locked &&
+         !target->locked) {
 #if !defined ALLEGRO_GP2XWIZ
       ALLEGRO_BITMAP_OGL *ogl_source = (void *)bitmap;
       if (ogl_source->is_backbuffer) {
