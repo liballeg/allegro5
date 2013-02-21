@@ -308,7 +308,8 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
 
    ogl_target = target->extra;
 
-   if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP)) {
+   if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP) && !bitmap->locked &&
+         !target->locked) {
       ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_source = bitmap->extra;
       if (ogl_source->is_backbuffer) {
          /* Our source bitmap is the OpenGL backbuffer, the target
@@ -965,13 +966,13 @@ static void ogl_unlock_region_old_rpi_backbuffer(ALLEGRO_BITMAP *bitmap,
 
    ALLEGRO_BITMAP *tmp = al_create_bitmap(bitmap->lock_w, bitmap->lock_h);
    ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(tmp, lock_format, ALLEGRO_LOCK_WRITEONLY);
+   int pixel_size = al_get_pixel_size(lock_format);
    int y;
-   for (y = 0; y < bitmap->h; y++) {
+   for (y = 0; y < bitmap->lock_h; y++) {
       uint8_t *p = ((uint8_t *)lr->data + lr->pitch * y);
-      int pitch2 = ogl_pitch(bitmap->lock_w, al_get_pixel_size(lock_format));
+      int pitch2 = ogl_pitch(bitmap->lock_w, pixel_size);
       uint8_t *p2 = ((uint8_t *)ogl_bitmap->lock_buffer + pitch2 * y);
-      memcpy(p, p2, _ALLEGRO_MIN(abs(lr->pitch), pitch2));
-      //FIXME
+      memcpy(p, p2, pixel_size*bitmap->lock_w);
    }
    al_unlock_bitmap(tmp);
 
