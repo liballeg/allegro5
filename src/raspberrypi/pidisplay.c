@@ -1,17 +1,19 @@
 #include <stdio.h>
 
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_opengl.h>
-#include <allegro5/internal/aintern_iphone.h>
-#include <allegro5/internal/aintern_opengl.h>
-#include <allegro5/internal/aintern_vector.h>
-#include <allegro5/internal/aintern_raspberrypi.h>
+#include "allegro5/allegro.h"
+#include "allegro5/allegro_opengl.h"
+#include "allegro5/internal/aintern_iphone.h"
+#include "allegro5/internal/aintern_opengl.h"
+#include "allegro5/internal/aintern_vector.h"
+#include "allegro5/internal/aintern_raspberrypi.h"
 #include "allegro5/internal/aintern_x.h"
 #include "allegro5/internal/aintern_xwindow.h"
 
-#include "GLES/gl.h"
-#include "EGL/egl.h"
-#include "EGL/eglext.h"
+#include <GLES/gl.h>
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+
+#include <bcm_host.h>
 
 #define PITCH 128
 #define DEFAULT_CURSOR_WIDTH 17
@@ -284,6 +286,8 @@ void _al_raspberrypi_get_screen_info(int *dx, int *dy,
 static bool pi_create_display(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_RASPBERRYPI *d = (void *)display;
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = _al_get_new_display_settings();
+
    egl_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
    if (egl_display == EGL_NO_DISPLAY) {
       return false;
@@ -293,9 +297,11 @@ static bool pi_create_display(ALLEGRO_DISPLAY *display)
    if (!eglInitialize(egl_display, &major, &minor)) {
       return false;
    }
-
-   static const EGLint attrib_list[] =
+   
+   static EGLint attrib_list[] =
    {
+      EGL_DEPTH_SIZE, 0,
+      EGL_STENCIL_SIZE, 0,
       EGL_RED_SIZE, 8,
       EGL_GREEN_SIZE, 8,
       EGL_BLUE_SIZE, 8,
@@ -303,6 +309,25 @@ static bool pi_create_display(ALLEGRO_DISPLAY *display)
       EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
       EGL_NONE
    };
+      
+   attrib_list[1] = eds->settings[ALLEGRO_DEPTH_SIZE];
+   attrib_list[3] = eds->settings[ALLEGRO_STENCIL_SIZE];
+
+   if (eds->settings[ALLEGRO_RED_SIZE] || eds->settings[ALLEGRO_GREEN_SIZE] ||
+         eds->settings[ALLEGRO_BLUE_SIZE] ||
+         eds->settings[ALLEGRO_ALPHA_SIZE]) {
+      attrib_list[5] = eds->settings[ALLEGRO_RED_SIZE];
+      attrib_list[7] = eds->settings[ALLEGRO_GREEN_SIZE];
+      attrib_list[9] = eds->settings[ALLEGRO_BLUE_SIZE];
+      attrib_list[11] = eds->settings[ALLEGRO_ALPHA_SIZE];
+   }
+   else if (eds->settings[ALLEGRO_COLOR_SIZE] == 16) {
+      attrib_list[5] = 5;
+      attrib_list[7] = 6;
+      attrib_list[9] = 5;
+      attrib_list[11] = 0;
+   }
+
    EGLConfig config;
    int num_configs;
 
