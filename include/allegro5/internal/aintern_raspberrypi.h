@@ -28,14 +28,18 @@ typedef struct ALLEGRO_DISPLAY_RASPBERRYPI {
    /* Physical size of display in pixels (gets scaled) */
    int screen_width, screen_height;
    /* Cursor stuff */
-   /* al_set_mouse_xy implementation */
    bool mouse_warp;
    bool hide_cursor;
-   uint32_t cursor_handle;
-   uint8_t cursor_data[10000]; // FIXME: max 50x50 cursor @ 32 bit
+   uint32_t *cursor_data;
+   int cursor_width;
+   int cursor_height;
    int cursor_offset_x, cursor_offset_y;
    Atom wm_delete_window_atom;
 } ALLEGRO_DISPLAY_RASPBERRYPI;
+
+typedef struct ALLEGRO_MOUSE_CURSOR_RASPBERRYPI {
+   ALLEGRO_BITMAP *bitmap;
+} ALLEGRO_MOUSE_CURSOR_RASPBERRYPI;
 
 ALLEGRO_SYSTEM_INTERFACE *_al_system_raspberrypi_driver(void);
 ALLEGRO_DISPLAY_INTERFACE *_al_get_raspberrypi_display_interface(void);

@@ -15,7 +15,7 @@
 
 #include <bcm_host.h>
 
-#define PITCH 128
+#include "picursor.h"
 #define DEFAULT_CURSOR_WIDTH 17
 #define DEFAULT_CURSOR_HEIGHT 28
 
@@ -30,132 +30,133 @@ static DISPMANX_DISPLAY_HANDLE_T dispman_display;
 static DISPMANX_ELEMENT_HANDLE_T cursor_element;
 static VC_RECT_T dst_rect;
 static VC_RECT_T src_rect;
-static bool stop_cursor_thread = false;
+static ALLEGRO_THREAD *cursor_thread;
 
 struct ALLEGRO_DISPLAY_RASPBERRYPI_EXTRA {
 };
 
-static void add_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
+static int pot(int n)
 {
-      ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)d;
-      uint32_t crap;
-      cursor_resource = vc_dispmanx_resource_create(VC_IMAGE_ARGB8888, DEFAULT_CURSOR_WIDTH, DEFAULT_CURSOR_HEIGHT, &crap);
-      VC_RECT_T r;
-      r.x = 0;
-      r.y = 0;
-      r.width = DEFAULT_CURSOR_WIDTH;
-      r.height = DEFAULT_CURSOR_HEIGHT;
-      char default_cursor[DEFAULT_CURSOR_HEIGHT][DEFAULT_CURSOR_WIDTH] = {
-         { 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-         { 1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-         { 1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-         { 1,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-         { 1,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0 },
-         { 1,2,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0 },
-         { 1,2,2,2,2,1,1,0,0,0,0,0,0,0,0,0,0 },
-         { 1,2,2,2,2,2,1,1,0,0,0,0,0,0,0,0,0 },
-         { 1,2,2,2,2,2,2,1,1,0,0,0,0,0,0,0,0 },
-         { 1,2,2,2,2,2,2,2,1,1,0,0,0,0,0,0,0 },
-         { 1,2,2,2,2,2,2,2,2,1,1,0,0,0,0,0,0 },
-         { 1,2,2,2,2,2,2,2,2,2,1,1,0,0,0,0,0 },
-         { 1,2,2,2,2,2,2,2,2,2,2,1,1,0,0,0,0 },
-         { 1,2,2,2,2,2,2,2,2,2,2,2,1,1,0,0,0 },
-         { 1,2,2,2,2,2,2,2,2,2,2,2,2,1,1,0,0 },
-         { 1,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,0 },
-         { 1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1 },
-         { 1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1 },
-         { 1,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1 },
-         { 1,2,2,2,2,2,2,2,2,2,1,1,1,1,0,0,0 },
-         { 1,2,2,2,2,2,2,2,2,2,1,1,0,0,0,0,0 },
-         { 1,2,2,2,2,2,2,2,2,2,2,1,0,0,0,0,0 },
-         { 1,2,2,2,1,1,1,1,2,2,2,1,1,0,0,0,0 },
-         { 1,2,1,1,0,0,0,1,1,2,2,2,1,0,0,0,0 },
-         { 1,1,0,0,0,0,0,0,1,2,2,2,1,1,0,0,0 },
-         { 0,0,0,0,0,0,0,0,1,1,2,2,2,1,0,0,0 },
-         { 0,0,0,0,0,0,0,0,0,1,1,2,2,1,0,0,0 },
-         { 0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0 },
-      };
-      int x, y;
-      for (y = 0; y < DEFAULT_CURSOR_HEIGHT; y++) {
-         uint32_t *p = (uint32_t *)((uint8_t *)d->cursor_data + y * PITCH);
-         for (x = 0; x < DEFAULT_CURSOR_WIDTH; x++) {
-            char c = default_cursor[y][x];
-            uint32_t color;
-            if (c == 0) {
-               color = 0x00000000;
-            }
-            else if (c == 1) {
-               color = 0xff000000;
-            }
-            else {
-               color = 0xffffffff;
-            }
-            *p++ = color;
-         }
-      }
-      dispman_update = vc_dispmanx_update_start(0);
-      vc_dispmanx_resource_write_data(cursor_resource, VC_IMAGE_ARGB8888, PITCH, d->cursor_data, &r);
-      vc_dispmanx_update_submit_sync(dispman_update); 
-      dst_rect.x = display->w/2+d->cursor_offset_x;
-      dst_rect.y = display->w/2+d->cursor_offset_y;
-      dst_rect.width = DEFAULT_CURSOR_WIDTH;
-      dst_rect.height = DEFAULT_CURSOR_HEIGHT;
-      src_rect.x = 0;
-      src_rect.y = 0;
-      src_rect.width = DEFAULT_CURSOR_WIDTH << 16;
-      src_rect.height = DEFAULT_CURSOR_HEIGHT << 16;
-      dispman_update = vc_dispmanx_update_start(0);
-      cursor_element = vc_dispmanx_element_add(
-         dispman_update,
-         dispman_display,
-         0/*layer*/,
-         &dst_rect,
-         cursor_resource,
-         &src_rect,
-         DISPMANX_PROTECTION_NONE,
-         0 /*alpha*/,
-         0/*clamp*/,
-         0/*transform*/
-      );
-      vc_dispmanx_update_submit_sync(dispman_update); 
+	int i = 1;
+	while (i < n) {
+		i = i * 2;
+	}
+	return i;
 }
 
-static void remove_cursor(void)
+static void set_cursor_data(ALLEGRO_DISPLAY_RASPBERRYPI *d, uint32_t *data, int width, int height)
 {
-      dispman_update = vc_dispmanx_update_start(0);
-      vc_dispmanx_element_remove(dispman_update, cursor_element);
-      vc_dispmanx_update_submit_sync(dispman_update); 
-      vc_dispmanx_resource_delete(cursor_resource);
+   al_free(d->cursor_data);
+   int spitch = sizeof(uint32_t) * width;
+   int dpitch = pot(spitch);
+   d->cursor_data = al_malloc(dpitch * height);
+   int y;
+   for (y = 0; y < height; y++) {
+   	uint8_t *p1 = (uint8_t *)d->cursor_data + y * dpitch;
+	uint8_t *p2 = (uint8_t *)data + y * spitch;
+	memcpy(p1, p2, spitch);
+   }
+   d->cursor_width = width;
+   d->cursor_height = height;
 }
 
-static void *cursor_thread(void *_d)
+static void delete_cursor_data(ALLEGRO_DISPLAY_RASPBERRYPI *d)
+{
+      al_free(d->cursor_data);
+      d->cursor_data = NULL;
+}
+
+static void show_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
+{
+   if (d->cursor_data == NULL) {
+      return;
+   }
+
+   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)d;
+
+   int width = d->cursor_width;
+   int height = d->cursor_height;
+
+   uint32_t crap;
+   cursor_resource = vc_dispmanx_resource_create(VC_IMAGE_ARGB8888, width, height, &crap);
+
+   VC_RECT_T r;
+   r.x = 0;
+   r.y = 0;
+   r.width = width;
+   r.height = height;
+   
+   int dwidth = pot(width);
+   int dpitch = sizeof(uint32_t) * dwidth;
+
+   dispman_update = vc_dispmanx_update_start(0);
+   vc_dispmanx_resource_write_data(cursor_resource, VC_IMAGE_ARGB8888, dpitch, d->cursor_data, &r);
+   vc_dispmanx_update_submit_sync(dispman_update); 
+
+   dst_rect.x = display->w/2+d->cursor_offset_x;
+   dst_rect.y = display->w/2+d->cursor_offset_y;
+   dst_rect.width = width;
+   dst_rect.height = height;
+   src_rect.x = 0;
+   src_rect.y = 0;
+   src_rect.width = width << 16;
+   src_rect.height = height << 16;
+
+   dispman_update = vc_dispmanx_update_start(0);
+
+   cursor_element = vc_dispmanx_element_add(
+      dispman_update,
+      dispman_display,
+      0/*layer*/,
+      &dst_rect,
+      cursor_resource,
+      &src_rect,
+      DISPMANX_PROTECTION_NONE,
+      0 /*alpha*/,
+      0/*clamp*/,
+      0/*transform*/
+   );
+
+   vc_dispmanx_update_submit_sync(dispman_update);
+}
+
+static void hide_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
+{
+   (void)d;
+   dispman_update = vc_dispmanx_update_start(0);
+   vc_dispmanx_element_remove(dispman_update, cursor_element);
+   vc_dispmanx_update_submit_sync(dispman_update); 
+   vc_dispmanx_resource_delete(cursor_resource);
+}
+
+static void *cursor_thread_proc(ALLEGRO_THREAD *t, void *_d)
 {
    ALLEGRO_DISPLAY *disp = (void *)_d;
    ALLEGRO_DISPLAY_RASPBERRYPI *d = (void *)_d;
    bool cursor_on = false;
-   while (!stop_cursor_thread) {
+   while (!al_get_thread_should_stop(t)) {
       if (al_is_mouse_installed() && !cursor_on) {
          cursor_on = true;
-         add_cursor(d);
+         show_cursor(d);
       }
       else if (!al_is_mouse_installed() && cursor_on) {
          cursor_on = false;
-         remove_cursor();
+         hide_cursor(d);
       }
       if (!d->hide_cursor && al_is_mouse_installed()) {
          VC_RECT_T src, dst;
          src.x = 0;
          src.y = 0;
-         src.width = DEFAULT_CURSOR_WIDTH << 16;
-         src.height = DEFAULT_CURSOR_HEIGHT << 16;
+         src.width = d->cursor_width << 16;
+         src.height = d->cursor_height << 16;
          ALLEGRO_MOUSE_STATE st;
          al_get_mouse_state(&st);
          st.x = (st.x+0.5) * d->screen_width / disp->w;
          st.y = (st.y+0.5) * d->screen_height / disp->h;
          dst.x = st.x+d->cursor_offset_x;
          dst.y = st.y+d->cursor_offset_y;
-         dst.width = DEFAULT_CURSOR_WIDTH;
-         dst.height = DEFAULT_CURSOR_HEIGHT;
+         dst.width = d->cursor_width;
+         dst.height = d->cursor_height;
             dispman_update = vc_dispmanx_update_start(0);
          vc_dispmanx_element_change_attributes(
             dispman_update,
@@ -172,7 +173,6 @@ static void *cursor_thread(void *_d)
       }
       al_rest(1.0/60.0);
    }
-   stop_cursor_thread = false;
 
    return NULL;
 }
@@ -489,7 +489,10 @@ static ALLEGRO_DISPLAY *raspberrypi_create_display(int w, int h)
       _al_evdev_set_mouse_range(0, 0, display->w-1, display->h-1);
    }
 
-   al_run_detached_thread(cursor_thread, display);
+   set_cursor_data(d, default_cursor, DEFAULT_CURSOR_WIDTH, DEFAULT_CURSOR_HEIGHT);
+
+   cursor_thread = al_create_thread(cursor_thread_proc, display);
+   al_start_thread(cursor_thread);
 
    return display;
 }
@@ -498,7 +501,10 @@ static void raspberrypi_destroy_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_RASPBERRYPI *pidisplay = (ALLEGRO_DISPLAY_RASPBERRYPI *)d;
 
-   stop_cursor_thread = true;
+   al_join_thread(cursor_thread, NULL);
+   al_destroy_thread(cursor_thread);
+
+   delete_cursor_data(pidisplay);
 
    _al_set_current_display_only(d);
 
@@ -548,9 +554,10 @@ static int raspberrypi_get_orientation(ALLEGRO_DISPLAY *d)
 /* There can be only one window and only one OpenGL context, so all bitmaps
  * are compatible.
  */
-static bool raspberrypi_is_compatible_bitmap(ALLEGRO_DISPLAY *display,
-                                      ALLEGRO_BITMAP *bitmap)
-{
+static bool raspberrypi_is_compatible_bitmap(
+   ALLEGRO_DISPLAY *display,
+   ALLEGRO_BITMAP *bitmap
+) {
     (void)display;
     (void)bitmap;
     return true;
@@ -659,33 +666,61 @@ static bool raspberrypi_acknowledge_resize(ALLEGRO_DISPLAY *d)
    return true;
 }
 
-static bool raspberrypi_set_mouse_cursor(ALLEGRO_DISPLAY *display,
-                                  ALLEGRO_MOUSE_CURSOR *cursor)
-{
-    (void)display;
-    (void)cursor;
-    return false;
-}
-
-static bool raspberrypi_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
-                                         ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
-{
-    (void)display;
-    (void)cursor_id;
-    return false;
-}
-
 static bool raspberrypi_show_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
-    add_cursor((ALLEGRO_DISPLAY_RASPBERRYPI *)display);
-    return true;
+   ALLEGRO_DISPLAY_RASPBERRYPI *d = (void *)display;
+   if (!d->hide_cursor) {
+      hide_cursor(d);
+   }
+   else {
+      d->hide_cursor = false;
+   }
+   show_cursor(d);
+   return true;
 }
 
 static bool raspberrypi_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
-    (void)display;
-    remove_cursor();
-    return true;
+   ALLEGRO_DISPLAY_RASPBERRYPI *d = (void *)display;
+   if (!d->hide_cursor) {
+      hide_cursor(d);
+      d->hide_cursor = false;
+   }
+   return true;
+}
+
+static bool raspberrypi_set_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGRO_MOUSE_CURSOR *cursor)
+{
+   ALLEGRO_DISPLAY_RASPBERRYPI *d = (void *)display;
+   ALLEGRO_MOUSE_CURSOR_RASPBERRYPI *pi_cursor = (void *)cursor;
+   int w = al_get_bitmap_width(pi_cursor->bitmap);
+   int h = al_get_bitmap_height(pi_cursor->bitmap);
+   int pitch = w * sizeof(uint32_t);
+   uint32_t *data = al_malloc(pitch * h);
+   ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(pi_cursor->bitmap, ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_READONLY);
+   int y;
+   for (y = 0; y < h; y++) {
+      uint8_t *p = (uint8_t *)lr->data + lr->pitch * y;
+      uint8_t *p2 = (uint8_t *)data + pitch * y;
+      memcpy(p2, p, pitch);
+   }
+   al_unlock_bitmap(pi_cursor->bitmap);
+   delete_cursor_data(d);
+   set_cursor_data(d, data, w, h);
+   al_free(data);
+   if (!d->hide_cursor) {
+   	raspberrypi_show_mouse_cursor(display);
+   }
+   return true;
+}
+
+static bool raspberrypi_set_system_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
+{
+   (void)cursor_id;
+   ALLEGRO_DISPLAY_RASPBERRYPI *d = (void *)display;
+   delete_cursor_data(d);
+   set_cursor_data(d, default_cursor, DEFAULT_CURSOR_WIDTH, DEFAULT_CURSOR_HEIGHT);
+   return true;
 }
 
 /* Obtain a reference to this driver. */

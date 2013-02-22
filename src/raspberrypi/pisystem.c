@@ -149,6 +149,29 @@ static ALLEGRO_DISPLAY_MODE *pi_get_display_mode(int mode, ALLEGRO_DISPLAY_MODE 
    return dm;
 }
 
+static ALLEGRO_MOUSE_CURSOR *pi_create_mouse_cursor(ALLEGRO_BITMAP *bmp, int focus_x_ignored, int focus_y_ignored)
+{
+   (void)focus_x_ignored;
+   (void)focus_y_ignored;
+
+   ALLEGRO_STATE state;
+   al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS | ALLEGRO_STATE_TARGET_BITMAP);
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   ALLEGRO_BITMAP *cursor_bmp = al_clone_bitmap(bmp);
+   ALLEGRO_MOUSE_CURSOR_RASPBERRYPI *cursor = al_malloc(sizeof(ALLEGRO_MOUSE_CURSOR_RASPBERRYPI));
+   cursor->bitmap = cursor_bmp;
+   al_restore_state(&state);
+   return (ALLEGRO_MOUSE_CURSOR *)cursor;
+}
+
+static void pi_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
+{
+   ALLEGRO_MOUSE_CURSOR_RASPBERRYPI *pi_cursor = (void *)cursor;
+   al_destroy_bitmap(pi_cursor->bitmap);
+   al_free(pi_cursor);
+}
+
 /* Internal function to get a reference to this driver. */
 ALLEGRO_SYSTEM_INTERFACE *_al_system_raspberrypi_driver(void)
 {
@@ -167,8 +190,8 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_raspberrypi_driver(void)
    pi_vt->shutdown_system = pi_shutdown_system;
    pi_vt->get_num_video_adapters = pi_get_num_video_adapters;
    pi_vt->get_monitor_info = pi_get_monitor_info;
-   pi_vt->create_mouse_cursor = NULL; // FIXME
-   pi_vt->destroy_mouse_cursor = NULL; // FIXME
+   pi_vt->create_mouse_cursor = pi_create_mouse_cursor;
+   pi_vt->destroy_mouse_cursor = pi_destroy_mouse_cursor;
    pi_vt->get_cursor_position = pi_get_cursor_position;
    pi_vt->get_path = _al_unix_get_path;
    pi_vt->inhibit_screensaver = pi_inhibit_screensaver;
