@@ -129,11 +129,12 @@ static void hide_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
    vc_dispmanx_resource_delete(cursor_resource);
 }
 
+static bool cursor_on = false;
+
 static void *cursor_thread_proc(ALLEGRO_THREAD *t, void *_d)
 {
    ALLEGRO_DISPLAY *disp = (void *)_d;
    ALLEGRO_DISPLAY_RASPBERRYPI *d = (void *)_d;
-   bool cursor_on = false;
    while (!al_get_thread_should_stop(t)) {
       if (al_is_mouse_installed() && !cursor_on) {
          cursor_on = true;
@@ -493,6 +494,12 @@ static ALLEGRO_DISPLAY *raspberrypi_create_display(int w, int h)
 
    cursor_thread = al_create_thread(cursor_thread_proc, display);
    al_start_thread(cursor_thread);
+
+   if (al_is_mouse_installed()) {
+      while (!cursor_on) {
+         al_rest(0.001);
+      }
+   }
 
    return display;
 }
