@@ -54,10 +54,6 @@ ALLEGRO_SHADER *_al_create_shader_hlsl(ALLEGRO_SHADER_PLATFORM platform);
 void _al_set_shader_hlsl(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader);
 #endif
 
-#ifdef ALLEGRO_CFG_SHADER_CG
-ALLEGRO_SHADER *_al_create_shader_cg(ALLEGRO_SHADER_PLATFORM platform);
-#endif
-
 
 #ifdef __cplusplus
 }

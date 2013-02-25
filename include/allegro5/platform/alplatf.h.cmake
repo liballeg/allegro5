@@ -19,7 +19,6 @@
 
 #cmakedefine ALLEGRO_CFG_SHADER_GLSL
 #cmakedefine ALLEGRO_CFG_SHADER_HLSL
-#cmakedefine ALLEGRO_CFG_SHADER_CG
 
 #cmakedefine ALLEGRO_CFG_OPENGLES
 #cmakedefine ALLEGRO_CFG_NO_GLES2

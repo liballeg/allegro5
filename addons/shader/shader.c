@@ -6,9 +6,6 @@
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/allegro_shader_glsl.h"
 #endif
-#ifdef ALLEGRO_CFG_SHADER_CG
-#include <Cg/cg.h>
-#endif
 
 ALLEGRO_DEBUG_CHANNEL("shader")
 
@@ -32,22 +29,9 @@ ALLEGRO_SHADER *al_create_shader(ALLEGRO_SHADER_PLATFORM platform)
          platform = ALLEGRO_SHADER_HLSL;
       }
    }
-   else if (platform == ALLEGRO_SHADER_CG) {
-      if (USING_OPENGL()) {
-         platform |= ALLEGRO_SHADER_GLSL;
-      }
-      else {
-         platform |= ALLEGRO_SHADER_HLSL;
-      }
-   }
 
    if (false) {
    }
-#ifdef ALLEGRO_CFG_SHADER_CG
-   else if (platform & ALLEGRO_SHADER_CG) {
-      shader = _al_create_shader_cg(platform);
-   }
-#endif
 #ifdef ALLEGRO_CFG_SHADER_GLSL
    else if (platform & ALLEGRO_SHADER_GLSL) {
       shader = _al_create_shader_glsl(platform);

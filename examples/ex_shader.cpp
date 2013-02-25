@@ -19,9 +19,6 @@
 #ifdef ALLEGRO_CFG_SHADER_GLSL
    #include "allegro5/allegro_shader_glsl.h"
 #endif
-#ifdef ALLEGRO_CFG_SHADER_CG
-   #include <Cg/cg.h>
-#endif
 
 #include "common.c"
 
@@ -57,10 +54,6 @@ static void parse_args(int argc, char **argv)
          shader_platform = ALLEGRO_SHADER_GLSL;
          continue;
       }
-      if (0 == strcmp(argv[i], "--cg")) {
-         shader_platform = ALLEGRO_SHADER_CG;
-         continue;
-      }
       abort_example("Unrecognised argument: %s\n", argv[i]);
    }
 }
@@ -77,11 +70,7 @@ static void choose_vertex_source(int display_flags,
          shader_platform = ALLEGRO_SHADER_HLSL;
    }
 
-   if (shader_platform & ALLEGRO_SHADER_CG) {
-      *vsource = "data/ex_shader_vertex.cg";
-      *psource = "data/ex_shader_pixel.cg";
-   }
-   else if (shader_platform & ALLEGRO_SHADER_HLSL) {
+   if (shader_platform & ALLEGRO_SHADER_HLSL) {
       *vsource = "data/ex_shader_vertex.hlsl";
       *psource = "data/ex_shader_pixel.hlsl";
    }
