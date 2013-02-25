@@ -106,6 +106,8 @@ option(WANT_X11_XRANDR "X11 XRandR Extension support" on)
 option(WANT_D3D "Enable Direct3D graphics driver (Windows)" on)
 option(WANT_D3D9EX "Enable Direct3D 9Ex extensions (Vista)" off)
 option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11, OS X))" on)
+option(WANT_SHADERS_GL "Build GLSL shader support (OpenGL)" on)
+option(WANT_SHADERS_D3D "Build HLSL shader support (Direct3D)" on)
 
 #
 # Addons.
@@ -126,7 +128,6 @@ option(WANT_MEMFILE "Enable memfile addon" on)
 option(WANT_PHYSFS "Enable PhysicsFS addon" on)
 option(WANT_PRIMITIVES "Enable primitives addon" on)
 option(WANT_NATIVE_DIALOG "Enable native dialog addon" on)
-option(WANT_SHADERS "Enable shader addon" on)
 option(WANT_VIDEO "Enable video player addon" on)
 
 option(WANT_MONOLITH "Include all addons in the main library" off)
@@ -737,14 +738,6 @@ if(MACOSX)
     list(APPEND PLATFORM_LIBS ${IOKIT_LIBRARY})
 endif(MACOSX)
 
-if(SUPPORT_OPENGL)
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_OPENGL_FILES})
-    if(WIN32)
-        list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WGL_FILES})
-    endif(WIN32)
-    list(APPEND PLATFORM_LIBS ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
-endif(SUPPORT_OPENGL)
-
 if(IPHONE)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_IPHONE_FILES})
 endif(IPHONE)
@@ -758,6 +751,23 @@ if(ALLEGRO_RASPBERRYPI)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_RASPBERRYPI_FILES})
     list(APPEND PLATFORM_LIBS ${X11_LIBRARIES})
 endif(ALLEGRO_RASPBERRYPI)
+
+if(SUPPORT_OPENGL)
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_OPENGL_FILES})
+    if(WIN32)
+        list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WGL_FILES})
+    endif(WIN32)
+    list(APPEND PLATFORM_LIBS ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
+endif(SUPPORT_OPENGL)
+
+if(SUPPORT_OPENGL AND WANT_SHADERS_GL)
+    set(ALLEGRO_CFG_SHADER_GLSL 1)
+endif()
+
+if(SUPPORT_D3D AND WANT_SHADERS_D3D AND D3DX9_FOUND)
+    set(ALLEGRO_CFG_SHADER_HLSL 1)
+    list(APPEND PLATFORM_LIBS "${D3DX9_LIBRARY}")
+endif()
 
 # Header files that we need to install.
 set(ALLEGRO_PUBLIC_HEADERS

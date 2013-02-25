@@ -1,5 +1,5 @@
-#ifndef _AL_SHADER_H
-#define _AL_SHADER_H
+#ifndef __al_included_allegro5_internal_aintern_shader_h
+#define __al_included_allegro5_internal_aintern_shader_h
 
 #include "allegro5/allegro_shader.h"
 

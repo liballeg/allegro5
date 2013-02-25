@@ -1,15 +1,32 @@
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      Direct3D shader support.
+ *
+ *      See LICENSE.txt for copyright information.
+ */
+
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_direct3d.h"
-#include <d3dx9.h>
-#include <stdio.h>
 #include "allegro5/allegro_shader.h"
 #include "allegro5/allegro_shader_hlsl.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_direct3d.h"
+#include "allegro5/internal/aintern_shader.h"
 
-#include "shader.h"
+#ifdef ALLEGRO_CFG_SHADER_HLSL
+
+#include <d3dx9.h>
+#include <stdio.h>
 
 ALLEGRO_DEBUG_CHANNEL("shader")
 
@@ -488,5 +505,7 @@ LPD3DXEFFECT al_get_direct3d_effect(ALLEGRO_SHADER *shader)
 {
    return ((ALLEGRO_SHADER_HLSL_S *)shader)->hlsl_shader;
 }
+
+#endif
 
 /* vim: set sts=3 sw=3 et: */

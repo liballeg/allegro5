@@ -1,3 +1,18 @@
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      OpenGL shader support.
+ *
+ *      See LICENSE.txt for copyright information.
+ */
+
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/allegro_shader.h"
@@ -5,7 +20,9 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_opengl.h"
-#include "shader.h"
+#include "allegro5/internal/aintern_shader.h"
+
+#ifdef ALLEGRO_CFG_SHADER_GLSL
 
 ALLEGRO_DEBUG_CHANNEL("shader")
 
@@ -634,12 +651,19 @@ static struct ALLEGRO_SHADER_INTERFACE shader_glsl_vt =
    glsl_set_shader
 };
 
+#endif
+
 
 /* Function: al_get_opengl_program_object
  */
 GLuint al_get_opengl_program_object(ALLEGRO_SHADER *shader)
 {
+#ifdef ALLEGRO_CFG_SHADER_GLSL
    return ((ALLEGRO_SHADER_GLSL_S *)shader)->program_object;
+#else
+   (void)shader;
+   return 0;
+#endif
 }
 
 

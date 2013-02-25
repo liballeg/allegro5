@@ -32,6 +32,7 @@ set(ALLEGRO_SRC_FILES
     src/mouse_cursor.c
     src/path.c
     src/pixels.c
+    src/shader.c
     src/system.c
     src/threads.c
     src/timernu.c
@@ -70,11 +71,13 @@ set(ALLEGRO_SRC_WIN_FILES
 set(ALLEGRO_SRC_D3D_FILES
     src/win/d3d_bmp.cpp
     src/win/d3d_disp.cpp
-    src/win/d3d_render_state.cpp
     src/win/d3d_display_formats.cpp
+    src/win/d3d_render_state.cpp
+    src/win/d3d_shader.cpp
     )
 
 set(ALLEGRO_SRC_OPENGL_FILES
+    src/opengl/default_glsl.c
     src/opengl/extensions.c
     src/opengl/ogl_bitmap.c
     src/opengl/ogl_display.c
@@ -83,6 +86,7 @@ set(ALLEGRO_SRC_OPENGL_FILES
     src/opengl/ogl_lock.c
     src/opengl/ogl_lock_es.c
     src/opengl/ogl_render_state.c
+    src/opengl/ogl_shader.c
     )
 
 set(ALLEGRO_SRC_WGL_FILES
@@ -260,6 +264,9 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/utf8.h
     include/allegro5/allegro_opengl.h
     include/allegro5/allegro_direct3d.h
+    include/allegro5/allegro_shader.h
+    include/allegro5/allegro_shader_glsl.h
+    include/allegro5/allegro_shader_hlsl.h
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES
