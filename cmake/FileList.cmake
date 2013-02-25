@@ -255,6 +255,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/mouse_cursor.h
     include/allegro5/path.h
     include/allegro5/render_state.h
+    include/allegro5/shader.h
     include/allegro5/system.h
     include/allegro5/threads.h
     include/allegro5/tls.h
@@ -262,11 +263,10 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/timer.h
     include/allegro5/transformations.h
     include/allegro5/utf8.h
-    include/allegro5/allegro_opengl.h
     include/allegro5/allegro_direct3d.h
-    include/allegro5/allegro_shader.h
-    include/allegro5/allegro_shader_glsl.h
-    include/allegro5/allegro_shader_hlsl.h
+    include/allegro5/allegro_glsl.h
+    include/allegro5/allegro_hlsl.h
+    include/allegro5/allegro_opengl.h
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES

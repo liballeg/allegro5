@@ -1,5 +1,5 @@
 #include "allegro5/allegro.h"
-#include "allegro5/allegro_shader_glsl.h"
+#include "allegro5/allegro_glsl.h"
 
 /* Function: al_get_default_glsl_vertex_shader
  */

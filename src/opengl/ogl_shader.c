@@ -14,9 +14,8 @@
  */
 
 #include "allegro5/allegro.h"
+#include "allegro5/allegro_glsl.h"
 #include "allegro5/allegro_opengl.h"
-#include "allegro5/allegro_shader.h"
-#include "allegro5/allegro_shader_glsl.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_opengl.h"

@@ -14,12 +14,11 @@
  */
 
 #include "allegro5/allegro.h"
-#include "allegro5/allegro_shader.h"
 #include "allegro5/internal/aintern_shader.h"
 
 #ifdef ALLEGRO_CFG_SHADER_GLSL
 #include "allegro5/allegro_opengl.h"
-#include "allegro5/allegro_shader_glsl.h"
+#include "allegro5/allegro_glsl.h"
 #endif
 
 ALLEGRO_DEBUG_CHANNEL("shader")

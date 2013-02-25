@@ -3,10 +3,8 @@
 #include <math.h>
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_image.h"
-#include "allegro5/allegro_shader.h"
-
 #include "allegro5/allegro_opengl.h"
-#include "allegro5/allegro_shader_glsl.h"
+#include "allegro5/allegro_glsl.h"
 
 #include "common.c"
 

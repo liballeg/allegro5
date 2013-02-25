@@ -15,8 +15,7 @@
 
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_direct3d.h"
-#include "allegro5/allegro_shader.h"
-#include "allegro5/allegro_shader_hlsl.h"
+#include "allegro5/allegro_hlsl.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"

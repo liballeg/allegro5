@@ -16,7 +16,7 @@
 #include <allegro5/allegro_primitives.h>
 
 #ifdef ALLEGRO_CFG_SHADER_GLSL
-#include "allegro5/allegro_shader_glsl.h"
+#include "allegro5/allegro_glsl.h"
 #endif
 
 #define MAX_BITMAPS  128
