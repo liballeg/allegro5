@@ -91,10 +91,13 @@ static void show_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
 
    dispman_update = vc_dispmanx_update_start(0);
    vc_dispmanx_resource_write_data(cursor_resource, VC_IMAGE_ARGB8888, dpitch, d->cursor_data, &r);
-   vc_dispmanx_update_submit_sync(dispman_update); 
+   vc_dispmanx_update_submit_sync(dispman_update);
 
-   dst_rect.x = display->w/2+d->cursor_offset_x;
-   dst_rect.y = display->w/2+d->cursor_offset_y;
+   ALLEGRO_MOUSE_STATE state;
+   al_get_mouse_state(&state);
+
+   dst_rect.x = state.x+d->cursor_offset_x;
+   dst_rect.y = state.y+d->cursor_offset_y;
    dst_rect.width = width;
    dst_rect.height = height;
    src_rect.x = 0;
@@ -511,6 +514,9 @@ static void raspberrypi_destroy_display(ALLEGRO_DISPLAY *d)
    al_join_thread(cursor_thread, NULL);
    al_destroy_thread(cursor_thread);
 
+   if (!pidisplay->hide_cursor) {
+      hide_cursor(pidisplay);
+   }
    delete_cursor_data(pidisplay);
 
    _al_set_current_display_only(d);
