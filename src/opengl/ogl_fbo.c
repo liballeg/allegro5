@@ -275,12 +275,12 @@ static ALLEGRO_FBO_INFO *ogl_new_fbo(ALLEGRO_DISPLAY *display)
    }
    e = glGetError();
    if (e) {
-      ALLEGRO_DEBUG("glGenFramebuffersEXT failed");
-   }
-   else {
-      ALLEGRO_DEBUG("Created FBO: %u\n", info->fbo);
+      ALLEGRO_ERROR("glGenFramebuffersEXT failed\n");
+      _al_ogl_reset_fbo_info(info);
+      return NULL;
    }
 
+   ALLEGRO_DEBUG("Created FBO: %u\n", info->fbo);
    return info;
 }
 
