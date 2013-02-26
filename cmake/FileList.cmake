@@ -79,6 +79,7 @@ set(ALLEGRO_SRC_OPENGL_FILES
     src/opengl/ogl_bitmap.c
     src/opengl/ogl_display.c
     src/opengl/ogl_draw.c
+    src/opengl/ogl_fbo.c
     src/opengl/ogl_lock.c
     src/opengl/ogl_lock_es.c
     src/opengl/ogl_render_state.c
