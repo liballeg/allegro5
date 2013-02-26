@@ -23,11 +23,6 @@
 
 ALLEGRO_DEBUG_CHANNEL("shader")
 
-#ifdef ALLEGRO_CFG_SHADER_HLSL
-#define USING_OPENGL() (al_get_display_flags(al_get_current_display()) & ALLEGRO_OPENGL)
-#else
-#define USING_OPENGL() true
-#endif
 
 /* Function: al_create_shader
  */
@@ -36,7 +31,7 @@ ALLEGRO_SHADER *al_create_shader(ALLEGRO_SHADER_PLATFORM platform)
    ALLEGRO_SHADER *shader = NULL;
 
    if (platform == ALLEGRO_SHADER_AUTO) {
-      if (USING_OPENGL()) {
+      if (al_get_display_flags(al_get_current_display()) & ALLEGRO_OPENGL) {
          platform = ALLEGRO_SHADER_GLSL;
       }
       else {
