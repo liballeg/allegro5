@@ -51,6 +51,13 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 #endif
 
 
+/* forward declarations */
+static void setup_fbo_backbuffer(ALLEGRO_DISPLAY *display,
+   ALLEGRO_BITMAP *bitmap);
+static void setup_fbo_non_backbuffer(ALLEGRO_DISPLAY *display,
+   ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap);
+
+
 /* glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT..) not supported on some Androids.
  * We keep track of it manually.
  */
@@ -232,10 +239,55 @@ static ALLEGRO_FBO_INFO *ogl_find_unused_fbo(ALLEGRO_DISPLAY *display)
 }
 
 
+static ALLEGRO_FBO_INFO *ogl_new_fbo(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_FBO_INFO *info;
+   GLint e;
+
+   info = ogl_find_unused_fbo(display);
+   ASSERT(info->fbo_state != FBO_INFO_PERSISTENT);
+
+   if (info->fbo_state == FBO_INFO_TRANSIENT) {
+      ALLEGRO_BITMAP_EXTRA_OPENGL *extra = info->owner->extra;
+      extra->fbo_info = NULL;
+      ALLEGRO_DEBUG("Deleting FBO: %u\n", info->fbo);
+      if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
+#if defined ALLEGRO_ANDROID
+         glDeleteFramebuffers(1, &info->fbo);
+#endif
+      }
+      else {
+         glDeleteFramebuffersEXT(1, &info->fbo);
+      }
+      _al_ogl_reset_fbo_info(info);
+   }
+   else {
+      /* FBO_INFO_UNUSED */
+   }
+
+   if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
+#if defined ALLEGRO_ANDROID
+      glGenFramebuffers(1, &info->fbo);
+#endif
+   }
+   else {
+      glGenFramebuffersEXT(1, &info->fbo);
+   }
+   e = glGetError();
+   if (e) {
+      ALLEGRO_DEBUG("glGenFramebuffersEXT failed");
+   }
+   else {
+      ALLEGRO_DEBUG("Created FBO: %u\n", info->fbo);
+   }
+
+   return info;
+}
+
+
 void _al_ogl_setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap;
-   GLint e;
 
    if (bitmap->parent)
       bitmap = bitmap->parent;
@@ -248,162 +300,144 @@ void _al_ogl_setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
    if (false && display->ogl_extras->opengl_target == bitmap)
       return;
 
-   if (!ogl_bitmap->is_backbuffer) {
-      ALLEGRO_FBO_INFO *info = NULL;
+   if (ogl_bitmap->is_backbuffer)
+      setup_fbo_backbuffer(display, bitmap);
+   else
+      setup_fbo_non_backbuffer(display, bitmap, ogl_bitmap);
+}
 
-      /* When a bitmap is set as target bitmap, we try to create an FBO for it.
+
+static void setup_fbo_backbuffer(ALLEGRO_DISPLAY *display,
+   ALLEGRO_BITMAP *bitmap)
+{
+   display->ogl_extras->opengl_target = bitmap;
+
+   // The IS_OPENGLES part is a hack.
+   if (IS_OPENGLES ||
+      display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
+      display->ogl_extras->extension_list->ALLEGRO_GL_OES_framebuffer_object)
+   {
+      _al_ogl_bind_framebuffer(0);
+   }
+
+#ifndef ALLEGRO_IPHONE
+   glViewport(0, 0, display->w, display->h);
+
+   al_identity_transform(&display->proj_transform);
+   /* We use upside down coordinates compared to OpenGL, so the bottommost
+    * coordinate is display->h not 0.
+    */
+   al_orthographic_transform(&display->proj_transform,
+      0, 0, -1, display->w, display->h, 1);
+#else
+   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+   _al_iphone_setup_opengl_view(display);
+#endif
+   display->vt->set_projection(display);
+}
+
+
+static void setup_fbo_non_backbuffer(ALLEGRO_DISPLAY *display,
+   ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap)
+{
+   ALLEGRO_FBO_INFO *info = NULL;
+   GLint e;
+
+   /* When a bitmap is set as target bitmap, we try to create an FBO for it. */
+   if (ogl_bitmap->fbo_info == NULL &&
+      !(bitmap->flags & ALLEGRO_FORCE_LOCKING))
+   {
+      /* FIXME The IS_OPENGLES part is quite a hack but I don't know how the
+       * Allegro extension manager works to fix this properly (getting
+       * extensions properly reported on iphone). All iOS devices support
+       * FBOs though (currently.)
        */
-      if (ogl_bitmap->fbo_info == NULL && !(bitmap->flags & ALLEGRO_FORCE_LOCKING)) {
-
-         /* FIXME The IS_OPENGLES part is quite a hack but I don't know how the
-          * Allegro extension manager works to fix this properly (getting
-          * extensions properly reported on iphone). All iOS devices support
-          * FBOs though (currently.)
-          */
-         if (IS_OPENGLES ||
-            al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object ||
-            al_get_opengl_extension_list()->ALLEGRO_GL_OES_framebuffer_object)
-         {
-            info = ogl_find_unused_fbo(display);
-            ASSERT(info->fbo_state != FBO_INFO_PERSISTENT);
-
-            if (info->fbo_state == FBO_INFO_TRANSIENT) {
-               ALLEGRO_BITMAP_EXTRA_OPENGL *extra = info->owner->extra;
-               extra->fbo_info = NULL;
-               ALLEGRO_DEBUG("Deleting FBO: %u\n", info->fbo);
-               if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
-#if defined ALLEGRO_ANDROID
-                  glDeleteFramebuffers(1, &info->fbo);
-#endif
-               }
-               else {
-                  glDeleteFramebuffersEXT(1, &info->fbo);
-               }
-               _al_ogl_reset_fbo_info(info);
-            }
-
-            if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
-#if defined ALLEGRO_ANDROID
-               glGenFramebuffers(1, &info->fbo);
-#endif
-            }
-            else {
-               glGenFramebuffersEXT(1, &info->fbo);
-            }
-            e = glGetError();
-            if (e) {
-               ALLEGRO_DEBUG("glGenFramebuffersEXT failed");
-            }
-            else {
-               ALLEGRO_DEBUG("Created FBO: %u\n", info->fbo);
-            }
-         }
-      }
-      else {
-         info = ogl_bitmap->fbo_info;
-      }
-
-      if (info && info->fbo) {
-         /* Bind to the FBO. */
-#if !defined ALLEGRO_CFG_OPENGLES
-         ASSERT(display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
-            display->ogl_extras->extension_list->ALLEGRO_GL_OES_framebuffer_object);
-#endif
-
-         if (info->fbo_state == FBO_INFO_UNUSED)
-            info->fbo_state = FBO_INFO_TRANSIENT;
-         info->owner = bitmap;
-         info->last_use_time = al_get_time();
-         ogl_bitmap->fbo_info = info;
-
-         _al_ogl_bind_framebuffer(info->fbo);
-
-         /* Attach the texture. */
-         if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
-#if defined ALLEGRO_ANDROID
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-               GL_TEXTURE_2D, ogl_bitmap->texture, 0);
-#endif
-         }
-         else {
-            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
-               GL_TEXTURE_2D, ogl_bitmap->texture, 0);
-         }
-         e = glGetError();
-         if (e) {
-            ALLEGRO_DEBUG("glFrameBufferTexture2DEXT failed! fbo=%d texture=%d (%s)",
-               info->fbo, ogl_bitmap->texture, _al_gl_error_string(e));
-         }
-
-         /* See comment about unimplemented functions on Android above */
-         if (UNLESS_ANDROID_OR_RPI(
-               glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT))
-         {
-            /* For some reason, we cannot use the FBO with this
-             * texture. So no reason to keep re-trying, output a log
-             * message and switch to (extremely slow) software mode.
-             */
-            ALLEGRO_ERROR("Could not use FBO for bitmap with format %s.\n",
-               _al_format_name(bitmap->format));
-            ALLEGRO_ERROR("*** SWITCHING TO SOFTWARE MODE ***\n");
-            _al_ogl_bind_framebuffer(0);
-            if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
-#if defined ALLEGRO_ANDROID
-               glDeleteFramebuffers(1, &info->fbo);
-#endif
-            }
-            else {
-               glDeleteFramebuffersEXT(1, &info->fbo);
-            }
-            _al_ogl_reset_fbo_info(info);
-            ogl_bitmap->fbo_info = NULL;
-         }
-         else {
-            bool set_projection = true;
-
-            display->ogl_extras->opengl_target = bitmap;
-
-            glViewport(0, 0, bitmap->w, bitmap->h);
-
-            if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-               if (display->ogl_extras->program_object <= 0) {
-                  set_projection = false;
-               }
-            }
-
-            if (set_projection) {
-               al_identity_transform(&display->proj_transform);
-               al_orthographic_transform(&display->proj_transform,
-                  0, 0, -1, bitmap->w, bitmap->h, 1);
-               display->vt->set_projection(display);
-            }
-         }
+      if (IS_OPENGLES ||
+         al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object ||
+         al_get_opengl_extension_list()->ALLEGRO_GL_OES_framebuffer_object)
+      {
+         info = ogl_new_fbo(display);
       }
    }
    else {
-      display->ogl_extras->opengl_target = bitmap;
+      info = ogl_bitmap->fbo_info;
+   }
 
-      // The IS_OPENGLES part is a hack.
-      if (IS_OPENGLES ||
-         display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
-         display->ogl_extras->extension_list->ALLEGRO_GL_OES_framebuffer_object)
-      {
-         _al_ogl_bind_framebuffer(0);
+   if (info && info->fbo) {
+      /* Bind to the FBO. */
+#if !defined ALLEGRO_CFG_OPENGLES
+      ASSERT(display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
+         display->ogl_extras->extension_list->ALLEGRO_GL_OES_framebuffer_object);
+#endif
+
+      if (info->fbo_state == FBO_INFO_UNUSED)
+         info->fbo_state = FBO_INFO_TRANSIENT;
+      info->owner = bitmap;
+      info->last_use_time = al_get_time();
+      ogl_bitmap->fbo_info = info;
+
+      _al_ogl_bind_framebuffer(info->fbo);
+
+      /* Attach the texture. */
+      if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
+#if defined ALLEGRO_ANDROID
+         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+            GL_TEXTURE_2D, ogl_bitmap->texture, 0);
+#endif
+      }
+      else {
+         glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+            GL_TEXTURE_2D, ogl_bitmap->texture, 0);
+      }
+      e = glGetError();
+      if (e) {
+         ALLEGRO_DEBUG("glFrameBufferTexture2DEXT failed! fbo=%d texture=%d (%s)",
+            info->fbo, ogl_bitmap->texture, _al_gl_error_string(e));
       }
 
-#ifndef ALLEGRO_IPHONE
-      glViewport(0, 0, display->w, display->h);
-
-      al_identity_transform(&display->proj_transform);
-      /* We use upside down coordinates compared to OpenGL, so the bottommost
-       * coordinate is display->h not 0.
-       */
-      al_orthographic_transform(&display->proj_transform, 0, 0, -1, display->w, display->h, 1);
-#else
-      glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-      _al_iphone_setup_opengl_view(display);
+      /* See comment about unimplemented functions on Android above */
+      if (UNLESS_ANDROID_OR_RPI(
+            glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT))
+      {
+         /* For some reason, we cannot use the FBO with this
+          * texture. So no reason to keep re-trying, output a log
+          * message and switch to (extremely slow) software mode.
+          */
+         ALLEGRO_ERROR("Could not use FBO for bitmap with format %s.\n",
+            _al_format_name(bitmap->format));
+         ALLEGRO_ERROR("*** SWITCHING TO SOFTWARE MODE ***\n");
+         _al_ogl_bind_framebuffer(0);
+         if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
+#if defined ALLEGRO_ANDROID
+            glDeleteFramebuffers(1, &info->fbo);
 #endif
-      display->vt->set_projection(display);
+         }
+         else {
+            glDeleteFramebuffersEXT(1, &info->fbo);
+         }
+         _al_ogl_reset_fbo_info(info);
+         ogl_bitmap->fbo_info = NULL;
+      }
+      else {
+         bool set_projection = true;
+
+         display->ogl_extras->opengl_target = bitmap;
+
+         glViewport(0, 0, bitmap->w, bitmap->h);
+
+         if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+            if (display->ogl_extras->program_object <= 0) {
+               set_projection = false;
+            }
+         }
+
+         if (set_projection) {
+            al_identity_transform(&display->proj_transform);
+            al_orthographic_transform(&display->proj_transform,
+               0, 0, -1, bitmap->w, bitmap->h, 1);
+            display->vt->set_projection(display);
+         }
+      }
    }
 }
 
