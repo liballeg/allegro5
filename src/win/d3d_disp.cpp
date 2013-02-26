@@ -79,16 +79,6 @@ static bool already_fullscreen = false; /* real fullscreen */
 static ALLEGRO_MUTEX *present_mutex;
 ALLEGRO_MUTEX *_al_d3d_lost_device_mutex;
 
-#ifdef ALLEGRO_CFG_SHADER_HLSL
-/* Function: al_set_direct3d_effect
- */
-void al_set_direct3d_effect(ALLEGRO_DISPLAY *display, LPD3DXEFFECT effect)
-{
-   ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)display;
-   d3d_disp->effect = effect;
-}
-#endif
-
 /*
  * These parameters cannot be gotten by the display thread because
  * they're thread local. We get them in the calling thread first.

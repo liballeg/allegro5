@@ -238,11 +238,3 @@ Returns a string containing the GLSL source code to Allegro's default fragment
 shader (or "pixel shader").
 
 Since: 5.1.5
-
-## API: al_get_direct3d_effect
-
-Gets the Direct3D effect for this shader. Can only be called after
-calling [al_link_shader] sucessfully and only if the shader is compatible
-with Direct3D.
-
-Since: 5.1.0

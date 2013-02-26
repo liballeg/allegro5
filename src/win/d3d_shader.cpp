@@ -492,17 +492,14 @@ static bool hlsl_set_shader_texcoord_array(ALLEGRO_SHADER *shader,
 
 static void hlsl_set_shader(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader)
 {
+   ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
+   ALLEGRO_DISPLAY_D3D *d3d_disp;
+
    ASSERT(display);
    ASSERT(display->flags & ALLEGRO_DIRECT3D);
 
-   al_set_direct3d_effect(display, al_get_direct3d_effect(shader));
-}
-
-/* Function: al_get_direct3d_effect
- */
-LPD3DXEFFECT al_get_direct3d_effect(ALLEGRO_SHADER *shader)
-{
-   return ((ALLEGRO_SHADER_HLSL_S *)shader)->hlsl_shader;
+   d3d_disp = (ALLEGRO_DISPLAY_D3D *)display;
+   d3d_disp->effect = hlsl_shader->hlsl_shader;
 }
 
 #endif

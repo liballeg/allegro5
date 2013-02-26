@@ -72,19 +72,6 @@ belonging to the given display is in a lost state.
 
 * display - The display that the device you wish to check is attached to
 
-## API: al_set_direct3d_effect
-
-Sets the Direct3D effect that the given display should use when rendering.
-Fetch this program object by calling [al_get_direct3d_effect] on
-an [ALLEGRO_SHADER].
-
-*Parameters:*
-
-* display - The display that the 3D effect is set to.
-* effect - The LPD3DXEFFECT that is set to the display.
-
-Since: 5.1.0
-
 ## API: al_d3d_set_release_callback
 
 The callback will be called whenever a d3d device is reset (minimize, toggle
