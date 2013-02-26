@@ -130,9 +130,15 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h);
 void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr);
 
 /* locking */
-ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_new(ALLEGRO_BITMAP *bitmap,
-   int x, int y, int w, int h, int format, int flags);
-void _al_ogl_unlock_region_new(ALLEGRO_BITMAP *bitmap);
+#ifndef ALLEGRO_CFG_OPENGLES
+   ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_new(ALLEGRO_BITMAP *bitmap,
+      int x, int y, int w, int h, int format, int flags);
+   void _al_ogl_unlock_region_new(ALLEGRO_BITMAP *bitmap);
+#else
+   ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_old_gles(ALLEGRO_BITMAP *bitmap,
+      int x, int y, int w, int h, int format, int flags);
+   void _al_ogl_unlock_region_old_gles(ALLEGRO_BITMAP *bitmap);
+#endif
 
 /* common driver */
 GLint _al_ogl_bind_framebuffer(GLint fbo);
