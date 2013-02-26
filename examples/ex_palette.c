@@ -153,8 +153,7 @@ int main(void)
    );
    
    al_link_shader(shader);
-
-   al_set_opengl_program_object(display, al_get_opengl_program_object(shader));
+   al_set_shader(display, shader);
 
    timer = al_create_timer(1.0 / 60);
    queue = al_create_event_queue();
