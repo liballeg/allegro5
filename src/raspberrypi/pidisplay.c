@@ -86,8 +86,7 @@ static void show_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
    r.width = width;
    r.height = height;
    
-   int dwidth = pot(width);
-   int dpitch = sizeof(uint32_t) * dwidth;
+   int dpitch = pot(sizeof(uint32_t) * width);
 
    dispman_update = vc_dispmanx_update_start(0);
    vc_dispmanx_resource_write_data(cursor_resource, VC_IMAGE_ARGB8888, dpitch, d->cursor_data, &r);
@@ -697,7 +696,7 @@ static bool raspberrypi_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
    ALLEGRO_DISPLAY_RASPBERRYPI *d = (void *)display;
    if (!d->hide_cursor) {
       hide_cursor(d);
-      d->hide_cursor = false;
+      d->hide_cursor = true;
    }
    return true;
 }
