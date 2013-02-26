@@ -33,21 +33,6 @@
  */
 #if defined(ALLEGRO_CFG_OPENGLES)
 
-/* XXX we can do better */
-#if defined ALLEGRO_IPHONE
-#define GL_FRAMEBUFFER_EXT GL_FRAMEBUFFER_OES
-#define GL_FRAMEBUFFER_BINDING_EXT GL_FRAMEBUFFER_BINDING_OES
-#define glGenerateMipmapEXT glGenerateMipmapOES
-#define glBindFramebufferEXT glBindFramebufferOES
-#define glDeleteFramebuffersEXT glDeleteFramebuffersOES
-#elif defined ALLEGRO_RASPBERRYPI
-#define GL_FRAMEBUFFER_EXT GL_FRAMEBUFFER
-#define GL_FRAMEBUFFER_BINDING_EXT GL_FRAMEBUFFER_BINDING
-#define glGenerateMipmapEXT glGenerateMipmap
-#define glBindFramebufferEXT glBindFramebuffer
-#define glDeleteFramebuffersEXT glDeleteFramebuffers
-#endif
-
 ALLEGRO_DEBUG_CHANNEL("opengl")
 
 static void ogl_unlock_region_old_gles_backbuffer(ALLEGRO_BITMAP *bitmap);

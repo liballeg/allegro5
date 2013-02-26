@@ -25,31 +25,6 @@
 
 ALLEGRO_DEBUG_CHANNEL("opengl")
 
-/* XXX we can do better */
-#if defined ALLEGRO_RASPBERRYPI
-   #define glGenFramebuffersEXT glGenFramebuffers
-   #define glBindFramebufferEXT glBindFramebuffer
-   #define GL_FRAMEBUFFER_BINDING_EXT GL_FRAMEBUFFER_BINDING
-   #define GL_FRAMEBUFFER_EXT GL_FRAMEBUFFER
-   #define GL_COLOR_ATTACHMENT0_EXT GL_COLOR_ATTACHMENT0
-   #define glCheckFramebufferStatusEXT glCheckFramebufferStatus
-   #define glFramebufferTexture2DEXT glFramebufferTexture2D
-   #define GL_FRAMEBUFFER_COMPLETE_EXT GL_FRAMEBUFFER_COMPLETE
-   #define glDeleteFramebuffersEXT glDeleteFramebuffers
-   #define glOrtho glOrthof
-#elif defined ALLEGRO_CFG_OPENGLES
-   #define glGenFramebuffersEXT glGenFramebuffersOES
-   #define glBindFramebufferEXT glBindFramebufferOES
-   #define GL_FRAMEBUFFER_BINDING_EXT GL_FRAMEBUFFER_BINDING_OES
-   #define GL_FRAMEBUFFER_EXT GL_FRAMEBUFFER_OES
-   #define GL_COLOR_ATTACHMENT0_EXT GL_COLOR_ATTACHMENT0_OES
-   #define glCheckFramebufferStatusEXT glCheckFramebufferStatusOES
-   #define glFramebufferTexture2DEXT glFramebufferTexture2DOES
-   #define GL_FRAMEBUFFER_COMPLETE_EXT GL_FRAMEBUFFER_COMPLETE_OES
-   #define glDeleteFramebuffersEXT glDeleteFramebuffersOES
-   #define glOrtho glOrthof
-#endif
-
 
 /* forward declarations */
 static void setup_fbo_backbuffer(ALLEGRO_DISPLAY *display,
