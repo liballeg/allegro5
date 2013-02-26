@@ -26,6 +26,7 @@ API
 * [Monitors](monitor.html)
 * [Mouse routines](mouse.html)
 * [Path structures](path.html)
+* [Shader](shader.html)
 * [State](state.html)
 * [System routines](system.html)
 * [Threads](threads.html)
@@ -52,5 +53,4 @@ Addons
 * [Native dialogs addon](native_dialog.html)
 * [PhysicsFS addon](physfs.html)
 * [Primitives addon](primitives.html)
-* [Shader addon](shader.html)
 

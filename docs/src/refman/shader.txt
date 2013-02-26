@@ -1,9 +1,8 @@
-# Shader addon
+# Shader routines
 
-These functions are declared in the following header file.
-Link with allegro_shader.
+These functions are declared in the main Allegro header file:
 
-    #include <allegro5/allegro_shader.h>
+    #include <allegro5/allegro.h>
 
 ## API: ALLEGRO_SHADER
 

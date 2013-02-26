@@ -16,6 +16,7 @@
 * [Monitor](monitor.html)
 * [Mouse](mouse.html)
 * [Path](path.html)
+* [Shader](shader.html)
 * [State](state.html)
 * [System](system.html)
 * [Threads](threads.html)
@@ -44,7 +45,6 @@
 * [Native dialogs addon](native_dialog.html)
 * [PhysicsFS addon](physfs.html)
 * [Primitives addon](primitives.html)
-* [Shader addon](shader.html)
 * [Video streaming addon](video.html)
 
 <!-- The preceding blank line forces pandoc to terminate the list -->
