@@ -225,16 +225,6 @@ FIXME: Maybe this is not even needed as we have al_use_shader?
 
 Since: 5.1.0
 
-## API: al_get_opengl_program_object
-
-Gets the OpenGL program object for this shader. Can only be called after
-calling [al_link_shader] successfully, and only if the shader is compatible
-with OpenGL.
-
-Since: 5.1.0
-
-See also: [al_set_opengl_program_object]
-
 ## API: al_get_default_glsl_vertex_shader
 
 Returns a string containing the GLSL source code to Allegro's default vertex

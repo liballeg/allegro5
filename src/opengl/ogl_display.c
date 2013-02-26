@@ -31,13 +31,7 @@
 
 #include "ogl_helpers.h"
 
-#include <stdio.h>
-
 ALLEGRO_DEBUG_CHANNEL("opengl")
-
-#ifdef ALLEGRO_MSVC
-   #define snprintf _snprintf
-#endif
 
 
 /* Helper to set up GL state as we want it. */
@@ -280,42 +274,5 @@ void _al_ogl_destroy_backbuffer(ALLEGRO_BITMAP *b)
    al_destroy_bitmap(b);
 }
 
-
-#ifndef ALLEGRO_CFG_NO_GLES2
-/* Function: al_set_opengl_program_object
- */
-void al_set_opengl_program_object(ALLEGRO_DISPLAY *display, GLuint program_object)
-{
-   GLint handle;
-   ALLEGRO_TRANSFORM t;
-   /* al_user_attr_##0 */
-   char user_attr_name[sizeof(ALLEGRO_SHADER_VAR_USER_ATTR "999")];
-   int i;
-   
-   display->ogl_extras->program_object = program_object;
-
-   glUseProgram(program_object);
-      
-   handle = glGetUniformLocation(program_object, ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX);
-   if (handle >= 0) {
-      al_copy_transform(&t, &display->view_transform);
-      al_compose_transform(&t, &display->proj_transform);
-      glUniformMatrix4fv(handle, 1, false, (float *)t.m);
-   }
-
-   display->ogl_extras->pos_loc = glGetAttribLocation(program_object, ALLEGRO_SHADER_VAR_POS);
-   display->ogl_extras->color_loc = glGetAttribLocation(program_object, ALLEGRO_SHADER_VAR_COLOR);
-   display->ogl_extras->texcoord_loc = glGetAttribLocation(program_object, ALLEGRO_SHADER_VAR_TEXCOORD);
-   display->ogl_extras->use_tex_loc = glGetUniformLocation(program_object, ALLEGRO_SHADER_VAR_USE_TEX);
-   display->ogl_extras->tex_loc = glGetUniformLocation(program_object, ALLEGRO_SHADER_VAR_TEX);
-   display->ogl_extras->use_tex_matrix_loc = glGetUniformLocation(program_object, ALLEGRO_SHADER_VAR_USE_TEX_MATRIX);
-   display->ogl_extras->tex_matrix_loc = glGetUniformLocation(program_object, ALLEGRO_SHADER_VAR_TEX_MATRIX);
-
-   for (i = 0; i < _ALLEGRO_PRIM_MAX_USER_ATTR; i++) {
-      snprintf(user_attr_name, sizeof(user_attr_name), ALLEGRO_SHADER_VAR_USER_ATTR "%d", i);
-      display->ogl_extras->user_attr_loc[i] = glGetAttribLocation(program_object, user_attr_name);
-   }
-}
-#endif
 
 /* vi: set sts=3 sw=3 et: */

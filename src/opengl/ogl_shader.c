@@ -13,6 +13,8 @@
  *      See LICENSE.txt for copyright information.
  */
 
+#include <stdio.h>
+
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_glsl.h"
 #include "allegro5/allegro_opengl.h"
@@ -20,6 +22,10 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_shader.h"
+
+#ifdef ALLEGRO_MSVC
+   #define snprintf _snprintf
+#endif
 
 #ifdef ALLEGRO_CFG_SHADER_GLSL
 
@@ -625,10 +631,42 @@ static bool glsl_set_shader_texcoord_array(ALLEGRO_SHADER *shader,
 
 static void glsl_set_shader(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader)
 {
+   ALLEGRO_SHADER_GLSL_S *gl_shader;
+   GLuint program_object;
+   GLint handle;
+   ALLEGRO_TRANSFORM t;
+   /* al_user_attr_##0 */
+   char user_attr_name[sizeof(ALLEGRO_SHADER_VAR_USER_ATTR "999")];
+   int i;
+
+   gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
+   program_object = gl_shader->program_object;
+
    ASSERT(display);
    ASSERT(display->flags & ALLEGRO_OPENGL);
+   display->ogl_extras->program_object = program_object;
 
-   al_set_opengl_program_object(display, al_get_opengl_program_object(shader));
+   glUseProgram(program_object);
+
+   handle = glGetUniformLocation(program_object, ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX);
+   if (handle >= 0) {
+      al_copy_transform(&t, &display->view_transform);
+      al_compose_transform(&t, &display->proj_transform);
+      glUniformMatrix4fv(handle, 1, false, (float *)t.m);
+   }
+
+   display->ogl_extras->pos_loc = glGetAttribLocation(program_object, ALLEGRO_SHADER_VAR_POS);
+   display->ogl_extras->color_loc = glGetAttribLocation(program_object, ALLEGRO_SHADER_VAR_COLOR);
+   display->ogl_extras->texcoord_loc = glGetAttribLocation(program_object, ALLEGRO_SHADER_VAR_TEXCOORD);
+   display->ogl_extras->use_tex_loc = glGetUniformLocation(program_object, ALLEGRO_SHADER_VAR_USE_TEX);
+   display->ogl_extras->tex_loc = glGetUniformLocation(program_object, ALLEGRO_SHADER_VAR_TEX);
+   display->ogl_extras->use_tex_matrix_loc = glGetUniformLocation(program_object, ALLEGRO_SHADER_VAR_USE_TEX_MATRIX);
+   display->ogl_extras->tex_matrix_loc = glGetUniformLocation(program_object, ALLEGRO_SHADER_VAR_TEX_MATRIX);
+
+   for (i = 0; i < _ALLEGRO_PRIM_MAX_USER_ATTR; i++) {
+      snprintf(user_attr_name, sizeof(user_attr_name), ALLEGRO_SHADER_VAR_USER_ATTR "%d", i);
+      display->ogl_extras->user_attr_loc[i] = glGetAttribLocation(program_object, user_attr_name);
+   }
 }
 
 static struct ALLEGRO_SHADER_INTERFACE shader_glsl_vt =
@@ -651,19 +689,6 @@ static struct ALLEGRO_SHADER_INTERFACE shader_glsl_vt =
 };
 
 #endif
-
-
-/* Function: al_get_opengl_program_object
- */
-GLuint al_get_opengl_program_object(ALLEGRO_SHADER *shader)
-{
-#ifdef ALLEGRO_CFG_SHADER_GLSL
-   return ((ALLEGRO_SHADER_GLSL_S *)shader)->program_object;
-#else
-   (void)shader;
-   return 0;
-#endif
-}
 
 
 /* vim: set sts=3 sw=3 et: */
