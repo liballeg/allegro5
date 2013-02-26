@@ -116,7 +116,7 @@ See also: [al_get_text_width], [al_get_ustr_dimensions]
 
 ### API: al_draw_text
 
-Writes the NULL-terminated string `text` onto the target bitmap at position `x`,
+Writes the NUL-terminated string `text` onto the target bitmap at position `x`,
 `y`, using the specified `font`.
 
 The `flags` parameter can be 0 or one of the following flags:
