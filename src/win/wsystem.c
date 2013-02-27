@@ -216,11 +216,9 @@ static void win_shutdown(void)
 
 static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
 {
-   int flags = al_get_new_display_flags();
+   const int flags = al_get_new_display_flags();
    ALLEGRO_SYSTEM *sys = al_get_system_driver();
    ALLEGRO_SYSTEM_WIN *syswin = (ALLEGRO_SYSTEM_WIN *)sys;
-   const char *s;
-   ALLEGRO_DISPLAY_INTERFACE *ret = NULL;
 
    /* Look up the toggle_mouse_grab_key binding.  This isn't such a great place
     * to do it, but the config file is not available in win_initialize,
@@ -241,61 +239,65 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
       }
    }
 
-#if defined ALLEGRO_CFG_D3D
+   /* Programmatic selection. */
+#ifdef ALLEGRO_CFG_D3D
    if (flags & ALLEGRO_DIRECT3D) {
-      return _al_display_d3d_driver();
+      if (d3d_available) {
+         return _al_display_d3d_driver();
+      }
+      ALLEGRO_WARN("Direct3D graphics driver not available.\n");
+      return NULL;
    }
 #endif
-#if defined ALLEGRO_CFG_OPENGL
+#ifdef ALLEGRO_CFG_OPENGL
    if (flags & ALLEGRO_OPENGL) {
       return _al_display_wgl_driver();
    }
 #endif
 
+   /* Selection by configuration file.  The configuration value is non-binding.
+    * The user may unknowingly set a value which was configured out at compile
+    * time.  The value should have no effect instead of causing a failure.
+    */
    if (sys->config) {
-      s = al_get_config_value(sys->config, "graphics", "driver");
+      const char *s = al_get_config_value(sys->config, "graphics", "driver");
       if (s) {
-         if (!_al_stricmp(s, "OPENGL")) {
-#if defined ALLEGRO_CFG_OPENGL
-            flags |= ALLEGRO_OPENGL;
-            al_set_new_display_flags(flags);
-            return _al_display_wgl_driver();
-#else
-            return NULL;
+         ALLEGRO_DEBUG("Configuration value graphics.driver = %s\n", s);
+         if (0 == _al_stricmp(s, "DIRECT3D") || 0 == _al_stricmp(s, "D3D")) {
+#ifdef ALLEGRO_CFG_D3D
+            if (d3d_available) {
+               al_set_new_display_flags(flags | ALLEGRO_DIRECT3D);
+               return _al_display_d3d_driver();
+            }
 #endif
          }
-         else if (!_al_stricmp(s, "DIRECT3D") || !_al_stricmp(s, "D3D")) {
-#if defined ALLEGRO_CFG_D3D
-            flags |= ALLEGRO_DIRECT3D;
-            al_set_new_display_flags(flags);
-            return _al_display_d3d_driver();
-#else
-            return NULL;
+         else if (0 == _al_stricmp(s, "OPENGL")) {
+#ifdef ALLEGRO_CFG_OPENGL
+            al_set_new_display_flags(flags | ALLEGRO_OPENGL);
+            return _al_display_wgl_driver();
 #endif
+         }
+         else if (0 != _al_stricmp(s, "DEFAULT")) {
+            ALLEGRO_WARN("Graphics driver selection unrecognised: %s\n", s);
          }
       }
    }
 
-#if defined ALLEGRO_CFG_D3D
-#ifdef ALLEGRO_CFG_OPENGL
+   /* Automatic graphics driver selection. */
+   /* XXX is implicitly setting new_display_flags the desired behaviour? */
+#ifdef ALLEGRO_CFG_D3D
    if (d3d_available) {
-#endif
-      flags |= ALLEGRO_DIRECT3D;
-      al_set_new_display_flags(flags);
-      ret = _al_display_d3d_driver();
-      if (ret != NULL)
-         return ret;
-      flags &= ~ALLEGRO_DIRECT3D;
-#ifdef ALLEGRO_CFG_OPENGL
+      al_set_new_display_flags(flags | ALLEGRO_DIRECT3D);
+      return _al_display_d3d_driver();
    }
 #endif
+#ifdef ALLEGRO_CFG_OPENGL
+   {
+      al_set_new_display_flags(flags | ALLEGRO_OPENGL);
+      return _al_display_wgl_driver();
+   }
 #endif
-#if defined ALLEGRO_CFG_OPENGL
-   flags |= ALLEGRO_OPENGL;
-   al_set_new_display_flags(flags);
-   return _al_display_wgl_driver();
-#endif
-
+   ALLEGRO_WARN("No graphics driver available.\n");
    return NULL;
 }
 
