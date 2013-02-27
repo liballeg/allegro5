@@ -144,14 +144,20 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
 }
 
 
+static bool maybe_d3d_init_display(void)
+{
+#ifdef ALLEGRO_CFG_D3D
+   return _al_d3d_init_display();
+#else
+   return false;
+#endif
+}
 
 
 /* Create a new system object. */
 static ALLEGRO_SYSTEM *win_initialize(int flags)
 {
-   bool result;
    (void)flags;
-   (void)result;
 
    _al_win_system = al_calloc(1, sizeof *_al_win_system);
 
@@ -167,16 +173,7 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
 
    _al_win_system->system.vt = vt;
 
-#if defined ALLEGRO_CFG_D3D
-   result = _al_d3d_init_display();
-#ifndef ALLEGRO_CFG_OPENGL
-   if (result != true)
-      return NULL;
-#else
-   if (result != true)
-      d3d_available = false;
-#endif
-#endif
+   d3d_available = maybe_d3d_init_display();
 
    return &_al_win_system->system;
 }
