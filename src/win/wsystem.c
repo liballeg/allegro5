@@ -703,10 +703,8 @@ void _al_register_system_interfaces()
 {
    ALLEGRO_SYSTEM_INTERFACE **add;
 
-#if defined ALLEGRO_CFG_D3D || defined ALLEGRO_CFG_OPENGL
    add = _al_vector_alloc_back(&_al_system_interfaces);
    *add = _al_system_win_driver();
-#endif
 }
 
 /* vim: set sts=3 sw=3 et: */
