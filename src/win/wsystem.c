@@ -181,6 +181,7 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
 static void win_shutdown(void)
 {
    ALLEGRO_SYSTEM *s;
+   ALLEGRO_DISPLAY_INTERFACE *display_driver;
    ASSERT(vt);
 
    /* Close all open displays. */
@@ -194,8 +195,9 @@ static void win_shutdown(void)
 
    _al_vector_free(&s->displays);
 
-   if (vt->get_display_driver && vt->get_display_driver()->shutdown) {
-      vt->get_display_driver()->shutdown();
+   display_driver = vt->get_display_driver();
+   if (display_driver && display_driver->shutdown) {
+      display_driver->shutdown();
    }
 
    _al_win_shutdown_time();
