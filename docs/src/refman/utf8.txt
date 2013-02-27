@@ -731,7 +731,7 @@ See also: [al_utf16_encode], [al_utf8_width]
 
 ### API: al_utf16_encode
 
-Encode the specified code point to UTF-8 into the buffer `s`. The buffer
+Encode the specified code point to UTF-16 into the buffer `s`. The buffer
 must have enough space to hold the encoding, which takes either 2 or 4
 bytes. This routine will refuse to encode code points above 0x10FFFF.
 
