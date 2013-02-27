@@ -44,10 +44,14 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
 
    system = al_get_system_driver();
    driver = system->vt->get_display_driver();
+   if (!driver) {
+      ALLEGRO_ERROR("Failed to create display (no display driver)\n");
+      return NULL;
+   }
+
    display = driver->create_display(w, h);
-   
    if (!display) {
-      ALLEGRO_DEBUG("Failed to create display (NULL)\n");
+      ALLEGRO_ERROR("Failed to create display (NULL)\n");
       return NULL;
    }
 
