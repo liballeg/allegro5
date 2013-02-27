@@ -176,19 +176,16 @@ int main(int argc, char **argv)
 
       al_clear_to_color(al_map_rgb(140, 40, 40));
 
-      al_set_shader_sampler(shader, ALLEGRO_SHADER_VAR_TEX, bmp, 0);
       al_set_shader_float_vector(shader, "tint", 3, &tints[0], 1);
       al_use_shader(shader, true);
       al_draw_bitmap(bmp, 0, 0, 0);
       al_use_shader(shader, false);
 
-      al_set_shader_sampler(shader, ALLEGRO_SHADER_VAR_TEX, bmp, 0);
       al_set_shader_float_vector(shader, "tint", 3, &tints[3], 1);
       al_use_shader(shader, true);
       al_draw_bitmap(bmp, 320, 0, 0);
       al_use_shader(shader, false);
       
-      al_set_shader_sampler(shader, ALLEGRO_SHADER_VAR_TEX, bmp, 0);
       al_set_shader_float_vector(shader, "tint", 3, &tints[6], 1);
       al_use_shader(shader, true);
       al_draw_bitmap(bmp, 0, 240, 0);
@@ -199,7 +196,6 @@ int main(int argc, char **argv)
       al_copy_transform(&backup, al_get_current_transform());
       al_identity_transform(&trans);
       al_translate_transform(&trans, 320, 240);
-      al_set_shader_sampler(shader, ALLEGRO_SHADER_VAR_TEX, bmp, 0);
       al_set_shader_float_vector(shader, "tint", 3, &tints[9], 1);
       al_use_shader(shader, true);
       al_use_transform(&trans);
