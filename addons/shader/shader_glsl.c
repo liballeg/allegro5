@@ -329,7 +329,7 @@ static void glsl_use_shader(ALLEGRO_SHADER *shader, bool use)
 
       glUseProgram(gl_shader->program_object);
 
-      handle = glGetUniformLocation(gl_shader->program_object, "projview_matrix");
+      handle = glGetUniformLocation(gl_shader->program_object, ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX);
       if (handle >= 0) {
          ALLEGRO_TRANSFORM t;
          al_copy_transform(&t, &display->view_transform);
@@ -552,7 +552,7 @@ static bool glsl_set_shader_vertex_array(ALLEGRO_SHADER *shader,
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
 
-   GLint loc = glGetAttribLocation(gl_shader->program_object, "pos");
+   GLint loc = glGetAttribLocation(gl_shader->program_object, ALLEGRO_SHADER_VAR_POS);
    if (loc < 0)
       return false;
 
@@ -572,7 +572,7 @@ static bool glsl_set_shader_color_array(ALLEGRO_SHADER *shader,
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
 
-   GLint loc = glGetAttribLocation(gl_shader->program_object, "color");
+   GLint loc = glGetAttribLocation(gl_shader->program_object, ALLEGRO_SHADER_VAR_COLOR);
    if (loc < 0)
       return false;
 
@@ -592,7 +592,7 @@ static bool glsl_set_shader_texcoord_array(ALLEGRO_SHADER *shader,
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
 
-   GLint loc = glGetAttribLocation(gl_shader->program_object, "texcoord");
+   GLint loc = glGetAttribLocation(gl_shader->program_object, ALLEGRO_SHADER_VAR_TEXCOORD);
    if (loc < 0)
       return false;
 

@@ -474,7 +474,7 @@ static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
 
       al_compose_transform(&tmp, &disp->proj_transform);
 
-      handle = glGetUniformLocation(program_object, "projview_matrix");
+      handle = glGetUniformLocation(program_object, ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX);
       if (handle >= 0) {
          glUniformMatrix4fv(handle, 1, GL_FALSE, (float *)tmp.m);
       }
@@ -497,7 +497,7 @@ static void ogl_set_projection(ALLEGRO_DISPLAY *d)
       if (program_object == 0)
          return;
 
-      handle = glGetUniformLocation(program_object, "projview_matrix");
+      handle = glGetUniformLocation(program_object, ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX);
       if (handle >= 0) {
          ALLEGRO_TRANSFORM t;
          al_copy_transform(&t, &d->view_transform);

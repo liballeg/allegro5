@@ -145,6 +145,16 @@
 		typedef type (*name) args;
 #endif
 
+/* Shader names */
+#define ALLEGRO_SHADER_VAR_TEX "al_tex"
+#define ALLEGRO_SHADER_VAR_USE_TEX "al_use_tex"
+#define ALLEGRO_SHADER_VAR_TEXCOORD "al_texcoord"
+#define ALLEGRO_SHADER_VAR_COLOR "al_color"
+#define ALLEGRO_SHADER_VAR_POS "al_pos"
+#define ALLEGRO_SHADER_VAR_USE_TEX_MATRIX "al_use_tex_matrix"
+#define ALLEGRO_SHADER_VAR_TEX_MATRIX "al_tex_matrix"
+#define ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX "al_projview_matrix"
+#define ALLEGRO_SHADER_VAR_USER_ATTR "al_user_attr_"
 
 /*
  *  Public OpenGL-related API

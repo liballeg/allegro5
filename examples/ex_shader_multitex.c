@@ -65,13 +65,13 @@ int main(void)
       #ifdef ALLEGRO_CFG_OPENGLES
       "precision mediump float;\n"
       #endif
-      "uniform sampler2D tex;\n"
+      "uniform sampler2D " ALLEGRO_SHADER_VAR_TEX ";\n"
       "uniform sampler2D tex2;\n"
       "varying vec2 varying_texcoord;\n"
       "void main()\n"
       "{\n"
       "    vec4 color = texture2D(tex2, fract(varying_texcoord * 100));\n"
-      "    gl_FragColor = color * texture2D(tex, varying_texcoord);\n"
+      "    gl_FragColor = color * texture2D(" ALLEGRO_SHADER_VAR_TEX ", varying_texcoord);\n"
       "}\n"
    );
    
