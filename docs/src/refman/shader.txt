@@ -81,22 +81,33 @@ TODO: Is ALLEGRO_USE_PROGRAMMABLE_PIPELINE set automatically in this case?
 When ALLEGRO_USE_PROGRAMMABLE_PIPELINE is used the following shader variables
 are provided by Allegro and can be accessed in your shaders:
 
-* projview_matrix - matrix for Allegro's orthographic projection multiplied
+* al_projview_matrix - matrix for Allegro's orthographic projection multiplied
                      by the [al_use_transform] matrix (vertex shader)
 
-* pos - vertex position attribute (vertex shader)
+* al_pos - vertex position attribute (vertex shader)
 
-* color - vertex color attribute (vertex shader, passed to fragment shader)
+* al_color - vertex color attribute (vertex shader, passed to fragment shader)
 
-* texcoord - vertex texture coordinate (vertex shader, passed to fragment shader)
+* al_texcoord - vertex texture coordinate (vertex shader, passed to fragment shader)
 
-* use_tex - whether or not to use the bound texture (fragment shader)
+* al_use_tex - whether or not to use the bound texture (fragment shader)
 
-* tex - the sampler2D for the texture if one is bound (fragment shader)
+* al_tex - the sampler2D for the texture if one is bound (fragment shader)
 
-* use_tex_matric - whether or not to use a texture matrix (fragment shader)
+* al_use_tex_matrix - whether or not to use a texture matrix (fragment shader)
 
-* tex_matrix - the texture matrix (fragment shader, used by the primitives addon)
+* al_tex_matrix - the texture matrix (fragment shader, used by the primitives addon)
+
+Also, each shader variable has a corresponding macro name that can be used in C.
+
+* ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX for al_projview_matrix
+* ALLEGRO_SHADER_VAR_POS for al_pos
+* ALLEGRO_SHADER_VAR_COLOR for al_color
+* ALLEGRO_SHADER_VAR_TEXCOORD for al_texcoord
+* ALLEGRO_SHADER_VAR_USE_TEX for al_use_tex
+* ALLEGRO_SHADER_VAR_TEX for al_tex
+* ALLEGRO_SHADER_VAR_USE_TEX_MATRIX for al_use_tex_matrix
+* ALLEGRO_SHADER_VAR_TEX_MATRIX for al_tex_matrix
 
 Returns true on access and false on error, in which case the error log is
 updated. The error log can be retrieved with [al_get_shader_log].
