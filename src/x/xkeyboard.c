@@ -515,7 +515,7 @@ static const char *x_scancode_to_name(int scancode)
  *  KeySyms to ALLEGRO_KEY_* codes.
  */
 
-static void _al_xwin_get_keyboard_mapping(void)
+static bool _al_xwin_get_keyboard_mapping(void)
 {
    int i;
    int count;
@@ -535,6 +535,10 @@ static void _al_xwin_get_keyboard_mapping(void)
       count, &sym_per_key);
 
    ALLEGRO_INFO("%i keys, %i symbols per key.\n", count, sym_per_key);
+
+   if (sym_per_key <= 0) {
+      return false;
+   }
 
    missing = 0;
 
@@ -637,6 +641,8 @@ static void _al_xwin_get_keyboard_mapping(void)
       }
       key = al_get_next_config_entry(&it);
    }
+
+   return true;
 }
 
 
@@ -785,7 +791,9 @@ static int x_keyboard_init(void)
    }
 #endif
 
-   _al_xwin_get_keyboard_mapping();
+   if (!_al_xwin_get_keyboard_mapping()) {
+      return 1;
+   }
 
    _al_mutex_unlock(&s->lock);
 
