@@ -430,13 +430,13 @@ static bool cg_attach_shader_source(ALLEGRO_SHADER *shader,
    if (cg_shader->vertex_program) {
       // get named params
       cg_shader->name_pos =
-         _imp_cgGetNamedParameter(cg_shader->vertex_program, "pos");
+         _imp_cgGetNamedParameter(cg_shader->vertex_program, ALLEGRO_SHADER_VAR_POS);
       cg_shader->name_col =
-         _imp_cgGetNamedParameter(cg_shader->vertex_program, "color");
+         _imp_cgGetNamedParameter(cg_shader->vertex_program, ALLEGRO_SHADER_VAR_COLOR);
       cg_shader->name_tex =
-         _imp_cgGetNamedParameter(cg_shader->vertex_program, "texcoord");
+         _imp_cgGetNamedParameter(cg_shader->vertex_program, ALLEGRO_SHADER_VAR_TEXCOORD);
       cg_shader->name_projview =
-         _imp_cgGetNamedParameter(cg_shader->vertex_program, "projview_matrix");
+         _imp_cgGetNamedParameter(cg_shader->vertex_program, ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX);
    }
 
    return true;

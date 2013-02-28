@@ -11,7 +11,7 @@ struct VS_OUTPUT
 };
 
 float2 mouse_pos;
-float4x4 projview_matrix;
+float4x4 al_projview_matrix;
 
 VS_OUTPUT vs_main(VS_INPUT Input)
 {
@@ -20,7 +20,7 @@ VS_OUTPUT vs_main(VS_INPUT Input)
    float weight = 1.0f - min(length(mouse_pos - Input.Position.xy) / 300.0f, 1.0f);
    float4 real_pos = float4(mouse_pos * weight + Input.Position.xy * (1.0f - weight), Input.Position.zw);
    
-   Output.Position = mul(real_pos, projview_matrix);
+   Output.Position = mul(real_pos, al_projview_matrix);
    Output.Color = float4(Input.NewColor * weight + Input.Color.xyz * (1.0f - weight), Input.Color.w);
    return Output;
 }

@@ -381,7 +381,7 @@ static void _al_d3d_set_ortho_projection(ALLEGRO_DISPLAY_D3D *disp, float w, flo
 	 ALLEGRO_TRANSFORM t;
 	 al_copy_transform(&t, &display->view_transform);
 	 al_compose_transform(&t, &display->proj_transform);
-         disp->effect->SetMatrix("projview_matrix", (D3DXMATRIX *)&t.m);
+         disp->effect->SetMatrix(ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX, (D3DXMATRIX *)&t.m);
       }
 #endif
    }
@@ -2006,7 +2006,7 @@ static void d3d_draw_pixel(ALLEGRO_DISPLAY *disp, float x, float y, ALLEGRO_COLO
       vertices[0].color = *color;
 
       d3d_disp->device->SetFVF(D3DFVF_ALLEGRO_VERTEX);
-      d3d_disp->effect->SetBool("use_tex", false);
+      d3d_disp->effect->SetBool(ALLEGRO_SHADER_VAR_USE_TEX, false);
       d3d_disp->effect->Begin(&required_passes, 0);
       for (unsigned int i = 0; i < required_passes; i++) {
          d3d_disp->effect->BeginPass(i);
@@ -2682,8 +2682,8 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 #ifdef ALLEGRO_CFG_SHADER_HLSL
    UINT required_passes;
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-      d3d_disp->effect->SetBool("use_tex", true);
-      d3d_disp->effect->SetTexture("tex", d3d_bmp->video_texture);
+      d3d_disp->effect->SetBool(ALLEGRO_SHADER_VAR_USE_TEX, true);
+      d3d_disp->effect->SetTexture(ALLEGRO_SHADER_VAR_TEX, d3d_bmp->video_texture);
       d3d_disp->effect->Begin(&required_passes, 0);
       ASSERT(required_passes > 0);
    }
@@ -2725,8 +2725,8 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 #ifdef ALLEGRO_CFG_SHADER_HLSL
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       d3d_disp->effect->End();
-      d3d_disp->effect->SetBool("use_tex", false);
-      d3d_disp->effect->SetTexture("tex", NULL);
+      d3d_disp->effect->SetBool(ALLEGRO_SHADER_VAR_USE_TEX, false);
+      d3d_disp->effect->SetTexture(ALLEGRO_SHADER_VAR_TEX, NULL);
    }
 #endif
 
@@ -2753,7 +2753,7 @@ static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *tar
       LPD3DXEFFECT effect = d3d_disp->effect;
       if (effect) {
 	 al_compose_transform(&tmp_transform, &disp->proj_transform);
-         d3d_disp->effect->SetMatrix("projview_matrix", (D3DXMATRIX *)&tmp_transform.m);
+         d3d_disp->effect->SetMatrix(ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX, (D3DXMATRIX *)&tmp_transform.m);
       }
 #endif
    }
@@ -2775,7 +2775,7 @@ static void d3d_set_projection(ALLEGRO_DISPLAY *d)
       ALLEGRO_TRANSFORM t;
       al_copy_transform(&t, &d->view_transform);
       al_compose_transform(&t, &d->proj_transform);
-      d3d_disp->effect->SetMatrix("projview_matrix", (D3DXMATRIX *)&t.m);
+      d3d_disp->effect->SetMatrix(ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX, (D3DXMATRIX *)&t.m);
    }
    else
 #endif

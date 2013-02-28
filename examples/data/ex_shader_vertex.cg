@@ -1,13 +1,13 @@
-uniform float4x4 projview_matrix;
+uniform float4x4 al_projview_matrix;
 void vs_main(
-   in float3 pos        : POSITION,
-   in float4 color      : COLOR0,
-   in float2 texcoord   : TEXCOORD0,
-   out float4 posO      : POSITION,
-   out float4 colorO    : COLOR0,
-   out float2 texcoordO : TEXCOORD0)
+   in float3 al_pos      : POSITION,
+   in float4 al_color    : COLOR0,
+   in float2 al_texcoord : TEXCOORD0,
+   out float4 posO       : POSITION,
+   out float4 colorO     : COLOR0,
+   out float2 texcoordO  : TEXCOORD0)
 {
-   posO = mul(float4(pos, 1.0), projview_matrix);
-   colorO = color;
-   texcoordO = texcoord;
+   posO = mul(float4(al_pos, 1.0), al_projview_matrix);
+   colorO = al_color;
+   texcoordO = al_texcoord;
 }

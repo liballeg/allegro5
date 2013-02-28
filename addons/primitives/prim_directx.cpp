@@ -327,10 +327,10 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
 
          if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-            d3d_disp->effect->SetMatrix("tex_matrix", (D3DXMATRIX *)mat);
-            d3d_disp->effect->SetBool("use_tex_matrix", true);
-            d3d_disp->effect->SetBool("use_tex", true);
-            d3d_disp->effect->SetTexture("tex", d3d_texture);
+            d3d_disp->effect->SetMatrix(ALLEGRO_SHADER_VAR_TEX_MATRIX, (D3DXMATRIX *)mat);
+            d3d_disp->effect->SetBool(ALLEGRO_SHADER_VAR_USE_TEX_MATRIX, true);
+            d3d_disp->effect->SetBool(ALLEGRO_SHADER_VAR_USE_TEX, true);
+            d3d_disp->effect->SetTexture(ALLEGRO_SHADER_VAR_TEX, d3d_texture);
 #endif
          }
          else {
@@ -366,8 +366,8 @@ static void revert_state(D3D_STATE state, LPDIRECT3DDEVICE9 device, ALLEGRO_BITM
 #ifdef ALLEGRO_CFG_SHADER_HLSL
    if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
       d3d_disp->effect->End();
-      d3d_disp->effect->SetBool("use_tex_matrix", false);
-      d3d_disp->effect->SetBool("use_tex", false);
+      d3d_disp->effect->SetBool(ALLEGRO_SHADER_VAR_USE_TEX_MATRIX, false);
+      d3d_disp->effect->SetBool(ALLEGRO_SHADER_VAR_USE_TEX, false);
    }
 #endif
 

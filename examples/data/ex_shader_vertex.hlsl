@@ -11,12 +11,12 @@ struct VS_OUTPUT
    float2 TexCoord  : TEXCOORD0;
 };
 
-float4x4 projview_matrix;
+float4x4 al_projview_matrix;
 
 VS_OUTPUT vs_main(VS_INPUT Input)
 {
    VS_OUTPUT Output;
-   Output.Position = mul(Input.Position, projview_matrix);
+   Output.Position = mul(Input.Position, al_projview_matrix);
    Output.Color = Input.Color;
    Output.TexCoord = Input.TexCoord;
    return Output;

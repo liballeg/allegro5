@@ -340,7 +340,7 @@ static void hlsl_use_shader(ALLEGRO_SHADER *shader, bool use)
       ALLEGRO_TRANSFORM t;
       al_copy_transform(&t, &display->view_transform);
       al_compose_transform(&t, &display->proj_transform);
-      effect->SetMatrix("projview_matrix", (LPD3DXMATRIX)&t.m);
+      effect->SetMatrix(ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX, (LPD3DXMATRIX)&t.m);
    }
    else {
       //effect->EndPass();
