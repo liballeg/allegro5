@@ -32,6 +32,17 @@ enum ALLEGRO_SHADER_PLATFORM {
  */
 typedef enum ALLEGRO_SHADER_PLATFORM ALLEGRO_SHADER_PLATFORM;
 
+/* Shader variable names */
+#define ALLEGRO_SHADER_VAR_COLOR             "al_color"
+#define ALLEGRO_SHADER_VAR_POS               "al_pos"
+#define ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX   "al_projview_matrix"
+#define ALLEGRO_SHADER_VAR_TEX               "al_tex"
+#define ALLEGRO_SHADER_VAR_TEXCOORD          "al_texcoord"
+#define ALLEGRO_SHADER_VAR_TEX_MATRIX        "al_tex_matrix"
+#define ALLEGRO_SHADER_VAR_USER_ATTR         "al_user_attr_"
+#define ALLEGRO_SHADER_VAR_USE_TEX           "al_use_tex"
+#define ALLEGRO_SHADER_VAR_USE_TEX_MATRIX    "al_use_tex_matrix"
+
 
 AL_FUNC(ALLEGRO_SHADER *, al_create_shader, (ALLEGRO_SHADER_PLATFORM platform));
 AL_FUNC(bool, al_attach_shader_source, (ALLEGRO_SHADER *shader,
