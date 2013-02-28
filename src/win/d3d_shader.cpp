@@ -215,8 +215,10 @@ ALLEGRO_SHADER *_al_create_shader_hlsl(ALLEGRO_SHADER_PLATFORM platform)
 {
    ALLEGRO_SHADER_HLSL_S *shader;
 
-   if (NULL == _imp_D3DXCreateEffect && !_imp_load_d3dx9_module())
+   if (NULL == _imp_D3DXCreateEffect && !_imp_load_d3dx9_module()) {
+      ALLEGRO_ERROR("D3DXCreateEffect unavailable\n");
       return NULL;
+   }
 
    shader = (ALLEGRO_SHADER_HLSL_S *)al_calloc(1, sizeof(ALLEGRO_SHADER_HLSL_S));
    if (!shader)
