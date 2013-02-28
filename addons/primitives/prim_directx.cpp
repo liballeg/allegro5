@@ -277,6 +277,7 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
       }
    }
    else {
+      state.old_vtx_shader = NULL;
       _al_d3d_set_blender(d3d_disp);
    }
 
