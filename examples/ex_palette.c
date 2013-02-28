@@ -120,29 +120,29 @@ int main(void)
    al_attach_shader_source(
       shader,
       ALLEGRO_VERTEX_SHADER,
-      "attribute vec4 pos;\n"
-      "attribute vec4 color;\n"
-      "attribute vec2 texcoord;\n"
-      "uniform mat4 projview_matrix;\n"
+      "attribute vec4 al_pos;\n"
+      "attribute vec4 al_color;\n"
+      "attribute vec2 al_texcoord;\n"
+      "uniform mat4 al_projview_matrix;\n"
       "varying vec4 varying_color;\n"
       "varying vec2 varying_texcoord;\n"
       "void main()\n"
       "{\n"
-      "  varying_color = color;\n"
-      "  varying_texcoord = texcoord;\n"
-      "  gl_Position = projview_matrix * pos;\n"
+      "  varying_color = al_color;\n"
+      "  varying_texcoord = al_texcoord;\n"
+      "  gl_Position = al_projview_matrix * al_pos;\n"
       "}\n"
    );
    al_attach_shader_source(
       shader,
       ALLEGRO_PIXEL_SHADER,
-      "uniform sampler2D tex;\n"
+      "uniform sampler2D al_tex;\n"
       "uniform vec3 pal[256];\n"
       "varying vec4 varying_color;\n"
       "varying vec2 varying_texcoord;\n"
       "void main()\n"
       "{\n"
-      "  vec4 c = texture2D(tex, varying_texcoord);\n"
+      "  vec4 c = texture2D(al_tex, varying_texcoord);\n"
       "  int index = int(c.r * 255.0);\n"
       "  if (index != 0) {;\n"
       "    gl_FragColor = vec4(pal[index], 1);\n"
@@ -196,7 +196,6 @@ int main(void)
 
          interpolate_palette(pal, pals[p1 * 2], pals[p2 * 2], pos);
 
-         al_set_shader_sampler(shader, "tex", background, 0);
          al_set_shader_float_vector(shader, "pal", 3, pal, 256);
          al_use_shader(shader, true);
          al_draw_bitmap(background, 0, 0, 0);
@@ -205,7 +204,6 @@ int main(void)
             Sprite *s = sprite + 7 - i;
             float pos = (1 + sin((t / 60 + s->t) * 2 * ALLEGRO_PI)) / 2;
             interpolate_palette(pal, pals[s->i], pals[s->j], pos);
-            al_set_shader_sampler(shader, "tex", bitmap, 0);
             al_set_shader_float_vector(shader, "pal", 3, pal, 256);
             al_use_shader(shader, true);
             al_draw_rotated_bitmap(bitmap,
@@ -214,7 +212,6 @@ int main(void)
          
          {
             float sc = 0.5;
-            al_set_shader_sampler(shader, "tex", bitmap, 0);
             al_set_shader_float_vector(shader, "pal", 3,
                pals[(int)t % 20 > 15 ? 6 : 0], 256);
             al_use_shader(shader, true);
