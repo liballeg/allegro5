@@ -210,6 +210,8 @@ static void free_deferred_sets(_AL_VECTOR *vec, bool free_vector)
    while (!_al_vector_is_empty(vec)) {
       GLSL_DEFERRED_SET *sptr = _al_vector_ref_back(vec);
       al_free(sptr->name);
+      al_free(sptr->fp);
+      al_free(sptr->ip);
       _al_vector_delete_at(vec, _al_vector_size(vec) - 1);
    }
 
@@ -512,6 +514,8 @@ static bool glsl_set_shader_float(ALLEGRO_SHADER *shader,
 static bool glsl_set_shader_int_vector(ALLEGRO_SHADER *shader,
    const char *name, int elem_size, int *i, int num_elems)
 {
+   int * copy = al_malloc(sizeof(int) * elem_size * num_elems);
+   memcpy(copy, i, sizeof(int) * elem_size * num_elems);
    return shader_add_deferred_set(
       shader_set_int_vector, // void (*fptr)(GLSL_DEFERRED_SET *s)
       name,
@@ -519,7 +523,7 @@ static bool glsl_set_shader_int_vector(ALLEGRO_SHADER *shader,
       num_elems,
       NULL, // float *fp;
       NULL, // unsigned char *cp;
-      i, // int *ip;
+      copy, // int *ip;
       0.0f, // float f;
       0,    // int i;
       NULL, // ALLEGRO_TRANSFORM *transform;
@@ -532,12 +536,14 @@ static bool glsl_set_shader_int_vector(ALLEGRO_SHADER *shader,
 static bool glsl_set_shader_float_vector(ALLEGRO_SHADER *shader,
    const char *name, int elem_size, float *f, int num_elems)
 {
+   float * copy = al_malloc(sizeof(float) * elem_size * num_elems);
+   memcpy(copy, f, sizeof(float) * elem_size * num_elems);
    return shader_add_deferred_set(
       shader_set_float_vector, // void (*fptr)(GLSL_DEFERRED_SET *s)
       name,
       elem_size,    // int elem_size;
       num_elems,
-      f, // float *fp;
+      copy, // float *fp;
       NULL, // unsigned char *cp;
       NULL, // int *ip;
       0.0f, // float f;
