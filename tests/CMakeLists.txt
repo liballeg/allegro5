@@ -63,45 +63,43 @@ set(test_files
     )
 
 add_custom_target(run_tests
-    DEPENDS test_driver copy_tests_example_data
+    DEPENDS test_driver copy_example_data
     COMMAND test_driver ${test_files}
     )
 
 add_custom_target(run_tests_gl
-    DEPENDS test_driver copy_tests_example_data
+    DEPENDS test_driver copy_example_data
     COMMAND test_driver --force-opengl ${test_files}
     )
 
 add_custom_target(run_tests_gl12
-    DEPENDS test_driver copy_tests_example_data
+    DEPENDS test_driver copy_example_data
     COMMAND test_driver --force-opengl-1.2 ${test_files}
     )
 
 add_custom_target(run_tests_gl20
-    DEPENDS test_driver copy_tests_example_data
+    DEPENDS test_driver copy_example_data
     COMMAND test_driver --force-opengl-2.0 ${test_files}
     )
 
 add_custom_target(run_tests_d3d
-    DEPENDS test_driver copy_tests_example_data
+    DEPENDS test_driver copy_example_data
     COMMAND test_driver --force-d3d ${test_files}
     )
 
 add_custom_target(run_tests_wine
-    DEPENDS test_driver copy_tests_example_data
+    DEPENDS test_driver copy_example_data
     COMMAND wine test_driver ${test_files}
     )
 
 add_custom_target(run_tests_wine_gl
-    DEPENDS test_driver copy_tests_example_data
+    DEPENDS test_driver copy_example_data
     COMMAND wine test_driver --force-opengl ${test_files}
     )
 
 add_custom_target(run_tests_shaders
-    DEPENDS test_driver copy_tests_example_data
+    DEPENDS test_driver copy_example_data
     COMMAND test_driver --use-shaders ${test_files}
     )
-
-copy_data_dir_to_build(copy_tests_example_data ../examples/data .)
 
 # vim: set sts=4 sw=4 et:
