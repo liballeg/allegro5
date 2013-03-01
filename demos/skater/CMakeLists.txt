@@ -1,3 +1,9 @@
+if(SUPPORT_FONT AND SUPPORT_TTF AND SUPPORT_AUDIO AND SUPPORT_ACODEC AND SUPPORT_NATIVE_DIALOG)
+else()
+    message(STATUS "Not building skater demo")
+    return()
+endif()
+
 set(DEMO_SRCS
    src/anim.c
    src/background_scroller.c
@@ -31,7 +37,6 @@ set(DEMO_SRCS
    src/token.c
    src/transition.c
    src/vcontroller.c
-
     )
 
 file(GLOB SKATER_GRAPHICS data/graphics/*.png)
@@ -60,74 +65,67 @@ else(APPLE)
     set(DEMO_EXECUTABLE_TYPE "${EXECUTABLE_TYPE}")
 endif(APPLE)
 
-if(SUPPORT_FONT AND SUPPORT_TTF AND SUPPORT_AUDIO AND SUPPORT_ACODEC AND SUPPORT_NATIVE_DIALOG)
-    add_executable(skater
-        ${DEMO_EXECUTABLE_TYPE}
-        ${DEMO_SRCS}
-        ${SKATER_GRAPHICS}
-        ${SKATER_AUDIO}
-        ${SKATER_MENU}
-        ${SKATER_LEVEL}
-        ${SKATER_FONTS}
-        )
-    
-    fix_executable(skater)
+add_executable(skater
+    ${DEMO_EXECUTABLE_TYPE}
+    ${DEMO_SRCS}
+    ${SKATER_GRAPHICS}
+    ${SKATER_AUDIO}
+    ${SKATER_MENU}
+    ${SKATER_LEVEL}
+    ${SKATER_FONTS}
+    )
 
-    if(WANT_MONOLITH)
-       target_link_libraries(skater
-         ${ALLEGRO_MONOLITH_LINK_WITH}
-         )
-    else(WANT_MONOLITH)
-       target_link_libraries(skater
-         ${ACODEC_LINK_WITH}
-         ${AUDIO_LINK_WITH}
-         ${COLOR_LINK_WITH}
-         ${FONT_LINK_WITH}
-         ${IMAGE_LINK_WITH}
-         ${ALLEGRO_MAIN_LINK_WITH}
-         ${MEMFILE_LINK_WITH}
-         ${NATIVE_DIALOG_LINK_WITH}
-         ${PHYSFS_LINK_WITH}
-         ${PRIMITIVES_LINK_WITH}
-         ${TTF_LINK_WITH}
-         )
-    endif(WANT_MONOLITH)
+fix_executable(skater)
 
-    if(NOT BUILD_SHARED_LIBS) 
-        set_target_properties(skater PROPERTIES COMPILE_FLAGS "-DALLEGRO_STATICLINK")
-    endif(NOT BUILD_SHARED_LIBS)
+if(WANT_MONOLITH)
+   target_link_libraries(skater
+     ${ALLEGRO_MONOLITH_LINK_WITH}
+     )
+else(WANT_MONOLITH)
+   target_link_libraries(skater
+     ${ACODEC_LINK_WITH}
+     ${AUDIO_LINK_WITH}
+     ${COLOR_LINK_WITH}
+     ${FONT_LINK_WITH}
+     ${IMAGE_LINK_WITH}
+     ${ALLEGRO_MAIN_LINK_WITH}
+     ${MEMFILE_LINK_WITH}
+     ${NATIVE_DIALOG_LINK_WITH}
+     ${PHYSFS_LINK_WITH}
+     ${PRIMITIVES_LINK_WITH}
+     ${TTF_LINK_WITH}
+     )
+endif(WANT_MONOLITH)
 
-    # Mac OS X bundle support.
-    set_target_properties(skater PROPERTIES
-	MACOSX_BUNDLE_COPYRIGHT "Copyright 2010 Allegro Developers"
-	#MACOSX_BUNDLE_ICON_FILE "Icon.icns"
-	MACOSX_BUNDLE_INFO_STRING "5.1, Copyright 2010 Allegro Developers"
-	MACOSX_BUNDLE_SHORT_VERSION_STRING "5.1"
-	MACOSX_BUNDLE_LONG_VERSION_STRING "Allegro Skater Demo v5.1"
-	MACOSX_BUNDLE_GUI_IDENTIFIER "org.liballeg.skater"
-	)
+if(NOT BUILD_SHARED_LIBS)
+    set_target_properties(skater PROPERTIES COMPILE_FLAGS "-DALLEGRO_STATICLINK")
+endif(NOT BUILD_SHARED_LIBS)
 
-    set_source_files_properties(${SKATER_GRAPHICS} PROPERTIES
-	MACOSX_PACKAGE_LOCATION "Resources/data/graphics"
-	)
-     set_source_files_properties(${SKATER_AUDIO} PROPERTIES
-	MACOSX_PACKAGE_LOCATION "Resources/data/audio"
-	)
-     set_source_files_properties(${SKATER_MENU} PROPERTIES
-	MACOSX_PACKAGE_LOCATION "Resources/data/menu"
-	)
-     set_source_files_properties(${SKATER_LEVEL} PROPERTIES
-	MACOSX_PACKAGE_LOCATION "Resources/data"
-	)
-    set_source_files_properties(${SKATER_FONTS} PROPERTIES
-	MACOSX_PACKAGE_LOCATION "Resources/data/examples/data"
-	)
-   
-    
+# Mac OS X bundle support.
+set_target_properties(skater PROPERTIES
+    MACOSX_BUNDLE_COPYRIGHT "Copyright 2010 Allegro Developers"
+    #MACOSX_BUNDLE_ICON_FILE "Icon.icns"
+    MACOSX_BUNDLE_INFO_STRING "5.1, Copyright 2010 Allegro Developers"
+    MACOSX_BUNDLE_SHORT_VERSION_STRING "5.1"
+    MACOSX_BUNDLE_LONG_VERSION_STRING "Allegro Skater Demo v5.1"
+    MACOSX_BUNDLE_GUI_IDENTIFIER "org.liballeg.skater"
+    )
 
-else()
-    message(STATUS "Not building skater demo")
-endif()
+set_source_files_properties(${SKATER_GRAPHICS} PROPERTIES
+    MACOSX_PACKAGE_LOCATION "Resources/data/graphics"
+    )
+set_source_files_properties(${SKATER_AUDIO} PROPERTIES
+    MACOSX_PACKAGE_LOCATION "Resources/data/audio"
+    )
+set_source_files_properties(${SKATER_MENU} PROPERTIES
+    MACOSX_PACKAGE_LOCATION "Resources/data/menu"
+    )
+set_source_files_properties(${SKATER_LEVEL} PROPERTIES
+    MACOSX_PACKAGE_LOCATION "Resources/data"
+    )
+set_source_files_properties(${SKATER_FONTS} PROPERTIES
+    MACOSX_PACKAGE_LOCATION "Resources/data/examples/data"
+    )
 
 copy_data_dir_to_build(copy_skater_data data .)
 copy_data_dir_to_build(copy_skater_example_data ../../examples/data data/examples/data)

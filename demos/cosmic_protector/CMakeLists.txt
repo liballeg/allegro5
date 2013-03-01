@@ -1,3 +1,9 @@
+if(SUPPORT_FONT AND SUPPORT_AUDIO AND SUPPORT_ACODEC)
+else()
+    message(STATUS "Not building Cosmic Protector")
+    return()
+endif()
+
 set(DEMO_SRCS
     src/Asteroid.cpp
     src/BitmapResource.cpp
@@ -34,7 +40,7 @@ set(DEMO_SRCS
     )
 
 if(IPHONE)
-list(APPEND DEMO_SRCS src/cosmic_protector_objc.m)
+    list(APPEND DEMO_SRCS src/cosmic_protector_objc.m)
 endif(IPHONE)
 
 set_source_files_properties(${DEMO_SRCS} PROPERTIES LANGUAGE "CXX")
@@ -59,58 +65,53 @@ else(APPLE)
     set(DEMO_EXECUTABLE_TYPE "${EXECUTABLE_TYPE}")
 endif(APPLE)
 
-if(SUPPORT_FONT AND SUPPORT_AUDIO AND SUPPORT_ACODEC)
-    add_executable(cosmic_protector
-        ${DEMO_EXECUTABLE_TYPE}
-        ${DEMO_SRCS}
-        ${DEMO_GFX}
-        ${DEMO_SFX}
-        ${DEMO_ICON}
-        )
-    
-    fix_executable(cosmic_protector)
+add_executable(cosmic_protector
+    ${DEMO_EXECUTABLE_TYPE}
+    ${DEMO_SRCS}
+    ${DEMO_GFX}
+    ${DEMO_SFX}
+    ${DEMO_ICON}
+    )
 
-    if(WANT_MONOLITH)
-       target_link_libraries(cosmic_protector
-           ${ALLEGRO_MONOLITH_LINK_WITH}
-           )
-    else(WANT_MONOLITH)
-       target_link_libraries(cosmic_protector
-           ${ALLEGRO_MAIN_LINK_WITH}
-           ${FONT_LINK_WITH}
-           ${IMAGE_LINK_WITH}
-           ${AUDIO_LINK_WITH}
-           ${ACODEC_LINK_WITH}
-           ${PRIMITIVES_LINK_WITH}
-           )
-    endif(WANT_MONOLITH)
+fix_executable(cosmic_protector)
 
-    if(NOT BUILD_SHARED_LIBS) 
-        set_target_properties(cosmic_protector PROPERTIES COMPILE_FLAGS "-DALLEGRO_STATICLINK")
-    endif(NOT BUILD_SHARED_LIBS)
+if(WANT_MONOLITH)
+   target_link_libraries(cosmic_protector
+       ${ALLEGRO_MONOLITH_LINK_WITH}
+       )
+else(WANT_MONOLITH)
+   target_link_libraries(cosmic_protector
+       ${ALLEGRO_MAIN_LINK_WITH}
+       ${FONT_LINK_WITH}
+       ${IMAGE_LINK_WITH}
+       ${AUDIO_LINK_WITH}
+       ${ACODEC_LINK_WITH}
+       ${PRIMITIVES_LINK_WITH}
+       )
+endif(WANT_MONOLITH)
 
-    # Mac OS X bundle support.
-    set_target_properties(cosmic_protector PROPERTIES
-	MACOSX_BUNDLE_COPYRIGHT "Copyright 2008 Allegro Developers"
-	MACOSX_BUNDLE_ICON_FILE "Icon.icns"
-	MACOSX_BUNDLE_INFO_STRING "5.0, Copyright 2008 Allegro Developers"
-	MACOSX_BUNDLE_SHORT_VERSION_STRING "5.0"
-	MACOSX_BUNDLE_LONG_VERSION_STRING "Cosmic Protector v5.0"
-	MACOSX_BUNDLE_GUI_IDENTIFIER "org.liballeg.CosmicProtector"
-	)
-    set_source_files_properties(${DEMO_GFX} PROPERTIES
-	MACOSX_PACKAGE_LOCATION "Resources/data/gfx"
-	)
-    set_source_files_properties(${DEMO_SFX} PROPERTIES
-	MACOSX_PACKAGE_LOCATION "Resources/data/sfx"
-	)
-    set_source_files_properties(${DEMO_ICON} PROPERTIES
-        MACOSX_PACKAGE_LOCATION "Resources"
-	)
+if(NOT BUILD_SHARED_LIBS)
+    set_target_properties(cosmic_protector PROPERTIES COMPILE_FLAGS "-DALLEGRO_STATICLINK")
+endif(NOT BUILD_SHARED_LIBS)
 
-else()
-    message(STATUS "Not building Cosmic Protector")
-endif()
+# Mac OS X bundle support.
+set_target_properties(cosmic_protector PROPERTIES
+    MACOSX_BUNDLE_COPYRIGHT "Copyright 2008 Allegro Developers"
+    MACOSX_BUNDLE_ICON_FILE "Icon.icns"
+    MACOSX_BUNDLE_INFO_STRING "5.0, Copyright 2008 Allegro Developers"
+    MACOSX_BUNDLE_SHORT_VERSION_STRING "5.0"
+    MACOSX_BUNDLE_LONG_VERSION_STRING "Cosmic Protector v5.0"
+    MACOSX_BUNDLE_GUI_IDENTIFIER "org.liballeg.CosmicProtector"
+    )
+set_source_files_properties(${DEMO_GFX} PROPERTIES
+    MACOSX_PACKAGE_LOCATION "Resources/data/gfx"
+    )
+set_source_files_properties(${DEMO_SFX} PROPERTIES
+    MACOSX_PACKAGE_LOCATION "Resources/data/sfx"
+    )
+set_source_files_properties(${DEMO_ICON} PROPERTIES
+    MACOSX_PACKAGE_LOCATION "Resources"
+    )
 
 copy_data_dir_to_build(copy_demo_data data .)
 
