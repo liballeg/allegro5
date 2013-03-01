@@ -99,7 +99,7 @@ else()
     message(STATUS "Not building Cosmic Protector")
 endif()
 
-copy_data_dir_to_build(copy_demo_data data)
+copy_data_dir_to_build(copy_demo_data data .)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

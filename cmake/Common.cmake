@@ -244,7 +244,7 @@ endfunction(add_our_executable)
 #
 # Files are only copied if they don't are inside a .svn folder so we
 # won't end up with read-only .svn folders in the build folder.
-function(copy_data_dir_to_build target name)
+function(copy_data_dir_to_build target name destination)
     if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
         return()
     endif()
@@ -265,7 +265,7 @@ function(copy_data_dir_to_build target name)
 
     foreach(file ${files})
         add_custom_command(
-            OUTPUT ${file}
+            OUTPUT "${destination}/${file}"
             DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${file}"
             COMMAND "${CMAKE_COMMAND}" -E copy
                     "${CMAKE_CURRENT_SOURCE_DIR}/${file}" ${file}
