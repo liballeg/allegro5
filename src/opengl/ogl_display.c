@@ -124,13 +124,15 @@ void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap)
          /* Can only disable scissor if the sub-bitmap covers the
           * complete parent.
           */
-         if (bitmap->xofs == 0 && bitmap->yofs == 0 && bitmap->w ==
-            bitmap->parent->w && bitmap->h == bitmap->parent->h) {
-               use_scissor = false;
-            }
+         if (bitmap->xofs == 0 && bitmap->yofs == 0 &&
+            bitmap->w == bitmap->parent->w && bitmap->h == bitmap->parent->h)
+         {
+            use_scissor = false;
+         }
       }
-      else
+      else {
          use_scissor = false;
+      }
    }
    if (!use_scissor) {
       glDisable(GL_SCISSOR_TEST);
