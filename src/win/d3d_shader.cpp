@@ -166,8 +166,8 @@ static bool _imp_load_d3dx9_module()
 static bool hlsl_link_shader(ALLEGRO_SHADER *shader);
 static bool hlsl_attach_shader_source(ALLEGRO_SHADER *shader,
                ALLEGRO_SHADER_TYPE type, const char *source);
-static void hlsl_use_shader(ALLEGRO_SHADER *shader);
-static void hlsl_unuse_shader(ALLEGRO_SHADER *shader);
+static bool hlsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display);
+static void hlsl_unuse_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display);
 static void hlsl_destroy_shader(ALLEGRO_SHADER *shader);
 static bool hlsl_set_shader_sampler(ALLEGRO_SHADER *shader,
                const char *name, ALLEGRO_BITMAP *bitmap, int unit);
@@ -347,24 +347,27 @@ static bool hlsl_attach_shader_source(ALLEGRO_SHADER *shader,
    return true;
 }
 
-static void hlsl_use_shader(ALLEGRO_SHADER *shader)
+static bool hlsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
    LPD3DXEFFECT effect = hlsl_shader->hlsl_shader;
-   ALLEGRO_DISPLAY *display = al_get_current_display();
    ALLEGRO_TRANSFORM t;
 
-   ASSERT(display);
    ASSERT(display->flags & ALLEGRO_DIRECT3D);
 
    al_copy_transform(&t, &display->view_transform);
    al_compose_transform(&t, &display->proj_transform);
-   effect->SetMatrix(ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX, (LPD3DXMATRIX)&t.m);
+   if (effect->SetMatrix(ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX,
+         (LPD3DXMATRIX)&t.m) == D3D_OK) {
+      return true;
+   }
+   return false;
 }
 
-static void hlsl_unuse_shader(ALLEGRO_SHADER *shader)
+static void hlsl_unuse_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display)
 {
    (void)shader;
+   (void)display;
    //effect->EndPass();
    //effect->End();
 }

@@ -129,21 +129,23 @@ struct ALLEGRO_DISPLAY
    struct ALLEGRO_OGL_EXTRAS *ogl_extras;
 
    _AL_VECTOR bitmaps; /* A list of bitmaps created for this display. */
-   
+
    int num_cache_vertices;
    bool cache_enabled;
    int vertex_cache_size;
    void* vertex_cache;
    uintptr_t cache_texture;
-   
+
    ALLEGRO_BLENDER cur_blender;
-   
+
    void (*display_invalidated)(ALLEGRO_DISPLAY*);
 
    ALLEGRO_TRANSFORM proj_transform;
    ALLEGRO_TRANSFORM view_transform;
 
    _ALLEGRO_RENDER_STATE render_state; 
+
+   ALLEGRO_SHADER *cur_shader; /* or NULL */
 };
 
 int  _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref);

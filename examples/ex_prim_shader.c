@@ -147,9 +147,9 @@ int main(void)
          al_clear_to_color(al_map_rgb_f(0, 0, 0));
 
          al_set_shader_float_vector(shader, "mouse_pos", 2, mouse_pos, 1);
-         al_use_shader(shader, true);
+         al_use_shader(shader);
          al_draw_prim(vertices, vertex_decl, NULL, 0, 4, ALLEGRO_PRIM_TRIANGLE_FAN);
-         al_use_shader(shader, false);
+         al_use_shader(NULL);
 
          al_flip_display();
          redraw = false;

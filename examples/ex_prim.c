@@ -820,7 +820,7 @@ int main(int argc, char **argv)
       }
       
       if (use_shader && !Soft)
-         al_use_shader(shader, true);
+         al_use_shader(shader);
       if (Background && bkg) {
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
          al_draw_scaled_bitmap(bkg, 0, 0, al_get_bitmap_width(bkg), al_get_bitmap_height(bkg), 0, 0, ScreenW, ScreenH, 0);
@@ -852,7 +852,7 @@ int main(int argc, char **argv)
       al_draw_textf(Font, solid_white, 0, 140, 0, "Clip (C): %d", clip);
 
       if (use_shader && !Soft)
-         al_use_shader(shader, false);
+         al_use_shader(NULL);
 
       al_flip_display();
       frames_done++;

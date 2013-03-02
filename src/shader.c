@@ -14,6 +14,7 @@
  */
 
 #include "allegro5/allegro.h"
+#include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_shader.h"
 
 #ifdef ALLEGRO_CFG_SHADER_GLSL
@@ -138,14 +139,31 @@ ALLEGRO_SHADER_PLATFORM al_get_shader_platform(ALLEGRO_SHADER *shader)
 
 /* Function: al_use_shader
  */
-void al_use_shader(ALLEGRO_SHADER *shader, bool use)
+bool al_use_shader(ALLEGRO_SHADER *shader)
 {
-   ASSERT(shader);
-   if (use) {
-      shader->vt->use_shader(shader);
+   ALLEGRO_DISPLAY *dpy = al_get_current_display();
+   if (!dpy) {
+      /* Or maybe hard error? */
+      ALLEGRO_WARN("No current display.\n");
+      return false;
+   }
+
+   if (shader) {
+      if (shader->vt->use_shader(shader, dpy)) {
+         dpy->cur_shader = shader;
+         return true;
+      }
+      else {
+         dpy->cur_shader = NULL;
+         return false;
+      }
    }
    else {
-      shader->vt->unuse_shader(shader);
+      if (dpy->cur_shader) {
+         dpy->cur_shader->vt->unuse_shader(dpy->cur_shader, dpy);
+         dpy->cur_shader = NULL;
+      }
+      return true;
    }
 }
 

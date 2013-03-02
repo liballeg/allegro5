@@ -339,17 +339,23 @@ static void shader_set_float_vector(GLSL_DEFERRED_SET *s)
    LOG_GL_ERROR(s->name);
 }
 
-static void glsl_use_shader(ALLEGRO_SHADER *shader)
+static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
-   ALLEGRO_DISPLAY *display = al_get_current_display();
    GLint handle;
+   GLenum err;
    unsigned i;
 
-   ASSERT(display);
    ASSERT(display->flags & ALLEGRO_OPENGL);
 
+   glGetError(); /* clear error */
    glUseProgram(gl_shader->program_object);
+   err = glGetError();
+   if (err != GL_NO_ERROR) {
+      ALLEGRO_WARN("glUseProgram(%u) failed: %s\n", gl_shader->program_object,
+         _al_gl_error_string(err));
+      return false;
+   }
 
    handle = glGetUniformLocation(gl_shader->program_object, ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX);
    if (handle >= 0) {
@@ -365,11 +371,14 @@ static void glsl_use_shader(ALLEGRO_SHADER *shader)
       (*(sptr->fptr))(sptr);
    }
    free_deferred_sets(gl_shader->deferred_sets, false);
+
+   return true;
 }
 
-static void glsl_unuse_shader(ALLEGRO_SHADER *shader)
+static void glsl_unuse_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display)
 {
    (void)shader;
+   (void)display;
    glUseProgram(0);
 }
 

@@ -84,7 +84,9 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    display->render_state.alpha_test = false;
    display->render_state.alpha_function = ALLEGRO_RENDER_ALWAYS;
    display->render_state.alpha_test_value = 0;
-   
+
+   display->cur_shader = NULL;
+
    _al_vector_init(&display->bitmaps, sizeof(ALLEGRO_BITMAP*));
 
    if (settings->settings[ALLEGRO_COMPATIBLE_DISPLAY])
