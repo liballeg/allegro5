@@ -112,7 +112,6 @@ int main(void)
    if (!al_link_shader(shader)) {
       abort_example("al_link_shader for link failed: %s\n", al_get_shader_log(shader));
    }
-   al_set_shader(display, shader);
 
    timer = al_create_timer(1.0 / 60);
    queue = al_create_event_queue();

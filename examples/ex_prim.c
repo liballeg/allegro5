@@ -611,7 +611,6 @@ int main(int argc, char **argv)
          abort_example("al_link_shader failed: %s\n", al_get_shader_log(shader));
          return 1;
       }
-      al_set_shader(display, shader);
    }
 
    // Install the keyboard handler

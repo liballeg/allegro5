@@ -268,15 +268,6 @@ bool al_set_shader_texcoord_array(ALLEGRO_SHADER *shader, float *u, int stride)
    return shader->vt->set_shader_texcoord_array(shader, u, stride);
 }
 
-/* Function: al_set_shader
- */
-void al_set_shader(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader)
-{
-   ASSERT(display);
-   ASSERT(shader);
-   shader->vt->set_shader(display, shader);
-}
-
 /* Function: al_get_default_vertex_shader
  */
 char const *al_get_default_vertex_shader(ALLEGRO_SHADER_PLATFORM platform)

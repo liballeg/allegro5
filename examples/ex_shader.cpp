@@ -140,8 +140,6 @@ int main(int argc, char **argv)
       abort_example("al_link_shader failed: %s\n", al_get_shader_log(shader));
    }
 
-   al_set_shader(display, shader);
-      
    float tints[12] = {
       4.0, 0.0, 1.0,
       0.0, 4.0, 1.0,

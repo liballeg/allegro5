@@ -71,7 +71,6 @@ int main(void)
       abort_example("al_attach_shader_source_file for pixel shader failed: %s\n", al_get_shader_log(shader));
    if (!al_link_shader(shader))
       abort_example("al_link_shader failed: %s\n", al_get_shader_log(shader));
-   al_set_shader(display, shader);
 
    timer = al_create_timer(1.0 / 60);
    queue = al_create_event_queue();

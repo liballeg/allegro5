@@ -1555,16 +1555,18 @@ int main(int _argc, char *_argv[])
       if (!shader) {
          error("failed to create shader");
       }
-      if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER, al_get_default_vertex_shader(ALLEGRO_SHADER_AUTO))) {
+      if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER,
+            al_get_default_vertex_shader(ALLEGRO_SHADER_AUTO))) {
          error("al_attach_shader_source for vertex shader failed");
       }
-      if (!al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER, al_get_default_pixel_shader(ALLEGRO_SHADER_AUTO))) {
+      if (!al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER,
+            al_get_default_pixel_shader(ALLEGRO_SHADER_AUTO))) {
          error("al_attach_shader_source for pixel shader failed");
       }
       if (!al_link_shader(shader)) {
          error("al_link_shader failed");
       }
-      al_set_shader(display, shader);
+      al_use_shader(shader);
    }
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);

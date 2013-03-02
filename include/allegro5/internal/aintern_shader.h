@@ -30,8 +30,6 @@ struct ALLEGRO_SHADER_INTERFACE
    bool (*set_shader_vertex_array)(ALLEGRO_SHADER *shader, float *v, int stride);
    bool (*set_shader_color_array)(ALLEGRO_SHADER *shader, unsigned char *c, int stride);
    bool (*set_shader_texcoord_array)(ALLEGRO_SHADER *shader, float *u, int stride);
-
-   void (*set_shader)(ALLEGRO_DISPLAY *display, ALLEGRO_SHADER *shader);
 };
 
 struct ALLEGRO_SHADER
