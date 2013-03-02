@@ -339,38 +339,38 @@ static void shader_set_float_vector(GLSL_DEFERRED_SET *s)
    LOG_GL_ERROR(s->name);
 }
 
-static void glsl_use_shader(ALLEGRO_SHADER *shader, bool use)
+static void glsl_use_shader(ALLEGRO_SHADER *shader)
 {
+   ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
    ALLEGRO_DISPLAY *display = al_get_current_display();
+   GLint handle;
    unsigned i;
 
    ASSERT(display);
    ASSERT(display->flags & ALLEGRO_OPENGL);
 
-   if (use) {
-      ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
-      GLint handle;
+   glUseProgram(gl_shader->program_object);
 
-      glUseProgram(gl_shader->program_object);
-
-      handle = glGetUniformLocation(gl_shader->program_object, ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX);
-      if (handle >= 0) {
-         ALLEGRO_TRANSFORM t;
-         al_copy_transform(&t, &display->view_transform);
-         al_compose_transform(&t, &display->proj_transform);
-         glUniformMatrix4fv(handle, 1, false, (float *)t.m);
-      }
-
-      // Apply all deferred sets
-      for (i = 0; i < _al_vector_size(gl_shader->deferred_sets); i++) {
-         GLSL_DEFERRED_SET *sptr = _al_vector_ref(gl_shader->deferred_sets, i);
-         (*(sptr->fptr))(sptr);
-      }
-      free_deferred_sets(gl_shader->deferred_sets, false);
+   handle = glGetUniformLocation(gl_shader->program_object, ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX);
+   if (handle >= 0) {
+      ALLEGRO_TRANSFORM t;
+      al_copy_transform(&t, &display->view_transform);
+      al_compose_transform(&t, &display->proj_transform);
+      glUniformMatrix4fv(handle, 1, false, (float *)t.m);
    }
-   else {
-      glUseProgram(0);
+
+   // Apply all deferred sets
+   for (i = 0; i < _al_vector_size(gl_shader->deferred_sets); i++) {
+      GLSL_DEFERRED_SET *sptr = _al_vector_ref(gl_shader->deferred_sets, i);
+      (*(sptr->fptr))(sptr);
    }
+   free_deferred_sets(gl_shader->deferred_sets, false);
+}
+
+static void glsl_unuse_shader(ALLEGRO_SHADER *shader)
+{
+   (void)shader;
+   glUseProgram(0);
 }
 
 static bool shader_add_deferred_set(
@@ -680,6 +680,7 @@ static struct ALLEGRO_SHADER_INTERFACE shader_glsl_vt =
    glsl_link_shader,
    glsl_attach_shader_source,
    glsl_use_shader,
+   glsl_unuse_shader,
    glsl_destroy_shader,
    glsl_set_shader_sampler,
    glsl_set_shader_matrix,

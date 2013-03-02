@@ -141,7 +141,12 @@ ALLEGRO_SHADER_PLATFORM al_get_shader_platform(ALLEGRO_SHADER *shader)
 void al_use_shader(ALLEGRO_SHADER *shader, bool use)
 {
    ASSERT(shader);
-   shader->vt->use_shader(shader, use);
+   if (use) {
+      shader->vt->use_shader(shader);
+   }
+   else {
+      shader->vt->unuse_shader(shader);
+   }
 }
 
 /* Function: al_destroy_shader

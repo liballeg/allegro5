@@ -12,7 +12,8 @@ struct ALLEGRO_SHADER_INTERFACE
    bool (*link_shader)(ALLEGRO_SHADER *shader);
    bool (*attach_shader_source)(ALLEGRO_SHADER *shader,
          ALLEGRO_SHADER_TYPE type, const char *source);
-   void (*use_shader)(ALLEGRO_SHADER *shader, bool use);
+   void (*use_shader)(ALLEGRO_SHADER *shader);
+   void (*unuse_shader)(ALLEGRO_SHADER *shader);
    void (*destroy_shader)(ALLEGRO_SHADER *shader);
 
    bool (*set_shader_sampler)(ALLEGRO_SHADER *shader, const char *name,
