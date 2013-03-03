@@ -30,8 +30,7 @@ static void parse_args(int argc, char **argv)
 
    /*
     * --opengl and --d3d specify the display type.
-    * --hlsl, --glsl, --cg specify the shader platform.
-    * --cg can be combined with --opengl or --d3d.
+    * --hlsl, --glsl specify the shader platform.
     */
 
    for (i = 1; i < argc; i++) {
