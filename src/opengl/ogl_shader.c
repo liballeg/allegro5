@@ -231,6 +231,12 @@ static void glsl_destroy_shader(ALLEGRO_SHADER *shader)
    al_free(shader);
 }
 
+static bool shader_effective(ALLEGRO_SHADER *shader)
+{
+   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
+   return (bitmap && bitmap->shader == shader);
+}
+
 // real setters
 static void shader_set_sampler(GLSL_DEFERRED_SET *s)
 {
@@ -470,6 +476,16 @@ static bool glsl_set_shader_sampler(ALLEGRO_SHADER *shader,
       return false;
    }
 
+   if (shader_effective(shader)) {
+      GLSL_DEFERRED_SET set;
+      set.name = my_strdup(name);
+      set.bitmap = bitmap;
+      set.unit = unit;
+      set.shader = shader;
+      shader_set_sampler(&set);
+      return true;
+   }
+
    return shader_add_deferred_set(
       shader_set_sampler, // void (*fptr)(GLSL_DEFERRED_SET *s)
       name,
@@ -490,6 +506,15 @@ static bool glsl_set_shader_sampler(ALLEGRO_SHADER *shader,
 static bool glsl_set_shader_matrix(ALLEGRO_SHADER *shader,
    const char *name, ALLEGRO_TRANSFORM *matrix)
 {
+   if (shader_effective(shader)) {
+      GLSL_DEFERRED_SET set;
+      set.name = my_strdup(name);
+      set.transform = matrix;
+      set.shader = shader;
+      shader_set_matrix(&set);
+      return true;
+   }
+
    return shader_add_deferred_set(
       shader_set_matrix, // void (*fptr)(GLSL_DEFERRED_SET *s)
       name,
@@ -510,6 +535,15 @@ static bool glsl_set_shader_matrix(ALLEGRO_SHADER *shader,
 static bool glsl_set_shader_int(ALLEGRO_SHADER *shader,
    const char *name, int i)
 {
+   if (shader_effective(shader)) {
+      GLSL_DEFERRED_SET set;
+      set.name = my_strdup(name);
+      set.i = i;
+      set.shader = shader;
+      shader_set_int(&set);
+      return true;
+   }
+
    return shader_add_deferred_set(
       shader_set_int, // void (*fptr)(GLSL_DEFERRED_SET *s)
       name,
@@ -530,6 +564,15 @@ static bool glsl_set_shader_int(ALLEGRO_SHADER *shader,
 static bool glsl_set_shader_float(ALLEGRO_SHADER *shader,
    const char *name, float f)
 {
+   if (shader_effective(shader)) {
+      GLSL_DEFERRED_SET set;
+      set.name = my_strdup(name);
+      set.f = f;
+      set.shader = shader;
+      shader_set_float(&set);
+      return true;
+   }
+
    return shader_add_deferred_set(
       shader_set_float, // void (*fptr)(GLSL_DEFERRED_SET *s)
       name,
@@ -550,8 +593,20 @@ static bool glsl_set_shader_float(ALLEGRO_SHADER *shader,
 static bool glsl_set_shader_int_vector(ALLEGRO_SHADER *shader,
    const char *name, int elem_size, int *i, int num_elems)
 {
-   int * copy = al_malloc(sizeof(int) * elem_size * num_elems);
+   int *copy = al_malloc(sizeof(int) * elem_size * num_elems);
    memcpy(copy, i, sizeof(int) * elem_size * num_elems);
+
+   if (shader_effective(shader)) {
+      GLSL_DEFERRED_SET set;
+      set.name = my_strdup(name);
+      set.elem_size = elem_size;
+      set.num_elems = num_elems;
+      set.ip = copy;
+      set.shader = shader;
+      shader_set_int_vector(&set);
+      return true;
+   }
+
    return shader_add_deferred_set(
       shader_set_int_vector, // void (*fptr)(GLSL_DEFERRED_SET *s)
       name,
@@ -572,8 +627,20 @@ static bool glsl_set_shader_int_vector(ALLEGRO_SHADER *shader,
 static bool glsl_set_shader_float_vector(ALLEGRO_SHADER *shader,
    const char *name, int elem_size, float *f, int num_elems)
 {
-   float * copy = al_malloc(sizeof(float) * elem_size * num_elems);
+   float *copy = al_malloc(sizeof(float) * elem_size * num_elems);
    memcpy(copy, f, sizeof(float) * elem_size * num_elems);
+
+   if (shader_effective(shader)) {
+      GLSL_DEFERRED_SET set;
+      set.name = my_strdup(name);
+      set.elem_size = elem_size;
+      set.num_elems = num_elems;
+      set.fp = copy;
+      set.shader = shader;
+      shader_set_float_vector(&set);
+      return true;
+   }
+
    return shader_add_deferred_set(
       shader_set_float_vector, // void (*fptr)(GLSL_DEFERRED_SET *s)
       name,
@@ -594,6 +661,15 @@ static bool glsl_set_shader_float_vector(ALLEGRO_SHADER *shader,
 static bool glsl_set_shader_bool(ALLEGRO_SHADER *shader,
    const char *name, bool b)
 {
+   if (shader_effective(shader)) {
+      GLSL_DEFERRED_SET set;
+      set.name = my_strdup(name);
+      set.i = b;
+      set.shader = shader;
+      shader_set_int(&set);
+      return true;
+   }
+
    return shader_add_deferred_set(
       shader_set_int, // void (*fptr)(GLSL_DEFERRED_SET *s)
       name,
@@ -615,8 +691,12 @@ static bool glsl_set_shader_vertex_array(ALLEGRO_SHADER *shader,
    float *v, int stride)
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
+   GLint loc;
 
-   GLint loc = glGetAttribLocation(gl_shader->program_object, ALLEGRO_SHADER_VAR_POS);
+   if (!shader_effective(shader))
+      return false;
+
+   loc = glGetAttribLocation(gl_shader->program_object, ALLEGRO_SHADER_VAR_POS);
    if (loc < 0)
       return false;
 
@@ -635,8 +715,12 @@ static bool glsl_set_shader_color_array(ALLEGRO_SHADER *shader,
    unsigned char *c, int stride)
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
+   GLint loc;
 
-   GLint loc = glGetAttribLocation(gl_shader->program_object, ALLEGRO_SHADER_VAR_COLOR);
+   if (!shader_effective(shader))
+      return false;
+
+   loc = glGetAttribLocation(gl_shader->program_object, ALLEGRO_SHADER_VAR_COLOR);
    if (loc < 0)
       return false;
 
@@ -655,8 +739,12 @@ static bool glsl_set_shader_texcoord_array(ALLEGRO_SHADER *shader,
    float *u, int stride)
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
+   GLint loc;
 
-   GLint loc = glGetAttribLocation(gl_shader->program_object, ALLEGRO_SHADER_VAR_TEXCOORD);
+   if (!shader_effective(shader))
+      return false;
+
+   loc = glGetAttribLocation(gl_shader->program_object, ALLEGRO_SHADER_VAR_TEXCOORD);
    if (loc < 0)
       return false;
 
