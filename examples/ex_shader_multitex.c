@@ -5,6 +5,7 @@
 #include "allegro5/allegro_image.h"
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/allegro_glsl.h"
+#include "allegro5/allegro_hlsl.h"
 
 #include "common.c"
 
@@ -25,6 +26,8 @@ int main(void)
    bool redraw = true;
    ALLEGRO_SHADER *shader;
    int t = 0;
+   const char* vertex_source;
+   const char* pixel_file;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -38,8 +41,7 @@ int main(void)
       ALLEGRO_MIPMAP);
    al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
    al_set_new_display_option(ALLEGRO_SAMPLES, 4, ALLEGRO_SUGGEST);
-   al_set_new_display_flags(ALLEGRO_USE_PROGRAMMABLE_PIPELINE |
-      ALLEGRO_OPENGL);
+   al_set_new_display_flags(ALLEGRO_USE_PROGRAMMABLE_PIPELINE);
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Error creating display\n");
@@ -48,14 +50,25 @@ int main(void)
    bitmap[0]= load_bitmap("data/mysha.pcx");
    bitmap[1]= load_bitmap("data/obp.jpg");
 
-   shader = al_create_shader(ALLEGRO_SHADER_GLSL);
-   
-   al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER,
-      al_get_default_glsl_vertex_shader());
+   shader = al_create_shader(ALLEGRO_SHADER_AUTO);
+   if (!shader)
+      abort_example("Error creating shader.\n");
 
-   al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, "data/ex_shader_multitex_pixel.glsl");
-   
-   al_link_shader(shader);
+   if (al_get_shader_platform(shader) == ALLEGRO_SHADER_GLSL) {
+      vertex_source = al_get_default_glsl_vertex_shader();
+      pixel_file = "data/ex_shader_multitex_pixel.glsl";
+   }
+   else {
+      vertex_source = al_get_default_hlsl_vertex_shader();
+      pixel_file = "data/ex_shader_multitex_pixel.hlsl";
+   }
+
+   if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER, vertex_source))
+      abort_example("al_attach_shader_source for vertex shader failed: %s\n", al_get_shader_log(shader));
+   if (!al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, pixel_file))
+      abort_example("al_attach_shader_source_file for pixel shader failed: %s\n", al_get_shader_log(shader));
+   if (!al_link_shader(shader))
+      abort_example("al_link_shader failed: %s\n", al_get_shader_log(shader));
    al_set_shader(display, shader);
 
    timer = al_create_timer(1.0 / 60);
