@@ -1,8 +1,6 @@
 #ifndef __al_included_allegro5_allegro_glsl_h
 #define __al_included_allegro5_allegro_glsl_h
 
-#include "allegro5/allegro_opengl.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
