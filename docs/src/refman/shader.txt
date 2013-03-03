@@ -140,6 +140,13 @@ This function never returns NULL.
 
 Since: 5.1.0
 
+## API: al_get_shader_platform
+
+Returns the platform the shader was created with (either
+ALLEGRO_SHADER_HLSL or ALLEGRO_SHADER_GLSL).
+
+Since: 5.1.6
+
 ## API: al_use_shader
 
 Uses the shader for subsequent drawing operations.

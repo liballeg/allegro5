@@ -121,6 +121,14 @@ const char *al_get_shader_log(ALLEGRO_SHADER *shader)
    return (shader->log) ? al_cstr(shader->log) : "";
 }
 
+/* Function: al_get_shader_platform
+ */
+ALLEGRO_SHADER_PLATFORM al_get_shader_platform(ALLEGRO_SHADER *shader)
+{
+   ASSERT(shader);
+   return shader->platform;
+}
+
 /* Function: al_use_shader
  */
 void al_use_shader(ALLEGRO_SHADER *shader, bool use)
