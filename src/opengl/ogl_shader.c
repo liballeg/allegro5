@@ -347,7 +347,9 @@ static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display)
    GLenum err;
    unsigned i;
 
-   ASSERT(display->flags & ALLEGRO_OPENGL);
+   if (!(display->flags & ALLEGRO_OPENGL)) {
+      return false;
+   }
 
    gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
    program_object = gl_shader->program_object;

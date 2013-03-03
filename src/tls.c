@@ -42,6 +42,7 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_file.h"
 #include "allegro5/internal/aintern_fshook.h"
+#include "allegro5/internal/aintern_shader.h"
 #include "allegro5/internal/aintern_tls.h"
 
 #ifdef ALLEGRO_ANDROID
@@ -346,6 +347,9 @@ void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
    thread_local_state *tls;
    ALLEGRO_DISPLAY *old_display;
    ALLEGRO_DISPLAY *new_display;
+   ALLEGRO_SHADER *old_shader;
+   ALLEGRO_SHADER *new_shader;
+   bool same_shader;
 
    ASSERT(!al_is_bitmap_drawing_held());
 
@@ -363,16 +367,31 @@ void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
 
    old_display = tls->current_display;
 
+   if (tls->target_bitmap)
+      old_shader = tls->target_bitmap->shader;
+   else
+      old_shader = NULL;
+
    if (bitmap == NULL) {
       /* Explicitly releasing the current rendering context. */
       new_display = NULL;
+      new_shader = NULL;
    }
    else if (bitmap->flags & ALLEGRO_MEMORY_BITMAP) {
       /* Setting a memory bitmap doesn't change the rendering context. */
       new_display = old_display;
+      new_shader = NULL;
    }
    else {
       new_display = bitmap->display;
+      new_shader = bitmap->shader;
+   }
+
+   same_shader = (old_shader == new_shader && old_display == new_display);
+
+   /* Unset the old shader if necessary. */
+   if (old_shader && !same_shader) {
+      old_shader->vt->unuse_shader(old_shader, old_display);
    }
 
    /* Change the rendering context if necessary. */
@@ -399,11 +418,20 @@ void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
          !(bitmap->flags & ALLEGRO_MEMORY_BITMAP) &&
          new_display &&
          new_display->vt &&
-         new_display->vt->set_target_bitmap) {
+         new_display->vt->set_target_bitmap)
+   {
       new_display->vt->set_target_bitmap(new_display, bitmap);
+
+      /* Set the new shader if necessary.  This must be done before the
+       * update_transformation call to update the shader's al_projview_matrix
+       * variable.
+       */
+      if (new_shader && !same_shader) {
+         new_shader->vt->use_shader(new_shader, new_display);
+      }
+
       new_display->vt->update_transformation(new_display, bitmap);
    }
-
 }
 
 

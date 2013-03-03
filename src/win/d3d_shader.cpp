@@ -352,7 +352,9 @@ static bool hlsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display)
    ALLEGRO_DISPLAY_D3D *d3d_disp;
    ALLEGRO_TRANSFORM t;
 
-   ASSERT(display->flags & ALLEGRO_DIRECT3D);
+   if (!(display->flags & ALLEGRO_DIRECT3D)) {
+      return false;
+   }
    d3d_disp = (ALLEGRO_DISPLAY_D3D *)display;
 
    al_copy_transform(&t, &display->view_transform);

@@ -60,6 +60,9 @@ struct ALLEGRO_BITMAP
    ALLEGRO_TRANSFORM inverse_transform;
    bool              inverse_transform_dirty;
 
+   /* Shader applied to this bitmap */
+   ALLEGRO_SHADER *shader;
+
    /* Info for sub-bitmaps */
    ALLEGRO_BITMAP *parent;
    int xofs;

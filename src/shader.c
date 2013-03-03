@@ -14,6 +14,7 @@
  */
 
 #include "allegro5/allegro.h"
+#include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_shader.h"
 
@@ -141,27 +142,35 @@ ALLEGRO_SHADER_PLATFORM al_get_shader_platform(ALLEGRO_SHADER *shader)
  */
 bool al_use_shader(ALLEGRO_SHADER *shader)
 {
-   ALLEGRO_DISPLAY *dpy = al_get_current_display();
-   if (!dpy) {
-      /* Or maybe hard error? */
-      ALLEGRO_WARN("No current display.\n");
+   ALLEGRO_BITMAP *bmp = al_get_target_bitmap();
+
+   if (!bmp) {
+      ALLEGRO_WARN("No current target bitmap.\n");
       return false;
    }
+   if (bmp->flags & ALLEGRO_MEMORY_BITMAP) {
+      ALLEGRO_WARN("Target bitmap is memory bitmap.\n");
+      return false;
+   }
+   ASSERT(bmp->display);
 
    if (shader) {
-      if (shader->vt->use_shader(shader, dpy)) {
-         dpy->cur_shader = shader;
+      if (shader->vt->use_shader(shader, bmp->display)) {
+         bmp->shader = shader;
+         ALLEGRO_DEBUG("use_shader succeeded\n");
          return true;
       }
       else {
-         dpy->cur_shader = NULL;
+         bmp->shader = NULL;
+         ALLEGRO_ERROR("use_shader failed\n");
          return false;
       }
    }
    else {
-      if (dpy->cur_shader) {
-         dpy->cur_shader->vt->unuse_shader(dpy->cur_shader, dpy);
-         dpy->cur_shader = NULL;
+      if (bmp->shader) {
+         ASSERT(bmp->display);
+         bmp->shader->vt->unuse_shader(bmp->shader, bmp->display);
+         bmp->shader = NULL;
       }
       return true;
    }

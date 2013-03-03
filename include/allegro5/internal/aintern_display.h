@@ -144,8 +144,6 @@ struct ALLEGRO_DISPLAY
    ALLEGRO_TRANSFORM view_transform;
 
    _ALLEGRO_RENDER_STATE render_state; 
-
-   ALLEGRO_SHADER *cur_shader; /* or NULL */
 };
 
 int  _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref);

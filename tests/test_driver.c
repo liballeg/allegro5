@@ -880,6 +880,13 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
 
       if (SCAN("al_set_target_bitmap", 1)) {
          al_set_target_bitmap(B(0));
+         /* XXX this is somewhat of a hack so that existing test cases work
+          * with shaders enabled.  We should really have shader-specific test
+          * cases.
+          */
+         if (shader && !(al_get_bitmap_flags(B(0)) & ALLEGRO_MEMORY_BITMAP)) {
+            al_use_shader(shader);
+         }
          continue;
       }
 
