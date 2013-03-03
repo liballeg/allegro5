@@ -6,7 +6,7 @@
 /* The ALLEGRO_CFG_* defines are actually internal to Allegro so don't use them
  * in your own programs.
  */
-#ifdef ALLEGRO_CFG_DIRECT3D
+#ifdef ALLEGRO_CFG_D3D
    #include "allegro5/allegro_direct3d.h"
 #endif
 #ifdef ALLEGRO_CFG_OPENGL
@@ -38,7 +38,7 @@ static void parse_args(int argc, char **argv)
          display_flags = ALLEGRO_OPENGL;
          continue;
       }
-#ifdef ALLEGRO_DIRECT3D
+#ifdef ALLEGRO_CFG_D3D
       if (0 == strcmp(argv[i], "--d3d")) {
          display_flags = ALLEGRO_DIRECT3D;
          continue;
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
          && (shader_platform & ALLEGRO_SHADER_HLSL)) {
       abort_example("Shader platform incompatible with display type.\n");
    }
-#ifdef ALLEGRO_DIRECT3D
+#ifdef ALLEGRO_CFG_D3D
    if ((display_flags & ALLEGRO_DIRECT3D)
          && (shader_platform & ALLEGRO_SHADER_GLSL)) {
       abort_example("Shader platform incompatible with display type.\n");
