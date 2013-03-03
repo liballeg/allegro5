@@ -53,25 +53,7 @@ int main(void)
    al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER,
       al_get_default_glsl_vertex_shader());
 
-   /* Simple fragment shader which uses the fractional texture coordinate to
-    * look up the color of the second texture (scaled down by factor 100).
-    */
-   al_attach_shader_source(
-      shader,
-      ALLEGRO_PIXEL_SHADER,
-      "#version 120\n"
-      #ifdef ALLEGRO_CFG_OPENGLES
-      "precision mediump float;\n"
-      #endif
-      "uniform sampler2D " ALLEGRO_SHADER_VAR_TEX ";\n"
-      "uniform sampler2D tex2;\n"
-      "varying vec2 varying_texcoord;\n"
-      "void main()\n"
-      "{\n"
-      "    vec4 color = texture2D(tex2, fract(varying_texcoord * 100));\n"
-      "    gl_FragColor = color * texture2D(" ALLEGRO_SHADER_VAR_TEX ", varying_texcoord);\n"
-      "}\n"
-   );
+   al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, "data/ex_shader_multitex_pixel.glsl");
    
    al_link_shader(shader);
    al_set_shader(display, shader);
