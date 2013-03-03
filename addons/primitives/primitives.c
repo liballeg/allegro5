@@ -316,7 +316,7 @@ int al_draw_vertex_buffer(ALLEGRO_VERTEX_BUFFER* vertex_buffer,
    if (target->flags & ALLEGRO_MEMORY_BITMAP || (texture && texture->flags & ALLEGRO_MEMORY_BITMAP)) {
       void* vtx;
       ASSERT(!vertex_buffer->write_only);
-      vtx = al_lock_vertex_buffer(vertex_buffer, start, end, ALLEGRO_LOCK_READONLY);
+      vtx = al_lock_vertex_buffer(vertex_buffer, start, end - start, ALLEGRO_LOCK_READONLY);
       ASSERT(vtx);
       ret = _al_draw_prim_soft(texture, vtx, vertex_buffer->decl, 0, end - start, type);
       al_unlock_vertex_buffer(vertex_buffer);

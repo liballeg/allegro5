@@ -376,7 +376,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
       opengl_target) || al_is_bitmap_locked(target)) {
       if (vertex_buffer) {
          ASSERT(!vertex_buffer->write_only);
-         vtx = al_lock_vertex_buffer(vertex_buffer, start, end, ALLEGRO_LOCK_READONLY);
+         vtx = al_lock_vertex_buffer(vertex_buffer, start, end - start, ALLEGRO_LOCK_READONLY);
          ASSERT(vtx);
          num_primitives = _al_draw_prim_soft(texture, vtx, decl, 0, num_vtx, type);
          al_unlock_vertex_buffer(vertex_buffer);

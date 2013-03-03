@@ -636,7 +636,7 @@ int _al_draw_vertex_buffer_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textu
    if(vertex_buffer->decl && vertex_buffer->decl->d3d_decl == 0) {
       void* vtx;
       ASSERT(!vertex_buffer->write_only);
-      vtx = al_lock_vertex_buffer(vertex_buffer, start, end, ALLEGRO_LOCK_READONLY);
+      vtx = al_lock_vertex_buffer(vertex_buffer, start, end - start, ALLEGRO_LOCK_READONLY);
       ASSERT(vtx);
       num_primitives = _al_draw_prim_soft(texture, vtx, vertex_buffer->decl, 0, num_vtx, type);
       al_unlock_vertex_buffer(vertex_buffer);
