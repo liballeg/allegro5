@@ -18,6 +18,9 @@
 #ifdef ALLEGRO_CFG_SHADER_GLSL
 #include "allegro5/allegro_glsl.h"
 #endif
+#ifdef ALLEGRO_CFG_SHADER_HLSL
+#include "allegro5/allegro_hlsl.h"
+#endif
 
 #define MAX_BITMAPS  128
 #define MAX_TRANS    8
@@ -55,6 +58,7 @@ typedef struct {
 int               argc;
 char              **argv;
 ALLEGRO_DISPLAY   *display;
+ALLEGRO_SHADER    *shader;
 ALLEGRO_BITMAP    *membuf;
 Bitmap            bitmaps[MAX_BITMAPS];
 LockRegion        lock_region;
@@ -72,9 +76,6 @@ int               verbose = 0;
 int               total_tests = 0;
 int               passed_tests = 0;
 int               failed_tests = 0;
-#ifdef ALLEGRO_CFG_SHADER_GLSL
-ALLEGRO_SHADER    *shader;
-#endif
 
 #define streq(a, b)  (0 == strcmp((a), (b)))
 
@@ -1483,6 +1484,8 @@ static void process_ini_files(void)
 
 int main(int _argc, char *_argv[])
 {
+   int display_flags = 0;
+
    argc = _argc;
    argv = _argv;
 
@@ -1521,24 +1524,22 @@ int main(int _argc, char *_argv[])
       else if (streq(opt, "--force-opengl-1.2")) {
          ALLEGRO_CONFIG *cfg = al_get_system_config();
          al_set_config_value(cfg, "opengl", "force_opengl_version", "1.2");
-         al_set_new_display_flags(ALLEGRO_OPENGL);
+         display_flags |= ALLEGRO_OPENGL;
       }
       else if (streq(opt, "--force-opengl-2.0")) {
          ALLEGRO_CONFIG *cfg = al_get_system_config();
          al_set_config_value(cfg, "opengl", "force_opengl_version", "2.0");
-         al_set_new_display_flags(ALLEGRO_OPENGL);
+         display_flags |= ALLEGRO_OPENGL;
       }
       else if (streq(opt, "--force-opengl")) {
-         al_set_new_display_flags(ALLEGRO_OPENGL);
+         display_flags |= ALLEGRO_OPENGL;
       }
       else if (streq(opt, "--force-d3d")) {
          /* Don't try this at home. */
-         al_set_new_display_flags(ALLEGRO_DIRECT3D_INTERNAL);
+         display_flags |= ALLEGRO_DIRECT3D_INTERNAL;
       }
       else if (streq(opt, "--use-shaders")) {
-         #ifdef ALLEGRO_CFG_SHADER_GLSL
-         al_set_new_display_flags(ALLEGRO_OPENGL | ALLEGRO_USE_PROGRAMMABLE_PIPELINE);
-         #endif
+         display_flags |= ALLEGRO_USE_PROGRAMMABLE_PIPELINE;
       }
       else {
          break;
@@ -1546,23 +1547,39 @@ int main(int _argc, char *_argv[])
    }
 
    if (want_display) {
+      al_set_new_display_flags(display_flags);
       display = al_create_display(640, 480);
       if (!display) {
          error("failed to create display");
       }
    }
 
-   #ifdef ALLEGRO_CFG_SHADER_GLSL
-   if (al_get_new_display_flags() & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-      shader = al_create_shader(ALLEGRO_SHADER_GLSL);
-      al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER,
-         al_get_default_glsl_vertex_shader());
-      al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER,
-         al_get_default_glsl_pixel_shader());
-      al_link_shader(shader);
+   if (display_flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      shader = al_create_shader(ALLEGRO_SHADER_AUTO);
+      if (!shader) {
+         error("failed to create shader");
+      }
+      if (al_get_shader_platform(shader) == ALLEGRO_SHADER_GLSL) {
+#ifdef ALLEGRO_CFG_SHADER_GLSL
+         al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER,
+            al_get_default_glsl_vertex_shader());
+         al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER,
+            al_get_default_glsl_pixel_shader());
+#endif
+      }
+      else {
+#ifdef ALLEGRO_CFG_SHADER_HLSL
+         al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER,
+            al_get_default_hlsl_vertex_shader());
+         al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER,
+            al_get_default_hlsl_pixel_shader());
+#endif
+      }
+      if (!al_link_shader(shader)) {
+         error("al_link_shader failed");
+      }
       al_set_shader(display, shader);
    }
-   #endif
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
 
