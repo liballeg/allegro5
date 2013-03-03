@@ -50,7 +50,7 @@ static void parse_args(int argc, char **argv)
    }
 }
 
-static void choose_vertex_source(int display_flags,
+static void choose_shader_source(int display_flags,
    ALLEGRO_SHADER_PLATFORM shader_platform,
    char const **vsource, char const **psource)
 {
@@ -122,7 +122,7 @@ int main(int argc, char **argv)
       abort_example("Could not create shader.\n");
    }
 
-   choose_vertex_source(display_flags, shader_platform, &vsource, &psource);
+   choose_shader_source(display_flags, shader_platform, &vsource, &psource);
    if (!vsource|| !psource) {
       abort_example("Could not load source files.\n");
    }
@@ -140,6 +140,8 @@ int main(int argc, char **argv)
       abort_example("al_link_shader failed: %s\n", al_get_shader_log(shader));
    }
 
+   al_use_shader(shader);
+
    float tints[12] = {
       4.0, 0.0, 1.0,
       0.0, 4.0, 1.0,
@@ -156,19 +158,13 @@ int main(int argc, char **argv)
       al_clear_to_color(al_map_rgb(140, 40, 40));
 
       al_set_shader_float_vector(shader, "tint", 3, &tints[0], 1);
-      al_use_shader(shader);
       al_draw_bitmap(bmp, 0, 0, 0);
-      al_use_shader(NULL);
 
       al_set_shader_float_vector(shader, "tint", 3, &tints[3], 1);
-      al_use_shader(shader);
       al_draw_bitmap(bmp, 320, 0, 0);
-      al_use_shader(NULL);
 
       al_set_shader_float_vector(shader, "tint", 3, &tints[6], 1);
-      al_use_shader(shader);
       al_draw_bitmap(bmp, 0, 240, 0);
-      al_use_shader(NULL);
 
       /* Draw the last one transformed */
       ALLEGRO_TRANSFORM trans, backup;
@@ -176,17 +172,16 @@ int main(int argc, char **argv)
       al_identity_transform(&trans);
       al_translate_transform(&trans, 320, 240);
       al_set_shader_float_vector(shader, "tint", 3, &tints[9], 1);
-      al_use_shader(shader);
       al_use_transform(&trans);
       al_draw_bitmap(bmp, 0, 0, 0);
       al_use_transform(&backup);
-      al_use_shader(NULL);
 
       al_flip_display();
 
       al_rest(0.01);
    }
 
+   al_use_shader(NULL);
    al_destroy_shader(shader);
 
    return 0;

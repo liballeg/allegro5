@@ -113,6 +113,8 @@ int main(void)
       abort_example("al_link_shader for link failed: %s\n", al_get_shader_log(shader));
    }
 
+   al_use_shader(shader);
+
    timer = al_create_timer(1.0 / 60);
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
@@ -146,15 +148,14 @@ int main(void)
          al_clear_to_color(al_map_rgb_f(0, 0, 0));
 
          al_set_shader_float_vector(shader, "mouse_pos", 2, mouse_pos, 1);
-         al_use_shader(shader);
          al_draw_prim(vertices, vertex_decl, NULL, 0, 4, ALLEGRO_PRIM_TRIANGLE_FAN);
-         al_use_shader(NULL);
 
          al_flip_display();
          redraw = false;
       }
    }
 
+   al_use_shader(NULL);
    al_destroy_shader(shader);
    al_destroy_vertex_decl(vertex_decl);
 

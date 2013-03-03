@@ -72,6 +72,8 @@ int main(void)
    if (!al_link_shader(shader))
       abort_example("al_link_shader failed: %s\n", al_get_shader_log(shader));
 
+   al_use_shader(shader);
+
    timer = al_create_timer(1.0 / 60);
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
@@ -113,13 +115,14 @@ int main(void)
           * custom shader.
           */
          al_set_shader_sampler(shader, "tex2", bitmap[1], 1);
-         al_use_shader(shader);
          al_draw_scaled_rotated_bitmap(bitmap[0], x, y, dw / 2, dh / 2,
             scale, scale, angle, 0);
 
          al_flip_display();
       }
    }
+
+   al_use_shader(NULL);
 
    al_destroy_bitmap(bitmap[0]);
    al_destroy_bitmap(bitmap[1]);

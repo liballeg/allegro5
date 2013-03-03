@@ -701,7 +701,12 @@ int main(int argc, char **argv)
 
    for (ii = 0; ii < NUM_SCREENS; ii++)
       Screens[ii](INIT);
-      
+
+   if (use_shader) {
+      al_set_target_backbuffer(display);
+      al_use_shader(shader);
+   }
+
    while (!done) {
       double frame_duration = al_get_time() - real_time;
       al_rest(fixed_timestep - frame_duration); //rest at least fixed_dt
@@ -818,8 +823,6 @@ int main(int argc, char **argv)
          al_clear_to_color(black);
       }
       
-      if (use_shader && !Soft)
-         al_use_shader(shader);
       if (Background && bkg) {
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
          al_draw_scaled_bitmap(bkg, 0, 0, al_get_bitmap_width(bkg), al_get_bitmap_height(bkg), 0, 0, ScreenW, ScreenH, 0);
@@ -850,9 +853,6 @@ int main(int argc, char **argv)
       al_draw_textf(Font, solid_white, 0, 120, 0, "Background (B): %d", Background);
       al_draw_textf(Font, solid_white, 0, 140, 0, "Clip (C): %d", clip);
 
-      if (use_shader && !Soft)
-         al_use_shader(NULL);
-
       al_flip_display();
       frames_done++;
    }
@@ -863,6 +863,8 @@ int main(int argc, char **argv)
    }
    
    if (use_shader) {
+      al_set_target_backbuffer(display);
+      al_use_shader(NULL);
       al_destroy_shader(shader);
    }
 
