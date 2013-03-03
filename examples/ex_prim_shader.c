@@ -87,6 +87,10 @@ int main(void)
 
    shader = al_create_shader(ALLEGRO_SHADER_AUTO);
    
+   if (!shader) {
+      abort_example("Failed to create shader.");
+   }
+
    if (al_get_shader_platform(shader) == ALLEGRO_SHADER_GLSL) {
       vertex_shader_file = "data/ex_prim_shader_vertex.glsl";
       pixel_shader_file = "data/ex_prim_shader_pixel.glsl";
