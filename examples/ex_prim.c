@@ -21,6 +21,8 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_glsl.h>
+#include <allegro5/allegro_hlsl.h>
 #include <math.h>
 #include <stdio.h>
 
@@ -555,12 +557,24 @@ static void VertexBuffers(int mode)
    }
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP* bkg;
    ALLEGRO_COLOR black;
    ALLEGRO_EVENT_QUEUE *queue;
+   ALLEGRO_SHADER *shader = NULL;
+   bool use_shader = false;
+
+   if (argc > 1) {
+      if (strcmp(argv[1], "--shader") == 0) {
+         use_shader = true;
+      }
+      else {
+         abort_example("Invalid command line option: %s", argv[1]);
+         return 1;
+      }
+   }
 
    // Initialize Allegro 5 and addons
    if (!al_init()) {
@@ -570,6 +584,10 @@ int main(void)
    al_init_font_addon();
    al_init_primitives_addon();
    
+   if (use_shader) {
+      al_set_new_display_flags(ALLEGRO_USE_PROGRAMMABLE_PIPELINE);
+   }
+
    // Create a window to display things on: 640x480 pixels
    display = al_create_display(ScreenW, ScreenH);
    if (!display) {
@@ -577,6 +595,39 @@ int main(void)
       return 1;
    }
    
+   if (use_shader) {
+      const char* vertex_source;
+      const char* pixel_source;
+      shader = al_create_shader(ALLEGRO_SHADER_AUTO);
+      if (!shader) {
+         abort_example("Error creating shader.\n");
+         return 1;
+      }
+
+      if (al_get_shader_platform(shader) == ALLEGRO_SHADER_GLSL) {
+         vertex_source = al_get_default_glsl_vertex_shader();
+         pixel_source = al_get_default_glsl_pixel_shader();
+      }
+      else {
+         vertex_source = al_get_default_hlsl_vertex_shader();
+         pixel_source = al_get_default_hlsl_pixel_shader();
+      }
+
+      if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER, vertex_source)) {
+         abort_example("al_attach_shader_source for vertex shader failed: %s\n", al_get_shader_log(shader));
+         return 1;
+      }
+      if (!al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER, pixel_source)) {
+         abort_example("al_attach_shader_source for pixel shader failed: %s\n", al_get_shader_log(shader));
+         return 1;
+      }
+      if (!al_link_shader(shader)) {
+         abort_example("al_link_shader failed: %s\n", al_get_shader_log(shader));
+         return 1;
+      }
+      al_set_shader(display, shader);
+   }
+
    // Install the keyboard handler
    if (!al_install_keyboard()) {
       abort_example("Error installing keyboard.\n");
@@ -782,6 +833,8 @@ int main(void)
          al_clear_to_color(black);
       }
       
+      if (use_shader && !Soft)
+         al_use_shader(shader, true);
       if (Background && bkg) {
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
          al_draw_scaled_bitmap(bkg, 0, 0, al_get_bitmap_width(bkg), al_get_bitmap_height(bkg), 0, 0, ScreenW, ScreenH, 0);
@@ -793,6 +846,9 @@ int main(void)
       
       Screens[cur_screen](DRAW);
       
+      if (use_shader && !Soft)
+         al_use_shader(shader, false);
+
       al_set_clipping_rectangle(0, 0, ScreenW, ScreenH);
 
       if (Soft == 1) {
@@ -821,5 +877,9 @@ int main(void)
 
    }
    
+   if (use_shader) {
+      al_destroy_shader(shader);
+   }
+
    return 0;
 }
