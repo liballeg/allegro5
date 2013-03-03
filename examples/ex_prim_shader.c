@@ -33,7 +33,6 @@ int main(void)
    float mouse_pos[2];
    const char* vertex_shader_file;
    const char* pixel_shader_file;
-   bool opengl = true;
 
    mouse_pos[0] = 0;
    mouse_pos[1] = 0;
@@ -52,8 +51,6 @@ int main(void)
    if (!display) {
       abort_example("Error creating display.\n");
    }
-   
-   opengl = al_get_display_flags(display) & ALLEGRO_OPENGL;
 
    vertex_decl = al_create_vertex_decl(vertex_elems, sizeof(CUSTOM_VERTEX));
    if (!vertex_decl) {
@@ -88,10 +85,16 @@ int main(void)
    vertices[3].b = 0;
    vertices[3].color = al_map_rgb_f(0.1, 0.1, 0.1);
 
-   shader = al_create_shader(opengl ? ALLEGRO_SHADER_GLSL : ALLEGRO_SHADER_HLSL);
+   shader = al_create_shader(ALLEGRO_SHADER_AUTO);
    
-   vertex_shader_file = opengl ? "data/ex_prim_shader_vertex.glsl" : "data/ex_prim_shader_vertex.hlsl";
-   pixel_shader_file = opengl ? "data/ex_prim_shader_pixel.glsl" : "data/ex_prim_shader_pixel.hlsl";
+   if (al_get_shader_platform(shader) == ALLEGRO_SHADER_GLSL) {
+      vertex_shader_file = "data/ex_prim_shader_vertex.glsl";
+      pixel_shader_file = "data/ex_prim_shader_pixel.glsl";
+   }
+   else {
+      vertex_shader_file = "data/ex_prim_shader_vertex.hlsl";
+      pixel_shader_file = "data/ex_prim_shader_pixel.hlsl";
+   }
 
    if (!al_attach_shader_source_file(shader, ALLEGRO_VERTEX_SHADER, vertex_shader_file)) {
       abort_example("al_attach_shader_source_file for vertex shader failed: %s\n",
