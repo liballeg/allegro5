@@ -54,6 +54,7 @@ set(ALLEGRO_SRC_I386_FILES
     )
 
 set(ALLEGRO_SRC_WIN_FILES
+    src/win/default_hlsl.c
     src/win/wjoydrv.c
     src/win/wjoydxnu.cpp
     src/win/wkeyboard.c
