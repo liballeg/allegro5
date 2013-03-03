@@ -845,9 +845,6 @@ int main(int argc, char **argv)
       }
       
       Screens[cur_screen](DRAW);
-      
-      if (use_shader && !Soft)
-         al_use_shader(shader, false);
 
       al_set_clipping_rectangle(0, 0, ScreenW, ScreenH);
 
@@ -867,6 +864,9 @@ int main(int argc, char **argv)
       al_draw_textf(Font, solid_white, 0, 100, 0, "Blending (L): %d", Blend);
       al_draw_textf(Font, solid_white, 0, 120, 0, "Background (B): %d", Background);
       al_draw_textf(Font, solid_white, 0, 140, 0, "Clip (C): %d", clip);
+
+      if (use_shader && !Soft)
+         al_use_shader(shader, false);
 
       al_flip_display();
       frames_done++;
