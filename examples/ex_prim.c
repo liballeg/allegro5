@@ -596,8 +596,8 @@ int main(int argc, char **argv)
    }
    
    if (use_shader) {
-      const char* vertex_source;
-      const char* pixel_source;
+      const char* vertex_source = NULL;
+      const char* pixel_source = NULL;
       shader = al_create_shader(ALLEGRO_SHADER_AUTO);
       if (!shader) {
          abort_example("Error creating shader.\n");
@@ -605,14 +605,22 @@ int main(int argc, char **argv)
       }
 
       if (al_get_shader_platform(shader) == ALLEGRO_SHADER_GLSL) {
+#ifdef ALLEGRO_CFG_SHADER_GLSL
          vertex_source = al_get_default_glsl_vertex_shader();
          pixel_source = al_get_default_glsl_pixel_shader();
+#endif
       }
       else {
+#ifdef ALLEGRO_CFG_SHADER_HLSL
          vertex_source = al_get_default_hlsl_vertex_shader();
          pixel_source = al_get_default_hlsl_pixel_shader();
+#endif
       }
 
+      if (!vertex_source || !pixel_source) {
+          abort_example("No shader source\n");
+          return 1;
+      }
       if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER, vertex_source)) {
          abort_example("al_attach_shader_source for vertex shader failed: %s\n", al_get_shader_log(shader));
          return 1;
