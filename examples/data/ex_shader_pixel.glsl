@@ -1,4 +1,7 @@
 #version 120
+#ifdef GL_ES
+precision mediump float;
+#endif
 uniform sampler2D al_tex;
 uniform vec3 tint;
 varying vec4 varying_color;
