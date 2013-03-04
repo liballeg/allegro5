@@ -338,9 +338,9 @@ char const *al_get_default_pixel_shader(ALLEGRO_SHADER_PLATFORM platform)
    else if (platform == ALLEGRO_SHADER_GLSL) {
       source =
          "#version 120\n"
-#ifdef ALLEGRO_CFG_OPENGLES
+         "#ifdef GL_ES\n"
          "precision mediump float;\n"
-#endif
+         "#endif\n"
          "uniform sampler2D " ALLEGRO_SHADER_VAR_TEX ";\n"
          "uniform bool " ALLEGRO_SHADER_VAR_USE_TEX ";\n"
          "varying vec4 varying_color;\n"
