@@ -6,16 +6,16 @@ These functions are declared in the main Allegro header file:
 
 ## API: ALLEGRO_SHADER
 
-Represents a shader object. It can be either a vertex or a pixel shader. The
-shader source for the underlying shader can be provided either as GLSL, HLSL
-or Cg.
+Represents a shader object. It combines both a vertex and a pixel shader. The
+shader source for the underlying shader can be provided either as GLSL or HLSL,
+depending on the value of [ALLEGRO_PLATFORM] used when creating it.
 
 Since: 5.1.0
 
 ## API: ALLEGRO_SHADER_TYPE
 
-Used with [al_attach_shader_source] to specify which kind of shader should be
-attached.
+Used with [al_attach_shader_source] and [al_attach_shader_source_file] to
+specify how to interpret the attached source.
 
 ALLEGRO_VERTEX_SHADER
 :   A vertex shader is executed for each vertex it is
@@ -54,20 +54,28 @@ Since: 5.1.0
 
 Specify one of the [ALLEGRO_SHADER_PLATFORM] values to create a new shader
 object. The ALLEGRO_SHADER_AUTO value means GLSL is used if OpenGL is being
-used otherwise HLSL. ALLEGRO_SHADER_AUTO requires that
-there is a current display set on the calling thread.
+used otherwise HLSL. ALLEGRO_SHADER_AUTO requires that there is a current
+display set on the calling thread.
 
 Since: 5.1.0
 
 ## API: al_attach_shader_source
 
 Attaches the shader's source code to the shader object and compiles it. Passing
-NULL deletes the underlying (OpenGL or DirectX) shader.
+NULL deletes the underlying (OpenGL or DirectX) shader. Before a shader can be
+linked and used you need to call this function twice with type set to
+ALLEGRO_SHADER_VERTEX to attach a vertex shader source and type set to
+ALLEGRO_SHADER_PIXEL to attach a pixel shader source. See also
+[al_attach_shader_source_file] if you prefer to obtain your shader source from
+an external file.
 
 When using the ALLEGRO_USE_PROGRAMMABLE_PIPELINE flag with
-[al_set_new_display_flags] Allegro itself will use shaders for all its
-graphics operations. No default shaders are provided so for anything to be
-drawn you have to setup at least one pair of shaders.
+[al_set_new_display_flags] Allegro itself will require you to create and use a
+shader before any drawing can be done. You can use
+[al_get_default_vertex_shader] and [al_get_default_pixel_shader] to get default
+sources for one or both types of shaders. If you use the default sources for
+both types of shaders then the drawing output will be identical to when the
+display is created without the ALLEGRO_USE_PROGRAMMABLE_PIPELINE flag.
 
 If you do not use ALLEGRO_USE_PROGRAMMABLE_PIPELINE Allegro's graphics functions
 will not use any shader specific functions themselves. In case of a system
@@ -76,27 +84,45 @@ Allegro's drawing functions cannot be used.
 
 TODO: Is ALLEGRO_USE_PROGRAMMABLE_PIPELINE set automatically in this case?
 
-When ALLEGRO_USE_PROGRAMMABLE_PIPELINE is used the following shader variables
+When ALLEGRO_USE_PROGRAMMABLE_PIPELINE is used the following shader uniforms
 are provided by Allegro and can be accessed in your shaders:
 
 * al_projview_matrix - matrix for Allegro's orthographic projection multiplied
-                     by the [al_use_transform] matrix (vertex shader)
+                       by the [al_use_transform] matrix. The type is `mat4` in
+                       GLSL, and `float4x4` in HLSL.
 
-* al_pos - vertex position attribute (vertex shader)
+* al_use_tex - whether or not to use the bound texture. The type is `bool` in
+               both GLSL and HLSL.
 
-* al_color - vertex color attribute (vertex shader, passed to fragment shader)
+* al_tex - the texture if one is bound. The type is `sampler2D` in GLSL and
+           `texture` in HLSL.
 
-* al_texcoord - vertex texture coordinate (vertex shader, passed to fragment shader)
+* al_use_tex_matrix - whether or not to use a texture matrix (used by the
+                      primitives addon). The type is `bool` in both GLSL and HLSL.
 
-* al_use_tex - whether or not to use the bound texture (fragment shader)
+* al_tex_matrix - the texture matrix (used by the primitives addon). Your shader
+                  should multiply the texture coordinates by this matrix. The
+                  type is `mat4` in GLSL, and `float4x4` in HLSL.
 
-* al_tex - the sampler2D for the texture if one is bound (fragment shader)
+For GLSL shaders the vertex attributes are passed using the following variables:
 
-* al_use_tex_matrix - whether or not to use a texture matrix (fragment shader)
+* al_pos - vertex position attribute. Type is `vec4`.
 
-* al_tex_matrix - the texture matrix (fragment shader, used by the primitives addon)
+* al_texcoord - vertex texture coordinate attribute. Type is `vec2`.
 
-Also, each shader variable has a corresponding macro name that can be used in C.
+* al_color - vertex color attribute. Type is `vec4`.
+
+For HLSL shaders the vertex attributes are passed using the following semantics:
+
+* POSITION0 - vertex position attribute. Type is `float4`.
+
+* TEXCOORD0 - vertex texture coordinate attribute. Type is `float2`.
+
+* TEXCOORD1 - vertex color attribute. Type is `float4`.
+
+Also, each shader variable has a corresponding macro name that can be used when
+defining the shaders using string literals. Don't use these macros with the
+other shader functions as that will lead to undefined behavior.
 
 * ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX for al_projview_matrix
 * ALLEGRO_SHADER_VAR_POS for al_pos
@@ -106,6 +132,10 @@ Also, each shader variable has a corresponding macro name that can be used in C.
 * ALLEGRO_SHADER_VAR_TEX for al_tex
 * ALLEGRO_SHADER_VAR_USE_TEX_MATRIX for al_use_tex_matrix
 * ALLEGRO_SHADER_VAR_TEX_MATRIX for al_tex_matrix
+
+Examine the output of [al_get_default_vertex_shader] and
+[al_get_default_pixel_shader] for an example of how to use the above uniforms
+and attributes.
 
 Returns true on access and false on error, in which case the error log is
 updated. The error log can be retrieved with [al_get_shader_log].
@@ -122,7 +152,7 @@ Since: 5.1.0
 ## API: al_link_shader
 
 This is reqired before the shader can be used with [al_use_shader]. It should
-be called after successfully compiling the shader with
+be called after successfully compiling both the pixel and vertex shaders with
 [al_attach_shader_source] or [al_attach_shader_source_file].
 
 Returns true on access and false on error, in which case the error log is
@@ -235,17 +265,21 @@ Since: 5.1.0
 ## API: al_get_default_vertex_shader
 
 Returns a string containing the source code to Allegro's default vertex
-shader appropriate for the passed platform. ALLEGRO_SHADER_AUTO requires that
-there is a current display set on the calling thread. This function can return
-NULL if Allegro was built without support for shaders of the selected platform.
+shader appropriate for the passed platform. The ALLEGRO_SHADER_AUTO value means
+GLSL is used if OpenGL is being used otherwise HLSL. ALLEGRO_SHADER_AUTO
+requires that there is a current display set on the calling thread. This
+function can return NULL if Allegro was built without support for shaders of the
+selected platform.
 
 Since: 5.1.6
 
 ## API: al_get_default_pixel_shader
 
 Returns a string containing the source code to Allegro's default pixel
-shader appropriate for the passed platform. ALLEGRO_SHADER_AUTO requires that
-there is a current display set on the calling thread. This function can return
-NULL if Allegro was built without support for shaders of the selected platform.
+shader appropriate for the passed platform. The ALLEGRO_SHADER_AUTO value means
+GLSL is used if OpenGL is being used otherwise HLSL. ALLEGRO_SHADER_AUTO
+requires that there is a current display set on the calling thread. This
+function can return NULL if Allegro was built without support for shaders of the
+selected platform.
 
 Since: 5.1.6
