@@ -2,7 +2,7 @@
  * look up the color of the second texture (scaled down by factor 100).
  */
 #version 120
-#ifdef ALLEGRO_CFG_OPENGLES
+#ifdef GL_ES
 precision mediump float;
 #endif
 uniform sampler2D al_tex;
