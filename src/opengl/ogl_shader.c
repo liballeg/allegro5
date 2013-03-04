@@ -227,6 +227,7 @@ static void glsl_destroy_shader(ALLEGRO_SHADER *shader)
    glDeleteShader(gl_shader->pixel_shader);
    glDeleteProgram(gl_shader->program_object);
    free_deferred_sets(gl_shader->deferred_sets, true);
+   al_free(gl_shader->deferred_sets);
    al_free(shader);
 }
 
