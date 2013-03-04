@@ -413,7 +413,7 @@ static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
 static void glsl_unuse_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display)
 {
    (void)shader;
-   (void)display;
+   display->ogl_extras->program_object = 0;
    glUseProgram(0);
 }
 

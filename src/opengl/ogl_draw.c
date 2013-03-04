@@ -462,41 +462,39 @@ static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
    }
 
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_CFG_NO_GLES2
+#ifdef ALLEGRO_CFG_SHADER_GLSL
       GLuint program_object = disp->ogl_extras->program_object;
-
       al_copy_transform(&disp->view_transform, &tmp);
-
       if (program_object > 0) {
          al_compose_transform(&tmp, &disp->proj_transform);
          _al_glsl_set_projview_matrix(program_object, &tmp);
+         return;
       }
 #endif
    }
-   else {
-      glMatrixMode(GL_MODELVIEW);
-      glLoadMatrixf((float *)tmp.m);
-   }
+
+   glMatrixMode(GL_MODELVIEW);
+   glLoadMatrixf((float *)tmp.m);
 }
 
 static void ogl_set_projection(ALLEGRO_DISPLAY *d)
 {
    if (d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_CFG_NO_GLES2
+#ifdef ALLEGRO_CFG_SHADER_GLSL
       GLuint program_object = d->ogl_extras->program_object;
       if (program_object > 0) {
          ALLEGRO_TRANSFORM t;
          al_copy_transform(&t, &d->view_transform);
          al_compose_transform(&t, &d->proj_transform);
          _al_glsl_set_projview_matrix(program_object, &t);
+         return;
       }
 #endif
    }
-   else {
-      glMatrixMode(GL_PROJECTION);
-      glLoadMatrixf((float *)d->proj_transform.m);
-      glMatrixMode(GL_MODELVIEW);
-   }
+
+   glMatrixMode(GL_PROJECTION);
+   glLoadMatrixf((float *)d->proj_transform.m);
+   glMatrixMode(GL_MODELVIEW);
 }
 
 static void ogl_clear_depth_buffer(ALLEGRO_DISPLAY *display, float x)

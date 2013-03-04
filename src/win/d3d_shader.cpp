@@ -374,10 +374,12 @@ static bool hlsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
 
 static void hlsl_unuse_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display)
 {
+   ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)display;
+
    (void)shader;
-   (void)display;
    //effect->EndPass();
    //effect->End();
+   d3d_disp->effect = NULL;
 }
 
 static void hlsl_destroy_shader(ALLEGRO_SHADER *shader)

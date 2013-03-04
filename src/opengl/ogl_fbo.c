@@ -394,24 +394,14 @@ static void setup_fbo_non_backbuffer(ALLEGRO_DISPLAY *display,
          ogl_bitmap->fbo_info = NULL;
       }
       else {
-         bool set_projection = true;
-
          display->ogl_extras->opengl_target = bitmap;
 
          glViewport(0, 0, bitmap->w, bitmap->h);
 
-         if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-            if (display->ogl_extras->program_object <= 0) {
-               set_projection = false;
-            }
-         }
-
-         if (set_projection) {
-            al_identity_transform(&display->proj_transform);
-            al_orthographic_transform(&display->proj_transform,
-               0, 0, -1, bitmap->w, bitmap->h, 1);
-            display->vt->set_projection(display);
-         }
+         al_identity_transform(&display->proj_transform);
+         al_orthographic_transform(&display->proj_transform,
+            0, 0, -1, bitmap->w, bitmap->h, 1);
+         display->vt->set_projection(display);
       }
    }
 }
