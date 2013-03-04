@@ -62,16 +62,15 @@ Since: 5.1.0
 ## API: al_attach_shader_source
 
 Attaches the shader's source code to the shader object and compiles it. Passing
-NULL deletes the underlying (OpenGL or DirectX) shader. Before a shader can be
-linked and used you need to call this function twice with type set to
-ALLEGRO_SHADER_VERTEX to attach a vertex shader source and type set to
-ALLEGRO_SHADER_PIXEL to attach a pixel shader source. See also
+NULL deletes the underlying (OpenGL or DirectX) shader. See also
 [al_attach_shader_source_file] if you prefer to obtain your shader source from
 an external file.
 
 When using the ALLEGRO_USE_PROGRAMMABLE_PIPELINE flag with
 [al_set_new_display_flags] Allegro itself will require you to create and use a
-shader before any drawing can be done. You can use
+shader before any drawing can be done. In this case you need both a vertex
+shader source (type set to ALLEGRO_SHADER_VERTEX) and a pixel shader source (
+type set to ALLEGRO_SHADER_PIXEL) for the shader to function. You can use
 [al_get_default_vertex_shader] and [al_get_default_pixel_shader] to get default
 sources for one or both types of shaders. If you use the default sources for
 both types of shaders then the drawing output will be identical to when the
@@ -152,7 +151,7 @@ Since: 5.1.0
 ## API: al_link_shader
 
 This is reqired before the shader can be used with [al_use_shader]. It should
-be called after successfully compiling both the pixel and vertex shaders with
+be called after successfully compiling the pixel and/or vertex shaders with
 [al_attach_shader_source] or [al_attach_shader_source_file].
 
 Returns true on access and false on error, in which case the error log is
