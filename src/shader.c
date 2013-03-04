@@ -337,6 +337,7 @@ char const *al_get_default_pixel_shader(ALLEGRO_SHADER_PLATFORM platform)
 #ifdef ALLEGRO_CFG_SHADER_GLSL
    else if (platform == ALLEGRO_SHADER_GLSL) {
       source =
+         "#version 120\n"
 #ifdef ALLEGRO_CFG_OPENGLES
          "precision mediump float;\n"
 #endif

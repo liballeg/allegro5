@@ -1,3 +1,4 @@
+#version 120
 uniform sampler2D al_tex;
 uniform vec3 tint;
 varying vec4 varying_color;

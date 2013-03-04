@@ -1,3 +1,4 @@
+#version 120
 attribute vec4 al_pos;
 attribute vec4 al_color;
 attribute vec2 al_texcoord;
