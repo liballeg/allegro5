@@ -25,6 +25,7 @@ The various state kept internally by Allegro can be displayed like this:
               current transformation
               current clipping rectangle
               bitmap locking
+              current shader
 
 In general, the only real global state is the active system driver. All
 other global state is per-thread, so if your application has multiple

@@ -178,13 +178,20 @@ Since: 5.1.6
 
 ## API: al_use_shader
 
-Uses the shader for subsequent drawing operations.
+Uses the shader for subsequent drawing operations on the current target
+bitmap.  Pass NULL to stop using any shader on the current target bitmap.
 
-Since: 5.1.0
+Returns true on success. Otherwise returns false, e.g. because the shader
+is incompatible with the target bitmap.
+
+Since: 5.1.6
 
 ## API: al_destroy_shader
 
 This destroys the shader object as well as the underlying shader.
+You should stop using the shader on any bitmaps first.
+
+Does nothing if passed NULL.
 
 Since: 5.1.0
 
@@ -249,15 +256,6 @@ Since: 5.1.0
 Sets a vertex attribute.
 
 FIXME: Right now each array element is a 2-component vector.
-
-Since: 5.1.0
-
-## API: al_set_shader
-
-Sets the given display to use the given shader. Should be called after
-[al_link_shader], but before actually drawing using the shader.
-
-FIXME: Maybe this is not even needed as we have al_use_shader?
 
 Since: 5.1.0
 
