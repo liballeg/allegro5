@@ -43,7 +43,6 @@ typedef enum ALLEGRO_SHADER_PLATFORM ALLEGRO_SHADER_PLATFORM;
 #define ALLEGRO_SHADER_VAR_USE_TEX           "al_use_tex"
 #define ALLEGRO_SHADER_VAR_USE_TEX_MATRIX    "al_use_tex_matrix"
 
-
 AL_FUNC(ALLEGRO_SHADER *, al_create_shader, (ALLEGRO_SHADER_PLATFORM platform));
 AL_FUNC(bool, al_attach_shader_source, (ALLEGRO_SHADER *shader,
    ALLEGRO_SHADER_TYPE type, const char *source));
@@ -71,6 +70,9 @@ AL_FUNC(bool, al_set_shader_bool, (ALLEGRO_SHADER *shader, const char *name, boo
 AL_FUNC(bool, al_set_shader_vertex_array, (ALLEGRO_SHADER *shader, float *v, int stride));
 AL_FUNC(bool, al_set_shader_color_array, (ALLEGRO_SHADER *shader, unsigned char *c, int stride));
 AL_FUNC(bool, al_set_shader_texcoord_array, (ALLEGRO_SHADER *shader, float *u, int stride));
+
+AL_FUNC(char const *, al_get_default_vertex_shader, (ALLEGRO_SHADER_PLATFORM platform));
+AL_FUNC(char const *, al_get_default_pixel_shader, (ALLEGRO_SHADER_PLATFORM platform));
 
 #ifdef __cplusplus
    }

@@ -12,12 +12,6 @@
 #ifdef ALLEGRO_CFG_OPENGL
    #include "allegro5/allegro_opengl.h"
 #endif
-#ifdef ALLEGRO_CFG_SHADER_HLSL
-   #include "allegro5/allegro_hlsl.h"
-#endif
-#ifdef ALLEGRO_CFG_SHADER_GLSL
-   #include "allegro5/allegro_glsl.h"
-#endif
 
 #include "common.c"
 

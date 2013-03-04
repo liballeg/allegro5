@@ -10,7 +10,6 @@
  * in any shader examples.
  */
 #include "allegro5/allegro_opengl.h"
-#include "allegro5/allegro_glsl.h"
 
 #include "common.c"
 

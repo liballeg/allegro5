@@ -4,8 +4,6 @@
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_image.h"
 #include "allegro5/allegro_opengl.h"
-#include "allegro5/allegro_glsl.h"
-#include "allegro5/allegro_hlsl.h"
 
 #include "common.c"
 
@@ -26,7 +24,6 @@ int main(void)
    bool redraw = true;
    ALLEGRO_SHADER *shader;
    int t = 0;
-   const char* vertex_source = NULL;
    const char* pixel_file = NULL;
 
    if (!al_init()) {
@@ -56,21 +53,19 @@ int main(void)
 
    if (al_get_shader_platform(shader) == ALLEGRO_SHADER_GLSL) {
 #ifdef ALLEGRO_CFG_SHADER_GLSL
-      vertex_source = al_get_default_glsl_vertex_shader();
       pixel_file = "data/ex_shader_multitex_pixel.glsl";
 #endif
    }
    else {
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-      vertex_source = al_get_default_hlsl_vertex_shader();
       pixel_file = "data/ex_shader_multitex_pixel.hlsl";
 #endif
    }
 
-   if (!vertex_source || !pixel_file) {
-          abort_example("No shader source\n");
+   if (!pixel_file) {
+      abort_example("No shader source\n");
    }
-   if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER, vertex_source))
+   if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER, al_get_default_vertex_shader(ALLEGRO_SHADER_AUTO)))
       abort_example("al_attach_shader_source for vertex shader failed: %s\n", al_get_shader_log(shader));
    if (!al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, pixel_file))
       abort_example("al_attach_shader_source_file for pixel shader failed: %s\n", al_get_shader_log(shader));

@@ -42,7 +42,7 @@ Since: 5.1.0
 
 ## API: ALLEGRO_SHADER_PLATFORM
 
-Used with [al_create_shader] to select the type of shader.
+The type of shader.
 
 * ALLEGRO_SHADER_AUTO
 * ALLEGRO_SHADER_GLSL
@@ -232,30 +232,20 @@ FIXME: Maybe this is not even needed as we have al_use_shader?
 
 Since: 5.1.0
 
-## API: al_get_default_glsl_vertex_shader
+## API: al_get_default_vertex_shader
 
-Returns a string containing the GLSL source code to Allegro's default vertex
-shader.
-
-Since: 5.1.5
-
-## API: al_get_default_glsl_pixel_shader
-
-Returns a string containing the GLSL source code to Allegro's default fragment
-shader (or "pixel shader").
-
-Since: 5.1.5
-
-## API: al_get_default_hlsl_vertex_shader
-
-Returns a string containing the HLSL source code to Allegro's default vertex
-shader.
+Returns a string containing the source code to Allegro's default vertex
+shader appropriate for the passed platform. ALLEGRO_SHADER_AUTO requires that
+there is a current display set on the calling thread. This function can return
+NULL if Allegro was built without support for shaders of the selected platform.
 
 Since: 5.1.6
 
-## API: al_get_default_hlsl_pixel_shader
+## API: al_get_default_pixel_shader
 
-Returns a string containing the HLSL source code to Allegro's default fragment
-shader (or "pixel shader").
+Returns a string containing the source code to Allegro's default pixel
+shader appropriate for the passed platform. ALLEGRO_SHADER_AUTO requires that
+there is a current display set on the calling thread. This function can return
+NULL if Allegro was built without support for shaders of the selected platform.
 
 Since: 5.1.6

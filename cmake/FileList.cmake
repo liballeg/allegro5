@@ -54,7 +54,6 @@ set(ALLEGRO_SRC_I386_FILES
     )
 
 set(ALLEGRO_SRC_WIN_FILES
-    src/win/default_hlsl.c
     src/win/wjoydrv.c
     src/win/wjoydxnu.cpp
     src/win/wkeyboard.c
@@ -78,7 +77,6 @@ set(ALLEGRO_SRC_D3D_FILES
     )
 
 set(ALLEGRO_SRC_OPENGL_FILES
-    src/opengl/default_glsl.c
     src/opengl/extensions.c
     src/opengl/ogl_bitmap.c
     src/opengl/ogl_display.c
@@ -265,8 +263,6 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/transformations.h
     include/allegro5/utf8.h
     include/allegro5/allegro_direct3d.h
-    include/allegro5/allegro_glsl.h
-    include/allegro5/allegro_hlsl.h
     include/allegro5/allegro_opengl.h
     )
 

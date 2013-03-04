@@ -15,13 +15,6 @@
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
 
-#ifdef ALLEGRO_CFG_SHADER_GLSL
-#include "allegro5/allegro_glsl.h"
-#endif
-#ifdef ALLEGRO_CFG_SHADER_HLSL
-#include "allegro5/allegro_hlsl.h"
-#endif
-
 #define MAX_BITMAPS  128
 #define MAX_TRANS    8
 #define MAX_FONTS    16
@@ -1559,21 +1552,11 @@ int main(int _argc, char *_argv[])
       if (!shader) {
          error("failed to create shader");
       }
-      if (al_get_shader_platform(shader) == ALLEGRO_SHADER_GLSL) {
-#ifdef ALLEGRO_CFG_SHADER_GLSL
-         al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER,
-            al_get_default_glsl_vertex_shader());
-         al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER,
-            al_get_default_glsl_pixel_shader());
-#endif
+      if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER, al_get_default_vertex_shader(ALLEGRO_SHADER_AUTO))) {
+         error("al_attach_shader_source for vertex shader failed");
       }
-      else {
-#ifdef ALLEGRO_CFG_SHADER_HLSL
-         al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER,
-            al_get_default_hlsl_vertex_shader());
-         al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER,
-            al_get_default_hlsl_pixel_shader());
-#endif
+      if (!al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER, al_get_default_pixel_shader(ALLEGRO_SHADER_AUTO))) {
+         error("al_attach_shader_source for pixel shader failed");
       }
       if (!al_link_shader(shader)) {
          error("al_link_shader failed");
