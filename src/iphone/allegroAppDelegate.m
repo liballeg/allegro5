@@ -53,14 +53,22 @@ static int iphone_get_adapter(ALLEGRO_DISPLAY *display)
 
 static iphone_screen *iphone_get_screen_by_adapter(int adapter)
 {
+   al_lock_mutex(_al_iphone_display_hotplug_mutex);
+
    int num = [iphone_screens count];
    int i;
+   iphone_screen *ret = NULL;
+
    for (i = 0; i < num; i++) {
       iphone_screen *scr = [iphone_screens objectAtIndex:i];
-      if (scr->adapter == adapter)
-         return scr;
+      if (scr->adapter == adapter) {
+         ret = scr;
+	 break;
+      }
    }
-   return NULL;
+
+   al_unlock_mutex(_al_iphone_display_hotplug_mutex);
+   return ret;
 }
 
 static iphone_screen *iphone_get_screen(ALLEGRO_DISPLAY *display)
@@ -136,13 +144,18 @@ static void iphone_add_screen(UIScreen *screen)
    scr->vc = vc;
    scr->view = (EAGLView *)vc.view;
    scr->display = NULL;
-   
-   if (add)
+
+   if (add) {
+      al_lock_mutex(_al_iphone_display_hotplug_mutex);
       [iphone_screens addObject:scr];
+      al_unlock_mutex(_al_iphone_display_hotplug_mutex);
+   }
 }
 
 static void iphone_remove_screen(UIScreen *screen)
 {
+   al_lock_mutex(_al_iphone_display_hotplug_mutex);
+
    int num_screens = [iphone_screens count];
    int i;
    
@@ -150,9 +163,12 @@ static void iphone_remove_screen(UIScreen *screen)
       iphone_screen *scr = iphone_get_screen_by_adapter(i);
       if (scr->screen == screen) {
          [iphone_screens removeObjectAtIndex:i];
-         return;
+	 [scr release];
+	 break;
       }
    }
+
+   al_unlock_mutex(_al_iphone_display_hotplug_mutex);
 }
 
 void _al_iphone_destroy_screen(ALLEGRO_DISPLAY *display)
@@ -164,10 +180,6 @@ void _al_iphone_destroy_screen(ALLEGRO_DISPLAY *display)
    }
 
    [(EAGLView *)d->extra->vc.view remove_observers];
-   
-   [d->extra->vc.view release];
-   [d->extra->vc release];
-   [d->extra->window release];
 
    al_free(d->extra);
 }
@@ -176,6 +188,8 @@ void _al_iphone_destroy_screen(ALLEGRO_DISPLAY *display)
 static void iphone_create_screens(void)
 {
    iphone_screens = [[NSMutableArray alloc] init];
+    
+   _al_iphone_display_hotplug_mutex = al_create_mutex_recursive();
 
    if ([UIScreen respondsToSelector:NSSelectorFromString(@"screens")]) {
       int num_screens;
@@ -209,13 +223,10 @@ UIWindow *al_iphone_get_window(ALLEGRO_DISPLAY *display)
  */
 UIView *al_iphone_get_view(ALLEGRO_DISPLAY *display)
 {
-   al_lock_mutex(_al_iphone_display_hotplug_mutex);
    iphone_screen *scr = iphone_get_screen(display);
    if (scr == NULL) {
-      al_unlock_mutex(_al_iphone_display_hotplug_mutex);
       return NULL;
    }
-   al_unlock_mutex(_al_iphone_display_hotplug_mutex);
    return scr->vc.view;
 }
 
@@ -368,16 +379,13 @@ bool _al_iphone_add_view(ALLEGRO_DISPLAY *display)
 
 void _al_iphone_make_view_current(ALLEGRO_DISPLAY *display)
 {
-   al_lock_mutex(_al_iphone_display_hotplug_mutex);
    iphone_screen *scr = iphone_get_screen(display);
    if (scr)
       [scr->view make_current];
-   al_unlock_mutex(_al_iphone_display_hotplug_mutex);
 }
 
 void _al_iphone_recreate_framebuffer(ALLEGRO_DISPLAY *display)
 {
-   al_lock_mutex(_al_iphone_display_hotplug_mutex);
    iphone_screen *scr = iphone_get_screen(display);
    if (scr) {
       EAGLView *view = scr->view;
@@ -387,29 +395,20 @@ void _al_iphone_recreate_framebuffer(ALLEGRO_DISPLAY *display)
       display->h = view.backingHeight;
       _al_ogl_resize_backbuffer(display->ogl_extras->backbuffer, display->w, display->h);
    }
-   al_unlock_mutex(_al_iphone_display_hotplug_mutex);
 }
 
 void _al_iphone_flip_view(ALLEGRO_DISPLAY *display)
 {
-   al_lock_mutex(_al_iphone_display_hotplug_mutex);
-   
    iphone_screen *scr = iphone_get_screen(display);
    if (scr)
       [scr->view flip];
-
-   al_unlock_mutex(_al_iphone_display_hotplug_mutex);
 }
 
 void _al_iphone_reset_framebuffer(ALLEGRO_DISPLAY *display)
 {
-   al_lock_mutex(_al_iphone_display_hotplug_mutex);
-   
    iphone_screen *scr = iphone_get_screen(display);
    if (scr)
       [scr->view reset_framebuffer];
-      
-   al_unlock_mutex(_al_iphone_display_hotplug_mutex);
 }
 
 /* Use a frequency to start receiving events at the freuqency, 0 to shut off
@@ -436,8 +435,6 @@ int _al_iphone_get_num_video_adapters(void)
 
 void _al_iphone_get_screen_size(int adapter, int *w, int *h)
 {
-   al_lock_mutex(_al_iphone_display_hotplug_mutex);
-   
    iphone_screen *scr = iphone_get_screen_by_adapter(adapter);
    UIScreen *screen = scr->screen;
 
@@ -457,8 +454,6 @@ void _al_iphone_get_screen_size(int adapter, int *w, int *h)
    
       ASSERT("You should never see this message, unless Apple changed their policy and allows for removing screens from iDevices." && false);
    }
-   
-   al_unlock_mutex(_al_iphone_display_hotplug_mutex);
 }
 
 int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
@@ -638,8 +633,6 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
       main_display = d;
    }
    
-   al_lock_mutex(_al_iphone_display_hotplug_mutex);
-   
    iphone_screen *scr = iphone_get_screen_by_adapter(adapter);
 
    if (adapter == 0) {
@@ -655,8 +648,6 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
    vc->display = d;
    EAGLView *view = (EAGLView *)vc.view;
    [view set_allegro_display:d];
-
-   al_unlock_mutex(_al_iphone_display_hotplug_mutex);
 
    [scr->window addSubview:view];
    
@@ -698,9 +689,7 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 
 - (void)handleScreenConnectNotification:(NSNotification*)aNotification
 {
-   al_lock_mutex(_al_iphone_display_hotplug_mutex);
    iphone_add_screen([aNotification object]);
-   al_unlock_mutex(_al_iphone_display_hotplug_mutex);
 
    ALLEGRO_DISPLAY *display = main_display;
    
@@ -744,9 +733,7 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
    while (disconnect_wait)
       al_rest(0.001);
          
-   al_lock_mutex(_al_iphone_display_hotplug_mutex);
    iphone_remove_screen([aNotification object]);
-   al_unlock_mutex(_al_iphone_display_hotplug_mutex);
 } 
 
 - (void)dealloc {

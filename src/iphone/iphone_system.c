@@ -24,8 +24,6 @@ ALLEGRO_SYSTEM *iphone_initialize(int flags)
 
     _al_unix_init_time();
     _al_iphone_init_path();
-   
-    _al_iphone_display_hotplug_mutex = al_create_mutex_recursive();
 
     return sys;
 }
