@@ -1595,6 +1595,11 @@ int main(int _argc, char *_argv[])
    printf("failed tests: %d\n", failed_tests);
    printf("\n");
 
+   if (shader) {
+      al_use_shader(NULL);
+      al_destroy_shader(shader);
+   }
+
    return !!failed_tests;
 }
 
