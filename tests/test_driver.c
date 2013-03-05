@@ -1183,6 +1183,9 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
       al_rest(delay);
    }
 
+   /* Ensure we don't target a bitmap which is about to be destroyed. */
+   al_set_target_bitmap(display ? al_get_backbuffer(display) : NULL);
+
    /* Destroy local bitmaps. */
    for (i = num_global_bitmaps; i < MAX_BITMAPS; i++) {
       if (bitmaps[i].name) {
