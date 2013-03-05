@@ -155,7 +155,7 @@ bool al_use_shader(ALLEGRO_SHADER *shader)
    ASSERT(bmp->display);
 
    if (shader) {
-      if (shader->vt->use_shader(shader, bmp->display)) {
+      if (shader->vt->use_shader(shader, bmp->display, true)) {
          bmp->shader = shader;
          ALLEGRO_DEBUG("use_shader succeeded\n");
          return true;

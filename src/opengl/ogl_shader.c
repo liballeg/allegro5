@@ -345,7 +345,8 @@ static void shader_set_float_vector(GLSL_DEFERRED_SET *s)
    LOG_GL_ERROR(s->name);
 }
 
-static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display)
+static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
+   bool set_projview_matrix_from_display)
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader;
    GLuint program_object;
@@ -372,13 +373,18 @@ static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display)
 
    display->ogl_extras->program_object = program_object;
 
-   /* Set projview matrix. */
-   handle = glGetUniformLocation(program_object, ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX);
-   if (handle >= 0) {
-      ALLEGRO_TRANSFORM t;
-      al_copy_transform(&t, &display->view_transform);
-      al_compose_transform(&t, &display->proj_transform);
-      glUniformMatrix4fv(handle, 1, false, (float *)t.m);
+   /* Optionally set projview matrix.  We skip this when it is known that the
+    * matrices in the display are out of date and are about to be clobbered
+    * itself.
+    */
+   if (set_projview_matrix_from_display) {
+      handle = glGetUniformLocation(program_object, ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX);
+      if (handle >= 0) {
+         ALLEGRO_TRANSFORM t;
+         al_copy_transform(&t, &display->view_transform);
+         al_compose_transform(&t, &display->proj_transform);
+         glUniformMatrix4fv(handle, 1, false, (float *)t.m);
+      }
    }
 
    /* Look up variable locations. */
