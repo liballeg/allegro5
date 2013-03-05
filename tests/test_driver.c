@@ -1332,7 +1332,7 @@ static void process_ini_files(void)
 
    while (argc > 0) {
       if (!has_suffix(argv[0], ".ini"))
-         error("expected .ini arument: %s\n", argv[0]);
+         error("expected .ini argument: %s\n", argv[0]);
       cfg = al_load_config_file(argv[0]);
       if (!cfg)
          error("failed to load config file %s", argv[0]);
