@@ -167,6 +167,9 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
       return;
    }
 
+   /* Non-comprehensive sanity check. */
+   ASSERT(bitmap != al_get_target_bitmap());
+
    _al_unregister_destructor(_al_dtor_list, bitmap);
 
    if (bitmap->parent) {
