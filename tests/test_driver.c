@@ -1558,6 +1558,9 @@ int main(int _argc, char *_argv[])
    }
 
    if (display_flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      if (!display) {
+         error("a display is required for shaders");
+      }
       shader = al_create_shader(ALLEGRO_SHADER_AUTO);
       if (!shader) {
          error("failed to create shader");
