@@ -51,9 +51,10 @@ int title_screen()
    textout(font, "SPEED", 0, 0, makecol(0, 0, 64));
    stretch_sprite(bmp, b, SCREEN_W/128, SCREEN_H/24, SCREEN_W, SCREEN_H);
 
+   al_set_target_bitmap(bmp);
+
    al_destroy_bitmap(b);
 
-   al_set_target_bitmap(bmp);
    textout_shadow("Simultaneous Projections", SCREEN_W/2, SCREEN_H/2-80, white);
    textout_shadow("Employing an Ensemble of Displays", SCREEN_W/2, SCREEN_H/2-64, white);
 
@@ -64,9 +65,9 @@ int title_screen()
    textout_shadow("Written for the Allegro", SCREEN_W/2, SCREEN_H/2+48, white);
    textout_shadow("SpeedHack competition", SCREEN_W/2, SCREEN_H/2+64, white);
 
-   bmp = replace_bitmap(bmp);
-
    al_set_target_bitmap(al_get_backbuffer(screen));
+
+   bmp = replace_bitmap(bmp);
 
    start_retrace_count();
 
@@ -141,9 +142,9 @@ void show_results()
    sprintf(buf, "Score: %d", score);
    textout_shadow(buf, SCREEN_W/2, SCREEN_H*3/4, makecol(255, 255, 255));
 
-   bmp = replace_bitmap(bmp);
-
    al_set_target_bitmap(al_get_backbuffer(screen));
+
+   bmp = replace_bitmap(bmp);
 
    start_retrace_count();
 
@@ -242,9 +243,9 @@ void goodbye()
    textout(font, "Happy birthday Arron!", 0, 0, makecol(255, 255, 255));
    stretch_sprite(screen_backbuffer, b, SCREEN_W/8, SCREEN_H*3/8, SCREEN_W*3/4, SCREEN_H/4);
 
+   al_set_target_bitmap(screen_backbuffer);
    al_destroy_bitmap(b);
 
-   al_set_target_bitmap(screen_backbuffer);
    al_flip_display();
 
    while (key[ALLEGRO_KEY_SPACE] || key[ALLEGRO_KEY_ENTER] || key[ALLEGRO_KEY_ESCAPE])
