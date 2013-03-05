@@ -167,6 +167,13 @@ AL_FUNC(char const *, _al_gl_error_string, (GLenum e));
 
 void _al_ogl_update_render_state(ALLEGRO_DISPLAY *display);
 
+/* shader */
+#ifdef ALLEGRO_CFG_SHADER_GLSL
+   bool _al_glsl_set_projview_matrix(GLuint program_object,
+      const ALLEGRO_TRANSFORM *t);
+#endif
+
+
 #ifdef __cplusplus
 }
 #endif

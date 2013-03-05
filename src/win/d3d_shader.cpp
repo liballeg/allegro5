@@ -362,8 +362,7 @@ static bool hlsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
    if (set_projview_matrix_from_display) {
       al_copy_transform(&t, &display->view_transform);
       al_compose_transform(&t, &display->proj_transform);
-      if (effect->SetMatrix(ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX,
-            (LPD3DXMATRIX)&t.m) != D3D_OK) {
+      if (!_al_hlsl_set_projview_matrix(effect, &t)) {
          d3d_disp->effect = NULL;
          return false;
       }
@@ -505,6 +504,14 @@ static bool hlsl_set_shader_texcoord_array(ALLEGRO_SHADER *shader,
    (void)u;
    (void)stride;
    return true;
+}
+
+bool _al_hlsl_set_projview_matrix(
+   LPD3DXEFFECT effect, const ALLEGRO_TRANSFORM *t)
+{
+   HRESULT result = effect->SetMatrix(ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX,
+      (LPD3DXMATRIX)t->m);
+   return result == D3D_OK;
 }
 
 #endif

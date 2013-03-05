@@ -350,7 +350,6 @@ static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader;
    GLuint program_object;
-   GLint handle;
    GLenum err;
    unsigned i;
 
@@ -378,13 +377,10 @@ static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
     * itself.
     */
    if (set_projview_matrix_from_display) {
-      handle = glGetUniformLocation(program_object, ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX);
-      if (handle >= 0) {
-         ALLEGRO_TRANSFORM t;
-         al_copy_transform(&t, &display->view_transform);
-         al_compose_transform(&t, &display->proj_transform);
-         glUniformMatrix4fv(handle, 1, false, (float *)t.m);
-      }
+      ALLEGRO_TRANSFORM t;
+      al_copy_transform(&t, &display->view_transform);
+      al_compose_transform(&t, &display->proj_transform);
+      _al_glsl_set_projview_matrix(program_object, &t);
    }
 
    /* Look up variable locations. */
@@ -783,6 +779,20 @@ static struct ALLEGRO_SHADER_INTERFACE shader_glsl_vt =
    glsl_set_shader_color_array,
    glsl_set_shader_texcoord_array
 };
+
+bool _al_glsl_set_projview_matrix(GLuint program_object, const ALLEGRO_TRANSFORM *t)
+{
+   GLint handle;
+
+   handle = glGetUniformLocation(program_object,
+      ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX);
+   if (handle >= 0) {
+      glUniformMatrix4fv(handle, 1, false, (float *)t->m);
+      return true;
+   }
+
+   return false;
+}
 
 #endif
 
