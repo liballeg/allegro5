@@ -210,10 +210,13 @@ static void ogl_lock_region_nonbb_readwrite(
    int x, int gl_y, int w, int h, int format)
 {
    ALLEGRO_BITMAP *old_target = NULL;
+   bool need_to_restore_target = false;
 
    /* Create an FBO if there isn't one. */
    if (!ogl_bitmap->fbo_info) {
       old_target = al_get_target_bitmap();
+      need_to_restore_target = true;
+
       bitmap->locked = false; // FIXME: hack :(
       if (al_is_bitmap_drawing_held())
          al_hold_bitmap_drawing(false);
@@ -231,7 +234,8 @@ static void ogl_lock_region_nonbb_readwrite(
          x, gl_y, w, h, format);
    }
 
-   if (old_target) {
+   if (need_to_restore_target) {
+      /* old_target may be NULL. */
       al_set_target_bitmap(old_target);
    }
 }
