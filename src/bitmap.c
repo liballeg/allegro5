@@ -442,6 +442,7 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    bitmap->format = parent->format;
    bitmap->flags = parent->flags;
 
+   bitmap->shader = parent->shader;
    bitmap->w = w;
    bitmap->h = h;
    bitmap->display = parent->display;
