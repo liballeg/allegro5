@@ -156,6 +156,7 @@ int main(void)
       return 1;
    }
 
+   al_set_target_bitmap(NULL);
    al_destroy_bitmap(shrunk_bmp);
    al_destroy_bitmap(bmp);
    shrunk_bmp = NULL;

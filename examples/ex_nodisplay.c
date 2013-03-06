@@ -30,6 +30,7 @@ int main(void)
       abort_example("Error creating bitmap\n");
       return 1;
    }
+
    al_set_target_bitmap(bmp);
 
    c1 = al_map_rgb(255, 0, 0);
@@ -41,6 +42,8 @@ int main(void)
    al_draw_tinted_bitmap(sprite, c2, 0, 64, ALLEGRO_FLIP_VERTICAL);
    al_draw_tinted_bitmap(sprite, c3, 64, 64, ALLEGRO_FLIP_HORIZONTAL |
       ALLEGRO_FLIP_VERTICAL);
+
+   al_set_target_bitmap(NULL);
 
    rc = al_save_bitmap("ex_nodisplay_out.tga", bmp);
 

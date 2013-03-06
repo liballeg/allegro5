@@ -53,8 +53,9 @@ static ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
 
    result = al_get_pixel(dst_bmp, 0, 0);
 
+   al_set_target_backbuffer(display);
+
    if (test_display) {
-      al_set_target_backbuffer(display);
       al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
       al_draw_bitmap(dst_bmp, 0, 0, 0);
    }
