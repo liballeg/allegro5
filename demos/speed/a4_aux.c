@@ -297,7 +297,7 @@ ALLEGRO_COLOR makecol(int r, int g, int b)
 /* emulate hline() */
 void hline(int x1, int y, int x2, ALLEGRO_COLOR c)
 {
-   al_draw_line(x1, y, x2+0.5, y, c, 1);
+   al_draw_line(x1+0.5, y+0.5, x2+0.5, y+0.5, c, 1);
 }
 
 
@@ -305,7 +305,7 @@ void hline(int x1, int y, int x2, ALLEGRO_COLOR c)
 /* emulate vline() */
 void vline(int x, int y1, int y2, ALLEGRO_COLOR c)
 {
-   al_draw_line(x, y1, x+0.5, y2+0.5, c, 1);
+   al_draw_line(x+0.5, y1+0.5, x+0.5, y2+0.5, c, 1);
 }
 
 
