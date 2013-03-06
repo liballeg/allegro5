@@ -35,11 +35,14 @@ int title_screen()
 
    bmp = create_memory_bitmap(SCREEN_W, SCREEN_H);
    al_set_target_bitmap(bmp);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
 
    for (i=0; i<SCREEN_H/2; i++) {
       hline(0, i, SCREEN_W, makecol(0, 0, i*255/(SCREEN_H/2)));
       hline(0, SCREEN_H-i-1, SCREEN_W, makecol(0, 0, i*255/(SCREEN_H/2)));
    }
+
+   solid_mode();
 
    b = create_memory_bitmap(40, 8);
    al_set_target_bitmap(b);
