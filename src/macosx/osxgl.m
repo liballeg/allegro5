@@ -139,6 +139,16 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_fs(void);
 static NSOpenGLContext* osx_create_shareable_context(NSOpenGLPixelFormat* fmt, unsigned int* group);
 static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff);
 
+static NSTrackingArea *create_tracking_area(NSView *view)
+{
+   NSTrackingAreaOptions options =
+      NSTrackingMouseEnteredAndExited |
+      NSTrackingMouseMoved |
+      NSTrackingCursorUpdate |
+      NSTrackingActiveAlways;
+   return [[NSTrackingArea alloc] initWithRect:[view bounds] options:options owner:view userInfo:nil];
+}
+
 /* osx_change_cursor:
  * Actually change the current cursor. This can be called fom any thread 
  * but ensures that the change is only called from the main thread.
@@ -197,6 +207,9 @@ void _al_osx_keyboard_was_installed(BOOL install) {
 -(void) windowDidBecomeMain:(NSNotification*) notification;
 -(void) windowDidResignMain:(NSNotification*) notification;
 -(void) windowDidResize:(NSNotification*) notification;
+-(void) enterFullScreenWindowMode;
+-(void) exitFullScreenWindowMode;
+-(void) finishExitingFullScreenWindowMode;
 @end
 
 /* ALWindow:
@@ -238,7 +251,7 @@ void _al_osx_keyboard_was_installed(BOOL install) {
 /* _al_osx_mouse_was_installed:
  * Called by the mouse driver when the driver is installed or uninstalled.
  * Set the variable so we can decide to pass events or not, and notify all
- * existing displays that they need to set up their tracking rectangles.
+ * existing displays that they need to set up their tracking areas.
  */
 void _al_osx_mouse_was_installed(BOOL install) {
    unsigned int i;
@@ -285,9 +298,10 @@ void _al_osx_mouse_was_installed(BOOL install) {
       glLoadIdentity();
       glOrtho(0, NSWidth(rc), NSHeight(rc), 0, -1, 1);
       
-      if ( dpy->tracking ) {
-         [self removeTrackingRect:dpy->tracking];
-         dpy->tracking = [self addTrackingRect:[self bounds] owner:self userData:nil assumeInside:NO];
+      if (dpy->tracking) {
+         [self removeTrackingArea: dpy->tracking];
+         dpy->tracking = create_tracking_area(self);
+	 [self addTrackingArea: dpy->tracking];
       }
    }
 }
@@ -381,14 +395,16 @@ void _al_osx_mouse_was_installed(BOOL install) {
 /* Cursor handling */
 - (void) viewDidMoveToWindow {
    ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
-   dpy->tracking = [self addTrackingRect:[self bounds] owner:self userData:nil assumeInside:NO];
+   dpy->tracking = create_tracking_area(self);
+   [self addTrackingArea: dpy->tracking];
 }
 
 - (void) viewWillMoveToWindow: (NSWindow*) newWindow {
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
    (void)newWindow;
    if (([self window] != nil) && (dpy->tracking != 0)) {
-      [self removeTrackingRect:dpy->tracking];
+      [self removeTrackingArea:dpy->tracking];
+      dpy->tracking = 0;
    }
 }
 
@@ -501,6 +517,39 @@ void _al_osx_mouse_was_installed(BOOL install) {
    }
    _al_event_source_unlock(es);
 }
+
+-(void) enterFullScreenWindowMode
+{
+   ALLEGRO_DISPLAY_OSX_WIN *dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
+   NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+   int flags = NSApplicationPresentationHideDock | NSApplicationPresentationHideMenuBar;
+   [dict setObject:[NSNumber numberWithInt: flags] forKey:NSFullScreenModeApplicationPresentationOptions];
+   [[dpy->win contentView] enterFullScreenMode: [dpy->win screen] withOptions: dict];
+   [dict release];
+}
+
+-(void) exitFullScreenWindowMode
+{
+   ALLEGRO_DISPLAY_OSX_WIN *dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
+
+   /* Going from a fullscreen window to a smaller window, the mouse may end up outside
+    * the window when it was inside before (not possible the other way.) This causes a
+    * crash. To avoid it, remove the tracking area and add it back after exiting fullscreen.
+    * (my theory)
+    */
+   [dpy->win orderOut:[dpy->win contentView]];
+   [self exitFullScreenModeWithOptions: nil];
+}
+
+-(void) finishExitingFullScreenWindowMode
+{
+   ALLEGRO_DISPLAY_OSX_WIN *dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
+
+   [dpy->win center];
+   [dpy->win makeKeyAndOrderFront:[dpy->win contentView]];
+   [[self window] makeFirstResponder: self];
+}
+
 /* End of ALOpenGLView implementation */
 @end
 
@@ -886,7 +935,13 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
 }
 +(void) destroyDisplay: (NSValue*) display_object {
    ALLEGRO_DISPLAY_OSX_WIN* dpy = [display_object pointerValue];
+   ALLEGRO_OGL_EXTRAS *ogl = ((ALLEGRO_DISPLAY *)dpy)->ogl_extras;
    _al_vector_find_and_delete(&al_get_system_driver()->displays, &dpy);
+   if (ogl->backbuffer) {
+      _al_ogl_destroy_backbuffer(ogl->backbuffer);
+      ogl->backbuffer = NULL;
+      ALLEGRO_DEBUG("destroy backbuffer.\n");
+   }
    // Disconnect from its view or exit fullscreen mode
    [dpy->ctx clearDrawable];
    // Unlock the screen 
@@ -1903,26 +1958,22 @@ static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
          [win setStyleMask : mask];
          return true;
 
-      case ALLEGRO_FULLSCREEN_WINDOW:
+      case ALLEGRO_FULLSCREEN_WINDOW: {
+         ALOpenGLView *view = (ALOpenGLView *)[win contentView];
          if (onoff) {
-            NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-	    [dict setObject:[NSNumber numberWithInt:NSApplicationPresentationHideDock | NSApplicationPresentationHideMenuBar] forKey:NSFullScreenModeApplicationPresentationOptions];
-            [[win contentView] enterFullScreenMode: [win screen] withOptions: dict];
+            [view performSelectorOnMainThread: @selector(enterFullScreenWindowMode) withObject:nil waitUntilDone:YES];
             NSRect sc = [[win screen] frame];
             resize_display_win(display, sc.size.width, sc.size.height);
             display->flags |= ALLEGRO_FULLSCREEN_WINDOW;
          } else {
-            [win orderOut:[win contentView]];
-            NSView *view = [win contentView];
-            [view exitFullScreenModeWithOptions: nil];
+            [view performSelectorOnMainThread: @selector(exitFullScreenWindowMode) withObject:nil waitUntilDone:YES];
             NSRect sc = [view frame];
             display->flags &= ~ALLEGRO_FULLSCREEN_WINDOW;
             resize_display_win(display, sc.size.width, sc.size.height);
-            [win center];
-            [win makeKeyAndOrderFront:[win contentView]];
-            [[view window] makeFirstResponder: view];
+            [view performSelectorOnMainThread: @selector(finishExitingFullScreenWindowMode) withObject:nil waitUntilDone:YES];
          }
          return true;
+      }
    }
 
    return false;

@@ -21,7 +21,7 @@ typedef struct ALLEGRO_DISPLAY_OSX_WIN {
    NSCursor* cursor;
    CGDirectDisplayID display_id;
    BOOL show_cursor;
-   NSTrackingRectTag tracking;
+   NSTrackingArea *tracking;
    unsigned int display_group;
    BOOL in_fullscreen;
 } ALLEGRO_DISPLAY_OSX_WIN;
