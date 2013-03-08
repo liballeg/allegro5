@@ -409,6 +409,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
          glDisableClientState(GL_NORMAL_ARRAY);
    }
 
+   glGetError(); /* clear error */
    glDrawArrays(GL_TRIANGLES, 0, disp->num_cache_vertices);
 
 #ifdef DEBUGMODE

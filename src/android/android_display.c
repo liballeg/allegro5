@@ -578,6 +578,8 @@ static void android_destroy_display(ALLEGRO_DISPLAY *dpy)
    
    _al_event_source_free(&dpy->es);
    
+   _al_ogl_delete_default_program(dpy);
+
    // XXX: this causes a crash, no idea why as of yet
    //ALLEGRO_DEBUG("destroy backbuffer");
    //_al_ogl_destroy_backbuffer(al_get_backbuffer(dpy));

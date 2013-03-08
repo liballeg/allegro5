@@ -616,6 +616,8 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    else
       transfer_display_bitmaps_to_any_other_display(s, d);
 
+   _al_ogl_delete_default_program(d);
+
    _al_ogl_unmanage_extensions(d);
    ALLEGRO_DEBUG("unmanaged extensions.\n");
 

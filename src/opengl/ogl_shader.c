@@ -384,13 +384,7 @@ static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
    }
 
    /* Look up variable locations. */
-   display->ogl_extras->pos_loc = glGetAttribLocation(program_object, ALLEGRO_SHADER_VAR_POS);
-   display->ogl_extras->color_loc = glGetAttribLocation(program_object, ALLEGRO_SHADER_VAR_COLOR);
-   display->ogl_extras->texcoord_loc = glGetAttribLocation(program_object, ALLEGRO_SHADER_VAR_TEXCOORD);
-   display->ogl_extras->use_tex_loc = glGetUniformLocation(program_object, ALLEGRO_SHADER_VAR_USE_TEX);
-   display->ogl_extras->tex_loc = glGetUniformLocation(program_object, ALLEGRO_SHADER_VAR_TEX);
-   display->ogl_extras->use_tex_matrix_loc = glGetUniformLocation(program_object, ALLEGRO_SHADER_VAR_USE_TEX_MATRIX);
-   display->ogl_extras->tex_matrix_loc = glGetUniformLocation(program_object, ALLEGRO_SHADER_VAR_TEX_MATRIX);
+   _al_glsl_lookup_locations(display->ogl_extras, program_object);
 
    for (i = 0; i < _ALLEGRO_PRIM_MAX_USER_ATTR; i++) {
       /* al_user_attr_##0 */
@@ -413,8 +407,8 @@ static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
 static void glsl_unuse_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display)
 {
    (void)shader;
-   display->ogl_extras->program_object = 0;
-   glUseProgram(0);
+   display->ogl_extras->program_object = display->ogl_extras->default_program;
+   glUseProgram(display->ogl_extras->program_object);
 }
 
 static bool shader_add_deferred_set(
@@ -779,6 +773,19 @@ static struct ALLEGRO_SHADER_INTERFACE shader_glsl_vt =
    glsl_set_shader_color_array,
    glsl_set_shader_texcoord_array
 };
+
+void _al_glsl_lookup_locations(ALLEGRO_OGL_EXTRAS *ogl_extras, GLuint program)
+{
+   ogl_extras->pos_loc = glGetAttribLocation(program, ALLEGRO_SHADER_VAR_POS);
+   ogl_extras->color_loc = glGetAttribLocation(program, ALLEGRO_SHADER_VAR_COLOR);
+   ogl_extras->texcoord_loc = glGetAttribLocation(program, ALLEGRO_SHADER_VAR_TEXCOORD);
+   ogl_extras->use_tex_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_USE_TEX);
+   ogl_extras->tex_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_TEX);
+   ogl_extras->use_tex_matrix_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_USE_TEX_MATRIX);
+   ogl_extras->tex_matrix_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_TEX_MATRIX);
+
+   LOG_GL_ERROR("glGetAttribLocation, glGetUniformLocation");
+}
 
 bool _al_glsl_set_projview_matrix(GLuint program_object, const ALLEGRO_TRANSFORM *t)
 {
