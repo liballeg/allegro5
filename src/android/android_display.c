@@ -348,7 +348,7 @@ static bool _al_android_init_display(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *displ
    _al_ogl_manage_extensions(d);
    _al_ogl_set_extensions(d->ogl_extras->extension_api);
 
-   d->ogl_extras->backbuffer = _al_ogl_create_backbuffer(d);
+   _al_ogl_setup_gl(d);
    
    return true;
 }
@@ -801,6 +801,14 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy, void (*user
    al_set_target_backbuffer(dpy);
    
    _al_android_setup_opengl_view(dpy);
+
+   // Bitmaps can still have stale shaders attached.
+   size = (int)dpy->bitmaps._size;
+   for (i = 0; i < size; i++) {
+      ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&dpy->bitmaps, i);
+      ALLEGRO_BITMAP *bmp = *bptr;
+      bmp->shader = NULL;
+   }
 
    if (user_reload) {
    	(*user_reload)();
