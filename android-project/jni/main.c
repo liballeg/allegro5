@@ -187,7 +187,7 @@ int main(int argc, char **argv)
          case ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING:
             ALLEGRO_DEBUG("resume drawing");
 
-            al_acknowledge_drawing_resume(dpy, NULL);
+            al_acknowledge_drawing_resume(dpy);
             ALLEGRO_DEBUG("done waiting for surface recreated");
 
             al_start_timer(timer);

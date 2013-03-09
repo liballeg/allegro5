@@ -614,8 +614,6 @@ See also: [ALLEGRO_EVENT_DISPLAY_HALT_DRAWING]
 ### API: al_acknowledge_drawing_resume
 
 Call this in reponse to the [ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING] event.
-If callback user_reload is not NULL, then it will be called before Allegro
-resumes the application. (XXX Is this correct?)
 
 Since: 5.1.1
 
