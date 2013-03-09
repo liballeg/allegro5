@@ -548,10 +548,10 @@ void al_acknowledge_drawing_halt(ALLEGRO_DISPLAY *display)
 
 /* Function: al_acknowledge_drawing_resume
  */
-void al_acknowledge_drawing_resume(ALLEGRO_DISPLAY *display, void (*user_reload)(void))
+void al_acknowledge_drawing_resume(ALLEGRO_DISPLAY *display)
 {
    if (display->vt->acknowledge_drawing_resume) {
-      display->vt->acknowledge_drawing_resume(display, user_reload);
+      display->vt->acknowledge_drawing_resume(display);
    }
 }
 

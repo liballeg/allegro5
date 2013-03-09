@@ -783,7 +783,7 @@ void android_broadcast_resume(ALLEGRO_DISPLAY_ANDROID *d)
    ALLEGRO_DEBUG("done broadcasting resume");
 }
 
-static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy, void (*user_reload)(void))
+static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
 {
    int i, size;
 
@@ -808,10 +808,6 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy, void (*user
       ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&dpy->bitmaps, i);
       ALLEGRO_BITMAP *bmp = *bptr;
       bmp->shader = NULL;
-   }
-
-   if (user_reload) {
-   	(*user_reload)();
    }
 
    // Restore bitmaps

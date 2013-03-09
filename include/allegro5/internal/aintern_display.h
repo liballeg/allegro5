@@ -70,7 +70,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
    void (*shutdown)(void);
 
    void (*acknowledge_drawing_halt)(ALLEGRO_DISPLAY *d);
-   void (*acknowledge_drawing_resume)(ALLEGRO_DISPLAY *d, void (*user_reload)(void));
+   void (*acknowledge_drawing_resume)(ALLEGRO_DISPLAY *d);
       
    void (*set_display_option)(ALLEGRO_DISPLAY *display, int option, int val);
 
