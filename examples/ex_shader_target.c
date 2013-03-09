@@ -132,6 +132,10 @@ int main(void)
          al_draw_bitmap(image, 0, 0, 0);
       }
 
+      al_set_target_backbuffer(display);
+      al_draw_tinted_bitmap(image, al_map_rgba_f(0.5, 0.5, 0.5, 0.5),
+         320/2, 240/2, 0);
+
       al_flip_display();
    }
 
