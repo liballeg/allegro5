@@ -33,17 +33,19 @@ void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d)
    _screen_w = w;
    _screen_h = h;
 
-   al_identity_transform(&d->proj_transform);
-   al_orthographic_transform(&d->proj_transform, 0, 0, -1, d->w, d->h, 1);
-
-   al_identity_transform(&d->view_transform);
-
    if (!(d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
       glMatrixMode(GL_PROJECTION);
       glLoadMatrixf((float *)d->proj_transform.m);
       glMatrixMode(GL_MODELVIEW);
       glLoadMatrixf((float *)d->view_transform.m);
    }
+
+   al_identity_transform(&d->proj_transform);
+   al_orthographic_transform(&d->proj_transform, 0, 0, -1, d->w, d->h, 1);
+
+   al_identity_transform(&d->view_transform);
+
+   d->vt->set_projection(d);
 }
 
 void _al_iphone_translate_from_screen(ALLEGRO_DISPLAY *d, int *x, int *y)
@@ -73,14 +75,13 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
 {
     ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
 
+    _al_iphone_setup_opengl_view(d);
+
     if (ogl->backbuffer)
         _al_ogl_resize_backbuffer(ogl->backbuffer, d->w, d->h);
     else
         ogl->backbuffer = _al_ogl_create_backbuffer(d);
-
-    _al_iphone_setup_opengl_view(d);
 }
-
 
 static void set_rgba8888(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
 {
