@@ -940,11 +940,58 @@ See also:
 ### API: ALLEGRO_PRIM_STORAGE
 
 Enumerates the types of storage an attribute of a custom vertex may be stored
-in.
+in. Usually no matter what the storage is specified the attribute gets converted
+to single precision floating point when the shader is run.
 
+* ALLEGRO_PRIM_FLOAT_1 - A single float
+
+    Since: 5.1.6
 * ALLEGRO_PRIM_FLOAT_2 - A doublet of floats
+
 * ALLEGRO_PRIM_FLOAT_3 - A triplet of floats
+
+* ALLEGRO_PRIM_FLOAT_4 - A quad of floats
+
+    Since: 5.1.6
 * ALLEGRO_PRIM_SHORT_2 - A doublet of shorts
+
+* ALLEGRO_PRIM_SHORT_4 - A quad of shorts
+
+    Since: 5.1.6
+* ALLEGRO_PRIM_UBYTE_4 - A quad of unsigned bytes
+
+    Since: 5.1.6
+* ALLEGRO_PRIM_NORMALIZED_SHORT_2 - A doublet of shorts. Before being sent to
+    the shader, each component is divided by 32767. Each component of the
+    resultant float doublet ranges between -1.0 and 1.0
+
+    Since: 5.1.6
+* ALLEGRO_PRIM_NORMALIZED_SHORT_4 - A quad of shorts. Before being sent to
+    the shader, each component is divided by 32767. Each component of the
+    resultant float quad ranges between -1.0 and 1.0
+
+    Since: 5.1.6
+* ALLEGRO_PRIM_NORMALIZED_UBYTE_4 - A quad of unsigned bytes. Before being sent
+    to the shader, each component is divided by 255. Each component of the
+    resultant float quad ranges between 0.0 and 1.0
+
+    Since: 5.1.6
+* ALLEGRO_PRIM_NORMALIZED_USHORT_2 - A doublet of unsigned shorts. Before being
+    sent to the shader, each component is divided by 65535. Each component of
+    the resultant float doublet ranges between 0.0 and 1.0
+
+    Since: 5.1.6
+* ALLEGRO_PRIM_NORMALIZED_USHORT_4 - A quad of unsigned shorts. Before being
+    sent to the shader, each component is divided by 65535. Each component of
+    the resultant float quad ranges between 0.0 and 1.0
+
+    Since: 5.1.6
+* ALLEGRO_PRIM_HALF_FLOAT_2 - A doublet of half-precision floats
+
+    Since: 5.1.6
+* ALLEGRO_PRIM_HALF_FLOAT_4 - A quad of half-precision floats
+
+    Since: 5.1.6
 
 See also:
 [ALLEGRO_PRIM_ATTR]

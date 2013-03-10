@@ -36,17 +36,72 @@ static void convert_storage(ALLEGRO_PRIM_STORAGE storage, GLenum* type, int* nco
          *type = GL_FLOAT;
          *ncoord = 2;
          *normalized = false;
-      break;
+         break;
       case ALLEGRO_PRIM_FLOAT_3:
          *type = GL_FLOAT;
          *ncoord = 3;
          *normalized = false;
-      break;
+         break;
       case ALLEGRO_PRIM_SHORT_2:
          *type = GL_SHORT;
          *ncoord = 2;
          *normalized = false;
-      break;
+         break;
+      case ALLEGRO_PRIM_FLOAT_1:
+         *type = GL_FLOAT;
+         *ncoord = 1;
+         *normalized = false;
+         break;
+      case ALLEGRO_PRIM_FLOAT_4:
+         *type = GL_FLOAT;
+         *ncoord = 4;
+         *normalized = false;
+         break;
+      case ALLEGRO_PRIM_UBYTE_4:
+         *type = GL_UNSIGNED_BYTE;
+         *ncoord = 4;
+         *normalized = false;
+         break;
+      case ALLEGRO_PRIM_SHORT_4:
+         *type = GL_SHORT;
+         *ncoord = 4;
+         *normalized = false;
+         break;
+      case ALLEGRO_PRIM_NORMALIZED_UBYTE_4:
+         *type = GL_UNSIGNED_BYTE;
+         *ncoord = 4;
+         *normalized = true;
+         break;
+      case ALLEGRO_PRIM_NORMALIZED_SHORT_2:
+         *type = GL_SHORT;
+         *ncoord = 2;
+         *normalized = true;
+         break;
+      case ALLEGRO_PRIM_NORMALIZED_SHORT_4:
+         *type = GL_SHORT;
+         *ncoord = 4;
+         *normalized = true;
+         break;
+      case ALLEGRO_PRIM_NORMALIZED_USHORT_2:
+         *type = GL_UNSIGNED_SHORT;
+         *ncoord = 2;
+         *normalized = true;
+         break;
+      case ALLEGRO_PRIM_NORMALIZED_USHORT_4:
+         *type = GL_UNSIGNED_SHORT;
+         *ncoord = 4;
+         *normalized = true;
+         break;
+      case ALLEGRO_PRIM_HALF_FLOAT_2:
+         *type = GL_HALF_FLOAT;
+         *ncoord = 2;
+         *normalized = false;
+         break;
+      case ALLEGRO_PRIM_HALF_FLOAT_4:
+         *type = GL_HALF_FLOAT;
+         *ncoord = 4;
+         *normalized = false;
+         break;
       default:
          ASSERT(0);
    }
