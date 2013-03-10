@@ -183,12 +183,6 @@ static void glsl_destroy_shader(ALLEGRO_SHADER *shader)
    al_free(shader);
 }
 
-static bool shader_effective(ALLEGRO_SHADER *shader)
-{
-   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
-   return (bitmap && bitmap->shader == shader);
-}
-
 static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
    bool set_projview_matrix_from_display)
 {
@@ -415,9 +409,6 @@ static bool glsl_set_shader_vertex_array(ALLEGRO_SHADER *shader,
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
    GLint loc;
 
-   if (!shader_effective(shader))
-      return false;
-
    loc = glGetAttribLocation(gl_shader->program_object, ALLEGRO_SHADER_VAR_POS);
    if (loc < 0)
       return false;
@@ -439,9 +430,6 @@ static bool glsl_set_shader_color_array(ALLEGRO_SHADER *shader,
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
    GLint loc;
 
-   if (!shader_effective(shader))
-      return false;
-
    loc = glGetAttribLocation(gl_shader->program_object, ALLEGRO_SHADER_VAR_COLOR);
    if (loc < 0)
       return false;
@@ -462,9 +450,6 @@ static bool glsl_set_shader_texcoord_array(ALLEGRO_SHADER *shader,
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
    GLint loc;
-
-   if (!shader_effective(shader))
-      return false;
 
    loc = glGetAttribLocation(gl_shader->program_object, ALLEGRO_SHADER_VAR_TEXCOORD);
    if (loc < 0)
