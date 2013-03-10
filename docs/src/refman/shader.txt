@@ -188,10 +188,11 @@ Since: 5.1.6
 
 ## API: al_destroy_shader
 
-This destroys the shader object as well as the underlying shader.
-You should stop using the shader on any bitmaps first.
+Destroy a shader.  Any bitmaps which currently use the shader will implicitly
+stop using the shader.  In multi-threaded programs, be careful that no such
+bitmaps are being accessed by other threads at the time.
 
-Does nothing if passed NULL.
+This function does nothing if the shader argument is NULL.
 
 Since: 5.1.0
 

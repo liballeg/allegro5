@@ -60,7 +60,9 @@ struct ALLEGRO_BITMAP
    ALLEGRO_TRANSFORM inverse_transform;
    bool              inverse_transform_dirty;
 
-   /* Shader applied to this bitmap */
+   /* Shader applied to this bitmap.  Set this field with
+    * _al_set_bitmap_shader_field to maintain invariants.
+    */
    ALLEGRO_SHADER *shader;
 
    /* Info for sub-bitmaps */

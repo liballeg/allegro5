@@ -23,8 +23,9 @@
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
-#include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_shader.h"
 #include "allegro5/internal/aintern_system.h"
 
 ALLEGRO_DEBUG_CHANNEL("bitmap")
@@ -259,6 +260,8 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 
    /* Non-comprehensive sanity check. */
    ASSERT(bitmap != al_get_target_bitmap());
+
+   _al_set_bitmap_shader_field(bitmap, NULL);
 
    _al_unregister_destructor(_al_dtor_list, bitmap);
 
@@ -526,11 +529,17 @@ ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
 /* This swaps the contents of the two bitmaps. */
 static void _al_swap_bitmaps(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *other)
 {
-   ALLEGRO_BITMAP temp = *bitmap;
+   ALLEGRO_BITMAP temp;
 
    check_to_be_converted_list_remove(bitmap);
    check_to_be_converted_list_remove(other);
 
+   if (other->shader)
+      _al_unregister_shader_bitmap(other->shader, other);
+   if (bitmap->shader)
+      _al_unregister_shader_bitmap(bitmap->shader, bitmap);
+
+   temp = *bitmap;
    *bitmap = *other;
    *other = temp;
 
@@ -556,6 +565,11 @@ static void _al_swap_bitmaps(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *other)
       back = _al_vector_ref(&other->display->bitmaps, pos);
       *back = other;
    }
+
+   if (other->shader)
+      _al_register_shader_bitmap(other->shader, other);
+   if (bitmap->shader)
+      _al_register_shader_bitmap(bitmap->shader, bitmap);
 
    check_to_be_converted_list_add(bitmap);
    check_to_be_converted_list_add(other);

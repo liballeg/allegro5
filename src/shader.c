@@ -159,26 +159,29 @@ bool al_use_shader(ALLEGRO_SHADER *shader)
 
    if (shader) {
       if (shader->vt->use_shader(shader, bmp->display, true)) {
-         bmp->shader = shader;
+         _al_set_bitmap_shader_field(bmp, shader);
          ALLEGRO_DEBUG("use_shader succeeded\n");
          return true;
       }
       else {
-         bmp->shader = NULL;
+         _al_set_bitmap_shader_field(bmp, NULL);
          ALLEGRO_ERROR("use_shader failed\n");
-         if (bmp->display->default_shader)
-            bmp->display->default_shader->vt->use_shader(bmp->display->default_shader, bmp->display, true);
+         if (bmp->display->default_shader) {
+            bmp->display->default_shader->vt->use_shader(
+               bmp->display->default_shader, bmp->display, true);
+         }
          return false;
       }
    }
    else {
       if (bmp->shader) {
-         ASSERT(bmp->display);
          bmp->shader->vt->unuse_shader(bmp->shader, bmp->display);
-         bmp->shader = NULL;
+         _al_set_bitmap_shader_field(bmp, NULL);
       }
-      if (bmp->display->default_shader)
-         bmp->display->default_shader->vt->use_shader(bmp->display->default_shader, bmp->display, true);
+      if (bmp->display->default_shader) {
+         bmp->display->default_shader->vt->use_shader(
+            bmp->display->default_shader, bmp->display, true);
+      }
       return true;
    }
 }
@@ -187,6 +190,8 @@ bool al_use_shader(ALLEGRO_SHADER *shader)
  */
 void al_destroy_shader(ALLEGRO_SHADER *shader)
 {
+   unsigned i;
+
    if (!shader)
       return;
 
@@ -196,6 +201,15 @@ void al_destroy_shader(ALLEGRO_SHADER *shader)
    shader->pixel_copy = NULL;
    al_ustr_free(shader->log);
    shader->log = NULL;
+
+   /* Clear references to this shader from all bitmaps. */
+   for (i = 0; i < _al_vector_size(&shader->bitmaps); i++) {
+      ALLEGRO_BITMAP **slot = _al_vector_ref(&shader->bitmaps, i);
+      ALLEGRO_BITMAP *bitmap = *slot;
+      ASSERT(bitmap->shader == shader);
+      bitmap->shader = NULL;
+   }
+   _al_vector_free(&shader->bitmaps);
 
    shader->vt->destroy_shader(shader);
 }
@@ -436,6 +450,41 @@ char const *al_get_default_shader_source(ALLEGRO_SHADER_PLATFORM platform,
          ASSERT(0);
    }
    return NULL;
+}
+
+void _al_set_bitmap_shader_field(ALLEGRO_BITMAP *bmp, ALLEGRO_SHADER *shader)
+{
+   ASSERT(bmp);
+
+   if (bmp->shader != shader) {
+      if (bmp->shader) {
+         _al_unregister_shader_bitmap(bmp->shader, bmp);
+      }
+      bmp->shader = shader;
+      if (bmp->shader) {
+         _al_register_shader_bitmap(bmp->shader, bmp);
+      }
+   }
+}
+
+void _al_register_shader_bitmap(ALLEGRO_SHADER *shader, ALLEGRO_BITMAP *bmp)
+{
+   ALLEGRO_BITMAP **slot;
+   ASSERT(shader);
+   ASSERT(bmp);
+
+   slot = _al_vector_alloc_back(&shader->bitmaps);
+   *slot = bmp;
+}
+
+void _al_unregister_shader_bitmap(ALLEGRO_SHADER *shader, ALLEGRO_BITMAP *bmp)
+{
+   bool deleted;
+   ASSERT(shader);
+   ASSERT(bmp);
+
+   deleted = _al_vector_find_and_delete(&shader->bitmaps, &bmp);
+   ASSERT(deleted);
 }
 
 /* vim: set sts=3 sw=3 et: */

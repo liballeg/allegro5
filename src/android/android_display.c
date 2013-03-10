@@ -20,6 +20,7 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_android.h"
+#include "allegro5/internal/aintern_shader.h"
 
 #include <allegro5/allegro_opengl.h>
 #include "allegro5/internal/aintern_opengl.h"
@@ -807,7 +808,7 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
    for (i = 0; i < size; i++) {
       ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&dpy->bitmaps, i);
       ALLEGRO_BITMAP *bmp = *bptr;
-      bmp->shader = NULL;
+      _al_set_bitmap_shader_field(bmp, NULL);
    }
 
    // Restore bitmaps

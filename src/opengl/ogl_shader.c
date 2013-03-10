@@ -62,6 +62,7 @@ ALLEGRO_SHADER *_al_create_shader_glsl(ALLEGRO_SHADER_PLATFORM platform)
 
    shader->shader.platform = platform;
    shader->shader.vt = &shader_glsl_vt;
+   _al_vector_init(&shader->shader.bitmaps, sizeof(ALLEGRO_BITMAP *));
 
    return (ALLEGRO_SHADER *)shader;
 }

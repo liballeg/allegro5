@@ -231,6 +231,7 @@ ALLEGRO_SHADER *_al_create_shader_hlsl(ALLEGRO_SHADER_PLATFORM platform)
       return NULL;
    shader->shader.platform = platform;
    shader->shader.vt = &shader_hlsl_vt;
+   _al_vector_init(&shader->shader.bitmaps, sizeof(ALLEGRO_BITMAP *));
 
    // For simplicity, these fields are never NULL in this backend.
    shader->shader.pixel_copy = al_ustr_new("");

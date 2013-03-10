@@ -284,11 +284,12 @@ void _al_d3d_release_default_pool_textures(ALLEGRO_DISPLAY *disp)
    for (i = 0; i < disp->bitmaps._size; i++) {
    	ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&disp->bitmaps, i);
 	ALLEGRO_BITMAP *albmp = *bptr;
-	albmp->shader = NULL;
-	ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp;
+	_al_set_bitmap_shader_field(albmp, NULL);
+
 	if ((albmp->flags & ALLEGRO_MEMORY_BITMAP) || (albmp->parent))
 	   continue;
-	d3d_bmp = get_extra(albmp);
+
+	ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(albmp);
 	if (!d3d_bmp->is_backbuffer && d3d_bmp->render_target) {
 		d3d_bmp->render_target->Release();
 		d3d_bmp->render_target = NULL;
