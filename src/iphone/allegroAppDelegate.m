@@ -17,6 +17,8 @@ static UIApplication *app = NULL;
 static volatile bool waiting_for_program_halt = false;
 static float scale_override = -1.0;
 static bool disconnect_wait = false;
+static UIScreen *airplay_screen = NULL;
+static bool airplay_connected = false;
 
 ALLEGRO_MUTEX *_al_iphone_display_hotplug_mutex = NULL;
 
@@ -83,75 +85,6 @@ bool _al_iphone_is_display_connected(ALLEGRO_DISPLAY *display)
    return scr && (scr->display == display);
 }
 
-static void iphone_add_screen(UIScreen *screen)
-{
-   int i;
-   
-   if (screen == [UIScreen mainScreen]) {
-      i = 0;
-   }
-   else {
-      for (i = 0; i < (int)[[UIScreen screens] count]; i++) {
-         if ([[UIScreen screens] objectAtIndex:i] == screen)
-            break;
-      }
-   }
-
-   if (i != 0) {
-      if ([screen respondsToSelector:NSSelectorFromString(@"availableModes")]) {
-         NSArray *a = [screen availableModes];
-         int j;
-         UIScreenMode *largest = NULL;
-         for (j = 0; j < (int)[a count]; j++) {
-            UIScreenMode *m = [a objectAtIndex:j];
-            float w = m.size.width;
-            float h = m.size.height;
-            if ((largest == NULL) || (w+h > largest.size.width+largest.size.height)) {
-          largest = m;
-            }
-         }
-         if (largest) {
-            screen.currentMode = largest;
-         }
-      }
-   }
-     
-   iphone_screen *scr = iphone_get_screen_by_adapter(i);
-   bool add = scr == NULL;
-
-   UIWindow *window = [[UIWindow alloc] initWithFrame:[screen bounds]];
-   if ([window respondsToSelector:NSSelectorFromString(@"screen")]) {
-       window.screen = screen;
-   }
-   
-   ViewController *vc = [[ViewController alloc] init];
-   vc->adapter = i;
-   [vc create_view];
-   // Doesn't work on iOS < 4.
-   NSString *reqSysVer = @"4.0";
-   NSString *currSysVer = [[UIDevice currentDevice] systemVersion];
-   BOOL osVersionSupported = ([currSysVer compare:reqSysVer options:NSNumericSearch] != NSOrderedAscending);
-   if (osVersionSupported) {
-      window.rootViewController = vc;
-   }
-   
-   if (add)
-      scr = [[iphone_screen alloc] init];
-      
-   scr->adapter = i;
-   scr->screen = screen;
-   scr->window = window;
-   scr->vc = vc;
-   scr->view = (EAGLView *)vc.view;
-   scr->display = NULL;
-
-   if (add) {
-      al_lock_mutex(_al_iphone_display_hotplug_mutex);
-      [iphone_screens addObject:scr];
-      al_unlock_mutex(_al_iphone_display_hotplug_mutex);
-   }
-}
-
 static void iphone_remove_screen(UIScreen *screen)
 {
    al_lock_mutex(_al_iphone_display_hotplug_mutex);
@@ -196,12 +129,16 @@ static void iphone_create_screens(void)
       int i;
 
       num_screens = [[UIScreen screens] count];;
-      for (i = 0; i < num_screens; i++) {
-         iphone_add_screen([[UIScreen screens] objectAtIndex:i]);
+      for (i = 0; i < num_screens && i < 2; i++) {
+         if (i == 1) {
+	    airplay_screen = [[UIScreen screens] objectAtIndex:i];
+	    continue;
+	 }
+         [global_delegate add_screen:[[UIScreen screens] objectAtIndex:i]];
       }
    }
    else {
-         iphone_add_screen([UIScreen mainScreen]);
+         [global_delegate add_screen:[UIScreen mainScreen]];
    }
 }
 
@@ -636,10 +573,10 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
    iphone_screen *scr = iphone_get_screen_by_adapter(adapter);
 
    if (adapter == 0) {
-      iphone_add_screen([UIScreen mainScreen]);
+      [global_delegate add_screen:[UIScreen mainScreen]];
    }
    else if (scr == NULL) {
-      iphone_add_screen([[UIScreen screens] objectAtIndex:adapter]);
+      [global_delegate add_screen:[[UIScreen screens] objectAtIndex:adapter]];
    }
    
    scr->display = d;
@@ -689,7 +626,7 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 
 - (void)handleScreenConnectNotification:(NSNotification*)aNotification
 {
-   iphone_add_screen([aNotification object]);
+   airplay_screen = [aNotification object];
 
    ALLEGRO_DISPLAY *display = main_display;
    
@@ -707,7 +644,7 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
 }
  
 - (void)handleScreenDisconnectNotification:(NSNotification*)aNotification
-{   
+{
    ALLEGRO_DISPLAY *display = main_display;
    ALLEGRO_DISPLAY_IPHONE *idisplay = (ALLEGRO_DISPLAY_IPHONE *)display;
    ALLEGRO_DISPLAY_IPHONE_EXTRA *extra;
@@ -729,15 +666,93 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
    }
    _al_event_source_unlock(&display->es);
 
-   // wait for user to destroy display
-   while (disconnect_wait)
-      al_rest(0.001);
-         
-   iphone_remove_screen([aNotification object]);
+   if (airplay_connected) {
+      // wait for user to destroy display
+      while (disconnect_wait)
+         al_rest(0.001);
+            
+      iphone_remove_screen([aNotification object]);
+      airplay_connected = false;
+   }
 } 
 
 - (void)dealloc {
    [super dealloc];
 }
 
+- (void)add_screen:(UIScreen *)screen
+{
+   int i;
+   
+   if (screen == [UIScreen mainScreen]) {
+      i = 0;
+   }
+   else {
+      for (i = 0; i < (int)[[UIScreen screens] count]; i++) {
+         if ([[UIScreen screens] objectAtIndex:i] == screen)
+            break;
+      }
+   }
+
+   if (i != 0) {
+      if ([screen respondsToSelector:NSSelectorFromString(@"availableModes")]) {
+         NSArray *a = [screen availableModes];
+         int j;
+         UIScreenMode *largest = NULL;
+         for (j = 0; j < (int)[a count]; j++) {
+            UIScreenMode *m = [a objectAtIndex:j];
+            float w = m.size.width;
+            float h = m.size.height;
+            if ((largest == NULL) || (w+h > largest.size.width+largest.size.height)) {
+          largest = m;
+            }
+         }
+         if (largest) {
+            screen.currentMode = largest;
+         }
+      }
+   }
+     
+   iphone_screen *scr = iphone_get_screen_by_adapter(i);
+   bool add = scr == NULL;
+
+   UIWindow *window = [[UIWindow alloc] initWithFrame:[screen bounds]];
+   if ([window respondsToSelector:NSSelectorFromString(@"screen")]) {
+       window.screen = screen;
+   }
+   
+   ViewController *vc = [[ViewController alloc] init];
+   vc->adapter = i;
+   [vc create_view];
+   // Doesn't work on iOS < 4.
+   NSString *reqSysVer = @"4.0";
+   NSString *currSysVer = [[UIDevice currentDevice] systemVersion];
+   BOOL osVersionSupported = ([currSysVer compare:reqSysVer options:NSNumericSearch] != NSOrderedAscending);
+   if (osVersionSupported) {
+      window.rootViewController = vc;
+   }
+   
+   if (add)
+      scr = [[iphone_screen alloc] init];
+      
+   scr->adapter = i;
+   scr->screen = screen;
+   scr->window = window;
+   scr->vc = vc;
+   scr->view = (EAGLView *)vc.view;
+   scr->display = NULL;
+
+   if (add) {
+      al_lock_mutex(_al_iphone_display_hotplug_mutex);
+      [iphone_screens addObject:scr];
+      al_unlock_mutex(_al_iphone_display_hotplug_mutex);
+   }
+}
+
 @end
+
+void _al_iphone_connect_airplay(void)
+{
+   [global_delegate performSelectorOnMainThread: @selector(add_screen:) withObject:airplay_screen waitUntilDone:TRUE];
+   airplay_connected = true;
+}

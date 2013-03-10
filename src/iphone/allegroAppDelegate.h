@@ -22,6 +22,7 @@ struct ALLEGRO_DISPLAY_IPHONE_EXTRA {
 - (void)add_view:(NSValue *)value;
 - (void)orientation_change:(NSNotification *)notification;
 - (void)setupScreenConnectionNotificationHandlers;
+- (void)add_screen:(UIScreen *)screen;
 
 @end
 
