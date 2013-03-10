@@ -248,6 +248,20 @@ Sets an integer vector array uniform of the current target bitmap's shader. The
 then an array of 'num_elems' integer elements is added. Otherwise each added
 array element is assumed to be a vector with 2, 3 or 4 components in it.
 
+For example, if you have a GLSL uniform declared as`uniform ivec3 flowers[4]` or
+an HLSL uniform declared as `uniform int3 flowers[4]`, then you'd use this
+function from your code like so:
+
+    int flowers[4][3] =
+    {
+        {1, 2, 3},
+        {4, 5, 6},
+        {7, 8, 9},
+        {2, 5, 7}
+    };
+
+    al_set_shader_int_vector("flowers", 3, (int*)flowers, 4);
+
 Returns true on success. Otherwise returns false, e.g. if the uniform by that
 name does not exist in the shader.
 
