@@ -266,6 +266,11 @@ static bool glsl_set_shader_sampler(ALLEGRO_SHADER *shader,
 
    handle = glGetUniformLocation(gl_shader->program_object, name);
 
+   if (handle < 0) {
+      ALLEGRO_WARN("No uniform variable '%s' in shader program\n", name);
+      return false;
+   }
+
    glActiveTexture(GL_TEXTURE0 + unit);
 
    texture = bitmap ? al_get_opengl_texture(bitmap) : 0;
@@ -284,6 +289,11 @@ static bool glsl_set_shader_matrix(ALLEGRO_SHADER *shader,
 
    handle = glGetUniformLocation(gl_shader->program_object, name);
 
+   if (handle < 0) {
+      ALLEGRO_WARN("No uniform variable '%s' in shader program\n", name);
+      return false;
+   }
+
    glUniformMatrix4fv(handle, 1, false, (float *)matrix->m);
 
    return check_gl_error(name);
@@ -296,6 +306,11 @@ static bool glsl_set_shader_int(ALLEGRO_SHADER *shader,
    GLint handle;
 
    handle = glGetUniformLocation(gl_shader->program_object, name);
+
+   if (handle < 0) {
+      ALLEGRO_WARN("No uniform variable '%s' in shader program\n", name);
+      return false;
+   }
 
    glUniform1i(handle, i);
 
@@ -310,6 +325,11 @@ static bool glsl_set_shader_float(ALLEGRO_SHADER *shader,
 
    handle = glGetUniformLocation(gl_shader->program_object, name);
 
+   if (handle < 0) {
+      ALLEGRO_WARN("No uniform variable '%s' in shader program\n", name);
+      return false;
+   }
+
    glUniform1f(handle, f);
 
    return check_gl_error(name);
@@ -322,6 +342,11 @@ static bool glsl_set_shader_int_vector(ALLEGRO_SHADER *shader,
    GLint handle;
 
    handle = glGetUniformLocation(gl_shader->program_object, name);
+
+   if (handle < 0) {
+      ALLEGRO_WARN("No uniform variable '%s' in shader program\n", name);
+      return false;
+   }
 
    switch (elem_size) {
       case 1:
@@ -351,6 +376,11 @@ static bool glsl_set_shader_float_vector(ALLEGRO_SHADER *shader,
    GLint handle;
 
    handle = glGetUniformLocation(gl_shader->program_object, name);
+
+   if (handle < 0) {
+      ALLEGRO_WARN("No uniform variable '%s' in shader program\n", name);
+      return false;
+   }
 
    switch (elem_size) {
       case 1:
