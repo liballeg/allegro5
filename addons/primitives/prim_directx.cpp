@@ -756,6 +756,8 @@ void _al_set_d3d_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL* ret)
                case ALLEGRO_PRIM_SHORT_2:
                   type = D3DDECLTYPE_SHORT2;
                break;
+               default:
+                  ASSERT(0);
             }
             d3delements[idx].Stream = 0;
             d3delements[idx].Offset = e->offset;
@@ -773,12 +775,13 @@ void _al_set_d3d_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL* ret)
             int type = 0;
             switch(e->storage) {
                case ALLEGRO_PRIM_FLOAT_2:
-               case ALLEGRO_PRIM_FLOAT_3:
                   type = D3DDECLTYPE_FLOAT2;
                break;
                case ALLEGRO_PRIM_SHORT_2:
                   type = D3DDECLTYPE_SHORT2;
                break;
+               default:
+                  ASSERT(0);
             }
             d3delements[idx].Stream = 0;
             d3delements[idx].Offset = e->offset;
@@ -814,6 +817,8 @@ void _al_set_d3d_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL* ret)
                   case ALLEGRO_PRIM_SHORT_2:
                      type = D3DDECLTYPE_SHORT2;
                   break;
+                  default:
+                     ASSERT(0);
                }
 
                d3delements[idx].Stream = 0;
