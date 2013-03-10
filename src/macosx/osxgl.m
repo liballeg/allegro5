@@ -139,7 +139,7 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_fs(void);
 static NSOpenGLContext* osx_create_shareable_context(NSOpenGLPixelFormat* fmt, unsigned int* group);
 static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff);
 
-static void clear_context(NSOpenGLContext *context)
+static void clear_to_black(NSOpenGLContext *context)
 {
    /* Clear and flush (for double buffering) */
    glClearColor(0, 0, 0, 1);
@@ -1210,7 +1210,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    /* Set up GL as we want */
    setup_gl(&dpy->parent);
 
-   clear_context(dpy->ctx);
+   clear_to_black(dpy->ctx);
 
    /* Add to the display list */
    ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_get_system_driver()->displays);
@@ -1358,7 +1358,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    /* Set up GL as we want */
    setup_gl(&dpy->parent);
    
-   clear_context(dpy->ctx);
+   clear_to_black(dpy->ctx);
 
    /* Add to the display list */
    ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_get_system_driver()->displays);
@@ -1472,7 +1472,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    /* Set up GL as we want */
    setup_gl(&dpy->parent);
    
-   clear_context(dpy->ctx);
+   clear_to_black(dpy->ctx);
 
    /* Add to the display list */
    ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_get_system_driver()->displays);
