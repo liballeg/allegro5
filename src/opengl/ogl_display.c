@@ -276,13 +276,6 @@ bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP *b, int w, int h)
    extra->true_w = w;
    extra->true_h = h;
 
-   /* This code below appears to be unneccessary on platforms other than
-    * OS X.
-    */
-#ifdef ALLEGRO_MACOSX
-   b->display->vt->set_projection(b->display);
-#endif
-
    if (!IS_IPHONE) {
       b->memory = NULL;
    }
