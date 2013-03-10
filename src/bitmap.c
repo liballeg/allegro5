@@ -258,8 +258,12 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
       return;
    }
 
-   /* Non-comprehensive sanity check. */
-   ASSERT(bitmap != al_get_target_bitmap());
+   /* As a convenience, implicitly untarget the bitmap on the calling thread
+    * before it is destroyed.
+    */
+   if (bitmap == al_get_target_bitmap()) {
+      al_set_target_bitmap(NULL);
+   }
 
    _al_set_bitmap_shader_field(bitmap, NULL);
 
