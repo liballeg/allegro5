@@ -442,7 +442,6 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    bitmap->format = parent->format;
    bitmap->flags = parent->flags;
 
-   bitmap->shader = parent->shader;
    bitmap->w = w;
    bitmap->h = h;
    bitmap->display = parent->display;
@@ -453,6 +452,7 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    al_identity_transform(&bitmap->transform);
    al_identity_transform(&bitmap->inverse_transform);
    bitmap->inverse_transform_dirty = false;
+   bitmap->shader = NULL;
    bitmap->parent = parent;
    bitmap->xofs = x;
    bitmap->yofs = y;
