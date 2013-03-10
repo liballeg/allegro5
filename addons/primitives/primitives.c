@@ -44,6 +44,8 @@ TODO: This is a hack... I need to know the values of these without actually incl
 #define ALLEGRO_DIRECT3D 8
 #endif
 
+ALLEGRO_DEBUG_CHANNEL("primitives")
+
 static bool addon_initialized = false;
 
 /* Function: al_init_primitives_addon
@@ -159,6 +161,7 @@ ALLEGRO_VERTEX_DECL* al_create_vertex_decl(const ALLEGRO_VERTEX_ELEMENT* element
 {
    ALLEGRO_VERTEX_DECL* ret;
    ALLEGRO_DISPLAY* display;
+   ALLEGRO_VERTEX_ELEMENT* e;
    int flags;
 
    ASSERT(addon_initialized);
@@ -169,7 +172,28 @@ ALLEGRO_VERTEX_DECL* al_create_vertex_decl(const ALLEGRO_VERTEX_ELEMENT* element
       ret->elements[elements->attribute] = *elements;
       elements++;
    }
-   
+
+   e = &ret->elements[ALLEGRO_PRIM_POSITION];
+   if (e->attribute) {
+      if (e->storage != ALLEGRO_PRIM_FLOAT_2 &&
+          e->storage != ALLEGRO_PRIM_FLOAT_3 &&
+          e->storage != ALLEGRO_PRIM_SHORT_2) {
+         ALLEGRO_WARN("Invalid storage for ALLEGRO_PRIM_POSITION.\n");
+         goto fail;
+      }
+   }
+
+   e = &ret->elements[ALLEGRO_PRIM_TEX_COORD];
+   if(!e->attribute)
+      e = &ret->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
+   if (e->attribute) {
+      if (e->storage != ALLEGRO_PRIM_FLOAT_2 &&
+          e->storage != ALLEGRO_PRIM_SHORT_2) {
+         ALLEGRO_WARN("Invalid storage for %s.\n", ret->elements[ALLEGRO_PRIM_TEX_COORD].attribute ? "ALLEGRO_PRIM_TEX_COORD" : "ALLEGRO_PRIM_TEX_COORD_PIXEL");
+         goto fail;
+      }
+   }
+
    display = al_get_current_display();
    flags = al_get_display_flags(display);
    if (flags & ALLEGRO_DIRECT3D) {
@@ -178,6 +202,10 @@ ALLEGRO_VERTEX_DECL* al_create_vertex_decl(const ALLEGRO_VERTEX_ELEMENT* element
    
    ret->stride = stride;
    return ret;
+fail:
+   al_free(ret->elements);
+   al_free(ret);
+   return NULL;
 }
 
 /* Function: al_destroy_vertex_decl
