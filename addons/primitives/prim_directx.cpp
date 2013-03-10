@@ -726,6 +726,59 @@ int _al_draw_vertex_buffer_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textu
 #endif
 }
 
+#ifdef ALLEGRO_CFG_D3D
+static int convert_storage(int storage)
+{
+   switch(storage) {
+      case ALLEGRO_PRIM_FLOAT_2:
+         return D3DDECLTYPE_FLOAT2;
+         break;
+      case ALLEGRO_PRIM_FLOAT_3:
+         return D3DDECLTYPE_FLOAT3;
+         break;
+      case ALLEGRO_PRIM_SHORT_2:
+         return D3DDECLTYPE_SHORT2;
+         break;
+      case ALLEGRO_PRIM_FLOAT_1:
+         return D3DDECLTYPE_FLOAT1;
+         break;
+      case ALLEGRO_PRIM_FLOAT_4:
+         return D3DDECLTYPE_FLOAT4;
+         break;
+      case ALLEGRO_PRIM_UBYTE_4:
+         return D3DDECLTYPE_UBYTE4;
+         break;
+      case ALLEGRO_PRIM_SHORT_4:
+         return D3DDECLTYPE_SHORT4;
+         break;
+      case ALLEGRO_PRIM_NORMALIZED_UBYTE_4:
+         return D3DDECLTYPE_UBYTE4N;
+         break;
+      case ALLEGRO_PRIM_NORMALIZED_SHORT_2:
+         return D3DDECLTYPE_SHORT2N;
+         break;
+      case ALLEGRO_PRIM_NORMALIZED_SHORT_4:
+         return D3DDECLTYPE_SHORT4N;
+         break;
+      case ALLEGRO_PRIM_NORMALIZED_USHORT_2:
+         return D3DDECLTYPE_USHORT2N;
+         break;
+      case ALLEGRO_PRIM_NORMALIZED_USHORT_4:
+         return D3DDECLTYPE_USHORT4N;
+         break;
+      case ALLEGRO_PRIM_HALF_FLOAT_2:
+         return D3DDECLTYPE_FLOAT16_2;
+         break;
+      case ALLEGRO_PRIM_HALF_FLOAT_4:
+         return D3DDECLTYPE_FLOAT16_4;
+         break;
+      default:
+         ASSERT(0);
+         return D3DDECLTYPE_UNUSED;
+   }
+}
+#endif
+
 void _al_set_d3d_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL* ret)
 {
 #ifdef ALLEGRO_CFG_D3D
@@ -745,23 +798,9 @@ void _al_set_d3d_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL* ret)
          int i;
          e = &ret->elements[ALLEGRO_PRIM_POSITION];
          if(e->attribute) {
-            int type = 0;
-            switch(e->storage) {
-               case ALLEGRO_PRIM_FLOAT_2:
-                  type = D3DDECLTYPE_FLOAT2;
-               break;
-               case ALLEGRO_PRIM_FLOAT_3:
-                  type = D3DDECLTYPE_FLOAT3;
-               break;
-               case ALLEGRO_PRIM_SHORT_2:
-                  type = D3DDECLTYPE_SHORT2;
-               break;
-               default:
-                  ASSERT(0);
-            }
             d3delements[idx].Stream = 0;
             d3delements[idx].Offset = e->offset;
-            d3delements[idx].Type = type;
+            d3delements[idx].Type = convert_storage(e->storage);
             d3delements[idx].Method = D3DDECLMETHOD_DEFAULT;
             d3delements[idx].Usage = D3DDECLUSAGE_POSITION;
             d3delements[idx].UsageIndex = 0;
@@ -772,20 +811,9 @@ void _al_set_d3d_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL* ret)
          if(!e->attribute)
             e = &ret->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
          if(e->attribute) {
-            int type = 0;
-            switch(e->storage) {
-               case ALLEGRO_PRIM_FLOAT_2:
-                  type = D3DDECLTYPE_FLOAT2;
-               break;
-               case ALLEGRO_PRIM_SHORT_2:
-                  type = D3DDECLTYPE_SHORT2;
-               break;
-               default:
-                  ASSERT(0);
-            }
             d3delements[idx].Stream = 0;
             d3delements[idx].Offset = e->offset;
-            d3delements[idx].Type = type;
+            d3delements[idx].Type = convert_storage(e->storage);
             d3delements[idx].Method = D3DDECLMETHOD_DEFAULT;
             d3delements[idx].Usage = D3DDECLUSAGE_TEXCOORD;
             d3delements[idx].UsageIndex = 0;
@@ -806,24 +834,9 @@ void _al_set_d3d_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL* ret)
          for (i = 0; i < _ALLEGRO_PRIM_MAX_USER_ATTR; i++) {
             e = &ret->elements[ALLEGRO_PRIM_USER_ATTR + i];
             if (e->attribute) {
-               int type = 0;
-               switch(e->storage) {
-                  case ALLEGRO_PRIM_FLOAT_2:
-                     type = D3DDECLTYPE_FLOAT2;
-                  break;
-                  case ALLEGRO_PRIM_FLOAT_3:
-                     type = D3DDECLTYPE_FLOAT3;
-                  break;
-                  case ALLEGRO_PRIM_SHORT_2:
-                     type = D3DDECLTYPE_SHORT2;
-                  break;
-                  default:
-                     ASSERT(0);
-               }
-
                d3delements[idx].Stream = 0;
                d3delements[idx].Offset = e->offset;
-               d3delements[idx].Type = type;
+               d3delements[idx].Type = convert_storage(e->storage);
                d3delements[idx].Method = D3DDECLMETHOD_DEFAULT;
                d3delements[idx].Usage = D3DDECLUSAGE_TEXCOORD;
                d3delements[idx].UsageIndex = 2 + i;
