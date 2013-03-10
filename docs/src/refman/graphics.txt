@@ -307,10 +307,13 @@ See also: [al_create_bitmap], [al_set_new_bitmap_format],
 ### API: al_destroy_bitmap
 
 Destroys the given bitmap, freeing all resources used by it.
-Does nothing if given the null pointer.
+This function does nothing if the bitmap argument is NULL.
 
-It is an error to destroy a bitmap while it (or a sub-bitmap)
-are the target bitmap of any thread.
+As a convenience, if the calling thread is currently targets the
+bitmap then the bitmap will be untargeted first. (since: 5.1.6)
+
+Otherwise, it is an error to destroy a bitmap while it (or a sub-bitmap)
+is the target bitmap of any thread.
 
 See also: [al_create_bitmap]
 
