@@ -197,35 +197,59 @@ Since: 5.1.0
 
 ## API: al_set_shader_sampler
 
-Adds a texture sampler variable for the given bitmap and texture unit to the
-shader.
+Sets a texture sampler uniform and texture unit of the current target bitmap's
+shader. The given bitmap must be a video bitmap.
+
+Returns true on success. Otherwise returns false, e.g. if the uniform by that
+name does not exist in the shader.
 
 Since: 5.1.0
 
 ## API: al_set_shader_matrix
 
-Adds a matrix variable to the shader.
+Sets a matrix uniform of the current target bitmap's shader.
+
+Returns true on success. Otherwise returns false, e.g. if the uniform by that
+name does not exist in the shader.
 
 Since: 5.1.0
 
 ## API: al_set_shader_int
 
-Adds an integer variable to the shader.
+Sets an integer uniform of the current target bitmap's shader.
+
+Returns true on success. Otherwise returns false, e.g. if the uniform by that
+name does not exist in the shader.
 
 Since: 5.1.0
 
 ## API: al_set_shader_float
 
-Adds a float variable to the shader.
+Sets a float uniform of the target bitmap's shader.
+
+Returns true on success. Otherwise returns false, e.g. if the uniform by that
+name does not exist in the shader.
 
 Since: 5.1.0
 
+## API: al_set_shader_bool
+
+Sets a boolean uniform of the target bitmap's shader.
+
+Returns true on success. Otherwise returns false, e.g. if the uniform by that
+name does not exist in the shader.
+
+Since: 5.1.6
+
 ## API: al_set_shader_int_vector
 
-Adds an array of integer vectors to the shader. The 'elem_size' parameter can
-take one of the values 1, 2, 3 or 4. If it is 1 then an array of 'num_elems'
-integer values is added. Otherwise each added array element is assumed to be a
-vector with 2, 3 or 4 elements in it.
+Sets an integer vector array uniform of the current target bitmap's shader. The
+'elem_size' parameter can take one of the values 1, 2, 3 or 4. If it is 1 then
+an array of 'num_elems' integer elements is added. Otherwise each added array
+element is assumed to be a vector with 2, 3 or 4 components in it.
+
+Returns true on success. Otherwise returns false, e.g. if the uniform by that
+name does not exist in the shader.
 
 Since: 5.1.0
 
