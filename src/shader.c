@@ -190,10 +190,20 @@ bool al_use_shader(ALLEGRO_SHADER *shader)
  */
 void al_destroy_shader(ALLEGRO_SHADER *shader)
 {
+   ALLEGRO_BITMAP *bmp;
    unsigned i;
 
    if (!shader)
       return;
+
+   /* As a convenience, implicitly unuse the shader on the target bitmap
+    * if currently used.
+    */
+   bmp = al_get_target_bitmap();
+   if (bmp && _al_vector_contains(&shader->bitmaps, &bmp)) {
+      ALLEGRO_DEBUG("implicitly unusing shader on target bitmap\n");
+      al_use_shader(NULL);
+   }
 
    al_ustr_free(shader->vertex_copy);
    shader->vertex_copy = NULL;

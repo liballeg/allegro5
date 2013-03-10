@@ -192,6 +192,9 @@ Destroy a shader.  Any bitmaps which currently use the shader will implicitly
 stop using the shader.  In multi-threaded programs, be careful that no such
 bitmaps are being accessed by other threads at the time.
 
+As a convenience, if the target bitmap of the calling thread is using the
+shader then the shader is implicitly unused before being destroyed.
+
 This function does nothing if the shader argument is NULL.
 
 Since: 5.1.0
