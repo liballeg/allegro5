@@ -940,8 +940,13 @@ See also:
 ### API: ALLEGRO_PRIM_STORAGE
 
 Enumerates the types of storage an attribute of a custom vertex may be stored
-in. Usually no matter what the storage is specified the attribute gets converted
-to single precision floating point when the shader is run.
+in. Many of these can only be used for ALLEGRO_PRIM_USER_ATTR attributes and
+can only be accessed via shaders. Usually no matter what the storage is
+specified the attribute gets converted to single precision floating point when
+the shader is run. Despite that, it may be advantageous to use more dense
+storage formats (e.g. ALLEGRO_PRIM_NORMALIZED_UBYTE_4 instead of
+ALLEGRO_PRIM_FLOAT_4) when bandwidth (amount of memory sent to the GPU) is an
+issue but precision is not.
 
 * ALLEGRO_PRIM_FLOAT_1 - A single float
 
