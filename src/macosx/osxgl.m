@@ -139,6 +139,15 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_fs(void);
 static NSOpenGLContext* osx_create_shareable_context(NSOpenGLPixelFormat* fmt, unsigned int* group);
 static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff);
 
+static void clear_context(NSOpenGLContext *context)
+{
+   /* Clear and flush (for double buffering) */
+   glClearColor(0, 0, 0, 1);
+   glClear(GL_COLOR_BUFFER_BIT);
+   [context flushBuffer];
+   glClear(GL_COLOR_BUFFER_BIT);
+}
+
 static NSTrackingArea *create_tracking_area(NSView *view)
 {
    NSTrackingAreaOptions options =
@@ -577,11 +586,8 @@ bool set_current_display(ALLEGRO_DISPLAY* d) {
 /* Helper to set up GL state as we want it. */
 static void setup_gl(ALLEGRO_DISPLAY *d)
 {
-   glViewport(0, 0, d->w, d->h);
-      
-   al_identity_transform(&d->proj_transform);
-   al_ortho_transform(&d->proj_transform, 0, d->w, d->h, 0, -1, 1);
-   
+   _al_ogl_setup_gl(d);
+
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
    [dpy->ctx update];
 }
@@ -1191,7 +1197,6 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
 
    /* Retrieve the options that were set */
    osx_get_opengl_pixelformat_attributes(dpy);
-   dpy->parent.ogl_extras->backbuffer = _al_ogl_create_backbuffer(&dpy->parent);
    /* Turn on vsyncing possibly */
    if (_al_get_new_display_settings()->settings[ALLEGRO_VSYNC] == 1) {
       GLint swapInterval = 1;
@@ -1205,10 +1210,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    /* Set up GL as we want */
    setup_gl(&dpy->parent);
 
-   /* Clear and flush (for double buffering) */
-   glClear(GL_COLOR_BUFFER_BIT);
-   [context flushBuffer];
-   glClear(GL_COLOR_BUFFER_BIT);
+   clear_context(dpy->ctx);
 
    /* Add to the display list */
    ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_get_system_driver()->displays);
@@ -1344,7 +1346,6 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
 
    /* Retrieve the options that were set */
    osx_get_opengl_pixelformat_attributes(dpy);
-   dpy->parent.ogl_extras->backbuffer = _al_ogl_create_backbuffer(&dpy->parent);
    if (_al_get_new_display_settings()->settings[ALLEGRO_VSYNC] == 1) {
       GLint swapInterval = 1;
       [dpy->ctx setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
@@ -1356,6 +1357,8 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
 
    /* Set up GL as we want */
    setup_gl(&dpy->parent);
+   
+   clear_context(dpy->ctx);
 
    /* Add to the display list */
    ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_get_system_driver()->displays);
@@ -1457,7 +1460,6 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    _al_ogl_set_extensions(dpy->parent.ogl_extras->extension_api);
    dpy->parent.ogl_extras->is_shared = true;
 
-   dpy->parent.ogl_extras->backbuffer = _al_ogl_create_backbuffer(&dpy->parent);
    if (_al_get_new_display_settings()->settings[ALLEGRO_VSYNC] == 1) {
       GLint swapInterval = 1;
       [dpy->ctx setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
@@ -1469,6 +1471,8 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 
    /* Set up GL as we want */
    setup_gl(&dpy->parent);
+   
+   clear_context(dpy->ctx);
 
    /* Add to the display list */
    ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_get_system_driver()->displays);
@@ -1534,7 +1538,7 @@ static void destroy_display(ALLEGRO_DISPLAY* d)
    [ALDisplayHelper performSelectorOnMainThread: @selector(destroyDisplay:) 
       withObject: [NSValue valueWithPointer:dpy] 
       waitUntilDone: YES];
-   _al_ogl_delete_default_program(dpy);
+   _al_ogl_delete_default_program(d);
    _al_ogl_unmanage_extensions(&dpy->parent);
    [dpy->ctx release];
    [dpy->cursor release];
@@ -2055,6 +2059,7 @@ static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
             resize_display_win(display, sc.size.width, sc.size.height);
             [view performSelectorOnMainThread: @selector(finishExitingFullScreenWindowMode) withObject:nil waitUntilDone:YES];
          }
+
          return true;
       }
    }
