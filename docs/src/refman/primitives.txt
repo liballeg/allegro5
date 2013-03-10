@@ -664,8 +664,8 @@ Enumerates the types of primitives this addon can draw.
 
 Enumerates the types of vertex attributes that a custom vertex may have.
 
-* ALLEGRO_PRIM_POSITION - Position information, can be stored in any supported 
-   fashion
+* ALLEGRO_PRIM_POSITION - Position information, can be stored only in
+   ALLEGRO_PRIM_SHORT_2, ALLEGRO_PRIM_FLOAT_2 and ALLEGRO_PRIM_FLOAT_3.
 
 * ALLEGRO_PRIM_COLOR_ATTR - Color information, stored in an [ALLEGRO_COLOR].
    The storage field of ALLEGRO_VERTEX_ELEMENT is ignored
