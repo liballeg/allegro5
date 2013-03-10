@@ -128,7 +128,7 @@ int main(void)
           * each time, as it was clobbered when drawing to the previous region.
           */
          al_set_target_bitmap(region[i]);
-         al_set_shader_float_vector(shader, "tint", 3, &tints[i * 3], 1);
+         al_set_shader_float_vector("tint", 3, &tints[i * 3], 1);
          al_draw_bitmap(image, 0, 0, 0);
       }
 

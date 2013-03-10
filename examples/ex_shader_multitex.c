@@ -114,7 +114,7 @@ int main(void)
           * We then draw the bitmap like normal, except it will use the
           * custom shader.
           */
-         al_set_shader_sampler(shader, "tex2", bitmap[1], 1);
+         al_set_shader_sampler("tex2", bitmap[1], 1);
          al_draw_scaled_rotated_bitmap(bitmap[0], x, y, dw / 2, dh / 2,
             scale, scale, angle, 0);
 

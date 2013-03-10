@@ -195,86 +195,206 @@ void al_destroy_shader(ALLEGRO_SHADER *shader)
 
 /* Function: al_set_shader_sampler
  */
-bool al_set_shader_sampler(ALLEGRO_SHADER *shader, const char *name,
+bool al_set_shader_sampler(const char *name,
    ALLEGRO_BITMAP *bitmap, int unit)
 {
-   ASSERT(shader);
-   return shader->vt->set_shader_sampler(shader, name, bitmap, unit);
+   ALLEGRO_BITMAP *bmp;
+   ALLEGRO_SHADER *shader;
+
+   if ((bmp = al_get_target_bitmap()) != NULL) {
+      if ((shader = bmp->shader) != NULL) {
+         return shader->vt->set_shader_sampler(shader, name, bitmap, unit);
+      }
+      else {
+         return false;
+      }
+   }
+   else {
+      return false;
+   }
 }
 
 /* Function: al_set_shader_matrix
  */
-bool al_set_shader_matrix(ALLEGRO_SHADER *shader, const char *name,
+bool al_set_shader_matrix(const char *name,
    ALLEGRO_TRANSFORM *matrix)
 {
-   ASSERT(shader);
-   return shader->vt->set_shader_matrix(shader, name, matrix);
+   ALLEGRO_BITMAP *bmp;
+   ALLEGRO_SHADER *shader;
+
+   if ((bmp = al_get_target_bitmap()) != NULL) {
+      if ((shader = bmp->shader) != NULL) {
+         return shader->vt->set_shader_matrix(shader, name, matrix);
+      }
+      else {
+         return false;
+      }
+   }
+   else {
+      return false;
+   }
 }
 
 /* Function: al_set_shader_int
  */
-bool al_set_shader_int(ALLEGRO_SHADER *shader, const char *name, int i)
+bool al_set_shader_int(const char *name, int i)
 {
-   ASSERT(shader);
-   return shader->vt->set_shader_int(shader, name, i);
+   ALLEGRO_BITMAP *bmp;
+   ALLEGRO_SHADER *shader;
+
+   if ((bmp = al_get_target_bitmap()) != NULL) {
+      if ((shader = bmp->shader) != NULL) {
+         return shader->vt->set_shader_int(shader, name, i);
+      }
+      else {
+         return false;
+      }
+   }
+   else {
+      return false;
+   }
 }
 
 /* Function: al_set_shader_float
  */
-bool al_set_shader_float(ALLEGRO_SHADER *shader, const char *name, float f)
+bool al_set_shader_float(const char *name, float f)
 {
-   ASSERT(shader);
-   return shader->vt->set_shader_float(shader, name, f);
+   ALLEGRO_BITMAP *bmp;
+   ALLEGRO_SHADER *shader;
+
+   if ((bmp = al_get_target_bitmap()) != NULL) {
+      if ((shader = bmp->shader) != NULL) {
+         return shader->vt->set_shader_float(shader, name, f);
+      }
+      else {
+         return false;
+      }
+   }
+   else {
+      return false;
+   }
 }
 
 /* Function: al_set_shader_int_vector
  */
-bool al_set_shader_int_vector(ALLEGRO_SHADER *shader, const char *name,
+bool al_set_shader_int_vector(const char *name,
    int elem_size, int *i, int num_elems)
 {
-   ASSERT(shader);
-   return shader->vt->set_shader_int_vector(shader, name, elem_size, i, num_elems);
+   ALLEGRO_BITMAP *bmp;
+   ALLEGRO_SHADER *shader;
+
+   if ((bmp = al_get_target_bitmap()) != NULL) {
+      if ((shader = bmp->shader) != NULL) {
+         return shader->vt->set_shader_int_vector(shader, name, elem_size, i, num_elems);
+      }
+      else {
+         return false;
+      }
+   }
+   else {
+      return false;
+   }
 }
 
 /* Function: al_set_shader_float_vector
  */
-bool al_set_shader_float_vector(ALLEGRO_SHADER *shader, const char *name,
+bool al_set_shader_float_vector(const char *name,
    int elem_size, float *f, int num_elems)
 {
-   ASSERT(shader);
-   return shader->vt->set_shader_float_vector(shader, name, elem_size, f, num_elems);
+   ALLEGRO_BITMAP *bmp;
+   ALLEGRO_SHADER *shader;
+
+   if ((bmp = al_get_target_bitmap()) != NULL) {
+      if ((shader = bmp->shader) != NULL) {
+         return shader->vt->set_shader_float_vector(shader, name, elem_size, f, num_elems);
+      }
+      else {
+         return false;
+      }
+   }
+   else {
+      return false;
+   }
 }
 
 /* Function: al_set_shader_bool
  */
-bool al_set_shader_bool(ALLEGRO_SHADER *shader, const char *name, bool b)
+bool al_set_shader_bool(const char *name, bool b)
 {
-   ASSERT(shader);
-   return shader->vt->set_shader_bool(shader, name, b);
+   ALLEGRO_BITMAP *bmp;
+   ALLEGRO_SHADER *shader;
+
+   if ((bmp = al_get_target_bitmap()) != NULL) {
+      if ((shader = bmp->shader) != NULL) {
+         return shader->vt->set_shader_bool(shader, name, b);
+      }
+      else {
+         return false;
+      }
+   }
+   else {
+      return false;
+   }
 }
 
 /* Function: al_set_shader_vertex_array
  */
-bool al_set_shader_vertex_array(ALLEGRO_SHADER *shader, float *v, int stride)
+bool al_set_shader_vertex_array(float *v, int stride)
 {
-   ASSERT(shader);
-   return shader->vt->set_shader_vertex_array(shader, v, stride);
+   ALLEGRO_BITMAP *bmp;
+   ALLEGRO_SHADER *shader;
+
+   if ((bmp = al_get_target_bitmap()) != NULL) {
+      if ((shader = bmp->shader) != NULL) {
+         return shader->vt->set_shader_vertex_array(shader, v, stride);
+      }
+      else {
+         return false;
+      }
+   }
+   else {
+      return false;
+   }
 }
 
 /* Function: al_set_shader_color_array
  */
-bool al_set_shader_color_array(ALLEGRO_SHADER *shader, unsigned char *c, int stride)
+bool al_set_shader_color_array(unsigned char *c, int stride)
 {
-   ASSERT(shader);
-   return shader->vt->set_shader_color_array(shader, c, stride);
+   ALLEGRO_BITMAP *bmp;
+   ALLEGRO_SHADER *shader;
+
+   if ((bmp = al_get_target_bitmap()) != NULL) {
+      if ((shader = bmp->shader) != NULL) {
+         return shader->vt->set_shader_color_array(shader, c, stride);
+      }
+      else {
+         return false;
+      }
+   }
+   else {
+      return false;
+   }
 }
 
 /* Function: al_set_shader_texcoord_array
  */
-bool al_set_shader_texcoord_array(ALLEGRO_SHADER *shader, float *u, int stride)
+bool al_set_shader_texcoord_array(float *u, int stride)
 {
-   ASSERT(shader);
-   return shader->vt->set_shader_texcoord_array(shader, u, stride);
+   ALLEGRO_BITMAP *bmp;
+   ALLEGRO_SHADER *shader;
+
+   if ((bmp = al_get_target_bitmap()) != NULL) {
+      if ((shader = bmp->shader) != NULL) {
+         return shader->vt->set_shader_texcoord_array(shader, u, stride);
+      }
+      else {
+         return false;
+      }
+   }
+   else {
+      return false;
+   }
 }
 
 /* Function: al_get_default_vertex_shader

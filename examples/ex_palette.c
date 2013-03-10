@@ -193,21 +193,21 @@ int main(void)
 
          interpolate_palette(pal, pals[p1 * 2], pals[p2 * 2], pos);
 
-         al_set_shader_float_vector(shader, "pal", 3, pal, 256);
+         al_set_shader_float_vector("pal", 3, pal, 256);
          al_draw_bitmap(background, 0, 0, 0);
 
          for (i = 0; i < 8; i++) {
             Sprite *s = sprite + 7 - i;
             float pos = (1 + sin((t / 60 + s->t) * 2 * ALLEGRO_PI)) / 2;
             interpolate_palette(pal, pals[s->i], pals[s->j], pos);
-            al_set_shader_float_vector(shader, "pal", 3, pal, 256);
+            al_set_shader_float_vector("pal", 3, pal, 256);
             al_draw_rotated_bitmap(bitmap,
                64, 64, s->x, s->y, s->angle, s->flags);
          }
          
          {
             float sc = 0.5;
-            al_set_shader_float_vector(shader, "pal", 3,
+            al_set_shader_float_vector("pal", 3,
                pals[(int)t % 20 > 15 ? 6 : 0], 256);
             #define D al_draw_scaled_rotated_bitmap
             D(bitmap, 0, 0,   0,   0,  sc,  sc, 0, 0);

@@ -54,21 +54,21 @@ AL_FUNC(ALLEGRO_SHADER_PLATFORM, al_get_shader_platform, (ALLEGRO_SHADER *shader
 AL_FUNC(bool, al_use_shader, (ALLEGRO_SHADER *shader));
 AL_FUNC(void, al_destroy_shader, (ALLEGRO_SHADER *shader));
 
-AL_FUNC(bool, al_set_shader_sampler, (ALLEGRO_SHADER *shader, const char *name,
-   ALLEGRO_BITMAP *bitmap, int unit));
-AL_FUNC(bool, al_set_shader_matrix, (ALLEGRO_SHADER *shader, const char *name,
+AL_FUNC(bool, al_set_shader_sampler, (const char *name, ALLEGRO_BITMAP *bitmap,
+   int unit));
+AL_FUNC(bool, al_set_shader_matrix, (const char *name,
    ALLEGRO_TRANSFORM *matrix));
-AL_FUNC(bool, al_set_shader_int, (ALLEGRO_SHADER *shader, const char *name, int i));
-AL_FUNC(bool, al_set_shader_float, (ALLEGRO_SHADER *shader, const char *name, float f));
-AL_FUNC(bool, al_set_shader_int_vector, (ALLEGRO_SHADER *shader, const char *name,
-   int elem_size, int *i, int num_elems));
-AL_FUNC(bool, al_set_shader_float_vector, (ALLEGRO_SHADER *shader, const char *name,
-   int elem_size, float *f, int num_elems));
-AL_FUNC(bool, al_set_shader_bool, (ALLEGRO_SHADER *shader, const char *name, bool b));
+AL_FUNC(bool, al_set_shader_int, (const char *name, int i));
+AL_FUNC(bool, al_set_shader_float, (const char *name, float f));
+AL_FUNC(bool, al_set_shader_int_vector, (const char *name, int elem_size,
+   int *i, int num_elems));
+AL_FUNC(bool, al_set_shader_float_vector, (const char *name, int elem_size,
+   float *f, int num_elems));
+AL_FUNC(bool, al_set_shader_bool, (const char *name, bool b));
 
-AL_FUNC(bool, al_set_shader_vertex_array, (ALLEGRO_SHADER *shader, float *v, int stride));
-AL_FUNC(bool, al_set_shader_color_array, (ALLEGRO_SHADER *shader, unsigned char *c, int stride));
-AL_FUNC(bool, al_set_shader_texcoord_array, (ALLEGRO_SHADER *shader, float *u, int stride));
+AL_FUNC(bool, al_set_shader_vertex_array, (float *v, int stride));
+AL_FUNC(bool, al_set_shader_color_array, (unsigned char *c, int stride));
+AL_FUNC(bool, al_set_shader_texcoord_array, (float *u, int stride));
 
 AL_FUNC(char const *, al_get_default_vertex_shader, (ALLEGRO_SHADER_PLATFORM platform));
 AL_FUNC(char const *, al_get_default_pixel_shader, (ALLEGRO_SHADER_PLATFORM platform));
