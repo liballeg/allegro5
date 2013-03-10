@@ -30,17 +30,17 @@
 
 ALLEGRO_DEBUG_CHANNEL("shader")
 
-#define LOG_GL_ERROR(name)                                   \
-   do {                                                      \
-      GLenum err = glGetError();                             \
-      if (err != 0) {                                        \
-         ALLEGRO_WARN("%s (%s)\n", name, _al_gl_error_string(err)); \
-      }                                                      \
-   } while (0)
-
+static bool check_gl_error(const char* name)
+{
+   GLenum err = glGetError();
+   if (err != 0) {
+      ALLEGRO_WARN("%s (%s)\n", name, _al_gl_error_string(err));
+      return false;
+   }
+   return true;
+}
 
 typedef struct ALLEGRO_SHADER_GLSL_S ALLEGRO_SHADER_GLSL_S;
-typedef struct GLSL_DEFERRED_SET GLSL_DEFERRED_SET;
 
 struct ALLEGRO_SHADER_GLSL_S
 {
@@ -48,38 +48,10 @@ struct ALLEGRO_SHADER_GLSL_S
    GLuint vertex_shader;
    GLuint pixel_shader;
    GLuint program_object;
-   _AL_VECTOR *deferred_sets;
 };
-
-struct GLSL_DEFERRED_SET {
-   void (*fptr)(struct GLSL_DEFERRED_SET *s);
-   // dump every parameter possible from the setters below
-   char *name;
-   int elem_size;
-   int num_elems;
-   float *fp;
-   unsigned char *cp;
-   int *ip;
-   float f;
-   int i;
-   ALLEGRO_TRANSFORM *transform;
-   ALLEGRO_BITMAP *bitmap;
-   int unit;
-   ALLEGRO_SHADER *shader;
-};
-
 
 /* forward declaration */
 static struct ALLEGRO_SHADER_INTERFACE shader_glsl_vt;
-
-
-static char *my_strdup(const char *src)
-{
-   size_t n = strlen(src) + 1; /* including NUL */
-   char *dst = al_malloc(n);
-   memcpy(dst, src, n);
-   return dst;
-}
 
 ALLEGRO_SHADER *_al_create_shader_glsl(ALLEGRO_SHADER_PLATFORM platform)
 {
@@ -90,9 +62,6 @@ ALLEGRO_SHADER *_al_create_shader_glsl(ALLEGRO_SHADER_PLATFORM platform)
 
    shader->shader.platform = platform;
    shader->shader.vt = &shader_glsl_vt;
-
-   shader->deferred_sets = al_malloc(sizeof(_AL_VECTOR));
-   _al_vector_init(shader->deferred_sets, sizeof(GLSL_DEFERRED_SET));
 
    return (ALLEGRO_SHADER *)shader;
 }
@@ -204,21 +173,6 @@ static bool glsl_attach_shader_source(ALLEGRO_SHADER *shader,
    return true;
 }
 
-static void free_deferred_sets(_AL_VECTOR *vec, bool free_vector)
-{
-   while (!_al_vector_is_empty(vec)) {
-      GLSL_DEFERRED_SET *sptr = _al_vector_ref_back(vec);
-      al_free(sptr->name);
-      al_free(sptr->fp);
-      al_free(sptr->ip);
-      _al_vector_delete_at(vec, _al_vector_size(vec) - 1);
-   }
-
-   if (free_vector) {
-      _al_vector_free(vec);
-   }
-}
-
 static void glsl_destroy_shader(ALLEGRO_SHADER *shader)
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
@@ -226,8 +180,6 @@ static void glsl_destroy_shader(ALLEGRO_SHADER *shader)
    glDeleteShader(gl_shader->vertex_shader);
    glDeleteShader(gl_shader->pixel_shader);
    glDeleteProgram(gl_shader->program_object);
-   free_deferred_sets(gl_shader->deferred_sets, true);
-   al_free(gl_shader->deferred_sets);
    al_free(shader);
 }
 
@@ -235,114 +187,6 @@ static bool shader_effective(ALLEGRO_SHADER *shader)
 {
    ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
    return (bitmap && bitmap->shader == shader);
-}
-
-// real setters
-static void shader_set_sampler(GLSL_DEFERRED_SET *s)
-{
-   ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)s->shader;
-   GLint handle;
-   GLuint texture;
-
-   handle = glGetUniformLocation(gl_shader->program_object, s->name);
-
-   glActiveTexture(GL_TEXTURE0 + s->unit);
-
-   texture = s->bitmap ? al_get_opengl_texture(s->bitmap) : 0;
-   glBindTexture(GL_TEXTURE_2D, texture);
-
-   glUniform1i(handle, s->unit);
-
-   LOG_GL_ERROR(s->name);
-}
-
-static void shader_set_matrix(GLSL_DEFERRED_SET *s)
-{
-   ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)s->shader;
-   GLint handle;
-
-   handle = glGetUniformLocation(gl_shader->program_object, s->name);
-
-   glUniformMatrix4fv(handle, 1, false, (float *)s->transform->m);
-   LOG_GL_ERROR(s->name);
-}
-
-static void shader_set_int(GLSL_DEFERRED_SET *s)
-{
-   ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)s->shader;
-   GLint handle;
-
-   handle = glGetUniformLocation(gl_shader->program_object, s->name);
-
-   glUniform1i(handle, s->i);
-   LOG_GL_ERROR(s->name);
-}
-
-static void shader_set_float(GLSL_DEFERRED_SET *s)
-{
-   ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)s->shader;
-   GLint handle;
-
-   handle = glGetUniformLocation(gl_shader->program_object, s->name);
-
-   glUniform1f(handle, s->f);
-   LOG_GL_ERROR(s->name);
-}
-
-static void shader_set_int_vector(GLSL_DEFERRED_SET *s)
-{
-   ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)s->shader;
-   GLint handle;
-
-   handle = glGetUniformLocation(gl_shader->program_object, s->name);
-
-   switch (s->elem_size) {
-      case 1:
-         glUniform1iv(handle, s->num_elems, s->ip);
-         break;
-      case 2:
-         glUniform2iv(handle, s->num_elems, s->ip);
-         break;
-      case 3:
-         glUniform3iv(handle, s->num_elems, s->ip);
-         break;
-      case 4:
-         glUniform4iv(handle, s->num_elems, s->ip);
-         break;
-      default:
-         ASSERT(false);
-         break;
-   }
-
-   LOG_GL_ERROR(s->name);
-}
-
-static void shader_set_float_vector(GLSL_DEFERRED_SET *s)
-{
-   ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)s->shader;
-   GLint handle;
-
-   handle = glGetUniformLocation(gl_shader->program_object, s->name);
-
-   switch (s->elem_size) {
-      case 1:
-         glUniform1fv(handle, s->num_elems, s->fp);
-         break;
-      case 2:
-         glUniform2fv(handle, s->num_elems, s->fp);
-         break;
-      case 3:
-         glUniform3fv(handle, s->num_elems, s->fp);
-         break;
-      case 4:
-         glUniform4fv(handle, s->num_elems, s->fp);
-         break;
-      default:
-         ASSERT(false);
-         break;
-   }
-
-   LOG_GL_ERROR(s->name);
 }
 
 static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
@@ -394,13 +238,6 @@ static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
       display->ogl_extras->user_attr_loc[i] = glGetAttribLocation(program_object, user_attr_name);
    }
 
-   /* Apply all deferred sets. */
-   for (i = 0; i < _al_vector_size(gl_shader->deferred_sets); i++) {
-      GLSL_DEFERRED_SET *sptr = _al_vector_ref(gl_shader->deferred_sets, i);
-      (*(sptr->fptr))(sptr);
-   }
-   free_deferred_sets(gl_shader->deferred_sets, false);
-
    return true;
 }
 
@@ -415,276 +252,131 @@ static void glsl_unuse_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display)
    _al_glsl_lookup_locations(display->ogl_extras, display->ogl_extras->program_object);
 }
 
-static bool shader_add_deferred_set(
-   void (*fptr)(GLSL_DEFERRED_SET *s),
-   const char *name,
-   int elem_size,
-   int num_elems,
-   float *fp,
-   unsigned char *cp,
-   int *ip,
-   float f,
-   int i,
-   ALLEGRO_TRANSFORM *transform,
-   ALLEGRO_BITMAP *bitmap,
-   int unit,
-   ALLEGRO_SHADER *shader)
-{
-   ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
-   GLint handle;
-   GLSL_DEFERRED_SET s;
-   GLSL_DEFERRED_SET *sptr;
-
-   // First check if the variable name exists, as errors cannot be
-   // reported later. Could possibly do some other error checking here.
-   // We don't have to check it later.
-   handle = glGetUniformLocation(gl_shader->program_object, name);
-
-   if (handle < 0) {
-      ALLEGRO_WARN("No uniform variable '%s' in shader program\n", name);
-      return false;
-   }
-
-   s.fptr = fptr;
-   s.name = my_strdup(name);
-   s.elem_size = elem_size;
-   s.num_elems = num_elems;
-   s.fp = fp;
-   s.cp = cp;
-   s.ip = ip;
-   s.f = f;
-   s.i = i;
-   s.transform = transform;
-   s.bitmap = bitmap;
-   s.unit = unit;
-   s.shader = shader;
-
-   sptr = _al_vector_alloc_back(gl_shader->deferred_sets);
-   if (!sptr)
-      return false;
-
-   *sptr = s;
-
-   return true;
-}
-
 static bool glsl_set_shader_sampler(ALLEGRO_SHADER *shader,
    const char *name, ALLEGRO_BITMAP *bitmap, int unit)
 {
+   ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
+   GLint handle;
+   GLuint texture;
+
    if (bitmap && bitmap->flags & ALLEGRO_MEMORY_BITMAP) {
       ALLEGRO_WARN("Cannot use memory bitmap for sampler\n");
       return false;
    }
 
-   if (shader_effective(shader)) {
-      GLSL_DEFERRED_SET set;
-      set.name = my_strdup(name);
-      set.bitmap = bitmap;
-      set.unit = unit;
-      set.shader = shader;
-      shader_set_sampler(&set);
-      return true;
-   }
+   handle = glGetUniformLocation(gl_shader->program_object, name);
 
-   return shader_add_deferred_set(
-      shader_set_sampler, // void (*fptr)(GLSL_DEFERRED_SET *s)
-      name,
-      0,    // int elem_size;
-      0,    // int num_elems
-      NULL, // float *fp;
-      NULL, // unsigned char *cp;
-      NULL, // int *ip;
-      0.0f, // float f;
-      0,    // int i;
-      NULL, // ALLEGRO_TRANSFORM *transform;
-      bitmap, // ALLEGRO_BITMAP *bitmap;
-      unit,    // int unit;
-      shader
-   );
+   glActiveTexture(GL_TEXTURE0 + unit);
+
+   texture = bitmap ? al_get_opengl_texture(bitmap) : 0;
+   glBindTexture(GL_TEXTURE_2D, texture);
+
+   glUniform1i(handle, unit);
+
+   return check_gl_error(name);
 }
 
 static bool glsl_set_shader_matrix(ALLEGRO_SHADER *shader,
    const char *name, ALLEGRO_TRANSFORM *matrix)
 {
-   if (shader_effective(shader)) {
-      GLSL_DEFERRED_SET set;
-      set.name = my_strdup(name);
-      set.transform = matrix;
-      set.shader = shader;
-      shader_set_matrix(&set);
-      return true;
-   }
+   ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
+   GLint handle;
 
-   return shader_add_deferred_set(
-      shader_set_matrix, // void (*fptr)(GLSL_DEFERRED_SET *s)
-      name,
-      0,    // int elem_size;
-      0,    // int num_elems
-      NULL, // float *fp;
-      NULL, // unsigned char *cp;
-      NULL, // int *ip;
-      0.0f, // float f;
-      0,    // int i;
-      matrix, // ALLEGRO_TRANSFORM *transform;
-      NULL, // ALLEGRO_BITMAP *bitmap;
-      0,    // int unit;
-      shader
-   );
+   handle = glGetUniformLocation(gl_shader->program_object, name);
+
+   glUniformMatrix4fv(handle, 1, false, (float *)matrix->m);
+
+   return check_gl_error(name);
 }
 
 static bool glsl_set_shader_int(ALLEGRO_SHADER *shader,
    const char *name, int i)
 {
-   if (shader_effective(shader)) {
-      GLSL_DEFERRED_SET set;
-      set.name = my_strdup(name);
-      set.i = i;
-      set.shader = shader;
-      shader_set_int(&set);
-      return true;
-   }
+   ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
+   GLint handle;
 
-   return shader_add_deferred_set(
-      shader_set_int, // void (*fptr)(GLSL_DEFERRED_SET *s)
-      name,
-      0,    // int elem_size;
-      0,    // int num_elems
-      NULL, // float *fp;
-      NULL, // unsigned char *cp;
-      NULL, // int *ip;
-      0.0f, // float f;
-      i,    // int i;
-      NULL, // ALLEGRO_TRANSFORM *transform;
-      NULL, // ALLEGRO_BITMAP *bitmap;
-      0,    // int unit;
-      shader
-   );
+   handle = glGetUniformLocation(gl_shader->program_object, name);
+
+   glUniform1i(handle, i);
+
+   return check_gl_error(name);
 }
 
 static bool glsl_set_shader_float(ALLEGRO_SHADER *shader,
    const char *name, float f)
 {
-   if (shader_effective(shader)) {
-      GLSL_DEFERRED_SET set;
-      set.name = my_strdup(name);
-      set.f = f;
-      set.shader = shader;
-      shader_set_float(&set);
-      return true;
-   }
+   ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
+   GLint handle;
 
-   return shader_add_deferred_set(
-      shader_set_float, // void (*fptr)(GLSL_DEFERRED_SET *s)
-      name,
-      0,    // int elem_size;
-      0,    // int num_elems
-      NULL, // float *fp;
-      NULL, // unsigned char *cp;
-      NULL, // int *ip;
-      f, // float f;
-      0,    // int i;
-      NULL, // ALLEGRO_TRANSFORM *transform;
-      NULL, // ALLEGRO_BITMAP *bitmap;
-      0,    // int unit;
-      shader
-   );
+   handle = glGetUniformLocation(gl_shader->program_object, name);
+
+   glUniform1f(handle, f);
+
+   return check_gl_error(name);
 }
 
 static bool glsl_set_shader_int_vector(ALLEGRO_SHADER *shader,
    const char *name, int elem_size, int *i, int num_elems)
 {
-   int *copy = al_malloc(sizeof(int) * elem_size * num_elems);
-   memcpy(copy, i, sizeof(int) * elem_size * num_elems);
+   ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
+   GLint handle;
 
-   if (shader_effective(shader)) {
-      GLSL_DEFERRED_SET set;
-      set.name = my_strdup(name);
-      set.elem_size = elem_size;
-      set.num_elems = num_elems;
-      set.ip = copy;
-      set.shader = shader;
-      shader_set_int_vector(&set);
-      return true;
+   handle = glGetUniformLocation(gl_shader->program_object, name);
+
+   switch (elem_size) {
+      case 1:
+         glUniform1iv(handle, num_elems, i);
+         break;
+      case 2:
+         glUniform2iv(handle, num_elems, i);
+         break;
+      case 3:
+         glUniform3iv(handle, num_elems, i);
+         break;
+      case 4:
+         glUniform4iv(handle, num_elems, i);
+         break;
+      default:
+         ASSERT(false);
+         break;
    }
 
-   return shader_add_deferred_set(
-      shader_set_int_vector, // void (*fptr)(GLSL_DEFERRED_SET *s)
-      name,
-      elem_size,    // int size;
-      num_elems,
-      NULL, // float *fp;
-      NULL, // unsigned char *cp;
-      copy, // int *ip;
-      0.0f, // float f;
-      0,    // int i;
-      NULL, // ALLEGRO_TRANSFORM *transform;
-      NULL, // ALLEGRO_BITMAP *bitmap;
-      0,    // int unit;
-      shader
-   );
+   return check_gl_error(name);
 }
 
 static bool glsl_set_shader_float_vector(ALLEGRO_SHADER *shader,
    const char *name, int elem_size, float *f, int num_elems)
 {
-   float *copy = al_malloc(sizeof(float) * elem_size * num_elems);
-   memcpy(copy, f, sizeof(float) * elem_size * num_elems);
+   ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
+   GLint handle;
 
-   if (shader_effective(shader)) {
-      GLSL_DEFERRED_SET set;
-      set.name = my_strdup(name);
-      set.elem_size = elem_size;
-      set.num_elems = num_elems;
-      set.fp = copy;
-      set.shader = shader;
-      shader_set_float_vector(&set);
-      return true;
+   handle = glGetUniformLocation(gl_shader->program_object, name);
+
+   switch (elem_size) {
+      case 1:
+         glUniform1fv(handle, num_elems, f);
+         break;
+      case 2:
+         glUniform2fv(handle, num_elems, f);
+         break;
+      case 3:
+         glUniform3fv(handle, num_elems, f);
+         break;
+      case 4:
+         glUniform4fv(handle, num_elems, f);
+         break;
+      default:
+         ASSERT(false);
+         break;
    }
 
-   return shader_add_deferred_set(
-      shader_set_float_vector, // void (*fptr)(GLSL_DEFERRED_SET *s)
-      name,
-      elem_size,    // int elem_size;
-      num_elems,
-      copy, // float *fp;
-      NULL, // unsigned char *cp;
-      NULL, // int *ip;
-      0.0f, // float f;
-      0,    // int i;
-      NULL, // ALLEGRO_TRANSFORM *transform;
-      NULL, // ALLEGRO_BITMAP *bitmap;
-      0,    // int unit;
-      shader
-   );
+   return check_gl_error(name);
 }
 
 static bool glsl_set_shader_bool(ALLEGRO_SHADER *shader,
    const char *name, bool b)
 {
-   if (shader_effective(shader)) {
-      GLSL_DEFERRED_SET set;
-      set.name = my_strdup(name);
-      set.i = b;
-      set.shader = shader;
-      shader_set_int(&set);
-      return true;
-   }
-
-   return shader_add_deferred_set(
-      shader_set_int, // void (*fptr)(GLSL_DEFERRED_SET *s)
-      name,
-      0,    // int elem_size;
-      0,    // int num_elems
-      NULL, // float *fp;
-      NULL, // unsigned char *cp;
-      NULL, // int *ip;
-      0.0f, // float f;
-      b,    // int i;
-      NULL, // ALLEGRO_TRANSFORM *transform;
-      NULL, // ALLEGRO_BITMAP *bitmap;
-      0,    // int unit;
-      shader
-   );
+   return glsl_set_shader_int(shader, name, b);
 }
 
 static bool glsl_set_shader_vertex_array(ALLEGRO_SHADER *shader,
@@ -788,7 +480,7 @@ void _al_glsl_lookup_locations(ALLEGRO_OGL_EXTRAS *ogl_extras, GLuint program)
    ogl_extras->use_tex_matrix_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_USE_TEX_MATRIX);
    ogl_extras->tex_matrix_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_TEX_MATRIX);
 
-   LOG_GL_ERROR("glGetAttribLocation, glGetUniformLocation");
+   check_gl_error("glGetAttribLocation, glGetUniformLocation");
 }
 
 bool _al_glsl_set_projview_matrix(GLuint program_object, const ALLEGRO_TRANSFORM *t)
