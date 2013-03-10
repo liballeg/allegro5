@@ -22,7 +22,7 @@
 #include <pulse/error.h>
 #include <pulse/introspect.h>
 #include <pulse/mainloop.h>
-#include <malloc.h>
+#include <stdlib.h>
 
 ALLEGRO_DEBUG_CHANNEL("PulseAudio")
 
