@@ -77,6 +77,29 @@ static void setup_blending(ALLEGRO_DISPLAY *ogl_disp)
 #endif
 }
 
+static void convert_storage(ALLEGRO_PRIM_STORAGE storage, GLenum* type, int* ncoord, bool* normalized)
+{
+   switch(storage) {
+      case ALLEGRO_PRIM_FLOAT_2:
+         *type = GL_FLOAT;
+         *ncoord = 2;
+         *normalized = false;
+      break;
+      case ALLEGRO_PRIM_FLOAT_3:
+         *type = GL_FLOAT;
+         *ncoord = 3;
+         *normalized = false;
+      break;
+      case ALLEGRO_PRIM_SHORT_2:
+         *type = GL_SHORT;
+         *ncoord = 2;
+         *normalized = false;
+      break;
+      default:
+         ASSERT(0);
+   }
+}
+
 static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEGRO_BITMAP* texture)
 {
    if(decl) {
@@ -85,25 +108,12 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
       if(e->attribute) {
          int ncoord = 0;
          GLenum type = 0;
+         bool normalized;
 
          glEnableClientState(GL_VERTEX_ARRAY);
 
-         switch(e->storage) {
-            case ALLEGRO_PRIM_FLOAT_2:
-               ncoord = 2;
-               type = GL_FLOAT;
-            break;
-            case ALLEGRO_PRIM_FLOAT_3:
-               ncoord = 3;
-               type = GL_FLOAT;
-            break;
-            case ALLEGRO_PRIM_SHORT_2:
-               ncoord = 2;
-               type = GL_SHORT;
-            break;
-            default:
-               ASSERT(0);
-         }
+         convert_storage(e->storage, &type, &ncoord, &normalized);
+
          glVertexPointer(ncoord, type, decl->stride, vtxs + e->offset);
       } else {
          glDisableClientState(GL_VERTEX_ARRAY);
@@ -113,21 +123,15 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
       if(!e->attribute)
          e = &decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
       if(texture && e->attribute) {
+         int ncoord = 0;
          GLenum type = 0;
+         bool normalized;
 
          glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-         switch(e->storage) {
-            case ALLEGRO_PRIM_FLOAT_2:
-               type = GL_FLOAT;
-            break;
-            case ALLEGRO_PRIM_SHORT_2:
-               type = GL_SHORT;
-            break;
-            default:
-               ASSERT(0);
-         }
-         glTexCoordPointer(2, type, decl->stride, vtxs + e->offset);
+         convert_storage(e->storage, &type, &ncoord, &normalized);
+
+         glTexCoordPointer(ncoord, type, decl->stride, vtxs + e->offset);
       } else {
          glDisableClientState(GL_TEXTURE_COORD_ARRAY);
       }
