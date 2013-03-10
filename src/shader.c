@@ -278,14 +278,14 @@ bool al_set_shader_float(const char *name, float f)
 /* Function: al_set_shader_int_vector
  */
 bool al_set_shader_int_vector(const char *name,
-   int elem_size, int *i, int num_elems)
+   int num_components, int *i, int num_elems)
 {
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_SHADER *shader;
 
    if ((bmp = al_get_target_bitmap()) != NULL) {
       if ((shader = bmp->shader) != NULL) {
-         return shader->vt->set_shader_int_vector(shader, name, elem_size, i, num_elems);
+         return shader->vt->set_shader_int_vector(shader, name, num_components, i, num_elems);
       }
       else {
          return false;
@@ -299,14 +299,14 @@ bool al_set_shader_int_vector(const char *name,
 /* Function: al_set_shader_float_vector
  */
 bool al_set_shader_float_vector(const char *name,
-   int elem_size, float *f, int num_elems)
+   int num_components, float *f, int num_elems)
 {
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_SHADER *shader;
 
    if ((bmp = al_get_target_bitmap()) != NULL) {
       if ((shader = bmp->shader) != NULL) {
-         return shader->vt->set_shader_float_vector(shader, name, elem_size, f, num_elems);
+         return shader->vt->set_shader_float_vector(shader, name, num_components, f, num_elems);
       }
       else {
          return false;

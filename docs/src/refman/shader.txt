@@ -244,9 +244,9 @@ Since: 5.1.6
 ## API: al_set_shader_int_vector
 
 Sets an integer vector array uniform of the current target bitmap's shader. The
-'elem_size' parameter can take one of the values 1, 2, 3 or 4. If it is 1 then
-an array of 'num_elems' integer elements is added. Otherwise each added array
-element is assumed to be a vector with 2, 3 or 4 components in it.
+'num_components' parameter can take one of the values 1, 2, 3 or 4. If it is 1
+then an array of 'num_elems' integer elements is added. Otherwise each added
+array element is assumed to be a vector with 2, 3 or 4 components in it.
 
 Returns true on success. Otherwise returns false, e.g. if the uniform by that
 name does not exist in the shader.

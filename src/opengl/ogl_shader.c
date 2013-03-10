@@ -330,7 +330,7 @@ static bool glsl_set_shader_float(ALLEGRO_SHADER *shader,
 }
 
 static bool glsl_set_shader_int_vector(ALLEGRO_SHADER *shader,
-   const char *name, int elem_size, int *i, int num_elems)
+   const char *name, int num_components, int *i, int num_elems)
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
    GLint handle;
@@ -342,7 +342,7 @@ static bool glsl_set_shader_int_vector(ALLEGRO_SHADER *shader,
       return false;
    }
 
-   switch (elem_size) {
+   switch (num_components) {
       case 1:
          glUniform1iv(handle, num_elems, i);
          break;
@@ -364,7 +364,7 @@ static bool glsl_set_shader_int_vector(ALLEGRO_SHADER *shader,
 }
 
 static bool glsl_set_shader_float_vector(ALLEGRO_SHADER *shader,
-   const char *name, int elem_size, float *f, int num_elems)
+   const char *name, int num_components, float *f, int num_elems)
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
    GLint handle;
@@ -376,7 +376,7 @@ static bool glsl_set_shader_float_vector(ALLEGRO_SHADER *shader,
       return false;
    }
 
-   switch (elem_size) {
+   switch (num_components) {
       case 1:
          glUniform1fv(handle, num_elems, f);
          break;
