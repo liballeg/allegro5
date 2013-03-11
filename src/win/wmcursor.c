@@ -47,6 +47,7 @@ HICON _al_win_create_icon(HWND wnd,
    HBITMAP hOldXorMaskBitmap;
    HICON icon;
    bool was_locked;
+   ALLEGRO_BITMAP *tmp = sprite;
 
    if (resize) {
       if (is_cursor) {
@@ -59,13 +60,38 @@ HICON _al_win_create_icon(HWND wnd,
          sys_sm_cy = GetSystemMetrics(SM_CYICON);
       }
 
-      if ((sprite->w > sys_sm_cx) || (sprite->h > sys_sm_cy)) {
-         return NULL;
+      if ((tmp->w > sys_sm_cx) || (tmp->h > sys_sm_cy)) {
+         float ratio = tmp->w / (float)tmp->h;
+         int w, h;
+         ALLEGRO_STATE state;
+         if (ratio > 1) {
+            w = sys_sm_cx;
+            h = sys_sm_cy / ratio;
+         }
+         else {
+            w = sys_sm_cx * ratio;
+            h = sys_sm_cy;
+         }
+         al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP |
+            ALLEGRO_STATE_NEW_BITMAP_PARAMETERS |
+            ALLEGRO_STATE_BLENDER);
+         al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+         al_set_new_bitmap_format(al_get_bitmap_format(tmp));
+         tmp = al_create_bitmap(w, h);
+         al_set_target_bitmap(tmp);
+         al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
+         al_draw_scaled_bitmap(
+            sprite,
+            0, 0, sprite->w, sprite->h,
+            0, 0, w, h,
+            0
+         );
+         al_restore_state(&state);
       }
    }
    else {
-      sys_sm_cx = al_get_bitmap_width(sprite);
-      sys_sm_cy = al_get_bitmap_height(sprite);
+      sys_sm_cx = al_get_bitmap_width(tmp);
+      sys_sm_cy = al_get_bitmap_height(tmp);
    }
 
    /* Create bitmap */
@@ -88,20 +114,20 @@ HICON _al_win_create_icon(HWND wnd,
    }
 
    /* Lock sprite to speed up repeated get pixel calls. */
-   was_locked = al_is_bitmap_locked(sprite);
+   was_locked = al_is_bitmap_locked(tmp);
    if (!was_locked) {
-      al_lock_bitmap(sprite, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+      al_lock_bitmap(tmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
    }
 
-   local_draw_to_hdc(h_xor_dc, sprite, 0, 0);
+   local_draw_to_hdc(h_xor_dc, tmp, 0, 0);
 
    /* Make cursor background transparent */
-   for (y = 0; y < sprite->h; y++) {
-      for (x = 0; x < sprite->w; x++) {
+   for (y = 0; y < tmp->h; y++) {
+      for (x = 0; x < tmp->w; x++) {
          ALLEGRO_COLOR c;
          unsigned char r, g, b, a;
 
-         c = al_get_pixel(sprite, x, y);
+         c = al_get_pixel(tmp, x, y);
          al_unmap_rgba(c, &r, &g, &b, &a);
          if (a != 0) {
 	    /* Don't touch XOR value */
@@ -115,7 +141,7 @@ HICON _al_win_create_icon(HWND wnd,
    }
 
    if (!was_locked) {
-      al_unlock_bitmap(sprite);
+      al_unlock_bitmap(tmp);
    }
 
    SelectObject(h_and_dc, hOldAndMaskBitmap);
@@ -134,6 +160,10 @@ HICON _al_win_create_icon(HWND wnd,
 
    DeleteObject(and_mask);
    DeleteObject(xor_mask);
+
+   if (sprite != tmp) {
+      al_destroy_bitmap(tmp);
+   }
 
    return icon;
 }
