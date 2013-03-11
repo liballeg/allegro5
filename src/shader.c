@@ -166,6 +166,8 @@ bool al_use_shader(ALLEGRO_SHADER *shader)
       else {
          bmp->shader = NULL;
          ALLEGRO_ERROR("use_shader failed\n");
+         if (bmp->display->default_shader)
+            bmp->display->default_shader->vt->use_shader(bmp->display->default_shader, bmp->display, true);
          return false;
       }
    }
@@ -175,6 +177,8 @@ bool al_use_shader(ALLEGRO_SHADER *shader)
          bmp->shader->vt->unuse_shader(bmp->shader, bmp->display);
          bmp->shader = NULL;
       }
+      if (bmp->display->default_shader)
+         bmp->display->default_shader->vt->use_shader(bmp->display->default_shader, bmp->display, true);
       return true;
    }
 }

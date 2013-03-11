@@ -93,12 +93,9 @@ typedef struct ALLEGRO_OGL_EXTRAS
 
    ALLEGRO_FBO_INFO fbos[ALLEGRO_MAX_OPENGL_FBOS];
 
-   /* In non-programmable pipe mode these should both be zero.
-    * In programmable pipeline mode these should be non-zero.
-    * program_object is the currently used program, which either comes from an
-    * ALLEGRO_SHADER, or else falls back to default_program.
+   /* In non-programmable pipe mode this should be zero.
+    * In programmable pipeline mode this should be non-zero.
     */
-   GLuint default_program;
    GLuint program_object;
 
    /* Shader variable addresses. See the documentation for their meaning. */
@@ -156,7 +153,6 @@ void _al_ogl_setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
 
 /* common driver */
 void _al_ogl_setup_gl(ALLEGRO_DISPLAY *d);
-void _al_ogl_delete_default_program(ALLEGRO_DISPLAY *d);
 void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
 void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap);
 ALLEGRO_BITMAP *_al_ogl_get_backbuffer(ALLEGRO_DISPLAY *d);

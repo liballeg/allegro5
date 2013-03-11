@@ -33,78 +33,6 @@
 
 ALLEGRO_DEBUG_CHANNEL("opengl")
 
-
-#ifdef ALLEGRO_CFG_SHADER_GLSL
-static GLuint create_default_program(void)
-{
-   GLuint vshader = 0;
-   GLuint pshader = 0;
-   GLuint program = 0;
-   const char *vsource;
-   const char *psource;
-   GLint status;
-   GLenum err;
-
-   vsource = al_get_default_shader_source(ALLEGRO_SHADER_GLSL,
-      ALLEGRO_VERTEX_SHADER);
-   psource = al_get_default_shader_source(ALLEGRO_SHADER_GLSL,
-      ALLEGRO_PIXEL_SHADER);
-   if (!vsource || !psource) {
-      ALLEGRO_ERROR("missing default shader source\n");
-      goto fail;
-   }
-
-   vshader = glCreateShader(GL_VERTEX_SHADER);
-   glShaderSource(vshader, 1, &vsource, NULL);
-   glCompileShader(vshader);
-   glGetShaderiv(vshader, GL_COMPILE_STATUS, &status);
-   if (status == GL_FALSE) {
-      ALLEGRO_ERROR("error compiling vertex shader\n");
-      goto fail;
-   }
-
-   pshader = glCreateShader(GL_FRAGMENT_SHADER);
-   glShaderSource(pshader, 1, &psource, NULL);
-   glCompileShader(pshader);
-   glGetShaderiv(vshader, GL_COMPILE_STATUS, &status);
-   if (status == GL_FALSE) {
-      ALLEGRO_ERROR("error compiling fragment shader\n");
-      goto fail;
-   }
-
-   program = glCreateProgram();
-   if (program == 0) {
-      ALLEGRO_ERROR("error creating program\n");
-      goto fail;
-   }
-
-   glAttachShader(program, vshader);
-   glAttachShader(program, pshader);
-
-   glGetError(); /* clear error */
-   glLinkProgram(program);
-   err = glGetError();
-   if (err != GL_NO_ERROR) {
-      ALLEGRO_ERROR("error linking program\n");
-      goto fail;
-   }
-
-   /* Flag shaders for automatic deletion with the program. */
-   glDeleteShader(pshader);
-   glDeleteShader(vshader);
-
-   return program;
-
-fail:
-
-   glDeleteShader(pshader);
-   glDeleteShader(vshader);
-   glDeleteProgram(program);
-   return 0;
-}
-#endif
-
-
 /* Helper to set up GL state as we want it. */
 void _al_ogl_setup_gl(ALLEGRO_DISPLAY *d)
 {
@@ -112,26 +40,7 @@ void _al_ogl_setup_gl(ALLEGRO_DISPLAY *d)
 
    glViewport(0, 0, d->w, d->h);
 
-   if (d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_SHADER_GLSL
-      GLenum err;
-
-      /* XXX check for and return errors */
-      ogl->default_program = create_default_program();
-      ogl->program_object = ogl->default_program;
-
-      glGetError(); /* clear error */
-      glUseProgram(ogl->program_object);
-      err = glGetError();
-      if (err != GL_NO_ERROR) {
-         ALLEGRO_ERROR("glUseProgram failed\n");
-      }
-      else {
-         _al_glsl_lookup_locations(ogl, ogl->program_object);
-      }
-#endif
-   }
-   else {
+   if (!(d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
       glMatrixMode(GL_PROJECTION);
       glLoadIdentity();
       glOrtho(0, d->w, d->h, 0, -1, 1);
@@ -148,19 +57,6 @@ void _al_ogl_setup_gl(ALLEGRO_DISPLAY *d)
       _al_ogl_resize_backbuffer(ogl->backbuffer, d->w, d->h);
    else
       ogl->backbuffer = _al_ogl_create_backbuffer(d);
-}
-
-
-void _al_ogl_delete_default_program(ALLEGRO_DISPLAY *d)
-{
-   ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
-   (void)ogl;
-
-#ifdef ALLEGRO_CFG_SHADER_GLSL
-   /* Flag the program for deletion; it does not matter if it is still used. */
-   glDeleteProgram(ogl->default_program);
-   ogl->program_object = ogl->default_program = 0;
-#endif
 }
 
 

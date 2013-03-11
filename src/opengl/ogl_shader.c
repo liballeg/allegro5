@@ -238,12 +238,8 @@ static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
 static void glsl_unuse_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display)
 {
    (void)shader;
-   /* XXX we can avoid returning to the default program if a new shader is
-    * going to be set immediately anyway
-    */
-   display->ogl_extras->program_object = display->ogl_extras->default_program;
-   glUseProgram(display->ogl_extras->program_object);
-   _al_glsl_lookup_locations(display->ogl_extras, display->ogl_extras->program_object);
+   (void)display;
+   glUseProgram(0);
 }
 
 static bool glsl_set_shader_sampler(ALLEGRO_SHADER *shader,

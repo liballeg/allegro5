@@ -1077,8 +1077,6 @@ static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
       _al_ogl_destroy_backbuffer(disp->ogl_extras->backbuffer);
    disp->ogl_extras->backbuffer = NULL;
 
-   _al_ogl_delete_default_program(disp);
-
    _al_ogl_unmanage_extensions(disp);
 
    PostMessage(win_disp->window, _al_win_msg_suicide, (WPARAM)win_disp, 0);

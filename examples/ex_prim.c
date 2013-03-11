@@ -561,7 +561,6 @@ int main(int argc, char **argv)
    ALLEGRO_BITMAP* bkg;
    ALLEGRO_COLOR black;
    ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_SHADER *shader = NULL;
    bool use_shader = false;
 
    if (argc > 1) {
@@ -591,28 +590,6 @@ int main(int argc, char **argv)
    if (!display) {
       abort_example("Error creating display.\n");
       return 1;
-   }
-   
-   if (use_shader) {
-      shader = al_create_shader(ALLEGRO_SHADER_AUTO);
-      if (!shader) {
-         abort_example("Error creating shader.\n");
-         return 1;
-      }
-      if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER,
-	      al_get_default_shader_source(ALLEGRO_SHADER_AUTO, ALLEGRO_VERTEX_SHADER))) {
-         abort_example("al_attach_shader_source for vertex shader failed: %s\n", al_get_shader_log(shader));
-         return 1;
-      }
-      if (!al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER,
-	      al_get_default_shader_source(ALLEGRO_SHADER_AUTO, ALLEGRO_PIXEL_SHADER))) {
-         abort_example("al_attach_shader_source for pixel shader failed: %s\n", al_get_shader_log(shader));
-         return 1;
-      }
-      if (!al_link_shader(shader)) {
-         abort_example("al_link_shader failed: %s\n", al_get_shader_log(shader));
-         return 1;
-      }
    }
 
    // Install the keyboard handler
@@ -703,11 +680,6 @@ int main(int argc, char **argv)
 
    for (ii = 0; ii < NUM_SCREENS; ii++)
       Screens[ii](INIT);
-
-   if (use_shader) {
-      al_set_target_backbuffer(display);
-      al_use_shader(shader);
-   }
 
    while (!done) {
       double frame_duration = al_get_time() - real_time;
@@ -862,12 +834,6 @@ int main(int argc, char **argv)
    for (ii = 0; ii < NUM_SCREENS; ii++)
       Screens[ii](DEINIT);
 
-   }
-   
-   if (use_shader) {
-      al_set_target_backbuffer(display);
-      al_use_shader(NULL);
-      al_destroy_shader(shader);
    }
 
    return 0;

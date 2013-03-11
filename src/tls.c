@@ -426,8 +426,8 @@ void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
        * update_transformation call, which will also update the shader's
        * al_projview_matrix variable.
        */
-      if (new_shader && !same_shader) {
-         new_shader->vt->use_shader(new_shader, new_display, false);
+      if (!same_shader || !new_shader) {
+         al_use_shader(new_shader);
       }
 
       new_display->vt->update_transformation(new_display, bitmap);

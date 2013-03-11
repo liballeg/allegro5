@@ -76,6 +76,8 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    display->vertex_cache_size = 0;
    display->cache_texture = 0;
 
+   display->default_shader = NULL;
+
    display->display_invalidated = 0;
 
    display->render_state.write_mask = ALLEGRO_MASK_RGBA | ALLEGRO_MASK_DEPTH;
@@ -92,6 +94,13 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    else {
       ALLEGRO_DEBUG("ALLEGRO_COMPATIBLE_DISPLAY not set\n");
       _al_set_current_display_only(display);
+   }
+
+   if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      if (!_al_create_default_shader(display)) {
+         al_destroy_display(display);
+         return NULL;
+      }
    }
 
    al_identity_transform(&identity);
@@ -142,6 +151,9 @@ void al_destroy_display(ALLEGRO_DISPLAY *display)
        */
       if (display == al_get_current_display())
          _al_set_current_display_only(NULL);
+
+      al_destroy_shader(display->default_shader);
+      display->default_shader = NULL;
 
       ASSERT(display->vt);
       display->vt->destroy_display(display);
@@ -591,6 +603,55 @@ void al_set_render_state(ALLEGRO_RENDER_STATE state, int value)
    if (display->vt && display->vt->update_render_state) {
       display->vt->update_render_state(display);
    }
+}
+
+bool _al_create_default_shader(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_SHADER_PLATFORM platform = ALLEGRO_SHADER_AUTO;
+   if (display->default_shader)
+      al_destroy_shader(display->default_shader);
+   display->default_shader = NULL;
+
+   if (false) {
+   }
+#ifdef ALLEGRO_CFG_SHADER_GLSL
+   else if (al_get_display_flags(display) & ALLEGRO_OPENGL) {
+      platform = ALLEGRO_SHADER_GLSL;
+   }
+#endif
+#ifdef ALLEGRO_CFG_SHADER_HLSL
+   else if (al_get_display_flags(display) & ALLEGRO_DIRECT3D_INTERNAL) {
+      platform = ALLEGRO_SHADER_HLSL;
+   }
+#endif
+
+   if (platform == ALLEGRO_SHADER_AUTO) {
+      ALLEGRO_ERROR("No suitable shader platform found for creating the default shader.\n");
+      return false;
+   }
+
+   display->default_shader = al_create_shader(platform);
+   if (!display->default_shader) {
+      ALLEGRO_ERROR("Error creating default shader.\n");
+      return false;
+   }
+   if (!al_attach_shader_source(display->default_shader, ALLEGRO_VERTEX_SHADER, al_get_default_shader_source(platform, ALLEGRO_VERTEX_SHADER))) {
+      ALLEGRO_ERROR("al_attach_shader_source for vertex shader failed: %s\n", al_get_shader_log(display->default_shader));
+      goto fail;
+   }
+   if (!al_attach_shader_source(display->default_shader, ALLEGRO_PIXEL_SHADER, al_get_default_shader_source(platform, ALLEGRO_PIXEL_SHADER))) {
+      ALLEGRO_ERROR("al_attach_shader_source for pixel shader failed: %s\n", al_get_shader_log(display->default_shader));
+      goto fail;
+   }
+   if (!al_link_shader(display->default_shader)) {
+      ALLEGRO_ERROR("al_link_shader failed: %s\n", al_get_shader_log(display->default_shader));
+      goto fail;
+   }
+   return true;
+fail:
+   al_destroy_shader(display->default_shader);
+   display->default_shader = NULL;
+   return false;
 }
 
 /* vim: set sts=3 sw=3 et: */

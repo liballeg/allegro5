@@ -138,6 +138,8 @@ struct ALLEGRO_DISPLAY
 
    ALLEGRO_BLENDER cur_blender;
 
+   ALLEGRO_SHADER* default_shader;
+
    void (*display_invalidated)(ALLEGRO_DISPLAY*);
 
    ALLEGRO_TRANSFORM proj_transform;
@@ -151,6 +153,7 @@ void _al_fill_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds);
 void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, int importance);
 int  _al_deduce_color_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds);
 int  _al_display_settings_sorter(const void *p0, const void *p1);
+bool _al_create_default_shader(ALLEGRO_DISPLAY *display);
 
 void _al_clear_memory(ALLEGRO_COLOR *color);
 void _al_draw_pixel_memory(ALLEGRO_BITMAP *bmp, float x, float y, ALLEGRO_COLOR *color);

@@ -1538,7 +1538,6 @@ static void destroy_display(ALLEGRO_DISPLAY* d)
    [ALDisplayHelper performSelectorOnMainThread: @selector(destroyDisplay:) 
       withObject: [NSValue valueWithPointer:dpy] 
       waitUntilDone: YES];
-   _al_ogl_delete_default_program(d);
    _al_ogl_unmanage_extensions(&dpy->parent);
    [dpy->ctx release];
    [dpy->cursor release];

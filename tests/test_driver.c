@@ -51,7 +51,6 @@ typedef struct {
 int               argc;
 char              **argv;
 ALLEGRO_DISPLAY   *display;
-ALLEGRO_SHADER    *shader;
 ALLEGRO_BITMAP    *membuf;
 Bitmap            bitmaps[MAX_BITMAPS];
 LockRegion        lock_region;
@@ -880,13 +879,6 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
 
       if (SCAN("al_set_target_bitmap", 1)) {
          al_set_target_bitmap(B(0));
-         /* XXX this is somewhat of a hack so that existing test cases work
-          * with shaders enabled.  We should really have shader-specific test
-          * cases.
-          */
-         if (shader && !(al_get_bitmap_flags(B(0)) & ALLEGRO_MEMORY_BITMAP)) {
-            al_use_shader(shader);
-         }
          continue;
       }
 
@@ -1557,30 +1549,6 @@ int main(int _argc, char *_argv[])
       }
    }
 
-   if (display_flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-      if (!display) {
-         error("a display is required for shaders");
-      }
-      shader = al_create_shader(ALLEGRO_SHADER_AUTO);
-      if (!shader) {
-         error("failed to create shader");
-      }
-      if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER,
-            al_get_default_shader_source(ALLEGRO_SHADER_AUTO,
-               ALLEGRO_VERTEX_SHADER))) {
-         error("al_attach_shader_source for vertex shader failed");
-      }
-      if (!al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER,
-            al_get_default_shader_source(ALLEGRO_SHADER_AUTO,
-               ALLEGRO_PIXEL_SHADER))) {
-         error("al_attach_shader_source for pixel shader failed");
-      }
-      if (!al_link_shader(shader)) {
-         error("al_link_shader failed");
-      }
-      al_use_shader(shader);
-   }
-
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
 
    if (want_display) {
@@ -1599,11 +1567,6 @@ int main(int _argc, char *_argv[])
    printf("passed tests: %d\n", passed_tests);
    printf("failed tests: %d\n", failed_tests);
    printf("\n");
-
-   if (shader) {
-      al_use_shader(NULL);
-      al_destroy_shader(shader);
-   }
 
    return !!failed_tests;
 }
