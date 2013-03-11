@@ -45,8 +45,10 @@ static GLuint create_default_program(void)
    GLint status;
    GLenum err;
 
-   vsource = al_get_default_vertex_shader(ALLEGRO_SHADER_GLSL);
-   psource = al_get_default_pixel_shader(ALLEGRO_SHADER_GLSL);
+   vsource = al_get_default_shader_source(ALLEGRO_SHADER_GLSL,
+      ALLEGRO_VERTEX_SHADER);
+   psource = al_get_default_shader_source(ALLEGRO_SHADER_GLSL,
+      ALLEGRO_PIXEL_SHADER);
    if (!vsource || !psource) {
       ALLEGRO_ERROR("missing default shader source\n");
       goto fail;

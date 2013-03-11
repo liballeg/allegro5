@@ -297,20 +297,9 @@ FIXME: Right now each array element is a 2-component vector.
 
 Since: 5.1.0
 
-## API: al_get_default_vertex_shader
+## API: al_get_default_shader_source
 
-Returns a string containing the source code to Allegro's default vertex
-shader appropriate for the passed platform. The ALLEGRO_SHADER_AUTO value means
-GLSL is used if OpenGL is being used otherwise HLSL. ALLEGRO_SHADER_AUTO
-requires that there is a current display set on the calling thread. This
-function can return NULL if Allegro was built without support for shaders of the
-selected platform.
-
-Since: 5.1.6
-
-## API: al_get_default_pixel_shader
-
-Returns a string containing the source code to Allegro's default pixel
+Returns a string containing the source code to Allegro's default vertex or pixel
 shader appropriate for the passed platform. The ALLEGRO_SHADER_AUTO value means
 GLSL is used if OpenGL is being used otherwise HLSL. ALLEGRO_SHADER_AUTO
 requires that there is a current display set on the calling thread. This

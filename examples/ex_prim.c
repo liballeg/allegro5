@@ -599,11 +599,13 @@ int main(int argc, char **argv)
          abort_example("Error creating shader.\n");
          return 1;
       }
-      if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER, al_get_default_vertex_shader(ALLEGRO_SHADER_AUTO))) {
+      if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER,
+	      al_get_default_shader_source(ALLEGRO_SHADER_AUTO, ALLEGRO_VERTEX_SHADER))) {
          abort_example("al_attach_shader_source for vertex shader failed: %s\n", al_get_shader_log(shader));
          return 1;
       }
-      if (!al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER, al_get_default_pixel_shader(ALLEGRO_SHADER_AUTO))) {
+      if (!al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER,
+	      al_get_default_shader_source(ALLEGRO_SHADER_AUTO, ALLEGRO_PIXEL_SHADER))) {
          abort_example("al_attach_shader_source for pixel shader failed: %s\n", al_get_shader_log(shader));
          return 1;
       }

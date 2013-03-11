@@ -24,6 +24,9 @@
 
 ALLEGRO_DEBUG_CHANNEL("shader")
 
+#include "shader_source.inc"
+
+
 static ALLEGRO_SHADER_PLATFORM resolve_platform(ALLEGRO_SHADER_PLATFORM platform)
 {
    if (platform == ALLEGRO_SHADER_AUTO) {
@@ -397,129 +400,38 @@ bool al_set_shader_texcoord_array(float *u, int stride)
    }
 }
 
-/* Function: al_get_default_vertex_shader
+/* Function: al_get_default_shader_source
  */
-char const *al_get_default_vertex_shader(ALLEGRO_SHADER_PLATFORM platform)
+char const *al_get_default_shader_source(ALLEGRO_SHADER_PLATFORM platform,
+   ALLEGRO_SHADER_TYPE type)
 {
-   char const *source = NULL;
-   platform = resolve_platform(platform);
-
-   if (false) {
-   }
+   switch (resolve_platform(platform)) {
+      case ALLEGRO_SHADER_GLSL:
 #ifdef ALLEGRO_CFG_SHADER_GLSL
-   else if (platform == ALLEGRO_SHADER_GLSL) {
-      source =
-         "attribute vec4 " ALLEGRO_SHADER_VAR_POS ";\n"
-         "attribute vec4 " ALLEGRO_SHADER_VAR_COLOR ";\n"
-         "attribute vec2 " ALLEGRO_SHADER_VAR_TEXCOORD ";\n"
-         "uniform mat4 " ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX ";\n"
-         "uniform bool " ALLEGRO_SHADER_VAR_USE_TEX_MATRIX ";\n"
-         "uniform mat4 " ALLEGRO_SHADER_VAR_TEX_MATRIX ";\n"
-         "varying vec4 varying_color;\n"
-         "varying vec2 varying_texcoord;\n"
-         "void main()\n"
-         "{\n"
-         "  varying_color = " ALLEGRO_SHADER_VAR_COLOR ";\n"
-         "  if (" ALLEGRO_SHADER_VAR_USE_TEX_MATRIX ") {\n"
-         "    vec4 uv = " ALLEGRO_SHADER_VAR_TEX_MATRIX " * vec4(" ALLEGRO_SHADER_VAR_TEXCOORD ", 0, 1);\n"
-         "    varying_texcoord = vec2(uv.x, uv.y);\n"
-         "  }\n"
-         "  else\n"
-         "    varying_texcoord = " ALLEGRO_SHADER_VAR_TEXCOORD";\n"
-         "  gl_Position = " ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX " * " ALLEGRO_SHADER_VAR_POS ";\n"
-         "}\n";
-   }
+         switch (type) {
+            case ALLEGRO_VERTEX_SHADER:
+               return default_glsl_vertex_source;
+            case ALLEGRO_PIXEL_SHADER:
+               return default_glsl_pixel_source;
+         }
 #endif
-#ifdef ALLEGRO_CFG_SHADER_HLSL
-   else if (platform == ALLEGRO_SHADER_HLSL) {
-      source =
-         "struct VS_INPUT\n"
-         "{\n"
-         "   float4 Position  : POSITION0;\n"
-         "   float2 TexCoord  : TEXCOORD0;\n"
-         "   float4 Color     : TEXCOORD1;\n"
-         "};\n"
-         "struct VS_OUTPUT\n"
-         "{\n"
-         "   float4 Position  : POSITION0;\n"
-         "   float4 Color     : COLOR0;\n"
-         "   float2 TexCoord  : TEXCOORD0;\n"
-         "};\n"
-         "\n"
-         "float4x4 al_projview_matrix;\n"
-         "bool al_use_tex_matrix;\n"
-         "float4x4 al_tex_matrix;\n"
-         "\n"
-         "VS_OUTPUT vs_main(VS_INPUT Input)\n"
-         "{\n"
-         "   VS_OUTPUT Output;\n"
-         "   Output.Color = Input.Color;\n"
-         "   if (al_use_tex_matrix) {\n"
-         "      Output.TexCoord = mul(float4(Input.TexCoord, 1.0f, 0.0f), al_tex_matrix).xy;\n"
-         "   }\n"
-         "   else {\n"
-         "      Output.TexCoord = Input.TexCoord;\n"
-         "   }\n"
-         "   Output.Position = mul(Input.Position, al_projview_matrix);\n"
-         "   return Output;\n"
-         "}\n";
-   }
-#endif
-   return source;
-}
+         break;
 
-/* Function: al_get_default_pixel_shader
- */
-char const *al_get_default_pixel_shader(ALLEGRO_SHADER_PLATFORM platform)
-{
-   char const *source = NULL;
-   platform = resolve_platform(platform);
-
-   if (false) {
-   }
-#ifdef ALLEGRO_CFG_SHADER_GLSL
-   else if (platform == ALLEGRO_SHADER_GLSL) {
-      source =
-#ifndef ALLEGRO_CFG_OPENGLES
-         "#version 120\n"
-#endif
-         "#ifdef GL_ES\n"
-         "precision mediump float;\n"
-         "#endif\n"
-         "uniform sampler2D " ALLEGRO_SHADER_VAR_TEX ";\n"
-         "uniform bool " ALLEGRO_SHADER_VAR_USE_TEX ";\n"
-         "varying vec4 varying_color;\n"
-         "varying vec2 varying_texcoord;\n"
-         "void main()\n"
-         "{\n"
-         "  if (" ALLEGRO_SHADER_VAR_USE_TEX ")\n"
-         "    gl_FragColor = varying_color * texture2D(" ALLEGRO_SHADER_VAR_TEX ", varying_texcoord);\n"
-         "  else\n"
-         "    gl_FragColor = varying_color;\n"
-         "}\n";
-   }
-#endif
+      case ALLEGRO_SHADER_HLSL:
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-   else if (platform == ALLEGRO_SHADER_HLSL) {
-      source =
-         "bool al_use_tex;\n"
-         "texture al_tex;\n"
-         "sampler2D s = sampler_state {\n"
-         "   texture = <al_tex>;\n"
-         "};\n"
-         "\n"
-         "float4 ps_main(VS_OUTPUT Input) : COLOR0\n"
-         "{\n"
-         "   if (al_use_tex) {\n"
-         "      return Input.Color * tex2D(s, Input.TexCoord);\n"
-         "   }\n"
-         "   else {\n"
-         "      return Input.Color;\n"
-         "   }\n"
-         "}\n";
-   }
+         switch (type) {
+            case ALLEGRO_VERTEX_SHADER:
+               return default_hlsl_vertex_source;
+            case ALLEGRO_PIXEL_SHADER:
+               return default_hlsl_pixel_source;
+         }
 #endif
-   return source;
+         break;
+
+      case ALLEGRO_SHADER_AUTO:
+         ASSERT(0);
+   }
+   return NULL;
 }
 
 /* vim: set sts=3 sw=3 et: */

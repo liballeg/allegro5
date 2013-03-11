@@ -65,8 +65,10 @@ int main(void)
    if (!pixel_file) {
       abort_example("No shader source\n");
    }
-   if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER, al_get_default_vertex_shader(ALLEGRO_SHADER_AUTO)))
+   if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER,
+         al_get_default_shader_source(ALLEGRO_SHADER_AUTO, ALLEGRO_VERTEX_SHADER))) {
       abort_example("al_attach_shader_source for vertex shader failed: %s\n", al_get_shader_log(shader));
+   }
    if (!al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, pixel_file))
       abort_example("al_attach_shader_source_file for pixel shader failed: %s\n", al_get_shader_log(shader));
    if (!al_link_shader(shader))

@@ -70,8 +70,8 @@ AL_FUNC(bool, al_set_shader_vertex_array, (float *v, int stride));
 AL_FUNC(bool, al_set_shader_color_array, (unsigned char *c, int stride));
 AL_FUNC(bool, al_set_shader_texcoord_array, (float *u, int stride));
 
-AL_FUNC(char const *, al_get_default_vertex_shader, (ALLEGRO_SHADER_PLATFORM platform));
-AL_FUNC(char const *, al_get_default_pixel_shader, (ALLEGRO_SHADER_PLATFORM platform));
+AL_FUNC(char const *, al_get_default_shader_source, (ALLEGRO_SHADER_PLATFORM platform,
+   ALLEGRO_SHADER_TYPE type));
 
 #ifdef __cplusplus
    }
