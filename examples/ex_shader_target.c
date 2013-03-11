@@ -22,11 +22,11 @@ static float tints[12] =
 static void choose_shader_source(ALLEGRO_SHADER_PLATFORM platform,
    char const **vsource, char const **psource)
 {
-   if (platform & ALLEGRO_SHADER_HLSL) {
+   if (platform == ALLEGRO_SHADER_HLSL) {
       *vsource = "data/ex_shader_vertex.hlsl";
       *psource = "data/ex_shader_pixel.hlsl";
    }
-   else if (platform & ALLEGRO_SHADER_GLSL) {
+   else if (platform == ALLEGRO_SHADER_GLSL) {
       *vsource = "data/ex_shader_vertex.glsl";
       *psource = "data/ex_shader_pixel.glsl";
    }

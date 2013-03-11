@@ -54,12 +54,12 @@ ALLEGRO_SHADER *al_create_shader(ALLEGRO_SHADER_PLATFORM platform)
    if (false) {
    }
 #ifdef ALLEGRO_CFG_SHADER_GLSL
-   else if (platform & ALLEGRO_SHADER_GLSL) {
+   else if (platform == ALLEGRO_SHADER_GLSL) {
       shader = _al_create_shader_glsl(platform);
    }
 #endif
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-   else if (platform & ALLEGRO_SHADER_HLSL) {
+   else if (platform == ALLEGRO_SHADER_HLSL) {
       shader = _al_create_shader_hlsl(platform);
    }
 #endif
