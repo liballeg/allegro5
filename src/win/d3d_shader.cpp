@@ -89,10 +89,9 @@ static const char *technique_source_both =
    "   }\n"
    "}\n";
 
-static void _imp_unload_d3dx9_module(void* handle)
+extern "C"
+void _al_unload_d3dx9_module()
 {
-   _al_unregister_destructor(_al_dtor_list, handle);
-
    FreeLibrary(_imp_d3dx9_module);
    _imp_d3dx9_module = NULL;
 }
@@ -124,17 +123,20 @@ static bool _imp_load_d3dx9_module_version(int version)
       return false;
    }
 
-   _al_register_destructor(_al_dtor_list, (void*)_imp_d3dx9_module, _imp_unload_d3dx9_module);
-
    ALLEGRO_INFO("Module \"%s\" loaded.\n", module_name);
 
    return true;
 }
 
-static bool _imp_load_d3dx9_module()
+extern "C"
+bool _al_load_d3dx9_module()
 {
    ALLEGRO_CONFIG *cfg;
    long version;
+
+   if (_imp_d3dx9_module) {
+      return true;
+   }
 
    cfg = al_get_system_config();
    if (cfg) {
@@ -215,7 +217,7 @@ ALLEGRO_SHADER *_al_create_shader_hlsl(ALLEGRO_SHADER_PLATFORM platform)
 {
    ALLEGRO_SHADER_HLSL_S *shader;
 
-   if (NULL == _imp_D3DXCreateEffect && !_imp_load_d3dx9_module()) {
+   if (NULL == _imp_D3DXCreateEffect) {
       ALLEGRO_ERROR("D3DXCreateEffect unavailable\n");
       return NULL;
    }

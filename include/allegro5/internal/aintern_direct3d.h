@@ -83,6 +83,8 @@ void _al_d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap);
 void _al_d3d_update_render_state(ALLEGRO_DISPLAY *display);
 
 #ifdef ALLEGRO_CFG_SHADER_HLSL
+   bool _al_load_d3dx9_module();
+   void _al_unload_d3dx9_module();
    bool _al_hlsl_set_projview_matrix(LPD3DXEFFECT effect,
       const ALLEGRO_TRANSFORM *t);
 #endif
