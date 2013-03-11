@@ -31,7 +31,7 @@
 
 #include "precompiled_shaders.inc"
 
-void _al_create_shader(void* dev, ALLEGRO_VERTEX_DECL* decl)
+void _al_create_primitives_shader(void* dev, ALLEGRO_VERTEX_DECL* decl)
 {
    LPDIRECT3DDEVICE9 device = (LPDIRECT3DDEVICE9)dev;
    LPDIRECT3DVERTEXSHADER9 ret = 0;
@@ -93,7 +93,7 @@ void _al_create_shader(void* dev, ALLEGRO_VERTEX_DECL* decl)
    decl->d3d_dummy_shader = ret;
 }
 
-void* _al_create_default_shader(void* dev)
+void* _al_create_default_primitives_shader(void* dev)
 {
    LPDIRECT3DDEVICE9 device = (LPDIRECT3DDEVICE9)dev;
    LPDIRECT3DVERTEXSHADER9 shader;
@@ -172,14 +172,14 @@ static void setup_transforms(IDirect3DDevice9* device)
    IDirect3DDevice9_SetVertexShaderConstantF(device, 0, (float*)&matWorldViewProj, 4);
 }
 
-void _al_setup_shader(void* dev, const ALLEGRO_VERTEX_DECL* decl)
+void _al_setup_primitives_shader(void* dev, const ALLEGRO_VERTEX_DECL* decl)
 {
    IDirect3DDevice9* device = (IDirect3DDevice9*)dev;
    setup_transforms(device);
    IDirect3DDevice9_SetVertexShader(device, (IDirect3DVertexShader9*)decl->d3d_dummy_shader);
 }
 
-void _al_setup_default_shader(void* dev, void* shader)
+void _al_setup_default_primitives_shader(void* dev, void* shader)
 {
    IDirect3DDevice9* device = (IDirect3DDevice9*)dev;
    setup_transforms(device);

@@ -120,7 +120,7 @@ static void setup_default_shader(ALLEGRO_DISPLAY* display)
       num_shader_entries = 1;
 
       shader_entries[0].device = device;
-      shader_entries[0].shader = (LPDIRECT3DVERTEXSHADER9)_al_create_default_shader(device);
+      shader_entries[0].shader = (LPDIRECT3DVERTEXSHADER9)_al_create_default_primitives_shader(device);
 
       _al_set_display_invalidated_callback(display, &display_invalidated);
    }
@@ -154,13 +154,13 @@ static void setup_default_shader(ALLEGRO_DISPLAY* display)
 
          shader_entries[num_shader_entries - 1] = t;
          shader_entries[0].device = device;
-         shader_entries[0].shader = (LPDIRECT3DVERTEXSHADER9)_al_create_default_shader(device);
+         shader_entries[0].shader = (LPDIRECT3DVERTEXSHADER9)_al_create_default_primitives_shader(device);
 
          _al_set_display_invalidated_callback(display, &display_invalidated);
       }
    }
 
-   _al_setup_default_shader(device, shader_entries[0].shader);
+   _al_setup_default_primitives_shader(device, shader_entries[0].shader);
 
    al_unlock_mutex(d3d_mutex);
 }
@@ -270,7 +270,7 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
          /* Prepare the default shader */
          if(!is_legacy_card()) {
             if(decl)
-               _al_setup_shader(device, decl);
+               _al_setup_primitives_shader(device, decl);
             else
                setup_default_shader(target->display);
          }
@@ -854,7 +854,7 @@ void _al_set_d3d_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL* ret)
          device->CreateVertexDeclaration(d3delements, (IDirect3DVertexDeclaration9**)&ret->d3d_decl);
       }
 
-      _al_create_shader(device, ret);
+      _al_create_primitives_shader(device, ret);
    }
 #else
    (void)display;

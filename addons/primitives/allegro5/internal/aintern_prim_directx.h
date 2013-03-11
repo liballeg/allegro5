@@ -21,11 +21,11 @@ int _al_draw_vertex_buffer_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textu
 bool _al_init_d3d_driver(void);
 void _al_shutdown_d3d_driver(void);
 
-void* _al_create_default_shader(void* dev);
-void _al_setup_default_shader(void* dev, void* shader);
+void* _al_create_default_primitives_shader(void* dev);
+void _al_setup_default_primitives_shader(void* dev, void* shader);
 
-void _al_setup_shader(void* dev, const ALLEGRO_VERTEX_DECL* decl);
-void _al_create_shader(void* dev, ALLEGRO_VERTEX_DECL* decl);
+void _al_setup_primitives_shader(void* dev, const ALLEGRO_VERTEX_DECL* decl);
+void _al_create_primitives_shader(void* dev, ALLEGRO_VERTEX_DECL* decl);
 void _al_set_texture_matrix(void* dev, float* mat);
 
 #ifdef __cplusplus
