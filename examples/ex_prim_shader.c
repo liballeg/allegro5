@@ -10,9 +10,43 @@
 typedef struct
 {
    float x, y;
-   ALLEGRO_COLOR color;
-   float r, g, b;
+   float nx, ny, nz;
 } CUSTOM_VERTEX;
+
+#define RING_SIZE 25
+#define SPHERE_RADIUS 150.1
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
+#define NUM_RINGS (SCREEN_WIDTH / RING_SIZE + 1)
+#define NUM_SEGMENTS 64
+#define NUM_VERTICES (NUM_RINGS * NUM_SEGMENTS * 6)
+#define FIRST_OUTSIDE_RING ((int)(SPHERE_RADIUS / RING_SIZE))
+
+static void setup_vertex(CUSTOM_VERTEX* vtx, int ring, int segment, bool inside)
+{
+   float len;
+   float x, y, z;
+   x = ring * RING_SIZE * cosf(2 * ALLEGRO_PI * segment / NUM_SEGMENTS);
+   y = ring * RING_SIZE * sinf(2 * ALLEGRO_PI * segment / NUM_SEGMENTS);
+   vtx->x = x + SCREEN_WIDTH / 2;
+   vtx->y = y + SCREEN_HEIGHT / 2;
+
+   if (inside) {
+      z = sqrtf(SPHERE_RADIUS * SPHERE_RADIUS - x * x - y * y);
+      vtx->nx = x / z;
+      vtx->ny = y / z;
+   }
+   else {
+      vtx->nx = 0;
+      vtx->ny = 0;
+   }
+   vtx->nz = 1.0;
+
+   len = sqrtf(vtx->nx * vtx->nx + vtx->ny * vtx->ny + vtx->nz * vtx->nz);
+   vtx->nx /= len;
+   vtx->ny /= len;
+   vtx->nz /= len;
+}
 
 int main(void)
 {
@@ -24,15 +58,17 @@ int main(void)
    ALLEGRO_VERTEX_DECL *vertex_decl;
    ALLEGRO_VERTEX_ELEMENT vertex_elems[] = {
       {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_FLOAT_2, offsetof(CUSTOM_VERTEX, x)},
-      {ALLEGRO_PRIM_COLOR_ATTR, 0, offsetof(CUSTOM_VERTEX, color)},
-      {ALLEGRO_PRIM_USER_ATTR, ALLEGRO_PRIM_FLOAT_3, offsetof(CUSTOM_VERTEX, r)},
+      {ALLEGRO_PRIM_USER_ATTR, ALLEGRO_PRIM_FLOAT_3, offsetof(CUSTOM_VERTEX, nx)},
       {0, 0, 0}
    };
-   CUSTOM_VERTEX vertices[4];
+   CUSTOM_VERTEX vertices[NUM_VERTICES];
    bool quit = false;
    float mouse_pos[2];
    const char* vertex_shader_file;
    const char* pixel_shader_file;
+   int vertex_idx = 0;
+   int ring, segment;
+   float color[4] = {0.1, 0.1, 0.7, 1.0};
 
    mouse_pos[0] = 0;
    mouse_pos[1] = 0;
@@ -47,7 +83,7 @@ int main(void)
       abort_example("Could not init primitives addon.\n");
    }
    al_set_new_display_flags(ALLEGRO_USE_PROGRAMMABLE_PIPELINE);
-   display = al_create_display(640, 480);
+   display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
    if (!display) {
       abort_example("Error creating display.\n");
    }
@@ -57,36 +93,21 @@ int main(void)
       abort_example("Error creating vertex declaration.\n");
    }
 
-   vertices[0].x = 0;
-   vertices[0].y = 0;
-   vertices[0].r = 0;
-   vertices[0].g = 1;
-   vertices[0].b = 1;
-   vertices[0].color = al_map_rgb_f(0.1, 0.1, 0.1);
-
-   vertices[1].x = al_get_display_width(display);
-   vertices[1].y = 0;
-   vertices[1].r = 0;
-   vertices[1].g = 0;
-   vertices[1].b = 1;
-   vertices[1].color = al_map_rgb_f(0.1, 0.1, 0.1);
-
-   vertices[2].x = al_get_display_width(display);
-   vertices[2].y = al_get_display_height(display);
-   vertices[2].r = 1;
-   vertices[2].g = 0;
-   vertices[2].b = 0;
-   vertices[2].color = al_map_rgb_f(0.1, 0.1, 0.1);
-
-   vertices[3].x = 0;
-   vertices[3].y = al_get_display_height(display);
-   vertices[3].r = 1;
-   vertices[3].g = 1;
-   vertices[3].b = 0;
-   vertices[3].color = al_map_rgb_f(0.1, 0.1, 0.1);
+   for (ring = 0; ring < NUM_RINGS; ring++) {
+      for (segment = 0; segment < NUM_SEGMENTS; segment++) {
+         bool inside = ring < FIRST_OUTSIDE_RING;
+         setup_vertex(&vertices[vertex_idx + 0], ring + 0, segment + 0, inside);
+         setup_vertex(&vertices[vertex_idx + 1], ring + 0, segment + 1, inside);
+         setup_vertex(&vertices[vertex_idx + 2], ring + 1, segment + 0, inside);
+         setup_vertex(&vertices[vertex_idx + 3], ring + 1, segment + 0, inside);
+         setup_vertex(&vertices[vertex_idx + 4], ring + 0, segment + 1, inside);
+         setup_vertex(&vertices[vertex_idx + 5], ring + 1, segment + 1, inside);
+         vertex_idx += 6;
+      }
+   }
 
    shader = al_create_shader(ALLEGRO_SHADER_AUTO);
-   
+
    if (!shader) {
       abort_example("Failed to create shader.");
    }
@@ -114,6 +135,8 @@ int main(void)
    }
 
    al_use_shader(shader);
+   al_set_shader_float_vector("color", 4, color, 1);
+   al_set_shader_float("alpha", 25);
 
    timer = al_create_timer(1.0 / 60);
    queue = al_create_event_queue();
@@ -148,7 +171,7 @@ int main(void)
          al_clear_to_color(al_map_rgb_f(0, 0, 0));
 
          al_set_shader_float_vector("mouse_pos", 2, mouse_pos, 1);
-         al_draw_prim(vertices, vertex_decl, NULL, 0, 4, ALLEGRO_PRIM_TRIANGLE_FAN);
+         al_draw_prim(vertices, vertex_decl, NULL, 0, NUM_VERTICES, ALLEGRO_PRIM_TRIANGLE_LIST);
 
          al_flip_display();
          redraw = false;
