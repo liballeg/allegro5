@@ -88,19 +88,6 @@ static char* get_error_desc(DWORD err)
    return err_msg;
 }
 
-/* Helper to set up GL state as we want it. */
-static void setup_gl(ALLEGRO_DISPLAY *d)
-{
-   glViewport(0, 0, d->w, d->h);
-
-   glMatrixMode(GL_PROJECTION);
-   glLoadIdentity();
-   glOrtho(0, d->w, d->h, 0, -1, 1);
-
-   glMatrixMode(GL_MODELVIEW);
-   glLoadIdentity();
-}
-
 static bool is_wgl_extension_supported(const char *extension, HDC dc)
 {
    _ALLEGRO_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB;
@@ -1002,15 +989,6 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
       disp->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;
    }
 
-   disp->ogl_extras->backbuffer = _al_ogl_create_backbuffer(disp);
-   if (!disp->ogl_extras->backbuffer) {
-      ALLEGRO_ERROR("Failed to create a backbuffer.\n");
-      destroy_display_internals(wgl_disp);
-      return false;
-   }
-
-   al_identity_transform(&al_get_backbuffer(disp)->transform);
-
    /* Try to enable or disable vsync as requested */
    /* NOTE: my drivers claim I don't have WGL_EXT_swap_control
     * (according to al_have_opengl_extension), but wglSwapIntervalEXT
@@ -1032,7 +1010,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    _al_win_grab_input(win_disp);
 
    if (disp->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY])
-      setup_gl(disp);
+      _al_ogl_setup_gl(disp);
 
    return true;
 }
@@ -1485,7 +1463,6 @@ static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d)
 {
    WINDOWINFO wi;
    ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)d;
-   ALLEGRO_DISPLAY *ogl_disp = (ALLEGRO_DISPLAY *)d;
    int w, h;
 
    wi.cbSize = sizeof(WINDOWINFO);
@@ -1496,8 +1473,7 @@ static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d)
    d->w = w;
    d->h = h;
 
-   setup_gl(d);
-   _al_ogl_resize_backbuffer(ogl_disp->ogl_extras->backbuffer, w, h);
+   _al_ogl_setup_gl(d);
    _al_ogl_update_render_state(d);
 
    return true;
