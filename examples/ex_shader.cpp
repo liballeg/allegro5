@@ -16,16 +16,10 @@
 #include "common.c"
 
 static int display_flags = 0;
-static ALLEGRO_SHADER_PLATFORM shader_platform = ALLEGRO_SHADER_AUTO;
 
 static void parse_args(int argc, char **argv)
 {
    int i;
-
-   /*
-    * --opengl and --d3d specify the display type.
-    * --hlsl, --glsl specify the shader platform.
-    */
 
    for (i = 1; i < argc; i++) {
       if (0 == strcmp(argv[i], "--opengl")) {
@@ -38,35 +32,19 @@ static void parse_args(int argc, char **argv)
          continue;
       }
 #endif
-      if (0 == strcmp(argv[i], "--hlsl")) {
-         shader_platform = ALLEGRO_SHADER_HLSL;
-         continue;
-      }
-      if (0 == strcmp(argv[i], "--glsl")) {
-         shader_platform = ALLEGRO_SHADER_GLSL;
-         continue;
-      }
       abort_example("Unrecognised argument: %s\n", argv[i]);
    }
 }
 
-static void choose_shader_source(int display_flags,
-   ALLEGRO_SHADER_PLATFORM shader_platform,
+static void choose_shader_source(ALLEGRO_SHADER *shader,
    char const **vsource, char const **psource)
 {
-   if (shader_platform == 0) {
-      /* Shader platform depends on display type. */
-      if (display_flags & ALLEGRO_OPENGL)
-         shader_platform = ALLEGRO_SHADER_GLSL;
-      else
-         shader_platform = ALLEGRO_SHADER_HLSL;
-   }
-
-   if (shader_platform & ALLEGRO_SHADER_HLSL) {
+   ALLEGRO_SHADER_PLATFORM platform = al_get_shader_platform(shader);
+   if (platform == ALLEGRO_SHADER_HLSL) {
       *vsource = "data/ex_shader_vertex.hlsl";
       *psource = "data/ex_shader_pixel.hlsl";
    }
-   else if (shader_platform & ALLEGRO_SHADER_GLSL) {
+   else if (platform == ALLEGRO_SHADER_GLSL) {
       *vsource = "data/ex_shader_vertex.glsl";
       *psource = "data/ex_shader_pixel.glsl";
    }
@@ -98,31 +76,17 @@ int main(int argc, char **argv)
       abort_example("Could not create display.\n");
    }
 
-   display_flags = al_get_display_flags(display);
-
-   /* Reject incompatible display and shader types. */
-   if ((display_flags & ALLEGRO_OPENGL)
-         && (shader_platform & ALLEGRO_SHADER_HLSL)) {
-      abort_example("Shader platform incompatible with display type.\n");
-   }
-#ifdef ALLEGRO_CFG_D3D
-   if ((display_flags & ALLEGRO_DIRECT3D)
-         && (shader_platform & ALLEGRO_SHADER_GLSL)) {
-      abort_example("Shader platform incompatible with display type.\n");
-   }
-#endif
-
    bmp = al_load_bitmap("data/mysha.pcx");
    if (!bmp) {
       abort_example("Could not load bitmap.\n");
    }
 
-   shader = al_create_shader(shader_platform);
+   shader = al_create_shader(ALLEGRO_SHADER_AUTO);
    if (!shader) {
       abort_example("Could not create shader.\n");
    }
 
-   choose_shader_source(display_flags, shader_platform, &vsource, &psource);
+   choose_shader_source(shader, &vsource, &psource);
    if (!vsource|| !psource) {
       abort_example("Could not load source files.\n");
    }
