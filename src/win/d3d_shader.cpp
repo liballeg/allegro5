@@ -26,16 +26,9 @@
 #include <d3dx9.h>
 #include <stdio.h>
 
+#include "d3d.h"
+
 ALLEGRO_DEBUG_CHANNEL("shader")
-
-
-typedef struct ALLEGRO_SHADER_HLSL_S ALLEGRO_SHADER_HLSL_S;
-
-struct ALLEGRO_SHADER_HLSL_S
-{
-   ALLEGRO_SHADER shader;
-   LPD3DXEFFECT hlsl_shader;
-};
 
 
 // DXSDK redistributable install d3dx9_xx.dll from version

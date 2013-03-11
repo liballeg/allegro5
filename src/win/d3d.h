@@ -4,6 +4,7 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_direct3d.h"
+#include "allegro5/internal/aintern_shader.h"
 #include "allegro5/platform/aintwin.h"
 #include "allegro5/platform/alplatf.h"
 
@@ -22,6 +23,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+
+typedef struct ALLEGRO_SHADER_HLSL_S ALLEGRO_SHADER_HLSL_S;
+
+struct ALLEGRO_SHADER_HLSL_S
+{
+   ALLEGRO_SHADER shader;
+   LPD3DXEFFECT hlsl_shader;
+};
+
 
 /* Flexible vertex formats */
 // Fixed pipeline vertex
