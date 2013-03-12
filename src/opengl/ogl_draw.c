@@ -472,9 +472,9 @@ static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
       if (disp->ogl_extras->program_object > 0 && loc >= 0) {
          al_compose_transform(&tmp, &disp->proj_transform);
          _al_glsl_set_projview_matrix(loc, &tmp);
-         return;
       }
 #endif
+      return;
    }
 
    glMatrixMode(GL_MODELVIEW);
@@ -491,9 +491,9 @@ static void ogl_set_projection(ALLEGRO_DISPLAY *d)
          al_copy_transform(&t, &d->view_transform);
          al_compose_transform(&t, &d->proj_transform);
          _al_glsl_set_projview_matrix(loc, &t);
-         return;
       }
 #endif
+      return;
    }
 
    glMatrixMode(GL_PROJECTION);
