@@ -16,7 +16,9 @@
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_shader.h"
+#include "allegro5/internal/aintern_system.h"
 
 #ifdef ALLEGRO_CFG_SHADER_GLSL
 #include "allegro5/allegro_opengl.h"
@@ -67,6 +69,8 @@ ALLEGRO_SHADER *al_create_shader(ALLEGRO_SHADER_PLATFORM platform)
    if (shader) {
       ASSERT(shader->platform);
       ASSERT(shader->vt);
+      _al_register_destructor(_al_dtor_list, shader,
+         (void (*)(void *))al_destroy_shader);
    }
    else {
       ALLEGRO_WARN("Failed to create shader\n");
@@ -204,6 +208,8 @@ void al_destroy_shader(ALLEGRO_SHADER *shader)
       ALLEGRO_DEBUG("implicitly unusing shader on target bitmap\n");
       al_use_shader(NULL);
    }
+
+   _al_unregister_destructor(_al_dtor_list, shader);
 
    al_ustr_free(shader->vertex_copy);
    shader->vertex_copy = NULL;

@@ -630,7 +630,10 @@ bool _al_create_default_shader(ALLEGRO_DISPLAY *display)
       return false;
    }
 
+   _al_push_destructor_owner();
    display->default_shader = al_create_shader(platform);
+   _al_pop_destructor_owner();
+
    if (!display->default_shader) {
       ALLEGRO_ERROR("Error creating default shader.\n");
       return false;
