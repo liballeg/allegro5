@@ -75,6 +75,19 @@ typedef struct OPENGL_INFO {
 } OPENGL_INFO;
 
 
+typedef struct ALLEGRO_OGL_VARLOCS
+{
+   /* Cached shader variable locations. */
+   GLint pos_loc;
+   GLint color_loc;
+   GLint texcoord_loc;
+   GLint use_tex_loc;
+   GLint tex_loc;
+   GLint use_tex_matrix_loc;
+   GLint tex_matrix_loc;
+   GLint user_attr_loc[_ALLEGRO_PRIM_MAX_USER_ATTR];
+} ALLEGRO_OGL_VARLOCS;
+
 typedef struct ALLEGRO_OGL_EXTRAS
 {
    /* A list of extensions supported by Allegro, for this context. */
@@ -97,16 +110,7 @@ typedef struct ALLEGRO_OGL_EXTRAS
     * In programmable pipeline mode this should be non-zero.
     */
    GLuint program_object;
-
-   /* Shader variable addresses. See the documentation for their meaning. */
-   GLint pos_loc;
-   GLint color_loc;
-   GLint texcoord_loc;
-   GLint use_tex_loc;
-   GLint tex_loc;
-   GLint use_tex_matrix_loc;
-   GLint tex_matrix_loc;
-   GLint user_attr_loc[_ALLEGRO_PRIM_MAX_USER_ATTR];
+   ALLEGRO_OGL_VARLOCS varlocs;
 
    /* For OpenGL 3.0+ we use a single vao and vbo. */
    GLuint vao, vbo;
@@ -172,7 +176,7 @@ void _al_ogl_update_render_state(ALLEGRO_DISPLAY *display);
 
 /* shader */
 #ifdef ALLEGRO_CFG_SHADER_GLSL
-   void _al_glsl_lookup_locations(ALLEGRO_OGL_EXTRAS *ogl_extras,
+   void _al_glsl_lookup_locations(ALLEGRO_OGL_VARLOCS *varlogs,
       GLuint program);
    bool _al_glsl_set_projview_matrix(GLuint program_object,
       const ALLEGRO_TRANSFORM *t);

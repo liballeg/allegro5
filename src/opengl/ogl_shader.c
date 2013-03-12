@@ -190,7 +190,6 @@ static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
    ALLEGRO_SHADER_GLSL_S *gl_shader;
    GLuint program_object;
    GLenum err;
-   unsigned i;
 
    if (!(display->flags & ALLEGRO_OPENGL)) {
       return false;
@@ -223,15 +222,7 @@ static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
    }
 
    /* Look up variable locations. */
-   _al_glsl_lookup_locations(display->ogl_extras, program_object);
-
-   for (i = 0; i < _ALLEGRO_PRIM_MAX_USER_ATTR; i++) {
-      /* al_user_attr_##0 */
-      char user_attr_name[sizeof(ALLEGRO_SHADER_VAR_USER_ATTR "999")];
-
-      snprintf(user_attr_name, sizeof(user_attr_name), ALLEGRO_SHADER_VAR_USER_ATTR "%d", i);
-      display->ogl_extras->user_attr_loc[i] = glGetAttribLocation(program_object, user_attr_name);
-   }
+   _al_glsl_lookup_locations(&display->ogl_extras->varlocs, program_object);
 
    return true;
 }
@@ -418,15 +409,25 @@ static struct ALLEGRO_SHADER_INTERFACE shader_glsl_vt =
    glsl_set_shader_bool
 };
 
-void _al_glsl_lookup_locations(ALLEGRO_OGL_EXTRAS *ogl_extras, GLuint program)
+void _al_glsl_lookup_locations(ALLEGRO_OGL_VARLOCS *varlocs, GLuint program)
 {
-   ogl_extras->pos_loc = glGetAttribLocation(program, ALLEGRO_SHADER_VAR_POS);
-   ogl_extras->color_loc = glGetAttribLocation(program, ALLEGRO_SHADER_VAR_COLOR);
-   ogl_extras->texcoord_loc = glGetAttribLocation(program, ALLEGRO_SHADER_VAR_TEXCOORD);
-   ogl_extras->use_tex_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_USE_TEX);
-   ogl_extras->tex_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_TEX);
-   ogl_extras->use_tex_matrix_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_USE_TEX_MATRIX);
-   ogl_extras->tex_matrix_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_TEX_MATRIX);
+   unsigned i;
+
+   varlocs->pos_loc = glGetAttribLocation(program, ALLEGRO_SHADER_VAR_POS);
+   varlocs->color_loc = glGetAttribLocation(program, ALLEGRO_SHADER_VAR_COLOR);
+   varlocs->texcoord_loc = glGetAttribLocation(program, ALLEGRO_SHADER_VAR_TEXCOORD);
+   varlocs->use_tex_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_USE_TEX);
+   varlocs->tex_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_TEX);
+   varlocs->use_tex_matrix_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_USE_TEX_MATRIX);
+   varlocs->tex_matrix_loc = glGetUniformLocation(program, ALLEGRO_SHADER_VAR_TEX_MATRIX);
+
+   for (i = 0; i < _ALLEGRO_PRIM_MAX_USER_ATTR; i++) {
+      /* al_user_attr_##0 */
+      char user_attr_name[sizeof(ALLEGRO_SHADER_VAR_USER_ATTR "999")];
+
+      snprintf(user_attr_name, sizeof(user_attr_name), ALLEGRO_SHADER_VAR_USER_ATTR "%d", i);
+      varlocs->user_attr_loc[i] = glGetAttribLocation(program, user_attr_name);
+   }
 
    check_gl_error("glGetAttribLocation, glGetUniformLocation");
 }

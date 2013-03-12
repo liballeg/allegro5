@@ -124,13 +124,13 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          if(e->attribute) {
             convert_storage(e->storage, &type, &ncoord, &normalized);
 
-            if (display->ogl_extras->pos_loc >= 0) {
-               glVertexAttribPointer(display->ogl_extras->pos_loc, ncoord, type, normalized, decl->stride, vtxs + e->offset);
-               glEnableVertexAttribArray(display->ogl_extras->pos_loc);
+            if (display->ogl_extras->varlocs.pos_loc >= 0) {
+	       glVertexAttribPointer(display->ogl_extras->varlocs.pos_loc, ncoord, type, normalized, decl->stride, vtxs + e->offset);
+               glEnableVertexAttribArray(display->ogl_extras->varlocs.pos_loc);
             }
          } else {
-            if (display->ogl_extras->pos_loc >= 0) {
-               glDisableVertexAttribArray(display->ogl_extras->pos_loc);
+            if (display->ogl_extras->varlocs.pos_loc >= 0) {
+               glDisableVertexAttribArray(display->ogl_extras->varlocs.pos_loc);
             }
          }
 
@@ -140,25 +140,25 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          if(texture && e->attribute) {
             convert_storage(e->storage, &type, &ncoord, &normalized);
 
-            if (display->ogl_extras->texcoord_loc >= 0) {
-               glVertexAttribPointer(display->ogl_extras->texcoord_loc, ncoord, type, normalized, decl->stride, vtxs + e->offset);
-               glEnableVertexAttribArray(display->ogl_extras->texcoord_loc);
+            if (display->ogl_extras->varlocs.texcoord_loc >= 0) {
+	       glVertexAttribPointer(display->ogl_extras->varlocs.texcoord_loc, ncoord, type, normalized, decl->stride, vtxs + e->offset);
+               glEnableVertexAttribArray(display->ogl_extras->varlocs.texcoord_loc);
             }
          } else {
-            if (display->ogl_extras->texcoord_loc >= 0) {
-               glDisableVertexAttribArray(display->ogl_extras->texcoord_loc);
+            if (display->ogl_extras->varlocs.texcoord_loc >= 0) {
+               glDisableVertexAttribArray(display->ogl_extras->varlocs.texcoord_loc);
             }
          }
 
          e = &decl->elements[ALLEGRO_PRIM_COLOR_ATTR];
          if(e->attribute) {
-            if (display->ogl_extras->color_loc >= 0) {
-               glVertexAttribPointer(display->ogl_extras->color_loc, 4, GL_FLOAT, true, decl->stride, vtxs + e->offset);
-               glEnableVertexAttribArray(display->ogl_extras->color_loc);
+            if (display->ogl_extras->varlocs.color_loc >= 0) {
+	       glVertexAttribPointer(display->ogl_extras->varlocs.color_loc, 4, GL_FLOAT, true, decl->stride, vtxs + e->offset);
+               glEnableVertexAttribArray(display->ogl_extras->varlocs.color_loc);
             }
          } else {
-            if (display->ogl_extras->color_loc >= 0) {
-               glDisableVertexAttribArray(display->ogl_extras->color_loc);
+            if (display->ogl_extras->varlocs.color_loc >= 0) {
+               glDisableVertexAttribArray(display->ogl_extras->varlocs.color_loc);
             }
          }
 
@@ -167,30 +167,30 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
             if (e->attribute) {
                convert_storage(e->storage, &type, &ncoord, &normalized);
 
-               if (display->ogl_extras->user_attr_loc[i] >= 0) {
-                  glVertexAttribPointer(display->ogl_extras->user_attr_loc[i], ncoord, type, normalized, decl->stride, vtxs + e->offset);
-                  glEnableVertexAttribArray(display->ogl_extras->user_attr_loc[i]);
+               if (display->ogl_extras->varlocs.user_attr_loc[i] >= 0) {
+		  glVertexAttribPointer(display->ogl_extras->varlocs.user_attr_loc[i], ncoord, type, normalized, decl->stride, vtxs + e->offset);
+                  glEnableVertexAttribArray(display->ogl_extras->varlocs.user_attr_loc[i]);
                }
             } else {
-               if (display->ogl_extras->user_attr_loc[i] >= 0) {
-                  glDisableVertexAttribArray(display->ogl_extras->user_attr_loc[i]);
+               if (display->ogl_extras->varlocs.user_attr_loc[i] >= 0) {
+                  glDisableVertexAttribArray(display->ogl_extras->varlocs.user_attr_loc[i]);
                }
             }
          }
       } else {
-         if (display->ogl_extras->pos_loc >= 0) {
-            glVertexAttribPointer(display->ogl_extras->pos_loc, 3, GL_FLOAT, false, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, x));
-            glEnableVertexAttribArray(display->ogl_extras->pos_loc);
+         if (display->ogl_extras->varlocs.pos_loc >= 0) {
+            glVertexAttribPointer(display->ogl_extras->varlocs.pos_loc, 3, GL_FLOAT, false, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, x));
+            glEnableVertexAttribArray(display->ogl_extras->varlocs.pos_loc);
          }
          
-         if (display->ogl_extras->texcoord_loc >= 0) {
-            glVertexAttribPointer(display->ogl_extras->texcoord_loc, 2, GL_FLOAT, false, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, u));
-            glEnableVertexAttribArray(display->ogl_extras->texcoord_loc);
+         if (display->ogl_extras->varlocs.texcoord_loc >= 0) {
+            glVertexAttribPointer(display->ogl_extras->varlocs.texcoord_loc, 2, GL_FLOAT, false, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, u));
+            glEnableVertexAttribArray(display->ogl_extras->varlocs.texcoord_loc);
          }
          
-         if (display->ogl_extras->color_loc >= 0) {
-            glVertexAttribPointer(display->ogl_extras->color_loc, 4, GL_FLOAT, true, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, color));
-            glEnableVertexAttribArray(display->ogl_extras->color_loc);
+         if (display->ogl_extras->varlocs.color_loc >= 0) {
+            glVertexAttribPointer(display->ogl_extras->varlocs.color_loc, 4, GL_FLOAT, true, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, color));
+            glEnableVertexAttribArray(display->ogl_extras->varlocs.color_loc);
          }
       }
 #endif
@@ -288,21 +288,21 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
 #ifndef ALLEGRO_CFG_NO_GLES2
          GLint handle;
 
-         handle = display->ogl_extras->tex_matrix_loc;
+         handle = display->ogl_extras->varlocs.tex_matrix_loc;
          if (handle >= 0)
             glUniformMatrix4fv(handle, 1, false, (float *)mat);
 
-         handle = display->ogl_extras->use_tex_matrix_loc;
+         handle = display->ogl_extras->varlocs.use_tex_matrix_loc;
          if (handle >= 0)
             glUniform1i(handle, 1);
 
-         if (display->ogl_extras->use_tex_loc >= 0) {
-            glUniform1i(display->ogl_extras->use_tex_loc, 1);
+         if (display->ogl_extras->varlocs.use_tex_loc >= 0) {
+            glUniform1i(display->ogl_extras->varlocs.use_tex_loc, 1);
          }
-         if (display->ogl_extras->tex_loc >= 0) {
+         if (display->ogl_extras->varlocs.tex_loc >= 0) {
             glBindTexture(GL_TEXTURE_2D, al_get_opengl_texture(texture));
             glActiveTexture(GL_TEXTURE0);
-            glUniform1i(display->ogl_extras->tex_loc, 0); // 0th sampler
+            glUniform1i(display->ogl_extras->varlocs.tex_loc, 0); // 0th sampler
          }
          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -336,14 +336,14 @@ static void revert_state(ALLEGRO_BITMAP* texture)
             0, 0, 0, 1
          };
          GLint handle;
-         handle = display->ogl_extras->tex_matrix_loc;
+         handle = display->ogl_extras->varlocs.tex_matrix_loc;
          if (handle >= 0)
             glUniformMatrix4fv(handle, 1, false, identity);
-         handle = display->ogl_extras->use_tex_matrix_loc;
+         handle = display->ogl_extras->varlocs.use_tex_matrix_loc;
          if (handle >= 0)
             glUniform1i(handle, 0);
-         if (display->ogl_extras->use_tex_loc >= 0)
-            glUniform1i(display->ogl_extras->use_tex_loc, 0);
+         if (display->ogl_extras->varlocs.use_tex_loc >= 0)
+            glUniform1i(display->ogl_extras->varlocs.use_tex_loc, 0);
 #endif
       }
       else {
@@ -356,12 +356,12 @@ static void revert_state(ALLEGRO_BITMAP* texture)
 
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
 #ifndef ALLEGRO_CFG_NO_GLES2
-      if (display->ogl_extras->pos_loc >= 0)
-         glDisableVertexAttribArray(display->ogl_extras->pos_loc);
-      if (display->ogl_extras->color_loc >= 0)
-         glDisableVertexAttribArray(display->ogl_extras->color_loc);
-      if (display->ogl_extras->texcoord_loc >= 0)
-         glDisableVertexAttribArray(display->ogl_extras->texcoord_loc);
+      if (display->ogl_extras->varlocs.pos_loc >= 0)
+         glDisableVertexAttribArray(display->ogl_extras->varlocs.pos_loc);
+      if (display->ogl_extras->varlocs.color_loc >= 0)
+         glDisableVertexAttribArray(display->ogl_extras->varlocs.color_loc);
+      if (display->ogl_extras->varlocs.texcoord_loc >= 0)
+         glDisableVertexAttribArray(display->ogl_extras->varlocs.texcoord_loc);
 #endif
    }
    else {

@@ -84,9 +84,9 @@ static void vert_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, vo
 /* Only use this shader stuff with GLES2+ or equivalent */
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
 #ifndef ALLEGRO_CFG_NO_GLES2
-      if (display->ogl_extras->pos_loc >= 0) {
-         glVertexAttribPointer(display->ogl_extras->pos_loc, n, t, false, stride, v);
-         glEnableVertexAttribArray(display->ogl_extras->pos_loc);
+      if (display->ogl_extras->varlocs.pos_loc >= 0) {
+         glVertexAttribPointer(display->ogl_extras->varlocs.pos_loc, n, t, false, stride, v);
+         glEnableVertexAttribArray(display->ogl_extras->varlocs.pos_loc);
       }
 #endif
    }
@@ -100,8 +100,8 @@ static void vert_ptr_off(ALLEGRO_DISPLAY *display)
 {
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
 #ifndef ALLEGRO_CFG_NO_GLES2
-      if (display->ogl_extras->pos_loc >= 0) {
-         glDisableVertexAttribArray(display->ogl_extras->pos_loc);
+      if (display->ogl_extras->varlocs.pos_loc >= 0) {
+         glDisableVertexAttribArray(display->ogl_extras->varlocs.pos_loc);
       }
 #endif
    }
@@ -114,9 +114,9 @@ static void color_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, v
 {
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
 #ifndef ALLEGRO_CFG_NO_GLES2
-      if (display->ogl_extras->color_loc >= 0) {
-         glVertexAttribPointer(display->ogl_extras->color_loc, n, t, false, stride, v);
-         glEnableVertexAttribArray(display->ogl_extras->color_loc);
+      if (display->ogl_extras->varlocs.color_loc >= 0) {
+         glVertexAttribPointer(display->ogl_extras->varlocs.color_loc, n, t, false, stride, v);
+         glEnableVertexAttribArray(display->ogl_extras->varlocs.color_loc);
       }
 #endif
    }
@@ -130,8 +130,8 @@ static void color_ptr_off(ALLEGRO_DISPLAY *display)
 {
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
 #ifndef ALLEGRO_CFG_NO_GLES2
-      if (display->ogl_extras->color_loc >= 0) {
-         glDisableVertexAttribArray(display->ogl_extras->color_loc);
+      if (display->ogl_extras->varlocs.color_loc >= 0) {
+         glDisableVertexAttribArray(display->ogl_extras->varlocs.color_loc);
       }
 #endif
    }
@@ -144,9 +144,9 @@ static void tex_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, voi
 {
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
 #ifndef ALLEGRO_CFG_NO_GLES2
-      if (display->ogl_extras->texcoord_loc >= 0) {
-         glVertexAttribPointer(display->ogl_extras->texcoord_loc, n, t, false, stride, v);
-         glEnableVertexAttribArray(display->ogl_extras->texcoord_loc);
+      if (display->ogl_extras->varlocs.texcoord_loc >= 0) {
+         glVertexAttribPointer(display->ogl_extras->varlocs.texcoord_loc, n, t, false, stride, v);
+         glEnableVertexAttribArray(display->ogl_extras->varlocs.texcoord_loc);
       }
 #endif
    }
@@ -160,8 +160,8 @@ static void tex_ptr_off(ALLEGRO_DISPLAY *display)
 {
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
 #ifndef ALLEGRO_CFG_NO_GLES2
-      if (display->ogl_extras->texcoord_loc >= 0) {
-         glDisableVertexAttribArray(display->ogl_extras->texcoord_loc);
+      if (display->ogl_extras->varlocs.texcoord_loc >= 0) {
+         glDisableVertexAttribArray(display->ogl_extras->varlocs.texcoord_loc);
       }
 #endif
    }
@@ -328,11 +328,11 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
 
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
 #ifndef ALLEGRO_CFG_NO_GLES2
-      if (disp->ogl_extras->use_tex_loc >= 0) {
-         glUniform1i(disp->ogl_extras->use_tex_loc, 1);
+      if (disp->ogl_extras->varlocs.use_tex_loc >= 0) {
+         glUniform1i(disp->ogl_extras->varlocs.use_tex_loc, 1);
       }
-      if (disp->ogl_extras->use_tex_matrix_loc >= 0) {
-         glUniform1i(disp->ogl_extras->use_tex_matrix_loc, 0);
+      if (disp->ogl_extras->varlocs.use_tex_matrix_loc >= 0) {
+         glUniform1i(disp->ogl_extras->varlocs.use_tex_matrix_loc, 0);
       }
 #endif
    }
@@ -346,8 +346,8 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
 #ifndef ALLEGRO_CFG_NO_GLES2
          /* Use texture unit 0 */
          glActiveTexture(GL_TEXTURE0);
-         if (disp->ogl_extras->tex_loc >= 0)
-            glUniform1i(disp->ogl_extras->tex_loc, 0);
+         if (disp->ogl_extras->varlocs.tex_loc >= 0)
+            glUniform1i(disp->ogl_extras->varlocs.tex_loc, 0);
 #endif
       }
       glBindTexture(GL_TEXTURE_2D, disp->cache_texture);
@@ -377,22 +377,22 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
       /* Finally set the "pos", "texccord" and "color" attributes used by our
        * shader and enable them.
        */
-      if (o->pos_loc >= 0)  {
-         glVertexAttribPointer(o->pos_loc, 2, GL_FLOAT, false, stride,
+      if (o->varlocs.pos_loc >= 0)  {
+         glVertexAttribPointer(o->varlocs.pos_loc, 2, GL_FLOAT, false, stride,
             (void *)offsetof(ALLEGRO_OGL_BITMAP_VERTEX, x));
-         glEnableVertexAttribArray(o->pos_loc);
+         glEnableVertexAttribArray(o->varlocs.pos_loc);
       }
 
-      if (o->texcoord_loc >= 0) {
-         glVertexAttribPointer(o->texcoord_loc, 2, GL_FLOAT, false, stride,
+      if (o->varlocs.texcoord_loc >= 0) {
+         glVertexAttribPointer(o->varlocs.texcoord_loc, 2, GL_FLOAT, false, stride,
             (void *)offsetof(ALLEGRO_OGL_BITMAP_VERTEX, tx));
-         glEnableVertexAttribArray(o->texcoord_loc);
+         glEnableVertexAttribArray(o->varlocs.texcoord_loc);
       }
       
-      if (o->color_loc >= 0) {
-         glVertexAttribPointer(o->color_loc, 4, GL_FLOAT, false, stride,
+      if (o->varlocs.color_loc >= 0) {
+         glVertexAttribPointer(o->varlocs.color_loc, 4, GL_FLOAT, false, stride,
             (void *)offsetof(ALLEGRO_OGL_BITMAP_VERTEX, r));
-         glEnableVertexAttribArray(o->color_loc);
+         glEnableVertexAttribArray(o->varlocs.color_loc);
       }
    }
    else
@@ -423,9 +423,12 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
 
 #if !defined ALLEGRO_CFG_OPENGLES && !defined ALLEGRO_MACOSX
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-      if (o->pos_loc >= 0) glDisableVertexAttribArray(o->pos_loc);
-      if (o->texcoord_loc >= 0) glDisableVertexAttribArray(o->texcoord_loc);
-      if (o->color_loc >= 0) glDisableVertexAttribArray(o->color_loc);
+      if (o->varlocs.pos_loc >= 0)
+         glDisableVertexAttribArray(o->varlocs.pos_loc);
+      if (o->varlocs.texcoord_loc >= 0)
+         glDisableVertexAttribArray(o->varlocs.texcoord_loc);
+      if (o->varlocs.color_loc >= 0)
+         glDisableVertexAttribArray(o->varlocs.color_loc);
       glBindBuffer(GL_ARRAY_BUFFER, 0);
       glBindVertexArray(0);
    }
@@ -441,8 +444,8 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
 
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
 #ifndef ALLEGRO_CFG_NO_GLES2
-      if (disp->ogl_extras->use_tex_loc >= 0)
-         glUniform1i(disp->ogl_extras->use_tex_loc, 0);
+      if (disp->ogl_extras->varlocs.use_tex_loc >= 0)
+         glUniform1i(disp->ogl_extras->varlocs.use_tex_loc, 0);
 #endif
    }
    else {
