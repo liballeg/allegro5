@@ -80,6 +80,7 @@ typedef struct ALLEGRO_OGL_VARLOCS
    /* Cached shader variable locations. */
    GLint pos_loc;
    GLint color_loc;
+   GLint projview_matrix_loc;
    GLint texcoord_loc;
    GLint use_tex_loc;
    GLint tex_loc;
@@ -176,7 +177,7 @@ void _al_ogl_update_render_state(ALLEGRO_DISPLAY *display);
 
 /* shader */
 #ifdef ALLEGRO_CFG_SHADER_GLSL
-   bool _al_glsl_set_projview_matrix(GLuint program_object,
+   bool _al_glsl_set_projview_matrix(GLint projview_matrix_loc,
       const ALLEGRO_TRANSFORM *t);
 #endif
 

@@ -467,11 +467,11 @@ static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
 
    if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
 #ifdef ALLEGRO_CFG_SHADER_GLSL
-      GLuint program_object = disp->ogl_extras->program_object;
+      GLint loc = disp->ogl_extras->varlocs.projview_matrix_loc;
       al_copy_transform(&disp->view_transform, &tmp);
-      if (program_object > 0) {
+      if (disp->ogl_extras->program_object > 0 && loc >= 0) {
          al_compose_transform(&tmp, &disp->proj_transform);
-         _al_glsl_set_projview_matrix(program_object, &tmp);
+         _al_glsl_set_projview_matrix(loc, &tmp);
          return;
       }
 #endif
@@ -485,12 +485,12 @@ static void ogl_set_projection(ALLEGRO_DISPLAY *d)
 {
    if (d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
 #ifdef ALLEGRO_CFG_SHADER_GLSL
-      GLuint program_object = d->ogl_extras->program_object;
-      if (program_object > 0) {
+      GLint loc = d->ogl_extras->varlocs.projview_matrix_loc;
+      if (d->ogl_extras->program_object > 0 && loc >= 0) {
          ALLEGRO_TRANSFORM t;
          al_copy_transform(&t, &d->view_transform);
          al_compose_transform(&t, &d->proj_transform);
-         _al_glsl_set_projview_matrix(program_object, &t);
+         _al_glsl_set_projview_matrix(loc, &t);
          return;
       }
 #endif
