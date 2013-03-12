@@ -949,8 +949,9 @@ void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 
    previous_target = NULL;
 
-   if (al_display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-      ((ALLEGRO_SHADER_HLSL_S *)al_display->default_shader)->hlsl_shader->OnLostDevice();
+   ALLEGRO_SHADER *default_shader = al_display->default_shader;
+   if (default_shader && default_shader->vt->on_lost_device) {
+      default_shader->vt->on_lost_device(default_shader);
    }
 
    if (al_display->display_invalidated)
@@ -1098,8 +1099,9 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
 
    d3d_display->device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &d3d_display->render_target);
 
-   if (al_display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-      ((ALLEGRO_SHADER_HLSL_S *)al_display->default_shader)->hlsl_shader->OnResetDevice();
+   ALLEGRO_SHADER *default_shader = al_display->default_shader;
+   if (default_shader && default_shader->vt->on_reset_device) {
+      default_shader->vt->on_reset_device(default_shader);
    }
 
    _al_d3d_refresh_texture_memory(al_display);

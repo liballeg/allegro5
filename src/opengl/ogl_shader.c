@@ -469,6 +469,8 @@ static struct ALLEGRO_SHADER_INTERFACE shader_glsl_vt =
    glsl_use_shader,
    glsl_unuse_shader,
    glsl_destroy_shader,
+   NULL, /* on_lost_device */
+   NULL, /* on_reset_device */
    glsl_set_shader_sampler,
    glsl_set_shader_matrix,
    glsl_set_shader_int,

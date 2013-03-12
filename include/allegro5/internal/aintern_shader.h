@@ -16,6 +16,8 @@ struct ALLEGRO_SHADER_INTERFACE
             bool set_projview_matrix_from_display);
    void (*unuse_shader)(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *dpy);
    void (*destroy_shader)(ALLEGRO_SHADER *shader);
+   void (*on_lost_device)(ALLEGRO_SHADER *shader);
+   void (*on_reset_device)(ALLEGRO_SHADER *shader);
 
    bool (*set_shader_sampler)(ALLEGRO_SHADER *shader, const char *name,
          ALLEGRO_BITMAP *bitmap, int unit);

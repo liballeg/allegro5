@@ -25,15 +25,6 @@ extern "C" {
 #endif
 
 
-typedef struct ALLEGRO_SHADER_HLSL_S ALLEGRO_SHADER_HLSL_S;
-
-struct ALLEGRO_SHADER_HLSL_S
-{
-   ALLEGRO_SHADER shader;
-   LPD3DXEFFECT hlsl_shader;
-};
-
-
 /* Flexible vertex formats */
 // Fixed pipeline vertex
 #define D3DFVF_FIXED_VERTEX (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)

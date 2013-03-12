@@ -26,9 +26,16 @@
 #include <d3dx9.h>
 #include <stdio.h>
 
-#include "d3d.h"
-
 ALLEGRO_DEBUG_CHANNEL("shader")
+
+
+typedef struct ALLEGRO_SHADER_HLSL_S ALLEGRO_SHADER_HLSL_S;
+
+struct ALLEGRO_SHADER_HLSL_S
+{
+   ALLEGRO_SHADER shader;
+   LPD3DXEFFECT hlsl_shader;
+};
 
 
 // DXSDK redistributable install d3dx9_xx.dll from version
@@ -165,6 +172,8 @@ static bool hlsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
                bool set_projview_matrix_from_display);
 static void hlsl_unuse_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display);
 static void hlsl_destroy_shader(ALLEGRO_SHADER *shader);
+static void hlsl_on_lost_device(ALLEGRO_SHADER *shader);
+static void hlsl_on_reset_device(ALLEGRO_SHADER *shader);
 static bool hlsl_set_shader_sampler(ALLEGRO_SHADER *shader,
                const char *name, ALLEGRO_BITMAP *bitmap, int unit);
 static bool hlsl_set_shader_matrix(ALLEGRO_SHADER *shader,
@@ -193,6 +202,8 @@ static struct ALLEGRO_SHADER_INTERFACE shader_hlsl_vt =
    hlsl_use_shader,
    hlsl_unuse_shader,
    hlsl_destroy_shader,
+   hlsl_on_lost_device,
+   hlsl_on_reset_device,
    hlsl_set_shader_sampler,
    hlsl_set_shader_matrix,
    hlsl_set_shader_int,
@@ -384,6 +395,18 @@ static void hlsl_destroy_shader(ALLEGRO_SHADER *shader)
    hlsl_shader->hlsl_shader->Release();
 
    al_free(shader);
+}
+
+static void hlsl_on_lost_device(ALLEGRO_SHADER *shader)
+{
+   ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
+   hlsl_shader->hlsl_shader->OnLostDevice();
+}
+
+static void hlsl_on_reset_device(ALLEGRO_SHADER *shader)
+{
+   ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
+   hlsl_shader->hlsl_shader->OnResetDevice();
 }
 
 static bool hlsl_set_shader_sampler(ALLEGRO_SHADER *shader,
