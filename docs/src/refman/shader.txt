@@ -277,30 +277,6 @@ Same as [al_set_shader_int_vector] except all values are float instead of int.
 
 Since: 5.1.0
 
-## API: al_set_shader_vertex_array
-
-Sets a vertex attribute.
-
-FIXME: Right now each array element is a 3-component vector.
-
-Since: 5.1.0
-
-## API: al_set_shader_color_array
-
-Sets a vertex attribute.
-
-FIXME: Right now each array element is a 4-component vector.
-
-Since: 5.1.0
-
-## API: al_set_shader_texcoord_array
-
-Sets a vertex attribute.
-
-FIXME: Right now each array element is a 2-component vector.
-
-Since: 5.1.0
-
 ## API: al_get_default_shader_source
 
 Returns a string containing the source code to Allegro's default vertex or pixel

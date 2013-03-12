@@ -188,12 +188,6 @@ static bool hlsl_set_shader_float_vector(ALLEGRO_SHADER *shader,
                const char *name, int num_components, float *f, int num_elems);
 static bool hlsl_set_shader_bool(ALLEGRO_SHADER *shader,
                const char *name, bool b);
-static bool hlsl_set_shader_vertex_array(ALLEGRO_SHADER *shader,
-               float *v, int stride);
-static bool hlsl_set_shader_color_array(ALLEGRO_SHADER *shader,
-               unsigned char *c, int stride);
-static bool hlsl_set_shader_texcoord_array(ALLEGRO_SHADER *shader,
-               float *u, int stride);
 
 static struct ALLEGRO_SHADER_INTERFACE shader_hlsl_vt =
 {
@@ -210,10 +204,7 @@ static struct ALLEGRO_SHADER_INTERFACE shader_hlsl_vt =
    hlsl_set_shader_float,
    hlsl_set_shader_int_vector,
    hlsl_set_shader_float_vector,
-   hlsl_set_shader_bool,
-   hlsl_set_shader_vertex_array,
-   hlsl_set_shader_color_array,
-   hlsl_set_shader_texcoord_array
+   hlsl_set_shader_bool
 };
 
 
@@ -498,33 +489,6 @@ static bool hlsl_set_shader_bool(ALLEGRO_SHADER *shader,
    result = hlsl_shader->hlsl_shader->SetBool(name, b);
 
    return result == D3D_OK;
-}
-
-static bool hlsl_set_shader_vertex_array(ALLEGRO_SHADER *shader,
-   float *v, int stride)
-{
-   (void)shader;
-   (void)v;
-   (void)stride;
-   return true;
-}
-
-static bool hlsl_set_shader_color_array(ALLEGRO_SHADER *shader,
-   unsigned char *c, int stride)
-{
-   (void)shader;
-   (void)c;
-   (void)stride;
-   return true;
-}
-
-static bool hlsl_set_shader_texcoord_array(ALLEGRO_SHADER *shader,
-   float *u, int stride)
-{
-   (void)shader;
-   (void)u;
-   (void)stride;
-   return true;
 }
 
 bool _al_hlsl_set_projview_matrix(

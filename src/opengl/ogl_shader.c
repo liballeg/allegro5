@@ -400,69 +400,6 @@ static bool glsl_set_shader_bool(ALLEGRO_SHADER *shader,
    return glsl_set_shader_int(shader, name, b);
 }
 
-static bool glsl_set_shader_vertex_array(ALLEGRO_SHADER *shader,
-   float *v, int stride)
-{
-   ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
-   GLint loc;
-
-   loc = glGetAttribLocation(gl_shader->program_object, ALLEGRO_SHADER_VAR_POS);
-   if (loc < 0)
-      return false;
-
-   if (v == NULL) {
-      glDisableVertexAttribArray(loc);
-      return true;
-   }
-
-   glVertexAttribPointer(loc, 3, GL_FLOAT, false, stride, v);
-   glEnableVertexAttribArray(loc);
-
-   return true;
-}
-
-static bool glsl_set_shader_color_array(ALLEGRO_SHADER *shader,
-   unsigned char *c, int stride)
-{
-   ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
-   GLint loc;
-
-   loc = glGetAttribLocation(gl_shader->program_object, ALLEGRO_SHADER_VAR_COLOR);
-   if (loc < 0)
-      return false;
-
-   if (c == NULL) {
-      glDisableVertexAttribArray(loc);
-      return true;
-   }
-
-   glVertexAttribPointer(loc, 4, GL_FLOAT, true, stride, (float *)c);
-   glEnableVertexAttribArray(loc);
-
-   return true;
-}
-
-static bool glsl_set_shader_texcoord_array(ALLEGRO_SHADER *shader,
-   float *u, int stride)
-{
-   ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
-   GLint loc;
-
-   loc = glGetAttribLocation(gl_shader->program_object, ALLEGRO_SHADER_VAR_TEXCOORD);
-   if (loc < 0)
-      return false;
-
-   if (u == NULL) {
-      glDisableVertexAttribArray(loc);
-      return true;
-   }
-
-   glVertexAttribPointer(loc, 2, GL_FLOAT, false, stride, u);
-   glEnableVertexAttribArray(loc);
-
-   return true;
-}
-
 static struct ALLEGRO_SHADER_INTERFACE shader_glsl_vt =
 {
    glsl_link_shader,
@@ -478,10 +415,7 @@ static struct ALLEGRO_SHADER_INTERFACE shader_glsl_vt =
    glsl_set_shader_float,
    glsl_set_shader_int_vector,
    glsl_set_shader_float_vector,
-   glsl_set_shader_bool,
-   glsl_set_shader_vertex_array,
-   glsl_set_shader_color_array,
-   glsl_set_shader_texcoord_array
+   glsl_set_shader_bool
 };
 
 void _al_glsl_lookup_locations(ALLEGRO_OGL_EXTRAS *ogl_extras, GLuint program)

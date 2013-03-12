@@ -66,10 +66,6 @@ AL_FUNC(bool, al_set_shader_float_vector, (const char *name, int num_components,
    float *f, int num_elems));
 AL_FUNC(bool, al_set_shader_bool, (const char *name, bool b));
 
-AL_FUNC(bool, al_set_shader_vertex_array, (float *v, int stride));
-AL_FUNC(bool, al_set_shader_color_array, (unsigned char *c, int stride));
-AL_FUNC(bool, al_set_shader_texcoord_array, (float *u, int stride));
-
 AL_FUNC(char const *, al_get_default_shader_source, (ALLEGRO_SHADER_PLATFORM platform,
    ALLEGRO_SHADER_TYPE type));
 

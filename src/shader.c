@@ -374,66 +374,6 @@ bool al_set_shader_bool(const char *name, bool b)
    }
 }
 
-/* Function: al_set_shader_vertex_array
- */
-bool al_set_shader_vertex_array(float *v, int stride)
-{
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_SHADER *shader;
-
-   if ((bmp = al_get_target_bitmap()) != NULL) {
-      if ((shader = bmp->shader) != NULL) {
-         return shader->vt->set_shader_vertex_array(shader, v, stride);
-      }
-      else {
-         return false;
-      }
-   }
-   else {
-      return false;
-   }
-}
-
-/* Function: al_set_shader_color_array
- */
-bool al_set_shader_color_array(unsigned char *c, int stride)
-{
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_SHADER *shader;
-
-   if ((bmp = al_get_target_bitmap()) != NULL) {
-      if ((shader = bmp->shader) != NULL) {
-         return shader->vt->set_shader_color_array(shader, c, stride);
-      }
-      else {
-         return false;
-      }
-   }
-   else {
-      return false;
-   }
-}
-
-/* Function: al_set_shader_texcoord_array
- */
-bool al_set_shader_texcoord_array(float *u, int stride)
-{
-   ALLEGRO_BITMAP *bmp;
-   ALLEGRO_SHADER *shader;
-
-   if ((bmp = al_get_target_bitmap()) != NULL) {
-      if ((shader = bmp->shader) != NULL) {
-         return shader->vt->set_shader_texcoord_array(shader, u, stride);
-      }
-      else {
-         return false;
-      }
-   }
-   else {
-      return false;
-   }
-}
-
 /* Function: al_get_default_shader_source
  */
 char const *al_get_default_shader_source(ALLEGRO_SHADER_PLATFORM platform,
