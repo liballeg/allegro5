@@ -71,8 +71,8 @@ int main(void)
    }
    if (!al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, pixel_file))
       abort_example("al_attach_shader_source_file for pixel shader failed: %s\n", al_get_shader_log(shader));
-   if (!al_link_shader(shader))
-      abort_example("al_link_shader failed: %s\n", al_get_shader_log(shader));
+   if (!al_build_shader(shader))
+      abort_example("al_build_shader failed: %s\n", al_get_shader_log(shader));
 
    al_use_shader(shader);
 

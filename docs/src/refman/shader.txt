@@ -148,22 +148,22 @@ the named file.
 
 Since: 5.1.0
 
-## API: al_link_shader
+## API: al_build_shader
 
 This is reqired before the shader can be used with [al_use_shader]. It should
-be called after successfully compiling the pixel and/or vertex shaders with
+be called after successfully attaching the pixel and/or vertex shaders with
 [al_attach_shader_source] or [al_attach_shader_source_file].
 
 Returns true on access and false on error, in which case the error log is
 updated. The error log can be retrieved with [al_get_shader_log].
 
-Since: 5.1.0
+Since: 5.1.6
 
 ## API: al_get_shader_log
 
 Return a read-only string containing the information log for a shader program.
 The log is updated by certain functions, such as [al_attach_shader_source]
-or [al_link_shader] when there is an error.
+or [al_build_shader] when there is an error.
 
 This function never returns NULL.
 

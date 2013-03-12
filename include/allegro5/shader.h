@@ -48,7 +48,7 @@ AL_FUNC(bool, al_attach_shader_source, (ALLEGRO_SHADER *shader,
    ALLEGRO_SHADER_TYPE type, const char *source));
 AL_FUNC(bool, al_attach_shader_source_file, (ALLEGRO_SHADER *shader,
    ALLEGRO_SHADER_TYPE type, const char *filename));
-AL_FUNC(bool, al_link_shader, (ALLEGRO_SHADER *shader));
+AL_FUNC(bool, al_build_shader, (ALLEGRO_SHADER *shader));
 AL_FUNC(const char *, al_get_shader_log, (ALLEGRO_SHADER *shader));
 AL_FUNC(ALLEGRO_SHADER_PLATFORM, al_get_shader_platform, (ALLEGRO_SHADER *shader));
 AL_FUNC(bool, al_use_shader, (ALLEGRO_SHADER *shader));

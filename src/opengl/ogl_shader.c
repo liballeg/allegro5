@@ -73,7 +73,7 @@ ALLEGRO_SHADER *_al_create_shader_glsl(ALLEGRO_SHADER_PLATFORM platform)
    return (ALLEGRO_SHADER *)shader;
 }
 
-static bool glsl_link_shader(ALLEGRO_SHADER *shader)
+static bool glsl_build_shader(ALLEGRO_SHADER *shader)
 {
    GLint status;
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
@@ -403,7 +403,7 @@ static bool glsl_set_shader_bool(ALLEGRO_SHADER *shader,
 
 static struct ALLEGRO_SHADER_INTERFACE shader_glsl_vt =
 {
-   glsl_link_shader,
+   glsl_build_shader,
    glsl_attach_shader_source,
    glsl_use_shader,
    glsl_unuse_shader,

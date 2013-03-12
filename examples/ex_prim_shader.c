@@ -130,8 +130,8 @@ int main(void)
          al_get_shader_log(shader));
    }
 
-   if (!al_link_shader(shader)) {
-      abort_example("al_link_shader for link failed: %s\n", al_get_shader_log(shader));
+   if (!al_build_shader(shader)) {
+      abort_example("al_build_shader for link failed: %s\n", al_get_shader_log(shader));
    }
 
    al_use_shader(shader);

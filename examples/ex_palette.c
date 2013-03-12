@@ -151,7 +151,7 @@ int main(void)
       "}\n"
    );
    
-   al_link_shader(shader);
+   al_build_shader(shader);
    al_use_shader(shader);
 
    timer = al_create_timer(1.0 / 60);

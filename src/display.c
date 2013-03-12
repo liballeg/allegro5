@@ -654,8 +654,8 @@ static ALLEGRO_SHADER *create_default_shader(int display_flags)
          al_get_shader_log(shader));
       goto fail;
    }
-   if (!al_link_shader(shader)) {
-      ALLEGRO_ERROR("al_link_shader failed: %s\n", al_get_shader_log(shader));
+   if (!al_build_shader(shader)) {
+      ALLEGRO_ERROR("al_build_shader failed: %s\n", al_get_shader_log(shader));
       goto fail;
    }
    return shader;

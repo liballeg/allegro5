@@ -78,12 +78,12 @@ ALLEGRO_SHADER *al_create_shader(ALLEGRO_SHADER_PLATFORM platform)
    return shader;
 }
 
-/* Function: al_link_shader
+/* Function: al_build_shader
  */
-bool al_link_shader(ALLEGRO_SHADER *shader)
+bool al_build_shader(ALLEGRO_SHADER *shader)
 {
    ASSERT(shader);
-   return shader->vt->link_shader(shader);
+   return shader->vt->build_shader(shader);
 }
 
 /* Function: al_attach_shader_source

@@ -9,7 +9,7 @@ typedef struct ALLEGRO_SHADER_INTERFACE ALLEGRO_SHADER_INTERFACE;
 
 struct ALLEGRO_SHADER_INTERFACE
 {
-   bool (*link_shader)(ALLEGRO_SHADER *shader);
+   bool (*build_shader)(ALLEGRO_SHADER *shader);
    bool (*attach_shader_source)(ALLEGRO_SHADER *shader,
          ALLEGRO_SHADER_TYPE type, const char *source);
    bool (*use_shader)(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *dpy,

@@ -165,7 +165,7 @@ bool _al_load_d3dx9_module()
 }
 
 
-static bool hlsl_link_shader(ALLEGRO_SHADER *shader);
+static bool hlsl_build_shader(ALLEGRO_SHADER *shader);
 static bool hlsl_attach_shader_source(ALLEGRO_SHADER *shader,
                ALLEGRO_SHADER_TYPE type, const char *source);
 static bool hlsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
@@ -191,7 +191,7 @@ static bool hlsl_set_shader_bool(ALLEGRO_SHADER *shader,
 
 static struct ALLEGRO_SHADER_INTERFACE shader_hlsl_vt =
 {
-   hlsl_link_shader,
+   hlsl_build_shader,
    hlsl_attach_shader_source,
    hlsl_use_shader,
    hlsl_unuse_shader,
@@ -231,7 +231,7 @@ ALLEGRO_SHADER *_al_create_shader_hlsl(ALLEGRO_SHADER_PLATFORM platform)
    return (ALLEGRO_SHADER *)shader;
 }
 
-static bool hlsl_link_shader(ALLEGRO_SHADER *shader)
+static bool hlsl_build_shader(ALLEGRO_SHADER *shader)
 {
    (void)shader;
    return true;

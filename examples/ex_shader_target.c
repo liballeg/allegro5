@@ -95,8 +95,8 @@ int main(void)
       abort_example("al_attach_shader_source_file failed: %s\n",
          al_get_shader_log(shader));
    }
-   if (!al_link_shader(shader)) {
-      abort_example("al_link_shader failed: %s\n", al_get_shader_log(shader));
+   if (!al_build_shader(shader)) {
+      abort_example("al_build_shader failed: %s\n", al_get_shader_log(shader));
    }
 
    /* Create four sub-bitmaps of the backbuffer sharing a shader. */
