@@ -78,14 +78,6 @@ ALLEGRO_SHADER *al_create_shader(ALLEGRO_SHADER_PLATFORM platform)
    return shader;
 }
 
-/* Function: al_build_shader
- */
-bool al_build_shader(ALLEGRO_SHADER *shader)
-{
-   ASSERT(shader);
-   return shader->vt->build_shader(shader);
-}
-
 /* Function: al_attach_shader_source
  */
 bool al_attach_shader_source(ALLEGRO_SHADER *shader, ALLEGRO_SHADER_TYPE type,
@@ -126,6 +118,14 @@ bool al_attach_shader_source_file(ALLEGRO_SHADER *shader,
    ret = al_attach_shader_source(shader, type, al_cstr(str));
    al_ustr_free(str);
    return ret;
+}
+
+/* Function: al_build_shader
+ */
+bool al_build_shader(ALLEGRO_SHADER *shader)
+{
+   ASSERT(shader);
+   return shader->vt->build_shader(shader);
 }
 
 /* Function: al_get_shader_log

@@ -165,9 +165,9 @@ bool _al_load_d3dx9_module()
 }
 
 
-static bool hlsl_build_shader(ALLEGRO_SHADER *shader);
 static bool hlsl_attach_shader_source(ALLEGRO_SHADER *shader,
                ALLEGRO_SHADER_TYPE type, const char *source);
+static bool hlsl_build_shader(ALLEGRO_SHADER *shader);
 static bool hlsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
                bool set_projview_matrix_from_display);
 static void hlsl_unuse_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display);
@@ -191,8 +191,8 @@ static bool hlsl_set_shader_bool(ALLEGRO_SHADER *shader,
 
 static struct ALLEGRO_SHADER_INTERFACE shader_hlsl_vt =
 {
-   hlsl_build_shader,
    hlsl_attach_shader_source,
+   hlsl_build_shader,
    hlsl_use_shader,
    hlsl_unuse_shader,
    hlsl_destroy_shader,
@@ -229,12 +229,6 @@ ALLEGRO_SHADER *_al_create_shader_hlsl(ALLEGRO_SHADER_PLATFORM platform)
    shader->shader.vertex_copy = al_ustr_new("");
 
    return (ALLEGRO_SHADER *)shader;
-}
-
-static bool hlsl_build_shader(ALLEGRO_SHADER *shader)
-{
-   (void)shader;
-   return true;
 }
 
 static bool hlsl_attach_shader_source(ALLEGRO_SHADER *shader,
@@ -341,6 +335,12 @@ static bool hlsl_attach_shader_source(ALLEGRO_SHADER *shader,
    hlsl_shader->hlsl_shader->ValidateTechnique(hTech);
    hlsl_shader->hlsl_shader->SetTechnique(hTech);
 
+   return true;
+}
+
+static bool hlsl_build_shader(ALLEGRO_SHADER *shader)
+{
+   (void)shader;
    return true;
 }
 

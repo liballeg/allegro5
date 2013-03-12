@@ -73,53 +73,6 @@ ALLEGRO_SHADER *_al_create_shader_glsl(ALLEGRO_SHADER_PLATFORM platform)
    return (ALLEGRO_SHADER *)shader;
 }
 
-static bool glsl_build_shader(ALLEGRO_SHADER *shader)
-{
-   GLint status;
-   ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
-   GLchar error_buf[4096];
-
-   if (gl_shader->vertex_shader == 0 && gl_shader->pixel_shader == 0)
-      return false;
-
-   if (gl_shader->program_object != 0) {
-      glDeleteProgram(gl_shader->program_object);
-   }
-
-   gl_shader->program_object = glCreateProgram();
-   if (gl_shader->program_object == 0)
-      return false;
-   
-   if (gl_shader->vertex_shader)
-      glAttachShader(gl_shader->program_object, gl_shader->vertex_shader);
-   if (gl_shader->pixel_shader)
-      glAttachShader(gl_shader->program_object, gl_shader->pixel_shader);
-  
-   glLinkProgram(gl_shader->program_object);
-
-   glGetProgramiv(gl_shader->program_object, GL_LINK_STATUS, &status);
-
-   if (status == 0) {
-      glGetProgramInfoLog(gl_shader->program_object, sizeof(error_buf), NULL,
-         error_buf);
-      if (shader->log) {
-         al_ustr_truncate(shader->log, 0);
-         al_ustr_append_cstr(shader->log, error_buf);
-      }
-      else {
-         shader->log = al_ustr_new(error_buf);
-      }
-      ALLEGRO_ERROR("Link error: %s\n", error_buf);
-      glDeleteProgram(gl_shader->program_object);
-      return false;
-   }
-
-   /* Look up variable locations. */
-   lookup_varlocs(&gl_shader->varlocs, gl_shader->program_object);
-
-   return true;
-}
-
 static bool glsl_attach_shader_source(ALLEGRO_SHADER *shader,
    ALLEGRO_SHADER_TYPE type, const char *source)
 {
@@ -183,14 +136,51 @@ static bool glsl_attach_shader_source(ALLEGRO_SHADER *shader,
    return true;
 }
 
-static void glsl_destroy_shader(ALLEGRO_SHADER *shader)
+static bool glsl_build_shader(ALLEGRO_SHADER *shader)
 {
+   GLint status;
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
+   GLchar error_buf[4096];
 
-   glDeleteShader(gl_shader->vertex_shader);
-   glDeleteShader(gl_shader->pixel_shader);
-   glDeleteProgram(gl_shader->program_object);
-   al_free(shader);
+   if (gl_shader->vertex_shader == 0 && gl_shader->pixel_shader == 0)
+      return false;
+
+   if (gl_shader->program_object != 0) {
+      glDeleteProgram(gl_shader->program_object);
+   }
+
+   gl_shader->program_object = glCreateProgram();
+   if (gl_shader->program_object == 0)
+      return false;
+
+   if (gl_shader->vertex_shader)
+      glAttachShader(gl_shader->program_object, gl_shader->vertex_shader);
+   if (gl_shader->pixel_shader)
+      glAttachShader(gl_shader->program_object, gl_shader->pixel_shader);
+
+   glLinkProgram(gl_shader->program_object);
+
+   glGetProgramiv(gl_shader->program_object, GL_LINK_STATUS, &status);
+
+   if (status == 0) {
+      glGetProgramInfoLog(gl_shader->program_object, sizeof(error_buf), NULL,
+         error_buf);
+      if (shader->log) {
+         al_ustr_truncate(shader->log, 0);
+         al_ustr_append_cstr(shader->log, error_buf);
+      }
+      else {
+         shader->log = al_ustr_new(error_buf);
+      }
+      ALLEGRO_ERROR("Link error: %s\n", error_buf);
+      glDeleteProgram(gl_shader->program_object);
+      return false;
+   }
+
+   /* Look up variable locations. */
+   lookup_varlocs(&gl_shader->varlocs, gl_shader->program_object);
+
+   return true;
 }
 
 static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
@@ -242,6 +232,16 @@ static void glsl_unuse_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display)
    (void)shader;
    (void)display;
    glUseProgram(0);
+}
+
+static void glsl_destroy_shader(ALLEGRO_SHADER *shader)
+{
+   ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
+
+   glDeleteShader(gl_shader->vertex_shader);
+   glDeleteShader(gl_shader->pixel_shader);
+   glDeleteProgram(gl_shader->program_object);
+   al_free(shader);
 }
 
 static bool glsl_set_shader_sampler(ALLEGRO_SHADER *shader,
@@ -403,8 +403,8 @@ static bool glsl_set_shader_bool(ALLEGRO_SHADER *shader,
 
 static struct ALLEGRO_SHADER_INTERFACE shader_glsl_vt =
 {
-   glsl_build_shader,
    glsl_attach_shader_source,
+   glsl_build_shader,
    glsl_use_shader,
    glsl_unuse_shader,
    glsl_destroy_shader,
