@@ -30,6 +30,24 @@
 
 ALLEGRO_DEBUG_CHANNEL("shader")
 
+
+typedef struct ALLEGRO_SHADER_GLSL_S ALLEGRO_SHADER_GLSL_S;
+
+struct ALLEGRO_SHADER_GLSL_S
+{
+   ALLEGRO_SHADER shader;
+   GLuint vertex_shader;
+   GLuint pixel_shader;
+   GLuint program_object;
+   ALLEGRO_OGL_VARLOCS varlocs;
+};
+
+
+/* forward declarations */
+static struct ALLEGRO_SHADER_INTERFACE shader_glsl_vt;
+static void lookup_varlocs(ALLEGRO_OGL_VARLOCS *varlocs, GLuint program);
+
+
 static bool check_gl_error(const char* name)
 {
    GLenum err = glGetError();
@@ -40,18 +58,6 @@ static bool check_gl_error(const char* name)
    return true;
 }
 
-typedef struct ALLEGRO_SHADER_GLSL_S ALLEGRO_SHADER_GLSL_S;
-
-struct ALLEGRO_SHADER_GLSL_S
-{
-   ALLEGRO_SHADER shader;
-   GLuint vertex_shader;
-   GLuint pixel_shader;
-   GLuint program_object;
-};
-
-/* forward declaration */
-static struct ALLEGRO_SHADER_INTERFACE shader_glsl_vt;
 
 ALLEGRO_SHADER *_al_create_shader_glsl(ALLEGRO_SHADER_PLATFORM platform)
 {
@@ -107,7 +113,10 @@ static bool glsl_link_shader(ALLEGRO_SHADER *shader)
       glDeleteProgram(gl_shader->program_object);
       return false;
    }
-   
+
+   /* Look up variable locations. */
+   lookup_varlocs(&gl_shader->varlocs, gl_shader->program_object);
+
    return true;
 }
 
@@ -221,8 +230,8 @@ static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
       _al_glsl_set_projview_matrix(program_object, &t);
    }
 
-   /* Look up variable locations. */
-   _al_glsl_lookup_locations(&display->ogl_extras->varlocs, program_object);
+   /* Copy variable locations. */
+   display->ogl_extras->varlocs = gl_shader->varlocs;
 
    return true;
 }
@@ -409,7 +418,7 @@ static struct ALLEGRO_SHADER_INTERFACE shader_glsl_vt =
    glsl_set_shader_bool
 };
 
-void _al_glsl_lookup_locations(ALLEGRO_OGL_VARLOCS *varlocs, GLuint program)
+static void lookup_varlocs(ALLEGRO_OGL_VARLOCS *varlocs, GLuint program)
 {
    unsigned i;
 

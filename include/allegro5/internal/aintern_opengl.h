@@ -176,8 +176,6 @@ void _al_ogl_update_render_state(ALLEGRO_DISPLAY *display);
 
 /* shader */
 #ifdef ALLEGRO_CFG_SHADER_GLSL
-   void _al_glsl_lookup_locations(ALLEGRO_OGL_VARLOCS *varlogs,
-      GLuint program);
    bool _al_glsl_set_projview_matrix(GLuint program_object,
       const ALLEGRO_TRANSFORM *t);
 #endif
