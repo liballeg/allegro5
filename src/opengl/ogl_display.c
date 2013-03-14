@@ -486,7 +486,8 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
 
    ALLEGRO_DEBUG("Creating backbuffer bitmap\n");
    al_set_new_bitmap_format(format);
-   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+   /* Using ALLEGRO_NO_PRESERVE_TEXTURE prevents extra memory being allocated */
+   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP | ALLEGRO_NO_PRESERVE_TEXTURE);
    backbuffer = _al_ogl_create_bitmap(disp, disp->w, disp->h);
    al_restore_state(&backup);
 
