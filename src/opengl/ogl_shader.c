@@ -209,6 +209,9 @@ static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
 
    display->ogl_extras->program_object = program_object;
 
+   /* Copy variable locations. */
+   display->ogl_extras->varlocs = gl_shader->varlocs;
+
    /* Optionally set projview matrix.  We skip this when it is known that the
     * matrices in the display are out of date and are about to be clobbered
     * itself.
@@ -220,9 +223,6 @@ static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
       _al_glsl_set_projview_matrix(
          display->ogl_extras->varlocs.projview_matrix_loc, &t);
    }
-
-   /* Copy variable locations. */
-   display->ogl_extras->varlocs = gl_shader->varlocs;
 
    return true;
 }
