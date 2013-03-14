@@ -443,4 +443,58 @@ void _al_unregister_shader_bitmap(ALLEGRO_SHADER *shader, ALLEGRO_BITMAP *bmp)
    ASSERT(deleted);
 }
 
+ALLEGRO_SHADER *_al_create_default_shader(int display_flags)
+{
+   ALLEGRO_SHADER_PLATFORM platform = ALLEGRO_SHADER_AUTO;
+   ALLEGRO_SHADER *shader;
+
+   if (false) {
+   }
+#ifdef ALLEGRO_CFG_SHADER_GLSL
+   else if (display_flags & ALLEGRO_OPENGL) {
+      platform = ALLEGRO_SHADER_GLSL;
+   }
+#endif
+#ifdef ALLEGRO_CFG_SHADER_HLSL
+   else if (display_flags & ALLEGRO_DIRECT3D_INTERNAL) {
+      platform = ALLEGRO_SHADER_HLSL;
+   }
+#endif
+
+   if (platform == ALLEGRO_SHADER_AUTO) {
+      ALLEGRO_ERROR("No suitable shader platform found for creating the default shader.\n");
+      return false;
+   }
+
+   _al_push_destructor_owner();
+   shader = al_create_shader(platform);
+   _al_pop_destructor_owner();
+
+   if (!shader) {
+      ALLEGRO_ERROR("Error creating default shader.\n");
+      return false;
+   }
+   if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER,
+         al_get_default_shader_source(platform, ALLEGRO_VERTEX_SHADER))) {
+      ALLEGRO_ERROR("al_attach_shader_source for vertex shader failed: %s\n",
+         al_get_shader_log(shader));
+      goto fail;
+   }
+   if (!al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER,
+         al_get_default_shader_source(platform, ALLEGRO_PIXEL_SHADER))) {
+      ALLEGRO_ERROR("al_attach_shader_source for pixel shader failed: %s\n",
+         al_get_shader_log(shader));
+      goto fail;
+   }
+   if (!al_build_shader(shader)) {
+      ALLEGRO_ERROR("al_build_shader failed: %s\n", al_get_shader_log(shader));
+      goto fail;
+   }
+   return shader;
+
+fail:
+   al_destroy_shader(shader);
+   return NULL;
+}
+
 /* vim: set sts=3 sw=3 et: */
