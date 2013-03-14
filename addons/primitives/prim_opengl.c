@@ -92,6 +92,7 @@ static void convert_storage(ALLEGRO_PRIM_STORAGE storage, GLenum* type, int* nco
          *ncoord = 4;
          *normalized = true;
          break;
+#ifndef ALLEGRO_CFG_OPENGLES
       case ALLEGRO_PRIM_HALF_FLOAT_2:
          *type = GL_HALF_FLOAT;
          *ncoord = 2;
@@ -102,6 +103,7 @@ static void convert_storage(ALLEGRO_PRIM_STORAGE storage, GLenum* type, int* nco
          *ncoord = 4;
          *normalized = false;
          break;
+#endif
       default:
          ASSERT(0);
    }
