@@ -168,6 +168,9 @@ bool _al_set_current_display_only(ALLEGRO_DISPLAY *display);
 void _al_set_new_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *settings);
 ALLEGRO_EXTRA_DISPLAY_SETTINGS *_al_get_new_display_settings(void);
 
+ALLEGRO_SHADER *_al_create_default_shader(int display_flags);
+
+
 #ifdef __cplusplus
 }
 #endif

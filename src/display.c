@@ -33,10 +33,6 @@
 ALLEGRO_DEBUG_CHANNEL("display")
 
 
-/* forward declarations */
-static ALLEGRO_SHADER *create_default_shader(int display_flags);
-
-
 /* Function: al_create_display
  */
 ALLEGRO_DISPLAY *al_create_display(int w, int h)
@@ -101,7 +97,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    }
 
    if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
-      display->default_shader = create_default_shader(display->flags);
+      display->default_shader = _al_create_default_shader(display->flags);
       if (!display->default_shader) {
          al_destroy_display(display);
          return NULL;
@@ -611,7 +607,7 @@ void al_set_render_state(ALLEGRO_RENDER_STATE state, int value)
 }
 
 
-static ALLEGRO_SHADER *create_default_shader(int display_flags)
+ALLEGRO_SHADER *_al_create_default_shader(int display_flags)
 {
    ALLEGRO_SHADER_PLATFORM platform = ALLEGRO_SHADER_AUTO;
    ALLEGRO_SHADER *shader;

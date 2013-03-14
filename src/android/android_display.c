@@ -139,8 +139,9 @@ JNI_FUNC(void, AllegroSurface, nativeOnChange, (JNIEnv *env, jobject obj, jint f
 
    display->w = width;
    display->h = height;
-   
-   if (!_al_android_init_display(env, d) && d->first_run) {
+
+   bool ret = _al_android_init_display(env, d);
+   if (!ret && d->first_run) {
       al_broadcast_cond(d->cond);
       al_unlock_mutex(d->mutex);
       return;
@@ -578,9 +579,12 @@ static void android_destroy_display(ALLEGRO_DISPLAY *dpy)
    }
    
    _al_event_source_free(&dpy->es);
-   
-   _al_ogl_delete_default_program(dpy);
 
+   if (dpy->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE && dpy->default_shader) {
+   	al_destroy_shader(dpy->default_shader);
+	dpy->default_shader = NULL;
+   }
+   
    // XXX: this causes a crash, no idea why as of yet
    //ALLEGRO_DEBUG("destroy backbuffer");
    //_al_ogl_destroy_backbuffer(al_get_backbuffer(dpy));
@@ -798,6 +802,10 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
    _al_android_make_current(_al_android_get_jnienv(), d);
    
    ALLEGRO_DEBUG("made current");
+
+   if (dpy->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      dpy->default_shader = _al_create_default_shader(dpy->flags);
+   }
 
    al_set_target_backbuffer(dpy);
    
