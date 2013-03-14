@@ -991,10 +991,14 @@ issue but precision is not.
     the resultant float quad ranges between 0.0 and 1.0
 
     Since: 5.1.6
-* ALLEGRO_PRIM_HALF_FLOAT_2 - A doublet of half-precision floats
+* ALLEGRO_PRIM_HALF_FLOAT_2 - A doublet of half-precision floats. Note that this
+    storage format is not supported on all platforms. [al_create_vertex_decl]
+    will return NULL if you use it on those platforms
 
     Since: 5.1.6
-* ALLEGRO_PRIM_HALF_FLOAT_4 - A quad of half-precision floats
+* ALLEGRO_PRIM_HALF_FLOAT_4 - A quad of half-precision floats.  Note that this
+    storage format is not supported on all platforms. [al_create_vertex_decl]
+    will return NULL if you use it on those platforms.
 
     Since: 5.1.6
 
