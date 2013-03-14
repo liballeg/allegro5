@@ -166,6 +166,13 @@ ALLEGRO_VERTEX_DECL* al_create_vertex_decl(const ALLEGRO_VERTEX_ELEMENT* element
    ret = al_malloc(sizeof(ALLEGRO_VERTEX_DECL));
    ret->elements = al_calloc(1, sizeof(ALLEGRO_VERTEX_ELEMENT) * ALLEGRO_PRIM_ATTR_NUM);
    while(elements->attribute) {
+#ifdef ALLEGRO_CFG_OPENGLES
+      if (elements->storage == ALLEGRO_PRIM_HALF_FLOAT_2 ||
+          elements->storage == ALLEGRO_PRIM_HALF_FLOAT_4) {
+         ALLEGRO_WARN("This platform does not support ALLEGRO_PRIM_HALF_FLOAT_2 or ALLEGRO_PRIM_HALF_FLOAT_4.\n");
+         goto fail;
+      }
+#endif
       ret->elements[elements->attribute] = *elements;
       elements++;
    }
