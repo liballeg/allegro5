@@ -541,7 +541,7 @@ bool _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
           * that's missing is probably a default shader though.
           */
          disp->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
-         if (forward_compat && !(disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE))
+         if (forward_compat && !(disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE))
             disp->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;
       }
       else {

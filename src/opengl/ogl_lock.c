@@ -435,7 +435,7 @@ static void ogl_unlock_region_backbuffer(ALLEGRO_BITMAP *bitmap,
    GLint program = 0;
    ALLEGRO_DISPLAY *display = al_get_current_display();
 
-   if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       // FIXME: This is a hack where we temporarily disable the active shader.
       // It will only work on Desktop OpenGL in non-strict mode where we even
       // can switch back to the fixed pipeline. The correct way would be to not

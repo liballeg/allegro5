@@ -38,7 +38,7 @@ int main(void)
       ALLEGRO_MIPMAP);
    al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
    al_set_new_display_option(ALLEGRO_SAMPLES, 4, ALLEGRO_SUGGEST);
-   al_set_new_display_flags(ALLEGRO_USE_PROGRAMMABLE_PIPELINE);
+   al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE);
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Error creating display\n");

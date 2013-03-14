@@ -189,7 +189,7 @@ void _al_raspberrypi_setup_opengl_view(ALLEGRO_DISPLAY *d)
 
    al_identity_transform(&d->view_transform);
 
-   if (!(d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
+   if (!(d->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
       glMatrixMode(GL_PROJECTION);
       glLoadMatrixf((float *)d->proj_transform.m);
       glMatrixMode(GL_MODELVIEW);
@@ -340,7 +340,7 @@ static bool pi_create_display(ALLEGRO_DISPLAY *display)
 
    eglBindAPI(EGL_OPENGL_ES_API);
 
-   int es_ver = (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) ?
+   int es_ver = (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) ?
       2 : 1;
 
    static EGLint ctxattr[3] = {

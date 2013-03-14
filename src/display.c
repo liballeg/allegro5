@@ -97,7 +97,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
       _al_set_current_display_only(display);
    }
 
-   if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       display->default_shader = _al_create_default_shader(display->flags);
       if (!display->default_shader) {
          al_destroy_display(display);

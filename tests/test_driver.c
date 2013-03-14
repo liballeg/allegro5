@@ -1534,7 +1534,7 @@ int main(int _argc, char *_argv[])
          display_flags |= ALLEGRO_DIRECT3D_INTERNAL;
       }
       else if (streq(opt, "--use-shaders")) {
-         display_flags |= ALLEGRO_USE_PROGRAMMABLE_PIPELINE;
+         display_flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
       }
       else {
          break;

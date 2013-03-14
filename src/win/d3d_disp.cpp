@@ -362,7 +362,7 @@ static void _al_d3d_set_ortho_projection(ALLEGRO_DISPLAY_D3D *disp, float w, flo
    d3d_ortho_w = w;
    d3d_ortho_h = h;
 
-   if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       al_identity_transform(&display->proj_transform);
       al_ortho_transform(&display->proj_transform, 0, w, h, 0, -1, 1);
 #ifdef ALLEGRO_CFG_SHADER_HLSL
@@ -2001,7 +2001,7 @@ static void d3d_draw_pixel(ALLEGRO_DISPLAY *disp, float x, float y, ALLEGRO_COLO
    _al_d3d_set_blender(d3d_disp);
 
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       UINT required_passes;
       ALLEGRO_VERTEX vertices[1];
       vertices[0].x = x;
@@ -2630,7 +2630,7 @@ static void* d3d_prepare_vertex_cache(ALLEGRO_DISPLAY* disp,
 {
    int size;
 
-   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       size = sizeof(ALLEGRO_VERTEX);
    }
    else {
@@ -2682,13 +2682,13 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
       d3d_disp->device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
    }
 
-   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       d3d_disp->device->SetFVF(D3DFVF_ALLEGRO_VERTEX);
    }
 
 #ifdef ALLEGRO_CFG_SHADER_HLSL
    UINT required_passes;
-   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       d3d_disp->effect->SetBool(ALLEGRO_SHADER_VAR_USE_TEX, true);
       d3d_disp->effect->SetTexture(ALLEGRO_SHADER_VAR_TEX, d3d_bmp->video_texture);
       d3d_disp->effect->Begin(&required_passes, 0);
@@ -2704,7 +2704,7 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    int size;
 
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       size = sizeof(ALLEGRO_VERTEX);
       for (unsigned int i = 0; i < required_passes; i++) {
          d3d_disp->effect->BeginPass(i);
@@ -2730,7 +2730,7 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 
    disp->num_cache_vertices = 0;
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       d3d_disp->effect->End();
       d3d_disp->effect->SetBool(ALLEGRO_SHADER_VAR_USE_TEX, false);
       d3d_disp->effect->SetTexture(ALLEGRO_SHADER_VAR_TEX, NULL);
@@ -2752,7 +2752,7 @@ static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *tar
       al_translate_transform(&tmp_transform, target->xofs, target->yofs);
    }
 
-   if (disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       tmp_transform.m[3][0] -= 0.5;
       tmp_transform.m[3][1] -= 0.5;
       al_copy_transform(&disp->view_transform, &tmp_transform);
@@ -2778,7 +2778,7 @@ static void d3d_set_projection(ALLEGRO_DISPLAY *d)
    ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)d;
 
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-   if (d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (d->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       if (d3d_disp->effect) {
          ALLEGRO_TRANSFORM t;
          al_copy_transform(&t, &d->view_transform);

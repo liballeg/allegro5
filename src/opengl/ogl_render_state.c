@@ -25,7 +25,7 @@ void _al_ogl_update_render_state(ALLEGRO_DISPLAY *display)
     * avoid so many redundant OpenGL calls.
     */
 
-   if (!(display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
+   if (!(display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
       if (r->alpha_test == 0)
          glDisable(GL_ALPHA_TEST);
       else

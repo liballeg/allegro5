@@ -82,7 +82,7 @@ int main(void)
    if (!al_init_primitives_addon()) {
       abort_example("Could not init primitives addon.\n");
    }
-   al_set_new_display_flags(ALLEGRO_USE_PROGRAMMABLE_PIPELINE);
+   al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE);
    display = al_create_display(SCREEN_WIDTH, SCREEN_HEIGHT);
    if (!display) {
       abort_example("Error creating display.\n");

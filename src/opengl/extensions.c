@@ -879,7 +879,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    ALLEGRO_INFO("Use of non-power-of-two textures %s.\n",
       s[ALLEGRO_SUPPORT_NPOT_BITMAP] ? "enabled" : "disabled");
 #if defined ALLEGRO_CFG_OPENGLES
-   if (gl_disp->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (gl_disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       s[ALLEGRO_CAN_DRAW_INTO_BITMAP] = true;
    }
    else {

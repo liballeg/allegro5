@@ -66,7 +66,7 @@ NULL deletes the underlying (OpenGL or DirectX) shader. See also
 [al_attach_shader_source_file] if you prefer to obtain your shader source from
 an external file.
 
-When using the ALLEGRO_USE_PROGRAMMABLE_PIPELINE flag with
+When using the ALLEGRO_PROGRAMMABLE_PIPELINE flag with
 [al_set_new_display_flags] Allegro itself will require you to create and use a
 shader before any drawing can be done. In this case you need both a vertex
 shader source (type set to ALLEGRO_SHADER_VERTEX) and a pixel shader source (
@@ -74,16 +74,16 @@ type set to ALLEGRO_SHADER_PIXEL) for the shader to function. You can use
 [al_get_default_vertex_shader] and [al_get_default_pixel_shader] to get default
 sources for one or both types of shaders. If you use the default sources for
 both types of shaders then the drawing output will be identical to when the
-display is created without the ALLEGRO_USE_PROGRAMMABLE_PIPELINE flag.
+display is created without the ALLEGRO_PROGRAMMABLE_PIPELINE flag.
 
-If you do not use ALLEGRO_USE_PROGRAMMABLE_PIPELINE Allegro's graphics functions
+If you do not use ALLEGRO_PROGRAMMABLE_PIPELINE Allegro's graphics functions
 will not use any shader specific functions themselves. In case of a system
 with no fixed function pipeline (like OpenGL ES 2 or OpenGL 3 or 4) this means
 Allegro's drawing functions cannot be used.
 
-TODO: Is ALLEGRO_USE_PROGRAMMABLE_PIPELINE set automatically in this case?
+TODO: Is ALLEGRO_PROGRAMMABLE_PIPELINE set automatically in this case?
 
-When ALLEGRO_USE_PROGRAMMABLE_PIPELINE is used the following shader uniforms
+When ALLEGRO_PROGRAMMABLE_PIPELINE is used the following shader uniforms
 are provided by Allegro and can be accessed in your shaders:
 
 * al_projview_matrix - matrix for Allegro's orthographic projection multiplied

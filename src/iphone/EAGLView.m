@@ -76,12 +76,12 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
       [NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking,
       color_format, kEAGLDrawablePropertyColorFormat, nil];
 
-   if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       ALLEGRO_INFO("Attempting to create ES2 context\n");
       context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
       if (context == nil) {
          ALLEGRO_WARN("ES2 context could not be created. Attempting to create ES1 context instead.\n");
-         display->flags &= ~ ALLEGRO_USE_PROGRAMMABLE_PIPELINE;
+         display->flags &= ~ ALLEGRO_PROGRAMMABLE_PIPELINE;
          context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
       }
    }

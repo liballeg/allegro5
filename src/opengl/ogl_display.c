@@ -40,7 +40,7 @@ void _al_ogl_setup_gl(ALLEGRO_DISPLAY *d)
 
    glViewport(0, 0, d->w, d->h);
 
-   if (!(d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
+   if (!(d->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
       glMatrixMode(GL_PROJECTION);
       glLoadIdentity();
       glOrtho(0, d->w, d->h, 0, -1, 1);

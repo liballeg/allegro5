@@ -116,7 +116,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
    int ncoord;
    bool normalized;
 
-   if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
 #ifndef ALLEGRO_CFG_NO_GLES2
       if(decl) {
          ALLEGRO_VERTEX_ELEMENT* e;
@@ -237,7 +237,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          glEnableClientState(GL_COLOR_ARRAY);
          glEnableClientState(GL_VERTEX_ARRAY);
          glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-         if (!(display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE))
+         if (!(display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE))
             glDisableClientState(GL_NORMAL_ARRAY);
    
          glVertexPointer(3, GL_FLOAT, sizeof(ALLEGRO_VERTEX), vtxs + offsetof(ALLEGRO_VERTEX, x));
@@ -282,11 +282,11 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          mat[1][1] = -1.0f / true_h;
       }
 
-      if (!(display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
+      if (!(display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
          glBindTexture(GL_TEXTURE_2D, gl_texture);
       }
 
-      if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
 #ifndef ALLEGRO_CFG_NO_GLES2
          GLint handle;
 
@@ -329,7 +329,7 @@ static void revert_state(ALLEGRO_BITMAP* texture)
    ALLEGRO_DISPLAY *display = al_get_current_display();
 
    if(texture) {
-      if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
 #ifndef ALLEGRO_CFG_NO_GLES2
          float identity[16] = {
             1, 0, 0, 0,
@@ -356,7 +356,7 @@ static void revert_state(ALLEGRO_BITMAP* texture)
       }
    }
 
-   if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
 #ifndef ALLEGRO_CFG_NO_GLES2
       if (display->ogl_extras->varlocs.pos_loc >= 0)
          glDisableVertexAttribArray(display->ogl_extras->varlocs.pos_loc);

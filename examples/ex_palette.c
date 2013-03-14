@@ -52,7 +52,7 @@ int main(void)
    al_install_keyboard();
    al_init_image_addon();
 
-   al_set_new_display_flags(ALLEGRO_USE_PROGRAMMABLE_PIPELINE |
+   al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE |
       ALLEGRO_OPENGL);
    display = al_create_display(640, 480);
    if (!display) {

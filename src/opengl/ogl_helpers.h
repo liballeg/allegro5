@@ -40,7 +40,7 @@
 
 /* Android uses different functions/symbol names depending on ES version */
 #define ANDROID_PROGRAMMABLE_PIPELINE(dpy) \
-   IS_ANDROID_AND(al_get_display_flags(dpy) & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)
+   IS_ANDROID_AND(al_get_display_flags(dpy) & ALLEGRO_PROGRAMMABLE_PIPELINE)
 
 /* XXX still hacky */
 #if defined ALLEGRO_RASPBERRYPI

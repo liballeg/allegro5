@@ -582,7 +582,7 @@ int main(int argc, char **argv)
    al_init_primitives_addon();
    
    if (use_shader) {
-      al_set_new_display_flags(ALLEGRO_USE_PROGRAMMABLE_PIPELINE);
+      al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE);
    }
 
    // Create a window to display things on: 640x480 pixels

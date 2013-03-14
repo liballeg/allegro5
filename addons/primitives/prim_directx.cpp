@@ -257,7 +257,7 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
    D3D_STATE state;
    ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)(target->display);
 
-   if (!(target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
+   if (!(target->display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
       IDirect3DPixelShader9* old_pix_shader;
       device->GetVertexShader(&state.old_vtx_shader);
       device->GetPixelShader(&old_pix_shader);
@@ -292,7 +292,7 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
       }
    }
 
-   if(!state.old_vtx_shader || (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
+   if(!state.old_vtx_shader || (target->display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
       /* Set up the texture */
       if (texture) {
          LPDIRECT3DTEXTURE9 d3d_texture;
@@ -326,7 +326,7 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
          mat[2][1] = (float)tex_y / desc.Height;
          
 
-         if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+         if (target->display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
 #ifdef ALLEGRO_CFG_SHADER_HLSL
             d3d_disp->effect->SetMatrix(ALLEGRO_SHADER_VAR_TEX_MATRIX, (D3DXMATRIX *)mat);
             d3d_disp->effect->SetBool(ALLEGRO_SHADER_VAR_USE_TEX_MATRIX, true);
@@ -365,7 +365,7 @@ static void revert_state(D3D_STATE state, LPDIRECT3DDEVICE9 device, ALLEGRO_BITM
    ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)(target->display);
    (void)d3d_disp;
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-   if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (target->display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       d3d_disp->effect->End();
       d3d_disp->effect->SetBool(ALLEGRO_SHADER_VAR_USE_TEX_MATRIX, false);
       d3d_disp->effect->SetBool(ALLEGRO_SHADER_VAR_USE_TEX, false);
@@ -379,7 +379,7 @@ static void revert_state(D3D_STATE state, LPDIRECT3DDEVICE9 device, ALLEGRO_BITM
       device->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, state.old_ttf_state);
    }
 
-   if (!(target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
+   if (!(target->display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
       if(!state.old_vtx_shader)
          device->SetVertexShader(0);
    }
@@ -441,14 +441,14 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    }
 
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-   if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (target->display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       d3d_disp->effect->Begin(&required_passes, 0);
    }
 #endif
 
    for (i = 0; i < required_passes; i++) {
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-      if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      if (target->display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
          d3d_disp->effect->BeginPass(i);
       }
 #endif
@@ -562,7 +562,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
       }
       
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-      if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      if (target->display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
          d3d_disp->effect->EndPass();
       }
 #endif
@@ -650,14 +650,14 @@ int _al_draw_vertex_buffer_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textu
    device->SetStreamSource(0, (IDirect3DVertexBuffer9*)vertex_buffer->handle, 0, stride);
 
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-   if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (target->display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       d3d_disp->effect->Begin(&required_passes, 0);
    }
 #endif
 
    for (i = 0; i < required_passes; i++) {
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-      if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      if (target->display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
          d3d_disp->effect->BeginPass(i);
       }
 #endif
@@ -702,7 +702,7 @@ int _al_draw_vertex_buffer_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textu
       }
 
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-      if (target->display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+      if (target->display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
          d3d_disp->effect->EndPass();
       }
 #endif

@@ -319,7 +319,7 @@ static bool _al_android_init_display(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *displ
    
    memcpy(&d->extra_settings, &system->visual, sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
 
-   if (d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (d->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
    	version = 2;
    }
    else {
@@ -334,8 +334,8 @@ static bool _al_android_init_display(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *displ
       return false;
    }
 
-   if (ret == 2 && (d->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE)) {
-   	d->flags &= ~ALLEGRO_USE_PROGRAMMABLE_PIPELINE;
+   if (ret == 2 && (d->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
+	d->flags &= ~ALLEGRO_PROGRAMMABLE_PIPELINE;
    }
    
    ALLEGRO_DEBUG("calling egl_createSurface");
@@ -474,7 +474,7 @@ static void _al_android_update_visuals(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
 
    #undef MAYBE_SET
 
-   if (display->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       _jni_callVoidMethodV(env, d->surface_object, "egl_setConfigAttrib", "(II)V", RENDERABLE_TYPE, OPENGLES2_BIT);
    }
 }
@@ -488,7 +488,7 @@ static ALLEGRO_DISPLAY *android_create_display(int w, int h)
 
    int flags = al_get_new_display_flags();
 #ifdef ALLEGRO_NO_GLES2
-   if (flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       return NULL;
    }
 #endif
@@ -580,7 +580,7 @@ static void android_destroy_display(ALLEGRO_DISPLAY *dpy)
    
    _al_event_source_free(&dpy->es);
 
-   if (dpy->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE && dpy->default_shader) {
+   if (dpy->flags & ALLEGRO_PROGRAMMABLE_PIPELINE && dpy->default_shader) {
    	al_destroy_shader(dpy->default_shader);
 	dpy->default_shader = NULL;
    }
@@ -803,7 +803,7 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
    
    ALLEGRO_DEBUG("made current");
 
-   if (dpy->flags & ALLEGRO_USE_PROGRAMMABLE_PIPELINE) {
+   if (dpy->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       dpy->default_shader = _al_create_default_shader(dpy->flags);
    }
 
