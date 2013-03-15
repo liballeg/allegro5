@@ -235,8 +235,6 @@ static void iphone_destroy_display(ALLEGRO_DISPLAY *d)
       _al_convert_to_memory_bitmap(b);
    }
 
-   _al_ogl_delete_default_program(d);
-
    _al_event_source_free(&d->es);
    _al_iphone_destroy_screen(d);
    
