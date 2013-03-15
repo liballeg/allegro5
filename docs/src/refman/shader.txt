@@ -6,9 +6,14 @@ These functions are declared in the main Allegro header file:
 
 ## API: ALLEGRO_SHADER
 
-Represents a shader object. It combines both a vertex and a pixel shader. The
-shader source for the underlying shader can be provided either as GLSL or HLSL,
-depending on the value of [ALLEGRO_PLATFORM] used when creating it.
+An [ALLEGRO_SHADER] is a program that runs on the GPU.
+It combines both a vertex and a pixel shader.
+(In OpenGL terms, an [ALLEGRO_SHADER] is actually a *program*
+which has one or more *shaders* attached. This can be confusing.)
+
+The source code for the underlying vertex or pixel shader can be provided
+either as GLSL or HLSL, depending on the value of [ALLEGRO_SHADER_PLATFORM]
+used when creating it.
 
 Since: 5.1.0
 
@@ -42,22 +47,39 @@ Since: 5.1.0
 
 ## API: ALLEGRO_SHADER_PLATFORM
 
-The type of shader.
+The underlying platform which the [ALLEGRO_SHADER] is built on top of,
+which dictates the language used to program the shader.
 
 * ALLEGRO_SHADER_AUTO
-* ALLEGRO_SHADER_GLSL
-* ALLEGRO_SHADER_HLSL
+* ALLEGRO_SHADER_GLSL - OpenGL Shading Language
+* ALLEGRO_SHADER_HLSL - High Level Shader Language (for Direct3D)
 
 Since: 5.1.0
 
 ## API: al_create_shader
 
-Specify one of the [ALLEGRO_SHADER_PLATFORM] values to create a new shader
-object. The ALLEGRO_SHADER_AUTO value means GLSL is used if OpenGL is being
-used otherwise HLSL. ALLEGRO_SHADER_AUTO requires that there is a current
-display set on the calling thread.
+Create a shader object.
+
+The platform argument is one of the [ALLEGRO_SHADER_PLATFORM] values,
+and specifies the type of shader object to create, and which language is
+used to program the shader.
+
+The shader platform must be compatible with the type of display that you will
+use the shader with.  For example, you cannot create and use a HLSL shader on
+an OpenGL display, nor a GLSL shader on a Direct3D display.
+
+The ALLEGRO_SHADER_AUTO value automatically chooses the appropriate platform
+for the display currently targeted by the calling thread; there must be such a
+display.  It will create a GLSL shader for an OpenGL display, and a HLSL shader
+for a Direct3D display.
+
+Returns the shader object on success. Otherwise, returns NULL.
 
 Since: 5.1.0
+
+See also: [al_attach_shader_source], [al_attach_shader_source_file],
+[al_build_shader], [al_use_shader], [al_destroy_shader],
+[al_get_shader_platform]
 
 ## API: al_attach_shader_source
 
@@ -65,16 +87,6 @@ Attaches the shader's source code to the shader object and compiles it. Passing
 NULL deletes the underlying (OpenGL or DirectX) shader. See also
 [al_attach_shader_source_file] if you prefer to obtain your shader source from
 an external file.
-
-When using the ALLEGRO_PROGRAMMABLE_PIPELINE flag with
-[al_set_new_display_flags] Allegro itself will require you to create and use a
-shader before any drawing can be done. In this case you need both a vertex
-shader source (type set to ALLEGRO_SHADER_VERTEX) and a pixel shader source (
-type set to ALLEGRO_SHADER_PIXEL) for the shader to function. You can use
-[al_get_default_vertex_shader] and [al_get_default_pixel_shader] to get default
-sources for one or both types of shaders. If you use the default sources for
-both types of shaders then the drawing output will be identical to when the
-display is created without the ALLEGRO_PROGRAMMABLE_PIPELINE flag.
 
 If you do not use ALLEGRO_PROGRAMMABLE_PIPELINE Allegro's graphics functions
 will not use any shader specific functions themselves. In case of a system
@@ -86,71 +98,89 @@ TODO: Is ALLEGRO_PROGRAMMABLE_PIPELINE set automatically in this case?
 When ALLEGRO_PROGRAMMABLE_PIPELINE is used the following shader uniforms
 are provided by Allegro and can be accessed in your shaders:
 
-* al_projview_matrix - matrix for Allegro's orthographic projection multiplied
-                       by the [al_use_transform] matrix. The type is `mat4` in
-                       GLSL, and `float4x4` in HLSL.
+al_projview_matrix
+:   matrix for Allegro's orthographic projection multiplied by the
+    [al_use_transform] matrix.  The type is `mat4` in GLSL, and `float4x4` in
+    HLSL.
 
-* al_use_tex - whether or not to use the bound texture. The type is `bool` in
-               both GLSL and HLSL.
+al_use_tex
+:   whether or not to use the bound texture. The type is `bool` in
+    both GLSL and HLSL.
 
-* al_tex - the texture if one is bound. The type is `sampler2D` in GLSL and
-           `texture` in HLSL.
+al_tex
+:   the texture if one is bound. The type is `sampler2D` in GLSL and
+    `texture` in HLSL.
 
-* al_use_tex_matrix - whether or not to use a texture matrix (used by the
-                      primitives addon). The type is `bool` in both GLSL and HLSL.
+al_use_tex_matrix
+:   whether or not to use a texture matrix (used by the primitives addon).
+    The type is `bool` in both GLSL and HLSL.
 
-* al_tex_matrix - the texture matrix (used by the primitives addon). Your shader
-                  should multiply the texture coordinates by this matrix. The
-                  type is `mat4` in GLSL, and `float4x4` in HLSL.
+al_tex_matrix
+:   the texture matrix (used by the primitives addon). Your shader should
+    multiply the texture coordinates by this matrix. The type is `mat4` in
+    GLSL, and `float4x4` in HLSL.
 
 For GLSL shaders the vertex attributes are passed using the following variables:
 
-* al_pos - vertex position attribute. Type is `vec4`.
+al_pos
+:   vertex position attribute. Type is `vec4`.
 
-* al_texcoord - vertex texture coordinate attribute. Type is `vec2`.
+al_texcoord
+:   vertex texture coordinate attribute. Type is `vec2`.
 
-* al_color - vertex color attribute. Type is `vec4`.
+al_color
+:   vertex color attribute. Type is `vec4`.
 
 For HLSL shaders the vertex attributes are passed using the following semantics:
 
-* POSITION0 - vertex position attribute. Type is `float4`.
+POSITION0
+:   vertex position attribute. Type is `float4`.
 
-* TEXCOORD0 - vertex texture coordinate attribute. Type is `float2`.
+TEXCOORD0
+:   vertex texture coordinate attribute. Type is `float2`.
 
-* TEXCOORD1 - vertex color attribute. Type is `float4`.
+TEXCOORD1
+:   vertex color attribute. Type is `float4`.
 
 Also, each shader variable has a corresponding macro name that can be used when
 defining the shaders using string literals. Don't use these macros with the
 other shader functions as that will lead to undefined behavior.
 
-* ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX for al_projview_matrix
-* ALLEGRO_SHADER_VAR_POS for al_pos
-* ALLEGRO_SHADER_VAR_COLOR for al_color
-* ALLEGRO_SHADER_VAR_TEXCOORD for al_texcoord
-* ALLEGRO_SHADER_VAR_USE_TEX for al_use_tex
-* ALLEGRO_SHADER_VAR_TEX for al_tex
-* ALLEGRO_SHADER_VAR_USE_TEX_MATRIX for al_use_tex_matrix
-* ALLEGRO_SHADER_VAR_TEX_MATRIX for al_tex_matrix
+* ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX for "al_projview_matrix"
+* ALLEGRO_SHADER_VAR_POS for "al_pos"
+* ALLEGRO_SHADER_VAR_COLOR for "al_color"
+* ALLEGRO_SHADER_VAR_TEXCOORD for "al_texcoord"
+* ALLEGRO_SHADER_VAR_USE_TEX for "al_use_tex"
+* ALLEGRO_SHADER_VAR_TEX for "al_tex"
+* ALLEGRO_SHADER_VAR_USE_TEX_MATRIX for "al_use_tex_matrix"
+* ALLEGRO_SHADER_VAR_TEX_MATRIX for "al_tex_matrix"
 
-Examine the output of [al_get_default_vertex_shader] and
-[al_get_default_pixel_shader] for an example of how to use the above uniforms
-and attributes.
+Examine the output of [al_get_default_shader_source] for an example of how to
+use the above uniforms and attributes.
 
 Returns true on access and false on error, in which case the error log is
 updated. The error log can be retrieved with [al_get_shader_log].
 
 Since: 5.1.0
 
+See also: [al_attach_shader_source_file], [al_build_shader],
+[al_get_default_shader_source], [al_get_shader_log]
+
 ## API: al_attach_shader_source_file
 
 Like [al_attach_shader_source] but reads the source code for the shader from
 the named file.
 
+Returns true on access and false on error, in which case the error log is
+updated. The error log can be retrieved with [al_get_shader_log].
+
 Since: 5.1.0
+
+See also: [al_attach_shader_source], [al_build_shader], [al_get_shader_log]
 
 ## API: al_build_shader
 
-This is reqired before the shader can be used with [al_use_shader]. It should
+This is required before the shader can be used with [al_use_shader]. It should
 be called after successfully attaching the pixel and/or vertex shaders with
 [al_attach_shader_source] or [al_attach_shader_source_file].
 
@@ -158,6 +188,8 @@ Returns true on access and false on error, in which case the error log is
 updated. The error log can be retrieved with [al_get_shader_log].
 
 Since: 5.1.6
+
+See also: [al_use_shader], [al_get_shader_log]
 
 ## API: al_get_shader_log
 
@@ -169,12 +201,17 @@ This function never returns NULL.
 
 Since: 5.1.0
 
+See also: [al_attach_shader_source], [al_attach_shader_source_file],
+[al_build_shader]
+
 ## API: al_get_shader_platform
 
 Returns the platform the shader was created with (either
 ALLEGRO_SHADER_HLSL or ALLEGRO_SHADER_GLSL).
 
 Since: 5.1.6
+
+See also: [al_create_shader]
 
 ## API: al_use_shader
 
@@ -185,6 +222,10 @@ Returns true on success. Otherwise returns false, e.g. because the shader
 is incompatible with the target bitmap.
 
 Since: 5.1.6
+
+See also: [al_destroy_shader], [al_set_shader_sampler], [al_set_shader_matrix],
+[al_set_shader_int], [al_set_shader_float], [al_set_shader_bool],
+[al_set_shader_int_vector], [al_set_shader_float_vector]
 
 ## API: al_destroy_shader
 
@@ -199,6 +240,8 @@ This function does nothing if the shader argument is NULL.
 
 Since: 5.1.0
 
+See also: [al_create_shader]
+
 ## API: al_set_shader_sampler
 
 Sets a texture sampler uniform and texture unit of the current target bitmap's
@@ -209,6 +252,8 @@ name does not exist in the shader.
 
 Since: 5.1.0
 
+See also: [al_use_shader]
+
 ## API: al_set_shader_matrix
 
 Sets a matrix uniform of the current target bitmap's shader.
@@ -217,6 +262,8 @@ Returns true on success. Otherwise returns false, e.g. if the uniform by that
 name does not exist in the shader.
 
 Since: 5.1.0
+
+See also: [al_use_shader]
 
 ## API: al_set_shader_int
 
@@ -227,6 +274,8 @@ name does not exist in the shader.
 
 Since: 5.1.0
 
+See also: [al_use_shader]
+
 ## API: al_set_shader_float
 
 Sets a float uniform of the target bitmap's shader.
@@ -235,6 +284,8 @@ Returns true on success. Otherwise returns false, e.g. if the uniform by that
 name does not exist in the shader.
 
 Since: 5.1.0
+
+See also: [al_use_shader]
 
 ## API: al_set_shader_bool
 
@@ -245,6 +296,8 @@ name does not exist in the shader.
 
 Since: 5.1.6
 
+See also: [al_use_shader]
+
 ## API: al_set_shader_int_vector
 
 Sets an integer vector array uniform of the current target bitmap's shader. The
@@ -252,8 +305,8 @@ Sets an integer vector array uniform of the current target bitmap's shader. The
 then an array of 'num_elems' integer elements is added. Otherwise each added
 array element is assumed to be a vector with 2, 3 or 4 components in it.
 
-For example, if you have a GLSL uniform declared as`uniform ivec3 flowers[4]` or
-an HLSL uniform declared as `uniform int3 flowers[4]`, then you'd use this
+For example, if you have a GLSL uniform declared as `uniform ivec3 flowers[4]`
+or an HLSL uniform declared as `uniform int3 flowers[4]`, then you'd use this
 function from your code like so:
 
     int flowers[4][3] =
@@ -271,11 +324,15 @@ name does not exist in the shader.
 
 Since: 5.1.0
 
+See also: [al_set_shader_float_vector], [al_use_shader]
+
 ## API: al_set_shader_float_vector
 
 Same as [al_set_shader_int_vector] except all values are float instead of int.
 
 Since: 5.1.0
+
+See also: [al_set_shader_int_vector], [al_use_shader]
 
 ## API: al_get_default_shader_source
 
@@ -287,3 +344,5 @@ function can return NULL if Allegro was built without support for shaders of the
 selected platform.
 
 Since: 5.1.6
+
+See also: [al_attach_shader_source]

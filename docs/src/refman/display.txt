@@ -112,6 +112,11 @@ ALLEGRO_DIRECT3D
 :   Require the driver to do rendering with Direct3D and
     provide a Direct3D device.
 
+ALLEGRO_PROGRAMMABLE_PIPELINE
+:   Require a programmable graphics pipeline.
+    This flag is required to use [ALLEGRO_SHADER] objects.
+    Since: 5.1.6
+
 ALLEGRO_FRAMELESS
 :   Try to create a window without a frame (i.e. no border or titlebar).
     This usually does nothing for fullscreen modes, and even in windowed modes
