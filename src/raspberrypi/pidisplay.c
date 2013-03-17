@@ -31,6 +31,7 @@ static DISPMANX_ELEMENT_HANDLE_T cursor_element;
 static VC_RECT_T dst_rect;
 static VC_RECT_T src_rect;
 static ALLEGRO_THREAD *cursor_thread;
+static bool cursor_added = false;
 
 struct ALLEGRO_DISPLAY_RASPBERRYPI_EXTRA {
 };
@@ -68,17 +69,15 @@ static void delete_cursor_data(ALLEGRO_DISPLAY_RASPBERRYPI *d)
 
 static void show_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
 {
-   if (d->cursor_data == NULL) {
+   if (d->cursor_data == NULL || cursor_added) {
       return;
    }
-
-   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)d;
 
    int width = d->cursor_width;
    int height = d->cursor_height;
 
-   uint32_t crap;
-   cursor_resource = vc_dispmanx_resource_create(VC_IMAGE_ARGB8888, width, height, &crap);
+   uint32_t unused;
+   cursor_resource = vc_dispmanx_resource_create(VC_IMAGE_ARGB8888, width, height, &unused);
 
    VC_RECT_T r;
    r.x = 0;
@@ -120,15 +119,23 @@ static void show_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
    );
 
    vc_dispmanx_update_submit_sync(dispman_update);
+
+   cursor_added = true;
 }
 
 static void hide_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
 {
    (void)d;
+
+   if (!cursor_added) {
+      return;
+   }
+
    dispman_update = vc_dispmanx_update_start(0);
    vc_dispmanx_element_remove(dispman_update, cursor_element);
    vc_dispmanx_update_submit_sync(dispman_update); 
    vc_dispmanx_resource_delete(cursor_resource);
+   cursor_added = false;
 }
 
 static bool cursor_on = false;
@@ -146,7 +153,7 @@ static void *cursor_thread_proc(ALLEGRO_THREAD *t, void *_d)
          cursor_on = false;
          hide_cursor(d);
       }
-      if (!d->hide_cursor && al_is_mouse_installed()) {
+      if (cursor_added && al_is_mouse_installed()) {
          VC_RECT_T src, dst;
          src.x = 0;
          src.y = 0;
@@ -486,8 +493,6 @@ static ALLEGRO_DISPLAY *raspberrypi_create_display(int w, int h)
     
    display->flags |= ALLEGRO_OPENGL;
 
-   d->hide_cursor = false;
-
    if (al_is_mouse_installed() && !getenv("DISPLAY")) {
       _al_evdev_set_mouse_range(0, 0, display->w-1, display->h-1);
    }
@@ -513,9 +518,7 @@ static void raspberrypi_destroy_display(ALLEGRO_DISPLAY *d)
    al_join_thread(cursor_thread, NULL);
    al_destroy_thread(cursor_thread);
 
-   if (!pidisplay->hide_cursor) {
-      hide_cursor(pidisplay);
-   }
+   hide_cursor(pidisplay);
    delete_cursor_data(pidisplay);
 
    _al_set_current_display_only(d);
@@ -681,12 +684,7 @@ static bool raspberrypi_acknowledge_resize(ALLEGRO_DISPLAY *d)
 static bool raspberrypi_show_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_RASPBERRYPI *d = (void *)display;
-   if (!d->hide_cursor) {
-      hide_cursor(d);
-   }
-   else {
-      d->hide_cursor = false;
-   }
+   hide_cursor(d);
    show_cursor(d);
    return true;
 }
@@ -694,10 +692,7 @@ static bool raspberrypi_show_mouse_cursor(ALLEGRO_DISPLAY *display)
 static bool raspberrypi_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_RASPBERRYPI *d = (void *)display;
-   if (!d->hide_cursor) {
-      hide_cursor(d);
-      d->hide_cursor = true;
-   }
+   hide_cursor(d);
    return true;
 }
 
@@ -720,8 +715,9 @@ static bool raspberrypi_set_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGRO_MOUSE
    delete_cursor_data(d);
    set_cursor_data(d, data, w, h);
    al_free(data);
-   if (!d->hide_cursor) {
-   	raspberrypi_show_mouse_cursor(display);
+   if (cursor_added) {
+   	hide_cursor(d);
+	show_cursor(d);
    }
    return true;
 }

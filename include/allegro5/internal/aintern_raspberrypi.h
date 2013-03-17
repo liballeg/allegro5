@@ -29,7 +29,6 @@ typedef struct ALLEGRO_DISPLAY_RASPBERRYPI {
    int screen_width, screen_height;
    /* Cursor stuff */
    bool mouse_warp;
-   bool hide_cursor;
    uint32_t *cursor_data;
    int cursor_width;
    int cursor_height;
