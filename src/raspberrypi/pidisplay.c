@@ -30,7 +30,6 @@ static DISPMANX_DISPLAY_HANDLE_T dispman_display;
 static DISPMANX_ELEMENT_HANDLE_T cursor_element;
 static VC_RECT_T dst_rect;
 static VC_RECT_T src_rect;
-static ALLEGRO_THREAD *cursor_thread;
 static bool cursor_added = false;
 
 struct ALLEGRO_DISPLAY_RASPBERRYPI_EXTRA {
@@ -136,55 +135,6 @@ static void hide_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
    vc_dispmanx_update_submit_sync(dispman_update); 
    vc_dispmanx_resource_delete(cursor_resource);
    cursor_added = false;
-}
-
-static bool cursor_on = false;
-
-static void *cursor_thread_proc(ALLEGRO_THREAD *t, void *_d)
-{
-   ALLEGRO_DISPLAY *disp = (void *)_d;
-   ALLEGRO_DISPLAY_RASPBERRYPI *d = (void *)_d;
-   while (!al_get_thread_should_stop(t)) {
-      if (al_is_mouse_installed() && !cursor_on) {
-         cursor_on = true;
-         show_cursor(d);
-      }
-      else if (!al_is_mouse_installed() && cursor_on) {
-         cursor_on = false;
-         hide_cursor(d);
-      }
-      if (cursor_added && al_is_mouse_installed()) {
-         VC_RECT_T src, dst;
-         src.x = 0;
-         src.y = 0;
-         src.width = d->cursor_width << 16;
-         src.height = d->cursor_height << 16;
-         ALLEGRO_MOUSE_STATE st;
-         al_get_mouse_state(&st);
-         st.x = (st.x+0.5) * d->screen_width / disp->w;
-         st.y = (st.y+0.5) * d->screen_height / disp->h;
-         dst.x = st.x+d->cursor_offset_x;
-         dst.y = st.y+d->cursor_offset_y;
-         dst.width = d->cursor_width;
-         dst.height = d->cursor_height;
-            dispman_update = vc_dispmanx_update_start(0);
-         vc_dispmanx_element_change_attributes(
-            dispman_update,
-            cursor_element,
-            0,
-            0,
-            0,
-            &dst,
-            &src,
-            0,
-            0
-         );
-         vc_dispmanx_update_submit_sync(dispman_update); 
-      }
-      al_rest(1.0/60.0);
-   }
-
-   return NULL;
 }
 
 void _al_raspberrypi_setup_opengl_view(ALLEGRO_DISPLAY *d)
@@ -499,24 +449,12 @@ static ALLEGRO_DISPLAY *raspberrypi_create_display(int w, int h)
 
    set_cursor_data(d, default_cursor, DEFAULT_CURSOR_WIDTH, DEFAULT_CURSOR_HEIGHT);
 
-   cursor_thread = al_create_thread(cursor_thread_proc, display);
-   al_start_thread(cursor_thread);
-
-   if (al_is_mouse_installed()) {
-      while (!cursor_on) {
-         al_rest(0.001);
-      }
-   }
-
    return display;
 }
 
 static void raspberrypi_destroy_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_RASPBERRYPI *pidisplay = (ALLEGRO_DISPLAY_RASPBERRYPI *)d;
-
-   al_join_thread(cursor_thread, NULL);
-   al_destroy_thread(cursor_thread);
 
    hide_cursor(pidisplay);
    delete_cursor_data(pidisplay);
