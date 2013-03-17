@@ -182,7 +182,6 @@ TODO
 * accelerometer support
 * screen rotation
 * support more than just armv7a
-* sound of any kind
 * mouse emulation (is this even really needed?)
 * joystick emulation (at least till there is a more generic input api)
 * properly detecting screen sizes and modes
