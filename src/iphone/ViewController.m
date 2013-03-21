@@ -30,6 +30,12 @@ ALLEGRO_DEBUG_CHANNEL("iphone");
 
 - (BOOL)shouldAutorotate
 {
+   ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)display;
+   if (display == NULL)
+      return YES;
+   if (d->extra->adapter != 0) {
+      return NO;
+   }
    return YES;
 }
 
@@ -89,8 +95,12 @@ typedef enum {
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
+   ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)display;
    if (display == NULL)
       return YES;
+   if (d->extra->adapter != 0) {
+      return NO;
+   }
    EAGLView *view = (EAGLView *)al_iphone_get_view(display);
    if (view) {
       return [view orientation_supported:interfaceOrientation];
