@@ -2386,13 +2386,13 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
 
 void _al_d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
-
    if (bitmap == previous_target) {
       previous_target = NULL;
    }
 
    if (!al_is_sub_bitmap(bitmap)) {
+      ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
+
       if (d3d_bmp->video_texture) {
          if (d3d_bmp->video_texture->Release() != 0) {
             ALLEGRO_WARN("d3d_destroy_bitmap: Release video texture failed.\n");
@@ -2409,9 +2409,9 @@ void _al_d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
             ALLEGRO_WARN("d3d_destroy_bitmap: Release render target failed.\n");
          }
       }
-   }
 
-   al_free(bitmap->extra);
+      al_free(bitmap->extra);
+   }
 }
 
 static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
