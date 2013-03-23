@@ -366,6 +366,27 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
    IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
 
+   if (texture) {
+      if (texture->flags & ALLEGRO_MIN_LINEAR) {
+         IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+      }
+      else {
+         IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+      }
+      if (texture->flags & ALLEGRO_MAG_LINEAR) {
+         IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+      }
+      else {
+         IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+      }
+      if (texture->flags & ALLEGRO_MIPMAP) {
+         IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+      }
+      else {
+         IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+      }
+   }
+
    /* Convert vertices for legacy cards */
    if(legacy_card) {
       al_lock_mutex(d3d_mutex);
