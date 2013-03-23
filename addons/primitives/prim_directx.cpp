@@ -357,6 +357,27 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
    device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
    device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
 
+   if (texture) {
+      if (texture->flags & ALLEGRO_MIN_LINEAR) {
+         device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+      }
+      else {
+         device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+      }
+      if (texture->flags & ALLEGRO_MAG_LINEAR) {
+         device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+      }
+      else {
+         device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+      }
+      if (texture->flags & ALLEGRO_MIPMAP) {
+         device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+      }
+      else {
+         device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+      }
+   }
+
    return state;
 }
 
