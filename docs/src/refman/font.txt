@@ -311,6 +311,8 @@ Link with allegro_ttf.
 Call this after [al_init_font_addon] to make [al_load_font] recognize
 ".ttf" and other formats supported by [al_load_ttf_font].
 
+Returns true on success, false on failure.
+
 ### API: al_shutdown_ttf_addon
 
 Unloads the ttf addon again. You normally don't need to call this.
