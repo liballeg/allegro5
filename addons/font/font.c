@@ -21,6 +21,8 @@
 
 #include "font.h"
 
+ALLEGRO_DEBUG_CHANNEL("font")
+
 
 typedef struct
 {
@@ -29,6 +31,8 @@ typedef struct
 } FONT_HANDLER;
 
 
+/* globals */
+static bool font_inited = false;
 static _AL_VECTOR font_handlers;
 
 
@@ -277,12 +281,17 @@ ALLEGRO_FONT_VTABLE _al_font_vtable_color = {
 
 static void font_shutdown(void)
 {
+    if (!font_inited)
+       return;
+
     while (!_al_vector_is_empty(&font_handlers)) {
        FONT_HANDLER *h = _al_vector_ref_back(&font_handlers);
        al_ustr_free(h->extension);
        _al_vector_delete_at(&font_handlers, _al_vector_size(&font_handlers)-1);
     }
     _al_vector_free(&font_handlers);
+
+    font_inited = false;
 }
 
 
@@ -290,6 +299,11 @@ static void font_shutdown(void)
  */
 void al_init_font_addon(void)
 {
+   if (font_inited) {
+      ALLEGRO_WARN("Font addon already initialised.\n");
+      return;
+   }
+
    _al_vector_init(&font_handlers, sizeof(FONT_HANDLER));
 
    al_register_font_loader(".bmp", _al_load_bitmap_font);
@@ -299,6 +313,8 @@ void al_init_font_addon(void)
    al_register_font_loader(".tga", _al_load_bitmap_font);
 
    _al_add_exit_func(font_shutdown, "font_shutdown");
+
+   font_inited = true;
 }
 
 
@@ -359,6 +375,11 @@ ALLEGRO_FONT *al_load_font(char const *filename, int size, int flags)
    FONT_HANDLER *handler;
 
    ASSERT(filename);
+
+   if (!font_inited) {
+      ALLEGRO_ERROR("Font addon not initialised.\n");
+      return NULL;
+   }
 
    ext = strrchr(filename, '.');
    if (!ext)
