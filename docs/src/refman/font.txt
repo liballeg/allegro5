@@ -22,6 +22,11 @@ Initialise the font addon.
 Note that if you intend to load bitmap fonts, you will need to initialise
 allegro_image separately (unless you are using another library to load images).
 
+Returns true on success, false on failure.
+On the 5.0 branch, this function has no return value.  You may wish to avoid
+checking the return value if your code needs to be compatible with Allegro
+5.0.  Currently, the function only ever true.
+
 See also: [al_init_image_addon], [al_init_ttf_addon], [al_shutdown_font_addon]
 
 ### API: al_shutdown_font_addon

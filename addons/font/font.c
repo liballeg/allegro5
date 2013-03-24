@@ -297,11 +297,11 @@ static void font_shutdown(void)
 
 /* Function: al_init_font_addon
  */
-void al_init_font_addon(void)
+bool al_init_font_addon(void)
 {
    if (font_inited) {
       ALLEGRO_WARN("Font addon already initialised.\n");
-      return;
+      return true;
    }
 
    _al_vector_init(&font_handlers, sizeof(FONT_HANDLER));
@@ -315,6 +315,7 @@ void al_init_font_addon(void)
    _al_add_exit_func(font_shutdown, "font_shutdown");
 
    font_inited = true;
+   return font_inited;
 }
 
 
