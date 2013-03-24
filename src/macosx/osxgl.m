@@ -520,12 +520,14 @@ void _al_osx_mouse_was_installed(BOOL install) {
 
 -(void) enterFullScreenWindowMode
 {
+#if MAC_OS_X_VERSION_MIN_REQUIRED > 1050
    ALLEGRO_DISPLAY_OSX_WIN *dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
    int flags = NSApplicationPresentationHideDock | NSApplicationPresentationHideMenuBar;
    [dict setObject:[NSNumber numberWithInt: flags] forKey:NSFullScreenModeApplicationPresentationOptions];
    [[dpy->win contentView] enterFullScreenMode: [dpy->win screen] withOptions: dict];
    [dict release];
+#endif
 }
 
 -(void) exitFullScreenWindowMode
