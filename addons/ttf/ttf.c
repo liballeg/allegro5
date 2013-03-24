@@ -84,7 +84,7 @@ typedef struct ALLEGRO_TTF_FONT_DATA
 
 
 /* globals */
-static bool inited;
+static bool ttf_inited;
 static FT_Library ft;
 static ALLEGRO_FONT_VTABLE vt;
 
@@ -894,8 +894,10 @@ static int ttf_get_font_ranges(ALLEGRO_FONT *font, int ranges_count,
  */
 bool al_init_ttf_addon(void)
 {
-   if (inited) return false;
-   inited = true;
+   if (ttf_inited) {
+      ALLEGRO_WARN("TTF addon already initialised.\n");
+      return true;
+   }
 
    FT_Init_FreeType(&ft);
    vt.font_height = ttf_font_height;
@@ -910,11 +912,13 @@ bool al_init_ttf_addon(void)
    vt.get_font_ranges = ttf_get_font_ranges;
 
    al_register_font_loader(".ttf", al_load_ttf_font);
+
    /* Can't fail right now - in the future we might dynamically load
     * the FreeType DLL here and/or initialize FreeType (which both
     * could fail and would cause a false return).
     */
-   return true;
+   ttf_inited = true;
+   return ttf_inited;
 }
 
 
@@ -922,12 +926,16 @@ bool al_init_ttf_addon(void)
  */
 void al_shutdown_ttf_addon(void)
 {
-   if (!inited) return;
-   inited = false;
+   if (!ttf_inited) {
+      ALLEGRO_ERROR("TTF addon not initialised.\n");
+      return;
+   }
 
    al_register_font_loader(".ttf", NULL);
 
    FT_Done_FreeType(ft);
+
+   ttf_inited = false;
 }
 
 
