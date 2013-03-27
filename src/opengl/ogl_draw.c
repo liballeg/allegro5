@@ -236,9 +236,10 @@ static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
    ogl_target = target->extra;
 
    if ((!ogl_target->is_backbuffer &&
-      ogl_disp->ogl_extras->opengl_target != target) ||
-      target->locked) {
-      _al_clear_memory(color);
+         ogl_disp->ogl_extras->opengl_target != target)
+      || target->locked)
+   {
+      _al_clear_memory(target, color);
       return;
    }
 
