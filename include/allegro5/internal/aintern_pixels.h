@@ -3,6 +3,10 @@
 
 #include "allegro5/internal/aintern_float.h"
 
+#ifdef __cplusplus
+   extern "C" {
+#endif
+
 
 #define _AL_MAP_RGBA(_color, _r, _g, _b, _a)                                  \
    do {                                                                       \
@@ -452,8 +456,17 @@ AL_ARRAY(int, _al_rgb_scale_4);
 AL_ARRAY(int, _al_rgb_scale_5);
 AL_ARRAY(int, _al_rgb_scale_6);
 AL_ARRAY(float, _al_u8_to_float);
-AL_FUNC(char const *, _al_format_name, (ALLEGRO_PIXEL_FORMAT format));
-AL_FUNC(void, _al_init_pixels, (void));
+
+void _al_init_pixels(void);
+bool _al_pixel_format_has_alpha(int format);
+bool _al_pixel_format_is_real(int format);
+int _al_get_real_pixel_format(ALLEGRO_DISPLAY *display, int format);
+char const *_al_pixel_format_name(ALLEGRO_PIXEL_FORMAT format);
+
+
+#ifdef __cplusplus
+   }
+#endif
 
 #endif
 

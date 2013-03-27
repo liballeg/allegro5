@@ -76,7 +76,7 @@ void _al_d3d_generate_display_format_list(void)
       int vsync = !!(i & 4);
       int allegro_format = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
       if (format_num == 1) allegro_format = ALLEGRO_PIXEL_FORMAT_RGB_565;
-      D3DFORMAT d3d_format = (D3DFORMAT)_al_format_to_d3d(allegro_format);
+      D3DFORMAT d3d_format = (D3DFORMAT)_al_pixel_format_to_d3d(allegro_format);
 
      /* Count available multisample quality levels. */
       DWORD quality_levels = 0;

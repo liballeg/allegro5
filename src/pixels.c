@@ -26,6 +26,7 @@
 
 ALLEGRO_DEBUG_CHANNEL("pixels")
 
+
 /* lookup table for scaling 8 bit integers up to floats [0.0, 1.0] */
 float _al_u8_to_float[256];
 int _al_rgb_scale_1[2];
@@ -93,21 +94,6 @@ static int pixel_bits[] = {
    16 /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
 };
 
-
-/* Function: al_get_pixel_size
- */
-int al_get_pixel_size(int format)
-{
-   return pixel_sizes[format];
-}
-
-/* Function: al_get_pixel_format_bits
- */
-int al_get_pixel_format_bits(int format)
-{
-   return pixel_bits[format];
-}
-
 static bool format_alpha_table[ALLEGRO_NUM_PIXEL_FORMATS] = {
    false, /* neutral (ALLEGRO_PIXEL_FORMAT_ANY) */
    false,
@@ -169,11 +155,6 @@ static char const *pixel_format_names[ALLEGRO_NUM_PIXEL_FORMATS + 1] = {
    "INVALID"
 };
 
-bool _al_format_has_alpha(int format)
-{
-   return format_alpha_table[format];
-}
-
 static bool format_is_real[ALLEGRO_NUM_PIXEL_FORMATS] =
 {
    false, /* ALLEGRO_PIXEL_FORMAT_ANY */
@@ -206,6 +187,48 @@ static bool format_is_real[ALLEGRO_NUM_PIXEL_FORMATS] =
 };
 
 
+void _al_init_pixels(void)
+{
+   int i;
+   for (i = 0; i < 256; i++)
+      _al_u8_to_float[i] = i / 255.0;
+
+   for (i = 0; i < 2; i++)
+      _al_rgb_scale_1[i] = i * 255 / 1;
+
+   for (i = 0; i < 16; i++)
+      _al_rgb_scale_4[i] = i * 255 / 15;
+
+   for (i = 0; i < 32; i++)
+      _al_rgb_scale_5[i] = i * 255 / 31;
+
+   for (i = 0; i < 64; i++)
+      _al_rgb_scale_6[i] = i * 255 / 63;
+}
+
+
+/* Function: al_get_pixel_size
+ */
+int al_get_pixel_size(int format)
+{
+   return pixel_sizes[format];
+}
+
+
+/* Function: al_get_pixel_format_bits
+ */
+int al_get_pixel_format_bits(int format)
+{
+   return pixel_bits[format];
+}
+
+
+bool _al_pixel_format_has_alpha(int format)
+{
+   return format_alpha_table[format];
+}
+
+
 bool _al_pixel_format_is_real(int format)
 {
    ASSERT(format >= 0);
@@ -213,6 +236,7 @@ bool _al_pixel_format_is_real(int format)
 
    return format_is_real[format];
 }
+
 
 /* We use al_get_display_format() as a hint for the preferred RGB ordering when
  * nothing else is specified.
@@ -234,7 +258,9 @@ static bool try_display_format(ALLEGRO_DISPLAY *display, int *format)
    if (bytes && bytes != al_get_pixel_size(best_format))
       return false;
 
-   if (_al_format_has_alpha(*format) && !_al_format_has_alpha(best_format)) {
+   if (_al_pixel_format_has_alpha(*format) &&
+      !_al_pixel_format_has_alpha(best_format))
+   {
       switch (best_format) {
          case ALLEGRO_PIXEL_FORMAT_RGBX_8888:
             *format = ALLEGRO_PIXEL_FORMAT_RGBA_8888;
@@ -252,6 +278,7 @@ static bool try_display_format(ALLEGRO_DISPLAY *display, int *format)
    *format = best_format;
    return true;
 }
+
 
 int _al_get_real_pixel_format(ALLEGRO_DISPLAY *display, int format)
 {
@@ -288,6 +315,13 @@ int _al_get_real_pixel_format(ALLEGRO_DISPLAY *display, int format)
 
    ASSERT(_al_pixel_format_is_real(format));
    return format;
+}
+
+
+char const *_al_pixel_format_name(ALLEGRO_PIXEL_FORMAT format)
+{
+   if (format >= ALLEGRO_NUM_PIXEL_FORMATS) format = ALLEGRO_NUM_PIXEL_FORMATS;
+   return pixel_format_names[format];
 }
 
 
@@ -442,6 +476,7 @@ void al_put_pixel(int x, int y, ALLEGRO_COLOR color)
    _al_put_pixel(al_get_target_bitmap(), x, y, color);
 }
 
+
 /* Function: al_put_blended_pixel
  */
 void al_put_blended_pixel(int x, int y, ALLEGRO_COLOR color)
@@ -500,30 +535,5 @@ void al_unmap_rgb_f(ALLEGRO_COLOR color, float *r, float *g, float *b)
    al_unmap_rgba_f(color, r, g, b, &tmp);
 }
 
-
-void _al_init_pixels(void)
-{
-   int i;
-   for (i = 0; i < 256; i++)
-      _al_u8_to_float[i] = i / 255.0;
-
-   for (i = 0; i < 2; i++)
-      _al_rgb_scale_1[i] = i * 255 / 1;
-
-   for (i = 0; i < 16; i++)
-      _al_rgb_scale_4[i] = i * 255 / 15;
-
-   for (i = 0; i < 32; i++)
-      _al_rgb_scale_5[i] = i * 255 / 31;
-
-   for (i = 0; i < 64; i++)
-      _al_rgb_scale_6[i] = i * 255 / 63;
-}
-
-char const *_al_format_name(ALLEGRO_PIXEL_FORMAT format)
-{
-   if (format >= ALLEGRO_NUM_PIXEL_FORMATS) format = ALLEGRO_NUM_PIXEL_FORMATS;
-   return pixel_format_names[format];
-}
 
 /* vim: set sts=3 sw=3 et: */

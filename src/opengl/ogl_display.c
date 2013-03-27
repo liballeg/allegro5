@@ -230,7 +230,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
              * message and switch to (extremely slow) software mode.
              */
             ALLEGRO_ERROR("Could not use FBO for bitmap with format %s.\n",
-               _al_format_name(bitmap->format));
+               _al_pixel_format_name(bitmap->format));
             ALLEGRO_ERROR("*** SWITCHING TO SOFTWARE MODE ***\n");
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
             glDeleteFramebuffersEXT(1, &info->fbo);
@@ -476,7 +476,7 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
    }
 #endif
    ALLEGRO_TRACE_CHANNEL_LEVEL("display", 1)("Deduced format %s for backbuffer.\n",
-      _al_format_name(format));
+      _al_pixel_format_name(format));
 
    /* Now that the display backbuffer has a format, update extra_settings so
     * the user can query it back.
@@ -498,7 +498,7 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
    
    ALLEGRO_TRACE_CHANNEL_LEVEL("display", 1)(
       "Created backbuffer bitmap (actual format: %s)\n",
-      _al_format_name(backbuffer->format));
+      _al_pixel_format_name(backbuffer->format));
 
    ogl_backbuffer = (ALLEGRO_BITMAP_OGL*)backbuffer;
    ogl_backbuffer->is_backbuffer = 1;

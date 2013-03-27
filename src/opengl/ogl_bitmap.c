@@ -547,7 +547,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
 
    if (e) {
       ALLEGRO_ERROR("glTexImage2D for format %s, size %dx%d failed (%s)\n",
-         _al_format_name(bitmap->format),
+         _al_pixel_format_name(bitmap->format),
          ogl_bitmap->true_w, ogl_bitmap->true_h,
          error_string(e));
       glDeleteTextures(1, &ogl_bitmap->texture);
@@ -708,7 +708,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
          e = glGetError();
          if (e) {
             ALLEGRO_ERROR("glReadPixels for format %s failed (%s).\n",
-               _al_format_name(format), error_string(e));
+               _al_pixel_format_name(format), error_string(e));
          }
       }
       bitmap->locked_region.data = ogl_bitmap->lock_buffer +
@@ -762,7 +762,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
             e = glGetError();
             if (e) {
                ALLEGRO_ERROR("glReadPixels for format %s failed (%s).\n",
-                  _al_format_name(format), error_string(e));
+                  _al_pixel_format_name(format), error_string(e));
             }
 
             _al_convert_bitmap_data(
@@ -795,7 +795,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
          e = glGetError();
          if (e) {
             ALLEGRO_ERROR("glGetTexImage for format %s failed (%s).\n",
-               _al_format_name(format), error_string(e));
+               _al_pixel_format_name(format), error_string(e));
          }
 
          bitmap->locked_region.data = ogl_bitmap->lock_buffer +
@@ -923,7 +923,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       e = glGetError();
       if (e) {
          ALLEGRO_ERROR("glDrawPixels for format %s failed (%s).\n",
-            _al_format_name(lock_format), error_string(e));
+            _al_pixel_format_name(lock_format), error_string(e));
       }
       if (popmatrix) {
          glPopMatrix();
@@ -952,7 +952,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       e = glGetError();
       if (e) {
          ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
-            _al_format_name(lock_format), error_string(e));
+            _al_pixel_format_name(lock_format), error_string(e));
       }
 
       if (bitmap->flags & ALLEGRO_MIPMAP) {
@@ -1032,7 +1032,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          if (e) {
             GLint tex_internalformat;
             ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
-               _al_format_name(lock_format), error_string(e));
+               _al_pixel_format_name(lock_format), error_string(e));
 #ifndef ALLEGRO_IPHONE
             glGetTexLevelParameteriv(GL_TEXTURE_2D, 0,
                GL_TEXTURE_INTERNAL_FORMAT, &tex_internalformat);
@@ -1158,7 +1158,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
       format = ALLEGRO_PIXEL_FORMAT_RGBA_4444;
 #endif
 
-   ALLEGRO_DEBUG("Chose format %s for OpenGL bitmap\n", _al_format_name(format));
+   ALLEGRO_DEBUG("Chose format %s for OpenGL bitmap\n", _al_pixel_format_name(format));
    ASSERT(_al_pixel_format_is_real(format));
 
    pitch = true_w * al_get_pixel_size(format);
