@@ -16,6 +16,7 @@
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_memdraw.h"
 #include "allegro5/internal/aintern_opengl.h"
 
 
