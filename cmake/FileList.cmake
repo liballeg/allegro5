@@ -4,6 +4,7 @@ set(ALLEGRO_SRC_FILES
     src/bitmap_draw.c
     src/bitmap_io.c
     src/bitmap_lock.c
+    src/bitmap_pixel.c
     src/blenders.c
     src/config.c
     src/convert.c
