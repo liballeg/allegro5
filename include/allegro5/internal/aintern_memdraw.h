@@ -6,7 +6,7 @@
 #endif
 
 
-void _al_clear_memory(ALLEGRO_COLOR *color);
+void _al_clear_memory(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color);
 void _al_draw_pixel_memory(ALLEGRO_BITMAP *bmp, float x, float y, ALLEGRO_COLOR *color);
 
 

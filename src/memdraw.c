@@ -168,9 +168,10 @@ static void _al_draw_filled_rectangle_memory_fast(int x1, int y1, int x2, int y2
 }
 
 
-void _al_clear_memory(ALLEGRO_COLOR *color)
+void _al_clear_memory(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color)
 {
-   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
+   ASSERT(bitmap);
+   ASSERT(bitmap->flags & ALLEGRO_MEMORY_BITMAP);
 
    _al_draw_filled_rectangle_memory_fast(0, 0, bitmap->w-1, bitmap->h-1,
       color);

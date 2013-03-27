@@ -28,7 +28,7 @@ void al_clear_to_color(ALLEGRO_COLOR color)
    ASSERT(target);
 
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
-      _al_clear_memory(&color);
+      _al_clear_memory(target, &color);
    }
    else {
       ALLEGRO_DISPLAY *display = target->display;
