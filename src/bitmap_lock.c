@@ -17,6 +17,7 @@
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_pixels.h"
 
 
 /* Function: al_lock_bitmap_region

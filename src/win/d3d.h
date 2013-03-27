@@ -49,7 +49,7 @@ AL_FUNC(ALLEGRO_BITMAP *, _al_d3d_create_bitmap,
 //bool _al_d3d_is_device_lost(void);
 //void _al_d3d_lock_device();
 //void _al_d3d_unlock_device();
-int _al_format_to_d3d(int format);
+int _al_pixel_format_to_d3d(int format);
 int _al_d3d_format_to_allegro(int d3d_fmt);
 bool _al_d3d_render_to_texture_supported(void);
 void _al_d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap);

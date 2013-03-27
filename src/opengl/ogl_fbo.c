@@ -379,7 +379,7 @@ static void setup_fbo_non_backbuffer(ALLEGRO_DISPLAY *display,
           * message and switch to (extremely slow) software mode.
           */
          ALLEGRO_ERROR("Could not use FBO for bitmap with format %s.\n",
-            _al_format_name(bitmap->format));
+            _al_pixel_format_name(bitmap->format));
          ALLEGRO_ERROR("*** SWITCHING TO SOFTWARE MODE ***\n");
          _al_ogl_bind_framebuffer(0);
          if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {

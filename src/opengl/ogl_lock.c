@@ -177,7 +177,7 @@ static void ogl_lock_region_backbuffer(
       e = glGetError();
       if (e) {
          ALLEGRO_ERROR("glReadPixels for format %s failed (%s).\n",
-            _al_format_name(format), _al_gl_error_string(e));
+            _al_pixel_format_name(format), _al_gl_error_string(e));
       }
    }
 
@@ -264,7 +264,7 @@ static void ogl_lock_region_nonbb_readwrite_fbo(
    e = glGetError();
    if (e) {
       ALLEGRO_ERROR("glReadPixels for format %s failed (%s).\n",
-         _al_format_name(format), _al_gl_error_string(e));
+         _al_pixel_format_name(format), _al_gl_error_string(e));
    }
 
    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, old_fbo);
@@ -297,7 +297,7 @@ static void ogl_lock_region_nonbb_readwrite_nonfbo(
    e = glGetError();
    if (e) {
       ALLEGRO_ERROR("glGetTexImage for format %s failed (%s).\n",
-         _al_format_name(format), _al_gl_error_string(e));
+         _al_pixel_format_name(format), _al_gl_error_string(e));
    }
 
    bitmap->locked_region.data = ogl_bitmap->lock_buffer +
@@ -474,7 +474,7 @@ static void ogl_unlock_region_backbuffer(ALLEGRO_BITMAP *bitmap,
    e = glGetError();
    if (e) {
       ALLEGRO_ERROR("glDrawPixels for format %s failed (%s).\n",
-         _al_format_name(lock_format), _al_gl_error_string(e));
+         _al_pixel_format_name(lock_format), _al_gl_error_string(e));
    }
 
    if (popmatrix) {
@@ -553,7 +553,7 @@ static void ogl_unlock_region_nonbb_fbo_readwrite(ALLEGRO_BITMAP *bitmap,
    e = glGetError();
    if (e) {
       ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
-         _al_format_name(lock_format), _al_gl_error_string(e));
+         _al_pixel_format_name(lock_format), _al_gl_error_string(e));
       glGetTexLevelParameteriv(GL_TEXTURE_2D, 0,
          GL_TEXTURE_INTERNAL_FORMAT, &tex_internalformat);
       ALLEGRO_DEBUG("x/y/w/h: %d/%d/%d/%d, internal format: %d\n",
@@ -591,7 +591,7 @@ static void ogl_unlock_region_nonbb_nonfbo(ALLEGRO_BITMAP *bitmap,
    e = glGetError();
    if (e) {
       ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
-         _al_format_name(lock_format), _al_gl_error_string(e));
+         _al_pixel_format_name(lock_format), _al_gl_error_string(e));
    }
 }
 

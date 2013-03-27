@@ -27,10 +27,11 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_pixels.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_thread.h"
-#include "allegro5/internal/aintern_vector.h"
 #include "allegro5/internal/aintern_tri_soft.h" // For ALLEGRO_VERTEX
+#include "allegro5/internal/aintern_vector.h"
 #include "allegro5/platform/aintwin.h"
 
 #include "d3d.h"
@@ -259,7 +260,7 @@ bool al_have_d3d_non_square_texture_support(void)
 }
 
 
-int _al_format_to_d3d(int format)
+int _al_pixel_format_to_d3d(int format)
 {
    int i;
 
@@ -390,7 +391,7 @@ static bool d3d_display_mode_matches(D3DDISPLAYMODE *dm, int w, int h, int forma
    if ((dm->Width == (unsigned int)w) &&
        (dm->Height == (unsigned int)h) &&
        ((!refresh_rate) || (dm->RefreshRate == (unsigned int)refresh_rate)) &&
-       ((int)dm->Format == (int)_al_format_to_d3d(format))) {
+       ((int)dm->Format == (int)_al_pixel_format_to_d3d(format))) {
           return true;
    }
    return false;
@@ -402,10 +403,10 @@ static bool d3d_check_mode(int w, int h, int format, int refresh_rate, UINT adap
    UINT i;
    D3DDISPLAYMODE display_mode;
 
-   num_modes = _al_d3d->GetAdapterModeCount(adapter, (D3DFORMAT)_al_format_to_d3d(format));
+   num_modes = _al_d3d->GetAdapterModeCount(adapter, (D3DFORMAT)_al_pixel_format_to_d3d(format));
 
    for (i = 0; i < num_modes; i++) {
-      if (_al_d3d->EnumAdapterModes(adapter, (D3DFORMAT)_al_format_to_d3d(format), i, &display_mode) != D3D_OK) {
+      if (_al_d3d->EnumAdapterModes(adapter, (D3DFORMAT)_al_pixel_format_to_d3d(format), i, &display_mode) != D3D_OK) {
          return false;
       }
       if (d3d_display_mode_matches(&display_mode, w, h, format, refresh_rate)) {
@@ -440,7 +441,7 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
    }
 
    ZeroMemory(&d3d_pp, sizeof(d3d_pp));
-   d3d_pp.BackBufferFormat = (D3DFORMAT)_al_format_to_d3d(format);
+   d3d_pp.BackBufferFormat = (D3DFORMAT)_al_pixel_format_to_d3d(format);
    d3d_pp.BackBufferWidth = al_display->w;
    d3d_pp.BackBufferHeight = al_display->h;
    d3d_pp.BackBufferCount = 1;
@@ -775,7 +776,7 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
 
    ZeroMemory(&d3d_pp, sizeof(d3d_pp));
 
-   d3d_pp.BackBufferFormat = (D3DFORMAT)_al_format_to_d3d(format);
+   d3d_pp.BackBufferFormat = (D3DFORMAT)_al_pixel_format_to_d3d(format);
 
    d3d_pp.BackBufferWidth = al_display->w;
    d3d_pp.BackBufferHeight = al_display->h;
@@ -976,7 +977,7 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
        HRESULT hr;
 
        ZeroMemory(&d3d_pp, sizeof(d3d_pp));
-       d3d_pp.BackBufferFormat = (D3DFORMAT)_al_format_to_d3d(_al_deduce_color_format(&al_display->extra_settings));
+       d3d_pp.BackBufferFormat = (D3DFORMAT)_al_pixel_format_to_d3d(_al_deduce_color_format(&al_display->extra_settings));
        d3d_pp.BackBufferWidth = al_display->w;
        d3d_pp.BackBufferHeight = al_display->h;
        d3d_pp.BackBufferCount = 1;
@@ -1055,7 +1056,7 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
     }
     else {
        ZeroMemory(&d3d_pp, sizeof(d3d_pp));
-       d3d_pp.BackBufferFormat = (D3DFORMAT)_al_format_to_d3d(_al_deduce_color_format(&al_display->extra_settings));
+       d3d_pp.BackBufferFormat = (D3DFORMAT)_al_pixel_format_to_d3d(_al_deduce_color_format(&al_display->extra_settings));
        d3d_pp.BackBufferWidth = al_display->w;
        d3d_pp.BackBufferHeight = al_display->h;
        d3d_pp.BackBufferCount = 1;
@@ -1173,7 +1174,7 @@ static int real_choose_bitmap_format(ALLEGRO_DISPLAY_D3D *d3d_display,
          ALLEGRO_DEBUG("#Bits don't match\n");
          continue;
       }
-      if (alpha && !_al_format_has_alpha(aformat)) {
+      if (alpha && !_al_pixel_format_has_alpha(aformat)) {
          ALLEGRO_DEBUG("Alpha doesn't match\n");
          continue;
       }
@@ -1182,7 +1183,7 @@ static int real_choose_bitmap_format(ALLEGRO_DISPLAY_D3D *d3d_display,
       if (!_al_pixel_format_is_real(adapter_format_allegro))
          adapter_format_allegro = d3d_choose_display_format(adapter_format_allegro);
       ALLEGRO_DEBUG("Adapter format is %d\n", adapter_format_allegro);
-      adapter_format = (D3DFORMAT)_al_format_to_d3d(adapter_format_allegro);
+      adapter_format = (D3DFORMAT)_al_pixel_format_to_d3d(adapter_format_allegro);
       if (IsTextureFormatOk(dformat, adapter_format)) {
          ALLEGRO_DEBUG("Found a format\n");
          return aformat;
@@ -2355,7 +2356,7 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
       }
    }
 
-   if (_al_format_to_d3d(format) < 0) {
+   if (_al_pixel_format_to_d3d(format) < 0) {
       ALLEGRO_ERROR("Requested bitmap format not supported (%d).\n", format);
       return NULL;
    }
@@ -2896,7 +2897,7 @@ int _al_d3d_get_num_display_modes(int format, int refresh_rate, int flags)
       if (adapter < 0)
          adapter = 0;
 
-      if (!_al_pixel_format_is_real(allegro_formats[j]) || _al_format_has_alpha(allegro_formats[j]))
+      if (!_al_pixel_format_is_real(allegro_formats[j]) || _al_pixel_format_has_alpha(allegro_formats[j]))
          continue;
 
       num_modes = _al_d3d->GetAdapterModeCount(adapter, (D3DFORMAT)d3d_formats[j]);
@@ -2946,7 +2947,7 @@ ALLEGRO_DISPLAY_MODE *_al_d3d_get_display_mode(int index, int format,
       if (adapter < 0)
          adapter = 0;
 
-      if (!_al_pixel_format_is_real(allegro_formats[j]) || _al_format_has_alpha(allegro_formats[j]))
+      if (!_al_pixel_format_is_real(allegro_formats[j]) || _al_pixel_format_has_alpha(allegro_formats[j]))
          continue;
 
       num_modes = _al_d3d->GetAdapterModeCount(adapter, (D3DFORMAT)d3d_formats[j]);

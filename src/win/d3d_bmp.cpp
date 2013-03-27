@@ -23,6 +23,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_pixels.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_tri_soft.h" // For ALLEGRO_VERTEX
 #include "allegro5/platform/aintwin.h"
@@ -324,7 +325,7 @@ static bool d3d_create_textures(ALLEGRO_DISPLAY_D3D *disp, int w, int h,
       if (video_texture) {
          err = disp->device->CreateTexture(w, h, levels,
             D3DUSAGE_RENDERTARGET | autogenmipmap,
-            (D3DFORMAT)_al_format_to_d3d(format), D3DPOOL_DEFAULT,
+            (D3DFORMAT)_al_pixel_format_to_d3d(format), D3DPOOL_DEFAULT,
             video_texture, NULL);
          if (err != D3D_OK && err != D3DOK_NOAUTOGEN) {
             ALLEGRO_ERROR("d3d_create_textures: Unable to create video texture.\n");
@@ -334,7 +335,7 @@ static bool d3d_create_textures(ALLEGRO_DISPLAY_D3D *disp, int w, int h,
 
       if (system_texture) {
          err = disp->device->CreateTexture(w, h, 1,
-            0, (D3DFORMAT)_al_format_to_d3d(format), D3DPOOL_SYSTEMMEM,
+            0, (D3DFORMAT)_al_pixel_format_to_d3d(format), D3DPOOL_SYSTEMMEM,
             system_texture, NULL);
          if (err != D3D_OK) {
             ALLEGRO_ERROR("d3d_create_textures: Unable to create system texture.\n");
@@ -351,7 +352,7 @@ static bool d3d_create_textures(ALLEGRO_DISPLAY_D3D *disp, int w, int h,
    else {
       if (video_texture) {
          err = disp->device->CreateTexture(w, h, 1,
-            0, (D3DFORMAT)_al_format_to_d3d(format), D3DPOOL_MANAGED,
+            0, (D3DFORMAT)_al_pixel_format_to_d3d(format), D3DPOOL_MANAGED,
             video_texture, NULL);
          if (err != D3D_OK) {
             ALLEGRO_ERROR("d3d_create_textures: Unable to create video texture (no render-to-texture).\n");

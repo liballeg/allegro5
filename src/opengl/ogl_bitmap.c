@@ -401,7 +401,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
          ALLEGRO_DEBUG("Created new OpenGL texture %d (%dx%d, format %s)\n",
                     ogl_bitmap->texture,
                     ogl_bitmap->true_w, ogl_bitmap->true_h,
-                    _al_format_name(bitmap->format));
+                    _al_pixel_format_name(bitmap->format));
       }
    }
    glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
@@ -501,7 +501,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
 
    if (e) {
       ALLEGRO_ERROR("glTexImage2D for format %s, size %dx%d failed (%s)\n",
-         _al_format_name(bitmap->format),
+         _al_pixel_format_name(bitmap->format),
          ogl_bitmap->true_w, ogl_bitmap->true_h,
          _al_gl_error_string(e));
       glDeleteTextures(1, &ogl_bitmap->texture);

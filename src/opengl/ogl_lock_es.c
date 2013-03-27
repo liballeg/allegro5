@@ -137,7 +137,7 @@ ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_old_gles(ALLEGRO_BITMAP *bitmap,
          e = glGetError();
          if (e) {
             ALLEGRO_ERROR("glReadPixels for format %s failed (%s).\n",
-               _al_format_name(format), _al_gl_error_string(e));
+               _al_pixel_format_name(format), _al_gl_error_string(e));
          }
       }
 
@@ -215,7 +215,7 @@ ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_old_gles(ALLEGRO_BITMAP *bitmap,
             e = glGetError();
             if (e) {
                ALLEGRO_ERROR("glReadPixels for format %s failed (%s).\n",
-                  _al_format_name(format), _al_gl_error_string(e));
+                  _al_pixel_format_name(format), _al_gl_error_string(e));
             }
 
             /* That's right, we convert in-place.
@@ -366,7 +366,7 @@ void _al_ogl_unlock_region_old_gles(ALLEGRO_BITMAP *bitmap)
             GLint tex_internalformat;
             (void)tex_internalformat;
             ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
-               _al_format_name(lock_format), _al_gl_error_string(e));
+               _al_pixel_format_name(lock_format), _al_gl_error_string(e));
          }
       }
 
