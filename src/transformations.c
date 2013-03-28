@@ -21,6 +21,7 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_system.h"
+#include "allegro5/internal/aintern_transform.h"
 #include <math.h>
 
 /* ALLEGRO_DEBUG_CHANNEL("transformations") */
