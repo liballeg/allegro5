@@ -304,7 +304,8 @@ void _al_osx_mouse_was_installed(BOOL install) {
       glViewport(0, 0, NSWidth(rc), NSHeight(rc));
       
       al_identity_transform(&dpy_ptr->proj_transform);
-      al_ortho_transform(&dpy_ptr->proj_transform, 0, NSWidth(rc), NSHeight(rc), 0, -1, 1);
+      al_orthographic_transform(&dpy_ptr->proj_transform,
+         0, 0, -1, NSWidth(rc), NSHeight(rc), 1);
       
       if (dpy->tracking) {
          [self removeTrackingArea: dpy->tracking];

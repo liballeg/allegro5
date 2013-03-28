@@ -40,7 +40,7 @@ static void set_transform(ALLEGRO_DISPLAY *dpy)
    // glViewport(0, 0, w, h);
 
    al_identity_transform(&t);
-   al_ortho_transform(&t, 0, w, h, 0, -1, 1);
+   al_orthographic_transform(&t, 0, 0, -1, w, h, 1);
    al_set_projection_transform(dpy, &t);
 }
 

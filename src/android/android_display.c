@@ -288,7 +288,7 @@ void _al_android_setup_opengl_view(ALLEGRO_DISPLAY *d)
    glViewport(0, 0, d->w, d->h);
 
    al_identity_transform(&d->proj_transform);
-   al_ortho_transform(&d->proj_transform, 0, d->w, d->h, 0, -1, 1);
+   al_orthographic_transform(&d->proj_transform, 0, 0, -1, d->w, d->h, 1);
    al_set_projection_transform(d, &d->proj_transform);
 
    al_identity_transform(&d->view_transform);

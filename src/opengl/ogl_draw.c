@@ -196,7 +196,8 @@ static void ogl_clear_android_2_1_workaround(ALLEGRO_DISPLAY *d,
    al_copy_transform(&bak2, al_get_current_transform());
 
    al_identity_transform(&t);
-   al_ortho_transform(&t, 0, d->w, d->h, 0, -1, 1);
+   al_orthographic_transform(&t, 0, 0, -1, d->w, d->h, 1);
+
    al_set_projection_transform(d, &t);
    al_identity_transform(&t);
    al_use_transform(&t);
