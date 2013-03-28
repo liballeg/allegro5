@@ -1112,7 +1112,7 @@ static bool open_video(ALLEGRO_VIDEO *video)
       return false;
    }
 
-   if (av_find_stream_info(is->format_context) < 0) {
+   if (avformat_find_stream_info(is->format_context, NULL) < 0) {
       av_free(is);
       return false;
    }
