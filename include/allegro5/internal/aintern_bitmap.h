@@ -119,12 +119,6 @@ void _al_convert_bitmap_data(
 	int sx, int sy, int dx, int dy,
 	int width, int height);
 
-/* For blending memory bitmaps */
-typedef void (*ALLEGRO_MEMORY_BLENDER)(
-   ALLEGRO_COLOR *src_color,
-   ALLEGRO_COLOR *dest_color,
-   ALLEGRO_COLOR *result);
-
 /* Bitmap type conversion */ 
 void _al_init_convert_bitmap_list(void);
 void _al_register_convert_bitmap(ALLEGRO_BITMAP *bitmap);
