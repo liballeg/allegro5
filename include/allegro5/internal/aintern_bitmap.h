@@ -114,12 +114,6 @@ void _al_convert_bitmap_data(
 void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap);
 void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap);
 
-/* For blending memory bitmaps */
-typedef void (*ALLEGRO_MEMORY_BLENDER)(
-   ALLEGRO_COLOR *src_color,
-   ALLEGRO_COLOR *dest_color,
-   ALLEGRO_COLOR *result);
-
 #ifdef ALLEGRO_GP2XWIZ
 /* Optimized blitters */
 void _al_draw_bitmap_region_optimized_rgba_4444_to_rgb_565(
