@@ -187,21 +187,6 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 }
 
 
-/* Function: al_create_custom_bitmap
- */
-ALLEGRO_BITMAP *al_create_custom_bitmap(int w, int h,
-   bool (*upload)(ALLEGRO_BITMAP *bitmap, void *data), void *data)
-{
-   ALLEGRO_BITMAP *bitmap = do_create_bitmap(w, h, upload, data);
-   if (bitmap) {
-      _al_register_destructor(_al_dtor_list, bitmap,
-         (void (*)(void *))al_destroy_bitmap);
-   }
-   
-   return bitmap;
-}
-
-
 /* Function: al_destroy_bitmap
  */
 void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
