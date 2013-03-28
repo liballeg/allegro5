@@ -126,9 +126,6 @@ typedef void (*ALLEGRO_MEMORY_BLENDER)(
    ALLEGRO_COLOR *dest_color,
    ALLEGRO_COLOR *result);
 
-void _al_blend_memory(ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dest,
-   int dx, int dy, ALLEGRO_COLOR *result);
-
 #ifdef ALLEGRO_GP2XWIZ
 /* Optimized blitters */
 void _al_draw_bitmap_region_optimized_rgba_4444_to_rgb_565(
