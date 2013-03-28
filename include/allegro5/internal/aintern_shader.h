@@ -1,6 +1,8 @@
 #ifndef __al_included_allegro5_internal_aintern_shader_h
 #define __al_included_allegro5_internal_aintern_shader_h
 
+#include "allegro5/internal/aintern_vector.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

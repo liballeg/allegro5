@@ -5,6 +5,7 @@ set(ALLEGRO_SRC_FILES
     src/bitmap_io.c
     src/bitmap_lock.c
     src/bitmap_pixel.c
+    src/bitmap_type.c
     src/blenders.c
     src/config.c
     src/convert.c

@@ -118,14 +118,11 @@ void _al_convert_bitmap_data(
 	void *dst, int dst_format, int dst_pitch,
 	int sx, int sy, int dx, int dy,
 	int width, int height);
-void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap);
-void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap);
 
 /* Memory bitmap blitting */
 void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_COLOR tint,
    int sx, int sy, int sw, int sh, int dx, int dy, int flags);
-
 
 /* For blending memory bitmaps */
 typedef void (*ALLEGRO_MEMORY_BLENDER)(
@@ -139,8 +136,16 @@ void _al_blend_memory(ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dest,
 bool _al_transform_is_translation(const ALLEGRO_TRANSFORM* trans,
    float *dx, float *dy);
 
-void _al_init_iio_table(void);
+/* Bitmap type conversion */ 
 void _al_init_to_be_converted_bitmaps(void);
+void _al_check_to_be_converted_list_add(ALLEGRO_BITMAP *bitmap);
+void _al_check_to_be_converted_list_remove(ALLEGRO_BITMAP *bitmap);
+void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap);
+void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap);
+
+/* Bitmap I/O */
+void _al_init_iio_table(void);
+
 
 #ifdef __cplusplus
 }
