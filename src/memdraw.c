@@ -18,6 +18,7 @@
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_blend.h"
 #include "allegro5/internal/aintern_memdraw.h"
 
 

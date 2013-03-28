@@ -3,6 +3,10 @@
 
 #include "allegro5/internal/aintern.h"
 
+#ifdef __cplusplus
+   extern "C" {
+#endif
+
 
 #ifdef __GNUC__
    #define _AL_ALWAYS_INLINE  inline __attribute__((always_inline))
@@ -225,6 +229,14 @@ void _al_blend_inline(
 
 #endif
 
+
+void _al_blend_memory(ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dest,
+   int dx, int dy, ALLEGRO_COLOR *result);
+
+
+#ifdef __cplusplus
+   }
+#endif
 
 #endif
 

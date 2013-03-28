@@ -130,9 +130,6 @@ typedef void (*ALLEGRO_MEMORY_BLENDER)(
    ALLEGRO_COLOR *dest_color,
    ALLEGRO_COLOR *result);
 
-void _al_blend_memory(ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dest,
-   int dx, int dy, ALLEGRO_COLOR *result);
-
 /* Bitmap type conversion */ 
 void _al_init_convert_bitmap_list(void);
 void _al_register_convert_bitmap(ALLEGRO_BITMAP *bitmap);
