@@ -33,7 +33,7 @@ ALLEGRO_DEBUG_CHANNEL("bitmap")
 
 /* Creates a memory bitmap.
  */
-static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
+static ALLEGRO_BITMAP *create_memory_bitmap(int w, int h)
 {
    ALLEGRO_BITMAP *bitmap;
    int pitch;
@@ -68,7 +68,7 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
 
 
 
-static void _al_destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
+static void destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
 {
    al_free(bmp->memory);
    al_free(bmp);
@@ -96,7 +96,7 @@ static ALLEGRO_BITMAP *do_create_bitmap(int w, int h)
    if ((al_get_new_bitmap_flags() & ALLEGRO_MEMORY_BITMAP) ||
          (!current_display || !current_display->vt || current_display->vt->create_bitmap == NULL) ||
          (system->displays._size < 1)) {
-      return _al_create_memory_bitmap(w, h);
+      return create_memory_bitmap(w, h);
    }
 
    /* Else it's a display bitmap */
@@ -186,7 +186,7 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
    }
 
    if (bitmap->flags & ALLEGRO_MEMORY_BITMAP) {
-      _al_destroy_memory_bitmap(bitmap);
+      destroy_memory_bitmap(bitmap);
       return;
    }
 
@@ -550,7 +550,7 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    al_set_new_bitmap_format(bitmap->format);
-   tmp = _al_create_memory_bitmap(bitmap->w, bitmap->h);
+   tmp = create_memory_bitmap(bitmap->w, bitmap->h);
 
    /* Preserve bitmap contents. */
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
