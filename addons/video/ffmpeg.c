@@ -884,11 +884,13 @@ static int stream_component_open(VideoState * is, int stream_index)
    }
    codec = avcodec_find_decoder(codecCtx->codec_id);
    if (codec) {
-      #ifdef FFMPEG_0_8
-      if (avcodec_open2(codecCtx, codec, NULL) < 0) codec = NULL;
-      #else
-      if (avcodec_open(codecCtx, codec) < 0) codec = NULL;
-      #endif
+#ifdef FFMPEG_0_8
+      if (avcodec_open2(codecCtx, codec, NULL) < 0)
+         codec = NULL;
+#else
+      if (avcodec_open(codecCtx, codec) < 0)
+         codec = NULL;
+#endif
    }
    if (!codec) {
       ALLEGRO_ERROR("Unsupported codec!\n");
@@ -1000,17 +1002,17 @@ static void *decode_thread(ALLEGRO_THREAD *t, void *arg)
          continue;
       }
       if (av_read_frame(is->format_context, packet) < 0) {
-         #ifdef FFMPEG_0_8
-         if (!format_context->pb->eof_reached && !format_context->pb->error) {
-         #else
-         if (url_ferror((void *)&format_context->pb) == 0) {
-         #endif
-            al_rest(0.01);
-            continue;
-         }
-         else {
+         bool end;
+#ifdef FFMPEG_0_8
+         end = (format_context->pb->eof_reached || format_context->pb->error);
+#else
+         end = url_ferror((void *)&format_context->pb) != 0;
+#endif
+         if (end) {
             break;
          }
+         al_rest(0.01);
+         continue;
       }
       // Is this a packet from the video stream?
       if (packet->stream_index == is->videoStream) {
@@ -1087,6 +1089,7 @@ static void init(void)
 static bool open_video(ALLEGRO_VIDEO *video)
 {
    VideoState *is = av_mallocz(sizeof *is);
+   int rc;
    int i;
    AVRational fps;
 
@@ -1101,13 +1104,12 @@ static bool open_video(ALLEGRO_VIDEO *video)
    is->av_sync_type = DEFAULT_AV_SYNC_TYPE;
 
    // Open video file
-   #ifdef FFMPEG_0_8
-   if (avformat_open_input(&is->format_context, is->filename, NULL,
-      NULL) != 0) { 	
-   #else
-   if (av_open_input_file(&is->format_context, is->filename, NULL, 0,
-      NULL) != 0) {
-   #endif
+#ifdef FFMPEG_0_8
+   rc = avformat_open_input(&is->format_context, is->filename, NULL, NULL);
+#else
+   rc = av_open_input_file(&is->format_context, is->filename, NULL, 0, NULL);
+#endif
+   if (rc != 0) {
       av_free(is);
       return false;
    }
