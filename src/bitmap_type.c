@@ -24,56 +24,57 @@
 ALLEGRO_DEBUG_CHANNEL("bitmap")
 
 
-struct TO_BE_CONVERTED_LIST {
+/* Global list of MEMORY bitmaps with ALLEGRO_CONVERT_BITMAP flag. */
+struct BITMAP_CONVERSION_LIST {
    ALLEGRO_MUTEX *mutex;
    _AL_VECTOR bitmaps;
 };
 
 
-static struct TO_BE_CONVERTED_LIST to_be_converted;
+static struct BITMAP_CONVERSION_LIST convert_bitmap_list;
 
 
-static void cleanup_to_be_converted_bitmaps(void)
+static void cleanup_convert_bitmap_list(void)
 {
-   _al_vector_free(&to_be_converted.bitmaps);
-   al_destroy_mutex(to_be_converted.mutex);    
+   _al_vector_free(&convert_bitmap_list.bitmaps);
+   al_destroy_mutex(convert_bitmap_list.mutex);
 }
 
 
 /* This is called in al_install_system. Exit functions are called in
  * al_uninstall_system.
  */
-void _al_init_to_be_converted_bitmaps(void)
+void _al_init_convert_bitmap_list(void)
 {
-   to_be_converted.mutex = al_create_mutex_recursive();
-   _al_vector_init(&to_be_converted.bitmaps, sizeof(ALLEGRO_BITMAP *));
-   _al_add_exit_func(cleanup_to_be_converted_bitmaps,
-      "cleanup_to_be_converted_bitmaps");
+   convert_bitmap_list.mutex = al_create_mutex_recursive();
+   _al_vector_init(&convert_bitmap_list.bitmaps, sizeof(ALLEGRO_BITMAP *));
+   _al_add_exit_func(cleanup_convert_bitmap_list,
+      "cleanup_convert_bitmap_list");
 }
 
 
-void _al_check_to_be_converted_list_add(ALLEGRO_BITMAP *bitmap)
+void _al_register_convert_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP))
       return;
    if (bitmap->flags & ALLEGRO_CONVERT_BITMAP) {
       ALLEGRO_BITMAP **back;
-      al_lock_mutex(to_be_converted.mutex);
-      back = _al_vector_alloc_back(&to_be_converted.bitmaps);
+      al_lock_mutex(convert_bitmap_list.mutex);
+      back = _al_vector_alloc_back(&convert_bitmap_list.bitmaps);
       *back = bitmap;
-      al_unlock_mutex(to_be_converted.mutex);
+      al_unlock_mutex(convert_bitmap_list.mutex);
    }
 }
 
 
-void _al_check_to_be_converted_list_remove(ALLEGRO_BITMAP *bitmap)
+void _al_unregister_convert_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP))
       return;
    if (bitmap->flags & ALLEGRO_CONVERT_BITMAP) {
-      al_lock_mutex(to_be_converted.mutex);
-      _al_vector_find_and_delete(&to_be_converted.bitmaps, &bitmap);
-      al_unlock_mutex(to_be_converted.mutex);
+      al_lock_mutex(convert_bitmap_list.mutex);
+      _al_vector_find_and_delete(&convert_bitmap_list.bitmaps, &bitmap);
+      al_unlock_mutex(convert_bitmap_list.mutex);
    }
 }
 
@@ -82,8 +83,8 @@ static void swap_bitmaps(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *other)
 {
    ALLEGRO_BITMAP temp;
 
-   _al_check_to_be_converted_list_remove(bitmap);
-   _al_check_to_be_converted_list_remove(other);
+   _al_unregister_convert_bitmap(bitmap);
+   _al_unregister_convert_bitmap(other);
 
    if (other->shader)
       _al_unregister_shader_bitmap(other->shader, other);
@@ -122,8 +123,8 @@ static void swap_bitmaps(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *other)
    if (bitmap->shader)
       _al_register_shader_bitmap(bitmap->shader, bitmap);
 
-   _al_check_to_be_converted_list_add(bitmap);
-   _al_check_to_be_converted_list_add(other);
+   _al_register_convert_bitmap(bitmap);
+   _al_register_convert_bitmap(other);
 
    if (bitmap->vt && bitmap->vt->bitmap_pointer_changed)
       bitmap->vt->bitmap_pointer_changed(bitmap, other);
@@ -203,17 +204,17 @@ void al_convert_bitmaps(void)
    
    al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
 
-   al_lock_mutex(to_be_converted.mutex);
+   al_lock_mutex(convert_bitmap_list.mutex);
    
    _al_vector_init(&copy, sizeof(ALLEGRO_BITMAP *));
-   for (i = 0; i <  _al_vector_size(&to_be_converted.bitmaps); i++) {
+   for (i = 0; i <  _al_vector_size(&convert_bitmap_list.bitmaps); i++) {
       ALLEGRO_BITMAP **bptr, **bptr2;
-      bptr = _al_vector_ref(&to_be_converted.bitmaps, i);
+      bptr = _al_vector_ref(&convert_bitmap_list.bitmaps, i);
       bptr2 = _al_vector_alloc_back(&copy);
       *bptr2 = *bptr;
    }
-   _al_vector_free(&to_be_converted.bitmaps);
-   _al_vector_init(&to_be_converted.bitmaps, sizeof(ALLEGRO_BITMAP *));
+   _al_vector_free(&convert_bitmap_list.bitmaps);
+   _al_vector_init(&convert_bitmap_list.bitmaps, sizeof(ALLEGRO_BITMAP *));
    for (i = 0; i < _al_vector_size(&copy); i++) {
       ALLEGRO_BITMAP **bptr;
       int flags;
@@ -230,7 +231,7 @@ void al_convert_bitmaps(void)
 
    _al_vector_free(&copy);
 
-   al_unlock_mutex(to_be_converted.mutex);
+   al_unlock_mutex(convert_bitmap_list.mutex);
 
    al_restore_state(&backup);
 }
@@ -282,7 +283,7 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
        * back-converted later.
        */
       bitmap->flags |= ALLEGRO_CONVERT_BITMAP;
-      _al_check_to_be_converted_list_add(bitmap);
+      _al_register_convert_bitmap(bitmap);
    }
    al_restore_state(&backup);
 }

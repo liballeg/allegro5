@@ -69,7 +69,7 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    bitmap->xofs = bitmap->yofs = 0;
    bitmap->memory = al_malloc(pitch * h);
    
-   _al_check_to_be_converted_list_add(bitmap);
+   _al_register_convert_bitmap(bitmap);
    return bitmap;
 }
 
@@ -77,7 +77,7 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
 
 static void _al_destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
 {
-   _al_check_to_be_converted_list_remove(bmp);
+   _al_unregister_convert_bitmap(bmp);
 
    if (bmp->memory)
       al_free(bmp->memory);

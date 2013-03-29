@@ -137,9 +137,9 @@ bool _al_transform_is_translation(const ALLEGRO_TRANSFORM* trans,
    float *dx, float *dy);
 
 /* Bitmap type conversion */ 
-void _al_init_to_be_converted_bitmaps(void);
-void _al_check_to_be_converted_list_add(ALLEGRO_BITMAP *bitmap);
-void _al_check_to_be_converted_list_remove(ALLEGRO_BITMAP *bitmap);
+void _al_init_convert_bitmap_list(void);
+void _al_register_convert_bitmap(ALLEGRO_BITMAP *bitmap);
+void _al_unregister_convert_bitmap(ALLEGRO_BITMAP *bitmap);
 void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap);
 void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap);
 

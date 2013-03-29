@@ -285,7 +285,7 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
 
    _al_init_iio_table();
    
-   _al_init_to_be_converted_bitmaps();
+   _al_init_convert_bitmap_list();
 
    _al_init_timers();
 
