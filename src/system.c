@@ -281,6 +281,8 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
 
    active_sysdrv->installed = true;
 
+   _al_srand(time(NULL));
+
    return true;
 }
 

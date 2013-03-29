@@ -297,7 +297,6 @@ static void mktemp_replace_XX(const char *template, char *dst)
          dst[i] = template[i];
       }
       else {
-         /* XXX _al_rand is not seed properly yet */
          /* -1 to avoid the NUL terminator. */
          dst[i] = chars[_al_rand() % (sizeof(chars) - 1)];
       }
