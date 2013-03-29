@@ -133,8 +133,7 @@ void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap);
 void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap);
 
 /* Simple bitmap drawing */
-/* _al_put_pixel was inadvertently exported in 5.0.x releases. */
-AL_FUNC(void, _al_put_pixel, (ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color));
+void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color);
 
 /* Bitmap I/O */
 void _al_init_iio_table(void);
