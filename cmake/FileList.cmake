@@ -275,31 +275,8 @@ set(ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
-    include/allegro5/internal/aintern.h
-    include/allegro5/internal/aintern_atomicops.h
-    include/allegro5/internal/aintern_bitmap.h
-    include/allegro5/internal/aintern_blend.h
-    include/allegro5/internal/aintern_convert.h
-    include/allegro5/internal/aintern_display.h
-    include/allegro5/internal/aintern_dtor.h
-    include/allegro5/internal/aintern_events.h
-    include/allegro5/internal/aintern_float.h
-    include/allegro5/internal/aintern_fshook.h
-    include/allegro5/internal/aintern_joystick.h
-    include/allegro5/internal/aintern_keyboard.h
-    include/allegro5/internal/aintern_list.h
-    include/allegro5/internal/aintern_memdraw.h
-    include/allegro5/internal/aintern_mouse.h
-    include/allegro5/internal/aintern_opengl.h
-    include/allegro5/internal/aintern_pixels.h
-    include/allegro5/internal/aintern_system.h
-    include/allegro5/internal/aintern_thread.h
-    include/allegro5/internal/aintern_timer.h
-    include/allegro5/internal/aintern_tls.h
-    include/allegro5/internal/aintern_touch_input.h
-    include/allegro5/internal/aintern_vector.h
+    # Only files which need to be installed.
     include/allegro5/internal/alconfig.h
-    include/allegro5/internal/aintern_raspberrypi.h
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES
@@ -322,17 +299,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES
    )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
-    include/allegro5/platform/aintandroid.h
-    include/allegro5/platform/aintlnx.h
-    include/allegro5/platform/aintosx.h
-    include/allegro5/platform/aintraspberrypi.h
-    include/allegro5/platform/aintunix.h
-    include/allegro5/platform/aintuthr.h
-    include/allegro5/platform/aintwin.h
-    include/allegro5/platform/aintwthr.h
-    include/allegro5/platform/al386gcc.h
-    include/allegro5/platform/al386vc.h
-    include/allegro5/platform/al386wat.h
+    # Only files which need to be installed.
     include/allegro5/platform/alandroid.h
     include/allegro5/platform/alandroidcfg.h
     include/allegro5/platform/alraspberrypicfg.h
