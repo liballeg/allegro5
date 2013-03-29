@@ -114,12 +114,6 @@ void _al_convert_bitmap_data(
 void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap);
 void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap);
 
-/* Memory bitmap blitting */
-void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_COLOR tint,
-   int sx, int sy, int sw, int sh, int dx, int dy, int flags);
-
-
 /* For blending memory bitmaps */
 typedef void (*ALLEGRO_MEMORY_BLENDER)(
    ALLEGRO_COLOR *src_color,

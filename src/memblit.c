@@ -18,6 +18,7 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_blend.h"
 #include "allegro5/internal/aintern_convert.h"
+#include "allegro5/internal/aintern_memblit.h"
 #include "allegro5/internal/aintern_transform.h"
 #include "allegro5/internal/aintern_tri_soft.h"
 #include <math.h>

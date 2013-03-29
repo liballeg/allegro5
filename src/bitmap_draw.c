@@ -15,8 +15,9 @@
 
 
 #include "allegro5/allegro.h"
-#include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_memblit.h"
 
 
 static ALLEGRO_COLOR solid_white = {1, 1, 1, 1};
