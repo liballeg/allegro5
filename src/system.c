@@ -46,26 +46,6 @@ static bool atexit_virgin = true;
 static char _al_app_name[256] = "";
 static char _al_org_name[256] = "";
 
-#if 0
-bool al_register_system_driver(ALLEGRO_SYSTEM_INTERFACE *sys_interface)
-{
-   ALLEGRO_SYSTEM_INTERFACE **add = _al_vector_alloc_back(&_user_system_interfaces);
-   if (!add)
-      return false;
-   *add = sys_interface;
-   return true;
-}
-#endif
-
-
-
-#if 0
-void al_unregister_system_driver(ALLEGRO_SYSTEM_INTERFACE *sys_interface)
-{
-   _al_vector_find_and_delete(&_user_system_interfaces, &sys_interface);
-}
-#endif
-
 
 
 static ALLEGRO_SYSTEM *find_system(_AL_VECTOR *vector)
