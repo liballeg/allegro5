@@ -22,6 +22,7 @@
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_memblit.h"
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_pixels.h"
 #include "allegro5/internal/aintern_system.h"
