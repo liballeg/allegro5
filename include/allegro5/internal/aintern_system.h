@@ -53,8 +53,6 @@ AL_FUNC(void, _al_register_system_interfaces, (void));
 AL_VAR(_AL_VECTOR, _al_system_interfaces);
 AL_VAR(_AL_DTOR_LIST *, _al_dtor_list);
 
-void _al_shutdown_logging(void);
-
 AL_FUNC(void *, _al_open_library, (const char *filename));
 AL_FUNC(void *, _al_import_symbol, (void *library, const char *symbol));
 AL_FUNC(void, _al_close_library, (void *library));
