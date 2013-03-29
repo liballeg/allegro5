@@ -22,6 +22,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_events.h"
+#include "allegro5/internal/aintern_exitfunc.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_timer.h"
 

@@ -32,15 +32,6 @@
 #define _ALLEGRO_CLAMP(x,y,z) _ALLEGRO_MAX((x), _ALLEGRO_MIN((y), (z)))
 
 
-AL_FUNCPTR(int, _al_trace_handler, (const char *msg));
-
-
-/* list of functions to call at program cleanup */
-AL_FUNC(void, _al_add_exit_func, (AL_METHOD(void, func, (void)), const char *desc));
-AL_FUNC(void, _al_remove_exit_func, (AL_METHOD(void, func, (void))));
-AL_FUNC(void, _al_run_exit_funcs, (void));
-
-
 /* message stuff */
 #define ALLEGRO_MESSAGE_SIZE  4096
 

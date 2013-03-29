@@ -18,13 +18,14 @@
 
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_primitives.h"
-#include "allegro5/internal/aintern_prim_opengl.h"
-#include "allegro5/internal/aintern_prim_directx.h"
 #include "allegro5/platform/alplatf.h"
-#include "allegro5/internal/aintern_prim_soft.h"
-#include "allegro5/internal/aintern_bitmap.h"
-#include "allegro5/internal/aintern_prim.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_exitfunc.h"
+#include "allegro5/internal/aintern_prim.h"
+#include "allegro5/internal/aintern_prim_directx.h"
+#include "allegro5/internal/aintern_prim_opengl.h"
+#include "allegro5/internal/aintern_prim_soft.h"
 #include <math.h>
 
 #ifdef ALLEGRO_CFG_OPENGL

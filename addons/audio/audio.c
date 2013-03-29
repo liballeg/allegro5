@@ -9,10 +9,12 @@
 #include <math.h>
 #include <stdio.h>
 
+#include "allegro5/allegro.h"
 #include "allegro5/allegro_audio.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_exitfunc.h"
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_audio_cfg.h"
-#include "allegro5/internal/aintern.h"
 
 ALLEGRO_DEBUG_CHANNEL("audio")
 

@@ -1,8 +1,8 @@
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_image.h"
-#include "allegro5/internal/aintern_image_cfg.h"
+#include "allegro5/internal/aintern_exitfunc.h"
 #include "allegro5/internal/aintern_image.h"
-#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_image_cfg.h"
 
 
 /* globals */

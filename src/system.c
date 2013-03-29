@@ -23,12 +23,13 @@
 #include ALLEGRO_INTERNAL_HEADER
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_dtor.h"
-#include "allegro5/internal/aintern_system.h"
-#include "allegro5/internal/aintern_vector.h"
+#include "allegro5/internal/aintern_exitfunc.h"
 #include "allegro5/internal/aintern_pixels.h"
+#include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_timer.h"
 #include "allegro5/internal/aintern_tls.h"
+#include "allegro5/internal/aintern_vector.h"
 
 ALLEGRO_DEBUG_CHANNEL("system")
 
