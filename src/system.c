@@ -22,6 +22,7 @@
 #include "allegro5/internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_debug.h"
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_exitfunc.h"
 #include "allegro5/internal/aintern_pixels.h"
