@@ -34,7 +34,7 @@ ALLEGRO_DEBUG_CHANNEL("bitmap")
 
 /* Creates a memory bitmap.
  */
-static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
+static ALLEGRO_BITMAP *create_memory_bitmap(int w, int h)
 {
    ALLEGRO_BITMAP *bitmap;
    int pitch;
@@ -75,7 +75,7 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
 
 
 
-static void _al_destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
+static void destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
 {
    _al_unregister_convert_bitmap(bmp);
 
@@ -114,7 +114,7 @@ static ALLEGRO_BITMAP *do_create_bitmap(int w, int h,
       if (al_get_new_bitmap_flags() & ALLEGRO_VIDEO_BITMAP)
          return NULL;
 
-      return _al_create_memory_bitmap(w, h);
+      return create_memory_bitmap(w, h);
    }
 
    /* Else it's a display bitmap */
@@ -161,7 +161,7 @@ static ALLEGRO_BITMAP *do_create_bitmap(int w, int h,
       /* With ALLEGRO_CONVERT_BITMAP, just use a memory bitmap instead if
       * video failed.
       */
-      return _al_create_memory_bitmap(w, h);
+      return create_memory_bitmap(w, h);
    }
    
    /* We keep a list of bitmaps depending on the current display so that we can
@@ -222,7 +222,7 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
    _al_unregister_destructor(_al_dtor_list, bitmap);
 
    if (bitmap->flags & ALLEGRO_MEMORY_BITMAP) {
-      _al_destroy_memory_bitmap(bitmap);
+      destroy_memory_bitmap(bitmap);
       return;
    }
 
