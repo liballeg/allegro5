@@ -6,6 +6,7 @@
 #include "allegro5/allegro_audio.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_audio.h"
+#include "allegro5/internal/aintern_exitfunc.h"
 #include "allegro5/internal/aintern_vector.h"
 
 ALLEGRO_DEBUG_CHANNEL("audio")

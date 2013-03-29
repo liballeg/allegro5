@@ -15,6 +15,7 @@ set(ALLEGRO_SRC_FILES
     src/dtor.c
     src/events.c
     src/evtsrc.c
+    src/exitfunc.c
     src/file.c
     src/file_slice.c
     src/file_stdio.c
