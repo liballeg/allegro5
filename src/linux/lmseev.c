@@ -642,9 +642,10 @@ static unsigned int mouse_get_mouse_num_axes(void)
 /* mouse_set_mouse_xy:
  *
  */
-static bool mouse_set_mouse_xy(int x, int y)
+static bool mouse_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
 {
    /* FIXME: should these do something? */
+   (void)display;
    (void)x;
    (void)y;
 
