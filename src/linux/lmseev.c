@@ -653,8 +653,8 @@ static bool mouse_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
    {
       int dx, dy;
 
-      x_axis.out_abs = _ALLEGRO_CLAMP(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
-      y_axis.out_abs = _ALLEGRO_CLAMP(y_axis.out_min, y_axis.out_abs, y_axis.out_max);
+      x_axis.out_abs = _ALLEGRO_CLAMP(x_axis.out_min, x, x_axis.out_max);
+      y_axis.out_abs = _ALLEGRO_CLAMP(y_axis.out_min, y, y_axis.out_max);
       x_axis.mickeys = 0;
       y_axis.mickeys = 0;
 
