@@ -46,6 +46,7 @@
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_driver.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/platform/aintlnx.h"

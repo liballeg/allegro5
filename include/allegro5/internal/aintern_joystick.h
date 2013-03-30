@@ -1,6 +1,7 @@
 #ifndef __al_included_allegro5_aintern_joystick_h
 #define __al_included_allegro5_aintern_joystick_h
 
+#include "allegro5/internal/aintern_driver.h"
 #include "allegro5/internal/aintern_events.h"
 
 #ifdef __cplusplus

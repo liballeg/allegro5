@@ -19,6 +19,7 @@
 #define __al_included_allegro5_aintunix_h
 
 #include "allegro5/path.h"
+#include "allegro5/internal/aintern_driver.h"
 
 /* Need right now for XKeyEvent --pw */
 #ifdef ALLEGRO_WITH_XWINDOWS
