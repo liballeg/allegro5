@@ -649,7 +649,6 @@ static unsigned int mouse_get_mouse_num_axes(void)
  */
 static bool mouse_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
 {
-   /* FIXME: should these do something? */
    (void)display;
 
    _al_event_source_lock(&the_mouse.parent.es);
