@@ -82,9 +82,13 @@ JNI_FUNC(bool, AllegroSurface, nativeOnDestroy, (JNIEnv *env, jobject obj))
       ALLEGRO_DEBUG("Display creation failed, not sending HALT");
       return false;
    }
-   
+
    display->created = false;
    
+   if (display->is_destroy_display) {
+      return true;
+   }
+
    ALLEGRO_DEBUG("locking display event source: %p %p", d, &d->es);
  
    _al_event_source_lock(&d->es);
@@ -264,7 +268,7 @@ void _al_android_destroy_surface(JNIEnv *env, jobject surface, bool post)
 {
    (void)surface;
    if (post) {
-      _jni_callVoidMethodV(env, _al_android_activity_object(), "postDestroySurface", "(Landroid/view/View;)V");
+      _jni_callVoidMethodV(env, _al_android_activity_object(), "postDestroySurface", "()V");
    }
    else {
       _jni_callVoidMethodV(env, _al_android_activity_object(), "destroySurface", "()V");
@@ -567,12 +571,15 @@ static void android_destroy_display(ALLEGRO_DISPLAY *dpy)
    _al_android_clear_current(_al_android_get_jnienv(), d);
    
    al_lock_mutex(d->mutex);
-  
+
+   d->is_destroy_display = true;
+
    _al_android_destroy_surface(_al_android_get_jnienv(), d, true);
 
-   /* I don't think we can use a condition for this, because there are two possibilities
-    * of how a nativeOnDestroy/surfaceDestroyed callback can be called. One is from here,
-    * manually, and one happens automatically and is out of our hands.
+   /* I don't think we can use a condition for this, because there are two
+    * possibilities of how a nativeOnDestroy/surfaceDestroyed callback can be
+    * called. One is from here, manually, and one happens automatically and is
+    * out of our hands.
     */
    while (d->created) {
    	al_rest(0.001);
@@ -580,11 +587,6 @@ static void android_destroy_display(ALLEGRO_DISPLAY *dpy)
    
    _al_event_source_free(&dpy->es);
 
-   if (dpy->flags & ALLEGRO_PROGRAMMABLE_PIPELINE && dpy->default_shader) {
-   	al_destroy_shader(dpy->default_shader);
-	dpy->default_shader = NULL;
-   }
-   
    // XXX: this causes a crash, no idea why as of yet
    //ALLEGRO_DEBUG("destroy backbuffer");
    //_al_ogl_destroy_backbuffer(al_get_backbuffer(dpy));

@@ -1,5 +1,5 @@
 /*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
+ *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
@@ -142,6 +142,12 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
 void al_destroy_display(ALLEGRO_DISPLAY *display)
 {
    if (display) {
+      /* This causes warnings and potential errors on Android because
+       * it clears the context and Android needs this thread to have
+       * the context bound in its destroy function and to destroy the
+       * shader. Just skip this part on Android.
+       */
+#ifndef ALLEGRO_ANDROID
       ALLEGRO_BITMAP *bmp;
 
       bmp = al_get_target_bitmap();
@@ -153,6 +159,7 @@ void al_destroy_display(ALLEGRO_DISPLAY *display)
        */
       if (display == al_get_current_display())
          _al_set_current_display_only(NULL);
+#endif
 
       al_destroy_shader(display->default_shader);
       display->default_shader = NULL;

@@ -248,7 +248,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
       surface = null;
    }
    
-   public void postDestroySurface(View s)
+   public void postDestroySurface()
    {
       try {
          Log.d("AllegroActivity", "postDestroySurface");
@@ -358,6 +358,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
             public void run() {
                try {
                   AllegroActivity.this.finish();
+		  System.exit(0);
                } catch(Exception x) {
                   Log.d("AllegroActivity", "inner exception: " + x.getMessage());
                }
