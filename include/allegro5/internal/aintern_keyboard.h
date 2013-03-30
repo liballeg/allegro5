@@ -1,6 +1,8 @@
 #ifndef __al_included_allegro5_aintern_keyboard_h
 #define __al_included_allegro5_aintern_keyboard_h
 
+#include "allegro5/internal/aintern_driver.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif

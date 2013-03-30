@@ -34,6 +34,7 @@
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_driver.h"
 #include "allegro5/internal/aintern_mouse.h"
 #include "allegro5/platform/aintwin.h"
 #include "allegro5/internal/aintern_display.h"
