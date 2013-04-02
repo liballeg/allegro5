@@ -196,10 +196,14 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
    }
 
    /* As a convenience, implicitly untarget the bitmap on the calling thread
-    * before it is destroyed.
+    * before it is destroyed, but maintain the current display.
     */
    if (bitmap == al_get_target_bitmap()) {
-      al_set_target_bitmap(NULL);
+      ALLEGRO_DISPLAY *display = bitmap->display;
+      if (display)
+         al_set_target_bitmap(al_get_backbuffer(display));
+      else
+         al_set_target_bitmap(NULL);
    }
 
    _al_set_bitmap_shader_field(bitmap, NULL);
