@@ -310,7 +310,8 @@ Destroys the given bitmap, freeing all resources used by it.
 This function does nothing if the bitmap argument is NULL.
 
 As a convenience, if the calling thread is currently targets the
-bitmap then the bitmap will be untargeted first. (since: 5.1.6)
+bitmap then the bitmap will be untargeted first.
+The new target bitmap is unspecified. (since: 5.1.6)
 
 Otherwise, it is an error to destroy a bitmap while it (or a sub-bitmap)
 is the target bitmap of any thread.
