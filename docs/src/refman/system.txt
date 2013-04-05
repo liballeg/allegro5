@@ -172,7 +172,8 @@ See also: [al_set_org_name]
 ## API: al_get_system_config
 
 Returns the current system configuration structure, or NULL if
-there is no active system driver.
+there is no active system driver. The returned configuration should
+not be destroyed with [al_destroy_config].
 This is mainly used for configuring Allegro and its addons.
 
 ## API: al_register_assert_handler
