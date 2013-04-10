@@ -96,7 +96,8 @@ NULs.
 
 A type that holds additional information for an [ALLEGRO_USTR] that references
 an external memory buffer.
-See [al_ref_cstr], [al_ref_buffer] and [al_ref_ustr].
+
+See also: [al_ref_cstr], [al_ref_buffer] and [al_ref_ustr].
 
 
 ## Creating and destroying strings
@@ -113,7 +114,7 @@ See also: [al_ustr_new_from_buffer], [al_ustr_newf], [al_ustr_dup],
 ### API: al_ustr_new_from_buffer
 
 Create a new string containing a copy of the buffer pointed to by `s` of the
-given size.  The string must eventually be freed with [al_ustr_free].
+given size in bytes.  The string must eventually be freed with [al_ustr_free].
 
 See also: [al_ustr_new]
 
@@ -130,7 +131,7 @@ terminated.  If the string contains an embedded NUL byte everything from that
 byte onwards will be ignored.
 
 The "%c" specifier outputs a single byte, not the UTF-8 encoding of a code
-point.  Therefore it's only usable for ASCII characters (value <= 127) or if
+point.  Therefore it is only usable for ASCII characters (value <= 127) or if
 you really mean to output byte values from 128--255.  To insert the UTF-8
 encoding of a code point, encode it into a memory buffer using
 [al_utf8_encode] then use the "%s" specifier.  Remember to NUL terminate the
@@ -143,11 +144,13 @@ See also: [al_ustr_new], [al_ustr_appendf]
 
 Free a previously allocated string.  Does nothing if the argument is NULL.
 
+See also: [al_ustr_new], [al_ustr_new_from_buffer], [al_ustr_newf]
+
 
 ### API: al_cstr
 
 Get a `char *` pointer to the data in a string.  This pointer will only be
-valid while the underlying string is not modified and not destroyed.
+valid while the [ALLEGRO_USTR] object is not modified and not destroyed.
 The pointer may be passed to functions expecting C-style strings,
 with the following caveats:
 
@@ -168,19 +171,20 @@ See also: [al_ustr_to_buffer], [al_cstr_dup]
 ### API: al_ustr_to_buffer
 
 Write the contents of the string into a pre-allocated buffer of the given size
-in bytes. The result will always be 0-terminated, so a maximum of `size - 1`
+in bytes. The result will always be NUL terminated, so a maximum of `size - 1`
 bytes will be copied.
 
 See also: [al_cstr], [al_cstr_dup]
 
 ### API: al_cstr_dup
 
-Create a NUL  ('\0') terminated copy of the string.  Any embedded NUL
+Create a NUL ('\0') terminated copy of the string.  Any embedded NUL
 bytes will still be presented in the returned string.
 The new string must eventually be freed with [al_free].
+
 If an error occurs NULL is returned.
 
-See also: [al_cstr], [al_ustr_to_buffer]
+See also: [al_cstr], [al_ustr_to_buffer], [al_free]
 
 
 ### API: al_ustr_dup
@@ -188,7 +192,7 @@ See also: [al_cstr], [al_ustr_to_buffer]
 Return a duplicate copy of a string.
 The new string will need to be freed with [al_ustr_free].
 
-See also: [al_ustr_dup_substr]
+See also: [al_ustr_dup_substr], [al_ustr_free]
 
 
 ### API: al_ustr_dup_substr
@@ -197,10 +201,10 @@ Return a new copy of a string, containing its contents in the byte interval
 \[start_pos, end_pos).  The new string will be NUL terminated and will
 need to be freed with [al_ustr_free].
 
-If you need a range of code-points instead of bytes, use [al_ustr_offset]
-to find the byte offsets.
+If necessary, use [al_ustr_offset] to find the byte offsets for a given code
+point that you are interested in.
 
-See also: [al_ustr_dup]
+See also: [al_ustr_dup], [al_ustr_free]
 
 
 ## Predefined strings
@@ -233,24 +237,25 @@ See also: [al_ref_buffer], [al_ref_ustr]
 
 ### API: al_ref_buffer
 
-Like [al_ref_cstr] but the size of the string data is passed in as a
-parameter.  Hence you can use it to reference only part of a string or an
-arbitrary region of memory.
+Create a string that references the storage of an underlying buffer.
+The size of the buffer is given in bytes.  You can use it to reference only
+part of a string or an arbitrary region of memory.
 
-The string is valid while the underlying C string is valid.
+The string is valid while the underlying memory buffer is valid.
 
 See also: [al_ref_cstr], [al_ref_ustr]
 
 
 ### API: al_ref_ustr
 
-Create a read-only string that references the storage of another string.
+Create a read-only string that references the storage of another
+[ALLEGRO_USTR] string.
 The information about the string (e.g. its size) is stored in the structure
-pointed to by the `info` parameter.  The string will not have any other
+pointed to by the `info` parameter.  The new string will not have any other
 storage allocated of its own, so if you allocate the `info` structure on the
 stack then no explicit "free" operation is required.
 
-The referenced interval is \[start_pos, end_pos).
+The referenced interval is \[start_pos, end_pos).  Both are byte offsets.
 
 The string is valid until the underlying string is modified or destroyed.
 
@@ -278,7 +283,7 @@ See also: [al_ustr_size], [al_ustr_offset]
 
 ### API: al_ustr_offset
 
-Return the offset (in bytes from the start of the string) of the code point at
+Return the byte offset (from the start of the string) of the code point at
 the specified index in the string. A zero index parameter will return the first
 character of the string. If index is negative, it counts backward from the end
 of the string, so an index of -1 will return an offset to the last code point.
@@ -292,9 +297,10 @@ See also: [al_ustr_length]
 
 Find the byte offset of the next code point in string, beginning at `*pos`.
 `*pos` does not have to be at the beginning of a code point.
-Returns true on success, then value pointed to by `pos` will be updated to the
-found offset.  Otherwise returns false if `*pos` was already at the end of
-the string, then `*pos` is unmodified.
+
+Returns true on success, and the value pointed to by `pos` will be updated to
+the found offset.  Otherwise returns false if `*pos` was already at the end
+of the string, and `*pos` is unmodified.
 
 This function just looks for an appropriate byte; it doesn't check if found
 offset is the beginning of a valid code point.  If you are working with
@@ -321,7 +327,7 @@ See also: [al_ustr_next]
 
 ### API: al_ustr_get
 
-Return the code point in `us` beginning at `pos`.
+Return the code point in `us` beginning at byte offset `pos`.
 
 On success returns the code point value.
 If `pos` was out of bounds (e.g. past the end of the string), return -1.
@@ -331,8 +337,8 @@ See also: [al_ustr_get_next], [al_ustr_prev_get]
 
 ### API: al_ustr_get_next
 
-Find the code point in `us` beginning at `*pos`, then advance to the next
-code point.
+Find the code point in `us` beginning at byte offset `*pos`, then advance to
+the next code point.
 
 On success return the code point value.
 If `pos` was out of bounds (e.g. past the end of the string), return -1.
@@ -343,7 +349,7 @@ See also: [al_ustr_get], [al_ustr_prev_get]
 
 ### API: al_ustr_prev_get
 
-Find the beginning of a code point before `*pos`, then return it.
+Find the beginning of a code point before byte offset `*pos`, then return it.
 Note this performs a *pre-increment*.
 
 On success returns the code point value.
@@ -358,19 +364,21 @@ See also: [al_ustr_get_next]
 
 ### API: al_ustr_insert
 
-Insert `us2` into `us1` beginning at `pos`.  `pos` cannot be less than 0.  If
-`pos` is past the end of `us1` then the space between the end of the string
-and `pos` will be padded with NUL ('\0') bytes. `pos` is specified in bytes.
+Insert `us2` into `us1` beginning at byte offset `pos`.  `pos` cannot be less
+than 0.  If `pos` is past the end of `us1` then the space between the end of
+the string and `pos` will be padded with NUL ('\0') bytes.
 
-Use [al_ustr_offset] to find the byte offset for a code-points offset
+If required, use [al_ustr_offset] to find the byte offset for a given
+code point index.
 
 Returns true on success, false on error.
 
-See also: [al_ustr_insert_cstr], [al_ustr_insert_chr], [al_ustr_append]
+See also: [al_ustr_insert_cstr], [al_ustr_insert_chr], [al_ustr_append],
+[al_ustr_offset]
 
 ### API: al_ustr_insert_cstr
 
-Like [al_ustr_insert] but inserts a C-style string.
+Like [al_ustr_insert] but inserts a C-style string at byte offset `pos`.
 
 See also: [al_ustr_insert], [al_ustr_insert_chr]
 
@@ -425,7 +433,7 @@ See [al_ustr_newf] about the "%s" and "%c" specifiers.
 
 Returns true on success, false on error.
 
-See also: [al_ustr_vappendf]
+See also: [al_ustr_vappendf], [al_ustr_append]
 
 ### API: al_ustr_vappendf
 
@@ -435,7 +443,7 @@ See [al_ustr_newf] about the "%s" and "%c" specifiers.
 
 Returns true on success, false on error.
 
-See also: [al_ustr_appendf]
+See also: [al_ustr_appendf], [al_ustr_append]
 
 
 ## Removing parts of strings
@@ -452,8 +460,9 @@ See also: [al_ustr_remove_range]
 
 ### API: al_ustr_remove_range
 
-Remove the interval \[start_pos, end_pos) (in bytes) from a string.
-`start_pos` and `end_pos` may both be past the end of the string
+Remove the interval \[start_pos, end_pos) from a string.
+`start_pos` and `end_pos` are byte offsets.
+Both may be past the end of the string
 but cannot be less than 0 (the start of the string).
 
 Returns true on success, false on error.
@@ -586,6 +595,8 @@ See also: [al_ustr_find_set_cstr], [al_ustr_find_cset]
 
 Like [al_ustr_find_set] but takes a C-style string for `accept`.
 
+See also: [al_ustr_find_set], [al_ustr_find_cset_cstr]
+
 ### API: al_ustr_find_cset
 
 This function finds the first code point in `us`, beginning from byte offset
@@ -599,6 +610,8 @@ See also: [al_ustr_find_cset_cstr], [al_ustr_find_set]
 
 Like [al_ustr_find_cset] but takes a C-style string for `reject`.
 
+See also: [al_ustr_find_cset], [al_ustr_find_set_cstr]
+
 ### API: al_ustr_find_str
 
 Find the first occurrence of string `needle` in `haystack`, beginning from byte
@@ -611,6 +624,8 @@ See also: [al_ustr_find_cstr], [al_ustr_rfind_str], [al_ustr_find_replace]
 
 Like [al_ustr_find_str] but takes a C-style string for `needle`.
 
+See also: [al_ustr_find_str], [al_ustr_rfind_cstr]
+
 ### API: al_ustr_rfind_str
 
 Find the last occurrence of string `needle` in `haystack` before byte offset
@@ -622,6 +637,8 @@ See also: [al_ustr_rfind_cstr], [al_ustr_find_str]
 ### API: al_ustr_rfind_cstr
 
 Like [al_ustr_rfind_str] but takes a C-style string for `needle`.
+
+See also: [al_ustr_rfind_str], [al_ustr_find_cstr]
 
 ### API: al_ustr_find_replace
 
@@ -664,6 +681,8 @@ of both strings.
 Returns zero if the strings are equal, a positive number if `us1` comes after
 `us2`, else a negative number.
 
+See also: [al_ustr_compare], [al_ustr_equal]
+
 ### API: al_ustr_has_prefix
 
 Returns true iff `us1` begins with `us2`.
@@ -674,7 +693,7 @@ See also: [al_ustr_has_prefix_cstr], [al_ustr_has_suffix]
 
 Returns true iff `us1` begins with `s2`.
 
-See also: [al_ustr_has_prefix]
+See also: [al_ustr_has_prefix], [al_ustr_has_suffix_cstr]
 
 ### API: al_ustr_has_suffix
 
@@ -686,7 +705,7 @@ See also: [al_ustr_has_suffix_cstr], [al_ustr_has_prefix]
 
 Returns true iff `us1` ends with `s2`.
 
-See also: [al_ustr_has_suffix]
+See also: [al_ustr_has_suffix], [al_ustr_has_prefix_cstr]
 
 
 ## UTF-16 conversion
