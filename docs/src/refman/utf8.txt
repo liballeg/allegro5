@@ -7,23 +7,35 @@ These functions are declared in the main Allegro header file:
 ## About UTF-8 string routines
 
 Some parts of the Allegro API, such as the font rountines, expect Unicode
-strings encoded in UTF-8.  These basic routines are provided to help you work
-with UTF-8 strings, however it does *not* mean you need to use them.  You
-should consider another library (e.g. ICU) if you require more functionality.
+strings encoded in UTF-8.  The following basic routines are provided to help
+you work with UTF-8 strings, however it does *not* mean you need to use them.
+You should consider another library (e.g. ICU) if you require more
+functionality.
 
-You should also see elsewhere for a proper introduction to Unicode.
 Briefly, Unicode is a standard consisting of a large character
 set of over 100,000 characters, and rules, such as how to sort strings.
 A *code point* is the integer value of a character, but not all code points are
-characters, as some code points have other uses.  Clearly it is impossible
-represent each code point with a 8-bit byte or even a 16-bit integer,
-so there exist different Unicode Transformation Formats, most importantly UTF-8
-and UTF-16.
+characters, as some code points have other uses.  Unlike legacy character
+sets, the set of code points is open ended and more are assigned with time.
 
-UTF-8 has many nice
-properties, but the main advantages are that it is backwards compatible with C
-strings, and ASCII characters (code points <= 127) are encoded in UTF-8 exactly
-as they would be in ASCII.
+Clearly it is impossible represent each code point with a 8-bit byte (limited
+to 256 code points) or even a 16-bit integer (limited to 65536 code points).
+It is possible to store code points in a 32-bit integers but it is space
+inefficient, and not actually that useful (at least, when handling the full
+complexity of Unicode; Allegro only does the very basics).
+There exist different Unicode Transformation Formats for encoding code points
+into smaller *code units*.  The most important transformation formats are
+UTF-8 and UTF-16.
+
+UTF-8 is a *variable-length encoding* which encodes each code point to
+between one and four 8-bit bytes each.  UTF-8 has many nice properties, but
+the main advantages are that it is backwards compatible with C strings, and
+ASCII characters (code points in the range 0-127) are encoded in UTF-8
+exactly as they would be in ASCII.
+
+UTF-16 is another variable-length encoding, but encodes each code point to
+one or two 16-bit words each.  It is, of course, not compatible with
+traditional C strings.  Allegro does not generally use UTF-16 strings.
 
 Here is a diagram of the representation of the word "ål", with a NUL
 terminator, in both UTF-8 and UTF-16.
@@ -33,33 +45,42 @@ terminator, in both UTF-8 and UTF-16.
                        ---------------- ---------------- --------------
           Code points    U+00E5 (229)     U+006C (108)     U+0000 (0)
                        ---------------- ---------------- --------------
-       UTF-8 encoding     0xC3, 0xA5          0x6C            0x00
+          UTF-8 bytes     0xC3, 0xA5          0x6C            0x00
                        ---------------- ---------------- --------------
-    UTF-16LE encoding     0xE5, 0x00       0x6C, 0x00      0x00, 0x00
+       UTF-16LE bytes     0xE5, 0x00       0x6C, 0x00      0x00, 0x00
                        ---------------- ---------------- --------------
 
-You can see the aforementioned properties of UTF-8.
-The first character U+00E5 (å) has a value greater than 127,
-so its encoding takes more than a single byte; it requires two bytes.
-U+006C (l) and U+0000 (NUL) both exist in the ASCII range, i.e. less
-than 127, so take exactly one byte each, just as in a pure ASCII string.
-A zero byte never appears except to represent the NUL character, so many
-functions which expect C-style strings will work with UTF-8 strings without
-modification.
+You can see the aforementioned properties of UTF-8.  The first code point
+U+00E5 ("å") is outside of the ASCII range (0-127) so is encoded to multiple
+code units -- it requires two bytes.  U+006C ("l") and U+0000 (NUL) both
+exist in the ASCII range so take exactly one byte each, as in a pure ASCII
+string.  A zero byte never appears except to represent the NUL character, so
+many functions which expect C-style strings will work with UTF-8 strings
+without modification.
 
-On the other hand, UTF-16 represents each code code by either two or four
-bytes, so functions expecting C-style strings will not work at all.
+On the other hand, UTF-16 represents each code point by either one or two
+16-bit code units (two or four bytes).  The representation of each 16-bit
+code unit depends on the byte order; here we have demonstrated little endian.
 
-In the following functions, be careful whether a function takes byte offsets or
-code-point indices.  In general, all position parameters are in byte offsets,
-not code point indices.  This may be surprising, but if you think about, is
-required for good performance.  It also means many functions will work even
-if they do not contain UTF-8, so you may actually store arbitrary data in the
-strings.
+Both UTF-8 and UTF-16 are self-synchronising.  Starting from any offset
+within a string, it is efficient to find the beginning of the previous or
+next code point.
+
+Not all sequences of bytes or 16-bit words are valid UTF-8 and UTF-16 strings
+respectively.  UTF-8 also has an additional problem of overlong forms, where
+a code point value is encoded using more bytes than is strictly necessary.
+This is invalid and needs to be guarded against.
+
+In the following "ustr" functions, be careful whether a function takes code
+unit (byte) or code point indices.  In general, all position parameters are
+in code unit offsets.  This may be surprising, but if you think about, is
+required for good performance.  (It also means some functions will work even
+if they do not contain UTF-8, since they only care about storing bytes, so
+you may actually store arbitrary data in the ALLEGRO_USTRs.)
 
 For actual text processing, where you want to specify positions with code point
-indices, you should use [al_ustr_offset] to find the byte position of
-a code point.
+indices, you should use [al_ustr_offset] to find the code unit offset position.
+However, most of the time you would probably just work with byte offsets.
 
 
 ## UTF-8 string types
