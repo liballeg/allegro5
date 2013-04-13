@@ -493,9 +493,6 @@ check_c_source_compiles("
     ALLEGRO_HAVE_VA_COPY
     )
 
-include(CheckCtors)
-check_ctors(ALLEGRO_USE_CONSTRUCTOR)
-    
 #-----------------------------------------------------------------------------#
 #
 #   Driver configuration
