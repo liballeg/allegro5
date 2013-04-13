@@ -44,7 +44,6 @@
    /* TODO: check if BCC has inttypes.h and/or stdint.h */
 
 #ifdef ALLEGRO_USE_CONSOLE
-   #define ALLEGRO_CONSOLE_OK
    #define ALLEGRO_NO_MAGIC_MAIN
 #endif
 
