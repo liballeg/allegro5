@@ -244,7 +244,6 @@ copy include\\allegro\\internal\\*.h "%_VC_DIR_%\\include\\allegro\\internal"
 echo Copying platform headers
 md "%_VC_DIR_%\\include\\allegro\\platform"
 copy include\\allegro\\platform\\aintwin.h "%_VC_DIR_%\\include\\allegro\\platform"
-copy include\\allegro\\platform\\al386vc.h "%_VC_DIR_%\\include\\allegro\\platform"
 copy include\\allegro\\platform\\almsvc.h "%_VC_DIR_%\\include\\allegro\\platform"
 copy include\\allegro\\platform\\alplatf.h "%_VC_DIR_%\\include\\allegro\\platform"
 copy include\\allegro\\platform\\alwin.h "%_VC_DIR_%\\include\\allegro\\platform"
