@@ -29,11 +29,6 @@
 
 /*---------------------------------------------------------------------------*/
 
-/* This is defined on the command-line in the autotools build. */
-#define ALLEGRO_MODULES_PATH ${ALLEGRO_MODULES_PATH}
-
-/*---------------------------------------------------------------------------*/
-
 /* Define to 1 if you have the corresponding header file. */
 #cmakedefine ALLEGRO_HAVE_DIRENT_H
 #cmakedefine ALLEGRO_HAVE_INTTYPES_H
@@ -81,9 +76,6 @@
 
 /* Define if target platform is Darwin. */
 #cmakedefine ALLEGRO_DARWIN
-
-/* Define if dynamically loaded modules are supported. */
-#cmakedefine ALLEGRO_WITH_MODULES
 
 /*---------------------------------------------------------------------------*/
 

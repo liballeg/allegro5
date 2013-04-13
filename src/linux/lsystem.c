@@ -161,9 +161,6 @@ static int sys_linux_init (void)
 	if (_unix_gfx_driver_list)
 		_driver_list_append_list(&_unix_gfx_driver_list, _linux_gfx_driver_list);
 
-	/* Load dynamic modules */
-	_unix_load_modules(SYSTEM_LINUX);
-    
 	/* Install emergency-exit signal handlers */
 	old_sig_abrt = signal(SIGABRT, signal_handler);
 	old_sig_fpe  = signal(SIGFPE,  signal_handler);
@@ -208,9 +205,6 @@ static void sys_linux_exit (void)
 #ifdef SIGQUIT
 	signal(SIGQUIT, old_sig_quit);
 #endif
-
-	/* unload dynamic modules */
-	_unix_unload_modules();
 
 	/* free dynamic driver lists */
 	_unix_driver_lists_shutdown();
