@@ -76,9 +76,6 @@
 /* Define if you need support for X-Windows. */
 #cmakedefine ALLEGRO_WITH_XWINDOWS
 
-/* Define if MIT-SHM extension is supported. */
-#cmakedefine ALLEGRO_XWINDOWS_WITH_SHM
-
 /* Define if XCursor ARGB extension is available. */
 #cmakedefine ALLEGRO_XWINDOWS_WITH_XCURSOR
 
