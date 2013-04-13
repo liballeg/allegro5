@@ -31,7 +31,6 @@
 #include <allegro5/allegro.h>
 #include <process.h>
 
-#include "allegro5/platform/ald3d.h"
 #include "allegro5/allegro_windows.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
@@ -885,7 +884,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
           * meantime anyway, make it so only a single resize event is generated
           * at WM_EXITSIZEMOVE.
           */
-         if (d->flags & ALLEGRO_DIRECT3D) {
+         if (d->flags & ALLEGRO_DIRECT3D_INTERNAL) {
             resize_postponed = true;
          }
          break;

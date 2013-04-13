@@ -22,7 +22,9 @@
 #include <d3dx9.h>
 #endif
 #include "allegro5/platform/alplatf.h"
-#include "allegro5/platform/ald3d.h"
+
+/* Display creation flag. */
+#define ALLEGRO_DIRECT3D     ALLEGRO_DIRECT3D_INTERNAL
 
 #ifdef __cplusplus
    extern "C" {

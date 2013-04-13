@@ -29,10 +29,6 @@
 #if defined ALLEGRO_CFG_OPENGL
    #include "allegro5/allegro_opengl.h"
 #endif
-#if defined ALLEGRO_CFG_D3D
-   /* The below header only defines ALLEGRO_DIRECT3D, doesn't include d3dx9 */
-   #include "allegro5/platform/ald3d.h"
-#endif
 
 #include <windows.h>
 #include <mmsystem.h>
@@ -242,7 +238,7 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
 
    /* Programmatic selection. */
 #ifdef ALLEGRO_CFG_D3D
-   if (flags & ALLEGRO_DIRECT3D) {
+   if (flags & ALLEGRO_DIRECT3D_INTERNAL) {
       if (d3d_available) {
          return _al_display_d3d_driver();
       }
@@ -267,7 +263,7 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
          if (0 == _al_stricmp(s, "DIRECT3D") || 0 == _al_stricmp(s, "D3D")) {
 #ifdef ALLEGRO_CFG_D3D
             if (d3d_available) {
-               al_set_new_display_flags(flags | ALLEGRO_DIRECT3D);
+               al_set_new_display_flags(flags | ALLEGRO_DIRECT3D_INTERNAL);
                return _al_display_d3d_driver();
             }
 #endif
@@ -288,7 +284,7 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
    /* XXX is implicitly setting new_display_flags the desired behaviour? */
 #ifdef ALLEGRO_CFG_D3D
    if (d3d_available) {
-      al_set_new_display_flags(flags | ALLEGRO_DIRECT3D);
+      al_set_new_display_flags(flags | ALLEGRO_DIRECT3D_INTERNAL);
       return _al_display_d3d_driver();
    }
 #endif

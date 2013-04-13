@@ -251,7 +251,6 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     include/allegro5/platform/alandroid.h
     include/allegro5/platform/alandroidcfg.h
     include/allegro5/platform/albcc32.h
-    include/allegro5/platform/ald3d.h
     include/allegro5/platform/aliphone.h
     include/allegro5/platform/aliphonecfg.h
     include/allegro5/platform/almngw32.h
