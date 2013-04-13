@@ -23,19 +23,6 @@
 /* list the available drivers */
 _AL_DRIVER_INFO _linux_gfx_driver_list[] =
 {
-#if (defined ALLEGRO_LINUX_FBCON) && (!defined ALLEGRO_WITH_MODULES)
-   {  GFX_FBCON,    &gfx_fbcon,    true  },
-#endif
-#ifdef ALLEGRO_LINUX_VBEAF
-   {  GFX_VBEAF,    &gfx_vbeaf,    true  },
-#endif
-#if (defined ALLEGRO_LINUX_VGA) && (!defined ALLEGRO_WITH_MODULES)
-   {  GFX_VGA,      &gfx_vga,      true  },
-   {  GFX_MODEX,    &gfx_modex,    true  },
-#endif
-#if (defined ALLEGRO_LINUX_SVGALIB) && (!defined ALLEGRO_WITH_MODULES)
-   {  GFX_SVGALIB,  &gfx_svgalib,  false },
-#endif
    {  0,            NULL,          0     }
 };
 

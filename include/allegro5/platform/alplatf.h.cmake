@@ -105,20 +105,5 @@
 /* Define if target platform is linux. */
 #cmakedefine ALLEGRO_LINUX
 
-/* Define to enable Linux console fbcon driver. */
-#cmakedefine ALLEGRO_LINUX_FBCON
-
-/* Define to enable Linux console SVGAlib driver. */
-#cmakedefine ALLEGRO_LINUX_SVGALIB
-
-/* Define if SVGAlib driver can check vga_version. */
-#cmakedefine ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION
-
-/* Define to enable Linux console VBE/AF driver. */
-#cmakedefine ALLEGRO_LINUX_VBEAF
-
-/* Define to enable Linux console VGA driver. */
-#cmakedefine ALLEGRO_LINUX_VGA
-
 /*---------------------------------------------------------------------------*/
 /* vi: set ft=c ts=3 sts=3 sw=3 et: */
