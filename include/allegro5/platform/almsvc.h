@@ -39,7 +39,6 @@
 #define ALLEGRO_GUESS_INTTYPES_OK
 
 #ifdef ALLEGRO_USE_CONSOLE
-   #define ALLEGRO_CONSOLE_OK
    #define ALLEGRO_NO_MAGIC_MAIN
 #endif
   
