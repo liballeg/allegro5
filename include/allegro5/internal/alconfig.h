@@ -265,10 +265,3 @@
    }
 #endif
 
-
-/* parameters for the color conversion code */
-#if (defined ALLEGRO_WINDOWS) || (defined ALLEGRO_QNX)
-   #define ALLEGRO_COLORCONV_ALIGNED_WIDTH
-   #define ALLEGRO_NO_COLORCOPY
-#endif
-
