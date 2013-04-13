@@ -704,7 +704,6 @@ endif(WIN32 AND SHARED)
 # this platform.
 set(LIBRARY_SOURCES
     ${ALLEGRO_SRC_FILES}
-    ${ALLEGRO_SRC_C_FILES}
     )
 
 # Libraries that we always need to link against on this platform.
@@ -764,7 +763,6 @@ endif(IPHONE)
 
 # Header files that we need to install.
 set(ALLEGRO_PUBLIC_HEADERS
-    ${ALLEGRO_INCLUDE_FILES}
     ${ALLEGRO_INCLUDE_ALLEGRO_FILES}
     ${ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES}
     ${ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES}
