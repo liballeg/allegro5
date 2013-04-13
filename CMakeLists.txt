@@ -296,8 +296,6 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86")
 endif()
 
 if(ARCH_X86 AND WANT_ALLOW_SSE)
-    set(ALLEGRO_CFG_ALLOW_SSE 1)
-
     if(COMPILER_GCC)
         message(STATUS "Allowing GCC to use SSE instructions")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse")

@@ -9,8 +9,6 @@
 #cmakedefine ALLEGRO_BCC32
 #cmakedefine ALLEGRO_GP2XWIZ
 #cmakedefine ALLEGRO_IPHONE
-
-#cmakedefine ALLEGRO_CFG_ALLOW_SSE
 #cmakedefine ALLEGRO_CFG_NO_FPU
 #cmakedefine ALLEGRO_CFG_DLL_TLS
 #cmakedefine ALLEGRO_CFG_PTHREADS_TLS
