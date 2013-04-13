@@ -111,9 +111,6 @@
 /* Define if XIM extension is supported. */
 #cmakedefine ALLEGRO_XWINDOWS_WITH_XIM
 
-/* Define if xpm bitmap support is available. */
-#cmakedefine ALLEGRO_XWINDOWS_WITH_XPM
-
 /*---------------------------------------------------------------------------*/
 
 /* Define if target platform is linux. */

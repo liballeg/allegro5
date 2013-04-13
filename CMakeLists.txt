@@ -620,14 +620,6 @@ if(SUPPORT_X11)
         endif(CAN_XIM)
     endif(NOT ALLEGRO_RASPBERRYPI)
 
-    check_include_files(X11/xpm.h HAVE_X11_XPM_H)
-    check_library_exists(Xpm XpmCreatePixmapFromData "" CAN_XPM)
-    if(HAVE_X11_XPM_H AND CAN_XPM)
-        set(ALLEGRO_XWINDOWS_WITH_XPM 1)
-	find_library(XPM_LIB "Xpm")
-        list(APPEND X11_LIBRARIES "${XPM_LIB}")
-    endif(HAVE_X11_XPM_H AND CAN_XPM)
-
     set(CMAKE_REQUIRED_LIBRARIES)
 endif(SUPPORT_X11)
 
