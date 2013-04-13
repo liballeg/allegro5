@@ -29,13 +29,6 @@
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/platform/aintlnx.h"
 
-#ifdef ALLEGRO_LINUX_VGA
-#ifdef ALLEGRO_HAVE_SYS_IO_H
-/* iopl() exists in here instead of unistd.h in glibc */
-#include <sys/io.h>
-#endif
-#endif
-
 #include "allegro5/linalleg.h"
 
 #ifndef ALLEGRO_LINUX
@@ -88,13 +81,8 @@ SYSTEM_DRIVER system_linux =
    NULL, /* get_vtable */
    __al_linux_set_display_switch_mode,
    __al_linux_display_switch_lock,
-#if (defined ALLEGRO_LINUX_FBCON) && (!defined ALLEGRO_WITH_MODULES)
-   __al_linux_get_fb_color_depth,
-   __al_linux_get_fb_resolution,
-#else
    NULL, /* desktop_color_depth */
    NULL, /* get_desktop_resolution */
-#endif
    NULL, /* get_gfx_safe_mode */
    _unix_yield_timeslice,
    get_gfx_driver_list,
@@ -163,9 +151,6 @@ static int sys_linux_init (void)
 	 * we attempt to set our euid to 0, in case this is the
 	 * second time we've been called. */
 	__al_linux_have_ioperms  = !seteuid (0);
-#ifdef ALLEGRO_LINUX_VGA
-	__al_linux_have_ioperms &= !iopl (3);
-#endif
 	__al_linux_have_ioperms &= !__al_linux_init_memory();
 
 	/* At this stage we can drop the root privileges. */
@@ -179,12 +164,6 @@ static int sys_linux_init (void)
 	/* Load dynamic modules */
 	_unix_load_modules(SYSTEM_LINUX);
     
-	/* Initialise VGA helpers */
-#ifdef ALLEGRO_LINUX_VGA
-	if (__al_linux_have_ioperms)
-		if (__al_linux_init_vga_helpers()) return -1;
-#endif
-
 	/* Install emergency-exit signal handlers */
 	old_sig_abrt = signal(SIGABRT, signal_handler);
 	old_sig_fpe  = signal(SIGFPE,  signal_handler);
@@ -230,12 +209,6 @@ static void sys_linux_exit (void)
 	signal(SIGQUIT, old_sig_quit);
 #endif
 
-	/* shut down VGA helpers */
-#ifdef ALLEGRO_LINUX_VGA
- 	if (__al_linux_have_ioperms)
-		__al_linux_shutdown_vga_helpers();
-#endif
-
 	/* unload dynamic modules */
 	_unix_unload_modules();
 
@@ -243,9 +216,6 @@ static void sys_linux_exit (void)
 	_unix_driver_lists_shutdown();
 
 	__al_linux_shutdown_memory();
-#ifdef ALLEGRO_LINUX_VGA
-	iopl (0);
-#endif
 }
 
 
