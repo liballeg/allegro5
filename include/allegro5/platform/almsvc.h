@@ -110,5 +110,4 @@
 /* arrange for other headers to be included later on */
 #define ALLEGRO_EXTRA_HEADER     "allegro5/platform/alwin.h"
 #define ALLEGRO_INTERNAL_HEADER  "allegro5/platform/aintwin.h"
-#define ALLEGRO_ASMCAPA_HEADER   "obj/msvc/asmcapa.h"
 #define ALLEGRO_INTERNAL_THREAD_HEADER "allegro5/platform/aintwthr.h"
