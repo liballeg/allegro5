@@ -281,7 +281,6 @@ if(MACOSX)
 endif(MACOSX)
 
 if(IPHONE)
-    set(ALLEGRO_HAVE_LIBPTHREAD 1)
     set(ALLEGRO_CFG_PTHREADS_TLS 1)
     set(ALLEGRO_IPHONE 1)
     set(ALLEGRO_UNIX 0)
@@ -301,7 +300,6 @@ if(ANDROID)
 endif(ANDROID)
 
 if(ALLEGRO_RASPBERRYPI)
-    set(ALLEGRO_HAVE_LIBPTHREAD 1)
     set(ALLEGRO_CFG_PTHREADS_TLS 1)
 endif(ALLEGRO_RASPBERRYPI)
 
@@ -541,12 +539,10 @@ endif(WANT_OPENGL)
 if(UNIX) # includes MACOSX
     if(NOT IPHONE AND NOT ANDROID)
         find_package(Threads)
-        if(CMAKE_USE_PTHREADS_INIT)
-            set(ALLEGRO_HAVE_LIBPTHREAD 1)
-        else(CMAKE_USE_PTHREADS_INIT)
+        if(NOT CMAKE_USE_PTHREADS_INIT)
             message(FATAL_ERROR
                 "Unix port requires pthreads support, not detected.")
-        endif(CMAKE_USE_PTHREADS_INIT)
+        endif(NOT CMAKE_USE_PTHREADS_INIT)
     endif()
 endif(UNIX)
 

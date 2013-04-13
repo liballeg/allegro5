@@ -82,9 +82,6 @@
 /* Define if target platform is Darwin. */
 #cmakedefine ALLEGRO_DARWIN
 
-/* Define if you have the pthread library. */
-#cmakedefine ALLEGRO_HAVE_LIBPTHREAD
-
 /* Define if dynamically loaded modules are supported. */
 #cmakedefine ALLEGRO_WITH_MODULES
 

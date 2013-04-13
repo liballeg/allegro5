@@ -42,9 +42,4 @@
 #endif
 
 /* Enable multithreaded library */
-#ifdef ALLEGRO_HAVE_LIBPTHREAD
 #define ALLEGRO_MULTITHREADED
-#else
-#error Unix Allegro now REQUIRES pthreads
-#endif
-
