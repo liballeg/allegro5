@@ -160,10 +160,6 @@
    #define ZERO_SIZE_ARRAY(type, name)             type name[]
 #endif
 
-#ifndef AL_CONST
-   #define AL_CONST
-#endif
-
 #ifndef AL_VAR
    #define AL_VAR(type, name)                      extern type name
 #endif
