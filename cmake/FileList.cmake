@@ -51,12 +51,6 @@ set(ALLEGRO_SRC_FILES
     src/misc/vector.c
     )
 
-set(ALLEGRO_SRC_C_FILES
-    )
-
-set(ALLEGRO_SRC_I386_FILES
-    )
-
 set(ALLEGRO_SRC_WIN_FILES
     src/win/wjoydrv.c
     src/win/wjoydxnu.cpp
@@ -94,29 +88,6 @@ set(ALLEGRO_SRC_OPENGL_FILES
 
 set(ALLEGRO_SRC_WGL_FILES
     src/win/wgl_disp.c
-    )
-
-set(ALLEGRO_SRC_LINUX_FILES
-#    src/linux/fbcon.c
-#    src/linux/lconsole.c
-#    src/linux/lgfxdrv.c
-#    src/linux/ljoynu.c
-#    src/linux/lkeybdnu.c
-#    src/linux/lmemory.c
-#    src/linux/lmsedrv.c
-#    src/linux/lmseev.c
-#    src/linux/lsystem.c
-#    src/linux/lvga.c
-#    src/linux/lvgahelp.c
-#    src/linux/svgalib.c
-#    src/linux/svgalibs.s
-#    src/linux/vtswitch.c
-#    src/misc/vbeaf.c
-#    src/misc/vbeafs.s
-#    src/misc/vgaregs.c
-#    src/misc/vga.c
-#    src/misc/modex.c
-#    src/misc/modexgfx.s
     )
 
 set(ALLEGRO_SRC_UNIX_FILES
@@ -203,28 +174,6 @@ set(ALLEGRO_SRC_RASPBERRYPI_FILES
    src/raspberrypi/pisystem.c
    src/raspberrypi/pidisplay.c
    )
-
-set(ALLEGRO_MODULE_ALSADIGI_FILES
-    )
-
-set(ALLEGRO_MODULE_ALSAMIDI_FILES
-    )
-
-set(ALLEGRO_MODULE_ESD_FILES
-    )
-
-set(ALLEGRO_MODULE_ARTS_FILES
-    )
-
-set(ALLEGRO_MODULE_SGIAL_FILES
-    )
-
-set(ALLEGRO_MODULE_JACK_FILES
-    )
-
-set(ALLEGRO_INCLUDE_FILES
-    # No files directly in the `include' root any more.
-    )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/allegro5.h
