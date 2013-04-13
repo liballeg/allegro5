@@ -28,7 +28,4 @@ extern int main(int argc, char ** argv);
 
 #include "allegro5/platform/aintuthr.h"
 
-struct ALLEGRO_EVENT_SOURCE_REAL;
-void _android_check_mutex(struct ALLEGRO_EVENT_SOURCE_REAL *es);
-
 /* Nothing left */
