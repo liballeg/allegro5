@@ -129,7 +129,6 @@ set(ALLEGRO_SRC_GP2XWIZ_FILES
     )
 
 set(ALLEGRO_SRC_IPHONE_FILES
-    src/iphone/
     src/iphone/allegroAppDelegate.m
     src/iphone/EAGLView.m
     src/iphone/iphone_display.c
