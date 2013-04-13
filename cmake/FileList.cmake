@@ -131,7 +131,6 @@ set(ALLEGRO_SRC_MACOSX_FILES
     )
 
 set(ALLEGRO_SRC_IPHONE_FILES
-    src/iphone/
     src/iphone/allegroAppDelegate.m
     src/iphone/EAGLView.m
     src/iphone/ViewController.m
