@@ -79,9 +79,6 @@
 /* Define if XCursor ARGB extension is available. */
 #cmakedefine ALLEGRO_XWINDOWS_WITH_XCURSOR
 
-/* Define if DGA version 2.0 or newer is supported */
-#cmakedefine ALLEGRO_XWINDOWS_WITH_XF86DGA2
-
 /* Define if XF86VidMode extension is supported. */
 #cmakedefine ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
 
