@@ -109,14 +109,14 @@ SYSTEM_DRIVER system_linux =
 int __al_linux_have_ioperms = 0;
 
 
-typedef RETSIGTYPE (*temp_sighandler_t)(int);
+typedef void (*temp_sighandler_t)(int);
 static temp_sighandler_t old_sig_abrt, old_sig_fpe, old_sig_ill, old_sig_segv, old_sig_term, old_sig_int, old_sig_quit;
 
 
 /* signal_handler:
  *  Used to trap various signals, to make sure things get shut down cleanly.
  */
-static RETSIGTYPE signal_handler (int num)
+static void signal_handler (int num)
 {
 	al_uninstall_system();
 	fprintf (stderr, "Shutting down Allegro due to signal #%d\n", num);
