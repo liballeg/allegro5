@@ -33,11 +33,6 @@ extern "C" {
    AL_FUNC(ALLEGRO_PATH *, _al_unix_get_path, (int id));
 
 
-   /* Module support */
-   AL_FUNC(void, _unix_load_modules, (int system_driver_id));
-   AL_FUNC(void, _unix_unload_modules, (void));
-
-
    /* Dynamic driver lists, for modules */
    AL_VAR(_AL_DRIVER_INFO *, _unix_gfx_driver_list);
    AL_VAR(_AL_DRIVER_INFO *, _unix_digi_driver_list);
