@@ -267,12 +267,12 @@ set(ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES
 set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     # Only files which need to be installed.
     include/allegro5/platform/albcc32.h
+    include/allegro5/platform/aliphone.h
+    include/allegro5/platform/aliphonecfg.h
     include/allegro5/platform/almngw32.h
     include/allegro5/platform/almsvc.h
     include/allegro5/platform/alosx.h
     include/allegro5/platform/alosxcfg.h
-    include/allegro5/platform/aliphone.h
-    include/allegro5/platform/aliphonecfg.h
     include/allegro5/platform/alucfg.h
     include/allegro5/platform/alunix.h
     include/allegro5/platform/alwatcom.h
