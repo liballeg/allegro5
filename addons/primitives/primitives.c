@@ -32,14 +32,8 @@
 #include "allegro5/allegro_opengl.h"
 #endif
 
-/*
-TODO: This is a hack... I need to know the values of these without actually including the respective system headers
-*/
-#ifndef ALLEGRO_OPENGL
-#define ALLEGRO_OPENGL   4
-#endif
 #ifndef ALLEGRO_DIRECT3D
-#define ALLEGRO_DIRECT3D 8
+#define ALLEGRO_DIRECT3D ALLEGRO_DIRECT3D_INTERNAL
 #endif
 
 ALLEGRO_DEBUG_CHANNEL("primitives")
