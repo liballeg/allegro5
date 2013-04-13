@@ -27,7 +27,6 @@
 /* Describe this platform */
 #define ALLEGRO_PLATFORM_STR  "MacOS X"
 #define ALLEGRO_CONSOLE_OK
-#define ALLEGRO_MULTITHREADED
 
 
 /* Arrange for other headers to be included later on */
