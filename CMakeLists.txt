@@ -864,9 +864,6 @@ endif(WANT_MONOLITH)
 #
 #-----------------------------------------------------------------------------#
 
-# We no longer support hand-written assembly routines.
-set(ALLEGRO_NO_ASM 1)
-
 if(NO_FPU)
     set(ALLEGRO_CFG_NO_FPU 1)
 endif(NO_FPU)

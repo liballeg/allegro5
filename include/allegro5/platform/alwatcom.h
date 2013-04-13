@@ -60,10 +60,6 @@
    #define uint64_t  unsigned long long
 #endif
 
-#if __WATCOMC__ >= 1100
-   #define ALLEGRO_MMX
-#endif
-
 
 /* emulate some important djgpp routines */
 #define inportb(port)         inp(port)

@@ -126,16 +126,10 @@
 
    #ifdef __i386__
       #define ALLEGRO_I386
-      #ifndef ALLEGRO_NO_ASM
-         #define _AL_SINCOS(x, s, c)  __asm__ ("fsincos" : "=t" (c), "=u" (s) : "0" (x))
-      #endif
    #endif
 
    #ifdef __amd64__
       #define ALLEGRO_AMD64
-      #ifndef ALLEGRO_NO_ASM
-         #define _AL_SINCOS(x, s, c)  __asm__ ("fsincos" : "=t" (c), "=u" (s) : "0" (x))
-      #endif
    #endif
    
    #ifdef __arm__
@@ -172,10 +166,6 @@
  * features and helper functions, which are conditionalised so they will
  * only be included if none of the above headers defined custom versions.
  */
-
-#ifndef _AL_SINCOS
-   #define _AL_SINCOS(x, s, c)  do { (c) = cos(x); (s) = sin(x); } while (0)
-#endif
 
 #ifndef INLINE
    #define INLINE

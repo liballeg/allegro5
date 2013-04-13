@@ -95,10 +95,6 @@
 #endif
 
 
-/* describe the asm syntax for this platform */
-#define ALLEGRO_ASM_PREFIX    "_"
-
-
 /* life would be so easy if compilers would all use the same names! */
 #if (!defined S_IRUSR)
    #define S_IRUSR   S_IREAD

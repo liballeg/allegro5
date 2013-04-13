@@ -49,10 +49,6 @@ AL_INLINE(double, al_fixtof, (al_fixed x),
 })
 
 
-#ifdef ALLEGRO_NO_ASM
-
-/* use generic C versions */
-
 AL_INLINE(al_fixed, al_fixadd, (al_fixed x, al_fixed y),
 {
    al_fixed result = x + y;
@@ -196,8 +192,6 @@ AL_INLINE(int, al_fixceil, (al_fixed x),
 
    return al_fixfloor(x + 0xFFFF);
 })
-
-#endif      /* C vs. inline asm */
 
 
 AL_INLINE(al_fixed, al_itofix, (int x),

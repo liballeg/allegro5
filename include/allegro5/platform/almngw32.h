@@ -80,9 +80,6 @@
    #define ENUM_CURRENT_SETTINGS       ((DWORD)-1)
 #endif
 
-/* describe the asm syntax for this platform */
-#define ALLEGRO_ASM_PREFIX    "_"
-
 /* arrange for other headers to be included later on */
 #define ALLEGRO_EXTRA_HEADER     "allegro5/platform/alwin.h"
 #define ALLEGRO_INTERNAL_HEADER  "allegro5/platform/aintwin.h"
