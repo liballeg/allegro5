@@ -135,33 +135,4 @@
 #cmakedefine ALLEGRO_LINUX_VGA
 
 /*---------------------------------------------------------------------------*/
-
-/* Define to the installed ALSA version. */
-#cmakedefine ALLEGRO_ALSA_VERSION ${ALLEGRO_ALSA_VERSION}
-
-/* Define if ALSA DIGI driver is supported. */
-#cmakedefine ALLEGRO_WITH_ALSADIGI
-
-/* Define if ALSA MIDI driver is supported. */
-#cmakedefine ALLEGRO_WITH_ALSAMIDI
-
-/* Define if aRts DIGI driver is supported. */
-#cmakedefine ALLEGRO_WITH_ARTSDIGI
-
-/* Define if ESD DIGI driver is supported. */
-#cmakedefine ALLEGRO_WITH_ESDDIGI
-
-/* Define if JACK DIGI driver is supported. */
-#cmakedefine ALLEGRO_WITH_JACKDIGI
-
-/* Define if OSS DIGI driver is supported. */
-#cmakedefine ALLEGRO_WITH_OSSDIGI
-
-/* Define if OSS MIDI driver is supported. */
-#cmakedefine ALLEGRO_WITH_OSSMIDI
-
-/* Define if SGI AL DIGI driver is supported. */
-#cmakedefine ALLEGRO_WITH_SGIALDIGI
-
-/*---------------------------------------------------------------------------*/
 /* vi: set ft=c ts=3 sts=3 sw=3 et: */
