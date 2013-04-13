@@ -10,7 +10,6 @@
 #cmakedefine ALLEGRO_IPHONE
 #cmakedefine ALLEGRO_ANDROID
 #cmakedefine ALLEGRO_RASPBERRYPI
-#cmakedefine ALLEGRO_CFG_ALLOW_SSE
 #cmakedefine ALLEGRO_CFG_NO_FPU
 #cmakedefine ALLEGRO_CFG_DLL_TLS
 #cmakedefine ALLEGRO_CFG_PTHREADS_TLS
