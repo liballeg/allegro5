@@ -153,10 +153,4 @@
 #cmakedefine ALLEGRO_WITH_SGIALDIGI
 
 /*---------------------------------------------------------------------------*/
-
-/* TODO: Define to (void *)-1, if MAP_FAILED is not defined. */
-/* TODO: rename this */
-/* # cmakedefine MAP_FAILED */
-
-/*---------------------------------------------------------------------------*/
 /* vi: set ft=c ts=3 sts=3 sw=3 et: */
