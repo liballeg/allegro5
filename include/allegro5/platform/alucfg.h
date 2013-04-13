@@ -40,6 +40,3 @@
 #ifdef ALLEGRO_GLX
 #define ALLEGRO_CFG_OPENGL
 #endif
-
-/* Enable multithreaded library */
-#define ALLEGRO_MULTITHREADED

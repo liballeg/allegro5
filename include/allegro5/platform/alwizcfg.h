@@ -31,8 +31,3 @@
 
 /* No GLX on the Wiz */
 #define ALLEGRO_EXCLUDE_GLX
-
-/* Enable multithreaded library */
-#define ALLEGRO_MULTITHREADED
-
-
