@@ -50,7 +50,7 @@
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/platform/aintlnx.h"
-#include ALLEGRO_INTERNAL_HEADER
+#include "allegro5/platform/aintunix.h"
 
 
 #define PREFIX_I                "al-ckey INFO: "
