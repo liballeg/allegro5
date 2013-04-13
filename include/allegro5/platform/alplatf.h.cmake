@@ -89,9 +89,6 @@
 /* Define if you have the pthread library. */
 #cmakedefine ALLEGRO_HAVE_LIBPTHREAD
 
-/* Define if constructor attribute is supported. */
-#cmakedefine ALLEGRO_USE_CONSTRUCTOR
-
 /* Define if dynamically loaded modules are supported. */
 #cmakedefine ALLEGRO_WITH_MODULES
 
