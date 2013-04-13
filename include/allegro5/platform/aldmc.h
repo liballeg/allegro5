@@ -88,4 +88,3 @@ struct _wfinddata_t {
 /* arrange for other headers to be included later on */
 #define ALLEGRO_EXTRA_HEADER     "allegro5/platform/alwin.h"
 #define ALLEGRO_INTERNAL_HEADER  "allegro5/platform/aintwin.h"
-#define ALLEGRO_ASMCAPA_HEADER   "obj/dmc/asmcapa.h"
