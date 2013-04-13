@@ -21,7 +21,6 @@
 
 /* Describe this platform.  */
 #define ALLEGRO_PLATFORM_STR  "Unix"
-#define ALLEGRO_VRAM_SINGLE_SURFACE
 
 #define ALLEGRO_EXTRA_HEADER "allegro5/platform/alunix.h"
 
