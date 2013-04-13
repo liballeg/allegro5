@@ -59,7 +59,7 @@ SIGIO_HOOK al_linux_install_sigio_hook (SIGIO_HOOK hook)
  *  optimised for speed, but I changed that because it was causing 
  *  problems (mouse motion stopped the keyboard responding).
  */
-static RETSIGTYPE async_io_event(int signo)
+static void async_io_event(int signo)
 {
    if (__al_linux_std_drivers[STD_MOUSE]) __al_linux_std_drivers[STD_MOUSE]->update();
    if (__al_linux_std_drivers[STD_KBD]) __al_linux_std_drivers[STD_KBD]->update();

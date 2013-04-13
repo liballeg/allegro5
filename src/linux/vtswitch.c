@@ -147,7 +147,7 @@ static void poll_console_switch (void)
  *  This is our signal handler; it gets called whenever a switch is
  *  requested, because either SIGRELVT or SIGACQVT is raised.
  */
-static RETSIGTYPE vt_switch_requested(int signo)
+static void vt_switch_requested(int signo)
 {
 	switch (signo) {
 		case SIGRELVT:

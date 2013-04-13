@@ -15,9 +15,6 @@
 
 /*---------------------------------------------------------------------------*/
 
-/* TODO: rename this */
-#define RETSIGTYPE void
-
 /* This is defined on the command-line in the autotools build. */
 #define ALLEGRO_MODULES_PATH ${ALLEGRO_MODULES_PATH}
 
