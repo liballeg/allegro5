@@ -11,7 +11,6 @@
 #cmakedefine ALLEGRO_IPHONE
 
 #cmakedefine ALLEGRO_CFG_ALLOW_SSE
-#cmakedefine ALLEGRO_NO_ASM
 #cmakedefine ALLEGRO_CFG_NO_FPU
 #cmakedefine ALLEGRO_CFG_DLL_TLS
 #cmakedefine ALLEGRO_CFG_PTHREADS_TLS
@@ -70,18 +69,6 @@
 
 /* Define if target machine is big endian. */
 #cmakedefine ALLEGRO_BIG_ENDIAN
-
-/* Define for Unix platforms, to use C convention for bank switching. */
-#cmakedefine ALLEGRO_NO_ASM
-
-/* Define if compiler prepends underscore to symbols. */
-#cmakedefine ALLEGRO_ASM_PREFIX
-
-/* Define if assembler supports MMX. */
-#cmakedefine ALLEGRO_MMX
-
-/* Define if assembler supports SSE. */
-#cmakedefine ALLEGRO_SSE
 
 /* Define if target platform is Darwin. */
 #cmakedefine ALLEGRO_DARWIN
