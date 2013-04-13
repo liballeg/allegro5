@@ -52,8 +52,6 @@
 #define ALLEGRO_CONSOLE_OK
 #define ALLEGRO_VRAM_SINGLE_SURFACE
 
-#define ALLEGRO_LFN  0
-
 #define LONG_LONG    long long
 #ifdef ALLEGRO_GUESS_INTTYPES_OK
    #define int64_t   signed long long

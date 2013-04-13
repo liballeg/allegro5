@@ -26,11 +26,6 @@
 #define ALLEGRO_INTERNAL_HEADER "allegro5/platform/aintwiz.h"
 #define ALLEGRO_INTERNAL_THREAD_HEADER "allegro5/platform/aintuthr.h"
 
-#ifndef O_BINARY
-#define O_BINARY  0
-#define O_TEXT    0
-#endif
-
 /* Include configuration information.  */
 #include "allegro5/platform/alplatf.h"
 
