@@ -156,11 +156,6 @@ static int sys_linux_init (void)
 	/* At this stage we can drop the root privileges. */
 	seteuid (getuid());
 
-	/* Initialise dynamic driver lists */
-	_unix_driver_lists_init();
-	if (_unix_gfx_driver_list)
-		_driver_list_append_list(&_unix_gfx_driver_list, _linux_gfx_driver_list);
-
 	/* Install emergency-exit signal handlers */
 	old_sig_abrt = signal(SIGABRT, signal_handler);
 	old_sig_fpe  = signal(SIGFPE,  signal_handler);
@@ -205,9 +200,6 @@ static void sys_linux_exit (void)
 #ifdef SIGQUIT
 	signal(SIGQUIT, old_sig_quit);
 #endif
-
-	/* free dynamic driver lists */
-	_unix_driver_lists_shutdown();
 
 	__al_linux_shutdown_memory();
 }
