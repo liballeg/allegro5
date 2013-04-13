@@ -29,26 +29,18 @@
 
 
 
-#if defined ALLEGRO_DJGPP
-   #include "allegro5/platform/aldjgpp.h"
-#elif defined ALLEGRO_WATCOM
+#if defined ALLEGRO_WATCOM
    #include "allegro5/platform/alwatcom.h"
 #elif defined ALLEGRO_MINGW32
    #include "allegro5/platform/almngw32.h"
-#elif defined ALLEGRO_DMC
-   #include "allegro5/platform/aldmc.h"
 #elif defined ALLEGRO_BCC32
    #include "allegro5/platform/albcc32.h"
 #elif defined ALLEGRO_MSVC
    #include "allegro5/platform/almsvc.h"
-#elif defined ALLEGRO_BEOS
-   #include "allegro5/platform/albecfg.h"
 #elif defined ALLEGRO_IPHONE
    #include "allegro5/platform/aliphonecfg.h"
 #elif defined ALLEGRO_MACOSX
    #include "allegro5/platform/alosxcfg.h"
-#elif defined ALLEGRO_QNX
-   #include "allegro5/platform/alqnxcfg.h"
 #elif defined ALLEGRO_ANDROID
    #include "allegro5/platform/alandroidcfg.h"
 #elif defined ALLEGRO_RASPBERRYPI
