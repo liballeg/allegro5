@@ -570,11 +570,6 @@ endif((NOT ALLEGRO_RASPBERRYPI) AND (SUPPORT_X11 AND NOT SUPPORT_OPENGL))
 if(SUPPORT_X11)
     set(CMAKE_REQUIRED_LIBRARIES ${X11_LIBRARIES})
 
-    check_library_exists(Xext XShmQueryExtension "" CAN_XSHM)
-    if(CAN_XSHM)
-        set(ALLEGRO_XWINDOWS_WITH_SHM 1)
-    endif(CAN_XSHM)
-
     check_library_exists(Xcursor XcursorImageCreate "" CAN_XCURSOR)
     if(CAN_XCURSOR)
         set(ALLEGRO_XWINDOWS_WITH_XCURSOR 1)
