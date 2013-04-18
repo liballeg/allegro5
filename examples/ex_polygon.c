@@ -14,8 +14,8 @@
 #include "common.c"
 
 #define MAX_VERTICES 64
+#define MAX_POLYGONS 9
 #define RADIUS       5
-#define MAX_HOLES    9
 
 enum {
    MODE_POLYLINE = 0,
@@ -40,10 +40,10 @@ struct Example {
    ALLEGRO_COLOR     bg;
    ALLEGRO_COLOR     fg;
    Vertex            vertices[MAX_VERTICES];
+   int               vertex_polygon[MAX_VERTICES];
    int               vertex_count;
-   int               holes[MAX_HOLES + 1];
-   int               holes_count;
    int               cur_vertex; /* -1 = none */
+   int               cur_polygon;
    int               mode;
    ALLEGRO_LINE_CAP  cap_style;
    ALLEGRO_LINE_JOIN join_style;
@@ -60,8 +60,8 @@ static struct Example ex;
 static void reset(void)
 {
    ex.vertex_count = 0;
-   ex.holes_count = 0;
    ex.cur_vertex = -1;
+   ex.cur_polygon = 0;
    ex.mode = MODE_POLYLINE;
    ex.cap_style = ALLEGRO_LINE_CAP_NONE;
    ex.join_style = ALLEGRO_LINE_JOIN_NONE;
@@ -107,10 +107,12 @@ static void lclick(int mx, int my)
       ex.vertices[i].y = my;
       ex.cur_vertex = i;
 
-      if (ex.add_hole == 1 && ex.holes_count < MAX_HOLES) {
-         ex.holes[ex.holes_count++] = i;
+      if (ex.add_hole == 1 && ex.cur_polygon < MAX_POLYGONS) {
+         ex.cur_polygon++;
          ex.add_hole = 2;
       }
+
+      ex.vertex_polygon[i] = ex.cur_polygon;
    }
 }
 
@@ -121,6 +123,8 @@ static void rclick(int mx, int my)
       ex.vertex_count--;
       memmove(&ex.vertices[i], &ex.vertices[i + 1],
          sizeof(Vertex) * (ex.vertex_count - i));
+      memmove(&ex.vertex_polygon[i], &ex.vertex_polygon[i + 1],
+         sizeof(int) * (ex.vertex_count - i));
    }
    ex.cur_vertex = -1;
 }
@@ -194,6 +198,19 @@ static void draw_vertices(void)
    }
 }
 
+static void compute_polygon_vertex_counts(
+   int polygon_vertex_count[MAX_POLYGONS + 1])
+{
+   int i;
+
+   /* This also implicitly terminates the array with a zero. */
+   memset(polygon_vertex_count, 0, sizeof(int) * (MAX_POLYGONS + 1));
+   for (i = 0; i < ex.vertex_count; i++) {
+      const int poly = ex.vertex_polygon[i];
+      polygon_vertex_count[poly]++;
+   }
+}
+
 static void draw_all(void)
 {
    ALLEGRO_FONT *f = choose_font();
@@ -202,6 +219,7 @@ static void draw_all(void)
    float textx = 5;
    float texty = 5;
    ALLEGRO_TRANSFORM t;
+   ALLEGRO_COLOR holec;
 
    al_clear_to_color(ex.bg);
 
@@ -232,10 +250,10 @@ static void draw_all(void)
    }
    else if (ex.mode == MODE_FILLED_HOLES) {
       if (ex.vertex_count >= 2) {
-         ex.holes[ex.holes_count] = ex.vertex_count;
+         int polygon_vertex_count[MAX_POLYGONS + 1];
+         compute_polygon_vertex_counts(polygon_vertex_count);
          al_draw_filled_polygon_with_holes(
-            (float *)ex.vertices, ex.vertex_count, ex.holes, 1 + ex.holes_count,
-            ex.fg);
+            (float *)ex.vertices, polygon_vertex_count, ex.fg);
       }
    }
 
@@ -293,8 +311,14 @@ static void draw_all(void)
       "Reset (R)");
    texty += texth;
 
-   al_draw_textf(f, textc, textx, texty, 0,
-      "Add Hole (%d) (H)", ex.holes_count);
+   if (ex.add_hole == 0)
+      holec = textc;
+   else if (ex.add_hole == 1)
+      holec = al_map_rgb(200, 0, 0);
+   else
+      holec = al_map_rgb(0, 200, 0);
+   al_draw_textf(f, holec, textx, texty, 0,
+      "Add Hole (%d) (H)", ex.cur_polygon);
    texty += texth;
 }
 

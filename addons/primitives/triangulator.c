@@ -812,18 +812,38 @@ static void poly_do_triangulate(POLY* polygon)
  *  General triangulation function.
  */
 bool al_triangulate_polygon(
-   const float* vertices, size_t vertex_stride, size_t vertex_count,
-   const int* splits, size_t split_stride, size_t split_count,
+   const float* vertices, size_t vertex_stride, const int* vertex_counts,
    void (*emit_triangle)(int, int, int, void*), void* userdata)
 {
    POLY polygon;
+   int vertex_count;
+   int split_count;
+   int *splits;
+   int i;
+   bool ret;
+
+   for (i = 0; vertex_counts[i] > 0; i++) {
+      /* do nothing */
+   }
+   ASSERT(i > 0);
+   split_count = i;
+
+   splits = malloc(split_count * sizeof(int));
+   if (!splits) {
+      return false;
+   }
+   vertex_count = 0;
+   for (i = 0; i < split_count; i++) {
+      vertex_count += vertex_counts[i];
+      splits[i] = vertex_count;
+   }
 
    memset(&polygon, 0, sizeof(polygon));
    polygon.vertex_buffer = vertices;
    polygon.vertex_stride = vertex_stride;
    polygon.vertex_count  = vertex_count;
    polygon.split_indices = splits;
-   polygon.split_stride  = split_stride;
+   polygon.split_stride  = sizeof(int);   /* XXX can simplify code now */
    polygon.split_count   = split_count;
    polygon.emit          = emit_triangle;
    polygon.userdata      = userdata;
@@ -836,8 +856,15 @@ bool al_triangulate_polygon(
       _al_list_destroy(polygon.reflex_list);
       _al_list_destroy(polygon.ear_list);
 
-      return true;
+      ret = true;
+   }
+   else {
+      ret = false;
    }
 
-   return false;
+   free(splits);
+
+   return ret;
 }
+
+/* vim: set sts=3 sw=3 et: */

@@ -55,11 +55,13 @@ void al_draw_filled_polygon(const float *vertices, int vertex_count,
    ALLEGRO_COLOR color)
 {
    ALLEGRO_PRIM_VERTEX_CACHE cache;
+   int vertex_counts[2];
 
    _al_prim_cache_init_ex(&cache, ALLEGRO_PRIM_VERTEX_CACHE_TRIANGLE, color, (void*)vertices);
 
-   al_triangulate_polygon(
-      vertices, sizeof(float) * 2, vertex_count, &vertex_count, sizeof(int), 1,
+   vertex_counts[0] = vertex_count;
+   vertex_counts[1] = 0; /* terminator */
+   al_triangulate_polygon(vertices, sizeof(float) * 2, vertex_counts,
       polygon_push_triangle_callback, &cache);
 
    _al_prim_cache_flush(&cache);
@@ -67,15 +69,14 @@ void al_draw_filled_polygon(const float *vertices, int vertex_count,
 
 /* Function: al_draw_filled_polygon_with_holes
  */
-void al_draw_filled_polygon_with_holes(const float *vertices, int vertex_count,
-   const int *holes, int hole_count, ALLEGRO_COLOR color)
+void al_draw_filled_polygon_with_holes(const float *vertices,
+   const int *vertex_counts, ALLEGRO_COLOR color)
 {
    ALLEGRO_PRIM_VERTEX_CACHE cache;
 
    _al_prim_cache_init_ex(&cache, ALLEGRO_PRIM_VERTEX_CACHE_TRIANGLE, color, (void*)vertices);
 
-   al_triangulate_polygon(
-      vertices, sizeof(float) * 2, vertex_count, holes, sizeof(int), hole_count,
+   al_triangulate_polygon(vertices, sizeof(float) * 2, vertex_counts,
       polygon_push_triangle_callback, &cache);
 
    _al_prim_cache_flush(&cache);
