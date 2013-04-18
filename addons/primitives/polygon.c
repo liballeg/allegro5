@@ -64,29 +64,6 @@ void al_draw_filled_polygon(const float *vertices, int vertex_count,
    _al_prim_cache_flush(&cache);
 }
 
-/* Function: al_draw_polygon_with_holes
- */
-void al_draw_polygon_with_holes(const float *vertices, int vertex_count,
-   const int *holes, int hole_count, ALLEGRO_LINE_JOIN join_style,
-   ALLEGRO_COLOR color, float thickness, float miter_limit)
-{
-# define VERTEX(index)  ((const float*)(((uint8_t*)vertices) + (sizeof(float) * 2) * ((vertex_count + (index)) % vertex_count)))
-# define HOLE(index)    (*((int*)(((uint8_t*)holes) + sizeof(int) * ((hole_count + index) % hole_count))))
-
-   int i;
-
-   if (hole_count <= 0)
-      return;
-
-   al_draw_polyline(vertices, HOLE(0), join_style, ALLEGRO_LINE_CAP_CLOSED, color, thickness, miter_limit);
-
-   for (i = 1; i < hole_count; ++i)
-      al_draw_polyline_ex(VERTEX(HOLE(i) - 1), -(int)(sizeof(float) * 2), HOLE(i) - HOLE(i - 1), join_style, ALLEGRO_LINE_CAP_CLOSED, color, thickness, miter_limit);
-
-# undef VERTEX
-# undef HOLE
-}
-
 /* Function: al_draw_filled_polygon_with_holes
  */
 void al_draw_filled_polygon_with_holes(const float *vertices, int vertex_count,

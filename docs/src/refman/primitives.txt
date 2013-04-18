@@ -713,22 +713,6 @@ Since: 5.1.0
 
 See also: [al_draw_filled_polygon], [al_draw_polyline], [ALLEGRO_LINE_JOIN]
 
-### API: al_draw_polygon_with_holes
-
-Like [al_draw_polygon] but draws multiple polygons. Additional parameters
-are:
-
-* holes - An integer array with one entry for each polygon to be drawn. For
-          each polygon (also the first) the integer specifies one past the
-          last vertex index of the polygon's vertices. The first polygon
-          starts with index 0, all subsequent polygons start with the vertex
-          after the previous polygon's last vertex.
-* holes_count - Number of integers in 'holes'
-
-Since: 5.1.0
-
-See also: [al_draw_polygon]
-
 ### API: al_draw_filled_polygon
 
 Draw a filled, simple polygon. Simple means it does not have to be convex but
