@@ -664,6 +664,7 @@ See also: [ALLEGRO_VERTEX_BUFFER], [al_lock_vertex_buffer]
 Draw a series of line segments.
 
 * vertex - Interleaved array of (x, y) vertex coordinates
+* vertex_stride - the number of bytes between pairs of vertices (the stride)
 * vertex_count - Number of vertices in the array
 * join_style - How to render the joins between line segments
 * cap_style - How to render the end caps
@@ -671,15 +672,8 @@ Draw a series of line segments.
 * thickness - Thickness of the line, pass `<= 0` to draw hairline lines
 * miter_limit - Parameter for miter join style
 
-Since: 5.1.0
-
-See also: [al_draw_polyline_ex], [ALLEGRO_LINE_JOIN], [ALLEGRO_LINE_CAP]
-
-### API: al_draw_polyline_ex
-
-Like [al_draw_polyline], but you also pass the number of bytes between pairs of
-vertices (the stride).  This is useful if the vertex coordinates are in an
-array of some structure type, e.g.
+The stride is normally `2 * sizeof(float)` but may be more if the vertex
+coordinates are in an array of some structure type, e.g.
 
     struct VertexInfo {
        float x;
@@ -689,13 +683,15 @@ array of some structure type, e.g.
 
     void my_draw(struct VertexInfo verts[], int vertex_count, ALLEGRO_COLOR c)
     {
-       al_draw_polyline_ex((float *)verts, sizeof(VertexInfo), vertex_count,
+       al_draw_polyline((float *)verts, sizeof(VertexInfo), vertex_count,
           ALLEGRO_LINE_JOIN_NONE, ALLEGRO_LINE_CAP_NONE, c, 1.0, 1.0);
     }
 
+The stride may also be negative if the vertices are stored in reverse order.
+
 Since: 5.1.0
 
-See also: [al_draw_polyline], [ALLEGRO_LINE_JOIN], [ALLEGRO_LINE_CAP]
+See also: [al_draw_polygon], [ALLEGRO_LINE_JOIN], [ALLEGRO_LINE_CAP]
 
 ### API: al_draw_polygon
 

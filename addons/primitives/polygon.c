@@ -45,7 +45,8 @@ void al_draw_polygon(const float *vertices, int vertex_count,
    ALLEGRO_LINE_JOIN join_style, ALLEGRO_COLOR color,
    float thickness, float miter_limit)
 {
-   al_draw_polyline(vertices, vertex_count, join_style, ALLEGRO_LINE_CAP_CLOSED, color, thickness, miter_limit);
+   al_draw_polyline(vertices, 2 * sizeof(float), vertex_count, join_style,
+      ALLEGRO_LINE_CAP_CLOSED, color, thickness, miter_limit);
 }
 
 /* Function: al_draw_filled_polygon

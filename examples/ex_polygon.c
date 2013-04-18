@@ -212,7 +212,7 @@ static void draw_all(void)
 
    if (ex.mode == MODE_POLYLINE) {
       if (ex.vertex_count >= 2) {
-         al_draw_polyline_ex(
+         al_draw_polyline(
             (float *)ex.vertices, sizeof(Vertex), ex.vertex_count,
             ex.join_style, ex.cap_style, ex.fg, ex.thickness, ex.miter_limit);
       }

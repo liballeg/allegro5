@@ -1242,8 +1242,9 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
       /* Primitives (5.1) */
       if (SCAN("al_draw_polyline", 6)) {
          fill_simple_vertices(cfg, V(0));
-         al_draw_polyline(simple_vertices, num_simple_vertices,
-            get_line_join(V(1)), get_line_cap(V(2)), C(3), F(4), F(5));
+         al_draw_polyline(simple_vertices, 2 * sizeof(float),
+            num_simple_vertices, get_line_join(V(1)), get_line_cap(V(2)),
+            C(3), F(4), F(5));
          continue;
       }
       if (SCAN("al_draw_polygon", 5)) {
