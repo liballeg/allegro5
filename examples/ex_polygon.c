@@ -25,6 +25,12 @@ enum {
    MODE_MAX
 };
 
+enum AddHole {
+   NOT_ADDING_HOLE,
+   NEW_HOLE,
+   GROW_HOLE
+};
+
 typedef struct Vertex Vertex;
 struct Vertex {
    float x;
@@ -52,7 +58,7 @@ struct Example {
    bool              software;
    float             zoom;
    float             scroll_x, scroll_y;
-   int               add_hole; /* 0) no, else vertex 1) starts 2) grows hole */
+   enum AddHole      add_hole;
 };
 
 static struct Example ex;
@@ -70,7 +76,7 @@ static void reset(void)
    ex.zoom = 1;
    ex.scroll_x = 0;
    ex.scroll_y = 0;
-   ex.add_hole = 0;
+   ex.add_hole = NOT_ADDING_HOLE;
 }
 
 static void transform(float *x, float *y)
@@ -106,9 +112,9 @@ static void lclick(int mx, int my)
       ex.vertices[i].y = my;
       ex.cur_vertex = i;
 
-      if (ex.add_hole == 1 && ex.cur_polygon < MAX_POLYGONS) {
+      if (ex.add_hole == NEW_HOLE && ex.cur_polygon < MAX_POLYGONS) {
          ex.cur_polygon++;
-         ex.add_hole = 2;
+         ex.add_hole = GROW_HOLE;
       }
 
       ex.vertex_polygon[i] = ex.cur_polygon;
@@ -118,7 +124,7 @@ static void lclick(int mx, int my)
 static void rclick(int mx, int my)
 {
    const int i = hit_vertex(mx, my);
-   if (i >= 0 && !ex.add_hole) {
+   if (i >= 0 && ex.add_hole == NOT_ADDING_HOLE) {
       ex.vertex_count--;
       memmove(&ex.vertices[i], &ex.vertices[i + 1],
          sizeof(Vertex) * (ex.vertex_count - i));
@@ -310,9 +316,9 @@ static void draw_all(void)
       "Reset (R)");
    texty += texth;
 
-   if (ex.add_hole == 0)
+   if (ex.add_hole == NOT_ADDING_HOLE)
       holec = textc;
-   else if (ex.add_hole == 1)
+   else if (ex.add_hole == GROW_HOLE)
       holec = al_map_rgb(200, 0, 0);
    else
       holec = al_map_rgb(0, 200, 0);
@@ -444,7 +450,7 @@ int main(void)
                print_vertices();
                break;
             case 'H':
-               ex.add_hole = 1;
+               ex.add_hole = NEW_HOLE;
                break;
          }
       }
