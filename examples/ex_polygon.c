@@ -62,7 +62,6 @@ static void reset(void)
    ex.vertex_count = 0;
    ex.cur_vertex = -1;
    ex.cur_polygon = 0;
-   ex.mode = MODE_POLYLINE;
    ex.cap_style = ALLEGRO_LINE_CAP_NONE;
    ex.join_style = ALLEGRO_LINE_JOIN_NONE;
    ex.thickness = 1.0f;
