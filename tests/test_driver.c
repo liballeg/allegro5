@@ -19,6 +19,7 @@
 #define MAX_TRANS    8
 #define MAX_FONTS    16
 #define MAX_VERTICES 100
+#define MAX_POLYGONS 8
 
 typedef struct {
    ALLEGRO_USTR   *name;
@@ -59,6 +60,7 @@ NamedFont         fonts[MAX_FONTS];
 ALLEGRO_VERTEX    vertices[MAX_VERTICES];
 float             simple_vertices[2 * MAX_VERTICES];
 int               num_simple_vertices;
+int               vertex_counts[MAX_POLYGONS];
 int               num_global_bitmaps;
 float             delay = 0.0;
 bool              save_outputs = false;
@@ -540,6 +542,31 @@ static void fill_simple_vertices(ALLEGRO_CONFIG const *cfg, char const *name)
    }
 
    num_simple_vertices = i;
+
+#undef MAXBUF
+}
+
+static void fill_vertex_counts(ALLEGRO_CONFIG const *cfg, char const *name)
+{
+#define MAXBUF    80
+
+   char const *value;
+   char buf[MAXBUF];
+   int count;
+   int i;
+
+   memset(vertex_counts, 0, sizeof(vertex_counts));
+
+   for (i = 0; i < MAX_POLYGONS; i++) {
+      sprintf(buf, "p%d", i);
+      value = al_get_config_value(cfg, name, buf);
+      if (!value)
+         break;
+
+      if (sscanf(value, " %d ", &count) == 1) {
+         vertex_counts[i] = count;
+      }
+   }
 
 #undef MAXBUF
 }
@@ -1256,6 +1283,12 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
       if (SCAN("al_draw_filled_polygon", 2)) {
          fill_simple_vertices(cfg, V(0));
          al_draw_filled_polygon(simple_vertices, num_simple_vertices, C(1));
+         continue;
+      }
+      if (SCAN("al_draw_filled_polygon_with_holes", 3)) {
+         fill_simple_vertices(cfg, V(0));
+         fill_vertex_counts(cfg, V(1));
+         al_draw_filled_polygon_with_holes(simple_vertices, vertex_counts, C(2));
          continue;
       }
 
