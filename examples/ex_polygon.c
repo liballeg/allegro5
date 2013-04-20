@@ -5,7 +5,6 @@
  */
 
 #include <allegro5/allegro.h>
-#include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_primitives.h>
 #include <ctype.h>
@@ -351,7 +350,6 @@ int main(void)
    if (!al_init_primitives_addon()) {
       abort_example("Could not init primitives.\n");
    }
-   al_init_image_addon();
    al_init_font_addon();
    al_install_mouse();
    al_install_keyboard();
@@ -362,16 +360,16 @@ int main(void)
       abort_example("Error creating display\n");
    }
 
-   ex.font = al_load_font("data/a4_font.tga", 0, 0);
+   ex.font = al_create_builtin_font();
    if (!ex.font) {
-      abort_example("Error loading data/a4_font.tga\n");
+      abort_example("Error creating builtin font\n");
    }
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    ex.dbuf = al_create_bitmap(800, 600);
-   ex.fontbmp = al_load_font("data/a4_font.tga", 0, 0);
+   ex.fontbmp = al_create_builtin_font();
    if (!ex.fontbmp) {
-      abort_example("Error loading data/a4_font.tga\n");
+      abort_example("Error creating builtin font\n");
    }
 
    ex.queue = al_create_event_queue();
