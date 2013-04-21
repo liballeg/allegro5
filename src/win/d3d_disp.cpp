@@ -2474,6 +2474,10 @@ LPDIRECT3DTEXTURE9 al_get_d3d_video_texture(ALLEGRO_BITMAP *bitmap)
  */
 void al_get_d3d_texture_position(ALLEGRO_BITMAP *bitmap, int *u, int *v)
 {
+   ASSERT(bitmap);
+   ASSERT(u);
+   ASSERT(v);
+
    *u = bitmap->xofs;
    *v = bitmap->yofs;
 }
