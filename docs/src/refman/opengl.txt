@@ -85,10 +85,14 @@ a sub-bitmap.
 Returns true on success, false on failure.
 Zero width and height are returned if the bitmap is not an OpenGL bitmap.
 
+See also: [al_get_opengl_texture_position]
+
 ## API: al_get_opengl_texture_position
 
 Returns the u/v coordinates for the top/left corner of the bitmap within the
 used texture, in pixels.
+
+See also: [al_get_opengl_texture_size]
 
 ## API: al_get_opengl_fbo
 
