@@ -818,6 +818,10 @@ bool al_get_opengl_texture_size(ALLEGRO_BITMAP *bitmap, int *w, int *h)
  */
 void al_get_opengl_texture_position(ALLEGRO_BITMAP *bitmap, int *u, int *v)
 {
+   ASSERT(bitmap);
+   ASSERT(u);
+   ASSERT(v);
+
    *u = bitmap->xofs;
    *v = bitmap->yofs;
 }
