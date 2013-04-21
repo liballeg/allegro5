@@ -72,18 +72,22 @@ belonging to the given display is in a lost state.
 
 * display - The display that the device you wish to check is attached to
 
-## API: al_d3d_set_release_callback
+## API: al_set_d3d_device_release_callback
 
-The callback will be called whenever a d3d device is reset (minimize, toggle
+The callback will be called whenever a D3D device is reset (minimize, toggle
 fullscreen window, etc).  In the callback you should release any d3d
 resources you have created yourself.
 
+Pass NULL to disable the callback.
+
 Since: 5.1.0
 
-## API: al_d3d_set_restore_callback
+## API: al_set_d3d_device_restore_callback
 
-The callback will be called whenever a d3d device that has been reset is
+The callback will be called whenever a D3D device that has been reset is
 restored.  in the callback you should restore any d3d resources you have
 created yourself.
+
+Pass NULL to disable the callback.
 
 Since: 5.1.0

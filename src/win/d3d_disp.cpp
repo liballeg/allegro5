@@ -180,16 +180,16 @@ static D3DFORMAT d3d_get_depth_stencil_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *se
    return (D3DFORMAT)0;
 }
 
-/* Function: al_d3d_set_release_callback
+/* Function: al_set_d3d_device_release_callback
  */
-void al_d3d_set_release_callback(void (*callback)(void))
+void al_set_d3d_device_release_callback(void (*callback)(void))
 {
    d3d_release_callback = callback;
 }
 
-/* Function: al_d3d_set_restore_callback
+/* Function: al_set_d3d_device_restore_callback
  */
-void al_d3d_set_restore_callback(void (*callback)(void))
+void al_set_d3d_device_restore_callback(void (*callback)(void))
 {
    d3d_restore_callback = callback;
 }
