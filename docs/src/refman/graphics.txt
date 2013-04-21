@@ -568,7 +568,7 @@ See also: [ALLEGRO_COLOR], [al_set_clipping_rectangle], [al_clear_depth_buffer]
 ### API: al_clear_depth_buffer
 
 Clear the depth buffer (confined by the clipping rectangle) to the given
-value. A depth buffer is only availabe if it was requested with
+value. A depth buffer is only available if it was requested with
 [al_set_new_display_option] and the requirement could be met by the
 [al_create_display] call creating the current display. Operations involving the
 depth buffer are also affected by [al_set_render_state].
