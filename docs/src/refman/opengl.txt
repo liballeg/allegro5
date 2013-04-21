@@ -82,10 +82,14 @@ Retrieves the size of the texture used for the bitmap. This can be different
 from the bitmap size if OpenGL only supports power-of-two sizes or if it is
 a sub-bitmap. 0's are returned if the bitmap is not an OpenGL bitmap.
 
+See also: [al_get_opengl_texture_position]
+
 ## API: al_get_opengl_texture_position
 
 Returns the u/v coordinates for the top/left corner of the bitmap within the
 used texture, in pixels.
+
+See also: [al_get_opengl_texture_size]
 
 ## API: al_get_opengl_fbo
 
