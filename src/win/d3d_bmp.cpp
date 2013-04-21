@@ -40,15 +40,27 @@ static ALLEGRO_BITMAP_INTERFACE *vt;
 #define get_extra(b) ((ALLEGRO_BITMAP_EXTRA_D3D *)\
    (b->parent ? b->parent->extra : b->extra))
 
+
 /* Function: al_get_d3d_texture_size
  */
-void al_get_d3d_texture_size(ALLEGRO_BITMAP *bitmap, int *width, int *height)
+bool al_get_d3d_texture_size(ALLEGRO_BITMAP *bitmap, int *width, int *height)
 {
-   ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
-   *width = d3d_bmp->texture_w;
-   *height = d3d_bmp->texture_h;
-}
+   ASSERT(bitmap);
+   ASSERT(width);
+   ASSERT(height);
 
+   if (bitmap->flags & ALLEGRO_DIRECT3D_INTERNAL) {
+      ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
+      *width = d3d_bmp->texture_w;
+      *height = d3d_bmp->texture_h;
+      return true;
+   }
+   else {
+      *width = 0;
+      *height = 0;
+      return false;
+   }
+}
 
 void _al_d3d_bmp_init(void)
 {
