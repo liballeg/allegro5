@@ -163,7 +163,7 @@ AL_FUNC(ALLEGRO_OGL_EXT_LIST*, al_get_opengl_extension_list,     (void));
 AL_FUNC(GLuint,                al_get_opengl_texture,            (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(void,                  al_remove_opengl_fbo,             (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(GLuint,                al_get_opengl_fbo,                (ALLEGRO_BITMAP *bitmap));
-AL_FUNC(void,                  al_get_opengl_texture_size,       (ALLEGRO_BITMAP *bitmap,
+AL_FUNC(bool,                  al_get_opengl_texture_size,       (ALLEGRO_BITMAP *bitmap,
                                                                   int *w, int *h));
 AL_FUNC(void,                  al_get_opengl_texture_position,   (ALLEGRO_BITMAP *bitmap,
                                                                   int *u, int *v));

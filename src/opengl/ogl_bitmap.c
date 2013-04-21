@@ -792,7 +792,7 @@ GLuint al_get_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_get_opengl_texture_size
  */
-void al_get_opengl_texture_size(ALLEGRO_BITMAP *bitmap, int *w, int *h)
+bool al_get_opengl_texture_size(ALLEGRO_BITMAP *bitmap, int *w, int *h)
 {
    /* The designers of OpenGL ES 1.0 forgot to add a function to query
     * texture sizes, so this will be the only way there to get the texture
@@ -805,12 +805,13 @@ void al_get_opengl_texture_size(ALLEGRO_BITMAP *bitmap, int *w, int *h)
    if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL)) {
       *w = 0;
       *h = 0;
-      return;
+      return false;
    }
 
    ogl_bitmap = bitmap->extra;
    *w = ogl_bitmap->true_w;
    *h = ogl_bitmap->true_h;
+   return true;
 }
 
 /* Function: al_get_opengl_texture_position
