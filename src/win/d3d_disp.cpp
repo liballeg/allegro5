@@ -133,8 +133,8 @@ static int d3d_formats[] = {
    -1
 };
 
-static void (*d3d_release_callback)(void) = NULL;
-static void (*d3d_restore_callback)(void) = NULL;
+static void (*d3d_release_callback)(ALLEGRO_DISPLAY *display) = NULL;
+static void (*d3d_restore_callback)(ALLEGRO_DISPLAY *display) = NULL;
 
 #define ERR(e) case e: return #e;
 static char const *_al_d3d_error_string(HRESULT e)
@@ -182,14 +182,16 @@ static D3DFORMAT d3d_get_depth_stencil_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *se
 
 /* Function: al_set_d3d_device_release_callback
  */
-void al_set_d3d_device_release_callback(void (*callback)(void))
+void al_set_d3d_device_release_callback(
+   void (*callback)(ALLEGRO_DISPLAY *display))
 {
    d3d_release_callback = callback;
 }
 
 /* Function: al_set_d3d_device_restore_callback
  */
-void al_set_d3d_device_restore_callback(void (*callback)(void))
+void al_set_d3d_device_restore_callback(
+   void (*callback)(ALLEGRO_DISPLAY *display))
 {
    d3d_restore_callback = callback;
 }
@@ -946,7 +948,7 @@ void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
    ALLEGRO_DISPLAY *al_display = (ALLEGRO_DISPLAY *)disp;
 
    if (d3d_release_callback) {
-      (*d3d_release_callback)();
+      (*d3d_release_callback)(al_display);
    }
 
    previous_target = NULL;
@@ -1509,14 +1511,14 @@ static void *d3d_display_thread_proc(void *arg)
             _al_event_source_unlock(&al_display->es);
             lost_event_generated = false;
             if (d3d_restore_callback) {
-               (*d3d_restore_callback)();
+               (*d3d_restore_callback)(al_display);
             }
          }
       }
       if (d3d_display->do_reset) {
          d3d_display->reset_success = _al_d3d_reset_device(d3d_display);
          if (d3d_restore_callback) {
-            (*d3d_restore_callback)();
+            (*d3d_restore_callback)(al_display);
          }
          d3d_display->do_reset = false;
          d3d_display->reset_done = true;

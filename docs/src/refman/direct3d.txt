@@ -76,7 +76,8 @@ belonging to the given display is in a lost state.
 
 The callback will be called whenever a D3D device is reset (minimize, toggle
 fullscreen window, etc).  In the callback you should release any d3d
-resources you have created yourself.
+resources you have created yourself.  The callback receives the affected
+display as a parameter.
 
 Pass NULL to disable the callback.
 
@@ -85,8 +86,8 @@ Since: 5.1.0
 ## API: al_set_d3d_device_restore_callback
 
 The callback will be called whenever a D3D device that has been reset is
-restored.  in the callback you should restore any d3d resources you have
-created yourself.
+restored.  In the callback you should restore any d3d resources you have
+created yourself.  The callback receives the affected display as a parameter.
 
 Pass NULL to disable the callback.
 
