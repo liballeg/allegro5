@@ -195,6 +195,7 @@ static int compare(const void *va, const void *vb)
    return strcmp(ca, cb->name);
 }
 
+
 /* Function: al_color_name_to_rgb
  */
 bool al_color_name_to_rgb(char const *name, float *r, float *g, float *b)
@@ -212,6 +213,7 @@ bool al_color_name_to_rgb(char const *name, float *r, float *g, float *b)
    }
    return false;
 }
+
 
 /* Function: al_color_rgb_to_name
  */
@@ -237,6 +239,7 @@ char const *al_color_rgb_to_name(float r, float g, float b)
    return _al_color_names[min].name;
 }
 
+
 /* Function: al_color_name
  */
 ALLEGRO_COLOR al_color_name(char const *name)
@@ -248,6 +251,7 @@ ALLEGRO_COLOR al_color_name(char const *name)
       return al_map_rgb_f(0, 0, 0);
 }
 
+
 /* Function: al_color_hsv_to_rgb
  */
 void al_color_hsv_to_rgb(float hue, float saturation, float value,
@@ -255,8 +259,10 @@ void al_color_hsv_to_rgb(float hue, float saturation, float value,
 {
    int d;
    float e, a, b, c;
+
    hue = fmodf(hue, 360);
-   if (hue < 0) hue += 360;
+   if (hue < 0)
+      hue += 360;
    d = hue / 60;
    e = hue / 60 - d;
    a = value * (1 - saturation);
@@ -273,37 +279,43 @@ void al_color_hsv_to_rgb(float hue, float saturation, float value,
    }
 }
 
+
 /* Function: al_color_rgb_to_hsv
  */
 void al_color_rgb_to_hsv(float red, float green, float blue,
    float *hue, float *saturation, float *value)
 {
    float a, b, c, d;
-   if (red > green)
-      if (red > blue)
+   if (red > green) {
+      if (red > blue) {
          if (green > blue)
             a = red, b = green - blue, c = blue, d = 0;
          else
             a = red, b = green - blue, c = green, d = 0;
-      else
+      }
+      else {
          a = blue, b = red - green, c = green, d = 4;
-   else
+      }
+   }
+   else {
       if (red > blue)
           a = green, b = blue - red, c = blue, d = 2;
+      else if (green > blue)
+         a = green, b = blue - red, c = red, d = 2;
       else
-         if (green > blue)
-            a = green, b = blue - red, c = red, d = 2;
-         else
-             a = blue, b = red - green, c = red, d = 4;
+         a = blue, b = red - green, c = red, d = 4;
+   }
 
-   if (a == c)
-       *hue = 0;
-   else
-       *hue = 60 * (d + b / (a - c));
-       if (*hue < 0)
+   if (a == c) {
+      *hue = 0;
+   }
+   else {
+      *hue = 60 * (d + b / (a - c));
+      if (*hue < 0)
          *hue += 360;
-       if (*hue > 360)
+      if (*hue > 360)
          *hue -= 360;
+   }
 
    if (a == 0)
       *saturation = 0;
@@ -312,25 +324,34 @@ void al_color_rgb_to_hsv(float red, float green, float blue,
    *value = a;
 }
 
+
 /* Function: al_color_hsv
  */
 ALLEGRO_COLOR al_color_hsv(float h, float s, float v)
 {
    float r, g, b;
+
    al_color_hsv_to_rgb(h, s, v, &r, &g, &b);
    return al_map_rgb_f(r, g, b);
 }
 
-static float helper(float x, float a, float b)
-{
-   if (x < 0) x += 1;
-   if (x > 1) x -= 1;
 
-   if (x * 6 < 1) return b + (a - b) * 6 * x;
-   if (x * 6 < 3) return a;
-   if (x * 6 < 4) return b + (a - b) * (4.0 - 6.0 * x);
+static float hsl_to_rgb_helper(float x, float a, float b)
+{
+   if (x < 0)
+      x += 1;
+   if (x > 1)
+      x -= 1;
+
+   if (x * 6 < 1)
+      return b + (a - b) * 6 * x;
+   if (x * 6 < 3)
+      return a;
+   if (x * 6 < 4)
+      return b + (a - b) * (4.0 - 6.0 * x);
    return b;
 }
+
 
 /* Function: al_color_hsl_to_rgb
  */
@@ -338,18 +359,21 @@ void al_color_hsl_to_rgb(float hue, float saturation, float lightness,
    float *red, float *green, float *blue)
 {
    float a, b, h;
+
    hue = fmodf(hue, 360);
-   if (hue < 0) hue += 360;
+   if (hue < 0)
+      hue += 360;
    h = hue / 360;
    if (lightness < 0.5)
       a = lightness + lightness * saturation;
    else
       a = lightness + saturation - lightness * saturation;
    b = lightness * 2 - a;
-   *red = helper(h + 1.0 / 3.0, a, b);
-   *green = helper(h, a, b);
-   *blue = helper(h - 1.0 / 3.0, a, b);
+   *red = hsl_to_rgb_helper(h + 1.0 / 3.0, a, b);
+   *green = hsl_to_rgb_helper(h, a, b);
+   *blue = hsl_to_rgb_helper(h - 1.0 / 3.0, a, b);
 }
+
 
 /* Function: al_color_rgb_to_hsl
  */
@@ -357,29 +381,35 @@ void al_color_rgb_to_hsl(float red, float green, float blue,
    float *hue, float *saturation, float *lightness)
 {
    float a, b, c, d;
-   if (red > green)
-      if (red > blue)
+
+   if (red > green) {
+      if (red > blue) {
          if (green > blue)
             a = red, b = green - blue, c = blue, d = 0;
          else
             a = red, b = green - blue, c = green, d = 0;
-      else
+      }
+      else {
          a = blue, b = red - green, c = green, d = 4;
-   else
+      }
+   }
+   else {
       if (red > blue)
-          a = green, b = blue - red, c = blue, d = 2;
+         a = green, b = blue - red, c = blue, d = 2;
+      else if (green > blue)
+         a = green, b = blue - red, c = red, d = 2;
       else
-         if (green > blue)
-            a = green, b = blue - red, c = red, d = 2;
-         else
-             a = blue, b = red - green, c = red, d = 4;
+         a = blue, b = red - green, c = red, d = 4;
+   }
 
-   if (a == c)
-       *hue = 0;
-   else
-       *hue = 60 * (d + b / (a - c));
-       if (*hue < 0)
+   if (a == c) {
+      *hue = 0;
+   }
+   else {
+      *hue = 60 * (d + b / (a - c));
+      if (*hue < 0)
          *hue += 360;
+   }
 
    if (a == c)
       *saturation = 0;
@@ -387,9 +417,10 @@ void al_color_rgb_to_hsl(float red, float green, float blue,
       *saturation = (a - c) / (a + c);
    else
       *saturation = (a - c) / (2 - a - c);
-   
+
    *lightness = (a + c) / 2;
 }
+
 
 /* Function: al_color_hsl
  */
@@ -399,6 +430,7 @@ ALLEGRO_COLOR al_color_hsl(float h, float s, float l)
    al_color_hsl_to_rgb(h, s, l, &r, &g, &b);
    return al_map_rgb_f(r, g, b);
 }
+
 
 /* Function: al_color_cmyk_to_rgb
  */
@@ -411,14 +443,17 @@ void al_color_cmyk_to_rgb(float cyan, float magenta, float yellow,
    *blue = max - yellow * max;
 }
 
+
 /* Function: al_color_rgb_to_cmyk
  */
 void al_color_rgb_to_cmyk(float red, float green, float blue,
    float *cyan, float *magenta, float *yellow, float *key)
 {
    float max = red;
-   if (green > max) max = green;
-   if (blue > max) max = blue;
+   if (green > max)
+      max = green;
+   if (blue > max)
+      max = blue;
    *key = 1 - max;
    if (max > 0) {
       *cyan = (max - red) / max;
@@ -430,6 +465,7 @@ void al_color_rgb_to_cmyk(float red, float green, float blue,
    }
 }
 
+
 /* Function: al_color_cmyk
  */
 ALLEGRO_COLOR al_color_cmyk(float c, float m, float y, float k)
@@ -438,6 +474,7 @@ ALLEGRO_COLOR al_color_cmyk(float c, float m, float y, float k)
    al_color_cmyk_to_rgb(c, m, y, k, &r, &g, &b);
    return al_map_rgb_f(r, g, b);
 }
+
 
 /* Function: al_color_yuv_to_rgb
  */
@@ -452,6 +489,7 @@ void al_color_yuv_to_rgb(float y, float u, float v,
    *blue = y + u * 2.03211;
 }
 
+
 /* Function: al_color_rgb_to_yuv
  */
 void al_color_rgb_to_yuv(float red, float green, float blue,
@@ -465,6 +503,7 @@ void al_color_rgb_to_yuv(float red, float green, float blue,
    *v = (*v / 0.615 + 1) * 0.5;
 }
 
+
 /* Function: al_color_yuv
  */
 ALLEGRO_COLOR al_color_yuv(float y, float u, float v)
@@ -473,6 +512,7 @@ ALLEGRO_COLOR al_color_yuv(float y, float u, float v)
    al_color_yuv_to_rgb(y, u, v, &r, &g, &b);
    return al_map_rgb_f(r, g, b);
 }
+
 
 /* Function: al_color_rgb_to_html
  */
@@ -483,6 +523,7 @@ void al_color_rgb_to_html(float red, float green, float blue,
       (int)(green * 255), (int)(blue * 255));
 }
 
+
 /* Function: al_color_html_to_rgb
  */
 void al_color_html_to_rgb(char const *string,
@@ -490,18 +531,22 @@ void al_color_html_to_rgb(char const *string,
 {
    char const *ptr = string;
    long rgb;
-   if (*ptr == '#') ptr++;
+
+   if (*ptr == '#')
+      ptr++;
    rgb = strtol(ptr, NULL, 16);
    *red = (rgb >> 16) / 255.0;
    *green = ((rgb >> 8) & 255) / 255.0;
    *blue = (rgb & 255) / 255.0;
 }
 
+
 /* Function: al_color_html
  */
 ALLEGRO_COLOR al_color_html(char const *string)
 {
    float r, g, b;
+
    al_color_html_to_rgb(string, &r, &g, &b);
    return al_map_rgb_f(r, g, b);
 }
@@ -513,3 +558,5 @@ uint32_t al_get_allegro_color_version(void)
 {
    return ALLEGRO_VERSION_INT;
 }
+
+/* vim: set sts=3 sw=3 et: */
