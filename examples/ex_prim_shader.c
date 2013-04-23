@@ -32,6 +32,8 @@ static void setup_vertex(CUSTOM_VERTEX* vtx, int ring, int segment, bool inside)
    vtx->y = y + SCREEN_HEIGHT / 2;
 
    if (inside) {
+      /* This comes from the definition of the normal vector as the
+       * gradient of the 3D surface. */
       z = sqrtf(SPHERE_RADIUS * SPHERE_RADIUS - x * x - y * y);
       vtx->nx = x / z;
       vtx->ny = y / z;
@@ -63,15 +65,12 @@ int main(void)
    };
    CUSTOM_VERTEX vertices[NUM_VERTICES];
    bool quit = false;
-   float mouse_pos[2];
    const char* vertex_shader_file;
    const char* pixel_shader_file;
    int vertex_idx = 0;
    int ring, segment;
-   float color[4] = {0.1, 0.1, 0.7, 1.0};
-
-   mouse_pos[0] = 0;
-   mouse_pos[1] = 0;
+   float diffuse_color[4] = {0.1, 0.1, 0.7, 1.0};
+   float light_position[3] = {0, 0, 100};
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -93,6 +92,9 @@ int main(void)
       abort_example("Error creating vertex declaration.\n");
    }
 
+   /* Computes a "spherical" bump ring. The z coordinate is not actually set
+    * appropriately as this is a 2D example, but the normal vectors are computed
+    * correctly for the light shading effect. */
    for (ring = 0; ring < NUM_RINGS; ring++) {
       for (segment = 0; segment < NUM_SEGMENTS; segment++) {
          bool inside = ring < FIRST_OUTSIDE_RING;
@@ -135,7 +137,8 @@ int main(void)
    }
 
    al_use_shader(shader);
-   al_set_shader_float_vector("color", 4, color, 1);
+   al_set_shader_float_vector("diffuse_color", 4, diffuse_color, 1);
+   /* alpha controls shininess, and 25 is very shiny */
    al_set_shader_float("alpha", 25);
 
    timer = al_create_timer(1.0 / 60);
@@ -155,8 +158,8 @@ int main(void)
             quit = true;
             break;
          case ALLEGRO_EVENT_MOUSE_AXES:
-            mouse_pos[0] = event.mouse.x;
-            mouse_pos[1] = event.mouse.y;
+            light_position[0] = event.mouse.x;
+            light_position[1] = event.mouse.y;
             break;
          case ALLEGRO_EVENT_KEY_CHAR:
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
@@ -170,7 +173,7 @@ int main(void)
       if (redraw && al_is_event_queue_empty(queue)) {
          al_clear_to_color(al_map_rgb_f(0, 0, 0));
 
-         al_set_shader_float_vector("mouse_pos", 2, mouse_pos, 1);
+         al_set_shader_float_vector("light_position", 3, light_position, 1);
          al_draw_prim(vertices, vertex_decl, NULL, 0, NUM_VERTICES, ALLEGRO_PRIM_TRIANGLE_LIST);
 
          al_flip_display();
