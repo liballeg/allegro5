@@ -99,8 +99,8 @@ e.g. #00faff.
 Parameters:
 
 * red, green, blue - The color components in the range 0..1.
-* string - A string with a size of 8 bytes into which the result will
-be written.
+* string - A pointer to a buffer of at least 8 bytes, into which the result
+  will be written (including the NUL terminator).
 
 Example:
 
