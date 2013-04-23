@@ -66,16 +66,27 @@ See also: [al_color_rgb_to_hsv], [al_color_hsv], [al_color_hsl_to_rgb]
 
 ## API: al_color_html
 
-Interprets an HTML styled hex number (e.g. #00faff) as a color. Components that
-are malformed are set to 0.
+Interprets an HTML-style hex number (e.g. #00faff) as a color.
+The accepted format is the same as [al_color_html_to_rgb].
+
+Returns the interpreted color, or `al_map_rgba(0, 0, 0, 0)` if the string
+could not be parsed.
+
+> *Note*: the behaviour on invalid strings is different from Allegro 5.0.x.
 
 See also: [al_color_html_to_rgb], [al_color_rgb_to_html]
 
 
 ## API: al_color_html_to_rgb
 
-Interprets an HTML styled hex number (e.g. #00faff) as a color. Components that
-are malformed are set to 0.
+Interprets an HTML-style hex number (e.g. #00faff) as a color.
+The only accepted formats are "#RRGGBB" and "RRGGBB" where R, G, B are
+hexadecimal digits [0-9A-Fa-f].
+
+Returns true on success, false on failure.
+On failure all components are set to zero.
+
+> *Note*: the behaviour on invalid strings is different from Allegro 5.0.x.
 
 See also: [al_color_html], [al_color_rgb_to_html]
 

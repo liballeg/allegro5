@@ -526,18 +526,31 @@ void al_color_rgb_to_html(float red, float green, float blue,
 
 /* Function: al_color_html_to_rgb
  */
-void al_color_html_to_rgb(char const *string,
+bool al_color_html_to_rgb(char const *string,
    float *red, float *green, float *blue)
 {
    char const *ptr = string;
-   long rgb;
+   int ir, ig, ib;
+   ASSERT(ptr);
+   ASSERT(red);
+   ASSERT(green);
+   ASSERT(blue);
+
+   *red = *green = *blue = 0.0f;
 
    if (*ptr == '#')
       ptr++;
-   rgb = strtol(ptr, NULL, 16);
-   *red = (rgb >> 16) / 255.0;
-   *green = ((rgb >> 8) & 255) / 255.0;
-   *blue = (rgb & 255) / 255.0;
+
+   if (strlen(ptr) != 6)
+      return false;
+
+   if (sscanf(ptr, "%02x%02x%02x", &ir, &ig, &ib) != 3)
+      return false;
+
+   *red = ir / 255.0;
+   *green = ig / 255.0;
+   *blue = ib / 255.0;
+   return true;
 }
 
 
@@ -547,8 +560,10 @@ ALLEGRO_COLOR al_color_html(char const *string)
 {
    float r, g, b;
 
-   al_color_html_to_rgb(string, &r, &g, &b);
-   return al_map_rgb_f(r, g, b);
+   if (al_color_html_to_rgb(string, &r, &g, &b))
+      return al_map_rgb_f(r, g, b);
+   else
+      return al_map_rgba(0, 0, 0, 0);
 }
 
 
