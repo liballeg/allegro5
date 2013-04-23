@@ -301,7 +301,7 @@ static bool hlsl_attach_shader_source(ALLEGRO_SHADER *shader,
    }
 
    // HLSL likes the source in one buffer
-   full_source = al_ustr_newf("%s\n%s\n%s\n",
+   full_source = al_ustr_newf("%s\n#line 1\n%s\n%s\n",
       vertex_source, pixel_source, technique_source);
 
    DWORD ok = _imp_D3DXCreateEffect(
