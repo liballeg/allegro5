@@ -480,7 +480,7 @@ void al_color_rgb_to_html(float red, float green, float blue,
     char *string)
 {
    sprintf(string, "#%02x%02x%02x", (int)(red * 255),
-      (int)(green * 255), (int)blue * 255);
+      (int)(green * 255), (int)(blue * 255));
 }
 
 /* Function: al_color_html_to_rgb
