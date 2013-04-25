@@ -737,7 +737,7 @@ static void setup_theora_stream_decode(ALLEGRO_VIDEO *video, OGG_VIDEO *ogv,
          (double)(video->height * tstream->info.aspect_denominator);
    }
    else {
-      video->aspect_ratio = 1.0;
+      video->aspect_ratio = 0.0f;
    }
 
    tstream->prev_framenum = -1;

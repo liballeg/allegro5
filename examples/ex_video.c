@@ -29,7 +29,7 @@ static void video_display(ALLEGRO_VIDEO *video)
    if (!frame)
       return;
 
-   if (zoom == 0) {
+   if (zoom == 0 && aspect_ratio > 0.0f) {
       /* Always make the video fit into the window. */
       h = al_get_display_height(screen);
       w = (int)(h * aspect_ratio);

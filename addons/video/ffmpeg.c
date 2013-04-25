@@ -545,10 +545,6 @@ static void video_refresh_timer(void *userdata)
          is->video->aspect_ratio = av_q2d(is->video_st->codec->sample_aspect_ratio) *
              is->video_st->codec->width / is->video_st->codec->height;
       }
-      if (is->video->aspect_ratio <= 0.0) {
-         is->video->aspect_ratio = (float)is->video_st->codec->width /
-             (float)is->video_st->codec->height;
-      }
    }
    else
       is->dropped_count++;

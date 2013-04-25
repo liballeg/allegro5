@@ -68,6 +68,8 @@ Returns the aspect ratio of the video. Videos often do not use square
 pixels so you should always check the aspect ratio before displaying
 video frames.
 
+Returns zero or negative value if the aspect ratio is unknown.
+
 Since: 5.1.0
 
 ## API: al_get_video_audio_rate
