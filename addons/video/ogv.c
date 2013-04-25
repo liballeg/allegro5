@@ -89,6 +89,7 @@ struct OGG_VIDEO {
    _AL_VECTOR streams;              /* vector of STREAM pointers */
    STREAM *selected_video_stream;   /* one of the streams */
    STREAM *selected_audio_stream;   /* one of the streams */
+   int seek_counter;
 
    /* Video output. */
    th_pixel_fmt pixel_fmt;
@@ -97,8 +98,10 @@ struct OGG_VIDEO {
    ALLEGRO_BITMAP *frame_bmp;
    ALLEGRO_BITMAP *pic_bmp;         /* frame_bmp, or subbitmap thereof */
 
+   ALLEGRO_EVENT_SOURCE evtsrc;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_MUTEX *mutex;
+   ALLEGRO_COND *cond;
    ALLEGRO_THREAD *thread;
 };
 
@@ -796,10 +799,11 @@ static bool handle_theora_data(ALLEGRO_VIDEO *video, THEORA_STREAM *tstream,
    ASSERT(rc == 0 || rc == TH_DUPFRAME);
    if (rc == 0) {
       *ret_new_frame = true;
+
+      video->video_position = framenum * tstream->frame_duration;
+      tstream->prev_framenum = framenum;
    }
 
-   video->video_position = framenum * tstream->frame_duration;
-   tstream->prev_framenum = framenum;
    return true;
 }
 
@@ -859,6 +863,49 @@ static int poll_theora_decode(ALLEGRO_VIDEO *video, STREAM *tstream_outer)
    }
 
    return num_frames;
+}
+
+
+/* Seeking. */
+
+static void seek_to_beginning(ALLEGRO_VIDEO *video, OGG_VIDEO *ogv,
+   THEORA_STREAM *tstream)
+{
+   unsigned i;
+   int rc;
+   bool seeked;
+
+   for (i = 0; i < _al_vector_size(&ogv->streams); i++) {
+      STREAM **slot = _al_vector_ref(&ogv->streams, i);
+      STREAM *stream = *slot;
+
+      ogg_stream_reset(&stream->state);
+      free_packet_queue(stream);
+   }
+
+   if (tstream) {
+      ogg_int64_t granpos = 0;
+
+      rc = th_decode_ctl(tstream->ctx, TH_DECCTL_SET_GRANPOS, &granpos,
+         sizeof(granpos));
+      ASSERT(rc == 0);
+
+      tstream->prev_framenum = -1;
+   }
+
+   rc = ogg_sync_reset(&ogv->sync_state);
+   ASSERT(rc == 0);
+
+   seeked = al_fseek(ogv->fp, 0, SEEK_SET);
+   ASSERT(seeked);
+   /* XXX read enough file data to get into position */
+
+   ogv->reached_eof = false;
+   video->audio_position = 0.0;
+   video->video_position = 0.0;
+   video->position = 0.0;
+
+   /* XXX maybe clear backlog of time and stream fragment events */
 }
 
 
@@ -927,6 +974,18 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
       ALLEGRO_EVENT ev;
 
       al_wait_for_event(ogv->queue, &ev);
+
+      if (ev.type == _ALLEGRO_EVENT_VIDEO_SEEK) {
+         double seek_to = ev.user.data1 / 1.0e6;
+         /* XXX we only know how to seek to start of video */
+         ASSERT(seek_to <= 0.0);
+         al_lock_mutex(ogv->mutex);
+         seek_to_beginning(video, ogv, tstream);
+         ogv->seek_counter++;
+         al_broadcast_cond(ogv->cond);
+         al_unlock_mutex(ogv->mutex);
+         continue;
+      }
 
       if (ev.type == ALLEGRO_EVENT_TIMER) {
          if (vstream_outer && !video->paused) {
@@ -1124,8 +1183,10 @@ static bool ogv_close_video(ALLEGRO_VIDEO *video)
    if (ogv) {
       if (ogv->thread) {
          al_join_thread(ogv->thread, NULL);
+         al_destroy_user_event_source(&ogv->evtsrc);
          al_destroy_event_queue(ogv->queue);
          al_destroy_mutex(ogv->mutex);
+         al_destroy_cond(ogv->cond);
          al_destroy_thread(ogv->thread);
       }
 
@@ -1164,8 +1225,12 @@ static bool ogv_start_video(ALLEGRO_VIDEO *video)
       return false;
    }
 
+   al_init_user_event_source(&ogv->evtsrc);
    ogv->queue = al_create_event_queue();
    ogv->mutex = al_create_mutex();
+   ogv->cond = al_create_cond();
+
+   al_register_event_source(ogv->queue, &ogv->evtsrc);
 
    al_start_thread(ogv->thread);
    return true;
@@ -1179,10 +1244,33 @@ static bool ogv_pause_video(ALLEGRO_VIDEO *video)
 
 static bool ogv_seek_video(ALLEGRO_VIDEO *video, double seek_to)
 {
-   /* XXX not yet implemented */
-   (void)video;
-   (void)seek_to;
-   return false;
+   OGG_VIDEO *ogv = video->data;
+   ALLEGRO_EVENT ev;
+   int seek_counter;
+
+   /* XXX we only know how to seek to beginning */
+   if (seek_to > 0.0) {
+      return false;
+   }
+
+   al_lock_mutex(ogv->mutex);
+
+   seek_counter = ogv->seek_counter;
+
+   ev.user.type = _ALLEGRO_EVENT_VIDEO_SEEK;
+   ev.user.data1 = seek_to * 1.0e6;
+   ev.user.data2 = 0;
+   ev.user.data3 = 0;
+   ev.user.data4 = 0;
+   al_emit_user_event(&ogv->evtsrc, &ev, NULL);
+
+   while (seek_counter == ogv->seek_counter) {
+      al_wait_cond(ogv->cond, ogv->mutex);
+   }
+
+   al_unlock_mutex(ogv->mutex);
+
+   return true;
 }
 
 static bool ogv_update_video(ALLEGRO_VIDEO *video)
