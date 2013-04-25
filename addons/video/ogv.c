@@ -954,7 +954,7 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
           */
          if (!video->paused && !ogv->reached_eof) {
             video->audio_position += audio_pos_step;
-            video->position = video->audio_position;
+            video->position = video->audio_position - NUM_FRAGS * audio_pos_step;
          }
          update_audio_fragment(video->audio, vstream, video->paused,
             ogv->reached_eof);
