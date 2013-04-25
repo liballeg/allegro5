@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
    al_set_new_display_option(ALLEGRO_VSYNC, 1, ALLEGRO_SUGGEST);
    screen = al_create_display(640, 480);
    if (!screen) {
-      fprintf(stderr, "SDL: could not set video mode - exiting\n");
+      fprintf(stderr, "Could not set video mode - exiting\n");
       exit(1);
    }
    
