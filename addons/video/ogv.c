@@ -419,17 +419,26 @@ static int try_decode_vorbis_header(STREAM *stream, ogg_packet *packet)
 
 static bool all_headers_done(OGG_VIDEO *ogv)
 {
+   bool have_something = false;
    unsigned i;
 
    for (i = 0; i < _al_vector_size(&ogv->streams); i++) {
       STREAM **slot = _al_vector_ref(&ogv->streams, i);
       STREAM *stream = *slot;
 
-      if (!stream->headers_done)
-         return false;
+      switch (stream->stream_type) {
+         case STREAM_TYPE_THEORA:
+         case STREAM_TYPE_VORBIS:
+            have_something = true;
+            if (!stream->headers_done)
+               return false;
+            break;
+         case STREAM_TYPE_UNKNOWN:
+            break;
+      }
    }
 
-   return true;
+   return have_something;
 }
 
 static void read_headers(OGG_VIDEO *ogv)
