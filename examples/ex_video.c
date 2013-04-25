@@ -6,10 +6,10 @@
 
 #include <stdio.h>
 
-ALLEGRO_DISPLAY *screen;
-ALLEGRO_FONT *font;
-char const *filename;
-float zoom = 0;
+static ALLEGRO_DISPLAY *screen;
+static ALLEGRO_FONT *font;
+static char const *filename;
+static float zoom = 0;
 
 static void video_display(ALLEGRO_VIDEO *video)
 {
