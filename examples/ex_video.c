@@ -1,6 +1,5 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_audio.h>
-#include <allegro5/allegro_image.h>
 #include <allegro5/allegro_video.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_primitives.h>
@@ -52,16 +51,16 @@ static void video_display(ALLEGRO_VIDEO *video)
                          al_get_bitmap_height(frame), x, y, w, h, 0);
 
    /* Show some video information. */
-   al_draw_filled_rounded_rectangle(4, 4, al_get_display_width(screen) - 4,
-      16 + 14 * 3, 8, 8, bc);
+   al_draw_filled_rounded_rectangle(4, 4,
+      al_get_display_width(screen) - 4, 4 + 14 * 3, 8, 8, bc);
    p = al_get_video_position(video, 0);
    al_draw_textf(font, tc, 8, 8 , 0, "%s", filename);
-   al_draw_textf(font, tc, 8, 8 + 14, 0, "%3d:%02d (V: %+5.2f A: %+5.2f)",
+   al_draw_textf(font, tc, 8, 8 + 13, 0, "%3d:%02d (V: %+5.2f A: %+5.2f)",
       (int)(p / 60),
       ((int)p) % 60,
       al_get_video_position(video, 1) - p,
       al_get_video_position(video, 2) - p);
-   al_draw_textf(font, tc, 8, 8 + 14 * 2, 0,
+   al_draw_textf(font, tc, 8, 8 + 13 * 2, 0,
       "video rate %.02f (%dx%d, aspect %.1f) audio rate %.0f",
          al_get_video_fps(video),
          al_get_video_width(video),
@@ -89,7 +88,6 @@ int main(int argc, char *argv[])
    
    al_init();
 
-   al_init_image_addon();
    al_init_font_addon();
    al_install_keyboard();
 
@@ -113,7 +111,7 @@ int main(int argc, char *argv[])
       exit(1);
    }
    
-   font = al_load_font("data/fixed_font.tga", 0, 0);
+   font = al_create_builtin_font();
    if (!font) {
       fprintf(stderr, "No font.\n");
       exit(1);

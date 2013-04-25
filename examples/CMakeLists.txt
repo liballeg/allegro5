@@ -176,7 +176,7 @@ example(ex_warp_mouse ${FONT} ${PRIM} ${IMAGE})
 example(ex_windows ${FONT} ${IMAGE})
 example(ex_window_constraints ${FONT} ${IMAGE})
 example(ex_winfull)
-example(ex_video ${AUDIO} ${IMAGE} ${FONT} ${PRIM} ${VIDEO})
+example(ex_video ${AUDIO} ${FONT} ${PRIM} ${VIDEO})
 
 if(WANT_D3D AND D3DX9_FOUND)
     example(ex_d3d ex_d3d.cpp ${D3DX9_LIBRARY})
