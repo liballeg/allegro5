@@ -293,7 +293,7 @@ static bool read_page(OGG_VIDEO *ogv, ogg_page *page)
       bytes = al_fread(ogv->fp, buffer, buffer_size);
       if (bytes == 0) {
          ALLEGRO_DEBUG("End of file.\n");
-         continue;
+         return false;
       }
 
       rc = ogg_sync_wrote(&ogv->sync_state, bytes);
