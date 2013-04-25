@@ -1111,28 +1111,31 @@ static bool ogv_open_video(ALLEGRO_VIDEO *video)
 
 static bool ogv_close_video(ALLEGRO_VIDEO *video)
 {
-   OGG_VIDEO *ogv = video->data;
+   OGG_VIDEO *ogv;
    unsigned i;
 
-   if (ogv->thread) {
-      al_join_thread(ogv->thread, NULL);
-      al_destroy_mutex(ogv->mutex);
-      al_destroy_thread(ogv->thread);
-   }
+   ogv = video->data;
+   if (ogv) {
+      if (ogv->thread) {
+         al_join_thread(ogv->thread, NULL);
+         al_destroy_mutex(ogv->mutex);
+         al_destroy_thread(ogv->thread);
+      }
 
-   al_fclose(ogv->fp);
-   ogg_sync_clear(&ogv->sync_state);
-   for (i = 0; i < _al_vector_size(&ogv->streams); i++) {
-      STREAM **slot = _al_vector_ref(&ogv->streams, i);
-      free_stream(*slot);
-   }
-   _al_vector_free(&ogv->streams);
-   if (ogv->pic_bmp != ogv->frame_bmp) {
-      al_destroy_bitmap(ogv->pic_bmp);
-   }
-   al_destroy_bitmap(ogv->frame_bmp);
+      al_fclose(ogv->fp);
+      ogg_sync_clear(&ogv->sync_state);
+      for (i = 0; i < _al_vector_size(&ogv->streams); i++) {
+         STREAM **slot = _al_vector_ref(&ogv->streams, i);
+         free_stream(*slot);
+      }
+      _al_vector_free(&ogv->streams);
+      if (ogv->pic_bmp != ogv->frame_bmp) {
+         al_destroy_bitmap(ogv->pic_bmp);
+      }
+      al_destroy_bitmap(ogv->frame_bmp);
 
-   al_free(ogv);
+      al_free(ogv);
+   }
 
    video->data = NULL;
 
