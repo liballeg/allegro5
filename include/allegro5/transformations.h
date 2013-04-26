@@ -36,6 +36,8 @@ AL_FUNC(void, al_orthographic_transform, (ALLEGRO_TRANSFORM *trans, float left, 
 AL_FUNC(void, al_perspective_transform, (ALLEGRO_TRANSFORM *trans, float left, float top, float n, float right, float bottom, float f));
 AL_FUNC(ALLEGRO_TRANSFORM *, al_get_projection_transform, (ALLEGRO_DISPLAY *display));
 AL_FUNC(void, al_set_projection_transform, (ALLEGRO_DISPLAY *display, ALLEGRO_TRANSFORM *t));
+AL_FUNC(void, al_horizontal_shear_transform, (ALLEGRO_TRANSFORM *trans, float theta));
+AL_FUNC(void, al_vertical_shear_transform, (ALLEGRO_TRANSFORM *trans, float theta));
 
 #ifdef __cplusplus
    }

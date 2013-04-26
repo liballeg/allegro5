@@ -450,4 +450,30 @@ void al_set_projection_transform(ALLEGRO_DISPLAY *display, ALLEGRO_TRANSFORM *t)
 }
 
 
+/* Function: al_horizontal_shear_transform
+ */
+void al_horizontal_shear_transform(ALLEGRO_TRANSFORM* trans, float theta)
+{
+   float s;
+   ASSERT(trans);
+   s = -tanf(theta);
+
+   trans->m[0][0] += trans->m[0][1] * s;
+   trans->m[1][0] += trans->m[1][1] * s;
+}
+
+
+/* Function: al_vertical_shear_transform
+ */
+void al_vertical_shear_transform(ALLEGRO_TRANSFORM* trans, float theta)
+{
+   float s;
+   ASSERT(trans);
+   s = tanf(theta);
+
+   trans->m[0][1] += trans->m[0][0] * s;
+   trans->m[1][1] += trans->m[1][0] * s;
+}
+
+
 /* vim: set sts=3 sw=3 et: */

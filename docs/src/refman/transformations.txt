@@ -328,3 +328,29 @@ Replaces the projection transformation of the given display.
 Since: 5.1.0
 
 See also: [al_get_projection_transform]
+
+## API: al_horizontal_shear_transform
+
+Apply a horizontal shear to the transform
+
+*Parameters:*
+
+* trans - Transformation to alter
+* theta - Rotation angle in radians
+
+Since: 5.1.7
+
+See also: [al_vertical_shear_transform]
+
+## API: al_vertical_shear_transform
+
+Apply a vertical shear to the transform
+
+*Parameters:*
+
+* trans - Transformation to alter
+* theta - Rotation angle in radians
+
+Since: 5.1.7
+
+See also: [al_horizontal_shear_transform]
