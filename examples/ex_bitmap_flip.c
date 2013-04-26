@@ -105,7 +105,7 @@ int main(void)
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    mem_bmp = al_load_bitmap("data/mysha.pcx");
-   if (!bmp) {
+   if (!mem_bmp) {
       abort_example("Error loading data/mysha.pcx\n");
       return 1;
    }
