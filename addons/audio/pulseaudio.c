@@ -36,19 +36,38 @@ enum PULSEAUDIO_VOICE_STATUS {
 typedef struct PULSEAUDIO_VOICE
 {
    pa_simple *s;
-   ALLEGRO_THREAD *poll_thread;
+   unsigned int buffer_size_in_frames;
+   unsigned int frame_size_in_bytes;
 
+   ALLEGRO_THREAD *poll_thread;
    ALLEGRO_MUTEX *status_mutex;
    ALLEGRO_COND *status_cond;
    enum PULSEAUDIO_VOICE_STATUS status;
-
-   int frame_size; // number of bytes per frame 
 
    // direct buffer (non-streaming):
    ALLEGRO_MUTEX *buffer_mutex;  
    char *buffer;
    char *buffer_end;
 } PULSEAUDIO_VOICE;
+
+#define DEFAULT_BUFFER_SIZE   1024
+#define MIN_BUFFER_SIZE       128
+
+static unsigned int get_buffer_size(const ALLEGRO_CONFIG *config)
+{
+   if (config) {
+      const char *val = al_get_config_value(config,
+         "pulseaudio", "buffer_size");
+      if (val && val[0] != '\0') {
+         int n = atoi(val);
+         if (n < MIN_BUFFER_SIZE)
+            n = MIN_BUFFER_SIZE;
+         return n;
+      }
+   }
+
+   return DEFAULT_BUFFER_SIZE;
+}
 
 static void sink_info_cb(pa_context *c, const pa_sink_info *i, int eol,
    void *userdata)
@@ -149,20 +168,21 @@ static void *pulseaudio_update(ALLEGRO_THREAD *self, void *data)
       }
 
       if (status == PV_PLAYING) {
-         unsigned int frames = 4096;
+         unsigned int frames = pv->buffer_size_in_frames;
          if (voice->is_streaming) { 
             // streaming audio           
             const void *data = _al_voice_update(voice, &frames);
             if (data) {
-               pa_simple_write(pv->s, data, frames * pv->frame_size, NULL);
+               pa_simple_write(pv->s, data,
+                  frames * pv->frame_size_in_bytes, NULL);
             }
          }
          else {
             // direct buffer audio
             al_lock_mutex(pv->buffer_mutex);
             const char *data = pv->buffer;
-            unsigned int len = frames * pv->frame_size;
-            pv->buffer += frames * pv->frame_size;
+            unsigned int len = frames * pv->frame_size_in_bytes;
+            pv->buffer += frames * pv->frame_size_in_bytes;
             if (pv->buffer > pv->buffer_end) {
                len = pv->buffer_end - data;
                pv->buffer = voice->attached_stream->spl_data.buffer.ptr;
@@ -244,7 +264,9 @@ static int pulseaudio_allocate_voice(ALLEGRO_VOICE *voice)
 
    voice->extra = pv;
 
-   pv->frame_size = ss.channels * al_get_audio_depth_size(voice->depth);
+   pv->buffer_size_in_frames = get_buffer_size(al_get_system_config());
+   pv->frame_size_in_bytes = ss.channels * al_get_audio_depth_size(voice->depth);
+
    pv->status = PV_IDLE;
    pv->status_mutex = al_create_mutex();
    pv->status_cond = al_create_cond();
@@ -292,7 +314,8 @@ static int pulseaudio_load_voice(ALLEGRO_VOICE *voice, const void *data)
    voice->attached_stream->pos = 0;
 
    pv->buffer = voice->attached_stream->spl_data.buffer.ptr;
-   pv->buffer_end = pv->buffer + (voice->attached_stream->spl_data.len) * pv->frame_size;
+   pv->buffer_end = pv->buffer +
+      (voice->attached_stream->spl_data.len) * pv->frame_size_in_bytes;
 
    return 0;
 }
@@ -366,7 +389,8 @@ static int pulseaudio_set_voice_position(ALLEGRO_VOICE *voice, unsigned int pos)
 
    al_lock_mutex(pv->buffer_mutex);
    voice->attached_stream->pos = pos;
-   pv->buffer = (char*)voice->attached_stream->spl_data.buffer.ptr + pos * pv->frame_size;
+   pv->buffer = (char *)voice->attached_stream->spl_data.buffer.ptr +
+      pos * pv->frame_size_in_bytes;
    al_unlock_mutex(pv->buffer_mutex);
 
    return 0;
