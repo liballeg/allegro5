@@ -26,19 +26,25 @@
 
 ALLEGRO_DEBUG_CHANNEL("PulseAudio")
 
+enum PULSEAUDIO_VOICE_STATUS {
+   PV_PLAYING,
+   PV_STOPPING,
+   PV_STOPPED
+};
+
 typedef struct PULSEAUDIO_VOICE
 {
-  pa_simple *s;
-  ALLEGRO_THREAD *poll_thread;
+   pa_simple *s;
+   ALLEGRO_THREAD *poll_thread;
 
-  volatile enum { PV_PLAYING, PV_STOPPING, PV_STOPPED } status;
+   volatile enum PULSEAUDIO_VOICE_STATUS status;
 
-  int frame_size; // number of bytes per frame 
+   int frame_size; // number of bytes per frame 
 
-  // direct buffer (non-streaming):
-  ALLEGRO_MUTEX *buffer_mutex;  
-  char *buffer, *buffer_end;
-   
+   // direct buffer (non-streaming):
+   ALLEGRO_MUTEX *buffer_mutex;  
+   char *buffer;
+   char *buffer_end;
 } PULSEAUDIO_VOICE;
 
 static void sink_info_cb(pa_context *c, const pa_sink_info *i, int eol,
@@ -46,8 +52,10 @@ static void sink_info_cb(pa_context *c, const pa_sink_info *i, int eol,
 {
    (void)c;
    (void)eol;
+
    pa_sink_state_t *ret = userdata;
-   if (!i) return;
+   if (!i)
+      return;
    *ret = i->state;
 }
 
@@ -77,7 +85,7 @@ static int pulseaudio_open(void)
 
    while (1) {
       /* Don't block or it will hang if there is no server to connect to. */
-      const bool blocking = 0;
+      const int blocking = 0;
       if (pa_mainloop_iterate(mainloop, blocking, NULL) < 0) {
          ALLEGRO_ERROR("pa_mainloop_iterate failed\n");
          pa_context_disconnect(c);
@@ -98,8 +106,7 @@ static int pulseaudio_open(void)
    }
 
    pa_sink_state_t state = 0;
-   pa_operation *op = pa_context_get_sink_info_list(c, sink_info_cb,
-      &state);
+   pa_operation *op = pa_context_get_sink_info_list(c, sink_info_cb, &state);
    while (pa_operation_get_state(op) == PA_OPERATION_RUNNING) {
       pa_mainloop_iterate(mainloop, 1, NULL);
    }
@@ -161,6 +168,7 @@ static void *pulseaudio_update(ALLEGRO_THREAD *self, void *data)
          pv->status = PV_STOPPED;
       }
       else if (pv->status == PV_STOPPED) {
+         /* XXX ugly */
          al_rest(0.001);
       }
    }
@@ -199,15 +207,16 @@ static int pulseaudio_allocate_voice(ALLEGRO_VOICE *voice)
    ba.minreq    = 0;       // minimum size of request 
    ba.fragsize  = -1;      // fragment size (recording)
 
-   pv->s = pa_simple_new(NULL,         // Use the default server.
-                   al_get_app_name(),     
-                   PA_STREAM_PLAYBACK,
-                   NULL,               // Use the default device.
-                   "Allegro Voice",    
-                   &ss,                
-                   NULL,               // Use default channel map
-                   &ba,                
-                   NULL                // Ignore error code.
+   pv->s = pa_simple_new(
+      NULL,                // Use the default server.
+      al_get_app_name(),     
+      PA_STREAM_PLAYBACK,
+      NULL,                // Use the default device.
+      "Allegro Voice",    
+      &ss,                
+      NULL,                // Use default channel map
+      &ba,                
+      NULL                 // Ignore error code.
    );
 
    if (!pv->s) {
@@ -247,6 +256,7 @@ static void pulseaudio_deallocate_voice(ALLEGRO_VOICE *voice)
 static int pulseaudio_load_voice(ALLEGRO_VOICE *voice, const void *data)
 {
    PULSEAUDIO_VOICE *pv = voice->extra;
+   (void)data;
 
    if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_BIDIR) {
       ALLEGRO_INFO("Backwards playing not supported by the driver.\n");
@@ -259,7 +269,6 @@ static int pulseaudio_load_voice(ALLEGRO_VOICE *voice, const void *data)
    pv->buffer_end = pv->buffer + (voice->attached_stream->spl_data.len) * pv->frame_size;
 
    return 0;
-   (void)data;
 }
 
 static void pulseaudio_unload_voice(ALLEGRO_VOICE *voice)
@@ -271,7 +280,7 @@ static int pulseaudio_start_voice(ALLEGRO_VOICE *voice)
 {
    PULSEAUDIO_VOICE *pv = voice->extra;   
    pv->status = PV_PLAYING;
-   
+
    return 0;
 }
 
@@ -283,7 +292,7 @@ static int pulseaudio_stop_voice(ALLEGRO_VOICE *voice)
    while (pv->status == PV_STOPPING) {
       al_rest(0.001);
    }
-   
+
    return 0;
 }
 
@@ -303,7 +312,7 @@ static int pulseaudio_set_voice_position(ALLEGRO_VOICE *voice, unsigned int pos)
    PULSEAUDIO_VOICE *pv = voice->extra;
 
    pa_simple_drain(pv->s, NULL);
-   
+
    al_lock_mutex(pv->buffer_mutex);
    voice->attached_stream->pos = pos;
    pv->buffer = (char*)voice->attached_stream->spl_data.buffer.ptr + pos * pv->frame_size;
