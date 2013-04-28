@@ -326,6 +326,22 @@ void rectfill(int x1, int y1, int x2, int y2, ALLEGRO_COLOR color)
 
 
 
+/* emulate circle() */
+void circle(int x, int y, int radius, ALLEGRO_COLOR color)
+{
+   al_draw_circle(x+0.5, y+0.5, radius, color, 1);
+}
+
+
+
+/* emulate circlefill() */
+void circlefill(int x, int y, int radius, ALLEGRO_COLOR color)
+{
+   al_draw_filled_circle(x+0.5, y+0.5, radius, color);
+}
+
+
+
 /* emulate stretch_sprite() */
 void stretch_sprite(ALLEGRO_BITMAP *bmp, ALLEGRO_BITMAP *sprite,
 		    int x, int y, int w, int h)

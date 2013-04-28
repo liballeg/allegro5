@@ -112,8 +112,8 @@ void draw_explode(int r, int g, int b, int (*project)(float *f, int *i, int c))
 	    c = (24 - e->time) * 255 / 24;
 	    col = makecol(c, c, c);
 
-	    al_draw_circle(ipos[0], ipos[1], s*2, col, 0);
-	    al_draw_circle(ipos[0], ipos[1], s*s/8, col, 0);
+	    circle(ipos[0], ipos[1], s*2, col);
+	    circle(ipos[0], ipos[1], s*s/8, col);
 	 }
 
 	 if (e->time < 32) {
@@ -129,7 +129,7 @@ void draw_explode(int r, int g, int b, int (*project)(float *f, int *i, int c))
 
 	    col = makecol(rr, gg, bb);
 
-	    al_draw_filled_circle(ipos[0], ipos[1], s, col);
+	    circlefill(ipos[0], ipos[1], s, col);
 	 }
       }
 

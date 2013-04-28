@@ -58,6 +58,8 @@ void hline(int x1, int y, int x2, ALLEGRO_COLOR c);
 void vline(int x, int y1, int y2, ALLEGRO_COLOR c);
 void line(int x1, int y1, int x2, int y2, ALLEGRO_COLOR color);
 void rectfill(int x1, int y1, int x2, int y2, ALLEGRO_COLOR color);
+void circle(int x, int y, int radius, ALLEGRO_COLOR color);
+void circlefill(int x, int y, int radius, ALLEGRO_COLOR color);
 void stretch_sprite(ALLEGRO_BITMAP *bmp, ALLEGRO_BITMAP *sprite, int x, int y, int w, int h);
 void polygon(int vertices, const int *points, ALLEGRO_COLOR color);
 void textout(struct ALLEGRO_FONT const *font, const char *s, int x, int y, ALLEGRO_COLOR c);
