@@ -198,7 +198,7 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
     * before it is destroyed, but maintain the current display.
     */
    if (bitmap == al_get_target_bitmap()) {
-      ALLEGRO_DISPLAY *display = bitmap->display;
+      ALLEGRO_DISPLAY *display = al_get_current_display();
       if (display)
          al_set_target_bitmap(al_get_backbuffer(display));
       else
