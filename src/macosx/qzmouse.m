@@ -50,6 +50,7 @@ static struct {
 	ALLEGRO_MOUSE_STATE state;
 	float z_axis, w_axis;
 	BOOL warped;
+	int warped_x, warped_y;
 	NSCursor* cursor;
 } osx_mouse;
 
@@ -164,9 +165,9 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
       pos.y = [[NSScreen mainScreen] frame].size.height - pos.y;
 	}
 	if (osx_mouse.warped) {
-	    dx = 0;
-	    dy = 0;
-	    osx_mouse.warped = FALSE;
+           dx = -osx_mouse.warped_x;
+           dy = -osx_mouse.warped_y;
+           osx_mouse.warped = FALSE;
 	}
 	_al_event_source_lock(&osx_mouse.parent.es);
 	if ((within || b_change || type == ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY)
@@ -350,8 +351,10 @@ static bool osx_set_mouse_xy(ALLEGRO_DISPLAY *dpy_, int x, int y)
         mouse_event->dz = 0;
         mouse_event->pressure = 0.0;
         if (mouse_event->dx || mouse_event->dy) {
-            osx_mouse.warped = TRUE;
-            _al_event_source_emit_event(&osx_mouse.parent.es, &new_event);
+           osx_mouse.warped = TRUE;
+           osx_mouse.warped_x = mouse_event->dx;
+           osx_mouse.warped_y = mouse_event->dy;
+           _al_event_source_emit_event(&osx_mouse.parent.es, &new_event);
         }
     }
     CGDisplayMoveCursorToPoint(display, pos);
