@@ -43,41 +43,23 @@ void _al_draw_pixel_memory(ALLEGRO_BITMAP *bitmap, float x, float y,
 }
 
 
-/* Coordinates are inclusive full-pixel positions. So (0, 0, 0, 0) draws a
- * single pixel at 0/0.
- */
-static void _al_draw_filled_rectangle_memory_fast(int x1, int y1, int x2, int y2,
-   ALLEGRO_COLOR *color)
+void _al_clear_bitmap_by_locking(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color)
 {
-   ALLEGRO_BITMAP *bitmap;
    ALLEGRO_LOCKED_REGION *lr;
-   int w, h;
-   int tmp;
+   int x1, y1, w, h;
    int x, y;
    unsigned char *line_ptr;
 
-   bitmap = al_get_target_bitmap();
+   /* This function is not just used on memory bitmaps, but also on OpenGL
+    * video bitmaps which are not the current target, or when locked.
+    */
+   ASSERT(bitmap);
+   ASSERT(bitmap->flags & (ALLEGRO_MEMORY_BITMAP | ALLEGRO_OPENGL));
 
-   /* Make sure it's top left first */
-   if (x1 > x2) {
-      tmp = x1;
-      x1 = x2;
-      x2 = tmp;
-   }
-   if (y1 > y2) {
-      tmp = y1;
-      y1 = y2;
-      y2 = tmp;
-   }
-
-   /* Do clipping */
-   if (x1 < bitmap->cl) x1 = bitmap->cl;
-   if (y1 < bitmap->ct) y1 = bitmap->ct;
-   if (x2 > bitmap->cr_excl - 1) x2 = bitmap->cr_excl - 1;
-   if (y2 > bitmap->cb_excl - 1) y2 = bitmap->cb_excl - 1;
-
-   w = (x2 - x1) + 1;
-   h = (y2 - y1) + 1;
+   x1 = bitmap->cl;
+   y1 = bitmap->ct;
+   w = bitmap->cr_excl - x1;
+   h = bitmap->cb_excl - y1;
 
    if (w <= 0 || h <= 0)
       return;
@@ -167,16 +149,5 @@ static void _al_draw_filled_rectangle_memory_fast(int x1, int y1, int x2, int y2
 
    al_unlock_bitmap(bitmap);
 }
-
-
-void _al_clear_memory(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color)
-{
-   ASSERT(bitmap);
-   ASSERT(bitmap->flags & ALLEGRO_MEMORY_BITMAP);
-
-   _al_draw_filled_rectangle_memory_fast(0, 0, bitmap->w-1, bitmap->h-1,
-      color);
-}
-
 
 /* vim: set sts=3 sw=3 et: */
