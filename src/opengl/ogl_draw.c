@@ -240,7 +240,7 @@ static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
          ogl_disp->ogl_extras->opengl_target != target)
       || target->locked)
    {
-      _al_clear_memory(target, color);
+      _al_clear_bitmap_by_locking(target, color);
       return;
    }
 
