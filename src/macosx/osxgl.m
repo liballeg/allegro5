@@ -878,10 +878,9 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
                  screen: screen
     ];
    if (dpy->parent.flags & ALLEGRO_RESIZABLE) {
-      // FIXME: this should be a runtime test
-#ifdef MAC_OS_X_VERSION_10_7
-      [win setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
-#endif
+      if ([win respondsToSelector:NSSelectorFromString(@"setCollectionBehavior:")]) {
+         [win setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
+      }
    }
    NSOpenGLPixelFormat* fmt =
       [[NSOpenGLPixelFormat alloc] initWithAttributes: dpy->attributes];
