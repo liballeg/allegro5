@@ -929,19 +929,19 @@ Valid values for the factors `sf` and `df` passed to this function are
 
          f = 1 - s.a, 1 - s.a, 1 - s.a, 1 - s.a
 
-* ALLEGRO_SRC_COLOR
+* ALLEGRO_SRC_COLOR (since: 5.1.0)
 
          f = s.r, s.g, s.b, s.a
 
-* ALLEGRO_DST_COLOR
+* ALLEGRO_DST_COLOR (since: 5.1.0)
 
          f = d.r, d.g, d.b, d.a
 
-* ALLEGRO_INVERSE_SRC_COLOR
+* ALLEGRO_INVERSE_SRC_COLOR (since: 5.1.0)
 
          f = 1 - s.r, 1 - s.g, 1 - s.b, 1 - s.a
 
-* ALLEGRO_INVERSE_DST_COLOR
+* ALLEGRO_INVERSE_DST_COLOR (since: 5.1.0)
 
          f = 1 - d.r, 1 - d.g, 1 - d.b, 1 - d.a
 
