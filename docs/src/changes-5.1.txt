@@ -4,6 +4,100 @@ See `changes-5.0.txt` for changes in Allegro 5.0.x.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 5.1.6 to 5.1.7 (May 2013)
+======================================
+
+The main developers this time were: Peter Wang, Trent Gamblin.
+
+Graphics:
+
+  - Added al_horizontal_shear_transform, al_vertical_shear_transform
+    (Jeff Bernard).
+
+  - Make al_destroy_bitmap maintain the current display when untargeting
+    the bitmap to be destroyed.
+
+  - Delete al_create_custom_bitmap.
+
+  - Delete al_ortho_transform compatibility macro.
+
+  - Make al_get_d3d_texture_size fail instead of crash if passed a non-D3D
+    bitmap.
+
+  - Make al_get_opengl_texture_size return success code to match D3D.
+
+  - Rename al_d3d_set_release/restore_callback to be consistent with existing
+    naming, and pass the display as an argument.
+
+  - Check availability of fullscreen button on window frame at run-time (OS X).
+
+Input:
+
+  - Fix mouse warping on OS X.
+
+  - Fix mouse warping in Linux evdev mouse driver.
+
+Audio addon:
+
+  - pulseaudio: Use smaller buffer size by default, and make it configurable.
+
+  - pulseaudio: Clean up state transitions.
+
+Color addon:
+
+  - Fix al_color_rgb_to_html blue component (Jeff Bernard).
+
+  - Implement al_color_html_to_rgb and al_color_html more strictly.
+
+Primitives addon:
+
+  - Delete al_draw_polygon_with_holes.
+
+  - Delete stride-less version of al_draw_polyline*.
+
+  - Simplify interface of al_triangulate_polygon and
+    al_draw_filled_polygon_with_holes.
+
+Video addon:
+
+  - Make al_seek_video return a result.
+
+  - Fix crash when unable to open a Ogg video.
+
+  - Don't scan to end of headers of unknown stream for Ogg video.
+
+  - Stop reading at end of Ogg video.
+
+  - Try to account for audio buffers in positioning of Ogg video.
+
+  - Implement seek to beginning of file (only) in Ogg backend.
+
+  - Replace deprecated av_find_stream_info() call (Nick Black).
+
+Android port:
+
+  - Fix some Android switch in/out and exit issues.
+
+Build system:
+
+  - Do not install most internal header files.
+
+  - Do not search for and link with unneeded X libraries.
+
+Examples:
+
+  - ex_audio_timer: New example.
+
+  - Revise and comment the ex_prim_shader example and shaders (Paul Suntsov).
+
+Other:
+
+  - Various documentation updates.
+
+  - Minor fixes and much code refactoring.
+
+
+
 Changes from 5.1.5 to 5.1.6 (March 2013)
 ========================================
 
