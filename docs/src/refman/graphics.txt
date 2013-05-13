@@ -1314,7 +1314,7 @@ See also: [al_save_bitmap], [al_register_bitmap_saver_f], [al_init_image_addon]
 
 ### API: ALLEGRO_RENDER_STATE
 
-Possible render states are:
+Possible render states which can be set with [al_set_render_state]:
 
 ALLEGRO_ALPHA_TEST
 :   If this is set to 1, the values of ALLEGRO_ALPHA_FUNCTION and
@@ -1345,7 +1345,8 @@ ALLEGRO_DEPTH_FUNCTION
 
 Since: 5.1.2
 
-See also: [al_set_render_state]
+See also: [al_set_render_state], [ALLEGRO_RENDER_FUNCTION],
+[ALLEGRO_WRITE_MASK_FLAGS]
 
 ### API: ALLEGRO_RENDER_FUNCTION
 
@@ -1362,6 +1363,8 @@ Possible functions are:
 
 Since: 5.1.2
 
+See also: [al_set_render_state]
+
 ### API: ALLEGRO_WRITE_MASK_FLAGS
 
 Each enabled bit means the corresponding value is written, a disabled bit
@@ -1377,12 +1380,16 @@ means it is not.
 
 Since: 5.1.2
 
+See also: [al_set_render_state]
+
 ### API: al_set_render_state
 
-Set one of several render attributes. This function does nothing if the target
-bitmap is a memory bitmap.
+Set one of several render attributes; see [ALLEGRO_RENDER_STATE]
+for details.
+
+This function does nothing if the target bitmap is a memory bitmap.
 
 Since: 5.1.2
 
 See also: [ALLEGRO_RENDER_STATE], [ALLEGRO_RENDER_FUNCTION],
-   [ALLEGRO_WRITE_MASK_FLAGS]
+[ALLEGRO_WRITE_MASK_FLAGS]
