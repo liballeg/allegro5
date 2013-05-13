@@ -40,15 +40,6 @@ void _al_ogl_setup_gl(ALLEGRO_DISPLAY *d)
 
    glViewport(0, 0, d->w, d->h);
 
-   if (!(d->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
-      glMatrixMode(GL_PROJECTION);
-      glLoadIdentity();
-      glOrtho(0, d->w, d->h, 0, -1, 1);
-
-      glMatrixMode(GL_MODELVIEW);
-      glLoadIdentity();
-   }
-
    al_identity_transform(&d->proj_transform);
    al_orthographic_transform(&d->proj_transform, 0, 0, -1, d->w, d->h, 1);
    d->vt->set_projection(d);
