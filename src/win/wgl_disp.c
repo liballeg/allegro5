@@ -1317,7 +1317,8 @@ static void wgl_flip_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_WGL* disp = (ALLEGRO_DISPLAY_WGL*)d;
    glFlush();
-   SwapBuffers(disp->dc);
+   if (!d->extra_settings.settings[ALLEGRO_SINGLE_BUFFER])
+      SwapBuffers(disp->dc);
 }
 
 
