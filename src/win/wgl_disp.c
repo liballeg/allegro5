@@ -1335,10 +1335,8 @@ static void display_thread_proc(void *arg)
 static void wgl_flip_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_WGL* disp = (ALLEGRO_DISPLAY_WGL*)d;
-   if (d->extra_settings.settings[ALLEGRO_SINGLE_BUFFER])
-      glFlush();
-   else
-      SwapBuffers(disp->dc);
+   glFlush();
+   SwapBuffers(disp->dc);
 }
 
 
@@ -1479,6 +1477,7 @@ static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d)
    ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)d;
    ALLEGRO_DISPLAY *ogl_disp = (ALLEGRO_DISPLAY *)d;
    int w, h;
+   ALLEGRO_STATE state;
 
    wi.cbSize = sizeof(WINDOWINFO);
    GetWindowInfo(win_disp->window, &wi);
@@ -1490,6 +1489,11 @@ static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d)
 
    setup_gl(d);
    _al_ogl_resize_backbuffer(ogl_disp->ogl_extras->backbuffer, w, h);
+
+   al_store_state(&state, ALLEGRO_STATE_DISPLAY | ALLEGRO_STATE_TARGET_BITMAP);
+   al_set_target_backbuffer(d);
+   al_set_clipping_rectangle(0, 0, w, h);
+   al_restore_state(&state);
 
    return true;
 }
