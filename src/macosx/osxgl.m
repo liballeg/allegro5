@@ -1580,13 +1580,22 @@ static ALLEGRO_DISPLAY* create_display(int w, int h)
 static void flip_display(ALLEGRO_DISPLAY *disp) 
 {
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) disp;
-   if (((ALLEGRO_BITMAP_EXTRA_OPENGL *)disp->ogl_extras->opengl_target->extra)->is_backbuffer) {
-      if (disp->extra_settings.settings[ALLEGRO_SINGLE_BUFFER]) {
-         glFlush();
-      }
-      else {
-         [dpy->ctx flushBuffer];
-      }
+
+   ALLEGRO_BITMAP *old_target = NULL;
+   if (!((ALLEGRO_BITMAP_EXTRA_OPENGL *)disp->ogl_extras->opengl_target->extra)->is_backbuffer) {
+   	old_target = al_get_target_bitmap();
+	al_set_target_backbuffer(disp);
+   }
+
+   if (disp->extra_settings.settings[ALLEGRO_SINGLE_BUFFER]) {
+      glFlush();
+   }
+   else {
+      [dpy->ctx flushBuffer];
+   }
+
+   if (old_target) {
+      al_set_target_bitmap(old_target);
    }
 }
 
