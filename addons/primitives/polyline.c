@@ -492,7 +492,7 @@ static void do_draw_polyline(ALLEGRO_PRIM_VERTEX_CACHE* cache, const float* vert
 /* Function: al_draw_polyline
  */
 void al_draw_polyline(const float* vertices, int vertex_stride,
-   int vertex_count, ALLEGRO_LINE_JOIN join_style, ALLEGRO_LINE_CAP cap_style,
+   int vertex_count, int join_style, int cap_style,
    ALLEGRO_COLOR color, float thickness, float miter_limit)
 {
    ALLEGRO_PRIM_VERTEX_CACHE cache;

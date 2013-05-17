@@ -666,8 +666,10 @@ Draw a series of line segments.
 * vertex - Interleaved array of (x, y) vertex coordinates
 * vertex_stride - the number of bytes between pairs of vertices (the stride)
 * vertex_count - Number of vertices in the array
-* join_style - How to render the joins between line segments
-* cap_style - How to render the end caps
+* join_style - Member of [ALLEGRO_LINE_JOIN] specifying how to render the
+joins between line segments
+* cap_style - Member of [ALLEGRO_LINE_CAP] specifying how to render the end
+caps
 * color - Color of the line
 * thickness - Thickness of the line, pass `<= 0` to draw hairline lines
 * miter_limit - Parameter for miter join style
@@ -700,7 +702,8 @@ Draw an unfilled polygon.  This is the same as passing
 
 * vertex - Interleaved array of (x, y) vertex coordinates
 * vertex_count - Number of vertices in the array
-* join_style - How to render the joins between line segments
+* join_style - Member of [ALLEGRO_LINE_JOIN] specifying how to render the
+joins between line segments
 * color - Color of the line
 * thickness - Thickness of the line, pass `<= 0` to draw hairline lines
 * miter_limit - Parameter for miter join style
