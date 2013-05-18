@@ -288,6 +288,10 @@ static int get_blend_factor(char const *value)
       : streq(value, "ALLEGRO_ONE") ? ALLEGRO_ONE
       : streq(value, "ALLEGRO_ALPHA") ? ALLEGRO_ALPHA
       : streq(value, "ALLEGRO_INVERSE_ALPHA") ? ALLEGRO_INVERSE_ALPHA
+      : streq(value, "ALLEGRO_SRC_COLOR") ? ALLEGRO_SRC_COLOR
+      : streq(value, "ALLEGRO_DEST_COLOR") ? ALLEGRO_DEST_COLOR
+      : streq(value, "ALLEGRO_INVERSE_SRC_COLOR") ? ALLEGRO_INVERSE_SRC_COLOR
+      : streq(value, "ALLEGRO_INVERSE_DEST_COLOR") ? ALLEGRO_INVERSE_DEST_COLOR
       : atoi(value);
 }
 
