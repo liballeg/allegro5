@@ -35,6 +35,16 @@
 
 ALLEGRO_DEBUG_CHANNEL("MacOSX")
 
+/* This constant isn't available on OS X < 10.7, define
+ * it here so the library can be built on < 10.7 (10.6
+ * tested so far.)
+ */
+#if (MAC_OS_X_VERSION_MAX_ALLOWED < 1070 && !defined(NSWindowCollectionBehaviorFullScreenPrimary))
+enum {
+   NSWindowCollectionBehaviorFullScreenPrimary = (1 << 7)
+};
+#endif
+
 /* Defines */
 #define MINIMUM_WIDTH 48
 #define MINIMUM_HEIGHT 48
