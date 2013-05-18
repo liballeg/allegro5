@@ -933,7 +933,7 @@ Valid values for the factors `sf` and `df` passed to this function are
 
          f = s.r, s.g, s.b, s.a
 
-* ALLEGRO_DST_COLOR (since: 5.1.0)
+* ALLEGRO_DEST_COLOR (since: 5.1.8)
 
          f = d.r, d.g, d.b, d.a
 
@@ -941,7 +941,7 @@ Valid values for the factors `sf` and `df` passed to this function are
 
          f = 1 - s.r, 1 - s.g, 1 - s.b, 1 - s.a
 
-* ALLEGRO_INVERSE_DST_COLOR (since: 5.1.0)
+* ALLEGRO_INVERSE_DEST_COLOR (since: 5.1.8)
 
          f = 1 - d.r, 1 - d.g, 1 - d.b, 1 - d.a
 
@@ -973,7 +973,7 @@ Copying the source to the destination (including alpha) unmodified
 
 Multiplying source and destination components
 
-    al_set_blender(ALLEGRO_ADD, ALLEGRO_DST_COLOR, ALLEGRO_ZERO) 
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_DEST_COLOR, ALLEGRO_ZERO)
 
 As formula:
 

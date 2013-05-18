@@ -91,9 +91,9 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
       l.append_item("ALPHA");
       l.append_item("INVERSE");
       l.append_item("SRC_COLOR");
-      l.append_item("DST_COLOR");
+      l.append_item("DEST_COLOR");
       l.append_item("INV_SRC_COLOR");
-      l.append_item("INV_DST_COLOR");
+      l.append_item("INV_DEST_COLOR");
       d.add(l, 1 + i * 3, 25, 3, 9);
    }
 
@@ -148,12 +148,12 @@ int str_to_blend_mode(const std::string & str)
       return ALLEGRO_ONE;
    if (str == "SRC_COLOR")
       return ALLEGRO_SRC_COLOR;
-   if (str == "DST_COLOR")
-      return ALLEGRO_DST_COLOR;
+   if (str == "DEST_COLOR")
+      return ALLEGRO_DEST_COLOR;
    if (str == "INV_SRC_COLOR")
       return ALLEGRO_INVERSE_SRC_COLOR;
-   if (str == "INV_DST_COLOR")
-      return ALLEGRO_INVERSE_DST_COLOR;
+   if (str == "INV_DEST_COLOR")
+      return ALLEGRO_INVERSE_DEST_COLOR;
    if (str == "ALPHA")
       return ALLEGRO_ALPHA;
    if (str == "INVERSE")

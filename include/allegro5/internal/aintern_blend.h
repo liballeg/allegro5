@@ -39,9 +39,9 @@ get_alpha_factor(enum ALLEGRO_BLEND_MODE operation, float src_alpha, float dst_a
        case ALLEGRO_ALPHA: return src_alpha;
        case ALLEGRO_INVERSE_ALPHA: return 1 - src_alpha;
        case ALLEGRO_SRC_COLOR: return src_alpha;
-       case ALLEGRO_DST_COLOR: return dst_alpha;
+       case ALLEGRO_DEST_COLOR: return dst_alpha;
        case ALLEGRO_INVERSE_SRC_COLOR: return 1 - src_alpha;
-       case ALLEGRO_INVERSE_DST_COLOR: return 1 - dst_alpha;
+       case ALLEGRO_INVERSE_DEST_COLOR: return 1 - dst_alpha;
    }
    ASSERT(false);
    return 0; /* silence warning in release build */
@@ -68,7 +68,7 @@ static _AL_ALWAYS_INLINE void get_factor(enum ALLEGRO_BLEND_MODE operation,
       case ALLEGRO_SRC_COLOR:
          *factor = *source;
          break;
-      case ALLEGRO_DST_COLOR:
+      case ALLEGRO_DEST_COLOR:
          *factor = *dest;
          break;
       case ALLEGRO_INVERSE_SRC_COLOR:
@@ -77,7 +77,7 @@ static _AL_ALWAYS_INLINE void get_factor(enum ALLEGRO_BLEND_MODE operation,
          factor->b = 1 - source->b;
          factor->a = 1 - source->a;
          break;
-      case ALLEGRO_INVERSE_DST_COLOR:
+      case ALLEGRO_INVERSE_DEST_COLOR:
          factor->r = 1 - dest->r;
          factor->g = 1 - dest->g;
          factor->b = 1 - dest->b;

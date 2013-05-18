@@ -1862,9 +1862,9 @@ static int d3d_al_blender_to_d3d(int al_mode)
       ALLEGRO_ALPHA,
       ALLEGRO_INVERSE_ALPHA,
       ALLEGRO_SRC_COLOR,
-      ALLEGRO_DST_COLOR,
+      ALLEGRO_DEST_COLOR,
       ALLEGRO_INVERSE_SRC_COLOR,
-      ALLEGRO_INVERSE_DST_COLOR,
+      ALLEGRO_INVERSE_DEST_COLOR,
    };
 
    int d3d_modes[] = {
