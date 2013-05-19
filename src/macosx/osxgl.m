@@ -530,7 +530,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
 
 -(void) enterFullScreenWindowMode
 {
-#if MAC_OS_X_VERSION_MIN_REQUIRED > 1050
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 1060
    ALLEGRO_DISPLAY_OSX_WIN *dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
    int flags = NSApplicationPresentationHideDock | NSApplicationPresentationHideMenuBar;
