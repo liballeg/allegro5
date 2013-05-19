@@ -34,17 +34,18 @@ static _AL_ALWAYS_INLINE float
 get_alpha_factor(enum ALLEGRO_BLEND_MODE operation, float src_alpha, float dst_alpha)
 {
    switch (operation) {
-       case ALLEGRO_ZERO: return 0;
-       case ALLEGRO_ONE: return 1;
-       case ALLEGRO_ALPHA: return src_alpha;
-       case ALLEGRO_INVERSE_ALPHA: return 1 - src_alpha;
-       case ALLEGRO_SRC_COLOR: return src_alpha;
-       case ALLEGRO_DEST_COLOR: return dst_alpha;
-       case ALLEGRO_INVERSE_SRC_COLOR: return 1 - src_alpha;
-       case ALLEGRO_INVERSE_DEST_COLOR: return 1 - dst_alpha;
+      case ALLEGRO_ZERO: return 0;
+      case ALLEGRO_ONE: return 1;
+      case ALLEGRO_ALPHA: return src_alpha;
+      case ALLEGRO_INVERSE_ALPHA: return 1 - src_alpha;
+      case ALLEGRO_SRC_COLOR: return src_alpha;
+      case ALLEGRO_DEST_COLOR: return dst_alpha;
+      case ALLEGRO_INVERSE_SRC_COLOR: return 1 - src_alpha;
+      case ALLEGRO_INVERSE_DEST_COLOR: return 1 - dst_alpha;
+      default:
+         ASSERT(false);
+         return 0; /* silence warning in release build */
    }
-   ASSERT(false);
-   return 0; /* silence warning in release build */
 }
 
 /* Puts the blending factor in an ALLEGRO_COLOR object. */

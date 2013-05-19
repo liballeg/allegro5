@@ -1832,20 +1832,7 @@ static bool d3d_set_current_display(ALLEGRO_DISPLAY *d)
 
 static int d3d_al_blender_to_d3d(int al_mode)
 {
-   int num_modes = 8;
-
-   int allegro_modes[] = {
-      ALLEGRO_ZERO,
-      ALLEGRO_ONE,
-      ALLEGRO_ALPHA,
-      ALLEGRO_INVERSE_ALPHA,
-      ALLEGRO_SRC_COLOR,
-      ALLEGRO_DEST_COLOR,
-      ALLEGRO_INVERSE_SRC_COLOR,
-      ALLEGRO_INVERSE_DEST_COLOR
-   };
-
-   int d3d_modes[] = {
+   const int d3d_modes[ALLEGRO_NUM_BLEND_MODES] = {
       D3DBLEND_ZERO,
       D3DBLEND_ONE,
       D3DBLEND_SRCALPHA,
@@ -1856,17 +1843,7 @@ static int d3d_al_blender_to_d3d(int al_mode)
       D3DBLEND_INVDESTCOLOR
    };
 
-   int i;
-
-   for (i = 0; i < num_modes; i++) {
-      if (al_mode == allegro_modes[i]) {
-         return d3d_modes[i];
-      }
-   }
-
-   ALLEGRO_WARN("Unknown blend mode.\n");
-
-   return D3DBLEND_ONE;
+   return d3d_modes[al_mode];
 }
 
 void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
