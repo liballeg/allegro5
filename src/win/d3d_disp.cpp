@@ -1854,9 +1854,9 @@ static bool d3d_set_current_display(ALLEGRO_DISPLAY *d)
 
 static int d3d_al_blender_to_d3d(int al_mode)
 {
-   int num_modes = 6;
+   const int num_modes = 8;
 
-   int allegro_modes[] = {
+   int allegro_modes[num_modes] = {
       ALLEGRO_ZERO,
       ALLEGRO_ONE,
       ALLEGRO_ALPHA,
