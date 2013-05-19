@@ -475,6 +475,13 @@ void al_set_separate_blender(int op, int src, int dst,
    thread_local_state *tls;
    ALLEGRO_BLENDER *b;
 
+   ASSERT(op >= 0 && op < ALLEGRO_NUM_BLEND_OPERATIONS);
+   ASSERT(src >= 0 && src < ALLEGRO_NUM_BLEND_MODES);
+   ASSERT(dst >= 0 && src < ALLEGRO_NUM_BLEND_MODES);
+   ASSERT(alpha_op >= 0 && alpha_op < ALLEGRO_NUM_BLEND_OPERATIONS);
+   ASSERT(alpha_src >= 0 && alpha_src < ALLEGRO_NUM_BLEND_MODES);
+   ASSERT(alpha_dst >= 0 && alpha_dst < ALLEGRO_NUM_BLEND_MODES);
+
    if ((tls = tls_get()) == NULL)
       return;
 
