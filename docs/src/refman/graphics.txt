@@ -933,6 +933,21 @@ Valid values for `src` and `dst` passed to this function are
          src = 1 - sa
          dst = 1 - sa
 
+* ALLEGRO_SRC_COLOR (since: 5.1.0)
+
+         f = s.r, s.g, s.b, s.a
+
+* ALLEGRO_DEST_COLOR (since: 5.1.8)
+
+         f = d.r, d.g, d.b, d.a
+
+* ALLEGRO_INVERSE_SRC_COLOR (since: 5.1.0)
+
+         f = 1 - s.r, 1 - s.g, 1 - s.b, 1 - s.a
+
+* ALLEGRO_INVERSE_DEST_COLOR (since: 5.1.8)
+
+         f = 1 - d.r, 1 - d.g, 1 - d.b, 1 - d.a
 
 Blending examples:
 
@@ -952,6 +967,10 @@ Additive blending would be achieved with
 Copying the source to the destination (including alpha) unmodified
 
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO)
+
+Multiplying source and destination components
+
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_DEST_COLOR, ALLEGRO_ZERO)
 
 See also: [al_set_separate_blender], [al_get_blender]
 

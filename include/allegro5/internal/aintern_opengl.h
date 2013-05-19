@@ -138,4 +138,6 @@ struct ALLEGRO_DISPLAY_INTERFACE;
 /* draw */
 void _al_ogl_add_drawing_functions(struct ALLEGRO_DISPLAY_INTERFACE *vt);
 
+AL_FUNC(bool, _al_opengl_set_blender, (ALLEGRO_DISPLAY *disp));
+
 #endif

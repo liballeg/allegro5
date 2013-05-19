@@ -1832,20 +1832,28 @@ static bool d3d_set_current_display(ALLEGRO_DISPLAY *d)
 
 static int d3d_al_blender_to_d3d(int al_mode)
 {
-   int num_modes = 4;
+   int num_modes = 8;
 
    int allegro_modes[] = {
       ALLEGRO_ZERO,
       ALLEGRO_ONE,
       ALLEGRO_ALPHA,
-      ALLEGRO_INVERSE_ALPHA
+      ALLEGRO_INVERSE_ALPHA,
+      ALLEGRO_SRC_COLOR,
+      ALLEGRO_DEST_COLOR,
+      ALLEGRO_INVERSE_SRC_COLOR,
+      ALLEGRO_INVERSE_DEST_COLOR
    };
 
    int d3d_modes[] = {
       D3DBLEND_ZERO,
       D3DBLEND_ONE,
       D3DBLEND_SRCALPHA,
-      D3DBLEND_INVSRCALPHA
+      D3DBLEND_INVSRCALPHA,
+      D3DBLEND_SRCCOLOR,
+      D3DBLEND_DESTCOLOR,
+      D3DBLEND_INVSRCCOLOR,
+      D3DBLEND_INVDESTCOLOR
    };
 
    int i;

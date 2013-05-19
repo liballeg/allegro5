@@ -6,8 +6,11 @@
 #endif
 
 
-#define al_current_time()           (al_get_time())
-#define al_event_queue_is_empty(q)  (al_is_event_queue_empty(q))
+#define ALLEGRO_DST_COLOR                 (ALLEGRO_DEST_COLOR)
+#define ALLEGRO_INVERSE_DST_COLOR         (ALLEGRO_INVERSE_DEST_COLOR)
+
+#define al_current_time()                 (al_get_time())
+#define al_event_queue_is_empty(q)        (al_is_event_queue_empty(q))
 
 
 #ifdef __cplusplus

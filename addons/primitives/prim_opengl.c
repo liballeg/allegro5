@@ -29,54 +29,6 @@
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern_opengl.h"
 
-static void setup_blending(ALLEGRO_DISPLAY *ogl_disp)
-{
-   int op, src_color, dst_color, op_alpha, src_alpha, dst_alpha;
-   const int blend_modes[4] = {
-      GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
-   };
-   const int blend_equations[3] = {
-      GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT
-   };
-
-   al_get_separate_blender(&op, &src_color, &dst_color,
-                     &op_alpha, &src_alpha, &dst_alpha);
-   /* glBlendFuncSeparate was only included with OpenGL 1.4 */
-#if !defined ALLEGRO_GP2XWIZ
-   {
-#ifndef ALLEGRO_IPHONE
-      if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_1_4) {
-#else
-      if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
-#endif
-         glEnable(GL_BLEND);
-         glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
-                        blend_modes[src_alpha], blend_modes[dst_alpha]);
-         if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
-            glBlendEquationSeparate(
-                              blend_equations[op],
-                              blend_equations[op_alpha]);
-         }
-         else
-            glBlendEquation(blend_equations[op]);
-      }
-      else {
-         if (src_color == src_alpha && dst_color == dst_alpha) {
-            glEnable(GL_BLEND);
-            glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
-         }
-         else {
-            return;
-         }
-      }
-   }
-#else
-   (void)ogl_disp;
-   glEnable(GL_BLEND);
-   glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
-#endif
-}
-
 static void convert_storage(ALLEGRO_PRIM_STORAGE storage, GLenum* type, int* ncoord, bool* normalized)
 {
    switch(storage) {
@@ -230,7 +182,7 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const 
    vtx = (const char*)vtxs + start * stride;
    num_vtx = end - start;
 
-   setup_blending(ogl_disp);
+   _al_opengl_set_blender(ogl_disp);
    setup_state(vtx, decl, texture);
    
    if(texture) {
@@ -328,7 +280,7 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
    
    vtx = vtxs;
 
-   setup_blending(ogl_disp);
+   _al_opengl_set_blender(ogl_disp);
    setup_state(vtx, decl, texture);
    
    if(texture) {
