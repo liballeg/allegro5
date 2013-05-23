@@ -54,7 +54,7 @@ void _al_clear_bitmap_by_locking(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color)
     * video bitmaps which are not the current target, or when locked.
     */
    ASSERT(bitmap);
-   ASSERT(bitmap->flags & (ALLEGRO_MEMORY_BITMAP | ALLEGRO_OPENGL));
+   ASSERT(bitmap->flags & (ALLEGRO_MEMORY_BITMAP | _ALLEGRO_INTERNAL_OPENGL));
 
    x1 = bitmap->cl;
    y1 = bitmap->ct;
