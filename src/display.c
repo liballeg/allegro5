@@ -78,7 +78,8 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
 
    display->default_shader = NULL;
 
-   display->display_invalidated = 0;
+   _al_vector_init(&display->display_invalidated_callbacks, sizeof(void *));
+   _al_vector_init(&display->display_validated_callbacks, sizeof(void *));
 
    display->render_state.write_mask = ALLEGRO_MASK_RGBA | ALLEGRO_MASK_DEPTH;
    display->render_state.depth_test = false;
@@ -552,9 +553,36 @@ bool al_is_bitmap_drawing_held(void)
       return false;
 }
 
-void _al_set_display_invalidated_callback(ALLEGRO_DISPLAY* display, void (*display_invalidated)(ALLEGRO_DISPLAY*))
+void _al_add_display_invalidated_callback(ALLEGRO_DISPLAY* display, void (*display_invalidated)(ALLEGRO_DISPLAY*))
 {
-   display->display_invalidated = display_invalidated;
+   if (_al_vector_find(&display->display_invalidated_callbacks, display_invalidated) >= 0) {
+      return;
+   }
+   else {
+      void (**callback)(ALLEGRO_DISPLAY *) = _al_vector_alloc_back(&display->display_invalidated_callbacks);
+      *callback = display_invalidated;
+   }
+}
+
+void _al_add_display_validated_callback(ALLEGRO_DISPLAY* display, void (*display_validated)(ALLEGRO_DISPLAY*))
+{
+   if (_al_vector_find(&display->display_validated_callbacks, display_validated) >= 0) {
+      return;
+   }
+   else {
+      void (**callback)(ALLEGRO_DISPLAY *) = _al_vector_alloc_back(&display->display_validated_callbacks);
+      *callback = display_validated;
+   }
+}
+
+void _al_remove_display_invalidated_callback(ALLEGRO_DISPLAY *display, void (*callback)(ALLEGRO_DISPLAY *))
+{
+   _al_vector_find_and_delete(&display->display_invalidated_callbacks, &callback);
+}
+
+void _al_remove_display_validated_callback(ALLEGRO_DISPLAY *display, void (*callback)(ALLEGRO_DISPLAY *))
+{
+   _al_vector_find_and_delete(&display->display_validated_callbacks, &callback);
 }
 
 /* Function: al_acknowledge_drawing_halt

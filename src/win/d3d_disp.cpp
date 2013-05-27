@@ -180,6 +180,15 @@ static D3DFORMAT d3d_get_depth_stencil_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *se
    return (D3DFORMAT)0;
 }
 
+static void d3d_call_callbacks(_AL_VECTOR *v, ALLEGRO_DISPLAY *display)
+{
+   int i;
+   for (i = 0; i < (int)v->_size; i++) {
+      void (**callback)(ALLEGRO_DISPLAY *) = (void (**)(ALLEGRO_DISPLAY *))_al_vector_ref(v, i);
+      (*callback)(display);
+   }
+}
+
 /* Function: al_set_d3d_device_release_callback
  */
 void al_set_d3d_device_release_callback(
@@ -888,8 +897,11 @@ static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
 
    if (d3d_display->device) {
-      if (al_display->display_invalidated)
-         al_display->display_invalidated(al_display);
+      _al_remove_display_invalidated_callback(al_display, _al_d3d_on_lost_shaders);
+      _al_remove_display_validated_callback(al_display, _al_d3d_on_reset_shaders);
+      d3d_call_callbacks(&al_display->display_invalidated_callbacks, al_display);
+      _al_add_display_invalidated_callback(al_display, _al_d3d_on_lost_shaders);
+      _al_add_display_validated_callback(al_display, _al_d3d_on_reset_shaders);
       d3d_display->device->EndScene();
    }
 
@@ -953,13 +965,8 @@ void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 
    previous_target = NULL;
 
-   ALLEGRO_SHADER *default_shader = al_display->default_shader;
-   if (default_shader && default_shader->vt->on_lost_device) {
-      default_shader->vt->on_lost_device(default_shader);
-   }
+   d3d_call_callbacks(&al_display->display_invalidated_callbacks, al_display);
 
-   if (al_display->display_invalidated)
-      al_display->display_invalidated(al_display);
    _al_d3d_release_default_pool_textures((ALLEGRO_DISPLAY *)disp);
    while (disp->render_target && disp->render_target->Release() != 0) {
       ALLEGRO_WARN("_al_d3d_prepare_for_reset: (bb) ref count not 0\n");
@@ -1102,12 +1109,7 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
     }
 
    d3d_display->device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &d3d_display->render_target);
-
-   ALLEGRO_SHADER *default_shader = al_display->default_shader;
-   if (default_shader && default_shader->vt->on_reset_device) {
-      default_shader->vt->on_reset_device(default_shader);
-   }
-
+   
    _al_d3d_refresh_texture_memory(al_display);
    
    d3d_display->device->BeginScene();
@@ -1510,6 +1512,7 @@ static void *d3d_display_thread_proc(void *arg)
             }
             _al_event_source_unlock(&al_display->es);
             lost_event_generated = false;
+            d3d_call_callbacks(&al_display->display_validated_callbacks, al_display);
             if (d3d_restore_callback) {
                (*d3d_restore_callback)(al_display);
             }

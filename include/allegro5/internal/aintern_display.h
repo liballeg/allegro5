@@ -140,12 +140,13 @@ struct ALLEGRO_DISPLAY
 
    ALLEGRO_SHADER* default_shader;
 
-   void (*display_invalidated)(ALLEGRO_DISPLAY*);
-
    ALLEGRO_TRANSFORM proj_transform;
    ALLEGRO_TRANSFORM view_transform;
 
-   _ALLEGRO_RENDER_STATE render_state; 
+   _ALLEGRO_RENDER_STATE render_state;
+
+   _AL_VECTOR display_invalidated_callbacks;
+   _AL_VECTOR display_validated_callbacks;
 };
 
 int  _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref);
@@ -156,9 +157,15 @@ int  _al_display_settings_sorter(const void *p0, const void *p1);
 
 void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d);
 
-/* This is called from the primitives addon. */
-AL_FUNC(void, _al_set_display_invalidated_callback, (ALLEGRO_DISPLAY *display,
+/* This is called from the primitives addon and for shaders. */
+AL_FUNC(void, _al_add_display_invalidated_callback, (ALLEGRO_DISPLAY *display,
    void (*display_invalidated)(ALLEGRO_DISPLAY*)));
+AL_FUNC(void, _al_add_display_validated_callback, (ALLEGRO_DISPLAY *display,
+   void (*display_validated)(ALLEGRO_DISPLAY*)));
+AL_FUNC(void, _al_remove_display_invalidated_callback, (ALLEGRO_DISPLAY *display,
+   void (*display_invalidated)(ALLEGRO_DISPLAY*)));
+AL_FUNC(void, _al_remove_display_validated_callback, (ALLEGRO_DISPLAY *display,
+   void (*display_validated)(ALLEGRO_DISPLAY*)));
 
 /* Defined in tls.c */
 bool _al_set_current_display_only(ALLEGRO_DISPLAY *display);

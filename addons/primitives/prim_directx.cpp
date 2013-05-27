@@ -122,7 +122,7 @@ static void setup_default_shader(ALLEGRO_DISPLAY* display)
       shader_entries[0].device = device;
       shader_entries[0].shader = (LPDIRECT3DVERTEXSHADER9)_al_create_default_primitives_shader(device);
 
-      _al_set_display_invalidated_callback(display, &display_invalidated);
+      _al_add_display_invalidated_callback(display, &display_invalidated);
    }
 
    if(shader_entries[0].device != device) {
@@ -156,7 +156,7 @@ static void setup_default_shader(ALLEGRO_DISPLAY* display)
          shader_entries[0].device = device;
          shader_entries[0].shader = (LPDIRECT3DVERTEXSHADER9)_al_create_default_primitives_shader(device);
 
-         _al_set_display_invalidated_callback(display, &display_invalidated);
+         _al_add_display_invalidated_callback(display, &display_invalidated);
       }
    }
 

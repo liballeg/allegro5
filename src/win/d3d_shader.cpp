@@ -28,6 +28,7 @@
 
 ALLEGRO_DEBUG_CHANNEL("shader")
 
+static _AL_VECTOR shaders = _AL_VECTOR_INITIALIZER(ALLEGRO_SHADER *);
 
 typedef struct ALLEGRO_SHADER_HLSL_S ALLEGRO_SHADER_HLSL_S;
 
@@ -207,6 +208,27 @@ static struct ALLEGRO_SHADER_INTERFACE shader_hlsl_vt =
    hlsl_set_shader_bool
 };
 
+extern "C"
+void _al_d3d_on_lost_shaders(ALLEGRO_DISPLAY *display)
+{
+   int i;
+   (void)display;
+   for (i = 0; i < (int)shaders._size; i++) {
+      ALLEGRO_SHADER **shader = (ALLEGRO_SHADER **)_al_vector_ref(&shaders, i);
+      (*shader)->vt->on_lost_device(*shader);
+   }
+}
+
+extern "C"
+void _al_d3d_on_reset_shaders(ALLEGRO_DISPLAY *display)
+{
+   int i;
+   (void)display;
+   for (i = 0; i < (int)shaders._size; i++) {
+      ALLEGRO_SHADER **shader = (ALLEGRO_SHADER **)_al_vector_ref(&shaders, i);
+      (*shader)->vt->on_reset_device(*shader);
+   }
+}
 
 ALLEGRO_SHADER *_al_create_shader_hlsl(ALLEGRO_SHADER_PLATFORM platform)
 {
@@ -227,6 +249,12 @@ ALLEGRO_SHADER *_al_create_shader_hlsl(ALLEGRO_SHADER_PLATFORM platform)
    // For simplicity, these fields are never NULL in this backend.
    shader->shader.pixel_copy = al_ustr_new("");
    shader->shader.vertex_copy = al_ustr_new("");
+
+   ALLEGRO_SHADER **back = (ALLEGRO_SHADER **)_al_vector_alloc_back(&shaders);
+   *back = (ALLEGRO_SHADER *)shader;
+
+   _al_add_display_invalidated_callback(al_get_current_display(), _al_d3d_on_lost_shaders);
+   _al_add_display_validated_callback(al_get_current_display(), _al_d3d_on_reset_shaders);
 
    return (ALLEGRO_SHADER *)shader;
 }
@@ -310,7 +338,7 @@ static bool hlsl_attach_shader_source(ALLEGRO_SHADER *shader,
       al_ustr_size(full_source),
       NULL,
       NULL,
-      D3DXSHADER_PACKMATRIX_ROWMAJOR,
+      D3DXSHADER_PACKMATRIX_ROWMAJOR | D3DXSHADER_USE_LEGACY_D3DX9_31_DLL,
       NULL,
       &hlsl_shader->hlsl_shader,
       &errors
@@ -385,6 +413,8 @@ static void hlsl_destroy_shader(ALLEGRO_SHADER *shader)
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
 
    hlsl_shader->hlsl_shader->Release();
+
+   _al_vector_find_and_delete(&shaders, &shader);
 
    al_free(shader);
 }

@@ -46,9 +46,6 @@ ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void);
 
 AL_FUNC(ALLEGRO_BITMAP *, _al_d3d_create_bitmap,
    (ALLEGRO_DISPLAY *d, int w, int h));
-//bool _al_d3d_is_device_lost(void);
-//void _al_d3d_lock_device();
-//void _al_d3d_unlock_device();
 int _al_pixel_format_to_d3d(int format);
 int _al_d3d_format_to_allegro(int d3d_fmt);
 bool _al_d3d_render_to_texture_supported(void);
@@ -70,6 +67,9 @@ void _al_d3d_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref);
 void _al_d3d_destroy_display_format_list(void);
 ALLEGRO_EXTRA_DISPLAY_SETTINGS *_al_d3d_get_display_settings(int i);
 void _al_d3d_resort_display_settings(void);
+
+void _al_d3d_on_lost_shaders(ALLEGRO_DISPLAY *display);
+void _al_d3d_on_reset_shaders(ALLEGRO_DISPLAY *display);
 
 extern ALLEGRO_MUTEX *_al_d3d_lost_device_mutex;
 
