@@ -338,7 +338,7 @@ static bool hlsl_attach_shader_source(ALLEGRO_SHADER *shader,
       al_ustr_size(full_source),
       NULL,
       NULL,
-      D3DXSHADER_PACKMATRIX_ROWMAJOR | D3DXSHADER_USE_LEGACY_D3DX9_31_DLL,
+      D3DXSHADER_PACKMATRIX_ROWMAJOR,
       NULL,
       &hlsl_shader->hlsl_shader,
       &errors
