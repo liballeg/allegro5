@@ -1590,7 +1590,7 @@ static void flip_display(ALLEGRO_DISPLAY *disp)
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) disp;
 
    ALLEGRO_BITMAP *old_target = NULL;
-   if (!((ALLEGRO_BITMAP_EXTRA_OPENGL *)disp->ogl_extras->opengl_target->extra)->is_backbuffer) {
+   if (!disp->ogl_extras->opengl_target->is_backbuffer) {
    	old_target = al_get_target_bitmap();
 	al_set_target_backbuffer(disp);
    }
