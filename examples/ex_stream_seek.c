@@ -133,7 +133,7 @@ static void myexit(void)
 {
    bool playing;
    playing = al_get_mixer_playing(al_get_default_mixer());
-   if (playing)
+   if (playing && music_stream)
       al_drain_audio_stream(music_stream);
    al_destroy_audio_stream(music_stream);
 }
