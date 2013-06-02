@@ -27,15 +27,16 @@ int main(int argc, char *argv[])
 
    if (!al_init()) {
       abort_example("Error initialising Allegro.\n");
-      return 1;
    }
+
+   open_log();
+
    al_install_keyboard();
    al_set_new_display_flags(ALLEGRO_DIRECT3D);
    al_set_new_display_option(ALLEGRO_DEPTH_SIZE, 16, ALLEGRO_SUGGEST);
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Unable to create display.\n");
-      return 1;
    }
 
    ALLEGRO_KEYBOARD_STATE state;
@@ -110,7 +111,8 @@ int main(int argc, char *argv[])
    } while (!al_key_down(&state, ALLEGRO_KEY_ESCAPE));
 
    double elapsed = al_get_time() - start_secs;
-   printf("%g fps\n", frames/elapsed);
+   log_printf("%g fps\n", frames/elapsed);
+   close_log(true);
 
    return 0;
 }

@@ -30,15 +30,15 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
+
+   open_log();
 
    al_install_keyboard();
    
    display = al_create_display(WIDTH, HEIGHT);
    if (!display) {
       abort_example("Could not create display.\n");
-      return 1;
    }
 
    colors[0] = al_map_rgba(255, 100, 255, 128);
@@ -122,10 +122,12 @@ int main(void)
    length = al_get_time() - program_start;
 
    if (length != 0) {
-      printf("%d FPS\n", (int)(total_frames / length));
+      log_printf("%d FPS\n", (int)(total_frames / length));
    }
 
    al_destroy_display(display);
+
+   close_log(true);
 
    return 0;
 }

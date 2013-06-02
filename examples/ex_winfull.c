@@ -10,14 +10,12 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    al_install_keyboard();
 
    if (al_get_num_video_adapters() < 2) {
       abort_example("This example requires multiple video adapters.\n");
-      return 1;
    }
 
    al_set_new_display_adapter(1);
@@ -26,7 +24,6 @@ int main(void)
    if (!win) {
       abort_example("Error creating windowed display on adapter 1 "
 	  "(do you have multiple adapters?)\n");
-      return 1;
    }
 
    al_set_new_display_adapter(0);
@@ -34,7 +31,6 @@ int main(void)
    full = al_create_display(640, 480);
    if (!full) {
       abort_example("Error creating fullscreen display on adapter 0\n");
-      return 1;
    }
 
    events = al_create_event_queue();

@@ -27,6 +27,8 @@ int main(int argc, const char *argv[])
     if (!al_init()) {
        abort_example("Could not init Allegro.\n");
     }
+
+    open_log();
        
     if (argc > 2) {
        al_set_new_display_adapter(atoi(argv[2]));
@@ -58,7 +60,7 @@ int main(int argc, const char *argv[])
     }
     al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
 
-    printf("Loading took %.4f seconds\n", t1 - t0);
+    log_printf("Loading took %.4f seconds\n", t1 - t0);
     
     // FIXME: 
     // Now try to split the memory bitmap into display bitmaps?
@@ -79,22 +81,22 @@ int main(int argc, const char *argv[])
         if (event.type == ALLEGRO_EVENT_DISPLAY_ORIENTATION) {
             int o = event.display.orientation;
             if (o == ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES) {
-                printf("0 degrees\n");
+                log_printf("0 degrees\n");
             }
             else if (o == ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES) {
-                printf("90 degrees\n");
+                log_printf("90 degrees\n");
             }
             else if (o == ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES) {
-                printf("180 degrees\n");
+                log_printf("180 degrees\n");
             }
             else if (o == ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES) {
-                printf("270 degrees\n");
+                log_printf("270 degrees\n");
             }
             else if (o == ALLEGRO_DISPLAY_ORIENTATION_FACE_UP) {
-                printf("Face up\n");
+                log_printf("Face up\n");
             }
             else if (o == ALLEGRO_DISPLAY_ORIENTATION_FACE_DOWN) {
-                printf("Face down\n");
+                log_printf("Face down\n");
             }
         }
         if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
@@ -128,6 +130,8 @@ int main(int argc, const char *argv[])
     }
 
     al_destroy_bitmap(bitmap);
+
+    close_log(false);
 
     return 0;
 }

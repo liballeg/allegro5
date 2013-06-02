@@ -33,7 +33,6 @@ int main(int argc, const char *argv[])
 
     if (!al_init()) {
         abort_example("Could not init Allegro.\n");
-        return 1;
     }
 
     al_init_primitives_addon();

@@ -229,8 +229,7 @@ static void init(void)
 
    ex.font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!ex.font) {
-      printf("data/fixed_font.tga not found\n");
-      exit(1);
+      abort_example("data/fixed_font.tga not found\n");
    }
    ex.background = al_color_name("beige");
    ex.text = al_color_name("black");
@@ -245,7 +244,6 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    al_install_keyboard();
@@ -256,7 +254,6 @@ int main(void)
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Error creating display\n");
-      return 1;
    }
 
    init();

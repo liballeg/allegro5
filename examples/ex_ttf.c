@@ -107,7 +107,6 @@ int main(int argc, const char *argv[])
 
     if (!al_init()) {
         abort_example("Could not init Allegro.\n");
-        return 1;
     }
 
     al_init_primitives_addon();
@@ -121,7 +120,6 @@ int main(int argc, const char *argv[])
     display = al_create_display(640, 480);
     if (!display) {
         abort_example("Could not create display.\n");
-        return 1;
     }
     al_install_keyboard();
 
@@ -140,13 +138,11 @@ int main(int argc, const char *argv[])
 
     if (!ex.f1 || !ex.f2 || !ex.f3 || !ex.f4) {
         abort_example("Could not load font: %s\n", font_file);
-        return 1;
     }
 
     ex.config = al_load_config_file("data/ex_ttf.ini");
     if (!ex.config) {
         abort_example("Could not data/ex_ttf.ini\n");
-        return 1;
     }
 
     timer = al_create_timer(1.0 / 60);

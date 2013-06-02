@@ -134,7 +134,6 @@ int main(int argc, char **argv)
 
    if (!al_init()) {
       abort_example("Could not init Allegro\n");
-      return 1;
    }
    al_install_keyboard();
    al_install_mouse();
@@ -147,12 +146,10 @@ int main(int argc, char **argv)
 
    if (!al_install_audio()) {
       abort_example("Could not init sound!\n");
-      return 1;
    }
 
    if (!al_reserve_samples(1)) {
       abort_example("Could not set up voice and mixer.\n");
-      return 1;
    }
 
    sample = al_load_sample(filename);
@@ -164,13 +161,11 @@ int main(int argc, char **argv)
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Unable to create display\n");
-      return 1;
    }
 
    font_gui = al_load_font("data/fixed_font.tga", 0, 0);
    if (!font_gui) {
       abort_example("Failed to load data/fixed_font.tga\n");
-      return 1;
    }
 
    /* Loop the sample. */

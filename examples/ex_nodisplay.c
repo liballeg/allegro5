@@ -15,20 +15,17 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Error initialising Allegro\n");
-      return 1;
    }
    al_init_image_addon();
 
    sprite = al_load_bitmap("data/cursor.tga");
    if (!sprite) {
       abort_example("Error loading data/cursor.tga\n");
-      return 1;
    }
 
    bmp = al_create_bitmap(256, 256);
    if (!bmp) {
       abort_example("Error creating bitmap\n");
-      return 1;
    }
 
    al_set_target_bitmap(bmp);

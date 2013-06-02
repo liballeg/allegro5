@@ -78,7 +78,6 @@ static void load_font(void)
    font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!font) {
       abort_example("data/fixed_font.tga not found\n");
-      exit(1);
    }
    font_h = al_get_font_line_height(font);
 }
@@ -204,7 +203,6 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
    init_flags();
    al_init_primitives_addon();
@@ -219,7 +217,6 @@ int main(void)
    display = al_create_display(800, 600);
    if (!display) {
       abort_example("Could not create display.\n");
-      return 1;
    }
 
    load_font();

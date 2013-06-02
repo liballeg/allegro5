@@ -317,7 +317,6 @@ int main(int argc, char *argv[])
 
    if (!al_init()) {
       abort_example("Could not init Allegro\n");
-      return 1;
    }
    al_init_primitives_addon();
    al_install_keyboard();
@@ -330,23 +329,19 @@ int main(int argc, char *argv[])
    display = al_create_display(800, 600);
    if (!display) {
       abort_example("Unable to create display\n");
-      return 1;
    }
 
    font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!font) {
       abort_example("Failed to load data/fixed_font.tga\n");
-      return 1;
    }
    allegro = al_load_bitmap("data/allegro.pcx");
    if (!allegro) {
       abort_example("Failed to load data/allegro.pcx\n");
-      return 1;
    }
    mysha = al_load_bitmap("data/mysha256x256.png");
    if (!mysha) {
       abort_example("Failed to load data/mysha256x256.png\n");
-      return 1;
    }
    
    target = al_create_bitmap(320, 200);

@@ -16,25 +16,21 @@ static void go(void)
    al_set_new_display_adapter(0);
    d1 = al_create_display(640, 480);
    if (!d1) {
-      printf("Error creating first display\n");
-      return;
+      abort_example("Error creating first display\n");
    }
    b1 = al_load_bitmap("data/mysha.pcx");
    if (!b1) {
-      printf("Error loading mysha.pcx\n");
-      return;
+      abort_example("Error loading mysha.pcx\n");
    }
 
    al_set_new_display_adapter(1);
    d2 = al_create_display(640, 480);
    if (!d2) {
-      printf("Error creating second display\n");
-      return;
+      abort_example("Error creating second display\n");
    }
    b2 = al_load_bitmap("data/allegro.pcx");
    if (!b2) {
-      printf("Error loading allegro.pcx\n");
-      return;
+      abort_example("Error loading allegro.pcx\n");
    }
 
    queue = al_create_event_queue();
@@ -71,7 +67,6 @@ int main(void)
 {
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    al_install_keyboard();
@@ -80,7 +75,6 @@ int main(void)
 
    if (al_get_num_video_adapters() < 2) {
       abort_example("You need 2 or more adapters/monitors for this example.\n");
-      return 1;
    }
 
    go();

@@ -81,6 +81,8 @@ int main(void)
       abort_example("Could not init Allegro.\n");
    }
 
+   open_log();
+
    al_install_keyboard();
 
    display = al_create_display(640, 480);
@@ -124,7 +126,7 @@ int main(void)
       if (event.type == ALLEGRO_EVENT_TIMER) {
          const float speed = pow(21.0/20.0, (event.timer.count % PERIOD));
          if (!al_play_sample(ping, 1.0, 0.0, speed, ALLEGRO_PLAYMODE_ONCE, NULL)) {
-            fprintf(stderr, "Not enough reserved samples.\n");
+            log_printf("Not enough reserved samples.\n");
          }
          redraw = true;
          last_timer = event.timer.count;
@@ -160,6 +162,8 @@ int main(void)
          al_flip_display();
       }
    }
+
+   close_log(false);
 
    return 0;
 }

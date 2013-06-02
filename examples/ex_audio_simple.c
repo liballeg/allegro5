@@ -17,21 +17,23 @@
 int main(int argc, const char *argv[])
 {
    ALLEGRO_SAMPLE *sample_data[MAX_SAMPLE_DATA] = {NULL};
-   ALLEGRO_DISPLAY *display;
+   ALLEGRO_DISPLAY *display = NULL;
    ALLEGRO_EVENT_QUEUE *event_queue;
    ALLEGRO_EVENT event;
    int i;
 
-   if (argc < 2) {
-      fprintf(stderr, "Usage: %s {audio_files}\n", argv[0]);
-      return 1;
-   }
-   argc--;
-   argv++;
-
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
    }
+
+   open_log();
+
+   if (argc < 2) {
+      log_printf("This example needs to be run from the command line.\nUsage: %s {audio_files}\n", argv[0]);
+      goto done;
+   }
+   argc--;
+   argv++;
 
    al_install_keyboard();
 
@@ -48,13 +50,11 @@ int main(int argc, const char *argv[])
 Restart:
 
    if (!al_install_audio()) {
-      fprintf(stderr, "Could not init sound!\n");
-      return 1;
+      abort_example("Could not init sound!\n");
    }
 
    if (!al_reserve_samples(RESERVED_SAMPLES)) {
-      fprintf(stderr, "Could not set up voice and mixer.\n");
-      return 1;
+      abort_example("Could not set up voice and mixer.\n");
    }
 
    memset(sample_data, 0, sizeof(sample_data));
@@ -64,12 +64,12 @@ Restart:
       /* Load the entire sound file from disk. */
       sample_data[i] = al_load_sample(argv[i]);
       if (!sample_data[i]) {
-         fprintf(stderr, "Could not load sample from '%s'!\n", filename);
+         log_printf("Could not load sample from '%s'!\n", filename);
          continue;
       }
    }
 
-   printf("Press digits to play sounds, space to stop sounds, "
+   log_printf("Press digits to play sounds, space to stop sounds, "
       "Escape to quit.\n");
 
    while (true) {
@@ -85,9 +85,9 @@ Restart:
          if (event.keyboard.unichar >= '0' && event.keyboard.unichar <= '9') {
             i = (event.keyboard.unichar - '0' + 9) % 10;
             if (sample_data[i]) {
-               printf("Playing %d\n",i);
+               log_printf("Playing %d\n",i);
                if (!al_play_sample(sample_data[i], 1.0, 0.5, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL)) {
-                  fprintf(stderr,
+                  log_printf(
                      "al_play_sample_data failed, perhaps too many sounds\n");
                }
             }
@@ -106,6 +106,9 @@ Restart:
    /* Sample data and other objects will be automatically freed. */
    al_uninstall_audio();
 
+done:
+   al_destroy_display(display);
+   close_log(true);
    return 0;
 }
 

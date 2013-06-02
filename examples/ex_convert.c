@@ -13,15 +13,17 @@ int main(int argc, char **argv)
    double t0;
    double t1;
 
-   if (argc < 3) {
-      fprintf(stderr, "Usage: exnew_convert <infile> <outfile>\n");
-      fprintf(stderr, "\tPossible file types: BMP PCX PNG TGA\n");
-      return 1;
+   if (!al_init()) {
+      abort_example("Could not init Allegro.\n");
    }
 
-   if (!al_init()) {
-      fprintf(stderr, "Could not init Allegro.\n");
-      return 1;
+   open_log();
+
+   if (argc < 3) {
+      log_printf("This example needs to be run from the command line.\n");
+      log_printf("Usage: %s <infile> <outfile>\n", argv[0]);
+      log_printf("\tPossible file types: BMP PCX PNG TGA\n");
+      goto done;
    }
 
    al_init_image_addon();
@@ -32,19 +34,22 @@ int main(int argc, char **argv)
 
    bitmap = al_load_bitmap(argv[1]);
    if (!bitmap) {
-      fprintf(stderr, "Error loading input file\n");
-      return 1;
+      log_printf("Error loading input file\n");
+      goto done;
    }
 
    t0 = al_get_time();
    if (!al_save_bitmap(argv[2], bitmap)) {
-      fprintf(stderr, "Error saving bitmap\n");
-      return 1;
+      log_printf("Error saving bitmap\n");
+      goto done;
    }
    t1 = al_get_time();
-   printf("Saving took %.4f seconds\n", t1 - t0);
+   log_printf("Saving took %.4f seconds\n", t1 - t0);
 
    al_destroy_bitmap(bitmap);
+
+done:
+   close_log(true);
 
    return 0;
 }

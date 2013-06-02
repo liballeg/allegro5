@@ -138,7 +138,6 @@ int main(int argc, char **argv)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    al_init_primitives_addon();
@@ -150,7 +149,6 @@ int main(int argc, char **argv)
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Could not create display.\n");
-      return 1;
    }
 
    dbuf = al_create_bitmap(640, 480);
@@ -158,37 +156,31 @@ int main(int argc, char **argv)
    bmp = al_load_bitmap("data/mysha.pcx");
    if (!bmp) {
       abort_example("Could not load data/mysha.pcx\n");
-      return 1;
    }
 
    if (!al_install_audio()) {
       abort_example("Could not init sound.\n");
-      return 1;
    }
 
    voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16,
       ALLEGRO_CHANNEL_CONF_2);
    if (!voice) {
       abort_example("Could not create voice.\n");
-      return 1;
    }
 
    mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
       ALLEGRO_CHANNEL_CONF_2);
    if (!mixer) {
       abort_example("Could not create mixer.\n");
-      return 1;
    }
 
    if (!al_attach_mixer_to_voice(mixer, voice)) {
       abort_example("al_attach_mixer_to_voice failed.\n");
-      return 1;
    }
 
    stream = al_load_audio_stream(filename, 4, 2048);
    if (!stream) {
       abort_example("Could not load '%s'\n", filename);
-      return 1;
    }
 
    al_set_audio_stream_playmode(stream, ALLEGRO_PLAYMODE_LOOP);

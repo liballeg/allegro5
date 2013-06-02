@@ -34,40 +34,36 @@ int main(int argc, char **argv)
    }
 
    if (!al_init()) {
-      fprintf(stderr, "Could not init Allegro.\n");
-      return 1;
+      abort_example("Could not init Allegro.\n");
    }
+
+   open_log();
 
    al_init_acodec_addon();
 
    if (!al_install_audio()) {
-      fprintf(stderr, "Could not init sound!\n");
-      return 1;
+      abort_example("Could not init sound!\n");
    }
 
    voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16,
       ALLEGRO_CHANNEL_CONF_2);
    if (!voice) {
-      fprintf(stderr, "Could not create ALLEGRO_VOICE.\n");
-      return 1;
+      abort_example("Could not create ALLEGRO_VOICE.\n");
    }
 
    mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
       ALLEGRO_CHANNEL_CONF_2);
    if (!mixer) {
-      fprintf(stderr, "al_create_mixer failed.\n");
-      return 1;
+      abort_example("al_create_mixer failed.\n");
    }
 
    if (!al_attach_mixer_to_voice(mixer, voice)) {
-      fprintf(stderr, "al_attach_mixer_to_voice failed.\n");
-      return 1;
+      abort_example("al_attach_mixer_to_voice failed.\n");
    }
 
    sample = al_create_sample_instance(NULL);
    if (!sample) {
-      fprintf(stderr, "al_create_sample failed.\n");
-      return 1;
+      abort_example("al_create_sample failed.\n");
    }
 
    for (i = 0; i < n; ++i) {
@@ -78,19 +74,19 @@ int main(int argc, char **argv)
       /* Load the entire sound file from disk. */
       sample_data = al_load_sample(filename);
       if (!sample_data) {
-         fprintf(stderr, "Could not load sample from '%s'!\n",
+         abort_example("Could not load sample from '%s'!\n",
             filename);
          continue;
       }
 
       if (!al_set_sample(sample, sample_data)) {
-         fprintf(stderr, "al_set_sample_instance_ptr failed.\n");
+         abort_example("al_set_sample_instance_ptr failed.\n");
          continue;
       }
 
       if (!al_attach_sample_instance_to_mixer(sample, mixer)) {
-         fprintf(stderr, "al_attach_sample_instance_to_mixer failed.\n");
-         return 1;
+         abort_example("al_attach_sample_instance_to_mixer failed.\n");
+         goto done;
       }
 
       /* Play sample in looping mode. */
@@ -98,23 +94,23 @@ int main(int argc, char **argv)
       al_play_sample_instance(sample);
 
       sample_time = al_get_sample_instance_time(sample);
-      fprintf(stderr, "Playing '%s' (%.3f seconds) 3 times", filename,
+      log_printf("Playing '%s' (%.3f seconds) 3 times", filename,
          sample_time);
 
       al_rest(sample_time);
 
       if (!al_set_sample_instance_gain(sample, 0.5)) {
-         fprintf(stderr, "Failed to set gain.\n");
+         abort_example("Failed to set gain.\n");
       }
       al_rest(sample_time);
 
       if (!al_set_sample_instance_gain(sample, 0.25)) {
-         fprintf(stderr, "Failed to set gain.\n");
+         abort_example("Failed to set gain.\n");
       }
       al_rest(sample_time);
 
       al_stop_sample_instance(sample);
-      fprintf(stderr, "\n");
+      log_printf("\nDone playing '%s'\n", filename);
 
       /* Free the memory allocated. */
       al_set_sample(sample, NULL);
@@ -126,6 +122,9 @@ int main(int argc, char **argv)
    al_destroy_voice(voice);
 
    al_uninstall_audio();
+
+done:
+   close_log(true);
 
    return 0;
 }

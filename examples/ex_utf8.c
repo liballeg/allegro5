@@ -1228,6 +1228,7 @@ int main(int argc, const char *argv[])
          all_tests[i]();
       }
    }
+   log_printf("Done\n");
 
    close_log(true);
 

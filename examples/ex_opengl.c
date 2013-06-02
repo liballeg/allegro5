@@ -125,15 +125,15 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
+
+   open_log();
 
    al_install_keyboard();
    al_set_new_display_flags(ALLEGRO_OPENGL);
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Could not create display.\n");
-      return 1;
    }
 
    queue = al_create_event_queue();
@@ -163,8 +163,11 @@ int main(void)
 
 done:
 
-   printf("%.1f FPS\n", frames / (al_get_time() - start));
+   log_printf("%.1f FPS\n", frames / (al_get_time() - start));
    al_destroy_event_queue(queue);
+   al_destroy_display(display);
+
+   close_log(true);
 
    return 0;
 }

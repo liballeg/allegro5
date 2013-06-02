@@ -394,7 +394,6 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not initialise Allegro\n");
-      return 1;
    }
    al_init_primitives_addon();
    al_install_mouse();
@@ -408,7 +407,6 @@ int main(void)
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Could not create display\n");
-      return 1;
    }
    al_set_window_title(display, "Allegro Logo Generator");
    al_install_keyboard();
@@ -426,7 +424,6 @@ int main(void)
    font = al_load_font("data/DejaVuSans.ttf", 12, 0);
    if (!font) {
       abort_example("Could not load font\n");
-      return 1;
    }
 
    timer = al_create_timer(1.0 / 60);

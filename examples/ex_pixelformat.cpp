@@ -149,14 +149,14 @@ void Prog::draw_sample()
 
    bitmap1 = al_load_bitmap("data/allegro.pcx");
    if (!bitmap1) {
-      printf("Could not load image, bitmap format = %d\n", formats[i].format);
+      log_printf("Could not load image, bitmap format = %d\n", formats[i].format);
    }
 
    al_set_new_bitmap_format(formats[j].format);
 
    bitmap2 = al_create_bitmap(320, 200);
    if (!bitmap2) {
-      printf("Could not create bitmap, format = %d\n", formats[j].format);
+      log_printf("Could not create bitmap, format = %d\n", formats[j].format);
    }
 
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
@@ -171,13 +171,13 @@ void Prog::draw_sample()
          int frames = 0;
 
          t0 = al_get_time();
-         printf("Timing...\n");
+         log_printf("Timing...\n");
          do {
            al_draw_bitmap(bitmap1, 0, 0, 0);
            frames++;
            t1 = al_get_time();
          } while (t1 - t0 < 0.25);
-         printf("    ...done.\n");
+         log_printf("    ...done.\n");
          sprintf(str, "%.0f FPS", (double)frames / (t1 - t0));
          time_label.set_text(str);
       }
@@ -214,8 +214,9 @@ int main(int argc, char *argv[])
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
+
+   open_log();
 
    al_init_primitives_addon();
    al_init_image_addon();
@@ -228,15 +229,13 @@ int main(int argc, char *argv[])
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Error creating display\n");
-      return 1;
    }
 
-   //printf("Display format = %d\n", al_get_display_format());
+   //log_printf("Display format = %d\n", al_get_display_format());
 
    font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!font) {
       abort_example("Failed to load data/fixed_font.tga\n");
-      return 1;
    }
 
    /* Don't remove these braces. */
@@ -247,6 +246,8 @@ int main(int argc, char *argv[])
    }
 
    al_destroy_font(font);
+
+   close_log(false);
 
    return 0;
 }

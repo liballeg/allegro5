@@ -85,7 +85,7 @@ static size_t write_callback(char *buffer, size_t size, size_t nitems,
       /* Not enough space in buffer. */
       newbuff = realloc(cf->buffer, cf->buffer_len + size - rembuff);
       if (!newbuff) {
-         fprintf(stderr, "callback buffer grow failed\n");
+         log_printf("callback buffer grow failed\n");
          size = rembuff;
       }
       else {
@@ -375,14 +375,19 @@ int main(int argc, const char *argv[])
    else
       url = "http://liballeg.org/images/logo.png";
 
-   if (!al_init())
-      return 1;
+   if (!al_init()) {
+      abort_example("Could not init Allegro.\n");
+   }
+
+   open_log();
+
    al_init_image_addon();
    al_install_keyboard();
 
    display = al_create_display(640, 480);
-   if (!display)
-      return 1;
+   if (!display) {
+      abort_example("Unable to create display.\n");
+   }
 
    curl_global_init(CURL_GLOBAL_ALL);
    al_set_new_file_interface(&curl_file_vtable);
@@ -394,6 +399,8 @@ int main(int argc, const char *argv[])
    }
 
    curl_global_cleanup();
+
+   close_log(true);
 
    return 0;
 }

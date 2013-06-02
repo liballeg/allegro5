@@ -59,7 +59,7 @@ int main(int argc, const char *argv[])
    const char *image_filename = NULL;
 
    if (!al_init()) {
-      return 1;
+      abort_example("Could not init Allegro.\n");
    }
    al_init_primitives_addon();
    al_init_image_addon();
@@ -70,14 +70,12 @@ int main(int argc, const char *argv[])
    src_display = al_create_display(SRC_WIDTH, SRC_HEIGHT);
    if (!src_display) {
       abort_example("Error creating display\n");
-      return 1;
    }
    al_set_window_title(src_display, "Source");
 
    dst_display = al_create_display(DST_WIDTH, DST_HEIGHT);
    if (!dst_display) {
       abort_example("Error creating display\n");
-      return 1;
    }
    al_set_window_title(dst_display, "Destination");
 
@@ -87,7 +85,7 @@ int main(int argc, const char *argv[])
          if (!image_filename)
             image_filename = argv[i];
          else
-            fprintf(stderr, "Unknown argument: %s\n", argv[i]);
+            abort_example("Unknown argument: %s\n", argv[i]);
       }
       
       if (!image_filename) {
@@ -98,7 +96,6 @@ int main(int argc, const char *argv[])
    src_bmp = al_load_bitmap(image_filename);
    if (!src_bmp) {
       abort_example("Could not load image file\n");
-      return 1;
    }
    
    src_x2 = src_x1 + al_get_bitmap_width(src_bmp);

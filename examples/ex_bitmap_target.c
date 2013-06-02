@@ -145,7 +145,6 @@ int main(void)
 {
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    al_init_primitives_addon();
@@ -156,7 +155,6 @@ int main(void)
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Error creating display\n");
-      return 1;
    }
 
    queue = al_create_event_queue();
@@ -166,7 +164,6 @@ int main(void)
    myfont = al_load_font("data/font.tga", 0, 0);
    if (!myfont) {
       abort_example("font.tga not found\n");
-      return 1;
    }
 
    while (!quit) {

@@ -98,50 +98,42 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    al_init_image_addon();
 
    if (!al_install_mouse()) {
       abort_example("Error installing mouse\n");
-      return 1;
    }
 
    if (!al_install_keyboard()) {
       abort_example("Error installing keyboard\n");
-      return 1;
    }
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
    display1 = al_create_display(400, 400);
    if (!display1) {
       abort_example("Error creating display1\n");
-      return 1;
    }
 
    display2 = al_create_display(400, 400);
    if (!display2) {
       abort_example("Error creating display2\n");
-      return 1;
    }
 
    bmp = al_load_bitmap("data/allegro.pcx");
    if (!bmp) {
       abort_example("Error loading data/allegro.pcx\n");
-      return 1;
    }
 
    font = al_load_bitmap_font("data/fixed_font.tga");
    if (!font) {
       abort_example("Error loading data/fixed_font.tga\n");
-      return 1;
    }
 
    shrunk_bmp = al_create_bitmap(32, 32);
    if (!shrunk_bmp) {
       abort_example("Error creating shrunk_bmp\n");
-      return 1;
    }
 
    al_set_target_bitmap(shrunk_bmp);
@@ -153,7 +145,6 @@ int main(void)
    custom_cursor = al_create_mouse_cursor(shrunk_bmp, 0, 0);
    if (!custom_cursor) {
       abort_example("Error creating mouse cursor\n");
-      return 1;
    }
 
    al_set_target_bitmap(NULL);
@@ -165,7 +156,6 @@ int main(void)
    queue = al_create_event_queue();
    if (!queue) {
       abort_example("Error creating event queue\n");
-      return 1;
    }
 
    al_register_event_source(queue, al_get_keyboard_event_source());

@@ -108,7 +108,6 @@ int main(void)
 {
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    open_log_monospace();
@@ -116,18 +115,15 @@ int main(void)
    display = al_create_display(WIDTH, HEIGHT);
    if (!display) {
       abort_example("al_create_display failed\n");
-      return 1;
    }
 
    if (!al_install_keyboard()) {
       abort_example("al_install_keyboard failed\n");
-      return 1;
    }
 
    event_queue = al_create_event_queue();
    if (!event_queue) {
       abort_example("al_create_event_queue failed\n");
-      return 1;
    }
 
    al_register_event_source(event_queue, al_get_keyboard_event_source());

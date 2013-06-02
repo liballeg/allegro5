@@ -116,6 +116,8 @@ static void t2(void)
    CHECK(! al_create_path("//"));
    CHECK(! al_create_path("//filename"));
    CHECK(! al_create_path("///share/name/filename"));
+#else
+   log_printf("Skipping Windows-only test...\n");
 #endif
 }
 
@@ -145,6 +147,8 @@ static void t3(void)
    CHECK_EQ(al_get_path_filename(path), "ghi");
    CHECK_EQ(al_path_cstr(path, '\\'), "c:\\abc\\def\\ghi");
    al_destroy_path(path);
+#else
+   log_printf("Skipping Windows-only test...\n");
 #endif
 }
 
@@ -506,11 +510,13 @@ static void t14(void)
 static void t15(void)
 {
    /* nothing */
+   log_printf("Skipping empty test...\n");
 }
 
 static void t16(void)
 {
    /* nothing */
+   log_printf("Skipping empty test...\n");
 }
 
 /* Test al_make_path_canonical. */
@@ -563,6 +569,7 @@ int main(int argc, const char *argv[])
          all_tests[i]();
       }
    }
+   log_printf("Done\n");
 
    close_log(true);
 

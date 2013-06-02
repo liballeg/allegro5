@@ -17,7 +17,6 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    al_install_mouse();
@@ -28,13 +27,11 @@ int main(void)
    display = al_create_display(300, 200);
    if (!display) {
       abort_example("Error creating display\n");
-      return 1;
    }
    
    bitmap = al_load_bitmap("data/fakeamp.bmp");
    if (!bitmap) {
       abort_example("Error loading fakeamp.bmp\n");
-      return 1;
    }
 
    timer = al_create_timer(1.0f/30.0f);
@@ -57,7 +54,7 @@ int main(void)
          }
          if (event.mouse.button == 2) {
             al_set_display_flag(display, ALLEGRO_FRAMELESS,
-		!(al_get_display_flags(display) & ALLEGRO_FRAMELESS));
+               !(al_get_display_flags(display) & ALLEGRO_FRAMELESS));
          }
       }
       else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {

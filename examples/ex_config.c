@@ -29,14 +29,13 @@ int main(void)
    ALLEGRO_CONFIG_ENTRY *iterator2;
 
    if (!al_init()) {
-      return 1;
+      abort_example("Could not init Allegro.\n");
    }
    open_log();
 
    cfg = al_load_config_file("data/sample.cfg");
    if (!cfg) {
       abort_example("Couldn't load data/sample.cfg\n");
-      return 1;
    }
 
    value = al_get_config_value(cfg, NULL, "old_var");
@@ -91,6 +90,8 @@ int main(void)
    al_set_config_value(cfg, "section", "old_var", "new value");
 
    TEST("save_config", al_save_config_file("test.cfg", cfg));
+
+   log_printf("Done\n");
 
    al_destroy_config(cfg);
 

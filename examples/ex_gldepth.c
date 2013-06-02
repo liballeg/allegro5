@@ -145,13 +145,11 @@ static void setup_textures(ALLEGRO_DISPLAY *display)
    font = al_load_font("data/fixed_font.tga", 0, 0);
    if(!font) {
       abort_example("Error loading `data/fixed_font.tga'\n");
-      exit(1);
    }
 
    tmp_bmp = al_load_bitmap("data/mysha.pcx");
    if(!tmp_bmp) {
       abort_example("Error loading `data/mysha.pcx'\n");
-      exit(1);
    }
    w = 128;
    h = 128;
@@ -187,7 +185,6 @@ int main(void)
 
    if(!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    al_init_image_addon();

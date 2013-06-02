@@ -51,13 +51,11 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    timer = al_create_timer(0.5);
    if (!timer) {
       abort_example("Could not install timer.\n");
-      return 1;
    }
 
    open_log();

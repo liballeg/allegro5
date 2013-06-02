@@ -23,6 +23,9 @@ int main(void)
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
    }
+
+   open_log();
+
    al_init_primitives_addon();
    al_init_font_addon();
    al_init_image_addon();
@@ -33,7 +36,6 @@ int main(void)
    display = al_create_display(width, height);
    if (!display) {
       abort_example("Could not create display.\n");
-      return 1;
    }
 
    memset(&event, 0, sizeof(event));
@@ -82,8 +84,7 @@ int main(void)
             break;
       }
       if (event.type == ALLEGRO_EVENT_MOUSE_WARPED) {
-         printf("Warp\n");
-
+         log_printf("Warp\n");
       }
       if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
          if (right_button_down) {
@@ -111,6 +112,8 @@ int main(void)
 
    al_destroy_event_queue(event_queue);
    al_destroy_display(display);
+
+   close_log(false);
 
    return 0;
 }

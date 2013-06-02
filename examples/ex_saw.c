@@ -86,12 +86,10 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    if (!al_install_audio()) {
       abort_example("Could not init sound.\n");
-      return 1;
    }
    al_reserve_samples(0);
 
@@ -99,12 +97,10 @@ int main(void)
       ALLEGRO_AUDIO_DEPTH_UINT8, ALLEGRO_CHANNEL_CONF_1);
    if (!stream) {
       abort_example("Could not create stream.\n");
-      return 1;
    }
 
    if (!al_attach_audio_stream_to_mixer(stream, al_get_default_mixer())) {
       abort_example("Could not attach stream to mixer.\n");
-      return 1;
    }
 
    open_log();

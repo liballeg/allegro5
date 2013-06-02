@@ -115,7 +115,6 @@ int main(int argc, const char *argv[])
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    al_init_primitives_addon();
@@ -125,7 +124,6 @@ int main(int argc, const char *argv[])
    display = al_create_display(W, H);
    if (!display) {
       abort_example("Error creating display\n");
-      return 1;
    }
 
    black = al_map_rgb_f(0.0, 0.0, 0.0);
@@ -138,7 +136,6 @@ int main(int argc, const char *argv[])
    dbuf = al_create_bitmap(W, H);
    if (!dbuf) {
       abort_example("Error creating double buffer\n");
-      return 1;
    }
 
    al_set_target_bitmap(dbuf);

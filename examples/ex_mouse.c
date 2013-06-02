@@ -37,7 +37,6 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    al_init_primitives_addon();
@@ -48,7 +47,6 @@ int main(void)
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Error creating display\n");
-      return 1;
    }
 
    al_hide_mouse_cursor(display);
@@ -56,7 +54,6 @@ int main(void)
    cursor = al_load_bitmap("data/cursor.tga");
    if (!cursor) {
       abort_example("Error loading cursor.tga\n");
-      return 1;
    }
 
    do {

@@ -442,7 +442,7 @@ int main(int argc, char *argv[])
    ALLEGRO_DISPLAY *display;
 
    if (!al_init()) {
-      return 1;
+      abort_example("Could not init Allegro.\n");
    }
    al_install_keyboard();
    al_install_mouse();
@@ -450,7 +450,7 @@ int main(int argc, char *argv[])
    al_set_new_display_flags(ALLEGRO_OPENGL | ALLEGRO_RESIZABLE);
    display = al_create_display(WIDTH, HEIGHT);
    if (!display) {
-      return 1;
+      abort_example("Error creating display\n");
    }
    al_set_window_title(display, "My window");
 

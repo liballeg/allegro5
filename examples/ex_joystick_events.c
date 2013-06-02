@@ -184,14 +184,12 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
    al_init_primitives_addon();
 
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("al_create_display failed\n");
-      return 1;
    }
 
    al_install_keyboard();
@@ -205,7 +203,6 @@ int main(void)
    event_queue = al_create_event_queue();
    if (!event_queue) {
       abort_example("al_create_event_queue failed\n");
-      return 1;
    }
 
    if (al_get_keyboard_event_source()) {
