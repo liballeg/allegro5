@@ -137,6 +137,9 @@ int main(int argc, const char **argv)
    al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
    
    d = al_create_display(320, 256);
+   if (!d) {
+      abort_example("Error creating display\n");
+   }
       
    al_set_window_title(d, "SPACE to record. P to playback.");
    

@@ -249,12 +249,12 @@ int main(void)
    al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS,
                              ALLEGRO_DISPLAY_ORIENTATION_ALL, ALLEGRO_SUGGEST);
    example.display = al_create_display(w, h);
-   w = al_get_display_width(example.display);
-   h = al_get_display_height(example.display);
-
    if (!example.display) {
       abort_example("Error creating display.\n");
    }
+
+   w = al_get_display_width(example.display);
+   h = al_get_display_height(example.display);
 
    if (!al_install_keyboard()) {
       abort_example("Error installing keyboard.\n");

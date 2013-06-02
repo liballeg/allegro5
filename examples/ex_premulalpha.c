@@ -27,6 +27,9 @@ int main(void)
    al_install_keyboard();
 
    display = al_create_display(640, 480);
+   if (!display) {
+      abort_example("Error creating display\n");
+   }
 
    font = al_load_font("data/fixed_font.tga", 0, 0);
 

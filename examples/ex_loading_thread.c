@@ -96,6 +96,9 @@ int main(void)
    log_printf("\n");
 
    display = al_create_display(64, 64);
+   if (!display) {
+      abort_example("Error creating display\n");
+   }
    
    spin2 = al_load_bitmap("data/cursor.tga");
    log_printf("video bitmap with display: %p\n", spin2);

@@ -196,6 +196,9 @@ int main(void)
 
    al_set_new_display_flags(ALLEGRO_RESIZABLE);
    display = al_create_display(640, 360);
+   if (!display) {
+      abort_example("Error creating display\n");
+   }
 
    al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR |
       ALLEGRO_MIPMAP);
