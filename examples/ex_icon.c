@@ -22,6 +22,8 @@ int main(void)
    if (!display) {
       abort_example("Error creating display\n");
    }
+   al_clear_to_color(al_map_rgb_f(0, 0, 0));
+   al_flip_display();
 
    /* First icon: Read from file. */
    icon1 = al_load_bitmap("data/icon.tga");

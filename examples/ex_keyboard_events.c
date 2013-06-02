@@ -116,6 +116,8 @@ int main(void)
    if (!display) {
       abort_example("al_create_display failed\n");
    }
+   al_clear_to_color(al_map_rgb_f(0, 0, 0));
+   al_flip_display();
 
    if (!al_install_keyboard()) {
       abort_example("al_install_keyboard failed\n");
