@@ -275,6 +275,7 @@ int main(int argc, char * argv[])
 
 done:
    myexit();
+   al_destroy_display(display);
    close_log(true);
    return 0;
 }
