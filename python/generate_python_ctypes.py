@@ -236,13 +236,19 @@ class Allegro:
                     if "=" in field:
                         fname, val = field.split("=", 1)
                         fname = fname.strip()
-                        i = int(eval(val, globals(), self.constants))
+                        try:
+                            i = int(eval(val, globals(), self.constants))
+                        except NameError:
+                            i = val
                     else:
                         fname = field.strip()
                     if not fname:
                         continue
                     self.constants[fname] = i
-                    i += 1
+                    try:
+                        i += 1
+                    except TypeError:
+                        pass
                 continue
 
             balance = 0
@@ -423,6 +429,8 @@ else:
 """ % locals())
 
     for name, val in sorted(al.constants.items()):
+        if isinstance(val, str):
+            val = int(eval(val, globals(), al.constants))
         f.write(name + " = " + str(val) + "\n")
 
     for name, x in sorted(al.types.items()):
