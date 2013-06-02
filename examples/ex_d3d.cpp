@@ -112,6 +112,7 @@ int main(int argc, char *argv[])
 
    double elapsed = al_get_time() - start_secs;
    log_printf("%g fps\n", frames/elapsed);
+   al_destroy_display(display);
    close_log(true);
 
    return 0;
