@@ -61,7 +61,9 @@ int main(int argc, char *argv[])
    (void) argc;
    (void) argv;
    
-   al_init();
+   if (!al_init()) {
+      abort_example("Could not init Allegro.\n");
+   }
    
    if (!al_install_audio()) {
       abort_example("Unable to initialize audio addon\n");

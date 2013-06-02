@@ -65,7 +65,9 @@ int main(int argc, char **argv)
 
    parse_args(argc, argv);
 
-   al_init();
+   if (!al_init()) {
+      abort_example("Could not init Allegro.\n");
+   }
    al_install_keyboard();
    al_init_image_addon();
 

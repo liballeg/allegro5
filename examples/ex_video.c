@@ -83,7 +83,9 @@ int main(int argc, char *argv[])
    bool fullscreen = false;
    bool redraw = true;
 
-   al_init();
+   if (!al_init()) {
+      abort_example("Could not init Allegro.\n");
+   }
 
    open_log();
 

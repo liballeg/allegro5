@@ -186,7 +186,9 @@ int main(void)
    ALLEGRO_EVENT_QUEUE *queue;
    int redraw = 0;
 
-   al_init();
+   if (!al_init()) {
+      abort_example("Could not init Allegro.\n");
+   }
    al_init_image_addon();
    al_init_font_addon();
    al_init_ttf_addon();

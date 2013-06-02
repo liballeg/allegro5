@@ -17,7 +17,9 @@ int main(void)
    unsigned char *p;
    int x, y;
 
-   al_init();
+   if (!al_init()) {
+      abort_example("Could not init Allegro.\n");
+   }
    al_init_image_addon();
    al_init_font_addon();
 

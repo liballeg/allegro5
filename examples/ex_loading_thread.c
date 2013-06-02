@@ -72,7 +72,9 @@ int main(void)
    int current_bitmap = 0, loaded_bitmap = 0;
    ALLEGRO_THREAD *thread;
 
-   al_init();
+   if (!al_init()) {
+      abort_example("Could not init Allegro.\n");
+   }
    al_init_image_addon();
    al_init_font_addon();
    al_init_primitives_addon();

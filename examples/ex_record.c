@@ -88,7 +88,9 @@ int main(int argc, const char **argv)
    (void) argc;
    (void) argv;
 
-   al_init();   
+   if (!al_init()) {
+      abort_example("Could not init Allegro.\n");
+   }
    
    if (!al_init_primitives_addon()) {
       abort_example("Unable to initialize primitives addon");
