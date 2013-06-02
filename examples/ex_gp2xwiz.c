@@ -11,11 +11,14 @@ const int POINTS = 200;
 int main(void)
 {
 	if (!al_init()) {
-      abort_example("Could not init Allegro.\n");
+		abort_example("Could not init Allegro.\n");
 	}
 	al_init_primitives_addon();
 
 	ALLEGRO_DISPLAY *d = al_create_display(W, H);
+	if (!d) {
+		abort_example("Error creating display\n");
+	}
 
 	ALLEGRO_VERTEX v[POINTS];
 	ALLEGRO_COLOR c;

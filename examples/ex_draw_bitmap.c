@@ -249,7 +249,6 @@ int main(void)
    if (info.y2 - info.y1 < h)
       h = info.y2 - info.y1;
    example.display = al_create_display(w, h);
-
    if (!example.display) {
       abort_example("Error creating display.\n");
    }

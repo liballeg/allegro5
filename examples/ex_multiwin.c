@@ -33,12 +33,18 @@ int main(void)
 
    /* Create two windows. */
    display[0] = al_create_display(W, H);
+   if (!display[0]) {
+      abort_example("Error creating display\n");
+   }
    pictures[0] = al_load_bitmap("data/mysha.pcx");
    if (!pictures[0]) {
       abort_example("failed to load mysha.pcx\n");
    }
 
    display[1] = al_create_display(W, H);
+   if (!display[1]) {
+      abort_example("Error creating display\n");
+   }
    pictures[1] = al_load_bitmap("data/allegro.pcx");
    if (!pictures[1]) {
       abort_example("failed to load allegro.pcx\n");
