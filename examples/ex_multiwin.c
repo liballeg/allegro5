@@ -19,8 +19,9 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
+
+   open_log();
 
    al_install_keyboard();
    al_install_mouse();
@@ -35,14 +36,12 @@ int main(void)
    pictures[0] = al_load_bitmap("data/mysha.pcx");
    if (!pictures[0]) {
       abort_example("failed to load mysha.pcx\n");
-      return 1;
    }
 
    display[1] = al_create_display(W, H);
    pictures[1] = al_load_bitmap("data/allegro.pcx");
    if (!pictures[1]) {
       abort_example("failed to load allegro.pcx\n");
-      return 1;
    }
 
    /* This is only needed since we want to receive resize events. */
@@ -65,10 +64,10 @@ int main(void)
             al_acknowledge_resize(de->source);
          }
          if (event.type == ALLEGRO_EVENT_DISPLAY_SWITCH_IN) {
-            printf("%p switching in\n", event.display.source);
+            log_printf("%p switching in\n", event.display.source);
          }
          if (event.type == ALLEGRO_EVENT_DISPLAY_SWITCH_OUT) {
-            printf("%p switching out\n", event.display.source);
+            log_printf("%p switching out\n", event.display.source);
          }
          if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
             int i;
@@ -118,6 +117,10 @@ int main(void)
 done:
    al_destroy_bitmap(pictures[0]);
    al_destroy_bitmap(pictures[1]);
+   al_destroy_display(display[0]);
+   al_destroy_display(display[1]);
+
+   close_log(true);
 
    return 0;
 }

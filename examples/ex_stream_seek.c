@@ -27,62 +27,54 @@ int mouse_button[16] = {0};
 
 bool exiting = false;
 
-static int initialize(void)
+static void initialize(void)
 {
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
    }
 
+   open_log();
+
    al_init_primitives_addon();
    al_init_image_addon();
    al_init_font_addon();
    if (!al_install_keyboard()) {
-      printf("Could not init keyboard!\n");
-      return 0;
+      abort_example("Could not init keyboard!\n");
    }
    if (!al_install_mouse()) {
-      printf("Could not init mouse!\n");
-      return 0;
+      abort_example("Could not init mouse!\n");
    }
    
    al_init_acodec_addon();
 
    if (!al_install_audio()) {
-      printf("Could not init sound!\n");
-      return 0;
+      abort_example("Could not init sound!\n");
    }
    if (!al_reserve_samples(16)) {
-      printf("Could not set up voice and mixer.\n");
-      return 0;
+      abort_example("Could not set up voice and mixer.\n");
    }
 
    display = al_create_display(640, 228);
    if (!display) {
-      printf("Could not create display!\n");
-      return 0;
+      abort_example("Could not create display!\n");
    }
    
    basic_font = al_load_font("data/font.tga", 0, 0);
    if (!basic_font) {
-      printf("Could not load font!\n");
-      return 0;
+      abort_example("Could not load font!\n");
    }
    timer = al_create_timer(1.000 / 30);
    if (!timer) {
-      printf("Could not init timer!\n");
-      return 0;
+      abort_example("Could not init timer!\n");
    }
    queue = al_create_event_queue();
    if (!queue) {
-      printf("Could not create event queue!\n");
-      return 0;
+      abort_example("Could not create event queue!\n");
    }
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_mouse_event_source());
    al_register_event_source(queue, al_get_display_event_source(display));
    al_register_event_source(queue, al_get_timer_event_source(timer));
-
-   return 1;
 }
 
 static void logic(void)
@@ -192,7 +184,7 @@ static void event_handler(const ALLEGRO_EVENT * event)
             double pos = al_get_audio_stream_position_secs(music_stream);
             pos += 5.0;
             if (!al_seek_audio_stream_secs(music_stream, pos))
-               printf("seek error!\n");
+               log_printf("seek error!\n");
          }
          else if (event->keyboard.keycode == ALLEGRO_KEY_SPACE) {
             bool playing;
@@ -236,13 +228,12 @@ int main(int argc, char * argv[])
    unsigned samples;
    const char *s;
 
-   if (argc < 2) {
-      printf("Usage: ex_stream_seek <filename>\n");
-      return -1;
-   }
+   initialize();
 
-   if (!initialize())
-      return 1;
+   if (argc < 2) {
+      log_printf("This example needs to be run from the command line.\nUsage: %s {audio_files}\n", argv[0]);
+      goto done;
+   }
 
    buffer_count = 0;
    samples = 0;
@@ -266,8 +257,7 @@ int main(int argc, char * argv[])
    stream_filename = argv[1];
    music_stream = al_load_audio_stream(stream_filename, buffer_count, samples);
    if (!music_stream) {
-      printf("Stream error!\n");
-      return 1;
+      abort_example("Stream error!\n");
    }
 
    loop_start = 0.0;
@@ -283,7 +273,9 @@ int main(int argc, char * argv[])
       event_handler(&event);
    }
 
+done:
    myexit();
+   close_log(true);
    return 0;
 }
 

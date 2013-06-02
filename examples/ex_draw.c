@@ -261,8 +261,7 @@ static void init(void)
 
    ex.font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!ex.font) {
-      printf("data/fixed_font.tga not found.\n");
-      exit(1);
+      abort_example("data/fixed_font.tga not found.\n");
    }
    ex.background = al_color_name("beige");
    ex.foreground = al_color_name("black");
@@ -283,8 +282,7 @@ int main(void)
    char str[256];
 
    if (!al_init()) {
-      printf("Could not init Allegro.\n");
-      return 1;
+      abort_example("Could not init Allegro.\n");
    }
    
    al_init_primitives_addon();
@@ -312,8 +310,7 @@ int main(void)
    }
    display = al_create_display(640, 640);
    if (!display) {
-      printf("Error creating display.\n");
-      return 1;
+      abort_example("Unable to create display.\n");
    }
 
    init();

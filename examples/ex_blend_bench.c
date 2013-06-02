@@ -116,6 +116,7 @@ static bool do_test(enum Mode mode)
    log_printf("Time = %g s, %d steps\n",
       t1 - t0, REPEAT);
    log_printf("%s: %g FPS\n", names[mode], REPEAT / (t1 - t0));
+   log_printf("Done\n");
    
    al_destroy_bitmap(b1);
    al_destroy_bitmap(b2);
@@ -143,8 +144,9 @@ int main(int argc, const char *argv[])
       }
    }
 
-   if (!al_init())
-      return 1;
+   if (!al_init()) {
+      abort_example("Could not init Allegro\n");
+   }
 
    open_log();
 
@@ -154,7 +156,6 @@ int main(int argc, const char *argv[])
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Error creating display\n");
-      return 1;
    }
    
    if (mode == ALL) {

@@ -25,7 +25,6 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    al_install_mouse();
@@ -54,14 +53,12 @@ int main(void)
 
    if (!displays[0] || !displays[1]) {
       abort_example("Could not create displays.\n");
-      return 1;
    }
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    myfont = al_load_font("data/fixed_font.tga", 0, 0);
    if (!myfont) {
       abort_example("Could not load font.\n");
-      return 1;
    }
 
    events = al_create_event_queue();

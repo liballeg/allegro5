@@ -158,7 +158,6 @@ int main(int argc, char *argv[])
 
    if (!al_init()) {
       abort_example("Could not init Allegro\n");
-      return 1;
    }
    al_init_primitives_addon();
    al_install_keyboard();
@@ -171,12 +170,10 @@ int main(int argc, char *argv[])
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Unable to create display\n");
-      return 1;
    }
    font = al_load_font("data/DejaVuSans.ttf", 12, 0);
    if (!font) {
       abort_example("Failed to load data/DejaVuSans.ttf\n");
-      return 1;
    }
 
    Theme theme(font);

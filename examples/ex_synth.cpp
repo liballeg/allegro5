@@ -309,7 +309,7 @@ public:
 void SaveButton::on_click(int, int)
 {
    if (saving) {
-      printf("Stopped saving waveform.\n");
+      log_printf("Stopped saving waveform.\n");
       saving = false;
       return;
    }
@@ -317,7 +317,7 @@ void SaveButton::on_click(int, int)
       save_fp = al_fopen("ex_synth.raw", "wb");
    }
    if (save_fp) {
-      printf("Started saving waveform.\n");
+      log_printf("Started saving waveform.\n");
       saving = true;
    }
 }
@@ -427,7 +427,7 @@ void Prog::handle_event(const ALLEGRO_EVENT & event)
       }
 
       if (!al_set_audio_stream_fragment(stream, buf)) {
-         fprintf(stderr, "Error setting stream fragment.\n");
+         log_printf("Error setting stream fragment.\n");
       }
    }
 }
@@ -440,9 +440,11 @@ int main(int argc, char *argv[])
    (void)argv;
 
    if (!al_init()) {
-      fprintf(stderr, "Could not init Allegro.\n");
-      return 1;
+      abort_example("Could not init Allegro.\n");
    }
+
+   open_log();
+
    al_install_keyboard();
    al_install_mouse();
 
@@ -454,24 +456,20 @@ int main(int argc, char *argv[])
    display = al_create_display(800, 600);
    if (!display) {
       abort_example("Unable to create display\n");
-      return 1;
    }
    al_set_window_title(display, "Synthesiser of sorts");
 
    font_gui = al_load_ttf_font("data/DejaVuSans.ttf", 12, 0);
    if (!font_gui) {
       abort_example("Failed to load data/fixed_font.tga\n");
-      return 1;
    }
 
    if (!al_install_audio()) {
       abort_example("Could not init sound!\n");
-      return 1;
    }
 
    if (!al_reserve_samples(0)) {
       abort_example("Could not set up voice and mixer.\n");
-      return 1;
    }
 
    size_t buffers = 8;
@@ -487,7 +485,6 @@ int main(int argc, char *argv[])
    stream5 = al_create_audio_stream(buffers, samples, freq, depth, ch);
    if (!stream1 || !stream2 || !stream3 || !stream4 || !stream5) {
       abort_example("Could not create stream.\n");
-      return 1;
    }
 
    ALLEGRO_MIXER *mixer = al_get_default_mixer();
@@ -499,7 +496,6 @@ int main(int argc, char *argv[])
       !al_attach_audio_stream_to_mixer(stream5, mixer)
    ) {
       abort_example("Could not attach stream to mixer.\n");
-      return 1;
    }
 
    al_set_mixer_postprocess_callback(mixer, mixer_pp_callback, mixer);
@@ -521,6 +517,8 @@ int main(int argc, char *argv[])
    al_destroy_font(font_gui);
 
    al_fclose(save_fp);
+
+   close_log(false);
 
    return 0;
 }

@@ -40,7 +40,11 @@ int main(int argc, const char *argv[])
 
    (void) argc, (void) argv;
 
-   al_init();
+   if (!al_init()) {
+      abort_example("Could not init Allegro.\n");
+   }
+
+   open_log();
 
    master = al_make_temp_file("ex_file_slice_XXXX", &tmp_path);
    if (!master) {
@@ -65,7 +69,7 @@ int main(int argc, const char *argv[])
             is constrained to the string object, we'll read the entire slice. */
          al_fread(slice, buffer, al_fsize(slice));
          buffer[al_fsize(slice)] = 0;
-         printf("Chunk of size %d: '%s'\n", (int) al_fsize(slice), buffer);
+         log_printf("Chunk of size %d: '%s'\n", (int) al_fsize(slice), buffer);
       }
 
       /* The slice must be closed before the next slice is opened. Closing
@@ -76,6 +80,8 @@ int main(int argc, const char *argv[])
    al_fclose(master);
 
    al_remove_filename(al_path_cstr(tmp_path, '/'));
+
+   close_log(true);
 
    return 0;
 }

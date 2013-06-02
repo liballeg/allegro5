@@ -86,7 +86,6 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    al_install_keyboard();
@@ -96,18 +95,15 @@ int main(void)
    display = al_create_display(640, 400);
    if (!display) {
       abort_example("Error creating display\n");
-      return 1;
    }
 
    accelfont = al_load_font("data/font.tga", 0, 0);
    if (!accelfont) {
       abort_example("font.tga not found\n");
-      return 1;
    }
    accelbmp = al_load_bitmap("data/mysha.pcx");
    if (!accelbmp) {
       abort_example("mysha.pcx not found\n");
-      return 1;
    }
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);

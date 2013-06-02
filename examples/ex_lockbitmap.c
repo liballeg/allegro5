@@ -23,7 +23,6 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    al_install_keyboard();
@@ -34,7 +33,6 @@ int main(void)
    display = al_create_display(3*256, 256);
    if (!display) {
       abort_example("Error creating display\n");
-      return 1;
    }
 
    events = al_create_event_queue();

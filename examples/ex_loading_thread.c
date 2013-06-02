@@ -6,6 +6,8 @@
 #include "allegro5/allegro_font.h"
 #include "allegro5/allegro_primitives.h"
 
+#include "common.c"
+
 int load_count, load_total = 100;
 ALLEGRO_BITMAP *bitmaps[100];
 
@@ -55,7 +57,7 @@ static void print_bitmap_flags(ALLEGRO_BITMAP *bitmap)
    al_ustr_trim_ws(ustr);
    al_ustr_find_replace_cstr(ustr, 0, " ", " | ");
    
-   printf("%s", al_cstr(ustr));
+   log_printf("%s", al_cstr(ustr));
    al_ustr_free(ustr);
 }
 
@@ -75,52 +77,54 @@ int main(void)
    al_init_font_addon();
    al_init_primitives_addon();
 
+   open_log();
+
    al_install_mouse();
    al_install_keyboard();
 
    spin = al_load_bitmap("data/cursor.tga");
-   printf("default bitmap without display: %p\n", spin);
+   log_printf("default bitmap without display: %p\n", spin);
 
    al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
    spin2 = al_load_bitmap("data/cursor.tga");
-   printf("video bitmap without display: %p\n", spin2);
+   log_printf("video bitmap without display: %p\n", spin2);
    
-   printf("%p before create_display: ", spin);
+   log_printf("%p before create_display: ", spin);
    print_bitmap_flags(spin);
-   printf("\n");
+   log_printf("\n");
 
    display = al_create_display(64, 64);
    
    spin2 = al_load_bitmap("data/cursor.tga");
-   printf("video bitmap with display: %p\n", spin2);
+   log_printf("video bitmap with display: %p\n", spin2);
    
-   printf("%p after create_display: ", spin);
+   log_printf("%p after create_display: ", spin);
    print_bitmap_flags(spin);
-   printf("\n");
+   log_printf("\n");
    
-   printf("%p after create_display: ", spin2);
+   log_printf("%p after create_display: ", spin2);
    print_bitmap_flags(spin2);
-   printf("\n");
+   log_printf("\n");
 
    al_destroy_display(display);
    
-   printf("%p after destroy_display: ", spin);
+   log_printf("%p after destroy_display: ", spin);
    print_bitmap_flags(spin);
-   printf("\n");
+   log_printf("\n");
    
-   printf("%p after destroy_display: ", spin2);
+   log_printf("%p after destroy_display: ", spin2);
    print_bitmap_flags(spin2);
-   printf("\n");
+   log_printf("\n");
 
    display = al_create_display(640, 480);
    
-   printf("%p after create_display: ", spin);
+   log_printf("%p after create_display: ", spin);
    print_bitmap_flags(spin);
-   printf("\n");
+   log_printf("\n");
    
-   printf("%p after create_display: ", spin2);
+   log_printf("%p after create_display: ", spin2);
    print_bitmap_flags(spin2);
-   printf("\n");
+   log_printf("\n");
 
    font = al_load_font("data/fixed_font.tga", 0, 0);
 
@@ -192,6 +196,9 @@ int main(void)
 
    al_join_thread(thread, NULL);
    al_destroy_font(font); 
+   al_destroy_display(display);
+
+   close_log(true);
 
    return 0;
 }

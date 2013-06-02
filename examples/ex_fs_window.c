@@ -81,7 +81,6 @@ int main(void)
 {
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    al_init_primitives_addon();
@@ -93,7 +92,6 @@ int main(void)
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Error creating display\n");
-      return 1;
    }
 
    queue = al_create_event_queue();
@@ -103,13 +101,11 @@ int main(void)
    picture = al_load_bitmap("data/mysha.pcx");
    if (!picture) {
       abort_example("mysha.pcx not found\n");
-      return 1;
    }
    
    font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!font) {
       abort_example("data/fixed_font.tga not found.\n");
-      return 1;
    }
 
    redraw();

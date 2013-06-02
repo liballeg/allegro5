@@ -24,7 +24,6 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    al_install_keyboard();
@@ -36,19 +35,16 @@ int main(void)
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Unable to set any graphic mode\n");
-      return 1;
    }
 
    bmp = al_load_bitmap("data/mysha.pcx");
    if (!bmp) {
       abort_example("Unable to load image\n");
-      return 1;
    }
 
    f = al_load_font("data/a4_font.tga", 0, 0);
    if (!f) {
       abort_example("Failed to load a4_font.tga\n");
-      return 1;
    }
 
    min_w = 640;
@@ -64,7 +60,6 @@ int main(void)
           constr_max_w ? max_w : 0,
           constr_max_h ? max_h : 0)) {
       abort_example("Unable to set window constraints.\n");
-      return 1;
    }
 
    queue = al_create_event_queue();
@@ -89,7 +84,6 @@ int main(void)
                &ret_max_w, &ret_max_h))
          {
             abort_example("Unable to get window constraints\n");
-            return 1;
          }
 
          al_draw_textf(f, al_map_rgb(255, 255, 255), 0,
@@ -138,7 +132,6 @@ int main(void)
                constr_max_w ? max_w : 0,
                constr_max_h ? max_h : 0)) {
             abort_example("Unable to set window constraints.\n");
-            return 1;
          }
       }
       if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {

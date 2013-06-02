@@ -31,19 +31,16 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Error initialising Allegro.\n");
-      return 1;
    }
 
    if (!al_install_keyboard()) {
       abort_example("Error installing keyboard.\n");
-      return 1;
    }
 
    display1 = al_create_display(300, 300);
    display2 = al_create_display(300, 300);
    if (!display1 || !display2) {
       abort_example("Error creating displays.\n");
-      return 1;
    }
 
    black = al_map_rgb(0, 0, 0);

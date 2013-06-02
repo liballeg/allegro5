@@ -21,7 +21,6 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
    al_install_keyboard();
    al_init_image_addon();
@@ -31,14 +30,12 @@ int main(void)
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Unable to set any graphic mode\n");
-      return 1;
    }
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    bmp = al_load_bitmap("data/mysha.pcx");
    if (!bmp) {
       abort_example("Unable to load image\n");
-      return 1;
    }
 
    queue = al_create_event_queue();

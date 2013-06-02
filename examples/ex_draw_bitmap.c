@@ -231,12 +231,10 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Failed to init Allegro.\n");
-      return 1;
    }
 
    if (!al_init_image_addon()) {
       abort_example("Failed to init IIO addon.\n");
-      return 1;
    }
 
    al_init_font_addon();
@@ -256,29 +254,24 @@ int main(void)
 
    if (!example.display) {
       abort_example("Error creating display.\n");
-      return 1;
    }
 
    if (!al_install_keyboard()) {
       abort_example("Error installing keyboard.\n");
-      return 1;
    }
   
    if (!al_install_mouse()) {
-        abort_example("Error installing mouse.\n");
-        return 1;
+      abort_example("Error installing mouse.\n");
    }
 
    example.font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!example.font) {
       abort_example("Error loading data/fixed_font.tga\n");
-      return 1;
    }
 
    example.mysha = al_load_bitmap("data/mysha256x256.png");
    if (!example.mysha) {
       abort_example("Error loading data/mysha256x256.png\n");
-      return 1;
    }
 
    example.white = al_map_rgb_f(1, 1, 1);

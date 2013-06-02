@@ -35,7 +35,6 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    al_install_keyboard();
@@ -54,26 +53,22 @@ int main(void)
    dpy = al_create_display(display_w, display_h);
    if (!dpy) {
       abort_example("Unable to set any graphic mode\n");
-      return 1;
    }
 
    buf = al_create_bitmap(display_w, display_h);
    if (!buf) {
       abort_example("Unable to create buffer\n\n");
-      return 1;
    }
 
    bmp = al_load_bitmap("data/mysha.pcx");
    if (!bmp) {
       abort_example("Unable to load image\n");
-      return 1;
    }
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    mem_bmp = al_load_bitmap("data/mysha.pcx");
    if (!mem_bmp) {
       abort_example("Unable to load image\n");
-      return 1;
    }
 
    bmp_w = al_get_bitmap_width(bmp);
@@ -103,8 +98,8 @@ int main(void)
                else
                   log_printf("Source is display bitmap\n");
             }
-	    if (event.keyboard.unichar == 't')
-		trans_mode = !trans_mode;
+            if (event.keyboard.unichar == 't')
+               trans_mode = !trans_mode;
             if (event.keyboard.unichar == 'h')
                flags ^= ALLEGRO_FLIP_HORIZONTAL;
             if (event.keyboard.unichar == 'v')

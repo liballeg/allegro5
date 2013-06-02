@@ -76,8 +76,7 @@ int main(void)
    bool quit;
 
    if (!al_init()) {
-      printf("Could not init Allegro.\n");
-      return 1;
+      abort_example("Could not init Allegro.\n");
    }
 
    al_init_font_addon();
@@ -121,14 +120,12 @@ int main(void)
 
    display = al_create_display(640, 480);
    if (!display) {
-      printf("Error creating display.\n");
-      return 1;
+      abort_example("Error creating display.\n");
    }
 
    font = al_load_font("data/a4_font.tga", 0, 0);
    if (!font) {
       abort_example("Failed to load a4_font.tga\n");
-      return 1;
    }
 
    queue = al_create_event_queue();

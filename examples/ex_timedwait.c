@@ -21,7 +21,6 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    al_install_keyboard();
@@ -29,7 +28,6 @@ int main(void)
    dpy = al_create_display(640, 480);
    if (!dpy) {
       abort_example("Unable to set any graphic mode\n");
-      return 1;
    }
 
    queue = al_create_event_queue();

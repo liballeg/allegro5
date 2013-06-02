@@ -118,19 +118,16 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Failed to init Allegro.\n");
-      return 1;
    }
 
    if (!al_init_image_addon()) {
       abort_example("Failed to init IIO addon.\n");
-      return 1;
    }
 
    al_init_font_addon();
 
    if (!al_init_ttf_addon()) {
       abort_example("Failed to init TTF addon.\n");
-      return 1;
    }
 
    al_get_num_video_adapters();
@@ -150,36 +147,30 @@ int main(void)
    example.display = al_create_display(w, h);
    if (!example.display) {
       abort_example("Error creating display.\n");
-      return 1;
    }
 
    if (!al_install_keyboard()) {
       abort_example("Error installing keyboard.\n");
-      return 1;
    }
 
    example.font = al_load_font("data/DejaVuSans.ttf", 40, 0);
    if (!example.font) {
       abort_example("Error loading data/DejaVuSans.ttf\n");
-      return 1;
    }
 
    example.font2 = al_load_font("data/DejaVuSans.ttf", 12, 0);
    if (!example.font2) {
       abort_example("Error loading data/DejaVuSans.ttf\n");
-      return 1;
    }
 
    example.mysha = al_load_bitmap("data/mysha.pcx");
    if (!example.mysha) {
       abort_example("Error loading data/mysha.pcx\n");
-      return 1;
    }
 
    example.obp = al_load_bitmap("data/obp.jpg");
    if (!example.obp) {
       abort_example("Error loading data/obp.jpg\n");
-      return 1;
    }
 
    init();

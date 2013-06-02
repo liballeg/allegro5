@@ -23,7 +23,6 @@ int main(int argc, char **argv)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    al_install_keyboard();
@@ -36,13 +35,11 @@ int main(int argc, char **argv)
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Could not create display.\n");
-      return 1;
    }
 
    font = al_load_font("data/font.tga", 0, 0);
    if (!font) {
       abort_example("Error loading font\n");
-      return 1;
    }
 
    events = al_create_event_queue();

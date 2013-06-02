@@ -62,7 +62,7 @@ int main(void)
    int i;
 
    if (!al_init()) {
-      return 1;
+      abort_example("Could not init Allegro.\n");
    }
    al_install_keyboard();
    al_init_image_addon();

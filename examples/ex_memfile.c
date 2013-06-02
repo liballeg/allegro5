@@ -26,38 +26,40 @@ int main(void)
       abort_example("Could not init Allegro.\n");
    }
 
+   open_log();
+
    data = calloc(1, data_size);
    if (!data)
-      return 1;
+      abort_example("Out of memory.\n");
    
-   printf("Creating memfile\n");
+   log_printf("Creating memfile\n");
    memfile = al_open_memfile(data, data_size, "rw");
    if (!memfile) {
-      printf("Error opening memfile :(\n");
+      log_printf("Error opening memfile :(\n");
       goto Error;
    }
 
-   printf("Writing data to memfile\n");
+   log_printf("Writing data to memfile\n");
    for (i = 0; i < data_size/4; i++) {
       if (al_fwrite32le(memfile, i) < 4) {
-         printf("Failed to write %i to memfile\n", i);
+         log_printf("Failed to write %i to memfile\n", i);
          goto Error;
       }
    }
 
    al_fseek(memfile, 0, ALLEGRO_SEEK_SET);
 
-   printf("Reading and testing data from memfile\n");
+   log_printf("Reading and testing data from memfile\n");
    for (i = 0; i < data_size/4; i++) {
       int32_t ret = al_fread32le(memfile);
       if (ret != i || al_feof(memfile)) {
-         printf("Item %i failed to verify, got %i\n", i, ret);
+         log_printf("Item %i failed to verify, got %i\n", i, ret);
          goto Error;
       }
    }
 
    if (al_feof(memfile)) {
-      printf("EOF indicator prematurely set!\n");
+      log_printf("EOF indicator prematurely set!\n");
       goto Error;
    }
    
@@ -65,24 +67,24 @@ int main(void)
    al_fseek(memfile, 0, ALLEGRO_SEEK_SET);
    
    for (i = 0; al_fungetc(memfile, i) != EOF; ++i) { }
-   printf("Length of ungetc buffer: %d\n", i);
+   log_printf("Length of ungetc buffer: %d\n", i);
    
    if (al_ftell(memfile) != -i) {
-      printf("Current position is not correct. Expected -%d, but got %d\n",
+      log_printf("Current position is not correct. Expected -%d, but got %d\n",
          i, (int) al_ftell(memfile));
       goto Error;
    }
    
    while (i--) {
       if (i != al_fgetc(memfile)) {
-         printf("Failed to verify ungetc data.\n");
+         log_printf("Failed to verify ungetc data.\n");
          goto Error;
       }
    }
    
    if (al_ftell(memfile) != 0) {
-      printf("Current position is not correct after reading back the ungetc buffer\n");
-      printf("Expected 0, but got %d\n", (int) al_ftell(memfile));
+      log_printf("Current position is not correct after reading back the ungetc buffer\n");
+      log_printf("Expected 0, but got %d\n", (int) al_ftell(memfile));
       goto Error;
    }
    
@@ -92,21 +94,26 @@ int main(void)
    al_fungetc(memfile, 'A');
    al_fgets(memfile, buffer, 15);
    if (strcmp(buffer, "Allegro rocks!")) {
-      printf("Expected to see 'Allegro rocks!' but got '%s' instead.\n", buffer);
-      printf("(Maybe the ungetc buffer isn't big enough.)\n");
+      log_printf("Expected to see 'Allegro rocks!' but got '%s' instead.\n", buffer);
+      log_printf("(Maybe the ungetc buffer isn't big enough.)\n");
       goto Error;
    }   
 
-   printf("Done.\n");
+   log_printf("Done.\n");
 
    al_fclose(memfile);
    free(data);
+
+   close_log(true);
+
    return 0;
 
 Error:
 
    al_fclose(memfile);
    free(data);
+
+   close_log(true);
    return 1;
 }
 /* vim: set sts=3 sw=3 et: */

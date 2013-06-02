@@ -95,7 +95,6 @@ int main(int argc, char *argv[])
 
    if (!al_init()) {
       abort_example("Could not init Allegro\n");
-      return 1;
    }
    al_init_primitives_addon();
    al_install_keyboard();
@@ -109,7 +108,6 @@ int main(int argc, char *argv[])
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Unable to create display\n");
-      return 1;
    }
 
    /* Test TTF fonts or bitmap fonts. */
@@ -117,20 +115,17 @@ int main(int argc, char *argv[])
    font = al_load_font("data/DejaVuSans.ttf", 24, 0);
    if (!font) {
       abort_example("Failed to load data/DejaVuSans.ttf\n");
-      return 1;
    }
 #else
    font = al_load_font("data/font.tga", 0, 0);
    if (!font) {
       abort_example("Failed to load data/font.tga\n");
-      return 1;
    }
 #endif
 
    font_gui = al_load_font("data/DejaVuSans.ttf", 14, 0);
    if (!font_gui) {
       abort_example("Failed to load data/DejaVuSans.ttf\n");
-      return 1;
    }
 
    /* Don't remove these braces. */

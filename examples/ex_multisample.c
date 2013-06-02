@@ -117,8 +117,7 @@ int main(void)
    int wx, wy;
 
    if (!al_init()) {
-      printf("Could not init Allegro.\n");
-      return 1;
+      abort_example("Couldn't initialise Allegro.\n");
    }
    al_init_primitives_addon();
 
@@ -132,8 +131,7 @@ int main(void)
    al_set_new_display_option(ALLEGRO_SAMPLES, 0, ALLEGRO_SUGGEST);
    display = al_create_display(300, 450);
    if (!display) {
-      printf("Could not create display.\n");
-      return 1;
+      abort_example("Error creating display\n");
    }
    al_set_window_title(display, "Normal");
 
@@ -154,8 +152,7 @@ int main(void)
    al_set_new_display_option(ALLEGRO_SAMPLES, 4, ALLEGRO_SUGGEST);
    ms_display = al_create_display(300, 450);
    if (!ms_display) {
-      printf("Multisampling not available.\n");
-      return 1;
+      abort_example("Multisampling not available.\n");
    }
    sprintf(title, "Multisampling (%dx)", al_get_display_option(
       ms_display, ALLEGRO_SAMPLES));

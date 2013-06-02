@@ -569,7 +569,6 @@ int main(int argc, char **argv)
       }
       else {
          abort_example("Invalid command line option: %s", argv[1]);
-         return 1;
       }
    }
 
@@ -589,25 +588,21 @@ int main(int argc, char **argv)
    display = al_create_display(ScreenW, ScreenH);
    if (!display) {
       abort_example("Error creating display.\n");
-      return 1;
    }
 
    // Install the keyboard handler
    if (!al_install_keyboard()) {
       abort_example("Error installing keyboard.\n");
-      return 1;
    }
 
    if (!al_install_mouse()) {
       abort_example("Error installing mouse.\n");
-      return 1;
    }
    
    // Load a font
    Font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!Font) {
       abort_example("Error loading \"data/fixed_font.tga\".\n");
-      return 1;
    }
    
    solid_white = al_map_rgba_f(1, 1, 1, 1);

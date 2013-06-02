@@ -204,7 +204,6 @@ int main(void)
    if (!display) {
       message("failure.\n");
       abort_example("Error creating display\n");
-      return 1;
    }
    message("success.\n");
 
@@ -213,7 +212,6 @@ int main(void)
    if (!font) {
       message("failure.\n");
       abort_example("Error loading data/fixed_font.tga\n");
-      return 1;
    }
    message("success.\n");
 

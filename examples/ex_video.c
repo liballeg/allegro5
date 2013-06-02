@@ -6,6 +6,8 @@
 
 #include <stdio.h>
 
+#include "common.c"
+
 static ALLEGRO_DISPLAY *screen;
 static ALLEGRO_FONT *font;
 static char const *filename;
@@ -81,12 +83,14 @@ int main(int argc, char *argv[])
    bool fullscreen = false;
    bool redraw = true;
 
-   if (argc < 2) {
-      fprintf(stderr, "Usage: test <file>\n");
-      exit(1);
-   }
-   
    al_init();
+
+   open_log();
+
+   if (argc < 2) {
+      log_printf("This example needs to be run from the command line.\nUsage: %s <file>\n", argv[0]);
+      goto done;
+   }
 
    al_init_font_addon();
    al_install_keyboard();
@@ -107,14 +111,12 @@ int main(int argc, char *argv[])
    al_set_new_display_option(ALLEGRO_VSYNC, 1, ALLEGRO_SUGGEST);
    screen = al_create_display(640, 480);
    if (!screen) {
-      fprintf(stderr, "Could not set video mode - exiting\n");
-      exit(1);
+      abort_example("Could not set video mode - exiting\n");
    }
    
    font = al_create_builtin_font();
    if (!font) {
-      fprintf(stderr, "No font.\n");
-      exit(1);
+      abort_example("No font.\n");
    }
 
    al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
@@ -122,12 +124,11 @@ int main(int argc, char *argv[])
    filename = argv[1];
    video = al_open_video(filename);
    if (!video) {
-      printf("Cannot read %s.\n", filename);
-      exit(1);
+      abort_example("Cannot read %s.\n", filename);
    }
-   printf("video FPS: %f\n", al_get_video_fps(video));
-   printf("video audio rate: %f\n", al_get_video_audio_rate(video));
-   printf(
+   log_printf("video FPS: %f\n", al_get_video_fps(video));
+   log_printf("video audio rate: %f\n", al_get_video_audio_rate(video));
+   log_printf(
       "keys:\n"
       "Space: Play/Pause\n"
       "cursor right/left: seek 10 seconds\n"
@@ -161,7 +162,7 @@ int main(int argc, char *argv[])
                   break;
                case ALLEGRO_KEY_ESCAPE:
                   al_close_video(video);
-                  exit(0);
+                  goto done;
                   break;
                case ALLEGRO_KEY_LEFT:
                   incr = -10.0;
@@ -215,7 +216,7 @@ int main(int argc, char *argv[])
 
          case ALLEGRO_EVENT_DISPLAY_CLOSE:
             al_close_video(video);
-            exit(0);
+            goto done;
             break;
 
          /*case ALLEGRO_EVENT_VIDEO_FRAME:
@@ -225,6 +226,9 @@ int main(int argc, char *argv[])
             break;
       }
    }
+done:
+   al_destroy_display(screen);
+   close_log(true);
    return 0;
 }
 

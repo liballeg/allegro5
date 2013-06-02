@@ -68,11 +68,9 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
    if (!al_install_joystick()) {
       abort_example("Could not init joysticks.\n");
-      return 1;
    }
    al_install_keyboard();
    al_init_primitives_addon();
@@ -82,7 +80,6 @@ int main(void)
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Could not create display.\n");
-      return 1;
    }
 
    queue = al_create_event_queue();

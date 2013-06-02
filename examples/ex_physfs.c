@@ -83,33 +83,34 @@ int main(int argc, const char *argv[])
    ALLEGRO_FS_ENTRY *entry;
    int i;
 
-   if (!al_init())
-      return 1;
+   if (!al_init()) {
+      abort_example("Could not init Allegro\n");
+   }
    al_init_image_addon();
    al_install_keyboard();
    open_log_monospace();
 
    /* Set up PhysicsFS. */
-   if (!PHYSFS_init(argv[0]))
-      return 1;
+   if (!PHYSFS_init(argv[0])) {
+      abort_example("Could not init PhysFS\n");
+   }
    // This creates a ~/.allegro directory, which is very annoying to say the
    // least - and no need for it in this example.
    //  if (!PHYSFS_setSaneConfig("allegro", "ex_physfs", NULL, 0, 0))
    //     return 1;
-   if (!PHYSFS_addToSearchPath("data/ex_physfs.zip", 1))
-      return 1;
+   if (!PHYSFS_addToSearchPath("data/ex_physfs.zip", 1)) {
+      abort_example("Could load the zip file\n");
+   }
 
    for (i = 1; i < argc; i++) {
       if (!PHYSFS_addToSearchPath(argv[i], 1)) {
          abort_example("Couldn't add %s\n", argv[i]);
-         return 1;
       }
    }
 
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Error creating display.\n");
-      return 1;
    }
 
    /* Make future calls to al_fopen() on this thread go to the PhysicsFS

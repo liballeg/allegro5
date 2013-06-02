@@ -34,24 +34,20 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Couldn't initialise Allegro.\n");
-      return 1;
    }
    if (!al_install_mouse()) {
       abort_example("Couldn't install mouse.\n");
-      return 1;
    }
    if (!al_install_keyboard()) {
       abort_example("Couldn't install keyboard.\n");
-      return 1;
    }
 
    display1 = al_create_display(300, 300);
    display2 = al_create_display(300, 300);
    if (!display1 || !display2) {
-      abort_example("Couldn't open displays.\n");
       al_destroy_display(display1);
       al_destroy_display(display2);
-      return 1;
+      abort_example("Couldn't open displays.\n");
    }
 
    open_log();

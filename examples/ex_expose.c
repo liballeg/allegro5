@@ -13,7 +13,6 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    al_init_primitives_addon();
@@ -27,13 +26,11 @@ int main(void)
    display = al_create_display(320, 200);
    if (!display) {
       abort_example("Error creating display\n");
-      return 1;
    }
 
    bitmap = al_load_bitmap("data/mysha.pcx");
    if (!bitmap) {
       abort_example("mysha.pcx not found or failed to load\n");
-      return 1;
    }
    al_draw_bitmap(bitmap, 0, 0, 0);
    al_flip_display();

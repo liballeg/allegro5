@@ -206,8 +206,9 @@ int main(int argc, const char *argv[])
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
+
+   open_log();
 
    al_set_new_display_flags(ALLEGRO_OPENGL);
    al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
@@ -215,14 +216,13 @@ int main(int argc, const char *argv[])
    d = al_create_display(WINDOW_W, WINDOW_H);
    if (!d) {
       abort_example("Unable to open a OpenGL display.\n");
-      return -1;
    }
 
    if (al_get_display_option(d, ALLEGRO_SAMPLE_BUFFERS)) {
-      printf("With multisampling, level %i\n", al_get_display_option(d, ALLEGRO_SAMPLES));
+      log_printf("With multisampling, level %i\n", al_get_display_option(d, ALLEGRO_SAMPLES));
    }
    else {
-      printf("Without multisampling.\n");
+      log_printf("Without multisampling.\n");
    }
 
    al_install_keyboard();
@@ -247,7 +247,6 @@ int main(int argc, const char *argv[])
    if (!al_get_opengl_extension_list()->ALLEGRO_GL_ARB_vertex_program) {
       abort_example("This example requires a video card that supports "
                      " the ARB_vertex_program extension.\n");
-      return -1;
    }
 
    glEnable(GL_DEPTH_TEST);
@@ -295,7 +294,6 @@ int main(int argc, const char *argv[])
       abort_example("Error compiling the vertex program:\n%s\n\nat "
             "character: %i\n%s\n", error_str, (int)error_pos,
             pgm + error_pos);
-      return -1;
    }
 
 
@@ -325,9 +323,11 @@ int main(int argc, const char *argv[])
    }
 
 done:
-   printf("%.1f FPS\n", frames / (al_get_time() - start));
+   log_printf("%.1f FPS\n", frames / (al_get_time() - start));
    glDeleteProgramsARB(1, &pid);
    al_destroy_event_queue(queue);
+   al_destroy_display(d);
+   close_log(true);
 
    return 0;
 }

@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "common.c"
+
 /* The following is a list of menu item ids. They can be any non-zero, positive
  * integer. A menu item must have an id in order for it to generate an event.
  * Also, each menu item's id should be unique to get well defined results. 
@@ -71,10 +73,12 @@ int main(void)
    ALLEGRO_MENU *pmenu;
    ALLEGRO_BITMAP *bg;
    
-   if (!al_init())
-      return 1;
-   if (!al_init_native_dialog_addon())
-      return 1;
+   if (!al_init()) {
+      abort_example("Could not init Allegro.\n");
+   }
+   if (!al_init_native_dialog_addon()) {
+      abort_example("Could not init the native dialog addon.\n");
+   }
    al_init_image_addon();
    al_install_keyboard();
    al_install_mouse();
@@ -88,13 +92,15 @@ int main(void)
    al_set_new_display_flags(ALLEGRO_RESIZABLE);
 #endif
    display = al_create_display(initial_width, initial_height);
-   if (!display)
-      return 1;
+   if (!display) {
+      abort_example("Error creating display\n");
+   }
    al_set_window_title(display, "ex_menu - Main Window");
    
    menu = al_build_menu(main_menu_info);
-   if (!menu)
-      return 1;
+   if (!menu) {
+      abort_example("Error creating menu\n");
+   }
    
    /* Add an icon to the Help/About item. Note that Allegro assumes ownership
     * of the bitmap. */

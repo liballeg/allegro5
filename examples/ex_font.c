@@ -53,7 +53,6 @@ int main(void)
 
     if (!al_init()) {
         abort_example("Could not init Allegro.\n");
-        return 1;
     }
 
     al_init_image_addon();
@@ -64,31 +63,26 @@ int main(void)
     display = al_create_display(320, 200);
     if (!display) {
         abort_example("Failed to create display\n");
-        return 1;
     }
     bitmap = al_load_bitmap("data/mysha.pcx");
     if (!bitmap) {
         abort_example("Failed to load mysha.pcx\n");
-        return 1;
     }
 
     f1 = al_load_font("data/bmpfont.tga", 0, 0);
     if (!f1) {
         abort_example("Failed to load bmpfont.tga\n");
-        return 1;
     }
     
     font_bitmap = al_load_bitmap("data/a4_font.tga");
     if (!font_bitmap) {
         abort_example("Failed to load a4_font.tga\n");
-        return 1;
     }
     f2 = al_grab_font_from_bitmap(font_bitmap, 4, ranges);
 
     f3 = al_create_builtin_font();
     if (!f3) {
         abort_example("Failed to create builtin font.\n");
-        return 1;
     }
 
     /* Draw background */

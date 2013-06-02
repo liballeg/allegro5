@@ -14,7 +14,7 @@ static void print_color(ALLEGRO_COLOR c)
 {
    float r, g, b, a;
    al_unmap_rgba_f(c, &r, &g, &b, &a);
-   printf("%.2f, %.2f, %.2f, %.2f", r, g, b, a);
+   log_printf("%.2f, %.2f, %.2f, %.2f", r, g, b, a);
 }
 
 static ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
@@ -65,23 +65,23 @@ static ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
    if (!verbose)
       return result;
    
-   printf("---\n");
-   printf("test id: %d\n", test_index);
+   log_printf("---\n");
+   log_printf("test id: %d\n", test_index);
 
-   printf("source     : ");
+   log_printf("source     : ");
    print_color(src_col);
-   printf(" %s format=%d mode=%d alpha=%d\n",
+   log_printf(" %s format=%d mode=%d alpha=%d\n",
       operation == 0 ? "bitmap" : operation == 1 ? "pixel" : "prim",
       src_format, src, src_a);
 
-   printf("destination: ");
+   log_printf("destination: ");
    print_color(dst_col);
-   printf(" format=%d mode=%d alpha=%d\n",
+   log_printf(" format=%d mode=%d alpha=%d\n",
       dst_format, dst, dst_a);
    
-   printf("result     : ");
+   log_printf("result     : ");
    print_color(result);
-   printf("\n");
+   log_printf("\n");
    
    return result;
 }
@@ -199,14 +199,13 @@ static void do_test2(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
       test(src_col, dst_col, src_format,
       dst_format, src_mode, dst_mode, src_alpha, dst_alpha,
       operation, true);
-      printf("expected   : ");
+      log_printf("expected   : ");
       print_color(reference);
-      printf("\n");
-      printf("FAILED\n");
+      log_printf("\n");
+      log_printf("FAILED\n");
    }
    else {
-      printf(" OK");
-      fflush(stdout);
+      log_printf(" OK");
    }
 
    if (test_display) {
@@ -220,13 +219,13 @@ static void do_test2(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
          test(src_col, dst_col, src_format,
          dst_format, src_mode, dst_mode, src_alpha, dst_alpha,
          operation, true);
-         printf("displayed  : ");
+         log_printf("displayed  : ");
          print_color(from_display);
-         printf("\n");
-         printf("expected   : ");
+         log_printf("\n");
+         log_printf("expected   : ");
          print_color(reference);
-         printf("\n");
-         printf("(FAILED on display)\n");
+         log_printf("\n");
+         log_printf("(FAILED on display)\n");
       }
    }
 }
@@ -285,11 +284,14 @@ int main(int argc, char **argv)
    if (!al_init()) {
        abort_example("Could not initialise Allegro\n");
    }
+
+   open_log();
+
    al_init_primitives_addon();
    if (test_display) {
       display = al_create_display(100, 100);
       if (!display) {
-	  abort_example("Unable to create display\n");
+         abort_example("Unable to create display\n");
       }
    }
 
@@ -306,7 +308,7 @@ int main(int argc, char **argv)
          }
       }
    }
-   printf("\n");
+   log_printf("\nDone\n");
    
    if (test_only_index && test_display) {
       ALLEGRO_EVENT_QUEUE *queue;
@@ -317,6 +319,8 @@ int main(int argc, char **argv)
       al_register_event_source(queue, al_get_keyboard_event_source());
       al_wait_for_event(queue, &event);
    }
+
+   close_log(true);
 
    return 0;
 }

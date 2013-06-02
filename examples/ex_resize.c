@@ -32,7 +32,6 @@ int main(void)
     /* Initialize Allegro and create an event queue. */
     if (!al_init()) {
         abort_example("Could not init Allegro.\n");
-        return 1;
     }
     al_init_primitives_addon();
     events = al_create_event_queue();
@@ -42,7 +41,6 @@ int main(void)
     display = al_create_display(rs, rs);
     if (!display) {
         abort_example("Could not create display.\n");
-        return 1;
     }
     al_register_event_source(events, al_get_display_event_source(display));
 

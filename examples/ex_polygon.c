@@ -332,10 +332,10 @@ static void print_vertices(void)
    int i;
 
    for (i = 0; i < ex.vertex_count; i++) {
-      printf("v%-2d= %.2f, %.2f\n",
+      log_printf("v%-2d= %.2f, %.2f\n",
          i, ex.vertices[i].x, ex.vertices[i].y);
    }
-   printf("\n");
+   log_printf("\n");
 }
 
 int main(void)
@@ -347,6 +347,9 @@ int main(void)
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
    }
+
+   open_log();
+
    if (!al_init_primitives_addon()) {
       abort_example("Could not init primitives.\n");
    }
@@ -479,6 +482,9 @@ int main(void)
          ex.zoom *= pow(0.9, event.mouse.dz);
       }
    }
+
+   al_destroy_display(ex.display);
+   close_log(true);
 
    return 0;
 }

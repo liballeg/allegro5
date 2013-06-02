@@ -17,11 +17,11 @@ int main(int argc, char **argv)
    if (argc < 2) {
       ALLEGRO_PATH *exe = al_create_path(argv[0]);
       if (exe) {
-         log_printf("usage1: %s <path>\n", al_get_path_filename(exe));
+         log_printf("This example needs to be run from the command line.\nUsage1: %s <path>\n", al_get_path_filename(exe));
          al_destroy_path(exe);
       }
       else {
-         log_printf("usage2: %s <path>\n", argv[0]);
+         log_printf("This example needs to be run from the command line.\nUsage2: %s <path>\n", argv[0]);
       }
       goto done;
    }
@@ -32,8 +32,8 @@ int main(int argc, char **argv)
    }
    else {
       log_printf("dyn: drive=\"%s\", file=\"%s\"\n",
-	  al_get_path_drive(dyn),
-	  al_get_path_filename(dyn));
+      al_get_path_drive(dyn),
+      al_get_path_filename(dyn));
       al_destroy_path(dyn);
    }
 

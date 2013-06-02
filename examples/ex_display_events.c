@@ -31,7 +31,6 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    al_init_primitives_addon();
@@ -44,13 +43,11 @@ int main(void)
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Error creating display\n");
-      return 1;
    }
 
    font = al_load_font("data/fixed_font.tga", 1, 0);
    if (!font) {
       abort_example("data/fixed_font.tga not found\n");
-      return 1;
    }
    
    black = al_map_rgb_f(0, 0, 0);

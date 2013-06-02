@@ -114,7 +114,6 @@ int main(int argc, char **argv)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
    al_init_primitives_addon();
    al_install_keyboard();
@@ -131,13 +130,11 @@ int main(int argc, char **argv)
    display = al_create_display(res[cur_res].w, res[cur_res].h);
    if (!display) {
       abort_example("Error creating display\n");
-      return 1;
    }
    
    picture = al_load_bitmap("data/mysha.pcx");
    if (!picture) {
       abort_example("mysha.pcx not found\n");
-      return 1;
    }
 
    main_loop(display, picture);

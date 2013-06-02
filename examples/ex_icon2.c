@@ -22,7 +22,6 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
    al_install_keyboard();
    al_init_image_addon();
@@ -30,14 +29,12 @@ int main(void)
    display = al_create_display(320, 200);
    if (!display) {
       abort_example("Error creating display\n");
-      return 1;
    }
 
    /* First icon 16x16: Read from file. */
    icons[0] = al_load_bitmap("data/cursor.tga");
    if (!icons[0]) {
       abort_example("icons.tga not found\n");
-      return 1;
    }
 
    /* Second icon 32x32: Create it. */

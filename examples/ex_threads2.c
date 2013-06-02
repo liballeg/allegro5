@@ -120,7 +120,6 @@ static void draw_mandel_line(ALLEGRO_BITMAP *bitmap, const Viewport *viewport,
    if (!(lr = al_lock_bitmap_region(bitmap, 0, y, w, 1, ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA,
          ALLEGRO_LOCK_WRITEONLY))) {
       abort_example("draw_mandel_line: al_lock_bitmap_region failed\n");
-      return;
    }
 
    xlower = viewport->centre_x - viewport->x_extent / 2.0 * viewport->zoom;
@@ -262,7 +261,6 @@ int main(void)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-      return 1;
    }
 
    al_install_keyboard();
@@ -271,17 +269,14 @@ int main(void)
       H * NUM_THREADS / IMAGES_PER_ROW);
    if (!display) {
       abort_example("Error creating display\n");
-      return 1;
    }
    timer = al_create_timer(1.0/3);
    if (!timer) {
       abort_example("Error creating timer\n");
-      return 1;
    }
    queue = al_create_event_queue();
    if (!queue) {
       abort_example("Error creating event queue\n");
-      return 1;
    }
    al_register_event_source(queue, al_get_display_event_source(display));
    al_register_event_source(queue, al_get_keyboard_event_source());
@@ -290,7 +285,7 @@ int main(void)
 
    /* Note:
     * Right now, A5 video displays can only be accessed from the thread which
-    * created them (at lesat for OpenGL). To lift this restriction, we could
+    * created them (at least for OpenGL). To lift this restriction, we could
     * keep track of the current OpenGL context for each thread and make all
     * functions accessing the display check for it.. not sure it's worth the
     * additional complexity though.
