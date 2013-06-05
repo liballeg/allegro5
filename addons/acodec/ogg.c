@@ -402,8 +402,8 @@ static size_t ogg_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
          if (read_length < 0)
             return 0;
          read_length += read_length % word_size;
-         }
       }
+   }
    while (pos < (unsigned long)read_length) {
 #ifndef TREMOR
       read = lib.ov_read(extra->vf, (char *)data + pos,
