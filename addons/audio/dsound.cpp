@@ -10,6 +10,16 @@
 #include <windows.h>
 #include <dsound.h>
 
+/* dsound.h from the official DirectX SDK uses __null to annotate some
+ * function arguments. It is #defined away by a macro in sal.h, but this
+ * breaks GCC headers, as they also use __null (but for a different
+ * purpose). This pre-processor block undefines __null which returns
+ * __null to acting like a GCC keyword.
+ * This does nothing for the unofficial DirectX SDK, which has __null
+ * manually removed. */
+#if defined __MINGW32__ && defined __null
+	#undef __null
+#endif
 
 /* I'm not sure what library this is supposed to be in, but I couldn't find it yet */
 const IID GUID_NULL = { 0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0 } };
