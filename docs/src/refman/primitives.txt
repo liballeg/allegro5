@@ -1058,8 +1058,6 @@ See also: [al_create_vertex_buffer], [al_destroy_vertex_buffer]
 ### API: ALLEGRO_PRIM_BUFFER_USAGE_HINTS
 
 Flags to provide hints to the GPU about how to best handle your vertex buffer.
-Valid combinations of these flags are a single flag from the usage frequency
-group and a single flag from the usage type group.
 
 Usage frequency:
 
@@ -1069,16 +1067,6 @@ Usage frequency:
 * ALLEGRO_PRIM_BUFFER_STATIC - The buffer is written to once and is used often
 
 * ALLEGRO_PRIM_BUFFER_DYNAMIC - The buffer is written to often and is used often
-
-Usage type:
-
-* ALLEGRO_PRIM_BUFFER_DRAW - The buffer is meant to be used for drawing operations
-
-* ALLEGRO_PRIM_BUFFER_READ - The buffer is meant to be used for returning data from
-   the GPU
-
-* ALLEGRO_PRIM_BUFFER_COPY - The buffer is meant to be written to and read only by
-   the GPU
 
 Since: 5.1.3
 

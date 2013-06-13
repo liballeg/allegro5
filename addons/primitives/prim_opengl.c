@@ -602,38 +602,16 @@ bool _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* ini
    switch (usage_hints)
    {
 #if !defined ALLEGRO_CFG_OPENGLES
-      case ALLEGRO_PRIM_BUFFER_STREAM | ALLEGRO_PRIM_BUFFER_DRAW:
+      case ALLEGRO_PRIM_BUFFER_STREAM:
          usage = GL_STREAM_DRAW;
          break;
-      case ALLEGRO_PRIM_BUFFER_STREAM | ALLEGRO_PRIM_BUFFER_READ:
-         usage = GL_STREAM_READ;
-         break;
-      case ALLEGRO_PRIM_BUFFER_STREAM | ALLEGRO_PRIM_BUFFER_COPY:
-         usage = GL_STREAM_COPY;
-         break;
 #endif
-      case ALLEGRO_PRIM_BUFFER_STATIC | ALLEGRO_PRIM_BUFFER_DRAW:
+      case ALLEGRO_PRIM_BUFFER_STATIC:
          usage = GL_STATIC_DRAW;
          break;
-#if !defined ALLEGRO_CFG_OPENGLES
-      case ALLEGRO_PRIM_BUFFER_STATIC | ALLEGRO_PRIM_BUFFER_READ:
-         usage = GL_STATIC_READ;
-         break;
-      case ALLEGRO_PRIM_BUFFER_STATIC | ALLEGRO_PRIM_BUFFER_COPY:
-         usage = GL_STATIC_COPY;
-         break;
-#endif
-      case ALLEGRO_PRIM_BUFFER_DYNAMIC | ALLEGRO_PRIM_BUFFER_DRAW:
+      case ALLEGRO_PRIM_BUFFER_DYNAMIC:
          usage = GL_DYNAMIC_DRAW;
          break;
-#if !defined ALLEGRO_CFG_OPENGLES
-      case ALLEGRO_PRIM_BUFFER_DYNAMIC | ALLEGRO_PRIM_BUFFER_READ:
-         usage = GL_DYNAMIC_READ;
-         break;
-      case ALLEGRO_PRIM_BUFFER_DYNAMIC | ALLEGRO_PRIM_BUFFER_COPY:
-         usage = GL_DYNAMIC_COPY;
-         break;
-#endif
       default:
          usage = GL_STATIC_DRAW;
    }

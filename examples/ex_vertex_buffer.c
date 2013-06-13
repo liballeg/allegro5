@@ -142,12 +142,12 @@ int main(void)
       METHOD methods[] =
       {
          {GETX(1), GETY(0), 0, vertices, "No buffer", false, 0, 0},
-         {GETX(0), GETY(1), 0, 0, "STREAM", false, ALLEGRO_PRIM_BUFFER_STREAM | ALLEGRO_PRIM_BUFFER_DRAW, 0},
-         {GETX(1), GETY(1), 0, 0, "STATIC", false, ALLEGRO_PRIM_BUFFER_STATIC | ALLEGRO_PRIM_BUFFER_DRAW, 0},
-         {GETX(2), GETY(1), 0, 0, "DYNAMIC", false, ALLEGRO_PRIM_BUFFER_STREAM | ALLEGRO_PRIM_BUFFER_DRAW, 0},
-         {GETX(0), GETY(2), 0, 0, "STREAM", true, ALLEGRO_PRIM_BUFFER_STREAM | ALLEGRO_PRIM_BUFFER_DRAW, 0},
-         {GETX(1), GETY(2), 0, 0, "STATIC", true, ALLEGRO_PRIM_BUFFER_STATIC | ALLEGRO_PRIM_BUFFER_DRAW, 0},
-         {GETX(2), GETY(2), 0, 0, "DYNAMIC", true, ALLEGRO_PRIM_BUFFER_DYNAMIC | ALLEGRO_PRIM_BUFFER_DRAW, 0}
+         {GETX(0), GETY(1), 0, 0, "STREAM", false, ALLEGRO_PRIM_BUFFER_STREAM, 0},
+         {GETX(1), GETY(1), 0, 0, "STATIC", false, ALLEGRO_PRIM_BUFFER_STATIC, 0},
+         {GETX(2), GETY(1), 0, 0, "DYNAMIC", false, ALLEGRO_PRIM_BUFFER_STREAM, 0},
+         {GETX(0), GETY(2), 0, 0, "STREAM", true, ALLEGRO_PRIM_BUFFER_STREAM, 0},
+         {GETX(1), GETY(2), 0, 0, "STATIC", true, ALLEGRO_PRIM_BUFFER_STATIC, 0},
+         {GETX(2), GETY(2), 0, 0, "DYNAMIC", true, ALLEGRO_PRIM_BUFFER_DYNAMIC, 0}
       };
 
       num_methods = sizeof(methods) / sizeof(METHOD);
