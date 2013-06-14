@@ -920,7 +920,7 @@ bool _al_create_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf, const void* in
    (void)buf;
    (void)initial_data;
    (void)num_vertices;
-   (void)usage_hints;
+   (void)flags;
 
    return false;
 #endif
