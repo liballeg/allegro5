@@ -883,7 +883,7 @@ void _al_set_d3d_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL* ret)
 #endif
 }
 
-bool _al_create_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf, const void* initial_data, size_t num_vertices, int usage_hints)
+bool _al_create_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf, const void* initial_data, size_t num_vertices, int flags)
 {
 #ifdef ALLEGRO_CFG_D3D
    LPDIRECT3DDEVICE9 device;
@@ -892,7 +892,6 @@ bool _al_create_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf, const void* in
    int stride = buf->decl ? buf->decl->stride : (int)sizeof(ALLEGRO_VERTEX);
    HRESULT res;
    void* locked_memory;
-   (void)usage_hints;
 
    /* There's just no point */
    if (is_legacy_card())
@@ -905,7 +904,8 @@ bool _al_create_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf, const void* in
       fvf = 0;
    }
 
-   res = device->CreateVertexBuffer(stride * num_vertices, buf->write_only ? D3DUSAGE_WRITEONLY : 0, fvf, D3DPOOL_MANAGED, &d3d_vbuff, 0);
+   res = device->CreateVertexBuffer(stride * num_vertices, !(flags & ALLEGRO_PRIM_BUFFER_READWRITE)
+                                    ? D3DUSAGE_WRITEONLY : 0, fvf, D3DPOOL_MANAGED, &d3d_vbuff, 0);
    if (res != D3D_OK)
       return false;
 

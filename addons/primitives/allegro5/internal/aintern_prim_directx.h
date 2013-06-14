@@ -12,7 +12,7 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const
 int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, const int* indices, int num_vtx, int type);
 void _al_set_d3d_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL* ret);
 
-bool _al_create_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf, const void* initial_data, size_t num_vertices, int usage_hints);
+bool _al_create_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf, const void* initial_data, size_t num_vertices, int flags);
 void _al_destroy_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf);
 void* _al_lock_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf);
 void _al_unlock_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf);

@@ -221,26 +221,26 @@ void al_destroy_vertex_decl(ALLEGRO_VERTEX_DECL* decl)
 /* Function: al_create_vertex_buffer
  */
 ALLEGRO_VERTEX_BUFFER* al_create_vertex_buffer(ALLEGRO_VERTEX_DECL* decl,
-   const void* initial_data, size_t num_vertices, bool write_only, int hints)
+   const void* initial_data, size_t num_vertices, int flags)
 {
    ALLEGRO_VERTEX_BUFFER* ret;
-   int flags = al_get_display_flags(al_get_current_display());
+   int display_flags = al_get_display_flags(al_get_current_display());
    ASSERT(addon_initialized);
    ret = al_calloc(1, sizeof(ALLEGRO_VERTEX_BUFFER));
-   ret->write_only = write_only;
+   ret->write_only = !(flags & ALLEGRO_PRIM_BUFFER_READWRITE);
    ret->decl = decl;
 
 #if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID
-   if (!write_only)
+   if (flags & ALLEGRO_PRIM_BUFFER_READWRITE)
       goto fail;
 #endif
 
-   if (flags & ALLEGRO_OPENGL) {
-      if (_al_create_vertex_buffer_opengl(ret, initial_data, num_vertices, hints))
+   if (display_flags & ALLEGRO_OPENGL) {
+      if (_al_create_vertex_buffer_opengl(ret, initial_data, num_vertices, flags))
          return ret;
    }
-   else if (flags & ALLEGRO_DIRECT3D) {
-      if (_al_create_vertex_buffer_directx(ret, initial_data, num_vertices, hints))
+   else if (display_flags & ALLEGRO_DIRECT3D) {
+      if (_al_create_vertex_buffer_directx(ret, initial_data, num_vertices, flags))
          return ret;
    }
 

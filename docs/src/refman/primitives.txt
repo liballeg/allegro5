@@ -491,9 +491,10 @@ See also:
 
 ### API: al_draw_vertex_buffer
 
-Draws a subset of the passed vertex buffer. The vertex buffer must not be
-locked. Additionally, to draw onto memory bitmaps or with memory bitmap textures
-the vertex buffer must support reading (so it must not be created write only).
+Draws a subset of the passed vertex buffer. The vertex buffer must 
+not be locked. Additionally, to draw onto memory bitmaps or with 
+memory bitmap textures the vertex buffer must support reading (i.e. 
+it must be created with the `ALLEGRO_PRIM_BUFFER_READWRITE`).
 
 *Parameters:*
 
@@ -613,12 +614,9 @@ created (e.g. the system only supports write-only buffers).
 * initial_data - Memory buffer to copy from to initialize the vertex buffer. Can
    be 0, in which case the buffer is uninitialized.
 * num_vertices - Number of vertices the buffer will hold
-* write_only - Whether the buffer will be read from by your code. Note that some
-   platforms (e.g. OpenGL ES) only support writing to vertex buffers, so this
-   must be set to `true` for those systems.
-* usage_hints - A combination of the [ALLEGRO_BUFFER_USAGE_HINTS] flags
-   specifying how this buffer will be used. Passing 0 implies
-   `ALLEGRO_BUFFER_STATIC | ALLEGRO_BUFFER_DRAW`.
+* flags - A combination of the [ALLEGRO_PRIM_BUFFER_FLAGS] flags 
+  specifying how this buffer will be created. Passing 0 is the same 
+  as passing `ALLEGRO_PRIM_BUFFER_STATIC`.
 
 Since: 5.1.3
 
@@ -1055,18 +1053,24 @@ Since: 5.1.3
 
 See also: [al_create_vertex_buffer], [al_destroy_vertex_buffer]
 
-### API: ALLEGRO_PRIM_BUFFER_USAGE_HINTS
+### API: ALLEGRO_PRIM_BUFFER_FLAGS
 
-Flags to provide hints to the GPU about how to best handle your vertex buffer.
+Flags to specify how to create a vertex buffer.
 
-Usage frequency:
+* ALLEGRO_PRIM_BUFFER_STREAM - Hints to the driver that the buffer 
+  is written to often, but used only a few times per frame
 
-* ALLEGRO_PRIM_BUFFER_STREAM - The buffer is written to often, but used only a few
-   times per frame
+* ALLEGRO_PRIM_BUFFER_STATIC - Hints to the driver that the buffer 
+  is written to once and is used often
 
-* ALLEGRO_PRIM_BUFFER_STATIC - The buffer is written to once and is used often
+* ALLEGRO_PRIM_BUFFER_DYNAMIC - Hints to the driver that the buffer 
+  is written to often and is used often
 
-* ALLEGRO_PRIM_BUFFER_DYNAMIC - The buffer is written to often and is used often
+* ALLEGRO_PRIM_BUFFER_READWRITE - Specifies that you want to be able 
+  read from this buffer. By default this is disabled for performance.
+  Some platforms (like OpenGL ES) do not support reading from vertex
+  buffers, so if you pass this flag to `al_create_vertex_buffer` the
+  call will fail.
 
 Since: 5.1.3
 

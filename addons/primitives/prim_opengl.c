@@ -592,14 +592,14 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
 #endif
 }
 
-bool _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* initial_data, size_t num_vertices, int usage_hints)
+bool _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* initial_data, size_t num_vertices, int flags)
 {
 #ifdef ALLEGRO_CFG_OPENGL
    GLuint vbo;
    GLenum usage;
    int stride = buf->decl ? buf->decl->stride : (int)sizeof(ALLEGRO_VERTEX);
 
-   switch (usage_hints)
+   switch (flags)
    {
 #if !defined ALLEGRO_CFG_OPENGLES
       case ALLEGRO_PRIM_BUFFER_STREAM:
@@ -632,7 +632,7 @@ bool _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* ini
    (void)buf;
    (void)initial_data;
    (void)num_vertices;
-   (void)usage_hints;
+   (void)flags;
 
    return false;
 #endif

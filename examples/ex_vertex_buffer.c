@@ -22,8 +22,7 @@ struct METHOD
    ALLEGRO_VERTEX_BUFFER *vbuff;
    ALLEGRO_VERTEX *vertices;
    const char *name;
-   bool write_only;
-   int hints;
+   int flags;
    double frame_average;
 };
 
@@ -46,7 +45,8 @@ static void draw_method(METHOD *md, ALLEGRO_FONT *font, ALLEGRO_VERTEX* new_vert
    al_translate_transform(&t, md->x, md->y);
    al_use_transform(&t);
 
-   al_draw_textf(font, al_map_rgb_f(1, 1, 1), 0, -50, ALLEGRO_ALIGN_CENTRE, "%s%s", md->name, md->write_only ? "+write only" : "");
+   al_draw_textf(font, al_map_rgb_f(1, 1, 1), 0, -50, ALLEGRO_ALIGN_CENTRE, "%s%s", md->name, 
+                 md->flags & ALLEGRO_PRIM_BUFFER_READWRITE ? "+read/write" : "+write-only");
 
    start_time = al_get_time();
    if (md->vbuff) {
@@ -141,13 +141,13 @@ int main(void)
 
       METHOD methods[] =
       {
-         {GETX(1), GETY(0), 0, vertices, "No buffer", false, 0, 0},
-         {GETX(0), GETY(1), 0, 0, "STREAM", false, ALLEGRO_PRIM_BUFFER_STREAM, 0},
-         {GETX(1), GETY(1), 0, 0, "STATIC", false, ALLEGRO_PRIM_BUFFER_STATIC, 0},
-         {GETX(2), GETY(1), 0, 0, "DYNAMIC", false, ALLEGRO_PRIM_BUFFER_STREAM, 0},
-         {GETX(0), GETY(2), 0, 0, "STREAM", true, ALLEGRO_PRIM_BUFFER_STREAM, 0},
-         {GETX(1), GETY(2), 0, 0, "STATIC", true, ALLEGRO_PRIM_BUFFER_STATIC, 0},
-         {GETX(2), GETY(2), 0, 0, "DYNAMIC", true, ALLEGRO_PRIM_BUFFER_DYNAMIC, 0}
+         {GETX(1), GETY(0), 0, vertices, "No buffer", 0, 0},
+         {GETX(0), GETY(1), 0, 0, "STREAM", ALLEGRO_PRIM_BUFFER_STREAM | ALLEGRO_PRIM_BUFFER_READWRITE, 0},
+         {GETX(1), GETY(1), 0, 0, "STATIC", ALLEGRO_PRIM_BUFFER_STATIC | ALLEGRO_PRIM_BUFFER_READWRITE, 0},
+         {GETX(2), GETY(1), 0, 0, "DYNAMIC", ALLEGRO_PRIM_BUFFER_STREAM | ALLEGRO_PRIM_BUFFER_READWRITE, 0},
+         {GETX(0), GETY(2), 0, 0, "STREAM", ALLEGRO_PRIM_BUFFER_STREAM, 0},
+         {GETX(1), GETY(2), 0, 0, "STATIC", ALLEGRO_PRIM_BUFFER_STATIC, 0},
+         {GETX(2), GETY(2), 0, 0, "DYNAMIC", ALLEGRO_PRIM_BUFFER_DYNAMIC, 0}
       };
 
       num_methods = sizeof(methods) / sizeof(METHOD);
@@ -156,7 +156,7 @@ int main(void)
          METHOD* md = &methods[ii];
          md->frame_average = 1;
          if (!md->vertices)
-            md->vbuff = al_create_vertex_buffer(0, vertices, NUM_VERTICES, md->write_only, md->hints);
+            md->vbuff = al_create_vertex_buffer(0, vertices, NUM_VERTICES, md->flags);
       }
 
       al_start_timer(timer);

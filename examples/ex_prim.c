@@ -504,18 +504,18 @@ static void VertexBuffers(int mode)
          vtx[ii].color = color;
          vtx2[ii].color = color;
       }
-      vbuff = al_create_vertex_buffer(0, vtx, 13, false, 0);
+      vbuff = al_create_vertex_buffer(0, vtx, 13, ALLEGRO_PRIM_BUFFER_READWRITE);
       if (!vbuff) {
-         vbuff = al_create_vertex_buffer(0, vtx, 13, true, 0);
+         vbuff = al_create_vertex_buffer(0, vtx, 13, 0);
          no_soft = true;
       }
       else {
          no_soft = false;
       }
 
-      vbuff2 = al_create_vertex_buffer(0, vtx2, 13, false, 0);
+      vbuff2 = al_create_vertex_buffer(0, vtx2, 13, ALLEGRO_PRIM_BUFFER_READWRITE);
       if (!vbuff2) {
-         vbuff2 = al_create_vertex_buffer(0, vtx2, 13, true, 0);
+         vbuff2 = al_create_vertex_buffer(0, vtx2, 13, 0);
          no_soft2 = true;
       }
       else {
