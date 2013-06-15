@@ -4,6 +4,101 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 5.0.9 to 5.0.10 (June 2013)
+========================================
+
+The main developers this time were: Trent Gamblin, Paul Suntsov, Peter Wang.
+
+Core:
+
+  - Register system interface even if no display driver available on Windows.
+
+Displays:
+
+  - Don't crash in al_create_display if there is no display driver.
+
+  - Don't crash at shutdown if there is no display driver (Windows).
+
+  - Don't fail init if both D3D, GL drivers unavailable (Windows).
+
+  - Run fullscreen toggle on main thread (OS X).
+
+  - Destroy the backbuffer bitmap when destroying the display (OS X).
+
+  - Switch to new NSTrackingArea API (OS X).
+
+  - Check availability of fullscreen button on window frame at run-time (OS X).
+
+Graphics:
+
+  - Add ALLEGRO_SRC_COLOR, ALLEGRO_DEST_COLOR, ALLEGRO_INVERSE_SRC_COLOR,
+    ALLEGRO_INVERSE_DEST_COLOR blending modes (initially by Jon Rafkind and
+    Elias Pschernig).
+
+  - Let al_destroy_bitmap implicitly untarget the bitmap on the calling
+    thread.
+
+  - Use memory bitmap drawing when either bitmap is locked (OpenGL).
+
+  - Add const qualifiers to glUniform*v() functions (Aaron Bolyard).
+
+Input:
+
+  - al_set_mouse_xy on Windows resulted in the mouse getting set to the wrong
+    position in windowed modes.
+
+  - Scale the user supplied mouse cursor if it's too big (Windows).
+
+  - Fix mouse warping on OS X.
+
+  - Fix mouse warping in Linux evdev mouse driver.
+
+Audio addon:
+
+  - pulseaudio: Use smaller buffer size by default, and make it configurable.
+
+  - pulseaudio: Clean up state transitions.
+
+  - Fix looping in Ogg Vorbis stream (Todd Cope).
+
+  - Enable the use of the unpatched DirectX SDK to build Allegro with MinGW.
+
+Color addon:
+
+  - Fix al_color_rgb_to_html blue component (Jeff Bernard).
+
+Font addons:
+
+  - Make al_init_ttf_addon return true for subsequent calls.
+
+Primitives addon:
+
+  - Disallow 3 component vectors for ALLEGRO_PRIM_TEX_COORD.
+
+  - Check that the vertex declaration is valid before creating it.
+
+  - Respect filter settings of textures in the D3D backend.
+
+Build system:
+
+  - Do not install most internal header files.
+
+  - Do not search for and link with unneeded X libraries.
+
+Examples:
+
+  - ex_audio_timer: New example.
+
+Other:
+
+  - Minor fixes.
+
+  - Various documentation updates.
+
+  - A lot of code refactoring.
+
+
+
 Changes from 5.0.8 to 5.0.9 (February 2013)
 ===========================================
 
