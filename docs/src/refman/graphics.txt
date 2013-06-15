@@ -311,7 +311,7 @@ This function does nothing if the bitmap argument is NULL.
 
 As a convenience, if the calling thread is currently targets the
 bitmap then the bitmap will be untargeted first.
-The new target bitmap is unspecified. (since: 5.1.6)
+The new target bitmap is unspecified. (since: 5.0.10, 5.1.6)
 
 Otherwise, it is an error to destroy a bitmap while it (or a sub-bitmap)
 is the target bitmap of any thread.
@@ -933,19 +933,19 @@ Valid values for `src` and `dst` passed to this function are
          src = 1 - sa
          dst = 1 - sa
 
-* ALLEGRO_SRC_COLOR (since: 5.1.0)
+* ALLEGRO_SRC_COLOR (since: 5.0.10, 5.1.0)
 
          f = s.r, s.g, s.b, s.a
 
-* ALLEGRO_DEST_COLOR (since: 5.1.8)
+* ALLEGRO_DEST_COLOR (since: 5.0.10, 5.1.8)
 
          f = d.r, d.g, d.b, d.a
 
-* ALLEGRO_INVERSE_SRC_COLOR (since: 5.1.0)
+* ALLEGRO_INVERSE_SRC_COLOR (since: 5.0.10, 5.1.0)
 
          f = 1 - s.r, 1 - s.g, 1 - s.b, 1 - s.a
 
-* ALLEGRO_INVERSE_DEST_COLOR (since: 5.1.8)
+* ALLEGRO_INVERSE_DEST_COLOR (since: 5.0.10, 5.1.8)
 
          f = 1 - d.r, 1 - d.g, 1 - d.b, 1 - d.a
 
