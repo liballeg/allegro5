@@ -897,11 +897,15 @@ static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
 
    if (d3d_display->device) {
+#ifdef ALLEGRO_CFG_SHADER_HLSL
       _al_remove_display_invalidated_callback(al_display, _al_d3d_on_lost_shaders);
       _al_remove_display_validated_callback(al_display, _al_d3d_on_reset_shaders);
+#endif
       d3d_call_callbacks(&al_display->display_invalidated_callbacks, al_display);
+#ifdef ALLEGRO_CFG_SHADER_HLSL
       _al_add_display_invalidated_callback(al_display, _al_d3d_on_lost_shaders);
       _al_add_display_validated_callback(al_display, _al_d3d_on_reset_shaders);
+#endif
       d3d_display->device->EndScene();
    }
 

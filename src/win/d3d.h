@@ -68,8 +68,10 @@ void _al_d3d_destroy_display_format_list(void);
 ALLEGRO_EXTRA_DISPLAY_SETTINGS *_al_d3d_get_display_settings(int i);
 void _al_d3d_resort_display_settings(void);
 
+#ifdef ALLEGRO_CFG_SHADER_HLSL
 void _al_d3d_on_lost_shaders(ALLEGRO_DISPLAY *display);
 void _al_d3d_on_reset_shaders(ALLEGRO_DISPLAY *display);
+#endif
 
 extern ALLEGRO_MUTEX *_al_d3d_lost_device_mutex;
 

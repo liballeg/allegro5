@@ -26,6 +26,8 @@
 #include <d3dx9.h>
 #include <stdio.h>
 
+#include "d3d.h"
+
 ALLEGRO_DEBUG_CHANNEL("shader")
 
 static _AL_VECTOR shaders = _AL_VECTOR_INITIALIZER(ALLEGRO_SHADER *);
@@ -208,23 +210,23 @@ static struct ALLEGRO_SHADER_INTERFACE shader_hlsl_vt =
    hlsl_set_shader_bool
 };
 
-extern "C"
 void _al_d3d_on_lost_shaders(ALLEGRO_DISPLAY *display)
 {
-   int i;
+   unsigned i;
    (void)display;
-   for (i = 0; i < (int)shaders._size; i++) {
+
+   for (i = 0; i < _al_vector_size(&shaders); i++) {
       ALLEGRO_SHADER **shader = (ALLEGRO_SHADER **)_al_vector_ref(&shaders, i);
       (*shader)->vt->on_lost_device(*shader);
    }
 }
 
-extern "C"
 void _al_d3d_on_reset_shaders(ALLEGRO_DISPLAY *display)
 {
-   int i;
+   unsigned i;
    (void)display;
-   for (i = 0; i < (int)shaders._size; i++) {
+
+   for (i = 0; i < _al_vector_size(&shaders); i++) {
       ALLEGRO_SHADER **shader = (ALLEGRO_SHADER **)_al_vector_ref(&shaders, i);
       (*shader)->vt->on_reset_device(*shader);
    }
