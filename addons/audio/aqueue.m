@@ -408,7 +408,7 @@ typedef struct RECORDER_DATA
 
 static void _aqueue_recording_callback(void *user_data, AudioQueueRef aq,                          
                                        AudioQueueBufferRef aq_buffer, const AudioTimeStamp *start_time,
-                                       uint32_t sample_count, const AudioStreamPacketDescription *descs)
+                                       UInt32 sample_count, const AudioStreamPacketDescription *descs)
 {
    ALLEGRO_AUDIO_RECORDER *recorder = (ALLEGRO_AUDIO_RECORDER *) user_data;
    RECORDER_DATA *data = (RECORDER_DATA *) recorder->extra;
