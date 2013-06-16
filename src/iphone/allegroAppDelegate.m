@@ -15,7 +15,6 @@ void _al_iphone_run_user_main(void);
 static allegroAppDelegate *global_delegate;
 static UIApplication *app = NULL;
 static volatile bool waiting_for_program_halt = false;
-static float scale_override = -1.0;
 static bool disconnect_wait = false;
 static UIScreen *airplay_screen = NULL;
 static bool airplay_connected = false;
@@ -212,34 +211,6 @@ void _al_iphone_acknowledge_drawing_halt(ALLEGRO_DISPLAY *display)
 {
    (void)display;
    waiting_for_program_halt = false;
-}
-
-/* Function: al_iphone_get_screen_scale
- */
-float al_iphone_get_screen_scale(void)
-{
-   float ret = 0.0;
-
-   if (scale_override > 0.0) {
-      ret = scale_override;
-   }
-   else if ([[UIScreen mainScreen] respondsToSelector:NSSelectorFromString(@"scale")]) {
-      ret = [[UIScreen mainScreen] scale];
-   }
-   else {
-      ret = 1.0f;
-   }
-
-   return ret;
-}
-
-/* Function: al_iphone_override_screen_scale
- */
-void al_iphone_override_screen_scale(float scale)
-{
-   scale_override = scale;
-
-   ALLEGRO_INFO("Scale overridden. New scale: %f\n", scale);
 }
 
 /* Function: al_iphone_set_statusbar_orientation
