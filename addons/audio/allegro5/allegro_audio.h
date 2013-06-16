@@ -136,15 +136,6 @@ enum ALLEGRO_MIXER_QUALITY
  */
 #define ALLEGRO_AUDIO_PAN_NONE      (-1000.0f)
 
-/* Enum: ALLEGRO_AUDIO_EVENT_TYPE
- */
-enum ALLEGRO_AUDIO_EVENT_TYPE
-{
-   ALLEGRO_EVENT_AUDIO_ROUTE_CHANGE       = 520,
-   ALLEGRO_EVENT_AUDIO_INTERRUPTION       = 521,
-   ALLEGRO_EVENT_AUDIO_END_INTERRUPTION   = 522
-};
-
 /* Type: ALLEGRO_SAMPLE
  */
 typedef struct ALLEGRO_SAMPLE ALLEGRO_SAMPLE;
@@ -386,8 +377,6 @@ ALLEGRO_KCM_AUDIO_FUNC(bool, al_save_sample_f, (ALLEGRO_FILE* fp, const char *id
 	ALLEGRO_SAMPLE *spl));
 ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_STREAM *, al_load_audio_stream_f, (ALLEGRO_FILE* fp, const char *ident,
 	size_t buffer_count, unsigned int samples));
-
-ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_audio_event_source, (void));
 
 /* Recording functions */
 ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_RECORDER *, al_create_audio_recorder, (size_t fragment_count,

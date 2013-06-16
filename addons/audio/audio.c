@@ -18,9 +18,6 @@
 
 ALLEGRO_DEBUG_CHANNEL("audio")
 
-static ALLEGRO_EVENT_SOURCE audio_event_source;
-
-
 void _al_set_error(int error, char* string)
 {
    ALLEGRO_ERROR("%s (error code: %d)\n", string, error);
@@ -345,9 +342,6 @@ bool al_install_audio(void)
    _al_add_exit_func(al_uninstall_audio, "al_uninstall_audio");
 
    ret = do_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT);
-   if (ret) {
-      al_init_user_event_source(&audio_event_source);
-   }
    return ret;
 }
 
@@ -360,7 +354,6 @@ void al_uninstall_audio(void)
       _al_kcm_shutdown_destructors();
       _al_kcm_driver->close();
       _al_kcm_driver = NULL;
-      al_destroy_user_event_source(&audio_event_source);
    }
    else {
       _al_kcm_shutdown_destructors();
@@ -379,30 +372,6 @@ bool al_is_audio_installed(void)
 uint32_t al_get_allegro_audio_version(void)
 {
    return ALLEGRO_VERSION_INT;
-}
-
-/* This doesn't need to do anything yet but may if we add some data
- * to some events.
- */
-static void destroy_audio_event(ALLEGRO_USER_EVENT *e)
-{
-   (void)e;
-}
-
-void _al_emit_audio_event(int event_type)
-{
-   ALLEGRO_EVENT event;
-   ASSERT(_al_kcm_driver);
-
-   event.type = event_type;
-   al_emit_user_event(&audio_event_source, &event, destroy_audio_event);
-}
-
-/* Function: al_get_audio_event_source
- */
-ALLEGRO_EVENT_SOURCE *al_get_audio_event_source(void)
-{
-   return &audio_event_source;
 }
 
 /* vim: set sts=3 sw=3 et: */

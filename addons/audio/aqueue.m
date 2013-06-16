@@ -97,11 +97,9 @@ static void interruption_callback(void *inClientData, UInt32 inInterruptionState
    (void)inClientData;
    if (inInterruptionState == kAudioSessionBeginInterruption) {
       _aqueue_stop_voice(saved_voice);
-      _al_emit_audio_event(ALLEGRO_EVENT_AUDIO_INTERRUPTION);
    }
    else {
       _aqueue_start_voice(saved_voice);
-      _al_emit_audio_event(ALLEGRO_EVENT_AUDIO_END_INTERRUPTION);
    }
 }
 
@@ -116,7 +114,6 @@ static void property_listener(void *inClientData, AudioSessionPropertyID inID, U
       if (reason == kAudioSessionRouteChangeReason_NewDeviceAvailable) {
          _aqueue_stop_voice(saved_voice);
          _aqueue_start_voice(saved_voice);
-         _al_emit_audio_event(ALLEGRO_EVENT_AUDIO_ROUTE_CHANGE);
       }
    }
 }
