@@ -909,9 +909,11 @@ bool _al_create_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf, const void* in
    if (res != D3D_OK)
       return false;
 
-   d3d_vbuff->Lock(0, 0, &locked_memory, 0);
-   memcpy(locked_memory, initial_data, stride * num_vertices);
-   d3d_vbuff->Unlock();
+   if (initial_data != NULL) {
+      d3d_vbuff->Lock(0, 0, &locked_memory, 0);
+      memcpy(locked_memory, initial_data, stride * num_vertices);
+      d3d_vbuff->Unlock();
+   }
 
    buf->handle = (uintptr_t)d3d_vbuff;
 

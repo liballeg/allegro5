@@ -617,9 +617,11 @@ bool _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* ini
    }
 
    glGenBuffers(1, &vbo);
-   glBindBuffer(GL_ARRAY_BUFFER, vbo);
-   glBufferData(GL_ARRAY_BUFFER, num_vertices * stride, initial_data, usage);
-   glBindBuffer(GL_ARRAY_BUFFER, 0);
+   if (initial_data != NULL) {
+      glBindBuffer(GL_ARRAY_BUFFER, vbo);
+      glBufferData(GL_ARRAY_BUFFER, num_vertices * stride, initial_data, usage);
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+   }
 
    if (glGetError())
       return false;
