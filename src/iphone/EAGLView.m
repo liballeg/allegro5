@@ -219,7 +219,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
    ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)allegro_display;
 
     if (d->extra->adapter == 0 && [self respondsToSelector:@selector(contentScaleFactor)]) {
-        self.contentScaleFactor = al_iphone_get_screen_scale();
+        self.contentScaleFactor = [[UIScreen mainScreen] scale];
         ALLEGRO_INFO("Screen scale is %f\n", self.contentScaleFactor);
     }
 
@@ -340,8 +340,6 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
       _al_list_push_back_ex(touch_list, touch, touch_item_dtor);
       
       CGPoint p = [nativeTouch locationInView:[nativeTouch view]];
-      p.x *= al_iphone_get_screen_scale();
-      p.y *= al_iphone_get_screen_scale();
 
       if (NULL == primary_touch)
          primary_touch = nativeTouch;
@@ -363,8 +361,6 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
       if ((touch = find_touch(touch_list, nativeTouch))) {
    
          CGPoint p = [nativeTouch locationInView:[nativeTouch view]];
-         p.x *= al_iphone_get_screen_scale();
-         p.y *= al_iphone_get_screen_scale();
    
          _al_iphone_touch_input_handle_move(touch->id, al_get_time(),
          p.x, p.y, primary_touch == nativeTouch, allegro_display);         
@@ -385,9 +381,6 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
       if ((touch = find_touch(touch_list, nativeTouch))) {
 
          CGPoint p = [nativeTouch locationInView:[nativeTouch view]];
-         p.x *= al_iphone_get_screen_scale();
-         p.y *= al_iphone_get_screen_scale();
-
 
          _al_iphone_touch_input_handle_end(touch->id, al_get_time(),
             p.x, p.y, primary_touch == nativeTouch, allegro_display);  
@@ -415,8 +408,6 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
       if ((touch = find_touch(touch_list, nativeTouch))) {
    
          CGPoint p = [nativeTouch locationInView:[nativeTouch view]];
-         p.x *= al_iphone_get_screen_scale();
-         p.y *= al_iphone_get_screen_scale();
          
          _al_iphone_touch_input_handle_cancel(touch->id, al_get_time(),
          p.x, p.y, primary_touch == nativeTouch, allegro_display);
