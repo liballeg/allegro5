@@ -5,6 +5,7 @@
  */
 
 #include <allegro5/allegro.h>
+#include <allegro5/allegro_font.h>
 #include <allegro5/allegro_primitives.h>
 
 #include "common.c"
@@ -16,6 +17,7 @@
 
 /* globals */
 ALLEGRO_EVENT_QUEUE  *event_queue;
+ALLEGRO_FONT         *font;
 ALLEGRO_COLOR        black;
 ALLEGRO_COLOR        grey;
 ALLEGRO_COLOR        white;
@@ -59,7 +61,8 @@ static void setup_joystick_values(ALLEGRO_JOYSTICK *joy)
 }
 
 
-static void draw_joystick_axes(int cx, int cy, int stick)
+
+static void draw_joystick_axes(ALLEGRO_JOYSTICK *joy, int cx, int cy, int stick)
 {
    const int size = 30;
    const int csize = 5;
@@ -73,31 +76,65 @@ static void draw_joystick_axes(int cx, int cy, int stick)
    al_draw_rectangle(cx-osize+0.5, cy-osize+0.5, cx+osize-0.5, cy+osize-0.5, black, 0);
    al_draw_filled_rectangle(x-5, y-5, x+5, y+5, black);
 
-   if (num_axes[stick] == 3) {
+   if (num_axes[stick] >= 3) {
       al_draw_filled_rectangle(zx-csize, cy-osize, zx+csize, cy+osize, grey);
       al_draw_rectangle(zx-csize+0.5f, cy-osize+0.5f, zx+csize-0.5f, cy+osize-0.5f, black, 0);
       al_draw_filled_rectangle(zx-5, z-5, zx+5, z+5, black);
+   }
+
+   if (joy) {
+      if (num_axes[stick] >= 3) {
+         al_draw_textf(font, black, cx, cy + osize + 1, ALLEGRO_ALIGN_CENTRE,
+            "%s: %s %s %s",
+            al_get_joystick_stick_name(joy, stick),
+            al_get_joystick_axis_name(joy, stick, 0),
+            al_get_joystick_axis_name(joy, stick, 1),
+            al_get_joystick_axis_name(joy, stick, 2));
+      }
+      else if (num_axes[stick] == 2) {
+         al_draw_textf(font, black, cx, cy + osize + 1, ALLEGRO_ALIGN_CENTRE,
+            "%s: %s %s",
+            al_get_joystick_stick_name(joy, stick),
+            al_get_joystick_axis_name(joy, stick, 0),
+            al_get_joystick_axis_name(joy, stick, 1));
+      }
+      else if (num_axes[stick] == 1) {
+         al_draw_textf(font, black, cx, cy + osize + 1, ALLEGRO_ALIGN_CENTRE,
+            "%s: %s",
+            al_get_joystick_stick_name(joy, stick),
+            al_get_joystick_axis_name(joy, stick, 0));
+      }
    }
 }
 
 
 
-static void draw_joystick_button(int button, bool down)
+static void draw_joystick_button(ALLEGRO_JOYSTICK *joy, int button, bool down)
 {
    ALLEGRO_BITMAP *bmp = al_get_target_bitmap();
    int x = al_get_bitmap_width(bmp)/2-120 + (button % 8) * 30;
    int y = al_get_bitmap_height(bmp)-120 + (button / 8) * 30;
+   ALLEGRO_COLOR fg;
 
    al_draw_filled_rectangle(x, y, x + 25, y + 25, grey);
    al_draw_rectangle(x+0.5, y+0.5, x + 24.5, y + 24.5, black, 0);
    if (down) {
       al_draw_filled_rectangle(x + 2, y + 2, x + 23, y + 23, black);
+      fg = white;
+   }
+   else {
+      fg = black;
+   }
+
+   if (joy) {
+      al_draw_text(font, fg, x + 13, y + 8, ALLEGRO_ALIGN_CENTRE,
+         al_get_joystick_button_name(joy, button));
    }
 }
 
 
 
-static void draw_all(void)
+static void draw_all(ALLEGRO_JOYSTICK *joy)
 {
    ALLEGRO_BITMAP *bmp = al_get_target_bitmap();
    int width = al_get_bitmap_width(bmp);
@@ -106,16 +143,21 @@ static void draw_all(void)
 
    al_clear_to_color(al_map_rgb(0xff, 0xff, 0xc0));
 
+   if (joy) {
+      al_draw_textf(font, black, width / 2, height - 10, ALLEGRO_ALIGN_CENTRE,
+         "Joystick: %s", al_get_joystick_name(joy));
+   }
+
    for (i = 0; i < num_sticks; i++) {
       int u = i%4;
       int v = i/4;
       int cx = (u + 0.5) * width/4;
       int cy = (v + 0.5) * height/6;
-      draw_joystick_axes(cx, cy, i);
+      draw_joystick_axes(joy, cx, cy, i);
    }
 
    for (i = 0; i < num_buttons; i++) {
-      draw_joystick_button(i, joys_buttons[i]);
+      draw_joystick_button(joy, i, joys_buttons[i]);
    }
 
    al_flip_display();
@@ -129,7 +171,7 @@ static void main_loop(void)
 
    while (true) {
       if (al_is_event_queue_empty(event_queue))
-         draw_all();
+         draw_all(al_get_joystick(0));
 
       al_wait_for_event(event_queue, &event);
 
@@ -188,6 +230,7 @@ int main(void)
       abort_example("Could not init Allegro.\n");
    }
    al_init_primitives_addon();
+   al_init_font_addon();
 
    display = al_create_display(640, 480);
    if (!display) {
@@ -199,6 +242,7 @@ int main(void)
    black = al_map_rgb(0, 0, 0);
    grey = al_map_rgb(0xe0, 0xe0, 0xe0);
    white = al_map_rgb(255, 255, 255);
+   font = al_create_builtin_font();
 
    al_install_joystick();
 
@@ -216,6 +260,8 @@ int main(void)
    setup_joystick_values(al_get_joystick(0));
 
    main_loop();
+
+   al_destroy_font(font);
 
    return 0;
 }
