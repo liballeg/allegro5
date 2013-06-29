@@ -25,7 +25,7 @@
 
 #include "allegro5/allegro.h"
 
-#if defined ALLEGRO_HAVE_LINUX_INPUT_H || defined ALLEGRO_RASPBERRYPI
+#ifdef ALLEGRO_HAVE_LINUX_INPUT_H
 
 ALLEGRO_DEBUG_CHANNEL("lmseev");
 
