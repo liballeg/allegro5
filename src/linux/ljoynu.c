@@ -34,13 +34,12 @@
 #include "allegro5/internal/aintern_joystick.h"
 #include "allegro5/platform/aintunix.h"
 
-#ifdef ALLEGRO_HAVE_LINUX_JOYSTICK_H
+#ifdef ALLEGRO_HAVE_LINUX_INPUT_H
 
 /* To be safe, include sys/types.h before linux/joystick.h to avoid conflicting
  * definitions of fd_set.
  */
 #include <sys/types.h>
-#include <linux/joystick.h>
 #include <linux/input.h>
 
 #if defined(ALLEGRO_HAVE_SYS_INOTIFY_H) && defined(ALLEGRO_HAVE_SYS_TIMERFD_H)
@@ -948,7 +947,7 @@ static void ljoy_generate_button_event(ALLEGRO_JOYSTICK_LINUX *joy, int button, 
    _al_event_source_emit_event(es, &event);
 }
 
-#endif /* ALLEGRO_HAVE_LINUX_JOYSTICK_H */
+#endif /* ALLEGRO_HAVE_LINUX_INPUT_H */
 
 
 

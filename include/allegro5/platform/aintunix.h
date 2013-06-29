@@ -70,7 +70,7 @@ void _al_unix_stop_watching_fd(int fd);
 /* This isn't in aintlnx.h because it's needed for the X11 port as well. */
 #define _ALLEGRO_JOYDRV_LINUX    AL_ID('L','N','X','A')
 
-#ifdef ALLEGRO_HAVE_LINUX_JOYSTICK_H
+#ifdef ALLEGRO_HAVE_LINUX_INPUT_H
 AL_VAR(struct ALLEGRO_JOYSTICK_DRIVER, _al_joydrv_linux);
 #endif
 
