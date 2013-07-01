@@ -584,6 +584,12 @@ static void xdpy_destroy_display_hook_default(ALLEGRO_DISPLAY *d, bool is_last)
       glx->xvinfo = NULL;
    }
 
+   if ((glx->glxwindow) && (glx->glxwindow != glx->window)) {
+      glXDestroyWindow(s->x11display, glx->glxwindow);
+      glx->glxwindow = 0;
+      ALLEGRO_DEBUG("destroy glx window");
+   }
+
    _al_cond_destroy(&glx->mapped);
 
    ALLEGRO_DEBUG("destroy window.\n");
@@ -1035,7 +1041,7 @@ static void xdpy_set_window_title_default(ALLEGRO_DISPLAY *display, const char *
    {
       Atom WM_NAME = XInternAtom(system->x11display, "WM_NAME", False);
       Atom _NET_WM_NAME = XInternAtom(system->x11display, "_NET_WM_NAME", False);
-      char *list[] = {(void *)title};
+      char *list[1] = { (char *) title };
       XTextProperty property;
 
       Xutf8TextListToTextProperty(system->x11display, list, 1, XUTF8StringStyle,
@@ -1045,10 +1051,16 @@ static void xdpy_set_window_title_default(ALLEGRO_DISPLAY *display, const char *
       XFree(property.value);
    }
    {
-      XClassHint hint;
-      hint.res_name = strdup(title); // Leak? (below too...)
-      hint.res_class = strdup(title);
-      XSetClassHint(system->x11display, glx->window, &hint);
+      XClassHint *hint = XAllocClassHint();
+      if (hint) {
+         /* There's no need to use strdup here at all, and doing so would cause
+          * a memory leak.
+          */
+         hint->res_name = (char *) title;
+         hint->res_class = (char *) title;
+         XSetClassHint(system->x11display, glx->window, hint);
+         XFree(hint);
+      }
    }
    _al_mutex_unlock(&system->lock);
 }
