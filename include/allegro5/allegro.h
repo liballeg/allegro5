@@ -43,6 +43,7 @@
 #include "allegro5/fmaths.h"
 #include "allegro5/fshook.h"
 #include "allegro5/fullscreen_mode.h"
+#include "allegro5/haptic.h"
 #include "allegro5/joystick.h"
 #include "allegro5/keyboard.h"
 #include "allegro5/memory.h"

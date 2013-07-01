@@ -23,6 +23,7 @@ set(ALLEGRO_SRC_FILES
     src/fshook.c
     src/fshook_stdio.c
     src/fullscreen_mode.c
+    src/haptic.c
     src/inline.c
     src/joynu.c
     src/keybdnu.c
@@ -113,6 +114,7 @@ set(ALLEGRO_SRC_X_FILES
     src/x/xrandr.c
     src/x/xsystem.c
     src/x/xwindow.c
+    src/linux/lhaptic.c
     src/linux/ljoynu.c
     )
 
@@ -164,6 +166,7 @@ set(ALLEGRO_SRC_RASPBERRYPI_FILES
    src/linux/lkeybdnu.c
    src/linux/lmseev.c
    src/linux/lmsedrv.c
+   src/linux/lhaptic.c
    src/linux/ljoynu.c
    src/x/xevents.c
    src/x/xkeyboard.c
@@ -196,6 +199,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/fmaths.h
     include/allegro5/fshook.h
     include/allegro5/fullscreen_mode.h
+    include/allegro5/haptic.h
     include/allegro5/joystick.h
     include/allegro5/keyboard.h
     include/allegro5/keycodes.h

@@ -13,6 +13,7 @@ set(PAGES
     fshook
     fullscreen_mode
     graphics
+    haptic
     joystick
     keyboard
     memory

@@ -173,6 +173,11 @@ static ALLEGRO_JOYSTICK_DRIVER *xglx_get_joystick_driver(void)
    return _al_joystick_driver_list[0].driver;
 }
 
+static ALLEGRO_HAPTIC_DRIVER *xglx_get_haptic_driver(void)
+{
+   return _al_haptic_driver;
+}
+
 static int xglx_get_num_video_adapters(void)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
@@ -239,6 +244,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
    xglx_vt->get_keyboard_driver = xglx_get_keyboard_driver;
    xglx_vt->get_mouse_driver = xglx_get_mouse_driver;
    xglx_vt->get_joystick_driver = xglx_get_joystick_driver;
+   xglx_vt->get_haptic_driver = xglx_get_haptic_driver;
    xglx_vt->get_num_display_modes = xglx_get_num_display_modes;
    xglx_vt->get_display_mode = xglx_get_display_mode;
    xglx_vt->shutdown_system = xglx_shutdown_system;
