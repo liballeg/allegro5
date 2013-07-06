@@ -175,7 +175,11 @@ static ALLEGRO_JOYSTICK_DRIVER *xglx_get_joystick_driver(void)
 
 static ALLEGRO_HAPTIC_DRIVER *xglx_get_haptic_driver(void)
 {
-   return _al_haptic_driver;
+#ifdef ALLEGRO_HAVE_LINUX_INPUT_H
+   return &_al_hapdrv_linux;
+#else
+   return NULL;
+#endif
 }
 
 static int xglx_get_num_video_adapters(void)

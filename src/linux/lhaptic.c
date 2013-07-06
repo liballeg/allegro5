@@ -19,12 +19,15 @@
 #include <math.h>
 #include <stdio.h>
 #include <sys/time.h>
-#include <linux/input.h>
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_haptic.h"
 #include "allegro5/internal/aintern_ljoynu.h"
 #include "allegro5/platform/aintunix.h"
+
+#ifdef ALLEGRO_HAVE_LINUX_INPUT_H
+
+#include <linux/input.h>
 
 ALLEGRO_DEBUG_CHANNEL("lhaptic")
 
@@ -87,7 +90,7 @@ static bool lhap_is_effect_playing(ALLEGRO_HAPTIC_EFFECT_ID *id);
 static bool lhap_release_effect(ALLEGRO_HAPTIC_EFFECT_ID *id);
 
 
-static ALLEGRO_HAPTIC_DRIVER hapdrv_linux =
+ALLEGRO_HAPTIC_DRIVER _al_hapdrv_linux =
 {
    _ALLEGRO_HAPDRV_LINUX,
    "",
@@ -123,9 +126,6 @@ static ALLEGRO_HAPTIC_DRIVER hapdrv_linux =
 
    lhap_release
 };
-
-
-ALLEGRO_HAPTIC_DRIVER *_al_haptic_driver = &hapdrv_linux;
 
 
 static ALLEGRO_HAPTIC_LINUX haptics[HAPTICS_MAX];
@@ -806,6 +806,9 @@ static bool lhap_release(ALLEGRO_HAPTIC *haptic)
    lhap->fd = -1;
    return true;
 }
+
+
+#endif /* ALLEGRO_HAVE_LINUX_INPUT_H */
 
 
 /* vim: set sts=3 sw=3 et: */
