@@ -10,6 +10,7 @@
 * [Fixed point math](fixed.html)
 * [Fullscreen modes](fullscreen_mode.html)
 * [Graphics](graphics.html)
+* [Haptic](haptic.html)
 * [Joystick](joystick.html)
 * [Keyboard](keyboard.html)
 * [Memory](memory.html)

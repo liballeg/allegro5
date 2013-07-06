@@ -20,6 +20,7 @@ API
 * [Fixed point math](fixed.html)
 * [Fullscreen modes](fullscreen_mode.html)
 * [Graphics routines](graphics.html)
+* [Haptic routines](haptic.html)
 * [Joystick routines](joystick.html)
 * [Keyboard routines](keyboard.html)
 * [Memory management](memory.html)
