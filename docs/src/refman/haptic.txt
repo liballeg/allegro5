@@ -10,6 +10,8 @@ These functions are declared in the main Allegro header file:
 This is an abstract data type representing a haptic device that supports
 force feedback or vibration.
 
+Since: 5.1.8
+
 See also: [al_get_haptic_from_joystick]
 
 ## API: ALLEGRO_HAPTIC_CONSTANTS
@@ -38,6 +40,8 @@ to determine what kind of haptic effect should be caused when it is played.
 * ALLEGRO_HAPTIC_ANGLE     - the haptic device supports angle coordinates
 * ALLEGRO_HAPTIC_RADIUS    - the haptic device supports radius coordinates
 * ALLEGRO_HAPTIC_AZIMUTH   - the haptic device supports azimuth coordinates
+
+Since: 5.1.8
 
 See also: [al_get_haptic_capabilities], [ALLEGRO_HAPTIC_EFFECT]
 
@@ -234,6 +238,7 @@ data
     `data.envelope` to 0.0. The effect will then play back at full intensity
     throughout its playback.
 
+Since: 5.1.8
 
 ## API: ALLEGRO_HAPTIC_EFFECT_ID
 
@@ -241,27 +246,39 @@ This struct is used as a handle to control playback of a haptic effect.
 The struct should be considered opaque. Its implementation is visible merely
 to allow allocation by the users of the Allegro library.
 
+Since: 5.1.8
+
 ## API: al_install_haptic
 
 Installs the haptic (force feedback) device subsystem. This must be called
 before using any other haptic-related functions. Returns true if the haptics
 subsystem could be initialized correctly, false if not.
 
+Since: 5.1.8
+
 ## API: al_uninstall_haptic
 
 Uninstalls the haptic device subsystem.
+
+Since: 5.1.8
 
 ## API: al_is_haptic_installed
 
 Returns true if the haptic device subsystem is installed, false if not.
 
+Since: 5.1.8
+
 ## API: al_is_mouse_haptic
 
 Returns true if the mouse has haptic capabilities, false if not.
 
+Since: 5.1.8
+
 ## API: al_is_keyboard_haptic
 
 Returns true if the keyboard has haptic capabilities, false if not.
+
+Since: 5.1.8
 
 ## API: al_is_display_haptic
 
@@ -269,28 +286,40 @@ Returns true if the display has haptic capabilities, false if not. To be more
 precise, this is mainly meant for force feedback that shakes a hand held
 device, such as a phone or a tablet.
 
+Since: 5.1.8
+
 ## API: al_is_joystick_haptic
 
 Returns true if the joystick has haptic capabilities, false if not.
 
+Since: 5.1.8
+
 ## API: al_is_touch_input_haptic
 
 Returns true if the touch input device has haptic capabilities, false if not.
+
+Since: 5.1.8
 
 ## API: al_get_haptic_from_mouse
 
 If the mouse has haptic capabilities, returns the associated haptic device
 handle.  Otherwise returns NULL.
 
+Since: 5.1.8
+
 ## API: al_get_haptic_from_keyboard
 
 If the keyboard has haptic capabilities, returns the associated haptic device
 handle.  Otherwise returns NULL.
 
+Since: 5.1.8
+
 ## API: al_get_haptic_from_display
 
 If the display has haptic capabilities, returns the associated haptic device
 handle.  Otherwise returns NULL.
+
+Since: 5.1.8
 
 ## API: al_get_haptic_from_joystick
 
@@ -298,10 +327,14 @@ If the joystick has haptic capabilities, returns the associated haptic device
 handle.  Otherwise returns NULL. It's neccesary to call this again every time
 the joystick configuration changes, such as though hot plugging.
 
+Since: 5.1.8
+
 ## API: al_get_haptic_from_touch_input
 
 If the touch input device has haptic capabilities, returns the associated
 haptic device handle. Otherwise returns NULL.
+
+Since: 5.1.8
 
 ## API: al_release_haptic
 
@@ -309,14 +342,20 @@ Releases the haptic device and it's resources when it's not needed anymore.
 Should also be used in case the joystick configuration changed, such as when
 a joystick is hot plugged.
 
+Since: 5.1.8
+
 ## API: al_get_haptic_active
 
 Returns true if the haptic device can currently be used, false if not.
+
+Since: 5.1.8
 
 ## API: al_get_haptic_capabilities
 
 Returns an integer with or'ed values from [ALLEGRO_HAPTIC_CONSTANTS], which,
 if set, indicate that the haptic device supports the given feature.
+
+Since: 5.1.8
 
 ## API: al_set_haptic_gain
 
@@ -327,6 +366,8 @@ Only works if [al_get_haptic_capabilities] returns a value that has
 [ALLEGRO_HAPTIC_GAIN] set.  If not, this function returns false, and all
 effects will be played without any gain influence.
 
+Since: 5.1.8
+
 ## API: al_get_haptic_gain
 
 Returns the current gain of the device. Gain is much like volume for sound,
@@ -336,15 +377,21 @@ returns a value that has [ALLEGRO_HAPTIC_GAIN] set. If this is not set, this
 function will simply return 1.0 and all effects will be played without any
 gain influence.
 
+Since: 5.1.8
+
 ## API: al_get_num_haptic_effects
 
 Returns the maximum amount of haptic effects that can be uploaded to the
 device.  This depends on the platform and the device.
 
+Since: 5.1.8
+
 ## API: al_is_haptic_effect_ok
 
 Returns true if the haptic device can play the haptic effect as given, false
 if not.  The haptic effect must have been filled in completely and correctly.
+
+Since: 5.1.8
 
 ## API: al_upload_haptic_effect
 
@@ -356,6 +403,8 @@ false if not.
 
 The same haptic effect can be uploaded several times, as long as care is
 taken to pass in a different [ALLEGRO_HAPTIC_EFFECT_ID].
+
+Since: 5.1.8
 
 ## API: al_play_haptic_effect
 
@@ -370,10 +419,14 @@ This function returns immediately and doesn't wait for the playback to
 finish. It returns true if the playback was started sucessfully or false if
 not.
 
+Since: 5.1.8
+
 ## API: al_upload_and_play_haptic_effect
 
 Uploads and immediately plays back the haptic effect to the device. Returns
 true if the upload and playback were successful, false if either failed.
+
+Since: 5.1.8
 
 See also: [al_upload_haptic_effect], [al_play_haptic_effect]
 
@@ -383,6 +436,8 @@ Stops playing a previously uploaded haptic effect. The play_id must be a
 valid [ALLEGRO_HAPTIC_EFFECT_ID] obtained from [al_upload_haptic_effect],
 [al_upload_and_play_haptic_effect] or [al_rumble_haptic].
 
+Since: 5.1.8
+
 ## API: al_is_haptic_effect_playing
 
 Returns true if the haptic effect is currently playing. Returns false if the
@@ -391,12 +446,16 @@ played yet. The play_id must be a valid [ALLEGRO_HAPTIC_EFFECT_ID] obtained
 from [al_upload_haptic_effect], [al_upload_and_play_haptic_effect] or
 [al_rumble_haptic].
 
+Since: 5.1.8
+
 ## API: al_release_haptic_effect
 
 Releases a previously uploaded haptic effect from the device it has been
 uploaded to, allowing for other effects to be uploaded. The play_id must be a
 valid [ALLEGRO_HAPTIC_EFFECT_ID] obtained from [al_upload_haptic_effect],
 [al_upload_and_play_haptic_effect] or [al_rumble_haptic].
+
+Since: 5.1.8
 
 ## API: al_rumble_haptic
 
@@ -409,3 +468,5 @@ You must also pass in a pointer to a user allocated
 [ALLEGRO_HAPTIC_EFFECT_ID].  It it is stored a reference to be used to
 control playback of the effect.  Returns true if the rumble effect was
 successfully uploaded and started, false if not.
+
+Since: 5.1.8
