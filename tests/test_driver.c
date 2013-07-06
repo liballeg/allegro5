@@ -124,6 +124,7 @@ static void error(char const *msg, ...)
    fprintf(stderr, "test_driver: ");
    vfprintf(stderr, msg, ap);
    fprintf(stderr, "\n");
+   fprintf(stderr, "See --help for usage\n");
    va_end(ap);
    exit(EXIT_FAILURE);
 }
@@ -1525,6 +1526,26 @@ static void process_ini_files(void)
    }
 }
 
+const char* help_str =
+" [OPTION] CONFIG_FILE [TEST_NAME]... [CONFIG_FILE [TEST_NAME]...]...\n"
+"\n"
+"Run Allegro graphical output tests within one or more CONFIG_FILEs (each\n"
+"having an .ini extension). By default this program runs all the tests in a\n"
+"file, but individual TEST_NAMEs can be specified after each CONFIG_FILE.\n"
+"\n"
+"Options:\n"
+" -d, --delay        duration (in sec) to wait between tests\n"
+" --force-d3d        force using D3D (Windows only)\n"
+" --force-opengl-1.2 force using OpenGL 1.2\n"
+" --force-opengl-2.0 force using OpenGL 2.0\n"
+" --force-opengl     force using OpenGL\n"
+" -h, --help         display this message\n"
+" -n, --no-display   do not create a display (hardware drawing is disabled)\n"
+" -s, --save         save the output of each test in the current directory\n"
+" --use-shaders      use the programmable pipeline for drawing\n"
+" -v, --verbose      show additional information after each test\n"
+" -q, --quiet        do not draw test output to the display\n";
+
 int main(int _argc, char *_argv[])
 {
    int display_flags = 0;
@@ -1583,6 +1604,10 @@ int main(int _argc, char *_argv[])
       }
       else if (streq(opt, "--use-shaders")) {
          display_flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
+      }
+      else if (streq(opt, "-h") || streq(opt, "--help")) {
+         printf("Usage:\n%s%s", _argv[0], help_str);
+         return 0;
       }
       else {
          break;
