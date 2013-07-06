@@ -460,6 +460,7 @@ void al_horizontal_shear_transform(ALLEGRO_TRANSFORM* trans, float theta)
 
    trans->m[0][0] += trans->m[0][1] * s;
    trans->m[1][0] += trans->m[1][1] * s;
+   trans->m[3][0] += trans->m[3][1] * s;
 }
 
 
@@ -473,6 +474,7 @@ void al_vertical_shear_transform(ALLEGRO_TRANSFORM* trans, float theta)
 
    trans->m[0][1] += trans->m[0][0] * s;
    trans->m[1][1] += trans->m[1][0] * s;
+   trans->m[3][1] += trans->m[3][0] * s;
 }
 
 

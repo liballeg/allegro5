@@ -1296,6 +1296,16 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
          continue;
       }
 
+      /* Transformations (5.1) */
+      if (SCAN("al_horizontal_shear_transform", 2)) {
+         al_horizontal_shear_transform(get_transform(V(0)), F(1));
+         continue;
+      }
+      if (SCAN("al_vertical_shear_transform", 2)) {
+         al_vertical_shear_transform(get_transform(V(0)), F(1));
+         continue;
+      }
+
       error("statement didn't scan: %s", stmt);
    }
 
