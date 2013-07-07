@@ -71,6 +71,7 @@ static void draw_joystick_axes(ALLEGRO_JOYSTICK *joy, int cx, int cy, int stick)
    int x = cx + joys[stick][0] * size;
    int y = cy + joys[stick][1] * size;
    int z = cy + joys[stick][2] * size;
+   int i;
 
    al_draw_filled_rectangle(cx-osize, cy-osize, cx+osize, cy+osize, grey);
    al_draw_rectangle(cx-osize+0.5, cy-osize+0.5, cx+osize-0.5, cy+osize-0.5, black, 0);
@@ -83,26 +84,12 @@ static void draw_joystick_axes(ALLEGRO_JOYSTICK *joy, int cx, int cy, int stick)
    }
 
    if (joy) {
-      if (num_axes[stick] >= 3) {
-         al_draw_textf(font, black, cx, cy + osize + 1, ALLEGRO_ALIGN_CENTRE,
-            "%s: %s %s %s",
-            al_get_joystick_stick_name(joy, stick),
-            al_get_joystick_axis_name(joy, stick, 0),
-            al_get_joystick_axis_name(joy, stick, 1),
-            al_get_joystick_axis_name(joy, stick, 2));
-      }
-      else if (num_axes[stick] == 2) {
-         al_draw_textf(font, black, cx, cy + osize + 1, ALLEGRO_ALIGN_CENTRE,
-            "%s: %s %s",
-            al_get_joystick_stick_name(joy, stick),
-            al_get_joystick_axis_name(joy, stick, 0),
-            al_get_joystick_axis_name(joy, stick, 1));
-      }
-      else if (num_axes[stick] == 1) {
-         al_draw_textf(font, black, cx, cy + osize + 1, ALLEGRO_ALIGN_CENTRE,
-            "%s: %s",
-            al_get_joystick_stick_name(joy, stick),
-            al_get_joystick_axis_name(joy, stick, 0));
+      al_draw_text(font, black, cx, cy + osize + 1, ALLEGRO_ALIGN_CENTRE,
+         al_get_joystick_stick_name(joy, stick));
+      for (i = 0; i < num_axes[stick]; i++) {
+         al_draw_text(font, black, cx, cy + osize + (1 + i) * 10,
+            ALLEGRO_ALIGN_CENTRE,
+            al_get_joystick_axis_name(joy, stick, i));
       }
    }
 }
@@ -127,8 +114,10 @@ static void draw_joystick_button(ALLEGRO_JOYSTICK *joy, int button, bool down)
    }
 
    if (joy) {
-      al_draw_text(font, fg, x + 13, y + 8, ALLEGRO_ALIGN_CENTRE,
-         al_get_joystick_button_name(joy, button));
+      const char *name = al_get_joystick_button_name(joy, button);
+      if (strlen(name) < 4) {
+         al_draw_text(font, fg, x + 13, y + 8, ALLEGRO_ALIGN_CENTRE, name);
+      }
    }
 }
 
@@ -144,7 +133,7 @@ static void draw_all(ALLEGRO_JOYSTICK *joy)
    al_clear_to_color(al_map_rgb(0xff, 0xff, 0xc0));
 
    if (joy) {
-      al_draw_textf(font, black, width / 2, height - 10, ALLEGRO_ALIGN_CENTRE,
+      al_draw_textf(font, black, width / 2, 10, ALLEGRO_ALIGN_CENTRE,
          "Joystick: %s", al_get_joystick_name(joy));
    }
 
@@ -232,7 +221,7 @@ int main(void)
    al_init_primitives_addon();
    al_init_font_addon();
 
-   display = al_create_display(640, 480);
+   display = al_create_display(1024, 768);
    if (!display) {
       abort_example("al_create_display failed\n");
    }
