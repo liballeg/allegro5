@@ -155,6 +155,10 @@ struct ALLEGRO_VERTEX {
  */
 typedef struct ALLEGRO_VERTEX_BUFFER ALLEGRO_VERTEX_BUFFER;
 
+/* Type: ALLEGRO_INDEX_BUFFER
+ */
+typedef struct ALLEGRO_INDEX_BUFFER ALLEGRO_INDEX_BUFFER;
+
 ALLEGRO_PRIM_FUNC(uint32_t, al_get_allegro_primitives_version, (void));
 
 /*
@@ -164,6 +168,8 @@ ALLEGRO_PRIM_FUNC(bool, al_init_primitives_addon, (void));
 ALLEGRO_PRIM_FUNC(void, al_shutdown_primitives_addon, (void));
 ALLEGRO_PRIM_FUNC(int, al_draw_prim, (const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEGRO_BITMAP* texture, int start, int end, int type));
 ALLEGRO_PRIM_FUNC(int, al_draw_indexed_prim, (const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEGRO_BITMAP* texture, const int* indices, int num_vtx, int type));
+ALLEGRO_PRIM_FUNC(int, al_draw_vertex_buffer, (ALLEGRO_VERTEX_BUFFER* vertex_buffer, ALLEGRO_BITMAP* texture, int start, int end, int type));
+ALLEGRO_PRIM_FUNC(int, al_draw_indexed_buffer, (ALLEGRO_VERTEX_BUFFER* vertex_buffer, ALLEGRO_BITMAP* texture, ALLEGRO_INDEX_BUFFER* index_buffer, int start, int end, int type));
 
 ALLEGRO_PRIM_FUNC(ALLEGRO_VERTEX_DECL*, al_create_vertex_decl, (const ALLEGRO_VERTEX_ELEMENT* elements, int stride));
 ALLEGRO_PRIM_FUNC(void, al_destroy_vertex_decl, (ALLEGRO_VERTEX_DECL* decl));
@@ -171,11 +177,20 @@ ALLEGRO_PRIM_FUNC(void, al_destroy_vertex_decl, (ALLEGRO_VERTEX_DECL* decl));
 /*
  * Vertex buffers
  */
-ALLEGRO_PRIM_FUNC(ALLEGRO_VERTEX_BUFFER*, al_create_vertex_buffer, (ALLEGRO_VERTEX_DECL* decl, const void* initial_data, size_t num_vertices, int flags));
+ALLEGRO_PRIM_FUNC(ALLEGRO_VERTEX_BUFFER*, al_create_vertex_buffer, (ALLEGRO_VERTEX_DECL* decl, const void* initial_data, int num_vertices, int flags));
 ALLEGRO_PRIM_FUNC(void, al_destroy_vertex_buffer, (ALLEGRO_VERTEX_BUFFER* buffer));
-ALLEGRO_PRIM_FUNC(void*, al_lock_vertex_buffer, (ALLEGRO_VERTEX_BUFFER* buffer, size_t offset, size_t length, int flags));
+ALLEGRO_PRIM_FUNC(void*, al_lock_vertex_buffer, (ALLEGRO_VERTEX_BUFFER* buffer, int offset, int length, int flags));
 ALLEGRO_PRIM_FUNC(void, al_unlock_vertex_buffer, (ALLEGRO_VERTEX_BUFFER* buffer));
-ALLEGRO_PRIM_FUNC(int, al_draw_vertex_buffer, (ALLEGRO_VERTEX_BUFFER* vertex_buffer, ALLEGRO_BITMAP* texture, int start, int end, int type));
+ALLEGRO_PRIM_FUNC(int, al_get_vertex_buffer_size, (ALLEGRO_VERTEX_BUFFER* buffer));
+
+/*
+ * Index buffers
+ */
+ALLEGRO_PRIM_FUNC(ALLEGRO_INDEX_BUFFER*, al_create_index_buffer, (int index_size, const void* initial_data, int num_indices, int flags));
+ALLEGRO_PRIM_FUNC(void, al_destroy_index_buffer, (ALLEGRO_INDEX_BUFFER* buffer));
+ALLEGRO_PRIM_FUNC(void*, al_lock_index_buffer, (ALLEGRO_INDEX_BUFFER* buffer, int offset, int length, int flags));
+ALLEGRO_PRIM_FUNC(void, al_unlock_index_buffer, (ALLEGRO_INDEX_BUFFER* buffer));
+ALLEGRO_PRIM_FUNC(int, al_get_index_buffer_size, (ALLEGRO_INDEX_BUFFER* buffer));
 
 /*
 * Utilities for high level primitives.

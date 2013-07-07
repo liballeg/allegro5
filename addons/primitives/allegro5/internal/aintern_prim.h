@@ -25,18 +25,29 @@ typedef struct ALLEGRO_PRIM_VERTEX_CACHE {
    void*           user_data;
 } ALLEGRO_PRIM_VERTEX_CACHE;
 
-struct ALLEGRO_VERTEX_BUFFER {
-   ALLEGRO_VERTEX_DECL* decl;
+typedef struct ALLEGRO_BUFFER_COMMON {
    uintptr_t handle;
    bool write_only;
+   /* In elements */
+   int size;
 
    bool is_locked;
-   void* locked_memory;
-   /* These two are in bytes */
-   size_t local_buffer_length;
-   size_t lock_offset;
-   size_t lock_length;
    int lock_flags;
+   void* locked_memory;
+    /* These three are in bytes */
+   int local_buffer_length;
+   int lock_offset;
+   int lock_length;
+} ALLEGRO_BUFFER_COMMON;
+
+struct ALLEGRO_VERTEX_BUFFER {
+   ALLEGRO_VERTEX_DECL* decl;
+   ALLEGRO_BUFFER_COMMON common;
+};
+
+struct ALLEGRO_INDEX_BUFFER {
+   int index_size;
+   ALLEGRO_BUFFER_COMMON common;
 };
 
 /* Internal cache for primitives. */

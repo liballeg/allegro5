@@ -656,7 +656,7 @@ int _al_draw_vertex_buffer_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textu
    /* Check for early exit */
    if(vertex_buffer->decl && vertex_buffer->decl->d3d_decl == 0) {
       void* vtx;
-      ASSERT(!vertex_buffer->write_only);
+      ASSERT(!vertex_buffer->common.write_only);
       vtx = al_lock_vertex_buffer(vertex_buffer, start, end - start, ALLEGRO_LOCK_READONLY);
       ASSERT(vtx);
       num_primitives = _al_draw_prim_soft(texture, vtx, vertex_buffer->decl, 0, num_vtx, type);
@@ -668,7 +668,7 @@ int _al_draw_vertex_buffer_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textu
 
    state = setup_state(device, vertex_buffer->decl, target, texture);
 
-   device->SetStreamSource(0, (IDirect3DVertexBuffer9*)vertex_buffer->handle, 0, stride);
+   device->SetStreamSource(0, (IDirect3DVertexBuffer9*)vertex_buffer->common.handle, 0, stride);
 
 #ifdef ALLEGRO_CFG_SHADER_HLSL
    if (target->display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
@@ -915,7 +915,7 @@ bool _al_create_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf, const void* in
       d3d_vbuff->Unlock();
    }
 
-   buf->handle = (uintptr_t)d3d_vbuff;
+   buf->common.handle = (uintptr_t)d3d_vbuff;
 
    return true;
 #else
@@ -931,7 +931,7 @@ bool _al_create_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf, const void* in
 void _al_destroy_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf)
 {
 #ifdef ALLEGRO_CFG_D3D
-   ((IDirect3DVertexBuffer9*)buf->handle)->Release();
+   ((IDirect3DVertexBuffer9*)buf->common.handle)->Release();
 #else
    (void)buf;
 #endif
@@ -940,14 +940,14 @@ void _al_destroy_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf)
 void* _al_lock_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf)
 {
 #ifdef ALLEGRO_CFG_D3D
-   DWORD flags = buf->lock_flags == ALLEGRO_LOCK_READONLY ? D3DLOCK_READONLY : 0;
+   DWORD flags = buf->common.lock_flags == ALLEGRO_LOCK_READONLY ? D3DLOCK_READONLY : 0;
    HRESULT res;
 
-   res = ((IDirect3DVertexBuffer9*)buf->handle)->Lock((UINT)buf->lock_offset, (UINT)buf->lock_length, &buf->locked_memory, flags);
+   res = ((IDirect3DVertexBuffer9*)buf->common.handle)->Lock((UINT)buf->common.lock_offset, (UINT)buf->common.lock_length, &buf->common.locked_memory, flags);
    if (res != D3D_OK)
       return 0;
 
-   return buf->locked_memory;
+   return buf->common.locked_memory;
 #else
    (void)buf;
 
@@ -958,7 +958,7 @@ void* _al_lock_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf)
 void _al_unlock_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf)
 {
 #ifdef ALLEGRO_CFG_D3D
-   ((IDirect3DVertexBuffer9*)buf->handle)->Unlock();
+   ((IDirect3DVertexBuffer9*)buf->common.handle)->Unlock();
 #else
    (void)buf;
 #endif

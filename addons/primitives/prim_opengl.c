@@ -392,7 +392,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    if ((!extra->is_backbuffer && ogl_disp->ogl_extras->opengl_target !=
       opengl_target) || al_is_bitmap_locked(target)) {
       if (vertex_buffer) {
-         ASSERT(!vertex_buffer->write_only);
+         ASSERT(!vertex_buffer->common.write_only);
          vtx = al_lock_vertex_buffer(vertex_buffer, start, end - start, ALLEGRO_LOCK_READONLY);
          ASSERT(vtx);
          num_primitives = _al_draw_prim_soft(texture, vtx, decl, 0, num_vtx, type);
@@ -405,7 +405,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    }
 
    if (vertex_buffer) {
-      glBindBuffer(GL_ARRAY_BUFFER, (GLuint)vertex_buffer->handle);
+      glBindBuffer(GL_ARRAY_BUFFER, (GLuint)vertex_buffer->common.handle);
    }
 
    _al_opengl_set_blender(ogl_disp);
@@ -459,83 +459,137 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
 }
 
 static int draw_prim_indexed_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
-   const void* vtx, const ALLEGRO_VERTEX_DECL* decl, const int* indices,
-   int num_vtx, int type)
+   ALLEGRO_VERTEX_BUFFER* vertex_buffer,
+   const void* vtx, const ALLEGRO_VERTEX_DECL* decl,
+   ALLEGRO_INDEX_BUFFER* index_buffer,
+   const int* indices,
+   int start, int end, int type)
 {
    int num_primitives = 0;
    ALLEGRO_DISPLAY *ogl_disp = target->display;
    ALLEGRO_BITMAP *opengl_target = target;
    ALLEGRO_BITMAP_EXTRA_OPENGL *extra;
-   const void* idx = indices;
-   GLenum idx_size;
-
-#if defined ALLEGRO_IPHONE
-   GLushort ind[num_vtx];
+   const char* idx = (const char*)indices;
+   int start_offset = 0;
+   GLenum idx_size = GL_UNSIGNED_INT;
+   bool use_buffers = index_buffer != NULL;
+   int num_vtx = end - start;
    int ii;
+#if defined ALLEGRO_IPHONE
+   GLushort* iphone_idx = NULL;
 #endif
 
+   if (use_buffers) {
+      idx_size = index_buffer->index_size == 4 ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT;
+      start_offset = start * index_buffer->index_size;
+   }
+
    if (target->parent) {
-       opengl_target = target->parent;
+      opengl_target = target->parent;
    }
    extra = opengl_target->extra;
 
    if ((!extra->is_backbuffer && ogl_disp->ogl_extras->opengl_target !=
       opengl_target) || al_is_bitmap_locked(target)) {
-      return _al_draw_prim_indexed_soft(texture, vtx, decl, indices, num_vtx, type);
+      if (use_buffers) {
+         int* int_idx = NULL;
+         ASSERT(!vertex_buffer->common.write_only);
+         ASSERT(!index_buffer->common.write_only);
+
+         vtx = al_lock_vertex_buffer(vertex_buffer, 0, al_get_vertex_buffer_size(vertex_buffer), ALLEGRO_LOCK_READONLY);
+         idx = al_lock_index_buffer(index_buffer, start, end - start, ALLEGRO_LOCK_READONLY);
+
+         ASSERT(vtx);
+         ASSERT(idx);
+
+         if (idx_size != GL_UNSIGNED_INT) {
+            int_idx = al_malloc(num_vtx * sizeof(int));
+            for (ii = 0; ii < num_vtx; ii++) {
+               int_idx[ii] = ((unsigned short*)idx)[ii];
+            }
+            idx = (const char*)int_idx;
+         }
+
+         num_primitives = _al_draw_prim_indexed_soft(texture, vtx, decl, (const int*)idx, num_vtx, type);
+         al_unlock_vertex_buffer(vertex_buffer);
+         al_unlock_index_buffer(index_buffer);
+         al_free(int_idx);
+         return num_primitives;
+      }
+      else {
+         return _al_draw_prim_indexed_soft(texture, vtx, decl, indices, num_vtx, type);
+      }
    }
 
 #if defined ALLEGRO_IPHONE
-   for (ii = 0; ii < num_vtx; ii++) {
-      ind[ii] = (GLushort)indices[ii];
+   if (!use_buffers) {
+      iphone_idx = al_malloc(num_vtx * sizeof(GLushort));
+      for (ii = start; ii < end; ii++) {
+         iphone_idx[ii] = (GLushort)indices[ii];
+      }
+      idx = iphone_idx;
+      start = 0;
+      idx_size = GL_UNSIGNED_SHORT;
    }
-   idx = ind;
-   idx_size = GL_UNSIGNED_SHORT;
-#else
-   idx_size = GL_UNSIGNED_INT;
 #endif
 
    _al_opengl_set_blender(ogl_disp);
+
+   if (use_buffers) {
+      glBindBuffer(GL_ARRAY_BUFFER, (GLuint)vertex_buffer->common.handle);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint)index_buffer->common.handle);
+   }
+
    setup_state(vtx, decl, texture);
 
    switch (type) {
       case ALLEGRO_PRIM_LINE_LIST: {
-         glDrawElements(GL_LINES, num_vtx, idx_size, idx);
+         glDrawElements(GL_LINES, num_vtx, idx_size, idx + start_offset);
          num_primitives = num_vtx / 2;
          break;
       };
       case ALLEGRO_PRIM_LINE_STRIP: {
-         glDrawElements(GL_LINE_STRIP, num_vtx, idx_size, idx);
+         glDrawElements(GL_LINE_STRIP, num_vtx, idx_size, idx + start_offset);
          num_primitives = num_vtx - 1;
          break;
       };
       case ALLEGRO_PRIM_LINE_LOOP: {
-         glDrawElements(GL_LINE_LOOP, num_vtx, idx_size, idx);
+         glDrawElements(GL_LINE_LOOP, num_vtx, idx_size, idx + start_offset);
          num_primitives = num_vtx;
          break;
       };
       case ALLEGRO_PRIM_TRIANGLE_LIST: {
-         glDrawElements(GL_TRIANGLES, num_vtx, idx_size, idx);
+         glDrawElements(GL_TRIANGLES, num_vtx, idx_size, idx + start_offset);
          num_primitives = num_vtx / 3;
          break;
       };
       case ALLEGRO_PRIM_TRIANGLE_STRIP: {
-         glDrawElements(GL_TRIANGLE_STRIP, num_vtx, idx_size, idx);
+         glDrawElements(GL_TRIANGLE_STRIP, num_vtx, idx_size, idx + start_offset);
          num_primitives = num_vtx - 2;
          break;
       };
       case ALLEGRO_PRIM_TRIANGLE_FAN: {
-         glDrawElements(GL_TRIANGLE_FAN, num_vtx, idx_size, idx);
+         glDrawElements(GL_TRIANGLE_FAN, num_vtx, idx_size, idx + start_offset);
          num_primitives = num_vtx - 2;
          break;
       };
       case ALLEGRO_PRIM_POINT_LIST: {
-         glDrawElements(GL_POINTS, num_vtx, idx_size, idx);
+         glDrawElements(GL_POINTS, num_vtx, idx_size, idx + start_offset);
          num_primitives = num_vtx;
          break;
       };
    }
 
    revert_state(texture);
+
+   if (use_buffers) {
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+   }
+
+#if defined ALLEGRO_IPHONE
+   al_free(iphone_idx);
+#endif
    
    return num_primitives;
 }
@@ -578,7 +632,7 @@ int _al_draw_vertex_buffer_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textur
 int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, const int* indices, int num_vtx, int type)
 {
 #ifdef ALLEGRO_CFG_OPENGL
-   return draw_prim_indexed_raw(target, texture, vtxs, decl, indices, num_vtx, type);
+   return draw_prim_indexed_raw(target, texture, NULL, vtxs, decl, NULL, indices, 0, num_vtx, type);
 #else
    (void)target;
    (void)texture;
@@ -592,12 +646,28 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
 #endif
 }
 
-bool _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* initial_data, size_t num_vertices, int flags)
+int _al_draw_indexed_buffer_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX_BUFFER* vertex_buffer, ALLEGRO_INDEX_BUFFER* index_buffer, int start, int end, int type)
 {
+   #ifdef ALLEGRO_CFG_OPENGL
+   return draw_prim_indexed_raw(target, texture, vertex_buffer, NULL, vertex_buffer->decl, index_buffer, NULL, start, end, type);
+#else
+   (void)target;
+   (void)texture;
+   (void)vertex_buffer;
+   (void)index_buffer;
+   (void)start;
+   (void)end;
+   (void)type;
+
+   return 0;
+#endif
+}
+
 #ifdef ALLEGRO_CFG_OPENGL
+static bool create_buffer_common(ALLEGRO_BUFFER_COMMON* common, GLenum type, const void* initial_data, int size, int flags)
+{
    GLuint vbo;
    GLenum usage;
-   int stride = buf->decl ? buf->decl->stride : (int)sizeof(ALLEGRO_VERTEX);
 
    switch (flags)
    {
@@ -617,19 +687,25 @@ bool _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* ini
    }
 
    glGenBuffers(1, &vbo);
-   if (initial_data != NULL) {
-      glBindBuffer(GL_ARRAY_BUFFER, vbo);
-      glBufferData(GL_ARRAY_BUFFER, num_vertices * stride, initial_data, usage);
-      glBindBuffer(GL_ARRAY_BUFFER, 0);
-   }
+   glBindBuffer(type, vbo);
+   glBufferData(type, size, initial_data, usage);
+   glBindBuffer(type, 0);
 
    if (glGetError())
       return false;
 
-   buf->local_buffer_length = 0;
-   buf->handle = vbo;
-
+   common->handle = vbo;
+   common->local_buffer_length = 0;
    return true;
+}
+#endif
+
+bool _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* initial_data, size_t num_vertices, int flags)
+{
+#ifdef ALLEGRO_CFG_OPENGL
+   int stride = buf->decl ? buf->decl->stride : (int)sizeof(ALLEGRO_VERTEX);
+
+   return create_buffer_common(&buf->common, GL_ARRAY_BUFFER, initial_data, num_vertices * stride, flags);
 #else
    (void)buf;
    (void)initial_data;
@@ -640,37 +716,67 @@ bool _al_create_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf, const void* ini
 #endif
 }
 
+bool _al_create_index_buffer_opengl(ALLEGRO_INDEX_BUFFER* buf, const void* initial_data, size_t num_indices, int flags)
+{
+#ifdef ALLEGRO_CFG_OPENGL
+   return create_buffer_common(&buf->common, GL_ELEMENT_ARRAY_BUFFER, initial_data, num_indices * buf->index_size, flags);;
+#else
+   (void)buf;
+   (void)initial_data;
+   (void)num_indices;
+   (void)flags;
+
+   return false;
+#endif
+}
+
 void _al_destroy_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf)
 {
 #ifdef ALLEGRO_CFG_OPENGL
-   glDeleteBuffers(1, (GLuint*)&buf->handle);
-   al_free(buf->locked_memory);
+   glDeleteBuffers(1, (GLuint*)&buf->common.handle);
+   al_free(buf->common.locked_memory);
 #else
    (void)buf;
 #endif
 }
 
-void* _al_lock_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf)
+void _al_destroy_index_buffer_opengl(ALLEGRO_INDEX_BUFFER* buf)
 {
 #ifdef ALLEGRO_CFG_OPENGL
-   if (buf->local_buffer_length < buf->lock_length) {
-      buf->locked_memory = al_realloc(buf->locked_memory, buf->lock_length);
-      buf->local_buffer_length = buf->lock_length;
+   glDeleteBuffers(1, (GLuint*)&buf->common.handle);
+   al_free(buf->common.locked_memory);
+#else
+   (void)buf;
+#endif
+}
+
+#ifdef ALLEGRO_CFG_OPENGL
+static void* lock_buffer_common(ALLEGRO_BUFFER_COMMON* common, GLenum type)
+{
+   if (common->local_buffer_length < common->lock_length) {
+      common->locked_memory = al_realloc(common->locked_memory, common->lock_length);
+      common->local_buffer_length = common->lock_length;
    }
 
-   if (buf->lock_flags != ALLEGRO_LOCK_WRITEONLY) {
+   if (common->lock_flags != ALLEGRO_LOCK_WRITEONLY) {
 #if !defined ALLEGRO_CFG_OPENGLES
-      glBindBuffer(GL_ARRAY_BUFFER, (GLuint)buf->handle);
-      glGetBufferSubData(GL_ARRAY_BUFFER, buf->lock_offset, buf->lock_length, buf->locked_memory);
-      glBindBuffer(GL_ARRAY_BUFFER, 0);
-
+      glBindBuffer(type, (GLuint)common->handle);
+      glGetBufferSubData(type, common->lock_offset, common->lock_length, common->locked_memory);
+      glBindBuffer(type, 0);
       if (glGetError())
          return 0;
 #else
       return 0;
 #endif
    }
-   return buf->locked_memory;
+   return common->locked_memory;
+}
+#endif
+
+void* _al_lock_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf)
+{
+#ifdef ALLEGRO_CFG_OPENGL
+   return lock_buffer_common(&buf->common, GL_ARRAY_BUFFER);
 #else
    (void)buf;
 
@@ -678,14 +784,41 @@ void* _al_lock_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf)
 #endif
 }
 
+void* _al_lock_index_buffer_opengl(ALLEGRO_INDEX_BUFFER* buf)
+{
+#ifdef ALLEGRO_CFG_OPENGL
+   return lock_buffer_common(&buf->common, GL_ELEMENT_ARRAY_BUFFER);
+#else
+   (void)buf;
+
+   return 0;
+#endif
+}
+
+#ifdef ALLEGRO_CFG_OPENGL
+static void unlock_buffer_common(ALLEGRO_BUFFER_COMMON* common, GLenum type)
+{
+   if (common->lock_flags != ALLEGRO_LOCK_READONLY) {
+      glBindBuffer(type, (GLuint)common->handle);
+      glBufferSubData(type, common->lock_offset, common->lock_length, common->locked_memory);
+      glBindBuffer(type, 0);
+   }
+}
+#endif
+
 void _al_unlock_vertex_buffer_opengl(ALLEGRO_VERTEX_BUFFER* buf)
 {
 #ifdef ALLEGRO_CFG_OPENGL
-   if (buf->lock_flags != ALLEGRO_LOCK_READONLY) {
-      glBindBuffer(GL_ARRAY_BUFFER, (GLuint)buf->handle);
-      glBufferSubData(GL_ARRAY_BUFFER, buf->lock_offset, buf->lock_length, buf->locked_memory);
-      glBindBuffer(GL_ARRAY_BUFFER, 0);
-   }
+   unlock_buffer_common(&buf->common, GL_ARRAY_BUFFER);
+#else
+   (void)buf;
+#endif
+}
+
+void _al_unlock_index_buffer_opengl(ALLEGRO_INDEX_BUFFER* buf)
+{
+#ifdef ALLEGRO_CFG_OPENGL
+   unlock_buffer_common(&buf->common, GL_ELEMENT_ARRAY_BUFFER);
 #else
    (void)buf;
 #endif
