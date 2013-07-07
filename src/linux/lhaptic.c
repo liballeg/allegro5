@@ -409,6 +409,8 @@ static bool lhap_periodic2lin(struct ff_periodic_effect *lin,
 /* Converts Allegro haptic effect to Linux input API. */
 static bool lhap_effect2lin(struct ff_effect *lin, ALLEGRO_HAPTIC_EFFECT *al)
 {
+   memset(lin, 0, sizeof(*lin));
+
    if (!lhap_type2lin(&lin->type, al->type))
       return false;
    /* lin_effect->replay = effect->re; */
