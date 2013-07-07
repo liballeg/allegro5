@@ -672,7 +672,6 @@ static bool lhap_upload_effect(ALLEGRO_HAPTIC *dev,
 
    /* Set id's values to indicate failure. */
    id->_haptic = NULL;
-   id->_effect = NULL;
    id->_id = -1;
    id->_handle = -1;
 
@@ -704,9 +703,9 @@ static bool lhap_upload_effect(ALLEGRO_HAPTIC *dev,
    }
 
    id->_haptic = dev;
-   id->_effect = effect;
    id->_id = found;
    id->_handle = leff.id;
+   id->_effect_duration = lhap_effect_duration(effect);
    id->_playing = false;
 
    /* XXX should be bool or something? */
@@ -721,6 +720,8 @@ static bool lhap_play_effect(ALLEGRO_HAPTIC_EFFECT_ID *id, int loops)
    ALLEGRO_HAPTIC_LINUX *lhap = (ALLEGRO_HAPTIC_LINUX *) id->_haptic;
    struct input_event play;
    int fd;
+   double now;
+   double duration;
 
    if (!lhap)
       return false;
@@ -738,9 +739,12 @@ static bool lhap_play_effect(ALLEGRO_HAPTIC_EFFECT_ID *id, int loops)
       return false;
    }
 
+   now = al_get_time();
+   duration = loops * id->_effect_duration;
+
    id->_playing = true;
-   id->_started = al_get_time();
-   id->_loops = loops;
+   id->_start_time = now;
+   id->_end_time = now + duration;
 
    return true;
 }
@@ -768,17 +772,12 @@ static bool lhap_stop_effect(ALLEGRO_HAPTIC_EFFECT_ID *id)
 
 static bool lhap_is_effect_playing(ALLEGRO_HAPTIC_EFFECT_ID *id)
 {
-   double duration;
    ASSERT(id);
-
-   if (!id->_playing)
-      return false;
 
    /* Since AFAICS there is no Linux API to test this, use a timer to check
     * if the effect has been playing long enough to be finished or not.
     */
-   duration = lhap_effect_duration(id->_effect) *id->_loops;
-   return (id->_started + duration >= al_get_time());
+   return (id->_playing && al_get_time() < id->_end_time);
 }
 
 

@@ -183,12 +183,12 @@ typedef struct ALLEGRO_HAPTIC_EFFECT_ID ALLEGRO_HAPTIC_EFFECT_ID;
 struct ALLEGRO_HAPTIC_EFFECT_ID
 {
    ALLEGRO_HAPTIC *_haptic;
-   ALLEGRO_HAPTIC_EFFECT *_effect;
    int _id;
    int _handle;
+   double _effect_duration;
    bool _playing;
-   double _started;
-   int _loops;
+   double _start_time;
+   double _end_time;
 };
 
 
