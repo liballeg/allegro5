@@ -709,6 +709,9 @@ static bool lhap_upload_effect(ALLEGRO_HAPTIC *dev,
    id->_handle = leff.id;
    id->_playing = false;
 
+   /* XXX should be bool or something? */
+   lhap->effects[i] = found;
+
    return true;
 }
 
