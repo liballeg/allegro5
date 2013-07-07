@@ -36,6 +36,7 @@ protected:
    int      y1;
    int      x2;
    int      y2;
+   bool     disabled;
 
 public:
    Widget();
@@ -62,6 +63,8 @@ public:
                      (void)event; }
 
    virtual void   draw() = 0;
+   virtual void   set_disabled(bool value) { disabled = value;  }
+   virtual bool   is_disabled() { return disabled;   }
 
    friend class Dialog;
 };
@@ -84,6 +87,7 @@ private:
 
    bool                 draw_requested;
    bool                 quit_requested;
+
    std::list<Widget *>  all_widgets;
    Widget *             mouse_over_widget;
    Widget *             mouse_down_widget;
@@ -189,6 +193,7 @@ public:
    virtual void   on_mouse_button_hold(int mx, int my);
    virtual void   draw();
 
+   int            get_max_value() const;
    int            get_cur_value() const;
    void           set_cur_value(int v);
 };
@@ -205,6 +210,7 @@ public:
    virtual void   on_mouse_button_hold(int mx, int my);
    virtual void   draw();
 
+   int            get_max_value() const;
    int            get_cur_value() const;
    void           set_cur_value(int v);
 };
