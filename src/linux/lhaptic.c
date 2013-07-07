@@ -760,6 +760,8 @@ static bool lhap_stop_effect(ALLEGRO_HAPTIC_EFFECT_ID *id)
    if (!lhap)
       return false;
 
+   memset(&play, 0, sizeof(play));
+
    play.type = EV_FF;
    play.code = id->_handle;
    play.value = 0;
