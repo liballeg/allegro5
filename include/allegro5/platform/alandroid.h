@@ -26,6 +26,4 @@ extern "C" int main(int argc, char ** argv);
 extern int main(int argc, char ** argv);
 #endif
 
-#include "allegro5/platform/aintuthr.h"
-
 /* Nothing left */
