@@ -670,6 +670,8 @@ static bool android_acknowledge_resize(ALLEGRO_DISPLAY *dpy)
 
    ALLEGRO_DEBUG("acquire context");
    _al_android_make_current(_al_android_get_jnienv(), d);
+
+   _al_android_setup_opengl_view(dpy);
    
    ALLEGRO_DEBUG("done");
    return true;
