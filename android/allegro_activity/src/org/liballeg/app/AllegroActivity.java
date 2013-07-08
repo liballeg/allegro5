@@ -518,12 +518,6 @@ public class AllegroActivity extends Activity implements SensorEventListener
       if((changes & ActivityInfo.CONFIG_SCREEN_LAYOUT) != 0)
          Log.d("AllegroActivity", "screen layout changed");
 
-      if((changes & ActivityInfo.CONFIG_SCREEN_SIZE) != 0)
-         Log.d("AllegroActivity", "screen size changed");
-       
-      if((changes & ActivityInfo.CONFIG_SMALLEST_SCREEN_SIZE) != 0)
-         Log.d("AllegroActivity", "smallest screen size changed");
-       
       if((changes & ActivityInfo.CONFIG_UI_MODE) != 0)
          Log.d("AllegroActivity", "ui mode changed");
       
