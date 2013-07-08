@@ -1,0 +1,21 @@
+<project name="Allegro5" default="dist" basedir=".">
+  <property file="local.properties" />
+  <loadproperties srcFile="project.properties" />
+  <description>
+Allegro 5 game programming library
+  </description>
+  <!-- set global properties for this build -->
+  <property name="src" location="src" />
+  <property name="bin" location="bin" />
+
+  <target name="jar">
+    <jar destfile="Allegro5.jar" basedir="bin/classes/">
+      <!-- replace 'com' by what ever you are using -->
+      <!-- as first part of the package name -->
+      <!-- e.g. de, org, ... -->
+      <!-- the ** is important to include the directory recursively -->
+      <include name="org/**" />
+    </jar>
+  </target>
+  <import file="${sdk.dir}/tools/ant/build.xml" />
+</project>
