@@ -30,20 +30,6 @@ static void print_standard_paths(void)
    print_standard_path(ALLEGRO_EXENAME_PATH);
 }
 
-static void set_transform(ALLEGRO_DISPLAY *dpy)
-{
-   ALLEGRO_TRANSFORM t;
-   int w = al_get_display_width(dpy);
-   int h = al_get_display_height(dpy);
-
-   // XXX we shouldn't need this in user code
-   // glViewport(0, 0, w, h);
-
-   al_identity_transform(&t);
-   al_orthographic_transform(&t, 0, 0, -1, w, h, 1);
-   al_set_projection_transform(dpy, &t);
-}
-
 static void draw_touches(void)
 {
    int i;
@@ -117,7 +103,6 @@ int main(int argc, char **argv)
 
    bool draw = true;
    bool running = true;
-   bool paused = false;
    int count = 0;
 
    while (running) {
@@ -177,9 +162,7 @@ int main(int argc, char **argv)
             // Stop the timer so we don't run at all while our display isn't
             // active.
             al_stop_timer(timer);
-            //al_set_target_backbuffer(0);
             ALLEGRO_DEBUG("after set target");
-            paused = true;
             draw = false;
             al_acknowledge_drawing_halt(dpy);
             break;
@@ -191,20 +174,12 @@ int main(int argc, char **argv)
             ALLEGRO_DEBUG("done waiting for surface recreated");
 
             al_start_timer(timer);
-            //al_set_target_backbuffer(dpy);
-            //_al_android_setup_opengl_view(dpy);
-            paused = false;
             break;
 
          case ALLEGRO_EVENT_DISPLAY_RESIZE:
             ALLEGRO_DEBUG("display resize");
             al_acknowledge_resize(dpy);
             ALLEGRO_DEBUG("done resize");
-            set_transform(dpy);
-            break;
-
-         case ALLEGRO_EVENT_DISPLAY_ORIENTATION:
-            set_transform(dpy);
             break;
       }
 
