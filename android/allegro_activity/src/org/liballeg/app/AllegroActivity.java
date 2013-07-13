@@ -179,6 +179,11 @@ public class AllegroActivity extends Activity implements SensorEventListener
 		return getApplicationInfo().sourceDir;
 	}
    
+   public String getModel()
+   {
+      return android.os.Build.MODEL;
+   }
+
    public void postRunnable(Runnable runme)
    {
       try {

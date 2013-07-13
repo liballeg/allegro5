@@ -49,6 +49,7 @@ struct system_data_t {
    ALLEGRO_USTR *resources_dir;
    ALLEGRO_USTR *data_dir;
    ALLEGRO_USTR *apk_path;
+   ALLEGRO_USTR *model;
 	
    void *user_lib;
    int (*user_main)();
@@ -59,7 +60,7 @@ struct system_data_t {
   bool paused;
 };
 
-static struct system_data_t system_data = { NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, false, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, false, false };
+static struct system_data_t system_data;
 static JavaVM* javavm;
 static JNIEnv *main_env;
 
@@ -227,11 +228,13 @@ JNI_FUNC(bool, AllegroActivity, nativeOnCreate, (JNIEnv *env, jobject obj))
    system_data.resources_dir = _jni_callStringMethod(env, system_data.activity_object, "getResourcesDir", "()Ljava/lang/String;");
    system_data.data_dir = _jni_callStringMethod(env, system_data.activity_object, "getPubDataDir", "()Ljava/lang/String;");
    system_data.apk_path = _jni_callStringMethod(env, system_data.activity_object, "getApkPath", "()Ljava/lang/String;");
+   system_data.model = _jni_callStringMethod(env, system_data.activity_object, "getModel", "()Ljava/lang/String;");
    ALLEGRO_DEBUG("lib_dir: %s", al_cstr(system_data.lib_dir));
    ALLEGRO_DEBUG("app_name: %s", al_cstr(system_data.app_name));
    ALLEGRO_DEBUG("resources_dir: %s", al_cstr(system_data.resources_dir));
    ALLEGRO_DEBUG("data_dir: %s", al_cstr(system_data.data_dir));
    ALLEGRO_DEBUG("apk_path: %s", al_cstr(system_data.apk_path));
+   ALLEGRO_DEBUG("model: %s", al_cstr(system_data.model));
 
    ALLEGRO_DEBUG("creating ALLEGRO_SYSTEM_ANDROID struct");
    na_sys = system_data.system = (ALLEGRO_SYSTEM_ANDROID*)al_malloc(sizeof *na_sys);
@@ -474,8 +477,14 @@ static ALLEGRO_SYSTEM *android_initialize(int flags)
 
 static ALLEGRO_JOYSTICK_DRIVER *android_get_joystick_driver(void)
 {
-   ALLEGRO_DEBUG("Using Linux joystick driver");
-   return &_al_joydrv_linux;
+   if (0 == strcmp(al_cstr(system_data.model), "OUYA Console")) {
+      ALLEGRO_DEBUG("Using Linux joystick driver");
+      return &_al_joydrv_linux;
+   }
+   else {
+      ALLEGRO_DEBUG("Using Android joystick driver");
+      return &_al_android_joystick_driver;
+   }
 }
 
 static int android_get_num_video_adapters(void)
