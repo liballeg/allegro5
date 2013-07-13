@@ -472,6 +472,12 @@ static ALLEGRO_SYSTEM *android_initialize(int flags)
    return &system_data.system->system;
 }
 
+static ALLEGRO_JOYSTICK_DRIVER *android_get_joystick_driver(void)
+{
+   ALLEGRO_DEBUG("Using Linux joystick driver");
+   return &_al_joydrv_linux;
+}
+
 static int android_get_num_video_adapters(void)
 {
    return 1;
@@ -510,7 +516,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_android_interface()
    android_vt->get_keyboard_driver = _al_get_android_keyboard_driver;
    android_vt->get_mouse_driver = _al_get_android_mouse_driver;
    android_vt->get_touch_input_driver = _al_get_android_touch_input_driver;
-   android_vt->get_joystick_driver = _al_get_android_joystick_driver;
+   android_vt->get_joystick_driver = android_get_joystick_driver;
    android_vt->get_num_video_adapters = android_get_num_video_adapters;
    android_vt->get_path = _al_android_get_path;
    android_vt->shutdown_system = android_shutdown_system;

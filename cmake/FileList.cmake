@@ -148,6 +148,7 @@ set(ALLEGRO_SRC_IPHONE_FILES
     )
 
 set(ALLEGRO_SRC_ANDROID_FILES
+   src/unix/ufdwatch.c
    src/unix/utime.c
    src/unix/uxthread.c
    src/android/android_apk_file.c
@@ -158,6 +159,7 @@ set(ALLEGRO_SRC_ANDROID_FILES
    src/android/android_system.c
    src/android/android_touch.c
    src/android/jni_helpers.c
+   src/linux/ljoynu.c
 )
 
 set(ALLEGRO_SRC_RASPBERRYPI_FILES

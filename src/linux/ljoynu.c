@@ -53,6 +53,12 @@ ALLEGRO_DEBUG_CHANNEL("ljoy");
 #include "allegro5/internal/aintern_ljoynu.h"
 
 
+#ifdef ALLEGRO_ANDROID
+#define KEY_CNT (KEY_MAX+1)
+#define ABS_CNT (ABS_MAX+1)
+#endif
+
+
 #define LONG_BITS    (sizeof(long) * 8)
 #define NLONGS(x)    (((x) + LONG_BITS - 1) / LONG_BITS)
 /* Tests if a bit in an array of longs is set. */
@@ -142,7 +148,10 @@ static bool is_joystick_button(int i)
       ||  (i >= BTN_JOYSTICK && i <= BTN_DEAD)
       ||  (i >= BTN_GAMEPAD && i <= BTN_THUMBR)
       ||  (i >= BTN_WHEEL && i <= BTN_GEAR_UP)
-      ||  (i >= BTN_TRIGGER_HAPPY && i <= BTN_TRIGGER_HAPPY40);
+#ifndef ALLEGRO_ANDROID
+      ||  (i >= BTN_TRIGGER_HAPPY && i <= BTN_TRIGGER_HAPPY40)
+#endif
+   ;
 }
 
 

@@ -39,7 +39,6 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_android_display_driver(void);
 ALLEGRO_KEYBOARD_DRIVER *_al_get_android_keyboard_driver(void);
 ALLEGRO_MOUSE_DRIVER *_al_get_android_mouse_driver(void);
 ALLEGRO_TOUCH_INPUT_DRIVER *_al_get_android_touch_input_driver(void);
-ALLEGRO_JOYSTICK_DRIVER *_al_get_android_joystick_driver(void);
 bool _al_get_android_montior_info(int adapter, ALLEGRO_MONITOR_INFO *info);
 
 int _al_android_get_display_orientation(void);
@@ -146,6 +145,8 @@ ALLEGRO_USTR *_jni_callStringMethod(JNIEnv *env, jobject obj, char *name, char *
 })
 
 #define _jni_callVoidMethod(env, obj, name) _jni_callVoidMethodV(env, obj, name, "()V");
+
+AL_VAR(struct ALLEGRO_JOYSTICK_DRIVER, _al_android_joystick_driver);
 
 void _al_android_touch_input_handle_begin(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp);
 void _al_android_touch_input_handle_end(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp);

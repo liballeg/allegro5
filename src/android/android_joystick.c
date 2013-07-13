@@ -135,7 +135,7 @@ static bool andjoy_get_active(ALLEGRO_JOYSTICK *joy)
     return true;
 }
 
-static ALLEGRO_JOYSTICK_DRIVER android_joystick_driver = {
+ALLEGRO_JOYSTICK_DRIVER _al_android_joystick_driver = {
    AL_ID('A', 'N', 'D', 'R'),
    "",
    "",
@@ -150,8 +150,3 @@ static ALLEGRO_JOYSTICK_DRIVER android_joystick_driver = {
     andjoy_get_name,
     andjoy_get_active
 };
-
-ALLEGRO_JOYSTICK_DRIVER *_al_get_android_joystick_driver(void)
-{
-    return &android_joystick_driver;
-}
