@@ -813,7 +813,6 @@ int _al_draw_vertex_buffer_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textu
    (void)target;
    (void)texture;
    (void)vertex_buffer;
-   (void)index_buffer;
    (void)start;
    (void)end;
    (void)type;
