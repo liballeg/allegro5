@@ -282,8 +282,8 @@ ALLEGRO_INDEX_BUFFER* al_create_index_buffer(int index_size,
          return ret;
    }
    else if (display_flags & ALLEGRO_DIRECT3D) {
-      //if (_al_create_index_buffer_directx(ret, initial_data, num_vertices, flags))
-      //   return ret;
+      if (_al_create_index_buffer_directx(ret, initial_data, num_indices, flags))
+         return ret;
    }
 
    /* Silence the warning */
@@ -331,7 +331,7 @@ void al_destroy_index_buffer(ALLEGRO_INDEX_BUFFER* buffer)
       _al_destroy_index_buffer_opengl(buffer);
    }
    else if (flags & ALLEGRO_DIRECT3D) {
-      //_al_destroy_vertex_buffer_directx(buffer);
+      _al_destroy_index_buffer_directx(buffer);
    }
 
    al_free(buffer);
@@ -398,7 +398,7 @@ void* al_lock_index_buffer(ALLEGRO_INDEX_BUFFER* buffer, int offset,
       return _al_lock_index_buffer_opengl(buffer);
    }
    else if (disp_flags & ALLEGRO_DIRECT3D) {
-      return NULL;//return _al_lock_vertex_buffer_directx(buffer);
+      return _al_lock_index_buffer_directx(buffer);
    }
    else {
       return NULL;
@@ -422,10 +422,12 @@ void al_unlock_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer)
       _al_unlock_vertex_buffer_opengl(buffer);
    }
    else if (flags & ALLEGRO_DIRECT3D) {
-      //_al_unlock_vertex_buffer_directx(buffer);
+      _al_unlock_vertex_buffer_directx(buffer);
    }
 }
 
+/* Function: al_unlock_index_buffer
+ */
 void al_unlock_index_buffer(ALLEGRO_INDEX_BUFFER* buffer)
 {
 	int flags = al_get_display_flags(al_get_current_display());
@@ -441,8 +443,52 @@ void al_unlock_index_buffer(ALLEGRO_INDEX_BUFFER* buffer)
       _al_unlock_index_buffer_opengl(buffer);
    }
    else if (flags & ALLEGRO_DIRECT3D) {
-      //_al_unlock_index_buffer_directx(buffer);
+      _al_unlock_index_buffer_directx(buffer);
    }
+}
+
+/* Software fallback for buffer drawing */
+int _al_draw_buffer_common_soft(ALLEGRO_VERTEX_BUFFER* vertex_buffer, ALLEGRO_BITMAP* texture, ALLEGRO_INDEX_BUFFER* index_buffer, int start, int end, int type)
+{
+   void* vtx;
+   int num_primitives = 0;
+   int num_vtx = end - start;
+   int vtx_lock_start = index_buffer ? 0 : start;
+   int vtx_lock_len = index_buffer ? al_get_vertex_buffer_size(vertex_buffer) : num_vtx;
+   if (vertex_buffer->common.write_only || (index_buffer && index_buffer->common.write_only)) {
+      return 0;
+   }
+
+   vtx = al_lock_vertex_buffer(vertex_buffer, vtx_lock_start, vtx_lock_len, ALLEGRO_LOCK_READONLY);
+   ASSERT(vtx);
+
+   if (index_buffer) {
+      void* idx;
+      int* int_idx = NULL;
+      int ii;
+
+      idx = al_lock_index_buffer(index_buffer, start, num_vtx, ALLEGRO_LOCK_READONLY);
+      ASSERT(idx);
+
+      if (index_buffer->index_size != 4) {
+         int_idx = al_malloc(num_vtx * sizeof(int));
+         for (ii = 0; ii < num_vtx; ii++) {
+            int_idx[ii] = ((unsigned short*)idx)[ii];
+         }
+         idx = int_idx;
+      }
+
+      num_primitives = _al_draw_prim_indexed_soft(texture, vtx, vertex_buffer->decl, idx, num_vtx, type);
+
+      al_unlock_index_buffer(index_buffer);
+      al_free(int_idx);
+   }
+   else {
+      num_primitives = _al_draw_prim_soft(texture, vtx, vertex_buffer->decl, 0, num_vtx, type);
+   }
+
+   al_unlock_vertex_buffer(vertex_buffer);
+   return num_primitives;
 }
 
 /* Function: al_draw_vertex_buffer
@@ -464,12 +510,7 @@ int al_draw_vertex_buffer(ALLEGRO_VERTEX_BUFFER* vertex_buffer,
    target = al_get_target_bitmap();
 
    if (target->flags & ALLEGRO_MEMORY_BITMAP || (texture && texture->flags & ALLEGRO_MEMORY_BITMAP)) {
-      void* vtx;
-      ASSERT(!vertex_buffer->common.write_only);
-      vtx = al_lock_vertex_buffer(vertex_buffer, start, end - start, ALLEGRO_LOCK_READONLY);
-      ASSERT(vtx);
-      ret = _al_draw_prim_soft(texture, vtx, vertex_buffer->decl, 0, end - start, type);
-      al_unlock_vertex_buffer(vertex_buffer);
+      ret = _al_draw_buffer_common_soft(vertex_buffer, texture, NULL, start, end, type);
    } else {
       int flags = al_get_display_flags(al_get_current_display());
       if (flags & ALLEGRO_OPENGL) {
@@ -483,7 +524,11 @@ int al_draw_vertex_buffer(ALLEGRO_VERTEX_BUFFER* vertex_buffer,
    return ret;
 }
 
-int al_draw_indexed_buffer(ALLEGRO_VERTEX_BUFFER* vertex_buffer, ALLEGRO_BITMAP* texture, ALLEGRO_INDEX_BUFFER* index_buffer, int start, int end, int type)
+/* Function: al_draw_indexed_buffer
+ */
+int al_draw_indexed_buffer(ALLEGRO_VERTEX_BUFFER* vertex_buffer,
+   ALLEGRO_BITMAP* texture, ALLEGRO_INDEX_BUFFER* index_buffer,
+   int start, int end, int type)
 {
    ALLEGRO_BITMAP *target;
    int ret = 0;
@@ -501,39 +546,14 @@ int al_draw_indexed_buffer(ALLEGRO_VERTEX_BUFFER* vertex_buffer, ALLEGRO_BITMAP*
    target = al_get_target_bitmap();
 
    if (target->flags & ALLEGRO_MEMORY_BITMAP || (texture && texture->flags & ALLEGRO_MEMORY_BITMAP)) {
-      const void* vtx;
-      const void* idx;
-      int* int_idx = NULL;
-      int num_vtx = end - start;
-      int ii;
-      ASSERT(!vertex_buffer->common.write_only);
-      ASSERT(!index_buffer->common.write_only);
-
-      vtx = al_lock_vertex_buffer(vertex_buffer, 0, al_get_vertex_buffer_size(vertex_buffer), ALLEGRO_LOCK_READONLY);
-      idx = al_lock_index_buffer(index_buffer, start, end - start, ALLEGRO_LOCK_READONLY);
-
-      ASSERT(vtx);
-      ASSERT(idx);
-
-      if (index_buffer->index_size != 4) {
-         int_idx = al_malloc(num_vtx * sizeof(int));
-         for (ii = 0; ii < num_vtx; ii++) {
-            int_idx[ii] = ((unsigned short*)idx)[ii];
-         }
-         idx = int_idx;
-      }
-
-      ret = _al_draw_prim_indexed_soft(texture, vtx, vertex_buffer->decl, idx, num_vtx, type);
-      al_unlock_vertex_buffer(vertex_buffer);
-      al_unlock_index_buffer(index_buffer);
-      al_free(int_idx);
+      ret = _al_draw_buffer_common_soft(vertex_buffer, texture, index_buffer, start, end, type);
    } else {
       int flags = al_get_display_flags(al_get_current_display());
       if (flags & ALLEGRO_OPENGL) {
          ret = _al_draw_indexed_buffer_opengl(target, texture, vertex_buffer, index_buffer, start, end, type);
       }
       else if (flags & ALLEGRO_DIRECT3D) {
-         //ret = _al_draw_vertex_buffer_directx(target, texture, vertex_buffer, start, end, type);
+         ret = _al_draw_indexed_buffer_directx(target, texture, vertex_buffer, index_buffer, start, end, type);
       }
    }
 

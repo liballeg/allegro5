@@ -633,11 +633,10 @@ int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textur
    return 0;
 #endif
 }
-
-int _al_draw_vertex_buffer_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX_BUFFER* vertex_buffer, int start, int end, int type)
-{
+#include <stdio.h>
 #ifdef ALLEGRO_CFG_D3D
-   int stride;
+static int draw_buffer_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX_BUFFER* vertex_buffer, ALLEGRO_INDEX_BUFFER* index_buffer, int start, int end, int type)
+{
    int num_primitives = 0;
    int num_vtx = end - start;
    LPDIRECT3DDEVICE9 device;
@@ -651,16 +650,38 @@ int _al_draw_vertex_buffer_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textu
       return 0;
    }
 
-   stride = vertex_buffer->decl ? vertex_buffer->decl->stride : (int)sizeof(ALLEGRO_VERTEX);
+   /* Check for early exit for legacy cards */
+   if (vertex_buffer->decl && vertex_buffer->decl->d3d_decl == 0) {
+      return _al_draw_buffer_common_soft(vertex_buffer, texture, index_buffer, start, end, type);
+   }
 
-   /* Check for early exit */
-   if(vertex_buffer->decl && vertex_buffer->decl->d3d_decl == 0) {
-      void* vtx;
-      ASSERT(!vertex_buffer->common.write_only);
-      vtx = al_lock_vertex_buffer(vertex_buffer, start, end - start, ALLEGRO_LOCK_READONLY);
-      ASSERT(vtx);
-      num_primitives = _al_draw_prim_soft(texture, vtx, vertex_buffer->decl, 0, num_vtx, type);
-      al_unlock_vertex_buffer(vertex_buffer);
+   /* Another early exit for ALLEGRO_PRIM_POINT_LIST and indexing. We send it off to the non-buffer hardware drawing. */
+   if (index_buffer && type == ALLEGRO_PRIM_POINT_LIST) {
+      if (!vertex_buffer->common.write_only && !index_buffer->common.write_only) {
+         void* vtx;
+         void* idx;
+         int* int_idx = NULL;
+         int ii;
+
+         vtx = al_lock_vertex_buffer(vertex_buffer, 0, al_get_vertex_buffer_size(vertex_buffer), ALLEGRO_LOCK_READONLY);
+         ASSERT(vtx);
+         idx = al_lock_index_buffer(index_buffer, start, num_vtx, ALLEGRO_LOCK_READONLY);
+         ASSERT(idx);
+
+         if (index_buffer->index_size != 4) {
+            int_idx = (int*)al_malloc(num_vtx * sizeof(int));
+            for (ii = 0; ii < num_vtx; ii++) {
+               int_idx[ii] = ((unsigned short*)idx)[ii];
+            }
+            idx = int_idx;
+         }
+
+         num_primitives = draw_prim_raw(target, texture, vtx, vertex_buffer->decl, (const int*)idx, num_vtx, type);
+
+         al_unlock_vertex_buffer(vertex_buffer);
+         al_unlock_index_buffer(index_buffer);
+         al_free(int_idx);
+      }
       return num_primitives;
    }
 
@@ -668,7 +689,11 @@ int _al_draw_vertex_buffer_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textu
 
    state = setup_state(device, vertex_buffer->decl, target, texture);
 
-   device->SetStreamSource(0, (IDirect3DVertexBuffer9*)vertex_buffer->common.handle, 0, stride);
+   device->SetStreamSource(0, (IDirect3DVertexBuffer9*)vertex_buffer->common.handle, 0, vertex_buffer->decl ? vertex_buffer->decl->stride : (int)sizeof(ALLEGRO_VERTEX));
+
+   if (index_buffer) {
+      device->SetIndices((IDirect3DIndexBuffer9*)index_buffer->common.handle);
+   }
 
 #ifdef ALLEGRO_CFG_SHADER_HLSL
    if (target->display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
@@ -683,43 +708,85 @@ int _al_draw_vertex_buffer_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textu
       }
 #endif
 
-      switch (type) {
-         case ALLEGRO_PRIM_LINE_LIST: {
-            num_primitives = num_vtx / 2;
-            device->DrawPrimitive(D3DPT_LINELIST, start, num_primitives);
-            break;
-         };
-         case ALLEGRO_PRIM_LINE_STRIP: {
-            num_primitives = num_vtx - 1;
-            device->DrawPrimitive(D3DPT_LINESTRIP, start, num_primitives);
-            break;
-         };
-         case ALLEGRO_PRIM_LINE_LOOP: {
-            num_primitives = num_vtx - 1;
-            device->DrawPrimitive(D3DPT_LINESTRIP, start, num_primitives);
-            /* TODO */
-            break;
-         };
-         case ALLEGRO_PRIM_TRIANGLE_LIST: {
-            num_primitives = num_vtx / 3;
-            device->DrawPrimitive(D3DPT_TRIANGLELIST, start, num_primitives);
-            break;
-         };
-         case ALLEGRO_PRIM_TRIANGLE_STRIP: {
-            num_primitives = num_vtx - 2;
-            device->DrawPrimitive(D3DPT_TRIANGLESTRIP, start, num_primitives);
-            break;
-         };
-         case ALLEGRO_PRIM_TRIANGLE_FAN: {
-            num_primitives = num_vtx - 2;
-            device->DrawPrimitive(D3DPT_TRIANGLEFAN, start, num_primitives);
-            break;
-         };
-         case ALLEGRO_PRIM_POINT_LIST: {
-            num_primitives = num_vtx;
-            device->DrawPrimitive(D3DPT_POINTLIST, start, num_primitives);
-            break;
-         };
+      if (!index_buffer) {
+         switch (type) {
+            case ALLEGRO_PRIM_LINE_LIST: {
+               num_primitives = num_vtx / 2;
+               device->DrawPrimitive(D3DPT_LINELIST, start, num_primitives);
+               break;
+            };
+            case ALLEGRO_PRIM_LINE_STRIP: {
+               num_primitives = num_vtx - 1;
+               device->DrawPrimitive(D3DPT_LINESTRIP, start, num_primitives);
+               break;
+            };
+            case ALLEGRO_PRIM_LINE_LOOP: {
+               num_primitives = num_vtx - 1;
+               device->DrawPrimitive(D3DPT_LINESTRIP, start, num_primitives);
+               /* TODO */
+               break;
+            };
+            case ALLEGRO_PRIM_TRIANGLE_LIST: {
+               num_primitives = num_vtx / 3;
+               device->DrawPrimitive(D3DPT_TRIANGLELIST, start, num_primitives);
+               break;
+            };
+            case ALLEGRO_PRIM_TRIANGLE_STRIP: {
+               num_primitives = num_vtx - 2;
+               device->DrawPrimitive(D3DPT_TRIANGLESTRIP, start, num_primitives);
+               break;
+            };
+            case ALLEGRO_PRIM_TRIANGLE_FAN: {
+               num_primitives = num_vtx - 2;
+               device->DrawPrimitive(D3DPT_TRIANGLEFAN, start, num_primitives);
+               break;
+            };
+            case ALLEGRO_PRIM_POINT_LIST: {
+               num_primitives = num_vtx;
+               device->DrawPrimitive(D3DPT_POINTLIST, start, num_primitives);
+               break;
+            };
+         }
+      }
+      else {
+         int vbuff_size = al_get_vertex_buffer_size(vertex_buffer);
+         switch (type) {
+            case ALLEGRO_PRIM_LINE_LIST: {
+               num_primitives = num_vtx / 2;
+               device->DrawIndexedPrimitive(D3DPT_LINELIST, 0, 0, vbuff_size, start, num_primitives);
+               break;
+            };
+            case ALLEGRO_PRIM_LINE_STRIP: {
+               num_primitives = num_vtx - 1;
+               device->DrawIndexedPrimitive(D3DPT_LINESTRIP, 0, 0, vbuff_size, start, num_primitives);
+               break;
+            };
+            case ALLEGRO_PRIM_LINE_LOOP: {
+               num_primitives = num_vtx - 1;
+               device->DrawIndexedPrimitive(D3DPT_LINESTRIP, 0, 0, vbuff_size, start, num_primitives);
+               /* TODO */
+               break;
+            };
+            case ALLEGRO_PRIM_TRIANGLE_LIST: {
+               num_primitives = num_vtx / 3;
+               device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, vbuff_size, start, num_primitives);
+               break;
+            };
+            case ALLEGRO_PRIM_TRIANGLE_STRIP: {
+               num_primitives = num_vtx - 2;
+               device->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, 0, 0, vbuff_size, start, num_primitives);
+               break;
+            };
+            case ALLEGRO_PRIM_TRIANGLE_FAN: {
+               num_primitives = num_vtx - 2;
+               device->DrawIndexedPrimitive(D3DPT_TRIANGLEFAN, 0, 0, vbuff_size, start, num_primitives);
+               break;
+            };
+            case ALLEGRO_PRIM_POINT_LIST: {
+               /* Handled above */
+               break;
+            };
+         }
       }
 
 #ifdef ALLEGRO_CFG_SHADER_HLSL
@@ -735,10 +802,35 @@ int _al_draw_vertex_buffer_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textu
    revert_state(state, device, target, texture);
 
    return num_primitives;
+}
+#endif
+
+int _al_draw_vertex_buffer_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX_BUFFER* vertex_buffer, int start, int end, int type)
+{
+#ifdef ALLEGRO_CFG_D3D
+   return draw_buffer_raw(target, texture, vertex_buffer, NULL, start, end, type);
 #else
    (void)target;
    (void)texture;
    (void)vertex_buffer;
+   (void)index_buffer;
+   (void)start;
+   (void)end;
+   (void)type;
+
+   return 0;
+#endif
+}
+
+int _al_draw_indexed_buffer_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX_BUFFER* vertex_buffer, ALLEGRO_INDEX_BUFFER* index_buffer, int start, int end, int type)
+{
+#ifdef ALLEGRO_CFG_D3D
+   return draw_buffer_raw(target, texture, vertex_buffer, index_buffer, start, end, type);
+#else
+   (void)target;
+   (void)texture;
+   (void)vertex_buffer;
+   (void)index_buffer;
    (void)start;
    (void)end;
    (void)type;
@@ -904,8 +996,8 @@ bool _al_create_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf, const void* in
       fvf = 0;
    }
 
-   res = device->CreateVertexBuffer(stride * num_vertices, !(flags & ALLEGRO_PRIM_BUFFER_READWRITE)
-                                    ? D3DUSAGE_WRITEONLY : 0, fvf, D3DPOOL_MANAGED, &d3d_vbuff, 0);
+   res = device->CreateVertexBuffer(stride * num_vertices, !(flags & ALLEGRO_PRIM_BUFFER_READWRITE) ? D3DUSAGE_WRITEONLY : 0,
+                                    fvf, D3DPOOL_MANAGED, &d3d_vbuff, 0);
    if (res != D3D_OK)
       return false;
 
@@ -928,10 +1020,57 @@ bool _al_create_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf, const void* in
 #endif
 }
 
+bool _al_create_index_buffer_directx(ALLEGRO_INDEX_BUFFER* buf, const void* initial_data, size_t num_indices, int flags)
+{
+#ifdef ALLEGRO_CFG_D3D
+   LPDIRECT3DDEVICE9 device;
+   IDirect3DIndexBuffer9* d3d_ibuff;
+   HRESULT res;
+   void* locked_memory;
+
+   /* There's just no point */
+   if (is_legacy_card())
+      return false;
+
+   device = al_get_d3d_device(al_get_current_display());
+
+   res = device->CreateIndexBuffer(num_indices * buf->index_size, !(flags & ALLEGRO_PRIM_BUFFER_READWRITE) ? D3DUSAGE_WRITEONLY : 0,
+                                   buf->index_size == 4 ? D3DFMT_INDEX32 : D3DFMT_INDEX16, D3DPOOL_MANAGED, &d3d_ibuff, 0);
+   if (res != D3D_OK)
+      return false;
+
+   if (initial_data != NULL) {
+      d3d_ibuff->Lock(0, 0, &locked_memory, 0);
+      memcpy(locked_memory, initial_data, num_indices * buf->index_size);
+      d3d_ibuff->Unlock();
+   }
+
+   buf->common.handle = (uintptr_t)d3d_ibuff;
+
+   return true;
+#else
+   (void)buf;
+   (void)initial_data;
+   (void)num_indices;
+   (void)flags;
+
+   return false;
+#endif
+}
+
 void _al_destroy_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf)
 {
 #ifdef ALLEGRO_CFG_D3D
    ((IDirect3DVertexBuffer9*)buf->common.handle)->Release();
+#else
+   (void)buf;
+#endif
+}
+
+void _al_destroy_index_buffer_directx(ALLEGRO_INDEX_BUFFER* buf)
+{
+#ifdef ALLEGRO_CFG_D3D
+   ((IDirect3DIndexBuffer9*)buf->common.handle)->Release();
 #else
    (void)buf;
 #endif
@@ -955,10 +1094,37 @@ void* _al_lock_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf)
 #endif
 }
 
+void* _al_lock_index_buffer_directx(ALLEGRO_INDEX_BUFFER* buf)
+{
+#ifdef ALLEGRO_CFG_D3D
+   DWORD flags = buf->common.lock_flags == ALLEGRO_LOCK_READONLY ? D3DLOCK_READONLY : 0;
+   HRESULT res;
+
+   res = ((IDirect3DIndexBuffer9*)buf->common.handle)->Lock((UINT)buf->common.lock_offset, (UINT)buf->common.lock_length, &buf->common.locked_memory, flags);
+   if (res != D3D_OK)
+      return 0;
+
+   return buf->common.locked_memory;
+#else
+   (void)buf;
+
+   return 0;
+#endif
+}
+
 void _al_unlock_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf)
 {
 #ifdef ALLEGRO_CFG_D3D
    ((IDirect3DVertexBuffer9*)buf->common.handle)->Unlock();
+#else
+   (void)buf;
+#endif
+}
+
+void _al_unlock_index_buffer_directx(ALLEGRO_INDEX_BUFFER* buf)
+{
+#ifdef ALLEGRO_CFG_D3D
+   ((IDirect3DIndexBuffer9*)buf->common.handle)->Unlock();
 #else
    (void)buf;
 #endif

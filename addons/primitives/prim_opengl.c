@@ -392,12 +392,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    if ((!extra->is_backbuffer && ogl_disp->ogl_extras->opengl_target !=
       opengl_target) || al_is_bitmap_locked(target)) {
       if (vertex_buffer) {
-         ASSERT(!vertex_buffer->common.write_only);
-         vtx = al_lock_vertex_buffer(vertex_buffer, start, end - start, ALLEGRO_LOCK_READONLY);
-         ASSERT(vtx);
-         num_primitives = _al_draw_prim_soft(texture, vtx, decl, 0, num_vtx, type);
-         al_unlock_vertex_buffer(vertex_buffer);
-         return num_primitives;
+         return _al_draw_buffer_common_soft(vertex_buffer, texture, NULL, start, end, type);
       }
       else {
          return _al_draw_prim_soft(texture, vtx, decl, start, end, type);
@@ -474,7 +469,6 @@ static int draw_prim_indexed_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture
    GLenum idx_size = GL_UNSIGNED_INT;
    bool use_buffers = index_buffer != NULL;
    int num_vtx = end - start;
-   int ii;
 #if defined ALLEGRO_IPHONE
    GLushort* iphone_idx = NULL;
 #endif
@@ -492,29 +486,7 @@ static int draw_prim_indexed_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture
    if ((!extra->is_backbuffer && ogl_disp->ogl_extras->opengl_target !=
       opengl_target) || al_is_bitmap_locked(target)) {
       if (use_buffers) {
-         int* int_idx = NULL;
-         ASSERT(!vertex_buffer->common.write_only);
-         ASSERT(!index_buffer->common.write_only);
-
-         vtx = al_lock_vertex_buffer(vertex_buffer, 0, al_get_vertex_buffer_size(vertex_buffer), ALLEGRO_LOCK_READONLY);
-         idx = al_lock_index_buffer(index_buffer, start, end - start, ALLEGRO_LOCK_READONLY);
-
-         ASSERT(vtx);
-         ASSERT(idx);
-
-         if (idx_size != GL_UNSIGNED_INT) {
-            int_idx = al_malloc(num_vtx * sizeof(int));
-            for (ii = 0; ii < num_vtx; ii++) {
-               int_idx[ii] = ((unsigned short*)idx)[ii];
-            }
-            idx = (const char*)int_idx;
-         }
-
-         num_primitives = _al_draw_prim_indexed_soft(texture, vtx, decl, (const int*)idx, num_vtx, type);
-         al_unlock_vertex_buffer(vertex_buffer);
-         al_unlock_index_buffer(index_buffer);
-         al_free(int_idx);
-         return num_primitives;
+         return _al_draw_buffer_common_soft(vertex_buffer, texture, index_buffer, start, end, type);
       }
       else {
          return _al_draw_prim_indexed_soft(texture, vtx, decl, indices, num_vtx, type);
@@ -648,7 +620,7 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture
 
 int _al_draw_indexed_buffer_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX_BUFFER* vertex_buffer, ALLEGRO_INDEX_BUFFER* index_buffer, int start, int end, int type)
 {
-   #ifdef ALLEGRO_CFG_OPENGL
+#ifdef ALLEGRO_CFG_OPENGL
    return draw_prim_indexed_raw(target, texture, vertex_buffer, NULL, vertex_buffer->decl, index_buffer, NULL, start, end, type);
 #else
    (void)target;
