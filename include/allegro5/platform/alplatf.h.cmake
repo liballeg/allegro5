@@ -49,7 +49,6 @@
 #cmakedefine ALLEGRO_HAVE_SYS_TYPES_H
 #cmakedefine ALLEGRO_HAVE_OSATOMIC_H
 #cmakedefine ALLEGRO_HAVE_SYS_INOTIFY_H
-#cmakedefine ALLEGRO_HAVE_SYS_TIMERFD_H
 
 /* Define to 1 if the corresponding functions are available. */
 #cmakedefine ALLEGRO_HAVE_GETEXECNAME

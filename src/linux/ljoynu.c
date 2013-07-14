@@ -42,10 +42,9 @@
 #include <sys/types.h>
 #include <linux/input.h>
 
-#if defined(ALLEGRO_HAVE_SYS_INOTIFY_H) && defined(ALLEGRO_HAVE_SYS_TIMERFD_H)
+#if defined(ALLEGRO_HAVE_SYS_INOTIFY_H)
    #define SUPPORT_HOTPLUG
    #include <sys/inotify.h>
-   #include <sys/timerfd.h>
 #endif
 
 ALLEGRO_DEBUG_CHANNEL("ljoy");
@@ -127,9 +126,11 @@ static volatile bool config_needs_merging;
 static ALLEGRO_MUTEX *config_mutex;
 #ifdef SUPPORT_HOTPLUG
 static int inotify_fd = -1;
-static int timer_fd = -1;
+static ALLEGRO_THREAD *hotplug_thread;
+static ALLEGRO_MUTEX *hotplug_mutex;
+static ALLEGRO_COND *hotplug_cond;
+static bool hotplug_ended = false;
 #endif
-
 
 
 /* Return true if a joystick-related button or key:
@@ -595,7 +596,6 @@ static void ljoy_merge(void)
 static void ljoy_config_dev_changed(void *data)
 {
    char buf[128];
-   struct itimerspec spec;
    (void)data;
 
    /* Empty the event buffer. We only care that some inotify event was sent but it
@@ -605,33 +605,31 @@ static void ljoy_config_dev_changed(void *data)
    while (read(inotify_fd, buf, sizeof(buf)) > 0) {
    }
 
-   /* Set the timer to fire once in one second.
-    * We cannot scan immediately because the devices may not be ready yet :-P
-    */
-   spec.it_value.tv_sec = 1;
-   spec.it_value.tv_nsec = 0;
-   spec.it_interval.tv_sec = 0;
-   spec.it_interval.tv_nsec = 0;
-   timerfd_settime(timer_fd, 0, &spec, NULL);
+   al_signal_cond(hotplug_cond);
 }
 
-
-
-/* ljoy_config_rescan: [fdwatch thread]
- *  Rescans for joystick devices a little while after devices change.
- */
-static void ljoy_config_rescan(void *data)
+static void *hotplug_proc(ALLEGRO_THREAD *thread, void *data)
 {
-   uint64_t exp;
    (void)data;
 
-   /* Empty the event buffer. */
-   while (read(timer_fd, &exp, sizeof(uint64_t)) > 0) {
+   while (!al_get_thread_should_stop(thread)) {
+      if (!hotplug_ended) {
+         al_wait_cond(hotplug_cond, hotplug_mutex);
+      }
+      if (hotplug_ended) {
+         break;
+      }
+
+      al_rest(1);
+
+      al_lock_mutex(config_mutex);
+      ljoy_scan(true);
+      al_unlock_mutex(config_mutex);
    }
 
-   al_lock_mutex(config_mutex);
-   ljoy_scan(true);
-   al_unlock_mutex(config_mutex);
+   hotplug_ended = false;
+
+   return NULL;
 }
 #endif
 
@@ -645,20 +643,39 @@ static bool ljoy_init_joystick(void)
    _al_vector_init(&joysticks, sizeof(ALLEGRO_JOYSTICK_LINUX *));
    num_joysticks = 0;
 
+   if (!(config_mutex = al_create_mutex())) {
+      return false;
+   }
+
    // Scan for joysticks
    ljoy_scan(false);
    ljoy_merge();
 
-   config_mutex = al_create_mutex();
-
 #ifdef SUPPORT_HOTPLUG
-   inotify_fd = inotify_init1(IN_NONBLOCK);
-   timer_fd = timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK);
-   if (inotify_fd != -1 && timer_fd != -1) {
+   if (!(hotplug_mutex = al_create_mutex())) {
+      al_destroy_mutex(config_mutex);
+      return false;
+   }
+   if (!(hotplug_cond = al_create_cond())) {
+      al_destroy_mutex(config_mutex);
+      al_destroy_mutex(hotplug_mutex);
+      return false;
+   }
+   if (!(hotplug_thread = al_create_thread(hotplug_proc, NULL))) {
+      al_destroy_mutex(config_mutex);
+      al_destroy_mutex(hotplug_mutex);
+      al_destroy_cond(hotplug_cond);
+      return false;
+   }
+
+   al_start_thread(hotplug_thread);
+
+   inotify_fd = inotify_init();
+   if (inotify_fd != -1) {
+      fcntl(inotify_fd, F_SETFL, O_NONBLOCK);
       /* Modern Linux probably only needs to monitor /dev/input. */
       inotify_add_watch(inotify_fd, "/dev/input", IN_CREATE|IN_DELETE);
       _al_unix_start_watching_fd(inotify_fd, ljoy_config_dev_changed, NULL);
-      _al_unix_start_watching_fd(timer_fd, ljoy_config_rescan, NULL);
       ALLEGRO_INFO("Hotplugging enabled\n");
    }
    else {
@@ -666,10 +683,6 @@ static bool ljoy_init_joystick(void)
       if (inotify_fd != -1) {
          close(inotify_fd);
          inotify_fd = -1;
-      }
-      if (timer_fd != -1) {
-         close(timer_fd);
-         timer_fd = -1;
       }
    }
 #endif
@@ -692,11 +705,9 @@ static void ljoy_exit_joystick(void)
       close(inotify_fd);
       inotify_fd = -1;
    }
-   if (timer_fd != -1) {
-      _al_unix_stop_watching_fd(timer_fd);
-      close(timer_fd);
-      timer_fd = -1;
-   }
+   hotplug_ended = true;
+   al_signal_cond(hotplug_cond);
+   al_join_thread(hotplug_thread, NULL);
 #endif
 
    al_destroy_mutex(config_mutex);
