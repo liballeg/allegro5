@@ -171,7 +171,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
    
    public String getPubDataDir()
    {
-      return getExternalFilesDir(null).getAbsolutePath();
+      return getFilesDir().getAbsolutePath();
    }
    
    public String getApkPath()
