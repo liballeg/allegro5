@@ -43,6 +43,10 @@ else()
     set(ANDROID_ARCH "arm-linux-androideabi")
 endif()
 
+if(WIN32)
+	set(CMAKE_EXECUTABLE_SUFFIX ".exe")
+endif()
+
 # specify the cross compiler
 SET(CMAKE_C_COMPILER   
   ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin/${ANDROID_ARCH}-gcc${CMAKE_EXECUTABLE_SUFFIX} CACHE PATH "gcc" FORCE)
