@@ -33,6 +33,8 @@ jobject _jni_callObjectMethod(JNIEnv *env, jobject object, char *name, char *sig
    jclass class_id = _jni_call(env, jclass, GetObjectClass, object);
    jmethodID method_id = _jni_call(env, jmethodID, GetMethodID, class_id, name, sig);
    jobject ret = _jni_call(env, jobject, CallObjectMethod, object, method_id);
+
+   _jni_callv(env, DeleteLocalRef, class_id);
    
    return ret;
 }
@@ -49,6 +51,8 @@ jobject _jni_callObjectMethodV(JNIEnv *env, jobject object, char *name, char *si
    va_start(ap, sig);
    jobject ret = _jni_call(env, jobject, CallObjectMethodV, object, method_id, ap);
    va_end(ap);
+   
+   _jni_callv(env, DeleteLocalRef, class_id);
    
    ALLEGRO_DEBUG("callObjectMethodV end");
    return ret;
@@ -75,86 +79,3 @@ ALLEGRO_USTR *_jni_callStringMethod(JNIEnv *env, jobject obj, char *name, char *
    return _jni_getString(env, str_obj);
 }
 
-/*
-void _jni_callVoidMethod(JNIEnv *env, jobject obj, char *name)
-{
-   _jni_callVoidMethodV(env, obj, name, "()V");
-}
-
-void _jni_callVoidMethodV(JNIEnv *env, jobject obj, char *name, char *sig, ...)
-{
-   va_list ap;
-   
-   ALLEGRO_DEBUG("%s (%s)", name, sig);
-   
-   jclass class_id = _jni_call(env, jclass, GetObjectClass, obj);
-   
-   jmethodID method_id = _jni_call(env, jmethodID, GetMethodID, class_id, name, sig);
-   if(method_id == NULL) {
-      ALLEGRO_DEBUG("couldn't find method :(");
-      return;
-   }
-   
-   va_start(ap, sig);
-   _jni_callv(env, CallVoidMethodV, obj, method_id, ap);
-   va_end(ap);
-   
-   _jni_callv(env, DeleteLocalRef, class_id);
-}
-
-int _jni_callIntMethod(JNIEnv *env, jobject obj, char *name)
-{
-   return _jni_callIntMethodV(env, obj, name, "()I");
-}
-
-int _jni_callIntMethodV(JNIEnv *env, jobject obj, char *name, char *sig, ...)
-{
-   va_list ap;
-   
-   ALLEGRO_DEBUG("%s (%s)", name, sig);
-   
-   jclass class_id = _jni_call(env, jclass, GetObjectClass, obj);
-   
-   jmethodID method_id = _jni_call(env, jmethodID, GetMethodID, class_id, name, sig);
-   
-   if(method_id == NULL) {
-      ALLEGRO_DEBUG("couldn't find method :(");
-      _jni_callv(env, DeleteLocalRef, class_id);
-      return -1;
-   }
-   
-   va_start(ap, sig);
-   int res = _jni_call(env, int, CallIntMethodV, obj, method_id, ap);
-   va_end(ap);
-   
-   _jni_callv(env, DeleteLocalRef, class_id);
-      
-   return res;
-}*/
-
-/*
-bool _jni_callBooleanMethodV(JNIEnv *env, jobject obj, char *name, char *sig, ...)
-{
-   va_list ap;
-   
-   ALLEGRO_DEBUG("%s (%s)", name, sig);
-
-   jclass class_id = _jni_call(env, jclass, GetObjectClass, obj);
-   
-   jmethodID method_id = _jni_call(env, jmethodID, GetMethodID, class_id, name, sig);
-   
-   if(method_id == NULL) {
-      ALLEGRO_DEBUG("couldn't find method :(");
-      _jni_callv(env, DeleteLocalRef, class_id);
-      return -1;
-   }
-   
-   va_start(ap, sig);
-   jboolean res = _jni_call(env, jboolean, CallBooleanMethodV, obj, method_id, ap);
-   va_end(ap);
-   
-   _jni_callv(env, DeleteLocalRef, class_id);
-   
-   return res;
-}
-*/
