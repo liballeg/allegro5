@@ -633,11 +633,14 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
       true_h = pot(h);
    }
 
-   /* FBOs are 16x16 minimum on iPhone, this is a workaround. (Some Androids too) */
-   if (IS_OPENGLES) {
-      if (true_w < 16) true_w = 16;
-      if (true_h < 16) true_h = 16;
-   }
+   /* This used to be an iOS/Android only workaround - but
+    * Intel is making GPUs with the same chips now. Very
+    * small textures can have garbage pixels and FBOs don't
+    * work with them on some of these chips. This is a
+    * workaround.
+    */
+   if (true_w < 16) true_w = 16;
+   if (true_h < 16) true_h = 16;
 
    /* glReadPixels requires 32 byte aligned rows */
    if (IS_ANDROID) {
