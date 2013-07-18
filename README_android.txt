@@ -51,29 +51,16 @@ Using Allegro in an Android project
 ===================================
 
 An Android project has a specific structure which you will need to replicate.
-Start by copying the `android-project` folder to a location of your choice.
-This will become your project folder.  Several files will need to be modified.
+You can start by copying android/example and using it as a base. You will need
+to build an Allegro5.jar first, though, like this:
 
-First, change the name of the package.
+    cd android/allegro_activity
+    android update project -p . --target android-10
+    ant debug
+    ant jar
+    cp Allegro5.jar /path/to/your/project/libs
 
- *  In `src/org/liballeg/app/AllegroActivity.java` replace the line
-    "package org.liballeg.app;" with your own package name.  Usually the
-    package name is based on your domain name, in reverse.  You can make
-    something up if you do not have a domain name, so long as it doesn't clash
-    with an Android or Java package.
-
-    Near the top under the comment /* load allegro */ adjust which addons you
-    want to load. FIXME: It should just use all addons which were compiled by
-    default.
-
- *  In `AndroidManifest.xml` replace the value of the "package" property
-    in the "manifest" tag, at the top of the file.
-
- *  Though not recommended, you can also change the name of the AllegroActivity
-    and AllegroSurface classes.  Then you must also change the "android:name"
-    property in the "activity" tag in `AndroidManifest.xml`.
-
-Next, change the name of your app's executable (library).
+In the example project, change the name of your app's executable (library).
 
  *  In `AndroidManifest.xml` change the value of the
     "meta-data" tag from "allegro-example" to something else.
@@ -113,7 +100,8 @@ Now to build your Android project.
 
         ANDROID_NDK_TOOLCHAIN_ROOT=$TC /home/username/android-ndk/ndk-build
 
- *  Run "android update project -p .".
+ *  Run "android update project -p . --target android-10".
+    You may replace "10" with a higher Android SDK number if desired.
 
  *  Run `ant debug`.  This should completely build your project
     resulting in an installable `.apk` file.
@@ -123,9 +111,9 @@ We assume you have the adb tool (the Android Debug Bridge) set up, and USB
 debugging enabled on your device.  This can be quite involved, so please refer
 to the Android tool documentation.
 
- *  If your app has already been installed once already, you need to uninstall
-    it first. That can either be done from the device itself, or using this
-    command:
+ *  If your app has already been installed once already, you may want to
+    uninstall it first. That can either be done from the device itself, or
+    using this command:
 
         adb -d uninstall your.package.name
 
@@ -180,7 +168,6 @@ TODO
 ====
 
 * accelerometer support
-* screen rotation
 * support more than just armv7a
 * mouse emulation (is this even really needed?)
 * joystick emulation (at least till there is a more generic input api)
