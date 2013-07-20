@@ -106,6 +106,8 @@ public class AllegroActivity extends Activity implements SensorEventListener
 
    public static AllegroActivity Self;
 
+   private boolean exitedMain = false;
+
    /* methods native code calls */
 
    private boolean inhibit_screen_lock = false;
@@ -342,6 +344,8 @@ public class AllegroActivity extends Activity implements SensorEventListener
    
    public void postFinish()
    {
+      exitedMain = true;
+
       try {
          Log.d("AllegroActivity", "posting finish!");
          handler.post( new Runnable() {
@@ -357,6 +361,11 @@ public class AllegroActivity extends Activity implements SensorEventListener
       } catch(Exception x) {
          Log.d("AllegroActivity", "exception: " + x.getMessage());
       }
+   }
+
+   public boolean getMainReturned()
+   {
+      return exitedMain;
    }
    
    /* end of functions native code calls */
