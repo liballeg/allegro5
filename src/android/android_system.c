@@ -138,6 +138,28 @@ JNI_FUNC(void, AllegroInputStream, nativeClose, (JNIEnv *env, jobject obj, int h
 
 static void finish_activity(JNIEnv *env);
 
+static bool already_cleaned_up = false;
+
+/* NOTE: don't put any ALLEGRO_DEBUG in here! */
+static void android_cleanup(bool uninstall_system)
+{
+   if (already_cleaned_up) {
+      return;
+   }
+
+   if (uninstall_system) {
+      /* I don't think android calls our atexit() stuff since we're in a shared lib
+         so make sure al_uninstall_system is called */
+      al_uninstall_system();
+   }
+
+   finish_activity(_al_android_get_jnienv());
+
+   (*javavm)->DetachCurrentThread(javavm);
+
+   already_cleaned_up = true;
+}
+
 void *android_app_trampoline(ALLEGRO_THREAD *thr, void *arg)
 {
    const char *argv[2] = { al_cstr(system_data.app_name), NULL };
@@ -153,23 +175,10 @@ void *android_app_trampoline(ALLEGRO_THREAD *thr, void *arg)
    ALLEGRO_DEBUG("entering app's main function");
    
    int ret = (system_data.user_main)(1, (char **)argv);
-   if(ret != 0) {
-      ALLEGRO_DEBUG("app's main returned failure?");
-   }
-   
-   /* I don't think android calls our atexit() stuff since we're in a shared lib
-      so make sure al_uninstall_system is called */
-   ALLEGRO_DEBUG("call exit funcs");
-   al_uninstall_system();
-   
-   ALLEGRO_DEBUG("calling finish_activity");
-   finish_activity(_al_android_get_jnienv());
-   ALLEGRO_DEBUG("returning/exit-thread");
-   
-   jint detach_ret = (*javavm)->DetachCurrentThread(javavm);
-   if(detach_ret != 0 ) {
-      ALLEGRO_ERROR("failed to detach current thread");
-   }
+
+   /* NOTE: don't put any ALLEGRO_DEBUG in here after running main! */
+
+   android_cleanup(true);
    
    return NULL;
 }
@@ -375,6 +384,26 @@ JNI_FUNC(void, AllegroActivity, nativeOnResume, (JNIEnv *env, jobject obj))
 JNI_FUNC(void, AllegroActivity, nativeOnDestroy, (JNIEnv *env, jobject obj))
 {
    (void)obj;
+
+   /* onDestroy can be called before main returns, for example if you start
+    * a new activity, your Allegro game will get onDestroy when it returns.
+    * At that point there's nothing you can do and any code you execute will
+    * crash, so this attempts to handle that more gracefully. Calling
+    * android_cleanup() eventually leads back here anyway. We ask android_cleanup
+    * not to call al_uninstall_system because GPU access causes a crash at
+    * this point (cleaning up bitmaps/displays etc.) The trampoline will exit
+    * eventually too so we guard against android_cleanup() being called twice.
+    */
+   bool main_returned = _jni_callBooleanMethodV(
+      env,
+      system_data.activity_object,
+      "getMainReturned",
+      "()Z"
+   );
+   if (!main_returned) {
+      android_cleanup(false);
+      return;
+   }
    
    ALLEGRO_DEBUG("destroy activity");
    if(!system_data.user_lib) {
