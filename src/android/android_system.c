@@ -506,7 +506,7 @@ static ALLEGRO_SYSTEM *android_initialize(int flags)
 
 static ALLEGRO_JOYSTICK_DRIVER *android_get_joystick_driver(void)
 {
-   if (0 == strcmp(al_cstr(system_data.model), "OUYA Console")) {
+   if (strstr(al_cstr(system_data.model), "OUYA")) {
       ALLEGRO_DEBUG("Using Linux joystick driver");
       return &_al_joydrv_linux;
    }
