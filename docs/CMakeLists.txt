@@ -61,7 +61,7 @@ if(PANDOC AND NOT DEFINED PANDOC_FOR_LATEX)
             ERROR_VARIABLE PANDOC_VERSION_TEXT
             )
     endif()
-    if(PANDOC_VERSION_TEXT MATCHES "pandoc (0|1[.][01234])")
+    if(PANDOC_VERSION_TEXT MATCHES "pandoc (0|1[.][01234][\n.])")
         set(PANDOC_FOR_LATEX 0 CACHE BOOL
             "Pandoc recent enough for LaTeX output")
     else()
