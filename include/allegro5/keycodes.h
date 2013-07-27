@@ -142,7 +142,7 @@ enum
    ALLEGRO_KEY_VOLUME_UP = 108,
    ALLEGRO_KEY_VOLUME_DOWN = 109,
 
-   /* Android/Xperia Play keys */
+   /* Android game keys */
    ALLEGRO_KEY_SEARCH       = 110,
    ALLEGRO_KEY_DPAD_CENTER  = 111,
    ALLEGRO_KEY_BUTTON_X     = 112,
@@ -153,10 +153,16 @@ enum
    ALLEGRO_KEY_DPAD_RIGHT   = 117,
    ALLEGRO_KEY_SELECT       = 118,
    ALLEGRO_KEY_START        = 119,
-   ALLEGRO_KEY_L1           = 120,
-   ALLEGRO_KEY_R1           = 121,
+   ALLEGRO_KEY_BUTTON_L1    = 120,
+   ALLEGRO_KEY_BUTTON_R1    = 121,
+   ALLEGRO_KEY_BUTTON_L2    = 122,
+   ALLEGRO_KEY_BUTTON_R2    = 123,
+   ALLEGRO_KEY_BUTTON_A     = 124,
+   ALLEGRO_KEY_BUTTON_B     = 125,
+   ALLEGRO_KEY_THUMBL       = 126,
+   ALLEGRO_KEY_THUMBR       = 127,
    
-   ALLEGRO_KEY_UNKNOWN      = 122,
+   ALLEGRO_KEY_UNKNOWN      = 128,
 
    /* All codes up to before ALLEGRO_KEY_MODIFIERS can be freely
     * assignedas additional unknown keys, like various multimedia

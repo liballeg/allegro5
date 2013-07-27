@@ -878,10 +878,16 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    static final int ALLEGRO_KEY_DPAD_RIGHT   = 117;
    static final int ALLEGRO_KEY_SELECT       = 118;
    static final int ALLEGRO_KEY_START        = 119;
-   static final int ALLEGRO_KEY_L1           = 120;
-   static final int ALLEGRO_KEY_R1           = 121;
+   static final int ALLEGRO_KEY_BUTTON_L1    = 120;
+   static final int ALLEGRO_KEY_BUTTON_R1    = 121;
+   static final int ALLEGRO_KEY_BUTTON_L2    = 122;
+   static final int ALLEGRO_KEY_BUTTON_R2    = 123;
+   static final int ALLEGRO_KEY_BUTTON_A     = 124;
+   static final int ALLEGRO_KEY_BUTTON_B     = 125;
+   static final int ALLEGRO_KEY_THUMBL       = 126;
+   static final int ALLEGRO_KEY_THUMBR       = 127;
 
-   static final int ALLEGRO_KEY_UNKNOWN      = 122;
+   static final int ALLEGRO_KEY_UNKNOWN      = 128;
 
       /* All codes up to before ALLEGRO_KEY_MODIFIERS can be freely
       * assignedas additional unknown keys, like various multimedia
@@ -1002,18 +1008,18 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       ALLEGRO_KEY_PGDN,        // KeyEvent.KEYCODE_PAGE_DOWN
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_PICTSYMBOLS
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_SWITCH_CHARSET
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_A
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_B
+      ALLEGRO_KEY_BUTTON_A,    // KeyEvent.KEYCODE_BUTTON_A
+      ALLEGRO_KEY_BUTTON_B,    // KeyEvent.KEYCODE_BUTTON_B
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_C
       ALLEGRO_KEY_BUTTON_X,    // KeyEvent.KEYCODE_BUTTON_X
       ALLEGRO_KEY_BUTTON_Y,    // KeyEvent.KEYCODE_BUTTON_Y
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_Z
-      ALLEGRO_KEY_L1,          // KeyEvent.KEYCODE_BUTTON_L1
-      ALLEGRO_KEY_R1,          // KeyEvent.KEYCODE_BUTTON_R1
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_L2
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_R2
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_THUMBL
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_THUMBR
+      ALLEGRO_KEY_BUTTON_L1,   // KeyEvent.KEYCODE_BUTTON_L1
+      ALLEGRO_KEY_BUTTON_R1,   // KeyEvent.KEYCODE_BUTTON_R1
+      ALLEGRO_KEY_BUTTON_L2,   // KeyEvent.KEYCODE_BUTTON_L2
+      ALLEGRO_KEY_BUTTON_R2,   // KeyEvent.KEYCODE_BUTTON_R2
+      ALLEGRO_KEY_THUMBL,      // KeyEvent.KEYCODE_THUMBL
+      ALLEGRO_KEY_THUMBR,      // KeyEvent.KEYCODE_THUMBR
       ALLEGRO_KEY_START,       // KeyEvent.KEYCODE_START
       ALLEGRO_KEY_SELECT,      // KeyEvent.KEYCODE_SELECT
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_MODE
