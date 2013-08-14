@@ -75,6 +75,7 @@ typedef struct DISPLAY_LOCAL_DATA
 {
    LPDIRECT3DDEVICE9 device;
    LPDIRECT3DVERTEXSHADER9 shader;
+   ALLEGRO_INDEX_BUFFER* loop_index_buffer;
 } DISPLAY_LOCAL_DATA;
 
 static DISPLAY_LOCAL_DATA* display_local_data;
@@ -109,6 +110,7 @@ static DISPLAY_LOCAL_DATA get_display_local_data(ALLEGRO_DISPLAY* display)
 {
    LPDIRECT3DDEVICE9 device = al_get_d3d_device(display);
    DISPLAY_LOCAL_DATA ret;
+   bool create_new = false;
 
    /*
     * Lock the mutex so that the entries are not messed up by a
@@ -119,14 +121,9 @@ static DISPLAY_LOCAL_DATA get_display_local_data(ALLEGRO_DISPLAY* display)
    if (display_local_data_size == 0) {
       display_local_data = (DISPLAY_LOCAL_DATA*)al_malloc(sizeof(DISPLAY_LOCAL_DATA));
       display_local_data_size = 1;
-
-      display_local_data[0].device = device;
-      display_local_data[0].shader = (LPDIRECT3DVERTEXSHADER9)_al_create_default_primitives_shader(device);
-
-      _al_add_display_invalidated_callback(display, &display_invalidated);
+      create_new = true;
    }
-
-   if (display_local_data[0].device != device) {
+   else if (display_local_data[0].device != device) {
       int ii;
       bool found = false;
       for(ii = 1; ii < display_local_data_size; ii++)
@@ -154,11 +151,17 @@ static DISPLAY_LOCAL_DATA get_display_local_data(ALLEGRO_DISPLAY* display)
          display_local_data = (DISPLAY_LOCAL_DATA *)al_realloc(display_local_data, sizeof(DISPLAY_LOCAL_DATA) * display_local_data_size);
 
          display_local_data[display_local_data_size - 1] = t;
-         display_local_data[0].device = device;
-         display_local_data[0].shader = (LPDIRECT3DVERTEXSHADER9)_al_create_default_primitives_shader(device);
-
-         _al_add_display_invalidated_callback(display, &display_invalidated);
+         create_new = true;
       }
+   }
+
+   if (create_new) {
+      int initial_indices[2] = {0, 0};
+      display_local_data[0].device = device;
+      display_local_data[0].shader = (LPDIRECT3DVERTEXSHADER9)_al_create_default_primitives_shader(device);
+      display_local_data[0].loop_index_buffer = al_create_index_buffer(sizeof(int), initial_indices, 2, 0);
+
+      _al_add_display_invalidated_callback(display, &display_invalidated);
    }
 
    ret = display_local_data[0];
@@ -174,6 +177,7 @@ static void destroy_display_local_data(void)
    for(ii = 0; ii < display_local_data_size; ii++)
    {
       display_local_data[ii].shader->Release();
+      al_destroy_index_buffer(display_local_data[ii].loop_index_buffer);
    }
    display_local_data_size = 0;
    al_free(display_local_data);
@@ -730,9 +734,21 @@ static int draw_buffer_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, ALLE
                break;
             };
             case ALLEGRO_PRIM_LINE_LOOP: {
+               int* indices;
                num_primitives = num_vtx - 1;
                device->DrawPrimitive(D3DPT_LINESTRIP, start, num_primitives);
-               /* TODO */
+
+               if (data.loop_index_buffer) {
+                  al_lock_mutex(d3d_mutex);
+                  indices = (int*)al_lock_index_buffer(data.loop_index_buffer, 0, 2, ALLEGRO_LOCK_WRITEONLY);
+                  ASSERT(indices);
+                  indices[0] = start;
+                  indices[1] = start + num_vtx - 1;
+                  al_unlock_index_buffer(data.loop_index_buffer);
+                  device->SetIndices((IDirect3DIndexBuffer9*)data.loop_index_buffer->common.handle);
+                  device->DrawIndexedPrimitive(D3DPT_LINESTRIP, 0, 0, al_get_vertex_buffer_size(vertex_buffer), 0, 1);
+                  al_unlock_mutex(d3d_mutex);
+               }
                break;
             };
             case ALLEGRO_PRIM_TRIANGLE_LIST: {
