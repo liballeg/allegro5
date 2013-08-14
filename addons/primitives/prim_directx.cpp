@@ -71,14 +71,14 @@ static int legacy_buffer_size = 0;
 #define A5V_FVF (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
 #define A5V_LEGACY_FVF (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
 
-typedef struct SHADER_ENTRY
+typedef struct DISPLAY_LOCAL_DATA
 {
    LPDIRECT3DDEVICE9 device;
    LPDIRECT3DVERTEXSHADER9 shader;
-} SHADER_ENTRY;
+} DISPLAY_LOCAL_DATA;
 
-static SHADER_ENTRY* shader_entries;
-static int num_shader_entries = 0;
+static DISPLAY_LOCAL_DATA* display_local_data;
+static int display_local_data_size = 0;
 
 static void display_invalidated(ALLEGRO_DISPLAY* display)
 {
@@ -92,12 +92,12 @@ static void display_invalidated(ALLEGRO_DISPLAY* display)
 
    al_lock_mutex(d3d_mutex);
 
-   for(ii = 0; ii < num_shader_entries; ii++)
+   for(ii = 0; ii < display_local_data_size; ii++)
    {
-      if(shader_entries[ii].device == device) {
-         shader_entries[ii].shader->Release();
-         shader_entries[ii] = shader_entries[num_shader_entries - 1];
-         num_shader_entries--;
+      if(display_local_data[ii].device == device) {
+         display_local_data[ii].shader->Release();
+         display_local_data[ii] = display_local_data[display_local_data_size - 1];
+         display_local_data_size--;
          break;
       }
    }
@@ -105,9 +105,10 @@ static void display_invalidated(ALLEGRO_DISPLAY* display)
    al_unlock_mutex(d3d_mutex);
 }
 
-static void setup_default_shader(ALLEGRO_DISPLAY* display)
+static DISPLAY_LOCAL_DATA get_display_local_data(ALLEGRO_DISPLAY* display)
 {
    LPDIRECT3DDEVICE9 device = al_get_d3d_device(display);
+   DISPLAY_LOCAL_DATA ret;
 
    /*
     * Lock the mutex so that the entries are not messed up by a
@@ -115,30 +116,30 @@ static void setup_default_shader(ALLEGRO_DISPLAY* display)
     */
    al_lock_mutex(d3d_mutex);
 
-   if(num_shader_entries == 0) {
-      shader_entries = (SHADER_ENTRY *)al_malloc(sizeof(SHADER_ENTRY));
-      num_shader_entries = 1;
+   if (display_local_data_size == 0) {
+      display_local_data = (DISPLAY_LOCAL_DATA*)al_malloc(sizeof(DISPLAY_LOCAL_DATA));
+      display_local_data_size = 1;
 
-      shader_entries[0].device = device;
-      shader_entries[0].shader = (LPDIRECT3DVERTEXSHADER9)_al_create_default_primitives_shader(device);
+      display_local_data[0].device = device;
+      display_local_data[0].shader = (LPDIRECT3DVERTEXSHADER9)_al_create_default_primitives_shader(device);
 
       _al_add_display_invalidated_callback(display, &display_invalidated);
    }
 
-   if(shader_entries[0].device != device) {
+   if (display_local_data[0].device != device) {
       int ii;
       bool found = false;
-      for(ii = 1; ii < num_shader_entries; ii++)
+      for(ii = 1; ii < display_local_data_size; ii++)
       {
-         if(shader_entries[ii].device == device) {
+         if(display_local_data[ii].device == device) {
             /*
              * Move this entry to the front, so the search goes faster
              * next time - presumably the al_draw_prim will be called
              * several times for each display before switching again
              */
-            SHADER_ENTRY t = shader_entries[0];
-            shader_entries[0] = shader_entries[ii];
-            shader_entries[ii] = t;
+            DISPLAY_LOCAL_DATA t = display_local_data[0];
+            display_local_data[0] = display_local_data[ii];
+            display_local_data[ii] = t;
 
             found = true;
 
@@ -146,35 +147,37 @@ static void setup_default_shader(ALLEGRO_DISPLAY* display)
          }
       }
 
-      if(!found) {
-         SHADER_ENTRY t = shader_entries[0];
+      if (!found) {
+         DISPLAY_LOCAL_DATA t = display_local_data[0];
 
-         num_shader_entries++;
-         shader_entries = (SHADER_ENTRY *)al_realloc(shader_entries, sizeof(SHADER_ENTRY) * num_shader_entries);
+         display_local_data_size++;
+         display_local_data = (DISPLAY_LOCAL_DATA *)al_realloc(display_local_data, sizeof(DISPLAY_LOCAL_DATA) * display_local_data_size);
 
-         shader_entries[num_shader_entries - 1] = t;
-         shader_entries[0].device = device;
-         shader_entries[0].shader = (LPDIRECT3DVERTEXSHADER9)_al_create_default_primitives_shader(device);
+         display_local_data[display_local_data_size - 1] = t;
+         display_local_data[0].device = device;
+         display_local_data[0].shader = (LPDIRECT3DVERTEXSHADER9)_al_create_default_primitives_shader(device);
 
          _al_add_display_invalidated_callback(display, &display_invalidated);
       }
    }
 
-   _al_setup_default_primitives_shader(device, shader_entries[0].shader);
+   ret = display_local_data[0];
 
    al_unlock_mutex(d3d_mutex);
+
+   return ret;
 }
 
-static void destroy_default_shaders(void)
+static void destroy_display_local_data(void)
 {
    int ii;
-   for(ii = 0; ii < num_shader_entries; ii++)
+   for(ii = 0; ii < display_local_data_size; ii++)
    {
-      shader_entries[ii].shader->Release();
+      display_local_data[ii].shader->Release();
    }
-   num_shader_entries = 0;
-   al_free(shader_entries);
-   shader_entries = NULL;
+   display_local_data_size = 0;
+   al_free(display_local_data);
+   display_local_data = NULL;
 }
 
 #endif
@@ -195,7 +198,7 @@ void _al_shutdown_d3d_driver(void)
    d3d_mutex = NULL;
    legacy_buffer = NULL;
 
-   destroy_default_shaders();
+   destroy_display_local_data();
 
    legacy_card = false;
    know_card_type = false;
@@ -252,7 +255,7 @@ struct D3D_STATE
    IDirect3DVertexShader9* old_vtx_shader;
 };
 
-static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL* decl, ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture)
+static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL* decl, ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, DISPLAY_LOCAL_DATA data)
 {
    D3D_STATE state;
    ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)(target->display);
@@ -272,7 +275,7 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
             if(decl)
                _al_setup_primitives_shader(device, decl);
             else
-               setup_default_shader(target->display);
+               _al_setup_default_primitives_shader(device, data.shader);
          }
       }
    }
@@ -418,6 +421,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    UINT required_passes = 1;
    unsigned int i;
    D3D_STATE state;
+   DISPLAY_LOCAL_DATA data;
    (void)d3d_disp;
 
    if (al_is_d3d_device_lost(target->display)) {
@@ -453,7 +457,9 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
 
    device = al_get_d3d_device(target->display);
 
-   state = setup_state(device, decl, target, texture);
+   data = get_display_local_data(target->display);
+
+   state = setup_state(device, decl, target, texture, data);
 
    /* Convert vertices for legacy cards */
    if(is_legacy_card()) {
@@ -644,6 +650,7 @@ static int draw_buffer_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, ALLE
    UINT required_passes = 1;
    unsigned int i;
    D3D_STATE state;
+   DISPLAY_LOCAL_DATA data;
    (void)d3d_disp;
 
    if (al_is_d3d_device_lost(target->display)) {
@@ -687,7 +694,9 @@ static int draw_buffer_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, ALLE
 
    device = al_get_d3d_device(target->display);
 
-   state = setup_state(device, vertex_buffer->decl, target, texture);
+   data = get_display_local_data(target->display);
+
+   state = setup_state(device, vertex_buffer->decl, target, texture, data);
 
    device->SetStreamSource(0, (IDirect3DVertexBuffer9*)vertex_buffer->common.handle, 0, vertex_buffer->decl ? vertex_buffer->decl->stride : (int)sizeof(ALLEGRO_VERTEX));
 
