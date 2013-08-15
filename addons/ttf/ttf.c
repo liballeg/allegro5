@@ -174,16 +174,6 @@ static ALLEGRO_BITMAP *push_new_page(ALLEGRO_TTF_FONT_DATA *data)
     back = _al_vector_alloc_back(&data->page_bitmaps);
     *back = page;
 
-    /* Sometimes OpenGL will partly sample texels from the border of
-     * glyphs. So we better clear the texture to transparency.
-     * XXX This is very slow and avoidable with some effort.
-     */
-    al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP);
-    al_hold_bitmap_drawing(false);
-    al_set_target_bitmap(*back);
-    al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
-    al_restore_state(&state);
-
     data->page_pos_x = 0;
     data->page_pos_y = 0;
     data->page_line_height = 0;
@@ -242,7 +232,7 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
 
    if (relock) {
       char *ptr;
-      int n;
+      int i;
       unlock_current_page(data);
 
       data->lock_rect.x = glyph->region.x;
@@ -268,13 +258,10 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
        * FIXME We could clear just the border but I'm not convinced that
        * would be faster (yet)
        */
-      ptr = data->page_lr->data;
-      n = data->lock_rect.h * data->page_lr->pitch;
-      if (n < 0) {
-         ptr += n - data->page_lr->pitch;
-         n = -n;
+      for (i = 0; i < data->lock_rect.h; i++) {
+          ptr = data->page_lr->data + (i * data->page_lr->pitch);
+          memset(ptr, 0, data->lock_rect.w * 4);
       }
-      memset(ptr, 0, n);
    }
 
    ASSERT(data->page_lr);
