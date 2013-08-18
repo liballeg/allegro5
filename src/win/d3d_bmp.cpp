@@ -49,7 +49,8 @@ bool al_get_d3d_texture_size(ALLEGRO_BITMAP *bitmap, int *width, int *height)
    ASSERT(width);
    ASSERT(height);
 
-   if (bitmap->flags & ALLEGRO_DIRECT3D_INTERNAL) {
+   if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL) &&
+         !(bitmap->flags & ALLEGRO_MEMORY_BITMAP)) {
       ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
       *width = d3d_bmp->texture_w;
       *height = d3d_bmp->texture_h;
