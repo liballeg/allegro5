@@ -32,6 +32,8 @@ Note that setting the view non-opaque will only work if the EAGL surface has an 
    NSMutableIndexSet*   touch_id_set;
    UITouch*             primary_touch;
    int                  next_free_touch_id;
+
+   float                scale;
 }
 
 @property (nonatomic, retain) EAGLContext *context;

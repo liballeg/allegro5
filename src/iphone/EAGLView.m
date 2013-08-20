@@ -219,8 +219,11 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
    ALLEGRO_DISPLAY_IPHONE *d = (ALLEGRO_DISPLAY_IPHONE *)allegro_display;
 
     if (d->extra->adapter == 0 && [self respondsToSelector:@selector(contentScaleFactor)]) {
-        self.contentScaleFactor = [[UIScreen mainScreen] scale];
+        scale = self.contentScaleFactor = [[UIScreen mainScreen] scale];
         ALLEGRO_INFO("Screen scale is %f\n", self.contentScaleFactor);
+    }
+    else {
+    	scale = 1.0f;
     }
 
     glGenFramebuffersOES(1, &viewFramebuffer);
@@ -345,7 +348,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
          primary_touch = nativeTouch;
       
       _al_iphone_touch_input_handle_begin(touch->id, al_get_time(),
-      p.x, p.y, primary_touch == nativeTouch, allegro_display);
+      p.x*scale, p.y*scale, primary_touch == nativeTouch, allegro_display);
    }
 }
 
@@ -363,8 +366,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
          CGPoint p = [nativeTouch locationInView:[nativeTouch view]];
    
          _al_iphone_touch_input_handle_move(touch->id, al_get_time(),
-         p.x, p.y, primary_touch == nativeTouch, allegro_display);         
-   
+         p.x*scale, p.y*scale, primary_touch == nativeTouch, allegro_display);
       }
    }
 }
@@ -383,7 +385,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
          CGPoint p = [nativeTouch locationInView:[nativeTouch view]];
 
          _al_iphone_touch_input_handle_end(touch->id, al_get_time(),
-            p.x, p.y, primary_touch == nativeTouch, allegro_display);  
+            p.x*scale, p.y*scale, primary_touch == nativeTouch, allegro_display);  
 
          [touch_id_set addIndex:touch->id];
          _al_list_remove(touch_list, touch);
@@ -410,7 +412,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
          CGPoint p = [nativeTouch locationInView:[nativeTouch view]];
          
          _al_iphone_touch_input_handle_cancel(touch->id, al_get_time(),
-         p.x, p.y, primary_touch == nativeTouch, allegro_display);
+         p.x*scale, p.y*scale, primary_touch == nativeTouch, allegro_display);
          
          if (primary_touch == nativeTouch)
          primary_touch = NULL;            
