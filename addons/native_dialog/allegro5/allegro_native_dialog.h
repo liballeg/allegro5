@@ -49,7 +49,7 @@ typedef struct ALLEGRO_MENU ALLEGRO_MENU;
  */
 typedef struct ALLEGRO_MENU_INFO {
    const char *caption;
-   int id;
+   uint16_t id;
    int flags;
    ALLEGRO_BITMAP *icon;
 } ALLEGRO_MENU_INFO;
@@ -81,9 +81,9 @@ ALLEGRO_DIALOG_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_native_text_log_event_source,
 ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_create_menu, (void));
 ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_create_popup_menu, (void));
 ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_build_menu, (ALLEGRO_MENU_INFO *info));
-ALLEGRO_DIALOG_FUNC(int, al_append_menu_item, (ALLEGRO_MENU *parent, char const *title, int id, int flags,
+ALLEGRO_DIALOG_FUNC(int, al_append_menu_item, (ALLEGRO_MENU *parent, char const *title, uint16_t id, int flags,
    ALLEGRO_BITMAP *icon, ALLEGRO_MENU *submenu));
-ALLEGRO_DIALOG_FUNC(int, al_insert_menu_item, (ALLEGRO_MENU *parent, int pos, char const *title, int id,
+ALLEGRO_DIALOG_FUNC(int, al_insert_menu_item, (ALLEGRO_MENU *parent, int pos, char const *title, uint16_t id,
    int flags, ALLEGRO_BITMAP *icon, ALLEGRO_MENU *submenu));
 ALLEGRO_DIALOG_FUNC(bool, al_remove_menu_item, (ALLEGRO_MENU *menu, int pos));
 ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_clone_menu, (ALLEGRO_MENU *menu));
@@ -100,8 +100,8 @@ ALLEGRO_DIALOG_FUNC(ALLEGRO_BITMAP *, al_get_menu_item_icon, (ALLEGRO_MENU *menu
 ALLEGRO_DIALOG_FUNC(void, al_set_menu_item_icon, (ALLEGRO_MENU *menu, int pos, ALLEGRO_BITMAP *icon));
  
 /* querying menus */
-ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_find_menu, (ALLEGRO_MENU *haystack, int id));
-ALLEGRO_DIALOG_FUNC(bool, al_find_menu_item, (ALLEGRO_MENU *haystack, int id, ALLEGRO_MENU **menu, int *index));
+ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_find_menu, (ALLEGRO_MENU *haystack, uint16_t id));
+ALLEGRO_DIALOG_FUNC(bool, al_find_menu_item, (ALLEGRO_MENU *haystack, uint16_t id, ALLEGRO_MENU **menu, int *index));
  
 /* menu events */
 ALLEGRO_DIALOG_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_default_menu_event_source, (void));

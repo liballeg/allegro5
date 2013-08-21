@@ -233,10 +233,10 @@ menu. If you wish to use the same menu on multiple displays or use a sub-menu
 as a context menu, you must make a copy via [al_clone_menu] or
 [al_clone_menu_for_popup].
 
-Each menu item can be given an ID of any integer greater than zero. When a user
-clicks on a menu item, an event will be generated only if it has an ID. This
-ID should be unique per menu; if you duplicate IDs, then there will be no way
-for you to determine exactly which item generated the event.
+Each menu item can be given an ID of any 16-bit integer greater than zero. When
+a user clicks on a menu item, an event will be generated only if it has an ID.
+This ID should be unique per menu; if you duplicate IDs, then there will be no
+way for you to determine exactly which item generated the event.
 
 There are many functions that take `pos` as a parameter used for locating a
 particular menu item. In those cases, it represents one of two things: an ID 
@@ -379,13 +379,13 @@ The `flags` can be any combination of:
 ALLEGRO_MENU_ITEM_DISABLED
 :   The item is "grayed out" and cannot be selected.
 
-ALLEGRO_MENU_ITEM_CHECK_BOX
+ALLEGRO_MENU_ITEM_CHECKBOX
 :   The item is a check box. This flag can only be set at the time the
     menu is created. If a check box is clicked, it will automatically be
     toggled.
 
 ALLEGRO_MENU_ITEM_CHECKED
-:   The item is checked. If set, ALLEGRO_MENU_ITEM_CHECK_BOX will automatically
+:   The item is checked. If set, ALLEGRO_MENU_ITEM_CHECKBOX will automatically
     be set as well.
     
 The `icon` is not yet supported.

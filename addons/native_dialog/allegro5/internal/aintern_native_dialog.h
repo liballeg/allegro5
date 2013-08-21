@@ -61,7 +61,7 @@ struct ALLEGRO_MENU_ITEM
    ALLEGRO_USTR *caption;
    ALLEGRO_BITMAP *icon;
    
-   int id;
+   uint16_t id;
    int flags;
    void *extra1, *extra2;
 };
@@ -85,12 +85,12 @@ struct ALLEGRO_MENU
  *
  *  The function will find the appropriate ALLEGRO_MENU and emit the event.
  */
-extern bool _al_emit_menu_event(ALLEGRO_DISPLAY *display, int id);
+extern bool _al_emit_menu_event(ALLEGRO_DISPLAY *display, uint16_t id);
 
 extern bool _al_walk_over_menu(ALLEGRO_MENU *menu, bool (*proc)
    (ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int index, void *extra),
    void *extra);
-ALLEGRO_MENU *_al_find_parent_menu_by_id(ALLEGRO_DISPLAY *display, int id);
+ALLEGRO_MENU *_al_find_parent_menu_by_id(ALLEGRO_DISPLAY *display, uint16_t id);
    
 /* Platform Specific Functions
  * ---------------------------
