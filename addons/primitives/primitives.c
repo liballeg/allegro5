@@ -315,7 +315,7 @@ void al_destroy_vertex_buffer(ALLEGRO_VERTEX_BUFFER* buffer)
    al_free(buffer);
 }
 
-/* Function: al_destroy_vertex_buffer
+/* Function: al_destroy_index_buffer
  */
 void al_destroy_index_buffer(ALLEGRO_INDEX_BUFFER* buffer)
 {

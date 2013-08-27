@@ -511,7 +511,7 @@ Number of primitives drawn
 Since: 5.1.3
 
 See also:
-[ALLEGRO_VERTEX_BUFFER], [ALLEGRO_PRIM_TYPE], [ALLEGRO_VERTEX_DECL]
+[ALLEGRO_VERTEX_BUFFER], [ALLEGRO_PRIM_TYPE]
 
 ### API: al_draw_indexed_buffer
 
@@ -538,7 +538,7 @@ Number of primitives drawn
 Since: 5.1.8
 
 See also:
-[ALLEGRO_VERTEX_BUFFER], [ALLEGRO_PRIM_TYPE], [ALLEGRO_VERTEX_DECL]
+[ALLEGRO_VERTEX_BUFFER], [ALLEGRO_INDEX_BUFFER], [ALLEGRO_PRIM_TYPE]
 
 ### API: al_draw_soft_triangle
 
