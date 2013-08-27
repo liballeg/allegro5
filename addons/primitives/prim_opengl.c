@@ -526,8 +526,7 @@ static int draw_prim_indexed_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture
          break;
       };
       case ALLEGRO_PRIM_LINE_LOOP: {
-         glDrawElements(GL_LINE_LOOP, num_vtx, idx_size, idx + start_offset);
-         num_primitives = num_vtx;
+         /* Unimplemented, as it's too hard to do for Direct3D */
          break;
       };
       case ALLEGRO_PRIM_TRIANGLE_LIST: {
@@ -546,8 +545,7 @@ static int draw_prim_indexed_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture
          break;
       };
       case ALLEGRO_PRIM_POINT_LIST: {
-         glDrawElements(GL_POINTS, num_vtx, idx_size, idx + start_offset);
-         num_primitives = num_vtx;
+         /* Unimplemented, as it's too hard to do for Direct3D */
          break;
       };
    }

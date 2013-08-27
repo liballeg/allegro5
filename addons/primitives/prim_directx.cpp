@@ -643,7 +643,7 @@ int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* textur
    return 0;
 #endif
 }
-#include <stdio.h>
+
 #ifdef ALLEGRO_CFG_D3D
 static int draw_buffer_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX_BUFFER* vertex_buffer, ALLEGRO_INDEX_BUFFER* index_buffer, int start, int end, int type)
 {
@@ -664,36 +664,6 @@ static int draw_buffer_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, ALLE
    /* Check for early exit for legacy cards */
    if (vertex_buffer->decl && vertex_buffer->decl->d3d_decl == 0) {
       return _al_draw_buffer_common_soft(vertex_buffer, texture, index_buffer, start, end, type);
-   }
-
-   /* Another early exit for ALLEGRO_PRIM_POINT_LIST and indexing. We send it off to the non-buffer hardware drawing. */
-   if (index_buffer && type == ALLEGRO_PRIM_POINT_LIST) {
-      if (!vertex_buffer->common.write_only && !index_buffer->common.write_only) {
-         void* vtx;
-         void* idx;
-         int* int_idx = NULL;
-         int ii;
-
-         vtx = al_lock_vertex_buffer(vertex_buffer, 0, al_get_vertex_buffer_size(vertex_buffer), ALLEGRO_LOCK_READONLY);
-         ASSERT(vtx);
-         idx = al_lock_index_buffer(index_buffer, start, num_vtx, ALLEGRO_LOCK_READONLY);
-         ASSERT(idx);
-
-         if (index_buffer->index_size != 4) {
-            int_idx = (int*)al_malloc(num_vtx * sizeof(int));
-            for (ii = 0; ii < num_vtx; ii++) {
-               int_idx[ii] = ((unsigned short*)idx)[ii];
-            }
-            idx = int_idx;
-         }
-
-         num_primitives = draw_prim_raw(target, texture, vtx, vertex_buffer->decl, (const int*)idx, num_vtx, type);
-
-         al_unlock_vertex_buffer(vertex_buffer);
-         al_unlock_index_buffer(index_buffer);
-         al_free(int_idx);
-      }
-      return num_primitives;
    }
 
    device = al_get_d3d_device(target->display);
@@ -787,9 +757,7 @@ static int draw_buffer_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, ALLE
                break;
             };
             case ALLEGRO_PRIM_LINE_LOOP: {
-               num_primitives = num_vtx - 1;
-               device->DrawIndexedPrimitive(D3DPT_LINESTRIP, 0, 0, vbuff_size, start, num_primitives);
-               /* TODO */
+               /* Unimplemented, too hard to do in a consistent fashion. */
                break;
             };
             case ALLEGRO_PRIM_TRIANGLE_LIST: {
@@ -808,7 +776,7 @@ static int draw_buffer_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, ALLE
                break;
             };
             case ALLEGRO_PRIM_POINT_LIST: {
-               /* Handled above */
+               /* Unimplemented, too hard to do in a consistent fashion. */
                break;
             };
          }

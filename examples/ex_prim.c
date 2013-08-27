@@ -576,7 +576,7 @@ static void IndexedBuffers(int mode)
       }
 
       vbuff2 = al_create_vertex_buffer(NULL, NULL, 13, flags);
-      ibuff = al_create_index_buffer(sizeof(short), NULL, 12, flags);
+      ibuff = al_create_index_buffer(sizeof(short), NULL, 8, flags);
 
       vtx1 = al_lock_vertex_buffer(vbuff1, 0, 13, ALLEGRO_LOCK_WRITEONLY);
       vtx2 = al_lock_vertex_buffer(vbuff2, 0, 13, ALLEGRO_LOCK_WRITEONLY);
@@ -604,9 +604,9 @@ static void IndexedBuffers(int mode)
    } else if (mode == LOGIC) {
       int ii;
       int t = (int)al_get_time();
-      short* indices = al_lock_index_buffer(ibuff, 0, 12, ALLEGRO_LOCK_WRITEONLY);
+      short* indices = al_lock_index_buffer(ibuff, 0, 8, ALLEGRO_LOCK_WRITEONLY);
 
-      for (ii = 0; ii < 12; ii++) {
+      for (ii = 0; ii < 8; ii++) {
          indices[ii] = (t + ii) % 13;
       }
       al_unlock_index_buffer(ibuff);
@@ -624,8 +624,6 @@ static void IndexedBuffers(int mode)
       if(!(Soft && !soft)) {
          al_draw_indexed_buffer(vbuff1, NULL, ibuff, 0, 4, ALLEGRO_PRIM_LINE_LIST);
          al_draw_indexed_buffer(vbuff1, NULL, ibuff, 4, 8, ALLEGRO_PRIM_LINE_STRIP);
-         al_draw_indexed_buffer(vbuff1, NULL, ibuff, 8, 12, ALLEGRO_PRIM_LINE_LOOP);
-         al_draw_indexed_buffer(vbuff2, NULL, ibuff, 0, 4, ALLEGRO_PRIM_POINT_LIST);
       }
       else {
          al_draw_text(Font, al_map_rgb_f(1, 1, 1), 0, 0, 0, "Indexed buffers not supported");
