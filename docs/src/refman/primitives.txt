@@ -498,8 +498,8 @@ it must be created with the `ALLEGRO_PRIM_BUFFER_READWRITE`).
 
 *Parameters:*
 
-* texture - Texture to use, pass 0 to use only color shaded primitves
 * vertex_buffer - Vertex buffer to draw
+* texture - Texture to use, pass 0 to use only color shaded primitves
 * start - Start index of the subset of the vertex buffer to draw
 * end - One past the last index of the subset of the vertex buffer to draw
 * type - A member of the [ALLEGRO_PRIM_TYPE] enumeration, specifying what kind
@@ -509,6 +509,33 @@ it must be created with the `ALLEGRO_PRIM_BUFFER_READWRITE`).
 Number of primitives drawn
 
 Since: 5.1.3
+
+See also:
+[ALLEGRO_VERTEX_BUFFER], [ALLEGRO_PRIM_TYPE], [ALLEGRO_VERTEX_DECL]
+
+### API: al_draw_indexed_buffer
+
+Draws a subset of the passed vertex buffer.  This function uses an 
+index buffer to specify which vertices to use. Both buffers must not 
+be locked. Additionally, to draw onto memory bitmaps or with memory 
+bitmap textures both buffers must support reading (i.e. they must be 
+created with the `ALLEGRO_PRIM_BUFFER_READWRITE`).
+
+*Parameters:*
+
+* vertex_buffer - Vertex buffer to draw
+* texture - Texture to use, pass 0 to use only color shaded primitves
+* index_buffer - Index buffer to use
+* start - Start index of the subset of the vertex buffer to draw
+* end - One past the last index of the subset of the vertex buffer to draw
+* type - A member of the [ALLEGRO_PRIM_TYPE] enumeration, specifying 
+  what kind of primitive to draw. Note that ALLEGRO_PRIM_LINE_LOOP and 
+  ALLEGRO_PRIM_POINT_LIST are not supported.
+
+*Returns:*
+Number of primitives drawn
+
+Since: 5.1.8
 
 See also:
 [ALLEGRO_VERTEX_BUFFER], [ALLEGRO_PRIM_TYPE], [ALLEGRO_VERTEX_DECL]
@@ -654,6 +681,77 @@ Unlocks a previously locked vertex buffer.
 Since: 5.1.3
 
 See also: [ALLEGRO_VERTEX_BUFFER], [al_lock_vertex_buffer]
+
+### API: al_get_vertex_buffer_size
+
+Returns the size of the vertex buffer
+
+Since: 5.1.8
+
+See also: [ALLEGRO_VERTEX_BUFFER]
+
+## Index buffer routines
+
+### API: al_create_index_buffer
+
+Creates a index buffer. Can return NULL if the buffer could not be
+created (e.g. the system only supports write-only buffers).
+
+*Parameters:*
+
+* index_size - Size of the index in bytes. Supported sizes are 2 
+  for short integers and 4 for integers
+* initial_data - Memory buffer to copy from to initialize the index 
+  buffer. Can be `NULL`, in which case the buffer is uninitialized.
+* num_indices - Number of indices the buffer will hold
+* flags - A combination of the [ALLEGRO_PRIM_BUFFER_FLAGS] flags 
+  specifying how this buffer will be created. Passing 0 is the same 
+  as passing `ALLEGRO_PRIM_BUFFER_STATIC`.
+
+Since: 5.1.8
+
+See also: [ALLEGRO_INDEX_BUFFER], [al_destroy_index_buffer]
+
+### API: al_destroy_index_buffer
+
+Destroys a index buffer. Does nothing if passed 0.
+
+Since: 5.1.8
+
+See also: [ALLEGRO_INDEX_BUFFER], [al_create_index_buffer]
+
+### API: al_lock_index_buffer
+
+Locks a index buffer so you can access its data. Will return 0 if the
+parameters are invalid, if reading is requested from a write only buffer and
+if the buffer is already locked.
+
+*Parameters:*
+
+* buffer - Index buffer to lock
+* offset - Element index of the start of the locked range
+* length - How many indices to lock
+* flags - ALLEGRO_LOCK_READONLY, ALLEGRO_LOCK_WRITEONLY or ALLEGRO_LOCK_READWRITE
+
+Since: 5.1.8
+
+See also: [ALLEGRO_INDEX_BUFFER], [al_unlock_index_buffer]
+
+### API: al_unlock_index_buffer
+
+Unlocks a previously locked index buffer.
+
+Since: 5.1.8
+
+See also: [ALLEGRO_INDEX_BUFFER], [al_lock_index_buffer]
+
+### API: al_get_index_buffer_size
+
+Returns the size of the index buffer
+
+Since: 5.1.8
+
+See also: [ALLEGRO_INDEX_BUFFER]
 
 ## Polygon routines
 
@@ -1053,9 +1151,19 @@ Since: 5.1.3
 
 See also: [al_create_vertex_buffer], [al_destroy_vertex_buffer]
 
+### API: ALLEGRO_INDEX_BUFFER
+
+A GPU index buffer that you can use to store indices of vertices in 
+a vertex buffer on the GPU instead of uploading them afresh during 
+every drawing operation. 
+
+Since: 5.1.8
+
+See also: [al_create_index_buffer], [al_destroy_index_buffer]
+
 ### API: ALLEGRO_PRIM_BUFFER_FLAGS
 
-Flags to specify how to create a vertex buffer.
+Flags to specify how to create a vertex or an index buffer.
 
 * ALLEGRO_PRIM_BUFFER_STREAM - Hints to the driver that the buffer 
   is written to often, but used only a few times per frame
@@ -1069,9 +1177,9 @@ Flags to specify how to create a vertex buffer.
 * ALLEGRO_PRIM_BUFFER_READWRITE - Specifies that you want to be able 
   read from this buffer. By default this is disabled for performance.
   Some platforms (like OpenGL ES) do not support reading from vertex
-  buffers, so if you pass this flag to `al_create_vertex_buffer` the
-  call will fail.
+  buffers, so if you pass this flag to `al_create_vertex_buffer` or 
+  `al_create_index_buffer` the call will fail.
 
 Since: 5.1.3
 
-See also: [al_create_vertex_buffer]
+See also: [al_create_vertex_buffer], [al_create_index_buffer]
