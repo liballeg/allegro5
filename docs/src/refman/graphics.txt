@@ -545,7 +545,17 @@ See also: [al_create_sub_bitmap], [al_get_parent_bitmap]
 ### API: al_get_parent_bitmap
 
 Returns the bitmap this bitmap is a sub-bitmap of. Returns NULL if this 
-bitmap is not a sub-bitmap.
+bitmap is not a sub-bitmap. This function always returns the real bitmap, 
+and never a sub-bitmap. This might NOT match what was passed to 
+[al_create_sub_bitmap]. Consider this code, for instance:
+
+    ALLEGRO_BITMAP* a = al_create_bitmap(512, 512);
+    ALLEGRO_BITMAP* b = al_create_sub_bitmap(a, 128, 128, 256, 256);
+    ALLEGRO_BITMAP* c = al_create_sub_bitmap(b, 64, 64, 128, 128);
+    ASSERT(al_get_parent_bitmap(b) == a && al_get_parent_bitmap(c) == a);
+
+The assertion will pass because only `a` is a real bitmap, and both `b` and `c`
+are its sub-bitmaps.
 
 Since: 5.0.6, 5.1.2
 
