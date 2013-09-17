@@ -254,6 +254,10 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
          data->lock_rect.w, data->lock_rect.h,
          ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
 
+      if (!data->page_lr) {
+         return NULL;
+      }
+
       /* Clear the data so we don't get garbage when using filtering
        * FIXME We could clear just the border but I'm not convinced that
        * would be faster (yet)
@@ -398,6 +402,10 @@ static void cache_glyph(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
      */
     glyph_data = alloc_glyph_region(font_data, ft_index,
        w + 2, h + 2, false, glyph, lock_more);
+
+    if (glyph_data == NULL) {
+       return;
+    }
 
     if (font_data->flags & ALLEGRO_TTF_MONOCHROME)
        copy_glyph_mono(font_data, face, glyph_data);
