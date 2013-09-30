@@ -13,6 +13,8 @@
  *      See LICENSE.txt for copyright information.
  */
 
+#include <windows.h>
+
 #if defined(ALLEGRO_MSVC)
 
 #define	S_ISDIR(m)	(((m) & S_IFMT) == S_IFDIR)

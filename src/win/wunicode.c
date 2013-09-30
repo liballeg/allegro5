@@ -17,6 +17,8 @@
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_wunicode.h"
 
+#include <windows.h>
+
 ALLEGRO_DEBUG_CHANNEL("wunicode")
 
 
