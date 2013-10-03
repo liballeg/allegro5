@@ -495,6 +495,7 @@ static int draw_prim_indexed_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture
 
 #if defined ALLEGRO_IPHONE
    if (!use_buffers) {
+      int ii;
       iphone_idx = al_malloc(num_vtx * sizeof(GLushort));
       for (ii = start; ii < end; ii++) {
          iphone_idx[ii] = (GLushort)indices[ii];
