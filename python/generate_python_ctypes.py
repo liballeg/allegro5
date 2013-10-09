@@ -38,6 +38,7 @@ class Allegro:
             "unsigned": c_uint,
             "unsignedint": c_uint,
             "int16_t": c_int16,
+            "uint16_t": c_uint16,
             "int32_t": c_int32,
             "uint32_t": c_uint32,
             "int64_t": c_int64,
@@ -61,6 +62,7 @@ class Allegro:
             "postprocess_callback_t": c_void_p,
             }
 
+        ptype = re.sub(r"\bstruct|union\b", "", ptype)
         ptype = re.sub(r"\bconst\b", "", ptype)
         ptype = re.sub(r"\extern\b", "", ptype)
         ptype = re.sub(r"\__inline__\b", "", ptype)
@@ -79,7 +81,7 @@ class Allegro:
             try:
                 return conversion[ptype]
             except KeyError:
-                print("Error:" + str(ptype))
+                print("Type Error:" + str(ptype))
         return None
 
     def parse_funcs(self, funcs):
@@ -307,13 +309,15 @@ class Allegro:
 
                 vars = field.split(",")
                 mob = re.match("\s*(.*?)\s+(\w+)\s*$", vars[0])
-                if mob:
-                    t = self.get_type(mob.group(1))
-                    vname = mob.group(2)
-                    if t is not None and vname is not None:
-                        flist.append((vname, t.__name__))
-                        for v in vars[1:]:
-                            flist.append((v.strip(), t.__name__))
+                
+                t = self.get_type(mob.group(1))
+                vname = mob.group(2)
+                if t is not None and vname is not None:
+                    flist.append((vname, t.__name__))
+                    for v in vars[1:]:
+                        flist.append((v.strip(), t.__name__))
+                else:
+                    print("Error: " + str(vars))
 
             try:
                 self.types[name].my_fields = flist
