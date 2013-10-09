@@ -1,9 +1,19 @@
 include(FindPythonInterp)
 
+# Construct list of files whose modification should trigger a rebuild of
+# the Python API.
+foreach(x ${MONOLITH_SOURCES} ${MONOLITH_HEADERS} ${ALLEGRO_PUBLIC_HEADERS})
+    if(NOT ${x} MATCHES "^/.*")
+        file(RELATIVE_PATH xrel ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/${x})
+        list(APPEND SOURCES ${xrel})
+        message(STATUS ${xrel})
+    endif()
+endforeach()
+
 if(WIN32)
     add_custom_command(
         OUTPUT python_protos
-        DEPENDS ${ALL_SRC}
+        DEPENDS ${SOURCES}
         COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/python/checkdocs.py
             -c ${CMAKE_C_COMPILER}
             -p python_protos
@@ -14,7 +24,7 @@ if(WIN32)
 else(WIN32)
     add_custom_command(
         OUTPUT python_protos
-        DEPENDS ${ALL_SRC}
+        DEPENDS ${SOURCES}
         COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/python/checkdocs.py
             -p python_protos
             -b ${CMAKE_BINARY_DIR}
