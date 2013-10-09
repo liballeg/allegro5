@@ -307,10 +307,13 @@ class Allegro:
 
                 vars = field.split(",")
                 mob = re.match("\s*(.*?)\s+(\w+)\s*$", vars[0])
-                t = self.get_type(mob.group(1))
-                flist.append((mob.group(2), t.__name__))
-                for v in vars[1:]:
-                    flist.append((v.strip(), t.__name__))
+                if mob:
+                    t = self.get_type(mob.group(1))
+                    vname = mob.group(2)
+                    if t is not None and vname is not None:
+                        flist.append((vname, t.__name__))
+                        for v in vars[1:]:
+                            flist.append((v.strip(), t.__name__))
 
             try:
                 self.types[name].my_fields = flist
