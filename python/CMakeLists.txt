@@ -4,9 +4,8 @@ include(FindPythonInterp)
 # the Python API.
 foreach(x ${MONOLITH_SOURCES} ${MONOLITH_HEADERS} ${ALLEGRO_PUBLIC_HEADERS})
     if(NOT ${x} MATCHES "^/.*")
-        file(RELATIVE_PATH xrel ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/${x})
+        file(RELATIVE_PATH xrel ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/${x})
         list(APPEND SOURCES ${xrel})
-        message(STATUS ${xrel})
     endif()
 endforeach()
 
