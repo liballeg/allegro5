@@ -66,6 +66,13 @@ if(WANT_NATIVE_IMAGE_LOADER)
         list(APPEND IMAGE_SOURCES macosx.m)
     endif(MACOSX)
 
+    if(ANDROID)
+        set(ALLEGRO_CFG_IIO_HAVE_ANDROID 1)
+        set(ALLEGRO_CFG_IIO_SUPPORT_JPG 1)
+        set(ALLEGRO_CFG_IIO_SUPPORT_PNG 1)
+        list(APPEND IMAGE_SOURCES android.c)
+    endif(ANDROID)
+
     if(IPHONE)
         list(APPEND IMAGE_SOURCES iphone.m)
     endif(IPHONE)
