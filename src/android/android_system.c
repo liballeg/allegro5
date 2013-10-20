@@ -720,12 +720,13 @@ ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags)
    bitmap = al_create_bitmap(bitmap_w, bitmap_h);
    al_restore_state(&state);
    if(!bitmap) {
+      _jni_callv(jnienv, DeleteLocalRef, jbitmap);
       return NULL;
    }
 
    ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
 
-   jintArray ia = jbitmap = _jni_callObjectMethodV(jnienv, system_data.activity_object, "getPixels", "(Landroid/graphics/Bitmap;)[I", jbitmap);
+   jintArray ia = _jni_callObjectMethodV(jnienv, system_data.activity_object, "getPixels", "(Landroid/graphics/Bitmap;)[I", jbitmap);
    jint *arr = (*jnienv)->GetIntArrayElements(jnienv, ia, 0);
    uint32_t *src = (uint32_t *)arr;
    uint32_t c;
@@ -747,6 +748,7 @@ ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags)
       }
    }
    (*jnienv)->ReleaseIntArrayElements(jnienv, ia, arr, JNI_ABORT);
+   _jni_callv(jnienv, DeleteLocalRef, ia);
 
    // tell java we're done with the bitmap as well
    _jni_callv(jnienv, DeleteLocalRef, jbitmap);
