@@ -121,7 +121,7 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
    }
 
    for (i = 0; i < fragment_count; i++) {
-      stream->pending_bufs[i] =
+      stream->used_bufs[i] =
          (char *) stream->main_buffer
          + i * (MAX_LAG*bytes_per_sample + bytes_per_frag_buf)
          + MAX_LAG*bytes_per_sample;
