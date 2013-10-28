@@ -461,35 +461,75 @@ bool al_set_audio_stream_playmode(ALLEGRO_AUDIO_STREAM *stream,
 }
 
 
+static void reset_stopped_stream(ALLEGRO_AUDIO_STREAM *stream)
+{
+   const int bytes_per_sample =
+      al_get_channel_count(stream->spl.spl_data.chan_conf) *
+      al_get_audio_depth_size(stream->spl.spl_data.depth);
+   const int fragment_buffer_size =
+      bytes_per_sample * (stream->spl.spl_data.len + MAX_LAG);
+   size_t i, n;
+
+   /* Write silence to the "invisible" part in between fragment buffers to
+    * avoid interpolation artifacts.  It's tempting to zero the complete
+    * memory block in one go but some of the buffers might be getting
+    * refilled.  So they are currently "owned" by the library user and
+    * should not be overwritten.  But zeroing the parts not visible to the
+    * user should be OK.
+    */
+   for (i = 0; i < stream->buf_count; ++i) {
+      memset((char *)stream->main_buffer + i * fragment_buffer_size, 0,
+         MAX_LAG * bytes_per_sample);
+   }
+
+   /* Get the current number of entries in the used_buf list. */
+   for (n = 0; n < stream->buf_count && stream->used_bufs[n]; n++)
+      ;
+
+   /* Move everything from pending_bufs to used_bufs. */
+   i = 0;
+   while (i < stream->buf_count &&
+         n < stream->buf_count &&
+         stream->pending_bufs[i])
+   {
+      stream->used_bufs[n] = stream->pending_bufs[i];
+      stream->pending_bufs[i] = NULL;
+      n++;
+      i++;
+   }
+
+   /* No fragment buffer is currently playing. */
+   stream->spl.spl_data.buffer.ptr = NULL;
+   stream->spl.pos = stream->spl.spl_data.len;
+   stream->spl.pos_bresenham_error = 0;
+}
+
+
 /* Function: al_set_audio_stream_playing
  */
 bool al_set_audio_stream_playing(ALLEGRO_AUDIO_STREAM *stream, bool val)
 {
+   bool rc = true;
    ASSERT(stream);
 
    if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
       ALLEGRO_VOICE *voice = stream->spl.parent.u.voice;
-      bool rc;
-
-      if (val == stream->spl.is_playing) {
-         return true;
+      if (val != stream->spl.is_playing) {
+         rc = _al_kcm_set_voice_playing(voice, val);
       }
-
-      rc = _al_kcm_set_voice_playing(voice, val);
-      if (rc) {
-         stream->spl.is_playing = val;
-      }
-      return rc;
    }
 
-   stream->spl.is_playing = val;
+   maybe_lock_mutex(stream->spl.mutex);
+
+   stream->spl.is_playing = rc && val;
 
    if (!val) {
-      maybe_lock_mutex(stream->spl.mutex);
-      stream->spl.pos = stream->spl.spl_data.len;
-      maybe_unlock_mutex(stream->spl.mutex);
+      reset_stopped_stream(stream);
    }
-   return true;
+
+   maybe_unlock_mutex(stream->spl.mutex);
+
+   return rc;
 }
 
 
