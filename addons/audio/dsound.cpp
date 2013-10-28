@@ -166,9 +166,16 @@ static void* _dsound_update(ALLEGRO_THREAD *self, void *arg)
       &ptr1, &block1_bytes, &ptr2, &block2_bytes,
       DSBLOCK_ENTIREBUFFER);
    if (!FAILED(hr)) {
+      unsigned int sample_bytes;
       samples = buffer_size / bytes_per_sample / ex_data->channels;
       data = (unsigned char *) _al_voice_update(voice, &samples);
+      sample_bytes = samples * bytes_per_sample * ex_data->channels;
+      if (sample_bytes < block1_bytes)
+         block1_bytes = sample_bytes;
       memcpy(ptr1, data, block1_bytes);
+      sample_bytes -= block1_bytes;
+      if (sample_bytes < block2_bytes)
+         block2_bytes = sample_bytes;
       memcpy(ptr2, data + block1_bytes, block2_bytes);
       ex_data->ds8_buffer->Unlock(ptr1, block1_bytes, ptr2, block2_bytes);
    }
