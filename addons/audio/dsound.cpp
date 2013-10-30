@@ -473,7 +473,6 @@ static int _dsound_start_voice(ALLEGRO_VOICE *voice)
    ALLEGRO_DEBUG("Starting voice\n");
 
    if (!voice->is_streaming) {
-      ex_data->ds8_buffer->SetCurrentPosition(0);
       hr = ex_data->ds8_buffer->Play(0, 0, 0);
       if (FAILED(hr)) {
          ALLEGRO_ERROR("Streaming voice failed to start\n");
@@ -545,6 +544,7 @@ static int _dsound_stop_voice(ALLEGRO_VOICE* voice)
    if (!voice->is_streaming) {
       ALLEGRO_DEBUG("Stopping non-streaming voice\n");
       ex_data->ds8_buffer->Stop();
+      ex_data->ds8_buffer->SetCurrentPosition(0);
       ALLEGRO_INFO("Non-streaming voice stopped\n");
       return 0;
    }
