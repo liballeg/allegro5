@@ -554,6 +554,10 @@ static int _dsound_stop_voice(ALLEGRO_VOICE* voice)
       ALLEGRO_DEBUG("Destroying thread\n");
       al_destroy_thread(ex_data->thread);
       ALLEGRO_DEBUG("Thread destroyed\n");
+      /* This is required to restart the background thread when the voice
+       * restarts.
+       */
+      ex_data->stop_voice = 1;
    }
 
    ALLEGRO_DEBUG("Releasing buffer\n");
