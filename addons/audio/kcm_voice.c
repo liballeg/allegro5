@@ -198,6 +198,7 @@ static void stream_read(void *source, void **vbuf, unsigned int *samples,
 
    if (!stream->spl.is_playing) {
       *vbuf = NULL;
+      *samples = 0;
       return;
    }
 
@@ -211,6 +212,7 @@ static void stream_read(void *source, void **vbuf, unsigned int *samples,
             stream->spl.is_playing = false;
          }
          *vbuf = NULL;
+         *samples = 0;
          return;
       }
       *vbuf = stream->pending_bufs[0];
