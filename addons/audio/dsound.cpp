@@ -607,7 +607,7 @@ static unsigned int _dsound_get_voice_position(const ALLEGRO_VOICE *voice)
       return 0;
    }
 
-   return play_pos / (ex_data->channels / (ex_data->bits_per_sample/8));
+   return play_pos / (ex_data->channels * (ex_data->bits_per_sample/8));
 }
 
 /* The set_voice_position method should set the voice's playback position,
