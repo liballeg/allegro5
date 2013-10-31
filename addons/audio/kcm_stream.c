@@ -523,7 +523,14 @@ bool al_set_audio_stream_playing(ALLEGRO_AUDIO_STREAM *stream, bool val)
 
    stream->spl.is_playing = rc && val;
 
-   if (!val) {
+   if (stream->spl.is_playing) {
+      /* We usually emit fragment events when a fragment is used up, but if the
+       * stream has zero pending fragments to begin with then no events would
+       * ever be emitted.
+       */
+      _al_kcm_emit_stream_events(stream);
+   }
+   else if (!val) {
       reset_stopped_stream(stream);
    }
 
