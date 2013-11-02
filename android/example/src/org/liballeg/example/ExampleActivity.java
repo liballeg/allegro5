@@ -4,7 +4,10 @@ import org.liballeg.app.AllegroActivity;
 
 public class ExampleActivity extends AllegroActivity {
 
-   /* load allegro */
+   /* Load Allegro and other shared libraries in the lib directory of the apk
+    * bundle.  You must load libraries which are required by later libraries
+    * first.
+    */
    static {
       /* FIXME: see if we can't load the allegro library name, or type from the manifest here */
       System.loadLibrary("allegro-debug");
