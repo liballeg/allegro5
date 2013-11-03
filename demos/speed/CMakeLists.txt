@@ -25,6 +25,14 @@ if(NOT SUPPORT_AUDIO OR NOT SUPPORT_PRIMITIVES OR NOT SUPPORT_FONT)
     return()
 endif()
 
+if(ANDROID)
+    add_android_app(speed
+        "${SPEED_SRCS}"
+        "${ALLEGRO_LINK_WITH};${AUDIO_LINK_WITH};${PRIMITIVES_LINK_WITH};${FONT_LINK_WITH}"
+        )
+    return()
+endif(ANDROID)
+
 if(COMPILER_GCC)
     set(CMAKE_C_FLAGS
         "${CMAKE_C_FLAGS} -Wno-strict-prototypes -Wno-missing-prototypes")

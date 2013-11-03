@@ -34,5 +34,8 @@ add_custom_target(jar
     DEPENDS ${ACTIVITY_JAR}
     )
 
+# Make this available for building examples in other directories.
+set(ACTIVITY_JAR ${ACTIVITY_JAR} PARENT_SCOPE)
+
 #-----------------------------------------------------------------------------#
 # vim: set sts=4 sw=4 et:
