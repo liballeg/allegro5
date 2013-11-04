@@ -145,17 +145,14 @@ void _al_kcm_mixer_rejig_sample_matrix(ALLEGRO_MIXER *mixer,
    size_t src_chans;
    size_t i, j;
 
-   if (spl->matrix) {
-      al_free(spl->matrix);
-   }
-
    mat = _al_rechannel_matrix(spl->spl_data.chan_conf,
       mixer->ss.spl_data.chan_conf, spl->gain, spl->pan);
 
    dst_chans = al_get_channel_count(mixer->ss.spl_data.chan_conf);
    src_chans = al_get_channel_count(spl->spl_data.chan_conf);
 
-   spl->matrix = al_calloc(1, src_chans * dst_chans * sizeof(float));
+   if (!spl->matrix)
+      spl->matrix = al_calloc(1, src_chans * dst_chans * sizeof(float));
 
    for (i = 0; i < dst_chans; i++) {
       for (j = 0; j < src_chans; j++) {
