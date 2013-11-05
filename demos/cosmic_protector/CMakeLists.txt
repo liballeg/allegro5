@@ -39,16 +39,6 @@ set(DEMO_SRCS
     src/wave.cpp
     )
 
-if(IPHONE)
-    list(APPEND DEMO_SRCS src/cosmic_protector_objc.m)
-endif(IPHONE)
-
-set_source_files_properties(${DEMO_SRCS} PROPERTIES LANGUAGE "CXX")
-
-file(GLOB_RECURSE DEMO_GFX data/gfx/*.png data/gfx/*.jpg data/gfx/*.tga)
-file(GLOB_RECURSE DEMO_SFX data/sfx/*.ogg)
-set(DEMO_ICON data/gfx/Icon.icns)
-
 include_directories(
     include
     ${CMAKE_SOURCE_DIR}/addons/main
@@ -58,6 +48,25 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/addons/acodec
     ${CMAKE_SOURCE_DIR}/addons/primitives
     )
+
+if(ANDROID)
+    add_android_app(cosmic_protector
+        "${DEMO_SRCS}"
+        "${ALLEGRO_LINK_WITH};${IMAGE_LINK_WITH};${FONT_LINK_WITH};${AUDIO_LINK_WITH};${ACODEC_LINK_WITH};${PRIMITIVES_LINK_WITH}"
+        "stlport_shared"
+        )
+    return()
+endif(ANDROID)
+
+if(IPHONE)
+    list(APPEND DEMO_SRCS src/cosmic_protector_objc.m)
+endif(IPHONE)
+
+set_source_files_properties(${DEMO_SRCS} PROPERTIES LANGUAGE "CXX")
+
+file(GLOB_RECURSE DEMO_GFX data/gfx/*.png data/gfx/*.jpg data/gfx/*.tga)
+file(GLOB_RECURSE DEMO_SFX data/sfx/*.ogg)
+set(DEMO_ICON data/gfx/Icon.icns)
 
 if(APPLE)
     set(DEMO_EXECUTABLE_TYPE MACOSX_BUNDLE)

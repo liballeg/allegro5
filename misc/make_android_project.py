@@ -20,6 +20,8 @@ def main():
         slashy(options.package), options.activity)
     create_activity(activity_filename, options)
 
+    create_jni(options)
+
 def parse_args(argv):
     p = optparse.OptionParser()
 
@@ -50,15 +52,28 @@ def parse_args(argv):
     p.add_option("--load-app",
             default=None,
             help="Name of application shared object.")
+    p.add_option("--bin-dir",
+            default=None,
+            help="Path to directory containing program binary.")
+    p.add_option("--lib-dir",
+            default=None,
+            help="Path to directory containing libraries.")
     p.add_option("--jar-libs-dir",
             default="",
             help="Path to directory containing JARs.")
+    p.add_option("--stl",
+            default="",
+            help="STL implementation to use, if any.")
 
     (options, args) = p.parse_args()
     if options.path == None:
         options.path = options.name
     if options.load_app == None:
         options.load_app = options.name
+    if options.bin_dir == None:
+        options.bin_dir = options.path
+    if options.lib_dir == None:
+        options.lib_dir = options.path
     return options
 
 def create_project(options):
@@ -123,11 +138,13 @@ def create_custom_rules_xml(filename):
     f.close()
 
 def create_activity(filename, options):
-    f = open(filename, "w")
+    libs = options.load_libs.split()
+    if options.stl:
+        libs.insert(0, options.stl)
     stmts = "\n\t\t".join([
-        'System.loadLibrary("{0}");'.format(lib)
-        for lib in options.load_libs.split()
+        'System.loadLibrary("{0}");'.format(lib) for lib in libs
     ])
+    f = open(filename, "w")
     f.write('''\
         package {PACKAGE};
         public class {ACTIVITY} extends org.liballeg.app.AllegroActivity {{
@@ -144,6 +161,55 @@ def create_activity(filename, options):
 
 def slashy(s):
     return s.replace(".", "/")
+
+def create_jni(options):
+    path = options.path
+    jni_path = path + "/jni"
+    application_mk_path = jni_path + "/Application.mk"
+    android_mk_path = jni_path + "/Android.mk"
+    rel_bin_dir = os.path.relpath(options.bin_dir, jni_path)
+    rel_lib_dir = os.path.relpath(options.lib_dir, jni_path)
+
+    mkdir(jni_path)
+
+    f = open(application_mk_path, "w")
+    if options.stl:
+        f.write("APP_STL := {0}\n".format(options.stl))
+    f.close()
+
+    f = open(android_mk_path, "w")
+    f.write('''
+        LOCAL_PATH := $(call my-dir)
+        REL_BIN_DIR := {REL_BIN_DIR}
+        REL_LIB_DIR := {REL_LIB_DIR}
+
+        include $(CLEAR_VARS)
+        LOCAL_MODULE := {NAME}
+        LOCAL_SRC_FILES := $(REL_BIN_DIR)/lib{LOAD_APP}.so
+        LOCAL_SHARED_LIBRARIES := {STL}
+        include $(PREBUILT_SHARED_LIBRARY)
+    '''.format(
+        NAME=options.name,
+        LOAD_APP=options.load_app,
+        STL=options.stl,
+        REL_BIN_DIR=rel_bin_dir,
+        REL_LIB_DIR=rel_lib_dir
+    ))
+
+    for lib in options.load_libs.split():
+        f.write('''
+            include $(CLEAR_VARS)
+            LOCAL_MODULE := {NAME}
+            LOCAL_SRC_FILES := $(REL_LIB_DIR)/lib{NAME}.so
+            include $(PREBUILT_SHARED_LIBRARY)
+        '''.format(
+            NAME=lib
+        ))
+    f.close()
+
+def mkdir(path):
+    if not os.path.exists(path):
+        os.mkdir(path)
 
 if __name__ == "__main__":
     main()

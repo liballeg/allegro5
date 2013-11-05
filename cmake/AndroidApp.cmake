@@ -3,7 +3,7 @@ find_program(NDK_BUILD ndk-build CMAKE_FIND_ROOT_PATH_BOTH)
 find_program(ANT ant CMAKE_FIND_ROOT_PATH_BOTH)
 set(ANT_COMMAND "${ANT}" -noinput -nouserlib -noclasspath -quiet)
 
-function(add_android_app prog sources lib_targets)
+function(add_android_app prog sources lib_targets stl)
 
     set(prog_target ${prog})
     set(package "org.liballeg.examples.${prog}")
@@ -12,11 +12,15 @@ function(add_android_app prog sources lib_targets)
 
     # The Android project directory.
     set(project_dir "${CMAKE_CURRENT_BINARY_DIR}/${prog}.project")
+    set(bin_dir "${project_dir}/bin")
+    set(lib_dir "${LIBRARY_OUTPUT_PATH}")
 
     # The source files in the Android project directory.
     set(project_sources
         ${project_dir}/AndroidManifest.xml
         ${project_dir}/build.xml
+        ${project_dir}/jni/Android.mk
+        ${project_dir}/jni/Application.mk
         ${project_dir}/local.properties
         ${project_dir}/localgen.properties
         ${project_dir}/project.properties
@@ -30,7 +34,7 @@ function(add_android_app prog sources lib_targets)
     add_library(${prog_target} SHARED ${sources})
     set_target_properties(${prog_target} PROPERTIES
         LIBRARY_OUTPUT_DIRECTORY ${project_dir}/bin)
-    target_link_libraries(${prog_target} ${lib_targets})
+    target_link_libraries(${prog_target} ${stl} ${lib_targets})
 
     # Get the name by which to load the application's shared library,
     # most likely just ${prog}.
@@ -58,38 +62,19 @@ function(add_android_app prog sources lib_targets)
                 -a "${activity}"
                 --load-libs "${load_libs}"
                 --load-app "${load_app}"
-                --jar-libs-dir "${LIBRARY_OUTPUT_PATH}"
+                --bin-dir "${bin_dir}"
+                --lib-dir "${lib_dir}"
+                --jar-libs-dir "${lib_dir}"
+                "--stl=${stl}" # allows empty
         VERBATIM
         )
-
-    # XXX hardcoded
-    set(abi armeabi)
-
-    # Copy each shared library from elsewhere in the build tree into the
-    # project libs directory, where they can be found by ant.
-    set(project_libs)
-    foreach(_target ${prog_target} ${lib_targets})
-        get_target_property(_target_location ${_target} LOCATION)
-        get_filename_component(_target_filename ${_target_location} NAME)
-        set(_dest ${project_dir}/libs/${abi}/${_target_filename})
-
-        add_custom_command(
-            OUTPUT ${_dest}
-            DEPENDS ${_target}
-            COMMAND ${CMAKE_COMMAND} -E copy ${_target_location} ${_dest}
-            )
-
-        list(APPEND project_libs ${_dest})
-    endforeach()
 
     # How to make the APK.
     add_custom_command(
         OUTPUT ${apk_path}
-        DEPENDS ${prog_target}
-                ${project_sources}
-                ${project_libs}
-                jar
+        DEPENDS ${prog_target} ${lib_targets} ${project_sources} jar
         WORKING_DIRECTORY ${project_dir}
+        COMMAND ${NDK_BUILD}
         COMMAND ${ANT_COMMAND} debug
         )
 
