@@ -695,12 +695,15 @@ ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags)
 
    JNIEnv *jnienv = _al_android_get_jnienv();
    
+   /* XXX flags not respected */
    (void)flags;
 
    jstring str = (*jnienv)->NewStringUTF(jnienv, filename);
-   
-   jbitmap = _jni_callObjectMethodV(jnienv, system_data.activity_object, "decodeBitmap", "(Ljava/lang/String;)Landroid/graphics/Bitmap;", str);
-   ASSERT(jbitmap != NULL);
+
+   jbitmap = _jni_callObjectMethodV(jnienv, system_data.activity_object,
+      "decodeBitmap", "(Ljava/lang/String;)Landroid/graphics/Bitmap;", str);
+   if (!jbitmap)
+      return NULL;
 
    /* For future Java noobs like me: If the calling thread is a Java
     * thread, it will clean up these references when the native method
