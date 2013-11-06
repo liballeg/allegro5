@@ -21,77 +21,22 @@ endif()
 
 #-----------------------------------------------------------------------------#
 
-# Conditionally build an example program.  If any of its arguments is the exact
-# string "x", do nothing.  Otherwise strip off the "x" prefixes on arguments
-# and call the example macro.
-function(example name)
-    set(is_console)
-    set(args)
-    foreach(arg ${ARGN})
-        if(arg STREQUAL "x")
-            message(STATUS "Not building ${name}")
-            return()
-        endif()
-        if(arg STREQUAL "CONSOLE")
-            set(is_console ON)
-        else()
-            string(REGEX REPLACE "^x" "" arg ${arg})
-            list(APPEND args ${arg})
-        endif()
-    endforeach(arg)
+# List dependencies explicitly for loading by Android APKs.
 
-    if(WIN32)
-        if(is_console)
-            # We need stdout and stderr available from cmd.exe,
-            # so we must not use WIN32 here.
-            set(EXECUTABLE_TYPE)
-        else()
-            set(EXECUTABLE_TYPE "WIN32")
-        endif(is_console)
-    endif(WIN32)
-
-    if(IPHONE)
-        set(EXECUTABLE_TYPE MACOSX_BUNDLE)
-    endif(IPHONE)
-
-    add_example(${name} ${args})
-endfunction(example)
-
-macro(add_example nm)
-    if(WANT_MONOLITH)
-        add_our_executable(${nm} ${ARGN} ${ALLEGRO_MONOLITH_LINK_WITH})
-    elseif(WANT_POPUP_EXAMPLES AND SUPPORT_NATIVE_DIALOG)
-        add_our_executable(${nm} ${ARGN} ${ALLEGRO_LINK_WITH} ${ALLEGRO_MAIN_LINK_WITH} ${NATIVE_DIALOG_LINK_WITH})
-    else()
-        add_our_executable(${nm} ${ARGN} ${ALLEGRO_LINK_WITH} ${ALLEGRO_MAIN_LINK_WITH} )
-    endif()
-endmacro(add_example nm)
-
-#-----------------------------------------------------------------------------#
-
-macro(set_link_with var maybe_link_with)
-    if(WANT_MONOLITH)
-        if (${maybe_link_with} STREQUAL "x")
-            set(${var} "x")
-        endif()
-    else(WANT_MONOLITH)
-        set(${var} ${maybe_link_with})
-    endif(WANT_MONOLITH)
-endmacro(set_link_with)
-
-set_link_with(AUDIO x${AUDIO_LINK_WITH})
-set_link_with(ACODEC x${ACODEC_LINK_WITH})
-set_link_with(COLOR x${COLOR_LINK_WITH})
-set_link_with(DIALOG x${NATIVE_DIALOG_LINK_WITH})
-set_link_with(FONT x${FONT_LINK_WITH})
-set_link_with(IMAGE x${IMAGE_LINK_WITH})
-set_link_with(MEMFILE x${MEMFILE_LINK_WITH})
-set_link_with(PHYSFS x${PHYSFS_LINK_WITH})
-set_link_with(PRIM x${PRIMITIVES_LINK_WITH})
-set_link_with(TTF x${TTF_LINK_WITH})
-set_link_with(VIDEO x${VIDEO_LINK_WITH})
-
+set(AUDIO x${AUDIO_LINK_WITH})
+set(ACODEC ${AUDIO} x${ACODEC_LINK_WITH})
+set(COLOR x${COLOR_LINK_WITH})
+set(DIALOG x${NATIVE_DIALOG_LINK_WITH})
+set(FONT x${FONT_LINK_WITH})
+set(IMAGE x${IMAGE_LINK_WITH})
+set(MEMFILE x${MEMFILE_LINK_WITH})
+set(PHYSFS x${PHYSFS_LINK_WITH})
+set(PRIM x${PRIMITIVES_LINK_WITH})
+set(TTF ${FONT} x${TTF_LINK_WITH})
+set(VIDEO x${VIDEO_LINK_WITH})
 set(NIHGUI nihgui.cpp ${FONT} ${PRIM})
+
+include(Helper.cmake)
 
 #-----------------------------------------------------------------------------#
 
@@ -184,13 +129,13 @@ if(WANT_D3D AND D3DX9_FOUND)
     example(ex_d3d ex_d3d.cpp ${D3DX9_LIBRARY})
 endif(WANT_D3D AND D3DX9_FOUND)
 
-if(SUPPORT_OPENGL AND NOT IPHONE AND NOT ALLEGRO_RASPBERRYPI)
+if(SUPPORT_OPENGL AND NOT IPHONE AND NOT ANDROID AND NOT ALLEGRO_RASPBERRYPI)
     example(ex_gldepth ${FONT} ${IMAGE})
     example(ex_glext)
     example(ex_opengl)
     example(ex_opengl_pixel_shader ${IMAGE})
     example(ex_palette ${IMAGE} ${COLOR})
-endif(SUPPORT_OPENGL AND NOT IPHONE AND NOT ALLEGRO_RASPBERRYPI)
+endif(SUPPORT_OPENGL AND NOT IPHONE AND NOT ANDROID AND NOT ALLEGRO_RASPBERRYPI)
 
 example(ex_font ${FONT} ${IMAGE})
 example(ex_font_justify ex_font_justify.cpp ${NIHGUI} ${IMAGE} ${TTF})
