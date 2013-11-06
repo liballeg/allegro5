@@ -78,7 +78,7 @@ ALLEGRO_KEYBOARD_DRIVER *_al_get_android_keyboard_driver(void)
     return &android_keyboard_driver;
 }
 
-void _al_android_keyboard_handle_event(ALLEGRO_DISPLAY *display, int scancode, ALLEGRO_EVENT_TYPE event_type) 
+void _al_android_keyboard_handle_event(ALLEGRO_DISPLAY *display, int scancode, int unichar, ALLEGRO_EVENT_TYPE event_type) 
 {
    ALLEGRO_EVENT event;
 
@@ -100,7 +100,7 @@ void _al_android_keyboard_handle_event(ALLEGRO_DISPLAY *display, int scancode, A
       event.keyboard.timestamp = al_get_time();
       event.keyboard.display = display;
       event.keyboard.keycode = scancode;
-      event.keyboard.unichar = 0;
+      event.keyboard.unichar = unichar;
       event.keyboard.modifiers = 0;
       event.keyboard.repeat = event_type == ALLEGRO_EVENT_KEY_CHAR;
       

@@ -1181,7 +1181,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    public native void nativeOnChange(int format, int width, int height);
    public native void nativeOnKeyDown(int key);
    public native void nativeOnKeyUp(int key);
-   public native void nativeOnKeyChar(int key);
+   public native void nativeOnKeyChar(int key, int unichar);
    public native void nativeOnTouch(int id, int action, float x, float y, boolean primary);
    
    /** functions that native code calls */
@@ -1640,6 +1640,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
 
    public boolean onKey(View v, int keyCode, KeyEvent event)
    {
+      int unichar;
       if (event.getAction() == KeyEvent.ACTION_DOWN) {
          if (!captureVolume) {
             if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
@@ -1651,12 +1652,22 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
                return true;
             }
          }
-         if (event.getRepeatCount() == 0) {
-            nativeOnKeyDown(keyMap[keyCode]);
-            nativeOnKeyChar(keyMap[keyCode]);
+         if (keyMap[keyCode] == ALLEGRO_KEY_BACKSPACE) {
+            unichar = '\b';
+         }
+         else if (keyMap[keyCode] == ALLEGRO_KEY_ENTER) {
+            unichar = '\r';
          }
          else {
-            nativeOnKeyChar(keyMap[keyCode]);
+            unichar = event.getUnicodeChar();
+         }
+
+         if (event.getRepeatCount() == 0) {
+            nativeOnKeyDown(keyMap[keyCode]);
+            nativeOnKeyChar(keyMap[keyCode], unichar);
+         }
+         else {
+            nativeOnKeyChar(keyMap[keyCode], unichar);
          }
          return true;
       }

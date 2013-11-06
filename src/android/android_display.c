@@ -187,7 +187,7 @@ JNI_FUNC(void, AllegroSurface, nativeOnChange, (JNIEnv *env, jobject obj, jint f
    al_unlock_mutex(d->mutex);
 }
 
-JNI_FUNC(void, AllegroSurface, nativeOnKeyDown, (JNIEnv *env, jobject obj, jint scancode))
+JNI_FUNC(void, AllegroSurface, nativeOnKeyDown, (JNIEnv *env, jobject obj, jint scancode, jint unichar))
 {
    (void)env; (void)obj;
    
@@ -197,7 +197,7 @@ JNI_FUNC(void, AllegroSurface, nativeOnKeyDown, (JNIEnv *env, jobject obj, jint 
    ALLEGRO_DISPLAY *display = *(ALLEGRO_DISPLAY**)_al_vector_ref(&system->displays, 0);
    ASSERT(display != NULL);
    
-   _al_android_keyboard_handle_event(display, scancode, ALLEGRO_EVENT_KEY_DOWN);
+   _al_android_keyboard_handle_event(display, scancode, unichar, ALLEGRO_EVENT_KEY_DOWN);
 }
 
 JNI_FUNC(void, AllegroSurface, nativeOnKeyUp, (JNIEnv *env, jobject obj, jint scancode))
@@ -210,10 +210,10 @@ JNI_FUNC(void, AllegroSurface, nativeOnKeyUp, (JNIEnv *env, jobject obj, jint sc
    ALLEGRO_DISPLAY *display = *(ALLEGRO_DISPLAY**)_al_vector_ref(&system->displays, 0);
    ASSERT(display != NULL);
 
-   _al_android_keyboard_handle_event(display, scancode, ALLEGRO_EVENT_KEY_UP);
+   _al_android_keyboard_handle_event(display, scancode, 0, ALLEGRO_EVENT_KEY_UP);
 }
 
-JNI_FUNC(void, AllegroSurface, nativeOnKeyChar, (JNIEnv *env, jobject obj, jint scancode))
+JNI_FUNC(void, AllegroSurface, nativeOnKeyChar, (JNIEnv *env, jobject obj, jint scancode, jint unichar))
 {
    (void)env; (void)obj;
    
@@ -223,7 +223,7 @@ JNI_FUNC(void, AllegroSurface, nativeOnKeyChar, (JNIEnv *env, jobject obj, jint 
    ALLEGRO_DISPLAY *display = *(ALLEGRO_DISPLAY**)_al_vector_ref(&system->displays, 0);
    ASSERT(display != NULL);
 
-   _al_android_keyboard_handle_event(display, scancode, ALLEGRO_EVENT_KEY_CHAR);
+   _al_android_keyboard_handle_event(display, scancode, unichar, ALLEGRO_EVENT_KEY_CHAR);
 }
 
 JNI_FUNC(void, AllegroSurface, nativeOnTouch, (JNIEnv *env, jobject obj, jint id, jint action, jfloat x, jfloat y, jboolean primary))
