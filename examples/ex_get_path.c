@@ -14,9 +14,12 @@ static void show_path(int id, const char *label)
    al_destroy_path(path);
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    int pass;
+
+   (void)argc;
+   (void)argv;
 
    /* defaults to blank */
    al_set_org_name("liballeg.org");

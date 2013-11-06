@@ -338,11 +338,14 @@ static void print_vertices(void)
    log_printf("\n");
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_EVENT event;
    bool have_touch_input;
    bool mdown = false;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

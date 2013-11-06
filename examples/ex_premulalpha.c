@@ -7,7 +7,7 @@
 
 #include "common.c"
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *tex1, *tex2;
@@ -18,6 +18,9 @@ int main(void)
    ALLEGRO_FONT *font;
    unsigned char *p;
    int x, y;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

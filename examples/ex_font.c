@@ -39,11 +39,14 @@ static void wait_for_esc(ALLEGRO_DISPLAY *display)
    al_destroy_event_queue(queue);
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
     ALLEGRO_DISPLAY *display;
     ALLEGRO_BITMAP *bitmap, *font_bitmap;
     ALLEGRO_FONT *f1, *f2, *f3;
+
+    (void)argc;
+    (void)argv;
 
     int ranges[] = {
        0x0020, 0x007F,  /* ASCII */

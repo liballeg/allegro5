@@ -59,12 +59,15 @@ static void draw(ALLEGRO_JOYSTICK *curr_joy)
    al_flip_display();
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    int num_joysticks;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_JOYSTICK *curr_joy;
    ALLEGRO_DISPLAY *display;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

@@ -124,7 +124,7 @@ static bool do_test(enum Mode mode)
    return true;
 }
 
-int main(int argc, const char *argv[])
+int main(int argc, char **argv)
 {
    enum Mode mode = ALL;
    int i;

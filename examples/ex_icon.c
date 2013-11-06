@@ -3,7 +3,7 @@
 
 #include "common.c"
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *icon1;
@@ -11,6 +11,9 @@ int main(void)
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_TIMER *timer;
    int i;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

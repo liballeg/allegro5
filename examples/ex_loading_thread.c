@@ -61,7 +61,7 @@ static void print_bitmap_flags(ALLEGRO_BITMAP *bitmap)
    al_ustr_free(ustr);
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_TIMER *timer;
@@ -71,6 +71,9 @@ int main(void)
    ALLEGRO_BITMAP *spin, *spin2;
    int current_bitmap = 0, loaded_bitmap = 0;
    ALLEGRO_THREAD *thread;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

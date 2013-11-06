@@ -9,7 +9,7 @@
 
 #include "common.c"
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *bitmap;
@@ -20,6 +20,9 @@ int main(void)
    ALLEGRO_EVENT event;
    int mode = 0;
    int lock_flags = ALLEGRO_LOCK_WRITEONLY;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

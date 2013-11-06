@@ -29,7 +29,7 @@ static void draw_mouse_button(int but, bool down)
    }
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *cursor;
@@ -49,6 +49,9 @@ int main(void)
    int i;
    float p = 0.0;
    ALLEGRO_COLOR black;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

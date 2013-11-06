@@ -10,7 +10,7 @@ const int W = 100;
 const int H = 100;
 
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *displays[2];
    ALLEGRO_MONITOR_INFO *info;
@@ -20,6 +20,9 @@ int main(void)
    ALLEGRO_EVENT_QUEUE *events;
    ALLEGRO_EVENT event;
    int i;
+
+   (void)argc;
+   (void)argv;
 
    srand(time(NULL));
 

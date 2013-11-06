@@ -80,9 +80,12 @@ static void saw(ALLEGRO_AUDIO_STREAM *stream)
 }
 
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_AUDIO_STREAM *stream;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

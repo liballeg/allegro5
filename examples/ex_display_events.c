@@ -19,15 +19,17 @@ static void add_event(char const *f, ...)
    va_end(args);
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_EVENT event;
    ALLEGRO_FONT *font;
-
-   int i;
    ALLEGRO_COLOR color, black, red, blue;
+   int i;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

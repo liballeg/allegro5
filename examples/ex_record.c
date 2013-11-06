@@ -70,7 +70,7 @@ const unsigned int max_seconds_to_record = 60 * 5;
 const unsigned int playback_fragment_count = 4;
 const unsigned int playback_samples_per_fragment = 4096;
 
-int main(int argc, const char **argv)
+int main(int argc, char **argv)
 {
    ALLEGRO_AUDIO_RECORDER *r;
    ALLEGRO_AUDIO_STREAM *s;

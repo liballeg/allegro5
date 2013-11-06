@@ -119,7 +119,7 @@ static void render(void)
     al_hold_bitmap_drawing(false);
 }
 
-int main(int argc, const char *argv[])
+int main(int argc, char **argv)
 {
     ALLEGRO_DISPLAY *display;
     ALLEGRO_TIMER *timer;

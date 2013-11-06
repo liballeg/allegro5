@@ -50,7 +50,7 @@ static void setup_vertex(CUSTOM_VERTEX* vtx, int ring, int segment, bool inside)
    vtx->nz /= len;
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_TIMER *timer;
@@ -71,6 +71,9 @@ int main(void)
    int ring, segment;
    float diffuse_color[4] = {0.1, 0.1, 0.7, 1.0};
    float light_position[3] = {0, 0, 100};
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

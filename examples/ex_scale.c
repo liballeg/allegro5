@@ -9,7 +9,7 @@
 
 #include "common.c"
 
-int main(void)
+int main(int argc, char **argv)
 {
    const int display_w = 640;
    const int display_h = 480;
@@ -32,6 +32,9 @@ int main(void)
    int flags = 0;
    bool clip_mode = false;
    ALLEGRO_COLOR tint;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

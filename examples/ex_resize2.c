@@ -11,13 +11,16 @@
 
 #include "common.c"
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_EVENT event;
    bool redraw;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

@@ -13,12 +13,15 @@
 
 #define NUM_ICONS 2
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *icons[NUM_ICONS];
    ALLEGRO_EVENT_QUEUE *queue;
    int u, v;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

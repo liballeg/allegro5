@@ -915,9 +915,12 @@ static void main_loop(ALLEGRO_EVENT_QUEUE *queue)
    }
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_EVENT_QUEUE *queue;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Error initialising Allegro.\n");

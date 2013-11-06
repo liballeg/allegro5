@@ -156,9 +156,12 @@ static void update_waveform(void *buf, unsigned int samples, void *data)
    }
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    int i;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

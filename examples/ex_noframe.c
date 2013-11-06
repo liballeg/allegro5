@@ -5,7 +5,7 @@
 
 #include "common.c"
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *bitmap;
@@ -14,6 +14,9 @@ int main(void)
    bool down = false;
    int down_x = 0, down_y = 0;
    ALLEGRO_TIMER *timer;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

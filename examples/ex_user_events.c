@@ -41,13 +41,16 @@ static void my_event_dtor(ALLEGRO_USER_EVENT *event)
 }
 
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_TIMER *timer;
    ALLEGRO_EVENT_SOURCE user_src;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_EVENT user_event;
    ALLEGRO_EVENT event;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

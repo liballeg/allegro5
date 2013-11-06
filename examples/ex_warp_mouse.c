@@ -9,7 +9,7 @@
 int width = 640;
 int height = 480;
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_FONT *font;
    ALLEGRO_DISPLAY *display;
@@ -19,6 +19,9 @@ int main(void)
    bool redraw = true;
    int fake_x = 0, fake_y = 0;
    ALLEGRO_COLOR white;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

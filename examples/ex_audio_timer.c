@@ -69,13 +69,16 @@ static ALLEGRO_SAMPLE *generate_ping(void)
 }
 
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_TRANSFORM trans;
    ALLEGRO_EVENT event;
    int bps = 4;
    bool redraw = false;
    unsigned int last_timer = 0;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

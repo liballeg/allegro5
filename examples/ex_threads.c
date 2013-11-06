@@ -192,7 +192,7 @@ Quit:
 }
 
 
-int main(int argc, const char *argv[])
+int main(int argc, char **argv)
 {
    ALLEGRO_THREAD *thread[MAX_THREADS];
    Background background[MAX_BACKGROUNDS] = {

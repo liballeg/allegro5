@@ -7,7 +7,7 @@
 const int W = 640;
 const int H = 400;
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display[2];
    ALLEGRO_EVENT event;
@@ -16,6 +16,9 @@ int main(void)
    ALLEGRO_BITMAP *target;
    int width, height;
    int i;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

@@ -31,7 +31,7 @@ static void interpolate_palette(float *pal, float *pal1, float *pal2, float t)
    }
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *bitmap, *background;
@@ -43,6 +43,9 @@ int main(void)
    int i, j;
    float t = 0;
    Sprite sprite[8];
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

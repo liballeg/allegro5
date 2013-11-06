@@ -49,7 +49,7 @@ static ALLEGRO_BITMAP *make_region(ALLEGRO_BITMAP *parent,
    return sub;
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *image;
@@ -60,6 +60,9 @@ int main(void)
    const char *psource;
    ALLEGRO_TRANSFORM t;
    int i;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

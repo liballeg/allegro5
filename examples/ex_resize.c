@@ -20,7 +20,7 @@ static void redraw(void)
     al_flip_display();
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
     ALLEGRO_DISPLAY *display;
     ALLEGRO_TIMER *timer;
@@ -28,6 +28,9 @@ int main(void)
     ALLEGRO_EVENT event;
     int rs = 100;
     bool resize = false;
+
+    (void)argc;
+    (void)argv;
 
     /* Initialize Allegro and create an event queue. */
     if (!al_init()) {

@@ -15,7 +15,7 @@ static ALLEGRO_BITMAP *load_bitmap(char const *filename)
    return bitmap;
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *bitmap[2];
@@ -25,6 +25,9 @@ int main(void)
    ALLEGRO_SHADER *shader;
    int t = 0;
    const char* pixel_file = NULL;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

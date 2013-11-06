@@ -106,7 +106,7 @@ static void init(void)
    }
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_TIMER *timer;
    ALLEGRO_EVENT_QUEUE *queue;
@@ -115,6 +115,9 @@ int main(void)
    bool done = false;
    bool need_redraw = true;
    bool background = false;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Failed to init Allegro.\n");

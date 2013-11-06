@@ -24,13 +24,16 @@ static void redraw(ALLEGRO_COLOR color1, ALLEGRO_COLOR color2)
    al_flip_display();
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_COLOR black;
    ALLEGRO_COLOR red;
    ALLEGRO_MOUSE_STATE mst0;
    ALLEGRO_MOUSE_STATE mst;
    ALLEGRO_KEYBOARD_STATE kst;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Couldn't initialise Allegro.\n");

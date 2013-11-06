@@ -384,13 +384,16 @@ static void render(void)
    print_parameters();
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_TIMER *timer;
    ALLEGRO_EVENT_QUEUE *queue;
    int redraw = 0, i;
    bool quit = false;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not initialise Allegro\n");

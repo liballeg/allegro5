@@ -23,11 +23,14 @@ static void redraw(ALLEGRO_COLOR color1, ALLEGRO_COLOR color2)
    al_flip_display();
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_COLOR black;
    ALLEGRO_COLOR red;
    ALLEGRO_KEYBOARD_STATE kbdstate;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Error initialising Allegro.\n");

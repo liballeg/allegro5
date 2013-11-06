@@ -10,7 +10,7 @@
 
 #include "common.c"
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *bmp;
@@ -21,6 +21,9 @@ int main(void)
    int min_w, min_h, max_w, max_h;
    int ret_min_w, ret_min_h, ret_max_w, ret_max_h;
    bool constr_min_w, constr_min_h, constr_max_w, constr_max_h;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

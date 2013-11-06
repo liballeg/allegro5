@@ -218,7 +218,7 @@ static void redraw(void)
    
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_TIMER *timer;
    ALLEGRO_EVENT_QUEUE *queue;
@@ -228,6 +228,9 @@ int main(void)
    bool need_redraw = true;
    bool background = false;
    example.show_help = true;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Failed to init Allegro.\n");

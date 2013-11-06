@@ -105,7 +105,7 @@ static void draw(ALLEGRO_BITMAP *bitmap, int y, char const *text)
    }
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display, *ms_display;
    ALLEGRO_EVENT_QUEUE *queue;
@@ -115,6 +115,9 @@ int main(void)
    bool quit = false;
    bool redraw = true;
    int wx, wy;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Couldn't initialise Allegro.\n");

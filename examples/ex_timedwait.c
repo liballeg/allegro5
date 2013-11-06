@@ -14,10 +14,13 @@ static void test_absolute_timeout(ALLEGRO_EVENT_QUEUE *queue);
 
 
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *dpy;
    ALLEGRO_EVENT_QUEUE *queue;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

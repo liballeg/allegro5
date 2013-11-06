@@ -79,7 +79,7 @@ static void draw_method(METHOD *md, ALLEGRO_FONT *font, ALLEGRO_VERTEX* new_vert
    al_use_transform(&t);
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_TIMER *timer;
    ALLEGRO_EVENT_QUEUE *queue;
@@ -97,6 +97,9 @@ int main(void)
    int spacing_y = 150;
    size_t ii;
    ALLEGRO_VERTEX* vertices;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Failed to init Allegro.\n");

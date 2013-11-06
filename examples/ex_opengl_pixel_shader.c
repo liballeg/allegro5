@@ -8,13 +8,16 @@
 GLhandleARB tinter;
 GLhandleARB tinter_shader;
 
-int main(void)
+int main(int argc, char **argv)
 {
    float r = 0.5, g = 0.5, b = 1, ratio = 0;
    int dir = 1;
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *mysha;
    ALLEGRO_BITMAP *buffer;
+
+   (void)argc;
+   (void)argv;
 
    const char *tinter_shader_src[] = {
       "uniform sampler2D backBuffer;",

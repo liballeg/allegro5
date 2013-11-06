@@ -47,7 +47,7 @@ int dst_y2 = DST_HEIGHT-1;
 Mode mode = PLAIN_BLIT;
 int draw_flags = 0;
 
-int main(int argc, const char *argv[])
+int main(int argc, char **argv)
 {
    ALLEGRO_BITMAP *src_subbmp[2] = {NULL, NULL};
    ALLEGRO_BITMAP *dst_subbmp[2] = {NULL, NULL};

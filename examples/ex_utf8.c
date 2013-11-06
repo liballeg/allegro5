@@ -1206,7 +1206,7 @@ const test_t all_tests[] =
 
 #define NUM_TESTS (int)(sizeof(all_tests) / sizeof(all_tests[0]))
 
-int main(int argc, const char *argv[])
+int main(int argc, char **argv)
 {
    int i;
 

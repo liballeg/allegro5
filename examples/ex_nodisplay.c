@@ -6,12 +6,15 @@
 
 #include "common.c"
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_BITMAP *sprite;
    ALLEGRO_COLOR c1, c2, c3;
    bool rc;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Error initialising Allegro\n");

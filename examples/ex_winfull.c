@@ -2,11 +2,14 @@
 
 #include "common.c"
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *win, *full;
    ALLEGRO_EVENT_QUEUE *events;
    ALLEGRO_EVENT event;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

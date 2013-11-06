@@ -21,12 +21,15 @@ do {                                      \
    }                                      \
 } while (0)
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_CONFIG *cfg;
    const char *value;
    ALLEGRO_CONFIG_SECTION *iterator;
    ALLEGRO_CONFIG_ENTRY *iterator2;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

@@ -77,11 +77,14 @@ static void test_haptic_joystick(ALLEGRO_JOYSTICK *joy)
 }
 
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    int num_joysticks;
    int i;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");

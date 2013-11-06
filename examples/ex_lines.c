@@ -107,7 +107,7 @@ static void splat(const int x, const int y, bool blend)
    flip();
 }
 
-int main(int argc, const char *argv[])
+int main(int argc, char **argv)
 {
    ALLEGRO_EVENT event;
    ALLEGRO_KEYBOARD_STATE kst;

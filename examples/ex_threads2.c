@@ -245,7 +245,7 @@ static void toggle_pausedness(int n)
 }
 
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_THREAD *thread[NUM_THREADS];
    ALLEGRO_DISPLAY *display;
@@ -254,6 +254,9 @@ int main(void)
    ALLEGRO_EVENT event;
    bool need_draw;
    int i;
+
+   (void)argc;
+   (void)argv;
 
    for (i = 0; i < 256; i++) {
       sin_lut[i] = 128 + (int) (127.0 * sin(i / 8.0));

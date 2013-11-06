@@ -54,7 +54,7 @@ static void update(ALLEGRO_BITMAP *bmp)
 }
 
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_TIMER *timer;
@@ -66,6 +66,9 @@ int main(void)
    char *text;
    bool done = false;
    bool redraw = true;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Failed to init Allegro.\n");

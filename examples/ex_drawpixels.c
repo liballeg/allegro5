@@ -15,7 +15,7 @@ typedef struct Point
 } Point;
 
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_KEYBOARD_STATE key_state;
@@ -27,6 +27,9 @@ int main(void)
    double program_start;
    double length;
    int layer, star;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
