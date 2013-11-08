@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include "allegro5/allegro.h"
-#include "allegro5/allegro_image.h"
 #include "allegro5/allegro_font.h"
 
 #include "common.c"
@@ -25,7 +24,6 @@ int main(int argc, char **argv)
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
    }
-   al_init_image_addon();
    al_init_font_addon();
 
    al_install_mouse();
@@ -36,7 +34,7 @@ int main(int argc, char **argv)
       abort_example("Error creating display\n");
    }
 
-   font = al_load_font("data/fixed_font.tga", 0, 0);
+   font = al_create_builtin_font();
 
    tex1 = al_create_bitmap(8, 8);
    lock = al_lock_bitmap(tex1, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);

@@ -5,7 +5,6 @@
  */
 
 #include "allegro5/allegro.h"
-#include "allegro5/allegro_image.h"
 #include "allegro5/allegro_font.h"
 #include "allegro5/allegro_primitives.h"
 #include "allegro5/allegro_audio.h"
@@ -138,7 +137,6 @@ int main(int argc, char **argv)
    al_install_keyboard();
    al_install_mouse();
 
-   al_init_image_addon();
    al_init_font_addon();
    al_init_primitives_addon();
 
@@ -163,9 +161,9 @@ int main(int argc, char **argv)
       abort_example("Unable to create display\n");
    }
 
-   font_gui = al_load_font("data/fixed_font.tga", 0, 0);
+   font_gui = al_create_builtin_font();
    if (!font_gui) {
-      abort_example("Failed to load data/fixed_font.tga\n");
+      abort_example("Failed to create builtin font\n");
    }
 
    /* Loop the sample. */

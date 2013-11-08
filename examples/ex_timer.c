@@ -3,7 +3,6 @@
  */
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
-#include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -36,9 +35,9 @@ static void init(void)
    ex.FPS = 50;
    ex.first_tick = true;
 
-   ex.myfont = al_load_font("data/fixed_font.tga", 0, 0);
+   ex.myfont = al_create_builtin_font();
    if (!ex.myfont) {
-      abort_example("data/fixed_font.tga not found\n");
+      abort_example("Error creating builtin font\n");
    }
 }
 
@@ -176,7 +175,6 @@ int main(int argc, char **argv)
    al_init_primitives_addon();
    al_install_keyboard();
    al_install_mouse();
-   al_init_image_addon();
    al_init_font_addon();
 
    display = al_create_display(640, 480);

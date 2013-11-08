@@ -1,6 +1,5 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
-#include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
 #include <stdio.h>
 
@@ -31,7 +30,6 @@ int main(int argc, char **argv)
 
    al_init_primitives_addon();
    al_init_font_addon();
-   al_init_image_addon();
    al_install_mouse();
    al_install_keyboard();
 
@@ -48,7 +46,7 @@ int main(int argc, char **argv)
    al_register_event_source(event_queue, al_get_mouse_event_source());
    al_register_event_source(event_queue, al_get_keyboard_event_source());
 
-   font = al_load_font("data/fixed_font.tga", 0, 0);
+   font = al_create_builtin_font();
    white = al_map_rgb_f(1, 1, 1);
 
    while (1) {      

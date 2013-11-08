@@ -1,7 +1,6 @@
-#include "allegro5/allegro.h"
-#include "allegro5/allegro_image.h"
-#include "allegro5/allegro_font.h"
 #include <stdio.h>
+#include "allegro5/allegro.h"
+#include "allegro5/allegro_font.h"
 
 #include "common.c"
 
@@ -26,7 +25,6 @@ int main(int argc, char **argv)
    }
 
    al_install_keyboard();
-   al_init_image_addon();
    al_init_font_addon();
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS |
@@ -37,9 +35,9 @@ int main(int argc, char **argv)
       abort_example("Could not create display.\n");
    }
 
-   font = al_load_font("data/font.tga", 0, 0);
+   font = al_create_builtin_font();
    if (!font) {
-      abort_example("Error loading font\n");
+      abort_example("Error creating builtin font\n");
    }
 
    events = al_create_event_queue();

@@ -267,9 +267,9 @@ int main(int argc, char **argv)
       abort_example("Error installing mouse.\n");
    }
 
-   example.font = al_load_font("data/fixed_font.tga", 0, 0);
+   example.font = al_create_builtin_font();
    if (!example.font) {
-      abort_example("Error loading data/fixed_font.tga\n");
+      abort_example("Error creating builtin font\n");
    }
 
    example.mysha = al_load_bitmap("data/mysha256x256.png");

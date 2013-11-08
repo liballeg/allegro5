@@ -1,6 +1,5 @@
 #include <stdarg.h>
 #include "allegro5/allegro.h"
-#include "allegro5/allegro_image.h"
 #include "allegro5/allegro_font.h"
 #include "allegro5/allegro_primitives.h"
 
@@ -38,7 +37,6 @@ int main(int argc, char **argv)
    al_init_primitives_addon();
    al_install_mouse();
    al_install_keyboard();
-   al_init_image_addon();
    al_init_font_addon();
 
    al_set_new_display_flags(ALLEGRO_RESIZABLE);
@@ -47,9 +45,9 @@ int main(int argc, char **argv)
       abort_example("Error creating display\n");
    }
 
-   font = al_load_font("data/fixed_font.tga", 1, 0);
+   font = al_create_builtin_font();
    if (!font) {
-      abort_example("data/fixed_font.tga not found\n");
+      abort_example("Error creating builtin font\n");
    }
    
    black = al_map_rgb_f(0, 0, 0);

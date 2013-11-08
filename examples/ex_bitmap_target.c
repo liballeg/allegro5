@@ -5,7 +5,6 @@
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
-#include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -152,7 +151,6 @@ int main(int argc, char **argv)
 
    al_init_primitives_addon();
    al_install_keyboard();
-   al_init_image_addon();
    al_init_font_addon();
 
    display = al_create_display(640, 480);
@@ -164,9 +162,9 @@ int main(int argc, char **argv)
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_display_event_source(display));
 
-   myfont = al_load_font("data/font.tga", 0, 0);
+   myfont = al_create_builtin_font();
    if (!myfont) {
-      abort_example("font.tga not found\n");
+      abort_example("Error creating builtin font\n");
    }
 
    while (!quit) {
