@@ -180,9 +180,6 @@ if(WANT_CURL_EXAMPLE)
     endif(CURL_FOUND)
 endif(WANT_CURL_EXAMPLE)
 
-# Not yet added:
-# ex_gp2x
-
 # example(ex_ogre3d ex_ogre3d.cpp)
 # include_directories(/usr/include/OGRE)
 # target_link_libraries(ex_ogre3d OgreMain)
