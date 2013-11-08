@@ -3,23 +3,32 @@
 
 #include "common.c"
 
-void draw_touches(int num, int *touches)
+#define MAX_TOUCHES 16
+
+typedef struct TOUCH TOUCH;
+struct TOUCH {
+   int id;
+   int x;
+   int y;
+};
+
+static void draw_touches(int num, TOUCH touches[])
 {
    int i;
 
    for (i = 0; i < num; i++) {
-      int x = touches[i*3+1];
-      int y = touches[i*3+2];
+      int x = touches[i].x;
+      int y = touches[i].y;
       al_draw_circle(x, y, 50, al_map_rgb(255, 0, 0), 4);
    }
 }
 
-int find_index(int id, int num, int *touches)
+static int find_index(int id, int num, TOUCH touches[])
 {
    int i;
 
    for (i = 0; i < num; i++) {
-      if (touches[i*3] == id) {
+      if (touches[i].id == id) {
          return i;
       }
    }
@@ -30,7 +39,7 @@ int find_index(int id, int num, int *touches)
 int main(int argc, char **argv)
 {
    int num_touches = 0;
-   int *touches = NULL;
+   TOUCH touches[MAX_TOUCHES];
    ALLEGRO_DISPLAY *display;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_EVENT event;
@@ -56,9 +65,11 @@ int main(int argc, char **argv)
    al_register_event_source(queue, al_get_display_event_source(display));
 
    while (true) {
-      al_clear_to_color(al_map_rgb(255, 255, 255));
-      draw_touches(num_touches, touches);
-      al_flip_display();
+      if (al_is_event_queue_empty(queue)) {
+         al_clear_to_color(al_map_rgb(255, 255, 255));
+         draw_touches(num_touches, touches);
+         al_flip_display();
+      }
 
       al_wait_for_event(queue, &event);
 
@@ -66,39 +77,26 @@ int main(int argc, char **argv)
          break;
       }
       else if (event.type == ALLEGRO_EVENT_TOUCH_BEGIN) {
-         int current;
-         if (touches == NULL) {
-            touches = (int *)malloc(3*sizeof(int));
-            current = 0;
-            num_touches = 1;
+         int i = num_touches;
+         if (num_touches < MAX_TOUCHES) {
+            touches[i].id = event.touch.id;
+            touches[i].x = event.touch.x;
+            touches[i].y = event.touch.y;
+            num_touches++;
          }
-         else {
-            touches = (int *)realloc(touches, (num_touches+1)*3*sizeof(int));
-            current = num_touches++;
-         }
-         touches[current*3+0] = event.touch.id;
-         touches[current*3+1] = event.touch.x;
-         touches[current*3+2] = event.touch.y;
       }
       else if (event.type == ALLEGRO_EVENT_TOUCH_END) {
-         if (num_touches == 1) {
-            free(touches);
-            touches = NULL;
+         int i = find_index(event.touch.id, num_touches, touches);
+         if (i >= 0 && i < num_touches) {
+            touches[i] = touches[num_touches - 1];
             num_touches--;
-         }
-         else {
-            int index = find_index(event.touch.id, num_touches, touches);
-            if (index >= 0) {
-               memcpy(touches+index*3, touches+(index+1)*3, ((num_touches-1)-index)*3*sizeof(int));
-               touches = (int *)realloc(touches, (--num_touches)*3*sizeof(int));
-            }
          }
       }
       else if (event.type == ALLEGRO_EVENT_TOUCH_MOVE) {
-         int index = find_index(event.touch.id, num_touches, touches);
-         if (index >= 0) {
-            touches[index*3+1] = event.touch.x;
-            touches[index*3+2] = event.touch.y;
+         int i = find_index(event.touch.id, num_touches, touches);
+         if (i >= 0) {
+            touches[i].x = event.touch.x;
+            touches[i].y = event.touch.y;
          }
       }
    }
