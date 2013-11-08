@@ -182,7 +182,6 @@ endif(WANT_CURL_EXAMPLE)
 
 # Not yet added:
 # ex_gp2x
-# ex_iphone
 
 # example(ex_ogre3d ex_ogre3d.cpp)
 # include_directories(/usr/include/OGRE)
