@@ -1,6 +1,8 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 
+#include "common.c"
+
 void draw_touches(int num, int *touches)
 {
    int i;
@@ -31,12 +33,23 @@ int main(int argc, char **argv)
    int *touches = NULL;
    ALLEGRO_DISPLAY *display;
    ALLEGRO_EVENT_QUEUE *queue;
+   ALLEGRO_EVENT event;
 
-   al_init();
+   (void)argc;
+   (void)argv;
+
+   if (!al_init()) {
+      abort_example("Could not init Allegro.\n");
+   }
    al_init_primitives_addon();
-   al_install_touch_input();
+   if (!al_install_touch_input()) {
+      abort_example("Could not init touch input.\n");
+   }
 
    display = al_create_display(800, 600);
+   if (!display) {
+       abort_example("Error creating display\n");
+   }
    queue = al_create_event_queue();
 
    al_register_event_source(queue, al_get_touch_input_event_source());
@@ -47,7 +60,6 @@ int main(int argc, char **argv)
       draw_touches(num_touches, touches);
       al_flip_display();
 
-      ALLEGRO_EVENT event;
       al_wait_for_event(queue, &event);
 
       if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -90,4 +102,8 @@ int main(int argc, char **argv)
          }
       }
    }
+
+   return 0;
 }
+
+/* vim: set sts=3 sw=3 et: */
