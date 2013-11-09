@@ -5,7 +5,7 @@ function(example name)
     # Use cmake_parse_arguments first.
     set(flags CONSOLE)
     set(single_args) # none
-    set(accum_args)  # none
+    set(accum_args DATA)
     cmake_parse_arguments(MYOPTS "${flags}" "${single_args}" "${accum_args}"
         ${ARGN})
 
@@ -72,12 +72,30 @@ function(example name)
             message(STATUS "Not building ${name} - console program")
             return()
         endif()
-        add_android_app("${name}" "${sources}" "${libs}" "${stl}")
+        set(assets)
+        copy_android_assets("${name}" assets "${MYOPTS_DATA}")
+        add_android_app("${name}" "${sources};${assets}" "${libs}" "${stl}")
     else()
         add_our_executable("${name}" "${sources}" "${libs}")
     endif()
 
 endfunction(example)
+
+function(copy_android_assets name var)
+    set(src "${CMAKE_CURRENT_SOURCE_DIR}/data")
+    set(dest "${name}.project/assets/data")
+    set(destfiles)
+    foreach(basename ${ARGN})
+        list(APPEND destfiles "${dest}/${basename}")
+        add_custom_command(
+            OUTPUT  "${dest}/${basename}"
+            DEPENDS "${src}/${basename}"
+            COMMAND "${CMAKE_COMMAND}" -E copy
+                    "${src}/${basename}" "${dest}/${basename}"
+            )
+    endforeach()
+    set(${var} "${destfiles}" PARENT_SCOPE)
+endfunction()
 
 #-----------------------------------------------------------------------------#
 # vim: set ts=8 sts=4 sw=4 et:
