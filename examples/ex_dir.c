@@ -29,22 +29,28 @@ static void print_file(ALLEGRO_FS_ENTRY *entry)
 
 static void print_entry(ALLEGRO_FS_ENTRY *entry)
 {
+   ALLEGRO_FS_ENTRY *next;
+
    print_file(entry);
 
-   if (al_get_fs_entry_mode(entry) & ALLEGRO_FILEMODE_ISDIR) {
-      ALLEGRO_FS_ENTRY *next;
+   if (!(al_get_fs_entry_mode(entry) & ALLEGRO_FILEMODE_ISDIR))
+      return;
 
-      al_open_directory(entry);
-      while (1) {
-         next = al_read_directory(entry);
-         if (!next)
-            break;
-
-         print_entry(next);
-         al_destroy_fs_entry(next);
-      }
-      al_close_directory(entry);
+   if (!al_open_directory(entry)) {
+      log_printf("Error opening directory: %s\n", al_get_fs_entry_name(entry));
+      return;
    }
+
+   while (1) {
+      next = al_read_directory(entry);
+      if (!next)
+         break;
+
+      print_entry(next);
+      al_destroy_fs_entry(next);
+   }
+
+   al_close_directory(entry);
 }
 
 int main(int argc, char **argv)
