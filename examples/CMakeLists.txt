@@ -40,7 +40,43 @@ include(Helper.cmake)
 
 #-----------------------------------------------------------------------------#
 
-example(ex_config)
+# Lists of data files to add to Android APKs.
+# Examples don't necessarily use every file in the list.
+
+set(DATA_IMAGES
+    DATA
+    a4_font.tga
+    alexlogo.bmp
+    allegro.pcx
+    bkg.png
+    bmpfont.tga
+    cursor.tga
+    fakeamp.bmp
+    fixed_font.tga
+    font.tga
+    icon.tga
+    mysha.pcx
+    mysha256x256.png
+    texture.tga
+    )
+
+set(DATA_SHADERS
+    DATA
+    ex_prim_shader_pixel.glsl
+    ex_prim_shader_pixel.hlsl
+    ex_prim_shader_vertex.glsl
+    ex_prim_shader_vertex.hlsl
+    ex_shader_multitex_pixel.glsl
+    ex_shader_multitex_pixel.hlsl
+    ex_shader_pixel.glsl
+    ex_shader_pixel.hlsl
+    ex_shader_vertex.glsl
+    ex_shader_vertex.hlsl
+    )
+
+#-----------------------------------------------------------------------------#
+
+example(ex_config DATA sample.cfg)
 example(ex_dir)
 example(ex_file_slice CONSOLE)
 example(ex_get_path)
@@ -55,31 +91,31 @@ if(NOT MSVC)
     example(ex_utf8)
 endif(NOT MSVC)
 
-example(ex_bitmap ${IMAGE})
-example(ex_bitmap_flip ${IMAGE} ${FONT})
+example(ex_bitmap ${IMAGE} ${DATA_IMAGES})
+example(ex_bitmap_flip ${IMAGE} ${FONT} ${DATA_IMAGES})
 example(ex_bitmap_target ${FONT} ${PRIM})
-example(ex_blend ${FONT} ${IMAGE} ${PRIM})
-example(ex_blend2 ex_blend2.cpp ${NIHGUI} ${IMAGE})
-example(ex_blend_bench ${IMAGE} ${PRIM})
+example(ex_blend ${FONT} ${IMAGE} ${PRIM} ${DATA_IMAGES})
+example(ex_blend2 ex_blend2.cpp ${NIHGUI} ${IMAGE} ${DATA_IMAGES})
+example(ex_blend_bench ${IMAGE} ${PRIM} ${DATA_IMAGES})
 example(ex_blend_test ${PRIM})
-example(ex_blit ${FONT} ${IMAGE} ${COLOR})
+example(ex_blit ${FONT} ${IMAGE} ${COLOR} ${DATA_IMAGES})
 example(ex_clip ${FONT} ${COLOR})
 example(ex_color ex_color.cpp ${NIHGUI} ${TTF} ${COLOR})
 example(ex_convert CONSOLE ${IMAGE})
-example(ex_depth_mask ${IMAGE} ${TTF})
+example(ex_depth_mask ${IMAGE} ${TTF} ${DATA_IMAGES})
 example(ex_disable_screensaver ${FONT})
 example(ex_display_events ${FONT} ${PRIM})
 example(ex_display_options ${FONT} ${PRIM})
-example(ex_draw ${FONT} ${IMAGE} ${COLOR} ${PRIM})
-example(ex_draw_bitmap ${IMAGE} ${FONT})
+example(ex_draw ${FONT} ${IMAGE} ${COLOR} ${PRIM} ${DATA_IMAGES})
+example(ex_draw_bitmap ${IMAGE} ${FONT} ${DATA_IMAGES})
 example(ex_drawpixels)
 example(ex_dualies ${IMAGE})
-example(ex_expose ${IMAGE} ${PRIM})
-example(ex_filter ${FONT} ${IMAGE} ${COLOR})
-example(ex_fs_resize ${IMAGE} ${PRIM})
-example(ex_fs_window ${IMAGE} ${PRIM} ${FONT})
-example(ex_icon ${IMAGE})
-example(ex_icon2 ${IMAGE})
+example(ex_expose ${IMAGE} ${PRIM} ${DATA_IMAGES})
+example(ex_filter ${FONT} ${IMAGE} ${COLOR} ${DATA_IMAGES})
+example(ex_fs_resize ${IMAGE} ${PRIM} ${DATA_IMAGES})
+example(ex_fs_window ${IMAGE} ${PRIM} ${FONT} ${DATA_IMAGES})
+example(ex_icon ${IMAGE} ${DATA_IMAGES})
+example(ex_icon2 ${IMAGE} ${DATA_IMAGES})
 example(ex_haptic ${PRIM})
 example(ex_haptic2 ex_haptic2.cpp ${NIHGUI} ${TTF})
 example(ex_joystick_events ${PRIM} ${FONT})
@@ -87,37 +123,37 @@ example(ex_joystick_hotplugging ${PRIM})
 example(ex_keyboard_events)
 example(ex_keyboard_focus)
 example(ex_lines ${PRIM})
-example(ex_loading_thread ${IMAGE} ${FONT} ${PRIM})
+example(ex_loading_thread ${IMAGE} ${FONT} ${PRIM} ${DATA_IMAGES})
 example(ex_lockbitmap)
-example(ex_membmp ${FONT} ${IMAGE})
-example(ex_mouse ${IMAGE} ${PRIM})
-example(ex_mouse_cursor ${FONT} ${IMAGE})
-example(ex_mouse_events ${FONT} ${IMAGE} ${PRIM})
+example(ex_membmp ${FONT} ${IMAGE} ${DATA_IMAGES})
+example(ex_mouse ${IMAGE} ${PRIM} ${DATA_IMAGES})
+example(ex_mouse_cursor ${FONT} ${IMAGE} ${DATA_IMAGES})
+example(ex_mouse_events ${FONT} ${IMAGE} ${PRIM} ${DATA_IMAGES})
 example(ex_mouse_focus)
 example(ex_multisample ${FONT} ${COLOR} ${PRIM})
 example(ex_multiwin ${IMAGE})
-example(ex_nodisplay ${IMAGE})
-example(ex_noframe ${IMAGE})
+example(ex_nodisplay ${IMAGE} ${DATA_IMAGES})
+example(ex_noframe ${IMAGE} ${DATA_IMAGES})
 example(ex_physfs ${PHYSFS} ${IMAGE})
-example(ex_pixelformat ex_pixelformat.cpp ${NIHGUI} ${IMAGE})
+example(ex_pixelformat ex_pixelformat.cpp ${NIHGUI} ${IMAGE} ${DATA_IMAGES})
 example(ex_polygon ${FONT} ${PRIM})
 example(ex_premulalpha ${FONT})
-example(ex_prim ${FONT} ${IMAGE} ${PRIM})
-example(ex_prim_shader ${PRIM})
+example(ex_prim ${FONT} ${IMAGE} ${PRIM} ${DATA_IMAGES})
+example(ex_prim_shader ${PRIM} ${DATA_SHADERS})
 example(ex_resize ${PRIM})
 example(ex_resize2 ${IMAGE})
-example(ex_rotate ${IMAGE})
-example(ex_scale ${IMAGE})
-example(ex_shader ex_shader.cpp ${IMAGE})
-example(ex_shader_multitex ${IMAGE})
-example(ex_shader_target ${IMAGE})
-example(ex_subbitmap ${IMAGE} ${PRIM})
+example(ex_rotate ${IMAGE} ${DATA_IMAGES})
+example(ex_scale ${IMAGE} ${DATA_IMAGES})
+example(ex_shader ex_shader.cpp ${IMAGE} ${DATA_IMAGES} ${DATA_SHADERS})
+example(ex_shader_multitex ${IMAGE} ${DATA_IMAGES} ${DATA_SHADERS})
+example(ex_shader_target ${IMAGE} ${DATA_IMAGES} ${DATA_SHADERS})
+example(ex_subbitmap ${IMAGE} ${PRIM} ${DATA_IMAGES})
 example(ex_threads ${PRIM})
 example(ex_threads2)
 example(ex_timedwait)
 example(ex_timer ${FONT} ${PRIM})
 example(ex_touch_input ${PRIM})
-example(ex_transform ${FONT} ${IMAGE} ${PRIM})
+example(ex_transform ${FONT} ${IMAGE} ${PRIM} ${DATA_IMAGES})
 example(ex_vertex_buffer ${FONT} ${PRIM})
 example(ex_vsync ${FONT} ${IMAGE})
 example(ex_warp_mouse ${FONT} ${PRIM})
@@ -138,7 +174,7 @@ if(SUPPORT_OPENGL AND NOT IPHONE AND NOT ANDROID AND NOT ALLEGRO_RASPBERRYPI)
     example(ex_palette ${IMAGE} ${COLOR})
 endif(SUPPORT_OPENGL AND NOT IPHONE AND NOT ANDROID AND NOT ALLEGRO_RASPBERRYPI)
 
-example(ex_font ${FONT} ${IMAGE})
+example(ex_font ${FONT} ${IMAGE} ${DATA_IMAGES})
 example(ex_font_justify ex_font_justify.cpp ${NIHGUI} ${IMAGE} ${TTF})
 example(ex_logo ${FONT} ${TTF} ${IMAGE} ${PRIM})
 example(ex_projection ${TTF} ${PRIM} ${IMAGE})
@@ -147,7 +183,7 @@ example(ex_ttf ${TTF} ${PRIM})
 example(ex_acodec CONSOLE ${AUDIO} ${ACODEC})
 example(ex_acodec_multi CONSOLE ${AUDIO} ${ACODEC})
 example(ex_audio_chain ex_audio_chain.cpp ${AUDIO} ${ACODEC} ${PRIM} ${FONT} ${TTF})
-example(ex_audio_props ex_audio_props.cpp ${NIHGUI} ${AUDIO} ${ACODEC})
+example(ex_audio_props ex_audio_props.cpp ${NIHGUI} ${ACODEC} DATA testing.ogg)
 example(ex_audio_simple CONSOLE ${AUDIO} ${ACODEC})
 example(ex_audio_timer ${AUDIO} ${FONT})
 example(ex_haiku ${AUDIO} ${ACODEC} ${IMAGE})
