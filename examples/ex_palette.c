@@ -54,6 +54,7 @@ int main(int argc, char **argv)
    al_install_mouse();
    al_install_keyboard();
    al_init_image_addon();
+   init_platform_specific();
 
    al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE |
       ALLEGRO_OPENGL);
@@ -81,10 +82,8 @@ int main(int argc, char **argv)
    }
 
    background = al_load_bitmap("data/bkg.png");
-   if (!background) {
-      abort_example("bkg.png not found or failed to load\n");
-   }
-   
+   /* Continue even if fail to load. */
+
    /* Create 7 palettes with changed hue. */
    for (j = 0; j < 7; j++) {
       for (i = 0; i < 256; i++) {
@@ -197,7 +196,8 @@ int main(int argc, char **argv)
          interpolate_palette(pal, pals[p1 * 2], pals[p2 * 2], pos);
 
          al_set_shader_float_vector("pal", 3, pal, 256);
-         al_draw_bitmap(background, 0, 0, 0);
+         if (background)
+            al_draw_bitmap(background, 0, 0, 0);
 
          for (i = 0; i < 8; i++) {
             Sprite *s = sprite + 7 - i;
