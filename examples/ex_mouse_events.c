@@ -62,6 +62,7 @@ int main(int argc, char **argv)
    al_install_keyboard();
    al_init_image_addon();
    al_init_font_addon();
+   init_platform_specific();
    
    actual_buttons = al_get_mouse_num_buttons();
    if (actual_buttons > NUM_BUTTONS)

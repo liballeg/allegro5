@@ -104,6 +104,7 @@ int main(int argc, char **argv)
    }
 
    al_init_image_addon();
+   init_platform_specific();
 
    if (!al_install_mouse()) {
       abort_example("Error installing mouse\n");

@@ -661,6 +661,7 @@ int main(int argc, char **argv)
    al_init_image_addon();
    al_init_font_addon();
    al_init_primitives_addon();
+   init_platform_specific();
    
    if (use_shader) {
       al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE);

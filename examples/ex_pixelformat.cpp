@@ -222,6 +222,7 @@ int main(int argc, char *argv[])
    al_init_primitives_addon();
    al_init_image_addon();
    al_init_font_addon();
+   init_platform_specific();
 
    al_install_keyboard();
    al_install_mouse();

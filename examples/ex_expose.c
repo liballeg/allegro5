@@ -22,6 +22,7 @@ int main(int argc, char **argv)
    al_init_image_addon();
    al_install_keyboard();
    al_install_mouse();
+   init_platform_specific();
 
    al_set_new_display_flags(ALLEGRO_RESIZABLE |
       ALLEGRO_GENERATE_EXPOSE_EVENTS);

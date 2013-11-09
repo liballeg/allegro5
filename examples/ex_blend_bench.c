@@ -152,6 +152,7 @@ int main(int argc, char **argv)
 
    al_init_image_addon();
    al_init_primitives_addon();
+   init_platform_specific();
 
    display = al_create_display(640, 480);
    if (!display) {

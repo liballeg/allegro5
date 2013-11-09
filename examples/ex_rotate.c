@@ -39,6 +39,7 @@ int main(int argc, char **argv)
    }
    al_install_keyboard();
    al_init_image_addon();
+   init_platform_specific();
 
    open_log();
    log_printf("Press 'w' to toggle wide mode.\n");

@@ -38,6 +38,7 @@ int main(int argc, char **argv)
     al_install_keyboard();
 
     al_init_image_addon();
+    init_platform_specific();
 
     display = al_create_display(640, 480);
     if (!display) {

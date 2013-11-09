@@ -94,6 +94,8 @@ int main(int argc, char **argv)
 
    al_init_font_addon();
 
+   init_platform_specific();
+
    example.display = al_create_display(w, h);
 
    if (!example.display) {

@@ -20,6 +20,7 @@ int main(int argc, char **argv)
       abort_example("Error initialising Allegro\n");
    }
    al_init_image_addon();
+   init_platform_specific();
 
    sprite = al_load_bitmap("data/cursor.tga");
    if (!sprite) {

@@ -69,6 +69,7 @@ int main(int argc, char **argv)
    }
    al_install_keyboard();
    al_init_image_addon();
+   init_platform_specific();
 
    al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE);
    display = al_create_display(640, 480);

@@ -1,11 +1,23 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#ifdef ALLEGRO_ANDROID
+   #include "allegro5/allegro_android.h"
+#endif
+
+void init_platform_specific(void);
 void abort_example(char const *format, ...);
 void open_log(void);
 void open_log_monospace(void);
 void close_log(bool wait_for_user);
 void log_printf(char const *format, ...);
+
+void init_platform_specific(void)
+{
+#ifdef ALLEGRO_ANDROID
+   al_android_set_apk_file_interface();
+#endif
+}
 
 #ifdef ALLEGRO_POPUP_EXAMPLES
 
@@ -104,3 +116,5 @@ void log_printf(char const *format, ...)
 }
 
 #endif
+
+/* vim: set sts=3 sw=3 et: */

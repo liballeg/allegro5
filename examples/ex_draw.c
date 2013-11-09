@@ -293,6 +293,7 @@ int main(int argc, char **argv)
    al_install_mouse();
    al_init_image_addon();
    al_init_font_addon();
+   init_platform_specific();
 
    /* Read supersampling info from ex_draw.ini. */
    ex.samples = 0;

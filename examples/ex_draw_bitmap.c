@@ -241,6 +241,7 @@ int main(int argc, char **argv)
    }
 
    al_init_font_addon();
+   init_platform_specific();
 
    al_get_num_video_adapters();
    

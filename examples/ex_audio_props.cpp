@@ -139,8 +139,8 @@ int main(int argc, char **argv)
 
    al_init_font_addon();
    al_init_primitives_addon();
-
    al_init_acodec_addon();
+   init_platform_specific();
 
    if (!al_install_audio()) {
       abort_example("Could not init sound!\n");
