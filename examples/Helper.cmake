@@ -2,19 +2,23 @@
 # string "x", do nothing.  Otherwise strip off the "x" prefixes on arguments
 # and link to that target.
 function(example name)
-    set(is_console)
+    # Use cmake_parse_arguments first.
+    set(flags CONSOLE)
+    set(single_args) # none
+    set(accum_args)  # none
+    cmake_parse_arguments(MYOPTS "${flags}" "${single_args}" "${accum_args}"
+        ${ARGN})
+
+    # Parse what remains of the argument list manually.
     set(sources)
     set(libs)
     set(android_stl)
-
-    foreach(arg ${ARGN})
+    foreach(arg ${MYOPTS_UNPARSED_ARGUMENTS})
         if(arg STREQUAL "x")
             message(STATUS "Not building ${name}")
             return()
         endif()
-        if(arg STREQUAL "CONSOLE")
-            set(is_console ON)
-        elseif(arg MATCHES "[.]c$")
+        if(arg MATCHES "[.]c$")
             list(APPEND sources ${arg})
         elseif(arg MATCHES "[.]cpp$")
             list(APPEND sources ${arg})
@@ -50,13 +54,13 @@ function(example name)
     list(REMOVE_DUPLICATES libs)
 
     if(WIN32)
-        if(is_console)
+        if(MYOPTS_CONSOLE)
             # We need stdout and stderr available from cmd.exe,
             # so we must not use WIN32 here.
             set(EXECUTABLE_TYPE)
         else()
             set(EXECUTABLE_TYPE "WIN32")
-        endif(is_console)
+        endif()
     endif(WIN32)
 
     if(IPHONE)
@@ -64,7 +68,7 @@ function(example name)
     endif(IPHONE)
 
     if(ANDROID)
-        if(is_console)
+        if(MYOPTS_CONSOLE)
             message(STATUS "Not building ${name} - console program")
             return()
         endif()
