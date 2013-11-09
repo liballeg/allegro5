@@ -94,13 +94,13 @@ function(add_android_app prog sources lib_targets stl)
         )
 
     # Useful targets for testing.
-    add_custom_target(install_${prog}_apk
+    add_custom_target(install_${prog}
         DEPENDS ${prog}_apk
         COMMAND adb -d install -r ${apk_path}
         )
 
-    add_custom_target(run_${prog}_apk
-        DEPENDS install_${prog}_apk
+    add_custom_target(run_${prog}
+        DEPENDS install_${prog}
         COMMAND adb -d shell
             'am start -a android.intent.action.MAIN -n ${package}/.${activity}'
         )
