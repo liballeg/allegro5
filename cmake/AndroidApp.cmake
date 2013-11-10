@@ -82,7 +82,7 @@ function(add_android_app prog sources lib_targets stl)
     # How to make the APK.
     add_custom_command(
         OUTPUT ${apk_path}
-        DEPENDS ${prog_target} ${lib_targets} ${project_sources} jar
+        DEPENDS ${prog_target} ${lib_targets} ${project_sources} ${ACTIVITY_JAR}
         WORKING_DIRECTORY ${project_dir}
         COMMAND ${NDK_BUILD}
         COMMAND ${ANT_COMMAND} debug
