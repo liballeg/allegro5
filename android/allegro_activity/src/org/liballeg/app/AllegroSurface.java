@@ -54,7 +54,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
 
       EGLDisplay dpy = egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY);
 
-      if(!egl.eglInitialize(dpy, egl_Version)) {
+      if (!egl.eglInitialize(dpy, egl_Version)) {
          Log.d("AllegroSurface", "egl_Init fail");
          return false;
       }
@@ -193,14 +193,17 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
 
       es2_attrib[1] = version;
 
-      egl_setConfigAttrib(EGL10.EGL_RENDERABLE_TYPE, version == 2 ? EGL_OPENGL_ES2_BIT : EGL_OPENGL_ES_BIT);
+      egl_setConfigAttrib(EGL10.EGL_RENDERABLE_TYPE,
+         (version == 2) ? EGL_OPENGL_ES2_BIT : EGL_OPENGL_ES_BIT);
 
       boolean color_size_specified = false;
       for (int i = 0; i < egl_attribWork.size(); i++) {
          Log.d("AllegroSurface", "egl_attribs[" + i + "] = " + egl_attribWork.get(i));
          if (i % 2 == 0) {
-            if (egl_attribWork.get(i) == EGL10.EGL_RED_SIZE || egl_attribWork.get(i) == EGL10.EGL_GREEN_SIZE ||
-                  egl_attribWork.get(i) == EGL10.EGL_BLUE_SIZE) {
+            if (egl_attribWork.get(i) == EGL10.EGL_RED_SIZE ||
+               egl_attribWork.get(i) == EGL10.EGL_GREEN_SIZE ||
+               egl_attribWork.get(i) == EGL10.EGL_BLUE_SIZE)
+            {
                color_size_specified = true;
             }
          }
@@ -213,13 +216,15 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       egl_attribs[egl_attribWork.size()] = EGL10.EGL_NONE;
 
       int[] num = new int[1];
-      boolean retval = egl.eglChooseConfig(egl_Display, egl_attribs, egl_Config, 1, num);
+      boolean retval = egl.eglChooseConfig(egl_Display, egl_attribs,
+         egl_Config, 1, num);
       if (retval == false || num[0] < 1) {
          Log.e("AllegroSurface", "No matching config");
          return 0;
       }
 
-      EGLContext ctx = egl.eglCreateContext(egl_Display, egl_Config[0], EGL10.EGL_NO_CONTEXT, es2_attrib);
+      EGLContext ctx = egl.eglCreateContext(egl_Display, egl_Config[0],
+         EGL10.EGL_NO_CONTEXT, es2_attrib);
       if (ctx == EGL10.EGL_NO_CONTEXT) {
          checkEglError("eglCreateContext", egl);
          Log.d("AllegroSurface", "egl_createContext no context");
@@ -246,13 +251,14 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    public boolean egl_createSurface()
    {
       EGL10 egl = (EGL10)EGLContext.getEGL();
-      EGLSurface surface = egl.eglCreateWindowSurface(egl_Display, egl_Config[0], this, null);
-      if(surface == EGL10.EGL_NO_SURFACE) {
+      EGLSurface surface = egl.eglCreateWindowSurface(egl_Display,
+         egl_Config[0], this, null);
+      if (surface == EGL10.EGL_NO_SURFACE) {
          Log.d("AllegroSurface", "egl_createSurface can't create surface (" +  egl.eglGetError() + ")");
          return false;
       }
 
-      if(!egl.eglMakeCurrent(egl_Display, surface, surface, egl_Context)) {
+      if (!egl.eglMakeCurrent(egl_Display, surface, surface, egl_Context)) {
          egl.eglDestroySurface(egl_Display, surface);
          Log.d("AllegroSurface", "egl_createSurface can't make current");
          return false;
@@ -268,7 +274,9 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    public void egl_destroySurface()
    {
       EGL10 egl = (EGL10)EGLContext.getEGL();
-      if(!egl.eglMakeCurrent(egl_Display, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT)) {
+      if (!egl.eglMakeCurrent(egl_Display, EGL10.EGL_NO_SURFACE,
+            EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT))
+      {
          Log.d("AllegroSurface", "could not clear current context");
       }
 
@@ -281,7 +289,9 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    {
       Log.d("AllegroSurface", "egl_clearCurrent");
       EGL10 egl = (EGL10)EGLContext.getEGL();
-      if(!egl.eglMakeCurrent(egl_Display, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT)) {
+      if (!egl.eglMakeCurrent(egl_Display, EGL10.EGL_NO_SURFACE,
+               EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT))
+      {
          Log.d("AllegroSurface", "could not clear current context");
       }
       Log.d("AllegroSurface", "egl_clearCurrent done");
@@ -290,40 +300,30 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    public void egl_makeCurrent()
    {
       EGL10 egl = (EGL10)EGLContext.getEGL();
-      if(!egl.eglMakeCurrent(egl_Display, egl_Surface, egl_Surface, egl_Context)) {
-      //   egl.eglDestroySurface(egl_Display, surface);
-      //   egl.eglTerminate(egl_Display);
-      //   egl_Display = null;
+      if (!egl.eglMakeCurrent(egl_Display, egl_Surface, egl_Surface, egl_Context)) {
+         // egl.eglDestroySurface(egl_Display, surface);
+         // egl.eglTerminate(egl_Display);
+         // egl_Display = null;
          Log.d("AllegroSurface", "can't make thread current: ");
          checkEglError("eglMakeCurrent", egl);
-         return;
       }  
    }
 
    public void egl_SwapBuffers()
    {
-      //try {
-      //   Log.d("AllegroSurface", "posting SwapBuffers!");
-      //   AllegroActivity.Self.postRunnable( new Runnable() {
-      //      public void run() {
-               try {
-                  EGL10 egl = (EGL10)EGLContext.getEGL();
+      try {
+         EGL10 egl = (EGL10)EGLContext.getEGL();
 
-                  // FIXME: Pretty sure flush is implicit with SwapBuffers
-                  //egl.eglWaitNative(EGL10.EGL_NATIVE_RENDERABLE, null);
-                  //egl.eglWaitGL();
+         // FIXME: Pretty sure flush is implicit with SwapBuffers
+         //egl.eglWaitNative(EGL10.EGL_NATIVE_RENDERABLE, null);
+         //egl.eglWaitGL();
 
-                  egl.eglSwapBuffers(egl_Display, egl_Surface);
-                  checkEglError("eglSwapBuffers", egl);
+         egl.eglSwapBuffers(egl_Display, egl_Surface);
+         checkEglError("eglSwapBuffers", egl);
 
-               } catch(Exception x) {
-                  Log.d("AllegroSurface", "inner exception: " + x.getMessage());
-               }
-      //      }
-      //   } );
-      //} catch(Exception x) {
-      //   Log.d("AllegroSurface", "exception: " + x.getMessage());
-      //}
+      } catch (Exception x) {
+         Log.d("AllegroSurface", "inner exception: " + x.getMessage());
+      }
    }
 
    /** main handlers */
@@ -392,13 +392,16 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    }
 
    /* unused */
-   public void onDraw(Canvas canvas) { }
+   public void onDraw(Canvas canvas)
+   {
+   }
 
-   /* events */
+   /* Events */
 
-   /* maybe dump a stacktrace and die, rather than loging, and ignoring errors */
-   /* all this fancyness is so we work on as many versions of android as possible,
-    * and gracefully degrade, rather than just outright failing */
+   /* Maybe dump a stacktrace and die, rather than logging and ignoring errors.
+    * All this fancyness is so we work on as many versions of Android as
+    * possible, and gracefully degrade, rather than just outright failing.
+    */
 
    private boolean fieldExists(Object obj, String fieldName)
    {
@@ -406,7 +409,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
          Class cls = obj.getClass();
          Field m = cls.getField(fieldName);
          return true;
-      } catch(Exception x) {
+      } catch (Exception x) {
          return false;
       }
    }
@@ -418,47 +421,60 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
          Field f = cls.getField(field);
          return (T)f.get(obj);
       }
-      catch(NoSuchFieldException x) {
-         Log.v("AllegroSurface", "field " + field + " not found in class " + obj.getClass().getCanonicalName());
+      catch (NoSuchFieldException x) {
+         Log.v("AllegroSurface",
+               "field " + field + " not found in class " +
+               obj.getClass().getCanonicalName());
          return null;
       }
-      catch(IllegalArgumentException x) {
-         Log.v("AllegroSurface", "this shouldn't be possible, but fetching " + field + " from class " + obj.getClass().getCanonicalName() + " failed with an illegal argument exception");
+      catch (IllegalArgumentException x) {
+         Log.v("AllegroSurface",
+               "fetching " + field + " from class " +
+               obj.getClass().getCanonicalName() +
+               " failed with IllegalArgumentException");
          return null;
       }
-      catch(IllegalAccessException x) {
-         Log.v("AllegroSurface", "field " + field + " is not accessible in class " + obj.getClass().getCanonicalName());
+      catch (IllegalAccessException x) {
+         Log.v("AllegroSurface",
+               "field " + field + " is not accessible in class " +
+               obj.getClass().getCanonicalName());
          return null;
       }
    }
 
-   private <T> T callMethod(Object obj, String methName, Class [] types, Object... args)
+   private <T> T callMethod(Object obj, String methName, Class [] types,
+         Object... args)
    {
       try {
          Class cls = obj.getClass();
          Method m = cls.getMethod(methName, types);
          return (T)m.invoke(obj, args);
       }
-      catch(NoSuchMethodException x) {
-         Log.v("AllegroSurface", "method " + methName + " does not exist in class " + obj.getClass().getCanonicalName());
+      catch (NoSuchMethodException x) {
+         Log.v("AllegroSurface", "method " + methName +
+               " does not exist in class " + obj.getClass().getCanonicalName());
          return null;
       }
-      catch(NullPointerException x) {
+      catch (NullPointerException x) {
          Log.v("AllegroSurface", "can't invoke null method name");
          return null;
       }
-      catch(SecurityException x) {
-         Log.v("AllegroSurface", "method " + methName + " is not accessible in class " + obj.getClass().getCanonicalName());
+      catch (SecurityException x) {
+         Log.v("AllegroSurface", "method " + methName +
+               " is inaccessible in class " +
+               obj.getClass().getCanonicalName());
          return null;
       }
-      catch(IllegalAccessException x)
+      catch (IllegalAccessException x)
       {
-         Log.v("AllegroSurface", "method " + methName + " is not accessible in class " + obj.getClass().getCanonicalName());
+         Log.v("AllegroSurface", "method " + methName +
+               " is inaccessible in class " +
+               obj.getClass().getCanonicalName());
          return null;
       }
-      catch(InvocationTargetException x)
+      catch (InvocationTargetException x)
       {
-         Log.v("AllegroSurface", "method " + methName + " threw an exception :(");
+         Log.v("AllegroSurface", "method " + methName + " threw an exception");
          return null;
       }
    }
@@ -470,20 +486,19 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
 
    private void volumeChange(int inc)
    {
-         AudioManager mAudioManager = (AudioManager)context.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+      AudioManager mAudioManager =
+         (AudioManager)context.getApplicationContext()
+         .getSystemService(Context.AUDIO_SERVICE);
 
-         // get the current volume level
-         int curr =  
-            mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+      int curr = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+      int max = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+      int vol = curr + inc;
 
-         curr += inc;
-
-         if (0 <= curr && curr <= mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC))
-         {
-            // set a new volume level manually
-            // with the FLAG_SHOW_UI flag.
-            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, curr, AudioManager.FLAG_SHOW_UI);
-         }
+      if (0 <= vol && vol <= max) {
+         // Set a new volume level manually with the FLAG_SHOW_UI flag.
+         mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, vol,
+            AudioManager.FLAG_SHOW_UI);
+      }
    }
 
    public boolean onKey(View v, int keyCode, KeyEvent event)
@@ -527,9 +542,9 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       return false;
    }
 
-   // FIXME: pull out android version detection into the setup
-   // and just check some flags here, rather than checking for
-   // the existance of the fields and methods over and over
+   // FIXME: Pull out android version detection into the setup and just check
+   // some flags here, rather than checking for the existance of the fields and
+   // methods over and over.
    public boolean onTouch(View v, MotionEvent event)
    {
       //Log.d("AllegroSurface", "onTouch");
@@ -540,14 +555,14 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       Class[] int_arg = new Class[1];
       int_arg[0] = int.class;
 
-      if(Utils.methodExists(event, "getActionMasked")) { // android-8 / 2.2.x
+      if (Utils.methodExists(event, "getActionMasked")) { // android-8 / 2.2.x
          action = this.<Integer>callMethod(event, "getActionMasked", no_args);
          int ptr_idx = this.<Integer>callMethod(event, "getActionIndex", no_args);
          pointer_id = this.<Integer>callMethod(event, "getPointerId", int_arg, ptr_idx);
       } else {
          int raw_action = event.getAction();
 
-         if(fieldExists(event, "ACTION_MASK")) { // android-5 / 2.0
+         if (fieldExists(event, "ACTION_MASK")) { // android-5 / 2.0
             int mask = this.<Integer>getField(event, "ACTION_MASK");
             action = raw_action & mask;
 
@@ -564,27 +579,27 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
 
       boolean primary = false;
 
-      if(action == MotionEvent.ACTION_DOWN) {
+      if (action == MotionEvent.ACTION_DOWN) {
          primary = true;
          action = Const.ALLEGRO_EVENT_TOUCH_BEGIN;
       }
-      else if(action == MotionEvent.ACTION_UP) {
+      else if (action == MotionEvent.ACTION_UP) {
          primary = true;
          action = Const.ALLEGRO_EVENT_TOUCH_END;
       }
-      else if(action == MotionEvent.ACTION_MOVE) {
+      else if (action == MotionEvent.ACTION_MOVE) {
          action = Const.ALLEGRO_EVENT_TOUCH_MOVE;
       }
-      else if(action == MotionEvent.ACTION_CANCEL) {
+      else if (action == MotionEvent.ACTION_CANCEL) {
          action = Const.ALLEGRO_EVENT_TOUCH_CANCEL;
       }
       // android-5 / 2.0
-      else if(fieldExists(event, "ACTION_POINTER_DOWN") &&
+      else if (fieldExists(event, "ACTION_POINTER_DOWN") &&
          action == this.<Integer>getField(event, "ACTION_POINTER_DOWN"))
       {
          action = Const.ALLEGRO_EVENT_TOUCH_BEGIN;
       }
-      else if(fieldExists(event, "ACTION_POINTER_UP") &&
+      else if (fieldExists(event, "ACTION_POINTER_UP") &&
          action == this.<Integer>getField(event, "ACTION_POINTER_UP"))
       {
          action = Const.ALLEGRO_EVENT_TOUCH_END;
@@ -595,7 +610,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
          return false;
       }
 
-      if(Utils.methodExists(event, "getPointerCount")) { // android-5 / 2.0
+      if (Utils.methodExists(event, "getPointerCount")) { // android-5 / 2.0
          int pointer_count = this.<Integer>callMethod(event, "getPointerCount", no_args);
          for(int i = 0; i < pointer_count; i++) {
             float x = this.<Float>callMethod(event, "getX", int_arg, i);
@@ -606,7 +621,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
              * but examples I've see say that the ACTION_[POINTER_][UP|DOWN]
              * report all touches and they can change between the last MOVE
              * and the UP|DOWN event */
-            if(id == pointer_id) {
+            if (id == pointer_id) {
                nativeOnTouch(id, action, x, y, primary);
             } else {
                nativeOnTouch(id, Const.ALLEGRO_EVENT_TOUCH_MOVE, x, y, primary);
