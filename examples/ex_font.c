@@ -45,14 +45,14 @@ int main(int argc, char **argv)
     ALLEGRO_BITMAP *bitmap, *font_bitmap;
     ALLEGRO_FONT *f1, *f2, *f3;
 
-    (void)argc;
-    (void)argv;
-
     int ranges[] = {
        0x0020, 0x007F,  /* ASCII */
        0x00A1, 0x00FF,  /* Latin 1 */
        0x0100, 0x017F,  /* Extended-A */
        0x20AC, 0x20AC}; /* Euro */
+
+    (void)argc;
+    (void)argv;
 
     if (!al_init()) {
         abort_example("Could not init Allegro.\n");

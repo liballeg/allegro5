@@ -16,9 +16,6 @@ int main(int argc, char **argv)
    ALLEGRO_BITMAP *mysha;
    ALLEGRO_BITMAP *buffer;
 
-   (void)argc;
-   (void)argv;
-
    const char *tinter_shader_src[] = {
       "uniform sampler2D backBuffer;",
       "uniform float r;",
@@ -42,6 +39,9 @@ int main(int argc, char **argv)
    const int TINTER_LEN = 18;
    double start;
    GLint loc;
+
+   (void)argc;
+   (void)argv;
 
    if (!al_init()) {
       abort_example("Could not init Allegro\n");
