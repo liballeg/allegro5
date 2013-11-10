@@ -1,14 +1,14 @@
 set(ACTIVITY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/allegro_activity)
 set(ACTIVITY_JAR ${LIBRARY_OUTPUT_PATH}/Allegro5.jar)
 
+file(GLOB javas "${ACTIVITY_DIR}/src/org/liballeg/app/*.java")
+
 set(ACTIVITY_SOURCES
     ${ACTIVITY_DIR}/AndroidManifest.xml
     ${ACTIVITY_DIR}/build.xml
     ${ACTIVITY_DIR}/local.properties
     ${ACTIVITY_DIR}/project.properties
-    ${ACTIVITY_DIR}/src/org/liballeg/app/AllegroAPKStream.java
-    ${ACTIVITY_DIR}/src/org/liballeg/app/AllegroActivity.java
-    ${ACTIVITY_DIR}/src/org/liballeg/app/AllegroInputStream.java
+    ${javas}
     )
 
 add_custom_command(
