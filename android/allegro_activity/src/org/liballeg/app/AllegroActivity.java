@@ -32,18 +32,6 @@ import java.util.List;
 public class AllegroActivity extends Activity implements SensorEventListener
 {
    /* properties */
-
-   static final int ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN = 0;
-   static final int ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES = 1;
-   static final int ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES = 2;
-   static final int ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES = 4;
-   static final int ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES = 8;
-   static final int ALLEGRO_DISPLAY_ORIENTATION_PORTRAIT = 5;
-   static final int ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE = 10;
-   static final int ALLEGRO_DISPLAY_ORIENTATION_ALL = 15;
-   static final int ALLEGRO_DISPLAY_ORIENTATION_FACE_UP = 16;
-   static final int ALLEGRO_DISPLAY_ORIENTATION_FACE_DOWN = 32;
-
    private static SensorManager sensorManager;
    private List<Sensor> sensors;
    
@@ -558,31 +546,31 @@ public class AllegroActivity extends Activity implements SensorEventListener
 
       switch (alleg_orientation)
       {
-         case ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES:
+         case Const.ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES:
             android_orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
             break;
 
-         case ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES:
+         case Const.ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES:
             android_orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
             break;
 
-         case ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES:
+         case Const.ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES:
             android_orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
             break;
 
-         case ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES:
+         case Const.ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES:
             android_orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
             break;
 
-         case ALLEGRO_DISPLAY_ORIENTATION_PORTRAIT:
+         case Const.ALLEGRO_DISPLAY_ORIENTATION_PORTRAIT:
             android_orientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT;
             break;
 
-         case ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE:
+         case Const.ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE:
             android_orientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
             break;
 
-         case ALLEGRO_DISPLAY_ORIENTATION_ALL:
+         case Const.ALLEGRO_DISPLAY_ORIENTATION_ALL:
             android_orientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
             break;
       }
@@ -592,7 +580,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
    
    private int getAllegroOrientation()
    {
-      int allegro_orientation = ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN;
+      int allegro_orientation = Const.ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN;
       int rotation;
 
       if (Utils.methodExists(getWindowManager().getDefaultDisplay(), "getRotation")) {
@@ -605,11 +593,11 @@ public class AllegroActivity extends Activity implements SensorEventListener
 
       switch (rotation) {
          case Surface.ROTATION_0:
-            allegro_orientation = ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES;
+            allegro_orientation = Const.ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES;
             break;
 
          case Surface.ROTATION_180:
-            allegro_orientation = ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES;
+            allegro_orientation = Const.ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES;
             break;
 
          /* Big fat notice here: Android device orientations are the opposite of Allegro ones.
@@ -621,11 +609,11 @@ public class AllegroActivity extends Activity implements SensorEventListener
           */
 
          case Surface.ROTATION_90:
-            allegro_orientation = ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES;
+            allegro_orientation = Const.ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES;
             break;
 
          case Surface.ROTATION_270:
-            allegro_orientation = ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES;
+            allegro_orientation = Const.ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES;
             break;
       }
 
