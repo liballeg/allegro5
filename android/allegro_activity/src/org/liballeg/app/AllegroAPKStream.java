@@ -2,9 +2,11 @@ package org.liballeg.app;
 
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
+import android.text.TextUtils;
 import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 public class AllegroAPKStream
 {
@@ -18,9 +20,32 @@ public class AllegroAPKStream
    public AllegroAPKStream(AllegroActivity activity, String filename)
    {
       this.activity = activity;
-      fn = filename;
+      // AssetManager does not interpret the path(!) so we do it here.
+      fn = simplifyPath(filename);
+      if (!fn.equals(filename)) {
+         Log.d("APK", filename + " simplified to: " + fn);
+      }
       pos = 0;
       at_eof = false;
+   }
+
+   private String simplifyPath(final String path)
+   {
+      final String[] pieces = path.split("/");
+      ArrayList<String> keep = new ArrayList<String>();
+      for (String piece : pieces) {
+         if (piece.equals(""))
+            continue;
+         if (piece.equals("."))
+            continue;
+         if (piece.equals("..")) {
+            if (keep.size() > 0)
+               keep.remove(keep.size() - 1);
+            continue;
+         }
+         keep.add(piece);
+      }
+      return TextUtils.join("/", keep);
    }
 
    private boolean reopen()
