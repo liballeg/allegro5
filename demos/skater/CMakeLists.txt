@@ -127,8 +127,12 @@ set_source_files_properties(${SKATER_FONTS} PROPERTIES
     MACOSX_PACKAGE_LOCATION "Resources/data/examples/data"
     )
 
-copy_data_dir_to_build(copy_skater_data data .)
-copy_data_dir_to_build(copy_skater_example_data ../../examples/data data/examples/data)
+copy_data_dir_to_build(copy_skater_data
+    "${CMAKE_CURRENT_SOURCE_DIR}/data"
+    "${CMAKE_CURRENT_BINARY_DIR}/data"
+    )
+
+add_dependencies(skater copy_skater_data copy_example_data)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

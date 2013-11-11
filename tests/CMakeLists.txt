@@ -62,43 +62,45 @@ set(test_files
     ${CMAKE_CURRENT_SOURCE_DIR}/test_convert.ini
     )
 
+add_dependencies(test_driver copy_example_data)
+
 add_custom_target(run_tests
-    DEPENDS test_driver copy_example_data
+    DEPENDS test_driver
     COMMAND test_driver ${test_files}
     )
 
 add_custom_target(run_tests_gl
-    DEPENDS test_driver copy_example_data
+    DEPENDS test_driver
     COMMAND test_driver --force-opengl ${test_files}
     )
 
 add_custom_target(run_tests_gl12
-    DEPENDS test_driver copy_example_data
+    DEPENDS test_driver
     COMMAND test_driver --force-opengl-1.2 ${test_files}
     )
 
 add_custom_target(run_tests_gl20
-    DEPENDS test_driver copy_example_data
+    DEPENDS test_driver
     COMMAND test_driver --force-opengl-2.0 ${test_files}
     )
 
 add_custom_target(run_tests_d3d
-    DEPENDS test_driver copy_example_data
+    DEPENDS test_driver
     COMMAND test_driver --force-d3d ${test_files}
     )
 
 add_custom_target(run_tests_wine
-    DEPENDS test_driver copy_example_data
+    DEPENDS test_driver
     COMMAND wine test_driver ${test_files}
     )
 
 add_custom_target(run_tests_wine_gl
-    DEPENDS test_driver copy_example_data
+    DEPENDS test_driver
     COMMAND wine test_driver --force-opengl ${test_files}
     )
 
 add_custom_target(run_tests_shaders
-    DEPENDS test_driver copy_example_data
+    DEPENDS test_driver
     COMMAND test_driver --use-shaders ${test_files}
     )
 

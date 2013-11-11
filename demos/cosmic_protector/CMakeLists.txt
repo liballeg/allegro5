@@ -64,8 +64,10 @@ endif(IPHONE)
 
 set_source_files_properties(${DEMO_SRCS} PROPERTIES LANGUAGE "CXX")
 
-file(GLOB_RECURSE DEMO_GFX data/gfx/*.png data/gfx/*.jpg data/gfx/*.tga)
-file(GLOB_RECURSE DEMO_SFX data/sfx/*.ogg)
+file(GLOB_RECURSE DEMO_GFX RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
+    data/gfx/*.png data/gfx/*.jpg data/gfx/*.tga)
+file(GLOB_RECURSE DEMO_SFX RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
+    data/sfx/*.ogg)
 set(DEMO_ICON data/gfx/Icon.icns)
 
 if(APPLE)
@@ -122,7 +124,12 @@ set_source_files_properties(${DEMO_ICON} PROPERTIES
     MACOSX_PACKAGE_LOCATION "Resources"
     )
 
-copy_data_dir_to_build(copy_demo_data data .)
+copy_data_dir_to_build(copy_demo_data
+    "${CMAKE_CURRENT_SOURCE_DIR}/data"
+    "${CMAKE_CURRENT_BINARY_DIR}/data"
+    )
+
+add_dependencies(cosmic_protector copy_demo_data)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

@@ -255,43 +255,38 @@ function(add_our_executable nm)
     fix_executable(${nm})
 endfunction(add_our_executable)
 
+function(add_copy_commands src dest destfilesvar)
+    set(destfiles)
+    foreach(basename ${ARGN})
+        list(APPEND destfiles "${dest}/${basename}")
+        add_custom_command(
+            OUTPUT  "${dest}/${basename}"
+            DEPENDS "${src}/${basename}"
+            COMMAND "${CMAKE_COMMAND}" -E copy
+                    "${src}/${basename}" "${dest}/${basename}"
+            )
+    endforeach()
+    set(${destfilesvar} "${destfiles}" PARENT_SCOPE)
+endfunction()
+
 # Recreate data directory for out-of-source builds.
 # Note: a symlink is unsafe as make clean will delete the contents
 # of the pointed-to directory.
 #
 # Files are only copied if they don't are inside a .svn folder so we
 # won't end up with read-only .svn folders in the build folder.
-function(copy_data_dir_to_build target name destination)
+function(copy_data_dir_to_build target src dest)
     if(IPHONE)
         return()
     endif(IPHONE)
 
-    if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
+    if(src STREQUAL dest)
         return()
     endif()
 
-    file(GLOB_RECURSE allfiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/${name}/*)
-
-    set(files)
-    # Filter out files inside .svn folders.
-    foreach(file ${allfiles})
-        string(REGEX MATCH .*\\.svn.* is_svn ${file})
-        if("${is_svn}" STREQUAL "")
-            list(APPEND files ${file})
-        endif()
-    endforeach(file)
-    
-    add_custom_target(${target} ALL DEPENDS ${files})
-
-    foreach(file ${files})
-        add_custom_command(
-            OUTPUT "${destination}/${file}"
-            DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${file}"
-            COMMAND "${CMAKE_COMMAND}" -E copy
-                    "${CMAKE_CURRENT_SOURCE_DIR}/${file}" "${destination}/${file}"
-            )
-    endforeach(file)
+    file(GLOB_RECURSE files RELATIVE "${src}" "${src}/*")
+    add_copy_commands("${src}" "${dest}" destfiles "${files}")
+    add_custom_target(${target} ALL DEPENDS ${destfiles})
 endfunction(copy_data_dir_to_build)
 
 macro(add_monolith_sources var addon sources)
