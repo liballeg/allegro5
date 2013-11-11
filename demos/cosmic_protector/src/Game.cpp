@@ -1,9 +1,19 @@
+#include <stdio.h>
 #include "cosmic_protector.hpp"
 #include "joypad_c.h"
-#include <stdio.h>
 
-#include <allegro5/fshook.h>
-#include <allegro5/path.h>
+#ifdef ALLEGRO_ANDROID
+   #include "allegro5/allegro_android.h"
+   #define IS_ANDROID   (true)
+   #define IS_MSVC      (false)
+#elif defined(ALLEGRO_MSVC)
+   #define IS_ANDROID   (false)
+   #define IS_MSVC      (true)
+   #define snprintf     _snprintf
+#else
+   #define IS_ANDROID   (false)
+   #define IS_MSVC      (false)
+#endif
 
 bool kb_installed = false;
 bool joy_installed = false;
@@ -12,9 +22,30 @@ bool joy_installed = false;
  * Return the path to user resources (save states, configuration)
  */
 
-#ifdef ALLEGRO_MSVC
-   #define snprintf _snprintf
-#endif
+static ALLEGRO_PATH* getDir()
+{
+   ALLEGRO_PATH *dir;
+
+   if (IS_ANDROID) {
+      /* Path within the APK, not normal filesystem. */
+      dir = al_create_path_for_directory("data");
+   }
+   else {
+      dir = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
+      if (IS_MSVC) {
+         /* Hack to cope automatically with MSVC workspaces. */
+         const char *last = al_get_path_component(dir, -1);
+         if (0 == strcmp(last, "Debug")
+            || 0 == strcmp(last, "RelWithDebInfo")
+            || 0 == strcmp(last, "Release")
+            || 0 == strcmp(last, "Profile")) {
+            al_remove_path_component(dir, -1);
+         }
+      }
+      al_append_path_component(dir, "data");
+   }
+   return dir;
+}
 
 const char* getResource(const char* fmt, ...)
 {
@@ -27,22 +58,8 @@ const char* getResource(const char* fmt, ...)
    memset(res, 0, 512);
    snprintf(res, 511, fmt, ap);
 
-   if (!dir) {
-      dir = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
-#ifdef ALLEGRO_MSVC
-      {
-         /* Hack to cope automatically with MSVC workspaces. */
-         const char *last = al_get_path_component(dir, -1);
-         if (0 == strcmp(last, "Debug")
-            || 0 == strcmp(last, "RelWithDebInfo")
-            || 0 == strcmp(last, "Release")
-            || 0 == strcmp(last, "Profile")) {
-            al_remove_path_component(dir, -1);
-         }
-      }
-#endif
-      al_append_path_component(dir, "data");
-   }
+   if (!dir)
+      dir = getDir();
 
    if (path)
       al_destroy_path(path);
@@ -122,6 +139,9 @@ bool init(void)
    al_init_font_addon();
    al_init_acodec_addon();
    al_init_primitives_addon();
+#ifdef ALLEGRO_ANDROID
+   al_android_set_apk_file_interface();
+#endif
 
    if (!loadResources()) {
       debug_message("Error loading resources.\n");
