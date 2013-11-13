@@ -9,11 +9,15 @@ Dependencies
 ============
 
 This port depends on having CMake, the Android SDK, and the Android NDK
-version r5b or better.
+version r5b or better, JDK, and Apache ant. Python is required to build
+the examples.
+
+We assume you are building on Linux or otherwise a Unix-like system,
+including MSYS.
 
 
-Building on Linux
-=================
+Make NDK standalone toolchain
+=============================
 
 After extracting the Android SDK and NDK to known locations, you need to
 setup a standalone NDK toolchain.  Set an environment variable to point to the
@@ -25,16 +29,66 @@ Assuming the NDK was extracted into $HOME/android-ndk run the following
 command:
 
     $HOME/android-ndk/build/tools/make-standalone-toolchain.sh \
-        --platform=android-9 --install-dir=$TC
+        --platform=android-9 --install-dir=$TC --stl=stlport
 
 You can use any platform 9 or higher. This command was last tested on ndk7.
+
+
+Build dependencies for Allegro
+==============================
+
+Now you should build the dependencies for the Allegro addons that you want
+(you can skip this if just want to try out some simple examples).  Most of
+the libraries use the standard GNU build system, and follow the same pattern.
+For example, to build libpng:
+
+    tar zxf libpng-1.6.6.tar.xz
+    cd libpng-1.6.6
+    ./configure --host=arm-linux-androideabi \
+	--prefix=$HOME/allegro/build/deps
+    make
+    make install
+
+If you get an error during configure about the system being unrecognised then
+update the `config.guess` and `config.sub` files.  The files in libpng-1.6.6
+are known to work.
+
+The above commands will usually install both static and shared libraries into
+the `deps` directory where it can be found by CMake, next.  You could install
+into the toolchain directory instead.  If you want only static or shared
+libraries, you can usually pass `--disable-static` or `--disable-shared` to
+configure.
+
+The static libraries should be easier to use (though I often had problems with
+unresolved symbols when it came to run the programs, to investigate later).
+
+If you wish to use shared libraries, be aware that shared objects must be
+named like "libFOO.so", despite standard practice.  Most libraries you build
+will have version suffixes by default, e.g. libpng16.so.1.6.  Renaming the
+file after it is produced will not work as the versions are embedded as the
+soname.  For libraries built using libtool, you can avoid the version suffixes
+as follows:
+
+    make LDFLAGS=-avoid-version
+    make LDFLAGS=-avoid-version install
+
+though you may want to edit the Makefiles instead to avoid overriding
+important flags in LDFLAGS.
+
+You need to ensure that CMake finds the the library file that matches the
+soname.  Either delete the symlinks (e.g. libpng.so -> libpng16.so)
+or modify the paths in CMake variables manually.
+
+
+Building Allegro
+================
 
 The following steps will build Allegro for Android:
 
     mkdir build
     cd build
     cmake .. -DANDROID_NDK_TOOLCHAIN_ROOT=$TC -DWANT_ANDROID=on \
-        -DCMAKE_BUILD_TYPE=Debug
+        -DCMAKE_BUILD_TYPE=Debug  # -G"MSYS Makefiles"
     make
 
 Stick with the Debug build configuration for now.
@@ -49,7 +103,21 @@ instead of one for each addon.
 NOTE: On OS X, add -DCMAKE_INSTALL_NAME_TOOL=/usr/bin/install_name_tool to
 the cmake command line.
 
-WARNING: The demos and examples mostly do not run correct yet.
+
+Running examples
+================
+
+You need the adb tool (the Android Debug Bridge) set up, and USB debugging
+enabled on your device.  This can be quite involved, so please refer to the
+Android tool documentation.
+
+There are makefile targets named "run_FOO", so you can install and run
+examples easily by typing, e.g.
+
+    make run_speed
+
+Many demos and examples do work, minimally, but most do not support touch
+input or react to orientation changes, etc.
 
 
 How startup works on Android
@@ -66,6 +134,11 @@ does some Allegro initialisation.  Allegro will now load your application,
 which has been compiled to another shared library.  The name of the
 library is taken from the AndroidManifest.xml file.  After loading, the
 `main` function in the library is finally called.
+
+(The dynamic loader was finally fixed in Android 4.3 so that it loads
+transitive dependencies.  If you don't care to support earlier versions
+you could just load the Allegro core library and have it load your
+application library and its linked dependencies automatically.)
 
 Poking around in the android/example directory may help.
 
@@ -114,9 +187,7 @@ To build the example project:
     an installable `.apk` file.
 
 Now you can install and run your project on your Android device.
-We assume you have the adb tool (the Android Debug Bridge) set up, and USB
-debugging enabled on your device.  This can be quite involved, so please
-refer to the Android tool documentation.
+adb should be set up and USB debugging enabled on your device.
 
  *  To install, use the command:
 
