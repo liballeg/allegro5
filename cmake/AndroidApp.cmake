@@ -22,8 +22,6 @@ function(add_android_app prog sources lib_targets stl)
 
     # The Android project directory.
     set(project_dir "${CMAKE_CURRENT_BINARY_DIR}/${prog}.project")
-    set(bin_dir "${project_dir}/bin")
-    set(lib_dir "${LIBRARY_OUTPUT_PATH}")
 
     # The source files in the Android project directory.
     set(project_sources
@@ -46,19 +44,27 @@ function(add_android_app prog sources lib_targets stl)
         LIBRARY_OUTPUT_DIRECTORY ${project_dir}/bin)
     target_link_libraries(${prog_target} ${stl} ${lib_targets})
 
-    # Get the name by which to load the application's shared library,
-    # most likely just ${prog}.
-    get_target_property(_target_location ${prog_target} LOCATION)
-    get_filename_component(_target_filename ${_target_location} NAME_WE)
-    string(REGEX REPLACE "^lib" "" load_app "${_target_filename}")
+    # Get the path of the application's shared object.
+    get_target_property(load_app ${prog_target} LOCATION)
 
-    # Get the base names of the shared libraries that it links with.
+    # Get the paths of the shared libraries that it links with.
+    # Each shared library has dependencies of its own.
+    # We do not go deeper than that...
     set(load_libs)
     foreach(_target ${lib_targets})
+        get_target_property(_dep_libs ${_target} ANDROID_LOAD_LIBS)
+        if(_dep_libs)
+            foreach(_dep_lib ${_dep_libs})
+                if(_dep_lib MATCHES "[.]so$")
+                    list(APPEND load_libs "--load-lib=${_dep_lib}")
+                endif()
+            endforeach()
+        endif()
+
         get_target_property(_target_location ${_target} LOCATION)
-        get_filename_component(_target_basename ${_target_location} NAME_WE)
-        string(REGEX REPLACE "^lib" "" load_lib "${_target_basename}")
-        set(load_libs "${load_libs} ${load_lib}")
+        if(_target_location MATCHES "[.]so$")
+            list(APPEND load_libs "--load-lib=${_target_location}")
+        endif()
     endforeach()
 
     # Create the project directory.
@@ -70,11 +76,9 @@ function(add_android_app prog sources lib_targets stl)
                 -n "${prog}"
                 -k "${package}"
                 -a "${activity}"
-                --load-libs "${load_libs}"
-                --load-app "${load_app}"
-                --bin-dir "${bin_dir}"
-                --lib-dir "${lib_dir}"
-                --jar-libs-dir "${lib_dir}"
+                ${load_libs}
+                "--load-app=${load_app}"
+                "--jar-libs-dir=${LIBRARY_OUTPUT_PATH}"
                 "--stl=${stl}" # allows empty
         VERBATIM
         )

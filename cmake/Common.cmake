@@ -135,8 +135,24 @@ macro(add_our_addon_library target sources extra_flags link_with)
         set(MONOLITH_DEFINES "${MONOLITH_DEFINES} ${extra_flags}")
     else()
         add_our_library(${target} "${sources}" "${extra_flags}" "${link_with}")
+        if(ANDROID)
+            record_android_load_libs(${target} "${link_with}")
+        endif()
     endif()
 endmacro(add_our_addon_library)
+
+# Record in a custom target property 'ANDROID_LOAD_LIBS' the list of shared
+# objects that will need to be bundled with the APK and loaded manually if
+# linking with this target.
+function(record_android_load_libs target libs)
+    set(load_libs)
+    foreach(lib ${libs})
+        if(lib MATCHES "/lib[^/]+[.]so$" AND NOT lib MATCHES "/sysroot/")
+            list(APPEND load_libs "${lib}")
+        endif()
+    endforeach()
+    set_target_properties(${target} PROPERTIES ANDROID_LOAD_LIBS "${load_libs}")
+endfunction(record_android_load_libs)
 
 function(set_our_framework_properties target nm)
     if(WANT_FRAMEWORKS)

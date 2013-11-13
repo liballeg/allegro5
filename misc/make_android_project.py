@@ -2,24 +2,20 @@
 
 import optparse
 import os
+import os.path
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
 
 def main():
     options = parse_args(sys.argv)
-    path = options.path
-
+    check_options(options)
     create_project(options)
-    touch_manifest(path + "/AndroidManifest.xml", options)
-    touch_strings(path + "/res/values/strings.xml", options)
-    create_localgen_properties(path + "/localgen.properties", options)
-    create_custom_rules_xml(path + "/custom_rules.xml")
-
-    activity_filename = "{0}/src/{1}/{2}.java".format(options.path,
-        slashy(options.package), options.activity)
-    create_activity(activity_filename, options)
-
+    touch_manifest(options)
+    touch_strings(options)
+    create_localgen_properties(options)
+    create_custom_rules_xml(options)
+    create_activity(options)
     create_jni(options)
 
 def parse_args(argv):
@@ -46,18 +42,13 @@ def parse_args(argv):
     p.add_option("--android-tool",
             default="android",
             help="Path to android tool.")
-    p.add_option("--load-libs",
-            default="",
-            help="Space separated list of libraries to load.")
+    p.add_option("--load-lib",
+            action="append",
+            default=[],
+            help="Paths to shared libraries to load.")
     p.add_option("--load-app",
             default=None,
-            help="Name of application shared object.")
-    p.add_option("--bin-dir",
-            default=None,
-            help="Path to directory containing program binary.")
-    p.add_option("--lib-dir",
-            default=None,
-            help="Path to directory containing libraries.")
+            help="Path to application shared object.")
     p.add_option("--jar-libs-dir",
             default="",
             help="Path to directory containing JARs.")
@@ -69,12 +60,26 @@ def parse_args(argv):
     if options.path == None:
         options.path = options.name
     if options.load_app == None:
-        options.load_app = options.name
-    if options.bin_dir == None:
-        options.bin_dir = options.path
-    if options.lib_dir == None:
-        options.lib_dir = options.path
+        options.load_app = \
+            "{0}/bin/lib{1}.so".format(options.path, options.name)
     return options
+
+def check_options(options):
+    check_name_for_load_library(options.load_app)
+    for lib in options.load_lib:
+        check_name_for_load_library(lib)
+
+def check_name_for_load_library(path):
+    basename = os.path.basename(path)
+    if not name_for_load_library(basename):
+        raise Exception("System.loadLibrary would not find " + basename)
+
+def name_for_load_library(path):
+    basename = os.path.basename(path)
+    if basename.startswith("lib") and basename.endswith(".so"):
+        return basename[3:-3]
+    else:
+        return None
 
 def create_project(options):
     subprocess.check_call([
@@ -86,7 +91,8 @@ def create_project(options):
         "-t", options.target
         ])
 
-def touch_manifest(filename, options):
+def touch_manifest(options):
+    filename = options.path + "/AndroidManifest.xml"
     ET.register_namespace("android",
         "http://schemas.android.com/apk/res/android")
     tree = ET.parse(filename)
@@ -105,22 +111,25 @@ def touch_manifest(filename, options):
     activity.set("android:configChanges", "screenLayout|uiMode|orientation")
     ET.SubElement(activity, "meta-data", {
         "android:name": "org.liballeg.app_name",
-        "android:value": options.load_app
+        "android:value": name_for_load_library(options.load_app)
     })
     tree.write(filename, "utf-8", xml_declaration=True)
 
-def touch_strings(filename, options):
+def touch_strings(options):
+    filename = options.path + "/res/values/strings.xml"
     tree = ET.parse(filename)
     app_name = tree.find("string[@name='app_name']")
     app_name.text = options.name
     tree.write(filename, "utf-8", xml_declaration=True)
 
-def create_localgen_properties(filename, options):
+def create_localgen_properties(options):
+    filename = options.path + "/localgen.properties"
     f = open(filename, "w")
     f.write("jar.libs.dir={0}\n".format(options.jar_libs_dir))
     f.close()
 
-def create_custom_rules_xml(filename):
+def create_custom_rules_xml(options):
+    filename = options.path + "/custom_rules.xml"
     f = open(filename, "w")
     f.write('''\
         <project>
@@ -137,38 +146,53 @@ def create_custom_rules_xml(filename):
     ''')
     f.close()
 
-def create_activity(filename, options):
-    libs = options.load_libs.split()
-    if options.stl:
-        libs.insert(0, options.stl)
-    stmts = "\n\t\t".join([
-        'System.loadLibrary("{0}");'.format(lib) for lib in libs
-    ])
+def create_activity(options):
+    filename = "{0}/src/{1}/{2}.java".format(options.path,
+        slashy(options.package), options.activity)
     f = open(filename, "w")
+    if options.stl:
+        load_stl_stmt = load_library_stmt(options.stl)
+    else:
+        load_stl_stmt = ""
+    stmts = "\n\t\t".join([
+        maybe_load_library_stmt(lib) for lib in options.load_lib
+    ])
     f.write('''\
         package {PACKAGE};
         public class {ACTIVITY} extends org.liballeg.app.AllegroActivity {{
             static {{
+                {LOAD_STL_STMT}
                 {STMTS}
             }}
         }}
     '''.format(
         PACKAGE=options.package,
         ACTIVITY=options.activity,
+        LOAD_STL_STMT=load_stl_stmt,
         STMTS=stmts
     ))
     f.close()
+
+def maybe_load_library_stmt(filename):
+    basename = os.path.basename(filename)
+    name = name_for_load_library(basename)
+    if name:
+        return load_library_stmt(name)
+    else:
+        # Android can't load this anyway.
+        return "/* ignored {0} */".format(basename)
+
+def load_library_stmt(name):
+    return 'System.loadLibrary("{0}");'.format(name)
 
 def slashy(s):
     return s.replace(".", "/")
 
 def create_jni(options):
-    path = options.path
-    jni_path = path + "/jni"
+    jni_path = options.path + "/jni"
     application_mk_path = jni_path + "/Application.mk"
     android_mk_path = jni_path + "/Android.mk"
-    rel_bin_dir = os.path.relpath(options.bin_dir, jni_path)
-    rel_lib_dir = os.path.relpath(options.lib_dir, jni_path)
+    load_app_relpath = os.path.relpath(options.load_app, jni_path)
 
     mkdir(jni_path)
 
@@ -180,32 +204,33 @@ def create_jni(options):
     f = open(android_mk_path, "w")
     f.write('''
         LOCAL_PATH := $(call my-dir)
-        REL_BIN_DIR := {REL_BIN_DIR}
-        REL_LIB_DIR := {REL_LIB_DIR}
 
         include $(CLEAR_VARS)
         LOCAL_MODULE := {NAME}
-        LOCAL_SRC_FILES := $(REL_BIN_DIR)/lib{LOAD_APP}.so
+        LOCAL_SRC_FILES := {LOAD_APP_RELPATH}
         LOCAL_SHARED_LIBRARIES := {STL}
         include $(PREBUILT_SHARED_LIBRARY)
     '''.format(
         NAME=options.name,
-        LOAD_APP=options.load_app,
-        STL=options.stl,
-        REL_BIN_DIR=rel_bin_dir,
-        REL_LIB_DIR=rel_lib_dir
+        LOAD_APP_RELPATH=load_app_relpath,
+        STL=options.stl
     ))
-
-    for lib in options.load_libs.split():
-        f.write('''
-            include $(CLEAR_VARS)
-            LOCAL_MODULE := {NAME}
-            LOCAL_SRC_FILES := $(REL_LIB_DIR)/lib{NAME}.so
-            include $(PREBUILT_SHARED_LIBRARY)
-        '''.format(
-            NAME=lib
-        ))
+    for load_lib in options.load_lib:
+        f.write(prebuilt_shared_lib_block(load_lib, jni_path))
     f.close()
+
+def prebuilt_shared_lib_block(load_lib, jni_path):
+    name = os.path.basename(load_lib)
+    relpath = os.path.relpath(load_lib, jni_path)
+    return '''
+        include $(CLEAR_VARS)
+        LOCAL_MODULE := {NAME}
+        LOCAL_SRC_FILES := {RELPATH}
+        include $(PREBUILT_SHARED_LIBRARY)
+    '''.format(
+        NAME=name,
+        RELPATH=relpath
+    )
 
 def mkdir(path):
     if not os.path.exists(path):
