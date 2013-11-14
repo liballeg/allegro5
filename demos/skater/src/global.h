@@ -209,7 +209,5 @@ void set_config_int(ALLEGRO_CONFIG *cfg, const char *section, const char *name,
 
 int my_stricmp(const char *s1, const char *s2);
 
-void allegro_message(const char *fmt, ...);
-
 
 #endif				/* __DEMO_GLOBAL_H__ */

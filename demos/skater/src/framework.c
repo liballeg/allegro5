@@ -1,5 +1,4 @@
 #include <allegro5/allegro.h>
-#include <allegro5/allegro_native_dialog.h>
 #include "global.h"
 #include "credits.h"
 #include "fps.h"
@@ -73,10 +72,7 @@ int init_framework(void)
    if (!al_init()) {
       return DEMO_ERROR_ALLEGRO;
    }
-   if (!al_init_native_dialog_addon()) {
-      return DEMO_ERROR_ALLEGRO;
-   }
-   
+
    al_init_image_addon();
    al_init_primitives_addon();
    al_init_font_addon();
@@ -118,13 +114,13 @@ int init_framework(void)
 
    /* Attempt to set the gfx mode. */
    if ((error = change_gfx_mode()) != DEMO_OK) {
-      allegro_message("Error: %s\n", demo_error(error));
+      fprintf(stderr, "Error: %s\n", demo_error(error));
       return error;
    }
 
    /* Attempt to install the Allegro keyboard submodule. */
    if (!al_install_keyboard()) {
-      allegro_message("Error installing keyboard: %s\n",
+      fprintf(stderr, "Error installing keyboard: %s\n",
                       demo_error(DEMO_ERROR_ALLEGRO));
       return DEMO_ERROR_ALLEGRO;
    }

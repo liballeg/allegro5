@@ -1,5 +1,4 @@
 #include <allegro5/allegro.h>
-#include <allegro5/allegro_native_dialog.h>
 #include <stdio.h>
 #include <ctype.h>
 #include "background_scroller.h"
@@ -449,19 +448,4 @@ int my_stricmp(const char *s1, const char *s2)
     }
 
     return v;
-}
-
-void allegro_message(const char *fmt, ...)
-{
-   va_list ap;
-   ALLEGRO_USTR *u = al_ustr_new(""); 
-
-   va_start(ap, fmt);
-   al_ustr_vappendf(u, fmt, ap);
-   va_end(ap);
-   
-   al_show_native_message_box(screen, "Allegro Skater Demo",
-      "Message", al_cstr(u), NULL, 0);
-      
-   al_ustr_free(u);
 }
