@@ -143,7 +143,8 @@ int main(int argc, char **argv)
    al_init_primitives_addon();
    al_init_image_addon();
    al_init_acodec_addon();
-   
+   init_platform_specific();
+
    al_install_keyboard();
 
    display = al_create_display(640, 480);
@@ -179,6 +180,10 @@ int main(int argc, char **argv)
    }
 
    stream = al_load_audio_stream(filename, 4, 2048);
+   if (!stream) {
+      /* On Android we only pack this into the APK. */
+      stream = al_load_audio_stream("data/testing.ogg", 4, 2048);
+   }
    if (!stream) {
       abort_example("Could not load '%s'\n", filename);
    }

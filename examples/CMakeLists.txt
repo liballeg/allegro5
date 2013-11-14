@@ -40,13 +40,15 @@ include(Helper.cmake)
 
 #-----------------------------------------------------------------------------#
 
-# Lists of data files to add to Android APKs.
+# Lists of data files to add to Android APKs, to appear after the DATA keyword.
+# DATA_IMAGES is a special case that includes the DATA keyword.
 # Examples don't necessarily use every file in the list.
 
 set(DATA_IMAGES
     DATA
     a4_font.tga
     alexlogo.bmp
+    alexlogo.png
     allegro.pcx
     bkg.png
     bmpfont.tga
@@ -54,14 +56,23 @@ set(DATA_IMAGES
     fakeamp.bmp
     fixed_font.tga
     font.tga
+    haiku/air_effect.png
     icon.tga
     mysha.pcx
     mysha256x256.png
+    obp.jpg
     texture.tga
     )
 
+set(DATA_TTF
+    DejaVuSans.ttf
+    )
+
+set(DATA_AUDIO
+    testing.ogg
+    )
+
 set(DATA_SHADERS
-    DATA
     ex_prim_shader_pixel.glsl
     ex_prim_shader_pixel.hlsl
     ex_prim_shader_vertex.glsl
@@ -73,6 +84,9 @@ set(DATA_SHADERS
     ex_shader_vertex.glsl
     ex_shader_vertex.hlsl
     )
+
+file(GLOB DATA_HAIKU RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/data data/haiku/*)
+set(DATA_HAIKU ${DATA_HAIKU})
 
 #-----------------------------------------------------------------------------#
 
@@ -100,9 +114,9 @@ example(ex_blend_bench ${IMAGE} ${PRIM} ${DATA_IMAGES})
 example(ex_blend_test ${PRIM})
 example(ex_blit ${FONT} ${IMAGE} ${COLOR} ${DATA_IMAGES})
 example(ex_clip ${FONT} ${COLOR})
-example(ex_color ex_color.cpp ${NIHGUI} ${TTF} ${COLOR})
+example(ex_color ex_color.cpp ${NIHGUI} ${TTF} ${COLOR} DATA ${DATA_TTF})
 example(ex_convert CONSOLE ${IMAGE})
-example(ex_depth_mask ${IMAGE} ${TTF} ${DATA_IMAGES})
+example(ex_depth_mask ${IMAGE} ${TTF} ${DATA_IMAGES} ${DATA_TTF})
 example(ex_disable_screensaver ${FONT})
 example(ex_display_events ${FONT} ${PRIM})
 example(ex_display_options ${FONT} ${PRIM})
@@ -117,7 +131,7 @@ example(ex_fs_window ${IMAGE} ${PRIM} ${FONT} ${DATA_IMAGES})
 example(ex_icon ${IMAGE} ${DATA_IMAGES})
 example(ex_icon2 ${IMAGE} ${DATA_IMAGES})
 example(ex_haptic ${PRIM})
-example(ex_haptic2 ex_haptic2.cpp ${NIHGUI} ${TTF})
+example(ex_haptic2 ex_haptic2.cpp ${NIHGUI} ${TTF} DATA ${DATA_TTF})
 example(ex_joystick_events ${PRIM} ${FONT})
 example(ex_joystick_hotplugging ${PRIM})
 example(ex_keyboard_events)
@@ -139,7 +153,7 @@ example(ex_pixelformat ex_pixelformat.cpp ${NIHGUI} ${IMAGE} ${DATA_IMAGES})
 example(ex_polygon ${FONT} ${PRIM})
 example(ex_premulalpha ${FONT})
 example(ex_prim ${FONT} ${IMAGE} ${PRIM} ${DATA_IMAGES})
-example(ex_prim_shader ${PRIM} ${DATA_SHADERS})
+example(ex_prim_shader ${PRIM} DATA ${DATA_SHADERS})
 example(ex_resize ${PRIM})
 example(ex_resize2 ${IMAGE})
 example(ex_rotate ${IMAGE} ${DATA_IMAGES})
@@ -177,28 +191,28 @@ if(SUPPORT_OPENGL AND NOT IPHONE AND NOT ALLEGRO_RASPBERRYPI)
 endif()
 
 example(ex_font ${FONT} ${IMAGE} ${DATA_IMAGES})
-example(ex_font_justify ex_font_justify.cpp ${NIHGUI} ${IMAGE} ${TTF})
-example(ex_logo ${FONT} ${TTF} ${IMAGE} ${PRIM})
-example(ex_projection ${TTF} ${PRIM} ${IMAGE})
-example(ex_ttf ${TTF} ${PRIM})
+example(ex_font_justify ex_font_justify.cpp ${NIHGUI} ${IMAGE} ${TTF} ${DATA_IMAGES} ${DATA_TTF})
+example(ex_logo ${FONT} ${TTF} ${IMAGE} ${PRIM} DATA ${DATA_TTF})
+example(ex_projection ${TTF} ${PRIM} ${IMAGE} ${DATA_IMAGES} ${DATA_TTF})
+example(ex_ttf ${TTF} ${PRIM} DATA ${DATA_TTF})
 
 example(ex_acodec CONSOLE ${AUDIO} ${ACODEC})
 example(ex_acodec_multi CONSOLE ${AUDIO} ${ACODEC})
-example(ex_audio_chain ex_audio_chain.cpp ${AUDIO} ${ACODEC} ${PRIM} ${FONT} ${TTF})
-example(ex_audio_props ex_audio_props.cpp ${NIHGUI} ${ACODEC} DATA testing.ogg)
+example(ex_audio_chain ex_audio_chain.cpp ${AUDIO} ${ACODEC} ${PRIM} ${FONT} ${TTF} DATA ${DATA_TTF} ${DATA_HAIKU})
+example(ex_audio_props ex_audio_props.cpp ${NIHGUI} ${ACODEC} DATA ${DATA_AUDIO})
 example(ex_audio_simple CONSOLE ${AUDIO} ${ACODEC})
 example(ex_audio_timer ${AUDIO} ${FONT})
-example(ex_haiku ${AUDIO} ${ACODEC} ${IMAGE})
+example(ex_haiku ${AUDIO} ${ACODEC} ${IMAGE} ${DATA_IMAGES} ${DATA_HAIKU})
 example(ex_kcm_direct CONSOLE ${AUDIO} ${ACODEC})
 example(ex_mixer_chain CONSOLE ${AUDIO} ${ACODEC})
-example(ex_mixer_pp ${AUDIO} ${ACODEC} ${PRIM} ${IMAGE})
+example(ex_mixer_pp ${AUDIO} ${ACODEC} ${PRIM} ${IMAGE} ${DATA_IMAGES} ${DATA_AUDIO})
 example(ex_record ${AUDIO} ${ACODEC} ${PRIM})
 example(ex_record_name ${AUDIO} ${ACODEC} ${PRIM} ${IMAGE} ${FONT})
 example(ex_resample_test ${AUDIO})
 example(ex_saw ${AUDIO})
 example(ex_stream_file CONSOLE ${AUDIO} ${ACODEC})
-example(ex_stream_seek ${AUDIO} ${ACODEC} ${PRIM} ${FONT} ${IMAGE})
-example(ex_synth ex_synth.cpp ${NIHGUI} ${AUDIO} ${TTF})
+example(ex_stream_seek ${AUDIO} ${ACODEC} ${PRIM} ${FONT} ${IMAGE} ${DATA_IMAGES} ${DATA_AUDIO})
+example(ex_synth ex_synth.cpp ${NIHGUI} ${AUDIO} ${TTF} DATA ${DATA_TTF})
 
 example(ex_native_filechooser ${DIALOG} ${FONT} ${IMAGE} ${COLOR})
 example(ex_menu ${DIALOG} ${IMAGE})

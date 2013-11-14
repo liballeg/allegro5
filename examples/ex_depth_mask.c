@@ -133,6 +133,8 @@ int main(int argc, char **argv)
       abort_example("Failed to init TTF addon.\n");
    }
 
+   init_platform_specific();
+
    al_get_num_video_adapters();
    
    al_get_monitor_info(0, &info);

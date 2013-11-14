@@ -54,6 +54,8 @@ static void initialize(void)
       abort_example("Could not set up voice and mixer.\n");
    }
 
+   init_platform_specific();
+
    display = al_create_display(640, 228);
    if (!display) {
       abort_example("Could not create display!\n");

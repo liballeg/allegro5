@@ -103,6 +103,7 @@ int main(int argc, char *argv[])
    al_init_image_addon();
    al_init_font_addon();
    al_init_ttf_addon();
+   init_platform_specific();
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(640, 480);

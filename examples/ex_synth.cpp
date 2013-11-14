@@ -451,6 +451,7 @@ int main(int argc, char *argv[])
    al_init_primitives_addon();
    al_init_font_addon();
    al_init_ttf_addon();
+   init_platform_specific();
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(800, 600);
@@ -461,7 +462,7 @@ int main(int argc, char *argv[])
 
    font_gui = al_load_ttf_font("data/DejaVuSans.ttf", 12, 0);
    if (!font_gui) {
-      abort_example("Failed to load data/fixed_font.tga\n");
+      abort_example("Failed to load font\n");
    }
 
    if (!al_install_audio()) {

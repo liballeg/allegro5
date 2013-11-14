@@ -403,6 +403,7 @@ int main(int argc, char **argv)
    al_init_image_addon();
    al_init_font_addon();
    al_init_ttf_addon();
+   init_platform_specific();
    srand(time(NULL));
 
    white = al_map_rgba_f(1, 1, 1, 1);

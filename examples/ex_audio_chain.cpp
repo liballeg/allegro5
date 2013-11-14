@@ -693,6 +693,7 @@ void Prog::init()
    if (!al_init_acodec_addon()) {
       abort_example("Could not initialise audio codecs.\n");
    }
+   init_platform_specific();
    if (!(dpy = al_create_display(800, 600))) {
       abort_example("Could not create display.\n");
    }

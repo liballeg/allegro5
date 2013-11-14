@@ -930,6 +930,7 @@ int main(int argc, char **argv)
    }
    al_init_acodec_addon();
    al_init_image_addon();
+   init_platform_specific();
 
    al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
 
