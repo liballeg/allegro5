@@ -52,9 +52,7 @@ include_directories(
    ${CMAKE_SOURCE_DIR}/addons/font
    ${CMAKE_SOURCE_DIR}/addons/image
    ${CMAKE_SOURCE_DIR}/addons/main
-   ${CMAKE_SOURCE_DIR}/addons/memfile
    ${CMAKE_SOURCE_DIR}/addons/native_dialog
-   ${CMAKE_SOURCE_DIR}/addons/physfs
    ${CMAKE_SOURCE_DIR}/addons/primitives
    ${CMAKE_SOURCE_DIR}/addons/ttf
    )
@@ -89,9 +87,7 @@ else(WANT_MONOLITH)
      ${FONT_LINK_WITH}
      ${IMAGE_LINK_WITH}
      ${ALLEGRO_MAIN_LINK_WITH}
-     ${MEMFILE_LINK_WITH}
      ${NATIVE_DIALOG_LINK_WITH}
-     ${PHYSFS_LINK_WITH}
      ${PRIMITIVES_LINK_WITH}
      ${TTF_LINK_WITH}
      )
