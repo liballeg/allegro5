@@ -20,8 +20,11 @@
 #include "framework.h"
 
 
-int main(void)
+int main(int argc, char **argv)
 {
+   (void)argc;
+   (void)argv;
+
    if (init_framework() != DEMO_OK) {
       return 1;
    }
