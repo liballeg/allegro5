@@ -46,31 +46,22 @@ static void draw(void)
    int x, y, offx, offy;
    float c = 1;
    static char logo_text1[] = "Allegro";
-   static char logo_text2[] = "5.0";
-   ALLEGRO_COLOR color;
+   static char logo_text2[] = "";
+   /* XXX commented out because the font doesn't contain the characters for
+    * anything other than "Allegro 4.2"
+    */
+   /* static char logo_text2[] = "5.0"; */
 
    if (progress < 0.5f) {
       c = progress / 0.5f;
       al_clear_to_color(al_map_rgb_f(c, c, c));
    } else {
-      int alpha = (progress - 0.5) / 0.5;
-      if (alpha > 1) alpha = 1;
-        
-      if (progress > 2.5) {
-         float r, g, b;
-         al_color_hsv_to_rgb(120 + (progress - 2.5) / 0.5 * 360 * (progress - 1.5), 1, 1, &r, &g, &b);
-         color = al_map_rgba_f(r * alpha, g * alpha, b * alpha, alpha);
-         c = 1 - (progress - 2.5) / 10.0;
-      }
-      else {
-         color = al_map_rgba_f(0, 0, 0.8 * alpha, alpha);
-      }
-      
       if (!already_played_midi) {
          play_music(DEMO_MIDI_INTRO, 0);
          already_played_midi = 1;
       }
 
+      c = 1;
       al_clear_to_color(al_map_rgb_f(c, c, c));
 
       x = screen_width / 2;
@@ -84,10 +75,9 @@ static void draw(void)
       }
 
       demo_textprintf_centre(demo_font_logo, x + 6 - offx,
-                           y + 5, al_map_rgba(128, 128, 128, 64), logo_text1);
+                           y + 5, al_map_rgba_f(0.125, 0.125, 0.125, 0.25), logo_text1);
       demo_textprintf_centre(demo_font_logo, x - offx, y,
-         color,
-         logo_text1);
+                           al_map_rgba_f(1, 1, 1, 1), logo_text1);
 
       if (progress >= 1.5f) {
          y += 3 * al_get_font_line_height(demo_font_logo) / 2;
@@ -97,10 +87,10 @@ static void draw(void)
          }
 
          demo_textprintf_centre(demo_font_logo, x + 6,
-                              y + 5 + offy, al_map_rgba(128, 128, 128, 64),
+                              y + 5 + offy, al_map_rgba_f(0.125, 0.125, 0.125, 0.25),
                               logo_text2);
-         demo_textprintf_centre(demo_font_logo, x, y + offy, color,
-                              logo_text2);
+         demo_textprintf_centre(demo_font_logo, x, y + offy,
+                              al_map_rgba_f(1, 1, 1, 1), logo_text2);
       }
    }
 }

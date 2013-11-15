@@ -76,7 +76,6 @@ int init_framework(void)
    al_init_image_addon();
    al_init_primitives_addon();
    al_init_font_addon();
-   al_init_ttf_addon();
 
    /* Construct aboslute path for the configuration file. */
    al_set_app_name("Allegro Skater Demo");

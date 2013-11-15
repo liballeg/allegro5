@@ -1,4 +1,4 @@
-if(SUPPORT_FONT AND SUPPORT_TTF AND SUPPORT_AUDIO AND SUPPORT_ACODEC)
+if(SUPPORT_FONT AND SUPPORT_AUDIO AND SUPPORT_ACODEC)
 else()
     message(STATUS "Not building skater demo")
     return()
@@ -43,17 +43,14 @@ file(GLOB SKATER_GRAPHICS data/graphics/*.png)
 file(GLOB SKATER_AUDIO data/audio/*)
 file(GLOB SKATER_MENU data/menu/*)
 file(GLOB SKATER_LEVEL data/*.txt)
-file(GLOB SKATER_FONTS ../../examples/data/*.ttf)
 
 include_directories(
    ${CMAKE_SOURCE_DIR}/addons/acodec
    ${CMAKE_SOURCE_DIR}/addons/audio
-   ${CMAKE_SOURCE_DIR}/addons/color
    ${CMAKE_SOURCE_DIR}/addons/font
    ${CMAKE_SOURCE_DIR}/addons/image
    ${CMAKE_SOURCE_DIR}/addons/main
    ${CMAKE_SOURCE_DIR}/addons/primitives
-   ${CMAKE_SOURCE_DIR}/addons/ttf
    )
 
 if(APPLE)
@@ -82,12 +79,10 @@ else(WANT_MONOLITH)
    target_link_libraries(skater
      ${ACODEC_LINK_WITH}
      ${AUDIO_LINK_WITH}
-     ${COLOR_LINK_WITH}
      ${FONT_LINK_WITH}
      ${IMAGE_LINK_WITH}
      ${ALLEGRO_MAIN_LINK_WITH}
      ${PRIMITIVES_LINK_WITH}
-     ${TTF_LINK_WITH}
      )
 endif(WANT_MONOLITH)
 
@@ -116,9 +111,6 @@ set_source_files_properties(${SKATER_MENU} PROPERTIES
     )
 set_source_files_properties(${SKATER_LEVEL} PROPERTIES
     MACOSX_PACKAGE_LOCATION "Resources/data"
-    )
-set_source_files_properties(${SKATER_FONTS} PROPERTIES
-    MACOSX_PACKAGE_LOCATION "Resources/data/examples/data"
     )
 
 copy_data_dir_to_build(copy_skater_data

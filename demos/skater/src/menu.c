@@ -180,7 +180,7 @@ void draw_demo_menu(DEMO_MENU * menu)
    x = screen_width / 2;
    y = 1 * screen_height / 6 - al_get_font_line_height(demo_font_logo) / 2;
    demo_textprintf_centre(demo_font_logo, x + 6, y + 5,
-                        al_map_rgba_f(0.5 * 0.25, 0.5 * 0.25, 0.5 * 0.25, 0.25), logo_text);
+                        al_map_rgba_f(0.125, 0.125, 0.125, 0.25), logo_text);
    demo_textprintf_centre(demo_font_logo, x, y, al_map_rgb_f(1, 1, 1), logo_text);
 
    /* calculate height of the whole menu and the starting y coordinate */
