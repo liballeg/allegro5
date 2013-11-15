@@ -128,7 +128,7 @@ int main(int argc, char **argv)
       filename = argv[1];
    }
    else {
-      filename = "data/testing.ogg";
+      filename = "data/welcome.wav";
    }
 
    if (!al_init()) {

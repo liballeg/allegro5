@@ -23,7 +23,7 @@ int main(int argc, char **argv)
    if (argc < 2) {
       n = 1;
       filenames = malloc(sizeof *filenames);
-      filenames[0] = "data/testing.ogg";
+      filenames[0] = "data/welcome.wav";
    }
    else {
       n = argc - 1;

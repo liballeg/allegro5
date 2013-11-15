@@ -182,7 +182,7 @@ int main(int argc, char **argv)
    stream = al_load_audio_stream(filename, 4, 2048);
    if (!stream) {
       /* On Android we only pack this into the APK. */
-      stream = al_load_audio_stream("data/testing.ogg", 4, 2048);
+      stream = al_load_audio_stream("data/welcome.wav", 4, 2048);
    }
    if (!stream) {
       abort_example("Could not load '%s'\n", filename);

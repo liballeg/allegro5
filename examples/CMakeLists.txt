@@ -69,7 +69,7 @@ set(DATA_TTF
     )
 
 set(DATA_AUDIO
-    testing.ogg
+    welcome.wav
     )
 
 set(DATA_SHADERS
