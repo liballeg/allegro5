@@ -1,4 +1,4 @@
-find_program(ANDROID_TOOL android CMAKE_FIND_ROOT_PATH_BOTH)
+find_program(ANDROID_TOOL android NAMES android android.bat CMAKE_FIND_ROOT_PATH_BOTH)
 find_program(NDK_BUILD ndk-build CMAKE_FIND_ROOT_PATH_BOTH)
 find_program(ANT ant CMAKE_FIND_ROOT_PATH_BOTH)
 set(ANT_COMMAND "${ANT}" -noinput -nouserlib -noclasspath -quiet)
