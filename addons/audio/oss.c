@@ -76,7 +76,6 @@ static int oss_fragsize = (8 << 16) | (10);
 
 /* Auxiliary buffer used to store silence. */
 #define SIL_BUF_SIZE 1024
-static char sil_buf[SIL_BUF_SIZE];
 
 static bool using_ver_4;
 
@@ -407,6 +406,21 @@ static int oss_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *byt
 }
 
 
+static void oss_update_silence(ALLEGRO_VOICE *voice, OSS_VOICE *oss_voice)
+{
+   char sil_buf[SIL_BUF_SIZE];
+   unsigned int silent_samples;
+
+   silent_samples = SIL_BUF_SIZE /
+      (al_get_audio_depth_size(voice->depth) *
+       al_get_channel_count(voice->chan_conf));
+   al_fill_silence(sil_buf, silent_samples, voice->depth, voice->chan_conf);
+   if (write(oss_voice->fd, sil_buf, SIL_BUF_SIZE) == -1) {
+      ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
+   }
+}
+
+
 static void* oss_update(ALLEGRO_THREAD *self, void *arg)
 {
    ALLEGRO_VOICE *voice = arg;
@@ -453,9 +467,10 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
       }
       else if (voice->is_streaming && !oss_voice->stopped) {
          const void *data = _al_voice_update(voice, &frames);
-         if (data == NULL)
-            goto silence;
-
+         if (data == NULL) {
+            oss_update_silence(voice, oss_voice);
+            continue;
+         }
          if (write(oss_voice->fd, data, frames * oss_voice->frame_size) == -1) {
             ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
             if (errno != EINTR)
@@ -463,12 +478,8 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
          }
       }
       else {
-silence:
          /* If stopped just fill with silence. */
-         memset(sil_buf, _al_kcm_get_silence(voice->depth), SIL_BUF_SIZE);
-         if (write(oss_voice->fd, sil_buf, SIL_BUF_SIZE) == -1) {
-            ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
-         }
+         oss_update_silence(voice, oss_voice);
       }
    }
 

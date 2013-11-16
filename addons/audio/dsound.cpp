@@ -153,13 +153,14 @@ static void* _dsound_update(ALLEGRO_THREAD *self, void *arg)
    LPVOID ptr1, ptr2;
    DWORD block1_bytes, block2_bytes;
    unsigned char *data;
+   unsigned char *silence;
    HRESULT hr;
-
    (void)self;
 
-   unsigned char *silence = (unsigned char *)al_malloc(buffer_size);
-   int silence_value = _al_kcm_get_silence(voice->depth);
-   memset(silence, silence_value, buffer_size);
+   /* Make a buffer full of silence. */
+   silence = (unsigned char *)al_malloc(buffer_size);
+   samples = buffer_size / bytes_per_sample / ex_data->channels;
+   al_fill_silence(silence, samples, voice->depth, voice->chan_conf);
 
    /* Fill buffer */
    hr = ex_data->ds8_buffer->Lock(0, buffer_size,

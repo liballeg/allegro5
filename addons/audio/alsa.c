@@ -346,11 +346,9 @@ static void *alsa_update_mmap(ALLEGRO_THREAD *self, void *arg)
          memcpy(mmap, data, frames * alsa_voice->frame_size);
       }
       else {
-         int silence;
 silence:
          /* If stopped just fill with silence. */
-         silence = _al_kcm_get_silence(voice->depth);
-         memset(mmap, silence, frames * alsa_voice->frame_size);
+         al_fill_silence(mmap, frames, voice->depth, voice->chan_conf);
       }
 
       snd_pcm_sframes_t commitres = snd_pcm_mmap_commit(alsa_voice->pcm_handle, offset, frames);
@@ -449,16 +447,14 @@ static void *alsa_update_rw(ALLEGRO_THREAD *self, void *arg)
          /* This should fit. */
          unsigned int iframes = frames;
          buf = (void *)_al_voice_update(voice, &iframes);
-         frames = iframes;
          if (buf == NULL)
             goto silence;
+         frames = iframes;
       }
       else {
-         int silence;
 silence:
          /* If stopped just fill with silence. */
-         silence = _al_kcm_get_silence(voice->depth);
-         memset(data, silence, bytes);
+         al_fill_silence(data, frames, voice->depth, voice->chan_conf);
          buf = data;
       }
       err = snd_pcm_writei(alsa_voice->pcm_handle, buf, frames);

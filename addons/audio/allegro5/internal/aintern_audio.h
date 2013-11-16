@@ -308,7 +308,6 @@ typedef enum {
 extern void _al_set_error(int error, char* string);
 
 /* Supposedly internal */
-ALLEGRO_KCM_AUDIO_FUNC(int, _al_kcm_get_silence, (ALLEGRO_AUDIO_DEPTH depth));
 ALLEGRO_KCM_AUDIO_FUNC(void*, _al_kcm_feed_stream, (ALLEGRO_THREAD *self, void *vstream));
 
 /* Helper to emit an event that the stream has got a buffer ready to be refilled. */

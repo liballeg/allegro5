@@ -121,10 +121,10 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
    }
 
    for (i = 0; i < fragment_count; i++) {
-      stream->used_bufs[i] =
-         (char *) stream->main_buffer
-         + i * (MAX_LAG*bytes_per_sample + bytes_per_frag_buf)
-         + MAX_LAG*bytes_per_sample;
+      char *buffer = (char *)stream->main_buffer
+         + i * (MAX_LAG * bytes_per_sample + bytes_per_frag_buf);
+      al_fill_silence(buffer, MAX_LAG, depth, chan_conf);
+      stream->used_bufs[i] = buffer + MAX_LAG * bytes_per_sample;
    }
 
    al_init_user_event_source(&stream->spl.es);
@@ -478,8 +478,8 @@ static void reset_stopped_stream(ALLEGRO_AUDIO_STREAM *stream)
     * user should be OK.
     */
    for (i = 0; i < stream->buf_count; ++i) {
-      memset((char *)stream->main_buffer + i * fragment_buffer_size, 0,
-         MAX_LAG * bytes_per_sample);
+      al_fill_silence((char *)stream->main_buffer + i * fragment_buffer_size,
+         MAX_LAG, stream->spl.spl_data.depth, stream->spl.spl_data.chan_conf);
    }
 
    /* Get the current number of entries in the used_buf list. */

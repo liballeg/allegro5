@@ -119,18 +119,47 @@ ALLEGRO_AUDIO_DEPTH _al_word_size_to_depth_conf(int word_size)
    }
 }
 
-/* Returns a silent sample frame. */
-int _al_kcm_get_silence(ALLEGRO_AUDIO_DEPTH depth)
+/* Function: al_fill_silence
+ */
+void al_fill_silence(void *buf, unsigned int samples,
+   ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf)
 {
+   size_t bytes = samples * al_get_audio_depth_size(depth) *
+      al_get_channel_count(chan_conf);
+
    switch (depth) {
-      case ALLEGRO_AUDIO_DEPTH_UINT8:
-         return 0x80;
+      case ALLEGRO_AUDIO_DEPTH_INT8:
       case ALLEGRO_AUDIO_DEPTH_INT16:
-         return 0x8000;
       case ALLEGRO_AUDIO_DEPTH_INT24:
-         return 0x800000;
+      case ALLEGRO_AUDIO_DEPTH_FLOAT32:
+         memset(buf, 0, bytes);
+         break;
+      case ALLEGRO_AUDIO_DEPTH_UINT8:
+         memset(buf, 0x80, bytes);
+         break;
+      case ALLEGRO_AUDIO_DEPTH_UINT16:
+         {
+            uint16_t *buffer = buf;
+            size_t n = bytes / sizeof(uint16_t);
+            size_t i;
+
+            for (i = 0; i < n; i++)
+               buffer[i] = 0x8000;
+         }
+         break;
+      case ALLEGRO_AUDIO_DEPTH_UINT24:
+         {
+            uint32_t *buffer = buf;
+            size_t n = bytes / sizeof(uint32_t);
+            size_t i;
+
+            for (i = 0; i < n; i++)
+               buffer[i] = 0x800000;
+         }
+         break;
       default:
-         return 0;
+         ASSERT(false);
+         break;
    }
 }
 

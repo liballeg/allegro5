@@ -217,6 +217,14 @@ of the values listed under [ALLEGRO_AUDIO_DEPTH].
 Return the number of channels for the given channel configuration, which is one
 of the values listed under [ALLEGRO_CHANNEL_CONF].
 
+### API: al_fill_silence
+
+Fill a buffer with silence, for the given format and channel configuration.
+The buffer must have enough space for the given number of samples,
+and be properly aligned.
+
+Since: 5.1.8
+
 
 ## Voice functions
 
