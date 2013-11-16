@@ -42,6 +42,9 @@ def parse_args(argv):
     p.add_option("--android-tool",
             default="android",
             help="Path to android tool.")
+    p.add_option("--app-abi",
+            default="armeabi",
+            help="ABI being targeted.")
     p.add_option("--load-lib",
             action="append",
             default=[],
@@ -197,6 +200,7 @@ def create_jni(options):
     mkdir(jni_path)
 
     f = open(application_mk_path, "w")
+    f.write("APP_ABI := {0}\n".format(options.app_abi))
     if options.stl:
         f.write("APP_STL := {0}\n".format(options.stl))
     f.close()

@@ -76,6 +76,7 @@ function(add_android_app prog sources lib_targets stl)
                 -n "${prog}"
                 -k "${package}"
                 -a "${activity}"
+                "--app-abi=${ARM_TARGETS}"
                 ${load_libs}
                 "--load-app=${load_app}"
                 "--jar-libs-dir=${LIBRARY_OUTPUT_PATH}"
