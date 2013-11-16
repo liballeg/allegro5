@@ -17,7 +17,7 @@ add_custom_command(
     )
 
 configure_file(
-    ${ACTIVITY_DIR}/localgen.properties.cmake
+    ${ACTIVITY_DIR}/localgen.properties.in
     ${ACTIVITY_DIR}/localgen.properties
     )
 

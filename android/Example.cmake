@@ -21,7 +21,7 @@ add_custom_command(
     )
 
 configure_file(
-    ${EXAMPLE_DIR}/localgen.properties.cmake
+    ${EXAMPLE_DIR}/localgen.properties.in
     ${EXAMPLE_DIR}/localgen.properties
     )
 
@@ -29,7 +29,7 @@ file(RELATIVE_PATH RELATIVE_LIB_DIR
     ${EXAMPLE_DIR}/jni ${LIBRARY_OUTPUT_PATH})
 append_lib_type_suffix(LIB_TYPE_SUFFIX)
 configure_file(
-    ${EXAMPLE_DIR}/jni/localgen.mk.cmake
+    ${EXAMPLE_DIR}/jni/localgen.mk.in
     ${EXAMPLE_DIR}/jni/localgen.mk
     )
 
