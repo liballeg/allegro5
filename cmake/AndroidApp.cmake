@@ -80,6 +80,10 @@ function(add_android_app prog sources lib_targets stl)
         )
 
     # How to make the APK.
+    # Both target-level `jar' and file-level ${ACTIVITY_JAR} dependencies are
+    # listed.  The former otherwise make doesn't know how to make the .jar file
+    # if called in some directories.  The latter so the APK is rebuilt if the
+    # .jar file has been updated.  I don't know why.
     add_custom_command(
         OUTPUT ${apk_path}
         DEPENDS ${prog_target} ${lib_targets} ${project_sources} ${ACTIVITY_JAR}
@@ -90,7 +94,7 @@ function(add_android_app prog sources lib_targets stl)
 
     add_custom_target(${prog}_apk
         ALL
-        DEPENDS ${apk_path}
+        DEPENDS jar ${apk_path}
         )
 
     # Useful targets for testing.
