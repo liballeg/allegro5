@@ -193,17 +193,17 @@ def slashy(s):
 
 def create_jni(options):
     jni_path = options.path + "/jni"
-    application_mk_path = jni_path + "/Application.mk"
-    android_mk_path = jni_path + "/Android.mk"
-    load_app_relpath = os.path.relpath(options.load_app, jni_path)
-
     mkdir(jni_path)
 
+    application_mk_path = jni_path + "/Application.mk"
     f = open(application_mk_path, "w")
     f.write("APP_ABI := {0}\n".format(options.app_abi))
     if options.stl:
         f.write("APP_STL := {0}\n".format(options.stl))
     f.close()
+
+    android_mk_path = jni_path + "/Android.mk"
+    load_app_relpath = unix_path(os.path.relpath(options.load_app, jni_path))
 
     f = open(android_mk_path, "w")
     f.write('''
@@ -225,7 +225,7 @@ def create_jni(options):
 
 def prebuilt_shared_lib_block(load_lib, jni_path):
     name = os.path.basename(load_lib)
-    relpath = os.path.relpath(load_lib, jni_path)
+    relpath = unix_path(os.path.relpath(load_lib, jni_path))
     return '''
         include $(CLEAR_VARS)
         LOCAL_MODULE := {NAME}
@@ -235,6 +235,13 @@ def prebuilt_shared_lib_block(load_lib, jni_path):
         NAME=name,
         RELPATH=relpath
     )
+
+    # Always use Unix directory separator for paths in makefiles.
+def unix_path(path):
+    if os.path == '/':
+        return path
+    else:
+        return '/'.join(path.split(os.sep))
 
 def mkdir(path):
     if not os.path.exists(path):
