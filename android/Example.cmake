@@ -17,7 +17,9 @@ set(EXAMPLE_SOURCES
 
 add_custom_command(
     OUTPUT ${EXAMPLE_DIR}/local.properties
-    COMMAND ${ANDROID_TOOL} update project -p ${EXAMPLE_DIR}
+    WORKING_DIRECTORY ${EXAMPLE_DIR}
+    COMMAND ${ANDROID_UPDATE_COMMAND}
+    VERBATIM
     )
 
 configure_file(

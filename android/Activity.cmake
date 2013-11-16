@@ -13,7 +13,9 @@ set(ACTIVITY_SOURCES
 
 add_custom_command(
     OUTPUT ${ACTIVITY_DIR}/local.properties
-    COMMAND ${ANDROID_TOOL} update project -p ${ACTIVITY_DIR}
+    WORKING_DIRECTORY ${ACTIVITY_DIR}
+    COMMAND ${ANDROID_UPDATE_COMMAND}
+    VERBATIM
     )
 
 configure_file(

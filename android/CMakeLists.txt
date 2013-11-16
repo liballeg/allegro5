@@ -1,3 +1,15 @@
+# The android tool on Windows is a batch file wrapper, which cannot be
+# started by MSYS shell directly. We invoke it via cmd.exe instead.
+# We don't use the full path to avoid problems with spaces,
+# and hope that android.bat is somewhere on the PATH.
+if(ANDROID_TOOL MATCHES "[.]bat$")
+    set(ANDROID_UPDATE_COMMAND
+        cmd.exe /c "android.bat update project -p .")
+else()
+    set(ANDROID_UPDATE_COMMAND
+        "${ANDROID_TOOL}" update project -p .)
+endif()
+
 include(Activity.cmake)
 include(Example.cmake)
 
