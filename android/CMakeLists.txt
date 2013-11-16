@@ -11,7 +11,10 @@ else()
 endif()
 
 include(Activity.cmake)
-include(Example.cmake)
+
+if(WANT_EXAMPLES)
+    include(Example.cmake)
+endif()
 
 #-----------------------------------------------------------------------------#
 # vim: set sts=4 sw=4 et:
