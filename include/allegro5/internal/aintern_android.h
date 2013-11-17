@@ -168,12 +168,15 @@ void _al_android_set_jnienv(JNIEnv *jnienv);
 JNIEnv *_al_android_get_jnienv(void);
 bool _al_android_is_paused(void);
 
+#define ALLEGRO_ANDROID_PACKAGE_NAME         org_liballeg_app
+#define ALLEGRO_ANDROID_PACKAGE_NAME_SLASH   "org/liballeg/app"
+
 #define JNI_FUNC_PASTER(ret, cls, name, params, x) \
 	JNIEXPORT ret JNICALL Java_ ## x ## _ ## cls ## _ ## name params
 #define JNI_FUNC_EVALUATOR(ret, cls, name, params, x) \
 	JNI_FUNC_PASTER(ret, cls, name, params, x)
 #define JNI_FUNC(ret, cls, name, params) \
-	JNI_FUNC_EVALUATOR(ret, cls, name, params, ALLEGRO_CFG_ANDROID_APP_NAME)
+	JNI_FUNC_EVALUATOR(ret, cls, name, params, ALLEGRO_ANDROID_PACKAGE_NAME)
 
 #endif /* ALLEGRO_AINTERN_ANDROID_H */
 

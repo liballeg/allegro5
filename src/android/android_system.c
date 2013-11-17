@@ -204,10 +204,10 @@ JNI_FUNC(bool, AllegroActivity, nativeOnCreate, (JNIEnv *env, jobject obj))
    iae = (*env)->FindClass(env, "java/lang/IllegalArgumentException");
    system_data.illegal_argument_exception_class = (*env)->NewGlobalRef(env, iae);
    
-   aisc = (*env)->FindClass(env, ALLEGRO_CFG_ANDROID_APP_NAME_SLASH "/AllegroInputStream");
+   aisc = (*env)->FindClass(env, ALLEGRO_ANDROID_PACKAGE_NAME_SLASH "/AllegroInputStream");
    system_data.input_stream_class = (*env)->NewGlobalRef(env, aisc);
    
-   asc = (*env)->FindClass(env, ALLEGRO_CFG_ANDROID_APP_NAME_SLASH "/AllegroAPKStream");
+   asc = (*env)->FindClass(env, ALLEGRO_ANDROID_PACKAGE_NAME_SLASH "/AllegroAPKStream");
    system_data.apk_stream_class = (*env)->NewGlobalRef(env, asc);
 
    ALLEGRO_DEBUG("create mutex and cond objects");
@@ -598,7 +598,10 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
       return NULL;
    }
    
-   jbitmap = _jni_callObjectMethodV(jnienv, system_data.activity_object, "decodeBitmap_f", "(L" ALLEGRO_CFG_ANDROID_APP_NAME_SLASH "/AllegroInputStream;)Landroid/graphics/Bitmap;", input_stream);
+   jbitmap = _jni_callObjectMethodV(jnienv, system_data.activity_object,
+      "decodeBitmap_f",
+      "(L" ALLEGRO_ANDROID_PACKAGE_NAME_SLASH "/AllegroInputStream;)Landroid/graphics/Bitmap;",
+      input_stream);
    ASSERT(jbitmap != NULL);
    
    _jni_callv(jnienv, DeleteLocalRef, input_stream);

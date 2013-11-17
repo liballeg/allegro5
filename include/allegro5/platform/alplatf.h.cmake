@@ -22,11 +22,6 @@
 #cmakedefine ALLEGRO_CFG_NO_GLES2
 #cmakedefine ALLEGRO_CFG_ANDROID_LEGACY
 
-#ifdef ALLEGRO_ANDROID
-#define ALLEGRO_CFG_ANDROID_APP_NAME ${ANDROID_APP_NAME}
-#define ALLEGRO_CFG_ANDROID_APP_NAME_SLASH "${ANDROID_APP_NAME_SLASH}"
-#endif
-
 /*---------------------------------------------------------------------------*/
 
 /* Define to 1 if you have the corresponding header file. */
