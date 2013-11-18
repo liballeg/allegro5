@@ -1,4 +1,4 @@
-package org.liballeg.app;
+package org.liballeg.android;
 
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;

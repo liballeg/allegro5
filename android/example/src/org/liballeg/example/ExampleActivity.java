@@ -1,6 +1,6 @@
 package org.liballeg.example;
 
-import org.liballeg.app.AllegroActivity;
+import org.liballeg.android.AllegroActivity;
 
 public class ExampleActivity extends AllegroActivity {
 

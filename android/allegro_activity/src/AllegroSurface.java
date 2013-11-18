@@ -1,4 +1,4 @@
-package org.liballeg.app;
+package org.liballeg.android;
 
 import android.content.Context;
 import android.graphics.Canvas;

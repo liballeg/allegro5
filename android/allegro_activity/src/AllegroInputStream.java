@@ -1,4 +1,4 @@
-package org.liballeg.app;
+package org.liballeg.android;
 
 import java.io.InputStream;
 import android.util.Log;

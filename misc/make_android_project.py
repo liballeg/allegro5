@@ -162,7 +162,7 @@ def create_activity(options):
     ])
     f.write('''\
         package {PACKAGE};
-        public class {ACTIVITY} extends org.liballeg.app.AllegroActivity {{
+        public class {ACTIVITY} extends org.liballeg.android.AllegroActivity {{
             static {{
                 {LOAD_STL_STMT}
                 {STMTS}

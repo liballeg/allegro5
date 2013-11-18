@@ -1,4 +1,4 @@
-package org.liballeg.app;
+package org.liballeg.android;
 
 import java.lang.reflect.Method;
 
