@@ -44,8 +44,7 @@ struct system_data_t {
    ALLEGRO_THREAD *trampoline;
    bool trampoline_running;
    
-   ALLEGRO_USTR *lib_dir;
-   ALLEGRO_USTR *app_name;
+   ALLEGRO_USTR *user_lib_name;
    ALLEGRO_USTR *resources_dir;
    ALLEGRO_USTR *data_dir;
    ALLEGRO_USTR *apk_path;
@@ -56,8 +55,8 @@ struct system_data_t {
    
    int orientation;
 
-  bool is_2_1; // is running on Android OS 2.1?
-  bool paused;
+   bool is_2_1;   /* is running on Android OS 2.1? */
+   bool paused;
 };
 
 static struct system_data_t system_data;
@@ -143,26 +142,33 @@ static void android_cleanup(bool uninstall_system)
    already_cleaned_up = true;
 }
 
-void *android_app_trampoline(ALLEGRO_THREAD *thr, void *arg)
+static void *android_app_trampoline(ALLEGRO_THREAD *thr, void *arg)
 {
-   const char *argv[2] = { al_cstr(system_data.app_name), NULL };
-   (void)thr; (void)arg;
-   
+   const int argc = 1;
+   const char *argv[2] = {system_data.user_lib, NULL};
+   int ret;
+
+   (void)thr;
+   (void)arg;
+
    ALLEGRO_DEBUG("signaling running");
-   
+
    al_lock_mutex(system_data.mutex);
    system_data.trampoline_running = true;
    al_broadcast_cond(system_data.cond);
    al_unlock_mutex(system_data.mutex);
-   
-   ALLEGRO_DEBUG("entering app's main function");
-   
-   int ret = (system_data.user_main)(1, (char **)argv);
+
+   ALLEGRO_DEBUG("entering main function %p", system_data.user_main);
+
+   ret = (system_data.user_main)(argc, (char **)argv);
+
+   /* Can we do anything with this exit code? */
+   ALLEGRO_DEBUG("returned from main function, exit code = %d", ret);
 
    /* NOTE: don't put any ALLEGRO_DEBUG in here after running main! */
 
    android_cleanup(true);
-   
+
    return NULL;
 }
 
@@ -176,9 +182,6 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
 
 JNI_FUNC(bool, AllegroActivity, nativeOnCreate, (JNIEnv *env, jobject obj))
 {
-   ALLEGRO_PATH *lib_path = NULL;
-   ALLEGRO_USTR *lib_fname = NULL;
-   const char *full_path = NULL;
    ALLEGRO_SYSTEM_ANDROID *na_sys = NULL;
    jclass iae;
    jclass aisc;
@@ -215,14 +218,11 @@ JNI_FUNC(bool, AllegroActivity, nativeOnCreate, (JNIEnv *env, jobject obj))
    system_data.cond  = al_create_cond();
 
    ALLEGRO_DEBUG("get directories");
-   system_data.lib_dir  = _jni_callStringMethod(env, system_data.activity_object, "getLibraryDir", "()Ljava/lang/String;");
-   system_data.app_name = _jni_callStringMethod(env, system_data.activity_object, "getAppName", "()Ljava/lang/String;");
+   system_data.user_lib_name = _jni_callStringMethod(env, system_data.activity_object, "getUserLibName", "()Ljava/lang/String;");
    system_data.resources_dir = _jni_callStringMethod(env, system_data.activity_object, "getResourcesDir", "()Ljava/lang/String;");
    system_data.data_dir = _jni_callStringMethod(env, system_data.activity_object, "getPubDataDir", "()Ljava/lang/String;");
    system_data.apk_path = _jni_callStringMethod(env, system_data.activity_object, "getApkPath", "()Ljava/lang/String;");
    system_data.model = _jni_callStringMethod(env, system_data.activity_object, "getModel", "()Ljava/lang/String;");
-   ALLEGRO_DEBUG("lib_dir: %s", al_cstr(system_data.lib_dir));
-   ALLEGRO_DEBUG("app_name: %s", al_cstr(system_data.app_name));
    ALLEGRO_DEBUG("resources_dir: %s", al_cstr(system_data.resources_dir));
    ALLEGRO_DEBUG("data_dir: %s", al_cstr(system_data.data_dir));
    ALLEGRO_DEBUG("apk_path: %s", al_cstr(system_data.apk_path));
@@ -242,41 +242,27 @@ JNI_FUNC(bool, AllegroActivity, nativeOnCreate, (JNIEnv *env, jobject obj))
    
    ALLEGRO_DEBUG("init time");
    _al_unix_init_time();
-   
-   ALLEGRO_DEBUG("strdup app_name");
-   lib_fname = al_ustr_dup(system_data.app_name);
-   al_ustr_insert_cstr(lib_fname, 0, "lib");
-   al_ustr_append_cstr(lib_fname, ".so");
-   
-   lib_path = al_create_path_for_directory(al_cstr(system_data.lib_dir));
-   al_set_path_filename(lib_path, al_cstr(lib_fname));
-   
-   full_path = al_path_cstr(lib_path, ALLEGRO_NATIVE_PATH_SEP);
 
    // Android 2.1 has a bug with glClear we have to work around
    const char *ver = _real_al_android_get_os_version(env);
-   if (!strncmp(ver, "2.1", 3)) {
-      system_data.is_2_1 = true;
-   }
-   else {
-      system_data.is_2_1 = false;
-   }
-   
-   ALLEGRO_DEBUG("load user lib: %s", full_path);
-   system_data.user_lib = dlopen(full_path, RTLD_LAZY|RTLD_GLOBAL);
-   if(!system_data.user_lib) {
-      ALLEGRO_ERROR("failed to load user app: '%s'", full_path);
+   system_data.is_2_1 = (0 == strncmp(ver, "2.1", 3));
+
+   const char *user_lib_name = al_cstr(system_data.user_lib_name);
+   ALLEGRO_DEBUG("load user lib: %s", user_lib_name);
+   system_data.user_lib = dlopen(user_lib_name, RTLD_LAZY|RTLD_GLOBAL);
+   if (!system_data.user_lib) {
+      ALLEGRO_ERROR("failed to load user lib: %s", user_lib_name);
       ALLEGRO_ERROR("%s", dlerror());
       return false;
    }
 
-   ALLEGRO_DEBUG("grab user main");
    system_data.user_main = dlsym(system_data.user_lib, "main");
-   if(!system_data.user_main) {
-      ALLEGRO_ERROR("failed to locate main entry point in user app '%s': %s", full_path, dlerror());
+   if (!system_data.user_main) {
+      ALLEGRO_ERROR("failed to locate symbol main: %s", dlerror());
       dlclose(system_data.user_lib);
       return false;
    }
+   ALLEGRO_DEBUG("main function address: %p\n", system_data.user_main);
 
    ALLEGRO_DEBUG("creating trampoline for app thread");
    system_data.trampoline = al_create_thread(android_app_trampoline, NULL);

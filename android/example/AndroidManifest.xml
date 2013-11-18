@@ -15,10 +15,6 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            
-            <!--  Tell Allegro the name of the game .so when using dynamic linking -->
-            <meta-data android:name="org.liballeg.app_name"
-                       android:value="example"/>
         </activity>
     </application>
 </manifest> 

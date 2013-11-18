@@ -3,6 +3,7 @@ package org.liballeg.android;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
@@ -27,11 +28,13 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.lang.Runnable;
 import java.lang.String;
+import java.lang.reflect.Field;
 import java.util.List;
 
 public class AllegroActivity extends Activity implements SensorEventListener
 {
    /* properties */
+   private String userLibName = "libapp.so";
    private static SensorManager sensorManager;
    private List<Sensor> sensors;
 
@@ -91,23 +94,18 @@ public class AllegroActivity extends Activity implements SensorEventListener
       return true;
    }
 
-   public String getLibraryDir()
+   public String getUserLibName()
    {
-      /* Android 1.6 doesn't have .nativeLibraryDir :( */
-      /* FIXME: use reflection here to detect the capabilities of the device */
-      return getApplicationInfo().dataDir + "/lib";
-   }
-
-   public String getAppName()
-   {
+      /* Android < 2.3 doesn't have .nativeLibraryDir */
+      ApplicationInfo appInfo = getApplicationInfo();
+      String libDir;
       try {
-         return getPackageManager()
-            .getActivityInfo(getComponentName(),
-               android.content.pm.PackageManager.GET_META_DATA)
-            .metaData.getString("org.liballeg.app_name");
-      } catch (PackageManager.NameNotFoundException ex) {
-         return new String();
+         Field field = appInfo.getClass().getField("nativeLibraryDir");
+         libDir = (String) field.get(appInfo);
+      } catch (Exception e) {
+         libDir = appInfo.dataDir + "/lib";
       }
+      return libDir + "/" + userLibName;
    }
 
    public String getResourcesDir()
@@ -299,6 +297,12 @@ public class AllegroActivity extends Activity implements SensorEventListener
 
    /* end of functions native code calls */
 
+   public AllegroActivity(String userLibName)
+   {
+      super();
+      this.userLibName = userLibName;
+   }
+
    /** Called when the activity is first created. */
    @Override
    public void onCreate(Bundle savedInstanceState)
@@ -344,7 +348,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
       Log.d("AllegroActivity", "before nativeOnCreate");
       if (!nativeOnCreate()) {
          finish();
-         Log.d("AllegroActivity", "onCreate fail");
+         Log.d("AllegroActivity", "nativeOnCreate failed");
          return;
       }
 

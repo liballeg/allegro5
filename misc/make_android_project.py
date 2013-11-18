@@ -112,10 +112,6 @@ def touch_manifest(options):
     activity.set("android:launchMode", "singleTask")
     activity.set("android:screenOrientation", "unspecified")
     activity.set("android:configChanges", "screenLayout|uiMode|orientation")
-    ET.SubElement(activity, "meta-data", {
-        "android:name": "org.liballeg.app_name",
-        "android:value": name_for_load_library(options.load_app)
-    })
     tree.write(filename, "utf-8", xml_declaration=True)
 
 def touch_strings(options):
@@ -160,6 +156,7 @@ def create_activity(options):
     stmts = "\n\t\t".join([
         maybe_load_library_stmt(lib) for lib in options.load_lib
     ])
+    load_app = os.path.basename(options.load_app)
     f.write('''\
         package {PACKAGE};
         public class {ACTIVITY} extends org.liballeg.android.AllegroActivity {{
@@ -167,12 +164,16 @@ def create_activity(options):
                 {LOAD_STL_STMT}
                 {STMTS}
             }}
+            public {ACTIVITY}() {{
+                super("{LOAD_APP}");
+            }}
         }}
     '''.format(
         PACKAGE=options.package,
         ACTIVITY=options.activity,
         LOAD_STL_STMT=load_stl_stmt,
-        STMTS=stmts
+        STMTS=stmts,
+        LOAD_APP=load_app
     ))
     f.close()
 

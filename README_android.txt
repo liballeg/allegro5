@@ -130,10 +130,10 @@ with dependencies loaded first.  For a C++ program, you may need to load
 the shared library of your chosen STL implementation.
 
 After, the onCreate method of the AllegroActivity will be executed, which
-does some Allegro initialisation.  Allegro will now load your application,
-which has been compiled to another shared library.  The name of the
-library is taken from the AndroidManifest.xml file.  After loading, the
-`main` function in the library is finally called.
+does some Allegro initialisation.  Allegro will then load your application
+from another shared library.  The library name can be specified by overriding
+the constructor in your Activity class, otherwise the default is "libapp.so".
+After loading, the `main` function in the library is finally called.
 
 (The dynamic loader was finally fixed in Android 4.3 so that it loads
 transitive dependencies.  If you don't care to support earlier versions
@@ -161,13 +161,13 @@ are worth a look here, as is the script `misc/make_android_project.py`.
 Here is what you want to change in the example project:
 
  *  In `AndroidManifest.xml` the package name ("org.liballeg.example"),
-    the name of the activity ("org.liballeg.example.ExampleActivity")
-    and the name of your application's shared library ("example").
+    the name of the activity ("org.liballeg.example.ExampleActivity").
 
  *  In `jni/Android.mk` the name of the main module, the list of source
     files, and the list of Allegro libraries that it links to.
 
- *  In `ExampleActivity.java' the list of shared libraries to load.
+ *  In `ExampleActivity.java' the list of shared libraries to load, and
+    the name of your application's shared library ("libexample.so").
 
  *  In `build.xml` the project name at the top of the file ("example").
 
