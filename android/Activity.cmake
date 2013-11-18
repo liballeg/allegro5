@@ -1,7 +1,7 @@
 set(ACTIVITY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/allegro_activity)
 set(ACTIVITY_JAR ${LIBRARY_OUTPUT_PATH}/Allegro5.jar)
 
-file(GLOB javas "${ACTIVITY_DIR}/src/org/liballeg/app/*.java")
+file(GLOB javas "${ACTIVITY_DIR}/src/*.java")
 
 set(ACTIVITY_SOURCES
     ${ACTIVITY_DIR}/AndroidManifest.xml
