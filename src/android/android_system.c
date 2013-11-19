@@ -81,23 +81,6 @@ jclass _al_android_apk_stream_class(void)
    return system_data.apk_stream_class;
 }
 
-void __jni_checkException(JNIEnv *env, const char *file, const char *func, int line)
-{
-   jthrowable exc;
-   
-   exc = (*env)->ExceptionOccurred(env);
-   if (exc) {
-      ALLEGRO_DEBUG("GOT AN EXCEPTION @ %s:%i %s", file, line, func);
-      /* We don't do much with the exception, except that
-         we print a debug message for it, clear it, and 
-         throw a new exception. */
-      (*env)->ExceptionDescribe(env);
-      (*env)->ExceptionClear(env);
-      (*env)->FatalError(env, "EXCEPTION");
-      //(*env)->ThrowNew(env, system_data.illegal_argument_exception_class, "thrown from C code");
-   }
-}
-
 jobject _al_android_activity_object()
 {
    return system_data.activity_object;

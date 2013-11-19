@@ -42,108 +42,102 @@ ALLEGRO_TOUCH_INPUT_DRIVER *_al_get_android_touch_input_driver(void);
 
 int _al_android_get_display_orientation(void);
 
-#define _jni_checkException(env) __jni_checkException(env, __FILE__, __FUNCTION__, __LINE__)
+#define _jni_checkException(env)                                              \
+   __jni_checkException(env, __FILE__, __FUNCTION__, __LINE__)
+
 void __jni_checkException(JNIEnv *env, const char *file, const char *fname, int line);
 
-#define _jni_call(env, rett, method, args...) ({ \
-   /*ALLEGRO_DEBUG("_jni_call: %s(%s)", #method, #args);*/ \
-   rett ret = (*env)->method(env, ##args); \
-   _jni_checkException(env); \
-   ret; \
-})
+#define _jni_call(env, rett, method, args...)                                 \
+   ({                                                                         \
+      rett ret = (*env)->method(env, ##args);                                 \
+      _jni_checkException(env);                                               \
+      ret;                                                                    \
+    })
 
-#define _jni_callv(env, method, args...) ({ \
-   /*ALLEGRO_DEBUG("_jni_call: %s(%s)", #method, #args);*/ \
-   (*env)->method(env, ##args); \
-   _jni_checkException(env); \
-})
+#define _jni_callv(env, method, args...)                                      \
+   ({                                                                         \
+      (*env)->method(env, ##args);                                            \
+      _jni_checkException(env);                                               \
+   })
 
-#define _jni_callBooleanMethodV(env, obj, name, sig, args...) ({ \
-   jclass class_id = _jni_call(env, jclass, GetObjectClass, obj); \
-   \
-   jmethodID method_id = _jni_call(env, jmethodID, GetMethodID, class_id, name, sig); \
-   \
-   bool ret = false; \
-   if(method_id == NULL) { \
-      ALLEGRO_DEBUG("couldn't find method :("); \
-   } \
-   else { \
-      ret = _jni_call(env, bool, CallBooleanMethod, obj, method_id, ##args); \
-   } \
-   \
-   _jni_callv(env, DeleteLocalRef, class_id); \
-   \
-   ret; \
-})
+#define _jni_callBooleanMethodV(env, obj, name, sig, args...)                 \
+   ({                                                                         \
+      jclass class_id = _jni_call(env, jclass, GetObjectClass, obj);          \
+      jmethodID method_id = _jni_call(env, jmethodID, GetMethodID, class_id,  \
+         name, sig);                                                          \
+      bool ret = false;                                                       \
+      if (method_id == NULL) {                                                \
+         ALLEGRO_DEBUG("couldn't find method %s", name);                      \
+      }                                                                       \
+      else {                                                                  \
+         ret = _jni_call(env, bool, CallBooleanMethod, obj, method_id,        \
+            ##args);                                                          \
+      }                                                                       \
+      _jni_callv(env, DeleteLocalRef, class_id);                              \
+      ret;                                                                    \
+   })
 
-jobject _jni_callObjectMethod(JNIEnv *env, jobject object, char *name, char *sig);
-jobject _jni_callObjectMethodV(JNIEnv *env, jobject object, char *name, char *sig, ...);
+jobject _jni_callObjectMethod(JNIEnv *env, jobject object,
+         const char *name, const char *sig);
+jobject _jni_callObjectMethodV(JNIEnv *env, jobject object,
+         const char *name, const char *sig, ...);
 ALLEGRO_USTR *_jni_getString(JNIEnv *env, jobject object);
-ALLEGRO_USTR *_jni_callStringMethod(JNIEnv *env, jobject obj, char *name, char *sig);
-//void _jni_callVoidMethod(JNIEnv *env, jobject obj, char *name);
-//void _jni_callVoidMethodV(JNIEnv *env, jobject obj, char *name, char *sig, ...);
+ALLEGRO_USTR *_jni_callStringMethod(JNIEnv *env, jobject obj,
+         const char *name, const char *sig);
 
-//int _jni_callIntMethod(JNIEnv *env, jobject, char *name);
-//int _jni_callIntMethodV(JNIEnv *env, jobject obj, char *name, char *sig, ...);
+#define _jni_callIntMethodV(env, obj, name, sig, args...)                     \
+   ({                                                                         \
+      jclass class_id = _jni_call(env, jclass, GetObjectClass, obj);          \
+      jmethodID method_id = _jni_call(env, jmethodID, GetMethodID, class_id,  \
+         name, sig);                                                          \
+      int ret = -1;                                                           \
+      if (method_id == NULL) {                                                \
+         ALLEGRO_DEBUG("couldn't find method %s", #name);                     \
+      }                                                                       \
+      else {                                                                  \
+         ret = _jni_call(env, int, CallIntMethod, obj, method_id, ##args);    \
+      }                                                                       \
+      _jni_callv(env, DeleteLocalRef, class_id);                              \
+      ret;                                                                    \
+   })
 
-#define _jni_callIntMethodV(env, obj, name, sig, args...) ({ \
-   /*ALLEGRO_DEBUG("_jni_callIntMethodV: %s (%s)", name, sig);*/ \
-   jclass class_id = _jni_call(env, jclass, GetObjectClass, obj); \
-   \
-   jmethodID method_id = _jni_call(env, jmethodID, GetMethodID, class_id, name, sig); \
-   \
-   int ret = -1; \
-   if(method_id == NULL) { \
-      ALLEGRO_DEBUG("couldn't find method :("); \
-   } \
-   else { \
-      ret = _jni_call(env, int, CallIntMethod, obj, method_id, ##args); \
-   } \
-   \
-   _jni_callv(env, DeleteLocalRef, class_id); \
-   \
-   ret; \
-})
+#define _jni_callIntMethod(env, obj, name)                                    \
+   _jni_callIntMethodV(env, obj, name, "()I")
 
-#define _jni_callIntMethod(env, obj, name) _jni_callIntMethodV(env, obj, name, "()I");
+#define _jni_callLongMethodV(env, obj, name, sig, args...)                    \
+   ({                                                                         \
+      jclass class_id = _jni_call(env, jclass, GetObjectClass, obj);          \
+      jmethodID method_id = _jni_call(env, jmethodID, GetMethodID, class_id,  \
+         name, sig);                                                          \
+      long ret = -1;                                                          \
+      if (method_id == NULL) {                                                \
+         ALLEGRO_DEBUG("couldn't find method %s", name);                      \
+      }                                                                       \
+      else {                                                                  \
+         ret = _jni_call(env, long, CallLongMethod, obj, method_id, ##args);  \
+      }                                                                       \
+      _jni_callv(env, DeleteLocalRef, class_id);                              \
+      ret;                                                                    \
+   })
 
-#define _jni_callLongMethodV(env, obj, name, sig, args...) ({ \
-   /*ALLEGRO_DEBUG("_jni_callLongMethodV: %s (%s)", name, sig);*/ \
-   jclass class_id = _jni_call(env, jclass, GetObjectClass, obj); \
-   \
-   jmethodID method_id = _jni_call(env, jmethodID, GetMethodID, class_id, name, sig); \
-   \
-   long ret = -1; \
-   if(method_id == NULL) { \
-      ALLEGRO_DEBUG("couldn't find method :("); \
-   } \
-   else { \
-      ret = _jni_call(env, long, CallLongMethod, obj, method_id, ##args); \
-   } \
-   \
-   _jni_callv(env, DeleteLocalRef, class_id); \
-   \
-   ret; \
-})
+#define _jni_callLongMethod(env, obj, name)                                   \
+      _jni_callLongMethodV(env, obj, name, "()J");
 
-#define _jni_callLongMethod(env, obj, name) _jni_callLongMethodV(env, obj, name, "()J");
+#define _jni_callVoidMethodV(env, obj, name, sig, args...)                    \
+   ({                                                                         \
+      jclass class_id = _jni_call(env, jclass, GetObjectClass, obj);          \
+      jmethodID method_id = _jni_call(env, jmethodID, GetMethodID, class_id,  \
+         name, sig);                                                          \
+      if (method_id == NULL) {                                                \
+         ALLEGRO_ERROR("couldn't find method %s", name);                      \
+      } else {                                                                \
+         _jni_callv(env, CallVoidMethod, obj, method_id, ##args);             \
+      }                                                                       \
+      _jni_callv(env, DeleteLocalRef, class_id);                              \
+   })
 
-#define _jni_callVoidMethodV(env, obj, name, sig, args...) ({ \
-   /*ALLEGRO_DEBUG("_jni_callVoidMethodV: %s (%s)", name, sig);*/ \
-   \
-   jclass class_id = _jni_call(env, jclass, GetObjectClass, obj); \
-   \
-   jmethodID method_id = _jni_call(env, jmethodID, GetMethodID, class_id, name, sig); \
-   if(method_id == NULL) { \
-      ALLEGRO_ERROR("couldn't find method :("); \
-   } else { \
-      _jni_callv(env, CallVoidMethod, obj, method_id, ##args); \
-   } \
-   \
-   _jni_callv(env, DeleteLocalRef, class_id); \
-})
-
-#define _jni_callVoidMethod(env, obj, name) _jni_callVoidMethodV(env, obj, name, "()V");
+#define _jni_callVoidMethod(env, obj, name)                                   \
+   _jni_callVoidMethodV(env, obj, name, "()V");
 
 AL_VAR(struct ALLEGRO_JOYSTICK_DRIVER, _al_android_joystick_driver);
 
