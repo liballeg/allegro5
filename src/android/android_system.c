@@ -304,7 +304,7 @@ JNI_FUNC(void, AllegroActivity, nativeOnPause, (JNIEnv *env, jobject obj))
    system_data.paused = true;
    
    ALLEGRO_SYSTEM *sys = (void *)al_get_system_driver();
-   ASSERT(system != NULL);
+   ASSERT(sys != NULL);
 
    ALLEGRO_DISPLAY *display = *(ALLEGRO_DISPLAY**)_al_vector_ref(&sys->displays, 0);
 

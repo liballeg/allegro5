@@ -66,7 +66,7 @@ JNI_FUNC(void, AllegroSurface, nativeOnCreate, (JNIEnv *env, jobject obj))
 JNI_FUNC(bool, AllegroSurface, nativeOnDestroy, (JNIEnv *env, jobject obj))
 {
    ALLEGRO_SYSTEM *sys = (void *)al_get_system_driver();
-   ASSERT(system != NULL);
+   ASSERT(sys != NULL);
 
    ALLEGRO_DISPLAY_ANDROID *display = *(ALLEGRO_DISPLAY_ANDROID**)_al_vector_ref(&sys->displays, 0);
    ASSERT(display != NULL);
