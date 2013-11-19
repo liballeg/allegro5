@@ -194,7 +194,7 @@ example(ex_font ${FONT} ${IMAGE} ${DATA_IMAGES})
 example(ex_font_justify ex_font_justify.cpp ${NIHGUI} ${IMAGE} ${TTF} ${DATA_IMAGES} ${DATA_TTF})
 example(ex_logo ${FONT} ${TTF} ${IMAGE} ${PRIM} DATA ${DATA_TTF})
 example(ex_projection ${TTF} ${PRIM} ${IMAGE} ${DATA_IMAGES} ${DATA_TTF})
-example(ex_ttf ${TTF} ${PRIM} DATA ${DATA_TTF})
+example(ex_ttf ${TTF} ${PRIM} DATA ${DATA_TTF} ex_ttf.ini)
 
 example(ex_acodec CONSOLE ${AUDIO} ${ACODEC})
 example(ex_acodec_multi CONSOLE ${AUDIO} ${ACODEC})
