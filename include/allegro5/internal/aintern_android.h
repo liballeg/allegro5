@@ -154,6 +154,7 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags);
 ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags);
 
 jobject _al_android_activity_object();
+jclass _al_android_input_stream_class(void);
 jclass _al_android_apk_stream_class(void);
 
 void _al_android_generate_joystick_event(float x, float y, float z);
