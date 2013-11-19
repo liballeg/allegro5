@@ -338,9 +338,6 @@ public class AllegroActivity extends Activity implements SensorEventListener
       Log.d("AllegroActivity", "sourceDir: " + getApplicationInfo().sourceDir);
       Log.d("AllegroActivity", "publicSourceDir: " + getApplicationInfo().publicSourceDir);
 
-      //unpackAssets("");
-      unpackAssets("unpack");
-
       handler = new Handler();
       initSensors();
 
@@ -603,51 +600,6 @@ public class AllegroActivity extends Activity implements SensorEventListener
       }
 
       return allegro_orientation;
-   }
-
-   // FIXME: this is a horrible hack, needs to be replaced with something smarter
-   // FIXME:  or a fshook driver to access assets.
-   private void unpackAssets(String dir)
-   {
-      // create directories
-      File f = new File(getResourcesDir()+"/"+dir);
-      f.mkdir();
-
-      try {
-         AssetManager am = getResources().getAssets();
-         String list[] = am.list(dir);
-         for(int i = 0; i < list.length; i++) {
-            String full = dir + (dir.equals("") ? "" : "/") + list[i];
-            InputStream is = null;
-            try {
-               is = am.open(full);
-            }
-            catch (Exception e) {
-               // Directory
-               Log.d("AllegroActivity", "asset["+i+"] (directory): " + full);
-               unpackAssets(full);
-               continue;
-            }
-            Log.d("AllegroActivity", "asset["+i+"] (file): " + full);
-            FileOutputStream os = new FileOutputStream(getResourcesDir()+"/"+full);
-
-            byte buff[] = new byte[4096];
-            while (true) {
-               int read_ret = is.read(buff);
-               if (read_ret > 0) {
-                  os.write(buff, 0, read_ret);
-               }
-               else {
-                  break;
-               }
-            }
-
-            is.close();
-            os.close();
-         }
-      } catch (java.io.IOException ex) {
-         Log.e("AllegroActivity", "asset list exception: "+ex.getMessage());
-      }
    }
 
    public String getOsVersion()
