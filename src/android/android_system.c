@@ -96,39 +96,6 @@ jobject _al_android_activity_object()
    return system_data.activity_object;
 }
 
-JNI_FUNC(int, AllegroInputStream, nativeRead, (JNIEnv *env, jobject obj, int handle, jbyteArray array, int offset, int length))
-{
-   ALLEGRO_FILE *fp = (ALLEGRO_FILE*)handle;
-   int ret = -1;
-   jbyte *array_ptr = NULL;
-   ASSERT(fp != NULL);
-   
-   (void)obj;
-   ALLEGRO_DEBUG("nativeRead begin: handle:%i fp:%p offset:%i length:%i", handle, fp, offset, length);
-   
-   int array_len = _jni_call(env, int, GetArrayLength, array);
-   ALLEGRO_DEBUG("array length: %i", array_len);
-   
-   array_ptr = _jni_call(env, jbyte *, GetByteArrayElements, array, NULL);
-   ASSERT(array_ptr != NULL);
-   
-   ALLEGRO_DEBUG("al_fread: p:%p, o:%i, l:%i", array_ptr, offset, length);
-   ret = al_fread(fp, array_ptr+offset, length);
-
-   _jni_callv(env, ReleaseByteArrayElements, array, array_ptr, 0);
-   
-   ALLEGRO_DEBUG("nativeRead end");
-   return ret;
-}
-
-JNI_FUNC(void, AllegroInputStream, nativeClose, (JNIEnv *env, jobject obj, int hdnl))
-{
-   ALLEGRO_FILE *fp = (ALLEGRO_FILE*)hdnl;
-   (void)env;
-   (void)obj;
-   al_fclose(fp);
-}
-
 static void finish_activity(JNIEnv *env);
 
 static bool already_cleaned_up = false;
