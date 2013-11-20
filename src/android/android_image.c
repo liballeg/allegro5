@@ -22,39 +22,124 @@
 
 ALLEGRO_DEBUG_CHANNEL("android")
 
+static void
+copy_bitmap_data(ALLEGRO_BITMAP *bitmap,
+   const uint32_t *src, ALLEGRO_PIXEL_FORMAT src_format, int src_pitch,
+   int bitmap_w, int bitmap_h)
+{
+   ALLEGRO_LOCKED_REGION *lr;
+
+   lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY,
+      ALLEGRO_LOCK_WRITEONLY);
+   ASSERT(lr);
+   if (!lr)
+      return;
+
+   _al_convert_bitmap_data(src, src_format, src_pitch,
+      lr->data, lr->format, lr->pitch,
+      0, 0, 0, 0, bitmap_w, bitmap_h);
+
+   al_unlock_bitmap(bitmap);
+}
+
+static void
+copy_bitmap_data_multiply_alpha(ALLEGRO_BITMAP *bitmap, const uint32_t *src,
+   int bitmap_w, int bitmap_h)
+{
+   ALLEGRO_LOCKED_REGION *lr;
+   int x, y;
+
+   lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888,
+      ALLEGRO_LOCK_WRITEONLY);
+   ASSERT(lr);
+   if (!lr)
+      return;
+
+   for (y = 0; y < bitmap_h; y++) {
+      uint32_t *dst = (uint32_t *)(((uint8_t *)lr->data) + y * lr->pitch);
+      for (x = 0; x < bitmap_w; x++) {
+         uint32_t c = *src++;
+         uint32_t a = (c >> 24) & 0xff;
+         c = (a << 24)
+           | (((c >> 16) & 0xff) * a / 255)
+           | ((((c >> 8) & 0xff) * a / 255) << 8)
+           | (((c & 0xff) * a / 255) << 16);
+         *dst++ = c;
+      }
+   }
+
+   al_unlock_bitmap(bitmap);
+}
+
+static void
+copy_bitmap_data_demultiply_alpha(ALLEGRO_BITMAP *bitmap, const uint32_t *src,
+   int src_format, int src_pitch, int bitmap_w, int bitmap_h)
+{
+   ALLEGRO_LOCKED_REGION *lr;
+   int x, y;
+
+   lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888,
+      ALLEGRO_LOCK_WRITEONLY);
+   ASSERT(lr);
+   if (!lr)
+      return;
+
+   _al_convert_bitmap_data(src, src_format, src_pitch,
+      lr->data, lr->format, lr->pitch,
+      0, 0, 0, 0, bitmap_w, bitmap_h);
+
+   for (y = 0; y < bitmap_h; y++) {
+      uint32_t *dst = (uint32_t *)(((uint8_t *)lr->data) + y * lr->pitch);
+      for (x = 0; x < bitmap_w; x++) {
+         uint32_t c = *dst;
+         uint8_t a = (c >> 24);
+         uint8_t b = (c >> 16);
+         uint8_t g = (c >> 8);
+         uint8_t r = (c >> 0);
+         // NOTE: avoid divide by zero by adding a fraction.
+         float alpha_mul = 255.0f / (a+0.001f);
+         r *= alpha_mul;
+         g *= alpha_mul;
+         b *= alpha_mul;
+         *dst = ((uint32_t)a << 24)
+              | ((uint32_t)b << 16)
+              | ((uint32_t)g << 8)
+              | ((uint32_t)r);
+         dst++;
+      }
+   }
+
+   al_unlock_bitmap(bitmap);
+}
+
 ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
 {
-   int x, y;
-   jobject byte_buffer;
-   jobject jbitmap;
-
    JNIEnv *jnienv;
    jobject activity;
    jobject input_stream_class;
    jmethodID input_stream_ctor;
    jobject input_stream;
+   int buffer_len;
    uint8_t *buffer;
-   int buffer_len = al_fsize(fh);
-   ALLEGRO_BITMAP *bitmap = NULL;
+   jobject byte_buffer;
+   jobject jbitmap;
+   ALLEGRO_BITMAP *bitmap;
    int bitmap_w;
    int bitmap_h;
-   ALLEGRO_STATE state;
+   int pitch;
 
-   /* XXX flags not respected */
-   (void)flags;
+   if (flags & ALLEGRO_KEEP_INDEX) {
+      ALLEGRO_ERROR("ALLEGRO_KEEP_INDEX not yet supported\n");
+      return NULL;
+   }
 
    jnienv = (JNIEnv *)_al_android_get_jnienv();
    activity = _al_android_activity_object();
    input_stream_class = _al_android_input_stream_class();
-
    input_stream_ctor = _jni_call(jnienv, jclass, GetMethodID,
        input_stream_class, "<init>", "(I)V");
-
-   jint fhi = (jint)fh;
-
    input_stream = _jni_call(jnienv, jobject, NewObject, input_stream_class,
-      input_stream_ctor, fhi);
-
+      input_stream_ctor, (jint)fh);
    if (!input_stream) {
       ALLEGRO_ERROR("failed to create new AllegroInputStream object");
       return NULL;
@@ -63,24 +148,25 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
    jbitmap = _jni_callObjectMethodV(jnienv, activity, "decodeBitmap_f",
       "(L" ALLEGRO_ANDROID_PACKAGE_NAME_SLASH "/AllegroInputStream;)Landroid/graphics/Bitmap;",
       input_stream);
-   /* XXX failure should be allowed */
-   ASSERT(jbitmap != NULL);
 
    _jni_callv(jnienv, DeleteLocalRef, input_stream);
 
-   bitmap_w = _jni_callIntMethod(jnienv, jbitmap, "getWidth");
-   bitmap_h = _jni_callIntMethod(jnienv, jbitmap, "getHeight");
-
-   int pitch = _jni_callIntMethod(jnienv, jbitmap, "getRowBytes");
-   buffer_len = pitch * bitmap_h;
-
-   ALLEGRO_DEBUG("bitmap size: %i", buffer_len);
-
-   buffer = al_malloc(buffer_len);
-   if (!buffer)
+   if (!jbitmap)
       return NULL;
 
-   ALLEGRO_DEBUG("malloc %i bytes ok", buffer_len);
+   bitmap_w = _jni_callIntMethod(jnienv, jbitmap, "getWidth");
+   bitmap_h = _jni_callIntMethod(jnienv, jbitmap, "getHeight");
+   pitch = _jni_callIntMethod(jnienv, jbitmap, "getRowBytes");
+
+   buffer_len = pitch * bitmap_h;
+   buffer = al_malloc(buffer_len);
+   if (!buffer) {
+      _jni_callv(jnienv, DeleteLocalRef, jbitmap);
+      return NULL;
+   }
+
+   int src_format = _jni_callIntMethodV(jnienv, activity,
+      "getBitmapFormat", "(Landroid/graphics/Bitmap;)I", jbitmap);
 
    // FIXME: at some point add support for the ndk AndroidBitmap api need to
    // check for header at build time, and android version at runtime if thats
@@ -98,28 +184,21 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
    // Tell java we're done with the bitmap as well.
    _jni_callv(jnienv, DeleteLocalRef, jbitmap);
 
-   al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE);
    bitmap = al_create_bitmap(bitmap_w, bitmap_h);
-   al_restore_state(&state);
    if (!bitmap) {
       al_free(buffer);
       return NULL;
    }
 
-   //_al_ogl_upload_bitmap_memory(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, buffer);
-   ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY,
-      ALLEGRO_LOCK_WRITEONLY);
-   for (y = 0; y < bitmap_h; y++) {
-      for (x = 0; x < bitmap->w; x++) {
-         memcpy(
-            ((uint8_t *)lr->data)+lr->pitch*y,
-            buffer+pitch*y,
-            bitmap_w*4
-         );
-      }
+   /* buffer already has alpha multiplied in. */
+   if (flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
+      copy_bitmap_data_demultiply_alpha(bitmap, (const uint32_t *)buffer,
+         src_format, pitch, bitmap_w, bitmap_h);
    }
-   al_unlock_bitmap(bitmap);
+   else {
+      copy_bitmap_data(bitmap, (const uint32_t *)buffer, src_format, pitch,
+         bitmap_w, bitmap_h);
+   }
 
    al_free(buffer);
 
@@ -128,27 +207,26 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
 
 ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags)
 {
-   int x, y;
-   jobject jbitmap;
-   ALLEGRO_BITMAP *bitmap;
-   int bitmap_w;
-   int bitmap_h;
-   ALLEGRO_STATE state;
    JNIEnv *jnienv;
    jobject activity;
+   jobject str;
+   jobject jbitmap;
+   int bitmap_w;
+   int bitmap_h;
+   ALLEGRO_BITMAP *bitmap;
+   jintArray ia;
+   jint *arr;
 
-   /* XXX flags not respected */
-   (void)flags;
+   if (flags & ALLEGRO_KEEP_INDEX) {
+      ALLEGRO_ERROR("ALLEGRO_KEEP_INDEX not yet supported\n");
+      return NULL;
+   }
 
    jnienv = _al_android_get_jnienv();
    activity = _al_android_activity_object();
-
-   jstring str = (*jnienv)->NewStringUTF(jnienv, filename);
-
+   str = (*jnienv)->NewStringUTF(jnienv, filename);
    jbitmap = _jni_callObjectMethodV(jnienv, activity,
       "decodeBitmap", "(Ljava/lang/String;)Landroid/graphics/Bitmap;", str);
-   if (!jbitmap)
-      return NULL;
 
    /* For future Java noobs like me: If the calling thread is a Java
     * thread, it will clean up these references when the native method
@@ -158,56 +236,38 @@ ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags)
     */
    (*jnienv)->DeleteLocalRef(jnienv, str);
 
+   if (!jbitmap)
+      return NULL;
+
    bitmap_w = _jni_callIntMethod(jnienv, jbitmap, "getWidth");
    bitmap_h = _jni_callIntMethod(jnienv, jbitmap, "getHeight");
-
    ALLEGRO_DEBUG("bitmap dimensions: %d, %d", bitmap_w, bitmap_h);
 
-   al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE);
    bitmap = al_create_bitmap(bitmap_w, bitmap_h);
-   al_restore_state(&state);
    if (!bitmap) {
       _jni_callv(jnienv, DeleteLocalRef, jbitmap);
       return NULL;
    }
 
-   ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(bitmap,
-      ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
-
-   jintArray ia = _jni_callObjectMethodV(jnienv, activity,
+   ia = _jni_callObjectMethodV(jnienv, activity,
       "getPixels", "(Landroid/graphics/Bitmap;)[I", jbitmap);
-   jint *arr = (*jnienv)->GetIntArrayElements(jnienv, ia, 0);
-   uint32_t *src = (uint32_t *)arr;
-   uint32_t c;
-   uint8_t a;
-   for (y = 0; y < bitmap_h; y++) {
-      /* Can use this for NO_PREMULTIPLIED_ALPHA I think
-      _al_convert_bitmap_data(
-         ((uint8_t *)arr) + (bitmap_w * 4) * y, ALLEGRO_PIXEL_FORMAT_ARGB_8888, bitmap_w*4,
-         ((uint8_t *)lr->data) + lr->pitch * y, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, lr->pitch,
-         0, 0, 0, 0, bitmap_w, 1
-      );
-      else use this:
-      */
-      uint32_t *dst = (uint32_t *)(((uint8_t *)lr->data) + lr->pitch * y);
-      for (x = 0; x < bitmap_w; x++) {
-         c = *src++;
-         a = (c >> 24) & 0xff;
-         c = (a << 24)
-           | (((c >> 16) & 0xff) * a / 255)
-           | ((((c >> 8) & 0xff) * a / 255) << 8)
-           | (((c & 0xff) * a / 255) << 16);
-         *dst++ = c;
-      }
+   arr = (*jnienv)->GetIntArrayElements(jnienv, ia, 0);
+
+   /* arr is an array of packed colours, NON-premultiplied alpha. */
+   if (flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
+      int src_format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
+      int src_pitch = bitmap_w * sizeof(uint32_t);
+      copy_bitmap_data(bitmap, (const uint32_t *)arr,
+         src_format, src_pitch, bitmap_w, bitmap_h);
    }
+   else {
+      copy_bitmap_data_multiply_alpha(bitmap, (const uint32_t *)arr,
+         bitmap_w, bitmap_h);
+   }
+
    (*jnienv)->ReleaseIntArrayElements(jnienv, ia, arr, JNI_ABORT);
    _jni_callv(jnienv, DeleteLocalRef, ia);
-
-   // Tell java we're done with the bitmap as well.
    _jni_callv(jnienv, DeleteLocalRef, jbitmap);
-
-   al_unlock_bitmap(bitmap);
 
    return bitmap;
 }

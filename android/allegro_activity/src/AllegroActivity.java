@@ -242,6 +242,8 @@ public class AllegroActivity extends Activity implements SensorEventListener
       try {
          BitmapFactory.Options options = new BitmapFactory.Options();
          options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+         // Only added in API level 19, avoid for now.
+         // options.inPremultiplied = premul;
          InputStream is = getResources().getAssets().open(filename);;
          decodedBitmap = BitmapFactory.decodeStream(is, null, options);
          is.close();
@@ -259,14 +261,32 @@ public class AllegroActivity extends Activity implements SensorEventListener
       try {
          BitmapFactory.Options options = new BitmapFactory.Options();
          options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+         // Only added in API level 19, avoid for now.
+         // options.inPremultiplied = premul;
          decodedBitmap = BitmapFactory.decodeStream(is, null, options);
          Log.d("AllegroActivity", "done waiting for decodeStream");
-
       } catch (Exception ex) {
          Log.e("AllegroActivity", "decodeBitmap_f exception: " + ex.getMessage());
       }
       Log.d("AllegroActivity", "decodeBitmap_f end");
       return decodedBitmap;
+   }
+
+   public int getBitmapFormat(Bitmap bitmap)
+   {
+      switch (bitmap.getConfig()) {
+         case ALPHA_8:
+            return Const.ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8; // not really
+         case ARGB_4444:
+            return Const.ALLEGRO_PIXEL_FORMAT_RGBA_4444;
+         case ARGB_8888:
+            return Const.ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+         case RGB_565:
+            return Const.ALLEGRO_PIXEL_FORMAT_BGR_565; // untested
+         default:
+            assert(false);
+            return -1;
+      }
    }
 
    public void postFinish()

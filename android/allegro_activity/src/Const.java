@@ -2,6 +2,12 @@ package org.liballeg.android;
 
 final class Const
 {
+   /* color.h */
+   static final int ALLEGRO_PIXEL_FORMAT_ABGR_8888         = 17;
+   static final int ALLEGRO_PIXEL_FORMAT_BGR_565           = 20;
+   static final int ALLEGRO_PIXEL_FORMAT_RGBA_4444         = 26;
+   static final int ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8  = 27;
+
    /* display.h */
    static final int ALLEGRO_RED_SIZE	    = 0;
    static final int ALLEGRO_GREEN_SIZE	    = 1;
