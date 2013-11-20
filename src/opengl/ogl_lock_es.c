@@ -237,8 +237,8 @@ ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_old_gles(ALLEGRO_BITMAP *bitmap,
             _al_ogl_bind_framebuffer(old_fbo);
          }
          else {
-            /* Unreachable on Android. (OpenGLES?) */
-            abort();
+            /* XXX this was never accounted for in Android port */
+            ALLEGRO_ERROR("unimplemented path\n");
          }
       }
    }
