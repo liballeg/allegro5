@@ -606,7 +606,6 @@ int al_get_new_bitmap_flags(void)
 
 
 
-#define _STORE(x) stored->tls.x = tls->x;
 /* Function: al_store_state
  */
 void al_store_state(ALLEGRO_STATE *state, int flags)
@@ -620,6 +619,8 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
    stored = (void *)state;
    stored->flags = flags;
 
+#define _STORE(x) (stored->tls.x = tls->x)
+
    if (flags & ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS) {
       _STORE(new_display_flags);
       _STORE(new_display_refresh_rate);
@@ -628,12 +629,12 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
       _STORE(new_window_y);
       _STORE(new_display_settings);
    }
-   
+
    if (flags & ALLEGRO_STATE_NEW_BITMAP_PARAMETERS) {
       _STORE(new_bitmap_format);
       _STORE(new_bitmap_flags);
    }
-   
+
    if (flags & ALLEGRO_STATE_DISPLAY) {
       _STORE(current_display);
    }
@@ -650,7 +651,7 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
       _STORE(new_file_interface);
       _STORE(fs_interface);
    }
-   
+
    if (flags & ALLEGRO_STATE_TRANSFORM) {
       ALLEGRO_BITMAP *target = al_get_target_bitmap();
       if (!target)
@@ -658,12 +659,12 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
       else
          stored->stored_transform = target->transform;
    }
-}
+
 #undef _STORE
+}
 
 
 
-#define _STORE(x) tls->x = stored->tls.x;
 /* Function: al_restore_state
  */
 void al_restore_state(ALLEGRO_STATE const *state)
@@ -678,46 +679,49 @@ void al_restore_state(ALLEGRO_STATE const *state)
    stored = (void *)state;
    flags = stored->flags;
 
+#define _RESTORE(x) (tls->x = stored->tls.x)
+
    if (flags & ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS) {
-      _STORE(new_display_flags);
-      _STORE(new_display_refresh_rate);
-      _STORE(new_display_adapter);
-      _STORE(new_window_x);
-      _STORE(new_window_y);
-      _STORE(new_display_settings);
+      _RESTORE(new_display_flags);
+      _RESTORE(new_display_refresh_rate);
+      _RESTORE(new_display_adapter);
+      _RESTORE(new_window_x);
+      _RESTORE(new_window_y);
+      _RESTORE(new_display_settings);
    }
-   
+
    if (flags & ALLEGRO_STATE_NEW_BITMAP_PARAMETERS) {
-      _STORE(new_bitmap_format);
-      _STORE(new_bitmap_flags);
+      _RESTORE(new_bitmap_format);
+      _RESTORE(new_bitmap_flags);
    }
-   
+
    if (flags & ALLEGRO_STATE_DISPLAY) {
-      _STORE(current_display);
+      _RESTORE(current_display);
       _al_set_current_display_only(tls->current_display);
    }
 
    if (flags & ALLEGRO_STATE_TARGET_BITMAP) {
-      _STORE(target_bitmap);
+      _RESTORE(target_bitmap);
       al_set_target_bitmap(tls->target_bitmap);
    }
-   
+
    if (flags & ALLEGRO_STATE_BLENDER) {
       tls->current_blender = stored->stored_blender;
    }
 
    if (flags & ALLEGRO_STATE_NEW_FILE_INTERFACE) {
-      _STORE(new_file_interface);
-      _STORE(fs_interface);
+      _RESTORE(new_file_interface);
+      _RESTORE(fs_interface);
    }
-   
+
    if (flags & ALLEGRO_STATE_TRANSFORM) {
       ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
       if (bitmap)
          al_use_transform(&stored->stored_transform);
    }
+
+#undef _RESTORE
 }
-#undef _STORE
 
 
 
