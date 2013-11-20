@@ -293,7 +293,7 @@ def converter_function(info_a, info_b):
     Create a string with one conversion function.
     """
     name = info_a.name.lower() + "_to_" + info_b.name.lower()
-    params = "void *src, int src_pitch,\n"
+    params = "const void *src, int src_pitch,\n"
     params += "   void *dst, int dst_pitch,\n"
     params += "   int sx, int sy, int dx, int dy, int width, int height"
     declaration = "static void " + name + "(" + params + ")"
@@ -362,7 +362,7 @@ def converter_function(info_a, info_b):
     r += "{\n"
     r += """\
    int y;
-   %(a_type)s *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const %(a_type)s *src_ptr = (const %(a_type)s *)((const char *)src + sy * src_pitch);
    %(b_type)s *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / %(a_size)d - width%(a_count)s;
    int dst_gap = dst_pitch / %(b_size)d - width%(b_count)s;
@@ -403,7 +403,7 @@ def write_convert_c(filename):
 
     f.write("""\
 void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
-   [ALLEGRO_NUM_PIXEL_FORMATS])(void *, int, void *, int,
+   [ALLEGRO_NUM_PIXEL_FORMATS])(const void *, int, void *, int,
    int, int, int, int, int, int) = {
 """)
     for a in formats_list:

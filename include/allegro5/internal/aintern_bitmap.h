@@ -109,12 +109,12 @@ struct ALLEGRO_BITMAP_INTERFACE
 };
 
 extern void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
-   [ALLEGRO_NUM_PIXEL_FORMATS])(void *, int, void *, int,
+   [ALLEGRO_NUM_PIXEL_FORMATS])(const void *, int, void *, int,
    int, int, int, int, int, int);
 
 /* Bitmap conversion */
 void _al_convert_bitmap_data(
-	void *src, int src_format, int src_pitch,
+	const void *src, int src_format, int src_pitch,
 	void *dst, int dst_format, int dst_pitch,
 	int sx, int sy, int dx, int dy,
 	int width, int height);

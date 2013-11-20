@@ -456,7 +456,7 @@ static void transfer_bitmap_data(ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst)
 
 
 void _al_convert_bitmap_data(
-   void *src, int src_format, int src_pitch,
+   const void *src, int src_format, int src_pitch,
    void *dst, int dst_format, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
@@ -468,7 +468,7 @@ void _al_convert_bitmap_data(
    if (src_format == dst_format) {
       int y;
       int size = al_get_pixel_size(src_format);
-      char *src_ptr = ((char *)src) + sy * src_pitch + sx * size;
+      const char *src_ptr = ((const char *)src) + sy * src_pitch + sx * size;
       char *dst_ptr = ((char *)dst) + dy * dst_pitch + dx * size;
       width *= size;
       for (y = 0; y < height; y++) {

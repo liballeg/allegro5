@@ -2,12 +2,12 @@
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_convert.h"
-static void argb_8888_to_rgba_8888(void *src, int src_pitch,
+static void argb_8888_to_rgba_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -24,12 +24,12 @@ static void argb_8888_to_rgba_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_8888_to_argb_4444(void *src, int src_pitch,
+static void argb_8888_to_argb_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -46,12 +46,12 @@ static void argb_8888_to_argb_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_8888_to_rgb_888(void *src, int src_pitch,
+static void argb_8888_to_rgb_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -77,12 +77,12 @@ static void argb_8888_to_rgb_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_8888_to_rgb_565(void *src, int src_pitch,
+static void argb_8888_to_rgb_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -99,12 +99,12 @@ static void argb_8888_to_rgb_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_8888_to_rgb_555(void *src, int src_pitch,
+static void argb_8888_to_rgb_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -121,12 +121,12 @@ static void argb_8888_to_rgb_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_8888_to_rgba_5551(void *src, int src_pitch,
+static void argb_8888_to_rgba_5551(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -143,12 +143,12 @@ static void argb_8888_to_rgba_5551(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_8888_to_argb_1555(void *src, int src_pitch,
+static void argb_8888_to_argb_1555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -165,12 +165,12 @@ static void argb_8888_to_argb_1555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_8888_to_abgr_8888(void *src, int src_pitch,
+static void argb_8888_to_abgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -187,12 +187,12 @@ static void argb_8888_to_abgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_8888_to_xbgr_8888(void *src, int src_pitch,
+static void argb_8888_to_xbgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -209,12 +209,12 @@ static void argb_8888_to_xbgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_8888_to_bgr_888(void *src, int src_pitch,
+static void argb_8888_to_bgr_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -240,12 +240,12 @@ static void argb_8888_to_bgr_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_8888_to_bgr_565(void *src, int src_pitch,
+static void argb_8888_to_bgr_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -262,12 +262,12 @@ static void argb_8888_to_bgr_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_8888_to_bgr_555(void *src, int src_pitch,
+static void argb_8888_to_bgr_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -284,12 +284,12 @@ static void argb_8888_to_bgr_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_8888_to_rgbx_8888(void *src, int src_pitch,
+static void argb_8888_to_rgbx_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -306,12 +306,12 @@ static void argb_8888_to_rgbx_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_8888_to_xrgb_8888(void *src, int src_pitch,
+static void argb_8888_to_xrgb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -328,12 +328,12 @@ static void argb_8888_to_xrgb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_8888_to_abgr_f32(void *src, int src_pitch,
+static void argb_8888_to_abgr_f32(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    ALLEGRO_COLOR *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 16 - width;
@@ -350,12 +350,12 @@ static void argb_8888_to_abgr_f32(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_8888_to_abgr_8888_le(void *src, int src_pitch,
+static void argb_8888_to_abgr_8888_le(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -372,12 +372,12 @@ static void argb_8888_to_abgr_8888_le(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_8888_to_rgba_4444(void *src, int src_pitch,
+static void argb_8888_to_rgba_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -394,12 +394,12 @@ static void argb_8888_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_8888_to_single_channel_8(void *src, int src_pitch,
+static void argb_8888_to_single_channel_8(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 1 - width;
@@ -416,12 +416,12 @@ static void argb_8888_to_single_channel_8(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_8888_to_argb_8888(void *src, int src_pitch,
+static void rgba_8888_to_argb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -438,12 +438,12 @@ static void rgba_8888_to_argb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_8888_to_argb_4444(void *src, int src_pitch,
+static void rgba_8888_to_argb_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -460,12 +460,12 @@ static void rgba_8888_to_argb_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_8888_to_rgb_888(void *src, int src_pitch,
+static void rgba_8888_to_rgb_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -491,12 +491,12 @@ static void rgba_8888_to_rgb_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_8888_to_rgb_565(void *src, int src_pitch,
+static void rgba_8888_to_rgb_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -513,12 +513,12 @@ static void rgba_8888_to_rgb_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_8888_to_rgb_555(void *src, int src_pitch,
+static void rgba_8888_to_rgb_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -535,12 +535,12 @@ static void rgba_8888_to_rgb_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_8888_to_rgba_5551(void *src, int src_pitch,
+static void rgba_8888_to_rgba_5551(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -557,12 +557,12 @@ static void rgba_8888_to_rgba_5551(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_8888_to_argb_1555(void *src, int src_pitch,
+static void rgba_8888_to_argb_1555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -579,12 +579,12 @@ static void rgba_8888_to_argb_1555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_8888_to_abgr_8888(void *src, int src_pitch,
+static void rgba_8888_to_abgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -601,12 +601,12 @@ static void rgba_8888_to_abgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_8888_to_xbgr_8888(void *src, int src_pitch,
+static void rgba_8888_to_xbgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -623,12 +623,12 @@ static void rgba_8888_to_xbgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_8888_to_bgr_888(void *src, int src_pitch,
+static void rgba_8888_to_bgr_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -654,12 +654,12 @@ static void rgba_8888_to_bgr_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_8888_to_bgr_565(void *src, int src_pitch,
+static void rgba_8888_to_bgr_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -676,12 +676,12 @@ static void rgba_8888_to_bgr_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_8888_to_bgr_555(void *src, int src_pitch,
+static void rgba_8888_to_bgr_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -698,12 +698,12 @@ static void rgba_8888_to_bgr_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_8888_to_rgbx_8888(void *src, int src_pitch,
+static void rgba_8888_to_rgbx_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -720,12 +720,12 @@ static void rgba_8888_to_rgbx_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_8888_to_xrgb_8888(void *src, int src_pitch,
+static void rgba_8888_to_xrgb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -742,12 +742,12 @@ static void rgba_8888_to_xrgb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_8888_to_abgr_f32(void *src, int src_pitch,
+static void rgba_8888_to_abgr_f32(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    ALLEGRO_COLOR *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 16 - width;
@@ -764,12 +764,12 @@ static void rgba_8888_to_abgr_f32(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_8888_to_abgr_8888_le(void *src, int src_pitch,
+static void rgba_8888_to_abgr_8888_le(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -786,12 +786,12 @@ static void rgba_8888_to_abgr_8888_le(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_8888_to_rgba_4444(void *src, int src_pitch,
+static void rgba_8888_to_rgba_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -808,12 +808,12 @@ static void rgba_8888_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_8888_to_single_channel_8(void *src, int src_pitch,
+static void rgba_8888_to_single_channel_8(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 1 - width;
@@ -830,12 +830,12 @@ static void rgba_8888_to_single_channel_8(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_4444_to_argb_8888(void *src, int src_pitch,
+static void argb_4444_to_argb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -852,12 +852,12 @@ static void argb_4444_to_argb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_4444_to_rgba_8888(void *src, int src_pitch,
+static void argb_4444_to_rgba_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -874,12 +874,12 @@ static void argb_4444_to_rgba_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_4444_to_rgb_888(void *src, int src_pitch,
+static void argb_4444_to_rgb_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -905,12 +905,12 @@ static void argb_4444_to_rgb_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_4444_to_rgb_565(void *src, int src_pitch,
+static void argb_4444_to_rgb_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -927,12 +927,12 @@ static void argb_4444_to_rgb_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_4444_to_rgb_555(void *src, int src_pitch,
+static void argb_4444_to_rgb_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -949,12 +949,12 @@ static void argb_4444_to_rgb_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_4444_to_rgba_5551(void *src, int src_pitch,
+static void argb_4444_to_rgba_5551(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -971,12 +971,12 @@ static void argb_4444_to_rgba_5551(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_4444_to_argb_1555(void *src, int src_pitch,
+static void argb_4444_to_argb_1555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -993,12 +993,12 @@ static void argb_4444_to_argb_1555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_4444_to_abgr_8888(void *src, int src_pitch,
+static void argb_4444_to_abgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -1015,12 +1015,12 @@ static void argb_4444_to_abgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_4444_to_xbgr_8888(void *src, int src_pitch,
+static void argb_4444_to_xbgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -1037,12 +1037,12 @@ static void argb_4444_to_xbgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_4444_to_bgr_888(void *src, int src_pitch,
+static void argb_4444_to_bgr_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -1068,12 +1068,12 @@ static void argb_4444_to_bgr_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_4444_to_bgr_565(void *src, int src_pitch,
+static void argb_4444_to_bgr_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -1090,12 +1090,12 @@ static void argb_4444_to_bgr_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_4444_to_bgr_555(void *src, int src_pitch,
+static void argb_4444_to_bgr_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -1112,12 +1112,12 @@ static void argb_4444_to_bgr_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_4444_to_rgbx_8888(void *src, int src_pitch,
+static void argb_4444_to_rgbx_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -1134,12 +1134,12 @@ static void argb_4444_to_rgbx_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_4444_to_xrgb_8888(void *src, int src_pitch,
+static void argb_4444_to_xrgb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -1156,12 +1156,12 @@ static void argb_4444_to_xrgb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_4444_to_abgr_f32(void *src, int src_pitch,
+static void argb_4444_to_abgr_f32(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    ALLEGRO_COLOR *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 16 - width;
@@ -1178,12 +1178,12 @@ static void argb_4444_to_abgr_f32(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_4444_to_abgr_8888_le(void *src, int src_pitch,
+static void argb_4444_to_abgr_8888_le(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -1200,12 +1200,12 @@ static void argb_4444_to_abgr_8888_le(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_4444_to_rgba_4444(void *src, int src_pitch,
+static void argb_4444_to_rgba_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -1222,12 +1222,12 @@ static void argb_4444_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_4444_to_single_channel_8(void *src, int src_pitch,
+static void argb_4444_to_single_channel_8(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width;
@@ -1244,12 +1244,12 @@ static void argb_4444_to_single_channel_8(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_888_to_argb_8888(void *src, int src_pitch,
+static void rgb_888_to_argb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 4 - width;
@@ -1271,12 +1271,12 @@ static void rgb_888_to_argb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_888_to_rgba_8888(void *src, int src_pitch,
+static void rgb_888_to_rgba_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 4 - width;
@@ -1298,12 +1298,12 @@ static void rgb_888_to_rgba_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_888_to_argb_4444(void *src, int src_pitch,
+static void rgb_888_to_argb_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 2 - width;
@@ -1325,12 +1325,12 @@ static void rgb_888_to_argb_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_888_to_rgb_565(void *src, int src_pitch,
+static void rgb_888_to_rgb_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 2 - width;
@@ -1352,12 +1352,12 @@ static void rgb_888_to_rgb_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_888_to_rgb_555(void *src, int src_pitch,
+static void rgb_888_to_rgb_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 2 - width;
@@ -1379,12 +1379,12 @@ static void rgb_888_to_rgb_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_888_to_rgba_5551(void *src, int src_pitch,
+static void rgb_888_to_rgba_5551(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 2 - width;
@@ -1406,12 +1406,12 @@ static void rgb_888_to_rgba_5551(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_888_to_argb_1555(void *src, int src_pitch,
+static void rgb_888_to_argb_1555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 2 - width;
@@ -1433,12 +1433,12 @@ static void rgb_888_to_argb_1555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_888_to_abgr_8888(void *src, int src_pitch,
+static void rgb_888_to_abgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 4 - width;
@@ -1460,12 +1460,12 @@ static void rgb_888_to_abgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_888_to_xbgr_8888(void *src, int src_pitch,
+static void rgb_888_to_xbgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 4 - width;
@@ -1487,12 +1487,12 @@ static void rgb_888_to_xbgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_888_to_bgr_888(void *src, int src_pitch,
+static void rgb_888_to_bgr_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -1523,12 +1523,12 @@ static void rgb_888_to_bgr_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_888_to_bgr_565(void *src, int src_pitch,
+static void rgb_888_to_bgr_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 2 - width;
@@ -1550,12 +1550,12 @@ static void rgb_888_to_bgr_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_888_to_bgr_555(void *src, int src_pitch,
+static void rgb_888_to_bgr_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 2 - width;
@@ -1577,12 +1577,12 @@ static void rgb_888_to_bgr_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_888_to_rgbx_8888(void *src, int src_pitch,
+static void rgb_888_to_rgbx_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 4 - width;
@@ -1604,12 +1604,12 @@ static void rgb_888_to_rgbx_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_888_to_xrgb_8888(void *src, int src_pitch,
+static void rgb_888_to_xrgb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 4 - width;
@@ -1631,12 +1631,12 @@ static void rgb_888_to_xrgb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_888_to_abgr_f32(void *src, int src_pitch,
+static void rgb_888_to_abgr_f32(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    ALLEGRO_COLOR *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 16 - width;
@@ -1658,12 +1658,12 @@ static void rgb_888_to_abgr_f32(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_888_to_abgr_8888_le(void *src, int src_pitch,
+static void rgb_888_to_abgr_8888_le(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 4 - width;
@@ -1685,12 +1685,12 @@ static void rgb_888_to_abgr_8888_le(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_888_to_rgba_4444(void *src, int src_pitch,
+static void rgb_888_to_rgba_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 2 - width;
@@ -1712,12 +1712,12 @@ static void rgb_888_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_888_to_single_channel_8(void *src, int src_pitch,
+static void rgb_888_to_single_channel_8(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 1 - width;
@@ -1739,12 +1739,12 @@ static void rgb_888_to_single_channel_8(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_565_to_argb_8888(void *src, int src_pitch,
+static void rgb_565_to_argb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -1761,12 +1761,12 @@ static void rgb_565_to_argb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_565_to_rgba_8888(void *src, int src_pitch,
+static void rgb_565_to_rgba_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -1783,12 +1783,12 @@ static void rgb_565_to_rgba_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_565_to_argb_4444(void *src, int src_pitch,
+static void rgb_565_to_argb_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -1805,12 +1805,12 @@ static void rgb_565_to_argb_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_565_to_rgb_888(void *src, int src_pitch,
+static void rgb_565_to_rgb_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -1836,12 +1836,12 @@ static void rgb_565_to_rgb_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_565_to_rgb_555(void *src, int src_pitch,
+static void rgb_565_to_rgb_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -1858,12 +1858,12 @@ static void rgb_565_to_rgb_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_565_to_rgba_5551(void *src, int src_pitch,
+static void rgb_565_to_rgba_5551(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -1880,12 +1880,12 @@ static void rgb_565_to_rgba_5551(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_565_to_argb_1555(void *src, int src_pitch,
+static void rgb_565_to_argb_1555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -1902,12 +1902,12 @@ static void rgb_565_to_argb_1555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_565_to_abgr_8888(void *src, int src_pitch,
+static void rgb_565_to_abgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -1924,12 +1924,12 @@ static void rgb_565_to_abgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_565_to_xbgr_8888(void *src, int src_pitch,
+static void rgb_565_to_xbgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -1946,12 +1946,12 @@ static void rgb_565_to_xbgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_565_to_bgr_888(void *src, int src_pitch,
+static void rgb_565_to_bgr_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -1977,12 +1977,12 @@ static void rgb_565_to_bgr_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_565_to_bgr_565(void *src, int src_pitch,
+static void rgb_565_to_bgr_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -1999,12 +1999,12 @@ static void rgb_565_to_bgr_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_565_to_bgr_555(void *src, int src_pitch,
+static void rgb_565_to_bgr_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -2021,12 +2021,12 @@ static void rgb_565_to_bgr_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_565_to_rgbx_8888(void *src, int src_pitch,
+static void rgb_565_to_rgbx_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -2043,12 +2043,12 @@ static void rgb_565_to_rgbx_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_565_to_xrgb_8888(void *src, int src_pitch,
+static void rgb_565_to_xrgb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -2065,12 +2065,12 @@ static void rgb_565_to_xrgb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_565_to_abgr_f32(void *src, int src_pitch,
+static void rgb_565_to_abgr_f32(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    ALLEGRO_COLOR *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 16 - width;
@@ -2087,12 +2087,12 @@ static void rgb_565_to_abgr_f32(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_565_to_abgr_8888_le(void *src, int src_pitch,
+static void rgb_565_to_abgr_8888_le(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -2109,12 +2109,12 @@ static void rgb_565_to_abgr_8888_le(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_565_to_rgba_4444(void *src, int src_pitch,
+static void rgb_565_to_rgba_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -2131,12 +2131,12 @@ static void rgb_565_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_565_to_single_channel_8(void *src, int src_pitch,
+static void rgb_565_to_single_channel_8(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width;
@@ -2153,12 +2153,12 @@ static void rgb_565_to_single_channel_8(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_555_to_argb_8888(void *src, int src_pitch,
+static void rgb_555_to_argb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -2175,12 +2175,12 @@ static void rgb_555_to_argb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_555_to_rgba_8888(void *src, int src_pitch,
+static void rgb_555_to_rgba_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -2197,12 +2197,12 @@ static void rgb_555_to_rgba_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_555_to_argb_4444(void *src, int src_pitch,
+static void rgb_555_to_argb_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -2219,12 +2219,12 @@ static void rgb_555_to_argb_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_555_to_rgb_888(void *src, int src_pitch,
+static void rgb_555_to_rgb_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -2250,12 +2250,12 @@ static void rgb_555_to_rgb_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_555_to_rgb_565(void *src, int src_pitch,
+static void rgb_555_to_rgb_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -2272,12 +2272,12 @@ static void rgb_555_to_rgb_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_555_to_rgba_5551(void *src, int src_pitch,
+static void rgb_555_to_rgba_5551(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -2294,12 +2294,12 @@ static void rgb_555_to_rgba_5551(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_555_to_argb_1555(void *src, int src_pitch,
+static void rgb_555_to_argb_1555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -2316,12 +2316,12 @@ static void rgb_555_to_argb_1555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_555_to_abgr_8888(void *src, int src_pitch,
+static void rgb_555_to_abgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -2338,12 +2338,12 @@ static void rgb_555_to_abgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_555_to_xbgr_8888(void *src, int src_pitch,
+static void rgb_555_to_xbgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -2360,12 +2360,12 @@ static void rgb_555_to_xbgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_555_to_bgr_888(void *src, int src_pitch,
+static void rgb_555_to_bgr_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -2391,12 +2391,12 @@ static void rgb_555_to_bgr_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_555_to_bgr_565(void *src, int src_pitch,
+static void rgb_555_to_bgr_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -2413,12 +2413,12 @@ static void rgb_555_to_bgr_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_555_to_bgr_555(void *src, int src_pitch,
+static void rgb_555_to_bgr_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -2435,12 +2435,12 @@ static void rgb_555_to_bgr_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_555_to_rgbx_8888(void *src, int src_pitch,
+static void rgb_555_to_rgbx_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -2457,12 +2457,12 @@ static void rgb_555_to_rgbx_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_555_to_xrgb_8888(void *src, int src_pitch,
+static void rgb_555_to_xrgb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -2479,12 +2479,12 @@ static void rgb_555_to_xrgb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_555_to_abgr_f32(void *src, int src_pitch,
+static void rgb_555_to_abgr_f32(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    ALLEGRO_COLOR *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 16 - width;
@@ -2501,12 +2501,12 @@ static void rgb_555_to_abgr_f32(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_555_to_abgr_8888_le(void *src, int src_pitch,
+static void rgb_555_to_abgr_8888_le(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -2523,12 +2523,12 @@ static void rgb_555_to_abgr_8888_le(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_555_to_rgba_4444(void *src, int src_pitch,
+static void rgb_555_to_rgba_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -2545,12 +2545,12 @@ static void rgb_555_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgb_555_to_single_channel_8(void *src, int src_pitch,
+static void rgb_555_to_single_channel_8(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width;
@@ -2567,12 +2567,12 @@ static void rgb_555_to_single_channel_8(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_5551_to_argb_8888(void *src, int src_pitch,
+static void rgba_5551_to_argb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -2589,12 +2589,12 @@ static void rgba_5551_to_argb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_5551_to_rgba_8888(void *src, int src_pitch,
+static void rgba_5551_to_rgba_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -2611,12 +2611,12 @@ static void rgba_5551_to_rgba_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_5551_to_argb_4444(void *src, int src_pitch,
+static void rgba_5551_to_argb_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -2633,12 +2633,12 @@ static void rgba_5551_to_argb_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_5551_to_rgb_888(void *src, int src_pitch,
+static void rgba_5551_to_rgb_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -2664,12 +2664,12 @@ static void rgba_5551_to_rgb_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_5551_to_rgb_565(void *src, int src_pitch,
+static void rgba_5551_to_rgb_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -2686,12 +2686,12 @@ static void rgba_5551_to_rgb_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_5551_to_rgb_555(void *src, int src_pitch,
+static void rgba_5551_to_rgb_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -2708,12 +2708,12 @@ static void rgba_5551_to_rgb_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_5551_to_argb_1555(void *src, int src_pitch,
+static void rgba_5551_to_argb_1555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -2730,12 +2730,12 @@ static void rgba_5551_to_argb_1555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_5551_to_abgr_8888(void *src, int src_pitch,
+static void rgba_5551_to_abgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -2752,12 +2752,12 @@ static void rgba_5551_to_abgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_5551_to_xbgr_8888(void *src, int src_pitch,
+static void rgba_5551_to_xbgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -2774,12 +2774,12 @@ static void rgba_5551_to_xbgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_5551_to_bgr_888(void *src, int src_pitch,
+static void rgba_5551_to_bgr_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -2805,12 +2805,12 @@ static void rgba_5551_to_bgr_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_5551_to_bgr_565(void *src, int src_pitch,
+static void rgba_5551_to_bgr_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -2827,12 +2827,12 @@ static void rgba_5551_to_bgr_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_5551_to_bgr_555(void *src, int src_pitch,
+static void rgba_5551_to_bgr_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -2849,12 +2849,12 @@ static void rgba_5551_to_bgr_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_5551_to_rgbx_8888(void *src, int src_pitch,
+static void rgba_5551_to_rgbx_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -2871,12 +2871,12 @@ static void rgba_5551_to_rgbx_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_5551_to_xrgb_8888(void *src, int src_pitch,
+static void rgba_5551_to_xrgb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -2893,12 +2893,12 @@ static void rgba_5551_to_xrgb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_5551_to_abgr_f32(void *src, int src_pitch,
+static void rgba_5551_to_abgr_f32(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    ALLEGRO_COLOR *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 16 - width;
@@ -2915,12 +2915,12 @@ static void rgba_5551_to_abgr_f32(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_5551_to_abgr_8888_le(void *src, int src_pitch,
+static void rgba_5551_to_abgr_8888_le(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -2937,12 +2937,12 @@ static void rgba_5551_to_abgr_8888_le(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_5551_to_rgba_4444(void *src, int src_pitch,
+static void rgba_5551_to_rgba_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -2959,12 +2959,12 @@ static void rgba_5551_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_5551_to_single_channel_8(void *src, int src_pitch,
+static void rgba_5551_to_single_channel_8(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width;
@@ -2981,12 +2981,12 @@ static void rgba_5551_to_single_channel_8(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_1555_to_argb_8888(void *src, int src_pitch,
+static void argb_1555_to_argb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -3003,12 +3003,12 @@ static void argb_1555_to_argb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_1555_to_rgba_8888(void *src, int src_pitch,
+static void argb_1555_to_rgba_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -3025,12 +3025,12 @@ static void argb_1555_to_rgba_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_1555_to_argb_4444(void *src, int src_pitch,
+static void argb_1555_to_argb_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -3047,12 +3047,12 @@ static void argb_1555_to_argb_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_1555_to_rgb_888(void *src, int src_pitch,
+static void argb_1555_to_rgb_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -3078,12 +3078,12 @@ static void argb_1555_to_rgb_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_1555_to_rgb_565(void *src, int src_pitch,
+static void argb_1555_to_rgb_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -3100,12 +3100,12 @@ static void argb_1555_to_rgb_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_1555_to_rgb_555(void *src, int src_pitch,
+static void argb_1555_to_rgb_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -3122,12 +3122,12 @@ static void argb_1555_to_rgb_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_1555_to_rgba_5551(void *src, int src_pitch,
+static void argb_1555_to_rgba_5551(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -3144,12 +3144,12 @@ static void argb_1555_to_rgba_5551(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_1555_to_abgr_8888(void *src, int src_pitch,
+static void argb_1555_to_abgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -3166,12 +3166,12 @@ static void argb_1555_to_abgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_1555_to_xbgr_8888(void *src, int src_pitch,
+static void argb_1555_to_xbgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -3188,12 +3188,12 @@ static void argb_1555_to_xbgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_1555_to_bgr_888(void *src, int src_pitch,
+static void argb_1555_to_bgr_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -3219,12 +3219,12 @@ static void argb_1555_to_bgr_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_1555_to_bgr_565(void *src, int src_pitch,
+static void argb_1555_to_bgr_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -3241,12 +3241,12 @@ static void argb_1555_to_bgr_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_1555_to_bgr_555(void *src, int src_pitch,
+static void argb_1555_to_bgr_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -3263,12 +3263,12 @@ static void argb_1555_to_bgr_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_1555_to_rgbx_8888(void *src, int src_pitch,
+static void argb_1555_to_rgbx_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -3285,12 +3285,12 @@ static void argb_1555_to_rgbx_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_1555_to_xrgb_8888(void *src, int src_pitch,
+static void argb_1555_to_xrgb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -3307,12 +3307,12 @@ static void argb_1555_to_xrgb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_1555_to_abgr_f32(void *src, int src_pitch,
+static void argb_1555_to_abgr_f32(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    ALLEGRO_COLOR *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 16 - width;
@@ -3329,12 +3329,12 @@ static void argb_1555_to_abgr_f32(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_1555_to_abgr_8888_le(void *src, int src_pitch,
+static void argb_1555_to_abgr_8888_le(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -3351,12 +3351,12 @@ static void argb_1555_to_abgr_8888_le(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_1555_to_rgba_4444(void *src, int src_pitch,
+static void argb_1555_to_rgba_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -3373,12 +3373,12 @@ static void argb_1555_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void argb_1555_to_single_channel_8(void *src, int src_pitch,
+static void argb_1555_to_single_channel_8(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width;
@@ -3395,12 +3395,12 @@ static void argb_1555_to_single_channel_8(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_to_argb_8888(void *src, int src_pitch,
+static void abgr_8888_to_argb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -3417,12 +3417,12 @@ static void abgr_8888_to_argb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_to_rgba_8888(void *src, int src_pitch,
+static void abgr_8888_to_rgba_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -3439,12 +3439,12 @@ static void abgr_8888_to_rgba_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_to_argb_4444(void *src, int src_pitch,
+static void abgr_8888_to_argb_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -3461,12 +3461,12 @@ static void abgr_8888_to_argb_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_to_rgb_888(void *src, int src_pitch,
+static void abgr_8888_to_rgb_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -3492,12 +3492,12 @@ static void abgr_8888_to_rgb_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_to_rgb_565(void *src, int src_pitch,
+static void abgr_8888_to_rgb_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -3514,12 +3514,12 @@ static void abgr_8888_to_rgb_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_to_rgb_555(void *src, int src_pitch,
+static void abgr_8888_to_rgb_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -3536,12 +3536,12 @@ static void abgr_8888_to_rgb_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_to_rgba_5551(void *src, int src_pitch,
+static void abgr_8888_to_rgba_5551(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -3558,12 +3558,12 @@ static void abgr_8888_to_rgba_5551(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_to_argb_1555(void *src, int src_pitch,
+static void abgr_8888_to_argb_1555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -3580,12 +3580,12 @@ static void abgr_8888_to_argb_1555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_to_xbgr_8888(void *src, int src_pitch,
+static void abgr_8888_to_xbgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -3602,12 +3602,12 @@ static void abgr_8888_to_xbgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_to_bgr_888(void *src, int src_pitch,
+static void abgr_8888_to_bgr_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -3633,12 +3633,12 @@ static void abgr_8888_to_bgr_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_to_bgr_565(void *src, int src_pitch,
+static void abgr_8888_to_bgr_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -3655,12 +3655,12 @@ static void abgr_8888_to_bgr_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_to_bgr_555(void *src, int src_pitch,
+static void abgr_8888_to_bgr_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -3677,12 +3677,12 @@ static void abgr_8888_to_bgr_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_to_rgbx_8888(void *src, int src_pitch,
+static void abgr_8888_to_rgbx_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -3699,12 +3699,12 @@ static void abgr_8888_to_rgbx_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_to_xrgb_8888(void *src, int src_pitch,
+static void abgr_8888_to_xrgb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -3721,12 +3721,12 @@ static void abgr_8888_to_xrgb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_to_abgr_f32(void *src, int src_pitch,
+static void abgr_8888_to_abgr_f32(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    ALLEGRO_COLOR *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 16 - width;
@@ -3743,12 +3743,12 @@ static void abgr_8888_to_abgr_f32(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_to_abgr_8888_le(void *src, int src_pitch,
+static void abgr_8888_to_abgr_8888_le(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -3765,12 +3765,12 @@ static void abgr_8888_to_abgr_8888_le(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_to_rgba_4444(void *src, int src_pitch,
+static void abgr_8888_to_rgba_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -3787,12 +3787,12 @@ static void abgr_8888_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_to_single_channel_8(void *src, int src_pitch,
+static void abgr_8888_to_single_channel_8(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 1 - width;
@@ -3809,12 +3809,12 @@ static void abgr_8888_to_single_channel_8(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xbgr_8888_to_argb_8888(void *src, int src_pitch,
+static void xbgr_8888_to_argb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -3831,12 +3831,12 @@ static void xbgr_8888_to_argb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xbgr_8888_to_rgba_8888(void *src, int src_pitch,
+static void xbgr_8888_to_rgba_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -3853,12 +3853,12 @@ static void xbgr_8888_to_rgba_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xbgr_8888_to_argb_4444(void *src, int src_pitch,
+static void xbgr_8888_to_argb_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -3875,12 +3875,12 @@ static void xbgr_8888_to_argb_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xbgr_8888_to_rgb_888(void *src, int src_pitch,
+static void xbgr_8888_to_rgb_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -3906,12 +3906,12 @@ static void xbgr_8888_to_rgb_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xbgr_8888_to_rgb_565(void *src, int src_pitch,
+static void xbgr_8888_to_rgb_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -3928,12 +3928,12 @@ static void xbgr_8888_to_rgb_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xbgr_8888_to_rgb_555(void *src, int src_pitch,
+static void xbgr_8888_to_rgb_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -3950,12 +3950,12 @@ static void xbgr_8888_to_rgb_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xbgr_8888_to_rgba_5551(void *src, int src_pitch,
+static void xbgr_8888_to_rgba_5551(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -3972,12 +3972,12 @@ static void xbgr_8888_to_rgba_5551(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xbgr_8888_to_argb_1555(void *src, int src_pitch,
+static void xbgr_8888_to_argb_1555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -3994,12 +3994,12 @@ static void xbgr_8888_to_argb_1555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xbgr_8888_to_abgr_8888(void *src, int src_pitch,
+static void xbgr_8888_to_abgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -4016,12 +4016,12 @@ static void xbgr_8888_to_abgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xbgr_8888_to_bgr_888(void *src, int src_pitch,
+static void xbgr_8888_to_bgr_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -4047,12 +4047,12 @@ static void xbgr_8888_to_bgr_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xbgr_8888_to_bgr_565(void *src, int src_pitch,
+static void xbgr_8888_to_bgr_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -4069,12 +4069,12 @@ static void xbgr_8888_to_bgr_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xbgr_8888_to_bgr_555(void *src, int src_pitch,
+static void xbgr_8888_to_bgr_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -4091,12 +4091,12 @@ static void xbgr_8888_to_bgr_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xbgr_8888_to_rgbx_8888(void *src, int src_pitch,
+static void xbgr_8888_to_rgbx_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -4113,12 +4113,12 @@ static void xbgr_8888_to_rgbx_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xbgr_8888_to_xrgb_8888(void *src, int src_pitch,
+static void xbgr_8888_to_xrgb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -4135,12 +4135,12 @@ static void xbgr_8888_to_xrgb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xbgr_8888_to_abgr_f32(void *src, int src_pitch,
+static void xbgr_8888_to_abgr_f32(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    ALLEGRO_COLOR *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 16 - width;
@@ -4157,12 +4157,12 @@ static void xbgr_8888_to_abgr_f32(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xbgr_8888_to_abgr_8888_le(void *src, int src_pitch,
+static void xbgr_8888_to_abgr_8888_le(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -4179,12 +4179,12 @@ static void xbgr_8888_to_abgr_8888_le(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xbgr_8888_to_rgba_4444(void *src, int src_pitch,
+static void xbgr_8888_to_rgba_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -4201,12 +4201,12 @@ static void xbgr_8888_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xbgr_8888_to_single_channel_8(void *src, int src_pitch,
+static void xbgr_8888_to_single_channel_8(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 1 - width;
@@ -4223,12 +4223,12 @@ static void xbgr_8888_to_single_channel_8(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_888_to_argb_8888(void *src, int src_pitch,
+static void bgr_888_to_argb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 4 - width;
@@ -4250,12 +4250,12 @@ static void bgr_888_to_argb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_888_to_rgba_8888(void *src, int src_pitch,
+static void bgr_888_to_rgba_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 4 - width;
@@ -4277,12 +4277,12 @@ static void bgr_888_to_rgba_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_888_to_argb_4444(void *src, int src_pitch,
+static void bgr_888_to_argb_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 2 - width;
@@ -4304,12 +4304,12 @@ static void bgr_888_to_argb_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_888_to_rgb_888(void *src, int src_pitch,
+static void bgr_888_to_rgb_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -4340,12 +4340,12 @@ static void bgr_888_to_rgb_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_888_to_rgb_565(void *src, int src_pitch,
+static void bgr_888_to_rgb_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 2 - width;
@@ -4367,12 +4367,12 @@ static void bgr_888_to_rgb_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_888_to_rgb_555(void *src, int src_pitch,
+static void bgr_888_to_rgb_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 2 - width;
@@ -4394,12 +4394,12 @@ static void bgr_888_to_rgb_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_888_to_rgba_5551(void *src, int src_pitch,
+static void bgr_888_to_rgba_5551(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 2 - width;
@@ -4421,12 +4421,12 @@ static void bgr_888_to_rgba_5551(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_888_to_argb_1555(void *src, int src_pitch,
+static void bgr_888_to_argb_1555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 2 - width;
@@ -4448,12 +4448,12 @@ static void bgr_888_to_argb_1555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_888_to_abgr_8888(void *src, int src_pitch,
+static void bgr_888_to_abgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 4 - width;
@@ -4475,12 +4475,12 @@ static void bgr_888_to_abgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_888_to_xbgr_8888(void *src, int src_pitch,
+static void bgr_888_to_xbgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 4 - width;
@@ -4502,12 +4502,12 @@ static void bgr_888_to_xbgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_888_to_bgr_565(void *src, int src_pitch,
+static void bgr_888_to_bgr_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 2 - width;
@@ -4529,12 +4529,12 @@ static void bgr_888_to_bgr_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_888_to_bgr_555(void *src, int src_pitch,
+static void bgr_888_to_bgr_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 2 - width;
@@ -4556,12 +4556,12 @@ static void bgr_888_to_bgr_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_888_to_rgbx_8888(void *src, int src_pitch,
+static void bgr_888_to_rgbx_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 4 - width;
@@ -4583,12 +4583,12 @@ static void bgr_888_to_rgbx_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_888_to_xrgb_8888(void *src, int src_pitch,
+static void bgr_888_to_xrgb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 4 - width;
@@ -4610,12 +4610,12 @@ static void bgr_888_to_xrgb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_888_to_abgr_f32(void *src, int src_pitch,
+static void bgr_888_to_abgr_f32(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    ALLEGRO_COLOR *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 16 - width;
@@ -4637,12 +4637,12 @@ static void bgr_888_to_abgr_f32(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_888_to_abgr_8888_le(void *src, int src_pitch,
+static void bgr_888_to_abgr_8888_le(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 4 - width;
@@ -4664,12 +4664,12 @@ static void bgr_888_to_abgr_8888_le(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_888_to_rgba_4444(void *src, int src_pitch,
+static void bgr_888_to_rgba_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 2 - width;
@@ -4691,12 +4691,12 @@ static void bgr_888_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_888_to_single_channel_8(void *src, int src_pitch,
+static void bgr_888_to_single_channel_8(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width * 3;
    int dst_gap = dst_pitch / 1 - width;
@@ -4718,12 +4718,12 @@ static void bgr_888_to_single_channel_8(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_565_to_argb_8888(void *src, int src_pitch,
+static void bgr_565_to_argb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -4740,12 +4740,12 @@ static void bgr_565_to_argb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_565_to_rgba_8888(void *src, int src_pitch,
+static void bgr_565_to_rgba_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -4762,12 +4762,12 @@ static void bgr_565_to_rgba_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_565_to_argb_4444(void *src, int src_pitch,
+static void bgr_565_to_argb_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -4784,12 +4784,12 @@ static void bgr_565_to_argb_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_565_to_rgb_888(void *src, int src_pitch,
+static void bgr_565_to_rgb_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -4815,12 +4815,12 @@ static void bgr_565_to_rgb_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_565_to_rgb_565(void *src, int src_pitch,
+static void bgr_565_to_rgb_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -4837,12 +4837,12 @@ static void bgr_565_to_rgb_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_565_to_rgb_555(void *src, int src_pitch,
+static void bgr_565_to_rgb_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -4859,12 +4859,12 @@ static void bgr_565_to_rgb_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_565_to_rgba_5551(void *src, int src_pitch,
+static void bgr_565_to_rgba_5551(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -4881,12 +4881,12 @@ static void bgr_565_to_rgba_5551(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_565_to_argb_1555(void *src, int src_pitch,
+static void bgr_565_to_argb_1555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -4903,12 +4903,12 @@ static void bgr_565_to_argb_1555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_565_to_abgr_8888(void *src, int src_pitch,
+static void bgr_565_to_abgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -4925,12 +4925,12 @@ static void bgr_565_to_abgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_565_to_xbgr_8888(void *src, int src_pitch,
+static void bgr_565_to_xbgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -4947,12 +4947,12 @@ static void bgr_565_to_xbgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_565_to_bgr_888(void *src, int src_pitch,
+static void bgr_565_to_bgr_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -4978,12 +4978,12 @@ static void bgr_565_to_bgr_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_565_to_bgr_555(void *src, int src_pitch,
+static void bgr_565_to_bgr_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -5000,12 +5000,12 @@ static void bgr_565_to_bgr_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_565_to_rgbx_8888(void *src, int src_pitch,
+static void bgr_565_to_rgbx_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -5022,12 +5022,12 @@ static void bgr_565_to_rgbx_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_565_to_xrgb_8888(void *src, int src_pitch,
+static void bgr_565_to_xrgb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -5044,12 +5044,12 @@ static void bgr_565_to_xrgb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_565_to_abgr_f32(void *src, int src_pitch,
+static void bgr_565_to_abgr_f32(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    ALLEGRO_COLOR *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 16 - width;
@@ -5066,12 +5066,12 @@ static void bgr_565_to_abgr_f32(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_565_to_abgr_8888_le(void *src, int src_pitch,
+static void bgr_565_to_abgr_8888_le(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -5088,12 +5088,12 @@ static void bgr_565_to_abgr_8888_le(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_565_to_rgba_4444(void *src, int src_pitch,
+static void bgr_565_to_rgba_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -5110,12 +5110,12 @@ static void bgr_565_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_565_to_single_channel_8(void *src, int src_pitch,
+static void bgr_565_to_single_channel_8(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width;
@@ -5132,12 +5132,12 @@ static void bgr_565_to_single_channel_8(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_555_to_argb_8888(void *src, int src_pitch,
+static void bgr_555_to_argb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -5154,12 +5154,12 @@ static void bgr_555_to_argb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_555_to_rgba_8888(void *src, int src_pitch,
+static void bgr_555_to_rgba_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -5176,12 +5176,12 @@ static void bgr_555_to_rgba_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_555_to_argb_4444(void *src, int src_pitch,
+static void bgr_555_to_argb_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -5198,12 +5198,12 @@ static void bgr_555_to_argb_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_555_to_rgb_888(void *src, int src_pitch,
+static void bgr_555_to_rgb_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -5229,12 +5229,12 @@ static void bgr_555_to_rgb_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_555_to_rgb_565(void *src, int src_pitch,
+static void bgr_555_to_rgb_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -5251,12 +5251,12 @@ static void bgr_555_to_rgb_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_555_to_rgb_555(void *src, int src_pitch,
+static void bgr_555_to_rgb_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -5273,12 +5273,12 @@ static void bgr_555_to_rgb_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_555_to_rgba_5551(void *src, int src_pitch,
+static void bgr_555_to_rgba_5551(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -5295,12 +5295,12 @@ static void bgr_555_to_rgba_5551(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_555_to_argb_1555(void *src, int src_pitch,
+static void bgr_555_to_argb_1555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -5317,12 +5317,12 @@ static void bgr_555_to_argb_1555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_555_to_abgr_8888(void *src, int src_pitch,
+static void bgr_555_to_abgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -5339,12 +5339,12 @@ static void bgr_555_to_abgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_555_to_xbgr_8888(void *src, int src_pitch,
+static void bgr_555_to_xbgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -5361,12 +5361,12 @@ static void bgr_555_to_xbgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_555_to_bgr_888(void *src, int src_pitch,
+static void bgr_555_to_bgr_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -5392,12 +5392,12 @@ static void bgr_555_to_bgr_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_555_to_bgr_565(void *src, int src_pitch,
+static void bgr_555_to_bgr_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -5414,12 +5414,12 @@ static void bgr_555_to_bgr_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_555_to_rgbx_8888(void *src, int src_pitch,
+static void bgr_555_to_rgbx_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -5436,12 +5436,12 @@ static void bgr_555_to_rgbx_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_555_to_xrgb_8888(void *src, int src_pitch,
+static void bgr_555_to_xrgb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -5458,12 +5458,12 @@ static void bgr_555_to_xrgb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_555_to_abgr_f32(void *src, int src_pitch,
+static void bgr_555_to_abgr_f32(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    ALLEGRO_COLOR *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 16 - width;
@@ -5480,12 +5480,12 @@ static void bgr_555_to_abgr_f32(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_555_to_abgr_8888_le(void *src, int src_pitch,
+static void bgr_555_to_abgr_8888_le(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -5502,12 +5502,12 @@ static void bgr_555_to_abgr_8888_le(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_555_to_rgba_4444(void *src, int src_pitch,
+static void bgr_555_to_rgba_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -5524,12 +5524,12 @@ static void bgr_555_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void bgr_555_to_single_channel_8(void *src, int src_pitch,
+static void bgr_555_to_single_channel_8(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width;
@@ -5546,12 +5546,12 @@ static void bgr_555_to_single_channel_8(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgbx_8888_to_argb_8888(void *src, int src_pitch,
+static void rgbx_8888_to_argb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -5568,12 +5568,12 @@ static void rgbx_8888_to_argb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgbx_8888_to_rgba_8888(void *src, int src_pitch,
+static void rgbx_8888_to_rgba_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -5590,12 +5590,12 @@ static void rgbx_8888_to_rgba_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgbx_8888_to_argb_4444(void *src, int src_pitch,
+static void rgbx_8888_to_argb_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -5612,12 +5612,12 @@ static void rgbx_8888_to_argb_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgbx_8888_to_rgb_888(void *src, int src_pitch,
+static void rgbx_8888_to_rgb_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -5643,12 +5643,12 @@ static void rgbx_8888_to_rgb_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgbx_8888_to_rgb_565(void *src, int src_pitch,
+static void rgbx_8888_to_rgb_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -5665,12 +5665,12 @@ static void rgbx_8888_to_rgb_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgbx_8888_to_rgb_555(void *src, int src_pitch,
+static void rgbx_8888_to_rgb_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -5687,12 +5687,12 @@ static void rgbx_8888_to_rgb_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgbx_8888_to_rgba_5551(void *src, int src_pitch,
+static void rgbx_8888_to_rgba_5551(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -5709,12 +5709,12 @@ static void rgbx_8888_to_rgba_5551(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgbx_8888_to_argb_1555(void *src, int src_pitch,
+static void rgbx_8888_to_argb_1555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -5731,12 +5731,12 @@ static void rgbx_8888_to_argb_1555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgbx_8888_to_abgr_8888(void *src, int src_pitch,
+static void rgbx_8888_to_abgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -5753,12 +5753,12 @@ static void rgbx_8888_to_abgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgbx_8888_to_xbgr_8888(void *src, int src_pitch,
+static void rgbx_8888_to_xbgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -5775,12 +5775,12 @@ static void rgbx_8888_to_xbgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgbx_8888_to_bgr_888(void *src, int src_pitch,
+static void rgbx_8888_to_bgr_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -5806,12 +5806,12 @@ static void rgbx_8888_to_bgr_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgbx_8888_to_bgr_565(void *src, int src_pitch,
+static void rgbx_8888_to_bgr_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -5828,12 +5828,12 @@ static void rgbx_8888_to_bgr_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgbx_8888_to_bgr_555(void *src, int src_pitch,
+static void rgbx_8888_to_bgr_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -5850,12 +5850,12 @@ static void rgbx_8888_to_bgr_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgbx_8888_to_xrgb_8888(void *src, int src_pitch,
+static void rgbx_8888_to_xrgb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -5872,12 +5872,12 @@ static void rgbx_8888_to_xrgb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgbx_8888_to_abgr_f32(void *src, int src_pitch,
+static void rgbx_8888_to_abgr_f32(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    ALLEGRO_COLOR *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 16 - width;
@@ -5894,12 +5894,12 @@ static void rgbx_8888_to_abgr_f32(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgbx_8888_to_abgr_8888_le(void *src, int src_pitch,
+static void rgbx_8888_to_abgr_8888_le(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -5916,12 +5916,12 @@ static void rgbx_8888_to_abgr_8888_le(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgbx_8888_to_rgba_4444(void *src, int src_pitch,
+static void rgbx_8888_to_rgba_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -5938,12 +5938,12 @@ static void rgbx_8888_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgbx_8888_to_single_channel_8(void *src, int src_pitch,
+static void rgbx_8888_to_single_channel_8(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 1 - width;
@@ -5960,12 +5960,12 @@ static void rgbx_8888_to_single_channel_8(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xrgb_8888_to_argb_8888(void *src, int src_pitch,
+static void xrgb_8888_to_argb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -5982,12 +5982,12 @@ static void xrgb_8888_to_argb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xrgb_8888_to_rgba_8888(void *src, int src_pitch,
+static void xrgb_8888_to_rgba_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -6004,12 +6004,12 @@ static void xrgb_8888_to_rgba_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xrgb_8888_to_argb_4444(void *src, int src_pitch,
+static void xrgb_8888_to_argb_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -6026,12 +6026,12 @@ static void xrgb_8888_to_argb_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xrgb_8888_to_rgb_888(void *src, int src_pitch,
+static void xrgb_8888_to_rgb_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -6057,12 +6057,12 @@ static void xrgb_8888_to_rgb_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xrgb_8888_to_rgb_565(void *src, int src_pitch,
+static void xrgb_8888_to_rgb_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -6079,12 +6079,12 @@ static void xrgb_8888_to_rgb_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xrgb_8888_to_rgb_555(void *src, int src_pitch,
+static void xrgb_8888_to_rgb_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -6101,12 +6101,12 @@ static void xrgb_8888_to_rgb_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xrgb_8888_to_rgba_5551(void *src, int src_pitch,
+static void xrgb_8888_to_rgba_5551(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -6123,12 +6123,12 @@ static void xrgb_8888_to_rgba_5551(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xrgb_8888_to_argb_1555(void *src, int src_pitch,
+static void xrgb_8888_to_argb_1555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -6145,12 +6145,12 @@ static void xrgb_8888_to_argb_1555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xrgb_8888_to_abgr_8888(void *src, int src_pitch,
+static void xrgb_8888_to_abgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -6167,12 +6167,12 @@ static void xrgb_8888_to_abgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xrgb_8888_to_xbgr_8888(void *src, int src_pitch,
+static void xrgb_8888_to_xbgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -6189,12 +6189,12 @@ static void xrgb_8888_to_xbgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xrgb_8888_to_bgr_888(void *src, int src_pitch,
+static void xrgb_8888_to_bgr_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -6220,12 +6220,12 @@ static void xrgb_8888_to_bgr_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xrgb_8888_to_bgr_565(void *src, int src_pitch,
+static void xrgb_8888_to_bgr_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -6242,12 +6242,12 @@ static void xrgb_8888_to_bgr_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xrgb_8888_to_bgr_555(void *src, int src_pitch,
+static void xrgb_8888_to_bgr_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -6264,12 +6264,12 @@ static void xrgb_8888_to_bgr_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xrgb_8888_to_rgbx_8888(void *src, int src_pitch,
+static void xrgb_8888_to_rgbx_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -6286,12 +6286,12 @@ static void xrgb_8888_to_rgbx_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xrgb_8888_to_abgr_f32(void *src, int src_pitch,
+static void xrgb_8888_to_abgr_f32(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    ALLEGRO_COLOR *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 16 - width;
@@ -6308,12 +6308,12 @@ static void xrgb_8888_to_abgr_f32(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xrgb_8888_to_abgr_8888_le(void *src, int src_pitch,
+static void xrgb_8888_to_abgr_8888_le(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -6330,12 +6330,12 @@ static void xrgb_8888_to_abgr_8888_le(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xrgb_8888_to_rgba_4444(void *src, int src_pitch,
+static void xrgb_8888_to_rgba_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -6352,12 +6352,12 @@ static void xrgb_8888_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void xrgb_8888_to_single_channel_8(void *src, int src_pitch,
+static void xrgb_8888_to_single_channel_8(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 1 - width;
@@ -6374,12 +6374,12 @@ static void xrgb_8888_to_single_channel_8(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_f32_to_argb_8888(void *src, int src_pitch,
+static void abgr_f32_to_argb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   ALLEGRO_COLOR *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const ALLEGRO_COLOR *src_ptr = (const ALLEGRO_COLOR *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 16 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -6396,12 +6396,12 @@ static void abgr_f32_to_argb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_f32_to_rgba_8888(void *src, int src_pitch,
+static void abgr_f32_to_rgba_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   ALLEGRO_COLOR *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const ALLEGRO_COLOR *src_ptr = (const ALLEGRO_COLOR *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 16 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -6418,12 +6418,12 @@ static void abgr_f32_to_rgba_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_f32_to_argb_4444(void *src, int src_pitch,
+static void abgr_f32_to_argb_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   ALLEGRO_COLOR *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const ALLEGRO_COLOR *src_ptr = (const ALLEGRO_COLOR *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 16 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -6440,12 +6440,12 @@ static void abgr_f32_to_argb_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_f32_to_rgb_888(void *src, int src_pitch,
+static void abgr_f32_to_rgb_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   ALLEGRO_COLOR *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const ALLEGRO_COLOR *src_ptr = (const ALLEGRO_COLOR *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 16 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -6471,12 +6471,12 @@ static void abgr_f32_to_rgb_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_f32_to_rgb_565(void *src, int src_pitch,
+static void abgr_f32_to_rgb_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   ALLEGRO_COLOR *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const ALLEGRO_COLOR *src_ptr = (const ALLEGRO_COLOR *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 16 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -6493,12 +6493,12 @@ static void abgr_f32_to_rgb_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_f32_to_rgb_555(void *src, int src_pitch,
+static void abgr_f32_to_rgb_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   ALLEGRO_COLOR *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const ALLEGRO_COLOR *src_ptr = (const ALLEGRO_COLOR *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 16 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -6515,12 +6515,12 @@ static void abgr_f32_to_rgb_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_f32_to_rgba_5551(void *src, int src_pitch,
+static void abgr_f32_to_rgba_5551(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   ALLEGRO_COLOR *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const ALLEGRO_COLOR *src_ptr = (const ALLEGRO_COLOR *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 16 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -6537,12 +6537,12 @@ static void abgr_f32_to_rgba_5551(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_f32_to_argb_1555(void *src, int src_pitch,
+static void abgr_f32_to_argb_1555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   ALLEGRO_COLOR *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const ALLEGRO_COLOR *src_ptr = (const ALLEGRO_COLOR *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 16 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -6559,12 +6559,12 @@ static void abgr_f32_to_argb_1555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_f32_to_abgr_8888(void *src, int src_pitch,
+static void abgr_f32_to_abgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   ALLEGRO_COLOR *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const ALLEGRO_COLOR *src_ptr = (const ALLEGRO_COLOR *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 16 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -6581,12 +6581,12 @@ static void abgr_f32_to_abgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_f32_to_xbgr_8888(void *src, int src_pitch,
+static void abgr_f32_to_xbgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   ALLEGRO_COLOR *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const ALLEGRO_COLOR *src_ptr = (const ALLEGRO_COLOR *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 16 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -6603,12 +6603,12 @@ static void abgr_f32_to_xbgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_f32_to_bgr_888(void *src, int src_pitch,
+static void abgr_f32_to_bgr_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   ALLEGRO_COLOR *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const ALLEGRO_COLOR *src_ptr = (const ALLEGRO_COLOR *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 16 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -6634,12 +6634,12 @@ static void abgr_f32_to_bgr_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_f32_to_bgr_565(void *src, int src_pitch,
+static void abgr_f32_to_bgr_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   ALLEGRO_COLOR *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const ALLEGRO_COLOR *src_ptr = (const ALLEGRO_COLOR *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 16 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -6656,12 +6656,12 @@ static void abgr_f32_to_bgr_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_f32_to_bgr_555(void *src, int src_pitch,
+static void abgr_f32_to_bgr_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   ALLEGRO_COLOR *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const ALLEGRO_COLOR *src_ptr = (const ALLEGRO_COLOR *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 16 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -6678,12 +6678,12 @@ static void abgr_f32_to_bgr_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_f32_to_rgbx_8888(void *src, int src_pitch,
+static void abgr_f32_to_rgbx_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   ALLEGRO_COLOR *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const ALLEGRO_COLOR *src_ptr = (const ALLEGRO_COLOR *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 16 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -6700,12 +6700,12 @@ static void abgr_f32_to_rgbx_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_f32_to_xrgb_8888(void *src, int src_pitch,
+static void abgr_f32_to_xrgb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   ALLEGRO_COLOR *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const ALLEGRO_COLOR *src_ptr = (const ALLEGRO_COLOR *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 16 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -6722,12 +6722,12 @@ static void abgr_f32_to_xrgb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_f32_to_abgr_8888_le(void *src, int src_pitch,
+static void abgr_f32_to_abgr_8888_le(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   ALLEGRO_COLOR *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const ALLEGRO_COLOR *src_ptr = (const ALLEGRO_COLOR *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 16 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -6744,12 +6744,12 @@ static void abgr_f32_to_abgr_8888_le(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_f32_to_rgba_4444(void *src, int src_pitch,
+static void abgr_f32_to_rgba_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   ALLEGRO_COLOR *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const ALLEGRO_COLOR *src_ptr = (const ALLEGRO_COLOR *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 16 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -6766,12 +6766,12 @@ static void abgr_f32_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_f32_to_single_channel_8(void *src, int src_pitch,
+static void abgr_f32_to_single_channel_8(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   ALLEGRO_COLOR *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const ALLEGRO_COLOR *src_ptr = (const ALLEGRO_COLOR *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 16 - width;
    int dst_gap = dst_pitch / 1 - width;
@@ -6788,12 +6788,12 @@ static void abgr_f32_to_single_channel_8(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_le_to_argb_8888(void *src, int src_pitch,
+static void abgr_8888_le_to_argb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -6810,12 +6810,12 @@ static void abgr_8888_le_to_argb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_le_to_rgba_8888(void *src, int src_pitch,
+static void abgr_8888_le_to_rgba_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -6832,12 +6832,12 @@ static void abgr_8888_le_to_rgba_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_le_to_argb_4444(void *src, int src_pitch,
+static void abgr_8888_le_to_argb_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -6854,12 +6854,12 @@ static void abgr_8888_le_to_argb_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_le_to_rgb_888(void *src, int src_pitch,
+static void abgr_8888_le_to_rgb_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -6885,12 +6885,12 @@ static void abgr_8888_le_to_rgb_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_le_to_rgb_565(void *src, int src_pitch,
+static void abgr_8888_le_to_rgb_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -6907,12 +6907,12 @@ static void abgr_8888_le_to_rgb_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_le_to_rgb_555(void *src, int src_pitch,
+static void abgr_8888_le_to_rgb_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -6929,12 +6929,12 @@ static void abgr_8888_le_to_rgb_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_le_to_rgba_5551(void *src, int src_pitch,
+static void abgr_8888_le_to_rgba_5551(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -6951,12 +6951,12 @@ static void abgr_8888_le_to_rgba_5551(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_le_to_argb_1555(void *src, int src_pitch,
+static void abgr_8888_le_to_argb_1555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -6973,12 +6973,12 @@ static void abgr_8888_le_to_argb_1555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_le_to_abgr_8888(void *src, int src_pitch,
+static void abgr_8888_le_to_abgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -6995,12 +6995,12 @@ static void abgr_8888_le_to_abgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_le_to_xbgr_8888(void *src, int src_pitch,
+static void abgr_8888_le_to_xbgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -7017,12 +7017,12 @@ static void abgr_8888_le_to_xbgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_le_to_bgr_888(void *src, int src_pitch,
+static void abgr_8888_le_to_bgr_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -7048,12 +7048,12 @@ static void abgr_8888_le_to_bgr_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_le_to_bgr_565(void *src, int src_pitch,
+static void abgr_8888_le_to_bgr_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -7070,12 +7070,12 @@ static void abgr_8888_le_to_bgr_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_le_to_bgr_555(void *src, int src_pitch,
+static void abgr_8888_le_to_bgr_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -7092,12 +7092,12 @@ static void abgr_8888_le_to_bgr_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_le_to_rgbx_8888(void *src, int src_pitch,
+static void abgr_8888_le_to_rgbx_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -7114,12 +7114,12 @@ static void abgr_8888_le_to_rgbx_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_le_to_xrgb_8888(void *src, int src_pitch,
+static void abgr_8888_le_to_xrgb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -7136,12 +7136,12 @@ static void abgr_8888_le_to_xrgb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_le_to_abgr_f32(void *src, int src_pitch,
+static void abgr_8888_le_to_abgr_f32(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    ALLEGRO_COLOR *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 16 - width;
@@ -7158,12 +7158,12 @@ static void abgr_8888_le_to_abgr_f32(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_le_to_rgba_4444(void *src, int src_pitch,
+static void abgr_8888_le_to_rgba_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -7180,12 +7180,12 @@ static void abgr_8888_le_to_rgba_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void abgr_8888_le_to_single_channel_8(void *src, int src_pitch,
+static void abgr_8888_le_to_single_channel_8(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint32_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint32_t *src_ptr = (const uint32_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 4 - width;
    int dst_gap = dst_pitch / 1 - width;
@@ -7202,12 +7202,12 @@ static void abgr_8888_le_to_single_channel_8(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_4444_to_argb_8888(void *src, int src_pitch,
+static void rgba_4444_to_argb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -7224,12 +7224,12 @@ static void rgba_4444_to_argb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_4444_to_rgba_8888(void *src, int src_pitch,
+static void rgba_4444_to_rgba_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -7246,12 +7246,12 @@ static void rgba_4444_to_rgba_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_4444_to_argb_4444(void *src, int src_pitch,
+static void rgba_4444_to_argb_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -7268,12 +7268,12 @@ static void rgba_4444_to_argb_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_4444_to_rgb_888(void *src, int src_pitch,
+static void rgba_4444_to_rgb_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -7299,12 +7299,12 @@ static void rgba_4444_to_rgb_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_4444_to_rgb_565(void *src, int src_pitch,
+static void rgba_4444_to_rgb_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -7321,12 +7321,12 @@ static void rgba_4444_to_rgb_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_4444_to_rgb_555(void *src, int src_pitch,
+static void rgba_4444_to_rgb_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -7343,12 +7343,12 @@ static void rgba_4444_to_rgb_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_4444_to_rgba_5551(void *src, int src_pitch,
+static void rgba_4444_to_rgba_5551(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -7365,12 +7365,12 @@ static void rgba_4444_to_rgba_5551(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_4444_to_argb_1555(void *src, int src_pitch,
+static void rgba_4444_to_argb_1555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -7387,12 +7387,12 @@ static void rgba_4444_to_argb_1555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_4444_to_abgr_8888(void *src, int src_pitch,
+static void rgba_4444_to_abgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -7409,12 +7409,12 @@ static void rgba_4444_to_abgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_4444_to_xbgr_8888(void *src, int src_pitch,
+static void rgba_4444_to_xbgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -7431,12 +7431,12 @@ static void rgba_4444_to_xbgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_4444_to_bgr_888(void *src, int src_pitch,
+static void rgba_4444_to_bgr_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -7462,12 +7462,12 @@ static void rgba_4444_to_bgr_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_4444_to_bgr_565(void *src, int src_pitch,
+static void rgba_4444_to_bgr_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -7484,12 +7484,12 @@ static void rgba_4444_to_bgr_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_4444_to_bgr_555(void *src, int src_pitch,
+static void rgba_4444_to_bgr_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -7506,12 +7506,12 @@ static void rgba_4444_to_bgr_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_4444_to_rgbx_8888(void *src, int src_pitch,
+static void rgba_4444_to_rgbx_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -7528,12 +7528,12 @@ static void rgba_4444_to_rgbx_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_4444_to_xrgb_8888(void *src, int src_pitch,
+static void rgba_4444_to_xrgb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -7550,12 +7550,12 @@ static void rgba_4444_to_xrgb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_4444_to_abgr_f32(void *src, int src_pitch,
+static void rgba_4444_to_abgr_f32(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    ALLEGRO_COLOR *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 16 - width;
@@ -7572,12 +7572,12 @@ static void rgba_4444_to_abgr_f32(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_4444_to_abgr_8888_le(void *src, int src_pitch,
+static void rgba_4444_to_abgr_8888_le(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -7594,12 +7594,12 @@ static void rgba_4444_to_abgr_8888_le(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void rgba_4444_to_single_channel_8(void *src, int src_pitch,
+static void rgba_4444_to_single_channel_8(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint16_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint16_t *src_ptr = (const uint16_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 2 - width;
    int dst_gap = dst_pitch / 1 - width;
@@ -7616,12 +7616,12 @@ static void rgba_4444_to_single_channel_8(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void single_channel_8_to_argb_8888(void *src, int src_pitch,
+static void single_channel_8_to_argb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -7638,12 +7638,12 @@ static void single_channel_8_to_argb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void single_channel_8_to_rgba_8888(void *src, int src_pitch,
+static void single_channel_8_to_rgba_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -7660,12 +7660,12 @@ static void single_channel_8_to_rgba_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void single_channel_8_to_argb_4444(void *src, int src_pitch,
+static void single_channel_8_to_argb_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -7682,12 +7682,12 @@ static void single_channel_8_to_argb_4444(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void single_channel_8_to_rgb_888(void *src, int src_pitch,
+static void single_channel_8_to_rgb_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -7713,12 +7713,12 @@ static void single_channel_8_to_rgb_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void single_channel_8_to_rgb_565(void *src, int src_pitch,
+static void single_channel_8_to_rgb_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -7735,12 +7735,12 @@ static void single_channel_8_to_rgb_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void single_channel_8_to_rgb_555(void *src, int src_pitch,
+static void single_channel_8_to_rgb_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -7757,12 +7757,12 @@ static void single_channel_8_to_rgb_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void single_channel_8_to_rgba_5551(void *src, int src_pitch,
+static void single_channel_8_to_rgba_5551(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -7779,12 +7779,12 @@ static void single_channel_8_to_rgba_5551(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void single_channel_8_to_argb_1555(void *src, int src_pitch,
+static void single_channel_8_to_argb_1555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -7801,12 +7801,12 @@ static void single_channel_8_to_argb_1555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void single_channel_8_to_abgr_8888(void *src, int src_pitch,
+static void single_channel_8_to_abgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -7823,12 +7823,12 @@ static void single_channel_8_to_abgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void single_channel_8_to_xbgr_8888(void *src, int src_pitch,
+static void single_channel_8_to_xbgr_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -7845,12 +7845,12 @@ static void single_channel_8_to_xbgr_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void single_channel_8_to_bgr_888(void *src, int src_pitch,
+static void single_channel_8_to_bgr_888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint8_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width;
    int dst_gap = dst_pitch / 1 - width * 3;
@@ -7876,12 +7876,12 @@ static void single_channel_8_to_bgr_888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void single_channel_8_to_bgr_565(void *src, int src_pitch,
+static void single_channel_8_to_bgr_565(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -7898,12 +7898,12 @@ static void single_channel_8_to_bgr_565(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void single_channel_8_to_bgr_555(void *src, int src_pitch,
+static void single_channel_8_to_bgr_555(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -7920,12 +7920,12 @@ static void single_channel_8_to_bgr_555(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void single_channel_8_to_rgbx_8888(void *src, int src_pitch,
+static void single_channel_8_to_rgbx_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -7942,12 +7942,12 @@ static void single_channel_8_to_rgbx_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void single_channel_8_to_xrgb_8888(void *src, int src_pitch,
+static void single_channel_8_to_xrgb_8888(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -7964,12 +7964,12 @@ static void single_channel_8_to_xrgb_8888(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void single_channel_8_to_abgr_f32(void *src, int src_pitch,
+static void single_channel_8_to_abgr_f32(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    ALLEGRO_COLOR *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width;
    int dst_gap = dst_pitch / 16 - width;
@@ -7986,12 +7986,12 @@ static void single_channel_8_to_abgr_f32(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void single_channel_8_to_abgr_8888_le(void *src, int src_pitch,
+static void single_channel_8_to_abgr_8888_le(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint32_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width;
    int dst_gap = dst_pitch / 4 - width;
@@ -8008,12 +8008,12 @@ static void single_channel_8_to_abgr_8888_le(void *src, int src_pitch,
       dst_ptr += dst_gap;
    }
 }
-static void single_channel_8_to_rgba_4444(void *src, int src_pitch,
+static void single_channel_8_to_rgba_4444(const void *src, int src_pitch,
    void *dst, int dst_pitch,
    int sx, int sy, int dx, int dy, int width, int height)
 {
    int y;
-   uint8_t *src_ptr = (void *)((char *)src + sy * src_pitch);
+   const uint8_t *src_ptr = (const uint8_t *)((const char *)src + sy * src_pitch);
    uint16_t *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
    int src_gap = src_pitch / 1 - width;
    int dst_gap = dst_pitch / 2 - width;
@@ -8031,7 +8031,7 @@ static void single_channel_8_to_rgba_4444(void *src, int src_pitch,
    }
 }
 void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
-   [ALLEGRO_NUM_PIXEL_FORMATS])(void *, int, void *, int,
+   [ALLEGRO_NUM_PIXEL_FORMATS])(const void *, int, void *, int,
    int, int, int, int, int, int) = {
    {NULL},
    {NULL},
