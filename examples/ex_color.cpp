@@ -177,9 +177,12 @@ int main(int argc, char *argv[])
       abort_example("Failed to load data/DejaVuSans.ttf\n");
    }
 
-   Theme theme(font);
-   Prog prog(theme, display);
-   prog.run();
+   /* Prog is destroyed at the end of this scope. */
+   {
+      Theme theme(font);
+      Prog prog(theme, display);
+      prog.run();
+   }
 
    al_destroy_font(font);
 
