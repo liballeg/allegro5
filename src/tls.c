@@ -696,13 +696,15 @@ void al_restore_state(ALLEGRO_STATE const *state)
    }
 
    if (flags & ALLEGRO_STATE_DISPLAY) {
-      _RESTORE(current_display);
-      _al_set_current_display_only(tls->current_display);
+      if (tls->current_display != stored->tls.current_display) {
+         _al_set_current_display_only(tls->current_display);
+      }
    }
 
    if (flags & ALLEGRO_STATE_TARGET_BITMAP) {
-      _RESTORE(target_bitmap);
-      al_set_target_bitmap(tls->target_bitmap);
+      if (tls->target_bitmap != stored->tls.target_bitmap) {
+         al_set_target_bitmap(tls->target_bitmap);
+      }
    }
 
    if (flags & ALLEGRO_STATE_BLENDER) {
