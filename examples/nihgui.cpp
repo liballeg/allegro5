@@ -116,6 +116,10 @@ Dialog::Dialog(const Theme & theme, ALLEGRO_DISPLAY *display,
    al_register_event_source(this->event_queue, al_get_keyboard_event_source());
    al_register_event_source(this->event_queue, al_get_mouse_event_source());
    al_register_event_source(this->event_queue, al_get_display_event_source(display));
+   if (al_is_touch_input_installed()) {
+      al_register_event_source(this->event_queue,
+         al_get_touch_input_mouse_emulation_event_source());
+   }
 }
 
 Dialog::~Dialog()
@@ -242,16 +246,16 @@ void Dialog::on_mouse_axes(const ALLEGRO_MOUSE_EVENT & event)
       return;
    }
 
-   if (this->mouse_over_widget && this->mouse_over_widget->contains(mx, my)) {
-      /* no change */
-      return;
-   }
-
    this->check_mouse_over(mx, my);
 }
 
 void Dialog::check_mouse_over(int mx, int my)
 {
+   if (this->mouse_over_widget && this->mouse_over_widget->contains(mx, my)) {
+      /* no change */
+      return;
+   }
+
    for (std::list<Widget*>::iterator it = this->all_widgets.begin();
          it != this->all_widgets.end();
          ++it)
@@ -273,6 +277,11 @@ void Dialog::on_mouse_button_down(const ALLEGRO_MOUSE_EVENT & event)
 {
    if (event.button != 1)
       return;
+
+   /* With touch input we may not receive mouse axes event before the touch
+    * so we must check which widget the touch is over.
+    */
+   this->check_mouse_over(event.x, event.y);
    if (!this->mouse_over_widget)
       return;
 
