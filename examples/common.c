@@ -15,6 +15,7 @@ void log_printf(char const *format, ...);
 void init_platform_specific(void)
 {
 #ifdef ALLEGRO_ANDROID
+   al_install_touch_input();
    al_android_set_apk_file_interface();
 #endif
 }
