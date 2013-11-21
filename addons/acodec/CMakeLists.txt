@@ -201,7 +201,7 @@ if(WANT_TREMOR)
     else(NOT SUPPORT_VORBIS)
         # mimic regular libogg/libvorbis
         set(OGG_INCLUDE_DIR ${TREMOR_INCLUDE_DIR})
-        set(VORBIS_INCLUDE_DIR )
+        set(VORBIS_INCLUDE_DIR ${TREMOR_INCLUDE_DIR})
         set(VORBIS_LIBRARIES ${TREMOR_LIBRARIES})
         set(ALLEGRO_CFG_ACODEC_TREMOR 1)
     endif(NOT SUPPORT_VORBIS)
