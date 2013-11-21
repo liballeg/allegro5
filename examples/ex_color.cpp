@@ -19,6 +19,15 @@
 char const *names[] = {"R", "G", "B", "H", "S", "V", "H", "S", "L",
     "Y", "U", "V", "C", "M", "Y", "K"};
 
+float clamp(float x)
+{
+    if (x < 0)
+       return 0;
+    if (x > 1)
+       return 1;
+    return x;
+}
+
 class Prog {
 private:
    Dialog d;
@@ -30,6 +39,9 @@ private:
 public:
    Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
    void run();   
+
+private:
+   void draw_swatch(float x, float y, float w, float h, float v[3]);
 };
 
 Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
@@ -45,17 +57,6 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
       previous[i] = 0;
    }
 }
-
-namespace {
-float clamp(float x)
-{
-    if (x < 0)
-       return 0;
-    if (x > 1)
-       return 1;
-    return x;
-}
-};
 
 void Prog::run()
 {
@@ -121,7 +122,7 @@ void Prog::run()
                   break;
             }
          }
-         
+
          for (int i = 0; i < SLIDERS_COUNT; i++) {
             sliders[i].set_cur_value((int)(v[i] * 1000));
             previous[i] = sliders[i].get_cur_value();
@@ -129,23 +130,30 @@ void Prog::run()
             sprintf(c, "%d", (int)(v[i] * 100));
             labels2[i].set_text(c);
          }
-         
-         d.draw();
-         
-         al_draw_filled_rectangle(0, 400, 640, 480,
-            al_map_rgb_f(v[0], v[1], v[2]));
-         char const *name = al_color_rgb_to_name(v[0], v[1], v[2]);
-         char html[8];
-         al_color_rgb_to_html(v[0], v[1], v[2], html);
 
-         al_draw_text(d.get_theme().font, al_map_rgb(0, 0, 0), 0, 380, 0, name);
-         al_draw_text(d.get_theme().font, al_map_rgb(0, 0, 0), 0, 360, 0, html);
+         d.draw();
+
+         ALLEGRO_BITMAP *target = al_get_target_bitmap();
+         int w = al_get_bitmap_width(target);
+         int h = al_get_bitmap_height(target);
+         draw_swatch(0, h - 80, w, h, v);
 
          al_flip_display();
       }
 
       d.run_step(true);
    }
+}
+
+void Prog::draw_swatch(float x1, float y1, float x2, float y2, float v[3])
+{
+   al_draw_filled_rectangle(x1, y1, x2, y2, al_map_rgb_f(v[0], v[1], v[2]));
+
+   char const *name = al_color_rgb_to_name(v[0], v[1], v[2]);
+   char html[8];
+   al_color_rgb_to_html(v[0], v[1], v[2], html);
+   al_draw_text(d.get_theme().font, al_map_rgb(0, 0, 0), x1, y1 - 20, 0, name);
+   al_draw_text(d.get_theme().font, al_map_rgb(0, 0, 0), x1, y1 - 40, 0, html);
 }
 
 int main(int argc, char *argv[])
