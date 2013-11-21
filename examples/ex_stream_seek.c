@@ -19,7 +19,7 @@ ALLEGRO_TIMER *timer;
 ALLEGRO_EVENT_QUEUE *queue;
 ALLEGRO_FONT *basic_font = NULL;
 ALLEGRO_AUDIO_STREAM *music_stream = NULL;
-char *stream_filename = NULL;
+const char *stream_filename = "data/welcome.wav";
 
 float slider_pos = 0.0;
 float loop_start, loop_end;
@@ -222,7 +222,7 @@ static void event_handler(const ALLEGRO_EVENT * event)
    }
 }
 
-int main(int argc, char * argv[])
+int main(int argc, char *argv[])
 {
    ALLEGRO_CONFIG *config;
    ALLEGRO_EVENT event;
@@ -232,9 +232,8 @@ int main(int argc, char * argv[])
 
    initialize();
 
-   if (argc < 2) {
-      log_printf("This example needs to be run from the command line.\nUsage: %s {audio_files}\n", argv[0]);
-      goto done;
+   if (argc > 1) {
+      stream_filename = argv[1];
    }
 
    buffer_count = 0;
@@ -256,7 +255,6 @@ int main(int argc, char * argv[])
       samples = 1024;
    }
 
-   stream_filename = argv[1];
    music_stream = al_load_audio_stream(stream_filename, buffer_count, samples);
    if (!music_stream) {
       abort_example("Stream error!\n");
@@ -275,7 +273,6 @@ int main(int argc, char * argv[])
       event_handler(&event);
    }
 
-done:
    myexit();
    al_destroy_display(display);
    close_log(true);
