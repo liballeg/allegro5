@@ -39,7 +39,6 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_android_display_driver(void);
 ALLEGRO_KEYBOARD_DRIVER *_al_get_android_keyboard_driver(void);
 ALLEGRO_MOUSE_DRIVER *_al_get_android_mouse_driver(void);
 ALLEGRO_TOUCH_INPUT_DRIVER *_al_get_android_touch_input_driver(void);
-bool _al_get_android_montior_info(int adapter, ALLEGRO_MONITOR_INFO *info);
 
 int _al_android_get_display_orientation(void);
 
