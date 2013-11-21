@@ -236,9 +236,9 @@ public class AllegroActivity extends Activity implements SensorEventListener
       return pixels;
    }
 
-   public Bitmap decodeBitmap(final String filename)
+   public Bitmap decodeBitmapAsset(final String filename)
    {
-      Log.d("AllegroActivity", "decodeBitmap begin");
+      Log.d("AllegroActivity", "decodeBitmapAsset begin");
       try {
          BitmapFactory.Options options = new BitmapFactory.Options();
          options.inPreferredConfig = Bitmap.Config.ARGB_8888;
@@ -249,15 +249,16 @@ public class AllegroActivity extends Activity implements SensorEventListener
          is.close();
          Log.d("AllegroActivity", "done waiting for decodeStream");
       } catch (Exception ex) {
-         Log.e("AllegroActivity", "decodeBitmap exception: " + ex.getMessage());
+         Log.e("AllegroActivity",
+            "decodeBitmapAsset exception: " + ex.getMessage());
       }
-      Log.d("AllegroActivity", "decodeBitmap end");
+      Log.d("AllegroActivity", "decodeBitmapAsset end");
       return decodedBitmap;
    }
 
-   public Bitmap decodeBitmap_f(final AllegroInputStream is)
+   public Bitmap decodeBitmapStream(final AllegroInputStream is)
    {
-      Log.d("AllegroActivity", "decodeBitmap_f begin");
+      Log.d("AllegroActivity", "decodeBitmapStream begin");
       try {
          BitmapFactory.Options options = new BitmapFactory.Options();
          options.inPreferredConfig = Bitmap.Config.ARGB_8888;
@@ -266,9 +267,10 @@ public class AllegroActivity extends Activity implements SensorEventListener
          decodedBitmap = BitmapFactory.decodeStream(is, null, options);
          Log.d("AllegroActivity", "done waiting for decodeStream");
       } catch (Exception ex) {
-         Log.e("AllegroActivity", "decodeBitmap_f exception: " + ex.getMessage());
+         Log.e("AllegroActivity", "decodeBitmapStream exception: " +
+               ex.getMessage());
       }
-      Log.d("AllegroActivity", "decodeBitmap_f end");
+      Log.d("AllegroActivity", "decodeBitmapStream end");
       return decodedBitmap;
    }
 

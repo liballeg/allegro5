@@ -145,7 +145,7 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
       return NULL;
    }
 
-   jbitmap = _jni_callObjectMethodV(jnienv, activity, "decodeBitmap_f",
+   jbitmap = _jni_callObjectMethodV(jnienv, activity, "decodeBitmapStream",
       "(L" ALLEGRO_ANDROID_PACKAGE_NAME_SLASH "/AllegroInputStream;)Landroid/graphics/Bitmap;",
       input_stream);
 
@@ -205,7 +205,7 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
    return bitmap;
 }
 
-ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags)
+static ALLEGRO_BITMAP *android_load_image_asset(const char *filename, int flags)
 {
    JNIEnv *jnienv;
    jobject activity;
@@ -226,7 +226,8 @@ ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags)
    activity = _al_android_activity_object();
    str = (*jnienv)->NewStringUTF(jnienv, filename);
    jbitmap = _jni_callObjectMethodV(jnienv, activity,
-      "decodeBitmap", "(Ljava/lang/String;)Landroid/graphics/Bitmap;", str);
+      "decodeBitmapAsset", "(Ljava/lang/String;)Landroid/graphics/Bitmap;",
+      str);
 
    /* For future Java noobs like me: If the calling thread is a Java
     * thread, it will clean up these references when the native method
@@ -270,6 +271,29 @@ ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags)
    _jni_callv(jnienv, DeleteLocalRef, jbitmap);
 
    return bitmap;
+}
+
+ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags)
+{
+   ALLEGRO_FILE *fp;
+   ALLEGRO_BITMAP *bmp;
+
+   /* Bypass the ALLEGRO_FILE interface when we know the underlying stream
+    * implementation, to avoid a lot of shunting between C and Java.
+    * We could probably do this for normal filesystem as well.
+    */
+   if (al_get_new_file_interface() == _al_get_apk_file_vtable()) {
+      return android_load_image_asset(filename, flags);
+   }
+
+   fp = al_fopen(filename, "rb");
+   if (fp) {
+      bmp = _al_android_load_image_f(fp, flags);
+      al_fclose(fp);
+      return bmp;
+   }
+
+   return NULL;
 }
 
 /* vim: set sts=3 sw=3 et: */

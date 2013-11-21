@@ -33,7 +33,7 @@ typedef struct ALLEGRO_DISPLAY_ANDROID {
 } ALLEGRO_DISPLAY_ANDROID;
 
 ALLEGRO_SYSTEM_INTERFACE *_al_system_android_interface();
-/* ALLEGRO_SYSTEM_INTERFACE *_al_system_android_jni_interface(); */
+const ALLEGRO_FILE_INTERFACE *_al_get_apk_file_vtable(void);
 
 ALLEGRO_DISPLAY_INTERFACE *_al_get_android_display_driver(void);
 ALLEGRO_KEYBOARD_DRIVER *_al_get_android_keyboard_driver(void);
