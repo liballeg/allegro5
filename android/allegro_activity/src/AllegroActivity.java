@@ -7,10 +7,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -25,18 +21,15 @@ import java.io.File;
 import java.lang.Runnable;
 import java.lang.String;
 import java.lang.reflect.Field;
-import java.util.List;
 
-public class AllegroActivity extends Activity implements SensorEventListener
+public class AllegroActivity extends Activity
 {
    /* properties */
    private String userLibName = "libapp.so";
-   private static SensorManager sensorManager;
-   private List<Sensor> sensors;
 
    private static AllegroSurface surface;
    private Handler handler;
-
+   private Sensors sensors;
    private Configuration currentConfig;
 
    /* native methods we call */
@@ -44,7 +37,6 @@ public class AllegroActivity extends Activity implements SensorEventListener
    public native void nativeOnPause();
    public native void nativeOnResume();
    public native void nativeOnDestroy();
-   public native void nativeOnAccel(int id, float x, float y, float z);
 
    public native void nativeOnOrientationChange(int orientation, boolean init);
 
@@ -194,11 +186,6 @@ public class AllegroActivity extends Activity implements SensorEventListener
       }
    }
 
-   public int getNumSensors()
-   {
-      return sensors.size();
-   }
-
    public void postFinish()
    {
       exitedMain = true;
@@ -271,7 +258,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
       Log.d("AllegroActivity", "publicSourceDir: " + getApplicationInfo().publicSourceDir);
 
       handler = new Handler();
-      initSensors();
+      sensors = new Sensors(getApplicationContext());
 
       currentConfig = new Configuration(getResources().getConfiguration());
 
@@ -319,7 +306,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
       super.onPause();
       Log.d("AllegroActivity", "onPause");
 
-      disableSensors();
+      sensors.unlisten();
 
       nativeOnPause();
       Log.d("AllegroActivity", "onPause end");
@@ -332,7 +319,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
       Log.d("AllegroActivity", "onResume");
       super.onResume();
 
-      enableSensors();
+      sensors.listen();
 
       nativeOnResume();
 
@@ -413,44 +400,6 @@ public class AllegroActivity extends Activity implements SensorEventListener
       /* This should get rid of the following warning:
        *  couldn't save which view has focus because the focused view has no id.
        */
-   }
-
-   /* sensors */
-
-   private boolean initSensors()
-   {
-      sensorManager = (SensorManager)getApplicationContext().getSystemService("sensor");
-
-      /* Only check for Accelerometers for now, not sure how we should utilize
-       * other types.
-       */
-      sensors = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
-      return (sensors != null);
-   }
-
-   private void enableSensors()
-   {
-      for(int i = 0; i < sensors.size(); i++) {
-         sensorManager.registerListener(this, sensors.get(i), SensorManager.SENSOR_DELAY_GAME);
-      }
-   }
-
-   private void disableSensors()
-   {
-      for(int i = 0; i < sensors.size(); i++) {
-         sensorManager.unregisterListener(this, sensors.get(i));
-      }
-   }
-
-   public void onAccuracyChanged(Sensor sensor, int accuracy) { /* what to do? */ }
-
-   public void onSensorChanged(SensorEvent event)
-   {
-      int idx = sensors.indexOf(event.sensor);
-
-      if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-         nativeOnAccel(idx, event.values[0], event.values[1], event.values[2]);
-      }
    }
 
    public int getAndroidOrientation(int alleg_orientation)

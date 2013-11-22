@@ -376,12 +376,6 @@ JNI_FUNC(void, AllegroActivity, nativeOnDestroy, (JNIEnv *env, jobject obj))
    memset(&system_data, 0, sizeof(system_data));
 }
 
-JNI_FUNC(void, AllegroActivity, nativeOnAccel, (JNIEnv *env, jobject obj, jint id, jfloat x, jfloat y, jfloat z))
-{
-   (void)env; (void)obj; (void)id;
-   _al_android_generate_joystick_event(x, y, z);
-}
-
 JNI_FUNC(void, AllegroActivity, nativeOnOrientationChange, (JNIEnv *env, jobject obj, int orientation, bool init))
 {
    ALLEGRO_SYSTEM *sys = &system_data.system->system;
