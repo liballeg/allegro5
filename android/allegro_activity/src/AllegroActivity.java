@@ -26,11 +26,10 @@ public class AllegroActivity extends Activity
 {
    /* properties */
    private String userLibName = "libapp.so";
-
-   private static AllegroSurface surface;
    private Handler handler;
    private Sensors sensors;
    private Configuration currentConfig;
+   private AllegroSurface surface;
 
    /* native methods we call */
    public native boolean nativeOnCreate();
