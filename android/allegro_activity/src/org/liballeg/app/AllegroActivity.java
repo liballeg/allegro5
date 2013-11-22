@@ -47,8 +47,6 @@ public class AllegroActivity extends Activity implements SensorEventListener
    public native void nativeOnDestroy();
    public native void nativeOnAccel(int id, float x, float y, float z);
 
-   public native void nativeCreateDisplay();
-
    public native void nativeOnOrientationChange(int orientation, boolean init);
 
    private boolean exitedMain = false;

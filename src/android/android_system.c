@@ -473,16 +473,6 @@ JNI_FUNC(void, AllegroActivity, nativeOnOrientationChange, (JNIEnv *env, jobject
    }
 }
 
-JNI_FUNC(void, AllegroActivity, nativeCreateDisplay, (JNIEnv *env, jobject obj))
-{
-   (void)obj;
-   ALLEGRO_DEBUG("nativeCreateDisplay begin");
-   
-   _al_android_create_surface(env, false);
-   
-   ALLEGRO_DEBUG("nativeCreateDisplay end");
-}
-
 static void finish_activity(JNIEnv *env)
 {
    ALLEGRO_DEBUG("pre post");
