@@ -84,6 +84,10 @@ jobject _jni_callObjectMethodV(JNIEnv *env, jobject object,
 ALLEGRO_USTR *_jni_getString(JNIEnv *env, jobject object);
 ALLEGRO_USTR *_jni_callStringMethod(JNIEnv *env, jobject obj,
          const char *name, const char *sig);
+jobject _jni_callStaticObjectMethodV(JNIEnv *env, jclass class_id,
+         const char *name, const char *sig, ...);
+jint _jni_callStaticIntMethodV(JNIEnv *env, jclass cls,
+         const char *name, const char *sig, ...);
 
 #define _jni_callIntMethodV(env, obj, name, sig, args...)                     \
    ({                                                                         \
@@ -156,6 +160,7 @@ ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags);
 jobject _al_android_activity_object();
 jclass _al_android_input_stream_class(void);
 jclass _al_android_apk_stream_class(void);
+jclass _al_android_image_loader_class(void);
 
 void _al_android_generate_joystick_event(float x, float y, float z);
 

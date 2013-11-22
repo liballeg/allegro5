@@ -37,6 +37,7 @@ struct system_data_t {
    jclass input_stream_class;
    jclass illegal_argument_exception_class;
    jclass apk_stream_class;
+   jclass image_loader_class;
    
    ALLEGRO_SYSTEM_ANDROID *system;
    ALLEGRO_MUTEX *mutex;
@@ -83,6 +84,11 @@ jclass _al_android_input_stream_class(void)
 jclass _al_android_apk_stream_class(void)
 {
    return system_data.apk_stream_class;
+}
+
+jclass _al_android_image_loader_class(void)
+{
+   return system_data.image_loader_class;
 }
 
 jobject _al_android_activity_object()
@@ -217,6 +223,9 @@ JNI_FUNC(bool, AllegroActivity, nativeOnCreate, (JNIEnv *env, jobject obj))
    
    asc = (*env)->FindClass(env, ALLEGRO_ANDROID_PACKAGE_NAME_SLASH "/AllegroAPKStream");
    system_data.apk_stream_class = (*env)->NewGlobalRef(env, asc);
+
+   asc = (*env)->FindClass(env, ALLEGRO_ANDROID_PACKAGE_NAME_SLASH "/ImageLoader");
+   system_data.image_loader_class = (*env)->NewGlobalRef(env, asc);
 
    ALLEGRO_DEBUG("create mutex and cond objects");
    system_data.mutex = al_create_mutex();

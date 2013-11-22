@@ -98,4 +98,36 @@ ALLEGRO_USTR *_jni_callStringMethod(JNIEnv *env, jobject obj,
    return _jni_getString(env, str_obj);
 }
 
+jobject _jni_callStaticObjectMethodV(JNIEnv *env, jclass cls,
+   const char *name, const char *sig, ...)
+{
+   jmethodID mid;
+   jobject ret;
+   va_list ap;
+
+   mid = _jni_call(env, jmethodID, GetStaticMethodID, cls, name, sig);
+
+   va_start(ap, sig);
+   ret = _jni_call(env, jobject, CallStaticObjectMethodV, cls, mid, ap);
+   va_end(ap);
+
+   return ret;
+}
+
+jint _jni_callStaticIntMethodV(JNIEnv *env, jclass cls,
+   const char *name, const char *sig, ...)
+{
+   jmethodID mid;
+   jint ret;
+   va_list ap;
+
+   mid = _jni_call(env, jmethodID, GetStaticMethodID, cls, name, sig);
+
+   va_start(ap, sig);
+   ret = _jni_call(env, jint, CallStaticIntMethodV, cls, mid, ap);
+   va_end(ap);
+
+   return ret;
+}
+
 /* vim: set sts=3 sw=3 et: */

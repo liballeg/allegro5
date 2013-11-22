@@ -7,8 +7,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -24,8 +22,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.lang.Runnable;
 import java.lang.String;
 import java.lang.reflect.Field;
@@ -201,94 +197,6 @@ public class AllegroActivity extends Activity implements SensorEventListener
    public int getNumSensors()
    {
       return sensors.size();
-   }
-
-   /*
-    * load passes in the buffer, will return the decoded bytebuffer
-    * then I want to change lock/unlock_bitmap to accept a raw pointer
-    * rather than allocating another buffer and making you copy shit again
-    * images are loaded as ARGB_8888 by android by default
-    */
-   private Bitmap decodedBitmap;
-
-   public Bitmap decodeBitmapByteArray(byte[] array)
-   {
-      Log.d("AllegroActivity", "decodeBitmapByteArray");
-      try {
-         BitmapFactory.Options options = new BitmapFactory.Options();
-         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-         Bitmap bmp = BitmapFactory.decodeByteArray(array, 0, array.length, options);
-         return bmp;
-      }
-      catch (Exception ex) {
-         Log.e("AllegroActivity", "decodeBitmapByteArray exception: " + ex.getMessage());
-      }
-
-      return null;
-   }
-
-   public int[] getPixels(Bitmap bmp)
-   {
-      int width = bmp.getWidth();
-      int height = bmp.getHeight();
-      int[] pixels = new int[width*height];
-      bmp.getPixels(pixels, 0, width, 0, 0, width, height);
-      return pixels;
-   }
-
-   public Bitmap decodeBitmapAsset(final String filename)
-   {
-      Log.d("AllegroActivity", "decodeBitmapAsset begin");
-      try {
-         BitmapFactory.Options options = new BitmapFactory.Options();
-         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-         // Only added in API level 19, avoid for now.
-         // options.inPremultiplied = premul;
-         InputStream is = getResources().getAssets().open(filename);;
-         decodedBitmap = BitmapFactory.decodeStream(is, null, options);
-         is.close();
-         Log.d("AllegroActivity", "done waiting for decodeStream");
-      } catch (Exception ex) {
-         Log.e("AllegroActivity",
-            "decodeBitmapAsset exception: " + ex.getMessage());
-      }
-      Log.d("AllegroActivity", "decodeBitmapAsset end");
-      return decodedBitmap;
-   }
-
-   public Bitmap decodeBitmapStream(final AllegroInputStream is)
-   {
-      Log.d("AllegroActivity", "decodeBitmapStream begin");
-      try {
-         BitmapFactory.Options options = new BitmapFactory.Options();
-         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-         // Only added in API level 19, avoid for now.
-         // options.inPremultiplied = premul;
-         decodedBitmap = BitmapFactory.decodeStream(is, null, options);
-         Log.d("AllegroActivity", "done waiting for decodeStream");
-      } catch (Exception ex) {
-         Log.e("AllegroActivity", "decodeBitmapStream exception: " +
-               ex.getMessage());
-      }
-      Log.d("AllegroActivity", "decodeBitmapStream end");
-      return decodedBitmap;
-   }
-
-   public int getBitmapFormat(Bitmap bitmap)
-   {
-      switch (bitmap.getConfig()) {
-         case ALPHA_8:
-            return Const.ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8; // not really
-         case ARGB_4444:
-            return Const.ALLEGRO_PIXEL_FORMAT_RGBA_4444;
-         case ARGB_8888:
-            return Const.ALLEGRO_PIXEL_FORMAT_ABGR_8888;
-         case RGB_565:
-            return Const.ALLEGRO_PIXEL_FORMAT_BGR_565; // untested
-         default:
-            assert(false);
-            return -1;
-      }
    }
 
    public void postFinish()

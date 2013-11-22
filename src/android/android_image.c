@@ -115,7 +115,7 @@ copy_bitmap_data_demultiply_alpha(ALLEGRO_BITMAP *bitmap, const uint32_t *src,
 ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
 {
    JNIEnv *jnienv;
-   jobject activity;
+   jclass image_loader_class;
    jobject input_stream_class;
    jmethodID input_stream_ctor;
    jobject input_stream;
@@ -134,7 +134,7 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
    }
 
    jnienv = (JNIEnv *)_al_android_get_jnienv();
-   activity = _al_android_activity_object();
+   image_loader_class = _al_android_image_loader_class();
    input_stream_class = _al_android_input_stream_class();
    input_stream_ctor = _jni_call(jnienv, jclass, GetMethodID,
        input_stream_class, "<init>", "(I)V");
@@ -145,8 +145,9 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
       return NULL;
    }
 
-   jbitmap = _jni_callObjectMethodV(jnienv, activity, "decodeBitmapStream",
-      "(L" ALLEGRO_ANDROID_PACKAGE_NAME_SLASH "/AllegroInputStream;)Landroid/graphics/Bitmap;",
+   jbitmap = _jni_callStaticObjectMethodV(jnienv, image_loader_class,
+      "decodeBitmapStream",
+      "(L"ALLEGRO_ANDROID_PACKAGE_NAME_SLASH"/AllegroInputStream;)Landroid/graphics/Bitmap;",
       input_stream);
 
    _jni_callv(jnienv, DeleteLocalRef, input_stream);
@@ -165,7 +166,7 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
       return NULL;
    }
 
-   int src_format = _jni_callIntMethodV(jnienv, activity,
+   int src_format = _jni_callStaticIntMethodV(jnienv, image_loader_class,
       "getBitmapFormat", "(Landroid/graphics/Bitmap;)I", jbitmap);
 
    // FIXME: at some point add support for the ndk AndroidBitmap api need to
@@ -208,6 +209,7 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
 static ALLEGRO_BITMAP *android_load_image_asset(const char *filename, int flags)
 {
    JNIEnv *jnienv;
+   jclass image_loader_class;
    jobject activity;
    jobject str;
    jobject jbitmap;
@@ -223,11 +225,13 @@ static ALLEGRO_BITMAP *android_load_image_asset(const char *filename, int flags)
    }
 
    jnienv = _al_android_get_jnienv();
+   image_loader_class = _al_android_image_loader_class();
    activity = _al_android_activity_object();
    str = (*jnienv)->NewStringUTF(jnienv, filename);
-   jbitmap = _jni_callObjectMethodV(jnienv, activity,
-      "decodeBitmapAsset", "(Ljava/lang/String;)Landroid/graphics/Bitmap;",
-      str);
+   jbitmap = _jni_callStaticObjectMethodV(jnienv, image_loader_class,
+      "decodeBitmapAsset",
+      "(Landroid/app/Activity;Ljava/lang/String;)Landroid/graphics/Bitmap;",
+      activity, str);
 
    /* For future Java noobs like me: If the calling thread is a Java
     * thread, it will clean up these references when the native method
@@ -250,7 +254,7 @@ static ALLEGRO_BITMAP *android_load_image_asset(const char *filename, int flags)
       return NULL;
    }
 
-   ia = _jni_callObjectMethodV(jnienv, activity,
+   ia = _jni_callStaticObjectMethodV(jnienv, image_loader_class,
       "getPixels", "(Landroid/graphics/Bitmap;)[I", jbitmap);
    arr = (*jnienv)->GetIntArrayElements(jnienv, ia, 0);
 
