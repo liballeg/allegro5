@@ -42,7 +42,12 @@ JNI_FUNC(int, AllegroInputStream, nativeRead, (JNIEnv *env, jobject obj,
    ASSERT(array_ptr != NULL);
 
    ALLEGRO_DEBUG("al_fread: p:%p, o:%i, l:%i", array_ptr, offset, length);
-   ret = al_fread(fp, array_ptr+offset, length);
+   ret = al_fread(fp, array_ptr + offset, length);
+
+   if (ret == 0 && al_feof(fp)) {
+      /* InputStream.read() semantics. */
+      ret = -1;
+   }
 
    _jni_callv(env, ReleaseByteArrayElements, array, array_ptr, 0);
 
