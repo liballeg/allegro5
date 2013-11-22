@@ -10,7 +10,6 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.PowerManager;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -30,6 +29,7 @@ public class AllegroActivity extends Activity
    private Sensors sensors;
    private Configuration currentConfig;
    private AllegroSurface surface;
+   private ScreenLock screenLock;
 
    /* native methods we call */
    public native boolean nativeOnCreate();
@@ -42,44 +42,6 @@ public class AllegroActivity extends Activity
    private boolean exitedMain = false;
 
    /* methods native code calls */
-
-   private boolean inhibit_screen_lock = false;
-   private PowerManager.WakeLock wake_lock;
-
-   public boolean inhibitScreenLock(boolean inhibit)
-   {
-      boolean last_state = inhibit_screen_lock;
-      inhibit_screen_lock = inhibit;
-
-      try {
-         if (inhibit) {
-            if (last_state) {
-               // Already there
-            }
-            else {
-               // Disable lock
-               PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
-               wake_lock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "Allegro Wake Lock");
-               wake_lock.acquire();
-            }
-         }
-         else {
-            if (last_state) {
-               // Turn lock back on
-               wake_lock.release();
-               wake_lock = null;
-            }
-            else {
-               // Already there
-            }
-         }
-      }
-      catch (Exception e) {
-         Log.d("AllegroActivity", "Got exception in inhibitScreenLock: " + e.getMessage());
-      }
-
-      return true;
-   }
 
    public String getUserLibName()
    {
@@ -209,6 +171,14 @@ public class AllegroActivity extends Activity
    public boolean getMainReturned()
    {
       return exitedMain;
+   }
+
+   public boolean inhibitScreenLock(boolean inhibit)
+   {
+      if (screenLock == null) {
+         screenLock = new ScreenLock(this);
+      }
+      return screenLock.inhibitScreenLock(inhibit);
    }
 
    /* end of functions native code calls */
