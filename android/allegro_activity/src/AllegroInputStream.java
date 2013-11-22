@@ -5,62 +5,71 @@ import android.util.Log;
 
 public class AllegroInputStream extends InputStream
 {
-   private int mark_pos;
+   private static final String TAG = "AllegroInputStream";
+
    private int handle;
 
-   public native int nativeRead(int hdnl, byte[] buffer, int offset, int length);
-   public native void nativeClose(int hdnl);
+   public native int nativeRead(int handle, byte[] buffer, int offset, int length);
+   public native void nativeClose(int handle);
 
-   public AllegroInputStream(int hdnl)
+   public AllegroInputStream(int handle)
    {
       super();
-      handle = hdnl;
-      Log.d("AllegroInputStream", "ctor handle:" + handle);
+      this.handle = handle;
+      Log.d(TAG, "ctor handle:" + handle);
    }
 
+   @Override
    public int available()
    {
-      Log.d("AllegroInputStream", "available");
+      Log.d(TAG, "available");
       return 0;
    }
 
+   @Override
    public void close()
    {
-      Log.d("AllegroInputStream", "close");
+      Log.d(TAG, "close");
       nativeClose(handle);
    }
 
+   @Override
    public void mark(int limit)
    {
-      Log.d("AllegroInputStream", "mark " + limit);
+      Log.d(TAG, "mark " + limit);
    }
 
+   @Override
    public boolean markSupported()
    {
-      Log.d("AllegroInputStream", "markSupported");
+      Log.d(TAG, "markSupported");
       return false;
    }
 
-   public int read(byte[] buffer)
-   {
-      return read(buffer, 0, buffer.length);
-   }
-
+   @Override
    public int read()
    {
       byte buffer[] = new byte[1];
       int ret = read(buffer, 0, buffer.length);
       if (ret != -1)
          return buffer[0];
-
-      return -1;
+      else
+         return -1;
    }
 
+   @Override
+   public int read(byte[] buffer)
+   {
+      return read(buffer, 0, buffer.length);
+   }
+
+   @Override
    public int read(byte[] buffer, int offset, int length)
    {
-      Log.d("AllegroInputStream", "handle " + handle + " read " + length + " bytes at offset " + offset);
+      Log.d(TAG, "read handle: " + handle + ", offset: " + offset +
+            ", length: " + length);
       int ret = nativeRead(handle, buffer, offset, length);
-      Log.d("AllegroInputStream", "read end");
+      Log.d(TAG, "read end: ret = " + ret);
       return ret;
    }
 }
