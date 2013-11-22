@@ -19,7 +19,6 @@ import android.view.WindowManager;
 import java.io.File;
 import java.lang.Runnable;
 import java.lang.String;
-import java.lang.reflect.Field;
 
 public class AllegroActivity extends Activity
 {
@@ -45,13 +44,10 @@ public class AllegroActivity extends Activity
 
    public String getUserLibName()
    {
-      /* Android < 2.3 doesn't have .nativeLibraryDir */
       ApplicationInfo appInfo = getApplicationInfo();
-      String libDir;
-      try {
-         Field field = appInfo.getClass().getField("nativeLibraryDir");
-         libDir = (String) field.get(appInfo);
-      } catch (Exception e) {
+      String libDir = Reflect.getField(appInfo, "nativeLibraryDir");
+      /* Android < 2.3 doesn't have .nativeLibraryDir */
+      if (libDir == null) {
          libDir = appInfo.dataDir + "/lib";
       }
       return libDir + "/" + userLibName;
@@ -414,7 +410,7 @@ public class AllegroActivity extends Activity
       int allegro_orientation = Const.ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN;
       int rotation;
 
-      if (Utils.methodExists(getWindowManager().getDefaultDisplay(), "getRotation")) {
+      if (Reflect.methodExists(getWindowManager().getDefaultDisplay(), "getRotation")) {
          /* 2.2+ */
          rotation = getWindowManager().getDefaultDisplay().getRotation();
       }

@@ -10,9 +10,6 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.microedition.khronos.egl.*;
@@ -403,82 +400,6 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
     * possible, and gracefully degrade, rather than just outright failing.
     */
 
-   private boolean fieldExists(Object obj, String fieldName)
-   {
-      try {
-         Class cls = obj.getClass();
-         Field m = cls.getField(fieldName);
-         return true;
-      } catch (Exception x) {
-         return false;
-      }
-   }
-
-   private <T> T getField(Object obj, String field)
-   {
-      try {
-         Class cls = obj.getClass();
-         Field f = cls.getField(field);
-         return (T)f.get(obj);
-      }
-      catch (NoSuchFieldException x) {
-         Log.v("AllegroSurface",
-               "field " + field + " not found in class " +
-               obj.getClass().getCanonicalName());
-         return null;
-      }
-      catch (IllegalArgumentException x) {
-         Log.v("AllegroSurface",
-               "fetching " + field + " from class " +
-               obj.getClass().getCanonicalName() +
-               " failed with IllegalArgumentException");
-         return null;
-      }
-      catch (IllegalAccessException x) {
-         Log.v("AllegroSurface",
-               "field " + field + " is not accessible in class " +
-               obj.getClass().getCanonicalName());
-         return null;
-      }
-   }
-
-   private <T> T callMethod(Object obj, String methName, Class [] types,
-         Object... args)
-   {
-      try {
-         Class cls = obj.getClass();
-         Method m = cls.getMethod(methName, types);
-         return (T)m.invoke(obj, args);
-      }
-      catch (NoSuchMethodException x) {
-         Log.v("AllegroSurface", "method " + methName +
-               " does not exist in class " + obj.getClass().getCanonicalName());
-         return null;
-      }
-      catch (NullPointerException x) {
-         Log.v("AllegroSurface", "can't invoke null method name");
-         return null;
-      }
-      catch (SecurityException x) {
-         Log.v("AllegroSurface", "method " + methName +
-               " is inaccessible in class " +
-               obj.getClass().getCanonicalName());
-         return null;
-      }
-      catch (IllegalAccessException x)
-      {
-         Log.v("AllegroSurface", "method " + methName +
-               " is inaccessible in class " +
-               obj.getClass().getCanonicalName());
-         return null;
-      }
-      catch (InvocationTargetException x)
-      {
-         Log.v("AllegroSurface", "method " + methName + " threw an exception");
-         return null;
-      }
-   }
-
    public void setCaptureVolumeKeys(boolean onoff)
    {
       captureVolume = onoff;
@@ -555,19 +476,19 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       Class[] int_arg = new Class[1];
       int_arg[0] = int.class;
 
-      if (Utils.methodExists(event, "getActionMasked")) { // android-8 / 2.2.x
-         action = this.<Integer>callMethod(event, "getActionMasked", no_args);
-         int ptr_idx = this.<Integer>callMethod(event, "getActionIndex", no_args);
-         pointer_id = this.<Integer>callMethod(event, "getPointerId", int_arg, ptr_idx);
+      if (Reflect.methodExists(event, "getActionMasked")) { // android-8 / 2.2.x
+         action = Reflect.<Integer>callMethod(event, "getActionMasked", no_args);
+         int ptr_idx = Reflect.<Integer>callMethod(event, "getActionIndex", no_args);
+         pointer_id = Reflect.<Integer>callMethod(event, "getPointerId", int_arg, ptr_idx);
       } else {
          int raw_action = event.getAction();
 
-         if (fieldExists(event, "ACTION_MASK")) { // android-5 / 2.0
-            int mask = this.<Integer>getField(event, "ACTION_MASK");
+         if (Reflect.fieldExists(event, "ACTION_MASK")) { // android-5 / 2.0
+            int mask = Reflect.<Integer>getField(event, "ACTION_MASK");
             action = raw_action & mask;
 
-            int ptr_id_mask = this.<Integer>getField(event, "ACTION_POINTER_ID_MASK");
-            int ptr_id_shift = this.<Integer>getField(event, "ACTION_POINTER_ID_SHIFT");
+            int ptr_id_mask = Reflect.<Integer>getField(event, "ACTION_POINTER_ID_MASK");
+            int ptr_id_shift = Reflect.<Integer>getField(event, "ACTION_POINTER_ID_SHIFT");
 
             pointer_id = event.getPointerId((raw_action & ptr_id_mask) >> ptr_id_shift);
          }
@@ -594,13 +515,13 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
          action = Const.ALLEGRO_EVENT_TOUCH_CANCEL;
       }
       // android-5 / 2.0
-      else if (fieldExists(event, "ACTION_POINTER_DOWN") &&
-         action == this.<Integer>getField(event, "ACTION_POINTER_DOWN"))
+      else if (Reflect.fieldExists(event, "ACTION_POINTER_DOWN") &&
+         action == Reflect.<Integer>getField(event, "ACTION_POINTER_DOWN"))
       {
          action = Const.ALLEGRO_EVENT_TOUCH_BEGIN;
       }
-      else if (fieldExists(event, "ACTION_POINTER_UP") &&
-         action == this.<Integer>getField(event, "ACTION_POINTER_UP"))
+      else if (Reflect.fieldExists(event, "ACTION_POINTER_UP") &&
+         action == Reflect.<Integer>getField(event, "ACTION_POINTER_UP"))
       {
          action = Const.ALLEGRO_EVENT_TOUCH_END;
       }
@@ -610,12 +531,12 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
          return false;
       }
 
-      if (Utils.methodExists(event, "getPointerCount")) { // android-5 / 2.0
-         int pointer_count = this.<Integer>callMethod(event, "getPointerCount", no_args);
+      if (Reflect.methodExists(event, "getPointerCount")) { // android-5 / 2.0
+         int pointer_count = Reflect.<Integer>callMethod(event, "getPointerCount", no_args);
          for(int i = 0; i < pointer_count; i++) {
-            float x = this.<Float>callMethod(event, "getX", int_arg, i);
-            float y = this.<Float>callMethod(event, "getY", int_arg, i);
-            int  id = this.<Integer>callMethod(event, "getPointerId", int_arg, i);
+            float x = Reflect.<Float>callMethod(event, "getX", int_arg, i);
+            float y = Reflect.<Float>callMethod(event, "getY", int_arg, i);
+            int  id = Reflect.<Integer>callMethod(event, "getPointerId", int_arg, i);
 
             /* not entirely sure we need to report move events for non primary touches here
              * but examples I've see say that the ACTION_[POINTER_][UP|DOWN]
