@@ -19,7 +19,8 @@ class ImageLoader
          options.inPreferredConfig = Bitmap.Config.ARGB_8888;
          // Only added in API level 19, avoid for now.
          // options.inPremultiplied = premul;
-         InputStream is = activity.getResources().getAssets().open(filename);
+         InputStream is = activity.getResources().getAssets().open(
+               Path.simplifyPath(filename));
          decodedBitmap = BitmapFactory.decodeStream(is, null, options);
          is.close();
          Log.d(TAG, "done waiting for decodeStream");
