@@ -92,6 +92,7 @@ set(DATA_HAIKU ${DATA_HAIKU})
 
 example(ex_config DATA sample.cfg)
 example(ex_dir)
+example(ex_file CONSOLE ${DATA_IMAGES})
 example(ex_file_slice CONSOLE)
 example(ex_get_path)
 example(ex_memfile CONSOLE ${MEMFILE})
