@@ -6,121 +6,127 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class AllegroAPKStream
+class AllegroAPKStream
 {
-   AllegroActivity activity;
-   String fn;
-   InputStream in;
-   private long pos;
-   long fsize;
-   boolean at_eof;
+   private static final String TAG = "AllegroAPKStream";
 
-   public AllegroAPKStream(AllegroActivity activity, String filename)
+   private AllegroActivity activity;
+   private String fn;
+   private InputStream in;
+   private long pos = 0;
+   private long fsize = -1;
+   private boolean at_eof = false;
+
+   AllegroAPKStream(AllegroActivity activity, String filename)
    {
       this.activity = activity;
       fn = Path.simplifyPath(filename);
       if (!fn.equals(filename)) {
-         Log.d("APK", filename + " simplified to: " + fn);
-      }
-      pos = 0;
-      fsize = -1;
-      at_eof = false;
-   }
-
-   private boolean reopen()
-   {
-      try {
-         if (in != null) {
-            in.close();
-         }
-         in = activity.getResources().getAssets().open(fn, AssetManager.ACCESS_RANDOM);
-         in.mark((int)Math.pow(2, 31));
-         if (in == null)
-            return false;
-         return true;
-      }
-      catch (IOException e) {
-         Log.d("APK", "Got IOException in reopen. fn='" + fn + "'");
-         return false;
+         Log.d(TAG, filename + " simplified to: " + fn);
       }
    }
 
-   public boolean open()
+   boolean open()
    {
       try {
-         AssetFileDescriptor fd = activity.getResources().getAssets().openFd(fn);
+         AssetFileDescriptor fd;
+         fd = activity.getResources().getAssets().openFd(fn);
          fsize = fd.getLength();
          fd.close();
       }
       catch (IOException e) {
-         Log.w("APK", "could not get file size: " + e.toString());
+         Log.w(TAG, "could not get file size: " + e.toString());
          fsize = -1;
       }
 
-      boolean res = reopen();
-      if (!res)
-         return false;
+      return reopen();
+   }
 
+   boolean reopen()
+   {
+      if (in != null) {
+         close();
+         in = null;
+      }
+
+      try {
+         in = activity.getResources().getAssets().open(fn,
+            AssetManager.ACCESS_RANDOM);
+      }
+      catch (IOException e) {
+         Log.d(TAG, "Got IOException in reopen. fn='" + fn + "'");
+         return false;
+      }
+
+      in.mark((int)Math.pow(2, 31));
+      pos = 0;
+      at_eof = false;
       return true;
    }
 
-   public void close()
+   void close()
    {
       try {
          in.close();
+         in = null;
       }
       catch (IOException e) {
-         Log.d("APK", "IOException in close");
+         Log.d(TAG, "IOException in close");
       }
    }
 
-   private void force_skip(long n)
-   {
-      if (n <= 0)
-         return;
-
-      try {
-         /* NOTE: in.skip doesn't work here! */
-         byte[] b = new byte[(int)n];
-         while (n > 0) {
-            long res = in.read(b, 0, (int)n);
-            if (res <= 0)
-               break;
-            pos += res;
-            n -= res;
-         }
-      }
-      catch (IOException e) {
-      }
-   }
-
-   public boolean seek(long seekto)
+   boolean seek(long seekto)
    {
       at_eof = false;
 
       if (seekto >= pos) {
          long seek_ahead = seekto - pos;
-         force_skip(seek_ahead);
+         return force_skip(seek_ahead);
       }
-      else {
-         try {
-            in.reset();
-         }
-         catch (IOException e) {
-            reopen();
-         }
+
+      /* Seek backwards by rewinding to start of file first. */
+      try {
+         in.reset();
          pos = 0;
-         force_skip(seekto);
+      }
+      catch (IOException e) {
+         if (!reopen()) {
+            /* Leaves pos wherever it lands! */
+            return false;
+         }
+      }
+      return force_skip(seekto);
+   }
+
+   private boolean force_skip(long n)
+   {
+      if (n <= 0)
+         return true;
+
+      /* NOTE: in.skip doesn't work here! */
+      byte[] b = new byte[(int)n];
+      while (n > 0) {
+         int res;
+         try {
+            res = in.read(b, 0, (int)n);
+         } catch (IOException e) {
+            Log.d(TAG, "IOException: " + e.toString());
+            return false;
+         }
+         if (res <= 0)
+            break;
+         pos += res;
+         n -= res;
       }
       return true;
    }
 
-   public long tell()
+   long tell()
    {
       return pos;
    }
 
-   public int read(byte[] b)
+   int read(byte[] b)
    {
       try {
          int ret = in.read(b);
@@ -132,17 +138,17 @@ public class AllegroAPKStream
          return ret;
       }
       catch (IOException e) {
-         Log.d("APK", "IOException in read");
+         Log.d(TAG, "IOException in read");
          return -1;
       }
    }
 
-   public long size()
+   long size()
    {
       return fsize;
    }
 
-   public boolean eof()
+   boolean eof()
    {
       return at_eof;
    }
