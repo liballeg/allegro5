@@ -28,20 +28,18 @@ public class AllegroActivity extends Activity
    private Configuration currentConfig;
    private AllegroSurface surface;
    private ScreenLock screenLock;
+   private boolean exitedMain = false;
 
    /* native methods we call */
-   public native boolean nativeOnCreate();
-   public native void nativeOnPause();
-   public native void nativeOnResume();
-   public native void nativeOnDestroy();
-
-   public native void nativeOnOrientationChange(int orientation, boolean init);
-
-   private boolean exitedMain = false;
+   native boolean nativeOnCreate();
+   native void nativeOnPause();
+   native void nativeOnResume();
+   native void nativeOnDestroy();
+   native void nativeOnOrientationChange(int orientation, boolean init);
 
    /* methods native code calls */
 
-   public String getUserLibName()
+   String getUserLibName()
    {
       ApplicationInfo appInfo = getApplicationInfo();
       String libDir = Reflect.getField(appInfo, "nativeLibraryDir");
@@ -52,29 +50,29 @@ public class AllegroActivity extends Activity
       return libDir + "/" + userLibName;
    }
 
-   public String getResourcesDir()
+   String getResourcesDir()
    {
       //return getApplicationInfo().dataDir + "/assets";
       //return getApplicationInfo().sourceDir + "/assets/";
       return getFilesDir().getAbsolutePath();
    }
 
-   public String getPubDataDir()
+   String getPubDataDir()
    {
       return getFilesDir().getAbsolutePath();
    }
 
-   public String getApkPath()
+   String getApkPath()
    {
       return getApplicationInfo().sourceDir;
    }
 
-   public String getModel()
+   String getModel()
    {
       return android.os.Build.MODEL;
    }
 
-   public void postRunnable(Runnable runme)
+   void postRunnable(Runnable runme)
    {
       try {
          Log.d("AllegroActivity", "postRunnable");
@@ -84,7 +82,7 @@ public class AllegroActivity extends Activity
       }
    }
 
-   public void createSurface()
+   void createSurface()
    {
       try {
          Log.d("AllegroActivity", "createSurface");
@@ -103,7 +101,7 @@ public class AllegroActivity extends Activity
       }
    }
 
-   public void postCreateSurface()
+   void postCreateSurface()
    {
       try {
          Log.d("AllegroActivity", "postCreateSurface");
@@ -118,7 +116,7 @@ public class AllegroActivity extends Activity
       }
    }
 
-   public void destroySurface()
+   void destroySurface()
    {
       Log.d("AllegroActivity", "destroySurface");
 
@@ -127,7 +125,7 @@ public class AllegroActivity extends Activity
       surface = null;
    }
 
-   public void postDestroySurface()
+   void postDestroySurface()
    {
       try {
          Log.d("AllegroActivity", "postDestroySurface");
@@ -142,7 +140,7 @@ public class AllegroActivity extends Activity
       }
    }
 
-   public void postFinish()
+   void postFinish()
    {
       exitedMain = true;
 
@@ -163,12 +161,12 @@ public class AllegroActivity extends Activity
       }
    }
 
-   public boolean getMainReturned()
+   boolean getMainReturned()
    {
       return exitedMain;
    }
 
-   public boolean inhibitScreenLock(boolean inhibit)
+   boolean inhibitScreenLock(boolean inhibit)
    {
       if (screenLock == null) {
          screenLock = new ScreenLock(this);
@@ -366,12 +364,12 @@ public class AllegroActivity extends Activity
        */
    }
 
-   public int getAndroidOrientation(int alleg_orientation)
+   int getAndroidOrientation(int alleg_orientation)
    {
       return Const.toAndroidOrientation(alleg_orientation);
    }
 
-   private int getAllegroOrientation()
+   int getAllegroOrientation()
    {
       int rotation;
       if (Reflect.methodExists(getWindowManager().getDefaultDisplay(),
@@ -386,7 +384,7 @@ public class AllegroActivity extends Activity
       return Const.toAllegroOrientation(rotation);
    }
 
-   public String getOsVersion()
+   String getOsVersion()
    {
       return android.os.Build.VERSION.RELEASE;
    }

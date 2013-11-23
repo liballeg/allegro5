@@ -44,7 +44,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    private Context context;
    private boolean captureVolume = false;
 
-   public boolean egl_Init()
+   boolean egl_Init()
    {
       Log.d("AllegroSurface", "egl_Init");
       EGL10 egl = (EGL10)EGLContext.getEGL();
@@ -62,11 +62,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       return true;
    }
 
-   public int egl_getMajorVersion() { return egl_Version[0]; }
-   public int egl_getMinorVersion() { return egl_Version[1]; }
-   public int egl_getNumConfigs()   { return egl_numConfigs; }
-
-   public void egl_setConfigAttrib(int attr, int value)
+   void egl_setConfigAttrib(int attr, int value)
    {
       EGL10 egl = (EGL10)EGLContext.getEGL();
 
@@ -126,7 +122,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    private final int EGL_OPENGL_ES_BIT = 1;
    private final int EGL_OPENGL_ES2_BIT = 4;
 
-   private boolean checkGL20Support( Context context )
+   private boolean checkGL20Support(Context context)
    {
       EGL10 egl = (EGL10) EGLContext.getEGL();      
       //EGLDisplay display = egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY);
@@ -152,7 +148,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       return num_config[0] > 0;
    }
 
-   static HashMap<Integer, String> eglErrors;
+   private static HashMap<Integer, String> eglErrors;
    private static void checkEglError(String prompt, EGL10 egl) {
       if (eglErrors == null) {
           eglErrors = new HashMap<Integer, String>();
@@ -182,7 +178,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
     * 1 - success
     * 2 - fell back to older ES version
     */
-   public int egl_createContext(int version)
+   int egl_createContext(int version)
    {
       Log.d("AllegroSurface", "egl_createContext");
       EGL10 egl = (EGL10)EGLContext.getEGL();
@@ -237,7 +233,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       return ret;
    }
 
-   public void egl_destroyContext()
+   private void egl_destroyContext()
    {
       EGL10 egl = (EGL10)EGLContext.getEGL();
       Log.d("AllegroSurface", "destroying egl_Context");
@@ -245,7 +241,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       egl_Context = EGL10.EGL_NO_CONTEXT;
    }
 
-   public boolean egl_createSurface()
+   boolean egl_createSurface()
    {
       EGL10 egl = (EGL10)EGLContext.getEGL();
       EGLSurface surface = egl.eglCreateWindowSurface(egl_Display,
@@ -268,7 +264,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       return true;
    }
 
-   public void egl_destroySurface()
+   private void egl_destroySurface()
    {
       EGL10 egl = (EGL10)EGLContext.getEGL();
       if (!egl.eglMakeCurrent(egl_Display, EGL10.EGL_NO_SURFACE,
@@ -282,7 +278,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       egl_Surface = EGL10.EGL_NO_SURFACE;
    }
 
-   public void egl_clearCurrent()
+   void egl_clearCurrent()
    {
       Log.d("AllegroSurface", "egl_clearCurrent");
       EGL10 egl = (EGL10)EGLContext.getEGL();
@@ -294,7 +290,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       Log.d("AllegroSurface", "egl_clearCurrent done");
    }
 
-   public void egl_makeCurrent()
+   void egl_makeCurrent()
    {
       EGL10 egl = (EGL10)EGLContext.getEGL();
       if (!egl.eglMakeCurrent(egl_Display, egl_Surface, egl_Surface, egl_Context)) {
@@ -306,7 +302,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       }  
    }
 
-   public void egl_SwapBuffers()
+   void egl_SwapBuffers()
    {
       try {
          EGL10 egl = (EGL10)EGLContext.getEGL();
@@ -341,7 +337,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       Log.d("AllegroSurface", "ctor end");
    }
 
-   void grabFocus()
+   private void grabFocus()
    {
       Log.d("AllegroSurface", "Grabbing focus");
 
@@ -352,6 +348,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       setOnTouchListener(this);
    }
 
+   @Override
    public void surfaceCreated(SurfaceHolder holder)
    {
       Log.d("AllegroSurface", "surfaceCreated");
@@ -360,6 +357,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       Log.d("AllegroSurface", "surfaceCreated end");
    }
 
+   @Override
    public void surfaceDestroyed(SurfaceHolder holder)
    {
       Log.d("AllegroSurface", "surfaceDestroyed");
@@ -381,6 +379,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       Log.d("AllegroSurface", "surfaceDestroyed end");
    }
 
+   @Override
    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
    {
       Log.d("AllegroSurface", "surfaceChanged (width=" + width + " height=" + height + ")");
@@ -389,6 +388,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    }
 
    /* unused */
+   @Override
    public void onDraw(Canvas canvas)
    {
    }
@@ -422,6 +422,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       }
    }
 
+   @Override
    public boolean onKey(View v, int keyCode, KeyEvent event)
    {
       int unichar;
@@ -466,6 +467,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    // FIXME: Pull out android version detection into the setup and just check
    // some flags here, rather than checking for the existance of the fields and
    // methods over and over.
+   @Override
    public boolean onTouch(View v, MotionEvent event)
    {
       //Log.d("AllegroSurface", "onTouch");
