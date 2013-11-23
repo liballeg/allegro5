@@ -2,21 +2,15 @@ package org.liballeg.android;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.media.AudioManager;
 import android.util.Log;
 import android.view.Display;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.microedition.khronos.egl.*;
-import javax.microedition.khronos.opengles.GL10;
 
-class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
-   View.OnKeyListener, View.OnTouchListener
+class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback
 {
    static final int EGL_CONTEXT_CLIENT_VERSION = 0x3098; 
 
@@ -24,10 +18,6 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    public native void nativeOnCreate();
    public native boolean nativeOnDestroy();
    public native void nativeOnChange(int format, int width, int height);
-   public native void nativeOnKeyDown(int key);
-   public native void nativeOnKeyUp(int key);
-   public native void nativeOnKeyChar(int key, int unichar);
-   public native void nativeOnTouch(int id, int action, float x, float y, boolean primary);
 
    /** functions that native code calls */
 
@@ -40,9 +30,6 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    ArrayList<Integer>  egl_attribWork = new ArrayList<Integer>();
    EGLConfig[]         egl_Config = new EGLConfig[] { null };
    int[]               es2_attrib = {EGL_CONTEXT_CLIENT_VERSION, 1, EGL10.EGL_NONE};
-
-   private Context context;
-   private boolean captureVolume = false;
 
    boolean egl_Init()
    {
@@ -321,20 +308,19 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
 
    /** main handlers */
 
+   private KeyListener key_listener;
+   private TouchListener touch_listener;
+
    public AllegroSurface(Context context, Display display)
    {
       super(context);
 
-      this.context = context;
-
       Log.d("AllegroSurface", "PixelFormat=" + display.getPixelFormat());
       getHolder().setFormat(display.getPixelFormat());
-
-      Log.d("AllegroSurface", "ctor");
-
       getHolder().addCallback(this); 
 
-      Log.d("AllegroSurface", "ctor end");
+      this.key_listener = new KeyListener(context);
+      this.touch_listener = new TouchListener();
    }
 
    private void grabFocus()
@@ -344,8 +330,8 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       setFocusable(true);
       setFocusableInTouchMode(true);
       requestFocus();
-      setOnKeyListener(this); 
-      setOnTouchListener(this);
+      setOnKeyListener(key_listener);
+      setOnTouchListener(touch_listener);
    }
 
    @Override
@@ -395,167 +381,10 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
 
    /* Events */
 
-   /* Maybe dump a stacktrace and die, rather than logging and ignoring errors.
-    * All this fancyness is so we work on as many versions of Android as
-    * possible, and gracefully degrade, rather than just outright failing.
-    */
-
-   public void setCaptureVolumeKeys(boolean onoff)
+   /* XXX not exposed in C API yet */
+   void setCaptureVolumeKeys(boolean onoff)
    {
-      captureVolume = onoff;
-   }
-
-   private void volumeChange(int inc)
-   {
-      AudioManager mAudioManager =
-         (AudioManager)context.getApplicationContext()
-         .getSystemService(Context.AUDIO_SERVICE);
-
-      int curr = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-      int max = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-      int vol = curr + inc;
-
-      if (0 <= vol && vol <= max) {
-         // Set a new volume level manually with the FLAG_SHOW_UI flag.
-         mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, vol,
-            AudioManager.FLAG_SHOW_UI);
-      }
-   }
-
-   @Override
-   public boolean onKey(View v, int keyCode, KeyEvent event)
-   {
-      int unichar;
-      if (event.getAction() == KeyEvent.ACTION_DOWN) {
-         if (!captureVolume) {
-            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-               volumeChange(1);
-               return true;
-            }
-            else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-               volumeChange(-1);
-               return true;
-            }
-         }
-         if (Key.alKey(keyCode) == Key.ALLEGRO_KEY_BACKSPACE) {
-            unichar = '\b';
-         }
-         else if (Key.alKey(keyCode) == Key.ALLEGRO_KEY_ENTER) {
-            unichar = '\r';
-         }
-         else {
-            unichar = event.getUnicodeChar();
-         }
-
-         if (event.getRepeatCount() == 0) {
-            nativeOnKeyDown(Key.alKey(keyCode));
-            nativeOnKeyChar(Key.alKey(keyCode), unichar);
-         }
-         else {
-            nativeOnKeyChar(Key.alKey(keyCode), unichar);
-         }
-         return true;
-      }
-      else if (event.getAction() == KeyEvent.ACTION_UP) {
-         nativeOnKeyUp(Key.alKey(keyCode));
-         return true;
-      }
-
-      return false;
-   }
-
-   // FIXME: Pull out android version detection into the setup and just check
-   // some flags here, rather than checking for the existance of the fields and
-   // methods over and over.
-   @Override
-   public boolean onTouch(View v, MotionEvent event)
-   {
-      //Log.d("AllegroSurface", "onTouch");
-      int action = 0;
-      int pointer_id = 0;
-
-      Class[] no_args = new Class[0];
-      Class[] int_arg = new Class[1];
-      int_arg[0] = int.class;
-
-      if (Reflect.methodExists(event, "getActionMasked")) { // android-8 / 2.2.x
-         action = Reflect.<Integer>callMethod(event, "getActionMasked", no_args);
-         int ptr_idx = Reflect.<Integer>callMethod(event, "getActionIndex", no_args);
-         pointer_id = Reflect.<Integer>callMethod(event, "getPointerId", int_arg, ptr_idx);
-      } else {
-         int raw_action = event.getAction();
-
-         if (Reflect.fieldExists(event, "ACTION_MASK")) { // android-5 / 2.0
-            int mask = Reflect.<Integer>getField(event, "ACTION_MASK");
-            action = raw_action & mask;
-
-            int ptr_id_mask = Reflect.<Integer>getField(event, "ACTION_POINTER_ID_MASK");
-            int ptr_id_shift = Reflect.<Integer>getField(event, "ACTION_POINTER_ID_SHIFT");
-
-            pointer_id = event.getPointerId((raw_action & ptr_id_mask) >> ptr_id_shift);
-         }
-         else { // android-4 / 1.6
-            /* no ACTION_MASK? no multi touch, no pointer_id, */
-            action = raw_action;
-         }
-      }
-
-      boolean primary = false;
-
-      if (action == MotionEvent.ACTION_DOWN) {
-         primary = true;
-         action = Const.ALLEGRO_EVENT_TOUCH_BEGIN;
-      }
-      else if (action == MotionEvent.ACTION_UP) {
-         primary = true;
-         action = Const.ALLEGRO_EVENT_TOUCH_END;
-      }
-      else if (action == MotionEvent.ACTION_MOVE) {
-         action = Const.ALLEGRO_EVENT_TOUCH_MOVE;
-      }
-      else if (action == MotionEvent.ACTION_CANCEL) {
-         action = Const.ALLEGRO_EVENT_TOUCH_CANCEL;
-      }
-      // android-5 / 2.0
-      else if (Reflect.fieldExists(event, "ACTION_POINTER_DOWN") &&
-         action == Reflect.<Integer>getField(event, "ACTION_POINTER_DOWN"))
-      {
-         action = Const.ALLEGRO_EVENT_TOUCH_BEGIN;
-      }
-      else if (Reflect.fieldExists(event, "ACTION_POINTER_UP") &&
-         action == Reflect.<Integer>getField(event, "ACTION_POINTER_UP"))
-      {
-         action = Const.ALLEGRO_EVENT_TOUCH_END;
-      }
-      else {
-         Log.v("AllegroSurface", "unknown MotionEvent type: " + action);
-         Log.d("AllegroSurface", "onTouch endf");
-         return false;
-      }
-
-      if (Reflect.methodExists(event, "getPointerCount")) { // android-5 / 2.0
-         int pointer_count = Reflect.<Integer>callMethod(event, "getPointerCount", no_args);
-         for(int i = 0; i < pointer_count; i++) {
-            float x = Reflect.<Float>callMethod(event, "getX", int_arg, i);
-            float y = Reflect.<Float>callMethod(event, "getY", int_arg, i);
-            int  id = Reflect.<Integer>callMethod(event, "getPointerId", int_arg, i);
-
-            /* not entirely sure we need to report move events for non primary touches here
-             * but examples I've see say that the ACTION_[POINTER_][UP|DOWN]
-             * report all touches and they can change between the last MOVE
-             * and the UP|DOWN event */
-            if (id == pointer_id) {
-               nativeOnTouch(id, action, x, y, primary);
-            } else {
-               nativeOnTouch(id, Const.ALLEGRO_EVENT_TOUCH_MOVE, x, y, primary);
-            }
-         }
-      } else {
-         nativeOnTouch(pointer_id, action, event.getX(), event.getY(), primary);
-      }
-
-      //Log.d("AllegroSurface", "onTouch end");
-      return true;
+      key_listener.setCaptureVolumeKeys(onoff);
    }
 }
 

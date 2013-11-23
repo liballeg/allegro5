@@ -1,6 +1,7 @@
 #include "allegro5/allegro.h"
-#include "allegro5/internal/aintern_keyboard.h"
+#include "allegro5/internal/aintern_android.h"
 #include "allegro5/internal/aintern_events.h"
+#include "allegro5/internal/aintern_keyboard.h"
 
 #include <stdio.h>
 
@@ -78,7 +79,8 @@ ALLEGRO_KEYBOARD_DRIVER *_al_get_android_keyboard_driver(void)
     return &android_keyboard_driver;
 }
 
-void _al_android_keyboard_handle_event(ALLEGRO_DISPLAY *display, int scancode, int unichar, ALLEGRO_EVENT_TYPE event_type) 
+static void android_keyboard_handle_event(ALLEGRO_DISPLAY *display,
+   int scancode, int unichar, ALLEGRO_EVENT_TYPE event_type)
 {
    ALLEGRO_EVENT event;
 
@@ -110,3 +112,54 @@ void _al_android_keyboard_handle_event(ALLEGRO_DISPLAY *display, int scancode, i
    _al_event_source_unlock(&the_keyboard.es);
 }
 
+JNI_FUNC(void, KeyListener, nativeOnKeyDown, (JNIEnv *env, jobject obj,
+   jint scancode, jint unichar))
+{
+   (void)env;
+   (void)obj;
+
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
+   ASSERT(system != NULL);
+
+   ALLEGRO_DISPLAY **dptr = _al_vector_ref(&system->displays, 0);
+   ALLEGRO_DISPLAY *display = *dptr;
+   ASSERT(display != NULL);
+
+   android_keyboard_handle_event(display, scancode, unichar,
+      ALLEGRO_EVENT_KEY_DOWN);
+}
+
+JNI_FUNC(void, KeyListener, nativeOnKeyUp, (JNIEnv *env, jobject obj,
+   jint scancode))
+{
+   (void)env;
+   (void)obj;
+
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
+   ASSERT(system != NULL);
+
+   ALLEGRO_DISPLAY **dptr = _al_vector_ref(&system->displays, 0);
+   ALLEGRO_DISPLAY *display = *dptr;
+   ASSERT(display != NULL);
+
+   android_keyboard_handle_event(display, scancode, 0, ALLEGRO_EVENT_KEY_UP);
+}
+
+JNI_FUNC(void, KeyListener, nativeOnKeyChar, (JNIEnv *env, jobject obj,
+   jint scancode, jint unichar))
+{
+   (void)env;
+   (void)obj;
+
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
+   ASSERT(system != NULL);
+
+   ALLEGRO_DISPLAY **dptr = _al_vector_ref(&system->displays, 0);
+   ALLEGRO_DISPLAY *display = *dptr;
+   ASSERT(display != NULL);
+
+   android_keyboard_handle_event(display, scancode, unichar,
+      ALLEGRO_EVENT_KEY_CHAR);
+}
+
+/* vim: set sts=3 sw=3 et: */
