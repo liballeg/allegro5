@@ -1,5 +1,8 @@
 package org.liballeg.android;
 
+import android.content.pm.ActivityInfo;
+import android.view.Surface;
+
 final class Const
 {
    /* color.h */
@@ -34,6 +37,63 @@ final class Const
    static final int ALLEGRO_EVENT_TOUCH_END    = 51;
    static final int ALLEGRO_EVENT_TOUCH_MOVE   = 52;
    static final int ALLEGRO_EVENT_TOUCH_CANCEL = 53;
+
+   static int toAndroidOrientation(int alleg_orientation)
+   {
+      switch (alleg_orientation)
+      {
+         case ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES:
+            return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+
+         case ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES:
+            return ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+
+         case ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES:
+            return ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+
+         case ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES:
+            return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+
+         case ALLEGRO_DISPLAY_ORIENTATION_PORTRAIT:
+            return ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT;
+
+         case ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE:
+            return ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
+
+         case ALLEGRO_DISPLAY_ORIENTATION_ALL:
+            return ActivityInfo.SCREEN_ORIENTATION_SENSOR;
+      }
+
+      return ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+   }
+
+   static int toAllegroOrientation(int rotation)
+   {
+      switch (rotation) {
+         case Surface.ROTATION_0:
+            return ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES;
+
+         case Surface.ROTATION_180:
+            return ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES;
+
+         /* Android device orientations are the opposite of Allegro ones.
+          * Allegro orientations are the orientation of the device, with 0
+          * being holding the device at normal orientation, 90 with the device
+          * rotated 90 degrees clockwise and so on. Android orientations are
+          * the orientations of the GRAPHICS. By rotating the device by 90
+          * degrees clockwise, the graphics are actually rotated 270 degrees,
+          * and that's what Android uses.
+          */
+
+         case Surface.ROTATION_90:
+            return ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES;
+
+         case Surface.ROTATION_270:
+            return ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES;
+      }
+
+      return ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN;
+   }
 }
 
 /* vim: set sts=3 sw=3 et: */

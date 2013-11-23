@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
-import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -369,83 +368,22 @@ public class AllegroActivity extends Activity
 
    public int getAndroidOrientation(int alleg_orientation)
    {
-      int android_orientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
-
-      switch (alleg_orientation)
-      {
-         case Const.ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES:
-            android_orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-            break;
-
-         case Const.ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES:
-            android_orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
-            break;
-
-         case Const.ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES:
-            android_orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
-            break;
-
-         case Const.ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES:
-            android_orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-            break;
-
-         case Const.ALLEGRO_DISPLAY_ORIENTATION_PORTRAIT:
-            android_orientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT;
-            break;
-
-         case Const.ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE:
-            android_orientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
-            break;
-
-         case Const.ALLEGRO_DISPLAY_ORIENTATION_ALL:
-            android_orientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
-            break;
-      }
-
-      return android_orientation;
+      return Const.toAndroidOrientation(alleg_orientation);
    }
 
    private int getAllegroOrientation()
    {
-      int allegro_orientation = Const.ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN;
       int rotation;
-
-      if (Reflect.methodExists(getWindowManager().getDefaultDisplay(), "getRotation")) {
+      if (Reflect.methodExists(getWindowManager().getDefaultDisplay(),
+            "getRotation"))
+      {
          /* 2.2+ */
          rotation = getWindowManager().getDefaultDisplay().getRotation();
       }
       else {
          rotation = getWindowManager().getDefaultDisplay().getOrientation();
       }
-
-      switch (rotation) {
-         case Surface.ROTATION_0:
-            allegro_orientation = Const.ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES;
-            break;
-
-         case Surface.ROTATION_180:
-            allegro_orientation = Const.ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES;
-            break;
-
-         /* Android device orientations are the opposite of Allegro ones.
-          * Allegro orientations are the orientation of the device, with 0
-          * being holding the device at normal orientation, 90 with the device
-          * rotated 90 degrees clockwise and so on. Android orientations are
-          * the orientations of the GRAPHICS. By rotating the device by 90
-          * degrees clockwise, the graphics are actually rotated 270 degrees,
-          * and that's what Android uses.
-          */
-
-         case Surface.ROTATION_90:
-            allegro_orientation = Const.ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES;
-            break;
-
-         case Surface.ROTATION_270:
-            allegro_orientation = Const.ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES;
-            break;
-      }
-
-      return allegro_orientation;
+      return Const.toAllegroOrientation(rotation);
    }
 
    public String getOsVersion()
