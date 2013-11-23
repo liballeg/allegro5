@@ -23,6 +23,7 @@ public class AllegroAPKStream
          Log.d("APK", filename + " simplified to: " + fn);
       }
       pos = 0;
+      fsize = -1;
       at_eof = false;
    }
 
@@ -52,7 +53,8 @@ public class AllegroAPKStream
          fd.close();
       }
       catch (IOException e) {
-         fsize = 0;
+         Log.w("APK", "could not get file size: " + e.toString());
+         fsize = -1;
       }
 
       boolean res = reopen();
