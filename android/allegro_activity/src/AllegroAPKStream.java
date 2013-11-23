@@ -144,11 +144,6 @@ public class AllegroAPKStream
    {
       return at_eof;
    }
-
-   public void ungetc(int c)
-   {
-      /* XXX unimplemented? */
-   }
 }
 
 /* vim: set sts=3 sw=3 et: */

@@ -251,14 +251,6 @@ static void file_apk_fclearerr(ALLEGRO_FILE *f)
 }
 
 
-static int file_apk_ungetc(ALLEGRO_FILE *f, int c)
-{
-   ALLEGRO_FILE_APK *fp = cast_stream(f);
-   _jni_callVoidMethodV(_al_android_get_jnienv(), fp->apk, "ungetc", "(I)V");
-   return c;
-}
-
-
 static off_t file_apk_fsize(ALLEGRO_FILE *f)
 {
    ALLEGRO_FILE_APK *fp = cast_stream(f);
@@ -278,7 +270,7 @@ static const ALLEGRO_FILE_INTERFACE file_apk_vtable =
    file_apk_feof,
    file_apk_ferror,
    file_apk_fclearerr,
-   file_apk_ungetc,
+   NULL, /* default ungetc implementation */
    file_apk_fsize
 };
 
