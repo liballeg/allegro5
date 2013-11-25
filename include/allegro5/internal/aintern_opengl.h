@@ -143,9 +143,9 @@ void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
       int x, int y, int w, int h, int format, int flags);
    void _al_ogl_unlock_region_new(ALLEGRO_BITMAP *bitmap);
 #else
-   ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_old_gles(ALLEGRO_BITMAP *bitmap,
+   ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_gles(ALLEGRO_BITMAP *bitmap,
       int x, int y, int w, int h, int format, int flags);
-   void _al_ogl_unlock_region_old_gles(ALLEGRO_BITMAP *bitmap);
+   void _al_ogl_unlock_region_gles(ALLEGRO_BITMAP *bitmap);
 #endif
 
 /* framebuffer objects */

@@ -598,8 +598,8 @@ static ALLEGRO_BITMAP_INTERFACE *ogl_bitmap_driver(void)
    glbmp_vt.destroy_bitmap = ogl_destroy_bitmap;
    glbmp_vt.bitmap_pointer_changed = ogl_bitmap_pointer_changed;
 #if defined(ALLEGRO_CFG_OPENGLES)
-   glbmp_vt.lock_region = _al_ogl_lock_region_old_gles;
-   glbmp_vt.unlock_region = _al_ogl_unlock_region_old_gles;
+   glbmp_vt.lock_region = _al_ogl_lock_region_gles;
+   glbmp_vt.unlock_region = _al_ogl_unlock_region_gles;
 #else
    glbmp_vt.lock_region = _al_ogl_lock_region_new;
    glbmp_vt.unlock_region = _al_ogl_unlock_region_new;
