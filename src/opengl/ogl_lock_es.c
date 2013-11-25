@@ -344,9 +344,9 @@ static void ogl_lock_region_nonbb_readwrite_nonfbo(
 
 static void ogl_unlock_region_non_readonly(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap);
-static void ogl_unlock_region_backbuffer(ALLEGRO_BITMAP *bitmap,
+static void ogl_unlock_region_backbuffer_via_drawtex(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap);
-static void ogl_unlock_region_backbuffer_rpi(ALLEGRO_BITMAP *bitmap,
+static void ogl_unlock_region_backbuffer_via_texture(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_DISPLAY *disp);
 static void ogl_unlock_region_nonbb(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap, int gl_y, int orig_format);
@@ -399,10 +399,13 @@ static void ogl_unlock_region_non_readonly(ALLEGRO_BITMAP *bitmap,
 
    if (ogl_bitmap->is_backbuffer) {
       ALLEGRO_DEBUG("Unlocking backbuffer\n");
-      if (IS_RASPBERRYPI)
-         ogl_unlock_region_backbuffer_rpi(bitmap, disp);
+      /* glDrawTex doesn't seem to be working on Android, or at least I
+       * couldn't figure it out.
+       */
+      if (IS_ANDROID || IS_RASPBERRYPI)
+         ogl_unlock_region_backbuffer_via_texture(bitmap, disp);
       else
-         ogl_unlock_region_backbuffer(bitmap, ogl_bitmap);
+         ogl_unlock_region_backbuffer_via_drawtex(bitmap, ogl_bitmap);
    }
    else {
       ogl_unlock_region_nonbb(bitmap, ogl_bitmap, gl_y, orig_format);
@@ -427,7 +430,7 @@ static void ogl_unlock_region_non_readonly(ALLEGRO_BITMAP *bitmap,
 }
 
 
-static void ogl_unlock_region_backbuffer(ALLEGRO_BITMAP *bitmap,
+static void ogl_unlock_region_backbuffer_via_drawtex(ALLEGRO_BITMAP *bitmap,
       ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap)
 {
    const int lock_format = bitmap->locked_region.format;
@@ -456,7 +459,7 @@ static void ogl_unlock_region_backbuffer(ALLEGRO_BITMAP *bitmap,
 }
 
 
-static void ogl_unlock_region_backbuffer_rpi(ALLEGRO_BITMAP *bitmap,
+static void ogl_unlock_region_backbuffer_via_texture(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_DISPLAY *disp)
 {
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
