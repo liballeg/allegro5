@@ -271,6 +271,8 @@ static void ogl_lock_region_nonbb_readwrite_fbo(
    /* Some Android devices only want to read POT chunks with glReadPixels.
     * This adds yet more overhead, but AFAICT it fails any other way.
     * Test device was gen 1 Galaxy Tab. Also read 16x16 minimum.
+    *
+    * XXX Nexus 7 at least does NOT require the next POT
     */
    if (IS_ANDROID) {
       glPixelStorei(GL_PACK_ALIGNMENT, 4);
@@ -278,6 +280,7 @@ static void ogl_lock_region_nonbb_readwrite_fbo(
       while (w < 16) w = pot(w+1);
       h = pot(h);
       while (h < 16) h = pot(h+1);
+      ALLEGRO_DEBUG("roundup w, h = %d, %d\n", w, h);
    }
 
    /* Allocate a buffer big enough for both purposes. This requires more
@@ -350,9 +353,9 @@ static void ogl_unlock_region_nonbb(ALLEGRO_BITMAP *bitmap,
 static void ogl_unlock_region_nonbb_nonfbo(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap, int gl_y, int orig_format);
 static void ogl_unlock_region_nonbb_nonfbo_conv(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap, int gl_y, int orig_format, int w);
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap, int gl_y, int orig_format);
 static void ogl_unlock_region_nonbb_nonfbo_noconv(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap, int gl_y, int orig_format, int w);
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap, int gl_y, int orig_format);
 
 
 void _al_ogl_unlock_region_gles(ALLEGRO_BITMAP *bitmap)
@@ -533,33 +536,28 @@ static void ogl_unlock_region_nonbb(ALLEGRO_BITMAP *bitmap,
 static void ogl_unlock_region_nonbb_nonfbo(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap, int gl_y, int orig_format)
 {
-   int w = bitmap->lock_w;
-   if (IS_ANDROID && !(bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY)) {
-      w = pot(w);
-   }
-
    /* Differs from desktop code. */
    if (!ogl_bitmap->fbo_info ||
       (bitmap->locked_region.format != orig_format))
    {
       ALLEGRO_DEBUG("Unlocking non-backbuffer non-FBO with conversion\n");
       ogl_unlock_region_nonbb_nonfbo_conv(bitmap, ogl_bitmap, gl_y,
-         orig_format, w);
+         orig_format);
    }
    else {
       ALLEGRO_DEBUG("Unlocking non-backbuffer non-FBO without conversion\n");
       ogl_unlock_region_nonbb_nonfbo_noconv(bitmap, ogl_bitmap, gl_y,
-         orig_format, w);
+         orig_format);
    }
 }
 
 
 static void ogl_unlock_region_nonbb_nonfbo_conv(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap, int gl_y, int orig_format, int w)
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap, int gl_y, int orig_format)
 {
    const int lock_format = bitmap->locked_region.format;
    const int orig_pixel_size = al_get_pixel_size(orig_format);
-   const int dst_pitch = w * orig_pixel_size;
+   const int dst_pitch = bitmap->lock_w * orig_pixel_size;
    unsigned char * const tmpbuf = al_malloc(dst_pitch * bitmap->lock_h);
    GLenum e;
 
@@ -571,13 +569,13 @@ static void ogl_unlock_region_nonbb_nonfbo_conv(ALLEGRO_BITMAP *bitmap,
       orig_format,
       dst_pitch,
       0, 0, 0, 0,
-      w, bitmap->lock_h);
+      bitmap->lock_w, bitmap->lock_h);
 
    glPixelStorei(GL_UNPACK_ALIGNMENT, ogl_pixel_alignment(orig_pixel_size));
 
    glTexSubImage2D(GL_TEXTURE_2D, 0,
       bitmap->lock_x, gl_y,
-      w, bitmap->lock_h,
+      bitmap->lock_w, bitmap->lock_h,
       get_glformat(orig_format, 2),
       get_glformat(orig_format, 1),
       tmpbuf);
@@ -592,7 +590,7 @@ static void ogl_unlock_region_nonbb_nonfbo_conv(ALLEGRO_BITMAP *bitmap,
 
 
 static void ogl_unlock_region_nonbb_nonfbo_noconv(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap, int gl_y, int orig_format, int w)
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap, int gl_y, int orig_format)
 {
    const int lock_format = bitmap->locked_region.format;
    const int orig_pixel_size = al_get_pixel_size(orig_format);
@@ -602,7 +600,7 @@ static void ogl_unlock_region_nonbb_nonfbo_noconv(ALLEGRO_BITMAP *bitmap,
 
    glTexSubImage2D(GL_TEXTURE_2D, 0,
       bitmap->lock_x, gl_y,
-      w, bitmap->lock_h,
+      bitmap->lock_w, bitmap->lock_h,
       get_glformat(lock_format, 2),
       get_glformat(lock_format, 1),
       ogl_bitmap->lock_buffer);
