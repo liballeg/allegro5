@@ -345,7 +345,7 @@ static void ogl_lock_region_nonbb_readwrite_nonfbo(
 static void ogl_unlock_region_non_readonly(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap);
 static void ogl_unlock_region_backbuffer_via_drawtex(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap);
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap, int gl_y);
 static void ogl_unlock_region_backbuffer_via_texture(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_DISPLAY *disp);
 static void ogl_unlock_region_nonbb(ALLEGRO_BITMAP *bitmap,
@@ -405,7 +405,7 @@ static void ogl_unlock_region_non_readonly(ALLEGRO_BITMAP *bitmap,
       if (IS_ANDROID || IS_RASPBERRYPI)
          ogl_unlock_region_backbuffer_via_texture(bitmap, disp);
       else
-         ogl_unlock_region_backbuffer_via_drawtex(bitmap, ogl_bitmap);
+         ogl_unlock_region_backbuffer_via_drawtex(bitmap, ogl_bitmap, gl_y);
    }
    else {
       ogl_unlock_region_nonbb(bitmap, ogl_bitmap, gl_y, orig_format);
@@ -431,7 +431,7 @@ static void ogl_unlock_region_non_readonly(ALLEGRO_BITMAP *bitmap,
 
 
 static void ogl_unlock_region_backbuffer_via_drawtex(ALLEGRO_BITMAP *bitmap,
-      ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap)
+      ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap, int gl_y)
 {
    const int lock_format = bitmap->locked_region.format;
    GLuint tmp_tex;
@@ -448,8 +448,8 @@ static void ogl_unlock_region_backbuffer_via_drawtex(ALLEGRO_BITMAP *bitmap,
       ALLEGRO_ERROR("glTexImage2D failed: %d\n", e);
    }
 
-   glDrawTexiOES(bitmap->lock_x, bitmap->lock_y, 0, bitmap->lock_w,
-      bitmap->lock_h);
+   glDrawTexiOES(bitmap->lock_x, gl_y, 0,
+      bitmap->lock_w, bitmap->lock_h);
    e = glGetError();
    if (e) {
       ALLEGRO_ERROR("glDrawTexiOES failed: %d\n", e);
