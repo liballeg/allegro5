@@ -155,6 +155,8 @@ int main(int argc, char **argv)
    }
 
    al_install_keyboard();
+   al_install_mouse();
+   al_install_touch_input();
 
    open_log();
 
@@ -166,6 +168,11 @@ int main(int argc, char **argv)
 
    events = al_create_event_queue();
    al_register_event_source(events, al_get_keyboard_event_source());
+   al_register_event_source(events, al_get_mouse_event_source());
+   if (al_is_touch_input_installed()) {
+      al_register_event_source(events,
+         al_get_touch_input_mouse_emulation_event_source());
+   }
 
    log_printf("Press space to change bitmap type\n");
    log_printf("Press w to toggle WRITEONLY mode\n");
@@ -186,6 +193,17 @@ int main(int argc, char **argv)
          }
          else if (event.keyboard.unichar == 'w' || event.keyboard.unichar == 'W') {
             lock_flags = toggle_writeonly(lock_flags);
+            redraw = true;
+         }
+      }
+      else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+         if (event.mouse.button == 1) {
+            if (event.mouse.x < al_get_display_width(display) / 2) {
+               mode = cycle_mode(mode);
+            }
+            else {
+               lock_flags = toggle_writeonly(lock_flags);
+            }
             redraw = true;
          }
       }
