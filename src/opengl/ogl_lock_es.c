@@ -251,8 +251,7 @@ static bool ogl_lock_region_nonbb_readwrite(
 
    /* Try to create an FBO if there isn't one. */
    old_target = al_get_target_bitmap();
-   fbo_was_set = _al_ogl_setup_fbo_non_backbuffer(bitmap->display, bitmap,
-      true);
+   fbo_was_set = _al_ogl_setup_fbo_non_backbuffer(bitmap->display, bitmap);
 
    /* Unlike in desktop GL, there seems to be nothing we can do without an FBO. */
    if (fbo_was_set && ogl_bitmap->fbo_info) {

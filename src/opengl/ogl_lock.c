@@ -243,8 +243,7 @@ static bool ogl_lock_region_nonbb_readwrite(
 
    /* Try to create an FBO if there isn't one. */
    old_target = al_get_target_bitmap();
-   fbo_was_set = _al_ogl_setup_fbo_non_backbuffer(bitmap->display, bitmap,
-      false);
+   fbo_was_set = _al_ogl_setup_fbo_non_backbuffer(bitmap->display, bitmap);
 
    if (ogl_bitmap->fbo_info) {
       ALLEGRO_DEBUG("Locking non-backbuffer READWRITE with fbo\n");

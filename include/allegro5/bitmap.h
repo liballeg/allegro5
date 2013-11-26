@@ -18,7 +18,7 @@ typedef struct ALLEGRO_BITMAP ALLEGRO_BITMAP;
 enum {
    ALLEGRO_MEMORY_BITMAP            = 0x0001,
    _ALLEGRO_KEEP_BITMAP_FORMAT      = 0x0002,	/* now a bitmap loader flag */
-   ALLEGRO_FORCE_LOCKING            = 0x0004,
+   ALLEGRO_FORCE_LOCKING            = 0x0004,	/* no longer honoured */
    ALLEGRO_NO_PRESERVE_TEXTURE      = 0x0008,
    _ALLEGRO_ALPHA_TEST              = 0x0010,   /* now a render state flag */
    _ALLEGRO_INTERNAL_OPENGL         = 0x0020,

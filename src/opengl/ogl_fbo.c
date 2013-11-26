@@ -270,7 +270,7 @@ void _al_ogl_setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
    if (ogl_bitmap->is_backbuffer)
       setup_fbo_backbuffer(display, bitmap);
    else
-      _al_ogl_setup_fbo_non_backbuffer(display, bitmap, false);
+      _al_ogl_setup_fbo_non_backbuffer(display, bitmap);
 }
 
 
@@ -305,7 +305,7 @@ static void setup_fbo_backbuffer(ALLEGRO_DISPLAY *display,
 
 
 bool _al_ogl_setup_fbo_non_backbuffer(ALLEGRO_DISPLAY *display,
-   ALLEGRO_BITMAP *bitmap, bool ignore_force_locking)
+   ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
    ALLEGRO_FBO_INFO *info;
@@ -315,18 +315,16 @@ bool _al_ogl_setup_fbo_non_backbuffer(ALLEGRO_DISPLAY *display,
    /* When a bitmap is set as target bitmap, we try to create an FBO for it. */
    info = ogl_bitmap->fbo_info;
    if (!info) {
-      if (ignore_force_locking || !(bitmap->flags & ALLEGRO_FORCE_LOCKING)) {
-         /* FIXME The IS_OPENGLES part is quite a hack but I don't know how the
-          * Allegro extension manager works to fix this properly (getting
-          * extensions properly reported on iphone). All iOS devices support
-          * FBOs though (currently.)
-          */
-         if (IS_OPENGLES ||
-            al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object ||
-            al_get_opengl_extension_list()->ALLEGRO_GL_OES_framebuffer_object)
-         {
-            info = ogl_new_fbo(display);
-         }
+      /* FIXME The IS_OPENGLES part is quite a hack but I don't know how the
+       * Allegro extension manager works to fix this properly (getting
+       * extensions properly reported on iphone). All iOS devices support
+       * FBOs though (currently.)
+       */
+      if (IS_OPENGLES ||
+         al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object ||
+         al_get_opengl_extension_list()->ALLEGRO_GL_OES_framebuffer_object)
+      {
+         info = ogl_new_fbo(display);
       }
    }
 
