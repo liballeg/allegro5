@@ -514,18 +514,33 @@ check_c_source_compiles("
 
 if(WANT_OPENGL)
     find_package(OpenGL)
+    if(ANDROID)
+        find_package(OpenGLES)
+        find_package(OpenGLES2)
+    endif(ANDROID)
 
     # on cmake 2.8.1 OpenGL ES is not found in the iphone case
+    # XXX incorporate IPHONE case into FindOpenGLES/2
     if(IPHONE)
         set(OPENGL_LIBRARIES "-framework OpenGLES")
         set(OPENGL_gl_LIBRARY "-framework OpenGLES")
-        set(OPENGL_glu_LIBRARY "")
     endif(IPHONE)
 
-    if(OPENGL_FOUND)
+    if(OPENGLES_FOUND)
         set(SUPPORT_OPENGL 1)
         set(ALLEGRO_CFG_OPENGL 1)
-    endif(OPENGL_FOUND)
+        set(ALLEGRO_CFG_OPENGLES 1)
+        set(OPENGL_LIBRARIES ${OPENGLES_LIBRARIES})
+        if(OPENGLES2_FOUND)
+            list(APPEND OPENGL_LIBRARIES ${OPENGLES2_LIBRARIES})
+        else()
+            set(ALLEGRO_CFG_NO_GLES2 1)
+        endif()
+    elseif(OPENGL_FOUND)
+        set(SUPPORT_OPENGL 1)
+        set(ALLEGRO_CFG_OPENGL 1)
+        set(ALLEGRO_CFG_NO_GLES2 1)
+    endif()
 endif(WANT_OPENGL)
 
 
@@ -731,7 +746,7 @@ if(SUPPORT_OPENGL)
     if(WIN32)
         list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WGL_FILES})
     endif(WIN32)
-    list(APPEND PLATFORM_LIBS ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
+    list(APPEND PLATFORM_LIBS ${OPENGL_LIBRARIES})
 endif(SUPPORT_OPENGL)
 
 if(SUPPORT_OPENGL AND WANT_SHADERS_GL)

@@ -31,6 +31,7 @@ SET(ALLEGRO_CFG_OPENGLES 1)
 
 SET(ALLEGRO_EXCLUDE_GLX 1)
 
+# XXX incorporate into FindOpenGLES/2
 set(OPENGL_LIBRARIES "/opt/vc/lib/libGLESv2.so;/opt/vc/lib/libEGL.so;/opt/vc/lib/libbcm_host.so")
 set(OPENGL_gl_LIBRARY "/opt/vc/lib/libGLESv2.so;/opt/vc/lib/libEGL.so;/opt/vc/lib/libbcm_host.so")
 set(OPENGL_glu_LIBRARY "")

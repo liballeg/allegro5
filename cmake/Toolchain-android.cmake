@@ -2,8 +2,6 @@
 SET(CMAKE_SYSTEM_NAME Linux)
 SET(CMAKE_SYSTEM_VERSION 1)
 
-SET(ALLEGRO_CFG_OPENGLES 1)
-
 #set path for android toolchain -- look
 
 set(ANDROID_NDK_TOOLCHAIN_ROOT "$ENV{HOME}/android-toolchain" CACHE PATH "Path to the Android NDK Standalone Toolchain" )
@@ -149,14 +147,3 @@ SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}" CACHE STRING "c flags")
 #set these global flags for cmake client scripts to change behavior
 set(ANDROID True)
 set(BUILD_ANDROID True)
-
-IF(WANT_GLES2)
-  set(OPENGL_LIBRARIES "-lGLESv1_CM -lGLESv2 -lEGL")
-  set(OPENGL_gl_LIBRARY "-lGLESv1_CM -lGLESv2 -lEGL")
-ELSE(WANT_GLES2)
-  set(OPENGL_LIBRARIES "-lGLESv1_CM")
-  set(OPENGL_gl_LIBRARY "-lGLESv1_CM")
-  set(ALLEGRO_CFG_NO_GLES2 1)
-ENDIF(WANT_GLES2)
-
-set(OPENGL_glu_LIBRARY "")
