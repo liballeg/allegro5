@@ -108,7 +108,6 @@ endif(NOT MSVC)
 
 example(ex_bitmap ${IMAGE} ${DATA_IMAGES})
 example(ex_bitmap_flip ${IMAGE} ${FONT} ${DATA_IMAGES})
-example(ex_bitmap_target ${FONT} ${PRIM})
 example(ex_blend ${FONT} ${IMAGE} ${PRIM} ${DATA_IMAGES})
 example(ex_blend2 ex_blend2.cpp ${NIHGUI} ${IMAGE} ${DATA_IMAGES})
 example(ex_blend_bench ${IMAGE} ${PRIM} ${DATA_IMAGES})
