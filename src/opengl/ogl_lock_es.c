@@ -93,9 +93,6 @@ static void ogl_lock_region_nonbb_readwrite(
 static void ogl_lock_region_nonbb_readwrite_fbo(
    ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap,
    int x, int gl_y, int w, int h, int format);
-static void ogl_lock_region_nonbb_readwrite_nonfbo(
-   ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap,
-   int x, int gl_y, int w, int h, int format);
 
 
 ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_gles(ALLEGRO_BITMAP *bitmap,
@@ -219,35 +216,43 @@ static void ogl_lock_region_nonbb_readwrite(
    ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap,
    int x, int gl_y, int w, int h, int format)
 {
-   ALLEGRO_BITMAP *old_target = NULL;
-   bool need_to_restore_target = false;
+   ALLEGRO_BITMAP *old_target;
+   bool fbo_was_set;
 
-   /* Create an FBO if there isn't one. */
-   if (!ogl_bitmap->fbo_info) {
-      old_target = al_get_target_bitmap();
-      need_to_restore_target = true;
+   ASSERT(bitmap->parent == NULL);
+   ASSERT(bitmap->locked == false);
+   ASSERT(bitmap->display == al_get_current_display());
 
-      bitmap->locked = false; // FIXME: hack :(
-      if (al_is_bitmap_drawing_held())
-         al_hold_bitmap_drawing(false);
+   /* Try to create an FBO if there isn't one. */
+   old_target = al_get_target_bitmap();
+   fbo_was_set = _al_ogl_setup_fbo_non_backbuffer(bitmap->display, bitmap,
+      true);
 
-      al_set_target_bitmap(bitmap); // This creates the fbo
-      bitmap->locked = true;
-   }
-
-   if (ogl_bitmap->fbo_info) {
+   /* Unlike in desktop GL, there seems to be nothing we can do without an FBO. */
+   if (fbo_was_set && ogl_bitmap->fbo_info) {
       ogl_lock_region_nonbb_readwrite_fbo(bitmap, ogl_bitmap,
          x, gl_y, w, h, format);
    }
    else {
-      ogl_lock_region_nonbb_readwrite_nonfbo(bitmap, ogl_bitmap,
-         x, gl_y, w, h, format);
+      ALLEGRO_ERROR("no fbo\n");
    }
 
-   if (need_to_restore_target) {
-      /* old_target may be NULL. */
-      al_set_target_bitmap(old_target);
+   /* Restore state after switching FBO. */
+   if (fbo_was_set) {
+      if (!old_target) {
+         /* Old target was NULL; release the context. */
+         _al_set_current_display_only(NULL);
+      }
+      else if (!old_target->display) {
+         /* Old target was memory bitmap; leave the current display alone. */
+      }
+      else if (old_target != bitmap) {
+         /* Old target was another OpenGL bitmap. */
+         _al_ogl_setup_fbo(old_target->display, old_target);
+      }
    }
+
+   ASSERT(al_get_target_bitmap() == old_target);
 }
 
 
@@ -260,6 +265,8 @@ static void ogl_lock_region_nonbb_readwrite_fbo(
    const int start_h = h;
    GLint old_fbo;
    GLenum e;
+
+   ASSERT(ogl_bitmap->fbo_info);
 
    old_fbo = _al_ogl_bind_framebuffer(ogl_bitmap->fbo_info->fbo);
    e = glGetError();
@@ -317,23 +324,6 @@ static void ogl_lock_region_nonbb_readwrite_fbo(
    bitmap->locked_region.format = format;
    bitmap->locked_region.pitch = -pitch;
    bitmap->locked_region.pixel_size = pixel_size;
-}
-
-
-static void ogl_lock_region_nonbb_readwrite_nonfbo(
-   ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap,
-   int x, int gl_y, int w, int h, int format)
-{
-   /* XXX this was never accounted for in Android port */
-   ALLEGRO_ERROR("unimplemented path\n");
-
-   (void)bitmap;
-   (void)ogl_bitmap;
-   (void)x;
-   (void)gl_y;
-   (void)w;
-   (void)h;
-   (void)format;
 }
 
 

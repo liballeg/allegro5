@@ -29,8 +29,8 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 /* forward declarations */
 static void setup_fbo_backbuffer(ALLEGRO_DISPLAY *display,
    ALLEGRO_BITMAP *bitmap);
-static void setup_fbo_non_backbuffer(ALLEGRO_DISPLAY *display,
-   ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap);
+static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
+   ALLEGRO_BITMAP *bitmap, ALLEGRO_FBO_INFO *info);
 
 
 /* glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT..) not supported on some Androids.
@@ -116,9 +116,7 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
 
    info = al_malloc(sizeof(ALLEGRO_FBO_INFO));
    if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
-#ifdef ALLEGRO_ANDROID
       glGenFramebuffers(1, &info->fbo);
-#endif
    }
    else {
       glGenFramebuffersEXT(1, &info->fbo);
@@ -131,10 +129,8 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
    old_fbo = _al_ogl_bind_framebuffer(info->fbo);
 
    if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
-#if defined ALLEGRO_ANDROID
       glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
          GL_TEXTURE_2D, ogl_bitmap->texture, 0);
-#endif
    }
    else {
       glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
@@ -227,9 +223,7 @@ static ALLEGRO_FBO_INFO *ogl_new_fbo(ALLEGRO_DISPLAY *display)
       extra->fbo_info = NULL;
       ALLEGRO_DEBUG("Deleting FBO: %u\n", info->fbo);
       if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
-#if defined ALLEGRO_ANDROID
          glDeleteFramebuffers(1, &info->fbo);
-#endif
       }
       else {
          glDeleteFramebuffersEXT(1, &info->fbo);
@@ -241,9 +235,7 @@ static ALLEGRO_FBO_INFO *ogl_new_fbo(ALLEGRO_DISPLAY *display)
    }
 
    if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
-#if defined ALLEGRO_ANDROID
       glGenFramebuffers(1, &info->fbo);
-#endif
    }
    else {
       glGenFramebuffersEXT(1, &info->fbo);
@@ -278,7 +270,7 @@ void _al_ogl_setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
    if (ogl_bitmap->is_backbuffer)
       setup_fbo_backbuffer(display, bitmap);
    else
-      setup_fbo_non_backbuffer(display, bitmap, ogl_bitmap);
+      _al_ogl_setup_fbo_non_backbuffer(display, bitmap, false);
 }
 
 
@@ -312,97 +304,96 @@ static void setup_fbo_backbuffer(ALLEGRO_DISPLAY *display,
 }
 
 
-static void setup_fbo_non_backbuffer(ALLEGRO_DISPLAY *display,
-   ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap)
+bool _al_ogl_setup_fbo_non_backbuffer(ALLEGRO_DISPLAY *display,
+   ALLEGRO_BITMAP *bitmap, bool ignore_force_locking)
 {
-   ALLEGRO_FBO_INFO *info = NULL;
-   GLint e;
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
+   ALLEGRO_FBO_INFO *info;
+
+   ASSERT(bitmap->parent == NULL);
 
    /* When a bitmap is set as target bitmap, we try to create an FBO for it. */
-   if (ogl_bitmap->fbo_info == NULL &&
-      !(bitmap->flags & ALLEGRO_FORCE_LOCKING))
-   {
-      /* FIXME The IS_OPENGLES part is quite a hack but I don't know how the
-       * Allegro extension manager works to fix this properly (getting
-       * extensions properly reported on iphone). All iOS devices support
-       * FBOs though (currently.)
-       */
-      if (IS_OPENGLES ||
-         al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object ||
-         al_get_opengl_extension_list()->ALLEGRO_GL_OES_framebuffer_object)
-      {
-         info = ogl_new_fbo(display);
+   info = ogl_bitmap->fbo_info;
+   if (!info) {
+      if (ignore_force_locking || !(bitmap->flags & ALLEGRO_FORCE_LOCKING)) {
+         /* FIXME The IS_OPENGLES part is quite a hack but I don't know how the
+          * Allegro extension manager works to fix this properly (getting
+          * extensions properly reported on iphone). All iOS devices support
+          * FBOs though (currently.)
+          */
+         if (IS_OPENGLES ||
+            al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object ||
+            al_get_opengl_extension_list()->ALLEGRO_GL_OES_framebuffer_object)
+         {
+            info = ogl_new_fbo(display);
+         }
       }
+   }
+
+   if (!info || info->fbo == 0) {
+      return false;
+   }
+
+   use_fbo_for_bitmap(display, bitmap, info);
+   return true; /* state changed */
+}
+
+
+static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
+   ALLEGRO_BITMAP *bitmap, ALLEGRO_FBO_INFO *info)
+{
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
+   GLint e;
+
+   if (info->fbo_state == FBO_INFO_UNUSED)
+      info->fbo_state = FBO_INFO_TRANSIENT;
+   info->owner = bitmap;
+   info->last_use_time = al_get_time();
+   ogl_bitmap->fbo_info = info;
+
+   /* Bind to the FBO. */
+   _al_ogl_bind_framebuffer(info->fbo);
+
+   /* Attach the texture. */
+   if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
+      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+         GL_TEXTURE_2D, ogl_bitmap->texture, 0);
    }
    else {
-      info = ogl_bitmap->fbo_info;
+      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+         GL_TEXTURE_2D, ogl_bitmap->texture, 0);
+   }
+   e = glGetError();
+   if (e) {
+      ALLEGRO_DEBUG("glFrameBufferTexture2DEXT failed! fbo=%d texture=%d (%s)",
+         info->fbo, ogl_bitmap->texture, _al_gl_error_string(e));
    }
 
-   if (info && info->fbo) {
-      /* Bind to the FBO. */
-#if !defined ALLEGRO_CFG_OPENGLES
-      ASSERT(display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
-         display->ogl_extras->extension_list->ALLEGRO_GL_OES_framebuffer_object);
-#endif
+   /* See comment about unimplemented functions on Android above */
+   if (UNLESS_ANDROID_OR_RPI(
+         glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT))
+   {
+      /* For some reason, we cannot use the FBO with this
+       * texture. So no reason to keep re-trying, output a log
+       * message and switch to (extremely slow) software mode.
+       */
+      ALLEGRO_ERROR("Could not use FBO for bitmap with format %s.\n",
+         _al_pixel_format_name(bitmap->format));
+      ALLEGRO_ERROR("*** SWITCHING TO SOFTWARE MODE ***\n");
+      _al_ogl_bind_framebuffer(0);
+      glDeleteFramebuffersEXT(1, &info->fbo);
+      _al_ogl_reset_fbo_info(info);
+      ogl_bitmap->fbo_info = NULL;
+   }
+   else {
+      display->ogl_extras->opengl_target = bitmap;
 
-      if (info->fbo_state == FBO_INFO_UNUSED)
-         info->fbo_state = FBO_INFO_TRANSIENT;
-      info->owner = bitmap;
-      info->last_use_time = al_get_time();
-      ogl_bitmap->fbo_info = info;
+      glViewport(0, 0, bitmap->w, bitmap->h);
 
-      _al_ogl_bind_framebuffer(info->fbo);
-
-      /* Attach the texture. */
-      if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
-#if defined ALLEGRO_ANDROID
-         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-            GL_TEXTURE_2D, ogl_bitmap->texture, 0);
-#endif
-      }
-      else {
-         glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
-            GL_TEXTURE_2D, ogl_bitmap->texture, 0);
-      }
-      e = glGetError();
-      if (e) {
-         ALLEGRO_DEBUG("glFrameBufferTexture2DEXT failed! fbo=%d texture=%d (%s)",
-            info->fbo, ogl_bitmap->texture, _al_gl_error_string(e));
-      }
-
-      /* See comment about unimplemented functions on Android above */
-      if (UNLESS_ANDROID_OR_RPI(
-            glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT))
-      {
-         /* For some reason, we cannot use the FBO with this
-          * texture. So no reason to keep re-trying, output a log
-          * message and switch to (extremely slow) software mode.
-          */
-         ALLEGRO_ERROR("Could not use FBO for bitmap with format %s.\n",
-            _al_pixel_format_name(bitmap->format));
-         ALLEGRO_ERROR("*** SWITCHING TO SOFTWARE MODE ***\n");
-         _al_ogl_bind_framebuffer(0);
-         if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
-#if defined ALLEGRO_ANDROID
-            glDeleteFramebuffers(1, &info->fbo);
-#endif
-         }
-         else {
-            glDeleteFramebuffersEXT(1, &info->fbo);
-         }
-         _al_ogl_reset_fbo_info(info);
-         ogl_bitmap->fbo_info = NULL;
-      }
-      else {
-         display->ogl_extras->opengl_target = bitmap;
-
-         glViewport(0, 0, bitmap->w, bitmap->h);
-
-         al_identity_transform(&display->proj_transform);
-         al_orthographic_transform(&display->proj_transform,
-            0, 0, -1, bitmap->w, bitmap->h, 1);
-         display->vt->set_projection(display);
-      }
+      al_identity_transform(&display->proj_transform);
+      al_orthographic_transform(&display->proj_transform,
+         0, 0, -1, bitmap->w, bitmap->h, 1);
+      display->vt->set_projection(display);
    }
 }
 

@@ -209,35 +209,45 @@ static void ogl_lock_region_nonbb_readwrite(
    ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap,
    int x, int gl_y, int w, int h, int format)
 {
-   ALLEGRO_BITMAP *old_target = NULL;
-   bool need_to_restore_target = false;
+   ALLEGRO_BITMAP *old_target;
+   bool fbo_was_set;
 
-   /* Create an FBO if there isn't one. */
-   if (!ogl_bitmap->fbo_info) {
-      old_target = al_get_target_bitmap();
-      need_to_restore_target = true;
+   ASSERT(bitmap->parent == NULL);
+   ASSERT(bitmap->locked == false);
+   ASSERT(bitmap->display == al_get_current_display());
 
-      bitmap->locked = false; // FIXME: hack :(
-      if (al_is_bitmap_drawing_held())
-         al_hold_bitmap_drawing(false);
-
-      al_set_target_bitmap(bitmap); // This creates the fbo
-      bitmap->locked = true;
-   }
+   /* Try to create an FBO if there isn't one. */
+   old_target = al_get_target_bitmap();
+   fbo_was_set = _al_ogl_setup_fbo_non_backbuffer(bitmap->display, bitmap,
+      false);
 
    if (ogl_bitmap->fbo_info) {
+      ALLEGRO_DEBUG("Locking non-backbuffer READWRITE with fbo\n");
       ogl_lock_region_nonbb_readwrite_fbo(bitmap, ogl_bitmap,
          x, gl_y, w, h, format);
    }
    else {
+      ALLEGRO_DEBUG("Locking non-backbuffer READWRITE no fbo\n");
       ogl_lock_region_nonbb_readwrite_nonfbo(bitmap, ogl_bitmap,
          x, gl_y, w, h, format);
    }
 
-   if (need_to_restore_target) {
-      /* old_target may be NULL. */
-      al_set_target_bitmap(old_target);
+   /* Restore state after switching FBO. */
+   if (fbo_was_set) {
+      if (!old_target) {
+         /* Old target was NULL; release the context. */
+         _al_set_current_display_only(NULL);
+      }
+      else if (!old_target->display) {
+         /* Old target was memory bitmap; leave the current display alone. */
+      }
+      else if (old_target != bitmap) {
+         /* Old target was another OpenGL bitmap. */
+         _al_ogl_setup_fbo(old_target->display, old_target);
+      }
    }
+
+   ASSERT(al_get_target_bitmap() == old_target);
 }
 
 

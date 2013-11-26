@@ -60,12 +60,14 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
    /* if either this bitmap or its parent (in the case of subbitmaps)
     * is locked then don't do anything
     */
-   if (!(bitmap->locked ||
-        (bitmap->parent && bitmap->parent->locked))) {
-      _al_ogl_setup_fbo(display, bitmap);
-      if (display->ogl_extras->opengl_target == target) {
-         _al_ogl_setup_bitmap_clipping(bitmap);
-      }
+   if (bitmap->locked)
+      return;
+   if (bitmap->parent && bitmap->parent->locked)
+      return;
+
+   _al_ogl_setup_fbo(display, bitmap);
+   if (display->ogl_extras->opengl_target == target) {
+      _al_ogl_setup_bitmap_clipping(bitmap);
    }
 }
 

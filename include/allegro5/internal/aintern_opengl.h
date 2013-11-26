@@ -155,6 +155,9 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap);
 ALLEGRO_FBO_INFO *_al_ogl_persist_fbo(ALLEGRO_DISPLAY *display,
                                       ALLEGRO_FBO_INFO *transient_fbo_info);
 void _al_ogl_setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
+bool _al_ogl_setup_fbo_non_backbuffer(ALLEGRO_DISPLAY *display,
+                                      ALLEGRO_BITMAP *bitmap,
+                                      bool ignore_force_locking);
 
 /* common driver */
 void _al_ogl_setup_gl(ALLEGRO_DISPLAY *d);
