@@ -38,6 +38,7 @@ int main(int argc, char **argv)
    c2 = al_map_rgb(0, 255, 0);
    c3 = al_map_rgb(0, 255, 255);
 
+   al_clear_to_color(al_map_rgba(255, 0, 0, 128));
    al_draw_bitmap(sprite, 0, 0, 0);
    al_draw_tinted_bitmap(sprite, c1, 64, 0, ALLEGRO_FLIP_HORIZONTAL);
    al_draw_tinted_bitmap(sprite, c2, 0, 64, ALLEGRO_FLIP_VERTICAL);
