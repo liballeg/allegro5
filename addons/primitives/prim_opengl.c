@@ -117,7 +117,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
    bool normalized;
 
    if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_CFG_NO_GLES2
+#ifdef ALLEGRO_CFG_OPENGLES2
       if(decl) {
          ALLEGRO_VERTEX_ELEMENT* e;
          int i;
@@ -287,7 +287,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
       }
 
       if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_CFG_NO_GLES2
+#ifdef ALLEGRO_CFG_OPENGLES2
          GLint handle;
 
          handle = display->ogl_extras->varlocs.tex_matrix_loc;
@@ -330,7 +330,7 @@ static void revert_state(ALLEGRO_BITMAP* texture)
 
    if(texture) {
       if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_CFG_NO_GLES2
+#ifdef ALLEGRO_CFG_OPENGLES2
          float identity[16] = {
             1, 0, 0, 0,
             0, 1, 0, 0,
@@ -357,7 +357,7 @@ static void revert_state(ALLEGRO_BITMAP* texture)
    }
 
    if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifndef ALLEGRO_CFG_NO_GLES2
+#ifdef ALLEGRO_CFG_OPENGLES2
       if (display->ogl_extras->varlocs.pos_loc >= 0)
          glDisableVertexAttribArray(display->ogl_extras->varlocs.pos_loc);
       if (display->ogl_extras->varlocs.color_loc >= 0)

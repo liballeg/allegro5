@@ -19,7 +19,7 @@
 #cmakedefine ALLEGRO_CFG_SHADER_HLSL
 
 #cmakedefine ALLEGRO_CFG_OPENGLES
-#cmakedefine ALLEGRO_CFG_NO_GLES2
+#cmakedefine ALLEGRO_CFG_OPENGLES2
 #cmakedefine ALLEGRO_CFG_ANDROID_LEGACY
 
 /*---------------------------------------------------------------------------*/

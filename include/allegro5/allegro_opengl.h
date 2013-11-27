@@ -63,7 +63,7 @@
 #include <GLES/gl.h>
 #include <GLES/glext.h>
 
-#ifndef ALLEGRO_CFG_NO_GLES2
+#ifdef ALLEGRO_CFG_OPENGLES2
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #else
