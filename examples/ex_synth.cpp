@@ -332,7 +332,6 @@ private:
    Group    group4;
    Group    group5;
    SaveButton save_button;
-   double   t;
 
 public:
    Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
@@ -344,8 +343,7 @@ public:
 
 Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    d(Dialog(theme, display, 30, 26)),
-   save_button(SaveButton()),
-   t(0.0)
+   save_button(SaveButton())
 {
    group1.add_to_dialog(d, 1, 1);
    group2.add_to_dialog(d, 1, 6);
