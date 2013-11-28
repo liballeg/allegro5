@@ -8,7 +8,6 @@ public:
    bool next(void);
 
 private:
-   int waveNum;
    int rippleNum;
 };
 
