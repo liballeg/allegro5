@@ -8,34 +8,50 @@
 
 #include "common.c"
 
-int load_count, load_total = 100;
-ALLEGRO_BITMAP *bitmaps[100];
+static const int load_total = 100;
+static int load_count = 0;
+static ALLEGRO_BITMAP *bitmaps[100];
+static ALLEGRO_MUTEX *mutex;
 
 static void *loading_thread(ALLEGRO_THREAD *thread, void *arg)
 {
-   ALLEGRO_FONT *font = al_load_font("data/fixed_font.tga", 0, 0);
-   ALLEGRO_COLOR text = al_map_rgb_f(255, 255, 255);
+   ALLEGRO_FONT *font;
+   ALLEGRO_COLOR text;
+
+   font = al_load_font("data/fixed_font.tga", 0, 0);
+   text = al_map_rgb_f(255, 255, 255);
 
    /* In this example we load mysha.pcx 100 times to simulate loading
     * many bitmaps.
     */
-   for (load_count = 0; load_count < load_total; load_count++) {
-      ALLEGRO_COLOR color = al_map_rgb(rand() % 256, rand() % 256,
-         rand() % 256);
+   load_count = 0;
+   while (load_count < load_total) {
+      ALLEGRO_COLOR color;
+      ALLEGRO_BITMAP *bmp;
+
+      color = al_map_rgb(rand() % 256, rand() % 256, rand() % 256);
       color.r /= 4;
       color.g /= 4;
       color.b /= 4;
       color.a /= 4;
-      
-      if (al_get_thread_should_stop(thread)) break;
 
-      bitmaps[load_count] = al_load_bitmap("data/mysha.pcx");
+      if (al_get_thread_should_stop(thread))
+         break;
+
+      bmp = al_load_bitmap("data/mysha.pcx");
 
       /* Simulate different contents. */
-      al_set_target_bitmap(bitmaps[load_count]);
+      al_set_target_bitmap(bmp);
       al_draw_filled_rectangle(0, 0, 320, 200, color);
       al_draw_textf(font, text, 0, 0, 0, "bitmap %d", 1 + load_count);
       al_set_target_bitmap(NULL);
+
+      /* Allow the main thread to see the completed bitmap. */
+      al_lock_mutex(mutex);
+      bitmaps[load_count] = bmp;
+      load_count++;
+      al_unlock_mutex(mutex);
+
       /* Simulate that it's slow. */
       al_rest(0.05);
    }
@@ -69,7 +85,8 @@ int main(int argc, char **argv)
    bool redraw = true;
    ALLEGRO_FONT *font;
    ALLEGRO_BITMAP *spin, *spin2;
-   int current_bitmap = 0, loaded_bitmap = 0;
+   int current_bitmap = 0;
+   int loaded_bitmap = 0;
    ALLEGRO_THREAD *thread;
 
    (void)argc;
@@ -137,6 +154,7 @@ int main(int argc, char **argv)
 
    font = al_load_font("data/fixed_font.tga", 0, 0);
 
+   mutex = al_create_mutex();
    thread = al_create_thread(loading_thread, NULL);
    al_start_thread(thread);
 
@@ -172,6 +190,7 @@ int main(int argc, char **argv)
          al_draw_textf(font, color, x + 40, y, 0, "Loading %d%%",
             100 * load_count / load_total);
 
+         al_lock_mutex(mutex);
          if (loaded_bitmap < load_count) {
             /* This will convert any video bitmaps without a display
              * (all the bitmaps being loaded in the loading_thread) to
@@ -180,6 +199,8 @@ int main(int argc, char **argv)
             al_convert_bitmap(bitmaps[loaded_bitmap]);
             loaded_bitmap++;
          }
+         al_unlock_mutex(mutex);
+
          if (current_bitmap < loaded_bitmap) {
             int bw;
             al_draw_bitmap(bitmaps[current_bitmap], 0, 0, 0);
@@ -204,6 +225,7 @@ int main(int argc, char **argv)
    }
 
    al_join_thread(thread, NULL);
+   al_destroy_mutex(mutex);
    al_destroy_font(font); 
    al_destroy_display(display);
 
