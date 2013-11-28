@@ -190,7 +190,7 @@ static bool wav_stream_seek(ALLEGRO_AUDIO_STREAM * stream, double time)
    if (time >= wavfile->loop_end)
       return false;
    cpos += cpos % align;
-   return (al_fseek(wavfile->f, wavfile->dpos + cpos, ALLEGRO_SEEK_SET) != -1);
+   return al_fseek(wavfile->f, wavfile->dpos + cpos, ALLEGRO_SEEK_SET);
 }
 
 
