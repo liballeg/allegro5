@@ -147,7 +147,7 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
 
    jbitmap = _jni_callStaticObjectMethodV(jnienv, image_loader_class,
       "decodeBitmapStream",
-      "(L"ALLEGRO_ANDROID_PACKAGE_NAME_SLASH"/AllegroInputStream;)Landroid/graphics/Bitmap;",
+      "(Ljava/io/InputStream;)Landroid/graphics/Bitmap;",
       input_stream);
 
    _jni_callv(jnienv, DeleteLocalRef, input_stream);
