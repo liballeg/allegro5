@@ -76,7 +76,37 @@ static void listdir(ALLEGRO_FS_ENTRY *entry)
    al_close_directory(entry);
 }
 
-int main(int argc, const char *argv[])
+static bool add_main_zipfile(void)
+{
+   ALLEGRO_PATH *exe;
+   const char *ext;
+   const char *zipfile;
+   bool ret;
+
+   /* On Android we treat the APK itself as the zip file. */
+   exe = al_get_standard_path(ALLEGRO_EXENAME_PATH);
+   ext = al_get_path_extension(exe);
+   if (0 == strcmp(ext, ".apk")) {
+      zipfile = al_path_cstr(exe, '/');
+   }
+   else {
+      zipfile = "data/ex_physfs.zip";
+   }
+
+   if (PHYSFS_addToSearchPath(zipfile, 1)) {
+      ret = true;
+   }
+   else {
+      log_printf("Could load the zip file: %s\n", zipfile);
+      ret = false;
+   }
+
+   al_destroy_path(exe);
+
+   return ret;
+}
+
+int main(int argc, char *argv[])
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *bmp;
@@ -98,8 +128,8 @@ int main(int argc, const char *argv[])
    // least - and no need for it in this example.
    //  if (!PHYSFS_setSaneConfig("allegro", "ex_physfs", NULL, 0, 0))
    //     return 1;
-   if (!PHYSFS_addToSearchPath("data/ex_physfs.zip", 1)) {
-      abort_example("Could load the zip file\n");
+   if (!add_main_zipfile()) {
+      abort_example("Could not add zip file\n");
    }
 
    for (i = 1; i < argc; i++) {
@@ -133,6 +163,10 @@ int main(int argc, const char *argv[])
    al_destroy_fs_entry(entry);
 
    bmp = al_load_bitmap("02.bmp");
+   if (!bmp) {
+      /* Fallback for Android. */
+      bmp = al_load_bitmap("assets/data/alexlogo.bmp");
+   }
    if (bmp) {
       show_image(bmp);
       al_destroy_bitmap(bmp);
