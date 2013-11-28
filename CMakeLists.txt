@@ -187,7 +187,11 @@ include(CheckCXXSourceCompiles)
 
 if(CMAKE_COMPILER_IS_GNUCC)
     set(COMPILER_GCC 1)
-endif(CMAKE_COMPILER_IS_GNUCC)
+    set(COMPILER_GCC_OR_CLANG 1)
+endif()
+if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+    set(COMPILER_GCC_OR_CLANG 1)
+endif()
 
 if(WIN32)
     if(WANT_DLL_TLS AND SHARED)
@@ -322,11 +326,11 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86")
 endif()
 
 if(ARCH_X86 AND WANT_ALLOW_SSE)
-    if(COMPILER_GCC)
-        message(STATUS "Allowing GCC to use SSE instructions")
+    if(COMPILER_GCC_OR_CLANG)
+        message(STATUS "Allowing GCC/Clang to use SSE instructions")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse")
-    endif(COMPILER_GCC)
+    endif(COMPILER_GCC_OR_CLANG)
 
     # Flags for other compilers should be added here.
 
@@ -346,7 +350,7 @@ endif()
 # Warnings.
 
 if(STRICT_WARN)
-    if(COMPILER_GCC)
+    if(COMPILER_GCC_OR_CLANG)
         set(WFLAGS "-W -Wall -Werror -Wpointer-arith")
         set(WFLAGS_C_ONLY "-Wmissing-declarations -Wstrict-prototypes")
         if(ALLEGRO_UNIX)
@@ -354,23 +358,23 @@ if(STRICT_WARN)
             # the mangled_main won't have a forward declaration.
             set(WFLAGS_C_ONLY "${WFLAGS_C_ONLY} -Wmissing-prototypes")
         endif(ALLEGRO_UNIX)
-    endif(COMPILER_GCC)
+    endif(COMPILER_GCC_OR_CLANG)
     if(COMPILER_MSVC)
         set(WFLAGS "/W4 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE")
     endif(COMPILER_MSVC)
 else(STRICT_WARN)
-    if(COMPILER_GCC)
+    if(COMPILER_GCC_OR_CLANG)
         set(WFLAGS "-W -Wall")
-    endif(COMPILER_GCC)
+    endif(COMPILER_GCC_OR_CLANG)
     if(COMPILER_MSVC)
         set(WFLAGS "/W3 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE")
     endif(COMPILER_MSVC)
 endif(STRICT_WARN)
 
-if(WIN32 AND COMPILER_GCC)
+if(WIN32 AND COMPILER_GCC_OR_CLANG)
     # Helps to ensure the Windows port remains compatible with MSVC.
     set(WFLAGS_C_ONLY "${WFLAGS_C_ONLY} -Wdeclaration-after-statement")
-endif(WIN32 AND COMPILER_GCC)
+endif(WIN32 AND COMPILER_GCC_OR_CLANG)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WFLAGS} ${WFLAGS_C_ONLY}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WFLAGS}")
@@ -389,7 +393,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUGMODE=1 -DD3D_DEBUG_IN
 # Profiling.
 
 list(APPEND CMAKE_BUILD_CONFIGURATIONS Profile)
-if(COMPILER_GCC)
+if(COMPILER_GCC_OR_CLANG)
     set(CMAKE_C_FLAGS_PROFILE "-pg"
         CACHE STRING "profiling flags")
     set(CMAKE_CXX_FLAGS_PROFILE "${CMAKE_C_FLAGS_PROFILE}"
@@ -401,7 +405,7 @@ if(COMPILER_GCC)
         CMAKE_CXX_FLAGS_PROFILE
         CMAKE_EXE_LINKER_FLAGS_PROFILE
         )
-endif(COMPILER_GCC)
+endif(COMPILER_GCC_OR_CLANG)
 
 #-----------------------------------------------------------------------------#
 #

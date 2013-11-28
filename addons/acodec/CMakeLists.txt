@@ -209,12 +209,12 @@ elseif(WANT_VORBIS)
     find_package(Vorbis)
     if(VORBIS_FOUND)
         set(CMAKE_REQUIRED_INCLUDES ${OGG_INCLUDE_DIR} ${VORBIS_INCLUDE_DIR})
-        if(COMPILER_GCC)
+        if(COMPILER_GCC_OR_CLANG)
             # libm is required when linking statically.
             set(CMAKE_REQUIRED_LIBRARIES "${VORBIS_LIBRARIES};m")
         else()
             set(CMAKE_REQUIRED_LIBRARIES "${VORBIS_LIBRARIES}")
-        endif(COMPILER_GCC)
+        endif(COMPILER_GCC_OR_CLANG)
         check_c_source_compiles("
             #include <vorbis/vorbisfile.h>
             int main(void)

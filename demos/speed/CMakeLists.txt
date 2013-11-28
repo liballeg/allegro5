@@ -34,10 +34,10 @@ if(ANDROID)
     return()
 endif(ANDROID)
 
-if(COMPILER_GCC)
+if(COMPILER_GCC_OR_CLANG)
     set(CMAKE_C_FLAGS
         "${CMAKE_C_FLAGS} -Wno-strict-prototypes -Wno-missing-prototypes")
-endif(COMPILER_GCC)
+endif(COMPILER_GCC_OR_CLANG)
 
 if(APPLE)
     set(DEMO_EXECUTABLE_TYPE MACOSX_BUNDLE)
