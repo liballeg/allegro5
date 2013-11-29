@@ -803,9 +803,6 @@ ALLEGRO_DISPLAY_MODE *_al_xglx_get_display_mode(ALLEGRO_SYSTEM_XGLX *s, int adap
 
 int _al_xglx_fullscreen_select_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int w, int h, int format, int refresh_rate)
 {
-   /* GCC complains about mode being uninitialized without this: */
-   ALLEGRO_DISPLAY_MODE mode = mode;
-   ALLEGRO_DISPLAY_MODE mode2;
    int i;
    int n;
 
@@ -820,6 +817,7 @@ int _al_xglx_fullscreen_select_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int w, 
       return -1;
 
    /* Find all modes with correct parameters. */
+   ALLEGRO_DISPLAY_MODE mode = {0, 0, 0, 0};
    int possible_modes[n];
    int possible_count = 0;
    for (i = 0; i < n; i++) {
@@ -840,6 +838,7 @@ int _al_xglx_fullscreen_select_mode(ALLEGRO_SYSTEM_XGLX *s, int adapter, int w, 
    int best_mode = possible_modes[0];
    _al_xglx_get_display_mode(s, adapter, best_mode, &mode);
    for (i = 1; i < possible_count; i++) {
+      ALLEGRO_DISPLAY_MODE mode2;
       if (!_al_xglx_get_display_mode(s, adapter, possible_modes[i], &mode2))  {
          continue;
       }
