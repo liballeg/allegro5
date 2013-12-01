@@ -64,9 +64,14 @@ static void fill(ALLEGRO_BITMAP *bitmap, int lock_flags)
           * Because the byte order can vary per platform (big endian or
           * little endian) we encode an integer and store that
           * directly rather than storing each component separately.
+          *
+          * In READWRITE mode the light blue background should should through
+          * the stipple pattern.
           */
-         col = ((red/8) << 11) | ((green/4) << 5) | (blue/8);
-         *cptr = col;
+         if ((lock_flags & ALLEGRO_LOCK_WRITEONLY) || (j + i) % 2 == 1) {
+            col = ((red/8) << 11) | ((green/4) << 5) | (blue/8);
+            *cptr = col;
+         }
          ptr += 2;
       }
    }
