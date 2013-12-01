@@ -689,22 +689,20 @@ void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
    int h = bitmap->h;
    int pixsize = al_get_pixel_size(format);
    int y;
-   ALLEGRO_STATE state;
    ALLEGRO_BITMAP *tmp;
    ALLEGRO_LOCKED_REGION *lr;
    uint8_t *dst;
    uint8_t *src;
 
    ASSERT(ptr);
-  
-   al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
-   al_set_new_bitmap_format(format);
-   al_set_new_bitmap_flags(bitmap->flags);
-   tmp = al_create_bitmap(w, h);
+   ASSERT(al_get_current_display() == bitmap->display);
+
+   tmp = _al_create_bitmap_params(bitmap->display, w, h, format,
+      bitmap->flags);
    ASSERT(tmp);
-   al_restore_state(&state);
 
    lr = al_lock_bitmap(tmp, format, ALLEGRO_LOCK_WRITEONLY);
+   ASSERT(lr);
 
    dst = (uint8_t *)lr->data;
    // we need to flip it

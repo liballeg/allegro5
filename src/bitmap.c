@@ -85,7 +85,7 @@ static void destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
 
 
 
-static ALLEGRO_BITMAP *do_create_bitmap(ALLEGRO_DISPLAY *current_display,
+ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
    int w, int h, int format, int flags)
 {
    ALLEGRO_SYSTEM *system = al_get_system_driver();
@@ -171,13 +171,15 @@ static ALLEGRO_BITMAP *do_create_bitmap(ALLEGRO_DISPLAY *current_display,
  */
 ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 {
-   ALLEGRO_BITMAP *bitmap = do_create_bitmap(al_get_current_display(), w, h,
+   ALLEGRO_BITMAP *bitmap;
+
+   bitmap = _al_create_bitmap_params(al_get_current_display(), w, h,
       al_get_new_bitmap_format(), al_get_new_bitmap_flags());
    if (bitmap) {
       _al_register_destructor(_al_dtor_list, bitmap,
          (void (*)(void *))al_destroy_bitmap);
    }
-   
+
    return bitmap;
 }
 

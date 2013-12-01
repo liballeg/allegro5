@@ -108,6 +108,9 @@ struct ALLEGRO_BITMAP_INTERFACE
    void (*bitmap_pointer_changed)(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *old);
 };
 
+ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
+   int w, int h, int format, int flags);
+
 extern void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
    [ALLEGRO_NUM_PIXEL_FORMATS])(const void *, int, void *, int,
    int, int, int, int, int, int);
