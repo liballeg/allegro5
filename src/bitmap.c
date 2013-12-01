@@ -85,9 +85,7 @@ static void destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
 
 
 
-static ALLEGRO_BITMAP *do_create_bitmap(int w, int h,
-   bool (*custom_upload)(ALLEGRO_BITMAP *bitmap, void *data),
-   void *custom_data)
+static ALLEGRO_BITMAP *do_create_bitmap(int w, int h)
 {
    ALLEGRO_BITMAP *bitmap;
    ALLEGRO_BITMAP **back;
@@ -145,13 +143,8 @@ static ALLEGRO_BITMAP *do_create_bitmap(int w, int h,
     * appropriate; video bitmaps may leave it NULL.
     */
 
-   if (custom_upload) {
-      result = custom_upload(bitmap, custom_data);
-   }
-   else {
-      ASSERT(bitmap->pitch >= w * al_get_pixel_size(bitmap->format));
-      result = bitmap->vt->upload_bitmap(bitmap);
-   }
+   ASSERT(bitmap->pitch >= w * al_get_pixel_size(bitmap->format));
+   result = bitmap->vt->upload_bitmap(bitmap);
 
    if (!result) {
       al_destroy_bitmap(bitmap);
@@ -176,7 +169,7 @@ static ALLEGRO_BITMAP *do_create_bitmap(int w, int h,
  */
 ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 {
-   ALLEGRO_BITMAP *bitmap = do_create_bitmap(w, h, NULL, NULL);
+   ALLEGRO_BITMAP *bitmap = do_create_bitmap(w, h);
    if (bitmap) {
       _al_register_destructor(_al_dtor_list, bitmap,
          (void (*)(void *))al_destroy_bitmap);
