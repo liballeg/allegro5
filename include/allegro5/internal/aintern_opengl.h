@@ -55,7 +55,15 @@ typedef struct ALLEGRO_BITMAP_EXTRA_OPENGL
 
    ALLEGRO_FBO_INFO *fbo_info;
 
+   /* When an OpenGL bitmap is locked, the locked region is usually backed by a
+    * temporary memory buffer pointed to by lock_buffer.
+    *
+    * On GLES, a locked backbuffer may be backed by a texture bitmap pointed to
+    * by lock_proxy instead, and lock_buffer is NULL.  Upon unlocking the proxy
+    * bitmap is drawn onto the backbuffer.
+    */
    unsigned char *lock_buffer;
+   ALLEGRO_BITMAP *lock_proxy;
 
    float left, top, right, bottom; /* Texture coordinates. */
    bool is_backbuffer; /* This is not a real bitmap, but the backbuffer. */

@@ -25,6 +25,7 @@
 ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
    int x, int y, int width, int height, int format, int flags)
 {
+   ALLEGRO_LOCKED_REGION *lr;
    ASSERT(x >= 0);
    ASSERT(y >= 0);
    ASSERT(width >= 0);
@@ -78,16 +79,18 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
                x, y, 0, 0, width, height);
          }
       }
+      lr = &bitmap->locked_region;
    }
    else {
-      if (!bitmap->vt->lock_region(bitmap, x, y, width, height, format, flags)) {
+      lr = bitmap->vt->lock_region(bitmap, x, y, width, height, format, flags);
+      if (!lr) {
          return NULL;
       }
    }
 
    bitmap->locked = true;
 
-   return &bitmap->locked_region;
+   return lr;
 }
 
 
