@@ -399,15 +399,8 @@ static ALLEGRO_BITMAP
       return NULL;
    }
 
-   al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
-
-   al_set_new_bitmap_format(format);
-   al_set_new_bitmap_flags(flags);
-
-   bitmap = al_create_bitmap(desc.Width, desc.Height);
-
-   al_restore_state(&backup);
-
+   bitmap = _al_create_bitmap_params(al_get_current_display(),
+      desc.Width, desc.Height, format, flags);
    if (!bitmap) {
       surface->UnlockRect();
       return NULL;

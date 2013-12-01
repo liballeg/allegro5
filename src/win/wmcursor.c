@@ -73,11 +73,9 @@ HICON _al_win_create_icon(HWND wnd,
             h = sys_sm_cy;
          }
          al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP |
-            ALLEGRO_STATE_NEW_BITMAP_PARAMETERS |
             ALLEGRO_STATE_BLENDER);
-         al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-         al_set_new_bitmap_format(al_get_bitmap_format(tmp));
-         tmp = al_create_bitmap(w, h);
+         tmp = _al_create_bitmap_params(al_get_current_display(), w, h,
+            ALLEGRO_MEMORY_BITMAP, al_get_bitmap_format(tmp));
          al_set_target_bitmap(tmp);
          al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
          al_draw_scaled_bitmap(
