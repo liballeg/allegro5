@@ -188,12 +188,9 @@ ALLEGRO_BITMAP* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
 {
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_backbuffer;
    ALLEGRO_BITMAP *backbuffer;
-   ALLEGRO_STATE backup;
    int format;
 
    ALLEGRO_DEBUG("Creating backbuffer\n");
-
-   al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
 
    // FIXME: _al_deduce_color_format would work fine if the display paramerers
    // are filled in, for OpenGL ES
@@ -225,12 +222,9 @@ ALLEGRO_BITMAP* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
    disp->backbuffer_format = format;
 
    ALLEGRO_DEBUG("Creating backbuffer bitmap\n");
-   al_set_new_bitmap_format(format);
    /* Using ALLEGRO_NO_PRESERVE_TEXTURE prevents extra memory being allocated */
-   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP | ALLEGRO_NO_PRESERVE_TEXTURE);
-   backbuffer = _al_ogl_create_bitmap(disp, disp->w, disp->h);
-   al_restore_state(&backup);
-
+   backbuffer = _al_ogl_create_bitmap(disp, disp->w, disp->h,
+      format, ALLEGRO_VIDEO_BITMAP | ALLEGRO_NO_PRESERVE_TEXTURE);
    if (!backbuffer) {
       ALLEGRO_DEBUG("Backbuffer bitmap creation failed.\n");
       return NULL;

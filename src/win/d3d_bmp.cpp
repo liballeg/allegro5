@@ -387,7 +387,6 @@ static ALLEGRO_BITMAP
    D3DSURFACE_DESC desc;
    D3DLOCKED_RECT surf_locked_rect;
    D3DLOCKED_RECT sys_locked_rect;
-   ALLEGRO_STATE backup;
    unsigned int y;
 
    if (surface->GetDesc(&desc) != D3D_OK) {

@@ -33,13 +33,13 @@ ALLEGRO_DEBUG_CHANNEL("bitmap")
 
 /* Creates a memory bitmap.
  */
-static ALLEGRO_BITMAP *create_memory_bitmap(int w, int h)
+static ALLEGRO_BITMAP *create_memory_bitmap(ALLEGRO_DISPLAY *current_display,
+   int w, int h, int format, int flags)
 {
    ALLEGRO_BITMAP *bitmap;
    int pitch;
-   int format = al_get_new_bitmap_format();
 
-   format = _al_get_real_pixel_format(al_get_current_display(), format);
+   format = _al_get_real_pixel_format(current_display, format);
 
    bitmap = al_calloc(1, sizeof *bitmap);
 
@@ -51,7 +51,7 @@ static ALLEGRO_BITMAP *create_memory_bitmap(int w, int h)
    /* If this is really a video bitmap, we add it to the list of to
     * be converted bitmaps.
     */
-   bitmap->flags = al_get_new_bitmap_flags() | ALLEGRO_MEMORY_BITMAP;
+   bitmap->flags = flags | ALLEGRO_MEMORY_BITMAP;
    bitmap->flags &= ~ALLEGRO_VIDEO_BITMAP;
    bitmap->w = w;
    bitmap->h = h;
@@ -85,12 +85,12 @@ static void destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
 
 
 
-static ALLEGRO_BITMAP *do_create_bitmap(int w, int h)
+static ALLEGRO_BITMAP *do_create_bitmap(ALLEGRO_DISPLAY *current_display,
+   int w, int h, int format, int flags)
 {
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
    ALLEGRO_BITMAP *bitmap;
    ALLEGRO_BITMAP **back;
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
-   ALLEGRO_DISPLAY *current_display = al_get_current_display();
    int64_t mul;
    bool result;
 
@@ -103,20 +103,22 @@ static ALLEGRO_BITMAP *do_create_bitmap(int w, int h)
       return NULL;
    }
 
-   if ((al_get_new_bitmap_flags() & ALLEGRO_MEMORY_BITMAP) ||
-         (!current_display || !current_display->vt ||
-         current_display->vt->create_bitmap == NULL) ||
-         (system->displays._size < 1)) {
-
-      if (al_get_new_bitmap_flags() & ALLEGRO_VIDEO_BITMAP)
+   if ((flags & ALLEGRO_MEMORY_BITMAP) ||
+         !current_display ||
+         !current_display->vt ||
+         current_display->vt->create_bitmap == NULL ||
+         _al_vector_size(&system->displays) < 1)
+   {
+      if (flags & ALLEGRO_VIDEO_BITMAP)
          return NULL;
 
-      return create_memory_bitmap(w, h);
+      return create_memory_bitmap(current_display, w, h, format, flags);
    }
 
    /* Else it's a display bitmap */
 
-   bitmap = current_display->vt->create_bitmap(current_display, w, h);
+   bitmap = current_display->vt->create_bitmap(current_display, w, h,
+      format, flags);
    if (!bitmap) {
       ALLEGRO_ERROR("failed to create display bitmap\n");
       return NULL;
@@ -148,12 +150,12 @@ static ALLEGRO_BITMAP *do_create_bitmap(int w, int h)
 
    if (!result) {
       al_destroy_bitmap(bitmap);
-      if (al_get_new_bitmap_flags() & ALLEGRO_VIDEO_BITMAP)
+      if (flags & ALLEGRO_VIDEO_BITMAP)
          return NULL;
       /* With ALLEGRO_CONVERT_BITMAP, just use a memory bitmap instead if
       * video failed.
       */
-      return create_memory_bitmap(w, h);
+      return create_memory_bitmap(current_display, w, h, format, flags);
    }
    
    /* We keep a list of bitmaps depending on the current display so that we can
@@ -169,7 +171,8 @@ static ALLEGRO_BITMAP *do_create_bitmap(int w, int h)
  */
 ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 {
-   ALLEGRO_BITMAP *bitmap = do_create_bitmap(w, h);
+   ALLEGRO_BITMAP *bitmap = do_create_bitmap(al_get_current_display(), w, h,
+      al_get_new_bitmap_format(), al_get_new_bitmap_flags());
    if (bitmap) {
       _al_register_destructor(_al_dtor_list, bitmap,
          (void (*)(void *))al_destroy_bitmap);

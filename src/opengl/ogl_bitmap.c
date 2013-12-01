@@ -610,12 +610,11 @@ static ALLEGRO_BITMAP_INTERFACE *ogl_bitmap_driver(void)
 
 
 
-ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
+ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h,
+   int format, int flags)
 {
    ALLEGRO_BITMAP *bitmap;
    ALLEGRO_BITMAP_EXTRA_OPENGL *extra;
-   int format = al_get_new_bitmap_format();
-   const int flags = al_get_new_bitmap_flags();
    int true_w;
    int true_h;
    int pitch;
