@@ -44,8 +44,6 @@ extern LPDIRECT3D9 _al_d3d;
 
 ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void);
 
-AL_FUNC(ALLEGRO_BITMAP *, _al_d3d_create_bitmap,
-   (ALLEGRO_DISPLAY *d, int w, int h));
 int _al_pixel_format_to_d3d(int format);
 int _al_d3d_format_to_allegro(int d3d_fmt);
 bool _al_d3d_render_to_texture_supported(void);

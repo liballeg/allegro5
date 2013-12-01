@@ -2320,21 +2320,11 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
    return ret;
 }
 
-ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
-   int w, int h)
+static ALLEGRO_BITMAP *d3d_create_bitmap(ALLEGRO_DISPLAY *d,
+   int w, int h, int format, int flags)
 {
-   ALLEGRO_BITMAP *bitmap = (ALLEGRO_BITMAP *)al_malloc(sizeof *bitmap);
+   ALLEGRO_BITMAP *bitmap;
    ALLEGRO_BITMAP_EXTRA_D3D *extra;
-   int format;
-   int flags;
-
-   ASSERT(bitmap);
-   (void)h;
-
-   memset(bitmap, 0, sizeof(*bitmap));
-
-   format = al_get_new_bitmap_format();
-   flags = al_get_new_bitmap_flags();
 
    if (!_al_pixel_format_is_real(format)) {
       format = d3d_choose_bitmap_format((ALLEGRO_DISPLAY_D3D *)d, format);
@@ -2349,6 +2339,10 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    }
 
    ALLEGRO_INFO("Chose bitmap format %d\n", format);
+
+   bitmap = (ALLEGRO_BITMAP *)al_malloc(sizeof *bitmap);
+   ASSERT(bitmap);
+   memset(bitmap, 0, sizeof(*bitmap));
 
    bitmap->vt = _al_bitmap_d3d_driver();
    bitmap->memory = NULL;
@@ -2826,7 +2820,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->update_display_region = d3d_update_display_region;
    vt->acknowledge_resize = d3d_acknowledge_resize;
    vt->resize_display = d3d_resize_display;
-   vt->create_bitmap = _al_d3d_create_bitmap;
+   vt->create_bitmap = d3d_create_bitmap;
    vt->set_target_bitmap = d3d_set_target_bitmap;
    vt->get_backbuffer = d3d_get_backbuffer;
    vt->is_compatible_bitmap = d3d_is_compatible_bitmap;
