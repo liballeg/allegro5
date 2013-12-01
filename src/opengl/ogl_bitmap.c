@@ -842,6 +842,7 @@ void _al_opengl_backup_dirty_bitmaps(ALLEGRO_DISPLAY *d, bool flip)
          !b->dirty ||
          ogl_bitmap->is_backbuffer)
          continue;
+      ALLEGRO_DEBUG("Backing up dirty bitmap %p\n", b);
       lr = al_lock_bitmap(
          b,
          ALLEGRO_PIXEL_FORMAT_ANY,
@@ -862,6 +863,9 @@ void _al_opengl_backup_dirty_bitmaps(ALLEGRO_DISPLAY *d, bool flip)
          }
          al_unlock_bitmap(b);
          b->dirty = false;
+      }
+      else {
+         ALLEGRO_WARN("Failed to lock dirty bitmap %p\n", b);
       }
    }
 }
