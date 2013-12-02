@@ -52,6 +52,20 @@ an actual program):
 
 An abstract configuration structure.
 
+## API: ALLEGRO_CONFIG_SECTION
+
+An opaque structure used for iterating across sections in a configuration
+structure.
+
+See also: [al_get_first_config_section], [al_get_next_config_section]
+
+## API: ALLEGRO_CONFIG_ENTRY
+
+An opaque structure used for iterating across entries in a configuration
+section.
+
+See also: [al_get_first_config_entry], [al_get_next_config_entry]
+
 ## API: al_create_config
 
 Create an empty configuration structure.
