@@ -263,7 +263,7 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
        * would be faster (yet)
        */
       for (i = 0; i < data->lock_rect.h; i++) {
-          ptr = data->page_lr->data + (i * data->page_lr->pitch);
+          ptr = (char *)(data->page_lr->data) + (i * data->page_lr->pitch);
           memset(ptr, 0, data->lock_rect.w * 4);
       }
    }
