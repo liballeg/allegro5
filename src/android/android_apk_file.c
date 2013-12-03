@@ -1,5 +1,6 @@
-#include <allegro5/allegro.h>
-#include <allegro5/internal/aintern_android.h>
+#include "allegro5/allegro.h"
+#include "allegro5/allegro_android.h"
+#include "allegro5/internal/aintern_android.h"
 
 #define streq(a, b)  (0 == strcmp(a, b))
 

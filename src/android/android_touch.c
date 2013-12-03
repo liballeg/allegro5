@@ -194,7 +194,7 @@ static void set_mouse_emulation_mode(int mode)
 }
 
 
-static ALLEGRO_TOUCH_STATE* find_free_touch_state()
+static ALLEGRO_TOUCH_STATE* find_free_touch_state(void)
 {
    int i;
 
@@ -378,8 +378,7 @@ ALLEGRO_TOUCH_INPUT_DRIVER *_al_get_android_touch_input_driver(void)
 }
 
 
-/* XXX rename */
-void amouse_get_state(ALLEGRO_MOUSE_STATE *ret_state)
+void _al_android_mouse_get_state(ALLEGRO_MOUSE_STATE *ret_state)
 {
    _al_event_source_lock(&touch_input.es);
    *ret_state = mouse_state;

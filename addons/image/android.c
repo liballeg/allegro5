@@ -1,7 +1,7 @@
 #include "allegro5/allegro.h"
-#include "allegro5/allegro_opengl.h"
-#include "allegro5/internal/aintern_opengl.h"
+#include "allegro5/allegro_image.h"
 #include "allegro5/internal/aintern_android.h"
+#include "allegro5/internal/aintern_image.h"
 
 ALLEGRO_BITMAP *_al_load_android_bitmap_f(ALLEGRO_FILE *fp, int flags)
 {
@@ -10,7 +10,6 @@ ALLEGRO_BITMAP *_al_load_android_bitmap_f(ALLEGRO_FILE *fp, int flags)
 
 ALLEGRO_BITMAP *_al_load_android_bitmap(const char *filename, int flags)
 {
-   // NOTE: reads from assets. asset handling must be done better.
    return _al_android_load_image(filename, flags);
 }
 

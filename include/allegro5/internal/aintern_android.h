@@ -32,7 +32,7 @@ typedef struct ALLEGRO_DISPLAY_ANDROID {
    bool is_destroy_display;
 } ALLEGRO_DISPLAY_ANDROID;
 
-ALLEGRO_SYSTEM_INTERFACE *_al_system_android_interface();
+ALLEGRO_SYSTEM_INTERFACE *_al_system_android_interface(void);
 const ALLEGRO_FILE_INTERFACE *_al_get_apk_file_vtable(void);
 
 ALLEGRO_DISPLAY_INTERFACE *_al_get_android_display_driver(void);
@@ -151,10 +151,14 @@ void _al_android_destroy_surface(JNIEnv *env, jobject obj, bool post);
 ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags);
 ALLEGRO_BITMAP *_al_android_load_image(const char *filename, int flags);
 
-jobject _al_android_activity_object();
+jobject _al_android_activity_object(void);
 jclass _al_android_input_stream_class(void);
 jclass _al_android_apk_stream_class(void);
 jclass _al_android_image_loader_class(void);
+
+void _al_android_generate_mouse_event(unsigned int type, int x, int y,
+   unsigned int button, ALLEGRO_DISPLAY *d);
+void _al_android_mouse_get_state(ALLEGRO_MOUSE_STATE *ret_state);
 
 void _al_android_generate_joystick_event(float x, float y, float z);
 
@@ -177,6 +181,32 @@ bool _al_android_is_paused(void);
 	JNI_FUNC_PASTER(ret, cls, name, params, x)
 #define JNI_FUNC(ret, cls, name, params) \
 	JNI_FUNC_EVALUATOR(ret, cls, name, params, ALLEGRO_ANDROID_PACKAGE_NAME)
+
+/* Functions called from Java code. */
+extern JNI_FUNC(bool, AllegroActivity, nativeOnCreate, (JNIEnv *env, jobject obj));
+extern JNI_FUNC(void, AllegroActivity, nativeOnDestroy, (JNIEnv *env, jobject obj));
+extern JNI_FUNC(void, AllegroActivity, nativeOnOrientationChange, (JNIEnv *env,
+         jobject obj, int orientation, bool init));
+extern JNI_FUNC(void, AllegroActivity, nativeOnPause, (JNIEnv *env, jobject obj));
+extern JNI_FUNC(void, AllegroActivity, nativeOnResume, (JNIEnv *env, jobject obj));
+extern JNI_FUNC(void, AllegroSurface, nativeOnCreate, (JNIEnv *env, jobject obj));
+extern JNI_FUNC(bool, AllegroSurface, nativeOnDestroy, (JNIEnv *env, jobject obj));
+extern JNI_FUNC(void, AllegroSurface, nativeOnChange, (JNIEnv *env, jobject obj,
+         jint format, jint width, jint height));
+extern JNI_FUNC(int, AllegroInputStream, nativeRead, (JNIEnv *env, jobject obj,
+         int handle, jbyteArray array, int offset, int length));
+extern JNI_FUNC(void, AllegroInputStream, nativeClose, (JNIEnv *env, jobject obj,
+         int handle));
+extern JNI_FUNC(void, KeyListener, nativeOnKeyDown, (JNIEnv *env, jobject obj,
+         jint scancode, jint unichar));
+extern JNI_FUNC(void, KeyListener, nativeOnKeyUp, (JNIEnv *env, jobject obj,
+         jint scancode));
+extern JNI_FUNC(void, KeyListener, nativeOnKeyChar, (JNIEnv *env, jobject obj,
+         jint scancode, jint unichar));
+extern JNI_FUNC(void, TouchListener, nativeOnTouch, (JNIEnv *env, jobject obj,
+         jint id, jint action, jfloat x, jfloat y, jboolean primary));
+extern JNI_FUNC(void, Sensors, nativeOnAccel, (JNIEnv *env, jobject obj, jint id,
+         jfloat x, jfloat y, jfloat z));
 
 #endif /* ALLEGRO_AINTERN_ANDROID_H */
 

@@ -213,7 +213,7 @@ void _al_android_clear_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
    _jni_callVoidMethodV(env, d->surface_object, "egl_clearCurrent", "()V");
 }
 
-void _al_android_setup_opengl_view(ALLEGRO_DISPLAY *d)
+static void android_setup_opengl_view(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DEBUG("setup opengl view d->w=%d d->h=%d", d->w, d->h);
 
@@ -483,7 +483,7 @@ static ALLEGRO_DISPLAY *android_create_display(int w, int h)
    _al_android_clear_current(_al_android_get_jnienv(), d);
    _al_android_make_current(_al_android_get_jnienv(), d);
    
-   _al_android_setup_opengl_view(display);
+   android_setup_opengl_view(display);
 
    /* Don't need to repeat what this does */
    android_set_display_option(display, ALLEGRO_SUPPORTED_ORIENTATIONS, al_get_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS, NULL));
@@ -599,7 +599,7 @@ static bool android_acknowledge_resize(ALLEGRO_DISPLAY *dpy)
    ALLEGRO_DEBUG("acquire context");
    _al_android_make_current(_al_android_get_jnienv(), d);
 
-   _al_android_setup_opengl_view(dpy);
+   android_setup_opengl_view(dpy);
    
    ALLEGRO_DEBUG("done");
    return true;
@@ -710,7 +710,7 @@ static void android_acknowledge_drawing_halt(ALLEGRO_DISPLAY *dpy)
    ALLEGRO_DEBUG("acknowledged drawing halt");
 }
 
-void android_broadcast_resume(ALLEGRO_DISPLAY_ANDROID *d)
+static void android_broadcast_resume(ALLEGRO_DISPLAY_ANDROID *d)
 {
    ALLEGRO_DEBUG("Broadcasting resume");
    al_lock_mutex(d->mutex);
@@ -741,7 +741,7 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
 
    al_set_target_backbuffer(dpy);
    
-   _al_android_setup_opengl_view(dpy);
+   android_setup_opengl_view(dpy);
 
    // Bitmaps can still have stale shaders attached.
    size = (int)dpy->bitmaps._size;

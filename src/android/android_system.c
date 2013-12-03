@@ -52,7 +52,7 @@ struct system_data_t {
    ALLEGRO_USTR *model;
 	
    void *user_lib;
-   int (*user_main)();
+   int (*user_main)(int argc, char **argv);
    
    int orientation;
 
@@ -455,7 +455,7 @@ static int android_get_num_video_adapters(void)
    return 1;
 }
 
-static void android_shutdown_system()
+static void android_shutdown_system(void)
 {
    ALLEGRO_SYSTEM *s = al_get_system_driver();
   /* Close all open displays. */

@@ -21,6 +21,10 @@
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_pixels.h"
 
+#ifdef ALLEGRO_ANDROID
+   #include "allegro5/internal/aintern_android.h"
+#endif
+
 #include "ogl_helpers.h"
 
 ALLEGRO_DEBUG_CHANNEL("opengl")

@@ -106,8 +106,6 @@ static bool amouse_set_mouse_axis(int which, int z)
     return false;
 }
 
-void amouse_get_state(ALLEGRO_MOUSE_STATE *ret_state);
-
 static ALLEGRO_MOUSE_DRIVER android_mouse_driver = {
     AL_ID('A', 'N', 'D', 'R'),
     "",
@@ -120,7 +118,7 @@ static ALLEGRO_MOUSE_DRIVER android_mouse_driver = {
     amouse_get_mouse_num_axes,
     amouse_set_mouse_xy,
     amouse_set_mouse_axis,
-    amouse_get_state
+    _al_android_mouse_get_state
 };
 
 ALLEGRO_MOUSE_DRIVER *_al_get_android_mouse_driver(void)
