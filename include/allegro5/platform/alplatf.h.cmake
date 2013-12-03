@@ -2,9 +2,6 @@
 #cmakedefine ALLEGRO_MINGW32
 #cmakedefine ALLEGRO_UNIX
 #cmakedefine ALLEGRO_MSVC
-#cmakedefine ALLEGRO_CFG_D3D
-#cmakedefine ALLEGRO_CFG_D3D9EX
-#cmakedefine ALLEGRO_CFG_OPENGL
 #cmakedefine ALLEGRO_MACOSX
 #cmakedefine ALLEGRO_BCC32
 #cmakedefine ALLEGRO_IPHONE
@@ -15,11 +12,15 @@
 #cmakedefine ALLEGRO_CFG_PTHREADS_TLS
 #cmakedefine ALLEGRO_CFG_RELEASE_LOGGING
 
+#cmakedefine ALLEGRO_CFG_D3D
+#cmakedefine ALLEGRO_CFG_D3D9EX
+#cmakedefine ALLEGRO_CFG_OPENGL
+#cmakedefine ALLEGRO_CFG_OPENGLES
+#cmakedefine ALLEGRO_CFG_OPENGLES2
+#cmakedefine ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
 #cmakedefine ALLEGRO_CFG_SHADER_GLSL
 #cmakedefine ALLEGRO_CFG_SHADER_HLSL
 
-#cmakedefine ALLEGRO_CFG_OPENGLES
-#cmakedefine ALLEGRO_CFG_OPENGLES2
 #cmakedefine ALLEGRO_CFG_ANDROID_LEGACY
 
 /*---------------------------------------------------------------------------*/

@@ -84,7 +84,7 @@ static void vert_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, vo
 {
 /* Only use this shader stuff with GLES2+ or equivalent */
    if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGLES2
+#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       if (display->ogl_extras->varlocs.pos_loc >= 0) {
          glVertexAttribPointer(display->ogl_extras->varlocs.pos_loc, n, t, false, stride, v);
          glEnableVertexAttribArray(display->ogl_extras->varlocs.pos_loc);
@@ -100,7 +100,7 @@ static void vert_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, vo
 static void vert_ptr_off(ALLEGRO_DISPLAY *display)
 {
    if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGLES2
+#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       if (display->ogl_extras->varlocs.pos_loc >= 0) {
          glDisableVertexAttribArray(display->ogl_extras->varlocs.pos_loc);
       }
@@ -114,7 +114,7 @@ static void vert_ptr_off(ALLEGRO_DISPLAY *display)
 static void color_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, void *v)
 {
    if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGLES2
+#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       if (display->ogl_extras->varlocs.color_loc >= 0) {
          glVertexAttribPointer(display->ogl_extras->varlocs.color_loc, n, t, false, stride, v);
          glEnableVertexAttribArray(display->ogl_extras->varlocs.color_loc);
@@ -130,7 +130,7 @@ static void color_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, v
 static void color_ptr_off(ALLEGRO_DISPLAY *display)
 {
    if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGLES2
+#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       if (display->ogl_extras->varlocs.color_loc >= 0) {
          glDisableVertexAttribArray(display->ogl_extras->varlocs.color_loc);
       }
@@ -144,7 +144,7 @@ static void color_ptr_off(ALLEGRO_DISPLAY *display)
 static void tex_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, void *v)
 {
    if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGLES2
+#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       if (display->ogl_extras->varlocs.texcoord_loc >= 0) {
          glVertexAttribPointer(display->ogl_extras->varlocs.texcoord_loc, n, t, false, stride, v);
          glEnableVertexAttribArray(display->ogl_extras->varlocs.texcoord_loc);
@@ -160,7 +160,7 @@ static void tex_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, voi
 static void tex_ptr_off(ALLEGRO_DISPLAY *display)
 {
    if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGLES2
+#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       if (display->ogl_extras->varlocs.texcoord_loc >= 0) {
          glDisableVertexAttribArray(display->ogl_extras->varlocs.texcoord_loc);
       }
@@ -330,7 +330,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
       return;
 
    if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGLES2
+#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       if (disp->ogl_extras->varlocs.use_tex_loc >= 0) {
          glUniform1i(disp->ogl_extras->varlocs.use_tex_loc, 1);
       }
@@ -346,7 +346,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
    glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&current_texture);
    if (current_texture != disp->cache_texture) {
       if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGLES2
+#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
          /* Use texture unit 0 */
          glActiveTexture(GL_TEXTURE0);
          if (disp->ogl_extras->varlocs.tex_loc >= 0)
@@ -356,7 +356,8 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
       glBindTexture(GL_TEXTURE_2D, disp->cache_texture);
    }
 
-#if !defined ALLEGRO_CFG_OPENGLES && !defined ALLEGRO_MACOSX
+   /* XXX what is this about? */
+#if defined(ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE) && !defined(ALLEGRO_MACOSX)
    if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       int stride = sizeof(ALLEGRO_OGL_BITMAP_VERTEX);
       int bytes = disp->num_cache_vertices * stride;
@@ -446,7 +447,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
    disp->num_cache_vertices = 0;
 
    if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_OPENGLES2
+#ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       if (disp->ogl_extras->varlocs.use_tex_loc >= 0)
          glUniform1i(disp->ogl_extras->varlocs.use_tex_loc, 0);
 #endif

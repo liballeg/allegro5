@@ -419,7 +419,7 @@ static ALLEGRO_DISPLAY *android_create_display(int w, int h)
    ALLEGRO_DEBUG("begin");
 
    int flags = al_get_new_display_flags();
-#ifndef ALLEGRO_CFG_OPENGLES2
+#ifndef ALLEGRO_CFG_OPENGLES_PROGRAMMABLE_PIPELINE
    if (flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       return NULL;
    }
