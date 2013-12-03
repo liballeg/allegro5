@@ -349,32 +349,25 @@ endif()
 
 # Warnings.
 
-if(STRICT_WARN)
-    if(COMPILER_GCC_OR_CLANG)
-        set(WFLAGS "-W -Wall -Werror -Wpointer-arith")
-        set(WFLAGS_C_ONLY "-Wmissing-declarations -Wstrict-prototypes")
-        if(ALLEGRO_UNIX)
-            # Unfortunately we can't use this flag when magic main is used,
-            # the mangled_main won't have a forward declaration.
-            set(WFLAGS_C_ONLY "${WFLAGS_C_ONLY} -Wmissing-prototypes")
-        endif(ALLEGRO_UNIX)
-    endif(COMPILER_GCC_OR_CLANG)
-    if(COMPILER_MSVC)
-        set(WFLAGS "/W4 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE")
-    endif(COMPILER_MSVC)
-else(STRICT_WARN)
-    if(COMPILER_GCC_OR_CLANG)
-        set(WFLAGS "-W -Wall")
-    endif(COMPILER_GCC_OR_CLANG)
-    if(COMPILER_MSVC)
-        set(WFLAGS "/W3 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE")
-    endif(COMPILER_MSVC)
-endif(STRICT_WARN)
-
-if(WIN32 AND COMPILER_GCC_OR_CLANG)
-    # Helps to ensure the Windows port remains compatible with MSVC.
-    set(WFLAGS_C_ONLY "${WFLAGS_C_ONLY} -Wdeclaration-after-statement")
-endif(WIN32 AND COMPILER_GCC_OR_CLANG)
+if(COMPILER_GCC_OR_CLANG)
+    set(WFLAGS "-W -Wall -Wpointer-arith")
+    set(WFLAGS_C_ONLY "-Wmissing-declarations -Wstrict-prototypes")
+    if(ALLEGRO_UNIX)
+        # Unfortunately we can't use this flag when magic main is used,
+        # the mangled_main won't have a forward declaration.
+        set(WFLAGS_C_ONLY "${WFLAGS_C_ONLY} -Wmissing-prototypes")
+    endif(ALLEGRO_UNIX)
+    if(WIN32)
+        # Helps to ensure the Windows port remains compatible with MSVC.
+        set(WFLAGS_C_ONLY "${WFLAGS_C_ONLY} -Wdeclaration-after-statement")
+    endif(WIN32)
+    if(STRICT_WARN)
+        set(WFLAGS "${WFLAGS} -Werror")
+    endif()
+endif()
+if(COMPILER_MSVC)
+    set(WFLAGS "/W4 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE")
+endif(COMPILER_MSVC)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WFLAGS} ${WFLAGS_C_ONLY}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WFLAGS}")
