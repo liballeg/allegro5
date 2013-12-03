@@ -519,8 +519,10 @@ if(WANT_OPENGL)
     # on cmake 2.8.1 OpenGL ES is not found in the iphone case
     # XXX incorporate IPHONE case into FindOpenGLES/2
     if(IPHONE)
-        set(OPENGL_LIBRARIES "-framework OpenGLES")
-        set(OPENGL_gl_LIBRARY "-framework OpenGLES")
+        set(OPENGLES_FOUND 1)
+        set(OPENGLES_LIBRARIES "-framework OpenGLES")
+        set(OPENGLES2_FOUND 1)
+        set(OPENGLES2_LIBRARIES "-framework OpenGLES")
     endif(IPHONE)
 
     if(OPENGLES_FOUND)
