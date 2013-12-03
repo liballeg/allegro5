@@ -356,8 +356,7 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
       glBindTexture(GL_TEXTURE_2D, disp->cache_texture);
    }
 
-   /* XXX what is this about? */
-#if defined(ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE) && !defined(ALLEGRO_MACOSX)
+#if !defined(ALLEGRO_CFG_OPENGLES) && !defined(ALLEGRO_MACOSX)
    if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       int stride = sizeof(ALLEGRO_OGL_BITMAP_VERTEX);
       int bytes = disp->num_cache_vertices * stride;
