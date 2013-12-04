@@ -902,15 +902,15 @@ See also: [al_draw_filled_polygon_with_holes]
 Defines the generic vertex type, with a 3D position, color and texture
 coordinates for a single texture. Note that at this time, the software driver
 for this addon cannot render 3D primitives. If you want a 2D only primitive,
-set z to 0. Note that when you must initialize all members of this struct when 
+set z to 0. Note that you must initialize all members of this struct when
 you're using it. One exception to this rule are the u and v variables which can
 be left uninitialized when you are not using textures.
 
 *Fields:*
 
 * x, y, z - Position of the vertex (float)
-* color - [ALLEGRO_COLOR] structure, storing the color of the vertex
 * u, v - Texture coordinates measured in pixels (float)
+* color - [ALLEGRO_COLOR] structure, storing the color of the vertex
 
 See also:
 [ALLEGRO_PRIM_ATTR]
