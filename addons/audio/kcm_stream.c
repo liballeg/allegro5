@@ -302,6 +302,25 @@ bool al_get_audio_stream_attached(const ALLEGRO_AUDIO_STREAM *stream)
    return (stream->spl.parent.u.ptr != NULL);
 }
 
+/* Function: al_get_audio_stream_played_samples
+*/
+uint64_t al_get_audio_stream_played_samples(const ALLEGRO_AUDIO_STREAM *stream)
+{
+   uint64_t result;
+   ASSERT(stream);
+
+   maybe_lock_mutex(stream->spl.mutex);
+   if (stream->spl.spl_data.buffer.ptr) {
+      result = stream->consumed_fragments * stream->spl.spl_data.len +
+         stream->spl.pos;
+   }
+   else {
+      result = 0;
+   }
+   maybe_unlock_mutex(stream->spl.mutex);
+
+   return result;
+}
 
 /* Function: al_get_audio_stream_fragment
 */
@@ -502,6 +521,7 @@ static void reset_stopped_stream(ALLEGRO_AUDIO_STREAM *stream)
    stream->spl.spl_data.buffer.ptr = NULL;
    stream->spl.pos = stream->spl.spl_data.len;
    stream->spl.pos_bresenham_error = 0;
+   stream->consumed_fragments = 0;
 }
 
 
@@ -627,6 +647,8 @@ bool _al_kcm_refill_stream(ALLEGRO_AUDIO_STREAM *stream)
          (char *) new_buf - bytes_per_sample * MAX_LAG,
          (char *) old_buf + bytes_per_sample * (spl->pos-MAX_LAG),
          bytes_per_sample * MAX_LAG);
+
+      stream->consumed_fragments++;
    }
 
    stream->spl.pos = 0;

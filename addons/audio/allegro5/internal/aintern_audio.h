@@ -246,6 +246,11 @@ struct ALLEGRO_AUDIO_STREAM {
                           * played.
                           */
 
+   uint64_t              consumed_fragments;
+                         /* Number of complete fragment buffers consumed since
+                          * the stream was started.
+                          */
+
    ALLEGRO_THREAD        *feed_thread;
    volatile bool         quit_feed_thread;
    unload_feeder_t       unload_feeder;

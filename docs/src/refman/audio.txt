@@ -1019,6 +1019,13 @@ if anything.
 See also: [al_attach_audio_stream_to_mixer], [al_attach_audio_stream_to_voice],
 [al_get_audio_stream_attached].
 
+### API: al_get_audio_stream_played_samples
+
+Get the number of samples consumed by the parent since the audio stream was
+started.
+
+Since: 5.1.8
+
 ### API: al_get_audio_stream_fragment
 
 When using Allegro's audio streaming, you will use this function to continuously
