@@ -36,6 +36,16 @@ static ALLEGRO_TOUCH_INPUT touch_input;
 static bool installed = false;
 
 
+static void reset_touch_input_state(void)
+{
+   int i;
+
+   for (i = 0; i < ALLEGRO_TOUCH_INPUT_MAX_TOUCH_COUNT; i++) {
+      touch_input_state.touches[i].id = -1;
+   }
+}
+
+
 static void generate_touch_input_event(unsigned int type, double timestamp,
    int id, float x, float y, float dx, float dy, bool primary,
    ALLEGRO_DISPLAY *disp)
@@ -131,7 +141,7 @@ static bool init_touch_input(void)
    if (installed)
       return false;
 
-   memset(&touch_input_state, 0, sizeof(touch_input_state));
+   reset_touch_input_state();
    memset(&mouse_state, 0, sizeof(mouse_state));
 
    _al_event_source_init(&touch_input.es);
@@ -149,7 +159,7 @@ static void exit_touch_input(void)
    if (!installed)
       return;
 
-   memset(&touch_input_state, 0, sizeof(touch_input_state));
+   reset_touch_input_state();
    memset(&mouse_state, 0, sizeof(mouse_state));
 
    _al_event_source_free(&touch_input.es);
@@ -199,7 +209,7 @@ static ALLEGRO_TOUCH_STATE* find_free_touch_state(void)
    int i;
 
    for (i = 0; i < ALLEGRO_TOUCH_INPUT_MAX_TOUCH_COUNT; ++i)
-      if (touch_input_state.touches[i].id <= 0)
+      if (touch_input_state.touches[i].id < 0)
          return touch_input_state.touches + i;
 
    return NULL;
@@ -264,7 +274,7 @@ static void android_touch_input_handle_end(int id, double timestamp,
       disp);
 
    _al_event_source_lock(&touch_input.es);
-   memset(state, 0, sizeof(ALLEGRO_TOUCH_STATE));
+   state->id = -1;
    _al_event_source_unlock(&touch_input.es);
 }
 
@@ -311,7 +321,7 @@ static void android_touch_input_handle_cancel(int id, double timestamp,
       state->id, state->x, state->y, state->dx, state->dy, state->primary, disp);
 
    _al_event_source_lock(&touch_input.es);
-   memset(state, 0, sizeof(ALLEGRO_TOUCH_STATE));
+   state->id = -1;
    _al_event_source_unlock(&touch_input.es);
 }
 
