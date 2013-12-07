@@ -1,10 +1,6 @@
-#include <stdio.h>
-#include <stdarg.h>
-#include <math.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_ttf.h>
-#include <allegro5/allegro_primitives.h>
 
 #include "common.c"
 
