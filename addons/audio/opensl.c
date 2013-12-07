@@ -453,7 +453,7 @@ static void * opensl_update(ALLEGRO_THREAD * self, void * data){
             if (voice->is_streaming) { 
                 // streaming audio           
                 if (bufferCount(opensl->player) < MAX_BUFFERS){
-                    const void * data = _al_voice_update(voice, &frames);
+                    const void * data = _al_voice_update(voice, voice->mutex, &frames);
                     if (data){
                         /* Copy the data to a local buffer because a call to enqueue
                          * will use the memory in place and al_voice_update will

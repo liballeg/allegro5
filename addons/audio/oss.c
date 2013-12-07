@@ -466,7 +466,7 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
          }
       }
       else if (voice->is_streaming && !oss_voice->stopped) {
-         const void *data = _al_voice_update(voice, &frames);
+         const void *data = _al_voice_update(voice, voice->mutex, &frames);
          if (data == NULL) {
             oss_update_silence(voice, oss_voice);
             continue;

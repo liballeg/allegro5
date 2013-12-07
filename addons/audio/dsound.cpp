@@ -169,7 +169,7 @@ static void* _dsound_update(ALLEGRO_THREAD *self, void *arg)
    if (!FAILED(hr)) {
       unsigned int sample_bytes;
       samples = buffer_size / bytes_per_sample / ex_data->channels;
-      data = (unsigned char *) _al_voice_update(voice, &samples);
+      data = (unsigned char *) _al_voice_update(voice, voice->mutex, &samples);
       sample_bytes = samples * bytes_per_sample * ex_data->channels;
       if (sample_bytes < block1_bytes)
          block1_bytes = sample_bytes;
@@ -214,7 +214,7 @@ static void* _dsound_update(ALLEGRO_THREAD *self, void *arg)
       }
 
       /* Generate the samples. */
-      data = (unsigned char *) _al_voice_update(voice, &samples);
+      data = (unsigned char *) _al_voice_update(voice, voice->mutex, &samples);
       if (data == NULL) {
          data = silence;
       }

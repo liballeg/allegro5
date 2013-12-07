@@ -69,7 +69,7 @@ static void handle_buffer(
 
    unsigned int samples = (ex_data->buffer_size/ex_data->channels)/(ex_data->bits_per_sample/8);
 
-   data = _al_voice_update(ex_data->voice, &samples);
+   data = _al_voice_update(ex_data->voice, ex_data->voice->mutex, &samples);
    if (data == NULL)
       data = silence;
 

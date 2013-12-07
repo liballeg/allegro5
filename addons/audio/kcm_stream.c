@@ -535,7 +535,7 @@ bool al_set_audio_stream_playing(ALLEGRO_AUDIO_STREAM *stream, bool val)
    if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
       ALLEGRO_VOICE *voice = stream->spl.parent.u.voice;
       if (val != stream->spl.is_playing) {
-         rc = _al_kcm_set_voice_playing(voice, val);
+         rc = _al_kcm_set_voice_playing(voice, voice->mutex, val);
       }
    }
 

@@ -217,7 +217,7 @@ static void *_openal_update(ALLEGRO_THREAD *self, void *arg)
       while (--status >= 0) {
          ALuint buffer;
 
-         data = _al_voice_update(voice, &samples_per_update);
+         data = _al_voice_update(voice, voice->mutex, &samples_per_update);
          if (data == NULL)
             data = silence;
 

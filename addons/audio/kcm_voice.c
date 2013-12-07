@@ -36,11 +36,17 @@ static void stream_read(void *source, void **vbuf, unsigned int *samples,
  *  in the returned audio data and it may be less or equal to the requested
  *  samples count.
  */
-const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned int *samples)
+const void *_al_voice_update(ALLEGRO_VOICE *voice, ALLEGRO_MUTEX *mutex,
+   unsigned int *samples)
 {
    void *buf = NULL;
 
+   /* The mutex parameter is intended to make it obvious at the call site
+    * that the voice mutex will be acquired here.
+    */
    ASSERT(voice);
+   ASSERT(voice->mutex == mutex);
+   (void)mutex;
 
    al_lock_mutex(voice->mutex);
    if (voice->attached_stream) {
@@ -503,15 +509,22 @@ bool al_set_voice_playing(ALLEGRO_VOICE *voice, bool val)
          return true;
       }
 
-      return _al_kcm_set_voice_playing(voice, val);
+      return _al_kcm_set_voice_playing(voice, voice->mutex, val);
    }
 }
 
 
-bool _al_kcm_set_voice_playing(ALLEGRO_VOICE *voice, bool val)
+bool _al_kcm_set_voice_playing(ALLEGRO_VOICE *voice, ALLEGRO_MUTEX *mutex,
+   bool val)
 {
    bool ret;
+
+   /* The mutex parameter is intended to make it obvious at the call site
+    * that the voice mutex will be acquired here.
+    */
    ASSERT(voice);
+   ASSERT(voice->mutex == mutex);
+   (void)mutex;
 
    al_lock_mutex(voice->mutex);
    // XXX change methods

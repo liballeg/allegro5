@@ -175,7 +175,7 @@ static void *pulseaudio_update(ALLEGRO_THREAD *self, void *data)
          unsigned int frames = pv->buffer_size_in_frames;
          if (voice->is_streaming) { 
             // streaming audio           
-            const void *data = _al_voice_update(voice, &frames);
+            const void *data = _al_voice_update(voice, voice->mutex, &frames);
             if (data) {
                pa_simple_write(pv->s, data,
                   frames * pv->frame_size_in_bytes, NULL);

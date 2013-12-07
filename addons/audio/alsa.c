@@ -339,7 +339,7 @@ static void *alsa_update_mmap(ALLEGRO_THREAD *self, void *arg)
       else if (voice->is_streaming && !alsa_voice->stopped) {
          /* This should fit. */
          unsigned int iframes = frames;
-         const void *data = _al_voice_update(voice, &iframes);
+         const void *data = _al_voice_update(voice, voice->mutex, &iframes);
          frames = iframes;
          if (data == NULL)
             goto silence;
@@ -446,7 +446,7 @@ static void *alsa_update_rw(ALLEGRO_THREAD *self, void *arg)
       else if (voice->is_streaming && !alsa_voice->stopped) {
          /* This should fit. */
          unsigned int iframes = frames;
-         buf = (void *)_al_voice_update(voice, &iframes);
+         buf = (void *)_al_voice_update(voice, voice->mutex, &iframes);
          if (buf == NULL)
             goto silence;
          frames = iframes;
