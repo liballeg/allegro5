@@ -542,13 +542,9 @@ bool al_set_sample_instance_playing(ALLEGRO_SAMPLE_INSTANCE *spl, bool val)
 {
    ASSERT(spl);
 
-   if (!spl->parent.u.ptr) {
-      _al_set_error(ALLEGRO_INVALID_OBJECT, "Sample has no parent");
-      return false;
-   }
-   if (!spl->spl_data.buffer.ptr) {
-      _al_set_error(ALLEGRO_INVALID_OBJECT, "Sample has no data");
-      return false;
+   if (!spl->parent.u.ptr || !spl->spl_data.buffer.ptr) {
+      spl->is_playing = val;
+      return true;
    }
 
    if (spl->parent.is_voice) {

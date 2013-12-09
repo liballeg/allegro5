@@ -591,13 +591,16 @@ See also: [ALLEGRO_PLAYMODE], [al_get_sample_instance_playmode]
 
 ### API: al_get_sample_instance_playing
 
-Return true if the sample instance is playing.
+Return true if the sample instance is in the playing state.
+This may be true even if the instance is not attached to anything.
 
 See also: [al_set_sample_instance_playing]
 
 ### API: al_set_sample_instance_playing
 
 Change whether the sample instance is playing.
+
+The instance does not need to be attached to anything (since: 5.1.8).
 
 Returns true on success, false on failure.
 
