@@ -53,55 +53,47 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback
    {
       EGL10 egl = (EGL10)EGLContext.getEGL();
 
-      int egl_attr = attr;
-
+      int egl_attr;
       switch (attr) {
          case Const.ALLEGRO_RED_SIZE:
             egl_attr = egl.EGL_RED_SIZE;
             break;
-
          case Const.ALLEGRO_GREEN_SIZE:
             egl_attr = egl.EGL_GREEN_SIZE;
             break;
-
          case Const.ALLEGRO_BLUE_SIZE:
             egl_attr = egl.EGL_BLUE_SIZE;
             break;
-
          case Const.ALLEGRO_ALPHA_SIZE:
             egl_attr = egl.EGL_ALPHA_SIZE;
             break;
-
          case Const.ALLEGRO_DEPTH_SIZE:
             egl_attr = egl.EGL_DEPTH_SIZE;
             break;
-
          case Const.ALLEGRO_STENCIL_SIZE:
             egl_attr = egl.EGL_STENCIL_SIZE;
             break;
-
          case Const.ALLEGRO_SAMPLE_BUFFERS:
             egl_attr = egl.EGL_SAMPLE_BUFFERS;
             break;
-
          case Const.ALLEGRO_SAMPLES:
             egl_attr = egl.EGL_SAMPLES;
             break;
-
-         /* Allow others to pass right into the array */
+         default:
+            /* Allow others to pass right into the array. */
+            egl_attr = attr;
+            break;
       }
 
-      /* Check if it's already in the list, if so change the value */
-      for (int i = 0; i < egl_attribWork.size(); i++) {
-         if (i % 2 == 0) {
-            if (egl_attribWork.get(i) == egl_attr) {
-               egl_attribWork.set(i+1, value);
-               return;
-            }
+      /* Check if it's already in the list, if so change the value. */
+      for (int i = 0; i < egl_attribWork.size(); i += 2) {
+         if (egl_attribWork.get(i) == egl_attr) {
+            egl_attribWork.set(i + 1, value);
+            return;
          }
       }
 
-      /* Not in the list, add it */
+      /* Not in the list, add it. */
       egl_attribWork.add(egl_attr);
       egl_attribWork.add(value);
    }
@@ -169,27 +161,13 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback
    {
       Log.d("AllegroSurface", "egl_createContext");
       EGL10 egl = (EGL10)EGLContext.getEGL();
-      int ret = 1;
 
       es2_attrib[1] = version;
 
       egl_setConfigAttrib(EGL10.EGL_RENDERABLE_TYPE,
          (version == 2) ? EGL_OPENGL_ES2_BIT : EGL_OPENGL_ES_BIT);
 
-      boolean color_size_specified = false;
-      for (int i = 0; i < egl_attribWork.size(); i++) {
-         Log.d("AllegroSurface", "egl_attribs[" + i + "] = " + egl_attribWork.get(i));
-         if (i % 2 == 0) {
-            if (egl_attribWork.get(i) == EGL10.EGL_RED_SIZE ||
-               egl_attribWork.get(i) == EGL10.EGL_GREEN_SIZE ||
-               egl_attribWork.get(i) == EGL10.EGL_BLUE_SIZE)
-            {
-               color_size_specified = true;
-            }
-         }
-      }
-
-      egl_attribs = new int[egl_attribWork.size()+1];
+      egl_attribs = new int[egl_attribWork.size() + 1];
       for (int i = 0; i < egl_attribWork.size(); i++) {
          egl_attribs[i] = egl_attribWork.get(i);
       }
@@ -198,7 +176,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback
       int[] num = new int[1];
       boolean retval = egl.eglChooseConfig(egl_Display, egl_attribs,
          egl_Config, 1, num);
-      if (retval == false || num[0] < 1) {
+      if (!retval || num[0] < 1) {
          Log.e("AllegroSurface", "No matching config");
          return 0;
       }
@@ -217,7 +195,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback
 
       Log.d("AllegroSurface", "egl_createContext end");
 
-      return ret;
+      return 1;
    }
 
    private void egl_destroyContext()
@@ -234,7 +212,8 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback
       EGLSurface surface = egl.eglCreateWindowSurface(egl_Display,
          egl_Config[0], this, null);
       if (surface == EGL10.EGL_NO_SURFACE) {
-         Log.d("AllegroSurface", "egl_createSurface can't create surface (" +  egl.eglGetError() + ")");
+         Log.d("AllegroSurface", "egl_createSurface can't create surface: " +
+               egl.eglGetError());
          return false;
       }
 
