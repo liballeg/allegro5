@@ -774,10 +774,8 @@ static void android_set_display_option(ALLEGRO_DISPLAY *d, int o, int v)
 {
    (void)d;
    if (o == ALLEGRO_SUPPORTED_ORIENTATIONS) {
-      int orientation = _jni_callIntMethodV(_al_android_get_jnienv(),
-         _al_android_activity_object(), "getAndroidOrientation", "(I)I", v);
-      _jni_callVoidMethodV(_al_android_get_jnienv(), _al_android_activity_object(),
-         "setRequestedOrientation", "(I)V", orientation);
+      _jni_callVoidMethodV(_al_android_get_jnienv(),
+         _al_android_activity_object(), "setAllegroOrientation", "(I)V", v);
    }
 }
 

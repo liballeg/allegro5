@@ -364,9 +364,9 @@ public class AllegroActivity extends Activity
        */
    }
 
-   int getAndroidOrientation(int alleg_orientation)
+   void setAllegroOrientation(int alleg_orientation)
    {
-      return Const.toAndroidOrientation(alleg_orientation);
+      setRequestedOrientation(Const.toAndroidOrientation(alleg_orientation));
    }
 
    int getAllegroOrientation()
