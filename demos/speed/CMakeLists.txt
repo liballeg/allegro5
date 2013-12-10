@@ -25,6 +25,11 @@ if(NOT SUPPORT_AUDIO OR NOT SUPPORT_PRIMITIVES OR NOT SUPPORT_FONT)
     return()
 endif()
 
+if(COMPILER_GCC_OR_CLANG)
+    set(CMAKE_C_FLAGS
+        "${CMAKE_C_FLAGS} -Wno-strict-prototypes -Wno-missing-prototypes")
+endif(COMPILER_GCC_OR_CLANG)
+
 if(ANDROID)
     add_android_app(speed
         "${SPEED_SRCS}"
@@ -33,11 +38,6 @@ if(ANDROID)
         )
     return()
 endif(ANDROID)
-
-if(COMPILER_GCC_OR_CLANG)
-    set(CMAKE_C_FLAGS
-        "${CMAKE_C_FLAGS} -Wno-strict-prototypes -Wno-missing-prototypes")
-endif(COMPILER_GCC_OR_CLANG)
 
 if(APPLE)
     set(DEMO_EXECUTABLE_TYPE MACOSX_BUNDLE)
