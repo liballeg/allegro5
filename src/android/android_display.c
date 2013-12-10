@@ -29,7 +29,7 @@ ALLEGRO_DEBUG_CHANNEL("display")
 static ALLEGRO_DISPLAY_INTERFACE *vt;
 static ALLEGRO_EXTRA_DISPLAY_SETTINGS main_thread_display_settings;
 
-static void _al_android_update_visuals(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d);
+static int select_best_visual_and_update(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d);
 static void android_set_display_option(ALLEGRO_DISPLAY *d, int o, int v);
 static void _al_android_resize_display(ALLEGRO_DISPLAY_ANDROID *d, int width, int height);
 static bool _al_android_init_display(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *display);
@@ -233,7 +233,8 @@ static bool _al_android_init_display(JNIEnv *env,
 {
    ALLEGRO_SYSTEM_ANDROID *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY *d = (ALLEGRO_DISPLAY *)display;
-   int version;
+   int config_index;
+   bool programmable_pipeline;
    int ret;
 
    ASSERT(system != NULL);
@@ -250,20 +251,19 @@ static bool _al_android_init_display(JNIEnv *env,
       return false;
    }
 
-   ALLEGRO_DEBUG("updating visuals");
-   _al_android_update_visuals(env, display);
-   ALLEGRO_DEBUG("done updating visuals");
+   config_index = select_best_visual_and_update(env, display);
+   if (config_index < 0) {
+      // XXX should probably destroy the AllegroSurface here
+      ALLEGRO_ERROR("Failed to choose config.\n");
+      display->failed = true;
+      return false;
+   }
 
-   d->extra_settings = system->visual;
-
-   if (d->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)
-      version = 2;
-   else
-      version = 1;
+   programmable_pipeline = (d->flags & ALLEGRO_PROGRAMMABLE_PIPELINE);
 
    ALLEGRO_DEBUG("calling egl_createContext");
    ret = _jni_callIntMethodV(env, display->surface_object,
-      "egl_createContext", "(I)I", version);
+      "egl_createContext", "(IZ)I", config_index, programmable_pipeline);
    if (!ret) {
       // XXX should probably destroy the AllegroSurface here
       ALLEGRO_ERROR("failed to create egl context!");
@@ -271,8 +271,8 @@ static bool _al_android_init_display(JNIEnv *env,
       return false;
    }
 
-   // XXX ret is never 2 yet
-   if (ret == 2 && (d->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
+   // XXX ret is never 2
+   if (ret == 2 && programmable_pipeline) {
       d->flags &= ~ALLEGRO_PROGRAMMABLE_PIPELINE;
    }
 
@@ -361,56 +361,58 @@ static void _al_android_resize_display(ALLEGRO_DISPLAY_ANDROID *d,
    ALLEGRO_DEBUG("done");
 }
 
-static void call_egl_setConfigAttrib(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d,
+static void call_initRequiredAttribs(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
+{
+   _jni_callVoidMethodV(env, d->surface_object,
+      "egl_initRequiredAttribs", "()V");
+}
+
+static void call_setRequiredAttrib(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d,
    int attr, int value)
 {
    _jni_callVoidMethodV(env, d->surface_object,
-      "egl_setConfigAttrib", "(II)V", attr, value);
+      "egl_setRequiredAttrib", "(II)V", attr, value);
 }
 
-static void _al_android_update_visuals(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
+static int call_chooseConfig(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
 {
-   const int RENDERABLE_TYPE = 0x3040;
-   const int OPENGLES2_BIT = 4;
+   bool pp = (d->display.flags & ALLEGRO_PROGRAMMABLE_PIPELINE);
+   return _jni_callIntMethodV(env, d->surface_object,
+      "egl_chooseConfig", "(Z)I", pp);
+}
 
-   ALLEGRO_SYSTEM_ANDROID *system = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)d;
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref = &main_thread_display_settings;
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = &system->visual;
+static void call_getConfigAttribs(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d,
+   int configIndex, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
+{
+   jintArray jArray;
+   jint *ptr;
+   int i;
 
-   eds->settings[ALLEGRO_RENDER_METHOD] = 1;
-   eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
-   eds->settings[ALLEGRO_SWAP_METHOD] = 2;
-   eds->settings[ALLEGRO_VSYNC] = 1;
-
-   /* FIXME: after setting our values and calling eglChooseConfig, read the
-    * values back into system->visual.
-    */
-
-   /* There is no equivalent to COLOR_SIZE in EGL except setting the individual
-    * components.
-    */
-   if ((ref->required & ((int64_t)1 << ALLEGRO_COLOR_SIZE)) ||
-      (ref->suggested & ((int64_t)1 << ALLEGRO_COLOR_SIZE)))
-   {
-      if (ref->settings[ALLEGRO_COLOR_SIZE] == 16) {
-         call_egl_setConfigAttrib(env, d, ALLEGRO_RED_SIZE, 5);
-         call_egl_setConfigAttrib(env, d, ALLEGRO_GREEN_SIZE, 6);
-         call_egl_setConfigAttrib(env, d, ALLEGRO_BLUE_SIZE, 5);
-      }
-      else { // only other thing supported is 32 bit
-         call_egl_setConfigAttrib(env, d, ALLEGRO_RED_SIZE, 8);
-         call_egl_setConfigAttrib(env, d, ALLEGRO_GREEN_SIZE, 8);
-         call_egl_setConfigAttrib(env, d, ALLEGRO_BLUE_SIZE, 8);
-      }
+   jArray = (*env)->NewIntArray(env, ALLEGRO_DISPLAY_OPTIONS_COUNT);
+   if (jArray == NULL) {
+      ALLEGRO_ERROR("NewIntArray failed\n");
+      return;
    }
 
+   _jni_callVoidMethodV(env, d->surface_object,
+      "egl_getConfigAttribs", "(I[I)V", configIndex, jArray);
+
+   ptr = (*env)->GetIntArrayElements(env, jArray, 0);
+   for (i = 0; i < ALLEGRO_DISPLAY_OPTIONS_COUNT; i++) {
+      eds->settings[i] = ptr[i];
+   }
+
+   (*env)->ReleaseIntArrayElements(env, jArray, ptr, 0);
+}
+
+static void set_required_attribs(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d,
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref)
+{
    #define MAYBE_SET(v)                                                       \
       do {                                                                    \
-         if ((ref->required & ((int64_t)1 << v)) ||                           \
-             (ref->suggested & ((int64_t)1 << v)))                            \
-         {                                                                    \
-            call_egl_setConfigAttrib(env, d, v, ref->settings[v]);            \
+         bool required = (ref->required & ((int64_t)1 << (v)));               \
+         if (required) {                                                      \
+            call_setRequiredAttrib(env, d, (v), ref->settings[(v)]);          \
          }                                                                    \
       } while (0)
 
@@ -418,16 +420,65 @@ static void _al_android_update_visuals(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
    MAYBE_SET(ALLEGRO_GREEN_SIZE);
    MAYBE_SET(ALLEGRO_BLUE_SIZE);
    MAYBE_SET(ALLEGRO_ALPHA_SIZE);
+   MAYBE_SET(ALLEGRO_COLOR_SIZE);
    MAYBE_SET(ALLEGRO_DEPTH_SIZE);
    MAYBE_SET(ALLEGRO_STENCIL_SIZE);
    MAYBE_SET(ALLEGRO_SAMPLE_BUFFERS);
    MAYBE_SET(ALLEGRO_SAMPLES);
 
    #undef MAYBE_SET
+}
 
-   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-      call_egl_setConfigAttrib(env, d, RENDERABLE_TYPE, OPENGLES2_BIT);
+static int select_best_visual_and_update(JNIEnv *env,
+   ALLEGRO_DISPLAY_ANDROID *d)
+{
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref = &main_thread_display_settings;
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds = NULL;
+   int num_configs;
+   int chosen_index;
+   int i;
+
+   ALLEGRO_DEBUG("Setting required display settings.\n");
+   call_initRequiredAttribs(env, d);
+   set_required_attribs(env, d, ref);
+
+   ALLEGRO_DEBUG("Calling eglChooseConfig.\n");
+   num_configs = call_chooseConfig(env, d);
+   if (num_configs < 1) {
+      return -1;
    }
+
+   eds = al_calloc(num_configs, sizeof(*eds));
+
+   for (i = 0; i < num_configs; i++) {
+      eds[i] = al_calloc(1, sizeof(*eds[i]));
+
+      call_getConfigAttribs(env, d, i, eds[i]);
+
+      eds[i]->settings[ALLEGRO_RENDER_METHOD] = 1;
+      eds[i]->settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
+      eds[i]->settings[ALLEGRO_SWAP_METHOD] = 2;
+      eds[i]->settings[ALLEGRO_VSYNC] = 1;
+
+      eds[i]->index = i;
+      eds[i]->score = _al_score_display_settings(eds[i], ref);
+   }
+
+   ALLEGRO_DEBUG("Sorting configs.\n");
+   qsort(eds, num_configs, sizeof(*eds), _al_display_settings_sorter);
+
+   chosen_index = eds[0]->index;
+   ALLEGRO_INFO("Chose config %i\n", chosen_index);
+
+   d->display.extra_settings = *eds[0];
+
+   /* Don't need this any more. */
+   for (i = 0; i < num_configs; i++) {
+      al_free(eds[i]);
+   }
+   al_free(eds);
+
+   return chosen_index;
 }
 
 /* driver implementation hooks */

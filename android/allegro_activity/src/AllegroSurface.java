@@ -21,14 +21,29 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback
       return egl.egl_Init();
    }
 
-   void egl_setConfigAttrib(int attr, int value)
+   void egl_initRequiredAttribs()
    {
-      egl.egl_setConfigAttrib(attr, value);
+      egl.egl_initRequiredAttribs();
    }
 
-   int egl_createContext(int version)
+   void egl_setRequiredAttrib(int attr, int value)
    {
-      return egl.egl_createContext(version);
+      egl.egl_setRequiredAttrib(attr, value);
+   }
+
+   int egl_chooseConfig(boolean programmable_pipeline)
+   {
+      return egl.egl_chooseConfig(programmable_pipeline);
+   }
+
+   void egl_getConfigAttribs(int index, int ret[])
+   {
+      egl.egl_getConfigAttribs(index, ret);
+   }
+
+   int egl_createContext(int configIndex, boolean programmable_pipeline)
+   {
+      return egl.egl_createContext(configIndex, programmable_pipeline);
    }
 
    boolean egl_createSurface()

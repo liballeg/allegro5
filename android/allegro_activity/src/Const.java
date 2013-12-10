@@ -16,6 +16,7 @@ final class Const
    static final int ALLEGRO_GREEN_SIZE	    = 1;
    static final int ALLEGRO_BLUE_SIZE	    = 2;
    static final int ALLEGRO_ALPHA_SIZE	    = 3;
+   static final int ALLEGRO_COLOR_SIZE      = 14;
    static final int ALLEGRO_DEPTH_SIZE	    = 15;
    static final int ALLEGRO_STENCIL_SIZE    = 16;
    static final int ALLEGRO_SAMPLE_BUFFERS  = 17;

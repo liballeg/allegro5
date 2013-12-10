@@ -44,8 +44,9 @@ class AllegroEGL
    private EGLContext egl_Context;
    private EGLSurface egl_Surface;
    private EGLDisplay egl_Display;
-   private ArrayList<Integer> egl_attribWork = new ArrayList<Integer>();
-   private EGLConfig[] egl_Config = new EGLConfig[] { null };
+   private HashMap<Integer, Integer> attribMap;
+   private EGLConfig[] matchingConfigs;
+   private EGLConfig chosenConfig;
 
    boolean egl_Init()
    {
@@ -78,88 +79,134 @@ class AllegroEGL
       egl_Display = null;
    }
 
-   void egl_setConfigAttrib(int attr, int value)
+   void egl_initRequiredAttribs()
+   {
+      attribMap = new HashMap();
+   }
+
+   void egl_setRequiredAttrib(int attr, int value)
+   {
+      int egl_attr = eglAttrib(attr);
+      if (egl_attr >= 0) {
+         attribMap.put(egl_attr, value);
+      }
+   }
+
+   private int eglAttrib(int al_attr)
+   {
+      EGL10 egl = (EGL10)EGLContext.getEGL();
+      final int[] mapping = attribMapping(egl);
+
+      for (int i = 0; i < mapping.length; i += 2) {
+         if (al_attr == mapping[i + 1])
+            return mapping[i];
+      }
+
+      assert(false);
+      return -1;
+   }
+
+   private final int[] attribMapping(EGL10 egl)
+   {
+      return new int[] {
+         egl.EGL_RED_SIZE,       Const.ALLEGRO_RED_SIZE,
+         egl.EGL_GREEN_SIZE,     Const.ALLEGRO_GREEN_SIZE,
+         egl.EGL_BLUE_SIZE,      Const.ALLEGRO_BLUE_SIZE, 
+         egl.EGL_ALPHA_SIZE,     Const.ALLEGRO_ALPHA_SIZE, 
+         egl.EGL_BUFFER_SIZE,    Const.ALLEGRO_COLOR_SIZE,
+         egl.EGL_DEPTH_SIZE,     Const.ALLEGRO_DEPTH_SIZE, 
+         egl.EGL_STENCIL_SIZE,   Const.ALLEGRO_STENCIL_SIZE, 
+         egl.EGL_SAMPLE_BUFFERS, Const.ALLEGRO_SAMPLE_BUFFERS, 
+         egl.EGL_SAMPLES,        Const.ALLEGRO_SAMPLES
+      };
+   }
+
+   int egl_chooseConfig(boolean programmable_pipeline)
    {
       EGL10 egl = (EGL10)EGLContext.getEGL();
 
-      int egl_attr;
-      switch (attr) {
-         case Const.ALLEGRO_RED_SIZE:
-            egl_attr = egl.EGL_RED_SIZE;
-            break;
-         case Const.ALLEGRO_GREEN_SIZE:
-            egl_attr = egl.EGL_GREEN_SIZE;
-            break;
-         case Const.ALLEGRO_BLUE_SIZE:
-            egl_attr = egl.EGL_BLUE_SIZE;
-            break;
-         case Const.ALLEGRO_ALPHA_SIZE:
-            egl_attr = egl.EGL_ALPHA_SIZE;
-            break;
-         case Const.ALLEGRO_DEPTH_SIZE:
-            egl_attr = egl.EGL_DEPTH_SIZE;
-            break;
-         case Const.ALLEGRO_STENCIL_SIZE:
-            egl_attr = egl.EGL_STENCIL_SIZE;
-            break;
-         case Const.ALLEGRO_SAMPLE_BUFFERS:
-            egl_attr = egl.EGL_SAMPLE_BUFFERS;
-            break;
-         case Const.ALLEGRO_SAMPLES:
-            egl_attr = egl.EGL_SAMPLES;
-            break;
-         default:
-            /* Allow others to pass right into the array. */
-            egl_attr = attr;
-            break;
+      if (programmable_pipeline) {
+         attribMap.put(EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT);
+      } else {
+         attribMap.put(EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES_BIT);
       }
 
-      /* Check if it's already in the list, if so change the value. */
-      for (int i = 0; i < egl_attribWork.size(); i += 2) {
-         if (egl_attribWork.get(i) == egl_attr) {
-            egl_attribWork.set(i + 1, value);
-            return;
+      /* Populate the matchingConfigs array. */
+      matchingConfigs = new EGLConfig[20];
+      int[] num = new int[1];
+      boolean ok = egl.eglChooseConfig(egl_Display, requiredAttribsArray(),
+         matchingConfigs, matchingConfigs.length, num);
+      if (!ok || num[0] < 1) {
+         Log.e(TAG, "No matching config");
+         return 0;
+      }
+
+      Log.d(TAG, "eglChooseConfig returned " + num[0] + " configurations.");
+      return num[0];
+   }
+
+   private int[] requiredAttribsArray()
+   {
+      final int n = attribMap.size();
+      final int[] arr = new int[n * 2 + 1];
+      int i = 0;
+
+      for (int attrib : attribMap.keySet()) {
+         arr[i++] = attrib;
+         arr[i++] = attribMap.get(attrib);
+      }
+      arr[i] = EGL10.EGL_NONE; /* sentinel */
+      return arr;
+   }
+
+   void egl_getConfigAttribs(int index, int ret[])
+   {
+      Log.d(TAG, "Getting attribs for config at index " + index);
+
+      for (int i = 0; i < ret.length; i++) {
+         ret[i] = 0;
+      }
+
+      final EGL10 egl = (EGL10)EGLContext.getEGL();
+      final EGLConfig config = matchingConfigs[index];
+      final int[] mapping = attribMapping(egl);
+      final int box[] = new int[1];
+
+      for (int i = 0; i < mapping.length; i += 2) {
+         int egl_attr = mapping[i];
+         int al_attr = mapping[i + 1];
+
+         if (egl.eglGetConfigAttrib(egl_Display, config, egl_attr, box)) {
+            ret[al_attr] = box[0];
+         } else {
+            Log.e(TAG, "eglGetConfigAttrib(" + egl_attr + ") failed\n");
          }
       }
-
-      /* Not in the list, add it. */
-      egl_attribWork.add(egl_attr);
-      egl_attribWork.add(value);
    }
 
    /* Return values:
     * 0 - failure
     * 1 - success
-    * 2 - fell back to older ES version
+    * 2 - fell back to older ES version XXX never happens
     */
-   int egl_createContext(int version)
+   int egl_createContext(int configIndex, boolean programmable_pipeline)
    {
       Log.d(TAG, "egl_createContext");
+
       EGL10 egl = (EGL10)EGLContext.getEGL();
 
-      egl_setConfigAttrib(EGL10.EGL_RENDERABLE_TYPE,
-         (version == 2) ? EGL_OPENGL_ES2_BIT : EGL_OPENGL_ES_BIT);
+      chosenConfig = matchingConfigs[configIndex];
+      matchingConfigs = null;
+      attribMap = null;
 
-      int[] egl_attribs = new int[egl_attribWork.size() + 1];
-      for (int i = 0; i < egl_attribWork.size(); i++) {
-         egl_attribs[i] = egl_attribWork.get(i);
-      }
-      egl_attribs[egl_attribWork.size()] = EGL10.EGL_NONE;
-
-      int[] num = new int[1];
-      boolean retval = egl.eglChooseConfig(egl_Display, egl_attribs,
-         egl_Config, 1, num);
-      if (!retval || num[0] < 1) {
-         Log.e(TAG, "No matching config");
-         return 0;
-      }
-
-      int[] es2_attrib = {
+      int version = (programmable_pipeline) ? 2 : 1;
+      int[] attribs = {
          EGL_CONTEXT_CLIENT_VERSION, version,
          EGL10.EGL_NONE
       };
-      EGLContext ctx = egl.eglCreateContext(egl_Display, egl_Config[0],
-         EGL10.EGL_NO_CONTEXT, es2_attrib);
+
+      EGLContext ctx = egl.eglCreateContext(egl_Display, chosenConfig,
+         EGL10.EGL_NO_CONTEXT, attribs);
       if (ctx == EGL10.EGL_NO_CONTEXT) {
          checkEglError("eglCreateContext", egl);
          Log.d(TAG, "egl_createContext no context");
@@ -187,7 +234,7 @@ class AllegroEGL
    {
       EGL10 egl = (EGL10)EGLContext.getEGL();
       EGLSurface surface = egl.eglCreateWindowSurface(egl_Display,
-         egl_Config[0], parent, null);
+         chosenConfig, parent, null);
       if (surface == EGL10.EGL_NO_SURFACE) {
          Log.d(TAG, "egl_createSurface can't create surface: " +
                egl.eglGetError());
