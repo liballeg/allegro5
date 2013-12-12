@@ -81,6 +81,7 @@ int main(int argc, char **argv)
 
    al_install_mouse();
    al_install_keyboard();
+   al_install_touch_input();
    if (!al_init_primitives_addon()) {
       abort_example("Could not init primitives addon.\n");
    }
@@ -149,6 +150,10 @@ int main(int argc, char **argv)
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_mouse_event_source());
+   if (al_is_touch_input_installed()) {
+      al_register_event_source(queue,
+         al_get_touch_input_mouse_emulation_event_source());
+   }
    al_register_event_source(queue, al_get_display_event_source(display));
    al_register_event_source(queue, al_get_timer_event_source(timer));
    al_start_timer(timer);
@@ -193,4 +198,4 @@ int main(int argc, char **argv)
 }
 
 
-/* vim: set sts=4 sw=4 et: */
+/* vim: set sts=3 sw=3 et: */
