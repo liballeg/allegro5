@@ -528,22 +528,16 @@ int _al_display_settings_sorter(const void *p0, const void *p1)
    const ALLEGRO_EXTRA_DISPLAY_SETTINGS *f0 = *((ALLEGRO_EXTRA_DISPLAY_SETTINGS **)p0);
    const ALLEGRO_EXTRA_DISPLAY_SETTINGS *f1 = *((ALLEGRO_EXTRA_DISPLAY_SETTINGS **)p1);
 
+   if (!f0 && !f1)
+      return 0;
    if (!f0)
       return 1;
    if (!f1)
       return -1;
-   if (f0->score == f1->score) {
-      if (f0->index < f1->index)
-         return -1;
-      else
-         return 1;
-   }
-   else if (f0->score > f1->score) {
-      return -1;
-   }
-   else {
-      return 1;
-   }
+   if (f0->score == f1->score)
+      return f0->index - f1->index; /* lower better */
+   else
+      return f1->score - f0->score; /* higher better */
 }
 
 
