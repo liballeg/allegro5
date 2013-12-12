@@ -1,4 +1,4 @@
-#version 120
+#version 100
 #ifdef GL_ES
 precision mediump float;
 #endif
@@ -33,12 +33,12 @@ void main()
 
    /* Reflectance is used for both diffuse components and specular components. It needs to be non-negative */
    float reflectance = dot(light_dir, normal_vector);
-   reflectance = max(reflectance, 0.0f);
+   reflectance = max(reflectance, 0.0);
 
    /* Computes the reflection of the light and then the degree to which it points at the camera. This also is non-negative.
     * (0, 0, 1) is the vector that points at the camera */
-   float specular_intensity = dot((2 * reflectance * normal_vector - light_dir), vec3(0, 0, 1));
-   specular_intensity = max(0, specular_intensity);
+   float specular_intensity = dot((2.0 * reflectance * normal_vector - light_dir), vec3(0.0, 0.0, 1.0));
+   specular_intensity = max(0.0, specular_intensity);
    specular_intensity = pow(specular_intensity, alpha);
 
    /* Compute diffuse intensity by attenuating reflectance with a simple quadratic distance falloff */

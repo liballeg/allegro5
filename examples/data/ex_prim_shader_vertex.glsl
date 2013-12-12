@@ -1,4 +1,4 @@
-#version 120
+#version 100
 attribute vec4 al_pos;
 attribute vec3 al_user_attr_0;
 
