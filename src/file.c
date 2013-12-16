@@ -184,11 +184,24 @@ bool al_feof(ALLEGRO_FILE *f)
 
 /* Function: al_ferror
  */
-bool al_ferror(ALLEGRO_FILE *f)
+int al_ferror(ALLEGRO_FILE *f)
 {
    ASSERT(f);
 
    return f->vtable->fi_ferror(f);
+}
+
+
+/* Function: al_ferrmsg
+ */
+const char *al_ferrmsg(ALLEGRO_FILE *f)
+{
+   const char *msg;
+
+   ASSERT(f);
+   msg = f->vtable->fi_ferrmsg(f);
+   ASSERT(msg);
+   return msg;
 }
 
 

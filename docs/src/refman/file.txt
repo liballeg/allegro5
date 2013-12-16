@@ -24,7 +24,8 @@ The fields are:
     int64_t       (*fi_ftell)(ALLEGRO_FILE *f);
     bool          (*fi_fseek)(ALLEGRO_FILE *f, int64_t offset, int whence);
     bool          (*fi_feof)(ALLEGRO_FILE *f);
-    bool          (*fi_ferror)(ALLEGRO_FILE *f);
+    int           (*fi_ferror)(ALLEGRO_FILE *f);
+    const char *  (*fi_ferrmsg)(ALLEGRO_FILE *f);
     void          (*fi_fclearerr)(ALLEGRO_FILE *f);
     int           (*fi_fungetc)(ALLEGRO_FILE *f, int c);
     off_t         (*fi_fsize)(ALLEGRO_FILE *f);
@@ -204,10 +205,19 @@ See also: [al_ferror], [al_fclearerr]
 
 ## API: al_ferror
 
-Returns true if the error indicator is set on the given file,
+Returns non-zero if the error indicator is set on the given file,
 i.e. there was some sort of previous error.
+The error code may be system or file interface specific.
 
-See also: [al_feof], [al_fclearerr]
+See also: [al_feof], [al_fclearerr], [al_ferrmsg]
+
+## API: al_ferrmsg
+
+Return a message string with details about the last error that occurred on
+the given file handle.  The returned string is empty if there was no error,
+or if the file interface does not provide more information.
+
+See also: [al_fclearerr], [al_ferror]
 
 ## API: al_fclearerr
 

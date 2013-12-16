@@ -236,11 +236,18 @@ static bool file_apk_feof(ALLEGRO_FILE *f)
 }
 
 
-static bool file_apk_ferror(ALLEGRO_FILE *f)
+static int file_apk_ferror(ALLEGRO_FILE *f)
 {
    ALLEGRO_FILE_APK *fp = cast_stream(f);
 
-   return fp->error_indicator;
+   return (fp->error_indicator) ? 1 : 0;
+}
+
+
+static const char *file_apk_ferrmsg(ALLEGRO_FILE *f)
+{
+   (void)f;
+   return "";
 }
 
 
@@ -270,6 +277,7 @@ static const ALLEGRO_FILE_INTERFACE file_apk_vtable =
    file_apk_seek,
    file_apk_feof,
    file_apk_ferror,
+   file_apk_ferrmsg,
    file_apk_fclearerr,
    NULL, /* default ungetc implementation */
    file_apk_fsize

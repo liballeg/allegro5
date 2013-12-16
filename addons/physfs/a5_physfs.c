@@ -17,6 +17,7 @@ struct ALLEGRO_FILE_PHYSFS
 {
    PHYSFS_file *phys;
    bool error_indicator;
+   char error_msg[80];
 };
 
 /* forward declaration */
@@ -46,7 +47,15 @@ static void phys_set_errno(ALLEGRO_FILE_PHYSFS *fp)
    al_set_errno(-1);
 
    if (fp) {
+      const char *msg = PHYSFS_getLastError();
       fp->error_indicator = true;
+      if (msg) {
+         strncpy(fp->error_msg, msg, sizeof(fp->error_msg));
+         fp->error_msg[sizeof(fp->error_msg) - 1] = '\0';
+      }
+      else {
+         fp->error_msg[0] = '\0';
+      }
    }
 }
 
@@ -88,6 +97,7 @@ static void *file_phys_fopen(const char *filename, const char *mode)
 
    fp->phys = phys;
    fp->error_indicator = false;
+   fp->error_msg[0] = '\0';
 
    return fp;
 }
@@ -212,11 +222,22 @@ static bool file_phys_feof(ALLEGRO_FILE *f)
 }
 
 
-static bool file_phys_ferror(ALLEGRO_FILE *f)
+static int file_phys_ferror(ALLEGRO_FILE *f)
 {
    ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
 
-   return fp->error_indicator;
+   return (fp->error_indicator) ? 1 : 0;
+}
+
+
+static const char *file_phys_ferrmsg(ALLEGRO_FILE *f)
+{
+   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
+
+   if (fp->error_indicator)
+      return fp->error_msg;
+   else
+      return "";
 }
 
 
@@ -256,6 +277,7 @@ static const ALLEGRO_FILE_INTERFACE file_phys_vtable =
    file_phys_seek,
    file_phys_feof,
    file_phys_ferror,
+   file_phys_ferrmsg,
    file_phys_fclearerr,
    NULL,  /* ungetc */
    file_phys_fsize

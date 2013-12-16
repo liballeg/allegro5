@@ -152,10 +152,16 @@ static bool slice_feof(ALLEGRO_FILE *f)
    return slice->pos >= slice->size;
 }
 
-static bool slice_ferror(ALLEGRO_FILE *f)
+static int slice_ferror(ALLEGRO_FILE *f)
 {
    SLICE_DATA *slice = al_get_file_userdata(f);
    return al_ferror(slice->fp);
+}
+
+static const char *slice_ferrmsg(ALLEGRO_FILE *f)
+{
+   SLICE_DATA *slice = al_get_file_userdata(f);
+   return al_ferrmsg(slice->fp);
 }
 
 static void slice_fclearerr(ALLEGRO_FILE *f)
@@ -181,6 +187,7 @@ static const ALLEGRO_FILE_INTERFACE fi =
    slice_fseek,
    slice_feof,
    slice_ferror,
+   slice_ferrmsg,
    slice_fclearerr,
    NULL,
    slice_fsize
