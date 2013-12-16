@@ -57,10 +57,16 @@ static jobject APK_openRead(const char *filename)
 }
 
 
-static void APK_close(jobject apk_stream)
+static bool APK_close(jobject apk_stream)
 {
-   _jni_callVoidMethod(_al_android_get_jnienv(), apk_stream, "close");
+   jboolean ret = _jni_callBooleanMethodV(_al_android_get_jnienv(), apk_stream,
+      "close", "()Z");
    _jni_callv(_al_android_get_jnienv(), DeleteLocalRef, apk_stream);
+
+   if (ret) {
+      apk_set_errno(NULL);
+   }
+   return ret;
 }
 
 
@@ -134,13 +140,16 @@ static void *file_apk_fopen(const char *filename, const char *mode)
 }
 
 
-static void file_apk_fclose(ALLEGRO_FILE *f)
+static bool file_apk_fclose(ALLEGRO_FILE *f)
 {
    ALLEGRO_FILE_APK *fp = cast_stream(f);
+   bool ret;
 
-   APK_close(fp->apk);
+   ret = APK_close(fp->apk);
 
    al_free(fp);
+
+   return ret;
 }
 
 

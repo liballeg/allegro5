@@ -64,14 +64,16 @@ class AllegroAPKStream
       return true;
    }
 
-   void close()
+   boolean close()
    {
       try {
          in.close();
          in = null;
+         return true;
       }
       catch (IOException e) {
          Log.d(TAG, "IOException in close");
+         return false;
       }
    }
 

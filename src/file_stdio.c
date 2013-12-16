@@ -130,12 +130,22 @@ static void *file_stdio_fopen(const char *path, const char *mode)
 }
 
 
-static void file_stdio_fclose(ALLEGRO_FILE *f)
+static bool file_stdio_fclose(ALLEGRO_FILE *f)
 {
    USERDATA *userdata = get_userdata(f);
+   bool ret;
 
-   fclose(userdata->fp);
+   if (fclose(userdata->fp) == 0) {
+      ret = true;
+   }
+   else {
+      al_set_errno(errno);
+      ret = false;
+   }
+
    al_free(userdata);
+
+   return ret;
 }
 
 

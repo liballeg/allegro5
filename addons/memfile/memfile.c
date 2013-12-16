@@ -13,9 +13,10 @@ struct ALLEGRO_FILE_MEMFILE {
    char *mem;
 };
 
-static void memfile_fclose(ALLEGRO_FILE *fp)
+static bool memfile_fclose(ALLEGRO_FILE *fp)
 {
    al_free(al_get_file_userdata(fp));
+   return true;
 }
 
 static size_t memfile_fread(ALLEGRO_FILE *fp, void *ptr, size_t size)

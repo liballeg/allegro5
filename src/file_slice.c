@@ -33,14 +33,17 @@ struct SLICE_DATA
    int mode;
 };
 
-static void slice_fclose(ALLEGRO_FILE *f)
+static bool slice_fclose(ALLEGRO_FILE *f)
 {
    SLICE_DATA *slice = al_get_file_userdata(f);
-   
+   bool ret;
+
    /* seek to end of slice */
-   al_fseek(slice->fp, slice->anchor + slice->size, ALLEGRO_SEEK_SET);
-   
+   ret = al_fseek(slice->fp, slice->anchor + slice->size, ALLEGRO_SEEK_SET);
+
    al_free(slice);
+
+   return ret;
 }
 
 static size_t slice_fread(ALLEGRO_FILE *f, void *ptr, size_t size)

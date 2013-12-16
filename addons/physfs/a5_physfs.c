@@ -103,13 +103,19 @@ static void *file_phys_fopen(const char *filename, const char *mode)
 }
 
 
-static void file_phys_fclose(ALLEGRO_FILE *f)
+static bool file_phys_fclose(ALLEGRO_FILE *f)
 {
    ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
-
-   PHYSFS_close(fp->phys);
+   PHYSFS_file *phys_fp = fp->phys;
 
    al_free(fp);
+
+   if (PHYSFS_close(phys_fp) != 0) {
+      al_set_errno(-1);
+      return false;
+   }
+
+   return true;
 }
 
 

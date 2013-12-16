@@ -83,12 +83,16 @@ ALLEGRO_FILE *al_create_file_handle(const ALLEGRO_FILE_INTERFACE *drv,
 
 /* Function: al_fclose
  */
-void al_fclose(ALLEGRO_FILE *f)
+bool al_fclose(ALLEGRO_FILE *f)
 {
    if (f) {
-      f->vtable->fi_fclose(f);
+      bool ret = f->vtable->fi_fclose(f);
       al_free(f);
+      return ret;
    }
+
+   al_set_errno(EINVAL);
+   return false;
 }
 
 

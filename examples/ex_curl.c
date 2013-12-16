@@ -140,7 +140,7 @@ static void *curl_file_fopen(const char *path, const char *mode)
 }
 
 
-static void curl_file_fclose(ALLEGRO_FILE *f)
+static bool curl_file_fclose(ALLEGRO_FILE *f)
 {
    CURL_FILE *cf = al_get_file_userdata(f);
 
@@ -149,6 +149,7 @@ static void curl_file_fclose(ALLEGRO_FILE *f)
    if (cf->buffer)
       free(cf->buffer);
    free(cf);
+   return true;
 }
 
 

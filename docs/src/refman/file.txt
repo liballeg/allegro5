@@ -17,7 +17,7 @@ real or virtual.  See the full discussion in [al_set_new_file_interface].
 The fields are:
 
     void*         (*fi_fopen)(const char *path, const char *mode);
-    void          (*fi_fclose)(ALLEGRO_FILE *f);
+    bool          (*fi_fclose)(ALLEGRO_FILE *f);
     size_t        (*fi_fread)(ALLEGRO_FILE *f, void *ptr, size_t size);
     size_t        (*fi_fwrite)(ALLEGRO_FILE *f, const void *ptr, size_t size);
     bool          (*fi_fflush)(ALLEGRO_FILE *f);
@@ -121,6 +121,9 @@ See also: [al_fopen]
 ## API: al_fclose
 
 Close the given file, writing any buffered output data (if any).
+
+Returns true on success, false on failure.
+errno is set to indicate the error.
 
 ## API: al_fread
 
