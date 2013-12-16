@@ -167,7 +167,7 @@ See also: [al_translate_transform], [al_rotate_transform], [al_scale_transform]
 ## API: al_build_transform
 
 Builds a transformation given some parameters. This call is equivalent to
-calling the transformations in this order: make identity, scale, rotate,
+calling the transformations in this order: make identity, rotate, scale,
 translate. This method is faster, however, than actually calling those
 functions.
 
@@ -177,6 +177,10 @@ functions.
 * x, y - Translation
 * sx, sy - Scale
 * theta - Rotation angle in radians
+
+> *Note*: this function was previously documented to be equivalent to a
+different (and more useful) order of operations: identity, scale, rotate,
+translate.
 
 See also: [al_translate_transform], [al_rotate_transform],
 [al_scale_transform], [al_compose_transform]
