@@ -260,16 +260,32 @@ static int file_stdio_ferror(ALLEGRO_FILE *f)
 static const char *file_stdio_ferrmsg(ALLEGRO_FILE *f)
 {
    USERDATA *userdata = get_userdata(f);
-   const char *msg;
 
    if (userdata->errnum == 0)
       return "";
-   /* XXX strerror is not thread-safe */
-   msg = strerror(userdata->errnum);
-   if (!msg)
-      return "";
-   _al_sane_strncpy(userdata->errmsg, msg, sizeof(userdata->errmsg));
-   return userdata->errmsg;
+
+   /* Note: at this time MinGW has neither strerror_r nor strerror_s. */
+#if defined(ALLEGRO_HAVE_STRERROR_R)
+   {
+      int rc = strerror_r(userdata->errnum, userdata->errmsg,
+         sizeof(userdata->errmsg));
+      if (rc == 0) {
+         return userdata->errmsg;
+      }
+   }
+#endif
+
+#if defined(ALLEGRO_HAVE_STRERROR_S)
+   {
+      errno_t rc = strerror_s(userdata->errmsg, sizeof(userdata->errmsg),
+         userdata->errnum);
+      if (rc == 0) {
+         return userdata->errmsg;
+      }
+   }
+#endif
+
+   return "";
 }
 
 

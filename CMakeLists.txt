@@ -449,6 +449,8 @@ check_function_exists(sched_yield ALLEGRO_HAVE_SCHED_YIELD)
 check_function_exists(sysconf ALLEGRO_HAVE_SYSCONF)
 check_function_exists(fseeko ALLEGRO_HAVE_FSEEKO)
 check_function_exists(ftello ALLEGRO_HAVE_FTELLO)
+check_function_exists(strerror_r ALLEGRO_HAVE_STRERROR_R)
+check_function_exists(strerror_s ALLEGRO_HAVE_STRERROR_S)
 
 check_type_size("_Bool" ALLEGRO_HAVE__BOOL)
 
