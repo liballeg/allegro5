@@ -125,8 +125,9 @@ static void read_test(void)
    if (sz != -1)
       CHECK(sz, int64_t, 0xab06);
 
-   /* XXX al_fclose should return error code */
-   al_fclose(f);
+   /* Test: close. */
+   SEP();
+   CHECK(al_fclose(f), bool, true);
 }
 
 int main(int argc, char *argv[])
