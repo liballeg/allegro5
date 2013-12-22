@@ -99,7 +99,7 @@ static void read_test(void)
    SEP();
    CHECK(al_fgetc(f), int, -1);
    CHECK(al_feof(f), bool, true);
-   CHECK(al_ferror(f), bool, false);
+   CHECK(al_ferror(f), int, 0);
 
    /* Test: seek clears EOF indicator. */
    SEP();
