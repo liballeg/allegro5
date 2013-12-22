@@ -1166,18 +1166,18 @@ ALLEGRO_BITMAP *_al_load_bmp(const char *filename, int flags)
 bool _al_save_bmp(const char *filename, ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_FILE *f;
-   bool ret;
+   bool retsave;
+   bool retclose;
    ASSERT(filename);
 
    f = al_fopen(filename, "wb");
    if (!f)
       return false;
 
-   ret = _al_save_bmp_f(f, bmp);
+   retsave = _al_save_bmp_f(f, bmp);
+   retclose = al_fclose(f);
 
-   al_fclose(f);
-
-   return ret;
+   return retsave && retclose;
 }
 
 /* vim: set sts=3 sw=3 et: */

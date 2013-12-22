@@ -560,7 +560,8 @@ bool _al_save_png_f(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
 bool _al_save_png(const char *filename, ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_FILE *fp;
-   bool result;
+   bool retsave;
+   bool retclose;
 
    ALLEGRO_ASSERT(filename);
    ALLEGRO_ASSERT(bmp);
@@ -571,10 +572,10 @@ bool _al_save_png(const char *filename, ALLEGRO_BITMAP *bmp)
       return false;
    }
 
-   result = _al_save_png_f(fp, bmp);
-   al_fclose(fp);
+   retsave = _al_save_png_f(fp, bmp);
+   retclose = al_fclose(fp);
 
-   return result;
+   return retsave && retclose;
 }
 
 /* vim: set sts=3 sw=3 et: */

@@ -562,18 +562,19 @@ ALLEGRO_BITMAP *_al_load_tga(const char *filename, int flags)
 bool _al_save_tga(const char *filename, ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_FILE *f;
-   bool ret;
+   bool retsave;
+   bool retclose;
    ASSERT(filename);
 
    f = al_fopen(filename, "wb");
    if (!f)
       return false;
 
-   ret = _al_save_tga_f(f, bmp);
+   retsave = _al_save_tga_f(f, bmp);
 
-   al_fclose(f);
+   retclose = al_fclose(f);
 
-   return ret;
+   return retsave && retclose;
 }
 
 

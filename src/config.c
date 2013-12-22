@@ -435,16 +435,15 @@ static bool config_write_section(ALLEGRO_FILE *file,
 bool al_save_config_file(const char *filename, const ALLEGRO_CONFIG *config)
 {
    ALLEGRO_FILE *file;
-   bool ret = false;
 
    file = al_fopen(filename, "w");
    if (file) {
-      ret = al_save_config_file_f(file, config);
-      /* XXX do we delete the incomplete file on error? I suppose not. */
-      al_fclose(file);
+      bool retsave = al_save_config_file_f(file, config);
+      bool retclose = al_fclose(file);
+      return retsave && retclose;
    }
 
-   return ret;
+   return false;
 }
 
 

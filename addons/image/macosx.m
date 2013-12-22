@@ -207,19 +207,20 @@ bool _al_osx_save_image_f(ALLEGRO_FILE *f, const char *ident, ALLEGRO_BITMAP *bm
 bool _al_osx_save_image(const char *filename, ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_FILE *fp;
-   bool ret = false;
+   bool retsave = false;
+   bool retclose = false;
 
    fp = al_fopen(filename, "wb");
    if (fp) {
       ALLEGRO_PATH *path = al_create_path(filename);
       if (path) {
-         ret = _al_osx_save_image_f(fp, al_get_path_extension(path), bmp);
+         retsave = _al_osx_save_image_f(fp, al_get_path_extension(path), bmp);
          al_destroy_path(path);
       }
-      al_fclose(fp);
+      retclose = al_fclose(fp);
    }
 
-   return ret;
+   return retsave && retclose;
 }
 
 

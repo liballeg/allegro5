@@ -395,9 +395,9 @@ bool _al_save_wav(const char *filename, ALLEGRO_SAMPLE *spl)
    ALLEGRO_FILE *pf = al_fopen(filename, "wb");
 
    if (pf) {
-      bool rv = _al_save_wav_f(pf, spl);
-      al_fclose(pf);
-      return rv;
+      bool rvsave = _al_save_wav_f(pf, spl);
+      bool rvclose = al_fclose(pf);
+      return rvsave && rvclose;
    }
 
    return false;   
