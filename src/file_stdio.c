@@ -72,25 +72,26 @@ ALLEGRO_FILE *al_fopen_fd(int fd, const char *mode)
    if (!userdata)
       return NULL;
 
-   /* The fd should remain open if this function fails in either way. */
-   fp = fdopen(fd, mode);
-   if (!fp) {
-      al_set_errno(errno);
-      al_free(userdata);
-      return NULL;
-   }
-
-   userdata->fp = fp;
+   /* The fd should remain open if this function fails in any way,
+    * so delay the fdopen() call to last.
+    */
+   userdata->fp = NULL;
    userdata->errnum = 0;
 
    f = al_create_file_handle(&_al_file_interface_stdio, userdata);
    if (!f) {
-      /* XXX should close the FILE without closing the fd */
-      al_set_errno(errno);
       al_free(userdata);
       return NULL;
    }
 
+   fp = fdopen(fd, mode);
+   if (!fp) {
+      al_set_errno(errno);
+      al_fclose(f);
+      return NULL;
+   }
+
+   userdata->fp = fp;
    return f;
 }
 
@@ -135,7 +136,11 @@ static bool file_stdio_fclose(ALLEGRO_FILE *f)
    USERDATA *userdata = get_userdata(f);
    bool ret;
 
-   if (fclose(userdata->fp) == 0) {
+   if (userdata->fp == NULL) {
+      /* This can happen in the middle of al_fopen_fd. */
+      ret = true;
+   }
+   else if (fclose(userdata->fp) == 0) {
       ret = true;
    }
    else {
