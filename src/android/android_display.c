@@ -616,8 +616,10 @@ static void android_destroy_display(ALLEGRO_DISPLAY *dpy)
 
 static bool android_set_current_display(ALLEGRO_DISPLAY *dpy)
 {
-   _al_android_clear_current(_al_android_get_jnienv(),
-      (ALLEGRO_DISPLAY_ANDROID *)al_get_current_display());
+   if (al_get_current_display() != NULL){
+     _al_android_clear_current(_al_android_get_jnienv(),
+        (ALLEGRO_DISPLAY_ANDROID *)al_get_current_display());
+   }
 
    ALLEGRO_DEBUG("make current %p", dpy);
    if (dpy) {
