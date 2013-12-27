@@ -28,6 +28,11 @@
 #endif
 #endif
 
+#ifdef ALLEGRO_MSVC
+   #include <windows.h>
+   #define PATH_MAX MAX_PATH
+#endif
+
 #include <stdio.h>
 
 #include "allegro5/internal/aintern.h"
