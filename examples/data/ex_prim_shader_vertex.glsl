@@ -1,4 +1,6 @@
+#ifdef GL_ES
 #version 100
+#endif
 attribute vec4 al_pos;
 attribute vec3 al_user_attr_0;
 

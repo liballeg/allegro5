@@ -1,5 +1,5 @@
-#version 100
 #ifdef GL_ES
+#version 100
 precision mediump float;
 #endif
 uniform sampler2D al_tex;
