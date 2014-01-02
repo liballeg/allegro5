@@ -28,11 +28,6 @@
 #endif
 #endif
 
-#ifdef ALLEGRO_MSVC
-   #include <windows.h>
-   #define PATH_MAX MAX_PATH
-#endif
-
 #include <stdio.h>
 
 #include "allegro5/internal/aintern.h"
@@ -404,20 +399,12 @@ static void mktemp_replace_XX(const char *template, char *dst)
 }
 
 
-/* Function: al_make_temp_file
- */
-ALLEGRO_FILE *al_make_temp_file(const char *template, ALLEGRO_PATH **ret_path)
+static ALLEGRO_FILE *make_temp_file(const char *template, char *temp_filename,
+   ALLEGRO_PATH *path)
 {
-   ALLEGRO_PATH *path;
    ALLEGRO_FILE *f;
-   char filename[PATH_MAX];
    int fd;
    int i;
-
-   path = al_get_standard_path(ALLEGRO_TEMP_PATH);
-   if (!path) {
-      return NULL;
-   }
 
    /* Note: the path should be absolute.  The user is likely to want to remove
     * the file later.  If we return a relative path, the user might change the
@@ -427,8 +414,8 @@ ALLEGRO_FILE *al_make_temp_file(const char *template, ALLEGRO_PATH **ret_path)
     */
 
    for (i=0; i<MAX_MKTEMP_TRIES; ++i) {
-      mktemp_replace_XX(template, filename);
-      al_set_path_filename(path, filename);
+      mktemp_replace_XX(template, temp_filename);
+      al_set_path_filename(path, temp_filename);
 
 #ifndef ALLEGRO_MSVC
       fd = open(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP),
@@ -444,7 +431,6 @@ ALLEGRO_FILE *al_make_temp_file(const char *template, ALLEGRO_PATH **ret_path)
 
    if (fd == -1) {
       al_set_errno(errno);
-      al_destroy_path(path);
       return NULL;
    }
 
@@ -453,11 +439,32 @@ ALLEGRO_FILE *al_make_temp_file(const char *template, ALLEGRO_PATH **ret_path)
       al_set_errno(errno);
       close(fd);
       unlink(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
-      al_destroy_path(path);
       return NULL;
    }
 
-   if (ret_path)
+   return f;
+}
+
+
+/* Function: al_make_temp_file
+ */
+ALLEGRO_FILE *al_make_temp_file(const char *template, ALLEGRO_PATH **ret_path)
+{
+   char *temp_filename;
+   ALLEGRO_PATH *path;
+   ALLEGRO_FILE *f;
+
+   temp_filename = al_malloc(strlen(template) + 1);
+   path = al_get_standard_path(ALLEGRO_TEMP_PATH);
+
+   if (temp_filename && path)
+      f = make_temp_file(template, temp_filename, path);
+   else
+      f = NULL;
+
+   al_free(temp_filename);
+
+   if (f && ret_path)
       *ret_path = path;
    else
       al_destroy_path(path);
