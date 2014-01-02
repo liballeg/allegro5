@@ -1306,6 +1306,16 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
          al_vertical_shear_transform(get_transform(V(0)), F(1));
          continue;
       }
+      if (SCAN("al_orthographic_transform", 7)) {
+         al_orthographic_transform(get_transform(V(0)), F(1), F(2), F(3), F(4), F(5), F(6));
+         continue;
+      }
+      if (SCAN("al_set_projection_transform", 1)) {
+         if (!display)
+            error("cannot call al_set_projection_transform without creating a display");
+         al_set_projection_transform(display, get_transform(V(0)));
+         continue;
+      }
 
       error("statement didn't scan: %s", stmt);
    }
