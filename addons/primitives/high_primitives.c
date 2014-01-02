@@ -52,11 +52,30 @@
 
 /*
  * Make an estimate of the scale of the current transformation. 
+ * We do this by computing the determinants of the 2D section of the transformation matrix.
  */
 static float get_scale(void)
 {
+#define DET2D(T) (fabs((T)->m[0][0] * (T)->m[1][1] - (T)->m[0][1] * (T)->m[1][0]))
+
    const ALLEGRO_TRANSFORM* t = al_get_current_transform();
-   return (hypotf(t->m[0][0], t->m[0][1]) + hypotf(t->m[1][0], t->m[1][1])) / 2;
+   float scale_sq = DET2D(t);
+   ALLEGRO_DISPLAY* d = al_get_current_display();
+   if (d) {
+      ALLEGRO_BITMAP* b = al_get_target_bitmap();
+      ALLEGRO_TRANSFORM* p = al_get_projection_transform(d);
+      /*
+       * Sub-bitmaps are wonky when it comes to this. Right now they grab the
+       * projection from the parent bitmap (e.g. see _al_ogl_set_target_bitmap).
+       */
+      if (al_is_sub_bitmap(b))
+         b = al_get_parent_bitmap(b);
+      /* Divide by 4.0f as the screen coordinates range from -1 to 1 on both axes. */
+      scale_sq *= DET2D(p) * al_get_bitmap_width(b) * al_get_bitmap_height(b) / 4.0f;
+   }
+   return sqrtf(scale_sq);
+
+#undef DET2D
 }
 
 /* Function: al_draw_line
