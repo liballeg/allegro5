@@ -184,16 +184,10 @@ endif()
 # It's used to resolve references across HTML pages.
 # The search_index.js file contains definitions for the autosuggest widget.
 
-if(PANDOC_STRIP_UNDERSCORES)
-    set(STRIP_UNDERSCORES "--strip-underscores")
-else()
-    set(STRIP_UNDERSCORES "")
-endif()
-
 add_custom_command(
     OUTPUT ${HTML_REFS}
     DEPENDS ${PAGES_TXT} make_html_refs
-    COMMAND ${MAKE_HTML_REFS} ${STRIP_UNDERSCORES} ${PAGES_TXT} > ${HTML_REFS}
+    COMMAND ${MAKE_HTML_REFS} ${PAGES_TXT} > ${HTML_REFS}
     )
 
 add_custom_command(
@@ -334,7 +328,7 @@ endif(WANT_DOCS_MAN)
 #
 #-----------------------------------------------------------------------------#
 
-if(WANT_DOCS_INFO AND PANDOC_WITH_TEXINFO AND MAKEINFO)
+if(WANT_DOCS_INFO AND MAKEINFO)
     make_directory(${INFO_DIR})
     make_directory(${TEXI_DIR})
 
@@ -361,9 +355,9 @@ if(WANT_DOCS_INFO AND PANDOC_WITH_TEXINFO AND MAKEINFO)
         )
 else()
     if(WANT_DOCS_INFO)
-        message("Info documentation requires Pandoc 1.1+ and makeinfo")
+        message("Info documentation requires makeinfo")
     endif(WANT_DOCS_INFO)
-endif(WANT_DOCS_INFO AND PANDOC_WITH_TEXINFO AND MAKEINFO)
+endif(WANT_DOCS_INFO AND MAKEINFO)
 
 #-----------------------------------------------------------------------------#
 #
@@ -372,11 +366,6 @@ endif(WANT_DOCS_INFO AND PANDOC_WITH_TEXINFO AND MAKEINFO)
 #-----------------------------------------------------------------------------#
 
 set(MAKE_PDF ${WANT_DOCS_PDF})
-
-if(WANT_DOCS_PDF AND NOT PANDOC_FOR_LATEX)
-    set(MAKE_PDF 0)
-    message("PDF generation requires pandoc 1.5+")
-endif()
 
 if(WANT_DOCS_PDF AND NOT PDFLATEX_COMPILER)
     set(MAKE_PDF 0)
