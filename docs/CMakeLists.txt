@@ -15,20 +15,21 @@ mark_as_advanced(CTAGS)
 
 #-----------------------------------------------------------------------------#
 
-# Pandoc < 1.0 is usable but doesn't have Texinfo support.
-if(PANDOC AND NOT DEFINED PANDOC_WITH_TEXINFO)
+# Pandoc 1.10 changed handling of internal cross-references in Texinfo writer,
+# and LaTeX writer thereabouts.
+if(PANDOC)
     message(STATUS "Checking Pandoc version")
     execute_process(
         COMMAND ${PANDOC} --version
         OUTPUT_VARIABLE PANDOC_VERSION_TEXT
         ERROR_VARIABLE PANDOC_VERSION_TEXT
         )
-    if(PANDOC_VERSION_TEXT MATCHES "pandoc [1-9]")
-        set(PANDOC_WITH_TEXINFO 1 CACHE BOOL "Pandoc supports Texinfo")
+    if(PANDOC_VERSION_TEXT MATCHES "pandoc (1[.]1[0-9]|1[.][2-9][0-9]|[2-9])")
+        # message(STATUS "Pandoc version is compatible")
     else()
-        set(PANDOC_WITH_TEXINFO 0 CACHE BOOL "Pandoc supports Texinfo")
+        message(STATUS "Pandoc version is incompatible")
+        set(PANDOC 0)
     endif()
-    mark_as_advanced(PANDOC_WITH_TEXINFO)
 endif()
 
 # Pandoc 1.2 and 1.2.1 accidentally changed the way it generates HTML

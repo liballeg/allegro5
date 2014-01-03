@@ -4,7 +4,6 @@
 
 static void preprocess(void);
 static void postprocess_latex(void);
-static void postprocess_texinfo(void);
 static void cat(void);
 static void print_sans_backslashes(const char *p);
 
@@ -27,8 +26,6 @@ void make_single_doc(int argc, char *argv[])
    d_open_input(tmp_pandoc_output);
    if (streq(to_format, "latex"))
       postprocess_latex();
-   else if (streq(to_format, "texinfo"))
-      postprocess_texinfo();
    else
       cat();
    d_close_input();
@@ -109,33 +106,6 @@ static void postprocess_latex(void)
          continue;
       }
 
-      /* Change cross references from:
-       *   \href{DUMMYREF}{foo\_bar\_baz}
-       * to:
-       *   \alref{foo_bar_baz}
-       */
-      while (d_match(line, "\\\\href\\{DUMMYREF\\}\\{([^}]*)\\}")) {
-         const char *ref = d_submatch(1);
-         d_printf("%s", d_before_match);
-         d_printf("\\alref{", ref);
-         print_sans_backslashes(ref);
-         d_printf("}");
-         d_assign(line, d_after_match);
-      }
-      d_print(line);
-   }
-}
-
-static void postprocess_texinfo(void)
-{
-   dstr line;
-
-   while (d_getline(line)) {
-      /* Replace dummy references by real references (see make_dummy_refs). */
-      while (d_match(line, "@uref\\{DUMMYREF,")) {
-         d_printf("%s@ref{", d_before_match);
-         d_assign(line, d_after_match);
-      }
       d_print(line);
    }
 }

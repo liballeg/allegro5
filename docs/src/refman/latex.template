@@ -101,14 +101,6 @@ $if(graphics)$
 $endif$
 \usepackage[breaklinks=true,unicode=true]{hyperref}
 
-%% Generate different types of cross-reference depending on whether the
-%% final output is designed to be printed, or read onscreen (with hyperlinks).
-$if(paperref)$
-\newcommand{\alref}[1]{\detokenize{#1}~(\ref{#1})}
-$else$
-\newcommand{\alref}[1]{\nameref{#1}}
-$endif$
-
 %% Nice coloured links.
 \usepackage{color}
 \definecolor{linkcolor}{rgb}{0.2,0.2,0.45}
