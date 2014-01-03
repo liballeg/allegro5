@@ -16,7 +16,8 @@ open.
 
 The mode can be any combination of "r" (readable) and "w" (writable).
 Regardless of the mode, the file always opens at position 0. The file size
-is fixed and cannot be expanded. 
+is fixed and cannot be expanded. The file is always read from/written to in
+binary mode, which means that no newline translation is performed.
 
 It should be closed with [al_fclose]. After the file is closed, you are
 responsible for freeing the memory (if needed).
