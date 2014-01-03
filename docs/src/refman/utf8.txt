@@ -154,7 +154,7 @@ valid while the [ALLEGRO_USTR] object is not modified and not destroyed.
 The pointer may be passed to functions expecting C-style strings,
 with the following caveats:
 
-* ALLEGRO_USTRs are allowed to contain embedded NUL ('\0') bytes.
+* ALLEGRO_USTRs are allowed to contain embedded NUL (`'\0'`) bytes.
   That means `al_ustr_size(u)` and `strlen(al_cstr(u))` may not agree.
 
 * An ALLEGRO_USTR may be created in such a way that it is not NUL terminated.
@@ -178,7 +178,7 @@ See also: [al_cstr], [al_cstr_dup]
 
 ### API: al_cstr_dup
 
-Create a NUL ('\0') terminated copy of the string.  Any embedded NUL
+Create a NUL (`'\0'`) terminated copy of the string.  Any embedded NUL
 bytes will still be presented in the returned string.
 The new string must eventually be freed with [al_free].
 
@@ -366,7 +366,7 @@ See also: [al_ustr_get_next]
 
 Insert `us2` into `us1` beginning at byte offset `pos`.  `pos` cannot be less
 than 0.  If `pos` is past the end of `us1` then the space between the end of
-the string and `pos` will be padded with NUL ('\0') bytes.
+the string and `pos` will be padded with NUL (`'\0'`) bytes.
 
 If required, use [al_ustr_offset] to find the byte offset for a given
 code point index.
@@ -386,7 +386,7 @@ See also: [al_ustr_insert], [al_ustr_insert_chr]
 
 Insert a code point into `us` beginning at byte offset `pos`.  `pos` cannot be
 less than 0. If `pos` is past the end of `us` then the space between the end of
-the string and `pos` will be padded with NUL ('\0') bytes.
+the string and `pos` will be padded with NUL (`'\0'`) bytes.
 
 Returns the number of bytes inserted, or 0 on error.
 
@@ -541,7 +541,7 @@ See also: [al_ustr_assign_substr], [al_ustr_assign_cstr]
 
 Replace the code point beginning at byte offset `pos` with `c`.
 `pos` cannot be less than 0.  If `pos` is past the end of `us1` then the space
-between the end of the string and `pos` will be padded with NUL ('\0') bytes.
+between the end of the string and `pos` will be padded with NUL (`'\0'`) bytes.
 If `pos` is not the start of a valid code point, that is an error and
 the string will be unmodified.
 
@@ -555,7 +555,7 @@ See also: [al_ustr_replace_range]
 Replace the part of `us1` in the byte interval \[start_pos, end_pos) with the
 contents of `us2`.  `start_pos` cannot be less than 0.  If `start_pos` is past
 the end of `us1` then the space between the end of the string and `start_pos`
-will be padded with NUL ('\0') bytes.
+will be padded with NUL (`'\0'`) bytes.
 
 Use [al_ustr_offset] to find the byte offsets.
 
