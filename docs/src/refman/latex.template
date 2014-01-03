@@ -99,7 +99,7 @@ $if(graphics)$
 \let\Oldincludegraphics\includegraphics
 \renewcommand{\includegraphics}[1]{\Oldincludegraphics[width=\maxwidth]{#1}}
 $endif$
-\usepackage[breaklinks=true,unicode=true,hyperref]{hyperref}
+\usepackage[breaklinks=true,unicode=true]{hyperref}
 
 %% Generate different types of cross-reference depending on whether the
 %% final output is designed to be printed, or read onscreen (with hyperlinks).
