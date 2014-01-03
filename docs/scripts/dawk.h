@@ -10,9 +10,6 @@
 #endif
 #include <stdio.h>
 
-/* One line of the TexInfo output is nearly this long as it doesn't perform
- * word wrapping.
- */
 #define MAX_STRING   3000
 #define MAX_MATCH    8
 

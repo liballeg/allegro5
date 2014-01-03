@@ -49,6 +49,8 @@ foreach(page ${PAGES})
     list(APPEND PAGES_TXT ${SRC_REFMAN_DIR}/${page}.txt)
 endforeach(page)
 
+set(TITLE_TXT ${SRC_REFMAN_DIR}/title.txt)
+
 set(IMAGES
     primitives1
     primitives2
@@ -72,8 +74,6 @@ set(PROTOS ${CMAKE_CURRENT_BINARY_DIR}/protos)
 set(PROTOS_TIMESTAMP ${PROTOS}.timestamp)
 set(HTML_REFS ${CMAKE_CURRENT_BINARY_DIR}/html_refs)
 set(HTML_REFS_TIMESTAMP ${HTML_REFS}.timestamp)
-set(DUMMY_REFS ${CMAKE_CURRENT_BINARY_DIR}/dummy_refs)
-set(DUMMY_REFS_TIMESTAMP ${DUMMY_REFS}.timestamp)
 set(INDEX_ALL ${CMAKE_CURRENT_BINARY_DIR}/index_all.txt)
 set(SEARCH_INDEX_JS ${HTML_DIR}/search_index.js)
 
@@ -81,7 +81,6 @@ set(SCRIPT_DIR ${CMAKE_SOURCE_DIR}/docs/scripts)
 set(MAKE_PROTOS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/make_protos)
 set(MAKE_HTML_REFS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/make_html_refs)
 set(MAKE_INDEX ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/make_index)
-set(MAKE_DUMMY_REFS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/make_dummy_refs)
 set(MAKE_DOC ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/make_doc --protos ${PROTOS})
 set(INSERT_TIMESTAMP ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/insert_timestamp)
 set(MAKE_SEARCH_INDEX ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/make_search_index)
@@ -90,7 +89,6 @@ set(DAWK_SOURCES scripts/aatree.c scripts/dawk.c scripts/trex.c)
 
 add_executable(make_protos scripts/make_protos.c ${DAWK_SOURCES})
 add_executable(make_html_refs scripts/make_html_refs.c ${DAWK_SOURCES})
-add_executable(make_dummy_refs scripts/make_dummy_refs.c ${DAWK_SOURCES})
 add_executable(make_index scripts/make_index.c ${DAWK_SOURCES})
 add_executable(make_doc
     scripts/make_doc.c
@@ -330,21 +328,6 @@ endif(WANT_DOCS_MAN)
 #
 #-----------------------------------------------------------------------------#
 
-add_custom_command(
-    OUTPUT ${DUMMY_REFS}
-    DEPENDS ${PAGES_TXT} make_dummy_refs
-    COMMAND ${MAKE_DUMMY_REFS} ${PAGES_TXT} > ${DUMMY_REFS}
-    )
-
-add_custom_command(
-    OUTPUT ${DUMMY_REFS_TIMESTAMP}
-    DEPENDS ${DUMMY_REFS}
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${DUMMY_REFS} ${DUMMY_REFS_TIMESTAMP}
-    )
-
-add_custom_target(gen_dummy_refs DEPENDS ${DUMMY_REFS})
-
 if(WANT_DOCS_INFO AND PANDOC_WITH_TEXINFO AND MAKEINFO)
     make_directory(${INFO_DIR})
     make_directory(${TEXI_DIR})
@@ -361,14 +344,13 @@ if(WANT_DOCS_INFO AND PANDOC_WITH_TEXINFO AND MAKEINFO)
         )
     add_custom_command(
         OUTPUT ${TEXI_DIR}/refman.texi
-        DEPENDS ${PROTOS_TIMESTAMP} ${DUMMY_REFS_TIMESTAMP} ${PAGES_TXT}
+        DEPENDS ${PROTOS_TIMESTAMP} ${TITLE_TXT} ${PAGES_TXT}
                 make_doc
         COMMAND ${MAKE_DOC}
                 --to texinfo
                 --standalone
                 --
-                ${DUMMY_REFS}
-                ${PAGES_TXT}
+                ${TITLE_TXT} ${PAGES_TXT}
                 > ${TEXI_DIR}/refman.texi
         )
 else()
@@ -396,29 +378,23 @@ if(WANT_DOCS_PDF AND NOT PDFLATEX_COMPILER)
 endif()
 
 if(MAKE_PDF)
-    if(WANT_DOCS_PDF_PAPER)
-        set(paperref 1)
-    else()
-        set(paperref)
-    endif()
-
     make_directory(${LATEX_DIR})
     add_custom_target(latex ALL DEPENDS ${LATEX_DIR}/refman.tex)
     add_custom_command(
         OUTPUT ${LATEX_DIR}/refman.tex
         DEPENDS ${PROTOS_TIMESTAMP}
-                ${DUMMY_REFS_TIMESTAMP}
+                ${TITLE_TXT}
                 ${PAGES_TXT}
                 ${SRC_REFMAN_DIR}/latex.template
                 make_doc
         COMMAND ${MAKE_DOC}
                 --to latex
+                --chapters
                 --template ${SRC_REFMAN_DIR}/latex.template
-                -V paperref=${paperref}
                 --standalone
                 --toc
                 --number-sections
-                -- ${DUMMY_REFS} ${PAGES_TXT}
+                -- ${TITLE_TXT} ${PAGES_TXT}
                 > ${LATEX_DIR}/refman.tex
         )
     set(PDF_IMAGES)
