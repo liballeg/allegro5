@@ -36,6 +36,9 @@ To remember and restore another file I/O backend, you can use
 [al_set_new_file_interface] and [al_set_standard_file_interface]
 which only alter the current [ALLEGRO_FILE_INTERFACE].
 
+> *Note:* PhysFS does not support the text-mode reading and writing, which means
+that Windows-style newlines will not be preserved.
+
 See also: [al_set_new_file_interface].
 
 ## API: al_get_allegro_physfs_version
