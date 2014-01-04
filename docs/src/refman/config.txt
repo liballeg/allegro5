@@ -2,8 +2,10 @@
 
 These functions are declared in the main Allegro header file:
 
-    #include <allegro5/allegro.h>
-    
+~~~~c
+ #include <allegro5/allegro.h>
+~~~~
+
 Allegro supports reading and writing of configuration files with a
 simple, INI file-like format. 
 
@@ -29,24 +31,27 @@ declarations belong to the global section. Sections do not nest.
 
 Here is an example configuration file:
 
-    # Monster description
-    monster name = Allegro Developer
+~~~~ini
+# Monster description
+monster name = Allegro Developer
 
-    [weapon 0]
-    damage = 443
-    
-    [weapon 1]
-    damage = 503
+[weapon 0]
+damage = 443
+
+[weapon 1]
+damage = 503
+~~~~
 
 It can then be accessed like this (make sure to check for errors in
 an actual program):
 
-    ALLEGRO_CONFIG* cfg = al_load_config_file("test.cfg");
-    printf("%s\n", al_get_config_value(cfg, "", "monster name")); /* Prints: Allegro Developer */
-    printf("%s\n", al_get_config_value(cfg, "weapon 0", "damage")); /* Prints: 443 */
-    printf("%s\n", al_get_config_value(cfg, "weapon 1", "damage")); /* Prints: 503 */
-    al_destroy_config(cfg);
-
+~~~~c
+ALLEGRO_CONFIG* cfg = al_load_config_file("test.cfg");
+printf("%s\n", al_get_config_value(cfg, "", "monster name")); /* Prints: Allegro Developer */
+printf("%s\n", al_get_config_value(cfg, "weapon 0", "damage")); /* Prints: 443 */
+printf("%s\n", al_get_config_value(cfg, "weapon 1", "damage")); /* Prints: 503 */
+al_destroy_config(cfg);
+~~~~
 
 ## API: ALLEGRO_CONFIG
 

@@ -2,7 +2,9 @@
 
 These functions are declared in the main Allegro header file:
 
-    #include <allegro5/allegro.h>
+~~~~c
+ #include <allegro5/allegro.h>
+~~~~
 
 ## API: ALLEGRO_MOUSE_STATE
 
@@ -59,19 +61,21 @@ is called into the given structure.
 
 Example:
 
-    ALLEGRO_MOUSE_STATE state;
+~~~~c
+ALLEGRO_MOUSE_STATE state;
 
-    al_get_mouse_state(&state);
-    if (state.buttons & 1) {
-        /* Primary (e.g. left) mouse button is held. */
-        printf("Mouse position: (%d, %d)\n", state.x, state.y);
-    }
-    if (state.buttons & 2) {
-        /* Secondary (e.g. right) mouse button is held. */
-    }
-    if (state.buttons & 4) {
-        /* Tertiary (e.g. middle) mouse button is held. */
-    }
+al_get_mouse_state(&state);
+if (state.buttons & 1) {
+    /* Primary (e.g. left) mouse button is held. */
+    printf("Mouse position: (%d, %d)\n", state.x, state.y);
+}
+if (state.buttons & 2) {
+    /* Secondary (e.g. right) mouse button is held. */
+}
+if (state.buttons & 4) {
+    /* Tertiary (e.g. middle) mouse button is held. */
+}
+~~~~
 
 See also: [ALLEGRO_MOUSE_STATE], [al_get_mouse_state_axis],
 [al_mouse_button_down]

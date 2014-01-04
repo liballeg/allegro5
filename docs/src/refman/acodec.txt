@@ -3,7 +3,9 @@
 These functions are declared in the following header file.
 Link with allegro_acodec.
 
-    #include <allegro5/allegro_acodec.h>
+~~~~c
+ #include <allegro5/allegro_acodec.h>
+~~~~
 
 ## API: al_init_acodec_addon
 

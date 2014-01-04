@@ -4,7 +4,9 @@
 
 These functions are declared in the following header file:
 
-    #include <allegro5/allegro_windows.h>
+~~~~c
+ #include <allegro5/allegro_windows.h>
+~~~~
 
 ### API: al_get_win_window_handle
 
@@ -14,7 +16,9 @@ Returns the handle to the window that the passed display is using.
 
 These functions are declared in the following header file:
 
-    #include <allegro5/allegro_osx.h>
+~~~~c
+ #include <allegro5/allegro_osx.h>
+~~~~
 
 ### API: al_osx_get_window
 
@@ -26,7 +30,9 @@ Since: 5.0.8, 5.1.3
 
 These functions are declared in the following header file:
 
-    #include <allegro5/allegro_iphone.h>
+~~~~c
+ #include <allegro5/allegro_iphone.h>
+~~~~
 
 ### API: al_iphone_program_has_halted
 

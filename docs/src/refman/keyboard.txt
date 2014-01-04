@@ -2,7 +2,9 @@
 
 These functions are declared in the main Allegro header file:
 
-    #include <allegro5/allegro.h>
+~~~~c
+ #include <allegro5/allegro.h>
+~~~~
 
 ## API: ALLEGRO_KEYBOARD_STATE
 
@@ -23,9 +25,11 @@ The constant ALLEGRO_KEY_MAX is always one higher than
 the highest key code. So if you want to use the key code as array index
 you can do something like this:
 
-    bool pressed_keys[ALLEGRO_KEY_MAX];
-    ...
-    pressed_keys[key_code] = true;
+~~~~c
+bool pressed_keys[ALLEGRO_KEY_MAX];
+//...
+pressed_keys[key_code] = true;
+~~~~
 
 These are the list of key codes used by Allegro, which are returned in
 the event.keyboard.keycode field of the ALLEGRO_KEY_DOWN and

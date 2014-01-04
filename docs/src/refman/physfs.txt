@@ -16,7 +16,9 @@ then [al_fopen] or another function that calls [al_fopen].
 These functions are declared in the following header file.
 Link with allegro_physfs.
 
-    #include <allegro5/allegro_physfs.h>
+~~~~c
+ #include <allegro5/allegro_physfs.h>
+~~~~
 
 ## API: al_set_physfs_file_interface
 

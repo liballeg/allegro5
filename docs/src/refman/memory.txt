@@ -2,7 +2,9 @@
 
 These functions are declared in the main Allegro header file:
 
-    #include <allegro5/allegro.h>
+~~~~c
+ #include <allegro5/allegro.h>
+~~~~
 
 ## API: al_malloc
 
@@ -77,12 +79,14 @@ Generally you should use the [al_calloc] macro.
 
 This structure has the following fields.
 
-    void *(*mi_malloc)(size_t n, int line, const char *file, const char *func);
-    void (*mi_free)(void *ptr, int line, const char *file, const char *func);
-    void *(*mi_realloc)(void *ptr, size_t n, int line, const char *file,
-                        const char *func);
-    void *(*mi_calloc)(size_t count, size_t n, int line, const char *file,
-                       const char *func);
+~~~~c
+void *(*mi_malloc)(size_t n, int line, const char *file, const char *func);
+void (*mi_free)(void *ptr, int line, const char *file, const char *func);
+void *(*mi_realloc)(void *ptr, size_t n, int line, const char *file,
+                    const char *func);
+void *(*mi_calloc)(size_t count, size_t n, int line, const char *file,
+                   const char *func);
+~~~~
 
 See also: [al_set_memory_interface]
 

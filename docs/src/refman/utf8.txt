@@ -2,7 +2,9 @@
 
 These functions are declared in the main Allegro header file:
 
-    #include <allegro5/allegro.h>
+~~~~c
+ #include <allegro5/allegro.h>
+~~~~
 
 ## About UTF-8 string routines
 
@@ -229,8 +231,10 @@ The string is valid until the underlying C string disappears.
 
 Example:
 
-    ALLEGRO_USTR_INFO info;
-    ALLEGRO_USTR *us = al_ref_cstr(&info, "my string");
+~~~~c
+ALLEGRO_USTR_INFO info;
+ALLEGRO_USTR *us = al_ref_cstr(&info, "my string");
+~~~~
 
 See also: [al_ref_buffer], [al_ref_ustr]
 
@@ -403,8 +407,10 @@ Returns true on success, false on error.
 
 This function can be used to append an arbitrary buffer:
 
-    ALLEGRO_USTR_INFO info;
-    al_ustr_append(us, al_ref_buffer(&info, buf, size));
+~~~~c
+  ALLEGRO_USTR_INFO info;
+  al_ustr_append(us, al_ref_buffer(&info, buf, size));
+~~~~
 
 See also: [al_ustr_append_cstr], [al_ustr_append_chr], [al_ustr_appendf],
 [al_ustr_vappendf]

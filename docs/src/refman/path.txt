@@ -2,7 +2,9 @@
 
 These functions are declared in the main Allegro header file:
 
-    #include <allegro5/allegro.h>
+~~~~c
+ #include <allegro5/allegro.h>
+~~~~
 
 We define a path as an optional *drive*, followed by zero or more *directory
 components*, followed by an optional *filename*.  The filename may be broken

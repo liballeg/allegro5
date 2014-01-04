@@ -3,7 +3,9 @@
 These functions are declared in the following header file.
 Link with allegro_color.
 
-    #include <allegro5/allegro_color.h>
+~~~~c
+ #include <allegro5/allegro_color.h>
+~~~~
 
 ## API: al_color_cmyk
 
@@ -93,8 +95,10 @@ Parameters:
 
 Example:
 
-    char html[8];
-    al_color_rgb_to_html(1, 0, 0, html);
+~~~~c
+char html[8];
+al_color_rgb_to_html(1, 0, 0, html);
+~~~~
 
 Now html will contain "#ff0000".
 

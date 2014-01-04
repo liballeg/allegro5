@@ -2,7 +2,9 @@
 
 These functions are declared in the main Allegro header file:
 
-    #include <allegro5/allegro.h>
+~~~~c
+ #include <allegro5/allegro.h>
+~~~~
 
 ## API: ALLEGRO_TIMER
 
@@ -83,7 +85,9 @@ See also: [al_get_timer_count], [al_add_timer_count]
 
 Add *diff* to the timer's counter value.  This is similar to writing:
 
-    al_set_timer_count(timer, al_get_timer_count(timer) + diff);
+~~~~c
+al_set_timer_count(timer, al_get_timer_count(timer) + diff);
+~~~~
 
 except that the addition is performed atomically, so no ticks will be lost.
 

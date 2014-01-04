@@ -2,19 +2,23 @@
 
 These functions are declared in the main Allegro header file:
 
-    #include <allegro5/allegro.h>
+~~~~c
+ #include <allegro5/allegro.h>
+~~~~
 
 ## API: ALLEGRO_DISPLAY_MODE
 
 Used for fullscreen mode queries. Contains information
 about a supported fullscreen modes.
 
-    typedef struct ALLEGRO_DISPLAY_MODE {
-       int width;          // Screen width
-       int height;         // Screen height
-       int format;         // The pixel format of the mode
-       int refresh_rate;   // The refresh rate of the mode
-    } ALLEGRO_DISPLAY_MODE;
+~~~~c
+typedef struct ALLEGRO_DISPLAY_MODE {
+   int width;          // Screen width
+   int height;         // Screen height
+   int format;         // The pixel format of the mode
+   int refresh_rate;   // The refresh rate of the mode
+} ALLEGRO_DISPLAY_MODE;
+~~~~
 
 The `refresh_rate` may be zero if unknown.
 

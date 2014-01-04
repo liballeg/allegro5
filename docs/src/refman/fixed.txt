@@ -2,7 +2,9 @@
 
 These functions are declared in the main Allegro header file:
 
-    #include <allegro5/allegro.h>
+~~~~c
+ #include <allegro5/allegro.h>
+~~~~
 
 ## API: al_fixed
 
@@ -40,17 +42,17 @@ even in debug builds! The values simply "wrap around".
 
 Example:
 
-~~~~
-    al_fixed number;
+~~~~c
+al_fixed number;
 
-    /* This conversion is OK. */
-    number = al_itofix(100);
-    assert(al_fixtoi(number) == 100);
+/* This conversion is OK. */
+number = al_itofix(100);
+assert(al_fixtoi(number) == 100);
 
-    number = al_itofix(64000);
+number = al_itofix(64000);
 
-    /* This check will fail in debug builds. */
-    assert(al_fixtoi(number) == 64000);
+/* This check will fail in debug builds. */
+assert(al_fixtoi(number) == 64000);
 ~~~~
 
 Return value:
@@ -64,14 +66,14 @@ Converts fixed point to integer, rounding as required to the nearest integer.
 
 Example:
 
-~~~~
-    int result;
+~~~~c
+int result;
 
-    /* This will put 33 into `result'. */
-    result = al_fixtoi(al_itofix(100) / 3);
+/* This will put 33 into `result'. */
+result = al_fixtoi(al_itofix(100) / 3);
 
-    /* But this will round up to 17. */
-    result = al_fixtoi(al_itofix(100) / 6);
+/* But this will round up to 17. */
+result = al_fixtoi(al_itofix(100) / 6);
 ~~~~
 
 See also: [al_itofix], [al_ftofix], [al_fixtof], [al_fixfloor], [al_fixceil].
@@ -83,14 +85,14 @@ negative infinity.
 
 Example:
 
-~~~~
-    int result;
+~~~~c
+int result;
 
-    /* This will put 33 into `result'. */
-    result = al_fixfloor(al_itofix(100) / 3);
+/* This will put 33 into `result'. */
+result = al_fixfloor(al_itofix(100) / 3);
 
-    /* And this will round down to 16. */
-    result = al_fixfloor(al_itofix(100) / 6);
+/* And this will round down to 16. */
+result = al_fixfloor(al_itofix(100) / 6);
 ~~~~
 
 See also: [al_fixtoi], [al_fixceil].
@@ -102,14 +104,14 @@ positive infinity.
 
 Example:
 
-~~~~
-    int result;
+~~~~c
+int result;
 
-    /* This will put 34 into `result'. */
-    result = al_fixceil(al_itofix(100) / 3);
+/* This will put 34 into `result'. */
+result = al_fixceil(al_itofix(100) / 3);
 
-    /* This will round up to 17. */
-    result = al_fixceil(al_itofix(100) / 6);
+/* This will round up to 17. */
+result = al_fixceil(al_itofix(100) / 6);
 ~~~~
 
 See also: [al_fixtoi], [al_fixfloor].
@@ -122,15 +124,15 @@ Allegro's errno to ERANGE in the process if this happens.
 
 Example:
 
-~~~~
-    al_fixed number;
+~~~~c
+al_fixed number;
 
-    number = al_itofix(-40000);
-    assert(al_fixfloor(number) == -32768);
+number = al_itofix(-40000);
+assert(al_fixfloor(number) == -32768);
 
-    number = al_itofix(64000);
-    assert(al_fixfloor(number) == 32767);
-    assert(!al_get_errno()); /* This will fail. */
+number = al_itofix(64000);
+assert(al_fixfloor(number) == 32767);
+assert(!al_get_errno()); /* This will fail. */
 ~~~~
 
 Return value:
@@ -145,14 +147,14 @@ Converts fixed point to floating point.
 
 Example:
 
-~~~~
-    float result;
+~~~~c
+float result;
 
-    /* This will put 33.33333 into `result'. */
-    result = al_fixtof(al_itofix(100) / 3);
+/* This will put 33.33333 into `result'. */
+result = al_fixtof(al_itofix(100) / 3);
 
-    /* This will put 16.66666 into `result'. */
-    result = al_fixtof(al_itofix(100) / 6);
+/* This will put 16.66666 into `result'. */
+result = al_fixtof(al_itofix(100) / 6);
 ~~~~
 
 See also: [al_ftofix], [al_itofix], [al_fixtoi].
@@ -170,15 +172,15 @@ call `al_set_errno(0)` before calling [al_fixmul].
 
 Example:
 
-~~~~
-    al_fixed result;
+~~~~c
+al_fixed result;
 
-    /* This will put 30000 into `result'. */
-    result = al_fixmul(al_itofix(10), al_itofix(3000));
+/* This will put 30000 into `result'. */
+result = al_fixmul(al_itofix(10), al_itofix(3000));
 
-    /* But this overflows, and sets errno. */
-    result = al_fixmul(al_itofix(100), al_itofix(3000));
-    assert(!al_get_errno());
+/* But this overflows, and sets errno. */
+result = al_fixmul(al_itofix(100), al_itofix(3000));
+assert(!al_get_errno());
 ~~~~
 
 Return value:
@@ -199,18 +201,18 @@ division by zero you should call `al_set_errno(0)` before calling
 
 Example:
 
-~~~~
-    al_fixed result;
+~~~~c
+al_fixed result;
 
-    /* This will put 0.06060 `result'. */
-    result = al_fixdiv(al_itofix(2), al_itofix(33));
+/* This will put 0.06060 `result'. */
+result = al_fixdiv(al_itofix(2), al_itofix(33));
 
-    /* This will put 0 into `result'. */
-    result = al_fixdiv(0, al_itofix(-30));
+/* This will put 0 into `result'. */
+result = al_fixdiv(0, al_itofix(-30));
 
-    /* Sets errno and puts -32768 into `result'. */
-    result = al_fixdiv(al_itofix(-100), al_itofix(0));
-    assert(!al_get_errno()); /* This will fail. */
+/* Sets errno and puts -32768 into `result'. */
+result = al_fixdiv(al_itofix(-100), al_itofix(0));
+assert(!al_get_errno()); /* This will fail. */
 ~~~~
 
 Return value:
@@ -229,15 +231,15 @@ clamp the result, rather than just letting it wrap.
 
 Example:
 
-~~~~
-    al_fixed result;
+~~~~c
+al_fixed result;
 
-    /* This will put 5035 into `result'. */
-    result = al_fixadd(al_itofix(5000), al_itofix(35));
+/* This will put 5035 into `result'. */
+result = al_fixadd(al_itofix(5000), al_itofix(35));
 
-    /* Sets errno and puts -32768 into `result'. */
-    result = al_fixadd(al_itofix(-31000), al_itofix(-3000));
-    assert(!al_get_errno()); /* This will fail. */
+/* Sets errno and puts -32768 into `result'. */
+result = al_fixadd(al_itofix(-31000), al_itofix(-3000));
+assert(!al_get_errno()); /* This will fail. */
 ~~~~
 
 Return value:
@@ -256,15 +258,15 @@ and clamp the result, rather than just letting it wrap.
 
 Example:
 
-~~~~
-    al_fixed result;
+~~~~c
+al_fixed result;
 
-    /* This will put 4965 into `result'. */
-    result = al_fixsub(al_itofix(5000), al_itofix(35));
+/* This will put 4965 into `result'. */
+result = al_fixsub(al_itofix(5000), al_itofix(35));
 
-    /* Sets errno and puts -32768 into `result'. */
-    result = al_fixsub(al_itofix(-31000), al_itofix(3000));
-    assert(!al_get_errno()); /* This will fail. */
+/* Sets errno and puts -32768 into `result'. */
+result = al_fixsub(al_itofix(-31000), al_itofix(3000));
+assert(!al_get_errno()); /* This will fail. */
 ~~~~
 
 Return value:
@@ -294,14 +296,14 @@ in binary angle format to a fixed point number in radians.
 
 Example:
 
-~~~~
-    al_fixed rad_angle, binary_angle;
+~~~~c
+al_fixed rad_angle, binary_angle;
 
-    /* Set the binary angle to 90 degrees. */
-    binary_angle = 64;
+/* Set the binary angle to 90 degrees. */
+binary_angle = 64;
 
-    /* Now convert to radians (about 1.57). */
-    rad_angle = al_fixmul(binary_angle, al_fixtorad_r);
+/* Now convert to radians (about 1.57). */
+rad_angle = al_fixmul(binary_angle, al_fixtorad_r);
 ~~~~
 
 See also: [al_fixmul], [al_radtofix_r].
@@ -328,16 +330,16 @@ must be a fixed point binary angle.
 
 Example:
 
-~~~~
-    al_fixed angle;
-    int result;
+~~~~c
+al_fixed angle;
+int result;
 
-    /* Set the binary angle to 90 degrees. */
-    angle = al_itofix(64);
+/* Set the binary angle to 90 degrees. */
+angle = al_itofix(64);
 
-    /* The sine of 90 degrees is one. */
-    result = al_fixtoi(al_fixsin(angle));
-    assert(result == 1);
+/* The sine of 90 degrees is one. */
+result = al_fixtoi(al_fixsin(angle));
+assert(result == 1);
 ~~~~
 
 Return value:
@@ -351,16 +353,16 @@ value must be a fixed point binary angle.
 
 Example:
 
-~~~~
-    al_fixed angle;
-    float result;
+~~~~c
+al_fixed angle;
+float result;
 
-    /* Set the binary angle to 45 degrees. */
-    angle = al_itofix(32);
+/* Set the binary angle to 45 degrees. */
+angle = al_itofix(32);
 
-    /* The cosine of 45 degrees is about 0.7071. */
-    result = al_fixtof(al_fixcos(angle));
-    assert(result > 0.7 && result < 0.71);
+/* The cosine of 45 degrees is about 0.7071. */
+result = al_fixtof(al_fixcos(angle));
+assert(result > 0.7 && result < 0.71);
 ~~~~
 
 Return value:
@@ -374,16 +376,16 @@ value must be a fixed point binary angle.
 
 Example:
 
-~~~~
-    al_fixed angle, res_a, res_b;
-    float dif;
+~~~~c
+al_fixed angle, res_a, res_b;
+float dif;
 
-    angle = al_itofix(37);
-    /* Prove that tan(angle) == sin(angle) / cos(angle). */
-    res_a = al_fixdiv(al_fixsin(angle), al_fixcos(angle));
-    res_b = al_fixtan(angle);
-    dif = al_fixtof(al_fixsub(res_a, res_b));
-    printf("Precision error: %f\n", dif);
+angle = al_itofix(37);
+/* Prove that tan(angle) == sin(angle) / cos(angle). */
+res_a = al_fixdiv(al_fixsin(angle), al_fixcos(angle));
+res_b = al_fixtan(angle);
+dif = al_fixtof(al_fixsub(res_a, res_b));
+printf("Precision error: %f\n", dif);
 ~~~~
 
 Return value:
@@ -399,19 +401,19 @@ set Allegro's errno to EDOM and return zero.
 
 Example:
 
-~~~~
-    float angle;
-    al_fixed val;
+~~~~c
+float angle;
+al_fixed val;
 
-    /* Sets `val' to a right binary angle (64). */
-    val = al_fixasin(al_itofix(1));
+/* Sets `val' to a right binary angle (64). */
+val = al_fixasin(al_itofix(1));
 
-    /* Sets `angle' to 0.2405. */
-    angle = al_fixtof(al_fixmul(al_fixasin(al_ftofix(0.238)), al_fixtorad_r));
+/* Sets `angle' to 0.2405. */
+angle = al_fixtof(al_fixmul(al_fixasin(al_ftofix(0.238)), al_fixtorad_r));
 
-    /* This will trigger the assert. */
-    val = al_fixasin(al_ftofix(-1.09));
-    assert(!al_get_errno());
+/* This will trigger the assert. */
+val = al_fixasin(al_ftofix(-1.09));
+assert(!al_get_errno());
 ~~~~
 
 Return value:
@@ -428,11 +430,11 @@ set Allegro's errno to EDOM and return zero.
 
 Example:
 
-~~~~
-    al_fixed result;
+~~~~c
+al_fixed result;
 
-    /* Sets result to binary angle 128. */
-    result = al_fixacos(al_itofix(-1));
+/* Sets result to binary angle 128. */
+result = al_fixacos(al_itofix(-1));
 ~~~~
 
 Return value:
@@ -448,11 +450,11 @@ whose tangent is `x`.
 
 Example:
 
-~~~~
-    al_fixed result;
+~~~~c
+al_fixed result;
 
-    /* Sets result to binary angle 13. */
-    result = al_fixatan(al_ftofix(0.326));
+/* Sets result to binary angle 13. */
+result = al_fixatan(al_ftofix(0.326));
 ~~~~
 
 Return value:
@@ -468,18 +470,18 @@ useful to convert Cartesian coordinates to polar coordinates.
 
 Example:
 
-~~~~
-    al_fixed result;
+~~~~c
+al_fixed result;
 
-    /* Sets `result' to binary angle 64. */
-    result = al_fixatan2(al_itofix(1), 0);
+/* Sets `result' to binary angle 64. */
+result = al_fixatan2(al_itofix(1), 0);
 
-    /* Sets `result' to binary angle -109. */
-    result = al_fixatan2(al_itofix(-1), al_itofix(-2));
+/* Sets `result' to binary angle -109. */
+result = al_fixatan2(al_itofix(-1), al_itofix(-2));
 
-    /* Fails the assert. */
-    result = al_fixatan2(0, 0);
-    assert(!al_get_errno());
+/* Fails the assert. */
+result = al_fixatan2(0, 0);
+assert(!al_get_errno());
 ~~~~
 
 Return value:
