@@ -343,9 +343,10 @@ free the sample data yourself.
 To allocate a buffer of the correct size, you can use something like this:
 
 ~~~~c
-    sample_size = al_get_channel_count(chan_conf) * al_get_audio_depth_size(depth);
-    bytes = samples * sample_size;
-    buffer = al_malloc(bytes);
+int sample_size = al_get_channel_count(chan_conf)
+                  * al_get_audio_depth_size(depth);
+int bytes = samples * sample_size;
+void *buffer = al_malloc(bytes);
 ~~~~
 
 See also: [al_destroy_sample], [ALLEGRO_AUDIO_DEPTH], [ALLEGRO_CHANNEL_CONF]
