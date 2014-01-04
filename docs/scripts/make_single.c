@@ -66,9 +66,11 @@ static void preprocess(void)
          const char *text = lookup_prototype(name);
 
          d_printf("%s %s\n", hashes, name);
-         d_printf("~~~~c");
-         d_print(text);
-         d_printf("~~~~");
+         if (strcmp(text, "") != 0) {
+            d_printf("~~~~c");
+            d_print(text);
+            d_printf("~~~~");
+         }
       }
       else {
          d_print(line);
