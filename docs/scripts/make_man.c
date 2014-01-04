@@ -8,6 +8,7 @@
 
 static const char *SECTION = "3";
 static const char *MANUAL = "Allegro reference manual";
+static const char *SUFFIX = "Allegro 5 API";
 static dstr last_header;
 static dstr names[MAX_NAMES];
 
@@ -16,11 +17,13 @@ static void man_page_header(const char *name)
    d_printf("%% %s(%s) %s\n", name, SECTION, MANUAL);
    d_print("# NAME");
    d_print(name);
-   d_print(" \\- Allegro 5 API");
-   d_print("\n# SYNOPSIS");
+   d_printf(" \\- %s\n\n", SUFFIX);
+   d_print("# SYNOPSIS");
+   d_print("~~~~c");
    d_print(last_header);
    d_print(lookup_prototype(name));
-   d_print("\n# DESCRIPTION");
+   d_print("~~~~");
+   d_print("# DESCRIPTION");
 }
 
 static void call_pandoc_for_man(const char *input, int name_count)
@@ -56,8 +59,8 @@ void make_man_pages(int argc, char *argv[])
          }
       }
 
-      if (d_match(line, "^ *#include ") && output_level == 0) {
-         d_assign(last_header, line);
+      if (d_match(line, "^ *(#include.*)") && output_level == 0) {
+         d_assign(last_header, d_submatch(1));
          continue;
       }
 
