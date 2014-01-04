@@ -3,8 +3,10 @@
 These functions are declared in the following header file.
 Link with allegro_video.
 
-    #include <allegro5/allegro_video.h>
-    
+~~~~c
+ #include <allegro5/allegro_video.h>
+~~~~
+
 Currently we have an ffmpeg backend and a Ogg backend (Theora + Vorbis).
 The choice is fixed at compile time.
 See <http://ffmpeg.org/> and <http://xiph.org/> for installation instructions,

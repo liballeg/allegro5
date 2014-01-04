@@ -2,7 +2,9 @@
 
 These functions are declared in the following header file:
 
-    #include <allegro5/allegro_direct3d.h>
+~~~~c
+ #include <allegro5/allegro_direct3d.h>
+~~~~
 
 ## API: al_get_d3d_device
 

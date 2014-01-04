@@ -4,7 +4,9 @@
 
 These functions are declared in the following header file:
 
-    #include <allegro5/allegro_windows.h>
+~~~~c
+ #include <allegro5/allegro_windows.h>
+~~~~
 
 ### API: al_get_win_window_handle
 
@@ -40,7 +42,9 @@ Since: 5.1.2
 
 These functions are declared in the following header file:
 
-    #include <allegro5/allegro_osx.h>
+~~~~c
+ #include <allegro5/allegro_osx.h>
+~~~~
 
 ### API: al_osx_get_window
 
@@ -52,7 +56,9 @@ Since: 5.0.8, 5.1.3
 
 These functions are declared in the following header file:
 
-    #include <allegro5/allegro_iphone.h>
+~~~~c
+ #include <allegro5/allegro_iphone.h>
+~~~~
 
 ### API: al_iphone_override_screen_scale
 
@@ -122,7 +128,9 @@ Since: 5.1.0
 
 These functions are declared in the following header file:
 
-    #include <allegro5/allegro_android.h>
+~~~~c
+ #include <allegro5/allegro_android.h>
+~~~~
 
 ### API: al_android_set_apk_file_interface
 

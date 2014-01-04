@@ -2,7 +2,9 @@
 
 These functions are declared in the main Allegro header file:
 
-    #include <allegro5/allegro.h>
+~~~~c
+ #include <allegro5/allegro.h>
+~~~~
 
 ## API: al_install_system
 
@@ -47,11 +49,13 @@ integer as groups of 8 bits in the form
 
 You can use code like this to extract them:
 
-    uint32_t version = al_get_allegro_version();
-    int major = version >> 24;
-    int minor = (version >> 16) & 255;
-    int revision = (version >> 8) & 255;
-    int release = version & 255;
+~~~~c
+uint32_t version = al_get_allegro_version();
+int major = version >> 24;
+int minor = (version >> 16) & 255;
+int revision = (version >> 8) & 255;
+int release = version & 255;
+~~~~
 
 The `release` number is 0 for an unofficial version and 1 or greater for
 an official release. For example "5.0.2[1]" would be the (first) official

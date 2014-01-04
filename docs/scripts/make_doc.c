@@ -124,7 +124,7 @@ static void load_prototypes(const char *filename)
          newtext = d_submatch(2);
 
          d_assign(text, lookup_prototype(name));
-         strcat(text, "\n    ");
+         strcat(text, "\n");
          strcat(text, newtext);
          protos = aa_insert(protos, name, text);
       }

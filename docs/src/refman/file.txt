@@ -2,7 +2,9 @@
 
 These functions are declared in the main Allegro header file:
 
-    #include <allegro5/allegro.h>
+~~~~c
+ #include <allegro5/allegro.h>
+~~~~
 
 ## API: ALLEGRO_FILE
 
@@ -16,19 +18,21 @@ real or virtual.  See the full discussion in [al_set_new_file_interface].
 
 The fields are:
 
-    void*         (*fi_fopen)(const char *path, const char *mode);
-    bool          (*fi_fclose)(ALLEGRO_FILE *f);
-    size_t        (*fi_fread)(ALLEGRO_FILE *f, void *ptr, size_t size);
-    size_t        (*fi_fwrite)(ALLEGRO_FILE *f, const void *ptr, size_t size);
-    bool          (*fi_fflush)(ALLEGRO_FILE *f);
-    int64_t       (*fi_ftell)(ALLEGRO_FILE *f);
-    bool          (*fi_fseek)(ALLEGRO_FILE *f, int64_t offset, int whence);
-    bool          (*fi_feof)(ALLEGRO_FILE *f);
-    int           (*fi_ferror)(ALLEGRO_FILE *f);
-    const char *  (*fi_ferrmsg)(ALLEGRO_FILE *f);
-    void          (*fi_fclearerr)(ALLEGRO_FILE *f);
-    int           (*fi_fungetc)(ALLEGRO_FILE *f, int c);
-    off_t         (*fi_fsize)(ALLEGRO_FILE *f);
+~~~~c
+void*         (*fi_fopen)(const char *path, const char *mode);
+bool          (*fi_fclose)(ALLEGRO_FILE *f);
+size_t        (*fi_fread)(ALLEGRO_FILE *f, void *ptr, size_t size);
+size_t        (*fi_fwrite)(ALLEGRO_FILE *f, const void *ptr, size_t size);
+bool          (*fi_fflush)(ALLEGRO_FILE *f);
+int64_t       (*fi_ftell)(ALLEGRO_FILE *f);
+bool          (*fi_fseek)(ALLEGRO_FILE *f, int64_t offset, int whence);
+bool          (*fi_feof)(ALLEGRO_FILE *f);
+int           (*fi_ferror)(ALLEGRO_FILE *f);
+const char *  (*fi_ferrmsg)(ALLEGRO_FILE *f);
+void          (*fi_fclearerr)(ALLEGRO_FILE *f);
+int           (*fi_fungetc)(ALLEGRO_FILE *f, int c);
+off_t         (*fi_fsize)(ALLEGRO_FILE *f);
+~~~~
 
 The fi_open function must allocate memory for whatever userdata structure it needs.
 The pointer to that memory must be returned; it will then be associated with the
@@ -197,12 +201,14 @@ This does *not* return true if we simply are at the end of the file.
 The following code correctly reads two bytes, even when the file
 contains exactly two bytes:
 
-    int b1 = al_fgetc(f);
-    int b2 = al_fgetc(f);
-    if (al_feof(f)) {
-       /* At least one byte was unsuccessfully read. */
-       report_error();
-    }
+~~~~c
+int b1 = al_fgetc(f);
+int b2 = al_fgetc(f);
+if (al_feof(f)) {
+   /* At least one byte was unsuccessfully read. */
+   report_error();
+}
+~~~~
 
 See also: [al_ferror], [al_fclearerr]
 
@@ -384,7 +390,9 @@ See also: [al_fgetc], [al_fgets]
 Writes a string to file.  Apart from the return value,
 this is equivalent to:
 
-    al_fwrite(f, p, strlen(p));
+~~~~c
+al_fwrite(f, p, strlen(p));
+~~~~
 
 Parameters:
 

@@ -3,7 +3,9 @@
 These functions are declared in the following header file.
 Link with allegro_primitives.
 
-    #include <allegro5/allegro_primitives.h>
+~~~~c
+ #include <allegro5/allegro_primitives.h>
+~~~~
 
 ## General
 
@@ -75,14 +77,16 @@ centers inside the green rectangle, the output image has no green pixels.
 
 Here is a more practical example. The image below shows the output of this code:
 
-    /* blue vertical line */
-    al_draw_line(0.5, 0, 0.5, 6, color_blue, 1);
-    /* red horizontal line */
-    al_draw_line(2, 1, 6, 1, color_red, 2);
-    /* green filled rectangle */
-    al_draw_filled_rectangle(3, 4, 5, 5, color_green);
-    /* purple outlined rectangle */
-    al_draw_rectangle(2.5, 3.5, 5.5, 5.5, color_purple, 1);
+~~~~c
+/* blue vertical line */
+al_draw_line(0.5, 0, 0.5, 6, color_blue, 1);
+/* red horizontal line */
+al_draw_line(2, 1, 6, 1, color_red, 2);
+/* green filled rectangle */
+al_draw_filled_rectangle(3, 4, 5, 5, color_green);
+/* purple outlined rectangle */
+al_draw_rectangle(2.5, 3.5, 5.5, 5.5, color_purple, 1);
+~~~~
 
 ![*Diagram showing a practical example of pixel output resulting from the 
 invocation of several primitives addon functions.*](images/primitives2.png)
@@ -456,12 +460,14 @@ Number of primitives drawn
 
 For example to draw a textured triangle you could use:
 
-    ALLEGRO_COLOR white = al_map_rgb_f(1, 1, 1);
-    ALLEGRO_VERTEX v[] = {
-        {.x = 128, .y = 0, .z = 0, .color = white, .u = 128, .v = 0},
-        {.x = 0, .y = 256, .z = 0, .color = white, .u = 0, .v = 256},
-        {.x = 256, .y = 256, .z = 0, .color = white, .u = 256, .v = 256}};
-    al_draw_prim(v, NULL, texture, 0, 3, ALLEGRO_PRIM_TRIANGLE_LIST);
+~~~~c
+ALLEGRO_COLOR white = al_map_rgb_f(1, 1, 1);
+ALLEGRO_VERTEX v[] = {
+   {.x = 128, .y = 0, .z = 0, .color = white, .u = 128, .v = 0},
+   {.x = 0, .y = 256, .z = 0, .color = white, .u = 0, .v = 256},
+   {.x = 256, .y = 256, .z = 0, .color = white, .u = 256, .v = 256}};
+al_draw_prim(v, NULL, texture, 0, 3, ALLEGRO_PRIM_TRIANGLE_LIST);
+~~~~
 
 See also:
 [ALLEGRO_VERTEX], [ALLEGRO_PRIM_TYPE], [ALLEGRO_VERTEX_DECL], 
@@ -773,17 +779,19 @@ caps
 The stride is normally `2 * sizeof(float)` but may be more if the vertex
 coordinates are in an array of some structure type, e.g.
 
-    struct VertexInfo {
-       float x;
-       float y;
-       int id;
-    };
+~~~~c
+struct VertexInfo {
+   float x;
+   float y;
+   int id;
+};
 
-    void my_draw(struct VertexInfo verts[], int vertex_count, ALLEGRO_COLOR c)
-    {
-       al_draw_polyline((float *)verts, sizeof(VertexInfo), vertex_count,
-          ALLEGRO_LINE_JOIN_NONE, ALLEGRO_LINE_CAP_NONE, c, 1.0, 1.0);
-    }
+void my_draw(struct VertexInfo verts[], int vertex_count, ALLEGRO_COLOR c)
+{
+   al_draw_polyline((float *)verts, sizeof(VertexInfo), vertex_count,
+      ALLEGRO_LINE_JOIN_NONE, ALLEGRO_LINE_CAP_NONE, c, 1.0, 1.0);
+}
+~~~~
 
 The stride may also be negative if the vertices are stored in reverse order.
 
@@ -844,20 +852,22 @@ hole may overlap the main polygon.
 
 For example:
 
-    float vertices[] = {
-          0,   0, // filled polygon, upper left corner
-          0, 100, // filled polygon, lower left corner
-        100, 100, // filled polygon, lower right corner
-        100,   0, // filled polygon, upper right corner
-         10,  10, // hole, upper left
-         90,  10, // hole, upper right
-         90,  90  // hole, lower right
-    };
-    int vertex_counts[] = {
-       4, // number of vertices for filled polygon
-       3, // number of vertices for hole
-       0  // terminator
-    };
+~~~~c
+float vertices[] = {
+      0,   0, // filled polygon, upper left corner
+      0, 100, // filled polygon, lower left corner
+    100, 100, // filled polygon, lower right corner
+    100,   0, // filled polygon, upper right corner
+     10,  10, // hole, upper left
+     90,  10, // hole, upper right
+     90,  90  // hole, lower right
+};
+int vertex_counts[] = {
+   4, // number of vertices for filled polygon
+   3, // number of vertices for hole
+   0  // terminator
+};
+~~~~
 
 There are 7 vertices: four for an outer square from (0, 0) to (100, 100) in
 anti-clockwise order, and three more for an inner triangle in clockwise order.
@@ -935,16 +945,18 @@ Here is an example code that would create a declaration describing the
 ALLEGRO_VERTEX structure (passing this as vertex declaration to
 al_draw_prim would be identical to passing NULL):
 
-    /* On compilers without the offsetof keyword you need to obtain the
-     * offset with sizeof and make sure to account for packing.
-     */
-    ALLEGRO_VERTEX_ELEMENT elems[] = {
-       {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_FLOAT_3, offsetof(ALLEGRO_VERTEX, x)},
-       {ALLEGRO_PRIM_TEX_COORD_PIXEL, ALLEGRO_PRIM_FLOAT_2, offsetof(ALLEGRO_VERTEX, u)},
-       {ALLEGRO_PRIM_COLOR_ATTR, 0, offsetof(ALLEGRO_VERTEX, color)},
-       {0, 0, 0}
-    };
-    ALLEGRO_VERTEX_DECL* decl = al_create_vertex_decl(elems, sizeof(ALLEGRO_VERTEX));
+~~~~c
+/* On compilers without the offsetof keyword you need to obtain the
+ * offset with sizeof and make sure to account for packing.
+ */
+ALLEGRO_VERTEX_ELEMENT elems[] = {
+   {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_FLOAT_3, offsetof(ALLEGRO_VERTEX, x)},
+   {ALLEGRO_PRIM_TEX_COORD_PIXEL, ALLEGRO_PRIM_FLOAT_2, offsetof(ALLEGRO_VERTEX, u)},
+   {ALLEGRO_PRIM_COLOR_ATTR, 0, offsetof(ALLEGRO_VERTEX, color)},
+   {0, 0, 0}
+};
+ALLEGRO_VERTEX_DECL* decl = al_create_vertex_decl(elems, sizeof(ALLEGRO_VERTEX));
+~~~~
 
 *Fields:*
 

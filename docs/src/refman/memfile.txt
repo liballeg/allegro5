@@ -6,7 +6,9 @@ memory as a file that can be used with Allegro's I/O functions.
 These functions are declared in the following header file.
 Link with allegro_memfile.
 
-    #include <allegro5/allegro_memfile.h>
+~~~~c
+ #include <allegro5/allegro_memfile.h>
+~~~~
 
 ## API: al_open_memfile
 

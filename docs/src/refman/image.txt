@@ -3,8 +3,9 @@
 These functions are declared in the following header file.
 Link with allegro_image.
 
-    #include <allegro5/allegro_image.h>
-    
+~~~~c
+ #include <allegro5/allegro_image.h>
+~~~~
 
 ## API: al_init_image_addon
 

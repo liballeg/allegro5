@@ -2,7 +2,9 @@
 
 These functions are declared in the main Allegro header file:
 
-    #include <allegro5/allegro.h>
+~~~~c
+ #include <allegro5/allegro.h>
+~~~~
 
 ## API: ALLEGRO_JOYSTICK
 
@@ -16,10 +18,12 @@ This is a structure that is used to hold a "snapshot" of a
 joystick's axes and buttons at a particular instant.
 All fields public and read-only.
 
-    struct {
-          float axis[num_axes];             // -1.0 to 1.0 
-    } stick[num_sticks];
-    int button[num_buttons];                // 0 to 32767
+~~~~c
+struct {
+   float axis[num_axes];             // -1.0 to 1.0
+} stick[num_sticks];
+int button[num_buttons];             // 0 to 32767
+~~~~
 
 See also: [al_get_joystick_state]
 

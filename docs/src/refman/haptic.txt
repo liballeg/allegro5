@@ -3,7 +3,9 @@
 Haptic functions support force feedback and vibration on input devices.
 These functions are declared in the main Allegro header file:
 
-    #include <allegro5/allegro.h>
+~~~~c
+ #include <allegro5/allegro.h>
+~~~~
 
 ## API: ALLEGRO_HAPTIC
 

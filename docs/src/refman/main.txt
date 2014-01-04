@@ -13,7 +13,9 @@ using some macros.
 If the user `main` function is defined in C++, then it must have the
 following signature for this addon to work:
 
-    int main(int argc, char **argv)
+~~~~c
+int main(int argc, char **argv)
+~~~~
 
 This addon does nothing on platforms that don't require its functionality, but
 you should keep it in mind in case you need to port to platforms that do

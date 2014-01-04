@@ -2,7 +2,9 @@
 
 These functions are declared in the main Allegro header file:
 
-    #include <allegro5/allegro.h>
+~~~~c
+ #include <allegro5/allegro.h>
+~~~~
 
 ## Colors
 
@@ -36,13 +38,15 @@ feature). This means that if you want to tint a bitmap or primitive to be
 transparent you need to multiply the color components by the alpha components
 when you pass them to this function. For example:
 
-    int r = 255;
-    int g = 0;
-    int b = 0;
-    int a = 127;
-    ALLEGRO_COLOR c = al_map_rgba(r * a / 255, g * a / 255, b * a / 255, a);
-    /* Draw the bitmap tinted red and half-transparent. */
-    al_draw_tinted_bitmap(bmp, c, 0, 0, 0);
+~~~~c
+int r = 255;
+int g = 0;
+int b = 0;
+int a = 127;
+ALLEGRO_COLOR c = al_map_rgba(r * a / 255, g * a / 255, b * a / 255, a);
+/* Draw the bitmap tinted red and half-transparent. */
+al_draw_tinted_bitmap(bmp, c, 0, 0, 0);
+~~~~
 
 See also: [al_map_rgb], [al_map_rgba_f], [al_map_rgb_f]
 
@@ -56,13 +60,15 @@ feature). This means that if you want to tint a bitmap or primitive to be
 transparent you need to multiply the color components by the alpha components
 when you pass them to this function. For example:
 
-    float r = 1;
-    float g = 0;
-    float b = 0;
-    float a = 0.5;
-    ALLEGRO_COLOR c = al_map_rgba_f(r * a, g * a, b * a, a);
-    /* Draw the bitmap tinted red and half-transparent. */
-    al_draw_tinted_bitmap(bmp, c, 0, 0, 0);
+~~~~c
+float r = 1;
+float g = 0;
+float b = 0;
+float a = 0.5;
+ALLEGRO_COLOR c = al_map_rgba_f(r * a, g * a, b * a, a);
+/* Draw the bitmap tinted red and half-transparent. */
+al_draw_tinted_bitmap(bmp, c, 0, 0, 0);
+~~~~
 
 See also: [al_map_rgba], [al_map_rgb], [al_map_rgb_f]
 
@@ -105,12 +111,14 @@ are required to lock it first. The ALLEGRO_LOCKED_REGION
 structure represents the locked region of the bitmap. This
 call will work with any bitmap, including memory bitmaps.
 
-    typedef struct ALLEGRO_LOCKED_REGION {
-        void *data;
-        int format;
-        int pitch;
-        int pixel_size;
-    } ALLEGRO_LOCKED_REGION;
+~~~~c
+typedef struct ALLEGRO_LOCKED_REGION {
+   void *data;
+   int format;
+   int pitch;
+   int pixel_size;
+} ALLEGRO_LOCKED_REGION;
+~~~~
 
 - *data* points to the leftmost pixel of the first row (row 0) of the locked
   region.
@@ -139,11 +147,15 @@ is 0xFFFF0000.
 > The pixel format is independent of endianness. That is, in the above
 > example you can always get the red component with
 >
->     (pixel & 0x00ff0000) >> 16
+> ~~~~c
+> (pixel & 0x00ff0000) >> 16
+> ~~~~
 >
 > But you can *not* rely on this code:
 >
->     *(pixel + 2)
+> ~~~~c
+> *(pixel + 2)
+> ~~~~
 >
 > It will return the red component on little endian systems, but the
 > green component on big endian systems.
@@ -490,7 +502,9 @@ See also: [al_get_new_bitmap_flags], [al_get_bitmap_flags]
 
 A convenience function which does the same as
 
-    al_set_new_bitmap_flags(al_get_new_bitmap_flags() | flag);
+~~~~c
+al_set_new_bitmap_flags(al_get_new_bitmap_flags() | flag);
+~~~~
 
 See also: [al_set_new_bitmap_flags], [al_get_new_bitmap_flags], [al_get_bitmap_flags]
 
@@ -572,10 +586,12 @@ bitmap is not a sub-bitmap. This function always returns the real bitmap,
 and never a sub-bitmap. This might NOT match what was passed to 
 [al_create_sub_bitmap]. Consider this code, for instance:
 
-    ALLEGRO_BITMAP* a = al_create_bitmap(512, 512);
-    ALLEGRO_BITMAP* b = al_create_sub_bitmap(a, 128, 128, 256, 256);
-    ALLEGRO_BITMAP* c = al_create_sub_bitmap(b, 64, 64, 128, 128);
-    ASSERT(al_get_parent_bitmap(b) == a && al_get_parent_bitmap(c) == a);
+~~~~c
+ALLEGRO_BITMAP* a = al_create_bitmap(512, 512);
+ALLEGRO_BITMAP* b = al_create_sub_bitmap(a, 128, 128, 256, 256);
+ALLEGRO_BITMAP* c = al_create_sub_bitmap(b, 64, 64, 128, 128);
+ASSERT(al_get_parent_bitmap(b) == a && al_get_parent_bitmap(c) == a);
+~~~~
 
 The assertion will pass because only `a` is a real bitmap, and both `b` and `c`
 are its sub-bitmaps.
@@ -642,12 +658,16 @@ See also: [al_draw_bitmap_region], [al_draw_scaled_bitmap],
 Like [al_draw_bitmap] but multiplies all colors in the bitmap with
 the given color. For example:
 
-    al_draw_tinted_bitmap(bitmap, al_map_rgba_f(0.5, 0.5, 0.5, 0.5), x, y, 0);
+~~~~c
+al_draw_tinted_bitmap(bitmap, al_map_rgba_f(0.5, 0.5, 0.5, 0.5), x, y, 0);
+~~~~
 
 The above will draw the bitmap 50% transparently (r/g/b values need
 to be pre-multiplied with the alpha component with the default blend mode).
 
-    al_draw_tinted_bitmap(bitmap, al_map_rgba_f(1, 0, 0, 1), x, y, 0);
+~~~~c
+al_draw_tinted_bitmap(bitmap, al_map_rgba_f(1, 0, 0, 1), x, y, 0);
+~~~~
 
 The above will only draw the red component of the bitmap.
 
@@ -711,9 +731,11 @@ bitmap is rotated around this point. If cx,cy is 0,0 the bitmap will rotate arou
 
 Example
 
-    float w = al_get_bitmap_width(bitmap);
-    float h = al_get_bitmap_height(bitmap);
-    al_draw_rotated_bitmap(bitmap, w / 2, h / 2, x, y, ALLEGRO_PI / 2, 0);
+~~~~c
+float w = al_get_bitmap_width(bitmap);
+float h = al_get_bitmap_height(bitmap);
+al_draw_rotated_bitmap(bitmap, w / 2, h / 2, x, y, ALLEGRO_PI / 2, 0);
+~~~~
 
 The above code draws the bitmap centered on x/y and rotates it 90° clockwise.
 
@@ -760,13 +782,15 @@ within the bitmap to be drawn.
 
 You can get the same effect with a sub bitmap:
 
-    al_draw_tinted_scaled_rotated_bitmap(bitmap, sx, sy, sw, sh, tint,
-        cx, cy, dx, dy, xscale, yscale, angle, flags);
+~~~~c
+al_draw_tinted_scaled_rotated_bitmap(bitmap, sx, sy, sw, sh, tint,
+    cx, cy, dx, dy, xscale, yscale, angle, flags);
 
-    /* This draws the same: */
-    sub_bitmap = al_create_sub_bitmap(bitmap, sx, sy, sw, sh);
-    al_draw_tinted_scaled_rotated_bitmap(sub_bitmap, tint, cx, cy,
-        dx, dy, xscale, yscale, angle, flags);
+/* This draws the same: */
+sub_bitmap = al_create_sub_bitmap(bitmap, sx, sy, sw, sh);
+al_draw_tinted_scaled_rotated_bitmap(sub_bitmap, tint, cx, cy,
+    dx, dy, xscale, yscale, angle, flags);
+~~~~
 
 Since: 5.0.6, 5.1.0
 
@@ -856,18 +880,22 @@ when the bitmap is no longer the target bitmap, *unless* you have called
 
 In the following example, no FBO will be created:
 
-    lock = al_lock_bitmap(bitmap);
-    al_set_target_bitmap(bitmap);
-    al_put_pixel(x, y, color);
-    al_unlock_bitmap(bitmap);
+~~~~c
+lock = al_lock_bitmap(bitmap);
+al_set_target_bitmap(bitmap);
+al_put_pixel(x, y, color);
+al_unlock_bitmap(bitmap);
+~~~~
 
 The above allows using [al_put_pixel] on a locked bitmap without creating an
 FBO.
 
 In this example an FBO is created however:
 
-    al_set_target_bitmap(bitmap);
-    al_draw_line(x1, y1, x2, y2, color, 0);
+~~~~c
+al_set_target_bitmap(bitmap);
+al_draw_line(x1, y1, x2, y2, color, 0);
+~~~~
 
 An OpenGL command will be used to directly draw the line into the bitmap's
 associated texture.
@@ -936,7 +964,7 @@ on the `op` parameter:
          g = d.g * df.g - s.g * sf.g
          b = d.b * df.b - s.b * sf.b
          a = d.a * df.a - s.a * sf.a
-    
+
 * ALLEGRO_SRC_MINUS_DEST
 
          r = s.r * sf.r - d.r * df.r
@@ -951,11 +979,11 @@ Valid values for the factors `sf` and `df` passed to this function are
          f = 0, 0, 0, 0
 
 * ALLEGRO_ONE
-      
+
          f = 1, 1, 1, 1
 
 * ALLEGRO_ALPHA
-   
+
          f = s.a, s.a, s.a, s.a
 
 * ALLEGRO_INVERSE_ALPHA
@@ -981,9 +1009,11 @@ Valid values for the factors `sf` and `df` passed to this function are
 Blending examples:
 
 So for example, to restore the default of using premultiplied alpha
-blending, you would use (pseudo code)
+blending, you would use:
 
-    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA)
+~~~~c
+al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+~~~~
 
 As formula:
 
@@ -994,19 +1024,27 @@ As formula:
 
 If you are using non-pre-multiplied alpha, you could use
 
-    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA)
+~~~~c
+al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+~~~~
 
 Additive blending would be achieved with
 
-    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE)
+~~~~c
+al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+~~~~
 
 Copying the source to the destination (including alpha) unmodified
 
-    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO)
+~~~~c
+al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+~~~~
 
 Multiplying source and destination components
 
-    al_set_blender(ALLEGRO_ADD, ALLEGRO_DEST_COLOR, ALLEGRO_ZERO)
+~~~~c
+al_set_blender(ALLEGRO_ADD, ALLEGRO_DEST_COLOR, ALLEGRO_ZERO)
+~~~~
 
 As formula:
 
@@ -1193,16 +1231,18 @@ ALLEGRO_NO_PREMULTIPLIED_ALPHA
     the images color data when it loads it. Typically that would look
     something like this:
 
-        r = get_float_byte();
-        g = get_float_byte();
-        b = get_float_byte();
-        a = get_float_byte();
+    ~~~~c
+    r = get_float_byte();
+    g = get_float_byte();
+    b = get_float_byte();
+    a = get_float_byte();
 
-        r = r * a;
-        g = g * a;
-        b = b * a;
+    r = r * a;
+    g = g * a;
+    b = b * a;
 
-        set_image_pixel(x, y, r, g, b, a);
+    set_image_pixel(x, y, r, g, b, a);
+    ~~~~
 
     The reason for this can be seen in the Allegro example
     ex_premulalpha, ie, using pre-multiplied alpha gives more accurate
@@ -1215,12 +1255,14 @@ ALLEGRO_NO_PREMULTIPLIED_ALPHA
     images are not loaded with alpha pre-multiplied, but are loaded with
     color values direct from the image. That looks like this:
 
-        r = get_float_byte();
-        g = get_float_byte();
-        b = get_float_byte();
-        a = get_float_byte();
+    ~~~~c
+    r = get_float_byte();
+    g = get_float_byte();
+    b = get_float_byte();
+    a = get_float_byte();
 
-        set_image_pixel(x, y, r, g, b, a);
+    set_image_pixel(x, y, r, g, b, a);
+    ~~~~
 
     To draw such an image using regular alpha blending, you would use
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA)
@@ -1230,22 +1272,24 @@ ALLEGRO_NO_PREMULTIPLIED_ALPHA
     be darker than they should be). Second, the behaviour is somewhat confusing,
     which is explained in the example below.
 
-        // Load and create bitmaps with an alpha channel
-        al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
-        // Load some bitmap with alpha in it
-        bmp = al_load_bitmap("some_alpha_bitmap.png");
-        // We will draw to this buffer and then draw this buffer to the screen
-        tmp_buffer = al_create_bitmap(SCREEN_W, SCREEN_H);
-        // Set the buffer as the target and clear it
-        al_set_target_bitmap(tmp_buffer);
-        al_clear_to_color(al_map_rgba_f(0, 0, 0, 1));
-        // Draw the bitmap to the temporary buffer
-        al_draw_bitmap(bmp, 0, 0, 0);
-        // Finally, draw the buffer to the screen
-        // The output will look incorrect (may take close inspection
-        // depending on the bitmap -- it may also be very obvious)
-        al_set_target_bitmap(al_get_backbuffer(display));
-        al_draw_bitmap(tmp_buffer, 0, 0, 0);
+    ~~~~c
+    // Load and create bitmaps with an alpha channel
+    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
+    // Load some bitmap with alpha in it
+    bmp = al_load_bitmap("some_alpha_bitmap.png");
+    // We will draw to this buffer and then draw this buffer to the screen
+    tmp_buffer = al_create_bitmap(SCREEN_W, SCREEN_H);
+    // Set the buffer as the target and clear it
+    al_set_target_bitmap(tmp_buffer);
+    al_clear_to_color(al_map_rgba_f(0, 0, 0, 1));
+    // Draw the bitmap to the temporary buffer
+    al_draw_bitmap(bmp, 0, 0, 0);
+    // Finally, draw the buffer to the screen
+    // The output will look incorrect (may take close inspection
+    // depending on the bitmap -- it may also be very obvious)
+    al_set_target_bitmap(al_get_backbuffer(display));
+    al_draw_bitmap(tmp_buffer, 0, 0, 0);
+    ~~~~
 
     To explain further, if you have a pixel with 0.5 alpha, and you're using
     (ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA) for blending, the
@@ -1255,7 +1299,7 @@ ALLEGRO_NO_PREMULTIPLIED_ALPHA
 
     Expands to:
 
-        result_a = dst_a * (1-0.5) + 0.5 * 0.5;
+        result_a = dst_a * (1-0.5) + 0.5 * 0.5
 
     So if you draw the image to the temporary buffer, it is blended once resulting
     in 0.75 alpha, then drawn again to the screen, blended in the same way,

@@ -10,8 +10,9 @@ semantics and avoid edge cases.
 
 These functions are declared in the main Allegro header file:
 
-    #include <allegro5/allegro.h>
-
+~~~~c
+ #include <allegro5/allegro.h>
+~~~~
 
 
 ## API: ALLEGRO_THREAD
@@ -198,12 +199,14 @@ mutex in the process.
 
 Example of proper use:
 
-    al_lock_mutex(mutex);
-    while (something_not_true) {
-        al_wait_cond(cond, mutex);
-    }
-    do_something();
-    al_unlock_mutex(mutex);
+~~~~c
+al_lock_mutex(mutex);
+while (something_not_true) {
+   al_wait_cond(cond, mutex);
+}
+do_something();
+al_unlock_mutex(mutex);
+~~~~
 
 The mutex should be locked before checking the condition, and should be
 rechecked [al_wait_cond] returns.  [al_wait_cond] can return for other
