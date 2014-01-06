@@ -827,10 +827,25 @@ static void check_similarity(ALLEGRO_CONFIG const *cfg,
    
    if (bmp_type == HW) {
       char const *exp = al_get_config_value(cfg, testname, "hash_hw");
+      char const *sigexp = al_get_config_value(cfg, testname, "sig_hw");
       char hash[16];
+      char sig[SIG_LENZ];
       sprintf(hash, "%08x", hash_bitmap(bmp1));
       if (exp && streq(hash, exp)) {
          printf("OK   %s [%s]\n", testname, bt);
+         passed_tests++;
+         return;
+      }
+
+      if (sigexp && strlen(sigexp) != SIG_LEN) {
+         printf("WARNING: ignoring bad signature: %s\n", sigexp);
+         sigexp = NULL;
+      }
+
+      compute_signature(bmp1, sig);
+
+      if (sigexp && similar_signatures(sig, sigexp)) {
+         printf("OK   %s [%s] - by signature\n", testname, bt);
          passed_tests++;
          return;
       }
