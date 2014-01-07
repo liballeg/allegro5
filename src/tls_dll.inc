@@ -32,6 +32,11 @@ void _al_tls_init_once(void)
 static thread_local_state *tls_get(void)
 {
    thread_local_state *t = TlsGetValue(tls_index);
+   if (t == NULL) {
+      t = al_malloc(sizeof(*t));
+      TlsSetValue(tls_index, t);
+      initialize_tls_values(t);
+   }
    return t;
 }
 
@@ -48,18 +53,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
       case DLL_PROCESS_ATTACH:
          if ((tls_index = TlsAlloc()) == TLS_OUT_OF_INDEXES) {
             return false;
-	 }
-         // No break: Initialize the index for first thread.
-         // The attached process creates a new thread.
-
-      case DLL_THREAD_ATTACH:
-          // Initialize the TLS index for this thread.
-          data = al_malloc(sizeof(*data));
-          if (data != NULL) {
-             TlsSetValue(tls_index, data);
-             initialize_tls_values(data);
-          }
-          break;
+         }
+         break;
 
         // The thread of the attached process terminates.
       case DLL_THREAD_DETACH:
