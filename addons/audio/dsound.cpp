@@ -1,7 +1,13 @@
 /*
  * Based on DirectSound driver by KC/Milan
  */
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0501
+#endif
 
+#ifndef WINVER
+#define WINVER 0x0501
+#endif
 
 #include <stdio.h>
 #include <string.h>
