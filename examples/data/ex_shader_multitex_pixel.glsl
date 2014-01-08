@@ -1,7 +1,6 @@
 /* Simple fragment shader which uses the fractional texture coordinate to
  * look up the color of the second texture (scaled down by factor 100).
  */
-#version 100
 #ifdef GL_ES
 precision mediump float;
 #endif

@@ -38,9 +38,6 @@ static const char *default_glsl_vertex_source =
    "}\n";
 
 static const char *default_glsl_pixel_source =
-   #ifndef ALLEGRO_CFG_OPENGLES
-   "#version 120\n" /* Must be first so we can't use #ifndef GL_ES. */
-   #endif
    "#ifdef GL_ES\n"
    "precision mediump float;\n"
    "#endif\n"

@@ -1,6 +1,3 @@
-#ifdef GL_ES
-#version 100
-#endif
 attribute vec4 al_pos;
 attribute vec4 al_color;
 attribute vec2 al_texcoord;
