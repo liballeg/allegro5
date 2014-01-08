@@ -374,6 +374,10 @@ static void _al_d3d_set_ortho_projection(ALLEGRO_DISPLAY_D3D *disp, float w, flo
    d3d_ortho_w = w;
    d3d_ortho_h = h;
 
+   ALLEGRO_BITMAP* b = al_get_target_bitmap();
+   if (b && al_is_sub_bitmap(b))
+      b = al_get_parent_bitmap(b);
+
    if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
       al_identity_transform(&display->proj_transform);
       al_orthographic_transform(&display->proj_transform, 0, 0, -1, w, h, 1);
@@ -381,9 +385,13 @@ static void _al_d3d_set_ortho_projection(ALLEGRO_DISPLAY_D3D *disp, float w, flo
 #ifdef ALLEGRO_CFG_SHADER_HLSL
       LPD3DXEFFECT effect = disp->effect;
       if (effect) {
-	 ALLEGRO_TRANSFORM t;
-	 al_copy_transform(&t, &display->view_transform);
-	 al_compose_transform(&t, &display->proj_transform);
+         ALLEGRO_TRANSFORM t;
+         al_copy_transform(&t, &display->view_transform);
+         al_compose_transform(&t, &display->proj_transform);
+         /* Shift by half a pixel to make the output match the OpenGL output. */
+         if (b) {
+            al_translate_transform(&t, -1.0 / al_get_bitmap_width(b), 1.0 / al_get_bitmap_height(b));
+         }
          _al_hlsl_set_projview_matrix(effect, &t);
       }
 #endif
@@ -392,6 +400,10 @@ static void _al_d3d_set_ortho_projection(ALLEGRO_DISPLAY_D3D *disp, float w, flo
       D3DMATRIX matIdentity;
       al_identity_transform(&display->proj_transform);
       al_orthographic_transform(&display->proj_transform, 0, 0, -1, w, h, 1);
+      /* Shift by half a pixel to make the output match the OpenGL output. */
+      if (b) {
+         al_translate_transform(&display->proj_transform, -1.0 / al_get_bitmap_width(b), 1.0 / al_get_bitmap_height(b));
+      }
       d3d_get_identity_matrix(&matIdentity);
       disp->device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&display->proj_transform.m);
       disp->device->SetTransform(D3DTS_WORLD, &matIdentity);
@@ -2729,7 +2741,6 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *target)
 {
    ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;
-   D3DMATRIX matrix;
    ALLEGRO_TRANSFORM tmp_transform;
 
    al_copy_transform(&tmp_transform, &target->transform);
@@ -2739,29 +2750,26 @@ static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *tar
    }
 
    if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-      tmp_transform.m[3][0] -= 0.5;
-      tmp_transform.m[3][1] -= 0.5;
       al_copy_transform(&disp->view_transform, &tmp_transform);
 #ifdef ALLEGRO_CFG_SHADER_HLSL
       LPD3DXEFFECT effect = d3d_disp->effect;
       if (effect) {
-	 al_compose_transform(&tmp_transform, &disp->proj_transform);
+         al_compose_transform(&tmp_transform, &disp->proj_transform);
          _al_hlsl_set_projview_matrix(effect, &tmp_transform);
       }
 #endif
    }
    else {
-      memcpy(matrix.m[0], tmp_transform.m[0], 16 * sizeof(float));
-      matrix.m[3][0] -= 0.5;
-      matrix.m[3][1] -= 0.5;
-
-      d3d_disp->device->SetTransform(D3DTS_VIEW, &matrix);
+      d3d_disp->device->SetTransform(D3DTS_VIEW, (D3DMATRIX *)tmp_transform.m);
    }
 }
 
 static void d3d_set_projection(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)d;
+   ALLEGRO_BITMAP* b = al_get_target_bitmap();
+   if (b && al_is_sub_bitmap(b))
+      b = al_get_parent_bitmap(b);
 
 #ifdef ALLEGRO_CFG_SHADER_HLSL
    if (d->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
@@ -2769,6 +2777,10 @@ static void d3d_set_projection(ALLEGRO_DISPLAY *d)
          ALLEGRO_TRANSFORM t;
          al_copy_transform(&t, &d->view_transform);
          al_compose_transform(&t, &d->proj_transform);
+         /* Shift by half a pixel to make the output match the OpenGL output. */
+         if (b) {
+            al_translate_transform(&t, -1.0 / al_get_bitmap_width(b), 1.0 / al_get_bitmap_height(b));
+         }
          _al_hlsl_set_projview_matrix(d3d_disp->effect, &t);
       }
    }
@@ -2787,13 +2799,16 @@ static void d3d_set_projection(ALLEGRO_DISPLAY *d)
        * The effect can be seen for example ex_projection - it is broken
        * without this.
        */
-
       ALLEGRO_TRANSFORM tmp = d->proj_transform;
 
       ALLEGRO_TRANSFORM fix_d3d = d->proj_transform;
       al_identity_transform(&fix_d3d);
       al_scale_transform_3d(&fix_d3d, 1, 1, 0.5);
-      al_translate_transform_3d(&fix_d3d, 0, 0, 0.5);
+      al_translate_transform_3d(&fix_d3d, 0.0, 0.0, 0.5);
+      /* Shift by half a pixel to make the output match the OpenGL output. */
+      if (b) {
+         al_translate_transform(&fix_d3d, -1.0 / al_get_bitmap_width(b), 1.0 / al_get_bitmap_height(b));
+      }
 
       al_compose_transform(&tmp, &fix_d3d);
       
