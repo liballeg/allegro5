@@ -640,6 +640,13 @@ See also:
 Creates a vertex buffer. Can return NULL if the buffer could not be
 created (e.g. the system only supports write-only buffers).
 
+> *Note:*
+>
+> This is an advanced feature, often unsupported on lower-end video cards.
+> Be extra mindful of this function failing and make arrangements for
+> fallback drawing functionality or a nice error message for users with
+> such lower-end cards.
+
 *Parameters:*
 
 * decl - Vertex type that this buffer will hold. 0 implies that this buffer will
@@ -702,6 +709,13 @@ See also: [ALLEGRO_VERTEX_BUFFER]
 
 Creates a index buffer. Can return NULL if the buffer could not be
 created (e.g. the system only supports write-only buffers).
+
+> *Note:*
+>
+> This is an advanced feature, often unsupported on lower-end video cards.
+> Be extra mindful of this function failing and make arrangements for
+> fallback drawing functionality or a nice error message for users with
+> such lower-end cards.
 
 *Parameters:*
 
