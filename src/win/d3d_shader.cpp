@@ -526,6 +526,17 @@ static bool hlsl_set_shader_bool(ALLEGRO_SHADER *shader,
 bool _al_hlsl_set_projview_matrix(
    LPD3DXEFFECT effect, const ALLEGRO_TRANSFORM *t)
 {
+   ALLEGRO_TRANSFORM tmp;
+   /* Shift by half a pixel to make the output match the OpenGL output. */
+   ALLEGRO_BITMAP* b = al_get_target_bitmap();
+   if (b) {
+      if (al_is_sub_bitmap(b)) {
+         b = al_get_parent_bitmap(b);
+      }
+      al_copy_transform(&tmp, t);
+      al_translate_transform(&tmp, -1.0 / al_get_bitmap_width(b), 1.0 / al_get_bitmap_height(b));
+      t = &tmp;
+   }
    HRESULT result = effect->SetMatrix(ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX,
       (LPD3DXMATRIX)t->m);
    return result == D3D_OK;
