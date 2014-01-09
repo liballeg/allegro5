@@ -396,12 +396,20 @@ static void _al_d3d_set_ortho_projection(ALLEGRO_DISPLAY_D3D *disp, float w, flo
       D3DMATRIX matIdentity;
       al_identity_transform(&display->proj_transform);
       al_orthographic_transform(&display->proj_transform, 0, 0, -1, w, h, 1);
-      /* Shift by half a pixel to make the output match the OpenGL output. */
+
+      ALLEGRO_TRANSFORM shifted;
+      al_copy_transform(&shifted, &display->proj_transform);
+      /*
+       * Shift by half a pixel to make the output match the OpenGL output.
+       * Don't shift the actual proj_transform because if the user grabs it via 
+       * al_get_projection_transform() and then sends it to
+       * al_set_projection_transform() the shift will be applied twice.
+       */
       if (b) {
-         al_translate_transform(&display->proj_transform, -1.0 / al_get_bitmap_width(b), 1.0 / al_get_bitmap_height(b));
+         al_translate_transform(&shifted, -1.0 / al_get_bitmap_width(b), 1.0 / al_get_bitmap_height(b));
       }
       d3d_get_identity_matrix(&matIdentity);
-      disp->device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&display->proj_transform.m);
+      disp->device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&shifted.m);
       disp->device->SetTransform(D3DTS_WORLD, &matIdentity);
    }
 }
