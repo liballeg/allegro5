@@ -389,25 +389,19 @@ static void _al_d3d_set_ortho_projection(ALLEGRO_DISPLAY_D3D *disp, float w, flo
 #endif
    }
    else {
-      ALLEGRO_BITMAP* b = al_get_target_bitmap();
-      if (b && al_is_sub_bitmap(b))
-         b = al_get_parent_bitmap(b);
-
       D3DMATRIX matIdentity;
       al_identity_transform(&display->proj_transform);
       al_orthographic_transform(&display->proj_transform, 0, 0, -1, w, h, 1);
 
-      ALLEGRO_TRANSFORM shifted;
-      al_copy_transform(&shifted, &display->proj_transform);
       /*
        * Shift by half a pixel to make the output match the OpenGL output.
        * Don't shift the actual proj_transform because if the user grabs it via 
        * al_get_projection_transform() and then sends it to
        * al_set_projection_transform() the shift will be applied twice.
        */
-      if (b) {
-         al_translate_transform(&shifted, -1.0 / al_get_bitmap_width(b), 1.0 / al_get_bitmap_height(b));
-      }
+      ALLEGRO_TRANSFORM shifted;
+      al_copy_transform(&shifted, &display->proj_transform);
+      al_translate_transform(&shifted, -1.0 / w, 1.0 / h);
       d3d_get_identity_matrix(&matIdentity);
       disp->device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&shifted.m);
       disp->device->SetTransform(D3DTS_WORLD, &matIdentity);
@@ -1746,6 +1740,8 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_internals(
    d3d_display->backbuffer_bmp.flags = 0;
    d3d_display->backbuffer_bmp.w = al_display->w;
    d3d_display->backbuffer_bmp.h = al_display->h;
+   d3d_display->backbuffer_bmp_extra.texture_w = al_display->w;
+   d3d_display->backbuffer_bmp_extra.texture_h = al_display->h;
    d3d_display->backbuffer_bmp.cl = 0;
    d3d_display->backbuffer_bmp.ct = 0;
    d3d_display->backbuffer_bmp.cr_excl = al_display->w;
@@ -2797,8 +2793,6 @@ static void d3d_set_projection(ALLEGRO_DISPLAY *d)
        * without this.
        */
       ALLEGRO_BITMAP* b = al_get_target_bitmap();
-      if (b && al_is_sub_bitmap(b))
-         b = al_get_parent_bitmap(b);
       ALLEGRO_TRANSFORM tmp = d->proj_transform;
 
       ALLEGRO_TRANSFORM fix_d3d = d->proj_transform;
@@ -2807,7 +2801,10 @@ static void d3d_set_projection(ALLEGRO_DISPLAY *d)
       al_translate_transform_3d(&fix_d3d, 0.0, 0.0, 0.5);
       /* Shift by half a pixel to make the output match the OpenGL output. */
       if (b) {
-         al_translate_transform(&fix_d3d, -1.0 / al_get_bitmap_width(b), 1.0 / al_get_bitmap_height(b));
+         ALLEGRO_BITMAP_EXTRA_D3D* e = get_extra(b);
+         if (e) {
+            al_translate_transform(&fix_d3d, -1.0 / e->texture_w, 1.0 / e->texture_h);
+         }
       }
 
       al_compose_transform(&tmp, &fix_d3d);

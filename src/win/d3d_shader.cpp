@@ -533,9 +533,12 @@ bool _al_hlsl_set_projview_matrix(
       if (al_is_sub_bitmap(b)) {
          b = al_get_parent_bitmap(b);
       }
-      al_copy_transform(&tmp, t);
-      al_translate_transform(&tmp, -1.0 / al_get_bitmap_width(b), 1.0 / al_get_bitmap_height(b));
-      t = &tmp;
+      ALLEGRO_BITMAP_EXTRA_D3D *e = (ALLEGRO_BITMAP_EXTRA_D3D*)b->extra;
+      if (e) {
+         al_copy_transform(&tmp, t);
+         al_translate_transform(&tmp, -1.0 / e->texture_w, 1.0 / e->texture_h);
+         t = &tmp;
+      }
    }
    HRESULT result = effect->SetMatrix(ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX,
       (LPD3DXMATRIX)t->m);
