@@ -24,7 +24,7 @@ if(PANDOC)
         OUTPUT_VARIABLE PANDOC_VERSION_TEXT
         ERROR_VARIABLE PANDOC_VERSION_TEXT
         )
-    if(PANDOC_VERSION_TEXT MATCHES "pandoc (1[.]1[0-9]|1[.][2-9][0-9]|[2-9])")
+    if(PANDOC_VERSION_TEXT MATCHES "pandoc(.exe)? (1[.]1[0-9]|1[.][2-9][0-9]|[2-9])")
         # message(STATUS "Pandoc version is compatible")
     else()
         message(STATUS "Pandoc version is incompatible")
