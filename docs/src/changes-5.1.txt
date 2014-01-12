@@ -4,6 +4,241 @@ See `changes-5.0.txt` for changes in Allegro 5.0.x.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 5.1.7 to 5.1.8 (January 2014)
+==========================================
+
+The main developers this time were: Beoran, SiegeLord, Trent Gamblin,
+Markus Henschel, Peter Wang.
+
+Core:
+
+  - Allow MSVC to use DLL TLS but disable DLL TLS by default.
+
+  - Do not include windows.h via allegro.h.
+
+  - Fix some memory leaks on X11.
+
+Graphics:
+
+  - Spell ALLEGRO_DST_COLOR, ALLEGRO_INVERSE_DST_COLOR with "DEST"
+    (with compatibility defines).
+
+  - Fix bug which meant ALLEGRO_INVERSE_SRC_COLOR and
+    ALLEGRO_INVERSE_DEST_COLOR never actually worked on D3D.
+
+  - Fix horizontal and vertical shears which were not composing with
+    translations correctly.
+
+  - Optimise al_restore_state if saved target display/bitmap are unchanged.
+
+  - Fix _al_display_settings_sorter ordering of indexes when scores are equal.
+
+  - Use a minimum 16x16 texture workaround even on desktop OpenGL.
+
+  - Propagate errors up OpenGL lock bitmap implementations.
+
+  - Use proxy bitmap when locking writable backbuffer regions on GLES.
+
+  - Clean up FBO creation during bitmap locking.
+
+  - Move the half-pixel shift in D3D into the projection matrix.
+    Use the texture dimensions to compute the half-pixel shift.
+
+  - Fix al_get_d3d_texture_size returning zeros.
+
+  - Remove ALLEGRO_FORCE_LOCKING flag.
+
+  - Setup GL viewport and projection in al_acknowledge_resize on Android.
+
+  - Improve implementation of display options on Android: use the same display
+    setting scoring code as other ports; handle SUGGEST display options
+    properly; map ALLEGRO_COLOR_SIZE to EGL_BUFFER_SIZE attributes.
+
+Filesystem:
+
+  - Add al_ferror and al_ferror.  Initial patch by Tobias Scheuer.
+
+  - Make al_fclose have a return value.
+
+  - Check al_fclose return value in saving routines.
+
+  - Make al_fopen_fd not leak a FILE handle in a failure path.
+
+  - Make al_make_temp_file allocate temporary buffer to match the template.
+
+  - android: Interpret the path to APK asset as AssetManager doesn't.
+
+  - android: Correctly return -1 for APK asset file size if it can't be
+    determined.  A side-effect is that FreeType (via the TTF addon) can now
+    load TTFs stored compressed in APK assets.
+
+  - android: Support ungetc on APK file streams.
+
+  - android: Fix EOF handling in AllegroInputStream.
+
+Input:
+
+  - Initial haptics API, only implemented on Linux to begin with.
+
+  - Use Linux input API for joystick driver instead of deprecated joystick API.
+
+  - Use Linux joystick driver on Android if OUYA model detected
+    (Jonathan Lilliemarck).
+
+  - Use thread for hotplugging joysticks on Linux instead of timerfd
+    (due to Android).
+
+  - Report unichar in KEY_CHAR events on Android. (Todd Cope)
+
+  - Added some Android gaming key codes.
+
+  - iOS touch coordinates need to be multiplied by contentScaleFactor.
+
+  - Android touch input id 0 was incorrectly treated as invalid.
+    (Max Savenkov)
+
+Shaders:
+
+  - Automatically call OnLostDevice and OnResetDevice on HLSL shaders.
+
+  - Remove #version specifier from all shaders.
+
+Audio addon:
+
+  - Remove generic audio event source and AudioQueue events.
+
+  - Don't queue silent fragments at start of new audio streams.
+
+  - Make stream_read return correct number of filled samples when no data is
+    available (zero).
+
+  - A DirectSound voice could not be restarted once it has been stopped.
+
+  - Fix crash when attaching empty stream to dsound voice.
+
+  - Reset buffer position in stop instead of play in dsound voice.
+
+  - Fix calculation of current sample position in dsound voice.
+
+ -  Reset audio stream when al_set_audio_stream_playing to false for voice and
+    mixer cases, and make all fragments available for refill.
+
+  - Emit stream fragment events when a stream is started.
+
+  - Remove unnecessary reallocation of the channel matrix.
+
+  - Add al_fill_silence.
+
+  - Add al_get_audio_stream_played_samples.
+
+  - Fix deadlock in Pulseaudio driver.  Reported by Bluebird.
+
+  - Let al_set_sample_instance_playing work for unattached instances
+    and sample instances with no data set.  Reported by Bluebird.
+
+  - Enable the use of the unpatched DirectX SDK to build.
+
+Audio codec addon:
+
+  - Fix looping in Ogg Vorbis stream. (Todd Cope)
+
+  - Seeking in wavs would always have returned success.
+
+Image addon:
+
+  - Fix many problems in Android native image loader, including:
+    supporting ALLEGRO_NO_PREMULTIPLIED_ALPHA, respecting the new bitmap
+    format, working for non-APK assets, not crashing on failure.
+
+Native dialogs addon:
+
+  - Change native menu ids from int to uint16_t due to limitation with
+    Windows. (Matthew Leverton)
+
+Primitives addon:
+
+  - Rename the primitives buffer flags.
+
+  - Simplify the prim buffer hints.
+
+  - Simplify the al_create_vertex_buffer API.
+
+  - Actually implement uninitialized vertex buffers.
+
+  - Add indexed buffer API.
+
+  - Polylines with ALLEGRO_LINE_CAP_CLOSED cap style did not draw correctly
+    with thickness == 0.
+
+  - Take into account the projection matrix when computing the scale of the
+    high level primitives.
+
+  - Replace enum arguments for al_draw_polyline and al_draw_polygon with
+    integers to reduce chance of ABI issues.
+
+TTF addon:
+
+  - Fix a bug where some glyphs would be blank.
+
+  - Allow glyph allocation to fail without crashing.
+
+Android port:
+
+  - Separate Allegro library Java code from the original example project for
+    Android (Jonathan Lilliemarck).
+
+  - Build Allegro library as a JAR.
+
+  - Rename Java package to org.liballeg.android.
+
+  - Change how the application shared library is specified.  Override the
+    AllegroActivity constructor instead of specifying in AndroidManifest.xml.
+
+  - Add a method to tell if the user exited main in the Android Java code.
+
+  - Add a fix for the case of launching another activity from your game on
+    Android and then returning to the game after it finishes.
+
+  - Refactoring and clean up.
+
+iOS port:
+
+  - Remove al_iphone_get/set_screen_scale as not really needed and confusing.
+
+Build system:
+
+  - Integrate Android port into build system, including building and launching
+    examples for debugging.
+
+  - Detect OpenGLES/2 libraries on Android.
+
+  - Let clang use same options as gcc in build system.
+
+Python:
+
+  - Made the C-parser used in the Python API generator understand more type
+    constructs. (Elias Pschernig)
+
+Examples:
+
+  - Make demos and most examples run (somewhat) on Android.
+
+  - Add touch input support to various examples.
+
+  - New examples: ex_file, ex_haptic, ex_haptic2, ex_touch_input.
+
+  - ex_prim: Demonstrate indexed buffers.
+
+Other:
+
+  - More more minor bug fixes and changes.
+
+  - Documentation updates.
+
+  - Syntax highlight the C source examples and prototypes in the documentation.
+
+
+
 Changes from 5.1.6 to 5.1.7 (May 2013)
 ======================================
 
