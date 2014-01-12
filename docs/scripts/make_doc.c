@@ -12,10 +12,16 @@
  */
 
 #include <ctype.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #if defined(_BSD_SOURCE) || defined(_SVID_SOURCE) || (_XOPEN_SOURCE >= 500)
    #include <unistd.h>
+   #define USE_MKSTEMP 1
+#elif defined(_MSC_VER)
+   #define TEMPNAM(d, p)   (_tempnam((d), (p)))
+#else
+   #define TEMPNAM(d, p)   (tempnam((d), (p)))
 #endif
 
 #include "aatree.h"
@@ -28,8 +34,8 @@ dstr pandoc_options  = "";
 dstr protos_file     = "protos";
 dstr to_format       = "html";
 bool raise_sections  = false;
-char tmp_preprocess_output[80];
-char tmp_pandoc_output[80];
+dstr tmp_preprocess_output;
+dstr tmp_pandoc_output;
 
 static Aatree *protos = &aa_nil;
 
@@ -143,18 +149,21 @@ void generate_temp_file(char *filename)
    /* gcc won't shut up if we use tmpnam() so we'll use mkstemp() if it is
     * likely to be available.
     */
-#if defined(_BSD_SOURCE) || defined(_SVID_SOURCE) || (_XOPEN_SOURCE >= 500)
+#ifdef USE_MKSTEMP
    int fd;
-   strcpy(filename, ",make_doc_tmp.XXXXXX");
+   d_assign(filename, "make_doc_tmp.XXXXXX");
    fd = mkstemp(filename);
    if (fd == -1) {
       d_abort("could not generate temporary file name", "");
    }
    close(fd);
 #else
-   if (!tmpnam(filename)) {
+   char *name = TEMPNAM(NULL, "make_doc_tmp.");
+   if (!name) {
       d_abort("could not generate temporary file name", "");
    }
+   d_assign(filename, name);
+   free(name);
 #endif
 }
 

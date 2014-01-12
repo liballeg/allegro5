@@ -8,8 +8,8 @@ extern dstr pandoc_options;
 extern dstr protos_file;
 extern dstr to_format;
 extern bool raise_sections;
-extern char tmp_preprocess_output[80];
-extern char tmp_pandoc_output[80];
+extern dstr tmp_preprocess_output;
+extern dstr tmp_pandoc_output;
 
 #define streq(a, b) (0 == strcmp((a), (b)))
 
