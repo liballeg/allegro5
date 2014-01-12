@@ -205,13 +205,10 @@ add_custom_command(
 
 if(WANT_DOCS_HTML)
     foreach(inc inc.a inc.z)
-        # Use native Windows syntax to avoid "c:/foo.txt" being treated as a
-        # remote URI by Pandoc 1.5 and 1.6.
-        file(TO_NATIVE_PATH ${SRC_REFMAN_DIR}/${inc}.txt pandoc_src)
         add_custom_command(
             OUTPUT ${inc}.html
             DEPENDS ${SRC_REFMAN_DIR}/${inc}.txt
-            COMMAND ${PANDOC} ${pandoc_src} -o ${inc}.html
+            COMMAND ${PANDOC} ${SRC_REFMAN_DIR}/${inc}.txt -o ${inc}.html
             )
     endforeach(inc)
 
