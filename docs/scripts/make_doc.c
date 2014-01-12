@@ -3,13 +3,12 @@
  *
  * Options are:
  *
+ *    --pandoc PANDOC
  *    --protos PROTOS-FILE
  *    --to FORMAT (html, man, latex, texinfo, etc.)
  *    --raise-sections
  *
  * Unknown options are passed through to Pandoc.
- *
- * Environment variables: PANDOC
  */
 
 #include <ctype.h>
@@ -62,13 +61,7 @@ int main(int argc, char *argv[])
 
 static int process_options(int argc, char *argv[])
 {
-   char *p;
    int i;
-
-   p = getenv("PANDOC");
-   if (p) {
-      d_assign(pandoc, p);
-   }
 
    for (i = 1; i < argc; ) {
       if (streq(argv[i], "--")) {
@@ -78,7 +71,11 @@ static int process_options(int argc, char *argv[])
       if (argv[i][0] != '-') {
          break;
       }
-      if (streq(argv[i], "--protos")) {
+      if (streq(argv[i], "--pandoc")) {
+         d_assign(pandoc, argv[i + 1]);
+         i += 2;
+      }
+      else if (streq(argv[i], "--protos")) {
          d_assign(protos_file, argv[i + 1]);
          i += 2;
       }
@@ -190,7 +187,7 @@ void call_pandoc(const char *input, const char *output,
       }
    }
 
-   sprintf(cmd, "%s %s %s %s --to %s --output %s",
+   sprintf(cmd, "\"%s\" %s %s %s --to %s --output %s",
       pandoc, input_native, pandoc_options, extra_options, to_format, output);
    if (system(cmd) != 0) {
       d_abort("system call failed: ", cmd);
