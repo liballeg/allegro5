@@ -702,11 +702,12 @@ See also: [al_draw_tinted_bitmap]
 
 ### API: al_draw_pixel
 
-Draws a single pixel at x, y. This function, unlike [al_put_pixel], does
-blending and, unlike [al_put_blended_pixel], respects the transformations. This
-function can be slow if called often; if you need to draw a lot of pixels
-consider using [al_draw_prim] with ALLEGRO_PRIM_POINT_LIST from the primitives
-addon.
+Draws a single pixel at x, y. This function, unlike [al_put_pixel], does 
+blending and, unlike [al_put_blended_pixel], respects the transformations (that 
+is, the pixel's position is transformed, but its size is unaffected - it 
+remains a pixel). This function can be slow if called often; if you need to 
+draw a lot of pixels consider using [al_draw_prim] with ALLEGRO_PRIM_POINT_LIST 
+from the primitives addon.
 
 * x - destination x
 * y - destination y
