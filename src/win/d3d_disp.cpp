@@ -14,6 +14,8 @@
  *
  */
 
+#define UNICODE
+
 #include <windows.h>
 
 #include <string.h>
@@ -1389,7 +1391,7 @@ static void *d3d_display_thread_proc(void *arg)
          refresh_rate = d3d_get_default_refresh_rate(win_display->adapter);
       }
       d3d_display->device_name = (TCHAR *)al_malloc(sizeof(TCHAR)*32);
-      strcpy(d3d_display->device_name, info->dd.DeviceName);
+      strcpy((char*)d3d_display->device_name, (char*)info->dd.DeviceName);
       ALLEGRO_DEBUG("going to call _al_win_create_faux_fullscreen_window\n");
 
       info->display = al_display;

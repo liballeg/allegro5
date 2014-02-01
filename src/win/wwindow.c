@@ -20,6 +20,8 @@
 #define WINVER 0x0501
 #endif
 
+#define UNICODE
+
 #include <windows.h>
 #include <windowsx.h>
 
@@ -36,6 +38,7 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_wunicode.h"
 #include "allegro5/platform/aintwin.h"
 
 
@@ -72,7 +75,7 @@ static void display_flags_to_window_styles(int flags,
 HWND _al_win_create_hidden_window()
 {
    HWND window = CreateWindowEx(0,
-      "ALEX", "hidden", WS_POPUP,
+      L"ALEX", L"hidden", WS_POPUP,
       -5000, -5000, 0, 0,
       NULL,NULL,window_class.hInstance,0);
    return window;
@@ -149,7 +152,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    }
 
    my_window = CreateWindowEx(ex_style,
-      "ALEX", "Allegro", style,
+      L"ALEX", L"Allegro", style,
       pos_x, pos_y, width, height,
       NULL,NULL,window_class.hInstance,0);
 
@@ -210,7 +213,7 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    ex_style = WS_EX_TOPMOST;
 
    my_window = CreateWindowEx(ex_style,
-      "ALEX", "Allegro", style,
+      L"ALEX", L"Allegro", style,
       x1, y1, width, height,
       NULL,NULL,window_class.hInstance,0);
 
@@ -803,7 +806,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                SetWindowPos(GetForegroundWindow(), HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
             }
             // Show the taskbar in case we hid it
-            SetWindowPos(FindWindow("Shell_traywnd", ""), 0, 0, 0, 0, 0, SWP_SHOWWINDOW);
+            SetWindowPos(FindWindow(L"Shell_traywnd", L""), 0, 0, 0, 0, 0, SWP_SHOWWINDOW);
             if (d->flags & ALLEGRO_FULLSCREEN) {
                d->vt->switch_out(d);
             }
@@ -911,15 +914,15 @@ int _al_win_init_window()
    window_class.hIcon = NULL;
    window_class.hInstance = GetModuleHandle(NULL);
    window_class.lpfnWndProc = window_callback;
-   window_class.lpszClassName = "ALEX";
+   window_class.lpszClassName = L"ALEX";
    window_class.lpszMenuName = NULL;
    window_class.style = CS_VREDRAW|CS_HREDRAW|CS_OWNDC;
 
    RegisterClass(&window_class);
 
    if (_al_win_msg_call_proc == 0 && _al_win_msg_suicide == 0) {
-      _al_win_msg_call_proc = RegisterWindowMessage("Allegro call proc");
-      _al_win_msg_suicide = RegisterWindowMessage("Allegro window suicide");
+      _al_win_msg_call_proc = RegisterWindowMessage(L"Allegro call proc");
+      _al_win_msg_suicide = RegisterWindowMessage(L"Allegro window suicide");
    }
 
    return true;
@@ -1155,7 +1158,7 @@ bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
             // Hide the taskbar if fullscreening on primary monitor
             if (win_display->adapter == 0) {
                SetWindowPos(
-                  FindWindow("Shell_traywnd", ""),
+                  FindWindow(L"Shell_traywnd", L""),
                   0,
                   0, 0,
                   0, 0,
@@ -1173,7 +1176,7 @@ bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 
             // Show the taskbar
             SetWindowPos(
-               FindWindow("Shell_traywnd", ""), 0, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
+               FindWindow(L"Shell_traywnd", L""), 0, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
             // Center the window
             _al_win_get_window_center(win_display, display->w, display->h, &pos_x, &pos_y);
             GetWindowInfo(win_display->window, &wi);
@@ -1199,7 +1202,9 @@ bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 void _al_win_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
-   SetWindowText(win_display->window, title);
+   wchar_t *utf16 = _al_win_utf16(title);
+   SetWindowText(win_display->window, utf16);
+   al_free(utf16);
 }
 
 bool _al_win_set_window_constraints(ALLEGRO_DISPLAY *display,

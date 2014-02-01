@@ -22,6 +22,9 @@
 #define WINVER 0x0501
 #endif
 #endif
+
+#define UNICODE
+
 #include <windows.h>
 
 #include "allegro5/allegro.h"
@@ -571,7 +574,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d)
    DEVMODE dm;
    DEVMODE fallback_dm;
    DISPLAY_DEVICE dd;
-   char* dev_name = NULL;
+   TCHAR* dev_name = NULL;
    int i, modeswitch, result;
    int fallback_dm_valid = 0;
    int bpp;
