@@ -361,7 +361,7 @@ static int _aqueue_stop_voice(ALLEGRO_VOICE* voice)
 
       AudioQueueDispose(
          queue,
-         true
+         false /* Using true causes a deadlock on program exit for me */
       );
    }
 
