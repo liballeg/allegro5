@@ -53,8 +53,13 @@ file(GLOB deps_subdirs
     )
 foreach(subdir ${deps_subdirs})
     if(EXISTS "${subdir}/include" OR EXISTS "${subdir}/lib")
-        message(STATUS "Adding ${subdir} to CMAKE_PREFIX_PATH")
-        list(APPEND CMAKE_PREFIX_PATH "${subdir}")
+        if(CMAKE_FIND_ROOT_PATH)
+            message(STATUS "Adding ${subdir} to CMAKE_FIND_ROOT_PATH")
+            list(APPEND CMAKE_FIND_ROOT_PATH "${subdir}")
+        else()
+            message(STATUS "Adding ${subdir} to CMAKE_PREFIX_PATH")
+            list(APPEND CMAKE_PREFIX_PATH "${subdir}")
+        endif()
     endif()
 endforeach(subdir)
 
@@ -237,7 +242,11 @@ if(MINGW)
     endif("$ENV{MINGDIR}" STREQUAL "")
 
     # Search in MINGDIR for headers and libraries.
-    list(APPEND CMAKE_PREFIX_PATH "${MINGDIR}")
+    if(CMAKE_FIND_ROOT_PATH)
+        list(APPEND CMAKE_FIND_ROOT_PATH "${MINGDIR}")
+    else()
+        list(APPEND CMAKE_PREFIX_PATH "${MINGDIR}")
+    endif()
 
     # Install to MINGDIR
     if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
