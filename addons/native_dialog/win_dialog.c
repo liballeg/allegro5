@@ -679,9 +679,10 @@ void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 }
 
 static bool menu_callback(ALLEGRO_DISPLAY *display, UINT msg, WPARAM wParam, LPARAM lParam,
-                             void *userdata)
+                             LPARAM* result, void *userdata)
 {
    (void) userdata;
+   *result = 0;
 
    if (msg == WM_COMMAND && lParam == 0) {
       const int id = LOWORD(wParam);

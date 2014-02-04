@@ -421,9 +421,10 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    }
 
    for (i = 0; i < _al_vector_size(&win_display->msg_callbacks); ++i) {
+      LRESULT result;
       ALLEGRO_DISPLAY_WIN_CALLBACK *ptr = _al_vector_ref(&win_display->msg_callbacks, i);
-      if ((ptr->proc)(d, message, wParam, lParam, ptr->userdata))
-         return TRUE;
+      if ((ptr->proc)(d, message, wParam, lParam, &result, ptr->userdata))
+         return result;
    }
 
    switch (message) {
@@ -1287,7 +1288,7 @@ int _al_win_determine_adapter(void)
 /* Function: al_win_add_window_callback
  */
 bool al_win_add_window_callback(ALLEGRO_DISPLAY *display,
-   bool (*callback)(ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM, void *), void *userdata)
+   bool (*callback)(ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM, LRESULT*, void *), void *userdata)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
    ALLEGRO_DISPLAY_WIN_CALLBACK *ptr;
@@ -1315,7 +1316,7 @@ bool al_win_add_window_callback(ALLEGRO_DISPLAY *display,
 /* Function: al_win_remove_window_callback
  */
 bool al_win_remove_window_callback(ALLEGRO_DISPLAY *display,
-   bool (*callback)(ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM, void *), void *userdata)
+   bool (*callback)(ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM, LRESULT*, void *), void *userdata)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
    

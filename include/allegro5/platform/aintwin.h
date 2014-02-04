@@ -44,7 +44,7 @@
 /* user defined hooks into the main win32 event loop */
 
 typedef bool (*ALLEGRO_DISPLAY_WIN_CALLBACK_PROC)
-   (ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM, void *);
+   (ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM, LRESULT*, void *);
 
 typedef struct ALLEGRO_DISPLAY_WIN_CALLBACK ALLEGRO_DISPLAY_WIN_CALLBACK;
 
