@@ -1127,8 +1127,10 @@ number of line segments that will be used to form them.
 
 ### API: ALLEGRO_PRIM_QUALITY
 
-Defines the quality of the quadratic primitives. At 10, this roughly
-corresponds to error of less than half of a pixel.
+Controls the quality of the approximation of curved primitives (e.g. circles).
+Curved primitives are drawn by approximating them with a sequence of line
+segments. By default, this roughly corresponds to error of less than half of a
+pixel.
 
 ### API: ALLEGRO_LINE_JOIN
 
