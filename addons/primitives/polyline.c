@@ -73,13 +73,15 @@ static void compute_cross_points(const float* v0, const float* v1, const float* 
    float diff[2];
    float miter_distance;
    float angle;
+   float len_0, len_1;
+   bool sharp;
 
    /* We accept a few call cases. Filter out unsupported. */
    ASSERT((NULL != v0 || NULL != v2) && (NULL != v1));
 
    /* Compute directions. */
-   compute_direction_and_normal(v0, v1, dir_0, normal_0);
-   compute_direction_and_normal(v1, v2, dir_1, normal_1);
+   len_0 = compute_direction_and_normal(v0, v1, dir_0, normal_0);
+   len_1 = compute_direction_and_normal(v1, v2, dir_1, normal_1);
 
    /* Compute angle of deflection between segments. */
    diff[0] =   dir_0[0] * dir_1[0] + dir_0[1] * dir_1[1];
@@ -89,6 +91,9 @@ static void compute_cross_points(const float* v0, const float* v1, const float* 
 
    /* Calculate miter distance. */
    miter_distance = angle != 0.0f ? radius / cosf(fabsf(angle) * 0.5f) : radius;
+
+   /* If the angle is too sharp, we give up on trying not to overdraw. */
+   sharp = miter_distance > len_0 || miter_distance > len_1;
 
    middle[0] = normal_0[0] + normal_1[0];
    middle[1] = normal_0[1] + normal_1[1];
@@ -103,8 +108,16 @@ static void compute_cross_points(const float* v0, const float* v1, const float* 
       r0[0] = v1[0] + normal_1[0] * radius;
       r0[1] = v1[1] + normal_1[1] * radius;
 
-      l1[0] = r1[0] = v1[0] - middle[0] * miter_distance;
-      l1[1] = r1[1] = v1[1] - middle[1] * miter_distance;
+      if (sharp) {
+         l1[0] = v1[0] - normal_0[0] * radius;
+         l1[1] = v1[1] - normal_0[1] * radius;
+         r1[0] = v1[0] - normal_1[0] * radius;
+         r1[1] = v1[1] - normal_1[1] * radius;
+      }
+      else {
+         l1[0] = r1[0] = v1[0] - middle[0] * miter_distance;
+         l1[1] = r1[1] = v1[1] - middle[1] * miter_distance;
+      }
    }
    else
    {
@@ -116,8 +129,16 @@ static void compute_cross_points(const float* v0, const float* v1, const float* 
       r1[0] = v1[0] - normal_1[0] * radius;
       r1[1] = v1[1] - normal_1[1] * radius;
 
-      l0[0] = r0[0] = v1[0] - middle[0] * miter_distance;
-      l0[1] = r0[1] = v1[1] - middle[1] * miter_distance;
+      if (sharp) {
+         l0[0] = v1[0] + normal_0[0] * radius;
+         l0[1] = v1[1] + normal_0[1] * radius;
+         r0[0] = v1[0] + normal_1[0] * radius;
+         r0[1] = v1[1] + normal_1[1] * radius;
+      }
+      else {
+         l0[0] = r0[0] = v1[0] - middle[0] * miter_distance;
+         l0[1] = r0[1] = v1[1] - middle[1] * miter_distance;
+      }
    }
 
    if (out_angle)
