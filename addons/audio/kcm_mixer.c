@@ -175,14 +175,16 @@ static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
    /* Looping! Should be mostly self-explanatory */
    switch (spl->loop) {
       case ALLEGRO_PLAYMODE_LOOP:
-         if (spl->step > 0) {
-            while (spl->pos >= spl->loop_end) {
-               spl->pos -= (spl->loop_end - spl->loop_start);
+         if (spl->loop_end - spl->loop_start != 0) {
+            if (spl->step > 0) {
+               while (spl->pos >= spl->loop_end) {
+                  spl->pos -= (spl->loop_end - spl->loop_start);
+               }
             }
-         }
-         else if (spl->step < 0) {
-            while (spl->pos < spl->loop_start) {
-               spl->pos += (spl->loop_end - spl->loop_start);
+            else if (spl->step < 0) {
+               while (spl->pos < spl->loop_start) {
+                  spl->pos += (spl->loop_end - spl->loop_start);
+               }
             }
          }
          return true;
@@ -192,20 +194,22 @@ static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
           * check for the opposite direction if a loop occurred, otherwise
           * you could end up misplaced on small, high-step loops.
           */
-         if (spl->step >= 0) {
-         check_forward:
-            if (spl->pos >= spl->loop_end) {
-               spl->step = -spl->step;
-               spl->pos = spl->loop_end - (spl->pos - spl->loop_end) - 1;
-               goto check_backward;
+         if (spl->loop_end - spl->loop_start != 0) {
+            if (spl->step >= 0) {
+            check_forward:
+               if (spl->pos >= spl->loop_end) {
+                  spl->step = -spl->step;
+                  spl->pos = spl->loop_end - (spl->pos - spl->loop_end) - 1;
+                  goto check_backward;
+               }
             }
-         }
-         else {
-         check_backward:
-            if (spl->pos < spl->loop_start || spl->pos >= spl->loop_end) {
-               spl->step = -spl->step;
-               spl->pos = spl->loop_start + (spl->loop_start - spl->pos);
-               goto check_forward;
+            else {
+            check_backward:
+               if (spl->pos < spl->loop_start || spl->pos >= spl->loop_end) {
+                  spl->step = -spl->step;
+                  spl->pos = spl->loop_start + (spl->loop_start - spl->pos);
+                  goto check_forward;
+               }
             }
          }
          return true;
