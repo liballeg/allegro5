@@ -74,7 +74,7 @@ static void compute_cross_points(const float* v0, const float* v1, const float* 
    float miter_distance;
    float angle;
    float len_0, len_1;
-   bool sharp;
+   bool sharp = false;
 
    /* We accept a few call cases. Filter out unsupported. */
    ASSERT((NULL != v0 || NULL != v2) && (NULL != v1));
@@ -93,10 +93,26 @@ static void compute_cross_points(const float* v0, const float* v1, const float* 
    miter_distance = angle != 0.0f ? radius / cosf(fabsf(angle) * 0.5f) : radius;
 
    /* If the angle is too sharp, we give up on trying not to overdraw. */
-   sharp = miter_distance > len_0 || miter_distance > len_1;
+   if (miter_distance < 0) {
+      sharp = true;
+      miter_distance = 0;
+   }
+   if (miter_distance > len_0) {
+      sharp = true;
+      miter_distance = len_0;
+   }
+   if(miter_distance > len_1) {
+      sharp = true;
+      miter_distance = len_1;
+   }
 
    middle[0] = normal_0[0] + normal_1[0];
    middle[1] = normal_0[1] + normal_1[1];
+
+   if (middle[0] == middle[1] && middle[0] == 0.0) {
+      middle[0] = dir_1[0];
+      middle[1] = dir_1[1];
+   }
 
    _al_prim_normalize(middle);
 
