@@ -231,7 +231,7 @@ public class AllegroActivity extends Activity
          return;
       }
 
-      nativeOnOrientationChange(0, true);
+      nativeOnOrientationChange(getAllegroOrientation(), true);
 
       requestWindowFeature(Window.FEATURE_NO_TITLE);
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
