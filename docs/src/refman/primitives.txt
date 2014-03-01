@@ -207,17 +207,61 @@ See also: [al_draw_rounded_rectangle], [al_draw_filled_rectangle]
 
 ### API: al_calculate_arc
 
-Calculates an elliptical arc, and sets the vertices in the destination buffer to
-the calculated positions. If `thickness <= 0`, then `num_points` of points are
-required in the destination, otherwise twice as many are needed.  The
-destination buffer should consist of regularly spaced (by distance of `stride`
-bytes) doublets of floats, corresponding to x and y coordinates of the
-vertices.
+When `thickness <= 0` this function computes positions of `num_points`
+regularly spaced points on an elliptical arc. When `thickness > 0` this
+function computes two sets of points, obtained as follows: the first set is
+obtained by taking the points computed in the `thickness <= 0` case and
+shifting them by `thickness / 2` outward, in a direction perpendicular to the
+arc curve. The second set is the same, but shifted `thickness / 2` inward
+relative to the arc. The two sets of points are interleaved in the destination
+buffer (i.e. the first pair of points will be collinear with the arc center,
+the first point of the pair will be farther from the center than the second
+point; the next pair will also be collinear, but at a different angle and so
+on).
+
+The destination buffer `dest` is interpreted as a set of regularly spaced pairs
+of floats, each pair holding the coordinates of the corresponding point on the
+arc. The two floats in the pair are adjacent, and the distance (in bytes)
+between the addresses of the first float in two successive pairs is `stride`.
+For example, if you have a tightly packed array of floats with no spaces
+between pairs, then `stride` will be exactly `2 * sizeof(float)`.
+
+Example with `thickness <= 0`:
+
+~~~~c
+const int num_points = 4;
+float points[num_points][2];
+al_calculate_arc(&points[0][0], 2 * sizeof(float), 0, 0, 10, 10, 0, ALLEGRO_PI / 2, 0, num_points);
+
+assert((int)points[0][0] == 10);
+assert((int)points[0][1] == 0);
+
+assert((int)points[num_points - 1][0] == 0);
+assert((int)points[num_points - 1][1] == 10);
+~~~~
+
+Example with `thickness > 0`:
+
+~~~~c
+const int num_points = 4;
+float points[num_points * 2][2];
+al_calculate_arc(&points[0][0], 2 * sizeof(float), 0, 0, 10, 10, 0, ALLEGRO_PI / 2, 2, num_points);
+
+assert((int)points[0][0] == 11);
+assert((int)points[0][1] == 0);
+assert((int)points[1][0] == 9);
+assert((int)points[1][1] == 0);
+
+assert((int)points[(num_points - 1) * 2][0] == 0);
+assert((int)points[(num_points - 1) * 2][1] == 11);
+assert((int)points[(num_points - 1) * 2 + 1][0] == 0);
+assert((int)points[(num_points - 1) * 2 + 1][1] == 9);
+~~~~
 
 *Parameters:*
 
 * dest - The destination buffer
-* stride - Distance (in bytes) between starts of successive pairs of coordinates
+* stride - Distance (in bytes) between starts of successive pairs of points
 * cx, cy - Center of the arc
 * rx, ry - Radii of the arc
 * start_theta - The initial angle from which the arc is calculated

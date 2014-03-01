@@ -409,7 +409,7 @@ void al_draw_filled_rectangle(float x1, float y1, float x2, float y2,
  */
 void al_calculate_arc(float* dest, int stride, float cx, float cy,
    float rx, float ry, float start_theta, float delta_theta, float thickness,
-   int num_segments)
+   int num_points)
 {   
    float theta;
    float c;
@@ -418,12 +418,12 @@ void al_calculate_arc(float* dest, int stride, float cx, float cy,
    int ii;
  
    ASSERT(dest);
-   ASSERT(num_segments > 1);
+   ASSERT(num_points > 1);
    ASSERT(rx >= 0);
    ASSERT(ry >= 0);
 
    if (thickness > 0.0f) {
-      theta = delta_theta / ((float)(num_segments) - 1);
+      theta = delta_theta / ((float)(num_points) - 1);
       c = cosf(theta);
       s = sinf(theta);
       x = cosf(start_theta);
@@ -435,7 +435,7 @@ void al_calculate_arc(float* dest, int stride, float cx, float cy,
          */
          float r1 = rx - thickness / 2.0f;
          float r2 = rx + thickness / 2.0f;
-         for (ii = 0; ii < num_segments; ii ++) {
+         for (ii = 0; ii < num_points; ii ++) {
             *dest =       r2 * x + cx;
             *(dest + 1) = r2 * y + cy;
             dest = (float*)(((char*)dest) + stride);
@@ -449,7 +449,7 @@ void al_calculate_arc(float* dest, int stride, float cx, float cy,
          }
       } else {
          if (rx != 0 && !ry == 0) {
-            for (ii = 0; ii < num_segments; ii++) {
+            for (ii = 0; ii < num_points; ii++) {
                float denom = hypotf(ry * x, rx * y);
                float nx = thickness / 2 * ry * x / denom;
                float ny = thickness / 2 * rx * y / denom;
@@ -468,13 +468,13 @@ void al_calculate_arc(float* dest, int stride, float cx, float cy,
          }
       }
    } else {
-      theta = delta_theta / ((float)num_segments - 1);
+      theta = delta_theta / ((float)num_points - 1);
       c = cosf(theta);
       s = sinf(theta);
       x = cosf(start_theta);
       y = sinf(start_theta);
       
-      for (ii = 0; ii < num_segments; ii++) {
+      for (ii = 0; ii < num_points; ii++) {
          *dest =       rx * x + cx;
          *(dest + 1) = ry * y + cy;
          dest = (float*)(((char*)dest) + stride);
