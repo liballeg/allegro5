@@ -728,9 +728,8 @@ is not NULL, the first event in the queue will be copied
 into `ret_event` and removed from the queue.  If `ret_event` is NULL
 the first event is left at the head of the queue.
 
-`timeout_msecs` determines approximately how many seconds to
-wait.  If the call times out, false is returned.  Otherwise true is
-returned.
+`secs` determines approximately how many seconds to wait. If the call times
+out, false is returned.  Otherwise true is returned.
 
 See also: [ALLEGRO_EVENT], [al_wait_for_event], [al_wait_for_event_until]
 
