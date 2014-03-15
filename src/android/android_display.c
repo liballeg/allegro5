@@ -653,11 +653,11 @@ static void android_flip_display(ALLEGRO_DISPLAY *dpy)
 static void android_update_display_region(ALLEGRO_DISPLAY *dpy, int x, int y,
    int width, int height)
 {
-   (void)dpy;
    (void)x;
    (void)y;
    (void)width;
    (void)height;
+   android_flip_display(dpy);
 }
 
 static bool android_acknowledge_resize(ALLEGRO_DISPLAY *dpy)

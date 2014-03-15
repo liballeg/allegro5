@@ -393,10 +393,9 @@ See also: [al_set_new_display_flags], [al_set_new_display_option]
 
 Does the same as [al_flip_display], but tries to update only the
 specified region. With many drivers this is not possible, but for
-some it can improve performance.
-
-The ALLEGRO_UPDATE_DISPLAY_REGION option (see [al_get_display_option])
-will specify the behavior of this function in the display.
+some it can improve performance. If this is not supported, this function falls
+back to the behavior of [al_flip_display]. You can query the support for this
+function using `al_get_display_option(display, ALLEGRO_UPDATE_DISPLAY_REGION)`.
 
 See also: [al_flip_display], [al_get_display_option]
 
