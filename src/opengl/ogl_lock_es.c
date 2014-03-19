@@ -380,27 +380,6 @@ static bool ogl_lock_region_nonbb_readwrite_fbo(
 
    ok = true;
 
-   /* Some Android devices only want to read POT chunks with glReadPixels.
-    * This adds yet more overhead, but AFAICT it fails any other way.
-    * Test device was gen 1 Galaxy Tab. Also read 16x16 minimum.
-    *
-    * XXX Nexus 7 at least does NOT require the next POT
-    */
-   if (IS_ANDROID) {
-      glPixelStorei(GL_PACK_ALIGNMENT, 4);
-      e = glGetError();
-      if (e) {
-         ALLEGRO_ERROR("glPixelStorei failed (%s).\n", _al_gl_error_string(e));
-         ok = false;
-      }
-
-      w = pot(w);
-      while (w < 16) w = pot(w+1);
-      h = pot(h);
-      while (h < 16) h = pot(h+1);
-      ALLEGRO_DEBUG("roundup w, h = %d, %d\n", w, h);
-   }
-
    /* Allocate a buffer big enough for both purposes. This requires more
     * memory to be held for the period of the lock, but overall less
     * memory is needed to complete the lock.
