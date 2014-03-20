@@ -967,6 +967,8 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    [dpy->ctx clearDrawable];
    // Unlock the screen 
    if (dpy->parent.flags & ALLEGRO_FULLSCREEN) {
+      CGDisplaySetDisplayMode(dpy->display_id, dpy->original_mode, NULL);
+      CGDisplayModeRelease(dpy->original_mode);
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
       if (dpy->win) {
          [[dpy->win contentView] exitFullScreenModeWithOptions: nil];
@@ -1080,6 +1082,12 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
 {
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    ALLEGRO_DEBUG("Switching to fullscreen mode sized %dx%d\n", w, h);
+
+   int32_t system_version;
+   if (Gestalt(gestaltSystemVersion, &system_version) != noErr)
+      system_version = 0;
+   #define IS_LION (system_version >= 0x1070)
+
    if (al_get_new_display_adapter() >= al_get_num_video_adapters()) {
       [pool drain];
       return NULL;
@@ -1133,7 +1141,6 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
       [pool drain];
       return NULL;
    }
-   [context makeCurrentContext];
    dpy->ctx = context;
 
    // Prevent other apps from writing to this display and switch it to our
@@ -1194,11 +1201,28 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    }
 
    /* Switch display mode */
-   CFDictionaryRef options = CFDictionaryCreate(NULL, NULL, NULL, 0, NULL, NULL);
+   dpy->original_mode = CGDisplayCopyDisplayMode(dpy->display_id);
+   CGDisplayCapture(dpy->display_id);
    CGDisplaySetDisplayMode(dpy->display_id, mode, NULL);
-   CFRelease(options);
 #endif
-   [context setFullScreen];
+
+   NSRect rect = NSMakeRect(0, 0, w, h);
+
+   dpy->win = [[NSWindow alloc] initWithContentRect:rect styleMask:(IS_LION ? NSBorderlessWindowMask : 0) backing:NSBackingStoreBuffered defer:NO];
+   [dpy->win setAcceptsMouseMovedEvents:YES];
+   [dpy->win setViewsNeedDisplay:NO];
+
+   NSView *window_view = [[NSView alloc] initWithFrame:rect];
+   [window_view setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+   [[dpy->win contentView] addSubview:window_view];
+   [dpy->win setLevel:CGShieldingWindowLevel()];
+   [context setView:window_view];
+   [context update];
+   [window_view release];
+   [context makeCurrentContext];
+   [dpy->win setHasShadow:NO];
+   [dpy->win setOpaque:YES];
+   [dpy->win makeKeyAndOrderFront:nil];
 
    // Set up the Allegro OpenGL implementation
    dpy->parent.ogl_extras = al_malloc(sizeof(ALLEGRO_OGL_EXTRAS));
