@@ -443,6 +443,8 @@ static ALLEGRO_TOUCH_INPUT_DRIVER *win_get_touch_input_driver(void)
 ALLEGRO_PATH *_al_win_get_path(int id)
 {
    char path[MAX_PATH];
+   wchar_t pathw[MAX_PATH];
+   ALLEGRO_USTR *pathu;
    uint32_t csidl = 0;
    HRESULT ret = 0;
    ALLEGRO_PATH *cisdl_path = NULL;
@@ -450,12 +452,15 @@ ALLEGRO_PATH *_al_win_get_path(int id)
    switch (id) {
       case ALLEGRO_TEMP_PATH: {
          /* Check: TMP, TMPDIR, TEMP or TEMPDIR */
-         DWORD ret = GetTempPath(MAX_PATH, path);
+
+         DWORD ret = GetTempPathW(MAX_PATH, pathw);
          if (ret > MAX_PATH) {
             /* should this ever happen, windows is more broken than I ever thought */
             return NULL;
          }
-
+         pathu = al_ustr_new_from_utf16(pathw);
+         al_ustr_to_buffer(pathu, path, sizeof path);
+         al_ustr_free(pathu);
          return al_create_path_for_directory(path);
 
       } break;
@@ -463,7 +468,11 @@ ALLEGRO_PATH *_al_win_get_path(int id)
       case ALLEGRO_RESOURCES_PATH: { /* where the program is in */
          HANDLE process = GetCurrentProcess();
          char *ptr;
-         GetModuleFileNameEx(process, NULL, path, MAX_PATH);
+
+         GetModuleFileNameExW(process, NULL, pathw, MAX_PATH);
+         pathu = al_ustr_new_from_utf16(pathw);
+         al_ustr_to_buffer(pathu, path, sizeof path);
+         al_ustr_free(pathu);
          ptr = strrchr(path, '\\');
          if (!ptr) { /* shouldn't happen */
             return NULL;
@@ -491,7 +500,11 @@ ALLEGRO_PATH *_al_win_get_path(int id)
 
       case ALLEGRO_EXENAME_PATH: { /* full path to the exe including its name */
          HANDLE process = GetCurrentProcess();
-         GetModuleFileNameEx(process, NULL, path, MAX_PATH);
+
+         GetModuleFileNameExW(process, NULL, pathw, MAX_PATH);
+         pathu = al_ustr_new_from_utf16(pathw);
+         al_ustr_to_buffer(pathu, path, sizeof path);
+         al_ustr_free(pathu);
 
          return al_create_path(path);
       } break;
@@ -500,10 +513,14 @@ ALLEGRO_PATH *_al_win_get_path(int id)
          return NULL;
    }
 
-   ret = SHGetFolderPath(NULL, csidl, NULL, SHGFP_TYPE_CURRENT, path);
+   ret = SHGetFolderPathW(NULL, csidl, NULL, SHGFP_TYPE_CURRENT, pathw);
    if (ret != S_OK) {
       return NULL;
    }
+
+   pathu = al_ustr_new_from_utf16(pathw);
+   al_ustr_to_buffer(pathu, path, sizeof path);
+   al_ustr_free(pathu);
 
    cisdl_path = al_create_path_for_directory(path);
    if (!cisdl_path)
