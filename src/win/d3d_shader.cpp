@@ -545,6 +545,11 @@ bool _al_hlsl_set_projview_matrix(
    return result == D3D_OK;
 }
 
+void _al_d3d_shutdown_shaders(void)
+{
+   _al_vector_free(&shaders);
+}
+
 #endif
 
 /* vim: set sts=3 sw=3 et: */

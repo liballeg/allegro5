@@ -69,6 +69,7 @@ void _al_d3d_resort_display_settings(void);
 #ifdef ALLEGRO_CFG_SHADER_HLSL
 void _al_d3d_on_lost_shaders(ALLEGRO_DISPLAY *display);
 void _al_d3d_on_reset_shaders(ALLEGRO_DISPLAY *display);
+void _al_d3d_shutdown_shaders(void);
 #endif
 
 extern ALLEGRO_MUTEX *_al_d3d_lost_device_mutex;

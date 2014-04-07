@@ -2606,7 +2606,8 @@ static void d3d_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 
 static void d3d_shutdown(void)
 {
-  
+   _al_d3d_shutdown_shaders();
+
    _al_d3d_destroy_display_format_list();
       
    _al_d3d->Release();
