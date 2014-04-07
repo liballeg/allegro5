@@ -548,6 +548,8 @@ bool _al_hlsl_set_projview_matrix(
 void _al_d3d_shutdown_shaders(void)
 {
    _al_vector_free(&shaders);
+   _al_remove_display_invalidated_callback(al_get_current_display(), _al_d3d_on_lost_shaders);
+   _al_remove_display_validated_callback(al_get_current_display(), _al_d3d_on_reset_shaders);
 }
 
 #endif
