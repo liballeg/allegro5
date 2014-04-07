@@ -947,6 +947,8 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
    if (system->mouse_grab_display == display)
       al_ungrab_mouse();
 
+   _al_win_destroy_display_icons(display);
+
    d3d_destroy_display_internals(d3d_display);
 
    _al_vector_free(&display->display_invalidated_callbacks);

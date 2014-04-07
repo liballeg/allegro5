@@ -1081,7 +1081,7 @@ static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    disp->ogl_extras->backbuffer = NULL;
 
    _al_ogl_unmanage_extensions(disp);
-
+   
    PostMessage(win_disp->window, _al_win_msg_suicide, (WPARAM)win_disp, 0);
 
    while (!win_disp->thread_ended)
@@ -1118,6 +1118,8 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
 
    if (system->mouse_grab_display == disp)
       system->mouse_grab_display = NULL;
+
+   _al_win_destroy_display_icons(disp);
 
    destroy_display_internals(wgl_disp);
    _al_event_source_free(&disp->es);

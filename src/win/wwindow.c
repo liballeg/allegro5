@@ -1031,6 +1031,18 @@ void _al_win_set_display_icons(ALLEGRO_DISPLAY *display,
       num_icons, bmps);
 }
 
+void _al_win_destroy_display_icons(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
+   HICON old_icon;
+
+   old_icon = (HICON)SendMessage(win_display->window, WM_SETICON, ICON_SMALL, 0);
+   if (old_icon)
+      DestroyIcon(old_icon);
+   old_icon = (HICON)SendMessage(win_display->window, WM_SETICON, ICON_BIG, 0);
+   if (old_icon)
+      DestroyIcon(old_icon);
+}
 
 void _al_win_set_window_position(HWND window, int x, int y)
 {
