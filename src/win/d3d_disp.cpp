@@ -719,7 +719,7 @@ bool _al_d3d_init_display()
    present_mutex = al_create_mutex();
    _al_d3d_lost_device_mutex = al_create_mutex();
 
-   _al_d3d_bmp_init();
+   _al_d3d_init_shaders();
 
    return true;
 }
@@ -948,6 +948,9 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
       al_ungrab_mouse();
 
    d3d_destroy_display_internals(d3d_display);
+
+   _al_vector_free(&display->display_invalidated_callbacks);
+   _al_vector_free(&display->display_validated_callbacks);
 
    _al_vector_find_and_delete(&system->system.displays, &display);
 
@@ -2606,8 +2609,6 @@ static void d3d_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 
 static void d3d_shutdown(void)
 {
-   _al_d3d_shutdown_shaders();
-
    _al_d3d_destroy_display_format_list();
       
    _al_d3d->Release();
@@ -2615,6 +2616,8 @@ static void d3d_shutdown(void)
    al_destroy_mutex(_al_d3d_lost_device_mutex);
 
    _al_d3d_bmp_destroy();
+   
+   _al_d3d_shutdown_shaders();
 
    FreeLibrary(_al_d3d_module);
    _al_d3d_module = NULL;

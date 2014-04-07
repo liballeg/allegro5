@@ -63,12 +63,6 @@ bool al_get_d3d_texture_size(ALLEGRO_BITMAP *bitmap, int *width, int *height)
    }
 }
 
-void _al_d3d_bmp_init(void)
-{
-  
-}
-
-
 void _al_d3d_bmp_destroy(void)
 {
    al_free(vt);

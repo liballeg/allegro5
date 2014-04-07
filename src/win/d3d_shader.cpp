@@ -30,7 +30,7 @@
 
 ALLEGRO_DEBUG_CHANNEL("shader")
 
-static _AL_VECTOR shaders = _AL_VECTOR_INITIALIZER(ALLEGRO_SHADER *);
+static _AL_VECTOR shaders;
 
 typedef struct ALLEGRO_SHADER_HLSL_S ALLEGRO_SHADER_HLSL_S;
 
@@ -545,11 +545,14 @@ bool _al_hlsl_set_projview_matrix(
    return result == D3D_OK;
 }
 
+void _al_d3d_init_shaders(void)
+{
+   _al_vector_init(&shaders, sizeof(ALLEGRO_SHADER *));
+}
+
 void _al_d3d_shutdown_shaders(void)
 {
    _al_vector_free(&shaders);
-   _al_remove_display_invalidated_callback(al_get_current_display(), _al_d3d_on_lost_shaders);
-   _al_remove_display_validated_callback(al_get_current_display(), _al_d3d_on_reset_shaders);
 }
 
 #endif

@@ -55,7 +55,6 @@ void _al_d3d_refresh_texture_memory(ALLEGRO_DISPLAY *display);
 bool _al_d3d_recreate_bitmap_textures(ALLEGRO_DISPLAY_D3D *disp);
 void _al_d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap);
 bool _al_d3d_supports_separate_alpha_blend(ALLEGRO_DISPLAY *display);
-void _al_d3d_bmp_init(void);
 void _al_d3d_bmp_destroy(void);
 
 void _al_d3d_generate_display_format_list(void);
@@ -69,6 +68,7 @@ void _al_d3d_resort_display_settings(void);
 #ifdef ALLEGRO_CFG_SHADER_HLSL
 void _al_d3d_on_lost_shaders(ALLEGRO_DISPLAY *display);
 void _al_d3d_on_reset_shaders(ALLEGRO_DISPLAY *display);
+void _al_d3d_init_shaders(void);
 void _al_d3d_shutdown_shaders(void);
 #endif
 
