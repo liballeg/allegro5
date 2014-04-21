@@ -18,6 +18,8 @@
    #error bad include
 #endif
 
+#ifdef ALLEGRO_LIB_BUILD
 #include "allegro5/platform/aintuthr.h"
+#endif
 
 /* Nothing left */
