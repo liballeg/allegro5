@@ -510,7 +510,7 @@ See also: [al_set_new_bitmap_flags], [al_get_new_bitmap_flags], [al_get_bitmap_f
 
 ### API: al_set_new_bitmap_format
 
-Sets the pixel format for newly created bitmaps.
+Sets the pixel format ([ALLEGRO_PIXEL_FORMAT]) for newly created bitmaps.
 The default format is 0 and means the display driver will choose
 the best format.
 
