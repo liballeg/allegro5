@@ -714,9 +714,9 @@ See also: [al_get_default_mixer], [al_set_default_mixer], [al_reserve_samples].
 
 ### API: al_attach_mixer_to_mixer
 
-Attaches a mixer onto another mixer. The same rules as with
-[al_attach_sample_instance_to_mixer] apply, with the added caveat that both
-mixers must be the same frequency.
+Attaches the mixer passed as the first argument onto the mixer passed as the
+second argument. The same rules as with [al_attach_sample_instance_to_mixer]
+apply, with the added caveat that both mixers must be the same frequency.
 Returns true on success, false on error.
 
 Currently both mixers must have the same audio depth, otherwise the function
