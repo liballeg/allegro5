@@ -722,6 +722,8 @@ Returns true on success, false on error.
 Currently both mixers must have the same audio depth, otherwise the function
 fails.
 
+It is invalid to attach a mixer to itself.
+
 See also: [al_detach_mixer].
 
 ### API: al_attach_sample_instance_to_mixer

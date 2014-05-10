@@ -804,6 +804,7 @@ bool al_attach_mixer_to_mixer(ALLEGRO_MIXER *stream, ALLEGRO_MIXER *mixer)
 {
    ASSERT(mixer);
    ASSERT(stream);
+   ASSERT(mixer != stream);
 
    if (mixer->ss.spl_data.frequency != stream->ss.spl_data.frequency) {
       _al_set_error(ALLEGRO_INVALID_OBJECT,
