@@ -737,6 +737,11 @@ ALLEGRO_FONT *al_load_ttf_font_stretch_f(ALLEGRO_FILE *file,
     FT_Open_Args args;
     int result;
 
+    if ((h > 0 && w < 0) || (h < 0 && w > 0)) {
+       ALLEGRO_ERROR("Height/width have opposite signs (w = %d, h = %d).\n", w, h);
+       return NULL;
+    }
+
     data = al_calloc(1, sizeof *data);
     data->stream.read = ftread;
     data->stream.close = ftclose;
