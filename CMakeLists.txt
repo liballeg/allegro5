@@ -400,10 +400,13 @@ if(COMPILER_GCC_OR_CLANG)
         CACHE STRING "profiling flags")
     set(CMAKE_EXE_LINKER_FLAGS_PROFILE "-pg"
         CACHE STRING "profiling flags")
+    set(CMAKE_SHARED_LINKER_FLAGS_PROFILE "-pg"
+        CACHE STRING "profiling flags")
     mark_as_advanced(
         CMAKE_C_FLAGS_PROFILE
         CMAKE_CXX_FLAGS_PROFILE
         CMAKE_EXE_LINKER_FLAGS_PROFILE
+        CMAKE_SHARED_LINKER_FLAGS_PROFILE
         )
 endif(COMPILER_GCC_OR_CLANG)
 
