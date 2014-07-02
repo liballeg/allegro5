@@ -679,7 +679,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h,
 
 
 /* lets you setup the memory pointer to skip a lock/unlock copy
- * if it's unsessesary
+ * if it's unnecessary
  * 'ptr' should be tightly packed or NULL if no texture data
  * upload is desired.
  */
