@@ -140,7 +140,7 @@ static void swap_bitmaps(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *other)
 void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP *clone;
-   int bitmap_flags = bitmap->format;
+   int bitmap_flags = bitmap->flags;
    int new_bitmap_flags = al_get_new_bitmap_flags();
    bool want_memory = (new_bitmap_flags & ALLEGRO_MEMORY_BITMAP) != 0;
    bool clone_memory;
