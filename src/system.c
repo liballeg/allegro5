@@ -104,6 +104,8 @@ static ALLEGRO_PATH *early_get_exename_path(void)
    return _al_unix_get_path(ALLEGRO_EXENAME_PATH);
 #elif defined(ALLEGRO_ANDROID)
    return _al_android_get_path(ALLEGRO_EXENAME_PATH);
+#elif defined(ALLEGRO_SDL)
+   return al_create_path_for_directory(SDL_GetBasePath());
 #else
    #error early_get_exename_path not implemented
 #endif
@@ -270,6 +272,9 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
    _al_init_convert_bitmap_list();
 
    _al_init_timers();
+
+   if (active_sysdrv->vt->heartbeat_init)
+      active_sysdrv->vt->heartbeat_init();
 
    if (atexit_ptr && atexit_virgin) {
       atexit_ptr(al_uninstall_system);

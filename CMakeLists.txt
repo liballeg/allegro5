@@ -32,6 +32,7 @@ option(WANT_GLES2 "Compile with GLES2 support" ON)
 if(WANT_ANDROID)
     include(${CMAKE_SOURCE_DIR}/cmake/Toolchain-android.cmake)
 endif(WANT_ANDROID)
+option(ALLEGRO_SDL "Build using the SDL backend (experimental)" OFF)
 
 # Set the project name.
 # We use C++ in a few cases.
@@ -313,6 +314,12 @@ endif(ANDROID)
 if(ALLEGRO_RASPBERRYPI)
     set(ALLEGRO_CFG_PTHREADS_TLS 1)
 endif(ALLEGRO_RASPBERRYPI)
+
+if(ALLEGRO_SDL)
+   set(ALLEGRO_UNIX 0)
+   set(WANT_X11 off)
+   include(FindSDL2)
+endif(ALLEGRO_SDL)
 
 # Tell the compiler it can use SSE instructions on x86 architectures.
 # If compatibility with Pentium 2's and below is required then the user
@@ -807,6 +814,12 @@ foreach(genfile ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED})
         ${CMAKE_CURRENT_BINARY_DIR}/${genfile}
         )
 endforeach(genfile)
+
+if(ALLEGRO_SDL)
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_SDL_FILES})
+    list(APPEND PLATFORM_LIBS ${SDL2_LIBRARIES} pthread dl m)
+    include_directories(${SDL2_INCLUDE_DIR})
+endif(ALLEGRO_SDL)
 
 set_our_header_properties(${ALLEGRO_PUBLIC_HEADERS})
 

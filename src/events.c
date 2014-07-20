@@ -213,13 +213,31 @@ bool al_is_event_queue_paused(const ALLEGRO_EVENT_QUEUE *queue)
 
 
 
+static void heartbeat(void)
+{
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
+   if (system->vt->heartbeat)
+      system->vt->heartbeat();
+}
+
+
+
+static bool is_event_queue_empty(ALLEGRO_EVENT_QUEUE *queue)
+{
+   return (queue->events_head == queue->events_tail);
+}
+
+
+
 /* Function: al_is_event_queue_empty
  */
 bool al_is_event_queue_empty(ALLEGRO_EVENT_QUEUE *queue)
 {
    ASSERT(queue);
 
-   return (queue->events_head == queue->events_tail);
+   heartbeat();
+
+   return is_event_queue_empty(queue);
 }
 
 
@@ -246,7 +264,7 @@ static ALLEGRO_EVENT *get_next_event_if_any(ALLEGRO_EVENT_QUEUE *queue,
 {
    ALLEGRO_EVENT *event;
 
-   if (al_is_event_queue_empty(queue)) {
+   if (is_event_queue_empty(queue)) {
       return NULL;
    }
 
@@ -266,6 +284,8 @@ bool al_get_next_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
    ALLEGRO_EVENT *next_event;
    ASSERT(queue);
    ASSERT(ret_event);
+
+   heartbeat();
 
    _al_mutex_lock(&queue->mutex);
 
@@ -290,6 +310,8 @@ bool al_peek_next_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
    ASSERT(queue);
    ASSERT(ret_event);
 
+   heartbeat();
+
    _al_mutex_lock(&queue->mutex);
 
    next_event = get_next_event_if_any(queue, false);
@@ -312,6 +334,8 @@ bool al_drop_next_event(ALLEGRO_EVENT_QUEUE *queue)
    ALLEGRO_EVENT *next_event;
    ASSERT(queue);
 
+   heartbeat();
+
    _al_mutex_lock(&queue->mutex);
 
    next_event = get_next_event_if_any(queue, true);
@@ -332,6 +356,8 @@ void al_flush_event_queue(ALLEGRO_EVENT_QUEUE *queue)
 {
    unsigned int i;
    ASSERT(queue);
+
+   heartbeat();
 
    _al_mutex_lock(&queue->mutex);
 
@@ -358,9 +384,11 @@ void al_wait_for_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
 
    ASSERT(queue);
 
+   heartbeat();
+
    _al_mutex_lock(&queue->mutex);
    {
-      while (al_is_event_queue_empty(queue)) {
+      while (is_event_queue_empty(queue)) {
          _al_cond_wait(&queue->cond, &queue->mutex);
       }
 
@@ -385,6 +413,8 @@ bool al_wait_for_event_timed(ALLEGRO_EVENT_QUEUE *queue,
    ASSERT(queue);
    ASSERT(secs >= 0);
 
+   heartbeat();
+
    if (secs < 0.0)
       al_init_timeout(&timeout, 0);
    else
@@ -401,6 +431,8 @@ bool al_wait_for_event_until(ALLEGRO_EVENT_QUEUE *queue,
    ALLEGRO_EVENT *ret_event, ALLEGRO_TIMEOUT *timeout)
 {
    ASSERT(queue);
+
+   heartbeat();
 
    return do_wait_for_event(queue, ret_event, timeout);
 }
@@ -421,7 +453,7 @@ static bool do_wait_for_event(ALLEGRO_EVENT_QUEUE *queue,
        * variable, which will be signaled when an event is placed into
        * the queue.
        */
-      while (al_is_event_queue_empty(queue) && (result != -1)) {
+      while (is_event_queue_empty(queue) && (result != -1)) {
          result = _al_cond_timedwait(&queue->cond, &queue->mutex, timeout);
       }
 

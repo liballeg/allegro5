@@ -98,5 +98,8 @@
 /* Define if target platform is linux. */
 #cmakedefine ALLEGRO_LINUX
 
+/* Define if we are building with SDL backend. */
+#cmakedefine ALLEGRO_SDL
+
 /*---------------------------------------------------------------------------*/
 /* vi: set ft=c ts=3 sts=3 sw=3 et: */

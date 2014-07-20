@@ -340,6 +340,16 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
 
    #undef AGL_API
 
+#elif defined ALLEGRO_SDL
+
+#define AGL_API(type, name, args)                                                                 \
+      ext->name = (_ALLEGRO_gl##name##_t)SDL_GL_GetProcAddress(("gl" # name)); \
+      if (ext->name) { ALLEGRO_DEBUG("gl" #name " successfully loaded\n"); }
+
+      #include "allegro5/opengl/GLext/gl_ext_api.h"
+
+   #undef AGL_API
+
 #endif
 
 }

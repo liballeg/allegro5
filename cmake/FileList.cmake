@@ -181,6 +181,15 @@ set(ALLEGRO_SRC_RASPBERRYPI_FILES
    src/raspberrypi/pidisplay.c
    )
 
+set(ALLEGRO_SRC_SDL_FILES
+   src/sdl/sdl_system.c
+   src/sdl/sdl_time.c
+   src/sdl/sdl_thread.c
+   src/sdl/sdl_display.c
+   src/sdl/sdl_keyboard.c
+   src/sdl/sdl_mouse.c
+   )
+
 set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/allegro5.h
     include/allegro5/allegro.h

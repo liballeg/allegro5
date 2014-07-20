@@ -45,6 +45,8 @@ struct ALLEGRO_SYSTEM_INTERFACE
    void *(*open_library)(const char *filename);
    void *(*import_symbol)(void *library, const char *symbol);
    void (*close_library)(void *handle);
+   void (*heartbeat)(void);
+   void (*heartbeat_init)(void);
 };
 
 struct ALLEGRO_SYSTEM

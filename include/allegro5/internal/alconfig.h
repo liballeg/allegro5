@@ -47,6 +47,8 @@
    #include "allegro5/platform/alraspberrypicfg.h"
 #elif defined ALLEGRO_UNIX
    #include "allegro5/platform/alucfg.h"
+#elif defined ALLEGRO_SDL
+   #include "allegro5/platform/allegro_sdl_config.h"
 #else
    #error platform not supported
 #endif
