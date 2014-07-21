@@ -719,7 +719,9 @@ bool _al_d3d_init_display()
    present_mutex = al_create_mutex();
    _al_d3d_lost_device_mutex = al_create_mutex();
 
+#ifdef ALLEGRO_CFG_SHADER_HLSL
    _al_d3d_init_shaders();
+#endif
 
    return true;
 }
@@ -2618,8 +2620,10 @@ static void d3d_shutdown(void)
    al_destroy_mutex(_al_d3d_lost_device_mutex);
 
    _al_d3d_bmp_destroy();
-   
+
+#ifdef ALLEGRO_CFG_SHADER_HLSL
    _al_d3d_shutdown_shaders();
+#endif
 
    FreeLibrary(_al_d3d_module);
    _al_d3d_module = NULL;
