@@ -2627,6 +2627,7 @@ static void d3d_shutdown(void)
 
    FreeLibrary(_al_d3d_module);
    _al_d3d_module = NULL;
+
 #ifdef ALLEGRO_CFG_SHADER_HLSL
    _al_unload_d3dx9_module();
 #endif
