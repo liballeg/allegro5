@@ -53,6 +53,33 @@ static void print_entry(ALLEGRO_FS_ENTRY *entry)
    al_close_directory(entry);
 }
 
+
+static int print_fs_entry_cb(ALLEGRO_FS_ENTRY * entry, void * extra) {
+   (void) extra;
+   print_file(entry);
+   return ALLEGRO_FOR_EACH_FS_ENTRY_OK;
+}
+
+static int print_fs_entry_cb_norecurse(ALLEGRO_FS_ENTRY * entry, void * extra) {
+   (void) extra;
+   print_file(entry);
+   return ALLEGRO_FOR_EACH_FS_ENTRY_SKIP;
+}
+
+static void print_fs_entry(ALLEGRO_FS_ENTRY * dir)
+{
+   log_printf("\n------------------------------------\nExample of al_for_each_fs_entry with recursion:\n\n");
+   al_for_each_fs_entry(dir, print_fs_entry_cb,
+      (void*) al_get_fs_entry_name(dir));
+}
+
+static void print_fs_entry_norecurse(ALLEGRO_FS_ENTRY * dir)
+{
+   log_printf("\n------------------------------------\nExample of al_for_each_fs_entry without recursion:\n\n");
+   al_for_each_fs_entry(dir, print_fs_entry_cb_norecurse,
+      (void*) al_get_fs_entry_name(dir));
+}
+
 int main(int argc, char **argv)
 {
    int i;
@@ -62,7 +89,7 @@ int main(int argc, char **argv)
    }
    open_log_monospace();
    
-   log_printf("%-36s %-6s %8s %8s %8s %8s\n",
+   log_printf("Example of filesystem entry functions:\n\n%-36s %-6s %8s %8s %8s %8s\n",
       "name", "flags", "ctime", "mtime", "atime", "size");
    log_printf(
       "------------------------------------ "
@@ -75,12 +102,16 @@ int main(int argc, char **argv)
    if (argc == 1) {
       ALLEGRO_FS_ENTRY *entry = al_create_fs_entry("data");
       print_entry(entry);
+      print_fs_entry(entry);
+      print_fs_entry_norecurse(entry);
       al_destroy_fs_entry(entry);
    }
 
    for (i = 1; i < argc; i++) {
       ALLEGRO_FS_ENTRY *entry = al_create_fs_entry(argv[i]);
       print_entry(entry);
+      print_fs_entry(entry);
+      print_fs_entry_norecurse(entry);
       al_destroy_fs_entry(entry);
    }
 

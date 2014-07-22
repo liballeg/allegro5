@@ -210,6 +210,61 @@ Returns the handle on success, NULL on error.
 
 See also: [al_fopen]
 
+### API: ALLEGRO_FOR_EACH_FS_ENTRY_RESULT
+
+Return values for the callbacks of [al_for_each_fs_entry] and
+for that function itself.
+
+* ALLEGRO_FOR_EACH_FS_ENTRY_ERROR - An error ocurred.
+* ALLEGRO_FOR_EACH_FS_ENTRY_OK - Continue normally and recurse into directories.
+* ALLEGRO_FOR_EACH_FS_ENTRY_SKIP - Continue but do NOT recusively descend.
+* ALLEGRO_FOR_EACH_FS_ENTRY_STOP - Stop iterating and return.
+
+See also: [al_for_each_fs_entry]
+
+Since: 5.1.9
+
+### API: al_for_each_fs_entry
+
+This function takes the [ALLEGRO_FS_ENTRY] `dir`, which should
+represent a directory or folder, and  looks for any other file system entries
+that are in it. This function will then call the callback function `callback`
+once for every filesystem entry in the directory `dir`.
+
+The callback `callback` must be of type `int callback(ALLEGRO_FS_ENTRY *
+entry, void * extra)`. The `callback` will be called with a pointer
+to an [ALLEGRO_FS_ENTRY] that matches one file or directory in `dir`,
+and the pointer passed in the `extra` parameter to [al_for_each_fs_entry].
+
+When `callback` returns `ALLEGRO_FOR_EACH_FS_ENTRY_STOP` or
+`ALLEGRO_FOR_EACH_FS_ENTRY_ERROR`, iteration will stop immediately
+and [al_for_each_fs_entry]  will return the value the `callback` returned.
+
+When `callback` returns `ALLEGRO_FOR_EACH_FS_ENTRY_OK` iteration will continue
+normally, and if the [ALLEGRO_FS_ENRTY] parameter of `callback`
+is a directory, [al_for_each_fs_entry] will call itself
+on that directory. Like that, the function will recusively descend into that
+directory.
+
+However, when `callback` returns `ALLEGRO_FOR_EACH_FS_ENTRY_SKIP` iteration
+will continue, but [al_for_each_fs_entry] will NOT recurse into the
+[ALLEGRO_FS_ENRTY] parameter of `callback` even if it is a directory.
+
+This function will skip any for files or directories named `.` or `..`
+which may exist on certain platforms and may signify the current and the
+parent directory. The `callback`  will not be called for files
+or directories with such a name.
+
+Returns ALLEGRO_FOR_EACH_FS_ENTRY_OK if sucessful, or
+ALLEGRO_FOR_EACH_FS_ENTRY_ERROR if something went wrong in
+processing the directory. In that case it will use [al_set_errno] to indicate
+the type of error which occurred. This function returns
+ALLEGRO_FOR_EACH_FS_ENTRY_STOP in case iteration was stopped by making
+`callback` returning that value. In this case, [al_set_errno] will not be used.
+
+See also: [ALLEGRO_FOR_EACH_FS_ENTRY_RESULT]
+
+Since: 5.1.9
 
 ## Alternative filesystem functions
 

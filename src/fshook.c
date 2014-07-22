@@ -235,6 +235,46 @@ ALLEGRO_FILE *al_open_fs_entry(ALLEGRO_FS_ENTRY *e, const char *mode)
 }
 
 
+/* Utility functions for iterating over a directory using callbacks. */
+
+/* Function: al_for_each_fs_entry
+ */
+int al_for_each_fs_entry(ALLEGRO_FS_ENTRY *dir,
+                         int (*callback)(ALLEGRO_FS_ENTRY *dir, void *extra),
+                         void *extra)
+{
+   ALLEGRO_FS_ENTRY *entry;
+
+   if (!dir || !al_open_directory(dir)) {
+      al_set_errno(ENOENT);
+      return ALLEGRO_FOR_EACH_FS_ENTRY_ERROR;
+   }
+   
+   for (entry = al_read_directory(dir); entry; entry = al_read_directory(dir)) {
+      /* Call the callback first. */
+      int result = callback(entry, extra);
+      
+      /* Recurse if requested and needed. Only OK allows recursion. */
+      if ((result == ALLEGRO_FOR_EACH_FS_ENTRY_OK)) {
+         if (al_get_fs_entry_mode(entry) & ALLEGRO_FILEMODE_ISDIR) {
+            result = al_for_each_fs_entry(entry, callback, extra);
+         }
+      }
+
+      al_destroy_fs_entry(entry);
+      
+      if ((result == ALLEGRO_FOR_EACH_FS_ENTRY_STOP) ||
+         (result == ALLEGRO_FOR_EACH_FS_ENTRY_ERROR)) {
+         return result;
+      }
+   }
+   
+   return ALLEGRO_FOR_EACH_FS_ENTRY_OK;
+}
+
+
+
+
 /*
  * Local Variables:
  * c-basic-offset: 3

@@ -116,6 +116,23 @@ AL_FUNC(ALLEGRO_FILE *,       al_open_fs_entry,    (ALLEGRO_FS_ENTRY *e,
                                                     const char *mode));
 
 
+
+/* Helper function for iterating over a directory using a callback. */
+
+/* Type: ALLEGRO_FOR_EACH_FS_ENTRY_RESULT
+ */
+typedef enum ALLEGRO_FOR_EACH_FS_ENTRY_RESULT {
+   ALLEGRO_FOR_EACH_FS_ENTRY_ERROR = -1,
+   ALLEGRO_FOR_EACH_FS_ENTRY_OK    =  0,
+   ALLEGRO_FOR_EACH_FS_ENTRY_SKIP  =  1,
+   ALLEGRO_FOR_EACH_FS_ENTRY_STOP  =  2
+} ALLEGRO_FOR_EACH_FS_ENTRY_RESULT;
+
+AL_FUNC(int,  al_for_each_fs_entry, (ALLEGRO_FS_ENTRY *dir,
+                                     int (*callback)(ALLEGRO_FS_ENTRY *entry, void *extra),
+                                     void *extra));
+
+
 /* Thread-local state. */
 AL_FUNC(const ALLEGRO_FS_INTERFACE *, al_get_fs_interface, (void));
 AL_FUNC(void, al_set_fs_interface, (const ALLEGRO_FS_INTERFACE *vtable));
