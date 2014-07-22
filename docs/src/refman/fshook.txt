@@ -210,6 +210,57 @@ Returns the handle on success, NULL on error.
 
 See also: [al_fopen]
 
+### API: al_for_each_fs_entry_callback
+
+To use al_for_each_fs_entry, you should create a function with the prototype of
+this function. When it returns true iteration will continue,
+when it returns false iteration will stop. Note that the +entry+ parameter
+will be destroyed automatically when the callback function returns,
+so if you want to keep it you will need to make a duplicate and store that
+somewhere.
+
+See also: [al_for_each_fs_entry]
+
+### API: al_for_each_fs_entry
+
+This convenience function will open the +path+ as a directory, and then
+will call the callback function +callback+ once for every filesystem entry
+in that directory. The callback +callback+ must be of type
+[al_for_each_fs_entry_callback]. The +callback will be called with a pointer
+to an [ALLEGRO_FS_ENTRY] that matches one file in +path+, and the pointer
+passed in the +extra+ parameter.
+
+Returns true if sucessful, false if something went wrong in opening
+the directory. In that it will use [al_set_errno] to indicate the type error
+which occurred.
+
+See also: [al_for_each_fs_entry_callback], [al_for_each_filename]
+
+### API: al_for_each_filename_callback
+
+To use al_for_each_filename, you should create a function with the prototype of
+this function. When it returns true iteration will continue,
+when it returns false iteration will stop. Note that the +filename+
+pointer will become invalid automatically when the callback function returns,
+so if you want to keep it you will need to make a duplicate and store that
+somewhere.
+
+See also: [al_for_each_filename]
+
+### API: al_for_each_filename
+
+This convenience function will open the +path+ as a directory, and then
+will call the callback function +callback+ once for every filesystem entry
+in that directory. The callback +callback+ must be of type
+[al_for_each_fs_entry_callback]. The +callback will be called with a char *
+pointer that points to a file name of one file in +path+, and the pointer
+passed in the +extra+ parameter.
+
+Returns true if sucessful, false if something went wrong in opening
+the directory. In that it will use [al_set_errno] to indicate the type error
+which occurred.
+
+See also: [al_for_each_fs_entry], [al_for_each_filename_callback]
 
 ## Alternative filesystem functions
 
