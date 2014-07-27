@@ -66,16 +66,8 @@ typedef struct LEGACY_VERTEX
    float u, v;
 } LEGACY_VERTEX;
 
-/*
- * Buffer for converted vertices
- */
-static LEGACY_VERTEX* legacy_buffer;
-static int legacy_buffer_size = 0;
-/*
- * This one is used when the programmable pipeline is used
- */
-static ALLEGRO_VERTEX* legacy_buffer_pp;
-static int legacy_buffer_pp_size = 0;
+static uint8_t* legacy_buffer;
+static size_t legacy_buffer_size = 0;
 #define A5V_FVF (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
 #define A5V_LEGACY_FVF (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
 
@@ -207,90 +199,79 @@ void _al_shutdown_d3d_driver(void)
    #ifdef ALLEGRO_CFG_D3D
    al_destroy_mutex(d3d_mutex);
    al_free(legacy_buffer);
-   al_free(legacy_buffer_pp);
    d3d_mutex = NULL;
    legacy_buffer = NULL;
-   legacy_buffer_pp = NULL;
 
    destroy_display_local_data();
 
    legacy_card = false;
    know_card_type = false;
    legacy_buffer_size = 0;
-   legacy_buffer_pp_size = 0;
    #endif
 }
 
 #ifdef ALLEGRO_CFG_D3D
 
-static void* convert_to_legacy_vertices(const void* vtxs, int num_vertices, const int* indices, bool loop)
+static void* convert_to_legacy_vertices(const void* vtxs, int num_vertices, const int* indices, bool loop, bool pp)
 {
    const ALLEGRO_VERTEX* vtx = (const ALLEGRO_VERTEX *)vtxs;
    int ii;
    int num_needed_vertices = num_vertices;
+   size_t needed_size;
+
+   if (pp && !indices && !loop) {
+      return (void *)vtxs;
+   }
 
    if(loop)
       num_needed_vertices++;
+
+   needed_size = num_needed_vertices * (pp ? sizeof(ALLEGRO_VERTEX) : sizeof(LEGACY_VERTEX));
 
    if(legacy_buffer == 0) {
-      legacy_buffer = (LEGACY_VERTEX *)al_malloc(num_needed_vertices * sizeof(LEGACY_VERTEX));
-      legacy_buffer_size = num_needed_vertices;
-   } else if (num_needed_vertices > legacy_buffer_size) {
-      legacy_buffer = (LEGACY_VERTEX *)al_realloc(legacy_buffer, num_needed_vertices * 1.5 * sizeof(LEGACY_VERTEX));
-      legacy_buffer_size = num_needed_vertices * 1.5;
-   }
-   for(ii = 0; ii < num_vertices; ii++) {
-      ALLEGRO_VERTEX vertex;
-
-      if(indices)
-         vertex = vtx[indices[ii]];
-      else
-         vertex = vtx[ii];
-
-      legacy_buffer[ii].x = vertex.x;
-      legacy_buffer[ii].y = vertex.y;
-      legacy_buffer[ii].z = vertex.z;
-
-      legacy_buffer[ii].u = vertex.u;
-      legacy_buffer[ii].v = vertex.v;
-
-      legacy_buffer[ii].color = D3DCOLOR_COLORVALUE(vertex.color.r, vertex.color.g, vertex.color.b, vertex.color.a);
+      legacy_buffer = (uint8_t *)al_malloc(needed_size);
+      legacy_buffer_size = needed_size;
+   } else if (needed_size > legacy_buffer_size) {
+      size_t new_size = needed_size * 1.5;
+      legacy_buffer = (uint8_t *)al_realloc(legacy_buffer, new_size);
+      legacy_buffer_size = new_size;
    }
 
-   if(loop)
-      legacy_buffer[num_vertices] = legacy_buffer[0];
+   if (pp) {
+      ALLEGRO_VERTEX *buffer = (ALLEGRO_VERTEX *)legacy_buffer;
+      for(ii = 0; ii < num_vertices; ii++) {
+         if(indices)
+            buffer[ii] = vtx[indices[ii]];
+         else
+            buffer[ii] = vtx[ii];
+      }
+      if(loop)
+         buffer[num_vertices] = buffer[0];
+   }
+   else {
+      LEGACY_VERTEX *buffer = (LEGACY_VERTEX *)legacy_buffer;
+      for(ii = 0; ii < num_vertices; ii++) {
+         ALLEGRO_VERTEX vertex;
+
+         if(indices)
+            vertex = vtx[indices[ii]];
+         else
+            vertex = vtx[ii];
+
+         buffer[ii].x = vertex.x;
+         buffer[ii].y = vertex.y;
+         buffer[ii].z = vertex.z;
+
+         buffer[ii].u = vertex.u;
+         buffer[ii].v = vertex.v;
+
+         buffer[ii].color = D3DCOLOR_COLORVALUE(vertex.color.r, vertex.color.g, vertex.color.b, vertex.color.a);
+      }
+      if(loop)
+         buffer[num_vertices] = buffer[0];
+   }
 
    return legacy_buffer;
-}
-
-static void* convert_to_legacy_vertices_pp(const void* vtxs, int num_vertices, const int* indices, bool loop)
-{
-   const ALLEGRO_VERTEX* vtx = (const ALLEGRO_VERTEX *)vtxs;
-   int ii;
-   int num_needed_vertices = num_vertices;
-
-   if(loop)
-      num_needed_vertices++;
-
-   if(legacy_buffer_pp == 0) {
-      legacy_buffer_pp = (ALLEGRO_VERTEX *)al_malloc(num_needed_vertices * sizeof(ALLEGRO_VERTEX));
-      legacy_buffer_pp_size = num_needed_vertices;
-   } else if (num_needed_vertices > legacy_buffer_pp_size) {
-      legacy_buffer_pp =
-         (ALLEGRO_VERTEX *)al_realloc(legacy_buffer_pp, num_needed_vertices * 1.5 * sizeof(ALLEGRO_VERTEX));
-      legacy_buffer_pp_size = num_needed_vertices * 1.5;
-   }
-   for(ii = 0; ii < num_vertices; ii++) {
-      if(indices)
-         legacy_buffer_pp[ii] = vtx[indices[ii]];
-      else
-         legacy_buffer_pp[ii] = vtx[ii];
-   }
-
-   if(loop)
-      legacy_buffer_pp[num_vertices] = legacy_buffer_pp[0];
-
-   return legacy_buffer_pp;
 }
 
 struct D3D_STATE
@@ -514,12 +495,8 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    /* Convert vertices for legacy cards */
    if(is_legacy_card()) {
       al_lock_mutex(d3d_mutex);
-      if (target->display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-         vtx = convert_to_legacy_vertices_pp(vtx, num_vtx, indices, type == ALLEGRO_PRIM_LINE_LOOP);
-      }
-      else {
-         vtx = convert_to_legacy_vertices(vtx, num_vtx, indices, type == ALLEGRO_PRIM_LINE_LOOP);
-      }
+      vtx = convert_to_legacy_vertices(vtx, num_vtx, indices, type == ALLEGRO_PRIM_LINE_LOOP,
+         target->display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE);
    }
 
 #ifdef ALLEGRO_CFG_SHADER_HLSL
