@@ -45,7 +45,7 @@ function autosuggest(id, array, url, onSelect)
 
 	this.limit_start     = false;	// should the auto complete be limited to the beginning of keyword?
 	this.match_first     = true;	// if previous is false, should the exact matches be displayed first?
-	this.restrict_typing = true;	// restrict to existing members of array
+	this.restrict_typing = false;	// restrict to existing members of array
 	this.full_refresh    = false;	// should the script re-send the AJAX request after each typed character?
 
 	this.use_iframe  = true;	// should the control use an IFrame element to fix suggestion list positioning (MS IE only)?
