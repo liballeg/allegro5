@@ -671,6 +671,9 @@ al_draw_tinted_bitmap(bitmap, al_map_rgba_f(1, 0, 0, 1), x, y, 0);
 
 The above will only draw the red component of the bitmap.
 
+See [al_draw_bitmap] for a note on restrictions on which bitmaps can be drawn
+where.
+
 See also: [al_draw_bitmap]
 
 ### API: al_draw_bitmap_region
@@ -685,6 +688,9 @@ Draws a region of the given bitmap to the target bitmap.
 * dy - destination y
 * flags - same as for [al_draw_bitmap]
 
+See [al_draw_bitmap] for a note on restrictions on which bitmaps can be drawn
+where.
+
 See also: [al_draw_bitmap], [al_draw_scaled_bitmap],
 [al_draw_rotated_bitmap], [al_draw_scaled_rotated_bitmap]
 
@@ -692,6 +698,9 @@ See also: [al_draw_bitmap], [al_draw_scaled_bitmap],
 
 Like [al_draw_bitmap_region] but multiplies all colors in the bitmap
 with the given color.
+
+See [al_draw_bitmap] for a note on restrictions on which bitmaps can be drawn
+where.
 
 See also: [al_draw_tinted_bitmap]
 
@@ -740,6 +749,9 @@ al_draw_rotated_bitmap(bitmap, w / 2, h / 2, x, y, ALLEGRO_PI / 2, 0);
 
 The above code draws the bitmap centered on x/y and rotates it 90° clockwise.
 
+See [al_draw_bitmap] for a note on restrictions on which bitmaps can be drawn
+where.
+
 See also: [al_draw_bitmap], [al_draw_bitmap_region],
 [al_draw_scaled_bitmap], [al_draw_scaled_rotated_bitmap]
 
@@ -747,6 +759,9 @@ See also: [al_draw_bitmap], [al_draw_bitmap_region],
 
 Like [al_draw_rotated_bitmap] but multiplies all colors in the bitmap
 with the given color.
+
+See [al_draw_bitmap] for a note on restrictions on which bitmaps can be drawn
+where.
 
 See also: [al_draw_tinted_bitmap]
 
@@ -766,6 +781,9 @@ rotated and scaled around this point.
 * angle - angle by which to rotate (radians)
 * flags - same as for [al_draw_bitmap]
 
+See [al_draw_bitmap] for a note on restrictions on which bitmaps can be drawn
+where.
+
 See also: [al_draw_bitmap], [al_draw_bitmap_region], [al_draw_scaled_bitmap],
 [al_draw_rotated_bitmap]
 
@@ -773,6 +791,9 @@ See also: [al_draw_bitmap], [al_draw_bitmap_region], [al_draw_scaled_bitmap],
 
 Like [al_draw_scaled_rotated_bitmap] but multiplies all colors in the
 bitmap with the given color.
+
+See [al_draw_bitmap] for a note on restrictions on which bitmaps can be drawn
+where.
 
 See also: [al_draw_tinted_bitmap]
 
@@ -793,6 +814,9 @@ al_draw_tinted_scaled_rotated_bitmap(sub_bitmap, tint, cx, cy,
     dx, dy, xscale, yscale, angle, flags);
 ~~~~
 
+See [al_draw_bitmap] for a note on restrictions on which bitmaps can be drawn
+where.
+
 Since: 5.0.6, 5.1.0
 
 See also: [al_draw_tinted_bitmap]
@@ -811,6 +835,9 @@ Draws a scaled version of the given bitmap to the target bitmap.
 * dh - destination height
 * flags - same as for [al_draw_bitmap]
 
+See [al_draw_bitmap] for a note on restrictions on which bitmaps can be drawn
+where.
+
 See also: [al_draw_bitmap], [al_draw_bitmap_region], [al_draw_rotated_bitmap],
 [al_draw_scaled_rotated_bitmap],
 
@@ -818,6 +845,9 @@ See also: [al_draw_bitmap], [al_draw_bitmap_region], [al_draw_rotated_bitmap],
 
 Like [al_draw_scaled_bitmap] but multiplies all colors in the bitmap
 with the given color.
+
+See [al_draw_bitmap] for a note on restrictions on which bitmaps can be drawn
+where.
 
 See also: [al_draw_tinted_bitmap]
 
