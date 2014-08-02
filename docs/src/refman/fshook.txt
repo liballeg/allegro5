@@ -161,6 +161,9 @@ Reads the next directory item and returns a filesystem entry for it.
 Returns NULL if there are no more entries or if an error occurs. Call
 [al_destroy_fs_entry] on the returned entry when you are done with it.
 
+This function will ignore any files or directories named `.` or `..` which may
+exist on certain platforms and may signify the current and the parent directory.
+
 See also: [al_open_directory], [al_close_directory]
 
 ### API: al_close_directory
@@ -236,6 +239,11 @@ When `callback` returns true iteration will continue, when it returns false
 iteration will stop. Note that the +entry+ parameter will be destroyed
 automatically when the callback function returns, so if you want to keep it you
 will need to make a duplicate and store that somewhere.
+
+The `callback` will never be called for files or directories named `.`
+or `..` which may exists on certain platforms. This is because
+[al_for_each_fs_entry] uses [al_read_directory] internally, and that function
+also skips over files wich such names.
 
 The `flag` parameter must be either a constant from
 [ALLEGRO_FOR_EACH_FS_ENTRY_FLAGS], either `ALLEGRO_FOR_EACH_FS_ENTRY_NORMAL`
