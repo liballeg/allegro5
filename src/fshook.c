@@ -235,58 +235,44 @@ ALLEGRO_FILE *al_open_fs_entry(ALLEGRO_FS_ENTRY *e, const char *mode)
 }
 
 
-/* Utility functions and callbacks for them. */
+/* Utility functions for iterating over a directory using callbacks. */
 
 /* Function: al_for_each_fs_entry
  */
-bool al_for_each_fs_entry(const char *path,
-                         al_for_each_fs_entry_callback *callback,
+bool al_for_each_fs_entry(ALLEGRO_FS_ENTRY * dir,
+                         bool (*callback)(ALLEGRO_FS_ENTRY * dir, void * extra),
+                         int flags,
                          void *extra)
 {
-   ALLEGRO_FS_ENTRY * dir;
    ALLEGRO_FS_ENTRY * entry;
-   dir = al_create_fs_entry(path);
-   
+
    if (!dir || !al_open_directory(dir)) {
       al_set_errno(ENOENT);
       return false;
    }
    
    for (entry = al_read_directory(dir); entry; entry = al_read_directory(dir)) {
-      bool proceed = callback(entry, extra);
+      bool proceed = true;
+      
+      /* Recurse depth-first if requested and needed. */
+      if (flags & ALLEGRO_FOR_EACH_FS_ENTRY_RECURSE) {
+         if (al_get_fs_entry_mode(entry) & ALLEGRO_FILEMODE_ISDIR) { 
+            proceed = al_for_each_fs_entry(entry, callback, flags, extra);
+         }       
+      }
+      
+      /* Now call the callback if needed. */
+      if (proceed) { 
+         proceed = callback(entry, extra);
+      }
+      
       al_destroy_fs_entry(entry);
       if (!proceed) break;
    }
    
-   al_destroy_fs_entry(dir);
    return true;
 }
 
-/* Function: al_for_each_filename
- */
-bool al_for_each_filename(const char *path,
-                          al_for_each_filename_callback *callback,
-                          void *extra)
-{
-   ALLEGRO_FS_ENTRY * dir;
-   ALLEGRO_FS_ENTRY * entry;
-   dir = al_create_fs_entry(path);
-   
-   if (!dir || !al_open_directory(dir)) {
-      al_set_errno(ENOENT);
-      return false;
-   }
-   
-   for (entry = al_read_directory(dir); entry; entry = al_read_directory(dir)) {
-      const char * filename = al_get_fs_entry_name(entry);
-      bool proceed = callback(filename, extra);
-      al_destroy_fs_entry(entry);
-      if (!proceed) break; 
-   }
-   
-   al_destroy_fs_entry(dir);
-   return true;
-}
 
 
 

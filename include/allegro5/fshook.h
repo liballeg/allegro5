@@ -115,23 +115,23 @@ AL_FUNC(bool,                 al_make_directory,   (const char *path));
 AL_FUNC(ALLEGRO_FILE *,       al_open_fs_entry,    (ALLEGRO_FS_ENTRY *e,
                                                     const char *mode));
 
-/* Utility functions and callbacks for them. */
 
-/* Typedef: al_for_each_fs_entry_callback
+
+/* Helper function for iterating over a directory using a callback. */
+
+/* Type: ALLEGRO_FOR_EACH_FS_ENTRY_FLAGS
  */
-typedef bool al_for_each_fs_entry_callback(ALLEGRO_FS_ENTRY *e, void *extra);
+typedef enum ALLEGRO_FOR_EACH_FS_ENTRY_FLAGS {
+   ALLEGRO_FOR_EACH_FS_ENTRY_NORMAL  = 0,
+   ALLEGRO_FOR_EACH_FS_ENTRY_RECURSE = 1
+} ALLEGRO_FOR_EACH_FS_ENTRY_FLAGS;
 
-AL_FUNC(bool,  al_for_each_fs_entry, (const char *path,
-                                     al_for_each_fs_entry_callback *callback,
+
+AL_FUNC(bool,  al_for_each_fs_entry, (ALLEGRO_FS_ENTRY * dir,
+                                     bool (*callback)(ALLEGRO_FS_ENTRY * entry, void * extra),
+                                     int flags,
                                      void *extra));
 
-/* Typedef: al_for_each_filename_callback
- */
-typedef bool al_for_each_filename_callback(const char * filename, void *extra);
-
-AL_FUNC(bool,  al_for_each_filename, (const char *path,
-                                     al_for_each_filename_callback *callback,
-                                     void *extra));
 
 /* Thread-local state. */
 AL_FUNC(const ALLEGRO_FS_INTERFACE *, al_get_fs_interface, (void));

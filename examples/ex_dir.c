@@ -54,28 +54,18 @@ static void print_entry(ALLEGRO_FS_ENTRY *entry)
 }
 
 
-static bool print_directory_callback(const char * filename, void * extra) {
-   log_printf("%s: %s\n", (char *) extra,  filename);
-   return true;
-}
-
-static void print_directory(char * dirname)
-{
-   log_printf("\n------------------------------------\nExample of al_for_each_filename:\n\n");   
-   al_for_each_filename(dirname, print_directory_callback, (void*) dirname);
-}
-
-
 static bool print_fs_entry_callback(ALLEGRO_FS_ENTRY * entry, void * extra) {
    (void) extra;
    print_file(entry);
    return true;
 }
 
-static void print_fs_entry(char * dirname)
+static void print_fs_entry(ALLEGRO_FS_ENTRY * dir)
 {
    log_printf("\n------------------------------------\nExample of al_for_each_fs_entry:\n\n");   
-   al_for_each_fs_entry(dirname, print_fs_entry_callback, (void*) dirname);
+   al_for_each_fs_entry(dir, print_fs_entry_callback,
+   ALLEGRO_FOR_EACH_FS_ENTRY_RECURSE,
+   (void*) al_get_fs_entry_name(dir));
 }
 
 
@@ -101,17 +91,15 @@ int main(int argc, char **argv)
    if (argc == 1) {
       ALLEGRO_FS_ENTRY *entry = al_create_fs_entry("data");
       print_entry(entry);
+      print_fs_entry(entry);
       al_destroy_fs_entry(entry);
-      print_fs_entry("data");
-      print_directory("data");
    }
 
    for (i = 1; i < argc; i++) {
       ALLEGRO_FS_ENTRY *entry = al_create_fs_entry(argv[i]);
       print_entry(entry);
+      print_fs_entry(entry);
       al_destroy_fs_entry(entry);
-      print_fs_entry(argv[i]);
-      print_directory(argv[i]);
    }
 
    close_log(true);
