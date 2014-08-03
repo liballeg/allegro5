@@ -267,7 +267,7 @@ bool al_for_each_fs_entry(ALLEGRO_FS_ENTRY * dir,
       }
       
       al_destroy_fs_entry(entry);
-      if (!proceed) break;
+      if (!proceed) return false;
    }
    
    return true;
