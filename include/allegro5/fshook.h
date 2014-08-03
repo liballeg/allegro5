@@ -127,8 +127,8 @@ typedef enum ALLEGRO_FOR_EACH_FS_ENTRY_FLAGS {
 } ALLEGRO_FOR_EACH_FS_ENTRY_FLAGS;
 
 
-AL_FUNC(bool,  al_for_each_fs_entry, (ALLEGRO_FS_ENTRY * dir,
-                                     bool (*callback)(ALLEGRO_FS_ENTRY * entry, void * extra),
+AL_FUNC(bool,  al_for_each_fs_entry, (ALLEGRO_FS_ENTRY *dir,
+                                     bool (*callback)(ALLEGRO_FS_ENTRY *entry, void *extra),
                                      int flags,
                                      void *extra));
 

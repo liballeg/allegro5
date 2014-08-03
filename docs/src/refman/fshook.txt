@@ -231,7 +231,7 @@ that are in int. This function will then call the callback function `callback`
 once for every filesystem entry in the directory `dir`.
 
 The callback `callback` must be of type `bool callback(ALLEGRO_FS_ENTRY *
-entry, void * extra)`. The +callback will be called with a pointer
+entry, void * extra)`. The `callback` will be called with a pointer
 to an [ALLEGRO_FS_ENTRY] that matches one file in `dir`, and the pointer
 passed in the `extra` parameter to [al_for_each_fs_entry].
 
