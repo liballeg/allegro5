@@ -240,9 +240,9 @@ iteration will stop. Note that the `entry` parameter will be destroyed
 automatically when the callback function returns, so if you want to keep it you
 will need to make a duplicate and store that somewhere.
 
-The `callback` will skip any for files or directories named `.` or `..`
+This function will skip any for files or directories named `.` or `..`
 which may exist on certain platforms and may signify the current and the p
-arent directory.
+arent directory. The `callback`  will not be called for files with such a name.
 
 The `flag` parameter must be either 0 for normal operation or a constant from
 [ALLEGRO_FOR_EACH_FS_ENTRY_FLAGS], either `ALLEGRO_FOR_EACH_FS_ENTRY_NORMAL`
