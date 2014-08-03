@@ -225,34 +225,37 @@ See also: [al_for_each_fs_entry]
 
 ### API: al_for_each_fs_entry
 
-This convenience function will open the `dir` as a directory
-as per [al_open_directory], and then will call the callback function `callback`
-once for every filesystem entry in that directory.  Finally it will close the
-directory again as per [al_close_directory].
+This function takes the [ALLEGRO_FS_ENTRY] `dir`, which should
+represent a directory or folder, and  looks for any other file system entries
+that are in int. This function will then call the callback function `callback`
+once for every filesystem entry in the directory `dir`.
 
 The callback `callback` must be of type `bool callback(ALLEGRO_FS_ENTRY *
 entry, void * extra)`. The +callback will be called with a pointer
-to an [ALLEGRO_FS_ENTRY] that matches one file in +path+, and the pointer
-passed in the +extra+ parameter.
+to an [ALLEGRO_FS_ENTRY] that matches one file in `dir`, and the pointer
+passed in the `extra` parameter to [al_for_each_fs_entry].
 
 When `callback` returns true iteration will continue, when it returns false
-iteration will stop. Note that the +entry+ parameter will be destroyed
+iteration will stop. Note that the `entry` parameter will be destroyed
 automatically when the callback function returns, so if you want to keep it you
 will need to make a duplicate and store that somewhere.
 
-The `callback` will never be called for files or directories named `.`
-or `..` which may exists on certain platforms. This is because
-[al_for_each_fs_entry] uses [al_read_directory] internally, and that function
-also skips over files wich such names.
+The `callback` will skip any for files or directories named `.` or `..`
+which may exist on certain platforms and may signify the current and the p
+arent directory.
 
-The `flag` parameter must be either a constant from
+The `flag` parameter must be either 0 for normal operation or a constant from
 [ALLEGRO_FOR_EACH_FS_ENTRY_FLAGS], either `ALLEGRO_FOR_EACH_FS_ENTRY_NORMAL`
-for normal operation or `ALLEGRO_FOR_EACH_FS_ENTRY_RECURSE`. If this flag is
-set, then [al_for_each_fs_entry] will recurse into every directory it finds.
+for normal operation or `ALLEGRO_FOR_EACH_FS_ENTRY_RECURSE`. If
+`ALLEGRO_FOR_EACH_FS_ENTRY_RECURSE` is given as the `flag` argument,
+then [al_for_each_fs_entry] will recurse into every directory and sub-directory
+it finds in `dir`.
 
-Returns true if sucessful, false if something went wrong in opening
-the directory. In that case it will use [al_set_errno] to indicate the type
-of error which occurred.
+Returns true if sucessful, false if something went wrong in
+processing the directory. In that case it will use [al_set_errno] to indicate
+the type of error which occurred. This function also returns false
+in case iteration was stopped by making `callback` returning false.
+In this case, [al_set_errno] will not be used.
 
 See also: [ALLEGRO_FOR_EACH_FS_ENTRY_FLAGS]
 
