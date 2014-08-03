@@ -161,6 +161,9 @@ Reads the next directory item and returns a filesystem entry for it.
 Returns NULL if there are no more entries or if an error occurs. Call
 [al_destroy_fs_entry] on the returned entry when you are done with it.
 
+This function will ignore any files or directories named `.` or `..` which may
+exist on certain platforms and may signify the current and the parent directory.
+
 See also: [al_open_directory], [al_close_directory]
 
 ### API: al_close_directory
