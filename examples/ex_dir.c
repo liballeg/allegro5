@@ -54,20 +54,31 @@ static void print_entry(ALLEGRO_FS_ENTRY *entry)
 }
 
 
-static int print_fs_entry_callback(ALLEGRO_FS_ENTRY * entry, void * extra) {
+static int print_fs_entry_cb(ALLEGRO_FS_ENTRY * entry, void * extra) {
    (void) extra;
    print_file(entry);
    return ALLEGRO_FOR_EACH_FS_ENTRY_OK;
 }
 
-static void print_fs_entry(ALLEGRO_FS_ENTRY * dir)
-{
-   log_printf("\n------------------------------------\nExample of al_for_each_fs_entry:\n\n");   
-   al_for_each_fs_entry(dir, print_fs_entry_callback,
-   ALLEGRO_FOR_EACH_FS_ENTRY_RECURSE,
-   (void*) al_get_fs_entry_name(dir));
+static int print_fs_entry_cb_norecurse(ALLEGRO_FS_ENTRY * entry, void * extra) {
+   (void) extra;
+   print_file(entry);
+   return ALLEGRO_FOR_EACH_FS_ENTRY_SKIP;
 }
 
+static void print_fs_entry(ALLEGRO_FS_ENTRY * dir)
+{
+   log_printf("\n------------------------------------\nExample of al_for_each_fs_entry with recursion:\n\n");   
+   al_for_each_fs_entry(dir, print_fs_entry_cb,
+      (void*) al_get_fs_entry_name(dir));
+}
+
+static void print_fs_entry_norecurse(ALLEGRO_FS_ENTRY * dir)
+{
+   log_printf("\n------------------------------------\nExample of al_for_each_fs_entry without recursion:\n\n");   
+   al_for_each_fs_entry(dir, print_fs_entry_cb_norecurse,
+      (void*) al_get_fs_entry_name(dir));
+}
 
 int main(int argc, char **argv)
 {
@@ -92,6 +103,7 @@ int main(int argc, char **argv)
       ALLEGRO_FS_ENTRY *entry = al_create_fs_entry("data");
       print_entry(entry);
       print_fs_entry(entry);
+      print_fs_entry_norecurse(entry);
       al_destroy_fs_entry(entry);
    }
 
@@ -99,6 +111,7 @@ int main(int argc, char **argv)
       ALLEGRO_FS_ENTRY *entry = al_create_fs_entry(argv[i]);
       print_entry(entry);
       print_fs_entry(entry);
+      print_fs_entry_norecurse(entry);
       al_destroy_fs_entry(entry);
    }
 

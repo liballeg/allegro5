@@ -245,23 +245,15 @@ entry, void * extra)`. The `callback` will be called with a pointer
 to an [ALLEGRO_FS_ENTRY] that matches one file in `dir`, and the pointer
 passed in the `extra` parameter to [al_for_each_fs_entry].
 
-The `flag` parameter must be either 0 for normal operation or a constant from
-[ALLEGRO_FOR_EACH_FS_ENTRY_FLAGS], either `ALLEGRO_FOR_EACH_FS_ENTRY_NORMAL`
-for normal operation or `ALLEGRO_FOR_EACH_FS_ENTRY_RECURSE`. If
-`ALLEGRO_FOR_EACH_FS_ENTRY_RECURSE` is given as the `flag` argument,
-then [al_for_each_fs_entry] will recurse into every directory and sub-directory
-it finds in `dir`.
-
 When `callback` returns `ALLEGRO_FOR_EACH_FS_ENTRY_STOP` or
 `ALLEGRO_FOR_EACH_FS_ENTRY_ERROR`, iteration will stop. When `callback`
 returns `ALLEGRO_FOR_EACH_FS_ENTRY_OK` iteration will continue normally,
-and if recursive operation was requested by setting the correct value in
-the `flag` parameter, then [al_for_each_fs_entry] will recurse into the
-[ALLEGRO_FS_ENRTY] parameter of `callback` if it is a directory. However,
-when `callback` returns `ALLEGRO_FOR_EACH_FS_ENTRY_SKIP` iteration will
-continue, but even recursive operation was requested [al_for_each_fs_entry]
-will NOT recurse into the [ALLEGRO_FS_ENRTY] parameter of `callback` even if
-it is a directory. 
+and [al_for_each_fs_entry] will recurse into the [ALLEGRO_FS_ENRTY] parameter
+of `callback` if it is a directory.
+
+However, when `callback` returns `ALLEGRO_FOR_EACH_FS_ENTRY_SKIP` iteration
+will continue, [al_for_each_fs_entry] will NOT recurse into the
+[ALLEGRO_FS_ENRTY] parameter of `callback` even if it is a directory. 
 
 This function will skip any for files or directories named `.` or `..`
 which may exist on certain platforms and may signify the current and the p

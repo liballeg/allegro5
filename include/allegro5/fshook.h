@@ -119,14 +119,6 @@ AL_FUNC(ALLEGRO_FILE *,       al_open_fs_entry,    (ALLEGRO_FS_ENTRY *e,
 
 /* Helper function for iterating over a directory using a callback. */
 
-/* Type: ALLEGRO_FOR_EACH_FS_ENTRY_FLAGS
- */
-typedef enum ALLEGRO_FOR_EACH_FS_ENTRY_FLAGS {
-   ALLEGRO_FOR_EACH_FS_ENTRY_NORMAL  = 0,
-   ALLEGRO_FOR_EACH_FS_ENTRY_RECURSE = 1
-} ALLEGRO_FOR_EACH_FS_ENTRY_FLAGS;
-
-
 /* Type: ALLEGRO_FOR_EACH_FS_ENTRY_RESULT
  */
 typedef enum ALLEGRO_FOR_EACH_FS_ENTRY_RESULT {
@@ -138,7 +130,6 @@ typedef enum ALLEGRO_FOR_EACH_FS_ENTRY_RESULT {
 
 AL_FUNC(int,  al_for_each_fs_entry, (ALLEGRO_FS_ENTRY *dir,
                                      int (*callback)(ALLEGRO_FS_ENTRY *entry, void *extra),
-                                     int flags,
                                      void *extra));
 
 

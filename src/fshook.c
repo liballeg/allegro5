@@ -241,7 +241,6 @@ ALLEGRO_FILE *al_open_fs_entry(ALLEGRO_FS_ENTRY *e, const char *mode)
  */
 int al_for_each_fs_entry(ALLEGRO_FS_ENTRY *dir,
                          int (*callback)(ALLEGRO_FS_ENTRY *dir, void *extra),
-                         int flags,
                          void *extra)
 {
    ALLEGRO_FS_ENTRY *entry;
@@ -255,12 +254,11 @@ int al_for_each_fs_entry(ALLEGRO_FS_ENTRY *dir,
       /* Call the callback first. */
       int result = callback(entry, extra);
       
-      /* Recurse if requested and needed. */
-      if ((result == ALLEGRO_FOR_EACH_FS_ENTRY_OK) &&
-          (flags & ALLEGRO_FOR_EACH_FS_ENTRY_RECURSE)) {
+      /* Recurse if requested and needed. Only OK allows recursion. */
+      if ((result == ALLEGRO_FOR_EACH_FS_ENTRY_OK)) {
          if (al_get_fs_entry_mode(entry) & ALLEGRO_FILEMODE_ISDIR) { 
-            result = al_for_each_fs_entry(entry, callback, flags, extra);
-         }       
+            result = al_for_each_fs_entry(entry, callback, extra);
+         }
       }
 
       al_destroy_fs_entry(entry);
