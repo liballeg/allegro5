@@ -54,10 +54,10 @@ static void print_entry(ALLEGRO_FS_ENTRY *entry)
 }
 
 
-static bool print_fs_entry_callback(ALLEGRO_FS_ENTRY * entry, void * extra) {
+static int print_fs_entry_callback(ALLEGRO_FS_ENTRY * entry, void * extra) {
    (void) extra;
    print_file(entry);
-   return true;
+   return ALLEGRO_FOR_EACH_FS_ENTRY_OK;
 }
 
 static void print_fs_entry(ALLEGRO_FS_ENTRY * dir)

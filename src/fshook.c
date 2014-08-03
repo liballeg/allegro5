@@ -239,8 +239,8 @@ ALLEGRO_FILE *al_open_fs_entry(ALLEGRO_FS_ENTRY *e, const char *mode)
 
 /* Function: al_for_each_fs_entry
  */
-bool al_for_each_fs_entry(ALLEGRO_FS_ENTRY *dir,
-                         bool (*callback)(ALLEGRO_FS_ENTRY *dir, void *extra),
+int al_for_each_fs_entry(ALLEGRO_FS_ENTRY *dir,
+                         int (*callback)(ALLEGRO_FS_ENTRY *dir, void *extra),
                          int flags,
                          void *extra)
 {
@@ -248,25 +248,30 @@ bool al_for_each_fs_entry(ALLEGRO_FS_ENTRY *dir,
 
    if (!dir || !al_open_directory(dir)) {
       al_set_errno(ENOENT);
-      return false;
+      return ALLEGRO_FOR_EACH_FS_ENTRY_ERROR;
    }
    
    for (entry = al_read_directory(dir); entry; entry = al_read_directory(dir)) {
       /* Call the callback first. */
-      bool proceed = callback(entry, extra);
-       
-      /* Recurse depth-first if requested and needed. */
-      if ((proceed) && (flags & ALLEGRO_FOR_EACH_FS_ENTRY_RECURSE)) {
+      int result = callback(entry, extra);
+      
+      /* Recurse if requested and needed. */
+      if ((result == ALLEGRO_FOR_EACH_FS_ENTRY_OK) &&
+          (flags & ALLEGRO_FOR_EACH_FS_ENTRY_RECURSE)) {
          if (al_get_fs_entry_mode(entry) & ALLEGRO_FILEMODE_ISDIR) { 
-            proceed = al_for_each_fs_entry(entry, callback, flags, extra);
+            result = al_for_each_fs_entry(entry, callback, flags, extra);
          }       
       }
 
       al_destroy_fs_entry(entry);
-      if (!proceed) return false;
+      
+      if ((result == ALLEGRO_FOR_EACH_FS_ENTRY_STOP) ||
+         (result == ALLEGRO_FOR_EACH_FS_ENTRY_ERROR)) {
+         return result;
+      }
    }
    
-   return true;
+   return ALLEGRO_FOR_EACH_FS_ENTRY_OK;
 }
 
 
