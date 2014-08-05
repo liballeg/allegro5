@@ -230,7 +230,7 @@ Since: 5.1.9
 ### API: al_for_each_fs_entry
 
 This function takes the [ALLEGRO_FS_ENTRY] `dir`, which should
-represent a directory or folder, and  looks for any other file system entries
+represent a directory, and  looks for any other file system entries
 that are in it. This function will then call the callback function `callback`
 once for every filesystem entry in the directory `dir`.
 
@@ -246,16 +246,16 @@ and [al_for_each_fs_entry]  will return the value the `callback` returned.
 When `callback` returns `ALLEGRO_FOR_EACH_FS_ENTRY_OK` iteration will continue
 normally, and if the [ALLEGRO_FS_ENRTY] parameter of `callback`
 is a directory, [al_for_each_fs_entry] will call itself
-on that directory. Like that, the function will recusively descend into that
+on that directory. Therefore the function will recusively descend into that
 directory.
 
 However, when `callback` returns `ALLEGRO_FOR_EACH_FS_ENTRY_SKIP` iteration
 will continue, but [al_for_each_fs_entry] will NOT recurse into the
 [ALLEGRO_FS_ENRTY] parameter of `callback` even if it is a directory.
 
-This function will skip any for files or directories named `.` or `..`
+This function will skip any files or directories named `.` or `..`
 which may exist on certain platforms and may signify the current and the
-parent directory. The `callback`  will not be called for files
+parent directory. The `callback` will not be called for files
 or directories with such a name.
 
 Returns ALLEGRO_FOR_EACH_FS_ENTRY_OK if sucessful, or
@@ -263,7 +263,7 @@ ALLEGRO_FOR_EACH_FS_ENTRY_ERROR if something went wrong in
 processing the directory. In that case it will use [al_set_errno] to indicate
 the type of error which occurred. This function returns
 ALLEGRO_FOR_EACH_FS_ENTRY_STOP in case iteration was stopped by making
-`callback` returning that value. In this case, [al_set_errno] will not be used.
+`callback` return that value. In this case, [al_set_errno] will not be used.
 
 See also: [ALLEGRO_FOR_EACH_FS_ENTRY_RESULT]
 
