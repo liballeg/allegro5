@@ -522,10 +522,10 @@ void al_do_multiline_ustr(const ALLEGRO_FONT *font, float max_width,
 
 
 /* Helper struct for al_do_multiline_text. */
-typedef struct _DO_MULTILINE_TEXT_EXTRA {
+typedef struct DO_MULTILINE_TEXT_EXTRA {
    bool (*callback)(int line_num, const char *line, int size, void *extra);
    void *extra;
-} _DO_MULTILINE_TEXT_EXTRA;
+} DO_MULTILINE_TEXT_EXTRA;
 
 
 
@@ -534,7 +534,7 @@ typedef struct _DO_MULTILINE_TEXT_EXTRA {
  */
 static bool do_multiline_text_cb(int line_num, const ALLEGRO_USTR *line,
    void *extra) {
-   _DO_MULTILINE_TEXT_EXTRA *s = extra;
+   DO_MULTILINE_TEXT_EXTRA *s = extra;
    
    return s->callback(line_num, al_cstr(line), al_ustr_size(line), s->extra);
 }
@@ -549,7 +549,7 @@ void al_do_multiline_text(const ALLEGRO_FONT *font,
    void *extra)
 {
    ALLEGRO_USTR_INFO info;      
-   _DO_MULTILINE_TEXT_EXTRA extra2;
+   DO_MULTILINE_TEXT_EXTRA extra2;
    ASSERT(font);
    ASSERT(text);
    
@@ -562,14 +562,14 @@ void al_do_multiline_text(const ALLEGRO_FONT *font,
 
 
 /* Helper struct for al_draw_multiline_ustr. */
-typedef struct _DRAW_MULTILINE_USTR_EXTRA {
+typedef struct DRAW_MULTILINE_USTR_EXTRA {
    const ALLEGRO_FONT *font;
    ALLEGRO_COLOR color;
    float x;
    float y;
    float line_height;
    int flags;
-} _DRAW_MULTILINE_USTR_EXTRA;
+} DRAW_MULTILINE_USTR_EXTRA;
 
 
 
@@ -578,7 +578,7 @@ typedef struct _DRAW_MULTILINE_USTR_EXTRA {
  */
 static bool draw_multiline_ustr_cb(int line_num, const ALLEGRO_USTR *line,
    void *extra) {
-   _DRAW_MULTILINE_USTR_EXTRA *s = extra;
+   DRAW_MULTILINE_USTR_EXTRA *s = extra;
    float y;
    
    y  = s->y + (s->line_height * line_num);
@@ -594,7 +594,7 @@ void al_draw_multiline_ustr(const ALLEGRO_FONT *font,
      ALLEGRO_COLOR color, float x, float y, float max_width, float line_height,
      int flags, const ALLEGRO_USTR *ustr)
 {
-   _DRAW_MULTILINE_USTR_EXTRA extra;
+   DRAW_MULTILINE_USTR_EXTRA extra;
    ASSERT(font);
    ASSERT(ustr);
    
