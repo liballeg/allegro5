@@ -385,6 +385,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
    int w = bitmap->w;
    int h = bitmap->h;
+   int bitmap_format = al_get_bitmap_format(bitmap);
    bool post_generate_mipmap = false;
    GLenum e;
    int filter;
@@ -403,7 +404,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
          ALLEGRO_DEBUG("Created new OpenGL texture %d (%dx%d, format %s)\n",
                     ogl_bitmap->texture,
                     ogl_bitmap->true_w, ogl_bitmap->true_h,
-                    _al_pixel_format_name(bitmap->format));
+                    _al_pixel_format_name(bitmap_format));
       }
    }
    glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
@@ -470,40 +471,40 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
    if (!IS_OPENGLES) {
       if (ogl_bitmap->true_w != bitmap->w ||
             ogl_bitmap->true_h != bitmap->h ||
-            bitmap->format == ALLEGRO_PIXEL_FORMAT_ABGR_F32) {
+            bitmap_format == ALLEGRO_PIXEL_FORMAT_ABGR_F32) {
          unsigned char *buf;
          buf = al_calloc(ogl_bitmap->true_h, ogl_bitmap->true_w);
          glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-         glTexImage2D(GL_TEXTURE_2D, 0, get_glformat(bitmap->format, 0),
+         glTexImage2D(GL_TEXTURE_2D, 0, get_glformat(bitmap_format, 0),
             ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
             GL_ALPHA, GL_UNSIGNED_BYTE, buf);
          e = glGetError();
          al_free(buf);
       }
       else {
-         glTexImage2D(GL_TEXTURE_2D, 0, get_glformat(bitmap->format, 0),
+         glTexImage2D(GL_TEXTURE_2D, 0, get_glformat(bitmap_format, 0),
             ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
-            get_glformat(bitmap->format, 2), get_glformat(bitmap->format, 1),
+            get_glformat(bitmap_format, 2), get_glformat(bitmap_format, 1),
             NULL);
          e = glGetError();
       }
    }
    else {
       unsigned char *buf;
-      int pix_size = al_get_pixel_size(bitmap->format);
+      int pix_size = al_get_pixel_size(bitmap_format);
       buf = al_calloc(pix_size,
          ogl_bitmap->true_h * ogl_bitmap->true_w);
       glPixelStorei(GL_UNPACK_ALIGNMENT, pix_size);
-      glTexImage2D(GL_TEXTURE_2D, 0, get_glformat(bitmap->format, 0),
+      glTexImage2D(GL_TEXTURE_2D, 0, get_glformat(bitmap_format, 0),
          ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
-         get_glformat(bitmap->format, 2),
-         get_glformat(bitmap->format, 1), buf);
+         get_glformat(bitmap_format, 2),
+         get_glformat(bitmap_format, 1), buf);
       al_free(buf);
    }
 
    if (e) {
       ALLEGRO_ERROR("glTexImage2D for format %s, size %dx%d failed (%s)\n",
-         _al_pixel_format_name(bitmap->format),
+         _al_pixel_format_name(bitmap_format),
          ogl_bitmap->true_w, ogl_bitmap->true_h,
          _al_gl_error_string(e));
       glDeleteTextures(1, &ogl_bitmap->texture);
@@ -849,7 +850,7 @@ void _al_opengl_backup_dirty_bitmaps(ALLEGRO_DISPLAY *d, bool flip)
          ALLEGRO_LOCK_READONLY
       );
       if (lr) {
-         int line_size = al_get_pixel_size(b->format) * b->w;
+         int line_size = al_get_pixel_size(al_get_bitmap_format(b)) * b->w;
          for (y = 0; y < b->h; y++) {
             unsigned char *p = ((unsigned char *)lr->data) + lr->pitch * y;
             unsigned char *p2;

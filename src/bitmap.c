@@ -288,7 +288,10 @@ int al_get_bitmap_height(ALLEGRO_BITMAP *bitmap)
  */
 int al_get_bitmap_format(ALLEGRO_BITMAP *bitmap)
 {
-   return bitmap->format;
+   if (bitmap->parent)
+      return bitmap->parent->format;
+   else
+      return bitmap->format;
 }
 
 
@@ -384,7 +387,7 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    bitmap = al_calloc(1, sizeof *bitmap);
    bitmap->vt = parent->vt;
 
-   bitmap->format = parent->format;
+   bitmap->format = 0;
    bitmap->flags = parent->flags;
 
    bitmap->w = w;

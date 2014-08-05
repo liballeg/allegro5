@@ -154,7 +154,7 @@ bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP *b, int w, int h)
    int pitch;
    ALLEGRO_BITMAP_EXTRA_OPENGL *extra = b->extra;
          
-   pitch = w * al_get_pixel_size(b->format);
+   pitch = w * al_get_pixel_size(al_get_bitmap_format(b));
 
    b->w = w;
    b->h = h;
@@ -239,7 +239,7 @@ ALLEGRO_BITMAP* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
 
    ALLEGRO_TRACE_CHANNEL_LEVEL("display", 1)(
       "Created backbuffer bitmap (actual format: %s)\n",
-      _al_pixel_format_name(backbuffer->format));
+      _al_pixel_format_name(al_get_bitmap_format(backbuffer)));
 
    ogl_backbuffer = backbuffer->extra;
    ogl_backbuffer->is_backbuffer = 1;

@@ -183,6 +183,7 @@ static void d3d_sync_bitmap_memory(ALLEGRO_BITMAP *bitmap)
    D3DLOCKED_RECT locked_rect;
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
    LPDIRECT3DTEXTURE9 texture;
+   int bitmap_format = al_get_bitmap_format(bitmap);
 
    if (_al_d3d_render_to_texture_supported())
       texture = d3d_bmp->system_texture;
@@ -190,8 +191,8 @@ static void d3d_sync_bitmap_memory(ALLEGRO_BITMAP *bitmap)
       texture = d3d_bmp->video_texture;
 
    if (texture->LockRect(0, &locked_rect, NULL, 0) == D3D_OK) {
-      _al_convert_bitmap_data(locked_rect.pBits, bitmap->format, locked_rect.Pitch,
-         bitmap->memory, bitmap->format, al_get_pixel_size(bitmap->format)*bitmap->w,
+      _al_convert_bitmap_data(locked_rect.pBits, bitmap_format, locked_rect.Pitch,
+         bitmap->memory, bitmap_format, al_get_pixel_size(bitmap_format)*bitmap->w,
          0, 0, 0, 0, bitmap->w, bitmap->h);
       texture->UnlockRect(0);
    }
@@ -208,6 +209,7 @@ static void d3d_sync_bitmap_texture(ALLEGRO_BITMAP *bitmap,
    RECT rect;
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
    LPDIRECT3DTEXTURE9 texture;
+   int bitmap_format = al_get_bitmap_format(bitmap);
 
    if (bitmap->parent) return;
 
@@ -222,16 +224,16 @@ static void d3d_sync_bitmap_texture(ALLEGRO_BITMAP *bitmap,
       texture = d3d_bmp->video_texture;
 
    if (texture->LockRect(0, &locked_rect, &rect, 0) == D3D_OK) {
-	   _al_convert_bitmap_data(bitmap->memory, bitmap->format, bitmap->w*al_get_pixel_size(bitmap->format),
-		  locked_rect.pBits, bitmap->format, locked_rect.Pitch,
+	   _al_convert_bitmap_data(bitmap->memory, bitmap_format, bitmap->w*al_get_pixel_size(bitmap_format),
+		  locked_rect.pBits, bitmap_format, locked_rect.Pitch,
 		  x, y, 0, 0, width, height);
 	   /* Copy an extra row and column so the texture ends nicely */
 	   if (rect.bottom > bitmap->h) {
 		  _al_convert_bitmap_data(
 			 bitmap->memory,
-			 bitmap->format, bitmap->w*al_get_pixel_size(bitmap->format),
+			 bitmap_format, bitmap->w*al_get_pixel_size(bitmap_format),
 			 locked_rect.pBits,
-			 bitmap->format, locked_rect.Pitch,
+			 bitmap_format, locked_rect.Pitch,
 			 0, bitmap->h-1,
 			 0, height,
 			 width, 1);
@@ -239,9 +241,9 @@ static void d3d_sync_bitmap_texture(ALLEGRO_BITMAP *bitmap,
 	   if (rect.right > bitmap->w) {
 		  _al_convert_bitmap_data(
 			 bitmap->memory,
-			 bitmap->format, bitmap->w*al_get_pixel_size(bitmap->format),
+			 bitmap_format, bitmap->w*al_get_pixel_size(bitmap_format),
 			 locked_rect.pBits,
-			 bitmap->format, locked_rect.Pitch,
+			 bitmap_format, locked_rect.Pitch,
 			 bitmap->w-1, 0,
 			 width, 0,
 			 1, height);
@@ -249,9 +251,9 @@ static void d3d_sync_bitmap_texture(ALLEGRO_BITMAP *bitmap,
 	   if (rect.bottom > bitmap->h && rect.right > bitmap->w) {
 		  _al_convert_bitmap_data(
 			 bitmap->memory,
-			 bitmap->format, bitmap->w*al_get_pixel_size(bitmap->format),
+			 bitmap_format, bitmap->w*al_get_pixel_size(bitmap_format),
 			 locked_rect.pBits,
-			 bitmap->format, locked_rect.Pitch,
+			 bitmap_format, locked_rect.Pitch,
 			 bitmap->w-1, bitmap->h-1,
 			 width, height,
 			 1, 1);
@@ -557,7 +559,7 @@ bool _al_d3d_recreate_bitmap_textures(ALLEGRO_DISPLAY_D3D *disp)
             bmp->flags,
             &extra->video_texture,
             &extra->system_texture,
-            bmp->format))
+            al_get_bitmap_format(bmp)))
             return false;
 	      d3d_do_upload(bmp, 0, 0, bmp->w, bmp->h, true);
       }
@@ -587,7 +589,7 @@ void _al_d3d_refresh_texture_memory(ALLEGRO_DISPLAY *display)
 
       d3d_create_textures(bmps_display, extra->texture_w,
          extra->texture_h, bmp->flags,
-	 &extra->video_texture, /*&bmp->system_texture*/0, bmp->format);
+         &extra->video_texture, /*&bmp->system_texture*/0, al_get_bitmap_format(bmp));
       if (!(bmp->flags & ALLEGRO_NO_PRESERVE_TEXTURE)) {
          d3d_sync_bitmap_texture(bmp,
 	    0, 0, bmp->w, bmp->h);
@@ -658,7 +660,7 @@ static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap)
                bitmap->flags,
                &d3d_bmp->video_texture,
                &d3d_bmp->system_texture,
-               bitmap->format)) {
+               al_get_bitmap_format(bitmap))) {
             return false;
          }
 
@@ -743,7 +745,7 @@ static void d3d_draw_bitmap_region(
       }
       ALLEGRO_BITMAP *tmp_bmp = d3d_create_bitmap_from_surface(
          surface,
-	 src->format,
+         al_get_bitmap_format(src),
          src->flags
       );
       if (tmp_bmp) {
@@ -769,6 +771,7 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
    int flags)
 {
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
+   int bitmap_format = al_get_bitmap_format(bitmap);
    
    if (d3d_bmp->display->device_lost)
       return NULL;
@@ -814,20 +817,20 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
       }
    }
 
-   if (format == ALLEGRO_PIXEL_FORMAT_ANY || bitmap->format == format || f == bitmap->format) {
+   if (format == ALLEGRO_PIXEL_FORMAT_ANY || bitmap_format == format || bitmap_format == f) {
       bitmap->locked_region.data = d3d_bmp->locked_rect.pBits;
-      bitmap->locked_region.format = bitmap->format;
+      bitmap->locked_region.format = bitmap_format;
       bitmap->locked_region.pitch = d3d_bmp->locked_rect.Pitch;
-      bitmap->locked_region.pixel_size = al_get_pixel_size(bitmap->format);
+      bitmap->locked_region.pixel_size = al_get_pixel_size(bitmap_format);
    }
    else {
       bitmap->locked_region.pitch = al_get_pixel_size(f) * w;
       bitmap->locked_region.data = al_malloc(bitmap->locked_region.pitch*h);
       bitmap->locked_region.format = f;
-      bitmap->locked_region.pixel_size = al_get_pixel_size(bitmap->format);
+      bitmap->locked_region.pixel_size = al_get_pixel_size(bitmap_format);
       if (!(bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY)) {
          _al_convert_bitmap_data(
-            d3d_bmp->locked_rect.pBits, bitmap->format, d3d_bmp->locked_rect.Pitch,
+            d3d_bmp->locked_rect.pBits, bitmap_format, d3d_bmp->locked_rect.Pitch,
             bitmap->locked_region.data, f, bitmap->locked_region.pitch,
             0, 0, 0, 0, w, h);
       }
@@ -839,12 +842,13 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
 static void d3d_unlock_region(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
+   int bitmap_format = al_get_bitmap_format(bitmap);
 
-   if (bitmap->locked_region.format != 0 && bitmap->locked_region.format != bitmap->format) {
+   if (bitmap->locked_region.format != 0 && bitmap->locked_region.format != bitmap_format) {
       if (!(bitmap->lock_flags & ALLEGRO_LOCK_READONLY)) {
          _al_convert_bitmap_data(
             bitmap->locked_region.data, bitmap->locked_region.format, bitmap->locked_region.pitch,
-            d3d_bmp->locked_rect.pBits, bitmap->format, d3d_bmp->locked_rect.Pitch,
+            d3d_bmp->locked_rect.pBits, bitmap_format, d3d_bmp->locked_rect.Pitch,
             0, 0, 0, 0, bitmap->lock_w, bitmap->lock_h);
       }
       al_free(bitmap->locked_region.data);

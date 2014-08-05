@@ -29,6 +29,7 @@ ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
    ALLEGRO_LOCKED_REGION *lr;
    char *data;
    ALLEGRO_COLOR color;
+   int bitmap_format = al_get_bitmap_format(bitmap);
 
    if (bitmap->parent) {
       x += bitmap->xofs;
@@ -58,7 +59,7 @@ ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
          return color;
       }
 
-      if (!(lr = al_lock_bitmap_region(bitmap, x, y, 1, 1, bitmap->format,
+      if (!(lr = al_lock_bitmap_region(bitmap, x, y, 1, 1, bitmap_format,
             ALLEGRO_LOCK_READONLY)))
       {
          memset(&color, 0, sizeof(ALLEGRO_COLOR));
@@ -68,7 +69,7 @@ ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
       /* FIXME: check for valid pixel format */
 
       data = lr->data;
-      _AL_INLINE_GET_PIXEL(bitmap->format, data, color, false);
+      _AL_INLINE_GET_PIXEL(bitmap_format, data, color, false);
 
       al_unlock_bitmap(bitmap);
    }
@@ -81,6 +82,7 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
 {
    ALLEGRO_LOCKED_REGION *lr;
    char *data;
+   int bitmap_format = al_get_bitmap_format(bitmap);
 
    if (bitmap->parent) {
        x += bitmap->xofs;
@@ -108,7 +110,7 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
       _AL_INLINE_PUT_PIXEL(bitmap->locked_region.format, data, color, false);
    }
    else {
-      lr = al_lock_bitmap_region(bitmap, x, y, 1, 1, bitmap->format,
+      lr = al_lock_bitmap_region(bitmap, x, y, 1, 1, bitmap_format,
          ALLEGRO_LOCK_WRITEONLY);
       if (!lr)
          return;
@@ -116,7 +118,7 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
       /* FIXME: check for valid pixel format */
 
       data = lr->data;
-      _AL_INLINE_PUT_PIXEL(bitmap->format, data, color, false);
+      _AL_INLINE_PUT_PIXEL(bitmap_format, data, color, false);
 
       al_unlock_bitmap(bitmap);
    }

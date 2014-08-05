@@ -148,7 +148,7 @@ void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
    bitmap_flags &= ~_ALLEGRO_INTERNAL_OPENGL;
 
    /* If a cloned bitmap would be identical, we can just do nothing. */
-   if (bitmap->format == al_get_new_bitmap_format() &&
+   if (al_get_bitmap_format(bitmap) == al_get_new_bitmap_format() &&
          bitmap_flags == new_bitmap_flags &&
          bitmap->display == al_get_current_display()) {
       return;
@@ -223,7 +223,7 @@ void al_convert_bitmaps(void)
       flags = (*bptr)->flags;
       flags &= ~ALLEGRO_MEMORY_BITMAP;
       al_set_new_bitmap_flags(flags);
-      al_set_new_bitmap_format((*bptr)->format);
+      al_set_new_bitmap_format(al_get_bitmap_format(*bptr));
       
       ALLEGRO_DEBUG("converting memory bitmap %p to display bitmap\n", *bptr);
       
@@ -254,7 +254,7 @@ void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap)
 
    al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
    al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
-   al_set_new_bitmap_format(bitmap->format);
+   al_set_new_bitmap_format(al_get_bitmap_format(bitmap));
    al_convert_bitmap(bitmap);
    al_restore_state(&backup);
 }
@@ -276,7 +276,7 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
 
    al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   al_set_new_bitmap_format(bitmap->format);
+   al_set_new_bitmap_format(al_get_bitmap_format(bitmap));
    al_convert_bitmap(bitmap);
    if (is_any) {
       /* We force-converted to memory above, but we still want to

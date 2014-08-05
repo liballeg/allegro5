@@ -380,7 +380,7 @@ static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
        * message and switch to (extremely slow) software mode.
        */
       ALLEGRO_ERROR("Could not use FBO for bitmap with format %s.\n",
-         _al_pixel_format_name(bitmap->format));
+         _al_pixel_format_name(al_get_bitmap_format(bitmap)));
       ALLEGRO_ERROR("*** SWITCHING TO SOFTWARE MODE ***\n");
       _al_ogl_bind_framebuffer(0);
       glDeleteFramebuffersEXT(1, &info->fbo);

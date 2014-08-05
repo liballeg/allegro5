@@ -102,7 +102,7 @@ ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_new(ALLEGRO_BITMAP *bitmap,
    bool ok;
 
    if (format == ALLEGRO_PIXEL_FORMAT_ANY) {
-      format = bitmap->format;
+      format = al_get_bitmap_format(bitmap);
    }
 
    disp = al_get_current_display();
@@ -432,7 +432,7 @@ static void ogl_unlock_region_non_readonly(ALLEGRO_BITMAP *bitmap,
    GLenum e;
 
    disp = al_get_current_display();
-   orig_format = _al_get_real_pixel_format(disp, bitmap->format);
+   orig_format = _al_get_real_pixel_format(disp, al_get_bitmap_format(bitmap));
 
    /* Change OpenGL context if necessary. */
    if (!disp ||
