@@ -46,9 +46,11 @@ static void render(void)
     ALLEGRO_COLOR green = al_map_rgba_f(0, 0.5, 0, 1);
     ALLEGRO_COLOR blue = al_map_rgba_f(0.1, 0.2, 1, 1);
     int x, y, w, h, as, de, xpos, ypos;
+    unsigned int index;
     int target_w, target_h;
     ALLEGRO_USTR_INFO info, sub_info;
     const ALLEGRO_USTR *u;
+    const char *tulip = "Tulip";
 
     al_clear_to_color(white);
 
@@ -83,8 +85,31 @@ static void render(void)
     u = al_ref_cstr(&info, get_string("substr4"));
     al_draw_ustr(ex.f3, green, 50, 380, 0, SUB(0, 11));
 
-    al_draw_textf(ex.f5, black, 50, 420, 0, "forced monochrome");
+    al_draw_textf(ex.f5, black, 50, 395, 0, "forced monochrome");
 
+    /* Glyph rendering tests. */
+    al_draw_textf(ex.f3, red, 50, 410, 0, "Glyph kern Tu: %d, draw: ",
+                        al_get_glyph_kerning(ex.f3, 'T', 'u'));
+    x = 50 ; y = 425; 
+    for (index = 0; index < strlen(tulip); index ++) {
+       int cp  = tulip[index];
+       /* Use al_get_glyph_width for the stride, with no kerning. */
+       int width = al_get_glyph_width(ex.f3, cp);
+       al_draw_glyph(ex.f3, red, x, y, cp);
+       x += width;
+    }
+    
+    x = 50 ; y = 440; 
+    for (index = 0; index < strlen(tulip); index ++) {
+       int cp  = tulip[index];
+       int pcp = (index < 1) ? -1 : tulip[index - 1];
+       /* Use al_get_glyph_width for the stride and apply kerning. */
+       x += al_get_glyph_kerning(ex.f3, pcp, cp);
+       int width = al_get_glyph_width(ex.f3, cp);
+       al_draw_glyph(ex.f3, red, x, y, cp);
+       x += width;
+    }
+    
     al_hold_bitmap_drawing(false);
 
     target_w = al_get_bitmap_width(al_get_target_bitmap());

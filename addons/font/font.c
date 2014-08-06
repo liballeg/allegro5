@@ -21,6 +21,7 @@
 #include "allegro5/internal/aintern_vector.h"
 
 #include "font.h"
+#include <ctype.h>
 
 ALLEGRO_DEBUG_CHANNEL("font")
 
@@ -261,6 +262,26 @@ static int color_get_font_ranges(ALLEGRO_FONT *font, int ranges_count,
    return i;
 }
 
+static bool color_get_glyph_dimensions(ALLEGRO_FONT const *f,
+   int codepoint, int *bbx, int *bby, int *bbw, int *bbh)
+{
+   int h = al_get_font_line_height(f);
+   ALLEGRO_BITMAP *glyph = _al_font_color_find_glyph(f, codepoint);
+   if(!glyph) return false;
+   if (bbx) *bbx = 0;
+   if (bby) *bby = 0;
+   if (bbw) *bbw = glyph ? al_get_bitmap_width(glyph) : 0;
+   if (bbh) *bbh = h;
+   return true;
+}
+
+static int color_get_glyph_kerning(ALLEGRO_FONT const *f,
+   int codepoint1, int codepoint2)
+{
+   (void) f; (void) codepoint1; (void) codepoint2;
+   /* Bitmap fonts don't use any kerning */
+   return 0;
+}
 
 /********
  * vtable declarations
@@ -277,6 +298,8 @@ ALLEGRO_FONT_VTABLE _al_font_vtable_color = {
     color_destroy,
     color_get_text_dimensions,
     color_get_font_ranges,
+    color_get_glyph_dimensions,
+    color_get_glyph_kerning
 };
 
 
@@ -419,7 +442,6 @@ uint32_t al_get_allegro_font_version(void)
 {
    return ALLEGRO_VERSION_INT;
 }
-
 
 /* vim: set sts=4 sw=4 et: */
 

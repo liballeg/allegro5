@@ -1,8 +1,11 @@
+#include <math.h>
+
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_font.h"
 #include "allegro5/allegro_image.h"
 
 #include "common.c"
+
 
 #define EURO      "\xe2\x82\xac"
 
@@ -44,6 +47,8 @@ int main(int argc, char **argv)
     ALLEGRO_DISPLAY *display;
     ALLEGRO_BITMAP *bitmap, *font_bitmap;
     ALLEGRO_FONT *f1, *f2, *f3;
+    
+    int range, index, x, y;
 
     int ranges[] = {
        0x0020, 0x007F,  /* ASCII */
@@ -64,7 +69,7 @@ int main(int argc, char **argv)
 
     al_set_new_display_option(ALLEGRO_SINGLE_BUFFER, true, ALLEGRO_SUGGEST);
     al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
-    display = al_create_display(320, 200);
+    display = al_create_display(640, 480);
     if (!display) {
         abort_example("Failed to create display\n");
     }
@@ -90,7 +95,7 @@ int main(int argc, char **argv)
     }
 
     /* Draw background */
-    al_draw_bitmap(bitmap, 0, 0, 0);
+    al_draw_scaled_bitmap(bitmap, 0, 0, 320, 240, 0, 0, 640, 480, 0);
 
     /* Draw red text */
     al_draw_textf(f1, al_map_rgb(255, 0, 0), 10, 10, 0, "red");
@@ -102,9 +107,35 @@ int main(int argc, char **argv)
     al_draw_textf(f2, al_map_rgb(0, 0, 255), 60, 60, 0, "Mysha's 0.02" EURO);
 
     /* Draw a yellow text with the builtin font */
-    al_draw_textf(f3, al_map_rgb(255, 255, 0), 160, 160, ALLEGRO_ALIGN_CENTER,
+    al_draw_textf(f3, al_map_rgb(255, 255, 0), 20, 200, ALLEGRO_ALIGN_CENTER,
         "a string from builtin font data");
 
+    /* Draw all individual glyphs the f2 font's range in rainbow colors.     
+     */
+    x = 10;
+    y = 300;
+    al_draw_textf(f3, al_map_rgb(0, 255, 255), x,  y - 20, 0, "Draw glyphs: ");
+    for (range = 0; range < 4; range++) {
+       int start = ranges[2*range];
+       int stop  = ranges[2*range + 1];      
+       for (index = start; index < stop; index ++) {
+          /* Use al_get_glyph_width for the stride. */
+          int width = al_get_glyph_width(f2, index);
+          int r     = fabs(sin(ALLEGRO_PI * (index) * 36 / 360.0)) * 255.0;
+          int g     = fabs(sin(ALLEGRO_PI * (index + 12) * 36 / 360.0)) * 255.0;
+          int b     = fabs(sin(ALLEGRO_PI * (index + 24) * 36 / 360.0)) * 255.0;
+          x += al_get_glyph_kerning(f2, index -1, index);
+          al_draw_glyph(f2, al_map_rgb(r, g, b), x, y, index);
+          x += width;
+          if (x > (al_get_display_width(display) - 10)) {
+             x = 10;
+             y += al_get_font_line_height(f2);
+          }
+       }
+   }
+
+
+    
     al_flip_display();
 
     wait_for_esc(display);

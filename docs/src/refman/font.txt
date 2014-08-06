@@ -232,6 +232,95 @@ Since: 5.1.4
 
 See also: [al_grab_font_from_bitmap]
 
+## Per glyph text handling
+
+For some applications Allegro's text drawing functions may not be sufficient.
+That is why Allegro supports drawing and getting the dimensions of individual
+glyphs of a font. And it's also possible to get the kerning to use beteen two
+glyphs. These per glyh functions have less overhead than Allegro's per string
+text drawing and dimensioning functions. So, with these functions you can
+write your own efficient and precise custom text drawing functions.
+
+### API: al_draw_glyph
+
+Draws the glyph that corresponds with `codepoint` in the given `color`
+using the given `font`. If `font` does not have such a glyph, nothing
+will be drawn.
+
+To draw a string of characters, you will need to use [al_get_glyph_width]
+or [al_get_glyph_dimensions] to determine the size and position of each glyph.
+If you want to apply kerning, you also need to take the results of
+[al_get_glyph_kerning] into consideration.
+
+If you have to draw many glyphs at the same time, use [al_lock_bitmap]
+or [al_lock_bitmap_region] before drawing the glyphs, and then
+[al_unlock_bitmap] when done drawing the glyphs to futher enhance performance.
+
+Since: 5.1.9
+
+See also: [al_get_glyph_width], [al_get_glyph_dimensions],
+[al_get_glyph_kerning].
+
+### API: al_get_glyph_width
+
+This function returns the width in pixel of the glyph that corresponds with
+`codepoint` in the font `font` Returns zero if the font does not have such
+a glyph.
+
+When drawing a string one glyph at the time from the left to the right
+without kerning, the x position of the glyph should be incremented by the
+result of [al_get_glyph_width] applied to the previous glyph drawn. Refer to
+[al_get_glyph_kerning] for an explanation how to draw a string with kerning.
+
+Since: 5.1.9
+
+See also: [al_draw_glyph], [al_get_glyph_dimensions], [al_get_glyph_kerning].
+
+### API: al_get_glyph_dimensions
+
+Sometimes, the [al_get_glyph_width] function is not enough for exact glyph
+placement, so this function returns some additional information.
+The function itself returns true if the character was present in `font`
+and false if the character was not present in `font`.
+
+Returned variables (all in pixel):
+
+- bbx, bby - Offset to upper left corner of bounding box.
+- bbw, bbh - Dimensions of bounding box.
+
+Since: 5.1.9
+
+See also: [al_draw_glyph], [al_get_glyph_width], [al_get_glyph_kerning].
+
+### API: al_get_glyph_kerning
+
+Kerning is the process of adjusting the spacing between glyphs in a font,
+to obtain a more visually pleasing result. Kerning adjusts the space between
+two individual glyphs.
+
+This function returns the width expressed in pixel of the kerning to apply
+between the two glyphs that correspond with `codepoint1` and `codepoint2`
+for `font`.
+
+This function will return zero if either of the characters is not present
+in the `font`, or if the font is a bitmap font, or if kerning was turned off
+by passing the ALLEGRO_TTF_NO_KERNING flag when loading the TTF font.
+
+If both glyphs exist and the TTF font supports kerning, then the value returned
+by this function will usually be negative, because kerning tends to place
+characters closer to each other than would be expected from their width.
+
+When drawing a string one glyph at the time from the left to the right
+with kerning, the x position of the glyph should be incremented by the result
+of [al_get_glyph_width] applied to the previous glyph drawn PLUS the value
+of [al_get_glyph_kerning] for the previous and the current glyph.
+Refer to [al_get_glyph_width] for an explanation how to draw a string
+without kerning.
+
+Since: 5.1.9
+
+See also: [al_draw_glyph], [al_get_glyph_width], [al_get_glyph_dimensions].
+
 ## Bitmap fonts
 
 ### API: al_grab_font_from_bitmap
