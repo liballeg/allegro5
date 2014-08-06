@@ -252,9 +252,10 @@ or [al_get_glyph_dimensions] to determine the size and position of each glyph.
 If you want to apply kerning, you also need to take the results of
 [al_get_glyph_kerning] into consideration.
 
-If you have to draw many glyphs at the same time, use [al_lock_bitmap]
-or [al_lock_bitmap_region] before drawing the glyphs, and then
-[al_unlock_bitmap] when done drawing the glyphs to futher enhance performance.
+If you have to draw many glyphs at the same time, use [al_hold_bitmap_drawing]
+with true as the parameter, before drawing the glyphs, and then call
+[al_hold_bitmap_drawing] again with false as a parameter when done drawing the
+glyphs to futher enhance performance.
 
 Since: 5.1.9
 

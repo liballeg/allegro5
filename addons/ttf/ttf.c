@@ -526,15 +526,11 @@ static int ttf_render_char(ALLEGRO_FONT const *f, ALLEGRO_COLOR color,
    FT_Face face = data->face;
    int advance = 0;
    int32_t ch32 = (int32_t) ch;
-   bool hold;
 
-   hold = al_is_bitmap_drawing_held();
    al_hold_bitmap_drawing(true);
    int ft_index = FT_Get_Char_Index(face, ch32);
    advance = render_glyph(f, color, -1, ft_index, xpos, ypos);
    
-   al_hold_bitmap_drawing(hold);
-
    return advance;
 }
 
