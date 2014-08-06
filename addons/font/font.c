@@ -275,12 +275,13 @@ static bool color_get_glyph_dimensions(ALLEGRO_FONT const *f,
    return true;
 }
 
-static int color_get_glyph_kerning(ALLEGRO_FONT const *f,
+static int color_get_glyph_advance(ALLEGRO_FONT const *f,
    int codepoint1, int codepoint2)
 {
-   (void) f; (void) codepoint1; (void) codepoint2;
-   /* Bitmap fonts don't use any kerning */
-   return 0;
+   (void) codepoint1;
+   /* Bitmap fonts don't use any kerning, so just use the width of codepoint2 */
+   
+   return color_char_length(f, codepoint2);
 }
 
 /********
@@ -299,7 +300,7 @@ ALLEGRO_FONT_VTABLE _al_font_vtable_color = {
     color_get_text_dimensions,
     color_get_font_ranges,
     color_get_glyph_dimensions,
-    color_get_glyph_kerning
+    color_get_glyph_advance
 };
 
 

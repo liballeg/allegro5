@@ -119,12 +119,11 @@ int main(int argc, char **argv)
        int start = ranges[2*range];
        int stop  = ranges[2*range + 1];      
        for (index = start; index < stop; index ++) {
-          /* Use al_get_glyph_width for the stride. */
-          int width = al_get_glyph_width(f2, index);
+          /* Use al_get_glyph_advance for the stride. */
+          int width = al_get_glyph_advance(f2, index, ALLEGRO_NO_KERNING);
           int r     = fabs(sin(ALLEGRO_PI * (index) * 36 / 360.0)) * 255.0;
           int g     = fabs(sin(ALLEGRO_PI * (index + 12) * 36 / 360.0)) * 255.0;
           int b     = fabs(sin(ALLEGRO_PI * (index + 24) * 36 / 360.0)) * 255.0;
-          x += al_get_glyph_kerning(f2, index -1, index);
           al_draw_glyph(f2, al_map_rgb(r, g, b), x, y, index);
           x += width;
           if (x > (al_get_display_width(display) - 10)) {

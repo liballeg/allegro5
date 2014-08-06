@@ -73,7 +73,7 @@ struct ALLEGRO_FONT_VTABLE
       
    ALLEGRO_FONT_METHOD(bool, get_glyph_dimensions, (const ALLEGRO_FONT *f,
       int codepoint, int *bbx, int *bby, int *bbw, int *bbh));      
-   ALLEGRO_FONT_METHOD(int, get_glyph_kerning, (const ALLEGRO_FONT *font,
+   ALLEGRO_FONT_METHOD(int, get_glyph_advance, (const ALLEGRO_FONT *font,
       int codepoint1, int codepoint2));
       
 };
@@ -118,13 +118,17 @@ ALLEGRO_FONT_FUNC(uint32_t, al_get_allegro_font_version, (void));
 ALLEGRO_FONT_FUNC(int, al_get_font_ranges, (ALLEGRO_FONT *font,
    int ranges_count, int *ranges));
 
+enum {
+   ALLEGRO_NO_KERNING       = -1
+};
+
 ALLEGRO_FONT_FUNC(void, al_draw_glyph, (const ALLEGRO_FONT *font,
    ALLEGRO_COLOR color, float x, float y, int codepoint));
 ALLEGRO_FONT_FUNC(int, al_get_glyph_width, (const ALLEGRO_FONT *f,
    int codepoint));
 ALLEGRO_FONT_FUNC(bool, al_get_glyph_dimensions, (const ALLEGRO_FONT *f,
    int codepoint, int *bbx, int *bby, int *bbw, int *bbh));
-ALLEGRO_FONT_FUNC(int, al_get_glyph_kerning, (const ALLEGRO_FONT *f,
+ALLEGRO_FONT_FUNC(int, al_get_glyph_advance, (const ALLEGRO_FONT *f,
    int codepoint1, int codepoint2));
 
 #ifdef __cplusplus

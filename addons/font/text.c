@@ -400,9 +400,9 @@ bool al_get_glyph_dimensions(const ALLEGRO_FONT *f,
 /**
  * Function al_get_glyph_kerning
  */
-int al_get_glyph_kerning(const ALLEGRO_FONT *f, int codepoint1, int codepoint2)
+int al_get_glyph_advance(const ALLEGRO_FONT *f, int codepoint1, int codepoint2)
 {
-   return f->vtable->get_glyph_kerning(f, codepoint1, codepoint2);
+   return f->vtable->get_glyph_advance(f, codepoint1, codepoint2);
 }
 
 
