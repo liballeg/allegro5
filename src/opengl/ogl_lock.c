@@ -480,7 +480,7 @@ static void ogl_unlock_region_non_readonly(ALLEGRO_BITMAP *bitmap,
 
       /* If using FBOs, we need to regenerate mipmaps explicitly now. */
       /* XXX why don't we check ogl_bitmap->fbo_info? */
-      if ((bitmap->flags & ALLEGRO_MIPMAP) &&
+      if ((al_get_bitmap_flags(bitmap) & ALLEGRO_MIPMAP) &&
          al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object)
       {
          glGenerateMipmapEXT(GL_TEXTURE_2D);

@@ -155,7 +155,7 @@ bool al_use_shader(ALLEGRO_SHADER *shader)
       ALLEGRO_WARN("No current target bitmap.\n");
       return false;
    }
-   if (bmp->flags & ALLEGRO_MEMORY_BITMAP) {
+   if (al_get_bitmap_flags(bmp) & ALLEGRO_MEMORY_BITMAP) {
       ALLEGRO_WARN("Target bitmap is memory bitmap.\n");
       return false;
    }

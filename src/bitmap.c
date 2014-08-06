@@ -207,7 +207,7 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 
    _al_unregister_destructor(_al_dtor_list, bitmap);
 
-   if (bitmap->flags & ALLEGRO_MEMORY_BITMAP) {
+   if (al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP) {
       destroy_memory_bitmap(bitmap);
       return;
    }
@@ -300,7 +300,10 @@ int al_get_bitmap_format(ALLEGRO_BITMAP *bitmap)
  */
 int al_get_bitmap_flags(ALLEGRO_BITMAP *bitmap)
 {
-   return bitmap->flags;
+   if (bitmap->parent)
+      return bitmap->parent->flags;
+   else
+      return bitmap->flags;
 }
 
 
@@ -387,8 +390,11 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    bitmap = al_calloc(1, sizeof *bitmap);
    bitmap->vt = parent->vt;
 
+   /* Sub-bitmap inherits these from the parent.
+    * Leave these unchanged so they can be detected if improperly accessed
+    * directly. */
    bitmap->format = 0;
-   bitmap->flags = parent->flags;
+   bitmap->flags = 0;
 
    bitmap->w = w;
    bitmap->h = h;

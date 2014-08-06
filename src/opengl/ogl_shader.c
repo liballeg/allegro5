@@ -251,7 +251,7 @@ static bool glsl_set_shader_sampler(ALLEGRO_SHADER *shader,
    GLint handle;
    GLuint texture;
 
-   if (bitmap && bitmap->flags & ALLEGRO_MEMORY_BITMAP) {
+   if (bitmap && al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP) {
       ALLEGRO_WARN("Cannot use memory bitmap for sampler\n");
       return false;
    }

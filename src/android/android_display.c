@@ -786,10 +786,11 @@ static void android_acknowledge_drawing_halt(ALLEGRO_DISPLAY *dpy)
    for (i = 0; i < (int)dpy->bitmaps._size; i++) {
       ALLEGRO_BITMAP **bptr = _al_vector_ref(&dpy->bitmaps, i);
       ALLEGRO_BITMAP *bmp = *bptr;
+      int bitmap_flags = al_get_bitmap_flags(bmp);
 
       if (!bmp->parent &&
-         !(bmp->flags & ALLEGRO_MEMORY_BITMAP) &&
-         !(bmp->flags & ALLEGRO_NO_PRESERVE_TEXTURE))
+         !(bitmap_flags & ALLEGRO_MEMORY_BITMAP) &&
+         !(bitmap_flags & ALLEGRO_NO_PRESERVE_TEXTURE))
       {
          ALLEGRO_BITMAP_EXTRA_OPENGL *extra = bmp->extra;
          al_remove_opengl_fbo(bmp);
@@ -854,10 +855,11 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
    for (i = 0; i < _al_vector_size(&dpy->bitmaps); i++) {
       ALLEGRO_BITMAP **bptr = _al_vector_ref(&dpy->bitmaps, i);
       ALLEGRO_BITMAP *bmp = *bptr;
+      int bitmap_flags = al_get_bitmap_flags(bmp);
 
       if (!bmp->parent &&
-         !(bmp->flags & ALLEGRO_MEMORY_BITMAP) &&
-         !(bmp->flags & ALLEGRO_NO_PRESERVE_TEXTURE))
+         !(bitmap_flags & ALLEGRO_MEMORY_BITMAP) &&
+         !(bitmap_flags & ALLEGRO_NO_PRESERVE_TEXTURE))
       {
          _al_ogl_upload_bitmap_memory(bmp, al_get_bitmap_format(bmp), bmp->memory);
          bmp->dirty = false;

@@ -27,6 +27,7 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
 {
    ALLEGRO_LOCKED_REGION *lr;
    int bitmap_format = al_get_bitmap_format(bitmap);
+   int bitmap_flags = al_get_bitmap_flags(bitmap);
    ASSERT(x >= 0);
    ASSERT(y >= 0);
    ASSERT(width >= 0);
@@ -42,7 +43,7 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
    if (bitmap->locked)
       return NULL;
 
-   if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP) &&
+   if (!(bitmap_flags & ALLEGRO_MEMORY_BITMAP) &&
          !(flags & ALLEGRO_LOCK_READONLY))
       bitmap->dirty = true;
 
@@ -55,7 +56,7 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
    bitmap->lock_h = height;
    bitmap->lock_flags = flags;
 
-   if (bitmap->flags & ALLEGRO_MEMORY_BITMAP) {
+   if (bitmap_flags & ALLEGRO_MEMORY_BITMAP) {
       int f = _al_get_real_pixel_format(al_get_current_display(), format);
       if (f < 0) {
          return NULL;
@@ -114,7 +115,7 @@ void al_unlock_bitmap(ALLEGRO_BITMAP *bitmap)
       bitmap = bitmap->parent;
    }
 
-   if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP)) {
+   if (!(al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP)) {
       bitmap->vt->unlock_region(bitmap);
    }
    else {

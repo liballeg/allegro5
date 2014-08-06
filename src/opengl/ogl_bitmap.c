@@ -296,7 +296,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
 
    ogl_target = target->extra;
 
-   if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP) && !bitmap->locked &&
+   if (!(al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP) && !bitmap->locked &&
          !target->locked) {
       ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_source = bitmap->extra;
       if (ogl_source->is_backbuffer) {
@@ -386,6 +386,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
    int w = bitmap->w;
    int h = bitmap->h;
    int bitmap_format = al_get_bitmap_format(bitmap);
+   int bitmap_flags = al_get_bitmap_flags(bitmap);
    bool post_generate_mipmap = false;
    GLenum e;
    int filter;
@@ -419,14 +420,14 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-   filter = (bitmap->flags & ALLEGRO_MIPMAP) ? 2 : 0;
-   if (bitmap->flags & ALLEGRO_MIN_LINEAR) {
+   filter = (bitmap_flags & ALLEGRO_MIPMAP) ? 2 : 0;
+   if (bitmap_flags & ALLEGRO_MIN_LINEAR) {
       filter++;
    }
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filters[filter]);
 
    filter = 0;
-   if (bitmap->flags & ALLEGRO_MAG_LINEAR) {
+   if (bitmap_flags & ALLEGRO_MAG_LINEAR) {
       filter++;
    }
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filters[filter]);
@@ -449,7 +450,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
    }
 #endif
 
-   if (bitmap->flags & ALLEGRO_MIPMAP) {
+   if (bitmap_flags & ALLEGRO_MIPMAP) {
       /* If using FBOs, use glGenerateMipmapEXT instead of the GL_GENERATE_MIPMAP
        * texture parameter.  GL_GENERATE_MIPMAP is deprecated in GL 3.0 so we
        * may want to use the new method in other cases as well.
@@ -699,7 +700,7 @@ void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
    ASSERT(al_get_current_display() == bitmap->display);
 
    tmp = _al_create_bitmap_params(bitmap->display, w, h, format,
-      bitmap->flags);
+      al_get_bitmap_flags(bitmap));
    ASSERT(tmp);
 
    lr = al_lock_bitmap(tmp, format, ALLEGRO_LOCK_WRITEONLY);
@@ -730,7 +731,7 @@ GLuint al_get_opengl_texture(ALLEGRO_BITMAP *bitmap)
    ALLEGRO_BITMAP_EXTRA_OPENGL *extra;
    if (bitmap->parent)
       bitmap = bitmap->parent;
-   if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL))
+   if (!(al_get_bitmap_flags(bitmap) & _ALLEGRO_INTERNAL_OPENGL))
       return 0;
    extra = bitmap->extra;
    return extra->texture;
@@ -743,7 +744,7 @@ void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap;
    if (bitmap->parent)
       bitmap = bitmap->parent;
-   if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL))
+   if (!(al_get_bitmap_flags(bitmap) & _ALLEGRO_INTERNAL_OPENGL))
       return;
    ogl_bitmap = bitmap->extra;
    if (!ogl_bitmap->fbo_info)
@@ -773,7 +774,7 @@ GLuint al_get_opengl_fbo(ALLEGRO_BITMAP *bitmap)
    if (bitmap->parent)
       bitmap = bitmap->parent;
 
-   if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL))
+   if (!(al_get_bitmap_flags(bitmap) & _ALLEGRO_INTERNAL_OPENGL))
       return 0;
 
    ogl_bitmap = bitmap->extra;
@@ -803,7 +804,7 @@ bool al_get_opengl_texture_size(ALLEGRO_BITMAP *bitmap, int *w, int *h)
    if (bitmap->parent)
       bitmap = bitmap->parent;
    
-   if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL)) {
+   if (!(al_get_bitmap_flags(bitmap) & _ALLEGRO_INTERNAL_OPENGL)) {
       *w = 0;
       *h = 0;
       return false;
@@ -836,10 +837,11 @@ void _al_opengl_backup_dirty_bitmaps(ALLEGRO_DISPLAY *d, bool flip)
       ALLEGRO_BITMAP *b = *bptr;
       ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = b->extra;
       ALLEGRO_LOCKED_REGION *lr;
+      int bitmap_flags = al_get_bitmap_flags(b);
       if (b->parent)
          continue;
-      if ((b->flags & ALLEGRO_MEMORY_BITMAP) ||
-         (b->flags & ALLEGRO_NO_PRESERVE_TEXTURE) ||
+      if ((bitmap_flags & ALLEGRO_MEMORY_BITMAP) ||
+         (bitmap_flags & ALLEGRO_NO_PRESERVE_TEXTURE) ||
          !b->dirty ||
          ogl_bitmap->is_backbuffer)
          continue;

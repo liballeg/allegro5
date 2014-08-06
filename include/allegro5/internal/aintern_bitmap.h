@@ -17,8 +17,16 @@ struct ALLEGRO_BITMAP
 {
    ALLEGRO_BITMAP_INTERFACE *vt;
    ALLEGRO_DISPLAY *display;
+
+   /*
+    * When this is a sub-bitmap, these are inherited from the parent. Don't
+    * access them directly, but use al_get_bitmap_format/flags unless you are
+    * super sure this is not a sub-bitmap (e.g. when you're creating a new
+    * bitmap).
+    */
    int format;
    int flags;
+
    int w, h;
    /*
     * The number of bytes between a pixel at (x,y) and (x,y+1).

@@ -45,12 +45,13 @@ static ALLEGRO_BITMAP_INTERFACE *vt;
  */
 bool al_get_d3d_texture_size(ALLEGRO_BITMAP *bitmap, int *width, int *height)
 {
+   int bitmap_flags = al_get_bitmap_flags(bitmap);
    ASSERT(bitmap);
    ASSERT(width);
    ASSERT(height);
 
-   if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL) &&
-         !(bitmap->flags & ALLEGRO_MEMORY_BITMAP)) {
+   if (!(bitmap_flags & _ALLEGRO_INTERNAL_OPENGL) &&
+         !(bitmap_flags & ALLEGRO_MEMORY_BITMAP)) {
       ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
       *width = d3d_bmp->texture_w;
       *height = d3d_bmp->texture_h;
@@ -297,7 +298,7 @@ void _al_d3d_release_default_pool_textures(ALLEGRO_DISPLAY *disp)
 	ALLEGRO_BITMAP *albmp = *bptr;
 	_al_set_bitmap_shader_field(albmp, NULL);
 
-	if ((albmp->flags & ALLEGRO_MEMORY_BITMAP) || (albmp->parent))
+	if ((al_get_bitmap_flags(albmp) & ALLEGRO_MEMORY_BITMAP) || (albmp->parent))
 	   continue;
 
 	ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(albmp);
@@ -525,9 +526,10 @@ void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp)
       ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&display->bitmaps, i);
       ALLEGRO_BITMAP *bmp = *bptr;
       ALLEGRO_BITMAP_EXTRA_D3D *extra = get_extra(bmp);
+      int bitmap_flags = al_get_bitmap_flags(bmp);
       if ((void *)bmp->display == (void *)disp) {
-         if ((bmp->flags & ALLEGRO_MEMORY_BITMAP) ||
-            (bmp->flags & ALLEGRO_NO_PRESERVE_TEXTURE) ||
+         if ((bitmap_flags & ALLEGRO_MEMORY_BITMAP) ||
+            (bitmap_flags & ALLEGRO_NO_PRESERVE_TEXTURE) ||
    	    !bmp->dirty ||
    	    extra->is_backbuffer ||
 	    bmp->parent)
@@ -556,7 +558,7 @@ bool _al_d3d_recreate_bitmap_textures(ALLEGRO_DISPLAY_D3D *disp)
       if ((void *)bmp->display == (void *)disp) {
 	      if (!d3d_create_textures(disp, extra->texture_w,
             extra->texture_h,
-            bmp->flags,
+            al_get_bitmap_flags(bmp),
             &extra->video_texture,
             &extra->system_texture,
             al_get_bitmap_format(bmp)))
@@ -582,15 +584,16 @@ void _al_d3d_refresh_texture_memory(ALLEGRO_DISPLAY *display)
       ALLEGRO_BITMAP *bmp = *bptr;
       ALLEGRO_BITMAP_EXTRA_D3D *extra = get_extra(bmp);
       ALLEGRO_DISPLAY_D3D *bmps_display = (ALLEGRO_DISPLAY_D3D *)bmp->display;
+      int bitmap_flags = al_get_bitmap_flags(bmp);
 
-      if ((bmp->flags & ALLEGRO_MEMORY_BITMAP) || bmp->parent) {
+      if ((bitmap_flags & ALLEGRO_MEMORY_BITMAP) || bmp->parent) {
          continue;
       }
 
       d3d_create_textures(bmps_display, extra->texture_w,
-         extra->texture_h, bmp->flags,
+         extra->texture_h, bitmap_flags,
          &extra->video_texture, /*&bmp->system_texture*/0, al_get_bitmap_format(bmp));
-      if (!(bmp->flags & ALLEGRO_NO_PRESERVE_TEXTURE)) {
+      if (!(bitmap_flags & ALLEGRO_NO_PRESERVE_TEXTURE)) {
          d3d_sync_bitmap_texture(bmp,
 	    0, 0, bmp->w, bmp->h);
          if (_al_d3d_render_to_texture_supported()) {
@@ -607,7 +610,7 @@ void _al_d3d_refresh_texture_memory(ALLEGRO_DISPLAY *display)
       ALLEGRO_BITMAP *bmp = *bptr;
       ALLEGRO_BITMAP_EXTRA_D3D *extra = get_extra(bmp);
 
-      if (bmp->flags & ALLEGRO_MEMORY_BITMAP) {
+      if (al_get_bitmap_flags(bmp) & ALLEGRO_MEMORY_BITMAP) {
          continue;
       }
 
@@ -657,7 +660,7 @@ static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       if (d3d_bmp->video_texture == 0)
          if (!d3d_create_textures(d3d_bmp->display, d3d_bmp->texture_w,
                d3d_bmp->texture_h,
-               bitmap->flags,
+               al_get_bitmap_flags(bitmap),
                &d3d_bmp->video_texture,
                &d3d_bmp->system_texture,
                al_get_bitmap_format(bitmap))) {
@@ -746,7 +749,7 @@ static void d3d_draw_bitmap_region(
       ALLEGRO_BITMAP *tmp_bmp = d3d_create_bitmap_from_surface(
          surface,
          al_get_bitmap_format(src),
-         src->flags
+         al_get_bitmap_flags(src)
       );
       if (tmp_bmp) {
          d3d_draw_bitmap_region(tmp_bmp, tint,

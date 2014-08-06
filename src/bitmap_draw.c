@@ -33,12 +33,12 @@ static void _bitmap_drawer(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint,
    ASSERT(bitmap != dest && bitmap != dest->parent);
 
    /* If destination is memory, do a memory blit */
-   if (dest->flags & ALLEGRO_MEMORY_BITMAP) {
+   if (al_get_bitmap_flags(dest) & ALLEGRO_MEMORY_BITMAP) {
       _al_draw_bitmap_region_memory(bitmap, tint, sx, sy, sw, sh, 0, 0, flags);
    }
    else {
       /* if source is memory or incompatible */
-      if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) ||
+      if ((al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP) ||
           (!al_is_compatible_bitmap(bitmap)))
       {
          if (display && display->vt->draw_memory_bitmap_region) {

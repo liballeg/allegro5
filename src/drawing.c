@@ -27,7 +27,7 @@ void al_clear_to_color(ALLEGRO_COLOR color)
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ASSERT(target);
 
-   if (target->flags & ALLEGRO_MEMORY_BITMAP) {
+   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP) {
       _al_clear_bitmap_by_locking(target, &color);
    }
    else {
@@ -46,7 +46,7 @@ void al_clear_depth_buffer(float z)
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ASSERT(target);
 
-   if (target->flags & ALLEGRO_MEMORY_BITMAP) {
+   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP) {
       /* has no depth buffer */
    }
    else {
@@ -65,7 +65,7 @@ void al_draw_pixel(float x, float y, ALLEGRO_COLOR color)
 
    ASSERT(target);
 
-   if (target->flags & ALLEGRO_MEMORY_BITMAP) {
+   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP) {
       _al_draw_pixel_memory(target, x, y, &color);
    }
    else {

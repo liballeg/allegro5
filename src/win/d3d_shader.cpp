@@ -441,7 +441,7 @@ static bool hlsl_set_shader_sampler(ALLEGRO_SHADER *shader,
 
    (void)unit;
 
-   if (bitmap->flags & ALLEGRO_MEMORY_BITMAP)
+   if (al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP)
       return false;
 
    LPDIRECT3DTEXTURE9 vid_texture = al_get_d3d_video_texture(bitmap);

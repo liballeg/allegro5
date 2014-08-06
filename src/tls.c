@@ -350,6 +350,7 @@ void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
    ALLEGRO_SHADER *old_shader;
    ALLEGRO_SHADER *new_shader;
    bool same_shader;
+   int bitmap_flags = bitmap ? al_get_bitmap_flags(bitmap) : 0;
 
    ASSERT(!al_is_bitmap_drawing_held());
 
@@ -377,7 +378,7 @@ void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
       new_display = NULL;
       new_shader = NULL;
    }
-   else if (bitmap->flags & ALLEGRO_MEMORY_BITMAP) {
+   else if (bitmap_flags & ALLEGRO_MEMORY_BITMAP) {
       /* Setting a memory bitmap doesn't change the rendering context. */
       new_display = old_display;
       new_shader = NULL;
@@ -415,7 +416,7 @@ void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
    tls->target_bitmap = bitmap;
 
    if (bitmap &&
-         !(bitmap->flags & ALLEGRO_MEMORY_BITMAP) &&
+         !(bitmap_flags & ALLEGRO_MEMORY_BITMAP) &&
          new_display &&
          new_display->vt &&
          new_display->vt->set_target_bitmap)

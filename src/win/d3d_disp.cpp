@@ -2673,20 +2673,21 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;
    ALLEGRO_BITMAP* cache_bmp = (ALLEGRO_BITMAP*)disp->cache_texture;
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(cache_bmp);
+   int bitmap_flags = al_get_bitmap_flags(cache_bmp);
 
-   if (cache_bmp->flags & ALLEGRO_MIN_LINEAR) {
+   if (bitmap_flags & ALLEGRO_MIN_LINEAR) {
       d3d_disp->device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
    }
    else {
       d3d_disp->device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
    }
-   if (cache_bmp->flags & ALLEGRO_MAG_LINEAR) {
+   if (bitmap_flags & ALLEGRO_MAG_LINEAR) {
       d3d_disp->device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
    }
    else {
       d3d_disp->device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
    }
-   if (cache_bmp->flags & ALLEGRO_MIPMAP) {
+   if (bitmap_flags & ALLEGRO_MIPMAP) {
       d3d_disp->device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
    }
    else {
