@@ -482,7 +482,7 @@ void al_do_multiline_ustr(const ALLEGRO_FONT *font, float max_width,
    bool (*cb)(int line_num, const ALLEGRO_USTR * line, void *extra),
    void *extra)
 {
-   const char *linebreak  = "\n\r";
+   const char *linebreak  = "\n";
    const ALLEGRO_USTR *hard_line, *soft_line;
    ALLEGRO_USTR_INFO hard_line_info, soft_line_info;
    int hard_line_pos = 0, soft_line_pos = 0;

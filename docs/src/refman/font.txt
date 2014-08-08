@@ -246,9 +246,10 @@ parameter. The lines are then layed out vertically depending on the
 `line_height` parameter and drawn each as if [al_draw_text] was called
 on them.
 
-Either newline `\n` or carriage return `\r` in the `text` will cause a "hard"
-line break after their occurrence in the string. The text after a hard break
-is placed on a new line.
+A newline `\n` in the `text` will cause a "hard" line break after its
+occurrence in the string. The text after a hard break is placed on a new line.
+Carriage return `\r` is not supported, will not cause a line break, and will
+likely be drawn as a square or a space depending on the font.
 
 The `max_with` parameter controls the maximum desired width of the lines.
 This function will try to introduce a "soft" line break after the longest
@@ -309,9 +310,9 @@ for every line. This is useful for custom drawing of multiline text,
 or for calculating the size of multiline text ahead of time.
 
 It will break `text` in lines based on it's contents and the `max_width`
-parameter. Either newline `\n` or carriage return `\r` in the `text` will
-cause a "hard" line break after their occurrence in the string. The text
-after a hard break is placed on a new line.
+parameter. A newline `\n` in the `text` will cause a "hard" line break after
+its occurrence in the string. The text after a hard break is placed on a new
+line. Carriage return `\r` is not supported and will not cause a line break.
 
 The `max_with` parameter controls the maximum desired width of the lines.
 This function will try to introduce a "soft" line break after the longest
