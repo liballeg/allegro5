@@ -192,6 +192,7 @@ endif()
 
 example(ex_font ${FONT} ${IMAGE} ${DATA_IMAGES})
 example(ex_font_justify ex_font_justify.cpp ${NIHGUI} ${IMAGE} ${TTF} ${DATA_IMAGES} ${DATA_TTF})
+example(ex_font_multiline ex_font_multiline.cpp ${NIHGUI} ${IMAGE} ${TTF} ${DATA_IMAGES} ${DATA_TTF})
 example(ex_logo ${FONT} ${TTF} ${IMAGE} ${PRIM} DATA ${DATA_TTF})
 example(ex_projection ${TTF} ${IMAGE} ${DATA_IMAGES} ${DATA_TTF})
 example(ex_ttf ${TTF} ${PRIM} DATA ${DATA_TTF} ex_ttf.ini)
