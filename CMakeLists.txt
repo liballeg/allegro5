@@ -664,6 +664,13 @@ if(WIN32)
         message(FATAL_ERROR
             "Windows port requires DirectInput (not found).")
     endif(DINPUT_FOUND)
+    
+    # Xinput support for xbox compatible controllers.
+    find_package(XInput)
+    if(XINPUT_FOUND)
+        set(SUPPORT_XINPUT 1)
+        set(ALLEGRO_CFG_XINPUT 1)
+    endif(XINPUT_FOUND)
 
     if(WANT_D3D)
         find_package(D3D9)
@@ -672,7 +679,7 @@ if(WIN32)
             set(ALLEGRO_CFG_D3D 1)
         endif(D3D9_FOUND)
     endif(WANT_D3D)
-
+    
     if(SUPPORT_D3D)
         find_package(D3DX9)
         if(D3DX9_FOUND)
@@ -732,6 +739,11 @@ if(WIN32)
         list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_D3D_FILES})
         list(APPEND PLATFORM_LIBS ${D3D9_LIBRARIES})
     endif(SUPPORT_D3D)
+    
+    if(SUPPORT_XINPUT) 
+      list(APPEND PLATFORM_LIBS ${XINPUT_LIBRARIES})
+    endif(SUPPORT_XINPUT) 
+    
     list(APPEND PLATFORM_LIBS ${DINPUT_LIBRARIES})
     if(MINGW AND NOT SHARED)
         list(APPEND PLATFORM_LIBS stdc++)

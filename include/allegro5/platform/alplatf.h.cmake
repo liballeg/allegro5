@@ -14,6 +14,7 @@
 
 #cmakedefine ALLEGRO_CFG_D3D
 #cmakedefine ALLEGRO_CFG_D3D9EX
+#cmakedefine ALLEGRO_CFG_XINPUT
 #cmakedefine ALLEGRO_CFG_OPENGL
 #cmakedefine ALLEGRO_CFG_OPENGLES
 #cmakedefine ALLEGRO_CFG_OPENGLES2

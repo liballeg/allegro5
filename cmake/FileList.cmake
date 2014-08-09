@@ -53,8 +53,14 @@ set(ALLEGRO_SRC_FILES
     )
 
 set(ALLEGRO_SRC_WIN_FILES
+    src/win/whapall.c  
+    src/win/whaptic.c
+    src/win/whaptic.cpp
+    src/win/whapxi.c
+    src/win/wjoyall.c
     src/win/wjoydrv.c
     src/win/wjoydxnu.cpp
+    src/win/wjoyxi.c
     src/win/wkeyboard.c
     src/win/wmcursor.c
     src/win/wmouse.c
@@ -95,6 +101,7 @@ set(ALLEGRO_SRC_UNIX_FILES
     src/unix/udrvlist.c
     src/unix/ufdwatch.c
     src/unix/ugfxdrv.c
+    src/unix/uhapdrv.c
     src/unix/ujoydrv.c
     src/unix/ukeybd.c
     src/unix/umouse.c
