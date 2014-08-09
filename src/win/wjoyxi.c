@@ -56,6 +56,7 @@
 #include <mmsystem.h>
 #include <process.h>
 /* #include <WinError.h> */
+#include <sal.h>
 #include <xinput.h>
 
 ALLEGRO_DEBUG_CHANNEL("xinput")
