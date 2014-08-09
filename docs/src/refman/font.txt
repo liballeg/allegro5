@@ -259,7 +259,7 @@ or tab `\t` character.
 
 However, it is possible that `max_width` is too small, or the words in `text`
 are too long to fit `max_width` when drawn with `font`. In that case, the word
-that is too wide will simply be drawn compeltely on a line by itself. If you
+that is too wide will simply be drawn completely on a line by itself. If you
 don't want the text that overflows `max_width` to be visible, then use
 [al_set_clipping_rectangle] to clip it off and hide it.
 
@@ -307,22 +307,9 @@ See also: [al_draw_multiline_text], [al_draw_multiline_ustr],
 This function processes the `text` and splits it into lines as
 [al_draw_multiline_text] would, and then calls the callback `cb` once
 for every line. This is useful for custom drawing of multiline text,
-or for calculating the size of multiline text ahead of time.
-
-It will break `text` in lines based on its contents and the `max_width`
-parameter. A newline `\n` in the `text` will cause a "hard" line break after
-its occurrence in the string. The text after a hard break is placed on a new
-line. Carriage return `\r` is not supported and will not cause a line break.
-
-The `max_width` parameter controls the maximum desired width of the lines.
-This function will try to introduce a "soft" line break after the longest
-possible series of words that would fit in `max_length` when drawn
-with the given `font`. A "soft" line break can occur on either a space ` `
-or tab `\t` character.
-
-However, it is possible that `max_width` is too small, or the words in `text`
-are too long to fit `max_width` when drawn with `font`. In that case, the word
-that is too wide will simply be placed compeltely on a line by itself.
+or for calculating the size of multiline text ahead of time. See the
+documentation of [al_draw_multiline_text] for the explanation of the splitting
+algorithm.
 
 For every line that this function splits `text` into , the callback `cb`
 will be called once.  This callback `cb` must be of type
@@ -355,44 +342,8 @@ See also: [al_draw_multiline_text]
 
 ### API: al_do_multiline_ustr
 
-This function processes the `ustr` and splits it into lines as
-[al_draw_multiline_ustr] would, and then calls the callback `cb` once
-for every line. This is useful for custom drawing of multiline text,
-or for calculating the size of multiline text ahead of time.
-
-It will break `ustr` in lines based on its contents and the `max_width`
-parameter. Either newline `\n` or carriage return `\r` in the `ustr` will
-cause a "hard" line break after their occurrence in the string. The text
-after a hard break is placed on a new line.
-
-The `max_width` parameter controls the maximum desired width of the lines.
-This function will try to introduce a "soft" line break after the longest
-possible series of words that would fit in `max_length` when drawn
-with the given `font`. A "soft" line break can occur on either a space ` `
-or tab `\t` character.
-
-However, it is possible that `max_width` is too small, or the words in `text`
-are too long to fit `max_width` when drawn with `font`. In that case, the word
-that is too wide will simply be placed compeltely on a line by itself.
-
-For every line that this function splits `ustr` into , the callback `cb`
-will be called once.  This callback `cb` must be of type
-`bool callback(int line_num, const ALLEGRO_USTR *line, void *extra)`.
-
-The callback `cb` will be called with the number of the line starting from zero
-and counting up in `line_num`, a pointer to an ALLEGRO_USTR that represents the
-Unicode text of the line in `line` and the pointer passed in the
-`extra` parameter to [al_do_multiline_text].
-
-The pointer `line` is not guaranteed to be valid after the callback `cb`
-has returned. So in case you still need the contents of `line` after that,
-you must make a copy of it yourself. In case of an empty line
-the parameter `size` to the callback will be zero and `line` will
-be set to the result of calling [al_ustr_empty_string].
-
-When `cb` returns true, [al_do_multiline_text] will continue on
-to the next line. And when `cb` returns false, this function will
-stop immediately and not call `cb` anymore.
+Like [al_do_multiline_text], but using ALLEGRO_USTR instead of a
+NUL-terminated char array for text.
 
 Since: 5.1.9
 
