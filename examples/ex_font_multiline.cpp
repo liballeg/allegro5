@@ -10,7 +10,8 @@
 #include "allegro5/allegro_font.h"
 #include "allegro5/allegro_image.h"
 #include "allegro5/allegro_ttf.h"
-#include <allegro5/allegro_primitives.h>
+#include "allegro5/allegro_color.h"
+#include "allegro5/allegro_primitives.h"
 #include "nihgui.hpp"
 
 #include "common.c"
@@ -20,15 +21,16 @@
 /* This is a custom mult line output function that demonstrates
  * al_do_multiline_text. See below for the implementation. */
 static void draw_custom_multiline(ALLEGRO_FONT * font, int x, int y,
-   int max_width, int line_height, const char * text);
+   int max_width, int line_height, int tick, const char * text);
 
-ALLEGRO_FONT *font;
-ALLEGRO_FONT *font_ttf;
-ALLEGRO_FONT *font_bmp;
-ALLEGRO_FONT *font_gui;
-ALLEGRO_FONT *font_bin;
+ALLEGRO_TIMER *timer;
+ALLEGRO_FONT  *font;
+ALLEGRO_FONT  *font_ttf;
+ALLEGRO_FONT  *font_bmp;
+ALLEGRO_FONT  *font_gui;
+ALLEGRO_FONT  *font_bin;
 
-class Prog {
+class Prog : public EventHandler {
 private:
    Dialog d;
    Label text_label;
@@ -42,18 +44,21 @@ private:
    VSlider height_slider;
    List text_align;
    List text_font;
+   int tick;
 
 public:
    Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
+   virtual ~Prog() {}
    void run();
    void draw_text();
+   void handle_event(const ALLEGRO_EVENT & event);
 };
 
 Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
-   d(Dialog(theme, display, 10, 20)),
+   d(Dialog(theme, display, 14, 20)),
    text_label(Label("Text")),
    width_label(Label("Width")),
-   height_label(Label("Height")),
+   height_label(Label("Line height")),
    align_label(Label("Align")),
    font_label(Label("Font")),
    text_entry(TextEntry(TEST_TEXT)),
@@ -71,27 +76,28 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    text_font.append_item("Builtin");
 
    d.add(text_label, 0, 14, 1, 1);
-   d.add(text_entry, 1, 14, 8, 1);
+   d.add(text_entry, 1, 14, 12, 1);
 
    d.add(width_label,  0, 15, 1, 1);
-   d.add(width_slider, 1, 15, 8, 1);
+   d.add(width_slider, 1, 15, 12, 1);
    
 
-   d.add(align_label,  0, 17, 1, 1);
-   d.add(text_align ,  1, 17, 1, 3);
+   d.add(align_label,  0, 17, 2, 1);
+   d.add(text_align ,  2, 17, 2, 3);
 
-   d.add(font_label,  2, 17, 1, 1);
-   d.add(text_font ,  3, 17, 1, 3);
+   d.add(font_label,  4, 17, 2, 1);
+   d.add(text_font ,  6, 17, 2, 3);
 
-   d.add(height_label,  4, 17, 1, 1);
-   d.add(height_slider, 5, 17, 1, 3);
-
-    
+   d.add(height_label,  8, 17, 2, 1);
+   d.add(height_slider, 10, 17, 2, 3);
 }
 
 void Prog::run()
 {
    d.prepare();
+
+   d.register_event_source(al_get_timer_event_source(timer));
+   d.set_event_handler(this);
 
    while (!d.is_quit_requested()) {
       if (d.is_draw_requested()) {
@@ -105,6 +111,14 @@ void Prog::run()
    }
 }
 
+void Prog::handle_event(const ALLEGRO_EVENT & event)
+{
+   if (event.type == ALLEGRO_EVENT_TIMER) {
+      tick = (int)event.timer.count;
+      d.request_draw();
+   }
+}
+
 void Prog::draw_text()
 {
    int x  = 10, y  = 10;
@@ -114,7 +128,7 @@ void Prog::draw_text()
    int flags = 0;
    const char * text = text_entry.get_text();
 
-  if (text_font.get_selected_item_text() == "Truetype") {
+   if (text_font.get_selected_item_text() == "Truetype") {
       font = font_ttf;
    } else if (text_font.get_selected_item_text() == "Bitmap") {
       font = font_bmp;
@@ -139,13 +153,13 @@ void Prog::draw_text()
     * and the line height, and finally the text itself.
     */
     
-   al_draw_rectangle(sx, sy-2, sx + w, sy - 1, al_map_rgb(255, 0, 0), 0);
-   al_draw_line(x, y, x, y + h, al_map_rgb(0, 255, 0), 0);
-   al_draw_multiline_text(font, al_map_rgb_f(1, 1, 1), x, y, w, h, flags, text);
+   al_draw_rectangle(sx, sy-2 + 30, sx + w, sy - 1 + 30, al_map_rgb(255, 0, 0), 0);
+   al_draw_line(x, y + 30, x, y + h + 30, al_map_rgb(0, 255, 0), 0);
+   al_draw_multiline_text(font, al_map_rgb_f(1, 1, 1), x, y + 30, w, h, flags, text);
 
    /* also do some custom bultiline drawing */
-   al_draw_text(font, al_map_rgb_f(0, 1, 1), x + w + 10, y, 0, "Custom multiline text:" );
-   draw_custom_multiline(font, x + w + 10 , y + 30, w, h, text);
+   al_draw_text(font, al_map_rgb_f(1, 1, 1), x + w + 10, y, 0, "Custom multiline text:" );
+   draw_custom_multiline(font, x + w + 10 , y + 30, w, h, tick, text);
 }
 
 int main(int argc, char *argv[])
@@ -193,6 +207,9 @@ int main(int argc, char *argv[])
       abort_example("Failed to load data/DejaVuSans.ttf\n");
    }
 
+   timer = al_create_timer(1.0 / 60);
+   al_start_timer(timer);
+
    /* Don't remove these braces. */
    {
       Theme theme(font_gui);
@@ -204,6 +221,7 @@ int main(int argc, char *argv[])
    al_destroy_font(font_ttf);
    al_destroy_font(font_bin);
    al_destroy_font(font_gui);
+   al_destroy_timer(timer);
 
    return 0;
 }
@@ -214,6 +232,7 @@ typedef struct DRAW_CUSTOM_LINE_EXTRA {
    const ALLEGRO_FONT *font;
    float x;
    float y;
+   int tick;
    float line_height;
    int flags;
 } DRAW_CUSTOM_LINE_EXTRA;
@@ -227,8 +246,10 @@ static bool draw_custom_multiline_cb(int line_num, const char *line, int size,
    DRAW_CUSTOM_LINE_EXTRA *s = (DRAW_CUSTOM_LINE_EXTRA *) extra;
    float x, y;
    ALLEGRO_USTR_INFO info;
-   ALLEGRO_COLOR c = al_map_rgb(255 - ((line_num * 64) % 255), 0, 0);
-   x  = s->x + sin(line_num) * 10;
+   ALLEGRO_COLOR c =
+      al_color_hsv(fmod(360.0 * (float)line_num / 5.0 + s->tick, 360.0),
+                   1.0, 1.0);
+   x  = s->x + 10 + sin(line_num + s->tick * 0.05) * 10;
    y  = s->y + (s->line_height * line_num);
    al_draw_ustr(s->font, c, x, y, 0, al_ref_buffer(&info, line, size));
    return (line_num < 5);
@@ -237,13 +258,14 @@ static bool draw_custom_multiline_cb(int line_num, const char *line, int size,
 /* This is a custom mult line output function that demonstrates
  * al_do_multiline_text. */
 static void draw_custom_multiline(ALLEGRO_FONT * font, int x, int y,
-   int max_width, int line_height, const char * text) {
+   int max_width, int line_height, int tick, const char * text) {
    DRAW_CUSTOM_LINE_EXTRA extra;
 
    extra.font = font;
    extra.x = x;
    extra.y = y;
    extra.line_height = line_height + al_get_font_line_height(font);
+   extra.tick = tick;
    
    al_do_multiline_text(font, max_width, text,
       draw_custom_multiline_cb, (void *)&extra);
