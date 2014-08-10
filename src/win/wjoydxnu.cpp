@@ -80,9 +80,27 @@
 #include <process.h>
 #include <dinput.h>
 
-/* Needed for XInput detection. */
-#include <wbemidl.h>
-#include <oleauto.h>
+
+/* We need XInput detection if we actually compile the XInput driver in. 
+* However, annoyingly so, wbemidl.h is needed for doing the detection 
+* but that may be unavailable. Furthermore the filter snippet requires 
+* a working __uuidof operator which is not available under Mingw,
+* only under mingw64 and msys2. However, since wbemidl.h is 
+* unavailable on Mingw anyway, the simplest solution for this is to see if 
+* the header exists and if so, do the filtering, if not, don't filter. 
+* The cmake build system will warn of such a situation where XInput is compiled 
+* in but the wbemidl.h header is missing.
+*
+* TLDR: use msys2 if possible. 
+*/ 
+#ifdef ALLEGRO_CFG_XINPUT
+   #if defined ALLEGRO_HAVE_WBEMIDL_H
+   /* Needed for XInput detection. */
+      #include <wbemidl.h>
+      #include <oleauto.h>
+      #define ALLEGRO_DINPUT_FILTER_XINPUT
+   #endif
+#endif
 
 ALLEGRO_DEBUG_CHANNEL("dinput")
 
@@ -679,8 +697,10 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
 }
 
 
-/* Only need XInput detection if we actually compile the XInput driver in. */
-#ifdef ALLEGRO_CFG_XINPUT
+/* Only need XInput detection if we actually compile the XInput driver in. 
+* and are able to compile the detection.
+*/
+#ifdef ALLEGRO_DINPUT_FILTER_XINPUT
 
 #define SAFE_RELEASE(x) do { if(x) { x->Release(); x = NULL; } } while(0)
 
@@ -864,8 +884,8 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    (void)pvRef;
    
    /* If we are compiling the XInput driver, ignore XInput devices, those can 
-      go though the XInput driver. */
-#ifdef ALLEGRO_CFG_XINPUT
+      go though the XInput driver. If we can compile the filter, that is. */
+#ifdef ALLEGRO_DINPUT_FILTER_XINPUT
    if (dinput_guid_is_xinput(&lpddi->guidProduct)) {
       return DIENUM_CONTINUE;
    }
