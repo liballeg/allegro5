@@ -158,8 +158,8 @@ void Prog::draw_text()
    al_draw_multiline_text(font, al_map_rgb_f(1, 1, 1), x, y + 30, w, h, flags, text);
 
    /* also do some custom bultiline drawing */
-   al_draw_text(font, al_map_rgb_f(1, 1, 1), x + w + 10, y, 0, "Custom multiline text:" );
-   draw_custom_multiline(font, x + w + 10 , y + 30, w, h, tick, text);
+   al_draw_text(font, al_map_rgb_f(1, 1, 1), w + 10, y, 0, "Custom multiline text:" );
+   draw_custom_multiline(font, w + 10 , y + 30, w, h, tick, text);
 }
 
 int main(int argc, char *argv[])
