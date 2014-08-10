@@ -47,7 +47,7 @@
 #endif
 
 #ifndef ALLEGRO_XINPUT_DISCONNECTED_POLL_DELAY
-#define ALLEGRO_XINPUT_DISCONNECTED_POLL_DELAY 1.00
+#define ALLEGRO_XINPUT_DISCONNECTED_POLL_DELAY 1.50
 #endif
 
 
@@ -55,7 +55,18 @@
 #include <allegro5/joystick.h>
 #include <mmsystem.h>
 #include <process.h>
-/* #include <WinError.h> */
+
+/* The official DirectX xinput.h uses SAL annotations.
+ * Need the sal.h header to get rid of them. On some other platforms 
+ * such as MinGW on Linux this header is lacking because it is not needed there. 
+ * So, simply try to include sal.h IF we have it , and if not, hope 
+ * for the best. 
+ * This does no harm on msys2 either, they have a sal.h header.
+ */ 
+#ifdef ALLEGRO_HAVE_SAL_H 
+#include <sal.h> 
+#endif
+
 #include <sal.h>
 #include <xinput.h>
 
@@ -406,9 +417,9 @@ static void *joyxi_poll_disconnected_thread(ALLEGRO_THREAD *thread, void *arg)
       al_init_timeout(&timeout, ALLEGRO_XINPUT_DISCONNECTED_POLL_DELAY);
       /* Wait for the condition for the polling time in stead of using
          al_rest to allows the polling thread to be awoken when needed. */
-      al_wait_cond_until(joyxi_cond, joyxi_mutex, &timeout);
+      al_wait_cond_until(joyxi_disconnected_cond, joyxi_mutex, &timeout);
       /* If we get here poll joystick for new input or connection
-       * and dispatch events. The mutexhas always been locked
+       * and dispatch events. The mutex has always been locked
        * so this should be OK. */
       joyxi_poll_disconnected_joysticks();
    }

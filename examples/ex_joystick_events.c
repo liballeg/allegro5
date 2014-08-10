@@ -27,18 +27,23 @@ ALLEGRO_COLOR        red;
 ALLEGRO_COLOR        blue;
 ALLEGRO_COLOR        gold;
 
+/* Currently active joystick and it's layout. */
+ALLEGRO_JOYSTICK * joystick = NULL;
 int num_sticks = 0;
 int num_buttons = 0;
 int num_axes[MAX_STICKS] = { 0 };
 float joys[MAX_STICKS][MAX_AXES] = {{ 0 }};
 bool joys_buttons[MAX_BUTTONS] = { 0 };
 
-static ALLEGRO_COLOR color_for_button(int button) {
-  if (button == 0) { return green; }
-  if (button == 1) { return red; }
-  if (button == 2) { return blue; }
-  if (button == 3) { return gold; }
-  if (button <  8) { return slate; }
+static ALLEGRO_COLOR color_for_button(ALLEGRO_JOYSTICK *joy, int button) {
+   if (joy) {  
+      const char * name = al_get_joystick_button_name(joy, button);    
+      if (0 == strcmp(name, "A")) { return green; }
+      if (0 == strcmp(name, "B")) { return red; }
+      if (0 == strcmp(name, "X")) { return blue; }
+      if (0 == strcmp(name, "Y")) { return gold; }
+      if (button <  8) { return slate; }
+  }
   return black;
 }
 
@@ -46,6 +51,8 @@ static void setup_joystick_values(ALLEGRO_JOYSTICK *joy)
 {
    ALLEGRO_JOYSTICK_STATE jst;
    int i, j;
+   
+   joystick = joy;
 
    if (joy == NULL) {
       num_sticks = 0;
@@ -125,21 +132,10 @@ static void draw_joystick_button(ALLEGRO_JOYSTICK *joy, int button, bool down)
    int y = al_get_bitmap_height(bmp)-240 + (button / 8) * 60;
    ALLEGRO_COLOR fg;
 
-   /* al_draw_filled_rectangle(x, y, x + 50, y + 50, grey);
-   al_draw_rectangle(x+0.5, y+0.5, x + 49.5, y + 49.5, black, 0);
-   if (down) {
-      al_draw_filled_rectangle(x + 2, y + 2, x + 46, y + 46, black);
-      fg = white;
-   }
-   else {
-      fg = black;
-   }
-   */
-
    al_draw_filled_circle(x+25, y+25, 25, grey);
    al_draw_circle(x+25, y+25, 23, black, 1);
    if (down) {
-         al_draw_filled_circle(x+25, y+25, 21, color_for_button(button));
+         al_draw_filled_circle(x+25, y+25, 21, color_for_button(joy, button));
          fg = white;
    }
    else {
@@ -147,13 +143,16 @@ static void draw_joystick_button(ALLEGRO_JOYSTICK *joy, int button, bool down)
    }
 
    if (joy) {
-      char name_buf[6];
+      int dy = 20;
       const char *name = al_get_joystick_button_name(joy, button);
-      size_t len       = strlen(name);
-      size_t clen      = (len < (sizeof(name_buf)-1)) ? len : (sizeof(name_buf)-1);
-      strncpy(name_buf, name, clen);
-      name_buf[clen]       = '\0'; 
-      al_draw_text(font, fg, x + 26, y + 20, ALLEGRO_ALIGN_CENTRE, name_buf);
+      /* Draw the full name, but stagger if it it's long, so should be readable. 
+      * Normally button names are short,  and should fit in the circle but some 
+      * drivers/platforms give long names to their buttons.
+      */
+      if(strlen(name) > 5) {
+         dy = 15 + 10 * (button % 2);
+      }
+      al_draw_text(font, fg, x + 26, y + dy, ALLEGRO_ALIGN_CENTRE, name);
    }
 }
 
@@ -204,6 +203,10 @@ static void main_loop(void)
          /* ALLEGRO_EVENT_JOYSTICK_AXIS - a joystick axis value changed.
           */
          case ALLEGRO_EVENT_JOYSTICK_AXIS:
+            /* Ignore events from a different joystick than the active one. */
+            if (event.joystick.id != joystick) 
+               break;
+         
             if (event.joystick.stick < MAX_STICKS && event.joystick.axis < MAX_AXES) {
                joys[event.joystick.stick][event.joystick.axis] = event.joystick.pos;
             }
@@ -212,12 +215,18 @@ static void main_loop(void)
          /* ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN - a joystick button was pressed.
           */
          case ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN:
+            if (event.joystick.id != joystick) 
+               break;
+  
             joys_buttons[event.joystick.button] = true;
             break;
 
          /* ALLEGRO_EVENT_JOYSTICK_BUTTON_UP - a joystick button was released.
           */
          case ALLEGRO_EVENT_JOYSTICK_BUTTON_UP:
+            if (event.joystick.id != joystick) 
+               break;
+  
             joys_buttons[event.joystick.button] = false;
             break;
 

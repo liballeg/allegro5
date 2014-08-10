@@ -52,7 +52,17 @@
 #include <mmsystem.h>
 #include <process.h>
 #include <math.h>
+
+/* The official DirectX xinput.h uses SAL annotations.
+ * Need the sal.h header to get rid of them. On some other platforms 
+ * such as MinGW on Linux this header is lacking because it is not needed there. 
+ * So, simply try to include sal.h IF we have it , and if not, hope 
+ * for the best. 
+ * This does no harm on msys2 either, they have a sal.h header.
+ */ 
+#ifdef ALLEGRO_HAVE_SAL_H 
 #include <sal.h>
+#endif
 #include <xinput.h>
 
 #include "allegro5/internal/aintern_wjoyxi.h"

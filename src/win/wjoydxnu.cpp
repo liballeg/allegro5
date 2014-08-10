@@ -679,8 +679,8 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
 }
 
 
-
-
+/* Only need XInput detection if we actually compile the XInput driver in. */
+#ifdef ALLEGRO_CFG_XINPUT
 
 #define SAFE_RELEASE(x) do { if(x) { x->Release(); x = NULL; } } while(0)
 
@@ -799,6 +799,9 @@ LCleanup:
     return bIsXinputDevice;
 }
 
+#undef SAFE_RELEASE
+
+#endif
 
 
 /* joystick_enum_callback: [primary thread]
@@ -860,10 +863,13 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
 
    (void)pvRef;
    
-   /* Ignore XInput devices, those can go though the XInput driver. */
+   /* If we are compiling the XInput driver, ignore XInput devices, those can 
+      go though the XInput driver. */
+#ifdef ALLEGRO_CFG_XINPUT
    if (dinput_guid_is_xinput(&lpddi->guidProduct)) {
       return DIENUM_CONTINUE;
    }
+#endif
 
    /* check if the joystick already existed before */
    joy = joydx_by_guid(lpddi->guidInstance);
