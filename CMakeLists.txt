@@ -458,7 +458,6 @@ check_include_files(linux/soundcard.h ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
 check_include_files(libkern/OSAtomic.h ALLEGRO_HAVE_OSATOMIC_H)
 check_include_files(sys/inotify.h ALLEGRO_HAVE_SYS_INOTIFY_H)
 check_include_files(sal.h ALLEGRO_HAVE_SAL_H)
-check_include_files(wbemidl.h ALLEGRO_HAVE_WBEMIDL_H)
 
 check_function_exists(getexecname ALLEGRO_HAVE_GETEXECNAME)
 check_function_exists(mkstemp ALLEGRO_HAVE_MKSTEMP)

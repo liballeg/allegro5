@@ -43,7 +43,7 @@
 #define ALLEGRO_NO_COMPATIBILITY
 
 /* For waitable timers */
-#define _WIN32_WINNT 0x400
+#define _WIN32_WINNT 0x0501
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"

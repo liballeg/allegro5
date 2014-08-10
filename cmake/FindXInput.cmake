@@ -29,11 +29,6 @@ find_package_handle_standard_args(XINPUT DEFAULT_MSG
 
 if(XINPUT_FOUND)
     set(XINPUT_LIBRARIES ${XINPUT_LIBRARY})
-    # Check if we have wbemidl for filtering out xinput devices from 
-    # the directinput drivern warn if not available
-    if(NOT ALLEGRO_HAVE_WBEMIDL_H)
-      message("WARNING: Header wbemidl.h not found. XInput devices cannot be filtered and will be shadowed as DirectInput ones.")
-    endif(NOT ALLEGRO_HAVE_WBEMIDL_H)
 else(XINPUT_FOUND)
     set(XINPUT_LIBRARIES)
 endif(XINPUT_FOUND)

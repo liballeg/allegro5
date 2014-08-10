@@ -21,7 +21,7 @@
 #define DIRECTINPUT_VERSION 0x0800
 
 /* For waitable timers */
-#define _WIN32_WINNT 0x400
+#define _WIN32_WINNT 0x0501
 
 #include "allegro5/allegro.h"
 #include "allegro5/haptic.h"

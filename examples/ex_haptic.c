@@ -110,6 +110,8 @@ int main(int argc, char **argv)
    open_log();
 
    num_joysticks = al_get_num_joysticks();
+   log_printf("Found %d joysticks.\n", num_joysticks);
+   
    for (i = 0; i < num_joysticks; i++) {
       ALLEGRO_JOYSTICK *joy = al_get_joystick(i);
       if (!joy) {
@@ -117,6 +119,8 @@ int main(int argc, char **argv)
       }
 
       if (al_is_joystick_haptic(joy)) {
+         log_printf("Joystick %s supports force feedback.\n",
+            al_get_joystick_name(joy));
          test_haptic_joystick(joy);
       }
       else {

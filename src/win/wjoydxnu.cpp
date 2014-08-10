@@ -57,7 +57,7 @@
 #define DIRECTINPUT_VERSION 0x0800
 
 /* For waitable timers */
-#define _WIN32_WINNT 0x400
+#define _WIN32_WINNT 0x0501
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
@@ -80,26 +80,15 @@
 #include <process.h>
 #include <dinput.h>
 
-
 /* We need XInput detection if we actually compile the XInput driver in. 
-* However, annoyingly so, wbemidl.h is needed for doing the detection 
-* but that may be unavailable. Furthermore the filter snippet requires 
-* a working __uuidof operator which is not available under Mingw,
-* only under mingw64 and msys2. However, since wbemidl.h is 
-* unavailable on Mingw anyway, the simplest solution for this is to see if 
-* the header exists and if so, do the filtering, if not, don't filter. 
-* The cmake build system will warn of such a situation where XInput is compiled 
-* in but the wbemidl.h header is missing.
-*
-* TLDR: use msys2 if possible. 
 */ 
 #ifdef ALLEGRO_CFG_XINPUT
-   #if defined ALLEGRO_HAVE_WBEMIDL_H
-   /* Needed for XInput detection. */
-      #include <wbemidl.h>
-      #include <oleauto.h>
-      #define ALLEGRO_DINPUT_FILTER_XINPUT
-   #endif
+   /* Windows XP is required. If you still use older Windows, 
+      XInput won't work anyway. */
+   #undef WIN32_LEAN_AND_MEAN
+   #include <windows.h>
+   #include <winuser.h>
+   #define ALLEGRO_DINPUT_FILTER_XINPUT
 #endif
 
 ALLEGRO_DEBUG_CHANNEL("dinput")
@@ -440,12 +429,17 @@ void _al_win_joystick_dinput_grab(void *param)
 }
 
 
-static ALLEGRO_JOYSTICK_DIRECTX *joydx_by_guid(const GUID guid)
+static ALLEGRO_JOYSTICK_DIRECTX *joydx_by_guid(const GUID guid, 
+   const GUID product_guid)
 {
    unsigned i;
 
    for (i = 0; i < MAX_JOYSTICKS; i++) {
-      if (GUID_EQUAL(joydx_joystick[i].guid, guid))
+      if (
+         GUID_EQUAL(joydx_joystick[i].guid, guid) &&
+         GUID_EQUAL(joydx_joystick[i].product_guid, product_guid) &&
+         joydx_joystick[i].config_state == STATE_ALIVE
+         )
          return &joydx_joystick[i];
    }
 
@@ -697,132 +691,103 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
 }
 
 
-/* Only need XInput detection if we actually compile the XInput driver in. 
-* and are able to compile the detection.
-*/
 #ifdef ALLEGRO_DINPUT_FILTER_XINPUT
 
-#define SAFE_RELEASE(x) do { if(x) { x->Release(); x = NULL; } } while(0)
-
-/* A little snippet of horror from Microsoft's site to see if a DirectInput
-* device is actually an XInput device: 
-*-----------------------------------------------------------------------------
-* Enum each PNP device using WMI and check each device ID to see if it contains 
-* "IG_" (ex. "VID_045E&PID_028E&IG_00").  If it does, then it's an XInput device
-* Unfortunately this information can not be found by just using DirectInput 
-*-----------------------------------------------------------------------------
+/* A better Xinput detection method inspired by from SDL. 
+* The method proposed by Microsoft on their web site is problematic because it 
+* requires non standard compiler extensions and hard to get headers. 
+* This method only needs Windows XP and user32.dll.
 */
-bool dinput_guid_is_xinput(const GUID* pGuidProductFromDirectInput )
+static bool dinput_is_device_xinput(const GUID *guid)
 {
-    IWbemLocator*           pIWbemLocator  = NULL;
-    IEnumWbemClassObject*   pEnumDevices   = NULL;
-    IWbemClassObject*       pDevices[20]   = {0};
-    IWbemServices*          pIWbemServices = NULL;
-    BSTR                    bstrNamespace  = NULL;
-    BSTR                    bstrDeviceID   = NULL;
-    BSTR                    bstrClassName  = NULL;
-    DWORD                   uReturned      = 0;
-    bool                    bIsXinputDevice= false;
-    UINT                    iDevice        = 0;
-    VARIANT                 var;
-    HRESULT                 hr;
+   PRAWINPUTDEVICELIST device_list = NULL;
+   UINT amount = 0;
+   UINT i;
+   bool result;
+   
+   /* Go through RAWINPUT (WinXP and later) to find HID devices. */
+   if ((GetRawInputDeviceList(NULL, &amount, sizeof (RAWINPUTDEVICELIST)) 
+      != 0)) {
+      return false;  /* drat... */
+   }
+   
+   if (amount < 1) {
+      return false;  /* drat again... */
+   }
+   
+   device_list = (PRAWINPUTDEVICELIST) 
+      al_malloc(sizeof(RAWINPUTDEVICELIST) * amount);
+   
+   if (!device_list) {
+      return false;  /* No luck. */
+   }
+   
+   if (GetRawInputDeviceList(device_list, &amount, sizeof(RAWINPUTDEVICELIST)) 
+       == ((UINT)-1)) {
+      al_free((void *)device_list);
+      return false; 
+   }
 
-    // CoInit if needed
-    hr = CoInitialize(NULL);
-    bool bCleanupCOM = SUCCEEDED(hr);
-
-    // Create WMI
-    hr = CoCreateInstance( __uuidof(WbemLocator),
-                           NULL,
-                           CLSCTX_INPROC_SERVER,
-                           __uuidof(IWbemLocator),
-                           (LPVOID*) &pIWbemLocator);
-    if( FAILED(hr) || pIWbemLocator == NULL )
-        goto LCleanup;
-
-    bstrNamespace = SysAllocString( L"\\\\.\\root\\cimv2" );if( bstrNamespace == NULL ) goto LCleanup;        
-    bstrClassName = SysAllocString( L"Win32_PNPEntity" );   if( bstrClassName == NULL ) goto LCleanup;        
-    bstrDeviceID  = SysAllocString( L"DeviceID" );          if( bstrDeviceID == NULL )  goto LCleanup;        
-    
-    // Connect to WMI 
-    hr = pIWbemLocator->ConnectServer( bstrNamespace, NULL, NULL, 0L, 
-                                       0L, NULL, NULL, &pIWbemServices );
-    if( FAILED(hr) || pIWbemServices == NULL )
-        goto LCleanup;
-
-    // Switch security level to IMPERSONATE. 
-    CoSetProxyBlanket( pIWbemServices, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, 
-                       RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE );                    
-
-    hr = pIWbemServices->CreateInstanceEnum( bstrClassName, 0, NULL, &pEnumDevices ); 
-    if( FAILED(hr) || pEnumDevices == NULL )
-        goto LCleanup;
-
-    // Loop over all devices
-    for( ;; )
-    {
-        // Get 20 at a time
-        hr = pEnumDevices->Next( 10000, 20, pDevices, &uReturned );
-        if( FAILED(hr) )
-            goto LCleanup;
-        if( uReturned == 0 )
-            break;
-
-        for( iDevice=0; iDevice<uReturned; iDevice++ )
-        {
-            // For each device, get its device ID
-            hr = pDevices[iDevice]->Get( bstrDeviceID, 0L, &var, NULL, NULL );
-            if( SUCCEEDED( hr ) && var.vt == VT_BSTR && var.bstrVal != NULL )
-            {
-                // Check if the device ID contains "IG_".  If it does, then it's an XInput device
-				    // This information can not be found from DirectInput 
-                if( wcsstr( var.bstrVal, L"IG_" ) )
-                {
-                    // If it does, then get the VID/PID from var.bstrVal
-                    DWORD dwPid = 0, dwVid = 0;
-                    WCHAR* strVid = wcsstr( var.bstrVal, L"VID_" );
-                    if( strVid && swscanf( strVid, L"VID_%4X", &dwVid ) != 1 )
-                        dwVid = 0;
-                    WCHAR* strPid = wcsstr( var.bstrVal, L"PID_" );
-                    if( strPid && swscanf( strPid, L"PID_%4X", &dwPid ) != 1 )
-                        dwPid = 0;
-
-                    // Compare the VID/PID to the DInput device
-                    DWORD dwVidPid = MAKELONG( dwVid, dwPid );
-                    if( dwVidPid == pGuidProductFromDirectInput->Data1 )
-                    {
-                        bIsXinputDevice = true;
-                        goto LCleanup;
-                    }
-                }
-            }   
-            SAFE_RELEASE( pDevices[iDevice] );
-        }
-    }
-
-LCleanup:
-    if(bstrNamespace)
-        SysFreeString(bstrNamespace);
-    if(bstrDeviceID)
-        SysFreeString(bstrDeviceID);
-    if(bstrClassName)
-        SysFreeString(bstrClassName);
-    for( iDevice=0; iDevice<20; iDevice++ )
-        SAFE_RELEASE( pDevices[iDevice] );
-    SAFE_RELEASE( pEnumDevices );
-    SAFE_RELEASE( pIWbemLocator );
-    SAFE_RELEASE( pIWbemServices );
-
-    if( bCleanupCOM )
-        CoUninitialize();
-
-    return bIsXinputDevice;
+   for (i = 0; i < amount; i++) {
+      PRAWINPUTDEVICELIST device = device_list + i;
+      RID_DEVICE_INFO rdi;
+      char device_name[128];
+      UINT rdi_size = sizeof (rdi);
+      UINT name_size = 127;
+      rdi.cbSize = sizeof (rdi);
+      
+      if ((device->dwType != RIM_TYPEHID)) 
+         continue; 
+      
+      /* Get device info. */
+      if (GetRawInputDeviceInfoA(device->hDevice, RIDI_DEVICEINFO, 
+         &rdi, &rdi_size) == ((UINT)-1)) 
+         continue;
+      /* See if vendor and product id match. */   
+      if (MAKELONG(rdi.hid.dwVendorId, rdi.hid.dwProductId) 
+         != ((LONG)guid->Data1)) 
+         continue;
+      /* Get device name */
+      memset(device_name, 0, 128);
+      if(GetRawInputDeviceInfoA(device->hDevice, RIDI_DEVICENAME, 
+         device_name, &name_size) == ((UINT)-1))
+         continue;  
+      /* See if there is &IG_ in the name, if it is , it's an XInput device. */
+      ALLEGRO_DEBUG("Checking for XInput : %s\n", device_name);
+      if (strstr(device_name, "&IG_") != NULL) {
+         ALLEGRO_DEBUG("Device %s is an XInput device.\n", device_name);
+         result = true; 
+         break;
+      }  
+   }
+   al_free((void *)device_list);
+   return result;
 }
 
-#undef SAFE_RELEASE
+/* Checks whether the configured joystick driver is of the given name.
+ * Also returns false if the configuration entry was not set.
+ */
+static bool win_configured_joystick_diver_is(const char * name)
+{
+   const char * driver;
+   ALLEGRO_SYSTEM * sys       = al_get_system_driver();
+   ALLEGRO_CONFIG * sysconf   = sys->config;
+   if (!sysconf) return false;
+   driver = al_get_config_value(sysconf, "joystick", "driver");
+   if (!driver) return false;
+   return (0 == _al_stricmp(driver, name));
+}
+
+
+/* Checks whether directinput should be used or not not according
+ * to configuration.
+ */
+static bool win_use_directinput(void)
+{
+   return win_configured_joystick_diver_is("DIRECTINPUT");
+}
 
 #endif
-
 
 /* joystick_enum_callback: [primary thread]
  *  Helper function to find out how many joysticks we have and set them up.
@@ -878,26 +843,35 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    HRESULT hr;
    LPVOID temp;
    CAPS_AND_NAMES caps_and_names;
-   ALLEGRO_JOYSTICK_DIRECTX *joy;
+   ALLEGRO_JOYSTICK_DIRECTX *joy = NULL;
    int num;
 
    (void)pvRef;
    
-   /* If we are compiling the XInput driver, ignore XInput devices, those can 
-      go though the XInput driver. If we can compile the filter, that is. */
-#ifdef ALLEGRO_DINPUT_FILTER_XINPUT
-   if (dinput_guid_is_xinput(&lpddi->guidProduct)) {
-      return DIENUM_CONTINUE;
-   }
-#endif
 
-   /* check if the joystick already existed before */
-   joy = joydx_by_guid(lpddi->guidInstance);
+   
+   /* check if the joystick already existed before
+   * Aslo have to check the product GUID because devices like the Logitech
+   * F710 have a backside switch that will change the product GUID, 
+   * but not the instance guid.  
+   */
+   joy = joydx_by_guid(lpddi->guidInstance, lpddi->guidProduct);
    if (joy) {
+      /* Now, we also have to check if the */
       ALLEGRO_DEBUG("Device %s still exists\n", joydx_guid_string(joy));
       joy->marked = true;
       return DIENUM_CONTINUE;
    }
+   
+   /* If we are compiling the XInput driver, ignore XInput devices, those can 
+      go though the XInput driver, unless if the DirectInput driver 
+      was set explicitly in the configuration. */
+   #ifdef ALLEGRO_DINPUT_FILTER_XINPUT
+   if (!win_use_directinput() && dinput_is_device_xinput(&lpddi->guidProduct)) {
+      ALLEGRO_DEBUG("Filtered out XInput device %p\n", lpddi);
+      goto Error;
+   }
+   #endif
 
    /* create the DirectInput joystick device */
    hr = IDirectInput8_CreateDevice(joystick_dinput, lpddi->guidInstance, &_dinput_device1, NULL);
@@ -950,6 +924,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    joy->marked = true;
    joy->device = dinput_device;
    memcpy(&joy->guid, &lpddi->guidInstance, sizeof(GUID));
+   memcpy(&joy->product_guid, &lpddi->guidProduct, sizeof(GUID));
 
    _al_sane_strncpy(joy->name, lpddi->tszInstanceName, sizeof(joy->name));
 
@@ -1042,6 +1017,10 @@ static void joydx_inactivate_joy(ALLEGRO_JOYSTICK_DIRECTX *joy)
    /* XXX the joystick name really belongs in joy->parent.info too */
    joy->name[0] = '\0';
    memset(&joy->joystate, 0, sizeof(joy->joystate));
+   /* Don't forget to wipe the guids as well! */
+   memset(&joy->guid, 0, sizeof(joy->guid));
+   memset(&joy->product_guid, 0, sizeof(joy->product_guid));
+   
 }
 
 

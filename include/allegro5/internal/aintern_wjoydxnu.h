@@ -68,6 +68,7 @@ typedef struct ALLEGRO_JOYSTICK_DIRECTX
    bool marked;
    LPDIRECTINPUTDEVICE2 device;
    GUID guid;
+   GUID product_guid;
    HANDLE waker_event;
 
    ALLEGRO_JOYSTICK_STATE joystate;
