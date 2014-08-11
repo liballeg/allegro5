@@ -74,9 +74,12 @@ typedef struct _AL_JOYSTICK_INFO
 } _AL_JOYSTICK_INFO;
 
 
+/* Joystick has a driver field for per-device drivers,
+ * needed on some platforms. */
 struct ALLEGRO_JOYSTICK
 {
    _AL_JOYSTICK_INFO info;
+   ALLEGRO_JOYSTICK_DRIVER * driver;
 };
 
 void _al_generate_joystick_event(ALLEGRO_EVENT *event);

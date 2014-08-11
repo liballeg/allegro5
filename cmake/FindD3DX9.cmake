@@ -17,6 +17,7 @@ find_path(D3DX9_INCLUDE_DIR d3dx9.h
 find_library(D3DX9_LIBRARY
     NAMES d3dx9
     HINTS "$ENV{DXSDK_DIR}/Lib/$ENV{PROCESSOR_ARCHITECTURE}"
+    HINTS "$ENV{DXSDK_DIR}/lib"
     )
 
 # Handle the QUIETLY and REQUIRED arguments and set D3D9X_FOUND to TRUE if

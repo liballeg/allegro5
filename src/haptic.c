@@ -199,6 +199,12 @@ int al_get_haptic_capabilities(ALLEGRO_HAPTIC *hap)
    return haptic_driver->get_capabilities(hap);
 }
 
+/* Function: al_is_haptic_capable
+ */ 
+bool al_is_haptic_capable(ALLEGRO_HAPTIC * hap, int query) {
+  int capabilities = al_get_haptic_capabilities(hap);
+  return (capabilities & query) == query;
+}
 
 /* Function: al_get_haptic_gain
  */
@@ -220,6 +226,28 @@ bool al_set_haptic_gain(ALLEGRO_HAPTIC *hap, double gain)
 
    return haptic_driver->set_gain(hap, gain);
 }
+
+/* Function: al_get_haptic_autocenter
+ */
+double al_get_haptic_autocenter(ALLEGRO_HAPTIC *hap)
+{
+   ASSERT(hap);
+   ASSERT(haptic_driver);
+
+   return haptic_driver->get_autocenter(hap);
+}
+
+
+/* Function: al_set_haptic_autocenter
+ */
+bool al_set_haptic_autocenter(ALLEGRO_HAPTIC *hap, double intensity)
+{
+   ASSERT(hap);
+   ASSERT(haptic_driver);
+   
+   return haptic_driver->set_autocenter(hap, intensity);
+}
+
 
 
 /* Function: al_get_num_haptic_effects
@@ -278,7 +306,13 @@ bool al_upload_and_play_haptic_effect(ALLEGRO_HAPTIC *hap,
 
    if (!al_upload_haptic_effect(hap, effect, id))
       return false;
-   return al_play_haptic_effect(id, loop);
+   /* If playing the effect failed, unload the haptic effect automatically 
+    */
+   if (!al_play_haptic_effect(id, loop)) {
+     al_release_haptic_effect(id);
+     return false;
+   }
+   return true;
 }
 
 
@@ -301,6 +335,12 @@ bool al_is_haptic_effect_playing(ALLEGRO_HAPTIC_EFFECT_ID *id)
    return haptic_driver->is_effect_playing(id);
 }
 
+/* Function: al_get_haptic_effect_duration
+ */
+double al_get_haptic_effect_duration(ALLEGRO_HAPTIC_EFFECT * effect)
+{
+  return effect->replay.delay + effect->replay.length;
+}
 
 /* Function: al_rumble_haptic
  */

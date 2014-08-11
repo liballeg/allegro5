@@ -1,6 +1,6 @@
 /*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -59,6 +59,90 @@ AL_VAR(struct ALLEGRO_JOYSTICK_DRIVER, _al_joydrv_directx);
 }
 #endif
 
-#define _AL_JOYSTICK_DRIVER_DIRECTX                                     \
+#define _AL_JOYSTICK_DRIVER_DIRECTX                                            \
    { AL_JOY_TYPE_DIRECTX,  &_al_joydrv_directx,    true  },
 
+#define AL_JOY_TYPE_XINPUT      AL_ID('X','I',' ',' ')
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+AL_VAR(struct ALLEGRO_JOYSTICK_DRIVER, _al_joydrv_xinput);
+
+#ifdef __cplusplus
+}
+#endif
+
+#define _AL_JOYSTICK_DRIVER_XINPUT                                             \
+   { AL_JOY_TYPE_XINPUT,  &_al_joydrv_xinput,    true  },
+
+#define AL_JOY_TYPE_WINDOWS_ALL  AL_ID('X','D',' ',' ')
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+AL_VAR(struct ALLEGRO_JOYSTICK_DRIVER, _al_joydrv_windows_all);
+
+#ifdef __cplusplus
+}
+#endif
+
+#define _AL_JOYSTICK_DRIVER_WINDOWS_ALL                                        \
+   { AL_JOY_TYPE_WINDOWS_ALL,  &_al_joydrv_windows_all,    true  },
+
+
+
+/*******************************************/
+/************ haptic drivers   *************/
+/*******************************************/
+
+#define AL_HAPTIC_TYPE_DIRECTX   AL_ID('D','X','F','F')
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+AL_VAR(struct ALLEGRO_HAPTIC_DRIVER, _al_hapdrv_directx);
+
+#ifdef __cplusplus
+}
+#endif
+
+#define _AL_HAPTIC_DRIVER_DIRECTX                                              \
+   { AL_HAPTIC_TYPE_DIRECTX,  &_al_hapdrv_directx,    true  },
+
+
+#define AL_HAPTIC_TYPE_XINPUT      AL_ID('X','I','F','F')
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+AL_VAR(struct ALLEGRO_HAPTIC_DRIVER, _al_hapdrv_xinput);
+
+#ifdef __cplusplus
+}
+#endif
+
+#define _AL_HAPTIC_DRIVER_XINPUT                                               \
+   { AL_HAPTIC_TYPE_XINPUT,  &_al_hapdrv_xinput,    true  },
+   
+   
+#define AL_HAPTIC_TYPE_WINDOWS_ALL AL_ID('X','D','F','F')
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+AL_VAR(struct ALLEGRO_HAPTIC_DRIVER, _al_hapdrv_windows_all);
+
+#ifdef __cplusplus
+}
+#endif
+
+#define _AL_HAPTIC_DRIVER_WINDOWS_ALL                                          \
+   { AL_HAPTIC_TYPE_WINDOWS_ALL,  &_al_hapdrv_windows_all,    true  },
+
+   
