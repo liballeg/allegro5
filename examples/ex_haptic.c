@@ -18,9 +18,6 @@ static void test_haptic_joystick(ALLEGRO_JOYSTICK *joy)
    const double intensity = 1.0;
    const double duration = 1.0;
 
-   log_printf("Joystick %s supports force feedback.\n",
-      al_get_joystick_name(joy));
-
    haptic = al_get_haptic_from_joystick(joy);
 
    if (!haptic) {

@@ -287,25 +287,32 @@ static const char *default_name_button[MAX_BUTTONS] = {
 
 
 /* Returns a pointer to a static buffer, for debugging. */
-static char *joydx_guid_string(ALLEGRO_JOYSTICK_DIRECTX *joy)
+static char *guid_to_string(const GUID * guid)
 {
    static char buf[200];
 
    sprintf(buf, "%lx-%x-%x-%x%x%x%x%x%x%x%x",
-      joy->guid.Data1,
-      joy->guid.Data2,
-      joy->guid.Data3,
-      joy->guid.Data4[0],
-      joy->guid.Data4[1],
-      joy->guid.Data4[2],
-      joy->guid.Data4[3],
-      joy->guid.Data4[4],
-      joy->guid.Data4[5],
-      joy->guid.Data4[6],
-      joy->guid.Data4[7]
+      guid->Data1,
+      guid->Data2,
+      guid->Data3,
+      guid->Data4[0],
+      guid->Data4[1],
+      guid->Data4[2],
+      guid->Data4[3],
+      guid->Data4[4],
+      guid->Data4[5],
+      guid->Data4[6],
+      guid->Data4[7]
    );
 
    return buf;
+}
+
+
+/* Returns a pointer to a static buffer, for debugging. */
+static char *joydx_guid_string(ALLEGRO_JOYSTICK_DIRECTX *joy)
+{
+   return guid_to_string((const GUID *)&joy->guid);
 }
 
 
@@ -437,8 +444,9 @@ static ALLEGRO_JOYSTICK_DIRECTX *joydx_by_guid(const GUID guid,
    for (i = 0; i < MAX_JOYSTICKS; i++) {
       if (
          GUID_EQUAL(joydx_joystick[i].guid, guid) &&
-         GUID_EQUAL(joydx_joystick[i].product_guid, product_guid) &&
-         joydx_joystick[i].config_state == STATE_ALIVE
+         GUID_EQUAL(joydx_joystick[i].product_guid, product_guid) 
+         /* &&
+         joydx_joystick[i].config_state == STATE_ALIVE */
          )
          return &joydx_joystick[i];
    }
@@ -703,15 +711,18 @@ static bool dinput_is_device_xinput(const GUID *guid)
    PRAWINPUTDEVICELIST device_list = NULL;
    UINT amount = 0;
    UINT i;
-   bool result;
+   bool result = false;
+   bool found = false;
    
    /* Go through RAWINPUT (WinXP and later) to find HID devices. */
    if ((GetRawInputDeviceList(NULL, &amount, sizeof (RAWINPUTDEVICELIST)) 
       != 0)) {
+      ALLEGRO_ERROR("Could not get amount of raw input devices.\n");
       return false;  /* drat... */
    }
    
    if (amount < 1) {
+      ALLEGRO_ERROR("Could not get any of raw input devices.\n");
       return false;  /* drat again... */
    }
    
@@ -719,11 +730,13 @@ static bool dinput_is_device_xinput(const GUID *guid)
       al_malloc(sizeof(RAWINPUTDEVICELIST) * amount);
    
    if (!device_list) {
+      ALLEGRO_ERROR("Could allocate memory for raw input devices.\n");
       return false;  /* No luck. */
    }
    
    if (GetRawInputDeviceList(device_list, &amount, sizeof(RAWINPUTDEVICELIST)) 
        == ((UINT)-1)) {
+      ALLEGRO_ERROR("Could not retrieve %d raw input devices.\n", amount); 
       al_free((void *)device_list);
       return false; 
    }
@@ -736,55 +749,42 @@ static bool dinput_is_device_xinput(const GUID *guid)
       UINT name_size = 127;
       rdi.cbSize = sizeof (rdi);
       
-      if ((device->dwType != RIM_TYPEHID)) 
-         continue; 
-      
       /* Get device info. */
       if (GetRawInputDeviceInfoA(device->hDevice, RIDI_DEVICEINFO, 
-         &rdi, &rdi_size) == ((UINT)-1)) 
+         &rdi, &rdi_size) == ((UINT)-1)) {
+         ALLEGRO_ERROR("Could not get raw device info for list index %d.\n", i);
          continue;
+      }
       /* See if vendor and product id match. */   
       if (MAKELONG(rdi.hid.dwVendorId, rdi.hid.dwProductId) 
          != ((LONG)guid->Data1)) 
          continue;
+      found = true;
       /* Get device name */
       memset(device_name, 0, 128);
       if(GetRawInputDeviceInfoA(device->hDevice, RIDI_DEVICENAME, 
-         device_name, &name_size) == ((UINT)-1))
+         device_name, &name_size) == ((UINT)-1)) {
+         ALLEGRO_ERROR("Could not get raw device name for list index %d.\n", i);
          continue;  
-      /* See if there is &IG_ in the name, if it is , it's an XInput device. */
+      }
+      /* See if there is IG_ in the name, if it is , it's an XInput device. */
       ALLEGRO_DEBUG("Checking for XInput : %s\n", device_name);
-      if (strstr(device_name, "&IG_") != NULL) {
+      if (strstr(device_name, "IG_") != NULL) {
          ALLEGRO_DEBUG("Device %s is an XInput device.\n", device_name);
          result = true; 
          break;
       }  
    }
+   if (!found) {
+      ALLEGRO_ERROR("Could not find device %s in the raw device list.\n", 
+         guid_to_string(guid));
+      result = true; 
+      /* Ignore "mystery" devices. Testing shows that on MinGW these are never 
+         valid DirectInput devices. Real ones should show up in 
+         the raw device list. */
+   }
    al_free((void *)device_list);
    return result;
-}
-
-/* Checks whether the configured joystick driver is of the given name.
- * Also returns false if the configuration entry was not set.
- */
-static bool win_configured_joystick_diver_is(const char * name)
-{
-   const char * driver;
-   ALLEGRO_SYSTEM * sys       = al_get_system_driver();
-   ALLEGRO_CONFIG * sysconf   = sys->config;
-   if (!sysconf) return false;
-   driver = al_get_config_value(sysconf, "joystick", "driver");
-   if (!driver) return false;
-   return (0 == _al_stricmp(driver, name));
-}
-
-
-/* Checks whether directinput should be used or not not according
- * to configuration.
- */
-static bool win_use_directinput(void)
-{
-   return win_configured_joystick_diver_is("DIRECTINPUT");
 }
 
 #endif
@@ -857,7 +857,6 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    */
    joy = joydx_by_guid(lpddi->guidInstance, lpddi->guidProduct);
    if (joy) {
-      /* Now, we also have to check if the */
       ALLEGRO_DEBUG("Device %s still exists\n", joydx_guid_string(joy));
       joy->marked = true;
       return DIENUM_CONTINUE;
@@ -867,8 +866,8 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
       go though the XInput driver, unless if the DirectInput driver 
       was set explicitly in the configuration. */
    #ifdef ALLEGRO_DINPUT_FILTER_XINPUT
-   if (!win_use_directinput() && dinput_is_device_xinput(&lpddi->guidProduct)) {
-      ALLEGRO_DEBUG("Filtered out XInput device %p\n", lpddi);
+   if (dinput_is_device_xinput(&lpddi->guidProduct)) {
+      ALLEGRO_DEBUG("Filtered out XInput device %s\n", guid_to_string(&lpddi->guidInstance));
       goto Error;
    }
    #endif
