@@ -80,7 +80,11 @@ ALLEGRO_DEBUG_CHANNEL("ljoy");
  * is from BTN_MISC to BTN_GEAR_UP.
  */
 #define LJOY_BTN_RANGE_START  (BTN_MISC)
+#if !defined(ALLEGRO_ANDROID) && defined(BTN_TRIGGER_HAPPY)
+#define LJOY_BTN_RANGE_END    (BTN_TRIGGER_HAPPY40 + 1)
+#else
 #define LJOY_BTN_RANGE_END    (BTN_GEAR_UP + 1)
+#endif
 
 
 
