@@ -14,6 +14,7 @@
 
 #cmakedefine ALLEGRO_CFG_D3D
 #cmakedefine ALLEGRO_CFG_D3D9EX
+#cmakedefine ALLEGRO_CFG_XINPUT
 #cmakedefine ALLEGRO_CFG_OPENGL
 #cmakedefine ALLEGRO_CFG_OPENGLES
 #cmakedefine ALLEGRO_CFG_OPENGLES2
@@ -45,6 +46,7 @@
 #cmakedefine ALLEGRO_HAVE_SYS_TYPES_H
 #cmakedefine ALLEGRO_HAVE_OSATOMIC_H
 #cmakedefine ALLEGRO_HAVE_SYS_INOTIFY_H
+#cmakedefine ALLEGRO_HAVE_SAL_H
 
 /* Define to 1 if the corresponding functions are available. */
 #cmakedefine ALLEGRO_HAVE_GETEXECNAME

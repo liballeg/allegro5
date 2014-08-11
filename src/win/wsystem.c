@@ -304,10 +304,94 @@ static ALLEGRO_KEYBOARD_DRIVER *win_get_keyboard_driver(void)
    return _al_keyboard_driver_list[0].driver;
 }
 
+
+/* Checks whether the configured joystick driver is of the given name.
+ * Also returns false if the configuration entry was not set.
+ */
+static bool win_configured_joystick_diver_is(const char * name)
+{
+   const char * driver;
+   ALLEGRO_SYSTEM * sys       = al_get_system_driver();
+   ALLEGRO_CONFIG * sysconf   = sys->config;
+   if (!sysconf) return false;
+   driver = al_get_config_value(sysconf, "joystick", "driver");
+   if (!driver) return false;
+   ALLEGRO_DEBUG("Configuration value joystick.driver = %s\n", driver);
+   return (0 == _al_stricmp(driver, name));
+}
+
+
+/* Checks whether xinput should be used or not not according
+ * to configuration.
+ */
+static bool win_use_xinput(void)
+{
+   return win_configured_joystick_diver_is("XINPUT");
+}
+
+/* Checks whether directinput should be used or not not according
+ * to configuration.
+ */
+static bool win_use_directinput(void)
+{
+   return win_configured_joystick_diver_is("DIRECTINPUT");
+}
+
+
+/* By default the combined xinput/directinput driver is used unless directinput
+ * or xinput exclusive is set.*/
 static ALLEGRO_JOYSTICK_DRIVER *win_get_joystick_driver(void)
 {
-   return _al_joystick_driver_list[0].driver;
+   if (win_use_directinput()) {
+      ALLEGRO_DEBUG("Selected DirectInput joystick driver.\n");
+      return &_al_joydrv_directx;
+   }
+   
+  if (win_use_xinput()) {
+#ifdef ALLEGRO_CFG_XINPUT
+      ALLEGRO_DEBUG("Selected XInput joystick driver.\n");
+      return &_al_joydrv_xinput;
+#else            
+      ALLEGRO_WARN("XInput joystick driver not supported.\n");
+#endif
+   }
+
+#ifdef ALLEGRO_CFG_XINPUT
+      ALLEGRO_DEBUG("Selected combined XInput/DirectInput joystick driver.\n");
+      return &_al_joydrv_windows_all;
+#else
+      ALLEGRO_WARN("Combined XInput/DirectInput joystick driver not supported. Usign DirectInput in stead.\n");
+      return &_al_joydrv_directx;
+#endif
 }
+
+/* By default the combined haptic driver is used unless directinput or
+ * xinput exclusive is set in the configuration.*/
+static ALLEGRO_HAPTIC_DRIVER *win_get_haptic_driver(void)
+{
+   if (win_use_directinput()) {
+      ALLEGRO_DEBUG("Selected DirectInput haptic driver.\n");
+      return &_al_hapdrv_directx;
+   }
+   
+  if (win_use_xinput()) {
+#ifdef ALLEGRO_CFG_XINPUT
+      ALLEGRO_DEBUG("Selected XInput haptic driver.\n");
+      return &_al_hapdrv_xinput;
+#else            
+      ALLEGRO_WARN("XInput haptic driver not supported.\n");
+#endif
+   }
+
+#ifdef ALLEGRO_CFG_XINPUT
+      ALLEGRO_DEBUG("Selected combined XInput/DirectInput haptic driver.\n");
+      return &_al_hapdrv_windows_all;
+#else
+      ALLEGRO_WARN("Combined XInput/DirectInput haptic driver not supported. Using DirectInput in stead.\n");
+      return &_al_hapdrv_directx;
+#endif
+}
+
 
 static int win_get_num_display_modes(void)
 {
@@ -693,6 +777,7 @@ static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->get_keyboard_driver = win_get_keyboard_driver;
    vt->get_mouse_driver = win_get_mouse_driver;
    vt->get_touch_input_driver = win_get_touch_input_driver;
+   vt->get_haptic_driver = win_get_haptic_driver;
    vt->get_joystick_driver = win_get_joystick_driver;
    vt->get_num_display_modes = win_get_num_display_modes;
    vt->get_display_mode = win_get_display_mode;

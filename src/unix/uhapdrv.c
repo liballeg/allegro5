@@ -8,29 +8,23 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      List of Windows joystick drivers, kept in a seperate file so that
- *      they can be overriden by user programs.
+ *      List of Unix haptic drivers.
  *
- *      By Shawn Hargreaves.
+ *      By Beoran.
  *
  *      See readme.txt for copyright information.
  */
 
 
 #include "allegro5/allegro.h"
+#include "allegro5/platform/aintunix.h"
 #include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_joystick.h"
+#include "allegro5/internal/aintern_haptic.h"
 
-#ifndef ALLEGRO_WINDOWS
-#error something is wrong with the makefile
+
+
+_AL_BEGIN_HAPTIC_DRIVER_LIST
+#if defined ALLEGRO_HAVE_LINUX_INPUT_H && (defined ALLEGRO_WITH_XWINDOWS || defined ALLEGRO_RASPBERRYPI)
+   { _ALLEGRO_HAPDRV_LINUX,   &_al_hapdrv_linux,   true  },
 #endif
-
-
-
-_AL_BEGIN_JOYSTICK_DRIVER_LIST
-_AL_JOYSTICK_DRIVER_DIRECTX
-#ifdef ALLEGRO_CFG_XINPUT 
-_AL_JOYSTICK_DRIVER_XINPUT
-_AL_JOYSTICK_DRIVER_WINDOWS_ALL
-#endif
-_AL_END_JOYSTICK_DRIVER_LIST
+_AL_END_HAPTIC_DRIVER_LIST

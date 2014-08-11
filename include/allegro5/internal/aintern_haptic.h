@@ -7,7 +7,8 @@
 #include "allegro5/internal/aintern_events.h"
 
 #ifdef __cplusplus
-   extern "C" {
+extern "C"
+{
 #endif
 
 
@@ -46,10 +47,13 @@ typedef struct ALLEGRO_HAPTIC_DRIVER
    AL_METHOD(bool, is_effect_playing, (ALLEGRO_HAPTIC_EFFECT_ID *));
    AL_METHOD(bool, release_effect, (ALLEGRO_HAPTIC_EFFECT_ID *));
    AL_METHOD(bool, release, (ALLEGRO_HAPTIC *));
+   AL_METHOD(double, get_autocenter, (ALLEGRO_HAPTIC *));
+   AL_METHOD(bool, set_autocenter, (ALLEGRO_HAPTIC *, double));
 } ALLEGRO_HAPTIC_DRIVER;
 
 
-enum ALLEGRO_HAPTIC_PARENT {
+enum ALLEGRO_HAPTIC_PARENT
+{
    _AL_HAPTIC_FROM_JOYSTICK = 1,
    _AL_HAPTIC_FROM_MOUSE,
    _AL_HAPTIC_FROM_KEYBOARD,
@@ -57,17 +61,31 @@ enum ALLEGRO_HAPTIC_PARENT {
    _AL_HAPTIC_FROM_TOUCH_INPUT
 };
 
-
+/* haptic has a driver field for per-device drivers on some platforms. */
 struct ALLEGRO_HAPTIC
 {
    enum ALLEGRO_HAPTIC_PARENT from;
    void *device;
    double gain;
+   double autocenter;
+   ALLEGRO_HAPTIC_DRIVER *driver;
 };
+
+/* Haptic diver list. */
+extern const _AL_DRIVER_INFO _al_haptic_driver_list[];
+
+/* Macros for constructing the driver list */
+#define _AL_BEGIN_HAPTIC_DRIVER_LIST                                 \
+   const _AL_DRIVER_INFO _al_haptic_driver_list[] =                  \
+   {
+#define _AL_END_HAPTIC_DRIVER_LIST                                   \
+   { 0, NULL, false }                                                \
+   };
+
 
 
 #ifdef __cplusplus
-   }
+}
 #endif
 
 #endif

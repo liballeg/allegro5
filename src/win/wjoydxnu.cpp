@@ -57,7 +57,7 @@
 #define DIRECTINPUT_VERSION 0x0800
 
 /* For waitable timers */
-#define _WIN32_WINNT 0x400
+#define _WIN32_WINNT 0x0501
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
@@ -80,81 +80,23 @@
 #include <process.h>
 #include <dinput.h>
 
+/* We need XInput detection if we actually compile the XInput driver in. 
+*/ 
+#ifdef ALLEGRO_CFG_XINPUT
+   /* Windows XP is required. If you still use older Windows, 
+      XInput won't work anyway. */
+   #undef WIN32_LEAN_AND_MEAN
+   #include <windows.h>
+   #include <winuser.h>
+   #define ALLEGRO_DINPUT_FILTER_XINPUT
+#endif
+
 ALLEGRO_DEBUG_CHANNEL("dinput")
 
-/* arbitrary limit to make life easier; this was the limit in Allegro 4.1.x */
-#define MAX_JOYSTICKS        8
+#include "allegro5/joystick.h"
+#include "allegro5/internal/aintern_joystick.h"
+#include "allegro5/internal/aintern_wjoydxnu.h"
 
-/* these limits are from DIJOYSTICK_STATE in dinput.h */
-#define MAX_SLIDERS          2
-#define MAX_POVS             4
-#define MAX_BUTTONS          32
-
-/* the number of joystick events that DirectInput is told to buffer */
-#define DEVICE_BUFFER_SIZE   10
-
-/* make sure all the constants add up */
-/* the first two sticks are (x,y,z) and (rx,ry,rz) */
-ALLEGRO_STATIC_ASSERT(wjoydxnu, _AL_MAX_JOYSTICK_STICKS >= (2 + MAX_SLIDERS + MAX_POVS));
-ALLEGRO_STATIC_ASSERT(wjoydxnu, _AL_MAX_JOYSTICK_BUTTONS >= MAX_BUTTONS);
-
-
-#define GUID_EQUAL(a, b)     (0 == memcmp(&(a), &(b), sizeof(GUID)))
-
-
-typedef enum {
-   STATE_UNUSED,
-   STATE_BORN,
-   STATE_ALIVE,
-   STATE_DYING
-} CONFIG_STATE;
-
-#define ACTIVE_STATE(st) \
-   ((st) == STATE_ALIVE || (st) == STATE_DYING)
-
-
-/* helper structure to record information through object_enum_callback */
-#define NAME_LEN     128
-
-typedef struct {
-   bool have_x;      char name_x[NAME_LEN];
-   bool have_y;      char name_y[NAME_LEN];
-   bool have_z;      char name_z[NAME_LEN];
-   bool have_rx;     char name_rx[NAME_LEN];
-   bool have_ry;     char name_ry[NAME_LEN];
-   bool have_rz;     char name_rz[NAME_LEN];
-   int num_sliders;  char name_slider[MAX_SLIDERS][NAME_LEN];
-   int num_povs;     char name_pov[MAX_POVS][NAME_LEN];
-   int num_buttons;  char name_button[MAX_BUTTONS][NAME_LEN];
-} CAPS_AND_NAMES;
-
-
-/* map a DirectInput axis to an Allegro (stick,axis) pair */
-typedef struct {
-   int stick, axis;
-} AXIS_MAPPING;
-
-
-typedef struct ALLEGRO_JOYSTICK_DIRECTX {
-   ALLEGRO_JOYSTICK parent;          /* must be first */
-   CONFIG_STATE config_state;
-   bool marked;
-   LPDIRECTINPUTDEVICE2 device;
-   GUID guid;
-   HANDLE waker_event;
-
-   ALLEGRO_JOYSTICK_STATE joystate;
-   AXIS_MAPPING x_mapping;
-   AXIS_MAPPING y_mapping;
-   AXIS_MAPPING z_mapping;
-   AXIS_MAPPING rx_mapping;
-   AXIS_MAPPING ry_mapping;
-   AXIS_MAPPING rz_mapping;
-   AXIS_MAPPING slider_mapping[MAX_SLIDERS];
-   int pov_mapping_stick[MAX_POVS];
-   char name[80];
-   char all_names[512]; /* button/stick/axis names with NUL terminators */
-} ALLEGRO_JOYSTICK_DIRECTX;
 
 
 
@@ -345,25 +287,32 @@ static const char *default_name_button[MAX_BUTTONS] = {
 
 
 /* Returns a pointer to a static buffer, for debugging. */
-static char *joydx_guid_string(ALLEGRO_JOYSTICK_DIRECTX *joy)
+static char *guid_to_string(const GUID * guid)
 {
    static char buf[200];
 
    sprintf(buf, "%lx-%x-%x-%x%x%x%x%x%x%x%x",
-      joy->guid.Data1,
-      joy->guid.Data2,
-      joy->guid.Data3,
-      joy->guid.Data4[0],
-      joy->guid.Data4[1],
-      joy->guid.Data4[2],
-      joy->guid.Data4[3],
-      joy->guid.Data4[4],
-      joy->guid.Data4[5],
-      joy->guid.Data4[6],
-      joy->guid.Data4[7]
+      guid->Data1,
+      guid->Data2,
+      guid->Data3,
+      guid->Data4[0],
+      guid->Data4[1],
+      guid->Data4[2],
+      guid->Data4[3],
+      guid->Data4[4],
+      guid->Data4[5],
+      guid->Data4[6],
+      guid->Data4[7]
    );
 
    return buf;
+}
+
+
+/* Returns a pointer to a static buffer, for debugging. */
+static char *joydx_guid_string(ALLEGRO_JOYSTICK_DIRECTX *joy)
+{
+   return guid_to_string((const GUID *)&joy->guid);
 }
 
 
@@ -487,12 +436,18 @@ void _al_win_joystick_dinput_grab(void *param)
 }
 
 
-static ALLEGRO_JOYSTICK_DIRECTX *joydx_by_guid(const GUID guid)
+static ALLEGRO_JOYSTICK_DIRECTX *joydx_by_guid(const GUID guid, 
+   const GUID product_guid)
 {
    unsigned i;
 
    for (i = 0; i < MAX_JOYSTICKS; i++) {
-      if (GUID_EQUAL(joydx_joystick[i].guid, guid))
+      if (
+         GUID_EQUAL(joydx_joystick[i].guid, guid) &&
+         GUID_EQUAL(joydx_joystick[i].product_guid, product_guid) 
+         /* &&
+         joydx_joystick[i].config_state == STATE_ALIVE */
+         )
          return &joydx_joystick[i];
    }
 
@@ -744,6 +699,95 @@ static void fill_joystick_info_using_caps_and_names(ALLEGRO_JOYSTICK_DIRECTX *jo
 }
 
 
+#ifdef ALLEGRO_DINPUT_FILTER_XINPUT
+
+/* A better Xinput detection method inspired by from SDL. 
+* The method proposed by Microsoft on their web site is problematic because it 
+* requires non standard compiler extensions and hard to get headers. 
+* This method only needs Windows XP and user32.dll.
+*/
+static bool dinput_is_device_xinput(const GUID *guid)
+{
+   PRAWINPUTDEVICELIST device_list = NULL;
+   UINT amount = 0;
+   UINT i;
+   bool result = false;
+   bool found = false;
+   
+   /* Go through RAWINPUT (WinXP and later) to find HID devices. */
+   if ((GetRawInputDeviceList(NULL, &amount, sizeof (RAWINPUTDEVICELIST)) 
+      != 0)) {
+      ALLEGRO_ERROR("Could not get amount of raw input devices.\n");
+      return false;  /* drat... */
+   }
+   
+   if (amount < 1) {
+      ALLEGRO_ERROR("Could not get any of raw input devices.\n");
+      return false;  /* drat again... */
+   }
+   
+   device_list = (PRAWINPUTDEVICELIST) 
+      al_malloc(sizeof(RAWINPUTDEVICELIST) * amount);
+   
+   if (!device_list) {
+      ALLEGRO_ERROR("Could allocate memory for raw input devices.\n");
+      return false;  /* No luck. */
+   }
+   
+   if (GetRawInputDeviceList(device_list, &amount, sizeof(RAWINPUTDEVICELIST)) 
+       == ((UINT)-1)) {
+      ALLEGRO_ERROR("Could not retrieve %d raw input devices.\n", amount); 
+      al_free((void *)device_list);
+      return false; 
+   }
+
+   for (i = 0; i < amount; i++) {
+      PRAWINPUTDEVICELIST device = device_list + i;
+      RID_DEVICE_INFO rdi;
+      char device_name[128];
+      UINT rdi_size = sizeof (rdi);
+      UINT name_size = 127;
+      rdi.cbSize = sizeof (rdi);
+      
+      /* Get device info. */
+      if (GetRawInputDeviceInfoA(device->hDevice, RIDI_DEVICEINFO, 
+         &rdi, &rdi_size) == ((UINT)-1)) {
+         ALLEGRO_ERROR("Could not get raw device info for list index %d.\n", i);
+         continue;
+      }
+      /* See if vendor and product id match. */   
+      if (MAKELONG(rdi.hid.dwVendorId, rdi.hid.dwProductId) 
+         != ((LONG)guid->Data1)) 
+         continue;
+      found = true;
+      /* Get device name */
+      memset(device_name, 0, 128);
+      if(GetRawInputDeviceInfoA(device->hDevice, RIDI_DEVICENAME, 
+         device_name, &name_size) == ((UINT)-1)) {
+         ALLEGRO_ERROR("Could not get raw device name for list index %d.\n", i);
+         continue;  
+      }
+      /* See if there is IG_ in the name, if it is , it's an XInput device. */
+      ALLEGRO_DEBUG("Checking for XInput : %s\n", device_name);
+      if (strstr(device_name, "IG_") != NULL) {
+         ALLEGRO_DEBUG("Device %s is an XInput device.\n", device_name);
+         result = true; 
+         break;
+      }  
+   }
+   if (!found) {
+      ALLEGRO_ERROR("Could not find device %s in the raw device list.\n", 
+         guid_to_string(guid));
+      result = true; 
+      /* Ignore "mystery" devices. Testing shows that on MinGW these are never 
+         valid DirectInput devices. Real ones should show up in 
+         the raw device list. */
+   }
+   al_free((void *)device_list);
+   return result;
+}
+
+#endif
 
 /* joystick_enum_callback: [primary thread]
  *  Helper function to find out how many joysticks we have and set them up.
@@ -799,18 +843,34 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    HRESULT hr;
    LPVOID temp;
    CAPS_AND_NAMES caps_and_names;
-   ALLEGRO_JOYSTICK_DIRECTX *joy;
+   ALLEGRO_JOYSTICK_DIRECTX *joy = NULL;
    int num;
 
    (void)pvRef;
+   
 
-   /* check if the joystick already existed before */
-   joy = joydx_by_guid(lpddi->guidInstance);
+   
+   /* check if the joystick already existed before
+   * Aslo have to check the product GUID because devices like the Logitech
+   * F710 have a backside switch that will change the product GUID, 
+   * but not the instance guid.  
+   */
+   joy = joydx_by_guid(lpddi->guidInstance, lpddi->guidProduct);
    if (joy) {
       ALLEGRO_DEBUG("Device %s still exists\n", joydx_guid_string(joy));
       joy->marked = true;
       return DIENUM_CONTINUE;
    }
+   
+   /* If we are compiling the XInput driver, ignore XInput devices, those can 
+      go though the XInput driver, unless if the DirectInput driver 
+      was set explicitly in the configuration. */
+   #ifdef ALLEGRO_DINPUT_FILTER_XINPUT
+   if (dinput_is_device_xinput(&lpddi->guidProduct)) {
+      ALLEGRO_DEBUG("Filtered out XInput device %s\n", guid_to_string(&lpddi->guidInstance));
+      goto Error;
+   }
+   #endif
 
    /* create the DirectInput joystick device */
    hr = IDirectInput8_CreateDevice(joystick_dinput, lpddi->guidInstance, &_dinput_device1, NULL);
@@ -863,6 +923,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    joy->marked = true;
    joy->device = dinput_device;
    memcpy(&joy->guid, &lpddi->guidInstance, sizeof(GUID));
+   memcpy(&joy->product_guid, &lpddi->guidProduct, sizeof(GUID));
 
    _al_sane_strncpy(joy->name, lpddi->tszInstanceName, sizeof(joy->name));
 
@@ -955,6 +1016,10 @@ static void joydx_inactivate_joy(ALLEGRO_JOYSTICK_DIRECTX *joy)
    /* XXX the joystick name really belongs in joy->parent.info too */
    joy->name[0] = '\0';
    memset(&joy->joystate, 0, sizeof(joy->joystate));
+   /* Don't forget to wipe the guids as well! */
+   memset(&joy->guid, 0, sizeof(joy->guid));
+   memset(&joy->product_guid, 0, sizeof(joy->product_guid));
+   
 }
 
 
@@ -1238,7 +1303,9 @@ static ALLEGRO_JOYSTICK *joydx_get_joystick(int num)
          num--;
       }
    }
-
+   /* Must set the driver of the joystick for the wrapper driver */
+   ret->driver = &_al_joydrv_directx;
+   
    LeaveCriticalSection(&joydx_thread_cs);
 
 #if 0

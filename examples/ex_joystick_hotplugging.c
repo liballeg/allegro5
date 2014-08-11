@@ -42,11 +42,13 @@ static void draw(ALLEGRO_JOYSTICK *curr_joy)
 
    if (curr_joy) {
       al_get_joystick_state(curr_joy, &joystate);
-      al_draw_filled_circle(
-            x+joystate.stick[0].axis[0]*20,
-            y+joystate.stick[0].axis[1]*20,
-            20, al_map_rgb(255, 255, 255)
+      for (i = 0; i < al_get_joystick_num_sticks(curr_joy); i++) {
+         al_draw_filled_circle(
+               x+joystate.stick[i].axis[0]*20 + i * 80,
+               y+joystate.stick[i].axis[1]*20,
+               20, al_map_rgb(255, 255, 255)
             );
+      }
       for (i = 0; i < al_get_joystick_num_buttons(curr_joy); i++) {
          if (joystate.button[i]) {
             al_draw_filled_circle(
@@ -141,7 +143,11 @@ int main(int argc, char **argv)
       else if (event.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN) {
          log_printf("button down event %d from %p\n",
             event.joystick.button, event.joystick.id);
-      }
+      } 
+      else if (event.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_UP) {
+         log_printf("button up event %d from %p\n",
+            event.joystick.button, event.joystick.id);
+      } 
 
       draw(curr_joy);
    }
