@@ -218,13 +218,16 @@ static ALLEGRO_MUTEX  *hapxi_mutex = NULL;
    frequent polling. */
 static ALLEGRO_COND   *hapxi_cond = NULL;
 
+typedef DWORD(WINAPI *XInputSetStatePROC)(DWORD, XINPUT_VIBRATION*);
+extern XInputSetStatePROC _al_imp_XInputSetState;
+
 /* Forces vibration to stop immediately. */
 static bool hapxi_force_stop(ALLEGRO_HAPTIC_XINPUT *hapxi,
                              ALLEGRO_HAPTIC_EFFECT_XINPUT *effxi)
 {
    XINPUT_VIBRATION no_vibration = { 0, 0 };
    ALLEGRO_DEBUG("XInput haptic effect stopped.\n");
-   XInputSetState(hapxi->xjoy->index, &no_vibration);
+   _al_imp_XInputSetState(hapxi->xjoy->index, &no_vibration);
    effxi->state = ALLEGRO_HAPTIC_EFFECT_XINPUT_STATE_READY;
    return true;
 }
@@ -234,7 +237,7 @@ static bool hapxi_force_play(ALLEGRO_HAPTIC_XINPUT *hapxi,
                              ALLEGRO_HAPTIC_EFFECT_XINPUT *effxi)
 {
    DWORD res;
-   res = XInputSetState(hapxi->xjoy->index, &effxi->vibration);
+   res = _al_imp_XInputSetState(hapxi->xjoy->index, &effxi->vibration);
    ALLEGRO_DEBUG("Starting to play back haptic effect: %d.\n", (int)(res));
    if (res == ERROR_SUCCESS) {
       effxi->state = ALLEGRO_HAPTIC_EFFECT_XINPUT_STATE_PLAYING;

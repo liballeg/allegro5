@@ -63,11 +63,13 @@
  * for the best. 
  * This does no harm on msys2 either, they have a sal.h header.
  */ 
+/*
 #ifdef ALLEGRO_HAVE_SAL_H 
 #include <sal.h> 
 #endif
 
 #include <sal.h>
+*/
 #include <xinput.h>
 
 ALLEGRO_DEBUG_CHANNEL("xinput")
@@ -107,15 +109,20 @@ ALLEGRO_JOYSTICK_DRIVER _al_joydrv_xinput =
    joyxi_get_active
 };
 
-/*
-   void WINAPI XInputEnable(BOOL);
-   DWORD WINAPI XInputSetState(DWORD, XINPUT_VIBRATION*);
-   DWORD WINAPI XInputGetState(DWORD, XINPUT_STATE*);
-   DWORD WINAPI XInputGetKeystroke(DWORD, DWORD, PXINPUT_KEYSTROKE);
-   DWORD WINAPI XInputGetCapabilities(DWORD, DWORD, XINPUT_CAPABILITIES*);
-   DWORD WINAPI XInputGetDSoundAudioDeviceGuids(DWORD, GUID*, GUID*);
-   DWORD WINAPI XInputGetBatteryInformation(DWORD, BYTE, XINPUT_BATTERY_INFORMATION*);
- */
+#define XINPUT_MIN_VERSION   3
+#define XINPUT_MAX_VERSION   4
+
+typedef void (WINAPI *XInputEnablePROC)(BOOL);
+typedef DWORD (WINAPI *XInputSetStatePROC)(DWORD, XINPUT_VIBRATION*);
+typedef DWORD (WINAPI *XInputGetStatePROC)(DWORD, XINPUT_STATE*);
+typedef DWORD (WINAPI *XInputGetCapabilitiesPROC)(DWORD, DWORD, XINPUT_CAPABILITIES*);
+
+static HMODULE _imp_xinput_module = 0;
+
+static XInputEnablePROC _imp_XInputEnable = NULL;
+static XInputGetStatePROC _imp_XInputGetState = NULL;
+static XInputGetCapabilitiesPROC _imp_XInputGetCapabilities = NULL;
+XInputSetStatePROC _al_imp_XInputSetState = NULL;
 
 /* the joystick structures */
 static ALLEGRO_JOYSTICK_XINPUT joyxi_joysticks[MAX_JOYSTICKS];
@@ -180,6 +187,72 @@ static const struct _AL_XINPUT_BUTTON_MAPPING
    { XINPUT_GAMEPAD_DPAD_DOWN, 12, "DOWN DPAD" },
    { XINPUT_GAMEPAD_DPAD_UP, 13, "UP DPAD" },
 };
+
+void _al_unload_xinput_module()
+{
+   FreeLibrary(_imp_xinput_module);
+   _imp_xinput_module = NULL;
+}
+
+static bool _imp_load_xinput_module_version(int version)
+{
+   char module_name[16];
+
+   sprintf(module_name, "xinput1_%d.dll", version);
+
+   _imp_xinput_module = _al_win_safe_load_library(module_name);
+   if (NULL == _imp_xinput_module)
+      return false;
+
+   _imp_XInputEnable = (XInputEnablePROC)GetProcAddress(_imp_xinput_module, "XInputEnable");
+   if (NULL == _imp_XInputEnable) {
+      FreeLibrary(_imp_xinput_module);
+      _imp_xinput_module = NULL;
+      return false;
+   }
+   _imp_XInputGetState = (XInputGetStatePROC)GetProcAddress(_imp_xinput_module, "XInputGetState");
+   _imp_XInputGetCapabilities = (XInputGetCapabilitiesPROC)GetProcAddress(_imp_xinput_module, "XInputGetCapabilities");
+   _al_imp_XInputSetState = (XInputSetStatePROC)GetProcAddress(_imp_xinput_module, "XInputSetState");
+
+   ALLEGRO_INFO("Module \"%s\" loaded.\n", module_name);
+
+   return true;
+}
+
+bool _al_load_xinput_module()
+{
+   ALLEGRO_CONFIG *cfg;
+   long version;
+
+   if (_imp_xinput_module) {
+      return true;
+   }
+
+   cfg = al_get_system_config();
+   if (cfg) {
+      char const *value = al_get_config_value(cfg,
+         "joystick", "force_xinput_version");
+      if (value) {
+         errno = 0;
+         version = strtol(value, NULL, 10);
+         if (errno) {
+            ALLEGRO_ERROR("Failed to override XInput version. \"%s\" is not valid integer number.", value);
+            return false;
+         }
+         else
+            return _imp_load_xinput_module_version((int)version);
+      }
+   }
+
+   // Iterate over all valid versions.
+   for (version = XINPUT_MAX_VERSION; version >= XINPUT_MIN_VERSION; version--)
+      if (_imp_load_xinput_module_version((int)version))
+         return true;
+
+   ALLEGRO_ERROR("Failed to load XInput library. Library is not installed.");
+
+   return false;
+}
 
 /* generate_axis_event: [joystick thread]
  *  Helper to generate an event when reconfiguration is needed.
@@ -323,7 +396,7 @@ static void joyxi_poll_connected_joystick(ALLEGRO_JOYSTICK_XINPUT *xjoy)
 {
    XINPUT_STATE xistate;
    ALLEGRO_JOYSTICK_STATE alstate;
-   DWORD res = XInputGetState(xjoy->index, &xistate);
+   DWORD res = _imp_XInputGetState(xjoy->index, &xistate);
    if (res != ERROR_SUCCESS) {
       /* Assume joystick was disconnected, need to reconfigure. */
       joyxi_generate_reconfigure_event();
@@ -353,7 +426,7 @@ static void joyxi_poll_disconnected_joystick(ALLEGRO_JOYSTICK_XINPUT *xjoy)
 {
    XINPUT_CAPABILITIES xicapas;
    DWORD res;
-   res = XInputGetCapabilities(xjoy->index, 0, &xicapas);
+   res = _imp_XInputGetCapabilities(xjoy->index, 0, &xicapas);
    if (res == ERROR_SUCCESS) {
       /* Got capabilities, joystick was connected, need to reconfigure. */
       joyxi_generate_reconfigure_event();
@@ -457,6 +530,9 @@ static void joyxi_init_joystick_info(ALLEGRO_JOYSTICK_XINPUT *xjoy)
 static bool joyxi_init_joystick(void)
 {
    int index;
+
+   _al_load_xinput_module();
+
    /* Create the mutex and two condition variables. */
    joyxi_mutex = al_create_mutex_recursive();
    if (!joyxi_mutex)
@@ -468,7 +544,6 @@ static bool joyxi_init_joystick(void)
    if (!joyxi_disconnected_cond)
       return false;
 
-
    al_lock_mutex(joyxi_mutex);
 
    /* Fill in the joystick structs */
@@ -479,15 +554,15 @@ static bool joyxi_init_joystick(void)
       joyxi_init_joystick_info(joyxi_joysticks + index);
    }
    /* Now, enable XInput*/
-   XInputEnable(TRUE);
+   _imp_XInputEnable(TRUE);
    /* Now check which joysticks are enabled and poll them for the first time
     * but without sending any events.
     */
    for (index = 0; index < MAX_JOYSTICKS; index++) {
-      DWORD res = XInputGetCapabilities(joyxi_joysticks[index].index, 0, &joyxi_joysticks[index].capabilities);
+      DWORD res = _imp_XInputGetCapabilities(joyxi_joysticks[index].index, 0, &joyxi_joysticks[index].capabilities);
       joyxi_joysticks[index].active = (res == ERROR_SUCCESS);
       if (joyxi_joysticks[index].active) {
-         res = XInputGetState(joyxi_joysticks[index].index, &joyxi_joysticks[index].state);
+         res = _imp_XInputGetState(joyxi_joysticks[index].index, &joyxi_joysticks[index].state);
          joyxi_joysticks[index].active = (res == ERROR_SUCCESS);
       }
    }
@@ -531,13 +606,15 @@ static void joyxi_exit_joystick(void)
 
    al_lock_mutex(joyxi_mutex);
    /* Disable xinput */
-   XInputEnable(FALSE);
+   _imp_XInputEnable(FALSE);
    /* Wipe the joystick structs */
    for (index = 0; index < MAX_JOYSTICKS; index++) {
       joyxi_joysticks[index].active = false;
    }
    al_unlock_mutex(joyxi_mutex);
    al_destroy_mutex(joyxi_mutex);
+
+   _al_unload_xinput_module();
 }
 
 
@@ -546,10 +623,10 @@ static bool joyxi_reconfigure_joysticks(void)
    int index;
    al_lock_mutex(joyxi_mutex);
    for (index = 0; index < MAX_JOYSTICKS; index++) {
-      DWORD res = XInputGetCapabilities(joyxi_joysticks[index].index, 0, &joyxi_joysticks[index].capabilities);
+      DWORD res = _imp_XInputGetCapabilities(joyxi_joysticks[index].index, 0, &joyxi_joysticks[index].capabilities);
       joyxi_joysticks[index].active = (res == ERROR_SUCCESS);
       if (joyxi_joysticks[index].active) {
-         res = XInputGetState(joyxi_joysticks[index].index, &joyxi_joysticks[index].state);
+         res = _imp_XInputGetState(joyxi_joysticks[index].index, &joyxi_joysticks[index].state);
          joyxi_joysticks[index].active = (res == ERROR_SUCCESS);
       }
    }
