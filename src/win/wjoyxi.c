@@ -188,7 +188,7 @@ static const struct _AL_XINPUT_BUTTON_MAPPING
    { XINPUT_GAMEPAD_DPAD_UP, 13, "UP DPAD" },
 };
 
-void _al_unload_xinput_module()
+static void unload_xinput_module(void)
 {
    FreeLibrary(_imp_xinput_module);
    _imp_xinput_module = NULL;
@@ -219,7 +219,7 @@ static bool _imp_load_xinput_module_version(int version)
    return true;
 }
 
-bool _al_load_xinput_module()
+static bool load_xinput_module(void)
 {
    ALLEGRO_CONFIG *cfg;
    long version;
@@ -531,7 +531,7 @@ static bool joyxi_init_joystick(void)
 {
    int index;
 
-   _al_load_xinput_module();
+   load_xinput_module();
 
    /* Create the mutex and two condition variables. */
    joyxi_mutex = al_create_mutex_recursive();
@@ -614,7 +614,7 @@ static void joyxi_exit_joystick(void)
    al_unlock_mutex(joyxi_mutex);
    al_destroy_mutex(joyxi_mutex);
 
-   _al_unload_xinput_module();
+   unload_xinput_module();
 }
 
 
