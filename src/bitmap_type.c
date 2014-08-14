@@ -157,12 +157,8 @@ void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
    }
 
    if (bitmap->parent) {
-      bool parent_mem = (al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP) != 0;
-      if (parent_mem != want_memory) {
-         al_convert_bitmap(bitmap->parent);
-      }
-      clone = al_create_sub_bitmap(bitmap->parent,
-         bitmap->xofs, bitmap->yofs, bitmap->w, bitmap->h);
+      al_convert_bitmap(bitmap->parent);
+      return;
    }
    else {
       clone = al_clone_bitmap(bitmap);
@@ -175,7 +171,7 @@ void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
    clone_memory = (al_get_bitmap_flags(clone) & ALLEGRO_MEMORY_BITMAP) != 0;
 
    if (clone_memory != want_memory) {
-      /* We cannot convert. */
+      /* We couldn't convert. */
       al_destroy_bitmap(clone);
       return;
    }
@@ -285,7 +281,12 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
       /* We force-converted to memory above, but we still want to
        * keep the ANY flag if it was set so the bitmap can be
        * back-converted later.
+       *
+       * Be careful to set the flags of the actual parent, and not the
+       * sub-bitmap.
        */
+      if (bitmap->parent)
+         bitmap = bitmap->parent;
       bitmap->flags |= ALLEGRO_CONVERT_BITMAP;
       _al_register_convert_bitmap(bitmap);
    }
