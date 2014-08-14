@@ -361,11 +361,10 @@ See also: [al_create_bitmap], [al_set_new_bitmap_format],
 
 Converts the bitmap to the current bitmap flags and format. The bitmap
 will be as if it was created anew with [al_create_bitmap] but retain its
-contents.
+contents. All of this bitmap's sub-bitmaps are also converted.
 
-If the bitmap has sub-bitmaps you also must call [al_convert_bitmap] on
-all its sub-bitmaps. If the bitmap is a sub-bitmap you must also call
-[al_convert_bitmap] on the parent.
+If this bitmap is a sub-bitmap, then it, its parent and all the sibling
+sub-bitmaps are also converted.
 
 Since: 5.1.0
 
