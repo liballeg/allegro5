@@ -1745,8 +1745,8 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_internals(
    d3d_display->backbuffer_bmp.extra = &d3d_display->backbuffer_bmp_extra;
    d3d_display->backbuffer_bmp_extra.is_backbuffer = true;
    d3d_display->backbuffer_bmp.display = al_display;
-   d3d_display->backbuffer_bmp.format = _al_deduce_color_format(&al_display->extra_settings);
-   d3d_display->backbuffer_bmp.flags = 0;
+   d3d_display->backbuffer_bmp._format = _al_deduce_color_format(&al_display->extra_settings);
+   d3d_display->backbuffer_bmp._flags = 0;
    d3d_display->backbuffer_bmp.w = al_display->w;
    d3d_display->backbuffer_bmp.h = al_display->h;
    d3d_display->backbuffer_bmp_extra.texture_w = al_display->w;
@@ -2367,8 +2367,8 @@ static ALLEGRO_BITMAP *d3d_create_bitmap(ALLEGRO_DISPLAY *d,
 
    bitmap->vt = _al_bitmap_d3d_driver();
    bitmap->memory = NULL;
-   bitmap->format = format;
-   bitmap->flags = flags;
+   bitmap->_format = format;
+   bitmap->_flags = flags;
    bitmap->pitch = w * al_get_pixel_size(format);
    al_identity_transform(&bitmap->transform);
 

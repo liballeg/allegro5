@@ -287,7 +287,7 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
        */
       if (bitmap->parent)
          bitmap = bitmap->parent;
-      bitmap->flags |= ALLEGRO_CONVERT_BITMAP;
+      bitmap->_flags |= ALLEGRO_CONVERT_BITMAP;
       _al_register_convert_bitmap(bitmap);
    }
    al_restore_state(&backup);

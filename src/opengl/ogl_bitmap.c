@@ -665,8 +665,8 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h,
 
    bitmap->vt = ogl_bitmap_driver();
    bitmap->pitch = pitch;
-   bitmap->format = format;
-   bitmap->flags = flags | _ALLEGRO_INTERNAL_OPENGL;
+   bitmap->_format = format;
+   bitmap->_flags = flags | _ALLEGRO_INTERNAL_OPENGL;
 
    extra->true_w = true_w;
    extra->true_h = true_h;

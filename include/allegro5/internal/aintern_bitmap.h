@@ -24,8 +24,8 @@ struct ALLEGRO_BITMAP
     * super sure this is not a sub-bitmap (e.g. when you're creating a new
     * bitmap).
     */
-   int format;
-   int flags;
+   int _format;
+   int _flags;
 
    int w, h;
    /*

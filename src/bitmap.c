@@ -46,13 +46,13 @@ static ALLEGRO_BITMAP *create_memory_bitmap(ALLEGRO_DISPLAY *current_display,
    pitch = w * al_get_pixel_size(format);
 
    bitmap->vt = NULL;
-   bitmap->format = format;
+   bitmap->_format = format;
 
    /* If this is really a video bitmap, we add it to the list of to
     * be converted bitmaps.
     */
-   bitmap->flags = flags | ALLEGRO_MEMORY_BITMAP;
-   bitmap->flags &= ~ALLEGRO_VIDEO_BITMAP;
+   bitmap->_flags = flags | ALLEGRO_MEMORY_BITMAP;
+   bitmap->_flags &= ~ALLEGRO_VIDEO_BITMAP;
    bitmap->w = w;
    bitmap->h = h;
    bitmap->pitch = pitch;
@@ -138,14 +138,14 @@ ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
    bitmap->parent = NULL;
    bitmap->xofs = 0;
    bitmap->yofs = 0;
-   bitmap->flags |= ALLEGRO_VIDEO_BITMAP;
-   bitmap->dirty = !(bitmap->flags & ALLEGRO_NO_PRESERVE_TEXTURE);
+   bitmap->_flags |= ALLEGRO_VIDEO_BITMAP;
+   bitmap->dirty = !(bitmap->_flags & ALLEGRO_NO_PRESERVE_TEXTURE);
 
    /* The display driver should have set the bitmap->memory field if
     * appropriate; video bitmaps may leave it NULL.
     */
 
-   ASSERT(bitmap->pitch >= w * al_get_pixel_size(bitmap->format));
+   ASSERT(bitmap->pitch >= w * al_get_pixel_size(bitmap->_format));
    result = bitmap->vt->upload_bitmap(bitmap);
 
    if (!result) {
@@ -289,9 +289,9 @@ int al_get_bitmap_height(ALLEGRO_BITMAP *bitmap)
 int al_get_bitmap_format(ALLEGRO_BITMAP *bitmap)
 {
    if (bitmap->parent)
-      return bitmap->parent->format;
+      return bitmap->parent->_format;
    else
-      return bitmap->format;
+      return bitmap->_format;
 }
 
 
@@ -301,9 +301,9 @@ int al_get_bitmap_format(ALLEGRO_BITMAP *bitmap)
 int al_get_bitmap_flags(ALLEGRO_BITMAP *bitmap)
 {
    if (bitmap->parent)
-      return bitmap->parent->flags;
+      return bitmap->parent->_flags;
    else
-      return bitmap->flags;
+      return bitmap->_flags;
 }
 
 
@@ -393,8 +393,8 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    /* Sub-bitmap inherits these from the parent.
     * Leave these unchanged so they can be detected if improperly accessed
     * directly. */
-   bitmap->format = 0;
-   bitmap->flags = 0;
+   bitmap->_format = 0;
+   bitmap->_flags = 0;
 
    bitmap->w = w;
    bitmap->h = h;
