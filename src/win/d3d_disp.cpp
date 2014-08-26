@@ -2675,6 +2675,9 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(cache_bmp);
    int bitmap_flags = al_get_bitmap_flags(cache_bmp);
 
+   if (d3d_disp->device_lost)
+      return;
+
    if (bitmap_flags & ALLEGRO_MIN_LINEAR) {
       d3d_disp->device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
    }
