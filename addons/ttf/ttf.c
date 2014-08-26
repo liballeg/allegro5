@@ -171,12 +171,14 @@ static ALLEGRO_BITMAP *push_new_page(ALLEGRO_TTF_FONT_DATA *data)
     al_restore_state(&state);
     _al_pop_destructor_owner();
 
-    back = _al_vector_alloc_back(&data->page_bitmaps);
-    *back = page;
+    if (page) {
+       back = _al_vector_alloc_back(&data->page_bitmaps);
+       *back = page;
 
-    data->page_pos_x = 0;
-    data->page_pos_y = 0;
-    data->page_line_height = 0;
+       data->page_pos_x = 0;
+       data->page_pos_y = 0;
+       data->page_line_height = 0;
+    }
 
     return page;
 }
@@ -193,6 +195,8 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
    if (_al_vector_is_empty(&data->page_bitmaps) || new) {
       page = push_new_page(data);
       relock = true;
+      if (!page)
+         return NULL;
    }
    else {
       ALLEGRO_BITMAP **back = _al_vector_ref_back(&data->page_bitmaps);
