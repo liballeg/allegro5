@@ -432,15 +432,6 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
    }
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filters[filter]);
 
-   if (post_generate_mipmap) {
-      glGenerateMipmapEXT(GL_TEXTURE_2D);
-      e = glGetError();
-      if (e) {
-         ALLEGRO_ERROR("glGenerateMipmapEXT for texture %d failed (%s).\n",
-            ogl_bitmap->texture, _al_gl_error_string(e));
-      }
-   }
-
 // TODO: To support anisotropy, we would need an API for it. Something
 // like:
 // al_set_new_bitmap_option(ALLEGRO_ANISOTROPY, 16.0);
@@ -513,6 +504,15 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       // FIXME: Should we convert it into a memory bitmap? Or if the size is
       // the problem try to use multiple textures?
       return false;
+   }
+
+   if (post_generate_mipmap) {
+      glGenerateMipmapEXT(GL_TEXTURE_2D);
+      e = glGetError();
+      if (e) {
+         ALLEGRO_ERROR("glGenerateMipmapEXT for texture %d failed (%s).\n",
+            ogl_bitmap->texture, _al_gl_error_string(e));
+      }
    }
    
    ogl_bitmap->left = 0;
