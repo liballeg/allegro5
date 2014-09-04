@@ -175,7 +175,7 @@ static void generate_touch_input_event(int type, double timestamp, int id, float
       event.mouse.dz        = 0;
       event.mouse.dw        = 0;
       event.mouse.button    = 1;
-      event.mouse.pressure  = 1.0;
+      event.mouse.pressure  = state.pressure;
 
       al_set_mouse_xy(event.mouse.display, event.mouse.x, event.mouse.y);
 

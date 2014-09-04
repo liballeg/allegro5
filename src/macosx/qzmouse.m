@@ -349,7 +349,7 @@ static bool osx_set_mouse_xy(ALLEGRO_DISPLAY *dpy_, int x, int y)
         mouse_event->dx = x - osx_mouse.state.x;
         mouse_event->dy = y - osx_mouse.state.y;
         mouse_event->dz = 0;
-        mouse_event->pressure = 0.0;
+	mouse_event->pressure = osx_mouse.state.pressure;
         if (mouse_event->dx || mouse_event->dy) {
            osx_mouse.warped = TRUE;
            osx_mouse.warped_x = mouse_event->dx;

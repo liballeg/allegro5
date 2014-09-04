@@ -92,7 +92,7 @@ static void exit_mouse(void)
 
 
 static void generate_mouse_event(unsigned int type,
-                                 int x, int y, int z, int w,
+                                 int x, int y, int z, int w, float pressure,
                                  int dx, int dy, int dz, int dw,
                                  unsigned int button,
                                  ALLEGRO_DISPLAY *source)
@@ -115,7 +115,7 @@ static void generate_mouse_event(unsigned int type,
    event.mouse.dz = dz;
    event.mouse.dw = dw;
    event.mouse.button = button;
-   event.mouse.pressure = 0.0; /* TODO */
+   event.mouse.pressure = pressure;
    _al_event_source_emit_event(&the_mouse.es, &event);
    _al_event_source_unlock(&the_mouse.es);
 }
@@ -163,7 +163,7 @@ static bool set_mouse_xy(ALLEGRO_DISPLAY *disp, int x, int y)
 
       generate_mouse_event(
          ALLEGRO_EVENT_MOUSE_WARPED,
-         mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w,
+         mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
          dx, dy, 0, 0,
          0, (void*)win_disp);
    }
@@ -190,7 +190,7 @@ static bool set_mouse_axis(int which, int val)
 
          generate_mouse_event(
             ALLEGRO_EVENT_MOUSE_AXES,
-            mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w,
+            mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
             0, 0, dz, 0,
             0, mouse_state.display);
       }
@@ -207,7 +207,7 @@ static bool set_mouse_axis(int which, int val)
 
          generate_mouse_event(
             ALLEGRO_EVENT_MOUSE_AXES,
-            mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w,
+            mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
             0, 0, 0, dw,
             0, mouse_state.display);
       }
@@ -266,7 +266,7 @@ void _al_win_mouse_handle_leave(ALLEGRO_DISPLAY_WIN *win_disp)
       return;
 
    generate_mouse_event(ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY,
-      mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w,
+      mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
       0, 0, 0, 0,
       0, (void*)win_disp);
 }
@@ -283,7 +283,7 @@ void _al_win_mouse_handle_enter(ALLEGRO_DISPLAY_WIN *win_disp)
       return;
 
    generate_mouse_event(ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY,
-      mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w,
+      mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
       0, 0, 0, 0,
       0, (void*)win_disp);
 }
@@ -315,7 +315,7 @@ void _al_win_mouse_handle_move(int x, int y, bool abs, ALLEGRO_DISPLAY_WIN *win_
 
    if (oldx != mouse_state.x || oldy != mouse_state.y) {
       generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
-         mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w,
+         mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
          dx, dy, 0, 0,
          0, (void*)win_disp);
    }
@@ -339,7 +339,7 @@ void _al_win_mouse_handle_wheel(int z, bool abs, ALLEGRO_DISPLAY_WIN *win_disp)
    }
 
    generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
-      mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w,
+      mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
       0, 0, d, 0,
       0, (void*)win_disp);
 }
@@ -362,7 +362,7 @@ void _al_win_mouse_handle_hwheel(int w, bool abs, ALLEGRO_DISPLAY_WIN *win_disp)
    }
 
    generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
-      mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w,
+      mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
       0, 0, 0, d,
       0, (void*)win_disp);
 }
@@ -392,8 +392,10 @@ void _al_win_mouse_handle_button(int button, bool down, int x, int y, bool abs,
    else
       mouse_state.buttons &= ~(1 << (button-1));
 
+   mouse_state.pressure = mouse_state.buttons ? 1.0 : 0.0; /* TODO */
+
    generate_mouse_event(type,
-      mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w,
+      mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
       0, 0, 0, 0,
       button, (void*)win_disp);
 }

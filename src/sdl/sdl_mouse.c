@@ -83,6 +83,7 @@ void _al_sdl_mouse_event(SDL_Event *e)
       d = _al_sdl_find_display(e->button.windowID);
    }
 
+   event.mouse_pressure = mouse->buttons ? 1.0 : 0.0; /* TODO */
    event.mouse.display = d;
 
    _al_event_source_emit_event(es, &event);
@@ -140,7 +141,7 @@ static void sdl_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
    for (i = 0; i < ALLEGRO_MOUSE_MAX_EXTRA_AXES; i++)
       ret_state->more_axes[i] = 0;
    ret_state->buttons = mouse->buttons;
-   ret_state->pressure = 0;
+   ret_state->pressure = mouse->state.buttons ? 1.0 : 0.0; /* TODO */
    ret_state->display = mouse->display;
 }
 
