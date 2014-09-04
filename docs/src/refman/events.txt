@@ -166,6 +166,9 @@ mouse.dw (int)
 :   Change in the w-coordinate value since the previous
     ALLEGRO_EVENT_MOUSE_AXES event.
 
+mouse.pressure (float)
+:   Pressure, ranging from `0.0` to `1.0`.
+
 mouse.display (ALLEGRO_DISPLAY *)
 :   The display which had mouse focus.
 
@@ -195,6 +198,9 @@ mouse.w (int)
 mouse.button (unsigned)
 :   The mouse button which was pressed, numbering from 1.
 
+mouse.pressure (float)
+:   Pressure, ranging from `0.0` to `1.0`.
+
 mouse.display (ALLEGRO_DISPLAY *)
 :   The display which had mouse focus.
 
@@ -216,6 +222,9 @@ mouse.w (int)
 
 mouse.button (unsigned)
 :   The mouse button which was released, numbering from 1.
+
+mouse.pressure (float)
+:   Pressure, ranging from `0.0` to `1.0`.
 
 mouse.display (ALLEGRO_DISPLAY *)
 :   The display which had mouse focus.

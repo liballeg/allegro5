@@ -15,9 +15,11 @@ Public fields (read only):
 * w, z - mouse wheel position (2D 'ball')
 * buttons - mouse buttons bitfield
 
-The zeroth bit is set if the primary mouse button is held down,
-the first bit is set if the secondary mouse button is held down,
-and so on.
+    The zeroth bit is set if the primary mouse button is held down,
+    the first bit is set if the secondary mouse button is held down,
+    and so on.
+
+* pressure - pressure, ranging from `0.0` to `1.0`
 
 See also: [al_get_mouse_state], [al_get_mouse_state_axis], [al_mouse_button_down]
 
