@@ -294,22 +294,22 @@ void _al_d3d_release_default_pool_textures(ALLEGRO_DISPLAY *disp)
    unsigned int i;
 
    for (i = 0; i < disp->bitmaps._size; i++) {
-   	ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&disp->bitmaps, i);
-	ALLEGRO_BITMAP *albmp = *bptr;
-	_al_set_bitmap_shader_field(albmp, NULL);
+      ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&disp->bitmaps, i);
+      ALLEGRO_BITMAP *albmp = *bptr;
+      _al_set_bitmap_shader_field(albmp, NULL);
 
-	if ((al_get_bitmap_flags(albmp) & ALLEGRO_MEMORY_BITMAP) || (albmp->parent))
-	   continue;
+      if ((al_get_bitmap_flags(albmp) & ALLEGRO_MEMORY_BITMAP) || (albmp->parent))
+         continue;
 
-	ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(albmp);
-	if (!d3d_bmp->is_backbuffer && d3d_bmp->render_target) {
-		d3d_bmp->render_target->Release();
-		d3d_bmp->render_target = NULL;
-	}
-	if (d3d_bmp->video_texture) {
-	   d3d_bmp->video_texture->Release();
-	   d3d_bmp->video_texture = NULL;
-	}
+      ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(albmp);
+      if (!d3d_bmp->is_backbuffer && d3d_bmp->render_target) {
+         d3d_bmp->render_target->Release();
+         d3d_bmp->render_target = NULL;
+      }
+      if (d3d_bmp->video_texture) {
+         d3d_bmp->video_texture->Release();
+         d3d_bmp->video_texture = NULL;
+      }
    }
 }
 
