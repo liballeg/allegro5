@@ -207,24 +207,26 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 
    _al_unregister_destructor(_al_dtor_list, bitmap);
 
-   if (al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP) {
-      destroy_memory_bitmap(bitmap);
-      return;
+   if (!al_is_sub_bitmap(bitmap)) {
+      if (al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP) {
+         destroy_memory_bitmap(bitmap);
+         return;
+      }
+
+      /* Else it's a display bitmap */
+
+      if (bitmap->locked)
+         al_unlock_bitmap(bitmap);
+
+      if (bitmap->vt)
+         bitmap->vt->destroy_bitmap(bitmap);
+
+      if (bitmap->display)
+         _al_vector_find_and_delete(&bitmap->display->bitmaps, &bitmap);
+
+      if (bitmap->memory)
+         al_free(bitmap->memory);
    }
-
-   /* Else it's a display bitmap */
-
-   if (bitmap->locked)
-      al_unlock_bitmap(bitmap);
-
-   if (bitmap->vt)
-      bitmap->vt->destroy_bitmap(bitmap);
-
-   if (bitmap->display && !al_is_sub_bitmap(bitmap))
-      _al_vector_find_and_delete(&bitmap->display->bitmaps, &bitmap);
-
-   if (bitmap->memory)
-      al_free(bitmap->memory);
 
    al_free(bitmap);
 }
