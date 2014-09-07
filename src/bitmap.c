@@ -220,7 +220,7 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
    if (bitmap->vt)
       bitmap->vt->destroy_bitmap(bitmap);
 
-   if (bitmap->display)
+   if (bitmap->display && !al_is_sub_bitmap(bitmap))
       _al_vector_find_and_delete(&bitmap->display->bitmaps, &bitmap);
 
    if (bitmap->memory)
@@ -411,12 +411,6 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    bitmap->xofs = x;
    bitmap->yofs = y;
    bitmap->memory = NULL;
-
-   if (bitmap->display) {
-      ALLEGRO_BITMAP **back;
-      back = _al_vector_alloc_back(&bitmap->display->bitmaps);
-      *back = bitmap;
-   }
 
    return bitmap;
 }

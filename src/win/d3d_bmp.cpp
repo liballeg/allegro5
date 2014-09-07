@@ -602,24 +602,6 @@ void _al_d3d_refresh_texture_memory(ALLEGRO_DISPLAY *display)
          }
       }
    }
-
-   /* Reset sub-bitmaps */
-   for (i = 0; i < display->bitmaps._size; i++) {
-      ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&display->bitmaps, i);
-      ALLEGRO_BITMAP *bmp = *bptr;
-      ALLEGRO_BITMAP_EXTRA_D3D *extra = get_extra(bmp);
-
-      if (al_get_bitmap_flags(bmp) & ALLEGRO_MEMORY_BITMAP) {
-         continue;
-      }
-
-      if (bmp->parent) {
-         ALLEGRO_BITMAP_EXTRA_D3D *pextra = get_extra(bmp->parent);
-	 extra->system_texture = pextra->system_texture;
-	 extra->video_texture = pextra->video_texture;
-	 extra->render_target = pextra->render_target;
-      }
-   }
 }
 
 static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap)

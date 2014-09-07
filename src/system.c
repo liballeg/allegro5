@@ -299,8 +299,6 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
    return true;
 }
 
-
-
 /* Function: al_uninstall_system
  */
 void al_uninstall_system(void)
