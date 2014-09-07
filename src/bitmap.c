@@ -412,6 +412,9 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    bitmap->yofs = y;
    bitmap->memory = NULL;
 
+   _al_register_destructor(_al_dtor_list, bitmap,
+      (void (*)(void *))al_destroy_bitmap);
+
    return bitmap;
 }
 

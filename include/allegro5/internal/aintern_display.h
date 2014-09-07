@@ -156,8 +156,6 @@ void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, i
 int  _al_deduce_color_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds);
 int  _al_display_settings_sorter(const void *p0, const void *p1);
 
-void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d);
-
 /* This is called from the primitives addon and for shaders. */
 AL_FUNC(void, _al_add_display_invalidated_callback, (ALLEGRO_DISPLAY *display,
    void (*display_invalidated)(ALLEGRO_DISPLAY*)));

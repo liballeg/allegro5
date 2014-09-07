@@ -371,20 +371,6 @@ void al_set_display_icons(ALLEGRO_DISPLAY *display,
    }
 }
 
-
-
-/* Destroys all bitmaps created for this display.
- */
-void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d)
-{
-   while (_al_vector_size(&d->bitmaps) > 0) {
-      ALLEGRO_BITMAP **bptr = _al_vector_ref_back(&d->bitmaps);
-      ALLEGRO_BITMAP *b = *bptr;
-      al_destroy_bitmap(b);
-   }
-}
-
-
 /* Function: al_set_window_position
  */
 void al_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
