@@ -190,6 +190,9 @@ void _al_ogl_update_render_state(ALLEGRO_DISPLAY *display);
 #ifdef ALLEGRO_CFG_SHADER_GLSL
    bool _al_glsl_set_projview_matrix(GLint projview_matrix_loc,
       const ALLEGRO_TRANSFORM *t);
+   void _al_glsl_init_shaders(void);
+   void _al_glsl_shutdown_shaders(void);
+   void _al_glsl_unuse_shaders(void);
 #endif
 
 

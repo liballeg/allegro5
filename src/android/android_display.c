@@ -843,12 +843,7 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
    android_setup_opengl_view(dpy);
 
    // Bitmaps can still have stale shaders attached.
-   for (i = 0; i < _al_vector_size(&dpy->bitmaps); i++) {
-      ALLEGRO_BITMAP **bptr = _al_vector_ref(&dpy->bitmaps, i);
-      ALLEGRO_BITMAP *bmp = *bptr;
-
-      _al_set_bitmap_shader_field(bmp, NULL);
-   }
+   _al_glsl_unuse_shaders();
 
    // Restore bitmaps
    // have to get this because new bitmaps could be created below

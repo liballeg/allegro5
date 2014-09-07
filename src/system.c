@@ -20,6 +20,10 @@
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
+#ifdef ALLEGRO_CFG_SHADER_GLSL
+#include "allegro5/allegro_opengl.h"
+#include "allegro5/internal/aintern_opengl.h"
+#endif
 #include ALLEGRO_INTERNAL_HEADER
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_debug.h"
@@ -273,6 +277,10 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
 
    _al_init_timers();
 
+#ifdef ALLEGRO_CFG_SHADER_GLSL
+   _al_glsl_init_shaders();
+#endif
+
    if (active_sysdrv->vt->heartbeat_init)
       active_sysdrv->vt->heartbeat_init();
 
@@ -307,6 +315,11 @@ void al_uninstall_system(void)
    _al_run_exit_funcs();
    _al_shutdown_destructors(_al_dtor_list);
    _al_dtor_list = NULL;
+
+#ifdef ALLEGRO_CFG_SHADER_GLSL
+   _al_glsl_shutdown_shaders();
+#endif
+
    _al_shutdown_logging();
 
    /* shutdown_system_driver is registered as an exit func so we don't need
