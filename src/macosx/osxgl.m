@@ -1558,7 +1558,7 @@ static void destroy_display(ALLEGRO_DISPLAY* d)
          ALLEGRO_BITMAP **add = _al_vector_alloc_back(&other->parent.bitmaps);
          ALLEGRO_BITMAP **ref = _al_vector_ref(bmps, i);
          *add = *ref;
-         (*add)->display = &(other->parent);
+         (*add)->_display = &(other->parent);
       }
    }
    else {
@@ -1911,8 +1911,8 @@ static bool resize_display_fs(ALLEGRO_DISPLAY *d, int w, int h)
 
 static bool is_compatible_bitmap(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP* bmp)
 {
-   return (bmp->display == disp)
-      || (((ALLEGRO_DISPLAY_OSX_WIN*) bmp->display)->display_group == ((ALLEGRO_DISPLAY_OSX_WIN*) disp)->display_group);
+   return (_al_get_bitmap_display(bmp) == disp)
+      || (((ALLEGRO_DISPLAY_OSX_WIN*) _al_get_bitmap_display(bmp))->display_group == ((ALLEGRO_DISPLAY_OSX_WIN*) disp)->display_group);
 }
 
 /* set_window_position:

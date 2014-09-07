@@ -150,6 +150,7 @@ ALLEGRO_SHADER_PLATFORM al_get_shader_platform(ALLEGRO_SHADER *shader)
 bool al_use_shader(ALLEGRO_SHADER *shader)
 {
    ALLEGRO_BITMAP *bmp = al_get_target_bitmap();
+   ALLEGRO_DISPLAY *disp;
 
    if (!bmp) {
       ALLEGRO_WARN("No current target bitmap.\n");
@@ -159,10 +160,11 @@ bool al_use_shader(ALLEGRO_SHADER *shader)
       ALLEGRO_WARN("Target bitmap is memory bitmap.\n");
       return false;
    }
-   ASSERT(bmp->display);
+   disp = _al_get_bitmap_display(bmp);
+   ASSERT(disp);
 
    if (shader) {
-      if (shader->vt->use_shader(shader, bmp->display, true)) {
+      if (shader->vt->use_shader(shader, disp, true)) {
          _al_set_bitmap_shader_field(bmp, shader);
          ALLEGRO_DEBUG("use_shader succeeded\n");
          return true;
@@ -170,21 +172,21 @@ bool al_use_shader(ALLEGRO_SHADER *shader)
       else {
          _al_set_bitmap_shader_field(bmp, NULL);
          ALLEGRO_ERROR("use_shader failed\n");
-         if (bmp->display->default_shader) {
-            bmp->display->default_shader->vt->use_shader(
-               bmp->display->default_shader, bmp->display, true);
+         if (disp->default_shader) {
+            disp->default_shader->vt->use_shader(
+               disp->default_shader, disp, true);
          }
          return false;
       }
    }
    else {
       if (bmp->shader) {
-         bmp->shader->vt->unuse_shader(bmp->shader, bmp->display);
+         bmp->shader->vt->unuse_shader(bmp->shader, disp);
          _al_set_bitmap_shader_field(bmp, NULL);
       }
-      if (bmp->display->default_shader) {
-         bmp->display->default_shader->vt->use_shader(
-            bmp->display->default_shader, bmp->display, true);
+      if (disp->default_shader) {
+         disp->default_shader->vt->use_shader(
+            disp->default_shader, disp, true);
       }
       return true;
    }

@@ -384,7 +384,7 @@ void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
       new_shader = NULL;
    }
    else {
-      new_display = bitmap->display;
+      new_display = _al_get_bitmap_display(bitmap);
       new_shader = bitmap->shader;
    }
 

@@ -379,7 +379,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    int start, int end, int type)
 {
    int num_primitives = 0;
-   ALLEGRO_DISPLAY *ogl_disp = target->display;
+   ALLEGRO_DISPLAY *disp = _al_get_bitmap_display(target);
    ALLEGRO_BITMAP *opengl_target = target;
    ALLEGRO_BITMAP_EXTRA_OPENGL *extra;
    int num_vtx = end - start;
@@ -389,7 +389,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
    }
    extra = opengl_target->extra;
 
-   if ((!extra->is_backbuffer && ogl_disp->ogl_extras->opengl_target !=
+   if ((!extra->is_backbuffer && disp->ogl_extras->opengl_target !=
       opengl_target) || al_is_bitmap_locked(target)) {
       if (vertex_buffer) {
          return _al_draw_buffer_common_soft(vertex_buffer, texture, NULL, start, end, type);
@@ -403,7 +403,7 @@ static int draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
       glBindBuffer(GL_ARRAY_BUFFER, (GLuint)vertex_buffer->common.handle);
    }
 
-   _al_opengl_set_blender(ogl_disp);
+   _al_opengl_set_blender(disp);
    setup_state(vtx, decl, texture);
 
    switch (type) {
@@ -461,7 +461,7 @@ static int draw_prim_indexed_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture
    int start, int end, int type)
 {
    int num_primitives = 0;
-   ALLEGRO_DISPLAY *ogl_disp = target->display;
+   ALLEGRO_DISPLAY *disp = _al_get_bitmap_display(target);
    ALLEGRO_BITMAP *opengl_target = target;
    ALLEGRO_BITMAP_EXTRA_OPENGL *extra;
    const char* idx = (const char*)indices;
@@ -483,7 +483,7 @@ static int draw_prim_indexed_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture
    }
    extra = opengl_target->extra;
 
-   if ((!extra->is_backbuffer && ogl_disp->ogl_extras->opengl_target !=
+   if ((!extra->is_backbuffer && disp->ogl_extras->opengl_target !=
       opengl_target) || al_is_bitmap_locked(target)) {
       if (use_buffers) {
          return _al_draw_buffer_common_soft(vertex_buffer, texture, index_buffer, start, end, type);
@@ -506,7 +506,7 @@ static int draw_prim_indexed_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture
    }
 #endif
 
-   _al_opengl_set_blender(ogl_disp);
+   _al_opengl_set_blender(disp);
 
    if (use_buffers) {
       glBindBuffer(GL_ARRAY_BUFFER, (GLuint)vertex_buffer->common.handle);

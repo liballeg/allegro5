@@ -62,7 +62,7 @@ void al_use_transform(const ALLEGRO_TRANSFORM *trans)
     * so the hardware transformation has to be kept at identity.
     */
    if (!al_is_bitmap_drawing_held()) {
-      display = target->display;
+      display = _al_get_bitmap_display(target);
       if (display) {
          display->vt->update_transformation(display, target);
       }

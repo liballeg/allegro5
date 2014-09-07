@@ -83,7 +83,8 @@ void al_set_current_opengl_context(ALLEGRO_DISPLAY *display)
 
    if (display) {
       ALLEGRO_BITMAP *bmp = al_get_target_bitmap();
-      if (bmp && bmp->display && bmp->display != display) {
+      if (bmp && _al_get_bitmap_display(bmp) &&
+            _al_get_bitmap_display(bmp) != display) {
          al_set_target_bitmap(NULL);
       }
    }
@@ -243,7 +244,7 @@ ALLEGRO_BITMAP* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
 
    ogl_backbuffer = backbuffer->extra;
    ogl_backbuffer->is_backbuffer = 1;
-   backbuffer->display = disp;
+   backbuffer->_display = disp;
 
    al_identity_transform(&disp->view_transform);
 

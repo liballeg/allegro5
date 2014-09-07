@@ -107,8 +107,8 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
    ogl_bitmap = bitmap->extra;
 
    /* Don't continue if the bitmap does not belong to the current display. */
-   if (bitmap->display->ogl_extras->is_shared == false &&
-         bitmap->display != al_get_current_display()) {
+   if (_al_get_bitmap_display(bitmap)->ogl_extras->is_shared == false &&
+         _al_get_bitmap_display(bitmap) != al_get_current_display()) {
       return false;
    }
 

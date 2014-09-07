@@ -56,7 +56,7 @@ static ALLEGRO_BITMAP *create_memory_bitmap(ALLEGRO_DISPLAY *current_display,
    bitmap->w = w;
    bitmap->h = h;
    bitmap->pitch = pitch;
-   bitmap->display = NULL;
+   bitmap->_display = NULL;
    bitmap->locked = false;
    bitmap->cl = bitmap->ct = 0;
    bitmap->cr_excl = w;
@@ -124,7 +124,7 @@ ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
       return NULL;
    }
 
-   bitmap->display = current_display;
+   bitmap->_display = current_display;
    bitmap->w = w;
    bitmap->h = h;
    bitmap->locked = false;
@@ -208,6 +208,7 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
    _al_unregister_destructor(_al_dtor_list, bitmap);
 
    if (!al_is_sub_bitmap(bitmap)) {
+      ALLEGRO_DISPLAY* disp = _al_get_bitmap_display(bitmap);
       if (al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP) {
          destroy_memory_bitmap(bitmap);
          return;
@@ -221,8 +222,8 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
       if (bitmap->vt)
          bitmap->vt->destroy_bitmap(bitmap);
 
-      if (bitmap->display)
-         _al_vector_find_and_delete(&bitmap->display->bitmaps, &bitmap);
+      if (disp)
+         _al_vector_find_and_delete(&disp->bitmaps, &bitmap);
 
       if (bitmap->memory)
          al_free(bitmap->memory);
@@ -309,6 +310,13 @@ int al_get_bitmap_flags(ALLEGRO_BITMAP *bitmap)
 }
 
 
+ALLEGRO_DISPLAY *_al_get_bitmap_display(ALLEGRO_BITMAP *bitmap)
+{
+   if (bitmap->parent)
+      return bitmap->parent->_display;
+   else
+      return bitmap->_display;
+}
 
 /* Function: al_set_clipping_rectangle
  */
@@ -397,10 +405,10 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
     * directly. */
    bitmap->_format = 0;
    bitmap->_flags = 0;
+   bitmap->_display = (ALLEGRO_DISPLAY*)0x1;
 
    bitmap->w = w;
    bitmap->h = h;
-   bitmap->display = parent->display;
    bitmap->locked = false;
    bitmap->cl = bitmap->ct = 0;
    bitmap->cr_excl = w;
@@ -503,6 +511,5 @@ ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
    transfer_bitmap_data(bitmap, clone);
    return clone;
 }
-
 
 /* vim: set ts=8 sts=3 sw=3 et: */

@@ -287,7 +287,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_target;
-   ALLEGRO_DISPLAY *disp = target->display;
+   ALLEGRO_DISPLAY *disp = _al_get_bitmap_display(target);
 
    /* For sub-bitmaps */
    if (target->parent) {
@@ -550,10 +550,10 @@ static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
    ASSERT(!al_is_sub_bitmap(bitmap));
 
    disp = al_get_current_display();
-   if (bitmap->display->ogl_extras->is_shared == false &&
-       bitmap->display != disp) {
+   if (_al_get_bitmap_display(bitmap)->ogl_extras->is_shared == false &&
+       _al_get_bitmap_display(bitmap) != disp) {
       old_disp = disp;
-      _al_set_current_display_only(bitmap->display);
+      _al_set_current_display_only(_al_get_bitmap_display(bitmap));
    }
 
    al_remove_opengl_fbo(bitmap);
@@ -694,9 +694,9 @@ void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
    uint8_t *src;
 
    ASSERT(ptr);
-   ASSERT(al_get_current_display() == bitmap->display);
+   ASSERT(al_get_current_display() == _al_get_bitmap_display(bitmap));
 
-   tmp = _al_create_bitmap_params(bitmap->display, w, h, format,
+   tmp = _al_create_bitmap_params(_al_get_bitmap_display(bitmap), w, h, format,
       al_get_bitmap_flags(bitmap));
    ASSERT(tmp);
 
@@ -783,7 +783,7 @@ GLuint al_get_opengl_fbo(ALLEGRO_BITMAP *bitmap)
    }
 
    if (ogl_bitmap->fbo_info->fbo_state == FBO_INFO_TRANSIENT) {
-      ogl_bitmap->fbo_info = _al_ogl_persist_fbo(bitmap->display,
+      ogl_bitmap->fbo_info = _al_ogl_persist_fbo(_al_get_bitmap_display(bitmap),
          ogl_bitmap->fbo_info);
    }
    return ogl_bitmap->fbo_info->fbo;

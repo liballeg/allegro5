@@ -16,16 +16,16 @@ typedef struct ALLEGRO_BITMAP_INTERFACE ALLEGRO_BITMAP_INTERFACE;
 struct ALLEGRO_BITMAP
 {
    ALLEGRO_BITMAP_INTERFACE *vt;
-   ALLEGRO_DISPLAY *display;
 
    /*
     * When this is a sub-bitmap, these are inherited from the parent. Don't
-    * access them directly, but use al_get_bitmap_format/flags unless you are
-    * super sure this is not a sub-bitmap (e.g. when you're creating a new
-    * bitmap).
+    * access them directly, but use al_get_bitmap_format/flags or
+    * _al_get_bitmap_display unless you are super sure this is not a sub-bitmap
+    * (e.g. when you're creating a new bitmap).
     */
    int _format;
    int _flags;
+   ALLEGRO_DISPLAY *_display;
 
    int w, h;
    /*
@@ -118,6 +118,8 @@ struct ALLEGRO_BITMAP_INTERFACE
 
 ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
    int w, int h, int format, int flags);
+
+ALLEGRO_DISPLAY *_al_get_bitmap_display(ALLEGRO_BITMAP *bitmap);
 
 extern void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
    [ALLEGRO_NUM_PIXEL_FORMATS])(const void *, int, void *, int,

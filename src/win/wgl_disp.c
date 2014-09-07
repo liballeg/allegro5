@@ -1494,7 +1494,7 @@ static bool wgl_is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *b
     * thus all bitmaps are tied to the display which was current at the time
     * al_create_bitmap was called.
     */
-   return display == bitmap->display;
+   return display == _al_get_bitmap_display(bitmap);
 }
 
 

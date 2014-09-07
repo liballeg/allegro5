@@ -1744,7 +1744,7 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_internals(
 
    d3d_display->backbuffer_bmp.extra = &d3d_display->backbuffer_bmp_extra;
    d3d_display->backbuffer_bmp_extra.is_backbuffer = true;
-   d3d_display->backbuffer_bmp.display = al_display;
+   d3d_display->backbuffer_bmp._display = al_display;
    d3d_display->backbuffer_bmp._format = _al_deduce_color_format(&al_display->extra_settings);
    d3d_display->backbuffer_bmp._flags = ALLEGRO_VIDEO_BITMAP;
    d3d_display->backbuffer_bmp.w = al_display->w;
@@ -2515,7 +2515,7 @@ static ALLEGRO_BITMAP *d3d_get_backbuffer(ALLEGRO_DISPLAY *display)
 
 static bool d3d_is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
-   return display == bitmap->display;
+   return display == _al_get_bitmap_display(bitmap);
 }
 
 static void d3d_switch_out(ALLEGRO_DISPLAY *display)

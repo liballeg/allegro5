@@ -523,7 +523,7 @@ static void transfer_display_bitmaps_to_any_other_display(
       ALLEGRO_BITMAP **add = _al_vector_alloc_back(&(living->bitmaps));
       ALLEGRO_BITMAP **ref = _al_vector_ref(&d->bitmaps, i);
       *add = *ref;
-      (*add)->display = living;
+      (*add)->_display = living;
    }
 }
 

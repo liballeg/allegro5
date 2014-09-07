@@ -85,6 +85,7 @@ void _al_unregister_convert_bitmap(ALLEGRO_BITMAP *bitmap)
 static void swap_bitmaps(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *other)
 {
    ALLEGRO_BITMAP temp;
+   ALLEGRO_DISPLAY *bitmap_display, *other_display;
 
    _al_unregister_convert_bitmap(bitmap);
    _al_unregister_convert_bitmap(other);
@@ -98,26 +99,29 @@ static void swap_bitmaps(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *other)
    *bitmap = *other;
    *other = temp;
 
+   bitmap_display = _al_get_bitmap_display(bitmap);
+   other_display = _al_get_bitmap_display(other);
+
    /* We are basically done already. Except we now have to update everything
     * possibly referencing any of the two bitmaps.
     */
 
-   if (bitmap->display && !other->display) {
+   if (bitmap_display && !other_display) {
       /* This means before the swap, other was the display bitmap, and we
        * now should replace it with the swapped pointer.
        */
       ALLEGRO_BITMAP **back;
-      int pos = _al_vector_find(&bitmap->display->bitmaps, &other);
+      int pos = _al_vector_find(&bitmap_display->bitmaps, &other);
       ASSERT(pos >= 0);
-      back = _al_vector_ref(&bitmap->display->bitmaps, pos);
+      back = _al_vector_ref(&bitmap_display->bitmaps, pos);
       *back = bitmap;
    }
 
-   if (other->display && !bitmap->display) {
+   if (other_display && !bitmap_display) {
       ALLEGRO_BITMAP **back;
-      int pos = _al_vector_find(&other->display->bitmaps, &bitmap);
+      int pos = _al_vector_find(&other_display->bitmaps, &bitmap);
       ASSERT(pos >= 0);
-      back = _al_vector_ref(&other->display->bitmaps, pos);
+      back = _al_vector_ref(&other_display->bitmaps, pos);
       *back = other;
    }
 
@@ -152,7 +156,7 @@ void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
    /* If a cloned bitmap would be identical, we can just do nothing. */
    if (al_get_bitmap_format(bitmap) == al_get_new_bitmap_format() &&
          bitmap_flags == new_bitmap_flags &&
-         bitmap->display == al_get_current_display()) {
+         _al_get_bitmap_display(bitmap) == al_get_current_display()) {
       return;
    }
 

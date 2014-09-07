@@ -85,7 +85,7 @@ int al_draw_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
    if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP || (texture && al_get_bitmap_flags(texture) & ALLEGRO_MEMORY_BITMAP)) {
       ret =  _al_draw_prim_soft(texture, vtxs, decl, start, end, type);
    } else {
-      int flags = al_get_display_flags(target->display);
+      int flags = al_get_display_flags(_al_get_bitmap_display(target));
       if (flags & ALLEGRO_OPENGL) {
          ret =  _al_draw_prim_opengl(target, texture, vtxs, decl, start, end, type);
       } else if (flags & ALLEGRO_DIRECT3D) {
@@ -119,7 +119,7 @@ int al_draw_indexed_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
    if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP || (texture && al_get_bitmap_flags(texture) & ALLEGRO_MEMORY_BITMAP)) {
       ret =  _al_draw_prim_indexed_soft(texture, vtxs, decl, indices, num_vtx, type);
    } else {
-      int flags = al_get_display_flags(target->display);
+      int flags = al_get_display_flags(_al_get_bitmap_display(target));
       if (flags & ALLEGRO_OPENGL) {
          ret =  _al_draw_prim_indexed_opengl(target, texture, vtxs, decl, indices, num_vtx, type);
       } else if (flags & ALLEGRO_DIRECT3D) {
