@@ -1078,6 +1078,7 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
                 break;
              case D3DERR_DEVICELOST:
                 ALLEGRO_ERROR("D3DERR_DEVICELOST in reset.\n");
+                d3d_display->device_lost = true;
                 break;
              default:
                 ALLEGRO_ERROR("Direct3D Device reset failed (unknown reason).\n");
@@ -1124,8 +1125,26 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
        /* Must be 0 for windowed modes */
        d3d_pp.FullScreen_RefreshRateInHz = 0;
 
-       if (d3d_display->device->Reset(&d3d_pp) != D3D_OK) {
-          ALLEGRO_WARN("Reset failed\n");
+       HRESULT hr = d3d_display->device->Reset(&d3d_pp);
+       if (hr != D3D_OK) {
+          switch (hr) {
+             case D3DERR_INVALIDCALL:
+                ALLEGRO_ERROR("D3DERR_INVALIDCALL in reset.\n");
+                break;
+             case D3DERR_NOTAVAILABLE:
+                ALLEGRO_ERROR("D3DERR_NOTAVAILABLE in reset.\n");
+                break;
+             case D3DERR_OUTOFVIDEOMEMORY:
+                ALLEGRO_ERROR("D3DERR_OUTOFVIDEOMEMORY in reset.\n");
+                break;
+             case D3DERR_DEVICELOST:
+                ALLEGRO_ERROR("D3DERR_DEVICELOST in reset.\n");
+                d3d_display->device_lost = true;
+                break;
+             default:
+                ALLEGRO_ERROR("Direct3D Device reset failed (unknown reason).\n");
+                break;
+          }
           al_unlock_mutex(_al_d3d_lost_device_mutex);
           return 0;
        }
