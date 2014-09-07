@@ -381,6 +381,7 @@ bool al_set_shader_bool(const char *name, bool b)
 char const *al_get_default_shader_source(ALLEGRO_SHADER_PLATFORM platform,
    ALLEGRO_SHADER_TYPE type)
 {
+   (void)type;
    switch (resolve_platform(platform)) {
       case ALLEGRO_SHADER_GLSL:
 #ifdef ALLEGRO_CFG_SHADER_GLSL
@@ -449,6 +450,7 @@ ALLEGRO_SHADER *_al_create_default_shader(int display_flags)
 {
    ALLEGRO_SHADER_PLATFORM platform = ALLEGRO_SHADER_AUTO;
    ALLEGRO_SHADER *shader;
+   (void)display_flags;
 
    if (false) {
    }
