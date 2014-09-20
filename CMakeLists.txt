@@ -611,6 +611,13 @@ if(SUPPORT_X11)
         message(FATAL_ERROR "X11 support requires Xcursor library.")
     endif(CAN_XCURSOR)
 
+    check_include_file("X11/extensions/XInput2.h" CAN_XINPUT2)
+    if(CAN_XINPUT2)
+        list(APPEND X11_LIBRARIES "Xi")
+    else(CAN_XINPUT2)
+        message(FATAL_ERROR "X11 support requires XInput2 library.")
+    endif(CAN_XINPUT2)
+
     if(WANT_X11_XF86VIDMODE)
         check_include_file("X11/extensions/xf86vmode.h" HAVE_XF86VIDMODE_H)
         check_library_exists(Xxf86vm XF86VidModeQueryExtension "" CAN_XF86VIDMODE)

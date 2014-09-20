@@ -1,3 +1,5 @@
+#include <X11/extensions/XInput2.h>
+
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern_bitmap.h"
@@ -8,6 +10,7 @@
 #include "allegro5/internal/aintern_xfullscreen.h"
 #include "allegro5/internal/aintern_xglx_config.h"
 #include "allegro5/internal/aintern_xsystem.h"
+#include "allegro5/internal/aintern_xtouch.h"
 #include "allegro5/internal/aintern_xwindow.h"
 #include "allegro5/platform/aintxglx.h"
 
@@ -212,6 +215,19 @@ static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
    ALLEGRO_DEBUG("X11 window created.\n");
 
    _al_xwin_set_size_hints(display, x_off, y_off);
+
+   /* listen for touchscreen events */
+   XIEventMask event_mask;
+   event_mask.deviceid = XIAllDevices;
+   event_mask.mask_len = XIMaskLen(XI_TouchEnd);
+   event_mask.mask = (unsigned char*)al_calloc(3, sizeof(char));
+   XISetMask(event_mask.mask, XI_TouchBegin);
+   XISetMask(event_mask.mask, XI_TouchUpdate);
+   XISetMask(event_mask.mask, XI_TouchEnd);
+
+   XISelectEvents(system->x11display, d->window, &event_mask, 1);
+
+   al_free(event_mask.mask);
 
    return true;
 }

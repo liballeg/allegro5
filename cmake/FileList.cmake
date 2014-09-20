@@ -120,6 +120,7 @@ set(ALLEGRO_SRC_X_FILES
     src/x/xmousenu.c
     src/x/xrandr.c
     src/x/xsystem.c
+    src/x/xtouch.c
     src/x/xwindow.c
     src/linux/lhaptic.c
     src/linux/ljoynu.c

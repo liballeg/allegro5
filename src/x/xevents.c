@@ -10,6 +10,7 @@
 #include "allegro5/internal/aintern_xkeyboard.h"
 #include "allegro5/internal/aintern_xmouse.h"
 #include "allegro5/internal/aintern_xsystem.h"
+#include "allegro5/internal/aintern_xtouch.h"
 
 #ifdef ALLEGRO_RASPBERRYPI
 #include "allegro5/internal/aintern_raspberrypi.h"
@@ -157,8 +158,9 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
             d->embedder_window = None;
          }
          break;
- 
+
       default:
+         _al_x_handle_touch_event(s, d, &event);
          _al_xglx_handle_mmon_event(s, d, &event);
          break;
 #endif
