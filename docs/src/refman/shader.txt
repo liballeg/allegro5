@@ -249,6 +249,15 @@ See also: [al_create_shader]
 Sets a texture sampler uniform and texture unit of the current target bitmap's
 shader. The given bitmap must be a video bitmap.
 
+Different samplers should use different units. The bitmap passed to Allegro's
+drawing functions uses the 0th unit, so if you're planning on using the
+`al_tex` variable in your pixel shader as well as another sampler, set the
+other sampler to use a unit different from 0. With the primitives addon, it is
+possible to free up the 0th unit by passing `NULL` as the texture argument to
+the relevant drawing functions. In this case, you may set a sampler to use the
+0th unit and thus not use `al_tex` (the `al_use_tex` variable will be set to
+`false`).
+
 Returns true on success. Otherwise returns false, e.g. if the uniform by that
 name does not exist in the shader.
 
