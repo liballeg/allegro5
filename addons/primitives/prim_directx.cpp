@@ -377,15 +377,9 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
          device->SetTexture(0, d3d_texture);
 
       } else {
-         if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-            /* Don't unbind the texture here, since the user may have set the
-             * 0'th texture unit manually via the shader API. Instead, just inform
-             * the shader that the texture should not be used. */
-            d3d_disp->effect->SetBool(ALLEGRO_SHADER_VAR_USE_TEX, false);
-         }
-         else {
-            /* No shaders, no way to set a texture in an alternate way,
-             * no chance of confusion. */
+         /* Don't unbind the texture here if shaders are used, since the user may
+          * have set the 0'th texture unit manually via the shader API. */
+         if (!(disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
             device->SetTexture(0, NULL);
          }
       }
