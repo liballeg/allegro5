@@ -320,7 +320,19 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
       }
    } else {
-      glBindTexture(GL_TEXTURE_2D, 0);
+      if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
+         /* Don't unbind the texture here, since the user may have set the
+          * 0'th texture unit manually via the shader API. Instead, just inform
+          * the shader that the texture should not be used. */
+         if (display->ogl_extras->varlocs.use_tex_loc >= 0) {
+            glUniform1i(display->ogl_extras->varlocs.use_tex_loc, 0);
+         }
+      }
+      else {
+         /* No shaders, no way to set a texture in an alternate way,
+          * no chance of confusion. */
+         glBindTexture(GL_TEXTURE_2D, 0);
+      }
    }
 }
 
