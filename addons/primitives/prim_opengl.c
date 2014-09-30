@@ -139,7 +139,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          e = &decl->elements[ALLEGRO_PRIM_TEX_COORD];
          if(!e->attribute)
             e = &decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
-         if(texture && e->attribute) {
+         if(e->attribute) {
             convert_storage(e->storage, &type, &ncoord, &normalized);
 
             if (display->ogl_extras->varlocs.texcoord_loc >= 0) {
