@@ -302,8 +302,8 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
             glUniform1i(display->ogl_extras->varlocs.use_tex_loc, 1);
          }
          if (display->ogl_extras->varlocs.tex_loc >= 0) {
-            glBindTexture(GL_TEXTURE_2D, al_get_opengl_texture(texture));
             glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, al_get_opengl_texture(texture));
             glUniform1i(display->ogl_extras->varlocs.tex_loc, 0); // 0th sampler
          }
          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
