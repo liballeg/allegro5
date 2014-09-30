@@ -127,7 +127,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
             convert_storage(e->storage, &type, &ncoord, &normalized);
 
             if (display->ogl_extras->varlocs.pos_loc >= 0) {
-	       glVertexAttribPointer(display->ogl_extras->varlocs.pos_loc, ncoord, type, normalized, decl->stride, vtxs + e->offset);
+               glVertexAttribPointer(display->ogl_extras->varlocs.pos_loc, ncoord, type, normalized, decl->stride, vtxs + e->offset);
                glEnableVertexAttribArray(display->ogl_extras->varlocs.pos_loc);
             }
          } else {
@@ -143,7 +143,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
             convert_storage(e->storage, &type, &ncoord, &normalized);
 
             if (display->ogl_extras->varlocs.texcoord_loc >= 0) {
-	       glVertexAttribPointer(display->ogl_extras->varlocs.texcoord_loc, ncoord, type, normalized, decl->stride, vtxs + e->offset);
+               glVertexAttribPointer(display->ogl_extras->varlocs.texcoord_loc, ncoord, type, normalized, decl->stride, vtxs + e->offset);
                glEnableVertexAttribArray(display->ogl_extras->varlocs.texcoord_loc);
             }
          } else {
@@ -155,7 +155,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          e = &decl->elements[ALLEGRO_PRIM_COLOR_ATTR];
          if(e->attribute) {
             if (display->ogl_extras->varlocs.color_loc >= 0) {
-	       glVertexAttribPointer(display->ogl_extras->varlocs.color_loc, 4, GL_FLOAT, true, decl->stride, vtxs + e->offset);
+               glVertexAttribPointer(display->ogl_extras->varlocs.color_loc, 4, GL_FLOAT, true, decl->stride, vtxs + e->offset);
                glEnableVertexAttribArray(display->ogl_extras->varlocs.color_loc);
             }
          } else {
@@ -170,7 +170,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
                convert_storage(e->storage, &type, &ncoord, &normalized);
 
                if (display->ogl_extras->varlocs.user_attr_loc[i] >= 0) {
-		  glVertexAttribPointer(display->ogl_extras->varlocs.user_attr_loc[i], ncoord, type, normalized, decl->stride, vtxs + e->offset);
+                  glVertexAttribPointer(display->ogl_extras->varlocs.user_attr_loc[i], ncoord, type, normalized, decl->stride, vtxs + e->offset);
                   glEnableVertexAttribArray(display->ogl_extras->varlocs.user_attr_loc[i]);
                }
             } else {
