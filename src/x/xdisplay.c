@@ -218,7 +218,7 @@ static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
 
    /* listen for touchscreen events */
    XIEventMask event_mask;
-   event_mask.deviceid = XIAllDevices;
+   event_mask.deviceid = XIAllMasterDevices;
    event_mask.mask_len = XIMaskLen(XI_TouchEnd);
    event_mask.mask = (unsigned char*)al_calloc(3, sizeof(char));
    XISetMask(event_mask.mask, XI_TouchBegin);

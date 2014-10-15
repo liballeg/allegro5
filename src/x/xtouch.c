@@ -422,6 +422,11 @@ void _al_x_handle_touch_event(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, X
          XIDeviceEvent *devev;
 
          devev = cookie->data;
+
+         /* ignore events from a different display */
+         if (devev->display != x11display)
+            return;
+
          switch (devev->evtype) {
             case XI_TouchBegin:
                /* the next new touch gets primary flag if it's not set */
