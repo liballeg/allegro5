@@ -1,0 +1,28 @@
+language: c++
+
+os:
+  - osx
+  - linux
+
+compiler:
+  - clang
+  - gcc
+
+before_install:
+    - if [ `uname` = "Linux" ]; then
+          sudo apt-get install -y libvorbis-dev;
+      elif [ `uname` = "Darwin" ]; then
+          brew install vorbis;
+      fi
+
+before_script:
+  - mkdir build
+  - cd build
+  - cmake ..
+
+script:
+    - if [ `uname` = "Linux" ]; then
+          make;
+      elif [ `uname` = "Darwin" ]; then
+          xcodebuild;
+      fi
