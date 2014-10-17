@@ -10,9 +10,9 @@ compiler:
 
 before_install:
     - if [ `uname` = "Linux" ]; then
-         export DISPLAY=:99.0
-         sh -e /etc/init.d/xvfb start
-         sudo apt-get install -y libvorbis-dev libtheora-dev libphysfs-dev libdumb1-dev libflac-dev libpulse-dev libgtk2.0-dev pandoc
+         export DISPLAY=:99.0;
+         sh -e /etc/init.d/xvfb start;
+         sudo apt-get install -y libvorbis-dev libtheora-dev libphysfs-dev libdumb1-dev libflac-dev libpulse-dev libgtk2.0-dev pandoc;
       elif [ `uname` = "Darwin" ]; then
           brew install vorbis;
       fi
@@ -25,7 +25,7 @@ before_script:
 script:
     - if [ `uname` = "Linux" ]; then
           make;
-          tests/test_driver ../tests/test_*.ini
+          tests/test_driver ../tests/test_*.ini;
       elif [ `uname` = "Darwin" ]; then
           xcodebuild;
       fi
