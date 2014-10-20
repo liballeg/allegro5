@@ -903,10 +903,10 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
 	  
       return;
    }
-   [view setOpenGLContext: dpy->ctx];
-   [view setPixelFormat: fmt];
    /* Hook up the view to its display */
    [view setAllegroDisplay: &dpy->parent];
+   [view setOpenGLContext: dpy->ctx];
+   [view setPixelFormat: fmt];
    /* Realize the window on the main thread */
    [win setContentView: view];
    [win setDelegate: view];
