@@ -31,6 +31,7 @@
 #define _ALLEGRO_MAX(x,y)     (((x) > (y)) ? (x) : (y))
 #define _ALLEGRO_CLAMP(x,y,z) _ALLEGRO_MAX((x), _ALLEGRO_MIN((y), (z)))
 
+int _al_get_least_multiple(int val, int mul);
 
 /* message stuff */
 #define ALLEGRO_MESSAGE_SIZE  4096

@@ -50,6 +50,9 @@ typedef enum ALLEGRO_PIXEL_FORMAT
    ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE      = 25,
    ALLEGRO_PIXEL_FORMAT_RGBA_4444         = 26,
    ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8  = 27,
+   ALLEGRO_PIXEL_FORMAT_RGBA_DXT1         = 28,
+   ALLEGRO_PIXEL_FORMAT_RGBA_DXT3         = 29,
+   ALLEGRO_PIXEL_FORMAT_RGBA_DXT5         = 30,
    ALLEGRO_NUM_PIXEL_FORMATS
 } ALLEGRO_PIXEL_FORMAT;
 
@@ -69,7 +72,8 @@ AL_FUNC(void, al_unmap_rgba_f, (ALLEGRO_COLOR color, float *r, float *g, float *
 /* Pixel formats */
 AL_FUNC(int, al_get_pixel_size, (int format));
 AL_FUNC(int, al_get_pixel_format_bits, (int format));
-
+AL_FUNC(int, al_get_pixel_block_size, (int format));
+AL_FUNC(int, al_get_pixel_block_width, (int format));
 
 #ifdef __cplusplus
    }

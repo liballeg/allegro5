@@ -692,6 +692,7 @@ if(WIN32)
         find_package(D3DX9)
         if(D3DX9_FOUND)
             include_directories(BEFORE SYSTEM ${D3DX9_INCLUDE_DIR})
+            set(ALLEGRO_CFG_D3DX9 1)
         endif(D3DX9_FOUND)
    endif(SUPPORT_D3D)
 

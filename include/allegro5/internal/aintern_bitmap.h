@@ -26,6 +26,9 @@ struct ALLEGRO_BITMAP
    int _format;
    int _flags;
    ALLEGRO_DISPLAY *_display;
+   /* What format is used for the backing memory
+    * (can be different, for e.g. compressed bitmaps) */
+   int _memory_format;
 
    int w, h;
    /*
@@ -107,10 +110,14 @@ struct ALLEGRO_BITMAP_INTERFACE
    void (*destroy_bitmap)(ALLEGRO_BITMAP *bitmap);
 
    ALLEGRO_LOCKED_REGION * (*lock_region)(ALLEGRO_BITMAP *bitmap,
-   	int x, int y, int w, int h, int format,
-	int flags);
+      int x, int y, int w, int h, int format, int flags);
 
    void (*unlock_region)(ALLEGRO_BITMAP *bitmap);
+
+   ALLEGRO_LOCKED_REGION * (*lock_compressed_region)(ALLEGRO_BITMAP *bitmap,
+      int x, int y, int w, int h, int flags);
+
+   void (*unlock_compressed_region)(ALLEGRO_BITMAP *bitmap);
 
    /* Used to update any dangling pointers the bitmap driver might keep. */
    void (*bitmap_pointer_changed)(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *old);
@@ -132,6 +139,11 @@ void _al_convert_bitmap_data(
 	int sx, int sy, int dx, int dy,
 	int width, int height);
 
+void _al_copy_bitmap_data(
+   const void *src, int src_pitch, void *dst, int dst_pitch,
+   int sx, int sy, int dx, int dy, int width, int height,
+   int format);
+
 /* Bitmap type conversion */ 
 void _al_init_convert_bitmap_list(void);
 void _al_register_convert_bitmap(ALLEGRO_BITMAP *bitmap);
@@ -145,6 +157,8 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color);
 /* Bitmap I/O */
 void _al_init_iio_table(void);
 
+
+int _al_get_bitmap_memory_format(ALLEGRO_BITMAP *bitmap);
 
 #ifdef __cplusplus
 }

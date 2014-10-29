@@ -28,10 +28,13 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_LOCKED_REGION *lr;
    int bitmap_format = al_get_bitmap_format(bitmap);
    int bitmap_flags = al_get_bitmap_flags(bitmap);
+   int block_width = al_get_pixel_block_width(bitmap_format);
+   int xc, yc, wc, hc;
    ASSERT(x >= 0);
    ASSERT(y >= 0);
    ASSERT(width >= 0);
    ASSERT(height >= 0);
+   ASSERT(!_al_pixel_format_is_video_only(format));
 
    /* For sub-bitmaps */
    if (bitmap->parent) {
@@ -50,11 +53,24 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
    ASSERT(x+width <= bitmap->w);
    ASSERT(y+height <= bitmap->h);
 
-   bitmap->lock_x = x;
-   bitmap->lock_y = y;
-   bitmap->lock_w = width;
-   bitmap->lock_h = height;
+   xc = (x / block_width) * block_width;
+   yc = (y / block_width) * block_width;
+   wc = _al_get_least_multiple(x + width, block_width) - xc;
+   hc = _al_get_least_multiple(y + height, block_width) - yc;
+
+   bitmap->lock_x = xc;
+   bitmap->lock_y = yc;
+   bitmap->lock_w = wc;
+   bitmap->lock_h = hc;
    bitmap->lock_flags = flags;
+
+   if (flags == ALLEGRO_LOCK_WRITEONLY
+         && (xc != x || yc != y || wc != width || hc != height)) {
+      /* Unaligned write-only access requires that we fill in the padding
+       * from the texture.
+       * XXX: In principle, this could be done more efficiently. */
+      flags = ALLEGRO_LOCK_READWRITE;
+   }
 
    if (bitmap_flags & ALLEGRO_MEMORY_BITMAP) {
       int f = _al_get_real_pixel_format(al_get_current_display(), format);
@@ -64,31 +80,34 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
       ASSERT(bitmap->memory);
       if (format == ALLEGRO_PIXEL_FORMAT_ANY || bitmap_format == format || bitmap_format == f) {
          bitmap->locked_region.data = bitmap->memory
-            + bitmap->pitch * y + x * al_get_pixel_size(bitmap_format);
+            + bitmap->pitch * yc + xc * al_get_pixel_size(bitmap_format);
          bitmap->locked_region.format = bitmap_format;
          bitmap->locked_region.pitch = bitmap->pitch;
          bitmap->locked_region.pixel_size = al_get_pixel_size(bitmap_format);
       }
       else {
-         bitmap->locked_region.pitch = al_get_pixel_size(f) * width;
-         bitmap->locked_region.data = al_malloc(bitmap->locked_region.pitch*height);
+         bitmap->locked_region.pitch = al_get_pixel_size(f) * wc;
+         bitmap->locked_region.data = al_malloc(bitmap->locked_region.pitch*hc);
          bitmap->locked_region.format = f;
          bitmap->locked_region.pixel_size = al_get_pixel_size(f);
          if (!(bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY)) {
             _al_convert_bitmap_data(
                bitmap->memory, bitmap_format, bitmap->pitch,
                bitmap->locked_region.data, f, bitmap->locked_region.pitch,
-               x, y, 0, 0, width, height);
+               xc, yc, 0, 0, wc, hc);
          }
       }
       lr = &bitmap->locked_region;
    }
    else {
-      lr = bitmap->vt->lock_region(bitmap, x, y, width, height, format, flags);
+      lr = bitmap->vt->lock_region(bitmap, xc, yc, wc, hc, format, flags);
       if (!lr) {
          return NULL;
       }
    }
+
+   /* Fixup the data pointer for unaligned access */
+   lr->data = (char*)lr->data + (xc - x) * lr->pixel_size + (yc - y) * lr->pitch;
 
    bitmap->locked = true;
 
@@ -116,7 +135,10 @@ void al_unlock_bitmap(ALLEGRO_BITMAP *bitmap)
    }
 
    if (!(al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP)) {
-      bitmap->vt->unlock_region(bitmap);
+      if (_al_pixel_format_is_compressed(bitmap->locked_region.format))
+         bitmap->vt->unlock_compressed_region(bitmap);
+      else
+         bitmap->vt->unlock_region(bitmap);
    }
    else {
       if (bitmap->locked_region.format != 0 && bitmap->locked_region.format != bitmap_format) {
@@ -141,5 +163,80 @@ bool al_is_bitmap_locked(ALLEGRO_BITMAP *bitmap)
    return bitmap->locked;
 }
 
+/* Function: al_lock_bitmap_region_blocked
+ */
+ALLEGRO_LOCKED_REGION *al_lock_bitmap_blocked(ALLEGRO_BITMAP *bitmap,
+   int flags)
+{
+   int bitmap_format = al_get_bitmap_format(bitmap);
+   int block_width = al_get_pixel_block_width(bitmap_format);
+   
+   return al_lock_bitmap_region_blocked(bitmap, 0, 0, 
+      _al_get_least_multiple(bitmap->w, block_width) / block_width,
+      _al_get_least_multiple(bitmap->h, block_width) / block_width,
+      flags);
+}
+
+/* Function: al_lock_bitmap_region_blocked
+ */
+ALLEGRO_LOCKED_REGION *al_lock_bitmap_region_blocked(ALLEGRO_BITMAP *bitmap,
+   int x_block, int y_block, int width_block, int height_block, int flags)
+{
+   ALLEGRO_LOCKED_REGION *lr;
+   int bitmap_format = al_get_bitmap_format(bitmap);
+   int bitmap_flags = al_get_bitmap_flags(bitmap);
+   int block_width = al_get_pixel_block_width(bitmap_format);
+   ASSERT(x_block >= 0);
+   ASSERT(y_block >= 0);
+   ASSERT(width_block >= 0);
+   ASSERT(height_block >= 0);
+   
+   if (block_width == 1 && !_al_pixel_format_is_video_only(bitmap_format)) {
+      return al_lock_bitmap_region(bitmap, x_block, y_block, width_block,
+         height_block, bitmap_format, flags);
+   }
+   
+   /* Currently, this is the only format that gets to this point */
+   ASSERT(_al_pixel_format_is_compressed(bitmap_format));
+   ASSERT(!(bitmap_flags & ALLEGRO_MEMORY_BITMAP));
+   
+   /* For sub-bitmaps */
+   if (bitmap->parent) {
+      if (bitmap->xofs % block_width != 0
+            || bitmap->yofs % block_width != 0) {
+         return NULL;
+      }
+      x_block += bitmap->xofs / block_width;
+      y_block += bitmap->yofs / block_width;
+      bitmap = bitmap->parent;
+   }
+
+   if (bitmap->locked)
+      return NULL;
+
+   if (!(flags & ALLEGRO_LOCK_READONLY))
+      bitmap->dirty = true;
+
+   ASSERT(x_block + width_block
+      <= _al_get_least_multiple(bitmap->w, block_width) / block_width);
+   ASSERT(y_block + height_block
+      <= _al_get_least_multiple(bitmap->h, block_width) / block_width);
+
+   bitmap->lock_x = x_block * block_width;
+   bitmap->lock_y = y_block * block_width;
+   bitmap->lock_w = width_block * block_width;
+   bitmap->lock_h = height_block * block_width;
+   bitmap->lock_flags = flags;
+
+   lr = bitmap->vt->lock_compressed_region(bitmap, bitmap->lock_x, 
+      bitmap->lock_y, bitmap->lock_w, bitmap->lock_h, flags);
+   if (!lr) {
+      return NULL;
+   }
+
+   bitmap->locked = true;
+
+   return lr;
+}
 
 /* vim: set ts=8 sts=3 sw=3 et: */

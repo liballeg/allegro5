@@ -107,7 +107,7 @@ int main(int argc, char **argv)
             
         if (redraw && al_is_event_queue_empty(queue)) {
             redraw = false;
-            al_clear_to_color(al_map_rgb_f(0, 0, 0));
+            al_clear_to_color(al_map_rgb_f(0.1, 0, 0.1));
             if (zoom == 1)
                 al_draw_bitmap(bitmap, 0, 0, 0);
             else

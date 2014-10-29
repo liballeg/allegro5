@@ -65,7 +65,8 @@ void al_draw_pixel(float x, float y, ALLEGRO_COLOR color)
 
    ASSERT(target);
 
-   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP) {
+   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP
+         || _al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
       _al_draw_pixel_memory(target, x, y, &color);
    }
    else {
