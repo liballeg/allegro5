@@ -249,7 +249,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
 int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    ALLEGRO_NATIVE_DIALOG *fd)
 {
-   UINT type = 0;
+   UINT type = MB_SYSTEMMODAL;
    int result;
 
    uint16_t *wide_text, *wide_title;
