@@ -1,7 +1,7 @@
 Android
 =======
 
-This port should support Android 1.6 (Donut) and above.
+This port should support Android 2.3 (Gingerbread) and above.
 Confirmed working on Android 2.1 and 2.2 devices at least.
 
 
@@ -16,12 +16,35 @@ We assume you are building on Linux or otherwise a Unix-like system,
 including MSYS.
 
 
+Install the SDK
+===============
+
+
+Start by extracting the SDK. You then need to add the SDK to your PATH
+environment variable. If you installed the SDK in $HOME/android-sdk, add
+$HOME/android-sdk/tools to your PATH.
+
+Once extracted you must run "android" (or android.bat on Windows) and install
+a version of the SDK. Allegro needs version 10 (2.3.3) so install that. You
+can use a higher version for your game later if you like.
+
+Also make sure the JAVA_HOME environment variable is set to your JDK
+directory (not always the case.)
+
+
+Install the NDK
+===============
+
+
+Extract the NDK and add it to your PATH. If you installed the NDK in
+$HOME/android-ndk, add $HOME/android-ndk to your PATH.
+
+
 Make NDK standalone toolchain
 =============================
 
-After extracting the Android SDK and NDK to known locations, you need to
-setup a standalone NDK toolchain.  Set an environment variable to point to the
-desired location of the Android toolchain:
+Next you need to setup a standalone NDK toolchain. Set an environment
+variable to point to the desired location of the Android toolchain:
 
     export TC=$HOME/android-toolchain
 
@@ -31,7 +54,7 @@ command:
     $HOME/android-ndk/build/tools/make-standalone-toolchain.sh \
         --platform=android-9 --install-dir=$TC --stl=stlport
 
-You can use any platform 9 or higher. This command was last tested on ndk7.
+You can use any platform 9 or higher. This command was last tested on ndk10d.
 
 
 Build dependencies for Allegro
@@ -90,8 +113,6 @@ The following steps will build Allegro for Android:
     cmake .. -DANDROID_NDK_TOOLCHAIN_ROOT=$TC -DWANT_ANDROID=on \
         -DCMAKE_BUILD_TYPE=Debug  # -G"MSYS Makefiles"
     make
-
-Stick with the Debug build configuration for now.
 
 This produces the normal Allegro native libraries (liballegro-*.so) as
 well as Allegro5.jar.  You do not need to, but you may run `make install`
