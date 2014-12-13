@@ -257,14 +257,15 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
 typedef struct MessageBoxData {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_NATIVE_DIALOG *fd;
+   ALLEGRO_COND *cond;
+   int result;
 } MessageBoxData;
-
-static int _al_messagebox_return_value;
 
 static void _al_messagebox_callback(void *data)
 {
-   ALLEGRO_DISPLAY *display = ((MessageBoxData *)data)->display;
-   ALLEGRO_NATIVE_DIALOG *fd = ((MessageBoxData *)data)->fd;
+   MessageBoxData *d = (MessageBoxData *)data;
+   ALLEGRO_DISPLAY *display = d->display;
+   ALLEGRO_NATIVE_DIALOG *fd = d->fd;
    UINT type = 0;
    int result;
 
@@ -299,14 +300,16 @@ static void _al_messagebox_callback(void *data)
 
    wide_text = al_malloc(text_len + 1);
    if (!wide_text) {
-      _al_messagebox_return_value = 0;
+      d->result = 0;
+      al_signal_cond(d->cond);
       return;
    }
 
    wide_title = al_malloc(title_len + 1);
    if (!wide_title) {
       al_free(wide_text);
-      _al_messagebox_return_value = 0;
+      d->result = 0;
+      al_signal_cond(d->cond);
       return;
    }
 
@@ -320,29 +323,39 @@ static void _al_messagebox_callback(void *data)
    al_free(wide_title);
 
    if (result == IDYES || result == IDOK) {
-      _al_messagebox_return_value = 1;
+      d->result = 1;
    }
    else {
-      _al_messagebox_return_value = 0;
+      d->result = 0;
    }
+   al_signal_cond(d->cond);
 }
 
 int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    ALLEGRO_NATIVE_DIALOG *fd)
 {
    MessageBoxData data;
+   ALLEGRO_MUTEX *mutex;
+
    data.display = display;
    data.fd = fd;
+   data.cond = al_create_cond();
+   data.result = -1;
 
-   _al_messagebox_return_value = -1;
+   mutex = al_create_mutex();
 
    SendMessage(al_get_win_window_handle(display), _ALLEGRO_WM_CALLBACK, (WPARAM)_al_messagebox_callback, (LPARAM)&data);
 
-   while (_al_messagebox_return_value == -1) {
-      al_rest(1);
+   al_lock_mutex(mutex);
+   while (data.result == -1) {
+      al_wait_cond(data.cond, mutex);
    }
+   al_unlock_mutex(mutex);
 
-   return _al_messagebox_return_value;
+   al_destroy_cond(data.cond);
+   al_destroy_mutex(mutex);
+
+   return data.result;
 }
 
 /* Emit close event. */
