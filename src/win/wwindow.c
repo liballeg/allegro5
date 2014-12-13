@@ -54,6 +54,7 @@ UINT _al_win_msg_call_proc = 0;
 UINT _al_win_msg_suicide = 0;
 
 
+
 static void display_flags_to_window_styles(int flags,
    DWORD *style, DWORD *ex_style)
 {
@@ -898,9 +899,6 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             win_display->can_acknowledge = true;
          }
          break;
-      case _ALLEGRO_WM_CALLBACK:
-         ((void (*)(void *))wParam)((void *)lParam);
-         return 0;
    }
 
    return DefWindowProc(hWnd,message,wParam,lParam);

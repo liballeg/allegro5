@@ -246,27 +246,10 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    return true;
 }
 
-/* MessageBox needs to be called on the thread the window was created on or
- * the popup won't get keyboard focus. Allegro therefore defines a window
- * message called _ALLEGRO_WM_CALLBACK which takes a function pointer (in
- * WPARAM) and void * data (in LPARAM). The function is then called on the
- * window thread with the pointer as the only parameter. That's what the
- * following two functions do.
- */
-
-typedef struct MessageBoxData {
-   ALLEGRO_DISPLAY *display;
-   ALLEGRO_NATIVE_DIALOG *fd;
-   ALLEGRO_COND *cond;
-   int result;
-} MessageBoxData;
-
-static void _al_messagebox_callback(void *data)
+int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
+   ALLEGRO_NATIVE_DIALOG *fd)
 {
-   MessageBoxData *d = (MessageBoxData *)data;
-   ALLEGRO_DISPLAY *display = d->display;
-   ALLEGRO_NATIVE_DIALOG *fd = d->fd;
-   UINT type = 0;
+   UINT type = MB_SETFOREGROUND;
    int result;
 
    uint16_t *wide_text, *wide_title;
@@ -299,18 +282,13 @@ static void _al_messagebox_callback(void *data)
    title_len = al_ustr_size_utf16(fd->title);
 
    wide_text = al_malloc(text_len + 1);
-   if (!wide_text) {
-      d->result = 0;
-      al_signal_cond(d->cond);
-      return;
-   }
+   if (!wide_text)
+      return 0;
 
    wide_title = al_malloc(title_len + 1);
    if (!wide_title) {
       al_free(wide_text);
-      d->result = 0;
-      al_signal_cond(d->cond);
-      return;
+      return 0;
    }
 
    al_ustr_encode_utf16(fd->mb_heading, wide_text, text_len);
@@ -322,41 +300,12 @@ static void _al_messagebox_callback(void *data)
    al_free(wide_text);
    al_free(wide_title);
 
-   if (result == IDYES || result == IDOK) {
-      d->result = 1;
-   }
-   else {
-      d->result = 0;
-   }
-   al_signal_cond(d->cond);
+   if (result == IDYES || result == IDOK)
+      return 1;
+   else
+      return 0;
 }
 
-int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
-   ALLEGRO_NATIVE_DIALOG *fd)
-{
-   MessageBoxData data;
-   ALLEGRO_MUTEX *mutex;
-
-   data.display = display;
-   data.fd = fd;
-   data.cond = al_create_cond();
-   data.result = -1;
-
-   mutex = al_create_mutex();
-
-   SendMessage(al_get_win_window_handle(display), _ALLEGRO_WM_CALLBACK, (WPARAM)_al_messagebox_callback, (LPARAM)&data);
-
-   al_lock_mutex(mutex);
-   while (data.result == -1) {
-      al_wait_cond(data.cond, mutex);
-   }
-   al_unlock_mutex(mutex);
-
-   al_destroy_cond(data.cond);
-   al_destroy_mutex(mutex);
-
-   return data.result;
-}
 
 /* Emit close event. */
 static void wlog_emit_close_event(ALLEGRO_NATIVE_DIALOG *textlog, bool keypress)
