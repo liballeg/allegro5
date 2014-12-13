@@ -259,6 +259,14 @@ typedef struct tagTOUCHINPUT {
 #define _AL_NID_READY                        0x80
 
 
+/* The native dialog addon needs to call MessageBox on the thread
+ * that created the window. Calling Send/PostMessage with this
+ * message will call the function passed in WPARAM with the pointer
+ * passed in LPARAM as the only parameter.
+ */
+#define _ALLEGRO_WM_CALLBACK                 WM_USER
+
+
 /* set of function required to handle touch input on Windows */
 typedef BOOL (WINAPI *CLOSETOUCHINPUTHANDLEPROC)(HANDLE hTouchInput);
 typedef BOOL (WINAPI *GETTOUCHINPUTINFOPROC)(HANDLE hTouchInput, UINT cInputs, PTOUCHINPUT pInputs, int cbSize);
