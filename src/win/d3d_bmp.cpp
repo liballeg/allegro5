@@ -46,14 +46,12 @@ static bool convert_compressed(LPDIRECT3DTEXTURE9 dest, LPDIRECT3DTEXTURE9 src,
    LPDIRECT3DSURFACE9 dest_texture_surface = NULL;
    LPDIRECT3DSURFACE9 src_texture_surface = NULL;
 
-   if (dest->GetSurfaceLevel(
-         0, &dest_texture_surface) != D3D_OK) {
+   if (dest->GetSurfaceLevel(0, &dest_texture_surface) != D3D_OK) {
       ALLEGRO_ERROR("convert_compressed: GetSurfaceLevel failed on dest.\n");
       ok = false;
    }
 
-   if (ok && src->GetSurfaceLevel(
-         0, &src_texture_surface) != D3D_OK) {
+   if (ok && src->GetSurfaceLevel(0, &src_texture_surface) != D3D_OK) {
       ALLEGRO_ERROR("convert_compressed: GetSurfaceLevel failed on src.\n");
       ok = false;
    }
@@ -64,15 +62,15 @@ static bool convert_compressed(LPDIRECT3DTEXTURE9 dest, LPDIRECT3DTEXTURE9 src,
    rect.right = x + width;
    rect.bottom = y + height;
 
-   if (ok && _al_imp_D3DXLoadSurfaceFromSurface(
-         dest_texture_surface,
-         NULL,
-         &rect,
-         src_texture_surface,
-         NULL,
-         &rect,
-         D3DX_FILTER_NONE,
-         0) != D3D_OK) {
+   if (ok &&
+       _al_imp_D3DXLoadSurfaceFromSurface(dest_texture_surface,
+                                          NULL,
+                                          &rect,
+                                          src_texture_surface,
+                                          NULL,
+                                          &rect,
+                                          D3DX_FILTER_NONE,
+                                          0) != D3D_OK) {
       ALLEGRO_ERROR("convert_compressed: D3DXLoadSurfaceFromSurface failed.\n");
    }
 
@@ -236,8 +234,8 @@ static void d3d_sync_bitmap_memory(ALLEGRO_BITMAP *bitmap)
    LPDIRECT3DTEXTURE9 texture;
    int bitmap_format = al_get_bitmap_format(bitmap);
 
-   if (_al_d3d_render_to_texture_supported()
-      && !_al_pixel_format_is_compressed(bitmap_format))
+   if (_al_d3d_render_to_texture_supported() &&
+       !_al_pixel_format_is_compressed(bitmap_format))
       texture = d3d_bmp->system_texture;
    else
       texture = d3d_bmp->video_texture;
@@ -245,8 +243,8 @@ static void d3d_sync_bitmap_memory(ALLEGRO_BITMAP *bitmap)
    if (texture->LockRect(0, &locked_rect, NULL, 0) == D3D_OK) {
       int block_size = al_get_pixel_block_size(bitmap_format);
       int block_width = al_get_pixel_block_width(bitmap_format);
-      int mem_pitch = _al_get_least_multiple(bitmap->w, block_width)
-         * block_size / block_width;
+      int mem_pitch = _al_get_least_multiple(bitmap->w, block_width) *
+         block_size / block_width;
       _al_copy_bitmap_data(locked_rect.pBits, locked_rect.Pitch,
          bitmap->memory, mem_pitch,
          0, 0, 0, 0, _al_get_least_multiple(bitmap->w, block_width),
@@ -275,8 +273,8 @@ static void d3d_sync_bitmap_texture(ALLEGRO_BITMAP *bitmap,
    rect.right = x + width;
    rect.bottom = y + height;
 
-   if (_al_d3d_render_to_texture_supported()
-         && !_al_pixel_format_is_compressed(bitmap_format))
+   if (_al_d3d_render_to_texture_supported() &&
+       !_al_pixel_format_is_compressed(bitmap_format))
       texture = d3d_bmp->system_texture;
    else
       texture = d3d_bmp->video_texture;
@@ -284,8 +282,8 @@ static void d3d_sync_bitmap_texture(ALLEGRO_BITMAP *bitmap,
    if (texture->LockRect(0, &locked_rect, &rect, 0) == D3D_OK) {
       int block_size = al_get_pixel_block_size(bitmap_format);
       int block_width = al_get_pixel_block_width(bitmap_format);
-      int mem_pitch = _al_get_least_multiple(bitmap->w, block_width)
-         * block_size / block_width;
+      int mem_pitch = _al_get_least_multiple(bitmap->w, block_width) *
+         block_size / block_width;
       _al_copy_bitmap_data(bitmap->memory, mem_pitch,
          locked_rect.pBits, locked_rect.Pitch,
          x, y, 0, 0, width, height, bitmap_format);
@@ -933,13 +931,12 @@ static void d3d_unlock_region(ALLEGRO_BITMAP *bitmap)
          int block_width = al_get_pixel_block_width(bitmap_format);
          int xc = (bitmap->lock_x / block_width) * block_width;
          int yc = (bitmap->lock_y / block_width) * block_width;
-         int wc = _al_get_least_multiple(
-            bitmap->lock_x + bitmap->lock_w, block_width) - xc;
-         int hc = _al_get_least_multiple(
-            bitmap->lock_y + bitmap->lock_h, block_width) - yc;
+         int wc =
+            _al_get_least_multiple(bitmap->lock_x + bitmap->lock_w, block_width) - xc;
+         int hc =
+            _al_get_least_multiple(bitmap->lock_y + bitmap->lock_h, block_width) - yc;
          if(!convert_compressed(
-            d3d_bmp->video_texture, d3d_bmp->system_texture,
-            xc, yc, wc, hc)) {
+            d3d_bmp->video_texture, d3d_bmp->system_texture, xc, yc, wc, hc)) {
             ALLEGRO_ERROR("Could not compress.\n");
          }
       }
@@ -963,10 +960,10 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_compressed_region(
 {
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
    int bitmap_format = al_get_bitmap_format(bitmap);
-   
+
    if (d3d_bmp->display->device_lost)
       return NULL;
-   
+
    ASSERT(_al_pixel_format_is_compressed(bitmap_format));
 
    RECT rect;
@@ -976,12 +973,12 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_compressed_region(
    rect.right = x + w;
    rect.top = y;
    rect.bottom = y + h;
-   
+
    if (d3d_bmp->video_texture->LockRect(0, &d3d_bmp->locked_rect, &rect, Flags) != D3D_OK) {
       ALLEGRO_ERROR("LockRect failed in d3d_lock_region.\n");
       return NULL;
    }
-   
+
    bitmap->locked_region.data = d3d_bmp->locked_rect.pBits;
    bitmap->locked_region.format = bitmap_format;
    bitmap->locked_region.pitch = d3d_bmp->locked_rect.Pitch;

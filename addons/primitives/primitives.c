@@ -83,9 +83,9 @@ int al_draw_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
     * view space should occur here
     */
    
-   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP
-         || (texture && al_get_bitmap_flags(texture) & ALLEGRO_MEMORY_BITMAP)
-         || _al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
+   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP ||
+       (texture && al_get_bitmap_flags(texture) & ALLEGRO_MEMORY_BITMAP) ||
+       _al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
       ret =  _al_draw_prim_soft(texture, vtxs, decl, start, end, type);
    } else {
       int flags = al_get_display_flags(_al_get_bitmap_display(target));
@@ -119,9 +119,9 @@ int al_draw_indexed_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
     * view space should occur here
     */
    
-   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP
-      || (texture && al_get_bitmap_flags(texture) & ALLEGRO_MEMORY_BITMAP)
-      || _al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
+   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP ||
+       (texture && al_get_bitmap_flags(texture) & ALLEGRO_MEMORY_BITMAP) ||
+       _al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
       ret =  _al_draw_prim_indexed_soft(texture, vtxs, decl, indices, num_vtx, type);
    } else {
       int flags = al_get_display_flags(_al_get_bitmap_display(target));
@@ -514,9 +514,9 @@ int al_draw_vertex_buffer(ALLEGRO_VERTEX_BUFFER* vertex_buffer,
 
    target = al_get_target_bitmap();
 
-   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP
-         || (texture && al_get_bitmap_flags(texture) & ALLEGRO_MEMORY_BITMAP)
-         || _al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
+   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP ||
+       (texture && al_get_bitmap_flags(texture) & ALLEGRO_MEMORY_BITMAP) ||
+       _al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
       ret = _al_draw_buffer_common_soft(vertex_buffer, texture, NULL, start, end, type);
    } else {
       int flags = al_get_display_flags(al_get_current_display());
@@ -552,9 +552,9 @@ int al_draw_indexed_buffer(ALLEGRO_VERTEX_BUFFER* vertex_buffer,
 
    target = al_get_target_bitmap();
 
-   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP
-         || (texture && al_get_bitmap_flags(texture) & ALLEGRO_MEMORY_BITMAP)
-         || _al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
+   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP ||
+       (texture && al_get_bitmap_flags(texture) & ALLEGRO_MEMORY_BITMAP) ||
+       _al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
       ret = _al_draw_buffer_common_soft(vertex_buffer, texture, index_buffer, start, end, type);
    } else {
       int flags = al_get_display_flags(al_get_current_display());

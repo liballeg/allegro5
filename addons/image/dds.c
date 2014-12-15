@@ -68,7 +68,7 @@ ALLEGRO_BITMAP *_al_load_dds_f(ALLEGRO_FILE *f, int flags)
    ALLEGRO_STATE state;
    ALLEGRO_LOCKED_REGION *lr;
    int ii;
-   char* ptr;
+   char* bitmap_data;
    (void)flags;
 
    magic = al_fread32le(f);
@@ -80,7 +80,7 @@ ALLEGRO_BITMAP *_al_load_dds_f(ALLEGRO_FILE *f, int flags)
    num_read = al_fread(f, &header, sizeof(DDS_HEADER));
    if (num_read != DDS_HEADER_SIZE) {
       ALLEGRO_ERROR("Wrong DDS header size. Got %d, expected %d.\n",
-         num_read, DDS_HEADER_SIZE);
+         (int)num_read, DDS_HEADER_SIZE);
       return NULL;
    }
 
@@ -95,13 +95,13 @@ ALLEGRO_BITMAP *_al_load_dds_f(ALLEGRO_FILE *f, int flags)
 
    switch (fourcc) {
       case FOURCC('D', 'X', 'T', '1'):
-         format = ALLEGRO_PIXEL_FORMAT_RGBA_DXT1;
+         format = ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1;
          break;
       case FOURCC('D', 'X', 'T', '3'):
-         format = ALLEGRO_PIXEL_FORMAT_RGBA_DXT3;
+         format = ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3;
          break;
       case FOURCC('D', 'X', 'T', '5'):
-         format = ALLEGRO_PIXEL_FORMAT_RGBA_DXT5;
+         format = ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5;
          break;
       default:
          ALLEGRO_ERROR("Invalid pixel format.\n");
@@ -126,16 +126,30 @@ ALLEGRO_BITMAP *_al_load_dds_f(ALLEGRO_FILE *f, int flags)
    }
 
    lr = al_lock_bitmap_blocked(bmp, ALLEGRO_LOCK_WRITEONLY);
-   ptr = lr->data;
+
+   if (!lr) {
+      switch (format) {
+         case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1:
+         case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3:
+         case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5:
+            ALLEGRO_ERROR("Could not lock the bitmap (probably the support for locking this format has not been enabled).\n");
+            break;
+         default:
+            ALLEGRO_ERROR("Could not lock the bitmap.\n");
+      }
+      return NULL;
+   }
+
+   bitmap_data = lr->data;
 
    for (ii = 0; ii < h / block_width; ii++) {
       size_t pitch = (size_t)(w / block_width * block_size);
-      num_read = al_fread(f, ptr, pitch);
+      num_read = al_fread(f, bitmap_data, pitch);
       if (num_read != pitch) {
          ALLEGRO_ERROR("DDS file too short.\n");
          goto FAIL;
       }
-      ptr += lr->pitch;
+      bitmap_data += lr->pitch;
    }
    al_unlock_bitmap(bmp);
 

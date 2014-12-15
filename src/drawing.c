@@ -18,6 +18,7 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_memdraw.h"
+#include "allegro5/internal/aintern_pixels.h"
 
 
 /* Function: al_clear_to_color
@@ -27,7 +28,8 @@ void al_clear_to_color(ALLEGRO_COLOR color)
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ASSERT(target);
 
-   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP) {
+   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP ||
+       _al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
       _al_clear_bitmap_by_locking(target, &color);
    }
    else {
@@ -65,8 +67,8 @@ void al_draw_pixel(float x, float y, ALLEGRO_COLOR color)
 
    ASSERT(target);
 
-   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP
-         || _al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
+   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP ||
+       _al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
       _al_draw_pixel_memory(target, x, y, &color);
    }
    else {

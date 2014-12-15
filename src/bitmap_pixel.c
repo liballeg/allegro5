@@ -60,14 +60,14 @@ ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
          return color;
       }
 
-      if (!(lr = al_lock_bitmap_region(bitmap, x, y, 1, 1, 
+      if (!(lr = al_lock_bitmap_region(bitmap, x, y, 1, 1,
             ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY))) {
          return color;
       }
 
       /* FIXME: check for valid pixel format */
 
-      data = lr->data;
+      data = bitmap->lock_data;
       _AL_INLINE_GET_PIXEL(lr->format, data, color, false);
 
       al_unlock_bitmap(bitmap);
@@ -118,7 +118,7 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
 
       /* FIXME: check for valid pixel format */
 
-      data = lr->data;
+      data = bitmap->lock_data;
       _AL_INLINE_PUT_PIXEL(lr->format, data, color, false);
 
       al_unlock_bitmap(bitmap);

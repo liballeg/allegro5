@@ -589,13 +589,31 @@ static void ogl_bitmap_pointer_changed(ALLEGRO_BITMAP *bitmap,
    }
 }
 
+
+static bool can_flip_blocks(ALLEGRO_PIXEL_FORMAT format)
+{
+   switch (format) {
+#ifdef ALLEGRO_CFG_OPENGL_S3TC_LOCKING
+      case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1:
+      case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3:
+      case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5:
+         return true;
+#endif
+      default:
+         return false;
+   }
+}
+
+
 static void ogl_flip_blocks(ALLEGRO_LOCKED_REGION *lr, int wc, int hc)
 {
 #define SWAP(x, y) do { unsigned char t = x; x = y; y = t; } while (0)
    int x, y;
    unsigned char* data = lr->data;
+   ASSERT(can_flip_blocks(lr->format));
    switch (lr->format) {
-      case ALLEGRO_PIXEL_FORMAT_RGBA_DXT1: {
+#ifdef ALLEGRO_CFG_OPENGL_S3TC_LOCKING
+      case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1: {
          for (y = 0; y < hc; y++) {
             unsigned char* row = data;
             for (x = 0; x < wc; x++) {
@@ -613,7 +631,7 @@ static void ogl_flip_blocks(ALLEGRO_LOCKED_REGION *lr, int wc, int hc)
          }
          break;
       }
-      case ALLEGRO_PIXEL_FORMAT_RGBA_DXT3: {
+      case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3: {
          for (y = 0; y < hc; y++) {
             unsigned char* row = data;
             for (x = 0; x < wc; x++) {
@@ -640,7 +658,7 @@ static void ogl_flip_blocks(ALLEGRO_LOCKED_REGION *lr, int wc, int hc)
          }
          break;
       }
-      case ALLEGRO_PIXEL_FORMAT_RGBA_DXT5: {
+      case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5: {
          for (y = 0; y < hc; y++) {
             unsigned char* row = data;
             for (x = 0; x < wc; x++) {
@@ -679,6 +697,13 @@ static void ogl_flip_blocks(ALLEGRO_LOCKED_REGION *lr, int wc, int hc)
          }
          break;
       }
+#endif
+      default:
+         (void)x;
+         (void)y;
+         (void)data;
+         (void)wc;
+         (void)hc;
    }
 #undef SWAP
 }
@@ -701,7 +726,11 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
    int true_wc = ogl_bitmap->true_w / block_width;
    int true_hc = ogl_bitmap->true_h / block_width;
    int gl_yc = _al_get_least_multiple(bitmap->h, block_width) / block_width - yc - hc;
-   
+
+   if (!can_flip_blocks(bitmap_format)) {
+      return NULL;
+   }
+
    if (flags & ALLEGRO_LOCK_WRITEONLY) {
       int pitch = wc * block_size;
       ogl_bitmap->lock_buffer = al_malloc(pitch * hc);
@@ -720,8 +749,8 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
 
    /* Change OpenGL context if necessary. */
    if (!disp ||
-      (_al_get_bitmap_display(bitmap)->ogl_extras->is_shared == false &&
-       _al_get_bitmap_display(bitmap) != disp))
+       (_al_get_bitmap_display(bitmap)->ogl_extras->is_shared == false &&
+        _al_get_bitmap_display(bitmap) != disp))
    {
       old_disp = disp;
       _al_set_current_display_only(_al_get_bitmap_display(bitmap));
@@ -745,7 +774,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
 
    if (ok) {
       ogl_bitmap->lock_buffer = al_malloc(true_wc * true_hc * block_size);
-      
+
       if (ogl_bitmap->lock_buffer != NULL) {
          glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
          glGetCompressedTexImage(GL_TEXTURE_2D, 0, ogl_bitmap->lock_buffer);
@@ -766,8 +795,8 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
                int src_pitch = true_wc * block_size;
                int dest_pitch = wc * block_size;
                char* dest_ptr = (char*)ogl_bitmap->lock_buffer;
-               char* src_ptr = (char*)ogl_bitmap->lock_buffer
-                  + src_pitch * gl_yc + block_size * xc;
+               char* src_ptr = (char*)ogl_bitmap->lock_buffer +
+                  src_pitch * gl_yc + block_size * xc;
                for (y = 0; y < hc; y++) {
                   memmove(dest_ptr, src_ptr, dest_pitch);
                   src_ptr += src_pitch;
@@ -822,6 +851,10 @@ static void ogl_unlock_compressed_region(ALLEGRO_BITMAP *bitmap)
       (block_width * block_width) * block_size;
    int gl_y = _al_get_least_multiple(bitmap->h, block_width) - bitmap->lock_y - bitmap->lock_h;
 
+   /* It shouldn't be possible for this to fail, as we wouldn't have been able
+    * to lock earlier */
+   ASSERT(can_flip_blocks(bitmap->locked_region.format));
+
    if ((bitmap->lock_flags & ALLEGRO_LOCK_READONLY)) {
       goto EXIT;
    }
@@ -870,7 +903,7 @@ static void ogl_unlock_compressed_region(ALLEGRO_BITMAP *bitmap)
    if (old_disp) {
       _al_set_current_display_only(old_disp);
    }
-   
+
 EXIT:
    al_free(ogl_bitmap->lock_buffer);
    ogl_bitmap->lock_buffer = NULL;
@@ -923,7 +956,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h,
 
    if (_al_pixel_format_is_compressed(format)) {
       if (!al_get_opengl_extension_list()->ALLEGRO_GL_EXT_texture_compression_s3tc) {
-         ALLEGRO_DEBUG("Device does not support compressed textures.");
+         ALLEGRO_DEBUG("Device does not support S3TC compressed textures.");
          return NULL;
       }
    }
@@ -967,7 +1000,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h,
    extra = bitmap->extra;
 
    bitmap->vt = ogl_bitmap_driver();
-   bitmap->_memory_format = 
+   bitmap->_memory_format =
       _al_pixel_format_is_compressed(format) ? ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE : format;
    bitmap->pitch = true_w * al_get_pixel_size(bitmap->_memory_format);
    bitmap->_format = format;

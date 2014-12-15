@@ -27,7 +27,7 @@ struct ALLEGRO_BITMAP
    int _flags;
    ALLEGRO_DISPLAY *_display;
    /* What format is used for the backing memory
-    * (can be different, for e.g. compressed bitmaps) */
+    * (can be different from _format, for e.g. compressed bitmaps) */
    int _memory_format;
 
    int w, h;
@@ -52,10 +52,16 @@ struct ALLEGRO_BITMAP
    /*
     * Locking info.
     *
+    * These values represent the actual locking dimensions, which may be different
+    * from what was passed in to al_lock_bitmap_region. This is transparent to the
+    * user, but the internal drawing functions must take this into account. To
+    * that end, use this lock_data parameter value and NOT the one in locked_region.
+    *
     * locked - locked or not?
     * lock_x/y - top left of the locked region
     * lock_w/h - width and height of the locked region
     * lock_flags - flags the region was locked with
+    * lock_data - the pointer to the real locked data (see above)
     * locked_region - a copy of the locked rectangle
     */
    bool locked;
@@ -63,6 +69,7 @@ struct ALLEGRO_BITMAP
    int lock_y;
    int lock_w;
    int lock_h;
+   void* lock_data;
    int lock_flags;
    ALLEGRO_LOCKED_REGION locked_region;
 

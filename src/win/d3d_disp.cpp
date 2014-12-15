@@ -113,9 +113,9 @@ static int allegro_formats[] = {
    //ALLEGRO_PIXEL_FORMAT_ARGB_1555,  this format seems not to be allowed
    ALLEGRO_PIXEL_FORMAT_ABGR_F32,
    ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8,
-   ALLEGRO_PIXEL_FORMAT_RGBA_DXT1,
-   ALLEGRO_PIXEL_FORMAT_RGBA_DXT3,
-   ALLEGRO_PIXEL_FORMAT_RGBA_DXT5,
+   ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1,
+   ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3,
+   ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5,
    -1
 };
 
@@ -1782,6 +1782,7 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_internals(
    d3d_display->backbuffer_bmp._display = al_display;
    d3d_display->backbuffer_bmp._format = _al_deduce_color_format(&al_display->extra_settings);
    d3d_display->backbuffer_bmp._memory_format = d3d_display->backbuffer_bmp._format;
+   d3d_display->backbuffer_bmp_extra.system_format = d3d_display->backbuffer_bmp._format;
    d3d_display->backbuffer_bmp._flags = ALLEGRO_VIDEO_BITMAP;
    d3d_display->backbuffer_bmp.w = al_display->w;
    d3d_display->backbuffer_bmp.h = al_display->h;
@@ -2529,6 +2530,10 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
       d3d_display->device->SetViewport(&viewport);
 
       _al_d3d_set_ortho_projection(d3d_display, display->w, display->h);
+   }
+   else if (_al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
+      /* Do nothing, as it is impossible to directly draw to compressed textures via D3D.
+       * Instead, everything will be handled by the memory routines. */
    }
    else {
       d3d_display = (ALLEGRO_DISPLAY_D3D *)display;

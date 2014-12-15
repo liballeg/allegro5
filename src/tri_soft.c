@@ -829,8 +829,8 @@ void _al_draw_soft_triangle(
       min_y = clip_min_y;
 
    if (al_is_bitmap_locked(target)) {
-      if (!bitmap_region_is_locked(target, min_x, min_y, max_x - min_x, max_y - min_y)
-            || _al_pixel_format_is_video_only(target->locked_region.format))
+      if (!bitmap_region_is_locked(target, min_x, min_y, max_x - min_x, max_y - min_y) ||
+          _al_pixel_format_is_video_only(target->locked_region.format))
          return;
    } else {
       if (!(lr = al_lock_bitmap_region(target, min_x, min_y, max_x - min_x, max_y - min_y, ALLEGRO_PIXEL_FORMAT_ANY, 0)))

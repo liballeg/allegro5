@@ -470,7 +470,7 @@ static bool transfer_bitmap_data(ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst)
    bool dst_compressed = _al_pixel_format_is_compressed(dst_format);
    int copy_w = src->w;
    int copy_h = src->h;
-   
+
    if (src_compressed && dst_compressed && src_format == dst_format) {
       int block_width = al_get_pixel_block_width(src_format);
       if (!(src_region = al_lock_bitmap_blocked(src, ALLEGRO_LOCK_READONLY)))
@@ -493,7 +493,7 @@ static bool transfer_bitmap_data(ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst)
       else if (!src_compressed && dst_compressed) {
          lock_format = src_format;
       }
-      
+
       if (!(src_region = al_lock_bitmap(src, lock_format, ALLEGRO_LOCK_READONLY)))
          return false;
 
@@ -552,7 +552,6 @@ void _al_copy_bitmap_data(
       dst_ptr += dst_pitch;
    }
 }
-
 
 void _al_convert_bitmap_data(
    const void *src, int src_format, int src_pitch,

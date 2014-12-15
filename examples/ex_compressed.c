@@ -7,12 +7,12 @@
 #include "common.c"
 
 typedef struct BITMAP_TYPE {
-    ALLEGRO_BITMAP* bmp;
-    ALLEGRO_BITMAP* clone;
-    ALLEGRO_BITMAP* decomp;
-    ALLEGRO_BITMAP* lock_clone;
-    ALLEGRO_PIXEL_FORMAT format;
-    const char* name;
+   ALLEGRO_BITMAP* bmp;
+   ALLEGRO_BITMAP* clone;
+   ALLEGRO_BITMAP* decomp;
+   ALLEGRO_BITMAP* lock_clone;
+   ALLEGRO_PIXEL_FORMAT format;
+   const char* name;
 } BITMAP_TYPE;
 
 int main(int argc, char **argv)
@@ -30,9 +30,9 @@ int main(int argc, char **argv)
    #define NUM_BITMAPS 4
    BITMAP_TYPE bitmaps[NUM_BITMAPS] = {
       {NULL, NULL, NULL, NULL, ALLEGRO_PIXEL_FORMAT_ANY,       "Uncompressed"},
-      {NULL, NULL, NULL, NULL, ALLEGRO_PIXEL_FORMAT_RGBA_DXT1, "DXT1"},
-      {NULL, NULL, NULL, NULL, ALLEGRO_PIXEL_FORMAT_RGBA_DXT3, "DXT3"},
-      {NULL, NULL, NULL, NULL, ALLEGRO_PIXEL_FORMAT_RGBA_DXT5, "DXT5"},
+      {NULL, NULL, NULL, NULL, ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1, "DXT1"},
+      {NULL, NULL, NULL, NULL, ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3, "DXT3"},
+      {NULL, NULL, NULL, NULL, ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5, "DXT5"},
    };
 
    if (argc > 1) {
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
    }
 
    open_log();
-    
+
    if (argc > 2) {
       al_set_new_display_adapter(atoi(argv[2]));
    }
@@ -64,12 +64,12 @@ int main(int argc, char **argv)
    for (ii = 0; ii < NUM_BITMAPS; ii++) {
       double t0, t1;
       al_set_new_bitmap_format(bitmaps[ii].format);
-      
+
       /* Load */
       t0 = al_get_time();
       bitmaps[ii].bmp = al_load_bitmap(filename);
       t1 = al_get_time();
-      
+
       if (!bitmaps[ii].bmp) {
          abort_example("%s not found or failed to load\n", filename);
       }
@@ -95,25 +95,25 @@ int main(int argc, char **argv)
          abort_example("Couldn't decompress %s\n", bitmaps[ii].name);
       }
       log_printf("%s decompress time: %f sec\n", bitmaps[ii].name, t1 - t0);
-      
+
       /* RW lock */
       al_set_new_bitmap_format(bitmaps[ii].format);
       bitmaps[ii].lock_clone = al_clone_bitmap(bitmaps[ii].bmp);
-      
+
       if (!bitmaps[ii].lock_clone) {
          abort_example("Couldn't clone %s\n", bitmaps[ii].name);
       }
-      
+
       if (al_get_bitmap_width(bitmaps[ii].bmp) > 128
             && al_get_bitmap_height(bitmaps[ii].bmp) > 128) {
          int bitmap_format = al_get_bitmap_format(bitmaps[ii].bmp);
          int block_width = al_get_pixel_block_width(bitmap_format);
-         
+
          /* Lock and unlock it, hopefully causing a no-op operation */
          al_lock_bitmap_region_blocked(bitmaps[ii].lock_clone,
             16 / block_width, 16 / block_width, 64 / block_width,
             64 / block_width, ALLEGRO_LOCK_READWRITE);
-         
+
          al_unlock_bitmap(bitmaps[ii].lock_clone);
       }
    }
@@ -169,7 +169,7 @@ int main(int argc, char **argv)
          redraw = false;
          al_clear_to_color(al_map_rgb_f(0, 0, 0));
          al_draw_bitmap(bkg, 0, 0, 0);
-         al_draw_textf(font, al_map_rgb_f(1, 1, 1), 5, 5, ALLEGRO_ALIGN_LEFT, 
+         al_draw_textf(font, al_map_rgb_f(1, 1, 1), 5, 5, ALLEGRO_ALIGN_LEFT,
             "SPACE to compare. Arrows to switch. Format: %s", bitmaps[idx].name);
          al_draw_bitmap(bitmaps[idx].bmp, 0, 20, 0);
          al_draw_bitmap(bitmaps[idx].clone, w, 20, 0);

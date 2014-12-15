@@ -114,6 +114,7 @@ option(WANT_D3D9EX "Enable Direct3D 9Ex extensions (Vista)" off)
 option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11, OS X))" on)
 option(WANT_SHADERS_GL "Build GLSL shader support (OpenGL)" on)
 option(WANT_SHADERS_D3D "Build HLSL shader support (Direct3D)" on)
+option(WANT_OPENGL_S3TC_LOCKING "Whether to support blocked locking of DXT1, DXT2, and DXT3 formats in OpenGL." off)
 
 #
 # Addons.
@@ -563,6 +564,9 @@ if(WANT_OPENGL)
     endif()
 endif(WANT_OPENGL)
 
+if(WANT_OPENGL_S3TC_LOCKING)
+    set(ALLEGRO_CFG_OPENGL_S3TC_LOCKING 1)
+endif()
 
 #
 # Unix-specific

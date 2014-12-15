@@ -252,9 +252,9 @@
             abort();                                                          \
             break;                                                            \
                                                                               \
-         case ALLEGRO_PIXEL_FORMAT_RGBA_DXT1:                                 \
-         case ALLEGRO_PIXEL_FORMAT_RGBA_DXT3:                                 \
-         case ALLEGRO_PIXEL_FORMAT_RGBA_DXT5:                                 \
+         case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1:                                 \
+         case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3:                                 \
+         case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5:                                 \
             ALLEGRO_ERROR("INLINE_GET got compressed format: %d\n", format); \
             abort();                                                          \
             break;                                                            \
@@ -467,9 +467,9 @@
             abort();                                                          \
             break;                                                            \
                                                                               \
-         case ALLEGRO_PIXEL_FORMAT_RGBA_DXT1:                                 \
-         case ALLEGRO_PIXEL_FORMAT_RGBA_DXT3:                                 \
-         case ALLEGRO_PIXEL_FORMAT_RGBA_DXT5:                                 \
+         case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1:                      \
+         case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3:                      \
+         case ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5:                      \
             ALLEGRO_ERROR("INLINE_PUT got compressed format: %d\n", format); \
             abort();                                                          \
             break;                                                            \

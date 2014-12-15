@@ -46,7 +46,7 @@ static void shader_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
       {
 	 {
 	    const int dst_format = target->locked_region.format;
-	    uint8_t *dst_data = (uint8_t *) target->locked_region.data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
+	    uint8_t *dst_data = (uint8_t *) target->lock_data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
 	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
 
@@ -174,7 +174,7 @@ static void shader_solid_any_draw_opaque(uintptr_t state, int x1, int y, int x2)
       {
 	 {
 	    const int dst_format = target->locked_region.format;
-	    uint8_t *dst_data = (uint8_t *) target->locked_region.data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
+	    uint8_t *dst_data = (uint8_t *) target->lock_data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
 	    if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
 	       {
@@ -246,7 +246,7 @@ static void shader_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
       {
 	 {
 	    const int dst_format = target->locked_region.format;
-	    uint8_t *dst_data = (uint8_t *) target->locked_region.data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
+	    uint8_t *dst_data = (uint8_t *) target->lock_data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
 	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
 
@@ -405,7 +405,7 @@ static void shader_grad_any_draw_opaque(uintptr_t state, int x1, int y, int x2)
       {
 	 {
 	    const int dst_format = target->locked_region.format;
-	    uint8_t *dst_data = (uint8_t *) target->locked_region.data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
+	    uint8_t *dst_data = (uint8_t *) target->lock_data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
 	    if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
 	       {
@@ -504,7 +504,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 
 	 {
 	    const int dst_format = target->locked_region.format;
-	    uint8_t *dst_data = (uint8_t *) target->locked_region.data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
+	    uint8_t *dst_data = (uint8_t *) target->lock_data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
 	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
 
@@ -960,7 +960,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 
 	 {
 	    const int dst_format = target->locked_region.format;
-	    uint8_t *dst_data = (uint8_t *) target->locked_region.data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
+	    uint8_t *dst_data = (uint8_t *) target->lock_data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
 	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
 
@@ -1396,7 +1396,7 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
 
 	 {
 	    const int dst_format = target->locked_region.format;
-	    uint8_t *dst_data = (uint8_t *) target->locked_region.data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
+	    uint8_t *dst_data = (uint8_t *) target->lock_data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
 	    if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
 	       uint8_t *lock_data = texture->locked_region.data;
@@ -1597,7 +1597,7 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
 
 	 {
 	    const int dst_format = target->locked_region.format;
-	    uint8_t *dst_data = (uint8_t *) target->locked_region.data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
+	    uint8_t *dst_data = (uint8_t *) target->lock_data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
 	    if (dst_format == src_format && src_size == 4) {
 	       uint8_t *lock_data = texture->locked_region.data;
@@ -2005,7 +2005,7 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 
 	 {
 	    const int dst_format = target->locked_region.format;
-	    uint8_t *dst_data = (uint8_t *) target->locked_region.data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
+	    uint8_t *dst_data = (uint8_t *) target->lock_data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
 	    if (op == ALLEGRO_ADD && src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && op_alpha == ALLEGRO_ADD && dst_mode == ALLEGRO_INVERSE_ALPHA && dst_alpha == ALLEGRO_INVERSE_ALPHA) {
 
@@ -2504,7 +2504,7 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
 
 	 {
 	    const int dst_format = target->locked_region.format;
-	    uint8_t *dst_data = (uint8_t *) target->locked_region.data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
+	    uint8_t *dst_data = (uint8_t *) target->lock_data + y * target->locked_region.pitch + x1 * target->locked_region.pixel_size;
 
 	    if (dst_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 && src_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888) {
 	       uint8_t *lock_data = texture->locked_region.data;
