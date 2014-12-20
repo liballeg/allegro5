@@ -279,6 +279,23 @@ Parameters:
 Returns the written byte (cast back to an int) on success,
 or EOF on error.
 
+## API: al_fprintf
+
+Writes to a file with stdio "printf"-like formatting.
+Returns the number of bytes actually written.
+If an error occurs, the return value is a short byte count (or zero).
+
+See also: [al_vfprintf]
+
+## API: al_vfprintf
+
+Like al_fprintf but takes a va_list. Useful for creating your own
+variations of formatted printing.
+Returns the number of bytes actually written.
+If an error occurs, the return value is a short byte count (or zero).
+
+See also: [al_fprintf]
+
 ## API: al_fread16le
 
 Reads a 16-bit word in little-endian format (LSB first).

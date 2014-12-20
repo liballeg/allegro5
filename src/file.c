@@ -31,13 +31,13 @@ ALLEGRO_FILE *al_fopen(const char *path, const char *mode)
  */
 ALLEGRO_FILE *al_fopen_interface(const ALLEGRO_FILE_INTERFACE *drv,
    const char *path, const char *mode)
-{ 
+{
    ALLEGRO_FILE *f = NULL;
-   
-   ASSERT(drv);  
+
+   ASSERT(drv);
    ASSERT(path);
    ASSERT(mode);
-   
+
    if (drv->fi_fopen) {
       f = al_malloc(sizeof(*f));
       if (!f) {
@@ -53,7 +53,7 @@ ALLEGRO_FILE *al_fopen_interface(const ALLEGRO_FILE_INTERFACE *drv,
          }
       }
    }
-   
+
    return f;
 }
 
@@ -64,7 +64,7 @@ ALLEGRO_FILE *al_create_file_handle(const ALLEGRO_FILE_INTERFACE *drv,
    void *userdata)
 {
    ALLEGRO_FILE *f;
- 
+
    ASSERT(drv);
 
    f = al_malloc(sizeof(*f));
@@ -72,11 +72,11 @@ ALLEGRO_FILE *al_create_file_handle(const ALLEGRO_FILE_INTERFACE *drv,
       al_set_errno(ENOMEM);
    }
    else {
-      f->vtable = drv;   
+      f->vtable = drv;
       f->userdata = userdata;
       f->ungetc_len = 0;
    }
-   
+
    return f;
 }
 
@@ -102,17 +102,17 @@ size_t al_fread(ALLEGRO_FILE *f, void *ptr, size_t size)
 {
    ASSERT(f);
    ASSERT(ptr);
-   
+
    if (f->ungetc_len) {
       int bytes_ungetc = 0;
       unsigned char *cptr = ptr;
-      
+
       while (f->ungetc_len > 0 && size > 0) {
          *cptr++ = f->ungetc[--f->ungetc_len];
          ++bytes_ungetc;
          --size;
       }
-      
+
       return bytes_ungetc + f->vtable->fi_fread(f, cptr, size);
    }
    else {
@@ -127,7 +127,7 @@ size_t al_fwrite(ALLEGRO_FILE *f, const void *ptr, size_t size)
 {
    ASSERT(f);
    ASSERT(ptr);
-   
+
    f->ungetc_len = 0;
    return f->vtable->fi_fwrite(f, ptr, size);
 }
@@ -164,7 +164,7 @@ bool al_fseek(ALLEGRO_FILE *f, int64_t offset, int whence)
       whence == ALLEGRO_SEEK_CUR ||
       whence == ALLEGRO_SEEK_END
    );
-   
+
    if (f->ungetc_len) {
       if (whence == ALLEGRO_SEEK_CUR) {
          offset -= f->ungetc_len;
@@ -497,22 +497,22 @@ int al_fputs(ALLEGRO_FILE *f, char const *p)
 int al_fungetc(ALLEGRO_FILE *f, int c)
 {
    ASSERT(f != NULL);
-   
+
    if (f->vtable->fi_fungetc) {
       return f->vtable->fi_fungetc(f, c);
    }
-   else {      
+   else {
       /* If the interface does not provide an implementation for ungetc,
        * then a default one will be used. (Note that if the interface does
        * implement it, then this ungetc buffer will never be filled, and all
        * other references to it within this file will always be ignored.)
-       */   
+       */
       if (f->ungetc_len == ALLEGRO_UNGETC_SIZE) {
          return EOF;
       }
-         
+
       f->ungetc[f->ungetc_len++] = (unsigned char) c;
-      
+
       return c;
    }
 }
@@ -535,6 +535,52 @@ void *al_get_file_userdata(ALLEGRO_FILE *f)
    ASSERT(f != NULL);
 
    return f->userdata;
+}
+
+
+/* Function: al_vfprintf
+ */
+size_t al_vfprintf(ALLEGRO_FILE *pfile, const char *format, va_list args)
+{
+   size_t rv = 0;
+   ALLEGRO_USTR *ustr = 0;
+   size_t size = 0;
+
+   if (pfile != 0 && format != 0)
+   {
+      ustr = al_ustr_new("");
+      if (ustr)
+      {
+         rv = al_ustr_vappendf(ustr, format, args);
+         if (rv)
+         {
+            size = al_ustr_size(ustr);
+            if (size > 0)
+            {
+               rv = al_fwrite(pfile, (const void*)(al_cstr(ustr)), size);
+            }
+         }
+         al_ustr_free(ustr);
+      }
+   }
+   return rv;
+}
+
+
+/* Function: al_fprintf
+ */
+size_t al_fprintf(ALLEGRO_FILE *pfile, const char *format, ...)
+{
+   size_t rv = 0;
+   va_list args = 0;
+
+   if (pfile != 0 && format != 0)
+   {
+      va_start(args, format);
+      rv = al_vfprintf(pfile, format, args);
+      va_end(args);
+   }
+   return rv;
 }
 
 
