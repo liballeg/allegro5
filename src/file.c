@@ -542,17 +542,18 @@ void *al_get_file_userdata(ALLEGRO_FILE *f)
  */
 size_t al_vfprintf(ALLEGRO_FILE *pfile, const char *format, va_list args)
 {
-   size_t rv = 0;
+   size_t rv = -1;
    ALLEGRO_USTR *ustr = 0;
    size_t size = 0;
+   bool success;
 
    if (pfile != 0 && format != 0)
    {
       ustr = al_ustr_new("");
       if (ustr)
       {
-         rv = al_ustr_vappendf(ustr, format, args);
-         if (rv)
+         success = al_ustr_vappendf(ustr, format, args);
+         if (success)
          {
             size = al_ustr_size(ustr);
             if (size > 0)
