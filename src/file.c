@@ -558,6 +558,9 @@ size_t al_vfprintf(ALLEGRO_FILE *pfile, const char *format, va_list args)
             if (size > 0)
             {
                rv = al_fwrite(pfile, (const void*)(al_cstr(ustr)), size);
+               if (rv != size) {
+                  rv = -1;
+               }
             }
          }
          al_ustr_free(ustr);
