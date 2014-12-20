@@ -576,7 +576,7 @@ size_t al_vfprintf(ALLEGRO_FILE *pfile, const char *format, va_list args)
 size_t al_fprintf(ALLEGRO_FILE *pfile, const char *format, ...)
 {
    size_t rv = 0;
-   va_list args = 0;
+   va_list args;
 
    if (pfile != 0 && format != 0)
    {
