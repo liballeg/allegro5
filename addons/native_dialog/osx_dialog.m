@@ -4,6 +4,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+static NSMenu *show_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu, bool popup);
+
 bool _al_init_native_dialog_addon(void)
 {
    return true;
@@ -499,6 +501,13 @@ typedef struct DISPLAY_INFO {
       autorelease
    ];
    [menu_item setTarget:self];
+
+   if (aitem->popup) {
+       ALLEGRO_MENU *amenu = aitem->parent;
+       MENU_THINGS *mt = amenu->extra1;
+       NSMenu *m = show_menu(mt->display, aitem->popup, true);
+       [menu_item setSubmenu:m];
+   }
 
    return menu_item;
 }
