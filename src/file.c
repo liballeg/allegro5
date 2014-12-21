@@ -540,9 +540,9 @@ void *al_get_file_userdata(ALLEGRO_FILE *f)
 
 /* Function: al_vfprintf
  */
-size_t al_vfprintf(ALLEGRO_FILE *pfile, const char *format, va_list args)
+int al_vfprintf(ALLEGRO_FILE *pfile, const char *format, va_list args)
 {
-   size_t rv = -1;
+   int rv = -1;
    ALLEGRO_USTR *ustr = 0;
    size_t size = 0;
    bool success;
@@ -573,9 +573,9 @@ size_t al_vfprintf(ALLEGRO_FILE *pfile, const char *format, va_list args)
 
 /* Function: al_fprintf
  */
-size_t al_fprintf(ALLEGRO_FILE *pfile, const char *format, ...)
+int al_fprintf(ALLEGRO_FILE *pfile, const char *format, ...)
 {
-   size_t rv = 0;
+   int rv = -1;
    va_list args;
 
    if (pfile != 0 && format != 0)
