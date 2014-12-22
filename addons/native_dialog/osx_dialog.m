@@ -4,8 +4,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-static NSMenu *show_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu, bool popup);
-
 bool _al_init_native_dialog_addon(void)
 {
    return true;
@@ -502,13 +500,6 @@ typedef struct DISPLAY_INFO {
    ];
    [menu_item setTarget:self];
 
-   if (aitem->popup) {
-       ALLEGRO_MENU *amenu = aitem->parent;
-       MENU_THINGS *mt = amenu->extra1;
-       NSMenu *m = show_menu(mt->display, aitem->popup, true);
-       [menu_item setSubmenu:m];
-   }
-
    return menu_item;
 }
 @end
@@ -686,14 +677,34 @@ bool _al_update_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
    return true;
 }
 
-static void add_items(NSMenu *menu, ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu, MENU_THINGS *mt)
+static int add_items(NSMenu *menu, ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu, ALLEGRO_MENU *the_menu)
 {
    int i;
+   MENU_THINGS *mt = the_menu->extra1;
+   int skip = 0;
 
    for (i = 0; i < (int)mt->items._size; i++) {
       ALLEGRO_MENU_ITEM *aitem = *(ALLEGRO_MENU_ITEM **)_al_vector_ref(&mt->items, i);
       if (aitem->caption == NULL) {
          [menu addItem:[NSMenuItem separatorItem]];
+      }
+      else if (aitem->popup) {
+         NSMenu *temp_menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @""];
+         [temp_menu setAutoenablesItems:NO];
+         MenuDelegate *menu_delegate = [[MenuDelegate alloc] init];
+         NSMenuItem *nsmenuitem = [menu_delegate build_menu_item:aitem];
+         [menu addItem:nsmenuitem];
+         [menu setSubmenu:temp_menu forItem:nsmenuitem];
+         int mainidx;
+         for (mainidx = 0; mainidx < (int)menus._size; mainidx++) {
+            ALLEGRO_MENU *m = *(ALLEGRO_MENU **)_al_vector_ref(&menus, mainidx);
+            if (m == the_menu) {
+               break;
+            }
+         }
+         ALLEGRO_MENU *the_menu = *(ALLEGRO_MENU **)_al_vector_ref(&menus, mainidx+1+skip);
+         skip += add_items(temp_menu, display, amenu, the_menu);
+	 skip++;
       }
       else {
          MenuDelegate *menu_delegate = [[MenuDelegate alloc] init];
@@ -711,6 +722,8 @@ static void add_items(NSMenu *menu, ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amen
          _al_update_menu_item_at(aitem, -1);
       }
    }
+
+   return skip;
 }
 
 static void destroy_menu_hierarchy(ALLEGRO_MENU *amenu)
@@ -750,6 +763,7 @@ static NSMenu *show_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu, bool pop
    int i;
    NSMenu *main_menu;
    int mainidx = 0;
+   int current_menu = 0;
    
    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 
@@ -811,16 +825,6 @@ static NSMenu *show_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu, bool pop
       }
       NSMenuItem *temp_item;
       NSMenu *menu;
-      if (!popup) {
-         menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: [[NSString alloc] initWithUTF8String:buf]];
-         [menu setAutoenablesItems:NO];
-         temp_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
-              initWithTitle: @""
-              action: NULL
-              keyEquivalent: @""];
-         [main_menu addItem:temp_item];
-         [main_menu setSubmenu:menu forItem:temp_item];
-      }
       if (popup) {
          MenuDelegate *menu_delegate = [[MenuDelegate alloc] init];
          NSMenuItem *menu_item = [menu_delegate build_menu_item:it];
@@ -832,11 +836,20 @@ static NSMenu *show_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu, bool pop
          [menu_item setEnabled:((it->flags & ALLEGRO_MENU_ITEM_DISABLED) ? FALSE : TRUE)];
       }
       else {
-         ALLEGRO_MENU *m = *(ALLEGRO_MENU **)_al_vector_ref(&menus, mainidx+1+i);
-         add_items(menu, display, amenu, m->extra1);
+         menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: [[NSString alloc] initWithUTF8String:buf]];
+         [menu setAutoenablesItems:NO];
+         temp_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
+              initWithTitle: @""
+              action: NULL
+              keyEquivalent: @""];
+         [main_menu addItem:temp_item];
+         [main_menu setSubmenu:menu forItem:temp_item];
+         ALLEGRO_MENU *the_menu = *(ALLEGRO_MENU **)_al_vector_ref(&menus, mainidx+1+current_menu);
+         current_menu += add_items(menu, display, amenu, the_menu);
       }
+      current_menu++;
    }
-  
+
    [pool drain];
 
    return main_menu;
