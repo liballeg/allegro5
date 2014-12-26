@@ -33,11 +33,18 @@ public class AllegroActivity extends Activity
    private boolean exitedMain = false;
    private boolean joystickReconfigureNotified = false;
    private Vector<Integer> joysticks;
-   
-   public final static int DPAD_L_BUTTON = 6;
-   public final static int DPAD_R_BUTTON = 7;
-   public final static int DPAD_U_BUTTON = 8;
-   public final static int DPAD_D_BUTTON = 9;
+
+   public final static int JS_A = 0;
+   public final static int JS_B = 1;
+   public final static int JS_X = 2;
+   public final static int JS_Y = 3;
+   public final static int JS_L1 = 4;
+   public final static int JS_R1 = 5;
+   public final static int JS_DPAD_L = 6;
+   public final static int JS_DPAD_R = 7;
+   public final static int JS_DPAD_U = 8;
+   public final static int JS_DPAD_D = 9;
+   public final static int JS_MENU = 10;
 
    /* native methods we call */
    native boolean nativeOnCreate();

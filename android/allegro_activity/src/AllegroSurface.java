@@ -201,8 +201,8 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback, OnGe
             axis0_y = ay;
          }
          else if (ahx != axis0_hat_x || ahy != axis0_hat_y) {
-            handleHat(index+1, axis0_hat_x, ahx, AllegroActivity.DPAD_L_BUTTON, AllegroActivity.DPAD_R_BUTTON);
-            handleHat(index+1, axis0_hat_y, ahy, AllegroActivity.DPAD_U_BUTTON, AllegroActivity.DPAD_D_BUTTON);
+            handleHat(index+1, axis0_hat_x, ahx, AllegroActivity.JS_DPAD_L, AllegroActivity.JS_DPAD_R);
+            handleHat(index+1, axis0_hat_y, ahy, AllegroActivity.JS_DPAD_U, AllegroActivity.JS_DPAD_D);
             axis0_hat_x = ahx;
             axis0_hat_y = ahy;
          }

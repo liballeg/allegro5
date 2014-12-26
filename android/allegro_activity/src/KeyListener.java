@@ -77,49 +77,52 @@ class KeyListener implements View.OnKeyListener
    private int getCode(int keyCode, KeyEvent event, int index1) {
       int code = -1;
       if (keyCode == KeyEvent.KEYCODE_BUTTON_A) {
-         code = 0;
+         code = AllegroActivity.JS_A;
       }
       else if (keyCode == KeyEvent.KEYCODE_BUTTON_B) {
-         code = 1;
+         code = AllegroActivity.JS_B;
       }
       else if (keyCode == KeyEvent.KEYCODE_BUTTON_X) {
-         code = 2;
+         code = AllegroActivity.JS_X;
       }
       else if (keyCode == KeyEvent.KEYCODE_BUTTON_Y) {
-         code = 3;
+         code = AllegroActivity.JS_Y;
       }
       else if (keyCode == KeyEvent.KEYCODE_BUTTON_L1) {
-         code = 4;
+         code = AllegroActivity.JS_L1;
       }
       else if (keyCode == KeyEvent.KEYCODE_BUTTON_R1) {
-         code = 5;
+         code = AllegroActivity.JS_R1;
+      }
+      else if (keyCode == KeyEvent.KEYCODE_MENU) {
+         code = AllegroActivity.JS_MENU;
       }
       else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
          if (event.getAction() == KeyEvent.ACTION_DOWN)
-            nativeOnJoystickButton(index1, AllegroActivity.DPAD_L_BUTTON, true);
+            nativeOnJoystickButton(index1, AllegroActivity.JS_DPAD_L, true);
          else
-            nativeOnJoystickButton(index1, AllegroActivity.DPAD_L_BUTTON, false);
+            nativeOnJoystickButton(index1, AllegroActivity.JS_DPAD_L, false);
          return -2;
       }
       else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
          if (event.getAction() == KeyEvent.ACTION_DOWN)
-            nativeOnJoystickButton(index1, AllegroActivity.DPAD_R_BUTTON, true);
+            nativeOnJoystickButton(index1, AllegroActivity.JS_DPAD_R, true);
          else
-            nativeOnJoystickButton(index1, AllegroActivity.DPAD_R_BUTTON, false);
+            nativeOnJoystickButton(index1, AllegroActivity.JS_DPAD_R, false);
          return -2;
       }
       else if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
          if (event.getAction() == KeyEvent.ACTION_DOWN)
-            nativeOnJoystickButton(index1, AllegroActivity.DPAD_U_BUTTON, true);
+            nativeOnJoystickButton(index1, AllegroActivity.JS_DPAD_U, true);
          else
-            nativeOnJoystickButton(index1, AllegroActivity.DPAD_U_BUTTON, false);
+            nativeOnJoystickButton(index1, AllegroActivity.JS_DPAD_U, false);
          return -2;
       }
       else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
          if (event.getAction() == KeyEvent.ACTION_DOWN)
-            nativeOnJoystickButton(index1, AllegroActivity.DPAD_D_BUTTON, true);
+            nativeOnJoystickButton(index1, AllegroActivity.JS_DPAD_D, true);
          else
-            nativeOnJoystickButton(index1, AllegroActivity.DPAD_D_BUTTON, false);
+            nativeOnJoystickButton(index1, AllegroActivity.JS_DPAD_D, false);
          return -2;
       }
       return code;
