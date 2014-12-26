@@ -108,11 +108,12 @@ int main(int argc, char **argv)
             && al_get_bitmap_height(bitmaps[ii].bmp) > 128) {
          int bitmap_format = al_get_bitmap_format(bitmaps[ii].bmp);
          int block_width = al_get_pixel_block_width(bitmap_format);
+         int block_height = al_get_pixel_block_height(bitmap_format);
 
          /* Lock and unlock it, hopefully causing a no-op operation */
          al_lock_bitmap_region_blocked(bitmaps[ii].lock_clone,
-            16 / block_width, 16 / block_width, 64 / block_width,
-            64 / block_width, ALLEGRO_LOCK_READWRITE);
+            16 / block_width, 16 / block_height, 64 / block_width,
+            64 / block_height, ALLEGRO_LOCK_READWRITE);
 
          al_unlock_bitmap(bitmaps[ii].lock_clone);
       }

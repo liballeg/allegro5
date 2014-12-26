@@ -64,7 +64,7 @@ ALLEGRO_BITMAP *_al_load_dds_f(ALLEGRO_FILE *f, int flags)
    DDS_HEADER header;
    DWORD magic;
    size_t num_read;
-   int w, h, fourcc, format, block_width, block_size;
+   int w, h, fourcc, format, block_width, block_height, block_size;
    ALLEGRO_STATE state;
    ALLEGRO_LOCKED_REGION *lr;
    int ii;
@@ -109,6 +109,7 @@ ALLEGRO_BITMAP *_al_load_dds_f(ALLEGRO_FILE *f, int flags)
    }
 
    block_width = al_get_pixel_block_width(format);
+   block_height = al_get_pixel_block_height(format);
    block_size = al_get_pixel_block_size(format);
 
    al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
@@ -142,7 +143,7 @@ ALLEGRO_BITMAP *_al_load_dds_f(ALLEGRO_FILE *f, int flags)
 
    bitmap_data = lr->data;
 
-   for (ii = 0; ii < h / block_width; ii++) {
+   for (ii = 0; ii < h / block_height; ii++) {
       size_t pitch = (size_t)(w / block_width * block_size);
       num_read = al_fread(f, bitmap_data, pitch);
       if (num_read != pitch) {

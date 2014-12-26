@@ -718,14 +718,15 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
    bool ok = true;
    int bitmap_format = al_get_bitmap_format(bitmap);
    int block_width = al_get_pixel_block_width(bitmap_format);
+   int block_height = al_get_pixel_block_height(bitmap_format);
    int block_size = al_get_pixel_block_size(bitmap_format);
    int xc = x / block_width;
    int yc = y / block_width;
    int wc = w / block_width;
    int hc = h / block_width;
    int true_wc = ogl_bitmap->true_w / block_width;
-   int true_hc = ogl_bitmap->true_h / block_width;
-   int gl_yc = _al_get_least_multiple(bitmap->h, block_width) / block_width - yc - hc;
+   int true_hc = ogl_bitmap->true_h / block_height;
+   int gl_yc = _al_get_least_multiple(bitmap->h, block_height) / block_height - yc - hc;
 
    if (!can_flip_blocks(bitmap_format)) {
       return NULL;
@@ -847,9 +848,10 @@ static void ogl_unlock_compressed_region(ALLEGRO_BITMAP *bitmap)
    GLenum e;
    int block_size = al_get_pixel_block_size(lock_format);
    int block_width = al_get_pixel_block_width(lock_format);
+   int block_height = al_get_pixel_block_height(lock_format);
    int data_size = bitmap->lock_h * bitmap->lock_w /
-      (block_width * block_width) * block_size;
-   int gl_y = _al_get_least_multiple(bitmap->h, block_width) - bitmap->lock_y - bitmap->lock_h;
+      (block_width * block_height) * block_size;
+   int gl_y = _al_get_least_multiple(bitmap->h, block_height) - bitmap->lock_y - bitmap->lock_h;
 
    /* It shouldn't be possible for this to fail, as we wouldn't have been able
     * to lock earlier */
@@ -860,7 +862,7 @@ static void ogl_unlock_compressed_region(ALLEGRO_BITMAP *bitmap)
    }
 
    ogl_flip_blocks(&bitmap->locked_region, bitmap->lock_w / block_width,
-      bitmap->lock_h / block_width);
+      bitmap->lock_h / block_height);
 
    disp = al_get_current_display();
 
@@ -945,14 +947,16 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h,
    int true_w;
    int true_h;
    int block_width;
+   int block_height;
    (void)d;
 
    format = _al_get_real_pixel_format(d, format);
    ASSERT(_al_pixel_format_is_real(format));
 
    block_width = al_get_pixel_block_width(format);
+   block_height = al_get_pixel_block_width(format);
    true_w = _al_get_least_multiple(w, block_width);
-   true_h = _al_get_least_multiple(h, block_width);
+   true_h = _al_get_least_multiple(h, block_height);
 
    if (_al_pixel_format_is_compressed(format)) {
       if (!al_get_opengl_extension_list()->ALLEGRO_GL_EXT_texture_compression_s3tc) {
@@ -991,7 +995,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h,
    }
 
    ASSERT(true_w % block_width == 0);
-   ASSERT(true_h % block_width == 0);
+   ASSERT(true_h % block_height == 0);
 
    bitmap = al_calloc(1, sizeof *bitmap);
    ASSERT(bitmap);

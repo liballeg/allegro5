@@ -130,6 +130,40 @@ static int pixel_block_widths[] = {
    4,
 };
 
+static int pixel_block_heights[] = {
+   0, /* ALLEGRO_PIXEL_FORMAT_ANY */
+   0,
+   0,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1, /* ALLEGRO_PIXEL_FORMAT_ARGB_8888 */
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
+   1, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
+   1, /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
+   1, /* ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
+   4,
+   4,
+   4,
+};
+
 static int pixel_block_sizes[] = {
    0,  /* ALLEGRO_PIXEL_FORMAT_ANY */
    0,
@@ -372,6 +406,14 @@ int al_get_pixel_block_size(int format)
 int al_get_pixel_block_width(int format)
 {
    return pixel_block_widths[format];
+}
+
+
+/* Function: al_get_pixel_block_height
+ */
+int al_get_pixel_block_height(int format)
+{
+   return pixel_block_heights[format];
 }
 
 

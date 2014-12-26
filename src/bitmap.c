@@ -473,6 +473,7 @@ static bool transfer_bitmap_data(ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst)
 
    if (src_compressed && dst_compressed && src_format == dst_format) {
       int block_width = al_get_pixel_block_width(src_format);
+      int block_height = al_get_pixel_block_height(src_format);
       if (!(src_region = al_lock_bitmap_blocked(src, ALLEGRO_LOCK_READONLY)))
          return false;
 
@@ -481,7 +482,7 @@ static bool transfer_bitmap_data(ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst)
          return false;
       }
       copy_w = _al_get_least_multiple(copy_w, block_width);
-      copy_h = _al_get_least_multiple(copy_h, block_width);
+      copy_h = _al_get_least_multiple(copy_h, block_height);
       ALLEGRO_DEBUG("Taking fast clone path");
    }
    else {
@@ -521,6 +522,7 @@ void _al_copy_bitmap_data(
    int format)
 {
    int block_width = al_get_pixel_block_width(format);
+   int block_height = al_get_pixel_block_height(format);
    int block_size = al_get_pixel_block_size(format);
    const char *src_ptr = src;
    char *dst_ptr = dst;
@@ -529,19 +531,19 @@ void _al_copy_bitmap_data(
    ASSERT(src);
    ASSERT(dst);
    ASSERT(_al_pixel_format_is_real(format));
-   ASSERT(height % block_width == 0);
    ASSERT(width % block_width == 0);
+   ASSERT(height % block_height == 0);
    ASSERT(sx % block_width == 0);
-   ASSERT(sy % block_width == 0);
-   ASSERT(dy % block_width == 0);
+   ASSERT(sy % block_height == 0);
    ASSERT(dx % block_width == 0);
+   ASSERT(dy % block_height == 0);
 
    sx /= block_width;
-   sy /= block_width;
+   sy /= block_height;
    dx /= block_width;
-   dy /= block_width;
+   dy /= block_height;
    width /= block_width;
-   height /= block_width;
+   height /= block_height;
 
    src_ptr += sy * src_pitch + sx * block_size;
    dst_ptr += dy * dst_pitch + dx * block_size;

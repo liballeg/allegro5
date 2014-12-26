@@ -190,7 +190,7 @@ compress these bitmaps ahead of time using external tools and then load them
 compressed.
 
 Unlike regular pixel formats, compressed pixel formats are not laid out in
-memory one pixel row at a time. Instead, the bitmap is subdivided into square
+memory one pixel row at a time. Instead, the bitmap is subdivided into rectangular
 blocks of pixels that are then laid out in block rows. This means that regular
 locking functions cannot use compressed pixel formats as the destination
 format. Instead, you can use the blocked versions of the bitmap locking
@@ -282,16 +282,23 @@ Return the number of bytes that a block of pixels with this format occupies.
 
 Since: 5.1.9.
 
-See also: [ALLEGRO_PIXEL_FORMAT], [al_get_pixel_block_width]
+See also: [ALLEGRO_PIXEL_FORMAT], [al_get_pixel_block_width], [al_get_pixel_block_height]
 
 ### API: al_get_pixel_block_width
 
-Return the width of the the pixel block for this format. Blocks always have a
-square shape.
+Return the width of the the pixel block for this format.
 
 Since: 5.1.9.
 
-See also: [ALLEGRO_PIXEL_FORMAT], [al_get_pixel_block_size]
+See also: [ALLEGRO_PIXEL_FORMAT], [al_get_pixel_block_size], [al_get_pixel_block_height]
+
+### API: al_get_pixel_block_height
+
+Return the height of the the pixel block for this format.
+
+Since: 5.1.9.
+
+See also: [ALLEGRO_PIXEL_FORMAT], [al_get_pixel_block_size], [al_get_pixel_block_width]
 
 ### API: al_lock_bitmap
 
@@ -338,11 +345,13 @@ If the bitmap is a video bitmap, only that area of the texture will
 be updated when it is unlocked. Locking only the region you indend to
 modify will be faster than locking the whole bitmap.
 
-> *Note:* Using the ALLEGRO_LOCK_WRITEONLY with a blocked pixel format (i.e.
-formats for which [al_get_pixel_block_width] does not return 1) requires you to
-have the region be aligned to the block width for optimal performance. If it is
+> *Note:* Using the ALLEGRO_LOCK_WRITEONLY with a blocked pixel format
+(i.e. formats for which [al_get_pixel_block_width] or
+[al_get_pixel_block_height] do not return 1) requires you to have the
+region be aligned to the block width for optimal performance. If it is
 not, then the function will have to lock the region with the
-ALLEGRO_LOCK_READWRITE instead in order to pad this region with valid data.
+ALLEGRO_LOCK_READWRITE instead in order to pad this region with valid
+data.
 
 See also: [ALLEGRO_LOCKED_REGION], [ALLEGRO_PIXEL_FORMAT], [al_unlock_bitmap]
 
@@ -357,10 +366,11 @@ See also: [al_lock_bitmap], [al_lock_bitmap_region], [al_lock_bitmap_blocked],
 
 ### API: al_lock_bitmap_blocked
 
-Like [al_lock_bitmap], but allows locking bitmaps with a blocked pixel format
-(i.e. a format for which [al_get_pixel_block_width] does not return 1) in that
-format. To that end, this function also does not allow format conversion. For
-bitmap formats with a block size of 1, this function is identical to calling
+Like [al_lock_bitmap], but allows locking bitmaps with a blocked pixel
+format (i.e. a format for which [al_get_pixel_block_width] or
+[al_get_pixel_block_height] do not return 1) in that format. To that
+end, this function also does not allow format conversion. For bitmap
+formats with a block size of 1, this function is identical to calling
 `al_lock_bitmap(bmp, al_get_bitmap_format(bmp), flags)`.
 
 > *Note:* Currently there are no drawing functions that work when the bitmap is

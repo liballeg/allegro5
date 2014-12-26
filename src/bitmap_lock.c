@@ -29,14 +29,17 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
    int bitmap_format = al_get_bitmap_format(bitmap);
    int bitmap_flags = al_get_bitmap_flags(bitmap);
    int block_width = al_get_pixel_block_width(bitmap_format);
+   int block_height = al_get_pixel_block_height(bitmap_format);
    int xc, yc, wc, hc;
    ASSERT(x >= 0);
    ASSERT(y >= 0);
    ASSERT(width >= 0);
    ASSERT(height >= 0);
    ASSERT(!_al_pixel_format_is_video_only(format));
-   if (_al_pixel_format_is_real(format))
+   if (_al_pixel_format_is_real(format)) {
       ASSERT(al_get_pixel_block_width(format) == 1);
+      ASSERT(al_get_pixel_block_height(format) == 1);
+   }
 
    /* For sub-bitmaps */
    if (bitmap->parent) {
@@ -56,9 +59,9 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
    ASSERT(y+height <= bitmap->h);
 
    xc = (x / block_width) * block_width;
-   yc = (y / block_width) * block_width;
+   yc = (y / block_height) * block_height;
    wc = _al_get_least_multiple(x + width, block_width) - xc;
-   hc = _al_get_least_multiple(y + height, block_width) - yc;
+   hc = _al_get_least_multiple(y + height, block_height) - yc;
 
    bitmap->lock_x = xc;
    bitmap->lock_y = yc;
@@ -173,10 +176,11 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_blocked(ALLEGRO_BITMAP *bitmap,
 {
    int bitmap_format = al_get_bitmap_format(bitmap);
    int block_width = al_get_pixel_block_width(bitmap_format);
+   int block_height = al_get_pixel_block_height(bitmap_format);
 
    return al_lock_bitmap_region_blocked(bitmap, 0, 0,
       _al_get_least_multiple(bitmap->w, block_width) / block_width,
-      _al_get_least_multiple(bitmap->h, block_width) / block_width,
+      _al_get_least_multiple(bitmap->h, block_height) / block_height,
       flags);
 }
 
@@ -189,12 +193,13 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region_blocked(ALLEGRO_BITMAP *bitmap,
    int bitmap_format = al_get_bitmap_format(bitmap);
    int bitmap_flags = al_get_bitmap_flags(bitmap);
    int block_width = al_get_pixel_block_width(bitmap_format);
+   int block_height = al_get_pixel_block_height(bitmap_format);
    ASSERT(x_block >= 0);
    ASSERT(y_block >= 0);
    ASSERT(width_block >= 0);
    ASSERT(height_block >= 0);
 
-   if (block_width == 1 && !_al_pixel_format_is_video_only(bitmap_format)) {
+   if (block_width == 1 && block_height == 1 && !_al_pixel_format_is_video_only(bitmap_format)) {
       return al_lock_bitmap_region(bitmap, x_block, y_block, width_block,
          height_block, bitmap_format, flags);
    }
@@ -206,11 +211,11 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region_blocked(ALLEGRO_BITMAP *bitmap,
    /* For sub-bitmaps */
    if (bitmap->parent) {
       if (bitmap->xofs % block_width != 0 ||
-          bitmap->yofs % block_width != 0) {
+          bitmap->yofs % block_height != 0) {
          return NULL;
       }
       x_block += bitmap->xofs / block_width;
-      y_block += bitmap->yofs / block_width;
+      y_block += bitmap->yofs / block_height;
       bitmap = bitmap->parent;
    }
 
@@ -223,12 +228,12 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region_blocked(ALLEGRO_BITMAP *bitmap,
    ASSERT(x_block + width_block
       <= _al_get_least_multiple(bitmap->w, block_width) / block_width);
    ASSERT(y_block + height_block
-      <= _al_get_least_multiple(bitmap->h, block_width) / block_width);
+      <= _al_get_least_multiple(bitmap->h, block_height) / block_height);
 
    bitmap->lock_x = x_block * block_width;
-   bitmap->lock_y = y_block * block_width;
+   bitmap->lock_y = y_block * block_height;
    bitmap->lock_w = width_block * block_width;
-   bitmap->lock_h = height_block * block_width;
+   bitmap->lock_h = height_block * block_height;
    bitmap->lock_flags = flags;
 
    lr = bitmap->vt->lock_compressed_region(bitmap, bitmap->lock_x,

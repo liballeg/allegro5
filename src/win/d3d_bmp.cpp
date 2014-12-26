@@ -243,12 +243,13 @@ static void d3d_sync_bitmap_memory(ALLEGRO_BITMAP *bitmap)
    if (texture->LockRect(0, &locked_rect, NULL, 0) == D3D_OK) {
       int block_size = al_get_pixel_block_size(bitmap_format);
       int block_width = al_get_pixel_block_width(bitmap_format);
+      int block_height = al_get_pixel_block_height(bitmap_format);
       int mem_pitch = _al_get_least_multiple(bitmap->w, block_width) *
          block_size / block_width;
       _al_copy_bitmap_data(locked_rect.pBits, locked_rect.Pitch,
          bitmap->memory, mem_pitch,
          0, 0, 0, 0, _al_get_least_multiple(bitmap->w, block_width),
-         _al_get_least_multiple(bitmap->h, block_width), bitmap_format);
+         _al_get_least_multiple(bitmap->h, block_height), bitmap_format);
       texture->UnlockRect(0);
    }
    else {
@@ -597,7 +598,9 @@ bool _al_d3d_recreate_bitmap_textures(ALLEGRO_DISPLAY_D3D *disp)
 
       if ((void *)_al_get_bitmap_display(bmp) == (void *)disp) {
          int block_width =
-            al_get_pixel_block_size(al_get_bitmap_format(bmp));
+            al_get_pixel_block_width(al_get_bitmap_format(bmp));
+         int block_height =
+            al_get_pixel_block_height(al_get_bitmap_format(bmp));
          if (!d3d_create_textures(disp, extra->texture_w,
             extra->texture_h,
             al_get_bitmap_flags(bmp),
@@ -608,7 +611,7 @@ bool _al_d3d_recreate_bitmap_textures(ALLEGRO_DISPLAY_D3D *disp)
             return false;
          d3d_do_upload(bmp, 0, 0,
             _al_get_least_multiple(bmp->w, block_width),
-            _al_get_least_multiple(bmp->h, block_width), true);
+            _al_get_least_multiple(bmp->h, block_height), true);
       }
    }
 
@@ -641,10 +644,11 @@ void _al_d3d_refresh_texture_memory(ALLEGRO_DISPLAY *display)
          &extra->video_texture, /*&bmp->system_texture*/0, al_get_bitmap_format(bmp), 0);
       if (!(bitmap_flags & ALLEGRO_NO_PRESERVE_TEXTURE)) {
          int block_width = al_get_pixel_block_width(al_get_bitmap_format(bmp));
+         int block_height = al_get_pixel_block_height(al_get_bitmap_format(bmp));
          d3d_sync_bitmap_texture(bmp,
             0, 0,
             _al_get_least_multiple(bmp->w, block_width),
-            _al_get_least_multiple(bmp->h, block_width));
+            _al_get_least_multiple(bmp->h, block_height));
          if (_al_d3d_render_to_texture_supported()
                && !_al_pixel_format_is_compressed(al_get_bitmap_format(bmp))) {
             extra->display->device->UpdateTexture(
@@ -661,8 +665,9 @@ static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap)
    int bitmap_format = al_get_bitmap_format(bitmap);
    int system_format = d3d_bmp->system_format;
    int block_width = al_get_pixel_block_width(bitmap_format);
+   int block_height = al_get_pixel_block_height(bitmap_format);
    int w = _al_get_least_multiple(bitmap->w, block_width);
-   int h = _al_get_least_multiple(bitmap->h, block_width);
+   int h = _al_get_least_multiple(bitmap->h, block_height);
 
    if (d3d_bmp->display->device_lost)
       return false;
@@ -693,7 +698,7 @@ static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       if (d3d_bmp->texture_h < 16) d3d_bmp->texture_h = 16;
 
       ASSERT(d3d_bmp->texture_w % block_width == 0);
-      ASSERT(d3d_bmp->texture_h % block_width == 0);
+      ASSERT(d3d_bmp->texture_h % block_height == 0);
 
       if (d3d_bmp->video_texture == 0)
          if (!d3d_create_textures(d3d_bmp->display,
@@ -929,12 +934,13 @@ static void d3d_unlock_region(ALLEGRO_BITMAP *bitmap)
 
       if (compressed) {
          int block_width = al_get_pixel_block_width(bitmap_format);
+         int block_height = al_get_pixel_block_height(bitmap_format);
          int xc = (bitmap->lock_x / block_width) * block_width;
-         int yc = (bitmap->lock_y / block_width) * block_width;
+         int yc = (bitmap->lock_y / block_height) * block_height;
          int wc =
             _al_get_least_multiple(bitmap->lock_x + bitmap->lock_w, block_width) - xc;
          int hc =
-            _al_get_least_multiple(bitmap->lock_y + bitmap->lock_h, block_width) - yc;
+            _al_get_least_multiple(bitmap->lock_y + bitmap->lock_h, block_height) - yc;
          if(!convert_compressed(
             d3d_bmp->video_texture, d3d_bmp->system_texture, xc, yc, wc, hc)) {
             ALLEGRO_ERROR("Could not compress.\n");
