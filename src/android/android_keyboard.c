@@ -162,4 +162,12 @@ JNI_FUNC(void, KeyListener, nativeOnKeyChar, (JNIEnv *env, jobject obj,
       ALLEGRO_EVENT_KEY_CHAR);
 }
 
+JNI_FUNC(void, KeyListener, nativeOnJoystickButton, (JNIEnv *env, jobject obj,
+   jint index, jint button, jboolean down))
+{
+   (void)env;
+   (void)obj;
+   _al_android_generate_joystick_button_event(index, button, down);
+}
+
 /* vim: set sts=3 sw=3 et: */
