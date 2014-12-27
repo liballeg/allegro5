@@ -20,12 +20,12 @@ before_install:
 before_script:
   - mkdir build
   - cd build
-  - cmake ..
+  - cmake .. -DWANT_OPENGL_S3TC_LOCKING=1
 
 script:
     - if [ `uname` = "Linux" ]; then
           make;
-          tests/test_driver ../tests/test_*.ini;
+          tests/test_driver ../tests/test_*.ini | grep 'failed tests: 0';
       elif [ `uname` = "Darwin" ]; then
           xcodebuild;
       fi
