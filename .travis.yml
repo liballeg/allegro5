@@ -24,8 +24,9 @@ before_script:
 
 script:
     - if [ `uname` = "Linux" ]; then
-          make;
-          tests/test_driver ../tests/test_*.ini | grep 'failed tests: 0';
+         make
+         tests/test_driver ../tests/test_*.ini | tee /tmp/test_out
+         grep -q 'failed tests: 0' /tmp/test_out
       elif [ `uname` = "Darwin" ]; then
-          xcodebuild;
+         xcodebuild
       fi
