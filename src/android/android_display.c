@@ -828,10 +828,8 @@ static void android_acknowledge_drawing_halt(ALLEGRO_DISPLAY *dpy)
 static void android_broadcast_resume(ALLEGRO_DISPLAY_ANDROID *d)
 {
    ALLEGRO_DEBUG("Broadcasting resume");
-   al_lock_mutex(d->mutex);
    d->resumed = true;
    al_broadcast_cond(d->cond);
-   al_unlock_mutex(d->mutex);
    ALLEGRO_DEBUG("done broadcasting resume");
 }
 
