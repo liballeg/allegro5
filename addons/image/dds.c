@@ -66,7 +66,7 @@ ALLEGRO_BITMAP *_al_load_dds_f(ALLEGRO_FILE *f, int flags)
    size_t num_read;
    int w, h, fourcc, format, block_width, block_height, block_size;
    ALLEGRO_STATE state;
-   ALLEGRO_LOCKED_REGION *lr;
+   ALLEGRO_LOCKED_REGION *lr = NULL;
    int ii;
    char* bitmap_data;
    (void)flags;

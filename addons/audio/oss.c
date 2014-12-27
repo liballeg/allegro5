@@ -68,7 +68,9 @@ static char oss_audio_device[512];
 
 /* timing policy (between 0 and 10), used by OSS4
  * Make this configurable? */
+#ifdef OSS_VER_4
 static const int oss_timing_policy = 5;
+#endif
 
 /* Fragment size, used by OSS3 
  * Make this configurable? */

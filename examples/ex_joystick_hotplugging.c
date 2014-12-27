@@ -124,7 +124,6 @@ int main(int argc, char **argv)
          }
       }
       else if (event.type == ALLEGRO_EVENT_JOYSTICK_CONFIGURATION) {
-         int old = al_get_num_joysticks();
          al_reconfigure_joysticks();
          num_joysticks = al_get_num_joysticks();
          log_printf("after reconfiguration num joysticks = %d\n",

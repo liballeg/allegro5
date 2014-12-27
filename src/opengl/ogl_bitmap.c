@@ -974,13 +974,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h,
    }
 
    /* Android included because some devices require POT FBOs */
-   if (!IS_OPENGLES &&
-      d->extra_settings.settings[ALLEGRO_SUPPORT_NPOT_BITMAP])
-   {
-      true_w = true_w;
-      true_h = true_h;
-   }
-   else {
+   if (IS_OPENGLES || !d->extra_settings.settings[ALLEGRO_SUPPORT_NPOT_BITMAP]) {
       true_w = pot(true_w);
       true_h = pot(true_h);
    }

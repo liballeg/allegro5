@@ -255,7 +255,7 @@ int al_for_each_fs_entry(ALLEGRO_FS_ENTRY *dir,
       int result = callback(entry, extra);
       
       /* Recurse if requested and needed. Only OK allows recursion. */
-      if ((result == ALLEGRO_FOR_EACH_FS_ENTRY_OK)) {
+      if (result == ALLEGRO_FOR_EACH_FS_ENTRY_OK) {
          if (al_get_fs_entry_mode(entry) & ALLEGRO_FILEMODE_ISDIR) {
             result = al_for_each_fs_entry(entry, callback, extra);
          }
