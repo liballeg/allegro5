@@ -144,8 +144,8 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    ALLEGRO_DISPLAY_WIN *win_display;
    int flags = 0;
    bool ret;
-   const int BUFSIZE = 4096;
-   char buf[BUFSIZE];
+   char buf[4096];
+   const int BUFSIZE = sizeof(buf);
    ALLEGRO_USTR *filter_string = NULL;
    ALLEGRO_PATH* initial_dir_path = NULL;
 
