@@ -23,7 +23,8 @@ before_script:
   - cmake .. -DWANT_OPENGL_S3TC_LOCKING=1
 
 script:
-    - if [ `uname` = "Linux" ]; then
+    - |
+      if [ `uname` = "Linux" ]; then
          make
          tests/test_driver ../tests/test_*.ini | tee /tmp/test_out
          grep -q 'failed tests: 0' /tmp/test_out
