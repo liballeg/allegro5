@@ -1,8 +1,7 @@
 Android
 =======
 
-This port should support Android 2.3 (Gingerbread) and above.
-Confirmed working on Android 2.1 and 2.2 devices at least.
+This port should support Android 3.1 (Honeycomb) and above.
 
 
 Dependencies
@@ -25,8 +24,8 @@ environment variable. If you installed the SDK in $HOME/android-sdk, add
 $HOME/android-sdk/tools to your PATH.
 
 Once extracted you must run "android" (or android.bat on Windows) and install
-a version of the SDK. Allegro needs version 10 (2.3.3) so install that. You
-can use a higher version for your game later if you like.
+a version of the SDK. Allegro needs version 12 (3.1) so install that. You can
+use a higher version for your game later if you like.
 
 Also make sure the JAVA_HOME environment variable is set to your JDK
 directory (not always the case.)
