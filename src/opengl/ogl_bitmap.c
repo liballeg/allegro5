@@ -762,7 +762,9 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
     * See also pitfalls 7 & 8 from:
     * http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall/
     */
+#ifdef GL_CLIENT_PIXEL_STORE_BIT
    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
+#endif
    {
       glPixelStorei(GL_PACK_ALIGNMENT, 1);
       e = glGetError();
@@ -822,7 +824,9 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
       }
    }
 
+#ifdef GL_CLIENT_PIXEL_STORE_BIT
    glPopClientAttrib();
+#endif
 
    if (old_disp != NULL) {
       _al_set_current_display_only(old_disp);
@@ -876,7 +880,9 @@ static void ogl_unlock_compressed_region(ALLEGRO_BITMAP *bitmap)
    }
 
    /* Keep this in sync with ogl_lock_compressed_region. */
+#ifdef GL_CLIENT_PIXEL_STORE_BIT
    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
+#endif
    {
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       e = glGetError();
@@ -900,7 +906,9 @@ static void ogl_unlock_compressed_region(ALLEGRO_BITMAP *bitmap)
          _al_pixel_format_name(lock_format), _al_gl_error_string(e));
    }
 
+#ifdef GL_CLIENT_PIXEL_STORE_BIT
    glPopClientAttrib();
+#endif
 
    if (old_disp) {
       _al_set_current_display_only(old_disp);
