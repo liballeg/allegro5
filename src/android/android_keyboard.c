@@ -167,7 +167,7 @@ JNI_FUNC(void, KeyListener, nativeOnJoystickButton, (JNIEnv *env, jobject obj,
 {
    (void)env;
    (void)obj;
-   _al_android_generate_joystick_button_event(index, button, down);
+   _al_android_generate_joystick_button_event(index+1, button, down);
 }
 
 /* vim: set sts=3 sw=3 et: */

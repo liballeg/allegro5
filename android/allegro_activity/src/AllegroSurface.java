@@ -199,20 +199,20 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback, OnGe
          float az = event.getAxisValue(MotionEvent.AXIS_Z, 0);
          float arz = event.getAxisValue(MotionEvent.AXIS_RZ, 0);
          if (ax != axis0_x || ay != axis0_y) {
-            nativeOnJoystickAxis(index+1, 0, 0, ax);
-            nativeOnJoystickAxis(index+1, 0, 1, ay);
+            nativeOnJoystickAxis(index, 0, 0, ax);
+            nativeOnJoystickAxis(index, 0, 1, ay);
             axis0_x = ax;
             axis0_y = ay;
          }
          else if (ahx != axis0_hat_x || ahy != axis0_hat_y) {
-            handleHat(index+1, axis0_hat_x, ahx, AllegroActivity.JS_DPAD_L, AllegroActivity.JS_DPAD_R);
-            handleHat(index+1, axis0_hat_y, ahy, AllegroActivity.JS_DPAD_U, AllegroActivity.JS_DPAD_D);
+            handleHat(index, axis0_hat_x, ahx, AllegroActivity.JS_DPAD_L, AllegroActivity.JS_DPAD_R);
+            handleHat(index, axis0_hat_y, ahy, AllegroActivity.JS_DPAD_U, AllegroActivity.JS_DPAD_D);
             axis0_hat_x = ahx;
             axis0_hat_y = ahy;
          }
          if (az != axis1_x || arz != axis1_y) {
-            nativeOnJoystickAxis(index+1, 1, 0, az);
-            nativeOnJoystickAxis(index+1, 1, 1, arz);
+            nativeOnJoystickAxis(index, 1, 0, az);
+            nativeOnJoystickAxis(index, 1, 1, arz);
             axis1_x = az;
             axis1_y = arz;
          }

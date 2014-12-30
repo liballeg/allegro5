@@ -137,7 +137,7 @@ class KeyListener implements View.OnKeyListener
       int index = activity.indexOfJoystick(id);
       int code = -1;
       if (index >= 0) {
-         code = getCode(keyCode, event, index+1);
+         code = getCode(keyCode, event, index);
       }
       if (code == -1) {
          return onKeyboardKey(v, keyCode, event);

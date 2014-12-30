@@ -185,7 +185,7 @@ JNI_FUNC(void, AllegroSurface, nativeOnJoystickAxis, (JNIEnv *env, jobject obj,
 {
    (void)env;
    (void)obj;
-   _al_android_generate_joystick_axis_event(index, stick, axis, value);
+   _al_android_generate_joystick_axis_event(index+1, stick, axis, value);
 }
 
 JNI_FUNC(void, AllegroSurface, nativeOnJoystickButton, (JNIEnv *env, jobject obj,
@@ -193,7 +193,7 @@ JNI_FUNC(void, AllegroSurface, nativeOnJoystickButton, (JNIEnv *env, jobject obj
 {
    (void)env;
    (void)obj;
-   _al_android_generate_joystick_button_event(index, button, down);
+   _al_android_generate_joystick_button_event(index+1, button, down);
 }
 
 void _al_android_create_surface(JNIEnv *env, bool post)
