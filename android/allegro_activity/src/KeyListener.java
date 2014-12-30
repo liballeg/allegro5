@@ -129,6 +129,10 @@ class KeyListener implements View.OnKeyListener
    }
 
    public boolean onKey(View v, int keyCode, KeyEvent event) {
+      if (activity.joystickActive == false) {
+         return onKeyboardKey(v, keyCode, event);
+      }
+
       int id = event.getDeviceId();
       int index = activity.indexOfJoystick(id);
       int code = -1;

@@ -80,6 +80,8 @@ static bool andjoy_init_joystick(void)
 
     initialized = true;
 
+    _jni_callVoidMethod(_al_android_get_jnienv(), _al_android_activity_object(), "setJoystickActive");
+
     return true;
 }
 
@@ -141,6 +143,8 @@ static void andjoy_release_joystick(ALLEGRO_JOYSTICK *joy)
         al_free(*((ALLEGRO_JOYSTICK_ANDROID **)_al_vector_ref(&joysticks, 0)));
         _al_vector_delete_at(&joysticks, 0);
     }
+
+    _jni_callVoidMethod(_al_android_get_jnienv(), _al_android_activity_object(), "setJoystickInactive");
 
     ALLEGRO_DEBUG("Joystick released.\n");
     initialized = false;

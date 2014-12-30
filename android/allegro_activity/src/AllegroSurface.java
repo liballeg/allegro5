@@ -185,6 +185,10 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback, OnGe
 
    @Override
    public boolean onGenericMotion(View v, MotionEvent event) {
+      if (activity.joystickActive == false) {
+         return false;
+      }
+
       int id = event.getDeviceId();
       int index = activity.indexOfJoystick(id);
       if (index >= 0) {

@@ -46,6 +46,8 @@ public class AllegroActivity extends Activity
    public final static int JS_DPAD_D = 9;
    public final static int JS_MENU = 10;
 
+   public boolean joystickActive = false;
+
    /* native methods we call */
    native boolean nativeOnCreate();
    native void nativeOnPause();
@@ -492,6 +494,14 @@ public class AllegroActivity extends Activity
 
    public int indexOfJoystick(int id) {
       return joysticks.indexOf(id, 0);
+   }
+
+   public void setJoystickActive() {
+      joystickActive = true;
+   }
+
+   public void setJoystickInactive() {
+      joystickActive = false;
    }
 }
 
