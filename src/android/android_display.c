@@ -871,7 +871,8 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
          !(bitmap_flags & ALLEGRO_MEMORY_BITMAP) &&
          !(bitmap_flags & ALLEGRO_NO_PRESERVE_TEXTURE))
       {
-         int format = _al_pixel_format_is_compressed(format) ? ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE : format;
+         int format = al_get_bitmap_format(bmp);
+         format = _al_pixel_format_is_compressed(format) ? ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE : format;
          _al_ogl_upload_bitmap_memory(bmp, format, bmp->memory);
          bmp->dirty = false;
       }
