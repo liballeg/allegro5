@@ -1,8 +1,14 @@
 /*
- * Allegro5 Creative Voice Reader.
- * Based on external libsndfile usage
- * Can only load samples right now
+ * Allegro5 Creative Voice Audio Reader.
+ *
+ * Requires libsndfile
+ *
  * author: pkrcel (aka Andrea Provasi) <pkrcel@gmail.com>
+ *
+ * Revisions:
+ *            2014-12-30 Initial Release - can only load samples
+ *            2015-01-02 Source check and complete test with ex_acodec
+ *                       First pull requesto to Allegro Dev team
  */
 
 #include "allegro5/allegro.h"
@@ -41,31 +47,32 @@ static bool cva_virgin = true;
 
 static struct
 {
-   SNDFILE*    (*sf_open_virtual) (SF_VIRTUAL_IO *sfvirtual, int mode, SF_INFO *sfinfo, void *user_data);
+   SNDFILE*    (*sf_open_virtual) (SF_VIRTUAL_IO *sfvirtual, int mode,
+                                   SF_INFO *sfinfo, void *user_data);
 //   int         (*sf_error)        (SNDFILE *);
 //   const char* (*sf_strerror)     (SNDFILE *);
-//   const char* (*sf_error_number) (int) ;
-//   int         (*sf_command)      (SNDFILE *, int , void *, int ) ;
+//   const char* (*sf_error_number) (int);
+//   int         (*sf_command)      (SNDFILE *, int , void *, int );
 
-   sf_count_t (*sf_readf_short)   (SNDFILE *, short *, sf_count_t ) ;
-//   sf_count_t (*sf_writef_short)  (SNDFILE *, const short *, sf_count_t ) ;
-//   sf_count_t (*sf_readf_int)     (SNDFILE *, int *, sf_count_t ) ;
-//   sf_count_t (*sf_writef_int)    (SNDFILE *, const int *, sf_count_t ) ;
-//   sf_count_t (*sf_readf_float)   (SNDFILE *, float *, sf_count_t ) ;
-//   sf_count_t (*sf_writef_float)  (SNDFILE *, const float *, sf_count_t ) ;
-//   sf_count_t (*sf_readf_double)  (SNDFILE *, double *, sf_count_t ) ;
-//   sf_count_t (*sf_writef_double) (SNDFILE *, const double *, sf_count_t ) ;
+   sf_count_t (*sf_readf_short)   (SNDFILE *, short *, sf_count_t );
+//   sf_count_t (*sf_writef_short)  (SNDFILE *, const short *, sf_count_t );
+//   sf_count_t (*sf_readf_int)     (SNDFILE *, int *, sf_count_t );
+//   sf_count_t (*sf_writef_int)    (SNDFILE *, const int *, sf_count_t );
+//   sf_count_t (*sf_readf_float)   (SNDFILE *, float *, sf_count_t );
+//   sf_count_t (*sf_writef_float)  (SNDFILE *, const float *, sf_count_t );
+//   sf_count_t (*sf_readf_double)  (SNDFILE *, double *, sf_count_t );
+//   sf_count_t (*sf_writef_double) (SNDFILE *, const double *, sf_count_t );
 
-   sf_count_t (*sf_read_short)    (SNDFILE *, short *, sf_count_t ) ;
-//   sf_count_t (*sf_write_short)   (SNDFILE *, const short *, sf_count_t ) ;
-//   sf_count_t (*sf_read_int)      (SNDFILE *, int *, sf_count_t ) ;
-//   sf_count_t (*sf_write_int)     (SNDFILE *, const int *, sf_count_t ) ;
-//   sf_count_t (*sf_read_float)    (SNDFILE *, float *, sf_count_t ) ;
+   sf_count_t (*sf_read_short)    (SNDFILE *, short *, sf_count_t );
+//   sf_count_t (*sf_write_short)   (SNDFILE *, const short *, sf_count_t );
+//   sf_count_t (*sf_read_int)      (SNDFILE *, int *, sf_count_t );
+//   sf_count_t (*sf_write_int)     (SNDFILE *, const int *, sf_count_t );
+//   sf_count_t (*sf_read_float)    (SNDFILE *, float *, sf_count_t );
 //   sf_count_t (*sf_write_float)   (SNDFILE *, const float *, sf_count_t ) ;
-//   sf_count_t (*sf_read_double)   (SNDFILE *, double *, sf_count_t ) ;
-//   sf_count_t (*sf_write_double)  (SNDFILE *, const double *, sf_count_t ) ;
+//   sf_count_t (*sf_read_double)   (SNDFILE *, double *, sf_count_t );
+//   sf_count_t (*sf_write_double)  (SNDFILE *, const double *, sf_count_t );
 
-   int        (*sf_close)         (SNDFILE *) ;
+   int        (*sf_close)         (SNDFILE *);
 } lib;
 
 
@@ -128,9 +135,11 @@ static bool init_dynlib(void)
 }
 
 /*
- * Providing SF_VIRTUAL_IO functions to later be called on sf_open_virtual
+ * Providing SF_VIRTUAL_IO environment
+ * these functions have to be passed later to sf_open_virtual
+ * For mor information:
+ *    <http://www.mega-nerd.com/libsndfile/api.html#open_virtual>
  */
-
 static sf_count_t _al_sf_vio_get_filelen(void *user_data){
    ALLEGRO_FILE *f = (ALLEGRO_FILE*)user_data;
    return (sf_count_t)al_fsize(f);
@@ -160,8 +169,11 @@ static sf_count_t _al_sf_vio_read(void *ptr, sf_count_t count, void *user_data){
    return nrbytes;
 }
 
+/*
+ * This is not yet implemented, current release does not save samples.
+ *
+ */
 static sf_count_t _al_sf_vio_write(const void *ptr, sf_count_t count, void *user_data){
-   // won't implement, we do not need to write to a virtual IO so far
    return 0;
 }
 
@@ -200,28 +212,23 @@ ALLEGRO_SAMPLE *_al_load_creative_voice(const char *filename)
 
 ALLEGRO_SAMPLE *_al_load_creative_voice_f(ALLEGRO_FILE *file)
 {
-   /* Note: decoding library returns "whatever we want" as far it is transparent
+   /* NOTE: The decoding library libsndfile returns "whatever we want"
+    * and is transparent to the user.
     * To conform to other acodec handlers, we'll use 16-bit "short" an no other
-    * Might change in the future.
+    * format as the 16Bit PCM data seems to be the most commonly supported.
+    *
+    * The decoding library uses the native endian format of the host, so no need
+    * to check curent endianess.
     */
 
-   //endinanees check might be superfluos
-#ifdef ALLEGRO_LITTLE_ENDIAN
-   //const int endian = 0; /* 0 for Little-Endian, 1 for Big-Endian */
-#else
-   //const int endian = 1; /* 0 for Little-Endian, 1 for Big-Endian */
-#endif
+   const int word_size = 2;  /* constant stands for 16-bit */
 
-   //const int packet_size = 4096; /* suggestion for size to read at a time */
-   const int word_size = 2;  /* constant for 16-bit */
-
-   short *buffer;
-   long pos;
+   short *buffer;            /* the actual PCM data buffer */
    ALLEGRO_SAMPLE *sample;
    int channels;
    long samplerate;
    long total_samples;
-   long total_size;
+   long total_size;          /* unsure about how I handle this */
    AL_SNDFILE_DATA al_sd;
    long read;
 
@@ -229,7 +236,7 @@ ALLEGRO_SAMPLE *_al_load_creative_voice_f(ALLEGRO_FILE *file)
       return NULL;
    }
 
-   //Initialize the sndfile object
+   /* Initialize the sndfile object we pass to the decoder*/
    memset(&al_sd, 0, sizeof(al_sd));
    al_sd.al_sd_vio.get_filelen = _al_sf_vio_get_filelen;
    al_sd.al_sd_vio.read = _al_sf_vio_read;
@@ -239,9 +246,15 @@ ALLEGRO_SAMPLE *_al_load_creative_voice_f(ALLEGRO_FILE *file)
    al_sd.file = file;
 
 
-   // We need to open the file to get the parameters
-   al_sd.sf = lib.sf_open_virtual(&al_sd.al_sd_vio, SFM_READ, &al_sd.sfinfo, al_sd.file);
+   /* Need to open the file first to get the parameters
+    *
+    * TODO: inser proper error handling, even thou the ALLEGRO_FILE should
+    * already have been properly handled by the caller
+    *
+    */
 
+   al_sd.sf = lib.sf_open_virtual(&al_sd.al_sd_vio, SFM_READ,
+                                  &al_sd.sfinfo, al_sd.file);
 
    channels = al_sd.sfinfo.channels;
    samplerate = al_sd.sfinfo.samplerate;
@@ -261,24 +274,13 @@ ALLEGRO_SAMPLE *_al_load_creative_voice_f(ALLEGRO_FILE *file)
    }
 
    /*
-    * libsndfile allows us to not read in chunks but this is STILL safer than
-    * an all-or-nothing whole file read, I guess
+    * libsndfile allows us to read all the buffer in "frames".
+    * Given that 'total_size' is correct, there should not be any overrun.
+    * NOTE: 'read' is unused by it might be beneficial to add a sanity check
+    * having it compared to the total frames actually read and the expected.
     */
-
-//   pos = 0;
-//   while (pos < total_size) {
-//      const int read_size = _ALLEGRO_MIN(packet_size, total_size - pos);
-//      ASSERT(pos + read_size <= total_size);
-
-//      /* TODO: lacks error handling, implement sooner than later*/
-//      read = lib.sf_read_short(al_sd.sf, buffer + pos, read_size);
-
-//      pos += read;
-//      if (read == 0)
-//         break;
-//   }
-
    read = lib.sf_readf_short(al_sd.sf, buffer, al_sd.sfinfo.frames);
+
    sample = al_create_sample(buffer, total_samples, samplerate,
       _al_word_size_to_depth_conf(word_size),
       _al_count_to_channel_conf(channels), true);
@@ -293,7 +295,7 @@ ALLEGRO_SAMPLE *_al_load_creative_voice_f(ALLEGRO_FILE *file)
 }
 
 /*
- *
- * Should Implement also stream seek.
+ * TODO:
+ * Should also provide a STREAM implementation.
  *
  */
