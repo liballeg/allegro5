@@ -359,6 +359,9 @@ public class AllegroActivity extends Activity
 
       nativeOnResume();
 
+      /* This is needed to get joysticks working again */
+      reconfigureJoysticks();
+
       Log.d("AllegroActivity", "onResume end");
    }
 
