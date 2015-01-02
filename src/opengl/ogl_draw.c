@@ -44,11 +44,19 @@ bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
    al_get_separate_blender(&op, &src_color, &dst_color,
       &op_alpha, &src_alpha, &dst_alpha);
    /* glBlendFuncSeparate was only included with OpenGL 1.4 */
-   /* (And not in OpenGL ES) */
 #if !defined ALLEGRO_CFG_OPENGLES
    if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_1_4) {
 #else
+   /* FIXME: At this time (09/2014) there are a lot of Android phones that
+    * don't support glBlendFuncSeparate even though they claim OpenGL ES 2.0
+    * support. Rather than not work on 20-25% of phones, we just don't support
+    * separate blending on Android for now.
+    */
+#ifdef ALLEGRO_ANDROID
+   if (false) {
+#else
    if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
+#endif
 #endif
       glEnable(GL_BLEND);
       glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],

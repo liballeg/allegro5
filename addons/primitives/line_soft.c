@@ -22,6 +22,8 @@
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_primitives.h"
 #include "allegro5/internal/aintern_blend.h"
+#include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_pixels.h"
 #include "allegro5/internal/aintern_prim.h"
 #include "allegro5/internal/aintern_prim_soft.h"
 #include <math.h>
@@ -630,7 +632,8 @@ void al_draw_soft_line(ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, uintptr_t state,
       min_y = clip_min_y;
 
    if (al_is_bitmap_locked(target)) {
-      if (!_al_bitmap_region_is_locked(target, min_x, min_y, max_x - min_x, max_y - min_y))
+      if (!_al_bitmap_region_is_locked(target, min_x, min_y, max_x - min_x, max_y - min_y) ||
+          _al_pixel_format_is_video_only(target->locked_region.format))
          return;
    } else {
       if (!(lr = al_lock_bitmap_region(target, min_x, min_y, max_x - min_x, max_y - min_y, ALLEGRO_PIXEL_FORMAT_ANY, 0)))

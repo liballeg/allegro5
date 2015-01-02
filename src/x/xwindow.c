@@ -18,16 +18,17 @@ ALLEGRO_DEBUG_CHANNEL("xwindow")
 
 #define X11_ATOM(x)  XInternAtom(x11, #x, False);
 
-
 void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
-   XSizeHints *hints;
+   XSizeHints *sizehints;
+   XWMHints *wmhints;
+   XClassHint *classhints;
    int w, h;
 
-   hints = XAllocSizeHints();
-   hints->flags = 0;
+   sizehints = XAllocSizeHints();
+   sizehints->flags = 0;
 
 #ifdef ALLEGRO_RASPBERRYPI
    int x, y;
@@ -40,31 +41,31 @@ void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
    /* Do not force the size of the window on resizeable or fullscreen windows */
    /* on fullscreen windows, it confuses most X Window Managers */
    if (!(d->flags & ALLEGRO_RESIZABLE) && !(d->flags & ALLEGRO_FULLSCREEN)) {
-      hints->flags |= PMinSize | PMaxSize | PBaseSize;
-      hints->min_width  = hints->max_width  = hints->base_width  = w;
-      hints->min_height = hints->max_height = hints->base_height = h;
+      sizehints->flags |= PMinSize | PMaxSize | PBaseSize;
+      sizehints->min_width  = sizehints->max_width  = sizehints->base_width  = w;
+      sizehints->min_height = sizehints->max_height = sizehints->base_height = h;
    }
 
    /* Constrain the window if needed. */
    if (d->flags & ALLEGRO_RESIZABLE &&
       (d->min_w > 0 || d->min_h > 0 || d->max_w > 0 || d->max_h > 0))
    {
-      hints->flags |= PMinSize | PMaxSize | PBaseSize;
-      hints->min_width = (d->min_w > 0) ? d->min_w : 0;
-      hints->min_height = (d->min_h > 0) ? d->min_h : 0;
-      hints->max_width = (d->max_w > 0) ? d->max_w : INT_MAX;
-      hints->max_height = (d->max_h > 0) ? d->max_h : INT_MAX;
-      hints->base_width  = w;
-      hints->base_height = h;
+      sizehints->flags |= PMinSize | PMaxSize | PBaseSize;
+      sizehints->min_width = (d->min_w > 0) ? d->min_w : 0;
+      sizehints->min_height = (d->min_h > 0) ? d->min_h : 0;
+      sizehints->max_width = (d->max_w > 0) ? d->max_w : INT_MAX;
+      sizehints->max_height = (d->max_h > 0) ? d->max_h : INT_MAX;
+      sizehints->base_width  = w;
+      sizehints->base_height = h;
    }
 
    // Tell WMs to respect our chosen position, otherwise the x_off/y_off
    // positions passed to XCreateWindow will be ignored by most WMs.
    if (x_off != INT_MAX && y_off != INT_MAX) {
       ALLEGRO_DEBUG("Force window position to %d, %d.\n", x_off, y_off);
-      hints->flags |= PPosition;
-      hints->x = x_off;
-      hints->y = y_off;
+      sizehints->flags |= PPosition;
+      sizehints->x = x_off;
+      sizehints->y = y_off;
    }
 
    if (d->flags & ALLEGRO_FULLSCREEN) {
@@ -72,14 +73,32 @@ void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
        * some other Size flags may cause glitches with various WMs, but this seems to be ok
        * with metacity and kwin. As noted in xdpy_create_display, compiz is just broken.
        */
-      hints->flags |= PBaseSize;
-      hints->base_width  = w;
-      hints->base_height = h;
+      sizehints->flags |= PBaseSize;
+      sizehints->base_width  = w;
+      sizehints->base_height = h;
    }
 
-   XSetWMNormalHints(system->x11display, glx->window, hints);
+   /* Setup the input hints so we get keyboard input */
+   wmhints = XAllocWMHints();
+   wmhints->input = True;
+   wmhints->flags = InputHint;
+   
+   ALLEGRO_PATH *exepath = al_get_standard_path(ALLEGRO_EXENAME_PATH);
+   
+   /* Setup the class hints so we can get an icon (AfterStep)
+    * We must use the executable filename here.
+    */
+   classhints = XAllocClassHint();
+   classhints->res_name = strdup(al_get_path_basename(exepath));
+   classhints->res_class = strdup(al_get_path_basename(exepath));
 
-   XFree(hints);
+   /* Set the size, input and class hints, and define WM_CLIENT_MACHINE and WM_LOCALE_NAME */
+   XSetWMProperties(system->x11display, glx->window, NULL, NULL, NULL, 0,
+                    sizehints, wmhints, classhints);
+
+   XFree(sizehints);
+
+   al_destroy_path(exepath);
 }
 
 

@@ -18,6 +18,7 @@
 
 #include "allegro5/allegro.h"
 #include "allegro5/platform/alplatf.h"
+#include "allegro5/internal/aintern.h"
 
 
 
@@ -41,5 +42,13 @@ int al_run_main(int argc, char **argv, int (*user_main)(int, char **))
 #endif
 }
 
+int _al_get_least_multiple(int val, int mul)
+{
+   int rem = val % mul;
+   if (rem == 0)
+      return val;
+   else
+      return val + mul - rem;
+}
 
 /* vim: set sts=3 sw=3 et: */

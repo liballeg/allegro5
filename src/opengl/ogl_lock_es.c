@@ -106,7 +106,16 @@ ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_gles(ALLEGRO_BITMAP *bitmap,
    int real_format;
 
    if (format == ALLEGRO_PIXEL_FORMAT_ANY) {
-      format = al_get_bitmap_format(bitmap);
+      /* Never pick compressed formats with ANY, as it interacts weirdly with
+       * existing code (e.g. al_get_pixel_size() etc) */
+      int bitmap_format = al_get_bitmap_format(bitmap);
+      if (_al_pixel_format_is_compressed(bitmap_format)) {
+         // XXX Get a good format from the driver?
+         format = ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE;
+      }
+      else {
+         format = bitmap_format;
+      }
    }
 
    disp = al_get_current_display();

@@ -1,0 +1,33 @@
+language: c++
+
+os:
+  - osx
+  - linux
+
+compiler:
+  - clang
+  - gcc
+
+before_install:
+    - if [ `uname` = "Linux" ]; then
+         export DISPLAY=:99.0;
+         sh -e /etc/init.d/xvfb start;
+         sudo apt-get install -y libvorbis-dev libtheora-dev libphysfs-dev libdumb1-dev libflac-dev libpulse-dev libgtk2.0-dev pandoc;
+      elif [ `uname` = "Darwin" ]; then
+          brew install vorbis;
+      fi
+
+before_script:
+  - mkdir build
+  - cd build
+  - cmake ..
+
+script:
+    - |
+      if [ `uname` = "Linux" ]; then
+         make
+         find ../tests -name 'test_*.ini' | grep -v 'compressed' | xargs tests/test_driver | tee /tmp/test_out
+         grep -q 'failed tests: 0' /tmp/test_out
+      elif [ `uname` = "Darwin" ]; then
+         xcodebuild
+      fi

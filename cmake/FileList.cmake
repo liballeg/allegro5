@@ -79,6 +79,7 @@ set(ALLEGRO_SRC_D3D_FILES
     src/win/d3d_display_formats.cpp
     src/win/d3d_render_state.cpp
     src/win/d3d_shader.cpp
+    src/win/d3d_d3dx9.cpp
     )
 
 set(ALLEGRO_SRC_OPENGL_FILES
@@ -120,6 +121,7 @@ set(ALLEGRO_SRC_X_FILES
     src/x/xmousenu.c
     src/x/xrandr.c
     src/x/xsystem.c
+    src/x/xtouch.c
     src/x/xwindow.c
     src/linux/lhaptic.c
     src/linux/ljoynu.c

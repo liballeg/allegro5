@@ -27,6 +27,7 @@ def parse_format(format):
     Parse the format name into an info structure.
     """
     if format.startswith("ANY"): return None
+    if "DXT" in format: return None
 
     separator = format.find("_")
     class Info: pass

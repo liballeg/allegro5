@@ -102,7 +102,16 @@ ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_new(ALLEGRO_BITMAP *bitmap,
    bool ok;
 
    if (format == ALLEGRO_PIXEL_FORMAT_ANY) {
-      format = al_get_bitmap_format(bitmap);
+      /* Never pick compressed formats with ANY, as it interacts weirdly with
+       * existing code (e.g. al_get_pixel_size() etc) */
+      int bitmap_format = al_get_bitmap_format(bitmap);
+      if (_al_pixel_format_is_compressed(bitmap_format)) {
+         // XXX Get a good format from the driver?
+         format = ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE;
+      }
+      else {
+         format = bitmap_format;
+      }
    }
 
    disp = al_get_current_display();
@@ -433,7 +442,7 @@ static void ogl_unlock_region_non_readonly(ALLEGRO_BITMAP *bitmap,
    GLenum e;
 
    disp = al_get_current_display();
-   orig_format = _al_get_real_pixel_format(disp, al_get_bitmap_format(bitmap));
+   orig_format = _al_get_real_pixel_format(disp, _al_get_bitmap_memory_format(bitmap));
 
    /* Change OpenGL context if necessary. */
    if (!disp ||
@@ -655,7 +664,7 @@ static void ogl_unlock_region_nonbb_nonfbo(ALLEGRO_BITMAP *bitmap,
    else {
       ALLEGRO_DEBUG("Unlocking non-backbuffer non-FBO READWRITE\n");
       glPixelStorei(GL_UNPACK_ROW_LENGTH, ogl_bitmap->true_w);
-      start_ptr = (unsigned char *)bitmap->locked_region.data
+      start_ptr = (unsigned char *)bitmap->lock_data
             + (bitmap->lock_h - 1) * bitmap->locked_region.pitch;
    }
 

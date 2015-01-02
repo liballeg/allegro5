@@ -544,11 +544,13 @@ void al_set_menu_item_flags(ALLEGRO_MENU *menu, int pos, int flags)
       /* The CHECKBOX flag is read-only after the menu is created, and
        * the CHECKED flag can only be set if it is a CHECKBOX.
        */
-      flags &= ~ALLEGRO_MENU_ITEM_CHECKBOX;   
-      if (!(item->flags & ALLEGRO_MENU_ITEM_CHECKBOX)) {
+      if (item->flags & ALLEGRO_MENU_ITEM_CHECKBOX)
+         flags |= ALLEGRO_MENU_ITEM_CHECKBOX;
+      else {
          flags &= ~ALLEGRO_MENU_ITEM_CHECKED;
+         flags &= ~ALLEGRO_MENU_ITEM_CHECKBOX;
       }
-      
+
       item->flags = flags;
       _al_update_menu_item_at(item, pos);
    }

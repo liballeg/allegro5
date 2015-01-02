@@ -35,7 +35,7 @@ def parse_args(argv):
             default="org.liballeg.example",
             help="Android package name for the application.")
     p.add_option("-t", "--target",
-            default="android-10",
+            default="android-12",
             help="Target ID of the new project.")
 
     # These are our own options.
@@ -101,7 +101,7 @@ def touch_manifest(options):
     tree = ET.parse(filename)
     root = tree.find(".")
     ET.SubElement(root, "uses-sdk", {
-        "android:minSdkVersion": "10"
+        "android:minSdkVersion": "12"
     })
     ET.SubElement(root, "uses-permission", {
         "android:name": "android.permission.WRITE_EXTERNAL_STORAGE"

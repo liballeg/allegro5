@@ -1,3 +1,5 @@
+#include <X11/extensions/XInput2.h>
+
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern_bitmap.h"
@@ -8,8 +10,11 @@
 #include "allegro5/internal/aintern_xfullscreen.h"
 #include "allegro5/internal/aintern_xglx_config.h"
 #include "allegro5/internal/aintern_xsystem.h"
+#include "allegro5/internal/aintern_xtouch.h"
 #include "allegro5/internal/aintern_xwindow.h"
 #include "allegro5/platform/aintxglx.h"
+
+#include <X11/Xatom.h>
 
 ALLEGRO_DEBUG_CHANNEL("display")
 
@@ -211,7 +216,50 @@ static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
 
    ALLEGRO_DEBUG("X11 window created.\n");
 
+   /* Set the PID related to the window. */
+   Atom _NET_WM_PID = XInternAtom(system->x11display, "_NET_WM_PID", False);
+   int pid = getpid();
+   XChangeProperty(system->x11display, d->window, _NET_WM_PID, XA_CARDINAL,
+                   32, PropModeReplace, (unsigned char *)&pid, 1);
+
    _al_xwin_set_size_hints(display, x_off, y_off);
+
+   /* Let the window manager know we're a "normal" window */
+   Atom _NET_WM_WINDOW_TYPE;
+   Atom _NET_WM_WINDOW_TYPE_NORMAL;
+
+   _NET_WM_WINDOW_TYPE = XInternAtom(system->x11display, "_NET_WM_WINDOW_TYPE",
+                                     False);
+   _NET_WM_WINDOW_TYPE_NORMAL = XInternAtom(system->x11display,
+                                            "_NET_WM_WINDOW_TYPE_NORMAL",
+                                            False);
+   XChangeProperty(system->x11display, d->window, _NET_WM_WINDOW_TYPE, XA_ATOM,
+                   32, PropModeReplace,
+                   (unsigned char *)&_NET_WM_WINDOW_TYPE_NORMAL, 1);
+
+   /* This seems like a good idea */
+   const long _NET_WM_BYPASS_COMPOSITOR_HINT_ON = 1;
+   Atom _NET_WM_BYPASS_COMPOSITOR;
+
+   _NET_WM_BYPASS_COMPOSITOR = XInternAtom(system->x11display,
+                                           "_NET_WM_BYPASS_COMPOSITOR",
+                                           False);
+   XChangeProperty(system->x11display, d->window, _NET_WM_BYPASS_COMPOSITOR,
+                   XA_CARDINAL, 32, PropModeReplace,
+                   (unsigned char *)&_NET_WM_BYPASS_COMPOSITOR_HINT_ON, 1);
+
+   /* listen for touchscreen events */
+   XIEventMask event_mask;
+   event_mask.deviceid = XIAllMasterDevices;
+   event_mask.mask_len = XIMaskLen(XI_TouchEnd);
+   event_mask.mask = (unsigned char*)al_calloc(3, sizeof(char));
+   XISetMask(event_mask.mask, XI_TouchBegin);
+   XISetMask(event_mask.mask, XI_TouchUpdate);
+   XISetMask(event_mask.mask, XI_TouchEnd);
+
+   XISelectEvents(system->x11display, d->window, &event_mask, 1);
+
+   al_free(event_mask.mask);
 
    return true;
 }
@@ -1048,6 +1096,7 @@ static void xdpy_set_window_title_default(ALLEGRO_DISPLAY *display, const char *
          &property);
       XSetTextProperty(system->x11display, glx->window, &property, WM_NAME);
       XSetTextProperty(system->x11display, glx->window, &property, _NET_WM_NAME);
+      XSetTextProperty(system->x11display, glx->window, &property, XA_WM_NAME);
       XFree(property.value);
    }
    {
@@ -1056,10 +1105,12 @@ static void xdpy_set_window_title_default(ALLEGRO_DISPLAY *display, const char *
          /* There's no need to use strdup here at all, and doing so would cause
           * a memory leak.
           */
-         hint->res_name = (char *) title;
-         hint->res_class = (char *) title;
+         ALLEGRO_PATH *exepath = al_get_standard_path(ALLEGRO_EXENAME_PATH);
+         hint->res_name = strdup(al_get_path_basename(exepath));
+         hint->res_class = strdup(al_get_path_basename(exepath));
          XSetClassHint(system->x11display, glx->window, hint);
          XFree(hint);
+         al_destroy_path(exepath);
       }
    }
    _al_mutex_unlock(&system->lock);

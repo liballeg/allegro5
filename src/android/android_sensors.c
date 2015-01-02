@@ -25,7 +25,7 @@ JNI_FUNC(void, Sensors, nativeOnAccel, (JNIEnv *env, jobject obj, jint id,
    (void)env;
    (void)obj;
    (void)id;
-   _al_android_generate_joystick_event(x, y, z);
+   _al_android_generate_accelerometer_event(x, y, z);
 }
 
 /* vim: set sts=3 sw=3 et: */

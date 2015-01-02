@@ -57,6 +57,9 @@ static int pixel_sizes[] = {
    4, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
    2, /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
    1, /* ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
+   0,
+   0,
+   0,
 };
 
 static int pixel_bits[] = {
@@ -88,6 +91,111 @@ static int pixel_bits[] = {
    32, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
    16, /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
    8, /* ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
+   0,
+   0,
+   0,
+};
+
+static int pixel_block_widths[] = {
+   0, /* ALLEGRO_PIXEL_FORMAT_ANY */
+   0,
+   0,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1, /* ALLEGRO_PIXEL_FORMAT_ARGB_8888 */
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
+   1, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
+   1, /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
+   1, /* ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
+   4,
+   4,
+   4,
+};
+
+static int pixel_block_heights[] = {
+   0, /* ALLEGRO_PIXEL_FORMAT_ANY */
+   0,
+   0,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1, /* ALLEGRO_PIXEL_FORMAT_ARGB_8888 */
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
+   1, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
+   1, /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
+   1, /* ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
+   4,
+   4,
+   4,
+};
+
+static int pixel_block_sizes[] = {
+   0,  /* ALLEGRO_PIXEL_FORMAT_ANY */
+   0,
+   0,
+   2,
+   2,
+   2,
+   3,
+   4,
+   4,
+   4,  /* ALLEGRO_PIXEL_FORMAT_ARGB_8888 */
+   4,
+   2,
+   3,
+   2,
+   2,
+   2,
+   2,
+   4,
+   4,
+   3,
+   2,
+   2,
+   4,
+   4,
+   16, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
+   4,  /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
+   2,  /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
+   1,  /* ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
+   8,
+   16,
+   16,
 };
 
 static bool format_alpha_table[ALLEGRO_NUM_PIXEL_FORMATS] = {
@@ -119,6 +227,9 @@ static bool format_alpha_table[ALLEGRO_NUM_PIXEL_FORMATS] = {
    true, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
    true, /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
    false, /* ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
+   true,
+   true,
+   true,
 };
 
 static char const *pixel_format_names[ALLEGRO_NUM_PIXEL_FORMATS + 1] = {
@@ -150,6 +261,9 @@ static char const *pixel_format_names[ALLEGRO_NUM_PIXEL_FORMATS + 1] = {
    "ABGR_8888_LE",
    "RGBA_4444",
    "SINGLE_CHANNEL_8",
+   "RGBA_DXT1",
+   "RGBA_DXT3",
+   "RGBA_DXT5",
    "INVALID"
 };
 
@@ -183,6 +297,79 @@ static bool format_is_real[ALLEGRO_NUM_PIXEL_FORMATS] =
    true, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
    true, /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
    true, /* ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
+   true,
+   true,
+   true,
+};
+
+static bool format_is_video_only[ALLEGRO_NUM_PIXEL_FORMATS] =
+{
+   false, /* ALLEGRO_PIXEL_FORMAT_ANY */
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false, /* ALLEGRO_PIXEL_FORMAT_ARGB_8888 */
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
+   false, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
+   false, /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
+   false, /* ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
+   true,
+   true,
+   true,
+};
+
+static bool format_is_compressed[ALLEGRO_NUM_PIXEL_FORMATS] =
+{
+   false, /* ALLEGRO_PIXEL_FORMAT_ANY */
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false, /* ALLEGRO_PIXEL_FORMAT_ARGB_8888 */
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
+   false, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
+   false, /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
+   false, /* ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8 */
+   true,
+   true,
+   true,
 };
 
 
@@ -203,6 +390,30 @@ void _al_init_pixels(void)
 
    for (i = 0; i < 64; i++)
       _al_rgb_scale_6[i] = i * 255 / 63;
+}
+
+
+/* Function: al_get_pixel_block_size
+ */
+int al_get_pixel_block_size(int format)
+{
+   return pixel_block_sizes[format];
+}
+
+
+/* Function: al_get_pixel_block_width
+ */
+int al_get_pixel_block_width(int format)
+{
+   return pixel_block_widths[format];
+}
+
+
+/* Function: al_get_pixel_block_height
+ */
+int al_get_pixel_block_height(int format)
+{
+   return pixel_block_heights[format];
 }
 
 
@@ -234,6 +445,22 @@ bool _al_pixel_format_is_real(int format)
    ASSERT(format < ALLEGRO_NUM_PIXEL_FORMATS);
 
    return format_is_real[format];
+}
+
+bool _al_pixel_format_is_video_only(int format)
+{
+   ASSERT(format >= 0);
+   ASSERT(format < ALLEGRO_NUM_PIXEL_FORMATS);
+
+   return format_is_video_only[format];
+}
+
+bool _al_pixel_format_is_compressed(int format)
+{
+   ASSERT(format >= 0);
+   ASSERT(format < ALLEGRO_NUM_PIXEL_FORMATS);
+
+   return format_is_compressed[format];
 }
 
 

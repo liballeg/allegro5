@@ -35,6 +35,9 @@ bool al_init_image_addon(void)
    success |= al_register_bitmap_loader_f(".tga", _al_load_tga_f);
    success |= al_register_bitmap_saver_f(".tga", _al_save_tga_f);
 
+   success |= al_register_bitmap_loader(".dds", _al_load_dds);
+   success |= al_register_bitmap_loader_f(".dds", _al_load_dds_f);
+
 /* ALLEGRO_CFG_IIO_HAVE_* is sufficient to know that the library
    should be used. i.e., ALLEGRO_CFG_IIO_HAVE_GDIPLUS and
    ALLEGRO_CFG_IIO_HAVE_PNG will never both be set. */

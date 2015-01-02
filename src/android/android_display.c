@@ -21,6 +21,7 @@
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_shader.h"
+#include "allegro5/internal/aintern_pixels.h"
 
 #include "EGL/egl.h"
 
@@ -177,6 +178,22 @@ JNI_FUNC(void, AllegroSurface, nativeOnChange, (JNIEnv *env, jobject obj,
    }
 
    al_unlock_mutex(d->mutex);
+}
+
+JNI_FUNC(void, AllegroSurface, nativeOnJoystickAxis, (JNIEnv *env, jobject obj,
+   jint index, jint stick, jint axis, jfloat value))
+{
+   (void)env;
+   (void)obj;
+   _al_android_generate_joystick_axis_event(index+1, stick, axis, value);
+}
+
+JNI_FUNC(void, AllegroSurface, nativeOnJoystickButton, (JNIEnv *env, jobject obj,
+   jint index, jint button, jboolean down))
+{
+   (void)env;
+   (void)obj;
+   _al_android_generate_joystick_button_event(index+1, button, down);
 }
 
 void _al_android_create_surface(JNIEnv *env, bool post)
@@ -812,10 +829,8 @@ static void android_acknowledge_drawing_halt(ALLEGRO_DISPLAY *dpy)
 static void android_broadcast_resume(ALLEGRO_DISPLAY_ANDROID *d)
 {
    ALLEGRO_DEBUG("Broadcasting resume");
-   al_lock_mutex(d->mutex);
    d->resumed = true;
    al_broadcast_cond(d->cond);
-   al_unlock_mutex(d->mutex);
    ALLEGRO_DEBUG("done broadcasting resume");
 }
 
@@ -856,7 +871,9 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
          !(bitmap_flags & ALLEGRO_MEMORY_BITMAP) &&
          !(bitmap_flags & ALLEGRO_NO_PRESERVE_TEXTURE))
       {
-         _al_ogl_upload_bitmap_memory(bmp, al_get_bitmap_format(bmp), bmp->memory);
+         int format = al_get_bitmap_format(bmp);
+         format = _al_pixel_format_is_compressed(format) ? ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE : format;
+         _al_ogl_upload_bitmap_memory(bmp, format, bmp->memory);
          bmp->dirty = false;
       }
    }

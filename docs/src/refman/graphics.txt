@@ -121,16 +121,21 @@ typedef struct ALLEGRO_LOCKED_REGION {
 ~~~~
 
 - *data* points to the leftmost pixel of the first row (row 0) of the locked
-  region.
+  region. For blocked formats, this points to the leftmost block of the first
+  row of blocks.
 
 - *format* indicates the pixel format of the data.
 
 - *pitch* gives the size in bytes of a single row (also known as the stride).
   The pitch may be greater than `width * pixel_size` due to padding; this is
   not uncommon.  It is also *not* uncommon for the pitch to be negative (the
-  bitmap may be upside down).
+  bitmap may be upside down). For blocked formats, 'row' refers to the row of
+  blocks, not of pixels.
 
-- *pixel_size* is the number of bytes used to represent a single pixel.
+- *pixel_size* is the number of bytes used to represent a single block of
+  pixels for the pixel format of this locked region. For most formats (and
+  historically, this used to be true for all formats), this is just the size of
+  a single pixel, but for blocked pixel formats this value is different.
 
 See also: [al_lock_bitmap], [al_lock_bitmap_region], [al_unlock_bitmap],
 [ALLEGRO_PIXEL_FORMAT]
@@ -170,6 +175,30 @@ RGBA <-> ABGR).
 The only exception to this ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE which will always
 have the components as 4 bytes corresponding to red, green, blue and alpha,
 in this order, independent of the endianness.
+
+Some of the pixel formats represent compressed bitmap formats. Compressed
+bitmaps take up less space in the GPU memory than bitmaps with regular
+(uncompressed) pixel formats. This smaller footprint means that you can load
+more resources into GPU memory, and they will be drawn somewhat faster. The
+compression is lossy, however, so it is not appropriate for all graphical
+styles: it tends to work best for images with smooth color gradations. It is
+possible to compress bitmaps at runtime by passing the appropriate bitmap
+format in `al_set_new_bitmap_format` and then creating, loading, cloning or
+converting a non-compressed bitmap. This, however, is not recommended as the
+compression quality differs between different GPU drivers. It is recommended to
+compress these bitmaps ahead of time using external tools and then load them
+compressed.
+
+Unlike regular pixel formats, compressed pixel formats are not laid out in
+memory one pixel row at a time. Instead, the bitmap is subdivided into rectangular
+blocks of pixels that are then laid out in block rows. This means that regular
+locking functions cannot use compressed pixel formats as the destination
+format. Instead, you can use the blocked versions of the bitmap locking
+functions which do support these formats.
+
+It is not recommended to use compressed bitmaps as target bitmaps, as that
+operation cannot be hardware accelerated. Due to proprietary algorithms used, it
+is typically impossible to create compressed memory bitmaps.
 
 * ALLEGRO_PIXEL_FORMAT_ANY -
     Let the driver choose a format. This is the default format at program start.
@@ -218,27 +247,66 @@ in this order, independent of the endianness.
     bitmaps of this format.  This pixel format is mainly intended for storing
     the color indices of an indexed (paletted) image, usually in conjunction
     with a pixel shader that maps indices to RGBA values.  Since 5.1.2.
+* ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1 -
+    Compressed using the DXT1 compression algorithm. Each 4x4 pixel block is
+    encoded in 64 bytes, resulting in 6-8x compression ratio. Only a single bit
+    of alpha per pixel is supported.  Since 5.1.9.
+* ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3 -
+    Compressed using the DXT3 compression algorithm. Each 4x4 pixel block is
+    encoded in 128 bytes, resulting in 4x compression ratio. This format
+    supports sharp alpha transitions.  Since 5.1.9.
+* ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5 -
+    Compressed using the DXT5 compression algorithm. Each 4x4 pixel block is
+    encoded in 128 bytes, resulting in 4x compression ratio. This format
+    supports smooth alpha transitions.  Since 5.1.9.
 
 See also: [al_set_new_bitmap_format], [al_get_bitmap_format]
 
 ### API: al_get_pixel_size
 
-Return the number of bytes that a pixel of the given format occupies.
+Return the number of bytes that a pixel of the given format occupies. For
+blocked pixel formats (e.g. compressed formats), this returns 0.
 
 See also: [ALLEGRO_PIXEL_FORMAT], [al_get_pixel_format_bits]
 
 ### API: al_get_pixel_format_bits
 
-Return the number of bits that a pixel of the given format occupies.
+Return the number of bits that a pixel of the given format occupies. For
+blocked pixel formats (e.g. compressed formats), this returns 0.
 
 See also: [ALLEGRO_PIXEL_FORMAT], [al_get_pixel_size]
+
+### API: al_get_pixel_block_size
+
+Return the number of bytes that a block of pixels with this format occupies.
+
+Since: 5.1.9.
+
+See also: [ALLEGRO_PIXEL_FORMAT], [al_get_pixel_block_width], [al_get_pixel_block_height]
+
+### API: al_get_pixel_block_width
+
+Return the width of the the pixel block for this format.
+
+Since: 5.1.9.
+
+See also: [ALLEGRO_PIXEL_FORMAT], [al_get_pixel_block_size], [al_get_pixel_block_height]
+
+### API: al_get_pixel_block_height
+
+Return the height of the the pixel block for this format.
+
+Since: 5.1.9.
+
+See also: [ALLEGRO_PIXEL_FORMAT], [al_get_pixel_block_size], [al_get_pixel_block_width]
 
 ### API: al_lock_bitmap
 
 Lock an entire bitmap for reading or writing. If the bitmap is a
 display bitmap it will be updated from system memory after the bitmap
 is unlocked (unless locked read only). Returns NULL if the bitmap cannot
-be locked, e.g. the bitmap was locked previously and not unlocked.
+be locked, e.g. the bitmap was locked previously and not unlocked. This
+function also returns NULL if the `format` is a compressed format.
 
 Flags are:
 
@@ -255,36 +323,72 @@ unlocking the bitmap again, so be careful when using this flag.
 Use this flag if a partial number of pixels need to be written to, even if
 reading is not needed.
 
-'format' indicates the pixel format that the returned buffer will be in.
+`format` indicates the pixel format that the returned buffer will be in.
 To lock in the same format as the bitmap stores it's data internally,
 call with `al_get_bitmap_format(bitmap)` as the format or use
 ALLEGRO_PIXEL_FORMAT_ANY. Locking in the native format will usually be faster.
+If the bitmap format is compressed, using ALLEGRO_PIXEL_FORMAT_ANY will choose
+an implementation defined non-compressed format.
 
 > *Note:* While a bitmap is locked, you can not use any drawing operations
 on it (with the sole exception of [al_put_pixel] and
 [al_put_blended_pixel]).
 
 See also: [ALLEGRO_LOCKED_REGION], [ALLEGRO_PIXEL_FORMAT],
-[al_unlock_bitmap]
+[al_unlock_bitmap], [al_lock_bitmap_region], [al_lock_bitmap_blocked],
+[al_lock_bitmap_region_blocked]
 
 ### API: al_lock_bitmap_region
 
 Like [al_lock_bitmap], but only locks a specific area of the bitmap.
-If the bitmap is a display bitmap, only that area of the texture will
+If the bitmap is a video bitmap, only that area of the texture will
 be updated when it is unlocked. Locking only the region you indend to
 modify will be faster than locking the whole bitmap.
+
+> *Note:* Using the ALLEGRO_LOCK_WRITEONLY with a blocked pixel format
+(i.e. formats for which [al_get_pixel_block_width] or
+[al_get_pixel_block_height] do not return 1) requires you to have the
+region be aligned to the block width for optimal performance. If it is
+not, then the function will have to lock the region with the
+ALLEGRO_LOCK_READWRITE instead in order to pad this region with valid
+data.
 
 See also: [ALLEGRO_LOCKED_REGION], [ALLEGRO_PIXEL_FORMAT], [al_unlock_bitmap]
 
 ### API: al_unlock_bitmap
 
 Unlock a previously locked bitmap or bitmap region. If the bitmap
-is a display bitmap, the texture will be updated to match the system
+is a video bitmap, the texture will be updated to match the system
 memory copy (unless it was locked read only).
 
-See also: [al_lock_bitmap], [al_lock_bitmap_region]
+See also: [al_lock_bitmap], [al_lock_bitmap_region], [al_lock_bitmap_blocked],
+[al_lock_bitmap_region_blocked]
 
+### API: al_lock_bitmap_blocked
 
+Like [al_lock_bitmap], but allows locking bitmaps with a blocked pixel
+format (i.e. a format for which [al_get_pixel_block_width] or
+[al_get_pixel_block_height] do not return 1) in that format. To that
+end, this function also does not allow format conversion. For bitmap
+formats with a block size of 1, this function is identical to calling
+`al_lock_bitmap(bmp, al_get_bitmap_format(bmp), flags)`.
+
+> *Note:* Currently there are no drawing functions that work when the bitmap is
+locked with a compressed format. [al_get_pixel] will also not work.
+
+Since: 5.1.9
+
+See also: [al_lock_bitmap], [al_lock_bitmap_region_blocked]
+
+### API: al_lock_bitmap_region_blocked
+
+Like [al_lock_bitmap_blocked], but allows locking a sub-region, for performance.
+Unlike [al_lock_bitmap_region] the region specified in terms of blocks and not
+pixels.
+
+Since: 5.1.9
+
+See also: [al_lock_bitmap_region], [al_lock_bitmap_blocked]
 
 ## Bitmap creation
 

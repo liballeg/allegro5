@@ -135,7 +135,7 @@ def make_drawer(name):
    print "{"
    print """\
       const int dst_format = target->locked_region.format;
-      uint8_t *dst_data = (uint8_t *)target->locked_region.data
+      uint8_t *dst_data = (uint8_t *)target->lock_data
          + y * target->locked_region.pitch
          + x1 * target->locked_region.pixel_size;
       """

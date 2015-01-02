@@ -17,6 +17,8 @@
 
 #include "allegro5/allegro_windows.h"
 
+#include <string.h>
+
 /* We use RichEdit by default. */
 #include <richedit.h>
 #include <shlobj.h> // for folder selector
@@ -142,8 +144,12 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    ALLEGRO_DISPLAY_WIN *win_display;
    int flags = 0;
    bool ret;
-   char buf[4096] = "";
+   char buf[4096];
+   const int BUFSIZE = sizeof(buf);
    ALLEGRO_USTR *filter_string = NULL;
+   ALLEGRO_PATH* initial_dir_path = NULL;
+
+   buf[0] = 0;
 
    win_display = (ALLEGRO_DISPLAY_WIN *)display;
 
@@ -166,12 +172,34 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
       ofn.lpstrFilter = "All Files\0*.*\0\0";
    }
 
+   /* Provide buffer for file chosen by dialog. */
    ofn.lpstrFile = buf;
    ofn.nMaxFile = sizeof(buf);
 
+   /* Initialize file name buffer and starting directory */
    if (fd->fc_initial_path) {
-      ofn.lpstrInitialDir =
-         al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP);
+      bool is_dir;
+      const char *path = al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP);
+
+      if (al_filename_exists(path)) {
+         ALLEGRO_FS_ENTRY *fs = al_create_fs_entry(path);
+         is_dir = al_get_fs_entry_mode(fs) & ALLEGRO_FILEMODE_ISDIR;
+         al_destroy_fs_entry(fs);
+      }
+      else
+         is_dir = false;
+
+      if (is_dir)
+            ofn.lpstrInitialDir = al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP);
+      else {
+         strncpy(buf, al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP), BUFSIZE - 1);
+         /* Clone the directory */
+         initial_dir_path = al_clone_path(fd->fc_initial_path);
+         if (initial_dir_path) {
+            al_set_path_filename(initial_dir_path, NULL);
+            ofn.lpstrInitialDir = al_path_cstr(initial_dir_path, ALLEGRO_NATIVE_PATH_SEP);
+         }
+      }
    }
 
    if (fd->title)
@@ -193,6 +221,10 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    }
    else {
       ret = GetOpenFileName(&ofn);
+   }
+
+   if (initial_dir_path) {
+      al_destroy_path(initial_dir_path);
    }
 
    al_ustr_free(filter_string);
@@ -249,7 +281,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
 int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    ALLEGRO_NATIVE_DIALOG *fd)
 {
-   UINT type = 0;
+   UINT type = MB_SETFOREGROUND;
    int result;
 
    uint16_t *wide_text, *wide_title;

@@ -157,7 +157,9 @@ void _al_android_generate_mouse_event(unsigned int type, int x, int y,
    unsigned int button, ALLEGRO_DISPLAY *d);
 void _al_android_mouse_get_state(ALLEGRO_MOUSE_STATE *ret_state);
 
-void _al_android_generate_joystick_event(float x, float y, float z);
+void _al_android_generate_accelerometer_event(float x, float y, float z);
+void _al_android_generate_joystick_axis_event(int index, int stick, int axis, float value);
+void _al_android_generate_joystick_button_event(int index, int button, bool down);
 
 GLint _al_android_get_curr_fbo(void);
 void _al_android_set_curr_fbo(GLint fbo);

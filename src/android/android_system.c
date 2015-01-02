@@ -50,6 +50,7 @@ struct system_data_t {
    ALLEGRO_USTR *data_dir;
    ALLEGRO_USTR *apk_path;
    ALLEGRO_USTR *model;
+   ALLEGRO_USTR *manufacturer;
 	
    void *user_lib;
    int (*user_main)(int argc, char **argv);
@@ -204,10 +205,12 @@ JNI_FUNC(bool, AllegroActivity, nativeOnCreate, (JNIEnv *env, jobject obj))
    system_data.data_dir = _jni_callStringMethod(env, system_data.activity_object, "getPubDataDir", "()Ljava/lang/String;");
    system_data.apk_path = _jni_callStringMethod(env, system_data.activity_object, "getApkPath", "()Ljava/lang/String;");
    system_data.model = _jni_callStringMethod(env, system_data.activity_object, "getModel", "()Ljava/lang/String;");
+   system_data.manufacturer = _jni_callStringMethod(env, system_data.activity_object, "getManufacturer", "()Ljava/lang/String;");
    ALLEGRO_DEBUG("resources_dir: %s", al_cstr(system_data.resources_dir));
    ALLEGRO_DEBUG("data_dir: %s", al_cstr(system_data.data_dir));
    ALLEGRO_DEBUG("apk_path: %s", al_cstr(system_data.apk_path));
    ALLEGRO_DEBUG("model: %s", al_cstr(system_data.model));
+   ALLEGRO_DEBUG("manufacturer: %s", al_cstr(system_data.manufacturer));
 
    ALLEGRO_DEBUG("creating ALLEGRO_SYSTEM_ANDROID struct");
    na_sys = system_data.system = (ALLEGRO_SYSTEM_ANDROID*)al_malloc(sizeof *na_sys);
@@ -417,6 +420,23 @@ JNI_FUNC(void, AllegroActivity, nativeOnOrientationChange, (JNIEnv *env, jobject
    }
 }
 
+JNI_FUNC(void, AllegroActivity, nativeSendJoystickConfigurationEvent, (JNIEnv *env, jobject obj))
+{
+   (void)env;
+   (void)obj;
+
+   if (!al_is_joystick_installed()) {
+      return;
+   }
+
+   ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
+   _al_event_source_lock(es);
+   ALLEGRO_EVENT event;
+   event.type = ALLEGRO_EVENT_JOYSTICK_CONFIGURATION;
+   _al_event_source_emit_event(es, &event);
+   _al_event_source_unlock(es);
+}
+
 static void finish_activity(JNIEnv *env)
 {
    ALLEGRO_DEBUG("pre post");
@@ -440,14 +460,7 @@ static ALLEGRO_SYSTEM *android_initialize(int flags)
 
 static ALLEGRO_JOYSTICK_DRIVER *android_get_joystick_driver(void)
 {
-   if (strstr(al_cstr(system_data.model), "OUYA")) {
-      ALLEGRO_DEBUG("Using Linux joystick driver");
-      return &_al_joydrv_linux;
-   }
-   else {
-      ALLEGRO_DEBUG("Using Android joystick driver");
-      return &_al_android_joystick_driver;
-   }
+   return &_al_android_joystick_driver;
 }
 
 static int android_get_num_video_adapters(void)

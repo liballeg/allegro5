@@ -585,6 +585,8 @@ static void exit_joystick(void)
    CFRelease(hidManagerRef);
 
    _al_vector_free(&joysticks);
+
+   initialized = false;
 }
 
 /* num_joysticks:

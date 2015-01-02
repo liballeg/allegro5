@@ -20,6 +20,7 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_blend.h"
 #include "allegro5/internal/aintern_memdraw.h"
+#include "allegro5/internal/aintern_pixels.h"
 
 
 typedef struct {
@@ -54,7 +55,8 @@ void _al_clear_bitmap_by_locking(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color)
     * video bitmaps which are not the current target, or when locked.
     */
    ASSERT(bitmap);
-   ASSERT(al_get_bitmap_flags(bitmap) & (ALLEGRO_MEMORY_BITMAP | _ALLEGRO_INTERNAL_OPENGL));
+   ASSERT((al_get_bitmap_flags(bitmap) & (ALLEGRO_MEMORY_BITMAP | _ALLEGRO_INTERNAL_OPENGL)) ||
+          _al_pixel_format_is_compressed(al_get_bitmap_format(bitmap)));
 
    x1 = bitmap->cl;
    y1 = bitmap->ct;

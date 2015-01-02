@@ -63,13 +63,10 @@
  * for the best. 
  * This does no harm on msys2 either, they have a sal.h header.
  */ 
-/*
 #ifdef ALLEGRO_HAVE_SAL_H 
 #include <sal.h> 
 #endif
 
-#include <sal.h>
-*/
 #include <xinput.h>
 
 ALLEGRO_DEBUG_CHANNEL("xinput")

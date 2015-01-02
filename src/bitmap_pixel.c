@@ -28,8 +28,7 @@ ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
 {
    ALLEGRO_LOCKED_REGION *lr;
    char *data;
-   ALLEGRO_COLOR color;
-   int bitmap_format = al_get_bitmap_format(bitmap);
+   ALLEGRO_COLOR color = al_map_rgba_f(0, 0, 0, 0);
 
    if (bitmap->parent) {
       x += bitmap->xofs;
@@ -38,11 +37,14 @@ ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
    }
 
    if (bitmap->locked) {
+      if (_al_pixel_format_is_video_only(bitmap->locked_region.format)) {
+         ALLEGRO_ERROR("Invalid lock format.");
+         return color;
+      }
       x -= bitmap->lock_x;
       y -= bitmap->lock_y;
       if (x < 0 || y < 0 || x >= bitmap->lock_w || y >= bitmap->lock_h) {
          ALLEGRO_ERROR("Out of bounds.");
-         memset(&color, 0, sizeof(ALLEGRO_COLOR));
          return color;
       }
 
@@ -55,21 +57,18 @@ ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
    else {
       /* FIXME: must use clip not full bitmap */
       if (x < 0 || y < 0 || x >= bitmap->w || y >= bitmap->h) {
-         memset(&color, 0, sizeof(ALLEGRO_COLOR));
          return color;
       }
 
-      if (!(lr = al_lock_bitmap_region(bitmap, x, y, 1, 1, bitmap_format,
-            ALLEGRO_LOCK_READONLY)))
-      {
-         memset(&color, 0, sizeof(ALLEGRO_COLOR));
+      if (!(lr = al_lock_bitmap_region(bitmap, x, y, 1, 1,
+            ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY))) {
          return color;
       }
 
       /* FIXME: check for valid pixel format */
 
-      data = lr->data;
-      _AL_INLINE_GET_PIXEL(bitmap_format, data, color, false);
+      data = bitmap->lock_data;
+      _AL_INLINE_GET_PIXEL(lr->format, data, color, false);
 
       al_unlock_bitmap(bitmap);
    }
@@ -82,7 +81,6 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
 {
    ALLEGRO_LOCKED_REGION *lr;
    char *data;
-   int bitmap_format = al_get_bitmap_format(bitmap);
 
    if (bitmap->parent) {
        x += bitmap->xofs;
@@ -91,12 +89,15 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
    }
 
    if (x < bitmap->cl || y < bitmap->ct ||
-       x >= bitmap->cr_excl || y >= bitmap->cb_excl)
-   {
+       x >= bitmap->cr_excl || y >= bitmap->cb_excl) {
       return;
    }
 
    if (bitmap->locked) {
+      if (_al_pixel_format_is_video_only(bitmap->locked_region.format)) {
+         ALLEGRO_ERROR("Invalid lock format.");
+         return;
+      }
       x -= bitmap->lock_x;
       y -= bitmap->lock_y;
       if (x < 0 || y < 0 || x >= bitmap->lock_w || y >= bitmap->lock_h) {
@@ -110,15 +111,15 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
       _AL_INLINE_PUT_PIXEL(bitmap->locked_region.format, data, color, false);
    }
    else {
-      lr = al_lock_bitmap_region(bitmap, x, y, 1, 1, bitmap_format,
-         ALLEGRO_LOCK_WRITEONLY);
+      lr = al_lock_bitmap_region(bitmap, x, y, 1, 1,
+         ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
       if (!lr)
          return;
 
       /* FIXME: check for valid pixel format */
 
-      data = lr->data;
-      _AL_INLINE_PUT_PIXEL(bitmap_format, data, color, false);
+      data = bitmap->lock_data;
+      _AL_INLINE_PUT_PIXEL(lr->format, data, color, false);
 
       al_unlock_bitmap(bitmap);
    }

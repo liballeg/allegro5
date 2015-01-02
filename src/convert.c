@@ -8062,6 +8062,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       argb_8888_to_abgr_8888_le,
       argb_8888_to_rgba_4444,
       argb_8888_to_single_channel_8,
+      NULL, NULL, NULL,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8084,6 +8085,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       rgba_8888_to_abgr_8888_le,
       rgba_8888_to_rgba_4444,
       rgba_8888_to_single_channel_8,
+      NULL, NULL, NULL,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8106,6 +8108,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       argb_4444_to_abgr_8888_le,
       argb_4444_to_rgba_4444,
       argb_4444_to_single_channel_8,
+      NULL, NULL, NULL,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8128,6 +8131,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       rgb_888_to_abgr_8888_le,
       rgb_888_to_rgba_4444,
       rgb_888_to_single_channel_8,
+      NULL, NULL, NULL,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8150,6 +8154,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       rgb_565_to_abgr_8888_le,
       rgb_565_to_rgba_4444,
       rgb_565_to_single_channel_8,
+      NULL, NULL, NULL,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8172,6 +8177,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       rgb_555_to_abgr_8888_le,
       rgb_555_to_rgba_4444,
       rgb_555_to_single_channel_8,
+      NULL, NULL, NULL,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8194,6 +8200,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       rgba_5551_to_abgr_8888_le,
       rgba_5551_to_rgba_4444,
       rgba_5551_to_single_channel_8,
+      NULL, NULL, NULL,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8216,6 +8223,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       argb_1555_to_abgr_8888_le,
       argb_1555_to_rgba_4444,
       argb_1555_to_single_channel_8,
+      NULL, NULL, NULL,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8238,6 +8246,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       abgr_8888_to_abgr_8888_le,
       abgr_8888_to_rgba_4444,
       abgr_8888_to_single_channel_8,
+      NULL, NULL, NULL,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8260,6 +8269,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       xbgr_8888_to_abgr_8888_le,
       xbgr_8888_to_rgba_4444,
       xbgr_8888_to_single_channel_8,
+      NULL, NULL, NULL,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8282,6 +8292,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       bgr_888_to_abgr_8888_le,
       bgr_888_to_rgba_4444,
       bgr_888_to_single_channel_8,
+      NULL, NULL, NULL,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8304,6 +8315,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       bgr_565_to_abgr_8888_le,
       bgr_565_to_rgba_4444,
       bgr_565_to_single_channel_8,
+      NULL, NULL, NULL,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8326,6 +8338,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       bgr_555_to_abgr_8888_le,
       bgr_555_to_rgba_4444,
       bgr_555_to_single_channel_8,
+      NULL, NULL, NULL,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8348,6 +8361,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       rgbx_8888_to_abgr_8888_le,
       rgbx_8888_to_rgba_4444,
       rgbx_8888_to_single_channel_8,
+      NULL, NULL, NULL,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8370,6 +8384,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       xrgb_8888_to_abgr_8888_le,
       xrgb_8888_to_rgba_4444,
       xrgb_8888_to_single_channel_8,
+      NULL, NULL, NULL,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8392,6 +8407,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       abgr_f32_to_abgr_8888_le,
       abgr_f32_to_rgba_4444,
       abgr_f32_to_single_channel_8,
+      NULL, NULL, NULL,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8414,6 +8430,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       NULL,
       abgr_8888_le_to_rgba_4444,
       abgr_8888_le_to_single_channel_8,
+      NULL, NULL, NULL,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8436,6 +8453,7 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       rgba_4444_to_abgr_8888_le,
       NULL,
       rgba_4444_to_single_channel_8,
+      NULL, NULL, NULL,
    },
    {
       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -8457,8 +8475,11 @@ void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
       single_channel_8_to_abgr_f32,
       single_channel_8_to_abgr_8888_le,
       single_channel_8_to_rgba_4444,
-      NULL,
+      NULL, NULL, NULL, NULL,
    },
+   {NULL},
+   {NULL},
+   {NULL},
 };
 
 // Warning: This file was created by make_converters.py - do not edit.

@@ -1,0 +1,16 @@
+version: "{branch}-ci:{build}"
+clone_depth: 5
+
+install:
+  - mkdir deps
+  - mkdir deps\include
+  - mkdir deps\lib
+  - nuget install freetype -OutputDirectory deps -ExcludeVersion
+  - ps: move deps\freetype\build\native\include\* deps\include -force
+  - ps: move deps\freetype\build\native\lib\Win32\v110\static\Release\freetype246.lib deps\lib\freetype.lib -force
+
+build_script:
+  - mkdir build
+  - cd build
+  - cmake .. -DSHARED=off
+  - cmake --build . --config RelWithDebInfo

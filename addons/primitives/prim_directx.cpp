@@ -377,7 +377,11 @@ static D3D_STATE setup_state(LPDIRECT3DDEVICE9 device, const ALLEGRO_VERTEX_DECL
          device->SetTexture(0, d3d_texture);
 
       } else {
-         device->SetTexture(0, NULL);
+         /* Don't unbind the texture here if shaders are used, since the user may
+          * have set the 0'th texture unit manually via the shader API. */
+         if (!(disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
+            device->SetTexture(0, NULL);
+         }
       }
    }
 

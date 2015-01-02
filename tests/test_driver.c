@@ -357,6 +357,9 @@ static int get_pixel_format(char const *v)
       : streq(v, "ALLEGRO_PIXEL_FORMAT_ABGR_F32") ? ALLEGRO_PIXEL_FORMAT_ABGR_F32
       : streq(v, "ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE") ? ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE
       : streq(v, "ALLEGRO_PIXEL_FORMAT_RGBA_4444") ? ALLEGRO_PIXEL_FORMAT_RGBA_4444
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1") ? ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3") ? ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3
+      : streq(v, "ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5") ? ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5
       : -1;
    if (format == -1)
       error("invalid format: %s", v);
@@ -965,6 +968,12 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
 
       if (SCAN("al_clear_to_color", 1)) {
          al_clear_to_color(C(0));
+         continue;
+      }
+
+      if (SCANLVAL("al_clone_bitmap", 1)) {
+         ALLEGRO_BITMAP **bmp = reserve_local_bitmap(lval, bmp_type);
+         (*bmp) = al_clone_bitmap(B(0));
          continue;
       }
 

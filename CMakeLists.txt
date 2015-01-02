@@ -114,6 +114,7 @@ option(WANT_D3D9EX "Enable Direct3D 9Ex extensions (Vista)" off)
 option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11, OS X))" on)
 option(WANT_SHADERS_GL "Build GLSL shader support (OpenGL)" on)
 option(WANT_SHADERS_D3D "Build HLSL shader support (Direct3D)" on)
+option(WANT_OPENGL_S3TC_LOCKING "Whether to support blocked locking of DXT1, DXT2, and DXT3 formats in OpenGL." off)
 
 #
 # Addons.
@@ -563,6 +564,9 @@ if(WANT_OPENGL)
     endif()
 endif(WANT_OPENGL)
 
+if(WANT_OPENGL_S3TC_LOCKING)
+    set(ALLEGRO_CFG_OPENGL_S3TC_LOCKING 1)
+endif()
 
 #
 # Unix-specific
@@ -610,6 +614,13 @@ if(SUPPORT_X11)
     else(CAN_XCURSOR)
         message(FATAL_ERROR "X11 support requires Xcursor library.")
     endif(CAN_XCURSOR)
+
+    check_include_file("X11/extensions/XInput2.h" CAN_XINPUT2)
+    if(CAN_XINPUT2)
+        list(APPEND X11_LIBRARIES "Xi")
+    else(CAN_XINPUT2)
+        message(FATAL_ERROR "X11 support requires XInput2 library.")
+    endif(CAN_XINPUT2)
 
     if(WANT_X11_XF86VIDMODE)
         check_include_file("X11/extensions/xf86vmode.h" HAVE_XF86VIDMODE_H)
@@ -685,6 +696,7 @@ if(WIN32)
         find_package(D3DX9)
         if(D3DX9_FOUND)
             include_directories(BEFORE SYSTEM ${D3DX9_INCLUDE_DIR})
+            set(ALLEGRO_CFG_D3DX9 1)
         endif(D3DX9_FOUND)
    endif(SUPPORT_D3D)
 
