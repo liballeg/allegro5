@@ -1,7 +1,138 @@
 % Allegro changelog for 5.1.x series
 
 See `changes-5.0.txt` for changes in Allegro 5.0.x.  These lists
-serve as summaries; the full histories are in the Subversion repository.
+serve as summaries; the full histories are in the git repository.
+
+Changes from 5.1.8 to 5.1.9 (January 2015)
+===========================================
+
+The main developers this time were: Trent Gamblin, SiegeLord, Elias Pschernig.
+
+Core:
+
+  - Fix OSX backend on OSX 10.10 (lordnoriyuki).
+
+  - Simplify how sub-bitmaps interact with their parent bitmaps. You can now
+    destroy a sub-bitmap at any time (not only before the parent is destroyed).
+    Additionally, when the parent is converted using `al_convert_bitmap`, all
+    the sub-bitmaps are also automatically converted.
+
+  - Switch to using unicode Win32 (e.g. this fixes using `al_set_window_title`
+    with unicode strings).
+
+  - Add some Linux WM hints so make Allegro windows work more smoothly
+    (especially with Unity).
+
+Filesystem:
+
+  - Add `al_fprintf` (DanielH and Tobias Scheuer).
+
+  - Add `al_for_each_fs_entry`, a convenience function that helps enumerating
+    the contents of a directory more easily using a callback function (Beoran).
+
+  - Fix for `al_get_standard_path` with Unicode (vkensou).
+
+Input:
+
+  - Add X11 touch driver (Ryan Gumbs).
+
+  - Emulate mouse pressure for backends that don't support pressure.
+
+  - Added Windows haptics driver, XInput joystick driver (Beoran).
+
+  - Fix OSX joystick deinitialization.
+
+Graphics:
+
+  - Add block compression pixel formats
+	  (ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1/DXT3/DXT5) for compressed video
+	  bitmaps. This includes an API to fetch compressed block size
+	  (`al_get_pixel_block_width/height/size`) as well as API to load and unload
+	  compressed bitmap data without paying a runtime compression cost
+	  (`al_lock_bitmap_blocked`). Unfortunately, due to patent concerns this last
+	  feature is disabled for OpenGL (if you thinks those concerns don't apply to
+	  you, you can enable it by passing `-DWANT_OPENGL_S3TC_LOCKING=1` to cmake).
+
+  - Make real fullscreen modes work on OS X again. May not be perfect still.
+    (thanks to SDL).
+
+Shaders:
+
+  - Don't clobber the 0'th texture unit in OpenGL and Direct3D. This simplifies
+    working with shaders.
+
+Android port:
+
+  - Bump minimum Android API level from 10 to 12 (aka version 3.1).
+
+  - Add controller support to the Android port. An accelerometer 'joystick'
+	  is still the first joystick. Supports two analog sticks and 10 buttons (A B
+	  X Y L1 R1 DPAD_L DPAD_R DPAD_U DPAD_D). Supports hotplugging and
+	  theoretically multiple joysticks (needs testing).
+
+  - Set correct orientation at startup on Android (thanks to Aikei_c).
+
+Build system:
+
+  - Various CMake fixes.
+
+Other:
+
+  - Add Travis and AppVeyor continuous integration support.
+
+  - Fix a lot of memory leaks.
+
+  - Many documentation improvements.
+
+Audio addon:
+
+  - Disallow attaching a mixer to itself.
+
+  - Fix uni- and bi-directional looping of zero-length samples.
+
+  - Fix/avoid all sound examples freezing on OSX with the aqueue driver.
+
+Image addon:
+
+  - Add functionality to load Direct Draw Surface files (.dds). Only
+    compressed pixel formats are supported (DXT1, DXT3 and DXT5).
+
+Dialog addon:
+
+  - Fix native file dialog default paths on Windows (Edgar Reynaldo).
+
+  - Fix unintended behaviour in `al_set_menu_item_flags` (Malcolm Harrow).
+
+  - Fix some bugs with native menus in OSX.
+
+Video addon:
+
+  - Fix for now undefined AVCODEC_MAX_AUDIO_FRAME_SIZE (Dennis Busch).
+
+TTF addon:
+
+  - Fix a crashing bug in the TTF addon.
+
+  - Make `al_load_ttf_font_stretch` return NULL if invalid width/height are
+    passed.
+
+Font addon:
+
+  - Add multi line text output for the font addon (`al_draw_multiline_text`,
+    `al_draw_multiline_textf` and `al_draw_multiline_ustr`).
+
+Primitives addon:
+
+  - Fix some sharp-angle polyline drawing bugs.
+
+Examples:
+
+  - New examples: ex_compressed, ex_font_multiline.
+
+  - ex_dir: demonstrate `al_for_each_fs_entry`.
+
+  - ex_haptic2: demonstrate hotplugging.
+
 
 
 Changes from 5.1.7 to 5.1.8 (January 2014)
