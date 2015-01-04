@@ -1,208 +1,224 @@
 /*
  * Allegro5 Creative Voice Audio Reader.
  *
- * Requires libsndfile
+ * Loosely based on A4 voc loader and tightly based on specs of the soundblaster
+ * hardware programming manual:
+ * <http://pdos.csail.mit.edu/6.828/2007/readings/hardware/SoundBlaster.pdf#1254>
+ * also specs are available at
+ * <http://sox.sourceforge.net/AudioFormats-11.html> section 11.5
+ *
+ * List of VOC audio codecs suported:
+ *   supported 0x0000  8-bit unsigned PCM
+ *             0x0001  Creative 8-bit to 4-bit ADPCM   *HW implemented on the SB
+ *             0x0002  Creative 8-bit to 3-bit ADPCM   *HW implemented on the SB
+ *             0x0003  Creative 8-bit to 2-bit ADPCM   *HW implemented on the SB
+ *   supported 0x0004  16-bit signed PCM
+ *
+ * these are unsupported and present only in VOC files version 1.20 and above
+ *             0x0006  CCITT a-Law                     * not really used
+ *             0x0007  CCITT u-Law                     * not really used
+ *             0x0200  Creative 16-bit to 4-bit ADPCM  *HW implemented on the SB
+ *
  *
  * author: pkrcel (aka Andrea Provasi) <pkrcel@gmail.com>
  *
  * Revisions:
- *            2014-12-30 Initial Release - can only load samples
- *            2015-01-02 Source check and complete test with ex_acodec
- *                       First pull requesto to Allegro Dev team
+ *            2015-01-03 Source derived from previous sndfile implementation
+ *                       cleaned up and put decoder into voc.c
  */
 
-#include "allegro5/allegro.h"
-#include "allegro5/allegro_acodec.h"
+//#include <stdio.h>
+
 #include "allegro5/allegro_audio.h"
-#include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_audio.h"
-#include "allegro5/internal/aintern_exitfunc.h"
-#include "allegro5/internal/aintern_system.h"
 #include "acodec.h"
 #include "helper.h"
 
-#ifndef ALLEGRO_CFG_ACODEC_CREATIVE_VOICE
-   #error configuration problem, ALLEGRO_CFG_ACODEC_CREATIVE_VOICE not set
-#endif
 
-ALLEGRO_DEBUG_CHANNEL("acodec")
+ALLEGRO_DEBUG_CHANNEL("voc")   // will this work?
 
-#include <sndfile.h>
 
-typedef struct AL_SNDFILE_DATA AL_SNDFILE_DATA;
 
-struct AL_SNDFILE_DATA {
-   SNDFILE *sf;
-   SF_INFO sfinfo;
-   ALLEGRO_FILE *file;
-   SF_VIRTUAL_IO al_sd_vio;
+typedef struct AL_VOC_DATA AL_VOC_DATA;
+
+struct AL_VOC_DATA {
+   ALLEGRO_FILE   *file;
+   size_t         datapos;
+   int            samplerate;
+   short          bits;        /* 8 (unsigned char) or 16 (signed short) */
+   short          channels;    /* 1 (mono) or 2 (stereo) */
+   int            sample_size; /* channels * bits/8 */
+   int            samples;     /* # of samples. size = samples * sample_size */
 };
 
-
-/* dynamic loading support (Windows only currently) */
-#ifdef ALLEGRO_CFG_ACODEC_CREATIVE_VOICE_DLL
-static void *cva_dll = NULL;
-static bool cva_virgin = true;
-#endif
-
-static struct
-{
-   SNDFILE*    (*sf_open_virtual) (SF_VIRTUAL_IO *sfvirtual, int mode,
-                                   SF_INFO *sfinfo, void *user_data);
-//   int         (*sf_error)        (SNDFILE *);
-//   const char* (*sf_strerror)     (SNDFILE *);
-//   const char* (*sf_error_number) (int);
-//   int         (*sf_command)      (SNDFILE *, int , void *, int );
-
-   sf_count_t (*sf_readf_short)   (SNDFILE *, short *, sf_count_t );
-//   sf_count_t (*sf_writef_short)  (SNDFILE *, const short *, sf_count_t );
-//   sf_count_t (*sf_readf_int)     (SNDFILE *, int *, sf_count_t );
-//   sf_count_t (*sf_writef_int)    (SNDFILE *, const int *, sf_count_t );
-//   sf_count_t (*sf_readf_float)   (SNDFILE *, float *, sf_count_t );
-//   sf_count_t (*sf_writef_float)  (SNDFILE *, const float *, sf_count_t );
-//   sf_count_t (*sf_readf_double)  (SNDFILE *, double *, sf_count_t );
-//   sf_count_t (*sf_writef_double) (SNDFILE *, const double *, sf_count_t );
-
-   sf_count_t (*sf_read_short)    (SNDFILE *, short *, sf_count_t );
-//   sf_count_t (*sf_write_short)   (SNDFILE *, const short *, sf_count_t );
-//   sf_count_t (*sf_read_int)      (SNDFILE *, int *, sf_count_t );
-//   sf_count_t (*sf_write_int)     (SNDFILE *, const int *, sf_count_t );
-//   sf_count_t (*sf_read_float)    (SNDFILE *, float *, sf_count_t );
-//   sf_count_t (*sf_write_float)   (SNDFILE *, const float *, sf_count_t ) ;
-//   sf_count_t (*sf_read_double)   (SNDFILE *, double *, sf_count_t );
-//   sf_count_t (*sf_write_double)  (SNDFILE *, const double *, sf_count_t );
-
-   int        (*sf_close)         (SNDFILE *);
-} lib;
-
-
-#ifdef ALLEGRO_CFG_ACODEC_CREATIVE_VOICE_DLL
-static void shutdown_dynlib(void)
-{
-   if (cva_dll) {
-      _al_close_library(cva_dll);
-      cva_dll = NULL;
-      cva_virgin = true;
-   }
-}
-#endif
-
-
-static bool init_dynlib(void)
-{
-#ifdef ALLEGRO_CFG_ACODEC_CREATIVE_VOICE_DLL
-   if (cva_dll) {
-      return true;
-   }
-
-   if (!cva_virgin) {
-      return false;
-   }
-
-   cva_virgin = false;
-
-   cva_dll = _al_open_library(ALLEGRO_CFG_ACODEC_CREATIVE_VOICE_DLL);
-   if (!cva_dll) {
-      ALLEGRO_WARN("Could not load " ALLEGRO_CFG_ACODEC_CREATIVE_VOICE_DLL "\n");
-      return false;
-   }
-
-   _al_add_exit_func(shutdown_dynlib, "shutdown_dynlib");
-
-   #define INITSYM(x)                                                         \
-      do                                                                      \
-      {                                                                       \
-         lib.x = _al_import_symbol(cva_dll, #x);                               \
-         if (lib.x == 0) {                                                    \
-            ALLEGRO_ERROR("undefined symbol in lib structure: " #x "\n");     \
-            return false;                                                     \
-         }                                                                    \
-      } while(0)
-#else
-   #define INITSYM(x)   (lib.x = (x))
-#endif
-
-   memset(&lib, 0, sizeof(lib));
-
-   INITSYM(sf_open_virtual);
-   INITSYM(sf_readf_short);
-   INITSYM(sf_read_short);
-   INITSYM(sf_close);
-
-   return true;
-
-#undef INITSYM
-}
-
 /*
- * Providing SF_VIRTUAL_IO environment
- * these functions have to be passed later to sf_open_virtual
- * For mor information:
- *    <http://www.mega-nerd.com/libsndfile/api.html#open_virtual>
+ * Fills in a VOC data header with information obtained  by opening an
+ * caller-provided ALLEGRO_FILE.
+ * The datapos index will be the first data byte of the first data block which
+ * contains ACTUAL data.
  */
-static sf_count_t _al_sf_vio_get_filelen(void *user_data){
-   ALLEGRO_FILE *f = (ALLEGRO_FILE*)user_data;
-   return (sf_count_t)al_fsize(f);
-}
+static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp){
+   AL_VOC_DATA vocdata;
+   char hdrbuf[0x16];
+   size_t readcount = 0;
+   uint8_t  blocktype = 0;
+   uint16_t  timeconstant = 0;
+   uint32_t blocklength = 0; //length is stored in 3 bites LE, gd byteorder.
+   uint16_t format = 0;    // can be 16-bit in Blocktype 9 (voc version > 1.20
+   uint16_t vocversion = 0;
+   uint16_t checkver = 0;  // must be  1's complement of vocversion + 0x1234
 
-static sf_count_t _al_sf_vio_seek (sf_count_t offset, int whence, void *user_data){
-   ALLEGRO_FILE *f = (ALLEGRO_FILE*)user_data;
+   if (!fp){
+      ALLEGRO_WARN("voc_open: Failed opening ALLEGRO_FILE");
+      return NULL;
+   };
 
-   switch(whence) {
-      case SEEK_SET: whence = ALLEGRO_SEEK_SET; break;
-      case SEEK_CUR: whence = ALLEGRO_SEEK_CUR; break;
-      case SEEK_END: whence = ALLEGRO_SEEK_END; break;
+   /* init VOC data */
+   memset(&vocdata, 0, sizeof(vocdata));
+   memset(hdrbuf, 0, sizeof(hdrbuf));
+   vocdata.file = fp;
+
+   /* Begin checking the Header info */
+   readcount = al_fread(fp, hdrbuf, 0x16);
+   if (readcount != 0x16                                      /*shorter header*/
+       || !memcmp(hdrbuf, "Creative Voice File"+ 0x1A, 0x14)  /*wrong id */
+       || !memcmp(hdrbuf[0x15], 0x001A, 0x2)){                /*wrong offset */
+      ALLEGRO_WARN("voc_open: File does not appear to be a valid VOC file");
+      return NULL;
    }
-   if (!al_fseek(f, offset, whence)) {
-      return -1;
-   } else {
-      return (sf_count_t)al_ftell(f);
-      }
+
+   al_fread(fp, &vocversion, 2);
+   if (vocversion != 0x10A || vocversion != 0x114){  // known ver 1.10 -1.20
+      ALLEGRO_WARN("voc_open: File is of unknown version");
+      return NULL;
+   }
+   /* checksum version check */
+   al_fread(fp, checkver, 2);
+   if (checkver != !vocversion + 0x1234){
+      ALLEGRO_WARN("voc_open: Bad VOC Version Identification Number");
+      return NULL;
+   }
+   /*
+    * We're at che first datablock, we shall check type and set all the relevant
+    * info in the vocdata structure, including finally the datapos index to the
+    * first valid data byte.
+    */
+   uint8_t x = 0;
+   al_fread(fp, &blocktype, 1);
+   al_fread(fp, &blocklength, 2);
+   al_fread(fp, &x, 1);
+   blocklength += x<<16;
+   switch (blocktype){
+      case 1:
+         /* blocktype 1 is the most basic header with 1byte format, time
+          * constant and length equal to (datalength + 2).
+          */
+         blocklength -= 2;
+         al_fread(fp, &timeconstant, 1);
+         al_fread(fp, &format,1);
+         vocdata.bits = 8; /* only possible codec for Blocktype 1 */
+         vocdata.channels = 1;  /* block 1 alone means MONO */
+         vocdata.samplerate = 1000000 / (256 - timeconstant);
+         vocdata.sample_size = 1; /* or better: 1 * 8 / 8 */
+         /*
+          * Expected number of samples is at LEAST what is in this block.
+          * IIF lentgh 0xFFF there will be a following blocktype 2.
+          * We will deal with this later in load_voc.
+          */
+         vocdata.samples = blocklength / vocdata.sample_size;
+         vocdata.datapos = al_ftell(fp);
+         break;
+      case 8:
+         /* Blocktype 8 is enhanced data block (mainly for Stereo samples I
+          * guess) that precedes a Blocktype 1, of which the sound infor have
+          * to be ignored.
+          * We skip to the end of the following Blocktype 1 once we get all the
+          * required header info.
+          */
+         if (blocklength != 4){
+            ALLEGRO_WARN("voc_open: Got opening Blocktype 8 of wrong length");
+            return NULL;
+         }
+         al_fread(fp, &timeconstant, 2); /* here a full 16bit word is stored */
+         al_fread(fp, &format,1);
+         al_fread(fp, &vocdata.channels, 1);
+         vocdata.channels += 1; /* was 0 for mono, 1 for stereo */
+         vocdata.bits = 8; /* only possible codec for Blocktype 8 */
+         vocdata.samplerate = 1000000 / (256 - timeconstant);
+         vocdata.samplerate /= vocdata.channels;
+         vocdata.sample_size = vocdata.channels * vocdata.bits / 8;
+         /*
+          * Now following there is a blocktype 1 which tells us the length of
+          * the data block and all other info are discarded.
+          */
+         al_fread(fp, &blocktype, 1);
+         if (blocktype != 1){
+            ALLEGRO_WARN("voc_open: Blocktype following type 8 is not 1");
+            return NULL;
+         }
+         al_fread(fp, &blocklength, 2);
+         al_fread(fp, &x, 1);
+         blocklength += x<<16;
+         blocklength -=2;
+         al_fread(fp, &x, 2); /* just skip 2 bytes, we're now at datapos */
+         vocdata.samples = blocklength / vocdata.sample_size;
+         vocdata.datapos = al_ftell(fp);
+         break;
+      case 9:
+         /*
+          * BLocktype 9 is available only for VOC version 1.20 and above
+          * Deals with 16-bit codecs and stereo and is richier than blocktype 1
+          * or the combo 8+1.
+          * length is 12 bytes more than actual data.
+          */
+         blocklength -= 12;
+         al_fread(fp, &vocdata.samplerate, 4); /* actual samplerate */
+         al_fread(fp, &vocdata.bits, 1); /* actual bits after compression */
+         al_fread(fp, &vocdata.channels, 1); /* actual channels */
+         al_fread(fp, &format, 2);
+         if ((vocdata.bits != 8 && vocdata.bit != 16) ||
+             (format != 0 && format != 4)){
+            ALLEGRO_WARN("voc_open: unsupported CODEC in voc data");
+            return NULL;
+         }
+         al_fread(fp, &x, 4); /* just skip 4 reserved bytes */
+         vocdata.datapos = al_ftell(fp);
+         break;
+      case 2:               //
+      case 3:               // these cases are just
+      case 4:               // ignored in this span
+      case 5:               // and wll not return a
+      case 6:               // valid VOC data.
+      case 7:               //
+      default:
+         ALLEGRO_WARN("voc_open: opening Block is of unsupported type");
+         return NULL;
+         break;
+   }
+   return vocdata;
 }
 
-static sf_count_t _al_sf_vio_read(void *ptr, sf_count_t count, void *user_data){
-   ALLEGRO_FILE *f = (ALLEGRO_FILE *)user_data;
-   size_t nrbytes = 0;
+static bool voc_close(AL_VOC_DATA *vocdata){
+   ASSERT(vocdata);
 
-   nrbytes = al_fread(f, ptr, count);
-
-   return nrbytes;
-}
-
-/*
- * This is not yet implemented, current release does not save samples.
- *
- */
-static sf_count_t _al_sf_vio_write(const void *ptr, sf_count_t count, void *user_data){
-   return 0;
-}
-
-static sf_count_t _al_sf_vio_tell(void *user_data){
-   ALLEGRO_FILE *f = (ALLEGRO_FILE *)user_data;
-   sf_count_t ret = 0;
-
-   ret = al_ftell(f);
-   if (ret == -1)
-      return -1;
-
-   return ret;
+   al_free(vocdata);
 }
 
 
-ALLEGRO_SAMPLE *_al_load_creative_voice(const char *filename)
+ALLEGRO_SAMPLE *_al_load_voc(const char *filename)
 {
    ALLEGRO_FILE *f;
    ALLEGRO_SAMPLE *spl;
    ASSERT(filename);
    
-   ALLEGRO_INFO("Loading sample %s.\n", filename);
+   ALLEGRO_INFO("Loading VOC sample %s.\n", filename);
    f = al_fopen(filename, "rb");
    if (!f) {
       ALLEGRO_WARN("Failed reading %s.\n", filename);
       return NULL;
    }
 
-   spl = _al_load_creative_voice_f(f);
+   spl = _al_load_voc_f(f);
 
    al_fclose(f);
 
@@ -210,86 +226,95 @@ ALLEGRO_SAMPLE *_al_load_creative_voice(const char *filename)
 }
 
 
-ALLEGRO_SAMPLE *_al_load_creative_voice_f(ALLEGRO_FILE *file)
+ALLEGRO_SAMPLE *_al_load_voc_f(ALLEGRO_FILE *file)
 {
    /* NOTE: The decoding library libsndfile returns "whatever we want"
     * and is transparent to the user.
-    * To conform to other acodec handlers, we'll use 16-bit "short" an no other
-    * format as the 16Bit PCM data seems to be the most commonly supported.
-    *
-    * The decoding library uses the native endian format of the host, so no need
-    * to check curent endianess.
     */
+   AL_VOC_DATA vocdata;
+   memset(&vocdata, 0, sizeof(vocdata));
 
-   const int word_size = 2;  /* constant stands for 16-bit */
+   ALLEGRO_SAMPLE *sample = NULL;
+   size_t pos = 0; /* where to write in the buffer */
+   size_t read = 0; /*bytes read during last operation */
+   char* buffer;
 
-   short *buffer;            /* the actual PCM data buffer */
-   ALLEGRO_SAMPLE *sample;
-   int channels;
-   long samplerate;
-   long total_samples;
-   long total_size;          /* unsure about how I handle this */
-   AL_SNDFILE_DATA al_sd;
-   long read;
-
-   if (!init_dynlib()) {
-      return NULL;
-   }
-
-   /* Initialize the sndfile object we pass to the decoder*/
-   memset(&al_sd, 0, sizeof(al_sd));
-   al_sd.al_sd_vio.get_filelen = _al_sf_vio_get_filelen;
-   al_sd.al_sd_vio.read = _al_sf_vio_read;
-   al_sd.al_sd_vio.write = _al_sf_vio_write;
-   al_sd.al_sd_vio.seek = _al_sf_vio_seek;
-   al_sd.al_sd_vio.tell = _al_sf_vio_tell;
-   al_sd.file = file;
-
-
-   /* Need to open the file first to get the parameters
-    *
-    * TODO: inser proper error handling, even thou the ALLEGRO_FILE should
-    * already have been properly handled by the caller
-    *
+   /*
+    * Open file and populate VOC DATA, then create a buffer for the number of
+    * samples of the frst block.
+    * Iterate on the following blocks till EOF or terminator block
     */
+   vocdata = voc_open(file);
+   if (!vocdata) return NULL;
 
-   al_sd.sf = lib.sf_open_virtual(&al_sd.al_sd_vio, SFM_READ,
-                                  &al_sd.sfinfo, al_sd.file);
 
-   channels = al_sd.sfinfo.channels;
-   samplerate = al_sd.sfinfo.samplerate;
-   total_samples = al_sd.sfinfo.frames;
+   ALLEGRO_DEBUG("channels %d\n", vocdata.channels);
+   ALLEGRO_DEBUG("word_size %d\n", vocdata.sample_size);
+   ALLEGRO_DEBUG("rate %ld\n", vocdata.samplerate);
+   ALLEGRO_DEBUG("first_block_samples %ld\n", vocdata.samples);
+   ALLEGRO_DEBUG("first_block_size %ld\n", vocdata.samples * vocdata.sample_size);
 
-   total_size = total_samples * channels * word_size;
-
-   ALLEGRO_DEBUG("channels %d\n", channels);
-   ALLEGRO_DEBUG("word_size %d\n", word_size);
-   ALLEGRO_DEBUG("rate %ld\n", samplerate);
-   ALLEGRO_DEBUG("total_samples %ld\n", total_samples);
-   ALLEGRO_DEBUG("total_size %ld\n", total_size);
-
-   buffer = al_malloc(total_size);
+   /*
+    * Let's allocate at least the first block's bytes;
+    */
+   buffer = al_malloc(vocdata.samples * vocdata.sample_size);
    if (!buffer) {
       return NULL;
    }
-
    /*
-    * libsndfile allows us to read all the buffer in "frames".
-    * Given that 'total_size' is correct, there should not be any overrun.
-    * NOTE: 'read' is unused by it might be beneficial to add a sanity check
-    * having it compared to the total frames actually read and the expected.
+    * We now need to iterate over data blocks till either we hit end of file
+    * or we find a terminator block.
     */
-   read = lib.sf_readf_short(al_sd.sf, buffer, al_sd.sfinfo.frames);
-
-   sample = al_create_sample(buffer, total_samples, samplerate,
-      _al_word_size_to_depth_conf(word_size),
-      _al_count_to_channel_conf(channels), true);
-
-   if (!sample) {
-      al_free(buffer);
+   size_t bytestoread = vocdata.samples * vocdata.sample_size;
+   bool endofvoc = false;
+   while(!endofvoc && !al_feof(vocdata.file)){
+      long blocktype =0;
+      read = al_fread(vocdata.file, buffer, bytestoread);
+      pos += read;
+      al_fread(vocdata.file, &blocktype, 1); /* read next block type */
+      if (al_feof(vocdata.file)) break;
+      switch (blocktype){
+         case 0:  /* we found a terminator block */
+            endofvoc = true;
+            break;
+         case 2:  /*we found a continuation block: unlikely but handled */
+            bytestoread = 0;
+            al_fread(vocdata.file, &bytestoread, 2);
+            al_fread(vocdata.file, &x, 1);
+            bytestoread += x<<16;
+            /* increase subsequently storage */
+            buffer = al_realloc(buffer, sizeof(buffer) + bytestoread);
+            break;
+         case 1:   // we found a NEW data block starter, I assume this is wrong
+         case 8:   // and let the so far read sample data correctly in the
+         case 9:   // already allocated buffer.
+            endofvoc = true;
+            break;
+         case 3:     /* we found a pause block */
+         case 4:     /* we found a marker block */
+         case 5:     /* we found an ASCII c-string block */
+         case 6:     /* we found a repeat block */
+         case 7:     /* we found an end repeat block */
+                     /* all these blocks will be skipped */
+            uint32_t len = 0, x = 0;
+            al_fread(vocdata.file, &len, 2);
+            al_fread(vocdata.file, &x, 1);
+            len += x<<16;  // this is the length what's left to skip */
+            for (int ii = 0; ii < len ; ++ii){
+               al_fgetc(vocdata.file);
+            }
+            bytestoread = 0;  //should let safely heck for the next block */
+            break;
+         default:
+            break;
+      }
    }
 
-   lib.sf_close(al_sd.sf);
+   sample = al_create_sample(buffer, pos, vocdata.samplerate,
+                             _al_word_size_to_depth_conf(vocdata.sample_size),
+                             _al_count_to_channel_conf(vocdata.channels), true);
+   if (!sample)
+      al_free(buffer);
 
    return sample;
 }

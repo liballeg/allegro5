@@ -51,10 +51,14 @@ bool al_init_acodec_addon(void)
    ret &= al_register_audio_stream_loader_f(".ogg", _al_load_ogg_vorbis_audio_stream_f);
 #endif
 
-#ifdef ALLEGRO_CFG_ACODEC_CREATIVE_VOICE
-   ret &= al_register_sample_loader(".VOC", _al_load_creative_voice);
+#ifdef ALLEGRO_CFG_ACODEC_SNDFILE
+   /*
+    * These are here for placeholder on a format actually read by sndfile
+    */
+   ret &= al_register_sample_loader(".aiff", _al_load_sndfile);
 //   ret &= al_register_audio_stream_loader(".VOC", _al_load_VOC_audio_stream);
-//   ret &= al_register_sample_loader_f(".VOC", _al_load_VOC_f);
+
+   ret &= al_register_sample_loader_f(".aiff", _al_load_sndfile_f);
 //   ret &= al_register_audio_stream_loader_f(".VOC", _al_load_VOC_audio_stream_f);
 #endif
 
