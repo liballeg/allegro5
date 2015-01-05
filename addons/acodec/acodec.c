@@ -26,6 +26,10 @@ bool al_init_acodec_addon(void)
    ret &= al_register_sample_saver_f(".wav", _al_save_wav_f);
    ret &= al_register_audio_stream_loader_f(".wav", _al_load_wav_audio_stream_f);
 
+   /* buil-in VOC loader */
+   ret &= al_register_sample_loader(".voc", _al_load_voc);
+   ret &= al_register_sample_loader_f(".voc", _al_load_voc_f);
+
 #ifdef ALLEGRO_CFG_ACODEC_FLAC
    ret &= al_register_sample_loader(".flac", _al_load_flac);
    ret &= al_register_audio_stream_loader(".flac", _al_load_flac_audio_stream);

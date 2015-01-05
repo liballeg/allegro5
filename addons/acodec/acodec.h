@@ -17,8 +17,8 @@ bool _al_save_wav_f(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl);
  * should not implement streams since it's unlikely this container
  * will ever be used as such.
  */
-ALLEGRO_SAMPLE *_al_load_creative_voice(const char *filename);
-ALLEGRO_SAMPLE *_al_load_creative_voice_f(ALLEGRO_FILE *fp);
+ALLEGRO_SAMPLE *_al_load_voc(const char *filename);
+ALLEGRO_SAMPLE *_al_load_voc_f(ALLEGRO_FILE *fp);
 
 
 #ifdef ALLEGRO_CFG_ACODEC_FLAC
