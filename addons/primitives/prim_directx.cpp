@@ -31,6 +31,8 @@
 #include "allegro5/allegro_direct3d.h"
 #include "allegro5/internal/aintern_direct3d.h"
 
+ALLEGRO_DEBUG_CHANNEL("d3d_primitives")
+
 static ALLEGRO_MUTEX *d3d_mutex;
 /*
  * In the context of this file, legacy cards pretty much refer to older Intel cards.
@@ -55,6 +57,7 @@ static bool is_legacy_card(void)
       if (caps.PixelShaderVersion < D3DPS_VERSION(3, 0))
          legacy_card = true;
       know_card_type = true;
+      ALLEGRO_WARN("Your GPU is considered legacy! Some of the features of the primitives addon will be slower/disabled.\n");
    }
    return legacy_card;
 }
@@ -1015,8 +1018,10 @@ bool _al_create_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf, const void* in
    void* locked_memory;
 
    /* There's just no point */
-   if (is_legacy_card())
+   if (is_legacy_card()) {
+      ALLEGRO_WARN("Cannot create vertex buffer for a legacy card.\n");
       return false;
+   }
 
    device = al_get_d3d_device(al_get_current_display());
 
@@ -1027,8 +1032,10 @@ bool _al_create_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf, const void* in
 
    res = device->CreateVertexBuffer(stride * num_vertices, !(flags & ALLEGRO_PRIM_BUFFER_READWRITE) ? D3DUSAGE_WRITEONLY : 0,
                                     fvf, D3DPOOL_MANAGED, &d3d_vbuff, 0);
-   if (res != D3D_OK)
+   if (res != D3D_OK) {
+      ALLEGRO_WARN("CreateVertexBuffer failed: %ld.\n", res);
       return false;
+   }
 
    if (initial_data != NULL) {
       d3d_vbuff->Lock(0, 0, &locked_memory, 0);
@@ -1058,15 +1065,19 @@ bool _al_create_index_buffer_directx(ALLEGRO_INDEX_BUFFER* buf, const void* init
    void* locked_memory;
 
    /* There's just no point */
-   if (is_legacy_card())
+   if (is_legacy_card()) {
+      ALLEGRO_WARN("Cannot create index buffer for a legacy card.\n");
       return false;
+   }
 
    device = al_get_d3d_device(al_get_current_display());
 
    res = device->CreateIndexBuffer(num_indices * buf->index_size, !(flags & ALLEGRO_PRIM_BUFFER_READWRITE) ? D3DUSAGE_WRITEONLY : 0,
                                    buf->index_size == 4 ? D3DFMT_INDEX32 : D3DFMT_INDEX16, D3DPOOL_MANAGED, &d3d_ibuff, 0);
-   if (res != D3D_OK)
+   if (res != D3D_OK) {
+      ALLEGRO_WARN("CreateIndexBuffer failed: %ld.\n", res);
       return false;
+   }
 
    if (initial_data != NULL) {
       d3d_ibuff->Lock(0, 0, &locked_memory, 0);
@@ -1112,8 +1123,10 @@ void* _al_lock_vertex_buffer_directx(ALLEGRO_VERTEX_BUFFER* buf)
    HRESULT res;
 
    res = ((IDirect3DVertexBuffer9*)buf->common.handle)->Lock((UINT)buf->common.lock_offset, (UINT)buf->common.lock_length, &buf->common.locked_memory, flags);
-   if (res != D3D_OK)
+   if (res != D3D_OK) {
+      ALLEGRO_WARN("Locking vertex buffer failed: %ld.\n", res);
       return 0;
+   }
 
    return buf->common.locked_memory;
 #else
@@ -1130,8 +1143,11 @@ void* _al_lock_index_buffer_directx(ALLEGRO_INDEX_BUFFER* buf)
    HRESULT res;
 
    res = ((IDirect3DIndexBuffer9*)buf->common.handle)->Lock((UINT)buf->common.lock_offset, (UINT)buf->common.lock_length, &buf->common.locked_memory, flags);
-   if (res != D3D_OK)
+
+   if (res != D3D_OK) {
+      ALLEGRO_WARN("Locking index buffer failed: %ld.\n", res);
       return 0;
+   }
 
    return buf->common.locked_memory;
 #else
