@@ -31,3 +31,12 @@ script:
       elif [ `uname` = "Darwin" ]; then
          xcodebuild
       fi
+
+notifications:
+  irc:
+    channels:
+      - "irc.freenode.org#allegro-dev"
+    on_success: always
+    on_failure: always
+    use_notice: false
+    skip_join: false
