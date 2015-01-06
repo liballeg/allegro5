@@ -1,4 +1,4 @@
-version: "{branch}-ci:{build}"
+version: "{branch}-ci-{build}"
 clone_depth: 5
 
 install:
