@@ -180,6 +180,22 @@ there is no active system driver. The returned configuration should
 not be destroyed with [al_destroy_config].
 This is mainly used for configuring Allegro and its addons.
 
+Allegro will try to populate this configuration by loading a configuration file
+from a few different locations, in this order:
+
+- *Unix only:* /etc/allegro5rc
+
+- *Unix only:* $HOME/allegro5rc
+
+- allegro5.cfg next to the executable
+
+If multiple copies are found, then they are merged using [al_merge_config_into].
+
+The contents of this file are documented inside a prototypical allegro5.cfg
+that you can find in the root directory of the source distributions of Allegro.
+Note that Allegro will not look into that file unless you make a copy of it and
+place it next to your executable!
+
 ## API: al_register_assert_handler
 
 Register a function to be called when an internal Allegro assertion fails.
