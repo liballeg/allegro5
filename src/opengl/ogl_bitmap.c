@@ -1104,7 +1104,12 @@ void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
    ASSERT(ogl_bitmap->fbo_info->fbo != 0);
    ALLEGRO_DEBUG("Deleting FBO: %u\n", ogl_bitmap->fbo_info->fbo);
 
-   glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo_info->fbo);
+   if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
+      glDeleteFramebuffers(1, &ogl_bitmap->fbo_info->fbo);
+   }
+   else {
+      glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo_info->fbo);
+   }
    ogl_bitmap->fbo_info->fbo = 0;
 
    if (ogl_bitmap->fbo_info->fbo_state == FBO_INFO_PERSISTENT) {
