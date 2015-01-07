@@ -711,6 +711,7 @@ static void ogl_flip_blocks(ALLEGRO_LOCKED_REGION *lr, int wc, int hc)
 static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
    int x, int y, int w, int h, int flags)
 {
+#ifndef ALLEGRO_ANDROID
    ALLEGRO_BITMAP_EXTRA_OPENGL *const ogl_bitmap = bitmap->extra;
    ALLEGRO_DISPLAY *disp;
    ALLEGRO_DISPLAY *old_disp = NULL;
@@ -762,9 +763,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
     * See also pitfalls 7 & 8 from:
     * http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall/
     */
-#ifdef GL_CLIENT_PIXEL_STORE_BIT
    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
-#endif
    {
       glPixelStorei(GL_PACK_ALIGNMENT, 1);
       e = glGetError();
@@ -824,9 +823,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
       }
    }
 
-#ifdef GL_CLIENT_PIXEL_STORE_BIT
    glPopClientAttrib();
-#endif
 
    if (old_disp != NULL) {
       _al_set_current_display_only(old_disp);
@@ -840,6 +837,15 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_ERROR("Failed to lock region\n");
    ASSERT(ogl_bitmap->lock_buffer == NULL);
    return NULL;
+#else
+   (void)bitmap;
+   (void)x;
+   (void)y;
+   (void)w;
+   (void)h;
+   (void)flags;
+   return NULL;
+#endif
 }
 
 
