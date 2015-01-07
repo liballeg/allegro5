@@ -51,13 +51,27 @@ static bool know_card_type = false;
 static bool is_legacy_card(void)
 {
    if (!know_card_type) {
-      D3DCAPS9 caps;
-      LPDIRECT3DDEVICE9 device = al_get_d3d_device(al_get_current_display());
-      device->GetDeviceCaps(&caps);
-      if (caps.PixelShaderVersion < D3DPS_VERSION(3, 0))
+      ALLEGRO_CONFIG* sys_cfg = al_get_system_config();
+      const char* detection_setting = al_get_config_value(sys_cfg, "graphics", "prim_d3d_legacy_detection");
+      detection_setting = detection_setting ? detection_setting : "default";
+      if (strcmp(detection_setting, "default") == 0) {
+         D3DCAPS9 caps;
+         LPDIRECT3DDEVICE9 device = al_get_d3d_device(al_get_current_display());
+         device->GetDeviceCaps(&caps);
+         if (caps.PixelShaderVersion < D3DPS_VERSION(2, 0))
+            legacy_card = true;
+      } else if(strcmp(detection_setting, "force_legacy") == 0) {
          legacy_card = true;
+      } else if(strcmp(detection_setting, "force_modern") == 0) {
+          legacy_card = false;
+      } else {
+         ALLEGRO_WARN("Invalid setting for prim_d3d_legacy_detection.\n");
+         legacy_card = false;
+      }
+      if (legacy_card) {
+         ALLEGRO_WARN("Your GPU is considered legacy! Some of the features of the primitives addon will be slower/disabled.\n");
+      }
       know_card_type = true;
-      ALLEGRO_WARN("Your GPU is considered legacy! Some of the features of the primitives addon will be slower/disabled.\n");
    }
    return legacy_card;
 }
