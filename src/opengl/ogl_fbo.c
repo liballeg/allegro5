@@ -301,7 +301,6 @@ static void setup_fbo_backbuffer(ALLEGRO_DISPLAY *display,
    al_orthographic_transform(&display->proj_transform,
       0, 0, -1, display->w, display->h, 1);
 #else
-   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
    _al_iphone_setup_opengl_view(display, false);
 #endif
    display->vt->set_projection(display);
