@@ -124,7 +124,6 @@ static void error(char const *msg, ...)
    fprintf(stderr, "test_driver: ");
    vfprintf(stderr, msg, ap);
    fprintf(stderr, "\n");
-   fprintf(stderr, "See --help for usage\n");
    va_end(ap);
    exit(EXIT_FAILURE);
 }
@@ -1588,7 +1587,7 @@ int main(int _argc, char *_argv[])
    argv = _argv;
 
    if (argc == 1) {
-      error("requires config file argument");
+      error("requires config file argument.\nSee --help for usage");
    }
    argc--;
    argv++;
