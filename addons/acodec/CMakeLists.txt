@@ -4,7 +4,6 @@ option(WANT_FLAC "Enable FLAC support" on)
 option(WANT_VORBIS "Enable Ogg Vorbis support using libvorbis" on)
 option(WANT_TREMOR "Enable Ogg Vorbis support using Tremor" off)
 option(WANT_MODAUDIO "Enable MOD Audio support" on)
-option(WANT_SNDFILE_AUDIO "Enable libsndfile as External Audio " off)
 option(WANT_ACODEC_DYNAMIC_LOAD "Enable DLL loading in acodec (Windows)" on)
 
 #-----------------------------------------------------------------------------#
@@ -261,63 +260,6 @@ if(SUPPORT_VORBIS)
         list(APPEND ACODEC_LIBRARIES ${VORBIS_LIBRARIES})
     endif()
 endif(SUPPORT_VORBIS)
-
-#
-# SNDFILE (libsndfile) audio
-# adds support for libsndfile offline decoder.
-#
-
-if(WANT_SNDFILE_AUDIO)
-    find_package(SNDFILE)
-    if(SNDFILE_FOUND)
-        set(CMAKE_REQUIRED_INCLUDES ${SNDFILE_INCLUDE_DIR})
-        set(CMAKE_REQUIRED_LIBRARIES ${SNDFILE_LIBRARIES})
-        check_c_source_compiles("
-            #include <sndfile.h>
-            int main(void)
-            {
-            char buffer[128];
-            sf_command(NULL, SFC_GET_LIB_VERSION, buffer, sizeof (buffer));
-            return 0;
-            }"
-            SNDFILE_COMPILES)
-        set(CMAKE_REQUIRED_INCLUDES)
-        set(CMAKE_REQUIRED_LIBRARIES)
-        if(SNDFILE_COMPILES)
-            set(SUPPORT_SNDFILE_AUDIO 1)
-        else()
-            message("libsndfile compile test FAILED")
-        endif(SNDFILE_COMPILES)
-    endif(SNDFILE_FOUND)
-    if(NOT SUPPORT_SNDFILE_AUDIO)
-        message("WARNING: SNDFILE not found or compile test failed,"
-                "disabling support. <http://www.mega-nerd.com/libsndfile/>")
-    endif(NOT SUPPORT_SNDFILE_AUDIO)
-endif(WANT_SNDFILE_AUDIO)
-
-if(SUPPORT_SNDFILE_AUDIO)
-    include_directories(SYSTEM ${SNDFILE_INCLUDE_DIR})
-    set(ALLEGRO_CFG_ACODEC_SNDFILE 1)
-    list(APPEND ACODEC_SOURCES sndfile.c)
-
-    list(APPEND ACODEC_INCLUDE_DIRECTORIES ${SNDFILE_INCLUDE_DIR})
-
-    if(WIN32 AND WANT_ACODEC_DYNAMIC_LOAD)
-        if(SNDFILE_LIBRARY MATCHES "${WIN32_STATIC_LIB_REGEX}")
-            message("WARNING: Dynamic loading will be disabled for SNDFILE"
-                    " as static library was found: ${SNDFILE_LIBRARY};"
-                    "NOTE: licensing of SNDFILE (under LGLPL v2/v3) requires "
-                    "this code to be licended under GPL. "
-                    "for more information: http://www.mega-nerd.com/SNDFILE/#Licensing")
-        else()
-            get_dll_name(${SNDFILE_LIBRARY} ALLEGRO_CFG_ACODEC_SNDFILE_DLL)
-        endif()
-    endif()
-
-    if(NOT ALLEGRO_CFG_ACODEC_SNDFILE_DLL)
-        list(APPEND ACODEC_LIBRARIES ${SNDFILE_LIBRARIES})
-    endif()
-endif()
 
 configure_file(
     allegro5/internal/aintern_acodec_cfg.h.cmake
