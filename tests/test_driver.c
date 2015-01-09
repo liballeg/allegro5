@@ -139,7 +139,7 @@ static char const *bmp_type_to_string(BmpType bmp_type)
 
 static ALLEGRO_BITMAP *create_fallback_bitmap()
 {
-   ALLEGRO_BITMAP *bmp = al_create_bitmap(64, 64);
+   ALLEGRO_BITMAP *bmp = al_create_bitmap(256, 256);
    ALLEGRO_FONT *builtin_font = al_create_builtin_font();
    ALLEGRO_STATE state;
 
