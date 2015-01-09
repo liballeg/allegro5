@@ -95,7 +95,7 @@ include(Common)
 # Build options
 #
 
-option(SHARED "Build shared library for main Allegro library" on)
+option(SHARED "Build shared library for main Allegro library and addons" on)
 set(BUILD_SHARED_LIBS ${SHARED})    # actual CMake variable
 
 # On some 64-bit platforms, libraries should be installed into `lib64'
@@ -918,11 +918,16 @@ option(WANT_LOADPNG "Enable loadpng" on)
 option(WANT_LOGG "Enable logg" on)
 option(WANT_JPGALLEG "Enable JPGAlleg" on)
 
-if(WANT_FRAMEWORKS)
+if (BUILD_SHARED_LIBS)
     set(ADDON_LINKAGE SHARED)
 else()
     set(ADDON_LINKAGE STATIC)
 endif()
+
+if(WANT_FRAMEWORKS)
+    set(ADDON_LINKAGE SHARED)
+endif()
+
 
 if(WANT_ALLEGROGL)
     add_subdirectory(addons/allegrogl)
