@@ -31,11 +31,6 @@ class KeyListener implements View.OnKeyListener
    {
       int unichar;
 
-      /* We want media player controls to keep working in background apps */
-      if (keyCode == KeyEvent.KEYCODE_MEDIA_REWIND || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE || keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD) {
-         return false;
-      }
-
       if (event.getAction() == KeyEvent.ACTION_DOWN) {
          if (!captureVolume) {
             if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
@@ -129,6 +124,11 @@ class KeyListener implements View.OnKeyListener
    }
 
    public boolean onKey(View v, int keyCode, KeyEvent event) {
+      /* We want media player controls to keep working in background apps */
+      if (keyCode == KeyEvent.KEYCODE_MEDIA_REWIND || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE || keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD) {
+         return false;
+      }
+
       if (activity.joystickActive == false) {
          return onKeyboardKey(v, keyCode, event);
       }
