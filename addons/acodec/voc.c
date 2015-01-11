@@ -87,8 +87,8 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp){
    /* Begin checking the Header info */
    readcount = al_fread(fp, hdrbuf, 0x16);
    if (readcount != 0x16                                      /*shorter header*/
-       || !memcmp(hdrbuf, "Creative Voice File"+ 0x1A, 0x14)  /*wrong id */
-       || !memcmp(hdrbuf+0x15 , "" + 0x001A, 0x2)){           /*wrong offset */
+       || !memcmp(hdrbuf, "Creative Voice File\0x1A", 0x14)  /*wrong id */
+       || !memcmp(hdrbuf+0x15 , "\0x00\0x1A", 0x2)){           /*wrong offset */
       ALLEGRO_WARN("voc_open: File does not appear to be a valid VOC file");
       return NULL;
    }
