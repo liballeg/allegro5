@@ -711,7 +711,7 @@ static void ogl_flip_blocks(ALLEGRO_LOCKED_REGION *lr, int wc, int hc)
 static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
    int x, int y, int w, int h, int flags)
 {
-#ifndef ALLEGRO_ANDROID
+#if !defined ALLEGRO_ANDROID && !defined ALLEGRO_IPHONE
    ALLEGRO_BITMAP_EXTRA_OPENGL *const ogl_bitmap = bitmap->extra;
    ALLEGRO_DISPLAY *disp;
    ALLEGRO_DISPLAY *old_disp = NULL;
