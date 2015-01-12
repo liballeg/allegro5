@@ -1,7 +1,30 @@
 % Allegro changelog for 5.0.x series
 
 See `changes._tx` for changes in earlier versions of Allegro.  These lists
-serve as summaries; the full histories are in the Subversion repository.
+serve as summaries; the full histories are in the git repository.
+
+
+Changes from 5.0.10 to 5.0.11 (January 2015)
+===========================================
+
+The main developers this time were: SiegeLord and Peter Wang.
+
+Core:
+
+  - Fix OSX backend on OSX 10.10 (lordnoriyuki).
+
+Audio addon:
+
+  - Fix/avoid all sound examples freezing on OSX with the aqueue driver (Elias Pschernig).
+
+  - Fix a deadlock in Pulseaudio driver.
+
+Other:
+
+  - Fix build warnings.
+
+  - Improve documentation (syntax highlighting).
+
 
 
 Changes from 5.0.9 to 5.0.10 (June 2013)
