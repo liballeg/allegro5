@@ -23,6 +23,8 @@
 
 #ifdef ALLEGRO_ANDROID
    #include "allegro5/internal/aintern_android.h"
+#elif defined ALLEGRO_IPHONE
+   #include "allegro5/internal/aintern_iphone.h"
 #endif
 
 #include "ogl_helpers.h"
