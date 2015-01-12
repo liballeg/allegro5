@@ -40,8 +40,8 @@ ALLEGRO_DEBUG_CHANNEL("iphone");
 }
 
 /* Taken from Apple docs
- * For iOS SDK 5.1 or earlier, comment this out (have found no way to automate this yet)
  */
+/*
 typedef enum {
    UIInterfaceOrientationMaskPortrait = (1 << UIInterfaceOrientationPortrait),
    UIInterfaceOrientationMaskLandscapeLeft = (1 << UIInterfaceOrientationLandscapeLeft),
@@ -56,6 +56,7 @@ typedef enum {
    (UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskLandscapeLeft |
    UIInterfaceOrientationMaskLandscapeRight),
 } UIInterfaceOrientationMask;
+*/
 
 - (NSUInteger)supportedInterfaceOrientations
 {
