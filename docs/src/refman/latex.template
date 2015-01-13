@@ -149,6 +149,10 @@ $endif$
 \HUGE\textsf{Reference Manual}\par
 \end{center}
 \begin{center}
+\vspace*{10pt}
+\LARGE\textsf{Version \input{allegro_version.tex}}\par
+\end{center}
+\begin{center}
 \vspace*{\fill}
 \LARGE{\textcopyright{} 2008 --- 2015}
 \end{center}

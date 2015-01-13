@@ -370,13 +370,13 @@ if(WANT_DOCS_PDF AND NOT PDFLATEX_COMPILER)
 endif()
 
 if(MAKE_PDF)
-    make_directory(${LATEX_DIR})
     add_custom_target(latex ALL DEPENDS ${LATEX_DIR}/refman.tex)
     add_custom_command(
         OUTPUT ${LATEX_DIR}/refman.tex
         DEPENDS ${PROTOS_TIMESTAMP}
                 ${TITLE_TXT}
                 ${PAGES_TXT}
+                ${LATEX_DIR}/allegro_version.tex
                 ${SRC_REFMAN_DIR}/latex.template
                 make_doc
         COMMAND ${MAKE_DOC}
