@@ -11,9 +11,6 @@
 
 ALLEGRO_DEBUG_CHANNEL("iphone")
 
-static double allegro_iphone_shake_time = DBL_MIN;
-static float allegro_iphone_battery_level = 1.0;
-
 typedef struct touch_t
 {
    int      id;
@@ -102,23 +99,6 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
    [self setMultipleTouchEnabled:YES];
 
 
-   if (d->extra->adapter == 0) {
-      [UIDevice currentDevice].batteryMonitoringEnabled = YES;
-      if ([[UIDevice currentDevice] batteryState] == UIDeviceBatteryStateCharging || [[UIDevice currentDevice] batteryState] == UIDeviceBatteryStateFull || !([[UIDevice currentDevice] isBatteryMonitoringEnabled]))
-         allegro_iphone_battery_level = 1.0;
-      else
-         allegro_iphone_battery_level = [[UIDevice currentDevice] batteryLevel];
-
-      // Register for battery level and state change notifications.
-      [[NSNotificationCenter defaultCenter] addObserver:self
-         selector:@selector(batteryLevelDidChange:)
-         name:UIDeviceBatteryLevelDidChangeNotification object:nil];
-
-      [[NSNotificationCenter defaultCenter] addObserver:self
-         selector:@selector(batteryLevelDidChange:)
-         name:UIDeviceBatteryStateDidChangeNotification object:nil];
-   }
-
    ALLEGRO_INFO("Created EAGLView.\n");
 }
 
@@ -136,15 +116,6 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
     next_free_touch_id = 1;
 
     return self;
-}
-
-- (void)batteryLevelDidChange:(NSNotification *)notification
-{
-    (void)notification;
-	if ([[UIDevice currentDevice] batteryState] == UIDeviceBatteryStateCharging || [[UIDevice currentDevice] batteryState] == UIDeviceBatteryStateFull)
-		allegro_iphone_battery_level = 1.0;
-	else
-		allegro_iphone_battery_level = [[UIDevice currentDevice] batteryLevel];
 }
 
 - (void)make_current {
@@ -276,15 +247,6 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
         glDeleteRenderbuffersOES(1, &depthRenderbuffer);
         depthRenderbuffer = 0;
     }
-}
-
-- (void)remove_observers
-{
-   [[NSNotificationCenter defaultCenter] removeObserver:self
-      name:UIDeviceBatteryLevelDidChangeNotification object:nil];
-
-   [[NSNotificationCenter defaultCenter] removeObserver:self
-      name:UIDeviceBatteryStateDidChangeNotification object:nil];
 }
 
 - (void)dealloc {
@@ -430,24 +392,7 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
 -(void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
 {
     (void)motion;
-
-	if (event.subtype == UIEventSubtypeMotionShake) {
-		allegro_iphone_shake_time = al_get_time();
-	}
 }
 
 @end
 
-/* Function: al_iphone_get_last_shake_time
- */
-double al_iphone_get_last_shake_time(void)
-{
-	return allegro_iphone_shake_time;
-}
-
-/* Function: al_iphone_get_battery_level
- */
-float al_iphone_get_battery_level(void)
-{
-	return allegro_iphone_battery_level;
-}
