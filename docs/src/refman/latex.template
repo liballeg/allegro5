@@ -25,6 +25,7 @@ $else$
 %\usepackage{mathpazo}	    % roman=Palatino
 %\usepackage{mathptmx}	    % roman=Times
 %\usepackage{newcent}	    % roman=New Century Schoolbook
+\usepackage{lmodern}	    % sansserif=Latin Modern Sans
 \usepackage{charter}	    % roman=Charter
 \usepackage{inconsolata}    % typewriter=Inconsolata
 % TODO: I don't like the sans serif fonts much.
