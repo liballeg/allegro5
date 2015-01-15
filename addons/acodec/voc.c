@@ -36,6 +36,7 @@
  *                       cleaned up and put decoder into voc.c
  *            2015-01-08 Clean up ISO C90 related warnings and tried to get
  *                       a consistent code style and removed some comments.
+ *            2015-01-15 Corrected style and enriched header.
  */
 
 
