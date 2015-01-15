@@ -58,9 +58,6 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE* file,
    size_t buffer_count, unsigned int samples);
 #endif
 
-#ifdef ALLEGRO_CFG_ACODEC_SNDFILE
-ALLEGRO_SAMPLE *_al_load_sndfile(const char *filename);
-ALLEGRO_SAMPLE *_al_load_sndfile_f(ALLEGRO_FILE *file);
-#endif
+
 
 #endif
