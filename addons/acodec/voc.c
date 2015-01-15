@@ -1,4 +1,13 @@
-/*
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
  * Allegro5 Creative Voice Audio Reader.
  *
  * Loosely based on A4 voc loader and tightly based on specs of the soundblaster
@@ -35,10 +44,7 @@
 #include "acodec.h"
 #include "helper.h"
 
-
 ALLEGRO_DEBUG_CHANNEL("voc")
-
-
 
 typedef struct AL_VOC_DATA AL_VOC_DATA;
 
@@ -58,6 +64,7 @@ struct AL_VOC_DATA {
  * The datapos index will be the first data byte of the first data block which
  * contains ACTUAL data.
  */
+
 static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp)
 {
    AL_VOC_DATA *vocdata;
