@@ -58,7 +58,8 @@ struct AL_VOC_DATA {
  * The datapos index will be the first data byte of the first data block which
  * contains ACTUAL data.
  */
-static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp){
+static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp)
+{
    AL_VOC_DATA *vocdata;
    char hdrbuf[0x16];
    size_t readcount = 0;
@@ -73,7 +74,7 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp){
 
    uint32_t blocklength = 0; //length is stored in 3 bites LE, gd byteorder.
 
-   if (!fp){
+   if (!fp) {
       ALLEGRO_WARN("voc_open: Failed opening ALLEGRO_FILE");
       return NULL;
    };
@@ -88,19 +89,19 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp){
    readcount = al_fread(fp, hdrbuf, 0x16);
    if (readcount != 0x16                                      /*shorter header*/
        || !memcmp(hdrbuf, "Creative Voice File\0x1A", 0x14)  /*wrong id */
-       || !memcmp(hdrbuf+0x15 , "\0x00\0x1A", 0x2)){           /*wrong offset */
+       || !memcmp(hdrbuf+0x15 , "\0x00\0x1A", 0x2)) {          /*wrong offset */
       ALLEGRO_WARN("voc_open: File does not appear to be a valid VOC file");
       return NULL;
    }
 
    al_fread(fp, &vocversion, 2);
-   if (vocversion != 0x10A && vocversion != 0x114){  // known ver 1.10 -1.20
+   if (vocversion != 0x10A && vocversion != 0x114) {   // known ver 1.10 -1.20
       ALLEGRO_WARN("voc_open: File is of unknown version");
       return NULL;
    }
    /* checksum version check */
    al_fread(fp, &checkver, 2);
-   if (checkver != ~vocversion + 0x1234){
+   if (checkver != ~vocversion + 0x1234) {
       ALLEGRO_WARN("voc_open: Bad VOC Version Identification Number");
       return NULL;
    }
@@ -113,7 +114,7 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp){
    al_fread(fp, &blocklength, 2);
    al_fread(fp, &x, 1);
    blocklength += x<<16;
-   switch (blocktype){
+   switch (blocktype) {
       case 1:
          /* blocktype 1 is the most basic header with 1byte format, time
           * constant and length equal to (datalength + 2).
@@ -140,7 +141,7 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp){
           * We skip to the end of the following Blocktype 1 once we get all the
           * required header info.
           */
-         if (blocklength != 4){
+         if (blocklength != 4) {
             ALLEGRO_WARN("voc_open: Got opening Blocktype 8 of wrong length");
             return NULL;
          }
@@ -157,7 +158,7 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp){
           * the data block and all other info are discarded.
           */
          al_fread(fp, &blocktype, 1);
-         if (blocktype != 1){
+         if (blocktype != 1) {
             ALLEGRO_WARN("voc_open: Blocktype following type 8 is not 1");
             return NULL;
          }
@@ -182,7 +183,7 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp){
          al_fread(fp, &vocdata->channels, 1); /* actual channels */
          al_fread(fp, &format, 2);
          if ((vocdata->bits != 8 && vocdata->bits != 16) ||
-             (format != 0 && format != 4)){
+             (format != 0 && format != 4)) {
             ALLEGRO_WARN("voc_open: unsupported CODEC in voc data");
             return NULL;
          }
@@ -203,7 +204,8 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp){
    return vocdata;
 }
 
-static void voc_close(AL_VOC_DATA *vocdata){
+static void voc_close(AL_VOC_DATA *vocdata)
+{
    ASSERT(vocdata);
 
    al_free(vocdata);
@@ -272,14 +274,14 @@ ALLEGRO_SAMPLE *_al_load_voc_f(ALLEGRO_FILE *file)
     * or we find a terminator block.
     */
    bytestoread = vocdata->samples * vocdata->sample_size;
-   while(!endofvoc && !al_feof(vocdata->file)){
+   while(!endofvoc && !al_feof(vocdata->file)) {
       uint32_t blocktype =0;
       uint32_t x = 0, len = 0;
       read = al_fread(vocdata->file, buffer, bytestoread);
       pos += read;
       al_fread(vocdata->file, &blocktype, 1); /* read next block type */
       if (al_feof(vocdata->file)) break;
-      switch (blocktype){
+      switch (blocktype) {
          case 0:{  /* we found a terminator block */
             endofvoc = true;
             break;
@@ -312,7 +314,7 @@ ALLEGRO_SAMPLE *_al_load_voc_f(ALLEGRO_FILE *file)
             al_fread(vocdata->file, &len, 2);
             al_fread(vocdata->file, &x, 1);
             len += x<<16;  // this is the length what's left to skip */
-            for (ii = 0; ii < len ; ++ii){
+            for (ii = 0; ii < len ; ++ii) {
                al_fgetc(vocdata->file);
             }
             bytestoread = 0;  //should let safely heck for the next block */
