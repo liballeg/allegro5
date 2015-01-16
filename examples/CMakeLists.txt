@@ -70,6 +70,7 @@ set(DATA_TTF
 
 set(DATA_AUDIO
     welcome.wav
+    welcome.voc
     )
 
 set(DATA_SHADERS
