@@ -47,6 +47,8 @@
 
 ALLEGRO_DEBUG_CHANNEL("voc")
 
+
+
 typedef struct AL_VOC_DATA AL_VOC_DATA;
 
 struct AL_VOC_DATA {
@@ -65,6 +67,13 @@ struct AL_VOC_DATA {
  * The datapos index will be the first data byte of the first data block which
  * contains ACTUAL data.
  */
+
+#define READNBYTES(f, data, n, retv)                                          \
+   if (al_fread(f, &data, n) != n) {                                          \
+   ALLEGRO_WARN("voc_open: Bad Number of bytes read in last operation");      \
+   return retv;                                                               \
+   }
+
 
 static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp)
 {
@@ -118,9 +127,9 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp)
     * info in the vocdata structure, including finally the datapos index to the
     * first valid data byte.
     */
-   al_fread(fp, &blocktype, 1);
-   al_fread(fp, &blocklength, 2);
-   al_fread(fp, &x, 1);
+   READNBYTES(fp, blocktype, 1, NULL);
+   READNBYTES(fp, blocklength, 2, NULL);
+   READNBYTES(fp, x, 1, NULL);
    blocklength += x<<16;
    switch (blocktype) {
       case 1:
@@ -128,8 +137,8 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp)
           * constant and length equal to (datalength + 2).
           */
          blocklength -= 2;
-         al_fread(fp, &timeconstant, 1);
-         al_fread(fp, &format,1);
+         READNBYTES(fp, timeconstant, 1, NULL);
+         READNBYTES(fp, format, 1, NULL);
          vocdata->bits = 8; /* only possible codec for Blocktype 1 */
          vocdata->channels = 1;  /* block 1 alone means MONO */
          vocdata->samplerate = 1000000 / (256 - timeconstant);
@@ -153,9 +162,9 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp)
             ALLEGRO_WARN("voc_open: Got opening Blocktype 8 of wrong length");
             return NULL;
          }
-         al_fread(fp, &timeconstant, 2); /* here a full 16bit word is stored */
-         al_fread(fp, &format,1);
-         al_fread(fp, &vocdata->channels, 1);
+         READNBYTES(fp, timeconstant, 2, NULL);
+         READNBYTES(fp, format, 1, NULL);
+         READNBYTES(fp, vocdata->channels, 1, NULL);
          vocdata->channels += 1; /* was 0 for mono, 1 for stereo */
          vocdata->bits = 8; /* only possible codec for Blocktype 8 */
          vocdata->samplerate = 1000000 / (256 - timeconstant);
@@ -165,16 +174,16 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp)
           * Now following there is a blocktype 1 which tells us the length of
           * the data block and all other info are discarded.
           */
-         al_fread(fp, &blocktype, 1);
+         READNBYTES(fp, blocktype, 1, NULL);
          if (blocktype != 1) {
             ALLEGRO_WARN("voc_open: Blocktype following type 8 is not 1");
             return NULL;
          }
-         al_fread(fp, &blocklength, 2);
-         al_fread(fp, &x, 1);
+         READNBYTES(fp, blocklength, 2, NULL);
+         READNBYTES(fp, x, 1, NULL);
          blocklength += x<<16;
          blocklength -=2;
-         al_fread(fp, &x, 2); /* just skip 2 bytes, we're now at datapos */
+         READNBYTES(fp, x, 2, NULL);
          vocdata->samples = blocklength / vocdata->sample_size;
          vocdata->datapos = al_ftell(fp);
          break;
@@ -186,16 +195,17 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp)
           * Length is 12 bytes more than actual data.
           */
          blocklength -= 12;
-         al_fread(fp, &vocdata->samplerate, 4); /* actual samplerate */
-         al_fread(fp, &vocdata->bits, 1); /* actual bits after compression */
-         al_fread(fp, &vocdata->channels, 1); /* actual channels */
-         al_fread(fp, &format, 2);
+         READNBYTES(fp, vocdata->samplerate, 4, NULL);   // actual samplerate
+         READNBYTES(fp, vocdata->bits, 1, NULL);         // actual bits
+                                                         // after compression
+         READNBYTES(fp, vocdata->channels, 1, NULL);     // actual channels
+         READNBYTES(fp, format, 2, NULL);
          if ((vocdata->bits != 8 && vocdata->bits != 16) ||
              (format != 0 && format != 4)) {
             ALLEGRO_WARN("voc_open: unsupported CODEC in voc data");
             return NULL;
          }
-         al_fread(fp, &x, 4); /* just skip 4 reserved bytes */
+         READNBYTES(fp, x, 4, NULL);         // just skip 4 reserved bytes
          vocdata->datapos = al_ftell(fp);
          break;
       case 2:               //
@@ -287,7 +297,7 @@ ALLEGRO_SAMPLE *_al_load_voc_f(ALLEGRO_FILE *file)
       uint32_t x = 0, len = 0;
       read = al_fread(vocdata->file, buffer, bytestoread);
       pos += read;
-      al_fread(vocdata->file, &blocktype, 1); /* read next block type */
+      READNBYTES(vocdata->file, blocktype, 1, NULL);   // read next block type
       if (al_feof(vocdata->file)) break;
       switch (blocktype) {
          case 0:{  /* we found a terminator block */
@@ -297,8 +307,8 @@ ALLEGRO_SAMPLE *_al_load_voc_f(ALLEGRO_FILE *file)
          case 2:{  /*we found a continuation block: unlikely but handled */
             x = 0;
             bytestoread = 0;
-            al_fread(vocdata->file, &bytestoread, 2);
-            al_fread(vocdata->file, &x, 1);
+            READNBYTES(vocdata->file, bytestoread, 2, NULL);
+            READNBYTES(vocdata->file, x, 1, NULL);
             bytestoread += x<<16;
             /* increase subsequently storage */
             buffer = al_realloc(buffer, sizeof(buffer) + bytestoread);
@@ -319,13 +329,13 @@ ALLEGRO_SAMPLE *_al_load_voc_f(ALLEGRO_FILE *file)
             unsigned int ii;
             len = 0;
             x = 0;
-            al_fread(vocdata->file, &len, 2);
-            al_fread(vocdata->file, &x, 1);
+            READNBYTES(vocdata->file, len, 2, NULL);
+            READNBYTES(vocdata->file, x, 1, NULL);
             len += x<<16;  // this is the length what's left to skip */
             for (ii = 0; ii < len ; ++ii) {
                al_fgetc(vocdata->file);
             }
-            bytestoread = 0;  //should let safely heck for the next block */
+            bytestoread = 0;  //should let safely check for the next block */
             break;
             }
          default:
