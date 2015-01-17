@@ -81,10 +81,10 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp)
    char hdrbuf[0x16];
    size_t readcount = 0;
 
-   uint8_t  blocktype = 0;
+   uint8_t blocktype = 0;
    uint8_t x = 0;
 
-   uint16_t  timeconstant = 0;
+   uint16_t timeconstant = 0;
    uint16_t format = 0;    // can be 16-bit in Blocktype 9 (voc version > 1.20
    uint16_t vocversion = 0;
    uint16_t checkver = 0;  // must be  1's complement of vocversion + 0x1234
@@ -94,7 +94,7 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp)
    if (!fp) {
       ALLEGRO_WARN("voc_open: Failed opening ALLEGRO_FILE");
       return NULL;
-   };
+   }
 
    /* init VOC data */
    vocdata = al_malloc(sizeof(AL_VOC_DATA));
@@ -123,7 +123,7 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp)
       return NULL;
    }
    /*
-    * We're at che first datablock, we shall check type and set all the relevant
+    * We're at the first datablock, we shall check type and set all the relevant
     * info in the vocdata structure, including finally the datapos index to the
     * first valid data byte.
     */
@@ -182,7 +182,7 @@ static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp)
          READNBYTES(fp, blocklength, 2, NULL);
          READNBYTES(fp, x, 1, NULL);
          blocklength += x<<16;
-         blocklength -=2;
+         blocklength -= 2;
          READNBYTES(fp, x, 2, NULL);
          vocdata->samples = blocklength / vocdata->sample_size;
          vocdata->datapos = al_ftell(fp);
@@ -293,7 +293,7 @@ ALLEGRO_SAMPLE *_al_load_voc_f(ALLEGRO_FILE *file)
     */
    bytestoread = vocdata->samples * vocdata->sample_size;
    while(!endofvoc && !al_feof(vocdata->file)) {
-      uint32_t blocktype =0;
+      uint32_t blocktype = 0;
       uint32_t x = 0, len = 0;
       read = al_fread(vocdata->file, buffer, bytestoread);
       pos += read;
