@@ -42,6 +42,7 @@ static ALLEGRO_BITMAP_INTERFACE *vt;
 
 static bool convert_compressed(LPDIRECT3DTEXTURE9 dest, LPDIRECT3DTEXTURE9 src,
    int x, int y, int width, int height) {
+#ifdef ALLEGRO_CFG_D3DX9
    bool ok = true;
    LPDIRECT3DSURFACE9 dest_texture_surface = NULL;
    LPDIRECT3DSURFACE9 src_texture_surface = NULL;
@@ -62,7 +63,7 @@ static bool convert_compressed(LPDIRECT3DTEXTURE9 dest, LPDIRECT3DTEXTURE9 src,
    rect.right = x + width;
    rect.bottom = y + height;
 
-   if (ok &&
+   if (ok && _al_imp_D3DXLoadSurfaceFromSurface &&
        _al_imp_D3DXLoadSurfaceFromSurface(dest_texture_surface,
                                           NULL,
                                           &rect,
@@ -72,6 +73,7 @@ static bool convert_compressed(LPDIRECT3DTEXTURE9 dest, LPDIRECT3DTEXTURE9 src,
                                           D3DX_FILTER_NONE,
                                           0) != D3D_OK) {
       ALLEGRO_ERROR("convert_compressed: D3DXLoadSurfaceFromSurface failed.\n");
+      ok = false;
    }
 
    int i;
@@ -87,6 +89,15 @@ static bool convert_compressed(LPDIRECT3DTEXTURE9 dest, LPDIRECT3DTEXTURE9 src,
        }
    }
    return ok;
+#else
+   (void)dest;
+   (void)src;
+   (void)x;
+   (void)y;
+   (void)width;
+   (void)height;
+   return false;
+#endif
 }
 
 /* Function: al_get_d3d_texture_size

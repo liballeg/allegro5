@@ -2409,10 +2409,6 @@ static ALLEGRO_BITMAP *d3d_create_bitmap(ALLEGRO_DISPLAY *d,
          /* Not implemented. XXX: Why not? */
          return NULL;
       }
-      if (!_al_imp_D3DXLoadSurfaceFromSurface) {
-         /* Need this for locking compressed bitmaps */
-         return NULL;
-      }
    }
    int block_width = al_get_pixel_block_width(format);
    int block_height = al_get_pixel_block_height(format);
