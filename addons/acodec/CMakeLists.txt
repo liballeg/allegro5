@@ -18,6 +18,7 @@ set(ACODEC_SOURCES
     acodec.c
     wav.c
     helper.c
+    voc.c        # built-in enhanced port of A4 loader
     )
 set(ACODEC_LIBRARIES)
 
