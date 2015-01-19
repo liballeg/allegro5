@@ -13,7 +13,7 @@ This function registers all the known audio file type handlers for
 [al_load_sample], [al_save_sample], [al_load_audio_stream], etc.
 
 Depending on what libraries are available, the full set of recognised
-extensions is: .wav, .flac, .ogg, .it, .mod, .s3m, .xm.
+extensions is: .wav, .flac, .ogg, .it, .mod, .s3m, .xm, .voc.
 
 *Limitations:*
 
@@ -27,6 +27,8 @@ required.
 and sometimes cannot be easily rendered into a finite length sample. Therefore
 they cannot be loaded with [al_load_sample]/[al_load_sample_f] and must be
 streamed with [al_load_audio_stream] or [al_load_audio_stream_f].
+
+- .voc file streaming is unimplemented.
 
 Return true on success.
 
