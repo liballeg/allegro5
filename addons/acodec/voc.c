@@ -66,11 +66,13 @@ struct AL_VOC_DATA {
  * contains ACTUAL data.
  */
 
-#define READNBYTES(f, data, n, retv)                                          \
-   if (al_fread(f, &data, n) != n) {                                          \
-   ALLEGRO_WARN("voc_open: Bad Number of bytes read in last operation");      \
-   return retv;                                                               \
-   }
+#define READNBYTES(f, data, n, retv)                                           \
+   do {                                                                        \
+      if (al_fread(f, &data, n) != n) {                                        \
+         ALLEGRO_WARN("voc_open: Bad Number of bytes read in last operation"); \
+         return retv;                                                          \
+      }                                                                        \
+   } while(0)
 
 
 static AL_VOC_DATA *voc_open(ALLEGRO_FILE *fp)
