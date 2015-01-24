@@ -59,7 +59,7 @@ static HANDLE input_thread = NULL;
  */
 static void input_thread_proc(LPVOID unused)
 {
-   int result;
+   DWORD result;
 
    _win_thread_init();
    _TRACE(PREFIX_I "input thread starts\n");
@@ -69,7 +69,7 @@ static void input_thread_proc(LPVOID unused)
       result = WaitForMultipleObjects(_win_input_events, _win_input_event_id, FALSE, INFINITE);
       if (result == WAIT_OBJECT_0 + 2)
          break;  /* thread suicide */
-      else if ((result >= WAIT_OBJECT_0) && (result < (int)(WAIT_OBJECT_0 + _win_input_events)))
+      else if (result < (DWORD)(WAIT_OBJECT_0 + _win_input_events))
          (*_win_input_event_handler[result - WAIT_OBJECT_0])();
    }
 
@@ -187,6 +187,12 @@ void _win_input_unregister_event(HANDLE event_id)
  */
 void _win_input_init(int need_thread)
 {
+   int i;
+   for (i = 0; i < MAX_EVENTS; ++i) {
+      _win_input_event_id[i]      = 0;
+      _win_input_event_handler[i] = NULL;
+   }
+
    _win_input_event_id[0] = CreateEvent(NULL, FALSE, FALSE, NULL);
    _win_input_event_handler[0] = register_pending_event;
    _win_input_event_id[1] = CreateEvent(NULL, FALSE, FALSE, NULL);

@@ -320,7 +320,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
 
    /* Paint window background with overlay color key. */
    overlay_brush = CreateSolidBrush(MASK_COLOR_32);
-   SetClassLong(allegro_wnd, GCL_HBRBACKGROUND, (LONG) overlay_brush);
+   SetClassLongPtr(allegro_wnd, GCLP_HBRBACKGROUND, (LONG_PTR)overlay_brush);
 
    if (adjust_window(w, h) != 0) {
       _TRACE(PREFIX_E "window size not supported.\n");
@@ -445,7 +445,7 @@ static void gfx_directx_ovl_exit(struct BITMAP *bmp)
    /* destroy the overlay surface */
    if (overlay_surface) {
       hide_overlay();
-      SetClassLong(allegro_wnd, GCL_HBRBACKGROUND, (LONG) NULL);
+      SetClassLongPtr(allegro_wnd, GCLP_HBRBACKGROUND, (LONG_PTR)NULL);
       DeleteObject(overlay_brush);
       gfx_directx_destroy_surface(overlay_surface);
       overlay_surface = NULL;
