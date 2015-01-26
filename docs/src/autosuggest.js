@@ -1,4 +1,8 @@
-/* Auto-suggest control, version 2.4, October 10th 2009.
+/* Auto-suggest control, modified for Allegro's purposes.
+ *
+ * The original copyright notice follows:
+ *
+ * Auto-suggest control, version 2.4, October 10th 2009.
  *
  * (c) 2007-2009 Dmitriy Khudorozhkov (dmitrykhudorozhkov@yahoo.com)
  *
@@ -59,6 +63,8 @@ function autosuggest(id, array, url, onSelect)
 	this.item_delimiter = ","; 			// character that delimits key and value for the suggestion item in the string returned by AJAX call
 
 	this.selectedIndex = -1;	// index (zero-based) of the entry last selected
+
+	this.min_results = 5; // minimum number of results to return
 
 	// "Private" variables:
 
@@ -237,11 +243,19 @@ autosuggest.prototype = {
 
 		var tobuild = [], c = 0, p = n.search(re);
 
-		tobuild[c++] = n.substr(0, p);
-		tobuild[c++] = "<span class=\"match\">";
-		tobuild[c++] = n.substring(p, plen + p);
-		tobuild[c++] = "</span>";
-		tobuild[c++] = n.substring(plen + p, n.length);
+		// No match found because we're serving approximate results
+		if(p < 0)
+		{
+			tobuild[c++] = n;
+		}
+		else
+		{
+			tobuild[c++] = n.substr(0, p);
+			tobuild[c++] = "<span class=\"match\">";
+			tobuild[c++] = n.substring(p, plen + p);
+			tobuild[c++] = "</span>";
+			tobuild[c++] = n.substring(plen + p, n.length);
+		}
 
 		return tobuild.join("");
 	},
@@ -1337,6 +1351,28 @@ autosuggest.prototype = {
 				}
 			}
 
+			// If we don't have enough matches, produce approximate suggestions
+			if(this.total < this.min_results)
+			{
+				this.total = this.min_results;
+				var lev_array = [];
+				for(var i = 0; i < otherArray.length; i++)
+				{
+					var key = otherArray[i];
+					// Reward common subsequences, but also incorporate the edit distance
+					var score = this.levenshtein(key, t) - this.longestCommonSubstring(key, t) * 2;
+					lev_array.push([score, key, otherVArray[i]])
+				}
+
+				lev_array.sort(function(a, b) { return a[0] - b[0]; });
+
+				for(var i = 0; i < otherArray.length; i++)
+				{
+					otherArray[i] = lev_array[i][1];
+					otherVArray[i] = lev_array[i][2];
+				}
+			}
+
 			this.keywords = matchArray.concat(afterArray).concat(otherArray);
 			this.values = matchVArray.concat(afterVArray).concat(otherVArray);
 
@@ -1356,6 +1392,102 @@ autosuggest.prototype = {
 	},
 
 	// Utility methods:
+
+	// A function to compute the longest common subsequence between two words.
+	// Licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported
+	// Full License can be found at http://creativecommons.org/licenses/by-sa/3.0/legalcode
+	// This code is an unmodified (aside from style) version of the code written by Marco de Wit
+	// and was found at http://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Longest_common_substring#JavaScript
+	longestCommonSubstring: function(string1, string2)
+	{
+		// init max value
+		var lcs = 0;
+		// init 2D array with 0
+		var table = [],
+				len1 = string1.length,
+				len2 = string2.length;
+		for(var row = 0; row <= len1; row++)
+		{
+			table[row] = [];
+			for(var col = 0; col <= len2; col++)
+			{
+				table[row][col] = 0;
+			}
+		}
+		// fill table
+		for(var i = 0; i < len1; i++)
+		{
+			for(var j = 0; j < len2; j++)
+			{
+				if(string1[i]==string2[j])
+				{
+					if(table[i][j] === 0)
+					{
+						table[i+1][j+1] = 1;
+					}
+					else
+					{
+						table[i+1][j+1] = table[i][j] + 1;
+					}
+					if(table[i+1][j+1] > lcs)
+					{
+						lcs = table[i+1][j+1];
+					}
+				}
+				else
+				{
+					table[i+1][j+1] = 0;
+				}
+			}
+		}
+		return lcs;
+	},
+
+	// A function to compute the Levenshtein distance between two strings
+	// Licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported
+	// Full License can be found at http://creativecommons.org/licenses/by-sa/3.0/legalcode
+	// This code is an unmodified (aside from style) version of the code written by Marco de Wit
+	// and was found at http://stackoverflow.com/a/18514751/745719
+	levenshtein: (function()
+	{
+		var row2 = [];
+		return function(s1, s2)
+		{
+			if(s1 === s2)
+			{
+				return 0;
+			}
+			else
+			{
+				var s1_len = s1.length, s2_len = s2.length;
+				if(s1_len && s2_len)
+				{
+					var i1 = 0, i2 = 0, a, b, c, c2, row = row2;
+					while(i1 < s1_len)
+						row[i1] = ++i1;
+					while(i2 < s2_len)
+					{
+						c2 = s2.charCodeAt(i2);
+						a = i2;
+						++i2;
+						b = i2;
+						for(i1 = 0; i1 < s1_len; ++i1)
+						{
+							c = a + (s1.charCodeAt(i1) !== c2 ? 1 : 0);
+							a = row[i1];
+							b = b < a ? (b < c ? b + 1 : c) : (a < c ? a + 1 : c);
+							row[i1] = b;
+						}
+					}
+					return b;
+				}
+				else
+				{
+					return s1_len + s2_len;
+				}
+			}
+		};
+	})(),
 
 	// Setup an event handler for the given event and DOM element
 	// event_name refers to the event trigger, without the "on", like click or mouseover
