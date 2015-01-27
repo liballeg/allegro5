@@ -287,13 +287,13 @@ static void copy_glyph_mono(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
    int pitch = font_data->page_lr->pitch;
    int x, y;
 
-   for (y = 0; y < face->glyph->bitmap.rows; y++) {
+   for (y = 0; y < (int)face->glyph->bitmap.rows; y++) {
       unsigned char const *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
       unsigned char *dptr = glyph_data + pitch * y;
       int bit = 0;
 
       if (font_data->flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
-         for (x = 0; x < face->glyph->bitmap.width; x++) {
+         for (x = 0; x < (int)face->glyph->bitmap.width; x++) {
             unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
             *dptr++ = 255;
             *dptr++ = 255;
@@ -306,7 +306,7 @@ static void copy_glyph_mono(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
          }
       }
       else {
-         for (x = 0; x < face->glyph->bitmap.width; x++) {
+         for (x = 0; x < (int)face->glyph->bitmap.width; x++) {
             unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
             *dptr++ = set;
             *dptr++ = set;
@@ -328,12 +328,12 @@ static void copy_glyph_color(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
    int pitch = font_data->page_lr->pitch;
    int x, y;
 
-   for (y = 0; y < face->glyph->bitmap.rows; y++) {
+   for (y = 0; y < (int)face->glyph->bitmap.rows; y++) {
       unsigned char const *ptr = face->glyph->bitmap.buffer + face->glyph->bitmap.pitch * y;
       unsigned char *dptr = glyph_data + pitch * y;
 
       if (font_data->flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
-         for (x = 0; x < face->glyph->bitmap.width; x++) {
+         for (x = 0; x < (int)face->glyph->bitmap.width; x++) {
             unsigned char c = *ptr;
             *dptr++ = 255;
             *dptr++ = 255;
@@ -343,7 +343,7 @@ static void copy_glyph_color(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
          }
       }
       else {
-         for (x = 0; x < face->glyph->bitmap.width; x++) {
+         for (x = 0; x < (int)face->glyph->bitmap.width; x++) {
             unsigned char c = *ptr;
             *dptr++ = c;
             *dptr++ = c;
