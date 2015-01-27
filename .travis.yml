@@ -17,10 +17,14 @@ before_install:
           brew install vorbis;
       fi
 
+env:
+  - WANT_SHADERS_GL=on
+  - WANT_SHADERS_GL=off
+
 before_script:
   - mkdir build
   - cd build
-  - cmake ..
+  - cmake .. -DWANT_SHADERS_GL=$WANT_SHADERS_GL
 
 script:
     - |
