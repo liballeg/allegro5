@@ -805,8 +805,6 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                SetWindowPos(win_display->window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
                SetWindowPos(GetForegroundWindow(), HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
             }
-            // Show the taskbar in case we hid it
-            SetWindowPos(FindWindow(L"Shell_traywnd", L""), 0, 0, 0, 0, 0, SWP_SHOWWINDOW);
             if (d->flags & ALLEGRO_FULLSCREEN) {
                d->vt->switch_out(d);
             }
@@ -1166,16 +1164,6 @@ bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
          if (onoff) {
             // Re-set the TOPMOST flag and move to position
             SetWindowPos(win_display->window, HWND_TOPMOST, mi.x1, mi.y1, 0, 0, SWP_NOSIZE);
-
-            // Hide the taskbar if fullscreening on primary monitor
-            if (win_display->adapter == 0) {
-               SetWindowPos(
-                  FindWindow(L"Shell_traywnd", L""),
-                  0,
-                  0, 0,
-                  0, 0,
-                  SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
-            }
          }
          else {
             int pos_x = 0;
@@ -1186,9 +1174,6 @@ bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
             // Unset the topmost flag
             SetWindowPos(win_display->window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
-            // Show the taskbar
-            SetWindowPos(
-               FindWindow(L"Shell_traywnd", L""), 0, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
             // Center the window
             _al_win_get_window_center(win_display, display->w, display->h, &pos_x, &pos_y);
             GetWindowInfo(win_display->window, &wi);
