@@ -44,6 +44,7 @@ int main(int argc, char **argv)
    int mmy = 0;
    int mmz = 0;
    int mmw = 0;
+   int precision = 1;
    bool in = true;
    bool buttons[NUM_BUTTONS] = {false};
    int i;
@@ -105,6 +106,7 @@ int main(int argc, char **argv)
          al_draw_textf(font, black, 5, 25, 0, "x %i, y %i, z %i, w %i", mx, my, mz, mw);
          al_draw_textf(font, black, 5, 45, 0, "p = %g", p);
          al_draw_textf(font, black, 5, 65, 0, "%s", in ? "in" : "out");
+         al_draw_textf(font, black, 5, 85, 0, "wheel precision (PgUp/PgDn) %d", precision);
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
          mmx = mmy = mmz = 0;
          al_flip_display();
@@ -149,6 +151,19 @@ int main(int argc, char **argv)
          case ALLEGRO_EVENT_KEY_DOWN:
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
                goto done;
+            }
+            break;
+
+         case ALLEGRO_EVENT_KEY_CHAR:
+            if (event.keyboard.keycode == ALLEGRO_KEY_PGUP) {
+               precision++;
+               al_set_mouse_wheel_precision(display, precision);
+            }
+            else if (event.keyboard.keycode == ALLEGRO_KEY_PGDN) {
+               precision--;
+               if (precision < 1)
+                  precision = 1;
+               al_set_mouse_wheel_precision(display, precision);
             }
             break;
 

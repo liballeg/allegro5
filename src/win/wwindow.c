@@ -484,7 +484,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 
           if (rm->usButtonFlags & RI_MOUSE_WHEEL) {
              SHORT z = (SHORT)rm->usButtonData;
-             _al_win_mouse_handle_wheel(z / WHEEL_DELTA, false, win_display);
+             _al_win_mouse_handle_wheel(z, false, win_display);
           }
        }
 
@@ -543,7 +543,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       case WM_MOUSEWHEEL: {
          if (accept_mouse_event()) {
             int d = GET_WHEEL_DELTA_WPARAM(wParam);
-            _al_win_mouse_handle_wheel(d / WHEEL_DELTA, false, win_display);
+            _al_win_mouse_handle_wheel(d, false, win_display);
             return TRUE;
          }
          break;
@@ -551,7 +551,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       case WM_MOUSEHWHEEL: {
          if (accept_mouse_event()) {
             int d = GET_WHEEL_DELTA_WPARAM(wParam);
-            _al_win_mouse_handle_hwheel(d / WHEEL_DELTA, false, win_display);
+            _al_win_mouse_handle_hwheel(d, false, win_display);
             return TRUE;
          }
          break;

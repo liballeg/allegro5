@@ -43,6 +43,10 @@ static ALLEGRO_MOUSE_STATE mouse_state;
 static ALLEGRO_MOUSE the_mouse;
 static bool installed = false;
 
+// The floating point versions of z/w in the mouse_state
+static double float_mouse_z = 0.0;
+static double float_mouse_w = 0.0;
+
 
 static bool init_mouse(void)
 {
@@ -185,6 +189,8 @@ static bool set_mouse_axis(int which, int val)
    if (which == 2) {
       int dz = (val - mouse_state.z);
 
+      float_mouse_z = val;
+
       if (dz != 0) {
          mouse_state.z = val;
 
@@ -201,6 +207,8 @@ static bool set_mouse_axis(int which, int val)
    /* Horizontal mouse wheel. */
    if (which == 3) {
       int dw = (val - mouse_state.w);
+
+      float_mouse_w = val;
 
       if (dw != 0) {
          mouse_state.w = val;
@@ -322,21 +330,25 @@ void _al_win_mouse_handle_move(int x, int y, bool abs, ALLEGRO_DISPLAY_WIN *win_
 }
 
 
-void _al_win_mouse_handle_wheel(int z, bool abs, ALLEGRO_DISPLAY_WIN *win_disp)
+void _al_win_mouse_handle_wheel(int raw_dz, bool abs, ALLEGRO_DISPLAY_WIN *win_disp)
 {
+   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)win_disp;
    int d;
+   int new_z;
+   double float_dz = display->mouse_wheel_precision * (double)raw_dz / WHEEL_DELTA;
 
    if (!installed)
       return;
 
    if (!abs) {
-      mouse_state.z += z;
-      d = z;
+      float_mouse_z += float_dz;
    }
    else {
-      d = z - mouse_state.z;
-      mouse_state.z = z;
+      float_mouse_z = float_dz;
    }
+   new_z = (int)float_mouse_z;
+   d = new_z - mouse_state.z;
+   mouse_state.z = new_z;
 
    generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
       mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
@@ -345,21 +357,25 @@ void _al_win_mouse_handle_wheel(int z, bool abs, ALLEGRO_DISPLAY_WIN *win_disp)
 }
 
 
-void _al_win_mouse_handle_hwheel(int w, bool abs, ALLEGRO_DISPLAY_WIN *win_disp)
+void _al_win_mouse_handle_hwheel(int raw_dw, bool abs, ALLEGRO_DISPLAY_WIN *win_disp)
 {
+   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)win_disp;
    int d;
+   int new_w;
+   double float_dw = display->mouse_wheel_precision * (double)raw_dw / WHEEL_DELTA;
 
    if (!installed)
       return;
 
    if (!abs) {
-      mouse_state.w += w;
-      d = w;
+      float_mouse_w += float_dw;
    }
    else {
-      d = w - mouse_state.w;
-      mouse_state.w = w;
+      float_mouse_w = float_dw;
    }
+   new_w = (int)float_mouse_w;
+   d = new_w - mouse_state.w;
+   mouse_state.w = new_w;
 
    generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
       mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,

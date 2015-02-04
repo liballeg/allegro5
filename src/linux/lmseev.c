@@ -480,6 +480,7 @@ static void process_abs(const struct input_event *event)
 static void handle_axis_event(int dx, int dy, int dz)
 {
    if (current_tool != no_tool) {
+      ALLEGRO_SYSTEM *s = al_get_system_driver();
       x_axis.out_abs = _ALLEGRO_CLAMP(x_axis.out_min, x_axis.out_abs, x_axis.out_max);
       y_axis.out_abs = _ALLEGRO_CLAMP(y_axis.out_min, y_axis.out_abs, y_axis.out_max);
       /* There's no range for z */
@@ -487,6 +488,14 @@ static void handle_axis_event(int dx, int dy, int dz)
       the_mouse.state.x = x_axis.out_abs;
       the_mouse.state.y = y_axis.out_abs;
       the_mouse.state.z = z_axis.out_abs;
+
+      if (s && s->displays._size > 0) {
+         ALLEGRO_DISPLAY *d = _al_vector_ref(&s->displays, 0);
+         if (d) {
+            dz *= d->mouse_wheel_precision;
+            the_mouse.state.z *= d->mouse_wheel_precision;
+         }
+      }
 
       generate_mouse_event(
          ALLEGRO_EVENT_MOUSE_AXES,

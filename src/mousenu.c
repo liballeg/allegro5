@@ -310,4 +310,25 @@ ALLEGRO_EVENT_SOURCE *al_get_mouse_event_source(void)
 }
 
 
+
+/* Function: al_set_mouse_wheel_precision
+ */
+void al_set_mouse_wheel_precision(ALLEGRO_DISPLAY *display, int precision)
+{
+   ASSERT(display);
+   if (precision < 1)
+      precision = 1;
+   display->mouse_wheel_precision = precision;
+}
+
+
+
+/* Function: al_get_mouse_wheel_precision
+ */
+int al_get_mouse_wheel_precision(ALLEGRO_DISPLAY *display)
+{
+   ASSERT(display);
+   return display->mouse_wheel_precision;
+}
+
 /* vim: set sts=3 sw=3 et: */
