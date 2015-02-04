@@ -16,6 +16,9 @@ before_install:
       elif [ `uname` = "Darwin" ]; then
           brew install vorbis;
       fi
+    # Hot-patch cmake (XXX: remove when travis gets CMake 3.1)
+    - sudo find /usr/share/cmake* -name CheckIncludeFiles.cmake -exec sed -i'' 's/main()/main(void)/g' {} \;
+    - sudo find /usr/share/cmake* -name CheckForPthreads.c -exec sed -i'' 's/printf("%d CC: %d\n", (int)args, cc);/printf("%p CC: %d\n", args, cc);/g' {} \;
 
 env:
   - WANT_SHADERS_GL=on
@@ -24,7 +27,7 @@ env:
 before_script:
   - mkdir build
   - cd build
-  - cmake .. -DWANT_SHADERS_GL=$WANT_SHADERS_GL
+  - cmake .. -DSTRICT_WARN=on -DWANT_SHADERS_GL=$WANT_SHADERS_GL
 
 script:
     - |
