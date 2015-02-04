@@ -131,8 +131,8 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 			type = ALLEGRO_EVENT_MOUSE_AXES;
 			dx = 0;
 			dy = 0;
-			osx_mouse.w_axis += [evt deltaX];
-			osx_mouse.z_axis += [evt deltaY];
+			osx_mouse.w_axis += al_get_mouse_wheel_precision() * [evt deltaX];
+			osx_mouse.z_axis += al_get_mouse_wheel_precision() * [evt deltaY];
 			dw = osx_mouse.w_axis - osx_mouse.state.w;
 			dz = osx_mouse.z_axis - osx_mouse.state.z;
 			break;

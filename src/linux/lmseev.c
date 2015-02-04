@@ -486,7 +486,9 @@ static void handle_axis_event(int dx, int dy, int dz)
 
       the_mouse.state.x = x_axis.out_abs;
       the_mouse.state.y = y_axis.out_abs;
-      the_mouse.state.z = z_axis.out_abs;
+      the_mouse.state.z = z_axis.out_abs * al_get_mouse_wheel_precision();
+
+      dz *= al_get_mouse_wheel_precision();
 
       generate_mouse_event(
          ALLEGRO_EVENT_MOUSE_AXES,

@@ -54,12 +54,12 @@ void _al_sdl_mouse_event(SDL_Event *e)
    }
    else if (e->type == SDL_MOUSEWHEEL) {
       event.mouse.type = ALLEGRO_EVENT_MOUSE_AXES;
-      mouse->z += e->wheel.y;
-      mouse->w += e->wheel.x;
+      mouse->z += al_get_mouse_wheel_precision() * e->wheel.y;
+      mouse->w += al_get_mouse_wheel_precision() * e->wheel.x;
       event.mouse.z = mouse->z;
       event.mouse.w = mouse->w;
-      event.mouse.dz = e->wheel.y;
-      event.mouse.dw = e->wheel.x;
+      event.mouse.dz = al_get_mouse_wheel_precision() * e->wheel.y;
+      event.mouse.dw = al_get_mouse_wheel_precision() * e->wheel.x;
       d = _al_sdl_find_display(e->wheel.windowID);
    }
    else {

@@ -380,6 +380,9 @@ static void wheel_motion_handler(int x_button, ALLEGRO_DISPLAY *display)
    if (x_button == 7) dw = 1;
    if (dz == 0 && dw == 0) return;
 
+   dz *= al_get_mouse_wheel_precision();
+   dw *= al_get_mouse_wheel_precision();
+
    _al_event_source_lock(&the_mouse.parent.es);
    {
       the_mouse.state.z += dz;
