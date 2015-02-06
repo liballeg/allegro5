@@ -141,6 +141,50 @@ Retrieve the mouse event source.
 Returns NULL if the mouse subsystem was not installed.
 
 
+## API: al_set_mouse_wheel_precision
+
+Sets the precision of the mouse wheel (the z and w coordinates) for the
+specified display. This precision manifests itself as a multiplier on the `dz`
+and `dw` fields in mouse events. It also affects the `z` and `w` fields of
+events and [ALLEGRO_MOUSE_STATE], but not in a simple way if you alter the
+precision often, so it is suggested to reset those axes to 0 when you change
+precision. Setting this to a high value allows you to detect small changes in
+those two axes for some high precision mice. A flexible way of using this
+precision is to set it to a high value (120 is likely sufficient for most, if
+not all, mice) and use a floating point `dz` and `dw` like so:
+
+~~~~c
+al_set_mouse_wheel_precision(display, 120);
+
+ALLEGRO_EVENT event;
+al_wait_for_event(event_queue, &event);
+if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
+   /* This is a real mouse event. */
+   if (event.mouse.display) {
+      double dz =
+         (double)event.mouse.dz / al_get_mouse_wheel_precision(event.mouse.display);
+      /* Use dz in some way... */
+   }
+}
+~~~~
+
+Precision is set to 1 by default. It is impossible to set it to a lower
+precision than that.
+
+Since: 5.1.10
+
+See also: [al_get_mouse_wheel_precision]
+
+## API: al_get_mouse_wheel_precision
+
+Gets the precision of the mouse wheel (the z and w coordinates) inside the
+specified display.
+
+Since: 5.1.10
+
+See also: [al_set_mouse_wheel_precision]
+
+
 ## Mouse cursors
 
 ### API: al_create_mouse_cursor
@@ -256,4 +300,3 @@ Stop confining the mouse cursor to any display belonging to the program.
 > *Note:* not yet implemented on Mac OS X.
 
 See also: [al_grab_mouse]
-

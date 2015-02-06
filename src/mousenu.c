@@ -310,4 +310,27 @@ ALLEGRO_EVENT_SOURCE *al_get_mouse_event_source(void)
 }
 
 
+
+/* Function: al_set_mouse_wheel_precision
+ */
+void al_set_mouse_wheel_precision(int precision)
+{
+   ALLEGRO_SYSTEM *alsys = al_get_system_driver();
+   ASSERT(alsys);
+   if (precision < 1)
+      precision = 1;
+   alsys->mouse_wheel_precision = precision;
+}
+
+
+
+/* Function: al_get_mouse_wheel_precision
+ */
+int al_get_mouse_wheel_precision(void)
+{
+   ALLEGRO_SYSTEM *alsys = al_get_system_driver();
+   ASSERT(alsys);
+   return alsys->mouse_wheel_precision;
+}
+
 /* vim: set sts=3 sw=3 et: */

@@ -122,7 +122,7 @@ struct ALLEGRO_DISPLAY
    int w, h;
    int min_w, min_h;
    int max_w, max_h;
-   
+
    int backbuffer_format; /* ALLEGRO_PIXELFORMAT */
 
    ALLEGRO_EXTRA_DISPLAY_SETTINGS extra_settings;

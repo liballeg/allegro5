@@ -256,6 +256,7 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
    
    active_sysdrv = real_system;
    active_sysdrv->config = bootstrap.config;
+   active_sysdrv->mouse_wheel_precision = 1;
 
    ALLEGRO_INFO("Allegro version: %s\n", ALLEGRO_VERSION_STR);
 
