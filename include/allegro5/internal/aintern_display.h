@@ -123,8 +123,6 @@ struct ALLEGRO_DISPLAY
    int min_w, min_h;
    int max_w, max_h;
 
-   int mouse_wheel_precision;
-   
    int backbuffer_format; /* ALLEGRO_PIXELFORMAT */
 
    ALLEGRO_EXTRA_DISPLAY_SETTINGS extra_settings;

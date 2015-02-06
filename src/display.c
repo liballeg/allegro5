@@ -65,8 +65,6 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
       settings->settings[ALLEGRO_AUTO_CONVERT_BITMAPS] = 1;
    }
 
-   display->mouse_wheel_precision = 1;
-
    display->min_w = 0;
    display->min_h = 0;
    display->max_w = 0;

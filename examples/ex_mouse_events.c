@@ -157,13 +157,13 @@ int main(int argc, char **argv)
          case ALLEGRO_EVENT_KEY_CHAR:
             if (event.keyboard.keycode == ALLEGRO_KEY_PGUP) {
                precision++;
-               al_set_mouse_wheel_precision(display, precision);
+               al_set_mouse_wheel_precision(precision);
             }
             else if (event.keyboard.keycode == ALLEGRO_KEY_PGDN) {
                precision--;
                if (precision < 1)
                   precision = 1;
-               al_set_mouse_wheel_precision(display, precision);
+               al_set_mouse_wheel_precision(precision);
             }
             break;
 
