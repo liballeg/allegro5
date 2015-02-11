@@ -656,7 +656,7 @@ bool _al_d3d_render_to_texture_supported(void)
 
 
 
-bool _al_d3d_init_display()
+static bool d3d_init_display()
 {
    D3DDISPLAYMODE d3d_dm;
    OSVERSIONINFO info;
@@ -2672,8 +2672,11 @@ static void d3d_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 }
 
 
-static void d3d_shutdown(void)
+void _al_d3d_shutdown_display(void)
 {
+   if (!vt)
+      return;
+
    _al_d3d_destroy_display_format_list();
       
    _al_d3d->Release();
@@ -2891,11 +2894,14 @@ static void d3d_set_projection(ALLEGRO_DISPLAY *d)
    }
 }
 
-/* Obtain a reference to this driver. */
+/* Initialize and obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
 {
    if (vt)
       return vt;
+
+   if (!d3d_init_display())
+      return NULL;
 
    vt = (ALLEGRO_DISPLAY_INTERFACE *)al_malloc(sizeof *vt);
    memset(vt, 0, sizeof *vt);
@@ -2931,7 +2937,6 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->get_window_constraints = _al_win_get_window_constraints;
    vt->set_display_flag = _al_win_set_display_flag;
    vt->set_window_title = _al_win_set_window_title;
-   vt->shutdown = d3d_shutdown;
 
    vt->flush_vertex_cache = d3d_flush_vertex_cache;
    vt->prepare_vertex_cache = d3d_prepare_vertex_cache;

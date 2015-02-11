@@ -55,8 +55,6 @@ static bool using_higher_res_timer;
 
 static ALLEGRO_SYSTEM_WIN *_al_win_system;
 
-static bool d3d_available = true;
-
 /* _WinMain:
  *  Entry point for Windows GUI programs, hooked by a macro in alwin.h,
  *  which makes it look as if the application can still have a normal
@@ -140,16 +138,6 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
 }
 
 
-static bool maybe_d3d_init_display(void)
-{
-#ifdef ALLEGRO_CFG_D3D
-   return _al_d3d_init_display();
-#else
-   return false;
-#endif
-}
-
-
 /* Create a new system object. */
 static ALLEGRO_SYSTEM *win_initialize(int flags)
 {
@@ -169,8 +157,6 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
 
    _al_win_system->system.vt = vt;
 
-   d3d_available = maybe_d3d_init_display();
-
    return &_al_win_system->system;
 }
 
@@ -178,7 +164,6 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
 static void win_shutdown(void)
 {
    ALLEGRO_SYSTEM *s;
-   ALLEGRO_DISPLAY_INTERFACE *display_driver;
    ASSERT(vt);
 
    /* Close all open displays. */
@@ -191,10 +176,9 @@ static void win_shutdown(void)
 
    _al_vector_free(&s->displays);
 
-   display_driver = vt->get_display_driver();
-   if (display_driver && display_driver->shutdown) {
-      display_driver->shutdown();
-   }
+#ifdef ALLEGRO_CFG_D3D
+   _al_d3d_shutdown_display();
+#endif
 
    _al_win_shutdown_time();
 
@@ -238,11 +222,10 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
    /* Programmatic selection. */
 #ifdef ALLEGRO_CFG_D3D
    if (flags & ALLEGRO_DIRECT3D_INTERNAL) {
-      if (d3d_available) {
-         return _al_display_d3d_driver();
-      }
-      ALLEGRO_WARN("Direct3D graphics driver not available.\n");
-      return NULL;
+      ALLEGRO_DISPLAY_INTERFACE* iface = _al_display_d3d_driver();
+      if (iface == NULL)
+         ALLEGRO_WARN("Direct3D graphics driver not available.\n");
+      return iface;
    }
 #endif
 #ifdef ALLEGRO_CFG_OPENGL
@@ -261,9 +244,10 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
          ALLEGRO_DEBUG("Configuration value graphics.driver = %s\n", s);
          if (0 == _al_stricmp(s, "DIRECT3D") || 0 == _al_stricmp(s, "D3D")) {
 #ifdef ALLEGRO_CFG_D3D
-            if (d3d_available) {
+            ALLEGRO_DISPLAY_INTERFACE* iface = _al_display_d3d_driver();
+            if (iface != NULL) {
                al_set_new_display_flags(flags | ALLEGRO_DIRECT3D_INTERNAL);
-               return _al_display_d3d_driver();
+               return iface;
             }
 #endif
          }
@@ -282,9 +266,12 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
    /* Automatic graphics driver selection. */
    /* XXX is implicitly setting new_display_flags the desired behaviour? */
 #ifdef ALLEGRO_CFG_D3D
-   if (d3d_available) {
-      al_set_new_display_flags(flags | ALLEGRO_DIRECT3D_INTERNAL);
-      return _al_display_d3d_driver();
+   {
+      ALLEGRO_DISPLAY_INTERFACE* iface = _al_display_d3d_driver();
+      if (iface != NULL) {
+         al_set_new_display_flags(flags | ALLEGRO_DIRECT3D_INTERNAL);
+         return iface;
+      }
    }
 #endif
 #ifdef ALLEGRO_CFG_OPENGL

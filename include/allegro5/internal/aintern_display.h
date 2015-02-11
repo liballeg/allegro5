@@ -67,6 +67,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
    void (*update_transformation)(ALLEGRO_DISPLAY* d, ALLEGRO_BITMAP *target);
    void (*set_projection)(ALLEGRO_DISPLAY *d);
 
+   /* Unused */
    void (*shutdown)(void);
 
    void (*acknowledge_drawing_halt)(ALLEGRO_DISPLAY *d);
