@@ -149,7 +149,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    ALLEGRO_USTR *filter_string = NULL;
    ALLEGRO_PATH* initial_dir_path = NULL;
 
-   buf[0] = 0;
+   buf[0] = '\0';
 
    win_display = (ALLEGRO_DISPLAY_WIN *)display;
 
@@ -176,7 +176,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    ofn.lpstrFile = buf;
    ofn.nMaxFile = sizeof(buf);
 
-   /* Initialize file name buffer and starting directory */
+   /* Initialize file name buffer and starting directory. */
    if (fd->fc_initial_path) {
       bool is_dir;
       const char *path = al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP);
@@ -186,14 +186,16 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
          is_dir = al_get_fs_entry_mode(fs) & ALLEGRO_FILEMODE_ISDIR;
          al_destroy_fs_entry(fs);
       }
-      else
-         is_dir = false;
-
-      if (is_dir)
-            ofn.lpstrInitialDir = al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP);
       else {
-         strncpy(buf, al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP), BUFSIZE - 1);
-         /* Clone the directory */
+         is_dir = false;
+      }
+
+      if (is_dir) {
+         ofn.lpstrInitialDir = path;
+      }
+      else {
+         strncpy(buf, path, BUFSIZE - 1);
+         /* Extract the directory from the path. */
          initial_dir_path = al_clone_path(fd->fc_initial_path);
          if (initial_dir_path) {
             al_set_path_filename(initial_dir_path, NULL);
@@ -240,17 +242,15 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    }
 
    if (flags & OFN_ALLOWMULTISELECT) {
-      int i;
+      int i = 0;
       /* Count number of file names in buf. */
       fd->fc_path_count = 0;
-      i = skip_nul_terminated_string(buf);
       while (1) {
-         if (buf[i] == '\0') {
-            fd->fc_path_count++;
-            if (buf[i+1] == '\0')
-               break;
-         }
-         i++;
+         int j = skip_nul_terminated_string(buf + i);
+         if (j <= 1)
+            break;
+         fd->fc_path_count++;
+         i += j;
       }
    }
    else {
@@ -266,6 +266,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
       /* If multiple files were selected, the first string in buf is the
        * directory name, followed by each of the file names terminated by NUL.
        */
+      fd->fc_path_count -= 1;
       fd->fc_paths = al_malloc(fd->fc_path_count * sizeof(void *));
       i = skip_nul_terminated_string(buf);
       for (p = 0; p < (int)fd->fc_path_count; p++) {
