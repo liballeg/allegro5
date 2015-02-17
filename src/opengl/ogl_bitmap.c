@@ -453,11 +453,18 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
        * texture parameter.  GL_GENERATE_MIPMAP is deprecated in GL 3.0 so we
        * may want to use the new method in other cases as well.
        */
-      if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object) {
+      if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object ||
+          al_get_opengl_extension_list()->ALLEGRO_GL_OES_framebuffer_object ||
+          IS_OPENGLES /* FIXME */) {
          post_generate_mipmap = true;
       }
       else {
          glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+          e = glGetError();
+          if (e) {
+              ALLEGRO_ERROR("glTexParameteri for texture %d failed (%s).\n",
+                            ogl_bitmap->texture, _al_gl_error_string(e));
+          }
       }
    }
 
@@ -498,6 +505,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
          ogl_bitmap->true_w, ogl_bitmap->true_h, 0,
          get_glformat(bitmap_format, 2),
          get_glformat(bitmap_format, 1), buf);
+      e = glGetError();
       al_free(buf);
    }
 
