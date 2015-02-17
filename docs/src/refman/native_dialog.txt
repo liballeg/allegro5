@@ -54,7 +54,10 @@ Parameters:
 
 - patterns: A list of semi-colon separated patterns to match. This
   should not contain any whitespace characters. If no file patterns are
-  supported by the native dialog, this parameter is ignored.
+  supported by the native dialog, this parameter is ignored. If a pattern
+  contains the '/' character, then it is treated as a MIME type (e.g.
+  'image/png'). Not all platforms support this, and on this platforms such
+  patterns are ignored.
 
 - mode: 0, or a combination of the flags below.
 

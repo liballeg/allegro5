@@ -11,12 +11,20 @@ set(NATIVE_DIALOG_SOURCES
 set(GTK_NATIVE_DIALOG_SOURCES
     gtk_dialog.c
     gtk_filesel.c
+    gtk_new_filesel.c
+    gtk_old_filesel.c
     gtk_menu.c
     gtk_msgbox.c
     gtk_textlog.c
     gtk_thread.c
     gtk_xgtk.c
     )
+
+option(WANT_OLD_GTK "Force old (typically deprecated) GTK features in the dialog addon." OFF)
+
+if(WANT_OLD_GTK)
+    set(ALLEGRO_CFG_NATIVE_DIALOG_FORCE_OLD_GTK 1)
+endif()
 
 if(APPLE AND NOT IPHONE)
    list(APPEND NATIVE_DIALOG_SOURCES osx_dialog.m)

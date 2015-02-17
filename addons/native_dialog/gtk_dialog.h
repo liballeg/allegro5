@@ -1,6 +1,10 @@
 #ifndef __al_included_gtk_dialog_h
 #define __al_included_gtk_dialog_h
 
+#include "allegro5/allegro.h"
+#include "allegro5/allegro_native_dialog.h"
+#include "allegro5/internal/aintern_native_dialog.h"
+
 #define ACK_OK       ((void *)0x1111)
 #define ACK_ERROR    ((void *)0x2222)
 #define ACK_OPENED   ((void *)0x3333)
@@ -26,10 +30,17 @@ struct ARGS_BASE
    bool response;
 };
 
+
 bool _al_gtk_init_args(void *ptr, size_t size);
 bool _al_gtk_wait_for_args(GSourceFunc func, void *data);
 void *_al_gtk_lock_args(gpointer data);
 gboolean _al_gtk_release_args(gpointer data);
 
+typedef struct {
+   ALLEGRO_DISPLAY         *display;
+   ALLEGRO_NATIVE_DIALOG   *dialog;
+} GTK_FILE_DIALOG_MESSAGE;
+
+gboolean _al_create_gtk_file_dialog(gpointer data);
 
 #endif

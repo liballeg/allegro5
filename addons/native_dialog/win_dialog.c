@@ -84,6 +84,7 @@ static ALLEGRO_USTR *create_filter_string(const ALLEGRO_USTR *patterns)
    bool filter_all = false;
    int start, end;
 
+   /* FIXME: Move all this filter parsing stuff into a common file. */
    if (0 == strcmp(al_cstr(patterns), "*.*")) {
       filter_all = true;
    }
