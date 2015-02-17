@@ -111,8 +111,6 @@ void _al_iphone_destroy_screen(ALLEGRO_DISPLAY *display)
       global_delegate->main_display = NULL;
    }
 
-   [(EAGLView *)d->extra->vc.view remove_observers];
-
    al_free(d->extra);
 }
 
