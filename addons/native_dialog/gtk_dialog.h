@@ -36,11 +36,4 @@ bool _al_gtk_wait_for_args(GSourceFunc func, void *data);
 void *_al_gtk_lock_args(gpointer data);
 gboolean _al_gtk_release_args(gpointer data);
 
-typedef struct {
-   ALLEGRO_DISPLAY         *display;
-   ALLEGRO_NATIVE_DIALOG   *dialog;
-} GTK_FILE_DIALOG_MESSAGE;
-
-gboolean _al_create_gtk_file_dialog(gpointer data);
-
 #endif
