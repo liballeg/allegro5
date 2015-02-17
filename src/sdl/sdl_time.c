@@ -6,8 +6,6 @@
 
 ALLEGRO_DEBUG_CHANNEL("SDL")
 
-/* Function: al_get_time
- */
 double al_get_time(void)
 {
    return 1.0 * SDL_GetPerformanceCounter() / SDL_GetPerformanceFrequency();
@@ -15,8 +13,6 @@ double al_get_time(void)
 
 
 
-/* Function: al_rest
- */
 void al_rest(double seconds)
 {
    SDL_Delay(seconds * 1000);
@@ -24,8 +20,6 @@ void al_rest(double seconds)
 
 
 
-/* Function: al_init_timeout
- */
 void al_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds)
 {
    ALLEGRO_TIMEOUT_SDL *timeout_sdl = (void *)timeout;
