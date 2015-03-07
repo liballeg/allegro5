@@ -12,7 +12,7 @@
 #
 #-----------------------------------------------------------------------------#
 
-cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 if(COMMAND cmake_policy)
     cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
