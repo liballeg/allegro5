@@ -97,6 +97,8 @@ void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
                     sizehints, wmhints, classhints);
 
    XFree(sizehints);
+   XFree(wmhints);
+   XFree(classhints);
 
    al_destroy_path(exepath);
 }
