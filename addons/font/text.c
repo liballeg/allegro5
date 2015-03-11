@@ -541,7 +541,7 @@ static bool do_multiline_text_cb(int line_num, const ALLEGRO_USTR *line,
 
 
 
-/*  Function: al_do_multiline_text
+/* Function: al_do_multiline_text
  */
 void al_do_multiline_text(const ALLEGRO_FONT *font,
    float max_width, const char *text,
