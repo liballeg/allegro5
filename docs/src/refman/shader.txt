@@ -160,7 +160,7 @@ other shader functions as that will lead to undefined behavior.
 Examine the output of [al_get_default_shader_source] for an example of how to
 use the above uniforms and attributes.
 
-Returns true on access and false on error, in which case the error log is
+Returns true on success and false on error, in which case the error log is
 updated. The error log can be retrieved with [al_get_shader_log].
 
 Since: 5.1.0
@@ -173,7 +173,7 @@ See also: [al_attach_shader_source_file], [al_build_shader],
 Like [al_attach_shader_source] but reads the source code for the shader from
 the named file.
 
-Returns true on access and false on error, in which case the error log is
+Returns true on success and false on error, in which case the error log is
 updated. The error log can be retrieved with [al_get_shader_log].
 
 Since: 5.1.0
@@ -186,7 +186,7 @@ This is required before the shader can be used with [al_use_shader]. It should
 be called after successfully attaching the pixel and/or vertex shaders with
 [al_attach_shader_source] or [al_attach_shader_source_file].
 
-Returns true on access and false on error, in which case the error log is
+Returns true on success and false on error, in which case the error log is
 updated. The error log can be retrieved with [al_get_shader_log].
 
 Since: 5.1.6

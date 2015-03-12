@@ -78,7 +78,7 @@ ALLEGRO_RESOURCES_PATH
     should use this path to locate that data. On most platforms, this is the
     directory that contains the executable file. 
     
-    If ran from an OS X app bundle, then this will point to the internal
+    If run from an OS X app bundle, then this will point to the internal
     resource directory (<bundle.app>/Contents/Resources). To maintain 
     consistency, if you put your resources into a directory called "data"
     beneath the executable on some other platform (like Windows), then
@@ -217,7 +217,5 @@ debug channels, logging levels and trace format.
 
 Note that logging is disabled in release mode by default and needs to be
 enabled in the build system - the callback will never be called otherwise.
-
-See also: [Configuration files]
 
 Since: 5.1.5

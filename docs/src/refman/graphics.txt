@@ -74,7 +74,7 @@ See also: [al_map_rgba], [al_map_rgb], [al_map_rgb_f]
 
 ### API: al_unmap_rgb
 
-Retrieves components of an ALLEGRO_COLOR, ignoring alpha
+Retrieves components of an ALLEGRO_COLOR, ignoring alpha.
 Components will range from 0-255.
 
 See also: [al_unmap_rgba], [al_unmap_rgba_f], [al_unmap_rgb_f]
@@ -496,7 +496,7 @@ See also: [al_convert_bitmap], [al_create_bitmap]
 Destroys the given bitmap, freeing all resources used by it.
 This function does nothing if the bitmap argument is NULL.
 
-As a convenience, if the calling thread is currently targets the
+As a convenience, if the calling thread is currently targeting the
 bitmap then the bitmap will be untargeted first.
 The new target bitmap is unspecified. (since: 5.0.10, 5.1.6)
 
@@ -566,7 +566,7 @@ ALLEGRO_NO_PRESERVE_TEXTURE
 :   Normally, every effort is taken to preserve
     the contents of bitmaps, since Direct3D may forget them. This can take
     extra processing time. If you know it doesn't matter if a bitmap keeps its
-    pixel data, for example its a temporary buffer, use this flag to tell Allegro
+    pixel data, for example when it's a temporary buffer, use this flag to tell Allegro
     not to attempt to preserve its contents. This can increase performance of
     your game or application, but there is a catch. See
     ALLEGRO_EVENT_DISPLAY_LOST for further information.
@@ -1292,7 +1292,7 @@ See also: [al_register_bitmap_saver], [al_register_bitmap_loader_f]
 ### API: al_register_bitmap_saver
 
 Register a handler for [al_save_bitmap].  The given function will be used to
-handle the loading of bitmaps files with the given extension.
+handle the saving of bitmaps files with the given extension.
 
 The extension should include the leading dot ('.') character.
 It will be matched case-insensitively.
@@ -1322,7 +1322,7 @@ See also: [al_register_bitmap_loader]
 ### API: al_register_bitmap_saver_f
 
 Register a handler for [al_save_bitmap_f].  The given function will be
-used to handle the loading of bitmaps files with the given extension.
+used to handle the saving of bitmaps files with the given extension.
 
 The extension should include the leading dot ('.') character.
 It will be matched case-insensitively.
@@ -1541,7 +1541,7 @@ ALLEGRO_ALPHA_TEST_VALUE
 
 ALLEGRO_WRITE_MASK
 :   This determines how the framebuffer and depthbuffer are updated whenever a
-    pixel is written (in case alpha and/or depth testing is enabled, after all
+    pixel is written (in case alpha and/or depth testing is enabled: after all
     such enabled tests succeed). Depth values are only written if
     ALLEGRO_DEPTH_TEST is 1, in addition to the write mask flag being set.
 

@@ -26,12 +26,12 @@ floating point coprocessor to use them. This was great in the time period of
 i386 and i486 machines, but stopped being so useful with the coming of the
 Pentium class of processors. From Pentium onwards, CPUs have increased their
 strength in floating point operations, equaling or even surpassing integer
-math performance.
+math performance. However, many embedded processors have no FPUs so fixed
+point maths can still be useful there.
 
 Depending on the type of operations your program may need, using floating
 point types may be faster than fixed types if you are targeting a specific
-machine class. Many embedded processors have no FPUs so fixed point maths can
-be useful there.
+machine class.
 
 ## API: al_itofix
 
@@ -343,8 +343,7 @@ assert(result == 1);
 ~~~~
 
 Return value:
-Returns the sine of a fixed point binary format angle. The return value will be
-in radians.
+Returns the sine of a fixed point binary format angle as a fixed point value.
 
 ### API: al_fixcos
 
@@ -366,8 +365,7 @@ assert(result > 0.7 && result < 0.71);
 ~~~~
 
 Return value:
-Returns the cosine of a fixed point binary format angle. The return value will
-be in radians.
+Returns the cosine of a fixed point binary format angle as a fixed point value.
 
 ### API: al_fixtan
 
@@ -389,8 +387,7 @@ printf("Precision error: %f\n", dif);
 ~~~~
 
 Return value:
-Returns the tangent of a fixed point binary format angle. The return value will
-be in radians.
+Returns the tangent of a fixed point binary format angle as a fixed point value.
 
 ### API: al_fixasin
 
@@ -424,9 +421,9 @@ All return values of this function will be in the range -64 to 64.
 ### API: al_fixacos
 
 This function finds the inverse cosine of a value using a lookup table. The
-input value must be a fixed point radian. The inverse cosine is defined only
-in the domain from -1 to 1. Outside of this input range, the function will
-set Allegro's errno to EDOM and return zero.
+input must be a fixed point value. The inverse cosine is defined only in the
+domain from -1 to 1. Outside of this input range, the function will set
+Allegro's errno to EDOM and return zero.
 
 Example:
 
@@ -445,8 +442,8 @@ return values of this function will be in the range 0 to 128.
 ### API: al_fixatan
 
 This function finds the inverse tangent of a value using a lookup table. The
-input value must be a fixed point radian. The inverse tangent is the value
-whose tangent is `x`.
+input must be a fixed point value. The inverse tangent is the value whose
+tangent is `x`.
 
 Example:
 

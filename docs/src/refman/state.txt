@@ -50,7 +50,7 @@ See also: [al_store_state], [ALLEGRO_STATE_FLAGS]
 ## API: al_store_state
 
 Stores part of the state of the current thread in the given [ALLEGRO_STATE]
-objects. The flags parameter can take any bit-combination of these flags:
+object. The flags parameter can take any bit-combination of these flags:
 
 * ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS - new_display_format,
   new_display_refresh_rate, new_display_flags
@@ -74,5 +74,5 @@ for the calling thread.
 
 ## API: al_set_errno
 
-Set the error number for for the calling thread.
+Set the error number for the calling thread.
 

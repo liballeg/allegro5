@@ -459,7 +459,7 @@ Returns the opened [ALLEGRO_FILE] on success, NULL on failure.
 
 By default, the Allegro file I/O routines use the C library I/O routines,
 hence work with files on the local filesystem, but can be overridden so that
-you can read and write to other streams.  For example, you can work with block
+you can read and write to other streams.  For example, you can work with blocks
 of memory or sub-files inside .zip files.
 
 There are two ways to get an [ALLEGRO_FILE] that doesn't use stdio.

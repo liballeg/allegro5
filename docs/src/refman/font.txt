@@ -24,10 +24,13 @@ Initialise the font addon.
 Note that if you intend to load bitmap fonts, you will need to initialise
 allegro_image separately (unless you are using another library to load images).
 
+Similarly, if you wish to load truetype-fonts, do not forget to also call
+[al_init_ttf_addon].
+
 Returns true on success, false on failure.
 On the 5.0 branch, this function has no return value.  You may wish to avoid
 checking the return value if your code needs to be compatible with Allegro
-5.0.  Currently, the function only ever true.
+5.0.  Currently, the function will never return false.
 
 See also: [al_init_image_addon], [al_init_ttf_addon], [al_shutdown_font_addon]
 
@@ -44,8 +47,8 @@ Loads a font from disk. This will use [al_load_bitmap_font_flags] if you pass
 the name of a known bitmap format, or else [al_load_ttf_font].
 
 The flags parameter is passed through to either of those functions.
-Bitmap and TTF fonts are also affected by the current bitmap flags at the time
-the font is loaded.
+Bitmap and TTF fonts are also affected by the current
+[bitmap flags][al_set_new_bitmap_flags] at the time the font is loaded.
 
 See also: [al_destroy_font], [al_init_font_addon], [al_register_font_loader],
 [al_load_bitmap_font_flags], [al_load_ttf_font]
@@ -62,7 +65,7 @@ See also: [al_load_font]
 Informs Allegro of a new font file type, telling it how to load files of
 this format.
 
-The extension should include the leading dot ('.') character.
+The `extension` should include the leading dot ('.') character.
 It will be matched case-insensitively.
 
 The `load_font` argument may be NULL to unregister an entry.
@@ -135,7 +138,7 @@ The `flags` parameter can be 0 or one of the following flags:
 It can also be combined with this flag:
 
 - ALLEGRO_ALIGN_INTEGER - Always draw text aligned to an integer pixel
-  position.  This is formerly the default behaviour.  Since: 5.0.8, 5.1.4
+  position.  This was formerly the default behaviour.  Since: 5.0.8, 5.1.4
 
 This function does not support newline characters (`\n`),
 but you can use [al_draw_multiline_text] for multi line text output.
@@ -154,8 +157,8 @@ See also: [al_draw_text], [al_draw_justified_ustr], [al_draw_multiline_ustr]
 
 Like [al_draw_text], but justifies the string to the region x1-x2.
 
-The *diff* parameter is the maximum amount of horizontal space to
-allow between words.  If justisfying the text would exceed *diff* pixels,
+The `diff` parameter is the maximum amount of horizontal space to
+allow between words.  If justisfying the text would exceed `diff` pixels,
 or the string contains less than two words, then the string will be drawn
 left aligned.
 
@@ -194,7 +197,7 @@ Sometimes, the [al_get_text_width] and [al_get_font_line_height]
 functions are not enough for exact text placement, so this function
 returns some additional information.
 
-Returned variables (all in pixel):
+Returned variables (all in pixels):
 
 - x, y - Offset to upper left corner of bounding box.
 - w, h - Dimensions of bounding box.
@@ -207,9 +210,8 @@ See also: [al_get_text_width], [al_get_font_line_height],
 
 ### API: al_get_ustr_dimensions
 
-Sometimes, the [al_get_ustr_width] and [al_get_font_line_height]
-functions are not enough for exact text placement, so this function
-returns some additional information.
+Like [al_get_text_dimensions], except the text is passed as an ALLEGRO_USTR
+instead of a NUL-terminated char array.
 
 See also: [al_get_text_dimensions]
 
@@ -223,14 +225,14 @@ Returns the (compiled) version of the addon, in the same format as
 Gets information about all glyphs contained in a font, as a list of ranges.
 Ranges have the same format as with [al_grab_font_from_bitmap].
 
-*ranges_count* is the maximum number of ranges that will be returned.
+`ranges_count` is the maximum number of ranges that will be returned.
 
-*ranges* should be an array with room for _ranges_count * 2_ elements. The
+`ranges` should be an array with room for `ranges_count` * 2 elements. The
 even integers are the first unicode point in a range, the odd integers the
 last unicode point in a range.
 
 Returns the number of ranges contained in the font (even if it is bigger
-than *ranges_count*).
+than `ranges_count`).
 
 Since: 5.1.4
 
@@ -254,8 +256,8 @@ likely be drawn as a square or a space depending on the font.
 The `max_width` parameter controls the maximum desired width of the lines.
 This function will try to introduce a "soft" line break after the longest
 possible series of words that will fit in `max_length` when drawn
-with the given `font`. A "soft" line break can occur on either a space ` `
-or tab `\t` character.
+with the given `font`. A "soft" line break can occur either on a space or
+tab (`\t`) character.
 
 However, it is possible that `max_width` is too small, or the words in `text`
 are too long to fit `max_width` when drawn with `font`. In that case, the word
@@ -263,19 +265,16 @@ that is too wide will simply be drawn completely on a line by itself. If you
 don't want the text that overflows `max_width` to be visible, then use
 [al_set_clipping_rectangle] to clip it off and hide it.
 
-The funcion [al_draw_multiline_text] will draw each of the lines using
-the `font`, `x`, `color` and `flags` parametes as they were passed
-to this function. It supports the ALLEGRO_ALIGN_LEFT, ALLEGRO_ALIGN_CENTRE,
-ALLEGRO_ALIGN_RIGHT and ALLEGRO_ALIGN_INTEGER value for `flags`.
+The lines `text` was split into will each be drawn using the `font`, `x`, `color`
+and `flags` parameters, vertically starting at `y` and with a distance of
+`line_height` between them. If `line_height` is zero (`0`), the value returned by
+calling [al_get_font_line_height] on `font` will be used as a default instead.
 
-The lines that [al_draw_multiline_text] breaks the text into will be drawn
-starting at `y` and with a vertical distance between them of `line_height`.
-If `line_height` is zero (`0`), then the value returned by
-[al_get_font_line_height] on `font` will be used as the default value instead.
+The `flags` ALLEGRO_ALIGN_LEFT, ALLEGRO_ALIGN_CENTRE, ALLEGRO_ALIGN_RIGHT
+and ALLEGRO_ALIGN_INTEGER will be honoured by this function.
 
-For complex or custom text layout that [al_draw_multiline_text] does not
-provide, or for calculating the size of what this function will draw
-without actually drawing it, you can use use [al_do_multiline_text].
+If you want to calculate the size of what this function will draw without actually
+drawing it, or if you need a complex and/or custom layout, you can use [al_do_multiline_text].
 
 Since: 5.1.9
 
@@ -308,33 +307,26 @@ This function processes the `text` and splits it into lines as
 [al_draw_multiline_text] would, and then calls the callback `cb` once
 for every line. This is useful for custom drawing of multiline text,
 or for calculating the size of multiline text ahead of time. See the
-documentation of [al_draw_multiline_text] for the explanation of the splitting
+documentation on [al_draw_multiline_text] for an explanation of the splitting
 algorithm.
 
-For every line that this function splits `text` into , the callback `cb`
-will be called once.  This callback `cb` must be of type
-`bool callback(int line_num, const char *line, int size, void *extra)`.
+For every line that this function splits `text` into the callback `cb`
+will be called once with the following parameters:
 
-The callback `cb` will be called with the number of the line starting from zero
-and counting up in `line_num`, a pointer to the beginning character of the line
-in `line`, the size of the line in `size`, and the pointer passed in the
-`extra` parameter to [al_do_multiline_text].
+- `line_num` - the number of the line starting from zero and counting up
+- `line` - a pointer to the beginning character of the line (see below)
+- `size` - the size of the line (0 for empty lines)
+- `extra` - the same pointer that was passed to al_do_multiline_text
 
-Note that while the `line` pointer points to the beginning of the line,
-however, `line` is NOT guaranteed to be a NUL terminated string.
-In stead, `line` is simply a pointer, normally to a character in `text`,
-or to an empty string in case of an empty line. If you need a NUL terminated
-string, you will have to copy `line` to a buffer and NUL terminate it yourself.
+Note that `line` is *not* guaranteed to be a NUL-terminated string, but will merely
+point to a character within `text` or to an empty string in case of an empty line.
+If you need a NUL-terminated string, you will have to copy `line` to a buffer
+and NUL-terminate it yourself. You will also have to make your own copy if you need
+the contents of `line` after `cb` has returned, as `line` is *not* guaranteed to be
+valid after that.
 
-The pointer `line` is not guaranteed to be valid after the callback `cb`
-has returned. So in case you still need the contents of `line` after that,
-you must also make a copy of it yourself. In case of an empty line
-the parameter `size` to the callback will be zero and `line` will point
-to an empty string.
-
-When `cb` returns true, [al_do_multiline_text] will continue on
-to the next line. And when `cb` returns false, this function will
-stop immediately and not call `cb` anymore.
+If the callback `cb` returns false, al_do_multiline_text will stop immediately, otherwise
+it will continue on to the next line.
 
 Since: 5.1.9
 
@@ -416,11 +408,12 @@ See also: [al_load_bitmap], [al_grab_font_from_bitmap]
 
 ### API: al_load_bitmap_font
 
-Load a bitmap font from. It does this by first calling [al_load_bitmap_flags]
-and then
-[al_grab_font_from_bitmap]. If you want to for example load an old A4 font,
-you could load the bitmap yourself, then call [al_convert_mask_to_alpha] on it
-and only then pass it to [al_grab_font_from_bitmap].
+Load a bitmap font from a file. This is done by first calling
+[al_load_bitmap_flags] and then [al_grab_font_from_bitmap].
+
+If you wanted to load an old A4 font, for example, it would be better to
+load the bitmap yourself in order to call [al_convert_mask_to_alpha] on it
+before passing it to [al_grab_font_from_bitmap].
 
 See also: [al_load_bitmap_font_flags], [al_load_font], [al_load_bitmap_flags]
 
@@ -487,7 +480,7 @@ formats:
 *TrueType, OpenType, Type1, CID, CFF, Windows FON/FNT, X11 PCF, and
 others*
 
-The *size* parameter determines the size the font will be rendered at,
+The `size` parameter determines the size the font will be rendered at,
 specified in pixels. The standard font size is measured in *units per
 EM*, if you instead want to specify the size as the total height of
 glyphs in pixels, pass it as a negative value.

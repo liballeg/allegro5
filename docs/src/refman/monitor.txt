@@ -8,7 +8,7 @@ These functions are declared in the main Allegro header file:
 
 ## API: ALLEGRO_MONITOR_INFO
 
-Describes a monitors size and position relative to other
+Describes a monitor's size and position relative to other
 monitors. x1, y1 will be 0, 0 on the primary display.
 Other monitors can have negative values if they are to the
 left or above the primary display.

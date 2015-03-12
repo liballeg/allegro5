@@ -70,7 +70,7 @@ Returns the aspect ratio of the video. Videos often do not use square
 pixels so you should always check the aspect ratio before displaying
 video frames.
 
-Returns zero or negative value if the aspect ratio is unknown.
+Returns zero or a negative value if the aspect ratio is unknown.
 
 Since: 5.1.0
 
@@ -89,7 +89,7 @@ Since: 5.1.0
 
 ## API: al_get_video_width
 
-Returns the number of pixel raw pixel columns in the video stream.
+Returns the number of raw pixel columns in the video stream.
 Multiply this with the aspect ratio to get the true width.
 
 Since: 5.1.0

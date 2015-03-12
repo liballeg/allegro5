@@ -20,7 +20,7 @@ A *code point* is the integer value of a character, but not all code points are
 characters, as some code points have other uses.  Unlike legacy character
 sets, the set of code points is open ended and more are assigned with time.
 
-Clearly it is impossible represent each code point with a 8-bit byte (limited
+Clearly it is impossible to represent each code point with a 8-bit byte (limited
 to 256 code points) or even a 16-bit integer (limited to 65536 code points).
 It is possible to store code points in a 32-bit integers but it is space
 inefficient, and not actually that useful (at least, when handling the full
@@ -75,7 +75,7 @@ This is invalid and needs to be guarded against.
 
 In the following "ustr" functions, be careful whether a function takes code
 unit (byte) or code point indices.  In general, all position parameters are
-in code unit offsets.  This may be surprising, but if you think about, is
+in code unit offsets.  This may be surprising, but if you think about it, it is
 required for good performance.  (It also means some functions will work even
 if they do not contain UTF-8, since they only care about storing bytes, so
 you may actually store arbitrary data in the ALLEGRO_USTRs.)
@@ -116,7 +116,7 @@ See also: [al_ustr_new_from_buffer], [al_ustr_newf], [al_ustr_dup],
 ### API: al_ustr_new_from_buffer
 
 Create a new string containing a copy of the buffer pointed to by `s` of the
-given size in bytes.  The string must eventually be freed with [al_ustr_free].
+given `size` in bytes.  The string must eventually be freed with [al_ustr_free].
 
 See also: [al_ustr_new]
 
@@ -200,7 +200,7 @@ See also: [al_ustr_dup_substr], [al_ustr_free]
 ### API: al_ustr_dup_substr
 
 Return a new copy of a string, containing its contents in the byte interval
-\[start_pos, end_pos).  The new string will be NUL terminated and will
+\[`start_pos`, `end_pos`).  The new string will be NUL terminated and will
 need to be freed with [al_ustr_free].
 
 If necessary, use [al_ustr_offset] to find the byte offsets for a given code
@@ -259,7 +259,7 @@ pointed to by the `info` parameter.  The new string will not have any other
 storage allocated of its own, so if you allocate the `info` structure on the
 stack then no explicit "free" operation is required.
 
-The referenced interval is \[start_pos, end_pos).  Both are byte offsets.
+The referenced interval is \[`start_pos`, `end_pos`).  Both are byte offsets.
 
 The string is valid until the underlying string is modified or destroyed.
 
@@ -316,9 +316,9 @@ See also: [al_ustr_prev]
 
 Find the byte offset of the previous code point in string, before `*pos`.
 `*pos` does not have to be at the beginning of a code point.
-Returns true on success, then value pointed to by `pos` will be updated to the
+Returns true on success, and the value pointed to by `pos` will be updated to the
 found offset.  Otherwise returns false if `*pos` was already at the end of
-the string, then `*pos` is unmodified.
+the string, and `*pos` is unmodified.
 
 This function just looks for an appropriate byte; it doesn't check if found
 offset is the beginning of a valid code point.  If you are working with
@@ -331,7 +331,7 @@ See also: [al_ustr_next]
 
 ### API: al_ustr_get
 
-Return the code point in `us` beginning at byte offset `pos`.
+Return the code point in `ub` beginning at byte offset `pos`.
 
 On success returns the code point value.
 If `pos` was out of bounds (e.g. past the end of the string), return -1.
@@ -466,7 +466,7 @@ See also: [al_ustr_remove_range]
 
 ### API: al_ustr_remove_range
 
-Remove the interval \[start_pos, end_pos) from a string.
+Remove the interval \[`start_pos`, `end_pos`) from a string.
 `start_pos` and `end_pos` are byte offsets.
 Both may be past the end of the string
 but cannot be less than 0 (the start of the string).
@@ -477,7 +477,7 @@ See also: [al_ustr_remove_chr], [al_ustr_truncate]
 
 ### API: al_ustr_truncate
 
-Truncate a portion of a string at byte offset `start_pos` onwards.
+Truncate a portion of a string from byte offset `start_pos` onwards.
 `start_pos` can be past the end of the string (has no effect)
 but cannot be less than 0.
 
@@ -525,7 +525,7 @@ See also: [al_ustr_assign_substr], [al_ustr_assign_cstr]
 ### API: al_ustr_assign_substr
 
 Overwrite the string `us1` with the contents of `us2` in the byte interval
-\[start_pos, end_pos).  The end points will be clamed to the bounds of `us2`.
+\[`start_pos`, `end_pos`).  The end points will be clamped to the bounds of `us2`.
 
 Usually you will first have to use [al_ustr_offset] to find the byte offsets.
 
@@ -535,7 +535,7 @@ See also: [al_ustr_assign], [al_ustr_assign_cstr]
 
 ### API: al_ustr_assign_cstr
 
-Overwrite the string `us` with the contents of the C-style string `s`.
+Overwrite the string `us1` with the contents of the C-style string `s`.
 Returns true on success, false on error.
 
 See also: [al_ustr_assign_substr], [al_ustr_assign_cstr]
@@ -545,10 +545,10 @@ See also: [al_ustr_assign_substr], [al_ustr_assign_cstr]
 
 ### API: al_ustr_set_chr
 
-Replace the code point beginning at byte offset `pos` with `c`.
-`pos` cannot be less than 0.  If `pos` is past the end of `us1` then the space
-between the end of the string and `pos` will be padded with NUL (`'\0'`) bytes.
-If `pos` is not the start of a valid code point, that is an error and
+Replace the code point beginning at byte offset `start_pos` with `c`.
+`start_pos` cannot be less than 0.  If `start_pos` is past the end of `us` then the space
+between the end of the string and `start_pos` will be padded with NUL (`'\0'`) bytes.
+If `start_pos` is not the start of a valid code point, that is an error and
 the string will be unmodified.
 
 On success, returns the number of bytes written, i.e. the offset to the
@@ -558,9 +558,9 @@ See also: [al_ustr_replace_range]
 
 ### API: al_ustr_replace_range
 
-Replace the part of `us1` in the byte interval \[start_pos, end_pos) with the
-contents of `us2`.  `start_pos` cannot be less than 0.  If `start_pos` is past
-the end of `us1` then the space between the end of the string and `start_pos`
+Replace the part of `us1` in the byte interval \[`start_pos1`, `end_pos1`) with the
+contents of `us2`.  `start_pos1` cannot be less than 0.  If `start_pos1` is past
+the end of `us1` then the space between the end of the string and `start_pos1`
 will be padded with NUL (`'\0'`) bytes.
 
 Use [al_ustr_offset] to find the byte offsets.
@@ -621,7 +621,7 @@ See also: [al_ustr_find_cset], [al_ustr_find_set_cstr]
 ### API: al_ustr_find_str
 
 Find the first occurrence of string `needle` in `haystack`, beginning from byte
-offset `pos` (inclusive).  Return the byte offset of the occurrence if it is
+offset `start_pos` (inclusive).  Return the byte offset of the occurrence if it is
 found, otherwise return -1.
 
 See also: [al_ustr_find_cstr], [al_ustr_rfind_str], [al_ustr_find_replace]

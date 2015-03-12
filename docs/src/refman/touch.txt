@@ -120,7 +120,7 @@ See also: [ALLEGRO_MOUSE_EMULATION_MODE], [al_set_mouse_emulation_mode].
 ## API: al_get_touch_input_event_source
 
 Returns the global touch input event source.  This event source generates
-touch input events.
+[touch input events][ALLEGRO_EVENT_TOUCH_BEGIN].
 
 Since: 5.1.0
 
@@ -129,8 +129,8 @@ See also: [ALLEGRO_EVENT_SOURCE], [al_register_event_source]
 ## API: al_get_touch_input_mouse_emulation_event_source
 
 Returns the global touch input event source for emulated mouse events.
-This event source generates emulated mouse events that are based on touch
-events.
+This event source generates [emulated mouse events][ALLEGRO_EVENT_MOUSE_AXES]
+that are based on touch events.
 
 See also: [ALLEGRO_EVENT_SOURCE], [al_register_event_source]
 

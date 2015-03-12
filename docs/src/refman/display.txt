@@ -6,6 +6,38 @@ These functions are declared in the main Allegro header file:
  #include <allegro5/allegro.h>
 ~~~~
 
+All drawing operations end up being visible on a display which is the same as
+a window in windowed environments. Thus, before any drawing can take place,
+a display needs to be created.
+
+Before creating a display with [al_create_display], flags and options can be set
+with [al_set_new_display_flags] and [al_set_new_display_option]. For example, you
+can enable the use of shaders or choose between the OpenGL and Direct3D backends
+(on platforms that support both) with [al_set_new_display_flags]. Display options
+are rather optional settings that do not affect Allegro itself, e.g. they allow
+you to specify whether you want a depth buffer or enable multisampling.
+
+The actual properties of a display that has been successfully created can be queried
+via [al_get_display_option], [al_get_display_flags], [al_get_display_width] etc...
+Note that you can query some additional read-only properties such as the maximum
+allowed bitmap (i. e. texture) size via [al_get_display_option].
+
+Each display has a backbuffer associated to it which is the default target for any
+drawing operations. In order to make visible what has been drawn previously, you
+have to to call [al_flip_display]. Note that it is generally advisable to redraw
+the whole screen (or [clear][al_clear_to_color] it in advance) to avoid artefacts
+of uninitialised memory becoming visible with some drivers.
+
+You don't have to use Allegro's drawing routines, however: since creating a display
+implies the creation of an OpenGL context or Direct3D device respectively, you can
+use these APIs directly if you prefer to do so. Allegro provides integration for
+both (see the OpenGL / Direct3D sections), so you can retrieve the underlying
+textures of [ALLEGRO_BITMAP]s, for example.
+
+In order to write a well-behaved application, it is necessary to remember that
+displays will also inform you about important [events][ALLEGRO_EVENT_DISPLAY_EXPOSE]
+via their [event sources][al_get_display_event_source].
+
 ## Display creation
 
 ### API: ALLEGRO_DISPLAY
@@ -23,8 +55,8 @@ backbuffer selected for drawing.
 
 Returns NULL on error.
 
-Each display has a distinct OpenGL rendering context associated with it. See
-[al_set_target_bitmap] for the discussion about rendering contexts.
+Each display that uses OpenGL as a backend has a distinct OpenGL rendering context
+associated with it. See [al_set_target_bitmap] for the discussion about rendering contexts.
 
 See also: [al_set_new_display_flags], [al_set_new_display_option],
 [al_set_new_display_refresh_rate], [al_set_new_display_adapter],
@@ -182,7 +214,7 @@ ALLEGRO_RED_SHIFT, ALLEGRO_GREEN_SHIFT, ALLEGRO_BLUE_SHIFT, ALLEGRO_ALPHA_SHIFT
 
 ALLEGRO_ACC_RED_SIZE, ALLEGRO_ACC_GREEN_SIZE, ALLEGRO_ACC_BLUE_SIZE, ALLEGRO_ACC_ALPHA_SIZE
 :   This can be used to define the required accumulation buffer size.
-    
+
 ALLEGRO_STEREO
 :   Whether the display is a stereo display.
 
@@ -290,7 +322,7 @@ ALLEGRO_SUPPORTED_ORIENTATIONS
     LANDSCAPE means only the two landscape orientations and ALL allows
     all four orientations. When the orientation changes between a
     portrait and a landscape orientation the display needs to be
-    resizes. This is done by sending an [ALLEGRO_EVENT_DISPLAY_RESIZE]
+    resized. This is done by sending an [ALLEGRO_EVENT_DISPLAY_RESIZE]
     message which should be handled by calling [al_acknowledge_resize].
 
     Since: 5.1.0
@@ -314,7 +346,7 @@ See also: [al_set_new_window_position]
 Sets where the top left pixel of the client area of newly
 created windows (non-fullscreen) will be on screen,
 for displays created by the calling thread.
-Negative values allowed on some multihead systems.
+Negative values are allowed on some multihead systems.
 
 To reset to the default behaviour, pass (INT_MAX, INT_MAX).
 
@@ -344,7 +376,9 @@ See also: [al_get_new_display_refresh_rate]
 
 ### API: al_get_display_event_source
 
-Retrieve the associated event source.
+Retrieve the associated event source. See the
+[documentation on events][ALLEGRO_EVENT_DISPLAY_EXPOSE]
+for a list of the events displays will generate.
 
 ### API: al_get_backbuffer
 
@@ -354,7 +388,7 @@ display.
 Care should be taken when using the backbuffer bitmap (and its
 sub-bitmaps) as the source bitmap (e.g as the bitmap argument to
 [al_draw_bitmap]). Only untransformed operations are hardware
-accelerated. This consists of [al_draw_bitmap] and
+accelerated. These consist of [al_draw_bitmap] and
 [al_draw_bitmap_region] when the current transformation is the identity.
 If the tranformation is not the identity, or some other drawing
 operation is used, the call will be routed through the memory bitmap
@@ -441,10 +475,10 @@ See also: [al_acknowledge_resize]
 
 ### API: al_acknowledge_resize
 
-When the user receives a resize event from a resizable display,
-if they wish the display to be resized they must call this
-function to let the graphics driver know that it can now resize
-the display. Returns true on success.
+When the user receives a [resize event][ALLEGRO_EVENT_DISPLAY_RESIZE]
+from a resizable display, if they wish the display to be resized they
+must call this function to let the graphics driver know that it can now
+resize the display. Returns true on success.
 
 Adjusts the clipping rectangle to the full size of the backbuffer.
 

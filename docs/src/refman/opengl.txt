@@ -176,7 +176,7 @@ different OpenGL context, the target bitmap will be changed to NULL.
 
 Normally you do not need to use this function, as the context will be made
 current when you call [al_set_target_bitmap] or [al_set_target_backbuffer].
-You might need if it you created an OpenGL "forward compatible" context.
+You might need it if you created an OpenGL "forward compatible" context.
 Then [al_get_backbuffer] only returns NULL, so it would not work to pass that
 to [al_set_target_bitmap].
 

@@ -27,7 +27,7 @@ This enum contains flags that are used to define haptic effects and
 capabilities.  If the flag is set in the return value of
 [al_get_haptic_capabilities], it means the device supports the given effect.
 The value of these flags should be set into a [ALLEGRO_HAPTIC_EFFECT] struct
-to determine what kind of haptic effect should be caused when it is played.
+to determine what kind of haptic effect should be played.
 
 * ALLEGRO_HAPTIC_RUMBLE    - simple vibration effects
 * ALLEGRO_HAPTIC_PERIODIC  - periodic, wave-form effects
@@ -55,7 +55,7 @@ See also: [al_get_haptic_capabilities], [ALLEGRO_HAPTIC_EFFECT]
 ## API: ALLEGRO_HAPTIC_EFFECT
 
 This struct models a particular haptic or vibration effect. It needs to be
-filled correctly in and uploaded to a haptic device, before the device can
+filled in correctly and uploaded to a haptic device before the device can
 play it back.
 
 *Fields:*
@@ -157,7 +157,7 @@ data
     the wave form of the vibration effect that will be played on the haptic
     device.
 
-    In these cases, `data.periodic.period` muust be set to the period in
+    In these cases, `data.periodic.period` must be set to the period in
     seconds of the wave form. The field `data.periodic.magnitude` must be set
     to the relative magnitude of intensity between -1.0 and 1.0 at which the
     wave form of the vibration will be played back. The field
@@ -171,9 +171,8 @@ data
     `data.periodic.custom_len` doubles, each with values between -1.0 and
     1.0.  This value array will determine the shape of the wave form of the
     haptic effect.  ALLEGRO_HAPTIC_CUSTOM is not supported on some platforms,
-    so use [al_get_haptic_capabilities] to check if it's available. If not,
-    then it's a good idea play back a non-custom wave effect instead as a
-    substitute.
+    so use [al_get_haptic_capabilities] to check if it's available. If it isn't,
+    you may want to play back a non-custom wave effect as a substitute instead.
 
     If `type` is set to ALLEGRO_HAPTIC_CONSTANT, then `data.constant.level`
     must be set to a relative intensity value between 0.0 and 1.0 to
@@ -181,28 +180,28 @@ data
 
     If `type` is set to any of ALLEGRO_HAPTIC_SPRING,
     ALLEGRO_HAPTIC_FRICTION, ALLEGRO_HAPTIC_DAMPER, ALLEGRO_HAPTIC_INERTIA,
-    ALLEGRO_HAPTIC_RAMP, then the `data.condition` struct shuld be filled in.
-    To explain this better, it's best to keep in mind that this kind of
-    effects is most useful for steering-wheel kind of devices, where
-    resistance or inertia should be applied when turning the wheel of the
-    device a certain distance to the right or the left.
+    ALLEGRO_HAPTIC_RAMP, then the `data.condition` struct should be filled in.
+    To explain this better, it's best to keep in mind that these kinds of
+    effects are most useful for steering-wheel kind of devices, where
+    resistance or inertia should be applied when turning the device's wheel a
+    certain distance to the left or right.
 
     The field `data.condition.right_saturation` must be filled in with a
-    relative magnitude between -1.0 and 1.0 to determine the the intensity of
+    relative magnitude between -1.0 and 1.0 to determine the intensity of
     resistance or inertia on the "right" side of the axis. Likewise,
     `data.condition.left_saturation` must be filled in with a relative
-    magnitude between -1.0 and 1.0 to determine the the intensity of
+    magnitude between -1.0 and 1.0 to determine the intensity of
     resistance or inertia on the "left" side of the axis.
 
     The field `data.condition.deadband` must be filled in with a relative
-    value between 0.0 and 1.0, to determine the relative width of the "dead
+    value between 0.0 and 1.0 to determine the relative width of the "dead
     band" of the haptic effect. As long as the axis of the haptic device
     remains in the "dead band" area, the effect will not be applied. A value
     of 0.0 means there is no dead band, and a value of 1.0 means it applied
     over the whole range of the axis in question.
 
     The field `data.condition.center` must be filled in with a relative value
-    between -1.0 and 1.0, to determine the relative position of the "center"
+    between -1.0 and 1.0 to determine the relative position of the "center"
     of the effect around which the dead band is centered.  It should be set to
     0.0 in case the center should not be shifted.
 
@@ -224,23 +223,23 @@ data
     ALLEGRO_HAPTIC_CONSTANT, ALLEGRO_HAPTIC_RAMP, then `data.envelope`
     determines the "envelope" of the effect. That is, it determines the
     duration and intensity for the ramp-up attack or "fade in" and the
-    ramp-down "fade out" of the effect.
+    ramp-down or "fade out" of the effect.
 
     In these cases the field `data.envelope.attack_level` must be set to a
     relative value between 0.0 and 1.0 that determines the intensity the
-    effect should have when it starts playing after `replay.delay` seconds
-    have passed since the playback started. The field
+    effect should have when it starts playing (after `replay.delay` seconds
+    have passed since the playback was started). The field
     `data.envelope.attack_length` must be set to the time in seconds that the
     effect should ramp up to the maximum intensity as set by the other
-    parameters of the effect. If `data.envelope.attack_length` is 0, then the
+    parameters. If `data.envelope.attack_length` is 0, then the
     effect will play immediately at full intensity.
 
     The field `data.envelope.fade_level` must be set to a relative value
     between 0.0 and 1.0 that determines the intensity the effect should have
-    when at the moment it stops playing after `replay.length + replay.delay`
-    seconds have passed since the playback of the effect started. The field
+    when it stops playing after `replay.length + replay.delay` seconds have
+    passed since the playback of the effect started. The field
     `data.envelope.fade_length` must be set to the time in seconds that the
-    effect should fade out before it finished playing. If
+    effect should fade out before it finishes playing. If
     `data.envelope.fade_length` is 0, then the effect will not fade out.
 
     If you don't want to use an envelope, then set all four fields of
@@ -251,9 +250,9 @@ Since: 5.1.8
 
 ## API: ALLEGRO_HAPTIC_EFFECT_ID
 
-This struct is used as a handle to control playback of a haptic effect.
-The struct should be considered opaque. Its implementation is visible merely
-to allow allocation by the users of the Allegro library.
+This struct is used as a handle to control playback of a haptic effect and should
+be considered opaque. Its implementation is visible merely to allow allocation
+by the users of the Allegro library.
 
 Since: 5.1.8
 
@@ -261,7 +260,7 @@ Since: 5.1.8
 
 Installs the haptic (force feedback) device subsystem. This must be called
 before using any other haptic-related functions. Returns true if the haptics
-subsystem could be initialized correctly, false if not. 
+subsystem could be initialized correctly, false in case of error.
 
 For portability you should first open a display before calling 
 [al_install_haptic]. On some platforms, such as DirectInput under 
@@ -269,12 +268,9 @@ Windows, [al_install_haptic] will only work if at least one active
 display is available. This display must stay available until
 [al_uninstall_haptic] is called.
 
-If you need to close and reopen your active display, e.g. then you should 
-call [al_uninstall_haptic] before closing the display, and 
+If you need to close and reopen your active display for example, then you should
+call [al_uninstall_haptic] before closing the display, and
 [al_install_haptic] after opening it again.
-
-on Windows 
-and DirectInput
 
 Since: 5.1.8
 
@@ -283,8 +279,8 @@ Since: 5.1.8
 Uninstalls the haptic device subsystem. This is useful since on some
 platforms haptic effects are bound to the active display.
 
-If you need to close and reopen your active display, e.g. then you should 
-call [al_uninstall_haptic] before closing the display, and 
+If you need to close and reopen your active display for example, then you should
+call [al_uninstall_haptic] before closing the display, and
 [al_install_haptic] after opening it again.
 
 Since: 5.1.8
@@ -309,9 +305,9 @@ Since: 5.1.8
 
 ## API: al_is_display_haptic
 
-Returns true if the display has haptic capabilities, false if not. To be more
-precise, this is mainly meant for force feedback that shakes a hand held
-device, such as a phone or a tablet.
+Returns true if the display has haptic capabilities, false if not. This
+mainly concerns force feedback that shakes a hand held device, such as
+a phone or a tablet.
 
 Since: 5.1.8
 
@@ -366,7 +362,7 @@ Since: 5.1.8
 
 ## API: al_release_haptic
 
-Releases the haptic device and it's resources when it's not needed anymore.
+Releases the haptic device and its resources when it's not needed anymore.
 Should also be used in case the joystick configuration changed, such as when
 a joystick is hot plugged. This function also automatically releases all 
 haptic effects that are still uploaded to the device and that have not been
@@ -389,7 +385,7 @@ Since: 5.1.8
 
 ## API: al_is_haptic_capable
 
-Returns true if the haptic device is supports the feature indicated by 
+Returns true if the haptic device supports the feature indicated by
 the query parameter, false if the feature is not supported. 
 The query parameter must be one of the values of [ALLEGRO_HAPTIC_CONSTANTS]. 
 
@@ -423,7 +419,7 @@ Since: 5.1.8
 
 Turns on or off the automatic centering feature of the haptic device if 
 supported. Depending on the device automatic centering may ensure that the 
-axes of the device are  centered again automatically after playing 
+axes of the device are centered again automatically after playing
 a haptic effect. The intensity parameter should be passed with a value 
 between 0.0 and 1.0. The value 0.0 means automatic centering is 
 disabled, and 1.0 means full strength automatic centering. Any value
@@ -441,7 +437,7 @@ Since: 5.1.9
 
 Returns the current automatic centering intensity of the device. 
 Depending on the device automatic centering may ensure that the 
-axes of the device are  centered again automatically after playing 
+axes of the device are centered again automatically after playing
 a haptic effect. The return value can be between 0.0 and 1.0. 
 The value 0.0 means automatic centering is disabled, and 1.0 means 
 automatic centering is enabled at full strength. Any value
@@ -460,7 +456,7 @@ Since: 5.1.9
 
 Returns the maximum amount of haptic effects that can be uploaded to the
 device.  This depends on the operating system, driver, platform and the 
-device itself. This can this can return a value as low as 1. 
+device itself. This may return a value as low as 1.
 
 Since: 5.1.8
 
@@ -505,7 +501,7 @@ Since: 5.1.8
 
 ## API: al_upload_and_play_haptic_effect
 
-Uploads and immediately plays back the haptic effect to the device. Returns
+Uploads the haptic effect to the device and starts playback immediately. Returns
 true if the upload and playback were successful, false if either failed. 
 
 In case false is returned, the haptic effect will be automatically 
@@ -530,7 +526,7 @@ Since: 5.1.8
 ## API: al_is_haptic_effect_playing
 
 Returns true if the haptic effect is currently playing. Returns false if the
-effect has been stopped or if it finsihed playing, or if it has not been
+effect has been stopped or if it has already finished playing, or if it has not been
 played yet. The play_id must be a valid [ALLEGRO_HAPTIC_EFFECT_ID] obtained
 from [al_upload_haptic_effect], [al_upload_and_play_haptic_effect] or
 [al_rumble_haptic].

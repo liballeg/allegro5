@@ -19,7 +19,7 @@ extensions is: .wav, .flac, .ogg, .it, .mod, .s3m, .xm, .voc.
 
 - Saving is only supported for wav files.
 
-- Wav file loader currently only supports 8/16 bit little endian PCM files.
+- The wav file loader currently only supports 8/16 bit little endian PCM files.
 16 bits are used when saving wav files. Use flac files if more precision is
 required.
 

@@ -6,13 +6,26 @@ These functions are declared in the main Allegro header file:
  #include <allegro5/allegro.h>
 ~~~~
 
+Transformations allow you to transform the coordinates you use for drawing
+operations without additional overhead. Scaling, rotating, translating, and
+combinations of these are possible as well as using custom transformations.
+
+Transformations are set per target-bitmap, i. e. a change of the target bitmap
+will also change the active transformation.
+It is also possible to specify custom projection transformations. These are set per
+display.
+
+Allegro provides convenience functions to construct transformations in 2D and 3D
+variants (the latter with a `_3d` suffix), so you don't have to deal with the
+underlying matrix algebra yourself.
+
 The transformations are combined in the order of the function invocations. Thus
 to create a transformation that first rotates a point and then translates it, 
 you would (starting with an identity transformation) call [al_rotate_transform]
 and then [al_translate_transform]. This approach is opposite of what OpenGL uses
 but similar to what Direct3D uses. 
 
-For those who known the matrix algebra going behind the scenes, what the 
+For those who know the matrix algebra going behind the scenes, what the
 transformation functions in Allegro do is "pre-multiply" the successive 
 transformations. So, for example, if you have code that does:
 

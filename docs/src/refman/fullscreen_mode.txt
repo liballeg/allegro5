@@ -22,6 +22,8 @@ typedef struct ALLEGRO_DISPLAY_MODE {
 
 The `refresh_rate` may be zero if unknown.
 
+For an explanation of what `format` means, see [ALLEGRO_PIXEL_FORMAT].
+
 See also: [al_get_display_mode]
 
 ## API: al_get_display_mode

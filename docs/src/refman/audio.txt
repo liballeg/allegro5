@@ -235,7 +235,7 @@ Since: 5.1.8
 Creates a voice structure and allocates a voice from the digital sound driver.
 The passed frequency, sample format and channel configuration are used as a
 hint to what kind of data will be sent to the voice. However, the underlying
-sound driver is free to use non-matching values. For example it may be the
+sound driver is free to use non-matching values. For example, it may be the
 native format of the sound hardware. If a mixer is attached to the voice, the
 mixer will convert from the mixer's format to the voice format and care does
 not have to be taken for this.
@@ -947,7 +947,7 @@ See also: [al_set_audio_stream_speed].
 
 Set the relative playback speed.  1.0 is normal speed.
 
-Return true on success, false on failure.  Will fail if the sample instance is
+Return true on success, false on failure.  Will fail if the audio stream is
 attached directly to a voice.
 
 See also: [al_get_audio_stream_speed].
@@ -962,7 +962,7 @@ See also: [al_set_audio_stream_gain].
 
 Set the playback gain.
 
-Returns true on success, false on failure.  Will fail if the sample instance
+Returns true on success, false on failure.  Will fail if the audio stream
 is attached directly to a voice.
 
 See also: [al_get_audio_stream_gain].
@@ -982,7 +982,7 @@ A special value [ALLEGRO_AUDIO_PAN_NONE] disables panning and plays the
 stream at its original level.  This will be louder than a pan value of 0.0.
 
 Returns true on success, false on failure.
-Will fail if the sample instance is attached directly to a voice.
+Will fail if the audio stream is attached directly to a voice.
 
 See also: [al_get_audio_stream_pan], [ALLEGRO_AUDIO_PAN_NONE]
 
@@ -1468,7 +1468,7 @@ Since: 5.1.1
 ### API: al_destroy_audio_recorder
 
 Destroys the audio recorder and frees all resources associated with it. It
-is safe to destroy a recorder that is playing.
+is safe to destroy a recorder that is recording.
 
 You may receive events after the recorder has been destroyed. They must be
 ignored, as the fragment buffer will no longer be valid.
