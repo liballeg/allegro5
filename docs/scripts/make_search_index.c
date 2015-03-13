@@ -5,13 +5,19 @@
  */
 
 #include <string.h>
+#include <stdlib.h>
 #include "dawk.h"
 
-#define MAX_ENTRIES  1024
-
-dstr names[MAX_ENTRIES];
-dstr urls[MAX_ENTRIES];
+dstr *names;
+dstr *urls;
 int num_entries = 0;
+
+static int add_entry(void) {
+   int i = num_entries++;
+   names = realloc(names, num_entries * sizeof *names);
+   urls = realloc(urls, num_entries * sizeof *urls);
+   return i;
+}
 
 int main(int argc, char *argv[])
 {
@@ -22,9 +28,9 @@ int main(int argc, char *argv[])
 
    while (d_getline(line)) {
       if (d_match(line, "^\\[(.*)\\]: (.*)")) {
-         strcpy(names[num_entries], d_submatch(1));
-         strcpy(urls[num_entries], d_submatch(2));
-         num_entries++;
+         int i = add_entry();
+         strcpy(names[i], d_submatch(1));
+         strcpy(urls[i], d_submatch(2));
       }
    }
 
