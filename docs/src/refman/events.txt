@@ -96,7 +96,7 @@ A keyboard key was pressed.
 
 keyboard.keycode (int)
 :   The code corresponding to the physical key which was pressed.
-    See the "Key codes" section for the list of ALLEGRO\_KEY\_\* constants.
+    See the [Key codes] section for the list of ALLEGRO\_KEY\_\* constants.
 
 keyboard.display (ALLEGRO_DISPLAY *)
 :   The display which had keyboard focus when the event occurred.
@@ -110,7 +110,7 @@ A keyboard key was released.
 
 keyboard.keycode (int)
 :   The code corresponding to the physical key which was released.
-    See the "Key codes" section for the list of ALLEGRO\_KEY\_\* constants.
+    See the [Key codes] section for the list of ALLEGRO\_KEY\_\* constants.
 
 keyboard.display (ALLEGRO_DISPLAY *)
 :   The display which had keyboard focus when the event occurred.
@@ -121,7 +121,7 @@ A character was typed on the keyboard, or a character was auto-repeated.
 
 keyboard.keycode (int)
 :   The code corresponding to the physical key which was last pressed.
-    See the "Key codes" section for the list of ALLEGRO\_KEY\_\* constants.
+    See the [Key codes] section for the list of ALLEGRO\_KEY\_\* constants.
 
 keyboard.unichar (int)
 :   A Unicode code point (character).  This *may* be zero or negative if the
