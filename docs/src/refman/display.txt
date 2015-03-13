@@ -7,7 +7,7 @@ These functions are declared in the main Allegro header file:
 ~~~~
 
 All drawing operations end up being visible on a display which is the same as
-a window in windowed environments. Thus, before any drawing can take place,
+a window in windowed environments. Thus, before anything is displayed,
 a display needs to be created.
 
 Before creating a display with [al_create_display], flags and options can be set
@@ -18,9 +18,9 @@ are rather optional settings that do not affect Allegro itself, e.g. they allow
 you to specify whether you want a depth buffer or enable multisampling.
 
 The actual properties of a display that has been successfully created can be queried
-via [al_get_display_option], [al_get_display_flags], [al_get_display_width] etc...
+via [al_get_display_option], [al_get_display_flags], [al_get_display_width] etc.
 Note that you can query some additional read-only properties such as the maximum
-allowed bitmap (i. e. texture) size via [al_get_display_option].
+allowed bitmap (i.e. texture) size via [al_get_display_option].
 
 Each display has a backbuffer associated to it which is the default target for any
 drawing operations. In order to make visible what has been drawn previously, you

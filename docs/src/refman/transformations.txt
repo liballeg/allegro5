@@ -10,7 +10,7 @@ Transformations allow you to transform the coordinates you use for drawing
 operations without additional overhead. Scaling, rotating, translating, and
 combinations of these are possible as well as using custom transformations.
 
-Transformations are set per target-bitmap, i. e. a change of the target bitmap
+Transformations are set per target-bitmap, i.e. a change of the target bitmap
 will also change the active transformation.
 It is also possible to specify custom projection transformations. These are set per
 display.

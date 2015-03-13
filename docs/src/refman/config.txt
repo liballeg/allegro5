@@ -31,14 +31,16 @@ declarations belong to the global section. Sections do not nest.
 
 Here is an example configuration file:
 
-    # Monster description
-    monster name = Allegro Developer
+~~~ini
+## Monster description
+monster name = Allegro Developer
 
-    [weapon 0]
-    damage = 443
+[weapon 0]
+damage = 443
 
-    [weapon 1]
-    damage = 503
+[weapon 1]
+damage = 503
+~~~~
 
 It can then be accessed like this (make sure to check for errors in
 an actual program):
