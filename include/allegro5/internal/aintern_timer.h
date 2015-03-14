@@ -6,6 +6,7 @@
 #endif
 
 void _al_init_timers(void);
+int _al_get_active_timers_count(void);
 
 #ifdef __cplusplus
    }

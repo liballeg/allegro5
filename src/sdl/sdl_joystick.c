@@ -143,6 +143,9 @@ static void sdl_release_joystick(ALLEGRO_JOYSTICK *joy)
 static void sdl_get_joystick_state(ALLEGRO_JOYSTICK *joy,
    ALLEGRO_JOYSTICK_STATE *ret_state)
 {
+   ALLEGRO_SYSTEM_INTERFACE *s = _al_sdl_system_driver();
+   s->heartbeat();
+
    SDL_Joystick *sdl = get_sdl(joy);
    int an = SDL_JoystickNumAxes(sdl);
    int i;

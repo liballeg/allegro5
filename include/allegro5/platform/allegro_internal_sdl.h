@@ -41,3 +41,5 @@ int _al_sdl_get_sdl_pixel_format(int allegro_format);
 
 ALLEGRO_DISPLAY *_al_sdl_find_display(uint32_t window_id);
 
+void _al_sdl_event_hack(void);
+
