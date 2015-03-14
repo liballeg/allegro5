@@ -45,24 +45,30 @@ void _al_sdl_joystick_event(SDL_Event *e)
 
    if (e->type == SDL_JOYAXISMOTION) {
       event.joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
-      event.joystick.stick = e->jaxis.which;
-      event.joystick.axis = e->jaxis.axis;
+      event.joystick.id = &joysticks[e->jaxis.which].allegro;
+      event.joystick.stick = e->jaxis.axis / 2;
+      event.joystick.axis = e->jaxis.axis % 2;
       event.joystick.pos = e->jaxis.value / 32768.0;
       event.joystick.button = 0;
    }
    else if (e->type == SDL_JOYBUTTONDOWN) {
       event.joystick.type = ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN;
-      event.joystick.stick = e->jbutton.which;
+      event.joystick.id = &joysticks[e->jbutton.which].allegro;
+      event.joystick.stick = 0;
       event.joystick.axis = 0;
       event.joystick.pos = 0;
       event.joystick.button = e->jbutton.button;
    }
    else if (e->type == SDL_JOYBUTTONUP) {
       event.joystick.type = ALLEGRO_EVENT_JOYSTICK_BUTTON_UP;
-      event.joystick.stick = e->jbutton.which;
+      event.joystick.id = &joysticks[e->jbutton.which].allegro;
+      event.joystick.stick = 0;
       event.joystick.axis = 0;
       event.joystick.pos = 0;
       event.joystick.button = e->jbutton.button;
+   }
+   else if (e->type == SDL_JOYDEVICEADDED || e->type == SDL_JOYDEVICEREMOVED) {
+      event.joystick.type = ALLEGRO_EVENT_JOYSTICK_CONFIGURATION;
    }
    else {
       return;
@@ -78,22 +84,50 @@ static bool sdl_init_joystick(void)
 {
    count = SDL_NumJoysticks();
    joysticks = calloc(count, sizeof * joysticks);
+   int i;
+   for (i = 0; i < count; i++) {
+      joysticks[i].sdl = SDL_JoystickOpen(i);
+      _AL_JOYSTICK_INFO *info = &joysticks[i].allegro.info;
+      int an = SDL_JoystickNumAxes(joysticks[i].sdl);
+      int a;
+      info->num_sticks = an / 2;
+      for (a = 0; a < an; a++) {
+         info->stick[a / 2].num_axes = 2;
+         info->stick[a / 2].name = "stick";
+         info->stick[a / 2].axis[0].name = "X";
+         info->stick[a / 2].axis[1].name = "Y";
+      }
+
+      int bn = SDL_JoystickNumButtons(joysticks[i].sdl);
+      info->num_buttons = bn;
+      int b;
+      for (b = 0; b < bn; b++) {
+         info->button[b].name = "button";
+      }
+   }
    SDL_JoystickEventState(SDL_ENABLE);
    return true;
 }
 
 static void sdl_exit_joystick(void)
 {
+   int i;
+   for (i = 0; i < count; i++) {
+      SDL_JoystickClose(joysticks[i].sdl);
+   }
+   count = 0;
+   free(joysticks);
 }
 
 static bool sdl_reconfigure_joysticks(void)
 {
-   return false;
+   sdl_exit_joystick();
+   return sdl_init_joystick();
 }
 
 static int sdl_num_joysticks(void)
 {
-   return SDL_NumJoysticks();
+   return count;
 }
 
 static ALLEGRO_JOYSTICK *sdl_get_joystick(int joyn)
@@ -113,7 +147,7 @@ static void sdl_get_joystick_state(ALLEGRO_JOYSTICK *joy,
    int an = SDL_JoystickNumAxes(sdl);
    int i;
    for (i = 0; i < an; i++) {
-      ret_state->stick[0].axis[i] = SDL_JoystickGetAxis(sdl, i) / 32768.0;
+      ret_state->stick[i / 2].axis[i % 2] = SDL_JoystickGetAxis(sdl, i) / 32768.0;
    }
    int bn = SDL_JoystickNumButtons(sdl);
    for (i = 0; i < bn; i++) {

@@ -76,6 +76,8 @@ static void sdl_heartbeat(void)
          case SDL_JOYAXISMOTION:
          case SDL_JOYBUTTONDOWN:
          case SDL_JOYBUTTONUP:
+         case SDL_JOYDEVICEADDED:
+         case SDL_JOYDEVICEREMOVED:
             _al_sdl_joystick_event(&event);
             break;
          case SDL_QUIT:
