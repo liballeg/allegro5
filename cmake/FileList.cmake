@@ -197,6 +197,7 @@ set(ALLEGRO_SRC_SDL_FILES
    src/sdl/sdl_display.c
    src/sdl/sdl_keyboard.c
    src/sdl/sdl_mouse.c
+   src/sdl/sdl_joystick.c
    )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_FILES

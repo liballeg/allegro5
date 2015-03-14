@@ -73,6 +73,11 @@ static void sdl_heartbeat(void)
          case SDL_MOUSEWHEEL:
             _al_sdl_mouse_event(&event);
             break;
+         case SDL_JOYAXISMOTION:
+         case SDL_JOYBUTTONDOWN:
+         case SDL_JOYBUTTONUP:
+            _al_sdl_joystick_event(&event);
+            break;
          case SDL_QUIT:
             _al_sdl_display_event(&event);
             break;
@@ -171,6 +176,11 @@ static ALLEGRO_MOUSE_DRIVER *sdl_get_mouse_driver(void)
    return _al_sdl_mouse_driver();
 }
 
+static ALLEGRO_JOYSTICK_DRIVER *sdl_get_joystick_driver(void)
+{
+   return _al_sdl_joystick_driver();
+}
+
 #define ADD(allegro, sdl) if (sdl_format == \
    SDL_PIXELFORMAT_##sdl) return ALLEGRO_PIXEL_FORMAT_##allegro;
 int _al_sdl_get_allegro_pixel_format(int sdl_format) {
@@ -250,10 +260,9 @@ ALLEGRO_SYSTEM_INTERFACE *_al_sdl_system_driver(void)
    vt->get_display_driver = sdl_get_display_driver;
    vt->get_keyboard_driver = sdl_get_keyboard_driver;
    vt->get_mouse_driver = sdl_get_mouse_driver;
-   /*
-   vt->get_touch_input_driver = sdl_get_touch_input_driver;
+   //vt->get_touch_input_driver = sdl_get_touch_input_driver;
    vt->get_joystick_driver = sdl_get_joystick_driver;
-   vt->get_haptic_driver = sdl_get_haptic_driver;*/
+   //vt->get_haptic_driver = sdl_get_haptic_driver;
    vt->get_num_display_modes = sdl_get_num_display_modes;
    vt->get_display_mode = sdl_get_display_mode;
    vt->shutdown_system = sdl_shutdown_system;
