@@ -293,6 +293,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     include/allegro5/platform/alwin.h
     include/allegro5/platform/astdbool.h
     include/allegro5/platform/astdint.h
+    include/allegro5/platform/allegro_sdl_config.h
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_WINDOWS_FILES
