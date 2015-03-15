@@ -156,6 +156,14 @@ if(SUPPORT_OPENSL)
     set(SUPPORT_AUDIO 1)
 endif(SUPPORT_OPENSL)
 
+if(ALLEGRO_SDL)
+    set(ALLEGRO_CFG_KCM_SDL 1)
+    list(APPEND AUDIO_SOURCES sdl_audio.c)
+    list(APPEND AUDIO_LIBRARIES ${SDL2_LIBRARIES} )
+    list(APPEND AUDIO_INCLUDE_DIRECTORIES ${SDL2_INCLUDE_DIR})
+    set(SUPPORT_AUDIO 1)
+endif(ALLEGRO_SDL)
+
 configure_file(
     allegro5/internal/aintern_audio_cfg.h.cmake
     ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_audio_cfg.h
