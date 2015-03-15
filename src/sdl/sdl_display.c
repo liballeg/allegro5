@@ -124,6 +124,7 @@ static void sdl_destroy_display_locked(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_SDL *sdl = (void *)d;
    ALLEGRO_SYSTEM *system = al_get_system_driver();
+   _al_event_source_free(&d->es);
    _al_vector_find_and_delete(&system->displays, &d);
    SDL_DestroyWindow(sdl->window);
    al_free(sdl);
