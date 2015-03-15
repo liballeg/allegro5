@@ -65,6 +65,15 @@ void _al_sdl_display_event(SDL_Event *e)
    _al_event_source_unlock(es);
 }
 
+static void GLoption(int allegro, int sdl)
+{
+   int i;
+   int x = al_get_new_display_option(allegro, &i);
+   if (i == ALLEGRO_DONTCARE)
+      return;
+   SDL_GL_SetAttribute(sdl, x);
+}
+
 static ALLEGRO_DISPLAY *sdl_create_display_locked(int w, int h)
 {
    ALLEGRO_DISPLAY_SDL *sdl = al_calloc(1, sizeof *sdl);
@@ -80,6 +89,22 @@ static ALLEGRO_DISPLAY *sdl_create_display_locked(int w, int h)
       flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
    if (d->flags & ALLEGRO_FRAMELESS)
       flags |= SDL_WINDOW_BORDERLESS;
+
+   GLoption(ALLEGRO_COLOR_SIZE, SDL_GL_BUFFER_SIZE);
+   GLoption(ALLEGRO_RED_SIZE, SDL_GL_RED_SIZE);
+   GLoption(ALLEGRO_GREEN_SIZE, SDL_GL_GREEN_SIZE);
+   GLoption(ALLEGRO_BLUE_SIZE, SDL_GL_BLUE_SIZE);
+   GLoption(ALLEGRO_ALPHA_SIZE, SDL_GL_ALPHA_SIZE);
+   GLoption(ALLEGRO_ACC_RED_SIZE, SDL_GL_ACCUM_RED_SIZE);
+   GLoption(ALLEGRO_ACC_GREEN_SIZE, SDL_GL_ACCUM_GREEN_SIZE);
+   GLoption(ALLEGRO_ACC_BLUE_SIZE, SDL_GL_ACCUM_BLUE_SIZE);
+   GLoption(ALLEGRO_ACC_ALPHA_SIZE, SDL_GL_ACCUM_ALPHA_SIZE);
+   GLoption(ALLEGRO_STEREO, SDL_GL_STEREO);
+   GLoption(ALLEGRO_DEPTH_SIZE, SDL_GL_DEPTH_SIZE);
+   GLoption(ALLEGRO_STENCIL_SIZE, SDL_GL_STENCIL_SIZE);
+   GLoption(ALLEGRO_SAMPLE_BUFFERS, SDL_GL_MULTISAMPLEBUFFERS);
+   GLoption(ALLEGRO_SAMPLES, SDL_GL_MULTISAMPLESAMPLES);
+
    sdl->window = SDL_CreateWindow(sdl->title, sdl->x, sdl->y,
       d->w, d->h, flags);
    if (!sdl->window) {
