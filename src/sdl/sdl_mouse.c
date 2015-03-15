@@ -37,6 +37,8 @@ void _al_sdl_mouse_event(SDL_Event *e)
          event.mouse.type = ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY;
          event.mouse.x = mouse->state.x;
          event.mouse.y = mouse->state.y;
+         event.mouse.z = mouse->state.z;
+         event.mouse.w = mouse->state.w;
       }
       d = _al_sdl_find_display(e->window.windowID);
       mouse->display = e->window.event == SDL_WINDOWEVENT_ENTER ? d : NULL;
@@ -45,8 +47,12 @@ void _al_sdl_mouse_event(SDL_Event *e)
       event.mouse.type = ALLEGRO_EVENT_MOUSE_AXES;
       event.mouse.x = e->motion.x;
       event.mouse.y = e->motion.y;
+      event.mouse.z = mouse->state.z;
+      event.mouse.w = mouse->state.w;
       event.mouse.dx = e->motion.xrel;
       event.mouse.dy = e->motion.yrel;
+      event.mouse.dz = 0;
+      event.mouse.dw = 0;
       mouse->state.x = e->motion.x;
       mouse->state.y = e->motion.y;
       d = _al_sdl_find_display(e->motion.windowID);
@@ -55,8 +61,12 @@ void _al_sdl_mouse_event(SDL_Event *e)
       event.mouse.type = ALLEGRO_EVENT_MOUSE_AXES;
       mouse->state.z += al_get_mouse_wheel_precision() * e->wheel.y;
       mouse->state.w += al_get_mouse_wheel_precision() * e->wheel.x;
+      event.mouse.x = mouse->state.x;
+      event.mouse.y = mouse->state.y;
       event.mouse.z = mouse->state.z;
       event.mouse.w = mouse->state.w;
+      event.mouse.dx = 0;
+      event.mouse.dy = 0;
       event.mouse.dz = al_get_mouse_wheel_precision() * e->wheel.y;
       event.mouse.dw = al_get_mouse_wheel_precision() * e->wheel.x;
       d = _al_sdl_find_display(e->wheel.windowID);
@@ -71,6 +81,8 @@ void _al_sdl_mouse_event(SDL_Event *e)
       }
       event.mouse.x = e->button.x;
       event.mouse.y = e->button.y;
+      event.mouse.z = mouse->state.z;
+      event.mouse.w = mouse->state.w;
       if (e->type == SDL_MOUSEBUTTONDOWN) {
          event.mouse.type = ALLEGRO_EVENT_MOUSE_BUTTON_DOWN;
          mouse->state.buttons |= 1 << (event.mouse.button - 1);
@@ -124,7 +136,10 @@ static bool sdl_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
 
 static bool sdl_set_mouse_axis(int which, int value)
 {
-   return false;
+   if (which == 1) mouse->state.z = value;
+   else if (which == 2) mouse->state.w = value;
+   else return false;
+   return true;
 }
 
 static void sdl_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
