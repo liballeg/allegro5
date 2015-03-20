@@ -207,6 +207,15 @@ extern JNI_FUNC(void, TouchListener, nativeOnTouch, (JNIEnv *env, jobject obj,
 extern JNI_FUNC(void, Sensors, nativeOnAccel, (JNIEnv *env, jobject obj, jint id,
          jfloat x, jfloat y, jfloat z));
 
+extern JNI_FUNC(void, AllegroSurface, nativeOnJoystickAxis, (JNIEnv *env, jobject obj,
+         jint index, jint stick, jint axis, jfloat value));
+extern JNI_FUNC(void, AllegroSurface, nativeOnJoystickButton, (JNIEnv *env, jobject obj,
+         jint index, jint button, jboolean down));
+extern JNI_FUNC(void, KeyListener, nativeOnJoystickButton, (JNIEnv *env, jobject obj,
+         jint index, jint button, jboolean down));
+extern JNI_FUNC(void, AllegroActivity, nativeSendJoystickConfigurationEvent,
+         (JNIEnv *env, jobject obj));
+
 #endif /* ALLEGRO_AINTERN_ANDROID_H */
 
 /* vim: set sts=3 sw=3 et: */

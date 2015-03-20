@@ -36,16 +36,6 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 
 #define get_glformat(f, c) _al_ogl_get_glformat((f), (c))
 
-
-/* Helper to get smallest fitting power of two. */
-static int pot(int x)
-{
-   int y = 1;
-   while (y < x) y *= 2;
-   return y;
-}
-
-
 /*
  * Helpers - duplicates code in ogl_bitmap.c for now
  */
@@ -561,7 +551,7 @@ static void ogl_unlock_region_nonbb(ALLEGRO_BITMAP *bitmap,
    /* XXX why don't we check ogl_bitmap->fbo_info? */
    if ((al_get_bitmap_flags(bitmap) & ALLEGRO_MIPMAP) &&
        (al_get_opengl_extension_list()->ALLEGRO_GL_OES_framebuffer_object ||
-        IS_OPENGLES) /* FIXME */))
+        IS_OPENGLES) /* FIXME */)
    {
       glGenerateMipmapEXT(GL_TEXTURE_2D);
       e = glGetError();

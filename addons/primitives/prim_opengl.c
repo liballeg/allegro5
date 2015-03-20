@@ -741,6 +741,7 @@ static void* lock_buffer_common(ALLEGRO_BUFFER_COMMON* common, GLenum type)
       if (glGetError())
          return 0;
 #else
+      (void)type;
       return 0;
 #endif
    }
