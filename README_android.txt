@@ -54,6 +54,7 @@ command:
         --platform=android-9 --install-dir=$TC --stl=stlport
 
 You can use any platform 9 or higher. This command was last tested on ndk10d.
+You may need to add --arch=arm if the auto-configuration fails.
 
 
 Build dependencies for Allegro
@@ -110,12 +111,14 @@ The following steps will build Allegro for Android:
     mkdir build
     cd build
     cmake .. -DANDROID_NDK_TOOLCHAIN_ROOT=$TC -DWANT_ANDROID=on \
-        -DCMAKE_BUILD_TYPE=Debug  # -G"MSYS Makefiles"
+        -DCMAKE_BUILD_TYPE=Debug -DANDROID_TARGET=android-12 \
+        # -G"MSYS Makefiles"
     make
 
-This produces the normal Allegro native libraries (liballegro-*.so) as
-well as Allegro5.jar.  You do not need to, but you may run `make install`
-to install headers and libraries into the toolchain directory.
+Where you can change ANDROID_TARGET to be something else if you want. This
+produces the normal Allegro native libraries (liballegro-*.so) as well as
+Allegro5.jar.  You do not need to, but you may run `make install` to install
+headers and libraries into the toolchain directory.
 
 You may want to add -DWANT_MONOLITH=ON if you prefer a single Allegro library
 instead of one for each addon.

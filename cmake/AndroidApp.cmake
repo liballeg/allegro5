@@ -81,6 +81,7 @@ function(add_android_app prog sources lib_targets stl)
                 "--load-app=${load_app}"
                 "--jar-libs-dir=${LIBRARY_OUTPUT_PATH}"
                 "--stl=${stl}" # allows empty
+                "--target=${ANDROID_TARGET}"
         VERBATIM
         )
 

@@ -31,6 +31,7 @@ option(WANT_ANDROID_LEGACY "Build for Android 4 (1.6)" OFF)
 option(WANT_GLES2 "Compile with GLES2 support" ON)
 if(WANT_ANDROID)
     include(${CMAKE_SOURCE_DIR}/cmake/Toolchain-android.cmake)
+    set(ANDROID_TARGET "android-12" CACHE STRING "What Android target to compile for.")
 endif(WANT_ANDROID)
 option(ALLEGRO_SDL "Build using the SDL backend (experimental)" OFF)
 
