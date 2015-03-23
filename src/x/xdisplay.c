@@ -1102,13 +1102,13 @@ static void xdpy_set_window_title_default(ALLEGRO_DISPLAY *display, const char *
    {
       XClassHint *hint = XAllocClassHint();
       if (hint) {
-         /* There's no need to use strdup here at all, and doing so would cause
-          * a memory leak.
-          */
          ALLEGRO_PATH *exepath = al_get_standard_path(ALLEGRO_EXENAME_PATH);
+         // hint doesn't use a const char*, so we use strdup to create a non const string
          hint->res_name = strdup(al_get_path_basename(exepath));
          hint->res_class = strdup(al_get_path_basename(exepath));
          XSetClassHint(system->x11display, glx->window, hint);
+         free(hint->res_name);
+         free(hint->res_class);
          XFree(hint);
          al_destroy_path(exepath);
       }

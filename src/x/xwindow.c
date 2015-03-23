@@ -96,6 +96,8 @@ void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
    XSetWMProperties(system->x11display, glx->window, NULL, NULL, NULL, 0,
                     sizehints, wmhints, classhints);
 
+   free(classhints->res_name);
+   free(classhints->res_class);
    XFree(sizehints);
    XFree(wmhints);
    XFree(classhints);
