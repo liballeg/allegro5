@@ -171,7 +171,7 @@ static void joy_null(ALLEGRO_JOYSTICK_OSX *joy)
 
 static void add_axis(ALLEGRO_JOYSTICK_OSX *joy, int stick_index, int axis_index, int min, int max, char *name, IOHIDElementRef elem)
 {
-   if ( axis_index >= _AL_MAX_JOYSTICK_AXES )
+   if (axis_index >= _AL_MAX_JOYSTICK_AXES)
       return;
 
    joy->min[stick_index][axis_index] = min;
@@ -184,8 +184,6 @@ static void add_axis(ALLEGRO_JOYSTICK_OSX *joy, int stick_index, int axis_index,
 
 static void add_elements(CFArrayRef elements, ALLEGRO_JOYSTICK_OSX *joy)
 {
-
-
    int i;
    char default_name[100];
    int stick_class = -1;
@@ -219,8 +217,7 @@ static void add_elements(CFArrayRef elements, ALLEGRO_JOYSTICK_OSX *joy)
          int new_stick_class = -1;
          int stick_index = joy->parent.info.num_sticks - 1;
 
-         switch( usage )
-         {
+         switch (usage) {
             case kHIDUsage_GD_X:
             case kHIDUsage_GD_Y:
             case kHIDUsage_GD_Z:
@@ -238,11 +235,11 @@ static void add_elements(CFArrayRef elements, ALLEGRO_JOYSTICK_OSX *joy)
                break;
          }
 
-         if ( new_stick_class < 0 )
+         if (new_stick_class < 0)
             continue;
 
-         if ( stick_class != new_stick_class ) {
-            if ( joy->parent.info.num_sticks >= _AL_MAX_JOYSTICK_STICKS-1 )
+         if (stick_class != new_stick_class) {
+            if (joy->parent.info.num_sticks >= _AL_MAX_JOYSTICK_STICKS-1)
                break;
 
             joy->parent.info.num_sticks++;
@@ -259,8 +256,7 @@ static void add_elements(CFArrayRef elements, ALLEGRO_JOYSTICK_OSX *joy)
          else
             axis_index++;
 
-         if (stick_class == 3)
-         {
+         if (stick_class == 3) {
             joy->dpad_stick = stick_index;
             joy->dpad = elem;
 
@@ -275,18 +271,17 @@ static void add_elements(CFArrayRef elements, ALLEGRO_JOYSTICK_OSX *joy)
             sprintf(default_name, "Axis %i", axis_index);
             str = al_malloc(strlen(default_name)+1);
             strcpy(str, default_name);
-            add_axis(joy, stick_index, axis_index, min, max, str, elem );
+            add_axis(joy, stick_index, axis_index, min, max, str, elem);
             joy->parent.info.stick[stick_index].axis[axis_index].name = str;
 
             joy->parent.info.stick[stick_index].num_axes = 2;
          }
-         else
-         {
+         else {
             sprintf(default_name, "Axis %i", axis_index);
             const char *name = get_element_name(elem, default_name);
             char *str = al_malloc(strlen(name)+1);
             strcpy(str, name);
-            add_axis(joy, stick_index, axis_index, min, max, str, elem );
+            add_axis(joy, stick_index, axis_index, min, max, str, elem);
          }
       }
    }
@@ -309,8 +304,6 @@ static void device_add_callback(
    void *sender,
    IOHIDDeviceRef ref
 ) {
-   int i;
-
    (void)context;
    (void)result;
    (void)sender;
@@ -410,12 +403,10 @@ static void osx_joy_generate_button_event(ALLEGRO_JOYSTICK_OSX *joy, int button,
 }
 
 #define MAX_HAT_DIRECTIONS 9
-struct HAT_MAPPING
-{
+struct HAT_MAPPING {
    int axisV;
    int axisH;
-} hat_mapping[MAX_HAT_DIRECTIONS]=
-{
+} hat_mapping[MAX_HAT_DIRECTIONS] = {
    { -1,  0 }, // 0
    { -1,  1 }, // 1
    {  0,  1 }, // 2
@@ -464,9 +455,9 @@ static void value_callback(
    int int_value = IOHIDValueGetIntegerValue(value);
 
    if (joy->dpad == elem){
-      if (int_value>=0 && int_value<MAX_HAT_DIRECTIONS) {
-         osx_joy_generate_axis_event(joy, joy->dpad_stick, joy->dpad_axis_vert,  (float)hat_mapping[int_value].axisV );
-         osx_joy_generate_axis_event(joy, joy->dpad_stick, joy->dpad_axis_horiz, (float)hat_mapping[int_value].axisH );
+      if (int_value >= 0 && int_value < MAX_HAT_DIRECTIONS) {
+         osx_joy_generate_axis_event(joy, joy->dpad_stick, joy->dpad_axis_vert,  (float)hat_mapping[int_value].axisV);
+         osx_joy_generate_axis_event(joy, joy->dpad_stick, joy->dpad_axis_horiz, (float)hat_mapping[int_value].axisH);
       }
       goto done;
    }
@@ -474,7 +465,7 @@ static void value_callback(
    int stick = -1;
    int axis = -1;
    for (stick = 0; stick < joy->parent.info.num_sticks; stick++) {
-      for(axis = 0; axis < joy->parent.info.stick[stick].num_axes; ++axis){
+      for(axis = 0; axis < joy->parent.info.stick[stick].num_axes; ++axis) {
          if (joy->axes[stick][axis] == elem) {
             goto gen_axis_event;
          }
