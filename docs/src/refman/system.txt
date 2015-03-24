@@ -25,8 +25,14 @@ See also: [al_init]
 
 ## API: al_init
 
-Like [al_install_system], but automatically passes in the version and
-uses the atexit function visible in the current compilation unit.
+Like [al_install_system], but automatically passes in the version and uses the
+atexit function visible in the current binary.
+
+> Note: It is typically wrong to call al_init anywhere except the final game
+binary. In particular, do not call it inside a shared library unless you know
+what you're doing. In those cases, it is better to call al_install_system
+either with a `NULL` atexit_ptr, or with a pointer to atexit provided by the
+user of this shared library.
 
 See also: [al_install_system]
 
