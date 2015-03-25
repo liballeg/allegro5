@@ -719,15 +719,11 @@ endif(WIN32)
 #
 #-----------------------------------------------------------------------------#
 
-# On Windows, disable shared build if either D3D or OpenGL are not present,
-# because it would produce a incompatible DLL.
 if(WIN32 AND SHARED)
     if(NOT SUPPORT_D3D OR NOT SUPPORT_OPENGL)
-        message(
-            "Both D3D and OpenGL must be present for the SHARED build. "
-            "Disabling SHARED build.")
-        set(SHARED off)
-        set(BUILD_SHARED_LIBS off)
+        message("WARNING: "
+            "Both D3D and OpenGL should be present for the SHARED build "
+            " to ensure maximum DLL compatibility.")
     endif(NOT SUPPORT_D3D OR NOT SUPPORT_OPENGL)
 endif(WIN32 AND SHARED)
 
