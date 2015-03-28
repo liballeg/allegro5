@@ -620,11 +620,16 @@ if(SUPPORT_X11)
     endif(CAN_XCURSOR)
 
     check_include_file("X11/extensions/XInput2.h" CAN_XINPUT2)
-    if(CAN_XINPUT2)
+    check_c_source_compiles("
+        #include <X11/extensions/XInput2.h>
+        int main(void) { (void)XI_TouchBegin; return 0; }"
+        XINPUT2_COMPILES
+    )
+    if(CAN_XINPUT2 AND XINPUT2_COMPILES)
         list(APPEND X11_LIBRARIES "Xi")
-    else(CAN_XINPUT2)
-        message(FATAL_ERROR "X11 support requires XInput2 library.")
-    endif(CAN_XINPUT2)
+    else()
+        message(FATAL_ERROR "X11 support requires XInput2 library version 2.2 or higher.")
+    endif()
 
     if(WANT_X11_XF86VIDMODE)
         check_include_file("X11/extensions/xf86vmode.h" HAVE_XF86VIDMODE_H)
