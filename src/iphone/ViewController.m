@@ -68,6 +68,7 @@ typedef enum {
    int mask = 0;
 
    switch (supported) {
+      default:
       case ALLEGRO_DISPLAY_ORIENTATION_ALL:
          mask = UIInterfaceOrientationMaskAll;
          break;
