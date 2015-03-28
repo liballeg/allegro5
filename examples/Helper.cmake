@@ -80,7 +80,7 @@ function(example name)
             )
         add_android_app("${name}" "${sources};${assets}" "${libs}" "${stl}")
     else()
-        add_our_executable("${name}" "${sources}" "${libs}")
+        add_our_executable("${name}" SRCS "${sources}" LIBS "${libs}")
     endif()
 
 endfunction(example)

@@ -216,60 +216,52 @@ function(fix_executable nm)
     endif(IPHONE)
 endfunction(fix_executable)
 
-# Arguments after nm should be source files, libraries, or defines (-D).
-# Source files must end with .c or .cpp.  If no source file was explicitly
-# specified, we assume an implied C source file.
-# 
+# Ads a target for an executable target `nm`.
+#
+# Arguments:
+#
+#    SRCS - Sources. If empty, assumes it to be ${nm}.c
+#    LIBS - Libraries to link to.
+#    DEFINES - Additional defines.
+#
 # Free variable: EXECUTABLE_TYPE
 function(add_our_executable nm)
-    set(srcs)
-    set(libs)
-    set(defines)
-    set(regex "[.](c|cpp)$")
-    set(regexd "^-D")
-    foreach(arg ${ARGN})
-        if("${arg}" MATCHES "${regex}")
-            list(APPEND srcs ${arg})
-        else("${arg}" MATCHES "${regex}")
-            if ("${arg}" MATCHES "${regexd}")
-                string(REGEX REPLACE "${regexd}" "" arg "${arg}")
-                list(APPEND defines ${arg})                
-            else("${arg}" MATCHES "${regexd}")
-                list(APPEND libs ${arg})
-            endif("${arg}" MATCHES "${regexd}")
-        endif("${arg}" MATCHES "${regex}")
-    endforeach(arg ${ARGN})
+    set(flags) # none
+    set(single_args) # none
+    set(multi_args SRCS LIBS DEFINES)
+    cmake_parse_arguments(OPTS "${flags}" "${single_args}" "${multi_args}"
+        ${ARGN})
 
-    if(NOT srcs)
-        set(srcs "${nm}.c")
-    endif(NOT srcs)
+    if(NOT OPTS_SRCS)
+        set(OPTS_SRCS "${nm}.c")
+    endif()
     
     if(IPHONE)
         set(EXECUTABLE_TYPE MACOSX_BUNDLE)
-        set(srcs ${srcs} "${CMAKE_SOURCE_DIR}/misc/icon.png")
-    endif(IPHONE)
+        set(OPTS_SRCS ${OPTS_SRCS} "${CMAKE_SOURCE_DIR}/misc/icon.png")
+    endif()
 
-    add_executable(${nm} ${EXECUTABLE_TYPE} ${srcs})
-    target_link_libraries(${nm} ${libs})
+    add_executable(${nm} ${EXECUTABLE_TYPE} ${OPTS_SRCS})
+    target_link_libraries(${nm} ${OPTS_LIBS})
     if(WANT_POPUP_EXAMPLES AND SUPPORT_NATIVE_DIALOG)
-        list(APPEND defines ALLEGRO_POPUP_EXAMPLES)                        
+        list(APPEND OPTS_DEFINES ALLEGRO_POPUP_EXAMPLES)
     endif()
     if(NOT BUILD_SHARED_LIBS)
-        list(APPEND defines ALLEGRO_STATICLINK)                        
-    endif(NOT BUILD_SHARED_LIBS)
+        list(APPEND OPTS_DEFINES ALLEGRO_STATICLINK)
+    endif()
     
-    foreach(d ${defines})
+    foreach(d ${OPTS_DEFINES})
         set_property(TARGET ${nm} APPEND PROPERTY COMPILE_DEFINITIONS ${d})
-    endforeach(d ${defines})
+    endforeach()
 
     if(MINGW)
         if(NOT CMAKE_BUILD_TYPE STREQUAL Debug)
             set_target_properties(${nm} PROPERTIES LINK_FLAGS "-Wl,-subsystem,windows")
-        endif(NOT CMAKE_BUILD_TYPE STREQUAL Debug)
-    endif(MINGW)
+        endif()
+    endif()
    
     fix_executable(${nm})
-endfunction(add_our_executable)
+endfunction()
 
 function(add_copy_commands src dest destfilesvar)
     set(destfiles)
