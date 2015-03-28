@@ -22,6 +22,10 @@ configure_file(
     ${ACTIVITY_DIR}/localgen.properties.in
     ${ACTIVITY_DIR}/localgen.properties
     )
+configure_file(
+    ${ACTIVITY_DIR}/project.properties.in
+    ${ACTIVITY_DIR}/project.properties
+    @ONLY)
 
 add_custom_command(
     OUTPUT ${ACTIVITY_JAR}
