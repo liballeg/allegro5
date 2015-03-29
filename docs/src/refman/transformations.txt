@@ -262,7 +262,18 @@ Transform a pair of coordinates.
 * trans - Transformation to use
 * x, y - Pointers to the coordinates
 
-See also: [al_use_transform]
+See also: [al_use_transform], [al_transform_coordinates_3d]
+
+## API: al_transform_coordinates_3d
+
+Transform x, y, z coordinates.
+
+*Parameters:*
+
+* trans - Transformation to use
+* x, y, z - Pointers to the coordinates
+
+See also: [al_use_transform], [al_transform_coordinates]
 
 ## API: al_compose_transform
 

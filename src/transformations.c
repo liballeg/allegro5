@@ -301,6 +301,29 @@ void al_transform_coordinates(const ALLEGRO_TRANSFORM *trans, float *x, float *y
    *y = t * trans->m[0][1] + *y * trans->m[1][1] + trans->m[3][1];
 }
 
+/* Function: al_transform_coordinates_3d
+ */
+void al_transform_coordinates_3d(const ALLEGRO_TRANSFORM *trans,
+   float *x, float *y, float *z)
+{
+   ASSERT(trans);
+   ASSERT(x);
+   ASSERT(y);
+   ASSERT(z);
+
+   #define M(i, j) trans->m[i][j]
+
+   float rx = M(0, 0) * *x + M(1, 0) * *y + M(2, 0) * *z + M(3, 0);
+   float ry = M(0, 1) * *x + M(1, 1) * *y + M(2, 1) * *z + M(3, 1);
+   float rz = M(0, 2) * *x + M(1, 2) * *y + M(2, 2) * *z + M(3, 2);
+
+   #undef M
+
+   *x = rx;
+   *y = ry;
+   *z = rz;
+}
+
 /* Function: al_compose_transform
  */
 void al_compose_transform(ALLEGRO_TRANSFORM *trans, const ALLEGRO_TRANSFORM *other)
