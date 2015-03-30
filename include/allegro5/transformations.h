@@ -20,6 +20,10 @@ AL_FUNC(void, al_use_transform, (const ALLEGRO_TRANSFORM* trans));
 AL_FUNC(void, al_copy_transform, (ALLEGRO_TRANSFORM* dest, const ALLEGRO_TRANSFORM* src));
 AL_FUNC(void, al_identity_transform, (ALLEGRO_TRANSFORM* trans));
 AL_FUNC(void, al_build_transform, (ALLEGRO_TRANSFORM* trans, float x, float y, float sx, float sy, float theta));
+AL_FUNC(void, al_build_camera_transform, (ALLEGRO_TRANSFORM *trans,
+   float position_x, float position_y, float position_z,
+   float look_x, float look_y, float look_z,
+   float up_x, float up_y, float up_z));
 AL_FUNC(void, al_translate_transform, (ALLEGRO_TRANSFORM* trans, float x, float y));
 AL_FUNC(void, al_translate_transform_3d, (ALLEGRO_TRANSFORM *trans, float x, float y, float z));
 AL_FUNC(void, al_rotate_transform, (ALLEGRO_TRANSFORM* trans, float theta));

@@ -157,6 +157,74 @@ void al_build_transform(ALLEGRO_TRANSFORM *trans, float x, float y,
    trans->m[3][3] = 1;
 }
 
+/* Function: al_build_transform_3d
+ */
+void al_build_camera_transform(ALLEGRO_TRANSFORM *trans,
+   float position_x, float position_y, float position_z,
+   float look_x, float look_y, float look_z,
+   float up_x, float up_y, float up_z)
+{
+   float x = position_x;
+   float y = position_y;
+   float z = position_z;
+   float xx, xy, xz, xnorm;
+   float yx, yy, yz;
+   float zx, zy, zz, znorm;
+
+   al_identity_transform(trans);
+
+   /* Get the z-axis (direction towards viewer) and normalize it.
+    */
+   zx = x - look_x;
+   zy = y - look_y;
+   zz = z - look_z;
+   znorm = sqrt(zx * zx + zy * zy + zz * zz);
+   if (znorm == 0)
+      return;
+   zx /= znorm;
+   zy /= znorm;
+   zz /= znorm;
+
+   /* Get the x-axis (direction pointing to the right) as the cross product of
+    * the up-vector times the z-axis. We need to normalize it because we do
+    * neither require the up-vector to be normalized nor perpendicular.
+    */
+   xx = up_y * zz - zy * up_z;
+   xy = up_z * zx - zz * up_x;
+   xz = up_x * zy - zx * up_y;
+   xnorm = sqrt(xx * xx + xy * xy + xz * xz);
+   if (xnorm == 0)
+      return;
+   xx /= xnorm;
+   xy /= xnorm;
+   xz /= xnorm;
+
+   /* Now use the cross product of z-axis and x-axis as our y-axis. This can
+    * have a different direction than the original up-vector but it will
+    * already be normalized.
+    */
+   yx = zy * xz - xy * zz;
+   yy = zz * xx - xz * zx;
+   yz = zx * xy - xx * zy;
+
+   /* This is an inverse translation (subtract the camera position) followed by
+    * an inverse rotation (rotate in the opposite direction of the camera
+    * orientation).
+    */
+   trans->m[0][0] = xx;
+   trans->m[1][0] = xy;
+   trans->m[2][0] = xz;
+   trans->m[3][0] = xx * -x + xy * -y + xz * -z;
+   trans->m[0][1] = yx;
+   trans->m[1][1] = yy;
+   trans->m[2][1] = yz;
+   trans->m[3][1] = yx * -x + yy * -y + yz * -z;
+   trans->m[0][2] = zx;
+   trans->m[1][2] = zy;
+   trans->m[2][2] = zz;
+   trans->m[3][2] = zx * -x + zy * -y + zz * -z;
+}
+
 /* Function: al_invert_transform
  */
 void al_invert_transform(ALLEGRO_TRANSFORM *trans)
