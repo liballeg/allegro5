@@ -1,3 +1,6 @@
+/* An example demonstrating how to use ALLEGRO_TRANSFORM to represent a 3D
+ * camera.
+ */
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_color.h>
@@ -14,8 +17,10 @@ typedef struct {
 
 typedef struct {
    Vector position;
-   Vector xaxis, yaxis, zaxis;
-   double vertical_field_of_view;
+   Vector xaxis; /* This represent the direction looking to the right. */
+   Vector yaxis; /* This is the up direction. */
+   Vector zaxis; /* This is the direction towards the viewer ('backwards'). */
+   double vertical_field_of_view; /* In radians. */
 } Camera;
 
 typedef struct {
@@ -48,9 +53,39 @@ Example ex;
 /* Calculate the dot product between two vectors. This corresponds to the
  * angle between them times their lengths.
  */
-static double dot_product(Vector a, Vector b)
+static double vector_dot_product(Vector a, Vector b)
 {
    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+/* Return a vector multiplied by a scalar. */
+static Vector vector_mul(Vector a, float s)
+{
+   Vector v = {a.x * s, a.y * s, a.z * s};
+   return v;
+}
+
+/* Return the vector norm (length). */
+static double vector_norm(Vector a)
+{
+   return sqrt(vector_dot_product(a, a));
+}
+
+/* Return a normalized version of the given vector. */
+static Vector vector_normalize(Vector a)
+{
+   double s = vector_norm(a);
+   if (s == 0)
+      return a;
+   return vector_mul(a, 1 / s);
+}
+
+/* In-place add another vector to a vector. */
+static void vector_iadd(Vector *a, Vector b)
+{
+   a->x += b.x;
+   a->y += b.y;
+   a->z += b.z;
 }
 
 /* Rotate the camera around the given axis. */
@@ -70,12 +105,8 @@ static void camera_rotate_around_axis(Camera *c, Vector axis, double radians)
 static void camera_move_along_direction(Camera *camera, double right,
    double forward)
 {
-   camera->position.x += camera->xaxis.x * right;
-   camera->position.y += camera->xaxis.y * right;
-   camera->position.z += camera->xaxis.z * right;
-   camera->position.x += camera->zaxis.x * forward;
-   camera->position.y += camera->zaxis.y * forward;
-   camera->position.z += camera->zaxis.z * forward;
+   vector_iadd(&camera->position, vector_mul(camera->xaxis, right));
+   vector_iadd(&camera->position, vector_mul(camera->zaxis, -forward));
 }
 
 /* Get a vector with y = 0 looking in the same direction as the camera z axis.
@@ -83,15 +114,9 @@ static void camera_move_along_direction(Camera *camera, double right,
  */
 static Vector get_ground_forward_vector(Camera *camera)
 {
-   Vector move = {0, 0, 0};
-   double zx = camera->zaxis.x;
-   double zz = camera->zaxis.z;
-   double z = sqrt(zx * zx + zz * zz);
-   if (z > 0) {
-      move.x += zx / z;
-      move.z += zz / z;
-   }
-   return move;
+   Vector move = camera->zaxis;
+   move.y = 0;
+   return vector_normalize(move);
 }
 
 /* Get a vector with y = 0 looking in the same direction as the camera x axis.
@@ -99,15 +124,9 @@ static Vector get_ground_forward_vector(Camera *camera)
  */
 static Vector get_ground_right_vector(Camera *camera)
 {
-   Vector move = {0, 0, 0};
-   double xx = camera->xaxis.x;
-   double xz = camera->xaxis.z;
-   double x = sqrt(xx * xx + xz * xz);
-   if (x > 0) {
-      move.x += xx / x;
-      move.z += xz / x;
-   }
-   return move;
+   Vector move = camera->xaxis;
+   move.y = 0;
+   return vector_normalize(move);
 }
 
 /* Like camera_move_along_direction but moves the camera along the ground plane
@@ -128,7 +147,7 @@ static void camera_move_along_ground(Camera *camera, double right,
 static double get_pitch(Camera *c)
 {
    Vector f = get_ground_forward_vector(c);
-   return asin(dot_product(f, c->yaxis));
+   return asin(vector_dot_product(f, c->yaxis));
 }
 
 /* Calculate the yaw of the camera. This is basically the compass direction.
@@ -144,7 +163,7 @@ static double get_yaw(Camera *c)
 static double get_roll(Camera *c)
 {
    Vector r = get_ground_right_vector(c);
-   return asin(dot_product(r, c->yaxis));
+   return asin(vector_dot_product(r, c->yaxis));
 }
 
 /* Set up a perspective transform. We make the screen span
@@ -282,25 +301,12 @@ static void draw_scene(void)
     * from the camera orientation.
     */
    ALLEGRO_TRANSFORM t;
-   double x = ex.camera.position.x;
-   double y = ex.camera.position.y;
-   double z = ex.camera.position.z;
-   t.m[0][0] = ex.camera.xaxis.x;
-   t.m[1][0] = ex.camera.xaxis.y;
-   t.m[2][0] = ex.camera.xaxis.z;
-   t.m[3][0] = t.m[0][0] * -x + t.m[1][0] * -y + t.m[2][0] * -z;
-   t.m[0][1] = ex.camera.yaxis.x;
-   t.m[1][1] = ex.camera.yaxis.y;
-   t.m[2][1] = ex.camera.yaxis.z;
-   t.m[3][1] = t.m[0][1] * -x + t.m[1][1] * -y + t.m[2][1] * -z;
-   t.m[0][2] = ex.camera.zaxis.x;
-   t.m[1][2] = ex.camera.zaxis.y;
-   t.m[2][2] = ex.camera.zaxis.z;
-   t.m[3][2] = t.m[0][2] * -x + t.m[1][2] * -y + t.m[2][2] * -z;
-   t.m[0][3] = 0;
-   t.m[1][3] = 0;
-   t.m[2][3] = 0;
-   t.m[3][3] = 1;
+   al_build_camera_transform(&t, 
+      ex.camera.position.x, ex.camera.position.y, ex.camera.position.z,
+      ex.camera.position.x - ex.camera.zaxis.x,
+      ex.camera.position.y - ex.camera.zaxis.y,
+      ex.camera.position.z - ex.camera.zaxis.z,
+      ex.camera.yaxis.x, ex.camera.yaxis.y, ex.camera.yaxis.z);
    al_use_transform(&t);
    al_draw_prim(ex.v, NULL, NULL, 0, ex.n, ALLEGRO_PRIM_TRIANGLE_LIST);
 
