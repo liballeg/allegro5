@@ -1,8 +1,7 @@
 #include <allegro5/allegro.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_color.h>
+#include <allegro5/allegro_font.h>
 #include <math.h>
 
 #include "common.c"
@@ -429,9 +428,7 @@ int main(int argc, char **argv)
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
    }
-   al_init_image_addon();
    al_init_font_addon();
-   al_init_ttf_addon();
    al_init_primitives_addon();
    init_platform_specific();
    al_install_keyboard();
