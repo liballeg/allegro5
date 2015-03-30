@@ -109,12 +109,12 @@ static void camera_move_along_direction(Camera *camera, double right,
    vector_iadd(&camera->position, vector_mul(camera->zaxis, -forward));
 }
 
-/* Get a vector with y = 0 looking in the same direction as the camera z axis.
- * If looking straight up or down returns a 0 vector instead.
+/* Get a vector with y = 0 looking in the opposite direction as the camera z
+ * axis. If looking straight up or down returns a 0 vector instead.
  */
 static Vector get_ground_forward_vector(Camera *camera)
 {
-   Vector move = camera->zaxis;
+   Vector move = vector_mul(camera->zaxis, -1);
    move.y = 0;
    return vector_normalize(move);
 }
@@ -355,9 +355,9 @@ static void handle_input(void)
 {
    double x = 0, y = 0;
    if (ex.key[ALLEGRO_KEY_A] || ex.key[ALLEGRO_KEY_LEFT]) x = -1;
-   if (ex.key[ALLEGRO_KEY_S] || ex.key[ALLEGRO_KEY_DOWN]) y = 1;
+   if (ex.key[ALLEGRO_KEY_S] || ex.key[ALLEGRO_KEY_DOWN]) y = -1;
    if (ex.key[ALLEGRO_KEY_D] || ex.key[ALLEGRO_KEY_RIGHT]) x = 1;
-   if (ex.key[ALLEGRO_KEY_W] || ex.key[ALLEGRO_KEY_UP]) y = -1;
+   if (ex.key[ALLEGRO_KEY_W] || ex.key[ALLEGRO_KEY_UP]) y = 1;
 
    /* Change field of view with Z/X. */
    if (ex.key[ALLEGRO_KEY_Z]) {
