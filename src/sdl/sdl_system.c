@@ -95,6 +95,7 @@ static void sdl_heartbeat(void)
                   _al_sdl_keyboard_event(&event);
                   break;
                case SDL_WINDOWEVENT_CLOSE:
+               case SDL_WINDOWEVENT_RESIZED:
                   _al_sdl_display_event(&event);
                   break;
             }

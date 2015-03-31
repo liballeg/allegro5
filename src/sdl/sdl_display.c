@@ -36,6 +36,7 @@ void _al_sdl_display_event(SDL_Event *e)
    ALLEGRO_DISPLAY *d = NULL;
 
    if (e->type == SDL_WINDOWEVENT) {
+      d = _al_sdl_find_display(e->window.windowID);
       if (e->window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
          event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
       }
@@ -45,7 +46,11 @@ void _al_sdl_display_event(SDL_Event *e)
       if (e->window.event == SDL_WINDOWEVENT_CLOSE) {
          event.display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
       }
-      d = _al_sdl_find_display(e->window.windowID);
+      if (e->window.event == SDL_WINDOWEVENT_RESIZED) {
+         event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
+         event.display.width = e->window.data1;
+         event.display.height = e->window.data2;
+      }
    }
    if (e->type == SDL_QUIT) {
       event.display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
@@ -89,6 +94,8 @@ static ALLEGRO_DISPLAY *sdl_create_display_locked(int w, int h)
       flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
    if (d->flags & ALLEGRO_FRAMELESS)
       flags |= SDL_WINDOW_BORDERLESS;
+   if (d->flags & ALLEGRO_RESIZABLE)
+      flags |= SDL_WINDOW_RESIZABLE;
 
    GLoption(ALLEGRO_COLOR_SIZE, SDL_GL_BUFFER_SIZE);
    GLoption(ALLEGRO_RED_SIZE, SDL_GL_RED_SIZE);
@@ -227,6 +234,28 @@ static void sdl_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
    SDL_GetWindowPosition(sdl->window, x, y);
 }
 
+static bool sdl_acknowledge_resize(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
+   SDL_GetWindowSize(sdl->window, &display->w, &display->h);
+   _al_ogl_setup_gl(display);
+   return true;
+}
+
+static void sdl_set_window_title(ALLEGRO_DISPLAY *display, char const *title)
+{
+   ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
+   SDL_SetWindowTitle(sdl->window, title);
+}
+
+static bool sdl_resize_display(ALLEGRO_DISPLAY *display, int width, int height)
+{
+   ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
+   SDL_SetWindowSize(sdl->window, width, height);
+   sdl_acknowledge_resize(display);
+   return true;
+}
+
 ALLEGRO_DISPLAY_INTERFACE *_al_sdl_display_driver(void)
 {
    if (vt)
@@ -242,9 +271,9 @@ ALLEGRO_DISPLAY_INTERFACE *_al_sdl_display_driver(void)
    //vt->draw_pixel = GL
    vt->flip_display = sdl_flip_display;
    vt->update_display_region = sdl_update_display_region;
-   /*vt->acknowledge_resize = sdl_acknowledge_resize;
+   vt->acknowledge_resize = sdl_acknowledge_resize;
    vt->resize_display = sdl_resize_display;
-   vt->quick_size = sdl_quick_size;
+   /*vt->quick_size = sdl_quick_size;
    vt->get_orientation = sdl_get_orientation;*/
    vt->create_bitmap = _al_ogl_create_bitmap;
    vt->set_target_bitmap = _al_ogl_set_target_bitmap;
@@ -263,8 +292,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_sdl_display_driver(void)
    vt->get_window_position = sdl_get_window_position;
    /*vt->set_window_constraints = sdl_set_window_constraints;
    vt->get_window_constraints = sdl_get_window_constraints;
-   vt->set_display_flag = sdl_set_display_flag;
-   vt->set_window_title = sdl_set_window_title;*/
+   vt->set_display_flag = sdl_set_display_flag;*/
+   vt->set_window_title = sdl_set_window_title;
    //vt->flush_vertex_cache = GL
    //vt->prepare_vertex_cache = GL
    //vt->update_transformation = GL
