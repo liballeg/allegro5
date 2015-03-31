@@ -230,10 +230,12 @@ it can usually just be the world up direction (most commonly 0/1/0).
 
 For example:
 
-    al_build_camera_transform(&t,
-        1, 1, 1,
-        5, 5, 5,
-        0, 1, 0);
+~~~~c
+al_build_camera_transform(&t,
+    1, 1, 1,
+    5, 5, 5,
+    0, 1, 0);
+~~~~
 
 This create a transformation for a camera standing at 1/1/1 and looking towards
 5/5/5.
@@ -243,17 +245,24 @@ This create a transformation for a camera standing at 1/1/1 and looking towards
 
 Another example which will simply re-create the identity matrix:
 
-    al_build_camera_transform(&t,
-        0, 0, 0,
-        0, 0, -1,
-        0, 1, 0);
+~~~~c
+al_build_camera_transform(&t,
+    0, 0, 0,
+    0, 0, -1,
+    0, 1, 0);
+~~~~
 
 An example where the up vector will cause the camera to lean (roll) by 45
-degree:
-   al_build_camera_transform(&t,
-        1, 1, 1,
-        5, 5, 5,
-        1, 1, 0);
+degrees:
+
+~~~~c
+al_build_camera_transform(&t,
+    1, 1, 1,
+    5, 5, 5,
+    1, 1, 0);
+~~~~
+
+Since 5.1.9
 
 See also: [al_translate_transform_3d], [al_rotate_transform_3d],
 [al_scale_transform_3d], [al_compose_transform], [al_use_transform]
@@ -310,6 +319,8 @@ Transform x, y, z coordinates.
 
 * trans - Transformation to use
 * x, y, z - Pointers to the coordinates
+
+Since 5.1.9
 
 See also: [al_use_transform], [al_transform_coordinates]
 
