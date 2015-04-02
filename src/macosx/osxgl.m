@@ -310,17 +310,11 @@ void _al_osx_mouse_was_installed(BOOL install) {
 {
    if ([NSOpenGLContext currentContext] != nil) {
       ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
-      NSRect rc = [self bounds];
-      glViewport(0, 0, NSWidth(rc), NSHeight(rc));
-      
-      al_identity_transform(&dpy_ptr->proj_transform);
-      al_orthographic_transform(&dpy_ptr->proj_transform,
-         0, 0, -1, NSWidth(rc), NSHeight(rc), 1);
       
       if (dpy->tracking) {
          [self removeTrackingArea: dpy->tracking];
          dpy->tracking = create_tracking_area(self);
-	 [self addTrackingArea: dpy->tracking];
+         [self addTrackingArea: dpy->tracking];
       }
    }
 }
