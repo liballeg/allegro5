@@ -107,6 +107,7 @@ typedef struct INTERNAL_STATE {
    thread_local_state tls;
    ALLEGRO_BLENDER stored_blender;
    ALLEGRO_TRANSFORM stored_transform;
+   ALLEGRO_TRANSFORM stored_projection_transform;
    int flags;
 } INTERNAL_STATE;
 
@@ -661,6 +662,13 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
          stored->stored_transform = target->transform;
    }
 
+   if (flags & ALLEGRO_STATE_PROJECTION_TRANSFORM) {
+      ALLEGRO_BITMAP *target = al_get_target_bitmap();
+      if (target) {
+         stored->stored_projection_transform = target->proj_transform;
+      }
+   }
+
 #undef _STORE
 }
 
@@ -723,6 +731,12 @@ void al_restore_state(ALLEGRO_STATE const *state)
       ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
       if (bitmap)
          al_use_transform(&stored->stored_transform);
+   }
+
+   if (flags & ALLEGRO_STATE_PROJECTION_TRANSFORM) {
+      ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
+      if (bitmap)
+         al_use_projection_transform(&stored->stored_projection_transform);
    }
 
 #undef _RESTORE

@@ -241,6 +241,8 @@ static void set_target_reset(ALLEGRO_BITMAP *target)
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
    al_identity_transform(&ident);
    al_use_transform(&ident);
+   al_orthographic_transform(&ident, 0, 0, -1, al_get_bitmap_width(target), al_get_bitmap_height(target), 1);
+   al_use_projection_transform(&ident);
 }
 
 static char const *resolve_var(ALLEGRO_CONFIG const *cfg, char const *section,
@@ -1356,10 +1358,8 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
          al_orthographic_transform(get_transform(V(0)), F(1), F(2), F(3), F(4), F(5), F(6));
          continue;
       }
-      if (SCAN("al_set_projection_transform", 1)) {
-         if (!display)
-            fatal_error("cannot call al_set_projection_transform without creating a display");
-         al_set_projection_transform(display, get_transform(V(0)));
+      if (SCAN("al_use_projection_transform", 1)) {
+         al_use_projection_transform(get_transform(V(0)));
          continue;
       }
 

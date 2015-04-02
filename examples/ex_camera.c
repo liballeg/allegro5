@@ -182,7 +182,7 @@ static void setup_3d_projection(void)
    al_perspective_transform(&projection, -1 * dw / dh * f, f,
       1,
       f * dw / dh, -f, 1000);
-   al_set_projection_transform(display, &projection);
+   al_use_projection_transform(&projection);
 }
 
 /* Adds a new vertex to our scene. */
@@ -275,9 +275,8 @@ static void add_skybox(void)
 static void draw_scene(void)
 {
    Camera *c = &ex.camera;
-   ALLEGRO_DISPLAY *display = al_get_current_display();
    /* We save Allegro's projection so we can restore it for drawing text. */
-   ALLEGRO_TRANSFORM projection = *al_get_projection_transform(display);
+   ALLEGRO_TRANSFORM projection = *al_get_current_projection_transform();
 
    setup_3d_projection();
 
@@ -313,7 +312,7 @@ static void draw_scene(void)
    /* Restore projection. */
    al_identity_transform(&t);
    al_use_transform(&t);
-   al_set_projection_transform(display, &projection);
+   al_use_projection_transform(&projection);
 
    /* Draw some text. */
    int th = al_get_font_line_height(ex.font);

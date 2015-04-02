@@ -200,13 +200,13 @@ static void ogl_clear_android_2_1_workaround(ALLEGRO_DISPLAY *d,
    };
    ALLEGRO_TRANSFORM bak1, bak2, t;
 
-   al_copy_transform(&bak1, &d->proj_transform);
+   al_copy_transform(&bak1, al_get_current_projection_transform());
    al_copy_transform(&bak2, al_get_current_transform());
 
    al_identity_transform(&t);
    al_orthographic_transform(&t, 0, 0, -1, d->w, d->h, 1);
 
-   al_set_projection_transform(d, &t);
+   al_use_projection_transform(&t);
    al_identity_transform(&t);
    al_use_transform(&t);
 
@@ -228,7 +228,7 @@ static void ogl_clear_android_2_1_workaround(ALLEGRO_DISPLAY *d,
    vert_ptr_off(d);
    color_ptr_off(d);
 
-   al_set_projection_transform(d, &bak1);
+   al_use_projection_transform(&bak1);
    al_use_transform(&bak2);
 }
 
@@ -467,49 +467,32 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
 static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
    ALLEGRO_BITMAP *target)
 {
-   ALLEGRO_TRANSFORM tmp;
-   
-   al_copy_transform(&tmp, &target->transform);
-
-   if (target->parent) {
-      /* Sub-bitmaps have an additional offset. */
-      al_translate_transform(&tmp, target->xofs, target->yofs);
-   }
-
    if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
 #ifdef ALLEGRO_CFG_SHADER_GLSL
       GLint loc = disp->ogl_extras->varlocs.projview_matrix_loc;
-      al_copy_transform(&disp->view_transform, &tmp);
+      ALLEGRO_TRANSFORM projview;
+      al_copy_transform(&projview, &target->transform);
+      al_compose_transform(&projview, &target->proj_transform);
+      al_copy_transform(&disp->projview_transform, &projview);
+
       if (disp->ogl_extras->program_object > 0 && loc >= 0) {
-         al_compose_transform(&tmp, &disp->proj_transform);
-         _al_glsl_set_projview_matrix(loc, &tmp);
+         _al_glsl_set_projview_matrix(loc, &disp->projview_transform);
       }
 #endif
-      return;
+   } else {
+      glMatrixMode(GL_PROJECTION);
+      glLoadMatrixf((float *)target->proj_transform.m);
+      glMatrixMode(GL_MODELVIEW);
+      glLoadMatrixf((float *)target->transform.m);
    }
 
-   glMatrixMode(GL_MODELVIEW);
-   glLoadMatrixf((float *)tmp.m);
-}
-
-static void ogl_set_projection(ALLEGRO_DISPLAY *d)
-{
-   if (d->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-#ifdef ALLEGRO_CFG_SHADER_GLSL
-      GLint loc = d->ogl_extras->varlocs.projview_matrix_loc;
-      if (d->ogl_extras->program_object > 0 && loc >= 0) {
-         ALLEGRO_TRANSFORM t;
-         al_copy_transform(&t, &d->view_transform);
-         al_compose_transform(&t, &d->proj_transform);
-         _al_glsl_set_projview_matrix(loc, &t);
-      }
-#endif
-      return;
+   if (target->parent) {
+      ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_extra = target->parent->extra;
+      /* glViewport requires the bottom-left coordinate of the corner. */
+      glViewport(target->xofs, ogl_extra->true_h - (target->yofs + target->h), target->w, target->h);
+   } else {
+      glViewport(0, 0, target->w, target->h);
    }
-
-   glMatrixMode(GL_PROJECTION);
-   glLoadMatrixf((float *)d->proj_transform.m);
-   glMatrixMode(GL_MODELVIEW);
 }
 
 static void ogl_clear_depth_buffer(ALLEGRO_DISPLAY *display, float x)
@@ -538,7 +521,6 @@ void _al_ogl_add_drawing_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
    vt->flush_vertex_cache = ogl_flush_vertex_cache;
    vt->prepare_vertex_cache = ogl_prepare_vertex_cache;
    vt->update_transformation = ogl_update_transformation;
-   vt->set_projection = ogl_set_projection;
 }
 
 /* vim: set sts=3 sw=3 et: */
