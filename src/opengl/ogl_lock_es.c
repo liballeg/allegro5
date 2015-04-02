@@ -488,7 +488,6 @@ static void ogl_unlock_region_bb_proxy(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_DEBUG("Drawing proxy to backbuffer\n");
    {
       ALLEGRO_DISPLAY *disp;
-      ALLEGRO_TRANSFORM proj0;
       ALLEGRO_STATE state0;
       ALLEGRO_TRANSFORM t;
       bool held;
@@ -498,21 +497,19 @@ static void ogl_unlock_region_bb_proxy(ALLEGRO_BITMAP *bitmap,
       if (held) {
          al_hold_bitmap_drawing(false);
       }
-      /* Projection transform is currently per-display. */
-      al_copy_transform(&proj0, al_get_projection_transform(disp));
       al_store_state(&state0, ALLEGRO_STATE_TARGET_BITMAP |
-         ALLEGRO_STATE_TRANSFORM | ALLEGRO_STATE_BLENDER);
+         ALLEGRO_STATE_TRANSFORM | ALLEGRO_STATE_BLENDER |
+         ALLEGRO_STATE_PROJECTION_TRANSFORM);
       {
          al_set_target_bitmap(bitmap);
          al_identity_transform(&t);
          al_use_transform(&t);
          al_orthographic_transform(&t, 0, 0, -1, disp->w, disp->h, 1);
-         al_set_projection_transform(disp, &t);
+         al_use_projection_transform(&t);
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
          al_draw_bitmap(proxy, bitmap->lock_x, bitmap->lock_y, 0);
       }
       al_restore_state(&state0);
-      al_set_projection_transform(disp, &proj0);
       al_hold_bitmap_drawing(held);
    }
 
