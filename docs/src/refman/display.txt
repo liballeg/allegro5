@@ -480,7 +480,9 @@ from a resizable display, if they wish the display to be resized they
 must call this function to let the graphics driver know that it can now
 resize the display. Returns true on success.
 
-Adjusts the clipping rectangle to the full size of the backbuffer.
+Adjusts the clipping rectangle to the full size of the backbuffer. This also
+resets the backbuffers projection transform to default orthographic transform
+(see [al_use_projection_transform]).
 
 Note that a resize event may be outdated by the time you acknowledge it;
 there could be further resize events generated in the meantime.
@@ -653,7 +655,7 @@ See also: [ALLEGRO_EVENT_DISPLAY_HALT_DRAWING]
 
 ### API: al_acknowledge_drawing_resume
 
-Call this in reponse to the [ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING] event.
+Call this in response to the [ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING] event.
 
 Since: 5.1.1
 

@@ -126,6 +126,51 @@ Returns the transformation of the current target bitmap, as set by
 *Returns:*
 A pointer to the current transformation.
 
+See also: [al_get_current_projection_transform]
+
+## API: al_use_projection_transform
+
+Sets the projection transformation to be used for the the drawing operations on
+the target bitmap (each bitmap maintains its own projection transformation).
+Every drawing operation after this call will be transformed using this
+transformation. To return default behavior, call this function with an
+orthographic transform like so:
+
+~~~~c
+ALLEGRO_TRANSFORM trans;
+al_identity_transform(&trans);
+al_orthographic_transform(&trans, 0, 0, -1.0, al_get_bitmap_width(bitmap),
+                          al_get_bitmap_height(bitmap), 1.0);
+
+al_set_target_bitmap(bitmap);
+al_use_projection_transform(&trans);
+~~~~
+
+The orthographic transformation above is the default projection transform.
+
+This function does nothing if there is no target bitmap. This function also
+does nothing if the bitmap is a memory bitmap (i.e. memory bitmaps always use
+an orthographic transform like the snippet above).
+
+The parameter is passed by reference as an optimization to avoid the overhead of
+stack copying. The reference will not be stored in the Allegro library so it is
+safe to pass references to local variables.
+
+Since: 5.1.9
+
+See also: [al_get_current_projection_transform]
+
+## API: al_get_current_projection_transform
+
+If there is no target bitmap, this function returns NULL.
+
+*Returns:*
+A pointer to the current transformation.
+
+Since: 5.1.9
+
+See also: [al_use_projection_transform]
+
 ## API: al_get_current_inverse_transform
 
 Returns the inverse of the current transformation of the target bitmap.
@@ -350,7 +395,7 @@ near/far is the z-buffer range, if there is no z-buffer you can set it to
 
 Since: 5.1.3
 
-See also: [al_set_projection_transform], [al_perspective_transform]
+See also: [al_use_projection_transform], [al_perspective_transform]
 
 ## API: al_perspective_transform
 
@@ -364,7 +409,7 @@ To use a specific horizontal field of view you can use the relation:
 
 Since: 5.1.3
 
-See also: [al_set_projection_transform], [al_orthographic_transform]
+See also: [al_use_projection_transform], [al_orthographic_transform]
 
 ## API: al_translate_transform_3d
 
@@ -373,7 +418,7 @@ coordinates by the given vector.
 
 Since: 5.1.3
 
-See also: [al_set_projection_transform]
+See also: [al_use_projection_transform]
 
 ## API: al_scale_transform_3d
 
@@ -382,7 +427,7 @@ coordinates by the given vector.
 
 Since: 5.1.3
 
-See also: [al_set_projection_transform]
+See also: [al_use_projection_transform]
 
 ## API: al_rotate_transform_3d
 
@@ -390,33 +435,6 @@ Combines the given transformation with a transformation which rotates
 coordinates around the given vector by the given angle in radians.
 
 Since: 5.1.3
-
-See also: [al_set_projection_transform]
-
-## API: al_get_projection_transform
-
-Returns the projection transformation of the display as set with
-[al_set_projection_transform].
-
-Since: 5.1.0
-
-See also: [al_set_projection_transform]
-
-## API: al_set_projection_transform
-
-Replaces the projection transformation of the given display.
-
-> *Note:* Unlike the regular 2D transformations, the projection transformation
-> affects all drawing operations done to the current display. This means
-> for example that it is not affected by calls to al_set_target_bitmap (if
-> the bitmap belongs to the same display).
-
-> *Note:* Drawing to memory bitmaps is not affected by the projection
-> transformation.
-
-Since: 5.1.0
-
-See also: [al_get_projection_transform]
 
 ## API: al_horizontal_shear_transform
 

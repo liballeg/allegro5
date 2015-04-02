@@ -76,7 +76,7 @@ static void setup_3d_projection(ALLEGRO_TRANSFORM *projection)
    int dh = al_get_display_height(display);
    al_perspective_transform(projection, -180 * dw / dh, -180, 180,
       180 * dw / dh, 180, 3000);
-   al_set_projection_transform(display, projection);
+   al_use_projection_transform(projection);
 }
 
 

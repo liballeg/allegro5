@@ -226,11 +226,8 @@ static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
     * itself.
     */
    if (set_projview_matrix_from_display) {
-      ALLEGRO_TRANSFORM t;
-      al_copy_transform(&t, &display->view_transform);
-      al_compose_transform(&t, &display->proj_transform);
       _al_glsl_set_projview_matrix(
-         display->ogl_extras->varlocs.projview_matrix_loc, &t);
+         display->ogl_extras->varlocs.projview_matrix_loc, &display->projview_transform);
    }
 
    return true;

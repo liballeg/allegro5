@@ -293,19 +293,9 @@ static void setup_fbo_backbuffer(ALLEGRO_DISPLAY *display,
       _al_ogl_bind_framebuffer(0);
    }
 
-#ifndef ALLEGRO_IPHONE
-   glViewport(0, 0, display->w, display->h);
-
-   al_identity_transform(&display->proj_transform);
-   /* We use upside down coordinates compared to OpenGL, so the bottommost
-    * coordinate is display->h not 0.
-    */
-   al_orthographic_transform(&display->proj_transform,
-      0, 0, -1, display->w, display->h, 1);
-#else
+#ifdef ALLEGRO_IPHONE
    _al_iphone_setup_opengl_view(display, false);
 #endif
-   display->vt->set_projection(display);
 }
 
 
@@ -390,13 +380,6 @@ static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
    }
    else {
       display->ogl_extras->opengl_target = bitmap;
-
-      glViewport(0, 0, bitmap->w, bitmap->h);
-
-      al_identity_transform(&display->proj_transform);
-      al_orthographic_transform(&display->proj_transform,
-         0, 0, -1, bitmap->w, bitmap->h, 1);
-      display->vt->set_projection(display);
    }
 }
 
