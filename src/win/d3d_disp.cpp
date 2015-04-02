@@ -38,6 +38,9 @@
 
 #include "d3d.h"
 
+static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
+static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *target);
+
 // C++ needs to cast void pointers
 #define get_extra(b) ((ALLEGRO_BITMAP_EXTRA_D3D *)\
    (b->parent ? b->parent->extra : b->extra))
@@ -47,8 +50,6 @@ static const char* _al_d3d_module_name = "d3d9.dll";
 ALLEGRO_DEBUG_CHANNEL("d3d")
 
 static ALLEGRO_DISPLAY_INTERFACE *vt = 0;
-
-static ALLEGRO_BITMAP *previous_target = NULL;
 
 static HMODULE _al_d3d_module = 0;
 
@@ -65,9 +66,6 @@ static DIRECT3DCREATE9EXPROC _al_d3d_create_ex = (DIRECT3DCREATE9EXPROC)NULL;
 LPDIRECT3D9 _al_d3d = 0;
 
 static D3DPRESENT_PARAMETERS d3d_pp;
-
-static float d3d_ortho_w;
-static float d3d_ortho_h;
 
 static HWND fullscreen_focus_window;
 static bool ffw_set = false;
@@ -350,72 +348,6 @@ static void d3d_reset_state(ALLEGRO_DISPLAY_D3D *disp)
       ALLEGRO_ERROR("SetSamplerState failed\n");
    if (disp->device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP) != D3D_OK)
       ALLEGRO_ERROR("SetSamplerState failed\n");
-}
-
-void _al_d3d_get_current_ortho_projection_parameters(float *w, float *h)
-{
-   *w = d3d_ortho_w;
-   *h = d3d_ortho_h;
-}
-
-static void d3d_get_identity_matrix(D3DMATRIX *matrix)
-{
-   int i, j;
-   int one = 0;
-
-   for (i = 0; i < 4; i++) {
-      for (j = 0; j < 4; j++) {
-         if (j == one)
-            matrix->m[j][i] = 1.0f;
-         else
-            matrix->m[j][i] = 0.0f;
-      }
-      one++;
-   }
-}
-
-static void _al_d3d_set_ortho_projection(ALLEGRO_DISPLAY_D3D *disp, float w, float h)
-{
-   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)disp;
-
-   if (disp->device_lost)
-      return;
-
-   d3d_ortho_w = w;
-   d3d_ortho_h = h;
-
-   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-      al_identity_transform(&display->proj_transform);
-      al_orthographic_transform(&display->proj_transform, 0, 0, -1, w, h, 1);
-
-#ifdef ALLEGRO_CFG_SHADER_HLSL
-      LPD3DXEFFECT effect = disp->effect;
-      if (effect) {
-         ALLEGRO_TRANSFORM t;
-         al_copy_transform(&t, &display->view_transform);
-         al_compose_transform(&t, &display->proj_transform);
-         _al_hlsl_set_projview_matrix(effect, &t);
-      }
-#endif
-   }
-   else {
-      D3DMATRIX matIdentity;
-      al_identity_transform(&display->proj_transform);
-      al_orthographic_transform(&display->proj_transform, 0, 0, -1, w, h, 1);
-
-      /*
-       * Shift by half a pixel to make the output match the OpenGL output.
-       * Don't shift the actual proj_transform because if the user grabs it via 
-       * al_get_projection_transform() and then sends it to
-       * al_set_projection_transform() the shift will be applied twice.
-       */
-      ALLEGRO_TRANSFORM shifted;
-      al_copy_transform(&shifted, &display->proj_transform);
-      al_translate_transform(&shifted, -1.0 / w, 1.0 / h);
-      d3d_get_identity_matrix(&matIdentity);
-      disp->device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&shifted.m);
-      disp->device->SetTransform(D3DTS_WORLD, &matIdentity);
-   }
 }
 
 static bool d3d_display_mode_matches(D3DDISPLAYMODE *dm, int w, int h, int format, int refresh_rate)
@@ -994,8 +926,6 @@ void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
       (*d3d_release_callback)(al_display);
    }
 
-   previous_target = NULL;
-
    d3d_call_callbacks(&al_display->display_invalidated_callbacks, al_display);
 
    _al_d3d_release_default_pool_textures((ALLEGRO_DISPLAY *)disp);
@@ -1165,6 +1095,13 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
    d3d_display->device->BeginScene();
 
    d3d_reset_state(d3d_display);
+
+   /* Restore the target bitmap. */
+   if (d3d_display->target_bitmap) {
+      ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY*)d3d_display;
+      d3d_set_target_bitmap(display, d3d_display->target_bitmap);
+      d3d_update_transformation(display, d3d_display->target_bitmap);
+   }
 
    al_unlock_mutex(_al_d3d_lost_device_mutex);
 
@@ -1557,9 +1494,6 @@ static void *d3d_display_thread_proc(void *arg)
       else if (hr == D3DERR_DEVICENOTRESET) {
          if (_al_d3d_reset_device(d3d_display)) {
             d3d_display->device_lost = false;
-            d3d_reset_state(d3d_display);
-            _al_d3d_set_ortho_projection(d3d_display,
-               al_display->w, al_display->h);
             _al_event_source_lock(&al_display->es);
             if (_al_event_source_needs_to_generate_event(&al_display->es)) {
                ALLEGRO_EVENT event;
@@ -1794,6 +1728,10 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_internals(
    d3d_display->backbuffer_bmp.cb_excl = al_display->h;
    d3d_display->backbuffer_bmp.vt = (ALLEGRO_BITMAP_INTERFACE *)_al_bitmap_d3d_driver();
    d3d_display->backbuffer_bmp_extra.display = d3d_display;
+   d3d_display->target_bitmap = NULL;
+   al_identity_transform(&d3d_display->backbuffer_bmp.transform);
+   al_identity_transform(&d3d_display->backbuffer_bmp.proj_transform);
+   al_orthographic_transform(&d3d_display->backbuffer_bmp.proj_transform, 0, 0, -1.0, al_display->w, al_display->h, 1.0);
 
    /* Alpha blending is the default */
    d3d_display->device->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
@@ -1888,8 +1826,6 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
       return NULL;
 
    ASSERT(display->vt);
-
-   al_identity_transform(&display->view_transform);
 
    s = display->extra_settings.settings;
    s[ALLEGRO_MAX_BITMAP_SIZE] = d3d_get_max_texture_size(win_display->adapter);
@@ -2227,6 +2163,8 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
    disp->backbuffer_bmp.ct = 0;
    disp->backbuffer_bmp.cr_excl = w;
    disp->backbuffer_bmp.cb_excl = h;
+   al_identity_transform(&disp->backbuffer_bmp.proj_transform);
+   al_orthographic_transform(&disp->backbuffer_bmp.proj_transform, 0, 0, -1.0, w, h, 1.0);
 
    disp->do_reset = true;
    while (!disp->reset_done) {
@@ -2234,6 +2172,8 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
    }
    disp->reset_done = false;
 
+   /* XXX: This is not very efficient, it'd probably be better to call
+    * the necessary functions directly. */
    al_store_state(&state, ALLEGRO_STATE_DISPLAY | ALLEGRO_STATE_TARGET_BITMAP);
    al_set_target_bitmap(al_get_backbuffer(d));
    al_set_clipping_rectangle(0, 0, d->w, d->h);
@@ -2298,7 +2238,6 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
 
       disp->suppress_lost_events = false;
 
-      al_set_target_bitmap(al_get_backbuffer(d));
       _al_d3d_recreate_bitmap_textures(disp);
 
       disp->backbuffer_bmp.w = width;
@@ -2447,9 +2386,10 @@ static ALLEGRO_BITMAP *d3d_create_bitmap(ALLEGRO_DISPLAY *d,
 void _al_d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ASSERT(!al_is_sub_bitmap(bitmap));
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D*)_al_get_bitmap_display(bitmap);
 
-   if (bitmap == previous_target) {
-      previous_target = NULL;
+   if (bitmap == d3d_display->target_bitmap) {
+      d3d_display->target_bitmap = NULL;
    }
 
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
@@ -2479,11 +2419,6 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    ALLEGRO_BITMAP *target;
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_target;
    ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
-   D3DVIEWPORT9 viewport;
-   viewport.X = 0;
-   viewport.Y = 0;
-   viewport.MinZ = 0;
-   viewport.MaxZ = 1;
 
    if (d3d_display->device_lost)
       return;
@@ -2498,20 +2433,19 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    d3d_target = get_extra(target);
    
    /* Release the previous target bitmap if it was not the backbuffer */
-
-   if (previous_target) {
+   if (d3d_display->target_bitmap && !get_extra(d3d_display->target_bitmap)->is_backbuffer) {
       ALLEGRO_BITMAP *parent;
-      if (previous_target->parent)
-         parent = previous_target->parent;
+      if (d3d_display->target_bitmap->parent)
+         parent = d3d_display->target_bitmap->parent;
       else
-         parent = previous_target;
+         parent = d3d_display->target_bitmap;
       ALLEGRO_BITMAP_EXTRA_D3D *e = get_extra(parent);
       if (e && e->render_target) {
          e->render_target->Release();
          e->render_target = NULL;
       }
-      previous_target = NULL;
    }
+   d3d_display->target_bitmap = NULL;
 
    /* Set the render target */
    if (d3d_target->is_backbuffer) {
@@ -2521,12 +2455,7 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
          return;
       }
       d3d_target->render_target = d3d_display->render_target;
-
-      viewport.Width = display->w;
-      viewport.Height = display->h;
-      d3d_display->device->SetViewport(&viewport);
-
-      _al_d3d_set_ortho_projection(d3d_display, display->w, display->h);
+      d3d_display->target_bitmap = bitmap;
    }
    else if (_al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
       /* Do nothing, as it is impossible to directly draw to compressed textures via D3D.
@@ -2535,7 +2464,7 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    else {
       d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
       if (_al_d3d_render_to_texture_supported()) {
-         previous_target = bitmap;
+         d3d_display->target_bitmap = bitmap;
          if (!d3d_target->video_texture) {
             /* This can happen if the user tries to set the target bitmap as
              * the device is lost, before the DISPLAY_LOST event is received.
@@ -2552,12 +2481,6 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
             d3d_target->render_target->Release();
             return;
          }
-
-         viewport.Width = d3d_target->texture_w;
-         viewport.Height = d3d_target->texture_h;
-         d3d_display->device->SetViewport(&viewport);
-
-         _al_d3d_set_ortho_projection(d3d_display, d3d_target->texture_w, d3d_target->texture_h);
       }
       if (d3d_display->samples) {
          d3d_display->device->SetDepthStencilSurface(NULL);
@@ -2822,76 +2745,67 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *target)
 {
    ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;
-   ALLEGRO_TRANSFORM tmp_transform;
+   ALLEGRO_TRANSFORM proj;
 
-   al_copy_transform(&tmp_transform, &target->transform);
+   al_copy_transform(&proj, &target->proj_transform);
+   /* Direct3D uses different clipping in projection space than OpenGL.
+    * In OpenGL the final clip space is [-1..1] x [-1..1] x [-1..1].
+    *
+    * In D3D the clip space is [-1..1] x [-1..1] x [0..1].
+    *
+    * So we need to scale and translate the final z component from [-1..1]
+    * to [0..1]. We do that by scaling with 0.5 then translating by 0.5
+    * below.
+    *
+    * The effect can be seen for example ex_projection - it is broken
+    * without this.
+    */
+   ALLEGRO_TRANSFORM fix_d3d;
+   al_identity_transform(&fix_d3d);
+   al_scale_transform_3d(&fix_d3d, 1, 1, 0.5);
+   al_translate_transform_3d(&fix_d3d, 0.0, 0.0, 0.5);
+   /*
+    * Shift by half a pixel to make the output match the OpenGL output.
+    * Don't shift the actual proj_transform because if the user grabs it via
+    * al_get_current_projection_transform() and then sends it to
+    * al_use_projection_transform() the shift will be applied twice.
+    */
+   al_translate_transform(&fix_d3d, -1.0 / al_get_bitmap_width(target),
+                          1.0 / al_get_bitmap_height(target));
 
-   if (target->parent) {
-      al_translate_transform(&tmp_transform, target->xofs, target->yofs);
-   }
+   al_compose_transform(&proj, &fix_d3d);
 
    if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-      al_copy_transform(&disp->view_transform, &tmp_transform);
 #ifdef ALLEGRO_CFG_SHADER_HLSL
       LPD3DXEFFECT effect = d3d_disp->effect;
+      ALLEGRO_TRANSFORM projview;
+      al_copy_transform(&projview, &target->transform);
+      al_compose_transform(&projview, &proj);
+      al_copy_transform(&disp->projview_transform, &projview);
       if (effect) {
-         al_compose_transform(&tmp_transform, &disp->proj_transform);
-         _al_hlsl_set_projview_matrix(effect, &tmp_transform);
+         _al_hlsl_set_projview_matrix(effect, &projview);
       }
 #endif
    }
    else {
-      d3d_disp->device->SetTransform(D3DTS_VIEW, (D3DMATRIX *)tmp_transform.m);
+      d3d_disp->device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)proj.m);
+      d3d_disp->device->SetTransform(D3DTS_VIEW, (D3DMATRIX *)target->transform.m);
    }
-}
 
-static void d3d_set_projection(ALLEGRO_DISPLAY *d)
-{
-   ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)d;
-
-#ifdef ALLEGRO_CFG_SHADER_HLSL
-   if (d->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-      if (d3d_disp->effect) {
-         ALLEGRO_TRANSFORM t;
-         al_copy_transform(&t, &d->view_transform);
-         al_compose_transform(&t, &d->proj_transform);
-         _al_hlsl_set_projview_matrix(d3d_disp->effect, &t);
-      }
+   D3DVIEWPORT9 viewport;
+   viewport.MinZ = 0;
+   viewport.MaxZ = 1;
+   viewport.Width = al_get_bitmap_width(target);
+   viewport.Height = al_get_bitmap_height(target);
+   if (target->parent) {
+      viewport.X = target->xofs;
+      viewport.Y = target->yofs;
    }
-   else
-#endif
-   {
-      /* Direct3D uses different clipping in projection space than OpenGL.
-       * In OpenGL the final clip space is [-1..1] x [-1..1] x [-1..1].
-       *
-       * In D3D the clip space is [-1..1] x [-1..1] x [0..1].
-       *
-       * So we need to scale and translate the final z component from [-1..1]
-       * to [0..1]. We do that by scaling with 0.5 then translating by 0.5
-       * below.
-       *
-       * The effect can be seen for example ex_projection - it is broken
-       * without this.
-       */
-      ALLEGRO_BITMAP* b = al_get_target_bitmap();
-      ALLEGRO_TRANSFORM tmp = d->proj_transform;
-
-      ALLEGRO_TRANSFORM fix_d3d = d->proj_transform;
-      al_identity_transform(&fix_d3d);
-      al_scale_transform_3d(&fix_d3d, 1, 1, 0.5);
-      al_translate_transform_3d(&fix_d3d, 0.0, 0.0, 0.5);
-      /* Shift by half a pixel to make the output match the OpenGL output. */
-      if (b) {
-         ALLEGRO_BITMAP_EXTRA_D3D* e = get_extra(b);
-         if (e) {
-            al_translate_transform(&fix_d3d, -1.0 / e->texture_w, 1.0 / e->texture_h);
-         }
-      }
-
-      al_compose_transform(&tmp, &fix_d3d);
-      
-      d3d_disp->device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)tmp.m);
+   else {
+      viewport.X = 0;
+      viewport.Y = 0;
    }
+   d3d_disp->device->SetViewport(&viewport);
 }
 
 /* Initialize and obtain a reference to this driver. */
@@ -2942,7 +2856,6 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->prepare_vertex_cache = d3d_prepare_vertex_cache;
 
    vt->update_transformation = d3d_update_transformation;
-   vt->set_projection = d3d_set_projection;
 
    vt->update_render_state = _al_d3d_update_render_state;
 

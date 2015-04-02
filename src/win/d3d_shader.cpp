@@ -285,7 +285,6 @@ static bool hlsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
    LPD3DXEFFECT effect = hlsl_shader->hlsl_shader;
    ALLEGRO_DISPLAY_D3D *d3d_disp;
-   ALLEGRO_TRANSFORM t;
 
    if (!(display->flags & ALLEGRO_DIRECT3D)) {
       return false;
@@ -293,9 +292,7 @@ static bool hlsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
    d3d_disp = (ALLEGRO_DISPLAY_D3D *)display;
 
    if (set_projview_matrix_from_display) {
-      al_copy_transform(&t, &display->view_transform);
-      al_compose_transform(&t, &display->proj_transform);
-      if (!_al_hlsl_set_projview_matrix(effect, &t)) {
+      if (!_al_hlsl_set_projview_matrix(effect, &display->projview_transform)) {
          d3d_disp->effect = NULL;
          return false;
       }
@@ -432,20 +429,6 @@ static bool hlsl_set_shader_bool(ALLEGRO_SHADER *shader,
 bool _al_hlsl_set_projview_matrix(
    LPD3DXEFFECT effect, const ALLEGRO_TRANSFORM *t)
 {
-   ALLEGRO_TRANSFORM tmp;
-   /* Shift by half a pixel to make the output match the OpenGL output. */
-   ALLEGRO_BITMAP* b = al_get_target_bitmap();
-   if (b) {
-      if (al_is_sub_bitmap(b)) {
-         b = al_get_parent_bitmap(b);
-      }
-      ALLEGRO_BITMAP_EXTRA_D3D *e = (ALLEGRO_BITMAP_EXTRA_D3D*)b->extra;
-      if (e) {
-         al_copy_transform(&tmp, t);
-         al_translate_transform(&tmp, -1.0 / e->texture_w, 1.0 / e->texture_h);
-         t = &tmp;
-      }
-   }
    HRESULT result = effect->SetMatrix(ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX,
       (LPD3DXMATRIX)t->m);
    return result == D3D_OK;
