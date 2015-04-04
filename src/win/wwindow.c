@@ -1288,7 +1288,8 @@ int _al_win_determine_adapter(void)
 /* Function: al_win_add_window_callback
  */
 bool al_win_add_window_callback(ALLEGRO_DISPLAY *display,
-   bool (*callback)(ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM, LRESULT*, void *), void *userdata)
+   bool (*callback)(ALLEGRO_DISPLAY *display, UINT message, WPARAM wparam,
+   LPARAM lparam, LRESULT *result, void *userdata), void *userdata)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
    ALLEGRO_DISPLAY_WIN_CALLBACK *ptr;
@@ -1316,7 +1317,8 @@ bool al_win_add_window_callback(ALLEGRO_DISPLAY *display,
 /* Function: al_win_remove_window_callback
  */
 bool al_win_remove_window_callback(ALLEGRO_DISPLAY *display,
-   bool (*callback)(ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM, LRESULT*, void *), void *userdata)
+   bool (*callback)(ALLEGRO_DISPLAY *display, UINT message, WPARAM wparam,
+   LPARAM lparam, LRESULT *result, void *userdata), void *userdata)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
    
