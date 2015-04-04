@@ -374,6 +374,7 @@ void al_transform_coordinates(const ALLEGRO_TRANSFORM *trans, float *x, float *y
 void al_transform_coordinates_3d(const ALLEGRO_TRANSFORM *trans,
    float *x, float *y, float *z)
 {
+   float rx, ry, rz;
    ASSERT(trans);
    ASSERT(x);
    ASSERT(y);
@@ -381,9 +382,9 @@ void al_transform_coordinates_3d(const ALLEGRO_TRANSFORM *trans,
 
    #define M(i, j) trans->m[i][j]
 
-   float rx = M(0, 0) * *x + M(1, 0) * *y + M(2, 0) * *z + M(3, 0);
-   float ry = M(0, 1) * *x + M(1, 1) * *y + M(2, 1) * *z + M(3, 1);
-   float rz = M(0, 2) * *x + M(1, 2) * *y + M(2, 2) * *z + M(3, 2);
+   rx = M(0, 0) * *x + M(1, 0) * *y + M(2, 0) * *z + M(3, 0);
+   ry = M(0, 1) * *x + M(1, 1) * *y + M(2, 1) * *z + M(3, 1);
+   rz = M(0, 2) * *x + M(1, 2) * *y + M(2, 2) * *z + M(3, 2);
 
    #undef M
 
