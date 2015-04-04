@@ -421,7 +421,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    }
 
    for (i = 0; i < _al_vector_size(&win_display->msg_callbacks); ++i) {
-      LRESULT result;
+      LRESULT result = TRUE;
       ALLEGRO_DISPLAY_WIN_CALLBACK *ptr = _al_vector_ref(&win_display->msg_callbacks, i);
       if ((ptr->proc)(d, message, wParam, lParam, &result, ptr->userdata))
          return result;

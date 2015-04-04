@@ -19,6 +19,9 @@ before Allegro processes it. If the callback function consumes the event,
 then it should return true. In that case, Allegro will not do anything
 with the event.
 
+Optionally, you may use `result` to customize what Allegro will return
+return in response to this event. By default, Allegro returns `TRUE`.
+
 The `userdata` pointer can be used to supply additional context to the
 callback function. 
 
