@@ -76,7 +76,7 @@ if(WANT_FLAC)
             #include <FLAC/stream_decoder.h>
             int main(void)
             {
-                FLAC__StreamDecoderInitStatus status;
+                (void)FLAC__stream_decoder_new();
                 return 0;
             }"
             FLAC_COMPILES)
@@ -231,7 +231,7 @@ elseif(WANT_VORBIS)
             VORBIS_COMPILES)
         set(CMAKE_REQUIRED_INCLUDES)
         set(CMAKE_REQUIRED_LIBRARIES)
-        if(VORBIS_COMPILES OR IPHONE)
+        if(VORBIS_COMPILES)
             set(SUPPORT_VORBIS 1)
         endif()
     endif(VORBIS_FOUND)
