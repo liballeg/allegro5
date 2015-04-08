@@ -80,6 +80,7 @@ int main(int argc, char **argv)
          continue;
       }
       log_printf("Stream created from '%s'.\n", filename);
+      log_printf("Setting playmode: %d\n", al_set_audio_stream_playmode(stream, ALLEGRO_PLAYMODE_ONCE));
       
       al_register_event_source(queue, al_get_audio_stream_event_source(stream));
 

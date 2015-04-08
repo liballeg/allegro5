@@ -92,17 +92,6 @@ void al_use_projection_transform(const ALLEGRO_TRANSFORM *trans)
    if (trans != &target->transform) {
       al_copy_transform(&target->proj_transform, trans);
    }
-
-   /*
-    * When the drawing is held, we apply the transformations in software,
-    * so the hardware transformation has to be kept at identity.
-    */
-   if (!al_is_bitmap_drawing_held()) {
-      display = _al_get_bitmap_display(target);
-      if (display) {
-         display->vt->update_transformation(display, target);
-      }
-   }
 }
 
 /* Function: al_get_current_transform

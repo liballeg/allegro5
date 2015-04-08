@@ -1247,15 +1247,15 @@ See also: [ALLEGRO_COLOR]
 ### API: al_hold_bitmap_drawing
 
 Enables or disables deferred bitmap drawing. This allows for efficient drawing
-of many bitmaps that share a parent bitmap, such as sub-bitmaps from a 
-tilesheet or simply identical bitmaps. Drawing bitmaps that do not share a 
+of many bitmaps that share a parent bitmap, such as sub-bitmaps from a
+tilesheet or simply identical bitmaps. Drawing bitmaps that do not share a
 parent is less efficient, so it is advisable to stagger bitmap drawing calls
-such that the parent bitmap is the same for large number of those calls.
-While deferred bitmap drawing is enabled, the only functions that can be used 
-are the bitmap drawing functions and font drawing functions. Changing the state
-such as the blending modes will result in undefined behaviour. One exception to
-this rule are the transformations. It is possible to set a new transformation 
-while the drawing is held.
+such that the parent bitmap is the same for large number of those calls. While
+deferred bitmap drawing is enabled, the only functions that can be used are the
+bitmap drawing functions and font drawing functions. Changing the state such as
+the blending modes will result in undefined behaviour. One exception to this
+rule are the non-projection transformations. It is possible to set a new
+transformation while the drawing is held.
 
 No drawing is guaranteed to take place until you disable the hold. Thus, the 
 idiom of this function's usage is to enable the deferred bitmap drawing, draw as
