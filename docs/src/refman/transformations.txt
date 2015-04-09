@@ -290,8 +290,9 @@ See also: [al_translate_transform], [al_rotate_transform],
 
 ## API: al_build_camera_transform
 
-Builds a transformation which can be used to transform according to a camera.
-It expects three coordinate triples: The camera's position, the position the
+Builds a transformation which can be used to transform 3D coordinates in world
+space to camera space. This involves translation and a rotation. The function
+expects three coordinate triplets: The camera's position, the position the
 camera is looking at and an up vector. The up vector does not need to be of
 unit length and also does not need to be perpendicular to the view direction -
 it can usually just be the world up direction (most commonly 0/1/0).
