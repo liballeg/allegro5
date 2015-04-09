@@ -14,6 +14,7 @@ typedef struct Sprite {
 } Sprite;
 
 char const *text[] = {
+   "H - toggle held drawing",
    "Space - toggle use of textures",
    "B - toggle alpha blending",
    "Left/Right - change bitmap size",
@@ -27,6 +28,7 @@ struct Example {
    int blending;
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *mysha, *bitmap;
+   bool hold_bitmap_drawing;
    int bitmap_size;
    int sprite_count;
    bool show_help;
@@ -190,15 +192,24 @@ static void redraw(void)
    else if (example.blending == 3)
       al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
 
+   if (example.hold_bitmap_drawing) {
+      al_hold_bitmap_drawing(true);
+   }
    for (i = 0; i < example.sprite_count; i++) {
       Sprite *s = example.sprites + i;
       al_draw_tinted_bitmap(example.bitmap, tint, s->x, s->y, 0);
    }
+   if (example.hold_bitmap_drawing) {
+      al_hold_bitmap_drawing(false);
+   }
 
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    if (example.show_help) {
-      for (i = 0; i < 5; i++)
-         al_draw_text(example.font, example.white, 0, h - 10 * fh + i * fh * 2 + fh * 0.5, 0, text[i]);
+      int dh = fh * 1.5;
+      for (i = 5; i >= 0; i--) {
+         al_draw_text(example.font, example.white, 0, h - dh, 0, text[i]);
+         dh += fh * 2;
+      }
    }
 
    al_draw_textf(example.font, example.white, 0, 0, 0, "count: %d",
@@ -228,6 +239,7 @@ int main(int argc, char **argv)
    bool need_redraw = true;
    bool background = false;
    example.show_help = true;
+   example.hold_bitmap_drawing = false;
 
    (void)argc;
    (void)argv;
@@ -344,6 +356,9 @@ int main(int argc, char **argv)
                example.blending++;
                if (example.blending == 4)
                   example.blending = 0;
+            }
+            else if (event.keyboard.keycode == ALLEGRO_KEY_H) {
+               example.hold_bitmap_drawing ^= 1;
             }
             break;
 
