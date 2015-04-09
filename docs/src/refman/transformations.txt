@@ -9,11 +9,28 @@ These functions are declared in the main Allegro header file:
 Transformations allow you to transform the coordinates you use for drawing
 operations without additional overhead. Scaling, rotating, translating, and
 combinations of these are possible as well as using custom transformations.
+There are two types of transformations that you can set, 'regular'
+transformations and projection transformations. The projection transform is
+rarely used in 2D games, but is common in 3D games to set up the projection
+from the 3D world to the 2D screen. Typically, you would use the regular
+transform for non-projective types of transformations (that is, translations,
+rotations, scales, skews... i.e. transformations that are linear), while the
+projection transform will be used for setting up perspective and possibly more
+advanced effects. It is possible to do everything with just using the
+projection transformation (that is, you'd compose the projection transformation
+with the non-projection transformations that, e.g., move the camera in the
+world), but it is more convenient to use both for two reasons:
 
-Transformations are set per target-bitmap, i.e. a change of the target bitmap
-will also change the active transformation.
-It is also possible to specify custom projection transformations. These are set per
-display.
+- Regular transformations can be changed while the bitmap drawing is held (see
+  [al_hold_bitmap_drawing]).
+
+- Regular transformations work with memory bitmaps.
+
+As a result, if you're making a 2D game, it's best to leave the projection
+transformations at their default values.
+
+Both types of transformations are set per target-bitmap, i.e. a change of the
+target bitmap will also change the active transformation.
 
 Allegro provides convenience functions to construct transformations in 2D and 3D
 variants (the latter with a `_3d` suffix), so you don't have to deal with the
@@ -150,7 +167,13 @@ The orthographic transformation above is the default projection transform.
 
 This function does nothing if there is no target bitmap. This function also
 does nothing if the bitmap is a memory bitmap (i.e. memory bitmaps always use
-an orthographic transform like the snippet above).
+an orthographic transform like the snippet above). Note that the projection
+transform will be reset to default if a video bitmap is converted to a memory
+bitmap. Additionally, if the bitmap in question is the backbuffer, it's
+projection transformation will be reset to default if it is resized. Lastly,
+when you draw a memory bitmap to a video bitmap with a custom projection
+transform, this transformation will be ignored (i.e. it'll be as if the
+projection transform of the target bitmap was temporarily reset to default).
 
 The parameter is passed by reference as an optimization to avoid the overhead of
 stack copying. The reference will not be stored in the Allegro library so it is
