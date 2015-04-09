@@ -48,6 +48,9 @@ typedef struct ALLEGRO_DISPLAY_D3D
    ALLEGRO_BITMAP backbuffer_bmp;
    ALLEGRO_BITMAP_EXTRA_D3D backbuffer_bmp_extra;
 
+   /* Contains the target video bitmap for this display. */
+   ALLEGRO_BITMAP* target_bitmap;
+
    bool device_lost;
    bool suppress_lost_events;
 
@@ -56,7 +59,7 @@ typedef struct ALLEGRO_DISPLAY_D3D
    bool supports_separate_alpha_blend;
 
    TCHAR *device_name;
-	
+
    int format;
    D3DFORMAT depth_stencil_format;
    int samples;

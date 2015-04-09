@@ -38,16 +38,20 @@ void _al_ogl_setup_gl(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
 
-   glViewport(0, 0, d->w, d->h);
-
-   al_identity_transform(&d->proj_transform);
-   al_orthographic_transform(&d->proj_transform, 0, 0, -1, d->w, d->h, 1);
-   d->vt->set_projection(d);
-
-   if (ogl->backbuffer)
+   if (ogl->backbuffer) {
+      ALLEGRO_BITMAP *target = al_get_target_bitmap();
       _al_ogl_resize_backbuffer(ogl->backbuffer, d->w, d->h);
-   else
+      /* If we are currently targetting the backbuffer, we need to update the
+       * transformations. */
+      if (target && (target == ogl->backbuffer ||
+                     target->parent == ogl->backbuffer)) {
+         /* vt should be set at this point, but doesn't hurt to check */
+         ASSERT(d->vt);
+         d->vt->update_transformation(d, target);
+      }
+   } else {
       ogl->backbuffer = _al_ogl_create_backbuffer(d);
+   }
 }
 
 
@@ -164,6 +168,8 @@ bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP *b, int w, int h)
    b->ct = 0;
    b->cr_excl = w;
    b->cb_excl = h;
+   al_identity_transform(&b->proj_transform);
+   al_orthographic_transform(&b->proj_transform, 0, 0, -1.0, w, h, 1.0);
 
    /* There is no texture associated with the backbuffer so no need to care
     * about texture size limitations. */
@@ -237,16 +243,19 @@ ALLEGRO_BITMAP* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
    backbuffer->ct = 0;
    backbuffer->cr_excl = disp->w;
    backbuffer->cb_excl = disp->h;
+   al_identity_transform(&backbuffer->transform);
+   al_identity_transform(&backbuffer->proj_transform);
+   al_orthographic_transform(&backbuffer->proj_transform, 0, 0, -1.0, disp->w, disp->h, 1.0);
 
    ALLEGRO_TRACE_CHANNEL_LEVEL("display", 1)(
       "Created backbuffer bitmap (actual format: %s)\n",
       _al_pixel_format_name(al_get_bitmap_format(backbuffer)));
 
    ogl_backbuffer = backbuffer->extra;
+   ogl_backbuffer->true_w = disp->w;
+   ogl_backbuffer->true_h = disp->h;
    ogl_backbuffer->is_backbuffer = 1;
    backbuffer->_display = disp;
-
-   al_identity_transform(&disp->view_transform);
 
    return backbuffer;
 }

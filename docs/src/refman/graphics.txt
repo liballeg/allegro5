@@ -455,17 +455,19 @@ See also: [al_create_bitmap]
 
 ### API: al_clone_bitmap
 
-Create a new bitmap with [al_create_bitmap], and copy the pixel data
-from the old bitmap across.
+Create a new bitmap with [al_create_bitmap], and copy the pixel data from the
+old bitmap across. If the new bitmap is a memory bitmap, it's projection bitmap
+is reset to be orthographic.
 
 See also: [al_create_bitmap], [al_set_new_bitmap_format],
 [al_set_new_bitmap_flags], [al_convert_bitmap]
 
 ### API: al_convert_bitmap
 
-Converts the bitmap to the current bitmap flags and format. The bitmap
-will be as if it was created anew with [al_create_bitmap] but retain its
-contents. All of this bitmap's sub-bitmaps are also converted.
+Converts the bitmap to the current bitmap flags and format. The bitmap will be
+as if it was created anew with [al_create_bitmap] but retain its contents. All
+of this bitmap's sub-bitmaps are also converted. If the new bitmap format is
+memory, then the bitmap's projection bitmap is reset to be orthographic.
 
 If this bitmap is a sub-bitmap, then it, its parent and all the sibling
 sub-bitmaps are also converted.
@@ -1245,15 +1247,15 @@ See also: [ALLEGRO_COLOR]
 ### API: al_hold_bitmap_drawing
 
 Enables or disables deferred bitmap drawing. This allows for efficient drawing
-of many bitmaps that share a parent bitmap, such as sub-bitmaps from a 
-tilesheet or simply identical bitmaps. Drawing bitmaps that do not share a 
+of many bitmaps that share a parent bitmap, such as sub-bitmaps from a
+tilesheet or simply identical bitmaps. Drawing bitmaps that do not share a
 parent is less efficient, so it is advisable to stagger bitmap drawing calls
-such that the parent bitmap is the same for large number of those calls.
-While deferred bitmap drawing is enabled, the only functions that can be used 
-are the bitmap drawing functions and font drawing functions. Changing the state
-such as the blending modes will result in undefined behaviour. One exception to
-this rule are the transformations. It is possible to set a new transformation 
-while the drawing is held.
+such that the parent bitmap is the same for large number of those calls. While
+deferred bitmap drawing is enabled, the only functions that can be used are the
+bitmap drawing functions and font drawing functions. Changing the state such as
+the blending modes will result in undefined behaviour. One exception to this
+rule are the non-projection transformations. It is possible to set a new
+transformation while the drawing is held.
 
 No drawing is guaranteed to take place until you disable the hold. Thus, the 
 idiom of this function's usage is to enable the deferred bitmap drawing, draw as

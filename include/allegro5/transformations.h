@@ -17,6 +17,7 @@ struct ALLEGRO_TRANSFORM {
 
 /* Transformations*/
 AL_FUNC(void, al_use_transform, (const ALLEGRO_TRANSFORM* trans));
+AL_FUNC(void, al_use_projection_transform, (const ALLEGRO_TRANSFORM* trans));
 AL_FUNC(void, al_copy_transform, (ALLEGRO_TRANSFORM* dest, const ALLEGRO_TRANSFORM* src));
 AL_FUNC(void, al_identity_transform, (ALLEGRO_TRANSFORM* trans));
 AL_FUNC(void, al_build_transform, (ALLEGRO_TRANSFORM* trans, float x, float y, float sx, float sy, float theta));
@@ -36,12 +37,11 @@ AL_FUNC(void, al_transform_coordinates_3d, (const ALLEGRO_TRANSFORM *trans,
 AL_FUNC(void, al_compose_transform, (ALLEGRO_TRANSFORM* trans, const ALLEGRO_TRANSFORM* other));
 AL_FUNC(const ALLEGRO_TRANSFORM*, al_get_current_transform, (void));
 AL_FUNC(const ALLEGRO_TRANSFORM*, al_get_current_inverse_transform, (void));
+AL_FUNC(const ALLEGRO_TRANSFORM *, al_get_current_projection_transform, (void));
 AL_FUNC(void, al_invert_transform, (ALLEGRO_TRANSFORM *trans));
 AL_FUNC(int, al_check_inverse, (const ALLEGRO_TRANSFORM *trans, float tol));
 AL_FUNC(void, al_orthographic_transform, (ALLEGRO_TRANSFORM *trans, float left, float top, float n, float right, float bottom, float f));
 AL_FUNC(void, al_perspective_transform, (ALLEGRO_TRANSFORM *trans, float left, float top, float n, float right, float bottom, float f));
-AL_FUNC(ALLEGRO_TRANSFORM *, al_get_projection_transform, (ALLEGRO_DISPLAY *display));
-AL_FUNC(void, al_set_projection_transform, (ALLEGRO_DISPLAY *display, ALLEGRO_TRANSFORM *t));
 AL_FUNC(void, al_horizontal_shear_transform, (ALLEGRO_TRANSFORM *trans, float theta));
 AL_FUNC(void, al_vertical_shear_transform, (ALLEGRO_TRANSFORM *trans, float theta));
 

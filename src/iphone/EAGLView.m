@@ -166,11 +166,8 @@ static touch_t* find_touch(_AL_LIST* list, UITouch* nativeTouch)
         */
        allegro_display->w = backingWidth;
        allegro_display->h = backingHeight;
-
     }
-    else {
-       [self send_resize_event];
-    }
+    [self send_resize_event];
 }
 
 - (BOOL)orientation_supported:(UIInterfaceOrientation) o {

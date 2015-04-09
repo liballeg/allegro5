@@ -69,6 +69,31 @@ void al_use_transform(const ALLEGRO_TRANSFORM *trans)
    }
 }
 
+/* Function: al_use_projection_transform
+ */
+void al_use_projection_transform(const ALLEGRO_TRANSFORM *trans)
+{
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_DISPLAY *display;
+
+   if (!target)
+      return;
+
+   /* Memory bitmaps don't support custom projection transforms */
+   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP)
+      return;
+
+   /* Changes to a back buffer should affect the front buffer, and vice versa.
+    * Currently we rely on the fact that in the OpenGL drivers the back buffer
+    * and front buffer bitmaps are exactly the same, and the DirectX driver
+    * doesn't support front buffer bitmaps.
+    */
+
+   if (trans != &target->transform) {
+      al_copy_transform(&target->proj_transform, trans);
+   }
+}
+
 /* Function: al_get_current_transform
  */
 const ALLEGRO_TRANSFORM *al_get_current_transform(void)
@@ -79,6 +104,18 @@ const ALLEGRO_TRANSFORM *al_get_current_transform(void)
       return NULL;
 
    return &target->transform;
+}
+
+/* Function: al_get_current_projection_transform
+ */
+const ALLEGRO_TRANSFORM *al_get_current_projection_transform(void)
+{
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+
+   if (!target)
+      return NULL;
+
+   return &target->proj_transform;
 }
 
 /* Function: al_get_current_inverse_transform
@@ -524,23 +561,6 @@ void al_perspective_transform(ALLEGRO_TRANSFORM *trans,
 
    al_compose_transform(trans, &tmp);
 }
-
-
-/* Function: al_get_projection_transform
- */
-ALLEGRO_TRANSFORM *al_get_projection_transform(ALLEGRO_DISPLAY *display)
-{
-   return &display->proj_transform;
-}
-
-/* Function: al_set_projection_transform
- */
-void al_set_projection_transform(ALLEGRO_DISPLAY *display, ALLEGRO_TRANSFORM *t)
-{
-   al_copy_transform(&display->proj_transform, t);
-   display->vt->set_projection(display);
-}
-
 
 /* Function: al_horizontal_shear_transform
  */

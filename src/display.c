@@ -40,7 +40,6 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    ALLEGRO_SYSTEM *system;
    ALLEGRO_DISPLAY_INTERFACE *driver;
    ALLEGRO_DISPLAY *display;
-   ALLEGRO_TRANSFORM identity;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *settings;
    int flags;
 
@@ -75,6 +74,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    display->cache_enabled = false;
    display->vertex_cache_size = 0;
    display->cache_texture = 0;
+   al_identity_transform(&display->projview_transform);
 
    display->default_shader = NULL;
 
@@ -90,8 +90,9 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
 
    _al_vector_init(&display->bitmaps, sizeof(ALLEGRO_BITMAP*));
 
-   if (settings->settings[ALLEGRO_COMPATIBLE_DISPLAY])
+   if (settings->settings[ALLEGRO_COMPATIBLE_DISPLAY]) {
       al_set_target_bitmap(al_get_backbuffer(display));
+   }
    else {
       ALLEGRO_DEBUG("ALLEGRO_COMPATIBLE_DISPLAY not set\n");
       _al_set_current_display_only(display);
@@ -104,9 +105,6 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
          return NULL;
       }
    }
-
-   al_identity_transform(&identity);
-   al_use_transform(&identity);
 
    /* Clear the screen */
    if (settings->settings[ALLEGRO_COMPATIBLE_DISPLAY]) {
