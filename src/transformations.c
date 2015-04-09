@@ -194,7 +194,7 @@ void al_build_transform(ALLEGRO_TRANSFORM *trans, float x, float y,
    trans->m[3][3] = 1;
 }
 
-/* Function: al_build_transform_3d
+/* Function: al_build_camera_transform
  */
 void al_build_camera_transform(ALLEGRO_TRANSFORM *trans,
    float position_x, float position_y, float position_z,
