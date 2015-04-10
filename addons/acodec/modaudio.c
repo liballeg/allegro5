@@ -112,19 +112,26 @@ static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    const int sample_size = 4;
    size_t written;
    size_t i;
+
+   DUMB_IT_SIGRENDERER *it_sig = duh_get_it_sigrenderer(df->sig);
+   if (it_sig) {
+      dumb_it_set_loop_callback(it_sig,
+                                stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE
+                                ? dumb_it_callback_terminate : NULL, NULL);
+   }
    
    written = lib.duh_render(df->sig, 16, 0, 1.0, 65536.0 / 44100.0,
       buf_size / sample_size, data) * sample_size;
 
    /* Fill the remainder with silence */
    for (i = written; i < buf_size; ++i)
-      ((int *)data)[i] = 0x8000;
+      ((char *)data)[i] = 0;
    
    /* Check to see if a loop is set */
    if (df->loop_start != -1 && 
       df->loop_end < lib.duh_sigrenderer_get_position(df->sig)) {
          modaudio_stream_seek(stream, df->loop_start / 65536.0);
-   }   
+   }
    
    return written;
 }
@@ -190,6 +197,7 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
    DUMBFILE *df;
    DUH_SIGRENDERER *sig = NULL;
    DUH *duh = NULL;
+   DUMB_IT_SIGRENDERER *it_sig = NULL;
    int64_t start_pos = -1;
    
    df = lib.dumbfile_open_ex(f, &dfs_f);
@@ -206,6 +214,12 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
    sig = lib.duh_start_sigrenderer(duh, 0, 2, 0);
    if (!sig) {
       goto Error;
+   }
+
+   it_sig = duh_get_it_sigrenderer(sig);
+   if (it_sig) {
+      /* Turn off freezing for XM files. Seems completely pointless. */
+      dumb_it_set_xm_speed_zero_callback(it_sig, dumb_it_callback_terminate, NULL);
    }
 
    stream = al_create_audio_stream(buffer_count, samples, 44100,
