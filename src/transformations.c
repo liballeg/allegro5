@@ -74,7 +74,6 @@ void al_use_transform(const ALLEGRO_TRANSFORM *trans)
 void al_use_projection_transform(const ALLEGRO_TRANSFORM *trans)
 {
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_DISPLAY *display;
 
    if (!target)
       return;
