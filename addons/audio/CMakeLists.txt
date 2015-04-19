@@ -89,7 +89,7 @@ if(SUPPORT_ALSA)
 endif(SUPPORT_ALSA)
 
 if(WANT_DSOUND AND WIN32)
-    find_package(DSound)
+    find_package(DirectX)
     if(DSOUND_FOUND)
         set(SUPPORT_DSOUND 1)
     endif(DSOUND_FOUND)

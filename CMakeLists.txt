@@ -675,7 +675,8 @@ endif(SUPPORT_X11)
 #
 
 if(WIN32)
-    find_package(DInput)
+    find_package(DirectX)
+
     if(DINPUT_FOUND)
         # At least some copies of dinput.h redefine some types multiple times.
         # We must add the directory as a system directory so that the compiler
@@ -687,14 +688,12 @@ if(WIN32)
     endif(DINPUT_FOUND)
     
     # Xinput support for xbox compatible controllers.
-    find_package(XInput)
     if(XINPUT_FOUND)
         set(SUPPORT_XINPUT 1)
         set(ALLEGRO_CFG_XINPUT 1)
     endif(XINPUT_FOUND)
 
     if(WANT_D3D)
-        find_package(D3D9)
         if(D3D9_FOUND)
             set(SUPPORT_D3D 1)
             set(ALLEGRO_CFG_D3D 1)
@@ -702,7 +701,6 @@ if(WIN32)
     endif(WANT_D3D)
     
     if(SUPPORT_D3D)
-        find_package(D3DX9)
         if(D3DX9_FOUND)
             include_directories(BEFORE SYSTEM ${D3DX9_INCLUDE_DIR})
             set(ALLEGRO_CFG_D3DX9 1)
