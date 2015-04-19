@@ -68,6 +68,10 @@ static struct
    DUH *(*dumb_read_xm)(DUMBFILE *);
    DUH *(*dumb_read_s3m)(DUMBFILE *);
    DUH *(*dumb_read_mod)(DUMBFILE *);
+   DUMB_IT_SIGRENDERER *(*duh_get_it_sigrenderer)(DUH_SIGRENDERER *);
+   void (*dumb_it_set_loop_callback)(DUMB_IT_SIGRENDERER *, int (*)(void *), void *);
+   void (*dumb_it_set_xm_speed_zero_callback)(DUMB_IT_SIGRENDERER *, int (*)(void *), void *);
+   int (*dumb_it_callback_terminate)(void *);
 } lib;
 
 
@@ -113,11 +117,11 @@ static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    size_t written;
    size_t i;
 
-   DUMB_IT_SIGRENDERER *it_sig = duh_get_it_sigrenderer(df->sig);
+   DUMB_IT_SIGRENDERER *it_sig = lib.duh_get_it_sigrenderer(df->sig);
    if (it_sig) {
-      dumb_it_set_loop_callback(it_sig,
+      lib.dumb_it_set_loop_callback(it_sig,
                                 stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE
-                                ? dumb_it_callback_terminate : NULL, NULL);
+                                ? lib.dumb_it_callback_terminate : NULL, NULL);
    }
    
    written = lib.duh_render(df->sig, 16, 0, 1.0, 65536.0 / 44100.0,
@@ -216,10 +220,10 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
       goto Error;
    }
 
-   it_sig = duh_get_it_sigrenderer(sig);
+   it_sig = lib.duh_get_it_sigrenderer(sig);
    if (it_sig) {
       /* Turn off freezing for XM files. Seems completely pointless. */
-      dumb_it_set_xm_speed_zero_callback(it_sig, dumb_it_callback_terminate, NULL);
+      lib.dumb_it_set_xm_speed_zero_callback(it_sig, lib.dumb_it_callback_terminate, NULL);
    }
 
    stream = al_create_audio_stream(buffer_count, samples, 44100,
@@ -328,6 +332,10 @@ static bool init_libdumb(void)
    INITSYM(dumb_read_xm);
    INITSYM(dumb_read_s3m);
    INITSYM(dumb_read_mod);
+   INITSYM(duh_get_it_sigrenderer);
+   INITSYM(dumb_it_set_loop_callback);
+   INITSYM(dumb_it_set_xm_speed_zero_callback);
+   INITSYM(dumb_it_callback_terminate);
 
    dfs.open = dfs_open;
    dfs.skip = dfs_skip;
