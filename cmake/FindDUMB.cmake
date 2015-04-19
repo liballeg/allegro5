@@ -12,10 +12,7 @@ endif(DUMB_INCLUDE_DIR)
 
 find_path(DUMB_INCLUDE_DIR dumb.h)
 
-find_library(DUMB_LIBRARY NAMES dumb)
-if(NOT ${DUMB_LIBRARY})
-   find_library(DUMB_LIBRARY NAMES libdumb)
-endif(NOT ${DUMB_LIBRARY})
+find_library(DUMB_LIBRARY NAMES dumb libdumb dumb_static libdumb_static)
 
 # Handle the QUIETLY and REQUIRED arguments and set DUMB_FOUND to TRUE if
 # all listed variables are TRUE.
