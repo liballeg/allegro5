@@ -137,23 +137,6 @@ static void hide_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
    cursor_added = false;
 }
 
-void _al_raspberrypi_setup_opengl_view(ALLEGRO_DISPLAY *d)
-{
-   glViewport(0, 0, d->w, d->h);
-
-   al_identity_transform(&d->proj_transform);
-   al_orthographic_transform(&d->proj_transform, 0, 0, -1, d->w, d->h, 1);
-
-   al_identity_transform(&d->view_transform);
-
-   if (!(d->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
-      glMatrixMode(GL_PROJECTION);
-      glLoadMatrixf((float *)d->proj_transform.m);
-      glMatrixMode(GL_MODELVIEW);
-      glLoadMatrixf((float *)d->view_transform.m);
-   }
-}
-
 /* Helper to set up GL state as we want it. */
 static void setup_gl(ALLEGRO_DISPLAY *d)
 {
@@ -163,8 +146,6 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
         _al_ogl_resize_backbuffer(ogl->backbuffer, d->w, d->h);
     else
         ogl->backbuffer = _al_ogl_create_backbuffer(d);
-
-    _al_raspberrypi_setup_opengl_view(d);
 }
 
 void _al_raspberrypi_get_screen_info(int *dx, int *dy,
@@ -615,7 +596,7 @@ static void raspberrypi_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
 
 static bool raspberrypi_acknowledge_resize(ALLEGRO_DISPLAY *d)
 {
-   _al_raspberrypi_setup_opengl_view(d);
+   setup_gl(d);
    return true;
 }
 

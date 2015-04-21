@@ -771,7 +771,9 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
     * See also pitfalls 7 & 8 from:
     * http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall/
     */
+#ifdef GL_CLIENT_PIXEL_STORE_BIT
    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
+#endif
    {
       glPixelStorei(GL_PACK_ALIGNMENT, 1);
       e = glGetError();
