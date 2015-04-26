@@ -49,7 +49,7 @@ macro(find_component name header library)
 		)
 
 	find_library(${name}_LIBRARY
-		NAMES ${library}
+		NAMES lib${library} ${library}
 		PATH_SUFFIXES
 			"Lib/$ENV{PROCESSOR_ARCHITECTURE}"
 			Lib/${PROCESSOR_SUFFIX}
