@@ -51,6 +51,7 @@ macro(find_component name header library)
 	find_library(${name}_LIBRARY
 		NAMES lib${library} ${library}
 		PATH_SUFFIXES
+			Lib
 			"Lib/$ENV{PROCESSOR_ARCHITECTURE}"
 			Lib/${PROCESSOR_SUFFIX}
 			Lib/winv6.3/um/${PROCESSOR_SUFFIX}
