@@ -241,7 +241,6 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
       mf->loop_end = -1;
 
       stream->extra = mf;
-      stream->feed_thread = al_create_thread(_al_kcm_feed_stream, stream);
       stream->feeder = modaudio_stream_update;
       stream->unload_feeder = modaudio_stream_close;
       stream->rewind_feeder = modaudio_stream_rewind;
@@ -249,7 +248,7 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
       stream->get_feeder_position = modaudio_stream_get_position;
       stream->get_feeder_length = modaudio_stream_get_length;
       stream->set_feeder_loop = modaudio_stream_set_loop;
-      al_start_thread(stream->feed_thread);
+      _al_acodec_start_feed_thread(stream);
    }
    else {
       goto Error;

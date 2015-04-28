@@ -518,7 +518,6 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE *file,
 
    extra->loop_start = 0.0;
    extra->loop_end = ogg_stream_get_length(stream);
-   stream->feed_thread = al_create_thread(_al_kcm_feed_stream, stream);
    stream->quit_feed_thread = false;
    stream->feeder = ogg_stream_update;
    stream->rewind_feeder = ogg_stream_rewind;
@@ -527,7 +526,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE *file,
    stream->get_feeder_length = ogg_stream_get_length;
    stream->set_feeder_loop = ogg_stream_set_loop;
    stream->unload_feeder = ogg_stream_close;
-   al_start_thread(stream->feed_thread);
+   _al_acodec_start_feed_thread(stream);
 	
    return stream;
 }

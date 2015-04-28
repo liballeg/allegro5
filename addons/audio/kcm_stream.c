@@ -673,6 +673,11 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
    queue = al_create_event_queue();
    al_register_event_source(queue, &stream->spl.es);
 
+   al_lock_mutex(stream->feed_thread_started_mutex);
+   stream->feed_thread_started = true;
+   al_broadcast_cond(stream->feed_thread_started_cond);
+   al_unlock_mutex(stream->feed_thread_started_mutex);
+
    stream->quit_feed_thread = false;
 
    while (!stream->quit_feed_thread) {

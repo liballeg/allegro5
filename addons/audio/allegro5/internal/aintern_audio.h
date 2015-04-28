@@ -255,6 +255,9 @@ struct ALLEGRO_AUDIO_STREAM {
                           */
 
    ALLEGRO_THREAD        *feed_thread;
+   ALLEGRO_MUTEX         *feed_thread_started_mutex;
+   ALLEGRO_COND          *feed_thread_started_cond;
+   bool                  feed_thread_started;
    volatile bool         quit_feed_thread;
    unload_feeder_t       unload_feeder;
    rewind_feeder_t       rewind_feeder;
