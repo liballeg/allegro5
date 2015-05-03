@@ -80,6 +80,9 @@ typedef struct ALLEGRO_TTF_FONT_DATA
 
    int bitmap_format;
    int bitmap_flags;
+
+   int min_page_size;
+   int max_page_size;
 } ALLEGRO_TTF_FONT_DATA;
 
 
@@ -150,13 +153,26 @@ static void unlock_current_page(ALLEGRO_TTF_FONT_DATA *data)
 }
 
 
-// FIXME: Add a special case for when a single glyph rendering won't fit
-// into 256x256 pixels.
-static ALLEGRO_BITMAP *push_new_page(ALLEGRO_TTF_FONT_DATA *data)
+static ALLEGRO_BITMAP *push_new_page(ALLEGRO_TTF_FONT_DATA *data, int glyph_size)
 {
     ALLEGRO_BITMAP **back;
     ALLEGRO_BITMAP *page;
     ALLEGRO_STATE state;
+    int page_size = 1;
+    /* 16 seems to work well. A particular problem are fixed width fonts which
+     * take an inordinate amount of space. */
+    while (page_size < 16 * glyph_size) {
+      page_size *= 2;
+    }
+    if (page_size < data->min_page_size) {
+      page_size = data->min_page_size;
+    }
+    if (page_size > data->max_page_size) {
+      page_size = data->max_page_size;
+    }
+    if (glyph_size > page_size) {
+      return NULL;
+    }
 
     unlock_current_page(data);
 
@@ -167,7 +183,7 @@ static ALLEGRO_BITMAP *push_new_page(ALLEGRO_TTF_FONT_DATA *data)
     al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
     al_set_new_bitmap_format(data->bitmap_format);
     al_set_new_bitmap_flags(data->bitmap_flags);
-    page = al_create_bitmap(256, 256);
+    page = al_create_bitmap(page_size, page_size);
     al_restore_state(&state);
     _al_pop_destructor_owner();
 
@@ -190,10 +206,12 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
 {
    ALLEGRO_BITMAP *page;
    bool relock;
-   int w4, h4;
+   int w4 = align4(w);
+   int h4 = align4(h);
+   int glyph_size = w4 > h4 ? w4 : h4;
 
    if (_al_vector_is_empty(&data->page_bitmaps) || new) {
-      page = push_new_page(data);
+      page = push_new_page(data, glyph_size);
       relock = true;
       if (!page)
          return NULL;
@@ -203,9 +221,6 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
       page = *back;
       relock = !data->page_lr;
    }
-
-   w4 = align4(w);
-   h4 = align4(h);
 
    ALLEGRO_DEBUG("Glyph %d: %dx%d (%dx%d)%s\n",
       ft_index, w, h, w4, h4, new ? " new" : "");
@@ -646,10 +661,11 @@ static void debug_cache(ALLEGRO_FONT *f)
 
    for (i = 0; i < (int)_al_vector_size(v); i++) {
       ALLEGRO_BITMAP **bmp = _al_vector_ref(v, i);
-      ALLEGRO_USTR *u = al_ustr_newf("font%d.png", j++);
+      ALLEGRO_USTR *u = al_ustr_newf("font%d_%d.png", j, i);
       al_save_bitmap(al_cstr(u), *bmp);
       al_ustr_free(u);
    }
+   j++;
 }
 #endif
 
@@ -726,6 +742,11 @@ ALLEGRO_FONT *al_load_ttf_font_stretch_f(ALLEGRO_FILE *file,
     ALLEGRO_PATH *path;
     FT_Open_Args args;
     int result;
+    ALLEGRO_CONFIG* system_cfg = al_get_system_config();
+    const char* min_page_size_str =
+      system_cfg ? al_get_config_value(system_cfg, "ttf", "min_page_size") : NULL;
+    const char* max_page_size_str =
+      system_cfg ? al_get_config_value(system_cfg, "ttf", "max_page_size") : NULL;
 
     if ((h > 0 && w < 0) || (h < 0 && w > 0)) {
        ALLEGRO_ERROR("Height/width have opposite signs (w = %d, h = %d).\n", w, h);
@@ -741,6 +762,22 @@ ALLEGRO_FONT *al_load_ttf_font_stretch_f(ALLEGRO_FILE *file,
     data->file = file;
     data->bitmap_format = al_get_new_bitmap_format();
     data->bitmap_flags = al_get_new_bitmap_flags();
+    data->min_page_size = 256;
+    data->max_page_size = 8192;
+
+    if (min_page_size_str) {
+      int min_page_size = atoi(min_page_size_str);
+      if (min_page_size > 0) {
+         data->min_page_size = min_page_size;
+      }
+    }
+
+    if (max_page_size_str) {
+      int max_page_size = atoi(max_page_size_str);
+      if (max_page_size > 0 && max_page_size >= data->min_page_size) {
+         data->max_page_size = max_page_size;
+      }
+    }
 
     memset(&args, 0, sizeof args);
     args.flags = FT_OPEN_STREAM;
