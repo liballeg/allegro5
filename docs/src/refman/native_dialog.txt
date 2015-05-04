@@ -148,6 +148,8 @@ Returns:
 If `buttons` is not NULL, the number of the pressed button is returned, starting
 with 1.
 
+All of the remaining parameters must not be NULL.
+
 If a message box could not be created then this returns 0, as if the window
 was dismissed without activating a button.
 

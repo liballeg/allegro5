@@ -121,6 +121,10 @@ int al_show_native_message_box(ALLEGRO_DISPLAY *display,
    ALLEGRO_NATIVE_DIALOG *fc;
    int r;
 
+   ASSERT(title);
+   ASSERT(heading);
+   ASSERT(text);
+
    /* Note: the message box code cannot assume that Allegro is installed.
     * al_malloc and ustr functions are okay (with the assumption that the
     * user doesn't change the memory management functions in another thread
