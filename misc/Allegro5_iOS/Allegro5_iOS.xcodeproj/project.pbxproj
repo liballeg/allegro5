@@ -122,7 +122,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		964130EF1A6353E700184496 /* libAllegro 5 iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libAllegro 5 iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		964130EF1A6353E700184496 /* libAllegro5_iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libAllegro5_iOS.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		964131091A63550E00184496 /* allegro.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = allegro.c; path = ../../../src/allegro.c; sourceTree = "<group>"; };
 		9641310A1A63550E00184496 /* bitmap_draw.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bitmap_draw.c; path = ../../../src/bitmap_draw.c; sourceTree = "<group>"; };
 		9641310B1A63550E00184496 /* bitmap_io.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bitmap_io.c; path = ../../../src/bitmap_io.c; sourceTree = "<group>"; };
@@ -263,7 +263,7 @@
 		964130F01A6353E700184496 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				964130EF1A6353E700184496 /* libAllegro 5 iOS.a */,
+				964130EF1A6353E700184496 /* libAllegro5_iOS.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -362,9 +362,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		964130EE1A6353E700184496 /* Allegro 5 iOS */ = {
+		964130EE1A6353E700184496 /* Allegro5_iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 964131031A6353E800184496 /* Build configuration list for PBXNativeTarget "Allegro 5 iOS" */;
+			buildConfigurationList = 964131031A6353E800184496 /* Build configuration list for PBXNativeTarget "Allegro5_iOS" */;
 			buildPhases = (
 				964130EB1A6353E700184496 /* Sources */,
 				964130EC1A6353E700184496 /* Frameworks */,
@@ -374,9 +374,9 @@
 			);
 			dependencies = (
 			);
-			name = "Allegro 5 iOS";
+			name = Allegro5_iOS;
 			productName = "Allegro 5 iOS";
-			productReference = 964130EF1A6353E700184496 /* libAllegro 5 iOS.a */;
+			productReference = 964130EF1A6353E700184496 /* libAllegro5_iOS.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -393,7 +393,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 964130EA1A6353E700184496 /* Build configuration list for PBXProject "Allegro 5 iOS" */;
+			buildConfigurationList = 964130EA1A6353E700184496 /* Build configuration list for PBXProject "Allegro5_iOS" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -405,7 +405,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				964130EE1A6353E700184496 /* Allegro 5 iOS */,
+				964130EE1A6353E700184496 /* Allegro5_iOS */,
 			);
 		};
 /* End PBXProject section */
@@ -625,7 +625,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				LIBRARY_SEARCH_PATHS = ../../deps/lib;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Allegro5_iOS;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -661,7 +661,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				LIBRARY_SEARCH_PATHS = ../../deps/lib;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Allegro5_iOS;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -670,7 +670,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		964130EA1A6353E700184496 /* Build configuration list for PBXProject "Allegro 5 iOS" */ = {
+		964130EA1A6353E700184496 /* Build configuration list for PBXProject "Allegro5_iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				964131011A6353E800184496 /* Debug */,
@@ -679,13 +679,14 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		964131031A6353E800184496 /* Build configuration list for PBXNativeTarget "Allegro 5 iOS" */ = {
+		964131031A6353E800184496 /* Build configuration list for PBXNativeTarget "Allegro5_iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				964131041A6353E800184496 /* Debug */,
 				964131051A6353E800184496 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
