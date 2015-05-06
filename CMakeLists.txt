@@ -39,7 +39,7 @@ option(ALLEGRO_SDL "Build using the SDL backend (experimental)" OFF)
 # We use C++ in a few cases.
 project(ALLEGRO C CXX)
 
-set(ALLEGRO_VERSION 5.1.10)
+set(ALLEGRO_VERSION 5.1.11)
 string(REGEX MATCH "^[0-9]+[.][0-9]+" ALLEGRO_SOVERSION ${ALLEGRO_VERSION})
 string(REPLACE "." "" ALLEGRO_DLL_SHORTVER ${ALLEGRO_SOVERSION})
 
