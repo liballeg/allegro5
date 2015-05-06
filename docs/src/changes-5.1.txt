@@ -3,6 +3,149 @@
 See `changes-5.0.txt` for changes in Allegro 5.0.x.  These lists
 serve as summaries; the full histories are in the git repository.
 
+Changes from 5.1.9 to 5.1.10 (May 2015)
+===========================================
+
+The main developers this time were: SiegeLord, Elias Pschernig, Trent Gamblin,
+Polybios.
+
+Input:
+
+  - Add `al_set_mouse_wheel_precision` and `al_get_mouse_wheel_precision`.
+
+Graphics:
+
+  - Added `al_transform_coordinates_3d`.
+
+  - Added `al_build_camera_transform`.
+
+  - Make the projection transform a bitmap local state. This removes
+	`al_set_projection_transform` and `al_get_projection_transform`, and replaces
+	them with `al_use_projection_transform` and
+	`al_get_current_projection_transform` with similar semantics to the regular
+	transforms.
+
+OSX port:
+
+  - Improved joystick axis layouts on Mac OS X, and added support for some
+    dpards (Max Savenkov).
+
+X11 port:
+
+  - Fix some memory leaks (ElectricSolstice).
+
+  - Make the XInput2 check more accurate (we require a specific version).
+
+Windows port:
+
+  - Remove taskbar hiding on Windows.
+
+  - Fix high precision mice on Windows.
+
+  - Fix some D3D conflicts with the OpenGL backend.
+
+  - Remove the prohibition of building OpenGL-only DLLs.
+
+  - Added LRESULT argument to WindowProc callback, fixing
+    `al_win_add_window_callback` for some event types (Aaron Bolyard).
+
+Android port:
+
+  - Fix some memory leaks.
+
+  - Make it possible to specify the Android target during building.
+
+iOS port:
+
+  - Add an XCode project to help build Allegro when CMake support fails.
+
+  - Restore the CMake support.
+
+  - Makes the examples run on the iOS simulator out of the box.
+
+  - Various small fixes (Trent Gamblin, jmasterx).
+
+  - Remove `al_iphone_get_last_shake_time` and a`l_iphone_get_battery_level`.
+
+  - Hack around iOS not creating mipmaps (jmasterx).
+
+  - If the supported orientation is `ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN`,
+    default to supporting all orientations.
+
+  - Get Cosmic Protector to compile again.
+
+Build system:
+
+  - Revamp the detection of DirectX dependencies. Now it should work out of the
+    box for at least MSVC and mingw-w64.
+
+  - Fix GDIPlus finding script (pkrcel).
+
+  - Bump the minimum version of CMake to 2.8.5.
+
+Documentation:
+
+  - Many documentation improvements, as always (special thanks to Polybios).
+
+  - Make the PDF output prettier with better fonts and an up-to-date version
+    number.
+
+  - Make the Javascript search for online documentation support partial matches.
+
+  - Make [section] links work in HTML.
+
+  - Allow the docs to have more than 1024 entries (Allegro is getting huge!).
+
+Other:
+
+  - Make the test driver a little more resistant to failure.
+
+  - Various fixes to the experimental SDL backend.
+
+  - Update the CONTRIBUTORS.txt.
+
+Audio addon:
+
+  - Fix deadlock when destroying an audio stream soon after its creation.
+
+  - Add VOC file support (pkrcel).
+
+  - Disable processing of the XM zero-speed event.
+
+  - Disable processing of module loop points if `ALLEGRO_PLAYMODE_ONCE` is set.
+
+  - Fix a buffer overflow bug.
+
+Image addon:
+
+  - Fix loading of indexed + transparent PNGs with the libpng backend.
+
+Dialog addon:
+
+  - Fix some style issues with the Windows file dialog.
+
+  - Fix a bug with multiple filenames with the Windows file dialog.
+
+  - Change the semantics of the patterns in `al_create_native_file_dialog` to
+    support future expansion of the patterns to support both AND and OR style
+    filtering.
+
+  - Make the GTK file selection dialog look like it's from 2004 (as opposed to
+    mid-1990s).
+
+TTF addon:
+
+  - Fix some warnings.
+
+  - Make the page size dynamic, allowing for fonts with up to 8192x8192 glyphs
+    by default.
+
+Examples:
+
+  - New examples: ex_camera, ex_projection2.
+
+
+
 Changes from 5.1.8 to 5.1.9 (January 2015)
 ===========================================
 
