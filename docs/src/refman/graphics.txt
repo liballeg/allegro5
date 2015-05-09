@@ -330,6 +330,12 @@ ALLEGRO_PIXEL_FORMAT_ANY. Locking in the native format will usually be faster.
 If the bitmap format is compressed, using ALLEGRO_PIXEL_FORMAT_ANY will choose
 an implementation defined non-compressed format.
 
+On some platforms, Allegro automatically backs up the contents of video bitmaps
+because they may be occasionally lost (see discussion in [al_create_bitmap]'s
+documentation). If you're completely recreating the bitmap contents often (e.g.
+every frame) then you will get much better performance by creating the target
+bitmap with ALLEGRO_NO_PRESERVE_TEXTURE flag.
+
 > *Note:* While a bitmap is locked, you can not use any drawing operations
 on it (with the sole exception of [al_put_pixel] and
 [al_put_blended_pixel]).
@@ -426,6 +432,21 @@ If you create a bitmap without ALLEGRO_MEMORY_BITMAP set but there is
 no current display, a temporary memory bitmap will be created instead.
 You can later convert all such bitmap to video bitmap and assign to a
 display by calling [al_convert_bitmaps].
+
+On some platforms the contents of video bitmaps may be lost when your
+application loses focus. Allegro has an internal mechanism to restore the
+contents of these video bitmaps, but it is not foolproof (sometimes bitmap
+contents can get lost permanently) and has performance implications. If you are
+using a bitmap as an intermediate buffer this mechanism may be wasteful. In
+this case, if you do not want Allegro to manage the bitmap contents for you,
+you can disable this mechanism by creating the bitmap with the
+ALLEGRO_NO_PRESERVE_TEXTURE flag. The bitmap contents are lost when you get the
+ALLEGRO_EVENT_DISPLAY_LOST and ALLEGRO_EVENT_DISPLAY_HALT_DRAWING and a should
+be restored when you get the ALLEGRO_EVENT_DISPLAY_FOUND and when you call
+[al_acknowledge_drawing_resume] (after ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING
+event). You can use those events to implement your own bitmap content
+restoration mechanism if Allegro's does not work well enough for you (for
+example, you can reload them all from disk).
 
 See also: [al_set_new_bitmap_format], [al_set_new_bitmap_flags],
 [al_clone_bitmap], [al_create_sub_bitmap],
@@ -566,12 +587,10 @@ ALLEGRO_FORCE_LOCKING
 
 ALLEGRO_NO_PRESERVE_TEXTURE
 :   Normally, every effort is taken to preserve
-    the contents of bitmaps, since Direct3D may forget them. This can take
-    extra processing time. If you know it doesn't matter if a bitmap keeps its
-    pixel data, for example when it's a temporary buffer, use this flag to tell Allegro
-    not to attempt to preserve its contents. This can increase performance of
-    your game or application, but there is a catch. See
-    ALLEGRO_EVENT_DISPLAY_LOST for further information.
+    the contents of bitmaps, since some platforms may forget them. This can
+    take extra processing time. If you know it doesn't matter if a bitmap keeps
+    its pixel data, for example when it's a temporary buffer, use this flag to
+    tell Allegro not to attempt to preserve its contents.
 
 ALLEGRO_ALPHA_TEST
 :   This is a driver hint only. It tells the graphics
@@ -997,6 +1016,12 @@ need to release a display, so it is not current for the calling thread, call
 
 Setting a memory bitmap as the target bitmap will not change which display
 is current for the calling thread.
+
+On some platforms, Allegro automatically backs up the contents of video bitmaps
+because they may be occasionally lost (see discussion in [al_create_bitmap]'s
+documentation). If you're completely recreating the bitmap contents often (e.g.
+every frame) then you will get much better performance by creating the target
+bitmap with ALLEGRO_NO_PRESERVE_TEXTURE flag.
 
 OpenGL note:
 

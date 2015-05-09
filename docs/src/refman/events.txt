@@ -408,18 +408,7 @@ entering the state, bitmap's pixel data can become undefined. Allegro
 does its best to preserve the correct contents of bitmaps (see the
 ALLEGRO_NO_PRESERVE_TEXTURE flag) and restore them when the device is
 "found" (see [ALLEGRO_EVENT_DISPLAY_FOUND]). However, this is not 100%
-fool proof.
-
-To ensure that all bitmap contents are restored accurately,
-one must take additional steps. The best procedure to follow if bitmap
-constancy is important to you is as follows: first, always have the
-ALLEGRO_NO_PRESERVE_TEXTURE flag set to true when creating bitmaps, as
-it incurs pointless overhead when using this method. Second, create
-a mechanism in your game for easily reloading all of your bitmaps --
-for example, wrap them in a class or data structure and have a "bitmap
-manager" that can reload them back to the desired state. Then, when you
-receive an ALLEGRO_EVENT_DISPLAY_FOUND event, tell the bitmap manager
-(or whatever your mechanism is) to restore your bitmaps.
+fool proof (see discussion in [al_create_bitmap]'s documentation).
 
 > *Note:* This event merely means that the display was lost, that is,
 DirectX suddenly lost the contents of all video bitmaps. In particular,
