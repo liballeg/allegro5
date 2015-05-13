@@ -40,6 +40,7 @@
 
 static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
 static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *target);
+static bool d3d_init_display();
 
 // C++ needs to cast void pointers
 #define get_extra(b) ((ALLEGRO_BITMAP_EXTRA_D3D *)\
@@ -225,6 +226,9 @@ bool al_have_d3d_non_pow2_texture_support(void)
 {
    D3DCAPS9 caps;
    int adapter = al_get_new_display_adapter();
+
+   if (!_al_d3d && !d3d_init_display())
+      return false;
    if (adapter < 0)
       adapter = 0;
 
@@ -246,6 +250,9 @@ static int d3d_get_max_texture_size(int adapter)
 {
    D3DCAPS9 caps;
 
+   if (!_al_d3d && !d3d_init_display())
+      return -1;
+
    if (_al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_HAL, &caps) != D3D_OK) {
       if (_al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_REF, &caps) != D3D_OK) {
          return -1;
@@ -261,6 +268,8 @@ bool al_have_d3d_non_square_texture_support(void)
 {
    D3DCAPS9 caps;
    int adapter = al_get_new_display_adapter();
+   if (!_al_d3d && !d3d_init_display())
+      return false;
    if (adapter < 0)
       adapter = 0;
 
@@ -367,6 +376,9 @@ static bool d3d_check_mode(int w, int h, int format, int refresh_rate, UINT adap
    UINT i;
    D3DDISPLAYMODE display_mode;
 
+   if (!_al_d3d && !d3d_init_display())
+      return false;
+
    num_modes = _al_d3d->GetAdapterModeCount(adapter, (D3DFORMAT)_al_pixel_format_to_d3d(format));
 
    for (i = 0; i < num_modes; i++) {
@@ -384,6 +396,8 @@ static bool d3d_check_mode(int w, int h, int format, int refresh_rate, UINT adap
 static int d3d_get_default_refresh_rate(UINT adapter)
 {
    D3DDISPLAYMODE d3d_dm;
+   if (!_al_d3d && !d3d_init_display())
+      return 0;
    _al_d3d->GetAdapterDisplayMode(adapter, &d3d_dm);
    return d3d_dm.RefreshRate;
 }
@@ -2601,8 +2615,9 @@ void _al_d3d_shutdown_display(void)
       return;
 
    _al_d3d_destroy_display_format_list();
-      
-   _al_d3d->Release();
+
+   if (_al_d3d)
+      _al_d3d->Release();
    al_destroy_mutex(present_mutex);
    al_destroy_mutex(_al_d3d_lost_device_mutex);
 
@@ -2869,6 +2884,9 @@ int _al_d3d_get_num_display_modes(int format, int refresh_rate, int flags)
    D3DDISPLAYMODE display_mode;
    int matches = 0;
 
+   if (!_al_d3d && !d3d_init_display())
+      return 0;
+
    (void)flags;
 
    /* If any, go through all formats */
@@ -2918,6 +2936,9 @@ ALLEGRO_DISPLAY_MODE *_al_d3d_get_display_mode(int index, int format,
    UINT i, j;
    D3DDISPLAYMODE display_mode;
    int matches = 0;
+
+   if (!_al_d3d && !d3d_init_display())
+      return NULL;
 
    (void)flags;
 
