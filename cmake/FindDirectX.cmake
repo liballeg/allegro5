@@ -26,7 +26,7 @@ check_winsdk_root_dir("[HKEY_LOCAL_MACHINE\\\\SOFTWARE\\\\Microsoft\\\\Microsoft
 check_winsdk_root_dir("[HKEY_LOCAL_MACHINE\\\\SOFTWARE\\\\Microsoft\\\\Windows Kits\\\\Installed Roots;KitsRoot]")
 check_winsdk_root_dir("[HKEY_LOCAL_MACHINE\\\\SOFTWARE\\\\Microsoft\\\\Windows Kits\\\\Installed Roots;KitsRoot81]")
 
-if(CMAKE_CL_64)
+if(CMAKE_CL_64 OR CMAKE_SIZEOF_VOID_P EQUAL 8)
 	set(PROCESSOR_SUFFIX "x64")
 else()
 	set(PROCESSOR_SUFFIX "x86")
@@ -38,28 +38,45 @@ macro(find_component name header library)
 		set(${name}_FIND_QUIETLY TRUE)
 	endif(${name}_INCLUDE_DIR)
 
-	find_path(${name}_INCLUDE_DIR ${header}
-		PATH_SUFFIXES
-			Include
-			Include/um
-			Include/shared
-		PATHS
-			"$ENV{DXSDK_DIR}"
-			${WINSDK_ROOT_DIR}
-		)
+	if(MSVC)
+		find_path(${name}_INCLUDE_DIR ${header}
+			PATH_SUFFIXES
+				Include
+				Include/um
+				Include/shared
+			PATHS
+				"$ENV{DXSDK_DIR}"
+				${WINSDK_ROOT_DIR}
+			)
 
-	find_library(${name}_LIBRARY
-		NAMES lib${library} ${library}
-		PATH_SUFFIXES
-			Lib
-			"Lib/$ENV{PROCESSOR_ARCHITECTURE}"
-			Lib/${PROCESSOR_SUFFIX}
-			Lib/winv6.3/um/${PROCESSOR_SUFFIX}
-			Lib/Win8/um/${PROCESSOR_SUFFIX}
-		PATHS
-			"$ENV{DXSDK_DIR}"
-			${WINSDK_ROOT_DIR}
-		)
+		find_library(${name}_LIBRARY
+			NAMES lib${library} ${library}
+			PATH_SUFFIXES
+				Lib
+				Lib/${PROCESSOR_SUFFIX}
+				Lib/winv6.3/um/${PROCESSOR_SUFFIX}
+				Lib/Win8/um/${PROCESSOR_SUFFIX}
+			PATHS
+				"$ENV{DXSDK_DIR}"
+				${WINSDK_ROOT_DIR}
+			)
+	else()
+		find_path(${name}_INCLUDE_DIR ${header}
+			PATH_SUFFIXES
+				Include
+			PATHS
+				"$ENV{DXSDK_DIR}"
+			)
+
+		find_library(${name}_LIBRARY
+			NAMES lib${library} ${library}
+			PATH_SUFFIXES
+				Lib
+				Lib/${PROCESSOR_SUFFIX}
+			PATHS
+				"$ENV{DXSDK_DIR}"
+			)
+	endif()
 
 	# Handle the QUIETLY and REQUIRED arguments and set ${name}_FOUND to TRUE if
 	# all listed variables are TRUE.
