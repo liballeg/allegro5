@@ -50,7 +50,10 @@ See also: [al_get_num_video_adapters], [al_get_monitor_info]
 Get information about a monitor's position on the desktop.
 adapter is a number from 0 to al_get_num_video_adapters()-1.
 
-Returns true on success, false on failure.
+On Windows, use [al_set_new_display_flags] to switch between Direct3D and
+OpenGL backends, which will often have different adapters available.
+
+Returns `true` on success, `false` on failure.
 
 See also: [ALLEGRO_MONITOR_INFO], [al_get_num_video_adapters]
 
@@ -60,5 +63,8 @@ Get the number of video "adapters" attached to the computer. Each
 video card attached to the computer counts as one or more adapters.
 An adapter is thus really a video port that can have a monitor connected
 to it.
+
+On Windows, use [al_set_new_display_flags] to switch between Direct3D and
+OpenGL backends, which will often have different adapters available.
 
 See also: [al_get_monitor_info]
