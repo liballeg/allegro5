@@ -80,7 +80,8 @@ if(WANT_FLAC)
             set(FLAC__NO_DLL "-DFLAC__NO_DLL")
         endif()
         set(CMAKE_REQUIRED_INCLUDES ${FLAC_INCLUDE_DIR})
-        set(CMAKE_REQUIRED_LIBRARIES ${FLAC_LIBRARIES})
+        # FLAC requires libm on Android, doesn't seem to hurt elsewhere either.
+        set(CMAKE_REQUIRED_LIBRARIES ${FLAC_LIBRARIES} m)
         set(CMAKE_REQUIRED_DEFINITIONS ${FLAC__NO_DLL})
         check_c_source_compiles("
             #include <FLAC/stream_decoder.h>
