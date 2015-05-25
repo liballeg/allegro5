@@ -746,6 +746,10 @@ value. A depth buffer is only available if it was requested with
 [al_create_display] call creating the current display. Operations involving the
 depth buffer are also affected by [al_set_render_state].
 
+For example, if `ALLEGRO_DEPTH_FUNCTION` is set to `ALLEGRO_RENDER_LESS` then
+depth buffer value of 1 represents infinite distance, and thus is a good value
+to use when clearing the depth buffer.
+
 Since: 5.1.2
 
 See also: [al_clear_to_color], [al_set_clipping_rectangle],

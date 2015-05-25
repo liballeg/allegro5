@@ -189,6 +189,10 @@ be called after successfully attaching the pixel and/or vertex shaders with
 Returns true on success and false on error, in which case the error log is
 updated. The error log can be retrieved with [al_get_shader_log].
 
+> *Note:* If you are using the ALLEGRO_PROGRAMMABLE_PIPELINE flag, then you
+must specify both a pixel and a vertex shader sources for anything to be
+rendered.
+
 Since: 5.1.6
 
 See also: [al_use_shader], [al_get_shader_log]
