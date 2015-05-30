@@ -177,12 +177,11 @@ endif(NOT SUPPORT_AUDIO)
 include_directories(SYSTEM ${AUDIO_INCLUDE_DIRECTORIES})
 link_directories(${AUDIO_LINK_DIRECTORIES})
 add_our_addon_library(allegro_audio
+    AllegroAudio-${ALLEGRO_SOVERSION}
     "${AUDIO_SOURCES};${AUDIO_INCLUDE_FILES}"
     "-DALLEGRO_KCM_AUDIO_SRC"
     "${ALLEGRO_LINK_WITH};${AUDIO_LIBRARIES}"
     )
-
-set_our_framework_properties(allegro_audio AllegroAudio-${ALLEGRO_SOVERSION})
 
 install_our_headers(${AUDIO_INCLUDE_FILES})
 

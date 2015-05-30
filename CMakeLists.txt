@@ -860,13 +860,11 @@ if(NOT WANT_MONOLITH)
     # to get the DLL #defines right under Windows for creating DLL export
     # functions when it is defined or import DLL functions when it is not).
     add_our_library(allegro
+        Allegro-${ALLEGRO_SOVERSION}
         "${LIBRARY_SOURCES};${ALLEGRO_PUBLIC_HEADERS}"
         "${LIBRARY_CFLAGS} -DALLEGRO_SRC"
         "${PLATFORM_LIBS}"
         )
-
-    # Allegro 4 has taken "Allegro" as the name of the framework.
-    set_our_framework_properties(allegro Allegro-${ALLEGRO_SOVERSION})
 endif(NOT WANT_MONOLITH)
 
 # Addons and examples should link with this target.
@@ -897,12 +895,11 @@ if(WANT_MONOLITH)
 
     link_directories(${MONOLITH_LINK_DIRECTORIES})
     add_our_library(allegro_monolith
+        AllegroMonolith-${ALLEGRO_SOVERSION}
         "${MONOLITH_SOURCES};${ALLEGRO_PUBLIC_HEADERS}"
         "${LIBRARY_CFLAGS} -DALLEGRO_SRC ${MONOLITH_DEFINES}"
         "${PLATFORM_LIBS};${MONOLITH_LIBRARIES}"
         )
-
-    set_our_framework_properties(allegro_monolith AllegroMonolith-${ALLEGRO_SOVERSION})
 
     set(ALLEGRO_MONOLITH_LINK_WITH allegro_monolith)
 endif(WANT_MONOLITH)

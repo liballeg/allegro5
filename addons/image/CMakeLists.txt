@@ -140,12 +140,11 @@ configure_file(
     )
 
 add_our_addon_library(allegro_image
+    AllegroImage-${ALLEGRO_SOVERSION}
     "${IMAGE_SOURCES};${IMAGE_INCLUDE_FILES}"
     "-DALLEGRO_IIO_SRC"
     "${ALLEGRO_LINK_WITH};${IMAGE_LIBRARIES}"
     )
-
-set_our_framework_properties(allegro_image AllegroImage-${ALLEGRO_SOVERSION})
 
 install_our_headers(${IMAGE_INCLUDE_FILES})
 

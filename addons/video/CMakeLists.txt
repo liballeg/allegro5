@@ -60,12 +60,11 @@ endif(NOT SUPPORT_VIDEO)
 include_directories(SYSTEM ${VIDEO_INCLUDE_DIRECTORIES})
 
 add_our_addon_library(allegro_video
+    AllegroVideo-${ALLEGRO_SOVERSION}
     "${VIDEO_SOURCES};${VIDEO_INCLUDE_FILES}"
     "-DALLEGRO_VIDEO_SRC"
     "${ALLEGRO_LINK_WITH};${AUDIO_LINK_WITH};${VIDEO_LIBRARIES}"
     )
-
-set_our_framework_properties(allegro_video AllegroVideo-${ALLEGRO_SOVERSION})
 
 install_our_headers(${VIDEO_INCLUDE_FILES})
 

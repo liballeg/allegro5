@@ -65,7 +65,7 @@ function(sanitize_cmake_link_flags ...)
     set(return ${return} PARENT_SCOPE)
 endfunction(sanitize_cmake_link_flags)
 
-function(add_our_library target sources extra_flags link_with)
+function(add_our_library target framework_name sources extra_flags link_with)
     # BUILD_SHARED_LIBS controls whether this is a shared or static library.
     add_library(${target} ${sources})
 
@@ -127,14 +127,15 @@ function(add_our_library target sources extra_flags link_with)
         PROPERTIES
         static_link_with "${return}"
         )
+    set_our_framework_properties(${target} ${framework_name})
     install_our_library(${target})
 endfunction(add_our_library)
 
-macro(add_our_addon_library target sources extra_flags link_with)
+macro(add_our_addon_library target framework_name sources extra_flags link_with)
     if(WANT_MONOLITH)
         set(MONOLITH_DEFINES "${MONOLITH_DEFINES} ${extra_flags}")
     else()
-        add_our_library(${target} "${sources}" "${extra_flags}" "${link_with}")
+        add_our_library(${target} ${framework_name} "${sources}" "${extra_flags}" "${link_with}")
         if(ANDROID)
             record_android_load_libs(${target} "${link_with}")
         endif()

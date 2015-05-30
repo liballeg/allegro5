@@ -9,12 +9,11 @@ if(NOT SUPPORT_ALLEGRO_MAIN)
 endif(NOT SUPPORT_ALLEGRO_MAIN)
 
 add_our_addon_library(allegro_main
+   AllegroMain-${ALLEGRO_SOVERSION}
    "${MAIN_SOURCES}"
    "-DALLEGRO_SRC"
    "${ALLEGRO_LINK_WITH}"
    )
-
-set_our_framework_properties(allegro_main AllegroMain-${ALLEGRO_SOVERSION})
 
 add_addon(main)
 

@@ -270,12 +270,11 @@ configure_file(
     )
 
 add_our_addon_library(allegro_acodec
+    AllegroAcodec-${ALLEGRO_SOVERSION}
     "${ACODEC_SOURCES};${ACODEC_INCLUDE_FILES}"
     "-DALLEGRO_ACODEC_SRC ${FLAC__NO_DLL}"
     "${AUDIO_LINK_WITH};${ACODEC_LIBRARIES}"
     )
-
-set_our_framework_properties(allegro_acodec AllegroAcodec-${ALLEGRO_SOVERSION})
 
 install_our_headers(${ACODEC_INCLUDE_FILES})
 
