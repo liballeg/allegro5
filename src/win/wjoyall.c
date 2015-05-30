@@ -106,24 +106,26 @@ ALLEGRO_JOYSTICK_DRIVER _al_joydrv_windows_all =
 /* Mutex to protect state access. XXX is this needed? */
 static ALLEGRO_MUTEX  *joyall_mutex = NULL;
 
-/* Amount of directinput and xinput joystics known. */
-static int joyall_num_xinput, joyall_num_dinput;
+static bool ok_xi = false;
+static bool ok_di = false;
 
 /* Sets up all joysticks from the two wrapped apis. */
 static void joyall_setup_joysticks(void)
 {
    int index;
+   int num_xinput = 0;
+   int num_dinput = 0;
+   if (ok_di)
+      num_dinput = _al_joydrv_directx.num_joysticks();
+   if (ok_xi)
+      num_xinput = _al_joydrv_xinput.num_joysticks();
 
-   joyall_num_dinput = _al_joydrv_directx.num_joysticks();
-   joyall_num_xinput = _al_joydrv_xinput.num_joysticks();
-
-
-   for (index = 0; index < joyall_num_xinput; index++) {
+   for (index = 0; index < num_xinput; index++) {
       ALLEGRO_JOYSTICK *joystick = _al_joydrv_xinput.get_joystick(index);
       joystick->driver = &_al_joydrv_xinput;
    }
 
-   for (index = 0; index < joyall_num_dinput; index++) {
+   for (index = 0; index < num_dinput; index++) {
       ALLEGRO_JOYSTICK *joystick = _al_joydrv_directx.get_joystick(index);
       joystick->driver = &_al_joydrv_directx;
    }
@@ -133,7 +135,6 @@ static void joyall_setup_joysticks(void)
 /* Initialization API function. */
 static bool joyall_init_joystick(void)
 {
-   bool ok_xi, ok_di;
    /* Create the mutex and a condition vaiable. */
    joyall_mutex = al_create_mutex_recursive();
    if (!joyall_mutex)
@@ -161,8 +162,10 @@ static void joyall_exit_joystick(void)
 static bool joyall_reconfigure_joysticks(void)
 {
    al_lock_mutex(joyall_mutex);
-   _al_joydrv_xinput.reconfigure_joysticks();
-   _al_joydrv_directx.reconfigure_joysticks();
+   if (ok_xi)
+      _al_joydrv_xinput.reconfigure_joysticks();
+   if (ok_di)
+      _al_joydrv_directx.reconfigure_joysticks();
    joyall_setup_joysticks();
    al_unlock_mutex(joyall_mutex);
    return true;
@@ -170,19 +173,24 @@ static bool joyall_reconfigure_joysticks(void)
 
 static int joyall_get_num_joysticks(void)
 {
-   int num_xinput, num_dinput;
-   num_dinput = _al_joydrv_directx.num_joysticks();
-   num_xinput = _al_joydrv_xinput.num_joysticks();
-   return num_xinput + num_dinput;
+   int ret = 0;
+   if (ok_xi)
+      ret += _al_joydrv_xinput.num_joysticks();
+   if (ok_di)
+      ret += _al_joydrv_directx.num_joysticks();
+   return ret;
 }
 
 static ALLEGRO_JOYSTICK *joyall_get_joystick(int num)
 {
-   int num_xinput, num_dinput;
-   num_dinput = _al_joydrv_directx.num_joysticks();
-   num_xinput = _al_joydrv_xinput.num_joysticks();
+   int num_xinput = 0;
+   int num_dinput = 0;
+   if (ok_di)
+      num_dinput = _al_joydrv_directx.num_joysticks();
+   if (ok_xi)
+      num_xinput = _al_joydrv_xinput.num_joysticks();
    if (num < 0) return NULL;
-   /* Shift the joystick number to fit the range ofeach of the subdrivers */
+   /* Shift the joystick number to fit the range of each of the subdrivers */
    if (num < num_xinput) {
       return _al_joydrv_xinput.get_joystick(num);
    }
