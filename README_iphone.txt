@@ -31,7 +31,7 @@ Building using CMake
 
 To build for the iOS simulator, run these commands from the build directory:
 
-    cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-iphone.cmake -G XCode \
+    cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-iphone.cmake -G Xcode \
     -DIOS_PLATFORM="iphonesimulator" ..
     xcodebuild
 
@@ -47,7 +47,7 @@ To build for the iOS device, the procedure is similar. It is easiest to disable
 the building of demos, examples and tests as those currently require manual
 modification of the generated XCode project (to enable code signing).
 
-    cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-iphone.cmake -G XCode \
+    cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-iphone.cmake -G Xcode \
     -DIOS_PLATFORM="iphoneos" -DWANT_EXAMPLES=off -DWANT_DEMO=off -DWANT_TESTS=off ..
     xcodebuild
 
