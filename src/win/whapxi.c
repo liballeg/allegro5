@@ -153,7 +153,7 @@ static bool hapxi_get_active(ALLEGRO_HAPTIC *hap);
 static int hapxi_get_capabilities(ALLEGRO_HAPTIC *dev);
 static double hapxi_get_gain(ALLEGRO_HAPTIC *dev);
 static bool hapxi_set_gain(ALLEGRO_HAPTIC *dev, double);
-static int hapxi_get_num_effects(ALLEGRO_HAPTIC *dev);
+static int hapxi_get_max_effects(ALLEGRO_HAPTIC *dev);
 
 static bool hapxi_is_effect_ok(ALLEGRO_HAPTIC *dev, ALLEGRO_HAPTIC_EFFECT *eff);
 static bool hapxi_upload_effect(ALLEGRO_HAPTIC *dev,
@@ -194,7 +194,7 @@ ALLEGRO_HAPTIC_DRIVER _al_hapdrv_xinput =
    hapxi_get_capabilities,
    hapxi_get_gain,
    hapxi_set_gain,
-   hapxi_get_num_effects,
+   hapxi_get_max_effects,
 
    hapxi_is_effect_ok,
    hapxi_upload_effect,
@@ -622,7 +622,7 @@ static bool hapxi_set_autocenter(ALLEGRO_HAPTIC *dev, double intensity)
    return false;
 }
 
-static int hapxi_get_num_effects(ALLEGRO_HAPTIC *dev)
+static int hapxi_get_max_effects(ALLEGRO_HAPTIC *dev)
 {
    (void)dev;
    /* Support only one effect */

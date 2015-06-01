@@ -61,7 +61,7 @@ static bool hapall_get_active(ALLEGRO_HAPTIC *hap);
 static int hapall_get_capabilities(ALLEGRO_HAPTIC *dev);
 static double hapall_get_gain(ALLEGRO_HAPTIC *dev);
 static bool hapall_set_gain(ALLEGRO_HAPTIC *dev, double);
-static int hapall_get_num_effects(ALLEGRO_HAPTIC *dev);
+static int hapall_get_max_effects(ALLEGRO_HAPTIC *dev);
 
 static bool hapall_is_effect_ok(ALLEGRO_HAPTIC *dev, ALLEGRO_HAPTIC_EFFECT *eff);
 static bool hapall_upload_effect(ALLEGRO_HAPTIC *dev,
@@ -101,7 +101,7 @@ ALLEGRO_HAPTIC_DRIVER _al_hapdrv_windows_all =
    hapall_get_capabilities,
    hapall_get_gain,
    hapall_set_gain,
-   hapall_get_num_effects,
+   hapall_get_max_effects,
 
    hapall_is_effect_ok,
    hapall_upload_effect,
@@ -278,9 +278,9 @@ static bool hapall_set_autocenter(ALLEGRO_HAPTIC *dev, double intensity)
    return dev->driver->set_autocenter(dev, intensity);
 }
 
-static int hapall_get_num_effects(ALLEGRO_HAPTIC *dev)
+static int hapall_get_max_effects(ALLEGRO_HAPTIC *dev)
 {
-   return dev->driver->get_num_effects(dev);
+   return dev->driver->get_max_effects(dev);
 }
 
 

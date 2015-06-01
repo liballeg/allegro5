@@ -259,14 +259,14 @@ bool al_set_haptic_autocenter(ALLEGRO_HAPTIC *hap, double intensity)
 
 
 
-/* Function: al_get_num_haptic_effects
+/* Function: al_get_max_haptic_effects
  */
-int al_get_num_haptic_effects(ALLEGRO_HAPTIC *hap)
+int al_get_max_haptic_effects(ALLEGRO_HAPTIC *hap)
 {
    ASSERT(hap);
    ASSERT(haptic_driver);
 
-   return haptic_driver->get_num_effects(hap);
+   return haptic_driver->get_max_effects(hap);
 }
 
 

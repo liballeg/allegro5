@@ -37,7 +37,7 @@ typedef struct ALLEGRO_HAPTIC_DRIVER
    AL_METHOD(int, get_capabilities, (ALLEGRO_HAPTIC *));
    AL_METHOD(double, get_gain, (ALLEGRO_HAPTIC *));
    AL_METHOD(bool, set_gain, (ALLEGRO_HAPTIC *, double));
-   AL_METHOD(int, get_num_effects, (ALLEGRO_HAPTIC *));
+   AL_METHOD(int, get_max_effects, (ALLEGRO_HAPTIC *));
 
    AL_METHOD(bool, is_effect_ok, (ALLEGRO_HAPTIC *, ALLEGRO_HAPTIC_EFFECT *));
    AL_METHOD(bool, upload_effect, (ALLEGRO_HAPTIC *, ALLEGRO_HAPTIC_EFFECT *,

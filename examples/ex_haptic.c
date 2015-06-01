@@ -26,7 +26,7 @@ static void test_haptic_joystick(ALLEGRO_JOYSTICK *joy)
    }
 
    log_printf("Can play back %d haptic effects.\n",
-      al_get_num_haptic_effects(haptic));
+      al_get_max_haptic_effects(haptic));
 
    log_printf("Set gain to 0.8: %d.\n",
       al_set_haptic_gain(haptic, 0.8));

@@ -456,7 +456,7 @@ returns 0.0.
 Since: 5.1.9
 
 
-## API: al_get_num_haptic_effects
+## API: al_get_max_haptic_effects
 
 Returns the maximum amount of haptic effects that can be uploaded to the
 device.  This depends on the operating system, driver, platform and the 
@@ -479,7 +479,7 @@ user allocated [ALLEGRO_HAPTIC_EFFECT_ID].  This `id` can be used to control
 playback of the effect.  Returns true if the effect was successfully uploaded,
 false if not. 
 
-The function [al_get_num_haptic_effects] returns how many effects can 
+The function [al_get_max_haptic_effects] returns how many effects can
 be uploaded to the device at the same time.
 
 The same haptic effect can be uploaded several times, as long as care is
@@ -556,7 +556,7 @@ This function is called automatically when you call [al_release_haptic]
 on a [ALLEGRO_HAPTIC] for all effects that are still uploaded to the device.
 Therefore this function is most useful if you want to upload and release
 haptic effects dynamically, for example as a way to circumvent the limit 
-imposed by [al_get_num_haptic_effects].
+imposed by [al_get_max_haptic_effects].
 
 Returns true on success, false if the effect couldn't be released for any
 reason such as when NULL is passed, the effect is not active or failure

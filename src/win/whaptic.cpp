@@ -135,7 +135,7 @@ static bool whap_get_active(ALLEGRO_HAPTIC *hap);
 static int whap_get_capabilities(ALLEGRO_HAPTIC *dev);
 static double whap_get_gain(ALLEGRO_HAPTIC *dev);
 static bool whap_set_gain(ALLEGRO_HAPTIC *dev, double);
-static int whap_get_num_effects(ALLEGRO_HAPTIC *dev);
+static int whap_get_max_effects(ALLEGRO_HAPTIC *dev);
 
 static bool whap_is_effect_ok(ALLEGRO_HAPTIC *dev,
                               ALLEGRO_HAPTIC_EFFECT *eff);
@@ -174,7 +174,7 @@ ALLEGRO_HAPTIC_DRIVER _al_hapdrv_directx = {
    whap_get_capabilities,
    whap_get_gain,
    whap_set_gain,
-   whap_get_num_effects,
+   whap_get_max_effects,
 
    whap_is_effect_ok,
    whap_upload_effect,
@@ -263,7 +263,7 @@ static ALLEGRO_HAPTIC_EFFECT_WINDOWS
 {
    ALLEGRO_HAPTIC_EFFECT_WINDOWS *weff;
    int i;
-   for (i = 0; i < al_get_num_haptic_effects(&whap->parent); i++) {
+   for (i = 0; i < al_get_max_haptic_effects(&whap->parent); i++) {
       if (!whap->effects[i].active) {
          weff = whap->effects + i;
          weff->id = i;
@@ -1098,7 +1098,7 @@ static bool whap_set_autocenter(ALLEGRO_HAPTIC *dev, double intensity)
    return ok;
 }
 
-static int whap_get_num_effects(ALLEGRO_HAPTIC *dev)
+static int whap_get_max_effects(ALLEGRO_HAPTIC *dev)
 {
    ALLEGRO_HAPTIC_WINDOWS *whap = whap_from_al(dev);
    int n_effects;

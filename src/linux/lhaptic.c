@@ -78,7 +78,7 @@ static bool lhap_get_active(ALLEGRO_HAPTIC *hap);
 static int lhap_get_capabilities(ALLEGRO_HAPTIC *dev);
 static double lhap_get_gain(ALLEGRO_HAPTIC *dev);
 static bool lhap_set_gain(ALLEGRO_HAPTIC *dev, double);
-static int lhap_get_num_effects(ALLEGRO_HAPTIC *dev);
+static int lhap_get_max_effects(ALLEGRO_HAPTIC *dev);
 
 static bool lhap_is_effect_ok(ALLEGRO_HAPTIC *dev, ALLEGRO_HAPTIC_EFFECT *eff);
 static bool lhap_upload_effect(ALLEGRO_HAPTIC *dev,
@@ -117,7 +117,7 @@ ALLEGRO_HAPTIC_DRIVER _al_hapdrv_linux =
    lhap_get_capabilities,
    lhap_get_gain,
    lhap_set_gain,
-   lhap_get_num_effects,
+   lhap_get_max_effects,
 
    lhap_is_effect_ok,
    lhap_upload_effect,
@@ -664,7 +664,7 @@ static double lhap_get_autocenter(ALLEGRO_HAPTIC *dev)
    return lhap->parent.autocenter;
 }
 
-int lhap_get_num_effects(ALLEGRO_HAPTIC *dev)
+int lhap_get_max_effects(ALLEGRO_HAPTIC *dev)
 {
    ALLEGRO_HAPTIC_LINUX *lhap = lhap_from_al(dev);
    int n_effects;
@@ -719,7 +719,7 @@ static bool lhap_upload_effect(ALLEGRO_HAPTIC *dev,
 
    /* Find empty spot for effect . */
    found = -1;
-   for (i = 0; i < al_get_num_haptic_effects(dev); i++) {
+   for (i = 0; i < al_get_max_haptic_effects(dev); i++) {
       if (lhap->effects[i] < 0) {
          found = i;
          break;
