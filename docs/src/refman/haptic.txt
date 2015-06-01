@@ -368,9 +368,13 @@ a joystick is hot plugged. This function also automatically releases all
 haptic effects that are still uploaded to the device and that have not been
 released manually using [al_release_haptic_effect].
 
+Returns true on success or false if the haptic device couldn't be released
+for any reason, such as NULL being passed, the device not being active or
+failure in the driver.
+
 Since: 5.1.8
 
-## API: al_get_haptic_active
+## API: al_is_haptic_active
 
 Returns true if the haptic device can currently be used, false if not.
 
@@ -553,6 +557,10 @@ on a [ALLEGRO_HAPTIC] for all effects that are still uploaded to the device.
 Therefore this function is most useful if you want to upload and release
 haptic effects dynamically, for example as a way to circumvent the limit 
 imposed by [al_get_num_haptic_effects].
+
+Returns true on success, false if the effect couldn't be released for any
+reason such as when NULL is passed, the effect is not active or failure
+to release the effect by the driver.
 
 Since: 5.1.8
 
