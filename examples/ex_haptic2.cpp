@@ -791,7 +791,7 @@ void Prog::on_play()
    }
 
    haptic->playing = al_upload_and_play_haptic_effect(haptic->haptic,
-      &haptic->effect, loops, &haptic->id);
+      &haptic->effect, &haptic->id, loops);
    if (haptic->playing) {
       message_label.set_text("Playing...");
       log_printf("Started playing %d loops of effect type %s on %s\n", 

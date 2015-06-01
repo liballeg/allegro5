@@ -307,7 +307,7 @@ bool al_play_haptic_effect(ALLEGRO_HAPTIC_EFFECT_ID *id, int loop)
 /* Function: al_upload_and_play_haptic_effect
  */
 bool al_upload_and_play_haptic_effect(ALLEGRO_HAPTIC *hap,
-   ALLEGRO_HAPTIC_EFFECT *effect, int loop, ALLEGRO_HAPTIC_EFFECT_ID *id)
+   ALLEGRO_HAPTIC_EFFECT *effect, ALLEGRO_HAPTIC_EFFECT_ID *id, int loop)
 {
    ASSERT(hap);
    ASSERT(effect);
@@ -365,7 +365,7 @@ bool al_rumble_haptic(ALLEGRO_HAPTIC *hap,
    effect.data.rumble.weak_magnitude = intensity;
    effect.replay.delay = 0.0;
    effect.replay.length = duration;
-   return al_upload_and_play_haptic_effect(hap, &effect, 1, id);
+   return al_upload_and_play_haptic_effect(hap, &effect, id, 1);
 }
 
 
