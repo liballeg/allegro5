@@ -122,6 +122,15 @@ bool al_is_display_haptic(ALLEGRO_DISPLAY *dev)
    return haptic_driver->is_display_haptic(dev);
 }
 
+/* Function: al_is_touch_input_haptic
+ */
+bool al_is_touch_input_haptic(ALLEGRO_TOUCH_INPUT *dev)
+{
+   ASSERT(dev);
+   ASSERT(haptic_driver);
+
+   return haptic_driver->is_touch_input_haptic(dev);
+}
 
 /* Function: al_get_haptic_from_joystick
  */
