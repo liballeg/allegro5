@@ -692,7 +692,7 @@ void Prog::on_play()
       return;
    }
 
-   if (!al_get_haptic_active(haptic->haptic)) {
+   if (!al_is_haptic_active(haptic->haptic)) {
       message_label.set_text("Device Not Active!");
       log_printf("Device is not active: %d\n", devno);
       return;

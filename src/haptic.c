@@ -178,9 +178,9 @@ ALLEGRO_HAPTIC *al_get_haptic_from_touch_input(ALLEGRO_TOUCH_INPUT *dev)
 }
 
 
-/* Function: al_get_haptic_active
+/* Function: al_is_haptic_active
  */
-bool al_get_haptic_active(ALLEGRO_HAPTIC *hap)
+bool al_is_haptic_active(ALLEGRO_HAPTIC *hap)
 {
    ASSERT(hap);
    ASSERT(haptic_driver);

@@ -213,7 +213,7 @@ AL_FUNC(ALLEGRO_HAPTIC *, al_get_haptic_from_touch_input, (ALLEGRO_TOUCH_INPUT *
 
 AL_FUNC(bool, al_release_haptic, (ALLEGRO_HAPTIC *));
 
-AL_FUNC(bool, al_get_haptic_active, (ALLEGRO_HAPTIC *));
+AL_FUNC(bool, al_is_haptic_active, (ALLEGRO_HAPTIC *));
 AL_FUNC(int, al_get_haptic_capabilities, (ALLEGRO_HAPTIC *));
 AL_FUNC(bool, al_is_haptic_capable, (ALLEGRO_HAPTIC *, int));
 
