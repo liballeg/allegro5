@@ -165,9 +165,7 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
       pos.y = [[NSScreen mainScreen] frame].size.height - pos.y;
    }
    if (osx_mouse.warped) {
-           dx = -osx_mouse.warped_x;
-           dy = -osx_mouse.warped_y;
-           osx_mouse.warped = FALSE;
+      osx_mouse.warped = FALSE;
    }
    _al_event_source_lock(&osx_mouse.parent.es);
    if ((within || b_change || type == ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY)
