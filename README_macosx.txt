@@ -22,3 +22,29 @@ be given the option of selecting the C compiler to use. Simply select
 /Developer/usr/bin/clang.
 The installation otherwise continues as usual.
 
+Retina display support (OS X 10.7+)
+-----------------------------------
+
+Allegro has an option to support high DPI displays by treating them as a regular
+high-resolution display. To do so, use XCode to set the NSHighResolutionCapable
+property in the Info.plist of your bundled app to YES. Alternatively, add these
+two lines to the Info.plist using a text editor:
+
+    <key>NSHighResolutionCapable</key>
+    <true/>
+
+If you are making an unbundled app this feature appears to be enabled by
+default, but it is not recommended to rely on this working: make a bundled
+app for the most predictable performance.
+
+When changing the display DPI or moving the window between two displays with
+different DPIs, Allegro displays behave in the following way:
+
+- If the ALLEGRO_DISPLAY was created with the ALLEGRO_RESIZABLE flag it will
+  send an ALLEGRO_DISPLAY_RESIZE event. This will have the effect of your app's
+  window remaining visually the same, while the display size in pixels will
+  increase or decrease. This is the recommended situation.
+
+- If the ALLEGRO_DISPLAY was not created with the ALLEGRO_RESIZABLE flag, then
+  the display size in pixels will remain the same, but the app's window will
+  appear to grow or shrink.

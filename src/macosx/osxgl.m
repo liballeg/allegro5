@@ -148,6 +148,7 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void);
 ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_fs(void);
 static NSOpenGLContext* osx_create_shareable_context(NSOpenGLPixelFormat* fmt, unsigned int* group);
 static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff);
+static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h);
 
 static void clear_to_black(NSOpenGLContext *context)
 {
@@ -288,6 +289,16 @@ void _al_osx_mouse_was_installed(BOOL install) {
 }
 
 @implementation ALOpenGLView
+
+-(void) prepareOpenGL
+{
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+   if ([self respondsToSelector:@selector(setWantsBestResolutionOpenGLSurface:)]) {
+      [self setWantsBestResolutionOpenGLSurface:YES];
+   }
+#endif
+}
+
 /* setDisplay:
 * Set the display this view is associated with
 */
@@ -463,13 +474,49 @@ void _al_osx_mouse_was_installed(BOOL install) {
    _al_event_source_unlock(src);
    return NO;
 }
+
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1074
+-(void) viewDidChangeBackingProperties
+{
+   [super viewDidChangeBackingProperties];
+   if (!(al_get_display_flags(dpy_ptr) & ALLEGRO_RESIZABLE) &&
+       dpy_ptr->ogl_extras) {
+      resize_display_win(dpy_ptr, al_get_display_width(dpy_ptr), al_get_display_height(dpy_ptr));
+   }
+   else {
+      ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
+      NSWindow *window = dpy->win;
+      NSRect rc = [window frame];
+      NSRect content = [window contentRectForFrameRect: rc];
+      content = [self convertRectToBacking: content];
+      ALLEGRO_EVENT_SOURCE *es = &dpy->parent.es;
+
+      _al_event_source_lock(es);
+      if (_al_event_source_needs_to_generate_event(es)) {
+         ALLEGRO_EVENT event;
+         event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
+         event.display.timestamp = al_get_time();
+         event.display.width = NSWidth(content);
+         event.display.height = NSHeight(content);
+         _al_event_source_emit_event(es, &event);
+         ALLEGRO_INFO("Window finished resizing");
+      }
+      _al_event_source_unlock(es);
+   }
+}
+#endif
+
 -(void) viewDidEndLiveResize
 {
    [super viewDidEndLiveResize];
+
    ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
    NSWindow *window = dpy->win;
    NSRect rc = [window frame];
    NSRect content = [window contentRectForFrameRect: rc];
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+   content = [self convertRectToBacking: content];
+#endif
    ALLEGRO_EVENT_SOURCE *es = &dpy->parent.es;
 
    _al_event_source_lock(es);
@@ -516,6 +563,9 @@ void _al_osx_mouse_was_installed(BOOL install) {
    NSWindow *window = dpy->win;
    NSRect rc = [window frame];
    NSRect content = [window contentRectForFrameRect: rc];
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+   content = [self convertRectToBacking: content];
+#endif
    ALLEGRO_EVENT_SOURCE *es = &dpy->parent.es;
 
    _al_event_source_lock(es);
@@ -875,6 +925,14 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    } else {
       screen = [NSScreen mainScreen];
    }
+   float screen_scale_factor = 1.0;
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+   if ([screen respondsToSelector:@selector(backingScaleFactor)]) {
+      screen_scale_factor = [screen backingScaleFactor];
+   }
+#endif
+   rc.size.width /= screen_scale_factor;
+   rc.size.height /= screen_scale_factor;
    [win initWithContentRect: rc
                styleMask: mask
                 backing: NSBackingStoreBuffered
@@ -929,8 +987,8 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
       NSPoint origin;
 
       /* We need to modify the y coordinate, cf. set_window_position */
-      origin.x = sc.origin.x + new_window_pos_x;
-      origin.y = sc.origin.y + sc.size.height - rc.size.height - new_window_pos_y;
+      origin.x = sc.origin.x + new_window_pos_x / screen_scale_factor;
+      origin.y = sc.origin.y + sc.size.height - rc.size.height - new_window_pos_y / screen_scale_factor;
       [win setFrameOrigin: origin];
    }
    else {
@@ -1780,6 +1838,9 @@ static bool acknowledge_resize_display_win(ALLEGRO_DISPLAY *d)
    NSWindow* window = dpy->win;
    NSRect frame = [window frame];
    NSRect content = [window contentRectForFrameRect: frame];
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+   content = [window convertRectToBacking: content];
+#endif
 
    d->w = NSWidth(content);
    d->h = NSHeight(content);
@@ -1800,6 +1861,11 @@ static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h)
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
    NSWindow* window = dpy->win;
    NSRect current = [window frame];
+   NSRect content = NSMakeRect(0.0f, 0.0f, (float) w, (float) h);
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+   content = [window convertRectFromBacking: content];
+#endif
+
    w = _ALLEGRO_MAX(w, MINIMUM_WIDTH);
    h = _ALLEGRO_MAX(h, MINIMUM_HEIGHT);
 
@@ -1816,7 +1882,7 @@ static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h)
       h = d->max_h;
    }
 
-   NSRect rc = [window frameRectForContentRect: NSMakeRect(0.0f, 0.0f, (float) w, (float) h)];
+   NSRect rc = [window frameRectForContentRect: content];
    rc.origin = current.origin;
 
    /* Don't resize a fullscreen window */
@@ -2088,11 +2154,17 @@ static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
          if (onoff) {
             [view performSelectorOnMainThread: @selector(enterFullScreenWindowMode) withObject:nil waitUntilDone:YES];
             NSRect sc = [[win screen] frame];
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+            sc = [win convertRectToBacking: sc];
+#endif
             resize_display_win(display, sc.size.width, sc.size.height);
             display->flags |= ALLEGRO_FULLSCREEN_WINDOW;
          } else {
             [view performSelectorOnMainThread: @selector(exitFullScreenWindowMode) withObject:nil waitUntilDone:YES];
             NSRect sc = [view frame];
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+            sc = [win convertRectToBacking: sc];
+#endif
             display->flags &= ~ALLEGRO_FULLSCREEN_WINDOW;
             resize_display_win(display, sc.size.width, sc.size.height);
             [view performSelectorOnMainThread: @selector(finishExitingFullScreenWindowMode) withObject:nil waitUntilDone:YES];
