@@ -70,17 +70,13 @@ static int buffer_size; // in bytes
 static void dsound_set_buffer_size(int bits_per_sample)
 {
    int buffer_size_in_samples = 8192; // default
-   ALLEGRO_CONFIG *config = al_get_system_config();
-
-   if (config) {
-      const char *val = al_get_config_value(config,
-         "directsound", "buffer_size");
-      if (val && val[0] != '\0') {
-         int n = atoi(val);
-         if (n < MIN_BUFFER_SIZE)
-            n = MIN_BUFFER_SIZE;
-         buffer_size_in_samples = n;
-      }
+   const char *val = al_get_config_value(al_get_system_config(),
+      "directsound", "buffer_size");
+   if (val && val[0] != '\0') {
+      int n = atoi(val);
+      if (n < MIN_BUFFER_SIZE)
+         n = MIN_BUFFER_SIZE;
+      buffer_size_in_samples = n;
    }
 
    buffer_size = buffer_size_in_samples * (bits_per_sample/8);

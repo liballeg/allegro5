@@ -93,27 +93,24 @@ static bool _imp_load_d3dx9_module_version(int version)
 extern "C"
 bool _al_load_d3dx9_module()
 {
-   ALLEGRO_CONFIG *cfg;
    long version;
+   char const *value;
 
    if (_imp_d3dx9_module) {
       return true;
    }
 
-   cfg = al_get_system_config();
-   if (cfg) {
-      char const *value = al_get_config_value(cfg,
-         "shader", "force_d3dx9_version");
-      if (value) {
-         errno = 0;
-         version = strtol(value, NULL, 10);
-         if (errno) {
-            ALLEGRO_ERROR("Failed to override D3DX9 version. \"%s\" is not valid integer number.", value);
-            return false;
-         }
-         else
-            return _imp_load_d3dx9_module_version((int)version);
+   value = al_get_config_value(al_get_system_config(),
+      "shader", "force_d3dx9_version");
+   if (value) {
+      errno = 0;
+      version = strtol(value, NULL, 10);
+      if (errno) {
+         ALLEGRO_ERROR("Failed to override D3DX9 version. \"%s\" is not valid integer number.", value);
+         return false;
       }
+      else
+         return _imp_load_d3dx9_module_version((int)version);
    }
 
    // Iterate over all valid versions.

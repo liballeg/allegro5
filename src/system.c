@@ -39,6 +39,7 @@
 ALLEGRO_DEBUG_CHANNEL("system")
 
 static ALLEGRO_SYSTEM *active_sysdrv = NULL;
+static ALLEGRO_CONFIG *sys_config = NULL;
 
 _AL_VECTOR _al_system_interfaces;
 static _AL_VECTOR _user_system_interfaces = _AL_VECTOR_INITIALIZER(ALLEGRO_SYSTEM_INTERFACE *);
@@ -74,20 +75,19 @@ static ALLEGRO_SYSTEM *find_system(_AL_VECTOR *vector)
 static void shutdown_system_driver(void)
 {
    if (active_sysdrv) {
-      ALLEGRO_CONFIG *temp = active_sysdrv->config;
       if (active_sysdrv->user_exe_path)
          al_destroy_path(active_sysdrv->user_exe_path);
       if (active_sysdrv->vt && active_sysdrv->vt->shutdown_system)
          active_sysdrv->vt->shutdown_system();
       active_sysdrv = NULL;
-      /* active_sysdrv is not accessible here so we copied it */
-      al_destroy_config(temp);
  
       while (!_al_vector_is_empty(&_al_system_interfaces))
          _al_vector_delete_at(&_al_system_interfaces, _al_vector_size(&_al_system_interfaces)-1);
       _al_vector_free(&_al_system_interfaces);
       _al_vector_init(&_al_system_interfaces, sizeof(ALLEGRO_SYSTEM_INTERFACE *));
    }
+   al_destroy_config(sys_config);
+   sys_config = NULL;
 }
 
 
@@ -129,23 +129,23 @@ static void read_allegro_cfg(void)
    ALLEGRO_PATH *path;
    ALLEGRO_CONFIG *temp;
 
-   active_sysdrv->config = NULL;
+   if (!sys_config)
+      sys_config = al_create_config();
 
 #if defined(ALLEGRO_UNIX) && !defined(ALLEGRO_IPHONE)
-   active_sysdrv->config = al_load_config_file("/etc/allegro5rc");
+   temp = al_load_config_file("/etc/allegro5rc");
+   if (temp) {
+      al_merge_config_into(sys_config, temp);
+      al_destroy_config(temp);
+   }
 
    path = _al_unix_get_path(ALLEGRO_USER_HOME_PATH);
    if (path) {
       al_set_path_filename(path, "allegro5rc");
       temp = al_load_config_file(al_path_cstr(path, '/'));
       if (temp) {
-         if (active_sysdrv->config) {
-            al_merge_config_into(active_sysdrv->config, temp);
-            al_destroy_config(temp);
-         }
-         else {
-            active_sysdrv->config = temp;
-         }
+         al_merge_config_into(sys_config, temp);
+         al_destroy_config(temp);
       }
       al_destroy_path(path);
    }
@@ -156,22 +156,11 @@ static void read_allegro_cfg(void)
       al_set_path_filename(path, "allegro5.cfg");
       temp = al_load_config_file(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
       if (temp) {
-         if (active_sysdrv->config) {
-            al_merge_config_into(active_sysdrv->config, temp);
-            al_destroy_config(temp);
-         }
-         else {
-            active_sysdrv->config = temp;
-         }
+         al_merge_config_into(sys_config, temp);
+         al_destroy_config(temp);
       }
       al_destroy_path(path);
    }
-
-   /* Always have a configuration available whether or not a config file
-    * exists.
-    */
-   if (!active_sysdrv->config)
-      active_sysdrv->config = al_create_config();
 }
 
 
@@ -224,11 +213,7 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
 
    _al_vector_init(&_al_system_interfaces, sizeof(ALLEGRO_SYSTEM_INTERFACE *));
 
-   /* We want active_sysdrv->config to be available as soon as
-    * possible - for example what if a system driver need to read
-    * settings out of there. Hence we use a dummy ALLEGRO_SYSTEM
-    * here to load the initial config.
-    */
+   /* Set up a bootstrap system so the calls expecting it don't freak out */
    memset(&bootstrap, 0, sizeof(bootstrap));
    active_sysdrv = &bootstrap;
    read_allegro_cfg();
@@ -255,7 +240,6 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
    }
    
    active_sysdrv = real_system;
-   active_sysdrv->config = bootstrap.config;
    active_sysdrv->mouse_wheel_precision = 1;
 
    ALLEGRO_INFO("Allegro version: %s\n", ALLEGRO_VERSION_STR);
@@ -352,7 +336,9 @@ ALLEGRO_SYSTEM *al_get_system_driver(void)
  */
 ALLEGRO_CONFIG *al_get_system_config(void)
 {
-   return (active_sysdrv) ? active_sysdrv->config : NULL;
+   if (!sys_config)
+      sys_config = al_create_config();
+   return sys_config;
 }
 
 

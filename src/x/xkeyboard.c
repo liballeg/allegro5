@@ -630,7 +630,7 @@ static bool _al_xwin_get_keyboard_mapping(void)
     * For normal use, a user never should have to touch [xkeymap] anymore
     * though, and proper written programs will not hardcode such mappings.
     */
-   ALLEGRO_CONFIG *c = system->system.config;
+   ALLEGRO_CONFIG *c = al_get_system_config();
    
    char const *key;
    ALLEGRO_CONFIG_ENTRY *it;

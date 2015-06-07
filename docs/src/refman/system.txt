@@ -181,10 +181,10 @@ See also: [al_set_org_name]
 
 ## API: al_get_system_config
 
-Returns the current system configuration structure, or NULL if
-there is no active system driver. The returned configuration should
-not be destroyed with [al_destroy_config].
-This is mainly used for configuring Allegro and its addons.
+Returns the system configuration structure. The returned configuration should
+not be destroyed with [al_destroy_config]. This is mainly used for configuring
+Allegro and its addons. You may populate this configuration before Allegro is
+installed to control things like the logging levels and other features.
 
 Allegro will try to populate this configuration by loading a configuration file
 from a few different locations, in this order:

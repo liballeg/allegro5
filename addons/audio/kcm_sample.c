@@ -62,24 +62,22 @@ static bool create_default_mixer(void)
    int mixer_depth = ALLEGRO_AUDIO_DEPTH_FLOAT32;
 
    ALLEGRO_CONFIG *config = al_get_system_config();
-   if (config) {
-      const char *p;
-      p = al_get_config_value(config, "audio", "primary_voice_frequency");
-      if (p && p[0] != '\0') {
-         voice_frequency = atoi(p);
-      }
-      p = al_get_config_value(config, "audio", "primary_mixer_frequency");
-      if (p && p[0] != '\0') {
-         mixer_frequency = atoi(p);
-      }
-      p = al_get_config_value(config, "audio", "primary_voice_depth");
-      if (p && p[0] != '\0') {
-         voice_depth = string_to_depth(p);
-      }
-      p = al_get_config_value(config, "audio", "primary_mixer_depth");
-      if (p && p[0] != '\0') {
-         mixer_depth = string_to_depth(p);
-      }
+   const char *p;
+   p = al_get_config_value(config, "audio", "primary_voice_frequency");
+   if (p && p[0] != '\0') {
+      voice_frequency = atoi(p);
+   }
+   p = al_get_config_value(config, "audio", "primary_mixer_frequency");
+   if (p && p[0] != '\0') {
+      mixer_frequency = atoi(p);
+   }
+   p = al_get_config_value(config, "audio", "primary_voice_depth");
+   if (p && p[0] != '\0') {
+      voice_depth = string_to_depth(p);
+   }
+   p = al_get_config_value(config, "audio", "primary_mixer_depth");
+   if (p && p[0] != '\0') {
+      mixer_depth = string_to_depth(p);
    }
 
    if (!allegro_voice) {

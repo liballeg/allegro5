@@ -744,9 +744,9 @@ ALLEGRO_FONT *al_load_ttf_font_stretch_f(ALLEGRO_FILE *file,
     int result;
     ALLEGRO_CONFIG* system_cfg = al_get_system_config();
     const char* min_page_size_str =
-      system_cfg ? al_get_config_value(system_cfg, "ttf", "min_page_size") : NULL;
+      al_get_config_value(system_cfg, "ttf", "min_page_size");
     const char* max_page_size_str =
-      system_cfg ? al_get_config_value(system_cfg, "ttf", "max_page_size") : NULL;
+      al_get_config_value(system_cfg, "ttf", "max_page_size");
 
     if ((h > 0 && w < 0) || (h < 0 && w > 0)) {
        ALLEGRO_ERROR("Height/width have opposite signs (w = %d, h = %d).\n", w, h);

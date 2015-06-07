@@ -171,9 +171,6 @@ static ALLEGRO_AUDIO_DRIVER_ENUM get_config_audio_driver(void)
    ALLEGRO_CONFIG *config = al_get_system_config();
    const char *value;
 
-   if (!config)
-      return ALLEGRO_AUDIO_DRIVER_AUTODETECT;
-
    value = al_get_config_value(config, "audio", "driver");
    if (!value || value[0] == '\0')
       return ALLEGRO_AUDIO_DRIVER_AUTODETECT;

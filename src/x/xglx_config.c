@@ -439,24 +439,21 @@ static void select_best_visual(ALLEGRO_DISPLAY_XGLX *glx,
 
 void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds;
    int eds_count, i;
    bool force_old = false;
    bool using_fbc;
 
-   if (system->system.config) {
-      const char *selection_mode;
-      selection_mode = al_get_config_value(system->system.config, "graphics",
-                          "config_selection");
-      if (selection_mode && selection_mode[0] != '\0') {
-         if (!_al_stricmp(selection_mode, "old")) {
-            ALLEGRO_WARN("Forcing OLD visual selection method.\n");
-            force_old = true;
-         }
-         else if (!_al_stricmp(selection_mode, "new"))
-            force_old = false;
+   const char *selection_mode;
+   selection_mode = al_get_config_value(al_get_system_config(), "graphics",
+                       "config_selection");
+   if (selection_mode && selection_mode[0] != '\0') {
+      if (!_al_stricmp(selection_mode, "old")) {
+         ALLEGRO_WARN("Forcing OLD visual selection method.\n");
+         force_old = true;
       }
+      else if (!_al_stricmp(selection_mode, "new"))
+         force_old = false;
    }
 
    if (glx->glx_version >= 130 && !force_old)

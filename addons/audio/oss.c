@@ -195,13 +195,11 @@ static int oss_open_ver4()
 
 static int oss_open_ver3(void)
 {
-   ALLEGRO_CONFIG *config = al_get_system_config();
-   if (config) {
-      const char *config_device;
-      config_device = al_get_config_value(config, "oss", "device");
-      if (config_device && config_device[0] != '\0')
-         oss_audio_device_ver3 = config_device;
-   }
+   const char *config_device;
+   config_device = al_get_config_value(al_get_system_config(),
+      "oss", "device");
+   if (config_device && config_device[0] != '\0')
+      oss_audio_device_ver3 = config_device;
 
    int fd = open(oss_audio_device_ver3, O_WRONLY);
    if (fd == -1) {
@@ -239,13 +237,11 @@ static int oss_open_ver3(void)
 static int oss_open(void)
 {
    bool force_oss3 = false;
-   ALLEGRO_CONFIG *config = al_get_system_config();
-   if (config) {
-      const char *force_oss3_cfg;
-      force_oss3_cfg = al_get_config_value(config, "oss", "force_ver3");
-      if (force_oss3_cfg && force_oss3_cfg[0] != '\0')
-         force_oss3 = strcmp(force_oss3_cfg, "yes") ? false : true;
-   }
+   const char *force_oss3_cfg;
+   force_oss3_cfg = al_get_config_value(al_get_system_config(), "oss",
+      "force_ver3");
+   if (force_oss3_cfg && force_oss3_cfg[0] != '\0')
+      force_oss3 = strcmp(force_oss3_cfg, "yes") ? false : true;
 
    if (force_oss3) {
       ALLEGRO_WARN("Skipping OSS4 probe.\n");

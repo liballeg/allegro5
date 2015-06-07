@@ -198,15 +198,17 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
 {
    const int flags = al_get_new_display_flags();
    ALLEGRO_SYSTEM *sys = al_get_system_driver();
+   ALLEGRO_CONFIG *sys_cfg = al_get_system_config();
    ALLEGRO_SYSTEM_WIN *syswin = (ALLEGRO_SYSTEM_WIN *)sys;
+   const char *s;
 
    /* Look up the toggle_mouse_grab_key binding.  This isn't such a great place
     * to do it, but the config file is not available in win_initialize,
     * and this is neutral between the D3D and OpenGL display drivers.
     */
-   if (sys->config && !syswin->toggle_mouse_grab_keycode) {
-      const char *binding = al_get_config_value(sys->config,
-         "keyboard", "toggle_mouse_grab_key");
+   if (!syswin->toggle_mouse_grab_keycode) {
+      const char *binding = al_get_config_value(sys_cfg, "keyboard",
+         "toggle_mouse_grab_key");
       if (binding) {
          syswin->toggle_mouse_grab_keycode = _al_parse_key_binding(binding,
             &syswin->toggle_mouse_grab_modifiers);
@@ -238,28 +240,26 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
     * The user may unknowingly set a value which was configured out at compile
     * time.  The value should have no effect instead of causing a failure.
     */
-   if (sys->config) {
-      const char *s = al_get_config_value(sys->config, "graphics", "driver");
-      if (s) {
-         ALLEGRO_DEBUG("Configuration value graphics.driver = %s\n", s);
-         if (0 == _al_stricmp(s, "DIRECT3D") || 0 == _al_stricmp(s, "D3D")) {
+   s = al_get_config_value(sys_cfg, "graphics", "driver");
+   if (s) {
+      ALLEGRO_DEBUG("Configuration value graphics.driver = %s\n", s);
+      if (0 == _al_stricmp(s, "DIRECT3D") || 0 == _al_stricmp(s, "D3D")) {
 #ifdef ALLEGRO_CFG_D3D
-            ALLEGRO_DISPLAY_INTERFACE* iface = _al_display_d3d_driver();
-            if (iface != NULL) {
-               al_set_new_display_flags(flags | ALLEGRO_DIRECT3D_INTERNAL);
-               return iface;
-            }
-#endif
+         ALLEGRO_DISPLAY_INTERFACE* iface = _al_display_d3d_driver();
+         if (iface != NULL) {
+            al_set_new_display_flags(flags | ALLEGRO_DIRECT3D_INTERNAL);
+            return iface;
          }
-         else if (0 == _al_stricmp(s, "OPENGL")) {
+#endif
+      }
+      else if (0 == _al_stricmp(s, "OPENGL")) {
 #ifdef ALLEGRO_CFG_OPENGL
-            al_set_new_display_flags(flags | ALLEGRO_OPENGL);
-            return _al_display_wgl_driver();
+         al_set_new_display_flags(flags | ALLEGRO_OPENGL);
+         return _al_display_wgl_driver();
 #endif
-         }
-         else if (0 != _al_stricmp(s, "DEFAULT")) {
-            ALLEGRO_WARN("Graphics driver selection unrecognised: %s\n", s);
-         }
+      }
+      else if (0 != _al_stricmp(s, "DEFAULT")) {
+         ALLEGRO_WARN("Graphics driver selection unrecognised: %s\n", s);
       }
    }
 
@@ -297,8 +297,7 @@ static ALLEGRO_KEYBOARD_DRIVER *win_get_keyboard_driver(void)
 static bool win_configured_joystick_driver_is(const char * name)
 {
    const char * driver;
-   ALLEGRO_SYSTEM * sys       = al_get_system_driver();
-   ALLEGRO_CONFIG * sysconf   = sys->config;
+   ALLEGRO_CONFIG * sysconf = al_get_system_config();
    if (!sysconf) return false;
    driver = al_get_config_value(sysconf, "joystick", "driver");
    if (!driver) return false;

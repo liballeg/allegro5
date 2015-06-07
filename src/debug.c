@@ -84,14 +84,7 @@ static void configure_logging(void)
    char const *v;
    bool got_all = false;
 
-   /* Messages logged before the system driver and allegro5.cfg are
-    * up will always use defaults - but usually nothing is logged
-    * before al_init.
-    */
    config = al_get_system_config();
-   if (!config)
-      return;
-
    v = al_get_config_value(config, "trace", "channels");
    if (v) {
       ALLEGRO_USTR_INFO uinfo;

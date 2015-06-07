@@ -849,22 +849,21 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds = NULL;
    ALLEGRO_SYSTEM *system = (void *)al_get_system_driver();
+   ALLEGRO_CONFIG *sys_cfg = al_get_system_config();
    int eds_count = 0;
    int i;
    bool force_old = false;
+   const char *selection_mode;
 
-   if (system->config) {
-      const char *selection_mode;
-      selection_mode = al_get_config_value(system->config, "graphics",
-                          "config_selection");
-      if (selection_mode && selection_mode[0] != '\0') {
-         if (!_al_stricmp(selection_mode, "old")) {
-            ALLEGRO_INFO("Forcing OLD visual selection method.\n");
-            force_old = true;
-         }
-         else if (!_al_stricmp(selection_mode, "new"))
-            force_old = false;
+   selection_mode = al_get_config_value(sys_cfg, "graphics",
+                       "config_selection");
+   if (selection_mode && selection_mode[0] != '\0') {
+      if (!_al_stricmp(selection_mode, "old")) {
+         ALLEGRO_INFO("Forcing OLD visual selection method.\n");
+         force_old = true;
       }
+      else if (!_al_stricmp(selection_mode, "new"))
+         force_old = false;
    }
 
    if (!force_old)

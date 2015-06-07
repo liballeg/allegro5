@@ -218,27 +218,24 @@ static bool _imp_load_xinput_module_version(int version)
 
 static bool load_xinput_module(void)
 {
-   ALLEGRO_CONFIG *cfg;
    long version;
+   char const *value;
 
    if (_imp_xinput_module) {
       return true;
    }
 
-   cfg = al_get_system_config();
-   if (cfg) {
-      char const *value = al_get_config_value(cfg,
-         "joystick", "force_xinput_version");
-      if (value) {
-         errno = 0;
-         version = strtol(value, NULL, 10);
-         if (errno) {
-            ALLEGRO_ERROR("Failed to override XInput version. \"%s\" is not valid integer number.", value);
-            return false;
-         }
-         else
-            return _imp_load_xinput_module_version((int)version);
+   value = al_get_config_value(al_get_system_config(),
+      "joystick", "force_xinput_version");
+   if (value) {
+      errno = 0;
+      version = strtol(value, NULL, 10);
+      if (errno) {
+         ALLEGRO_ERROR("Failed to override XInput version. \"%s\" is not valid integer number.", value);
+         return false;
       }
+      else
+         return _imp_load_xinput_module_version((int)version);
    }
 
    // Iterate over all valid versions.

@@ -126,22 +126,18 @@ static uint32_t parse_opengl_version(const char *s)
 static uint32_t _al_ogl_version(void)
 {
 #if !defined ALLEGRO_CFG_OPENGLES
-   ALLEGRO_CONFIG *cfg;
    const char *str;
 
-   cfg = al_get_system_config();
-   if (cfg) {
-      char const *value = al_get_config_value(cfg,
-	 "opengl", "force_opengl_version");
-      if (value) {
-         uint32_t v = parse_opengl_version(value);
-         ALLEGRO_INFO("OpenGL version forced to %d.%d.%d.%d.\n",
-            (v >> 24) & 0xff,
-            (v >> 16) & 0xff,
-            (v >> 8) & 0xff,
-            (v & 0xff));
-         return v;
-      }
+   char const *value = al_get_config_value(al_get_system_config(), "opengl",
+      "force_opengl_version");
+   if (value) {
+      uint32_t v = parse_opengl_version(value);
+      ALLEGRO_INFO("OpenGL version forced to %d.%d.%d.%d.\n",
+         (v >> 24) & 0xff,
+         (v >> 16) & 0xff,
+         (v >> 8) & 0xff,
+         (v & 0xff));
+      return v;
    }
 
    str = (const char *)glGetString(GL_VERSION);
@@ -510,7 +506,6 @@ static bool _ogl_is_extension_supported(const char *extension,
 static bool _ogl_is_extension_with_version_supported(
    const char *extension, ALLEGRO_DISPLAY *disp, uint32_t ver)
 {
-   ALLEGRO_CONFIG *cfg;
    char const *value;
 
   /* For testing purposes, any OpenGL extension can be disable in
@@ -521,15 +516,12 @@ static bool _ogl_is_extension_with_version_supported(
     * GL_EXT_framebuffer_object=0
     * 
     */
-   cfg = al_get_system_config();
-   if (cfg) {
-      value = al_get_config_value(cfg,
-         "opengl_disabled_extensions", extension);
-      if (value) {
-         ALLEGRO_WARN("%s found in [opengl_disabled_extensions].\n",
-            extension);
-         return false;
-      }
+   value = al_get_config_value(al_get_system_config(),
+      "opengl_disabled_extensions", extension);
+   if (value) {
+      ALLEGRO_WARN("%s found in [opengl_disabled_extensions].\n",
+         extension);
+      return false;
    }
 
    /* If the extension is included in the OpenGL version, there is no

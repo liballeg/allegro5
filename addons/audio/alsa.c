@@ -67,13 +67,10 @@ static int alsa_open(void)
 {
    alsa_device = default_device;
 
-   ALLEGRO_CONFIG *config = al_get_system_config();
-   if (config) {
-      const char *config_device;
-      config_device = al_get_config_value(config, "alsa", "device");
-      if (config_device && config_device[0] != '\0')
-         alsa_device = strdup(config_device);
-   }
+   const char *config_device;
+   config_device = al_get_config_value(al_get_system_config(), "alsa", "device");
+   if (config_device && config_device[0] != '\0')
+      alsa_device = strdup(config_device);
 
    ALSA_CHECK(snd_output_stdio_attach(&snd_output, stdout, 0));
 
@@ -760,15 +757,12 @@ static int alsa_allocate_recorder(ALLEGRO_AUDIO_RECORDER *r)
    ALSA_RECORDER_DATA *data;
    unsigned int frequency = r->frequency;
    snd_pcm_format_t format;
-   ALLEGRO_CONFIG *config = al_get_system_config();
    const char *device = default_device;
-   
-   if (config) {
-      const char *config_device;
-      config_device = al_get_config_value(config, "alsa", "capture_device");
-      if (config_device && config_device[0] != '\0')
-         device = config_device;
-   }
+   const char *config_device;
+   config_device =
+      al_get_config_value(al_get_system_config(), "alsa", "capture_device");
+   if (config_device && config_device[0] != '\0')
+      device = config_device;
 
    data = al_calloc(1, sizeof(*data));
    

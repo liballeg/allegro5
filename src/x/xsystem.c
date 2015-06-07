@@ -139,8 +139,8 @@ static ALLEGRO_DISPLAY_INTERFACE *xglx_get_display_driver(void)
     * to do it, but the config file is not available until after the system driver
     * is initialised.
     */
-   if (system->system.config && !system->toggle_mouse_grab_keycode) {
-      const char *binding = al_get_config_value(system->system.config,
+   if (!system->toggle_mouse_grab_keycode) {
+      const char *binding = al_get_config_value(al_get_system_config(),
          "keyboard", "toggle_mouse_grab_key");
       if (binding) {
          system->toggle_mouse_grab_keycode = _al_parse_key_binding(binding,
