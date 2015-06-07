@@ -273,6 +273,36 @@ static ALLEGRO_OGL_EXT_API *create_extension_api_table(void)
 
 
 
+typedef void (*VOID_FPTR)(void);
+/* GCC 4.8.2 and possibly others are really slow at optimizing the 100's of the
+ * if statements in the load_extensions function below, so we extract them to
+ * this function.
+ */
+static VOID_FPTR load_extension(const char* name)
+{
+   VOID_FPTR fptr = NULL;
+#ifdef ALLEGRO_WINDOWS
+   fptr = (VOID_FPTR)wglGetProcAddress(name);
+#elif defined ALLEGRO_UNIX
+   fptr = (VOID_FPTR)alXGetProcAddress((const GLubyte*)name);
+#elif defined ALLEGRO_MACOSX
+   CFStringRef cfstr = CFStringCreateWithCStringNoCopy(NULL, name,
+      kCFStringEncodingUTF8, kCFAllocatorNull);
+   if (cfstr) {
+      fptr = (VOID_FPTR)CFBundleGetFunctionPointerForName(opengl_bundle_ref, cfstr);
+      CFRelease(cfstr);
+   }
+#elif defined ALLEGRO_SDL
+   fptr = SDL_GL_GetProcAddress(name);
+#endif
+   if (fptr) {
+      ALLEGRO_DEBUG("%s successfully loaded (%p)\n", name, fptr);
+   }
+   return fptr;
+}
+
+
+
 /* Load the extension API addresses into the table.
  * Should only be done on context creation.
  */
@@ -292,17 +322,15 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
 
 #ifdef ALLEGRO_WINDOWS
 
-   #define AGL_API(type, name, args)                                 \
-      ext->name = (_ALLEGRO_gl##name##_t)wglGetProcAddress("gl" #name); \
-      if (ext->name) { ALLEGRO_DEBUG("gl" #name " successfully loaded\n"); }
+   #define AGL_API(type, name, args)                                           \
+      ext->name = (_ALLEGRO_gl##name##_t)load_extension("gl" #name);
 
       #include "allegro5/opengl/GLext/gl_ext_api.h"
 
    #undef AGL_API
 
-   #define AGL_API(type, name, args)                                  \
-      ext->name = (_ALLEGRO_wgl##name##_t)wglGetProcAddress("wgl" #name); \
-      if (ext->name) { ALLEGRO_DEBUG("wgl" #name " successfully loaded\n"); }
+   #define AGL_API(type, name, args)                                           \
+      ext->name = (_ALLEGRO_wgl##name##_t)load_extension("wgl" #name);
 
       #include "allegro5/opengl/GLext/wgl_ext_api.h"
 
@@ -310,17 +338,15 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
 
 #elif defined ALLEGRO_UNIX
 
-   #define AGL_API(type, name, args)                                               \
-      ext->name = (_ALLEGRO_gl##name##_t)alXGetProcAddress((const GLubyte*)"gl" #name);  \
-      if (ext->name) { ALLEGRO_DEBUG("gl" #name " successfully loaded (%p)\n", ext->name); }
+   #define AGL_API(type, name, args)                                           \
+      ext->name = (_ALLEGRO_gl##name##_t)load_extension("gl" #name);
 
       #include "allegro5/opengl/GLext/gl_ext_api.h"
 
    #undef AGL_API
 
-   #define AGL_API(type, name, args)                                               \
-      ext->name = (_ALLEGRO_glX##name##_t)alXGetProcAddress((const GLubyte*)"glX" #name); \
-      if (ext->name) { ALLEGRO_DEBUG("glX" #name " successfully loaded\n"); }
+   #define AGL_API(type, name, args)                                           \
+      ext->name = (_ALLEGRO_glX##name##_t)load_extension("glX" #name);
 
       #include "allegro5/opengl/GLext/glx_ext_api.h"
 
@@ -328,9 +354,8 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
 
 #elif defined ALLEGRO_MACOSX
 
-#define AGL_API(type, name, args)                                                                 \
-      ext->name = (_ALLEGRO_gl##name##_t)CFBundleGetFunctionPointerForName(opengl_bundle_ref, CFSTR("gl" # name)); \
-      if (ext->name) { ALLEGRO_DEBUG("gl" #name " successfully loaded\n"); }
+#define AGL_API(type, name, args)                                              \
+      ext->name = (_ALLEGRO_gl##name##_t)load_extension("gl" # name);
 
       #include "allegro5/opengl/GLext/gl_ext_api.h"
 
@@ -338,9 +363,8 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
 
 #elif defined ALLEGRO_SDL
 
-#define AGL_API(type, name, args)                                                                 \
-      ext->name = (_ALLEGRO_gl##name##_t)SDL_GL_GetProcAddress(("gl" # name)); \
-      if (ext->name) { ALLEGRO_DEBUG("gl" #name " successfully loaded\n"); }
+#define AGL_API(type, name, args)                                              \
+      ext->name = (_ALLEGRO_gl##name##_t)load_extension("gl" # name);
 
       #include "allegro5/opengl/GLext/gl_ext_api.h"
 

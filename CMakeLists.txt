@@ -163,7 +163,7 @@ option(WANT_DOCS_PDF_PAPER "Whether PDF output is destined for paper" off)
 
 option(STRICT_WARN "Halt at warnings" off)
 option(WANT_MUDFLAP "Enable gcc mudflap (requires gcc 4.0+)" off)
-option(WANT_RELEASE_LOGGING "Enable logging even in release mode" off)
+option(WANT_RELEASE_LOGGING "Enable logging even in release mode" on)
 
 if(WANT_RELEASE_LOGGING)
     set(ALLEGRO_CFG_RELEASE_LOGGING 1)

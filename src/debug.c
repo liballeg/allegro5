@@ -123,11 +123,18 @@ static void configure_logging(void)
          delete_string_list(&trace_info.channels);
    }
 
+#ifdef DEBUGMODE
+   trace_info.level = 0;
+#else
+   trace_info.level = 9999;
+#endif
+
    v = al_get_config_value(config, "trace", "level");
    if (v) {
       if (!strcmp(v, "error")) trace_info.level = 3;
       else if (!strcmp(v, "warn")) trace_info.level = 2;
       else if (!strcmp(v, "info")) trace_info.level = 1;
+      else if (!strcmp(v, "debug")) trace_info.level = 0;
    }
 
    v = al_get_config_value(config, "trace", "timestamps");
