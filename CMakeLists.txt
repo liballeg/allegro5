@@ -34,6 +34,7 @@ if(WANT_ANDROID)
     set(ANDROID_TARGET "android-12" CACHE STRING "What Android target to compile for.")
 endif(WANT_ANDROID)
 option(ALLEGRO_SDL "Build using the SDL backend (experimental)" OFF)
+option(WANT_STATIC_RUNTIME "Whether or not to link the C and C++ runtimes statically (currently only implemented for MSVC)" OFF)
 
 # Set the project name.
 # We use C++ in a few cases.

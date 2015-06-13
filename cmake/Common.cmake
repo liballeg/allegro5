@@ -69,6 +69,16 @@ function(add_our_library target framework_name sources extra_flags link_with)
     # BUILD_SHARED_LIBS controls whether this is a shared or static library.
     add_library(${target} ${sources})
 
+    if(WANT_STATIC_RUNTIME)
+        if(MSVC)
+            if(CMAKE_BUILD_TYPE STREQUAL Debug)
+                set(static_runtime_flag /MTd)
+            else()
+                set(static_runtime_flag /MT)
+            endif()
+        endif()
+    endif()
+
     if(NOT BUILD_SHARED_LIBS)
         set(static_flag "-DALLEGRO_STATICLINK")
     endif(NOT BUILD_SHARED_LIBS)
@@ -76,14 +86,14 @@ function(add_our_library target framework_name sources extra_flags link_with)
     if(NOT ANDROID)
         set_target_properties(${target}
             PROPERTIES
-            COMPILE_FLAGS "${extra_flags} ${static_flag} -DALLEGRO_LIB_BUILD"
+            COMPILE_FLAGS "${extra_flags} ${static_flag} ${static_runtime_flag} -DALLEGRO_LIB_BUILD"
             VERSION ${ALLEGRO_VERSION}
             SOVERSION ${ALLEGRO_SOVERSION}
             )
     else(NOT ANDROID)
         set_target_properties(${target}
             PROPERTIES
-            COMPILE_FLAGS "${extra_flags} ${static_flag} -DALLEGRO_LIB_BUILD"
+            COMPILE_FLAGS "${extra_flags} ${static_flag} ${static_runtime_flag} -DALLEGRO_LIB_BUILD"
             )
     endif(NOT ANDROID)
     
@@ -254,6 +264,16 @@ function(add_our_executable nm)
     foreach(d ${OPTS_DEFINES})
         set_property(TARGET ${nm} APPEND PROPERTY COMPILE_DEFINITIONS ${d})
     endforeach()
+
+    if(WANT_STATIC_RUNTIME)
+        if(MSVC)
+            if(CMAKE_BUILD_TYPE STREQUAL Debug)
+                set_target_properties(${nm} PROPERTIES COMPILE_FLAGS /MTd)
+            else()
+                set_target_properties(${nm} PROPERTIES COMPILE_FLAGS /MT)
+            endif()
+        endif()
+    endif()
 
     if(MINGW)
         if(NOT CMAKE_BUILD_TYPE STREQUAL Debug)
