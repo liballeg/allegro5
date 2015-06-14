@@ -143,14 +143,13 @@ ALLEGRO_BITMAP *al_get_video_frame(ALLEGRO_VIDEO *video)
 
 /* Function: al_get_video_position
  */
-double al_get_video_position(ALLEGRO_VIDEO *video, int which)
+double al_get_video_position(ALLEGRO_VIDEO *video, ALLEGRO_VIDEO_POSITION_TYPE which)
 {
    ASSERT(video);
 
-   /* XXX magic constants */
-   if (which == 1)
+   if (which == ALLEGRO_VIDEO_POSITION_VIDEO_DECODE)
       return video->video_position;
-   if (which == 2)
+   if (which == ALLEGRO_VIDEO_POSITION_AUDIO_DECODE)
       return video->audio_position;
    return video->position;
 }

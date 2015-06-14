@@ -19,6 +19,28 @@ licensing information and supported video formats.
 
 Since: 5.1.0
 
+## API: ALLEGRO_VIDEO_POSITION_TYPE
+
+Used with [al_get_video_position] to specify which position to retrieve. If
+these get out of sync, audio and video may be out of sync in the display of
+the video.
+
+* ALLEGRO_VIDEO_POSITION_ACTUAL -
+The amount of time the video has been playing. If the video has audio then
+this value can be ahead of ALLEGRO_VIDEO_POSITION_VIDEO_DECODE when video
+decoding lags.
+
+* ALLEGRO_VIDEO_POSITION_VIDEO_DECODE -
+The amount of video that has been decoded. This may lag behind the "actual"
+and audio positions if decoding is slower than realtime.
+
+* ALLEGRO_VIDEO_POSITION_AUDIO_DECODE -
+The amount of audio that has been decoded. This may be the same as
+ALLEGRO_VIDEO_POSITION_ACTUAL if audio decode is driving the position,
+which is common to keep audio and video in sync.
+
+Since: 5.1.11
+
 ## API: al_open_video
 
 Reads a video file. This does not start streaming yet but reads the
@@ -114,15 +136,8 @@ Since: 5.1.0
 ## API: al_get_video_position
 
 Returns the current position of the video stream in seconds since the
-beginning. The parameter has the following meaning:
-
-* 0: Return the actual position.
-* 1: Return the video decoding position. If this lags behind video
-     decoding is taking too long and the video can't be displayed
-     properly.
-* 2: Return the audio decoding position. Audio gets easily out of sync
-     for some reason - but this addon does not provide any means to
-     do much about it.
+beginning. The parameter is one of the [ALLEGRO_VIDEO_POSITION_TYPE]
+constants.
 
 Since: 5.1.0
 
