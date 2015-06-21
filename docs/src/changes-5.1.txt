@@ -3,6 +3,75 @@
 See `changes-5.0.txt` for changes in Allegro 5.0.x.  These lists
 serve as summaries; the full histories are in the git repository.
 
+Changes from 5.1.10 to 5.1.11 (June 2015)
+===========================================
+
+The main developers this time were: SiegeLord, Trent Gamblin.
+
+Input:
+
+  - Rename `al_get_haptic_active` to `al_is_haptic_active` for consistency.
+
+  - Rename `al_get_num_haptic_effects` to `al_get_max_haptic_effects`.
+
+  - Implement the missing `al_is_touch_input_haptic` function.
+
+  - Move the loops parameter of `al_upload_and_play_haptic_effect` after the id
+    to be consistent with `al_play_haptic_effect`.
+
+OSX port:
+
+  - Fix mouse warping in OSX.
+
+  - Add retina display support to OSX.
+
+Windows port:
+
+  - Fix querying display modes before creating a display.
+
+  - Make the Windows joystick implementation more fault tolerant.
+
+  - Initialize display callbacks when creating faux fullscreen (Edgar Reynaldo).
+
+Build system:
+
+  - Fix the conditional compilation of sal.h (Edgar Reynaldo).
+
+  - Don't look at WinSDK when we're not on MSVC, fixing MinGW builds when MSVC
+    is installed as well.
+
+  - Fix the static FLAC compile tests on Android and Windows.
+
+  - Make the OSX frameworks install in the proper location again.
+
+  - Add `WANT_STATIC_RUNTIME` CMake build option (currently MSVC-only).
+
+Documentation:
+
+  - Various documentation improvements.
+
+Other:
+
+  - Return a valid configuration from `al_get_system_config` before Allegro is
+    installed. This allows you to override the various configuration options
+    without using an on-disk `allegro5.cfg`.
+
+  - Compile in the logging support in release modes by default. Now logging can
+    be turned on in release builds without recompiling the program by editing
+    the system configuration.
+
+  - Detect file-overruns when saving configuration files (Bruce Pascoe).
+
+Color addon:
+
+  - When converting from YUV to RGB, clamp the returned values between 0 and 1.
+
+Video addon:
+
+  - Use an enum in place of magic numbers for `al_get_video_position` constants.
+
+
+
 Changes from 5.1.9 to 5.1.10 (May 2015)
 ===========================================
 
