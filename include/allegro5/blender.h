@@ -18,6 +18,7 @@ enum ALLEGRO_BLEND_MODE {
    ALLEGRO_DEST_COLOR         = 5,
    ALLEGRO_INVERSE_SRC_COLOR  = 6,
    ALLEGRO_INVERSE_DEST_COLOR = 7,
+   ALLEGRO_CONSTANT_COLOR     = 8,
    ALLEGRO_NUM_BLEND_MODES
 };
 
@@ -30,7 +31,9 @@ enum ALLEGRO_BLEND_OPERATIONS {
 
 
 AL_FUNC(void, al_set_blender, (int op, int source, int dest));
+AL_FUNC(void, al_set_blend_color, (ALLEGRO_COLOR color));
 AL_FUNC(void, al_get_blender, (int *op, int *source, int *dest));
+AL_FUNC(void, al_get_blend_color, (ALLEGRO_COLOR *color));
 AL_FUNC(void, al_set_separate_blender, (int op, int source, int dest,
    int alpha_op, int alpha_source, int alpha_dest));
 AL_FUNC(void, al_get_separate_blender, (int *op, int *source, int *dest,
