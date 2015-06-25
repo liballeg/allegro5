@@ -41,7 +41,9 @@ static void shader_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
    {
       int op, src_mode, dst_mode;
       int op_alpha, src_alpha, dst_alpha;
+      ALLEGRO_COLOR const_color;
       al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
+	  al_get_blend_color(&const_color);
 
       {
 	 {
@@ -59,7 +61,7 @@ static void shader_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, &const_color, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -77,7 +79,7 @@ static void shader_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &const_color, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -95,7 +97,7 @@ static void shader_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, &const_color, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -111,7 +113,7 @@ static void shader_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 			ALLEGRO_COLOR dst_color;
 			ALLEGRO_COLOR result;
 			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &result);
+			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
 			_AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 		     }
 
@@ -126,7 +128,7 @@ static void shader_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 			ALLEGRO_COLOR dst_color;
 			ALLEGRO_COLOR result;
 			_AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &result);
+			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
 			_AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 		     }
 
@@ -241,8 +243,9 @@ static void shader_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
    {
       int op, src_mode, dst_mode;
       int op_alpha, src_alpha, dst_alpha;
+	  ALLEGRO_COLOR const_color;
       al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
-
+	  al_get_blend_color(&const_color);
       {
 	 {
 	    const int dst_format = target->locked_region.format;
@@ -259,7 +262,7 @@ static void shader_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, &const_color, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -282,7 +285,7 @@ static void shader_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &const_color, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -305,7 +308,7 @@ static void shader_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, &const_color, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -326,7 +329,7 @@ static void shader_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 			ALLEGRO_COLOR dst_color;
 			ALLEGRO_COLOR result;
 			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &result);
+			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
 			_AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 		     }
 
@@ -346,7 +349,7 @@ static void shader_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 			ALLEGRO_COLOR dst_color;
 			ALLEGRO_COLOR result;
 			_AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &result);
+			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
 			_AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 		     }
 
@@ -481,8 +484,9 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
    {
       int op, src_mode, dst_mode;
       int op_alpha, src_alpha, dst_alpha;
+	  ALLEGRO_COLOR const_color;
       al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
-
+	  al_get_blend_color(&const_color);
       {
 	 const int offset_x = s->texture->parent ? s->texture->xofs : 0;
 	 const int offset_y = s->texture->parent ? s->texture->yofs : 0;
@@ -536,7 +540,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
@@ -583,7 +587,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -633,7 +637,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
@@ -680,7 +684,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -730,7 +734,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
@@ -777,7 +781,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -825,7 +829,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			ALLEGRO_COLOR dst_color;
 			ALLEGRO_COLOR result;
 			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &result);
+			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
 			_AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 		     }
 
@@ -872,7 +876,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
 			ALLEGRO_COLOR dst_color;
 			ALLEGRO_COLOR result;
 			_AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &result);
+			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
 			_AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 		     }
 
@@ -937,7 +941,9 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
    {
       int op, src_mode, dst_mode;
       int op_alpha, src_alpha, dst_alpha;
+      ALLEGRO_COLOR const_color;
       al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
+	  al_get_blend_color(&const_color);
 
       {
 	 const int offset_x = s->texture->parent ? s->texture->xofs : 0;
@@ -990,7 +996,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
@@ -1035,7 +1041,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -1083,7 +1089,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
@@ -1128,7 +1134,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -1176,7 +1182,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
@@ -1221,7 +1227,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -1267,7 +1273,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			ALLEGRO_COLOR dst_color;
 			ALLEGRO_COLOR result;
 			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &result);
+			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
 			_AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 		     }
 
@@ -1312,7 +1318,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
 			ALLEGRO_COLOR dst_color;
 			ALLEGRO_COLOR result;
 			_AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &result);
+			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
 			_AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 		     }
 
@@ -1982,7 +1988,9 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
    {
       int op, src_mode, dst_mode;
       int op_alpha, src_alpha, dst_alpha;
+      ALLEGRO_COLOR const_color;
       al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
+	  al_get_blend_color(&const_color);
 
       {
 	 const int offset_x = s->texture->parent ? s->texture->xofs : 0;
@@ -2037,7 +2045,7 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
@@ -2089,7 +2097,7 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -2144,7 +2152,7 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
@@ -2196,7 +2204,7 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -2251,7 +2259,7 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 			}
 
@@ -2303,7 +2311,7 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			   ALLEGRO_COLOR dst_color;
 			   ALLEGRO_COLOR result;
 			   _AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, &result);
+			   _al_blend_alpha_inline(&src_color, &dst_color, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, NULL, &result);
 			   _AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 			}
 
@@ -2356,7 +2364,7 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			ALLEGRO_COLOR dst_color;
 			ALLEGRO_COLOR result;
 			_AL_INLINE_GET_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, dst_color, false);
-			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &result);
+			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
 			_AL_INLINE_PUT_PIXEL(ALLEGRO_PIXEL_FORMAT_ARGB_8888, dst_data, result, true);
 		     }
 
@@ -2408,7 +2416,7 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
 			ALLEGRO_COLOR dst_color;
 			ALLEGRO_COLOR result;
 			_AL_INLINE_GET_PIXEL(dst_format, dst_data, dst_color, false);
-			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &result);
+			_al_blend_inline(&src_color, &dst_color, op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &const_color, &result);
 			_AL_INLINE_PUT_PIXEL(dst_format, dst_data, result, true);
 		     }
 
