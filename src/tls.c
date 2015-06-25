@@ -469,6 +469,19 @@ void al_set_blender(int op, int src, int dst)
 
 
 
+/* Function: al_set_blend_color
+*/
+void al_set_blend_color(ALLEGRO_COLOR color)
+{
+   thread_local_state *tls;
+
+   if ((tls = tls_get()) == NULL)
+      return;
+
+   tls->current_blender.blend_color = color;
+}
+
+
 /* Function: al_set_separate_blender
  */
 void al_set_separate_blender(int op, int src, int dst,
@@ -506,6 +519,20 @@ void al_get_blender(int *op, int *src, int *dst)
    al_get_separate_blender(op, src, dst, NULL, NULL, NULL);
 }
 
+
+
+/* Function: al_get_blend_color
+*/
+void al_get_blend_color(ALLEGRO_COLOR *color)
+{
+	thread_local_state *tls;
+
+	if ((tls = tls_get()) == NULL)
+		return;
+
+	if (color)
+		*color = tls->current_blender.blend_color;
+}
 
 
 /* Function: al_get_separate_blender
