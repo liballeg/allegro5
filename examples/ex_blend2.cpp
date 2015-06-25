@@ -79,12 +79,12 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
          image.append_item("scaled");
          image.append_item("rotated");
       }
-      d.add(image, 1 + i * 6, 17, 4, 6);
+      d.add(image, 1 + i * 6, 16, 4, 6);
    }
 
    for (int i = 0; i < 4; i++) {
       operation_label[i] = Label(i % 2 == 0 ? "Color" : "Alpha", false);
-      d.add(operation_label[i], 1 + i * 3, 24, 3, 2);
+      d.add(operation_label[i], 1 + i * 3, 23, 3, 2);
       List &l = operations[i];
       l.append_item("ONE");
       l.append_item("ZERO");
@@ -96,17 +96,17 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
       l.append_item("INV_DEST_COLOR");
 	  l.append_item("CONST_COLOR");
 	  l.append_item("INV_CONST_COLOR");
-	  d.add(l, 1 + i * 3, 25, 3, 9);
+	  d.add(l, 1 + i * 3, 24, 3, 10);
    }
 
    for (int i = 4; i < 6; i++) {
       operation_label[i] = Label(i == 4 ? "Blend op" : "Alpha op", false);
-      d.add(operation_label[i], 1 + i * 3, 24, 3, 2);
+      d.add(operation_label[i], 1 + i * 3, 23, 3, 2);
       List &l = operations[i];
       l.append_item("ADD");
       l.append_item("SRC_MINUS_DEST");
       l.append_item("DEST_MINUS_SRC");
-      d.add(l, 1 + i * 3, 25, 3, 6);
+      d.add(l, 1 + i * 3, 24, 3, 6);
    }
 
    rgba_label[0] = Label("Source tint/color RGBA");
