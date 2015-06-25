@@ -10,15 +10,16 @@
  * Blending modes
  */
 enum ALLEGRO_BLEND_MODE {
-   ALLEGRO_ZERO               = 0,
-   ALLEGRO_ONE                = 1,
-   ALLEGRO_ALPHA              = 2,
-   ALLEGRO_INVERSE_ALPHA      = 3,
-   ALLEGRO_SRC_COLOR          = 4,
-   ALLEGRO_DEST_COLOR         = 5,
-   ALLEGRO_INVERSE_SRC_COLOR  = 6,
-   ALLEGRO_INVERSE_DEST_COLOR = 7,
-   ALLEGRO_CONSTANT_COLOR     = 8,
+   ALLEGRO_ZERO                = 0,
+   ALLEGRO_ONE                 = 1,
+   ALLEGRO_ALPHA               = 2,
+   ALLEGRO_INVERSE_ALPHA       = 3,
+   ALLEGRO_SRC_COLOR           = 4,
+   ALLEGRO_DEST_COLOR          = 5,
+   ALLEGRO_INVERSE_SRC_COLOR   = 6,
+   ALLEGRO_INVERSE_DEST_COLOR  = 7,
+   ALLEGRO_CONST_COLOR         = 8,
+   ALLEGRO_INVERSE_CONST_COLOR = 9,
    ALLEGRO_NUM_BLEND_MODES
 };
 

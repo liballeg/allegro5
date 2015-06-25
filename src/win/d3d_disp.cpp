@@ -1878,7 +1878,8 @@ static int d3d_al_blender_to_d3d(int al_mode)
       D3DBLEND_DESTCOLOR,
       D3DBLEND_INVSRCCOLOR,
       D3DBLEND_INVDESTCOLOR,
-      D3DBLEND_BLENDFACTOR
+      D3DBLEND_BLENDFACTOR,
+      D3DBLEND_INVBLENDFACTOR
    };
 
    return d3d_modes[al_mode];
