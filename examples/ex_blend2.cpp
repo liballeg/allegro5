@@ -33,11 +33,11 @@ private:
    List draw_mode;
    Label operation_label[6];
    List operations[6];
-   Label rgba_label[2];
-   HSlider r[2];
-   HSlider g[2];
-   HSlider b[2];
-   HSlider a[2];
+   Label rgba_label[3];
+   HSlider r[3];
+   HSlider g[3];
+   HSlider b[3];
+   HSlider a[3];
 
 public:
    Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
@@ -94,7 +94,9 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
       l.append_item("DEST_COLOR");
       l.append_item("INV_SRC_COLOR");
       l.append_item("INV_DEST_COLOR");
-      d.add(l, 1 + i * 3, 25, 3, 9);
+	  l.append_item("CONST_COLOR");
+	  l.append_item("INV_CONST_COLOR");
+	  d.add(l, 1 + i * 3, 25, 3, 9);
    }
 
    for (int i = 4; i < 6; i++) {
@@ -109,10 +111,12 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
 
    rgba_label[0] = Label("Source tint/color RGBA");
    rgba_label[1] = Label("Dest tint/color RGBA");
+   rgba_label[2] = Label("Const color RGBA");
    d.add(rgba_label[0], 1, 34, 5, 1);
    d.add(rgba_label[1], 7, 34, 5, 1);
+   d.add(rgba_label[2], 13, 34, 5, 1);
 
-   for (int i = 0; i < 2; i++) {
+   for (int i = 0; i < 3; i++) {
       r[i] = HSlider(255, 255);
       g[i] = HSlider(255, 255);
       b[i] = HSlider(255, 255);
@@ -164,6 +168,10 @@ int str_to_blend_mode(const std::string & str)
       return ALLEGRO_SRC_MINUS_DEST;
    if (str == "DEST_MINUS_SRC")
       return ALLEGRO_DEST_MINUS_SRC;
+   if (str == "CONST_COLOR")
+      return ALLEGRO_CONST_COLOR;
+   if (str == "INV_CONST_COLOR")
+      return ALLEGRO_INVERSE_CONST_COLOR;
 
    ALLEGRO_ASSERT(false);
    return ALLEGRO_ONE;
@@ -266,6 +274,11 @@ void Prog::blending_test(bool memory)
    int asrc = str_to_blend_mode(operations[1].get_selected_item_text());
    int dst = str_to_blend_mode(operations[2].get_selected_item_text());
    int adst = str_to_blend_mode(operations[3].get_selected_item_text());
+   int rv = r[2].get_cur_value();
+   int gv = g[2].get_cur_value();
+   int bv = b[2].get_cur_value();
+   int av = a[2].get_cur_value();
+   ALLEGRO_COLOR color = makecol(rv, gv, bv, av);
 
    /* Initialize with destination. */
    al_clear_to_color(transparency); // Just in case.
@@ -275,6 +288,7 @@ void Prog::blending_test(bool memory)
 
    /* Now draw the blended source over it. */
    al_set_separate_blender(op, src, dst, aop, asrc, adst);
+   al_set_blend_color(color);
    draw_bitmap(source_image.get_selected_item_text(),
       draw_mode.get_selected_item_text(), memory, false);
 }
