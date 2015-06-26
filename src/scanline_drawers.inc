@@ -43,7 +43,7 @@ static void shader_solid_any_draw_shade (uintptr_t state, int x1, int y, int x2)
       ALLEGRO_COLOR const_color;
       al_get_separate_blender(&op, &src_mode, &dst_mode,
          &op_alpha, &src_alpha, &dst_alpha);
-      al_get_blend_color(&const_color);
+      const_color = al_get_blend_color();
       
 {
 {
@@ -292,7 +292,7 @@ static void shader_grad_any_draw_shade (uintptr_t state, int x1, int y, int x2) 
       ALLEGRO_COLOR const_color;
       al_get_separate_blender(&op, &src_mode, &dst_mode,
          &op_alpha, &src_alpha, &dst_alpha);
-      al_get_blend_color(&const_color);
+      const_color = al_get_blend_color();
       
 {
 {
@@ -581,7 +581,7 @@ static void shader_texture_solid_any_draw_shade (uintptr_t state, int x1, int y,
       ALLEGRO_COLOR const_color;
       al_get_separate_blender(&op, &src_mode, &dst_mode,
          &op_alpha, &src_alpha, &dst_alpha);
-      al_get_blend_color(&const_color);
+      const_color = al_get_blend_color();
       
 {
       const int offset_x = s->texture->parent ? s->texture->xofs : 0;
@@ -1118,7 +1118,7 @@ static void shader_texture_solid_any_draw_shade_white (uintptr_t state, int x1, 
       ALLEGRO_COLOR const_color;
       al_get_separate_blender(&op, &src_mode, &dst_mode,
          &op_alpha, &src_alpha, &dst_alpha);
-      al_get_blend_color(&const_color);
+      const_color = al_get_blend_color();
       
 {
       const int offset_x = s->texture->parent ? s->texture->xofs : 0;
@@ -2282,7 +2282,7 @@ static void shader_texture_grad_any_draw_shade (uintptr_t state, int x1, int y, 
       ALLEGRO_COLOR const_color;
       al_get_separate_blender(&op, &src_mode, &dst_mode,
          &op_alpha, &src_alpha, &dst_alpha);
-      al_get_blend_color(&const_color);
+      const_color = al_get_blend_color();
       
 {
       const int offset_x = s->texture->parent ? s->texture->xofs : 0;

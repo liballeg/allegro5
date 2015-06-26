@@ -34,7 +34,7 @@ enum ALLEGRO_BLEND_OPERATIONS {
 AL_FUNC(void, al_set_blender, (int op, int source, int dest));
 AL_FUNC(void, al_set_blend_color, (ALLEGRO_COLOR color));
 AL_FUNC(void, al_get_blender, (int *op, int *source, int *dest));
-AL_FUNC(void, al_get_blend_color, (ALLEGRO_COLOR *color));
+AL_FUNC(ALLEGRO_COLOR, al_get_blend_color, (void));
 AL_FUNC(void, al_set_separate_blender, (int op, int source, int dest,
    int alpha_op, int alpha_source, int alpha_dest));
 AL_FUNC(void, al_get_separate_blender, (int *op, int *source, int *dest,

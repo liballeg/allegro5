@@ -44,7 +44,7 @@ bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
 
    al_get_separate_blender(&op, &src_color, &dst_color,
       &op_alpha, &src_alpha, &dst_alpha);
-   al_get_blend_color(&const_color);
+   const_color = al_get_blend_color();
    /* glBlendFuncSeparate was only included with OpenGL 1.4 */
 #if !defined ALLEGRO_CFG_OPENGLES
    if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_1_4) {

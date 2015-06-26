@@ -523,15 +523,14 @@ void al_get_blender(int *op, int *src, int *dst)
 
 /* Function: al_get_blend_color
 */
-void al_get_blend_color(ALLEGRO_COLOR *color)
+ALLEGRO_COLOR al_get_blend_color(void)
 {
    thread_local_state *tls;
 
    if ((tls = tls_get()) == NULL)
       return;
 
-   if (color)
-      *color = tls->current_blender.blend_color;
+   return tls->current_blender.blend_color;
 }
 
 
