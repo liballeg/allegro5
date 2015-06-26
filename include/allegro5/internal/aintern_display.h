@@ -89,6 +89,7 @@ typedef struct ALLEGRO_BLENDER
    int blend_alpha_op;
    int blend_alpha_source;
    int blend_alpha_dest;
+   ALLEGRO_COLOR blend_color;
 } ALLEGRO_BLENDER;
 
 typedef struct _ALLEGRO_RENDER_STATE {

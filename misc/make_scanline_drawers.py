@@ -110,8 +110,10 @@ def make_drawer(name):
       print """\
       int op, src_mode, dst_mode;
       int op_alpha, src_alpha, dst_alpha;
+      ALLEGRO_COLOR const_color;
       al_get_separate_blender(&op, &src_mode, &dst_mode,
          &op_alpha, &src_alpha, &dst_alpha);
+      const_color = al_get_blend_color();
       """
 
    print "{"
@@ -148,6 +150,7 @@ def make_drawer(name):
             op_alpha='ALLEGRO_ADD',
             dst_mode='ALLEGRO_INVERSE_ALPHA',
             dst_alpha='ALLEGRO_INVERSE_ALPHA',
+            const_color='NULL',
             if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888',
             alpha_only=True
             )
@@ -159,6 +162,7 @@ def make_drawer(name):
             op_alpha='ALLEGRO_ADD',
             dst_mode='ALLEGRO_INVERSE_ALPHA',
             dst_alpha='ALLEGRO_INVERSE_ALPHA',
+            const_color='NULL',
             if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888',
             alpha_only=True
             )
@@ -170,6 +174,7 @@ def make_drawer(name):
             op_alpha='ALLEGRO_ADD',
             dst_mode='ALLEGRO_ONE',
             dst_alpha='ALLEGRO_ONE',
+            const_color='NULL',
             if_format='ALLEGRO_PIXEL_FORMAT_ARGB_8888',
             alpha_only=True
             )
@@ -206,6 +211,7 @@ def make_if_blender_loop(
       dst_alpha='dst_alpha',
       src_format='src_format',
       dst_format='dst_format',
+      const_color='NULL',
       if_format=None,
       alpha_only=False
       ):
@@ -226,6 +232,7 @@ def make_if_blender_loop(
             op_alpha=op_alpha,
             dst_mode=dst_mode,
             dst_alpha=dst_alpha,
+            const_color=const_color,
             if_format=if_format,
             alpha_only=alpha_only
             )
@@ -238,6 +245,7 @@ def make_if_blender_loop(
       op_alpha=op_alpha,
       dst_mode=dst_mode,
       dst_alpha=dst_alpha,
+      const_color=const_color,
       alpha_only=alpha_only)
 
    print "}"
@@ -252,6 +260,7 @@ def make_loop(
       src_format='src_format',
       dst_format='dst_format',
       src_size='src_size',
+      const_color='&const_color',
       if_format=None,
       copy_format=False,
       alpha_only=False
@@ -297,6 +306,7 @@ def make_loop(
             dst_alpha=dst_alpha,
             src_format=src_format,
             dst_format=dst_format,
+            const_color=const_color,
             src_size=src_size,
             copy_format=copy_format,
             tiling=False,
@@ -313,6 +323,7 @@ def make_loop(
       dst_alpha=dst_alpha,
       src_format=src_format,
       dst_format=dst_format,
+      const_color=const_color,
       src_size=src_size,
       copy_format=copy_format,
       alpha_only=alpha_only
@@ -329,6 +340,7 @@ def make_innermost_loop(
       dst_alpha='dst_alpha',
       src_format='src_format',
       dst_format='dst_format',
+      const_color='&const_color',
       src_size='src_size',
       copy_format=False,
       tiling=True,
@@ -420,7 +432,7 @@ def make_innermost_loop(
             #{blend}(&src_color, &dst_color,
                #{op}, #{src_mode}, #{dst_mode},
                #{op_alpha}, #{src_alpha}, #{dst_alpha},
-               &result);
+               #{const_color}, &result);
             _AL_INLINE_PUT_PIXEL(#{dst_format}, dst_data, result, true);
          }
          """)

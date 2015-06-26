@@ -1878,6 +1878,8 @@ static int d3d_al_blender_to_d3d(int al_mode)
       D3DBLEND_DESTCOLOR,
       D3DBLEND_INVSRCCOLOR,
       D3DBLEND_INVDESTCOLOR,
+      D3DBLEND_BLENDFACTOR,
+      D3DBLEND_INVBLENDFACTOR
    };
 
    return d3d_modes[al_mode];
@@ -1887,6 +1889,8 @@ void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
    bool blender_changed;
    int op, src, dst, alpha_op, alpha_src, alpha_dst;
+   ALLEGRO_COLOR color;
+   unsigned char r, g, b, a;
    DWORD allegro_to_d3d_blendop[ALLEGRO_NUM_BLEND_OPERATIONS] = {
       D3DBLENDOP_ADD,
       D3DBLENDOP_SUBTRACT,
@@ -1897,6 +1901,8 @@ void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
 
    al_get_separate_blender(&op, &src, &dst,
       &alpha_op, &alpha_src, &alpha_dst);
+   color = al_get_blend_color();
+   al_unmap_rgba(color, &r, &g, &b, &a);
 
    if (d3d_display->blender_state_op != op) {
       /* These may not be supported but they will always fall back to ADD
@@ -1946,6 +1952,7 @@ void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
 
    if (blender_changed) {
       bool enable_separate_blender = (op != alpha_op) || (src != alpha_src) || (dst != alpha_dst);
+      d3d_display->device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_RGBA(r, g, b, a));
       if (enable_separate_blender) {
          if (d3d_display->device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, true) != D3D_OK)
             ALLEGRO_ERROR("D3DRS_SEPARATEALPHABLENDENABLE failed\n");

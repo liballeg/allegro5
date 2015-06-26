@@ -122,6 +122,7 @@ static void initialize_blender(ALLEGRO_BLENDER *b)
    b->blend_alpha_op = ALLEGRO_ADD;
    b->blend_alpha_source = ALLEGRO_ONE;
    b->blend_alpha_dest = ALLEGRO_INVERSE_ALPHA;
+   b->blend_color = al_map_rgba_f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 
@@ -469,6 +470,19 @@ void al_set_blender(int op, int src, int dst)
 
 
 
+/* Function: al_set_blend_color
+*/
+void al_set_blend_color(ALLEGRO_COLOR color)
+{
+   thread_local_state *tls;
+
+   if ((tls = tls_get()) == NULL)
+      return;
+
+   tls->current_blender.blend_color = color;
+}
+
+
 /* Function: al_set_separate_blender
  */
 void al_set_separate_blender(int op, int src, int dst,
@@ -506,6 +520,19 @@ void al_get_blender(int *op, int *src, int *dst)
    al_get_separate_blender(op, src, dst, NULL, NULL, NULL);
 }
 
+
+
+/* Function: al_get_blend_color
+*/
+ALLEGRO_COLOR al_get_blend_color(void)
+{
+   thread_local_state *tls;
+
+   if ((tls = tls_get()) == NULL)
+      return al_map_rgba(255, 255, 255, 255);
+
+   return tls->current_blender.blend_color;
+}
 
 
 /* Function: al_get_separate_blender
