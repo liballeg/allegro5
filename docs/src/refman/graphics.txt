@@ -1098,6 +1098,13 @@ NULL for values you are not interested in.
 
 See also: [al_set_separate_blender], [al_get_blender]
 
+### API: al_get_blend_color
+
+Returns the color currently used for constant color blending (white by
+default).
+
+See also: [al_set_blend_color], [al_set_blender]
+
 ### API: al_set_blender
 
 Sets the function to use for blending for the current thread.
@@ -1137,7 +1144,9 @@ on the `op` parameter:
          b = s.b * sf.b - d.b * df.b
          a = s.a * sf.a - d.a * df.a
 
-Valid values for the factors `sf` and `df` passed to this function are
+Valid values for the factors `sf` and `df` passed to this function are as
+follows, where `s` is the source color, `d` the destination color and `cc`
+the color set with [al_set_blend_color] (white by default)
 
 * ALLEGRO_ZERO
 
@@ -1170,6 +1179,14 @@ Valid values for the factors `sf` and `df` passed to this function are
 * ALLEGRO_INVERSE_DEST_COLOR (since: 5.0.10, 5.1.8)
 
          f = 1 - d.r, 1 - d.g, 1 - d.b, 1 - d.a
+
+* ALLEGRO_CONST_COLOR (since: 5.1.12)
+
+         f = cc.r, cc.g, cc.b, cc.a
+
+* ALLEGRO_INVERSE_CONST_COLOR (since: 5.1.12)
+
+         f = 1 - cc.r, 1 - cc.g, 1 - cc.b, 1 - cc.a
 
 Blending examples:
 
@@ -1211,6 +1228,20 @@ Multiplying source and destination components
 al_set_blender(ALLEGRO_ADD, ALLEGRO_DEST_COLOR, ALLEGRO_ZERO)
 ~~~~
 
+Tinting the source (like [al_draw_tinted_bitmap])
+
+~~~~c
+al_set_blender(ALLEGRO_ADD, ALLEGRO_CONST_COLOR, ALLEGRO_ONE);
+al_set_blend_color(al_map_rgb(0, 96, 255)); /* nice Chrysler blue */
+~~~~
+
+Averaging source and destination pixels
+
+~~~~c
+al_set_blender(ALLEGRO_ADD, ALLEGRO_CONST_COLOR, ALLEGRO_CONST_COLOR);
+al_set_blend_color(al_map_rgba_f(0.5, 0.5, 0.5, 0.5));
+~~~~
+
 As formula:
 
     r = d.r * 0 + s.r * d.r
@@ -1218,7 +1249,7 @@ As formula:
     b = d.b * 0 + s.b * d.b
     a = d.a * 0 + s.a * d.a
 
-See also: [al_set_separate_blender], [al_get_blender]
+See also: [al_set_separate_blender], [al_set_blend_color], [al_get_blender]
 
 ### API: al_set_separate_blender
 
@@ -1228,6 +1259,14 @@ bitmap also has an alpha channel and the two alpha channels need
 to be combined in a different way than the color components.
 
 See also: [al_set_blender], [al_get_blender], [al_get_separate_blender]
+
+### API: al_set_blend_color
+
+Sets the color to use for blending when using the ALLEGRO_CONST_COLOR
+or ALLEGRO_INVERSE_CONST_COLOR blend functions. See [al_set_blender] for
+more information.
+
+See also: [al_set_blender], [al_get_blend_color]
 
 
 
