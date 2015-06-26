@@ -1952,8 +1952,8 @@ void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
 
    if (blender_changed) {
       bool enable_separate_blender = (op != alpha_op) || (src != alpha_src) || (dst != alpha_dst);
-	  d3d_display->device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_RGBA(r, g, b, a));
-	  if (enable_separate_blender) {
+      d3d_display->device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_RGBA(r, g, b, a));
+      if (enable_separate_blender) {
          if (d3d_display->device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, true) != D3D_OK)
             ALLEGRO_ERROR("D3DRS_SEPARATEALPHABLENDENABLE failed\n");
       }
