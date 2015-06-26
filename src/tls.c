@@ -122,6 +122,7 @@ static void initialize_blender(ALLEGRO_BLENDER *b)
    b->blend_alpha_op = ALLEGRO_ADD;
    b->blend_alpha_source = ALLEGRO_ONE;
    b->blend_alpha_dest = ALLEGRO_INVERSE_ALPHA;
+   b->blend_color = al_map_rgba(255, 255, 255, 255);
 }
 
 
@@ -528,7 +529,7 @@ ALLEGRO_COLOR al_get_blend_color(void)
    thread_local_state *tls;
 
    if ((tls = tls_get()) == NULL)
-      return;
+      return al_map_rgba(255, 255, 255, 255);
 
    return tls->current_blender.blend_color;
 }
