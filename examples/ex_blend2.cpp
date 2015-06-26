@@ -94,9 +94,9 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
       l.append_item("DEST_COLOR");
       l.append_item("INV_SRC_COLOR");
       l.append_item("INV_DEST_COLOR");
-	  l.append_item("CONST_COLOR");
-	  l.append_item("INV_CONST_COLOR");
-	  d.add(l, 1 + i * 3, 24, 3, 10);
+      l.append_item("CONST_COLOR");
+      l.append_item("INV_CONST_COLOR");
+      d.add(l, 1 + i * 3, 24, 3, 10);
    }
 
    for (int i = 4; i < 6; i++) {
