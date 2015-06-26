@@ -62,8 +62,8 @@ bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
 #endif
       glEnable(GL_BLEND);
       glBlendColor(const_color.r, const_color.g, const_color.b, const_color.a);
-	   glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
-         blend_modes[src_alpha], blend_modes[dst_alpha]);
+      glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
+      blend_modes[src_alpha], blend_modes[dst_alpha]);
       if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
          glBlendEquationSeparate(
             blend_equations[op],
@@ -76,8 +76,8 @@ bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
    else {
       if (src_color == src_alpha && dst_color == dst_alpha) {
          glEnable(GL_BLEND);
-		   glBlendColor(const_color.r, const_color.g, const_color.b, const_color.a);
-		   glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
+         glBlendColor(const_color.r, const_color.g, const_color.b, const_color.a);
+         glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
       }
       else {
          ALLEGRO_ERROR("Blender unsupported with this OpenGL version (%d %d %d %d %d %d)\n",
