@@ -122,7 +122,7 @@ static void initialize_blender(ALLEGRO_BLENDER *b)
    b->blend_alpha_op = ALLEGRO_ADD;
    b->blend_alpha_source = ALLEGRO_ONE;
    b->blend_alpha_dest = ALLEGRO_INVERSE_ALPHA;
-   b->blend_color = al_map_rgba(255, 255, 255, 255);
+   b->blend_color = al_map_rgba_f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 

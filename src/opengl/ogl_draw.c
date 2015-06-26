@@ -63,7 +63,7 @@ bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
       glEnable(GL_BLEND);
       glBlendColor(const_color.r, const_color.g, const_color.b, const_color.a);
       glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
-      blend_modes[src_alpha], blend_modes[dst_alpha]);
+         blend_modes[src_alpha], blend_modes[dst_alpha]);
       if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
          glBlendEquationSeparate(
             blend_equations[op],
