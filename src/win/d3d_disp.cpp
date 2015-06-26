@@ -1901,7 +1901,7 @@ void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
 
    al_get_separate_blender(&op, &src, &dst,
       &alpha_op, &alpha_src, &alpha_dst);
-   al_get_blend_color(&color);
+   color = al_get_blend_color();
    al_unmap_rgba(color, &r, &g, &b, &a);
 
    if (d3d_display->blender_state_op != op) {
