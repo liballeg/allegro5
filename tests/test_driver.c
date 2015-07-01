@@ -330,6 +330,8 @@ static int get_blend_factor(char const *value)
       : streq(value, "ALLEGRO_DEST_COLOR") ? ALLEGRO_DEST_COLOR
       : streq(value, "ALLEGRO_INVERSE_SRC_COLOR") ? ALLEGRO_INVERSE_SRC_COLOR
       : streq(value, "ALLEGRO_INVERSE_DEST_COLOR") ? ALLEGRO_INVERSE_DEST_COLOR
+      : streq(value, "ALLEGRO_CONST_COLOR") ? ALLEGRO_CONST_COLOR
+      : streq(value, "ALLEGRO_INVERSE_CONST_COLOR") ? ALLEGRO_INVERSE_CONST_COLOR
       : atoi(value);
 }
 
@@ -1360,6 +1362,10 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
       }
       if (SCAN("al_use_projection_transform", 1)) {
          al_use_projection_transform(get_transform(V(0)));
+         continue;
+      }
+      if (SCAN("al_set_blend_color", 1)) {
+         al_set_blend_color(C(0));
          continue;
       }
 
