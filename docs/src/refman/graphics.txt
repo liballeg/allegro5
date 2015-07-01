@@ -1105,6 +1105,8 @@ default).
 
 See also: [al_set_blend_color], [al_set_blender]
 
+Since: 5.1.12
+
 ### API: al_set_blender
 
 Sets the function to use for blending for the current thread.
@@ -1268,6 +1270,7 @@ more information.
 
 See also: [al_set_blender], [al_get_blend_color]
 
+Since: 5.1.12
 
 
 ## Clipping
