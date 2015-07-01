@@ -34,7 +34,12 @@ bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
    const int blend_modes[10] = {
       GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
       GL_SRC_COLOR, GL_DST_COLOR, GL_ONE_MINUS_SRC_COLOR,
-      GL_ONE_MINUS_DST_COLOR, GL_CONSTANT_COLOR, GL_ONE_MINUS_CONSTANT_COLOR
+      GL_ONE_MINUS_DST_COLOR,
+#if defined(ALLEGRO_CFG_OPENGLES2) || !defined(ALLEGRO_CFG_OPENGLES)
+      GL_CONSTANT_COLOR, GL_ONE_MINUS_CONSTANT_COLOR
+#else
+      GL_ONE, GL_ONE
+#endif
    };
    const int blend_equations[3] = {
       GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT
@@ -61,7 +66,9 @@ bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
 #endif
 #endif
       glEnable(GL_BLEND);
+#if defined(ALLEGRO_CFG_OPENGLES2) || !defined(ALLEGRO_CFG_OPENGLES)
       glBlendColor(const_color.r, const_color.g, const_color.b, const_color.a);
+#endif
       glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
          blend_modes[src_alpha], blend_modes[dst_alpha]);
       if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
@@ -76,7 +83,9 @@ bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
    else {
       if (src_color == src_alpha && dst_color == dst_alpha) {
          glEnable(GL_BLEND);
+#if defined(ALLEGRO_CFG_OPENGLES2) || !defined(ALLEGRO_CFG_OPENGLES)
          glBlendColor(const_color.r, const_color.g, const_color.b, const_color.a);
+#endif
          glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
       }
       else {

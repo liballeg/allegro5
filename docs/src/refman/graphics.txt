@@ -1182,11 +1182,11 @@ the color set with [al_set_blend_color] (white by default)
 
          f = 1 - d.r, 1 - d.g, 1 - d.b, 1 - d.a
 
-* ALLEGRO_CONST_COLOR (since: 5.1.12)
+* ALLEGRO_CONST_COLOR (since: 5.1.12, not supported on OpenGLES 1.0)
 
          f = cc.r, cc.g, cc.b, cc.a
 
-* ALLEGRO_INVERSE_CONST_COLOR (since: 5.1.12)
+* ALLEGRO_INVERSE_CONST_COLOR (since: 5.1.12, not supported on OpenGLES 1.0)
 
          f = 1 - cc.r, 1 - cc.g, 1 - cc.b, 1 - cc.a
 
