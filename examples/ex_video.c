@@ -94,6 +94,9 @@ int main(int argc, char *argv[])
       goto done;
    }
 
+   if (!al_init_video_addon()) {
+      abort_example("Could not initialize the video addon.\n");
+   }
    al_init_font_addon();
    al_install_keyboard();
 

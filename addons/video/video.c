@@ -41,16 +41,71 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_video.h"
 #include "allegro5/internal/aintern_video.h"
+#include "allegro5/internal/aintern_video_cfg.h"
+#include "allegro5/internal/aintern_exitfunc.h"
+
+ALLEGRO_DEBUG_CHANNEL("video")
+
+
+/* globals */
+static bool video_inited = false;
+
+typedef struct VideoHandler {
+   struct VideoHandler *next;
+   const char *extension;
+   ALLEGRO_VIDEO_INTERFACE *vtable;
+} VideoHandler;
+
+static VideoHandler *handlers;
+
+static ALLEGRO_VIDEO_INTERFACE *find_handler(const char *extension)
+{
+   VideoHandler *v = handlers;
+   while (v) {
+      if (!strcmp(extension, v->extension)) {
+         return v->vtable;
+      }
+      v = v->next;
+   }
+   return NULL;
+}
+
+static void add_handler(const char *extension, ALLEGRO_VIDEO_INTERFACE *vtable)
+{
+   VideoHandler *v;
+   if (handlers == NULL) {
+      handlers = al_calloc(1, sizeof(VideoHandler));
+      v = handlers;
+   }
+   else {
+      v = handlers;
+      while (v->next) {
+         v = v->next;
+      }
+      v->next = al_calloc(1, sizeof(VideoHandler));
+      v = v->next;
+   }
+   v->extension = extension;
+   v->vtable = vtable;
+}
 
 /* Function: al_open_video
  */
 ALLEGRO_VIDEO *al_open_video(char const *filename)
 {
    ALLEGRO_VIDEO *video;
+   const char *extension = filename + strlen(filename) - 1;
 
+   while ((extension >= filename) && (*extension != '.'))
+      extension--;
    video = al_calloc(1, sizeof *video);
    
-   video->vtable = _al_video_vtable;
+   video->vtable = find_handler(extension);
+
+   if (video->vtable == NULL) {
+      al_free(video);
+      return NULL;
+   }
    
    video->filename = al_create_path(filename);
 
@@ -202,5 +257,63 @@ int al_get_video_height(ALLEGRO_VIDEO *video)
    ASSERT(video);
    return video->height;
 }
+
+/* Function: al_init_video_addon
+ */
+bool al_init_video_addon(void)
+{
+   if (video_inited)
+      return true;
+
+#ifdef ALLEGRO_CFG_VIDEO_HAVE_OGV
+   add_handler(".ogv", _al_video_ogv_vtable());
+#endif
+
+#ifdef ALLEGRO_CFG_VIDEO_HAVE_FFMPEG
+   {
+      // TODO: Come up with a better way of doing this than just listing these
+      // extensions.
+      char const *extensions[] = {".ogv", ".avi", ".mpg", ".mpeg", ".mp4",
+         ".webm", NULL};
+      int i;
+
+      for (i = 0; extensions[i]; i++) {
+         add_handler(extensions[i], _al_video_ffmpeg_vtable());
+      }
+   }
+#endif
+
+   if (handlers == NULL) {
+      ALLEGRO_WARN("No video handlers available!\n");
+      return false;
+   }
+
+   _al_add_exit_func(al_shutdown_video_addon, "al_shutdown_video_addon");
+
+   return true;
+}
+
+
+/* Function: al_shutdown_video_addon
+ */
+void al_shutdown_video_addon(void)
+{
+   VideoHandler *v = handlers;
+   while (v) {
+      VideoHandler *next = v->next;
+      al_free(v);
+      v = next;
+   }
+   video_inited = false;
+}
+
+
+/* Function: al_get_allegro_video_version
+ */
+uint32_t al_get_allegro_video_version(void)
+{
+   return ALLEGRO_VERSION_INT;
+}
+
 
 /* vim: set sts=3 sw=3 et: */

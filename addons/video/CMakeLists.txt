@@ -34,23 +34,23 @@ endif(WANT_OGG_VIDEO)
 
 if(SUPPORT_FFMPEG)
     list(APPEND VIDEO_INCLUDE_DIRECTORIES ${FFMPEG_INCLUDE_DIR})
-    set(ALLEGRO_CFG_VIDEO_FFMPEG 1)
     list(APPEND VIDEO_SOURCES ffmpeg.c)
     set(SUPPORT_VIDEO 1)
-    set(VIDEO_LIBRARIES ${FFMPEG_LIBRARIES})
+    set(ALLEGRO_CFG_VIDEO_HAVE_FFMPEG 1)
+    set(VIDEO_LIBRARIES ${VIDEO_LIBRARIES} ${FFMPEG_LIBRARIES})
 endif(SUPPORT_FFMPEG)
 
-if(SUPPORT_OGG_VIDEO AND NOT SUPPORT_VIDEO)
+if(SUPPORT_OGG_VIDEO)
     list(APPEND VIDEO_INCLUDE_DIRECTORIES
         ${OGG_INCLUDE_DIR}
         ${VORBIS_INCLUDE_DIR}
         ${THEORA_INCLUDE_DIR}
         )
-    set(ALLEGRO_CFG_VIDEO_OGG 1)
     list(APPEND VIDEO_SOURCES ogv.c)
     set(SUPPORT_VIDEO 1)
-    set(VIDEO_LIBRARIES ${THEORA_LIBRARIES} ${VORBIS_LIBRARIES})
-endif(SUPPORT_OGG_VIDEO AND NOT SUPPORT_VIDEO)
+    set(ALLEGRO_CFG_VIDEO_HAVE_OGV 1)
+    set(VIDEO_LIBRARIES ${VIDEO_LIBRARIES} ${THEORA_LIBRARIES} ${VORBIS_LIBRARIES})
+endif(SUPPORT_OGG_VIDEO)
 
 if(NOT SUPPORT_VIDEO)
     message("WARNING: allegro_video wanted but no supported backend found")
@@ -58,6 +58,11 @@ if(NOT SUPPORT_VIDEO)
 endif(NOT SUPPORT_VIDEO)
 
 include_directories(SYSTEM ${VIDEO_INCLUDE_DIRECTORIES})
+
+configure_file(
+    allegro5/internal/aintern_video_cfg.h.cmake
+    ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_video_cfg.h
+    )
 
 add_our_addon_library(allegro_video
     AllegroVideo-${ALLEGRO_SOVERSION}

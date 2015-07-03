@@ -8,7 +8,6 @@ Link with allegro_video.
 ~~~~
 
 Currently we have an ffmpeg backend and a Ogg backend (Theora + Vorbis).
-The choice is fixed at compile time.
 See <http://ffmpeg.org/> and <http://xiph.org/> for installation instructions,
 licensing information and supported video formats.
 
@@ -40,6 +39,26 @@ ALLEGRO_VIDEO_POSITION_ACTUAL if audio decode is driving the position,
 which is common to keep audio and video in sync.
 
 Since: 5.1.11
+
+## API: al_init_video_addon
+
+Initializes the video addon.
+
+Since: 5.1.12
+
+## API: al_shutdown_video_addon
+
+Shut down the video addon. This is done automatically at program exit,
+but can be called any time the user wishes as well.
+
+Since: 5.1.12
+
+## API: al_get_allegro_video_version
+
+Returns the (compiled) version of the addon, in the same format as
+[al_get_allegro_version].
+
+Since: 5.1.12
 
 ## API: al_open_video
 

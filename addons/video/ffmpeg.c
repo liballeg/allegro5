@@ -1227,4 +1227,7 @@ static ALLEGRO_VIDEO_INTERFACE ffmpeg_vtable = {
    update_video
 };
 
-ALLEGRO_VIDEO_INTERFACE *_al_video_vtable = &ffmpeg_vtable;
+ALLEGRO_VIDEO_INTERFACE *_al_video_ffmpeg_vtable(void)
+{
+   return &ffmpeg_vtable;
+}
