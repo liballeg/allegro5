@@ -240,6 +240,9 @@ menu. If you wish to use the same menu on multiple displays or use a sub-menu
 as a context menu, you must make a copy via [al_clone_menu] or
 [al_clone_menu_for_popup].
 
+Top level items in a non-popup menu must have at least one sub-item, or the
+behavior is undefined.
+
 Each menu item can be given an ID of any 16-bit integer greater than zero. When
 a user clicks on a menu item, an event will be generated only if it has an ID.
 This ID should be unique per menu; if you duplicate IDs, then there will be no
