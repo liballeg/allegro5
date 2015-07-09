@@ -409,6 +409,10 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
       }
    }
 
+   if (display->flags & ALLEGRO_MAXIMIZED) {
+      _al_xwin_maximize(display, true);
+   }
+
    if (!_al_xglx_config_create_context(d)) {
       goto LateError;
    }
@@ -803,6 +807,8 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
       if (glx->context) {
          _al_ogl_setup_gl(d);
       }
+
+      _al_xwin_check_maximized(d);
    }
 
    _al_mutex_unlock(&system->lock);
@@ -992,6 +998,8 @@ void _al_xglx_display_configure(ALLEGRO_DISPLAY *d, int x, int y,
       }
 
    }
+
+   _al_xwin_check_maximized(d);
 
    _al_event_source_unlock(es);
 }
@@ -1271,6 +1279,9 @@ static bool xdpy_set_display_flag(ALLEGRO_DISPLAY *display, int flag,
          return true;
       case ALLEGRO_FULLSCREEN_WINDOW:
          xdpy_set_fullscreen_window(display, flag_onoff);
+         return true;
+      case ALLEGRO_MAXIMIZED:
+         _al_xwin_maximize(display, flag_onoff);
          return true;
    }
    return false;
