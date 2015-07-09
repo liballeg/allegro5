@@ -271,14 +271,15 @@ void al_convert_bitmaps(void)
 void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_STATE backup;
+   int bitmap_flags = al_get_bitmap_flags(bitmap);
    /* Do nothing if it is a display bitmap already. */
-   if (!(al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP))
+   if (!(bitmap_flags & ALLEGRO_MEMORY_BITMAP))
       return;
 
    ALLEGRO_DEBUG("converting memory bitmap %p to display bitmap\n", bitmap);
 
    al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
-   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+   al_set_new_bitmap_flags(bitmap_flags & ~ALLEGRO_MEMORY_BITMAP);
    al_set_new_bitmap_format(al_get_bitmap_format(bitmap));
    al_convert_bitmap(bitmap);
    al_restore_state(&backup);
@@ -292,8 +293,6 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_STATE backup;
    int bitmap_flags = al_get_bitmap_flags(bitmap);
-   bool is_any = (bitmap_flags & ALLEGRO_CONVERT_BITMAP) != 0;
-
    /* Do nothing if it is a memory bitmap already. */
    if (bitmap_flags & ALLEGRO_MEMORY_BITMAP)
       return;
@@ -301,22 +300,9 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
    ALLEGRO_DEBUG("converting display bitmap %p to memory bitmap\n", bitmap);
 
    al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_flags((bitmap_flags & ~ALLEGRO_VIDEO_BITMAP) | ALLEGRO_MEMORY_BITMAP);
    al_set_new_bitmap_format(al_get_bitmap_format(bitmap));
    al_convert_bitmap(bitmap);
-   if (is_any) {
-      /* We force-converted to memory above, but we still want to
-       * keep the ANY flag if it was set so the bitmap can be
-       * back-converted later.
-       *
-       * Be careful to set the flags of the actual parent, and not the
-       * sub-bitmap.
-       */
-      if (bitmap->parent)
-         bitmap = bitmap->parent;
-      bitmap->_flags |= ALLEGRO_CONVERT_BITMAP;
-      _al_register_convert_bitmap(bitmap);
-   }
    al_restore_state(&backup);
 }
 
