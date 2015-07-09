@@ -510,6 +510,9 @@ bitmaps belonging to the current display.
 Note that video bitmaps get automatically converted back to memory
 bitmaps when the last display is destroyed.
 
+This operation will preserve all bitmap flags except ALLEGRO_VIDEO_BITMAP and
+ALLEGRO_MEMORY_BITMAP.
+
 Since: 5.1.0
 
 See also: [al_convert_bitmap], [al_create_bitmap]
