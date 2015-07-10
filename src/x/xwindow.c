@@ -322,4 +322,68 @@ void _al_xwin_set_icons(ALLEGRO_DISPLAY *d,
 }
 
 
+void _al_xwin_maximize(ALLEGRO_DISPLAY *display, bool maximized)
+{
+   if (!!(display->flags & ALLEGRO_MAXIMIZED) == maximized)
+      return;
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   Display *x11 = system->x11display;
+   int old_resize_count = glx->resize_count;
+
+   XEvent xev;
+   xev.xclient.type = ClientMessage;
+   xev.xclient.serial = 0;
+   xev.xclient.send_event = True;
+   xev.xclient.message_type = X11_ATOM(_NET_WM_STATE);
+   xev.xclient.window = glx->window;
+   xev.xclient.format = 32;
+
+   xev.xclient.data.l[0] = maximized ? 1 : 0;
+   xev.xclient.data.l[1] = X11_ATOM(_NET_WM_STATE_MAXIMIZED_HORZ);
+   xev.xclient.data.l[2] = X11_ATOM(_NET_WM_STATE_MAXIMIZED_VERT);
+   xev.xclient.data.l[3] = 0;
+
+   XSendEvent(
+      x11,
+      RootWindowOfScreen(ScreenOfDisplay(x11, glx->xscreen)),
+      False,
+      SubstructureRedirectMask | SubstructureNotifyMask, &xev);
+
+   _al_display_xglx_await_resize(display, old_resize_count, true);
+}
+
+
+void _al_xwin_check_maximized(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   Display *x11 = system->x11display;
+   Atom type;
+   Atom horz = X11_ATOM(_NET_WM_STATE_MAXIMIZED_HORZ);
+   Atom vert = X11_ATOM(_NET_WM_STATE_MAXIMIZED_VERT);
+   Atom property = X11_ATOM(_NET_WM_STATE);
+   int format;
+   int maximized = 0;
+   unsigned long n, remaining, i, *p32;
+   unsigned char *p8 = NULL;
+   if (XGetWindowProperty(x11, glx->window, property, 0, INT_MAX,
+      False, AnyPropertyType, &type, &format, &n, &remaining, &p8)
+         != Success) {
+      return;
+   }
+   p32 = (unsigned long *)p8;
+   for (i = 0; i < n; i++) {
+      if (p32[i] == horz)
+         maximized |= 1;
+      if (p32[i] == vert)
+         maximized |= 2;
+   }
+   XFree(p8);
+   display->flags &= ~ALLEGRO_MAXIMIZED;
+   if (maximized == 3)
+      display->flags |= ALLEGRO_MAXIMIZED;
+}
+
+
 /* vim: set sts=3 sw=3 et: */
