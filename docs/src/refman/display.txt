@@ -126,6 +126,11 @@ ALLEGRO_RESIZABLE
 :   The display is resizable (only applicable if combined with
     ALLEGRO_WINDOWED).
 
+ALLEGRO_MAXIMIZED
+:   The display window will be maximized (only applicable if combined
+    with ALLEGRO_RESIZABLE).
+    Since: 5.1.12
+
 ALLEGRO_OPENGL
 :   Require the driver to provide an initialized OpenGL context after returning
     successfully.
@@ -546,6 +551,7 @@ after creation are:
 
 - ALLEGRO_FULLSCREEN_WINDOW
 - ALLEGRO_FRAMELESS
+- ALLEGRO_MAXIMIZED
 
 Returns true if the driver supports toggling the specified flag else
 false. You can use [al_get_display_flags] to query whether the given
