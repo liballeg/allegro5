@@ -11,13 +11,17 @@
 /* Number of pixel format attributes we can set */
 #define AL_OSX_NUM_PFA  64
 
+@interface ALWindow : NSWindow
+@property ALLEGRO_DISPLAY* display;
+@end
+
 /* This is our version of ALLEGRO_DISPLAY with driver specific extra data. */
 typedef struct ALLEGRO_DISPLAY_OSX_WIN {
    ALLEGRO_DISPLAY parent;
    int depth;
    NSOpenGLContext* ctx;
    NSOpenGLPixelFormatAttribute attributes[AL_OSX_NUM_PFA];
-   NSWindow* win;
+   ALWindow* win;
    NSCursor* cursor;
    CGDirectDisplayID display_id;
    BOOL show_cursor;

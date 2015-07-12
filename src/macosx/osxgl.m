@@ -230,19 +230,19 @@ void _al_osx_keyboard_was_installed(BOOL install) {
 -(void) enterFullScreenWindowMode;
 -(void) exitFullScreenWindowMode;
 -(void) finishExitingFullScreenWindowMode;
-@end
-
-/* ALWindow:
- * This class is only here to return YES from canBecomeKeyWindow
- * to accept events when the window is frameless.
- */
-@interface ALWindow : NSWindow
+-(void) maximize;
 @end
 
 @implementation ALWindow
 -(BOOL) canBecomeKeyWindow 
 {
    return YES;
+}
+
+-(void) zoom:(id)sender
+{
+   self.display->flags ^= ALLEGRO_MAXIMIZED;
+   [super zoom:sender];
 }
 @end
 
@@ -581,6 +581,20 @@ void _al_osx_mouse_was_installed(BOOL install) {
    _al_event_source_unlock(es);
 }
 
+-(void)windowWillEnterFullScreen:(NSNotification *)notification
+{
+    (void)notification;
+    ALLEGRO_DISPLAY *display = dpy_ptr;
+    display->flags |= ALLEGRO_MAXIMIZED;
+}
+
+-(void)windowWillExitFullScreen:(NSNotification *)notification
+{
+    (void)notification;
+    ALLEGRO_DISPLAY *display = dpy_ptr;
+    display->flags &= ~ALLEGRO_MAXIMIZED;
+}
+
 -(void) enterFullScreenWindowMode
 {
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 1060
@@ -591,6 +605,13 @@ void _al_osx_mouse_was_installed(BOOL install) {
    [[dpy->win contentView] enterFullScreenMode: [dpy->win screen] withOptions: dict];
    [dict release];
 #endif
+}
+
+/* Toggles maximize state. In OSX 10.10 this is the same as double clicking the title bar. */
+-(void) maximize
+{
+   ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
+   [dpy->win performZoom: nil];
 }
 
 -(void) exitFullScreenWindowMode
@@ -911,7 +932,9 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
 +(void) initialiseDisplay: (NSValue*) display_object {
    ALLEGRO_DISPLAY_OSX_WIN* dpy = [display_object pointerValue];
    NSRect rc = NSMakeRect(0, 0, dpy->parent.w,  dpy->parent.h);
-   NSWindow* win = dpy->win = [ALWindow alloc]; 
+   ALWindow *alwin = dpy->win = [ALWindow alloc];
+   alwin.display = (ALLEGRO_DISPLAY *)dpy;
+   NSWindow* win = alwin;
    NSScreen *screen;
    unsigned int mask = (dpy->parent.flags & ALLEGRO_FRAMELESS) ? NSBorderlessWindowMask :
       (NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask);
@@ -1842,8 +1865,20 @@ static bool acknowledge_resize_display_win(ALLEGRO_DISPLAY *d)
    content = [window convertRectToBacking: content];
 #endif
 
+   int ow = d->w, oh = d->h;
    d->w = NSWidth(content);
    d->h = NSHeight(content);
+   
+   if (d->w < ow || d->h < oh) {
+      /* In OSX there is no special "maximized" state, nor is there a specific maximized size.
+       * Instead each application can override the size it prefers as maximized size. Therefore
+       * you can maximize a window, and then resize it and it will still be maximized. Because
+       * determining whether a window is maximized is hard this heuristic works most of the
+       * time (except when you shrink a window and it still is maximized afterwards, which is
+       * very well possible).
+       */
+      d->flags &= ~ALLEGRO_MAXIMIZED;
+   }
 
    _al_ogl_resize_backbuffer(d->ogl_extras->backbuffer, d->w, d->h);
    setup_gl(d);
@@ -2149,6 +2184,13 @@ static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
          [win setStyleMask : mask];
          return true;
 
+      case ALLEGRO_MAXIMIZED: {
+         ALOpenGLView *view = (ALOpenGLView *)[win contentView];
+         if ((!!(display->flags & ALLEGRO_MAXIMIZED)) == onoff)
+            return true;
+         [view performSelectorOnMainThread: @selector(maximize) withObject: nil waitUntilDone:YES];
+         return true;
+      }
       case ALLEGRO_FULLSCREEN_WINDOW: {
          ALOpenGLView *view = (ALOpenGLView *)[win contentView];
          if (onoff) {
