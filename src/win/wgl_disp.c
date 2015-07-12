@@ -848,7 +848,6 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_old(int *cou
 static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds = NULL;
-   ALLEGRO_SYSTEM *system = (void *)al_get_system_driver();
    ALLEGRO_CONFIG *sys_cfg = al_get_system_config();
    int eds_count = 0;
    int i;
@@ -1278,7 +1277,7 @@ static void display_thread_proc(void *arg)
 
       if (disp->flags & ALLEGRO_FULLSCREEN) {
          SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
-              0, (LPVOID)(DWORD)lock_time, SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
+              0, (LPVOID)&lock_time, SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
       }
 #undef SPI_GETFOREGROUNDLOCKTIMEOUT
 #undef SPI_SETFOREGROUNDLOCKTIMEOUT
