@@ -1058,6 +1058,8 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h)
    _al_win_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
    _al_win_show_mouse_cursor(display);
 
+   _al_win_post_create_window(display);
+
    return display;
 }
 

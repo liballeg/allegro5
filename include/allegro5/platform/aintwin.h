@@ -170,6 +170,7 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
                                            int refresh_rate, int flags);
 int  _al_win_init_window(void);
 HWND _al_win_create_hidden_window(void);
+void _al_win_post_create_window(ALLEGRO_DISPLAY *display);
 
 /* icon helpers */
 void  _al_win_set_display_icons(ALLEGRO_DISPLAY *display, int num_icons, ALLEGRO_BITMAP *bitmap[]);

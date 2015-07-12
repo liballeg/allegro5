@@ -198,7 +198,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
 
 
 HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *display,
-	int x1, int y1, int width, int height, int refresh_rate, int flags)
+    int x1, int y1, int width, int height, int refresh_rate, int flags)
 {
    HWND my_window;
    DWORD style;
@@ -239,7 +239,7 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    mode.dmPosition.x = x1;
    mode.dmPosition.y = y1;
    mode.dmFields = DM_BITSPERPEL|DM_PELSWIDTH|DM_PELSHEIGHT|DM_DISPLAYFLAGS|
-   	DM_DISPLAYFREQUENCY|DM_POSITION;
+    DM_DISPLAYFREQUENCY|DM_POSITION;
 
    ChangeDisplaySettingsEx(devname, &mode, NULL, 0, NULL/*CDS_FULLSCREEN*/);
 
@@ -878,6 +878,10 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                resize_postponed = true;
                _beginthread(postpone_thread_proc, 0, (void *)d);
             }
+            d->flags &= ~ALLEGRO_MAXIMIZED;
+            if (wParam == SIZE_MAXIMIZED) {
+                d->flags |= ALLEGRO_MAXIMIZED;
+            }
          }
          return 0;
       case WM_ENTERSIZEMOVE:
@@ -1194,6 +1198,16 @@ bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 
          ASSERT(!!(display->flags & ALLEGRO_FULLSCREEN_WINDOW) == onoff);
          return true;
+      case ALLEGRO_MAXIMIZED:
+         if ((!!(display->flags & ALLEGRO_MAXIMIZED)) == onoff)
+            return true;
+         if (onoff) {
+            ShowWindow(win_display->window, SW_SHOWMAXIMIZED);
+         }
+         else {
+            ShowWindow(win_display->window, SW_RESTORE);
+         }
+         return true;
    }
    return false;
 }
@@ -1220,6 +1234,18 @@ bool _al_win_set_window_constraints(ALLEGRO_DISPLAY *display,
    al_resize_display(display, display->w, display->h);
 
    return true;
+}
+
+void _al_win_post_create_window(ALLEGRO_DISPLAY *display)
+{
+   /* Ideally the d3d/wgl window creation would already create the
+    * window maximized - but that code looks too messy to me to touch
+    * right now.
+    */
+   if (display->flags & ALLEGRO_MAXIMIZED) {
+      display->flags &= ~ALLEGRO_MAXIMIZED;
+      al_set_display_flag(display, ALLEGRO_MAXIMIZED, true);
+   }
 }
 
 bool _al_win_get_window_constraints(ALLEGRO_DISPLAY *display,

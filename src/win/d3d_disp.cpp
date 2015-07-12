@@ -1851,6 +1851,8 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    _al_load_d3dx9_module();
 #endif
 
+   _al_win_post_create_window(display);
+
    return display;
 }
 
