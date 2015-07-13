@@ -198,8 +198,10 @@ The 'importance' parameter can be either:
 * ALLEGRO_REQUIRE - The display will not be created if the setting can
     not be met.
 * ALLEGRO_SUGGEST - If the setting is not available, the display will
-    be created anyway.
-    FIXME: We need a way to query the settings back from a created display.
+    be created anyway with a setting as close as possible to the
+    requested one.
+    You can query the actual value used in that case by calling
+    [al_get_display_option] after the display has been created.
 * ALLEGRO_DONTCARE - If you added a display option with one of the above
     two settings before, it will be removed again. Else this does
     nothing.
@@ -332,7 +334,7 @@ ALLEGRO_SUPPORTED_ORIENTATIONS
 
     Since: 5.1.0
 
-See also: [al_set_new_display_flags]
+See also: [al_set_new_display_flags], [al_get_display_option]
 
 ### API: al_reset_new_display_options
 
