@@ -727,7 +727,36 @@ Since: 5.0.6, 5.1.2
 
 See also: [al_create_sub_bitmap], [al_is_sub_bitmap]
 
+### API: al_get_bitmap_x
 
+For a sub-bitmap, return it's x position within the parent.
+
+See also: [al_create_sub_bitmap], [al_get_parent_bitmap], [al_get_bitmap_y]
+
+Since: 5.1.12
+
+### API: al_get_bitmap_y
+
+For a sub-bitmap, return it's y position within the parent.
+
+See also: [al_create_sub_bitmap], [al_get_parent_bitmap], [al_get_bitmap_x]
+
+Since: 5.1.12
+
+### API: al_reparent_bitmap
+
+For a sub-bitmap, changes the parent, position and size. This is the
+same as destroying the bitmap and re-creating it with
+[al_create_sub_bitmap] - except the bitmap pointer stays the same. This
+has many uses, for example an animation player could return a single
+bitmap which can just be re-parented to different animation frames
+without having to re-draw the contents. Or a sprite atlas could
+re-arrange its sprites without having to invalidate all existing
+bitmaps.
+
+See also: [al_create_sub_bitmap], [al_get_parent_bitmap]
+
+Since: 5.1.12
 
 ## Drawing operations
 

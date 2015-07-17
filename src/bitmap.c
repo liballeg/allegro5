@@ -449,6 +449,31 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
 }
 
 
+/* Function: al_reparent_bitmap
+ */
+void al_reparent_bitmap(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *parent,
+   int x, int y, int w, int h)
+{
+   ASSERT(bitmap->parent);
+   // Re-parenting a non-sub-bitmap makes no sense, so in release mode
+   // just ignore it.
+   if (!bitmap->parent)
+      return;
+
+   if (parent->parent) {
+      x += parent->xofs;
+      y += parent->yofs;
+      parent = parent->parent;
+   }
+
+   bitmap->parent = parent;
+   bitmap->xofs = x;
+   bitmap->yofs = y;
+   bitmap->w = w;
+   bitmap->h = h;
+}
+
+
 /* Function: al_is_sub_bitmap
  */
 bool al_is_sub_bitmap(ALLEGRO_BITMAP *bitmap)
@@ -463,6 +488,24 @@ ALLEGRO_BITMAP *al_get_parent_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ASSERT(bitmap);
    return bitmap->parent;
+}
+
+
+/* Function: al_get_bitmap_x
+ */
+int al_get_bitmap_x(ALLEGRO_BITMAP *bitmap)
+{
+   ASSERT(bitmap);
+   return bitmap->xofs;
+}
+
+
+/* Function: al_get_bitmap_y
+ */
+int al_get_bitmap_y(ALLEGRO_BITMAP *bitmap)
+{
+   ASSERT(bitmap);
+   return bitmap->yofs;
 }
 
 
