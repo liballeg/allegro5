@@ -485,8 +485,7 @@ static bool try_display_format(ALLEGRO_DISPLAY *display, int *format)
       return false;
 
    if (_al_pixel_format_has_alpha(*format) &&
-      !_al_pixel_format_has_alpha(best_format))
-   {
+      !_al_pixel_format_has_alpha(best_format)) {
       switch (best_format) {
          case ALLEGRO_PIXEL_FORMAT_RGBX_8888:
             *format = ALLEGRO_PIXEL_FORMAT_RGBA_8888;
@@ -496,6 +495,22 @@ static bool try_display_format(ALLEGRO_DISPLAY *display, int *format)
             return true;
          case ALLEGRO_PIXEL_FORMAT_XBGR_8888:
             *format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+            return true;
+         default:
+            return false;
+      }
+   }
+   if (!_al_pixel_format_has_alpha(*format) &&
+      _al_pixel_format_has_alpha(best_format)) {
+      switch (best_format) {
+         case ALLEGRO_PIXEL_FORMAT_RGBA_8888:
+            *format = ALLEGRO_PIXEL_FORMAT_RGBX_8888;
+            return true;
+         case ALLEGRO_PIXEL_FORMAT_ARGB_8888:
+             *format = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
+            return true;
+         case ALLEGRO_PIXEL_FORMAT_ABGR_8888:
+            *format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
             return true;
          default:
             return false;
