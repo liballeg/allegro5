@@ -1,0 +1,16 @@
+## 2014-01-12 - Allegro 5.1.8 (WIP) released!
+
+This is a Work-In-Progress (WIP) release of the *unstable* 5.1 branch.
+The 5.1 branch is source compatible, but not binary compatible, with the stable
+5.0 branch.
+It contains provisional new features which are *subject to change at any time*.
+
+You can
+[download](http://sourceforge.net/projects/alleg/files/allegro-unstable/5.1.8/)
+it from SourceForge.
+The reference manual is available [online][a5docs],
+as is the list of [changes][changes-unstable].
+
+We encourage users to test 5.1 releases and report bugs,
+but remember that they do not provide the stability of 5.0 releases.
+

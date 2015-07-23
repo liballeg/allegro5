@@ -1,0 +1,7 @@
+## 2014-05-31 - Go bindings to Allegro created!
+
+Damien Radtke has created [Go](http://golang.org/) programming language bindings
+to Allegro 5.0.10.
+
+Check them out at [GitHub](https://github.com/dradtke/go-allegro).
+

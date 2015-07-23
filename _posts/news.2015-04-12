@@ -1,0 +1,7 @@
+## 2015-04-12 - Ubuntu PPAs now available.
+
+For convenience to our Ubuntu users (and those using distributions based on
+Ubuntu) we now maintain two [PPAs](https://launchpad.net/ubuntu/+ppas). You can
+use these to install binary and development packages of Allegro 5 stable and
+unstable releases. Check out the bottom of the [downloads] section for the
+links.
