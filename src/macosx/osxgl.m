@@ -234,7 +234,9 @@ void _al_osx_keyboard_was_installed(BOOL install) {
 @end
 
 @implementation ALWindow
--(BOOL) canBecomeKeyWindow 
+@synthesize display;
+
+-(BOOL) canBecomeKeyWindow
 {
    return YES;
 }

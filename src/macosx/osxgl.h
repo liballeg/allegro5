@@ -11,8 +11,11 @@
 /* Number of pixel format attributes we can set */
 #define AL_OSX_NUM_PFA  64
 
-@interface ALWindow : NSWindow
-@property ALLEGRO_DISPLAY* display;
+@interface ALWindow : NSWindow {
+   ALLEGRO_DISPLAY* display;
+}
+
+@property ALLEGRO_DISPLAY *display;
 @end
 
 /* This is our version of ALLEGRO_DISPLAY with driver specific extra data. */
