@@ -1,5 +1,3 @@
-#include <X11/extensions/XInput2.h>
-
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern_bitmap.h"
@@ -15,6 +13,9 @@
 #include "allegro5/platform/aintxglx.h"
 
 #include <X11/Xatom.h>
+#ifdef ALLEGRO_XWINDOWS_WITH_XINPUT2
+#include <X11/extensions/XInput2.h>
+#endif
 
 ALLEGRO_DEBUG_CHANNEL("display")
 
@@ -248,6 +249,7 @@ static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
                    XA_CARDINAL, 32, PropModeReplace,
                    (unsigned char *)&_NET_WM_BYPASS_COMPOSITOR_HINT_ON, 1);
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XINPUT2
    /* listen for touchscreen events */
    XIEventMask event_mask;
    event_mask.deviceid = XIAllMasterDevices;
@@ -260,6 +262,7 @@ static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
    XISelectEvents(system->x11display, d->window, &event_mask, 1);
 
    al_free(event_mask.mask);
+#endif
 
    return true;
 }

@@ -97,6 +97,9 @@
 /* Define if XIM extension is supported. */
 #cmakedefine ALLEGRO_XWINDOWS_WITH_XIM
 
+/* Define if XInput 2.2 X11 extension is supported. */
+#cmakedefine ALLEGRO_XWINDOWS_WITH_XINPUT2
+
 /*---------------------------------------------------------------------------*/
 
 /* Define if target platform is linux. */

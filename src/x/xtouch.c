@@ -15,11 +15,7 @@
  *      See readme.txt for copyright information.
  */
 
-
 #define ALLEGRO_NO_COMPATIBILITY
-
-#include <X11/Xlib.h>
-#include <X11/extensions/XInput2.h>
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
@@ -29,6 +25,12 @@
 #include "allegro5/internal/aintern_xmouse.h"
 #include "allegro5/internal/aintern_xsystem.h"
 #include "allegro5/internal/aintern_xtouch.h"
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XINPUT2
+
+#include <X11/Xlib.h>
+#include <X11/extensions/XInput2.h>
+
 
 
 ALLEGRO_DEBUG_CHANNEL("touch")
@@ -409,8 +411,33 @@ static void set_mouse_emulation_mode(int mode)
 }
 
 
+/* the driver vtable */
+#define TOUCHDRV_XWIN  AL_ID('X','W','I','N')
+
+static ALLEGRO_TOUCH_INPUT_DRIVER touchdrv_xwin =
+{
+   TOUCHDRV_XWIN,
+   xtouch_init,
+   xtouch_exit,
+   get_touch_input,
+   get_touch_input_state,
+   set_mouse_emulation_mode,
+   NULL
+};
+
+#endif
+
+_AL_DRIVER_INFO _al_touch_input_driver_list[] =
+{
+#ifdef ALLEGRO_XWINDOWS_WITH_XINPUT2
+   {TOUCHDRV_XWIN, &touchdrv_xwin, true},
+#endif
+   {0, NULL, 0}
+};
+
 void _al_x_handle_touch_event(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, XEvent *e)
 {
+#ifdef ALLEGRO_XWINDOWS_WITH_XINPUT2
    Display *x11display = s->x11display;
    XGenericEventCookie *cookie = &e->xcookie;
    if (!installed)
@@ -450,26 +477,9 @@ void _al_x_handle_touch_event(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGLX *d, X
          }
       }
    }
+#else
+   (void)s;
+   (void)d;
+   (void)e;
+#endif
 }
-
-
-/* the driver vtable */
-#define TOUCHDRV_XWIN  AL_ID('X','W','I','N')
-
-static ALLEGRO_TOUCH_INPUT_DRIVER touchdrv_xwin =
-{
-   TOUCHDRV_XWIN,
-   xtouch_init,
-   xtouch_exit,
-   get_touch_input,
-   get_touch_input_state,
-   set_mouse_emulation_mode,
-   NULL
-};
-
-
-_AL_DRIVER_INFO _al_touch_input_driver_list[] =
-{
-   {TOUCHDRV_XWIN, &touchdrv_xwin, true},
-   {0, NULL, 0}
-};
