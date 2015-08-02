@@ -222,7 +222,6 @@ bool al_emit_user_event(ALLEGRO_EVENT_SOURCE *src,
 
    ASSERT(src);
    ASSERT(event);
-   ASSERT(ALLEGRO_EVENT_TYPE_IS_USER(event->any.type));
 
    if (dtor) {
       ALLEGRO_USER_EVENT_DESCRIPTOR *descr = al_malloc(sizeof(*descr));
@@ -240,7 +239,7 @@ bool al_emit_user_event(ALLEGRO_EVENT_SOURCE *src,
 
       num_queues = _al_vector_size(&rsrc->queues);
       if (num_queues > 0) {
-         event->user.timestamp = al_get_time();
+         event->any.timestamp = al_get_time();
          _al_event_source_emit_event(src, event);
          rc = true;
       }
