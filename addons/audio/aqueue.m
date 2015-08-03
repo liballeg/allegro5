@@ -22,6 +22,7 @@
 #include "allegro5/allegro_audio.h"
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_audio_cfg.h"
+#include "allegro5/internal/aintern_vector.h"
 
 #import <CoreAudio/CoreAudioTypes.h>
 #import <AudioToolbox/AudioToolbox.h>
@@ -47,14 +48,13 @@ typedef struct ALLEGRO_AQ_DATA {
    int channels;
    bool playing;
    unsigned int buffer_size;
+   unsigned char *silence;
    ALLEGRO_VOICE *voice;
+   AudioQueueRef queue;
    AudioQueueBufferRef buffers[NUM_BUFFERS];
 } ALLEGRO_AQ_DATA;
 
-static bool playing = false;
-static AudioQueueRef queue;
-static unsigned char *silence;
-static ALLEGRO_VOICE *saved_voice;
+static _AL_VECTOR saved_voices = _AL_VECTOR_INITIALIZER(ALLEGRO_VOICE*);
 
 /* Audio queue callback */
 static void handle_buffer(
@@ -67,21 +67,22 @@ static void handle_buffer(
 
    (void)inAQ; // unsused
 
-   unsigned int samples = (ex_data->buffer_size/ex_data->channels)/(ex_data->bits_per_sample/8);
+   unsigned int samples = (ex_data->buffer_size / ex_data->channels) /
+                          (ex_data->bits_per_sample / 8);
 
    data = _al_voice_update(ex_data->voice, ex_data->voice->mutex, &samples);
    if (data == NULL)
-      data = silence;
+      data = ex_data->silence;
 
    unsigned int copy_bytes = samples * ex_data->channels *
-      (ex_data->bits_per_sample/8);
+      (ex_data->bits_per_sample / 8);
    copy_bytes = _ALLEGRO_MIN(copy_bytes, inBuffer->mAudioDataBytesCapacity);
 
    memcpy(inBuffer->mAudioData, data, copy_bytes);
    inBuffer->mAudioDataByteSize = copy_bytes;
 
    AudioQueueEnqueueBuffer(
-      queue,
+      ex_data->queue,
       inBuffer,
       0,
       NULL
@@ -94,26 +95,34 @@ static int _aqueue_stop_voice(ALLEGRO_VOICE* voice);
 
 static void interruption_callback(void *inClientData, UInt32 inInterruptionState)
 {
+   unsigned i;
    (void)inClientData;
-   if (inInterruptionState == kAudioSessionBeginInterruption) {
-      _aqueue_stop_voice(saved_voice);
-   }
-   else {
-      _aqueue_start_voice(saved_voice);
+   for (i = 0; i < _al_vector_size(&saved_voices); i++) {
+      ALLEGRO_VOICE **voice = _al_vector_ref(&saved_voices, i);
+      if (inInterruptionState == kAudioSessionBeginInterruption) {
+         _aqueue_stop_voice(*voice);
+      }
+      else {
+         _aqueue_start_voice(*voice);
+      }
    }
 }
 
 // This allows plugging/unplugging of hardware/bluetooth/speakers etc while keeping the sound playing
 static void property_listener(void *inClientData, AudioSessionPropertyID inID, UInt32 inDataSize, const void *inData)
 {
+   unsigned i;
    (void)inClientData;
    (void)inDataSize;
 
    if (inID == kAudioSessionProperty_AudioRouteChange) {
-      UInt32 reason = (UInt32)inData;
-      if (reason == kAudioSessionRouteChangeReason_NewDeviceAvailable) {
-         _aqueue_stop_voice(saved_voice);
-         _aqueue_start_voice(saved_voice);
+      for (i = 0; i < _al_vector_size(&saved_voices); i++) {
+         ALLEGRO_VOICE **voice = _al_vector_ref(&saved_voices, i);
+         UInt32 reason = (UInt32)inData;
+         if (reason == kAudioSessionRouteChangeReason_NewDeviceAvailable) {
+            _aqueue_stop_voice(*voice);
+            _aqueue_start_voice(*voice);
+         }
       }
    }
 }
@@ -123,7 +132,7 @@ static void property_listener(void *inClientData, AudioSessionPropertyID inID, U
    previously set paramters, or defaults. It shouldn't need to start sending
    audio data to the device yet, however. */
 static int _aqueue_open()
-{ 
+{
 #ifdef ALLEGRO_IPHONE
    /* These settings allow ipod music playback simultaneously with
     * our Allegro music/sfx, and also do not stop the streams when
@@ -149,6 +158,7 @@ static int _aqueue_open()
    other processes to use the device */
 static void _aqueue_close()
 {
+   _al_vector_free(&saved_voices);
 }
 
 
@@ -193,12 +203,10 @@ static int _aqueue_allocate_voice(ALLEGRO_VOICE *voice)
    ex_data->buffer_size = BUFFER_SIZE*channels*(bits_per_sample/8);
    ex_data->playing = false;
 
-   playing = false;
-
    voice->extra = ex_data;
    ex_data->voice = voice;
    
-   silence = al_calloc(1, ex_data->buffer_size);
+   ex_data->silence = al_calloc(1, ex_data->buffer_size);
 
    return 0;
 }
@@ -208,8 +216,9 @@ static int _aqueue_allocate_voice(ALLEGRO_VOICE *voice)
    unloaded by the time this is called */
 static void _aqueue_deallocate_voice(ALLEGRO_VOICE *voice)
 {
-   al_free(voice->extra);
-   al_free(silence);
+   ALLEGRO_AQ_DATA *ex_data = voice->extra;
+   al_free(ex_data->silence);
+   al_free(ex_data);
    voice->extra = NULL;
 }
 
@@ -265,24 +274,24 @@ static void *stream_proc(void *in_data)
       CFRunLoopGetCurrent(),
       kCFRunLoopCommonModes,
       0,
-      &queue);
+      &ex_data->queue);
 
    int i;
    for (i = 0; i < NUM_BUFFERS; ++i) {
       AudioQueueAllocateBuffer(
-         queue,
+         ex_data->queue,
          ex_data->buffer_size,
          &ex_data->buffers[i]
       );
 
-      memcpy(ex_data->buffers[i]->mAudioData, silence, ex_data->buffer_size);
+      memcpy(ex_data->buffers[i]->mAudioData, ex_data->silence, ex_data->buffer_size);
       ex_data->buffers[i]->mAudioDataByteSize = ex_data->buffer_size;
       ex_data->buffers[i]->mUserData = ex_data;
       // FIXME: Safe to comment this out?
       //ex_data->buffers[i]->mPacketDescriptionCount = 0;
 
       AudioQueueEnqueueBuffer(
-         queue,
+         ex_data->queue,
          ex_data->buffers[i],
          0,
          NULL
@@ -290,18 +299,15 @@ static void *stream_proc(void *in_data)
    }
 
    AudioQueueSetParameter(
-      queue,
+      ex_data->queue,
       kAudioQueueParam_Volume,
       1.0f
    );
 
    ret = AudioQueueStart(
-      queue,
+      ex_data->queue,
       NULL
    );
-
-   ex_data->playing = true;
-   playing = true;
 
    do {
       THREAD_BEGIN
@@ -311,7 +317,7 @@ static void *stream_proc(void *in_data)
          false
       );
       THREAD_END
-   } while (playing);
+   } while (ex_data->playing);
 
    THREAD_END
 
@@ -325,9 +331,12 @@ static void *stream_proc(void *in_data)
    position */
 static int _aqueue_start_voice(ALLEGRO_VOICE *voice)
 {
-   saved_voice = voice;
+   ALLEGRO_AQ_DATA *ex_data = voice->extra;
+   ASSERT(!voice->is_streaming);
 
-   if (voice->is_streaming && playing == false) {
+   if (!ex_data->playing) {
+      *(ALLEGRO_VOICE**)_al_vector_alloc_back(&saved_voices) = voice;
+      ex_data->playing = true;
       al_run_detached_thread(stream_proc, voice);
       return 0;
    }
@@ -343,14 +352,13 @@ static int _aqueue_stop_voice(ALLEGRO_VOICE* voice)
 {
    ALLEGRO_AQ_DATA *ex_data = voice->extra;
 
-   if (playing == true) {
-      playing = false;
-
+   if (ex_data->playing) {
+      _al_vector_find_and_delete(&saved_voices, &voice);
       ex_data->playing = false;
 
       AudioQueueDispose(
-         queue,
-         false /* Using true causes a deadlock on program exit for me */
+         ex_data->queue,
+         false /* Do it asynchronously so the feeder thread can exit. */
       );
    }
 
@@ -412,7 +420,7 @@ static void _aqueue_recording_callback(void *user_data, AudioQueueRef aq,
 {
    ALLEGRO_AUDIO_RECORDER *recorder = (ALLEGRO_AUDIO_RECORDER *) user_data;
    RECORDER_DATA *data = (RECORDER_DATA *) recorder->extra;
-   void *input = aq_buffer->mAudioData;
+   char *input = aq_buffer->mAudioData;
  
    (void) aq;
    (void) start_time;
@@ -433,7 +441,7 @@ static void _aqueue_recording_callback(void *user_data, AudioQueueRef aq,
          unsigned int samples_to_write = sample_count < samples_left ? sample_count : samples_left;
          
          /* Copy the incoming data into the user's fragment buffer */
-         memcpy(recorder->fragments[data->fragment_i] + data->samples_written * recorder->sample_size,
+         memcpy((char*)recorder->fragments[data->fragment_i] + data->samples_written * recorder->sample_size,
                 input, samples_to_write * recorder->sample_size);
          
          input += samples_to_write * recorder->sample_size;
