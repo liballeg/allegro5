@@ -817,7 +817,7 @@ See also: [ALLEGRO_EVENT_SOURCE]
 
 ## API: al_emit_user_event
 
-Emit a user event.
+Emit an event from a user event source.
 The event source must have been initialised with [al_init_user_event_source].
 Returns `false` if the event source isn't registered with any queues,
 hence the event wouldn't have been delivered into any queues.
@@ -839,6 +839,12 @@ the event, but *not* the event itself (since it is just a copy).
 If `dtor` is NULL then reference counting will not be performed.
 It is safe, but unnecessary, to call [al_unref_user_event] on non-reference
 counted user events.
+
+You can use al_emit_user_event to emit both user and non-user events from your
+user event source. Note that emitting input events will not update the
+corresponding input device states. For example, you may emit an event of type
+[ALLEGRO_EVENT_KEY_DOWN], but it will not update the [ALLEGRO_KEYBOARD_STATE]
+returned by [al_get_keyboard_state].
 
 See also: [ALLEGRO_USER_EVENT], [al_unref_user_event]
 
