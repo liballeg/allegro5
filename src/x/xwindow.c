@@ -324,6 +324,7 @@ void _al_xwin_set_icons(ALLEGRO_DISPLAY *d,
 
 void _al_xwin_maximize(ALLEGRO_DISPLAY *display, bool maximized)
 {
+#ifndef ALLEGRO_RASPBERRYPI
    if (!!(display->flags & ALLEGRO_MAXIMIZED) == maximized)
       return;
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
@@ -351,11 +352,13 @@ void _al_xwin_maximize(ALLEGRO_DISPLAY *display, bool maximized)
       SubstructureRedirectMask | SubstructureNotifyMask, &xev);
 
    _al_display_xglx_await_resize(display, old_resize_count, true);
+#endif
 }
 
 
 void _al_xwin_check_maximized(ALLEGRO_DISPLAY *display)
 {
+#ifndef ALLEGRO_RASPBERRYPI
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
    Display *x11 = system->x11display;
@@ -383,6 +386,7 @@ void _al_xwin_check_maximized(ALLEGRO_DISPLAY *display)
    display->flags &= ~ALLEGRO_MAXIMIZED;
    if (maximized == 3)
       display->flags |= ALLEGRO_MAXIMIZED;
+#endif
 }
 
 
