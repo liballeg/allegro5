@@ -468,8 +468,8 @@ public class AllegroActivity extends Activity
 
    private boolean isJoystick(int id) {
          InputDevice input = InputDevice.getDevice(id);
-         int sources = input.getSources() & ~InputDevice.SOURCE_CLASS_MASK;
-         if ((sources & InputDevice.SOURCE_GAMEPAD) != 0 || (sources & InputDevice.SOURCE_JOYSTICK) != 0) {
+         int sources = input.getSources();
+         if ((sources & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK) {
             return true;
          }
          return false;
