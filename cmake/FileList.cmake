@@ -315,3 +315,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_ANDROID_FILES
 set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED
     include/allegro5/platform/alplatf.h
     )
+    
+set(ALLEGRO_INCLUDE_ALLEGRO_X_FILES
+    include/allegro5/allegro_x.h
+    )
