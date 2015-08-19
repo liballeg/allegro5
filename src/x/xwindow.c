@@ -390,12 +390,10 @@ void _al_xwin_check_maximized(ALLEGRO_DISPLAY *display)
 }
 
 
-XID al_get_x_window_handle(ALLEGRO_DISPLAY *display)
+XID al_get_x_window_id(ALLEGRO_DISPLAY *display)
 {
-    if (!display)
-        return -1;
-
-    return ((ALLEGRO_DISPLAY_XGLX*)display)->window;
+   ASSERT(display != NULL);
+   return ((ALLEGRO_DISPLAY_XGLX*)display)->window;
 }
 
 /* vim: set sts=3 sw=3 et: */

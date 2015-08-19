@@ -9,9 +9,9 @@
  *                                           \_/__/
  *
  *      Header file for X specific functionality.
- *
- *      By Trent Gamblin.
- *
+ * 
+ *      By Robert MacGregor.
+ * 
  */
 
 #ifndef __al_included_allegro5_allegro_x_h
@@ -26,8 +26,7 @@
 /*
  *  Public X-related API
  */
-
-AL_FUNC(XID, al_get_x_window_handle, (ALLEGRO_DISPLAY *display));
+AL_FUNC(XID, al_get_x_window_id, (ALLEGRO_DISPLAY *display));
 
 
 #ifdef __cplusplus
