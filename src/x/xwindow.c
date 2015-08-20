@@ -390,6 +390,8 @@ void _al_xwin_check_maximized(ALLEGRO_DISPLAY *display)
 }
 
 
+/* Function: al_get_x_window_id
+ */
 XID al_get_x_window_id(ALLEGRO_DISPLAY *display)
 {
    ASSERT(display != NULL);

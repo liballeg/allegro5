@@ -110,3 +110,17 @@ Returns a pointer to a static buffer that contains the version string of the
 Android platform that the calling Allegro program is running on.
 
 Since: 5.1.2
+
+## X11
+
+These functions are declared in the following header file:
+
+~~~~c
+ #include <allegro5/allegro_x.h>
+~~~~
+
+### API: al_get_x_window_id
+
+Retrieves the XID associated with the Allegro display.
+
+Since: 5.1.12
