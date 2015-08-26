@@ -59,7 +59,7 @@ Each display that uses OpenGL as a backend has a distinct OpenGL rendering conte
 associated with it. See [al_set_target_bitmap] for the discussion about rendering contexts.
 
 See also: [al_set_new_display_flags], [al_set_new_display_option],
-[al_set_new_display_refresh_rate], [al_set_new_display_adapter],
+[al_set_new_display_refresh_rate], [al_set_new_display_adapter], [al_set_new_window_title]
 [al_set_window_position]
 
 ### API: al_destroy_display
@@ -622,6 +622,25 @@ See also: [al_set_new_display_refresh_rate]
 Set the title on a display.
 
 See also: [al_set_display_icon], [al_set_display_icons]
+
+### API: al_set_new_window_title
+
+Set the title that will be used when a new display is created.
+
+See also: [al_set_window_title], [al_get_new_window_title], [al_create_display]
+
+Since: 5.1.12
+
+### API: al_get_new_window_title
+
+Returns the title that will be used when a new display is created. This 
+returns the value that [al_set_window_title] was called with. If that function 
+wasn't called yet, the value of [al_get_app_name] is returned as a default.
+
+See also: [al_set_window_title], [al_set_new_window_title], [al_create_display]
+
+Since: 5.1.12
+
 
 ### API: al_set_display_icon
 

@@ -110,6 +110,9 @@ AL_FUNC(void, al_set_new_display_flags, (int flags));
 AL_FUNC(int,  al_get_new_display_refresh_rate, (void));
 AL_FUNC(int,  al_get_new_display_flags, (void));
 
+AL_FUNC(void, al_set_new_window_title, (char * title));
+AL_FUNC(const char *, al_get_new_window_title, (void));
+
 AL_FUNC(int, al_get_display_width,  (ALLEGRO_DISPLAY *display));
 AL_FUNC(int, al_get_display_height, (ALLEGRO_DISPLAY *display));
 AL_FUNC(int, al_get_display_format, (ALLEGRO_DISPLAY *display));

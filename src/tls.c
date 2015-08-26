@@ -93,6 +93,9 @@ typedef struct thread_local_state {
 
    /* Error code */
    int allegro_errno;
+   
+   /* Title to use for a new window/display. */
+   ALLEGRO_USTR * new_window_title;
 
 #ifdef ALLEGRO_ANDROID
    JNIEnv *jnienv;
@@ -139,6 +142,7 @@ static void initialize_tls_values(thread_local_state *tls)
    tls->new_bitmap_format = ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA;
    tls->new_file_interface = &_al_file_interface_stdio;
    tls->fs_interface = &_al_fs_interface_stdio;
+   tls->new_window_title = NULL; 
    
    _al_fill_display_settings(&tls->new_display_settings);
 }
@@ -179,6 +183,43 @@ ALLEGRO_EXTRA_DISPLAY_SETTINGS *_al_get_new_display_settings(void)
       return 0;
    return &tls->new_display_settings;
 }
+
+
+/* Function: al_set_new_window_title
+ */
+void al_set_new_window_title(char * title)
+{
+   thread_local_state *tls;
+
+   if ((tls = tls_get()) == NULL)
+      return;
+      
+   if (tls->new_window_title)
+      al_ustr_free(tls->new_window_title);
+   
+      
+  tls->new_window_title = al_ustr_new(title);   
+}
+
+
+
+/* Function: al_get_new_window_title
+ */
+const char * al_get_new_window_title(void)
+{
+   thread_local_state *tls;
+   
+   /*Return al_get_prgram name in case of error or if not set before. */
+   if ((tls = tls_get()) == NULL)
+      return al_get_app_name();
+   
+   if (!tls->new_window_title)
+      return al_get_app_name();
+   
+  
+   return al_cstr(tls->new_window_title);
+}
+
 
 
 
