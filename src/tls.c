@@ -95,7 +95,7 @@ typedef struct thread_local_state {
    int allegro_errno;
    
    /* Title to use for a new window/display. */
-   ALLEGRO_USTR * new_window_title;
+   ALLEGRO_USTR *new_window_title;
 
 #ifdef ALLEGRO_ANDROID
    JNIEnv *jnienv;
@@ -187,7 +187,7 @@ ALLEGRO_EXTRA_DISPLAY_SETTINGS *_al_get_new_display_settings(void)
 
 /* Function: al_set_new_window_title
  */
-void al_set_new_window_title(char * title)
+void al_set_new_window_title(char *title)
 {
    thread_local_state *tls;
 
@@ -205,11 +205,11 @@ void al_set_new_window_title(char * title)
 
 /* Function: al_get_new_window_title
  */
-const char * al_get_new_window_title(void)
+const char *al_get_new_window_title(void)
 {
    thread_local_state *tls;
    
-   /*Return al_get_prgram name in case of error or if not set before. */
+   /* Return app name in case of error or if not set before. */
    if ((tls = tls_get()) == NULL)
       return al_get_app_name();
    
