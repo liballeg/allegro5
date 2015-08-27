@@ -1,4 +1,4 @@
-/* An example showing bitmap flipping flags, by Steven Wallace. */
+/* An example showing how to set the title of a window, by Beoran. */
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
@@ -25,7 +25,7 @@ int main(int argc, char **argv)
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_FONT *font;
    int step = 0;
-   const char * text;
+   const char *text;
    char   title[TITLE_SIZE] = ""; 
    bool done = false;
    bool redraw = true;
