@@ -3,6 +3,7 @@
 #include <X11/Xatom.h>
 
 #include "allegro5/allegro.h"
+#include "allegro5/allegro_x.h"
 #include "allegro5/internal/aintern_x.h"
 #include "allegro5/internal/aintern_xdisplay.h"
 #include "allegro5/internal/aintern_xsystem.h"
