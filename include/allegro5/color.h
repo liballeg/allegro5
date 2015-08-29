@@ -62,6 +62,10 @@ AL_FUNC(ALLEGRO_COLOR, al_map_rgb, (unsigned char r, unsigned char g, unsigned c
 AL_FUNC(ALLEGRO_COLOR, al_map_rgba, (unsigned char r, unsigned char g, unsigned char b, unsigned char a));
 AL_FUNC(ALLEGRO_COLOR, al_map_rgb_f, (float r, float g, float b));
 AL_FUNC(ALLEGRO_COLOR, al_map_rgba_f, (float r, float g, float b, float a));
+AL_FUNC(ALLEGRO_COLOR, al_premul_rgba,
+   (unsigned char r, unsigned char g, unsigned char b, unsigned char a));
+AL_FUNC(ALLEGRO_COLOR, al_premul_rgba_f,
+   (float r, float g, float b, float a));
 
 /* Pixel unmapping */
 AL_FUNC(void, al_unmap_rgb, (ALLEGRO_COLOR color, unsigned char *r, unsigned char *g, unsigned char *b));

@@ -32,6 +32,12 @@ See also: [al_map_rgba], [al_map_rgb], [al_map_rgba_f]
 
 Convert r, g, b, a  (ranging from 0-255) into an [ALLEGRO_COLOR].
 
+See also: [al_map_rgb], [al_premul_rgba], [al_map_rgb_f]
+
+### API: al_premul_rgba
+
+This is a shortcut for [al_map_rgba]\(r * a / 255, g * a / 255, b * a / 255, a).
+
 By default Allegro uses pre-multiplied alpha for transparent blending of
 bitmaps and primitives (see [al_load_bitmap_flags] for a discussion of that
 feature). This means that if you want to tint a bitmap or primitive to be
@@ -43,16 +49,24 @@ int r = 255;
 int g = 0;
 int b = 0;
 int a = 127;
-ALLEGRO_COLOR c = al_map_rgba(r * a / 255, g * a / 255, b * a / 255, a);
+ALLEGRO_COLOR c = al_premul_rgba(r, g, b, a);
 /* Draw the bitmap tinted red and half-transparent. */
 al_draw_tinted_bitmap(bmp, c, 0, 0, 0);
 ~~~~
 
-See also: [al_map_rgb], [al_map_rgba_f], [al_map_rgb_f]
+Since: 5.1.12
+
+See also: [al_map_rgba], [al_premul_rgba_f]
 
 ### API: al_map_rgba_f
 
 Convert r, g, b, a (ranging from 0.0f-1.0f) into an [ALLEGRO_COLOR].
+
+See also: [al_map_rgba], [al_premul_rgba_f], [al_map_rgb_f]
+
+### API: al_premul_rgba_f
+
+This is a shortcut for [al_map_rgba_f]\(r * a, g * a, b * a, a).
 
 By default Allegro uses pre-multiplied alpha for transparent blending of
 bitmaps and primitives (see [al_load_bitmap_flags] for a discussion of that
@@ -65,12 +79,14 @@ float r = 1;
 float g = 0;
 float b = 0;
 float a = 0.5;
-ALLEGRO_COLOR c = al_map_rgba_f(r * a, g * a, b * a, a);
+ALLEGRO_COLOR c = al_premul_rgba_f(r, g, b, a);
 /* Draw the bitmap tinted red and half-transparent. */
 al_draw_tinted_bitmap(bmp, c, 0, 0, 0);
 ~~~~
 
-See also: [al_map_rgba], [al_map_rgb], [al_map_rgb_f]
+Since: 5.1.12
+
+See also: [al_map_rgba_f], [al_premul_rgba]
 
 ### API: al_unmap_rgb
 
