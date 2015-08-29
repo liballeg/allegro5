@@ -53,9 +53,6 @@ static int joy_init(void)
    AL_CONST char *device_name = NULL;
    char tmp[128], tmp1[128], tmp2[128];
    unsigned int raw_version;
-   struct {
-      unsigned char build, minor, major;
-   } version;
    char num_axes, num_buttons;
    int throttle;
    int i, s, a, b;
@@ -96,10 +93,6 @@ static int joy_init(void)
          ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Your Linux joystick API is version 0.x which is unsupported."));
          return -1; 
       }
-      
-      version.major = (raw_version & 0xFF0000) >> 16;
-      version.minor = (raw_version & 0xFF00) >> 8;
-      version.build = (raw_version & 0xFF);
       
       ioctl(joy_fd[i], JSIOCGAXES, &num_axes);
       ioctl(joy_fd[i], JSIOCGBUTTONS, &num_buttons);
