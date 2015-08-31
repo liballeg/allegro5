@@ -105,6 +105,10 @@ enum
 typedef struct ALLEGRO_DISPLAY ALLEGRO_DISPLAY;
 
 
+/* Enum: ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE
+*/
+#define ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE 255
+
 AL_FUNC(void, al_set_new_display_refresh_rate, (int refresh_rate));
 AL_FUNC(void, al_set_new_display_flags, (int flags));
 AL_FUNC(int,  al_get_new_display_refresh_rate, (void));

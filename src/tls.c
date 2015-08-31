@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -15,19 +15,19 @@
  */
 
 /* FIXME:
- * 
+ *
  * There are several ways to get thread local storage:
- * 
+ *
  * 1. pthreads.
  * 2. __thread keyword in gcc.
  * 3. __declspec(thread) in MSVC.
  * 4. TLS API under Windows.
- * 
+ *
  * Since pthreads is available from the system everywhere except in
  * Windows, this is the only case which is problematic. It appears
  * that except for old mingw versions (before gcc 4.2) we can simply
  * use __thread, and for MSVC we can always use __declspec(thread):
- * 
+ *
  * However there also is a WANT_TLS configuration variable which is on
  * by default and forces use of the TLS API instead. At the same time,
  * the implementation using the TLS API in this file does not work
@@ -93,9 +93,11 @@ typedef struct thread_local_state {
 
    /* Error code */
    int allegro_errno;
-   
-   /* Title to use for a new window/display. */
-   ALLEGRO_USTR *new_window_title;
+
+   /* Title to use for a new window/display.
+    * This is a static buffer for API reasons.
+    */
+   char new_window_title[ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE + 1];
 
 #ifdef ALLEGRO_ANDROID
    JNIEnv *jnienv;
@@ -142,8 +144,8 @@ static void initialize_tls_values(thread_local_state *tls)
    tls->new_bitmap_format = ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA;
    tls->new_file_interface = &_al_file_interface_stdio;
    tls->fs_interface = &_al_fs_interface_stdio;
-   tls->new_window_title = NULL; 
-   
+   memset(tls->new_window_title, 0, ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE + 1);
+
    _al_fill_display_settings(&tls->new_display_settings);
 }
 
@@ -190,15 +192,18 @@ ALLEGRO_EXTRA_DISPLAY_SETTINGS *_al_get_new_display_settings(void)
 void al_set_new_window_title(char *title)
 {
    thread_local_state *tls;
+   size_t size;
 
    if ((tls = tls_get()) == NULL)
       return;
-      
-   if (tls->new_window_title)
-      al_ustr_free(tls->new_window_title);
-   
-      
-  tls->new_window_title = al_ustr_new(title);   
+
+   size = strlen(title);
+
+   if (size > ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE) {
+      size = ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE;
+   }
+
+   _al_sane_strncpy(tls->new_window_title, title, size);
 }
 
 
@@ -208,16 +213,16 @@ void al_set_new_window_title(char *title)
 const char *al_get_new_window_title(void)
 {
    thread_local_state *tls;
-   
+
    /* Return app name in case of error or if not set before. */
    if ((tls = tls_get()) == NULL)
       return al_get_app_name();
-   
-   if (!tls->new_window_title)
+
+   if (strlen(tls->new_window_title) < 1)
       return al_get_app_name();
-   
-  
-   return al_cstr(tls->new_window_title);
+
+
+   return (const char *)tls->new_window_title;
 }
 
 
@@ -698,6 +703,8 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
       _STORE(new_window_x);
       _STORE(new_window_y);
       _STORE(new_display_settings);
+      _al_sane_strncpy(stored->tls.new_window_title, tls->new_window_title,
+                       strlen(tls->new_window_title));
    }
 
    if (flags & ALLEGRO_STATE_NEW_BITMAP_PARAMETERS) {
@@ -752,7 +759,7 @@ void al_restore_state(ALLEGRO_STATE const *state)
 
    if ((tls = tls_get()) == NULL)
       return;
-   
+
    stored = (void *)state;
    flags = stored->flags;
 
@@ -765,6 +772,8 @@ void al_restore_state(ALLEGRO_STATE const *state)
       _RESTORE(new_window_x);
       _RESTORE(new_window_y);
       _RESTORE(new_display_settings);
+      _al_sane_strncpy(tls->new_window_title, stored->tls.new_window_title,
+                       strlen(tls->new_window_title));
    }
 
    if (flags & ALLEGRO_STATE_NEW_BITMAP_PARAMETERS) {
@@ -948,7 +957,6 @@ int *_al_tls_get_dtor_owner_count(void)
    tls = tls_get();
    return &tls->dtor_owner_count;
 }
-
 
 
 /* vim: set sts=3 sw=3 et: */

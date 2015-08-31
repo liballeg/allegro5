@@ -51,7 +51,7 @@ The parameters of the display are determined by the last calls to
 al_set_new_display\_\*. Default parameters are used if none are set
 explicitly.
 Creating a new display will automatically make it the active one, with the
-backbuffer selected for drawing. 
+backbuffer selected for drawing.
 
 Returns NULL on error.
 
@@ -623,19 +623,34 @@ Set the title on a display.
 
 See also: [al_set_display_icon], [al_set_display_icons]
 
+
 ### API: al_set_new_window_title
 
 Set the title that will be used when a new display is created.
+Allegro uses a static buffer of [ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE] to
+store this, so the length of the titme you set must be less than this.
 
-See also: [al_set_window_title], [al_get_new_window_title], [al_create_display]
+See also: [al_set_window_title], [al_get_new_window_title], [al_create_display],
+          [ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE]
+
+Since: 5.1.12
+
+### API: ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE
+
+This is the maximum size of the title that can be set with
+[al_set_new_window_title].
+
+See also: [al_set_new_window_title]
 
 Since: 5.1.12
 
 ### API: al_get_new_window_title
 
-Returns the title that will be used when a new display is created. This 
-returns the value that [al_set_window_title] was called with. If that function 
+Returns the title that will be used when a new display is created. This
+returns the value that [al_set_window_title] was called with. If that function
 wasn't called yet, the value of [al_get_app_name] is returned as a default.
+The current implementation returns a pointer to a static buffer of which you
+should make a copy if you want to modify it.
 
 See also: [al_set_window_title], [al_set_new_window_title], [al_create_display]
 

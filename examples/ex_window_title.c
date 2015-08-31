@@ -26,7 +26,7 @@ int main(int argc, char **argv)
    ALLEGRO_FONT *font;
    int step = 0;
    const char *text;
-   char   title[TITLE_SIZE] = ""; 
+   char   title[TITLE_SIZE] = "";
    bool done = false;
    bool redraw = true;
 
@@ -43,9 +43,9 @@ int main(int argc, char **argv)
 
    al_init_font_addon();
    init_platform_specific();
-   
+
    text = NEW_WINDOW_TITLE;
-   
+
    al_set_new_window_title(NEW_WINDOW_TITLE);
 
    display = al_create_display(640, 480);
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
    al_register_event_source(queue, al_get_timer_event_source(timer));
    al_register_event_source(queue, al_get_display_event_source(display));
 
-   
+
 
    while (!done) {
       ALLEGRO_EVENT event;
@@ -87,7 +87,7 @@ int main(int argc, char **argv)
       switch (event.type) {
          case ALLEGRO_EVENT_KEY_DOWN:
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
-               done = true;               
+               done = true;
             else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE)
                al_start_timer(timer);
             break;
@@ -100,8 +100,8 @@ int main(int argc, char **argv)
             redraw = true;
             step++;
             sprintf(title, "Title: %d", step);
-            text = title; 
-            al_set_window_title(display, title);       
+            text = title;
+            al_set_window_title(display, title);
             break;
       }
    }
