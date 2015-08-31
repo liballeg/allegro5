@@ -177,9 +177,9 @@ Since: 5.1.5
 ## API: al_get_first_config_section
 
 Returns the name of the first section in the given config file. Usually
-this will return an empty string for the global section. The `iterator`
-parameter will receive an opaque iterator which is used by
-[al_get_next_config_section] to iterate over the remaining sections.
+this will return an empty string for the global section, even it contains no
+values. The `iterator` parameter will receive an opaque iterator which is used
+by [al_get_next_config_section] to iterate over the remaining sections.
 
 The returned string and the iterator are only valid as long as no
 change is made to the passed ALLEGRO_CONFIG.
