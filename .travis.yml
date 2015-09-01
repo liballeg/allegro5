@@ -14,7 +14,7 @@ before_install:
          sh -e /etc/init.d/xvfb start;
          sudo apt-get install -y libvorbis-dev libtheora-dev libphysfs-dev libdumb1-dev libflac-dev libpulse-dev libgtk2.0-dev pandoc;
       elif [ `uname` = "Darwin" ]; then
-         sudo brew install cmake libvorbis freetype flac physfs;
+         brew install cmake libvorbis freetype flac physfs;
       fi
 
 env:
