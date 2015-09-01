@@ -583,6 +583,17 @@ ALLEGRO_COLOR al_map_rgba(
 }
 
 
+/* Function: al_premul_rgba
+ */
+ALLEGRO_COLOR al_premul_rgba(
+   unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+{
+   ALLEGRO_COLOR color;
+   _AL_MAP_RGBA(color, r * a / 255, g * a / 255, b * a / 255, a);
+   return color;
+}
+
+
 /* Function: al_map_rgb
  */
 ALLEGRO_COLOR al_map_rgb(
@@ -600,6 +611,19 @@ ALLEGRO_COLOR al_map_rgba_f(float r, float g, float b, float a)
    color.r = r;
    color.g = g;
    color.b = b;
+   color.a = a;
+   return color;
+}
+
+
+/* Function: al_premul_rgba_f
+ */
+ALLEGRO_COLOR al_premul_rgba_f(float r, float g, float b, float a)
+{
+   ALLEGRO_COLOR color;
+   color.r = r * a;
+   color.g = g * a;
+   color.b = b * a;
    color.a = a;
    return color;
 }
