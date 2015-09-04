@@ -177,6 +177,7 @@ example(ex_vsync ${FONT} ${IMAGE})
 example(ex_warp_mouse ${FONT} ${PRIM})
 example(ex_windows ${FONT} ${IMAGE})
 example(ex_window_constraints ${FONT} ${IMAGE})
+example(ex_window_title ${IMAGE} ${FONT} ${DATA_IMAGES})
 example(ex_winfull)
 example(ex_video ${AUDIO} ${FONT} ${PRIM} ${VIDEO})
 

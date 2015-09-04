@@ -40,7 +40,7 @@ typedef enum ALLEGRO_STATE_FLAGS
                                            ALLEGRO_STATE_NEW_BITMAP_PARAMETERS,
 
     ALLEGRO_STATE_ALL                    = 0xffff
-    
+
 } ALLEGRO_STATE_FLAGS;
 
 

@@ -121,7 +121,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
 #endif
    }
 
-   al_set_window_title(display, al_get_app_name());
+   al_set_window_title(display, al_get_new_window_title());
    
    if (settings->settings[ALLEGRO_AUTO_CONVERT_BITMAPS]) {
       /* We convert video bitmaps to memory bitmaps when the display is
