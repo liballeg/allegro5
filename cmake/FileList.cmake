@@ -7,6 +7,7 @@ set(ALLEGRO_SRC_FILES
     src/bitmap_pixel.c
     src/bitmap_type.c
     src/blenders.c
+    src/clipboard.c
     src/config.c
     src/convert.c
     src/debug.c
@@ -53,7 +54,8 @@ set(ALLEGRO_SRC_FILES
     )
 
 set(ALLEGRO_SRC_WIN_FILES
-    src/win/whapall.c  
+    src/win/wclipboard.c
+    src/win/whapall.c
     src/win/whaptic.c
     src/win/whaptic.cpp
     src/win/whapxi.c
@@ -112,6 +114,7 @@ set(ALLEGRO_SRC_UNIX_FILES
     )
 
 set(ALLEGRO_SRC_X_FILES
+    src/x/xclipboard.c
     src/x/xcursor.c
     src/x/xdisplay.c
     src/x/xevents.c
@@ -134,6 +137,7 @@ set(ALLEGRO_SRC_MACOSX_FILES
     src/macosx/keybd.m
     src/macosx/qzmouse.m
     src/macosx/system.m
+    src/macosx/osxclipboard.m
     src/macosx/osxgl.m
     src/macosx/osx_app_delegate.m
     src/unix/utime.c
@@ -144,6 +148,7 @@ set(ALLEGRO_SRC_IPHONE_FILES
     src/iphone/allegroAppDelegate.m
     src/iphone/EAGLView.m
     src/iphone/ViewController.m
+    src/iphone/iphone_clipboard.m
     src/iphone/iphone_display.m
     src/iphone/iphone_joystick.m
     src/iphone/iphone_keyboard.c
@@ -161,6 +166,7 @@ set(ALLEGRO_SRC_ANDROID_FILES
    src/unix/utime.c
    src/unix/uxthread.c
    src/android/android_apk_file.c
+   src/android/android_clipboard.c
    src/android/android_display.c
    src/android/android_image.c
    src/android/android_input_stream.c
@@ -315,7 +321,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_ANDROID_FILES
 set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED
     include/allegro5/platform/alplatf.h
     )
-    
+
 set(ALLEGRO_INCLUDE_ALLEGRO_X_FILES
     include/allegro5/allegro_x.h
     )

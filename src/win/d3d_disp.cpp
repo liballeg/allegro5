@@ -34,6 +34,7 @@
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_tri_soft.h" // For ALLEGRO_VERTEX
 #include "allegro5/internal/aintern_vector.h"
+#include "allegro5/internal/aintern_wclipboard.h"
 #include "allegro5/platform/aintwin.h"
 
 #include "d3d.h"
@@ -815,7 +816,7 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
                   D3DDEVTYPE_REF, win_display->window,
                   D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
                   &d3d_pp, (LPDIRECT3DDEVICE9 *)&d->device)) != D3D_OK) {
-               
+
                ALLEGRO_ERROR("CreateDevice failed: %s\n", _al_d3d_error_string(hr));
                return 0;
             }
@@ -1103,9 +1104,9 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
     }
 
    d3d_display->device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &d3d_display->render_target);
-   
+
    _al_d3d_refresh_texture_memory(al_display);
-   
+
    d3d_display->device->BeginScene();
 
    d3d_reset_state(d3d_display);
@@ -1590,7 +1591,7 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
       d3d_display->faux_fullscreen = false;
    }
 #endif
-      
+
    if (!(al_display->flags & ALLEGRO_FULLSCREEN)) {
       if (al_display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
          ALLEGRO_MONITOR_INFO mi;
@@ -1969,9 +1970,9 @@ static void d3d_clear(ALLEGRO_DISPLAY *al_display, ALLEGRO_COLOR *color)
 {
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_DISPLAY_D3D* d3d_display = (ALLEGRO_DISPLAY_D3D*)al_display;
-   
+
    if (target->parent) target = target->parent;
-   
+
    if (d3d_display->device_lost)
       return;
    if (d3d_display->device->Clear(0, NULL, D3DCLEAR_TARGET,
@@ -1985,7 +1986,7 @@ static void d3d_clear_depth_buffer(ALLEGRO_DISPLAY *al_display, float z)
 {
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_DISPLAY_D3D* d3d_display = (ALLEGRO_DISPLAY_D3D*)al_display;
-   
+
    if (target->parent) target = target->parent;
 
    if (d3d_display->device_lost)
@@ -2454,7 +2455,7 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    }
 
    d3d_target = get_extra(target);
-   
+
    /* Release the previous target bitmap if it was not the backbuffer */
    if (d3d_display->target_bitmap && !get_extra(d3d_display->target_bitmap)->is_backbuffer) {
       ALLEGRO_BITMAP *parent;
@@ -2882,6 +2883,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->update_transformation = d3d_update_transformation;
 
    vt->update_render_state = _al_d3d_update_render_state;
+
+   _al_win_add_clipboard_functions(vt);
 
    return vt;
 }

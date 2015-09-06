@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		968608761B6B12960008BD29 /* dds.c in Sources */ = {isa = PBXBuildFile; fileRef = 968608751B6B12960008BD29 /* dds.c */; };
+		96A3016E1B9A874F002E2D1C /* clipboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 96A3016D1B9A874F002E2D1C /* clipboard.c */; };
+		96A301701B9A8778002E2D1C /* iphone_clipboard.m in Sources */ = {isa = PBXBuildFile; fileRef = 96A3016F1B9A8778002E2D1C /* iphone_clipboard.m */; };
 		96CE34EB1B6B059C00705360 /* allegro.c in Sources */ = {isa = PBXBuildFile; fileRef = 96CE34BB1B6B059C00705360 /* allegro.c */; };
 		96CE34EC1B6B059C00705360 /* bitmap_draw.c in Sources */ = {isa = PBXBuildFile; fileRef = 96CE34BC1B6B059C00705360 /* bitmap_draw.c */; };
 		96CE34ED1B6B059C00705360 /* bitmap_io.c in Sources */ = {isa = PBXBuildFile; fileRef = 96CE34BD1B6B059C00705360 /* bitmap_io.c */; };
@@ -126,6 +128,8 @@
 /* Begin PBXFileReference section */
 		964130EF1A6353E700184496 /* libAllegro5_iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libAllegro5_iOS.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		968608751B6B12960008BD29 /* dds.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dds.c; path = ../../addons/image/dds.c; sourceTree = "<group>"; };
+		96A3016D1B9A874F002E2D1C /* clipboard.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = clipboard.c; path = ../../src/clipboard.c; sourceTree = "<group>"; };
+		96A3016F1B9A8778002E2D1C /* iphone_clipboard.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iphone_clipboard.m; path = ../../src/iphone/iphone_clipboard.m; sourceTree = "<group>"; };
 		96CE34BB1B6B059C00705360 /* allegro.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = allegro.c; path = ../../src/allegro.c; sourceTree = "<group>"; };
 		96CE34BC1B6B059C00705360 /* bitmap_draw.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bitmap_draw.c; path = ../../src/bitmap_draw.c; sourceTree = "<group>"; };
 		96CE34BD1B6B059C00705360 /* bitmap_io.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bitmap_io.c; path = ../../src/bitmap_io.c; sourceTree = "<group>"; };
@@ -261,6 +265,8 @@
 		96CE34BA1B6B055300705360 /* src  */ = {
 			isa = PBXGroup;
 			children = (
+				96A3016F1B9A8778002E2D1C /* iphone_clipboard.m */,
+				96A3016D1B9A874F002E2D1C /* clipboard.c */,
 				96CE356C1B6B06EF00705360 /* directx_shaders.cpp */,
 				96CE356D1B6B06EF00705360 /* high_primitives.c */,
 				96CE356E1B6B06EF00705360 /* line_soft.c */,
@@ -440,6 +446,7 @@
 				96CE35511B6B064F00705360 /* color.c in Sources */,
 				96CE352D1B6B05F900705360 /* ogl_lock_es.c in Sources */,
 				96CE35821B6B06EF00705360 /* prim_soft.c in Sources */,
+				96A3016E1B9A874F002E2D1C /* clipboard.c in Sources */,
 				96CE35651B6B069700705360 /* generic_main.c in Sources */,
 				96CE352A1B6B05F900705360 /* ogl_display.c in Sources */,
 				96CE357D1B6B06EF00705360 /* point_soft.c in Sources */,
@@ -493,6 +500,7 @@
 				96CE35281B6B05F900705360 /* extensions.c in Sources */,
 				96CE351A1B6B059C00705360 /* utf8.c in Sources */,
 				96CE354B1B6B063800705360 /* iphone_mouse.m in Sources */,
+				96A301701B9A8778002E2D1C /* iphone_clipboard.m in Sources */,
 				96CE35561B6B066100705360 /* font.c in Sources */,
 				96CE354C1B6B063800705360 /* iphone_path.m in Sources */,
 				96CE34F41B6B059C00705360 /* convert.c in Sources */,

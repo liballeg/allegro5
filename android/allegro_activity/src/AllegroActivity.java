@@ -33,6 +33,7 @@ public class AllegroActivity extends Activity
    private boolean exitedMain = false;
    private boolean joystickReconfigureNotified = false;
    private Vector<Integer> joysticks;
+   private Clipboard clipboard;
 
    public final static int JS_A = 0;
    public final static int JS_B = 1;
@@ -114,12 +115,12 @@ public class AllegroActivity extends Activity
                getWindowManager().getDefaultDisplay(), this);
 
          SurfaceHolder holder = surface.getHolder();
-         holder.addCallback(surface); 
+         holder.addCallback(surface);
          holder.setType(SurfaceHolder.SURFACE_TYPE_GPU);
          //setContentView(surface);
          Window win = getWindow();
          win.setContentView(surface);
-         Log.d("AllegroActivity", "createSurface end");  
+         Log.d("AllegroActivity", "createSurface end");
       } catch (Exception x) {
          Log.d("AllegroActivity", "createSurface exception: " + x.getMessage());
       }
@@ -295,6 +296,7 @@ public class AllegroActivity extends Activity
 
       handler = new Handler();
       sensors = new Sensors(getApplicationContext());
+      clipboard = new Clipboard(this);
 
       currentConfig = new Configuration(getResources().getConfiguration());
 
@@ -487,7 +489,7 @@ public class AllegroActivity extends Activity
             Log.d("AllegroActivity", "Found joystick. Index=" + (joysticks.size()-1) + " id=" + all[i]);
          }
       }
-      
+
       joystickReconfigureNotified = false;
    }
 
@@ -505,6 +507,18 @@ public class AllegroActivity extends Activity
 
    public void setJoystickInactive() {
       joystickActive = false;
+   }
+
+   public String getClipboardText() {
+      return clipboard.getText();
+   }
+
+   public boolean hasClipboardText() {
+      return clipboard.hasText();
+   }
+
+   public boolean setClipboardText(String text) {
+      return clipboard.setText(text);
    }
 }
 

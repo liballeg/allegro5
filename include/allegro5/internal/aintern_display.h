@@ -76,6 +76,11 @@ struct ALLEGRO_DISPLAY_INTERFACE
 
    void (*clear_depth_buffer)(ALLEGRO_DISPLAY *display, float x);
    void (*update_render_state)(ALLEGRO_DISPLAY *display);
+   
+   char *(*get_clipboard_text)(ALLEGRO_DISPLAY *display);
+   bool  (*set_clipboard_text)(ALLEGRO_DISPLAY *display, const char *text);
+   bool  (*has_clipboard_text)(ALLEGRO_DISPLAY *display);
+   
 };
 
 

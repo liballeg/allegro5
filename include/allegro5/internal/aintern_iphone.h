@@ -7,13 +7,13 @@
 
 typedef struct ALLEGRO_SYSTEM_IPHONE {
     ALLEGRO_SYSTEM system;
-    
+
     ALLEGRO_MUTEX *mutex;
     ALLEGRO_COND *cond;
-   
+
    bool has_shutdown, wants_shutdown;
    int visuals_count;
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS **visuals;    
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS **visuals;
 } ALLEGRO_SYSTEM_IPHONE;
 
 typedef struct ALLEGRO_DISPLAY_IPHONE_EXTRA ALLEGRO_DISPLAY_IPHONE_EXTRA;
@@ -58,5 +58,6 @@ void _al_iphone_touch_input_handle_move(int id, double timestamp, float x, float
 void _al_iphone_touch_input_handle_cancel(int id, double timestamp, float x, float y, bool primary, ALLEGRO_DISPLAY *disp);
 
 void _al_iphone_disconnect(ALLEGRO_DISPLAY *display);
+void _al_iphone_add_clipboard_functions(ALLEGRO_DISPLAY_INTERFACE *vt);
 
 #endif // ALLEGRO_INTERNAL_IPHONE
