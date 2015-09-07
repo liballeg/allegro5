@@ -516,7 +516,6 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
       vt->thread_init = osx_thread_init;
       vt->thread_exit = osx_thread_exit;
 
-      _al_osx_add_clipboard_functions(vt);
    };
 
    return vt;
