@@ -307,30 +307,15 @@ static void copy_glyph_mono(ALLEGRO_TTF_FONT_DATA *font_data, FT_Face face,
       unsigned char *dptr = glyph_data + pitch * y;
       int bit = 0;
 
-      if (font_data->flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA) {
-         for (x = 0; x < (int)face->glyph->bitmap.width; x++) {
-            unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
-            *dptr++ = 255;
-            *dptr++ = 255;
-            *dptr++ = 255;
-            *dptr++ = set;
-            bit = (bit + 1) & 7;
-            if (bit == 0) {
-               ptr++;
-            }
-         }
-      }
-      else {
-         for (x = 0; x < (int)face->glyph->bitmap.width; x++) {
-            unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
-            *dptr++ = set;
-            *dptr++ = set;
-            *dptr++ = set;
-            *dptr++ = set;
-            bit = (bit + 1) & 7;
-            if (bit == 0) {
-               ptr++;
-            }
+      for (x = 0; x < (int)face->glyph->bitmap.width; x++) {
+         unsigned char set = ((*ptr >> (7-bit)) & 1) ? 255 : 0;
+         *dptr++ = set;
+         *dptr++ = set;
+         *dptr++ = set;
+         *dptr++ = set;
+         bit = (bit + 1) & 7;
+         if (bit == 0) {
+            ptr++;
          }
       }
    }
