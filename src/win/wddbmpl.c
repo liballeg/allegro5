@@ -113,10 +113,12 @@ void unregister_all_ddraw_surfaces(void)
  */
 int restore_all_ddraw_surfaces(void)
 {
-   DDRAW_SURFACE *item = ddraw_surface_list;
+   DDRAW_SURFACE *item;
    HRESULT hr;
 
    _enter_gfx_critical();
+
+   item = ddraw_surface_list;
 
    while (item) {
       hr = IDirectDrawSurface2_Restore(item->id);
