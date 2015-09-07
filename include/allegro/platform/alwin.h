@@ -42,36 +42,20 @@ AL_FUNC(int, _WinMain, (void *_main, void *hInst, void *hPrev, char *Cmd, int nS
    #define main _mangled_main
    #undef END_OF_MAIN
 
-   #if defined(_MSC_VER) && (_MSC_VER > 1500)
-      #ifdef __cplusplus
-         extern "C" int __stdcall WinMain(HINSTANCE hInstance,
-                                          HINSTANCE hPrevInstance,
-                                          LPSTR lpCmdLine, int nShowCmd);
-      #endif
+   /* disable strict pointer typing because of the vague prototype below */
+   #define NO_STRICT
 
-      #define END_OF_MAIN()                                                     \
-                                                                                \
-         int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,    \
-                               LPSTR lpCmdLine, int nShowCmd)                   \
-         {                                                                      \
-            return _WinMain((void *)_mangled_main, hInstance, hPrevInstance,    \
-                         lpCmdLine, nShowCmd);                                  \
-         }
-   #else
-      /* disable strict pointer typing because of the vague prototype below */
-      #define NO_STRICT
+   #ifdef __cplusplus
+      extern "C" int __stdcall WinMain(void *hInst, void *hPrev, char *Cmd, int nShow);
+   #endif
 
-      #ifdef __cplusplus
-         extern "C" int __stdcall WinMain(void *hInst, void *hPrev, char *Cmd, int nShow);
-      #endif
+   #define END_OF_MAIN()                                                     \
+                                                                             \
+      int __stdcall WinMain(void *hInst, void *hPrev, char *Cmd, int nShow)  \
+      {                                                                      \
+         return _WinMain((void *)_mangled_main, hInst, hPrev, Cmd, nShow);   \
+      }
 
-      #define END_OF_MAIN()                                                     \
-                                                                                \
-         int __stdcall WinMain(void *hInst, void *hPrev, char *Cmd, int nShow)  \
-         {                                                                      \
-            return _WinMain((void *)_mangled_main, hInst, hPrev, Cmd, nShow);   \
-         }
-   #endif // MSVC > VS9 or other
 #endif
 
 
