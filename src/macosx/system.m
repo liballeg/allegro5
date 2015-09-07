@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -18,6 +18,7 @@
 
 #include "allegro5/allegro.h"
 #include "allegro5/platform/aintosx.h"
+#include "allegro5/internal/aintern_osxclipboard.h"
 #include <sys/stat.h>
 
 #ifndef ALLEGRO_MACOSX
@@ -61,7 +62,7 @@ _AL_VECTOR _osx_threads = _AL_VECTOR_INITIALIZER(THREAD_AND_POOL *);
  *  Tell the dock about us; the origins of this hack are unknown, but it's
  *  currently the only way to make a Cocoa app to work when started from a
  *  console.
- *  For the future, (10.3 and above) investigate TranformProcessType in the 
+ *  For the future, (10.3 and above) investigate TranformProcessType in the
  *  HIServices framework.
  */
 static void osx_tell_dock(void)
@@ -109,7 +110,7 @@ int _al_osx_bootstrap_ok(void)
 static ALLEGRO_SYSTEM* osx_sys_init(int flags)
 {
    (void)flags;
-   
+
 #ifdef OSX_BOOTSTRAP_DETECTION
    /* If we're in the 'dead bootstrap' environment, the Mac driver won't work. */
    if (!_al_osx_bootstrap_ok()) {
@@ -119,7 +120,7 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
    /* Initialise the vt and display list */
    osx_system.vt = _al_system_osx_driver();
    _al_vector_init(&osx_system.displays, sizeof(ALLEGRO_DISPLAY*));
-  
+
    if (_al_osx_bundle == NULL) {
        /* If in a bundle, the dock will recognise us automatically */
        osx_tell_dock();
@@ -161,11 +162,11 @@ static int _al_osx_get_num_display_modes(void)
    CGDirectDisplayID display;
    CFArrayRef modes;
    CFIndex i;
-   
+
    if (extras)
       depth = extras->settings[ALLEGRO_COLOR_SIZE];
    memset(&temp, 0, sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
-   
+
    display = CGMainDisplayID();
    /* Get display ID for the requested display */
    if (adapter > 0) {
@@ -181,7 +182,7 @@ static int _al_osx_get_num_display_modes(void)
        */
       display = (CGDirectDisplayID) [display_id pointerValue];
    }
-   
+
    _al_vector_free(&osx_display_modes);
 #if MAC_OS_X_VERSION_MIN_REQUIRED < 1060
    /* Note: modes is owned by OSX and must not be released */
@@ -217,7 +218,7 @@ static int _al_osx_get_num_display_modes(void)
       number = CFDictionaryGetValue(dict, kCGDisplayRefreshRate);
       CFNumberGetValue(number, kCFNumberIntType, &mode->refresh_rate);
       ALLEGRO_INFO("Mode %d is %dx%d@%dHz\n", (int)i, mode->width, mode->height, mode->refresh_rate);
-      
+
       number = CFDictionaryGetValue(dict, kCGDisplayBitsPerPixel);
       CFNumberGetValue(number, kCFNumberIntType, &temp.settings[ALLEGRO_COLOR_SIZE]);
       number = CFDictionaryGetValue(dict, kCGDisplaySamplesPerPixel);
@@ -310,11 +311,11 @@ static int _al_osx_get_num_display_modes(void)
 
       /* Yes, it's fine */
       amode = (ALLEGRO_DISPLAY_MODE *)_al_vector_alloc_back(&osx_display_modes);
-      amode->width = CGDisplayModeGetWidth(mode); 
-      amode->height = CGDisplayModeGetHeight(mode); 
+      amode->width = CGDisplayModeGetWidth(mode);
+      amode->height = CGDisplayModeGetHeight(mode);
       amode->refresh_rate = mode_refresh_rate;
       ALLEGRO_INFO("Mode %d is %dx%d@%dHz\n", (int)i, amode->width, amode->height, amode->refresh_rate);
-      
+
       temp.settings[ALLEGRO_COLOR_SIZE] = bpp;
       ALLEGRO_INFO("Mode %d has %d bits per pixel, %d samples per pixel and %d bits per sample\n",
                   (int)i, temp.settings[ALLEGRO_COLOR_SIZE], samples, value);
@@ -352,7 +353,7 @@ static ALLEGRO_DISPLAY_MODE *_al_osx_get_display_mode(int index, ALLEGRO_DISPLAY
 /* osx_get_num_video_adapters:
  * Return the number of video adapters i.e displays
  */
-static int osx_get_num_video_adapters(void) 
+static int osx_get_num_video_adapters(void)
 {
    NSArray *screen_list;
    int num = 0;
@@ -368,7 +369,7 @@ static int osx_get_num_video_adapters(void)
 /* osx_get_monitor_info:
  * Return the details of one monitor
  */
-static bool osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info) 
+static bool osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info)
 {
 /*
    int count = osx_get_num_video_adapters();
@@ -403,7 +404,7 @@ static bool osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info)
 
 /* osx_inhibit_screensaver:
  * Stops the screen dimming/screen saver activation if inhibit is true
- * otherwise re-enable normal behaviour. The last call takes force (i.e 
+ * otherwise re-enable normal behaviour. The last call takes force (i.e
  * it does not count the calls to inhibit/uninhibit.
  * Always returns true
  */
@@ -427,13 +428,13 @@ NSImage* NSImageFromAllegroBitmap(ALLEGRO_BITMAP* bmp)
    int h = al_get_bitmap_height(bmp);
    NSImage* img = [[NSImage alloc] initWithSize: NSMakeSize((float) w, (float) h)];
    NSBitmapImageRep* rep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: NULL // Allocate memory yourself
-      pixelsWide:w 
-      pixelsHigh:h 
-      bitsPerSample: 8 
-      samplesPerPixel: 4 
-      hasAlpha:YES 
-      isPlanar:NO 
-      colorSpaceName:NSDeviceRGBColorSpace 
+      pixelsWide:w
+      pixelsHigh:h
+      bitsPerSample: 8
+      samplesPerPixel: 4
+      hasAlpha:YES
+      isPlanar:NO
+      colorSpaceName:NSDeviceRGBColorSpace
       bytesPerRow: 0 // Calculate yourself
       bitsPerPixel:0 ];// Calculate yourself
    al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
@@ -457,7 +458,7 @@ NSImage* NSImageFromAllegroBitmap(ALLEGRO_BITMAP* bmp)
 
 /* This works as long as there is only one screen */
 /* Not clear from docs how mouseLocation works if > 1 */
-static bool osx_get_cursor_position(int *x, int *y) 
+static bool osx_get_cursor_position(int *x, int *y)
 {
    NSPoint p = [NSEvent mouseLocation];
    NSRect r = [[NSScreen mainScreen] frame];
@@ -501,7 +502,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
       vt->get_display_driver = _al_osx_get_display_driver;
       vt->get_keyboard_driver = _al_osx_get_keyboard_driver;
       vt->get_mouse_driver = _al_osx_get_mouse_driver;
-      vt->get_joystick_driver = _al_osx_get_joystick_driver; 
+      vt->get_joystick_driver = _al_osx_get_joystick_driver;
       vt->get_num_display_modes = _al_osx_get_num_display_modes;
       vt->get_display_mode = _al_osx_get_display_mode;
       vt->shutdown_system = osx_sys_exit;
@@ -514,8 +515,9 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
       vt->inhibit_screensaver = osx_inhibit_screensaver;
       vt->thread_init = osx_thread_init;
       vt->thread_exit = osx_thread_exit;
+
    };
-      
+
    return vt;
 }
 
@@ -618,11 +620,11 @@ ALLEGRO_PATH *_al_osx_get_path(int id)
  * Currently just sends a window close event to all windows.
  * This is a bit unsatisfactory
  */
-void _al_osx_post_quit(void) 
+void _al_osx_post_quit(void)
 {
    unsigned int i;
    _AL_VECTOR* dpys = &al_get_system_driver()->displays;
-   // Iterate through all existing displays 
+   // Iterate through all existing displays
    for (i = 0; i < _al_vector_size(dpys); ++i) {
       ALLEGRO_DISPLAY* dpy = *(ALLEGRO_DISPLAY**) _al_vector_ref(dpys, i);
       ALLEGRO_EVENT_SOURCE* src = &(dpy->es);

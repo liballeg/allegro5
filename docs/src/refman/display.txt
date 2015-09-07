@@ -713,3 +713,45 @@ or resets the system back to the default state
 (the state at program start) if false is passed.
 It returns true if the state was set successfully,
 otherwise false.
+
+
+
+## Clipboard
+
+With the clipboard API of Allegro, text can be copied from and to the clipboard.
+Currentlly, only UTF8 encoded text is supported. It currently works on Linux,
+Windows, OSX, Android and IOS.
+
+
+### API: al_get_clipboard_text
+
+This function returns a pointer to a string, allocated with [al_malloc] with
+the text contents of the clipboard if available. If not text is available on the
+clipboard then this function returns NULL. You must call [al_free] on the
+returned pointer when you don't need it anymore.
+
+Beware that text on the clipboard on Windows may be in Windows format, that is,
+it may have carriage return newline combinations for the line endings instead
+of regular newlines for the line endings on Linux or OSX.
+
+Since: 5.1.12
+
+See also: [al_set_clipboard_text], [al_clipboard_has_text]
+
+### API: al_set_clipboard_text
+
+This function pastes the text given as an argument to the clipboard.
+
+Since: 5.1.12
+
+See also: [al_get_clipboard_text], [al_clipboard_has_text]
+
+
+### API: al_clipboard_has_text
+
+This function returns true if and only if the clipboard has text available.
+
+Since: 5.1.12
+
+See also: [al_set_clipboard_text], [al_get_clipboard_text]
+

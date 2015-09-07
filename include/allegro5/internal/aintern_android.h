@@ -15,10 +15,10 @@ typedef struct ALLEGRO_SYSTEM_ANDROID {
 typedef struct ALLEGRO_DISPLAY_ANDROID {
    ALLEGRO_DISPLAY display;
    jobject surface_object;
-   
+
    ALLEGRO_COND *cond;
    ALLEGRO_MUTEX *mutex;
-   
+
    bool created;
    bool recreate;
    bool first_run;
@@ -152,6 +152,7 @@ jobject _al_android_activity_object(void);
 jclass _al_android_input_stream_class(void);
 jclass _al_android_apk_stream_class(void);
 jclass _al_android_image_loader_class(void);
+jclass _al_android_clipboard_class(void);
 
 void _al_android_generate_mouse_event(unsigned int type, int x, int y,
    unsigned int button, ALLEGRO_DISPLAY *d);
@@ -170,6 +171,8 @@ void _al_android_thread_ended(void);
 void _al_android_set_jnienv(JNIEnv *jnienv);
 JNIEnv *_al_android_get_jnienv(void);
 bool _al_android_is_paused(void);
+
+void _al_android_add_clipboard_functions(ALLEGRO_DISPLAY_INTERFACE *vt);
 
 #define ALLEGRO_ANDROID_PACKAGE_NAME         org_liballeg_android
 #define ALLEGRO_ANDROID_PACKAGE_NAME_SLASH   "org/liballeg/android"

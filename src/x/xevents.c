@@ -3,6 +3,7 @@
 #include "allegro5/allegro.h"
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/internal/aintern_x.h"
+#include "allegro5/internal/aintern_xclipboard.h"
 #include "allegro5/internal/aintern_xdisplay.h"
 #include "allegro5/internal/aintern_xembed.h"
 #include "allegro5/internal/aintern_xevents.h"
@@ -158,6 +159,16 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
             d->embedder_window = None;
          }
          break;
+         
+      case SelectionNotify:        
+        _al_xwin_display_selection_notify(&d->display, &event.xselection);
+        d->is_selectioned = true;
+        _al_cond_signal(&d->selectioned);
+        break;
+         
+      case SelectionRequest:
+        _al_xwin_display_selection_request(&d->display, &event.xselectionrequest);
+        break;
 
       default:
          _al_x_handle_touch_event(s, d, &event);

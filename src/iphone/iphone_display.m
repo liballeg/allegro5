@@ -91,9 +91,9 @@ void _al_iphone_update_visuals(void)
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref;
    ALLEGRO_SYSTEM_IPHONE *system = (void *)al_get_system_driver();
-   
+
    ref = _al_get_new_display_settings();
-   
+
    /* If we aren't called the first time, only updated scores. */
    if (system->visuals) {
       for (int i = 0; i < system->visuals_count; i++) {
@@ -102,10 +102,10 @@ void _al_iphone_update_visuals(void)
       }
       return;
    }
-   
+
    system->visuals = al_calloc(1, VISUALS_COUNT * sizeof(*system->visuals));
    system->visuals_count = VISUALS_COUNT;
-   
+
    for (int i = 0; i < VISUALS_COUNT; i++) {
       ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = al_calloc(1, sizeof *eds);
       eds->settings[ALLEGRO_RENDER_METHOD] = 1;
@@ -139,12 +139,12 @@ void _al_iphone_update_visuals(void)
             eds->settings[ALLEGRO_DEPTH_SIZE] = 24;
             eds->settings[ALLEGRO_STENCIL_SIZE] = 8;
             break;
-            
+
       }
       eds->score = _al_score_display_settings(eds, ref);
       eds->index = i;
       system->visuals[i] = eds;
-   }   
+   }
 }
 
 static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
@@ -171,14 +171,14 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
 
     display->w = w;
     display->h = h;
-    
+
     ALLEGRO_SYSTEM_IPHONE *system = (void *)al_get_system_driver();
 
     /* Add ourself to the list of displays. */
     ALLEGRO_DISPLAY_IPHONE **add;
     add = _al_vector_alloc_back(&system->system.displays);
     *add = d;
-    
+
     /* Each display is an event source. */
     _al_event_source_init(&display->es);
 
@@ -188,7 +188,7 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
    memcpy(eds, system->visuals, sizeof(*eds) * system->visuals_count);
    qsort(eds, system->visuals_count, sizeof(*eds), _al_display_settings_sorter);
 
-   ALLEGRO_INFO("Chose visual no. %i\n", eds[0]->index); 
+   ALLEGRO_INFO("Chose visual no. %i\n", eds[0]->index);
 
    memcpy(&display->extra_settings, eds[0], sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
 
@@ -206,9 +206,9 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
    _al_ogl_manage_extensions(display);
    _al_ogl_set_extensions(ogl->extension_api);
    _al_iphone_setup_opengl_view(display, true);
-    
+
    display->flags |= ALLEGRO_OPENGL;
-    
+
    int ndisplays = system->system.displays._size;
    [[UIApplication sharedApplication] setIdleTimerDisabled:(ndisplays > 1)];
 
@@ -231,11 +231,11 @@ static void iphone_destroy_display(ALLEGRO_DISPLAY *d)
 
    _al_event_source_free(&d->es);
    _al_iphone_destroy_screen(d);
-   
+
    if (disconnected) {
       _al_iphone_disconnect(d);
    }
-   
+
    ALLEGRO_SYSTEM_IPHONE *system = (void *)al_get_system_driver();
    _al_vector_find_and_delete(&system->system.displays, &d);
 
@@ -410,9 +410,9 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_iphone_display_interface(void)
 {
     if (vt)
         return vt;
-    
+
     vt = al_calloc(1, sizeof *vt);
-    
+
     vt->create_display = iphone_create_display;
     vt->destroy_display = iphone_destroy_display;
     vt->set_current_display = iphone_set_current_display;
@@ -422,7 +422,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_iphone_display_interface(void)
     vt->create_bitmap = _al_ogl_create_bitmap;
     vt->get_backbuffer = _al_ogl_get_backbuffer;
     vt->set_target_bitmap = _al_ogl_set_target_bitmap;
-    
+
     vt->get_orientation = iphone_get_orientation;
 
     vt->is_compatible_bitmap = iphone_is_compatible_bitmap;
@@ -445,6 +445,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_iphone_display_interface(void)
     vt->update_render_state = _al_ogl_update_render_state;
 
     _al_ogl_add_drawing_functions(vt);
-    
+    _al_iphone_add_clipboard_functions(vt);
+
     return vt;
 }

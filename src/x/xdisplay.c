@@ -4,6 +4,7 @@
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_x.h"
 #include "allegro5/internal/aintern_xcursor.h"
+#include "allegro5/internal/aintern_xclipboard.h"
 #include "allegro5/internal/aintern_xdisplay.h"
 #include "allegro5/internal/aintern_xfullscreen.h"
 #include "allegro5/internal/aintern_xglx_config.h"
@@ -311,6 +312,10 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
 
    d->is_mapped = false;
    _al_cond_init(&d->mapped);
+   
+   d->is_selectioned = false;
+   _al_cond_init(&d->selectioned);
+
 
    d->resize_count = 0;
    d->programmatic_resize = false;
@@ -646,6 +651,7 @@ static void xdpy_destroy_display_hook_default(ALLEGRO_DISPLAY *d, bool is_last)
    }
 
    _al_cond_destroy(&glx->mapped);
+   _al_cond_destroy(&glx->selectioned);
 
    ALLEGRO_DEBUG("destroy window.\n");
    XDestroyWindow(s->x11display, glx->window);
@@ -1335,6 +1341,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    xdpy_vt.update_render_state = _al_ogl_update_render_state;
 
    _al_xwin_add_cursor_functions(&xdpy_vt);
+   _al_xwin_add_clipboard_functions(&xdpy_vt);
    _al_ogl_add_drawing_functions(&xdpy_vt);
 
    return &xdpy_vt;

@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
+/*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -34,6 +34,7 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_vector.h"
+#include "allegro5/internal/aintern_wclipboard.h"
 #include "allegro5/platform/aintwin.h"
 
 #include "wgl.h"
@@ -171,7 +172,7 @@ static bool init_pixel_format_extensions(void)
     */
    _wglGetPixelFormatAttribivARB =
       (_ALLEGRO_wglGetPixelFormatAttribivARB_t)wglGetProcAddress("wglGetPixelFormatAttribivARB");
-   _wglGetPixelFormatAttribivEXT = 
+   _wglGetPixelFormatAttribivEXT =
       (_ALLEGRO_wglGetPixelFormatAttribivEXT_t)wglGetProcAddress("wglGetPixelFormatAttribivEXT");
 
    if (!_wglGetPixelFormatAttribivARB && !_wglGetPixelFormatAttribivEXT) {
@@ -338,11 +339,11 @@ static bool decode_pixel_format_attrib(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, int 
 
    for (i = 0; i < num_attribs; i++) {
       /* Not interested if it doesn't support OpenGL or window drawing or RGBA. */
-      if (attrib[i] == WGL_SUPPORT_OPENGL_ARB && value[i] == 0) {	
+      if (attrib[i] == WGL_SUPPORT_OPENGL_ARB && value[i] == 0) {
          ALLEGRO_INFO("OpenGL Unsupported\n");
          return false;
       }
-      else if (attrib[i] == WGL_DRAW_TO_WINDOW_ARB && value[i] == 0) {	
+      else if (attrib[i] == WGL_DRAW_TO_WINDOW_ARB && value[i] == 0) {
          ALLEGRO_INFO("Can't draw to window\n");
          return false;
       }
@@ -390,7 +391,7 @@ static bool decode_pixel_format_attrib(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, int 
             eds->settings[ALLEGRO_SWAP_METHOD] = 0;
          else if (value[i] == WGL_SWAP_COPY_ARB)
             eds->settings[ALLEGRO_SWAP_METHOD] = 1;
-         else if (value[i] == WGL_SWAP_EXCHANGE_ARB) 
+         else if (value[i] == WGL_SWAP_EXCHANGE_ARB)
             eds->settings[ALLEGRO_SWAP_METHOD] = 2;
       }
 
@@ -502,7 +503,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_ext(int fmt, HDC dc)
 
       /* The following are used by extensions that add to WGL_pixel_format.
        * If WGL_p_f isn't supported though, we can't use the (then invalid)
-       * enums. We can't use any magic number either, so we settle for 
+       * enums. We can't use any magic number either, so we settle for
        * replicating one. The pixel format decoder
        * (decode_pixel_format_attrib()) doesn't care about duplicates.
        */
@@ -537,7 +538,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_ext(int fmt, HDC dc)
    else {
       ret = 0;
    }
-   
+
    if (!ret) {
       ALLEGRO_ERROR("wglGetPixelFormatAttrib failed! %s\n",
                      get_error_desc(GetLastError()));
@@ -552,7 +553,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_ext(int fmt, HDC dc)
    }
 
    al_free(value);
-   
+
    /* Hack: for some reason this happens for me under Wine. */
    if (eds &&
       eds->settings[ALLEGRO_RED_SHIFT] == 0 &&
@@ -948,7 +949,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
 
    /* WGL display lists cannot be shared with the API currently in use. */
    disp->ogl_extras->is_shared = false;
-   
+
    if (!select_pixel_format(wgl_disp, wgl_disp->dc)) {
       destroy_display_internals(wgl_disp);
       return false;
@@ -1003,7 +1004,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
          wglSwapIntervalEXT(0);
       }
    }
- 
+
    win_disp->mouse_selected_hcursor = 0;
    win_disp->mouse_cursor_shown = false;
    win_disp->can_acknowledge = false;
@@ -1081,7 +1082,7 @@ static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    disp->ogl_extras->backbuffer = NULL;
 
    _al_ogl_unmanage_extensions(disp);
-   
+
    PostMessage(win_disp->window, _al_win_msg_suicide, (WPARAM)win_disp, 0);
 
    while (!win_disp->thread_ended)
@@ -1188,7 +1189,7 @@ static void display_thread_proc(void *arg)
 
    /* So that we can call the functions using TLS from this thread. */
    al_set_new_display_flags(disp->flags);
-   
+
    if (disp->flags & ALLEGRO_FULLSCREEN) {
       if (!change_display_mode(disp)) {
          win_disp->thread_ended = true;
@@ -1232,7 +1233,7 @@ static void display_thread_proc(void *arg)
              rect.right - rect.left, rect.bottom - rect.top,
              SWP_NOZORDER | SWP_FRAMECHANGED);
    }
-   
+
    if (disp->flags & ALLEGRO_FULLSCREEN_WINDOW) {
       bool frameless = true;
       _al_win_set_window_frameless(disp, win_disp->window, frameless);
@@ -1241,12 +1242,12 @@ static void display_thread_proc(void *arg)
    /* Yep, the following is really needed sometimes. */
    /* ... Or is it now that we have dumped DInput? */
    /* <rohannessian> Win98/2k/XP's window forground rules don't let us
-    * make our window the topmost window on launch. This causes issues on 
+    * make our window the topmost window on launch. This causes issues on
     * full-screen apps, as DInput loses input focus on them.
     * We use this trick to force the window to be topmost, when switching
     * to full-screen only. Note that this only works for Win98 and greater.
     * Win95 will ignore our SystemParametersInfo() calls.
-    * 
+    *
     * See http://support.microsoft.com:80/support/kb/articles/Q97/9/25.asp
     * for details.
     */
@@ -1286,8 +1287,8 @@ static void display_thread_proc(void *arg)
 #if 0
    if (disp->flags & ALLEGRO_FULLSCREEN && al_is_mouse_installed()) {
       RAWINPUTDEVICE rid[1];
-      rid[0].usUsagePage = 0x01; 
-      rid[0].usUsage = 0x02; 
+      rid[0].usUsagePage = 0x01;
+      rid[0].usUsage = 0x02;
       rid[0].dwFlags = RIDEV_NOLEGACY;
       rid[0].hwndTarget = 0;
       if (RegisterRawInputDevices(rid, 1, sizeof(rid[0])) == FALSE) {
@@ -1565,13 +1566,14 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
 
    vt.update_render_state = _al_ogl_update_render_state;
    _al_ogl_add_drawing_functions(&vt);
+   _al_win_add_clipboard_functions(&vt);
 
    return &vt;
 }
 
 int _al_wgl_get_num_display_modes(int format, int refresh_rate, int flags)
 {
-   DEVMODE dm;   
+   DEVMODE dm;
    int count = 0;
 
    /* FIXME: Ignoring format.
@@ -1598,7 +1600,7 @@ ALLEGRO_DISPLAY_MODE *_al_wgl_get_display_mode(int index, int format,
                                                int refresh_rate, int flags,
                                                ALLEGRO_DISPLAY_MODE *mode)
 {
-   DEVMODE dm;   
+   DEVMODE dm;
 
    /*
     * FIXME: see the comment in _al_wgl_get_num_display_modes
