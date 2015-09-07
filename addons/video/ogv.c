@@ -31,6 +31,7 @@ ALLEGRO_DEBUG_CHANNEL("video")
 /* XXX probably should be based on stream parameters */
 static const int NUM_FRAGS    = 2;
 static const int FRAG_SAMPLES = 4096;
+static const int RGB_PIXEL_FORMAT = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
 
 
 typedef struct OGG_VIDEO OGG_VIDEO;
@@ -95,6 +96,7 @@ struct OGG_VIDEO {
    th_pixel_fmt pixel_fmt;
    th_ycbcr_buffer buffer;
    bool buffer_dirty;
+   unsigned char* rgb_data;
    ALLEGRO_BITMAP *frame_bmp;
    ALLEGRO_BITMAP *pic_bmp;         /* frame_bmp, or subbitmap thereof */
 
@@ -733,6 +735,8 @@ static void setup_theora_stream_decode(ALLEGRO_VIDEO *video, OGG_VIDEO *ogv,
       ogv->pic_bmp = al_create_sub_bitmap(ogv->frame_bmp,
          pic_x, pic_y, pic_w, pic_h);
    }
+   ogv->rgb_data =
+      al_malloc(al_get_pixel_size(RGB_PIXEL_FORMAT) * frame_w * frame_h);
 
    video->width = pic_w;
    video->height = pic_h;
@@ -807,6 +811,66 @@ static bool handle_theora_data(ALLEGRO_VIDEO *video, THEORA_STREAM *tstream,
    return true;
 }
 
+/* Y'CrCb to RGB conversion. */
+/* XXX simple slow implementation */
+
+static unsigned char clamp(int x)
+{
+   if (x < 0)
+      return 0;
+   if (x > 255)
+      return 255;
+   return x;
+}
+
+static INLINE void ycbcr_to_rgb(th_ycbcr_buffer buffer,
+   unsigned char* rgb_data, int pixel_size, int pitch, int xshift, int yshift)
+{
+   const int w = buffer[0].width;
+   const int h = buffer[0].height;
+   int x, y;
+
+   for (y = 0; y < h; y++) {
+      const int y2 = y >> yshift;
+      for (x = 0; x < w; x++) {
+         const int x2 = x >> xshift;
+         unsigned char * const data = rgb_data + y * pitch + x * pixel_size;
+         const int yp = buffer[0].data[y  * buffer[0].stride + x ];
+         const int cb = buffer[1].data[y2 * buffer[1].stride + x2];
+         const int cr = buffer[2].data[y2 * buffer[2].stride + x2];
+         const int C = yp - 16;
+         const int D = cb - 128;
+         const int E = cr - 128;
+
+         data[0] = clamp((298*C         + 409*E + 128) >> 8);
+         data[1] = clamp((298*C - 100*D - 208*E + 128) >> 8);
+         data[2] = clamp((298*C + 516*D         + 128) >> 8);
+         data[3] = 0xff;
+      }
+   }
+}
+
+static void convert_buffer_to_rgba(OGG_VIDEO *ogv)
+{
+   const int pixel_size = al_get_pixel_size(RGB_PIXEL_FORMAT);
+   const int pitch = pixel_size * al_get_bitmap_width(ogv->frame_bmp);
+
+   switch (ogv->pixel_fmt) {
+      case TH_PF_420:
+         ycbcr_to_rgb(ogv->buffer, ogv->rgb_data, pixel_size, pitch, 1, 1);
+         break;
+      case TH_PF_422:
+         ycbcr_to_rgb(ogv->buffer, ogv->rgb_data, pixel_size, pitch, 1, 0);
+         break;
+      case TH_PF_444:
+         ycbcr_to_rgb(ogv->buffer, ogv->rgb_data, pixel_size, pitch, 0, 0);
+         break;
+      default:
+         ALLEGRO_ERROR("Unsupported pixel format.\n");
+         break;
+   }
+}
+
 static int poll_theora_decode(ALLEGRO_VIDEO *video, STREAM *tstream_outer)
 {
    OGG_VIDEO * const ogv = video->data;
@@ -853,9 +917,12 @@ static int poll_theora_decode(ALLEGRO_VIDEO *video, STREAM *tstream_outer)
 
    if (new_frame) {
       al_lock_mutex(ogv->mutex);
+      ALLEGRO_EVENT event;
 
       rc = th_decode_ycbcr_out(tstream->ctx, ogv->buffer);
       ASSERT(rc == 0);
+
+      convert_buffer_to_rgba(ogv);
 
       ogv->buffer_dirty = true;
 
@@ -907,7 +974,6 @@ static void seek_to_beginning(ALLEGRO_VIDEO *video, OGG_VIDEO *ogv,
 
    /* XXX maybe clear backlog of time and stream fragment events */
 }
-
 
 /* Decode thread. */
 
@@ -1033,49 +1099,11 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
 }
 
 
-/* Y'CrCb to RGB conversion. */
-/* XXX simple slow implementation */
-
-static unsigned char clamp(int x)
-{
-   if (x < 0)
-      return 0;
-   if (x > 255)
-      return 255;
-   return x;
-}
-
-static INLINE void ycbcr_to_rgb(th_ycbcr_buffer buffer,
-   ALLEGRO_LOCKED_REGION *lr, int xshift, int yshift)
-{
-   const int w = buffer[0].width;
-   const int h = buffer[0].height;
-   int x, y;
-
-   for (y = 0; y < h; y++) {
-      const int y2 = y >> yshift;
-      for (x = 0; x < w; x++) {
-         const int x2 = x >> xshift;
-         unsigned char * const data = (unsigned char *)lr->data
-            + y*lr->pitch + x*lr->pixel_size;
-         const int yp = buffer[0].data[y  * buffer[0].stride + x ];
-         const int cb = buffer[1].data[y2 * buffer[1].stride + x2];
-         const int cr = buffer[2].data[y2 * buffer[2].stride + x2];
-         const int C = yp - 16;
-         const int D = cb - 128;
-         const int E = cr - 128;
-
-         data[0] = clamp((298*C         + 409*E + 128) >> 8);
-         data[1] = clamp((298*C - 100*D - 208*E + 128) >> 8);
-         data[2] = clamp((298*C + 516*D         + 128) >> 8);
-         data[3] = 0xff;
-      }
-   }
-}
-
 static bool update_frame_bmp(OGG_VIDEO *ogv)
 {
    ALLEGRO_LOCKED_REGION *lr;
+   int y;
+   int pitch = al_get_pixel_size(RGB_PIXEL_FORMAT) * al_get_bitmap_width(ogv->frame_bmp);
 
    lr = al_lock_bitmap(ogv->frame_bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888,
       ALLEGRO_LOCK_WRITEONLY);
@@ -1084,19 +1112,8 @@ static bool update_frame_bmp(OGG_VIDEO *ogv)
       return false;
    }
 
-   switch (ogv->pixel_fmt) {
-      case TH_PF_420:
-         ycbcr_to_rgb(ogv->buffer, lr, 1, 1);
-         break;
-      case TH_PF_422:
-         ycbcr_to_rgb(ogv->buffer, lr, 1, 0);
-         break;
-      case TH_PF_444:
-         ycbcr_to_rgb(ogv->buffer, lr, 0, 0);
-         break;
-      default:
-         ALLEGRO_ERROR("Unsupported pixel format.\n");
-         break;
+   for (y = 0; y < al_get_bitmap_height(ogv->frame_bmp); y++) {
+      memcpy((unsigned char*)lr->data + y * lr->pitch, ogv->rgb_data + y * pitch, pitch);
    }
 
    al_unlock_bitmap(ogv->frame_bmp);
@@ -1201,6 +1218,8 @@ static bool ogv_close_video(ALLEGRO_VIDEO *video)
          al_destroy_bitmap(ogv->pic_bmp);
       }
       al_destroy_bitmap(ogv->frame_bmp);
+
+      al_free(ogv->rgb_data);
 
       al_free(ogv);
    }
