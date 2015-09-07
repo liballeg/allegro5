@@ -1109,7 +1109,7 @@ static bool update_frame_bmp(OGG_VIDEO *ogv)
    int y;
    int pitch = al_get_pixel_size(RGB_PIXEL_FORMAT) * al_get_bitmap_width(ogv->frame_bmp);
 
-   lr = al_lock_bitmap(ogv->frame_bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888,
+   lr = al_lock_bitmap(ogv->frame_bmp, RGB_PIXEL_FORMAT,
       ALLEGRO_LOCK_WRITEONLY);
    if (!lr) {
       ALLEGRO_ERROR("Failed to lock bitmap.\n");
