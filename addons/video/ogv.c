@@ -926,6 +926,10 @@ static int poll_theora_decode(ALLEGRO_VIDEO *video, STREAM *tstream_outer)
 
       ogv->buffer_dirty = true;
 
+      event.type = ALLEGRO_EVENT_VIDEO_FRAME_SHOW;
+      event.user.data1 = (intptr_t)video;
+      al_emit_user_event(&video->es, &event, NULL);
+
       al_unlock_mutex(ogv->mutex);
    }
 

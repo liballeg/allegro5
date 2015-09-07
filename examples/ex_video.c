@@ -82,6 +82,8 @@ int main(int argc, char *argv[])
    ALLEGRO_VIDEO *video;
    bool fullscreen = false;
    bool redraw = true;
+   bool use_frame_events = false;
+   int filename_arg_idx = 1;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -90,8 +92,20 @@ int main(int argc, char *argv[])
    open_log();
 
    if (argc < 2) {
-      log_printf("This example needs to be run from the command line.\nUsage: %s <file>\n", argv[0]);
+      log_printf("This example needs to be run from the command line.\n"
+                 "Usage: %s [--use-frame-events] <file>\n", argv[0]);
       goto done;
+   }
+
+   /* If use_frame_events is false, we use a fixed FPS timer. If the video is
+    * displayed in a game this probably makes most sense. In a
+    * dedicated video player you probably want to listen to
+    * ALLEGRO_EVENT_VIDEO_FRAME_SHOW events and only redraw whenever one
+    * arrives - to reduce possible jitter and save CPU.
+    */
+   if (argc == 3 && strcmp(argv[1], "--use-frame-events") == 0) {
+      use_frame_events = true;
+      filename_arg_idx++;
    }
 
    if (!al_init_video_addon()) {
@@ -103,13 +117,7 @@ int main(int argc, char *argv[])
    al_install_audio();
    al_reserve_samples(1);
    al_init_primitives_addon();
-   
-   /* In this example we use a fixed FPS timer. If the video is
-    * displayed in a game this probably makes most sense. In a
-    * dedicated video player you probably want to listen to
-    * ALLEGRO_EVENT_VIDEO_FRAME events and only redraw whenever one
-    * arrives - to reduce possible jitter and save CPU.
-    */
+
    timer = al_create_timer(1.0 / 60);
 
    al_set_new_display_flags(ALLEGRO_RESIZABLE);
@@ -126,7 +134,7 @@ int main(int argc, char *argv[])
 
    al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
 
-   filename = argv[1];
+   filename = argv[filename_arg_idx];
    video = al_open_video(filename);
    if (!video) {
       abort_example("Cannot read %s.\n", filename);
@@ -216,7 +224,9 @@ int main(int argc, char *argv[])
                video_time = display_time + video_refresh_timer(is);
             }*/
 
-            redraw = true;
+            if (!use_frame_events) {
+               redraw = true;
+            }
             break;
 
          case ALLEGRO_EVENT_DISPLAY_CLOSE:
@@ -224,9 +234,11 @@ int main(int argc, char *argv[])
             goto done;
             break;
 
-         /*case ALLEGRO_EVENT_VIDEO_FRAME:
-            al_get_video_frame((void *)event.user.data1);
-            break;*/
+         case ALLEGRO_EVENT_VIDEO_FRAME_SHOW:
+            if (use_frame_events) {
+               redraw = true;
+            }
+            break;
          default:
             break;
       }
