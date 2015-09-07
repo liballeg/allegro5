@@ -62,8 +62,8 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size, int flags)
       int i, j;
       {
          for (i = 0; i < h; i++) {
-            uint8_t *data_row = lock->data + lock->pitch * i;
-            uint8_t *source_row = pixels + w * samples * i;
+            uint8_t *data_row = (uint8_t *) lock->data + lock->pitch * i;
+            uint8_t *source_row = (uint8_t *) pixels + w * samples * i;
             if (samples == 4) {
                if (premul) {
                   for (j = 0; j < w; j++) {

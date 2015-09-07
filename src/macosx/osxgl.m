@@ -1152,6 +1152,10 @@ static NSOpenGLContext* osx_create_shareable_context(NSOpenGLPixelFormat* fmt, u
    return compat;
 }
 
+#ifndef NSAppKitVersionNumber10_7
+#define NSAppKitVersionNumber10_7 1138
+#endif
+
 /* create_display_fs:
  * Create a fullscreen display - capture the display
  */
@@ -1160,10 +1164,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    ALLEGRO_DEBUG("Switching to fullscreen mode sized %dx%d\n", w, h);
 
-   int32_t system_version;
-   if (Gestalt(gestaltSystemVersion, &system_version) != noErr)
-      system_version = 0;
-   #define IS_LION (system_version >= 0x1070)
+   #define IS_LION (floor(NSAppKitVersionNumber) >= NSAppKitVersionNumber10_7)
 
    if (al_get_new_display_adapter() >= al_get_num_video_adapters()) {
       [pool drain];

@@ -4,6 +4,12 @@
 
 #import <Cocoa/Cocoa.h>
 
+/* Normally we should include aintosx.h to get this prototype but it doesn't 
+* work. So repeat the prototype here as a stopgap measure.
+*/
+void _al_osx_clear_mouse_state(void);
+
+
 bool _al_init_native_dialog_addon(void)
 {
    return true;
@@ -509,6 +515,13 @@ static _AL_VECTOR displays = _AL_VECTOR_INITIALIZER(DISPLAY_INFO *);
 static volatile ALLEGRO_EVENT_QUEUE *queue = NULL;
 static ALLEGRO_MUTEX *mutex;
 
+/* Declare this here to avoid getting a warning. 
+* There seems to be no better way to do this...
+*/
+@interface NSApplication(AllegroOSX)
+- (void)setAppleMenu:(NSMenu *) menu;
+@end
+
 #define add_menu(name, sel, eq)                                          \
         [menu addItem: [[[NSMenuItem allocWithZone: [NSMenu menuZone]]   \
                                     initWithTitle: name                  \
@@ -581,6 +594,7 @@ static void *event_thread(void *unused)
    mutex = NULL;
    al_destroy_event_queue((ALLEGRO_EVENT_QUEUE *)queue);
    queue = NULL;
+   return NULL;
 }
 
 static  void ensure_event_thread(void)
