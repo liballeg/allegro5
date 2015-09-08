@@ -159,6 +159,43 @@ static void shutdown_timers(void)
 
 
 
+// logic common to al_start_timer and al_resume_timer
+// al_start_timer : passes resetCounter = true to start from the beginning
+// al_resume_timer: passes resetCounter = false to preserve the previous time
+static void enable_timer(ALLEGRO_TIMER *timer, bool resetCounter)
+{
+   ASSERT(timer);
+   {
+      size_t new_size;
+
+      if (timer->started)
+         return;
+
+      _al_mutex_lock(&timers_mutex);
+      {
+         ALLEGRO_TIMER **slot;
+
+         timer->started = true;
+
+         if (resetCounter)
+            timer->counter = timer->speed_secs;
+
+         slot = _al_vector_alloc_back(&active_timers);
+         *slot = timer;
+
+         new_size = _al_vector_size(&active_timers);
+      }
+      _al_mutex_unlock(&timers_mutex);
+
+      if (new_size == 1) {
+         timer_thread = al_malloc(sizeof(_AL_THREAD));
+         _al_thread_create(timer_thread, timer_thread_proc, NULL);
+      }
+   }
+}
+
+
+
 void _al_init_timers(void)
 {
    _al_mutex_init(&timers_mutex);
@@ -225,32 +262,16 @@ void al_destroy_timer(ALLEGRO_TIMER *timer)
  */
 void al_start_timer(ALLEGRO_TIMER *timer)
 {
-   ASSERT(timer);
-   {
-      size_t new_size;
+   enable_timer(timer, true); // true to reset the counter
+}
 
-      if (timer->started)
-         return;
 
-      _al_mutex_lock(&timers_mutex);
-      {
-         ALLEGRO_TIMER **slot;
 
-         timer->started = true;
-         timer->counter = timer->speed_secs;
-
-         slot = _al_vector_alloc_back(&active_timers);
-         *slot = timer;
-
-         new_size = _al_vector_size(&active_timers);
-      }
-      _al_mutex_unlock(&timers_mutex);
-
-      if (new_size == 1) {
-         timer_thread = al_malloc(sizeof(_AL_THREAD));
-         _al_thread_create(timer_thread, timer_thread_proc, NULL);
-      }
-   }
+/* Function: al_resume_timer
+ */
+void al_resume_timer(ALLEGRO_TIMER *timer)
+{
+   enable_timer(timer, false); // false to preserve the counter
 }
 
 
