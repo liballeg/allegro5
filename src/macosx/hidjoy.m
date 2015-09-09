@@ -765,17 +765,18 @@ ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver_10_5(void)
 
 #endif // Leopard+
 
+#ifndef NSAppKitVersionNumber10_5
+#define NSAppKitVersionNumber10_5 949
+#endif
+
+
+
 ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver_10_4(void);
 ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver_10_5(void);
 
 ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver(void)
 {
-   SInt32 major, minor;
-
-   Gestalt(gestaltSystemVersionMajor, &major);
-   Gestalt(gestaltSystemVersionMinor, &minor);
-
-   if (major >= 10 && minor >= 5) {
+   if (floor(NSAppKitVersionNumber) >= NSAppKitVersionNumber10_5) {
    	return _al_osx_get_joystick_driver_10_5();
    }
    else {
