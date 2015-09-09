@@ -69,12 +69,14 @@ function(add_our_library target framework_name sources extra_flags link_with)
     # BUILD_SHARED_LIBS controls whether this is a shared or static library.
     add_library(${target} ${sources})
 
-    if(WANT_STATIC_RUNTIME)
-        if(MSVC)
+    if(MSVC)
+        # Compile with multiple processors
+        set(msvc_flags "/MP")
+        if(WANT_STATIC_RUNTIME)
             if(CMAKE_BUILD_TYPE STREQUAL Debug)
-                set(static_runtime_flag /MTd)
+                set(msvc_flags "${msvc_flags} /MTd")
             else()
-                set(static_runtime_flag /MT)
+                set(msvc_flags "${msvc_flags} /MT")
             endif()
         endif()
     endif()
@@ -86,14 +88,14 @@ function(add_our_library target framework_name sources extra_flags link_with)
     if(NOT ANDROID)
         set_target_properties(${target}
             PROPERTIES
-            COMPILE_FLAGS "${extra_flags} ${static_flag} ${static_runtime_flag} -DALLEGRO_LIB_BUILD"
+            COMPILE_FLAGS "${extra_flags} ${static_flag} ${msvc_flags} -DALLEGRO_LIB_BUILD"
             VERSION ${ALLEGRO_VERSION}
             SOVERSION ${ALLEGRO_SOVERSION}
             )
     else(NOT ANDROID)
         set_target_properties(${target}
             PROPERTIES
-            COMPILE_FLAGS "${extra_flags} ${static_flag} ${static_runtime_flag} -DALLEGRO_LIB_BUILD"
+            COMPILE_FLAGS "${extra_flags} ${static_flag} ${msvs_flags} -DALLEGRO_LIB_BUILD"
             )
     endif(NOT ANDROID)
     
@@ -265,14 +267,17 @@ function(add_our_executable nm)
         set_property(TARGET ${nm} APPEND PROPERTY COMPILE_DEFINITIONS ${d})
     endforeach()
 
-    if(WANT_STATIC_RUNTIME)
-        if(MSVC)
+    if(MSVC)
+        # Compile with multiple processors
+        set(msvc_flags "/MP")
+        if(WANT_STATIC_RUNTIME)
             if(CMAKE_BUILD_TYPE STREQUAL Debug)
-                set_target_properties(${nm} PROPERTIES COMPILE_FLAGS /MTd)
+                set(msvc_flags "${msvc_flags} /MTd")
             else()
-                set_target_properties(${nm} PROPERTIES COMPILE_FLAGS /MT)
+                set(msvc_flags "${msvc_flags} /MT")
             endif()
         endif()
+        set_target_properties(${nm} PROPERTIES COMPILE_FLAGS "${msvc_flags}")
     endif()
 
     if(MINGW)

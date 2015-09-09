@@ -87,7 +87,6 @@ function(example name)
     else()
         add_our_executable("${name}" SRCS "${sources}" LIBS "${libs}")
     endif()
-
 endfunction(example)
 
 #-----------------------------------------------------------------------------#
