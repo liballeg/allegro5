@@ -160,9 +160,9 @@ static void shutdown_timers(void)
 
 
 // logic common to al_start_timer and al_resume_timer
-// al_start_timer : passes resetCounter = true to start from the beginning
-// al_resume_timer: passes resetCounter = false to preserve the previous time
-static void enable_timer(ALLEGRO_TIMER *timer, bool resetCounter)
+// al_start_timer : passes reset_counter = true to start from the beginning
+// al_resume_timer: passes reset_counter = false to preserve the previous time
+static void enable_timer(ALLEGRO_TIMER *timer, bool reset_counter)
 {
    ASSERT(timer);
    {
@@ -177,7 +177,7 @@ static void enable_timer(ALLEGRO_TIMER *timer, bool resetCounter)
 
          timer->started = true;
 
-         if (resetCounter)
+         if (reset_counter)
             timer->counter = timer->speed_secs;
 
          slot = _al_vector_alloc_back(&active_timers);

@@ -19,7 +19,6 @@ int main(int argc, char **argv)
    const double pre_pause = 2; // how long to wait before pausing
    const double pause = 2;     // how long to pause timer for
 
-   ALLEGRO_DISPLAY     *display = NULL;
    ALLEGRO_TIMER       *timer1  = NULL;
    ALLEGRO_TIMER       *timer2  = NULL;
    ALLEGRO_EVENT_QUEUE *queue   = NULL;
@@ -29,11 +28,6 @@ int main(int argc, char **argv)
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
-   }
-
-   display = al_create_display(640, 480);
-   if (!display) {
-      abort_example("Could not create display.\n");
    }
 
    printf("Creating a pair of %2.0fs timers\n", duration);
@@ -71,7 +65,6 @@ int main(int argc, char **argv)
          al_get_timer_event_source(timer1) == ev.any.source ? 1 : 2,
          al_get_time() * 100);
 
-   al_destroy_display(display);
    al_destroy_event_queue(queue);
    al_destroy_timer(timer1);
    al_destroy_timer(timer2);
