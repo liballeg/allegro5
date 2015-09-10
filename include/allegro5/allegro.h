@@ -34,6 +34,7 @@
 #include "allegro5/clipboard.h"
 #include "allegro5/color.h"
 #include "allegro5/config.h"
+#include "allegro5/cpu.h"
 #include "allegro5/debug.h"
 #include "allegro5/display.h"
 #include "allegro5/drawing.h"
