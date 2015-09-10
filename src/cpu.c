@@ -22,7 +22,7 @@
 #include "allegro5/internal/aintern.h"
 
 /* 
-* The CPU and pysical memiry detection functions below use 
+* The CPU and pysical memory detection functions below use 
 * sysconf() if the right define is available as a parameter, 
 * otherwise they use sysctl(), again if the right define is available. 
 * This was chosen so because sysconf is POSIX and (in theory) 
