@@ -170,7 +170,7 @@ static void _al_draw_transformed_bitmap_memory(ALLEGRO_BITMAP *src,
    int tmp;
    ALLEGRO_VERTEX v[4];
 
-   ASSERT(_al_pixel_format_is_real(src->format));
+   ASSERT(_al_pixel_format_is_real(al_get_bitmap_format(src)));
 
    /* Decide what order to take corners in. */
    if (flags & ALLEGRO_FLIP_VERTICAL) {
@@ -268,8 +268,8 @@ static void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
    int dw = sw, dh = sh;
 
-   ASSERT(_al_pixel_format_is_real(bitmap->format));
-   ASSERT(_al_pixel_format_is_real(dest->format));
+   ASSERT(_al_pixel_format_is_real(al_get_bitmap_format(bitmap)));
+   ASSERT(_al_pixel_format_is_real(al_get_bitmap_format(dest)));
    ASSERT(bitmap->parent == NULL);
 
    /* Currently the only flags are for flipping, which is handled as negative
@@ -281,20 +281,20 @@ static void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
    CLIPPER(bitmap, sx, sy, sw, sh, dest, dx, dy, dw, dh, 1, 1, flags)
 
    if (!(src_region = al_lock_bitmap_region(bitmap, sx, sy, sw, sh,
-         bitmap->format, ALLEGRO_LOCK_READONLY))) {
+         ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY))) {
       return;
    }
 
    if (!(dst_region = al_lock_bitmap_region(dest, dx, dy, sw, sh,
-         dest->format, ALLEGRO_LOCK_WRITEONLY))) {
+         ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY))) {
       al_unlock_bitmap(bitmap);
       return;
    }
 
    /* will detect if no conversion is needed */
    _al_convert_bitmap_data(
-      src_region->data, bitmap->format, src_region->pitch,
-      dst_region->data, dest->format, dst_region->pitch,
+      src_region->data, src_region->format, src_region->pitch,
+      dst_region->data, dst_region->format, dst_region->pitch,
       0, 0, 0, 0, sw, sh);
 
    al_unlock_bitmap(bitmap);

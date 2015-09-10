@@ -77,7 +77,7 @@ See also: [al_get_errno], [ALLEGRO_FILE_MODE]
 Returns the time in seconds since the epoch since the entry was last
 accessed.
 
-Warning: some filesystem either don't support this flag, or people turn it
+Warning: some filesystems either don't support this flag, or people turn it
 off to increase performance.
 It may not be valid in all circumstances.
 

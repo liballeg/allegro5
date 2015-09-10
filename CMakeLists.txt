@@ -12,7 +12,7 @@
 #
 #-----------------------------------------------------------------------------#
 
-cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 if(COMMAND cmake_policy)
     cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
@@ -31,14 +31,16 @@ option(WANT_ANDROID_LEGACY "Build for Android 4 (1.6)" OFF)
 option(WANT_GLES2 "Compile with GLES2 support" ON)
 if(WANT_ANDROID)
     include(${CMAKE_SOURCE_DIR}/cmake/Toolchain-android.cmake)
+    set(ANDROID_TARGET "android-12" CACHE STRING "What Android target to compile for.")
 endif(WANT_ANDROID)
 option(ALLEGRO_SDL "Build using the SDL backend (experimental)" OFF)
+option(WANT_STATIC_RUNTIME "Whether or not to link the C and C++ runtimes statically (currently only implemented for MSVC)" OFF)
 
 # Set the project name.
 # We use C++ in a few cases.
 project(ALLEGRO C CXX)
 
-set(ALLEGRO_VERSION 5.1.9)
+set(ALLEGRO_VERSION 5.1.12)
 string(REGEX MATCH "^[0-9]+[.][0-9]+" ALLEGRO_SOVERSION ${ALLEGRO_VERSION})
 string(REPLACE "." "" ALLEGRO_DLL_SHORTVER ${ALLEGRO_SOVERSION})
 
@@ -114,6 +116,7 @@ option(WANT_D3D9EX "Enable Direct3D 9Ex extensions (Vista)" off)
 option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11, OS X))" on)
 option(WANT_SHADERS_GL "Build GLSL shader support (OpenGL)" on)
 option(WANT_SHADERS_D3D "Build HLSL shader support (Direct3D)" on)
+option(WANT_OPENGL_S3TC_LOCKING "Whether to support blocked locking of DXT1, DXT2, and DXT3 formats in OpenGL." off)
 
 #
 # Addons.
@@ -161,7 +164,7 @@ option(WANT_DOCS_PDF_PAPER "Whether PDF output is destined for paper" off)
 
 option(STRICT_WARN "Halt at warnings" off)
 option(WANT_MUDFLAP "Enable gcc mudflap (requires gcc 4.0+)" off)
-option(WANT_RELEASE_LOGGING "Enable logging even in release mode" off)
+option(WANT_RELEASE_LOGGING "Enable logging even in release mode" on)
 
 if(WANT_RELEASE_LOGGING)
     set(ALLEGRO_CFG_RELEASE_LOGGING 1)
@@ -457,6 +460,7 @@ check_include_files(machine/soundcard.h ALLEGRO_HAVE_MACHINE_SOUNDCARD_H)
 check_include_files(linux/soundcard.h ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
 check_include_files(libkern/OSAtomic.h ALLEGRO_HAVE_OSATOMIC_H)
 check_include_files(sys/inotify.h ALLEGRO_HAVE_SYS_INOTIFY_H)
+check_include_files(sal.h ALLEGRO_HAVE_SAL_H)
 
 check_function_exists(getexecname ALLEGRO_HAVE_GETEXECNAME)
 check_function_exists(mkstemp ALLEGRO_HAVE_MKSTEMP)
@@ -562,6 +566,12 @@ if(WANT_OPENGL)
     endif()
 endif(WANT_OPENGL)
 
+if(WANT_OPENGL_S3TC_LOCKING)
+    set(ALLEGRO_CFG_OPENGL_S3TC_LOCKING 1)
+else()
+    message("S3TC locking disabled. You will not be able to load/save "
+            "pre-compressed textures with OpenGL.")
+endif()
 
 #
 # Unix-specific
@@ -604,11 +614,24 @@ if(SUPPORT_X11)
     check_library_exists(Xcursor XcursorImageCreate "" CAN_XCURSOR)
     if(CAN_XCURSOR)
         set(ALLEGRO_XWINDOWS_WITH_XCURSOR 1)
-	find_library(XCURSOR_LIB "Xcursor")
+        find_library(XCURSOR_LIB "Xcursor")
         list(APPEND X11_LIBRARIES "${XCURSOR_LIB}")
     else(CAN_XCURSOR)
         message(FATAL_ERROR "X11 support requires Xcursor library.")
     endif(CAN_XCURSOR)
+
+    check_include_file("X11/extensions/XInput2.h" CAN_XINPUT2)
+    check_c_source_compiles("
+        #include <X11/extensions/XInput2.h>
+        int main(void) { (void)XI_TouchBegin; return 0; }"
+        XINPUT2_COMPILES
+    )
+    if(CAN_XINPUT2 AND XINPUT2_COMPILES)
+        list(APPEND X11_LIBRARIES "Xi")
+        set(ALLEGRO_XWINDOWS_WITH_XINPUT2 1)
+    else()
+        message("XInput2 library version 2.2 or higher not found, disabling touch support.")
+    endif()
 
     if(WANT_X11_XF86VIDMODE)
         check_include_file("X11/extensions/xf86vmode.h" HAVE_XF86VIDMODE_H)
@@ -624,7 +647,7 @@ if(SUPPORT_X11)
         check_library_exists(Xinerama XineramaQueryExtension "" CAN_XINERAMA)
         if(CAN_XINERAMA AND HAVE_XINERAMA_H)
             set(ALLEGRO_XWINDOWS_WITH_XINERAMA 1)
-    	    find_library(XINERAMA_LIB "Xinerama")
+            find_library(XINERAMA_LIB "Xinerama")
             list(APPEND X11_LIBRARIES "${XINERAMA_LIB}")
         endif()
     endif(WANT_X11_XINERAMA)
@@ -654,7 +677,8 @@ endif(SUPPORT_X11)
 #
 
 if(WIN32)
-    find_package(DInput)
+    find_package(DirectX)
+
     if(DINPUT_FOUND)
         # At least some copies of dinput.h redefine some types multiple times.
         # We must add the directory as a system directory so that the compiler
@@ -664,25 +688,33 @@ if(WIN32)
         message(FATAL_ERROR
             "Windows port requires DirectInput (not found).")
     endif(DINPUT_FOUND)
+    
+    # Xinput support for xbox compatible controllers.
+    if(XINPUT_FOUND)
+        set(SUPPORT_XINPUT 1)
+        set(ALLEGRO_CFG_XINPUT 1)
+    endif(XINPUT_FOUND)
 
     if(WANT_D3D)
-        find_package(D3D9)
         if(D3D9_FOUND)
             set(SUPPORT_D3D 1)
             set(ALLEGRO_CFG_D3D 1)
         endif(D3D9_FOUND)
     endif(WANT_D3D)
-
+    
     if(SUPPORT_D3D)
-        find_package(D3DX9)
         if(D3DX9_FOUND)
             include_directories(BEFORE SYSTEM ${D3DX9_INCLUDE_DIR})
-        endif(D3DX9_FOUND)
-   endif(SUPPORT_D3D)
+            set(ALLEGRO_CFG_D3DX9 1)
+        else()
+            message("D3DX9 not found. You will not be able to compress or "
+                    "decompress textures on the GPU.")
+        endif()
+    endif(SUPPORT_D3D)
 
     if(WANT_D3D9EX AND SUPPORT_D3D)
         set(ALLEGRO_CFG_D3D9EX 1)
-   endif(WANT_D3D9EX AND SUPPORT_D3D)
+    endif(WANT_D3D9EX AND SUPPORT_D3D)
 
 endif(WIN32)
 
@@ -692,15 +724,11 @@ endif(WIN32)
 #
 #-----------------------------------------------------------------------------#
 
-# On Windows, disable shared build if either D3D or OpenGL are not present,
-# because it would produce a incompatible DLL.
 if(WIN32 AND SHARED)
     if(NOT SUPPORT_D3D OR NOT SUPPORT_OPENGL)
-        message(
-            "Both D3D and OpenGL must be present for the SHARED build. "
-            "Disabling SHARED build.")
-        set(SHARED off)
-        set(BUILD_SHARED_LIBS off)
+        message("WARNING: "
+            "Both D3D and OpenGL should be present for the SHARED build "
+            " to ensure maximum DLL compatibility.")
     endif(NOT SUPPORT_D3D OR NOT SUPPORT_OPENGL)
 endif(WIN32 AND SHARED)
 
@@ -732,6 +760,11 @@ if(WIN32)
         list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_D3D_FILES})
         list(APPEND PLATFORM_LIBS ${D3D9_LIBRARIES})
     endif(SUPPORT_D3D)
+    
+    if(SUPPORT_XINPUT) 
+      list(APPEND PLATFORM_LIBS ${XINPUT_LIBRARIES})
+    endif(SUPPORT_XINPUT) 
+    
     list(APPEND PLATFORM_LIBS ${DINPUT_LIBRARIES})
     if(MINGW AND NOT SHARED)
         list(APPEND PLATFORM_LIBS stdc++)
@@ -799,6 +832,11 @@ if(IPHONE)
         ${ALLEGRO_INCLUDE_ALLEGRO_IPHONE_FILES}
         )
 endif(IPHONE)
+if(SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
+    list(APPEND ALLEGRO_PUBLIC_HEADERS
+        ${ALLEGRO_INCLUDE_ALLEGRO_X_FILES}
+        )
+endif(SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
 if(ANDROID)
     list(APPEND ALLEGRO_PUBLIC_HEADERS ${ALLEGRO_INCLUDE_ALLEGRO_ANDROID_FILES})
 endif(ANDROID)
@@ -829,13 +867,11 @@ if(NOT WANT_MONOLITH)
     # to get the DLL #defines right under Windows for creating DLL export
     # functions when it is defined or import DLL functions when it is not).
     add_our_library(allegro
+        Allegro-${ALLEGRO_SOVERSION}
         "${LIBRARY_SOURCES};${ALLEGRO_PUBLIC_HEADERS}"
         "${LIBRARY_CFLAGS} -DALLEGRO_SRC"
         "${PLATFORM_LIBS}"
         )
-
-    # Allegro 4 has taken "Allegro" as the name of the framework.
-    set_our_framework_properties(allegro Allegro-${ALLEGRO_SOVERSION})
 endif(NOT WANT_MONOLITH)
 
 # Addons and examples should link with this target.
@@ -866,12 +902,11 @@ if(WANT_MONOLITH)
 
     link_directories(${MONOLITH_LINK_DIRECTORIES})
     add_our_library(allegro_monolith
+        AllegroMonolith-${ALLEGRO_SOVERSION}
         "${MONOLITH_SOURCES};${ALLEGRO_PUBLIC_HEADERS}"
         "${LIBRARY_CFLAGS} -DALLEGRO_SRC ${MONOLITH_DEFINES}"
         "${PLATFORM_LIBS};${MONOLITH_LIBRARIES}"
         )
-
-    set_our_framework_properties(allegro_monolith AllegroMonolith-${ALLEGRO_SOVERSION})
 
     set(ALLEGRO_MONOLITH_LINK_WITH allegro_monolith)
 endif(WANT_MONOLITH)

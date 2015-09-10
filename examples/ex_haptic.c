@@ -18,12 +18,15 @@ static void test_haptic_joystick(ALLEGRO_JOYSTICK *joy)
    const double intensity = 1.0;
    const double duration = 1.0;
 
-   log_printf("Joystick %s supports force feedback.\n",
-      al_get_joystick_name(joy));
-
    haptic = al_get_haptic_from_joystick(joy);
+
+   if (!haptic) {
+      log_printf("Could not get haptic device from joystick!");
+      return;
+   }
+
    log_printf("Can play back %d haptic effects.\n",
-      al_get_num_haptic_effects(haptic));
+      al_get_max_haptic_effects(haptic));
 
    log_printf("Set gain to 0.8: %d.\n",
       al_set_haptic_gain(haptic, 0.8));
@@ -45,7 +48,7 @@ static void test_haptic_joystick(ALLEGRO_JOYSTICK *joy)
       al_upload_haptic_effect(haptic, &effect, &id));
 
    log_printf("Playing effect: %d.\n",
-      al_play_haptic_effect(&id, 5));
+      al_play_haptic_effect(&id, 3));
 
    do {
       al_rest(0.1);
@@ -104,6 +107,8 @@ int main(int argc, char **argv)
    open_log();
 
    num_joysticks = al_get_num_joysticks();
+   log_printf("Found %d joysticks.\n", num_joysticks);
+   
    for (i = 0; i < num_joysticks; i++) {
       ALLEGRO_JOYSTICK *joy = al_get_joystick(i);
       if (!joy) {
@@ -111,6 +116,8 @@ int main(int argc, char **argv)
       }
 
       if (al_is_joystick_haptic(joy)) {
+         log_printf("Joystick %s supports force feedback.\n",
+            al_get_joystick_name(joy));
          test_haptic_joystick(joy);
       }
       else {

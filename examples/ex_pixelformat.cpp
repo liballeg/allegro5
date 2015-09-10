@@ -48,6 +48,9 @@ const FORMAT formats[ALLEGRO_NUM_PIXEL_FORMATS] = {
    {ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, "ABGR(LE)"},
    {ALLEGRO_PIXEL_FORMAT_RGBA_4444, "RGBA4444"},
    {ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8, "SINGLE_CHANNEL_8"},
+   {ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1, "RGBA_DXT1"},
+   {ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3, "RGBA_DXT3"},
+   {ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5, "RGBA_DXT5"},
 };
 
 #define NUM_FORMATS ALLEGRO_NUM_PIXEL_FORMATS
@@ -78,9 +81,10 @@ private:
    ToggleButton use_memory_button;
    ToggleButton enable_timing_button;
    Label time_label;
+   const char* bmp_filename;
 
 public:
-   Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
+   Prog(const Theme & theme, ALLEGRO_DISPLAY *display, const char* bmp_filename);
    void run();
 
 private:
@@ -88,7 +92,7 @@ private:
 };
 
 
-Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
+Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display, const char* bmp_filename) :
    d(Dialog(theme, display, 20, 30)),
    source_label(Label("Source")),
    dest_label(Label("Destination")),
@@ -97,16 +101,17 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    true_formats(Label("")),
    use_memory_button(ToggleButton("Use memory bitmaps")),
    enable_timing_button(ToggleButton("Enable timing")),
-   time_label(Label(""))
+   time_label(Label("")),
+   bmp_filename(bmp_filename)
 {
    d.add(source_label, 11, 0, 4,  1);
    d.add(source_list,  11, 1, 4, 27);
    d.add(dest_label,   15, 0, 4,  1);
    d.add(dest_list,    15, 1, 4, 27);
-   d.add(true_formats, 0, 15, 10, 1);
-   d.add(use_memory_button,  0, 17, 10, 2);
-   d.add(enable_timing_button,  0, 19, 10, 2);
-   d.add(time_label,  0, 21, 10, 1);
+   d.add(true_formats, 0, 20, 10, 1);
+   d.add(use_memory_button,  0, 24, 10, 2);
+   d.add(enable_timing_button,  0, 26, 10, 2);
+   d.add(time_label,  0, 22, 10, 1);
 
    for (unsigned i = 0; i < NUM_FORMATS; i++) {
       source_list.append_item(formats[i].name);
@@ -140,6 +145,8 @@ void Prog::draw_sample()
    ALLEGRO_BITMAP *bitmap2;
    bool use_memory = use_memory_button.get_pushed();
    bool enable_timing = enable_timing_button.get_pushed();
+   int bmp_w = 128;
+   int bmp_h = 128;
    
    if (use_memory)
       al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
@@ -148,24 +155,29 @@ void Prog::draw_sample()
 
    al_set_new_bitmap_format(formats[i].format);
 
-   bitmap1 = al_load_bitmap("data/allegro.pcx");
+   bitmap1 = al_load_bitmap(bmp_filename);
    if (!bitmap1) {
-      log_printf("Could not load image, bitmap format = %d\n", formats[i].format);
+      log_printf("Could not load image %s, bitmap format = %d\n", bmp_filename,
+         formats[i].format);
+   }
+   else {
+      bmp_w = al_get_bitmap_width(bitmap1);
+      bmp_h = al_get_bitmap_height(bitmap1);
    }
 
    al_set_new_bitmap_format(formats[j].format);
 
-   bitmap2 = al_create_bitmap(320, 200);
+   bitmap2 = al_create_bitmap(bmp_w, bmp_h);
    if (!bitmap2) {
       log_printf("Could not create bitmap, format = %d\n", formats[j].format);
    }
-
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
 
    if (bitmap1 && bitmap2) {
       ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
       al_set_target_bitmap(bitmap2);
+      al_clear_to_color(al_map_rgb(128, 128, 128));
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
       if (enable_timing) {
          double t0, t1;
          char str[256];
@@ -188,6 +200,7 @@ void Prog::draw_sample()
       }
 
       al_set_target_bitmap(target);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
       al_draw_bitmap(bitmap2, 0, 0, 0);
    }
    else {
@@ -209,9 +222,11 @@ int main(int argc, char *argv[])
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_FONT *font;
+   const char* bmp_filename = "data/allegro.pcx";
 
-   (void)argc;
-   (void)argv;
+   if (argc > 1) {
+      bmp_filename = argv[1];
+   }
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -228,7 +243,7 @@ int main(int argc, char *argv[])
    al_install_mouse();
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
-   display = al_create_display(640, 480);
+   display = al_create_display(800, 600);
    if (!display) {
       abort_example("Error creating display\n");
    }
@@ -243,7 +258,7 @@ int main(int argc, char *argv[])
    /* Don't remove these braces. */
    {
       Theme theme(font);
-      Prog prog(theme, display);
+      Prog prog(theme, display, bmp_filename);
       prog.run();
    }
 

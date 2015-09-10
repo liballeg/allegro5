@@ -4,12 +4,19 @@
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_x.h"
 #include "allegro5/internal/aintern_xcursor.h"
+#include "allegro5/internal/aintern_xclipboard.h"
 #include "allegro5/internal/aintern_xdisplay.h"
 #include "allegro5/internal/aintern_xfullscreen.h"
 #include "allegro5/internal/aintern_xglx_config.h"
 #include "allegro5/internal/aintern_xsystem.h"
+#include "allegro5/internal/aintern_xtouch.h"
 #include "allegro5/internal/aintern_xwindow.h"
 #include "allegro5/platform/aintxglx.h"
+
+#include <X11/Xatom.h>
+#ifdef ALLEGRO_XWINDOWS_WITH_XINPUT2
+#include <X11/extensions/XInput2.h>
+#endif
 
 ALLEGRO_DEBUG_CHANNEL("display")
 
@@ -211,7 +218,52 @@ static bool xdpy_create_display_window(ALLEGRO_SYSTEM_XGLX *system,
 
    ALLEGRO_DEBUG("X11 window created.\n");
 
+   /* Set the PID related to the window. */
+   Atom _NET_WM_PID = XInternAtom(system->x11display, "_NET_WM_PID", False);
+   int pid = getpid();
+   XChangeProperty(system->x11display, d->window, _NET_WM_PID, XA_CARDINAL,
+                   32, PropModeReplace, (unsigned char *)&pid, 1);
+
    _al_xwin_set_size_hints(display, x_off, y_off);
+
+   /* Let the window manager know we're a "normal" window */
+   Atom _NET_WM_WINDOW_TYPE;
+   Atom _NET_WM_WINDOW_TYPE_NORMAL;
+
+   _NET_WM_WINDOW_TYPE = XInternAtom(system->x11display, "_NET_WM_WINDOW_TYPE",
+                                     False);
+   _NET_WM_WINDOW_TYPE_NORMAL = XInternAtom(system->x11display,
+                                            "_NET_WM_WINDOW_TYPE_NORMAL",
+                                            False);
+   XChangeProperty(system->x11display, d->window, _NET_WM_WINDOW_TYPE, XA_ATOM,
+                   32, PropModeReplace,
+                   (unsigned char *)&_NET_WM_WINDOW_TYPE_NORMAL, 1);
+
+   /* This seems like a good idea */
+   const long _NET_WM_BYPASS_COMPOSITOR_HINT_ON = 1;
+   Atom _NET_WM_BYPASS_COMPOSITOR;
+
+   _NET_WM_BYPASS_COMPOSITOR = XInternAtom(system->x11display,
+                                           "_NET_WM_BYPASS_COMPOSITOR",
+                                           False);
+   XChangeProperty(system->x11display, d->window, _NET_WM_BYPASS_COMPOSITOR,
+                   XA_CARDINAL, 32, PropModeReplace,
+                   (unsigned char *)&_NET_WM_BYPASS_COMPOSITOR_HINT_ON, 1);
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XINPUT2
+   /* listen for touchscreen events */
+   XIEventMask event_mask;
+   event_mask.deviceid = XIAllMasterDevices;
+   event_mask.mask_len = XIMaskLen(XI_TouchEnd);
+   event_mask.mask = (unsigned char*)al_calloc(3, sizeof(char));
+   XISetMask(event_mask.mask, XI_TouchBegin);
+   XISetMask(event_mask.mask, XI_TouchUpdate);
+   XISetMask(event_mask.mask, XI_TouchEnd);
+
+   XISelectEvents(system->x11display, d->window, &event_mask, 1);
+
+   al_free(event_mask.mask);
+#endif
 
    return true;
 }
@@ -260,6 +312,10 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
 
    d->is_mapped = false;
    _al_cond_init(&d->mapped);
+   
+   d->is_selectioned = false;
+   _al_cond_init(&d->selectioned);
+
 
    d->resize_count = 0;
    d->programmatic_resize = false;
@@ -359,6 +415,10 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
       else if (_al_vector_size(&system->system.displays) > 1) {
          al_ungrab_mouse();
       }
+   }
+
+   if (display->flags & ALLEGRO_MAXIMIZED) {
+      _al_xwin_maximize(display, true);
    }
 
    if (!_al_xglx_config_create_context(d)) {
@@ -523,7 +583,7 @@ static void transfer_display_bitmaps_to_any_other_display(
       ALLEGRO_BITMAP **add = _al_vector_alloc_back(&(living->bitmaps));
       ALLEGRO_BITMAP **ref = _al_vector_ref(&d->bitmaps, i);
       *add = *ref;
-      (*add)->display = living;
+      (*add)->_display = living;
    }
 }
 
@@ -591,6 +651,7 @@ static void xdpy_destroy_display_hook_default(ALLEGRO_DISPLAY *d, bool is_last)
    }
 
    _al_cond_destroy(&glx->mapped);
+   _al_cond_destroy(&glx->selectioned);
 
    ALLEGRO_DEBUG("destroy window.\n");
    XDestroyWindow(s->x11display, glx->window);
@@ -755,6 +816,8 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
       if (glx->context) {
          _al_ogl_setup_gl(d);
       }
+
+      _al_xwin_check_maximized(d);
    }
 
    _al_mutex_unlock(&system->lock);
@@ -945,6 +1008,8 @@ void _al_xglx_display_configure(ALLEGRO_DISPLAY *d, int x, int y,
 
    }
 
+   _al_xwin_check_maximized(d);
+
    _al_event_source_unlock(es);
 }
 
@@ -1048,18 +1113,21 @@ static void xdpy_set_window_title_default(ALLEGRO_DISPLAY *display, const char *
          &property);
       XSetTextProperty(system->x11display, glx->window, &property, WM_NAME);
       XSetTextProperty(system->x11display, glx->window, &property, _NET_WM_NAME);
+      XSetTextProperty(system->x11display, glx->window, &property, XA_WM_NAME);
       XFree(property.value);
    }
    {
       XClassHint *hint = XAllocClassHint();
       if (hint) {
-         /* There's no need to use strdup here at all, and doing so would cause
-          * a memory leak.
-          */
-         hint->res_name = (char *) title;
-         hint->res_class = (char *) title;
+         ALLEGRO_PATH *exepath = al_get_standard_path(ALLEGRO_EXENAME_PATH);
+         // hint doesn't use a const char*, so we use strdup to create a non const string
+         hint->res_name = strdup(al_get_path_basename(exepath));
+         hint->res_class = strdup(al_get_path_basename(exepath));
          XSetClassHint(system->x11display, glx->window, hint);
+         free(hint->res_name);
+         free(hint->res_class);
          XFree(hint);
+         al_destroy_path(exepath);
       }
    }
    _al_mutex_unlock(&system->lock);
@@ -1221,6 +1289,9 @@ static bool xdpy_set_display_flag(ALLEGRO_DISPLAY *display, int flag,
       case ALLEGRO_FULLSCREEN_WINDOW:
          xdpy_set_fullscreen_window(display, flag_onoff);
          return true;
+      case ALLEGRO_MAXIMIZED:
+         _al_xwin_maximize(display, flag_onoff);
+         return true;
    }
    return false;
 }
@@ -1270,6 +1341,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    xdpy_vt.update_render_state = _al_ogl_update_render_state;
 
    _al_xwin_add_cursor_functions(&xdpy_vt);
+   _al_xwin_add_clipboard_functions(&xdpy_vt);
    _al_ogl_add_drawing_functions(&xdpy_vt);
 
    return &xdpy_vt;

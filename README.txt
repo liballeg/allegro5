@@ -32,9 +32,9 @@ Requirements
 ============
 
 We assume you have C and C++ compilers installed and functioning.
-We support gcc and MSVC.
+We support gcc, clang and MSVC.
 
-Allegro also requires CMake 2.6 or later to build.
+Allegro also requires CMake 2.8.5 or later to build.
 You may download it from <http://www.cmake.org/>
 
 
@@ -50,11 +50,10 @@ those, nothing will work.  These are required for the core library:
 
   You can get this for MSVC from the Microsoft web site (large download).
 
-  Alternatively, smaller downloads for MSVC and MinGW are available here:
-  <http://trent.gamblin.ca/dx/>
-
-  Some of those are originally from:
-  <http://www.g-productions.net/list.php?c=files_devpak>
+  Alternatively, smaller downloads for MSVC and MinGW are available
+  here: <http://liballeg.org/download.html#miscellaneous-files>. Some
+  MinGW distributions come with sufficient DirectX SDK to support
+  compiling Allegro.
 
 - X11 development libraries (Linux/Unix only)
   The libraries will be part of your Linux distribution, but you may have to
@@ -71,8 +70,9 @@ from <http://gnuwin32.sourceforge.net/>.  You need to get the `bin` and `lib`
 packages.  The `bin` packages contain DLLs, and the `lib` packages contain the
 headers and import libraries.
 
-Mac users may find some dependencies in Fink or MacPorts.
-<http://www.finkproject.org/> and <http://www.macports.org/>
+Mac users may find some dependencies in Homebrew, Fink or MacPorts.
+<http://brew.sh/>, <http://www.finkproject.org/> and
+<http://www.macports.org/>
 
 Linux users likely have all the dependencies already, except PhysicsFS
 and DUMB. If your distribution uses separate development packages, they
@@ -84,17 +84,17 @@ These are the dependencies required for the addons:
   Home page: <http://www.libpng.org/pub/png/>
   Windows binaries: <http://gnuwin32.sourceforge.net/packages/libpng.htm>
 
-  On Windows/Mac OS X/iPhone, PNG image support is available by using the
-  native facilities on the respective operating systems, so libpng is not
-  required.
+  On Windows/Mac OS X/iPhone/Android, PNG image support is available by
+  using the native facilities on the respective operating systems, so
+  libpng is not required.
 
 - libjpeg, for JPEG image support (Unix and older MinGW only)
   Home page: <http://www.ijg.org/>
   Windows binaries: <http://gnuwin32.sourceforge.net/packages/jpeg.htm>
 
-  On Windows/Mac OS X/iPhone, JPEG image support is available by using the
-  native facilities on the respective operating systems, so libjpeg is not
-  required.
+  On Windows/Mac OS X/iPhone/Android, JPEG image support is available
+  by using the native facilities on the respective operating systems,
+  so libjpeg is not required.
 
 - FreeType, for TrueType font support.
   Home page: <http://freetype.sourceforge.net/>

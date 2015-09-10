@@ -48,13 +48,15 @@ bool al_install_touch_input(void)
    if (al_get_system_driver()->vt->get_touch_input_driver) {
 
       touch_input_driver = al_get_system_driver()->vt->get_touch_input_driver();
-      if (!touch_input_driver->init_touch_input()) {
-         touch_input_driver = NULL;
-         return false;
-      }
+      if (touch_input_driver) {
+         if (!touch_input_driver->init_touch_input()) {
+            touch_input_driver = NULL;
+            return false;
+         }
 
-      _al_add_exit_func(al_uninstall_touch_input, "al_uninstall_touch_input");
-      return true;
+         _al_add_exit_func(al_uninstall_touch_input, "al_uninstall_touch_input");
+         return true;
+      }
    }
 
    return false;

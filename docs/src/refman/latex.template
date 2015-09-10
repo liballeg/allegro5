@@ -25,6 +25,7 @@ $else$
 %\usepackage{mathpazo}	    % roman=Palatino
 %\usepackage{mathptmx}	    % roman=Times
 %\usepackage{newcent}	    % roman=New Century Schoolbook
+\usepackage{lmodern}	    % sansserif=Latin Modern Sans
 \usepackage{charter}	    % roman=Charter
 \usepackage{inconsolata}    % typewriter=Inconsolata
 % TODO: I don't like the sans serif fonts much.
@@ -148,8 +149,12 @@ $endif$
 \HUGE\textsf{Reference Manual}\par
 \end{center}
 \begin{center}
+\vspace*{10pt}
+\LARGE\textsf{Version \input{allegro_version.tex}}\par
+\end{center}
+\begin{center}
 \vspace*{\fill}
-\LARGE{\textcopyright{} 2008 --- 2011}
+\LARGE{\textcopyright{} 2008 --- 2015}
 \end{center}
 \cleardoublepage
 \pagestyle{ruled}

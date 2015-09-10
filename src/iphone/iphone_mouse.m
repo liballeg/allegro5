@@ -24,6 +24,18 @@ void _al_iphone_generate_mouse_event(unsigned int type, int x, int y,
 
    _al_iphone_translate_from_screen(d, &x, &y);
 
+   the_mouse.state.x = x;
+   the_mouse.state.y = y;
+
+   if (type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+      the_mouse.state.buttons |= (1 << button);
+   }
+   else if (type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
+      the_mouse.state.buttons &= ~(1 << button);
+   }
+
+   the_mouse.state.pressure = the_mouse.state.buttons ? 1.0 : 0.0; // TODO
+
    if (_al_event_source_needs_to_generate_event(&the_mouse.parent.es)) {
       event.mouse.type = type;
       event.mouse.timestamp = al_get_time();
@@ -37,21 +49,11 @@ void _al_iphone_generate_mouse_event(unsigned int type, int x, int y,
       event.mouse.dz = 0; // TODO
       event.mouse.dw = 0; // TODO
       event.mouse.button = button;
-      event.mouse.pressure = 0.0; // TODO
+      event.mouse.pressure = the_mouse.state.pressure;
       _al_event_source_emit_event(&the_mouse.parent.es, &event);
    }
 
    _al_event_source_unlock(&the_mouse.parent.es);
-
-   the_mouse.state.x = x;
-   the_mouse.state.y = y;
-
-   if (type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-	the_mouse.state.buttons |= (1 << button);
-   }
-   else if (type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
-	the_mouse.state.buttons &= ~(1 << button);
-   }
 }
 
 static void imouse_exit(void);

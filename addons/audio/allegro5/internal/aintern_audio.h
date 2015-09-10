@@ -19,7 +19,8 @@ typedef enum ALLEGRO_AUDIO_DRIVER_ENUM
    ALLEGRO_AUDIO_DRIVER_OSS        = 0x20004,
    ALLEGRO_AUDIO_DRIVER_AQUEUE     = 0x20005,
    ALLEGRO_AUDIO_DRIVER_PULSEAUDIO = 0x20006,
-   ALLEGRO_AUDIO_DRIVER_OPENSL     = 0x20007
+   ALLEGRO_AUDIO_DRIVER_OPENSL     = 0x20007,
+   ALLEGRO_AUDIO_DRIVER_SDL        = 0x20008
 } ALLEGRO_AUDIO_DRIVER_ENUM;
 
 typedef struct ALLEGRO_AUDIO_DRIVER ALLEGRO_AUDIO_DRIVER;
@@ -254,6 +255,9 @@ struct ALLEGRO_AUDIO_STREAM {
                           */
 
    ALLEGRO_THREAD        *feed_thread;
+   ALLEGRO_MUTEX         *feed_thread_started_mutex;
+   ALLEGRO_COND          *feed_thread_started_cond;
+   bool                  feed_thread_started;
    volatile bool         quit_feed_thread;
    unload_feeder_t       unload_feeder;
    rewind_feeder_t       rewind_feeder;

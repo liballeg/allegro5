@@ -60,7 +60,8 @@ ALLEGRO_DEBUG_CHANNEL("video")
 #define AUDIO_DIFF_AVG_NB 20
 #define VIDEO_PICTURE_QUEUE_SIZE 3
 #define DEFAULT_AV_SYNC_TYPE AV_SYNC_EXTERNAL_MASTER
-#define AUDIO_BUF_SIZE ((AVCODEC_MAX_AUDIO_FRAME_SIZE * 3) / 2)
+#define MAX_AUDIO_FRAME_SIZE 192000 // 1s @48000Hz @32bit
+#define AUDIO_BUF_SIZE ((MAX_AUDIO_FRAME_SIZE * 3) / 2)
 #define AUDIO_BUF(vs) ((uint8_t *)((intptr_t)((vs)->audio_buf_unaligned + 15) & ~0xf))
 
 #define NOPTS_VALUE ((int64_t)AV_NOPTS_VALUE)
@@ -1226,4 +1227,7 @@ static ALLEGRO_VIDEO_INTERFACE ffmpeg_vtable = {
    update_video
 };
 
-ALLEGRO_VIDEO_INTERFACE *_al_video_vtable = &ffmpeg_vtable;
+ALLEGRO_VIDEO_INTERFACE *_al_video_ffmpeg_vtable(void)
+{
+   return &ffmpeg_vtable;
+}

@@ -404,7 +404,7 @@ static void update_checked_state(NSMenuItem *item, bool checked)
          [item setState:NSOnState];
       }
       else {
-	 [item setState:NSOffState];
+         [item setState:NSOffState];
       }
 }
 
@@ -563,17 +563,17 @@ static void *event_thread(void *unused)
       al_wait_for_event((ALLEGRO_EVENT_QUEUE *)queue, &event);
       if (event.type == ALLEGRO_EVENT_DISPLAY_SWITCH_IN) {
          int i;
-	 al_lock_mutex(mutex);
-	 for (i = 0; i < (int)displays._size; i++) {
-	    DISPLAY_INFO *d = *(DISPLAY_INFO **)_al_vector_ref(&displays, i);
-	    if (d->display == event.display.source) {
-	       /* The rest gives time for the window to be fully focussed */
-	       al_rest(0.1);
-	       _al_show_display_menu(d->display, d->toplevel_menu);
-	       break;
-	    }
-	 }
-	 al_unlock_mutex(mutex);
+         al_lock_mutex(mutex);
+         for (i = 0; i < (int)displays._size; i++) {
+            DISPLAY_INFO *d = *(DISPLAY_INFO **)_al_vector_ref(&displays, i);
+            if (d->display == event.display.source) {
+               /* The rest gives time for the window to be fully focussed */
+               al_rest(0.1);
+               _al_show_display_menu(d->display, d->toplevel_menu);
+               break;
+            }
+         }
+         al_unlock_mutex(mutex);
       }
    }
 
@@ -587,7 +587,7 @@ static  void ensure_event_thread(void)
 {
    if (queue)
       return;
-   
+
    al_run_detached_thread(event_thread, NULL);
 
    while (!queue)
@@ -677,29 +677,70 @@ bool _al_update_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
    return true;
 }
 
-static void add_items(NSMenu *menu, ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu, MENU_THINGS *mt)
+static void add_items(NSMenu *menu, ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu, ALLEGRO_MENU *the_menu, bool popup)
 {
    int i;
+   MENU_THINGS *mt = the_menu->extra1;
+   char buf[200];
+   char key[5];
+   int amp_pos;
+   NSMenu *temp_menu;
 
+   [NSApp activateIgnoringOtherApps:YES];
+
+   /* recursively add menu items */
    for (i = 0; i < (int)mt->items._size; i++) {
       ALLEGRO_MENU_ITEM *aitem = *(ALLEGRO_MENU_ITEM **)_al_vector_ref(&mt->items, i);
       if (aitem->caption == NULL) {
          [menu addItem:[NSMenuItem separatorItem]];
       }
       else {
-         MenuDelegate *menu_delegate = [[MenuDelegate alloc] init];
-         NSMenuItem *nsmenuitem = [menu_delegate build_menu_item:aitem];
-         menu_delegate->item = aitem;
-	 MENU_ITEM_THINGS *mit = al_malloc(sizeof(MENU_ITEM_THINGS));
-         mit->menu_delegate = menu_delegate;
-         mit->menu_item = nsmenuitem;
-	 mit->menu = menu;
-	 aitem->extra1 = mit;
-         MENU_THINGS *mt = aitem->parent->extra1;
-         mt->display = display;
-         mt->toplevel_menu = amenu;
-         [menu addItem:nsmenuitem];
-         _al_update_menu_item_at(aitem, -1);
+         amp_pos = get_accelerator(aitem->caption, buf);
+         if (popup) {
+            if (amp_pos == -1) {
+               key[0] = 0;
+            }
+            else {
+               *key = al_ustr_get(aitem->caption, amp_pos+1);
+            }
+            MenuDelegate *menu_delegate = [[MenuDelegate alloc] init];
+            NSMenuItem *menu_item = [menu_delegate build_menu_item:aitem];
+            menu_delegate->item = aitem;
+            [menu addItem:menu_item];
+         }
+         else {
+            if (aitem->popup) {
+               temp_menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: [[NSString alloc] initWithUTF8String:buf]];
+               [temp_menu setAutoenablesItems:NO];
+               MenuDelegate *menu_delegate = [[MenuDelegate alloc] init];
+               NSMenuItem *nsmenuitem = [menu_delegate build_menu_item:aitem];
+               [menu addItem:nsmenuitem];
+               [menu setSubmenu:temp_menu forItem:nsmenuitem];
+               the_menu = aitem->popup;
+               add_items(temp_menu, display, amenu, the_menu, popup);
+            }
+            else {
+               temp_menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: [[NSString alloc] initWithUTF8String:buf]];
+               [temp_menu setAutoenablesItems:NO];
+               MenuDelegate *menu_delegate = [[MenuDelegate alloc] init];
+               NSMenuItem *nsmenuitem = [menu_delegate build_menu_item:aitem];
+               menu_delegate->item = aitem;
+               MENU_ITEM_THINGS *mit = al_malloc(sizeof(MENU_ITEM_THINGS));
+               mit->menu_delegate = menu_delegate;
+               mit->menu_item = nsmenuitem;
+               mit->menu = menu;
+               aitem->extra1 = mit;
+               MENU_THINGS *mt = aitem->parent->extra1;
+               mt->display = display;
+               mt->toplevel_menu = amenu;
+               [menu addItem:nsmenuitem];
+               if (aitem->flags & ALLEGRO_MENU_ITEM_CHECKBOX) {
+                  update_checked_state(nsmenuitem, aitem->flags & ALLEGRO_MENU_ITEM_CHECKED);
+               }
+               [nsmenuitem setEnabled:((aitem->flags & ALLEGRO_MENU_ITEM_DISABLED) ? FALSE : TRUE)];
+               _al_update_menu_item_at(aitem, -1);
+            }
+         }
       }
    }
 }
@@ -726,9 +767,9 @@ static void destroy_menu_hierarchy(ALLEGRO_MENU *amenu)
          int j;
          for (j = 0; j < (int)mt->items._size; j++) {
             ALLEGRO_MENU_ITEM *aitem = *(ALLEGRO_MENU_ITEM **)_al_vector_ref(&mt->items, i);
-	    al_free(aitem->extra1);
-	    aitem->extra1 = NULL;
-	 }
+            al_free(aitem->extra1);
+            aitem->extra1 = NULL;
+         }
       }
       al_free(mt);
       m->extra1 = NULL;
@@ -740,8 +781,7 @@ static NSMenu *show_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu, bool pop
 {
    int i;
    NSMenu *main_menu;
-   int mainidx = 0;
-   
+
    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 
    if (!popup) {
@@ -749,19 +789,19 @@ static NSMenu *show_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu, bool pop
          al_lock_mutex(mutex);
          for (i = 0; i < (int)displays._size; i++) {
             DISPLAY_INFO *d = *(DISPLAY_INFO **)_al_vector_ref(&displays, i);
-   	 if (d->display == display) {
-            al_unregister_event_source((ALLEGRO_EVENT_QUEUE *)queue, (ALLEGRO_EVENT_SOURCE *)display);
-   	    _al_vector_find_and_delete(&displays, &d);
-   	    /* Free whole hierarchy */
+            if (d->display == display) {
+               al_unregister_event_source((ALLEGRO_EVENT_QUEUE *)queue, (ALLEGRO_EVENT_SOURCE *)display);
+                  _al_vector_find_and_delete(&displays, &d);
+                  /* Free whole hierarchy */
                destroy_menu_hierarchy(d->toplevel_menu);
-   	    al_free(d);
-   	    break;
-   	 }
+                  al_free(d);
+                  break;
+            }
          }
          al_unlock_mutex(mutex);
          return NULL;
       }
-   
+
       DISPLAY_INFO *d = al_calloc(1, sizeof(DISPLAY_INFO));
       d->display = display;
       d->toplevel_menu = amenu;
@@ -770,64 +810,20 @@ static NSMenu *show_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu, bool pop
       *ptr = d;
       al_register_event_source((ALLEGRO_EVENT_QUEUE *)queue, (ALLEGRO_EVENT_SOURCE *)display);
       al_unlock_mutex(mutex);
-      
-      main_menu = init_apple_menu();
-   
-      [NSApp activateIgnoringOtherApps:YES];
-   
-      for (mainidx = 0; mainidx < (int)menus._size; mainidx++) {
-         ALLEGRO_MENU *m = *(ALLEGRO_MENU **)_al_vector_ref(&menus, mainidx);
-         if (m == amenu) {
-            break;
-         }
-      }
    }
    else {
-      main_menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @""];
-      [main_menu setAutoenablesItems:NO];
    }
 
-   for (i = 0; i < (int)amenu->items._size; i++) {
-      ALLEGRO_MENU_ITEM *it = *(ALLEGRO_MENU_ITEM **)_al_vector_ref(&amenu->items, i);
-      char buf[200];
-      char key[5];
-      int amp_pos = get_accelerator(it->caption, buf);
-      if (popup) {
-         if (amp_pos == -1) {
-            key[0] = 0;
-         }
-         else {
-            *key = al_ustr_get(it->caption, amp_pos+1);
-         }
-      }
-      NSMenuItem *temp_item;
-      NSMenu *menu;
-      if (!popup) {
-         menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: [[NSString alloc] initWithUTF8String:buf]];
-         [menu setAutoenablesItems:NO];
-         temp_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
-              initWithTitle: @""
-              action: NULL
-              keyEquivalent: @""];
-         [main_menu addItem:temp_item];
-         [main_menu setSubmenu:menu forItem:temp_item];
-      }
-      if (popup) {
-         MenuDelegate *menu_delegate = [[MenuDelegate alloc] init];
-         NSMenuItem *menu_item = [menu_delegate build_menu_item:it];
-         menu_delegate->item = it;
-         [main_menu addItem:menu_item];
-         if (it->flags & ALLEGRO_MENU_ITEM_CHECKBOX) {
-            update_checked_state(menu_item, it->flags & ALLEGRO_MENU_ITEM_CHECKED);
-         }
-         [menu_item setEnabled:((it->flags & ALLEGRO_MENU_ITEM_DISABLED) ? FALSE : TRUE)];
-      }
-      else {
-         ALLEGRO_MENU *m = *(ALLEGRO_MENU **)_al_vector_ref(&menus, mainidx+1+i);
-         add_items(menu, display, amenu, m->extra1);
-      }
+   if(popup) {
+      main_menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @""];
+      [main_menu setAutoenablesItems:NO];
+      [NSApp activateIgnoringOtherApps:YES];
    }
-  
+   else {
+      main_menu = init_apple_menu();
+   }
+   add_items(main_menu, display, amenu, amenu, popup);
+
    [pool drain];
 
    return main_menu;
@@ -844,7 +840,7 @@ bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu)
    [NSApp setMainMenu: main_menu];
 
    return true;
-}  
+}
 
 bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 {

@@ -615,7 +615,6 @@ ALLEGRO_AUDIO_STREAM *_al_load_flac_audio_stream_f(ALLEGRO_FILE* f,
       stream->extra = ff;
       ff->loop_start = 0;
       ff->loop_end = ff->total_samples;
-      stream->feed_thread = al_create_thread(_al_kcm_feed_stream, stream);
       stream->feeder = flac_stream_update;
       stream->unload_feeder = flac_stream_close;
       stream->rewind_feeder = flac_stream_rewind;
@@ -623,7 +622,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_flac_audio_stream_f(ALLEGRO_FILE* f,
       stream->get_feeder_position = flac_stream_get_position;
       stream->get_feeder_length = flac_stream_get_length;
       stream->set_feeder_loop = flac_stream_set_loop;
-      al_start_thread(stream->feed_thread);
+      _al_acodec_start_feed_thread(stream);
    }
    else {
       al_fclose(ff->fh);

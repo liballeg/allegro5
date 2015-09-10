@@ -55,13 +55,13 @@ static void video_display(ALLEGRO_VIDEO *video)
    /* Show some video information. */
    al_draw_filled_rounded_rectangle(4, 4,
       al_get_display_width(screen) - 4, 4 + 14 * 3, 8, 8, bc);
-   p = al_get_video_position(video, 0);
+   p = al_get_video_position(video, ALLEGRO_VIDEO_POSITION_ACTUAL);
    al_draw_textf(font, tc, 8, 8 , 0, "%s", filename);
    al_draw_textf(font, tc, 8, 8 + 13, 0, "%3d:%02d (V: %+5.2f A: %+5.2f)",
       (int)(p / 60),
       ((int)p) % 60,
-      al_get_video_position(video, 1) - p,
-      al_get_video_position(video, 2) - p);
+      al_get_video_position(video, ALLEGRO_VIDEO_POSITION_VIDEO_DECODE) - p,
+      al_get_video_position(video, ALLEGRO_VIDEO_POSITION_AUDIO_DECODE) - p);
    al_draw_textf(font, tc, 8, 8 + 13 * 2, 0,
       "video rate %.02f (%dx%d, aspect %.1f) audio rate %.0f",
          al_get_video_fps(video),
@@ -94,6 +94,9 @@ int main(int argc, char *argv[])
       goto done;
    }
 
+   if (!al_init_video_addon()) {
+      abort_example("Could not initialize the video addon.\n");
+   }
    al_init_font_addon();
    al_install_keyboard();
 
@@ -180,7 +183,7 @@ int main(int argc, char *argv[])
                   goto do_seek;
 
                do_seek:
-                  al_seek_video(video, al_get_video_position(video, 0) + incr);
+                  al_seek_video(video, al_get_video_position(video, ALLEGRO_VIDEO_POSITION_ACTUAL) + incr);
                   break;
 
                case ALLEGRO_KEY_F:

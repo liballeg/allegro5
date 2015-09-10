@@ -198,7 +198,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
 
 
 HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *display,
-	int x1, int y1, int width, int height, int refresh_rate, int flags)
+    int x1, int y1, int width, int height, int refresh_rate, int flags)
 {
    HWND my_window;
    DWORD style;
@@ -206,8 +206,10 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    DEVMODE mode;
    LONG temp;
 
-   (void)display;
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
    (void)flags;
+
+   _al_vector_init(&win_display->msg_callbacks, sizeof(ALLEGRO_DISPLAY_WIN_CALLBACK));
 
    style = WS_VISIBLE;
    ex_style = WS_EX_TOPMOST;
@@ -237,7 +239,7 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    mode.dmPosition.x = x1;
    mode.dmPosition.y = y1;
    mode.dmFields = DM_BITSPERPEL|DM_PELSWIDTH|DM_PELSHEIGHT|DM_DISPLAYFLAGS|
-   	DM_DISPLAYFREQUENCY|DM_POSITION;
+    DM_DISPLAYFREQUENCY|DM_POSITION;
 
    ChangeDisplaySettingsEx(devname, &mode, NULL, 0, NULL/*CDS_FULLSCREEN*/);
 
@@ -421,9 +423,10 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    }
 
    for (i = 0; i < _al_vector_size(&win_display->msg_callbacks); ++i) {
+      LRESULT result = TRUE;
       ALLEGRO_DISPLAY_WIN_CALLBACK *ptr = _al_vector_ref(&win_display->msg_callbacks, i);
-      if ((ptr->proc)(d, message, wParam, lParam, ptr->userdata))
-         return TRUE;
+      if ((ptr->proc)(d, message, wParam, lParam, &result, ptr->userdata))
+         return result;
    }
 
    switch (message) {
@@ -484,7 +487,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 
           if (rm->usButtonFlags & RI_MOUSE_WHEEL) {
              SHORT z = (SHORT)rm->usButtonData;
-             _al_win_mouse_handle_wheel(z / WHEEL_DELTA, false, win_display);
+             _al_win_mouse_handle_wheel(z, false, win_display);
           }
        }
 
@@ -543,7 +546,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       case WM_MOUSEWHEEL: {
          if (accept_mouse_event()) {
             int d = GET_WHEEL_DELTA_WPARAM(wParam);
-            _al_win_mouse_handle_wheel(d / WHEEL_DELTA, false, win_display);
+            _al_win_mouse_handle_wheel(d, false, win_display);
             return TRUE;
          }
          break;
@@ -551,7 +554,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       case WM_MOUSEHWHEEL: {
          if (accept_mouse_event()) {
             int d = GET_WHEEL_DELTA_WPARAM(wParam);
-            _al_win_mouse_handle_hwheel(d / WHEEL_DELTA, false, win_display);
+            _al_win_mouse_handle_hwheel(d, false, win_display);
             return TRUE;
          }
          break;
@@ -805,8 +808,6 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                SetWindowPos(win_display->window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
                SetWindowPos(GetForegroundWindow(), HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
             }
-            // Show the taskbar in case we hid it
-            SetWindowPos(FindWindow(L"Shell_traywnd", L""), 0, 0, 0, 0, 0, SWP_SHOWWINDOW);
             if (d->flags & ALLEGRO_FULLSCREEN) {
                d->vt->switch_out(d);
             }
@@ -876,6 +877,10 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             if (!resize_postponed) {
                resize_postponed = true;
                _beginthread(postpone_thread_proc, 0, (void *)d);
+            }
+            d->flags &= ~ALLEGRO_MAXIMIZED;
+            if (wParam == SIZE_MAXIMIZED) {
+                d->flags |= ALLEGRO_MAXIMIZED;
             }
          }
          return 0;
@@ -1166,16 +1171,6 @@ bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
          if (onoff) {
             // Re-set the TOPMOST flag and move to position
             SetWindowPos(win_display->window, HWND_TOPMOST, mi.x1, mi.y1, 0, 0, SWP_NOSIZE);
-
-            // Hide the taskbar if fullscreening on primary monitor
-            if (win_display->adapter == 0) {
-               SetWindowPos(
-                  FindWindow(L"Shell_traywnd", L""),
-                  0,
-                  0, 0,
-                  0, 0,
-                  SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
-            }
          }
          else {
             int pos_x = 0;
@@ -1186,9 +1181,6 @@ bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
             // Unset the topmost flag
             SetWindowPos(win_display->window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
-            // Show the taskbar
-            SetWindowPos(
-               FindWindow(L"Shell_traywnd", L""), 0, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
             // Center the window
             _al_win_get_window_center(win_display, display->w, display->h, &pos_x, &pos_y);
             GetWindowInfo(win_display->window, &wi);
@@ -1205,6 +1197,16 @@ bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
          SetWindowPos(win_display->window, 0, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
 
          ASSERT(!!(display->flags & ALLEGRO_FULLSCREEN_WINDOW) == onoff);
+         return true;
+      case ALLEGRO_MAXIMIZED:
+         if ((!!(display->flags & ALLEGRO_MAXIMIZED)) == onoff)
+            return true;
+         if (onoff) {
+            ShowWindow(win_display->window, SW_SHOWMAXIMIZED);
+         }
+         else {
+            ShowWindow(win_display->window, SW_RESTORE);
+         }
          return true;
    }
    return false;
@@ -1232,6 +1234,18 @@ bool _al_win_set_window_constraints(ALLEGRO_DISPLAY *display,
    al_resize_display(display, display->w, display->h);
 
    return true;
+}
+
+void _al_win_post_create_window(ALLEGRO_DISPLAY *display)
+{
+   /* Ideally the d3d/wgl window creation would already create the
+    * window maximized - but that code looks too messy to me to touch
+    * right now.
+    */
+   if (display->flags & ALLEGRO_MAXIMIZED) {
+      display->flags &= ~ALLEGRO_MAXIMIZED;
+      al_set_display_flag(display, ALLEGRO_MAXIMIZED, true);
+   }
 }
 
 bool _al_win_get_window_constraints(ALLEGRO_DISPLAY *display,
@@ -1302,7 +1316,8 @@ int _al_win_determine_adapter(void)
 /* Function: al_win_add_window_callback
  */
 bool al_win_add_window_callback(ALLEGRO_DISPLAY *display,
-   bool (*callback)(ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM, void *), void *userdata)
+   bool (*callback)(ALLEGRO_DISPLAY *display, UINT message, WPARAM wparam,
+   LPARAM lparam, LRESULT *result, void *userdata), void *userdata)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
    ALLEGRO_DISPLAY_WIN_CALLBACK *ptr;
@@ -1330,7 +1345,8 @@ bool al_win_add_window_callback(ALLEGRO_DISPLAY *display,
 /* Function: al_win_remove_window_callback
  */
 bool al_win_remove_window_callback(ALLEGRO_DISPLAY *display,
-   bool (*callback)(ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM, void *), void *userdata)
+   bool (*callback)(ALLEGRO_DISPLAY *display, UINT message, WPARAM wparam,
+   LPARAM lparam, LRESULT *result, void *userdata), void *userdata)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
    

@@ -34,12 +34,13 @@ typedef enum ALLEGRO_STATE_FLAGS
     ALLEGRO_STATE_BLENDER                = 0x0010,
     ALLEGRO_STATE_NEW_FILE_INTERFACE     = 0x0020,
     ALLEGRO_STATE_TRANSFORM              = 0x0040,
+    ALLEGRO_STATE_PROJECTION_TRANSFORM   = 0x0100,
 
     ALLEGRO_STATE_BITMAP                 = ALLEGRO_STATE_TARGET_BITMAP +\
                                            ALLEGRO_STATE_NEW_BITMAP_PARAMETERS,
 
     ALLEGRO_STATE_ALL                    = 0xffff
-    
+
 } ALLEGRO_STATE_FLAGS;
 
 

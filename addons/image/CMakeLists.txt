@@ -1,6 +1,6 @@
 option(WANT_NATIVE_IMAGE_LOADER "Enable the native platform image loader (if available)" on)
 
-set(IMAGE_SOURCES bmp.c iio.c pcx.c tga.c)
+set(IMAGE_SOURCES bmp.c iio.c pcx.c tga.c dds.c)
 set(IMAGE_INCLUDE_FILES allegro5/allegro_image.h)
 
 set_our_header_properties(${IMAGE_INCLUDE_FILES})
@@ -140,12 +140,11 @@ configure_file(
     )
 
 add_our_addon_library(allegro_image
+    AllegroImage-${ALLEGRO_SOVERSION}
     "${IMAGE_SOURCES};${IMAGE_INCLUDE_FILES}"
     "-DALLEGRO_IIO_SRC"
     "${ALLEGRO_LINK_WITH};${IMAGE_LIBRARIES}"
     )
-
-set_our_framework_properties(allegro_image AllegroImage-${ALLEGRO_SOVERSION})
 
 install_our_headers(${IMAGE_INCLUDE_FILES})
 

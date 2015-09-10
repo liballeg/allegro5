@@ -113,4 +113,5 @@ See also: [al_get_timer_speed]
 
 ## API: al_get_timer_event_source
 
-Retrieve the associated event source.
+Retrieve the associated event source. Timers will generate events of
+type [ALLEGRO_EVENT_TIMER].

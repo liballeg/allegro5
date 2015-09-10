@@ -105,7 +105,6 @@ static void xglx_shutdown_system(void)
    while (_al_vector_size(&s->displays) > 0) {
       ALLEGRO_DISPLAY **dptr = _al_vector_ref(&s->displays, 0);
       ALLEGRO_DISPLAY *d = *dptr;
-      _al_destroy_display_bitmaps(d);
       al_destroy_display(d);
    }
    _al_vector_free(&s->displays);
@@ -140,8 +139,8 @@ static ALLEGRO_DISPLAY_INTERFACE *xglx_get_display_driver(void)
     * to do it, but the config file is not available until after the system driver
     * is initialised.
     */
-   if (system->system.config && !system->toggle_mouse_grab_keycode) {
-      const char *binding = al_get_config_value(system->system.config,
+   if (!system->toggle_mouse_grab_keycode) {
+      const char *binding = al_get_config_value(al_get_system_config(),
          "keyboard", "toggle_mouse_grab_key");
       if (binding) {
          system->toggle_mouse_grab_keycode = _al_parse_key_binding(binding,
@@ -175,11 +174,12 @@ static ALLEGRO_JOYSTICK_DRIVER *xglx_get_joystick_driver(void)
 
 static ALLEGRO_HAPTIC_DRIVER *xglx_get_haptic_driver(void)
 {
-#ifdef ALLEGRO_HAVE_LINUX_INPUT_H
-   return &_al_hapdrv_linux;
-#else
-   return NULL;
-#endif
+   return _al_haptic_driver_list[0].driver;
+}
+
+static ALLEGRO_TOUCH_INPUT_DRIVER *xglx_get_touch_driver(void)
+{
+   return _al_touch_input_driver_list[0].driver;
 }
 
 static int xglx_get_num_video_adapters(void)
@@ -249,6 +249,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
    xglx_vt->get_mouse_driver = xglx_get_mouse_driver;
    xglx_vt->get_joystick_driver = xglx_get_joystick_driver;
    xglx_vt->get_haptic_driver = xglx_get_haptic_driver;
+   xglx_vt->get_touch_input_driver = xglx_get_touch_driver;
    xglx_vt->get_num_display_modes = xglx_get_num_display_modes;
    xglx_vt->get_display_mode = xglx_get_display_mode;
    xglx_vt->shutdown_system = xglx_shutdown_system;

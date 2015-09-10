@@ -7,6 +7,7 @@ set(ALLEGRO_SRC_FILES
     src/bitmap_pixel.c
     src/bitmap_type.c
     src/blenders.c
+    src/clipboard.c
     src/config.c
     src/convert.c
     src/debug.c
@@ -53,8 +54,15 @@ set(ALLEGRO_SRC_FILES
     )
 
 set(ALLEGRO_SRC_WIN_FILES
+    src/win/wclipboard.c
+    src/win/whapall.c
+    src/win/whaptic.c
+    src/win/whaptic.cpp
+    src/win/whapxi.c
+    src/win/wjoyall.c
     src/win/wjoydrv.c
     src/win/wjoydxnu.cpp
+    src/win/wjoyxi.c
     src/win/wkeyboard.c
     src/win/wmcursor.c
     src/win/wmouse.c
@@ -73,6 +81,7 @@ set(ALLEGRO_SRC_D3D_FILES
     src/win/d3d_display_formats.cpp
     src/win/d3d_render_state.cpp
     src/win/d3d_shader.cpp
+    src/win/d3d_d3dx9.cpp
     )
 
 set(ALLEGRO_SRC_OPENGL_FILES
@@ -95,6 +104,7 @@ set(ALLEGRO_SRC_UNIX_FILES
     src/unix/udrvlist.c
     src/unix/ufdwatch.c
     src/unix/ugfxdrv.c
+    src/unix/uhapdrv.c
     src/unix/ujoydrv.c
     src/unix/ukeybd.c
     src/unix/umouse.c
@@ -104,6 +114,7 @@ set(ALLEGRO_SRC_UNIX_FILES
     )
 
 set(ALLEGRO_SRC_X_FILES
+    src/x/xclipboard.c
     src/x/xcursor.c
     src/x/xdisplay.c
     src/x/xevents.c
@@ -113,6 +124,7 @@ set(ALLEGRO_SRC_X_FILES
     src/x/xmousenu.c
     src/x/xrandr.c
     src/x/xsystem.c
+    src/x/xtouch.c
     src/x/xwindow.c
     src/linux/lhaptic.c
     src/linux/ljoynu.c
@@ -125,6 +137,7 @@ set(ALLEGRO_SRC_MACOSX_FILES
     src/macosx/keybd.m
     src/macosx/qzmouse.m
     src/macosx/system.m
+    src/macosx/osxclipboard.m
     src/macosx/osxgl.m
     src/macosx/osx_app_delegate.m
     src/unix/utime.c
@@ -135,6 +148,7 @@ set(ALLEGRO_SRC_IPHONE_FILES
     src/iphone/allegroAppDelegate.m
     src/iphone/EAGLView.m
     src/iphone/ViewController.m
+    src/iphone/iphone_clipboard.m
     src/iphone/iphone_display.m
     src/iphone/iphone_joystick.m
     src/iphone/iphone_keyboard.c
@@ -152,6 +166,7 @@ set(ALLEGRO_SRC_ANDROID_FILES
    src/unix/utime.c
    src/unix/uxthread.c
    src/android/android_apk_file.c
+   src/android/android_clipboard.c
    src/android/android_display.c
    src/android/android_image.c
    src/android/android_input_stream.c
@@ -188,6 +203,8 @@ set(ALLEGRO_SRC_SDL_FILES
    src/sdl/sdl_display.c
    src/sdl/sdl_keyboard.c
    src/sdl/sdl_mouse.c
+   src/sdl/sdl_joystick.c
+   src/sdl/sdl_event_hack.c
    )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_FILES
@@ -282,6 +299,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     include/allegro5/platform/alwin.h
     include/allegro5/platform/astdbool.h
     include/allegro5/platform/astdint.h
+    include/allegro5/platform/allegro_sdl_config.h
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_WINDOWS_FILES
@@ -302,4 +320,8 @@ set(ALLEGRO_INCLUDE_ALLEGRO_ANDROID_FILES
 
 set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED
     include/allegro5/platform/alplatf.h
+    )
+
+set(ALLEGRO_INCLUDE_ALLEGRO_X_FILES
+    include/allegro5/allegro_x.h
     )

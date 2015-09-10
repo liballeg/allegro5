@@ -40,26 +40,6 @@ struct ALLEGRO_SHADER_HLSL_S
    LPD3DXEFFECT hlsl_shader;
 };
 
-
-// DXSDK redistributable install d3dx9_xx.dll from version
-// 24 to 43. It's unlikely that any new version will come,
-// since HLSL compiler was moved to D3DCompiler_xx.dll and
-// most recent versions of this utility library are bound
-// to DirectX 11.
-//
-// However, if any new version appears anyway, this range
-// should be changed.
-#define D3DX9_MIN_VERSION   24
-#define D3DX9_MAX_VERSION   43
-
-typedef HRESULT (WINAPI *D3DXCREATEEFFECTPROC)(LPDIRECT3DDEVICE9, LPCVOID, UINT,
-   CONST D3DXMACRO*, LPD3DXINCLUDE, DWORD, LPD3DXEFFECTPOOL, LPD3DXEFFECT*,
-   LPD3DXBUFFER*);
-
-static HMODULE _imp_d3dx9_module = 0;
-static D3DXCREATEEFFECTPROC _imp_D3DXCreateEffect = NULL;
-
-
 static const char *null_source = "";
 
 static const char *technique_source_vertex =
@@ -91,81 +71,6 @@ static const char *technique_source_both =
    "      PixelShader = compile ps_2_0 ps_main();\n"
    "   }\n"
    "}\n";
-
-extern "C"
-void _al_unload_d3dx9_module()
-{
-   FreeLibrary(_imp_d3dx9_module);
-   _imp_d3dx9_module = NULL;
-}
-
-static bool _imp_load_d3dx9_module_version(int version)
-{
-   char module_name[16];
-
-   // Sanity check
-   // Comented out, to not reject choice of the user if any new version
-   // appears. See force_d3dx9_version entry in config file.
-   /*
-   if (version < 24 || version > 43) {
-      ALLEGRO_ERROR("Error: Requested version (%d) of D3DX9 library is invalid.\n", version);
-      return false;
-   }
-   */
-
-   sprintf(module_name, "d3dx9_%d.dll", version);
-
-   _imp_d3dx9_module = _al_win_safe_load_library(module_name);
-   if (NULL == _imp_d3dx9_module)
-      return false;
-
-   _imp_D3DXCreateEffect = (D3DXCREATEEFFECTPROC)GetProcAddress(_imp_d3dx9_module, "D3DXCreateEffect");
-   if (NULL == _imp_D3DXCreateEffect) {
-      FreeLibrary(_imp_d3dx9_module);
-      _imp_d3dx9_module = NULL;
-      return false;
-   }
-
-   ALLEGRO_INFO("Module \"%s\" loaded.\n", module_name);
-
-   return true;
-}
-
-extern "C"
-bool _al_load_d3dx9_module()
-{
-   ALLEGRO_CONFIG *cfg;
-   long version;
-
-   if (_imp_d3dx9_module) {
-      return true;
-   }
-
-   cfg = al_get_system_config();
-   if (cfg) {
-      char const *value = al_get_config_value(cfg,
-         "shader", "force_d3dx9_version");
-      if (value) {
-         errno = 0;
-         version = strtol(value, NULL, 10);
-         if (errno) {
-            ALLEGRO_ERROR("Failed to override D3DX9 version. \"%s\" is not valid integer number.", value);
-            return false;
-         }
-         else
-            return _imp_load_d3dx9_module_version((int)version);
-      }
-   }
-
-   // Iterate over all valid versions.
-   for (version = D3DX9_MAX_VERSION; version >= D3DX9_MIN_VERSION; version--)
-      if (_imp_load_d3dx9_module_version((int)version))
-         return true;
-
-   ALLEGRO_ERROR("Failed to load D3DX9 library. Library is not installed.");
-
-   return false;
-}
 
 
 static bool hlsl_attach_shader_source(ALLEGRO_SHADER *shader,
@@ -236,7 +141,7 @@ ALLEGRO_SHADER *_al_create_shader_hlsl(ALLEGRO_SHADER_PLATFORM platform)
 {
    ALLEGRO_SHADER_HLSL_S *shader;
 
-   if (NULL == _imp_D3DXCreateEffect) {
+   if (NULL == _al_imp_D3DXCreateEffect) {
       ALLEGRO_ERROR("D3DXCreateEffect unavailable\n");
       return NULL;
    }
@@ -334,7 +239,7 @@ static bool hlsl_attach_shader_source(ALLEGRO_SHADER *shader,
    full_source = al_ustr_newf("%s\n#line 1\n%s\n%s\n",
       vertex_source, pixel_source, technique_source);
 
-   DWORD ok = _imp_D3DXCreateEffect(
+   DWORD ok = _al_imp_D3DXCreateEffect(
       al_get_d3d_device(display),
       al_cstr(full_source),
       al_ustr_size(full_source),
@@ -380,7 +285,6 @@ static bool hlsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
    LPD3DXEFFECT effect = hlsl_shader->hlsl_shader;
    ALLEGRO_DISPLAY_D3D *d3d_disp;
-   ALLEGRO_TRANSFORM t;
 
    if (!(display->flags & ALLEGRO_DIRECT3D)) {
       return false;
@@ -388,9 +292,7 @@ static bool hlsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
    d3d_disp = (ALLEGRO_DISPLAY_D3D *)display;
 
    if (set_projview_matrix_from_display) {
-      al_copy_transform(&t, &display->view_transform);
-      al_compose_transform(&t, &display->proj_transform);
-      if (!_al_hlsl_set_projview_matrix(effect, &t)) {
+      if (!_al_hlsl_set_projview_matrix(effect, &display->projview_transform)) {
          d3d_disp->effect = NULL;
          return false;
       }
@@ -441,12 +343,13 @@ static bool hlsl_set_shader_sampler(ALLEGRO_SHADER *shader,
 
    (void)unit;
 
-   if (bitmap->flags & ALLEGRO_MEMORY_BITMAP)
+   if (al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP)
       return false;
 
    LPDIRECT3DTEXTURE9 vid_texture = al_get_d3d_video_texture(bitmap);
    result = hlsl_shader->hlsl_shader->SetTexture(name, vid_texture);
-   ((ALLEGRO_DISPLAY_D3D *)bitmap->display)->device->SetTexture(0, vid_texture);
+   ((ALLEGRO_DISPLAY_D3D *)_al_get_bitmap_display(bitmap))
+      ->device->SetTexture(0, vid_texture);
 
    return result == D3D_OK;
 }
@@ -526,20 +429,6 @@ static bool hlsl_set_shader_bool(ALLEGRO_SHADER *shader,
 bool _al_hlsl_set_projview_matrix(
    LPD3DXEFFECT effect, const ALLEGRO_TRANSFORM *t)
 {
-   ALLEGRO_TRANSFORM tmp;
-   /* Shift by half a pixel to make the output match the OpenGL output. */
-   ALLEGRO_BITMAP* b = al_get_target_bitmap();
-   if (b) {
-      if (al_is_sub_bitmap(b)) {
-         b = al_get_parent_bitmap(b);
-      }
-      ALLEGRO_BITMAP_EXTRA_D3D *e = (ALLEGRO_BITMAP_EXTRA_D3D*)b->extra;
-      if (e) {
-         al_copy_transform(&tmp, t);
-         al_translate_transform(&tmp, -1.0 / e->texture_w, 1.0 / e->texture_h);
-         t = &tmp;
-      }
-   }
    HRESULT result = effect->SetMatrix(ALLEGRO_SHADER_VAR_PROJVIEW_MATRIX,
       (LPD3DXMATRIX)t->m);
    return result == D3D_OK;

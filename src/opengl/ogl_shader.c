@@ -30,6 +30,8 @@
 
 ALLEGRO_DEBUG_CHANNEL("shader")
 
+static _AL_VECTOR shaders;
+static ALLEGRO_MUTEX *shaders_mutex;
 
 typedef struct ALLEGRO_SHADER_GLSL_S ALLEGRO_SHADER_GLSL_S;
 
@@ -69,6 +71,13 @@ ALLEGRO_SHADER *_al_create_shader_glsl(ALLEGRO_SHADER_PLATFORM platform)
    shader->shader.platform = platform;
    shader->shader.vt = &shader_glsl_vt;
    _al_vector_init(&shader->shader.bitmaps, sizeof(ALLEGRO_BITMAP *));
+
+   al_lock_mutex(shaders_mutex);
+   {
+      ALLEGRO_SHADER **back = (ALLEGRO_SHADER **)_al_vector_alloc_back(&shaders);
+      *back = (ALLEGRO_SHADER *)shader;
+   }
+   al_unlock_mutex(shaders_mutex);
 
    return (ALLEGRO_SHADER *)shader;
 }
@@ -217,11 +226,8 @@ static bool glsl_use_shader(ALLEGRO_SHADER *shader, ALLEGRO_DISPLAY *display,
     * itself.
     */
    if (set_projview_matrix_from_display) {
-      ALLEGRO_TRANSFORM t;
-      al_copy_transform(&t, &display->view_transform);
-      al_compose_transform(&t, &display->proj_transform);
       _al_glsl_set_projview_matrix(
-         display->ogl_extras->varlocs.projview_matrix_loc, &t);
+         display->ogl_extras->varlocs.projview_matrix_loc, &display->projview_transform);
    }
 
    return true;
@@ -238,6 +244,10 @@ static void glsl_destroy_shader(ALLEGRO_SHADER *shader)
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
 
+   al_lock_mutex(shaders_mutex);
+   _al_vector_find_and_delete(&shaders, &shader);
+   al_unlock_mutex(shaders_mutex);
+
    glDeleteShader(gl_shader->vertex_shader);
    glDeleteShader(gl_shader->pixel_shader);
    glDeleteProgram(gl_shader->program_object);
@@ -251,7 +261,7 @@ static bool glsl_set_shader_sampler(ALLEGRO_SHADER *shader,
    GLint handle;
    GLuint texture;
 
-   if (bitmap && bitmap->flags & ALLEGRO_MEMORY_BITMAP) {
+   if (bitmap && al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP) {
       ALLEGRO_WARN("Cannot use memory bitmap for sampler\n");
       return false;
    }
@@ -452,6 +462,38 @@ bool _al_glsl_set_projview_matrix(GLint projview_matrix_loc,
    }
 
    return false;
+}
+
+void _al_glsl_init_shaders(void)
+{
+   _al_vector_init(&shaders, sizeof(ALLEGRO_SHADER *));
+   shaders_mutex = al_create_mutex();
+}
+
+void _al_glsl_shutdown_shaders(void)
+{
+   _al_vector_free(&shaders);
+   al_destroy_mutex(shaders_mutex);
+   shaders_mutex = NULL;
+}
+
+/* Look through all the bitmaps associated with all the shaders and c;ear their
+ * shader field */
+void _al_glsl_unuse_shaders(void)
+{
+   unsigned i;
+   al_lock_mutex(shaders_mutex);
+   for (i = 0; i < _al_vector_size(&shaders); i++) {
+      unsigned j;
+      ALLEGRO_SHADER *shader = *((ALLEGRO_SHADER **)_al_vector_ref(&shaders, i));
+
+      for (j = 0; j < _al_vector_size(&shader->bitmaps); j++) {
+         ALLEGRO_BITMAP *bitmap =
+            *((ALLEGRO_BITMAP **)_al_vector_ref(&shader->bitmaps, j));
+         _al_set_bitmap_shader_field(bitmap, NULL);
+      }
+   }
+   al_unlock_mutex(shaders_mutex);
 }
 
 #endif

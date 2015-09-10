@@ -70,6 +70,7 @@ set(DATA_TTF
 
 set(DATA_AUDIO
     welcome.wav
+    welcome.voc
     )
 
 set(DATA_SHADERS
@@ -100,6 +101,7 @@ example(ex_monitorinfo)
 example(ex_path)
 example(ex_path_test)
 example(ex_user_events)
+example(ex_inject_events)
 
 if(NOT MSVC)
     # UTF-8 strings are problematic under MSVC.
@@ -114,7 +116,9 @@ example(ex_blend_bench ${IMAGE} ${PRIM} ${DATA_IMAGES})
 example(ex_blend_test ${PRIM})
 example(ex_blit ${FONT} ${IMAGE} ${COLOR} ${DATA_IMAGES})
 example(ex_clip ${FONT} ${COLOR})
+example(ex_clipboard ${IMAGE} ${FONT} ${DATA_IMAGES})
 example(ex_color ex_color.cpp ${NIHGUI} ${TTF} ${COLOR} DATA ${DATA_TTF})
+example(ex_compressed ${IMAGE} ${FONT} ${DATA_IMAGES})
 example(ex_convert CONSOLE ${IMAGE})
 example(ex_depth_mask ${IMAGE} ${TTF} ${DATA_IMAGES} ${DATA_TTF})
 example(ex_disable_screensaver ${FONT})
@@ -154,8 +158,9 @@ example(ex_polygon ${FONT} ${PRIM})
 example(ex_premulalpha ${FONT})
 example(ex_prim ${FONT} ${IMAGE} ${PRIM} ${DATA_IMAGES})
 example(ex_prim_shader ${PRIM} DATA ${DATA_SHADERS})
+example(ex_reparent ${IMAGE} ${PRIM} ${DATA_IMAGES})
 example(ex_resize ${PRIM})
-example(ex_resize2 ${IMAGE})
+example(ex_resize2 ${IMAGE} ${FONT})
 example(ex_rotate ${IMAGE} ${DATA_IMAGES})
 example(ex_scale ${IMAGE} ${DATA_IMAGES})
 example(ex_shader ex_shader.cpp ${IMAGE} ${DATA_IMAGES} ${DATA_SHADERS})
@@ -173,6 +178,7 @@ example(ex_vsync ${FONT} ${IMAGE})
 example(ex_warp_mouse ${FONT} ${PRIM})
 example(ex_windows ${FONT} ${IMAGE})
 example(ex_window_constraints ${FONT} ${IMAGE})
+example(ex_window_title ${IMAGE} ${FONT} ${DATA_IMAGES})
 example(ex_winfull)
 example(ex_video ${AUDIO} ${FONT} ${PRIM} ${VIDEO})
 
@@ -192,8 +198,11 @@ endif()
 
 example(ex_font ${FONT} ${IMAGE} ${DATA_IMAGES})
 example(ex_font_justify ex_font_justify.cpp ${NIHGUI} ${IMAGE} ${TTF} ${DATA_IMAGES} ${DATA_TTF})
+example(ex_font_multiline ex_font_multiline.cpp ${NIHGUI} ${IMAGE} ${TTF} ${COLOR} ${DATA_IMAGES} ${DATA_TTF})
 example(ex_logo ${FONT} ${TTF} ${IMAGE} ${PRIM} DATA ${DATA_TTF})
 example(ex_projection ${TTF} ${IMAGE} ${DATA_IMAGES} ${DATA_TTF})
+example(ex_projection2 ${PRIM} ${FONT} ${IMAGE} ${DATA_IMAGES})
+example(ex_camera ${FONT} ${COLOR} ${PRIM})
 example(ex_ttf ${TTF} ${PRIM} DATA ${DATA_TTF} ex_ttf.ini)
 
 example(ex_acodec CONSOLE ${AUDIO} ${ACODEC})

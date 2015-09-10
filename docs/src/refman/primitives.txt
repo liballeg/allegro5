@@ -115,7 +115,7 @@ semi-transparent pixels. The advantages of multisampling is that slanted shapes
 will look smoother because they will not have jagged edges. A disadvantage of
 multisampling is that it may make vertical and horizontal edges blurry. While
 the exact rules for multisampling are unspecified, and may vary from GPU to 
-GPU it is usually safe to assume that as long as a pixel is either completely
+GPU, it is usually safe to assume that as long as a pixel is either completely
 covered by a shape or completely not covered, then the shape edges will be 
 sharp. The offsets used in the second diagram were chosen so that this is the
 case: if you use those offsets, your shapes (if they are oriented the same way
@@ -264,8 +264,8 @@ assert((int)points[(num_points - 1) * 2 + 1][1] == 9);
 * stride - Distance (in bytes) between starts of successive pairs of points
 * cx, cy - Center of the arc
 * rx, ry - Radii of the arc
-* start_theta - The initial angle from which the arc is calculated
-* delta_theta - Angular span of the arc (pass a negative number to switch
+* start_theta - The initial angle from which the arc is calculated in radians
+* delta_theta - Angular span of the arc in radians (pass a negative number to switch
  direction)
 * thickness - Thickness of the arc
 * num_points - The number of points to calculate
@@ -281,8 +281,8 @@ Draws a pieslice (outlined circular sector).
 * cx, cy - Center of the pieslice
 * r - Radius of the pieslice
 * color - Color of the pieslice
-* start_theta - The initial angle from which the pieslice is drawn
-* delta_theta - Angular span of the pieslice (pass a negative number to switch
+* start_theta - The initial angle from which the pieslice is drawn in radians
+* delta_theta - Angular span of the pieslice in radians (pass a negative number to switch
     direction)
 * thickness - Thickness of the circle, pass `<= 0` to draw hairline pieslice
 
@@ -299,8 +299,8 @@ Draws a filled pieslice (filled circular sector).
 * cx, cy - Center of the pieslice
 * r - Radius of the pieslice
 * color - Color of the pieslice
-* start_theta - The initial angle from which the pieslice is drawn
-* delta_theta - Angular span of the pieslice (pass a negative number to switch
+* start_theta - The initial angle from which the pieslice is drawn in radians
+* delta_theta - Angular span of the pieslice in radians (pass a negative number to switch
     direction)
 
 Since: 5.0.6, 5.1.0
@@ -366,8 +366,8 @@ Draws an arc.
 * cx, cy - Center of the arc
 * r - Radius of the arc
 * color - Color of the arc
-* start_theta - The initial angle from which the arc is calculated
-* delta_theta - Angular span of the arc (pass a negative number to switch
+* start_theta - The initial angle from which the arc is calculated in radians
+* delta_theta - Angular span of the arc in radians (pass a negative number to switch
     direction)
 * thickness - Thickness of the arc, pass `<= 0` to draw hairline arc
 
@@ -382,8 +382,8 @@ Draws an elliptical arc.
 * cx, cy - Center of the arc
 * rx, ry - Radii of the arc
 * color - Color of the arc
-* start_theta - The initial angle from which the arc is calculated
-* delta_theta - Angular span of the arc (pass a negative number to switch
+* start_theta - The initial angle from which the arc is calculated in radians
+* delta_theta - Angular span of the arc in radians (pass a negative number to switch
     direction)
 * thickness - Thickness of the arc, pass `<= 0` to draw hairline arc
 
@@ -436,7 +436,7 @@ doublets of floats, corresponding to x and y coordinates of the vertices.
 * dest_stride - Distance (in bytes) between starts of successive pairs of 
     coordinates in the destination buffer
 * points - An array of pairs of coordinates for each point
-* points_stride - Distance (in bytes) between starts successive pairs of 
+* points_stride - Distance (in bytes) between starts of successive pairs of
     coordinates in the points buffer
 * thickness - Thickness of the spline ribbon
 * num_segments - The number of points to calculate
@@ -445,14 +445,18 @@ See also: [al_draw_ribbon], [al_calculate_arc], [al_calculate_spline]
 
 ### API: al_draw_ribbon
 
-Draws a series of straight lines given an array of points. The ribbon will go
-through all of the passed points.
+Draws a ribbon given an array of points. The ribbon will go through all of
+the passed points. The points buffer should consist of regularly spaced
+doublets of floats, corresponding to x and y coordinates of the vertices.
 
 *Parameters:*
 
 * points - An array of coordinate pairs (x and y) for each point
+* points_stride - Distance (in bytes) between starts of successive pairs of
+    coordinates in the points buffer
 * color - Color of the spline
 * thickness - Thickness of the spline, pass `<= 0` to draw hairline spline
+* num_segments - The number of segments
 
 See also: [al_calculate_ribbon]
 
@@ -464,11 +468,11 @@ routines also support using textures on the primitives with the following
 restrictions:
 
 For maximum portability, you should only use textures that have dimensions that 
-are a power of two, as not every videocard supports them completely. This 
-warning is relaxed, however, if the texture coordinates never exit the
-boundaries of a single bitmap (i.e. you are not having the texture repeat/tile).
-As long as that is the case, any texture can be used safely. Sub-bitmaps work
-as textures, but cannot be tiled.
+are a power of two, as not every videocard supports textures of different sizes
+completely. This warning is relaxed, however, if the texture coordinates
+never exit the boundaries of a single bitmap (i.e. you are not having the texture
+repeat/tile). As long as that is the case, any texture can be used safely.
+Sub-bitmaps work as textures, but cannot be tiled.
 
 Some platforms also dictate a minimum texture size, which means that textures
 smaller than that size will not tile properly. The minimum size that will work
@@ -490,12 +494,12 @@ Draws a subset of the passed vertex array.
 
 *Parameters:*
 
-* texture - Texture to use, pass 0 to use only color shaded primitves
+* texture - Texture to use, pass NULL to use only color shaded primitves
 * vtxs - Pointer to an array of vertices
-* decl - Pointer to a vertex declaration. If set to NULL, the vertices
-      are assumed to be of the ALLEGRO_VERTEX type
+* decl - Pointer to a [vertex declaration][al_create_vertex_decl]. If set to NULL,
+      the vertices are assumed to be of the [ALLEGRO_VERTEX] type
 * start - Start index of the subset of the vertex array to draw
-* end - One past the last index of subset of the vertex array to draw
+* end - One past the last index of the subset of the vertex array to draw
 * type - A member of the [ALLEGRO_PRIM_TYPE] enumeration, specifying what kind
          of primitive to draw
 
@@ -524,9 +528,9 @@ to specify which vertices to use.
 
 *Parameters:*
 
-* texture - Texture to use, pass 0 to use only shaded primitves
+* texture - Texture to use, pass NULL to use only color shaded primitves
 * vtxs - Pointer to an array of vertices
-* decl - Pointer to a vertex declaration. If set to 0, the vtxs are assumed
+* decl - Pointer to a vertex declaration. If set to NULL, the vtxs are assumed
       to be of the ALLEGRO_VERTEX type
 * indices - An array of indices into the vertex array
 * num_vtx - Number of indices from the indices array you want to draw
@@ -549,7 +553,7 @@ it must be created with the `ALLEGRO_PRIM_BUFFER_READWRITE`).
 *Parameters:*
 
 * vertex_buffer - Vertex buffer to draw
-* texture - Texture to use, pass 0 to use only color shaded primitves
+* texture - Texture to use, pass NULL to use only color shaded primitves
 * start - Start index of the subset of the vertex buffer to draw
 * end - One past the last index of the subset of the vertex buffer to draw
 * type - A member of the [ALLEGRO_PRIM_TYPE] enumeration, specifying what kind
@@ -574,7 +578,7 @@ created with the `ALLEGRO_PRIM_BUFFER_READWRITE`).
 *Parameters:*
 
 * vertex_buffer - Vertex buffer to draw
-* texture - Texture to use, pass 0 to use only color shaded primitves
+* texture - Texture to use, pass NULL to use only color shaded primitves
 * index_buffer - Index buffer to use
 * start - Start index of the subset of the vertex buffer to draw
 * end - One past the last index of the subset of the vertex buffer to draw
@@ -596,8 +600,8 @@ Draws a triangle using the software rasterizer and user supplied pixel
 functions. For help in understanding what these functions do, see the
 implementation of the various shading routines in addons/primitives/tri_soft.c.
 The triangle is drawn in two segments, from top to bottom. The segments are
-deliniated by the vertically middle vertex of the triangle. One of each segment
-may be absent if two vertices are horizontally collinear.
+deliniated by the vertically middle vertex of the triangle. One of the two
+segments may be absent if two vertices are horizontally collinear.
 
 *Parameters:*
 
@@ -611,7 +615,7 @@ may be absent if two vertices are horizontally collinear.
   drawn in the segment. 
   The second two are the left minor and the left major steps, respectively.
   They represent the sizes of two steps taken by the rasterizer as it walks
-  on the left side of the triangle. From then on, the each step will either
+  on the left side of the triangle. From then on, each step will either
   be classified as a minor or a major step, corresponding to the above
   values.
 * step - Called once per scanline. The last parameter is set to 1 if the step
@@ -642,7 +646,7 @@ The line is drawn top to bottom.
 * step - Called once per pixel. The second parameter is set to 1 if the step is
   a minor step, and 0 if this step is a major step. Minor steps are taken only
   either in x or y directions.
-  Major steps are taken in both directions diagonally. In all cases, the the
+  Major steps are taken in both directions diagonally. In all cases, the
   absolute value of the change in coordinate is at most 1 in either direction.
 * draw - Called once per pixel. The function is expected to draw the pixel at
   the coordinates passed to it.
@@ -657,7 +661,7 @@ Creates a vertex declaration, which describes a custom vertex format.
 
 *Parameters:*
 
-* elements - An array of ALLEGRO_VERTEX_ELEMENT structures.
+* elements - An array of [ALLEGRO_VERTEX_ELEMENT] structures.
 * stride - Size of the custom vertex structure
 
 *Returns:*
@@ -693,7 +697,7 @@ created (e.g. the system only supports write-only buffers).
 
 *Parameters:*
 
-* decl - Vertex type that this buffer will hold. 0 implies that this buffer will
+* decl - Vertex type that this buffer will hold. NULL implies that this buffer will
    hold [ALLEGRO_VERTEX] vertices
 * initial_data - Memory buffer to copy from to initialize the vertex buffer. Can
    be `NULL`, in which case the buffer is uninitialized.
@@ -708,7 +712,7 @@ See also: [ALLEGRO_VERTEX_BUFFER], [al_destroy_vertex_buffer]
 
 ### API: al_destroy_vertex_buffer
 
-Destroys a vertex buffer. Does nothing if passed 0.
+Destroys a vertex buffer. Does nothing if passed NULL.
 
 Since: 5.1.3
 
@@ -716,8 +720,8 @@ See also: [ALLEGRO_VERTEX_BUFFER], [al_create_vertex_buffer]
 
 ### API: al_lock_vertex_buffer
 
-Locks a vertex buffer so you can access its data. Will return 0 if the
-parameters are invalid, if reading is requested from a write only buffer and
+Locks a vertex buffer so you can access its data. Will return NULL if the
+parameters are invalid, if reading is requested from a write only buffer, or
 if the buffer is already locked.
 
 *Parameters:*
@@ -778,7 +782,7 @@ See also: [ALLEGRO_INDEX_BUFFER], [al_destroy_index_buffer]
 
 ### API: al_destroy_index_buffer
 
-Destroys a index buffer. Does nothing if passed 0.
+Destroys a index buffer. Does nothing if passed NULL.
 
 Since: 5.1.8
 
@@ -786,7 +790,7 @@ See also: [ALLEGRO_INDEX_BUFFER], [al_create_index_buffer]
 
 ### API: al_lock_index_buffer
 
-Locks a index buffer so you can access its data. Will return 0 if the
+Locks a index buffer so you can access its data. Will return NULL if the
 parameters are invalid, if reading is requested from a write only buffer and
 if the buffer is already locked.
 
@@ -823,7 +827,7 @@ See also: [ALLEGRO_INDEX_BUFFER]
 
 Draw a series of line segments.
 
-* vertex - Interleaved array of (x, y) vertex coordinates
+* vertices - Interleaved array of (x, y) vertex coordinates
 * vertex_stride - the number of bytes between pairs of vertices (the stride)
 * vertex_count - Number of vertices in the array
 * join_style - Member of [ALLEGRO_LINE_JOIN] specifying how to render the
@@ -956,7 +960,7 @@ to be convex but must not be self-overlapping.
   in each hole.  The array must be terminated with an element with value zero.
 * emit_triangle -
   a function to be called for every set of three points that form a triangle.
-  The function is passed the indexes of the points in `vertices` and `userdata`.
+  The function is passed the indices of the points in `vertices` and `userdata`.
 * userdata - arbitrary data to be passed to emit_triangle.
 
 Since: 5.1.0
@@ -996,11 +1000,11 @@ See also:
 
 A small structure describing a certain element of a vertex. E.g. the
 position of the vertex, or its color. These structures are used by the 
-al_create_vertex_decl function to create the vertex declaration. For that they
+[al_create_vertex_decl] function to create the vertex declaration. For that they
 generally occur in an array. The last element of such an array should have the 
 attribute field equal to 0, to signify that it is the end of the array.
 Here is an example code that would create a declaration describing the 
-ALLEGRO_VERTEX structure (passing this as vertex declaration to
+[ALLEGRO_VERTEX] structure (passing this as vertex declaration to
 al_draw_prim would be identical to passing NULL):
 
 ~~~~c
@@ -1022,7 +1026,7 @@ ALLEGRO_VERTEX_DECL* decl = al_create_vertex_decl(elems, sizeof(ALLEGRO_VERTEX))
    this attribute signifies
 * storage - A member of the [ALLEGRO_PRIM_STORAGE] enumeration, specifying how
    this attribute is stored
-* offset - Offset in bytes from the beginning of the custom vertex structure. C
+* offset - Offset in bytes from the beginning of the custom vertex structure. The C
    function offsetof is very useful here.
 
 See also:

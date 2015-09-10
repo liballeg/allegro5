@@ -252,17 +252,12 @@ bool Input::esc(void)
       return joypad_esc;
    }
 
-#ifdef ALLEGRO_IPHONE
-   return ((al_get_time() > 2 && al_get_time() < al_iphone_get_last_shake_time()+2) ||
-	button_pressed(BB_W-50, 10, 40, 40, false));
-#else
    if (al_key_down(&kbdstate, ALLEGRO_KEY_ESCAPE))
       return true;
    else if (joystick)
       return joystate.button[1];
    else
       return 0;
-#endif
 }
 
 bool Input::b1(void)

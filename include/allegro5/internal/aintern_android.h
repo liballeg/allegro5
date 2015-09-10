@@ -15,10 +15,10 @@ typedef struct ALLEGRO_SYSTEM_ANDROID {
 typedef struct ALLEGRO_DISPLAY_ANDROID {
    ALLEGRO_DISPLAY display;
    jobject surface_object;
-   
+
    ALLEGRO_COND *cond;
    ALLEGRO_MUTEX *mutex;
-   
+
    bool created;
    bool recreate;
    bool first_run;
@@ -152,12 +152,15 @@ jobject _al_android_activity_object(void);
 jclass _al_android_input_stream_class(void);
 jclass _al_android_apk_stream_class(void);
 jclass _al_android_image_loader_class(void);
+jclass _al_android_clipboard_class(void);
 
 void _al_android_generate_mouse_event(unsigned int type, int x, int y,
    unsigned int button, ALLEGRO_DISPLAY *d);
 void _al_android_mouse_get_state(ALLEGRO_MOUSE_STATE *ret_state);
 
-void _al_android_generate_joystick_event(float x, float y, float z);
+void _al_android_generate_accelerometer_event(float x, float y, float z);
+void _al_android_generate_joystick_axis_event(int index, int stick, int axis, float value);
+void _al_android_generate_joystick_button_event(int index, int button, bool down);
 
 GLint _al_android_get_curr_fbo(void);
 void _al_android_set_curr_fbo(GLint fbo);
@@ -168,6 +171,8 @@ void _al_android_thread_ended(void);
 void _al_android_set_jnienv(JNIEnv *jnienv);
 JNIEnv *_al_android_get_jnienv(void);
 bool _al_android_is_paused(void);
+
+void _al_android_add_clipboard_functions(ALLEGRO_DISPLAY_INTERFACE *vt);
 
 #define ALLEGRO_ANDROID_PACKAGE_NAME         org_liballeg_android
 #define ALLEGRO_ANDROID_PACKAGE_NAME_SLASH   "org/liballeg/android"
@@ -204,6 +209,15 @@ extern JNI_FUNC(void, TouchListener, nativeOnTouch, (JNIEnv *env, jobject obj,
          jint id, jint action, jfloat x, jfloat y, jboolean primary));
 extern JNI_FUNC(void, Sensors, nativeOnAccel, (JNIEnv *env, jobject obj, jint id,
          jfloat x, jfloat y, jfloat z));
+
+extern JNI_FUNC(void, AllegroSurface, nativeOnJoystickAxis, (JNIEnv *env, jobject obj,
+         jint index, jint stick, jint axis, jfloat value));
+extern JNI_FUNC(void, AllegroSurface, nativeOnJoystickButton, (JNIEnv *env, jobject obj,
+         jint index, jint button, jboolean down));
+extern JNI_FUNC(void, KeyListener, nativeOnJoystickButton, (JNIEnv *env, jobject obj,
+         jint index, jint button, jboolean down));
+extern JNI_FUNC(void, AllegroActivity, nativeSendJoystickConfigurationEvent,
+         (JNIEnv *env, jobject obj));
 
 #endif /* ALLEGRO_AINTERN_ANDROID_H */
 

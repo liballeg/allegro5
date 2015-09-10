@@ -157,6 +157,8 @@ void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
    void _al_ogl_unlock_region_gles(ALLEGRO_BITMAP *bitmap);
 #endif
 
+int _al_ogl_pixel_alignment(int pixel_size, bool compressed);
+
 /* framebuffer objects */
 GLint _al_ogl_bind_framebuffer(GLint fbo);
 void _al_ogl_reset_fbo_info(ALLEGRO_FBO_INFO *info);
@@ -190,6 +192,9 @@ void _al_ogl_update_render_state(ALLEGRO_DISPLAY *display);
 #ifdef ALLEGRO_CFG_SHADER_GLSL
    bool _al_glsl_set_projview_matrix(GLint projview_matrix_loc,
       const ALLEGRO_TRANSFORM *t);
+   void _al_glsl_init_shaders(void);
+   void _al_glsl_shutdown_shaders(void);
+   void _al_glsl_unuse_shaders(void);
 #endif
 
 

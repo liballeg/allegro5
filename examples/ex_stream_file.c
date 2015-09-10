@@ -20,13 +20,13 @@
  */
 //#define BYPASS_MIXER
 
-
 int main(int argc, char **argv)
 {
    int i;
    ALLEGRO_VOICE*  voice;
    ALLEGRO_MIXER*  mixer;
-
+   bool loop = false;
+   int arg_start = 1;
 
    if (!al_init()) {
        abort_example("Could not init Allegro.\n");
@@ -35,8 +35,14 @@ int main(int argc, char **argv)
    open_log();
 
    if (argc < 2) {
-      log_printf("This example needs to be run from the command line.\nUsage: %s {audio_files}\n", argv[0]);
+      log_printf("This example needs to be run from the command line.\n");
+      log_printf("Usage: %s [--loop] {audio_files}\n", argv[0]);
       goto done;
+   }
+
+   if (strcmp(argv[1], "--loop") == 0) {
+      loop = true;
+      arg_start = 2;
    }
 
    al_init_acodec_addon();
@@ -65,7 +71,7 @@ int main(int argc, char **argv)
    }
 #endif
 
-   for (i = 1; i < argc; ++i)
+   for (i = arg_start; i < argc; ++i)
    {
       ALLEGRO_AUDIO_STREAM* stream;
       const char*     filename = argv[i];
@@ -80,6 +86,9 @@ int main(int argc, char **argv)
          continue;
       }
       log_printf("Stream created from '%s'.\n", filename);
+      if (loop) {
+         al_set_audio_stream_playmode(stream, loop ? ALLEGRO_PLAYMODE_LOOP : ALLEGRO_PLAYMODE_ONCE);
+      }
       
       al_register_event_source(queue, al_get_audio_stream_event_source(stream));
 

@@ -6,6 +6,38 @@ These functions are declared in the main Allegro header file:
  #include <allegro5/allegro.h>
 ~~~~
 
+All drawing operations end up being visible on a display which is the same as
+a window in windowed environments. Thus, before anything is displayed,
+a display needs to be created.
+
+Before creating a display with [al_create_display], flags and options can be set
+with [al_set_new_display_flags] and [al_set_new_display_option]. For example, you
+can enable the use of shaders or choose between the OpenGL and Direct3D backends
+(on platforms that support both) with [al_set_new_display_flags]. Display options
+are rather optional settings that do not affect Allegro itself, e.g. they allow
+you to specify whether you want a depth buffer or enable multisampling.
+
+The actual properties of a display that has been successfully created can be queried
+via [al_get_display_option], [al_get_display_flags], [al_get_display_width] etc.
+Note that you can query some additional read-only properties such as the maximum
+allowed bitmap (i.e. texture) size via [al_get_display_option].
+
+Each display has a backbuffer associated to it which is the default target for any
+drawing operations. In order to make visible what has been drawn previously, you
+have to to call [al_flip_display]. Note that it is generally advisable to redraw
+the whole screen (or [clear][al_clear_to_color] it in advance) to avoid artefacts
+of uninitialised memory becoming visible with some drivers.
+
+You don't have to use Allegro's drawing routines, however: since creating a display
+implies the creation of an OpenGL context or Direct3D device respectively, you can
+use these APIs directly if you prefer to do so. Allegro provides integration for
+both (see the OpenGL / Direct3D sections), so you can retrieve the underlying
+textures of [ALLEGRO_BITMAP]s, for example.
+
+In order to write a well-behaved application, it is necessary to remember that
+displays will also inform you about important [events][ALLEGRO_EVENT_DISPLAY_EXPOSE]
+via their [event sources][al_get_display_event_source].
+
 ## Display creation
 
 ### API: ALLEGRO_DISPLAY
@@ -19,15 +51,15 @@ The parameters of the display are determined by the last calls to
 al_set_new_display\_\*. Default parameters are used if none are set
 explicitly.
 Creating a new display will automatically make it the active one, with the
-backbuffer selected for drawing. 
+backbuffer selected for drawing.
 
 Returns NULL on error.
 
-Each display has a distinct OpenGL rendering context associated with it. See
-[al_set_target_bitmap] for the discussion about rendering contexts.
+Each display that uses OpenGL as a backend has a distinct OpenGL rendering context
+associated with it. See [al_set_target_bitmap] for the discussion about rendering contexts.
 
 See also: [al_set_new_display_flags], [al_set_new_display_option],
-[al_set_new_display_refresh_rate], [al_set_new_display_adapter],
+[al_set_new_display_refresh_rate], [al_set_new_display_adapter], [al_set_new_window_title]
 [al_set_window_position]
 
 ### API: al_destroy_display
@@ -93,6 +125,11 @@ ALLEGRO_FULLSCREEN_WINDOW
 ALLEGRO_RESIZABLE
 :   The display is resizable (only applicable if combined with
     ALLEGRO_WINDOWED).
+
+ALLEGRO_MAXIMIZED
+:   The display window will be maximized (only applicable if combined
+    with ALLEGRO_RESIZABLE).
+    Since: 5.1.12
 
 ALLEGRO_OPENGL
 :   Require the driver to provide an initialized OpenGL context after returning
@@ -161,8 +198,10 @@ The 'importance' parameter can be either:
 * ALLEGRO_REQUIRE - The display will not be created if the setting can
     not be met.
 * ALLEGRO_SUGGEST - If the setting is not available, the display will
-    be created anyway.
-    FIXME: We need a way to query the settings back from a created display.
+    be created anyway with a setting as close as possible to the
+    requested one.
+    You can query the actual value used in that case by calling
+    [al_get_display_option] after the display has been created.
 * ALLEGRO_DONTCARE - If you added a display option with one of the above
     two settings before, it will be removed again. Else this does
     nothing.
@@ -182,7 +221,7 @@ ALLEGRO_RED_SHIFT, ALLEGRO_GREEN_SHIFT, ALLEGRO_BLUE_SHIFT, ALLEGRO_ALPHA_SHIFT
 
 ALLEGRO_ACC_RED_SIZE, ALLEGRO_ACC_GREEN_SIZE, ALLEGRO_ACC_BLUE_SIZE, ALLEGRO_ACC_ALPHA_SIZE
 :   This can be used to define the required accumulation buffer size.
-    
+
 ALLEGRO_STEREO
 :   Whether the display is a stereo display.
 
@@ -290,12 +329,12 @@ ALLEGRO_SUPPORTED_ORIENTATIONS
     LANDSCAPE means only the two landscape orientations and ALL allows
     all four orientations. When the orientation changes between a
     portrait and a landscape orientation the display needs to be
-    resizes. This is done by sending an [ALLEGRO_EVENT_DISPLAY_RESIZE]
+    resized. This is done by sending an [ALLEGRO_EVENT_DISPLAY_RESIZE]
     message which should be handled by calling [al_acknowledge_resize].
 
     Since: 5.1.0
 
-See also: [al_set_new_display_flags]
+See also: [al_set_new_display_flags], [al_get_display_option]
 
 ### API: al_reset_new_display_options
 
@@ -314,7 +353,7 @@ See also: [al_set_new_window_position]
 Sets where the top left pixel of the client area of newly
 created windows (non-fullscreen) will be on screen,
 for displays created by the calling thread.
-Negative values allowed on some multihead systems.
+Negative values are allowed on some multihead systems.
 
 To reset to the default behaviour, pass (INT_MAX, INT_MAX).
 
@@ -344,7 +383,9 @@ See also: [al_get_new_display_refresh_rate]
 
 ### API: al_get_display_event_source
 
-Retrieve the associated event source.
+Retrieve the associated event source. See the
+[documentation on events][ALLEGRO_EVENT_DISPLAY_EXPOSE]
+for a list of the events displays will generate.
 
 ### API: al_get_backbuffer
 
@@ -354,7 +395,7 @@ display.
 Care should be taken when using the backbuffer bitmap (and its
 sub-bitmaps) as the source bitmap (e.g as the bitmap argument to
 [al_draw_bitmap]). Only untransformed operations are hardware
-accelerated. This consists of [al_draw_bitmap] and
+accelerated. These consist of [al_draw_bitmap] and
 [al_draw_bitmap_region] when the current transformation is the identity.
 If the tranformation is not the identity, or some other drawing
 operation is used, the call will be routed through the memory bitmap
@@ -441,12 +482,14 @@ See also: [al_acknowledge_resize]
 
 ### API: al_acknowledge_resize
 
-When the user receives a resize event from a resizable display,
-if they wish the display to be resized they must call this
-function to let the graphics driver know that it can now resize
-the display. Returns true on success.
+When the user receives a [resize event][ALLEGRO_EVENT_DISPLAY_RESIZE]
+from a resizable display, if they wish the display to be resized they
+must call this function to let the graphics driver know that it can now
+resize the display. Returns true on success.
 
-Adjusts the clipping rectangle to the full size of the backbuffer.
+Adjusts the clipping rectangle to the full size of the backbuffer. This also
+resets the backbuffers projection transform to default orthographic transform
+(see [al_use_projection_transform]).
 
 Note that a resize event may be outdated by the time you acknowledge it;
 there could be further resize events generated in the meantime.
@@ -510,6 +553,7 @@ after creation are:
 
 - ALLEGRO_FULLSCREEN_WINDOW
 - ALLEGRO_FRAMELESS
+- ALLEGRO_MAXIMIZED
 
 Returns true if the driver supports toggling the specified flag else
 false. You can use [al_get_display_flags] to query whether the given
@@ -579,6 +623,40 @@ Set the title on a display.
 
 See also: [al_set_display_icon], [al_set_display_icons]
 
+
+### API: al_set_new_window_title
+
+Set the title that will be used when a new display is created.
+Allegro uses a static buffer of [ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE] to
+store this, so the length of the titme you set must be less than this.
+
+See also: [al_set_window_title], [al_get_new_window_title], [al_create_display],
+          [ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE]
+
+Since: 5.1.12
+
+### API: ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE
+
+This is the maximum size of the title that can be set with
+[al_set_new_window_title].
+
+See also: [al_set_new_window_title]
+
+Since: 5.1.12
+
+### API: al_get_new_window_title
+
+Returns the title that will be used when a new display is created. This
+returns the value that [al_set_window_title] was called with. If that function
+wasn't called yet, the value of [al_get_app_name] is returned as a default.
+The current implementation returns a pointer to a static buffer of which you
+should make a copy if you want to modify it.
+
+See also: [al_set_window_title], [al_set_new_window_title], [al_create_display]
+
+Since: 5.1.12
+
+
 ### API: al_set_display_icon
 
 Changes the icon associated with the display (window).
@@ -619,7 +697,7 @@ See also: [ALLEGRO_EVENT_DISPLAY_HALT_DRAWING]
 
 ### API: al_acknowledge_drawing_resume
 
-Call this in reponse to the [ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING] event.
+Call this in response to the [ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING] event.
 
 Since: 5.1.1
 
@@ -635,3 +713,45 @@ or resets the system back to the default state
 (the state at program start) if false is passed.
 It returns true if the state was set successfully,
 otherwise false.
+
+
+
+## Clipboard
+
+With the clipboard API of Allegro, text can be copied from and to the clipboard.
+Currentlly, only UTF8 encoded text is supported. It currently works on Linux,
+Windows, OSX, Android and IOS.
+
+
+### API: al_get_clipboard_text
+
+This function returns a pointer to a string, allocated with [al_malloc] with
+the text contents of the clipboard if available. If not text is available on the
+clipboard then this function returns NULL. You must call [al_free] on the
+returned pointer when you don't need it anymore.
+
+Beware that text on the clipboard on Windows may be in Windows format, that is,
+it may have carriage return newline combinations for the line endings instead
+of regular newlines for the line endings on Linux or OSX.
+
+Since: 5.1.12
+
+See also: [al_set_clipboard_text], [al_clipboard_has_text]
+
+### API: al_set_clipboard_text
+
+This function pastes the text given as an argument to the clipboard.
+
+Since: 5.1.12
+
+See also: [al_get_clipboard_text], [al_clipboard_has_text]
+
+
+### API: al_clipboard_has_text
+
+This function returns true if and only if the clipboard has text available.
+
+Since: 5.1.12
+
+See also: [al_set_clipboard_text], [al_get_clipboard_text]
+

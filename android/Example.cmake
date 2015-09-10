@@ -26,6 +26,10 @@ configure_file(
     ${EXAMPLE_DIR}/localgen.properties.in
     ${EXAMPLE_DIR}/localgen.properties
     )
+configure_file(
+    ${EXAMPLE_DIR}/project.properties.in
+    ${EXAMPLE_DIR}/project.properties
+    @ONLY)
 
 file(RELATIVE_PATH RELATIVE_LIB_DIR
     ${EXAMPLE_DIR}/jni ${LIBRARY_OUTPUT_PATH})

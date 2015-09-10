@@ -6,13 +6,43 @@ These functions are declared in the main Allegro header file:
  #include <allegro5/allegro.h>
 ~~~~
 
+Transformations allow you to transform the coordinates you use for drawing
+operations without additional overhead. Scaling, rotating, translating, and
+combinations of these are possible as well as using custom transformations.
+There are two types of transformations that you can set, 'regular'
+transformations and projection transformations. The projection transform is
+rarely used in 2D games, but is common in 3D games to set up the projection
+from the 3D world to the 2D screen. Typically, you would use the regular
+transform for non-projective types of transformations (that is, translations,
+rotations, scales, skews... i.e. transformations that are linear), while the
+projection transform will be used for setting up perspective and possibly more
+advanced effects. It is possible to do everything with just using the
+projection transformation (that is, you'd compose the projection transformation
+with the non-projection transformations that, e.g., move the camera in the
+world), but it is more convenient to use both for two reasons:
+
+- Regular transformations can be changed while the bitmap drawing is held (see
+  [al_hold_bitmap_drawing]).
+
+- Regular transformations work with memory bitmaps.
+
+As a result, if you're making a 2D game, it's best to leave the projection
+transformations at their default values.
+
+Both types of transformations are set per target-bitmap, i.e. a change of the
+target bitmap will also change the active transformation.
+
+Allegro provides convenience functions to construct transformations in 2D and 3D
+variants (the latter with a `_3d` suffix), so you don't have to deal with the
+underlying matrix algebra yourself.
+
 The transformations are combined in the order of the function invocations. Thus
 to create a transformation that first rotates a point and then translates it, 
 you would (starting with an identity transformation) call [al_rotate_transform]
 and then [al_translate_transform]. This approach is opposite of what OpenGL uses
 but similar to what Direct3D uses. 
 
-For those who known the matrix algebra going behind the scenes, what the 
+For those who know the matrix algebra going behind the scenes, what the
 transformation functions in Allegro do is "pre-multiply" the successive 
 transformations. So, for example, if you have code that does:
 
@@ -113,6 +143,57 @@ Returns the transformation of the current target bitmap, as set by
 *Returns:*
 A pointer to the current transformation.
 
+See also: [al_get_current_projection_transform]
+
+## API: al_use_projection_transform
+
+Sets the projection transformation to be used for the the drawing operations on
+the target bitmap (each bitmap maintains its own projection transformation).
+Every drawing operation after this call will be transformed using this
+transformation. To return default behavior, call this function with an
+orthographic transform like so:
+
+~~~~c
+ALLEGRO_TRANSFORM trans;
+al_identity_transform(&trans);
+al_orthographic_transform(&trans, 0, 0, -1.0, al_get_bitmap_width(bitmap),
+                          al_get_bitmap_height(bitmap), 1.0);
+
+al_set_target_bitmap(bitmap);
+al_use_projection_transform(&trans);
+~~~~
+
+The orthographic transformation above is the default projection transform.
+
+This function does nothing if there is no target bitmap. This function also
+does nothing if the bitmap is a memory bitmap (i.e. memory bitmaps always use
+an orthographic transform like the snippet above). Note that the projection
+transform will be reset to default if a video bitmap is converted to a memory
+bitmap. Additionally, if the bitmap in question is the backbuffer, it's
+projection transformation will be reset to default if it is resized. Lastly,
+when you draw a memory bitmap to a video bitmap with a custom projection
+transform, this transformation will be ignored (i.e. it'll be as if the
+projection transform of the target bitmap was temporarily reset to default).
+
+The parameter is passed by reference as an optimization to avoid the overhead of
+stack copying. The reference will not be stored in the Allegro library so it is
+safe to pass references to local variables.
+
+Since: 5.1.9
+
+See also: [al_get_current_projection_transform]
+
+## API: al_get_current_projection_transform
+
+If there is no target bitmap, this function returns NULL.
+
+*Returns:*
+A pointer to the current transformation.
+
+Since: 5.1.9
+
+See also: [al_use_projection_transform]
+
 ## API: al_get_current_inverse_transform
 
 Returns the inverse of the current transformation of the target bitmap.
@@ -207,6 +288,54 @@ translate.
 See also: [al_translate_transform], [al_rotate_transform],
 [al_scale_transform], [al_compose_transform]
 
+## API: al_build_camera_transform
+
+Builds a transformation which can be used to transform 3D coordinates in world
+space to camera space. This involves translation and a rotation. The function
+expects three coordinate triplets: The camera's position, the position the
+camera is looking at and an up vector. The up vector does not need to be of
+unit length and also does not need to be perpendicular to the view direction -
+it can usually just be the world up direction (most commonly 0/1/0).
+
+For example:
+
+~~~~c
+al_build_camera_transform(&t,
+    1, 1, 1,
+    5, 5, 5,
+    0, 1, 0);
+~~~~
+
+This create a transformation for a camera standing at 1/1/1 and looking towards
+5/5/5.
+
+> *Note*: If the *position* and *look* parameters are identical, or if the
+*up* direction is parallel to the view direction, an identity matrix is created.
+
+Another example which will simply re-create the identity matrix:
+
+~~~~c
+al_build_camera_transform(&t,
+    0, 0, 0,
+    0, 0, -1,
+    0, 1, 0);
+~~~~
+
+An example where the up vector will cause the camera to lean (roll) by 45
+degrees:
+
+~~~~c
+al_build_camera_transform(&t,
+    1, 1, 1,
+    5, 5, 5,
+    1, 1, 0);
+~~~~
+
+Since 5.1.9
+
+See also: [al_translate_transform_3d], [al_rotate_transform_3d],
+[al_scale_transform_3d], [al_compose_transform], [al_use_transform]
+
 ## API: al_translate_transform
 
 Apply a translation to a transformation.
@@ -249,7 +378,20 @@ Transform a pair of coordinates.
 * trans - Transformation to use
 * x, y - Pointers to the coordinates
 
-See also: [al_use_transform]
+See also: [al_use_transform], [al_transform_coordinates_3d]
+
+## API: al_transform_coordinates_3d
+
+Transform x, y, z coordinates.
+
+*Parameters:*
+
+* trans - Transformation to use
+* x, y, z - Pointers to the coordinates
+
+Since 5.1.9
+
+See also: [al_use_transform], [al_transform_coordinates]
 
 ## API: al_compose_transform
 
@@ -277,7 +419,7 @@ near/far is the z-buffer range, if there is no z-buffer you can set it to
 
 Since: 5.1.3
 
-See also: [al_set_projection_transform], [al_perspective_transform]
+See also: [al_use_projection_transform], [al_perspective_transform]
 
 ## API: al_perspective_transform
 
@@ -291,7 +433,7 @@ To use a specific horizontal field of view you can use the relation:
 
 Since: 5.1.3
 
-See also: [al_set_projection_transform], [al_orthographic_transform]
+See also: [al_use_projection_transform], [al_orthographic_transform]
 
 ## API: al_translate_transform_3d
 
@@ -300,7 +442,7 @@ coordinates by the given vector.
 
 Since: 5.1.3
 
-See also: [al_set_projection_transform]
+See also: [al_use_projection_transform]
 
 ## API: al_scale_transform_3d
 
@@ -309,7 +451,7 @@ coordinates by the given vector.
 
 Since: 5.1.3
 
-See also: [al_set_projection_transform]
+See also: [al_use_projection_transform]
 
 ## API: al_rotate_transform_3d
 
@@ -317,33 +459,6 @@ Combines the given transformation with a transformation which rotates
 coordinates around the given vector by the given angle in radians.
 
 Since: 5.1.3
-
-See also: [al_set_projection_transform]
-
-## API: al_get_projection_transform
-
-Returns the projection transformation of the display as set with
-[al_set_projection_transform].
-
-Since: 5.1.0
-
-See also: [al_set_projection_transform]
-
-## API: al_set_projection_transform
-
-Replaces the projection transformation of the given display.
-
-> *Note:* Unlike the regular 2D transformations, the projection transformation
-> affects all drawing operations done to the current display. This means
-> for example that it is not affected by calls to al_set_target_bitmap (if
-> the bitmap belongs to the same display).
-
-> *Note:* Drawing to memory bitmaps is not affected by the projection
-> transformation.
-
-Since: 5.1.0
-
-See also: [al_get_projection_transform]
 
 ## API: al_horizontal_shear_transform
 

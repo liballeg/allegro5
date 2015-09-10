@@ -8,7 +8,6 @@ Link with allegro_video.
 ~~~~
 
 Currently we have an ffmpeg backend and a Ogg backend (Theora + Vorbis).
-The choice is fixed at compile time.
 See <http://ffmpeg.org/> and <http://xiph.org/> for installation instructions,
 licensing information and supported video formats.
 
@@ -18,6 +17,48 @@ licensing information and supported video formats.
 * ALLEGRO_EVENT_VIDEO_FRAME_SHOW
 
 Since: 5.1.0
+
+## API: ALLEGRO_VIDEO_POSITION_TYPE
+
+Used with [al_get_video_position] to specify which position to retrieve. If
+these get out of sync, audio and video may be out of sync in the display of
+the video.
+
+* ALLEGRO_VIDEO_POSITION_ACTUAL -
+The amount of time the video has been playing. If the video has audio then
+this value can be ahead of ALLEGRO_VIDEO_POSITION_VIDEO_DECODE when video
+decoding lags.
+
+* ALLEGRO_VIDEO_POSITION_VIDEO_DECODE -
+The amount of video that has been decoded. This may lag behind the "actual"
+and audio positions if decoding is slower than realtime.
+
+* ALLEGRO_VIDEO_POSITION_AUDIO_DECODE -
+The amount of audio that has been decoded. This may be the same as
+ALLEGRO_VIDEO_POSITION_ACTUAL if audio decode is driving the position,
+which is common to keep audio and video in sync.
+
+Since: 5.1.11
+
+## API: al_init_video_addon
+
+Initializes the video addon.
+
+Since: 5.1.12
+
+## API: al_shutdown_video_addon
+
+Shut down the video addon. This is done automatically at program exit,
+but can be called any time the user wishes as well.
+
+Since: 5.1.12
+
+## API: al_get_allegro_video_version
+
+Returns the (compiled) version of the addon, in the same format as
+[al_get_allegro_version].
+
+Since: 5.1.12
 
 ## API: al_open_video
 
@@ -70,7 +111,7 @@ Returns the aspect ratio of the video. Videos often do not use square
 pixels so you should always check the aspect ratio before displaying
 video frames.
 
-Returns zero or negative value if the aspect ratio is unknown.
+Returns zero or a negative value if the aspect ratio is unknown.
 
 Since: 5.1.0
 
@@ -89,7 +130,7 @@ Since: 5.1.0
 
 ## API: al_get_video_width
 
-Returns the number of pixel raw pixel columns in the video stream.
+Returns the number of raw pixel columns in the video stream.
 Multiply this with the aspect ratio to get the true width.
 
 Since: 5.1.0
@@ -114,15 +155,8 @@ Since: 5.1.0
 ## API: al_get_video_position
 
 Returns the current position of the video stream in seconds since the
-beginning. The parameter has the following meaning:
-
-* 0: Return the actual position.
-* 1: Return the video decoding position. If this lags behind video
-     decoding is taking too long and the video can't be displayed
-     properly.
-* 2: Return the audio decoding position. Audio gets easily out of sync
-     for some reason - but this addon does not provide any means to
-     do much about it.
+beginning. The parameter is one of the [ALLEGRO_VIDEO_POSITION_TYPE]
+constants.
 
 Since: 5.1.0
 

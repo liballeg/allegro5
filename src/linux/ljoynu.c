@@ -80,7 +80,11 @@ ALLEGRO_DEBUG_CHANNEL("ljoy");
  * is from BTN_MISC to BTN_GEAR_UP.
  */
 #define LJOY_BTN_RANGE_START  (BTN_MISC)
+#if !defined(ALLEGRO_ANDROID) && defined(BTN_TRIGGER_HAPPY)
+#define LJOY_BTN_RANGE_END    (BTN_TRIGGER_HAPPY40 + 1)
+#else
 #define LJOY_BTN_RANGE_END    (BTN_GEAR_UP + 1)
+#endif
 
 
 
@@ -227,20 +231,16 @@ static bool have_joystick_axis(int fd)
 
 static bool ljoy_detect_device_name(int num, ALLEGRO_USTR *device_name)
 {
-   ALLEGRO_CONFIG *cfg;
    char key[80];
    const char *value;
    struct stat stbuf;
 
    al_ustr_truncate(device_name, 0);
 
-   cfg = al_get_system_config();
-   if (cfg) {
-      snprintf(key, sizeof(key), "device%d", num);
-      value = al_get_config_value(cfg, "joystick", key);
-      if (value)
-         al_ustr_assign_cstr(device_name, value);
-   }
+   snprintf(key, sizeof(key), "device%d", num);
+   value = al_get_config_value(al_get_system_config(), "joystick", key);
+   if (value)
+      al_ustr_assign_cstr(device_name, value);
 
    if (al_ustr_size(device_name) == 0)
       al_ustr_appendf(device_name, "/dev/input/event%d", num);

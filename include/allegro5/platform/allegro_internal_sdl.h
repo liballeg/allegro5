@@ -28,14 +28,18 @@ ALLEGRO_SYSTEM_INTERFACE *_al_sdl_system_driver(void);
 ALLEGRO_DISPLAY_INTERFACE *_al_sdl_display_driver(void);
 ALLEGRO_KEYBOARD_DRIVER *_al_sdl_keyboard_driver(void);
 ALLEGRO_MOUSE_DRIVER *_al_sdl_mouse_driver(void);
+ALLEGRO_JOYSTICK_DRIVER *_al_sdl_joystick_driver(void);
 ALLEGRO_BITMAP_INTERFACE *_al_sdl_bitmap_driver(void);
 
 void _al_sdl_keyboard_event(SDL_Event *e);
 void _al_sdl_mouse_event(SDL_Event *e);
 void _al_sdl_display_event(SDL_Event *e);
+void _al_sdl_joystick_event(SDL_Event *e);
 
 int _al_sdl_get_allegro_pixel_format(int sdl_format);
 int _al_sdl_get_sdl_pixel_format(int allegro_format);
 
 ALLEGRO_DISPLAY *_al_sdl_find_display(uint32_t window_id);
+
+void _al_sdl_event_hack(void);
 

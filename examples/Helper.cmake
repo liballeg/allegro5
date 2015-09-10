@@ -79,8 +79,13 @@ function(example name)
             "${MYOPTS_DATA}"
             )
         add_android_app("${name}" "${sources};${assets}" "${libs}" "${stl}")
+    elseif(IPHONE)
+        add_our_executable("${name}" SRCS "${sources};${CMAKE_CURRENT_SOURCE_DIR}/data"
+                           LIBS "${libs}")
+        set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/data" PROPERTIES
+                                    MACOSX_PACKAGE_LOCATION "Resources")
     else()
-        add_our_executable("${name}" "${sources}" "${libs}")
+        add_our_executable("${name}" SRCS "${sources}" LIBS "${libs}")
     endif()
 
 endfunction(example)

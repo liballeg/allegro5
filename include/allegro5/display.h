@@ -24,7 +24,8 @@ enum {
    ALLEGRO_FULLSCREEN_WINDOW           = 1 << 9,
    ALLEGRO_MINIMIZED                   = 1 << 10,
    ALLEGRO_PROGRAMMABLE_PIPELINE       = 1 << 11,
-   ALLEGRO_GTK_TOPLEVEL_INTERNAL       = 1 << 12
+   ALLEGRO_GTK_TOPLEVEL_INTERNAL       = 1 << 12,
+   ALLEGRO_MAXIMIZED                   = 1 << 13,
 };
 
 /* Possible parameters for al_set_display_option.
@@ -104,10 +105,17 @@ enum
 typedef struct ALLEGRO_DISPLAY ALLEGRO_DISPLAY;
 
 
+/* Enum: ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE
+*/
+#define ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE 255
+
 AL_FUNC(void, al_set_new_display_refresh_rate, (int refresh_rate));
 AL_FUNC(void, al_set_new_display_flags, (int flags));
 AL_FUNC(int,  al_get_new_display_refresh_rate, (void));
 AL_FUNC(int,  al_get_new_display_flags, (void));
+
+AL_FUNC(void, al_set_new_window_title, (char *title));
+AL_FUNC(const char *, al_get_new_window_title, (void));
 
 AL_FUNC(int, al_get_display_width,  (ALLEGRO_DISPLAY *display));
 AL_FUNC(int, al_get_display_height, (ALLEGRO_DISPLAY *display));

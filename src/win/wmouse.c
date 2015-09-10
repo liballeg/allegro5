@@ -43,6 +43,10 @@ static ALLEGRO_MOUSE_STATE mouse_state;
 static ALLEGRO_MOUSE the_mouse;
 static bool installed = false;
 
+// The raw versions of z/w in the mouse_state. They are related to them by a scaling constant.
+static int raw_mouse_z = 0;
+static int raw_mouse_w = 0;
+
 
 static bool init_mouse(void)
 {
@@ -92,7 +96,7 @@ static void exit_mouse(void)
 
 
 static void generate_mouse_event(unsigned int type,
-                                 int x, int y, int z, int w,
+                                 int x, int y, int z, int w, float pressure,
                                  int dx, int dy, int dz, int dw,
                                  unsigned int button,
                                  ALLEGRO_DISPLAY *source)
@@ -115,7 +119,7 @@ static void generate_mouse_event(unsigned int type,
    event.mouse.dz = dz;
    event.mouse.dw = dw;
    event.mouse.button = button;
-   event.mouse.pressure = 0.0; /* TODO */
+   event.mouse.pressure = pressure;
    _al_event_source_emit_event(&the_mouse.es, &event);
    _al_event_source_unlock(&the_mouse.es);
 }
@@ -163,7 +167,7 @@ static bool set_mouse_xy(ALLEGRO_DISPLAY *disp, int x, int y)
 
       generate_mouse_event(
          ALLEGRO_EVENT_MOUSE_WARPED,
-         mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w,
+         mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
          dx, dy, 0, 0,
          0, (void*)win_disp);
    }
@@ -185,12 +189,14 @@ static bool set_mouse_axis(int which, int val)
    if (which == 2) {
       int dz = (val - mouse_state.z);
 
+      raw_mouse_z = WHEEL_DELTA * val / al_get_mouse_wheel_precision();
+
       if (dz != 0) {
          mouse_state.z = val;
 
          generate_mouse_event(
             ALLEGRO_EVENT_MOUSE_AXES,
-            mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w,
+            mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
             0, 0, dz, 0,
             0, mouse_state.display);
       }
@@ -202,12 +208,14 @@ static bool set_mouse_axis(int which, int val)
    if (which == 3) {
       int dw = (val - mouse_state.w);
 
+      raw_mouse_w = WHEEL_DELTA * val / al_get_mouse_wheel_precision();
+
       if (dw != 0) {
          mouse_state.w = val;
 
          generate_mouse_event(
             ALLEGRO_EVENT_MOUSE_AXES,
-            mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w,
+            mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
             0, 0, 0, dw,
             0, mouse_state.display);
       }
@@ -266,7 +274,7 @@ void _al_win_mouse_handle_leave(ALLEGRO_DISPLAY_WIN *win_disp)
       return;
 
    generate_mouse_event(ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY,
-      mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w,
+      mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
       0, 0, 0, 0,
       0, (void*)win_disp);
 }
@@ -283,7 +291,7 @@ void _al_win_mouse_handle_enter(ALLEGRO_DISPLAY_WIN *win_disp)
       return;
 
    generate_mouse_event(ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY,
-      mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w,
+      mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
       0, 0, 0, 0,
       0, (void*)win_disp);
 }
@@ -315,54 +323,60 @@ void _al_win_mouse_handle_move(int x, int y, bool abs, ALLEGRO_DISPLAY_WIN *win_
 
    if (oldx != mouse_state.x || oldy != mouse_state.y) {
       generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
-         mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w,
+         mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
          dx, dy, 0, 0,
          0, (void*)win_disp);
    }
 }
 
 
-void _al_win_mouse_handle_wheel(int z, bool abs, ALLEGRO_DISPLAY_WIN *win_disp)
+void _al_win_mouse_handle_wheel(int raw_dz, bool abs, ALLEGRO_DISPLAY_WIN *win_disp)
 {
    int d;
+   int new_z;
 
    if (!installed)
       return;
 
    if (!abs) {
-      mouse_state.z += z;
-      d = z;
+      raw_mouse_z += raw_dz;
    }
    else {
-      d = z - mouse_state.z;
-      mouse_state.z = z;
+      raw_mouse_z = raw_dz;
    }
 
+   new_z = al_get_mouse_wheel_precision() * raw_mouse_z / WHEEL_DELTA;
+   d = new_z - mouse_state.z;
+   mouse_state.z = new_z;
+
    generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
-      mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w,
+      mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
       0, 0, d, 0,
       0, (void*)win_disp);
 }
 
 
-void _al_win_mouse_handle_hwheel(int w, bool abs, ALLEGRO_DISPLAY_WIN *win_disp)
+void _al_win_mouse_handle_hwheel(int raw_dw, bool abs, ALLEGRO_DISPLAY_WIN *win_disp)
 {
    int d;
+   int new_w;
 
    if (!installed)
       return;
 
    if (!abs) {
-      mouse_state.w += w;
-      d = w;
+      raw_mouse_w += raw_dw;
    }
    else {
-      d = w - mouse_state.w;
-      mouse_state.w = w;
+      raw_mouse_w = raw_dw;
    }
 
+   new_w = al_get_mouse_wheel_precision() * raw_mouse_w / WHEEL_DELTA;
+   d = new_w - mouse_state.w;
+   mouse_state.w = new_w;
+
    generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
-      mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w,
+      mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
       0, 0, 0, d,
       0, (void*)win_disp);
 }
@@ -392,8 +406,10 @@ void _al_win_mouse_handle_button(int button, bool down, int x, int y, bool abs,
    else
       mouse_state.buttons &= ~(1 << (button-1));
 
+   mouse_state.pressure = mouse_state.buttons ? 1.0 : 0.0; /* TODO */
+
    generate_mouse_event(type,
-      mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w,
+      mouse_state.x, mouse_state.y, mouse_state.z, mouse_state.w, mouse_state.pressure,
       0, 0, 0, 0,
       button, (void*)win_disp);
 }

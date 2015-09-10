@@ -62,10 +62,40 @@ void al_use_transform(const ALLEGRO_TRANSFORM *trans)
     * so the hardware transformation has to be kept at identity.
     */
    if (!al_is_bitmap_drawing_held()) {
-      display = target->display;
+      display = _al_get_bitmap_display(target);
       if (display) {
          display->vt->update_transformation(display, target);
       }
+   }
+}
+
+/* Function: al_use_projection_transform
+ */
+void al_use_projection_transform(const ALLEGRO_TRANSFORM *trans)
+{
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_DISPLAY *display;
+
+   if (!target)
+      return;
+
+   /* Memory bitmaps don't support custom projection transforms */
+   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP)
+      return;
+
+   /* Changes to a back buffer should affect the front buffer, and vice versa.
+    * Currently we rely on the fact that in the OpenGL drivers the back buffer
+    * and front buffer bitmaps are exactly the same, and the DirectX driver
+    * doesn't support front buffer bitmaps.
+    */
+
+   if (trans != &target->transform) {
+      al_copy_transform(&target->proj_transform, trans);
+   }
+
+   display = _al_get_bitmap_display(target);
+   if (display) {
+      display->vt->update_transformation(display, target);
    }
 }
 
@@ -79,6 +109,18 @@ const ALLEGRO_TRANSFORM *al_get_current_transform(void)
       return NULL;
 
    return &target->transform;
+}
+
+/* Function: al_get_current_projection_transform
+ */
+const ALLEGRO_TRANSFORM *al_get_current_projection_transform(void)
+{
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+
+   if (!target)
+      return NULL;
+
+   return &target->proj_transform;
 }
 
 /* Function: al_get_current_inverse_transform
@@ -155,6 +197,74 @@ void al_build_transform(ALLEGRO_TRANSFORM *trans, float x, float y,
    trans->m[3][1] = y;
    trans->m[3][2] = 0;
    trans->m[3][3] = 1;
+}
+
+/* Function: al_build_camera_transform
+ */
+void al_build_camera_transform(ALLEGRO_TRANSFORM *trans,
+   float position_x, float position_y, float position_z,
+   float look_x, float look_y, float look_z,
+   float up_x, float up_y, float up_z)
+{
+   float x = position_x;
+   float y = position_y;
+   float z = position_z;
+   float xx, xy, xz, xnorm;
+   float yx, yy, yz;
+   float zx, zy, zz, znorm;
+
+   al_identity_transform(trans);
+
+   /* Get the z-axis (direction towards viewer) and normalize it.
+    */
+   zx = x - look_x;
+   zy = y - look_y;
+   zz = z - look_z;
+   znorm = sqrt(zx * zx + zy * zy + zz * zz);
+   if (znorm == 0)
+      return;
+   zx /= znorm;
+   zy /= znorm;
+   zz /= znorm;
+
+   /* Get the x-axis (direction pointing to the right) as the cross product of
+    * the up-vector times the z-axis. We need to normalize it because we do
+    * neither require the up-vector to be normalized nor perpendicular.
+    */
+   xx = up_y * zz - zy * up_z;
+   xy = up_z * zx - zz * up_x;
+   xz = up_x * zy - zx * up_y;
+   xnorm = sqrt(xx * xx + xy * xy + xz * xz);
+   if (xnorm == 0)
+      return;
+   xx /= xnorm;
+   xy /= xnorm;
+   xz /= xnorm;
+
+   /* Now use the cross product of z-axis and x-axis as our y-axis. This can
+    * have a different direction than the original up-vector but it will
+    * already be normalized.
+    */
+   yx = zy * xz - xy * zz;
+   yy = zz * xx - xz * zx;
+   yz = zx * xy - xx * zy;
+
+   /* This is an inverse translation (subtract the camera position) followed by
+    * an inverse rotation (rotate in the opposite direction of the camera
+    * orientation).
+    */
+   trans->m[0][0] = xx;
+   trans->m[1][0] = xy;
+   trans->m[2][0] = xz;
+   trans->m[3][0] = xx * -x + xy * -y + xz * -z;
+   trans->m[0][1] = yx;
+   trans->m[1][1] = yy;
+   trans->m[2][1] = yz;
+   trans->m[3][1] = yx * -x + yy * -y + yz * -z;
+   trans->m[0][2] = zx;
+   trans->m[1][2] = zy;
+   trans->m[2][2] = zz;
+   trans->m[3][2] = zx * -x + zy * -y + zz * -z;
 }
 
 /* Function: al_invert_transform
@@ -301,6 +411,30 @@ void al_transform_coordinates(const ALLEGRO_TRANSFORM *trans, float *x, float *y
    *y = t * trans->m[0][1] + *y * trans->m[1][1] + trans->m[3][1];
 }
 
+/* Function: al_transform_coordinates_3d
+ */
+void al_transform_coordinates_3d(const ALLEGRO_TRANSFORM *trans,
+   float *x, float *y, float *z)
+{
+   float rx, ry, rz;
+   ASSERT(trans);
+   ASSERT(x);
+   ASSERT(y);
+   ASSERT(z);
+
+   #define M(i, j) trans->m[i][j]
+
+   rx = M(0, 0) * *x + M(1, 0) * *y + M(2, 0) * *z + M(3, 0);
+   ry = M(0, 1) * *x + M(1, 1) * *y + M(2, 1) * *z + M(3, 1);
+   rz = M(0, 2) * *x + M(1, 2) * *y + M(2, 2) * *z + M(3, 2);
+
+   #undef M
+
+   *x = rx;
+   *y = ry;
+   *z = rz;
+}
+
 /* Function: al_compose_transform
  */
 void al_compose_transform(ALLEGRO_TRANSFORM *trans, const ALLEGRO_TRANSFORM *other)
@@ -432,23 +566,6 @@ void al_perspective_transform(ALLEGRO_TRANSFORM *trans,
 
    al_compose_transform(trans, &tmp);
 }
-
-
-/* Function: al_get_projection_transform
- */
-ALLEGRO_TRANSFORM *al_get_projection_transform(ALLEGRO_DISPLAY *display)
-{
-   return &display->proj_transform;
-}
-
-/* Function: al_set_projection_transform
- */
-void al_set_projection_transform(ALLEGRO_DISPLAY *display, ALLEGRO_TRANSFORM *t)
-{
-   al_copy_transform(&display->proj_transform, t);
-   display->vt->set_projection(display);
-}
-
 
 /* Function: al_horizontal_shear_transform
  */

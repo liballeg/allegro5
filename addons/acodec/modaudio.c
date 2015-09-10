@@ -68,6 +68,10 @@ static struct
    DUH *(*dumb_read_xm)(DUMBFILE *);
    DUH *(*dumb_read_s3m)(DUMBFILE *);
    DUH *(*dumb_read_mod)(DUMBFILE *);
+   DUMB_IT_SIGRENDERER *(*duh_get_it_sigrenderer)(DUH_SIGRENDERER *);
+   void (*dumb_it_set_loop_callback)(DUMB_IT_SIGRENDERER *, int (*)(void *), void *);
+   void (*dumb_it_set_xm_speed_zero_callback)(DUMB_IT_SIGRENDERER *, int (*)(void *), void *);
+   int (*dumb_it_callback_terminate)(void *);
 } lib;
 
 
@@ -112,19 +116,26 @@ static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    const int sample_size = 4;
    size_t written;
    size_t i;
+
+   DUMB_IT_SIGRENDERER *it_sig = lib.duh_get_it_sigrenderer(df->sig);
+   if (it_sig) {
+      lib.dumb_it_set_loop_callback(it_sig,
+                                stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE
+                                ? lib.dumb_it_callback_terminate : NULL, NULL);
+   }
    
    written = lib.duh_render(df->sig, 16, 0, 1.0, 65536.0 / 44100.0,
       buf_size / sample_size, data) * sample_size;
 
    /* Fill the remainder with silence */
    for (i = written; i < buf_size; ++i)
-      ((int *)data)[i] = 0x8000;
+      ((char *)data)[i] = 0;
    
    /* Check to see if a loop is set */
    if (df->loop_start != -1 && 
       df->loop_end < lib.duh_sigrenderer_get_position(df->sig)) {
          modaudio_stream_seek(stream, df->loop_start / 65536.0);
-   }   
+   }
    
    return written;
 }
@@ -190,6 +201,7 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
    DUMBFILE *df;
    DUH_SIGRENDERER *sig = NULL;
    DUH *duh = NULL;
+   DUMB_IT_SIGRENDERER *it_sig = NULL;
    int64_t start_pos = -1;
    
    df = lib.dumbfile_open_ex(f, &dfs_f);
@@ -208,6 +220,12 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
       goto Error;
    }
 
+   it_sig = lib.duh_get_it_sigrenderer(sig);
+   if (it_sig) {
+      /* Turn off freezing for XM files. Seems completely pointless. */
+      lib.dumb_it_set_xm_speed_zero_callback(it_sig, lib.dumb_it_callback_terminate, NULL);
+   }
+
    stream = al_create_audio_stream(buffer_count, samples, 44100,
       ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2); 
 
@@ -223,7 +241,6 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
       mf->loop_end = -1;
 
       stream->extra = mf;
-      stream->feed_thread = al_create_thread(_al_kcm_feed_stream, stream);
       stream->feeder = modaudio_stream_update;
       stream->unload_feeder = modaudio_stream_close;
       stream->rewind_feeder = modaudio_stream_rewind;
@@ -231,7 +248,7 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
       stream->get_feeder_position = modaudio_stream_get_position;
       stream->get_feeder_length = modaudio_stream_get_length;
       stream->set_feeder_loop = modaudio_stream_set_loop;
-      al_start_thread(stream->feed_thread);
+      _al_acodec_start_feed_thread(stream);
    }
    else {
       goto Error;
@@ -314,6 +331,10 @@ static bool init_libdumb(void)
    INITSYM(dumb_read_xm);
    INITSYM(dumb_read_s3m);
    INITSYM(dumb_read_mod);
+   INITSYM(duh_get_it_sigrenderer);
+   INITSYM(dumb_it_set_loop_callback);
+   INITSYM(dumb_it_set_xm_speed_zero_callback);
+   INITSYM(dumb_it_callback_terminate);
 
    dfs.open = dfs_open;
    dfs.skip = dfs_skip;

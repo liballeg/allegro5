@@ -7,9 +7,8 @@ ALLEGRO_DEBUG_CHANNEL("SDL")
 typedef struct ALLEGRO_MOUSE_SDL
 {
    ALLEGRO_MOUSE mouse;
-   int x, y, z, w;
+   ALLEGRO_MOUSE_STATE state;
    ALLEGRO_DISPLAY *display;
-   int buttons;
 } ALLEGRO_MOUSE_SDL;
 
 static ALLEGRO_MOUSE_DRIVER *vt;
@@ -36,8 +35,10 @@ void _al_sdl_mouse_event(SDL_Event *e)
       }
       else {
          event.mouse.type = ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY;
-         event.mouse.x = mouse->x;
-         event.mouse.y = mouse->y;
+         event.mouse.x = mouse->state.x;
+         event.mouse.y = mouse->state.y;
+         event.mouse.z = mouse->state.z;
+         event.mouse.w = mouse->state.w;
       }
       d = _al_sdl_find_display(e->window.windowID);
       mouse->display = e->window.event == SDL_WINDOWEVENT_ENTER ? d : NULL;
@@ -46,20 +47,28 @@ void _al_sdl_mouse_event(SDL_Event *e)
       event.mouse.type = ALLEGRO_EVENT_MOUSE_AXES;
       event.mouse.x = e->motion.x;
       event.mouse.y = e->motion.y;
+      event.mouse.z = mouse->state.z;
+      event.mouse.w = mouse->state.w;
       event.mouse.dx = e->motion.xrel;
       event.mouse.dy = e->motion.yrel;
-      mouse->x = e->motion.x;
-      mouse->y = e->motion.y;
+      event.mouse.dz = 0;
+      event.mouse.dw = 0;
+      mouse->state.x = e->motion.x;
+      mouse->state.y = e->motion.y;
       d = _al_sdl_find_display(e->motion.windowID);
    }
    else if (e->type == SDL_MOUSEWHEEL) {
       event.mouse.type = ALLEGRO_EVENT_MOUSE_AXES;
-      mouse->z += e->wheel.y;
-      mouse->w += e->wheel.x;
-      event.mouse.z = mouse->z;
-      event.mouse.w = mouse->w;
-      event.mouse.dz = e->wheel.y;
-      event.mouse.dw = e->wheel.x;
+      mouse->state.z += al_get_mouse_wheel_precision() * e->wheel.y;
+      mouse->state.w += al_get_mouse_wheel_precision() * e->wheel.x;
+      event.mouse.x = mouse->state.x;
+      event.mouse.y = mouse->state.y;
+      event.mouse.z = mouse->state.z;
+      event.mouse.w = mouse->state.w;
+      event.mouse.dx = 0;
+      event.mouse.dy = 0;
+      event.mouse.dz = al_get_mouse_wheel_precision() * e->wheel.y;
+      event.mouse.dw = al_get_mouse_wheel_precision() * e->wheel.x;
       d = _al_sdl_find_display(e->wheel.windowID);
    }
    else {
@@ -72,17 +81,20 @@ void _al_sdl_mouse_event(SDL_Event *e)
       }
       event.mouse.x = e->button.x;
       event.mouse.y = e->button.y;
+      event.mouse.z = mouse->state.z;
+      event.mouse.w = mouse->state.w;
       if (e->type == SDL_MOUSEBUTTONDOWN) {
          event.mouse.type = ALLEGRO_EVENT_MOUSE_BUTTON_DOWN;
-         mouse->buttons |= 1 << (event.mouse.button - 1);
+         mouse->state.buttons |= 1 << (event.mouse.button - 1);
       }
       if (e->type == SDL_MOUSEBUTTONUP) {
          event.mouse.type = ALLEGRO_EVENT_MOUSE_BUTTON_UP;
-         mouse->buttons &= ~(1 << (event.mouse.button - 1));
+         mouse->state.buttons &= ~(1 << (event.mouse.button - 1));
       }
       d = _al_sdl_find_display(e->button.windowID);
    }
 
+   event.mouse.pressure = mouse->state.buttons ? 1.0 : 0.0; /* TODO */
    event.mouse.display = d;
 
    _al_event_source_emit_event(es, &event);
@@ -124,7 +136,10 @@ static bool sdl_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
 
 static bool sdl_set_mouse_axis(int which, int value)
 {
-   return false;
+   if (which == 1) mouse->state.z = value;
+   else if (which == 2) mouse->state.w = value;
+   else return false;
+   return true;
 }
 
 static void sdl_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
@@ -139,8 +154,8 @@ static void sdl_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
    ret_state->w = 0;
    for (i = 0; i < ALLEGRO_MOUSE_MAX_EXTRA_AXES; i++)
       ret_state->more_axes[i] = 0;
-   ret_state->buttons = mouse->buttons;
-   ret_state->pressure = 0;
+   ret_state->buttons = mouse->state.buttons;
+   ret_state->pressure = mouse->state.buttons ? 1.0 : 0.0; /* TODO */
    ret_state->display = mouse->display;
 }
 

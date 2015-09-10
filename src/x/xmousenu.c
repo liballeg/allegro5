@@ -70,7 +70,7 @@ static void xmouse_get_state(ALLEGRO_MOUSE_STATE *ret_state);
 static void wheel_motion_handler(int x_button, ALLEGRO_DISPLAY *display);
 static unsigned int x_button_to_al_button(unsigned int x_button);
 static void generate_mouse_event(unsigned int type,
-   int x, int y, int z, int w,
+   int x, int y, int z, int w, float pressure,
    int dx, int dy, int dz, int dw,
    unsigned int button,
    ALLEGRO_DISPLAY *display);
@@ -302,7 +302,7 @@ static bool xmouse_set_mouse_axis(int which, int v)
          generate_mouse_event(
             ALLEGRO_EVENT_MOUSE_AXES,
             the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
-            the_mouse.state.w,
+            the_mouse.state.w, the_mouse.state.pressure,
             0, 0, dz, dw,
             0, the_mouse.state.display);
       }
@@ -353,11 +353,12 @@ void _al_xwin_mouse_button_press_handler(int x_button,
    _al_event_source_lock(&the_mouse.parent.es);
    {
       the_mouse.state.buttons |= (1 << (al_button - 1));
+      the_mouse.state.pressure = the_mouse.state.buttons ? 1.0 : 0.0; /* TODO */
 
       generate_mouse_event(
          ALLEGRO_EVENT_MOUSE_BUTTON_DOWN,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
-         the_mouse.state.w,
+         the_mouse.state.w, the_mouse.state.pressure,
          0, 0, 0, 0,
          al_button, display);
    }
@@ -379,6 +380,9 @@ static void wheel_motion_handler(int x_button, ALLEGRO_DISPLAY *display)
    if (x_button == 7) dw = 1;
    if (dz == 0 && dw == 0) return;
 
+   dz *= al_get_mouse_wheel_precision();
+   dw *= al_get_mouse_wheel_precision();
+
    _al_event_source_lock(&the_mouse.parent.es);
    {
       the_mouse.state.z += dz;
@@ -387,7 +391,7 @@ static void wheel_motion_handler(int x_button, ALLEGRO_DISPLAY *display)
       generate_mouse_event(
          ALLEGRO_EVENT_MOUSE_AXES,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
-         the_mouse.state.w,
+         the_mouse.state.w, the_mouse.state.pressure,
          0, 0, dz, dw,
          0, display);
    }
@@ -415,11 +419,12 @@ void _al_xwin_mouse_button_release_handler(int x_button,
    _al_event_source_lock(&the_mouse.parent.es);
    {
       the_mouse.state.buttons &=~ (1 << (al_button - 1));
+      the_mouse.state.pressure = the_mouse.state.buttons ? 1.0 : 0.0; /* TODO */
 
       generate_mouse_event(
          ALLEGRO_EVENT_MOUSE_BUTTON_UP,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
-         the_mouse.state.w,
+         the_mouse.state.w, the_mouse.state.pressure,
          0, 0, 0, 0,
          al_button, display);
    }
@@ -460,7 +465,7 @@ void _al_xwin_mouse_motion_notify_handler(int x, int y,
    generate_mouse_event(
       event_type,
       the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
-      the_mouse.state.w,
+      the_mouse.state.w, the_mouse.state.pressure,
       dx, dy, 0, 0,
       0, display);
 
@@ -501,7 +506,7 @@ static unsigned int x_button_to_al_button(unsigned int x_button)
  *  Helper to generate a mouse event.
  */
 static void generate_mouse_event(unsigned int type,
-                                 int x, int y, int z, int w,
+                                 int x, int y, int z, int w, float pressure,
                                  int dx, int dy, int dz, int dw,
                                  unsigned int button,
                                  ALLEGRO_DISPLAY *display)
@@ -523,7 +528,7 @@ static void generate_mouse_event(unsigned int type,
    event.mouse.dz = dz;
    event.mouse.dw = dw;
    event.mouse.button = button;
-   event.mouse.pressure = 0.0; /* TODO */
+   event.mouse.pressure = pressure;
    _al_event_source_emit_event(&the_mouse.parent.es, &event);
 }
 
@@ -566,7 +571,7 @@ void _al_xwin_mouse_switch_handler(ALLEGRO_DISPLAY *display,
 
    generate_mouse_event(
       event_type,
-      the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
+      the_mouse.state.x, the_mouse.state.y, the_mouse.state.z, the_mouse.state.pressure,
       the_mouse.state.w,
       0, 0, 0, 0,
       0, display);

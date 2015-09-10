@@ -34,9 +34,14 @@
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_tri_soft.h" // For ALLEGRO_VERTEX
 #include "allegro5/internal/aintern_vector.h"
+#include "allegro5/internal/aintern_wclipboard.h"
 #include "allegro5/platform/aintwin.h"
 
 #include "d3d.h"
+
+static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
+static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *target);
+static bool d3d_init_display();
 
 // C++ needs to cast void pointers
 #define get_extra(b) ((ALLEGRO_BITMAP_EXTRA_D3D *)\
@@ -47,8 +52,6 @@ static const char* _al_d3d_module_name = "d3d9.dll";
 ALLEGRO_DEBUG_CHANNEL("d3d")
 
 static ALLEGRO_DISPLAY_INTERFACE *vt = 0;
-
-static ALLEGRO_BITMAP *previous_target = NULL;
 
 static HMODULE _al_d3d_module = 0;
 
@@ -66,9 +69,6 @@ LPDIRECT3D9 _al_d3d = 0;
 
 static D3DPRESENT_PARAMETERS d3d_pp;
 
-static float d3d_ortho_w;
-static float d3d_ortho_h;
-
 static HWND fullscreen_focus_window;
 static bool ffw_set = false;
 
@@ -81,6 +81,8 @@ static bool already_fullscreen = false; /* real fullscreen */
 
 static ALLEGRO_MUTEX *present_mutex;
 ALLEGRO_MUTEX *_al_d3d_lost_device_mutex;
+
+#define FOURCC(c0, c1, c2, c3) ((int)(c0) | ((int)(c1) << 8) | ((int)(c2) << 16) | ((int)(c3) << 24))
 
 /*
  * These parameters cannot be gotten by the display thread because
@@ -111,6 +113,9 @@ static int allegro_formats[] = {
    //ALLEGRO_PIXEL_FORMAT_ARGB_1555,  this format seems not to be allowed
    ALLEGRO_PIXEL_FORMAT_ABGR_F32,
    ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8,
+   ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1,
+   ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3,
+   ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5,
    -1
 };
 
@@ -132,6 +137,9 @@ static int d3d_formats[] = {
    //D3DFMT_A1R5G5B5,
    D3DFMT_A32B32G32R32F,
    D3DFMT_L8,
+   FOURCC('D', 'X', 'T', '1'),
+   FOURCC('D', 'X', 'T', '3'),
+   FOURCC('D', 'X', 'T', '5'),
    -1
 };
 
@@ -219,6 +227,9 @@ bool al_have_d3d_non_pow2_texture_support(void)
 {
    D3DCAPS9 caps;
    int adapter = al_get_new_display_adapter();
+
+   if (!_al_d3d && !d3d_init_display())
+      return false;
    if (adapter < 0)
       adapter = 0;
 
@@ -240,6 +251,9 @@ static int d3d_get_max_texture_size(int adapter)
 {
    D3DCAPS9 caps;
 
+   if (!_al_d3d && !d3d_init_display())
+      return -1;
+
    if (_al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_HAL, &caps) != D3D_OK) {
       if (_al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_REF, &caps) != D3D_OK) {
          return -1;
@@ -255,6 +269,8 @@ bool al_have_d3d_non_square_texture_support(void)
 {
    D3DCAPS9 caps;
    int adapter = al_get_new_display_adapter();
+   if (!_al_d3d && !d3d_init_display())
+      return false;
    if (adapter < 0)
       adapter = 0;
 
@@ -344,72 +360,6 @@ static void d3d_reset_state(ALLEGRO_DISPLAY_D3D *disp)
       ALLEGRO_ERROR("SetSamplerState failed\n");
 }
 
-void _al_d3d_get_current_ortho_projection_parameters(float *w, float *h)
-{
-   *w = d3d_ortho_w;
-   *h = d3d_ortho_h;
-}
-
-static void d3d_get_identity_matrix(D3DMATRIX *matrix)
-{
-   int i, j;
-   int one = 0;
-
-   for (i = 0; i < 4; i++) {
-      for (j = 0; j < 4; j++) {
-         if (j == one)
-            matrix->m[j][i] = 1.0f;
-         else
-            matrix->m[j][i] = 0.0f;
-      }
-      one++;
-   }
-}
-
-static void _al_d3d_set_ortho_projection(ALLEGRO_DISPLAY_D3D *disp, float w, float h)
-{
-   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)disp;
-
-   if (disp->device_lost)
-      return;
-
-   d3d_ortho_w = w;
-   d3d_ortho_h = h;
-
-   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-      al_identity_transform(&display->proj_transform);
-      al_orthographic_transform(&display->proj_transform, 0, 0, -1, w, h, 1);
-
-#ifdef ALLEGRO_CFG_SHADER_HLSL
-      LPD3DXEFFECT effect = disp->effect;
-      if (effect) {
-         ALLEGRO_TRANSFORM t;
-         al_copy_transform(&t, &display->view_transform);
-         al_compose_transform(&t, &display->proj_transform);
-         _al_hlsl_set_projview_matrix(effect, &t);
-      }
-#endif
-   }
-   else {
-      D3DMATRIX matIdentity;
-      al_identity_transform(&display->proj_transform);
-      al_orthographic_transform(&display->proj_transform, 0, 0, -1, w, h, 1);
-
-      /*
-       * Shift by half a pixel to make the output match the OpenGL output.
-       * Don't shift the actual proj_transform because if the user grabs it via 
-       * al_get_projection_transform() and then sends it to
-       * al_set_projection_transform() the shift will be applied twice.
-       */
-      ALLEGRO_TRANSFORM shifted;
-      al_copy_transform(&shifted, &display->proj_transform);
-      al_translate_transform(&shifted, -1.0 / w, 1.0 / h);
-      d3d_get_identity_matrix(&matIdentity);
-      disp->device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&shifted.m);
-      disp->device->SetTransform(D3DTS_WORLD, &matIdentity);
-   }
-}
-
 static bool d3d_display_mode_matches(D3DDISPLAYMODE *dm, int w, int h, int format, int refresh_rate)
 {
    if ((dm->Width == (unsigned int)w) &&
@@ -426,6 +376,9 @@ static bool d3d_check_mode(int w, int h, int format, int refresh_rate, UINT adap
    UINT num_modes;
    UINT i;
    D3DDISPLAYMODE display_mode;
+
+   if (!_al_d3d && !d3d_init_display())
+      return false;
 
    num_modes = _al_d3d->GetAdapterModeCount(adapter, (D3DFORMAT)_al_pixel_format_to_d3d(format));
 
@@ -444,6 +397,8 @@ static bool d3d_check_mode(int w, int h, int format, int refresh_rate, UINT adap
 static int d3d_get_default_refresh_rate(UINT adapter)
 {
    D3DDISPLAYMODE d3d_dm;
+   if (!_al_d3d && !d3d_init_display())
+      return 0;
    _al_d3d->GetAdapterDisplayMode(adapter, &d3d_dm);
    return d3d_dm.RefreshRate;
 }
@@ -648,7 +603,7 @@ bool _al_d3d_render_to_texture_supported(void)
 
 
 
-bool _al_d3d_init_display()
+static bool d3d_init_display()
 {
    D3DDISPLAYMODE d3d_dm;
    OSVERSIONINFO info;
@@ -861,7 +816,7 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
                   D3DDEVTYPE_REF, win_display->window,
                   D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
                   &d3d_pp, (LPDIRECT3DDEVICE9 *)&d->device)) != D3D_OK) {
-               
+
                ALLEGRO_ERROR("CreateDevice failed: %s\n", _al_d3d_error_string(hr));
                return 0;
             }
@@ -986,8 +941,6 @@ void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
       (*d3d_release_callback)(al_display);
    }
 
-   previous_target = NULL;
-
    d3d_call_callbacks(&al_display->display_invalidated_callbacks, al_display);
 
    _al_d3d_release_default_pool_textures((ALLEGRO_DISPLAY *)disp);
@@ -1078,6 +1031,7 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
                 break;
              case D3DERR_DEVICELOST:
                 ALLEGRO_ERROR("D3DERR_DEVICELOST in reset.\n");
+                d3d_display->device_lost = true;
                 break;
              default:
                 ALLEGRO_ERROR("Direct3D Device reset failed (unknown reason).\n");
@@ -1124,20 +1078,45 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
        /* Must be 0 for windowed modes */
        d3d_pp.FullScreen_RefreshRateInHz = 0;
 
-       if (d3d_display->device->Reset(&d3d_pp) != D3D_OK) {
-          ALLEGRO_WARN("Reset failed\n");
+       HRESULT hr = d3d_display->device->Reset(&d3d_pp);
+       if (hr != D3D_OK) {
+          switch (hr) {
+             case D3DERR_INVALIDCALL:
+                ALLEGRO_ERROR("D3DERR_INVALIDCALL in reset.\n");
+                break;
+             case D3DERR_NOTAVAILABLE:
+                ALLEGRO_ERROR("D3DERR_NOTAVAILABLE in reset.\n");
+                break;
+             case D3DERR_OUTOFVIDEOMEMORY:
+                ALLEGRO_ERROR("D3DERR_OUTOFVIDEOMEMORY in reset.\n");
+                break;
+             case D3DERR_DEVICELOST:
+                ALLEGRO_ERROR("D3DERR_DEVICELOST in reset.\n");
+                d3d_display->device_lost = true;
+                break;
+             default:
+                ALLEGRO_ERROR("Direct3D Device reset failed (unknown reason).\n");
+                break;
+          }
           al_unlock_mutex(_al_d3d_lost_device_mutex);
           return 0;
        }
     }
 
    d3d_display->device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &d3d_display->render_target);
-   
+
    _al_d3d_refresh_texture_memory(al_display);
-   
+
    d3d_display->device->BeginScene();
 
    d3d_reset_state(d3d_display);
+
+   /* Restore the target bitmap. */
+   if (d3d_display->target_bitmap) {
+      ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY*)d3d_display;
+      d3d_set_target_bitmap(display, d3d_display->target_bitmap);
+      d3d_update_transformation(display, d3d_display->target_bitmap);
+   }
 
    al_unlock_mutex(_al_d3d_lost_device_mutex);
 
@@ -1182,6 +1161,14 @@ static BOOL IsTextureFormatOk(D3DFORMAT TextureFormat, D3DFORMAT AdapterFormat)
    }
 
    return SUCCEEDED(hr);
+}
+
+/* Same as above, but using Allegro's formats */
+static bool is_texture_format_ok(ALLEGRO_DISPLAY *display, int texture_format)
+{
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D*)display;
+   return IsTextureFormatOk((D3DFORMAT)_al_pixel_format_to_d3d(texture_format),
+      (D3DFORMAT)_al_pixel_format_to_d3d(d3d_display->format));
 }
 
 static int real_choose_bitmap_format(ALLEGRO_DISPLAY_D3D *d3d_display,
@@ -1522,9 +1509,6 @@ static void *d3d_display_thread_proc(void *arg)
       else if (hr == D3DERR_DEVICENOTRESET) {
          if (_al_d3d_reset_device(d3d_display)) {
             d3d_display->device_lost = false;
-            d3d_reset_state(d3d_display);
-            _al_d3d_set_ortho_projection(d3d_display,
-               al_display->w, al_display->h);
             _al_event_source_lock(&al_display->es);
             if (_al_event_source_needs_to_generate_event(&al_display->es)) {
                ALLEGRO_EVENT event;
@@ -1607,7 +1591,7 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
       d3d_display->faux_fullscreen = false;
    }
 #endif
-      
+
    if (!(al_display->flags & ALLEGRO_FULLSCREEN)) {
       if (al_display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
          ALLEGRO_MONITOR_INFO mi;
@@ -1744,9 +1728,11 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_internals(
 
    d3d_display->backbuffer_bmp.extra = &d3d_display->backbuffer_bmp_extra;
    d3d_display->backbuffer_bmp_extra.is_backbuffer = true;
-   d3d_display->backbuffer_bmp.display = al_display;
-   d3d_display->backbuffer_bmp.format = _al_deduce_color_format(&al_display->extra_settings);
-   d3d_display->backbuffer_bmp.flags = 0;
+   d3d_display->backbuffer_bmp._display = al_display;
+   d3d_display->backbuffer_bmp._format = _al_deduce_color_format(&al_display->extra_settings);
+   d3d_display->backbuffer_bmp._memory_format = d3d_display->backbuffer_bmp._format;
+   d3d_display->backbuffer_bmp_extra.system_format = d3d_display->backbuffer_bmp._format;
+   d3d_display->backbuffer_bmp._flags = ALLEGRO_VIDEO_BITMAP;
    d3d_display->backbuffer_bmp.w = al_display->w;
    d3d_display->backbuffer_bmp.h = al_display->h;
    d3d_display->backbuffer_bmp_extra.texture_w = al_display->w;
@@ -1757,6 +1743,10 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_internals(
    d3d_display->backbuffer_bmp.cb_excl = al_display->h;
    d3d_display->backbuffer_bmp.vt = (ALLEGRO_BITMAP_INTERFACE *)_al_bitmap_d3d_driver();
    d3d_display->backbuffer_bmp_extra.display = d3d_display;
+   d3d_display->target_bitmap = NULL;
+   al_identity_transform(&d3d_display->backbuffer_bmp.transform);
+   al_identity_transform(&d3d_display->backbuffer_bmp.proj_transform);
+   al_orthographic_transform(&d3d_display->backbuffer_bmp.proj_transform, 0, 0, -1.0, al_display->w, al_display->h, 1.0);
 
    /* Alpha blending is the default */
    d3d_display->device->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
@@ -1852,8 +1842,6 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
 
    ASSERT(display->vt);
 
-   al_identity_transform(&display->view_transform);
-
    s = display->extra_settings.settings;
    s[ALLEGRO_MAX_BITMAP_SIZE] = d3d_get_max_texture_size(win_display->adapter);
    s[ALLEGRO_SUPPORT_SEPARATE_ALPHA] = _al_d3d_supports_separate_alpha_blend(display);
@@ -1863,6 +1851,8 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
 #ifdef ALLEGRO_CFG_SHADER_HLSL
    _al_load_d3dx9_module();
 #endif
+
+   _al_win_post_create_window(display);
 
    return display;
 }
@@ -1891,6 +1881,8 @@ static int d3d_al_blender_to_d3d(int al_mode)
       D3DBLEND_DESTCOLOR,
       D3DBLEND_INVSRCCOLOR,
       D3DBLEND_INVDESTCOLOR,
+      D3DBLEND_BLENDFACTOR,
+      D3DBLEND_INVBLENDFACTOR
    };
 
    return d3d_modes[al_mode];
@@ -1900,6 +1892,8 @@ void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
    bool blender_changed;
    int op, src, dst, alpha_op, alpha_src, alpha_dst;
+   ALLEGRO_COLOR color;
+   unsigned char r, g, b, a;
    DWORD allegro_to_d3d_blendop[ALLEGRO_NUM_BLEND_OPERATIONS] = {
       D3DBLENDOP_ADD,
       D3DBLENDOP_SUBTRACT,
@@ -1910,6 +1904,8 @@ void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
 
    al_get_separate_blender(&op, &src, &dst,
       &alpha_op, &alpha_src, &alpha_dst);
+   color = al_get_blend_color();
+   al_unmap_rgba(color, &r, &g, &b, &a);
 
    if (d3d_display->blender_state_op != op) {
       /* These may not be supported but they will always fall back to ADD
@@ -1959,6 +1955,7 @@ void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
 
    if (blender_changed) {
       bool enable_separate_blender = (op != alpha_op) || (src != alpha_src) || (dst != alpha_dst);
+      d3d_display->device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_RGBA(r, g, b, a));
       if (enable_separate_blender) {
          if (d3d_display->device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, true) != D3D_OK)
             ALLEGRO_ERROR("D3DRS_SEPARATEALPHABLENDENABLE failed\n");
@@ -1973,9 +1970,9 @@ static void d3d_clear(ALLEGRO_DISPLAY *al_display, ALLEGRO_COLOR *color)
 {
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_DISPLAY_D3D* d3d_display = (ALLEGRO_DISPLAY_D3D*)al_display;
-   
+
    if (target->parent) target = target->parent;
-   
+
    if (d3d_display->device_lost)
       return;
    if (d3d_display->device->Clear(0, NULL, D3DCLEAR_TARGET,
@@ -1989,7 +1986,7 @@ static void d3d_clear_depth_buffer(ALLEGRO_DISPLAY *al_display, float z)
 {
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_DISPLAY_D3D* d3d_display = (ALLEGRO_DISPLAY_D3D*)al_display;
-   
+
    if (target->parent) target = target->parent;
 
    if (d3d_display->device_lost)
@@ -2190,6 +2187,8 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
    disp->backbuffer_bmp.ct = 0;
    disp->backbuffer_bmp.cr_excl = w;
    disp->backbuffer_bmp.cb_excl = h;
+   al_identity_transform(&disp->backbuffer_bmp.proj_transform);
+   al_orthographic_transform(&disp->backbuffer_bmp.proj_transform, 0, 0, -1.0, w, h, 1.0);
 
    disp->do_reset = true;
    while (!disp->reset_done) {
@@ -2197,6 +2196,8 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
    }
    disp->reset_done = false;
 
+   /* XXX: This is not very efficient, it'd probably be better to call
+    * the necessary functions directly. */
    al_store_state(&state, ALLEGRO_STATE_DISPLAY | ALLEGRO_STATE_TARGET_BITMAP);
    al_set_target_bitmap(al_get_backbuffer(d));
    al_set_clipping_rectangle(0, 0, d->w, d->h);
@@ -2261,7 +2262,6 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
 
       disp->suppress_lost_events = false;
 
-      al_set_target_bitmap(al_get_backbuffer(d));
       _al_d3d_recreate_bitmap_textures(disp);
 
       disp->backbuffer_bmp.w = width;
@@ -2355,9 +2355,27 @@ static ALLEGRO_BITMAP *d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    }
 
    if (_al_pixel_format_to_d3d(format) < 0) {
-      ALLEGRO_ERROR("Requested bitmap format not supported (%d).\n", format);
+      ALLEGRO_ERROR("Requested bitmap format not supported (%s).\n",
+         _al_pixel_format_name((ALLEGRO_PIXEL_FORMAT)format));
       return NULL;
    }
+
+   if (!is_texture_format_ok(d, format)) {
+      ALLEGRO_ERROR("Requested bitmap format not supported (%s).\n",
+         _al_pixel_format_name((ALLEGRO_PIXEL_FORMAT)format));
+      return NULL;
+   }
+
+   bool compressed = _al_pixel_format_is_compressed(format);
+   if (compressed) {
+      if (!_al_d3d_render_to_texture_supported()) {
+         /* Not implemented. XXX: Why not? */
+         return NULL;
+      }
+   }
+   int block_width = al_get_pixel_block_width(format);
+   int block_height = al_get_pixel_block_height(format);
+   int block_size = al_get_pixel_block_size(format);
 
    ALLEGRO_INFO("Chose bitmap format %d\n", format);
 
@@ -2366,13 +2384,14 @@ static ALLEGRO_BITMAP *d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    memset(bitmap, 0, sizeof(*bitmap));
 
    bitmap->vt = _al_bitmap_d3d_driver();
-   bitmap->memory = NULL;
-   bitmap->format = format;
-   bitmap->flags = flags;
-   bitmap->pitch = w * al_get_pixel_size(format);
+   bitmap->_format = format;
+   bitmap->_flags = flags;
    al_identity_transform(&bitmap->transform);
 
-   bitmap->memory = (unsigned char *)al_malloc(bitmap->pitch * h);
+   bitmap->pitch =
+      _al_get_least_multiple(w, block_width) / block_width * block_size;
+   bitmap->memory = (unsigned char *)al_malloc(
+      bitmap->pitch * _al_get_least_multiple(h, block_height) / block_height);
 
    extra = (ALLEGRO_BITMAP_EXTRA_D3D *)al_calloc(1, sizeof *extra);
    bitmap->extra = extra;
@@ -2381,6 +2400,7 @@ static ALLEGRO_BITMAP *d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    extra->initialized = false;
    extra->is_backbuffer = false;
    extra->render_target = NULL;
+   extra->system_format = compressed ? ALLEGRO_PIXEL_FORMAT_ARGB_8888 : format;
 
    extra->display = (ALLEGRO_DISPLAY_D3D *)d;
 
@@ -2389,32 +2409,33 @@ static ALLEGRO_BITMAP *d3d_create_bitmap(ALLEGRO_DISPLAY *d,
 
 void _al_d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 {
-   if (bitmap == previous_target) {
-      previous_target = NULL;
+   ASSERT(!al_is_sub_bitmap(bitmap));
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D*)_al_get_bitmap_display(bitmap);
+
+   if (bitmap == d3d_display->target_bitmap) {
+      d3d_display->target_bitmap = NULL;
    }
 
-   if (!al_is_sub_bitmap(bitmap)) {
-      ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
+   ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(bitmap);
 
-      if (d3d_bmp->video_texture) {
-         if (d3d_bmp->video_texture->Release() != 0) {
-            ALLEGRO_WARN("d3d_destroy_bitmap: Release video texture failed.\n");
-         }
+   if (d3d_bmp->video_texture) {
+      if (d3d_bmp->video_texture->Release() != 0) {
+         ALLEGRO_WARN("d3d_destroy_bitmap: Release video texture failed.\n");
       }
-      if (d3d_bmp->system_texture) {
-         if (d3d_bmp->system_texture->Release() != 0) {
-            ALLEGRO_WARN("d3d_destroy_bitmap: Release system texture failed.\n");
-         }
-      }
-
-      if (d3d_bmp->render_target) {
-         if (d3d_bmp->render_target->Release() != 0) {
-            ALLEGRO_WARN("d3d_destroy_bitmap: Release render target failed.\n");
-         }
-      }
-
-      al_free(bitmap->extra);
    }
+   if (d3d_bmp->system_texture) {
+      if (d3d_bmp->system_texture->Release() != 0) {
+         ALLEGRO_WARN("d3d_destroy_bitmap: Release system texture failed.\n");
+      }
+   }
+
+   if (d3d_bmp->render_target) {
+      if (d3d_bmp->render_target->Release() != 0) {
+         ALLEGRO_WARN("d3d_destroy_bitmap: Release render target failed.\n");
+      }
+   }
+
+   al_free(bitmap->extra);
 }
 
 static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
@@ -2422,11 +2443,6 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    ALLEGRO_BITMAP *target;
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_target;
    ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
-   D3DVIEWPORT9 viewport;
-   viewport.X = 0;
-   viewport.Y = 0;
-   viewport.MinZ = 0;
-   viewport.MaxZ = 1;
 
    if (d3d_display->device_lost)
       return;
@@ -2439,22 +2455,21 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    }
 
    d3d_target = get_extra(target);
-   
-   /* Release the previous target bitmap if it was not the backbuffer */
 
-   if (previous_target) {
+   /* Release the previous target bitmap if it was not the backbuffer */
+   if (d3d_display->target_bitmap && !get_extra(d3d_display->target_bitmap)->is_backbuffer) {
       ALLEGRO_BITMAP *parent;
-      if (previous_target->parent)
-         parent = previous_target->parent;
+      if (d3d_display->target_bitmap->parent)
+         parent = d3d_display->target_bitmap->parent;
       else
-         parent = previous_target;
+         parent = d3d_display->target_bitmap;
       ALLEGRO_BITMAP_EXTRA_D3D *e = get_extra(parent);
       if (e && e->render_target) {
          e->render_target->Release();
          e->render_target = NULL;
       }
-      previous_target = NULL;
    }
+   d3d_display->target_bitmap = NULL;
 
    /* Set the render target */
    if (d3d_target->is_backbuffer) {
@@ -2464,17 +2479,16 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
          return;
       }
       d3d_target->render_target = d3d_display->render_target;
-
-      viewport.Width = display->w;
-      viewport.Height = display->h;
-      d3d_display->device->SetViewport(&viewport);
-
-      _al_d3d_set_ortho_projection(d3d_display, display->w, display->h);
+      d3d_display->target_bitmap = bitmap;
+   }
+   else if (_al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
+      /* Do nothing, as it is impossible to directly draw to compressed textures via D3D.
+       * Instead, everything will be handled by the memory routines. */
    }
    else {
       d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
       if (_al_d3d_render_to_texture_supported()) {
-         previous_target = bitmap;
+         d3d_display->target_bitmap = bitmap;
          if (!d3d_target->video_texture) {
             /* This can happen if the user tries to set the target bitmap as
              * the device is lost, before the DISPLAY_LOST event is received.
@@ -2491,12 +2505,6 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
             d3d_target->render_target->Release();
             return;
          }
-
-         viewport.Width = d3d_target->texture_w;
-         viewport.Height = d3d_target->texture_h;
-         d3d_display->device->SetViewport(&viewport);
-
-         _al_d3d_set_ortho_projection(d3d_display, d3d_target->texture_w, d3d_target->texture_h);
       }
       if (d3d_display->samples) {
          d3d_display->device->SetDepthStencilSurface(NULL);
@@ -2515,7 +2523,7 @@ static ALLEGRO_BITMAP *d3d_get_backbuffer(ALLEGRO_DISPLAY *display)
 
 static bool d3d_is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
-   return display == bitmap->display;
+   return display == _al_get_bitmap_display(bitmap);
 }
 
 static void d3d_switch_out(ALLEGRO_DISPLAY *display)
@@ -2611,11 +2619,15 @@ static void d3d_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 }
 
 
-static void d3d_shutdown(void)
+void _al_d3d_shutdown_display(void)
 {
+   if (!vt)
+      return;
+
    _al_d3d_destroy_display_format_list();
-      
-   _al_d3d->Release();
+
+   if (_al_d3d)
+      _al_d3d->Release();
    al_destroy_mutex(present_mutex);
    al_destroy_mutex(_al_d3d_lost_device_mutex);
 
@@ -2673,20 +2685,24 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;
    ALLEGRO_BITMAP* cache_bmp = (ALLEGRO_BITMAP*)disp->cache_texture;
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_bmp = get_extra(cache_bmp);
+   int bitmap_flags = al_get_bitmap_flags(cache_bmp);
 
-   if (cache_bmp->flags & ALLEGRO_MIN_LINEAR) {
+   if (d3d_disp->device_lost)
+      return;
+
+   if (bitmap_flags & ALLEGRO_MIN_LINEAR) {
       d3d_disp->device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
    }
    else {
       d3d_disp->device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
    }
-   if (cache_bmp->flags & ALLEGRO_MAG_LINEAR) {
+   if (bitmap_flags & ALLEGRO_MAG_LINEAR) {
       d3d_disp->device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
    }
    else {
       d3d_disp->device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
    }
-   if (cache_bmp->flags & ALLEGRO_MIPMAP) {
+   if (bitmap_flags & ALLEGRO_MIPMAP) {
       d3d_disp->device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
    }
    else {
@@ -2754,83 +2770,77 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *target)
 {
    ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;
-   ALLEGRO_TRANSFORM tmp_transform;
+   ALLEGRO_TRANSFORM proj;
 
-   al_copy_transform(&tmp_transform, &target->transform);
+   al_copy_transform(&proj, &target->proj_transform);
+   /* Direct3D uses different clipping in projection space than OpenGL.
+    * In OpenGL the final clip space is [-1..1] x [-1..1] x [-1..1].
+    *
+    * In D3D the clip space is [-1..1] x [-1..1] x [0..1].
+    *
+    * So we need to scale and translate the final z component from [-1..1]
+    * to [0..1]. We do that by scaling with 0.5 then translating by 0.5
+    * below.
+    *
+    * The effect can be seen for example ex_projection - it is broken
+    * without this.
+    */
+   ALLEGRO_TRANSFORM fix_d3d;
+   al_identity_transform(&fix_d3d);
+   al_scale_transform_3d(&fix_d3d, 1, 1, 0.5);
+   al_translate_transform_3d(&fix_d3d, 0.0, 0.0, 0.5);
+   /*
+    * Shift by half a pixel to make the output match the OpenGL output.
+    * Don't shift the actual proj_transform because if the user grabs it via
+    * al_get_current_projection_transform() and then sends it to
+    * al_use_projection_transform() the shift will be applied twice.
+    */
+   al_translate_transform(&fix_d3d, -1.0 / al_get_bitmap_width(target),
+                          1.0 / al_get_bitmap_height(target));
 
-   if (target->parent) {
-      al_translate_transform(&tmp_transform, target->xofs, target->yofs);
-   }
+   al_compose_transform(&proj, &fix_d3d);
 
    if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-      al_copy_transform(&disp->view_transform, &tmp_transform);
 #ifdef ALLEGRO_CFG_SHADER_HLSL
       LPD3DXEFFECT effect = d3d_disp->effect;
+      ALLEGRO_TRANSFORM projview;
+      al_copy_transform(&projview, &target->transform);
+      al_compose_transform(&projview, &proj);
+      al_copy_transform(&disp->projview_transform, &projview);
       if (effect) {
-         al_compose_transform(&tmp_transform, &disp->proj_transform);
-         _al_hlsl_set_projview_matrix(effect, &tmp_transform);
+         _al_hlsl_set_projview_matrix(effect, &projview);
       }
 #endif
    }
    else {
-      d3d_disp->device->SetTransform(D3DTS_VIEW, (D3DMATRIX *)tmp_transform.m);
+      d3d_disp->device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)proj.m);
+      d3d_disp->device->SetTransform(D3DTS_VIEW, (D3DMATRIX *)target->transform.m);
    }
+
+   D3DVIEWPORT9 viewport;
+   viewport.MinZ = 0;
+   viewport.MaxZ = 1;
+   viewport.Width = al_get_bitmap_width(target);
+   viewport.Height = al_get_bitmap_height(target);
+   if (target->parent) {
+      viewport.X = target->xofs;
+      viewport.Y = target->yofs;
+   }
+   else {
+      viewport.X = 0;
+      viewport.Y = 0;
+   }
+   d3d_disp->device->SetViewport(&viewport);
 }
 
-static void d3d_set_projection(ALLEGRO_DISPLAY *d)
-{
-   ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)d;
-
-#ifdef ALLEGRO_CFG_SHADER_HLSL
-   if (d->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
-      if (d3d_disp->effect) {
-         ALLEGRO_TRANSFORM t;
-         al_copy_transform(&t, &d->view_transform);
-         al_compose_transform(&t, &d->proj_transform);
-         _al_hlsl_set_projview_matrix(d3d_disp->effect, &t);
-      }
-   }
-   else
-#endif
-   {
-      /* Direct3D uses different clipping in projection space than OpenGL.
-       * In OpenGL the final clip space is [-1..1] x [-1..1] x [-1..1].
-       *
-       * In D3D the clip space is [-1..1] x [-1..1] x [0..1].
-       *
-       * So we need to scale and translate the final z component from [-1..1]
-       * to [0..1]. We do that by scaling with 0.5 then translating by 0.5
-       * below.
-       *
-       * The effect can be seen for example ex_projection - it is broken
-       * without this.
-       */
-      ALLEGRO_BITMAP* b = al_get_target_bitmap();
-      ALLEGRO_TRANSFORM tmp = d->proj_transform;
-
-      ALLEGRO_TRANSFORM fix_d3d = d->proj_transform;
-      al_identity_transform(&fix_d3d);
-      al_scale_transform_3d(&fix_d3d, 1, 1, 0.5);
-      al_translate_transform_3d(&fix_d3d, 0.0, 0.0, 0.5);
-      /* Shift by half a pixel to make the output match the OpenGL output. */
-      if (b) {
-         ALLEGRO_BITMAP_EXTRA_D3D* e = get_extra(b);
-         if (e) {
-            al_translate_transform(&fix_d3d, -1.0 / e->texture_w, 1.0 / e->texture_h);
-         }
-      }
-
-      al_compose_transform(&tmp, &fix_d3d);
-      
-      d3d_disp->device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)tmp.m);
-   }
-}
-
-/* Obtain a reference to this driver. */
+/* Initialize and obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
 {
    if (vt)
       return vt;
+
+   if (!d3d_init_display())
+      return NULL;
 
    vt = (ALLEGRO_DISPLAY_INTERFACE *)al_malloc(sizeof *vt);
    memset(vt, 0, sizeof *vt);
@@ -2866,15 +2876,15 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->get_window_constraints = _al_win_get_window_constraints;
    vt->set_display_flag = _al_win_set_display_flag;
    vt->set_window_title = _al_win_set_window_title;
-   vt->shutdown = d3d_shutdown;
 
    vt->flush_vertex_cache = d3d_flush_vertex_cache;
    vt->prepare_vertex_cache = d3d_prepare_vertex_cache;
 
    vt->update_transformation = d3d_update_transformation;
-   vt->set_projection = d3d_set_projection;
 
    vt->update_render_state = _al_d3d_update_render_state;
+
+   _al_win_add_clipboard_functions(vt);
 
    return vt;
 }
@@ -2885,6 +2895,9 @@ int _al_d3d_get_num_display_modes(int format, int refresh_rate, int flags)
    UINT i, j;
    D3DDISPLAYMODE display_mode;
    int matches = 0;
+
+   if (!_al_d3d && !d3d_init_display())
+      return 0;
 
    (void)flags;
 
@@ -2935,6 +2948,9 @@ ALLEGRO_DISPLAY_MODE *_al_d3d_get_display_mode(int index, int format,
    UINT i, j;
    D3DDISPLAYMODE display_mode;
    int matches = 0;
+
+   if (!_al_d3d && !d3d_init_display())
+      return NULL;
 
    (void)flags;
 

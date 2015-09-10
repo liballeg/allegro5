@@ -61,6 +61,10 @@ AL_FUNC(void, al_get_clipping_rectangle, (int *x, int *y, int *w, int *h));
 AL_FUNC(ALLEGRO_BITMAP *, al_create_sub_bitmap, (ALLEGRO_BITMAP *parent, int x, int y, int w, int h));
 AL_FUNC(bool, al_is_sub_bitmap, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(ALLEGRO_BITMAP *, al_get_parent_bitmap, (ALLEGRO_BITMAP *bitmap));
+AL_FUNC(int, al_get_bitmap_x, (ALLEGRO_BITMAP *bitmap));
+AL_FUNC(int, al_get_bitmap_y, (ALLEGRO_BITMAP *bitmap));
+AL_FUNC(void, al_reparent_bitmap, (ALLEGRO_BITMAP *bitmap,
+   ALLEGRO_BITMAP *parent, int x, int y, int w, int h));
 
 /* Miscellaneous */
 AL_FUNC(ALLEGRO_BITMAP *, al_clone_bitmap, (ALLEGRO_BITMAP *bitmap));

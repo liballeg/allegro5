@@ -50,7 +50,7 @@ static void redraw(void)
       ALLEGRO_BITMAP *bmp = example.bitmaps[example.bitmap][i];
       float bw = al_get_bitmap_width(bmp);
       float bh = al_get_bitmap_height(bmp);
-      float t = 1 - 2 * fabsf((example.ticks % (FPS * 16)) / 16.0 / FPS - 0.5);
+      float t = 1 - 2 * fabs((example.ticks % (FPS * 16)) / 16.0 / FPS - 0.5);
       float scale;
       float angle = example.ticks * ALLEGRO_PI * 2 / FPS / 8;
       

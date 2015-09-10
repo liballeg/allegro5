@@ -17,6 +17,8 @@
 
 #include "allegro5/allegro_windows.h"
 
+#include <string.h>
+
 /* We use RichEdit by default. */
 #include <richedit.h>
 #include <shlobj.h> // for folder selector
@@ -82,6 +84,7 @@ static ALLEGRO_USTR *create_filter_string(const ALLEGRO_USTR *patterns)
    bool filter_all = false;
    int start, end;
 
+   /* FIXME: Move all this filter parsing stuff into a common file. */
    if (0 == strcmp(al_cstr(patterns), "*.*")) {
       filter_all = true;
    }
@@ -142,8 +145,12 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    ALLEGRO_DISPLAY_WIN *win_display;
    int flags = 0;
    bool ret;
-   char buf[4096] = "";
+   char buf[4096];
+   const int BUFSIZE = sizeof(buf);
    ALLEGRO_USTR *filter_string = NULL;
+   ALLEGRO_PATH* initial_dir_path = NULL;
+
+   buf[0] = '\0';
 
    win_display = (ALLEGRO_DISPLAY_WIN *)display;
 
@@ -166,12 +173,36 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
       ofn.lpstrFilter = "All Files\0*.*\0\0";
    }
 
+   /* Provide buffer for file chosen by dialog. */
    ofn.lpstrFile = buf;
    ofn.nMaxFile = sizeof(buf);
 
+   /* Initialize file name buffer and starting directory. */
    if (fd->fc_initial_path) {
-      ofn.lpstrInitialDir =
-         al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP);
+      bool is_dir;
+      const char *path = al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP);
+
+      if (al_filename_exists(path)) {
+         ALLEGRO_FS_ENTRY *fs = al_create_fs_entry(path);
+         is_dir = al_get_fs_entry_mode(fs) & ALLEGRO_FILEMODE_ISDIR;
+         al_destroy_fs_entry(fs);
+      }
+      else {
+         is_dir = false;
+      }
+
+      if (is_dir) {
+         ofn.lpstrInitialDir = path;
+      }
+      else {
+         strncpy(buf, path, BUFSIZE - 1);
+         /* Extract the directory from the path. */
+         initial_dir_path = al_clone_path(fd->fc_initial_path);
+         if (initial_dir_path) {
+            al_set_path_filename(initial_dir_path, NULL);
+            ofn.lpstrInitialDir = al_path_cstr(initial_dir_path, ALLEGRO_NATIVE_PATH_SEP);
+         }
+      }
    }
 
    if (fd->title)
@@ -195,6 +226,10 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
       ret = GetOpenFileName(&ofn);
    }
 
+   if (initial_dir_path) {
+      al_destroy_path(initial_dir_path);
+   }
+
    al_ustr_free(filter_string);
 
    if (!ret) {
@@ -208,17 +243,15 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    }
 
    if (flags & OFN_ALLOWMULTISELECT) {
-      int i;
+      int i = 0;
       /* Count number of file names in buf. */
       fd->fc_path_count = 0;
-      i = skip_nul_terminated_string(buf);
       while (1) {
-         if (buf[i] == '\0') {
-            fd->fc_path_count++;
-            if (buf[i+1] == '\0')
-               break;
-         }
-         i++;
+         int j = skip_nul_terminated_string(buf + i);
+         if (j <= 1)
+            break;
+         fd->fc_path_count++;
+         i += j;
       }
    }
    else {
@@ -234,6 +267,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
       /* If multiple files were selected, the first string in buf is the
        * directory name, followed by each of the file names terminated by NUL.
        */
+      fd->fc_path_count -= 1;
       fd->fc_paths = al_malloc(fd->fc_path_count * sizeof(void *));
       i = skip_nul_terminated_string(buf);
       for (p = 0; p < (int)fd->fc_path_count; p++) {
@@ -249,7 +283,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
 int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    ALLEGRO_NATIVE_DIALOG *fd)
 {
-   UINT type = 0;
+   UINT type = MB_SETFOREGROUND;
    int result;
 
    uint16_t *wide_text, *wide_title;
@@ -645,9 +679,10 @@ void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 }
 
 static bool menu_callback(ALLEGRO_DISPLAY *display, UINT msg, WPARAM wParam, LPARAM lParam,
-                             void *userdata)
+                             LPARAM* result, void *userdata)
 {
    (void) userdata;
+   *result = 0;
 
    if (msg == WM_COMMAND && lParam == 0) {
       const int id = LOWORD(wParam);

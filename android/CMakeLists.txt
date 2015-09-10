@@ -4,10 +4,10 @@
 # and hope that android.bat is somewhere on the PATH.
 if(ANDROID_TOOL MATCHES "[.]bat$")
     set(ANDROID_UPDATE_COMMAND
-        cmd.exe /c "android.bat update project -p .")
+        cmd.exe /c "android.bat update project -p . -t ${ANDROID_TARGET)")
 else()
     set(ANDROID_UPDATE_COMMAND
-        "${ANDROID_TOOL}" update project -p .)
+        "${ANDROID_TOOL}" update project -p . -t ${ANDROID_TARGET})
 endif()
 
 include(Activity.cmake)

@@ -21,76 +21,92 @@
 #include "gtk_dialog.h"
 #include "gtk_xgtk.h"
 
-
 typedef struct {
    ALLEGRO_DISPLAY         *display;
    ALLEGRO_NATIVE_DIALOG   *dialog;
-} Msg;
-
-
-static void filesel_destroy(GtkWidget *w, gpointer data)
-{
-   ALLEGRO_NATIVE_DIALOG *nd = data;
-   (void)w;
-
-   ASSERT(nd->async_queue);
-   g_async_queue_push(nd->async_queue, ACK_CLOSED);
-}
-
-static void filesel_ok(GtkWidget *w, GtkFileSelection *fs)
-{
-   ALLEGRO_NATIVE_DIALOG *fc;
-   fc = g_object_get_data(G_OBJECT(w), "ALLEGRO_NATIVE_DIALOG");
-   gchar **paths = gtk_file_selection_get_selections(fs);
-   int n = 0, i;
-   while (paths[n]) {
-      n++;
-   }
-   fc->fc_path_count = n;
-   fc->fc_paths = al_malloc(n * sizeof(void *));
-   for (i = 0; i < n; i++)
-      fc->fc_paths[i] = al_create_path(paths[i]);
-   g_strfreev(paths);
-}
+} GTK_FILE_DIALOG_MESSAGE;
 
 /* [nd_gtk thread] */
-static gboolean create_native_file_dialog(gpointer data)
+static gboolean create_gtk_file_dialog(gpointer data)
 {
-   Msg *msg = data;
+   GTK_FILE_DIALOG_MESSAGE *msg = data;
    ALLEGRO_DISPLAY *display = msg->display;
    ALLEGRO_NATIVE_DIALOG *fd = msg->dialog;
+   bool save = fd->flags & ALLEGRO_FILECHOOSER_SAVE;
+   gint result;
+
    GtkWidget *window;
 
-   /* Create a new file selection widget */
-   window = gtk_file_selection_new(al_cstr(fd->title));
+   window =
+      gtk_file_chooser_dialog_new(al_cstr(fd->title),
+                                  NULL,
+                                  save ? GTK_FILE_CHOOSER_ACTION_SAVE : GTK_FILE_CHOOSER_ACTION_OPEN,
+                                  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                  save ? GTK_STOCK_SAVE : GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
 
    _al_gtk_make_transient(display, window);
 
-   /* Connect the destroy signal */
-   g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(filesel_destroy), fd);
-
-   /* Connect the ok_button */
-   g_signal_connect(G_OBJECT(GTK_FILE_SELECTION(window)->ok_button),
-                    "clicked", G_CALLBACK(filesel_ok), (gpointer) window);
-
-   /* Connect both buttons to gtk_widget_destroy */
-   g_signal_connect_swapped(GTK_FILE_SELECTION(window)->ok_button,
-                            "clicked", G_CALLBACK(gtk_widget_destroy), window);
-   g_signal_connect_swapped(GTK_FILE_SELECTION(window)->cancel_button,
-                            "clicked", G_CALLBACK(gtk_widget_destroy), window);
-
-   g_object_set_data(G_OBJECT(GTK_FILE_SELECTION(window)->ok_button),
-      "ALLEGRO_NATIVE_DIALOG", fd);
-
    if (fd->fc_initial_path) {
-      gtk_file_selection_set_filename(GTK_FILE_SELECTION(window),
-         al_path_cstr(fd->fc_initial_path, '/'));
+      gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(window),
+         al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP));
    }
 
    if (fd->flags & ALLEGRO_FILECHOOSER_MULTIPLE)
-      gtk_file_selection_set_select_multiple(GTK_FILE_SELECTION(window), true);
+      gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(window), true);
 
-   gtk_widget_show(window);
+   /* FIXME: Move all this filter parsing stuff into a common file. */
+   if (al_ustr_size(fd->fc_patterns) > 0) {
+      GtkFileFilter* filter = gtk_file_filter_new();
+      int start = 0;
+      int end = 0;
+      bool is_mime_type = false;
+      while (true) {
+         int32_t c = al_ustr_get(fd->fc_patterns, end);
+         if (c < 0 || c == ';') {
+            if (end - start > 0) {
+               ALLEGRO_USTR* pattern = al_ustr_dup_substr(fd->fc_patterns, start, end);
+               if (is_mime_type) {
+                  gtk_file_filter_add_mime_type(filter, al_cstr(pattern));
+               }
+               else {
+                  gtk_file_filter_add_pattern(filter, al_cstr(pattern));
+               }
+               al_ustr_free(pattern);
+            }
+            start = end + 1;
+            is_mime_type = false;
+         }
+         if (c == '/')
+            is_mime_type = true;
+         if (c < 0)
+            break;
+         end += al_utf8_width(c);
+      }
+
+      gtk_file_filter_set_name(filter, "All supported files");
+      gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(window), filter);
+   }
+
+   result = gtk_dialog_run(GTK_DIALOG(window));
+   if (result == GTK_RESPONSE_ACCEPT) {
+      GSList* filenames = gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(window));
+      int i;
+      GSList* iter;
+
+      fd->fc_path_count = g_slist_length(filenames);
+      fd->fc_paths = al_malloc(fd->fc_path_count * sizeof(void *));
+      for (i = 0, iter = filenames; i < (int)fd->fc_path_count; i++, iter = g_slist_next(iter)) {
+         fd->fc_paths[i] = al_create_path((const char*)iter->data);
+         g_free(iter->data);
+      }
+      g_slist_free(filenames);
+   }
+
+   gtk_widget_destroy(window);
+
+   ASSERT(fd->async_queue);
+   g_async_queue_push(fd->async_queue, ACK_CLOSED);
+
    return FALSE;
 }
 
@@ -98,7 +114,7 @@ static gboolean create_native_file_dialog(gpointer data)
 bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
    ALLEGRO_NATIVE_DIALOG *fd)
 {
-   Msg msg;
+   GTK_FILE_DIALOG_MESSAGE msg;
 
    if (!_al_gtk_ensure_thread())
       return false;
@@ -107,7 +123,7 @@ bool _al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
 
    msg.display = display;
    msg.dialog = fd;
-   g_timeout_add(0, create_native_file_dialog, &msg);
+   g_timeout_add(0, create_gtk_file_dialog, &msg);
 
    /* Wait for a signal that the window is closed. */
    while (g_async_queue_pop(fd->async_queue) != ACK_CLOSED)

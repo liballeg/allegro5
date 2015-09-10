@@ -60,19 +60,13 @@ static float get_scale(void)
 
    const ALLEGRO_TRANSFORM* t = al_get_current_transform();
    float scale_sq = DET2D(t);
-   ALLEGRO_DISPLAY* d = al_get_current_display();
-   if (d) {
-      ALLEGRO_BITMAP* b = al_get_target_bitmap();
-      ALLEGRO_TRANSFORM* p = al_get_projection_transform(d);
-      /*
-       * Sub-bitmaps are wonky when it comes to this. Right now they grab the
-       * projection from the parent bitmap (e.g. see _al_ogl_set_target_bitmap).
-       */
-      if (al_is_sub_bitmap(b))
-         b = al_get_parent_bitmap(b);
+   ALLEGRO_BITMAP* b = al_get_target_bitmap();
+   if (b) {
+      const ALLEGRO_TRANSFORM* p = al_get_current_projection_transform();
       /* Divide by 4.0f as the screen coordinates range from -1 to 1 on both axes. */
       scale_sq *= DET2D(p) * al_get_bitmap_width(b) * al_get_bitmap_height(b) / 4.0f;
    }
+
    return sqrtf(scale_sq);
 
 #undef DET2D
@@ -523,7 +517,7 @@ void al_draw_pieslice(float cx, float cy, float r, float start_theta,
    }
    
    if (thickness <= 0) {
-      num_segments = fabsf(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r));
+      num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r));
 
       if (num_segments < 2)
          num_segments = 2;
@@ -672,7 +666,7 @@ void al_draw_filled_pieslice(float cx, float cy, float r, float start_theta,
    
    ASSERT(r >= 0);
    
-   num_segments = fabsf(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r));
+   num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r));
 
    if (num_segments < 2)
       num_segments = 2;
@@ -804,7 +798,7 @@ void al_draw_elliptical_arc(float cx, float cy, float rx, float ry, float start_
 
    ASSERT(rx >= 0 && ry >= 0);
    if (thickness > 0) {
-      int num_segments = fabsf(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f));
+      int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f));
       int ii;
 
       if (num_segments < 2)
@@ -823,7 +817,7 @@ void al_draw_elliptical_arc(float cx, float cy, float rx, float ry, float start_
       
       al_draw_prim(vertex_cache, 0, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
    } else {
-      int num_segments = fabsf(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f));
+      int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f));
       int ii;
 
       if (num_segments < 2)

@@ -53,8 +53,8 @@ struct ALLEGRO_SYSTEM
 {
    ALLEGRO_SYSTEM_INTERFACE *vt;
    _AL_VECTOR displays; /* Keep a list of all displays attached to us. */
-   ALLEGRO_CONFIG *config;
    ALLEGRO_PATH *user_exe_path;
+   int mouse_wheel_precision;
    bool installed;
 };
 

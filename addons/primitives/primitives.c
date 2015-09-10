@@ -22,6 +22,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_exitfunc.h"
+#include "allegro5/internal/aintern_pixels.h"
 #include "allegro5/internal/aintern_prim.h"
 #include "allegro5/internal/aintern_prim_directx.h"
 #include "allegro5/internal/aintern_prim_opengl.h"
@@ -82,10 +83,12 @@ int al_draw_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
     * view space should occur here
     */
    
-   if (target->flags & ALLEGRO_MEMORY_BITMAP || (texture && texture->flags & ALLEGRO_MEMORY_BITMAP)) {
+   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP ||
+       (texture && al_get_bitmap_flags(texture) & ALLEGRO_MEMORY_BITMAP) ||
+       _al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
       ret =  _al_draw_prim_soft(texture, vtxs, decl, start, end, type);
    } else {
-      int flags = al_get_display_flags(target->display);
+      int flags = al_get_display_flags(_al_get_bitmap_display(target));
       if (flags & ALLEGRO_OPENGL) {
          ret =  _al_draw_prim_opengl(target, texture, vtxs, decl, start, end, type);
       } else if (flags & ALLEGRO_DIRECT3D) {
@@ -116,10 +119,12 @@ int al_draw_indexed_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
     * view space should occur here
     */
    
-   if (target->flags & ALLEGRO_MEMORY_BITMAP || (texture && texture->flags & ALLEGRO_MEMORY_BITMAP)) {
+   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP ||
+       (texture && al_get_bitmap_flags(texture) & ALLEGRO_MEMORY_BITMAP) ||
+       _al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
       ret =  _al_draw_prim_indexed_soft(texture, vtxs, decl, indices, num_vtx, type);
    } else {
-      int flags = al_get_display_flags(target->display);
+      int flags = al_get_display_flags(_al_get_bitmap_display(target));
       if (flags & ALLEGRO_OPENGL) {
          ret =  _al_draw_prim_indexed_opengl(target, texture, vtxs, decl, indices, num_vtx, type);
       } else if (flags & ALLEGRO_DIRECT3D) {
@@ -509,7 +514,9 @@ int al_draw_vertex_buffer(ALLEGRO_VERTEX_BUFFER* vertex_buffer,
 
    target = al_get_target_bitmap();
 
-   if (target->flags & ALLEGRO_MEMORY_BITMAP || (texture && texture->flags & ALLEGRO_MEMORY_BITMAP)) {
+   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP ||
+       (texture && al_get_bitmap_flags(texture) & ALLEGRO_MEMORY_BITMAP) ||
+       _al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
       ret = _al_draw_buffer_common_soft(vertex_buffer, texture, NULL, start, end, type);
    } else {
       int flags = al_get_display_flags(al_get_current_display());
@@ -545,7 +552,9 @@ int al_draw_indexed_buffer(ALLEGRO_VERTEX_BUFFER* vertex_buffer,
 
    target = al_get_target_bitmap();
 
-   if (target->flags & ALLEGRO_MEMORY_BITMAP || (texture && texture->flags & ALLEGRO_MEMORY_BITMAP)) {
+   if (al_get_bitmap_flags(target) & ALLEGRO_MEMORY_BITMAP ||
+       (texture && al_get_bitmap_flags(texture) & ALLEGRO_MEMORY_BITMAP) ||
+       _al_pixel_format_is_compressed(al_get_bitmap_format(target))) {
       ret = _al_draw_buffer_common_soft(vertex_buffer, texture, index_buffer, start, end, type);
    } else {
       int flags = al_get_display_flags(al_get_current_display());

@@ -93,6 +93,7 @@ int init_framework(void)
 #ifdef ALLEGRO_ANDROID
    al_android_set_apk_file_interface();
    strncpy(data_path, "/data", DEMO_PATH_LENGTH);
+   (void)drop_build_config_dir;
 #else
    path = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
    al_set_path_filename(path, "");

@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -52,12 +52,12 @@ typedef enum {
 
 typedef struct {
    ALLEGRO_JOYSTICK parent;
-   int num_buttons;
-   int num_x_axes;
-   int num_y_axes;
-   int num_z_axes;
    IOHIDElementRef buttons[_AL_MAX_JOYSTICK_BUTTONS];
    IOHIDElementRef axes[_AL_MAX_JOYSTICK_STICKS][_AL_MAX_JOYSTICK_AXES];
+   IOHIDElementRef dpad;
+   int dpad_stick;
+   int dpad_axis_vert;
+   int dpad_axis_horiz;
    long min[_AL_MAX_JOYSTICK_STICKS][_AL_MAX_JOYSTICK_AXES];
    long max[_AL_MAX_JOYSTICK_STICKS][_AL_MAX_JOYSTICK_AXES];
    CONFIG_STATE cfg_state;
@@ -98,7 +98,7 @@ static CFMutableDictionaryRef CreateDeviceMatchingDictionary(
          CFStringRef usage_page = CFSTR(kIOHIDDeviceUsagePageKey);
 
          CFDictionarySetValue(
-            result, 
+            result,
             usage_page,
             pageCFNumberRef
          );
@@ -117,7 +117,7 @@ static CFMutableDictionaryRef CreateDeviceMatchingDictionary(
             CFStringRef usage_key = CFSTR(kIOHIDDeviceUsageKey);
 
             CFDictionarySetValue(
-               result, 
+               result,
                usage_key,
                usageCFNumberRef
             );
@@ -169,11 +169,26 @@ static void joy_null(ALLEGRO_JOYSTICK_OSX *joy)
    }
 }
 
+static void add_axis(ALLEGRO_JOYSTICK_OSX *joy, int stick_index, int axis_index, int min, int max, char *name, IOHIDElementRef elem)
+{
+   if (axis_index >= _AL_MAX_JOYSTICK_AXES)
+      return;
+
+   joy->min[stick_index][axis_index] = min;
+   joy->max[stick_index][axis_index] = max;
+
+   joy->parent.info.stick[stick_index].axis[axis_index].name = name;
+   joy->parent.info.stick[stick_index].num_axes++;
+   joy->axes[stick_index][axis_index] = elem;
+}
+
 static void add_elements(CFArrayRef elements, ALLEGRO_JOYSTICK_OSX *joy)
 {
    int i;
    char default_name[100];
-           
+   int stick_class = -1;
+   int axis_index = 0;
+
    joy_null(joy);
 
    for (i = 0; i < CFArrayGetCount(elements); i++) {
@@ -181,58 +196,92 @@ static void add_elements(CFArrayRef elements, ALLEGRO_JOYSTICK_OSX *joy)
          elements,
          i
       );
+
       int usage = IOHIDElementGetUsage(elem);
       if (IOHIDElementGetType(elem) == kIOHIDElementTypeInput_Button) {
          if (usage >= 0 && usage < _AL_MAX_JOYSTICK_BUTTONS &&
             !joy->buttons[usage-1]) {
             joy->buttons[usage-1] = elem;
             sprintf(default_name, "Button %d", usage-1);
-	    const char *name = get_element_name(elem, default_name);
-	    char *str = al_malloc(strlen(name)+1);
-	    strcpy(str, name);
+            const char *name = get_element_name(elem, default_name);
+            char *str = al_malloc(strlen(name)+1);
+            strcpy(str, name);
             joy->parent.info.button[usage-1].name = str;
-            joy->num_buttons++;
+            joy->parent.info.num_buttons++;
          }
       }
       else if (
          IOHIDElementGetType(elem) == kIOHIDElementTypeInput_Misc) {
          long min = IOHIDElementGetLogicalMin(elem);
          long max = IOHIDElementGetLogicalMax(elem);
-         if ((usage == kHIDUsage_GD_X ||
-            usage == kHIDUsage_GD_Rx) &&
-            joy->num_x_axes < _AL_MAX_JOYSTICK_STICKS) {
-            joy->min[joy->num_x_axes][0] = min;
-            joy->max[joy->num_x_axes][0] = max;
-            sprintf(default_name, "Axis 0");
-	    const char *name = get_element_name(elem, default_name);
-	    char *str = al_malloc(strlen(name)+1);
-	    strcpy(str, name);
-            joy->parent.info.stick[joy->num_x_axes].axis[0].name = str;
-            joy->axes[joy->num_x_axes++][0] = elem;
+         int new_stick_class = -1;
+         int stick_index = joy->parent.info.num_sticks - 1;
+
+         switch (usage) {
+            case kHIDUsage_GD_X:
+            case kHIDUsage_GD_Y:
+            case kHIDUsage_GD_Z:
+               new_stick_class = 1;
+               break;
+
+            case kHIDUsage_GD_Rx:
+            case kHIDUsage_GD_Ry:
+            case kHIDUsage_GD_Rz:
+               new_stick_class = 2;
+               break;
+
+            case kHIDUsage_GD_Hatswitch:
+               new_stick_class = 3;
+               break;
          }
-         else if ((usage == kHIDUsage_GD_Y ||
-            usage == kHIDUsage_GD_Ry) &&
-            joy->num_x_axes < _AL_MAX_JOYSTICK_STICKS) {
-            joy->min[joy->num_y_axes][1] = min;
-            joy->max[joy->num_y_axes][1] = max;
-            sprintf(default_name, "Axis 1");
-	    const char *name = get_element_name(elem, default_name);
-	    char *str = al_malloc(strlen(name)+1);
-	    strcpy(str, name);
-            joy->parent.info.stick[joy->num_y_axes].axis[1].name = str;
-            joy->axes[joy->num_y_axes++][1] = elem;
+
+         if (new_stick_class < 0)
+            continue;
+
+         if (stick_class != new_stick_class) {
+            if (joy->parent.info.num_sticks >= _AL_MAX_JOYSTICK_STICKS-1)
+               break;
+
+            joy->parent.info.num_sticks++;
+
+            stick_index++;
+            axis_index = 0;
+
+            stick_class = new_stick_class;
+
+            char *buf = al_malloc(20);
+            sprintf(buf, "Stick %d", stick_index);
+            joy->parent.info.stick[stick_index].name = buf;
          }
-         else if ((usage == kHIDUsage_GD_Z ||
-            usage == kHIDUsage_GD_Rz) &&
-            joy->num_z_axes < _AL_MAX_JOYSTICK_STICKS) {
-            joy->min[joy->num_z_axes][2] = min;
-            joy->max[joy->num_z_axes][2] = max;
-            sprintf(default_name, "Axis 2");
-	    const char *name = get_element_name(elem, default_name);
-	    char *str = al_malloc(strlen(name)+1);
-	    strcpy(str, name);
-            joy->parent.info.stick[joy->num_z_axes].axis[2].name = str;
-            joy->axes[joy->num_z_axes++][2] = elem;
+         else
+            axis_index++;
+
+         if (stick_class == 3) {
+            joy->dpad_stick = stick_index;
+            joy->dpad = elem;
+
+            joy->dpad_axis_horiz = axis_index;
+            sprintf(default_name, "Axis %i", axis_index);
+            char *str = al_malloc(strlen(default_name)+1);
+            strcpy(str, default_name);
+            joy->parent.info.stick[stick_index].axis[axis_index].name = str;
+
+            ++axis_index;
+            joy->dpad_axis_vert = axis_index;
+            sprintf(default_name, "Axis %i", axis_index);
+            str = al_malloc(strlen(default_name)+1);
+            strcpy(str, default_name);
+            add_axis(joy, stick_index, axis_index, min, max, str, elem);
+            joy->parent.info.stick[stick_index].axis[axis_index].name = str;
+
+            joy->parent.info.stick[stick_index].num_axes = 2;
+         }
+         else {
+            sprintf(default_name, "Axis %i", axis_index);
+            const char *name = get_element_name(elem, default_name);
+            char *str = al_malloc(strlen(name)+1);
+            strcpy(str, name);
+            add_axis(joy, stick_index, axis_index, min, max, str, elem);
          }
       }
    }
@@ -255,12 +304,10 @@ static void device_add_callback(
    void *sender,
    IOHIDDeviceRef ref
 ) {
-   int i;
-
    (void)context;
    (void)result;
    (void)sender;
-   
+
    al_lock_mutex(add_mutex);
 
    ALLEGRO_JOYSTICK_OSX *joy = find_joystick(ref);
@@ -282,27 +329,13 @@ static void device_add_callback(
 
    CFRelease(elements);
 
-   // Fill in ALLEGRO_JOYSTICK properties
-   joy->parent.info.num_sticks = joy->num_x_axes;
-   joy->parent.info.num_buttons = joy->num_buttons;
-   for (i = 0; i < joy->num_x_axes; i++) {
-      int axes = 1;
-      if (joy->num_y_axes >= i)
-         axes++;
-      if (joy->num_z_axes >= i)
-         axes++;
-      joy->parent.info.stick[i].num_axes = axes;
-      char *buf = al_malloc(20);
-      sprintf(buf, "Stick %d", i);
-      joy->parent.info.stick[i].name = buf;
-   }
 
    al_unlock_mutex(add_mutex);
 
    osx_joy_generate_configure_event();
 
-   ALLEGRO_INFO("Found joystick (%d buttons, %d %d %d axes)\n",
-      joy->num_buttons, joy->num_x_axes, joy->num_y_axes, joy->num_z_axes);
+   ALLEGRO_INFO("Found joystick (%d buttons, %d sticks)\n",
+      joy->parent.info.num_buttons, joy->parent.info.num_sticks);
 }
 
 static void device_remove_callback(
@@ -369,6 +402,22 @@ static void osx_joy_generate_button_event(ALLEGRO_JOYSTICK_OSX *joy, int button,
    _al_event_source_emit_event(es, &event);
 }
 
+#define MAX_HAT_DIRECTIONS 9
+struct HAT_MAPPING {
+   int axisV;
+   int axisH;
+} hat_mapping[MAX_HAT_DIRECTIONS] = {
+   { -1,  0 }, // 0
+   { -1,  1 }, // 1
+   {  0,  1 }, // 2
+   {  1,  1 }, // 3
+   {  1,  0 }, // 4
+   {  1, -1 }, // 5
+   {  0, -1 }, // 6
+   { -1, -1 }, // 7
+   {  0,  0 }, // 8
+};
+
 static void value_callback(
    void *context,
    IOReturn result,
@@ -386,12 +435,12 @@ static void value_callback(
    ALLEGRO_JOYSTICK_OSX *joy = find_joystick(ref);
 
    if (!joy) return;
-   
+
    ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
    _al_event_source_lock(es);
 
    int i;
-   for (i = 0; i < joy->num_buttons; i++) {
+   for (i = 0; i < joy->parent.info.num_buttons; i++) {
       if (joy->buttons[i] == elem) {
          ALLEGRO_EVENT_TYPE type;
          if (IOHIDValueGetIntegerValue(value) == 0)
@@ -402,28 +451,24 @@ static void value_callback(
          goto done;
       }
    }
+
    int int_value = IOHIDValueGetIntegerValue(value);
+
+   if (joy->dpad == elem){
+      if (int_value >= 0 && int_value < MAX_HAT_DIRECTIONS) {
+         osx_joy_generate_axis_event(joy, joy->dpad_stick, joy->dpad_axis_vert,  (float)hat_mapping[int_value].axisV);
+         osx_joy_generate_axis_event(joy, joy->dpad_stick, joy->dpad_axis_horiz, (float)hat_mapping[int_value].axisH);
+      }
+      goto done;
+   }
+
    int stick = -1;
    int axis = -1;
-   for (i = 0; i < joy->num_x_axes; i++) {
-      if (joy->axes[i][0] == elem) {
-         stick = i;
-         axis = 0;
-         goto gen_axis_event;
-      }
-   }
-   for (i = 0; i < joy->num_y_axes; i++) {
-      if (joy->axes[i][1] == elem) {
-         stick = i;
-         axis = 1;
-         goto gen_axis_event;
-      }
-   }
-   for (i = 0; i < joy->num_z_axes; i++) {
-      if (joy->axes[i][2] == elem) {
-         stick = i;
-         axis = 2;
-         goto gen_axis_event;
+   for (stick = 0; stick < joy->parent.info.num_sticks; stick++) {
+      for(axis = 0; axis < joy->parent.info.stick[stick].num_axes; ++axis) {
+         if (joy->axes[stick][axis] == elem) {
+            goto gen_axis_event;
+         }
       }
    }
 
@@ -585,6 +630,8 @@ static void exit_joystick(void)
    CFRelease(hidManagerRef);
 
    _al_vector_free(&joysticks);
+
+   initialized = false;
 }
 
 /* num_joysticks:
@@ -615,7 +662,7 @@ static ALLEGRO_JOYSTICK* get_joystick(int index)
    int count = 0;
    for (i = 0; i < (int)_al_vector_size(&joysticks); i++) {
       ALLEGRO_JOYSTICK_OSX *joy = *(ALLEGRO_JOYSTICK_OSX **)_al_vector_ref(&joysticks, i);
-      if (joy->cfg_state == JOY_STATE_ALIVE || 
+      if (joy->cfg_state == JOY_STATE_ALIVE ||
          joy->cfg_state == JOY_STATE_DYING) {
             if (count == index) {
                return (ALLEGRO_JOYSTICK *)joy;
@@ -668,13 +715,10 @@ static bool reconfigure_joysticks(void)
                al_free(joy->parent.info.stick[i].axis[j].name);
             }
          }
-	 joy_null(joy);
-         joy->num_buttons =
-         joy->num_x_axes =
-         joy->num_y_axes =
-         joy->num_z_axes = 0;
+	      joy_null(joy);
          memset(joy->buttons, 0, _AL_MAX_JOYSTICK_BUTTONS*sizeof(IOHIDElementRef));
          memset(&joy->state, 0, sizeof(ALLEGRO_JOYSTICK_STATE));
+         joy->dpad=0;
       }
       else if (joy->cfg_state == JOY_STATE_BORN)
          joy->cfg_state = JOY_STATE_ALIVE;
@@ -688,7 +732,7 @@ static bool reconfigure_joysticks(void)
 
 // FIXME!
 static const char *get_joystick_name(ALLEGRO_JOYSTICK *joy_)
-{  
+{
    (void)joy_;
    return "Joystick";
 }

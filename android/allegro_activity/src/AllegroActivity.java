@@ -18,6 +18,8 @@ import android.view.WindowManager;
 import java.io.File;
 import java.lang.Runnable;
 import java.lang.String;
+import android.view.InputDevice;
+import java.util.Vector;
 
 public class AllegroActivity extends Activity
 {
@@ -29,6 +31,23 @@ public class AllegroActivity extends Activity
    private AllegroSurface surface;
    private ScreenLock screenLock;
    private boolean exitedMain = false;
+   private boolean joystickReconfigureNotified = false;
+   private Vector<Integer> joysticks;
+   private Clipboard clipboard;
+
+   public final static int JS_A = 0;
+   public final static int JS_B = 1;
+   public final static int JS_X = 2;
+   public final static int JS_Y = 3;
+   public final static int JS_L1 = 4;
+   public final static int JS_R1 = 5;
+   public final static int JS_DPAD_L = 6;
+   public final static int JS_DPAD_R = 7;
+   public final static int JS_DPAD_U = 8;
+   public final static int JS_DPAD_D = 9;
+   public final static int JS_MENU = 10;
+
+   public boolean joystickActive = false;
 
    /* native methods we call */
    native boolean nativeOnCreate();
@@ -36,6 +55,7 @@ public class AllegroActivity extends Activity
    native void nativeOnResume();
    native void nativeOnDestroy();
    native void nativeOnOrientationChange(int orientation, boolean init);
+   native void nativeSendJoystickConfigurationEvent();
 
    /* methods native code calls */
 
@@ -72,6 +92,11 @@ public class AllegroActivity extends Activity
       return android.os.Build.MODEL;
    }
 
+   String getManufacturer()
+   {
+      return android.os.Build.MANUFACTURER;
+   }
+
    void postRunnable(Runnable runme)
    {
       try {
@@ -87,15 +112,15 @@ public class AllegroActivity extends Activity
       try {
          Log.d("AllegroActivity", "createSurface");
          surface = new AllegroSurface(getApplicationContext(),
-               getWindowManager().getDefaultDisplay());
+               getWindowManager().getDefaultDisplay(), this);
 
          SurfaceHolder holder = surface.getHolder();
-         holder.addCallback(surface); 
+         holder.addCallback(surface);
          holder.setType(SurfaceHolder.SURFACE_TYPE_GPU);
          //setContentView(surface);
          Window win = getWindow();
          win.setContentView(surface);
-         Log.d("AllegroActivity", "createSurface end");  
+         Log.d("AllegroActivity", "createSurface end");
       } catch (Exception x) {
          Log.d("AllegroActivity", "createSurface exception: " + x.getMessage());
       }
@@ -180,6 +205,56 @@ public class AllegroActivity extends Activity
    {
       super();
       this.userLibName = userLibName;
+
+      joysticks = new Vector<Integer>();
+
+      reconfigureJoysticks();
+
+      Thread t = new Thread() {
+         public void run() {
+            while (true) {
+               try {
+                  Thread.sleep(100);
+               }
+               catch (Exception e) {
+               }
+
+               if (joystickReconfigureNotified) {
+                  continue;
+               }
+
+               int[] all = InputDevice.getDeviceIds();
+
+               boolean doConfigure = false;
+               int count = 0;
+
+               for (int i = 0; i < all.length; i++) {
+                  if (isJoystick(all[i])) {
+                     if (!joysticks.contains(all[i])) {
+                        doConfigure = true;
+                        break;
+                     }
+                     else {
+                        count++;
+                     }
+                  }
+               }
+
+               if (!doConfigure) {
+                  if (count != joysticks.size()) {
+                     doConfigure = true;
+                  }
+               }
+
+               if (doConfigure) {
+                  Log.d("AllegroActivity", "Sending joystick reconfigure event");
+                  joystickReconfigureNotified = true;
+                  nativeSendJoystickConfigurationEvent();
+               }
+            }
+         }
+      };
+      t.start();
    }
 
    /** Called when the activity is first created. */
@@ -221,6 +296,7 @@ public class AllegroActivity extends Activity
 
       handler = new Handler();
       sensors = new Sensors(getApplicationContext());
+      clipboard = new Clipboard(this);
 
       currentConfig = new Configuration(getResources().getConfiguration());
 
@@ -284,6 +360,9 @@ public class AllegroActivity extends Activity
       sensors.listen();
 
       nativeOnResume();
+
+      /* This is needed to get joysticks working again */
+      reconfigureJoysticks();
 
       Log.d("AllegroActivity", "onResume end");
    }
@@ -387,6 +466,59 @@ public class AllegroActivity extends Activity
    String getOsVersion()
    {
       return android.os.Build.VERSION.RELEASE;
+   }
+
+   private boolean isJoystick(int id) {
+         InputDevice input = InputDevice.getDevice(id);
+         int sources = input.getSources();
+         if ((sources & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK) {
+            return true;
+         }
+         return false;
+   }
+   public void reconfigureJoysticks() {
+      joysticks.clear();
+
+      int[] all = InputDevice.getDeviceIds();
+
+      Log.d("AllegroActivity", "Number of input devices: " + all.length);
+
+      for (int i = 0; i < all.length; i++) {
+         if (isJoystick(all[i])) {
+            joysticks.add(all[i]);
+            Log.d("AllegroActivity", "Found joystick. Index=" + (joysticks.size()-1) + " id=" + all[i]);
+         }
+      }
+
+      joystickReconfigureNotified = false;
+   }
+
+   public int getNumJoysticks() {
+      return joysticks.size();
+   }
+
+   public int indexOfJoystick(int id) {
+      return joysticks.indexOf(id, 0);
+   }
+
+   public void setJoystickActive() {
+      joystickActive = true;
+   }
+
+   public void setJoystickInactive() {
+      joystickActive = false;
+   }
+
+   public String getClipboardText() {
+      return clipboard.getText();
+   }
+
+   public boolean hasClipboardText() {
+      return clipboard.hasText();
+   }
+
+   public boolean setClipboardText(String text) {
+      return clipboard.setText(text);
    }
 }
 

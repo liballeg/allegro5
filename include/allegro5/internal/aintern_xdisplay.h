@@ -64,6 +64,10 @@ struct ALLEGRO_DISPLAY_XGLX
 
    /* al_set_mouse_xy implementation */
    bool mouse_warp;
+   
+   _AL_COND selectioned; /* Condition variable to wait for a selection event a window. */
+   bool is_selectioned;  /* Set to true when selection event received. */
+
 };
 
 void _al_display_xglx_await_resize(ALLEGRO_DISPLAY *d, int old_resize_count, bool delay_hack);

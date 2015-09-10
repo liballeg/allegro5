@@ -609,7 +609,7 @@ static void read_RLE8_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
    int eolflag, eopicflag;
 
    eopicflag = 0;
-   height = abs(infoheader->biHeight);
+   height = abs((int)infoheader->biHeight);
    line = (infoheader->biHeight < 0) ? 0 : height - 1;
    dir = (infoheader->biHeight < 0) ? 1 : -1;
 
@@ -693,7 +693,7 @@ static void read_RLE4_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
    int eolflag, eopicflag;
 
    eopicflag = 0;               /* end of picture flag */
-   height = abs(infoheader->biHeight);
+   height = abs((int)infoheader->biHeight);
    line = (infoheader->biHeight < 0) ? 0 : height - 1;
    dir = (infoheader->biHeight < 0) ? 1 : -1;
 
@@ -955,7 +955,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       return NULL;
    }
 
-   bmp = al_create_bitmap(infoheader.biWidth, abs(infoheader.biHeight));
+   bmp = al_create_bitmap(infoheader.biWidth, abs((int)infoheader.biHeight));
    if (!bmp) {
       ALLEGRO_ERROR("Failed to create bitmap\n");
       return NULL;
@@ -985,7 +985,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       }
 
       /* RLE decoding may skip pixels so clear the buffer first. */
-      buf = al_calloc(infoheader.biWidth, abs(infoheader.biHeight));
+      buf = al_calloc(infoheader.biWidth, abs((int)infoheader.biHeight));
    }
 
    switch (infoheader.biCompression) {
@@ -1024,7 +1024,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       int x, y;
       unsigned char *data;
 
-      for (y = 0; y < abs(infoheader.biHeight); y++) {
+      for (y = 0; y < abs((int)infoheader.biHeight); y++) {
          data = (unsigned char *)lr->data + lr->pitch * y;
          for (x = 0; x < (int)infoheader.biWidth; x++) {
             if (keep_index) {

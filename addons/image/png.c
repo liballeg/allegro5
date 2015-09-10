@@ -243,7 +243,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
          if (interlace_type == PNG_INTERLACE_ADAM7)
             ptr = buf + y * real_rowbytes;
          else
-             ptr = buf;
+            ptr = buf;
          png_read_row(png_ptr, NULL, ptr);
    
          switch (bpp) {
@@ -256,17 +256,20 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
                else if (color_type & PNG_COLOR_MASK_PALETTE) {
                   for (i = 0; i < width; i++) {
                      int pix = ptr[0];
-                     int ti;
                      ptr++;
                      dest[0] = pal[pix].r;
                      dest[1] = pal[pix].g;
                      dest[2] = pal[pix].b;
-                     dest[3] = 255;
-                     for (ti = 0; ti < num_trans; ti++) {
-                        if (trans[ti] == pix) {
-                           dest[0] = dest[1] = dest[2] = dest[3] = 0;
-                           break;
+                     if (pix < num_trans) {
+                        int a = trans[pix];
+                        dest[3] = a;
+                        if (premul) {
+                           dest[0] = dest[0] * a / 255;
+                           dest[1] = dest[1] * a / 255;
+                           dest[2] = dest[2] * a / 255;
                         }
+                     } else {
+                        dest[3] = 255;
                      }
                      dest += 4;
                   }

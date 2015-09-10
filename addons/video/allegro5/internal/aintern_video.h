@@ -36,4 +36,5 @@ struct ALLEGRO_VIDEO {
    void *data;
 };
 
-extern ALLEGRO_VIDEO_INTERFACE *_al_video_vtable;
+ALLEGRO_VIDEO_INTERFACE *_al_video_ffmpeg_vtable(void);
+ALLEGRO_VIDEO_INTERFACE *_al_video_ogv_vtable(void);

@@ -18,7 +18,7 @@
 /* Needed with the MinGW w32api-3.15 headers. */
 using namespace Gdiplus;
 
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && !defined(__uuidof)
 #define __uuidof(x) (IID_ ## x)
 #endif
 

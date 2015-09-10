@@ -6,13 +6,21 @@ import android.util.Log;
 import android.view.Display;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
+import android.view.View.OnGenericMotionListener;
+import android.view.MotionEvent;
+import android.view.InputDevice;
 
-class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback
+class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback, OnGenericMotionListener
 {
    /** native functions we call */
    public native void nativeOnCreate();
    public native boolean nativeOnDestroy();
    public native void nativeOnChange(int format, int width, int height);
+   public native void nativeOnJoystickAxis(int index, int stick, int axis, float value);
+   public native void nativeOnJoystickButton(int index, int button, boolean down);
+
+   private AllegroActivity activity;
 
    /** functions that native code calls */
 
@@ -72,7 +80,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback
    private KeyListener key_listener;
    private TouchListener touch_listener;
 
-   public AllegroSurface(Context context, Display display)
+   public AllegroSurface(Context context, Display display, AllegroActivity activity)
    {
       super(context);
 
@@ -80,8 +88,9 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback
       getHolder().setFormat(display.getPixelFormat());
       getHolder().addCallback(this); 
 
+      this.activity = activity;
       this.egl = new AllegroEGL();
-      this.key_listener = new KeyListener(context);
+      this.key_listener = new KeyListener(context, activity);
       this.touch_listener = new TouchListener();
    }
 
@@ -94,6 +103,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback
       requestFocus();
       setOnKeyListener(key_listener);
       setOnTouchListener(touch_listener);
+      setOnGenericMotionListener(this);
    }
 
    @Override
@@ -140,6 +150,75 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback
    void setCaptureVolumeKeys(boolean onoff)
    {
       key_listener.setCaptureVolumeKeys(onoff);
+   }
+
+   private float axis0_x = 0.0f;
+   private float axis0_y = 0.0f;
+   private float axis0_hat_x = 0.0f;
+   private float axis0_hat_y = 0.0f;
+   private float axis1_x = 0.0f;
+   private float axis1_y = 0.0f;
+
+   private void handleHat(int index1, float old, float cur, int button1, int button2) {
+      if (old == cur)
+         return;
+
+      if (old == 0) {
+         if (cur < 0)
+            nativeOnJoystickButton(index1, button1, true);
+         else
+            nativeOnJoystickButton(index1, button2, true);
+      }
+      else if (old < 0) {
+         nativeOnJoystickButton(index1, button1, false);
+         if (cur > 0) {
+            nativeOnJoystickButton(index1, button2, true);
+         }
+      }
+      else if (old > 0) {
+         nativeOnJoystickButton(index1, button2, false);
+         if (cur < 0) {
+            nativeOnJoystickButton(index1, button1, true);
+         }
+      }
+   }
+
+   @Override
+   public boolean onGenericMotion(View v, MotionEvent event) {
+      if (activity.joystickActive == false) {
+         return false;
+      }
+
+      int id = event.getDeviceId();
+      int index = activity.indexOfJoystick(id);
+      if (index >= 0) {
+         float ax = event.getAxisValue(MotionEvent.AXIS_X, 0);
+         float ay = event.getAxisValue(MotionEvent.AXIS_Y, 0);
+         float ahx = event.getAxisValue(MotionEvent.AXIS_HAT_X, 0);
+         float ahy = event.getAxisValue(MotionEvent.AXIS_HAT_Y, 0);
+         float az = event.getAxisValue(MotionEvent.AXIS_Z, 0);
+         float arz = event.getAxisValue(MotionEvent.AXIS_RZ, 0);
+         if (ax != axis0_x || ay != axis0_y) {
+            nativeOnJoystickAxis(index, 0, 0, ax);
+            nativeOnJoystickAxis(index, 0, 1, ay);
+            axis0_x = ax;
+            axis0_y = ay;
+         }
+         else if (ahx != axis0_hat_x || ahy != axis0_hat_y) {
+            handleHat(index, axis0_hat_x, ahx, AllegroActivity.JS_DPAD_L, AllegroActivity.JS_DPAD_R);
+            handleHat(index, axis0_hat_y, ahy, AllegroActivity.JS_DPAD_U, AllegroActivity.JS_DPAD_D);
+            axis0_hat_x = ahx;
+            axis0_hat_y = ahy;
+         }
+         if (az != axis1_x || arz != axis1_y) {
+            nativeOnJoystickAxis(index, 1, 0, az);
+            nativeOnJoystickAxis(index, 1, 1, arz);
+            axis1_x = az;
+            axis1_y = arz;
+         }
+         return true;
+      }
+      return false;
    }
 }
 

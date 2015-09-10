@@ -426,7 +426,7 @@ static bool config_write_section(ALLEGRO_FILE *file,
       e = e->next;
    }
 
-   return true;
+   return !al_feof(file);
 }
 
 
@@ -480,7 +480,7 @@ bool al_save_config_file_f(ALLEGRO_FILE *file, const ALLEGRO_CONFIG *config)
       s = s->next;
    }
 
-   return true;
+   return !al_feof(file);
 }
 
 

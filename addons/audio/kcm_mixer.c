@@ -610,27 +610,24 @@ ALLEGRO_MIXER *al_create_mixer(unsigned int freq,
    ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf)
 {
    ALLEGRO_MIXER *mixer;
-   ALLEGRO_CONFIG *config;
    int default_mixer_quality = ALLEGRO_MIXER_QUALITY_LINEAR;
+   const char *p;
 
    /* XXX this is in the wrong place */
-   config = al_get_system_config();
-   if (config) {
-      const char *p;
-      p = al_get_config_value(config, "audio", "default_mixer_quality");
-      if (p && p[0] != '\0') {
-         if (!_al_stricmp(p, "point")) {
-            ALLEGRO_INFO("Point sampling\n");
-            default_mixer_quality = ALLEGRO_MIXER_QUALITY_POINT;
-         }
-         else if (!_al_stricmp(p, "linear")) {
-            ALLEGRO_INFO("Linear interpolation\n");
-            default_mixer_quality = ALLEGRO_MIXER_QUALITY_LINEAR;
-         }
-         else if (!_al_stricmp(p, "cubic")) {
-            ALLEGRO_INFO("Cubic interpolation\n");
-            default_mixer_quality = ALLEGRO_MIXER_QUALITY_CUBIC;
-         }
+   p = al_get_config_value(al_get_system_config(), "audio",
+      "default_mixer_quality");
+   if (p && p[0] != '\0') {
+      if (!_al_stricmp(p, "point")) {
+         ALLEGRO_INFO("Point sampling\n");
+         default_mixer_quality = ALLEGRO_MIXER_QUALITY_POINT;
+      }
+      else if (!_al_stricmp(p, "linear")) {
+         ALLEGRO_INFO("Linear interpolation\n");
+         default_mixer_quality = ALLEGRO_MIXER_QUALITY_LINEAR;
+      }
+      else if (!_al_stricmp(p, "cubic")) {
+         ALLEGRO_INFO("Cubic interpolation\n");
+         default_mixer_quality = ALLEGRO_MIXER_QUALITY_CUBIC;
       }
    }
 

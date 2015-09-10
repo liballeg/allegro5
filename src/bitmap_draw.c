@@ -18,6 +18,7 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_memblit.h"
+#include "allegro5/internal/aintern_pixels.h"
 
 
 static ALLEGRO_COLOR solid_white = {1, 1, 1, 1};
@@ -27,18 +28,19 @@ static void _bitmap_drawer(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint,
    float sx, float sy, float sw, float sh, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
-   ALLEGRO_DISPLAY *display = dest->display;
+   ALLEGRO_DISPLAY *display = _al_get_bitmap_display(dest);
    ASSERT(bitmap->parent == NULL);
    ASSERT(!(flags & (ALLEGRO_FLIP_HORIZONTAL | ALLEGRO_FLIP_VERTICAL)));
    ASSERT(bitmap != dest && bitmap != dest->parent);
 
    /* If destination is memory, do a memory blit */
-   if (dest->flags & ALLEGRO_MEMORY_BITMAP) {
+   if (al_get_bitmap_flags(dest) & ALLEGRO_MEMORY_BITMAP ||
+       _al_pixel_format_is_compressed(al_get_bitmap_format(dest))) {
       _al_draw_bitmap_region_memory(bitmap, tint, sx, sy, sw, sh, 0, 0, flags);
    }
    else {
       /* if source is memory or incompatible */
-      if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) ||
+      if ((al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP) ||
           (!al_is_compatible_bitmap(bitmap)))
       {
          if (display && display->vt->draw_memory_bitmap_region) {

@@ -1317,6 +1317,9 @@ static ALLEGRO_VIDEO_INTERFACE ogv_vtable = {
    ogv_update_video
 };
 
-ALLEGRO_VIDEO_INTERFACE *_al_video_vtable = &ogv_vtable;
+ALLEGRO_VIDEO_INTERFACE *_al_video_ogv_vtable(void)
+{
+   return &ogv_vtable;
+}
 
 /* vim: set sts=3 sw=3 et: */

@@ -46,6 +46,9 @@ ALLEGRO_AUDIO_DRIVER *_al_kcm_driver = NULL;
 #if defined(ALLEGRO_CFG_KCM_PULSEAUDIO)
    extern struct ALLEGRO_AUDIO_DRIVER _al_kcm_pulseaudio_driver;
 #endif
+#if defined(ALLEGRO_SDL)
+   extern struct ALLEGRO_AUDIO_DRIVER _al_kcm_sdl_driver;
+#endif
 
 /* Channel configuration helpers */
 
@@ -168,9 +171,6 @@ static ALLEGRO_AUDIO_DRIVER_ENUM get_config_audio_driver(void)
    ALLEGRO_CONFIG *config = al_get_system_config();
    const char *value;
 
-   if (!config)
-      return ALLEGRO_AUDIO_DRIVER_AUTODETECT;
-
    value = al_get_config_value(config, "audio", "driver");
    if (!value || value[0] == '\0')
       return ALLEGRO_AUDIO_DRIVER_AUTODETECT;
@@ -212,6 +212,11 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 
    switch (mode) {
       case ALLEGRO_AUDIO_DRIVER_AUTODETECT:
+#if defined(ALLEGRO_SDL)
+         retVal = do_install_audio(ALLEGRO_AUDIO_DRIVER_SDL);
+         if (retVal)
+            return retVal;
+#endif
 #if defined(ALLEGRO_CFG_KCM_AQUEUE)
          retVal = do_install_audio(ALLEGRO_AUDIO_DRIVER_AQUEUE);
          if (retVal)
@@ -346,6 +351,19 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
             return false;
          #else
             _al_set_error(ALLEGRO_INVALID_PARAM, "DirectSound not available on this platform");
+            return false;
+         #endif
+
+      case ALLEGRO_AUDIO_DRIVER_SDL:
+         #if defined(ALLEGRO_SDL)
+            if (_al_kcm_sdl_driver.open() == 0) {
+               ALLEGRO_INFO("Using SDL driver\n");
+               _al_kcm_driver = &_al_kcm_sdl_driver;
+               return true;
+            }
+            return false;
+         #else
+            _al_set_error(ALLEGRO_INVALID_PARAM, "SDL not available on this platform");
             return false;
          #endif
 

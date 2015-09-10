@@ -14,12 +14,15 @@
 
 #cmakedefine ALLEGRO_CFG_D3D
 #cmakedefine ALLEGRO_CFG_D3D9EX
+#cmakedefine ALLEGRO_CFG_D3DX9
+#cmakedefine ALLEGRO_CFG_XINPUT
 #cmakedefine ALLEGRO_CFG_OPENGL
 #cmakedefine ALLEGRO_CFG_OPENGLES
 #cmakedefine ALLEGRO_CFG_OPENGLES2
 #cmakedefine ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
 #cmakedefine ALLEGRO_CFG_SHADER_GLSL
 #cmakedefine ALLEGRO_CFG_SHADER_HLSL
+#cmakedefine ALLEGRO_CFG_OPENGL_S3TC_LOCKING
 
 #cmakedefine ALLEGRO_CFG_ANDROID_LEGACY
 
@@ -45,6 +48,7 @@
 #cmakedefine ALLEGRO_HAVE_SYS_TYPES_H
 #cmakedefine ALLEGRO_HAVE_OSATOMIC_H
 #cmakedefine ALLEGRO_HAVE_SYS_INOTIFY_H
+#cmakedefine ALLEGRO_HAVE_SAL_H
 
 /* Define to 1 if the corresponding functions are available. */
 #cmakedefine ALLEGRO_HAVE_GETEXECNAME
@@ -92,6 +96,9 @@
 
 /* Define if XIM extension is supported. */
 #cmakedefine ALLEGRO_XWINDOWS_WITH_XIM
+
+/* Define if XInput 2.2 X11 extension is supported. */
+#cmakedefine ALLEGRO_XWINDOWS_WITH_XINPUT2
 
 /*---------------------------------------------------------------------------*/
 

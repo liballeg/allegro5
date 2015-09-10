@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
+/*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -21,6 +21,7 @@
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_shader.h"
+#include "allegro5/internal/aintern_pixels.h"
 
 #include "EGL/egl.h"
 
@@ -132,9 +133,6 @@ JNI_FUNC(void, AllegroSurface, nativeOnChange, (JNIEnv *env, jobject obj,
       d->surface_object = (*env)->NewGlobalRef(env, obj);
    }
 
-   display->w = width;
-   display->h = height;
-
    bool ret = _al_android_init_display(env, d);
    if (!ret && d->first_run) {
       al_broadcast_cond(d->cond);
@@ -177,6 +175,27 @@ JNI_FUNC(void, AllegroSurface, nativeOnChange, (JNIEnv *env, jobject obj,
    }
 
    al_unlock_mutex(d->mutex);
+
+   /* Send a resize event to signify that the display may have changed sizes. */
+   if (!d->first_run) {
+      _al_android_resize_display(d, width, height);
+   }
+}
+
+JNI_FUNC(void, AllegroSurface, nativeOnJoystickAxis, (JNIEnv *env, jobject obj,
+   jint index, jint stick, jint axis, jfloat value))
+{
+   (void)env;
+   (void)obj;
+   _al_android_generate_joystick_axis_event(index+1, stick, axis, value);
+}
+
+JNI_FUNC(void, AllegroSurface, nativeOnJoystickButton, (JNIEnv *env, jobject obj,
+   jint index, jint button, jboolean down))
+{
+   (void)env;
+   (void)obj;
+   _al_android_generate_joystick_button_event(index+1, button, down);
 }
 
 void _al_android_create_surface(JNIEnv *env, bool post)
@@ -212,20 +231,6 @@ void  _al_android_make_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
 void _al_android_clear_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d)
 {
    _jni_callVoidMethodV(env, d->surface_object, "egl_clearCurrent", "()V");
-}
-
-static void android_setup_opengl_view(ALLEGRO_DISPLAY *d)
-{
-   ALLEGRO_DEBUG("setup opengl view d->w=%d d->h=%d", d->w, d->h);
-
-   glViewport(0, 0, d->w, d->h);
-
-   al_identity_transform(&d->proj_transform);
-   al_orthographic_transform(&d->proj_transform, 0, 0, -1, d->w, d->h, 1);
-   al_set_projection_transform(d, &d->proj_transform);
-
-   al_identity_transform(&d->view_transform);
-   al_use_transform(&d->view_transform);
 }
 
 static bool _al_android_init_display(JNIEnv *env,
@@ -349,7 +354,7 @@ static void _al_android_resize_display(ALLEGRO_DISPLAY_ANDROID *d,
    display->h = height;
 
    ALLEGRO_DEBUG("resize backbuffer");
-   _al_ogl_resize_backbuffer(display->ogl_extras->backbuffer, width, height);
+   _al_ogl_setup_gl(display);
 
    if (emitted_event) {
       d->resize_acknowledge2 = true;
@@ -555,8 +560,6 @@ static ALLEGRO_DISPLAY *android_create_display(int w, int h)
    _al_android_clear_current(_al_android_get_jnienv(), d);
    _al_android_make_current(_al_android_get_jnienv(), d);
 
-   android_setup_opengl_view(display);
-
    /* Don't need to repeat what this does */
    android_set_display_option(display, ALLEGRO_SUPPORTED_ORIENTATIONS,
       al_get_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS, NULL));
@@ -686,8 +689,6 @@ static bool android_acknowledge_resize(ALLEGRO_DISPLAY *dpy)
    ALLEGRO_DEBUG("acquire context");
    _al_android_make_current(_al_android_get_jnienv(), d);
 
-   android_setup_opengl_view(dpy);
-
    ALLEGRO_DEBUG("done");
    return true;
 }
@@ -786,10 +787,11 @@ static void android_acknowledge_drawing_halt(ALLEGRO_DISPLAY *dpy)
    for (i = 0; i < (int)dpy->bitmaps._size; i++) {
       ALLEGRO_BITMAP **bptr = _al_vector_ref(&dpy->bitmaps, i);
       ALLEGRO_BITMAP *bmp = *bptr;
+      int bitmap_flags = al_get_bitmap_flags(bmp);
 
       if (!bmp->parent &&
-         !(bmp->flags & ALLEGRO_MEMORY_BITMAP) &&
-         !(bmp->flags & ALLEGRO_NO_PRESERVE_TEXTURE))
+         !(bitmap_flags & ALLEGRO_MEMORY_BITMAP) &&
+         !(bitmap_flags & ALLEGRO_NO_PRESERVE_TEXTURE))
       {
          ALLEGRO_BITMAP_EXTRA_OPENGL *extra = bmp->extra;
          al_remove_opengl_fbo(bmp);
@@ -811,10 +813,8 @@ static void android_acknowledge_drawing_halt(ALLEGRO_DISPLAY *dpy)
 static void android_broadcast_resume(ALLEGRO_DISPLAY_ANDROID *d)
 {
    ALLEGRO_DEBUG("Broadcasting resume");
-   al_lock_mutex(d->mutex);
    d->resumed = true;
    al_broadcast_cond(d->cond);
-   al_unlock_mutex(d->mutex);
    ALLEGRO_DEBUG("done broadcasting resume");
 }
 
@@ -837,29 +837,26 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
       dpy->default_shader = _al_create_default_shader(dpy->flags);
    }
 
-   al_set_target_backbuffer(dpy);
-
-   android_setup_opengl_view(dpy);
-
    // Bitmaps can still have stale shaders attached.
-   for (i = 0; i < _al_vector_size(&dpy->bitmaps); i++) {
-      ALLEGRO_BITMAP **bptr = _al_vector_ref(&dpy->bitmaps, i);
-      ALLEGRO_BITMAP *bmp = *bptr;
+   _al_glsl_unuse_shaders();
 
-      _al_set_bitmap_shader_field(bmp, NULL);
-   }
+   // Restore the transformations.
+   dpy->vt->update_transformation(dpy, al_get_target_bitmap());
 
    // Restore bitmaps
    // have to get this because new bitmaps could be created below
    for (i = 0; i < _al_vector_size(&dpy->bitmaps); i++) {
       ALLEGRO_BITMAP **bptr = _al_vector_ref(&dpy->bitmaps, i);
       ALLEGRO_BITMAP *bmp = *bptr;
+      int bitmap_flags = al_get_bitmap_flags(bmp);
 
       if (!bmp->parent &&
-         !(bmp->flags & ALLEGRO_MEMORY_BITMAP) &&
-         !(bmp->flags & ALLEGRO_NO_PRESERVE_TEXTURE))
+         !(bitmap_flags & ALLEGRO_MEMORY_BITMAP) &&
+         !(bitmap_flags & ALLEGRO_NO_PRESERVE_TEXTURE))
       {
-         _al_ogl_upload_bitmap_memory(bmp, bmp->format, bmp->memory);
+         int format = al_get_bitmap_format(bmp);
+         format = _al_pixel_format_is_compressed(format) ? ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE : format;
+         _al_ogl_upload_bitmap_memory(bmp, format, bmp->memory);
          bmp->dirty = false;
       }
    }
@@ -923,6 +920,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_android_display_driver(void)
    vt->update_render_state = _al_ogl_update_render_state;
 
    _al_ogl_add_drawing_functions(vt);
+   _al_android_add_clipboard_functions(vt);
 
    return vt;
 }

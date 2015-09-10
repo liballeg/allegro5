@@ -2,6 +2,7 @@
 #define __al_included_allegro_aintern_native_dialog_h
 
 #include "allegro5/internal/aintern_vector.h"
+#include "allegro5/internal/aintern_native_dialog_cfg.h"
 
 typedef struct ALLEGRO_NATIVE_DIALOG ALLEGRO_NATIVE_DIALOG;
 

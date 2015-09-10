@@ -78,7 +78,7 @@ static bool lhap_get_active(ALLEGRO_HAPTIC *hap);
 static int lhap_get_capabilities(ALLEGRO_HAPTIC *dev);
 static double lhap_get_gain(ALLEGRO_HAPTIC *dev);
 static bool lhap_set_gain(ALLEGRO_HAPTIC *dev, double);
-static int lhap_get_num_effects(ALLEGRO_HAPTIC *dev);
+static int lhap_get_max_effects(ALLEGRO_HAPTIC *dev);
 
 static bool lhap_is_effect_ok(ALLEGRO_HAPTIC *dev, ALLEGRO_HAPTIC_EFFECT *eff);
 static bool lhap_upload_effect(ALLEGRO_HAPTIC *dev,
@@ -89,6 +89,8 @@ static bool lhap_stop_effect(ALLEGRO_HAPTIC_EFFECT_ID *id);
 static bool lhap_is_effect_playing(ALLEGRO_HAPTIC_EFFECT_ID *id);
 static bool lhap_release_effect(ALLEGRO_HAPTIC_EFFECT_ID *id);
 
+static double lhap_get_autocenter(ALLEGRO_HAPTIC *dev);
+static bool lhap_set_autocenter(ALLEGRO_HAPTIC *dev, double);
 
 ALLEGRO_HAPTIC_DRIVER _al_hapdrv_linux =
 {
@@ -115,7 +117,7 @@ ALLEGRO_HAPTIC_DRIVER _al_hapdrv_linux =
    lhap_get_capabilities,
    lhap_get_gain,
    lhap_set_gain,
-   lhap_get_num_effects,
+   lhap_get_max_effects,
 
    lhap_is_effect_ok,
    lhap_upload_effect,
@@ -124,7 +126,10 @@ ALLEGRO_HAPTIC_DRIVER _al_hapdrv_linux =
    lhap_is_effect_playing,
    lhap_release_effect,
 
-   lhap_release
+   lhap_release,
+   
+   lhap_get_autocenter,
+   lhap_set_autocenter
 };
 
 
@@ -153,6 +158,7 @@ static const struct CAP_MAP cap_map[] = {
    { FF_SAW_DOWN, ALLEGRO_HAPTIC_SAW_DOWN },
    { FF_CUSTOM,   ALLEGRO_HAPTIC_CUSTOM },
    { FF_GAIN,     ALLEGRO_HAPTIC_GAIN },
+   { FF_AUTOCENTER, ALLEGRO_HAPTIC_AUTOCENTER },
    { -1,          -1 }
 };
 
@@ -598,7 +604,11 @@ static double lhap_get_gain(ALLEGRO_HAPTIC *dev)
 {
    ALLEGRO_HAPTIC_LINUX *lhap = lhap_from_al(dev);
    (void)dev;
-
+   
+   if(!al_is_haptic_capable(dev, ALLEGRO_HAPTIC_GAIN)) { 
+     return 0.0;  
+   } 
+   
    /* Unfortunately there seems to be no API to GET gain, only to set?!
     * So, return the stored gain.
     */
@@ -623,7 +633,38 @@ static bool lhap_set_gain(ALLEGRO_HAPTIC *dev, double gain)
 }
 
 
-int lhap_get_num_effects(ALLEGRO_HAPTIC *dev)
+static bool lhap_set_autocenter(ALLEGRO_HAPTIC *dev, double autocenter)
+{
+   ALLEGRO_HAPTIC_LINUX *lhap = lhap_from_al(dev);
+   struct input_event ie;
+
+   lhap->parent.autocenter = autocenter;
+   timerclear(&ie.time);
+   ie.type = EV_FF;
+   ie.code = FF_AUTOCENTER;
+   ie.value = (__s32) ((double)0xFFFF * autocenter);
+   if (write(lhap->fd, &ie, sizeof(ie)) < 0) {
+      return false;
+   }
+   return true;
+}
+
+static double lhap_get_autocenter(ALLEGRO_HAPTIC *dev)
+{
+   ALLEGRO_HAPTIC_LINUX *lhap = lhap_from_al(dev);
+   (void)dev;
+   
+   if(!al_is_haptic_capable(dev, ALLEGRO_HAPTIC_AUTOCENTER)) { 
+     return 0.0;
+   }
+
+   /* Unfortunately there seems to be no API to GET gain, only to set?!
+    * So, return the stored autocenter.
+    */
+   return lhap->parent.autocenter;
+}
+
+int lhap_get_max_effects(ALLEGRO_HAPTIC *dev)
 {
    ALLEGRO_HAPTIC_LINUX *lhap = lhap_from_al(dev);
    int n_effects;
@@ -654,12 +695,6 @@ static bool lhap_is_effect_ok(ALLEGRO_HAPTIC *haptic,
 }
 
 
-static double lhap_effect_duration(ALLEGRO_HAPTIC_EFFECT *effect)
-{
-   return effect->replay.delay + effect->replay.length;
-}
-
-
 static bool lhap_upload_effect(ALLEGRO_HAPTIC *dev,
    ALLEGRO_HAPTIC_EFFECT *effect, ALLEGRO_HAPTIC_EFFECT_ID *id)
 {
@@ -684,7 +719,7 @@ static bool lhap_upload_effect(ALLEGRO_HAPTIC *dev,
 
    /* Find empty spot for effect . */
    found = -1;
-   for (i = 0; i < al_get_num_haptic_effects(dev); i++) {
+   for (i = 0; i < al_get_max_haptic_effects(dev); i++) {
       if (lhap->effects[i] < 0) {
          found = i;
          break;
@@ -707,7 +742,7 @@ static bool lhap_upload_effect(ALLEGRO_HAPTIC *dev,
    id->_haptic = dev;
    id->_id = found;
    id->_handle = leff.id;
-   id->_effect_duration = lhap_effect_duration(effect);
+   id->_effect_duration = al_get_haptic_effect_duration(effect);
    id->_playing = false;
 
    /* XXX should be bool or something? */

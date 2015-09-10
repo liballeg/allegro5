@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="org.liballeg">
-    <uses-sdk android:minSdkVersion="10"/>
-    <uses-permission android:name="tv.ouya.DIRECT_INPUT_ACCESS"/>
+    <uses-sdk android:minSdkVersion="12"/>
     <application>
         <activity android:name="org.liballeg.android.AllegroActivity"/>
     </application>

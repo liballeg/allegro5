@@ -111,8 +111,6 @@ void _al_iphone_destroy_screen(ALLEGRO_DISPLAY *display)
       global_delegate->main_display = NULL;
    }
 
-   [(EAGLView *)d->extra->vc.view remove_observers];
-
    al_free(d->extra);
 }
 
@@ -543,13 +541,6 @@ int _al_iphone_get_orientation(ALLEGRO_DISPLAY *display)
    
    iphone_screen *scr = iphone_get_screen_by_adapter(adapter);
 
-   if (adapter == 0) {
-      [global_delegate add_screen:[UIScreen mainScreen]];
-   }
-   else if (scr == NULL) {
-      [global_delegate add_screen:[[UIScreen screens] objectAtIndex:adapter]];
-   }
-   
    scr->display = d;
 
    ViewController *vc = scr->vc;

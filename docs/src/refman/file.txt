@@ -279,6 +279,23 @@ Parameters:
 Returns the written byte (cast back to an int) on success,
 or EOF on error.
 
+## API: al_fprintf
+
+Writes to a file with stdio "printf"-like formatting.
+Returns the number of bytes written, or a negative number
+on error.
+
+See also: [al_vfprintf]
+
+## API: al_vfprintf
+
+Like al_fprintf but takes a va_list. Useful for creating your own
+variations of formatted printing.
+Returns the number of bytes written, or a negative number
+on error.
+
+See also: [al_fprintf]
+
 ## API: al_fread16le
 
 Reads a 16-bit word in little-endian format (LSB first).
@@ -442,7 +459,7 @@ Returns the opened [ALLEGRO_FILE] on success, NULL on failure.
 
 By default, the Allegro file I/O routines use the C library I/O routines,
 hence work with files on the local filesystem, but can be overridden so that
-you can read and write to other streams.  For example, you can work with block
+you can read and write to other streams.  For example, you can work with blocks
 of memory or sub-files inside .zip files.
 
 There are two ways to get an [ALLEGRO_FILE] that doesn't use stdio.

@@ -8,6 +8,7 @@
  */
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_color.h"
+#include "allegro5/internal/aintern.h"
 #include <math.h>
 #include <stdio.h>
 
@@ -484,9 +485,9 @@ void al_color_yuv_to_rgb(float y, float u, float v,
    /* Translate range 0..1 to actual range. */
    u = 0.436 * (u * 2 - 1);
    v = 0.615 * (v * 2 - 1);
-   *red = y + v * 1.13983;
-   *green = y + u * -0.39465 + v * -0.58060;
-   *blue = y + u * 2.03211;
+   *red = _ALLEGRO_CLAMP(0, 1, y + v * 1.13983);
+   *green = _ALLEGRO_CLAMP(0, 1, y + u * -0.39465 + v * -0.58060);
+   *blue = _ALLEGRO_CLAMP(0, 1, y + u * 2.03211);
 }
 
 

@@ -8,7 +8,7 @@ These functions are declared in the main Allegro header file:
 
 ## API: ALLEGRO_TIMEOUT
 
-Represent a timeout value.  The size of the structure is known so can be
+Represent a timeout value.  The size of the structure is known so it can be
 statically allocated.  The contents are private.
 
 See also: [al_init_timeout]
@@ -32,7 +32,7 @@ See also: [ALLEGRO_TIMEOUT], [al_wait_for_event_until]
 
 ## API: al_rest
 
-Waits for the specified number seconds. This tells the system to pause
+Waits for the specified number of seconds. This tells the system to pause
 the current thread for the given amount of time. With some operating
 systems, the accuracy can be in the order of 10ms. That is, even
 
@@ -40,6 +40,6 @@ systems, the accuracy can be in the order of 10ms. That is, even
 al_rest(0.000001)
 ~~~~
 
-might pause for something like 10ms. Also see the section <Timer routines>
-on easier ways to time your program without using up all CPU.
+might pause for something like 10ms. Also see the section on Timer routines
+for easier ways to time your program without using up all CPU.
 

@@ -347,6 +347,8 @@ static bool sdl_init_keyboard(void)
    add(SDL_SCANCODE_EJECT, 0, 0);
    add(SDL_SCANCODE_SLEEP, 0, 0);
 
+   _al_sdl_event_hack();
+
    return true;
 }
 

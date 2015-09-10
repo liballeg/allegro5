@@ -62,6 +62,11 @@ typedef struct ALLEGRO_KEYBOARD_XWIN
 } ALLEGRO_KEYBOARD_XWIN;
 
 
+typedef struct ALLEGRO_KEY_REPEAT_DATA {
+   XKeyEvent *event;
+   bool found;
+} ALLEGRO_KEY_REPEAT_DATA;
+
 
 /* the one and only keyboard object */
 static ALLEGRO_KEYBOARD_XWIN the_keyboard;
@@ -362,6 +367,22 @@ static int find_unknown_key_assignment(int i)
 }
 
 
+/* XCheckIfAny predicate that checks if this event may be a key repeat event */
+static Bool check_for_repeat(Display *display, XEvent *event, XPointer arg)
+{
+   ALLEGRO_KEY_REPEAT_DATA *d = (ALLEGRO_KEY_REPEAT_DATA *)arg;
+
+   (void)display;
+
+   if (event->type == KeyPress &&
+      event->xkey.keycode == d->event->keycode &&
+      (event->xkey.time - d->event->time) < 4) {
+      d->found = true;
+   }
+
+   return False;
+}
+
 
 /* _al_xwin_keyboard_handler:
  *  Keyboard "interrupt" handler.
@@ -426,22 +447,21 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, ALLEGRO_DISPLAY *display)
    }
    else { /* Key release. */
      /* HACK:
-      * Detect key repeat by looking forward to see if this release
-      * is followed directly by a press event, in which case we assume
-      * that this release event was generated in response to that key
-      * press event. Events are simultaneous if they are separated by
-      * less than 4 ms (a value that worked well on one machine where
-      * this hack was needed).
+      * Detect key repeat by looking forward to see if this release is
+      * followed by a press event, in which case we assume that this release
+      * event was generated in response to that key press event. Events are
+      * simultaneous if they are separated by less than 4 ms (a value that
+      * worked well on one machine where this hack was needed).
       * 
-      * This is unnecessary on systems where XkbSetDetectableAutorepeat
-      * works.
+      * This is unnecessary on systems where XkbSetDetectableAutorepeat works.
       */
       if (XPending(event->display) > 0) {
-         XEvent next_event;
-         XPeekEvent(event->display, &next_event);
-         if ((next_event.type == KeyPress) &&
-             (next_event.xkey.keycode == event->keycode) &&
-             (next_event.xkey.time - event->time) < 4) {
+         ALLEGRO_KEY_REPEAT_DATA d;
+         XEvent dummy;
+         d.event = event;
+         d.found = false;
+         XCheckIfEvent(event->display, &dummy, check_for_repeat, (XPointer)&d);
+         if (d.found) {
             return;
          }
       }
@@ -630,7 +650,7 @@ static bool _al_xwin_get_keyboard_mapping(void)
     * For normal use, a user never should have to touch [xkeymap] anymore
     * though, and proper written programs will not hardcode such mappings.
     */
-   ALLEGRO_CONFIG *c = system->system.config;
+   ALLEGRO_CONFIG *c = al_get_system_config();
    
    char const *key;
    ALLEGRO_CONFIG_ENTRY *it;
@@ -708,13 +728,13 @@ static int x_keyboard_init(void)
 
    _al_mutex_lock(&s->lock);
    
-/* HACK: XkbSetDetectableAutoRepeat is broken in some versions of X.Org
+   /* HACK: XkbSetDetectableAutoRepeat is broken in some versions of X.Org */
    Bool supported;
    XkbSetDetectableAutoRepeat(s->x11display, True, &supported);
    if (!supported) {
       ALLEGRO_WARN("XkbSetDetectableAutoRepeat failed.\n");
    }
-*/
+
 #ifdef ALLEGRO_XWINDOWS_WITH_XIM
    ALLEGRO_INFO("Using X Input Method.\n");
 

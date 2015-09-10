@@ -102,7 +102,16 @@ ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_new(ALLEGRO_BITMAP *bitmap,
    bool ok;
 
    if (format == ALLEGRO_PIXEL_FORMAT_ANY) {
-      format = bitmap->format;
+      /* Never pick compressed formats with ANY, as it interacts weirdly with
+       * existing code (e.g. al_get_pixel_size() etc) */
+      int bitmap_format = al_get_bitmap_format(bitmap);
+      if (_al_pixel_format_is_compressed(bitmap_format)) {
+         // XXX Get a good format from the driver?
+         format = ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE;
+      }
+      else {
+         format = bitmap_format;
+      }
    }
 
    disp = al_get_current_display();
@@ -110,11 +119,11 @@ ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_new(ALLEGRO_BITMAP *bitmap,
 
    /* Change OpenGL context if necessary. */
    if (!disp ||
-      (bitmap->display->ogl_extras->is_shared == false &&
-       bitmap->display != disp))
+      (_al_get_bitmap_display(bitmap)->ogl_extras->is_shared == false &&
+       _al_get_bitmap_display(bitmap) != disp))
    {
       old_disp = disp;
-      _al_set_current_display_only(bitmap->display);
+      _al_set_current_display_only(_al_get_bitmap_display(bitmap));
    }
 
    ok = true;
@@ -239,11 +248,12 @@ static bool ogl_lock_region_nonbb_readwrite(
 
    ASSERT(bitmap->parent == NULL);
    ASSERT(bitmap->locked == false);
-   ASSERT(bitmap->display == al_get_current_display());
+   ASSERT(_al_get_bitmap_display(bitmap) == al_get_current_display());
 
    /* Try to create an FBO if there isn't one. */
    old_target = al_get_target_bitmap();
-   fbo_was_set = _al_ogl_setup_fbo_non_backbuffer(bitmap->display, bitmap);
+   fbo_was_set =
+      _al_ogl_setup_fbo_non_backbuffer(_al_get_bitmap_display(bitmap), bitmap);
 
    if (ogl_bitmap->fbo_info) {
       ALLEGRO_DEBUG("Locking non-backbuffer READWRITE with fbo\n");
@@ -262,12 +272,12 @@ static bool ogl_lock_region_nonbb_readwrite(
          /* Old target was NULL; release the context. */
          _al_set_current_display_only(NULL);
       }
-      else if (!old_target->display) {
+      else if (!_al_get_bitmap_display(old_target)) {
          /* Old target was memory bitmap; leave the current display alone. */
       }
       else if (old_target != bitmap) {
          /* Old target was another OpenGL bitmap. */
-         _al_ogl_setup_fbo(old_target->display, old_target);
+         _al_ogl_setup_fbo(_al_get_bitmap_display(old_target), old_target);
       }
    }
 
@@ -432,15 +442,15 @@ static void ogl_unlock_region_non_readonly(ALLEGRO_BITMAP *bitmap,
    GLenum e;
 
    disp = al_get_current_display();
-   orig_format = _al_get_real_pixel_format(disp, bitmap->format);
+   orig_format = _al_get_real_pixel_format(disp, _al_get_bitmap_memory_format(bitmap));
 
    /* Change OpenGL context if necessary. */
    if (!disp ||
-      (bitmap->display->ogl_extras->is_shared == false &&
-       bitmap->display != disp))
+      (_al_get_bitmap_display(bitmap)->ogl_extras->is_shared == false &&
+       _al_get_bitmap_display(bitmap) != disp))
    {
       old_disp = disp;
-      _al_set_current_display_only(bitmap->display);
+      _al_set_current_display_only(_al_get_bitmap_display(bitmap));
    }
 
    /* Keep this in sync with ogl_lock_region. */
@@ -480,7 +490,7 @@ static void ogl_unlock_region_non_readonly(ALLEGRO_BITMAP *bitmap,
 
       /* If using FBOs, we need to regenerate mipmaps explicitly now. */
       /* XXX why don't we check ogl_bitmap->fbo_info? */
-      if ((bitmap->flags & ALLEGRO_MIPMAP) &&
+      if ((al_get_bitmap_flags(bitmap) & ALLEGRO_MIPMAP) &&
          al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object)
       {
          glGenerateMipmapEXT(GL_TEXTURE_2D);
@@ -654,7 +664,7 @@ static void ogl_unlock_region_nonbb_nonfbo(ALLEGRO_BITMAP *bitmap,
    else {
       ALLEGRO_DEBUG("Unlocking non-backbuffer non-FBO READWRITE\n");
       glPixelStorei(GL_UNPACK_ROW_LENGTH, ogl_bitmap->true_w);
-      start_ptr = (unsigned char *)bitmap->locked_region.data
+      start_ptr = (unsigned char *)bitmap->lock_data
             + (bitmap->lock_h - 1) * bitmap->locked_region.pitch;
    }
 

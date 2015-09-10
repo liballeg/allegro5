@@ -1,6 +1,9 @@
 include_directories(../audio)
 
 option(WANT_FLAC "Enable FLAC support" on)
+if(WIN32)
+    option(FLAC_STATIC "Set this if linking with a static FLAC library" off)
+endif()
 option(WANT_VORBIS "Enable Ogg Vorbis support using libvorbis" on)
 option(WANT_TREMOR "Enable Ogg Vorbis support using Tremor" off)
 option(WANT_MODAUDIO "Enable MOD Audio support" on)
@@ -18,6 +21,7 @@ set(ACODEC_SOURCES
     acodec.c
     wav.c
     helper.c
+    voc.c        # built-in enhanced port of A4 loader
     )
 set(ACODEC_LIBRARIES)
 
@@ -69,18 +73,31 @@ endfunction(get_dll_name)
 if(WANT_FLAC)
     find_package(FLAC)
     if(FLAC_FOUND)
+        if(FLAC_LIBRARY MATCHES "${WIN32_STATIC_LIB_REGEX}")
+            set(FLAC_STATIC 1)
+        endif()
+        if(FLAC_STATIC)
+            set(FLAC__NO_DLL "-DFLAC__NO_DLL")
+        endif()
         set(CMAKE_REQUIRED_INCLUDES ${FLAC_INCLUDE_DIR})
-        set(CMAKE_REQUIRED_LIBRARIES ${FLAC_LIBRARIES})
+        if(MSVC)
+            set(CMAKE_REQUIRED_LIBRARIES ${FLAC_LIBRARIES})
+        else()
+            # FLAC requires libm on Android, doesn't seem to hurt elsewhere either.
+            set(CMAKE_REQUIRED_LIBRARIES ${FLAC_LIBRARIES} m)
+        endif()
+        set(CMAKE_REQUIRED_DEFINITIONS ${FLAC__NO_DLL})
         check_c_source_compiles("
             #include <FLAC/stream_decoder.h>
             int main(void)
             {
-                FLAC__StreamDecoderInitStatus status;
+                (void)FLAC__stream_decoder_new();
                 return 0;
             }"
             FLAC_COMPILES)
         set(CMAKE_REQUIRED_INCLUDES)
         set(CMAKE_REQUIRED_LIBRARIES)
+        set(CMAKE_REQUIRED_DEFINITIONS)
         if(FLAC_COMPILES)
             set(SUPPORT_FLAC 1)
         endif(FLAC_COMPILES)
@@ -98,15 +115,6 @@ if(SUPPORT_FLAC)
     list(APPEND ACODEC_INCLUDE_DIRECTORIES ${FLAC_INCLUDE_DIR})
 
     if(WIN32)
-        option(FLAC_STATIC "Set this if linking with a static FLAC library" off)
-        if(FLAC_STATIC)
-            set(FLAC__NO_DLL "-DFLAC__NO_DLL")
-        endif()
-
-        if(NOT FLAC_STATIC AND FLAC_LIBRARY MATCHES "${WIN32_STATIC_LIB_REGEX}")
-            set(FLAC_STATIC 1)
-            set(FLAC__NO_DLL "-DFLAC__NO_DLL")
-        endif()
         if(WANT_ACODEC_DYNAMIC_LOAD)
             if(FLAC_STATIC)
                 message("WARNING: Dynamic loading will be disabled for FLAC as"
@@ -230,7 +238,7 @@ elseif(WANT_VORBIS)
             VORBIS_COMPILES)
         set(CMAKE_REQUIRED_INCLUDES)
         set(CMAKE_REQUIRED_LIBRARIES)
-        if(VORBIS_COMPILES OR IPHONE)
+        if(VORBIS_COMPILES)
             set(SUPPORT_VORBIS 1)
         endif()
     endif(VORBIS_FOUND)
@@ -266,12 +274,11 @@ configure_file(
     )
 
 add_our_addon_library(allegro_acodec
+    AllegroAcodec-${ALLEGRO_SOVERSION}
     "${ACODEC_SOURCES};${ACODEC_INCLUDE_FILES}"
     "-DALLEGRO_ACODEC_SRC ${FLAC__NO_DLL}"
     "${AUDIO_LINK_WITH};${ACODEC_LIBRARIES}"
     )
-
-set_our_framework_properties(allegro_acodec AllegroAcodec-${ALLEGRO_SOVERSION})
 
 install_our_headers(${ACODEC_INCLUDE_FILES})
 

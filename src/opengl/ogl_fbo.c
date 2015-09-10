@@ -23,6 +23,8 @@
 
 #ifdef ALLEGRO_ANDROID
    #include "allegro5/internal/aintern_android.h"
+#elif defined ALLEGRO_IPHONE
+   #include "allegro5/internal/aintern_iphone.h"
 #endif
 
 #include "ogl_helpers.h"
@@ -107,8 +109,8 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
    ogl_bitmap = bitmap->extra;
 
    /* Don't continue if the bitmap does not belong to the current display. */
-   if (bitmap->display->ogl_extras->is_shared == false &&
-         bitmap->display != al_get_current_display()) {
+   if (_al_get_bitmap_display(bitmap)->ogl_extras->is_shared == false &&
+         _al_get_bitmap_display(bitmap) != al_get_current_display()) {
       return false;
    }
 
@@ -291,20 +293,9 @@ static void setup_fbo_backbuffer(ALLEGRO_DISPLAY *display,
       _al_ogl_bind_framebuffer(0);
    }
 
-#ifndef ALLEGRO_IPHONE
-   glViewport(0, 0, display->w, display->h);
-
-   al_identity_transform(&display->proj_transform);
-   /* We use upside down coordinates compared to OpenGL, so the bottommost
-    * coordinate is display->h not 0.
-    */
-   al_orthographic_transform(&display->proj_transform,
-      0, 0, -1, display->w, display->h, 1);
-#else
-   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+#ifdef ALLEGRO_IPHONE
    _al_iphone_setup_opengl_view(display, false);
 #endif
-   display->vt->set_projection(display);
 }
 
 
@@ -380,7 +371,7 @@ static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
        * message and switch to (extremely slow) software mode.
        */
       ALLEGRO_ERROR("Could not use FBO for bitmap with format %s.\n",
-         _al_pixel_format_name(bitmap->format));
+         _al_pixel_format_name(al_get_bitmap_format(bitmap)));
       ALLEGRO_ERROR("*** SWITCHING TO SOFTWARE MODE ***\n");
       _al_ogl_bind_framebuffer(0);
       glDeleteFramebuffersEXT(1, &info->fbo);
@@ -389,13 +380,6 @@ static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
    }
    else {
       display->ogl_extras->opengl_target = bitmap;
-
-      glViewport(0, 0, bitmap->w, bitmap->h);
-
-      al_identity_transform(&display->proj_transform);
-      al_orthographic_transform(&display->proj_transform,
-         0, 0, -1, bitmap->w, bitmap->h, 1);
-      display->vt->set_projection(display);
    }
 }
 

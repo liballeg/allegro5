@@ -18,6 +18,7 @@ typedef struct ALLEGRO_BITMAP_EXTRA_D3D
 
    LPDIRECT3DTEXTURE9 video_texture;
    LPDIRECT3DTEXTURE9 system_texture;
+   int system_format;
 
    bool initialized;
    bool is_backbuffer;
@@ -47,6 +48,9 @@ typedef struct ALLEGRO_DISPLAY_D3D
    ALLEGRO_BITMAP backbuffer_bmp;
    ALLEGRO_BITMAP_EXTRA_D3D backbuffer_bmp_extra;
 
+   /* Contains the target video bitmap for this display. */
+   ALLEGRO_BITMAP* target_bitmap;
+
    bool device_lost;
    bool suppress_lost_events;
 
@@ -55,7 +59,7 @@ typedef struct ALLEGRO_DISPLAY_D3D
    bool supports_separate_alpha_blend;
 
    TCHAR *device_name;
-	
+
    int format;
    D3DFORMAT depth_stencil_format;
    int samples;
@@ -83,12 +87,25 @@ void _al_d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap);
 void _al_d3d_update_render_state(ALLEGRO_DISPLAY *display);
 
 #ifdef ALLEGRO_CFG_SHADER_HLSL
-   bool _al_load_d3dx9_module();
-   void _al_unload_d3dx9_module();
    bool _al_hlsl_set_projview_matrix(LPD3DXEFFECT effect,
       const ALLEGRO_TRANSFORM *t);
 #endif
 
+#ifdef ALLEGRO_CFG_D3DX9
+   typedef HRESULT (WINAPI *_ALLEGRO_D3DXLSFLSPROC)(LPDIRECT3DSURFACE9, const PALETTEENTRY*,
+      const RECT*, LPDIRECT3DSURFACE9, const PALETTEENTRY*, const RECT*,
+      DWORD, D3DCOLOR);
+
+   typedef HRESULT (WINAPI *_ALLEGRO_D3DXCREATEEFFECTPROC)(LPDIRECT3DDEVICE9, LPCVOID, UINT,
+      CONST D3DXMACRO*, LPD3DXINCLUDE, DWORD, LPD3DXEFFECTPOOL, LPD3DXEFFECT*,
+      LPD3DXBUFFER*);
+
+   bool _al_load_d3dx9_module();
+   void _al_unload_d3dx9_module();
+
+   extern _ALLEGRO_D3DXLSFLSPROC _al_imp_D3DXLoadSurfaceFromSurface;
+   extern _ALLEGRO_D3DXCREATEEFFECTPROC _al_imp_D3DXCreateEffect;
+#endif
 
 #ifdef __cplusplus
 }

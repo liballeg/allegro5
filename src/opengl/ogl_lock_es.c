@@ -36,16 +36,6 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 
 #define get_glformat(f, c) _al_ogl_get_glformat((f), (c))
 
-
-/* Helper to get smallest fitting power of two. */
-static int pot(int x)
-{
-   int y = 1;
-   while (y < x) y *= 2;
-   return y;
-}
-
-
 /*
  * Helpers - duplicates code in ogl_bitmap.c for now
  */
@@ -106,7 +96,16 @@ ALLEGRO_LOCKED_REGION *_al_ogl_lock_region_gles(ALLEGRO_BITMAP *bitmap,
    int real_format;
 
    if (format == ALLEGRO_PIXEL_FORMAT_ANY) {
-      format = bitmap->format;
+      /* Never pick compressed formats with ANY, as it interacts weirdly with
+       * existing code (e.g. al_get_pixel_size() etc) */
+      int bitmap_format = al_get_bitmap_format(bitmap);
+      if (_al_pixel_format_is_compressed(bitmap_format)) {
+         // XXX Get a good format from the driver?
+         format = ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE;
+      }
+      else {
+         format = bitmap_format;
+      }
    }
 
    disp = al_get_current_display();
@@ -227,11 +226,11 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_nonbb(ALLEGRO_BITMAP *bitmap,
 
    /* Change OpenGL context if necessary. */
    if (!disp ||
-      (bitmap->display->ogl_extras->is_shared == false &&
-       bitmap->display != disp))
+      (_al_get_bitmap_display(bitmap)->ogl_extras->is_shared == false &&
+       _al_get_bitmap_display(bitmap) != disp))
    {
       old_disp = disp;
-      _al_set_current_display_only(bitmap->display);
+      _al_set_current_display_only(_al_get_bitmap_display(bitmap));
    }
 
    ok = true;
@@ -320,11 +319,12 @@ static bool ogl_lock_region_nonbb_readwrite(
 
    ASSERT(bitmap->parent == NULL);
    ASSERT(bitmap->locked == false);
-   ASSERT(bitmap->display == al_get_current_display());
+   ASSERT(_al_get_bitmap_display(bitmap) == al_get_current_display());
 
    /* Try to create an FBO if there isn't one. */
    old_target = al_get_target_bitmap();
-   fbo_was_set = _al_ogl_setup_fbo_non_backbuffer(bitmap->display, bitmap);
+   fbo_was_set =
+      _al_ogl_setup_fbo_non_backbuffer(_al_get_bitmap_display(bitmap), bitmap);
 
    /* Unlike in desktop GL, there seems to be nothing we can do without an FBO. */
    if (fbo_was_set && ogl_bitmap->fbo_info) {
@@ -342,12 +342,12 @@ static bool ogl_lock_region_nonbb_readwrite(
          /* Old target was NULL; release the context. */
          _al_set_current_display_only(NULL);
       }
-      else if (!old_target->display) {
+      else if (!_al_get_bitmap_display(old_target)) {
          /* Old target was memory bitmap; leave the current display alone. */
       }
       else if (old_target != bitmap) {
          /* Old target was another OpenGL bitmap. */
-         _al_ogl_setup_fbo(old_target->display, old_target);
+         _al_ogl_setup_fbo(_al_get_bitmap_display(old_target), old_target);
       }
    }
 
@@ -488,7 +488,6 @@ static void ogl_unlock_region_bb_proxy(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_DEBUG("Drawing proxy to backbuffer\n");
    {
       ALLEGRO_DISPLAY *disp;
-      ALLEGRO_TRANSFORM proj0;
       ALLEGRO_STATE state0;
       ALLEGRO_TRANSFORM t;
       bool held;
@@ -498,21 +497,19 @@ static void ogl_unlock_region_bb_proxy(ALLEGRO_BITMAP *bitmap,
       if (held) {
          al_hold_bitmap_drawing(false);
       }
-      /* Projection transform is currently per-display. */
-      al_copy_transform(&proj0, al_get_projection_transform(disp));
       al_store_state(&state0, ALLEGRO_STATE_TARGET_BITMAP |
-         ALLEGRO_STATE_TRANSFORM | ALLEGRO_STATE_BLENDER);
+         ALLEGRO_STATE_TRANSFORM | ALLEGRO_STATE_BLENDER |
+         ALLEGRO_STATE_PROJECTION_TRANSFORM);
       {
          al_set_target_bitmap(bitmap);
          al_identity_transform(&t);
          al_use_transform(&t);
          al_orthographic_transform(&t, 0, 0, -1, disp->w, disp->h, 1);
-         al_set_projection_transform(disp, &t);
+         al_use_projection_transform(&t);
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
          al_draw_bitmap(proxy, bitmap->lock_x, bitmap->lock_y, 0);
       }
       al_restore_state(&state0);
-      al_set_projection_transform(disp, &proj0);
       al_hold_bitmap_drawing(held);
    }
 
@@ -532,15 +529,15 @@ static void ogl_unlock_region_nonbb(ALLEGRO_BITMAP *bitmap,
    GLenum e;
 
    disp = al_get_current_display();
-   orig_format = _al_get_real_pixel_format(disp, bitmap->format);
+   orig_format = _al_get_real_pixel_format(disp, al_get_bitmap_format(bitmap));
 
    /* Change OpenGL context if necessary. */
    if (!disp ||
-      (bitmap->display->ogl_extras->is_shared == false &&
-       bitmap->display != disp))
+      (_al_get_bitmap_display(bitmap)->ogl_extras->is_shared == false &&
+       _al_get_bitmap_display(bitmap) != disp))
    {
       old_disp = disp;
-      _al_set_current_display_only(bitmap->display);
+      _al_set_current_display_only(_al_get_bitmap_display(bitmap));
    }
 
    /* Desktop code sets GL_UNPACK_ALIGNMENT here instead of later. */
@@ -549,8 +546,9 @@ static void ogl_unlock_region_nonbb(ALLEGRO_BITMAP *bitmap,
 
    /* If using FBOs, we need to regenerate mipmaps explicitly now. */
    /* XXX why don't we check ogl_bitmap->fbo_info? */
-   if ((bitmap->flags & ALLEGRO_MIPMAP) &&
-      al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object)
+   if ((al_get_bitmap_flags(bitmap) & ALLEGRO_MIPMAP) &&
+       (al_get_opengl_extension_list()->ALLEGRO_GL_OES_framebuffer_object ||
+        IS_OPENGLES) /* FIXME */)
    {
       glGenerateMipmapEXT(GL_TEXTURE_2D);
       e = glGetError();

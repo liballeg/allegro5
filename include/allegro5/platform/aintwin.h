@@ -44,7 +44,7 @@
 /* user defined hooks into the main win32 event loop */
 
 typedef bool (*ALLEGRO_DISPLAY_WIN_CALLBACK_PROC)
-   (ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM, void *);
+   (ALLEGRO_DISPLAY *, UINT, WPARAM, LPARAM, LRESULT*, void *);
 
 typedef struct ALLEGRO_DISPLAY_WIN_CALLBACK ALLEGRO_DISPLAY_WIN_CALLBACK;
 
@@ -116,8 +116,8 @@ void _al_win_fix_modifiers(void);
 
 /* mouse routines */
 void _al_win_mouse_handle_move(int x, int y, bool abs, ALLEGRO_DISPLAY_WIN *win_disp);
-void _al_win_mouse_handle_wheel(int d, bool abs, ALLEGRO_DISPLAY_WIN *win_disp);
-void _al_win_mouse_handle_hwheel(int d, bool abs, ALLEGRO_DISPLAY_WIN *win_disp);
+void _al_win_mouse_handle_wheel(int raw_dz, bool abs, ALLEGRO_DISPLAY_WIN *win_disp);
+void _al_win_mouse_handle_hwheel(int raw_dw, bool abs, ALLEGRO_DISPLAY_WIN *win_disp);
 void _al_win_mouse_handle_button(int button, bool down, int x, int y, bool abs, ALLEGRO_DISPLAY_WIN *win_disp);
 void _al_win_mouse_handle_leave(ALLEGRO_DISPLAY_WIN *win_display);
 void _al_win_mouse_handle_enter(ALLEGRO_DISPLAY_WIN *win_display);
@@ -170,6 +170,7 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
                                            int refresh_rate, int flags);
 int  _al_win_init_window(void);
 HWND _al_win_create_hidden_window(void);
+void _al_win_post_create_window(ALLEGRO_DISPLAY *display);
 
 /* icon helpers */
 void  _al_win_set_display_icons(ALLEGRO_DISPLAY *display, int num_icons, ALLEGRO_BITMAP *bitmap[]);
@@ -208,7 +209,7 @@ bool _al_win_hide_mouse_cursor(ALLEGRO_DISPLAY *display);
    ALLEGRO_DISPLAY_MODE* _al_d3d_get_display_mode(int index, int format,
                                                   int refresh_rate, int flags,
                                                   ALLEGRO_DISPLAY_MODE *mode);
-   bool _al_d3d_init_display(void);
+   void _al_d3d_shutdown_display(void);
 #endif /*  defined ALLEGRO_CFG_D3D */
 
 #if defined ALLEGRO_CFG_OPENGL
@@ -217,7 +218,6 @@ bool _al_win_hide_mouse_cursor(ALLEGRO_DISPLAY *display);
    ALLEGRO_DISPLAY_MODE* _al_wgl_get_display_mode(int index, int format,
                                                   int refresh_rate, int flags,
                                                   ALLEGRO_DISPLAY_MODE *mode);
-   bool _al_wgl_init_display(void);
 #endif /*  defined ALLEGRO_CFG_OPENGL */
 
 

@@ -32,11 +32,13 @@ endif(MSVC)
 if(WANT_MONOLITH)
    add_our_executable(
        test_driver
+       LIBS
        ${ALLEGRO_MONOLITH_LINK_WITH}
        )
 else(WANT_MONOLITH)
    add_our_executable(
        test_driver
+       LIBS
        ${ALLEGRO_LINK_WITH}
        ${ALLEGRO_MAIN_LINK_WITH}
        ${IMAGE_LINK_WITH}
