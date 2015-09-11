@@ -241,11 +241,17 @@ See also: [al_grab_font_from_bitmap]
 ## Per glyph text handling
 
 For some applications Allegro's text drawing functions may not be sufficient.
-That is why Allegro supports drawing and getting the dimensions of individual
-glyphs of a font. And it's also possible to get the kerning to use beteen two
-glyphs. These per glyh functions have less overhead than Allegro's per string
-text drawing and dimensioning functions. So, with these functions you can
-write your own efficient and precise custom text drawing functions.
+For example, you would like to give a different color to every letter in a word,
+or use different a font for a drop cap.
+
+That is why Allegro supports drawing and getting the dimensions of the 
+individual glyphs of a font. A glyph is a particular visual representation of 
+a letter, character or symbol in a specific font.
+
+And it's also possible to get the kerning to use between two glyphs. These per 
+glyph functions have less overhead than Allegro's per string text drawing and 
+dimensioning functions. So, with these functions you can write your own 
+efficient and precise custom text drawing functions.
 
 ### API: al_draw_glyph
 
@@ -261,7 +267,7 @@ For drawing strings in other directions, such as top to down, use
 If you have to draw many glyphs at the same time, use [al_hold_bitmap_drawing]
 with true as the parameter, before drawing the glyphs, and then call
 [al_hold_bitmap_drawing] again with false as a parameter when done drawing the
-glyphs to futher enhance performance.
+glyphs to further enhance performance.
 
 Since: 5.1.12
 
@@ -270,7 +276,7 @@ See also: [al_get_glyph_width], [al_get_glyph_dimensions],
 
 ### API: al_get_glyph_width
 
-This function returns the width in pixel of the glyph that corresponds with
+This function returns the width in pixels of the glyph that corresponds with
 `codepoint` in the font `font`. Returns zero if the font does not have such
 a glyph.
 
@@ -282,7 +288,7 @@ See also: [al_draw_glyph], [al_get_glyph_dimensions], [al_get_glyph_advance].
 
 Sometimes, the [al_get_glyph_width] or [al_get_glyph_advance] functions are
 not enough for exact glyph placement, so this function returns some additional
-information.
+information, particularly if you want to draw the font vertically.
 
 The function itself returns true if the character was present in `font`
 and false if the character was not present in `font`.
@@ -292,34 +298,115 @@ Returned variables (all in pixel):
 - bbx, bby - Offset to upper left corner of bounding box.
 - bbw, bbh - Dimensions of bounding box.
 
+These values are thesame as [al_get_text_dimensions] would return for a string
+of a single character equal to the glyph passed to this function.
+Note that glyphs may go to the left and upwards of the X, in which
+case x and y will have negative values.
+
+If you want to draw a string verticallly, for Japanese or as a game effect, 
+then you should leave bby + bbh space between the glyphs in the y direction
+for a regular placement.
+
+If you want to draw a string horizontally in an extra compact way,  
+then you should leave bbx + bbw space between the glyphs in the x direction
+for a compact placement.
+
+In the figure below is an example of what bbx and bby may be like for a `2` 
+glyph, and a `g` glyph of the same font compared to the result of 
+al_get_glyph_width().
+    
+     
+       al_get_glyph_width()     al_get_glyph_width()
+              __|___                   __|__
+             /      \                 /     \  
+         bbx    bbw                 bbx   bbw    
+        <-->+<------>+           <-->+<----->+   X baseline
+        ^   |        |           ^   |       |   
+    bby |   |        |       bby |   |       |   
+        v   |        |           |   |       |   
+        +---+--------+           |   |       |
+        ^   | *****  |           |   |       |
+        |   |*    ** |           v   |       |
+    bbh |   |    **  |       bbh +---+-------+
+        |   |  **    |           ^   | ***** |
+        v   |********|           |   |*     *|
+        +---+--------+           |   | ***** |
+                                 |   |      *|
+                                 |   | *    *|
+                                 v   |  **** |
+                                 +---+-------+
+    
+    
 Since: 5.1.12
 
 See also: [al_draw_glyph], [al_get_glyph_width], [al_get_glyph_advance].
 
 ### API: al_get_glyph_advance
 
-This function returns by how much the x position needs to be advanced
+This function returns by how much the x position should be advanced
 for left to right text drawing when the glyph that corresponds to codepoint1
 has been drawn, and the glyph that corresponds to codepoint2 will be the next
-to draw. This takes into consideration the horizontal advance width of the
+to be drawn. This takes into consideration the horizontal advance width of the
 glyph that corresponds with codepoint1 as well as the kerning between the
 glyphs of codepoint1 and codepoint2.
 
 Kerning is the process of adjusting the spacing between glyphs in a font,
 to obtain a more visually pleasing result. Kerning adjusts the space between
-two individual glyphs.
+two individual glyphs with an offset determined by the author of the font.
+
+If you pass ALLEGRO_NO_KERNING or -1 as codepoint1 then al_get_glyph_advance
+will return 0. this cn be useful when drawing the first character of a string 
+in a loop.
 
 Pass ALLEGRO_NO_KERNING or -1 as codepoint2 to get the horizontal advance width
 of the glyph that corresponds to codepoint1 without taking any kerning into
-consideration.
+consideration. This can be used, for example, when drawing the last character 
+of a string in a loop.
 
 This function will return zero if the glyph of codepoint1 is not present
-in the `font`.
+in the `font`. If the glyph of codepoint2 is not present in the font, 
+the horizontal advance width of the glyph that corresponds to codepoint1 
+without taking any kerning into consideration is returned.
 
 When drawing a string one glyph at the time from the left to the right
 with kerning, the x position of the glyph should be incremented by the result
-of [al_get_glyph_glyph_advance] applied to the previous glyph drawn and
-the next glyph to draw. 
+of [al_get_glyph_advance] applied to the previous glyph drawn and
+the next glyph to draw.
+
+Note that the return value of this function is a recommended advance for
+optimal readability for left to right text determined by the author of the font. 
+However, if you like, you may want to draw the glyphs of the font narrower 
+or wider to each other than what [al_get_glyph_advance] returns for style 
+or effect.
+
+In the figure below is an example of what the result of al_get_glyph_advance
+may be like for two glypphs `A` and `l` of the same font that has kerning for 
+the "Al" pair, without and with the ALLEGRO_NO_KERNING flag.
+
+
+    al_get_glyph_advance(font, 'A', 'l', 0)
+         ___|___                  
+        /       \  
+        -------------            
+            /\   -|  
+           /  \   |
+          /____\  |
+         /      \ |
+        /        \ \_             
+        -------------
+        
+        
+    al_get_glyph_advance(font, 'A', 'l', ALLEGRO_NO_KERNING)    
+         ____|____
+        /         \  
+        ---------------
+            /\     -|  
+           /  \     |
+          /____\    |
+         /      \   |
+        /        \   \_             
+        ---------------
+
 
 Since: 5.1.12
 

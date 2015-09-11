@@ -45,19 +45,36 @@ static void render(void)
     ALLEGRO_COLOR red = al_map_rgba_f(1, 0, 0, 1);
     ALLEGRO_COLOR green = al_map_rgba_f(0, 0.5, 0, 1);
     ALLEGRO_COLOR blue = al_map_rgba_f(0.1, 0.2, 1, 1);
+    ALLEGRO_COLOR purple = al_map_rgba_f(0.3, 0.1, 0.2, 1);
     int x, y, w, h, as, de, xpos, ypos;
     unsigned int index;
     int target_w, target_h;
     ALLEGRO_USTR_INFO info, sub_info;
     const ALLEGRO_USTR *u;
     const char *tulip = "Tulip";
+    const char *tulipd= "Tulip";
+    const char *bleh  = "Rose.";
 
     al_clear_to_color(white);
 
     al_hold_bitmap_drawing(true);
    
-    al_draw_textf(ex.f1, black, 50,  50, 0, "Tulip (kerning)");
-    al_draw_textf(ex.f2, black, 50, 100, 0, "Tulip (no kerning)");
+    al_draw_textf(ex.f1, black, 50,  20, 0, "Tulip (kerning)");
+    al_draw_textf(ex.f2, black, 50,  80, 0, "Tulip (no kerning)");
+    
+    x = 50 ; y = 140;    
+    for (index = 0; index < strlen(tulipd); index ++) {
+       int cp  = tulipd[index];
+       int bbx, bby, bbw, bbh;
+       al_get_glyph_dimensions(ex.f2, cp, &bbx, &bby, &bbw, &bbh);                   
+       al_draw_rectangle(x + bbx, y + bby, x + bbx + bbw, y + bby + bbh, blue, 1);
+       al_draw_rectangle(x, y, x + bbx + bbw, y + bby + bbh, green, 1);       
+       al_draw_glyph(ex.f2, purple, x, y, cp);
+       x += al_get_glyph_advance(ex.f2, cp, ALLEGRO_NO_KERNING);
+    }
+    al_draw_line(50, y, x, y, red, 1);    
+    al_draw_textf(ex.f2, black, x + 10, y, 0, "(dimensions)");
+    
     al_draw_textf(ex.f3, black, 50, 200, 0, "This font has a size of 12 pixels, "
         "the one above has 48 pixels.");
 
@@ -93,7 +110,7 @@ static void render(void)
     x = 50 ; y = 425; 
     for (index = 0; index < strlen(tulip); index ++) {
        int cp  = tulip[index];
-       /* Use al_get_glyph_width for the stride, with no kerning. */
+       /* Use al_get_glyph_advance for the stride, with no kerning. */
        al_draw_glyph(ex.f3, red, x, y, cp);
        x += al_get_glyph_advance(ex.f3, cp, ALLEGRO_NO_KERNING);
     }
@@ -106,6 +123,41 @@ static void render(void)
       al_draw_glyph(ex.f3, green, x, y, cp);
       x += al_get_glyph_advance(ex.f3, cp, ncp);
     }
+    
+    
+    x = 50 ; y = 466; 
+    for (index = 0; index < strlen(tulip); index ++) {
+      int cp  = tulip[index];
+      int bbx, bby, bbw, bbh;
+      al_get_glyph_dimensions(ex.f3, cp, &bbx, &bby, &bbw, &bbh);      
+      al_draw_glyph(ex.f3, blue, x, y, cp);
+      x += bbx + bbw;
+    }
+    
+    
+    x = 10 ; y = 30; 
+    for (index = 0; index < strlen(bleh); index ++) {
+      int bbx, bby, bbw, bbh;
+      int cp  = bleh[index];
+      /* Use al_get_glyph_dimensions for the height to apply. */      
+      al_get_glyph_dimensions(ex.f3, cp, &bbx, &bby, &bbw, &bbh);
+      al_draw_glyph(ex.f3, green, x, y, cp);      
+      y += bby;
+      y += bbh;
+    }
+    
+    
+    x = 30 ; y = 30; 
+    for (index = 0; index < strlen(bleh); index ++) {
+      int bbx, bby, bbw, bbh;
+      int cp  = bleh[index];
+      /* Use al_get_glyph_dimensions for the height to apply, here bby is 
+       * omited for the wrong result. */      
+      al_get_glyph_dimensions(ex.f3, cp, &bbx, &bby, &bbw, &bbh);
+      al_draw_glyph(ex.f3, red, x, y, cp);      
+      y += bbh;
+    }
+    
     
     al_hold_bitmap_drawing(false);
 
