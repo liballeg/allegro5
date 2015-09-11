@@ -40,10 +40,21 @@ See also: [al_start_timer], [al_destroy_timer]
 ## API: al_start_timer
 
 Start the timer specified.  From then, the timer's counter will increment
-at a constant rate, and it will begin generating events.  Starting a
-timer that is already started does nothing.
+at a constant rate, and it will begin generating events. Starting a
+timer that is already started does nothing. Starting a timer that was stopped
+will reset the timer's counter, effectively restarting the timer from the
+beginning.
 
-See also: [al_stop_timer], [al_get_timer_started]
+See also: [al_stop_timer], [al_get_timer_started], [al_resume_timer]
+
+## API: al_resume_timer
+
+Resume the timer specified.  From then, the timer's counter will increment
+at a constant rate, and it will begin generating events. Resuming a
+timer that is already started does nothing. Resuming a stopped timer will not
+reset the timer's counter (unlike al_start_timer).
+
+See also: [al_start_timer], [al_stop_timer], [al_get_timer_started]
 
 ## API: al_stop_timer
 
@@ -51,7 +62,7 @@ Stop the timer specified.  The timer's counter will stop incrementing and
 it will stop generating events.  Stopping a timer that is already stopped
 does nothing.
 
-See also: [al_start_timer], [al_get_timer_started]
+See also: [al_start_timer], [al_get_timer_started], [al_resume_timer]
 
 ## API: al_get_timer_started
 
