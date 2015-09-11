@@ -298,8 +298,8 @@ Returned variables (all in pixel):
 - bbx, bby - Offset to upper left corner of bounding box.
 - bbw, bbh - Dimensions of bounding box.
 
-These values are thesame as [al_get_text_dimensions] would return for a string
-of a single character equal to the glyph passed to this function.
+These values are the same as [al_get_text_dimensions] would return for 
+a string of a single character equal to the glyph passed to this function.
 Note that glyphs may go to the left and upwards of the X, in which
 case x and y will have negative values.
 
@@ -354,11 +354,11 @@ Kerning is the process of adjusting the spacing between glyphs in a font,
 to obtain a more visually pleasing result. Kerning adjusts the space between
 two individual glyphs with an offset determined by the author of the font.
 
-If you pass ALLEGRO_NO_KERNING or -1 as codepoint1 then al_get_glyph_advance
+If you pass ALLEGRO_NO_KERNING as codepoint1 then al_get_glyph_advance
 will return 0. this cn be useful when drawing the first character of a string 
 in a loop.
 
-Pass ALLEGRO_NO_KERNING or -1 as codepoint2 to get the horizontal advance width
+Pass ALLEGRO_NO_KERNING as codepoint2 to get the horizontal advance width
 of the glyph that corresponds to codepoint1 without taking any kerning into
 consideration. This can be used, for example, when drawing the last character 
 of a string in a loop.
