@@ -57,6 +57,8 @@
 #cmakedefine ALLEGRO_HAVE_MPROTECT
 #cmakedefine ALLEGRO_HAVE_SCHED_YIELD
 #cmakedefine ALLEGRO_HAVE_SYSCONF
+#cmakedefine ALLEGRO_HAVE_SYSCTL
+
 #cmakedefine ALLEGRO_HAVE_FSEEKO
 #cmakedefine ALLEGRO_HAVE_FTELLO
 #cmakedefine ALLEGRO_HAVE_STRERROR_R

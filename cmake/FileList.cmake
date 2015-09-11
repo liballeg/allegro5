@@ -10,6 +10,7 @@ set(ALLEGRO_SRC_FILES
     src/clipboard.c
     src/config.c
     src/convert.c
+    src/cpu.c
     src/debug.c
     src/display.c
     src/display_settings.c
