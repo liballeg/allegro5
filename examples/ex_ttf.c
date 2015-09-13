@@ -62,7 +62,8 @@ static void render(void)
     al_draw_textf(ex.f1, black, 50,  20, 0, "Tulip (kerning)");
     al_draw_textf(ex.f2, black, 50,  80, 0, "Tulip (no kerning)");
     
-    x = 50 ; y = 140;    
+    x = 50; 
+    y = 140;    
     for (index = 0; index < strlen(dimension_text); index ++) {
        int cp  = dimension_text[index];
        int bbx, bby, bbw, bbh;
@@ -107,7 +108,8 @@ static void render(void)
     /* Glyph rendering tests. */
     al_draw_textf(ex.f3, red, 50, 410, 0, "Glyph adv Tu: %d, draw: ",
                         al_get_glyph_advance(ex.f3, 'T', 'u'));
-    x = 50 ; y = 425; 
+    x = 50; 
+    y = 425; 
     for (index = 0; index < strlen(tulip); index ++) {
        int cp  = tulip[index];
        /* Use al_get_glyph_advance for the stride, with no kerning. */
@@ -115,7 +117,8 @@ static void render(void)
        x += al_get_glyph_advance(ex.f3, cp, ALLEGRO_NO_KERNING);
     }
    
-    x = 50 ; y = 440; 
+    x = 50; 
+    y = 440; 
     /* First draw a red string using al_draw_text, that should be hidden 
      * completely by the same text drawing in green per glyph 
      * using al_draw_glyph and al_get_glyph_advance below. */
@@ -128,7 +131,8 @@ static void render(void)
       x += al_get_glyph_advance(ex.f3, cp, ncp);
     }
     
-    x = 50 ; y = 466; 
+    x = 50; 
+    y = 466; 
     al_draw_text(ex.f3, red, x, y, 0, tulip);
     for (index = 0; index < strlen(tulip); index ++) {
       int cp  = tulip[index];
@@ -139,7 +143,8 @@ static void render(void)
     }
     
     
-    x = 10 ; y = 30; 
+    x = 10; 
+    y = 30; 
     for (index = 0; index < strlen(vertical_text); index ++) {
       int bbx, bby, bbw, bbh;
       int cp  = vertical_text[index];
@@ -151,7 +156,8 @@ static void render(void)
     }
     
     
-    x = 30 ; y = 30; 
+    x = 30; 
+    y = 30; 
     for (index = 0; index < strlen(vertical_text); index ++) {
       int bbx, bby, bbw, bbh;
       int cp  = vertical_text[index];

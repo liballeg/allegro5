@@ -792,7 +792,7 @@ ALLEGRO_FONT *al_load_ttf_font_stretch_f(ALLEGRO_FILE *file,
 
     if ((result = FT_Open_Face(ft, &args, 0, &face)) != 0) {
         ALLEGRO_ERROR("Reading %s failed. Freetype error code %d\n", filename,
-      result);
+          result);
         // Note: Freetype already closed the file for us.
         al_free(data);
         return NULL;
