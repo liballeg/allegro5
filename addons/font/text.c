@@ -372,6 +372,36 @@ int al_get_font_ranges(ALLEGRO_FONT *f, int ranges_count, int *ranges)
    return f->vtable->get_font_ranges(f, ranges_count, ranges);
 }
 
+/* Function al_draw_glyph
+ */
+void al_draw_glyph(const ALLEGRO_FONT *f, ALLEGRO_COLOR color, float x, float y,
+   int codepoint)
+{
+   f->vtable->render_char(f, color, codepoint, x, y);
+};
+
+/* Function al_get_glyph_width
+ */
+int al_get_glyph_width(const ALLEGRO_FONT *f, int codepoint)
+{
+   return f->vtable->char_length(f, codepoint);
+}
+
+/* Function al_get_glyph_dimensions
+ */
+bool al_get_glyph_dimensions(const ALLEGRO_FONT *f,
+   int codepoint, int *bbx, int *bby, int *bbw, int *bbh)
+{
+   return f->vtable->get_glyph_dimensions(f, codepoint, bbx, bby, bbw, bbh);
+}
+
+/* Function al_get_glyph_kerning
+ */
+int al_get_glyph_advance(const ALLEGRO_FONT *f, int codepoint1, int codepoint2)
+{
+   return f->vtable->get_glyph_advance(f, codepoint1, codepoint2);
+}
+
 
 
 /* This helper function helps splitting an ustr in several delimited parts.
@@ -652,11 +682,6 @@ void al_draw_multiline_textf(const ALLEGRO_FONT *font,
 
    al_ustr_free(buf);
 }
-
-
-
-
-
 
 
 /* vim: set sts=3 sw=3 et: */

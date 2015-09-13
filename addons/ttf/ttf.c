@@ -527,24 +527,31 @@ static int ttf_font_descent(ALLEGRO_FONT const *f)
 static int ttf_render_char(ALLEGRO_FONT const *f, ALLEGRO_COLOR color,
    int ch, float xpos, float ypos)
 {
-   /* Unused method. */
-   ASSERT(false);
-   (void)f;
-   (void)color;
-   (void)ch;
-   (void)xpos;
-   (void)ypos;
-   return 0;
+   ALLEGRO_TTF_FONT_DATA *data = f->data;
+   FT_Face face = data->face;
+   int advance = 0;
+   int32_t ch32 = (int32_t) ch;
+   
+   int ft_index = FT_Get_Char_Index(face, ch32);
+   advance = render_glyph(f, color, -1, ft_index, xpos, ypos);
+   
+   return advance;
 }
 
 
 static int ttf_char_length(ALLEGRO_FONT const *f, int ch)
 {
-   /* Unused method. */
-   ASSERT(false);
-   (void)f;
-   (void)ch;
-   return 0;
+   int result;
+   ALLEGRO_TTF_FONT_DATA *data = f->data;
+   FT_Face face = data->face;   
+   int ft_index = FT_Get_Char_Index(face, ch);
+   ALLEGRO_TTF_GLYPH_DATA *glyph = get_glyph(data, ft_index);
+   if (!glyph)
+      return 0;
+   cache_glyph(data, face, ft_index, glyph, false);
+   result = glyph->region.w - 2;
+     
+   return result;
 }
 
 
@@ -785,7 +792,7 @@ ALLEGRO_FONT *al_load_ttf_font_stretch_f(ALLEGRO_FILE *file,
 
     if ((result = FT_Open_Face(ft, &args, 0, &face)) != 0) {
         ALLEGRO_ERROR("Reading %s failed. Freetype error code %d\n", filename,
-	   result);
+          result);
         // Note: Freetype already closed the file for us.
         al_free(data);
         return NULL;
@@ -916,6 +923,57 @@ static int ttf_get_font_ranges(ALLEGRO_FONT *font, int ranges_count,
    return i;
 }
 
+static bool ttf_get_glyph_dimensions(ALLEGRO_FONT const *f,
+   int codepoint,
+   int *bbx, int *bby, int *bbw, int *bbh)
+{
+   ALLEGRO_TTF_FONT_DATA *data = f->data;
+   FT_Face face = data->face;   
+   int ft_index = FT_Get_Char_Index(face, codepoint);
+   ALLEGRO_TTF_GLYPH_DATA *glyph = get_glyph(data, ft_index);
+   if (!glyph) return false;
+   cache_glyph(data, face, ft_index, glyph, false);
+   *bbx = glyph->offset_x;
+   *bbw = glyph->region.w - 2;
+   *bbh = glyph->region.h;
+   *bby = glyph->offset_y;
+      
+   return true;
+}
+
+static int ttf_get_glyph_advance(ALLEGRO_FONT const *f, int codepoint1,
+   int codepoint2)
+{
+   ALLEGRO_TTF_FONT_DATA *data = f->data;
+   FT_Face face = data->face;
+   int ft_index = FT_Get_Char_Index(face, codepoint1);
+   ALLEGRO_TTF_GLYPH_DATA *glyph; 
+   int kerning = 0;
+   int advance = 0;
+   
+   if (codepoint1 == ALLEGRO_NO_KERNING) {
+      return 0;
+   }
+      
+   glyph = get_glyph(data, ft_index);   
+   
+   if (!glyph)
+      return 0;
+      
+   cache_glyph(data, face, ft_index, glyph, true);
+   
+   if (codepoint2 != ALLEGRO_NO_KERNING) { 
+      int ft_index1 = FT_Get_Char_Index(face, codepoint1);
+      int ft_index2 = FT_Get_Char_Index(face, codepoint2); 
+      kerning = get_kerning(data, face, ft_index1, ft_index2);
+   }
+   
+   advance = glyph->advance;
+   unlock_current_page(data);
+   return advance + kerning;
+}
+
+
 
 /* Function: al_init_ttf_addon
  */
@@ -937,6 +995,8 @@ bool al_init_ttf_addon(void)
    vt.destroy = ttf_destroy;
    vt.get_text_dimensions = ttf_get_text_dimensions;
    vt.get_font_ranges = ttf_get_font_ranges;
+   vt.get_glyph_dimensions = ttf_get_glyph_dimensions;
+   vt.get_glyph_advance = ttf_get_glyph_advance;
 
    al_register_font_loader(".ttf", al_load_ttf_font);
 

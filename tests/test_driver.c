@@ -509,6 +509,13 @@ static int get_font_align(char const *value)
    return streq(value, "ALLEGRO_ALIGN_LEFT") ? ALLEGRO_ALIGN_LEFT
       : streq(value, "ALLEGRO_ALIGN_CENTRE") ? ALLEGRO_ALIGN_CENTRE
       : streq(value, "ALLEGRO_ALIGN_RIGHT") ? ALLEGRO_ALIGN_RIGHT
+      : streq(value, "ALLEGRO_ALIGN_INTEGER") ? ALLEGRO_ALIGN_INTEGER
+      : streq(value, "ALLEGRO_ALIGN_LEFT|ALLEGRO_ALIGN_INTEGER")
+         ? ALLEGRO_ALIGN_LEFT | ALLEGRO_ALIGN_INTEGER
+      : streq(value, "ALLEGRO_ALIGN_RIGHT|ALLEGRO_ALIGN_INTEGER")
+         ? ALLEGRO_ALIGN_RIGHT | ALLEGRO_ALIGN_INTEGER
+      : streq(value, "ALLEGRO_ALIGN_CENTRE|ALLEGRO_ALIGN_INTEGER")
+         ? ALLEGRO_ALIGN_CENTRE | ALLEGRO_ALIGN_INTEGER
       : atoi(value);
 }
 
@@ -517,6 +524,14 @@ static void set_config_int(ALLEGRO_CONFIG *cfg, char const *section,
 {
    char buf[40];
    sprintf(buf, "%d", value);
+   al_set_config_value(cfg, section, var, buf);
+}
+
+static void set_config_float(ALLEGRO_CONFIG *cfg, char const *section,
+   char const *var, float value)
+{
+   char buf[40];
+   sprintf(buf, "%f", value);
    al_set_config_value(cfg, section, var, buf);
 }
 
@@ -1366,6 +1381,87 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
       }
       if (SCAN("al_set_blend_color", 1)) {
          al_set_blend_color(C(0));
+         continue;
+      }
+
+      /* Simple arithmetic, generally useful. (5.1) */
+      if (SCANLVAL("isum", 2)) {
+         int result  = I(0) + I(1);
+         set_config_int(cfg, testname, lval, result);
+         continue;
+      }
+      if (SCANLVAL("idif", 2)) {
+         int result  = I(0) - I(1);
+         set_config_int(cfg, testname, lval, result);
+         continue;
+      }
+      if (SCANLVAL("imul", 2)) {
+         int result  = I(0) * I(1);
+         set_config_int(cfg, testname, lval, result);
+         continue;
+      }
+      if (SCANLVAL("idiv", 2)) {
+         int result  = I(0) / I(1);
+         set_config_int(cfg, testname, lval, result);
+         continue;
+      }
+      if (SCANLVAL("fsum", 2)) {
+         float result  = F(0) + F(1);
+         set_config_float(cfg, testname, lval, result);
+         continue;
+      }
+      if (SCANLVAL("fdif", 2)) {
+         float result  = F(0) - F(1);
+         set_config_float(cfg, testname, lval, result);
+         continue;
+      }
+      if (SCANLVAL("fmul", 2)) {
+         float result  = F(0) * F(1);
+         set_config_float(cfg, testname, lval, result);
+         continue;
+      }
+      if (SCANLVAL("fdiv", 2)) {
+         float result  = F(0) / F(1);
+         set_config_float(cfg, testname, lval, result);
+         continue;
+      }
+
+      /* Dynamical variable initialisation, needed to properly initialize
+       * variables (5.1)*/
+      if (SCANLVAL("int", 1)) {
+         float result  = F(0);
+         set_config_float(cfg, testname, lval, result);
+         continue;
+      }
+      if (SCANLVAL("float", 1)) {
+         float result  = F(0);
+         set_config_float(cfg, testname, lval, result);
+         continue;
+      }
+       
+      /* Fonts: per glyph text handling (5.1)  */
+      if (SCAN("al_draw_glyph", 5)) {
+         al_draw_glyph(get_font(V(0)), C(1), F(2), F(3), I(4));
+         continue;
+      }
+      if (SCANLVAL("al_get_glyph_advance", 3)) {
+         int kerning = al_get_glyph_advance(get_font(V(0)), I(1), I(2));
+         set_config_int(cfg, testname, lval, kerning);
+         continue;
+      }
+      if (SCANLVAL("al_get_glyph_width", 2)) {
+         int w = al_get_glyph_width(get_font(V(0)), I(1));
+         set_config_int(cfg, testname, lval, w);
+         continue;
+      }
+      if (SCANLVAL("al_get_glyph_dimensions", 6)) {
+         int bbx, bby, bbw, bbh;
+         bool ok = al_get_glyph_dimensions(get_font(V(0)), I(1), &bbx, &bby, &bbw, &bbh);
+         set_config_int(cfg, testname, V(2), bbx);
+         set_config_int(cfg, testname, V(3), bby);
+         set_config_int(cfg, testname, V(4), bbw);
+         set_config_int(cfg, testname, V(5), bbh);
+         set_config_int(cfg, testname, lval, ok);
          continue;
       }
 
