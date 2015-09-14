@@ -38,6 +38,11 @@ static const char *get_string(const char *key)
     return (v) ? v : key;
 }
 
+static int ustr_at(ALLEGRO_USTR *string, int index)
+{
+   return al_ustr_get(string, al_ustr_offset(string, index));
+}
+
 static void render(void)
 {
     ALLEGRO_COLOR white = al_map_rgba_f(1, 1, 1, 1);
@@ -51,9 +56,9 @@ static void render(void)
     int target_w, target_h;
     ALLEGRO_USTR_INFO info, sub_info;
     const ALLEGRO_USTR *u;
-    const char *tulip = "Tulip";
-    const char *dimension_text = "Tulip";
-    const char *vertical_text  = "Rose.";
+    ALLEGRO_USTR *tulip = al_ustr_new("Tulip");
+    ALLEGRO_USTR *dimension_text = al_ustr_new("Tulip");
+    ALLEGRO_USTR *vertical_text  = al_ustr_new("Rose.");
 
     al_clear_to_color(white);
 
@@ -64,8 +69,8 @@ static void render(void)
     
     x = 50; 
     y = 140;    
-    for (index = 0; index < strlen(dimension_text); index ++) {
-       int cp  = dimension_text[index];
+    for (index = 0; index < al_ustr_length(dimension_text); index ++) {
+       int cp  = ustr_at(dimension_text, index);
        int bbx, bby, bbw, bbh;
        al_get_glyph_dimensions(ex.f2, cp, &bbx, &bby, &bbw, &bbh);                   
        al_draw_rectangle(x + bbx, y + bby, x + bbx + bbw, y + bby + bbh, blue, 1);
@@ -110,8 +115,8 @@ static void render(void)
                         al_get_glyph_advance(ex.f3, 'T', 'u'));
     x = 50; 
     y = 425; 
-    for (index = 0; index < strlen(tulip); index ++) {
-       int cp  = tulip[index];
+    for (index = 0; index < al_ustr_length(tulip); index ++) {
+       int cp  = ustr_at(tulip, index);
        /* Use al_get_glyph_advance for the stride, with no kerning. */
        al_draw_glyph(ex.f3, red, x, y, cp);
        x += al_get_glyph_advance(ex.f3, cp, ALLEGRO_NO_KERNING);
@@ -122,10 +127,11 @@ static void render(void)
     /* First draw a red string using al_draw_text, that should be hidden 
      * completely by the same text drawing in green per glyph 
      * using al_draw_glyph and al_get_glyph_advance below. */
-    al_draw_text(ex.f3, red, x, y, 0, tulip); 
-    for (index = 0; index < strlen(tulip); index ++) {
-      int cp  = tulip[index];
-      int ncp = (index < (strlen(tulip) - 1)) ? tulip[index + 1] : ALLEGRO_NO_KERNING;
+    al_draw_ustr(ex.f3, red, x, y, 0, tulip); 
+    for (index = 0; index < al_ustr_length(tulip); index ++) {
+      int cp  = ustr_at(tulip, index);
+      int ncp = (index < (al_ustr_length(tulip) - 1)) ?
+         ustr_at(tulip, index + 1) : ALLEGRO_NO_KERNING;
       /* Use al_get_glyph_advance for the stride and apply kerning. */
       al_draw_glyph(ex.f3, green, x, y, cp);
       x += al_get_glyph_advance(ex.f3, cp, ncp);
@@ -133,9 +139,9 @@ static void render(void)
     
     x = 50; 
     y = 466; 
-    al_draw_text(ex.f3, red, x, y, 0, tulip);
-    for (index = 0; index < strlen(tulip); index ++) {
-      int cp  = tulip[index];
+    al_draw_ustr(ex.f3, red, x, y, 0, tulip);
+    for (index = 0; index < al_ustr_length(tulip); index ++) {
+      int cp  = ustr_at(tulip, index);
       int bbx, bby, bbw, bbh;
       al_get_glyph_dimensions(ex.f3, cp, &bbx, &bby, &bbw, &bbh);      
       al_draw_glyph(ex.f3, blue, x, y, cp);
@@ -145,9 +151,9 @@ static void render(void)
     
     x = 10; 
     y = 30; 
-    for (index = 0; index < strlen(vertical_text); index ++) {
+    for (index = 0; index < al_ustr_length(vertical_text); index ++) {
       int bbx, bby, bbw, bbh;
-      int cp  = vertical_text[index];
+      int cp  = ustr_at(vertical_text, index);
       /* Use al_get_glyph_dimensions for the height to apply. */      
       al_get_glyph_dimensions(ex.f3, cp, &bbx, &bby, &bbw, &bbh);
       al_draw_glyph(ex.f3, green, x, y, cp);      
@@ -158,9 +164,9 @@ static void render(void)
     
     x = 30; 
     y = 30; 
-    for (index = 0; index < strlen(vertical_text); index ++) {
+    for (index = 0; index < al_ustr_length(vertical_text); index ++) {
       int bbx, bby, bbw, bbh;
-      int cp  = vertical_text[index];
+      int cp  = ustr_at(vertical_text, index);
       /* Use al_get_glyph_dimensions for the height to apply, here bby is 
        * omited for the wrong result. */      
       al_get_glyph_dimensions(ex.f3, cp, &bbx, &bby, &bbw, &bbh);
