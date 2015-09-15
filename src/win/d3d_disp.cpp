@@ -2442,6 +2442,7 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
 {
    ALLEGRO_BITMAP *target;
    ALLEGRO_BITMAP_EXTRA_D3D *d3d_target;
+   ALLEGRO_BITMAP_EXTRA_D3D *old_target = NULL;
    ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
 
    if (d3d_display->device_lost)
@@ -2455,9 +2456,11 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    }
 
    d3d_target = get_extra(target);
+   if (d3d_display->target_bitmap)
+      old_target = get_extra(d3d_display->target_bitmap);
 
    /* Release the previous target bitmap if it was not the backbuffer */
-   if (d3d_display->target_bitmap && d3d_target && d3d_target->is_backbuffer) {
+   if (old_target && old_target->is_backbuffer) {
       ALLEGRO_BITMAP *parent;
       if (d3d_display->target_bitmap->parent)
          parent = d3d_display->target_bitmap->parent;
