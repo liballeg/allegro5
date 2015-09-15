@@ -395,7 +395,7 @@ bool al_get_glyph_dimensions(const ALLEGRO_FONT *f,
    return f->vtable->get_glyph_dimensions(f, codepoint, bbx, bby, bbw, bbh);
 }
 
-/* Function al_get_glyph_kerning
+/* Function al_get_glyph_advance
  */
 int al_get_glyph_advance(const ALLEGRO_FONT *f, int codepoint1, int codepoint2)
 {
