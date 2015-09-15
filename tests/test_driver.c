@@ -495,6 +495,9 @@ static ALLEGRO_FONT *get_font(char const *name)
 {
    int i;
 
+   if (streq(name, "NULL"))
+      return NULL;
+
    for (i = 0; i < MAX_FONTS; i++) {
       if (fonts[i].name && streq(al_cstr(fonts[i].name), name))
          return fonts[i].font;
@@ -1252,6 +1255,10 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
          set_config_int(cfg, testname, V(3), bby);
          set_config_int(cfg, testname, V(4), bbw);
          set_config_int(cfg, testname, V(5), bbh);
+         continue;
+      }
+      if (SCAN("al_set_fallback_font", 2)) {
+         al_set_fallback_font(get_font(V(0)), get_font(V(1)));
          continue;
       }
 

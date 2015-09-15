@@ -241,12 +241,12 @@ See also: [al_grab_font_from_bitmap]
 ### API: al_set_font_fallback
 
 Sets a font which is used instead if a character is not present. Can be
-chained as long as there is no loop. Pass NULL to remove a fallback
-font again.
+chained, but make sure there is no loop as that would crash the
+application! Pass NULL to remove a fallback font again.
 
 Since: 5.1.12
 
-See also: [al_get_font_fallback]
+See also: [al_get_font_fallback], [al_draw_glyph], [al_draw_text]
 
 ### API: al_get_font_fallback
 

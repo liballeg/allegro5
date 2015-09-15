@@ -133,7 +133,7 @@ static ALLEGRO_BITMAP* _al_font_color_find_glyph(const ALLEGRO_FONT* f, int ch)
 
     /* if we don't find the character, then search for the missing
        glyph, but don't get stuck in a loop. */
-    if (ch != al_font_404_character)
+    if (ch != al_font_404_character && !f->fallback)
         return _al_font_color_find_glyph(f, al_font_404_character);
     return 0;
 }
@@ -147,8 +147,12 @@ static ALLEGRO_BITMAP* _al_font_color_find_glyph(const ALLEGRO_FONT* f, int ch)
  */
 static int color_char_length(const ALLEGRO_FONT* f, int ch)
 {
-    ALLEGRO_BITMAP* g = _al_font_color_find_glyph(f, ch);
-    return g ? al_get_bitmap_width(g) : 0;
+   ALLEGRO_BITMAP* g = _al_font_color_find_glyph(f, ch);
+   if (g)
+      return al_get_bitmap_width(g);
+   if (f->fallback)
+      return al_get_glyph_width(f->fallback, ch);
+   return 0;
 }
 
 
@@ -156,9 +160,7 @@ static int color_char_length(const ALLEGRO_FONT* f, int ch)
 /* color_render_char:
  *  (color vtable entry)
  *  Renders a color character onto a bitmap, at the specified location,
- *  using
- *  the specified colors. If fg == -1, render as color, else render as
- *  mono; if bg == -1, render as transparent, else render as opaque.
+ *  using the specified color.
  *  Returns the character width, in pixels.
  */
 static int color_render_char(const ALLEGRO_FONT* f,
@@ -176,6 +178,10 @@ static int color_render_char(const ALLEGRO_FONT* f,
 
       w = al_get_bitmap_width(g);
    }
+   else if (f->fallback) {
+      al_draw_glyph(f->fallback, color, x, y, ch);
+      w = al_get_glyph_width(f->fallback, ch);
+   }
 
    return w;
 }
@@ -183,8 +189,7 @@ static int color_render_char(const ALLEGRO_FONT* f,
 /* color_render:
  *  (color vtable entry)
  *  Renders a color font onto a bitmap, at the specified location, using
- *  the specified colors. If fg == -1, render as color, else render as
- *  mono; if bg == -1, render as transparent, else render as opaque.
+ *  the specified color.
  */
 static int color_render(const ALLEGRO_FONT* f, ALLEGRO_COLOR color,
    const ALLEGRO_USTR *text,
@@ -266,7 +271,13 @@ static bool color_get_glyph_dimensions(ALLEGRO_FONT const *f,
    int codepoint, int *bbx, int *bby, int *bbw, int *bbh)
 {   
    ALLEGRO_BITMAP *glyph = _al_font_color_find_glyph(f, codepoint);
-   if(!glyph) return false;
+   if(!glyph) {
+      if (f->fallback) {
+         return al_get_glyph_dimensions(f->fallback, codepoint,
+            bbx, bby, bbw, bbh);
+      }
+      return false;
+   }
    if (bbx) *bbx = 0;
    if (bby) *bby = 0;
    if (bbw) *bbw = glyph ? al_get_bitmap_width(glyph) : 0;
@@ -279,7 +290,7 @@ static int color_get_glyph_advance(ALLEGRO_FONT const *f,
 {
    (void) codepoint2;
    
-   /* Handle special case to simplify sue in a loop. */
+   /* Handle special case to simplify use in a loop. */
    if (codepoint1 == ALLEGRO_NO_KERNING) {
       return 0;
    }
