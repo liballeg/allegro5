@@ -684,4 +684,19 @@ void al_draw_multiline_textf(const ALLEGRO_FONT *font,
 }
 
 
+/* Function: al_set_fallback_font
+ */
+void al_set_fallback_font(ALLEGRO_FONT *font, ALLEGRO_FONT *fallback)
+{
+   font->fallback = fallback;
+}
+
+/* Function: al_get_fallback_font
+ */
+ALLEGRO_FONT *al_get_fallback_font(ALLEGRO_FONT *font)
+{
+   return font->fallback;
+}
+
+
 /* vim: set sts=3 sw=3 et: */

@@ -2,6 +2,7 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_image.h>
 
 #include "common.c"
 
@@ -13,6 +14,7 @@ struct Example
 {
     double fps;
     ALLEGRO_FONT *f1, *f2, *f3, *f4, *f5;
+    ALLEGRO_FONT *f_alex;
     ALLEGRO_CONFIG *config;
     int ranges_count;
 } ex;
@@ -63,10 +65,10 @@ static void render(void)
     al_clear_to_color(white);
 
     al_hold_bitmap_drawing(true);
-   
+
     al_draw_textf(ex.f1, black, 50,  20, 0, "Tulip (kerning)");
     al_draw_textf(ex.f2, black, 50,  80, 0, "Tulip (no kerning)");
-    
+
     x = 50; 
     y = 140;    
     for (index = 0; index < al_ustr_length(dimension_text); index ++) {
@@ -87,7 +89,7 @@ static void render(void)
     al_hold_bitmap_drawing(false);
     al_hold_bitmap_drawing(true);
 
-    al_draw_textf(ex.f3, red, 50, 220, 0, "The color can simply be changed.");
+    al_draw_textf(ex.f3, red, 50, 220, 0, "The color can simply be changed.🐊← fallback glyph");
         
     al_hold_bitmap_drawing(false);
     al_hold_bitmap_drawing(true);
@@ -227,6 +229,7 @@ int main(int argc, char **argv)
     al_install_mouse();
     al_init_font_addon();
     al_init_ttf_addon();
+    al_init_image_addon();
     init_platform_specific();
 
 #ifdef ALLEGRO_IPHONE
@@ -251,9 +254,24 @@ int main(int argc, char **argv)
     ex.f4 = al_load_font(font_file, -140, 0);
     ex.f5 = al_load_font(font_file, 12, ALLEGRO_TTF_MONOCHROME);
 
-    if (!ex.f1 || !ex.f2 || !ex.f3 || !ex.f4) {
+    {
+        int ranges[] = {0x1F40A, 0x1F40A};
+        ALLEGRO_BITMAP *icon = al_load_bitmap("data/icon.png");
+        ALLEGRO_BITMAP *glyph = al_create_bitmap(50, 50);
+        al_set_target_bitmap(glyph);
+        al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
+        al_draw_rectangle(0.5, 0.5, 49.5, 49.5, al_map_rgb_f(1, 1, 0),
+         1);
+        al_draw_bitmap(icon, 1, 1, 0);
+        al_set_target_backbuffer(display);
+        ex.f_alex = al_grab_font_from_bitmap(glyph, 1, ranges);
+    }
+
+    if (!ex.f1 || !ex.f2 || !ex.f3 || !ex.f4 || !ex.f_alex) {
         abort_example("Could not load font: %s\n", font_file);
     }
+
+    al_set_fallback_font(ex.f3, ex.f_alex);
 
     ex.ranges_count = al_get_font_ranges(ex.f1, 0, NULL);
     print_ranges(ex.f1);

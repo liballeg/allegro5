@@ -52,6 +52,7 @@ struct ALLEGRO_FONT
 {
    void *data;
    int height;
+   ALLEGRO_FONT *fallback;
    ALLEGRO_FONT_VTABLE *vtable;
 };
 
@@ -142,6 +143,10 @@ ALLEGRO_FONT_FUNC(void, al_do_multiline_ustr, (const ALLEGRO_FONT *font,
    bool (*cb)(int line_num, const ALLEGRO_USTR *line, void *extra),
    void *extra));
 
+ALLEGRO_FONT_FUNC(void, al_set_fallback_font, (ALLEGRO_FONT *font,
+   ALLEGRO_FONT *fallback));
+ALLEGRO_FONT_FUNC(ALLEGRO_FONT *, al_get_fallback_font, (
+   ALLEGRO_FONT *font));
 
 #ifdef __cplusplus
    }

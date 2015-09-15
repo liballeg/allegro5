@@ -238,6 +238,24 @@ Since: 5.1.4
 
 See also: [al_grab_font_from_bitmap]
 
+### API: al_set_font_fallback
+
+Sets a font which is used instead if a character is not present. Can be
+chained as long as there is no loop. Pass NULL to remove a fallback
+font again.
+
+Since: 5.1.12
+
+See also: [al_get_font_fallback]
+
+### API: al_get_font_fallback
+
+Retrieves the fallback font for this font or NULL.
+
+Since: 5.1.12
+
+See also: [al_set_font_fallback]
+
 ## Per glyph text handling
 
 For some applications Allegro's text drawing functions may not be sufficient.
