@@ -98,6 +98,9 @@ static bool create_default_mixer(void)
       }
    }
 
+   /* In case this function is called multiple times. */
+   al_detach_mixer(allegro_mixer);
+
    if (!al_attach_mixer_to_voice(allegro_mixer, allegro_voice)) {
       ALLEGRO_ERROR("al_attach_mixer_to_voice failed\n");
       goto Error;
