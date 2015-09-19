@@ -6,6 +6,8 @@
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/internal/aintern_system.h"
+#include "allegro5/internal/aintern_pixels.h"
+#include "allegro5/internal/aintern_shader.h"
 #include "allegro5/platform/allegro_internal_sdl.h"
 
 ALLEGRO_DEBUG_CHANNEL("display")
@@ -179,46 +181,62 @@ static bool sdl_set_current_display(ALLEGRO_DISPLAY *d)
 
 static void sdl_unset_current_display(ALLEGRO_DISPLAY *d)
 {
+   (void)d;
 }
 
 static void sdl_flip_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_SDL *sdl = (void *)d;
    SDL_RenderPresent(sdl->renderer);
+
+   // SDL loses texture contents, for example on resize.
+    _al_opengl_backup_dirty_bitmaps(d, true);
 }
 
 static void sdl_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
    	int width, int height)
 {
    ALLEGRO_DISPLAY_SDL *sdl = (void *)d;
+   (void)x;
+   (void)y;
+   (void)width;
+   (void)height;
    SDL_RenderPresent(sdl->renderer);
 }
 
 static bool sdl_is_compatible_bitmap(ALLEGRO_DISPLAY *display,
       ALLEGRO_BITMAP *bitmap)
 {
+   (void)display;
+   (void)bitmap;
    return true;
 }
 
 static bool sdl_set_mouse_cursor(ALLEGRO_DISPLAY *display,
       ALLEGRO_MOUSE_CURSOR *cursor)
 {
+   (void)display;
+   (void)cursor;
    return false;
 }
 
 static bool sdl_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
       ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 {
+   (void)display;
+   (void)cursor_id;
    return false;
 }
 
 static bool sdl_show_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
+   (void)display;
    return false;
 }
 
 static bool sdl_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
+   (void)display;
    return false;
 }
 
@@ -234,11 +252,40 @@ static void sdl_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
    SDL_GetWindowPosition(sdl->window, x, y);
 }
 
+static void recreate_textures(ALLEGRO_DISPLAY *display)
+{
+   unsigned int i;
+   for (i = 0; i < _al_vector_size(&display->bitmaps); i++) {
+      ALLEGRO_BITMAP **bptr = _al_vector_ref(&display->bitmaps, i);
+      ALLEGRO_BITMAP *bitmap = *bptr;
+      int bitmap_flags = al_get_bitmap_flags(bitmap);
+      if (bitmap->parent)
+         continue;
+      if (bitmap_flags & ALLEGRO_MEMORY_BITMAP)
+         continue;
+      if (bitmap_flags & ALLEGRO_NO_PRESERVE_TEXTURE)
+         continue;
+      _al_ogl_upload_bitmap_memory(bitmap, _al_get_bitmap_memory_format(
+         bitmap), bitmap->memory);
+   }
+}
+
 static bool sdl_acknowledge_resize(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_SDL *sdl = (void *)display;
    SDL_GetWindowSize(sdl->window, &display->w, &display->h);
+
    _al_ogl_setup_gl(display);
+
+   if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
+      display->default_shader = _al_create_default_shader(display->flags);
+      al_use_shader(display->default_shader);
+   }
+
+   recreate_textures(display);
+
+   _al_glsl_unuse_shaders();
+
    return true;
 }
 
