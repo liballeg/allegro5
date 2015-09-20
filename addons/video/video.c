@@ -218,14 +218,6 @@ bool al_seek_video(ALLEGRO_VIDEO *video, double pos_in_seconds)
    return video->vtable->seek_video(video, pos_in_seconds);
 }
 
-/* Function: al_get_video_aspect_ratio
- */
-double al_get_video_aspect_ratio(ALLEGRO_VIDEO *video)
-{
-   ASSERT(video);
-   return video->aspect_ratio;
-}
-
 /* Function: al_get_video_audio_rate
  */
 double al_get_video_audio_rate(ALLEGRO_VIDEO *video)
@@ -242,20 +234,20 @@ double al_get_video_fps(ALLEGRO_VIDEO *video)
    return video->fps;
 }
 
-/* Function: al_get_video_width
+/* Function: al_get_video_scaled_width
  */
-int al_get_video_width(ALLEGRO_VIDEO *video)
+float al_get_video_scaled_width(ALLEGRO_VIDEO *video)
 {
    ASSERT(video);
-   return video->width;
+   return video->scaled_width;
 }
 
-/* Function: al_get_video_height
+/* Function: al_get_video_scaled_height
  */
-int al_get_video_height(ALLEGRO_VIDEO *video)
+float al_get_video_scaled_height(ALLEGRO_VIDEO *video)
 {
    ASSERT(video);
-   return video->height;
+   return video->scaled_height;
 }
 
 /* Function: al_init_video_addon
@@ -315,5 +307,19 @@ uint32_t al_get_allegro_video_version(void)
    return ALLEGRO_VERSION_INT;
 }
 
+/* The returned width and height are always greater than or equal to the frame
+ * width and height. */
+void _al_compute_scaled_dimensions(int frame_w, int frame_h, float aspect_ratio,
+                                   float *scaled_w, float *scaled_h)
+{
+   if (aspect_ratio > 1.0) {
+      *scaled_w = frame_h * aspect_ratio;
+      *scaled_h = frame_h;
+   }
+   else {
+      *scaled_w = frame_w;
+      *scaled_h = frame_w / aspect_ratio;
+   }
+}
 
 /* vim: set sts=3 sw=3 et: */

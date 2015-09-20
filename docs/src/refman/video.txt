@@ -105,16 +105,6 @@ Returns true if the video is currently paused.
 
 Since: 5.1.0
 
-## API: al_get_video_aspect_ratio
-
-Returns the aspect ratio of the video. Videos often do not use square
-pixels so you should always check the aspect ratio before displaying
-video frames.
-
-Returns zero or a negative value if the aspect ratio is unknown.
-
-Since: 5.1.0
-
 ## API: al_get_video_audio_rate
 
 Returns the audio rate of the video, in Hz.
@@ -128,21 +118,25 @@ not be an integer value.
 
 Since: 5.1.0
 
-## API: al_get_video_width
+## API: al_get_video_scaled_width
 
-Returns the number of raw pixel columns in the video stream.
-Multiply this with the aspect ratio to get the true width.
+Returns the width with which the video frame should be drawn. Videos often do
+not use square pixels, so this will may return a value larger than the width of
+the frame bitmap.
 
-Since: 5.1.0
+Since: 5.1.12
 
-See also: [al_get_video_aspect_ratio]
+See also: [al_get_video_frame]
 
-## API: al_get_video_height
+## API: al_get_video_scaled_height
 
-Returns the number of rows in the video. Typically this will be
-720 or 1080.
+Returns the height with which the video frame should be drawn. Videos often do
+not use square pixels, so this will may return a value larger than the height of
+the frame bitmap.
 
-Since: 5.1.0
+See also: [al_get_video_frame]
+
+Since: 5.1.12
 
 ## API: al_get_video_frame
 
@@ -150,7 +144,22 @@ Returns the current video frame. The bitmap is owned by the video so
 do not attempt to free it. The bitmap will stay valid until the next
 call to al_get_video_frame.
 
+Videos often do not use square pixels so the recommended way to draw a video
+frame would be using code like this:
+
+~~~~c
+float scale = 1.0; /* Adjust this to fit your target bitmap dimensions. */
+ALLEGRO_BITMAP* frame = al_get_video_frame(video);
+float sw = al_get_bitmap_width(frame);
+float sh = al_get_bitmap_height(frame);
+float dw = scale * al_get_video_scaled_width(video);
+float dh = scale * al_get_video_scaled_height(video);
+al_draw_scaled_bitmap(frame, 0, 0, sw, sh, 0, 0, dw, dh, 0);
+~~~~
+
 Since: 5.1.0
+
+See also: [al_get_video_scaled_width], [al_get_video_scaled_height]
 
 ## API: al_get_video_position
 

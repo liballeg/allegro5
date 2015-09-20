@@ -59,11 +59,10 @@ ALLEGRO_VIDEO_FUNC(void, al_start_video_with_voice, (ALLEGRO_VIDEO *video, ALLEG
 ALLEGRO_VIDEO_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_video_event_source, (ALLEGRO_VIDEO *video));
 ALLEGRO_VIDEO_FUNC(void, al_pause_video, (ALLEGRO_VIDEO *video, bool paused));
 ALLEGRO_VIDEO_FUNC(bool, al_is_video_paused, (ALLEGRO_VIDEO *video));
-ALLEGRO_VIDEO_FUNC(double, al_get_video_aspect_ratio, (ALLEGRO_VIDEO *video));
 ALLEGRO_VIDEO_FUNC(double, al_get_video_audio_rate, (ALLEGRO_VIDEO *video));
 ALLEGRO_VIDEO_FUNC(double, al_get_video_fps, (ALLEGRO_VIDEO *video));
-ALLEGRO_VIDEO_FUNC(int, al_get_video_width, (ALLEGRO_VIDEO *video));
-ALLEGRO_VIDEO_FUNC(int, al_get_video_height, (ALLEGRO_VIDEO *video));
+ALLEGRO_VIDEO_FUNC(float, al_get_video_scaled_width, (ALLEGRO_VIDEO *video));
+ALLEGRO_VIDEO_FUNC(float, al_get_video_scaled_height, (ALLEGRO_VIDEO *video));
 ALLEGRO_VIDEO_FUNC(ALLEGRO_BITMAP *, al_get_video_frame, (ALLEGRO_VIDEO *video));
 ALLEGRO_VIDEO_FUNC(double, al_get_video_position, (ALLEGRO_VIDEO *video, ALLEGRO_VIDEO_POSITION_TYPE which));
 ALLEGRO_VIDEO_FUNC(bool, al_seek_video, (ALLEGRO_VIDEO *video, double pos_in_seconds));

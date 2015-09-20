@@ -720,6 +720,7 @@ static void setup_theora_stream_decode(ALLEGRO_VIDEO *video, OGG_VIDEO *ogv,
    int pic_y = tstream->info.pic_y;
    int pic_w = tstream->info.pic_width;
    int pic_h = tstream->info.pic_height;
+   float aspect_ratio = 1.0;
 
    tstream->ctx = th_decode_alloc(&tstream->info, tstream->setup);
    ASSERT(tstream->ctx);
@@ -738,9 +739,6 @@ static void setup_theora_stream_decode(ALLEGRO_VIDEO *video, OGG_VIDEO *ogv,
    ogv->rgb_data =
       al_malloc(al_get_pixel_size(RGB_PIXEL_FORMAT) * frame_w * frame_h);
 
-   video->width = pic_w;
-   video->height = pic_h;
-
    video->fps =
       (double)tstream->info.fps_numerator /
       (double)tstream->info.fps_denominator;
@@ -749,21 +747,21 @@ static void setup_theora_stream_decode(ALLEGRO_VIDEO *video, OGG_VIDEO *ogv,
       (double)tstream->info.fps_numerator;
 
    if (tstream->info.aspect_denominator != 0) {
-      video->aspect_ratio =
-         (double)(video->width * tstream->info.aspect_numerator) /
-         (double)(video->height * tstream->info.aspect_denominator);
+      aspect_ratio =
+         (double)(pic_w * tstream->info.aspect_numerator) /
+         (double)(pic_h * tstream->info.aspect_denominator);
    }
-   else {
-      video->aspect_ratio = 0.0f;
-   }
+
+   _al_compute_scaled_dimensions(pic_w, pic_h, aspect_ratio, &video->scaled_width,
+      &video->scaled_height);
 
    tstream->prev_framenum = -1;
 
    ALLEGRO_INFO("Frame size: %dx%d\n", frame_w, frame_h);
    ALLEGRO_INFO("Picture size: %dx%d\n", pic_w, pic_h);
+   ALLEGRO_INFO("Scaled size: %fx%f\n", video->scaled_width, video->scaled_height);
    ALLEGRO_INFO("FPS: %f\n", video->fps);
    ALLEGRO_INFO("Frame_duration: %f\n", tstream->frame_duration);
-   ALLEGRO_INFO("Aspect ratio: %f\n", video->aspect_ratio);
 }
 
 static int64_t get_theora_framenum(THEORA_STREAM *tstream, ogg_packet *packet)

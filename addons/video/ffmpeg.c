@@ -538,14 +538,6 @@ static void video_refresh_timer(void *userdata)
       
       is->show_next = is->video->position + actual_delay;
       al_signal_cond(is->timer_cond);
-
-      if (is->video_st->codec->sample_aspect_ratio.num == 0) {
-         is->video->aspect_ratio = 0;
-      }
-      else {
-         is->video->aspect_ratio = av_q2d(is->video_st->codec->sample_aspect_ratio) *
-             is->video_st->codec->width / is->video_st->codec->height;
-      }
    }
    else
       is->dropped_count++;
@@ -1089,6 +1081,9 @@ static bool open_video(ALLEGRO_VIDEO *video)
    int rc;
    int i;
    AVRational fps;
+   float aspect_ratio = 1.0;
+   int codec_width;
+   int codec_height;
 
    is->video = video;
    
@@ -1135,8 +1130,17 @@ static bool open_video(ALLEGRO_VIDEO *video)
    video->fps = (double)fps.num / fps.den;
    video->audio_rate = is->format_context->streams[is->audio_index]->
       codec->sample_rate;
-   video->width = is->format_context->streams[is->video_index]->codec->width;
-   video->height = is->format_context->streams[is->video_index]->codec->height;
+
+   codec_width = is->format_context->streams[is->video_index]->codec->width;
+   codec_height = is->format_context->streams[is->video_index]->codec->height;
+
+   if (is->format_context->streams[is->video_index]->codec->sample_aspect_ratio.num != 0) {
+      aspect_ratio = av_q2d(is->format_context->streams[is->video_index]->codec->sample_aspect_ratio) *
+         codec_width / codec_height;
+   }
+
+   _al_compute_scaled_dimensions(codec_width, codec_height, aspect_ratio,
+      &video->scaled_width, &video->scaled_height);
 
    is->pictq_mutex = al_create_mutex();
    is->pictq_cond = al_create_cond();

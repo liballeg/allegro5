@@ -15,10 +15,11 @@ static float zoom = 0;
 
 static void video_display(ALLEGRO_VIDEO *video)
 {
-   /* Videos often do not use square pixels - this returns the aspect
-    * ratio of the pixels.
+   /* Videos often do not use square pixels - these return the scaled dimensions
+    * of the video frame.
     */
-   float aspect_ratio = al_get_video_aspect_ratio(video);
+   float scaled_w = al_get_video_scaled_width(video);
+   float scaled_h = al_get_video_scaled_height(video);
    /* Get the currently visible frame of the video, based on clock
     * time.
     */
@@ -31,18 +32,18 @@ static void video_display(ALLEGRO_VIDEO *video)
    if (!frame)
       return;
 
-   if (zoom == 0 && aspect_ratio > 0.0f) {
+   if (zoom == 0) {
       /* Always make the video fit into the window. */
       h = al_get_display_height(screen);
-      w = (int)(h * aspect_ratio);
+      w = (int)(h * scaled_w / scaled_h);
       if (w > al_get_display_width(screen)) {
          w = al_get_display_width(screen);
-         h = (int)(w / aspect_ratio);
+         h = (int)(w * scaled_h / scaled_w);
       }
    }
    else {
-      w = al_get_video_width(video);
-      h = al_get_video_height(video);
+      w = (int)scaled_w;
+      h = (int)scaled_h;
    }
    x = (al_get_display_width(screen) - w) / 2;
    y = (al_get_display_height(screen) - h) / 2;
@@ -65,9 +66,9 @@ static void video_display(ALLEGRO_VIDEO *video)
    al_draw_textf(font, tc, 8, 8 + 13 * 2, 0,
       "video rate %.02f (%dx%d, aspect %.1f) audio rate %.0f",
          al_get_video_fps(video),
-         al_get_video_width(video),
-         al_get_video_height(video),
-         al_get_video_aspect_ratio(video),
+         al_get_bitmap_width(frame),
+         al_get_bitmap_height(frame),
+         scaled_w / scaled_h,
          al_get_video_audio_rate(video));
    al_flip_display();
    al_clear_to_color(al_map_rgb(0, 0, 0));

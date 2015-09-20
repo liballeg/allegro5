@@ -15,8 +15,8 @@ struct ALLEGRO_VIDEO {
    ALLEGRO_BITMAP *current_frame;
    double video_position;
    double fps;
-   int width, height;
-   double aspect_ratio;
+   float scaled_width;
+   float scaled_height;
 
    /* audio */
    ALLEGRO_MIXER *mixer;
@@ -38,3 +38,4 @@ struct ALLEGRO_VIDEO {
 
 ALLEGRO_VIDEO_INTERFACE *_al_video_ffmpeg_vtable(void);
 ALLEGRO_VIDEO_INTERFACE *_al_video_ogv_vtable(void);
+void _al_compute_scaled_dimensions(int frame_w, int frame_h, float aspect_ratio, float *scaled_w, float *scaled_h);
