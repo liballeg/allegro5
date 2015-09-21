@@ -798,7 +798,13 @@ static bool handle_theora_data(ALLEGRO_VIDEO *video, THEORA_STREAM *tstream,
    }
 
    rc = th_decode_packetin(tstream->ctx, packet, NULL);
-   ASSERT(rc == 0 || rc == TH_DUPFRAME);
+   if (rc != TH_EBADPACKET) {
+      /* HACK: When we seek to beginning, the first few packets are actually
+       * headers. To properly fix this, those packets should be ignored when we
+       * do the seeking (see the XXX there). */
+      ASSERT(rc == 0 || rc == TH_DUPFRAME);
+   }
+
    if (rc == 0) {
       *ret_new_frame = true;
 
