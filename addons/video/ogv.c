@@ -1056,17 +1056,21 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
       }
 
       if (ev.type == ALLEGRO_EVENT_TIMER) {
-         if (vstream_outer && !video->paused) {
+         if (vstream_outer && video->playing) {
             poll_vorbis_decode(ogv, vstream_outer);
          }
 
          /* If no audio then video is master. */
-         if (!video->audio && !video->paused && !ogv->reached_eof) {
+         if (!video->audio && video->playing && !ogv->reached_eof) {
             video->position += tstream->frame_duration;
          }
 
          if (tstream_outer) {
             poll_theora_decode(video, tstream_outer);
+         }
+
+         if (video->playing && ogv->reached_eof) {
+            video->playing = false;
          }
       }
 
@@ -1077,11 +1081,11 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
           * fragment events which pushes the position field ahead of the
           * real audio position.
           */
-         if (!video->paused && !ogv->reached_eof) {
+         if (video->playing && !ogv->reached_eof) {
             video->audio_position += audio_pos_step;
             video->position = video->audio_position - NUM_FRAGS * audio_pos_step;
          }
-         update_audio_fragment(video->audio, vstream, video->paused,
+         update_audio_fragment(video->audio, vstream, !video->playing,
             ogv->reached_eof);
       }
    }
@@ -1257,9 +1261,12 @@ static bool ogv_start_video(ALLEGRO_VIDEO *video)
    return true;
 }
 
-static bool ogv_pause_video(ALLEGRO_VIDEO *video)
+static bool ogv_set_video_playing(ALLEGRO_VIDEO *video)
 {
-   (void)video;
+   OGG_VIDEO * const ogv = video->data;
+   if (ogv->reached_eof) {
+      video->playing = false;
+   }
    return true;
 }
 
@@ -1333,7 +1340,7 @@ static ALLEGRO_VIDEO_INTERFACE ogv_vtable = {
    ogv_open_video,
    ogv_close_video,
    ogv_start_video,
-   ogv_pause_video,
+   ogv_set_video_playing,
    ogv_seek_video,
    ogv_update_video
 };

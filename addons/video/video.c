@@ -108,6 +108,7 @@ ALLEGRO_VIDEO *al_open_video(char const *filename)
    }
    
    video->filename = al_create_path(filename);
+   video->playing = true;
 
    if (!video->vtable->open_video(video)) {
       al_destroy_path(video->filename);
@@ -165,25 +166,25 @@ void al_start_video_with_voice(ALLEGRO_VIDEO *video, ALLEGRO_VOICE *voice)
    video->vtable->start_video(video);
 }
 
-/* Function: al_pause_video
+/* Function: al_set_video_playing
  */
-void al_pause_video(ALLEGRO_VIDEO *video, bool paused)
+void al_set_video_playing(ALLEGRO_VIDEO *video, bool play)
 {
    ASSERT(video);
 
-   if (paused != video->paused) {
-      video->paused = paused;
-      video->vtable->pause_video(video);
+   if (play != video->playing) {
+      video->playing = play;
+      video->vtable->set_video_playing(video);
    }
 }
 
-/* Function: al_is_video_paused
+/* Function: al_is_video_playing
  */
-bool al_is_video_paused(ALLEGRO_VIDEO *video)
+bool al_is_video_playing(ALLEGRO_VIDEO *video)
 {
    ASSERT(video);
 
-   return video->paused;
+   return video->playing;
 }
 
 /* Function: al_get_video_frame

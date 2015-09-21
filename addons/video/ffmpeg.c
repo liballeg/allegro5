@@ -129,7 +129,8 @@ typedef struct VideoState {
    int64_t external_clock_start;
    AVStream *video_st;
    PacketQueue videoq;
-   
+
+   bool done;
    double show_next;
    bool first;
    int got_picture;
@@ -991,17 +992,11 @@ static void *decode_thread(ALLEGRO_THREAD *t, void *arg)
          continue;
       }
       if (av_read_frame(is->format_context, packet) < 0) {
-         bool end;
-#ifdef FFMPEG_0_8
-         end = (format_context->pb->eof_reached || format_context->pb->error);
-#else
-         end = url_ferror((void *)&format_context->pb) != 0;
-#endif
-         if (end) {
-            break;
-         }
-         al_rest(0.01);
-         continue;
+         // < 0 means that it's eof or an error.
+         is->video->playing = false;
+         is->paused = true;
+         is->done = true;
+         break;
       }
       // Is this a packet from the video stream?
       if (packet->stream_index == is->videoStream) {
@@ -1192,10 +1187,13 @@ static bool start_video(ALLEGRO_VIDEO *video)
    return true;
 }
 
-static bool pause_video(ALLEGRO_VIDEO *video)
+static bool set_video_playing(ALLEGRO_VIDEO *video)
 {
    VideoState *is = video->data;
-   is->paused = video->paused;
+   if (is->done) {
+      video->playing = false;
+   }
+   is->paused = !video->playing;
    if (!is->paused) {
       is->after_seek_sync = true;
    }
@@ -1226,7 +1224,7 @@ static ALLEGRO_VIDEO_INTERFACE ffmpeg_vtable = {
    open_video,
    close_video,
    start_video,
-   pause_video,
+   set_video_playing,
    seek_video,
    update_video
 };

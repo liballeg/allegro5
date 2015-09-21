@@ -55,7 +55,7 @@ static void video_display(ALLEGRO_VIDEO *video)
 
    /* Show some video information. */
    al_draw_filled_rounded_rectangle(4, 4,
-      al_get_display_width(screen) - 4, 4 + 14 * 3, 8, 8, bc);
+      al_get_display_width(screen) - 4, 4 + 14 * 4, 8, 8, bc);
    p = al_get_video_position(video, ALLEGRO_VIDEO_POSITION_ACTUAL);
    al_draw_textf(font, tc, 8, 8 , 0, "%s", filename);
    al_draw_textf(font, tc, 8, 8 + 13, 0, "%3d:%02d (V: %+5.2f A: %+5.2f)",
@@ -70,6 +70,8 @@ static void video_display(ALLEGRO_VIDEO *video)
          al_get_bitmap_height(frame),
          scaled_w / scaled_h,
          al_get_video_audio_rate(video));
+   al_draw_textf(font, tc, 8, 8 + 13 * 3, 0,
+      "playing: %s", al_is_video_playing(video) ? "true" : "false");
    al_flip_display();
    al_clear_to_color(al_map_rgb(0, 0, 0));
 }
@@ -172,7 +174,7 @@ int main(int argc, char *argv[])
          case ALLEGRO_EVENT_KEY_DOWN:
             switch (event.keyboard.keycode) {
                case ALLEGRO_KEY_SPACE:
-                  al_pause_video(video, !al_is_video_paused(video));
+                  al_set_video_playing(video, !al_is_video_playing(video));
                   break;
                case ALLEGRO_KEY_ESCAPE:
                   al_close_video(video);

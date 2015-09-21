@@ -93,17 +93,17 @@ under [ALLEGRO_VIDEO_EVENT_TYPE].
 
 Since: 5.1.0
 
-## API: al_pause_video
+## API: al_set_video_playing
 
 Paused or resumes playback.
 
-Since: 5.1.0
+Since: 5.1.12
 
-## API: al_is_video_paused
+## API: al_is_video_playing
 
-Returns true if the video is currently paused.
+Returns true if the video is currently playing.
 
-Since: 5.1.0
+Since: 5.1.12
 
 ## API: al_get_video_audio_rate
 
