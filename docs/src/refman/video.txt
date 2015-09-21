@@ -13,7 +13,6 @@ licensing information and supported video formats.
 
 ## API: ALLEGRO_VIDEO_EVENT_TYPE
 
-* ALLEGRO_EVENT_VIDEO_FRAME_ALLOC
 * ALLEGRO_EVENT_VIDEO_FRAME_SHOW -
 This event is sent when it is time to show a new frame. Once you receive this
 event, you can draw the current frame (as returned by [al_get_video_frame]).

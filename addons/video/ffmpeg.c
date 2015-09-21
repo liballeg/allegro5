@@ -672,7 +672,7 @@ static int queue_picture(VideoState * is, AVFrame * pFrame, double pts)
    vp->dropped = false;
 
    {
-      ALLEGRO_EVENT event;
+      //ALLEGRO_EVENT event;
 
       vp->frame = pFrame;
       vp->pts = pts;
@@ -680,9 +680,10 @@ static int queue_picture(VideoState * is, AVFrame * pFrame, double pts)
       /* we have to do it in the main thread */
       //printf("allocate %d (%4.1f ms)\n", is->pictq_windex,
       //   get_master_clock(is) * 1000);
-      event.type = ALLEGRO_EVENT_VIDEO_FRAME_ALLOC;
-      event.user.data1 = (intptr_t)is->video;
-      al_emit_user_event(&is->video->es, &event, NULL);
+
+      //event.type = ALLEGRO_EVENT_VIDEO_FRAME_ALLOC;
+      //event.user.data1 = (intptr_t)is->video;
+      //al_emit_user_event(&is->video->es, &event, NULL);
 
       /* wait until we have a picture allocated */
       al_lock_mutex(is->pictq_mutex);
