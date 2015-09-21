@@ -242,6 +242,10 @@ int main(int argc, char *argv[])
                redraw = true;
             }
             break;
+
+         case ALLEGRO_EVENT_VIDEO_FINISHED:
+            log_printf("video finished\n");
+            break;
          default:
             break;
       }

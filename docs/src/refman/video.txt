@@ -19,6 +19,10 @@ This event is sent when it is time to show a new frame. Once you receive this
 event, you can draw the current frame (as returned by [al_get_video_frame]).
 [al_get_video_frame] will continue returning the same frame until the next
 ALLEGRO_EVENT_VIDEO_FRAME_SHOW is sent.
+* ALLEGRO_EVENT_VIDEO_FINISHED -
+This event is sent when the video is finished. Depending on the backend, it may
+be possible to seek to an earlier part of the video and set the video to play
+to resume playback.
 
 Since: 5.1.0
 

@@ -992,10 +992,15 @@ static void *decode_thread(ALLEGRO_THREAD *t, void *arg)
          continue;
       }
       if (av_read_frame(is->format_context, packet) < 0) {
+         ALLEGRO_EVENT event;
          // < 0 means that it's eof or an error.
          is->video->playing = false;
          is->paused = true;
          is->done = true;
+
+         event.type = ALLEGRO_EVENT_VIDEO_FINISHED;
+         event.user.data1 = (intptr_t)is->video;
+         al_emit_user_event(&is->video->es, &event, NULL);
          break;
       }
       // Is this a packet from the video stream?

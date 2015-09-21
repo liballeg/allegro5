@@ -1070,7 +1070,12 @@ static void *decode_thread_func(ALLEGRO_THREAD *thread, void *_video)
          }
 
          if (video->playing && ogv->reached_eof) {
+            ALLEGRO_EVENT event;
             video->playing = false;
+
+            event.type = ALLEGRO_EVENT_VIDEO_FINISHED;
+            event.user.data1 = (intptr_t)video;
+            al_emit_user_event(&video->es, &event, NULL);
          }
       }
 
