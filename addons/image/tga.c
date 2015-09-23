@@ -578,4 +578,20 @@ bool _al_save_tga(const char *filename, ALLEGRO_BITMAP *bmp)
 }
 
 
+bool _al_identify_tga(ALLEGRO_FILE *f)
+{
+   uint8_t x[4];
+   al_fgetc(f); // skip id length
+   al_fread(f, x, 4);
+   
+   if (x[0] > 1) // TGA colormap must be 0 or 1
+      return false;
+   if ((x[1] & 0xf7) == 0) // type must be 1, 2, 3, 9, 10 or 11
+      return false;
+   if (x[2] != 0 || x[3] != 0) // color map must start at 0
+      return false;
+   return true;
+}
+
+
 /* vim: set sts=3 sw=3 et: */

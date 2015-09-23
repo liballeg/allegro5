@@ -1139,6 +1139,13 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
          }
          continue;
       }
+      if (SCANLVAL("al_identify_bitmap", 1)) {
+         char const *ext = al_identify_bitmap(V(0));
+         if (!ext)
+            ext = "NULL";
+         al_set_config_value(cfg, testname, lval, ext);
+         continue;
+      }
 
       if (SCAN("al_hold_bitmap_drawing", 1)) {
          al_hold_bitmap_drawing(get_bool(V(0)));

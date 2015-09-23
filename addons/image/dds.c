@@ -181,3 +181,16 @@ ALLEGRO_BITMAP *_al_load_dds(const char *filename, int flags)
 
    return bmp;
 }
+
+bool _al_identify_dds(ALLEGRO_FILE *f)
+{
+   uint8_t x[4];
+   uint32_t y;
+   al_fread(f, x, 4);
+   if (memcmp(x, "DDS ", 4) != 0)
+      return false;
+   y = al_fread32le(f);
+   if (y != 124)
+      return false;
+   return true;
+}

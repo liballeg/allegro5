@@ -1,6 +1,6 @@
 option(WANT_NATIVE_IMAGE_LOADER "Enable the native platform image loader (if available)" on)
 
-set(IMAGE_SOURCES bmp.c iio.c pcx.c tga.c dds.c)
+set(IMAGE_SOURCES bmp.c iio.c pcx.c tga.c dds.c identify.c)
 set(IMAGE_INCLUDE_FILES allegro5/allegro_image.h)
 
 set_our_header_properties(${IMAGE_INCLUDE_FILES})

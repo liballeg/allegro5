@@ -1458,7 +1458,8 @@ See also: [al_register_bitmap_saver]
 ### API: al_load_bitmap
 
 Loads an image file into a new [ALLEGRO_BITMAP].
-The file type is determined by the extension.
+The file type is determined by the extension, except if the file has
+no extension in which case [al_identify_bitmap] is used instead.
 
 Returns NULL on error.
 
@@ -1475,7 +1476,8 @@ See also: [al_load_bitmap_flags], [al_load_bitmap_f],
 ### API: al_load_bitmap_flags
 
 Loads an image file into a new [ALLEGRO_BITMAP].
-The file type is determined by the extension.
+The file type is determined by the extension, except if the file has
+no extension in which case [al_identify_bitmap] is used instead.
 
 Returns NULL on error.
 
@@ -1581,7 +1583,9 @@ See also: [al_load_bitmap]
 
 Loads an image from an [ALLEGRO_FILE] stream into a new [ALLEGRO_BITMAP].
 The file type is determined by the passed 'ident' parameter, which is a file
-name extension including the leading dot.
+name extension including the leading dot. If (and only if) 'ident' is
+NULL, the file type is determined with [al_identify_bitmap_f] instead.
+
 This is the same as calling [al_load_bitmap_flags_f] with 0 for the flags
 parameter.
 
@@ -1599,7 +1603,9 @@ See also: [al_load_bitmap_flags_f], [al_load_bitmap],
 
 Loads an image from an [ALLEGRO_FILE] stream into a new [ALLEGRO_BITMAP].
 The file type is determined by the passed 'ident' parameter, which is a file
-name extension including the leading dot.
+name extension including the leading dot. If (and only if) 'ident' is
+NULL, the file type is determined with [al_identify_bitmap_f] instead.
+
 The flags parameter is the same as for [al_load_bitmap_flags].
 
 Returns NULL on error.
@@ -1641,6 +1647,59 @@ handler.
 
 See also: [al_save_bitmap], [al_register_bitmap_saver_f], [al_init_image_addon]
 
+### API: al_register_bitmap_identifier
+
+Register an identify handler for [al_identify_bitmap]. The given
+function will be used to detect files for the given extension. It will
+be called with a single argument of type [ALLEGRO_FILE] which is a
+file handle opened for reading and located at the first byte of the
+file. The handler should try to read as few bytes as possible to
+safely determine if the given file contents correspond to the type
+with the extension and return true in that case, false otherwise.
+The file handle must not be closed but there is no need to reset it
+to the beginning.
+
+The extension should include the leading dot ('.') character.
+It will be matched case-insensitively.
+
+The `identifier` argument may be NULL to unregister an entry.
+
+Returns true on success, false on error.
+Returns false if unregistering an entry that doesn't exist.
+
+Since: 5.1.12
+
+See also: [al_identify_bitmap]
+
+### API: al_identify_bitmap
+
+This works exactly as [al_identify_bitmap_f] but you specify the
+filename of the file for which to detect the type and not a file
+handle. The extension, if any, of the passed filename is not taken
+into account - only the file contents.
+
+Since: 5.1.12
+
+See also: [al_init_image_addon], [al_identify_bitmap_f],
+[al_register_bitmap_identifier]
+
+### API: al_identify_bitmap_f
+
+Tries to guess the bitmap file type of the open ALLEGRO_FILE by
+reading the first few bytes. By default Allegro cannot recognize any
+file types, but calling [al_init_image_addon] will add detection of
+(some of) the types it can read. You can also use
+[al_register_bitmap_identifier] to add identification for custom
+file types.
+
+Returns a pointer to a static string with a file extension for the
+type, including the leading dot. For example ".png" or ".jpg". Returns
+NULL if the bitmap type cannot be determined.
+
+Since: 5.1.12
+
+See also: [al_init_image_addon], [al_identify_bitmap],
+[al_register_bitmap_identifier]
 
 ## Render State
 

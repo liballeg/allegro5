@@ -289,5 +289,21 @@ bool _al_save_pcx(const char *filename, ALLEGRO_BITMAP *bmp)
    return retsave && retclose;
 }
 
+bool _al_identify_pcx(ALLEGRO_FILE *f)
+{
+   uint8_t x[4];
+   al_fread(f, x, 4);
+   
+   if (x[0] != 0x0a) // PCX must start with 0x0a
+      return false;
+   if (x[1] == 1 || x[1] > 5) // version must be 0, 2, 3, 4, 5
+      return false;
+   if (x[2] > 1) // compression must be 0 or 1
+      return false;
+   if (x[3] != 8) // only 8-bit PCX files supported by Allegro!
+      return false;
+   return true;
+}
+
 
 /* vim: set sts=3 sw=3 et: */

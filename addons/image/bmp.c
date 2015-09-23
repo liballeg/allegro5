@@ -1180,4 +1180,29 @@ bool _al_save_bmp(const char *filename, ALLEGRO_BITMAP *bmp)
    return retsave && retclose;
 }
 
+
+bool _al_identify_bmp(ALLEGRO_FILE *f)
+{
+   uint16_t x;
+   uint8_t y[2];
+   al_fread(f, y, 2);
+   if (memcmp(y, "BM", 2) != 0)
+      return false;
+
+   if (!al_fseek(f, 14, ALLEGRO_SEEK_SET))
+      return false;
+
+   x = al_fread16le(f);
+   switch (x) {
+      case WININFOHEADERSIZE:
+      case WININFOHEADERSIZEV2:
+      case WININFOHEADERSIZEV3:
+      case WININFOHEADERSIZEV4:
+      case WININFOHEADERSIZEV5:
+      case OS2INFOHEADERSIZE:
+         return true;
+   }
+   return false;
+}
+
 /* vim: set sts=3 sw=3 et: */
