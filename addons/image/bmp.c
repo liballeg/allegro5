@@ -1189,7 +1189,7 @@ bool _al_identify_bmp(ALLEGRO_FILE *f)
    if (memcmp(y, "BM", 2) != 0)
       return false;
 
-   if (!al_fseek(f, 14, ALLEGRO_SEEK_SET))
+   if (!al_fseek(f, 14 - 2, ALLEGRO_SEEK_CUR))
       return false;
 
    x = al_fread16le(f);

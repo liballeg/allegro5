@@ -18,7 +18,7 @@ bool _al_identify_jpg(ALLEGRO_FILE *f)
    y = al_fread16be(f);
    if (y != 0xffd8)
       return false;
-   al_fseek(f, 6, ALLEGRO_SEEK_SET);
+   al_fseek(f, 6 - 2, ALLEGRO_SEEK_CUR);
    al_fread(f, x, 4);
    if (memcmp(x, "JFIF", 4) != 0)
       return false;
