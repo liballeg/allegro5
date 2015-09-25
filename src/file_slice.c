@@ -138,11 +138,15 @@ static bool slice_fseek(ALLEGRO_FILE *f, int64_t offset, int whence)
       offset = slice->anchor;
    }
    else if ((size_t) offset > slice->anchor + slice->size) {
-      offset = slice->anchor + slice->size;
+      if (!(slice->mode & SLICE_EXPANDABLE)) {
+         offset = slice->anchor + slice->size;
+      }
    }
    
    if (al_fseek(slice->fp, offset, ALLEGRO_SEEK_SET)) {
       slice->pos = offset - slice->anchor;
+      if (slice->pos > slice->size)
+         slice->size = slice->pos;
       return true;
    }
    
