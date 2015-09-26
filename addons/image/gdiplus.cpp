@@ -3,6 +3,7 @@
 
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_image.h"
+#include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_convert.h"
 #include "allegro5/internal/aintern_exitfunc.h"
 #include "allegro5/internal/aintern_image.h"
@@ -370,19 +371,19 @@ bool _al_save_gdiplus_bitmap_f(ALLEGRO_FILE *fp, const char *ident,
    CLSID encoder;
    int encoder_status = -1;
 
-   if (!strcmp(ident, ".bmp")) {
+   if (!_al_stricmp(ident, ".bmp")) {
       encoder_status = GetEncoderClsid(L"image/bmp", &encoder);
    }
-   else if (!strcmp(ident, ".jpg") || !strcmp(ident, ".jpeg")) {
+   else if (!_al_stricmp(ident, ".jpg") || !_al_stricmp(ident, ".jpeg")) {
       encoder_status = GetEncoderClsid(L"image/jpeg", &encoder);
    }
-   else if (!strcmp(ident, ".gif")) {
+   else if (!_al_stricmp(ident, ".gif")) {
       encoder_status = GetEncoderClsid(L"image/gif", &encoder);
    }
-   else if (!strcmp(ident, ".tif") || !strcmp(ident, ".tiff")) {
+   else if (!_al_stricmp(ident, ".tif") || !_al_stricmp(ident, ".tiff")) {
       encoder_status = GetEncoderClsid(L"image/tiff", &encoder);
    }
-   else if (!strcmp(ident, ".png")) {
+   else if (!_al_stricmp(ident, ".png")) {
       encoder_status = GetEncoderClsid(L"image/png", &encoder);
    }
 
