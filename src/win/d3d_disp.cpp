@@ -948,6 +948,7 @@ void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
       ALLEGRO_WARN("_al_d3d_prepare_for_reset: (bb) ref count not 0\n");
    }
    disp->render_target = NULL;
+   get_extra(al_get_backbuffer(al_display))->render_target = NULL;
 }
 
 static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
