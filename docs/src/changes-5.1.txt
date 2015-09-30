@@ -3,6 +3,132 @@
 See `changes-5.0.txt` for changes in Allegro 5.0.x.  These lists
 serve as summaries; the full histories are in the git repository.
 
+Changes from 5.1.11 to 5.1.12 (September 2015)
+==============================================
+
+The main developers this time were: Bruce Pascoe, Beoran, Elias Pschernig,
+SiegeLord, Trent Gamblin.
+
+Graphics:
+
+  - Add `al_set_blend_color` and `al_set_blender`, for additional blending modes.
+
+  - Add `ALLEGRO_MAXIMIZED` display flag.
+
+  - Add `al_reparent_bitmap`, `al_get_bitmap_x/y`. This allows changing the
+    offset of a sub-bitmap.
+
+  - Make `ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA` actually pick a format without an
+    alpha channel.
+
+  - Add `al_premul_rgba` and `al_premul_rgba_f` convenience functions for
+    dealing with pre-multiplied alpha blending mode.
+
+Input:
+
+  - Fix key auto-repeat on modern X11 versions.
+
+  - Fix mis-detection of some joysticks on Android.
+
+Android port:
+
+  - Fix a crash when minimizing the app before Allegro has been initialized.
+
+iOS port:
+
+Linux port:
+
+  - Add `al_get_x_window_id` (Robert MacGregor)
+
+OSX port:
+
+  - Fix some deprecated API usage.
+
+Windows port:
+
+  - Fix a dangling pointer issue resulting in crashes when resizing on Windows
+    10.
+
+Build system:
+
+  - Build with multiple processors when using MSVC.
+
+  - Make XInput2/touch input optional on Linux.
+
+Documentation:
+
+  - Various documentation improvements.
+
+  - Fix some badly formatted flags (Rodolfo Lam).
+
+Other:
+
+   - Allow injecting Allegro events into event queses using
+     `al_emit_user_event` (Ryan Roden-Corrent)
+
+   - Add `al_set_new_window_title` and `al_get_new_window_title`.
+
+   - Add `al_get_clipboard_text`, `al_set_clipboard_text` and
+     `al_clipboard_has_text`.
+
+   - Add `al_resume_timer` (Ryan Roden-Corrent).
+
+   - Add `al_get_cpu_count` and `al_get_ram_size`.
+
+Audio addon:
+
+   - Add multiple voice support for the AQueue driver.
+
+   - Fix a bug when `al_restore_default_mixer` was called multiple times.
+
+Color addon:
+
+Font addon:
+
+  - Add `al_draw_glyph`, `al_get_glyph_width`, `al_get_glyph_dimensions` and
+    `al_get_glyph_advance`. These functions are useful when additional control
+    is needed when drawing text.
+
+  - Add `al_set_fallback_font`.
+
+Image addon:
+
+  - Add `al_register_bitmap_identifier`, `al_identify_bitmap` and
+    `al_identify_bitmap_f`. This allows detecting the bitmap type by looking at
+    the initial few bytes in the file rather than relying solely on the
+    extension.
+
+  - Allow saving bitmaps with uppercase extensions (Daniel).
+
+Native dialog addon:
+
+  - Fix crashes when creating menus with sub-menus (Todd Cope).
+
+Video addon:
+
+  - Allow using both Ffmpeg and Theora backends simultaneously.
+
+  - Reduce latency of `al_get_video_frame` for the Theora backend.
+
+  - Make the Theora backend send the `ALLEGRO_VIDEO_FRAME_SHOW` events.
+
+  - Rename `al_get_video_width/height` to `al_get_video_scaled_width/height`
+    which now return the aspect corrected size of the video frame.
+
+  - Rename `al_pause_video/al_is_video_paused` to `al_get/set_video_playing`.
+
+  - Add `ALLEGRO_EVENT_VIDEO_FINISHED` event.
+
+  - Remove `ALLEGRO_EVENT_VIDEO_FRAME_ALLOC` event.
+
+  - Remove `al_get_video_aspect_ratio`.
+
+Examples:
+
+  - New examples: ex_reparent, ex_inject_events, ex_clipboard, ex_cpu,
+    ex_timer_pause.
+
+
 Changes from 5.1.10 to 5.1.11 (June 2015)
 ===========================================
 
