@@ -13,7 +13,7 @@ types = {}
 anonymous_enums = {}
 functions = {}
 constants = {}
-
+sections = {}
 
 def check_references():
     """
@@ -32,10 +32,16 @@ def check_references():
     for doc in docs:
         text = file(doc).read()
         text = re.compile("<script.*?>.*?</script>", re.S).sub("", text)
-        for link in re.findall(r" \[(.*?)\][^(]", text):
+        # in case of [A][B], we will not see A but we do see B.
+        for link in re.findall(r" \[([^[]*?)\][^([]", text):
             if not link in links:
                 print("Missing: %s: %s" % (doc, link))
+        for section in re.findall(r"^#+ (.*)", text, re.MULTILINE):
+           if not section.startswith("API:"):
+              sections[section] = 1
 
+    for link in sections.keys():
+        del links[link]
 
 def add_struct(line):
     if options.protos:

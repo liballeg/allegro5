@@ -47,6 +47,7 @@ to determine what kind of haptic effect should be played.
 * ALLEGRO_HAPTIC_ANGLE     - the haptic device supports angle coordinates
 * ALLEGRO_HAPTIC_RADIUS    - the haptic device supports radius coordinates
 * ALLEGRO_HAPTIC_AZIMUTH   - the haptic device supports azimuth coordinates
+* ALLEGRO_HAPTIC_AUTOCENTER
 
 Since: 5.1.8
 
@@ -403,7 +404,8 @@ Sets the gain of the haptic device if supported. Gain is much like volume for
 sound, it is as if every effect's intensity is multiplied by it. Gain is a
 value between 0.0 and 1.0. Returns true if set sucessfully, false if not.
 Only works if [al_get_haptic_capabilities] returns a value that has
-[ALLEGRO_HAPTIC_GAIN] set.  If not, this function returns false, and all
+[ALLEGRO_HAPTIC_GAIN][ALLEGRO_HAPTIC_CONSTANTS] set.  If not, this
+function returns false, and all
 effects will be played without any gain influence.
 
 Since: 5.1.8
@@ -413,7 +415,8 @@ Since: 5.1.8
 Returns the current gain of the device. Gain is much like volume for sound,
 it is as if every effect's intensity is multiplied by it. Gain is a value
 between 0.0 and 1.0. Only works correctly if [al_get_haptic_capabilities]
-returns a value that has [ALLEGRO_HAPTIC_GAIN] set. If this is not set, this
+returns a value that has [ALLEGRO_HAPTIC_GAIN][ALLEGRO_HAPTIC_CONSTANTS]
+ set. If this is not set, this
 function will simply return 1.0 and all effects will be played without any
 gain influence.
 
@@ -433,7 +436,8 @@ centering. If that is the case, a value of less than 0.5 will turn
 it off, while a value equal to or higher to 0.5 will turn it on.
 Returns true if set sucessfully, false if not.
 Can only work if [al_get_haptic_capabilities] returns a value that has
-[ALLEGRO_HAPTIC_AUTOCENTER] set.  If not, this function returns false.
+[ALLEGRO_HAPTIC_AUTOCENTER][ALLEGRO_HAPTIC_CONSTANTS] set.  If not, this
+function returns false.
 
 Since: 5.1.9
 
@@ -450,8 +454,8 @@ centering is enabled. Some platforms do not support partial automatic
 centering. If that is the case, a value of less than 0.5 means it is turned 
 off, while a value equal to or higher to 0.5 means it is turned on.
 Can only work if [al_get_haptic_capabilities] returns a 
-value that has [ALLEGRO_HAPTIC_AUTOCENTER] set. If not, this function 
-returns 0.0.
+value that has [ALLEGRO_HAPTIC_AUTOCENTER][ALLEGRO_HAPTIC_CONSTANTS]
+set. If not, this function returns 0.0.
 
 Since: 5.1.9
 

@@ -238,7 +238,7 @@ Since: 5.1.4
 
 See also: [al_grab_font_from_bitmap]
 
-### API: al_set_font_fallback
+### API: al_set_fallback_font
 
 Sets a font which is used instead if a character is not present. Can be
 chained, but make sure there is no loop as that would crash the
@@ -246,15 +246,15 @@ application! Pass NULL to remove a fallback font again.
 
 Since: 5.1.12
 
-See also: [al_get_font_fallback], [al_draw_glyph], [al_draw_text]
+See also: [al_get_fallback_font], [al_draw_glyph], [al_draw_text]
 
-### API: al_get_font_fallback
+### API: al_get_fallback_font
 
 Retrieves the fallback font for this font or NULL.
 
 Since: 5.1.12
 
-See also: [al_set_font_fallback]
+See also: [al_set_fallback_font]
 
 ## Per glyph text handling
 

@@ -244,14 +244,14 @@ When `callback` returns `ALLEGRO_FOR_EACH_FS_ENTRY_STOP` or
 and [al_for_each_fs_entry]  will return the value the `callback` returned.
 
 When `callback` returns `ALLEGRO_FOR_EACH_FS_ENTRY_OK` iteration will continue
-normally, and if the [ALLEGRO_FS_ENRTY] parameter of `callback`
+normally, and if the [ALLEGRO_FS_ENTRY] parameter of `callback`
 is a directory, [al_for_each_fs_entry] will call itself
 on that directory. Therefore the function will recusively descend into that
 directory.
 
 However, when `callback` returns `ALLEGRO_FOR_EACH_FS_ENTRY_SKIP` iteration
 will continue, but [al_for_each_fs_entry] will NOT recurse into the
-[ALLEGRO_FS_ENRTY] parameter of `callback` even if it is a directory.
+[ALLEGRO_FS_ENTRY] parameter of `callback` even if it is a directory.
 
 This function will skip any files or directories named `.` or `..`
 which may exist on certain platforms and may signify the current and the
