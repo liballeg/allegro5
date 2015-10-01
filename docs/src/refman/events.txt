@@ -47,7 +47,7 @@ time is referenced to the same starting point as [al_get_time].
 
 Each event is of one of the following types, with the usable fields given.
 
-### API: ALLEGRO_EVENT_JOYSTICK_AXIS
+### ALLEGRO_EVENT_JOYSTICK_AXIS
 
 A joystick axis value changed.
 
@@ -65,7 +65,7 @@ joystick.axis (int)
 joystick.pos (float)
 :   The axis position, from -1.0 to +1.0.
 
-### API: ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN
+### ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN
 
 A joystick button was pressed.
 
@@ -75,7 +75,7 @@ joystick.id (ALLEGRO_JOYSTICK *)
 joystick.button (int)
 :   The button which was pressed, counting from zero.
 
-### API: ALLEGRO_EVENT_JOYSTICK_BUTTON_UP
+### ALLEGRO_EVENT_JOYSTICK_BUTTON_UP
 
 A joystick button was released.
 
@@ -85,12 +85,12 @@ joystick.id (ALLEGRO_JOYSTICK *)
 joystick.button (int)
 :   The button which was released, counting from zero.
 
-### API: ALLEGRO_EVENT_JOYSTICK_CONFIGURATION
+### ALLEGRO_EVENT_JOYSTICK_CONFIGURATION
 
 A joystick was plugged in or unplugged.
 See [al_reconfigure_joysticks] for details.
 
-### API: ALLEGRO_EVENT_KEY_DOWN
+### ALLEGRO_EVENT_KEY_DOWN
 
 A keyboard key was pressed.
 
@@ -104,7 +104,7 @@ keyboard.display (ALLEGRO_DISPLAY *)
 > *Note:* this event is about the physical keys being pressed on the keyboard.
 Look for ALLEGRO_EVENT_KEY_CHAR events for character input.
 
-### API: ALLEGRO_EVENT_KEY_UP
+### ALLEGRO_EVENT_KEY_UP
 
 A keyboard key was released.
 
@@ -115,7 +115,7 @@ keyboard.keycode (int)
 keyboard.display (ALLEGRO_DISPLAY *)
 :   The display which had keyboard focus when the event occurred.
 
-### API: ALLEGRO_EVENT_KEY_CHAR
+### ALLEGRO_EVENT_KEY_CHAR
 
 A character was typed on the keyboard, or a character was auto-repeated.
 
@@ -152,7 +152,7 @@ physical key presses.  Multiple key presses can combine to generate a single
 character, e.g. apostrophe + e may produce 'é'.  Fewer key presses can also
 generate more characters, e.g. macro sequences expanding to common phrases.
 
-### API: ALLEGRO_EVENT_MOUSE_AXES
+### ALLEGRO_EVENT_MOUSE_AXES
 
 One or more mouse axis values changed.
 
@@ -198,7 +198,7 @@ events instead which are identical except for their type.
 > *Note:* currently mouse.display may be NULL if an event is generated in
 response to [al_set_mouse_axis].
 
-### API: ALLEGRO_EVENT_MOUSE_BUTTON_DOWN
+### ALLEGRO_EVENT_MOUSE_BUTTON_DOWN
 
 A mouse button was pressed.
 
@@ -223,7 +223,7 @@ mouse.pressure (float)
 mouse.display (ALLEGRO_DISPLAY *)
 :   The display which had mouse focus.
 
-### API: ALLEGRO_EVENT_MOUSE_BUTTON_UP
+### ALLEGRO_EVENT_MOUSE_BUTTON_UP
 
 A mouse button was released.
 
@@ -248,12 +248,12 @@ mouse.pressure (float)
 mouse.display (ALLEGRO_DISPLAY *)
 :   The display which had mouse focus.
 
-### API: ALLEGRO_EVENT_MOUSE_WARPED
+### ALLEGRO_EVENT_MOUSE_WARPED
 
 [al_set_mouse_xy] was called to move the mouse.
 This event is identical to ALLEGRO_EVENT_MOUSE_AXES otherwise.
 
-### API: ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY
+### ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY
 
 The mouse cursor entered a window opened by the program.
 
@@ -272,7 +272,7 @@ mouse.w (int)
 mouse.display (ALLEGRO_DISPLAY *)
 :   The display which had mouse focus.
 
-### API: ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY
+### ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY
 
 The mouse cursor left the boundaries of a window opened by the program.
 
@@ -291,7 +291,7 @@ mouse.w (int)
 mouse.display (ALLEGRO_DISPLAY *)
 :   The display which had mouse focus.
 
-### API: ALLEGRO_EVENT_TOUCH_BEGIN
+### ALLEGRO_EVENT_TOUCH_BEGIN
 
 The touch input device registered a new touch.
 
@@ -314,7 +314,7 @@ touch.primary (bool)
 
 Since: 5.1.0
 
-### API: ALLEGRO_EVENT_TOUCH_END
+### ALLEGRO_EVENT_TOUCH_END
 
 A touch ended.
 
@@ -322,7 +322,7 @@ Has the same fields as [ALLEGRO_EVENT_TOUCH_BEGIN].
 
 Since: 5.1.0
 
-### API: ALLEGRO_EVENT_TOUCH_MOVE
+### ALLEGRO_EVENT_TOUCH_MOVE
 
 The position of a touch changed.
 
@@ -330,7 +330,7 @@ Has the same fields as [ALLEGRO_EVENT_TOUCH_BEGIN].
 
 Since: 5.1.0
 
-### API: ALLEGRO_EVENT_TOUCH_CANCEL
+### ALLEGRO_EVENT_TOUCH_CANCEL
 
 A touch was cancelled. This is device specific but could for example
 mean that a finger moved off the border of the device or moved so
@@ -340,7 +340,7 @@ Has the same fields as [ALLEGRO_EVENT_TOUCH_BEGIN].
 
 Since: 5.1.0
 
-### API: ALLEGRO_EVENT_TIMER
+### ALLEGRO_EVENT_TIMER
 
 A [timer][ALLEGRO_TIMER] counter incremented.
 
@@ -350,7 +350,7 @@ timer.source (ALLEGRO_TIMER *)
 timer.count (int64_t)
 :   The timer count value.
 
-### API: ALLEGRO_EVENT_DISPLAY_EXPOSE
+### ALLEGRO_EVENT_DISPLAY_EXPOSE
 
 The display (or a portion thereof) has become visible.
 
@@ -371,7 +371,7 @@ display.height (int)
 > *Note:* The display needs to be created with ALLEGRO_GENERATE_EXPOSE_EVENTS
 flag for these events to be generated.
 
-### API: ALLEGRO_EVENT_DISPLAY_RESIZE
+### ALLEGRO_EVENT_DISPLAY_RESIZE
 
 The window has been resized.
 
@@ -393,14 +393,14 @@ You should normally respond to these events by calling [al_acknowledge_resize].
 Note that further resize events may be generated by the time you process the
 event, so these fields may hold outdated information.
 
-### API: ALLEGRO_EVENT_DISPLAY_CLOSE
+### ALLEGRO_EVENT_DISPLAY_CLOSE
 
 The close button of the window has been pressed.
 
 display.source (ALLEGRO_DISPLAY *)
 :   The display which was closed.
 
-### API: ALLEGRO_EVENT_DISPLAY_LOST
+### ALLEGRO_EVENT_DISPLAY_LOST
 
 When using Direct3D, displays can enter
 a "lost" state. In that state, drawing calls are ignored, and upon
@@ -419,7 +419,7 @@ then no further action is required when you receive this event.
 display.source (ALLEGRO_DISPLAY *)
 :   The display which was lost.
 
-### API: ALLEGRO_EVENT_DISPLAY_FOUND
+### ALLEGRO_EVENT_DISPLAY_FOUND
 
 Generated when a lost device is restored to operating state.
 See [ALLEGRO_EVENT_DISPLAY_LOST].
@@ -427,7 +427,7 @@ See [ALLEGRO_EVENT_DISPLAY_LOST].
 display.source (ALLEGRO_DISPLAY *)
 :   The display which was found.
 
-### API: ALLEGRO_EVENT_DISPLAY_SWITCH_OUT
+### ALLEGRO_EVENT_DISPLAY_SWITCH_OUT
 
 The window is no longer active, that is the user might have clicked into
 another window or "tabbed" away.
@@ -435,14 +435,14 @@ another window or "tabbed" away.
 display.source (ALLEGRO_DISPLAY *)
 :   The display which was switched out of.
 
-### API: ALLEGRO_EVENT_DISPLAY_SWITCH_IN
+### ALLEGRO_EVENT_DISPLAY_SWITCH_IN
 
 The window is the active one again.
 
 display.source (ALLEGRO_DISPLAY *)
 :   The display which was switched into.
 
-### API: ALLEGRO_EVENT_DISPLAY_ORIENTATION
+### ALLEGRO_EVENT_DISPLAY_ORIENTATION
 
 Generated when the rotation or orientation of a display changes.
 
@@ -459,7 +459,7 @@ event.display.orientation
     - ALLEGRO_DISPLAY_ORIENTATION_FACE_UP
     - ALLEGRO_DISPLAY_ORIENTATION_FACE_DOWN
 
-### API: ALLEGRO_EVENT_DISPLAY_HALT_DRAWING
+### ALLEGRO_EVENT_DISPLAY_HALT_DRAWING
 
 When a display receives this event it should stop doing any drawing
 and then call [al_acknowledge_drawing_halt] immediately.
@@ -481,7 +481,7 @@ Since: 5.1.0
 
 See also: [ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING]
 
-### API: ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING
+### ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING
 
 When a display receives this event, it may resume drawing again, and it must
 call [al_acknowledge_drawing_resume] immediately.
@@ -499,7 +499,7 @@ Since: 5.1.0
 
 See also: [ALLEGRO_EVENT_DISPLAY_HALT_DRAWING]
 
-### API: ALLEGRO_EVENT_DISPLAY_CONNECTED
+### ALLEGRO_EVENT_DISPLAY_CONNECTED
 
 This event is sent when a physical display is connected to the device
 Allegro runs on. Currently, on most platforms, Allegro supports only a single
@@ -510,7 +510,7 @@ display.source (ALLEGRO_DISPLAY *)
 
 Since: 5.1.1
 
-### API: ALLEGRO_EVENT_DISPLAY_DISCONNECTED
+### ALLEGRO_EVENT_DISPLAY_DISCONNECTED
 
 This event is sent when a physical display is disconnected from the device
 Allegro runs on. Currently, on most platforms, Allegro supports only a single

@@ -170,8 +170,6 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f, int flags)
    return b;
 }
 
-/* Function: al_save_pcx_f
- */
 bool _al_save_pcx_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 {
    int c;

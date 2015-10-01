@@ -45,7 +45,7 @@
 #endif
 
 
-/** Function: al_get_cpu_count
+/* Function: al_get_cpu_count
  */
 int al_get_cpu_count(void)
 {
@@ -72,7 +72,7 @@ int al_get_cpu_count(void)
    return -1;
 }
 
-/** Function al_get_ram_size
+/* Function: al_get_ram_size
  */
 int al_get_ram_size(void)
 {

@@ -164,8 +164,6 @@ typedef struct ALLEGRO_TIMER_EVENT
 
 
 
-/* Type: ALLEGRO_TOUCH_EVENT
- */
 typedef struct ALLEGRO_TOUCH_EVENT
 {
    _AL_EVENT_HEADER(struct ALLEGRO_TOUCH_INPUT)

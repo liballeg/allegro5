@@ -924,8 +924,6 @@ void al_set_errno(int errnum)
 
 
 #ifdef ALLEGRO_ANDROID
-/* Function: _al_android_get_jnienv
- */
 JNIEnv *_al_android_get_jnienv(void)
 {
    thread_local_state *tls;
@@ -937,8 +935,6 @@ JNIEnv *_al_android_get_jnienv(void)
 
 
 
-/* Function: _al_android_set_jnienv
- */
 void _al_android_set_jnienv(JNIEnv *jnienv)
 {
    thread_local_state *tls;

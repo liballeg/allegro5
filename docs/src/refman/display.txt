@@ -563,10 +563,6 @@ Since: 5.0.7, 5.1.2
 
 See also: [al_set_new_display_flags], [al_get_display_flags]
 
-### API: al_toggle_display_flag
-
-Deprecated synonym for [al_set_display_flag].
-
 ### API: al_get_display_option
 
 Return an extra display setting of the display.

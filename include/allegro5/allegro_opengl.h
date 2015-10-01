@@ -149,7 +149,7 @@
  *  Public OpenGL-related API
  */
 
-/* Enum: ALLEGRO_OPENGL_VARIANT
+/* ALLEGRO_OPENGL_VARIANT
  */
 typedef enum ALLEGRO_OPENGL_VARIANT {
    ALLEGRO_DESKTOP_OPENGL = 0,
