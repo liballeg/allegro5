@@ -39,7 +39,8 @@ int main(int argc, char *argv[])
          continue;
       }
       if (do_print) {
-         printf("%s: %s\n", prefix, line);
+         printf("%s: %s:%s:%d\n", prefix, line, d_filename,
+            d_line_num);
       }
       if (d_match(line, "\\{ *$|; *$")) {
          do_print = false;

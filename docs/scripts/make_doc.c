@@ -38,6 +38,7 @@ dstr tmp_preprocess_output;
 dstr tmp_pandoc_output;
 
 static Aatree *protos = &aa_nil;
+static Aatree *sources = &aa_nil;
 
 
 static int process_options(int argc, char *argv[]);
@@ -117,19 +118,30 @@ static void load_prototypes(const char *filename)
    dstr line;
    const char *name;
    const char *newtext;
+   const char *file_name;
+   const char *line_number;
    dstr text;
 
    d_open_input(filename);
 
    while (d_getline(line)) {
-      if (d_match(line, "([^:]*): (.*)")) {
+      if (d_match(line, "([^:]*): ([^:]*):([^:]*):([^:]*)")) {
          name = d_submatch(1);
          newtext = d_submatch(2);
+         file_name = d_submatch(3);
+         line_number = d_submatch(4);
 
          d_assign(text, lookup_prototype(name));
          strcat(text, "\n");
          strcat(text, newtext);
          protos = aa_insert(protos, name, text);
+
+         d_assign(text, lookup_source(name));
+         strcat(text, "https://github.com/liballeg/allegro5/blob/5.1/");
+         strcat(text, file_name);
+         strcat(text, "#L");
+         strcat(text, line_number);
+         sources = aa_insert(sources, name, text);
       }
    }
 
@@ -140,6 +152,13 @@ static void load_prototypes(const char *filename)
 const char *lookup_prototype(const char *name)
 {
    const char *r = aa_search(protos, name);
+   return (r) ? r : "";
+}
+
+
+const char *lookup_source(const char *name)
+{
+   const char *r = aa_search(sources, name);
    return (r) ? r : "";
 }
 

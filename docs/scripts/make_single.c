@@ -61,6 +61,7 @@ static void preprocess(void)
          const char *hashes = d_submatch(1);
          const char *name = d_after_match;
          const char *text = lookup_prototype(name);
+         const char *source = lookup_source(name);
 
          d_printf("%s %s\n", hashes, name);
          if (strcmp(text, "") != 0) {
@@ -68,6 +69,7 @@ static void preprocess(void)
             d_print(text);
             d_printf("~~~~");
          }
+         d_printf("\nSource Code: [%s](%s)\n", name, source);
       }
       else {
          d_print(line);
