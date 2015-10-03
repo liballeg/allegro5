@@ -252,7 +252,7 @@ static void call_user_main(void)
 
 /* Helper macro to add entries to the menu */
 #define add_menu(name, sel, eq)                                         \
-        [menu addItem: [[[NSMenuItem allocWithZone: [NSMenu menuZone]]   \
+        [menu addItem: [[[NSMenuItem alloc]   \
                                     initWithTitle: name                 \
                                            action: @selector(sel)       \
                                     keyEquivalent: eq] autorelease]]                 \
@@ -291,12 +291,12 @@ int _al_osx_run_main(int argc, char **argv,
         {
             title = [[NSProcessInfo processInfo] processName];
         }
-        NSMenu* main_menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @""];
+        NSMenu* main_menu = [[NSMenu alloc] initWithTitle: @""];
         [NSApp setMainMenu: main_menu];
 
         /* Add application ("Apple") menu */
-        menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @"Apple menu"];
-        temp_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
+        menu = [[NSMenu alloc] initWithTitle: @"Apple menu"];
+        temp_item = [[NSMenuItem alloc]
                      initWithTitle: @""
                      action: NULL
                      keyEquivalent: @""];
@@ -312,9 +312,9 @@ int _al_osx_run_main(int argc, char **argv,
         [menu release];
 
         /* Add "Window" menu */
-        menu = [[NSMenu allocWithZone: [NSMenu menuZone]]
+        menu = [[NSMenu alloc]
                         initWithTitle: @"Window"];
-        temp_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
+        temp_item = [[NSMenuItem alloc]
                                  initWithTitle: @""
                                         action: NULL
                                  keyEquivalent: @""];

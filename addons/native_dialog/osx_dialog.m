@@ -504,7 +504,7 @@ typedef struct DISPLAY_INFO {
    else {
       *key = al_ustr_get(aitem->caption, amp_pos+1);
    }
-   NSMenuItem *menu_item = [[[NSMenuItem allocWithZone: [NSMenu menuZone]]
+   NSMenuItem *menu_item = [[[NSMenuItem alloc]
       initWithTitle:[[NSString alloc] initWithUTF8String:buf]
       action:@selector(activated)
       keyEquivalent:[[NSString alloc] initWithUTF8String:key]]
@@ -524,7 +524,7 @@ static ALLEGRO_MUTEX *mutex;
 
 
 #define add_menu(name, sel, eq)                                          \
-        [menu addItem: [[[NSMenuItem allocWithZone: [NSMenu menuZone]]   \
+        [menu addItem: [[[NSMenuItem alloc]   \
                                     initWithTitle: name                  \
                                            action: @selector(sel)        \
                                     keyEquivalent: eq] autorelease]]
@@ -543,11 +543,11 @@ static NSMenu *init_apple_menu(void)
           title = [[NSProcessInfo processInfo] processName];
       }
 
-      NSMenu *main_menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @""];
+      NSMenu *main_menu = [[NSMenu alloc] initWithTitle: @""];
 
       /* Add application ("Apple") menu */
-      menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @"Apple menu"];
-      temp_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
+      menu = [[NSMenu alloc] initWithTitle: @"Apple menu"];
+      temp_item = [[NSMenuItem alloc]
               initWithTitle: @""
               action: NULL
               keyEquivalent: @""];
@@ -725,7 +725,7 @@ static void add_items(NSMenu *menu, ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amen
          }
          else {
             if (aitem->popup) {
-               temp_menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: [NSString stringWithUTF8String:buf]];
+               temp_menu = [[NSMenu alloc] initWithTitle: [NSString stringWithUTF8String:buf]];
                [temp_menu setAutoenablesItems:NO];
                MenuDelegate *menu_delegate = [[MenuDelegate alloc] init];
                NSMenuItem *nsmenuitem = [menu_delegate build_menu_item:aitem];
@@ -737,7 +737,7 @@ static void add_items(NSMenu *menu, ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amen
                [temp_menu release];
             }
             else {
-               temp_menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: [NSString stringWithUTF8String:buf]];
+               temp_menu = [[NSMenu alloc] initWithTitle: [NSString stringWithUTF8String:buf]];
                [temp_menu setAutoenablesItems:NO];
                MenuDelegate *menu_delegate = [[MenuDelegate alloc] init];
                NSMenuItem *nsmenuitem = [menu_delegate build_menu_item:aitem];
@@ -833,7 +833,7 @@ static NSMenu *show_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu, bool pop
    }
 
    if(popup) {
-      main_menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @""];
+      main_menu = [[NSMenu alloc] initWithTitle: @""];
       [main_menu setAutoenablesItems:NO];
       [NSApp activateIgnoringOtherApps:YES];
    }
