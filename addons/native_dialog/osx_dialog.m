@@ -562,7 +562,7 @@ static NSMenu *init_apple_menu(void)
       [NSApp setAppleMenu:menu];
       [menu release];
 
-      return main_menu;
+      return [main_menu autorelease];
 }
 
 static void *event_thread(void *unused)
@@ -681,7 +681,7 @@ bool _al_update_menu_item_at(ALLEGRO_MENU_ITEM *item, int i)
 
    char buf[200];
    get_accelerator(item->caption, buf);
-   [menu_item setTitle:[[NSString alloc] initWithUTF8String:buf]];
+   [menu_item setTitle:[NSString stringWithUTF8String:buf]];
 
    if (item->flags & ALLEGRO_MENU_ITEM_CHECKBOX) {
       update_checked_state(mit->menu_item, item->flags & ALLEGRO_MENU_ITEM_CHECKED);
@@ -725,7 +725,7 @@ static void add_items(NSMenu *menu, ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amen
          }
          else {
             if (aitem->popup) {
-               temp_menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: [[NSString alloc] initWithUTF8String:buf]];
+               temp_menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: [NSString stringWithUTF8String:buf]];
                [temp_menu setAutoenablesItems:NO];
                MenuDelegate *menu_delegate = [[MenuDelegate alloc] init];
                NSMenuItem *nsmenuitem = [menu_delegate build_menu_item:aitem];
@@ -733,9 +733,11 @@ static void add_items(NSMenu *menu, ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amen
                [menu setSubmenu:temp_menu forItem:nsmenuitem];
                the_menu = aitem->popup;
                add_items(temp_menu, display, amenu, the_menu, popup);
+               [menu_delegate release];
+               [temp_menu release];
             }
             else {
-               temp_menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: [[NSString alloc] initWithUTF8String:buf]];
+               temp_menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: [NSString stringWithUTF8String:buf]];
                [temp_menu setAutoenablesItems:NO];
                MenuDelegate *menu_delegate = [[MenuDelegate alloc] init];
                NSMenuItem *nsmenuitem = [menu_delegate build_menu_item:aitem];
@@ -754,6 +756,7 @@ static void add_items(NSMenu *menu, ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amen
                }
                [nsmenuitem setEnabled:((aitem->flags & ALLEGRO_MENU_ITEM_DISABLED) ? FALSE : TRUE)];
                _al_update_menu_item_at(aitem, -1);
+               [temp_menu release];
             }
          }
       }
