@@ -936,7 +936,6 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    ALLEGRO_DISPLAY_OSX_WIN* dpy = [display_object pointerValue];
    NSRect rc = NSMakeRect(0, 0, dpy->parent.w,  dpy->parent.h);
    ALWindow *alwin = dpy->win = [ALWindow alloc];
-   alwin.display = (ALLEGRO_DISPLAY *)dpy;
    NSWindow* win = alwin;
    NSScreen *screen;
    unsigned int mask = (dpy->parent.flags & ALLEGRO_FRAMELESS) ? NSBorderlessWindowMask :
@@ -965,6 +964,7 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
                   defer: NO
                  screen: screen
     ];
+   alwin.display = (ALLEGRO_DISPLAY *)dpy;
    if (dpy->parent.flags & ALLEGRO_RESIZABLE) {
       if ([win respondsToSelector:NSSelectorFromString(@"setCollectionBehavior:")]) {
          [win setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
