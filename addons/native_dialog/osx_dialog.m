@@ -39,7 +39,8 @@ void _al_shutdown_native_dialog_addon(void)
 +(void) show : (NSValue *) param {
    ALLEGRO_NATIVE_DIALOG *fd = [param pointerValue];
    int mode = fd->flags;
-   NSString *directory, *filename;
+   NSString *filename;
+   NSURL *directory;
 
    /* Set initial directory to pass to the file selector */
    if (fd->fc_initial_path) {
@@ -48,7 +49,8 @@ void _al_shutdown_native_dialog_addon(void)
       al_set_path_filename(initial_directory, NULL);
 
       /* Convert path and filename to NSString objects */
-      directory = [NSString stringWithUTF8String: al_path_cstr(initial_directory, '/')];
+      directory = [NSURL fileURLWithPath: [NSString stringWithUTF8String: al_path_cstr(initial_directory, '/')]
+                             isDirectory: YES];
       filename = [NSString stringWithUTF8String: al_get_path_filename(fd->fc_initial_path)];
       al_destroy_path(initial_directory);
    } else {
@@ -68,15 +70,16 @@ void _al_shutdown_native_dialog_addon(void)
       [panel setCanCreateDirectories: YES];
       [panel setCanSelectHiddenExtension: YES];
       [panel setAllowsOtherFileTypes: YES];
-
+      [panel setNameFieldStringValue:filename];
+      [panel setDirectoryURL: directory];
       /* Open dialog box */
-      if ([panel runModalForDirectory:directory file:filename] == NSOKButton) {
+      if ([panel runModal] == NSOKButton) {
          /* NOTE: at first glance, it looks as if this code might leak
           * memory, but in fact it doesn't: the string returned by
           * UTF8String is freed automatically when it goes out of scope
           * (according to the UTF8String docs anyway).
           */
-         const char *s = [[panel filename] UTF8String];
+         const char *s = [[[panel URL] path] UTF8String];
          fd->fc_path_count = 1;
          fd->fc_paths = al_malloc(fd->fc_path_count * sizeof *fd->fc_paths);
          fd->fc_paths[0] = al_create_path(s);
@@ -98,11 +101,12 @@ void _al_shutdown_native_dialog_addon(void)
          [panel setAllowsMultipleSelection: YES];
       else
          [panel setAllowsMultipleSelection: NO];
-
+      [panel setDirectoryURL:directory];
+      [panel setNameFieldStringValue:filename];
       /* Open dialog box */
-      if ([panel runModalForDirectory:directory file:filename] == NSOKButton) {
+      if ([panel runModal] == NSOKButton) {
          size_t i;
-         fd->fc_path_count = [[panel filenames] count];
+         fd->fc_path_count = [[panel URLs] count];
          fd->fc_paths = al_malloc(fd->fc_path_count * sizeof *fd->fc_paths);
          for (i = 0; i < fd->fc_path_count; i++) {
             /* NOTE: at first glance, it looks as if this code might leak
@@ -110,7 +114,8 @@ void _al_shutdown_native_dialog_addon(void)
              * UTF8String is freed automatically when it goes out of scope
              * (according to the UTF8String docs anyway).
              */
-            const char *s = [[[panel filenames] objectAtIndex: i] UTF8String];
+            NSURL* url = [[panel URLs] objectAtIndex: i];
+            const char* s = [[url path] UTF8String];
             fd->fc_paths[i] = al_create_path(s);
          }
       }
