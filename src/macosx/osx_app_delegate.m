@@ -56,7 +56,7 @@ static BOOL in_bundle(void)
 }
 
 
-@interface AllegroAppDelegate : NSObject
+@interface AllegroAppDelegate : NSObject <NSApplicationDelegate>
 {
     NSTimer* activity;
 }
