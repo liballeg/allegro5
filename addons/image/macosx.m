@@ -191,7 +191,7 @@ bool _al_osx_save_image_f(ALLEGRO_FILE *f, const char *ident, ALLEGRO_BITMAP *bm
    
    NSImage *image = NSImageFromAllegroBitmap(bmp);
    NSArray *reps = [image representations];
-   NSData *nsdata = [NSBitmapImageRep representationOfImageRepsInArray: reps usingType: type properties: nil];
+   NSData *nsdata = [NSBitmapImageRep representationOfImageRepsInArray: reps usingType: type properties: [NSDictionary dictionary]];
    
    size_t size = (size_t)[nsdata length];
    bool ret = al_fwrite(f, [nsdata bytes], size) == size;
