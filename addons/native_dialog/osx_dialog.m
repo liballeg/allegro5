@@ -70,7 +70,9 @@ void _al_shutdown_native_dialog_addon(void)
       [panel setCanCreateDirectories: YES];
       [panel setCanSelectHiddenExtension: YES];
       [panel setAllowsOtherFileTypes: YES];
-      [panel setNameFieldStringValue:filename];
+      if (filename) {
+	     [panel setNameFieldStringValue:filename];
+      }
       [panel setDirectoryURL: directory];
       /* Open dialog box */
       if ([panel runModal] == NSOKButton) {
@@ -102,7 +104,9 @@ void _al_shutdown_native_dialog_addon(void)
       else
          [panel setAllowsMultipleSelection: NO];
       [panel setDirectoryURL:directory];
-      [panel setNameFieldStringValue:filename];
+      if (filename) {
+	     [panel setNameFieldStringValue:filename];
+      }
       /* Open dialog box */
       if ([panel runModal] == NSOKButton) {
          size_t i;
@@ -207,9 +211,9 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 
 
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
-@interface LogView : NSTextView <NSWindowDelegate>
+@interface ALLogView : NSTextView <NSWindowDelegate>
 #else
-@interface LogView : NSTextView
+@interface ALLogView : NSTextView
 #endif
 {
 @public
@@ -218,11 +222,12 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 - (void)keyDown: (NSEvent*)event;
 - (BOOL)windowShouldClose: (id)sender;
 - (void)emitCloseEventWithKeypress: (BOOL)keypress;
-+ (void)appendText: (NSValue*)param;
+- (void)appendText: (NSString*)text;
++ (void)createNativeComponents: (NSValue*) value;
 @end
 
 
-@implementation LogView
+@implementation ALLogView
 
 
 - (void)keyDown: (NSEvent*)event
@@ -258,136 +263,112 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    al_emit_user_event(&self->textlog->tl_events, &event, NULL);
 }
 
-+ (void)appendText: (NSValue*)param
+- (void)appendText: (NSString*)text
 {
-   ALLEGRO_NATIVE_DIALOG *textlog = (ALLEGRO_NATIVE_DIALOG*)[param pointerValue];
-   al_lock_mutex(textlog->tl_text_mutex);
-   if (textlog->is_active) {
-      LogView *view = (LogView *)textlog->tl_textview;
-      NSString *text = [[NSString alloc] initWithUTF8String: al_cstr(textlog->tl_pending_text)];
-      NSRange range = NSMakeRange([[view string] length], 0);
-      
-      [view setEditable: YES];
-      [view setSelectedRange: range];
-      [view insertText: text];
-      [view setEditable: NO];
-      [text release];
-      al_ustr_truncate(textlog->tl_pending_text, 0);
-      textlog->tl_have_pending = false;
-   }
-   al_unlock_mutex(textlog->tl_text_mutex);
+    NSRange range = NSMakeRange([[self string] length], 0);
+    
+    [self setEditable: YES];
+    [self setSelectedRange: range];
+    [self insertText: text];
+    [self setEditable: NO];
 }
-
++(void) createNativeComponents: (NSValue*) tl {
+    ALLEGRO_NATIVE_DIALOG *textlog = (ALLEGRO_NATIVE_DIALOG*) [tl pointerValue];
+    
+    NSRect rect = NSMakeRect(0, 0, 640, 480);
+    ;
+    int adapter = al_get_new_display_adapter();
+    NSScreen *screen;
+    unsigned int mask = NSTitledWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask;
+    if (!(textlog->flags & ALLEGRO_TEXTLOG_NO_CLOSE))
+        mask |= NSClosableWindowMask;
+    
+    if ((adapter >= 0) && (adapter < al_get_num_video_adapters())) {
+        screen = [[NSScreen screens] objectAtIndex: adapter];
+    } else {
+        screen = [NSScreen mainScreen];
+    }
+    NSWindow *win = [[NSWindow alloc] initWithContentRect: rect
+                   styleMask: mask
+                     backing: NSBackingStoreBuffered
+                       defer: NO
+                      screen: screen];
+    [win setReleasedWhenClosed: NO];
+    [win setTitle: @"Allegro Text Log"];
+    [win setMinSize: NSMakeSize(128, 128)];
+    
+    NSScrollView *scrollView = [[NSScrollView alloc] initWithFrame: rect];
+    [scrollView setHasHorizontalScroller: YES];
+    [scrollView setHasVerticalScroller: YES];
+    [scrollView setAutohidesScrollers: YES];
+    [scrollView setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+    
+    [[scrollView contentView] setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+    [[scrollView contentView] setAutoresizesSubviews: YES];
+    
+    rect = [[scrollView contentView] frame];
+    ALLogView *view = [[ALLogView alloc] initWithFrame: rect];
+    view->textlog = textlog;
+    [view setHorizontallyResizable: YES];
+    [view setVerticallyResizable: YES];
+    [view setAutoresizingMask: NSViewHeightSizable | NSViewWidthSizable];
+    [[view textContainer] setContainerSize: NSMakeSize(rect.size.width, 1000000)];
+    [[view textContainer] setWidthTracksTextView: NO];
+    [view setTextColor: [NSColor grayColor]];
+    if (textlog->flags & ALLEGRO_TEXTLOG_MONOSPACE) {
+        [view setFont: [NSFont userFixedPitchFontOfSize: 0]];
+    }
+    [view setEditable: NO];
+    [scrollView setDocumentView: view];
+    
+    [[win contentView] addSubview: scrollView];
+    [scrollView release];
+    
+    [win setDelegate: view];
+    [win orderFront: nil];
+    
+    /* Save handles for future use. */
+    textlog->window = win;
+    textlog->tl_textview = view; // Non-owning reference
+}
 @end
-
 
 bool _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
-   NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-   
-   al_lock_mutex(textlog->tl_text_mutex);
-   
-   NSRect rect = NSMakeRect(0, 0, 640, 480);
-   NSWindow *win = [NSWindow alloc];
-   int adapter = al_get_new_display_adapter();
-   NSScreen *screen;
-   unsigned int mask = NSTitledWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask;
-   if (!(textlog->flags & ALLEGRO_TEXTLOG_NO_CLOSE))
-      mask |= NSClosableWindowMask;
-   
-   if ((adapter >= 0) && (adapter < al_get_num_video_adapters())) {
-      screen = [[NSScreen screens] objectAtIndex: adapter];
-   } else {
-      screen = [NSScreen mainScreen];
-   }
-   [win initWithContentRect: rect
-                  styleMask: mask
-                    backing: NSBackingStoreBuffered
-                      defer: NO
-                     screen: screen];
-   [win setReleasedWhenClosed: NO];
-   [win setTitle: @"Allegro Text Log"];
-   [win setMinSize: NSMakeSize(128, 128)];
-   
-   NSScrollView *scrollView = [[NSScrollView alloc] initWithFrame: rect];
-   [scrollView setHasHorizontalScroller: YES];
-   [scrollView setHasVerticalScroller: YES];
-   [scrollView setAutohidesScrollers: YES];
-   [scrollView setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
-   
-   [[scrollView contentView] setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
-   [[scrollView contentView] setAutoresizesSubviews: YES];
-   
-   rect = [[scrollView contentView] frame];
-   LogView *view = [[LogView alloc] initWithFrame: rect];
-   view->textlog = textlog;
-   [view setHorizontallyResizable: YES];
-   [view setVerticallyResizable: YES];
-   [view setAutoresizingMask: NSViewHeightSizable | NSViewWidthSizable];
-   [[view textContainer] setContainerSize: NSMakeSize(rect.size.width, 1000000)];
-   [[view textContainer] setWidthTracksTextView: NO];
-   [view setTextColor: [NSColor grayColor]];
-   if (textlog->flags & ALLEGRO_TEXTLOG_MONOSPACE)
-      [view setFont: [NSFont userFixedPitchFontOfSize: 0]];
-   [view setEditable: NO];
-   [scrollView setDocumentView: view];
-   
-   [[win contentView] addSubview: scrollView];
-   [scrollView release];
-   
-   [win setDelegate: view];
-   [win orderFront: nil];
-   
-   /* Save handles for future use. */
-   textlog->window = win;
-   textlog->tl_textview = view;
-   textlog->is_active = true;
-
-   /* Now notify al_show_native_textlog that the text log is ready. */
-   textlog->tl_done = true;
-   al_signal_cond(textlog->tl_text_cond);
-   al_unlock_mutex(textlog->tl_text_mutex);
-   
-   while ([win isVisible]) {
-      al_rest(0.05);
-   }
-   
-   al_lock_mutex(textlog->tl_text_mutex);
-   _al_close_native_text_log(textlog);
-   al_unlock_mutex(textlog->tl_text_mutex);
-   
-   [pool drain];
-   return true;
+    [ALLogView performSelectorOnMainThread: @selector(createNativeComponents:)
+                                withObject: [NSValue valueWithPointer:textlog]
+                             waitUntilDone: YES];
+    /* Now notify al_show_native_textlog that the text log is ready. */
+    textlog->is_active = true;
+    textlog->tl_done = true;
+    return true;
 }
 
 void _al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
-   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-   NSWindow *win = (NSWindow *)textlog->window;
-   if ([win isVisible]) {
-      [win close];
-   }
-   
-   /* Notify everyone that we're gone. */
-   textlog->is_active = false;
-   textlog->tl_done = true;
-   al_signal_cond(textlog->tl_text_cond);
-   [pool drain];
+    NSWindow *win = (NSWindow *)textlog->window;
+    if ([win isVisible]) {
+        [win performSelectorOnMainThread:@selector(close) withObject:nil waitUntilDone:YES];
+    }
+    [win release];
+    textlog->window = NULL;
+    textlog->tl_textview = NULL;
+    /* Notify everyone that we're gone. */
+    textlog->is_active = false;
+    textlog->tl_done = true;
 }
 
 void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
-   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-   if (textlog->tl_have_pending) {
-      [pool drain];
-      return;
-   }
-   textlog->tl_have_pending = true;
-   
-   [LogView performSelectorOnMainThread: @selector(appendText:) 
-                             withObject: [NSValue valueWithPointer: textlog]
-                          waitUntilDone: NO];
-   [pool drain];
+    if (textlog->is_active) {
+        ALLogView *view = (ALLogView *)textlog->tl_textview;
+        NSString *text = [NSString stringWithUTF8String: al_cstr(textlog->tl_pending_text)];
+        [view performSelectorOnMainThread:@selector(appendText:)
+                               withObject:text
+                            waitUntilDone:YES];
+        
+        al_ustr_truncate(textlog->tl_pending_text, 0);
+    }
 }
 
 /* Menus */

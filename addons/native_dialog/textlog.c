@@ -8,10 +8,10 @@
 #include "allegro5/internal/aintern_system.h"
 
 
-/* The GTK implementation does not require an extra thread.
- * The Windows and OSX implementations do.
+/* The GTK and OSX implementations do not require an extra thread.
+ * The Windows implementation does.
  */
-#if defined(ALLEGRO_CFG_NATIVE_DIALOG_WINDOWS) || defined(ALLEGRO_CFG_NATIVE_DIALOG_OSX)
+#if defined(ALLEGRO_CFG_NATIVE_DIALOG_WINDOWS) 
    #define TEXT_LOG_EXTRA_THREAD true
 #else
    #define TEXT_LOG_EXTRA_THREAD false
