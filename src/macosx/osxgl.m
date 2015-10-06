@@ -1883,8 +1883,9 @@ static bool acknowledge_resize_display_win(ALLEGRO_DISPLAY *d)
        */
       d->flags &= ~ALLEGRO_MAXIMIZED;
    }
-
-   _al_ogl_resize_backbuffer(d->ogl_extras->backbuffer, d->w, d->h);
+   if (d->ogl_extras->backbuffer) {
+      _al_ogl_resize_backbuffer(d->ogl_extras->backbuffer, d->w, d->h);
+   }
    setup_gl(d);
 
    [pool drain];
