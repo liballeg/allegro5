@@ -23,6 +23,8 @@ int main(int argc, char **argv)
    ALLEGRO_TIMER       *timer2  = NULL;
    ALLEGRO_EVENT_QUEUE *queue   = NULL;
 
+   ALLEGRO_EVENT ev;
+
    (void)argc;
    (void)argv;
 
@@ -52,8 +54,6 @@ int main(int argc, char **argv)
 
    printf("Restart timer2 at: %2.2fs\n", al_get_time() * 100);
    al_start_timer(timer2);
-
-   ALLEGRO_EVENT ev;
 
    al_wait_for_event(queue, &ev);
    printf("Timer%d finished at: %2.2fs\n",

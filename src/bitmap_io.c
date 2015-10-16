@@ -306,10 +306,11 @@ char const *al_identify_bitmap_f(ALLEGRO_FILE *fp)
  */
 char const *al_identify_bitmap(char const *filename)
 {
+   char const *ext;
    ALLEGRO_FILE *fp = al_fopen(filename, "rb");
    if (!fp)
       return NULL;
-   char const *ext = al_identify_bitmap_f(fp);
+   ext = al_identify_bitmap_f(fp);
    al_fclose(fp);
    return ext;
 }

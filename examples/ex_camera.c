@@ -176,9 +176,10 @@ static void setup_3d_projection(void)
    ALLEGRO_DISPLAY *display = al_get_current_display();
    double dw = al_get_display_width(display);
    double dh = al_get_display_height(display);
+   double f;
    al_identity_transform(&projection);
    al_translate_transform_3d(&projection, 0, 0, -1);
-   double f = tan(ex.camera.vertical_field_of_view / 2);
+   f = tan(ex.camera.vertical_field_of_view / 2);
    al_perspective_transform(&projection, -1 * dw / dh * f, f,
       1,
       f * dw / dh, -f, 1000);
@@ -277,11 +278,13 @@ static void draw_scene(void)
    Camera *c = &ex.camera;
    /* We save Allegro's projection so we can restore it for drawing text. */
    ALLEGRO_TRANSFORM projection = *al_get_current_projection_transform();
-
-   setup_3d_projection();
-
+   ALLEGRO_TRANSFORM t;
    ALLEGRO_COLOR back = al_color_name("black");
    ALLEGRO_COLOR front = al_color_name("white");
+   int th;
+   double pitch, yaw, roll;
+
+   setup_3d_projection();
    al_clear_to_color(back);
 
    /* We use a depth buffer. */
@@ -299,7 +302,6 @@ static void draw_scene(void)
     * translation by the camera position, followed by an inverse rotation
     * from the camera orientation.
     */
-   ALLEGRO_TRANSFORM t;
    al_build_camera_transform(&t, 
       ex.camera.position.x, ex.camera.position.y, ex.camera.position.z,
       ex.camera.position.x - ex.camera.zaxis.x,
@@ -315,13 +317,13 @@ static void draw_scene(void)
    al_use_projection_transform(&projection);
 
    /* Draw some text. */
-   int th = al_get_font_line_height(ex.font);
+   th = al_get_font_line_height(ex.font);
    al_draw_textf(ex.font, front, 0, th * 0, 0,
       "look: %+3.1f/%+3.1f/%+3.1f (change with left mouse button and drag)",
          -c->zaxis.x, -c->zaxis.y, -c->zaxis.z);
-   double pitch = get_pitch(c) * 180 / pi;
-   double yaw = get_yaw(c) * 180 / pi;
-   double roll = get_roll(c) * 180 / pi;
+   pitch = get_pitch(c) * 180 / pi;
+   yaw = get_yaw(c) * 180 / pi;
+   roll = get_roll(c) * 180 / pi;
    al_draw_textf(ex.font, front, 0, th * 1, 0,
       "pitch: %+4.0f yaw: %+4.0f roll: %+4.0f", pitch, yaw, roll);
    al_draw_textf(ex.font, front, 0, th * 2, 0,
@@ -353,6 +355,7 @@ static void setup_scene(void)
 static void handle_input(void)
 {
    double x = 0, y = 0;
+   double xy;
    if (ex.key[ALLEGRO_KEY_A] || ex.key[ALLEGRO_KEY_LEFT]) x = -1;
    if (ex.key[ALLEGRO_KEY_S] || ex.key[ALLEGRO_KEY_DOWN]) y = -1;
    if (ex.key[ALLEGRO_KEY_D] || ex.key[ALLEGRO_KEY_RIGHT]) x = 1;
@@ -360,14 +363,14 @@ static void handle_input(void)
 
    /* Change field of view with Z/X. */
    if (ex.key[ALLEGRO_KEY_Z]) {
-      ex.camera.vertical_field_of_view -= 0.01;
       double m = 20 * pi / 180;
+      ex.camera.vertical_field_of_view -= 0.01;
       if (ex.camera.vertical_field_of_view < m)
          ex.camera.vertical_field_of_view = m;
    }
    if (ex.key[ALLEGRO_KEY_X]) {
-      ex.camera.vertical_field_of_view += 0.01;
       double m = 120 * pi / 180;
+      ex.camera.vertical_field_of_view += 0.01;
       if (ex.camera.vertical_field_of_view > m)
          ex.camera.vertical_field_of_view = m;
    }
@@ -387,7 +390,7 @@ static void handle_input(void)
    }
 
    /* Move the camera, either freely or along the ground. */
-   double xy = sqrt(x * x + y * y);
+   xy = sqrt(x * x + y * y);
    if (xy > 0) {
       x /= xy;
       y /= xy;
@@ -485,11 +488,11 @@ int main(int argc, char **argv)
          ex.keystate[event.keyboard.keycode] = 0;
       }
       else if (event.type == ALLEGRO_EVENT_TIMER) {
+         int i;
          handle_input();
          redraw = 1;
 
          /* Reset keyboard state for keys not held down anymore. */
-         int i;
          for (i = 0; i < ALLEGRO_KEY_MAX; i++) {
             if (ex.keystate[i] == 0)
                ex.key[i] = 0;
