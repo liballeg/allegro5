@@ -153,7 +153,7 @@ bool al_register_bitmap_loader_f(const char *extension,
 /* Function: al_register_bitmap_saver_f
  */
 bool al_register_bitmap_saver_f(const char *extension,
-   bool (fs_saver)(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp))
+   bool (*fs_saver)(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp))
 {
    REGISTER(fs_saver)
 }
@@ -162,7 +162,7 @@ bool al_register_bitmap_saver_f(const char *extension,
 /* Function: al_register_bitmap_identifier
  */
 bool al_register_bitmap_identifier(const char *extension,
-   bool (identifier)(ALLEGRO_FILE *f))
+   bool (*identifier)(ALLEGRO_FILE *f))
 {
    REGISTER(identifier)
 }
