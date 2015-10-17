@@ -214,7 +214,7 @@ if(WANT_DOCS_HTML)
         add_custom_command(
             OUTPUT ${inc}.html
             DEPENDS ${SRC_REFMAN_DIR}/${inc}.txt
-            COMMAND ${PANDOC} ${SRC_REFMAN_DIR}/${inc}.txt -o ${inc}.html
+            COMMAND ${PANDOC} ${SRC_REFMAN_DIR}/${inc}.txt --from markdown -o ${inc}.html
             )
     endforeach(inc)
 
