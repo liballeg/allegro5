@@ -68,7 +68,7 @@ function(pandoc source output) # extraargs...
     add_custom_command(
         OUTPUT  ${abs_output}
         DEPENDS ${abs_source}
-        COMMAND ${PANDOC} ${abs_source_native} --toc --standalone ${ARGN}
+        COMMAND ${PANDOC} ${abs_source_native} --from markdown --toc --standalone ${ARGN}
                 -o ${abs_output}
         )
 endfunction(pandoc source output)
