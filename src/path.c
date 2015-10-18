@@ -104,7 +104,9 @@ static bool parse_path_string(const ALLEGRO_USTR *str, ALLEGRO_PATH *path)
             goto Error;
          }
          al_ustr_assign_substr(path->drive, str, pos, slash);
-         pos = slash + 1;
+         // Note: The slash will be parsed again, so we end up with
+         // "//server/share" and not "//servershare"!
+         pos = slash;
       }
       else {
          /* Drive letter. */
