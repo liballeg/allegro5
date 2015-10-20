@@ -218,7 +218,6 @@ class Allegro:
                     # Probably a function pointer
                     self.types[name] = c_void_p
 
-        # Unions must come last because they finalize the fields.
         protos += unions
 
         # second pass: fill in fields
@@ -442,33 +441,53 @@ else:
             val = int(eval(val, globals(), al.constants))
         f.write(name + " = " + str(val) + "\n")
 
+    structs = set()
+
+    # output everything except structs and unions
     for name, x in sorted(al.types.items()):
         if not name:
             continue
         base = x.__bases__[0]
         if base != Structure and base != Union:
             f.write(name + " = " + x.__name__ + "\n")
+        else:
+             structs.add(name)
 
-    for kind in Structure, Union:
-        for name, x in sorted(al.types.items()):
-            if not x:
-                continue
-            base = x.__bases__[0]
-            if base != kind:
-                continue
-            f.write("class " + name + "(" + base.__name__ + "): pass\n")
-            pt = POINTER(x)
-            f.write("%s = POINTER(%s)\n" % (pt.__name__, name))
+    # order structs and unions by their dependencies
+    structs_list = []
 
-        for name, x in sorted(al.types.items()):
-            base = x.__bases__[0]
-            if base != kind:
-                continue
+    remaining = set(structs)
+    while remaining:
+        for name in sorted(remaining):
+            ok = True
+            x = al.types[name]
             if hasattr(x, "my_fields"):
-                f.write(name + "._fields_ = [\n")
                 for fname, ftype in x.my_fields:
-                    f.write("    (\"" + fname + "\", " + ftype + "),\n")
-                f.write("    ]\n")
+                    if " " in ftype:
+                        ftype = ftype.split()[0]
+                    if ftype in structs and ftype in remaining:
+                        ok = False
+                        break
+            if ok:
+                structs_list.append(name)
+                remaining.remove(name)
+
+    for name in structs_list:
+        x = al.types[name]
+        base = x.__bases__[0]
+        f.write("class " + name + "(" + base.__name__ + "):\n")
+        
+
+        if hasattr(x, "my_fields"):
+            f.write("    _fields_ = [\n")
+            for fname, ftype in x.my_fields:
+                f.write("    (\"" + fname + "\", " + ftype + "),\n")
+            f.write("    ]\n")
+        else:
+            f.write("    pass\n")
+
+        pt = POINTER(x)
+        f.write("%s = POINTER(%s)\n" % (pt.__name__, name))
 
     for name, x in sorted(al.functions.items()):
         try:
