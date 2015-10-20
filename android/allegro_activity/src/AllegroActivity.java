@@ -10,7 +10,9 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.graphics.Rect;
 import android.util.Log;
+import android.view.Display;
 import android.view.SurfaceHolder;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -95,6 +97,26 @@ public class AllegroActivity extends Activity
    String getManufacturer()
    {
       return android.os.Build.MANUFACTURER;
+   }
+
+   Rect getDisplaySize()
+   {
+      Display display = getWindowManager().getDefaultDisplay();
+      Rect size = new Rect();
+   
+      if (android.os.Build.VERSION.SDK_INT >= 13)
+      {
+         display.getRectSize(size);
+      }
+      else
+      {
+         size.left = 0;
+         size.top = 0;
+         size.right = display.getWidth();
+         size.bottom = display.getHeight();
+      }
+
+      return size;
    }
 
    void postRunnable(Runnable runme)
