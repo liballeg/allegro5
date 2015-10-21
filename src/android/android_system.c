@@ -485,7 +485,7 @@ static int android_get_num_video_adapters(void)
 
 static bool android_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
-   if (adapter > android_get_num_video_adapters())
+   if (adapter >= android_get_num_video_adapters())
       return false;
 
    JNIEnv * env = (JNIEnv *)_al_android_get_jnienv();
