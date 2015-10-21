@@ -494,7 +494,9 @@ static bool android_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
    info->x1 = 0;
    info->y1 = 0;
    info->x2 = _jni_callIntMethod(env, rect, "width");
-   info->x2 = _jni_callIntMethod(env, rect, "height");
+   info->y2 = _jni_callIntMethod(env, rect, "height");
+
+   ALLEGRO_DEBUG("Monitor Info: %d:%d", info->x2, info->y2);
 
    return true;
 }
