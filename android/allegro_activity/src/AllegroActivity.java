@@ -335,6 +335,7 @@ public class AllegroActivity extends Activity
    {
       super.onStop();
       Log.d("AllegroActivity", "onStop.");
+      destroySurface();
    }
 
    /** Called when the activity is paused. */
