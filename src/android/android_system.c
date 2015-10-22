@@ -483,6 +483,24 @@ static int android_get_num_video_adapters(void)
    return 1;
 }
 
+static bool android_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
+{
+   if (adapter >= android_get_num_video_adapters())
+      return false;
+
+   JNIEnv * env = (JNIEnv *)_al_android_get_jnienv();
+   jobject rect = _jni_callObjectMethod(env, _al_android_activity_object(), "getDisplaySize", "()Landroid/graphics/Rect;");
+
+   info->x1 = 0;
+   info->y1 = 0;
+   info->x2 = _jni_callIntMethod(env, rect, "width");
+   info->y2 = _jni_callIntMethod(env, rect, "height");
+
+   ALLEGRO_DEBUG("Monitor Info: %d:%d", info->x2, info->y2);
+
+   return true;
+}
+
 static void android_shutdown_system(void)
 {
    ALLEGRO_SYSTEM *s = al_get_system_driver();
@@ -517,6 +535,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_android_interface()
    android_vt->get_touch_input_driver = _al_get_android_touch_input_driver;
    android_vt->get_joystick_driver = android_get_joystick_driver;
    android_vt->get_num_video_adapters = android_get_num_video_adapters;
+   android_vt->get_monitor_info = android_get_monitor_info;
    android_vt->get_path = _al_android_get_path;
    android_vt->shutdown_system = android_shutdown_system;
    android_vt->inhibit_screensaver = android_inhibit_screensaver;
