@@ -2128,10 +2128,10 @@ static bool get_window_constraints(ALLEGRO_DISPLAY* display,
  */
 static void set_window_title(ALLEGRO_DISPLAY *display, const char *title)
 {
-   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) display;
-   [dpy->win setTitle: [NSString stringWithUTF8String:title]];
-   [pool drain];
+   NSString* string = [[NSString alloc] initWithUTF8String:title];
+   [dpy->win performSelectorOnMainThread:@selector(setTitle:) withObject:string waitUntilDone:YES];
+   [string release];
 }
 
 /* set_icons:
