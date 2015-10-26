@@ -103,13 +103,11 @@ public class AllegroActivity extends Activity
    {
       Display display = getWindowManager().getDefaultDisplay();
       Rect size = new Rect();
-   
-      if (android.os.Build.VERSION.SDK_INT >= 13)
-      {
+
+      if (android.os.Build.VERSION.SDK_INT >= 13) {
          display.getRectSize(size);
       }
-      else
-      {
+      else {
          size.left = 0;
          size.top = 0;
          size.right = display.getWidth();
