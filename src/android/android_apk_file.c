@@ -49,6 +49,8 @@ static jobject APK_openRead(const char *filename)
    is = _jni_call(jnienv, jobject, NewObject, _al_android_apk_stream_class(),
       ctor, _al_android_activity_object(), str);
 
+   is = _jni_call(jnienv, jobject, NewGlobalRef, is);
+
    _jni_callv(jnienv, DeleteLocalRef, str);
 
    res = _jni_callBooleanMethodV(_al_android_get_jnienv(), is, "open", "()Z");
@@ -61,7 +63,7 @@ static bool APK_close(jobject apk_stream)
 {
    jboolean ret = _jni_callBooleanMethodV(_al_android_get_jnienv(), apk_stream,
       "close", "()Z");
-   _jni_callv(_al_android_get_jnienv(), DeleteLocalRef, apk_stream);
+   _jni_callv(_al_android_get_jnienv(), DeleteGlobalRef, apk_stream);
 
    if (ret) {
       apk_set_errno(NULL);
