@@ -75,8 +75,11 @@
 #define HID_ELEMENT_HAT                 5
 
 
+/* If we've included IOKit, generate the full definition
+ * otherwise just a forward definition
+ */
+#ifdef _IOKIT_HID_IOHIDLIB_H_
 
-	
 typedef struct HID_ELEMENT
 {
    int type;
@@ -107,6 +110,11 @@ typedef struct
    int capacity;
    HID_DEVICE* devices;
 } HID_DEVICE_COLLECTION;
+#else
+typedef struct HID_ELEMENT HID_ELEMENT;
+typedef struct HID_DEVICE HID_DEVICE;
+typedef struct HID_DEVICE_COLLECTION HID_DEVICE_COLLECTION;
+#endif
 
 int _al_osx_bootstrap_ok(void);
 
