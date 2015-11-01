@@ -119,7 +119,7 @@ JNI_FUNC(void, AllegroSurface, nativeOnChange, (JNIEnv *env, jobject obj,
    ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY*)d;
    ASSERT(display != NULL);
 
-   ALLEGRO_DEBUG("on change!");
+   ALLEGRO_DEBUG("on change %dx%d!", width, height);
    (void)format;
 
    if (!d->first_run && !d->recreate) {
@@ -131,6 +131,10 @@ JNI_FUNC(void, AllegroSurface, nativeOnChange, (JNIEnv *env, jobject obj,
 
    if (d->first_run || d->recreate) {
       d->surface_object = (*env)->NewGlobalRef(env, obj);
+      if (display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+         display->w = width;
+         display->h = height;
+      }
    }
 
    bool ret = _al_android_init_display(env, d);
