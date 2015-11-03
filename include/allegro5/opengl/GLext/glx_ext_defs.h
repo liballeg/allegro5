@@ -503,3 +503,11 @@ typedef XID GLXVideoCaptureDeviceNV;
 #define GLX_COPY_COMPLETE_INTEL            0x8181
 #define GLX_FLIP_COMPLETE_INTEL            0x8182
 #endif
+
+#ifndef GLX_EXT_create_context_es_profile
+#define GLX_EXT_create_context_es_profile
+#define GLX_EXT_create_context_es2_profile
+#define _ALLEGRO_GLX_EXT_create_context_es_profile
+#define GLX_CONTEXT_ES_PROFILE_BIT_EXT		0x00000004
+#define GLX_CONTEXT_ES2_PROFILE_BIT_EXT		0x00000004
+#endif

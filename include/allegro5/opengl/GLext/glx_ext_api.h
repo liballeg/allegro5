@@ -210,3 +210,7 @@ AGL_API(int, SwapIntervalEXT, (Display *dpy, GLXDrawable drawable, int interval)
 #ifdef _ALLEGRO_GLX_NV_copy_image
 AGL_API(void, CopyImageSubDataNV, (Display *dpy, GLXContext srcCtx, GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, GLXContext dstCtx, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei width, GLsizei height, GLsizei depth))
 #endif
+
+#ifdef _ALLEGRO_GLX_EXT_create_context_es_profile
+// no functions
+#endif
