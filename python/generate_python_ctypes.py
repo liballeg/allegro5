@@ -436,10 +436,18 @@ else:
 
 """ % locals())
 
+    postpone = []
+
     for name, val in sorted(al.constants.items()):
-        if isinstance(val, str):
-            val = int(eval(val, globals(), al.constants))
-        f.write(name + " = " + str(val) + "\n")
+        try:
+            if isinstance(val, str):
+                val = int(eval(val, globals(), al.constants))
+            f.write(name + " = " + str(val) + "\n")
+        except:
+            postpone.append((name, val))
+
+    for name, val in postpone:
+        f.write(name + " = " + val + "\n")
 
     structs = set()
 
