@@ -122,12 +122,14 @@ def parse_header(lines, filename):
             brace += subline.count("{")
             brace += subline.count("(")
 
+            if cline:
+                if cline[-1].isalnum():
+                    cline += " "
+            cline += subline
             if brace == 0 and subline.endswith(";") or subline.endswith("}"):
-                cline += subline
+                
                 lines2.append(cline.strip())
                 cline = ""
-            else:
-                cline += subline
 
     for line in lines2:
         line = line.replace("__attribute__((__stdcall__))", "")
