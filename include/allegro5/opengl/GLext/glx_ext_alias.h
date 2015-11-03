@@ -211,3 +211,7 @@
 #ifdef _ALLEGRO_GLX_NV_copy_image
 #define glXCopyImageSubDataNV _al_glXCopyImageSubDataNV
 #endif
+
+#ifdef _ALLEGRO_GLX_EXT_create_context_es_profile
+//nofunctions
+#endif

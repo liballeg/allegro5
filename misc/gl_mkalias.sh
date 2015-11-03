@@ -1,5 +1,5 @@
 #!/bin/sh
-# This script createi '*_ext_alias.h' from '*_ext_api.h' in
+# This script creates '*_ext_alias.h' from '*_ext_api.h' in
 # include/allegro5/opengl/GLext/ dir
 
 prefix="glx wgl gl"

@@ -147,6 +147,12 @@ ALLEGRO_OPENGL_FORWARD_COMPATIBLE
     compatible with Allegro drawing routines; the display option
     ALLEGRO_COMPATIBLE_DISPLAY will be set to false.
 
+ALLEGRO_OPENGL_ES_PROFILE
+:   Used together with ALLEGRO_OPENGL, requests that the OpenGL context
+    uses the OpenGL ES profile. A specific version can be requested
+    with [al_set_new_display_option].
+    Note: Currently this is only supported by the X11/GLX driver.
+
 ALLEGRO_DIRECT3D
 :   Require the driver to do rendering with Direct3D and
     provide a Direct3D device.
@@ -333,6 +339,22 @@ ALLEGRO_SUPPORTED_ORIENTATIONS
     message which should be handled by calling [al_acknowledge_resize].
 
     Since: 5.1.0
+
+ALLEGRO_OPENGL_MAJOR_VERSION
+:   Request a specific OpenGL major version.
+
+    Note: Currently only used in the OpenGL ES profile.
+
+    Since: 5.1.13
+
+ALLEGRO_OPENGL_MINOR_VERSION
+:   Request a specific OpenGL minor version.
+
+    Note: Currently only used in the OpenGL ES profile.
+
+    Since: 5.1.13
+
+    
 
 See also: [al_set_new_display_flags], [al_get_display_option]
 
