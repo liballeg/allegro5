@@ -152,6 +152,7 @@ ALLEGRO_OPENGL_ES_PROFILE
     uses the OpenGL ES profile. A specific version can be requested
     with [al_set_new_display_option].
     Note: Currently this is only supported by the X11/GLX driver.
+    Since: 5.1.13
 
 ALLEGRO_DIRECT3D
 :   Require the driver to do rendering with Direct3D and
@@ -343,14 +344,10 @@ ALLEGRO_SUPPORTED_ORIENTATIONS
 ALLEGRO_OPENGL_MAJOR_VERSION
 :   Request a specific OpenGL major version.
 
-    Note: Currently only used in the OpenGL ES profile.
-
     Since: 5.1.13
 
 ALLEGRO_OPENGL_MINOR_VERSION
 :   Request a specific OpenGL minor version.
-
-    Note: Currently only used in the OpenGL ES profile.
 
     Since: 5.1.13
 

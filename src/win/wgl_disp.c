@@ -916,6 +916,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    ALLEGRO_DISPLAY_WIN *win_disp = (void*)wgl_disp;
    WGL_DISPLAY_PARAMETERS ndp;
    int window_x, window_y;
+   int major, minor;
 
    /* The window is created in a separate thread so we need to pass this
     * TLS on
@@ -955,9 +956,17 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
       return false;
    }
 
-   if (disp->flags & ALLEGRO_OPENGL_3_0) {
+   major = _al_get_suggested_display_option(disp,
+      ALLEGRO_OPENGL_MAJOR_VERSION, 0);
+   minor = _al_get_suggested_display_option(disp,
+      ALLEGRO_OPENGL_MINOR_VERSION, 0);
+
+   if ((disp->flags & ALLEGRO_OPENGL_3_0) || major != 0) {
+      if (major == 0)
+         major = 3;
       bool fc = (disp->flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE) != 0;
-      wgl_disp->glrc = init_ogl_context_ex(wgl_disp->dc, fc, 3, 0);
+      wgl_disp->glrc = init_ogl_context_ex(wgl_disp->dc, fc, major,
+         minor);
    }
    else {
       wgl_disp->glrc = wglCreateContext(wgl_disp->dc);
