@@ -499,7 +499,7 @@ bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu)
     }
 }
 // Get the NSMenuItem corresponding to this ALLEGRO_MENU_ITEM
-- (nullable NSMenuItem*) itemForAllegroItem:(ALLEGRO_MENU_ITEM*) aitem
+- (NSMenuItem*) itemForAllegroItem:(ALLEGRO_MENU_ITEM*) aitem
 {
     int index = _al_vector_find(&self->amenu->items, &aitem);
     if (index >= 0) {
@@ -513,7 +513,7 @@ bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu)
     }
 }
 // Get the ALLEGRO_MENU_ITEM corresponding to this NSMenuItem
-- (nullable ALLEGRO_MENU_ITEM*) allegroItemforItem: (NSMenuItem*) mi
+- (ALLEGRO_MENU_ITEM*) allegroItemforItem: (NSMenuItem*) mi
 {
     unsigned int index = (int) [self.menu indexOfItem:mi];
     if (self->_hasAppMenu) {
