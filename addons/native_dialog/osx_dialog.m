@@ -350,7 +350,7 @@ void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
  * a window becomes main and swaps in the corresponding menu.
  */
 @interface ALLEGTargetManager : NSObject {
-    NSMutableArray<NSDictionary *>* _items;
+    NSMutableArray * _items;
 }
 +(ALLEGTargetManager*) sharedManager;
 -(instancetype) init;
