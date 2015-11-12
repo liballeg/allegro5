@@ -369,6 +369,7 @@ void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
     NSLock* lock;
     ALLEGRO_MENU* amenu;
     BOOL _hasAppMenu;
+    NSMenu* _menu;
 }
 @property (readonly) NSMenu* menu;
 -(instancetype) initWithMenu:(ALLEGRO_MENU*) amenu; // Designated initializer
