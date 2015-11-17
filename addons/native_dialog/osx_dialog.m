@@ -371,7 +371,7 @@ void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
     BOOL _hasAppMenu;
     NSMenu* _menu;
 }
-@property (readonly) NSMenu* menu;
+-(NSMenu*) menu;
 -(instancetype) initWithMenu:(ALLEGRO_MENU*) amenu; // Designated initializer
 -(NSMenu*) menu;
 -(void) show;
@@ -550,7 +550,6 @@ bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu)
 {
     /* This isn't a valid initializer */
     return nil;
-//    return [self initWithMenu:nil];
 }
 // Manage the enabled and checked state (done dynamically by the framework)
 -(BOOL) validateMenuItem:(NSMenuItem *)menuItem {
@@ -567,6 +566,11 @@ bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu)
     [self->lock release];
     [self->_menu release];
     [super dealloc];
+}
+// Get the menu
+-(NSMenu*) menu
+{
+    return self->_menu;
 }
 // Action event when the menu is selected
 -(void) activated:(id)sender {
