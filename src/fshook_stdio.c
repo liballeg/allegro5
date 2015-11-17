@@ -697,8 +697,10 @@ static bool fs_stdio_remove_filename(const char *path)
    bool rc;
 
    fp = fs_stdio_create_entry(path);
-   if (!fp)
+   if (!fp) {
+      ALLEGRO_WARN("Cannot remove %s.", path);
       return false;
+   }
 
    rc = fs_stdio_remove_entry(fp);
    fs_stdio_destroy_entry(fp);
