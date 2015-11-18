@@ -354,6 +354,8 @@ ALLEGRO_KCM_AUDIO_FUNC(bool, al_play_sample, (ALLEGRO_SAMPLE *data,
       float gain, float pan, float speed, ALLEGRO_PLAYMODE loop, ALLEGRO_SAMPLE_ID *ret_id));
 ALLEGRO_KCM_AUDIO_FUNC(void, al_stop_sample, (ALLEGRO_SAMPLE_ID *spl_id));
 ALLEGRO_KCM_AUDIO_FUNC(void, al_stop_samples, (void));
+ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_VOICE *, al_get_default_voice, (void));
+ALLEGRO_KCM_AUDIO_FUNC(void, al_set_default_voice, (ALLEGRO_VOICE *voice));
 
 /* File type handlers */
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_register_sample_loader, (const char *ext,

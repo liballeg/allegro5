@@ -311,6 +311,25 @@ bool al_restore_default_mixer(void)
 }
 
 
+/* Function: al_get_default_voice
+ */
+ALLEGRO_VOICE *al_get_default_voice(void)
+{
+   return allegro_voice;
+}
+
+
+/* Function: al_set_default_voice
+ */
+void al_set_default_voice(ALLEGRO_VOICE *voice)
+{
+   if (allegro_voice) {
+      al_destroy_voice(allegro_voice);
+   }
+   allegro_voice = voice;
+}
+
+
 /* Function: al_play_sample
  */
 bool al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed,

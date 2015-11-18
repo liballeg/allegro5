@@ -701,6 +701,24 @@ Returns true on success, false on error.
 
 See also: [al_get_default_mixer], [al_set_default_mixer], [al_reserve_samples].
 
+### API: al_get_default_voice
+
+Returns the default voice or NULL if there is none.
+
+Since: 5.1.13
+
+See also: [al_get_default_mixer]
+
+### API: al_set_default_voice
+
+You can call this before calling al_create_default_mixer to provide the
+voice which should be used. Any previous voice will be destroyed. You
+can also pass NULL to destroy the current default voice.
+
+Since: 5.1.13
+
+See also: [al_get_default_mixer]
+
 ### API: al_attach_mixer_to_mixer
 
 Attaches the mixer passed as the first argument onto the mixer passed as the
