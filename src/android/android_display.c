@@ -36,7 +36,6 @@ static void _al_android_resize_display(ALLEGRO_DISPLAY_ANDROID *d, int width, in
 static bool _al_android_init_display(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *display);
 void _al_android_clear_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d);
 void  _al_android_make_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d);
-void _al_android_clear_current(JNIEnv *env, ALLEGRO_DISPLAY_ANDROID *d);
 
 JNI_FUNC(void, AllegroSurface, nativeOnCreate, (JNIEnv *env, jobject obj))
 {
@@ -576,6 +575,15 @@ static void android_destroy_display(ALLEGRO_DISPLAY *dpy)
 {
    ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID*)dpy;
 
+   ALLEGRO_DEBUG("clear current");
+
+   if (!d->created) {
+      // if nativeOnDestroy was called (the app switched out) and
+      // then the display is destroyed before the app switches back
+      // in, there is no EGL context to destroy.
+      goto already_deleted;
+   }
+
    _al_android_clear_current(_al_android_get_jnienv(), d);
 
    al_lock_mutex(d->mutex);
@@ -595,6 +603,7 @@ static void android_destroy_display(ALLEGRO_DISPLAY *dpy)
 
    _al_event_source_free(&dpy->es);
 
+already_deleted:
    // XXX: this causes a crash, no idea why as of yet
    //ALLEGRO_DEBUG("destroy backbuffer");
    //_al_ogl_destroy_backbuffer(al_get_backbuffer(dpy));
@@ -623,12 +632,13 @@ static void android_destroy_display(ALLEGRO_DISPLAY *dpy)
 
 static bool android_set_current_display(ALLEGRO_DISPLAY *dpy)
 {
+   ALLEGRO_DEBUG("make current %p", dpy);
+
    if (al_get_current_display() != NULL){
      _al_android_clear_current(_al_android_get_jnienv(),
         (ALLEGRO_DISPLAY_ANDROID *)al_get_current_display());
    }
 
-   ALLEGRO_DEBUG("make current %p", dpy);
    if (dpy) {
       _al_android_make_current(_al_android_get_jnienv(),
          (ALLEGRO_DISPLAY_ANDROID *)dpy);
@@ -670,8 +680,6 @@ static void android_update_display_region(ALLEGRO_DISPLAY *dpy, int x, int y,
 static bool android_acknowledge_resize(ALLEGRO_DISPLAY *dpy)
 {
    ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID *)dpy;
-
-   ALLEGRO_DEBUG("android_acknowledge_resize");
 
    ALLEGRO_DEBUG("clear current context");
    _al_android_clear_current(_al_android_get_jnienv(), d);
@@ -827,8 +835,6 @@ static void android_acknowledge_drawing_resume(ALLEGRO_DISPLAY *dpy)
    unsigned i;
 
    ALLEGRO_DEBUG("begin");
-
-   ALLEGRO_DEBUG("acknowledge_drawing_resume");
 
    ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID *)dpy;
 
