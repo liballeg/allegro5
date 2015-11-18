@@ -477,6 +477,14 @@ handle this automatically. Your program might be doing the drawing in a
 different thread from the event handling, in which case the drawing thread
 needs to be signaled to stop drawing before acknowledging this event.
 
+> *Note:* Mobile devices usually never quit an application, so to
+prevent the battery from draining while your application is halted it
+can be a good idea to call [al_stop_timer] on all your timers, otherwise
+they will keep generating events. If you are using audio, you can also
+stop all audio voices (or pass NULL to [al_set_default_voice] if you use
+the default mixer), otherwise Allegro will keep streaming silence to the
+voice even if the stream or mixer are stopped or detached.
+
 Since: 5.1.0
 
 See also: [ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING]
