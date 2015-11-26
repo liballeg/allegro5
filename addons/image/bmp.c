@@ -924,7 +924,14 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       }
    }
 
-   /* End of header for BITMAPV2INFOHEADER and above. */
+   /* Seek past the end of the header to reach the palette / image data */
+   if (biSize > WININFOHEADERSIZEV3)
+   {
+      if (!al_fseek(f, file_start + 14 + biSize, ALLEGRO_SEEK_SET)) {
+         ALLEGRO_ERROR("Seek error\n");
+         return NULL;
+      }
+   }
 
    /* Read the palette, if any.  Higher bit depth images _may_ have an optional
     * palette but we don't use it and don't read it.
@@ -947,12 +954,6 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
          ALLEGRO_ERROR("EOF or I/O error\n");
          return NULL;
       }
-   }
-
-   /* Skip to the pixel storage. */
-   if (!al_fseek(f, file_start + fileheader.bfOffBits, ALLEGRO_SEEK_SET)) {
-      ALLEGRO_ERROR("Seek error\n");
-      return NULL;
    }
 
    bmp = al_create_bitmap(infoheader.biWidth, abs((int)infoheader.biHeight));
