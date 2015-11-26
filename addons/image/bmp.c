@@ -386,13 +386,15 @@ static void read_32bit_line(int length, ALLEGRO_FILE *f, unsigned char *data,
 /* read_bitfields_image:
  *  For reading the bitfield compressed BMP image format.
  */
-static void read_bitfields_image(ALLEGRO_FILE *f,
+static void read_bitfields_image(ALLEGRO_FILE *f, int flags,
    const BMPINFOHEADER *infoheader, int bpp, ALLEGRO_LOCKED_REGION *lr)
 {
    int k, i, line, height, dir;
    int bytes_per_pixel;
    unsigned long buffer;
    int pix;
+   bool hasAlpha = (infoheader->biAlphaMask == 0xFF000000);
+   bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
    height = infoheader->biHeight;
    line = height < 0 ? 0 : height - 1;
@@ -420,7 +422,7 @@ static void read_bitfields_image(ALLEGRO_FILE *f,
             pix = ALLEGRO_CONVERT_RGB_565_TO_ARGB_8888(buffer);
          }
          else {
-            if (infoheader->biAlphaMask == 0xFF000000) {
+            if (hasAlpha) {
                pix = buffer;
             }
             else {
@@ -432,6 +434,13 @@ static void read_bitfields_image(ALLEGRO_FILE *f,
          data[1] = (pix >> 8) & 255;
          data[0] = (pix >> 16) & 255;
          data[3] = (pix >> 24) & 255;
+
+         if (hasAlpha && premul) {
+            data[0] = data[0] * data[3] / 255;
+            data[1] = data[1] * data[3] / 255;
+            data[2] = data[2] * data[3] / 255;
+         }
+
          data += 4;
       }
 
@@ -1009,7 +1018,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
          break;
 
       case BIT_BITFIELDS:
-         read_bitfields_image(f, &infoheader, bpp, lr);
+         read_bitfields_image(f, flags, &infoheader, bpp, lr);
          break;
 
       default:
