@@ -66,6 +66,9 @@ typedef struct BMPINFOHEADER
    unsigned short biBitCount;
    unsigned long biCompression;
    unsigned long biClrUsed;
+   uint32_t biRedMask;
+   uint32_t biGreenMask;
+   uint32_t biBlueMask;
    bool biHaveAlphaMask;
    uint32_t biAlphaMask;
 } BMPINFOHEADER;
@@ -393,7 +396,7 @@ static void read_bitfields_image(ALLEGRO_FILE *f, int flags,
    int bytes_per_pixel;
    unsigned long buffer;
    int pix;
-   bool hasAlpha = (infoheader->biAlphaMask == 0xFF000000);
+   bool hasAlpha = infoheader->biAlphaMask != 0;
    bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
    height = infoheader->biHeight;
@@ -422,6 +425,9 @@ static void read_bitfields_image(ALLEGRO_FILE *f, int flags,
             pix = ALLEGRO_CONVERT_RGB_565_TO_ARGB_8888(buffer);
          }
          else {
+            if (infoheader->biRedMask == 0xFF000000)
+               buffer = ALLEGRO_CONVERT_RGBA_8888_TO_ARGB_8888(buffer);
+
             if (hasAlpha) {
                pix = buffer;
             }
@@ -798,7 +804,8 @@ static bool alpha_mask_supported(int biCompression, int biBitCount,
    if (biCompression == BIT_BITFIELDS) {
       return (biBitCount == 16 && biAlphaMask == 0x8000)
          || (biBitCount == 24 && biAlphaMask == 0xff000000)
-         || (biBitCount == 32 && biAlphaMask == 0xff000000);
+         || (biBitCount == 32 && biAlphaMask == 0xff000000)
+         || (biBitCount == 32 && biAlphaMask == 0x000000ff);
    }
 
    return false;
@@ -891,23 +898,28 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
    if (infoheader.biCompression == BIT_BITFIELDS
       || biSize >= WININFOHEADERSIZEV2)
    {
-      uint32_t redMask = al_fread32le(f);
-      uint32_t grnMask = al_fread32le(f);
-      uint32_t bluMask = al_fread32le(f);
-
-      (void)grnMask;
+      infoheader.biRedMask = al_fread32le(f);
+      infoheader.biGreenMask = al_fread32le(f);
+      infoheader.biBlueMask = al_fread32le(f);
 
       if (infoheader.biCompression == BIT_BITFIELDS) {
-         if ((bluMask == 0x001f) && (redMask == 0x7C00))
+         if ((infoheader.biBlueMask == 0x001f) &&
+             (infoheader.biRedMask == 0x7C00))
             bpp = 15;
-         else if ((bluMask == 0x001f) && (redMask == 0xF800))
+         else if ((infoheader.biBlueMask == 0x001f) &&
+                  (infoheader.biRedMask == 0xF800))
             bpp = 16;
-         else if ((bluMask == 0x0000FF) && (redMask == 0xFF0000))
+         else if ((infoheader.biBlueMask == 0x0000FF) &&
+                  (infoheader.biRedMask == 0xFF0000))
+            bpp = 32;
+         else if ((infoheader.biBlueMask == 0x0000FF00) &&
+                  (infoheader.biRedMask == 0xFF000000))
             bpp = 32;
          else {
             /* Unrecognised bit masks/depth, refuse to load. */
             ALLEGRO_WARN("Unrecognised RGB masks: %x, %x, %x\n",
-               redMask, grnMask, bluMask);
+               infoheader.biRedMask, infoheader.biGreenMask,
+               infoheader.biBlueMask);
             return NULL;
          }
       }
