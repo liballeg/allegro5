@@ -847,7 +847,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
    BMPFILEHEADER fileheader;
    BMPINFOHEADER infoheader;
    ALLEGRO_BITMAP *bmp;
-   PalEntry pal[256];
+   PalEntry pal[256] = {};
    int64_t file_start;
    int64_t header_start;
    unsigned long biSize;
