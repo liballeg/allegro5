@@ -515,7 +515,7 @@ static bool read_bitfields_image(ALLEGRO_FILE *f, int flags,
          if (hasAlpha) {
             a = ((pixel >> as) & am);
 
-            if (am > 0) a = a * 255 / bm;
+            if (am > 0) a = a * 255 / am;
 
             if (premul) {
                r = r * a / 255;
