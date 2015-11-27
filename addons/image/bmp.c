@@ -111,7 +111,7 @@ static int read_bmfileheader(ALLEGRO_FILE *f, BMPFILEHEADER *fileheader)
    fileheader->bfOffBits = al_fread32le(f);
 
    if (fileheader->bfType != 0x4D42) {
-      ALLEGRO_ERROR("Not BMP format\n");
+      ALLEGRO_WARN("Not BMP format\n");
       return -1;
    }
 
@@ -226,6 +226,38 @@ static void read_1bit_line(int length, ALLEGRO_FILE *f, unsigned char *buf)
          for (k = 0; k < 32; k++) {
             b[31 - k] = (char)(n & 1);
             n = n >> 1;
+         }
+      }
+      buf[i] = b[j];
+   }
+}
+
+
+
+/* read_2bit_line:
+ *  Support function for reading the 2 bit bitmap file format.
+ */
+static void read_2bit_line(int length, ALLEGRO_FILE *f, unsigned char *buf)
+{
+   unsigned char b[16];
+   unsigned long n;
+   int i, j, k;
+   int temp;
+
+   for (i = 0; i < length; i++) {
+      j = i % 16;
+      if (j == 0) {
+         n = al_fread32le(f);
+         for (k = 0; k < 4; k++) {
+            temp = n & 255;
+            b[k * 4 + 3] = temp & 3;
+            temp = temp >> 2;
+            b[k * 4 + 2] = temp & 3;
+            temp = temp >> 2;
+            b[k * 4 + 1] = temp & 3;
+            temp = temp >> 2;
+            b[k * 4] = temp & 3;
+            n = n >> 8;
          }
       }
       buf[i] = b[j];
@@ -538,6 +570,10 @@ static void read_RGB_image(ALLEGRO_FILE *f, int flags,
 
          case 1:
             read_1bit_line(infoheader->biWidth, f, buf);
+            break;
+
+         case 2:
+            read_2bit_line(infoheader->biWidth, f, buf);
             break;
 
          case 4:
@@ -1049,9 +1085,8 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
          break;
 
       case BIT_BITFIELDS:
-         if (!read_bitfields_image(f, flags, &infoheader, lr))
-         {
-            ALLEGRO_ERROR("Bad bitfield encoded BMP\n");
+         if (!read_bitfields_image(f, flags, &infoheader, lr))  {
+            ALLEGRO_WARN("Bad bitfield encoded BMP\n");
             return NULL;
          }
          break;
