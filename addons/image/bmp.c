@@ -955,7 +955,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
    }
 
    /* Read the palette, if any.  Higher bit depth images _may_ have an optional
-    * palette but we don't use it and don't read it.
+    * palette but we don't use it.
     */
    if (infoheader.biCompression != BIT_BITFIELDS
       && infoheader.biBitCount <= 8)
@@ -973,6 +973,16 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       read_palette(ncolors, pal, f, win_flag);
       if (al_feof(f) || al_ferror(f)) {
          ALLEGRO_ERROR("EOF or I/O error\n");
+         return NULL;
+      }
+   }
+   else if (infoheader.biClrUsed && infoheader.biBitCount > 8)
+   {
+      int bytes_per_color = infoheader.biBitCount / 8;
+
+      if (!al_fseek(f, infoheader.biClrUsed * bytes_per_color, ALLEGRO_SEEK_CUR))
+      {
+         ALLEGRO_ERROR("Seek error\n");
          return NULL;
       }
    }
