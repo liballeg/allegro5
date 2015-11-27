@@ -883,7 +883,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
    BMPFILEHEADER fileheader;
    BMPINFOHEADER infoheader;
    ALLEGRO_BITMAP *bmp;
-   PalEntry pal[256] = {};
+   PalEntry pal[256];
    int64_t file_start;
    int64_t header_start;
    unsigned long biSize;
@@ -967,6 +967,15 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       if (!al_fseek(f, file_start + 14 + biSize, ALLEGRO_SEEK_SET)) {
          ALLEGRO_ERROR("Seek error\n");
          return NULL;
+      }
+   }
+
+   if (infoheader.biBitCount <= 8) {
+      for (int i = 0; i < 256; ++i) {
+         pal[i].r = 0;
+         pal[i].g = 0;
+         pal[i].b = 0;
+         pal[i].a = 0;
       }
    }
 
