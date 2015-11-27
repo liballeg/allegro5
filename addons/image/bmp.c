@@ -48,7 +48,7 @@ ALLEGRO_DEBUG_CHANNEL("image")
 
 typedef struct BMPFILEHEADER
 {
-   unsigned long bfType;
+   unsigned short bfType;
    unsigned long bfSize;
    unsigned short bfReserved1;
    unsigned short bfReserved2;
@@ -110,7 +110,7 @@ static int read_bmfileheader(ALLEGRO_FILE *f, BMPFILEHEADER *fileheader)
    fileheader->bfReserved2 = al_fread16le(f);
    fileheader->bfOffBits = al_fread32le(f);
 
-   if (fileheader->bfType != 19778) {
+   if (fileheader->bfType != 0x4D42) {
       ALLEGRO_ERROR("Not BMP format\n");
       return -1;
    }
@@ -946,8 +946,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
    }
 
    /* Seek past the end of the header to reach the palette / image data */
-   if (biSize > WININFOHEADERSIZEV3)
-   {
+   if (biSize > WININFOHEADERSIZEV3) {
       if (!al_fseek(f, file_start + 14 + biSize, ALLEGRO_SEEK_SET)) {
          ALLEGRO_ERROR("Seek error\n");
          return NULL;
@@ -976,22 +975,18 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
          return NULL;
       }
    }
-   else if (infoheader.biClrUsed && infoheader.biBitCount > 8)
-   {
+   else if (infoheader.biClrUsed && infoheader.biBitCount > 8) {
       int bytes_per_color = infoheader.biBitCount / 8;
 
-      if (!al_fseek(f, infoheader.biClrUsed * bytes_per_color, ALLEGRO_SEEK_CUR))
-      {
+      if (!al_fseek(f, infoheader.biClrUsed * bytes_per_color, ALLEGRO_SEEK_CUR)) {
          ALLEGRO_ERROR("Seek error\n");
          return NULL;
       }
    }
 
    /* Skip to the pixel data only if it's outside of the image metadata */
-   if (file_start + (int64_t)fileheader.bfOffBits > al_ftell(f))
-   {
-      if (!al_fseek(f, file_start + fileheader.bfOffBits, ALLEGRO_SEEK_SET))
-      {
+   if (file_start + (int64_t)fileheader.bfOffBits > al_ftell(f)) {
+      if (!al_fseek(f, file_start + fileheader.bfOffBits, ALLEGRO_SEEK_SET)) {
          ALLEGRO_ERROR("Seek error\n");
          return NULL;
       }
@@ -1116,17 +1111,8 @@ bool _al_save_bmp_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 
    bpp = 24;
    filler = 3 - ((w * (bpp / 8) - 1) & 3);
-
-   if (bpp == 8) {
-      biSizeImage = (w + filler) * h;
-      bfSize = (54              /* header */
-                + 256 * 4       /* palette */
-                + biSizeImage); /* image data */
-   }
-   else {
-      biSizeImage = (w * 3 + filler) * h;
-      bfSize = 54 + biSizeImage;        /* header + image data */
-   }
+   biSizeImage = (w * 3 + filler) * h;
+   bfSize = 14 + WININFOHEADERSIZE + biSizeImage;
 
    al_set_errno(0);
 
@@ -1135,19 +1121,15 @@ bool _al_save_bmp_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
    al_fwrite32le(f, bfSize);              /* bfSize */
    al_fwrite16le(f, 0);                   /* bfReserved1 */
    al_fwrite16le(f, 0);                   /* bfReserved2 */
-
-   if (bpp == 8)                /* bfOffBits */
-      al_fwrite32le(f, 54 + 256 * 4);
-   else
-      al_fwrite32le(f, 54);
+   al_fwrite32le(f, 14 + WININFOHEADERSIZE); /* bfOffBits */
 
    /* info_header */
-   al_fwrite32le(f, 40);                  /* biSize */
+   al_fwrite32le(f, WININFOHEADERSIZE);   /* biSize */
    al_fwrite32le(f, w);                   /* biWidth */
    al_fwrite32le(f, h);                   /* biHeight */
    al_fwrite16le(f, 1);                   /* biPlanes */
    al_fwrite16le(f, bpp);                 /* biBitCount */
-   al_fwrite32le(f, 0);                   /* biCompression */
+   al_fwrite32le(f, BIT_RGB);             /* biCompression */
    al_fwrite32le(f, biSizeImage);         /* biSizeImage */
    al_fwrite32le(f, 0xB12);               /* biXPelsPerMeter (0xB12 = 72 dpi) */
    al_fwrite32le(f, 0xB12);               /* biYPelsPerMeter */
@@ -1226,9 +1208,11 @@ bool _al_save_bmp(const char *filename, ALLEGRO_BITMAP *bmp)
 bool _al_identify_bmp(ALLEGRO_FILE *f)
 {
    uint16_t x;
-   uint8_t y[2];
-   al_fread(f, y, 2);
-   if (memcmp(y, "BM", 2) != 0)
+   uint16_t y;
+
+   y = al_fread16le(f);
+
+   if (y != 0x4D42)
       return false;
 
    if (!al_fseek(f, 14 - 2, ALLEGRO_SEEK_CUR))
