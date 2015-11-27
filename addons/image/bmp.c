@@ -971,7 +971,8 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
    }
 
    if (infoheader.biBitCount <= 8) {
-      for (int i = 0; i < 256; ++i) {
+      int i;
+      for (i = 0; i < 256; ++i) {
          pal[i].r = 0;
          pal[i].g = 0;
          pal[i].b = 0;
