@@ -961,12 +961,17 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
    {
       int win_flag = (biSize != OS2INFOHEADERSIZE);
       int ncolors = infoheader.biClrUsed;
+      int extracolors = 0;
+      int bytes_per_color = win_flag ? 4 : 3;
+
       if (ncolors == 0) {
          ncolors = (1 << infoheader.biBitCount);
       }
+
       if (ncolors > 256) {
-         ALLEGRO_ERROR("Too many colors: %d\n", ncolors);
-         return NULL;
+         ALLEGRO_WARN("Too many colors: %d\n", ncolors);
+         ncolors = 256;
+         extracolors = ncolors - 256;
       }
 
       read_palette(ncolors, pal, f, win_flag);
@@ -974,9 +979,15 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
          ALLEGRO_ERROR("EOF or I/O error\n");
          return NULL;
       }
+
+      if (!al_fseek(f, extracolors * bytes_per_color, ALLEGRO_SEEK_SET)) {
+         ALLEGRO_ERROR("Seek error\n");
+         return NULL;
+      }
    }
    else if (infoheader.biClrUsed && infoheader.biBitCount > 8) {
-      int bytes_per_color = infoheader.biBitCount / 8;
+      int win_flag = (biSize != OS2INFOHEADERSIZE);
+      int bytes_per_color = win_flag ? 4 : 3;
 
       if (!al_fseek(f, infoheader.biClrUsed * bytes_per_color, ALLEGRO_SEEK_CUR)) {
          ALLEGRO_ERROR("Seek error\n");
