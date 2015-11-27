@@ -386,25 +386,78 @@ static void read_32bit_line(int length, ALLEGRO_FILE *f, unsigned char *data,
 
 
 
+/* decode_bitfield:
+ *  Converts a bitfield in to a shift+mask pair.
+ *  Returns true if the bitfield was valid
+ */
+static bool decode_bitfield(uint32_t m, int *shift_out, int *mask_out)
+{
+   int shift = 0;
+   int mask = 0;
+
+   if (m == 0) {
+      *shift_out = 0;
+      *mask_out = 0;
+      return true;
+   }
+
+   while ((m & 1) == 0) {
+      m >>= 1;
+      ++shift;
+   }
+
+   while ((m & 1) != 0) {
+      m >>= 1;
+      ++mask;
+   }
+
+   mask = ~(-1 << mask);
+
+   *shift_out = shift;
+   *mask_out = mask;
+
+   return (m == 0);
+}
+
+
+
 /* read_bitfields_image:
  *  For reading the bitfield compressed BMP image format.
+ *  Return false if the bitmasks were invalid
  */
-static void read_bitfields_image(ALLEGRO_FILE *f, int flags,
-   const BMPINFOHEADER *infoheader, int bpp, ALLEGRO_LOCKED_REGION *lr)
+static bool read_bitfields_image(ALLEGRO_FILE *f, int flags,
+   const BMPINFOHEADER *infoheader, ALLEGRO_LOCKED_REGION *lr)
 {
    int k, i, line, height, dir;
    int bytes_per_pixel;
-   unsigned long buffer;
-   int pix;
+   unsigned char buffer[4];
    bool hasAlpha = infoheader->biAlphaMask != 0;
    bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+
+   int rs, gs, bs, as = 0;
+   int rm, gm, bm, am = 0;
+
+   bool valid = true;
+
+   valid = valid && decode_bitfield(infoheader->biRedMask, &rs, &rm);
+   valid = valid && decode_bitfield(infoheader->biGreenMask, &gs, &gm);
+   valid = valid && decode_bitfield(infoheader->biBlueMask, &bs, &bm);
+
+   if (hasAlpha)
+      valid = valid && decode_bitfield(infoheader->biAlphaMask, &as, &am);
+
+   if (!valid)
+      return false;
 
    height = infoheader->biHeight;
    line = height < 0 ? 0 : height - 1;
    dir = height < 0 ? 1 : -1;
    height = abs(height);
 
-   bytes_per_pixel = (bpp + 1) / 8;
+   bytes_per_pixel = (infoheader->biBitCount + 7) / 8;
+
+   if (bytes_per_pixel > 4)
+      return false;
 
    for (i = 0; i < height; i++, line += dir) {
       unsigned char *data = (unsigned char *)lr->data + lr->pitch * line;
@@ -413,39 +466,36 @@ static void read_bitfields_image(ALLEGRO_FILE *f, int flags,
 
          al_fread(f, &buffer, bytes_per_pixel);
 
-         if (bpp == 15) {
-            if (infoheader->biAlphaMask == 0x8000) {
-               pix = ALLEGRO_CONVERT_ARGB_1555_TO_ARGB_8888(buffer);
-            }
-            else {
-               pix = ALLEGRO_CONVERT_RGB_555_TO_ARGB_8888(buffer);
-            }
-         }
-         else if (bpp == 16) {
-            pix = ALLEGRO_CONVERT_RGB_565_TO_ARGB_8888(buffer);
-         }
-         else {
-            if (infoheader->biRedMask == 0xFF000000)
-               buffer = ALLEGRO_CONVERT_RGBA_8888_TO_ARGB_8888(buffer);
+         unsigned int pixel = ((unsigned int)(buffer[3]) << 24)
+                            | ((unsigned int)(buffer[2]) << 16)
+                            | ((unsigned int)(buffer[1]) << 8)
+                            |  (unsigned int)(buffer[0]);
 
-            if (hasAlpha) {
-               pix = buffer;
-            }
-            else {
-               pix = ALLEGRO_CONVERT_XRGB_8888_TO_ARGB_8888(buffer);
+         int r = ((pixel >> rs) & rm);
+         int g = ((pixel >> gs) & gm);
+         int b = ((pixel >> bs) & bm);
+         int a = 255;
+
+         if (rm > 0) r = r * 255 / rm;
+         if (gm > 0) g = g * 255 / gm;
+         if (bm > 0) b = b * 255 / bm;
+
+         if (hasAlpha) {
+            a = ((pixel >> as) & am);
+
+            if (am > 0) a = a * 255 / bm;
+
+            if (premul) {
+               r = r * a / 255;
+               g = g * a / 255;
+               b = b * a / 255;
             }
          }
 
-         data[2] = pix & 255;
-         data[1] = (pix >> 8) & 255;
-         data[0] = (pix >> 16) & 255;
-         data[3] = (pix >> 24) & 255;
-
-         if (hasAlpha && premul) {
-            data[0] = data[0] * data[3] / 255;
-            data[1] = data[1] * data[3] / 255;
-            data[2] = data[2] * data[3] / 255;
-         }
+         data[0] = r;
+         data[1] = g;
+         data[2] = b;
+         data[3] = a;
 
          data += 4;
       }
@@ -457,8 +507,9 @@ static void read_bitfields_image(ALLEGRO_FILE *f, int flags,
             al_fgetc(f);
       }
    }
-}
 
+   return true;
+}
 
 
 /* read_RGB_image:
@@ -785,34 +836,6 @@ static void read_RLE4_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
 
 
 
-/* alpha_mask_supported:
- *  Return true if we support the combination of compressed, bit depth
- *  and alpha mask.
- */
-static bool alpha_mask_supported(int biCompression, int biBitCount,
-   uint32_t biAlphaMask)
-{
-   if (biAlphaMask == 0) {
-      return true;
-   }
-
-   if (biCompression == BIT_RGB) {
-      return (biBitCount == 24 && biAlphaMask == 0xff000000)
-         || (biBitCount == 32 && biAlphaMask == 0xff000000);
-   }
-
-   if (biCompression == BIT_BITFIELDS) {
-      return (biBitCount == 16 && biAlphaMask == 0x8000)
-         || (biBitCount == 24 && biAlphaMask == 0xff000000)
-         || (biBitCount == 32 && biAlphaMask == 0xff000000)
-         || (biBitCount == 32 && biAlphaMask == 0x000000ff);
-   }
-
-   return false;
-}
-
-
-
 /*  Like load_bmp, but starts loading from the current place in the ALLEGRO_FILE
  *  specified. If successful the offset into the file will be left just after
  *  the image data. If unsuccessful the offset into the file is unspecified,
@@ -830,7 +853,6 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
    unsigned long biSize;
    unsigned char *buf = NULL;
    ALLEGRO_LOCKED_REGION *lr;
-   int bpp;
    bool keep_index = INT_TO_BOOL(flags & ALLEGRO_KEEP_INDEX);
 
    ASSERT(f);
@@ -882,15 +904,6 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       return NULL;
    }
 
-   if (infoheader.biBitCount == 24)
-      bpp = 24;
-   else if (infoheader.biBitCount == 16)
-      bpp = 16;
-   else if (infoheader.biBitCount == 32)
-      bpp = 32;
-   else
-      bpp = 8;
-
    /* In BITMAPINFOHEADER (V1) the RGB bit masks are not part of the header.
     * In BITMAPV2INFOHEADER they form part of the header, but only valid when
     * for BITFIELDS images.
@@ -901,28 +914,6 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       infoheader.biRedMask = al_fread32le(f);
       infoheader.biGreenMask = al_fread32le(f);
       infoheader.biBlueMask = al_fread32le(f);
-
-      if (infoheader.biCompression == BIT_BITFIELDS) {
-         if ((infoheader.biBlueMask == 0x001f) &&
-             (infoheader.biRedMask == 0x7C00))
-            bpp = 15;
-         else if ((infoheader.biBlueMask == 0x001f) &&
-                  (infoheader.biRedMask == 0xF800))
-            bpp = 16;
-         else if ((infoheader.biBlueMask == 0x0000FF) &&
-                  (infoheader.biRedMask == 0xFF0000))
-            bpp = 32;
-         else if ((infoheader.biBlueMask == 0x0000FF00) &&
-                  (infoheader.biRedMask == 0xFF000000))
-            bpp = 32;
-         else {
-            /* Unrecognised bit masks/depth, refuse to load. */
-            ALLEGRO_WARN("Unrecognised RGB masks: %x, %x, %x\n",
-               infoheader.biRedMask, infoheader.biGreenMask,
-               infoheader.biBlueMask);
-            return NULL;
-         }
-      }
    }
 
    /* BITMAPV3INFOHEADER and above include an Alpha bit mask. */
@@ -933,16 +924,6 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
    else {
       infoheader.biHaveAlphaMask = true;
       infoheader.biAlphaMask = al_fread32le(f);
-
-      if (!alpha_mask_supported(infoheader.biCompression,
-            infoheader.biBitCount, infoheader.biAlphaMask))
-      {
-         ALLEGRO_WARN(
-            "Unsupported: compression=%ld, bit count=%d, alpha mask=%x\n",
-            infoheader.biCompression, infoheader.biBitCount,
-            infoheader.biAlphaMask);
-         return NULL;
-      }
    }
 
    /* Seek past the end of the header to reach the palette / image data */
@@ -1021,7 +1002,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       return NULL;
    }
 
-   if (bpp == 8 && keep_index) {
+   if (infoheader.biBitCount <= 8 && keep_index) {
       lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8,
          ALLEGRO_LOCK_WRITEONLY);
    }
@@ -1068,7 +1049,11 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
          break;
 
       case BIT_BITFIELDS:
-         read_bitfields_image(f, flags, &infoheader, bpp, lr);
+         if (!read_bitfields_image(f, flags, &infoheader, lr))
+         {
+            ALLEGRO_ERROR("Bad bitfield encoded BMP\n");
+            return NULL;
+         }
          break;
 
       default:
