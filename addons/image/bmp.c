@@ -964,8 +964,20 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       int extracolors = 0;
       int bytes_per_color = win_flag ? 4 : 3;
 
-      if (ncolors == 0) {
-         ncolors = (1 << infoheader.biBitCount);
+      if (win_flag) {
+         if (ncolors == 0) {
+            ncolors = (1 << infoheader.biBitCount);
+         }
+      }
+      else {
+         /* detect palette size for OS2v1 format BMP files */
+         if (ncolors == 0) {
+            ncolors = (fileheader.bfOffBits - 14 - OS2INFOHEADERSIZE) / 3;
+         }
+
+         if (ncolors == 0) {
+            ALLEGRO_WARN("No palette in OS2v1 BMP file!\n");
+         }
       }
 
       if (ncolors > 256) {
