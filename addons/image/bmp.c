@@ -977,6 +977,16 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       }
    }
 
+   /* Skip to the pixel data only if it's outside of the image metadata */
+   if (file_start + (int64_t)fileheader.bfOffBits > al_ftell(f))
+   {
+      if (!al_fseek(f, file_start + fileheader.bfOffBits, ALLEGRO_SEEK_SET))
+      {
+         ALLEGRO_ERROR("Seek error\n");
+         return NULL;
+      }
+   }
+
    bmp = al_create_bitmap(infoheader.biWidth, abs((int)infoheader.biHeight));
    if (!bmp) {
       ALLEGRO_ERROR("Failed to create bitmap\n");
