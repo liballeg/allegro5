@@ -135,6 +135,7 @@ static void configure_logging(void)
       else if (!strcmp(v, "warn")) trace_info.level = 2;
       else if (!strcmp(v, "info")) trace_info.level = 1;
       else if (!strcmp(v, "debug")) trace_info.level = 0;
+      else if (!strcmp(v, "none")) trace_info.level = 9999;
    }
 
    v = al_get_config_value(config, "trace", "timestamps");
