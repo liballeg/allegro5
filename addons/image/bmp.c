@@ -384,11 +384,35 @@ static void read_24bit_line(int length, ALLEGRO_FILE *f, unsigned char *data)
 
 
 /* read_32bit_line:
- *  Support function for reading the 32 bit bitmap file format,
- *  treating fourth byte as alpha.
+ *  Support function for reading the 32 bit bitmap file format.
  */
-static void read_32bit_line(int length, ALLEGRO_FILE *f, unsigned char *data,
-   int flags)
+static void read_32bit_line(int length, ALLEGRO_FILE *f, unsigned char *data)
+{
+   int i;
+   unsigned char c[4];
+   unsigned char r, g, b;
+
+   for (i = 0; i < length; i++) {
+      al_fread(f, c, 4);
+      r = c[2];
+      g = c[1];
+      b = c[0];
+
+      data[0] = r;
+      data[1] = g;
+      data[2] = b;
+      data[3] = 0xFF;
+      data += 4;
+   }
+}
+
+
+
+/* read_32bit_alpha_line:
+ *  Support function for reading the 32 bit bitmap file format.
+ */
+static void read_32bit_alpha_line(int length, ALLEGRO_FILE *f, unsigned char *data,
+   int as, int am, int flags)
 {
    int i;
    unsigned char c[4];
@@ -400,8 +424,14 @@ static void read_32bit_line(int length, ALLEGRO_FILE *f, unsigned char *data,
       r = c[2];
       g = c[1];
       b = c[0];
-      a = c[3];
-      
+
+      unsigned int pixel = ((unsigned int)(c[3]) << 24)
+                         | ((unsigned int)(c[2]) << 16)
+                         | ((unsigned int)(c[1]) << 8)
+                         |  (unsigned int)(c[0]);
+
+      a = ((pixel >> as) & am) * 255 / am;
+
       if (premul) {
          r = r * a / 255;
          g = g * a / 255;
@@ -544,9 +574,10 @@ static bool read_bitfields_image(ALLEGRO_FILE *f, int flags,
 }
 
 
+
 /* read_RGB_image:
  *  For reading the non-compressed BMP image format (all except 32-bit with
- *  alpha hack).
+ *  alpha).
  */
 static void read_RGB_image(ALLEGRO_FILE *f, int flags,
    const BMPINFOHEADER *infoheader, PalEntry *pal, ALLEGRO_LOCKED_REGION *lr)
@@ -593,7 +624,7 @@ static void read_RGB_image(ALLEGRO_FILE *f, int flags,
             break;
 
          case 32:
-            read_32bit_line(infoheader->biWidth, f, data, flags);
+            read_32bit_line(infoheader->biWidth, f, data);
             break;
       }
       if (infoheader->biBitCount <= 8) {
@@ -614,6 +645,41 @@ static void read_RGB_image(ALLEGRO_FILE *f, int flags,
    }
 
    al_free(buf);
+}
+
+
+
+/* read_RGB_alpha_image:
+ *  For reading the non-compressed BMP image format (32-bit with alpha)
+ *  Return false if the alpha mask was invalid
+ */
+static bool read_RGB_alpha_image(ALLEGRO_FILE *f, int flags,
+   const BMPINFOHEADER *infoheader, ALLEGRO_LOCKED_REGION *lr)
+{
+   int i, line, height, dir;
+   unsigned char *buf;
+   unsigned char *data;
+
+   int as, am;
+
+   if (!decode_bitfield(infoheader->biAlphaMask, &as, &am))
+      return false;
+
+   height = infoheader->biHeight;
+   line = height < 0 ? 0 : height - 1;
+   dir = height < 0 ? 1 : -1;
+   height = abs(height);
+
+   buf = al_malloc(infoheader->biWidth);
+
+   for (i = 0; i < height; i++, line += dir) {
+      data = (unsigned char *)lr->data + lr->pitch * line;
+      read_32bit_alpha_line(infoheader->biWidth, f, data, as, am, flags);
+   }
+
+   al_free(buf);
+
+   return true;
 }
 
 
@@ -1081,6 +1147,12 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
          if (infoheader.biBitCount == 32 && !infoheader.biHaveAlphaMask) {
             read_RGB_image_32bit_alpha_hack(f, flags, &infoheader, lr);
          }
+         else if (infoheader.biBitCount == 32 && infoheader.biAlphaMask != 0) {
+            if (!read_RGB_alpha_image(f, flags, &infoheader, lr)) {
+               ALLEGRO_WARN("Invalid BMP alpha mask\n");
+               return NULL;
+            }
+         }
          else {
             read_RGB_image(f, flags, &infoheader, pal, lr);
          }
@@ -1095,7 +1167,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
          break;
 
       case BIT_BITFIELDS:
-         if (!read_bitfields_image(f, flags, &infoheader, lr))  {
+         if (!read_bitfields_image(f, flags, &infoheader, lr)) {
             ALLEGRO_WARN("Bad bitfield encoded BMP\n");
             return NULL;
          }
