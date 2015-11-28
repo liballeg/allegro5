@@ -167,6 +167,7 @@ AL_FUNC(bool,                  al_get_opengl_texture_size,       (ALLEGRO_BITMAP
                                                                   int *w, int *h));
 AL_FUNC(void,                  al_get_opengl_texture_position,   (ALLEGRO_BITMAP *bitmap,
                                                                   int *u, int *v));
+AL_FUNC(GLuint,                al_get_opengl_program_object,     (ALLEGRO_SHADER *shader));
 AL_FUNC(void,                  al_set_current_opengl_context,    (ALLEGRO_DISPLAY *display));
 AL_FUNC(int,                   al_get_opengl_variant,            (void));
 

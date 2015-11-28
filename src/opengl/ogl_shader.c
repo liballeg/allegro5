@@ -498,5 +498,20 @@ void _al_glsl_unuse_shaders(void)
 
 #endif
 
+/* Function: al_get_opengl_program_object
+ */
+GLuint al_get_opengl_program_object(ALLEGRO_SHADER *shader)
+{
+   ASSERT(shader);
+#ifdef ALLEGRO_CFG_SHADER_GLSL
+   if (shader->platform != ALLEGRO_SHADER_GLSL)
+      return 0;
+
+   return ((ALLEGRO_SHADER_GLSL_S *)shader)->program_object;
+#else
+   return 0;
+#endif
+}
+
 
 /* vim: set sts=3 sw=3 et: */

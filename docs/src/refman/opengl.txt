@@ -102,6 +102,11 @@ used texture, in pixels.
 
 See also: [al_get_opengl_texture_size]
 
+## API: al_get_opengl_program_object
+
+Returns the OpenGL program object associated with this shader, if the platform
+is `ALLEGRO_SHADER_GLSL`. Otherwise, returns 0.
+
 ## API: al_get_opengl_fbo
 
 Returns the OpenGL FBO id internally used by the given bitmap if it uses one,
