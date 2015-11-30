@@ -196,9 +196,9 @@ extern JNI_FUNC(bool, AllegroSurface, nativeOnDestroy, (JNIEnv *env, jobject obj
 extern JNI_FUNC(void, AllegroSurface, nativeOnChange, (JNIEnv *env, jobject obj,
          jint format, jint width, jint height));
 extern JNI_FUNC(int, AllegroInputStream, nativeRead, (JNIEnv *env, jobject obj,
-         int handle, jbyteArray array, int offset, int length));
+         intptr_t handle, jbyteArray array, int offset, int length));
 extern JNI_FUNC(void, AllegroInputStream, nativeClose, (JNIEnv *env, jobject obj,
-         int handle));
+         intptr_t handle));
 extern JNI_FUNC(void, KeyListener, nativeOnKeyDown, (JNIEnv *env, jobject obj,
          jint scancode, jint unichar));
 extern JNI_FUNC(void, KeyListener, nativeOnKeyUp, (JNIEnv *env, jobject obj,

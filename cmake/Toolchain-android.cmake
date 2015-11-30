@@ -30,13 +30,15 @@ find_program(CMAKE_MAKE_PROGRAM make)
 
 #setup build targets, mutually exclusive
 set(PossibleArmTargets
-  "x86;armeabi;armeabi-v7a;armeabi-v7a with NEON")
+  "x86;x86_64;armeabi;armeabi-v7a;armeabi-v7a with NEON")
 set(ARM_TARGETS "armeabi-v7a" CACHE STRING 
     "the arm targets for android, recommend armeabi-v7a 
     for floating point support and NEON.")
 
 if(ARM_TARGETS STREQUAL "x86")
     set(ANDROID_ARCH "i686-linux-android")
+elseif(ARM_TARGETS STREQUAL "x86_64")
+    set(ANDROID_ARCH "x86_64-linux-android")
 else()
     set(ANDROID_ARCH "arm-linux-androideabi")
 endif()
@@ -85,6 +87,11 @@ elseif(ARM_TARGETS STREQUAL "x86")
        CACHE PATH "path for android libs" FORCE)
   set(  CMAKE_INSTALL_PREFIX ${ANDROID_NDK_TOOLCHAIN_ROOT}/user/x86
       CACHE STRING "path for installing" FORCE)
+elseif(ARM_TARGETS STREQUAL "x86_64")
+  set( LIBRARY_OUTPUT_PATH ${LIBRARY_OUTPUT_PATH_ROOT}/libs/x86_64
+       CACHE PATH "path for android libs" FORCE)
+  set(  CMAKE_INSTALL_PREFIX ${ANDROID_NDK_TOOLCHAIN_ROOT}/user/x86_64
+      CACHE STRING "path for installing" FORCE)
 else()
   if(ARM_TARGETS STREQUAL "armeabi-v7a with NEON")
     set(NEON true)
@@ -109,6 +116,9 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 
 if(ARM_TARGETS STREQUAL "x86")
+  SET(CMAKE_CXX_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -Wno-psabi")
+  SET(CMAKE_C_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -Wno-psabi")
+elseif(ARM_TARGETS STREQUAL "x86_64")
   SET(CMAKE_CXX_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -Wno-psabi")
   SET(CMAKE_C_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -Wno-psabi")
 else()

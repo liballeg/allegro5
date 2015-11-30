@@ -27,6 +27,15 @@
 
 ALLEGRO_DEBUG_CHANNEL("opengl")
 
+/* FIXME: For some reason x86_64 Android crashes for me when calling
+ * glBlendColor - so adding this hack to disable it.
+ */
+#ifdef ALLEGRO_ANDROID
+#if __x86_64__
+#define ALLEGRO_ANDROID_HACK_X86_64
+#endif
+#endif
+
 bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
 {
    int op, src_color, dst_color, op_alpha, src_alpha, dst_alpha;
@@ -67,7 +76,9 @@ bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
 #endif
       glEnable(GL_BLEND);
 #if defined(ALLEGRO_CFG_OPENGLES2) || !defined(ALLEGRO_CFG_OPENGLES)
+   #ifndef ALLEGRO_ANDROID_HACK_X86_64
       glBlendColor(const_color.r, const_color.g, const_color.b, const_color.a);
+   #endif
 #endif
       glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
          blend_modes[src_alpha], blend_modes[dst_alpha]);
@@ -84,7 +95,9 @@ bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
       if (src_color == src_alpha && dst_color == dst_alpha) {
          glEnable(GL_BLEND);
 #if defined(ALLEGRO_CFG_OPENGLES2) || !defined(ALLEGRO_CFG_OPENGLES)
+   #ifndef ALLEGRO_ANDROID_HACK_X86_64
          glBlendColor(const_color.r, const_color.g, const_color.b, const_color.a);
+   #endif
 #endif
          glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
       }
