@@ -1006,6 +1006,33 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       return NULL;
    }
 
+   if (infoheader.biBitCount != 1 && infoheader.biBitCount != 2 && infoheader.biBitCount != 4 &&
+       infoheader.biBitCount != 8 && infoheader.biBitCount != 16 && infoheader.biBitCount != 24 &&
+       infoheader.biBitCount != 32)
+   {
+      ALLEGRO_WARN("unsupported bit depth: %d\n", infoheader.biBitCount);
+      return NULL;
+   }
+
+   if (infoheader.biCompression == BIT_RLE4 && infoheader.biBitCount != 4)
+   {
+      ALLEGRO_WARN("unsupported bit depth for RLE4 compression: %d\n", infoheader.biBitCount);
+      return NULL;
+   }
+
+   if (infoheader.biCompression == BIT_RLE8 && infoheader.biBitCount != 8)
+   {
+      ALLEGRO_WARN("unsupported bit depth for RLE8 compression: %d\n", infoheader.biBitCount);
+      return NULL;
+   }
+
+   if (infoheader.biCompression == BIT_BITFIELDS && 
+      infoheader.biBitCount != 16 && infoheader.biBitCount != 24 && infoheader.biBitCount != 32)
+   {
+      ALLEGRO_WARN("unsupported bit depth for bitfields compression: %d\n", infoheader.biBitCount);
+      return NULL;
+   }
+
    /* In BITMAPINFOHEADER (V1) the RGB bit masks are not part of the header.
     * In BITMAPV2INFOHEADER they form part of the header, but only valid when
     * for BITFIELDS images.
