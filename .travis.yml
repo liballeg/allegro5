@@ -31,7 +31,7 @@ script:
          cmake .. -DWANT_SHADERS_GL=$WANT_SHADERS_GL
          make
          . ../tests/grab_bitmap_suites.sh
-         find ../tests -name 'test_*.ini' | grep -v 'compressed' | xargs tests/test_driver | tee /tmp/test_out
+         find ../tests -name '*.ini' | grep -v 'compressed' | xargs tests/test_driver | tee /tmp/test_out
          grep -q 'failed tests: 0' /tmp/test_out
       elif [ `uname` = "Darwin" ]; then
          cmake .. -DWANT_SHADERS_GL=$WANT_SHADERS_GL -G Xcode
