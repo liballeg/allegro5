@@ -98,7 +98,8 @@ typedef struct OS2BMPINFOHEADER
 } OS2BMPINFOHEADER;
 
 
-typedef void(*bmp_line_fn)(ALLEGRO_FILE *f, char *buf, char *data, int width);
+typedef void(*bmp_line_fn)(ALLEGRO_FILE *f, char *buf, char *data,
+   int length, bool premul);
 
 
 
@@ -284,7 +285,8 @@ static void read_palette(int ncolors, PalEntry *pal, ALLEGRO_FILE *f,
 /* read_1bit_line:
  *  Support function for reading the 1 bit bitmap file format.
  */
-static void read_1bit_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
+static void read_1bit_line(ALLEGRO_FILE *f, char *buf, char *data,
+   int length, bool premul)
 {
    int i, j;
    unsigned char *ucbuf = (unsigned char *)buf;
@@ -306,7 +308,8 @@ static void read_1bit_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
 /* read_2bit_line:
  *  Support function for reading the 2 bit bitmap file format.
  */
-static void read_2bit_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
+static void read_2bit_line(ALLEGRO_FILE *f, char *buf, char *data,
+   int length, bool premul)
 {
    int i;
    unsigned char *ucbuf = (unsigned char *)buf;
@@ -329,7 +332,8 @@ static void read_2bit_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
 /* read_4bit_line:
  *  Support function for reading the 4 bit bitmap file format.
  */
-static void read_4bit_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
+static void read_4bit_line(ALLEGRO_FILE *f, char *buf, char *data,
+   int length, bool premul)
 {
    int i;
    unsigned char *ucbuf = (unsigned char *)buf;
@@ -350,7 +354,8 @@ static void read_4bit_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
 /* read_8bit_line:
  *  Support function for reading the 8 bit bitmap file format.
  */
-static void read_8bit_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
+static void read_8bit_line(ALLEGRO_FILE *f, char *buf, char *data,
+   int length, bool premul)
 {
    size_t bytes_wanted = (length + 3) & ~3;
 
@@ -363,7 +368,8 @@ static void read_8bit_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
 /* read_16_rgb_555_line:
  *  Support function for reading the 16 bit / RGB555 bitmap file format.
  */
-static void read_16_rgb_555_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
+static void read_16_rgb_555_line(ALLEGRO_FILE *f, char *buf, char *data,
+   int length, bool premul)
 {
    int i;
    uint16_t *buf16 = (uint16_t *)buf;
@@ -383,7 +389,8 @@ static void read_16_rgb_555_line(ALLEGRO_FILE *f, char *buf, char *data, int len
 /* read_16_argb_1555_line:
  *  Support function for reading the 16 bit / ARGB1555 bitmap file format.
  */
-static void read_16_argb_1555_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
+static void read_16_argb_1555_line(ALLEGRO_FILE *f, char *buf, char *data,
+   int length, bool premul)
 {
    int i;
    uint16_t *buf16 = (uint16_t *)buf;
@@ -395,6 +402,9 @@ static void read_16_argb_1555_line(ALLEGRO_FILE *f, char *buf, char *data, int l
 
    for (i = 0; i < length; ++i) {
       data32[i] = ALLEGRO_CONVERT_ARGB_1555_TO_ABGR_8888_LE(buf16[i]);
+
+      if (premul && (buf16[i] & 0x8000))
+         data32[i] = 0x00;
    }
 }
 
@@ -403,7 +413,8 @@ static void read_16_argb_1555_line(ALLEGRO_FILE *f, char *buf, char *data, int l
 /* read_16_rgb_565_line:
  *  Support function for reading the 16 bit / RGB565 bitmap file format.
  */
-static void read_16_rgb_565_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
+static void read_16_rgb_565_line(ALLEGRO_FILE *f, char *buf, char *data,
+   int length, bool premul)
 {
    int i;
    uint16_t *buf16 = (uint16_t *)buf;
@@ -423,7 +434,8 @@ static void read_16_rgb_565_line(ALLEGRO_FILE *f, char *buf, char *data, int len
 /* read_24_rgb_888_line:
  *  Support function for reading the 24 bit / RGB888 bitmap file format.
  */
-static void read_24_rgb_888_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
+static void read_24_rgb_888_line(ALLEGRO_FILE *f, char *buf, char *data,
+   int length, bool premul)
 {
    int bi, i;
    unsigned char *ucbuf = (unsigned char *)buf;
@@ -467,7 +479,8 @@ static void read_24_rgb_888_line(ALLEGRO_FILE *f, char *buf, char *data, int len
 /* read_32_xrgb_8888_line:
  *  Support function for reading the 32 bit / XRGB8888 bitmap file format.
  */
-static void read_32_xrgb_8888_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
+static void read_32_xrgb_8888_line(ALLEGRO_FILE *f, char *buf, char *data,
+   int length, bool premul)
 {
    int i;
    uint32_t *buf32 = (uint32_t *)buf;
@@ -487,7 +500,8 @@ static void read_32_xrgb_8888_line(ALLEGRO_FILE *f, char *buf, char *data, int l
 /* read_32_rgbx_8888_line:
  *  Support function for reading the 32 bit / RGBX8888 bitmap file format.
  */
-static void read_32_rgbx_8888_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
+static void read_32_rgbx_8888_line(ALLEGRO_FILE *f, char *buf, char *data,
+   int length, bool premul)
 {
    int i;
    uint32_t *buf32 = (uint32_t *)buf;
@@ -507,7 +521,8 @@ static void read_32_rgbx_8888_line(ALLEGRO_FILE *f, char *buf, char *data, int l
 /* read_32_argb_8888_line:
  *  Support function for reading the 32 bit / ARGB8888 bitmap file format.
  */
-static void read_32_argb_8888_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
+static void read_32_argb_8888_line(ALLEGRO_FILE *f, char *buf, char *data,
+   int length, bool premul)
 {
    int i;
    uint32_t *buf32 = (uint32_t *)buf;
@@ -518,7 +533,15 @@ static void read_32_argb_8888_line(ALLEGRO_FILE *f, char *buf, char *data, int l
    memset(buf + bytes_read, 0, bytes_wanted - bytes_read);
 
    for (i = 0; i < length; i++) {
+      uint32_t a = (buf32[i] & 0xFF000000U);
       data32[i] = ALLEGRO_CONVERT_ARGB_8888_TO_ABGR_8888_LE(buf32[i]);
+
+      if (premul && a != 0xFF000000U)
+      {
+         data32[i*4+1] = data32[i*4+1] * a / 255;
+         data32[i*4+2] = data32[i*4+2] * a / 255;
+         data32[i*4+3] = data32[i*4+3] * a / 255;
+      }
    }
 }
 
@@ -527,7 +550,8 @@ static void read_32_argb_8888_line(ALLEGRO_FILE *f, char *buf, char *data, int l
 /* read_32_rgba_8888_line:
  *  Support function for reading the 32 bit / RGBA8888 bitmap file format.
  */
-static void read_32_rgba_8888_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
+static void read_32_rgba_8888_line(ALLEGRO_FILE *f, char *buf, char *data,
+   int length, bool premul)
 {
    int i;
    uint32_t *buf32 = (uint32_t *)buf;
@@ -538,7 +562,15 @@ static void read_32_rgba_8888_line(ALLEGRO_FILE *f, char *buf, char *data, int l
    memset(buf + bytes_read, 0, bytes_wanted - bytes_read);
 
    for (i = 0; i < length; i++) {
+      uint32_t a = (buf32[i] & 0x00000000FFU);
       data32[i] = ALLEGRO_CONVERT_RGBA_8888_TO_ABGR_8888_LE(buf32[i]);
+
+      if (premul && a != 0x00000000FFU)
+      {
+         data32[i*4] = data32[i*4] * a / 255;
+         data32[i*4+1] = data32[i*4+1] * a / 255;
+         data32[i*4+2] = data32[i*4+2] * a / 255;
+      }
    }
 }
 
@@ -554,6 +586,7 @@ static bool read_RGB_image(ALLEGRO_FILE *f, int flags,
    int i, line, height, width, dir;
    size_t linesize;
    char *linebuf;
+   bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
    height = infoheader->biHeight;
    width = infoheader->biWidth;
@@ -568,8 +601,7 @@ static bool read_RGB_image(ALLEGRO_FILE *f, int flags,
 
    linebuf = al_malloc(linesize);
 
-   if (!linebuf)
-   {
+   if (!linebuf) {
       ALLEGRO_WARN("Failed to allocate pixel row buffer\n");
       return false;
    }
@@ -580,7 +612,7 @@ static bool read_RGB_image(ALLEGRO_FILE *f, int flags,
 
    for (i = 0; i < height; i++, line += dir) {
       char *data = (char *)lr->data + lr->pitch * line;
-      fn(f, linebuf, data, width);
+      fn(f, linebuf, data, width, premul);
    }
 
    al_free(linebuf);
@@ -625,7 +657,7 @@ static bool read_RGB_paletted_image(ALLEGRO_FILE *f, int flags,
 
    for (i = 0; i < height; i++, line += dir) {
       char *data = (char *)lr->data + lr->pitch * line;
-      fn(f, linebuf, data, width);
+      fn(f, linebuf, data, width, false);
 
       for (j = 0; j < width; ++j) {
          unsigned char idx = linebuf[j];
@@ -808,72 +840,76 @@ static bool read_bitfields_image(ALLEGRO_FILE *f, int flags,
 static bool read_RGB_image_32bit_alpha_hack(ALLEGRO_FILE *f, int flags,
    const BMPINFOHEADER *infoheader, ALLEGRO_LOCKED_REGION *lr)
 {
-   int i, j, line, height, dir;
-   unsigned char *data;
-   unsigned char r, g, b, a;
-   unsigned char have_alpha = 0;
+   int i, j, line, height, width, dir;
+   int have_alpha = 0;
+   size_t linesize;
+   char *linebuf;
    const bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
    height = infoheader->biHeight;
+   width = infoheader->biWidth;
+
+   // Includes enough space to read the padding for a line
+   linesize = infoheader->biWidth | 3;
+
+   if (infoheader->biBitCount < 8)
+      linesize *= (8 / infoheader->biBitCount);
+   else
+      linesize *= (infoheader->biBitCount / 8);
+
+   linebuf = al_malloc(linesize);
+
+   if (!linebuf) {
+      ALLEGRO_WARN("Failed to allocate pixel row buffer\n");
+      return false;
+   }
+
    line = height < 0 ? 0 : height - 1;
    dir = height < 0 ? 1 : -1;
    height = abs(height);
 
-   /* Read data. */
    for (i = 0; i < height; i++, line += dir) {
-      data = (unsigned char *)lr->data + lr->pitch * line;
+      unsigned char *data = (unsigned char *)lr->data + lr->pitch * line;
 
-      for (j = 0; j < (int)infoheader->biWidth; j++) {
-         b = al_fgetc(f);
-         g = al_fgetc(f);
-         r = al_fgetc(f);
-         a = al_fgetc(f);
-         have_alpha |= a;
+      /* Don't premultiply alpha here or the image will come out all black */
+      read_32_argb_8888_line(f, linebuf, data, width, false);
 
-         data[0] = r;
-         data[1] = g;
-         data[2] = b;
-         data[3] = a;
-         data += 4;
+      /* Check the alpha values of every pixel in the row */
+      for (j = 0; j < width; j++) {
+         have_alpha |= ((data[j*4+3] & 0xFF) != 0);
       }
    }
 
-   /* Fixup pass. */
+   /* Fixup pass - make imague opaque or premultiply alpha */
    if (!have_alpha) {
-      for (i = 0; i < height; i++) {
-         data = (unsigned char *)lr->data + lr->pitch * i;
-         for (j = 0; j < (int)infoheader->biWidth; j++) {
-            data[3] = 255; /* a */
-            data += 4;
+      line = height < 0 ? 0 : height - 1;
+
+      for (i = 0; i < height; i++, line += dir) {
+         unsigned char *data = (unsigned char *)lr->data + lr->pitch * line;
+
+         for (j = 0; j < width; j++) {
+            data[j*4+3] |= 0xFF;
          }
       }
    }
    else if (premul) {
-      for (i = 0; i < height; i++) {
-         data = (unsigned char *)lr->data + lr->pitch * i;
-         for (j = 0; j < (int)infoheader->biWidth; j++) {
-            r = data[0];
-            g = data[1];
-            b = data[2];
-            a = data[3];
+      line = height < 0 ? 0 : height - 1;
 
-            r = r * a / 255;
-            g = g * a / 255;
-            b = b * a / 255;
+      for (i = 0; i < height; i++, line += dir) {
+         unsigned char *data = (unsigned char *)lr->data + lr->pitch * line;
 
-            data[0] = r;
-            data[1] = g;
-            data[2] = b;
-            data[3] = a;
-            data += 4;
+         for (j = 0; j < width; j++) {
+            data[j*4+0] = data[j*4+0] * data[j*4+3] / 255;
+            data[j*4+1] = data[j*4+1] * data[j*4+3] / 255;
+            data[j*4+2] = data[j*4+2] * data[j*4+3] / 255;
          }
       }
    }
 
+   al_free(linebuf);
+
    return true;
 }
-
-
 
 /* read_RLE8_compressed_image:
  *  For reading the 8 bit RLE compressed BMP image format.
