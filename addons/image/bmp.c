@@ -840,7 +840,7 @@ static bool read_bitfields_image(ALLEGRO_FILE *f, int flags,
 static bool read_RGB_image_32bit_alpha_hack(ALLEGRO_FILE *f, int flags,
    const BMPINFOHEADER *infoheader, ALLEGRO_LOCKED_REGION *lr)
 {
-   int i, j, line, height, width, dir;
+   int i, j, line, startline, height, width, dir;
    int have_alpha = 0;
    size_t linesize;
    char *linebuf;
@@ -864,7 +864,7 @@ static bool read_RGB_image_32bit_alpha_hack(ALLEGRO_FILE *f, int flags,
       return false;
    }
 
-   line = height < 0 ? 0 : height - 1;
+   line = startline = height < 0 ? 0 : height - 1;
    dir = height < 0 ? 1 : -1;
    height = abs(height);
 
@@ -882,7 +882,7 @@ static bool read_RGB_image_32bit_alpha_hack(ALLEGRO_FILE *f, int flags,
 
    /* Fixup pass - make imague opaque or premultiply alpha */
    if (!have_alpha) {
-      line = height < 0 ? 0 : height - 1;
+      line = startline;
 
       for (i = 0; i < height; i++, line += dir) {
          unsigned char *data = (unsigned char *)lr->data + lr->pitch * line;
@@ -893,7 +893,7 @@ static bool read_RGB_image_32bit_alpha_hack(ALLEGRO_FILE *f, int flags,
       }
    }
    else if (premul) {
-      line = height < 0 ? 0 : height - 1;
+      line = startline;
 
       for (i = 0; i < height; i++, line += dir) {
          unsigned char *data = (unsigned char *)lr->data + lr->pitch * line;
