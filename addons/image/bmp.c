@@ -538,9 +538,9 @@ static void read_32_argb_8888_line(ALLEGRO_FILE *f, char *buf, char *data,
 
       if (premul && a != 0xFF000000U)
       {
-         data32[i*4+1] = data32[i*4+1] * a / 255;
-         data32[i*4+2] = data32[i*4+2] * a / 255;
-         data32[i*4+3] = data32[i*4+3] * a / 255;
+         data[i*4+1] = data[i*4+1] * a / 255;
+         data[i*4+2] = data[i*4+2] * a / 255;
+         data[i*4+3] = data[i*4+3] * a / 255;
       }
    }
 }
@@ -567,9 +567,9 @@ static void read_32_rgba_8888_line(ALLEGRO_FILE *f, char *buf, char *data,
 
       if (premul && a != 0x00000000FFU)
       {
-         data32[i*4] = data32[i*4] * a / 255;
-         data32[i*4+1] = data32[i*4+1] * a / 255;
-         data32[i*4+2] = data32[i*4+2] * a / 255;
+         data[i*4] = data[i*4] * a / 255;
+         data[i*4+1] = data[i*4+1] * a / 255;
+         data[i*4+2] = data[i*4+2] * a / 255;
       }
    }
 }
