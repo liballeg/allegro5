@@ -46,7 +46,6 @@ ALLEGRO_DEBUG_CHANNEL("image")
 #define WININFOHEADERSIZEV4   108
 #define WININFOHEADERSIZEV5   124
 
-
 typedef struct BMPFILEHEADER
 {
    unsigned short bfType;
@@ -97,6 +96,9 @@ typedef struct OS2BMPINFOHEADER
    unsigned short biPlanes;
    unsigned short biBitCount;
 } OS2BMPINFOHEADER;
+
+
+typedef void(*bmp_line_fn)(ALLEGRO_FILE *f, char *buf, char *data, int width);
 
 
 
@@ -189,18 +191,15 @@ static int read_os2_bminfoheader(ALLEGRO_FILE *f, BMPINFOHEADER *infoheader)
 
 
 /* decode_bitfield:
- *  Converts a bitfield in to a shift+mask pair.
- *  Returns true if the bitfield was valid
+ *  Converts a bitfield in to a shift+mask pair
  */
-static bool decode_bitfield(uint_fast32_t m, int *shift_out, uint_fast32_t *mask_out)
+static void decode_bitfield(uint_fast32_t m, int *shift_out, uint_fast32_t *mask_out)
 {
    int shift = 0;
-   uint_fast32_t mask = 0;
 
    if (m == 0) {
       *shift_out = 0;
       *mask_out = 0;
-      return true;
    }
 
 #ifdef __GNUC__
@@ -213,16 +212,8 @@ static bool decode_bitfield(uint_fast32_t m, int *shift_out, uint_fast32_t *mask
    }
 #endif
 
-   mask = m;
-
-   while ((m & 1) != 0) {
-      m >>= 1;
-   }
-
    *shift_out = shift;
-   *mask_out = mask;
-
-   return (m == 0);
+   *mask_out = m;
 }
 
 
@@ -293,22 +284,20 @@ static void read_palette(int ncolors, PalEntry *pal, ALLEGRO_FILE *f,
 /* read_1bit_line:
  *  Support function for reading the 1 bit bitmap file format.
  */
-static void read_1bit_line(int length, ALLEGRO_FILE *f, unsigned char *buf)
+static void read_1bit_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
 {
-   unsigned char b[32];
-   unsigned long n;
-   int i, j, k;
+   int i, j;
+   unsigned char *ucbuf = (unsigned char *)buf;
+   size_t bytes_wanted = ((length + 7) / 8 + 3) & ~3;
 
-   for (i = 0; i < length; i++) {
-      j = i % 32;
-      if (j == 0) {
-         n = (uint32_t)al_fread32be(f);
-         for (k = 0; k < 32; k++) {
-            b[31 - k] = (char)(n & 1);
-            n = n >> 1;
-         }
-      }
-      buf[i] = b[j];
+   size_t bytes_read = al_fread(f, ucbuf, bytes_wanted);
+   memset(ucbuf + bytes_read, 0, bytes_wanted - bytes_read);
+
+   for (i = (length - 1) / 8; i >= 0; --i) {
+      unsigned char x = ucbuf[i];
+
+      for (j = 0; j < 8; ++j)
+         ucbuf[i*8 + 7 - j] = (x & (1 << j)) >> j;
    }
 }
 
@@ -317,30 +306,21 @@ static void read_1bit_line(int length, ALLEGRO_FILE *f, unsigned char *buf)
 /* read_2bit_line:
  *  Support function for reading the 2 bit bitmap file format.
  */
-static void read_2bit_line(int length, ALLEGRO_FILE *f, unsigned char *buf)
+static void read_2bit_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
 {
-   unsigned char b[16];
-   unsigned long n;
-   int i, j, k;
-   int temp;
+   int i;
+   unsigned char *ucbuf = (unsigned char *)buf;
+   size_t bytes_wanted = ((length + 3) / 4 + 3) & ~3;
 
-   for (i = 0; i < length; i++) {
-      j = i % 16;
-      if (j == 0) {
-         n = (uint32_t)al_fread32le(f);
-         for (k = 0; k < 4; k++) {
-            temp = n & 255;
-            b[k * 4 + 3] = temp & 3;
-            temp = temp >> 2;
-            b[k * 4 + 2] = temp & 3;
-            temp = temp >> 2;
-            b[k * 4 + 1] = temp & 3;
-            temp = temp >> 2;
-            b[k * 4] = temp & 3;
-            n = n >> 8;
-         }
-      }
-      buf[i] = b[j];
+   size_t bytes_read = al_fread(f, ucbuf, bytes_wanted);
+   memset(ucbuf + bytes_read, 0, bytes_wanted - bytes_read);
+
+   for (i = (length - 1) / 4; i >= 0; --i) {
+      unsigned char x = ucbuf[i];
+      ucbuf[i*4]   = (x & 0xC0) >> 6;
+      ucbuf[i*4+1] = (x & 0x30) >> 4;
+      ucbuf[i*4+2] = (x & 0x0C) >> 2;
+      ucbuf[i*4+3] = (x & 0x03);
    }
 }
 
@@ -349,26 +329,19 @@ static void read_2bit_line(int length, ALLEGRO_FILE *f, unsigned char *buf)
 /* read_4bit_line:
  *  Support function for reading the 4 bit bitmap file format.
  */
-static void read_4bit_line(int length, ALLEGRO_FILE *f, unsigned char *buf)
+static void read_4bit_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
 {
-   unsigned char b[8];
-   unsigned long n;
-   int i, j, k;
-   int temp;
+   int i;
+   unsigned char *ucbuf = (unsigned char *)buf;
+   size_t bytes_wanted = ((length + 1) / 2 + 3) & ~3;
 
-   for (i = 0; i < length; i++) {
-      j = i % 8;
-      if (j == 0) {
-         n = (uint32_t)al_fread32le(f);
-         for (k = 0; k < 4; k++) {
-            temp = n & 255;
-            b[k * 2 + 1] = temp & 15;
-            temp = temp >> 4;
-            b[k * 2] = temp & 15;
-            n = n >> 8;
-         }
-      }
-      buf[i] = b[j];
+   size_t bytes_read = al_fread(f, ucbuf, bytes_wanted);
+   memset(ucbuf + bytes_read, 0, bytes_wanted - bytes_read);
+
+   for (i = (length - 1) / 2; i >= 0; --i) {
+      unsigned char x = ucbuf[i];
+      ucbuf[i*2]   = (x & 0xF0) >> 4;
+      ucbuf[i*2+1] = (x & 0x0F);
    }
 }
 
@@ -377,253 +350,383 @@ static void read_4bit_line(int length, ALLEGRO_FILE *f, unsigned char *buf)
 /* read_8bit_line:
  *  Support function for reading the 8 bit bitmap file format.
  */
-static void read_8bit_line(int length, ALLEGRO_FILE *f, unsigned char *buf)
+static void read_8bit_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
 {
-   unsigned char b[4];
-   unsigned long n;
-   int i, j, k;
+   size_t bytes_wanted = (length + 3) & ~3;
 
-   for (i = 0; i < length; i++) {
-      j = i % 4;
-      if (j == 0) {
-         n = (uint32_t)al_fread32le(f);
-         for (k = 0; k < 4; k++) {
-            b[k] = (char)(n & 255);
-            n = n >> 8;
-         }
-      }
-      buf[i] = b[j];
+   size_t bytes_read = al_fread(f, buf, bytes_wanted);
+   memset(buf + bytes_read, 0, bytes_wanted - bytes_read);
+}
+
+
+
+/* read_16_rgb_555_line:
+ *  Support function for reading the 16 bit / RGB555 bitmap file format.
+ */
+static void read_16_rgb_555_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
+{
+   int i;
+   uint16_t *buf16 = (uint16_t *)buf;
+   uint32_t *data32 = (uint32_t *)data;
+   size_t bytes_wanted = (length + (length & 1)) * 2;
+
+   size_t bytes_read = al_fread(f, buf, bytes_wanted);
+   memset(buf + bytes_read, 0, bytes_wanted - bytes_read);
+
+   for (i = 0; i < length; ++i) {
+      data32[i] = ALLEGRO_CONVERT_RGB_555_TO_ABGR_8888_LE(buf16[i]);
    }
 }
 
 
 
-/* read_16bit_line:
- *  Support function for reading the 16 bit bitmap file format.
+/* read_16_argb_1555_line:
+ *  Support function for reading the 16 bit / ARGB1555 bitmap file format.
  */
-static void read_16bit_line(int length, ALLEGRO_FILE *f, unsigned char *data,
-   int as, uint_fast32_t am, int flags)
+static void read_16_argb_1555_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
 {
    int i;
-   uint_fast16_t w;
-   uint_fast32_t r, g, b, a;
-   int padding = (length & 1) * 2;
-   bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+   uint16_t *buf16 = (uint16_t *)buf;
+   uint32_t *data32 = (uint32_t *)data;
+   size_t bytes_wanted = (length + (length & 1)) * 2;
 
-   for (i = 0; i < length; i++) {
-      w = (uint16_t)al_fread16le(f);
+   size_t bytes_read = al_fread(f, buf, bytes_wanted);
+   memset(buf + bytes_read, 0, bytes_wanted - bytes_read);
 
-      /* the format is like a 15-bpp bitmap, not 16bpp */
-      r = _al_rgb_scale_5[(w >> 10) & 0x1f];
-      g = _al_rgb_scale_5[(w >> 5) & 0x1f];
-      b = _al_rgb_scale_5[w & 0x1f];
-
-      switch (am)
-      {
-         case 0x00:
-            a = 0xFF;
-            break;
-
-         case 0x01:
-            a = ((w >> as) & am) * 255;
-            break;
-
-         case 0x1F:
-            a = _al_rgb_scale_5[((w >> as) & am)];
-            break;
-
-         case 0xFF:
-            a = ((w >> as) & am);
-            break;
-
-         default:
-            a = ((w >> as) & am) * 255 / am;
-      }
-
-      if (am && premul) {
-         r = r * a / 255;
-         g = g * a / 255;
-         b = b * a / 255;
-      }
-
-      data[0] = r;
-      data[1] = g;
-      data[2] = b;
-      data[3] = a;
-      data += 4;
+   for (i = 0; i < length; ++i) {
+      data32[i] = ALLEGRO_CONVERT_ARGB_1555_TO_ABGR_8888_LE(buf16[i]);
    }
-
-   al_fseek(f, padding, ALLEGRO_SEEK_CUR);
 }
 
 
 
-/* read_24bit_line:
- *  Support function for reading the 24 bit bitmap file format.
+/* read_16_rgb_565_line:
+ *  Support function for reading the 16 bit / RGB565 bitmap file format.
  */
-static void read_24bit_line(int length, ALLEGRO_FILE *f, unsigned char *data,
-   int as, uint_fast32_t am, int flags)
+static void read_16_rgb_565_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
 {
    int i;
-   unsigned char c[3];
-   uint_fast32_t r, g, b, a;
-   int padding = (length & 3);
-   bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+   uint16_t *buf16 = (uint16_t *)buf;
+   uint32_t *data32 = (uint32_t *)data;
+   size_t bytes_wanted = (length + (length & 1)) * 2;
+
+   size_t bytes_read = al_fread(f, buf, bytes_wanted);
+   memset(buf + bytes_read, 0, bytes_wanted - bytes_read);
 
    for (i = 0; i < length; i++) {
-      al_fread(f, c, 3);
-      r = c[2];
-      g = c[1];
-      b = c[0];
-
-      uint_fast32_t pixel = (r << 16) | (g << 8) | b;
-
-      switch (am)
-      {
-         case 0x00:
-            a = 0xFF;
-            break;
-
-         case 0x01:
-            a = ((pixel >> as) & am) * 255;
-            break;
-
-         case 0xFF:
-            a = ((pixel >> as) & am);
-            break;
-
-         default:
-            a = ((pixel >> as) & am) * 255 / am;
-      }
-
-      if (am && premul) {
-         r = r * a / 255;
-         g = g * a / 255;
-         b = b * a / 255;
-      }
-
-      data[0] = r;
-      data[1] = g;
-      data[2] = b;
-      data[3] = a;
-      data += 4;
+      data32[i] = ALLEGRO_CONVERT_RGB_565_TO_ABGR_8888_LE(buf16[i]);
    }
-
-   al_fseek(f, padding, ALLEGRO_SEEK_CUR);
 }
 
 
 
-/* read_32bit_line:
- *  Support function for reading the 32 bit bitmap file format.
+/* read_24_rgb_888_line:
+ *  Support function for reading the 24 bit / RGB888 bitmap file format.
  */
-static void read_32bit_line(int length, ALLEGRO_FILE *f, unsigned char *data,
-   int as, uint_fast32_t am, int flags)
+static void read_24_rgb_888_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
+{
+   int bi, i;
+   unsigned char *ucbuf = (unsigned char *)buf;
+   uint32_t *buf32 = (uint32_t *)buf;
+   uint32_t *data32 = (uint32_t *)data;
+   size_t bytes_wanted = length * 3 + (length & 3);
+
+   size_t bytes_read = al_fread(f, buf, bytes_wanted);
+   memset(buf + bytes_read, 0, bytes_wanted - bytes_read);
+
+   for (i = 0, bi = 0; i < (length & ~3); i += 4, bi += 3) {
+      uint32_t a = buf32[bi];   // BGRB [LE:BRGB]
+      uint32_t b = buf32[bi+1]; // GRBG [LE:GBRG]
+      uint32_t c = buf32[bi+2]; // RBGR [LE:RGBR]
+
+#ifdef ALLEGRO_BIG_ENDIAN
+      NOT_IMPLEMENTED;
+#else
+      uint32_t w = a;
+      uint32_t x = (a >> 24) | (b << 8);
+      uint32_t y = (b >> 16) | (c << 16);
+      uint32_t z = (c >> 8);
+#endif
+
+      data32[i]   = ALLEGRO_CONVERT_RGB_888_TO_ABGR_8888_LE(w);
+      data32[i+1] = ALLEGRO_CONVERT_RGB_888_TO_ABGR_8888_LE(x);
+      data32[i+2] = ALLEGRO_CONVERT_RGB_888_TO_ABGR_8888_LE(y);
+      data32[i+3] = ALLEGRO_CONVERT_RGB_888_TO_ABGR_8888_LE(z);
+   }
+
+   bi *= 4;
+
+   for (; i < length; i++, bi += 3) {
+      uint32_t pixel = ucbuf[bi] | (ucbuf[bi+1] << 8) | (ucbuf[bi+2] << 16);
+      data32[i] = ALLEGRO_CONVERT_RGB_888_TO_ABGR_8888_LE(pixel);
+   }
+}
+
+
+
+/* read_32_xrgb_8888_line:
+ *  Support function for reading the 32 bit / XRGB8888 bitmap file format.
+ */
+static void read_32_xrgb_8888_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
 {
    int i;
-   unsigned char c[4];
-   uint_fast32_t r, g, b, a;
-   bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
+   uint32_t *buf32 = (uint32_t *)buf;
+   uint32_t *data32 = (uint32_t *)data;
+   size_t bytes_wanted = length * 4;
+
+   size_t bytes_read = al_fread(f, buf, bytes_wanted);
+   memset(buf + bytes_read, 0, bytes_wanted - bytes_read);
 
    for (i = 0; i < length; i++) {
-      al_fread(f, c, 4);
-      r = c[2];
-      g = c[1];
-      b = c[0];
-
-      uint_fast32_t pixel = (r << 16) | (g << 8) | b;
-
-      switch (am)
-      {
-         case 0x00:
-            a = 0xFF;
-            break;
-
-         case 0x01:
-            a = ((pixel >> as) & am) * 255;
-            break;
-
-         case 0xFF:
-            a = ((pixel >> as) & am);
-            break;
-
-         default:
-            a = ((pixel >> as) & am) * 255 / am;
-      }
-
-      if (am && premul) {
-         r = r * a / 255;
-         g = g * a / 255;
-         b = b * a / 255;
-      }
-
-      data[0] = r;
-      data[1] = g;
-      data[2] = b;
-      data[3] = a;
-      data += 4;
+      data32[i] = ALLEGRO_CONVERT_XRGB_8888_TO_ABGR_8888_LE(buf32[i]);
    }
+}
+
+
+
+/* read_32_rgbx_8888_line:
+ *  Support function for reading the 32 bit / RGBX8888 bitmap file format.
+ */
+static void read_32_rgbx_8888_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
+{
+   int i;
+   uint32_t *buf32 = (uint32_t *)buf;
+   uint32_t *data32 = (uint32_t *)data;
+   size_t bytes_wanted = length * 4;
+
+   size_t bytes_read = al_fread(f, buf, bytes_wanted);
+   memset(buf + bytes_read, 0, bytes_wanted - bytes_read);
+
+   for (i = 0; i < length; i++) {
+      data32[i] = ALLEGRO_CONVERT_RGBX_8888_TO_ABGR_8888_LE(buf32[i]);
+   }
+}
+
+
+
+/* read_32_argb_8888_line:
+ *  Support function for reading the 32 bit / ARGB8888 bitmap file format.
+ */
+static void read_32_argb_8888_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
+{
+   int i;
+   uint32_t *buf32 = (uint32_t *)buf;
+   uint32_t *data32 = (uint32_t *)data;
+   size_t bytes_wanted = length * 4;
+
+   size_t bytes_read = al_fread(f, buf, bytes_wanted);
+   memset(buf + bytes_read, 0, bytes_wanted - bytes_read);
+
+   for (i = 0; i < length; i++) {
+      data32[i] = ALLEGRO_CONVERT_ARGB_8888_TO_ABGR_8888_LE(buf32[i]);
+   }
+}
+
+
+
+/* read_32_rgba_8888_line:
+ *  Support function for reading the 32 bit / RGBA8888 bitmap file format.
+ */
+static void read_32_rgba_8888_line(ALLEGRO_FILE *f, char *buf, char *data, int length)
+{
+   int i;
+   uint32_t *buf32 = (uint32_t *)buf;
+   uint32_t *data32 = (uint32_t *)data;
+   size_t bytes_wanted = length * 4;
+
+   size_t bytes_read = al_fread(f, buf, bytes_wanted);
+   memset(buf + bytes_read, 0, bytes_wanted - bytes_read);
+
+   for (i = 0; i < length; i++) {
+      data32[i] = ALLEGRO_CONVERT_RGBA_8888_TO_ABGR_8888_LE(buf32[i]);
+   }
+}
+
+
+
+/* read_RGB_image:
+ *  For reading the standard BMP image format
+ */
+static bool read_RGB_image(ALLEGRO_FILE *f, int flags,
+   const BMPINFOHEADER *infoheader, ALLEGRO_LOCKED_REGION *lr,
+   bmp_line_fn fn)
+{
+   int i, line, height, width, dir;
+   size_t linesize;
+   char *linebuf;
+
+   height = infoheader->biHeight;
+   width = infoheader->biWidth;
+
+   // Includes enough space to read the padding for a line
+   linesize = infoheader->biWidth | 3;
+
+   if (infoheader->biBitCount < 8)
+      linesize *= (8 / infoheader->biBitCount);
+   else
+      linesize *= (infoheader->biBitCount / 8);
+
+   linebuf = al_malloc(linesize);
+
+   if (!linebuf)
+   {
+      ALLEGRO_WARN("Failed to allocate pixel row buffer\n");
+      return false;
+   }
+
+   line = height < 0 ? 0 : height - 1;
+   dir = height < 0 ? 1 : -1;
+   height = abs(height);
+
+   for (i = 0; i < height; i++, line += dir) {
+      char *data = (char *)lr->data + lr->pitch * line;
+      fn(f, linebuf, data, width);
+   }
+
+   al_free(linebuf);
+
+   return true;
+}
+
+
+
+/* read_RGB_paletted_image:
+ *  For reading the standard palette mapped BMP image format
+ */
+static bool read_RGB_paletted_image(ALLEGRO_FILE *f, int flags,
+   const BMPINFOHEADER *infoheader, PalEntry* pal,
+   ALLEGRO_LOCKED_REGION *lr, bmp_line_fn fn)
+{
+   int i, j, line, height, width, dir;
+   size_t linesize;
+   char *linebuf;
+
+   height = infoheader->biHeight;
+   width = infoheader->biWidth;
+
+   // Includes enough space to read the padding for a line
+   linesize = width | 3;
+
+   if (infoheader->biBitCount < 8)
+      linesize *= (8 / infoheader->biBitCount);
+   else
+      linesize *= (infoheader->biBitCount / 8);
+
+   linebuf = al_malloc(linesize);
+
+   if (!linebuf) {
+      ALLEGRO_WARN("Failed to allocate pixel row buffer\n");
+      return false;
+   }
+
+   line = height < 0 ? 0 : height - 1;
+   dir = height < 0 ? 1 : -1;
+   height = abs(height);
+
+   for (i = 0; i < height; i++, line += dir) {
+      char *data = (char *)lr->data + lr->pitch * line;
+      fn(f, linebuf, data, width);
+
+      for (j = 0; j < width; ++j) {
+         unsigned char idx = linebuf[j];
+         data[j*4] = pal[idx].r;
+         data[j*4 + 1] = pal[idx].g;
+         data[j*4 + 2] = pal[idx].b;
+         data[j*4 + 3] = pal[idx].a;
+      }
+   }
+
+   al_free(linebuf);
+
+   return true;
+}
+
+
+
+/* generate_scale_table:
+ *  Helper function to generate color tables for bitfield format bitmaps.
+ */
+static void generate_scale_table(int* table, int entries)
+{
+   int i;
+
+   for (i = 0; i < entries; ++i)
+      table[i] = i * 255 / (entries - 1);
 }
 
 
 
 /* read_bitfields_image:
- *  For reading the bitfield compressed BMP image format.
- *  Return false if the bitmasks were invalid
+ *  For reading the generic bitfield compressed BMP image format
  */
 static bool read_bitfields_image(ALLEGRO_FILE *f, int flags,
    const BMPINFOHEADER *infoheader, ALLEGRO_LOCKED_REGION *lr)
 {
-   enum
-   {
-      FORMAT_GENERIC,
-      FORMAT_555,
-      FORMAT_1555,
-      FORMAT_565,
-      FORMAT_888,
-      FORMAT_8888
-   };
-
-   int i, k, line, height, dir;
-   int bytes_per_pixel = (infoheader->biBitCount + 7) / 8;
-   unsigned char buffer[4];
-   bool hasAlpha = infoheader->biAlphaMask != 0;
+   int i, k, line, height, width, dir;
+   size_t linesize, bytes_read;
+   unsigned char *linebuf;
+   int bytes_per_pixel = infoheader->biBitCount / 8;
    bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
-   int format = FORMAT_GENERIC;
-   int padding = (infoheader->biWidth * bytes_per_pixel) & 3;
 
-   int rs, gs, bs, as = 0;
-   uint_fast32_t rm, gm, bm, am = 0;
+   int rs, gs, bs, as;
+   uint_fast32_t rm, gm, bm, am;
 
-   bool valid = true;
-
-   if (infoheader->biRedMask == 0x00007C00U && infoheader->biGreenMask == 0x000003E0U &&
-       infoheader->biBlueMask == 0x0000001FU && infoheader->biAlphaMask == 0x00000000U)
-      format = FORMAT_555;
-   else if (infoheader->biRedMask == 0x00007C00U && infoheader->biGreenMask == 0x000003E0U &&
-            infoheader->biBlueMask == 0x0000001FU && infoheader->biAlphaMask == 0x00008000U)
-      format = FORMAT_1555;
-   else if (infoheader->biRedMask == 0x0000F800U && infoheader->biGreenMask == 0x000007E0U &&
-            infoheader->biBlueMask == 0x0000001FU && infoheader->biAlphaMask == 0x00000000U)
-      format = FORMAT_565;
-   else if (infoheader->biRedMask == 0x00FF0000U && infoheader->biGreenMask == 0x0000FF00U &&
-            infoheader->biBlueMask == 0x000000FFU && infoheader->biAlphaMask == 0x00000000U)
-      format = FORMAT_888;
-   else if (infoheader->biRedMask == 0x00FF0000U && infoheader->biGreenMask == 0x0000FF00U &&
-            infoheader->biBlueMask == 0x000000FFU && infoheader->biAlphaMask == 0xFF000000U)
-      format = FORMAT_8888;
-
-   valid = valid && decode_bitfield(infoheader->biRedMask, &rs, &rm);
-   valid = valid && decode_bitfield(infoheader->biGreenMask, &gs, &gm);
-   valid = valid && decode_bitfield(infoheader->biBlueMask, &bs, &bm);
-
-   if (hasAlpha)
-      valid = valid && decode_bitfield(infoheader->biAlphaMask, &as, &am);
-
-   if (!valid)
-      return false;
+   // Temporary colour conversion tables for 1..10 bit channels
+   // Worst case: ~7KB is temporarily allocated
+   int *tempconvert[10];
+   int *rtable = NULL;
+   int *gtable = NULL;
+   int *btable = NULL;
+   int *atable = NULL;
 
    height = infoheader->biHeight;
+   width = infoheader->biWidth;
+
+   // Includes enough space to read the padding for a line
+   linesize = width * bytes_per_pixel + ((width * bytes_per_pixel) & 3);
+
+   linebuf = al_malloc(linesize);
+
+   if (!linebuf) {
+      ALLEGRO_WARN("Failed to allocate pixel row buffer\n");
+      return false;
+   }
+
+   decode_bitfield(infoheader->biRedMask, &rs, &rm);
+   decode_bitfield(infoheader->biGreenMask, &gs, &gm);
+   decode_bitfield(infoheader->biBlueMask, &bs, &bm);
+   decode_bitfield(infoheader->biAlphaMask, &as, &am);
+
+   for (i = 0; i < (int)(sizeof(tempconvert) / sizeof(int *)); ++i) {
+      uint_fast32_t mask = ~(0xFFFFFFFFU << (i+1)) & 0xFFFFFFFFU;
+
+      switch (i) {
+         case 0: tempconvert[i] = _al_rgb_scale_1; break;
+         case 3: tempconvert[i] = _al_rgb_scale_4; break;
+         case 4: tempconvert[i] = _al_rgb_scale_5; break;
+         case 5: tempconvert[i] = _al_rgb_scale_6; break;
+         default:
+            if (rm == mask || gm == mask || bm == mask || am == mask) {
+               int entries = (1 << (i+1));
+
+               // Skip generating tables for tiny images
+               if (width * height > entries * 2)
+               {
+                  tempconvert[i] = al_malloc(sizeof(int) * entries);
+                  generate_scale_table(tempconvert[i], entries);
+               }
+            }
+            else {
+               tempconvert[i] = NULL;
+            }
+      }
+
+      if (rm == mask) rtable = tempconvert[i];
+      if (gm == mask) gtable = tempconvert[i];
+      if (bm == mask) btable = tempconvert[i];
+      if (am == mask) atable = tempconvert[i];
+   }
+
    line = height < 0 ? 0 : height - 1;
    dir = height < 0 ? 1 : -1;
    height = abs(height);
@@ -631,71 +734,42 @@ static bool read_bitfields_image(ALLEGRO_FILE *f, int flags,
    for (i = 0; i < height; i++, line += dir) {
       unsigned char *data = (unsigned char *)lr->data + lr->pitch * line;
 
-      for (k = 0; k < (int)infoheader->biWidth; k++) {
+      bytes_read = al_fread(f, linebuf, linesize);
+      memset(linebuf + bytes_read, 0, linesize - bytes_read);
 
-         al_fread(f, &buffer, bytes_per_pixel);
-
-         unsigned int pixel = ((unsigned int)(buffer[3]) << 24)
-                            | ((unsigned int)(buffer[2]) << 16)
-                            | ((unsigned int)(buffer[1]) << 8)
-                            |  (unsigned int)(buffer[0]);
+      for (k = 0; k < width; k++) {
+         unsigned int pixel = ((unsigned int)(linebuf[k*bytes_per_pixel+3]) << 24)
+                            | ((unsigned int)(linebuf[k*bytes_per_pixel+2]) << 16)
+                            | ((unsigned int)(linebuf[k*bytes_per_pixel+1]) << 8)
+                            |  (unsigned int)(linebuf[k*bytes_per_pixel]);
 
          uint_fast32_t r, g, b, a = 0xFF;
 
-         switch (format)
+         r = ((pixel >> rs) & rm);
+         g = ((pixel >> gs) & gm);
+         b = ((pixel >> bs) & bm);
+
+              if (rtable) r = rtable[r];
+         else if (rm > 0) r = r * 255 / rm;
+
+              if (gtable) g = gtable[g];
+         else if (gm > 0) g = g * 255 / gm;
+
+              if (btable) b = btable[b];
+         else if (bm > 0) b = b * 255 / bm;
+
+         if (am)
          {
-            case FORMAT_555:
-               r = _al_rgb_scale_5[((pixel >> 10) & 0x1F)];
-               g = _al_rgb_scale_5[((pixel >> 5)  & 0x1F)];
-               b = _al_rgb_scale_5[( pixel        & 0x1F)];
-               break;
+            a = ((pixel >> as) & am);
 
-            case FORMAT_1555:
-               a = ((pixel >> 15) & 0x01) * 255;
-               r = _al_rgb_scale_5[((pixel >> 10) & 0x1F)];
-               g = _al_rgb_scale_5[((pixel >> 5)  & 0x1F)];
-               b = _al_rgb_scale_5[( pixel        & 0x1F)];
-               break;
+            if (atable) a = atable[a];
+            else        a = a * 255 / am;
 
-            case FORMAT_565:
-               r = _al_rgb_scale_5[((pixel >> 11) & 0x1F)];
-               g = _al_rgb_scale_6[((pixel >> 5)  & 0x3F)];
-               b = _al_rgb_scale_5[( pixel        & 0x1F)];
-               break;
-
-            case FORMAT_888:
-               r = ((pixel >> 16) & 0xFF);
-               g = ((pixel >> 8)  & 0xFF);
-               b = ( pixel        & 0xFF);
-               break;
-
-            case FORMAT_8888:
-               a = ((pixel >> 24) & 0xFF);
-               r = ((pixel >> 16) & 0xFF);
-               g = ((pixel >> 8)  & 0xFF);
-               b = ( pixel        & 0xFF);
-               break;
-
-            default:
-               r = ((pixel >> rs) & rm);
-               g = ((pixel >> gs) & gm);
-               b = ((pixel >> bs) & bm);
-
-               if (rm > 0) r = r * 255 / rm;
-               if (gm > 0) g = g * 255 / gm;
-               if (bm > 0) b = b * 255 / bm;
-
-               if (hasAlpha)
-               {
-                  a = ((pixel >> as) & am);
-                  a = a * 255 / am;
-               }
-         }
-
-         if (hasAlpha && premul) {
-            r = r * a / 255;
-            g = g * a / 255;
-            b = b * a / 255;
+            if (premul) {
+               r = r * a / 255;
+               g = g * a / 255;
+               b = b * a / 255;
+            }
          }
 
          data[0] = r;
@@ -705,92 +779,16 @@ static bool read_bitfields_image(ALLEGRO_FILE *f, int flags,
 
          data += 4;
       }
+   }
 
-      al_fseek(f, padding, ALLEGRO_SEEK_CUR);
+   al_free(linebuf);
+
+   for (i = 0; i < (int)(sizeof(tempconvert) / sizeof(int *)); ++i) {
+      if (i != 0 && i != 3 && i != 4 && i != 5)
+            al_free(tempconvert[i]);
    }
 
    return true;
-}
-
-
-
-/* read_RGB_image:
- *  For reading the non-compressed BMP image format (all except 32-bit with
- *  alpha).
- */
-static void read_RGB_image(ALLEGRO_FILE *f, int flags,
-   const BMPINFOHEADER *infoheader, PalEntry *pal, ALLEGRO_LOCKED_REGION *lr)
-{
-   int i, j, line, height, dir;
-   unsigned char *buf;
-   unsigned char *data;
-   bool keep_index = INT_TO_BOOL(flags & ALLEGRO_KEEP_INDEX);
-
-   int as;
-   uint_fast32_t am;
-
-   decode_bitfield(infoheader->biAlphaMask, &as, &am);
-
-   height = infoheader->biHeight;
-   line = height < 0 ? 0 : height - 1;
-   dir = height < 0 ? 1 : -1;
-   height = abs(height);
-
-   if (infoheader->biBitCount <= 8)
-      buf = al_malloc(infoheader->biWidth);
-
-   for (i = 0; i < height; i++, line += dir) {
-      data = (unsigned char *)lr->data + lr->pitch * line;
-
-      switch (infoheader->biBitCount) {
-
-         case 1:
-            read_1bit_line(infoheader->biWidth, f, buf);
-            break;
-
-         case 2:
-            read_2bit_line(infoheader->biWidth, f, buf);
-            break;
-
-         case 4:
-            read_4bit_line(infoheader->biWidth, f, buf);
-            break;
-
-         case 8:
-            read_8bit_line(infoheader->biWidth, f, buf);
-            break;
-
-         case 16:
-            read_16bit_line(infoheader->biWidth, f, data, as, am, flags);
-            break;
-
-         case 24:
-            read_24bit_line(infoheader->biWidth, f, data, as, am, flags);
-            break;
-
-         case 32:
-            read_32bit_line(infoheader->biWidth, f, data, as, am, flags);
-            break;
-      }
-      if (infoheader->biBitCount <= 8) {
-         for (j = 0; j < (int)infoheader->biWidth; j++) {
-            if (keep_index) {
-               data[0] = buf[j];
-               data++;
-            }
-            else {
-               data[0] = pal[buf[j]].r;
-               data[1] = pal[buf[j]].g;
-               data[2] = pal[buf[j]].b;
-               data[3] = 255;
-               data += 4;
-            }
-         }
-      }
-   }
-
-   if (infoheader->biBitCount <= 8)
-      al_free(buf);
 }
 
 
@@ -807,7 +805,7 @@ static void read_RGB_image(ALLEGRO_FILE *f, int flags,
  *  the presence or absence of an alpha channel.
  *  This hack is not required then.
  */
-static void read_RGB_image_32bit_alpha_hack(ALLEGRO_FILE *f, int flags,
+static bool read_RGB_image_32bit_alpha_hack(ALLEGRO_FILE *f, int flags,
    const BMPINFOHEADER *infoheader, ALLEGRO_LOCKED_REGION *lr)
 {
    int i, j, line, height, dir;
@@ -871,6 +869,8 @@ static void read_RGB_image_32bit_alpha_hack(ALLEGRO_FILE *f, int flags,
          }
       }
    }
+
+   return true;
 }
 
 
@@ -1191,7 +1191,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
          pal[i].r = 0;
          pal[i].g = 0;
          pal[i].b = 0;
-         pal[i].a = 0;
+         pal[i].a = 255;
       }
    }
 
@@ -1279,8 +1279,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
    }
 
    if (infoheader.biCompression == BIT_RLE8
-       || infoheader.biCompression == BIT_RLE4)
-   {
+       || infoheader.biCompression == BIT_RLE4) {
       /* Questionable but most loaders handle this, so we should. */
       if (infoheader.biHeight < 0) {
          ALLEGRO_WARN("compressed bitmap with negative height\n");
@@ -1291,13 +1290,40 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
    }
 
    switch (infoheader.biCompression) {
-
       case BIT_RGB:
          if (infoheader.biBitCount == 32 && !infoheader.biHaveAlphaMask) {
-            read_RGB_image_32bit_alpha_hack(f, flags, &infoheader, lr);
+            if (!read_RGB_image_32bit_alpha_hack(f, flags, &infoheader, lr))
+               return NULL;
          }
          else {
-            read_RGB_image(f, flags, &infoheader, pal, lr);
+            bmp_line_fn fn = NULL;
+
+            switch (infoheader.biBitCount) {
+               case 1: fn = read_1bit_line; break;
+               case 2: fn = read_2bit_line; break;
+               case 4: fn = read_4bit_line; break;
+               case 8: fn = read_8bit_line; break;
+               case 16: fn = read_16_rgb_555_line; break;
+               case 24: fn = read_24_rgb_888_line; break;
+               case 32: fn = read_32_xrgb_8888_line; break;
+               default:
+                  ALLEGRO_ERROR("No decoding function for bit depth %d\n", infoheader.biBitCount);
+                  return NULL;
+            }
+
+            if (infoheader.biBitCount == 16 && infoheader.biAlphaMask == 0x00008000U)
+               fn = read_16_argb_1555_line;
+            else if (infoheader.biBitCount == 32 && infoheader.biAlphaMask == 0xFF000000U)
+               fn = read_32_argb_8888_line;
+
+            if (!keep_index && infoheader.biBitCount <= 8) {
+               if (!read_RGB_paletted_image(f, flags, &infoheader, pal, lr, fn))
+                  return NULL;
+            }
+            else {
+               if (!read_RGB_image(f, flags, &infoheader, lr, fn))
+                  return NULL;
+            }
          }
          break;
 
@@ -1310,9 +1336,64 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
          break;
 
       case BIT_BITFIELDS:
-         if (!read_bitfields_image(f, flags, &infoheader, lr)) {
-            ALLEGRO_WARN("Bad bitfield encoded BMP\n");
-            return NULL;
+         if (infoheader.biBitCount == 16) {
+            if (infoheader.biRedMask == 0x00007C00U && infoheader.biGreenMask == 0x000003E0U &&
+                infoheader.biBlueMask == 0x0000001FU && infoheader.biAlphaMask == 0x00000000U) {
+               if (!read_RGB_image(f, flags, &infoheader, lr, read_16_rgb_555_line))
+                  return NULL;
+            }
+            else if (infoheader.biRedMask == 0x00007C00U && infoheader.biGreenMask == 0x000003E0U &&
+                     infoheader.biBlueMask == 0x0000001FU && infoheader.biAlphaMask == 0x00008000U) {
+               if (!read_RGB_image(f, flags, &infoheader, lr, read_16_argb_1555_line))
+                  return NULL;
+            }
+            else if (infoheader.biRedMask == 0x0000F800U && infoheader.biGreenMask == 0x000007E0U &&
+                     infoheader.biBlueMask == 0x0000001FU && infoheader.biAlphaMask == 0x00000000U) {
+               if (!read_RGB_image(f, flags, &infoheader, lr, read_16_rgb_565_line))
+                  return NULL;
+            }
+            else {
+               if (!read_bitfields_image(f, flags, &infoheader, lr))
+                  return NULL;
+            }
+         }
+         else if (infoheader.biBitCount == 24) {
+            if (infoheader.biRedMask == 0x00FF0000U && infoheader.biGreenMask == 0x0000FF00U &&
+                infoheader.biBlueMask == 0x000000FFU && infoheader.biAlphaMask == 0x00000000U) {
+               if (!read_RGB_image(f, flags, &infoheader, lr, read_24_rgb_888_line))
+                  return NULL;
+            }
+            else {
+               if (!read_bitfields_image(f, flags, &infoheader, lr))
+                  return NULL;
+            }
+         }
+         else if (infoheader.biBitCount == 32) {
+            if (infoheader.biRedMask == 0x00FF0000U && infoheader.biGreenMask == 0x0000FF00U &&
+                infoheader.biBlueMask == 0x000000FFU && infoheader.biAlphaMask == 0x00000000U) {
+               if (!read_RGB_image(f, flags, &infoheader, lr, read_32_xrgb_8888_line))
+                  return NULL;
+            }
+            else if (infoheader.biRedMask == 0x00FF0000U && infoheader.biGreenMask == 0x0000FF00U &&
+                infoheader.biBlueMask == 0x000000FFU && infoheader.biAlphaMask == 0xFF000000U) {
+               if (!read_RGB_image(f, flags, &infoheader, lr, read_32_argb_8888_line))
+                  return NULL;
+            }
+            else if (infoheader.biRedMask == 0xFF000000U && infoheader.biGreenMask == 0x00FF0000U &&
+                infoheader.biBlueMask == 0x0000FF00U && infoheader.biAlphaMask == 0x00000000U) {
+               if (!read_RGB_image(f, flags, &infoheader, lr, read_32_rgbx_8888_line))
+                  return NULL;
+            }
+            else if (infoheader.biRedMask == 0xFF000000U && infoheader.biGreenMask == 0x00FF0000U &&
+                infoheader.biBlueMask == 0x0000FF00U && infoheader.biAlphaMask == 0x00000000FFU) {
+               if (!read_RGB_image(f, flags, &infoheader, lr, read_32_rgba_8888_line))
+                  return NULL;
+            }
+            else
+            {
+               if (!read_bitfields_image(f, flags, &infoheader, lr))
+                  return NULL;
+            }
          }
          break;
 
