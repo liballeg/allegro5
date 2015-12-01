@@ -66,11 +66,11 @@ typedef struct BMPINFOHEADER
    unsigned short biBitCount;
    unsigned long biCompression;
    unsigned long biClrUsed;
-   uint_fast32_t biRedMask;
-   uint_fast32_t biGreenMask;
-   uint_fast32_t biBlueMask;
+   uint32_t biRedMask;
+   uint32_t biGreenMask;
+   uint32_t biBlueMask;
    bool biHaveAlphaMask;
-   uint_fast32_t biAlphaMask;
+   uint32_t biAlphaMask;
 } BMPINFOHEADER;
 
 
@@ -194,7 +194,7 @@ static int read_os2_bminfoheader(ALLEGRO_FILE *f, BMPINFOHEADER *infoheader)
 /* decode_bitfield:
  *  Converts a bitfield in to a shift+mask pair
  */
-static void decode_bitfield(uint_fast32_t m, int *shift_out, uint_fast32_t *mask_out)
+static void decode_bitfield(uint32_t m, int *shift_out, uint32_t *mask_out)
 {
    int shift = 0;
 
@@ -229,11 +229,11 @@ static void read_palette(int ncolors, PalEntry *pal, ALLEGRO_FILE *f,
 {
    int i;
    unsigned char c[3];
-   uint_fast32_t r, g, b, a;
+   uint32_t r, g, b, a;
    bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
    int as;
-   uint_fast32_t am;
+   uint32_t am;
 
    decode_bitfield(infoheader->biAlphaMask, &as, &am);
 
@@ -243,7 +243,7 @@ static void read_palette(int ncolors, PalEntry *pal, ALLEGRO_FILE *f,
       g = c[1];
       b = c[0];
 
-      uint_fast32_t pixel = (r << 16) | (g << 8) | b;
+      uint32_t pixel = (r << 16) | (g << 8) | b;
 
       switch (am)
       {
@@ -746,7 +746,7 @@ static bool read_bitfields_image(ALLEGRO_FILE *f, int flags,
    bool premul = !(flags & ALLEGRO_NO_PREMULTIPLIED_ALPHA);
 
    int rs, gs, bs, as;
-   uint_fast32_t rm, gm, bm, am;
+   uint32_t rm, gm, bm, am;
 
    // Temporary colour conversion tables for 1..10 bit channels
    // Worst case: ~7KB is temporarily allocated
@@ -775,7 +775,7 @@ static bool read_bitfields_image(ALLEGRO_FILE *f, int flags,
    decode_bitfield(infoheader->biAlphaMask, &as, &am);
 
    for (i = 0; i < (int)(sizeof(tempconvert) / sizeof(int *)); ++i) {
-      uint_fast32_t mask = ~(0xFFFFFFFFU << (i+1)) & 0xFFFFFFFFU;
+      uint32_t mask = ~(0xFFFFFFFFU << (i+1)) & 0xFFFFFFFFU;
 
       switch (i) {
          case 0: tempconvert[i] = _al_rgb_scale_1; break;
@@ -815,12 +815,12 @@ static bool read_bitfields_image(ALLEGRO_FILE *f, int flags,
       memset(linebuf + bytes_read, 0, linesize - bytes_read);
 
       for (k = 0; k < width; k++) {
-         unsigned int pixel = ((unsigned int)(linebuf[k*bytes_per_pixel+3]) << 24)
-                            | ((unsigned int)(linebuf[k*bytes_per_pixel+2]) << 16)
-                            | ((unsigned int)(linebuf[k*bytes_per_pixel+1]) << 8)
-                            |  (unsigned int)(linebuf[k*bytes_per_pixel]);
+         uint32_t pixel = ((uint32_t)(linebuf[k*bytes_per_pixel+3]) << 24)
+                        | ((uint32_t)(linebuf[k*bytes_per_pixel+2]) << 16)
+                        | ((uint32_t)(linebuf[k*bytes_per_pixel+1]) << 8)
+                        |  (uint32_t)(linebuf[k*bytes_per_pixel]);
 
-         uint_fast32_t r, g, b, a = 0xFF;
+         uint32_t r, g, b, a = 0xFF;
 
          r = ((pixel >> rs) & rm);
          g = ((pixel >> gs) & gm);
@@ -1246,7 +1246,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       infoheader.biHaveAlphaMask = true;
       infoheader.biAlphaMask = (uint32_t)al_fread32le(f);
 
-      uint_fast32_t pixel_mask = 0xFFFFFFFFU;
+      uint32_t pixel_mask = 0xFFFFFFFFU;
 
       if (infoheader.biBitCount < 32)
          pixel_mask = ~(pixel_mask << infoheader.biBitCount) & 0xFFFFFFFFU;
