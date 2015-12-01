@@ -248,7 +248,7 @@ static void read_palette(int ncolors, PalEntry *pal, ALLEGRO_FILE *f,
       switch (am)
       {
          case 0x00:
-            a = 0xFF;
+            a = 255;
             break;
 
          case 0x01:
@@ -815,12 +815,8 @@ static bool read_bitfields_image(ALLEGRO_FILE *f, int flags,
       memset(linebuf + bytes_read, 0, linesize - bytes_read);
 
       for (k = 0; k < width; k++) {
-         uint32_t pixel = ((uint32_t)(linebuf[k*bytes_per_pixel+3]) << 24)
-                        | ((uint32_t)(linebuf[k*bytes_per_pixel+2]) << 16)
-                        | ((uint32_t)(linebuf[k*bytes_per_pixel+1]) << 8)
-                        |  (uint32_t)(linebuf[k*bytes_per_pixel]);
-
-         uint32_t r, g, b, a = 0xFF;
+         uint32_t pixel = read_32le(linebuf + k*bytes_per_pixel);
+         uint32_t r, g, b, a = 255;
 
          r = ((pixel >> rs) & rm);
          g = ((pixel >> gs) & gm);
@@ -933,7 +929,7 @@ static bool read_RGB_image_32bit_alpha_hack(ALLEGRO_FILE *f, int flags,
          unsigned char *data = (unsigned char *)lr->data + lr->pitch * line;
 
          for (j = 0; j < width; j++) {
-            data[j*4+3] |= 0xFF;
+            data[j*4+3] = 255;
          }
       }
    }
