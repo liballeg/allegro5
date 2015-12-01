@@ -282,6 +282,32 @@ static void read_palette(int ncolors, PalEntry *pal, ALLEGRO_FILE *f,
 
 
 
+/* read_16le:
+ *  Support function for reading 16-bit little endian values
+ *  from a memory buffer.
+ */
+static uint16_t read_16le(void *buf)
+{
+   unsigned char *ucbuf = (unsigned char *)buf;
+
+   return ucbuf[0] | (ucbuf[1] << 8);
+}
+
+
+
+/* read_32le:
+ *  Support function for reading 32-bit little endian values
+ *  from a memory buffer.
+ */
+static uint32_t read_32le(void *buf)
+{
+   unsigned char *ucbuf = (unsigned char *)buf;
+
+   return ucbuf[0] | (ucbuf[1] << 8) | (ucbuf[2] << 16) | (ucbuf[3] << 24);
+}
+
+
+
 /* read_1bit_line:
  *  Support function for reading the 1 bit bitmap file format.
  */
@@ -294,6 +320,9 @@ static void read_1bit_line(ALLEGRO_FILE *f, char *buf, char *data,
 
    size_t bytes_read = al_fread(f, ucbuf, bytes_wanted);
    memset(ucbuf + bytes_read, 0, bytes_wanted - bytes_read);
+
+   (void)premul;
+   (void)data;
 
    for (i = (length - 1) / 8; i >= 0; --i) {
       unsigned char x = ucbuf[i];
@@ -317,6 +346,9 @@ static void read_2bit_line(ALLEGRO_FILE *f, char *buf, char *data,
 
    size_t bytes_read = al_fread(f, ucbuf, bytes_wanted);
    memset(ucbuf + bytes_read, 0, bytes_wanted - bytes_read);
+
+   (void)premul;
+   (void)data;
 
    for (i = (length - 1) / 4; i >= 0; --i) {
       unsigned char x = ucbuf[i];
@@ -342,6 +374,9 @@ static void read_4bit_line(ALLEGRO_FILE *f, char *buf, char *data,
    size_t bytes_read = al_fread(f, ucbuf, bytes_wanted);
    memset(ucbuf + bytes_read, 0, bytes_wanted - bytes_read);
 
+   (void)premul;
+   (void)data;
+
    for (i = (length - 1) / 2; i >= 0; --i) {
       unsigned char x = ucbuf[i];
       ucbuf[i*2]   = (x & 0xF0) >> 4;
@@ -361,6 +396,9 @@ static void read_8bit_line(ALLEGRO_FILE *f, char *buf, char *data,
 
    size_t bytes_read = al_fread(f, buf, bytes_wanted);
    memset(buf + bytes_read, 0, bytes_wanted - bytes_read);
+
+   (void)premul;
+   (void)data;
 }
 
 
@@ -372,15 +410,17 @@ static void read_16_rgb_555_line(ALLEGRO_FILE *f, char *buf, char *data,
    int length, bool premul)
 {
    int i;
-   uint16_t *buf16 = (uint16_t *)buf;
    uint32_t *data32 = (uint32_t *)data;
    size_t bytes_wanted = (length + (length & 1)) * 2;
 
    size_t bytes_read = al_fread(f, buf, bytes_wanted);
    memset(buf + bytes_read, 0, bytes_wanted - bytes_read);
 
+   (void)premul;
+
    for (i = 0; i < length; ++i) {
-      data32[i] = ALLEGRO_CONVERT_RGB_555_TO_ABGR_8888_LE(buf16[i]);
+      uint16_t pixel = read_16le(buf + i*2);
+      data32[i] = ALLEGRO_CONVERT_RGB_555_TO_ABGR_8888_LE(pixel);
    }
 }
 
@@ -393,7 +433,6 @@ static void read_16_argb_1555_line(ALLEGRO_FILE *f, char *buf, char *data,
    int length, bool premul)
 {
    int i;
-   uint16_t *buf16 = (uint16_t *)buf;
    uint32_t *data32 = (uint32_t *)data;
    size_t bytes_wanted = (length + (length & 1)) * 2;
 
@@ -401,10 +440,11 @@ static void read_16_argb_1555_line(ALLEGRO_FILE *f, char *buf, char *data,
    memset(buf + bytes_read, 0, bytes_wanted - bytes_read);
 
    for (i = 0; i < length; ++i) {
-      data32[i] = ALLEGRO_CONVERT_ARGB_1555_TO_ABGR_8888_LE(buf16[i]);
+      uint16_t pixel = read_16le(buf + i*2);
+      data32[i] = ALLEGRO_CONVERT_ARGB_1555_TO_ABGR_8888_LE(pixel);
 
-      if (premul && (buf16[i] & 0x8000))
-         data32[i] = 0x00;
+      if (premul && (pixel & 0x8000))
+         data32[i] = 0;
    }
 }
 
@@ -417,15 +457,17 @@ static void read_16_rgb_565_line(ALLEGRO_FILE *f, char *buf, char *data,
    int length, bool premul)
 {
    int i;
-   uint16_t *buf16 = (uint16_t *)buf;
    uint32_t *data32 = (uint32_t *)data;
    size_t bytes_wanted = (length + (length & 1)) * 2;
 
    size_t bytes_read = al_fread(f, buf, bytes_wanted);
    memset(buf + bytes_read, 0, bytes_wanted - bytes_read);
 
+   (void)premul;
+
    for (i = 0; i < length; i++) {
-      data32[i] = ALLEGRO_CONVERT_RGB_565_TO_ABGR_8888_LE(buf16[i]);
+      uint16_t pixel = read_16le(buf + i*2);
+      data32[i] = ALLEGRO_CONVERT_RGB_565_TO_ABGR_8888_LE(pixel);
    }
 }
 
@@ -439,26 +481,23 @@ static void read_24_rgb_888_line(ALLEGRO_FILE *f, char *buf, char *data,
 {
    int bi, i;
    unsigned char *ucbuf = (unsigned char *)buf;
-   uint32_t *buf32 = (uint32_t *)buf;
    uint32_t *data32 = (uint32_t *)data;
    size_t bytes_wanted = length * 3 + (length & 3);
 
    size_t bytes_read = al_fread(f, buf, bytes_wanted);
    memset(buf + bytes_read, 0, bytes_wanted - bytes_read);
 
-   for (i = 0, bi = 0; i < (length & ~3); i += 4, bi += 3) {
-      uint32_t a = buf32[bi];   // BGRB [LE:BRGB]
-      uint32_t b = buf32[bi+1]; // GRBG [LE:GBRG]
-      uint32_t c = buf32[bi+2]; // RBGR [LE:RGBR]
+   (void)premul;
 
-#ifdef ALLEGRO_BIG_ENDIAN
-      NOT_IMPLEMENTED;
-#else
+   for (i = 0, bi = 0; i < (length & ~3); i += 4, bi += 3) {
+      uint32_t a = read_32le(buf + bi*4);     // BGRB [LE:BRGB]
+      uint32_t b = read_32le(buf + bi*4 + 4); // GRBG [LE:GBRG]
+      uint32_t c = read_32le(buf + bi*4 + 8); // RBGR [LE:RGBR]
+
       uint32_t w = a;
       uint32_t x = (a >> 24) | (b << 8);
       uint32_t y = (b >> 16) | (c << 16);
       uint32_t z = (c >> 8);
-#endif
 
       data32[i]   = ALLEGRO_CONVERT_RGB_888_TO_ABGR_8888_LE(w);
       data32[i+1] = ALLEGRO_CONVERT_RGB_888_TO_ABGR_8888_LE(x);
@@ -483,15 +522,17 @@ static void read_32_xrgb_8888_line(ALLEGRO_FILE *f, char *buf, char *data,
    int length, bool premul)
 {
    int i;
-   uint32_t *buf32 = (uint32_t *)buf;
    uint32_t *data32 = (uint32_t *)data;
    size_t bytes_wanted = length * 4;
 
    size_t bytes_read = al_fread(f, buf, bytes_wanted);
    memset(buf + bytes_read, 0, bytes_wanted - bytes_read);
 
+   (void)premul;
+
    for (i = 0; i < length; i++) {
-      data32[i] = ALLEGRO_CONVERT_XRGB_8888_TO_ABGR_8888_LE(buf32[i]);
+      uint32_t pixel = read_32le(buf + i*4);
+      data32[i] = ALLEGRO_CONVERT_XRGB_8888_TO_ABGR_8888_LE(pixel);
    }
 }
 
@@ -504,15 +545,17 @@ static void read_32_rgbx_8888_line(ALLEGRO_FILE *f, char *buf, char *data,
    int length, bool premul)
 {
    int i;
-   uint32_t *buf32 = (uint32_t *)buf;
    uint32_t *data32 = (uint32_t *)data;
    size_t bytes_wanted = length * 4;
 
    size_t bytes_read = al_fread(f, buf, bytes_wanted);
    memset(buf + bytes_read, 0, bytes_wanted - bytes_read);
 
+   (void)premul;
+
    for (i = 0; i < length; i++) {
-      data32[i] = ALLEGRO_CONVERT_RGBX_8888_TO_ABGR_8888_LE(buf32[i]);
+      uint32_t pixel = read_32le(buf + i*4);
+      data32[i] = ALLEGRO_CONVERT_RGBX_8888_TO_ABGR_8888_LE(pixel);
    }
 }
 
@@ -525,7 +568,6 @@ static void read_32_argb_8888_line(ALLEGRO_FILE *f, char *buf, char *data,
    int length, bool premul)
 {
    int i;
-   uint32_t *buf32 = (uint32_t *)buf;
    uint32_t *data32 = (uint32_t *)data;
    size_t bytes_wanted = length * 4;
 
@@ -533,8 +575,9 @@ static void read_32_argb_8888_line(ALLEGRO_FILE *f, char *buf, char *data,
    memset(buf + bytes_read, 0, bytes_wanted - bytes_read);
 
    for (i = 0; i < length; i++) {
-      uint32_t a = (buf32[i] & 0xFF000000U);
-      data32[i] = ALLEGRO_CONVERT_ARGB_8888_TO_ABGR_8888_LE(buf32[i]);
+      uint32_t pixel = read_32le(buf + i*4);
+      uint32_t a = (pixel & 0xFF000000U);
+      data32[i] = ALLEGRO_CONVERT_ARGB_8888_TO_ABGR_8888_LE(pixel);
 
       if (premul && a != 0xFF000000U)
       {
@@ -554,7 +597,6 @@ static void read_32_rgba_8888_line(ALLEGRO_FILE *f, char *buf, char *data,
    int length, bool premul)
 {
    int i;
-   uint32_t *buf32 = (uint32_t *)buf;
    uint32_t *data32 = (uint32_t *)data;
    size_t bytes_wanted = length * 4;
 
@@ -562,8 +604,9 @@ static void read_32_rgba_8888_line(ALLEGRO_FILE *f, char *buf, char *data,
    memset(buf + bytes_read, 0, bytes_wanted - bytes_read);
 
    for (i = 0; i < length; i++) {
-      uint32_t a = (buf32[i] & 0x00000000FFU);
-      data32[i] = ALLEGRO_CONVERT_RGBA_8888_TO_ABGR_8888_LE(buf32[i]);
+      uint32_t pixel = read_32le(buf + i*4);
+      uint32_t a = (pixel & 0x00000000FFU);
+      data32[i] = ALLEGRO_CONVERT_RGBA_8888_TO_ABGR_8888_LE(pixel);
 
       if (premul && a != 0x00000000FFU)
       {
@@ -632,6 +675,8 @@ static bool read_RGB_paletted_image(ALLEGRO_FILE *f, int flags,
    int i, j, line, height, width, dir;
    size_t linesize;
    char *linebuf;
+
+   (void)flags;
 
    height = infoheader->biHeight;
    width = infoheader->biWidth;
@@ -872,7 +917,7 @@ static bool read_RGB_image_32bit_alpha_hack(ALLEGRO_FILE *f, int flags,
       unsigned char *data = (unsigned char *)lr->data + lr->pitch * line;
 
       /* Don't premultiply alpha here or the image will come out all black */
-      read_32_argb_8888_line(f, linebuf, data, width, false);
+      read_32_argb_8888_line(f, linebuf, (char *)data, width, false);
 
       /* Check the alpha values of every pixel in the row */
       for (j = 0; j < width; j++) {
