@@ -112,7 +112,13 @@ void log_printf(char const *format, ...)
 {
    va_list args;
    va_start(args, format);
+   #ifdef ALLEGRO_ANDROID
+   char x[1024];
+   vsnprintf(x, sizeof x, format, args);
+   ALLEGRO_TRACE_CHANNEL_LEVEL("log", 1)(x);
+   #else
    vprintf(format, args);
+   #endif
    va_end(args);
 }
 
