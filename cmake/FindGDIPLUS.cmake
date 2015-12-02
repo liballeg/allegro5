@@ -17,7 +17,12 @@ else()
     set(GDIPLUS_LOWERCASE 1 CACHE INTERNAL "Is GdiPlus.h spelt with lowercase?")
 endif()
 
-find_library(GDIPLUS_LIBRARY NAMES libgdiplus gdiplus)
+if (MINGW)
+	find_library(GDIPLUS_LIBRARY NAMES libgdiplus gdiplus)
+else(MINGW)
+	set(GDIPLUS_LIBRARY gdiplus)
+endif(MINGW)
+
 
 # Handle the QUIETLY and REQUIRED arguments and set GDIPLUS_FOUND to TRUE if
 # all listed variables are TRUE.
