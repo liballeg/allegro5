@@ -112,6 +112,13 @@ copy_bitmap_data_demultiply_alpha(ALLEGRO_BITMAP *bitmap, const uint32_t *src,
    al_unlock_bitmap(bitmap);
 }
 
+/* Note: This is not used when loading an image from the .apk.
+ * 
+ * The ImageLoader class uses Java to load a bitmap. To support
+ * Allegro's filesystem functions, the bitmap is read from an
+ * AllegroInputStream which in turn calls back into C to use Allegro's
+ * file functions.
+ */
 ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
 {
    JNIEnv *jnienv;
@@ -134,12 +141,14 @@ ALLEGRO_BITMAP *_al_android_load_image_f(ALLEGRO_FILE *fh, int flags)
    }
 
    jnienv = (JNIEnv *)_al_android_get_jnienv();
+   // Note: This is always ImageLoader
    image_loader_class = _al_android_image_loader_class();
+   // Note: This is always AllegroInputStream
    input_stream_class = _al_android_input_stream_class();
    input_stream_ctor = _jni_call(jnienv, jclass, GetMethodID,
-       input_stream_class, "<init>", "(I)V");
+       input_stream_class, "<init>", "(J)V");
    input_stream = _jni_call(jnienv, jobject, NewObject, input_stream_class,
-      input_stream_ctor, (jint)fh);
+      input_stream_ctor, (jlong)(intptr_t)fh);
    if (!input_stream) {
       ALLEGRO_ERROR("failed to create new AllegroInputStream object");
       return NULL;

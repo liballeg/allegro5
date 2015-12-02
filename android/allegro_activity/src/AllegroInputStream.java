@@ -7,12 +7,12 @@ public class AllegroInputStream extends InputStream
 {
    private static final String TAG = "AllegroInputStream";
 
-   private int handle;
+   private long handle;
 
-   public native int nativeRead(int handle, byte[] buffer, int offset, int length);
-   public native void nativeClose(int handle);
+   public native int nativeRead(long handle, byte[] buffer, int offset, int length);
+   public native void nativeClose(long handle);
 
-   public AllegroInputStream(int handle)
+   public AllegroInputStream(long handle)
    {
       super();
       this.handle = handle;

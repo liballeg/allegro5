@@ -21,18 +21,18 @@
 ALLEGRO_DEBUG_CHANNEL("android")
 
 /* XXX ALLEGRO_FILE pointers currently passed as ints */
-ALLEGRO_STATIC_ASSERT(android, sizeof(intptr_t) == sizeof(ALLEGRO_FILE *));
+ALLEGRO_STATIC_ASSERT(android, sizeof(jlong) >= sizeof(ALLEGRO_FILE *));
 
 JNI_FUNC(int, AllegroInputStream, nativeRead, (JNIEnv *env, jobject obj,
-   intptr_t handle, jbyteArray array, int offset, int length))
+   jlong handle, jbyteArray array, int offset, int length))
 {
-   ALLEGRO_FILE *fp = (ALLEGRO_FILE *)handle;
+   ALLEGRO_FILE *fp = (ALLEGRO_FILE *)(intptr_t)handle;
    int ret = -1;
    jbyte *array_ptr = NULL;
    ASSERT(fp != NULL);
 
    (void)obj;
-   ALLEGRO_DEBUG("nativeRead begin: handle:%i fp:%p offset:%i length:%i",
+   ALLEGRO_DEBUG("nativeRead begin: handle:%lli fp:%p offset:%i length:%i",
       handle, fp, offset, length);
 
    int array_len = _jni_call(env, int, GetArrayLength, array);
@@ -56,9 +56,9 @@ JNI_FUNC(int, AllegroInputStream, nativeRead, (JNIEnv *env, jobject obj,
 }
 
 JNI_FUNC(void, AllegroInputStream, nativeClose, (JNIEnv *env, jobject obj,
-   intptr_t handle))
+   jlong handle))
 {
-   ALLEGRO_FILE *fp = (ALLEGRO_FILE *)handle;
+   ALLEGRO_FILE *fp = (ALLEGRO_FILE *)(intptr_t)handle;
    (void)env;
    (void)obj;
    al_fclose(fp);

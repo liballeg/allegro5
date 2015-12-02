@@ -51,6 +51,7 @@ int main(int argc, char **argv)
    ALLEGRO_EVENT event;
    ALLEGRO_TIMER *timer;
    ALLEGRO_BITMAP *image;
+   ALLEGRO_BITMAP *image2;
 
    (void) argc;
    (void) argv;
@@ -88,9 +89,31 @@ int main(int argc, char **argv)
       ALLEGRO_DEBUG("failed to load alexlogo.png");
       return 1;
    }
+ 
+   /* Copy the .png from the .apk into the user data area. */
+   ALLEGRO_FILE *fin = al_fopen("alexlogo.png", "rb");
    al_set_standard_file_interface();
+   ALLEGRO_PATH *path = al_get_standard_path(ALLEGRO_USER_DATA_PATH);
+   al_set_path_filename(path, "alexlogo.png");
+   ALLEGRO_FILE *fout = al_fopen(al_path_cstr(path, '/'), "wb");
+   while (!al_feof(fin)) {
+      char buf[1024];
+      int n = al_fread(fin, buf, 1024);
+      al_fwrite(fout, buf, n);
+   }
+   al_fclose(fin);
+   al_fclose(fout);
+
+   /* This is now loaded with the normal stdio file interface and not
+    * from the APK.
+    */
+   image2 = al_load_bitmap(al_path_cstr(path, '/'));
+
+   al_destroy_path(path);
 
    al_convert_mask_to_alpha(image, al_map_rgb(255,0,255));
+   if (image2)
+      al_convert_mask_to_alpha(image2, al_map_rgb(255,0,255));
 
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_display_event_source(dpy));
@@ -190,6 +213,12 @@ int main(int argc, char **argv)
             al_draw_bitmap(image,
                al_get_display_width(dpy)/2 - al_get_bitmap_width(image)/2,
                al_get_display_height(dpy)/2 - al_get_bitmap_height(image)/2,
+               0);
+         }
+         if (image2) {
+            al_draw_bitmap(image2,
+               al_get_display_width(dpy)/2 - al_get_bitmap_width(image)/2,
+               al_get_display_height(dpy)/2 + al_get_bitmap_height(image)/2,
                0);
          }
          draw_touches();
