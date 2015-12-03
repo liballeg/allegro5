@@ -39,6 +39,7 @@ struct system_data_t {
    jclass apk_stream_class;
    jclass image_loader_class;
    jclass clipboard_class;
+   jclass apk_fs_class;
 
    ALLEGRO_SYSTEM_ANDROID *system;
    ALLEGRO_MUTEX *mutex;
@@ -101,6 +102,11 @@ jclass _al_android_clipboard_class(void)
 jobject _al_android_activity_object()
 {
    return system_data.activity_object;
+}
+
+jclass _al_android_apk_fs_class(void)
+{
+   return system_data.apk_fs_class;
 }
 
 static void finish_activity(JNIEnv *env);
@@ -203,6 +209,9 @@ JNI_FUNC(bool, AllegroActivity, nativeOnCreate, (JNIEnv *env, jobject obj))
 
    asc = (*env)->FindClass(env, ALLEGRO_ANDROID_PACKAGE_NAME_SLASH "/Clipboard");
    system_data.clipboard_class = (*env)->NewGlobalRef(env, asc);
+
+   asc = (*env)->FindClass(env, ALLEGRO_ANDROID_PACKAGE_NAME_SLASH "/AllegroAPKList");
+   system_data.apk_fs_class = (*env)->NewGlobalRef(env, asc);
 
    ALLEGRO_DEBUG("create mutex and cond objects");
    system_data.mutex = al_create_mutex();

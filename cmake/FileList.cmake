@@ -179,6 +179,7 @@ set(ALLEGRO_SRC_ANDROID_FILES
    src/android/android_touch.c
    src/android/jni_helpers.c
    src/linux/ljoynu.c
+   src/android/android_apk_fs.c
 )
 
 set(ALLEGRO_SRC_RASPBERRYPI_FILES

@@ -153,6 +153,7 @@ jclass _al_android_input_stream_class(void);
 jclass _al_android_apk_stream_class(void);
 jclass _al_android_image_loader_class(void);
 jclass _al_android_clipboard_class(void);
+jclass _al_android_apk_fs_class(void);
 
 void _al_android_generate_mouse_event(unsigned int type, int x, int y,
    unsigned int button, ALLEGRO_DISPLAY *d);

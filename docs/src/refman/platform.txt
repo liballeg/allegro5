@@ -104,6 +104,18 @@ only.
 
 Since: 5.1.2
 
+### API: al_android_set_apk_fs_interface
+
+This function will set up a custom [ALLEGRO_FS_INTERFACE] which allows
+working within the APK filesystem. The filesystem root is your assets
+directory and there is read-only access to all files within.
+
+> *Note:* Some things like querying file size or attributes are not
+supported by this. You can always use the PhysFS addon to open the APK
+file (it is just a regular .zip file) and get more complete information.
+
+Since: 5.1.13
+
 ### API: al_android_get_os_version
 
 Returns a pointer to a static buffer that contains the version string of the

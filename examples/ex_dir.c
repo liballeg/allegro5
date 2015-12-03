@@ -99,6 +99,10 @@ int main(int argc, char **argv)
       "-------- "
       "--------\n");
 
+   #ifdef ALLEGRO_ANDROID
+   al_set_apk_fs_interface();
+   #endif
+
    if (argc == 1) {
       ALLEGRO_FS_ENTRY *entry = al_create_fs_entry("data");
       print_entry(entry);
