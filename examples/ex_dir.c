@@ -100,7 +100,7 @@ int main(int argc, char **argv)
       "--------\n");
 
    #ifdef ALLEGRO_ANDROID
-   al_set_apk_fs_interface();
+   al_android_set_apk_fs_interface();
    #endif
 
    if (argc == 1) {

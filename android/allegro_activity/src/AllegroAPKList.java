@@ -46,4 +46,4 @@ class AllegroAPKList
          return "";
       }
    }
-};
+}

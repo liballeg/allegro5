@@ -23,7 +23,7 @@
  */
 void al_android_set_apk_file_interface(void);
 const char *al_android_get_os_version(void);
-void al_set_apk_fs_interface(void);
+void al_android_set_apk_fs_interface(void);
 
 /* XXX decide if this should be public */
 void _al_android_set_capture_volume_keys(ALLEGRO_DISPLAY *display, bool onoff);

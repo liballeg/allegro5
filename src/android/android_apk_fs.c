@@ -300,7 +300,7 @@ static const ALLEGRO_FS_INTERFACE fs_apk_vtable =
 
 /* Function: al_android_set_apk_fs_interface
  */
-void al_set_apk_fs_interface(void)
+void al_android_set_apk_fs_interface(void)
 {
    al_set_fs_interface(&fs_apk_vtable);
 }
