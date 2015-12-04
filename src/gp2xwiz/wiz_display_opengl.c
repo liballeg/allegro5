@@ -100,7 +100,7 @@ static ALLEGRO_DISPLAY *gp2xwiz_create_display_ogl(int w, int h)
 
    eglInitialize(d->egl_display, &majorVersion, &minorVersion);
 
-   ALLEGRO_DEBUG("EGL Version: %d.%d", majorVersion, minorVersion);
+   ALLEGRO_DEBUG("EGL Version: %d.%d\n", majorVersion, minorVersion);
 
    eglChooseConfig(d->egl_display, attrib_list, &d->egl_config, 1, &numConfigs);
 

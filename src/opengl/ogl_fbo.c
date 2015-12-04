@@ -145,7 +145,7 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
 
    e = glGetError();
    if (e) {
-      ALLEGRO_DEBUG("glFrameBufferTexture2DEXT failed! fbo=%d texture=%d (%s)",
+      ALLEGRO_DEBUG("glFrameBufferTexture2DEXT failed! fbo=%d texture=%d (%s)\n",
          info->fbo, ogl_bitmap->texture, _al_gl_error_string(e));
    }
 
@@ -358,7 +358,7 @@ static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
    }
    e = glGetError();
    if (e) {
-      ALLEGRO_DEBUG("glFrameBufferTexture2DEXT failed! fbo=%d texture=%d (%s)",
+      ALLEGRO_DEBUG("glFrameBufferTexture2DEXT failed! fbo=%d texture=%d (%s)\n",
          info->fbo, ogl_bitmap->texture, _al_gl_error_string(e));
    }
 

@@ -102,7 +102,7 @@ static void *file_stdio_fopen(const char *path, const char *mode)
    FILE *fp;
    USERDATA *userdata;
 
-   ALLEGRO_DEBUG("opening %s %s", path, mode);
+   ALLEGRO_DEBUG("opening %s %s\n", path, mode);
 
 #ifdef ALLEGRO_WINDOWS
    {

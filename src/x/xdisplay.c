@@ -647,7 +647,7 @@ static void xdpy_destroy_display_hook_default(ALLEGRO_DISPLAY *d, bool is_last)
    if ((glx->glxwindow) && (glx->glxwindow != glx->window)) {
       glXDestroyWindow(s->x11display, glx->glxwindow);
       glx->glxwindow = 0;
-      ALLEGRO_DEBUG("destroy glx window");
+      ALLEGRO_DEBUG("destroy glx window\n");
    }
 
    _al_cond_destroy(&glx->mapped);

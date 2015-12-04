@@ -984,7 +984,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h,
 
    if (_al_pixel_format_is_compressed(format)) {
       if (!al_get_opengl_extension_list()->ALLEGRO_GL_EXT_texture_compression_s3tc) {
-         ALLEGRO_DEBUG("Device does not support S3TC compressed textures.");
+         ALLEGRO_DEBUG("Device does not support S3TC compressed textures.\n");
          return NULL;
       }
    }

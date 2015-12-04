@@ -532,7 +532,7 @@ static bool transfer_bitmap_data(ALLEGRO_BITMAP *src, ALLEGRO_BITMAP *dst)
       }
       copy_w = _al_get_least_multiple(copy_w, block_width);
       copy_h = _al_get_least_multiple(copy_h, block_height);
-      ALLEGRO_DEBUG("Taking fast clone path");
+      ALLEGRO_DEBUG("Taking fast clone path.\n");
    }
    else {
       int lock_format = ALLEGRO_PIXEL_FORMAT_ANY;
