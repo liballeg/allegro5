@@ -15,6 +15,7 @@
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 if(COMMAND cmake_policy)
     cmake_policy(SET CMP0003 NEW)
+    cmake_policy(SET CMP0026 OLD)
 endif(COMMAND cmake_policy)
 
 if(NOT CMAKE_BUILD_TYPE)
