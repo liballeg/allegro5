@@ -73,7 +73,7 @@ static bool win_set_clipboard_text(ALLEGRO_DISPLAY *display, const char *text)
    /* Convert the text from UTF-8 to Windows Unicode */
    tstr = _al_win_utf16(text);
    len  = wcslen(tstr);
-   size = len * sizeof(wchar_t);
+   size = (len+1) * sizeof(wchar_t);
    /* Save the data to the clipboard */
    hMem = GlobalAlloc(GMEM_MOVEABLE, size);
 
@@ -87,6 +87,7 @@ static bool win_set_clipboard_text(ALLEGRO_DISPLAY *display, const char *text)
    /* Copy the text over. Unlike SDL, do NOT convert newlines, that's for the
     * use to decide. */
    memmove(dst, tstr, size);
+   dst[len] = NULL;
    GlobalUnlock(hMem);
    EmptyClipboard();
    if (!SetClipboardData(TEXT_FORMAT, hMem)) {
