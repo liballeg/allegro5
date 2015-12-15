@@ -65,7 +65,7 @@ ALLEGRO_DEBUG_CHANNEL("video")
 #define AUDIO_BUF(vs) ((uint8_t *)((intptr_t)((vs)->audio_buf_unaligned + 15) & ~0xf))
 
 #define NOPTS_VALUE ((int64_t)AV_NOPTS_VALUE)
-int64_t FIXME_global_video_pkt_pts = NOPTS_VALUE;
+static int64_t FIXME_global_video_pkt_pts = NOPTS_VALUE;
 
 typedef struct PacketQueue {
    AVPacketList *first_pkt, *last_pkt;
