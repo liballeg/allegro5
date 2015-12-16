@@ -1051,8 +1051,9 @@ static void handle_key_press(int mycode, int unichar, int filtered,
    /* Toggle mouse grab key.  The system driver should not be locked here. */
    if (last_press_code && !is_repeat) {
       ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-      if (system->toggle_mouse_grab_keycode == mycode &&
-         (modifiers & system->toggle_mouse_grab_modifiers)
+      if (system->toggle_mouse_grab_keycode &&
+          system->toggle_mouse_grab_keycode == mycode &&
+          (modifiers & system->toggle_mouse_grab_modifiers)
             == system->toggle_mouse_grab_modifiers)
       {
          if (system->mouse_grab_display == display)

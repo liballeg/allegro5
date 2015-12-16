@@ -388,7 +388,7 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool extended,
    /* Toggle mouse grab key. */
    if (my_code && !repeated) {
       ALLEGRO_SYSTEM_WIN *system = (void *)al_get_system_driver();
-      if (my_code == system->toggle_mouse_grab_keycode &&
+      if (system->toggle_mouse_grab_keycode && my_code == system->toggle_mouse_grab_keycode &&
          (modifiers & system->toggle_mouse_grab_modifiers) == system->toggle_mouse_grab_modifiers)
       {
          if (system->mouse_grab_display == display) {
