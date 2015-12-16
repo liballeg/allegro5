@@ -6,6 +6,7 @@
 #endif
 
 
+void _al_configure_logging(void);
 void _al_shutdown_logging(void);
 
 

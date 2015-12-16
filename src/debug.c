@@ -78,7 +78,7 @@ static void delete_string_list(_AL_VECTOR *v)
 }
 
 
-static void configure_logging(void)
+void _al_configure_logging(void)
 {
    ALLEGRO_CONFIG *config;
    char const *v;
@@ -222,9 +222,8 @@ bool _al_trace_prefix(char const *channel, int level,
    char *name;
    _AL_VECTOR const *v;
 
-   /* XXX logging should be reconfigured if the system driver is reinstalled */
    if (!trace_info.configured) {
-      configure_logging();
+      _al_configure_logging();
    }
 
    if (level < trace_info.level)

@@ -119,11 +119,6 @@ static ALLEGRO_PATH *early_get_exename_path(void)
 
 static void read_allegro_cfg(void)
 {
-   /* We cannot use any logging in this function as it would cause the
-    * logging system to be initialised before all the relevant config files
-    * have been read in.
-    */
-
    /* We assume that the stdio file interface is in effect. */
 
    ALLEGRO_PATH *path;
@@ -161,6 +156,8 @@ static void read_allegro_cfg(void)
       }
       al_destroy_path(path);
    }
+   /* Reconfigure logging in case something changed. */
+   _al_configure_logging();
 }
 
 
