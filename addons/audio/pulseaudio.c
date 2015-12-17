@@ -207,7 +207,7 @@ static void *pulseaudio_update(ALLEGRO_THREAD *self, void *data)
          }
       }
       else if (status == PV_STOPPING) {
-         pa_simple_flush(pv->s, NULL);
+         pa_simple_drain(pv->s, NULL);
          al_lock_mutex(voice->mutex);
          pv->status = PV_IDLE;
          al_broadcast_cond(pv->status_cond);
@@ -245,7 +245,8 @@ static int pulseaudio_allocate_voice(ALLEGRO_VOICE *voice)
 
    ba.maxlength = 0x10000; // maximum length of buffer
    ba.tlength   = 0x2000;  // target length of buffer
-   ba.prebuf    = 0;       // minimum data size required before playback starts
+   ba.prebuf    = -1;      // minimum data size required before playback starts
+                           // set to -1 to work with the simple API.
    ba.minreq    = 0;       // minimum size of request 
    ba.fragsize  = -1;      // fragment size (recording)
 
