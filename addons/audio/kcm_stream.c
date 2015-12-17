@@ -705,20 +705,26 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
          bytes_written = stream->feeder(stream, fragment, bytes);
          maybe_unlock_mutex(stream->spl.mutex);
 
-        /* In case it reaches the end of the stream source, stream feeder will
-         * fill the remaining space with silence. If we should loop, rewind the
-         * stream and override the silence with the beginning.
-         * In extreme cases we need to repeat it multiple times.
-         */
-         while (bytes_written < bytes &&
-                  stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR) {
-            size_t bw;
-            al_rewind_audio_stream(stream);
-            maybe_lock_mutex(stream->spl.mutex);
-            bw = stream->feeder(stream, fragment + bytes_written,
-               bytes - bytes_written);
-            bytes_written += bw;
-            maybe_unlock_mutex(stream->spl.mutex);
+         if (stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR) {
+            /* Keep rewinding until the fragment is filled. */
+            while (bytes_written < bytes &&
+                     stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR) {
+               size_t bw;
+               al_rewind_audio_stream(stream);
+               maybe_lock_mutex(stream->spl.mutex);
+               bw = stream->feeder(stream, fragment + bytes_written,
+                  bytes - bytes_written);
+               bytes_written += bw;
+               maybe_unlock_mutex(stream->spl.mutex);
+            }
+         }
+         else if (bytes_written < bytes) {
+            /* Fill the rest of the fragment with silence. */
+            int silence_samples = (bytes - bytes_written) /
+               (al_get_channel_count(stream->spl.spl_data.chan_conf) *
+                al_get_audio_depth_size(stream->spl.spl_data.depth));
+            al_fill_silence(fragment + bytes_written, silence_samples,
+                            stream->spl.spl_data.depth, stream->spl.spl_data.chan_conf);
          }
 
          if (!al_set_audio_stream_fragment(stream, fragment)) {

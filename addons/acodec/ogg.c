@@ -417,13 +417,7 @@ static size_t ogg_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
 #endif
       pos += read;
 	   
-      /* If nothing read then now to silence from here to the end. */
       if (read == 0) {
-         unsigned long silence_samples = (buf_size - pos) /
-            (al_get_audio_depth_size(stream->spl.spl_data.depth) *
-             al_get_channel_count(stream->spl.spl_data.chan_conf));
-         al_fill_silence((char *)data + pos, silence_samples,
-            stream->spl.spl_data.depth, stream->spl.spl_data.chan_conf);
          /* Return the number of useful bytes written. */
          return pos;
       }
