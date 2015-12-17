@@ -464,6 +464,10 @@ event). You can use those events to implement your own bitmap content
 restoration mechanism if Allegro's does not work well enough for you (for
 example, you can reload them all from disk).
 
+ *Note*: The contents of a newly created bitmap are undefined - you need to
+clear the bitmap or make sure all pixels get overwritten before drawing
+it.
+
 See also: [al_set_new_bitmap_format], [al_set_new_bitmap_flags],
 [al_clone_bitmap], [al_create_sub_bitmap],
 [al_convert_bitmaps], [al_destroy_bitmap]
