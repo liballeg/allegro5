@@ -31,7 +31,7 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
  * glBlendColor - so adding this hack to disable it.
  */
 #ifdef ALLEGRO_ANDROID
-#if __x86_64__
+#if defined(__x86_64__) || defined(__i686__)
 #define ALLEGRO_ANDROID_HACK_X86_64
 #endif
 #endif
