@@ -7,7 +7,7 @@ endif()
 option(WANT_VORBIS "Enable Ogg Vorbis support using libvorbis" on)
 option(WANT_TREMOR "Enable Ogg Vorbis support using Tremor" off)
 option(WANT_MODAUDIO "Enable MOD Audio support" on)
-option(WANT_ACODEC_DYNAMIC_LOAD "Enable DLL loading in acodec (Windows)" on)
+option(WANT_ACODEC_DYNAMIC_LOAD "Enable DLL loading in acodec (Windows)" off)
 
 #-----------------------------------------------------------------------------#
 
