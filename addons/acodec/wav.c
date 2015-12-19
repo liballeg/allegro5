@@ -143,8 +143,13 @@ wav_open_error:
 static size_t wav_read(WAVFILE *wavfile, void *data, size_t samples)
 {
    size_t bytes_read;
+   size_t cur_samples;
 
    ASSERT(wavfile);
+
+   cur_samples = (al_ftell(wavfile->f) - wavfile->dpos) / wavfile->sample_size;
+   if (cur_samples + samples > (size_t)wavfile->samples)
+      samples = wavfile->samples - cur_samples;
 
    bytes_read = al_fread(wavfile->f, data, samples * wavfile->sample_size);
 
