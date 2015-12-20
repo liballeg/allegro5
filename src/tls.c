@@ -189,7 +189,7 @@ ALLEGRO_EXTRA_DISPLAY_SETTINGS *_al_get_new_display_settings(void)
 
 /* Function: al_set_new_window_title
  */
-void al_set_new_window_title(char *title)
+void al_set_new_window_title(const char *title)
 {
    thread_local_state *tls;
    size_t size;
@@ -203,7 +203,7 @@ void al_set_new_window_title(char *title)
       size = ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE;
    }
 
-   _al_sane_strncpy(tls->new_window_title, title, size);
+   _al_sane_strncpy(tls->new_window_title, title, size + 1);
 }
 
 
