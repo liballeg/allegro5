@@ -131,6 +131,7 @@ public class AllegroActivity extends Activity
    {
       try {
          if (surface != null) {
+            // TODO: How can this ever happen?
             Log.w("AllegroActivity", "not recreating surface");
             return;
          }
