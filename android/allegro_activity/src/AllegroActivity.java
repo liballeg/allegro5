@@ -130,6 +130,10 @@ public class AllegroActivity extends Activity
    void createSurface()
    {
       try {
+         if (surface != null) {
+            Log.w("AllegroActivity", "not recreating surface");
+            return;
+         }
          Log.d("AllegroActivity", "createSurface");
          surface = new AllegroSurface(getApplicationContext(),
                getWindowManager().getDefaultDisplay(), this);
