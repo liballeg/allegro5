@@ -42,7 +42,7 @@ if(WANT_PULSEAUDIO AND ALLEGRO_UNIX)
     pkg_check_modules(PULSEAUDIO libpulse-simple)
     if(PULSEAUDIO_FOUND)
         set(CMAKE_REQUIRED_INCLUDES ${PULSEAUDIO_INCLUDE_DIRS})
-        check_c_source_compiles("
+        run_c_compile_test("
             #include <pulse/simple.h>
             #include <pulse/error.h>
             #include <pulse/introspect.h>

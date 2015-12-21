@@ -263,7 +263,7 @@ if(MINGW)
     endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
     # Check for a common problem (at the time of writing).
-    check_c_source_compiles("
+    run_c_compile_test("
         #include <windows.h>
         int main(void)
         {
@@ -478,7 +478,7 @@ check_function_exists(strerror_s ALLEGRO_HAVE_STRERROR_S)
 
 check_type_size("_Bool" ALLEGRO_HAVE__BOOL)
 
-check_c_source_compiles("
+run_c_compile_test("
     #include <sys/procfs.h>
     int main(void) {
         struct prpsinfo psinfo;
@@ -488,7 +488,7 @@ check_c_source_compiles("
     ALLEGRO_HAVE_PROCFS_ARGCV
     )
 
-check_c_source_compiles("
+run_c_compile_test("
     #include <sys/procfs.h>
     #include <sys/ioctl.h>
     int main(void) {
@@ -499,7 +499,7 @@ check_c_source_compiles("
     ALLEGRO_HAVE_SV_PROCFS_H
     )
 
-check_c_source_compiles("
+run_c_compile_test("
     #include <stdarg.h>
     int main(void) {
         va_list a, b;
@@ -624,7 +624,7 @@ if(SUPPORT_X11)
     endif(CAN_XCURSOR)
 
     check_include_file("X11/extensions/XInput2.h" CAN_XINPUT2)
-    check_c_source_compiles("
+    run_c_compile_test("
         #include <X11/extensions/XInput2.h>
         int main(void) { (void)XI_TouchBegin; return 0; }"
         XINPUT2_COMPILES

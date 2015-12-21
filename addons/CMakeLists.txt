@@ -90,7 +90,7 @@ if(WANT_PHYSFS)
     if(PHYSFS_FOUND)
         set(CMAKE_REQUIRED_INCLUDES ${PHYSFS_INCLUDE_DIR})
         set(CMAKE_REQUIRED_LIBRARIES ${PHYSFS_LIBRARY})
-        check_c_source_compiles("
+        run_c_compile_test("
             #include <physfs.h>
 
             int main(int argc, char **argv)

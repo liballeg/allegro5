@@ -25,7 +25,7 @@ if(WANT_NATIVE_IMAGE_LOADER)
             set(CMAKE_REQUIRED_DEFINITIONS -DGDIPLUS_LOWERCASE=${GDIPLUS_LOWERCASE})
             set(CMAKE_REQUIRED_INCLUDES ${GDIPLUS_INCLUDE_DIR})
             set(CMAKE_REQUIRED_LIBRARIES ${GDIPLUS_LIBRARY})
-            check_cxx_source_compiles("
+            run_cxx_compile_test("
                 #include <windows.h>
                 #include <objidl.h>
                 #if GDIPLUS_LOWERCASE
@@ -100,7 +100,7 @@ if(WANT_IMAGE_JPG AND NOT ALLEGRO_CFG_IIO_SUPPORT_JPG)
     find_package(JPEG)
     if(JPEG_FOUND AND MINGW)
         set(CMAKE_REQUIRED_INCLUDES ${JPEG_INCLUDE_DIR})
-        check_c_source_compiles("
+        run_c_compile_test("
             #include <stdio.h>
             #include <windows.h>
             #include <jpeglib.h>

@@ -39,7 +39,7 @@ if(ALLEGRO_HAVE_SOUNDCARD_H OR ALLEGRO_HAVE_SYS_SOUNDCARD_H OR
             -DALLEGRO_HAVE_SOUNDCARD_H)
     endif(ALLEGRO_HAVE_SOUNDCARD_H)
 
-    check_c_source_compiles("
+    run_c_compile_test("
         #ifdef ALLEGRO_HAVE_SOUNDCARD_H
         #include <soundcard.h>
         #endif

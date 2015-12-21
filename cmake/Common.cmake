@@ -21,6 +21,23 @@ function(set_our_header_properties)
     endforeach(file)
 endfunction(set_our_header_properties)
 
+# Normally CMake caches the "failure" result of a compile test, preventing it
+# from re-running. These helpers delete the cache variable on failure so that
+# CMake will try again next time.
+function(run_c_compile_test source var)
+    check_c_source_compiles("${source}" ${var})
+    if (NOT ${var})
+        unset(${var} CACHE)
+    endif(NOT ${var})
+endfunction(run_c_compile_test)
+
+function(run_cxx_compile_test source var)
+    check_cxx_source_compiles("${source}" ${var})
+    if (NOT ${var})
+        unset(${var} CACHE)
+    endif(NOT ${var})
+endfunction(run_cxx_compile_test)
+
 function(append_lib_type_suffix var)
     string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_TOLOWER)
     if(CMAKE_BUILD_TYPE_TOLOWER STREQUAL "debug")

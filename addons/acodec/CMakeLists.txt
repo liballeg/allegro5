@@ -87,7 +87,7 @@ if(WANT_FLAC)
             set(CMAKE_REQUIRED_LIBRARIES ${FLAC_LIBRARIES} m)
         endif()
         set(CMAKE_REQUIRED_DEFINITIONS ${FLAC__NO_DLL})
-        check_c_source_compiles("
+        run_c_compile_test("
             #include <FLAC/stream_decoder.h>
             int main(void)
             {
@@ -100,8 +100,6 @@ if(WANT_FLAC)
         set(CMAKE_REQUIRED_DEFINITIONS)
         if(FLAC_COMPILES)
             set(SUPPORT_FLAC 1)
-        else(FLAC_COMPILES)
-            unset(FLAC_COMPILES CACHE)
         endif(FLAC_COMPILES)
     endif(FLAC_FOUND)
     if(NOT SUPPORT_FLAC)
@@ -141,7 +139,7 @@ if(WANT_MODAUDIO)
     if(DUMB_FOUND)
         set(CMAKE_REQUIRED_INCLUDES ${DUMB_INCLUDE_DIR})
         set(CMAKE_REQUIRED_LIBRARIES ${DUMB_LIBRARIES})
-        check_c_source_compiles("
+        run_c_compile_test("
             #include <dumb.h>
             int main(void)
             {
@@ -191,7 +189,7 @@ if(WANT_TREMOR)
     if(TREMOR_FOUND)
         set(CMAKE_REQUIRED_INCLUDES ${TREMOR_INCLUDE_DIR})
         set(CMAKE_REQUIRED_LIBRARIES ${TREMOR_LIBRARIES})
-        check_c_source_compiles("
+        run_c_compile_test("
             #include <tremor/ivorbisfile.h>
             int main(void)
             {
@@ -225,7 +223,7 @@ elseif(WANT_VORBIS)
         else()
             set(CMAKE_REQUIRED_LIBRARIES "${VORBIS_LIBRARIES}")
         endif(COMPILER_GCC_OR_CLANG)
-        check_c_source_compiles("
+        run_c_compile_test("
             #include <vorbis/vorbisfile.h>
             int main(void)
             {
