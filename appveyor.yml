@@ -12,5 +12,5 @@ install:
 build_script:
   - mkdir build
   - cd build
-  - cmake .. -G "Visual Studio 14 2015"
+  - cmake .. -G "Visual Studio 14 2015" -DWANT_ACODEC_DYNAMIC_LOAD=off -DFLAC_STATIC=on
   - cmake --build . --config RelWithDebInfo
