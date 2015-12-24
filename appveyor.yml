@@ -5,12 +5,12 @@ install:
   - mkdir deps
   - mkdir deps\include
   - mkdir deps\lib
-  - nuget install freetype -OutputDirectory deps -ExcludeVersion
-  - ps: move deps\freetype\build\native\include\* deps\include -force
-  - ps: move deps\freetype\build\native\lib\Win32\v110\static\Release\freetype261.lib deps\lib\freetype.lib -force
+  - nuget install AllegroDeps -Version 1.3.0.2 -OutputDirectory deps -ExcludeVersion
+  - ps: move deps\AllegroDeps\build\native\include\* deps\include -force
+  - ps: move deps\AllegroDeps\build\native\lib\win32\v140\mt\* deps\lib -force
 
 build_script:
   - mkdir build
   - cd build
-  - cmake .. -DSHARED=off
+  - cmake .. -G "Visual Studio 14 2015"
   - cmake --build . --config RelWithDebInfo
