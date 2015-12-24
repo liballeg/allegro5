@@ -7,9 +7,9 @@ wget -N http://downloads.sourceforge.net/project/bmptestsuite/bmptestsuite/bmpte
 unzip -u bmptestsuite-0.9.zip
 
 # bmp suite 3
-wget -N -P wvnet http://circuitebre.cat/diplomes/www/test/images/bmp/test32bfv4.bmp
-wget -N -P wvnet http://circuitebre.cat/diplomes/www/test/images/bmp/test32v5.bmp
-wget -N -P wvnet http://circuitebre.cat/diplomes/www/test/images/bmp/trans.bmp
+wget -N -P wvnet http://download.gna.org/allegro/files/bmpsuite/wvnet/test32bfv4.bmp
+wget -N -P wvnet http://download.gna.org/allegro/files/bmpsuite/wvnet/test32v5.bmp
+wget -N -P wvnet http://download.gna.org/allegro/files/bmpsuite/wvnet/trans.bmp
 
 # bmp suite 4
 wget -N http://entropymine.com/jason/bmpsuite/releases/bmpsuite-2.4.zip
