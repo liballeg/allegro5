@@ -133,6 +133,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
    WINDOWINFO wi;
    int lsize, rsize, tsize, bsize; // left, right, top, bottom border sizes
+   wchar_t* window_title;
 
    wi.cbSize = sizeof(WINDOWINFO);
 
@@ -151,10 +152,12 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
       _al_win_get_window_center(win_display, width, height, &pos_x, &pos_y);
    }
 
+   window_title = _al_win_utf16(al_get_new_window_title());
    my_window = CreateWindowEx(ex_style,
-      L"ALEX", L"Allegro", style,
+      L"ALEX", window_title, style,
       pos_x, pos_y, width, height,
       NULL,NULL,window_class.hInstance,0);
+   al_free(window_title);
 
    if (_al_win_register_touch_window)
       _al_win_register_touch_window(my_window, 0);
@@ -205,6 +208,7 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    DWORD ex_style;
    DEVMODE mode;
    LONG temp;
+   wchar_t* window_title;
 
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
    (void)flags;
@@ -214,10 +218,12 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    style = WS_VISIBLE;
    ex_style = WS_EX_TOPMOST;
 
+   window_title = _al_win_utf16(al_get_new_window_title());
    my_window = CreateWindowEx(ex_style,
-      L"ALEX", L"Allegro", style,
+      L"ALEX", window_title, style,
       x1, y1, width, height,
       NULL,NULL,window_class.hInstance,0);
+   al_free(window_title);
 
    if (_al_win_register_touch_window)
       _al_win_register_touch_window(my_window, 0);

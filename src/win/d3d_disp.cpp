@@ -93,6 +93,8 @@ typedef struct D3D_DISPLAY_PARAMETERS {
    volatile bool init_failed;
    HANDLE AckEvent;
    int window_x, window_y;
+   /* Not owned. */
+   const char *window_title;
 } D3D_DISPLAY_PARAMETERS;
 
 
@@ -1257,14 +1259,11 @@ struct CREATE_WINDOW_INFO {
    int flags;
    bool inited;
    bool quit;
-   int window_x, window_y;
 };
 
 static void d3d_create_window_proc(CREATE_WINDOW_INFO *info)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)info->display;
-
-   al_set_new_window_position(info->window_x, info->window_y);
 
    win_display->window = _al_win_create_window(
       info->display,
@@ -1311,9 +1310,6 @@ static void *d3d_display_thread_proc(void *arg)
    D3DCAPS9 caps;
    MSG msg;
 
-   info->window_x = params->window_x;
-   info->window_y = params->window_y;
-
    d3d_display = params->display;
    win_display = &d3d_display->win_display;
    al_display = &win_display->display;
@@ -1327,6 +1323,8 @@ static void *d3d_display_thread_proc(void *arg)
 
    /* So that we can call the functions using TLS from this thread. */
    al_set_new_display_flags(al_display->flags);
+   al_set_new_window_position(params->window_x, params->window_y);
+   al_set_new_window_title(params->window_title);
 
    new_format = _al_deduce_color_format(&al_display->extra_settings);
 
@@ -1637,6 +1635,7 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_internals(
    al_get_new_window_position(&window_x, &window_y);
    params.window_x = window_x;
    params.window_y = window_y;
+   params.window_title = al_get_new_window_title();
 
    _al_d3d_generate_display_format_list();
 
