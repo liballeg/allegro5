@@ -63,6 +63,8 @@ typedef struct WGL_DISPLAY_PARAMETERS {
    volatile bool init_failed;
    HANDLE AckEvent;
    int window_x, window_y;
+   /* Not owned. */
+   const char* window_title;
 } WGL_DISPLAY_PARAMETERS;
 
 
@@ -924,6 +926,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    al_get_new_window_position(&window_x, &window_y);
    ndp.window_x = window_x;
    ndp.window_y = window_y;
+   ndp.window_title = al_get_new_window_title();
 
    /* _beginthread closes the handle automatically. */
    ndp.display = wgl_disp;
@@ -1194,10 +1197,10 @@ static void display_thread_proc(void *arg)
    ALLEGRO_DISPLAY_WIN *win_disp = (void*)disp;
    MSG msg;
 
-   al_set_new_window_position(ndp->window_x, ndp->window_y);
-
    /* So that we can call the functions using TLS from this thread. */
    al_set_new_display_flags(disp->flags);
+   al_set_new_window_position(ndp->window_x, ndp->window_y);
+   al_set_new_window_title(ndp->window_title);
 
    if (disp->flags & ALLEGRO_FULLSCREEN) {
       if (!change_display_mode(disp)) {
