@@ -69,7 +69,7 @@ static void preprocess(void)
             d_print(text);
             d_printf("~~~~");
          }
-         d_printf("\nSource Code: [%s](%s)\n", name, source);
+         d_printf("\n[Source Code](%s)\n", source);
       }
       else {
          d_print(line);
