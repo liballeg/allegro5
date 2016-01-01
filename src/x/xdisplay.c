@@ -25,6 +25,7 @@ static const ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE default_overridable_vt;
 static const ALLEGRO_XWIN_DISPLAY_OVERRIDABLE_INTERFACE *gtk_override_vt = NULL;
 
 static void xdpy_destroy_display(ALLEGRO_DISPLAY *d);
+static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d);
 
 
 /* XXX where does this belong? */
@@ -374,6 +375,12 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
     */
    while (!d->is_mapped) {
       _al_cond_wait(&d->mapped, &system->lock);
+   }
+   /* In tiling WMs, we might get resize events pretty much immediately after
+    * Window creation. This location seems to catch them reliably, tested with
+    * dwm, awesome, xmonad and i3. */
+   if ((display->flags & ALLEGRO_RESIZABLE) && d->resize_count > 0) {
+      xdpy_acknowledge_resize(display);
    }
 
    /* We can do this at any time, but if we already have a mapped
