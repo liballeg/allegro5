@@ -88,13 +88,19 @@ function(add_our_library target framework_name sources extra_flags link_with)
 
     if(MSVC)
         # Compile with multiple processors
-        set(msvc_flags "/MP")
+        set(extra_flags "${extra_flags} /MP")
         if(WANT_STATIC_RUNTIME)
             if(CMAKE_BUILD_TYPE STREQUAL Debug)
-                set(msvc_flags "${msvc_flags} /MTd")
+                set(extra_flags "${extra_flags} /MTd")
             else()
-                set(msvc_flags "${msvc_flags} /MT")
+                set(extra_flags "${extra_flags} /MT")
             endif()
+        endif()
+    elseif(MINGW)
+        if(WANT_STATIC_RUNTIME)
+            # TODO: The -static is a bit of a hack for MSYS2 to force the static linking of pthreads.
+            # There has to be a better way.
+            set(extra_link_flags "-static-libgcc -static-libstdc++ -static -lpthread")
         endif()
     endif()
 
@@ -105,14 +111,15 @@ function(add_our_library target framework_name sources extra_flags link_with)
     if(NOT ANDROID)
         set_target_properties(${target}
             PROPERTIES
-            COMPILE_FLAGS "${extra_flags} ${static_flag} ${msvc_flags} -DALLEGRO_LIB_BUILD"
+            COMPILE_FLAGS "${extra_flags} ${static_flag} -DALLEGRO_LIB_BUILD"
+            LINK_FLAGS "${extra_link_flags}"
             VERSION ${ALLEGRO_VERSION}
             SOVERSION ${ALLEGRO_SOVERSION}
             )
     else(NOT ANDROID)
         set_target_properties(${target}
             PROPERTIES
-            COMPILE_FLAGS "${extra_flags} ${static_flag} ${msvs_flags} -DALLEGRO_LIB_BUILD"
+            COMPILE_FLAGS "${extra_flags} ${static_flag} -DALLEGRO_LIB_BUILD"
             )
     endif(NOT ANDROID)
     
