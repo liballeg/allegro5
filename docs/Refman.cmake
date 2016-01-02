@@ -274,7 +274,7 @@ if(WANT_DOCS_HTML)
         configure_file(
             ${SRC_DIR}/${file}
             ${HTML_DIR}/${file}
-            COPY_ONLY)
+            COPYONLY)
     endforeach(file)
 endif(WANT_DOCS_HTML)
 
