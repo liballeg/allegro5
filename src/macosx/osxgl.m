@@ -105,7 +105,7 @@ static const unsigned int allegro_to_osx_settings[][3] = {
    //{ ALLEGRO_RENDER_METHOD,      NSOpenGLPFAAccelerated, 0}, handled separately
    { ALLEGRO_FLOAT_COLOR,        NSOpenGLPFAColorFloat, 0},
    { ALLEGRO_FLOAT_DEPTH,        0, 0},
-   { ALLEGRO_SINGLE_BUFFER ,     0, 0},   // Only have inverse of this
+   //{ ALLEGRO_SINGLE_BUFFER ,     0, 0}, handled separately
    { ALLEGRO_SWAP_METHOD,        0, 0},
    { ALLEGRO_COMPATIBLE_DISPLAY, 0, 0},
    { ALLEGRO_DISPLAY_OPTIONS_COUNT, 0, 0}
@@ -747,6 +747,7 @@ static void osx_set_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    if (extras && (extras->required & (1 << ALLEGRO_SINGLE_BUFFER)) &&
          extras->settings[ALLEGRO_SINGLE_BUFFER]) {
       want_double_buffer = false;
+      dpy->single_buffer = true;
    }
    if (want_double_buffer) {
       *a = NSOpenGLPFADoubleBuffer; a++;
@@ -1700,7 +1701,7 @@ static void flip_display(ALLEGRO_DISPLAY *disp)
 	al_set_target_backbuffer(disp);
    }
 
-   if (disp->extra_settings.settings[ALLEGRO_SINGLE_BUFFER]) {
+   if (dpy->single_buffer) {
       glFlush();
    }
    else {

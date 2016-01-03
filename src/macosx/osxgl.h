@@ -31,6 +31,7 @@ typedef struct ALLEGRO_DISPLAY_OSX_WIN {
    NSTrackingArea *tracking;
    unsigned int display_group;
    BOOL in_fullscreen;
+   BOOL single_buffer;
    CGDisplayModeRef original_mode;
 } ALLEGRO_DISPLAY_OSX_WIN;
 
