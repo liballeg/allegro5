@@ -95,6 +95,12 @@ function(add_our_library target framework_name sources extra_flags link_with)
             else()
                 set(extra_flags "${extra_flags} /MT")
             endif()
+            if (NOT BUILD_SHARED_LIBS)
+                # /Zl instructs MSVC to not mention the CRT used at all,
+                # allowing the static libraries to be combined with any CRT version
+                # in the final dll/exe.
+                set(extra_flags "${extra_flags} /Zl")
+            endif()
         endif()
     elseif(MINGW)
         if(WANT_STATIC_RUNTIME)
