@@ -442,11 +442,11 @@ bool _al_save_wav_f(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl)
    al_fputs(pf, "fmt ");
    al_fwrite32le(pf, 16);
    al_fwrite16le(pf, 1);
-   al_fwrite16le(pf, channels);
+   al_fwrite16le(pf, (int16_t)channels);
    al_fwrite32le(pf, spl->frequency);
    al_fwrite32le(pf, spl->frequency * channels * bits / 8);
-   al_fwrite16le(pf, channels * bits / 8);
-   al_fwrite16le(pf, bits);
+   al_fwrite16le(pf, (int16_t)(channels * bits / 8));
+   al_fwrite16le(pf, (int16_t)bits);
 
    al_fputs(pf, "data");
    al_fwrite32le(pf, data_size);

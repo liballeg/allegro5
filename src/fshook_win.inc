@@ -223,7 +223,7 @@ static struct _tdirent* _treaddir(_TDIR* dirp)
       /* Successfully got an entry. Everything about the file is
        * already appropriately filled in except the length of the
        * file name. */
-      dirp->dd_dir.d_namlen = _tcslen(dirp->dd_dta.name);
+      dirp->dd_dir.d_namlen = (unsigned short)_tcslen(dirp->dd_dta.name);
       _tcscpy(dirp->dd_dir.d_name, dirp->dd_dta.name);
       return &dirp->dd_dir;
    }

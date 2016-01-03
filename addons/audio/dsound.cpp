@@ -794,9 +794,9 @@ static int _dsound_open_recorder(ALLEGRO_AUDIO_RECORDER *r)
 
    memset(&extra->wave_fmt, 0, sizeof(extra->wave_fmt));
    extra->wave_fmt.wFormatTag = WAVE_FORMAT_PCM;
-   extra->wave_fmt.nChannels = al_get_channel_count(r->chan_conf);
+   extra->wave_fmt.nChannels = (WORD)al_get_channel_count(r->chan_conf);
    extra->wave_fmt.nSamplesPerSec = r->frequency;
-   extra->wave_fmt.wBitsPerSample = al_get_audio_depth_size(r->depth) * 8;
+   extra->wave_fmt.wBitsPerSample = (WORD)al_get_audio_depth_size(r->depth) * 8;
    extra->wave_fmt.nBlockAlign = extra->wave_fmt.nChannels * extra->wave_fmt.wBitsPerSample / 8;
    extra->wave_fmt.nAvgBytesPerSec = extra->wave_fmt.nSamplesPerSec * extra->wave_fmt.nBlockAlign;
    
