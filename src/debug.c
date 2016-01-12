@@ -284,13 +284,9 @@ channel_included:
       do_trace("%-32s ", function);
    }
    if (trace_info.flags & 4) {
-      double t = al_get_time();
-      /* Kludge:
-       * Very high timers (more than a year?) likely mean the timer
-       * subsystem isn't initialized yet, so print 0.
-       */
-      if (t > 3600 * 24 * 365)
-         t = 0;
+      double t = 0;
+      if (al_is_system_installed())
+         t = al_get_time();
       do_trace("[%10.5f] ", t);
    }
 
