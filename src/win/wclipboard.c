@@ -87,7 +87,7 @@ static bool win_set_clipboard_text(ALLEGRO_DISPLAY *display, const char *text)
    /* Copy the text over. Unlike SDL, do NOT convert newlines, that's for the
     * use to decide. */
    memmove(dst, tstr, size);
-   dst[len] = NULL;
+   dst[len] = 0;
    GlobalUnlock(hMem);
    EmptyClipboard();
    if (!SetClipboardData(TEXT_FORMAT, hMem)) {

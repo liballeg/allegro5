@@ -920,8 +920,8 @@ static int poll_theora_decode(ALLEGRO_VIDEO *video, STREAM *tstream_outer)
    }
 
    if (new_frame) {
-      al_lock_mutex(ogv->mutex);
       ALLEGRO_EVENT event;
+      al_lock_mutex(ogv->mutex);
 
       rc = th_decode_ycbcr_out(tstream->ctx, ogv->buffer);
       ASSERT(rc == 0);

@@ -238,12 +238,13 @@ static void read_palette(int ncolors, PalEntry *pal, ALLEGRO_FILE *f,
    decode_bitfield(infoheader->biAlphaMask, &as, &am);
 
    for (i = 0; i < ncolors; i++) {
+      uint32_t pixel;
       al_fread(f, c, 3);
       r = c[2];
       g = c[1];
       b = c[0];
 
-      uint32_t pixel = (r << 16) | (g << 8) | b;
+      pixel = (r << 16) | (g << 8) | b;
 
       switch (am) {
          case 0x00:
@@ -1229,10 +1230,9 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f, int flags)
       infoheader.biAlphaMask = 0x0;
    }
    else {
+      uint32_t pixel_mask = 0xFFFFFFFFU;
       infoheader.biHaveAlphaMask = true;
       infoheader.biAlphaMask = (uint32_t)al_fread32le(f);
-
-      uint32_t pixel_mask = 0xFFFFFFFFU;
 
       if (infoheader.biBitCount < 32)
          pixel_mask = ~(pixel_mask << infoheader.biBitCount) & 0xFFFFFFFFU;
