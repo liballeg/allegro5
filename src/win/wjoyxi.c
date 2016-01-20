@@ -255,10 +255,23 @@ static bool load_xinput_module(void)
 
 static void joyxi_generate_reconfigure_event(void)
 {
-   ALLEGRO_EVENT_SOURCE *source = al_get_joystick_event_source();
+   ALLEGRO_EVENT_SOURCE *source;
    ALLEGRO_EVENT event;
+
+   /* There is a potential race condition with all of the generate functions
+    * in this source file where al_get_joystick_event_source is returning NULL
+    * because the joystick driver init functions haven't finished and
+    * therefore new_joystick_driver in joynu.c isn't set yet. So we check that
+    * the driver has fully installed before proceeding.
+    */
+   if (!al_is_joystick_installed())
+      return;
+
+   source = al_get_joystick_event_source();
+
    if (!_al_event_source_needs_to_generate_event(source))
       return;
+
    event.type = ALLEGRO_EVENT_JOYSTICK_CONFIGURATION;
    event.any.timestamp = al_get_time();
    event.any.source = source;
@@ -271,7 +284,12 @@ static void joyxi_generate_reconfigure_event(void)
 static void joyxi_generate_axis_event(ALLEGRO_JOYSTICK_XINPUT *joy, int stick, int axis, float pos)
 {
    ALLEGRO_EVENT event;
-   ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
+   ALLEGRO_EVENT_SOURCE *es;
+
+   if (!al_is_joystick_installed())
+      return;
+
+   es = al_get_joystick_event_source();
 
    if (!_al_event_source_needs_to_generate_event(es))
       return;
@@ -295,7 +313,12 @@ static void joyxi_generate_axis_event(ALLEGRO_JOYSTICK_XINPUT *joy, int stick, i
 static void joyxi_generate_button_event(ALLEGRO_JOYSTICK_XINPUT *joy, int button, ALLEGRO_EVENT_TYPE event_type)
 {
    ALLEGRO_EVENT event;
-   ALLEGRO_EVENT_SOURCE *es = al_get_joystick_event_source();
+   ALLEGRO_EVENT_SOURCE *es;
+
+   if (!al_is_joystick_installed())
+      return;
+
+   es = al_get_joystick_event_source();
 
    if (!_al_event_source_needs_to_generate_event(es))
       return;
