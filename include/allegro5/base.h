@@ -67,9 +67,9 @@
  */
 #define ALLEGRO_RELEASE_NUMBER   0
 
-#define ALLEGRO_VERSION_STR      "5.1.13 (GIT)"
-#define ALLEGRO_DATE_STR         "2015"
-#define ALLEGRO_DATE             20150929    /* yyyymmdd */
+#define ALLEGRO_VERSION_STR      "5.1.14 (GIT)"
+#define ALLEGRO_DATE_STR         "2016"
+#define ALLEGRO_DATE             20160124    /* yyyymmdd */
 #define ALLEGRO_VERSION_INT \
     ((ALLEGRO_VERSION << 24) | (ALLEGRO_SUB_VERSION << 16) | \
     (ALLEGRO_WIP_VERSION << 8) | ALLEGRO_RELEASE_NUMBER)
