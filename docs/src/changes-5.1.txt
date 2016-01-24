@@ -3,6 +3,130 @@
 See `changes-5.0.txt` for changes in Allegro 5.0.x.  These lists
 serve as summaries; the full histories are in the git repository.
 
+
+Changes from 5.1.12 to 5.1.13 (January 2016)
+============================================
+
+The main developers this time were: Julian Smythe, Elias Pschernig and
+Peter Hull.
+
+Graphics:
+
+  - Add `al_get_opengl_program_object` (SiegeLord).
+
+Input:
+
+  - Fix spurious triggering of the mouse grab key when it wasn't otherwise set
+    (SiegeLord).
+
+Android port:
+
+  - Avoid multiple HALT/RESUME events on Android (Max Savenkov).
+
+  - Implement `al_get_monitor_info` for Android (Reuben Bell).
+
+  - Fix Android crash on file access.
+
+  - Implement ALLEGRO_FULLSCREEN_WINDOW on Android.
+
+  - Fix crash if display is destroyed while the app is switched out.
+
+  - Add support for x86_64 Android.
+
+  - Add `al_android_set_apk_fs_interface`.
+
+Linux port:
+
+  - Allow using OpenGL ES in X11.
+
+  - Fix the initial display size not being correct sometimes (SiegeLord).
+
+  - Fix a race condition in the XInput joystick driver (Trent Gamblin).
+
+OSX port:
+
+  - Fix various memory leaks.
+
+  - Fix `al_set_window_title`.
+
+  - Fix a lot of decrepid and deprecated code.
+
+  - Fix single buffer flip display (SiegeLord).
+
+Windows port:
+
+  - Fix Windows UNC path handling.
+
+  - Fix clipboard nul-termination issues (Trent Gamblin).
+
+  - Set the window title immediately upon window creation (SiegeLord).
+
+Build system:
+
+  - Define CMAKE_FIND_ROOT_PATH for i686-w64-mingw32 cross compiler
+    (Martijn van Iersel).
+
+  - Allow building with older CMakes again (SiegeLord).
+
+  - Do not catche compile tests' failure (Bruce Pascoe).
+
+  - Add a way to statically link the runtime with MinGW (SiegeLord).
+
+  - Don't link the MSVC C runtime at all when requesting a static runtime and
+    building a static library (SiegeLord).
+
+Documentation:
+
+  - Add links to the source code of the definitions of the most API entries.
+
+  - Fix sidebar generation with modern Pandoc (Boris Carvajal).
+
+Python:
+
+  - Fix ordering issue for HAPTIC* structs.
+
+  - Fix missing ALLEGRO_PRIM_ATTR_NUM.
+
+Other:
+
+  - Add a 'none' debug level to turn off logging entirely in debug builds
+    (SiegeLord).
+
+  - Reconfigure logging after the configuration files are loaded (SiegeLord).
+
+  - Fix al_set_new_window_title() off-by-1 (Bruce Pascoe).
+
+  - Don't call al_get_time() before system is installed (SiegeLord).
+
+Audio addon:
+
+  - Add `al_get_default_voice` and `al_set_default_voice`.
+
+  - Flush the pulse audio stream rather than draining it, fixing some audio
+    breaks (SiegeLord).
+
+  - Fill audio stream fragments with silence in the audio addon rather than in
+    the acodec addon, fixing some garbage output (SiegeLord).
+
+Acodec addon:
+
+  - Don't read past the audio chunk's end when streaming wav files (SiegeLord).
+
+  - Turn off allegro_acodec dynamic loading by default, fixing a common footgun (Bruce Pascoe).
+
+Image addon:
+
+  - An enormous amount of work supporting reading of esoteric (and not) BMP
+    format variants (palletted, GIMP-style, etc). New tests were added using the
+    manual bmp suites.
+
+Native dialog addon:
+
+  - Update code to work with modern OSX versions.
+
+  - Clean up menu handling on OSX.
+
+
 Changes from 5.1.11 to 5.1.12 (September 2015)
 ==============================================
 
