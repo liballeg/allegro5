@@ -108,6 +108,8 @@ Audio addon:
   - Fill audio stream fragments with silence in the audio addon rather than in
     the acodec addon, fixing some garbage output (SiegeLord).
 
+  - Fix possible deadlock when destroying audio streams (SiegeLord).
+
 Acodec addon:
 
   - Don't read past the audio chunk's end when streaming wav files (SiegeLord).
