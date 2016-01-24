@@ -24,11 +24,16 @@ ALLEGRO_DEBUG_CHANNEL("audio")
 #define MAX_LAG   (3)
 
 
-static void maybe_lock_mutex(ALLEGRO_MUTEX *mutex)
+/*
+ * To avoid deadlocks, unlock the mutex returned by this function, rather than
+ * whatever you passed as the argument.
+ */
+static ALLEGRO_MUTEX *maybe_lock_mutex(ALLEGRO_MUTEX *mutex)
 {
    if (mutex) {
       al_lock_mutex(mutex);
    }
+   return mutex;
 }
 
 
@@ -307,9 +312,10 @@ bool al_get_audio_stream_attached(const ALLEGRO_AUDIO_STREAM *stream)
 uint64_t al_get_audio_stream_played_samples(const ALLEGRO_AUDIO_STREAM *stream)
 {
    uint64_t result;
+   ALLEGRO_MUTEX *stream_mutex;
    ASSERT(stream);
 
-   maybe_lock_mutex(stream->spl.mutex);
+   stream_mutex = maybe_lock_mutex(stream->spl.mutex);
    if (stream->spl.spl_data.buffer.ptr) {
       result = stream->consumed_fragments * stream->spl.spl_data.len +
          stream->spl.pos;
@@ -317,7 +323,7 @@ uint64_t al_get_audio_stream_played_samples(const ALLEGRO_AUDIO_STREAM *stream)
    else {
       result = 0;
    }
-   maybe_unlock_mutex(stream->spl.mutex);
+   maybe_unlock_mutex(stream_mutex);
 
    return result;
 }
@@ -328,9 +334,10 @@ void *al_get_audio_stream_fragment(const ALLEGRO_AUDIO_STREAM *stream)
 {
    size_t i;
    void *fragment;
+   ALLEGRO_MUTEX *stream_mutex;
    ASSERT(stream);
 
-   maybe_lock_mutex(stream->spl.mutex);
+   stream_mutex = maybe_lock_mutex(stream->spl.mutex);
 
    if (!stream->used_bufs[0]) {
       /* No free fragments are available. */
@@ -344,7 +351,7 @@ void *al_get_audio_stream_fragment(const ALLEGRO_AUDIO_STREAM *stream)
       stream->used_bufs[i] = NULL;
    }
 
-   maybe_unlock_mutex(stream->spl.mutex);
+   maybe_unlock_mutex(stream_mutex);
 
    return fragment;
 }
@@ -371,8 +378,7 @@ bool al_set_audio_stream_speed(ALLEGRO_AUDIO_STREAM *stream, float val)
    stream->spl.speed = val;
    if (stream->spl.parent.u.mixer) {
       ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;
-
-      maybe_lock_mutex(stream->spl.mutex);
+      ALLEGRO_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
 
       stream->spl.step = (stream->spl.spl_data.frequency) * stream->spl.speed;
       stream->spl.step_denom = mixer->ss.spl_data.frequency;
@@ -381,7 +387,7 @@ bool al_set_audio_stream_speed(ALLEGRO_AUDIO_STREAM *stream, float val)
          stream->spl.step = 1;
       }
 
-      maybe_unlock_mutex(stream->spl.mutex);
+      maybe_unlock_mutex(stream_mutex);
    }
 
    return true;
@@ -408,10 +414,9 @@ bool al_set_audio_stream_gain(ALLEGRO_AUDIO_STREAM *stream, float val)
        */
       if (stream->spl.parent.u.mixer) {
          ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;
-
-         maybe_lock_mutex(stream->spl.mutex);
+         ALLEGRO_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
          _al_kcm_mixer_rejig_sample_matrix(mixer, &stream->spl);
-         maybe_unlock_mutex(stream->spl.mutex);
+         maybe_unlock_mutex(stream_mutex);
       }
    }
 
@@ -443,10 +448,9 @@ bool al_set_audio_stream_pan(ALLEGRO_AUDIO_STREAM *stream, float val)
        */
       if (stream->spl.parent.u.mixer) {
          ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;
-
-         maybe_lock_mutex(stream->spl.mutex);
+         ALLEGRO_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
          _al_kcm_mixer_rejig_sample_matrix(mixer, &stream->spl);
-         maybe_unlock_mutex(stream->spl.mutex);
+         maybe_unlock_mutex(stream_mutex);
       }
    }
 
@@ -530,6 +534,7 @@ static void reset_stopped_stream(ALLEGRO_AUDIO_STREAM *stream)
 bool al_set_audio_stream_playing(ALLEGRO_AUDIO_STREAM *stream, bool val)
 {
    bool rc = true;
+   ALLEGRO_MUTEX *stream_mutex;
    ASSERT(stream);
 
    if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
@@ -539,7 +544,7 @@ bool al_set_audio_stream_playing(ALLEGRO_AUDIO_STREAM *stream, bool val)
       }
    }
 
-   maybe_lock_mutex(stream->spl.mutex);
+   stream_mutex = maybe_lock_mutex(stream->spl.mutex);
 
    stream->spl.is_playing = rc && val;
 
@@ -554,7 +559,7 @@ bool al_set_audio_stream_playing(ALLEGRO_AUDIO_STREAM *stream, bool val)
       reset_stopped_stream(stream);
    }
 
-   maybe_unlock_mutex(stream->spl.mutex);
+   maybe_unlock_mutex(stream_mutex);
 
    return rc;
 }
@@ -578,9 +583,10 @@ bool al_set_audio_stream_fragment(ALLEGRO_AUDIO_STREAM *stream, void *val)
 {
    size_t i;
    bool ret;
+   ALLEGRO_MUTEX *stream_mutex;
    ASSERT(stream);
 
-   maybe_lock_mutex(stream->spl.mutex);
+   stream_mutex = maybe_lock_mutex(stream->spl.mutex);
 
    for (i = 0; i < stream->buf_count && stream->pending_bufs[i] ; i++)
       ;
@@ -594,7 +600,7 @@ bool al_set_audio_stream_fragment(ALLEGRO_AUDIO_STREAM *stream, void *val)
       ret = false;
    }
 
-   maybe_unlock_mutex(stream->spl.mutex);
+   maybe_unlock_mutex(stream_mutex);
 
    return ret;
 }
@@ -690,6 +696,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
           && !stream->is_draining) {
          unsigned long bytes;
          unsigned long bytes_written;
+         ALLEGRO_MUTEX *stream_mutex;
 
          fragment = al_get_audio_stream_fragment(stream);
          if (!fragment) {
@@ -701,9 +708,9 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
                al_get_channel_count(stream->spl.spl_data.chan_conf) *
                al_get_audio_depth_size(stream->spl.spl_data.depth);
 
-         maybe_lock_mutex(stream->spl.mutex);
+         stream_mutex = maybe_lock_mutex(stream->spl.mutex);
          bytes_written = stream->feeder(stream, fragment, bytes);
-         maybe_unlock_mutex(stream->spl.mutex);
+         maybe_unlock_mutex(stream_mutex);
 
          if (stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR) {
             /* Keep rewinding until the fragment is filled. */
@@ -711,11 +718,11 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
                      stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR) {
                size_t bw;
                al_rewind_audio_stream(stream);
-               maybe_lock_mutex(stream->spl.mutex);
+               stream_mutex = maybe_lock_mutex(stream->spl.mutex);
                bw = stream->feeder(stream, fragment + bytes_written,
                   bytes - bytes_written);
                bytes_written += bw;
-               maybe_unlock_mutex(stream->spl.mutex);
+               maybe_unlock_mutex(stream_mutex);
             }
          }
          else if (bytes_written < bytes) {
@@ -787,9 +794,9 @@ bool al_rewind_audio_stream(ALLEGRO_AUDIO_STREAM *stream)
    bool ret;
 
    if (stream->rewind_feeder) {
-      maybe_lock_mutex(stream->spl.mutex);
+      ALLEGRO_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
       ret = stream->rewind_feeder(stream);
-      maybe_unlock_mutex(stream->spl.mutex);
+      maybe_unlock_mutex(stream_mutex);
       return ret;
    }
 
@@ -804,9 +811,9 @@ bool al_seek_audio_stream_secs(ALLEGRO_AUDIO_STREAM *stream, double time)
    bool ret;
 
    if (stream->seek_feeder) {
-      maybe_lock_mutex(stream->spl.mutex);
+      ALLEGRO_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
       ret = stream->seek_feeder(stream, time);
-      maybe_unlock_mutex(stream->spl.mutex);
+      maybe_unlock_mutex(stream_mutex);
       return ret;
    }
 
@@ -821,9 +828,9 @@ double al_get_audio_stream_position_secs(ALLEGRO_AUDIO_STREAM *stream)
    double ret;
 
    if (stream->get_feeder_position) {
-      maybe_lock_mutex(stream->spl.mutex);
+      ALLEGRO_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
       ret = stream->get_feeder_position(stream);
-      maybe_unlock_mutex(stream->spl.mutex);
+      maybe_unlock_mutex(stream_mutex);
       return ret;
    }
 
@@ -838,9 +845,9 @@ double al_get_audio_stream_length_secs(ALLEGRO_AUDIO_STREAM *stream)
    double ret;
 
    if (stream->get_feeder_length) {
-      maybe_lock_mutex(stream->spl.mutex);
+      ALLEGRO_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
       ret = stream->get_feeder_length(stream);
-      maybe_unlock_mutex(stream->spl.mutex);
+      maybe_unlock_mutex(stream_mutex);
       return ret;
    }
 
@@ -859,9 +866,9 @@ bool al_set_audio_stream_loop_secs(ALLEGRO_AUDIO_STREAM *stream,
       return false;
 
    if (stream->set_feeder_loop) {
-      maybe_lock_mutex(stream->spl.mutex);
+      ALLEGRO_MUTEX *stream_mutex = maybe_lock_mutex(stream->spl.mutex);
       ret = stream->set_feeder_loop(stream, start, end);
-      maybe_unlock_mutex(stream->spl.mutex);
+      maybe_unlock_mutex(stream_mutex);
       return ret;
    }
 
