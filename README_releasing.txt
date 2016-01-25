@@ -59,3 +59,16 @@ on Linux.
 9.  Upload the source archives to gna.org. The command to use would be something like this:
 
         rsync -avr --rsh="ssh" allegro-5.1.12.* <user>@download.gna.org:/upload/allegro/allegro-unstable/5.1.12
+
+    That command often hangs for me, so alternatively, set up your new
+    directories locally and copy them over using scp:
+
+        scp -r 5.1.12 siegelord@download.gna.org:/upload/allegro/allegro-unstable-bin
+
+10. Make an announcement on the website. This involves making a news item,
+    changing the download area and copy-pasting the change list.
+
+11. For unstable releases, nothing else needs to be done. For stable releases,
+    you'll have to upload the docs.
+
+12. Make an announcement on allegro.cc. You're done!
