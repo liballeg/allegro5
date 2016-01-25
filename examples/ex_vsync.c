@@ -5,6 +5,7 @@
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_font.h"
 #include "allegro5/allegro_image.h"
+#include "allegro5/allegro_primitives.h"
 
 #include "common.c"
 
@@ -72,8 +73,11 @@ int main(int argc, char **argv)
    ALLEGRO_CONFIG *config;
    ALLEGRO_EVENT_QUEUE *queue;
    bool write = false;
-   bool flip = false;
    bool quit;
+   bool right = true;
+   int barposition = 0;
+   int stepsize = 3; 
+   int barwidth;
 
    (void)argc;
    (void)argv;
@@ -83,6 +87,7 @@ int main(int argc, char **argv)
    }
 
    al_init_font_addon();
+   al_init_primitives_addon();
    al_init_image_addon();
    al_install_keyboard();
    al_install_mouse();
@@ -102,6 +107,7 @@ int main(int argc, char **argv)
 
    fullscreen = option(config, "fullscreen", 0);
    frequency = option(config, "frequency", 0);
+   barwidth = option(config, "barwidth", 10);
 
    /* Write the file back (so a template is generated on first run). */
    if (write) {
@@ -146,14 +152,27 @@ int main(int argc, char **argv)
        * flickering a bit depending on monitor frequency).
        * Without vsync, there will be black/white shearing all over.
        */
-      if (flip)
-         al_clear_to_color(al_map_rgb_f(1, 1, 1));
+      if (right)
+         barposition += stepsize;
       else
-         al_clear_to_color(al_map_rgb_f(0, 0, 0));
+         barposition -= stepsize;
+
+      if (right && barposition >= 640-barwidth)
+      {
+         barposition = 640-barwidth;
+         right = false;
+      }
+      else if (!right && barposition <= 0)
+      {
+         barposition = 0;
+         right = true;
+      }
+
+      al_clear_to_color(al_map_rgb(0,0,0));
+      al_draw_filled_rectangle(barposition, 0, barposition+barwidth-1, 479, al_map_rgb_f(1., 1., 1.));
+
       
       al_flip_display();
-
-      flip = !flip;
 
       while (al_get_next_event(queue, &event)) {
          switch (event.type) {
