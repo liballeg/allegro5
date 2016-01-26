@@ -163,6 +163,7 @@ static ALLEGRO_BITMAP *push_new_page(ALLEGRO_TTF_FONT_DATA *data, int glyph_size
     ALLEGRO_BITMAP **back;
     ALLEGRO_BITMAP *page;
     ALLEGRO_STATE state;
+    bool hold = al_is_bitmap_drawing_held();
     int page_size = 1;
     /* 16 seems to work well. A particular problem are fixed width fonts which
      * take an inordinate amount of space. */
@@ -184,6 +185,7 @@ static ALLEGRO_BITMAP *push_new_page(ALLEGRO_TTF_FONT_DATA *data, int glyph_size
     /* The bitmap will be destroyed when the parent font is destroyed so
      * it is not safe to register a destructor for it.
      */
+    al_hold_bitmap_drawing(false);
     _al_push_destructor_owner();
     al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS | ALLEGRO_STATE_TARGET_BITMAP);
     al_set_new_bitmap_format(data->bitmap_format);
@@ -193,6 +195,7 @@ static ALLEGRO_BITMAP *push_new_page(ALLEGRO_TTF_FONT_DATA *data, int glyph_size
     al_clear_to_color(al_map_rgba(0, 0, 0, 0));
     al_restore_state(&state);
     _al_pop_destructor_owner();
+    al_hold_bitmap_drawing(hold);
 
     if (page) {
        back = _al_vector_alloc_back(&data->page_bitmaps);
