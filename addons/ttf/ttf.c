@@ -83,6 +83,7 @@ typedef struct ALLEGRO_TTF_FONT_DATA
 
    int min_page_size;
    int max_page_size;
+   bool lock_whole_page;
 } ALLEGRO_TTF_FONT_DATA;
 
 
@@ -149,6 +150,10 @@ static void unlock_current_page(ALLEGRO_TTF_FONT_DATA *data)
       ASSERT(al_is_bitmap_locked(*back));
       al_unlock_bitmap(*back);
       data->page_lr = NULL;
+      data->lock_rect.x = 0;
+      data->lock_rect.y = 0;
+      data->lock_rect.w = 0;
+      data->lock_rect.h = 0;
    }
 }
 
@@ -180,10 +185,12 @@ static ALLEGRO_BITMAP *push_new_page(ALLEGRO_TTF_FONT_DATA *data, int glyph_size
      * it is not safe to register a destructor for it.
      */
     _al_push_destructor_owner();
-    al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
+    al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS | ALLEGRO_STATE_TARGET_BITMAP);
     al_set_new_bitmap_format(data->bitmap_format);
     al_set_new_bitmap_flags(data->bitmap_flags);
     page = al_create_bitmap(page_size, page_size);
+    al_set_target_bitmap(page);
+    al_clear_to_color(al_map_rgba(0, 0, 0, 0));
     al_restore_state(&state);
     _al_pop_destructor_owner();
 
@@ -205,34 +212,31 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
    bool lock_more)
 {
    ALLEGRO_BITMAP *page;
-   bool relock;
    int w4 = align4(w);
    int h4 = align4(h);
    int glyph_size = w4 > h4 ? w4 : h4;
 
+   /* Grab the page. */
    if (_al_vector_is_empty(&data->page_bitmaps) || new) {
       page = push_new_page(data, glyph_size);
-      relock = true;
       if (!page)
          return NULL;
    }
    else {
       ALLEGRO_BITMAP **back = _al_vector_ref_back(&data->page_bitmaps);
       page = *back;
-      relock = !data->page_lr;
    }
 
    ALLEGRO_DEBUG("Glyph %d: %dx%d (%dx%d)%s\n",
       ft_index, w, h, w4, h4, new ? " new" : "");
 
+   /* Make sure the glyph fits on the current line/page. */
    if (data->page_pos_x + w4 > al_get_bitmap_width(page)) {
       data->page_pos_y += data->page_line_height;
       data->page_pos_y = align4(data->page_pos_y);
       data->page_pos_x = 0;
       data->page_line_height = 0;
-      relock = true;
    }
-
    if (data->page_pos_y + h4 > al_get_bitmap_height(page)) {
       return alloc_glyph_region(data, ft_index, w, h, true, glyph, lock_more);
    }
@@ -243,47 +247,52 @@ static unsigned char *alloc_glyph_region(ALLEGRO_TTF_FONT_DATA *data,
    glyph->region.w = w;
    glyph->region.h = h;
 
+   /* Advance to the next character. */
    data->page_pos_x = align4(data->page_pos_x + w4);
    if (h > data->page_line_height) {
       data->page_line_height = h4;
-      relock = true;
    }
 
-   if (relock) {
-      char *ptr;
-      int i;
+   /* If the page has no locking rectangle or the glyph region is outside the
+    * current locked region, relock.
+    */
+   if (!data->page_lr ||
+       glyph->region.x + w4 > data->lock_rect.x + data->lock_rect.w ||
+       glyph->region.y + h4 > data->lock_rect.y + data->lock_rect.h ||
+       glyph->region.x < data->lock_rect.x ||
+       glyph->region.y < data->lock_rect.y) {
       unlock_current_page(data);
 
-      data->lock_rect.x = glyph->region.x;
-      data->lock_rect.y = glyph->region.y;
-      /* Do we lock up to the right edge in anticipation of caching more
-       * glyphs, or just enough for the current glyph?
-       */
-      if (lock_more) {
-         data->lock_rect.w = al_get_bitmap_width(page) - data->lock_rect.x;
-         data->lock_rect.h = data->page_line_height;
+      if (data->lock_whole_page) {
+         data->lock_rect.x = 0;
+         data->lock_rect.y = 0;
+         data->lock_rect.w = al_get_bitmap_width(page);
+         data->lock_rect.h = al_get_bitmap_height(page);
       }
       else {
-         data->lock_rect.w = w4;
-         data->lock_rect.h = h4;
+         data->lock_rect.x = glyph->region.x;
+         data->lock_rect.y = glyph->region.y;
+         /* Do we lock up to the right edge in anticipation of caching more
+          * glyphs, or just enough for the current glyph?
+          */
+         if (lock_more) {
+            data->lock_rect.w = al_get_bitmap_width(page) - data->lock_rect.x;
+            data->lock_rect.h = data->page_line_height;
+         }
+         else {
+            data->lock_rect.w = w4;
+            data->lock_rect.h = h4;
+         }
       }
 
       data->page_lr = al_lock_bitmap_region(page,
          data->lock_rect.x, data->lock_rect.y,
          data->lock_rect.w, data->lock_rect.h,
-         ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
+         ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
+         data->lock_whole_page ? ALLEGRO_LOCK_READWRITE : ALLEGRO_LOCK_WRITEONLY);
 
       if (!data->page_lr) {
          return NULL;
-      }
-
-      /* Clear the data so we don't get garbage when using filtering
-       * FIXME We could clear just the border but I'm not convinced that
-       * would be faster (yet)
-       */
-      for (i = 0; i < data->lock_rect.h; i++) {
-          ptr = (char *)(data->page_lr->data) + (i * data->page_lr->pitch);
-          memset(ptr, 0, data->lock_rect.w * 4);
       }
    }
 
@@ -761,6 +770,8 @@ ALLEGRO_FONT *al_load_ttf_font_stretch_f(ALLEGRO_FILE *file,
       al_get_config_value(system_cfg, "ttf", "min_page_size");
     const char* max_page_size_str =
       al_get_config_value(system_cfg, "ttf", "max_page_size");
+    const char* lock_whole_page_str =
+      al_get_config_value(system_cfg, "ttf", "lock_whole_page");
 
     if ((h > 0 && w < 0) || (h < 0 && w > 0)) {
        ALLEGRO_ERROR("Height/width have opposite signs (w = %d, h = %d).\n", w, h);
@@ -791,6 +802,10 @@ ALLEGRO_FONT *al_load_ttf_font_stretch_f(ALLEGRO_FILE *file,
       if (max_page_size > 0 && max_page_size >= data->min_page_size) {
          data->max_page_size = max_page_size;
       }
+    }
+
+    if (lock_whole_page_str && !strcmp(lock_whole_page_str, "true")) {
+      data->lock_whole_page = true;
     }
 
     memset(&args, 0, sizeof args);

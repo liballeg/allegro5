@@ -16,7 +16,9 @@ struct Example
     ALLEGRO_FONT *f1, *f2, *f3, *f4, *f5;
     ALLEGRO_FONT *f_alex;
     ALLEGRO_CONFIG *config;
+    ALLEGRO_DISPLAY *display;
     int ranges_count;
+    bool reload_each_frame;
 } ex;
 
 static void print_ranges(ALLEGRO_FONT *f)
@@ -45,6 +47,43 @@ static int ustr_at(ALLEGRO_USTR *string, int index)
    return al_ustr_get(string, al_ustr_offset(string, index));
 }
 
+static void load_fonts(void)
+{
+    al_destroy_font(ex.f1);
+    al_destroy_font(ex.f2);
+    al_destroy_font(ex.f3);
+    al_destroy_font(ex.f4);
+    al_destroy_font(ex.f5);
+
+    ex.f1 = al_load_font(font_file, 48, 0);
+    ex.f2 = al_load_font(font_file, 48, ALLEGRO_TTF_NO_KERNING);
+    ex.f3 = al_load_font(font_file, 12, 0);
+    /* Specifying negative values means we specify the glyph height
+     * in pixels, not the usual font size.
+     */
+    ex.f4 = al_load_font(font_file, -140, 0);
+    ex.f5 = al_load_font(font_file, 12, ALLEGRO_TTF_MONOCHROME);
+
+    {
+        int ranges[] = {0x1F40A, 0x1F40A};
+        ALLEGRO_BITMAP *icon = al_load_bitmap("data/icon.png");
+        ALLEGRO_BITMAP *glyph = al_create_bitmap(50, 50);
+        al_set_target_bitmap(glyph);
+        al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
+        al_draw_rectangle(0.5, 0.5, 49.5, 49.5, al_map_rgb_f(1, 1, 0),
+         1);
+        al_draw_bitmap(icon, 1, 1, 0);
+        al_set_target_backbuffer(ex.display);
+        ex.f_alex = al_grab_font_from_bitmap(glyph, 1, ranges);
+    }
+
+    if (!ex.f1 || !ex.f2 || !ex.f3 || !ex.f4 || !ex.f_alex) {
+        abort_example("Could not load font: %s\n", font_file);
+    }
+
+    al_set_fallback_font(ex.f3, ex.f_alex);
+}
+
 static void render(void)
 {
     ALLEGRO_COLOR white = al_map_rgba_f(1, 1, 1, 1);
@@ -61,6 +100,10 @@ static void render(void)
     ALLEGRO_USTR *tulip = al_ustr_new("Tulip");
     ALLEGRO_USTR *dimension_text = al_ustr_new("Tulip");
     ALLEGRO_USTR *vertical_text  = al_ustr_new("Rose.");
+
+    if (ex.reload_each_frame) {
+        load_fonts();
+    }
 
     al_clear_to_color(white);
 
@@ -213,11 +256,11 @@ static void render(void)
 
 int main(int argc, char **argv)
 {
-    ALLEGRO_DISPLAY *display;
     ALLEGRO_TIMER *timer;
     ALLEGRO_EVENT_QUEUE *queue;
     int redraw = 0;
     double t = 0;
+    int font_arg = 1;
 
     if (!al_init()) {
         abort_example("Could not init Allegro.\n");
@@ -235,43 +278,22 @@ int main(int argc, char **argv)
 #ifdef ALLEGRO_IPHONE
     al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
 #endif
-    display = al_create_display(640, 480);
-    if (!display) {
+    ex.display = al_create_display(640, 480);
+    if (!ex.display) {
         abort_example("Could not create display.\n");
     }
     al_install_keyboard();
 
-    if (argc >= 2) {
-        font_file = argv[1];
+    if (argc > 1 && !strcmp(argv[1], "--reload_each_frame")) {
+        ex.reload_each_frame = true;
+        font_arg++;
     }
 
-    ex.f1 = al_load_font(font_file, 48, 0);
-    ex.f2 = al_load_font(font_file, 48, ALLEGRO_TTF_NO_KERNING);
-    ex.f3 = al_load_font(font_file, 12, 0);
-    /* Specifying negative values means we specify the glyph height
-     * in pixels, not the usual font size.
-     */
-    ex.f4 = al_load_font(font_file, -140, 0);
-    ex.f5 = al_load_font(font_file, 12, ALLEGRO_TTF_MONOCHROME);
-
-    {
-        int ranges[] = {0x1F40A, 0x1F40A};
-        ALLEGRO_BITMAP *icon = al_load_bitmap("data/icon.png");
-        ALLEGRO_BITMAP *glyph = al_create_bitmap(50, 50);
-        al_set_target_bitmap(glyph);
-        al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
-        al_draw_rectangle(0.5, 0.5, 49.5, 49.5, al_map_rgb_f(1, 1, 0),
-         1);
-        al_draw_bitmap(icon, 1, 1, 0);
-        al_set_target_backbuffer(display);
-        ex.f_alex = al_grab_font_from_bitmap(glyph, 1, ranges);
+    if (argc > font_arg) {
+        font_file = argv[font_arg];
     }
 
-    if (!ex.f1 || !ex.f2 || !ex.f3 || !ex.f4 || !ex.f_alex) {
-        abort_example("Could not load font: %s\n", font_file);
-    }
-
-    al_set_fallback_font(ex.f3, ex.f_alex);
+    load_fonts();
 
     ex.ranges_count = al_get_font_ranges(ex.f1, 0, NULL);
     print_ranges(ex.f1);
@@ -285,7 +307,7 @@ int main(int argc, char **argv)
 
     queue = al_create_event_queue();
     al_register_event_source(queue, al_get_keyboard_event_source());
-    al_register_event_source(queue, al_get_display_event_source(display));
+    al_register_event_source(queue, al_get_display_event_source(ex.display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
 
     al_start_timer(timer);
