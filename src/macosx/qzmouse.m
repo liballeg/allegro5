@@ -201,8 +201,8 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
       _al_event_source_emit_event(&osx_mouse.parent.es, &new_event);
    }
    // Record current state
-   osx_mouse.state.x = pos.x;
-   osx_mouse.state.y = pos.y;
+   osx_mouse.state.x = pos.x * scaling_factor;
+   osx_mouse.state.y = pos.y * scaling_factor;
    osx_mouse.state.w = osx_mouse.w_axis;
    osx_mouse.state.z = osx_mouse.z_axis;
    osx_mouse.state.pressure = pressure;
@@ -319,6 +319,12 @@ static bool osx_set_mouse_xy(ALLEGRO_DISPLAY *dpy_, int x, int y)
    CGPoint pos;
    CGDirectDisplayID display = 0;
    ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN *)dpy_;
+   float scaling_factor = 1.0;
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+   scaling_factor = [[NSScreen mainScreen] backingScaleFactor];
+#endif
+   x /= scaling_factor;
+   y /= scaling_factor;
 
    if ((dpy) && !(dpy->parent.flags & ALLEGRO_FULLSCREEN) &&
          !(dpy->parent.flags & ALLEGRO_FULLSCREEN_WINDOW) && (dpy->win)) {
@@ -342,12 +348,8 @@ static bool osx_set_mouse_xy(ALLEGRO_DISPLAY *dpy_, int x, int y)
    else {
       if (dpy)
          display = dpy->display_id;
-      float scaling_factor = 1.0;
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
-      scaling_factor = [[NSScreen mainScreen] backingScaleFactor];
-#endif
-      pos.x = x / scaling_factor;
-      pos.y = y / scaling_factor;
+      pos.x = x;
+      pos.y = y;
    }
 
    _al_event_source_lock(&osx_mouse.parent.es);
