@@ -55,7 +55,7 @@
 
 #define ALLEGRO_VERSION          5
 #define ALLEGRO_SUB_VERSION      1
-#define ALLEGRO_WIP_VERSION      13
+#define ALLEGRO_WIP_VERSION      14
 
 /* Not sure we need it, but since ALLEGRO_VERSION_STR contains it:
  * 0 = GIT
