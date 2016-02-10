@@ -57,6 +57,12 @@
 #define ALLEGRO_SUB_VERSION      1
 #define ALLEGRO_WIP_VERSION      14
 
+#ifdef ALLEGRO_UNSTABLE
+   #define ALLEGRO_UNSTABLE_BIT  1 << 31
+#else
+   #define ALLEGRO_UNSTABLE_BIT  0
+#endif
+
 /* Not sure we need it, but since ALLEGRO_VERSION_STR contains it:
  * 0 = GIT
  * 1 = first release
@@ -72,7 +78,8 @@
 #define ALLEGRO_DATE             20160124    /* yyyymmdd */
 #define ALLEGRO_VERSION_INT \
     ((ALLEGRO_VERSION << 24) | (ALLEGRO_SUB_VERSION << 16) | \
-    (ALLEGRO_WIP_VERSION << 8) | ALLEGRO_RELEASE_NUMBER)
+    (ALLEGRO_WIP_VERSION << 8) | ALLEGRO_RELEASE_NUMBER | \
+    ALLEGRO_UNSTABLE_BIT)
 
 AL_FUNC(uint32_t, al_get_allegro_version, (void));
 AL_FUNC(int, al_run_main, (int argc, char **argv, int (*)(int, char **)));

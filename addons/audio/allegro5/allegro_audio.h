@@ -38,7 +38,6 @@ extern "C" {
    #define ALLEGRO_KCM_AUDIO_FUNC      AL_FUNC
 #endif
 
-
 /* Internal, used to communicate with acodec. */
 /* Must be in 512 <= n < 1024 */
 #define _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE   (512)
@@ -53,6 +52,7 @@ extern "C" {
 
 #define ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT       (515)
 
+#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_KCM_AUDIO_SRC)
 /* Type: ALLEGRO_AUDIO_RECORDER_EVENT
  */
 typedef struct ALLEGRO_AUDIO_RECORDER_EVENT ALLEGRO_AUDIO_RECORDER_EVENT;
@@ -63,6 +63,7 @@ struct ALLEGRO_AUDIO_RECORDER_EVENT
    void *buffer;
    unsigned int samples;
 };
+#endif
 
 
 /* Enum: ALLEGRO_AUDIO_DEPTH
@@ -173,9 +174,11 @@ typedef struct ALLEGRO_MIXER ALLEGRO_MIXER;
 typedef struct ALLEGRO_VOICE ALLEGRO_VOICE;
 
 
+#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_KCM_AUDIO_SRC)
 /* Type: ALLEGRO_AUDIO_RECORDER
  */
 typedef struct ALLEGRO_AUDIO_RECORDER ALLEGRO_AUDIO_RECORDER;
+#endif
 
 
 #ifndef __cplusplus
@@ -386,6 +389,9 @@ ALLEGRO_KCM_AUDIO_FUNC(bool, al_save_sample_f, (ALLEGRO_FILE* fp, const char *id
 ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_STREAM *, al_load_audio_stream_f, (ALLEGRO_FILE* fp, const char *ident,
 	size_t buffer_count, unsigned int samples));
 
+
+#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_KCM_AUDIO_SRC)
+
 /* Recording functions */
 ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_RECORDER *, al_create_audio_recorder, (size_t fragment_count,
    unsigned int samples, unsigned int freq, ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf));
@@ -396,6 +402,8 @@ ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_audio_recorder_event_sourc
    (ALLEGRO_AUDIO_RECORDER *r));
 ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_RECORDER_EVENT *, al_get_audio_recorder_event, (ALLEGRO_EVENT *event));
 ALLEGRO_KCM_AUDIO_FUNC(void, al_destroy_audio_recorder, (ALLEGRO_AUDIO_RECORDER *r));
+
+#endif
    
 #ifdef __cplusplus
 } /* End extern "C" */

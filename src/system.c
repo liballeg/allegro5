@@ -166,21 +166,31 @@ static void read_allegro_cfg(void)
  * Let a = xa.ya.za.*
  * Let b = xb.yb.zb.*
  *
- * When ya is odd, a is compatible with b if xa.ya.za = xb.yb.zb.
- * When ya is even, a is compatible with b if xa.ya = xb.yb.
+ * When a has the unstable bit, a is compatible with b if xa.ya.za = xb.yb.zb.
+ * Otherwise, a is compatible with b if xa.ya = xb.yb.
  *
  * Otherwise a and b are incompatible.
  */
 static bool compatible_versions(int a, int b)
 {
-   if ((a & 0xffff0000) != (b & 0xffff0000)) {
+   int a_unstable = a & (1 << 31);
+
+   int a_major = (a & 0x7f000000) >> 24;
+   int a_sub   = (a & 0x00ff0000) >> 16;
+   int a_wip   = (a & 0x0000ff00) >> 8;
+
+   int b_major = (b & 0x7f000000) >> 24;
+   int b_sub   = (b & 0x00ff0000) >> 16;
+   int b_wip   = (b & 0x0000ff00) >> 8;
+
+   if (a_major != b_major) {
       return false;
    }
-   if (((a & 0x00ff0000) >> 16) & 1) {
-      
-      if ((a & 0x0000ff00) != (b & 0x0000ff00)) {
-         return false;
-      }
+   if (a_unstable && a_wip != b_wip) {
+      return false;
+   }
+   if (a_sub != b_sub) {
+      return false;
    }
    return true;
 }

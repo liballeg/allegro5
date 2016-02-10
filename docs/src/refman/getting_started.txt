@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Welcome to Allegro 5.0!
+Welcome to Allegro 5!
 
 This short guide should point you at the parts of the API that you'll
 want to know about first.  It's not a tutorial, as there isn't much
@@ -173,6 +173,13 @@ such a voice (or another mixer) and will mix together all sample data fed to it.
 You can then directly stream real-time sample data to a mixer or a voice using
 an [ALLEGRO_AUDIO_STREAM] or play complete sounds using an [ALLEGRO_SAMPLE_INSTANCE].
 The latter simply points to an [ALLEGRO_SAMPLE] and will stream it for you.
+
+## Unstable API
+
+Some of Allegro's API is marked as unstable, which means that future versions
+of Allegro may change or even remove this API entirely! If you want to
+experiment with unstable API, define `ALLEGRO_UNSTABLE` macro before including
+Allegro's headers.
 
 ## Not the end
 
