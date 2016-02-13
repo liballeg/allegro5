@@ -56,6 +56,8 @@ command:
 You can use any platform 9 or higher. This command was last tested on ndk10d.
 You may need to add --arch=arm if the auto-configuration fails.
 
+Add $TC/bin to your PATH.
+
 
 Build dependencies for Allegro
 ==============================
