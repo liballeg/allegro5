@@ -142,7 +142,8 @@ examples easily by typing, e.g.
     make run_speed
 
 Many demos and examples do work, minimally, but most do not support touch
-input or react to orientation changes, etc.
+input or react to orientation changes, etc. Good examples to try are
+ex_draw_bitmap and ex_touch_input.
 
 
 How startup works on Android
