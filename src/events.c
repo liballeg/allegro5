@@ -141,6 +141,19 @@ void al_destroy_event_queue(ALLEGRO_EVENT_QUEUE *queue)
 }
 
 
+/* Function: al_is_event_source_registered
+ */
+bool al_is_event_source_registered(ALLEGRO_EVENT_QUEUE *queue, 
+      ALLEGRO_EVENT_SOURCE *source)
+{
+   ASSERT(queue);
+   ASSERT(source);
+
+   if(_al_vector_contains(&queue->sources, &source))
+      return true;
+   else
+      return false;
+}
 
 /* Function: al_register_event_source
  */
