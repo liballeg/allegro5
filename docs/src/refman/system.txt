@@ -117,11 +117,14 @@ ALLEGRO_USER_DOCUMENTS_PATH
 ALLEGRO_USER_DATA_PATH
 :   If your program saves any data that the user doesn't need to access 
     externally, then you should place it here. This is generally the least
-    intrusive place to store data.
+    intrusive place to store data. This path will usually not be present on the
+    file system, so make sure to create it before writing to it.
     
 ALLEGRO_USER_SETTINGS_PATH
 :   If you are saving configuration files (especially if the user may want to
-    edit them outside of your program), then you should place them here.
+    edit them outside of your program), then you should place them here. This
+    path will usually not be present on the file system, so make sure to create
+    it before writing to it.
     
 ALLEGRO_EXENAME_PATH
 :   The full path to the executable.
