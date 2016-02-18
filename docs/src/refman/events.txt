@@ -676,6 +676,8 @@ Return true if the event source is registered.
 
 See also: [al_register_event_source]
 
+Since: 5.1.14
+
 ## API: al_pause_event_queue
 
 Pause or resume accepting new events into the event queue (to resume, pass false
