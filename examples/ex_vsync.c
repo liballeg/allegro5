@@ -26,12 +26,13 @@ static int option(ALLEGRO_CONFIG *config, char *name, int v)
 static bool display_warning(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_FONT *font)
 {
    ALLEGRO_EVENT event;
-   float x = 320.0;
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   float x = al_get_display_width(display) / 2.0;
    float h = al_get_font_line_height(font);
    ALLEGRO_COLOR white = al_map_rgb_f(1, 1, 1);
 
    for (;;) {
-      float y = 200.0;
+      float y = 200.0 / 480.0 * al_get_display_height(display);
       al_clear_to_color(al_map_rgb(0, 0, 0));
       al_draw_text(font, white, x, y, ALLEGRO_ALIGN_CENTRE,
          "Do not continue if you suffer from photosensitive epilepsy");
@@ -77,8 +78,10 @@ int main(int argc, char **argv)
    bool write = false;
    bool quit;
    bool right = true;
-   int barposition = 0;
-   int stepsize = 3;
+   int bar_position = 0;
+   int step_size = 3;
+   int display_width;
+   int display_height;
 
    (void)argc;
    (void)argv;
@@ -146,30 +149,35 @@ int main(int argc, char **argv)
    quit = display_warning(queue, font);
    al_flush_event_queue(queue);
 
+   display_width = al_get_display_width(display);
+   display_height = al_get_display_height(display);
+
    while (!quit) {
       ALLEGRO_EVENT event;
 
       /* With vsync, this will appear as a bar moving smoothly left to right.
        * Without vsync, it will appear that there are many bars moving left to right.
+       * More importantly, if you view it in fullscreen, the slanting of the bar will
+       * appear more exaggerated as it is now much taller.
        */
       if (right) {
-         barposition += stepsize;
+         bar_position += step_size;
       }
       else {
-         barposition -= stepsize;
+         bar_position -= step_size;
       }
 
-      if (right && barposition >= 640-barwidth) {
-         barposition = 640-barwidth;
+      if (right && bar_position >= display_width - barwidth) {
+         bar_position = display_width - barwidth;
          right = false;
       }
-      else if (!right && barposition <= 0) {
-         barposition = 0;
+      else if (!right && bar_position <= 0) {
+         bar_position = 0;
          right = true;
       }
 
       al_clear_to_color(al_map_rgb(0,0,0));
-      al_draw_filled_rectangle(barposition, 0, barposition+barwidth-1, 479, al_map_rgb_f(1., 1., 1.));
+      al_draw_filled_rectangle(bar_position, 0, bar_position + barwidth - 1, display_height - 1, al_map_rgb_f(1., 1., 1.));
 
       
       al_flip_display();
