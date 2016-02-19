@@ -9,7 +9,7 @@
 
 #include "common.c"
 
-int vsync, fullscreen, frequency;
+int vsync, fullscreen, frequency, barwidth;
 
 static int option(ALLEGRO_CONFIG *config, char *name, int v)
 {
@@ -36,7 +36,7 @@ static bool display_warning(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_FONT *font)
       al_draw_text(font, white, x, y, ALLEGRO_ALIGN_CENTRE,
          "Do not continue if you suffer from photosensitive epilepsy");
       al_draw_text(font, white, x, y + 15, ALLEGRO_ALIGN_CENTRE,
-         "or simply hate flashing screens.");
+         "or simply hate sliding bars.");
       al_draw_text(font, white, x, y + 40, ALLEGRO_ALIGN_CENTRE,
          "Press Escape to quit or Enter to continue.");
       
@@ -48,6 +48,8 @@ static bool display_warning(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_FONT *font)
       al_draw_textf(font, white, x, y, ALLEGRO_ALIGN_CENTRE, "fullscreen: %d", fullscreen);
       y += h;
       al_draw_textf(font, white, x, y, ALLEGRO_ALIGN_CENTRE, "frequency: %d", frequency);
+      y += h;
+      al_draw_textf(font, white, x, y, ALLEGRO_ALIGN_CENTRE, "bar width: %d", barwidth);
       
       al_flip_display();
 
@@ -76,8 +78,7 @@ int main(int argc, char **argv)
    bool quit;
    bool right = true;
    int barposition = 0;
-   int stepsize = 3; 
-   int barwidth;
+   int stepsize = 3;
 
    (void)argc;
    (void)argv;
@@ -148,9 +149,8 @@ int main(int argc, char **argv)
    while (!quit) {
       ALLEGRO_EVENT event;
 
-      /* With vsync, this will appear as a 50% gray screen (maybe
-       * flickering a bit depending on monitor frequency).
-       * Without vsync, there will be black/white shearing all over.
+      /* With vsync, this will appear as a bar moving smoothly left to right.
+       * Without vsync, it will appear that there are many bars moving left to right.
        */
       if (right)
          barposition += stepsize;
@@ -187,7 +187,11 @@ int main(int argc, char **argv)
       /* Let's not go overboard and limit flipping at 1000 Hz. Without
        * this my system locks up and requires a hard reboot :P
        */
-      al_rest(0.001);
+      /*
+       * Limiting this to 500hz so the bar doesn't move too fast. We're
+       * no longer in epilepsy mode (I hope).
+       */
+      al_rest(.002);
    }
 
    al_destroy_font(font);
