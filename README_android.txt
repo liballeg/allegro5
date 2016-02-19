@@ -56,6 +56,8 @@ command:
 You can use any platform 9 or higher. This command was last tested on ndk10d.
 You may need to add --arch=arm if the auto-configuration fails.
 
+Add $TC/bin to your PATH.
+
 
 Build dependencies for Allegro
 ==============================
@@ -140,7 +142,8 @@ examples easily by typing, e.g.
     make run_speed
 
 Many demos and examples do work, minimally, but most do not support touch
-input or react to orientation changes, etc.
+input or react to orientation changes, etc. Good examples to try are
+ex_draw_bitmap and ex_touch_input.
 
 
 How startup works on Android

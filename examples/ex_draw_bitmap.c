@@ -375,6 +375,7 @@ int main(int argc, char **argv)
          
          case ALLEGRO_EVENT_DISPLAY_RESUME_DRAWING:
             background = false;
+            al_acknowledge_drawing_resume(event.display.source);
             break;
          
          case ALLEGRO_EVENT_DISPLAY_RESIZE:
