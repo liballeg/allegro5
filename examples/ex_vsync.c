@@ -152,18 +152,18 @@ int main(int argc, char **argv)
       /* With vsync, this will appear as a bar moving smoothly left to right.
        * Without vsync, it will appear that there are many bars moving left to right.
        */
-      if (right)
+      if (right) {
          barposition += stepsize;
-      else
+      }
+      else {
          barposition -= stepsize;
+      }
 
-      if (right && barposition >= 640-barwidth)
-      {
+      if (right && barposition >= 640-barwidth) {
          barposition = 640-barwidth;
          right = false;
       }
-      else if (!right && barposition <= 0)
-      {
+      else if (!right && barposition <= 0) {
          barposition = 0;
          right = true;
       }
