@@ -9,7 +9,7 @@
 
 #include "common.c"
 
-int vsync, fullscreen, frequency, barwidth;
+int vsync, fullscreen, frequency, bar_width;
 
 static int option(ALLEGRO_CONFIG *config, char *name, int v)
 {
@@ -32,7 +32,9 @@ static bool display_warning(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_FONT *font)
    ALLEGRO_COLOR white = al_map_rgb_f(1, 1, 1);
 
    for (;;) {
-      float y = 200.0 / 480.0 * al_get_display_height(display);
+      // Convert from 200 px on 480px high screen to same relative position
+      // gtiven actual display height.
+      float y = 5/12.0 * al_get_display_height(display);
       al_clear_to_color(al_map_rgb(0, 0, 0));
       al_draw_text(font, white, x, y, ALLEGRO_ALIGN_CENTRE,
          "Do not continue if you suffer from photosensitive epilepsy");
@@ -50,7 +52,7 @@ static bool display_warning(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_FONT *font)
       y += h;
       al_draw_textf(font, white, x, y, ALLEGRO_ALIGN_CENTRE, "frequency: %d", frequency);
       y += h;
-      al_draw_textf(font, white, x, y, ALLEGRO_ALIGN_CENTRE, "bar width: %d", barwidth);
+      al_draw_textf(font, white, x, y, ALLEGRO_ALIGN_CENTRE, "bar width: %d", bar_width);
       
       al_flip_display();
 
@@ -111,7 +113,7 @@ int main(int argc, char **argv)
 
    fullscreen = option(config, "fullscreen", 0);
    frequency = option(config, "frequency", 0);
-   barwidth = option(config, "barwidth", 10);
+   bar_width = option(config, "bar_width", 10);
 
    /* Write the file back (so a template is generated on first run). */
    if (write) {
@@ -167,8 +169,8 @@ int main(int argc, char **argv)
          bar_position -= step_size;
       }
 
-      if (right && bar_position >= display_width - barwidth) {
-         bar_position = display_width - barwidth;
+      if (right && bar_position >= display_width - bar_width) {
+         bar_position = display_width - bar_width;
          right = false;
       }
       else if (!right && bar_position <= 0) {
@@ -177,7 +179,7 @@ int main(int argc, char **argv)
       }
 
       al_clear_to_color(al_map_rgb(0,0,0));
-      al_draw_filled_rectangle(bar_position, 0, bar_position + barwidth - 1, display_height - 1, al_map_rgb_f(1., 1., 1.));
+      al_draw_filled_rectangle(bar_position, 0, bar_position + bar_width - 1, display_height - 1, al_map_rgb_f(1., 1., 1.));
 
       
       al_flip_display();
