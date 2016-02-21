@@ -69,7 +69,9 @@ AL_FUNC(void, al_reparent_bitmap, (ALLEGRO_BITMAP *bitmap,
 /* Miscellaneous */
 AL_FUNC(ALLEGRO_BITMAP *, al_clone_bitmap, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(void, al_convert_bitmap, (ALLEGRO_BITMAP *bitmap));
+#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
 AL_FUNC(void, al_convert_bitmaps, (void));
+#endif
 
 #ifdef __cplusplus
    }

@@ -544,6 +544,9 @@ ALLEGRO_MEMORY_BITMAP.
 
 Since: 5.1.0
 
+> *Unstable:* Probably needs to be renamed, as it does something very different
+from [al_convert_bitmap].
+
 See also: [al_convert_bitmap], [al_create_bitmap]
 
 ### API: al_destroy_bitmap
