@@ -524,6 +524,8 @@ Returns -1 if the id is invalid.
 
 Since: 5.1.0
 
+> *Unstable:* Redundant with `al_get/set_menu_item_flags`.
+
 See also: [al_get_menu_item_flags], [al_set_menu_item_flags]
 
 ### API: al_get_menu_item_icon

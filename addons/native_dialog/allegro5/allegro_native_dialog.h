@@ -95,9 +95,12 @@ ALLEGRO_DIALOG_FUNC(const char *, al_get_menu_item_caption, (ALLEGRO_MENU *menu,
 ALLEGRO_DIALOG_FUNC(void, al_set_menu_item_caption, (ALLEGRO_MENU *menu, int pos, const char *caption));
 ALLEGRO_DIALOG_FUNC(int, al_get_menu_item_flags, (ALLEGRO_MENU *menu, int pos));
 ALLEGRO_DIALOG_FUNC(void, al_set_menu_item_flags, (ALLEGRO_MENU *menu, int pos, int flags));
-ALLEGRO_DIALOG_FUNC(int, al_toggle_menu_item_flags, (ALLEGRO_MENU *menu, int pos, int flags));
 ALLEGRO_DIALOG_FUNC(ALLEGRO_BITMAP *, al_get_menu_item_icon, (ALLEGRO_MENU *menu, int pos));
 ALLEGRO_DIALOG_FUNC(void, al_set_menu_item_icon, (ALLEGRO_MENU *menu, int pos, ALLEGRO_BITMAP *icon));
+
+#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_NATIVE_DIALOG_SRC)
+ALLEGRO_DIALOG_FUNC(int, al_toggle_menu_item_flags, (ALLEGRO_MENU *menu, int pos, int flags));
+#endif
  
 /* querying menus */
 ALLEGRO_DIALOG_FUNC(ALLEGRO_MENU *, al_find_menu, (ALLEGRO_MENU *haystack, uint16_t id));

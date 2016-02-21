@@ -193,7 +193,7 @@ int main(int argc, char **argv)
                }
             }
             else if (event.user.data1 == DYNAMIC_CHECKBOX_ID) {
-               al_toggle_menu_item_flags(menu, DYNAMIC_DISABLED_ID, ALLEGRO_MENU_ITEM_DISABLED);               
+               al_set_menu_item_flags(menu, DYNAMIC_DISABLED_ID, al_get_menu_item_flags(menu, DYNAMIC_DISABLED_ID) ^ ALLEGRO_MENU_ITEM_DISABLED);
                al_set_menu_item_caption(menu, DYNAMIC_DISABLED_ID, 
                   (al_get_menu_item_flags(menu, DYNAMIC_DISABLED_ID) & ALLEGRO_MENU_ITEM_DISABLED) ?
                   "&Disabled" : "&Enabled");               
