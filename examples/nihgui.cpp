@@ -7,8 +7,10 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
-#include "allegro5/allegro.h"
-#include "allegro5/allegro_font.h"
+
+#define ALLEGRO_UNSTABLE
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_font.h>
 #include <allegro5/allegro_primitives.h>
 
 #include "nihgui.hpp"

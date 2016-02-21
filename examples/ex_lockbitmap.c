@@ -4,6 +4,7 @@
  *       From left to right you should see Red, Green, Blue gradients.
  */
 
+#define ALLEGRO_UNSTABLE
 #include "allegro5/allegro.h"
 
 #include "common.c"

@@ -65,6 +65,7 @@ struct ALLEGRO_TOUCH_INPUT_STATE
 };
 
 
+#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
 /* Enum: ALLEGRO_MOUSE_EMULATION_MODE
  */
 typedef enum ALLEGRO_MOUSE_EMULATION_MODE
@@ -75,19 +76,20 @@ typedef enum ALLEGRO_MOUSE_EMULATION_MODE
    ALLEGRO_MOUSE_EMULATION_EXCLUSIVE,
    ALLEGRO_MOUSE_EMULATION_5_0_x
 } ALLEGRO_MOUSE_EMULATION_MODE;
+#endif
 
 
 AL_FUNC(bool,           al_is_touch_input_installed,     (void));
 AL_FUNC(bool,           al_install_touch_input,          (void));
 AL_FUNC(void,           al_uninstall_touch_input,        (void));
 AL_FUNC(void,           al_get_touch_input_state,        (ALLEGRO_TOUCH_INPUT_STATE *ret_state));
+AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_touch_input_event_source, (void));
 
+#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
 AL_FUNC(void,           al_set_mouse_emulation_mode,     (int mode));
 AL_FUNC(int,            al_get_mouse_emulation_mode,     (void));
-
-AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_touch_input_event_source, (void));
 AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_touch_input_mouse_emulation_event_source, (void));
-
+#endif
 
 #ifdef __cplusplus
    }

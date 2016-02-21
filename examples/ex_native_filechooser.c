@@ -6,6 +6,7 @@
  *    source to communicate back to the main program.
  */
 
+#define ALLEGRO_UNSTABLE
 #include <stdio.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_native_dialog.h>
