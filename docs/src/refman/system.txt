@@ -19,7 +19,9 @@ function.
 
 Returns true if Allegro was successfully initialized by this function
 call (or already was initialized previously), false if Allegro cannot
-be used.
+be used. A common reason for this function to fail is when the version of
+Allegro you compiled your game against is not compatible with the version of
+the shared libraries that were found on the system.
 
 See also: [al_init]
 
