@@ -355,7 +355,11 @@ public class AllegroActivity extends Activity
    {
       super.onStop();
       Log.d("AllegroActivity", "onStop.");
-      destroySurface();
+
+      // TODO: Should we destroy the surface here?
+      // onStop is paired with onRestart and onCreate with onDestroy -
+      // if we destroy the surface here we need to handle onRestart to
+      // recreate it but we currently do not.
    }
 
    /** Called when the activity is paused. */

@@ -6,6 +6,8 @@
 
 #include "common.c"
 
+ALLEGRO_DEBUG_CHANNEL("main")
+
 #define FPS 60
 #define MAX_SPRITES 1024
 
@@ -33,6 +35,8 @@ struct Example {
    int sprite_count;
    bool show_help;
    ALLEGRO_FONT *font;
+
+   int t;
 
    ALLEGRO_COLOR white;
    ALLEGRO_COLOR half_white;
@@ -164,6 +168,12 @@ static void update(void)
    int i;
    for (i = 0; i < example.sprite_count; i++)
       sprite_update(example.sprites + i);
+
+   example.t++;
+   if (example.t == 60) {
+      ALLEGRO_DEBUG("tick");
+      example.t = 0;
+   }
 }
 
 static void redraw(void)
@@ -205,10 +215,10 @@ static void redraw(void)
 
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
    if (example.show_help) {
-      int dh = fh * 1.5;
+      int dh = fh * 3.5;
       for (i = 5; i >= 0; i--) {
          al_draw_text(example.font, example.white, 0, h - dh, 0, text[i]);
-         dh += fh * 2;
+         dh += fh * 6;
       }
    }
 
@@ -279,6 +289,8 @@ int main(int argc, char **argv)
    if (!al_install_mouse()) {
       abort_example("Error installing mouse.\n");
    }
+
+   al_install_touch_input();
 
    example.font = al_create_builtin_font();
    if (!example.font) {
@@ -401,8 +413,8 @@ int main(int argc, char **argv)
          {
             int fh = al_get_font_line_height(example.font);
             
-            if (x < 80 && y >= h - fh * 10) {
-               int button = (y - (h - fh * 10)) / (fh * 2);
+            if (x < fh * 12 && y >= h - fh * 30) {
+               int button = (y - (h - fh * 30)) / (fh * 6);
                if (button == 0) {
                   example.use_memory_bitmaps ^= 1;
                   change_size(example.bitmap_size);
@@ -413,14 +425,14 @@ int main(int argc, char **argv)
                      example.blending = 0;
                }
                if (button == 3) {
-                  if (x < 40)
+                  if (x < fh * 6)
                      remove_sprites(example.sprite_count / 2);
                   else
                      add_sprites(example.sprite_count);
                }
                if (button == 2) {
                   int s = example.bitmap_size * 2;
-                  if (x < 40)
+                  if (x < fh * 6)
                      s = example.bitmap_size / 2;
                   change_size(s);
                }

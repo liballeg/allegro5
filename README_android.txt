@@ -145,6 +145,13 @@ Many demos and examples do work, minimally, but most do not support touch
 input or react to orientation changes, etc. Good examples to try are
 ex_draw_bitmap and ex_touch_input.
 
+If you want to build just the .apk for an example, there are targets
+for that as well:
+
+    make ex_draw_bitmap_apk
+    adb install -r examples/ex_draw_bitmap.project/bin/ex_draw_bitmap-debug.apk
+    adb -d shell 'am start -n org.liballeg.examples.ex_draw_bitmap/.Activity'
+
 
 How startup works on Android
 ============================
@@ -254,19 +261,27 @@ XXX Fix the option name.
 When building the native libraries, run `ndk-build TARGET_ARCH_ABI=x86`
 or change the TARGET_ARCH_ABI=armeabi lines in Android.mk and Application.mk.
 
+Android on x86_64
+=================
+
+This is very useful to run in the emulator as it will run at native
+speed in that case. The procedure is the same as for (32 bit) x86
+above.
 
 TODO
 ====
 
 * accelerometer support
-* support more than just armv7a
 * mouse emulation (is this even really needed?)
 * joystick emulation (at least till there is a more generic input api)
 * properly detecting screen sizes and modes
 * filesystem access including SD card, and the app's own package/data folder.
 * camera access
 * tweak build scripts to handle debug/release versions better
-* maybe make some kind of script that makes a customized version of the
-  android-project directory from a template, so fewer things need to be edited.
 * support static linking allegro if at all possible.
 * potential multi display support
+* provide another template which uses gradle as ant is deprecated for
+  Android development
+* provide a gradle plugin so Allegro can be used from Android Studio
+  without the need to compile it yourself
+
