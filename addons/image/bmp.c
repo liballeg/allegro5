@@ -201,6 +201,7 @@ static void decode_bitfield(uint32_t m, int *shift_out, uint32_t *mask_out)
    if (m == 0) {
       *shift_out = 0;
       *mask_out = 0;
+      return;
    }
 
 #ifdef __GNUC__
