@@ -138,10 +138,55 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
 }
 
 
+static void set_dpi_awareness(void)
+{
+   bool dpi_awareness_set = false;
+   /* We load the shcore DLL and the APIs dynamically because these are
+    * not often included in MinGW headers. */
+   HMODULE shcore_dll = _al_win_safe_load_library("shcore.dll");
+   HMODULE user32_dll = _al_win_safe_load_library("user32.dll");
+   if (shcore_dll) {
+      typedef enum _AL_PROCESS_DPI_AWARENESS {
+        AL_PROCESS_DPI_UNAWARE            = 0,
+        AL_PROCESS_SYSTEM_DPI_AWARE       = 1,
+        AL_PROCESS_PER_MONITOR_DPI_AWARE  = 2
+      } AL_PROCESS_DPI_AWARENESS;
+      typedef HRESULT (WINAPI *SetProcessDpiAwarenessPROC)(AL_PROCESS_DPI_AWARENESS);
+      SetProcessDpiAwarenessPROC imp_SetProcessDpiAwareness =
+         (SetProcessDpiAwarenessPROC)GetProcAddress(shcore_dll, "SetProcessDpiAwareness");
+      if (imp_SetProcessDpiAwareness) {
+         /* Try setting the per-monitor awareness first. It might fail on Win 8.1. */
+         HRESULT ret = imp_SetProcessDpiAwareness(AL_PROCESS_PER_MONITOR_DPI_AWARE);
+         if (ret == E_INVALIDARG) {
+            ret = imp_SetProcessDpiAwareness(AL_PROCESS_SYSTEM_DPI_AWARE);
+         }
+         if (ret == S_OK) {
+            dpi_awareness_set = true;
+         }
+      }
+      FreeLibrary(shcore_dll);
+   }
+
+   /* SetProcessDPIAware is an older API that corresponds to system dpi
+    * awareness above. This is the only option pre-8.1 systems. */
+   if (!dpi_awareness_set && user32_dll) {
+      typedef BOOL (WINAPI *SetProcessDPIAwarePROC)(void);
+      SetProcessDPIAwarePROC imp_SetProcessDPIAware =
+         (SetProcessDPIAwarePROC)GetProcAddress(shcore_dll, "SetProcessDPIAware");
+      if (imp_SetProcessDPIAware) {
+         imp_SetProcessDPIAware();
+      }
+      FreeLibrary(user32_dll);
+   }
+}
+
+
 /* Create a new system object. */
 static ALLEGRO_SYSTEM *win_initialize(int flags)
 {
    (void)flags;
+
+   set_dpi_awareness();
 
    _al_win_system = al_calloc(1, sizeof *_al_win_system);
 
