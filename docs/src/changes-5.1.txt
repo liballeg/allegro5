@@ -4,6 +4,16 @@ See `changes-5.0.txt` for changes in Allegro 5.0.x.  These lists
 serve as summaries; the full histories are in the git repository.
 
 
+Changes from 5.1.13 to 5.1.13.1 (February 2016)
+============================================
+
+The main developers this time were: SiegeLord.
+
+Image addon:
+
+  - Fix regression in bitmap loading when compiled under MSVC.
+
+
 Changes from 5.1.12 to 5.1.13 (January 2016)
 ============================================
 
