@@ -54,6 +54,10 @@ UINT _al_win_msg_call_proc = 0;
 UINT _al_win_msg_suicide = 0;
 
 
+#ifndef WM_DPICHANGED
+#define WM_DPICHANGED 0x02E0
+#endif
+
 
 static void display_flags_to_window_styles(int flags,
    DWORD *style, DWORD *ex_style)
@@ -910,6 +914,21 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             win_display->can_acknowledge = true;
          }
          break;
+      case WM_DPICHANGED:
+        if ((d->flags & ALLEGRO_RESIZABLE) && !(d->flags & ALLEGRO_FULLSCREEN)) {
+            RECT* rect = (RECT*)lParam;
+            // XXX: This doesn't seem to actually move the window... why?
+            SetWindowPos(
+               hWnd,
+               0,
+               rect->left,
+               rect->top,
+               rect->right - rect->left,
+               rect->bottom - rect->top,
+               SWP_NOZORDER | SWP_NOACTIVATE);
+            win_generate_resize_event(win_display);
+        }
+        break;
    }
 
    return DefWindowProc(hWnd,message,wParam,lParam);
