@@ -168,11 +168,11 @@ static void set_dpi_awareness(void)
    }
 
    /* SetProcessDPIAware is an older API that corresponds to system dpi
-    * awareness above. This is the only option pre-8.1 systems. */
+    * awareness above. This is the only option on pre-8.1 systems. */
    if (!dpi_awareness_set && user32_dll) {
       typedef BOOL (WINAPI *SetProcessDPIAwarePROC)(void);
       SetProcessDPIAwarePROC imp_SetProcessDPIAware =
-         (SetProcessDPIAwarePROC)GetProcAddress(shcore_dll, "SetProcessDPIAware");
+         (SetProcessDPIAwarePROC)GetProcAddress(user32_dll, "SetProcessDPIAware");
       if (imp_SetProcessDPIAware) {
          imp_SetProcessDPIAware();
       }
