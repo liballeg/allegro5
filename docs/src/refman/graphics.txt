@@ -435,7 +435,8 @@ bitmap. Some platforms also dictate a minimum texture size, which is
 relevant if you plan to use this bitmap with the primitives addon. If
 you try to create a bitmap smaller than this, this call will not fail
 but the returned bitmap will be a section of a larger bitmap with the
-minimum size.  The minimum size that will work on all platforms is 32 by 32.
+minimum size. The minimum size that will work on all platforms is 32 by
+32.
 
 Some platforms do not directly support display bitmaps whose dimensions
 are not powers of two. Allegro handles this by creating a larger bitmap
@@ -468,6 +469,9 @@ example, you can reload them all from disk).
 clear the bitmap or make sure all pixels get overwritten before drawing
 it.
 
+When you are done with using the bitmap you must call
+[al_destroy_bitmap] on it to free any resources allocated for it.
+
 See also: [al_set_new_bitmap_format], [al_set_new_bitmap_flags],
 [al_clone_bitmap], [al_create_sub_bitmap],
 [al_convert_bitmaps], [al_destroy_bitmap]
@@ -488,9 +492,14 @@ The parent bitmap's clipping rectangles are ignored.
 
 If a sub-bitmap was not or cannot be created then NULL is returned.
 
+When you are done with using the sub-bitmap you must call
+[al_destroy_bitmap] on it to free any resources allocated for it.
+
 Note that destroying parents of sub-bitmaps will not destroy the
 sub-bitmaps; instead the sub-bitmaps become invalid and should no
-longer be used.
+longer be used for drawing - they still must be destroyed with
+[al_destroy_bitmap] however. It does not matter whether you destroy
+a sub-bitmap before or after its parent otherwise.
 
 See also: [al_create_bitmap]
 
