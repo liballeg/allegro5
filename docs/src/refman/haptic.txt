@@ -19,6 +19,9 @@ force feedback or vibration.
 
 Since: 5.1.8
 
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
+
 See also: [al_get_haptic_from_joystick]
 
 ## API: ALLEGRO_HAPTIC_CONSTANTS
@@ -50,6 +53,9 @@ to determine what kind of haptic effect should be played.
 * ALLEGRO_HAPTIC_AUTOCENTER
 
 Since: 5.1.8
+
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
 
 See also: [al_get_haptic_capabilities], [ALLEGRO_HAPTIC_EFFECT]
 
@@ -249,6 +255,9 @@ data
 
 Since: 5.1.8
 
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
+
 ## API: ALLEGRO_HAPTIC_EFFECT_ID
 
 This struct is used as a handle to control playback of a haptic effect and should
@@ -256,6 +265,9 @@ be considered opaque. Its implementation is visible merely to allow allocation
 by the users of the Allegro library.
 
 Since: 5.1.8
+
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
 
 ## API: al_install_haptic
 
@@ -275,6 +287,9 @@ call [al_uninstall_haptic] before closing the display, and
 
 Since: 5.1.8
 
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
+
 ## API: al_uninstall_haptic
 
 Uninstalls the haptic device subsystem. This is useful since on some
@@ -286,11 +301,17 @@ call [al_uninstall_haptic] before closing the display, and
 
 Since: 5.1.8
 
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
+
 ## API: al_is_haptic_installed
 
 Returns true if the haptic device subsystem is installed, false if not.
 
 Since: 5.1.8
+
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
 
 ## API: al_is_mouse_haptic
 
@@ -298,11 +319,17 @@ Returns true if the mouse has haptic capabilities, false if not.
 
 Since: 5.1.8
 
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
+
 ## API: al_is_keyboard_haptic
 
 Returns true if the keyboard has haptic capabilities, false if not.
 
 Since: 5.1.8
+
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
 
 ## API: al_is_display_haptic
 
@@ -312,17 +339,26 @@ a phone or a tablet.
 
 Since: 5.1.8
 
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
+
 ## API: al_is_joystick_haptic
 
 Returns true if the joystick has haptic capabilities, false if not.
 
 Since: 5.1.8
 
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
+
 ## API: al_is_touch_input_haptic
 
 Returns true if the touch input device has haptic capabilities, false if not.
 
 Since: 5.1.8
+
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
 
 ## API: al_get_haptic_from_mouse
 
@@ -331,6 +367,9 @@ handle.  Otherwise returns NULL.
 
 Since: 5.1.8
 
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
+
 ## API: al_get_haptic_from_keyboard
 
 If the keyboard has haptic capabilities, returns the associated haptic device
@@ -338,12 +377,18 @@ handle.  Otherwise returns NULL.
 
 Since: 5.1.8
 
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
+
 ## API: al_get_haptic_from_display
 
 If the display has haptic capabilities, returns the associated haptic device
 handle.  Otherwise returns NULL.
 
 Since: 5.1.8
+
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
 
 ## API: al_get_haptic_from_joystick
 
@@ -354,12 +399,18 @@ the old haptic device must be released using [al_release_haptic].
 
 Since: 5.1.8
 
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
+
 ## API: al_get_haptic_from_touch_input
 
 If the touch input device has haptic capabilities, returns the associated
 haptic device handle. Otherwise returns NULL.
 
 Since: 5.1.8
+
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
 
 ## API: al_release_haptic
 
@@ -375,11 +426,17 @@ failure in the driver.
 
 Since: 5.1.8
 
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
+
 ## API: al_is_haptic_active
 
 Returns true if the haptic device can currently be used, false if not.
 
 Since: 5.1.8
+
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
 
 ## API: al_get_haptic_capabilities
 
@@ -388,6 +445,9 @@ if set, indicate that the haptic device supports the given feature.
 
 Since: 5.1.8
 
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
+
 ## API: al_is_haptic_capable
 
 Returns true if the haptic device supports the feature indicated by
@@ -395,6 +455,9 @@ the query parameter, false if the feature is not supported.
 The query parameter must be one of the values of [ALLEGRO_HAPTIC_CONSTANTS]. 
 
 Since: 5.1.9
+
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
 
 See also: [al_get_haptic_capabilities]
 
@@ -410,6 +473,9 @@ effects will be played without any gain influence.
 
 Since: 5.1.8
 
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
+
 ## API: al_get_haptic_gain
 
 Returns the current gain of the device. Gain is much like volume for sound,
@@ -421,6 +487,9 @@ function will simply return 1.0 and all effects will be played without any
 gain influence.
 
 Since: 5.1.8
+
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
 
 ## API: al_set_haptic_autocenter
 
@@ -441,6 +510,9 @@ function returns false.
 
 Since: 5.1.9
 
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
+
 ## API: al_get_haptic_autocenter
 
 Returns the current automatic centering intensity of the device. 
@@ -459,6 +531,8 @@ set. If not, this function returns 0.0.
 
 Since: 5.1.9
 
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
 
 ## API: al_get_max_haptic_effects
 
@@ -468,12 +542,18 @@ device itself. This may return a value as low as 1.
 
 Since: 5.1.8
 
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
+
 ## API: al_is_haptic_effect_ok
 
 Returns true if the haptic device can play the haptic effect as given, false
 if not.  The haptic effect must have been filled in completely and correctly.
 
 Since: 5.1.8
+
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
 
 ## API: al_upload_haptic_effect
 
@@ -489,8 +569,10 @@ be uploaded to the device at the same time.
 The same haptic effect can be uploaded several times, as long as care is
 taken to pass in a different [ALLEGRO_HAPTIC_EFFECT_ID].
 
-
 Since: 5.1.8
+
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
 
 ## API: al_play_haptic_effect
 
@@ -507,6 +589,9 @@ not.
 
 Since: 5.1.8
 
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
+
 ## API: al_upload_and_play_haptic_effect
 
 Uploads the haptic effect to the device and starts playback immediately. Returns
@@ -521,6 +606,9 @@ effects on the haptic devicefrom running out.
 
 Since: 5.1.8
 
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
+
 See also: [al_upload_haptic_effect], [al_play_haptic_effect]
 
 ## API: al_stop_haptic_effect
@@ -530,6 +618,9 @@ valid [ALLEGRO_HAPTIC_EFFECT_ID] obtained from [al_upload_haptic_effect],
 [al_upload_and_play_haptic_effect] or [al_rumble_haptic].
 
 Since: 5.1.8
+
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
 
 ## API: al_is_haptic_effect_playing
 
@@ -541,6 +632,9 @@ from [al_upload_haptic_effect], [al_upload_and_play_haptic_effect] or
 
 Since: 5.1.8
 
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
+
 ## API: al_get_haptic_effect_duration
 
 Returns the estimated duration in seconds of a single loop of the given haptic 
@@ -548,6 +642,9 @@ effect. The effect's `effect.replay` must have been filled in correctly
 before using this function.
 
 Since: 5.1.9
+
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
 
 ## API: al_release_haptic_effect
 
@@ -567,6 +664,9 @@ reason such as when NULL is passed, the effect is not active or failure
 to release the effect by the driver.
 
 Since: 5.1.8
+
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.
 
 ## API: al_rumble_haptic
 
@@ -588,3 +688,6 @@ when the effect isn't needed anymore, to prevent the amount of available
 effects on the haptic device from running out.
 
 Since: 5.1.8
+
+> *Unstable:* Perhaps could be simplified due to limited support for all the
+exposed features across all of the platforms. Awaiting feedback from users.

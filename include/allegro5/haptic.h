@@ -30,6 +30,7 @@
    extern "C" {
 #endif
 
+#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
 
 /* Enum: ALLEGRO_HAPTIC_CONSTANTS
  */
@@ -235,6 +236,7 @@ AL_FUNC(bool, al_release_haptic_effect, (ALLEGRO_HAPTIC_EFFECT_ID *));
 AL_FUNC(double, al_get_haptic_effect_duration, (ALLEGRO_HAPTIC_EFFECT *));
 AL_FUNC(bool, al_rumble_haptic, (ALLEGRO_HAPTIC *, double, double, ALLEGRO_HAPTIC_EFFECT_ID *));
 
+#endif
 
 #ifdef __cplusplus
    }

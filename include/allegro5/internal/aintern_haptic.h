@@ -11,6 +11,7 @@ extern "C"
 {
 #endif
 
+#if defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
 
 typedef struct ALLEGRO_HAPTIC_DRIVER
 {
@@ -82,7 +83,12 @@ extern const _AL_DRIVER_INFO _al_haptic_driver_list[];
    { 0, NULL, false }                                                \
    };
 
+#else
 
+/* Forward declare it for ALLEGRO_SYSTEM_INTERFACE. */
+typedef struct ALLEGRO_HAPTIC_DRIVER ALLEGRO_HAPTIC_DRIVER;
+
+#endif
 
 #ifdef __cplusplus
 }

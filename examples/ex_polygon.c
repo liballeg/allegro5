@@ -4,6 +4,7 @@
  *    This program tests the polygon routines in the primitives addon.
  */
 
+#define ALLEGRO_UNSTABLE
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_primitives.h>
