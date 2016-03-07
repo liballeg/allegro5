@@ -2064,6 +2064,10 @@ static bool set_window_constraints(ALLEGRO_DISPLAY* display,
 {
    ALLEGRO_DISPLAY_OSX_WIN* d = (ALLEGRO_DISPLAY_OSX_WIN*) display;
    NSWindow* window = d->win;
+   float scale_factor = 1.0;
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+   scale_factor = [window backingScaleFactor];
+#endif
 
    if (min_w > 0 && min_w < MINIMUM_WIDTH) {
       min_w = MINIMUM_WIDTH;
@@ -2081,25 +2085,25 @@ static bool set_window_constraints(ALLEGRO_DISPLAY* display,
    NSSize max_size = [window contentMaxSize];
 
    if (display->min_w > 0) {
-      min_size.width = display->min_w;
+      min_size.width = display->min_w / scale_factor;
    }
    else {
-      min_size.width = MINIMUM_WIDTH;
+      min_size.width = MINIMUM_WIDTH / scale_factor;
    }
    if (display->min_h > 0) {
-      min_size.height = display->min_h;
+      min_size.height = display->min_h / scale_factor;
    }
    else {
-      min_size.height = MINIMUM_HEIGHT;
+      min_size.height = MINIMUM_HEIGHT / scale_factor;
    }
    if (display->max_w > 0) {
-      max_size.width = display->max_w;
+      max_size.width = display->max_w / scale_factor;
    }
    else {
       max_size.width = FLT_MAX;
    }
    if (display->max_h > 0) {
-      max_size.height = display->max_h;
+      max_size.height = display->max_h / scale_factor;
    }
    else {
      max_size.height = FLT_MAX;
