@@ -995,7 +995,8 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    /* Set minimum size, otherwise the window can be resized so small we can't
     * grab the handle any more to make it bigger
     */
-   [win setMinSize: NSMakeSize(MINIMUM_WIDTH, MINIMUM_HEIGHT)];
+   [win setMinSize: NSMakeSize(MINIMUM_WIDTH / screen_scale_factor,
+                               MINIMUM_HEIGHT / screen_scale_factor)];
 
    /* Place the window, respecting the location set by the user with
     * al_set_new_window_position().
