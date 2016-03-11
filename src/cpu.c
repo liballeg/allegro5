@@ -40,6 +40,9 @@
 #endif
 
 #ifdef ALLEGRO_WINDOWS
+#ifndef WINVER
+#define WINVER 0x0500
+#endif
 #define UNICODE
 #include <windows.h>
 #endif
