@@ -15,8 +15,6 @@
  *      See readme.txt for copyright information.
  */
 
-/* Title: Event sources
- */
 #include "allegro5/allegro.h"
 #include "allegro5/cpu.h"
 #include "allegro5/internal/aintern.h"
