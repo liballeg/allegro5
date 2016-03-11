@@ -144,7 +144,6 @@ static void set_dpi_awareness(void)
    /* We load the shcore DLL and the APIs dynamically because these are
     * not often included in MinGW headers. */
    HMODULE shcore_dll = _al_win_safe_load_library("shcore.dll");
-   HMODULE user32_dll = _al_win_safe_load_library("user32.dll");
    if (shcore_dll) {
       typedef enum _AL_PROCESS_DPI_AWARENESS {
         AL_PROCESS_DPI_UNAWARE            = 0,
@@ -169,14 +168,17 @@ static void set_dpi_awareness(void)
 
    /* SetProcessDPIAware is an older API that corresponds to system dpi
     * awareness above. This is the only option on pre-8.1 systems. */
-   if (!dpi_awareness_set && user32_dll) {
-      typedef BOOL (WINAPI *SetProcessDPIAwarePROC)(void);
-      SetProcessDPIAwarePROC imp_SetProcessDPIAware =
-         (SetProcessDPIAwarePROC)GetProcAddress(user32_dll, "SetProcessDPIAware");
-      if (imp_SetProcessDPIAware) {
-         imp_SetProcessDPIAware();
+   if (!dpi_awareness_set) {
+      HMODULE user32_dll = _al_win_safe_load_library("user32.dll");
+      if (user32_dll) {
+         typedef BOOL (WINAPI *SetProcessDPIAwarePROC)(void);
+         SetProcessDPIAwarePROC imp_SetProcessDPIAware =
+            (SetProcessDPIAwarePROC)GetProcAddress(user32_dll, "SetProcessDPIAware");
+         if (imp_SetProcessDPIAware) {
+            imp_SetProcessDPIAware();
+         }
+         FreeLibrary(user32_dll);
       }
-      FreeLibrary(user32_dll);
    }
 }
 
