@@ -247,6 +247,11 @@ void _al_osx_keyboard_was_installed(BOOL install) {
    self.display->flags ^= ALLEGRO_MAXIMIZED;
    [super zoom:sender];
 }
+
+- (void)setStyleMaskSelector:(NSNumber *)mask
+{
+   [self setStyleMask: [mask intValue]];
+}
 @end
 
 /* ALSetWindowFrame:
@@ -1030,7 +1035,7 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
       [win setFrameOrigin: origin];
    }
    [win makeKeyAndOrderFront:self];
-   if (!(mask & NSBorderlessWindowMask)) [win makeMainWindow];
+   if (mask != NSBorderlessWindowMask) [win makeMainWindow];
    [fmt release];
    [view release];
 }
@@ -2169,20 +2174,31 @@ static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 
    ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN *)display;
    NSUInteger mask;
-   NSWindow *win = dpy->win;
+   ALWindow *win = dpy->win;
 
    if (!win)
       return false;
 
    switch (flag) {
       case ALLEGRO_FRAMELESS:
+         /* BUGS:
+         - This causes the keyboard focus to be lost.
+         - On 10.10, disabling the frameless mode causes the title bar to be partially drawn
+           (resizing the window makes it appear again).
+          */
          mask = [win styleMask];
          if (onoff)
-            mask |= NSBorderlessWindowMask;
+            mask &= ~NSTitledWindowMask;
          else
-            mask &= ~NSBorderlessWindowMask;
+            mask |= NSTitledWindowMask;
          ALLEGRO_DEBUG("Toggle FRAME for display %p to %d\n", dpy, onoff);
-         [win setStyleMask : mask];
+         NSNumber *mask_obj = [NSNumber numberWithInt:mask];
+         NSString *title = [win title];
+         /* For whatever reason, setting the NSTitled style needs to be done on the main thread, or you get crashes. */
+         [win performSelectorOnMainThread:@selector(setStyleMaskSelector:) withObject:mask_obj waitUntilDone:YES];
+         /* When going from frameless to frameful, the title gets reset, so we have to manually put it back. */
+         [win performSelectorOnMainThread:@selector(setTitle:) withObject: title waitUntilDone:YES];
+         [mask_obj release];
          return true;
 
       case ALLEGRO_RESIZABLE:
