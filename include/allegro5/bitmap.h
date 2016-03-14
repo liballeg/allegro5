@@ -41,6 +41,10 @@ AL_FUNC(int, al_get_bitmap_width, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(int, al_get_bitmap_height, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(int, al_get_bitmap_format, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(int, al_get_bitmap_flags, (ALLEGRO_BITMAP *bitmap));
+AL_FUNC(int, al_get_bitmap_depth, (ALLEGRO_BITMAP *bitmap));
+AL_FUNC(int, al_get_bitmap_samples, (ALLEGRO_BITMAP *bitmap));
+AL_FUNC(void, al_set_bitmap_depth, (ALLEGRO_BITMAP *bitmap, int depth));
+AL_FUNC(void, al_set_bitmap_samples, (ALLEGRO_BITMAP *bitmap, int samples));
 
 AL_FUNC(ALLEGRO_BITMAP*, al_create_bitmap, (int w, int h));
 AL_FUNC(void, al_destroy_bitmap, (ALLEGRO_BITMAP *bitmap));

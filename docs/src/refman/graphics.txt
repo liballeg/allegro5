@@ -1062,6 +1062,8 @@ before being drawn.
 
 See also: [ALLEGRO_COLOR], [al_put_pixel]
 
+## Target bitmap
+
 ### API: al_set_target_bitmap
 
 This function selects the bitmap to which all subsequent drawing operations in
@@ -1127,6 +1129,44 @@ An OpenGL command will be used to directly draw the line into the bitmap's
 associated texture.
 
 See also: [al_get_target_bitmap], [al_set_target_backbuffer]
+
+### API: al_get_bitmap_depth
+
+Return the depthbuffer depth used by this bitmap if it is used with
+[al_set_target_bitmap].
+
+Since: 5.1.14
+
+### API: al_get_bitmap_samples
+
+Return the multi-sampling samples used by this bitmap if it is used with
+[al_set_target_bitmap].
+
+Since: 5.1.14
+
+### API: al_set_bitmap_depth
+
+Sets the depthbuffer depth used by this bitmap if it is used with
+[al_set_target_bitmap]. 0 means no depth-buffer will be created when
+drawing into the bitmap, which is the default.
+
+> *Note:* This is an experimental feature and currently only works for the
+OpenGL backend.
+
+Since: 5.1.14
+
+### API: al_set_bitmap_samples
+
+Sets the multi-sampling samples used by this bitmap if it is used with
+[al_set_target_bitmap]. 0 means multi-sampling will not be used when
+drawing into this bitmap, which is the default. 1 means multi-sampling
+will be used but only using a single sample per pixel (so usually there
+will be no visual difference to not using multi-sampling at all).
+
+> *Note:* This is an experimental feature and currently only works for the
+OpenGL backend.
+
+Since: 5.1.14
 
 ### API: al_set_target_backbuffer
 

@@ -336,6 +336,45 @@ ALLEGRO_DISPLAY *_al_get_bitmap_display(ALLEGRO_BITMAP *bitmap)
       return bitmap->_display;
 }
 
+
+/* Function: al_get_bitmap_depth
+ */
+int al_get_bitmap_depth(ALLEGRO_BITMAP *bitmap)
+{
+   if (bitmap->parent)
+      return bitmap->parent->_depth;
+   else
+      return bitmap->_depth;
+}
+
+
+/* Function: al_get_bitmap_samples
+ */
+int al_get_bitmap_samples(ALLEGRO_BITMAP *bitmap)
+{
+   if (bitmap->parent)
+      return bitmap->parent->_samples;
+   else
+      return bitmap->_samples;
+}
+
+
+/* Function: al_set_bitmap_depth
+ */
+void al_set_bitmap_depth(ALLEGRO_BITMAP *bitmap, int depth)
+{
+   bitmap->_depth = depth;
+}
+
+
+/* Function: al_set_bitmap_samples
+ */
+void al_set_bitmap_samples(ALLEGRO_BITMAP *bitmap, int samples)
+{
+   bitmap->_samples = samples;
+}
+
+
 /* Function: al_set_clipping_rectangle
  */
 void al_set_clipping_rectangle(int x, int y, int width, int height)

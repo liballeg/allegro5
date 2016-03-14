@@ -40,6 +40,8 @@ typedef struct ALLEGRO_FBO_INFO
 {
    int fbo_state;
    GLuint fbo;
+   GLuint depth_buffer;
+   GLuint multisample_buffer;
    ALLEGRO_BITMAP *owner;
    double last_use_time;
 } ALLEGRO_FBO_INFO;
@@ -168,10 +170,13 @@ ALLEGRO_FBO_INFO *_al_ogl_persist_fbo(ALLEGRO_DISPLAY *display,
 void _al_ogl_setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
 bool _al_ogl_setup_fbo_non_backbuffer(ALLEGRO_DISPLAY *display,
                                       ALLEGRO_BITMAP *bitmap);
+void _al_ogl_del_fbo(ALLEGRO_FBO_INFO *info);
 
 /* common driver */
 void _al_ogl_setup_gl(ALLEGRO_DISPLAY *d);
 void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
+void _al_ogl_unset_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
+void _al_ogl_finalize_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
 void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap);
 ALLEGRO_BITMAP *_al_ogl_get_backbuffer(ALLEGRO_DISPLAY *d);
 ALLEGRO_BITMAP* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp);

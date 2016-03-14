@@ -25,6 +25,8 @@ struct ALLEGRO_BITMAP
     */
    int _format;
    int _flags;
+   int _depth;
+   int _samples;
    ALLEGRO_DISPLAY *_display;
    /* What format is used for the backing memory
     * (can be different from _format, for e.g. compressed bitmaps) */
