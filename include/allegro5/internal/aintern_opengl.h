@@ -36,10 +36,35 @@ enum {
    FBO_INFO_PERSISTENT  = 2   /* exclusive to the owner bitmap */
 };
 
+typedef struct ALLEGRO_FBO_BUFFERS
+{
+   /* It is not easy to determine the best lifetime for these. Unlike
+    * FBOs they are heavy objects and re-creating them can be costly.
+    * However if we make them part of ALLEGRO_BITMAP_EXTRA_OPENGL
+    * below, there is no way to release them. I.e. if you create
+    * many bitmaps in the beginning of your game and need depth and/or
+    * multisampling for them, the only way to free the buffers would be
+    * to copy those bitmaps and then destroy them.
+    *
+    * By tying them to the FBO struct, there is a limit of how many
+    * buffers Allegro will create before recycling them. This will
+    * work very well in the case where you only have one or a few
+    * bitmaps you regularly draw into.
+    */
+   GLuint depth_buffer;
+   int dw, dh, depth;
+   
+   GLuint multisample_buffer;
+   int mw, mh, samples;
+} ALLEGRO_FBO_BUFFERS;
+
 typedef struct ALLEGRO_FBO_INFO
 {
    int fbo_state;
    GLuint fbo;
+
+   ALLEGRO_FBO_BUFFERS buffers;
+      
    ALLEGRO_BITMAP *owner;
    double last_use_time;
 } ALLEGRO_FBO_INFO;
@@ -168,10 +193,13 @@ ALLEGRO_FBO_INFO *_al_ogl_persist_fbo(ALLEGRO_DISPLAY *display,
 void _al_ogl_setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
 bool _al_ogl_setup_fbo_non_backbuffer(ALLEGRO_DISPLAY *display,
                                       ALLEGRO_BITMAP *bitmap);
+void _al_ogl_del_fbo(ALLEGRO_FBO_INFO *info);
 
 /* common driver */
 void _al_ogl_setup_gl(ALLEGRO_DISPLAY *d);
 void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
+void _al_ogl_unset_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
+void _al_ogl_finalize_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
 void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap);
 ALLEGRO_BITMAP *_al_ogl_get_backbuffer(ALLEGRO_DISPLAY *d);
 ALLEGRO_BITMAP* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp);

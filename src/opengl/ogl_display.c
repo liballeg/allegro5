@@ -76,6 +76,15 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 }
 
 
+void _al_ogl_unset_target_bitmap(ALLEGRO_DISPLAY *display,
+   ALLEGRO_BITMAP *target)
+{
+   if (!target)
+      return;
+   _al_ogl_finalize_fbo(display, target);
+}
+
+
 /* Function: al_set_current_opengl_context
  */
 void al_set_current_opengl_context(ALLEGRO_DISPLAY *display)
