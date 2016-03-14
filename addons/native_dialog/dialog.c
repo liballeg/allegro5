@@ -56,7 +56,7 @@ ALLEGRO_FILECHOOSER *al_create_native_file_dialog(
    fc->fc_patterns = al_ustr_new(patterns);
    fc->flags = mode;
 
-   _al_register_destructor(_al_dtor_list, fc,
+   _al_register_destructor(_al_dtor_list, "native_dialog", fc,
       (void (*)(void *))al_destroy_native_file_dialog);
 
    return (ALLEGRO_FILECHOOSER *)fc;

@@ -284,7 +284,7 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp,
    if (unmasked)
        al_destroy_bitmap(unmasked);
 
-   _al_register_destructor(_al_dtor_list, f,
+   _al_register_destructor(_al_dtor_list, "font", f,
       (void (*)(void  *))al_destroy_font);
 
    return f;

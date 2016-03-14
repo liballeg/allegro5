@@ -80,7 +80,7 @@ ALLEGRO_TEXTLOG *al_open_native_text_log(char const *title, int flags)
       return NULL;
    }
 
-   _al_register_destructor(_al_dtor_list, textlog,
+   _al_register_destructor(_al_dtor_list, "textlog", textlog,
       (void (*)(void *))al_close_native_text_log);
 
    return (ALLEGRO_TEXTLOG *)textlog;

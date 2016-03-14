@@ -94,7 +94,8 @@ ALLEGRO_VOICE *al_create_voice(unsigned int freq,
       return NULL;
    }
 
-   _al_kcm_register_destructor(voice, (void (*)(void *)) al_destroy_voice);
+   _al_kcm_register_destructor("voice", voice,
+      (void (*)(void *)) al_destroy_voice);
 
    return voice;
 }

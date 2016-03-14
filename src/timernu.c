@@ -232,7 +232,7 @@ ALLEGRO_TIMER *al_create_timer(double speed_secs)
          timer->speed_secs = speed_secs;
          timer->counter = 0;
 
-         _al_register_destructor(_al_dtor_list, timer,
+         _al_register_destructor(_al_dtor_list, "timer", timer,
             (void (*)(void *)) al_destroy_timer);
       }
 

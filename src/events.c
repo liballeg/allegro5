@@ -105,7 +105,7 @@ ALLEGRO_EVENT_QUEUE *al_create_event_queue(void)
       _al_mutex_init(&queue->mutex);
       _al_cond_init(&queue->cond);
 
-      _al_register_destructor(_al_dtor_list, queue,
+      _al_register_destructor(_al_dtor_list, "queue", queue,
          (void (*)(void *)) al_destroy_event_queue);
    }
 

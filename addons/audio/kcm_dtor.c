@@ -53,9 +53,10 @@ void _al_kcm_shutdown_destructors(void)
 /* _al_kcm_register_destructor:
  *  Register an object to be destroyed.
  */
-void _al_kcm_register_destructor(void *object, void (*func)(void*))
+void _al_kcm_register_destructor(char const *name, void *object,
+   void (*func)(void*))
 {
-   _al_register_destructor(kcm_dtors, object, func);
+   _al_register_destructor(kcm_dtors, name, object, func);
 }
 
 

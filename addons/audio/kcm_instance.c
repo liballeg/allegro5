@@ -178,7 +178,8 @@ ALLEGRO_SAMPLE_INSTANCE *al_create_sample_instance(ALLEGRO_SAMPLE *sample_data)
    spl->mutex = NULL;
    spl->parent.u.ptr = NULL;
 
-   _al_kcm_register_destructor(spl, (void (*)(void *)) al_destroy_sample_instance);
+   _al_kcm_register_destructor("sample_instance", spl,
+      (void (*)(void *))al_destroy_sample_instance);
 
    return spl;
 }

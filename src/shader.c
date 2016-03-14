@@ -69,7 +69,7 @@ ALLEGRO_SHADER *al_create_shader(ALLEGRO_SHADER_PLATFORM platform)
    if (shader) {
       ASSERT(shader->platform);
       ASSERT(shader->vt);
-      _al_register_destructor(_al_dtor_list, shader,
+      _al_register_destructor(_al_dtor_list, "shader", shader,
          (void (*)(void *))al_destroy_shader);
    }
    else {

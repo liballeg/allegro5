@@ -909,7 +909,7 @@ ALLEGRO_FONT *al_load_ttf_font_stretch_f(ALLEGRO_FILE *file,
     f->vtable = &vt;
     f->data = data;
 
-    _al_register_destructor(_al_dtor_list, f,
+    _al_register_destructor(_al_dtor_list, "ttf_font", f,
        (void (*)(void *))al_destroy_font);
 
     return f;

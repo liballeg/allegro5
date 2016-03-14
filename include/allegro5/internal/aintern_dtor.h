@@ -14,8 +14,8 @@ AL_FUNC(void, _al_push_destructor_owner, (void));
 AL_FUNC(void, _al_pop_destructor_owner, (void));
 AL_FUNC(void, _al_run_destructors, (_AL_DTOR_LIST *dtors));
 AL_FUNC(void, _al_shutdown_destructors, (_AL_DTOR_LIST *dtors));
-AL_FUNC(void, _al_register_destructor, (_AL_DTOR_LIST *dtors, void *object,
-                                          void (*func)(void*)));
+AL_FUNC(void, _al_register_destructor, (_AL_DTOR_LIST *dtors, char const *name,
+   void *object, void (*func)(void*)));
 AL_FUNC(void, _al_unregister_destructor, (_AL_DTOR_LIST *dtors, void *object));
 AL_FUNC(void, _al_foreach_destructor, (_AL_DTOR_LIST *dtors,
                                           void (*callback)(void *object, void (*func)(void *), void *udata),

@@ -326,7 +326,8 @@ void _al_kcm_emit_stream_events(ALLEGRO_AUDIO_STREAM *stream);
 
 void _al_kcm_init_destructors(void);
 void _al_kcm_shutdown_destructors(void);
-void _al_kcm_register_destructor(void *object, void (*func)(void*));
+void _al_kcm_register_destructor(char const *name, void *object,
+   void (*func)(void*));
 void _al_kcm_unregister_destructor(void *object);
 void _al_kcm_foreach_destructor(
       void (*callback)(void *object, void (*func)(void *), void *udata),
