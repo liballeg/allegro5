@@ -610,6 +610,9 @@ void _al_osx_mouse_was_installed(BOOL install) {
    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
    int flags = NSApplicationPresentationHideDock | NSApplicationPresentationHideMenuBar;
    [dict setObject:[NSNumber numberWithInt: flags] forKey:NSFullScreenModeApplicationPresentationOptions];
+   /* HACK? For some reason, we need to disable the chrome. If we don't, the fullscreen window
+      will be created with space left over for it. Are we creating a fullscreen window in the wrong way? */
+   [dpy->win setStyleMask: [dpy->win styleMask] & ~NSTitledWindowMask];
    [[dpy->win contentView] enterFullScreenMode: [dpy->win screen] withOptions: dict];
    [dict release];
 #endif
@@ -633,6 +636,10 @@ void _al_osx_mouse_was_installed(BOOL install) {
     */
    [dpy->win orderOut:[dpy->win contentView]];
    [self exitFullScreenModeWithOptions: nil];
+   /* Restore the title bar disabled in enterFullScreenWindowMode. */
+   if (!(dpy_ptr->flags & ALLEGRO_FRAMELESS)) {
+      [dpy->win setStyleMask: [dpy->win styleMask] | NSTitledWindowMask];
+   }
 }
 
 -(void) finishExitingFullScreenWindowMode
