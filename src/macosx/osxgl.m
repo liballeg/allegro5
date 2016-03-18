@@ -1909,12 +1909,16 @@ static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h)
    NSWindow* window = dpy->win;
    NSRect current = [window frame];
    NSRect content = NSMakeRect(0.0f, 0.0f, (float) w, (float) h);
+   float scale_factor = 1.0;
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
    content = [window convertRectFromBacking: content];
+   if ([window respondsToSelector:@selector(backingScaleFactor)]) {
+      scale_factor = [window backingScaleFactor];
+   }
 #endif
 
-   w = _ALLEGRO_MAX(w, MINIMUM_WIDTH);
-   h = _ALLEGRO_MAX(h, MINIMUM_HEIGHT);
+   w = _ALLEGRO_MAX(w, MINIMUM_WIDTH / scale_factor);
+   h = _ALLEGRO_MAX(h, MINIMUM_HEIGHT / scale_factor);
 
    if (d->min_w > 0 && w < d->min_w) {
       w = d->min_w;
@@ -1937,7 +1941,6 @@ static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h)
       [pool drain];
       return false;
    }
-
 
    /* Finalise setting the frame on the main thread. Because this is where
     * the window's frame was initially set, this is where it should be
@@ -2072,7 +2075,9 @@ static bool set_window_constraints(ALLEGRO_DISPLAY* display,
    NSWindow* window = d->win;
    float scale_factor = 1.0;
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
-   scale_factor = [window backingScaleFactor];
+   if ([window respondsToSelector:@selector(backingScaleFactor)]) {
+      scale_factor = [window backingScaleFactor];
+   }
 #endif
 
    if (min_w > 0 && min_w < MINIMUM_WIDTH) {
@@ -2179,67 +2184,83 @@ static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
    if (!win)
       return false;
 
-   switch (flag) {
-      case ALLEGRO_FRAMELESS:
-         /* BUGS:
-         - This causes the keyboard focus to be lost.
-         - On 10.10, disabling the frameless mode causes the title bar to be partially drawn
-           (resizing the window makes it appear again).
-          */
-         mask = [win styleMask];
-         if (onoff)
-            mask &= ~NSTitledWindowMask;
-         else
-            mask |= NSTitledWindowMask;
-         ALLEGRO_DEBUG("Toggle FRAME for display %p to %d\n", dpy, onoff);
-         NSNumber *mask_obj = [NSNumber numberWithInt:mask];
-         NSString *title = [win title];
-         /* For whatever reason, setting the NSTitled style needs to be done on the main thread, or you get crashes. */
-         [win performSelectorOnMainThread:@selector(setStyleMaskSelector:) withObject:mask_obj waitUntilDone:YES];
-         /* When going from frameless to frameful, the title gets reset, so we have to manually put it back. */
-         [win performSelectorOnMainThread:@selector(setTitle:) withObject: title waitUntilDone:YES];
-         [mask_obj release];
-         return true;
+   @autoreleasepool {
+      switch (flag) {
+         case ALLEGRO_FRAMELESS: {
+            if (onoff)
+               display->flags |= ALLEGRO_FRAMELESS;
+            else
+               display->flags &= ~ALLEGRO_FRAMELESS;
+            /* BUGS:
+             - This causes the keyboard focus to be lost.
+             - On 10.10, disabling the frameless mode causes the title bar to be partially drawn
+             (resizing the window makes it appear again).
+             */
+            mask = [win styleMask];
+            if (onoff)
+               mask &= ~(NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask);
+            else
+               mask |= NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask;
+            ALLEGRO_DEBUG("Toggle FRAME for display %p to %d\n", dpy, onoff);
+            NSString *title = [win title];
 
-      case ALLEGRO_RESIZABLE:
-         mask = [win styleMask];
-         if (onoff)
-            mask |= NSResizableWindowMask;
-         else
-            mask &= ~NSResizableWindowMask;
-         ALLEGRO_DEBUG("Toggle RESIZABLE for display %p to %d\n", dpy, onoff);
-         [win setStyleMask : mask];
-         return true;
-
-      case ALLEGRO_MAXIMIZED: {
-         ALOpenGLView *view = (ALOpenGLView *)[win contentView];
-         if ((!!(display->flags & ALLEGRO_MAXIMIZED)) == onoff)
+            NSNumber *mask_obj = [NSNumber numberWithInt:mask];
+            [win performSelectorOnMainThread: @selector(setStyleMaskSelector:) withObject:mask_obj waitUntilDone:YES];
+            /* When going from frameless to frameful, the title gets reset, so we have to manually put it back. */
+            [win performSelectorOnMainThread: @selector(setTitle:) withObject: title waitUntilDone:YES];
             return true;
-         [view performSelectorOnMainThread: @selector(maximize) withObject: nil waitUntilDone:YES];
-         return true;
-      }
-      case ALLEGRO_FULLSCREEN_WINDOW: {
-         ALOpenGLView *view = (ALOpenGLView *)[win contentView];
-         if (onoff) {
-            [view performSelectorOnMainThread: @selector(enterFullScreenWindowMode) withObject:nil waitUntilDone:YES];
-            NSRect sc = [[win screen] frame];
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
-            sc = [win convertRectToBacking: sc];
-#endif
-            resize_display_win(display, sc.size.width, sc.size.height);
-            display->flags |= ALLEGRO_FULLSCREEN_WINDOW;
-         } else {
-            [view performSelectorOnMainThread: @selector(exitFullScreenWindowMode) withObject:nil waitUntilDone:YES];
-            NSRect sc = [view frame];
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
-            sc = [win convertRectToBacking: sc];
-#endif
-            display->flags &= ~ALLEGRO_FULLSCREEN_WINDOW;
-            resize_display_win(display, sc.size.width, sc.size.height);
-            [view performSelectorOnMainThread: @selector(finishExitingFullScreenWindowMode) withObject:nil waitUntilDone:YES];
          }
 
-         return true;
+         case ALLEGRO_RESIZABLE: {
+            if (onoff)
+               display->flags |= ALLEGRO_RESIZABLE;
+            else
+               display->flags &= ~ALLEGRO_RESIZABLE;
+            mask = [win styleMask];
+            if (onoff)
+               mask |= NSResizableWindowMask;
+            else
+               mask &= ~NSResizableWindowMask;
+            ALLEGRO_DEBUG("Toggle RESIZABLE for display %p to %d\n", dpy, onoff);
+            NSNumber *mask_obj = [NSNumber numberWithInt:mask];
+            [win performSelectorOnMainThread: @selector(setStyleMaskSelector:) withObject:mask_obj waitUntilDone:YES];
+            return true;
+         }
+
+         case ALLEGRO_MAXIMIZED: {
+            if (onoff)
+               display->flags |= ALLEGRO_MAXIMIZED;
+            else
+               display->flags &= ~ALLEGRO_MAXIMIZED;
+            ALOpenGLView *view = (ALOpenGLView *)[win contentView];
+            if ((!!(display->flags & ALLEGRO_MAXIMIZED)) == onoff)
+               return true;
+            [view performSelectorOnMainThread: @selector(maximize) withObject: nil waitUntilDone:YES];
+            return true;
+         }
+         case ALLEGRO_FULLSCREEN_WINDOW: {
+            ALOpenGLView *view = (ALOpenGLView *)[win contentView];
+            if (onoff) {
+               [view performSelectorOnMainThread: @selector(enterFullScreenWindowMode) withObject:nil waitUntilDone:YES];
+               NSRect sc = [[win screen] frame];
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+               sc = [win convertRectToBacking: sc];
+#endif
+               resize_display_win(display, sc.size.width, sc.size.height);
+               display->flags |= ALLEGRO_FULLSCREEN_WINDOW;
+            } else {
+               [view performSelectorOnMainThread: @selector(exitFullScreenWindowMode) withObject:nil waitUntilDone:YES];
+               NSRect sc = [view frame];
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+               sc = [win convertRectToBacking: sc];
+#endif
+               display->flags &= ~ALLEGRO_FULLSCREEN_WINDOW;
+               resize_display_win(display, sc.size.width, sc.size.height);
+               [view performSelectorOnMainThread: @selector(finishExitingFullScreenWindowMode) withObject:nil waitUntilDone:YES];
+            }
+
+            return true;
+         }
       }
    }
 
