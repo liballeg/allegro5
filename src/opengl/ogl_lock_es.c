@@ -171,7 +171,8 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region_bb_proxy(ALLEGRO_BITMAP *bitmap,
 
    ALLEGRO_DEBUG("Creating backbuffer proxy bitmap\n");
    proxy = _al_create_bitmap_params(al_get_current_display(),
-      w, h, real_format, ALLEGRO_VIDEO_BITMAP|ALLEGRO_NO_PRESERVE_TEXTURE);
+      w, h, real_format, ALLEGRO_VIDEO_BITMAP|ALLEGRO_NO_PRESERVE_TEXTURE,
+      0, 0);
    if (!proxy) {
       return NULL;
    }

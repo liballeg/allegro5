@@ -673,7 +673,61 @@ the best format.
 See also: [ALLEGRO_PIXEL_FORMAT], [al_get_new_bitmap_format],
 [al_get_bitmap_format]
 
+### API: al_set_new_bitmap_depth
 
+Sets the depthbuffer depth used by newly created bitmaps (on the current
+thread) if they are used with [al_set_target_bitmap]. 0 means no
+depth-buffer will be created when drawing into the bitmap, which is the
+default.
+
+> *Note:* This is an experimental feature and currently only works for
+the OpenGL backend.
+
+Since: 5.1.14
+
+### API: al_get_new_bitmap_depth
+
+Returns the value currently set with [al_set_new_bitmap_depth] on
+the current thread or 0 if none was set.
+
+Since: 5.1.14
+
+### API: al_set_new_bitmap_samples
+
+Sets the multi-sampling samples used by newly created bitmaps (on the
+current thread) if they are used with [al_set_target_bitmap]. 0 means
+multi-sampling will not be used when drawing into the bitmap, which is
+the default. 1 means multi-sampling will be used but only using a single
+sample per pixel (so usually there will be no visual difference to not
+using multi-sampling at all).
+
+> *Note:* This is an experimental feature and currently only works for
+the OpenGL backend.
+
+> *Note:* Some platforms have restrictions on when the multi-sampling
+buffer for a bitmap is realized, i.e. down-scaled back to the actual
+bitmap dimensions. This may only happen after a call to
+[al_set_target_bitmap]. So for example:
+
+    al_set_target_bitmap(multisample);
+    al_clear_to_color(blue);
+    al_draw_line(0, 0, 100, 100, red, 1);
+    al_lock_bitmap(multisample, ...)
+    // ERROR: the contents of the bitmap will be undefined
+
+    al_set_target_bitmap(backbuffer);
+    al_lock_bitmap(multisample, ...)
+    // CORRECT: at this point, the bitmap contents are updated and
+    // there will be an anti-aliased line in it.
+
+Since: 5.1.14
+
+### API: al_get_new_bitmap_samples
+
+Returns the value currently set with [al_set_new_bitmap_samples] on
+the current thread or 0 if none was set.
+
+Since: 5.1.14
 
 ## Bitmap properties
 
@@ -1141,30 +1195,6 @@ Since: 5.1.14
 
 Return the multi-sampling samples used by this bitmap if it is used with
 [al_set_target_bitmap].
-
-Since: 5.1.14
-
-### API: al_set_bitmap_depth
-
-Sets the depthbuffer depth used by this bitmap if it is used with
-[al_set_target_bitmap]. 0 means no depth-buffer will be created when
-drawing into the bitmap, which is the default.
-
-> *Note:* This is an experimental feature and currently only works for the
-OpenGL backend.
-
-Since: 5.1.14
-
-### API: al_set_bitmap_samples
-
-Sets the multi-sampling samples used by this bitmap if it is used with
-[al_set_target_bitmap]. 0 means multi-sampling will not be used when
-drawing into this bitmap, which is the default. 1 means multi-sampling
-will be used but only using a single sample per pixel (so usually there
-will be no visual difference to not using multi-sampling at all).
-
-> *Note:* This is an experimental feature and currently only works for the
-OpenGL backend.
 
 Since: 5.1.14
 

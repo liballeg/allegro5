@@ -91,7 +91,6 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 
 
 
-#if !defined ALLEGRO_CFG_OPENGLES
 static uint32_t parse_opengl_version(const char *s)
 {
    char *p = (char *) s;
@@ -118,16 +117,12 @@ static uint32_t parse_opengl_version(const char *s)
    ALLEGRO_DEBUG("Parsed '%s' as 0x%08x\n", s, ver);
    return ver;
 }
-#endif
 
 
 
 /* Reads version info out of glGetString(GL_VERSION) */
 static uint32_t _al_ogl_version(void)
 {
-#if !defined ALLEGRO_CFG_OPENGLES
-   const char *str;
-
    char const *value = al_get_config_value(al_get_system_config(), "opengl",
       "force_opengl_version");
    if (value) {
@@ -140,8 +135,15 @@ static uint32_t _al_ogl_version(void)
       return v;
    }
 
+   const char *str;
+
    str = (const char *)glGetString(GL_VERSION);
    if (str) {
+      #ifdef ALLEGRO_CFG_OPENGLES
+      char *str2 = strstr(str, "ES ");
+      if (str2)
+         str = str2 + 3;
+      #endif
       return parse_opengl_version(str);
    }
    else {
@@ -150,16 +152,7 @@ static uint32_t _al_ogl_version(void)
        */
       return _ALLEGRO_OPENGL_VERSION_1_0;
    }
-#else
-   /* XXX this is asking for trouble, and should be documented */
-   const char *s = (char *)glGetString(GL_VERSION);
-   if (strstr(s, "2.0"))
-      return _ALLEGRO_OPENGL_VERSION_2_0;
-   else if (strstr(s, "1.1"))
-      return _ALLEGRO_OPENGL_VERSION_1_1;
-   else
-      return _ALLEGRO_OPENGL_VERSION_0;
-#endif
+
 }
 
 
@@ -831,17 +824,6 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    #include "allegro5/opengl/GLext/wgl_ext_list.h"
 #undef AGL_EXT
 #endif
-
-    /* TODO: use these somewhere */
-#if 0
-   for (i = 0; i < 5; i++) {
-      __allegro_gl_texture_read_format[i] = -1;
-      __allegro_gl_texture_components[i] = GL_RGB;
-   }
-   __allegro_gl_texture_read_format[3] = GL_UNSIGNED_BYTE;
-   __allegro_gl_texture_read_format[4] = GL_UNSIGNED_BYTE;
-   __allegro_gl_texture_components[4] = GL_RGBA;
-#endif /* #if 0 */
 
    /* Get max texture size */
    glGetIntegerv(GL_MAX_TEXTURE_SIZE,

@@ -1060,7 +1060,7 @@ void _al_ogl_upload_bitmap_memory(ALLEGRO_BITMAP *bitmap, int format, void *ptr)
    ASSERT(al_get_current_display() == _al_get_bitmap_display(bitmap));
 
    tmp = _al_create_bitmap_params(_al_get_bitmap_display(bitmap), w, h, format,
-      al_get_bitmap_flags(bitmap));
+      al_get_bitmap_flags(bitmap), 0, 0);
    ASSERT(tmp);
 
    lr = al_lock_bitmap(tmp, format, ALLEGRO_LOCK_WRITEONLY);

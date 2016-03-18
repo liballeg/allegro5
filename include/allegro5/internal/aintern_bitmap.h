@@ -134,7 +134,7 @@ struct ALLEGRO_BITMAP_INTERFACE
 };
 
 ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
-   int w, int h, int format, int flags);
+   int w, int h, int format, int flags, int depth, int samples);
 
 AL_FUNC(ALLEGRO_DISPLAY*, _al_get_bitmap_display, (ALLEGRO_BITMAP *bitmap));
 

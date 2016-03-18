@@ -72,6 +72,8 @@ typedef struct thread_local_state {
    int new_display_adapter;
    int new_window_x;
    int new_window_y;
+   int new_bitmap_depth;
+   int new_bitmap_samples;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS new_display_settings;
 
    /* Current display */
@@ -321,7 +323,6 @@ void al_set_new_window_position(int x, int y)
    tls->new_window_x = x;
    tls->new_window_y = y;
 }
-
 
 
 /* Function: al_get_new_window_position
@@ -897,52 +898,60 @@ void al_set_standard_fs_interface(void)
 }
 
 
+#define SETTER(name, value) \
+{ \
+   thread_local_state *tls; \
+   if ((tls = tls_get()) == NULL) \
+      return; \
+   tls->name = value; \
+}
+
+#define GETTER(name, value) \
+{ \
+   thread_local_state *tls; \
+   if ((tls = tls_get()) == NULL) \
+      return value; \
+   return tls->name; \
+}
 
 /* Function: al_get_errno
  */
 int al_get_errno(void)
-{
-   thread_local_state *tls;
-
-   if ((tls = tls_get()) == NULL)
-      return 0;
-   return tls->allegro_errno;
-}
-
-
+GETTER(allegro_errno, 0)
 
 /* Function: al_set_errno
  */
 void al_set_errno(int errnum)
-{
-   thread_local_state *tls;
+SETTER(allegro_errno, errnum)
 
-   if ((tls = tls_get()) == NULL)
-      return;
-   tls->allegro_errno = errnum;
-}
+/* Function: al_get_new_bitmap_depth
+ */
+int al_get_new_bitmap_depth(void)
+GETTER(new_bitmap_depth, 0)
+
+/* Function: al_set_new_bitmap_depth
+ */
+void al_set_new_bitmap_depth(int depth)
+SETTER(new_bitmap_depth, depth)
+
+/* Function: al_get_new_bitmap_samples
+ */
+int al_get_new_bitmap_samples(void)
+GETTER(new_bitmap_samples, 0)
+
+/* Function: al_set_new_bitmap_samples
+ */
+void al_set_new_bitmap_samples(int samples)
+SETTER(new_bitmap_samples, samples)
+
 
 
 #ifdef ALLEGRO_ANDROID
 JNIEnv *_al_android_get_jnienv(void)
-{
-   thread_local_state *tls;
-
-   if ((tls = tls_get()) == NULL)
-      return 0;
-   return tls->jnienv;
-}
-
-
+GETTER(jnienv, 0)
 
 void _al_android_set_jnienv(JNIEnv *jnienv)
-{
-   thread_local_state *tls;
-
-   if ((tls = tls_get()) == NULL)
-      return;
-   tls->jnienv = jnienv;
-}
+SETTER(jnienv, jnienv)
 #endif
 
 

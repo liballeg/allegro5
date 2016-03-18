@@ -10,105 +10,156 @@
 
 #define FPS 60
 
-struct Example {
-   ALLEGRO_BITMAP *target;
+static struct Example {
+   ALLEGRO_BITMAP *targets[4];
+   ALLEGRO_BITMAP *bitmap_normal;
+   ALLEGRO_BITMAP *bitmap_filter;
+   ALLEGRO_BITMAP *sub;
    ALLEGRO_FONT *font;
-   double t;
-   double direct_speed_measure;
+   float bitmap_x[8], bitmap_y[8];
+   float bitmap_t;
+   int step_t, step_x, step_y;
+   ALLEGRO_BITMAP *step[4];
+   bool update_step;
 } example;
 
-static void draw_on_target(void)
+static ALLEGRO_BITMAP *create_bitmap(void)
 {
-   ALLEGRO_STATE state;
-   ALLEGRO_TRANSFORM transform;
-   
-   al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP |
-      ALLEGRO_STATE_TRANSFORM |
-      ALLEGRO_STATE_PROJECTION_TRANSFORM);
+   const int checkers_size = 8;
+   const int bitmap_size = 24;
+   ALLEGRO_BITMAP *bitmap;
+   ALLEGRO_LOCKED_REGION *locked;
+   int x, y, p;
+   unsigned char *rgba;
 
-   al_set_target_bitmap(example.target);
-   al_clear_to_color(al_color_name("blue"));
-   al_clear_depth_buffer(1);
-   al_set_render_state(ALLEGRO_DEPTH_TEST, true);
-
-   al_identity_transform(&transform);
-   al_translate_transform_3d(&transform, 0, 0, 0);
-   al_orthographic_transform(&transform,
-      -1, 1, -1, 1, -1, 1);
-   al_use_projection_transform(&transform);
-
-   int i, j;
-   for (i = 0; i < 24; i++) {
-      for (j = 0; j < 2; j++) {
-         al_identity_transform(&transform);
-         al_translate_transform_3d(&transform, 0, 0, j * 0.01);
-         al_rotate_transform_3d(&transform, 0, 1, 0,
-            ALLEGRO_PI * (i / 12.0 + example.t / 2));
-         al_rotate_transform_3d(&transform, 1, 0, 0, ALLEGRO_PI * 0.25);
-         al_use_transform(&transform);
-         if (j == 0)
-            al_draw_filled_rectangle(0, -.5, .5, .5, i % 2 == 0 ?
-               al_color_name("yellow") : al_color_name("red"));
-         else
-            al_draw_filled_rectangle(0, -.5, .5, .5, i % 2 == 0 ?
-               al_color_name("goldenrod") : al_color_name("maroon"));
+   bitmap = al_create_bitmap(bitmap_size, bitmap_size);
+   locked = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888, 0);
+   rgba = locked->data;
+   p = locked->pitch;
+   for (y = 0; y < bitmap_size; y++) {
+      for (x = 0; x < bitmap_size; x++) {
+         int c = (((x / checkers_size) + (y / checkers_size)) & 1) * 255;
+         rgba[y * p + x * 4 + 0] = 0;
+         rgba[y * p + x * 4 + 1] = 0;
+         rgba[y * p + x * 4 + 2] = 0;
+         rgba[y * p + x * 4 + 3] = c;
       }
    }
-
-   al_set_render_state(ALLEGRO_DEPTH_TEST, false);
-
-   al_identity_transform(&transform);
-   al_use_transform(&transform);
-  
-   al_draw_line(0.9, 0, 1, 0, al_color_name("black"), 0.05);
-   al_draw_line(-0.9, 0, -1, 0, al_color_name("black"), 0.05);
-   al_draw_line(0, 0.9, 0, 1, al_color_name("black"), 0.05);
-   al_draw_line(0, -0.9, 0, -1, al_color_name("black"), 0.05);
-
-   al_restore_state(&state);
-}
-
-static void redraw(void)
-{
-   double w = 512, h = 512;
-   draw_on_target();
-
-   ALLEGRO_TRANSFORM transform;
-   al_identity_transform(&transform);
-   al_translate_transform(&transform, -256, -256);
-   al_rotate_transform(&transform, example.t * ALLEGRO_PI / 3);
-   al_translate_transform(&transform, 256, 256);
-   al_use_transform(&transform);
-
-   al_clear_to_color(al_color_name("green"));
-   al_draw_bitmap(example.target, 0, 0, 0);
-
-   al_draw_line(30, h / 2, 60, h / 2, al_color_name("black"), 12);
-   al_draw_line(w - 30, h / 2, w - 60, h / 2, al_color_name("black"), 12);
-   al_draw_line(w / 2, 30, w / 2, 60, al_color_name("black"), 12);
-   al_draw_line(w / 2, h - 30, w / 2, h - 60, al_color_name("black"), 12);
-   al_draw_text(example.font, al_color_name("black"), 30, h / 2 - 16, 0,
-      "back buffer");
-   al_draw_text(example.font, al_color_name("black"), 0, h / 2 + 10, 0,
-      "bitmap");
-
-   al_identity_transform(&transform);
-   al_use_transform(&transform);
-   al_draw_textf(example.font, al_color_name("black"), w, 0,
-      ALLEGRO_ALIGN_RIGHT, "%.1f FPS", 1.0 / example.direct_speed_measure);
-}
-
-static void update(void)
-{
-   example.t += 1.0 / FPS;
+   al_unlock_bitmap(bitmap);
+   return bitmap;
 }
 
 static void init(void)
 {
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   ALLEGRO_BITMAP *memory = create_bitmap();
+   al_set_new_bitmap_flags(0);
+
+   al_set_new_bitmap_samples(0);
+   example.targets[0] = al_create_bitmap(300, 200);
+   example.targets[1] = al_create_bitmap(300, 200);
+   al_set_new_bitmap_samples(4);
+   example.targets[2] = al_create_bitmap(300, 200);
+   example.targets[3] = al_create_bitmap(300, 200);
+   al_set_new_bitmap_samples(0);
+
    al_set_new_bitmap_flags(ALLEGRO_MIN_LINEAR | ALLEGRO_MAG_LINEAR);
-   example.target = al_create_bitmap(512, 512);
-   al_set_bitmap_depth(example.target, 16);
-   al_set_bitmap_samples(example.target, 4);
+   example.bitmap_filter = al_clone_bitmap(memory);
+   al_set_new_bitmap_flags(0);
+   example.bitmap_normal = al_clone_bitmap(memory);
+
+   example.sub = al_create_sub_bitmap(memory, 0, 0, 30, 30);
+   example.step[0] = al_create_bitmap(30, 30);
+   example.step[1] = al_create_bitmap(30, 30);
+   example.step[2] = al_create_bitmap(30, 30);
+   example.step[3] = al_create_bitmap(30, 30);
+}
+
+static void bitmap_move(void)
+{
+   int i;
+
+   example.bitmap_t++;
+   for (i = 0; i < 8; i++) {
+      float a = 2 * ALLEGRO_PI * i / 16;
+      float s = sin((example.bitmap_t + i * 40) / 180 * ALLEGRO_PI);
+      s *= 90;
+      example.bitmap_x[i] = 100 + s * cos(a);
+      example.bitmap_y[i] = 100 + s * sin(a);
+   }
+}
+ 
+static void draw(char const *text, ALLEGRO_BITMAP *bitmap)
+{
+   int i;
+
+   al_clear_to_color(al_color_name("white"));
+
+   al_draw_text(example.font, al_map_rgb(0, 0, 0), 0, 0, 0, text);
+
+   for (i = 0; i < 16; i++) {
+      float a = 2 * ALLEGRO_PI * i / 16;
+      ALLEGRO_COLOR c = al_color_hsv(i * 360 / 16, 1, 1);
+      al_draw_line(100 + cos(a) * 10, 100 + sin(a) * 10,
+         100 + cos(a) * 90, 100 + sin(a) * 90, c, 3);
+   }
+
+   for (i = 0; i < 8; i++) {
+      float a = 2 * ALLEGRO_PI * i / 16;
+      int s = al_get_bitmap_width(bitmap);
+      al_draw_rotated_bitmap(bitmap, s / 2, s / 2,
+         example.bitmap_x[i], example.bitmap_y[i], a, 0);
+   }
+}
+
+static void redraw(void)
+{
+   al_set_target_bitmap(example.targets[1]);
+   draw("filtered", example.bitmap_filter);
+   al_set_target_bitmap(example.targets[0]);
+   draw("no filter", example.bitmap_normal);
+   al_set_target_bitmap(example.targets[3]);
+   draw("filtered, multi-sample x4", example.bitmap_filter);
+   al_set_target_bitmap(example.targets[2]);
+   draw("no filter, multi-sample x4", example.bitmap_normal);
+
+   float x = example.step_x;
+   float y = example.step_y;
+
+   if (example.update_step) {
+      int i;
+      for (i = 0; i < 4; i++) {
+         al_set_target_bitmap(example.step[i]);
+         al_reparent_bitmap(example.sub, example.targets[i], x, y, 30, 30);
+         al_draw_bitmap(example.sub, 0, 0, 0);
+      }
+      example.update_step = false;
+   }
+
+   al_set_target_backbuffer(al_get_current_display());
+   al_clear_to_color(al_map_rgb_f(0.5, 0, 0));
+   al_draw_bitmap(example.targets[0], 20, 20, 0);
+   al_draw_bitmap(example.targets[1], 20, 240, 0);
+   al_draw_bitmap(example.targets[2], 340, 20, 0);
+   al_draw_bitmap(example.targets[3], 340, 240, 0);
+   
+   al_draw_scaled_rotated_bitmap(example.step[0], 15, 15, 320 - 50, 220 - 50, 4, 4, 0, 0);
+   al_draw_scaled_rotated_bitmap(example.step[1], 15, 15, 320 - 50, 440 - 50, 4, 4, 0, 0);
+   al_draw_scaled_rotated_bitmap(example.step[2], 15, 15, 640 - 50, 220 - 50, 4, 4, 0, 0);
+   al_draw_scaled_rotated_bitmap(example.step[3], 15, 15, 640 - 50, 440 - 50, 4, 4, 0, 0);
+
+}
+
+static void update(void)
+{
+   bitmap_move();
+   if (example.step_t == 0) {
+      example.step_x = example.bitmap_x[1] - 15;
+      example.step_y = example.bitmap_y[1] - 15;
+      example.step_t = 60;
+      example.update_step = true;
+   }
+   example.step_t--;
 }
 
 int main(int argc, char **argv)
@@ -116,7 +167,7 @@ int main(int argc, char **argv)
    ALLEGRO_TIMER *timer;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_DISPLAY *display;
-   int w = 512, h = 512;
+   int w = 20 + 300 + 20 + 300 + 20, h = 20 + 200 + 20 + 200 + 20;
    bool done = false;
    bool need_redraw = true;
 
@@ -137,8 +188,6 @@ int main(int argc, char **argv)
    al_init_primitives_addon();
 
    init_platform_specific();
-
-   al_set_new_display_option(ALLEGRO_DEPTH_SIZE, 16, ALLEGRO_SUGGEST);
 
    display = al_create_display(w, h);
    if (!display) {
@@ -162,15 +211,10 @@ int main(int argc, char **argv)
 
    al_start_timer(timer);
 
-   double t = -al_get_time();
-
    while (!done) {
       ALLEGRO_EVENT event;
 
       if (need_redraw) {
-         t += al_get_time();
-         example.direct_speed_measure  = t;
-         t = -al_get_time();
          redraw();
          al_flip_display();
          need_redraw = false;

@@ -36,12 +36,35 @@ enum {
    FBO_INFO_PERSISTENT  = 2   /* exclusive to the owner bitmap */
 };
 
+typedef struct ALLEGRO_FBO_BUFFERS
+{
+   /* It is not easy to determine the best lifetime for these. Unlike
+    * FBOs they are heavy objects and re-creating them can be costly.
+    * However if we make them part of ALLEGRO_BITMAP_EXTRA_OPENGL
+    * below, there is no way to release them. I.e. if you create
+    * many bitmaps in the beginning of your game and need depth and/or
+    * multisampling for them, the only way to free the buffers would be
+    * to copy those bitmaps and then destroy them.
+    *
+    * By tying them to the FBO struct, there is a limit of how many
+    * buffers Allegro will create before recycling them. This will
+    * work very well in the case where you only have one or a few
+    * bitmaps you regularly draw into.
+    */
+   GLuint depth_buffer;
+   int dw, dh, depth;
+   
+   GLuint multisample_buffer;
+   int mw, mh, samples;
+} ALLEGRO_FBO_BUFFERS;
+
 typedef struct ALLEGRO_FBO_INFO
 {
    int fbo_state;
    GLuint fbo;
-   GLuint depth_buffer;
-   GLuint multisample_buffer;
+
+   ALLEGRO_FBO_BUFFERS buffers;
+      
    ALLEGRO_BITMAP *owner;
    double last_use_time;
 } ALLEGRO_FBO_INFO;

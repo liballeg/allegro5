@@ -56,10 +56,19 @@
    #define glGenerateMipmapEXT         glGenerateMipmap
    #define glOrtho                     glOrthof
 #elif defined ALLEGRO_CFG_OPENGLES
+   /* Note: This works because all the constants are the same, e.g.
+    * GL_FRAMEBUFFER_OES == GL_FRAMEBUFFER_EXT == 0x8D40
+    * And so we can use the OpenGL framebuffer extension in the same was
+    * as the OpenGL ES framebuffer extension.
+    */
+#ifndef GL_EXT_draw_buffers
    #define GL_COLOR_ATTACHMENT0_EXT    GL_COLOR_ATTACHMENT0_OES
+#endif
    #define GL_FRAMEBUFFER_BINDING_EXT  GL_FRAMEBUFFER_BINDING_OES
    #define GL_FRAMEBUFFER_COMPLETE_EXT GL_FRAMEBUFFER_COMPLETE_OES
    #define GL_FRAMEBUFFER_EXT          GL_FRAMEBUFFER_OES
+   #define GL_DEPTH_ATTACHMENT_EXT     GL_DEPTH_ATTACHMENT_OES
+
    #define glBindFramebufferEXT        glBindFramebufferOES
    #define glCheckFramebufferStatusEXT glCheckFramebufferStatusOES
    #define glDeleteFramebuffersEXT     glDeleteFramebuffersOES
@@ -67,6 +76,12 @@
    #define glGenFramebuffersEXT        glGenFramebuffersOES
    #define glGenerateMipmapEXT         glGenerateMipmapOES
    #define glOrtho                     glOrthof
+   #define glGenRenderbuffersEXT       glGenRenderbuffersOES
+   #define glBindRenderbufferEXT       glBindRenderbufferOES
+   #define glRenderbufferStorageEXT    glRenderbufferStorageOES
+   #define glFramebufferRenderbufferEXT glFramebufferRenderbufferOES
+   #define glOrtho                     glOrthof
+   #define glDeleteRenderbuffersEXT     glDeleteRenderbuffersOES
 #endif
 
 #endif

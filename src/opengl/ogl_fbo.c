@@ -93,8 +93,12 @@ void _al_ogl_reset_fbo_info(ALLEGRO_FBO_INFO *info)
 {
    info->fbo_state = FBO_INFO_UNUSED;
    info->fbo = 0;
-   info->depth_buffer = 0;
-   info->multisample_buffer = 0;
+   info->buffers.depth_buffer = 0;
+   info->buffers.multisample_buffer = 0;
+   info->buffers.dw = 0;
+   info->buffers.dh = 0;
+   info->buffers.mw = 0;
+   info->buffers.mh = 0;
    info->owner = NULL;
    info->last_use_time = 0.0;
 }
@@ -110,28 +114,85 @@ static void check_gl_error(void)
 }
 
 
+
+static void detach_depth_buffer(ALLEGRO_FBO_INFO *info)
+{
+   if (info->buffers.depth_buffer == 0)
+      return;
+   ALLEGRO_DEBUG("Deleting depth render buffer: %u\n",
+            info->buffers.depth_buffer);
+   glDeleteRenderbuffersEXT(1, &info->buffers.depth_buffer);
+   info->buffers.depth_buffer = 0;
+    info->buffers.dw = 0;
+   info->buffers.dh = 0;
+   info->buffers.depth = 0;
+}
+
+
+static void detach_multisample_buffer(ALLEGRO_FBO_INFO *info)
+{
+   if (info->buffers.multisample_buffer == 0)
+      return;
+   ALLEGRO_DEBUG("Deleting multisample render buffer: %u\n",
+            info->buffers.depth_buffer);
+   glDeleteRenderbuffersEXT(1, &info->buffers.multisample_buffer);
+   info->buffers.multisample_buffer = 0;
+   info->buffers.mw = 0;
+   info->buffers.mh = 0;
+   info->buffers.samples = 0;
+}
+
+
+
 static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
 {
    GLuint rb;
-   GLenum depth = GL_DEPTH_COMPONENT16;
-   int bits = al_get_bitmap_depth(info->owner);
+   GLenum gldepth = GL_DEPTH_COMPONENT16;
+
+   ALLEGRO_BITMAP *b = info->owner;
+   int bits = al_get_bitmap_depth(b);
+
+   if (info->buffers.depth_buffer != 0) {
+
+      if (info->buffers.depth != bits ||
+               info->buffers.dw != al_get_bitmap_width(b) ||
+               info->buffers.dh != al_get_bitmap_height(b)) {
+            detach_depth_buffer(info);
+         }
+   }
+   
    if (!bits)
       return;
 
-   if (info->depth_buffer == 0) {
+   if (info->buffers.depth_buffer == 0) {
+      ALLEGRO_DISPLAY *display = _al_get_bitmap_display(info->owner);
       int w = al_get_bitmap_width(info->owner);
       int h = al_get_bitmap_height(info->owner);
       
-      if (bits == 24) depth = GL_DEPTH_COMPONENT24;
-      if (bits == 32) depth = GL_DEPTH_COMPONENT32;
+      if (bits == 24) gldepth = GL_DEPTH_COMPONENT24;
    
       glGenRenderbuffersEXT(1, &rb);
       glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, rb);
-      
-      glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT,
-         al_get_bitmap_samples(info->owner), depth, w, h);
 
-      info->depth_buffer = rb;
+      int samples = al_get_bitmap_samples(info->owner);
+
+      bool extension_supported;
+      #ifdef ALLEGRO_CFG_OPENGLES
+         extension_supported = display->ogl_extras->extension_list->ALLEGRO_GL_EXT_multisampled_render_to_texture;
+      #else
+         extension_supported = display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_multisample;
+      #endif
+
+      if (samples == 0 || !extension_supported)
+         glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, gldepth, w, h);
+      else
+         glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT,
+            samples, gldepth, w, h);
+
+      info->buffers.depth_buffer = rb;
+      info->buffers.dw = w;
+      info->buffers.dw = h;
+      info->buffers.depth = bits;
       GLint e = glGetError();
       if (e) {
          ALLEGRO_ERROR("glRenderbufferStorage failed! bits=%d w=%d h=%d (%s)\n",
@@ -139,7 +200,7 @@ static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
       }
       else {
          ALLEGRO_DEBUG("Depth render buffer created: %u\n",
-            info->depth_buffer);
+            info->buffers.depth_buffer);
       }
    
       glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
@@ -155,14 +216,31 @@ static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
 
 static void attach_multisample_buffer(ALLEGRO_FBO_INFO *info)
 {
-   GLuint rb;
-   GLint e;
+   ALLEGRO_BITMAP *b = info->owner;
+   int samples = al_get_bitmap_samples(b);
 
-   int samples = al_get_bitmap_samples(info->owner);
+   if (info->buffers.multisample_buffer != 0) {
+
+      if (info->buffers.samples != samples ||
+               info->buffers.mw != al_get_bitmap_width(b) ||
+               info->buffers.mh != al_get_bitmap_height(b)) {
+            detach_multisample_buffer(info);
+         }
+   }
+   
    if (!samples)
       return;
+   ALLEGRO_DISPLAY *display = _al_get_bitmap_display(info->owner);
+   if (!display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_multisample)
+      return;
 
-   if (info->multisample_buffer == 0) {
+   #ifdef ALLEGRO_CFG_OPENGLES
+      (void)display;
+   #else
+
+   if (info->buffers.multisample_buffer == 0) {
+      GLuint rb;
+      GLint e;
       int w = al_get_bitmap_width(info->owner);
       int h = al_get_bitmap_height(info->owner);
 
@@ -173,7 +251,10 @@ static void attach_multisample_buffer(ALLEGRO_FBO_INFO *info)
       glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT,
          samples, _al_ogl_get_glformat(
             al_get_bitmap_format(info->owner), 0), w, h);
-      info->multisample_buffer = rb;
+      info->buffers.multisample_buffer = rb;
+      info->buffers.mw = w;
+      info->buffers.mh = h;
+      info->buffers.samples = samples;
       e = glGetError();
       if (e) {
          ALLEGRO_ERROR("glRenderbufferStorage failed! samples=%d w=%d h=%d (%s)\n",
@@ -181,7 +262,7 @@ static void attach_multisample_buffer(ALLEGRO_FBO_INFO *info)
       }
       else {
          ALLEGRO_DEBUG("Multisample render buffer created: %u\n",
-            info->multisample_buffer);
+            info->buffers.multisample_buffer);
       }
 
       glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,
@@ -193,28 +274,7 @@ static void attach_multisample_buffer(ALLEGRO_FBO_INFO *info)
 
       glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
    }
-}
-
-
-static void detach_depth_buffer(ALLEGRO_FBO_INFO *info)
-{
-   if (info->depth_buffer == 0)
-      return;
-   ALLEGRO_DEBUG("Deleting depth render buffer: %u\n",
-            info->depth_buffer);
-   glDeleteRenderbuffersEXT(1, &info->depth_buffer);
-   info->depth_buffer = 0;
-}
-
-
-static void detach_multisample_buffer(ALLEGRO_FBO_INFO *info)
-{
-   if (info->multisample_buffer == 0)
-      return;
-   ALLEGRO_DEBUG("Deleting multisample render buffer: %u\n",
-            info->depth_buffer);
-   glDeleteRenderbuffersEXT(1, &info->multisample_buffer);
-   info->multisample_buffer = 0;
+   #endif
 }
 
 
@@ -434,8 +494,9 @@ void _al_ogl_finalize_fbo(ALLEGRO_DISPLAY *display,
    (void)display;
    if (!info)
       return;
-   if (!info->multisample_buffer)
+   if (!info->buffers.multisample_buffer)
       return;
+   #ifndef ALLEGRO_CFG_OPENGLES
    int w = al_get_bitmap_width(bitmap);
    int h = al_get_bitmap_height(bitmap);
 
@@ -445,18 +506,15 @@ void _al_ogl_finalize_fbo(ALLEGRO_DISPLAY *display,
    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
       GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, extra->texture, 0);
 
-   /*glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, info->fbo);
-   glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,
-      GL_COLOR_ATTACHMENT0_EXT, GL_RENDERBUFFER_EXT,
-      info->multisample_buffer);
-   */
-
    glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, info->fbo);
    glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, blit_fbo);
    glBlitFramebufferEXT(0, 0, w, h, 0, 0, w, h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
    check_gl_error();
 
    glDeleteFramebuffersEXT(1, &blit_fbo);
+   #else
+   (void)bitmap;
+   #endif
 }
 
 
@@ -529,14 +587,33 @@ static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
 
    attach_multisample_buffer(info);
    attach_depth_buffer(info);
-   
-   if (!info->multisample_buffer) {
+
+   /* If we have a multisample renderbuffer, we can only syncronize
+    * it back to the texture once we stop drawing into it - i.e.
+    * when the target bitmap is changed to something else.
+    */
+   if (!info->buffers.multisample_buffer) {
+
       /* Attach the texture. */
+      #ifdef ALLEGRO_CFG_OPENGLES
       if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
-         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-            GL_TEXTURE_2D, ogl_bitmap->texture, 0);
+         bool extension_supported = display->ogl_extras->
+            extension_list->
+            ALLEGRO_GL_EXT_multisampled_render_to_texture;
+         if (al_get_bitmap_samples(bitmap) == 0 || !extension_supported) {
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+               GL_TEXTURE_2D, ogl_bitmap->texture, 0);
+         }
+         else {
+            glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER, 
+               GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ogl_bitmap->texture, 
+               0, al_get_bitmap_samples(bitmap));
+      
+         }
       }
-      else {
+      else
+      #endif
+      {
          glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
             GL_TEXTURE_2D, ogl_bitmap->texture, 0);
       }
