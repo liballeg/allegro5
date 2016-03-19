@@ -1,3 +1,7 @@
+/* This example displays a picture on the screen, with support for
+ * command-line parameters, multi-screen, screen-orientation and
+ * zooming.
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include "allegro5/allegro.h"
@@ -17,10 +21,12 @@ int main(int argc, char **argv)
     double t0;
     double t1;
 
-    /* The first parameter to the process can optionally specify an 
-     * image to display instead of the default. Not all image types are 
-     * supported and some types may require external external 
-     * dependencies.
+    /* The first commandline argument can optionally specify an 
+     * image to display instead of the default. Allegro's image
+     * addon suports BMP, DDS, PCX, TGA and can be compiled with
+     * PNG and JPG support on all platforms. Additional formats
+     * are supported by platform specific libraries and support for
+     * image formats can also be added at runtime.
      */
     if (argc > 1) {
        filename = argv[1];
@@ -37,20 +43,27 @@ int main(int argc, char **argv)
     open_log();
        
     /* The second parameter to the process can optionally specify what 
-    adapter to use. */
+     * adapter to use.
+     */
     if (argc > 2) {
        al_set_new_display_adapter(atoi(argv[2]));
     }
 
+    /* Allegro requires installing drivers for all input devices before
+     * they can be used.
+     */
     al_install_mouse();
-    // Install the keyboard driver
     al_install_keyboard();
 
-    // Initialize the image addon. Requires allegro_image.
+    /* Initialize the image addon. Requires the allegro_image addon
+     * library.
+     */
     al_init_image_addon();
+
+    // Helper functions from common.c.
     init_platform_specific();
 
-    // Create a new displays that we can render the image to.
+    // Create a new display that we can render the image to.
     display = al_create_display(640, 480);
     if (!display) {
        abort_example("Error creating display\n");
