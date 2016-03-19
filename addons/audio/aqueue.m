@@ -332,9 +332,8 @@ static void *stream_proc(void *in_data)
 static int _aqueue_start_voice(ALLEGRO_VOICE *voice)
 {
    ALLEGRO_AQ_DATA *ex_data = voice->extra;
-   ASSERT(!voice->is_streaming);
 
-   if (!ex_data->playing) {
+   if (voice->is_streaming && !ex_data->playing) {
       *(ALLEGRO_VOICE**)_al_vector_alloc_back(&saved_voices) = voice;
       ex_data->playing = true;
       al_run_detached_thread(stream_proc, voice);
