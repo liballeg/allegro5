@@ -17,6 +17,11 @@ int main(int argc, char **argv)
     double t0;
     double t1;
 
+    /* The first parameter to the process can optionally specify an 
+     * image to display instead of the default. Not all image types are 
+     * supported and some types may require external external 
+     * dependencies.
+     */
     if (argc > 1) {
        filename = argv[1];
     }
@@ -28,18 +33,24 @@ int main(int argc, char **argv)
        abort_example("Could not init Allegro.\n");
     }
 
+    // Initializes and displays a log window for debugging purposes.
     open_log();
        
+    /* The second parameter to the process can optionally specify what 
+    adapter to use. */
     if (argc > 2) {
        al_set_new_display_adapter(atoi(argv[2]));
     }
 
     al_install_mouse();
+    // Install the keyboard driver
     al_install_keyboard();
 
+    // Initialize the image addon. Requires allegro_image.
     al_init_image_addon();
     init_platform_specific();
 
+    // Create a new displays that we can render the image to.
     display = al_create_display(640, 480);
     if (!display) {
        abort_example("Error creating display\n");
@@ -47,6 +58,7 @@ int main(int argc, char **argv)
     
     al_set_window_title(display, filename);
     
+    // Load the image and time how long it took for the log.
     t0 = al_get_time();
     bitmap = al_load_bitmap(filename);
     t1 = al_get_time();
@@ -56,16 +68,18 @@ int main(int argc, char **argv)
 
     log_printf("Loading took %.4f seconds\n", t1 - t0);
 
-    timer = al_create_timer(1.0 / 30);
+    // Create a timer that fires 30 times a second.
+    timer = al_create_timer(1.0 / 30); 
     queue = al_create_event_queue();
-    al_register_event_source(queue, al_get_keyboard_event_source());
+    al_register_event_source(queue, al_get_keyboard_event_source()); 
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
-    al_start_timer(timer);
+    al_start_timer(timer); // Start the timer
 
+    // Primary 'game' loop.
     while (1) {
         ALLEGRO_EVENT event;
-        al_wait_for_event(queue, &event);
+        al_wait_for_event(queue, &event); // Wait for and get an event.
         if (event.type == ALLEGRO_EVENT_DISPLAY_ORIENTATION) {
             int o = event.display.orientation;
             if (o == ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES) {
@@ -89,9 +103,15 @@ int main(int argc, char **argv)
         }
         if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
             break;
+        /* Use keyboard to zoom image in and out.
+         * 1: Reset zoom.
+         * +: Zoom in 10%
+         * -: Zoom out 10%
+         * f: Zoom to width of window
+         */
         if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
-                break;
+                break; // Break the loop and quite on escape key.
             if (event.keyboard.unichar == '1')
                 zoom = 1;
             if (event.keyboard.unichar == '+')
@@ -102,11 +122,15 @@ int main(int argc, char **argv)
                 zoom = (double)al_get_display_width(display) /
                     al_get_bitmap_width(bitmap);
         }
+
+        // Trigger a redraw on the timer event
         if (event.type == ALLEGRO_EVENT_TIMER)
             redraw = true;
             
+        // Redraw, but only if the event queue is empty
         if (redraw && al_is_event_queue_empty(queue)) {
             redraw = false;
+            // Clear so we don't get trippy artifacts left after zoom.
             al_clear_to_color(al_map_rgb_f(0, 0, 0));
             if (zoom == 1)
                 al_draw_bitmap(bitmap, 0, 0, 0);
