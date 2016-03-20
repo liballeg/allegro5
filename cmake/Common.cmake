@@ -170,7 +170,7 @@ function(add_our_library target framework_name sources extra_flags link_with)
         static_link_with "${return}"
         )
     set_our_framework_properties(${target} ${framework_name})
-    install_our_library(${target})
+    install_our_library(${target} ${output_name})
 endfunction(add_our_library)
 
 macro(add_our_addon_library target framework_name sources extra_flags link_with)
@@ -213,7 +213,7 @@ function(set_our_framework_properties target nm)
     endif(WANT_FRAMEWORKS)
 endfunction(set_our_framework_properties)
 
-function(install_our_library target)
+function(install_our_library target filename)
     install(TARGETS ${target}
             LIBRARY DESTINATION "lib${LIB_SUFFIX}"
             ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
@@ -222,6 +222,12 @@ function(install_our_library target)
             # Doesn't work, see below.
             # PUBLIC_HEADER DESTINATION "include"
             )
+    if(MSVC AND BUILD_SHARED_LIBS)
+        install(FILES ${CMAKE_BINARY_DIR}/lib/\${CMAKE_INSTALL_CONFIG_NAME}/${filename}.pdb
+            DESTINATION lib
+            CONFIGURATIONS Debug RelWithDebInfo
+        )
+    endif()
 endfunction(install_our_library)
 
 # Unfortunately, CMake's PUBLIC_HEADER support doesn't install into nested
