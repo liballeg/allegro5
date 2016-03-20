@@ -13,7 +13,7 @@ Allegro 5 has the following additional features:
 - Supported on Windows, Linux, Mac OSX, iPhone and Android
 - User-friendly, intuitive C API usable from C++ and many other languages
 - Hardware accelerated bitmap and graphical primitive drawing support (via OpenGL or Direct3D)
-- Audio recording† support
+- Audio recording support
 - Font loading and drawing
 - Video playback
 - Abstractions over shaders and low-level polygon drawing
