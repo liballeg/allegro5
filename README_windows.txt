@@ -20,3 +20,16 @@ between displays with different DPIs):
 
 If you for some reason want to opt out of DPI-awareness, utilize the
 application manifests to specify that your app is not DPI-aware.
+
+Runtime DLL Loading
+-------------------
+
+For some of its features, Allegro will look for certain DLLs on the
+system it runs on, but will not explicitly depend them at build time.
+These are as follows:
+
+- msftedit.dll or riched20.dll or riched32.dll - For the native dialog addon.
+
+- d3dx9_${version}.dll - Shader support for the Direct3D backend.
+
+- xinput1_${version}.dll - XInput-based joysticks.

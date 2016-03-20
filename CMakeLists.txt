@@ -764,10 +764,6 @@ if(WIN32)
         list(APPEND PLATFORM_LIBS ${D3D9_LIBRARIES})
     endif(SUPPORT_D3D)
     
-    if(SUPPORT_XINPUT) 
-      list(APPEND PLATFORM_LIBS ${XINPUT_LIBRARIES})
-    endif(SUPPORT_XINPUT) 
-    
     list(APPEND PLATFORM_LIBS ${DINPUT_LIBRARIES})
     if(MINGW AND NOT SHARED)
         list(APPEND PLATFORM_LIBS stdc++)
@@ -810,7 +806,6 @@ endif()
 
 if(SUPPORT_D3D AND WANT_SHADERS_D3D AND D3DX9_FOUND)
     set(ALLEGRO_CFG_SHADER_HLSL 1)
-    list(APPEND PLATFORM_LIBS "${D3DX9_LIBRARY}")
 endif()
 
 # Header files that we need to install.
