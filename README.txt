@@ -1,16 +1,23 @@
-% Allegro 5
+Welcome to Allegro!
+===================
 
-Overview
-========
+Allegro is a cross-platform library mainly aimed at video game and
+multimedia programming. It handles common, low-level tasks such as
+creating windows, accepting user input, loading data, drawing images,
+playing sounds, etc. and generally abstracting away the underlying
+platform. However, Allegro is not a game engine: you are free to design
+and structure your program as you like.
 
-Welcome to Allegro 5, a cross-platform game programming library.
-Currently supported platforms are Linux/Unix, Windows, MacOS X and iPhone.
-Note that Allegro 5 is wholly *incompatible* with Allegro 4 and earlier
-versions, but both may be installed at the same time without conflicts.
+Allegro 5 has the following additional features:
 
->   *Note:* the Allegro 5.1 branch is *unstable*.
-    Any API additions since the 5.0 branch are subject to change, tinkering,
-    or outright removal at any time.
+- Supported on Windows, Linux, Mac OSX, iPhone and Android
+- User-friendly, intuitive C API usable from C++ and many other languages
+- Hardware accelerated bitmap and graphical primitive drawing support (via OpenGL or Direct3D)
+- Audio recording† support
+- Font loading and drawing
+- Video playback†
+- Abstractions over shaders† and low-level polygon drawing
+- And more!
 
 This readme contains general information which applies to all platforms
 that Allegro builds on.
