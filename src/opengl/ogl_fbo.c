@@ -155,10 +155,10 @@ static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
    if (info->buffers.depth_buffer != 0) {
 
       if (info->buffers.depth != bits ||
-               info->buffers.dw != al_get_bitmap_width(b) ||
-               info->buffers.dh != al_get_bitmap_height(b)) {
-            detach_depth_buffer(info);
-         }
+            info->buffers.dw != al_get_bitmap_width(b) ||
+            info->buffers.dh != al_get_bitmap_height(b)) {
+         detach_depth_buffer(info);
+      }
    }
    
    if (!bits)
@@ -222,10 +222,10 @@ static void attach_multisample_buffer(ALLEGRO_FBO_INFO *info)
    if (info->buffers.multisample_buffer != 0) {
 
       if (info->buffers.samples != samples ||
-               info->buffers.mw != al_get_bitmap_width(b) ||
-               info->buffers.mh != al_get_bitmap_height(b)) {
-            detach_multisample_buffer(info);
-         }
+            info->buffers.mw != al_get_bitmap_width(b) ||
+            info->buffers.mh != al_get_bitmap_height(b)) {
+         detach_multisample_buffer(info);
+      }
    }
    
    if (!samples)
