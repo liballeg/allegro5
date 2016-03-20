@@ -95,13 +95,6 @@ ALLEGRO_WINDOWED
     impossible due to bugs in X and GLX. [al_create_display] will fail if more than one
     adapter is attempted to be used.
 
-ALLEGRO_FULLSCREEN
-:   Prefer a fullscreen mode.
-
-    Under X the use of more than one FULLSCREEN display when using multi-head X,
-    or true Xinerama is not possible due to bugs in X and GLX,
-    display creation will fail if more than one adapter is attempted to be used.
-
 ALLEGRO_FULLSCREEN_WINDOW
 :   Make the window span the entire screen. Unlike ALLEGRO_FULLSCREEN this
     will never attempt to modify the screen resolution. Instead the pixel
@@ -121,6 +114,19 @@ ALLEGRO_FULLSCREEN_WINDOW
     Additionally under X, the use of more than one adapter in multi-head mode
     or with true Xinerama enabled is impossible due to bugs in X/GLX,
     creation will fail if more than one adapter is attempted to be used.
+
+ALLEGRO_FULLSCREEN
+:   Prefer a fullscreen mode.
+
+    Under X the use of more than one FULLSCREEN display when using multi-head X,
+    or true Xinerama is not possible due to bugs in X and GLX,
+    display creation will fail if more than one adapter is attempted to be used.
+
+    > *Note:* Prefer using ALLEGRO_FULLSCREEN_WINDOW as it typically provides a
+    better user experience as the monitor doesn't change resolution and
+    switching away from your game via Alt-Tab works smoothly.
+    ALLEGRO_FULLSCREEN is typically less well supported compared to
+    ALLEGRO_FULLSCREEN_WINDOW.
 
 ALLEGRO_RESIZABLE
 :   The display is resizable (only applicable if combined with
@@ -351,7 +357,7 @@ ALLEGRO_OPENGL_MINOR_VERSION
 
     Since: 5.1.13
 
-    
+
 
 See also: [al_set_new_display_flags], [al_get_display_option]
 
