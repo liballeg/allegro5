@@ -15,8 +15,8 @@ Allegro 5 has the following additional features:
 - Hardware accelerated bitmap and graphical primitive drawing support (via OpenGL or Direct3D)
 - Audio recording† support
 - Font loading and drawing
-- Video playback†
-- Abstractions over shaders† and low-level polygon drawing
+- Video playback
+- Abstractions over shaders and low-level polygon drawing
 - And more!
 
 This readme contains general information which applies to all platforms
