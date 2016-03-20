@@ -475,7 +475,17 @@ int main(int argc, char **argv)
          else {
             int c = event.keyboard.unichar;
             if (editing) {
-               if (c >= 32) {
+               if (event.keyboard.keycode == ALLEGRO_KEY_BACKSPACE) {
+                  if (cursor > 0) {
+                     ALLEGRO_USTR *u = al_ustr_new(param_values[selection]);
+                     cursor--;
+                     al_ustr_remove_chr(u, cursor);
+                     strncpy(param_values[selection], al_cstr(u),
+                        sizeof param_values[selection]);
+                     al_ustr_free(u);
+                  }
+               }
+               else if (c >= 32) {
                   ALLEGRO_USTR *u = al_ustr_new(param_values[selection]);
                   al_ustr_set_chr(u, cursor, c);
                   cursor++;
