@@ -2016,7 +2016,7 @@ AGL_API(void, FramebufferRenderbufferEXT, (GLenum, GLenum, GLenum, GLuint))
 AGL_API(void, GetFramebufferAttachmentParameterivEXT, (GLenum, GLenum, GLenum, GLint *))
 AGL_API(void, GenerateMipmapEXT, (GLenum))
 #endif
-    
+
 #if defined _ALLEGRO_GL_GREMEDY_string_marker
 AGL_API(void, StringMarkerGREMEDY, (GLsizei, const GLvoid *))
 #endif
