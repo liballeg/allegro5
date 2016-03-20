@@ -874,7 +874,7 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
           * Sync bitmap->memory with texture
           */
          bitmap->locked = false;
-         if (!_al_d3d_sync_bitmap(bitmap)) {
+         if (!(flags & ALLEGRO_LOCK_WRITEONLY) && !_al_d3d_sync_bitmap(bitmap)) {
             return NULL;
          }
          bitmap->locked = true;
