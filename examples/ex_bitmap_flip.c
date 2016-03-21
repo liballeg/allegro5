@@ -6,7 +6,7 @@
 
 #include "common.c"
 
-// Fire the update every 10 milliseconds.
+/* Fire the update every 10 milliseconds. */
 #define INTERVAL 0.01
 
 
@@ -16,7 +16,7 @@ float bmp_dx = 96;
 float bmp_dy = 96;
 int bmp_flag = 0;
 
-// Updates the bitmap velocity, orientation and position.
+/* Updates the bitmap velocity, orientation and position. */
 static void update(ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
    bool done = false;
    bool redraw = true;
 
-   // Silence unused arguments warnings.
+   /* Silence unused arguments warnings. */
    (void)argc;
    (void)argv;
 
@@ -89,7 +89,7 @@ int main(int argc, char **argv)
    al_init_font_addon();
    init_platform_specific(); // Helper functions from common.c.
 
-   // Create a new display that we can render the image to.
+   /* Create a new display that we can render the image to. */
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Error creating display.\n");
@@ -132,17 +132,17 @@ int main(int argc, char **argv)
 
    al_start_timer(timer);
 
-   // Default premultiplied aplha blending.
+   /* Default premultiplied aplha blending. */
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
 
-   // Primary 'game' loop.
+   /* Primary 'game' loop. */
    while (!done) {
       ALLEGRO_EVENT event;
 
-	  // If the timer has since been fired and the queue is empty, draw.
+      /* If the timer has since been fired and the queue is empty, draw.*/
       if (redraw && al_is_event_queue_empty(queue)) {
          update(bmp);
-		 // Clear so we don't get trippy artifacts left after zoom.
+      /* Clear so we don't get trippy artifacts left after zoom. */
          al_clear_to_color(al_map_rgb_f(0, 0, 0));
          al_draw_tinted_bitmap(bmp, al_map_rgba_f(1, 1, 1, 0.5),
             bmp_x, bmp_y, bmp_flag);
@@ -157,9 +157,9 @@ int main(int argc, char **argv)
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
                done = true;
             else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
-				/* Spacebar toggles whether render from a memory bitmap 
-				 * or display bitamp.
-				 */
+                /* Spacebar toggles whether render from a memory bitmap 
+                 * or display bitamp.
+                 */
                if (bmp == mem_bmp) {
                   bmp = disp_bmp;
                   text = "Display bitmap (space to change)";
