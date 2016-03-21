@@ -10,8 +10,8 @@ Linux, and also Mac OS X and MinGW.
 2. Create a build directory under the Allegro directory and go there.
 
         cd /path/to/allegro
-        mkdir Build
-        cd Build
+        mkdir build
+        cd build
 
 3. Run `cmake` with whatever options you want.  See README_cmake.txt
 for details about options you can set.
