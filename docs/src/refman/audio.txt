@@ -7,13 +7,82 @@ Link with allegro_audio.
  #include <allegro5/allegro_audio.h>
 ~~~~
 
+In order to just play some samples, here's how to quick start with Allegro's audio
+addon: Call [al_reserve_samples] with the number of samples you'd like to be able
+to play simultaneously (don't forget to call [al_install_audio] beforehand).
+If these succeed, you can now call [al_play_sample], with data obtained by
+[al_load_sample], for example (don't forget to
+[initialize the acodec addon][al_init_acodec_addon]). You don't need to worry
+about voices, mixers or sample instances when using this approach. In order to
+stop samples, you can use the [ALLEGRO_SAMPLE_ID] that al_play_sample returns.
+
+If you want to play large audio files (e.g. background music) without loading the
+whole file at once or if you want to output audio generated in real-time, you can
+use Allegro's audio streams.
+The easiest way to setup an [audio stream][ALLEGRO_AUDIO_STREAM] is to attach it
+to the default mixer (created for you by [al_reserve_samples]) using
+[al_attach_audio_stream_to_mixer] on the return value of [al_get_default_mixer].
+Allegro will feed streams created from files using [al_load_audio_stream]
+automatically. However, you can also stream audio data you generate on the fly.
+In this case, audio streams will emit an event when it's time to
+[provide the next fragment (chunk) of audio data][al_get_audio_stream_fragment].
+You can control several playback parameters of audio streams (speed, gain, pan,
+playmode, played/paused; additionally position and loop points when streaming a
+file).
+
+For more fine-grained control over audio output, here's a short description of
+the basic concepts:
+
+Voices represent audio devices on the system. Basically, every audio output chain
+that you want to be heard needs to end up in a voice. As voices are on the
+hardware/driver side of things, there is only limited control over their parameters
+(frequency, sample format, channel configuration). The number of available voices
+is limited as well. Typically, you will only use one voice and attach a mixer to
+it. Calling [al_reserve_samples] will do this for you by setting up a default
+voice and mixer; it can also be achieved by calling [al_restore_default_mixer].
+Although you *can* attach sample instances and audio streams directly to a voice
+without using a mixer, it is, as of now, not recommended. In contrast to mixers,
+you can only attach a single object to a voice anyway.
+
+Mixers mix several sample instances and/or audio streams into a single output
+buffer, converting sample data with differing formats according to their output
+parameters (frequency, depth, channels) in the process. In order to play several
+samples/streams at once reliably, you will need at least one mixer. A mixer that
+is not (indirectly) attached to a voice will remain silent. For most use cases,
+one (default) mixer attached to a single voice will be sufficient. You may attach
+mixers to other mixers in order to create complex audio chains.
+
+Samples ([ALLEGRO_SAMPLE]) just represent "passive" buffers for sample data in
+memory. In order to play a sample, a sample instance ([ALLEGRO_SAMPLE_INSTANCE])
+needs to be created and attached to a mixer (or voice). Sample instances control
+*how* the underlying samples are played. Several playback parameters (position,
+speed, gain, pan, playmode, playing/paused) can be adjusted.
+Particularly, multiple instances may be created from the same sample, e.g. with
+different parameters.
+
+Audio streams (see above) are similar to sample instances insofar as they respond
+to the same playback parameters and have to be attached to mixers or voices.
+A single audio stream can only be played once simultaneously.
+
+With this in mind, another look at [al_reserve_samples] and [al_play_sample] is
+due: What the former does internally is to create a specified number of sample
+instances that are "empty" at first, i.e. with no sample data set. When
+al_play_sample is called, it'll use one of these internal sample instances that
+is not currently playing to play the requested sample. All of these sample
+instances will be attached to the default mixer, which can be changed via
+[al_set_default_mixer].
+
+See [Audio recording] for Allegro's audio recording API, which is, as of now,
+still unstable and subject to change.
+
+
 ## Audio types
 
 ### API: ALLEGRO_AUDIO_DEPTH
 
-Sample depth and type, and signedness. Mixers only use 32-bit signed
+Sample depth and type as well as signedness. Mixers only use 32-bit signed
 float (-1..+1), or 16-bit signed integers.
-The unsigned value is a bit-flag applied to the depth value.
+Signedness is determined by an "unsigned" bit-flag applied to the depth value.
 
 * ALLEGRO_AUDIO_DEPTH_INT8
 * ALLEGRO_AUDIO_DEPTH_INT16
@@ -29,8 +98,8 @@ For convenience:
 
 ### API: ALLEGRO_AUDIO_PAN_NONE
 
-A special value for the pan property of samples and audio streams.
-Use this value to disable panning on samples and audio streams, and play
+A special value for the pan property of sample instances and audio streams.
+Use this value to disable panning on sample instances and audio streams, and play
 them without attentuation implied by panning support.
 
 ALLEGRO_AUDIO_PAN_NONE is different from a pan value of 0.0 (centered) because,
@@ -56,8 +125,10 @@ Speaker configuration (mono, stereo, 2.1, etc).
 
 ### API: ALLEGRO_MIXER
 
-A mixer is a type of stream which mixes together attached streams into a
-single buffer.
+A mixer mixes together attached streams into a single buffer. In the process,
+it converts channel configurations, sample frequencies and audio depths of the
+attached sample instances and audio streams accordingly. You can control the
+quality of this conversion using ALLEGRO_MIXER_QUALITY.
 
 ### API: ALLEGRO_MIXER_QUALITY
 
@@ -80,29 +151,28 @@ It can be used to later stop the sample with [al_stop_sample].
 
 ### API: ALLEGRO_SAMPLE
 
-An ALLEGRO_SAMPLE object stores the data necessary for playing
-pre-defined digital audio. It holds information pertaining to data length,
-frequency, channel configuration, etc.  You can have an ALLEGRO_SAMPLE
-object playing multiple times simultaneously.  The object holds a
-user-specified PCM data buffer, of the format the object is created with.
+An ALLEGRO_SAMPLE object stores the data necessary for playing pre-defined
+digital audio. It holds a user-specified PCM data buffer and information about
+its format (data length, depth, frequency, channel configuration). You can have
+the same ALLEGRO_SAMPLE playing multiple times simultaneously.
 
 See also: [ALLEGRO_SAMPLE_INSTANCE]
 
 ### API: ALLEGRO_SAMPLE_INSTANCE
 
-An ALLEGRO_SAMPLE_INSTANCE object represents a playable instance
-of a predefined sound effect.
-It holds information pertaining to the looping mode, loop
-start/end points, playing position, etc.  An instance uses the
-data from an [ALLEGRO_SAMPLE] object.  Multiple instances may be created
-from the same ALLEGRO_SAMPLE. An ALLEGRO_SAMPLE must not be
+An ALLEGRO_SAMPLE_INSTANCE object represents a playable instance of a predefined
+sound effect.
+It holds information about how the effect should be played: These playback
+parameters consist of the looping mode, loop start/end points, playing position,
+speed, gain, pan and the playmode. Whether a sample instance is currently playing
+or paused is also one of its properties.
+
+An instance uses the data from an [ALLEGRO_SAMPLE] object. Multiple instances may
+be created from the same ALLEGRO_SAMPLE. An ALLEGRO_SAMPLE must not be
 destroyed while there are instances which reference it.
 
-To be played, an ALLEGRO_SAMPLE_INSTANCE object must be attached to an
-[ALLEGRO_VOICE] object,
-or to an [ALLEGRO_MIXER] object which is itself attached to an
-ALLEGRO_VOICE object (or to another ALLEGRO_MIXER object which is attached
-to an ALLEGRO_VOICE object, etc).
+To actually produce audio output, an ALLEGRO_SAMPLE_INSTANCE must be attached to an
+[ALLEGRO_MIXER] which eventually reaches an [ALLEGRO_VOICE] object.
 
 See also: [ALLEGRO_SAMPLE]
 
@@ -115,8 +185,8 @@ user can refill it with new data.
 
 As with [ALLEGRO_SAMPLE_INSTANCE] objects, streams store information necessary
 for playback, so you may not play the same stream multiple times simultaneously.
-Streams also need to be attached to an [ALLEGRO_VOICE] object, or to an
-[ALLEGRO_MIXER] object which, eventually, reaches an ALLEGRO_VOICE object.
+Streams also need to be attached to an [ALLEGRO_MIXER], which, eventually, reaches
+an [ALLEGRO_VOICE] object.
 
 While playing, you must periodically fill fragments with new audio data. To
 know when a new fragment is ready to be filled, you can either directly check
@@ -134,7 +204,7 @@ If you're late with supplying new data, the stream will be silent until new data
 is provided. You must call [al_drain_audio_stream] when you're finished with
 supplying data to the stream.
 
-If the stream is created by [al_load_audio_stream] then it can also generate an
+If the stream is created by [al_load_audio_stream] then it will also generate an
 ALLEGRO_EVENT_AUDIO_STREAM_FINISHED event if it reaches the end of the file and
 is not set to loop.
 
@@ -142,7 +212,8 @@ is not set to loop.
 
 A voice represents an audio device on the system, which may be a real device,
 or an abstract device provided by the operating system.
-To play back audio, you would attach a mixer or sample or stream to a voice.
+To play back audio, you would attach a mixer, sample instance or audio stream to
+a voice.
 
 See also: [ALLEGRO_MIXER], [ALLEGRO_SAMPLE], [ALLEGRO_AUDIO_STREAM]
 
@@ -155,7 +226,7 @@ Install the audio subsystem.
 
 Returns true on success, false on failure.
 
-Note: most users will call [al_reserve_samples] and [al_init_acodec_addon]
+> Note: most users will call [al_reserve_samples] and [al_init_acodec_addon]
 after this.
 
 See also: [al_reserve_samples], [al_uninstall_audio], [al_is_audio_installed],
@@ -175,15 +246,16 @@ successfully.
 ### API: al_reserve_samples
 
 Reserves a number of sample instances, attaching them to the default mixer.
-If no default mixer is set when this function is called, then it will
-automatically create a voice with an attached mixer, which becomes the default
-mixer.  This diagram illustrates the structures that are set up:
+If no default mixer is set when this function is called, then it will create one
+and attach it to the default voice. If no default voice has been set, it, too, will be created.
 
-                                  sample instance 1
-                                / sample instance 2
-    voice <-- default mixer <---         .
-                                \        .
-                                  sample instance N
+This diagram illustrates the structures that are set up:
+
+                                          sample instance 1
+                                        / sample instance 2
+    default voice <-- default mixer <---         .
+                                        \        .
+                                          sample instance N
 
 Returns true on success, false on error.
 [al_install_audio] must have been called first.
@@ -225,11 +297,11 @@ Creates a voice structure and allocates a voice from the digital sound driver.
 The passed frequency, sample format and channel configuration are used as a
 hint to what kind of data will be sent to the voice. However, the underlying
 sound driver is free to use non-matching values. For example, it may be the
-native format of the sound hardware. If a mixer is attached to the voice, the
-mixer will convert from the mixer's format to the voice format and care does
-not have to be taken for this.
+native format of the sound hardware.
 
-However if you access the voice directly, make sure to not rely on the
+If a mixer is attached to the voice, the mixer will handle the conversion of
+all its input streams to the voice format and care does not have to be taken
+for this. However if you access the voice directly, make sure to not rely on the
 parameters passed to this function, but instead query the returned voice for
 the actual settings.
 
@@ -244,7 +316,7 @@ See also: [al_create_voice]
 
 ### API: al_detach_voice
 
-Detaches the mixer or sample or stream from the voice.
+Detaches the mixer, sample instance or audio stream from the voice.
 
 See also: [al_attach_mixer_to_voice], [al_attach_sample_instance_to_voice],
 [al_attach_audio_stream_to_voice]
@@ -255,10 +327,10 @@ Attaches an audio stream to a voice. The same rules as
 [al_attach_sample_instance_to_voice] apply. This may fail if the driver can't create
 a voice with the buffer count and buffer size the stream uses.
 
-An audio stream attached directly to a voice has a number of limitations.  The
+An audio stream attached directly to a voice has a number of limitations: The
 audio stream plays immediately and cannot be stopped. The stream position,
-speed, gain, panning, cannot be changed.  At this time, we don't recommend
-attaching audio streams directly to voices.  Use a mixer in between.
+speed, gain and panning cannot be changed. At this time, we don't recommend
+attaching audio streams directly to voices. Use a mixer inbetween.
 
 Returns true on success, false on failure.
 
@@ -266,8 +338,8 @@ See also: [al_detach_voice]
 
 ### API: al_attach_mixer_to_voice
 
-Attaches a mixer to a voice. The same rules as [al_attach_sample_instance_to_voice]
-apply, with the exception of the depth requirement.
+Attaches a mixer to a voice. It must have the same frequency and channel configuration,
+but the depth may be different.
 
 Returns true on success, false on failure.
 
@@ -275,13 +347,13 @@ See also: [al_detach_voice]
 
 ### API: al_attach_sample_instance_to_voice
 
-Attaches a sample to a voice, and allows it to play. The sample's volume
-and loop mode will be ignored, and it must have the same frequency and
-depth (including signed-ness) as the voice. This function may fail if the
-selected driver doesn't support preloading sample data.
+Attaches a sample instance to a voice, and allows it to play. The instance's gain
+and loop mode will be ignored, and it must have the same frequency, channel
+configuration and depth (including signed-ness) as the voice. This function may
+fail if the selected driver doesn't support preloading sample data.
 
-At this time, we don't recommend attaching samples directly to voices.
-Use a mixer in between.
+At this time, we don't recommend attaching sample instances directly to voices.
+Use a mixer inbetween.
 
 Returns true on success, false on failure.
 
@@ -401,14 +473,14 @@ See also: [al_stop_sample]
 
 ### API: al_get_sample_channels
 
-Return the channel configuration.
+Return the channel configuration of the sample.
 
 See also: [ALLEGRO_CHANNEL_CONF], [al_get_sample_depth],
 [al_get_sample_frequency], [al_get_sample_length], [al_get_sample_data]
 
 ### API: al_get_sample_depth
 
-Return the audio depth.
+Return the audio depth of the sample.
 
 See also: [ALLEGRO_AUDIO_DEPTH], [al_get_sample_channels],
 [al_get_sample_frequency], [al_get_sample_length], [al_get_sample_data]
@@ -439,23 +511,24 @@ See also: [al_get_sample_channels], [al_get_sample_depth],
 
 ### API: al_create_sample_instance
 
-Creates a sample stream, using the supplied data.  This must be attached
-to a voice or mixer before it can be played.
-The argument may be NULL. You can then set the data later with
+Creates a sample instance, using the supplied sample data. The instance must be
+attached to a mixer (or voice) in order to actually produce output.
+
+The argument may be NULL. You can then set the sample data later with
 [al_set_sample].
 
 See also: [al_destroy_sample_instance]
 
 ### API: al_destroy_sample_instance
 
-Detaches the sample stream from anything it may be attached to and frees
-it (the sample data is *not* freed!).
+Detaches the sample instance from anything it may be attached to and frees
+it (the sample data, i.e. its ALLEGRO_SAMPLE, is *not* freed!).
 
 See also: [al_create_sample_instance]
 
 ### API: al_play_sample_instance
 
-Play an instance of a sample data.
+Play the sample instance.
 Returns true on success, false on failure.
 
 See also: [al_stop_sample_instance]
@@ -468,29 +541,32 @@ See also: [al_play_sample_instance]
 
 ### API: al_get_sample_instance_channels
 
-Return the channel configuration.
+Return the channel configuration of the sample instance's sample data.
 
 See also: [ALLEGRO_CHANNEL_CONF].
 
 ### API: al_get_sample_instance_depth
 
-Return the audio depth.
+Return the audio depth of the sample instance's sample data.
 
 See also: [ALLEGRO_AUDIO_DEPTH].
 
 ### API: al_get_sample_instance_frequency
 
-Return the frequency of the sample instance.
+Return the frequency of the sample instance's sample data.
 
 ### API: al_get_sample_instance_length
 
-Return the length of the sample instance in sample values.
+Return the length of the sample instance in sample values. This property may
+differ from the length of the instance's sample data.
 
 See also: [al_set_sample_instance_length], [al_get_sample_instance_time]
 
 ### API: al_set_sample_instance_length
 
-Set the length of the sample instance in sample values.
+Set the length of the sample instance in sample values. This can be used to play
+only parts of the underlying sample. Be careful not to exceed the actual length
+of the sample data, though.
 
 Return true on success, false on failure.  Will fail if the sample instance is
 currently playing.
@@ -513,13 +589,13 @@ See also: [al_get_sample_instance_position]
 
 ### API: al_get_sample_instance_speed
 
-Return the relative playback speed.
+Return the relative playback speed of the sample instance.
 
 See also: [al_set_sample_instance_speed]
 
 ### API: al_set_sample_instance_speed
 
-Set the relative playback speed.  1.0 is normal speed.
+Set the relative playback speed of the sample instance. 1.0 means normal speed.
 
 Return true on success, false on failure.  Will fail if the sample instance is
 attached directly to a voice.
@@ -528,13 +604,13 @@ See also: [al_get_sample_instance_speed]
 
 ### API: al_get_sample_instance_gain
 
-Return the playback gain.
+Return the playback gain of the sample instance.
 
 See also: [al_set_sample_instance_gain]
 
 ### API: al_set_sample_instance_gain
 
-Set the playback gain.
+Set the playback gain of the sample instance.
 
 Returns true on success, false on failure.  Will fail if the sample instance
 is attached directly to a voice.
@@ -543,7 +619,7 @@ See also: [al_get_sample_instance_gain]
 
 ### API: al_get_sample_instance_pan
 
-Get the pan value.
+Get the pan value of the sample instance.
 
 See also: [al_set_sample_instance_pan].
 
@@ -571,13 +647,13 @@ See also: [al_get_sample_instance_length]
 
 ### API: al_get_sample_instance_playmode
 
-Return the playback mode.
+Return the playback mode of the sample instance.
 
 See also: [ALLEGRO_PLAYMODE], [al_set_sample_instance_playmode]
 
 ### API: al_set_sample_instance_playmode
 
-Set the playback mode.
+Set the playback mode of the sample instance.
 
 Returns true on success, false on failure.
 
@@ -623,8 +699,9 @@ Return the sample data that the sample instance plays.
 
 Note this returns a pointer to an internal structure, *not* the
 [ALLEGRO_SAMPLE] that you may have passed to [al_set_sample].
-You may, however, check which sample buffer is being played by the sample
-instance with [al_get_sample_data], and so on.
+However, the sample buffer of the returned ALLEGRO_SAMPLE will be the same as
+the one that was used to create the sample (passed to [al_create_sample]). You
+can use [al_get_sample_data] on the return value to retrieve and compare it.
 
 See also: [al_set_sample]
 
@@ -656,11 +733,13 @@ See also: [al_get_sample]
 
 ### API: al_create_mixer
 
-Creates a mixer stream, to attach sample streams or other mixers to. It
-will mix into a buffer at the requested frequency and channel count.
+Creates a mixer to attach sample instances, audio streams, or other mixers to.
+It will mix into a buffer at the requested frequency and channel count.
 
 The only supported audio depths are ALLEGRO_AUDIO_DEPTH_FLOAT32
 and ALLEGRO_AUDIO_DEPTH_INT16 (not yet complete).
+
+To actually produce any output, the mixer will have to be attached to a voice.
 
 Returns true on success, false on error.
 
@@ -668,7 +747,7 @@ See also: [al_destroy_mixer], [ALLEGRO_AUDIO_DEPTH], [ALLEGRO_CHANNEL_CONF]
 
 ### API: al_destroy_mixer
 
-Destroys the mixer stream.
+Destroys the mixer.
 
 See also: [al_create_mixer]
 
@@ -695,8 +774,11 @@ See also: [al_reserve_samples], [al_play_sample], [al_get_default_mixer],
 
 ### API: al_restore_default_mixer
 
-Restores Allegro's default mixer. All samples started with [al_play_sample]
-will be stopped.
+Restores Allegro's default mixer and attaches it to the default voice. If the default
+mixer hasn't been created before, it will be created.
+If the default voice hasn't been set via [al_set_default_voice] or created before,
+it will also be created. All samples started with [al_play_sample] will be stopped.
+
 Returns true on success, false on error.
 
 See also: [al_get_default_mixer], [al_set_default_mixer], [al_reserve_samples].
@@ -711,7 +793,7 @@ See also: [al_get_default_mixer]
 
 ### API: al_set_default_voice
 
-You can call this before calling al_create_default_mixer to provide the
+You can call this before calling al_restore_default_mixer to provide the
 voice which should be used. Any previous voice will be destroyed. You
 can also pass NULL to destroy the current default voice.
 
@@ -722,12 +804,10 @@ See also: [al_get_default_mixer]
 ### API: al_attach_mixer_to_mixer
 
 Attaches the mixer passed as the first argument onto the mixer passed as the
-second argument. The same rules as with [al_attach_sample_instance_to_mixer]
-apply, with the added caveat that both mixers must be the same frequency.
-Returns true on success, false on error.
+second argument. The first mixer (that is going to be attached) must not already
+be attached to anything. Both mixers must use the same frequency and audio depth.
 
-Currently both mixers must have the same audio depth, otherwise the function
-fails.
+Returns true on success, false on error.
 
 It is invalid to attach a mixer to itself.
 
@@ -744,7 +824,8 @@ See also: [al_detach_sample_instance].
 
 ### API: al_attach_audio_stream_to_mixer
 
-Attach a stream to a mixer.
+Attach an audio stream to a mixer. The stream must not already be attached
+to anything.
 
 Returns true on success, false on failure.
 
@@ -888,7 +969,7 @@ delay caused by sound drivers and/or hardware.
 >
 >     buffer_size = bytes_per_fragment * fragment_count
 
-> *Note:* unlike many Allegro objects, audio streams are not implicitly destroyed
+> *Note:* Unlike many Allegro objects, audio streams are not implicitly destroyed
 when Allegro is shut down.  You must destroy them manually with
 [al_destroy_audio_stream] before the audio system is shut down.
 
@@ -946,13 +1027,13 @@ Return the stream length in samples.
 
 ### API: al_get_audio_stream_speed
 
-Return the relative playback speed.
+Return the relative playback speed of the stream.
 
 See also: [al_set_audio_stream_speed].
 
 ### API: al_set_audio_stream_speed
 
-Set the relative playback speed.  1.0 is normal speed.
+Set the relative playback speed of the stream. 1.0 means normal speed.
 
 Return true on success, false on failure.  Will fail if the audio stream is
 attached directly to a voice.
@@ -961,13 +1042,13 @@ See also: [al_get_audio_stream_speed].
 
 ### API: al_get_audio_stream_gain
 
-Return the playback gain.
+Return the playback gain of the stream.
 
 See also: [al_set_audio_stream_gain].
 
 ### API: al_set_audio_stream_gain
 
-Set the playback gain.
+Set the playback gain of the stream.
 
 Returns true on success, false on failure.  Will fail if the audio stream
 is attached directly to a voice.
@@ -976,7 +1057,7 @@ See also: [al_get_audio_stream_gain].
 
 ### API: al_get_audio_stream_pan
 
-Get the pan value.
+Get the pan value of the stream.
 
 See also: [al_set_audio_stream_pan].
 
@@ -1009,13 +1090,13 @@ See also: [al_get_audio_stream_playing]
 
 ### API: al_get_audio_stream_playmode
 
-Return the playback mode.
+Return the playback mode of the stream.
 
 See also: [ALLEGRO_PLAYMODE], [al_set_audio_stream_playmode].
 
 ### API: al_set_audio_stream_playmode
 
-Set the playback mode.
+Set the playback mode of the stream.
 
 Returns true on success, false on failure.
 
@@ -1069,7 +1150,8 @@ See also: [al_set_audio_stream_fragment], [al_get_audio_stream_event_source],
 ### API: al_set_audio_stream_fragment
 
 This function needs to be called for every successful call of
-[al_get_audio_stream_fragment] to indicate that the buffer is filled with new data.
+[al_get_audio_stream_fragment] to indicate that the buffer (pointed to by `val`) is
+filled with new data.
 
 See also: [al_get_audio_stream_fragment]
 
