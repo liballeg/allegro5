@@ -138,6 +138,7 @@ void al_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds)
    ALLEGRO_TIMEOUT_WIN *wt = (ALLEGRO_TIMEOUT_WIN *) timeout;
 
    ASSERT(wt);
+   ASSERT(seconds <= INT_MAX/1000.0);
 
    if (seconds <= 0.0) {
       wt->abstime = timeGetTime();

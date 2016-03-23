@@ -760,6 +760,8 @@ the first event is left at the head of the queue.
 `secs` determines approximately how many seconds to wait. If the call times
 out, false is returned.  Otherwise, if an event ocurred, true is returned.
 
+For compatibility with all platforms, `secs` must be 2,147,483.647 seconds or less.
+
 See also: [ALLEGRO_EVENT], [al_wait_for_event], [al_wait_for_event_until]
 
 ## API: al_wait_for_event_until
@@ -771,6 +773,8 @@ the first event is left at the head of the queue.
 
 `timeout` determines how long to wait.  If the call times out, false is
 returned.  Otherwise, if an event ocurred, true is returned.
+
+For compatibility with all platforms, `timeout` must be 2,147,483.647 seconds or less.
 
 See also: [ALLEGRO_EVENT], [ALLEGRO_TIMEOUT], [al_init_timeout],
 [al_wait_for_event], [al_wait_for_event_timed]

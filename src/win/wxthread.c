@@ -338,6 +338,9 @@ int _al_cond_timedwait(_AL_COND *cond, _AL_MUTEX *mtxExternal,
 
    now = timeGetTime();
    rel_msecs = win_timeout->abstime - now;
+   if (rel_msecs > INT_MAX) {
+      rel_msecs = 0;
+   }
    if (rel_msecs == INFINITE) {
       rel_msecs--;
    }

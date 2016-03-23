@@ -24,6 +24,8 @@ order of microseconds.
 
 Set timeout value of some number of seconds after the function call.
 
+For compatibility with all platforms, `seconds` must be 2,147,483.647 seconds or less.
+
 See also: [ALLEGRO_TIMEOUT], [al_wait_for_event_until]
 
 ## API: al_rest
