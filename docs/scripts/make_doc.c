@@ -137,11 +137,13 @@ static void load_prototypes(const char *filename)
          protos = aa_insert(protos, name, text);
 
          d_assign(text, lookup_source(name));
-         strcat(text, "https://github.com/liballeg/allegro5/blob/5.1/");
-         strcat(text, file_name);
-         strcat(text, "#L");
-         strcat(text, line_number);
-         sources = aa_insert(sources, name, text);
+         if (strlen(text) == 0) {
+            strcat(text, "https://github.com/liballeg/allegro5/blob/5.1/");
+            strcat(text, file_name);
+            strcat(text, "#L");
+            strcat(text, line_number);
+            sources = aa_insert(sources, name, text);
+         }
       }
    }
 
