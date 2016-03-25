@@ -341,9 +341,6 @@ int _al_cond_timedwait(_AL_COND *cond, _AL_MUTEX *mtxExternal,
    if (rel_msecs > INT_MAX) {
       rel_msecs = 0;
    }
-   if (rel_msecs == INFINITE) {
-      rel_msecs--;
-   }
 
    return cond_wait(cond, mtxExternal, rel_msecs);
 }
