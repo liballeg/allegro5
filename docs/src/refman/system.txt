@@ -23,6 +23,14 @@ be used. A common reason for this function to fail is when the version of
 Allegro you compiled your game against is not compatible with the version of
 the shared libraries that were found on the system.
 
+The version compatibility check works as follows. Let A = xa.ya.za.* be the
+version of Allegro you  compiled with, and B = xb.yb.zb.* be the version of
+Allegro found in the system shared library.
+
+If you defined `ALLEGRO_UNSTABLE` before including Allegro headers, then
+version A is compatible with B only if xa.ya.za = xb.yb.zb. Otherwise, A is
+compatible with B only if xa.ya = xb.yb.
+
 See also: [al_init]
 
 ## API: al_init

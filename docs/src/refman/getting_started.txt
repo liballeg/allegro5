@@ -177,9 +177,13 @@ The latter simply points to an [ALLEGRO_SAMPLE] and will stream it for you.
 ## Unstable API
 
 Some of Allegro's API is marked as unstable, which means that future versions
-of Allegro may change or even remove this API entirely! If you want to
-experiment with unstable API, define `ALLEGRO_UNSTABLE` macro before including
-Allegro's headers.
+of Allegro it may change or even be removed entirely! If you want to experiment
+with unstable API, define `ALLEGRO_UNSTABLE` macro before including Allegro's
+headers.
+
+Note that when you define that macro, the version check performed by
+[al_install_system] and [al_init] becomes more scrict. See documentation of
+those functions for details.
 
 ## Not the end
 

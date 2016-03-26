@@ -67,7 +67,7 @@ ALLEGRO_MOUSE_EMULATION_5_0_x
 
 Since: 5.1.0
 
-> *Unstable:* Seems of limited value, as touch input tends to have different
+> *[Unstable API]:* Seems of limited value, as touch input tends to have different
 semantics compared to mouse input.
 
 ## API: al_install_touch_input
@@ -109,7 +109,7 @@ Sets the kind of mouse emulation for the touch input subsystem to perform.
 
 Since: 5.1.0
 
-> *Unstable:* Seems of limited value, as touch input tends to have different
+> *[Unstable API]:* Seems of limited value, as touch input tends to have different
 semantics compared to mouse input.
 
 See also: [ALLEGRO_MOUSE_EMULATION_MODE], [al_get_mouse_emulation_mode].
@@ -121,7 +121,7 @@ set to perform.
 
 Since: 5.1.0
 
-> *Unstable:* Seems of limited value, as touch input tends to have different
+> *[Unstable API]:* Seems of limited value, as touch input tends to have different
 semantics compared to mouse input.
 
 See also: [ALLEGRO_MOUSE_EMULATION_MODE], [al_set_mouse_emulation_mode].
@@ -145,5 +145,5 @@ See also: [ALLEGRO_EVENT_SOURCE], [al_register_event_source]
 
 Since: 5.1.0
 
-> *Unstable:* Seems of limited value, as touch input tends to have different
+> *[Unstable API]:* Seems of limited value, as touch input tends to have different
 semantics compared to mouse input.
