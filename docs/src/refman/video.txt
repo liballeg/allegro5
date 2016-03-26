@@ -7,9 +7,8 @@ Link with allegro_video.
  #include <allegro5/allegro_video.h>
 ~~~~
 
-Currently we have an ffmpeg backend and a Ogg backend (Theora + Vorbis).
-See <http://ffmpeg.org/> and <http://xiph.org/> for installation instructions,
-licensing information and supported video formats.
+Currently we have an Ogg backend (Theora + Vorbis). See <http://xiph.org/> for
+installation instructions, licensing information and supported video formats.
 
 ## API: ALLEGRO_VIDEO_EVENT_TYPE
 
@@ -178,8 +177,7 @@ Since: 5.1.0
 
 ## API: al_seek_video
 
-Seek to a different position in the video. Right now this does not
-work very well in the ffmpeg backend when seeking backwards and will
-often lose audio/video synchronization if doing so.
+Seek to a different position in the video. Currently only seeking to the
+beginning of the video is supported.
 
 Since: 5.1.0

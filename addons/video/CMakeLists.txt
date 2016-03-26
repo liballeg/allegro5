@@ -1,4 +1,3 @@
-option(WANT_FFMPEG "Enable FFMPEG video driver" on)
 option(WANT_OGG_VIDEO "Enable Ogg video (requires Theora and Vorbis)" on)
 
 set(VIDEO_SOURCES
@@ -14,16 +13,6 @@ set_our_header_properties(${VIDEO_INCLUDE_FILES})
 # For monolith build.
 set(VIDEO_INCLUDE_DIRECTORIES)
 
-# The platform conditions are not really necessary but prevent confusing the
-# user, e.g. it's pretty weird to get a warning about missing DSound on Unix.
-
-if(WANT_FFMPEG)
-    include(AllegroFindFFMPEG)
-    if(FFMPEG_FOUND)
-        set(SUPPORT_FFMPEG 1)
-    endif(FFMPEG_FOUND)
-endif(WANT_FFMPEG)
-
 if(WANT_OGG_VIDEO)
     find_package(Theora)
     find_package(Vorbis)
@@ -31,14 +20,6 @@ if(WANT_OGG_VIDEO)
         set(SUPPORT_OGG_VIDEO 1)
     endif()
 endif(WANT_OGG_VIDEO)
-
-if(SUPPORT_FFMPEG)
-    list(APPEND VIDEO_INCLUDE_DIRECTORIES ${FFMPEG_INCLUDE_DIR})
-    list(APPEND VIDEO_SOURCES ffmpeg.c)
-    set(SUPPORT_VIDEO 1)
-    set(ALLEGRO_CFG_VIDEO_HAVE_FFMPEG 1)
-    set(VIDEO_LIBRARIES ${VIDEO_LIBRARIES} ${FFMPEG_LIBRARIES})
-endif(SUPPORT_FFMPEG)
 
 if(SUPPORT_OGG_VIDEO)
     list(APPEND VIDEO_INCLUDE_DIRECTORIES

@@ -262,20 +262,6 @@ bool al_init_video_addon(void)
    add_handler(".ogv", _al_video_ogv_vtable());
 #endif
 
-#ifdef ALLEGRO_CFG_VIDEO_HAVE_FFMPEG
-   {
-      // TODO: Come up with a better way of doing this than just listing these
-      // extensions.
-      char const *extensions[] = {".ogv", ".avi", ".mpg", ".mpeg", ".mp4",
-         ".webm", NULL};
-      int i;
-
-      for (i = 0; extensions[i]; i++) {
-         add_handler(extensions[i], _al_video_ffmpeg_vtable());
-      }
-   }
-#endif
-
    if (handlers == NULL) {
       ALLEGRO_WARN("No video handlers available!\n");
       return false;
