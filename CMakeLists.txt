@@ -43,7 +43,7 @@ option(WANT_STATIC_RUNTIME "Whether or not to link the C and C++ runtimes static
 # We use C++ in a few cases.
 project(ALLEGRO C CXX)
 
-set(ALLEGRO_VERSION 5.1.14)
+set(ALLEGRO_VERSION 5.2.0)
 string(REGEX MATCH "^[0-9]+[.][0-9]+" ALLEGRO_SOVERSION ${ALLEGRO_VERSION})
 string(REPLACE "." "" ALLEGRO_DLL_SHORTVER ${ALLEGRO_SOVERSION})
 
