@@ -676,7 +676,7 @@ Return true if the event source is registered.
 
 See also: [al_register_event_source]
 
-Since: 5.1.14
+Since: 5.2.0
 
 ## API: al_pause_event_queue
 
