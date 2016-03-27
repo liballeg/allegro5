@@ -130,7 +130,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
        * destroyed, so seems only fair to re-convertt hem when the
        * display is re-created again.
        */
-      al_convert_bitmaps();
+      al_convert_memory_bitmaps();
    }
 
    return display;

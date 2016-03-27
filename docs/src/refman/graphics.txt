@@ -448,7 +448,7 @@ be an issue otherwise.
 If you create a bitmap without ALLEGRO_MEMORY_BITMAP set but there is
 no current display, a temporary memory bitmap will be created instead.
 You can later convert all such bitmap to video bitmap and assign to a
-display by calling [al_convert_bitmaps].
+display by calling [al_convert_memory_bitmaps].
 
 On some platforms the contents of video bitmaps may be lost when your
 application loses focus. Allegro has an internal mechanism to restore the
@@ -474,7 +474,7 @@ When you are done with using the bitmap you must call
 
 See also: [al_set_new_bitmap_format], [al_set_new_bitmap_flags],
 [al_clone_bitmap], [al_create_sub_bitmap],
-[al_convert_bitmaps], [al_destroy_bitmap]
+[al_convert_memory_bitmaps], [al_destroy_bitmap]
 
 ### API: al_create_sub_bitmap
 
@@ -527,7 +527,7 @@ Since: 5.1.0
 See also: [al_create_bitmap], [al_set_new_bitmap_format],
 [al_set_new_bitmap_flags], [al_clone_bitmap]
 
-### API: al_convert_bitmaps
+### API: al_convert_memory_bitmaps
 
 If you create a bitmap when there is no current display (for example
 because you have not called [al_create_display] in the current
@@ -542,10 +542,7 @@ bitmaps when the last display is destroyed.
 This operation will preserve all bitmap flags except ALLEGRO_VIDEO_BITMAP and
 ALLEGRO_MEMORY_BITMAP.
 
-Since: 5.1.0
-
-> *Unstable:* Probably needs to be renamed, as it does something very different
-from [al_convert_bitmap].
+Since: 5.1.14
 
 See also: [al_convert_bitmap], [al_create_bitmap]
 

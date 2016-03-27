@@ -218,9 +218,9 @@ void al_convert_bitmap(ALLEGRO_BITMAP *bitmap)
 }
 
 
-/* Function: al_convert_bitmaps
+/* Function: al_convert_memory_bitmaps
  */
-void al_convert_bitmaps(void)
+void al_convert_memory_bitmaps(void)
 {
    ALLEGRO_STATE backup;
    ALLEGRO_DISPLAY *display = al_get_current_display();
