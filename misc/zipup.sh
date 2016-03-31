@@ -185,6 +185,7 @@ then
        make -j4 docs html man
        mv docs/txt/changes-5.0.txt ../CHANGES-5.0.txt
        mv docs/txt/changes-5.1.txt ../CHANGES-5.1.txt
+       mv docs/txt/changes-5.2.txt ../CHANGES-5.2.txt
 
        test -d ../docs/html || mkdir -p ../docs/html
        rm -rf ../docs/html/refman
