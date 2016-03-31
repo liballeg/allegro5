@@ -397,6 +397,7 @@ bool al_set_sample_instance_length(ALLEGRO_SAMPLE_INSTANCE *spl,
    }
 
    spl->spl_data.len = val;
+   spl->loop_end = val;
    return true;
 }
 
