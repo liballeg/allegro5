@@ -1,6 +1,8 @@
 #ifndef __al_included_allegro5_fullscreen_mode_h
 #define __al_included_allegro5_fullscreen_mode_h
 
+#include "allegro5/base.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
