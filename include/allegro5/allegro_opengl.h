@@ -22,6 +22,8 @@
    extern "C" {
 #endif
 
+#include <stdint.h>
+
 #if defined(ALLEGRO_WINDOWS)
 #include <windows.h>
 #endif
@@ -110,6 +112,9 @@
 #include <EGL/eglext.h>
 #endif
 
+#include "allegro5/bitmap.h"
+#include "allegro5/display.h"
+#include "allegro5/shader.h"
 #include "allegro5/opengl/gl_ext.h"
 
 #ifdef ALLEGRO_WINDOWS
