@@ -22,8 +22,6 @@
    extern "C" {
 #endif
 
-#include <stdint.h>
-
 #if defined(ALLEGRO_WINDOWS)
 #include <windows.h>
 #endif
