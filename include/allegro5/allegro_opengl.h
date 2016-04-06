@@ -32,6 +32,8 @@
 #include <OpenGLES/ES1/glext.h>
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
+#include <OpenGLES/ES3/gl.h>
+#include <OpenGLES/ES3/glext.h>
 
 /* Apple defines OES versions for these - however the separated alpha ones
  * don't seem to work on the device and just crash.
@@ -39,6 +41,7 @@
 #define glBlendEquation glBlendEquationOES
 #define glBlendFuncSeparate glBlendFuncSeparateOES
 #define glBlendEquationSeparate glBlendEquationSeparateOES
+#define glRenderbufferStorageMultisampleEXT glRenderbufferStorageMultisampleAPPLE
 #ifdef GL_FUNC_ADD
 #undef GL_FUNC_ADD
 #undef GL_FUNC_SUBTRACT

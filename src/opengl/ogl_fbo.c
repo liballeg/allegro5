@@ -604,12 +604,14 @@ static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                GL_TEXTURE_2D, ogl_bitmap->texture, 0);
          }
+#ifndef ALLEGRO_IPHONE
          else {
-            glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER, 
+            glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER,
                GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ogl_bitmap->texture, 
                0, al_get_bitmap_samples(bitmap));
       
          }
+#endif
       }
       else
       #endif
