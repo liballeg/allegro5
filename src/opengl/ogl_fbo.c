@@ -93,8 +93,188 @@ void _al_ogl_reset_fbo_info(ALLEGRO_FBO_INFO *info)
 {
    info->fbo_state = FBO_INFO_UNUSED;
    info->fbo = 0;
+   info->buffers.depth_buffer = 0;
+   info->buffers.multisample_buffer = 0;
+   info->buffers.dw = 0;
+   info->buffers.dh = 0;
+   info->buffers.mw = 0;
+   info->buffers.mh = 0;
    info->owner = NULL;
    info->last_use_time = 0.0;
+}
+
+
+static void check_gl_error(void)
+{
+   GLint e = glGetError();
+   if (e) {
+      ALLEGRO_ERROR("OpenGL call failed! (%s)\n",
+       _al_gl_error_string(e));
+   }
+}
+
+
+
+static void detach_depth_buffer(ALLEGRO_FBO_INFO *info)
+{
+   if (info->buffers.depth_buffer == 0)
+      return;
+   ALLEGRO_DEBUG("Deleting depth render buffer: %u\n",
+            info->buffers.depth_buffer);
+   glDeleteRenderbuffersEXT(1, &info->buffers.depth_buffer);
+   info->buffers.depth_buffer = 0;
+    info->buffers.dw = 0;
+   info->buffers.dh = 0;
+   info->buffers.depth = 0;
+}
+
+
+static void detach_multisample_buffer(ALLEGRO_FBO_INFO *info)
+{
+   if (info->buffers.multisample_buffer == 0)
+      return;
+   ALLEGRO_DEBUG("Deleting multisample render buffer: %u\n",
+            info->buffers.depth_buffer);
+   glDeleteRenderbuffersEXT(1, &info->buffers.multisample_buffer);
+   info->buffers.multisample_buffer = 0;
+   info->buffers.mw = 0;
+   info->buffers.mh = 0;
+   info->buffers.samples = 0;
+}
+
+
+
+static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
+{
+   GLuint rb;
+   GLenum gldepth = GL_DEPTH_COMPONENT16;
+
+   ALLEGRO_BITMAP *b = info->owner;
+   int bits = al_get_bitmap_depth(b);
+
+   if (info->buffers.depth_buffer != 0) {
+
+      if (info->buffers.depth != bits ||
+            info->buffers.dw != al_get_bitmap_width(b) ||
+            info->buffers.dh != al_get_bitmap_height(b)) {
+         detach_depth_buffer(info);
+      }
+   }
+   
+   if (!bits)
+      return;
+
+   if (info->buffers.depth_buffer == 0) {
+      ALLEGRO_DISPLAY *display = _al_get_bitmap_display(info->owner);
+      int w = al_get_bitmap_width(info->owner);
+      int h = al_get_bitmap_height(info->owner);
+      
+      if (bits == 24) gldepth = GL_DEPTH_COMPONENT24;
+   
+      glGenRenderbuffersEXT(1, &rb);
+      glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, rb);
+
+      int samples = al_get_bitmap_samples(info->owner);
+
+      bool extension_supported;
+      #ifdef ALLEGRO_CFG_OPENGLES
+         extension_supported = display->ogl_extras->extension_list->ALLEGRO_GL_EXT_multisampled_render_to_texture;
+      #else
+         extension_supported = display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_multisample;
+      #endif
+
+      if (samples == 0 || !extension_supported)
+         glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, gldepth, w, h);
+      else
+         glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT,
+            samples, gldepth, w, h);
+
+      info->buffers.depth_buffer = rb;
+      info->buffers.dw = w;
+      info->buffers.dw = h;
+      info->buffers.depth = bits;
+      GLint e = glGetError();
+      if (e) {
+         ALLEGRO_ERROR("glRenderbufferStorage failed! bits=%d w=%d h=%d (%s)\n",
+            bits, w, h, _al_gl_error_string(e));
+      }
+      else {
+         ALLEGRO_DEBUG("Depth render buffer created: %u\n",
+            info->buffers.depth_buffer);
+      }
+   
+      glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
+          GL_RENDERBUFFER_EXT, rb);
+      if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT) {
+         ALLEGRO_ERROR("attaching depth renderbuffer failed\n");
+      }
+
+      glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+   }
+}
+
+
+static void attach_multisample_buffer(ALLEGRO_FBO_INFO *info)
+{
+   ALLEGRO_BITMAP *b = info->owner;
+   int samples = al_get_bitmap_samples(b);
+
+   if (info->buffers.multisample_buffer != 0) {
+
+      if (info->buffers.samples != samples ||
+            info->buffers.mw != al_get_bitmap_width(b) ||
+            info->buffers.mh != al_get_bitmap_height(b)) {
+         detach_multisample_buffer(info);
+      }
+   }
+   
+   if (!samples)
+      return;
+   ALLEGRO_DISPLAY *display = _al_get_bitmap_display(info->owner);
+   if (!display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_multisample)
+      return;
+
+   #ifdef ALLEGRO_CFG_OPENGLES
+      (void)display;
+   #else
+
+   if (info->buffers.multisample_buffer == 0) {
+      GLuint rb;
+      GLint e;
+      int w = al_get_bitmap_width(info->owner);
+      int h = al_get_bitmap_height(info->owner);
+
+      glGenRenderbuffersEXT(1, &rb);
+      glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, rb);
+      check_gl_error();
+
+      glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT,
+         samples, _al_ogl_get_glformat(
+            al_get_bitmap_format(info->owner), 0), w, h);
+      info->buffers.multisample_buffer = rb;
+      info->buffers.mw = w;
+      info->buffers.mh = h;
+      info->buffers.samples = samples;
+      e = glGetError();
+      if (e) {
+         ALLEGRO_ERROR("glRenderbufferStorage failed! samples=%d w=%d h=%d (%s)\n",
+            samples, w, h, _al_gl_error_string(e));
+      }
+      else {
+         ALLEGRO_DEBUG("Multisample render buffer created: %u\n",
+            info->buffers.multisample_buffer);
+      }
+
+      glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,
+         GL_COLOR_ATTACHMENT0_EXT, GL_RENDERBUFFER_EXT, rb);
+
+      if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT) {
+         ALLEGRO_ERROR("attaching multisample renderbuffer failed\n");
+      }
+
+      glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+   }
+   #endif
 }
 
 
@@ -121,6 +301,7 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
    ASSERT(!ogl_bitmap->fbo_info);
 
    info = al_malloc(sizeof(ALLEGRO_FBO_INFO));
+   info->owner = bitmap;
    if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
       glGenFramebuffers(1, &info->fbo);
    }
@@ -149,6 +330,8 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
          info->fbo, ogl_bitmap->texture, _al_gl_error_string(e));
    }
 
+   attach_depth_buffer(info);
+
    /* You'll see this a couple times in this file: some ES 1.1 functions aren't
     * implemented on Android. This is an ugly workaround.
     */
@@ -165,7 +348,6 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
    _al_ogl_bind_framebuffer(old_fbo);
 
    info->fbo_state = FBO_INFO_PERSISTENT;
-   info->owner = bitmap;
    info->last_use_time = al_get_time();
    ogl_bitmap->fbo_info = info;
    ALLEGRO_DEBUG("Persistent FBO: %u\n", info->fbo);
@@ -216,6 +398,25 @@ static ALLEGRO_FBO_INFO *ogl_find_unused_fbo(ALLEGRO_DISPLAY *display)
 }
 
 
+void _al_ogl_del_fbo(ALLEGRO_FBO_INFO *info)
+{
+   ALLEGRO_BITMAP_EXTRA_OPENGL *extra = info->owner->extra;
+   extra->fbo_info = NULL;
+   ALLEGRO_DEBUG("Deleting FBO: %u\n", info->fbo);
+   if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
+      glDeleteFramebuffers(1, &info->fbo);
+   }
+   else {
+      glDeleteFramebuffersEXT(1, &info->fbo);
+   }
+
+   detach_depth_buffer(info);
+   detach_multisample_buffer(info);
+
+   info->fbo = 0;
+}
+
+
 static ALLEGRO_FBO_INFO *ogl_new_fbo(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_FBO_INFO *info;
@@ -225,15 +426,7 @@ static ALLEGRO_FBO_INFO *ogl_new_fbo(ALLEGRO_DISPLAY *display)
    ASSERT(info->fbo_state != FBO_INFO_PERSISTENT);
 
    if (info->fbo_state == FBO_INFO_TRANSIENT) {
-      ALLEGRO_BITMAP_EXTRA_OPENGL *extra = info->owner->extra;
-      extra->fbo_info = NULL;
-      ALLEGRO_DEBUG("Deleting FBO: %u\n", info->fbo);
-      if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
-         glDeleteFramebuffers(1, &info->fbo);
-      }
-      else {
-         glDeleteFramebuffersEXT(1, &info->fbo);
-      }
+      _al_ogl_del_fbo(info);
       _al_ogl_reset_fbo_info(info);
    }
    else {
@@ -273,10 +466,55 @@ void _al_ogl_setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
    if (false && display->ogl_extras->opengl_target == bitmap)
       return;
 
+   _al_ogl_unset_target_bitmap(display, display->ogl_extras->opengl_target);
+
    if (ogl_bitmap->is_backbuffer)
       setup_fbo_backbuffer(display, bitmap);
    else
       _al_ogl_setup_fbo_non_backbuffer(display, bitmap);
+}
+
+
+/* With the framebuffer_multisample extension, the absolutely one and
+ * only way to ever access the multisample buffer is with the
+ * framebuffer_blit extension. [1]
+ *
+ * This is what we do in this function - if there is a multisample
+ * buffer, downsample it back into the texture.
+ *
+ * [1] https://www.opengl.org/registry/specs/EXT/framebuffer_multisample.txt 
+ */
+void _al_ogl_finalize_fbo(ALLEGRO_DISPLAY *display,
+   ALLEGRO_BITMAP *bitmap)
+{
+   ALLEGRO_BITMAP_EXTRA_OPENGL *extra = bitmap->extra;
+   if (!extra)
+      return;
+   ALLEGRO_FBO_INFO *info = extra->fbo_info;
+   (void)display;
+   if (!info)
+      return;
+   if (!info->buffers.multisample_buffer)
+      return;
+   #ifndef ALLEGRO_CFG_OPENGLES
+   int w = al_get_bitmap_width(bitmap);
+   int h = al_get_bitmap_height(bitmap);
+
+   GLuint blit_fbo;
+   glGenFramebuffersEXT(1, &blit_fbo);
+   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, blit_fbo);
+   glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
+      GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, extra->texture, 0);
+
+   glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, info->fbo);
+   glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, blit_fbo);
+   glBlitFramebufferEXT(0, 0, w, h, 0, 0, w, h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+   check_gl_error();
+
+   glDeleteFramebuffersEXT(1, &blit_fbo);
+   #else
+   (void)bitmap;
+   #endif
 }
 
 
@@ -347,19 +585,46 @@ static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
    /* Bind to the FBO. */
    _al_ogl_bind_framebuffer(info->fbo);
 
-   /* Attach the texture. */
-   if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
-      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-         GL_TEXTURE_2D, ogl_bitmap->texture, 0);
-   }
-   else {
-      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
-         GL_TEXTURE_2D, ogl_bitmap->texture, 0);
-   }
-   e = glGetError();
-   if (e) {
-      ALLEGRO_DEBUG("glFrameBufferTexture2DEXT failed! fbo=%d texture=%d (%s)\n",
-         info->fbo, ogl_bitmap->texture, _al_gl_error_string(e));
+   attach_multisample_buffer(info);
+   attach_depth_buffer(info);
+
+   /* If we have a multisample renderbuffer, we can only syncronize
+    * it back to the texture once we stop drawing into it - i.e.
+    * when the target bitmap is changed to something else.
+    */
+   if (!info->buffers.multisample_buffer) {
+
+      /* Attach the texture. */
+      #ifdef ALLEGRO_CFG_OPENGLES
+      if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
+         bool extension_supported = display->ogl_extras->
+            extension_list->
+            ALLEGRO_GL_EXT_multisampled_render_to_texture;
+         if (al_get_bitmap_samples(bitmap) == 0 || !extension_supported) {
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+               GL_TEXTURE_2D, ogl_bitmap->texture, 0);
+         }
+#ifndef ALLEGRO_IPHONE
+         else {
+            glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER,
+               GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ogl_bitmap->texture, 
+               0, al_get_bitmap_samples(bitmap));
+      
+         }
+#endif
+      }
+      else
+      #endif
+      {
+         glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+            GL_TEXTURE_2D, ogl_bitmap->texture, 0);
+      }
+      
+      e = glGetError();
+      if (e) {
+         ALLEGRO_DEBUG("glFrameBufferTexture2DEXT failed! fbo=%d texture=%d (%s)\n",
+            info->fbo, ogl_bitmap->texture, _al_gl_error_string(e));
+      }
    }
 
    /* See comment about unimplemented functions on Android above */

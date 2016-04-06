@@ -93,7 +93,7 @@ static void destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
 
 
 ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
-   int w, int h, int format, int flags)
+   int w, int h, int format, int flags, int depth, int samples)
 {
    ALLEGRO_SYSTEM *system = al_get_system_driver();
    ALLEGRO_BITMAP *bitmap;
@@ -149,6 +149,8 @@ ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
    bitmap->yofs = 0;
    bitmap->_flags |= ALLEGRO_VIDEO_BITMAP;
    bitmap->dirty = !(bitmap->_flags & ALLEGRO_NO_PRESERVE_TEXTURE);
+   bitmap->_depth = depth;
+   bitmap->_samples = samples;
 
    /* The display driver should have set the bitmap->memory field if
     * appropriate; video bitmaps may leave it NULL.
@@ -183,7 +185,8 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
    ALLEGRO_BITMAP *bitmap;
 
    bitmap = _al_create_bitmap_params(al_get_current_display(), w, h,
-      al_get_new_bitmap_format(), al_get_new_bitmap_flags());
+      al_get_new_bitmap_format(), al_get_new_bitmap_flags(),
+      al_get_new_bitmap_depth(), al_get_new_bitmap_samples());
    if (bitmap) {
       _al_register_destructor(_al_dtor_list, "bitmap", bitmap,
          (void (*)(void *))al_destroy_bitmap);
@@ -335,6 +338,29 @@ ALLEGRO_DISPLAY *_al_get_bitmap_display(ALLEGRO_BITMAP *bitmap)
    else
       return bitmap->_display;
 }
+
+
+/* Function: al_get_bitmap_depth
+ */
+int al_get_bitmap_depth(ALLEGRO_BITMAP *bitmap)
+{
+   if (bitmap->parent)
+      return bitmap->parent->_depth;
+   else
+      return bitmap->_depth;
+}
+
+
+/* Function: al_get_bitmap_samples
+ */
+int al_get_bitmap_samples(ALLEGRO_BITMAP *bitmap)
+{
+   if (bitmap->parent)
+      return bitmap->parent->_samples;
+   else
+      return bitmap->_samples;
+}
+
 
 /* Function: al_set_clipping_rectangle
  */

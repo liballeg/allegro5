@@ -445,7 +445,7 @@ static ALLEGRO_BITMAP
    }
 
    bitmap = _al_create_bitmap_params(al_get_current_display(),
-      desc.Width, desc.Height, format, flags);
+      desc.Width, desc.Height, format, flags, 0, 0);
    if (!bitmap) {
       surface->UnlockRect();
       return NULL;
