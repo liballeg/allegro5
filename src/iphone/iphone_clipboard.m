@@ -26,8 +26,7 @@
 
 #include "iphone.h"
 #include "allegroAppDelegate.h"
-
-@import MobileCoreServices;
+#include <MobileCoreServices/MobileCoreServices.h>
 
 ALLEGRO_DEBUG_CHANNEL("iphone")
 

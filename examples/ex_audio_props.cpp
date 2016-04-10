@@ -21,11 +21,14 @@ ALLEGRO_SAMPLE_INSTANCE *sample_inst;
 class Prog {
 private:
    Dialog d;
+   Label length_label;
+   HSlider length_slider;
    ToggleButton pan_button;
    HSlider pan_slider;
    Label speed_label;
    HSlider speed_slider;
    ToggleButton bidir_button;
+   ToggleButton play_button;
    Label gain_label;
    VSlider gain_slider;
    Label mixer_gain_label;
@@ -35,18 +38,21 @@ private:
    Label zero_label;
 
 public:
-   Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
+   Prog(const Theme & theme, ALLEGRO_DISPLAY *display, unsigned int instance_len);
    void run();
    void update_properties();
 };
 
-Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
+Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display, unsigned int instance_len) :
    d(Dialog(theme, display, 40, 20)),
+   length_label(Label("Length")),
+   length_slider(HSlider(instance_len, instance_len)),
    pan_button(ToggleButton("Pan")),
    pan_slider(HSlider(1000, 2000)),
    speed_label(Label("Speed")),
    speed_slider(HSlider(1000, 5000)),
    bidir_button(ToggleButton("Bidir")),
+   play_button(ToggleButton("Play")),
    gain_label(Label("Gain")),
    gain_slider(VSlider(1000, 2000)),
    mixer_gain_label(Label("Mixer gain")),
@@ -56,6 +62,11 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    zero_label(Label("0.0"))
 {
    pan_button.set_pushed(true);
+   play_button.set_pushed(true);
+
+   d.add(length_label,  2, 8,  4, 1);
+   d.add(length_slider, 6, 8, 22, 1);
+
    d.add(pan_button, 2, 10,  4, 1);
    d.add(pan_slider, 6, 10, 22, 1);
 
@@ -63,6 +74,7 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    d.add(speed_slider, 6, 12, 22, 1);
 
    d.add(bidir_button, 2, 14, 4, 1);
+   d.add(play_button, 6, 14, 4, 1);
 
    d.add(gain_label,  29, 1, 2,  1);
    d.add(gain_slider, 29, 2, 2, 17);
@@ -93,6 +105,7 @@ void Prog::run()
 
 void Prog::update_properties()
 {
+   int length;
    float pan;
    float speed;
    float gain;
@@ -107,10 +120,15 @@ void Prog::update_properties()
    speed = speed_slider.get_cur_value() / 1000.0f;
    al_set_sample_instance_speed(sample_inst, speed);
 
+   length = length_slider.get_cur_value();
+   al_set_sample_instance_length(sample_inst, length);
+
    if (bidir_button.get_pushed())
       al_set_sample_instance_playmode(sample_inst, ALLEGRO_PLAYMODE_BIDIR);
    else
       al_set_sample_instance_playmode(sample_inst, ALLEGRO_PLAYMODE_LOOP);
+
+   al_set_sample_instance_playing(sample_inst, play_button.get_pushed());
 
    gain = gain_slider.get_cur_value() / 1000.0f;
    al_set_sample_instance_gain(sample_inst, gain);
@@ -175,7 +193,7 @@ int main(int argc, char **argv)
    /* Don't remove these braces. */
    {
       Theme theme(font_gui);
-      Prog prog(theme, display);
+      Prog prog(theme, display, al_get_sample_instance_length(sample_inst));
       prog.run();
    }
 

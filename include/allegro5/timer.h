@@ -17,6 +17,7 @@
 #define __al_included_allegro5_timer_h
 
 #include "allegro5/base.h"
+#include "allegro5/events.h"
 
 #ifdef __cplusplus
    extern "C" {

@@ -19,6 +19,9 @@
 
 #include <X11/Xlib.h>
 
+#include "allegro5/base.h"
+#include "allegro5/display.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif

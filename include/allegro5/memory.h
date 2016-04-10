@@ -16,6 +16,8 @@
 #ifndef __al_included_allegro5_memory_h
 #define __al_included_allegro5_memory_h
 
+#include "allegro5/base.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif

@@ -1,0 +1,109 @@
+% Allegro changelog for 5.2.x series
+
+These lists serve as summaries; the full histories are in the git repository.
+
+
+Changes from 5.1.13.1 to 5.2.0 (April 2016)
+============================================
+
+The main developers this time were: SiegeLord, Polybios, Mark Oates,
+Elias Pschernig and Jonathan Seeley.
+
+Core:
+
+  - Add `al_is_event_source_registered` (koro).
+
+  - Make destructors log messages more meaningful.
+
+  - Mouse emulation API for touch devices is now unstable.
+
+  - Rename `al_convert_bitmaps` to `al_convert_memory_bitmaps`.
+
+Input:
+
+  - Haptic API is now unstable.
+
+Android port:
+
+  - Fixed bogus display destruction on Android which previously caused
+    zombie states.
+
+OSX port:
+
+  - Fix OSX mouse state position scaling.
+
+  - Fix other various scaling issues.
+
+  - Make toggling ALLEGRO_FRAMELESS work.
+
+  - Fix an issue where fullscreen windows would occasionally leave empty space
+    for the titlebar.
+
+  - Fix incorrect debug assert in the audio addon.
+
+Windows port:
+
+  - Make Allegro apps DPI-aware by default, which means that they won't be
+    scaled by the OS.
+
+  - Fix compilation for the CPU detection code on some compilers.
+
+  - Don't sync the D3D bitmap when locking with WRITE_ONLY.
+
+  - Remove dsound.dll runtime loading.
+
+  - Don't link xinput and d3dx9 libraries (they are still required at runtime
+    though if you're using the relevant features).
+
+  - Fix a bug where al_wait_for_event_timed can block despite 0 timeout
+    (Aldo Nunez).
+
+Build system:
+
+  - Install PDB files when building with MSVC.
+
+Documentation:
+
+  - Fix source links for API entries with multi-line prototypes.
+
+  - Make the readme look prettier on GitHub.
+
+  - Tons of assorted documentation improvements, especially for the audio addon.
+
+Other:
+
+  - Add a stability system where some unstable APIs need to be opted into by
+    defining `ALLEGRO_UNSTABLE` before including Allegro headers.
+
+Audio addon:
+
+  - Fix sporadic deadlocks
+
+  - Recorder API is now unstable.
+
+Native dialog addon:
+
+  - `al_toggle_menu_item_flags` is now unstable.
+
+TTF addon:
+
+  - Add an option to pre-cache the glyphs, useful for platforms where the
+    current algorithm is buggy (typically some Android devices).
+
+Video addon:
+
+  - Temporarily remove FFmpeg backend, as it was too buggy, didn't build and was
+    too hard to fix.
+
+Examples:
+
+  - Make `ex_vsync` less likely cause a seizure.
+
+  - Make `ex_draw_bitmap` and `ex_touch_input` switch in/out on Android.
+
+  - Add documentation to `ex_bitmap` (Daniel Johnson).
+
+  - Improve `ex_logo` text entry experience.
+
+
+<!-- vi: set sts=3 sw=3 et: -->
