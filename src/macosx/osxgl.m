@@ -667,7 +667,7 @@ static NSView* osx_view_from_display(ALLEGRO_DISPLAY* disp)
 /* set_current_display:
 * Set the current windowed display to be current.
 */
-bool set_current_display(ALLEGRO_DISPLAY* d) {
+static bool set_current_display(ALLEGRO_DISPLAY* d) {
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
    if (dpy->ctx != nil) {
       [dpy->ctx makeCurrentContext];
@@ -2191,7 +2191,8 @@ static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
    if (!win)
       return false;
 
-   @autoreleasepool {
+   {
+      NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
       switch (flag) {
          case ALLEGRO_FRAMELESS: {
             if (onoff)
@@ -2269,6 +2270,7 @@ static bool set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
             return true;
          }
       }
+      [pool release];
    }
 
    return false;
