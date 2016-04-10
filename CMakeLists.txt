@@ -304,7 +304,7 @@ if(IPHONE)
     set(ALLEGRO_UNIX 0)
     set(WANT_X11 off)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
-    set(CMAKE_EXE_LINKER_FLAGS "-framework CoreGraphics -framework QuartzCore -framework UIKit -framework Foundation -framework CoreFoundation")
+    set(CMAKE_EXE_LINKER_FLAGS "-framework CoreGraphics -framework QuartzCore -framework UIKit -framework Foundation -framework CoreFoundation -framework MobileCoreServices")
 endif(IPHONE)
 
 if(BORLAND)
