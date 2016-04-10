@@ -169,12 +169,14 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
                                 ALLEGRO_NATIVE_DIALOG *fd)
 {
     (void)display;
-    @autoreleasepool {
+    {
+        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
         NSValue* fdValue = [NSValue valueWithPointer:fd];
         
         [ALLEGAlertWrapper performSelectorOnMainThread: @selector(displayAlert:)
                                          withObject: fdValue
                                       waitUntilDone: YES];
+        [pool release];
     }
     _al_osx_clear_mouse_state();
     return fd->mb_pressed_button;
@@ -353,7 +355,7 @@ void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
     NSMutableArray * _items;
 }
 +(ALLEGTargetManager*) sharedManager;
--(instancetype) init;
+-(id) init;
 -(void) dealloc;
 -(void) setMenu: (NSMenu*) menu forWindow:(NSWindow*) window;
 @end
@@ -372,7 +374,7 @@ void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
     NSMenu* _menu;
 }
 -(NSMenu*) menu;
--(instancetype) initWithMenu:(ALLEGRO_MENU*) amenu; // Designated initializer
+-(id) initWithMenu:(ALLEGRO_MENU*) amenu; // Designated initializer
 -(NSMenu*) menu;
 -(void) show;
 -(void) showPopup;
@@ -535,7 +537,7 @@ bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu)
     }
 }
 // Create target with ALLEGRO_MENU bound to it.
-- (instancetype)initWithMenu:(ALLEGRO_MENU*) source_menu
+- (id)initWithMenu:(ALLEGRO_MENU*) source_menu
 {
     self = [super init];
     if (self) {
@@ -546,7 +548,7 @@ bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *amenu)
     }
     return self;
 }
--(instancetype) init
+-(id) init
 {
     /* This isn't a valid initializer */
     return nil;
@@ -657,7 +659,7 @@ static ALLEGTargetManager* _sharedmanager = nil;
     return _sharedmanager;
 }
 // Set up and register for notifications
--(instancetype) init
+-(id) init
 {
     self = [super init];
     if (self) {
@@ -714,7 +716,7 @@ static ALLEGTargetManager* _sharedmanager = nil;
 {
     NSUInteger index = [self indexForWindow:window];
     if (menu) {
-        NSDictionary* newentry = @{@"menu":menu, @"window":window};
+        NSDictionary* newentry = [NSDictionary dictionaryWithObjectsAndKeys:menu, @"menu", window, @"window", nil];
         if (index == NSNotFound) {
             [self->_items addObject: newentry];
         }
