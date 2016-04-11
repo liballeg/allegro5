@@ -136,7 +136,7 @@ endif(WANT_IMAGE_JPG AND NOT ALLEGRO_CFG_IIO_SUPPORT_JPG)
 
 configure_file(
     allegro5/internal/aintern_image_cfg.h.cmake
-    ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_image_cfg.h
+    ${PROJECT_BINARY_DIR}/include/allegro5/internal/aintern_image_cfg.h
     )
 
 add_our_addon_library(allegro_image

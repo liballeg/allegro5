@@ -1,9 +1,9 @@
 # Prefer local headers to system directories.
 include_directories(
-    ${CMAKE_SOURCE_DIR}/addons/main
-    ${CMAKE_SOURCE_DIR}/addons/audio
-    ${CMAKE_SOURCE_DIR}/addons/font
-    ${CMAKE_SOURCE_DIR}/addons/primitives
+    ${PROJECT_SOURCE_DIR}/addons/main
+    ${PROJECT_SOURCE_DIR}/addons/audio
+    ${PROJECT_SOURCE_DIR}/addons/font
+    ${PROJECT_SOURCE_DIR}/addons/primitives
     )
 
 set(SPEED_SRCS

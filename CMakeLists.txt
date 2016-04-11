@@ -33,7 +33,7 @@ option(WANT_ANDROID "Build for Android" OFF)
 option(WANT_ANDROID_LEGACY "Build for Android 4 (1.6)" OFF)
 option(WANT_GLES2 "Compile with GLES2 support" ON)
 if(WANT_ANDROID)
-    include(${CMAKE_SOURCE_DIR}/cmake/Toolchain-android.cmake)
+    include(${PROJECT_SOURCE_DIR}/cmake/Toolchain-android.cmake)
     set(ANDROID_TARGET "android-12" CACHE STRING "What Android target to compile for.")
 endif(WANT_ANDROID)
 option(ALLEGRO_SDL "Build using the SDL backend (experimental)" OFF)
@@ -48,14 +48,14 @@ string(REGEX MATCH "^[0-9]+[.][0-9]+" ALLEGRO_SOVERSION ${ALLEGRO_VERSION})
 string(REPLACE "." "" ALLEGRO_DLL_SHORTVER ${ALLEGRO_SOVERSION})
 
 # Search in the `cmake' directory for additional CMake modules.
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 # Search in `deps' directories for dependency files.
 file(GLOB deps_subdirs
-    "${CMAKE_SOURCE_DIR}/deps"
-    "${CMAKE_SOURCE_DIR}/deps/*"
-    "${CMAKE_BINARY_DIR}/deps"
-    "${CMAKE_BINARY_DIR}/deps/*"
+    "${PROJECT_SOURCE_DIR}/deps"
+    "${PROJECT_SOURCE_DIR}/deps/*"
+    "${PROJECT_BINARY_DIR}/deps"
+    "${PROJECT_BINARY_DIR}/deps/*"
     )
 foreach(subdir ${deps_subdirs})
     if(EXISTS "${subdir}/include" OR EXISTS "${subdir}/lib")
@@ -71,12 +71,12 @@ endforeach(subdir)
 
 # Search for C header files in these directories.
 include_directories(
-    ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_BINARY_DIR}/include
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_BINARY_DIR}/include
     )
 
 # Put libraries into `lib'.
-set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
+set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 # Lists of all the source files.
 include(FileList)
@@ -922,7 +922,7 @@ endif(NO_FPU)
 # All relevant variables must be set before here.
 configure_file(
     include/allegro5/platform/alplatf.h.cmake
-    ${CMAKE_BINARY_DIR}/include/allegro5/platform/alplatf.h
+    ${PROJECT_BINARY_DIR}/include/allegro5/platform/alplatf.h
     )
 
 #-----------------------------------------------------------------------------#

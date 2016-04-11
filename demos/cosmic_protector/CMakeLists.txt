@@ -6,12 +6,12 @@ endif()
 
 include_directories(
     include
-    ${CMAKE_SOURCE_DIR}/addons/main
-    ${CMAKE_SOURCE_DIR}/addons/image
-    ${CMAKE_SOURCE_DIR}/addons/font
-    ${CMAKE_SOURCE_DIR}/addons/audio
-    ${CMAKE_SOURCE_DIR}/addons/acodec
-    ${CMAKE_SOURCE_DIR}/addons/primitives
+    ${PROJECT_SOURCE_DIR}/addons/main
+    ${PROJECT_SOURCE_DIR}/addons/image
+    ${PROJECT_SOURCE_DIR}/addons/font
+    ${PROJECT_SOURCE_DIR}/addons/audio
+    ${PROJECT_SOURCE_DIR}/addons/acodec
+    ${PROJECT_SOURCE_DIR}/addons/primitives
     )
 
 set(DEMO_SRCS

@@ -57,7 +57,7 @@ endif()
 if(SUPPORT_NATIVE_DIALOG)
    configure_file(
        allegro5/internal/aintern_native_dialog_cfg.h.cmake
-       ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_native_dialog_cfg.h
+       ${PROJECT_BINARY_DIR}/include/allegro5/internal/aintern_native_dialog_cfg.h
        )
    
    include_directories(SYSTEM ${NATIVE_DIALOG_INCLUDE_DIRECTORIES})
