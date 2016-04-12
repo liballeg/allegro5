@@ -363,6 +363,9 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
    if (disp->num_cache_vertices == 0)
       return;
 
+   if (!_al_opengl_set_blender(disp))
+      return;
+
    if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
 #ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       if (disp->ogl_extras->varlocs.use_tex_loc >= 0) {
