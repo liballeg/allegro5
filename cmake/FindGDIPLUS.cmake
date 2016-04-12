@@ -10,7 +10,31 @@ if(GDIPLUS_INCLUDE_DIR)
     set(GDIPLUS_FIND_QUIETLY TRUE)
 endif(GDIPLUS_INCLUDE_DIR)
 
-find_path(GDIPLUS_INCLUDE_DIR NAMES GdiPlus.h gdiplus.h)
+macro(check_winsdk_root_dir key)
+  get_filename_component(CANDIDATE ${key} ABSOLUTE)
+  if (EXISTS ${CANDIDATE})
+    set(WINSDK_ROOT_DIR ${CANDIDATE})
+  endif()
+endmacro()
+
+check_winsdk_root_dir("[HKEY_LOCAL_MACHINE\\\\SOFTWARE\\\\Microsoft\\\\Microsoft SDKs\\\\Windows\\\\v7.0;InstallationFolder]")
+check_winsdk_root_dir("[HKEY_LOCAL_MACHINE\\\\SOFTWARE\\\\Microsoft\\\\Microsoft SDKs\\\\Windows\\\\v7.0A;InstallationFolder]")
+check_winsdk_root_dir("[HKEY_LOCAL_MACHINE\\\\SOFTWARE\\\\Microsoft\\\\Microsoft SDKs\\\\Windows\\\\v7.1;InstallationFolder]")
+check_winsdk_root_dir("[HKEY_LOCAL_MACHINE\\\\SOFTWARE\\\\Microsoft\\\\Microsoft SDKs\\\\Windows\\\\v7.1A;InstallationFolder]")
+check_winsdk_root_dir("[HKEY_LOCAL_MACHINE\\\\SOFTWARE\\\\Microsoft\\\\Windows Kits\\\\Installed Roots;KitsRoot]")
+check_winsdk_root_dir("[HKEY_LOCAL_MACHINE\\\\SOFTWARE\\\\Microsoft\\\\Windows Kits\\\\Installed Roots;KitsRoot81]")
+
+find_path(GDIPLUS_INCLUDE_DIR
+    NAMES
+        GdiPlus.h
+        gdiplus.h
+    PATH_SUFFIXES
+        Include
+        Include/um
+        Include/shared
+    PATHS
+        "${WINSDK_ROOT_DIR}"
+    )
 if(EXISTS ${GDIPLUS_INCLUDE_DIR}/GdiPlus.h)
     set(GDIPLUS_LOWERCASE 0 CACHE INTERNAL "Is GdiPlus.h spelt with lowercase?")
 else()
