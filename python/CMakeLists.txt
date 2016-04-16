@@ -4,7 +4,7 @@ include(FindPythonInterp)
 # the Python API.
 foreach(x ${MONOLITH_SOURCES} ${MONOLITH_HEADERS} ${ALLEGRO_PUBLIC_HEADERS})
     if(NOT ${x} MATCHES "^/.*")
-        file(RELATIVE_PATH xrel ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/${x})
+        file(RELATIVE_PATH xrel ${CMAKE_CURRENT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/${x})
         list(APPEND SOURCES ${xrel})
     endif()
 endforeach()
@@ -13,21 +13,21 @@ if(WIN32)
     add_custom_command(
         OUTPUT python_protos
         DEPENDS ${SOURCES}
-        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/python/checkdocs.py
+        COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/python/checkdocs.py
             -c ${CMAKE_C_COMPILER}
             -p python_protos
-            -b ${CMAKE_BINARY_DIR}
-            -s ${CMAKE_SOURCE_DIR}
+            -b ${PROJECT_BINARY_DIR}
+            -s ${PROJECT_SOURCE_DIR}
             -w
         )
 else(WIN32)
     add_custom_command(
         OUTPUT python_protos
         DEPENDS ${SOURCES}
-        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/python/checkdocs.py
+        COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/python/checkdocs.py
             -p python_protos
-            -b ${CMAKE_BINARY_DIR}
-            -s ${CMAKE_SOURCE_DIR}
+            -b ${PROJECT_BINARY_DIR}
+            -s ${PROJECT_SOURCE_DIR}
         )
 endif(WIN32)
 
@@ -39,7 +39,7 @@ SET(version "${ALLEGRO_SOVERSION}")
 add_custom_command(
     OUTPUT allegro.py
     DEPENDS python_protos
-    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/python/generate_python_ctypes.py
+    COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/python/generate_python_ctypes.py
         -p python_protos
         -o allegro.py
         -t \"${release}\"

@@ -42,7 +42,7 @@ include_directories(SYSTEM ${VIDEO_INCLUDE_DIRECTORIES})
 
 configure_file(
     allegro5/internal/aintern_video_cfg.h.cmake
-    ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_video_cfg.h
+    ${PROJECT_BINARY_DIR}/include/allegro5/internal/aintern_video_cfg.h
     )
 
 add_our_addon_library(allegro_video

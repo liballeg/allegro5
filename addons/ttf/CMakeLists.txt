@@ -9,7 +9,7 @@ set_our_header_properties(${TTF_INCLUDE_FILES})
 
 configure_file(
     allegro5/internal/aintern_ttf_cfg.h.cmake
-    ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_ttf_cfg.h
+    ${PROJECT_BINARY_DIR}/include/allegro5/internal/aintern_ttf_cfg.h
     )
 
 set(TTF_LIBRARIES ${FREETYPE_LIBRARIES})

@@ -270,7 +270,7 @@ endif(SUPPORT_VORBIS)
 
 configure_file(
     allegro5/internal/aintern_acodec_cfg.h.cmake
-    ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_acodec_cfg.h
+    ${PROJECT_BINARY_DIR}/include/allegro5/internal/aintern_acodec_cfg.h
     )
 
 add_our_addon_library(allegro_acodec

@@ -166,7 +166,7 @@ endif(ALLEGRO_SDL)
 
 configure_file(
     allegro5/internal/aintern_audio_cfg.h.cmake
-    ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_audio_cfg.h
+    ${PROJECT_BINARY_DIR}/include/allegro5/internal/aintern_audio_cfg.h
     )
 
 if(NOT SUPPORT_AUDIO)
