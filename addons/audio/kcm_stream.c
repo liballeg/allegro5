@@ -671,7 +671,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 {
    ALLEGRO_AUDIO_STREAM *stream = vstream;
    ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_EVENT event;
+   bool finished_event_sent = false;
    (void)self;
 
    ALLEGRO_DEBUG("Stream feeder thread started.\n");
@@ -739,21 +739,33 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
             continue;
          }
 
-         /* The streaming source doesn't feed any more, drain buffers and quit. */
+         /* The streaming source doesn't feed any more, so drain buffers.
+          * Don't quit in case the user decides to seek and then restart the
+          * stream. */
          if (bytes_written != bytes &&
             stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE) {
             al_drain_audio_stream(stream);
-            stream->quit_feed_thread = true;
+
+            if (!finished_event_sent) {
+               ALLEGRO_EVENT fin_event;
+               fin_event.user.type = ALLEGRO_EVENT_AUDIO_STREAM_FINISHED;
+               fin_event.user.timestamp = al_get_time();
+               al_emit_user_event(&stream->spl.es, &fin_event, NULL);
+               finished_event_sent = true;
+            }
+         } else {
+            finished_event_sent = false;
          }
       }
       else if (event.type == _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE) {
+         ALLEGRO_EVENT fin_event;
          stream->quit_feed_thread = true;
+
+         fin_event.user.type = ALLEGRO_EVENT_AUDIO_STREAM_FINISHED;
+         fin_event.user.timestamp = al_get_time();
+         al_emit_user_event(&stream->spl.es, &fin_event, NULL);
       }
    }
-   
-   event.user.type = ALLEGRO_EVENT_AUDIO_STREAM_FINISHED;
-   event.user.timestamp = al_get_time();
-   al_emit_user_event(&stream->spl.es, &event, NULL);
 
    al_destroy_event_queue(queue);
 
