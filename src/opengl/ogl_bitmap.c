@@ -364,10 +364,8 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
       }
    }
    if (disp->ogl_extras->opengl_target == target) {
-      if (disp->cache_enabled || _al_opengl_set_blender(disp)) {
-         draw_quad(bitmap, tint, sx, sy, sw, sh, flags);
-         return;
-      }
+      draw_quad(bitmap, tint, sx, sy, sw, sh, flags);
+      return;
    }
 
    /* If all else fails, fall back to software implementation. */

@@ -363,8 +363,10 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
    if (disp->num_cache_vertices == 0)
       return;
 
-   if (!_al_opengl_set_blender(disp))
+   if (!_al_opengl_set_blender(disp)) {
+      disp->num_cache_vertices = 0;
       return;
+   }
 
    if (disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
 #ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
