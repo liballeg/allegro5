@@ -373,7 +373,7 @@ to obtain a more visually pleasing result. Kerning adjusts the space between
 two individual glyphs with an offset determined by the author of the font.
 
 If you pass ALLEGRO_NO_KERNING as codepoint1 then al_get_glyph_advance
-will return 0. this cn be useful when drawing the first character of a string 
+will return 0. this can be useful when drawing the first character of a string 
 in a loop.
 
 Pass ALLEGRO_NO_KERNING as codepoint2 to get the horizontal advance width
@@ -402,7 +402,7 @@ may be like for two glypphs `A` and `l` of the same font that has kerning for
 the "Al" pair, without and with the ALLEGRO_NO_KERNING flag.
 
 
-    al_get_glyph_advance(font, 'A', 'l', 0)
+    al_get_glyph_advance(font, 'A', 'l')
          ___|___                  
         /       \  
         -------------            
@@ -414,7 +414,7 @@ the "Al" pair, without and with the ALLEGRO_NO_KERNING flag.
         -------------
         
         
-    al_get_glyph_advance(font, 'A', 'l', ALLEGRO_NO_KERNING)    
+    al_get_glyph_advance(font, 'A', ALLEGRO_NO_KERNING)
          ____|____
         /         \  
         ---------------
