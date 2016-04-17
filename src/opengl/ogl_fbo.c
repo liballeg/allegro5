@@ -177,11 +177,11 @@ static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
       int samples = al_get_bitmap_samples(info->owner);
 
       bool extension_supported;
-      #ifdef ALLEGRO_CFG_OPENGLES
-         extension_supported = display->ogl_extras->extension_list->ALLEGRO_GL_EXT_multisampled_render_to_texture;
-      #else
-         extension_supported = display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_multisample;
-      #endif
+#ifdef ALLEGRO_CFG_OPENGLES
+      extension_supported = display->ogl_extras->extension_list->ALLEGRO_GL_EXT_multisampled_render_to_texture;
+#else
+      extension_supported = display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_multisample;
+#endif
 
       if (samples == 0 || !extension_supported)
          glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, gldepth, w, h);
@@ -234,9 +234,9 @@ static void attach_multisample_buffer(ALLEGRO_FBO_INFO *info)
    if (!display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_multisample)
       return;
 
-   #ifdef ALLEGRO_CFG_OPENGLES
-      (void)display;
-   #else
+#ifdef ALLEGRO_CFG_OPENGLES
+   (void)display;
+#else
 
    if (info->buffers.multisample_buffer == 0) {
       GLuint rb;
@@ -595,7 +595,7 @@ static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
    if (!info->buffers.multisample_buffer) {
 
       /* Attach the texture. */
-      #ifdef ALLEGRO_CFG_OPENGLES
+#ifdef ALLEGRO_CFG_OPENGLES
       if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
          bool extension_supported = display->ogl_extras->
             extension_list->
@@ -614,7 +614,7 @@ static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
 #endif
       }
       else
-      #endif
+#endif
       {
          glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
             GL_TEXTURE_2D, ogl_bitmap->texture, 0);
