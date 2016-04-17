@@ -2460,7 +2460,7 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
       old_target = get_extra(d3d_display->target_bitmap);
 
    /* Release the previous target bitmap if it was not the backbuffer */
-   if (old_target && old_target->is_backbuffer) {
+   if (old_target && !old_target->is_backbuffer) {
       ALLEGRO_BITMAP *parent;
       if (d3d_display->target_bitmap->parent)
          parent = d3d_display->target_bitmap->parent;
