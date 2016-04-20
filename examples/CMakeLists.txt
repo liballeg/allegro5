@@ -245,6 +245,13 @@ if(WANT_CURL_EXAMPLE)
     endif(CURL_FOUND)
 endif(WANT_CURL_EXAMPLE)
 
+# Only build the enet examples if libenet is installed
+find_package(ENet)
+if(ENET_FOUND)
+    example(ex_enet_client ${ENET_LIBRARIES} ${PRIM})
+    example(ex_enet_server ${ENET_LIBRARIES})
+endif(ENET_FOUND)
+
 # example(ex_ogre3d ex_ogre3d.cpp)
 # include_directories(/usr/include/OGRE)
 # target_link_libraries(ex_ogre3d OgreMain)
