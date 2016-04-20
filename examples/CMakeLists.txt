@@ -245,13 +245,12 @@ if(WANT_CURL_EXAMPLE)
     endif(CURL_FOUND)
 endif(WANT_CURL_EXAMPLE)
 
-# The enet example won't compile if the enet library isn't available.
-# This example isn't important so it's disabled by default to prevent problems.
-option(WANT_ENET_EXAMPLE "Build ex_enet example" off)
-if(WANT_ENET_EXAMPLE)
-    example(ex_enet_client -lenet ${PRIM})
-    example(ex_enet_server -lenet)
-endif(WANT_ENET_EXAMPLE)
+# Only build the enet examples if libenet is installed
+find_package(ENet)
+if(ENET_FOUND)
+    example(ex_enet_client ${ENET_LIBRARIES} ${PRIM})
+    example(ex_enet_server ${ENET_LIBRARIES})
+endif(ENET_FOUND)
 
 # example(ex_ogre3d ex_ogre3d.cpp)
 # include_directories(/usr/include/OGRE)
