@@ -323,7 +323,6 @@ static void ogg_stream_close(ALLEGRO_AUDIO_STREAM *stream)
    al_fclose(extra->file);
 
    lib.op_free(extra->of);
-   al_free(extra->of);
    al_free(extra);
    stream->extra = NULL;
 }
@@ -449,7 +448,6 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_opus_audio_stream_f(ALLEGRO_FILE *file,
             _al_count_to_channel_conf(channels));
    if (!stream) {
       lib.op_free(of);
-      al_free(of);
       return NULL;
    }
 
