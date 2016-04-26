@@ -6,6 +6,7 @@ if(WIN32)
 endif()
 option(WANT_VORBIS "Enable Ogg Vorbis support using libvorbis" on)
 option(WANT_TREMOR "Enable Ogg Vorbis support using Tremor" off)
+option(WANT_OPUS "Enable Opus support using libopus" on)
 option(WANT_MODAUDIO "Enable MOD Audio support" on)
 option(WANT_ACODEC_DYNAMIC_LOAD "Enable DLL loading in acodec (Windows)" off)
 
@@ -267,6 +268,63 @@ if(SUPPORT_VORBIS)
         list(APPEND ACODEC_LIBRARIES ${VORBIS_LIBRARIES})
     endif()
 endif(SUPPORT_VORBIS)
+
+#
+# Opus
+#
+
+if(WANT_OPUS)
+    find_package(Opus)
+    if(OPUS_FOUND)
+        set(CMAKE_REQUIRED_INCLUDES ${OGG_INCLUDE_DIR} ${OPUS_INCLUDE_DIR})
+        if(COMPILER_GCC_OR_CLANG)
+            # libm is required when linking statically.
+            set(CMAKE_REQUIRED_LIBRARIES "${OPUS_LIBRARIES};m")
+        else()
+            set(CMAKE_REQUIRED_LIBRARIES "${OPUS_LIBRARIES}")
+        endif(COMPILER_GCC_OR_CLANG)
+        run_c_compile_test("
+            #include <opus/opusfile.h>
+            int main(void)
+            {
+                OggOpusFile *f;
+                OpusHead *v = 0;
+                (void)v;
+                op_free(f);
+                return 0;
+            }"
+            OPUS_COMPILES)
+        set(CMAKE_REQUIRED_INCLUDES)
+        set(CMAKE_REQUIRED_LIBRARIES)
+        if(OPUS_COMPILES)
+            set(SUPPORT_OPUS 1)
+        endif()
+    endif(OPUS_FOUND)
+    if(NOT SUPPORT_OPUS)
+        message("WARNING: libopus not found or compile test failed, disabling support.")
+    endif(NOT SUPPORT_OPUS)
+endif()
+
+if(SUPPORT_OPUS)
+    include_directories(SYSTEM ${OGG_INCLUDE_DIR} ${OPUS_INCLUDE_DIR})
+    set(ALLEGRO_CFG_ACODEC_OPUS 1)
+    list(APPEND ACODEC_SOURCES opus.c)
+
+    list(APPEND ACODEC_INCLUDE_DIRECTORIES ${OGG_INCLUDE_DIR} ${OPUS_INCLUDE_DIR})
+
+    if(WIN32 AND WANT_ACODEC_DYNAMIC_LOAD)
+        if(OPUSFILE_LIBRARY MATCHES "${WIN32_STATIC_LIB_REGEX}")
+            message("WARNING: Dynamic loading will be disabled for Opus"
+                    " as static library was found: ${OPUSFILE_LIBRARY}")
+        else()
+            get_dll_name(${OPUSFILE_LIBRARY} ALLEGRO_CFG_ACODEC_OPUSFILE_DLL)
+        endif()
+    endif()
+
+    if(NOT ALLEGRO_CFG_ACODEC_OPUSFILE_DLL)
+        list(APPEND ACODEC_LIBRARIES ${OPUS_LIBRARIES})
+    endif()
+endif(SUPPORT_OPUS)
 
 configure_file(
     allegro5/internal/aintern_acodec_cfg.h.cmake

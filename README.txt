@@ -110,6 +110,9 @@ These are the dependencies required for the addons:
 - Ogg Vorbis, a free lossy audio format. (libogg, libvorbis, libvorbisfile)
   Home page: <http://www.vorbis.com/>
 
+- Opus, a free lossy audio codec. (libogg, libopus, libopusfile)
+  Home page: <http://www.opus-codec.org/>
+
 - FLAC, a free lossless audio codec. (libFLAC, libogg)
   Home page: <http://flac.sourceforge.net/>
 
