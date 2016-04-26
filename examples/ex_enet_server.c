@@ -24,8 +24,9 @@ static float rand01(void) { return rand() / (float)RAND_MAX; }
 
 static int init_player(void)
 {
+   int i;
    // find the first open player slot
-   for (int i = 0 ; i < MAX_PLAYER_COUNT ; ++i) {
+   for (i = 0 ; i < MAX_PLAYER_COUNT ; ++i) {
       if (!players[i].active) {
          // assign a random color and position to this new player
          players[i].active = true;
@@ -58,6 +59,7 @@ static void send_receive(ENetHost *server)
    ServerMessage msg_out;
    ENetPacket *packet;
    ENetEvent event;
+   int i;
 
    // Process all messages in queue, exit as soon as it is empty
    while (enet_host_service(server, &event, 0) > 0) {
@@ -91,7 +93,7 @@ static void send_receive(ENetHost *server)
             enet_host_broadcast(server, 0, packet);
 
             // notify new client of all other existing players
-            for (int i = 0 ; i < MAX_PLAYER_COUNT ; ++i) {
+            for (i = 0 ; i < MAX_PLAYER_COUNT ; ++i) {
                if (!players[i].active || i == player_id) continue;
 
                msg_out = create_join_message(i);
@@ -136,7 +138,8 @@ static void send_receive(ENetHost *server)
 
 static void update_players(ENetHost *server, float time)
 {
-   for (int i = 0 ; i < MAX_PLAYER_COUNT ; ++i) {
+   int i;
+   for (i = 0 ; i < MAX_PLAYER_COUNT ; ++i) {
       if (!players[i].active) continue;
 
       players[i].x += players[i].dx * PLAYER_SPEED * time;
@@ -163,11 +166,11 @@ static ENetHost* create_server(int port)
    ENetHost *server;
    /* Bind the server to the default localhost.     */
    /* A specific host address can be specified by   */
-   /* enet_address_set_host (& address, "x.x.x.x"); */
+   /* enet_address_set_host (&address, "x.x.x.x"); */
    address.host = ENET_HOST_ANY;
    /* Bind the server to port 1234. */
    address.port = port;
-   server = enet_host_create(& address /* the address to bind the server host to */,
+   server = enet_host_create(&address /* the address to bind the server host to */,
       32      /* allow up to 32 clients and/or outgoing connections */,
       2      /* allow up to 2 channels to be used, 0 and 1 */,
       0      /* assume any amount of incoming bandwidth */,
@@ -231,6 +234,7 @@ int main(int argc, char **argv)
 
    enet_host_destroy(server);
    enet_deinitialize();
+   return 0;
 }
 
 /* vim: set sts=3 sw=3 et: */

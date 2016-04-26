@@ -65,12 +65,12 @@ static ENetPeer* connect_client(ENetHost *client, int port)
    enet_address_set_host(&address, "localhost");
    address.port = port;
    /* Initiate the connection, allocating the two channels 0 and 1. */
-   server = enet_host_connect(client, & address, 2, 0);
+   server = enet_host_connect(client, &address, 2, 0);
    if (server == NULL)
       abort_example("Client: No available peers for initiating an ENet connection.\n");
 
    /* Wait up to 5 seconds for the connection attempt to succeed. */
-   if (enet_host_service(client, & event, 5000) > 0 &&
+   if (enet_host_service(client, &event, 5000) > 0 &&
       event.type == ENET_EVENT_TYPE_CONNECT)
    {
       printf("Client: Connected to %x:%u.\n",
@@ -138,6 +138,7 @@ int main(int argc, char **argv)
    bool done = false;  // when true, client exits
    int dx = 0, dy = 0; // movement direction
    int port = DEFAULT_PORT;
+   int i;
 
    if (argc == 2) {
       port = atoi(argv[1]);
@@ -186,17 +187,25 @@ int main(int argc, char **argv)
             break;
          case ALLEGRO_EVENT_KEY_DOWN:
             switch (event.keyboard.keycode) {
+               case ALLEGRO_KEY_UP:
                case ALLEGRO_KEY_W: dy -= 1; direction_changed = true; break;
+               case ALLEGRO_KEY_DOWN:
                case ALLEGRO_KEY_S: dy += 1; direction_changed = true; break;
+               case ALLEGRO_KEY_LEFT:
                case ALLEGRO_KEY_A: dx -= 1; direction_changed = true; break;
+               case ALLEGRO_KEY_RIGHT:
                case ALLEGRO_KEY_D: dx += 1; direction_changed = true; break;
             }
             break;
          case ALLEGRO_EVENT_KEY_UP:
             switch (event.keyboard.keycode) {
+               case ALLEGRO_KEY_UP:
                case ALLEGRO_KEY_W: dy += 1; direction_changed = true; break;
+               case ALLEGRO_KEY_DOWN:
                case ALLEGRO_KEY_S: dy -= 1; direction_changed = true; break;
+               case ALLEGRO_KEY_LEFT:
                case ALLEGRO_KEY_A: dx += 1; direction_changed = true; break;
+               case ALLEGRO_KEY_RIGHT:
                case ALLEGRO_KEY_D: dx -= 1; direction_changed = true; break;
             }
             break;
@@ -229,7 +238,7 @@ int main(int argc, char **argv)
 
          // draw each player
          al_clear_to_color(al_map_rgb_f(0, 0, 0));
-         for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
+         for (i = 0; i < MAX_PLAYER_COUNT; i++) {
             if (!players[i].active) continue;
 
             int x = players[i].x;
@@ -244,6 +253,7 @@ int main(int argc, char **argv)
    disconnect_client(client, server);
    enet_host_destroy(client);
    enet_deinitialize();
+   return 0;
 }
 
 /* vim: set sts=3 sw=3 et: */
