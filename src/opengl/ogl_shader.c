@@ -284,7 +284,7 @@ static bool glsl_set_shader_sampler(ALLEGRO_SHADER *shader,
 }
 
 static bool glsl_set_shader_matrix(ALLEGRO_SHADER *shader,
-   const char *name, ALLEGRO_TRANSFORM *matrix)
+   const char *name, const ALLEGRO_TRANSFORM *matrix)
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
    GLint handle;
@@ -296,7 +296,7 @@ static bool glsl_set_shader_matrix(ALLEGRO_SHADER *shader,
       return false;
    }
 
-   glUniformMatrix4fv(handle, 1, false, (float *)matrix->m);
+   glUniformMatrix4fv(handle, 1, false, (const float *)matrix->m);
 
    return check_gl_error(name);
 }
@@ -338,7 +338,7 @@ static bool glsl_set_shader_float(ALLEGRO_SHADER *shader,
 }
 
 static bool glsl_set_shader_int_vector(ALLEGRO_SHADER *shader,
-   const char *name, int num_components, int *i, int num_elems)
+   const char *name, int num_components, const int *i, int num_elems)
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
    GLint handle;
@@ -372,7 +372,7 @@ static bool glsl_set_shader_int_vector(ALLEGRO_SHADER *shader,
 }
 
 static bool glsl_set_shader_float_vector(ALLEGRO_SHADER *shader,
-   const char *name, int num_components, float *f, int num_elems)
+   const char *name, int num_components, const float *f, int num_elems)
 {
    ALLEGRO_SHADER_GLSL_S *gl_shader = (ALLEGRO_SHADER_GLSL_S *)shader;
    GLint handle;

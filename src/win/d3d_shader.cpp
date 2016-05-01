@@ -85,15 +85,15 @@ static void hlsl_on_reset_device(ALLEGRO_SHADER *shader);
 static bool hlsl_set_shader_sampler(ALLEGRO_SHADER *shader,
                const char *name, ALLEGRO_BITMAP *bitmap, int unit);
 static bool hlsl_set_shader_matrix(ALLEGRO_SHADER *shader,
-               const char *name, ALLEGRO_TRANSFORM *matrix);
+               const char *name, const ALLEGRO_TRANSFORM *matrix);
 static bool hlsl_set_shader_int(ALLEGRO_SHADER *shader,
                const char *name, int i);
 static bool hlsl_set_shader_float(ALLEGRO_SHADER *shader,
                const char *name, float f);
 static bool hlsl_set_shader_int_vector(ALLEGRO_SHADER *shader,
-               const char *name, int num_components, int *i, int num_elems);
+               const char *name, int num_components, const int *i, int num_elems);
 static bool hlsl_set_shader_float_vector(ALLEGRO_SHADER *shader,
-               const char *name, int num_components, float *f, int num_elems);
+               const char *name, int num_components, const float *f, int num_elems);
 static bool hlsl_set_shader_bool(ALLEGRO_SHADER *shader,
                const char *name, bool b);
 
@@ -355,7 +355,7 @@ static bool hlsl_set_shader_sampler(ALLEGRO_SHADER *shader,
 }
 
 static bool hlsl_set_shader_matrix(ALLEGRO_SHADER *shader,
-   const char *name, ALLEGRO_TRANSFORM *matrix)
+   const char *name, const ALLEGRO_TRANSFORM *matrix)
 {
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
    HRESULT result;
@@ -392,7 +392,7 @@ static bool hlsl_set_shader_float(ALLEGRO_SHADER *shader,
 }
 
 static bool hlsl_set_shader_int_vector(ALLEGRO_SHADER *shader,
-   const char *name, int num_components, int *i, int num_elems)
+   const char *name, int num_components, const int *i, int num_elems)
 {
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
    HRESULT result;
@@ -404,7 +404,7 @@ static bool hlsl_set_shader_int_vector(ALLEGRO_SHADER *shader,
 }
 
 static bool hlsl_set_shader_float_vector(ALLEGRO_SHADER *shader,
-   const char *name, int num_components, float *f, int num_elems)
+   const char *name, int num_components, const float *f, int num_elems)
 {
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
    HRESULT result;

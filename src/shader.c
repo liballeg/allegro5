@@ -256,7 +256,7 @@ bool al_set_shader_sampler(const char *name,
 /* Function: al_set_shader_matrix
  */
 bool al_set_shader_matrix(const char *name,
-   ALLEGRO_TRANSFORM *matrix)
+   const ALLEGRO_TRANSFORM *matrix)
 {
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_SHADER *shader;
@@ -317,7 +317,7 @@ bool al_set_shader_float(const char *name, float f)
 /* Function: al_set_shader_int_vector
  */
 bool al_set_shader_int_vector(const char *name,
-   int num_components, int *i, int num_elems)
+   int num_components, const int *i, int num_elems)
 {
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_SHADER *shader;
@@ -338,7 +338,7 @@ bool al_set_shader_int_vector(const char *name,
 /* Function: al_set_shader_float_vector
  */
 bool al_set_shader_float_vector(const char *name,
-   int num_components, float *f, int num_elems)
+   int num_components, const float *f, int num_elems)
 {
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_SHADER *shader;

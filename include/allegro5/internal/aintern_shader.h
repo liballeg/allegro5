@@ -24,13 +24,13 @@ struct ALLEGRO_SHADER_INTERFACE
    bool (*set_shader_sampler)(ALLEGRO_SHADER *shader, const char *name,
          ALLEGRO_BITMAP *bitmap, int unit);
    bool (*set_shader_matrix)(ALLEGRO_SHADER *shader, const char *name,
-         ALLEGRO_TRANSFORM *matrix);
+         const ALLEGRO_TRANSFORM *matrix);
    bool (*set_shader_int)(ALLEGRO_SHADER *shader, const char *name, int i);
    bool (*set_shader_float)(ALLEGRO_SHADER *shader, const char *name, float f);
    bool (*set_shader_int_vector)(ALLEGRO_SHADER *shader, const char *name,
-         int elem_size, int *i, int num_elems);
+         int elem_size, const int *i, int num_elems);
    bool (*set_shader_float_vector)(ALLEGRO_SHADER *shader, const char *name,
-         int elem_size, float *f, int num_elems);
+         int elem_size, const float *f, int num_elems);
    bool (*set_shader_bool)(ALLEGRO_SHADER *shader, const char *name, bool b);
 };
 
