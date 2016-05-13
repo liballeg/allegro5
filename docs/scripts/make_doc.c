@@ -138,7 +138,7 @@ static void load_prototypes(const char *filename)
 
          d_assign(text, lookup_source(name));
          if (strlen(text) == 0) {
-            strcat(text, "https://github.com/liballeg/allegro5/blob/5.1/");
+            strcat(text, "https://github.com/liballeg/allegro5/blob/master/");
             strcat(text, file_name);
             strcat(text, "#L");
             strcat(text, line_number);
