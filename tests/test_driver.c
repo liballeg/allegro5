@@ -70,6 +70,7 @@ int               verbose = 0;
 int               total_tests = 0;
 int               passed_tests = 0;
 int               failed_tests = 0;
+int               skipped_tests = 0;
 
 #define streq(a, b)  (0 == strcmp((a), (b)))
 
@@ -932,7 +933,7 @@ static void check_similarity(ALLEGRO_CONFIG const *cfg,
 }
 
 static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
-   ALLEGRO_BITMAP *target, int bmp_type, bool reliable)
+   ALLEGRO_BITMAP *target, int bmp_type, bool reliable, bool do_check_hash)
 {
 #define MAXBUF    80
 
@@ -1484,12 +1485,10 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
 
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
 
-   if (bmp_type == SW) {
-      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   if (do_check_hash) {
       check_hash(cfg, testname, target, bmp_type);
    }
    else {
-      al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
       check_similarity(cfg, testname, target, membuf, bmp_type, reliable);
    }
 
@@ -1538,15 +1537,23 @@ static void sw_hw_test(ALLEGRO_CONFIG *cfg, char const *testname)
 {
    int old_failed_tests = failed_tests;
    bool reliable;
+   char const *hw_only_str = al_get_config_value(cfg, testname, "hw_only");
+   bool hw_only = hw_only_str && get_bool(hw_only_str);
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   do_test(cfg, testname, membuf, SW, true);
+   if (!hw_only) {
+      do_test(cfg, testname, membuf, SW, true, true);
+   }
 
    reliable = (failed_tests == old_failed_tests);
 
    if (display) {
       al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
-      do_test(cfg, testname, al_get_backbuffer(display), HW, reliable);
+      do_test(cfg, testname, al_get_backbuffer(display), HW, reliable, hw_only);
+   } else if (hw_only) {
+      printf("WARNING: Skipping hardware-only test due to the --no-display flag: %s\n",
+             testname);
+      skipped_tests++;
    }
 }
 
@@ -1811,6 +1818,7 @@ int main(int _argc, char *_argv[])
    printf("total tests:  %d\n", total_tests);
    printf("passed tests: %d\n", passed_tests);
    printf("failed tests: %d\n", failed_tests);
+   printf("skipped tests: %d\n", skipped_tests);
    printf("\n");
 
    return !!failed_tests;
