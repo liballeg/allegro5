@@ -13,7 +13,7 @@ before_install:
          export DISPLAY=:99.0;
          sh -e /etc/init.d/xvfb start;
          sudo apt-get update;
-         sudo apt-get install -y libvorbis-dev libtheora-dev libphysfs-dev libdumb1-dev libflac-dev libpulse-dev libgtk2.0-dev pandoc;
+         sudo apt-get install -y libvorbis-dev libtheora-dev libphysfs-dev libdumb1-dev libflac-dev libpulse-dev libgtk2.0-dev pandoc libcurl4-nss-dev libenet-dev;
       elif [ `uname` = "Darwin" ]; then
          brew install cmake opusfile libvorbis freetype flac physfs;
       fi
@@ -29,7 +29,7 @@ before_script:
 script:
     - |
       if [ `uname` = "Linux" ]; then
-         cmake .. -DWANT_SHADERS_GL=$WANT_SHADERS_GL
+         cmake .. -DWANT_SHADERS_GL=$WANT_SHADERS_GL -DWANT_CURL_EXAMPLE=on
          make
          . ../tests/grab_bitmap_suites.sh
          find ../tests -name '*.ini' | grep -v 'compressed' | xargs tests/test_driver | tee /tmp/test_out
