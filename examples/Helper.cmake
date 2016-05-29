@@ -5,7 +5,7 @@ function(example name)
     # Use cmake_parse_arguments first.
     set(flags CONSOLE)
     set(single_args) # none
-    set(accum_args DATA)
+    set(accum_args DATA EXTRA_LIBS)
     cmake_parse_arguments(MYOPTS "${flags}" "${single_args}" "${accum_args}"
         ${ARGN})
 
@@ -50,6 +50,11 @@ function(example name)
     if(WANT_MONOLITH)
         set(libs ${ALLEGRO_MONOLITH_LINK_WITH})
     endif()
+
+    # Append the extra, non-Allegro libraries.
+    foreach(lib ${MYOPTS_EXTRA_LIBS})
+        list(APPEND libs ${lib})
+    endforeach()
 
     list(REMOVE_DUPLICATES libs)
 
