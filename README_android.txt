@@ -45,18 +45,18 @@ Make NDK standalone toolchain
 Next you need to setup a standalone NDK toolchain. Set an environment
 variable to point to the desired location of the Android toolchain:
 
-    export TC=$HOME/android-toolchain
+    export ANDROID_NDK_TOOLCHAIN_ROOT=$HOME/android-toolchain
 
 Assuming the NDK was extracted into $HOME/android-ndk run the following
 command:
 
     $HOME/android-ndk/build/tools/make-standalone-toolchain.sh \
-        --platform=android-9 --install-dir=$TC --stl=stlport
+        --platform=android-9 --install-dir=$ANDROID_NDK_TOOLCHAIN_ROOT
 
 You can use any platform 9 or higher. This command was last tested on ndk10d.
 You may need to add --arch=arm if the auto-configuration fails.
 
-Add $TC/bin to your PATH.
+Add $ANDROID_NDK_TOOLCHAIN_ROOT/bin to your PATH.
 
 
 Build dependencies for Allegro
@@ -108,11 +108,13 @@ or modify the paths in CMake variables manually.
 Building Allegro
 ================
 
-The following steps will build Allegro for Android:
+The following steps will build Allegro for Android. Note that you still
+need ANDROID_NDK_TOOLCHAIN_ROOT (see above) in your PATH.
 
     mkdir build
     cd build
-    cmake .. -DANDROID_NDK_TOOLCHAIN_ROOT=$TC -DWANT_ANDROID=on \
+    cmake .. -DANDROID_NDK_TOOLCHAIN_ROOT=$ANDROID_NDK_TOOLCHAIN_ROOT \
+        -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-android.cmake
         -DCMAKE_BUILD_TYPE=Debug -DANDROID_TARGET=android-12 \
         # -G"MSYS Makefiles"
     make
