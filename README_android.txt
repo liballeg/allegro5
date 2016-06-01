@@ -109,7 +109,7 @@ Building Allegro
 ================
 
 The following steps will build Allegro for Android. Note that you still
-need ANDROID_NDK_TOOLCHAIN_ROOT (see above) in your PATH.
+need ANDROID_NDK_TOOLCHAIN_ROOT (see above) in your environment.
 
     mkdir build
     cd build
