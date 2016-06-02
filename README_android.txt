@@ -113,8 +113,7 @@ need ANDROID_NDK_TOOLCHAIN_ROOT (see above) in your environment.
 
     mkdir build
     cd build
-    cmake .. -DANDROID_NDK_TOOLCHAIN_ROOT=$ANDROID_NDK_TOOLCHAIN_ROOT \
-        -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-android.cmake
+    cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-android.cmake
         -DCMAKE_BUILD_TYPE=Debug -DANDROID_TARGET=android-12 \
         # -G"MSYS Makefiles"
     make
