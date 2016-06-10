@@ -663,7 +663,8 @@ static void ttf_get_text_dimensions(ALLEGRO_FONT const *f,
    bool first = true;
    int x = 0;
    int32_t ch, nch;
-
+   int ymin = f->height;
+   int ymax = 0;
    *bbx = 0;
 
    nch = al_ustr_get_next(text, &pos);
@@ -682,15 +683,23 @@ static void ttf_get_text_dimensions(ALLEGRO_FONT const *f,
          x += al_get_glyph_advance(f, ch, nch);
       }
 
+      if (gy < ymin) {
+         ymin = gy;
+      }
+
+      if (gh+gy > ymax) {
+         ymax = gh + gy;
+      }
+
       if (first) {
          *bbx = gx;
          first = false;
       }
    }
 
-   *bby = 0; // FIXME
+   *bby = ymin;
    *bbw = x - *bbx;
-   *bbh = f->height; // FIXME, we want the bounding box!
+   *bbh = ymax - ymin; 
 }
 
 
