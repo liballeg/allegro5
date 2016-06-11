@@ -677,7 +677,7 @@ static void ttf_get_text_dimensions(ALLEGRO_FONT const *f,
       }
 
       if (nch < 0) {
-         x += gx + gw + 2;
+         x += gx + gw;
       }
       else {
          x += al_get_glyph_advance(f, ch, nch);
@@ -1005,10 +1005,10 @@ static bool ttf_get_glyph_dimensions(ALLEGRO_FONT const *f,
       }
    }
    cache_glyph(data, face, ft_index, glyph, false);
-   *bbx = glyph->offset_x;
+   *bbx = glyph->offset_x + 1;
    *bbw = glyph->region.w - 2;
-   *bbh = glyph->region.h;
-   *bby = glyph->offset_y;
+   *bbh = glyph->region.h - 2;
+   *bby = glyph->offset_y + 1;
       
    return true;
 }
