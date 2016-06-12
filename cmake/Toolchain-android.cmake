@@ -4,7 +4,7 @@ SET(CMAKE_SYSTEM_VERSION 1)
 
 #set path for android toolchain -- look
 
-set(ANDROID_NDK_TOOLCHAIN_ROOT "$ENV{HOME}/android-toolchain" CACHE PATH "Path to the Android NDK Standalone Toolchain" )
+set(ANDROID_NDK_TOOLCHAIN_ROOT "$ENV{ANDROID_NDK_TOOLCHAIN_ROOT}" CACHE PATH "Path to the Android NDK Standalone Toolchain" )
 
 message( STATUS "Selected Android toolchain: ${ANDROID_NDK_TOOLCHAIN_ROOT}" )
 if(NOT EXISTS ${ANDROID_NDK_TOOLCHAIN_ROOT})
@@ -106,14 +106,10 @@ endif()
 # where is the target environment 
 SET(CMAKE_FIND_ROOT_PATH  ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin ${ANDROID_NDK_TOOLCHAIN_ROOT}/arm-linux-androideabi ${ANDROID_NDK_TOOLCHAIN_ROOT}/sysroot ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_PREFIX}/share)
 
-#for some reason this is needed? TODO figure out why...
-include_directories(${ANDROID_NDK_TOOLCHAIN_ROOT}/arm-linux-androideabi/include/c++/4.4.3/arm-linux-androideabi)
-
 SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM ONLY)
 # only search for libraries and includes in the ndk toolchain
 SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-
 
 if(ARM_TARGETS STREQUAL "x86")
   SET(CMAKE_CXX_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -Wno-psabi")
