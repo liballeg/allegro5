@@ -75,12 +75,12 @@ static void render(void)
        int cp  = ustr_at(dimension_text, index);
        int bbx, bby, bbw, bbh;
        al_get_glyph_dimensions(ex.f2, cp, &bbx, &bby, &bbw, &bbh);
-       al_draw_rectangle(x + bbx, y + bby, x + bbx + bbw - 1, y + bby + bbh - 1, blue, 1);
-       al_draw_rectangle(x, y, x + bbx + bbw - 1, y + bby + bbh - 1, green, 1);
+       al_draw_rectangle(x + bbx + 0.5, y + bby + 0.5, x + bbx + bbw - 0.5, y + bby + bbh - 0.5, blue, 1);
+       al_draw_rectangle(x + 0.5, y + 0.5, x + bbx + bbw - 0.5, y + bby + bbh - 0.5, green, 1);
        al_draw_glyph(ex.f2, purple, x, y, cp);
        x += al_get_glyph_advance(ex.f2, cp, ALLEGRO_NO_KERNING);
     }
-    al_draw_line(50, y, x, y, red, 1);
+    al_draw_line(50.5, y+0.5, x+0.5, y+0.5, red, 1);
     al_draw_textf(ex.f2, black, x + 10, y, 0, "(dimensions)");
 
     al_draw_textf(ex.f3, black, 50, 200, 0, "This font has a size of 12 pixels, "
@@ -192,9 +192,9 @@ static void render(void)
     x += xpos;
     y += ypos;
 
-    al_draw_rectangle(x, y, x + w - 1, y + h - 1, black, 0);
-    al_draw_line(x, y + as, x + w - 1, y + as, black, 0);
-    al_draw_line(x, y + as + de, x + w - 1, y + as + de, black, 0);
+    al_draw_rectangle(x, y, x + w - 0.5, y + h - 0.5, black, 0);
+    al_draw_line(x+0.5, y + as + 0.5, x + w - 0.5, y + as + 0.5, black, 0);
+    al_draw_line(x + 0.5, y + as + de + 0.5, x + w - 0.5, y + as + de + 0.5, black, 0);
 
     al_hold_bitmap_drawing(true);
     al_draw_textf(ex.f4, blue, xpos, ypos, 0, "Allegro");
