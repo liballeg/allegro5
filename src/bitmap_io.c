@@ -205,7 +205,7 @@ ALLEGRO_BITMAP *al_load_bitmap_flags(const char *filename, int flags)
    }
 
    h = find_handler(ext, false);
-   if (h) {
+   if (h && h->loader) {
       ret = h->loader(filename, flags);
       if (!ret)
          ALLEGRO_WARN("Failed loading %s with %s handler.\n", filename,
@@ -233,7 +233,7 @@ bool al_save_bitmap(const char *filename, ALLEGRO_BITMAP *bitmap)
       return false;
 
    h = find_handler(ext, false);
-   if (h)
+   if (h && h->saver)
       return h->saver(filename, bitmap);
    else {
       ALLEGRO_WARN("No handler for image %s found\n", filename);
@@ -269,7 +269,7 @@ ALLEGRO_BITMAP *al_load_bitmap_flags_f(ALLEGRO_FILE *fp,
       h = find_handler(ident, false);
    else
       h = find_handler_for_file(fp);
-   if (h)
+   if (h && h->fs_loader)
       return h->fs_loader(fp, flags);
    else
       return NULL;
@@ -282,7 +282,7 @@ bool al_save_bitmap_f(ALLEGRO_FILE *fp, const char *ident,
    ALLEGRO_BITMAP *bitmap)
 {
    Handler *h = find_handler(ident, false);
-   if (h)
+   if (h && h->fs_saver)
       return h->fs_saver(fp, bitmap);
    else {
       ALLEGRO_WARN("No handler for image %s found\n", ident);
