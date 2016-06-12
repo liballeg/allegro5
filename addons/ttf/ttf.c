@@ -1005,10 +1005,10 @@ static bool ttf_get_glyph_dimensions(ALLEGRO_FONT const *f,
       }
    }
    cache_glyph(data, face, ft_index, glyph, false);
-   *bbx = glyph->offset_x + 1;
+   *bbx = glyph->offset_x;
    *bbw = glyph->region.w - 2;
    *bbh = glyph->region.h - 2;
-   *bby = glyph->offset_y + 1;
+   *bby = glyph->offset_y;
       
    return true;
 }
