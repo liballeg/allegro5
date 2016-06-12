@@ -76,6 +76,20 @@ static void display_flags_to_window_styles(int flags,
    }
 }
 
+// Clears a window to black
+static void clear_window(HWND window, int w, int h)
+{
+   PAINTSTRUCT ps;
+   HDC hdc;
+
+   hdc = BeginPaint(window, &ps);
+
+   SelectObject(hdc, GetStockObject(DC_BRUSH));
+   SetDCBrushColor(hdc, RGB(0, 0, 0));
+
+   Rectangle(hdc, 0, 0, w, h);
+}
+
 HWND _al_win_create_hidden_window()
 {
    HWND window = CreateWindowEx(0,
@@ -163,6 +177,8 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
       NULL,NULL,window_class.hInstance,0);
    al_free(window_title);
 
+   clear_window(my_window, width, height);
+
    if (_al_win_register_touch_window)
       _al_win_register_touch_window(my_window, 0);
 
@@ -228,6 +244,8 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
       x1, y1, width, height,
       NULL,NULL,window_class.hInstance,0);
    al_free(window_title);
+
+   clear_window(my_window, width, height);
 
    if (_al_win_register_touch_window)
       _al_win_register_touch_window(my_window, 0);
@@ -1202,7 +1220,7 @@ bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
             int pos_y = 0;
             WINDOWINFO wi;
             int bw, bh;
-            
+
             // Unset the topmost flag
             SetWindowPos(win_display->window, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
@@ -1346,7 +1364,7 @@ bool al_win_add_window_callback(ALLEGRO_DISPLAY *display,
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
    ALLEGRO_DISPLAY_WIN_CALLBACK *ptr;
-   
+
    if (!display || !callback) {
       return false;
    }
@@ -1374,7 +1392,7 @@ bool al_win_remove_window_callback(ALLEGRO_DISPLAY *display,
    LPARAM lparam, LRESULT *result, void *userdata), void *userdata)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
-   
+
    if (display && callback) {
       size_t i;
       for (i = 0; i < _al_vector_size(&win_display->msg_callbacks); ++i) {
