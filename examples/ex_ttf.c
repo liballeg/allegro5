@@ -69,20 +69,20 @@ static void render(void)
     al_draw_textf(ex.f1, black, 50,  20, 0, "Tulip (kerning)");
     al_draw_textf(ex.f2, black, 50,  80, 0, "Tulip (no kerning)");
 
-    x = 50; 
-    y = 140;    
+    x = 50;
+    y = 140;
     for (index = 0; index < al_ustr_length(dimension_text); index ++) {
        int cp  = ustr_at(dimension_text, index);
        int bbx, bby, bbw, bbh;
-       al_get_glyph_dimensions(ex.f2, cp, &bbx, &bby, &bbw, &bbh);                   
-       al_draw_rectangle(x + bbx, y + bby, x + bbx + bbw, y + bby + bbh, blue, 1);
-       al_draw_rectangle(x, y, x + bbx + bbw, y + bby + bbh, green, 1);       
+       al_get_glyph_dimensions(ex.f2, cp, &bbx, &bby, &bbw, &bbh);
+       al_draw_rectangle(x + bbx, y + bby, x + bbx + bbw - 1, y + bby + bbh - 1, blue, 1);
+       al_draw_rectangle(x, y, x + bbx + bbw - 1, y + bby + bbh - 1, green, 1);
        al_draw_glyph(ex.f2, purple, x, y, cp);
        x += al_get_glyph_advance(ex.f2, cp, ALLEGRO_NO_KERNING);
     }
-    al_draw_line(50, y, x, y, red, 1);    
+    al_draw_line(50, y, x, y, red, 1);
     al_draw_textf(ex.f2, black, x + 10, y, 0, "(dimensions)");
-    
+
     al_draw_textf(ex.f3, black, 50, 200, 0, "This font has a size of 12 pixels, "
         "the one above has 48 pixels.");
 
@@ -90,7 +90,7 @@ static void render(void)
     al_hold_bitmap_drawing(true);
 
     al_draw_textf(ex.f3, red, 50, 220, 0, "The color can simply be changed.🐊← fallback glyph");
-        
+
     al_hold_bitmap_drawing(false);
     al_hold_bitmap_drawing(true);
 
@@ -115,21 +115,21 @@ static void render(void)
     /* Glyph rendering tests. */
     al_draw_textf(ex.f3, red, 50, 410, 0, "Glyph adv Tu: %d, draw: ",
                         al_get_glyph_advance(ex.f3, 'T', 'u'));
-    x = 50; 
-    y = 425; 
+    x = 50;
+    y = 425;
     for (index = 0; index < al_ustr_length(tulip); index ++) {
        int cp  = ustr_at(tulip, index);
        /* Use al_get_glyph_advance for the stride, with no kerning. */
        al_draw_glyph(ex.f3, red, x, y, cp);
        x += al_get_glyph_advance(ex.f3, cp, ALLEGRO_NO_KERNING);
     }
-   
-    x = 50; 
-    y = 440; 
-    /* First draw a red string using al_draw_text, that should be hidden 
-     * completely by the same text drawing in green per glyph 
+
+    x = 50;
+    y = 440;
+    /* First draw a red string using al_draw_text, that should be hidden
+     * completely by the same text drawing in green per glyph
      * using al_draw_glyph and al_get_glyph_advance below. */
-    al_draw_ustr(ex.f3, red, x, y, 0, tulip); 
+    al_draw_ustr(ex.f3, red, x, y, 0, tulip);
     for (index = 0; index < al_ustr_length(tulip); index ++) {
       int cp  = ustr_at(tulip, index);
       int ncp = (index < (al_ustr_length(tulip) - 1)) ?
@@ -138,45 +138,45 @@ static void render(void)
       al_draw_glyph(ex.f3, green, x, y, cp);
       x += al_get_glyph_advance(ex.f3, cp, ncp);
     }
-    
-    x = 50; 
-    y = 466; 
+
+    x = 50;
+    y = 466;
     al_draw_ustr(ex.f3, red, x, y, 0, tulip);
     for (index = 0; index < al_ustr_length(tulip); index ++) {
       int cp  = ustr_at(tulip, index);
       int bbx, bby, bbw, bbh;
-      al_get_glyph_dimensions(ex.f3, cp, &bbx, &bby, &bbw, &bbh);      
+      al_get_glyph_dimensions(ex.f3, cp, &bbx, &bby, &bbw, &bbh);
       al_draw_glyph(ex.f3, blue, x, y, cp);
       x += bbx + bbw;
     }
-    
-    
-    x = 10; 
-    y = 30; 
+
+
+    x = 10;
+    y = 30;
     for (index = 0; index < al_ustr_length(vertical_text); index ++) {
       int bbx, bby, bbw, bbh;
       int cp  = ustr_at(vertical_text, index);
-      /* Use al_get_glyph_dimensions for the height to apply. */      
+      /* Use al_get_glyph_dimensions for the height to apply. */
       al_get_glyph_dimensions(ex.f3, cp, &bbx, &bby, &bbw, &bbh);
-      al_draw_glyph(ex.f3, green, x, y, cp);      
+      al_draw_glyph(ex.f3, green, x, y, cp);
       y += bby;
       y += bbh;
     }
-    
-    
-    x = 30; 
-    y = 30; 
+
+
+    x = 30;
+    y = 30;
     for (index = 0; index < al_ustr_length(vertical_text); index ++) {
       int bbx, bby, bbw, bbh;
       int cp  = ustr_at(vertical_text, index);
-      /* Use al_get_glyph_dimensions for the height to apply, here bby is 
-       * omited for the wrong result. */      
+      /* Use al_get_glyph_dimensions for the height to apply, here bby is
+       * omited for the wrong result. */
       al_get_glyph_dimensions(ex.f3, cp, &bbx, &bby, &bbw, &bbh);
-      al_draw_glyph(ex.f3, red, x, y, cp);      
+      al_draw_glyph(ex.f3, red, x, y, cp);
       y += bbh;
     }
-    
-    
+
+
     al_hold_bitmap_drawing(false);
 
     target_w = al_get_bitmap_width(al_get_target_bitmap());
@@ -192,9 +192,9 @@ static void render(void)
     x += xpos;
     y += ypos;
 
-    al_draw_rectangle(x, y, x + w, y + h, black, 0);
-    al_draw_line(x, y + as, x + w, y + as, black, 0);
-    al_draw_line(x, y + as + de, x + w, y + as + de, black, 0);
+    al_draw_rectangle(x, y, x + w - 1, y + h - 1, black, 0);
+    al_draw_line(x, y + as, x + w - 1, y + as, black, 0);
+    al_draw_line(x, y + as + de, x + w - 1, y + as + de, black, 0);
 
     al_hold_bitmap_drawing(true);
     al_draw_textf(ex.f4, blue, xpos, ypos, 0, "Allegro");
@@ -207,7 +207,7 @@ static void render(void)
 
     al_draw_textf(ex.f3, black, 0, 0, 0, "%s: %d unicode ranges", font_file,
        ex.ranges_count);
-       
+
     al_hold_bitmap_drawing(false);
 }
 
