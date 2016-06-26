@@ -178,7 +178,7 @@ ALLEGRO_SAMPLE_INSTANCE *al_create_sample_instance(ALLEGRO_SAMPLE *sample_data)
    spl->mutex = NULL;
    spl->parent.u.ptr = NULL;
 
-   _al_kcm_register_destructor("sample_instance", spl,
+   spl->dtor_item = _al_kcm_register_destructor("sample_instance", spl,
       (void (*)(void *))al_destroy_sample_instance);
 
    return spl;
@@ -200,7 +200,7 @@ void _al_kcm_destroy_sample(ALLEGRO_SAMPLE_INSTANCE *spl, bool unregister)
 {
    if (spl) {
       if (unregister) {
-         _al_kcm_unregister_destructor(spl);
+         _al_kcm_unregister_destructor(spl->dtor_item);
       }
 
       _al_kcm_detach_from_parent(spl);

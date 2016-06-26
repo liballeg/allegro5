@@ -53,19 +53,19 @@ void _al_kcm_shutdown_destructors(void)
 /* _al_kcm_register_destructor:
  *  Register an object to be destroyed.
  */
-void _al_kcm_register_destructor(char const *name, void *object,
+_AL_LIST_ITEM *_al_kcm_register_destructor(char const *name, void *object,
    void (*func)(void*))
 {
-   _al_register_destructor(kcm_dtors, name, object, func);
+   return _al_register_destructor(kcm_dtors, name, object, func);
 }
 
 
 /* _al_kcm_unregister_destructor:
  *  Unregister an object to be destroyed.
  */
-void _al_kcm_unregister_destructor(void *object)
+void _al_kcm_unregister_destructor(_AL_LIST_ITEM *dtor_item)
 {
-   _al_unregister_destructor(kcm_dtors, object);
+   _al_unregister_destructor(kcm_dtors, dtor_item);
 }
 
 

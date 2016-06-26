@@ -45,6 +45,7 @@ struct ALLEGRO_TIMER
    double speed_secs;
    int64_t count;
    double counter;		/* counts down to zero=blastoff */
+   _AL_LIST_ITEM *dtor_item;
 };
 
 
@@ -232,7 +233,7 @@ ALLEGRO_TIMER *al_create_timer(double speed_secs)
          timer->speed_secs = speed_secs;
          timer->counter = 0;
 
-         _al_register_destructor(_al_dtor_list, "timer", timer,
+         timer->dtor_item = _al_register_destructor(_al_dtor_list, "timer", timer,
             (void (*)(void *)) al_destroy_timer);
       }
 
@@ -249,7 +250,7 @@ void al_destroy_timer(ALLEGRO_TIMER *timer)
    if (timer) {
       al_stop_timer(timer);
 
-      _al_unregister_destructor(_al_dtor_list, timer);
+      _al_unregister_destructor(_al_dtor_list, timer->dtor_item);
 
       _al_event_source_free(&timer->es);
       al_free(timer);

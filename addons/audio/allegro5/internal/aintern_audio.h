@@ -6,6 +6,7 @@
 #define AINTERN_AUDIO_H
 
 #include "allegro5/allegro.h"
+#include "allegro5/internal/aintern_list.h"
 #include "allegro5/internal/aintern_vector.h"
 #include "../allegro_audio.h"
 
@@ -116,6 +117,8 @@ struct ALLEGRO_VOICE {
    ALLEGRO_MUTEX        *mutex;
    ALLEGRO_COND         *cond;
 
+   _AL_LIST_ITEM        *dtor_item;
+
    ALLEGRO_AUDIO_DRIVER *driver;
                         /* XXX shouldn't there only be one audio driver active
                          * at a time?
@@ -147,6 +150,7 @@ struct ALLEGRO_SAMPLE {
                         /* Whether `buffer' needs to be freed when the sample
                          * is destroyed, or when `buffer' changes.
                          */
+   _AL_LIST_ITEM        *dtor_item;
 };
 
 /* Read some samples into a mixer buffer.
@@ -232,6 +236,7 @@ struct ALLEGRO_SAMPLE_INSTANCE {
    sample_parent_t      parent;
                         /* The object that this sample is attached to, if any.
                          */
+   _AL_LIST_ITEM        *dtor_item;
 };
 
 void _al_kcm_destroy_sample(ALLEGRO_SAMPLE_INSTANCE *sample, bool unregister);
@@ -308,6 +313,8 @@ struct ALLEGRO_AUDIO_STREAM {
                           * streams don't need to be fed by the user.
                           */
 
+   _AL_LIST_ITEM        *dtor_item;
+
    void                  *extra;
                          /* Extra data for use by the flac/vorbis addons. */
 };
@@ -337,6 +344,7 @@ struct ALLEGRO_MIXER {
                            /* Vector of ALLEGRO_SAMPLE_INSTANCE*.  Holds the list of
                             * streams being mixed together.
                             */
+   _AL_LIST_ITEM           *dtor_item;
 };
 
 extern void _al_kcm_mixer_rejig_sample_matrix(ALLEGRO_MIXER *mixer,
@@ -362,9 +370,9 @@ void _al_kcm_emit_stream_events(ALLEGRO_AUDIO_STREAM *stream);
 
 void _al_kcm_init_destructors(void);
 void _al_kcm_shutdown_destructors(void);
-void _al_kcm_register_destructor(char const *name, void *object,
+_AL_LIST_ITEM *_al_kcm_register_destructor(char const *name, void *object,
    void (*func)(void*));
-void _al_kcm_unregister_destructor(void *object);
+void _al_kcm_unregister_destructor(_AL_LIST_ITEM *dtor_item);
 void _al_kcm_foreach_destructor(
       void (*callback)(void *object, void (*func)(void *), void *udata),
       void *userdata);

@@ -1,6 +1,7 @@
 #ifndef __al_included_allegro_aintern_native_dialog_h
 #define __al_included_allegro_aintern_native_dialog_h
 
+#include "allegro5/internal/aintern_list.h"
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/internal/aintern_native_dialog_cfg.h"
 
@@ -41,6 +42,8 @@ struct ALLEGRO_NATIVE_DIALOG
    bool is_active;
    void *window;
    void *async_queue;
+   
+   _AL_LIST_ITEM *dtor_item;
 };
 
 extern bool _al_init_native_dialog_addon(void);

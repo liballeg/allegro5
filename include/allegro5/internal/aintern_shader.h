@@ -1,6 +1,7 @@
 #ifndef __al_included_allegro5_internal_aintern_shader_h
 #define __al_included_allegro5_internal_aintern_shader_h
 
+#include "allegro5/internal/aintern_list.h"
 #include "allegro5/internal/aintern_vector.h"
 
 #ifdef __cplusplus
@@ -42,6 +43,7 @@ struct ALLEGRO_SHADER
    ALLEGRO_SHADER_PLATFORM platform;
    ALLEGRO_SHADER_INTERFACE *vt;
    _AL_VECTOR bitmaps; /* of ALLEGRO_BITMAP pointers */
+   _AL_LIST_ITEM *dtor_item;
 };
 
 /* In most cases you should use _al_set_bitmap_shader_field. */

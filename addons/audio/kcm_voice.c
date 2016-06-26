@@ -94,7 +94,7 @@ ALLEGRO_VOICE *al_create_voice(unsigned int freq,
       return NULL;
    }
 
-   _al_kcm_register_destructor("voice", voice,
+   voice->dtor_item = _al_kcm_register_destructor("voice", voice,
       (void (*)(void *)) al_destroy_voice);
 
    return voice;
@@ -106,7 +106,7 @@ ALLEGRO_VOICE *al_create_voice(unsigned int freq,
 void al_destroy_voice(ALLEGRO_VOICE *voice)
 {
    if (voice) {
-      _al_kcm_unregister_destructor(voice);
+      _al_kcm_unregister_destructor(voice->dtor_item);
 
       al_detach_voice(voice);
       ASSERT(al_get_voice_playing(voice) == false);

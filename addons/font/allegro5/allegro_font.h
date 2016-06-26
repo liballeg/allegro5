@@ -2,6 +2,7 @@
 #define __al_included_allegro5_allegro_font_h
 
 #include "allegro5/allegro.h"
+#include "allegro5/internal/aintern_list.h"
 
 #if (defined ALLEGRO_MINGW32) || (defined ALLEGRO_MSVC) || (defined ALLEGRO_BCC32)
    #ifndef ALLEGRO_STATICLINK
@@ -54,6 +55,7 @@ struct ALLEGRO_FONT
    int height;
    ALLEGRO_FONT *fallback;
    ALLEGRO_FONT_VTABLE *vtable;
+   _AL_LIST_ITEM *dtor_item;
 };
 
 /* text- and font-related stuff */

@@ -6,6 +6,7 @@
 #include "allegro5/display.h"
 #include "allegro5/render_state.h"
 #include "allegro5/transformations.h"
+#include "allegro5/internal/aintern_list.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -96,6 +97,8 @@ struct ALLEGRO_BITMAP
 
    /* Extra data for display bitmaps, like texture id and so on. */
    void *extra;
+
+   _AL_LIST_ITEM *dtor_item;
 
    /* set_target_bitmap and lock_bitmap mark bitmaps as dirty for preservation */
    bool dirty;

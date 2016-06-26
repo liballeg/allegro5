@@ -359,7 +359,7 @@ void al_destroy_font(ALLEGRO_FONT *f)
    if (!f)
       return;
 
-   _al_unregister_destructor(_al_dtor_list, f);
+   _al_unregister_destructor(_al_dtor_list, f->dtor_item);
 
    f->vtable->destroy(f);
 }

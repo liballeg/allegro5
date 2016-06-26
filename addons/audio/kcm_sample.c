@@ -153,7 +153,7 @@ ALLEGRO_SAMPLE *al_create_sample(void *buf, unsigned int samples,
    spl->buffer.ptr = buf;
    spl->free_buf = free_buf;
 
-   _al_kcm_register_destructor("sample", spl, (void (*)(void *)) al_destroy_sample);
+   spl->dtor_item = _al_kcm_register_destructor("sample", spl, (void (*)(void *)) al_destroy_sample);
 
    return spl;
 }
@@ -184,7 +184,7 @@ void al_destroy_sample(ALLEGRO_SAMPLE *spl)
    if (spl) {
       _al_kcm_foreach_destructor(stop_sample_instances_helper,
          al_get_sample_data(spl));
-      _al_kcm_unregister_destructor(spl);
+      _al_kcm_unregister_destructor(spl->dtor_item);
 
       if (spl->free_buf && spl->buffer.ptr) {
          al_free(spl->buffer.ptr);
