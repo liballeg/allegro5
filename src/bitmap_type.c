@@ -85,6 +85,8 @@ void _al_unregister_convert_bitmap(ALLEGRO_BITMAP *bitmap)
 static void swap_bitmaps(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *other)
 {
    ALLEGRO_BITMAP temp;
+   _AL_LIST_ITEM *bitmap_dtor_item = bitmap->dtor_item;
+   _AL_LIST_ITEM *other_dtor_item = other->dtor_item;
    ALLEGRO_DISPLAY *bitmap_display, *other_display;
 
    _al_unregister_convert_bitmap(bitmap);
@@ -98,6 +100,12 @@ static void swap_bitmaps(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *other)
    temp = *bitmap;
    *bitmap = *other;
    *other = temp;
+
+   /* Re-associate the destructors back, as they are tied to the object
+    * pointers.
+    */
+   bitmap->dtor_item = bitmap_dtor_item;
+   other->dtor_item = other_dtor_item;
 
    bitmap_display = _al_get_bitmap_display(bitmap);
    other_display = _al_get_bitmap_display(other);
