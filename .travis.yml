@@ -29,7 +29,7 @@ before_script:
 script:
     - |
       if [ `uname` = "Linux" ]; then
-         cmake .. -DWANT_SHADERS_GL=$WANT_SHADERS_GL -DWANT_CURL_EXAMPLE=on
+         cmake .. -DCMAKE_BUILD_TYPE=Debug -DWANT_SHADERS_GL=$WANT_SHADERS_GL -DWANT_CURL_EXAMPLE=on
          make
          . ../tests/grab_bitmap_suites.sh
          find ../tests -name '*.ini' | grep -v 'compressed' | xargs tests/test_driver | tee /tmp/test_out
