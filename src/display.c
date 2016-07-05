@@ -121,10 +121,6 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
 #endif
    }
 
-   // TODO: Remove this once all the implementations set the title correctly themselves.
-   // Issue #544.
-   al_set_window_title(display, al_get_new_window_title());
-   
    if (settings->settings[ALLEGRO_AUTO_CONVERT_BITMAPS]) {
       /* We convert video bitmaps to memory bitmaps when the display is
        * destroyed, so seems only fair to re-convertt hem when the
