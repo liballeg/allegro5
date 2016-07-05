@@ -21,6 +21,7 @@ typedef struct ARGS_CREATE
    ALLEGRO_DISPLAY_XGLX *display;
    int w;
    int h;
+   const char *title;
 } ARGS_CREATE;
 
 typedef struct
@@ -102,6 +103,8 @@ static gboolean do_create_display_hook(gpointer data)
    gtk_socket_add_id(GTK_SOCKET(socket), d->window);
    ALLEGRO_DEBUG("gtk_socket_add_id: window = %ld\n", d->window);
 
+   gtk_window_set_title(GTK_WINDOW(window), args->title);
+
    gtk_widget_show_all(window);
 
    if (display->flags & ALLEGRO_RESIZABLE) {
@@ -150,6 +153,7 @@ static bool xgtk_create_display_hook(ALLEGRO_DISPLAY *display, int w, int h)
    args.display = d;
    args.w = w;
    args.h = h;
+   args.title = al_get_new_window_title();
 
    return _al_gtk_wait_for_args(do_create_display_hook, &args);
 }
