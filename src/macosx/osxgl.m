@@ -1003,7 +1003,7 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    [win setDelegate: view];
    [win setReleasedWhenClosed: YES];
    [win setAcceptsMouseMovedEvents: _osx_mouse_installed];
-   [win setTitle: @"Allegro"];
+   [win setTitle: [NSString stringWithUTF8String:al_get_new_window_title()]];
    /* Set minimum size, otherwise the window can be resized so small we can't
     * grab the handle any more to make it bigger
     */
@@ -1302,6 +1302,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    NSRect rect = NSMakeRect(0, 0, w, h);
 
    dpy->win = [[ALWindow alloc] initWithContentRect:rect styleMask:(IS_LION ? NSBorderlessWindowMask : 0) backing:NSBackingStoreBuffered defer:NO];
+   [dpy->win setTitle: [NSString stringWithUTF8String:al_get_new_window_title()]];
    [dpy->win setAcceptsMouseMovedEvents:YES];
    [dpy->win setViewsNeedDisplay:NO];
 
