@@ -39,7 +39,7 @@ static const char *default_glsl_vertex_source =
 
 static const char *default_glsl_pixel_source =
    "#ifdef GL_ES\n"
-   "precision mediump float;\n"
+   "precision lowp float;\n"
    "#endif\n"
    "uniform sampler2D " ALLEGRO_SHADER_VAR_TEX ";\n"
    "uniform bool " ALLEGRO_SHADER_VAR_USE_TEX ";\n"
