@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		968608761B6B12960008BD29 /* dds.c in Sources */ = {isa = PBXBuildFile; fileRef = 968608751B6B12960008BD29 /* dds.c */; };
+		96A12D031D2F3C3E00F245D9 /* png.c in Sources */ = {isa = PBXBuildFile; fileRef = 96A12D021D2F3C3E00F245D9 /* png.c */; };
+		96A12D051D2F3F9300F245D9 /* identify.c in Sources */ = {isa = PBXBuildFile; fileRef = 96A12D041D2F3F9300F245D9 /* identify.c */; };
 		96A3016E1B9A874F002E2D1C /* clipboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 96A3016D1B9A874F002E2D1C /* clipboard.c */; };
 		96A301701B9A8778002E2D1C /* iphone_clipboard.m in Sources */ = {isa = PBXBuildFile; fileRef = 96A3016F1B9A8778002E2D1C /* iphone_clipboard.m */; };
 		96CE34EB1B6B059C00705360 /* allegro.c in Sources */ = {isa = PBXBuildFile; fileRef = 96CE34BB1B6B059C00705360 /* allegro.c */; };
@@ -91,7 +93,6 @@
 		96CE35591B6B066100705360 /* text.c in Sources */ = {isa = PBXBuildFile; fileRef = 96CE35551B6B066100705360 /* text.c */; };
 		96CE355F1B6B068800705360 /* bmp.c in Sources */ = {isa = PBXBuildFile; fileRef = 96CE355A1B6B068800705360 /* bmp.c */; };
 		96CE35601B6B068800705360 /* iio.c in Sources */ = {isa = PBXBuildFile; fileRef = 96CE355B1B6B068800705360 /* iio.c */; };
-		96CE35611B6B068800705360 /* iphone.m in Sources */ = {isa = PBXBuildFile; fileRef = 96CE355C1B6B068800705360 /* iphone.m */; };
 		96CE35621B6B068800705360 /* pcx.c in Sources */ = {isa = PBXBuildFile; fileRef = 96CE355D1B6B068800705360 /* pcx.c */; };
 		96CE35631B6B068800705360 /* tga.c in Sources */ = {isa = PBXBuildFile; fileRef = 96CE355E1B6B068800705360 /* tga.c */; };
 		96CE35651B6B069700705360 /* generic_main.c in Sources */ = {isa = PBXBuildFile; fileRef = 96CE35641B6B069700705360 /* generic_main.c */; };
@@ -128,6 +129,8 @@
 /* Begin PBXFileReference section */
 		964130EF1A6353E700184496 /* libAllegro5_iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libAllegro5_iOS.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		968608751B6B12960008BD29 /* dds.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dds.c; path = ../../addons/image/dds.c; sourceTree = "<group>"; };
+		96A12D021D2F3C3E00F245D9 /* png.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = png.c; path = ../../addons/image/png.c; sourceTree = "<group>"; };
+		96A12D041D2F3F9300F245D9 /* identify.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = identify.c; path = ../../addons/image/identify.c; sourceTree = "<group>"; };
 		96A3016D1B9A874F002E2D1C /* clipboard.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = clipboard.c; path = ../../src/clipboard.c; sourceTree = "<group>"; };
 		96A3016F1B9A8778002E2D1C /* iphone_clipboard.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iphone_clipboard.m; path = ../../src/iphone/iphone_clipboard.m; sourceTree = "<group>"; };
 		96CE34BB1B6B059C00705360 /* allegro.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = allegro.c; path = ../../src/allegro.c; sourceTree = "<group>"; };
@@ -212,7 +215,6 @@
 		96CE35551B6B066100705360 /* text.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = text.c; path = ../../addons/font/text.c; sourceTree = "<group>"; };
 		96CE355A1B6B068800705360 /* bmp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bmp.c; path = ../../addons/image/bmp.c; sourceTree = "<group>"; };
 		96CE355B1B6B068800705360 /* iio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = iio.c; path = ../../addons/image/iio.c; sourceTree = "<group>"; };
-		96CE355C1B6B068800705360 /* iphone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iphone.m; path = ../../addons/image/iphone.m; sourceTree = "<group>"; };
 		96CE355D1B6B068800705360 /* pcx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pcx.c; path = ../../addons/image/pcx.c; sourceTree = "<group>"; };
 		96CE355E1B6B068800705360 /* tga.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = tga.c; path = ../../addons/image/tga.c; sourceTree = "<group>"; };
 		96CE35641B6B069700705360 /* generic_main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = generic_main.c; path = ../../addons/main/generic_main.c; sourceTree = "<group>"; };
@@ -265,6 +267,8 @@
 		96CE34BA1B6B055300705360 /* src  */ = {
 			isa = PBXGroup;
 			children = (
+				96A12D041D2F3F9300F245D9 /* identify.c */,
+				96A12D021D2F3C3E00F245D9 /* png.c */,
 				96A3016F1B9A8778002E2D1C /* iphone_clipboard.m */,
 				96A3016D1B9A874F002E2D1C /* clipboard.c */,
 				96CE356C1B6B06EF00705360 /* directx_shaders.cpp */,
@@ -285,7 +289,6 @@
 				96CE35641B6B069700705360 /* generic_main.c */,
 				96CE355A1B6B068800705360 /* bmp.c */,
 				96CE355B1B6B068800705360 /* iio.c */,
-				96CE355C1B6B068800705360 /* iphone.m */,
 				96CE355D1B6B068800705360 /* pcx.c */,
 				96CE355E1B6B068800705360 /* tga.c */,
 				968608751B6B12960008BD29 /* dds.c */,
@@ -462,6 +465,7 @@
 				96CE35621B6B068800705360 /* pcx.c in Sources */,
 				96CE357F1B6B06EF00705360 /* polyline.c in Sources */,
 				96CE352C1B6B05F900705360 /* ogl_fbo.c in Sources */,
+				96A12D051D2F3F9300F245D9 /* identify.c in Sources */,
 				96CE354F1B6B063800705360 /* ViewController.m in Sources */,
 				96CE34FD1B6B059C00705360 /* file_slice.c in Sources */,
 				96CE35481B6B063800705360 /* iphone_joystick.m in Sources */,
@@ -472,6 +476,7 @@
 				96CE34FB1B6B059C00705360 /* evtsrc.c in Sources */,
 				96CE35001B6B059C00705360 /* fshook_stdio.c in Sources */,
 				96CE35021B6B059C00705360 /* fullscreen_mode.c in Sources */,
+				96A12D031D2F3C3E00F245D9 /* png.c in Sources */,
 				96CE34F81B6B059C00705360 /* drawing.c in Sources */,
 				96CE350D1B6B059C00705360 /* mouse_cursor.c in Sources */,
 				96CE350C1B6B059C00705360 /* monitor.c in Sources */,
@@ -531,7 +536,6 @@
 				96CE35071B6B059C00705360 /* libc.c in Sources */,
 				96CE35121B6B059C00705360 /* system.c in Sources */,
 				96CE34EE1B6B059C00705360 /* bitmap_lock.c in Sources */,
-				96CE35611B6B068800705360 /* iphone.m in Sources */,
 				96CE35361B6B061200705360 /* aatree.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -620,7 +624,11 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
 				CLANG_CXX_LIBRARY = "libstdc++";
 				CLANG_ENABLE_OBJC_ARC = NO;
-				GCC_PREPROCESSOR_DEFINITIONS = "ALLEGRO_LIB_BUILD=1";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					ALLEGRO_LIB_BUILD,
+					ALLEGRO_UNSTABLE,
+					ALLEGRO_INTERNAL_UNSTABLE,
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -634,9 +642,10 @@
 					../../addons/physfs,
 					../../addons/primitives,
 					../../addons/ttf,
-					../../deps/include/freetype2,
+					../../misc/Allegro5_iOS,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				LIBRARY_SEARCH_PATHS = "";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = Allegro5_iOS;
 				SKIP_INSTALL = YES;
@@ -652,7 +661,12 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
 				CLANG_CXX_LIBRARY = "libstdc++";
 				CLANG_ENABLE_OBJC_ARC = NO;
-				GCC_PREPROCESSOR_DEFINITIONS = "ALLEGRO_LIB_BUILD=1";
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					ALLEGRO_LIB_BUILD,
+					ALLEGRO_UNSTABLE,
+					ALLEGRO_INTERNAL_UNSTABLE,
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -666,9 +680,10 @@
 					../../addons/physfs,
 					../../addons/primitives,
 					../../addons/ttf,
-					../../deps/include/freetype2,
+					../../misc/Allegro5_iOS,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				LIBRARY_SEARCH_PATHS = "";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = Allegro5_iOS;
 				SKIP_INSTALL = YES;
