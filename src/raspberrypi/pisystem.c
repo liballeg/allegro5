@@ -69,7 +69,7 @@ static void pi_shutdown_system(void)
       _al_thread_join(&spi->thread);
       XCloseDisplay(spi->x11display);
    }
-   
+
    bcm_host_deinit();
 
    raise(SIGINT);
