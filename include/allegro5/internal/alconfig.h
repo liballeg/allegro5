@@ -107,8 +107,8 @@
       #endif
    #endif
    
-   #ifndef LONG_LONG
-      #define LONG_LONG       long long
+   #ifndef AL_LONG_LONG
+      #define AL_LONG_LONG    long long
       #ifdef ALLEGRO_GUESS_INTTYPES_OK
          #define int64_t      signed long long
          #define uint64_t     unsigned long long
