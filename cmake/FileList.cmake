@@ -263,6 +263,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES
 set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
     # Only files which need to be installed.
     include/allegro5/internal/alconfig.h
+    include/allegro5/internal/aintern_list.h
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES
