@@ -123,16 +123,16 @@ AL_INLINE(al_fixed, al_fixsub, (al_fixed x, al_fixed y),
       AL_LONG_LONG lres = (lx*ly);
 
       if (lres > 0x7FFFFFFF0000LL) {
-     al_set_errno(ERANGE);
-	 return 0x7FFFFFFF;
+         al_set_errno(ERANGE);
+         return 0x7FFFFFFF;
       }
       else if (lres < -0x7FFFFFFF0000LL) {
-	 al_set_errno(ERANGE);
-	 return 0x80000000;
+         al_set_errno(ERANGE);
+         return 0x80000000;
       }
       else {
-	 int res = lres >> 16;
-	 return res;
+         int res = lres >> 16;
+         return res;
       }
    })
 #endif	    /* al_fixmul() C implementations */
