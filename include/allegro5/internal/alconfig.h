@@ -107,12 +107,9 @@
       #endif
    #endif
    
-   #ifndef AL_LONG_LONG
-      #define AL_LONG_LONG    long long
-      #ifdef ALLEGRO_GUESS_INTTYPES_OK
-         #define int64_t      signed long long
-         #define uint64_t     unsigned long long
-      #endif
+   #ifdef ALLEGRO_GUESS_INTTYPES_OK
+      #define int64_t      signed long long
+      #define uint64_t     unsigned long long
    #endif
 
    #ifdef __i386__
