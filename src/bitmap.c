@@ -673,4 +673,12 @@ ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
    return clone;
 }
 
+/* Function: al_backup_dirty_bitmap
+ */
+void al_backup_dirty_bitmap(ALLEGRO_BITMAP *bitmap)
+{
+   if (bitmap->vt && bitmap->vt->backup_dirty_bitmap)
+      bitmap->vt->backup_dirty_bitmap(bitmap);
+}
+
 /* vim: set ts=8 sts=3 sw=3 et: */

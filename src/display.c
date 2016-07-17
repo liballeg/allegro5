@@ -624,4 +624,21 @@ void al_set_render_state(ALLEGRO_RENDER_STATE state, int value)
    }
 }
 
+/* Function: al_backup_dirty_bitmaps
+ */
+void al_backup_dirty_bitmaps(ALLEGRO_DISPLAY *display)
+{
+   unsigned int i;
+
+   for (i = 0; i < display->bitmaps._size; i++) {
+      ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&display->bitmaps, i);
+      ALLEGRO_BITMAP *bmp = *bptr;
+      if ((void *)_al_get_bitmap_display(bmp) == (void *)display) {
+         if (bmp->vt && bmp->vt->backup_dirty_bitmap) {
+            bmp->vt->backup_dirty_bitmap(bmp);
+	 }
+      }
+   }
+}
+
 /* vim: set sts=3 sw=3 et: */

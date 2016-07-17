@@ -553,17 +553,13 @@ static bool _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest)
    return ok;
 }
 
-/*
- * Must be called before the D3D device is reset (e.g., when
- * resizing a window). All non-synced display bitmaps must be
- * synced to memory.
- */
-void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp)
+// Copy texture to system memory
+static void d3d_backup_dirty_bitmap(ALLEGRO_BITMAP *bitmap)
 {
-   unsigned int i;
-   ALLEGRO_DISPLAY *display = (ALLEGRO_DISPLAY *)disp;
+   ALLEGRO_DISPLAY *display = bitmap->_display;
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
 
-   if (disp->device_lost)
+   if (d3d_display->device_lost)
       return;
 
    if (!_al_d3d_render_to_texture_supported())
@@ -571,25 +567,23 @@ void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 
    al_lock_mutex(_al_d3d_lost_device_mutex);
 
-   for (i = 0; i < display->bitmaps._size; i++) {
-      ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&display->bitmaps, i);
-      ALLEGRO_BITMAP *bmp = *bptr;
-      ALLEGRO_BITMAP_EXTRA_D3D *extra = get_extra(bmp);
-      int bitmap_flags = al_get_bitmap_flags(bmp);
-      if ((void *)_al_get_bitmap_display(bmp) == (void *)disp) {
-         if ((bitmap_flags & ALLEGRO_MEMORY_BITMAP) ||
-            (bitmap_flags & ALLEGRO_NO_PRESERVE_TEXTURE) ||
-               !bmp->dirty ||
-               extra->is_backbuffer ||
-            bmp->parent)
-            continue;
-         if (_al_pixel_format_is_compressed(al_get_bitmap_format(bmp)))
-            d3d_sync_bitmap_memory(bmp);
-         else
-            _al_d3d_sync_bitmap(bmp);
-         bmp->dirty = false;
-      }
+   ALLEGRO_BITMAP_EXTRA_D3D *extra = get_extra(bitmap);
+   int bitmap_flags = al_get_bitmap_flags(bitmap);
+   if (!(
+      (bitmap_flags & ALLEGRO_MEMORY_BITMAP) ||
+      (bitmap_flags & ALLEGRO_NO_PRESERVE_TEXTURE) ||
+      !bitmap->dirty ||
+      extra->is_backbuffer ||
+      bitmap->parent
+      ))
+   {
+      if (_al_pixel_format_is_compressed(al_get_bitmap_format(bitmap)))
+         d3d_sync_bitmap_memory(bitmap);
+      else
+         _al_d3d_sync_bitmap(bitmap);
    }
+
+   bitmap->dirty = false;
      
    al_unlock_mutex(_al_d3d_lost_device_mutex);
 }
@@ -1032,6 +1026,7 @@ ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void)
    vt->lock_compressed_region = d3d_lock_compressed_region;
    vt->unlock_compressed_region = d3d_unlock_compressed_region;
    vt->update_clipping_rectangle = d3d_update_clipping_rectangle;
+   vt->backup_dirty_bitmap = d3d_backup_dirty_bitmap;
 
    return vt;
 }

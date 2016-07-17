@@ -134,6 +134,9 @@ struct ALLEGRO_BITMAP_INTERFACE
 
    /* Used to update any dangling pointers the bitmap driver might keep. */
    void (*bitmap_pointer_changed)(ALLEGRO_BITMAP *bitmap, ALLEGRO_BITMAP *old);
+
+   /* Back up texture to system RAM */
+   void (*backup_dirty_bitmap)(ALLEGRO_BITMAP *bitmap);
 };
 
 ALLEGRO_BITMAP *_al_create_bitmap_params(ALLEGRO_DISPLAY *current_display,
