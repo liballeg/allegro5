@@ -633,7 +633,7 @@ void al_backup_dirty_bitmaps(ALLEGRO_DISPLAY *display)
    for (i = 0; i < display->bitmaps._size; i++) {
       ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&display->bitmaps, i);
       ALLEGRO_BITMAP *bmp = *bptr;
-      if ((void *)_al_get_bitmap_display(bmp) == (void *)display) {
+      if (_al_get_bitmap_display(bmp) == display) {
          if (bmp->vt && bmp->vt->backup_dirty_bitmap) {
             bmp->vt->backup_dirty_bitmap(bmp);
 	 }
