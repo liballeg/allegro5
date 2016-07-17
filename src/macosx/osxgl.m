@@ -60,21 +60,17 @@ static BOOL _osx_mouse_installed = NO, _osx_keyboard_installed = NO;
 static NSPoint last_window_pos;
 static unsigned int next_display_group = 1;
 
-/* New window locations are set in threat-local storage by the user with
- * al_set_new_window_position, however, our window creation routine in
- * initialiseDisplay (in ALDisplayHelper) calls al_get_new_window_position
- * from a different threat (the main threat). The "proper" fix for this
- * situation is to call al_get_new_window position() before invoking
- * initialiseDisplay and passing these values as parameters. It's a little
- * tedious to do, however, so we use two global variables instead. This can
- * lead to a race condition if two windows are created simultaneously from
- * different threats. Unlikely, but it's possible.
- * FIXME: do this the proper way!
+/* The parameters are passed to initialiseDisplay manually, as it runs
+ * in a separate thread which renders TLS values incorrect.
  */
-static int new_window_pos_x;
-static int new_window_pos_y;
-
-static int new_display_adapter;
+typedef struct OSX_DISPLAY_PARAMS {
+   ALLEGRO_DISPLAY_OSX_WIN* dpy;
+   int new_window_pos_x;
+   int new_window_pos_y;
+   int new_display_adapter;
+   /* A copy of the new window title. */
+   char* new_window_title;
+} OSX_DISPLAY_PARAMS;
 
 /* Dictionary to map Allegro's DISPLAY_OPTIONS to OS X
  * PixelFormatAttributes.
@@ -946,7 +942,8 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
 
 @implementation ALDisplayHelper
 +(void) initialiseDisplay: (NSValue*) display_object {
-   ALLEGRO_DISPLAY_OSX_WIN* dpy = [display_object pointerValue];
+   OSX_DISPLAY_PARAMS* dpy_params = [display_object pointerValue];
+   ALLEGRO_DISPLAY_OSX_WIN* dpy = dpy_params->dpy;
    NSRect rc = NSMakeRect(0, 0, dpy->parent.w,  dpy->parent.h);
    ALWindow *alwin = dpy->win = [ALWindow alloc];
    NSWindow* win = alwin;
@@ -958,8 +955,9 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    if (dpy->parent.flags & ALLEGRO_FULLSCREEN)
       mask |= NSResizableWindowMask;
 
-   if ((new_display_adapter >= 0) && (new_display_adapter < al_get_num_video_adapters())) {
-      screen = [[NSScreen screens] objectAtIndex: new_display_adapter];
+   if ((dpy_params->new_display_adapter >= 0) &&
+       (dpy_params->new_display_adapter < al_get_num_video_adapters())) {
+      screen = [[NSScreen screens] objectAtIndex: dpy_params->new_display_adapter];
    } else {
       screen = [NSScreen mainScreen];
    }
@@ -1003,7 +1001,7 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    [win setDelegate: view];
    [win setReleasedWhenClosed: YES];
    [win setAcceptsMouseMovedEvents: _osx_mouse_installed];
-   [win setTitle: @"Allegro"];
+   [win setTitle: [NSString stringWithUTF8String:dpy_params->new_window_title]];
    /* Set minimum size, otherwise the window can be resized so small we can't
     * grab the handle any more to make it bigger
     */
@@ -1020,15 +1018,15 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
     * signed 16 bit integer). Should we check for this?
     */
 
-   if ((new_window_pos_x != INT_MAX) && (new_window_pos_y != INT_MAX)) {
+   if ((dpy_params->new_window_pos_x != INT_MAX) && (dpy_params->new_window_pos_y != INT_MAX)) {
       /* The user gave us window coordinates */
       NSRect rc = [win frame];
       NSRect sc = [[win screen] frame];
       NSPoint origin;
 
       /* We need to modify the y coordinate, cf. set_window_position */
-      origin.x = sc.origin.x + new_window_pos_x / screen_scale_factor;
-      origin.y = sc.origin.y + sc.size.height - rc.size.height - new_window_pos_y / screen_scale_factor;
+      origin.x = sc.origin.x + dpy_params->new_window_pos_x / screen_scale_factor;
+      origin.y = sc.origin.y + sc.size.height - rc.size.height - dpy_params->new_window_pos_y / screen_scale_factor;
       [win setFrameOrigin: origin];
    }
    else {
@@ -1302,6 +1300,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    NSRect rect = NSMakeRect(0, 0, w, h);
 
    dpy->win = [[ALWindow alloc] initWithContentRect:rect styleMask:(IS_LION ? NSBorderlessWindowMask : 0) backing:NSBackingStoreBuffered defer:NO];
+   [dpy->win setTitle: [NSString stringWithUTF8String:al_get_new_window_title()]];
    [dpy->win setAcceptsMouseMovedEvents:YES];
    [dpy->win setViewsNeedDisplay:NO];
 
@@ -1552,16 +1551,20 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 
    /* Get the new window position. This is stored in TLS, so we need to do
     * this before calling initialiseDisplay, which runs on a different
-    * threat.
+    * thread.
     */
-   al_get_new_window_position(&new_window_pos_x, &new_window_pos_y);
-
-   new_display_adapter = al_get_new_display_adapter();
+   OSX_DISPLAY_PARAMS dpy_params;
+   al_get_new_window_position(&dpy_params.new_window_pos_x, &dpy_params.new_window_pos_y);
+   dpy_params.new_display_adapter = al_get_new_display_adapter();
+   dpy_params.dpy = dpy;
+   dpy_params.new_window_title = strdup(al_get_new_window_title());
 
    /* OSX specific part - finish the initialisation on the main thread */
    [ALDisplayHelper performSelectorOnMainThread: @selector(initialiseDisplay:)
-      withObject: [NSValue valueWithPointer:dpy]
+      withObject: [NSValue valueWithPointer:&dpy_params]
       waitUntilDone: YES];
+
+   free(dpy_params.new_window_title);
 
    if (dpy->parent.flags & ALLEGRO_FULLSCREEN_WINDOW) {
       NSRect sc = [[dpy->win screen] frame];

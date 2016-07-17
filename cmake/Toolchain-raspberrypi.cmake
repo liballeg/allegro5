@@ -13,8 +13,8 @@ IF("${TOOLCHAIN_SUFFIX}" STREQUAL "")
    SET(TOOLCHAIN_SUFFIX "")
 ENDIF("${TOOLCHAIN_SUFFIX}" STREQUAL "")
 
-SET(CMAKE_C_FLAGS "-march=armv6 -mfpu=vfp -mfloat-abi=hard")
-SET(CMAKE_CXX_FLAGS "-march=armv6 -mfpu=vfp -mfloat-abi=hard")
+SET(CMAKE_C_FLAGS "-march=armv6 -mfpu=vfp -mfloat-abi=hard -Os")
+SET(CMAKE_CXX_FLAGS "-march=armv6 -mfpu=vfp -mfloat-abi=hard -Os")
 
 if(NOT DISTCC)
     set(CMAKE_C_COMPILER ${TOOLCHAIN_ROOT}/${TOOLCHAIN_PREFIX}gcc${TOOLCHAIN_SUFFIX})
