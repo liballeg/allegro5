@@ -57,6 +57,7 @@ struct ALLEGRO_TIMER
 static _AL_MUTEX timers_mutex = _AL_MUTEX_UNINITED;
 static _AL_VECTOR active_timers = _AL_VECTOR_INITIALIZER(ALLEGRO_TIMER *);
 static _AL_THREAD * volatile timer_thread = NULL;
+static ALLEGRO_COND *timer_cond = NULL;
 
 
 
@@ -100,6 +101,12 @@ static void timer_thread_proc(_AL_THREAD *self, void *unused)
    double interval = 0.032768;
 
    while (!_al_get_thread_should_stop(self)) {
+      _al_mutex_lock(&timers_mutex);
+      while (_al_vector_size(&active_timers) == 0) {
+         al_wait_cond(timer_cond, &timers_mutex);
+      }
+      _al_mutex_unlock(&timers_mutex);
+
       al_rest(interval);
 
       _al_mutex_lock(&timers_mutex);
@@ -153,9 +160,19 @@ static double timer_thread_handle_tick(double interval)
 static void shutdown_timers(void)
 {
    ASSERT(_al_vector_size(&active_timers) == 0);
-   ASSERT(timer_thread == NULL);
+
+   _al_vector_free(&active_timers);
+
+   if (timer_thread != NULL)
+      _al_thread_join(timer_thread);
+
+   al_free(timer_thread);
+
+   timer_thread = NULL;
 
    _al_mutex_destroy(&timers_mutex);
+
+   al_destroy_cond(timer_cond);
 }
 
 
@@ -167,8 +184,6 @@ static void enable_timer(ALLEGRO_TIMER *timer, bool reset_counter)
 {
    ASSERT(timer);
    {
-      size_t new_size;
-
       if (timer->started)
          return;
 
@@ -184,11 +199,11 @@ static void enable_timer(ALLEGRO_TIMER *timer, bool reset_counter)
          slot = _al_vector_alloc_back(&active_timers);
          *slot = timer;
 
-         new_size = _al_vector_size(&active_timers);
+         al_signal_cond(timer_cond);
       }
       _al_mutex_unlock(&timers_mutex);
 
-      if (new_size == 1) {
+      if (timer_thread == NULL) {
          timer_thread = al_malloc(sizeof(_AL_THREAD));
          _al_thread_create(timer_thread, timer_thread_proc, NULL);
       }
@@ -200,6 +215,7 @@ static void enable_timer(ALLEGRO_TIMER *timer, bool reset_counter)
 void _al_init_timers(void)
 {
    _al_mutex_init(&timers_mutex);
+   timer_cond = al_create_cond();
    _al_add_exit_func(shutdown_timers, "shutdown_timers");
 }
 
@@ -283,8 +299,6 @@ void al_stop_timer(ALLEGRO_TIMER *timer)
 {
    ASSERT(timer);
    {
-      _AL_THREAD *thread_to_join = NULL;
-
       if (!timer->started)
          return;
 
@@ -292,19 +306,8 @@ void al_stop_timer(ALLEGRO_TIMER *timer)
       {
          _al_vector_find_and_delete(&active_timers, &timer);
          timer->started = false;
-
-         if (_al_vector_size(&active_timers) == 0) {
-            _al_vector_free(&active_timers);
-            thread_to_join = timer_thread;
-            timer_thread = NULL;
-         }
       }
       _al_mutex_unlock(&timers_mutex);
-
-      if (thread_to_join) {
-         _al_thread_join(thread_to_join);
-         al_free(thread_to_join);
-      }
    }
 }
 
@@ -391,7 +394,6 @@ void al_add_timer_count(ALLEGRO_TIMER *timer, int64_t diff)
    }
    _al_mutex_unlock(&timers_mutex);
 }
-
 
 
 /* timer_handle_tick: [timer thread]
