@@ -189,7 +189,7 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
       // Note: we use 'allegro time' rather than the time stamp
       // from the event
       mouse_event->timestamp = al_get_time();
-                mouse_event->display = dpy;
+      mouse_event->display = dpy;
       mouse_event->button = b;
       mouse_event->x = pos.x * scaling_factor;
       mouse_event->y = pos.y * scaling_factor;
