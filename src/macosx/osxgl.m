@@ -373,56 +373,59 @@ void _al_osx_mouse_was_installed(BOOL install) {
 -(void) mouseUp: (NSEvent*) evt
 {
    if (_osx_mouse_installed)
-   _al_osx_mouse_generate_event(evt, dpy_ptr);
+      _al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 -(void) mouseDragged: (NSEvent*) evt
 {
    if (_osx_mouse_installed)
-   _al_osx_mouse_generate_event(evt, dpy_ptr);
+      _al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 -(void) rightMouseDown: (NSEvent*) evt
 {
-   if (_osx_mouse_installed)
+      if (_osx_mouse_installed)
    _al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 -(void) rightMouseUp: (NSEvent*) evt
 {
    if (_osx_mouse_installed)
-   _al_osx_mouse_generate_event(evt, dpy_ptr);
+      _al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 -(void) rightMouseDragged: (NSEvent*) evt
 {
    if (_osx_mouse_installed)
-   _al_osx_mouse_generate_event(evt, dpy_ptr);
+      _al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 -(void) otherMouseDown: (NSEvent*) evt
 {
    if (_osx_mouse_installed)
-   _al_osx_mouse_generate_event(evt, dpy_ptr);
+      _al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 -(void) otherMouseUp: (NSEvent*) evt
 {
    if (_osx_mouse_installed)
-   _al_osx_mouse_generate_event(evt, dpy_ptr);
+      _al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 -(void) otherMouseDragged: (NSEvent*) evt
 {
    if (_osx_mouse_installed)
-   _al_osx_mouse_generate_event(evt, dpy_ptr);
+      _al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 -(void) mouseMoved: (NSEvent*) evt
 {
    if (_osx_mouse_installed)
-   _al_osx_mouse_generate_event(evt, dpy_ptr);
+      _al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 -(void) scrollWheel: (NSEvent*) evt
 {
    if (_osx_mouse_installed)
-   _al_osx_mouse_generate_event(evt, dpy_ptr);
+      _al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 /* Cursor handling */
 - (void) viewDidMoveToWindow {
    ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
+   if (dpy->tracking) {
+      [self removeTrackingArea: dpy->tracking];
+   }
    dpy->tracking = create_tracking_area(self);
    [self addTrackingArea: dpy->tracking];
 }

@@ -174,8 +174,10 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
    }
    dx *= scaling_factor;
    dy *= scaling_factor;
-   if (osx_mouse.warped) {
-      osx_mouse.warped = FALSE;
+   if (osx_mouse.warped && type == ALLEGRO_EVENT_MOUSE_AXES) {
+       dx -= osx_mouse.warped_x;
+       dy -= osx_mouse.warped_y;
+       osx_mouse.warped = FALSE;
    }
    _al_event_source_lock(&osx_mouse.parent.es);
    if ((within || b_change || type == ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY)
@@ -187,7 +189,7 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
       // Note: we use 'allegro time' rather than the time stamp
       // from the event
       mouse_event->timestamp = al_get_time();
-                mouse_event->display = dpy;
+      mouse_event->display = dpy;
       mouse_event->button = b;
       mouse_event->x = pos.x * scaling_factor;
       mouse_event->y = pos.y * scaling_factor;

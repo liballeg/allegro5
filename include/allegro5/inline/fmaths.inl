@@ -110,7 +110,7 @@ AL_INLINE(al_fixed, al_fixsub, (al_fixed x, al_fixed y),
  *
  * PS. Don't move the #ifs inside the AL_INLINE; BCC doesn't like it.
  */
-#if (defined ALLEGRO_I386) || (!defined AL_LONG_LONG)
+#if defined ALLEGRO_I386
    AL_INLINE(al_fixed, al_fixmul, (al_fixed x, al_fixed y),
    {
       return al_ftofix(al_fixtof(x) * al_fixtof(y));
@@ -118,9 +118,9 @@ AL_INLINE(al_fixed, al_fixsub, (al_fixed x, al_fixed y),
 #else
    AL_INLINE(al_fixed, al_fixmul, (al_fixed x, al_fixed y),
    {
-      AL_LONG_LONG lx = x;
-      AL_LONG_LONG ly = y;
-      AL_LONG_LONG lres = (lx*ly);
+      int64_t lx = x;
+      int64_t ly = y;
+      int64_t lres = (lx*ly);
 
       if (lres > 0x7FFFFFFF0000LL) {
          al_set_errno(ERANGE);
@@ -138,10 +138,10 @@ AL_INLINE(al_fixed, al_fixsub, (al_fixed x, al_fixed y),
 #endif	    /* al_fixmul() C implementations */
 
 
-#if (defined ALLEGRO_CFG_NO_FPU) && (defined AL_LONG_LONG)
+#if defined ALLEGRO_CFG_NO_FPU
 AL_INLINE(al_fixed, al_fixdiv, (al_fixed x, al_fixed y),
 {
-   AL_LONG_LONG lres = x;
+   int64_t lres = x;
    if (y == 0) {
       al_set_errno(ERANGE);
       return (x < 0) ? -0x7FFFFFFF : 0x7FFFFFFF;
