@@ -222,7 +222,6 @@
    extern "C" {
 #endif
 
-
 /* endian-independent 3-byte accessor macros */
 #ifdef ALLEGRO_LITTLE_ENDIAN
 
@@ -247,17 +246,6 @@
 #else
    #error endianess not defined
 #endif
-
-
-/* generic versions of the video memory access helpers */
-/* FIXME: why do we need macros for this? */
-#define bmp_write16(addr, c)        (*((uint16_t *)(addr)) = (c))
-#define bmp_write32(addr, c)        (*((uint32_t *)(addr)) = (c))
-
-#define bmp_read16(addr)            (*((uint16_t *)(addr)))
-#define bmp_read32(addr)            (*((uint32_t *)(addr)))
-
-
 
 #ifdef __cplusplus
    }
