@@ -22,6 +22,13 @@
 #include "allegro5/internal/aintern_memdraw.h"
 #include "allegro5/internal/aintern_pixels.h"
 
+/* generic versions of the video memory access helpers */
+/* FIXME: why do we need macros for this? */
+#define bmp_write16(addr, c)        (*((uint16_t *)(addr)) = (c))
+#define bmp_write32(addr, c)        (*((uint32_t *)(addr)) = (c))
+
+#define bmp_read16(addr)            (*((uint16_t *)(addr)))
+#define bmp_read32(addr)            (*((uint32_t *)(addr)))
 
 typedef struct {
    float x[4];
@@ -104,7 +111,7 @@ void _al_clear_bitmap_by_locking(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color)
             }
             else {
                for (x = 0; x < w; x++) {
-                  WRITE3BYTES(data, pixel_value);
+                  AL_WRITE3BYTES(data, pixel_value);
                   data += 3;
                }
             }
