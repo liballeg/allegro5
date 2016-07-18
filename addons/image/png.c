@@ -299,7 +299,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
 
             case 32:
                for (i = 0; i < width; i++) {
-                  uint32_t pix = bmp_read32(ptr);
+                  uint32_t pix = *(uint32_t*)ptr;
                   int r = pix & 0xff;
                   int g = (pix >> 8) & 0xff;
                   int b = (pix >> 16) & 0xff;
