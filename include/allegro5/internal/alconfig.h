@@ -226,23 +226,23 @@
 /* endian-independent 3-byte accessor macros */
 #ifdef ALLEGRO_LITTLE_ENDIAN
 
-   #define READ3BYTES(p)  ((*(unsigned char *)(p))               \
-                           | (*((unsigned char *)(p) + 1) << 8)  \
-                           | (*((unsigned char *)(p) + 2) << 16))
+   #define AL_READ3BYTES(p)  ((*(unsigned char *)(p))               \
+                              | (*((unsigned char *)(p) + 1) << 8)  \
+                              | (*((unsigned char *)(p) + 2) << 16))
 
-   #define WRITE3BYTES(p,c)  ((*(unsigned char *)(p) = (c)),             \
-                              (*((unsigned char *)(p) + 1) = (c) >> 8),  \
-                              (*((unsigned char *)(p) + 2) = (c) >> 16))
+   #define AL_WRITE3BYTES(p,c)  ((*(unsigned char *)(p) = (c)),             \
+                                 (*((unsigned char *)(p) + 1) = (c) >> 8),  \
+                                 (*((unsigned char *)(p) + 2) = (c) >> 16))
 
 #elif defined ALLEGRO_BIG_ENDIAN
 
-   #define READ3BYTES(p)  ((*(unsigned char *)(p) << 16)         \
-                           | (*((unsigned char *)(p) + 1) << 8)  \
-                           | (*((unsigned char *)(p) + 2)))
+   #define AL_READ3BYTES(p)  ((*(unsigned char *)(p) << 16)         \
+                              | (*((unsigned char *)(p) + 1) << 8)  \
+                              | (*((unsigned char *)(p) + 2)))
 
-   #define WRITE3BYTES(p,c)  ((*(unsigned char *)(p) = (c) >> 16),       \
-                              (*((unsigned char *)(p) + 1) = (c) >> 8),  \
-                              (*((unsigned char *)(p) + 2) = (c)))
+   #define AL_WRITE3BYTES(p,c)  ((*(unsigned char *)(p) = (c) >> 16),       \
+                                 (*((unsigned char *)(p) + 1) = (c) >> 8),  \
+                                 (*((unsigned char *)(p) + 2) = (c)))
 
 #else
    #error endianess not defined

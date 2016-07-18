@@ -57,7 +57,7 @@
          }                                                                    \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_RGB_888: {                                 \
-            uint32_t _gp_pixel = READ3BYTES(data);                            \
+            uint32_t _gp_pixel = AL_READ3BYTES(data);                         \
             _AL_MAP_RGBA(color,                                               \
                (_gp_pixel & 0xFF0000) >> 16,                                  \
                (_gp_pixel & 0x00FF00) >>  8,                                  \
@@ -141,7 +141,7 @@
          }                                                                    \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_BGR_888: {                                 \
-            uint32_t _gp_pixel = READ3BYTES(data);                            \
+            uint32_t _gp_pixel = AL_READ3BYTES(data);                         \
             _AL_MAP_RGBA(color,                                               \
                (_gp_pixel & 0x000000FF) >>  0,                                \
                (_gp_pixel & 0x0000FF00) >>  8,                                \
@@ -306,7 +306,7 @@
             _pp_pixel  = _al_fast_float_to_int(color.r * 255) << 16;          \
             _pp_pixel |= _al_fast_float_to_int(color.g * 255) << 8;           \
             _pp_pixel |= _al_fast_float_to_int(color.b * 255);                \
-            WRITE3BYTES(data, _pp_pixel);                                     \
+            AL_WRITE3BYTES(data, _pp_pixel);                                  \
             if (advance)                                                      \
                data += 3;                                                     \
             break;                                                            \
@@ -373,7 +373,7 @@
             _pp_pixel  = _al_fast_float_to_int(color.b * 0xff) << 16;         \
             _pp_pixel |= _al_fast_float_to_int(color.g * 0xff) << 8;          \
             _pp_pixel |= _al_fast_float_to_int(color.r * 0xff);               \
-            WRITE3BYTES(data, _pp_pixel);                                     \
+            AL_WRITE3BYTES(data, _pp_pixel);                                  \
             if (advance)                                                      \
                data += 3;                                                     \
             break;                                                            \
