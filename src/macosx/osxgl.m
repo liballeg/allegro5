@@ -1070,6 +1070,13 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
       CGDisplayRelease(dpy->display_id);
       dpy->in_fullscreen = false;
    }
+   else if (dpy->parent.flags & ALLEGRO_FULLSCREEN_WINDOW) {
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
+      if (dpy->win) {
+         [[dpy->win contentView] exitFullScreenModeWithOptions: nil];
+      }
+#endif
+   }
    if (dpy->win) {
       // Destroy the containing window if there is one
       [dpy->win close];
