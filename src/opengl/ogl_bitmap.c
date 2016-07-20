@@ -933,6 +933,45 @@ EXIT:
    ogl_bitmap->lock_buffer = NULL;
 }
 
+static void ogl_backup_dirty_bitmap(ALLEGRO_BITMAP *b)
+{
+   ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = b->extra;
+   ALLEGRO_LOCKED_REGION *lr;
+   int bitmap_flags = al_get_bitmap_flags(b);
+
+   if (b->parent)
+      return;
+
+   if ((bitmap_flags & ALLEGRO_MEMORY_BITMAP) ||
+      (bitmap_flags & ALLEGRO_NO_PRESERVE_TEXTURE) ||
+      !b->dirty ||
+      ogl_bitmap->is_backbuffer)
+      return;
+
+   ALLEGRO_DEBUG("Backing up dirty bitmap %p\n", b);
+
+   lr = al_lock_bitmap(
+      b,
+      _al_get_bitmap_memory_format(b),
+      ALLEGRO_LOCK_READONLY
+   );
+
+   if (lr) {
+      int line_size = al_get_pixel_size(lr->format) * b->w;
+      int y;
+      for (y = 0; y < b->h; y++) {
+         unsigned char *p = ((unsigned char *)lr->data) + lr->pitch * y;
+         unsigned char *p2;
+         p2 = ((unsigned char *)b->memory) + line_size * (b->h-1-y);
+         memcpy(p2, p, line_size);
+      }
+      al_unlock_bitmap(b);
+      b->dirty = false;
+   }
+   else {
+      ALLEGRO_WARN("Failed to lock dirty bitmap %p\n", b);
+   }
+}
 
 /* Obtain a reference to this driver. */
 static ALLEGRO_BITMAP_INTERFACE *ogl_bitmap_driver(void)
@@ -955,6 +994,7 @@ static ALLEGRO_BITMAP_INTERFACE *ogl_bitmap_driver(void)
 #endif
    glbmp_vt.lock_compressed_region = ogl_lock_compressed_region;
    glbmp_vt.unlock_compressed_region = ogl_unlock_compressed_region;
+   glbmp_vt.backup_dirty_bitmap = ogl_backup_dirty_bitmap;
 
    return &glbmp_vt;
 }
@@ -1182,51 +1222,6 @@ void al_get_opengl_texture_position(ALLEGRO_BITMAP *bitmap, int *u, int *v)
 
    *u = bitmap->xofs;
    *v = bitmap->yofs;
-}
-
-void _al_opengl_backup_dirty_bitmaps(ALLEGRO_DISPLAY *d, bool flip)
-{
-   int i, y;
-
-   for (i = 0; i < (int)d->bitmaps._size; i++) {
-      ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&d->bitmaps, i);
-      ALLEGRO_BITMAP *b = *bptr;
-      ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = b->extra;
-      ALLEGRO_LOCKED_REGION *lr;
-      int bitmap_flags = al_get_bitmap_flags(b);
-      if (b->parent)
-         continue;
-      if ((bitmap_flags & ALLEGRO_MEMORY_BITMAP) ||
-         (bitmap_flags & ALLEGRO_NO_PRESERVE_TEXTURE) ||
-         !b->dirty ||
-         ogl_bitmap->is_backbuffer)
-         continue;
-      ALLEGRO_DEBUG("Backing up dirty bitmap %p\n", b);
-      lr = al_lock_bitmap(
-         b,
-         _al_get_bitmap_memory_format(b),
-         ALLEGRO_LOCK_READONLY
-      );
-      if (lr) {
-         int line_size = al_get_pixel_size(lr->format) * b->w;
-         for (y = 0; y < b->h; y++) {
-            unsigned char *p = ((unsigned char *)lr->data) + lr->pitch * y;
-            unsigned char *p2;
-            if (flip) {
-               p2 = ((unsigned char *)b->memory) + line_size * (b->h-1-y);
-            }
-            else {
-               p2 = ((unsigned char *)b->memory) + line_size * y;
-            }
-            memcpy(p2, p, line_size);
-         }
-         al_unlock_bitmap(b);
-         b->dirty = false;
-      }
-      else {
-         ALLEGRO_WARN("Failed to lock dirty bitmap %p\n", b);
-      }
-   }
 }
 
 /* vim: set sts=3 sw=3 et: */

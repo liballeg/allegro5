@@ -50,7 +50,6 @@ bool _al_d3d_render_to_texture_supported(void);
 void _al_d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap);
 
 void _al_d3d_release_default_pool_textures(ALLEGRO_DISPLAY *display);
-void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp);
 void _al_d3d_refresh_texture_memory(ALLEGRO_DISPLAY *display);
 bool _al_d3d_recreate_bitmap_textures(ALLEGRO_DISPLAY_D3D *disp);
 void _al_d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap);

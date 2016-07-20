@@ -82,6 +82,7 @@ AL_FUNC(void, al_reparent_bitmap, (ALLEGRO_BITMAP *bitmap,
 AL_FUNC(ALLEGRO_BITMAP *, al_clone_bitmap, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(void, al_convert_bitmap, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(void, al_convert_memory_bitmaps, (void));
+AL_FUNC(void, al_backup_dirty_bitmap, (ALLEGRO_BITMAP *bitmap));
 
 #ifdef __cplusplus
    }
