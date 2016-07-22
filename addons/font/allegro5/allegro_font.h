@@ -47,6 +47,7 @@
 /* Type: ALLEGRO_FONT
 */
 typedef struct ALLEGRO_FONT ALLEGRO_FONT;
+typedef struct ALLEGRO_GLYPH ALLEGRO_GLYPH;
 typedef struct ALLEGRO_FONT_VTABLE ALLEGRO_FONT_VTABLE;
 
 struct ALLEGRO_FONT
@@ -56,6 +57,18 @@ struct ALLEGRO_FONT
    ALLEGRO_FONT *fallback;
    ALLEGRO_FONT_VTABLE *vtable;
    _AL_LIST_ITEM *dtor_item;
+};
+
+struct ALLEGRO_GLYPH
+{
+   ALLEGRO_BITMAP *bitmap;
+   int x;
+   int y;
+   int w;
+   int h;
+   int kerning;
+   int offset_x;
+   int offset_y;
 };
 
 /* text- and font-related stuff */
@@ -78,7 +91,8 @@ struct ALLEGRO_FONT_VTABLE
       int codepoint, int *bbx, int *bby, int *bbw, int *bbh));      
    ALLEGRO_FONT_METHOD(int, get_glyph_advance, (const ALLEGRO_FONT *font,
       int codepoint1, int codepoint2));
-      
+
+   ALLEGRO_FONT_METHOD(int, get_glyph, (const ALLEGRO_FONT *f, int prev_codepoint, int codepoint, ALLEGRO_GLYPH *glyph));
 };
 
 enum {
@@ -130,6 +144,7 @@ ALLEGRO_FONT_FUNC(bool, al_get_glyph_dimensions, (const ALLEGRO_FONT *f,
    int codepoint, int *bbx, int *bby, int *bbw, int *bbh));
 ALLEGRO_FONT_FUNC(int, al_get_glyph_advance, (const ALLEGRO_FONT *f,
    int codepoint1, int codepoint2));
+ALLEGRO_FONT_FUNC(int, al_get_glyph, (const ALLEGRO_FONT *f, int prev_codepoint, int codepoint, ALLEGRO_GLYPH *glyph));
 
 ALLEGRO_FONT_FUNC(void, al_draw_multiline_text, (const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x, float y, float max_width, float line_height, int flags, const char *text));
 ALLEGRO_FONT_FUNC(void, al_draw_multiline_textf, (const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x, float y, float max_width, float line_height, int flags, const char *format, ...));
