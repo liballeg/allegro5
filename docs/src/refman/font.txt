@@ -17,6 +17,39 @@ the FreeType library. If you instead pass the filename of a bitmap file, it will
 be loaded with [al_load_bitmap] and a font in Allegro's bitmap font format will
 be created from it with [al_grab_font_from_bitmap].
 
+### API: ALLEGRO_GLYPH
+
+A structure containing the properties of a character in a font.
+
+~~~~c
+typedef struct ALLEGRO_GLYPH {
+   ALLEGRO_BITMAP *bitmap;   // the bitmap the character is on
+   int x;                    // the x position of the glyph on bitmap
+   int y;                    // the y position of the glyph on bitmap
+   int w;                    // the width of the glyph in pixels
+   int h;                    // the height of the glyph in pixels
+   int kerning;              // pixels of kerning (see below)
+   int offset_x;             // x offset to draw the glyph at
+   int offset_y;             // y offset to draw the glyph at
+   int advance;              // number of pixels to advance after this character
+} ALLEGRO_GLYPH;
+~~~~
+
+bitmap may be a sub-bitmap in the case of color fonts.
+
+kerning should be added to the x position you draw to if you want your text
+kerned and depends on which codepoints [al_get_glyph] was called with.
+
+Glyphs are tightly packed onto the bitmap, so you need to add offset_x and
+offset_y to your draw position for the text to look right.
+
+advance is the number of pixels to add to your x position to advance to the
+next character in a string and includes kerning.
+
+Since: 5.2.1
+
+See also: [al_get_glyph]
+
 ### API: al_init_font_addon
 
 Initialise the font addon.
@@ -739,3 +772,14 @@ See also: [al_load_ttf_font_stretch]
 
 Returns the (compiled) version of the addon, in the same format as
 [al_get_allegro_version].
+
+### API: al_get_glyph
+
+Gets all the information about a glyph, including the bitmap, needed to draw it
+yourself. prev_codepoint is the codepoint in the string before the one you want
+to draw and is used for kerning. codepoint is the character you want to get info
+about.
+
+Since: 5.2.1
+
+See also: [ALLEGRO_GLYPH]
