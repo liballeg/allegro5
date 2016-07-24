@@ -404,7 +404,7 @@ int al_get_glyph_advance(const ALLEGRO_FONT *f, int codepoint1, int codepoint2)
 
 /* Function: al_get_glyph
  */
-int al_get_glyph(const ALLEGRO_FONT *f, int prev_codepoint, int codepoint, ALLEGRO_GLYPH *glyph)
+bool al_get_glyph(const ALLEGRO_FONT *f, int prev_codepoint, int codepoint, ALLEGRO_GLYPH *glyph)
 {
    return f->vtable->get_glyph(f, prev_codepoint, codepoint, glyph);
 };

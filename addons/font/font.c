@@ -209,7 +209,7 @@ static int color_render(const ALLEGRO_FONT* f, ALLEGRO_COLOR color,
 }
 
 
-static int color_get_glyph(const ALLEGRO_FONT *f, int prev_codepoint, int codepoint, ALLEGRO_GLYPH *glyph)
+static bool color_get_glyph(const ALLEGRO_FONT *f, int prev_codepoint, int codepoint, ALLEGRO_GLYPH *glyph)
 {
    ALLEGRO_BITMAP *g = _al_font_color_find_glyph(f, codepoint);
    if (g) {
@@ -221,13 +221,13 @@ static int color_get_glyph(const ALLEGRO_FONT *f, int prev_codepoint, int codepo
       glyph->kerning = 0;
       glyph->offset_x = 0;
       glyph->offset_y = 0;
-      return glyph->w;
+      glyph->advance = glyph->w;
+      return true;
    }
    if (f->fallback) {
       return f->fallback->vtable->get_glyph(f->fallback, prev_codepoint, codepoint, glyph);
    }
-   glyph->bitmap = NULL;
-   return 0;
+   return false;
 }
 
 

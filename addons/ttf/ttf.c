@@ -495,7 +495,7 @@ static int get_kerning(ALLEGRO_TTF_FONT_DATA const *data, FT_Face face,
 }
 
 
-static int ttf_get_glyph_worker(ALLEGRO_FONT const *f, int prev_ft_index, int ft_index, int prev_codepoint, int codepoint, ALLEGRO_GLYPH *info)
+static bool ttf_get_glyph_worker(ALLEGRO_FONT const *f, int prev_ft_index, int ft_index, int prev_codepoint, int codepoint, ALLEGRO_GLYPH *info)
 {
    ALLEGRO_TTF_FONT_DATA *data = f->data;
    FT_Face face = data->face;
@@ -527,7 +527,7 @@ static int ttf_get_glyph_worker(ALLEGRO_FONT const *f, int prev_ft_index, int ft
    }
    else if (glyph->region.x > 0) {
       ALLEGRO_ERROR("Glyph %d not on any page.\n", ft_index);
-      info->bitmap = NULL;
+      return false;
    }
    else {
       info->bitmap = 0;
@@ -535,11 +535,13 @@ static int ttf_get_glyph_worker(ALLEGRO_FONT const *f, int prev_ft_index, int ft
 
    advance += glyph->advance;
 
-   return advance;
+   info->advance = advance;
+
+   return true;
 }
 
 
-static int ttf_get_glyph(ALLEGRO_FONT const *f, int prev_codepoint, int codepoint, ALLEGRO_GLYPH *glyph)
+static bool ttf_get_glyph(ALLEGRO_FONT const *f, int prev_codepoint, int codepoint, ALLEGRO_GLYPH *glyph)
 {
    ALLEGRO_TTF_FONT_DATA *data = f->data;
    FT_Face face = data->face;
@@ -553,9 +555,9 @@ static int render_glyph(ALLEGRO_FONT const *f, ALLEGRO_COLOR color,
    int prev_ft_index, int ft_index, int32_t prev_ch, int32_t ch, float xpos, float ypos)
 {
    ALLEGRO_GLYPH glyph;
-   int advance;
 
-   advance = ttf_get_glyph_worker(f, prev_ft_index, ft_index, prev_ch, ch, &glyph);
+   if (ttf_get_glyph_worker(f, prev_ft_index, ft_index, prev_ch, ch, &glyph) == false)
+      return 0;
 
    if (glyph.bitmap != NULL) {
       al_draw_tinted_bitmap_region(
@@ -567,7 +569,7 @@ static int render_glyph(ALLEGRO_FONT const *f, ALLEGRO_COLOR color,
       );
    }
 
-   return advance;
+   return glyph.advance;
 }
 
 
