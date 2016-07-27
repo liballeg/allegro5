@@ -778,7 +778,8 @@ Returns the (compiled) version of the addon, in the same format as
 Gets all the information about a glyph, including the bitmap, needed to draw it
 yourself. prev_codepoint is the codepoint in the string before the one you want
 to draw and is used for kerning. codepoint is the character you want to get info
-about.
+about. You should clear the 'glyph' structure to 0 with memset before passing it
+to this function for future compatibility.
 
 Since: 5.2.1
 
