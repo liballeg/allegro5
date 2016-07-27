@@ -103,7 +103,7 @@ void _al_clear_bitmap_by_locking(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color)
       }
 
       case 3: {
-         int pixel_value = AL_READ3BYTES(line_ptr);
+         int pixel_value = _AL_READ3BYTES(line_ptr);
          for (y = y1; y < y1 + h; y++) {
             unsigned char *data = (unsigned char *)line_ptr;
             if (pixel_value == 0) {    /* fast path */
@@ -111,7 +111,7 @@ void _al_clear_bitmap_by_locking(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR *color)
             }
             else {
                for (x = 0; x < w; x++) {
-                  AL_WRITE3BYTES(data, pixel_value);
+                  _AL_WRITE3BYTES(data, pixel_value);
                   data += 3;
                }
             }
