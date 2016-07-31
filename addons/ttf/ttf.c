@@ -548,7 +548,7 @@ static bool ttf_get_glyph(ALLEGRO_FONT const *f, int prev_codepoint, int codepoi
 {
    ALLEGRO_TTF_FONT_DATA *data = f->data;
    FT_Face face = data->face;
-   int prev_ft_index = (prev_codepoint == -1) ? -1 : FT_Get_Char_Index(face, prev_codepoint);
+   int prev_ft_index = (prev_codepoint == -1) ? -1 : (int)FT_Get_Char_Index(face, prev_codepoint);
    int ft_index = FT_Get_Char_Index(face, codepoint);
    return ttf_get_glyph_worker(f, prev_ft_index, ft_index, prev_codepoint, codepoint, glyph);
 }
