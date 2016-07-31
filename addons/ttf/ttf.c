@@ -1,3 +1,5 @@
+#define ALLEGRO_INTERNAL_UNSTABLE
+
 #include "allegro5/allegro.h"
 #ifdef ALLEGRO_CFG_OPENGL
 #include "allegro5/allegro_opengl.h"
@@ -6,6 +8,7 @@
 #include "allegro5/internal/aintern_vector.h"
 
 #include "allegro5/allegro_ttf.h"
+#include "allegro5/internal/aintern_font.h"
 #include "allegro5/internal/aintern_ttf_cfg.h"
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_system.h"

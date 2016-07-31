@@ -175,7 +175,9 @@ AL_FUNC(bool, al_is_bitmap_drawing_held, (void));
 /* Miscellaneous */
 AL_FUNC(void, al_acknowledge_drawing_halt, (ALLEGRO_DISPLAY *display));
 AL_FUNC(void, al_acknowledge_drawing_resume, (ALLEGRO_DISPLAY *display));
+#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
 AL_FUNC(void, al_backup_dirty_bitmaps, (ALLEGRO_DISPLAY *display));
+#endif
 
 #ifdef __cplusplus
    }

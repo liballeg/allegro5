@@ -1895,6 +1895,8 @@ bitmap is backed up right away instead of during the next flip.
 
 Since: 5.2.1
 
+> *[Unstable API]:* This API is new and subject to refinement.
+
 See also: [al_backup_dirty_bitmaps], [al_create_bitmap]
 
 
@@ -1903,6 +1905,8 @@ See also: [al_backup_dirty_bitmaps], [al_create_bitmap]
 Backs up all of a display's bitmaps to system memory.
 
 Since: 5.2.1
+
+> *[Unstable API]:* This API is new and subject to refinement.
 
 See also: [al_backup_dirty_bitmap]
 

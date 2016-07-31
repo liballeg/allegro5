@@ -26,6 +26,7 @@
 
 #include "allegro5/allegro_font.h"
 #include "allegro5/internal/aintern_dtor.h"
+#include "allegro5/internal/aintern_font.h"
 #include "allegro5/internal/aintern_system.h"
 
 /* If you call this, you're probably making a mistake. */

@@ -48,6 +48,8 @@ next character in a string and includes kerning.
 
 Since: 5.2.1
 
+> *[Unstable API]:* This API is new and subject to refinement.
+
 See also: [al_get_glyph]
 
 ### API: al_init_font_addon
@@ -782,5 +784,7 @@ about. You should clear the 'glyph' structure to 0 with memset before passing it
 to this function for future compatibility.
 
 Since: 5.2.1
+
+> *[Unstable API]:* This API is new and subject to refinement.
 
 See also: [ALLEGRO_GLYPH]
