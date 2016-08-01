@@ -356,6 +356,7 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
       }
    }
    else {
+      default_overridable_vt.set_window_title(display, al_get_new_window_title());
       if (!default_overridable_vt.create_display_hook(display, w, h)) {
          goto LateError;
       }
@@ -1109,7 +1110,6 @@ static void xdpy_set_window_title_default(ALLEGRO_DISPLAY *display, const char *
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
 
-   _al_mutex_lock(&system->lock);
    {
       Atom WM_NAME = XInternAtom(system->x11display, "WM_NAME", False);
       Atom _NET_WM_NAME = XInternAtom(system->x11display, "_NET_WM_NAME", False);
@@ -1137,14 +1137,17 @@ static void xdpy_set_window_title_default(ALLEGRO_DISPLAY *display, const char *
          al_destroy_path(exepath);
       }
    }
-   _al_mutex_unlock(&system->lock);
 }
 
 
 static void xdpy_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
 {
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+
+   _al_mutex_lock(&system->lock);
    glx->overridable_vt->set_window_title(display, title);
+   _al_mutex_unlock(&system->lock);
 }
 
 

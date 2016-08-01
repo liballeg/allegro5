@@ -69,7 +69,7 @@ ALLEGRO_SHADER *al_create_shader(ALLEGRO_SHADER_PLATFORM platform)
    if (shader) {
       ASSERT(shader->platform);
       ASSERT(shader->vt);
-      _al_register_destructor(_al_dtor_list, "shader", shader,
+      shader->dtor_item = _al_register_destructor(_al_dtor_list, "shader", shader,
          (void (*)(void *))al_destroy_shader);
    }
    else {
@@ -211,7 +211,7 @@ void al_destroy_shader(ALLEGRO_SHADER *shader)
       al_use_shader(NULL);
    }
 
-   _al_unregister_destructor(_al_dtor_list, shader);
+   _al_unregister_destructor(_al_dtor_list, shader->dtor_item);
 
    al_ustr_free(shader->vertex_copy);
    shader->vertex_copy = NULL;
@@ -256,7 +256,7 @@ bool al_set_shader_sampler(const char *name,
 /* Function: al_set_shader_matrix
  */
 bool al_set_shader_matrix(const char *name,
-   ALLEGRO_TRANSFORM *matrix)
+   const ALLEGRO_TRANSFORM *matrix)
 {
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_SHADER *shader;
@@ -317,7 +317,7 @@ bool al_set_shader_float(const char *name, float f)
 /* Function: al_set_shader_int_vector
  */
 bool al_set_shader_int_vector(const char *name,
-   int num_components, int *i, int num_elems)
+   int num_components, const int *i, int num_elems)
 {
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_SHADER *shader;
@@ -338,7 +338,7 @@ bool al_set_shader_int_vector(const char *name,
 /* Function: al_set_shader_float_vector
  */
 bool al_set_shader_float_vector(const char *name,
-   int num_components, float *f, int num_elems)
+   int num_components, const float *f, int num_elems)
 {
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_SHADER *shader;

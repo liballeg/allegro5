@@ -2048,8 +2048,6 @@ static void d3d_draw_pixel(ALLEGRO_DISPLAY *disp, float x, float y, ALLEGRO_COLO
    }
 }
 
-
-
 static void d3d_flip_display(ALLEGRO_DISPLAY *al_display)
 {
    ALLEGRO_DISPLAY_D3D* d3d_display = (ALLEGRO_DISPLAY_D3D*)al_display;
@@ -2074,7 +2072,7 @@ static void d3d_flip_display(ALLEGRO_DISPLAY *al_display)
       return;
    }
    else {
-      _al_d3d_prepare_bitmaps_for_reset(d3d_display);
+      al_backup_dirty_bitmaps(al_display);
    }
 }
 
@@ -2319,7 +2317,7 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
    int orig_h = d->h;
    bool ret;
 
-   _al_d3d_prepare_bitmaps_for_reset(d3d_display);
+   al_backup_dirty_bitmaps(d);
 
    win_display->ignore_resize = true;
 

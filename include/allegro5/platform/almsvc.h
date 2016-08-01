@@ -74,8 +74,6 @@
 
 #define INLINE       __inline
 
-#define LONG_LONG    __int64
-
 /* VC10 is the first version to define int64_t and uint64_t */
 #if _MSC_VER < 1600
 #define int64_t      signed __int64

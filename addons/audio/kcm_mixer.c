@@ -667,7 +667,7 @@ ALLEGRO_MIXER *al_create_mixer(unsigned int freq,
 
    _al_vector_init(&mixer->streams, sizeof(ALLEGRO_SAMPLE_INSTANCE *));
 
-   _al_kcm_register_destructor("mixer", mixer, (void (*)(void *)) al_destroy_mixer);
+   mixer->dtor_item = _al_kcm_register_destructor("mixer", mixer, (void (*)(void *)) al_destroy_mixer);
 
    return mixer;
 }
@@ -678,7 +678,7 @@ ALLEGRO_MIXER *al_create_mixer(unsigned int freq,
 void al_destroy_mixer(ALLEGRO_MIXER *mixer)
 {
    if (mixer) {
-      _al_kcm_unregister_destructor(mixer);
+      _al_kcm_unregister_destructor(mixer->dtor_item);
       _al_kcm_destroy_sample(&mixer->ss, false);
    }
 }

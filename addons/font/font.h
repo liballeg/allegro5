@@ -1,6 +1,8 @@
 #ifndef __al_included_allegro5_font_h
 #define __al_included_allegro5_font_h
 
+#include "allegro5/internal/aintern_font.h"
+
 extern ALLEGRO_FONT_VTABLE _al_font_vtable_color;
 
 typedef struct ALLEGRO_FONT_COLOR_DATA

@@ -17,6 +17,7 @@
 #include "allegro5/allegro_font.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_font.h"
 #include "allegro5/internal/aintern_exitfunc.h"
 #include "allegro5/internal/aintern_vector.h"
 
@@ -209,6 +210,27 @@ static int color_render(const ALLEGRO_FONT* f, ALLEGRO_COLOR color,
 }
 
 
+static bool color_get_glyph(const ALLEGRO_FONT *f, int prev_codepoint, int codepoint, ALLEGRO_GLYPH *glyph)
+{
+   ALLEGRO_BITMAP *g = _al_font_color_find_glyph(f, codepoint);
+   if (g) {
+      glyph->bitmap = g;
+      glyph->x = 0;
+      glyph->y = 0;
+      glyph->w = al_get_bitmap_width(g);
+      glyph->h = al_get_bitmap_height(g);
+      glyph->kerning = 0;
+      glyph->offset_x = 0;
+      glyph->offset_y = 0;
+      glyph->advance = glyph->w;
+      return true;
+   }
+   if (f->fallback) {
+      return f->fallback->vtable->get_glyph(f->fallback, prev_codepoint, codepoint, glyph);
+   }
+   return false;
+}
+
 
 /* color_destroy:
  *  (color vtable entry)
@@ -317,7 +339,8 @@ ALLEGRO_FONT_VTABLE _al_font_vtable_color = {
     color_get_text_dimensions,
     color_get_font_ranges,
     color_get_glyph_dimensions,
-    color_get_glyph_advance
+    color_get_glyph_advance,
+    color_get_glyph
 };
 
 

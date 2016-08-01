@@ -50,7 +50,6 @@
 #define ALLEGRO_I386
 #define ALLEGRO_LITTLE_ENDIAN
 
-#define LONG_LONG    long long
 #ifdef ALLEGRO_GUESS_INTTYPES_OK
    #define int64_t   signed long long
    #define uint64_t  unsigned long long

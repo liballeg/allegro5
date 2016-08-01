@@ -12,6 +12,10 @@
 #
 #-----------------------------------------------------------------------------#
 
+# Set the project name.
+# We use C++ in a few cases.
+project(ALLEGRO C CXX)
+
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 if(COMMAND cmake_policy)
     cmake_policy(SET CMP0003 NEW)
@@ -29,21 +33,15 @@ endif()
 # Note: This needs to be done before the project command
 set(CMAKE_CONFIGURATION_TYPES "${CMAKE_BUILD_TYPE}" CACHE INTERNAL "internal")
 
-option(WANT_ANDROID "Build for Android" OFF)
-option(WANT_ANDROID_LEGACY "Build for Android 4 (1.6)" OFF)
-option(WANT_GLES2 "Compile with GLES2 support" ON)
-if(WANT_ANDROID)
-    include(${PROJECT_SOURCE_DIR}/cmake/Toolchain-android.cmake)
+if(ANDROID)
+    option(WANT_ANDROID_LEGACY "Build for Android 4 (1.6)" OFF)
     set(ANDROID_TARGET "android-12" CACHE STRING "What Android target to compile for.")
-endif(WANT_ANDROID)
+endif(ANDROID)
+option(WANT_GLES2 "Compile with GLES2 support" ON)
 option(ALLEGRO_SDL "Build using the SDL backend (experimental)" OFF)
 option(WANT_STATIC_RUNTIME "Whether or not to link the C and C++ runtimes statically (currently only implemented for MSVC)" OFF)
 
-# Set the project name.
-# We use C++ in a few cases.
-project(ALLEGRO C CXX)
-
-set(ALLEGRO_VERSION 5.2.1)
+set(ALLEGRO_VERSION 5.2.2)
 string(REGEX MATCH "^[0-9]+[.][0-9]+" ALLEGRO_SOVERSION ${ALLEGRO_VERSION})
 string(REPLACE "." "" ALLEGRO_DLL_SHORTVER ${ALLEGRO_SOVERSION})
 
@@ -931,10 +929,10 @@ configure_file(
 #
 #-----------------------------------------------------------------------------#
 
-if(WANT_ANDROID)
+if(ANDROID)
     include(AndroidApp)
     add_subdirectory(android)
-endif(WANT_ANDROID)
+endif(ANDROID)
 
 #-----------------------------------------------------------------------------#
 #

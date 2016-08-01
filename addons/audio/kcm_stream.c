@@ -135,7 +135,7 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
    al_init_user_event_source(&stream->spl.es);
 
    /* This can lead to deadlocks on shutdown, hence we don't do it. */
-   /* _al_kcm_register_destructor(stream, (void (*)(void *)) al_destroy_audio_stream); */
+   /* stream->dtor_item = _al_kcm_register_destructor(stream, (void (*)(void *)) al_destroy_audio_stream); */
 
    return stream;
 }
@@ -150,7 +150,7 @@ void al_destroy_audio_stream(ALLEGRO_AUDIO_STREAM *stream)
          stream->unload_feeder(stream);
       }
       /* See commented out call to _al_kcm_register_destructor. */
-      /* _al_kcm_unregister_destructor(stream); */
+      /* _al_kcm_unregister_destructor(stream->dtor_item); */
       _al_kcm_detach_from_parent(&stream->spl);
 
       al_destroy_user_event_source(&stream->spl.es);

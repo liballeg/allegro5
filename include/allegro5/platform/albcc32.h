@@ -75,7 +75,6 @@
 #define AL_INLINE(type, name, args, code)        extern __inline type __cdecl name args code END_OF_INLINE(name)
 #define AL_INLINE_STATIC(type, name, args, code) static __inline type name args code END_OF_INLINE(name)
 
-#define LONG_LONG    __int64
 #define int64_t      signed __int64
 #define uint64_t     unsigned __int64
 

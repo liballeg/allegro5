@@ -117,6 +117,7 @@ static void check_gl_error(void)
 
 static void detach_depth_buffer(ALLEGRO_FBO_INFO *info)
 {
+#ifndef ALLEGRO_RASPBERRYPI
    if (info->buffers.depth_buffer == 0)
       return;
    ALLEGRO_DEBUG("Deleting depth render buffer: %u\n",
@@ -126,11 +127,13 @@ static void detach_depth_buffer(ALLEGRO_FBO_INFO *info)
     info->buffers.dw = 0;
    info->buffers.dh = 0;
    info->buffers.depth = 0;
+#endif
 }
 
 
 static void detach_multisample_buffer(ALLEGRO_FBO_INFO *info)
 {
+#ifndef ALLEGRO_RASPBERRYPI
    if (info->buffers.multisample_buffer == 0)
       return;
    ALLEGRO_DEBUG("Deleting multisample render buffer: %u\n",
@@ -140,12 +143,14 @@ static void detach_multisample_buffer(ALLEGRO_FBO_INFO *info)
    info->buffers.mw = 0;
    info->buffers.mh = 0;
    info->buffers.samples = 0;
+#endif
 }
 
 
 
 static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
 {
+#ifndef ALLEGRO_RASPBERRYPI
    GLuint rb;
    GLenum gldepth = GL_DEPTH_COMPONENT16;
 
@@ -168,7 +173,7 @@ static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
       ALLEGRO_DISPLAY *display = _al_get_bitmap_display(info->owner);
       int w = al_get_bitmap_width(info->owner);
       int h = al_get_bitmap_height(info->owner);
-      
+
       if (bits == 24) gldepth = GL_DEPTH_COMPONENT24;
    
       glGenRenderbuffersEXT(1, &rb);
@@ -211,11 +216,13 @@ static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
 
       glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
    }
+#endif
 }
 
 
 static void attach_multisample_buffer(ALLEGRO_FBO_INFO *info)
 {
+#ifndef ALLEGRO_RASPBERRYPI
    ALLEGRO_BITMAP *b = info->owner;
    int samples = al_get_bitmap_samples(b);
 
@@ -275,6 +282,7 @@ static void attach_multisample_buffer(ALLEGRO_FBO_INFO *info)
       glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
    }
    #endif
+#endif
 }
 
 

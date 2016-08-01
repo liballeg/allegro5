@@ -2,7 +2,6 @@
 
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_opengl.h"
-#include "allegro5/internal/aintern_iphone.h"
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/internal/aintern_raspberrypi.h"
@@ -68,58 +67,89 @@ static void delete_cursor_data(ALLEGRO_DISPLAY_RASPBERRYPI *d)
 
 static void show_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
 {
-   if (d->cursor_data == NULL || cursor_added) {
+   if (d->cursor_data == NULL) {
       return;
    }
 
    int width = d->cursor_width;
    int height = d->cursor_height;
 
-   uint32_t unused;
-   cursor_resource = vc_dispmanx_resource_create(VC_IMAGE_ARGB8888, width, height, &unused);
+   if (cursor_added == false) {
+      uint32_t unused;
+      cursor_resource = vc_dispmanx_resource_create(VC_IMAGE_ARGB8888, width, height, &unused);
 
-   VC_RECT_T r;
-   r.x = 0;
-   r.y = 0;
-   r.width = width;
-   r.height = height;
-   
-   int dpitch = pot(sizeof(uint32_t) * width);
+      VC_RECT_T r;
+      r.x = 0;
+      r.y = 0;
+      r.width = width;
+      r.height = height;
 
-   dispman_update = vc_dispmanx_update_start(0);
-   vc_dispmanx_resource_write_data(cursor_resource, VC_IMAGE_ARGB8888, dpitch, d->cursor_data, &r);
-   vc_dispmanx_update_submit_sync(dispman_update);
+      int dpitch = pot(sizeof(uint32_t) * width);
 
-   ALLEGRO_MOUSE_STATE state;
-   al_get_mouse_state(&state);
+      dispman_update = vc_dispmanx_update_start(0);
+      vc_dispmanx_resource_write_data(cursor_resource, VC_IMAGE_ARGB8888, dpitch, d->cursor_data, &r);
+      vc_dispmanx_update_submit_sync(dispman_update);
 
-   dst_rect.x = state.x+d->cursor_offset_x;
-   dst_rect.y = state.y+d->cursor_offset_y;
-   dst_rect.width = width;
-   dst_rect.height = height;
-   src_rect.x = 0;
-   src_rect.y = 0;
-   src_rect.width = width << 16;
-   src_rect.height = height << 16;
+      ALLEGRO_MOUSE_STATE state;
+      al_get_mouse_state(&state);
 
-   dispman_update = vc_dispmanx_update_start(0);
+      dst_rect.x = state.x+d->cursor_offset_x;
+      dst_rect.y = state.y+d->cursor_offset_y;
+      dst_rect.width = width;
+      dst_rect.height = height;
+      src_rect.x = 0;
+      src_rect.y = 0;
+      src_rect.width = width << 16;
+      src_rect.height = height << 16;
 
-   cursor_element = vc_dispmanx_element_add(
-      dispman_update,
-      dispman_display,
-      0/*layer*/,
-      &dst_rect,
-      cursor_resource,
-      &src_rect,
-      DISPMANX_PROTECTION_NONE,
-      0 /*alpha*/,
-      0/*clamp*/,
-      0/*transform*/
-   );
+      dispman_update = vc_dispmanx_update_start(0);
 
-   vc_dispmanx_update_submit_sync(dispman_update);
+      cursor_element = vc_dispmanx_element_add(
+         dispman_update,
+         dispman_display,
+         0/*layer*/,
+         &dst_rect,
+         cursor_resource,
+         &src_rect,
+         DISPMANX_PROTECTION_NONE,
+         0 /*alpha*/,
+         0/*clamp*/,
+         0/*transform*/
+      );
 
-   cursor_added = true;
+      vc_dispmanx_update_submit_sync(dispman_update);
+
+      cursor_added = true;
+   }
+   else {
+      ALLEGRO_DISPLAY *disp = (ALLEGRO_DISPLAY *)d;
+      VC_RECT_T src, dst;
+      src.x = 0;
+      src.y = 0;
+      src.width = d->cursor_width << 16;
+      src.height = d->cursor_height << 16;
+      ALLEGRO_MOUSE_STATE st;
+      al_get_mouse_state(&st);
+      st.x = (st.x+0.5) * d->screen_width / disp->w;
+      st.y = (st.y+0.5) * d->screen_height / disp->h;
+      dst.x = st.x+d->cursor_offset_x;
+      dst.y = st.y+d->cursor_offset_y;
+      dst.width = d->cursor_width;
+      dst.height = d->cursor_height;
+         dispman_update = vc_dispmanx_update_start(0);
+      vc_dispmanx_element_change_attributes(
+         dispman_update,
+         cursor_element,
+         0,
+         0,
+         0,
+         &dst,
+         &src,
+         0,
+         0
+      );
+      vc_dispmanx_update_submit_sync(dispman_update);
+   }
 }
 
 static void hide_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
@@ -132,7 +162,7 @@ static void hide_cursor(ALLEGRO_DISPLAY_RASPBERRYPI *d)
 
    dispman_update = vc_dispmanx_update_start(0);
    vc_dispmanx_element_remove(dispman_update, cursor_element);
-   vc_dispmanx_update_submit_sync(dispman_update); 
+   vc_dispmanx_update_submit_sync(dispman_update);
    vc_dispmanx_resource_delete(cursor_resource);
    cursor_added = false;
 }
@@ -238,7 +268,7 @@ static bool pi_create_display(ALLEGRO_DISPLAY *display)
    if (!eglInitialize(egl_display, &major, &minor)) {
       return false;
    }
-   
+
    static EGLint attrib_list[] =
    {
       EGL_DEPTH_SIZE, 0,
@@ -250,7 +280,7 @@ static bool pi_create_display(ALLEGRO_DISPLAY *display)
       EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
       EGL_NONE
    };
-      
+
    attrib_list[1] = eds->settings[ALLEGRO_DEPTH_SIZE];
    attrib_list[3] = eds->settings[ALLEGRO_STENCIL_SIZE];
 
@@ -309,7 +339,7 @@ static bool pi_create_display(ALLEGRO_DISPLAY *display)
 
    d->screen_width = screen_width;
    d->screen_height = screen_height;
-      
+
    src_rect.x = 0;
    src_rect.y = 0;
    src_rect.width = display->w << 16;
@@ -317,7 +347,7 @@ static bool pi_create_display(ALLEGRO_DISPLAY *display)
 
    dispman_display = vc_dispmanx_display_open(0 /* LCD */);
    dispman_update = vc_dispmanx_update_start(0);
-         
+
    dispman_element = vc_dispmanx_element_add (
       dispman_update,
       dispman_display,
@@ -330,11 +360,11 @@ static bool pi_create_display(ALLEGRO_DISPLAY *display)
       0/*clamp*/,
       DISPMANX_NO_ROTATE/*transform*/
    );
-      
+
    nativewindow.element = dispman_element;
    nativewindow.width = display->w;
    nativewindow.height = display->h;
-   vc_dispmanx_update_submit_sync(dispman_update); 
+   vc_dispmanx_update_submit_sync(dispman_update);
 
    egl_window = eglCreateWindowSurface(
       egl_display, config, &nativewindow, NULL);
@@ -345,7 +375,7 @@ static bool pi_create_display(ALLEGRO_DISPLAY *display)
    if (!eglMakeCurrent(egl_display, egl_window, egl_window, egl_context)) {
       return false;
    }
- 
+
    return true;
 }
 
@@ -364,7 +394,7 @@ static ALLEGRO_DISPLAY *raspberrypi_create_display(int w, int h)
     ALLEGRO_DISPLAY_RASPBERRYPI **add;
     add = _al_vector_alloc_back(&system->system.displays);
     *add = d;
-    
+
     /* Each display is an event source. */
     _al_event_source_init(&display->es);
 
@@ -421,7 +451,7 @@ static ALLEGRO_DISPLAY *raspberrypi_create_display(int w, int h)
    setup_gl(display);
 
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
-    
+
    display->flags |= ALLEGRO_OPENGL;
 
    if (al_is_mouse_installed() && !getenv("DISPLAY")) {
@@ -449,7 +479,7 @@ static void raspberrypi_destroy_display(ALLEGRO_DISPLAY *d)
    }
 
    _al_event_source_free(&d->es);
-   
+
    ALLEGRO_SYSTEM_RASPBERRYPI *system = (void *)al_get_system_driver();
    _al_vector_find_and_delete(&system->system.displays, &d);
 
@@ -464,7 +494,7 @@ static void raspberrypi_destroy_display(ALLEGRO_DISPLAY *d)
       XDestroyWindow(system->x11display, pidisplay->window);
       _al_mutex_unlock(&system->lock);
    }
-   
+
    if (system->mouse_grab_display == d) {
       system->mouse_grab_display = NULL;
    }
@@ -580,8 +610,11 @@ static bool raspberrypi_wait_for_vsync(ALLEGRO_DISPLAY *display)
 
 void raspberrypi_flip_display(ALLEGRO_DISPLAY *disp)
 {
-   (void)disp;
    eglSwapBuffers(egl_display, egl_window);
+
+   if (cursor_added) {
+      show_cursor((ALLEGRO_DISPLAY_RASPBERRYPI *)disp);
+   }
 }
 
 static void raspberrypi_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
@@ -655,9 +688,9 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_raspberrypi_display_interface(void)
 {
     if (vt)
         return vt;
-    
+
     vt = al_calloc(1, sizeof *vt);
-    
+
     vt->create_display = raspberrypi_create_display;
     vt->destroy_display = raspberrypi_destroy_display;
     vt->set_current_display = raspberrypi_set_current_display;
@@ -667,7 +700,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_raspberrypi_display_interface(void)
     vt->create_bitmap = _al_ogl_create_bitmap;
     vt->get_backbuffer = _al_ogl_get_backbuffer;
     vt->set_target_bitmap = _al_ogl_set_target_bitmap;
-    
+
     vt->get_orientation = raspberrypi_get_orientation;
 
     vt->is_compatible_bitmap = raspberrypi_is_compatible_bitmap;
@@ -689,7 +722,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_raspberrypi_display_interface(void)
     vt->set_system_mouse_cursor = raspberrypi_set_system_mouse_cursor;
     vt->show_mouse_cursor = raspberrypi_show_mouse_cursor;
     vt->hide_mouse_cursor = raspberrypi_hide_mouse_cursor;
-    
+
     return vt;
 }
 

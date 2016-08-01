@@ -188,7 +188,7 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
       al_get_new_bitmap_format(), al_get_new_bitmap_flags(),
       al_get_new_bitmap_depth(), al_get_new_bitmap_samples());
    if (bitmap) {
-      _al_register_destructor(_al_dtor_list, "bitmap", bitmap,
+      bitmap->dtor_item = _al_register_destructor(_al_dtor_list, "bitmap", bitmap,
          (void (*)(void *))al_destroy_bitmap);
    }
 
@@ -217,7 +217,7 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 
    _al_set_bitmap_shader_field(bitmap, NULL);
 
-   _al_unregister_destructor(_al_dtor_list, bitmap);
+   _al_unregister_destructor(_al_dtor_list, bitmap->dtor_item);
 
    if (!al_is_sub_bitmap(bitmap)) {
       ALLEGRO_DISPLAY* disp = _al_get_bitmap_display(bitmap);
@@ -468,7 +468,7 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    bitmap->yofs = y;
    bitmap->memory = NULL;
 
-   _al_register_destructor(_al_dtor_list, "sub_bitmap", bitmap,
+   bitmap->dtor_item = _al_register_destructor(_al_dtor_list, "sub_bitmap", bitmap,
       (void (*)(void *))al_destroy_bitmap);
 
    return bitmap;
@@ -671,6 +671,14 @@ ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
       return NULL;
    }
    return clone;
+}
+
+/* Function: al_backup_dirty_bitmap
+ */
+void al_backup_dirty_bitmap(ALLEGRO_BITMAP *bitmap)
+{
+   if (bitmap->vt && bitmap->vt->backup_dirty_bitmap)
+      bitmap->vt->backup_dirty_bitmap(bitmap);
 }
 
 /* vim: set ts=8 sts=3 sw=3 et: */

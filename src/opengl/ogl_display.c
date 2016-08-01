@@ -185,16 +185,7 @@ bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP *b, int w, int h)
    extra->true_w = w;
    extra->true_h = h;
 
-   if (!IS_IPHONE) {
-      b->memory = NULL;
-   }
-   else {
-      /* iPhone port still expects the buffer to be present. */
-      /* FIXME: lazily manage memory */
-      size_t bytes = pitch * h;
-      al_free(b->memory);
-      b->memory = al_calloc(1, bytes);
-   }
+   b->memory = NULL;
 
    return true;
 }

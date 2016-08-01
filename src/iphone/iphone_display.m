@@ -350,13 +350,6 @@ static bool iphone_wait_for_vsync(ALLEGRO_DISPLAY *display)
 
 static void iphone_flip_display(ALLEGRO_DISPLAY *d)
 {
-   /* Preserve pixels of bitmaps without ALLEGRO_NO_PRESERVE_TEXTURE flag */
-   al_lock_mutex(_al_iphone_display_hotplug_mutex);
-   if (_al_iphone_is_display_connected(d)) {
-      _al_opengl_backup_dirty_bitmaps(d, false);
-   }
-   al_unlock_mutex(_al_iphone_display_hotplug_mutex);
-
     _al_iphone_flip_view(d);
 }
 
