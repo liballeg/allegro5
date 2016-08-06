@@ -1418,13 +1418,12 @@ static void *d3d_display_thread_proc(void *arg)
       info->h = al_display->h;
       info->flags = al_display->flags;
 
-	  int window = params->exist_window;
-	  if(!window)
-		d3d_create_window_proc(info);
-	  else
-	  {
-		  win_display->window = (HWND)window;
-	  }
+      int window = params->exist_window;
+      if (!window)
+         d3d_create_window_proc(info);
+      else {
+         win_display->window = (HWND)window;
+      }
    }
 
    if (!win_display->window) {
@@ -1462,15 +1461,14 @@ static void *d3d_display_thread_proc(void *arg)
    d3d_display->device->GetDeviceCaps(&caps);
    d3d_can_wait_for_vsync = ((caps.Caps & D3DCAPS_READ_SCANLINE) != 0);
 
-   if(params->exist_window)
-   {
-	   win_display->aldontmanagerdisplay = true;
-	   win_display->thread_ended = true;
-	   win_display->end_thread = false;
-	   params->init_failed = false;
+   if (params->exist_window) {
+      win_display->aldontmanagerdisplay = true;
+      win_display->thread_ended = true;
+      win_display->end_thread = false;
+      params->init_failed = false;
 
-	   SetEvent(params->AckEvent);
-	   return NULL;
+      SetEvent(params->AckEvent);
+      return NULL;
    }
 
    params->init_failed = false;
@@ -1697,13 +1695,13 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_internals(
       win_display->thread_ended = true;
       params.AckEvent = CreateEvent(NULL, false, false, NULL);
 
-	  params.exist_window = al_get_new_display_option(ALLEGRO_USE_EXISTDISPLAY, 0);
-	  al_set_new_display_option(ALLEGRO_USE_EXISTDISPLAY, 0, ALLEGRO_REQUIRE);
+      params.exist_window = al_get_new_display_option(ALLEGRO_USE_EXISTDISPLAY, 0);
+      al_set_new_display_option(ALLEGRO_USE_EXISTDISPLAY, 0, ALLEGRO_REQUIRE);
 
-	  if(params.exist_window)
-		  d3d_display_thread_proc(&params);
-	  else
-		  al_run_detached_thread(d3d_display_thread_proc, &params);
+      if (params.exist_window)
+         d3d_display_thread_proc(&params);
+      else
+         al_run_detached_thread(d3d_display_thread_proc, &params);
       /* Wait some _finite_ time (10 secs or so) for display thread to init, and
        * give up if something horrible happened to it, unless we're in debug mode
        * and we may have intentionally stopped the execution to analyze the code.
@@ -2213,23 +2211,19 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
    al_orthographic_transform(&disp->backbuffer_bmp.proj_transform, 0, 0, -1.0, w, h, 1.0);
 
    disp->do_reset = true;
-   if(!win_display->aldontmanagerdisplay)
-	   while(!disp->reset_done)
-	   {
-		   al_rest(0.001);
-	   }
-   else
-   {
-	   if(disp->do_reset)
-	   {
-		   disp->reset_success = _al_d3d_reset_device(disp);
-		   if(d3d_restore_callback)
-		   {
-			   (*d3d_restore_callback)(d);
-		   }
-		   disp->do_reset = false;
-		   disp->reset_done = true;
-	   }
+   if (!win_display->aldontmanagerdisplay)
+      while (!disp->reset_done) {
+         al_rest(0.001);
+      }
+   else {
+      if (disp->do_reset) {
+         disp->reset_success = _al_d3d_reset_device(disp);
+         if (d3d_restore_callback) {
+            (*d3d_restore_callback)(d);
+         }
+         disp->do_reset = false;
+         disp->reset_done = true;
+      }
    }
 
    disp->reset_done = false;
@@ -2307,33 +2301,32 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
 
    }
    else {
-	   if(!win_display->aldontmanagerdisplay)
-	   {
-	      RECT win_size;
-	      WINDOWINFO wi;
-	
-	      win_size.left = 0;
-	      win_size.top = 0;
-	      win_size.right = width;
-	      win_size.bottom = height;
-	
-	      wi.cbSize = sizeof(WINDOWINFO);
-	      GetWindowInfo(win_display->window, &wi);
+      if (!win_display->aldontmanagerdisplay) {
+         RECT win_size;
+         WINDOWINFO wi;
 
-	      AdjustWindowRectEx(&win_size, wi.dwStyle, false, wi.dwExStyle);
-	
-	      // FIXME: Handle failure (for example if window constraints are active?)
-	      SetWindowPos(win_display->window, HWND_TOP,
-	         0, 0,
-	         win_size.right-win_size.left,
-	         win_size.bottom-win_size.top,
-	         SWP_NOMOVE|SWP_NOZORDER);
-	
-       }
-	      if (!(d->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
-	         win_display->toggle_w = width;
-	         win_display->toggle_h = height;
-	      }
+         win_size.left = 0;
+         win_size.top = 0;
+         win_size.right = width;
+         win_size.bottom = height;
+
+         wi.cbSize = sizeof(WINDOWINFO);
+         GetWindowInfo(win_display->window, &wi);
+
+         AdjustWindowRectEx(&win_size, wi.dwStyle, false, wi.dwExStyle);
+
+         // FIXME: Handle failure (for example if window constraints are active?)
+         SetWindowPos(win_display->window, HWND_TOP,
+            0, 0,
+            win_size.right-win_size.left,
+            win_size.bottom-win_size.top,
+            SWP_NOMOVE|SWP_NOZORDER);
+
+      }
+      if (!(d->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
+         win_display->toggle_w = width;
+         win_display->toggle_h = height;
+      }
 
       /*
        * The clipping rectangle and bitmap size must be
