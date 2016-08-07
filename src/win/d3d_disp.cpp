@@ -95,7 +95,7 @@ typedef struct D3D_DISPLAY_PARAMETERS {
    int window_x, window_y;
    /* Not owned. */
    const char *window_title;
-   int exist_window;
+   HWND existing_window;
 } D3D_DISPLAY_PARAMETERS;
 
 
@@ -884,7 +884,7 @@ static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    d3d_release_bitmaps((ALLEGRO_DISPLAY *)d3d_display);
 
    ALLEGRO_DEBUG("waiting for display %p's thread to end\n", d3d_display);
-   if (win_display->window && !win_display->aldontmanagerdisplay) {
+   if (win_display->window && !win_display->dont_manage_display) {
       SendMessage(win_display->window, _al_win_msg_suicide, 0, 0);
       while (!win_display->thread_ended)
          al_rest(0.001);
@@ -1418,11 +1418,11 @@ static void *d3d_display_thread_proc(void *arg)
       info->h = al_display->h;
       info->flags = al_display->flags;
 
-      int window = params->exist_window;
+      HWND window = params->existing_window;
       if (!window)
          d3d_create_window_proc(info);
       else {
-         win_display->window = (HWND)window;
+         win_display->window = window;
       }
    }
 
@@ -1461,8 +1461,8 @@ static void *d3d_display_thread_proc(void *arg)
    d3d_display->device->GetDeviceCaps(&caps);
    d3d_can_wait_for_vsync = ((caps.Caps & D3DCAPS_READ_SCANLINE) != 0);
 
-   if (params->exist_window) {
-      win_display->aldontmanagerdisplay = true;
+   if (params->existing_window) {
+      win_display->dont_manage_display = true;
       win_display->thread_ended = true;
       win_display->end_thread = false;
       params->init_failed = false;
@@ -1695,10 +1695,10 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_internals(
       win_display->thread_ended = true;
       params.AckEvent = CreateEvent(NULL, false, false, NULL);
 
-      params.exist_window = al_get_new_display_option(ALLEGRO_USE_EXISTDISPLAY, 0);
-      al_set_new_display_option(ALLEGRO_USE_EXISTDISPLAY, 0, ALLEGRO_REQUIRE);
+      params.existing_window = (HWND)al_get_new_display_option(ALLEGRO_USE_EXISTING_WINDOW, 0);
+      al_set_new_display_option(ALLEGRO_USE_EXISTING_WINDOW, 0, ALLEGRO_REQUIRE);
 
-      if (params.exist_window)
+      if (params.existing_window)
          d3d_display_thread_proc(&params);
       else
          al_run_detached_thread(d3d_display_thread_proc, &params);
@@ -2090,7 +2090,8 @@ static void d3d_flip_display(ALLEGRO_DISPLAY *al_display)
    al_unlock_mutex(present_mutex);
 
    if (hr == D3DERR_DEVICELOST) {
-      d3d_display->device_lost = true;
+      if (!win_display->dont_manage_display)
+         d3d_display->device_lost = true;
       return;
    }
    else {
@@ -2211,7 +2212,7 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
    al_orthographic_transform(&disp->backbuffer_bmp.proj_transform, 0, 0, -1.0, w, h, 1.0);
 
    disp->do_reset = true;
-   if (!win_display->aldontmanagerdisplay)
+   if (!win_display->dont_manage_display)
       while (!disp->reset_done) {
          al_rest(0.001);
       }
@@ -2301,7 +2302,7 @@ static bool d3d_resize_helper(ALLEGRO_DISPLAY *d, int width, int height)
 
    }
    else {
-      if (!win_display->aldontmanagerdisplay) {
+      if (!win_display->dont_manage_display) {
          RECT win_size;
          WINDOWINFO wi;
 
