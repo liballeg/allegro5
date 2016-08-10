@@ -177,8 +177,6 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
       NULL,NULL,window_class.hInstance,0);
    al_free(window_title);
 
-   clear_window(my_window, width, height);
-
    if (_al_win_register_touch_window)
       _al_win_register_touch_window(my_window, 0);
 
@@ -204,6 +202,8 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    }
 
    ShowWindow(my_window, SW_SHOW);
+
+   clear_window(my_window, width, height);
 
    if (!(flags & ALLEGRO_RESIZABLE) && !(flags & ALLEGRO_FULLSCREEN)) {
       /* Make the window non-resizable */
@@ -245,8 +245,6 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
       NULL,NULL,window_class.hInstance,0);
    al_free(window_title);
 
-   clear_window(my_window, width, height);
-
    if (_al_win_register_touch_window)
       _al_win_register_touch_window(my_window, 0);
 
@@ -270,6 +268,8 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
     DM_DISPLAYFREQUENCY|DM_POSITION;
 
    ChangeDisplaySettingsEx(devname, &mode, NULL, 0, NULL/*CDS_FULLSCREEN*/);
+
+   clear_window(my_window, width, height);
 
    return my_window;
 }
@@ -1236,8 +1236,12 @@ bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
                win_display->window, HWND_TOP, pos_x-bw/2, pos_y-bh/2, 0, 0, SWP_NOSIZE
             );
          }
+
          // Show the window again
          SetWindowPos(win_display->window, 0, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE);
+
+         // Clear the window to black
+         clear_window(win_display->window, display->w, display->h);
 
          ASSERT(!!(display->flags & ALLEGRO_FULLSCREEN_WINDOW) == onoff);
          return true;
