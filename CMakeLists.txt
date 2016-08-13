@@ -224,8 +224,6 @@ endif(UNIX)
 
 option(STRICT_WARN "Halt at warnings" off)
 
-set(INSTALL_PREFIX "")
-
 if(CMAKE_COMPILER_IS_GNUCC)
     set(COMPILER_GCC 1)
     set(ALLEGRO_GCC 1)
@@ -254,11 +252,9 @@ if(MINGW)
     set(CMAKE_PREFIX_PATH "${MINGDIR}")
 
     # Install to MINGDIR
-    if(INSTALL_PREFIX STREQUAL "")
+    if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
         set(CMAKE_INSTALL_PREFIX ${MINGDIR})
-    else(INSTALL_PREFIX STREQUAL "")
-        set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
-    endif(INSTALL_PREFIX STREQUAL "")
+    endif()
 
     message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
 endif(MINGW)
@@ -310,7 +306,6 @@ if(PSP)
     set(ALLEGRO_PSP 1)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -G0")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -G0 -fno-exceptions -fno-rtti")
-    set(CMAKE_INSTALL_PREFIX ${PSP_PREFIX})
 endif(PSP)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WFLAGS} ${WFLAGS_C_ONLY}")
