@@ -3,6 +3,30 @@
 These lists serve as summaries; the full histories are in the git repository.
 
 
+Changes from 5.2.1 to 5.2.1.1 (August 2016)
+=======================================
+
+The main developers this time were: Trent Gamblin, SiegeLord.
+
+Core:
+
+  - Enforce backwards compatibility in the version check, rather than
+    erroneously allowing forwards compatiblity.
+
+  - Temporarily remove new extensions in ALLEGRO_OGL_EXT_LIST as that broke ABI
+    compatibility.
+
+OSX port:
+
+  - Temporarily revert changes in joystick detection, as it did not interact
+    well with some joysticks.
+
+Windows port:
+
+  - Fix the clear display to black right away to avoid an ugly white flash
+    change.
+
+
 Changes from 5.2.0 to 5.2.1 (July 2016)
 =======================================
 
