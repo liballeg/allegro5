@@ -41,6 +41,9 @@
 
 ALLEGRO_DEBUG_CHANNEL("upath")
 
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
 
 #ifndef ALLEGRO_MACOSX
 /* _find_executable_file:
