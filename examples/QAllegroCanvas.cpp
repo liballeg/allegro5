@@ -16,6 +16,8 @@ QAllegroCanvas::QAllegroCanvas(QWidget* parent /*= 0*/)
 
 QAllegroCanvas::~QAllegroCanvas()
 {
+	destroy();
+
    if (m_display)
    {
       al_destroy_display(m_display);
@@ -49,34 +51,24 @@ void QAllegroCanvas::resizeEvent(QResizeEvent *)
 {
    if (m_display)
       al_acknowledge_resize(m_display);
+   resize();
 }
 
 void QAllegroCanvas::showEvent(QShowEvent *)
 {
    m_lasttime = al_get_time();
    m_loopTimer = startTimer(1);
+   if (!m_init)
+   {
+	   m_init = true;
+	   init();
+	   emit initiated();
+   }
 }
 
 void QAllegroCanvas::hideEvent(QHideEvent *)
 {
    killTimer(m_loopTimer);
-   m_loopTimer = 0;
-}
-
-void QAllegroCanvas::update(float delta)
-{
-}
-
-void QAllegroCanvas::render()
-{
-}
-
-void QAllegroCanvas::deviceLost()
-{
-}
-
-void QAllegroCanvas::deviceReset()
-{
 }
 
 void QAllegroCanvas::doLoop()
@@ -86,12 +78,12 @@ void QAllegroCanvas::doLoop()
 
    float currenttime = al_get_time();
    float delta = currenttime - m_lasttime;
+
    update(delta);
 
    HRESULT hr = m_device->TestCooperativeLevel();
    if (hr != D3D_OK)
    {
-      //Handle device lost and reset.
       if (hr == D3DERR_DEVICELOST)
       {
          m_devicelost = true;
