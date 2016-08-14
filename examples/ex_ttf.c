@@ -90,7 +90,7 @@ static void render(void)
        int cp = ustr_at(dimension_label, index);
        ALLEGRO_GLYPH g;
        if (al_get_glyph(ex.f2, prev_cp, cp, &g)) {
-          al_draw_tinted_bitmap_region(g.bitmap, black, g.x, g.y, g.w, g.h, x + 10 + g.offset_x, y + g.offset_y, 0);
+          al_draw_tinted_bitmap_region(g.bitmap, black, g.x, g.y, g.w, g.h, x + 10 + g.kerning + g.offset_x, y + g.offset_y, 0);
           x += g.advance;
        }
        prev_cp = cp;
