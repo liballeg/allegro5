@@ -17,16 +17,22 @@ public:
    bool isDeviceLost();
    ALLEGRO_DISPLAY* getDisplay();
 
+signals:
+   void initiated();
+
 private:
    virtual void timerEvent(QTimerEvent *) override;
    virtual void resizeEvent(QResizeEvent *) override;
    virtual void showEvent(QShowEvent *) override;
    virtual void hideEvent(QHideEvent *) override;
 
-   virtual void update(float delta);
-   virtual void render();
-   virtual void deviceLost();
-   virtual void deviceReset();
+   virtual void init(){}
+   virtual void destroy(){}
+   virtual void update(float delta){}
+   virtual void render(){}
+   virtual void deviceLost(){}
+   virtual void deviceReset(){}
+   virtual void resize(){}
    void doLoop();
 
 
@@ -37,4 +43,5 @@ private:
    float m_lasttime{ 0 };
    LPDIRECT3DDEVICE9 m_device{ nullptr };
    bool m_devicelost{ false };
+   bool m_init{ false };
 };
