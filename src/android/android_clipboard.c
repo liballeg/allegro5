@@ -45,8 +45,9 @@ static char *android_get_clipboard_text(ALLEGRO_DISPLAY *display)
    char * text =  al_malloc(len+1);
    (void) display;
 
-   text = _al_sane_strncpy(text, str, len+1);
+   text = _al_sane_strncpy(text, str, len);
    _jni_callv(env, ReleaseStringUTFChars, jtext, str);
+   _jni_callv(env, DeleteLocalRef, jtext);
 
    return text;
 }
