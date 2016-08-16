@@ -150,7 +150,7 @@ static void detach_multisample_buffer(ALLEGRO_FBO_INFO *info)
 
 static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
 {
-#ifndef ALLEGRO_RASPBERRYPI
+#if !defined ALLEGRO_RASPBERRYPI
    GLuint rb;
    GLenum gldepth = GL_DEPTH_COMPONENT16;
 
@@ -190,9 +190,16 @@ static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
 
       if (samples == 0 || !extension_supported)
          glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, gldepth, w, h);
+#if !defined ALLEGRO_ANDROID || defined ALLEGRO_CFG_OPENGLES3
       else
          glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT,
             samples, gldepth, w, h);
+#else
+      else {
+         ALLEGRO_DEBUG("Allegro not built with OpenGL ES 3.0 support, can't use glRenderbufferStorageMultisampleEXT!\n");
+         return;
+      }
+#endif
 
       info->buffers.depth_buffer = rb;
       info->buffers.dw = w;
@@ -222,7 +229,7 @@ static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
 
 static void attach_multisample_buffer(ALLEGRO_FBO_INFO *info)
 {
-#ifndef ALLEGRO_RASPBERRYPI
+#if !defined ALLEGRO_RASPBERRYPI && (!defined ALLEGRO_ANDROID || defined ALLEGRO_CFG_OPENGLES3)
    ALLEGRO_BITMAP *b = info->owner;
    int samples = al_get_bitmap_samples(b);
 
@@ -282,6 +289,8 @@ static void attach_multisample_buffer(ALLEGRO_FBO_INFO *info)
       glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
    }
    #endif
+#elif defined ALLEGRO_ANDROID
+   ALLEGRO_DEBUG("Allegro not built with OpenGL ES 3.0 support, can't use glRenderbufferStorageMultisampleEXT!\n");
 #endif
 }
 
