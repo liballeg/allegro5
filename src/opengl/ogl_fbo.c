@@ -618,7 +618,7 @@ static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                GL_TEXTURE_2D, ogl_bitmap->texture, 0);
          }
-#ifndef ALLEGRO_IPHONE
+#if !defined ALLEGRO_IPHONE && (!defined ALLEGRO_ANDROID || defined ALLEGRO_CFG_OPENGLES3)
          else {
             glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER,
                GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ogl_bitmap->texture, 
