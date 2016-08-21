@@ -534,8 +534,28 @@ public class AllegroActivity extends Activity
       joystickActive = false;
    }
 
+   private boolean got_clip = false;
+   private String clip_text;
+   private boolean set_clip = false;
+   private boolean set_clip_result;
+
    public String getClipboardText() {
-      return clipboard.getText();
+      got_clip = false;
+      try {
+         runOnUiThread(new Runnable() {
+            @Override public void run() {
+               clip_text = clipboard.getText();
+               got_clip = true;
+            }
+         });
+      }
+      catch (Exception e) {
+         Log.d("AllegroActivity", "getClipboardText failed");
+         clip_text = "";
+         got_clip = true;
+      }
+      while (got_clip == false);
+      return clip_text;
    }
 
    public boolean hasClipboardText() {
@@ -543,7 +563,23 @@ public class AllegroActivity extends Activity
    }
 
    public boolean setClipboardText(String text) {
-      return clipboard.setText(text);
+      final String t = text;
+      set_clip = false;
+      try {
+         runOnUiThread(new Runnable() {
+            @Override public void run() {
+               set_clip_result = clipboard.setText(t);
+               set_clip = true;
+            }
+         });
+      }
+      catch (Exception e) {
+         Log.d("AllegroActivity", "setClipboardText failed");
+         set_clip_result = false;
+         set_clip = true;
+      }
+      while (set_clip == false);
+      return set_clip_result;
    }
 }
 
