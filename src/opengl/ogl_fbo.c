@@ -35,7 +35,7 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 /* forward declarations */
 static void setup_fbo_backbuffer(ALLEGRO_DISPLAY *display,
    ALLEGRO_BITMAP *bitmap);
-static bool use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
+static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
    ALLEGRO_BITMAP *bitmap, ALLEGRO_FBO_INFO *info);
 
 
@@ -149,7 +149,7 @@ static void detach_multisample_buffer(ALLEGRO_FBO_INFO *info)
 
 
 
-static bool attach_depth_buffer(ALLEGRO_FBO_INFO *info)
+static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
 {
 #if !defined ALLEGRO_RASPBERRYPI
    GLuint rb;
@@ -168,7 +168,7 @@ static bool attach_depth_buffer(ALLEGRO_FBO_INFO *info)
    }
    
    if (!bits)
-      return true;
+      return;
 
    if (info->buffers.depth_buffer == 0) {
       ALLEGRO_DISPLAY *display = _al_get_bitmap_display(info->owner);
@@ -198,7 +198,7 @@ static bool attach_depth_buffer(ALLEGRO_FBO_INFO *info)
             samples, gldepth, w, h);
 #else
       else {
-         return false;
+         return;
       }
 #endif
 
@@ -224,15 +224,11 @@ static bool attach_depth_buffer(ALLEGRO_FBO_INFO *info)
 
       glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
    }
-   return true;
-#else
-   // fail if asked for multisampling
-   return al_get_bitmap_depth(info->owner) == 0;
 #endif
 }
 
 
-static bool attach_multisample_buffer(ALLEGRO_FBO_INFO *info)
+static void attach_multisample_buffer(ALLEGRO_FBO_INFO *info)
 {
 #if !defined ALLEGRO_RASPBERRYPI && (!defined ALLEGRO_ANDROID || defined ALLEGRO_CFG_OPENGLES3)
    ALLEGRO_BITMAP *b = info->owner;
@@ -248,10 +244,10 @@ static bool attach_multisample_buffer(ALLEGRO_FBO_INFO *info)
    }
    
    if (!samples)
-      return true;
+      return;
    ALLEGRO_DISPLAY *display = _al_get_bitmap_display(info->owner);
    if (!display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_multisample)
-      return false;
+      return;
 
 #ifdef ALLEGRO_CFG_OPENGLES
    (void)display;
@@ -294,10 +290,8 @@ static bool attach_multisample_buffer(ALLEGRO_FBO_INFO *info)
       glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
    }
    #endif
-   return true;
 #else
-   // fail if asked for multisampling
-   return al_get_bitmap_samples(info->owner) == 0;
+   (void)info;
 #endif
 }
 
@@ -354,8 +348,7 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
          info->fbo, ogl_bitmap->texture, _al_gl_error_string(e));
    }
 
-   if (!attach_depth_buffer(info))
-      return false;
+   attach_depth_buffer(info);
 
    /* You'll see this a couple times in this file: some ES 1.1 functions aren't
     * implemented on Android. This is an ugly workaround.
@@ -590,11 +583,12 @@ bool _al_ogl_setup_fbo_non_backbuffer(ALLEGRO_DISPLAY *display,
       return false;
    }
 
-   return use_fbo_for_bitmap(display, bitmap, info);
+   use_fbo_for_bitmap(display, bitmap, info);
+   return true; /* state changed */
 }
 
 
-static bool use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
+static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
    ALLEGRO_BITMAP *bitmap, ALLEGRO_FBO_INFO *info)
 {
    ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_bitmap = bitmap->extra;
@@ -609,11 +603,8 @@ static bool use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
    /* Bind to the FBO. */
    _al_ogl_bind_framebuffer(info->fbo);
 
-   if (!attach_multisample_buffer(info))
-      return false;
-
-   if (!attach_depth_buffer(info))
-      return false;
+   attach_multisample_buffer(info);
+   attach_depth_buffer(info);
 
    /* If we have a multisample renderbuffer, we can only syncronize
     * it back to the texture once we stop drawing into it - i.e.
@@ -670,8 +661,6 @@ static bool use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
    else {
       display->ogl_extras->opengl_target = bitmap;
    }
-
-   return true;
 }
 
 
