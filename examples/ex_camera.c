@@ -315,6 +315,7 @@ static void draw_scene(void)
    al_identity_transform(&t);
    al_use_transform(&t);
    al_use_projection_transform(&projection);
+   al_set_render_state(ALLEGRO_DEPTH_TEST, 0);
 
    /* Draw some text. */
    th = al_get_font_line_height(ex.font);
