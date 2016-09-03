@@ -104,6 +104,7 @@ static void timer_thread_proc(_AL_THREAD *self, void *unused)
       al_lock_mutex(timers_mutex);
       while (_al_vector_size(&active_timers) == 0 && !destroy_thread) {
          al_wait_cond(timer_cond, timers_mutex);
+         old_time = al_get_time() - interval;
       }
       al_unlock_mutex(timers_mutex);
 
