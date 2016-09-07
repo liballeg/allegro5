@@ -1587,6 +1587,16 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
    al_display->vt = vt;
    ASSERT(al_display->vt);
 
+   /* If use exist window, ignore w an h */
+   HWND exist_window = (HWND)al_get_new_display_option(ALLEGRO_USE_EXISTING_WINDOW, 0);
+   if (exist_window != 0 && !(al_display->flags & ALLEGRO_FULLSCREEN)) {
+      WINDOWINFO wi;
+      wi.cbSize = sizeof(WINDOWINFO);
+      GetWindowInfo(exist_window, &wi);
+      al_display->w = w = wi.rcClient.right - wi.rcClient.left;
+      al_display->h = h = wi.rcClient.bottom - wi.rcClient.top;
+   }
+
 #ifdef ALLEGRO_CFG_D3D9EX
    if (!is_vista)
 #endif
