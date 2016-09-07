@@ -124,6 +124,10 @@ ALLEGRO_DEBUG_CHANNEL("fshook")
    #define WRAP_READDIR(d)          (readdir(d))
 #endif
 
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
+
 
 typedef struct ALLEGRO_FS_ENTRY_STDIO ALLEGRO_FS_ENTRY_STDIO;
 

@@ -43,6 +43,10 @@ ALLEGRO_DEBUG_CHANNEL("stdio")
 /* forward declaration */
 const struct ALLEGRO_FILE_INTERFACE _al_file_interface_stdio;
 
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
+
 
 typedef struct
 {
