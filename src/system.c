@@ -282,7 +282,9 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
       active_sysdrv->vt->heartbeat_init();
 
    if (atexit_ptr && atexit_virgin) {
+#ifndef ALLEGRO_ANDROID
       atexit_ptr(al_uninstall_system);
+#endif
       atexit_virgin = false;
    }
 

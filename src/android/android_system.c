@@ -120,6 +120,8 @@ static void android_cleanup(bool uninstall_system)
       return;
    }
 
+   already_cleaned_up = true;
+
    if (uninstall_system) {
       /* I don't think android calls our atexit() stuff since we're in a shared lib
          so make sure al_uninstall_system is called */
@@ -129,8 +131,6 @@ static void android_cleanup(bool uninstall_system)
    finish_activity(_al_android_get_jnienv());
 
    (*javavm)->DetachCurrentThread(javavm);
-
-   already_cleaned_up = true;
 }
 
 static void *android_app_trampoline(ALLEGRO_THREAD *thr, void *arg)
@@ -362,6 +362,7 @@ JNI_FUNC(void, AllegroActivity, nativeOnResume, (JNIEnv *env, jobject obj))
    }
 }
 
+/* NOTE: don't put any ALLEGRO_DEBUG in here! */
 JNI_FUNC(void, AllegroActivity, nativeOnDestroy, (JNIEnv *env, jobject obj))
 {
    (void)obj;
@@ -381,20 +382,17 @@ JNI_FUNC(void, AllegroActivity, nativeOnDestroy, (JNIEnv *env, jobject obj))
       "getMainReturned",
       "()Z"
    );
+
    if (!main_returned) {
-      android_cleanup(false);
-      return;
+      exit(0);
    }
 
-   ALLEGRO_DEBUG("destroy activity");
    if(!system_data.user_lib) {
-      ALLEGRO_DEBUG("user lib not loaded.");
       return;
    }
 
    system_data.user_main = NULL;
    if(dlclose(system_data.user_lib) != 0) {
-      ALLEGRO_ERROR("failed to unload user lib: %s", dlerror());
       return;
    }
 
@@ -465,11 +463,10 @@ JNI_FUNC(void, AllegroActivity, nativeSendJoystickConfigurationEvent, (JNIEnv *e
    _al_event_source_unlock(es);
 }
 
+/* NOTE: don't put any ALLEGRO_DEBUG in here! */
 static void finish_activity(JNIEnv *env)
 {
-   ALLEGRO_DEBUG("pre post");
    _jni_callVoidMethod(env, system_data.activity_object, "postFinish");
-   ALLEGRO_DEBUG("post post");
 }
 
 static ALLEGRO_SYSTEM *android_initialize(int flags)
