@@ -88,7 +88,9 @@ static void vector_iadd(Vector *a, Vector b)
    a->z += b.z;
 }
 
-/* Rotate the camera around the given axis. */
+/* Rotate the camera around the given axis. This function does not attempt to
+ * maintain the perpendicularity of the camera's axes.
+ */
 static void camera_rotate_around_axis(Camera *c, Vector axis, double radians)
 {
    ALLEGRO_TRANSFORM t;
@@ -97,6 +99,9 @@ static void camera_rotate_around_axis(Camera *c, Vector axis, double radians)
    al_transform_coordinates_3d(&t, &c->xaxis.x, &c->xaxis.y, &c->xaxis.z);
    al_transform_coordinates_3d(&t, &c->yaxis.x, &c->yaxis.y, &c->yaxis.z);
    al_transform_coordinates_3d(&t, &c->zaxis.x, &c->zaxis.y, &c->zaxis.z);
+   c->xaxis = vector_normalize(c->xaxis);
+   c->yaxis = vector_normalize(c->yaxis);
+   c->zaxis = vector_normalize(c->zaxis);
 }
 
 /* Move the camera along its x axis and z axis (which corresponds to
