@@ -97,8 +97,7 @@ static void vector_iadd(Vector *a, Vector b)
    a->z += b.z;
 }
 
-/* Rotate the camera around the given axis.
- */
+/* Rotate the camera around the given axis. */
 static void camera_rotate_around_axis(Camera *c, Vector axis, double radians)
 {
    ALLEGRO_TRANSFORM t;
