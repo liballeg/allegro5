@@ -58,6 +58,15 @@ static double vector_dot_product(Vector a, Vector b)
    return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
+/* Calculate the cross product of two vectors. This produces a normal to the
+ * plane containing the operands.
+ */
+static Vector vector_cross_product(Vector a, Vector b)
+{
+   Vector v = {a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x};
+   return v;
+}
+
 /* Return a vector multiplied by a scalar. */
 static Vector vector_mul(Vector a, float s)
 {
@@ -88,8 +97,7 @@ static void vector_iadd(Vector *a, Vector b)
    a->z += b.z;
 }
 
-/* Rotate the camera around the given axis. This function does not attempt to
- * maintain the perpendicularity of the camera's axes.
+/* Rotate the camera around the given axis.
  */
 static void camera_rotate_around_axis(Camera *c, Vector axis, double radians)
 {
@@ -99,9 +107,12 @@ static void camera_rotate_around_axis(Camera *c, Vector axis, double radians)
    al_transform_coordinates_3d(&t, &c->xaxis.x, &c->xaxis.y, &c->xaxis.z);
    al_transform_coordinates_3d(&t, &c->yaxis.x, &c->yaxis.y, &c->yaxis.z);
    al_transform_coordinates_3d(&t, &c->zaxis.x, &c->zaxis.y, &c->zaxis.z);
-   c->xaxis = vector_normalize(c->xaxis);
-   c->yaxis = vector_normalize(c->yaxis);
+
+   /* Make sure the axes remain orthogonal to each other. */
    c->zaxis = vector_normalize(c->zaxis);
+   c->yaxis = vector_cross_product(c->zaxis, c->xaxis);
+   c->yaxis = vector_normalize(c->yaxis);
+   c->xaxis = vector_cross_product(c->yaxis, c->zaxis);
 }
 
 /* Move the camera along its x axis and z axis (which corresponds to
