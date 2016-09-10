@@ -8,7 +8,8 @@ QAllegroCanvas::QAllegroCanvas(QWidget* parent /*= 0*/)
    al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);
    al_set_new_display_option(ALLEGRO_USE_EXISTING_WINDOW, this->winId(), ALLEGRO_SUGGEST);
 
-   m_display = al_create_display(width(), height());
+   m_display = al_create_display(0, 0);
+
    m_device = al_get_d3d_device(m_display);
 
    setBackColor(al_map_rgb(255, 255, 255));
@@ -43,6 +44,8 @@ ALLEGRO_DISPLAY* QAllegroCanvas::getDisplay()
 
 void QAllegroCanvas::timerEvent(QTimerEvent *event)
 {
+   if (!isEnabled())
+      return;
    if (event->timerId() == m_loopTimer)
       doLoop();
 }
@@ -57,13 +60,7 @@ void QAllegroCanvas::resizeEvent(QResizeEvent *)
 void QAllegroCanvas::showEvent(QShowEvent *)
 {
    m_lasttime = al_get_time();
-   m_loopTimer = startTimer(1);
-   if (!m_init)
-   {
-	   m_init = true;
-	   init();
-	   emit initiated();
-   }
+   m_loopTimer = startTimer(0);
 }
 
 void QAllegroCanvas::hideEvent(QHideEvent *)
@@ -75,6 +72,14 @@ void QAllegroCanvas::doLoop()
 {
    if (!m_display || !m_device)
       return;
+
+   if (!m_init)
+   {
+      m_init = true;
+	  al_acknowledge_resize(m_display);	//We must acknowledge display resize here. Because in the first time showEvent, allegro can't get right size of widget.
+      init();
+      emit initiated();
+   }
 
    float currenttime = al_get_time();
    float delta = currenttime - m_lasttime;
