@@ -285,7 +285,8 @@ JNI_FUNC(bool, AllegroActivity, nativeOnCreate, (JNIEnv *env, jobject obj))
 
 JNI_FUNC(void, AllegroActivity, nativeOnPause, (JNIEnv *env, jobject obj))
 {
-   (void)env; (void)obj;
+   (void)env;
+   (void)obj;
 
    ALLEGRO_DEBUG("pause activity\n");
 
@@ -293,12 +294,15 @@ JNI_FUNC(void, AllegroActivity, nativeOnPause, (JNIEnv *env, jobject obj))
 
    ALLEGRO_SYSTEM *sys = (void *)al_get_system_driver();
 
-   if(!system_data.system || !sys) {
+   if (!system_data.system || !sys) {
       ALLEGRO_DEBUG("no system driver");
       return;
    }
 
-   // ASSERT(sys != NULL);
+   if (!_al_vector_size(&sys->displays)) {
+      ALLEGRO_DEBUG("no display, not sending SWITCH_OUT event");
+      return;
+   }
 
    ALLEGRO_DISPLAY *display = *(ALLEGRO_DISPLAY**)_al_vector_ref(&sys->displays, 0);
 
@@ -312,10 +316,6 @@ JNI_FUNC(void, AllegroActivity, nativeOnPause, (JNIEnv *env, jobject obj))
          _al_event_source_emit_event(&display->es, &event);
       }
       _al_event_source_unlock(&display->es);
-
-      ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID*)display;
-      if (d->created)
-         _al_android_destroy_surface(env, d, false);
    }
 }
 
