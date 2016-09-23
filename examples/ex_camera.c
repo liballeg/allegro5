@@ -58,6 +58,15 @@ static double vector_dot_product(Vector a, Vector b)
    return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
+/* Calculate the cross product of two vectors. This produces a normal to the
+ * plane containing the operands.
+ */
+static Vector vector_cross_product(Vector a, Vector b)
+{
+   Vector v = {a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x};
+   return v;
+}
+
 /* Return a vector multiplied by a scalar. */
 static Vector vector_mul(Vector a, float s)
 {
@@ -94,9 +103,14 @@ static void camera_rotate_around_axis(Camera *c, Vector axis, double radians)
    ALLEGRO_TRANSFORM t;
    al_identity_transform(&t);
    al_rotate_transform_3d(&t, axis.x, axis.y, axis.z, radians);
-   al_transform_coordinates_3d(&t, &c->xaxis.x, &c->xaxis.y, &c->xaxis.z);
    al_transform_coordinates_3d(&t, &c->yaxis.x, &c->yaxis.y, &c->yaxis.z);
    al_transform_coordinates_3d(&t, &c->zaxis.x, &c->zaxis.y, &c->zaxis.z);
+
+   /* Make sure the axes remain orthogonal to each other. */
+   c->zaxis = vector_normalize(c->zaxis);
+   c->xaxis = vector_cross_product(c->yaxis, c->zaxis);
+   c->xaxis = vector_normalize(c->xaxis);
+   c->yaxis = vector_cross_product(c->zaxis, c->xaxis);
 }
 
 /* Move the camera along its x axis and z axis (which corresponds to
@@ -247,30 +261,30 @@ static void add_skybox(void)
    ALLEGRO_COLOR c3 = al_color_name("white");
 
    /* Back skybox wall. */
-   add_quad(p.x - 50, 0, p.z - 50, 100, 0, 0, 0, 50, 0, c1, c2);
+   add_quad(p.x - 50, p.y, p.z - 50, 100, 0, 0, 0, 50, 0, c1, c2);
    /* Front skybox wall. */
-   add_quad(p.x - 50, 0, p.z + 50, 100, 0, 0, 0, 50, 0, c1, c2);
+   add_quad(p.x - 50, p.y, p.z + 50, 100, 0, 0, 0, 50, 0, c1, c2);
    /* Left skybox wall. */
-   add_quad(p.x - 50, 0, p.z - 50, 0, 0, 100, 0, 50, 0, c1, c2);
+   add_quad(p.x - 50, p.y, p.z - 50, 0, 0, 100, 0, 50, 0, c1, c2);
    /* Right skybox wall. */
-   add_quad(p.x + 50, 0, p.z - 50, 0, 0, 100, 0, 50, 0, c1, c2);
+   add_quad(p.x + 50, p.y, p.z - 50, 0, 0, 100, 0, 50, 0, c1, c2);
 
    /* Top of skybox. */
-   add_vertex(p.x - 50, 50, p.z - 50, c2);
-   add_vertex(p.x + 50, 50, p.z - 50, c2);
-   add_vertex(p.x, 50, p.z, c3);
+   add_vertex(p.x - 50, p.y + 50, p.z - 50, c2);
+   add_vertex(p.x + 50, p.y + 50, p.z - 50, c2);
+   add_vertex(p.x, p.y + 50, p.z, c3);
 
-   add_vertex(p.x + 50, 50, p.z - 50, c2);
-   add_vertex(p.x + 50, 50, p.z + 50, c2);
-   add_vertex(p.x, 50, p.z, c3);
+   add_vertex(p.x + 50, p.y + 50, p.z - 50, c2);
+   add_vertex(p.x + 50, p.y + 50, p.z + 50, c2);
+   add_vertex(p.x, p.y + 50, p.z, c3);
 
-   add_vertex(p.x + 50, 50, p.z + 50, c2);
-   add_vertex(p.x - 50, 50, p.z + 50, c2);
-   add_vertex(p.x, 50, p.z, c3);
+   add_vertex(p.x + 50, p.y + 50, p.z + 50, c2);
+   add_vertex(p.x - 50, p.y + 50, p.z + 50, c2);
+   add_vertex(p.x, p.y + 50, p.z, c3);
 
-   add_vertex(p.x - 50, 50, p.z + 50, c2);
-   add_vertex(p.x - 50, 50, p.z - 50, c2);
-   add_vertex(p.x, 50, p.z, c3);
+   add_vertex(p.x - 50, p.y + 50, p.z + 50, c2);
+   add_vertex(p.x - 50, p.y + 50, p.z - 50, c2);
+   add_vertex(p.x, p.y + 50, p.z, c3);
 }
 
 static void draw_scene(void)
