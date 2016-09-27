@@ -123,6 +123,35 @@ Android platform that the calling Allegro program is running on.
 
 Since: 5.1.2
 
+### API: al_android_get_jni_env
+
+Returns the Android JNI environment used by Allegro to call into Java.
+As a convenience this function provides it to the user so there is no
+need to obtain it yourself.
+
+For example if you have a Java method "void send(String message)" in
+your activity class, you could call it like this from C code:
+
+~~~~c
+JNIEnv * env = al_android_get_jni_env();
+jclass class_id = (* env)->GetObjectClass(env, al_android_get_activity());
+jmethodID method_id = (* env)->GetMethodID(env, class_id, "send",
+    "(Ljava/lang/String;)V");
+jstring jdata = (* env)->NewStringUTF(env, "Hello Java!");
+(* env)->CallVoidMethod(env, al_android_get_activity(), method_id, jdata);
+(* env)->DeleteLocalRef(env, jdata);
+~~~~
+
+Since: 5.2.2
+
+### API: al_android_get_activity
+
+Returns the Java Android activity used by Allegro. This is the same
+object created by Android from the class you specify in your manifest
+and either an instance of AllegroActivity or a derived class.
+
+Since: 5.2.2
+
 ## X11
 
 These functions are declared in the following header file:

@@ -648,4 +648,18 @@ void _al_register_system_interfaces(void)
    /* TODO: add the non native activity driver */
 }
 
+/* Function: al_android_get_jni_env
+ */
+JNIEnv *al_android_get_jni_env(void)
+{
+   return _al_android_get_jnienv();
+}
+
+/* Function: al_android_get_activity
+ */
+jobject al_android_get_activity(void)
+{
+   return _al_android_activity_object();
+}
+
 /* vim: set sts=3 sw=3 et: */
