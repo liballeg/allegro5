@@ -1,4 +1,4 @@
-set(ACTIVITY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/allegro_activity)
+set(ACTIVITY_DIR ${CMAKE_CURRENT_BINARY_DIR}/allegro_activity)
 set(ACTIVITY_JAR ${LIBRARY_OUTPUT_PATH}/Allegro5.jar)
 
 file(GLOB javas "${ACTIVITY_DIR}/src/*.java")
@@ -6,8 +6,6 @@ file(GLOB javas "${ACTIVITY_DIR}/src/*.java")
 set(ACTIVITY_SOURCES
     ${ACTIVITY_DIR}/AndroidManifest.xml
     ${ACTIVITY_DIR}/build.xml
-    ${ACTIVITY_DIR}/local.properties
-    ${ACTIVITY_DIR}/project.properties
     ${javas}
     )
 
@@ -19,21 +17,30 @@ add_custom_command(
     )
 
 configure_file(
-    ${ACTIVITY_DIR}/localgen.properties.in
+    allegro_activity/localgen.properties.in
     ${ACTIVITY_DIR}/localgen.properties
     )
 configure_file(
-    ${ACTIVITY_DIR}/project.properties.in
+   allegro_activity/project.properties.in
     ${ACTIVITY_DIR}/project.properties
     @ONLY)
 
 add_custom_command(
     OUTPUT ${ACTIVITY_JAR}
     DEPENDS ${ACTIVITY_SOURCES}
+    ${ACTIVITY_DIR}/local.properties
+    ${ACTIVITY_DIR}/project.properties
     WORKING_DIRECTORY ${ACTIVITY_DIR}
     COMMAND ${ANT_COMMAND} debug jar
     VERBATIM
     )
+
+add_custom_command(
+   OUTPUT ${ACTIVITY_SOURCES}
+   COMMAND COMMAND ${CMAKE_COMMAND} -E copy_directory
+   ${CMAKE_CURRENT_SOURCE_DIR}/allegro_activity
+   ${ACTIVITY_DIR}
+   )
 
 add_custom_target(jar
     ALL
