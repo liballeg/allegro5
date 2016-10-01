@@ -571,16 +571,6 @@ static bool mouse_init (void)
    /* Start watching for data on the fd. */
    _al_unix_start_watching_fd(the_mouse.fd, process_new_data, &the_mouse);
 
-#ifdef ALLEGRO_RASPBERRYPI
-   ALLEGRO_SYSTEM *s = al_get_system_driver();
-   if (s && s->displays._size > 0) {
-      ALLEGRO_DISPLAY *d = _al_vector_ref(&s->displays, 0);
-      if (d) {
-         _al_evdev_set_mouse_range(0, 0, d->w-1, d->h-1);
-      }
-   }
-#endif
-
    return true;
 }
 
