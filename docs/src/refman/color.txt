@@ -27,6 +27,12 @@ See also: [al_color_cmyk], [al_color_rgb_to_cmyk]
 Return an [ALLEGRO_COLOR] structure from HSL (hue, saturation, lightness)
 values.
 
+Parameters:
+
+* hue - Color hue angle in the range 0..360
+* saturation - Color saturation in the range 0..1
+* lightness - Color lightness in the range 0..1
+
 See also: [al_color_hsl_to_rgb], [al_color_hsv]
 
 
@@ -36,10 +42,10 @@ Convert values in HSL color model to RGB color model.
 
 Parameters:
 
-* hue - Color hue angle in the range 0..360.
-* saturation - Color saturation in the range 0..1.
-* lightness - Color lightness in the range 0..1.
-* red, green, blue - returned RGB values in the range 0..1.
+* hue - Color hue angle in the range 0..360
+* saturation - Color saturation in the range 0..1
+* lightness - Color lightness in the range 0..1
+* red, green, blue - returned RGB values in the range 0..1
 
 See also: [al_color_rgb_to_hsl], [al_color_hsl], [al_color_hsv_to_rgb]
 
@@ -48,6 +54,12 @@ See also: [al_color_rgb_to_hsl], [al_color_hsl], [al_color_hsv_to_rgb]
 
 Return an [ALLEGRO_COLOR] structure from HSV (hue, saturation, value)
 values.
+
+Parameters:
+
+* hue - Color hue angle in the range 0..360
+* saturation - Color saturation in the range 0..1
+* value - Color value in the range 0..1
 
 See also: [al_color_hsv_to_rgb], [al_color_hsl]
 
@@ -58,10 +70,10 @@ Convert values in HSV color model to RGB color model.
 
 Parameters:
 
-* hue - Color hue angle in the range 0..360.
-* saturation - Color saturation in the range 0..1.
-* value - Color value in the range 0..1.
-* red, green, blue - returned RGB values in the range 0..1.
+* hue - Color hue angle in the range 0..360
+* saturation - Color saturation in the range 0..1
+* value - Color value in the range 0..1
+* red, green, blue - returned RGB values in the range 0..1
 
 See also: [al_color_rgb_to_hsv], [al_color_hsv], [al_color_hsl_to_rgb]
 

@@ -1879,3 +1879,34 @@ Since: 5.1.2
 
 See also: [ALLEGRO_RENDER_STATE], [ALLEGRO_RENDER_FUNCTION],
 [ALLEGRO_WRITE_MASK_FLAGS]
+
+
+### API: al_backup_dirty_bitmap
+
+On some platforms, notably Windows Direct3D and Android, textures may be
+lost at any time for events such as display resize or switching out of the
+app. On those platforms, bitmaps created without the ALLEGRO_NO_PRESERVE_TEXTURE
+flag automatically get backed up to system memory every time
+al_flip_display is called.
+
+This function gives you more control over when your bitmaps get backed up.
+By calling this function after modifying a bitmap, you can make sure the
+bitmap is backed up right away instead of during the next flip.
+
+Since: 5.2.1
+
+> *[Unstable API]:* This API is new and subject to refinement.
+
+See also: [al_backup_dirty_bitmaps], [al_create_bitmap]
+
+
+### API: al_backup_dirty_bitmaps
+
+Backs up all of a display's bitmaps to system memory.
+
+Since: 5.2.1
+
+> *[Unstable API]:* This API is new and subject to refinement.
+
+See also: [al_backup_dirty_bitmap]
+

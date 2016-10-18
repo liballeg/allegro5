@@ -190,7 +190,7 @@ static void sdl_flip_display(ALLEGRO_DISPLAY *d)
    SDL_RenderPresent(sdl->renderer);
 
    // SDL loses texture contents, for example on resize.
-    _al_opengl_backup_dirty_bitmaps(d, true);
+   al_backup_dirty_bitmaps(d);
 }
 
 static void sdl_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,

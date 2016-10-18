@@ -1,3 +1,5 @@
+#define ALLEGRO_UNSTABLE
+
 #include <stdio.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_ttf.h>
@@ -61,6 +63,8 @@ static void render(void)
     ALLEGRO_USTR *tulip = al_ustr_new("Tulip");
     ALLEGRO_USTR *dimension_text = al_ustr_new("Tulip");
     ALLEGRO_USTR *vertical_text  = al_ustr_new("Rose.");
+    ALLEGRO_USTR *dimension_label = al_ustr_new("(dimensions)");
+    int prev_cp = -1;
 
     al_clear_to_color(white);
 
@@ -81,7 +85,16 @@ static void render(void)
        x += al_get_glyph_advance(ex.f2, cp, ALLEGRO_NO_KERNING);
     }
     al_draw_line(50.5, y+0.5, x+0.5, y+0.5, red, 1);
-    al_draw_textf(ex.f2, black, x + 10, y, 0, "(dimensions)");
+
+    for (index = 0; index < al_ustr_length(dimension_label); index++) {
+       int cp = ustr_at(dimension_label, index);
+       ALLEGRO_GLYPH g;
+       if (al_get_glyph(ex.f2, prev_cp, cp, &g)) {
+          al_draw_tinted_bitmap_region(g.bitmap, black, g.x, g.y, g.w, g.h, x + 10 + g.kerning + g.offset_x, y + g.offset_y, 0);
+          x += g.advance;
+       }
+       prev_cp = cp;
+    }
 
     al_draw_textf(ex.f3, black, 50, 200, 0, "This font has a size of 12 pixels, "
         "the one above has 48 pixels.");

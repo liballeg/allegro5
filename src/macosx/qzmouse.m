@@ -162,7 +162,7 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
       // Y-coordinates in OS X start from the bottom.
       pos.y = NSHeight(frm) - pos.y;
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
-      scaling_factor = [[[evt window] contentView] backingScaleFactor];
+      scaling_factor = [[evt window] backingScaleFactor];
 #endif
    }
    else

@@ -3,6 +3,162 @@
 These lists serve as summaries; the full histories are in the git repository.
 
 
+Changes from 5.2.1 to 5.2.1.1 (August 2016)
+=======================================
+
+The main developers this time were: Trent Gamblin, SiegeLord.
+
+Core:
+
+  - Enforce backwards compatibility in the version check, rather than
+    erroneously allowing forwards compatiblity.
+
+  - Temporarily remove new extensions in ALLEGRO_OGL_EXT_LIST as that broke ABI
+    compatibility.
+
+OSX port:
+
+  - Temporarily revert changes in joystick detection, as it did not interact
+    well with some joysticks.
+
+Windows port:
+
+  - Fix the clear display to black right away to avoid an ugly white flash
+    change.
+
+
+Changes from 5.2.0 to 5.2.1 (July 2016)
+=======================================
+
+The main developers this time were: Elias Pschernig, Trent Gamblin, SiegeLord,
+Ryan Roden-Corrent, Boris Carvajal and Peter Hull.
+
+Core:
+
+  - Optimize bitmap holding a bit (Bruce Pascoe).
+
+  - Add `al_get/set_depth/samples` (OpenGL only for now).
+
+  - Optimize destruction performance when you have thousands of objects
+    (e.g. sub-bitmaps).
+
+  - Use low floating point precision for the OpenGL fragment shaders, which
+    helps performance a lot on mobile platforms.
+
+  - Don't stop and join the timer thread when stopping the last timer (prevents
+    unnecessary delay in this situation on some platforms).
+
+  - Add `al_backup_dirty_bitmap` and `al_backup_dirty_bitmaps` to more finely
+    control when bitmap context backup is performed.
+
+Android port:
+
+  - Fix Android app issues when woken up during sleep.
+
+  - Specify the Android toolchain file on the command line now.
+    ANDROID_NDK_TOOLCHAIN_ROOT now has to be specified in an environment
+    variable.
+
+OSX port:
+
+  - Improve joystick enumeration (Todd Cope).
+
+  - Make `al_set_new_window_title` work correctly.
+
+  - Don't send duplicate mouse move events.
+
+  - Fix mouse warping behavior.
+
+  - Exit fullscreen mode if ALLEGRO_FULLSCREEN_WINDOW is set when destroying a
+    display (otherwise if you destroy and recreate display without terminating
+    the program, a white window kicks around).
+
+iOS port:
+
+  - Make it compile again.
+
+  - Don't backup textures as it is unnecessary.
+
+  - Update minimum iOS to version to 6.1.
+
+  - Disable the native png loader in favor of libpng, as it is broken on
+    Apple's end.
+
+  - Create library when creating the archive.
+
+Windows port:
+
+  - Fix the D3D target bitmap bug.
+
+  - Clear display to black right away to avoid an ugly white flash.
+
+Raspberry Pi port:
+
+  - Fix system cursor support.
+
+Linux port:
+
+  - Make `al_set_new_window_title` work correctly.
+
+Build system:
+
+  - Use PROJECT_SOURCE_DIR and PROJECT_BINARY_DIR instead of CMAKE_SOURCE_DIR
+    and CMAKE_BINARY_DIR. This lets you use Allegro as a sub-project in your
+    CMake project.
+
+  - Fix GDIPlus finding in cmake-gui (Bruce Pascoe).
+
+  - Add .gitignore and ignore build/ dir (Mark Oates).
+
+  - Fix building examples with non-Allegro dependencies with the monolith build.
+
+Documentation:
+
+  - Various documentation updates (Daniel Johnson and others).
+
+Other:
+
+  - Add more `#include` statements in Allegro headers, so it's easier to use
+    them in isolation (Jordan Woehr).
+
+  - Allow marking tests as being hardware only.
+
+  - Prefix some private Allegro macros and types to not pollute the namespace.
+
+  - Make set_shader_uniform api const-correct (Bruce Pascoe).
+
+Audio addon:
+
+  - Adjust loop end position when calling `al_set_sample_instance_length`.
+
+Acodec addon:
+
+  - Allow file-backed audio streams to be restarted after they finish.
+
+  - Add Opus codec support.
+
+Image addon:
+
+  - Fail gracefully if not built with PNG/JPG loaders.
+
+Native dialog addon:
+
+Font addon:
+
+  - Make `al_get_text_dimensions` and `al_get_glyph_dimensions` return exact
+    bounding boxes (koro).
+
+  - Add `ALLEGRO_GLYPH` structure and `al_get_glyph`, allowing for some
+    additional optimization when drawing fonts.
+
+Examples:
+
+  - Add more controls to `ex_audio_props`.
+
+  - Add an example of using Enet with Allegro.
+
+
+
 Changes from 5.1.13.1 to 5.2.0 (April 2016)
 ============================================
 

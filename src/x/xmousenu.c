@@ -104,28 +104,6 @@ ALLEGRO_MOUSE_DRIVER *_al_xwin_mouse_driver(void)
 }
 
 
-static void scale_xy(int *x, int *y)
-{
-#ifdef ALLEGRO_RASPBERRYPI
-   ALLEGRO_SYSTEM *s = al_get_system_driver();
-   if (s && s->displays._size > 0) {
-      ALLEGRO_DISPLAY **ref = _al_vector_ref(&s->displays, 0);
-      ALLEGRO_DISPLAY *d = *ref;
-      if (d) {
-         ALLEGRO_DISPLAY_RASPBERRYPI *disp = (void *)d;
-         /* Not sure what's a better approach than adding 0.5 to
-          * get an accurate last pixel */
-         *x = ((*x)+0.5) * d->w / disp->screen_width;
-         *y = ((*y)+0.5) * d->h / disp->screen_height;
-      }
-   }
-#else
-   (void)x;
-   (void)y;
-#endif
-}
-
-
 /* xmouse_init:
  *  Initialise the driver.
  */
@@ -251,6 +229,16 @@ static bool xmouse_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
    int window_height = al_get_display_height(display);
    if (x < 0 || y < 0 || x >= window_width || y >= window_height)
       return false;
+
+   the_mouse.state.x = x;
+   the_mouse.state.y = y;
+
+#ifdef ALLEGRO_RASPBERRYPI
+   float scale_x, scale_y;
+   _al_raspberrypi_get_mouse_scale_ratios(&scale_x, &scale_y);
+   x /= scale_x;
+   y /= scale_y;
+#endif
 
    _al_mutex_lock(&system->lock);
 
@@ -453,7 +441,13 @@ void _al_xwin_mouse_motion_notify_handler(int x, int y,
    }
 
    _al_event_source_lock(&the_mouse.parent.es);
-   scale_xy(&x, &y);
+
+#ifdef ALLEGRO_RASPBERRYPI
+   float scale_x, scale_y;
+   _al_raspberrypi_get_mouse_scale_ratios(&scale_x, &scale_y);
+   x *= scale_x;
+   y *= scale_y;
+#endif
 
    int dx = x - the_mouse.state.x;
    int dy = y - the_mouse.state.y;

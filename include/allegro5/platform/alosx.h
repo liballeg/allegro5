@@ -40,7 +40,6 @@
    #import <CoreAudio/CoreAudio.h>
    #import <AudioUnit/AudioUnit.h>
    #import <AudioToolbox/AudioToolbox.h>
-   #import <QuickTime/QuickTime.h>
    #import <IOKit/IOKitLib.h>
    #import <IOKit/IOCFPlugIn.h>
    #import <IOKit/hid/IOHIDLib.h>

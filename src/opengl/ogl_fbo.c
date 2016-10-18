@@ -104,6 +104,7 @@ void _al_ogl_reset_fbo_info(ALLEGRO_FBO_INFO *info)
 }
 
 
+#if !defined ALLEGRO_RASPBERRYPI && (!defined ALLEGRO_ANDROID || defined ALLEGRO_CFG_OPENGLES3) && !defined ALLEGRO_CFG_OPENGLES
 static void check_gl_error(void)
 {
    GLint e = glGetError();
@@ -112,7 +113,7 @@ static void check_gl_error(void)
        _al_gl_error_string(e));
    }
 }
-
+#endif
 
 
 static void detach_depth_buffer(ALLEGRO_FBO_INFO *info)
@@ -150,7 +151,7 @@ static void detach_multisample_buffer(ALLEGRO_FBO_INFO *info)
 
 static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
 {
-#ifndef ALLEGRO_RASPBERRYPI
+#if !defined ALLEGRO_RASPBERRYPI
    GLuint rb;
    GLenum gldepth = GL_DEPTH_COMPONENT16;
 
@@ -183,16 +184,23 @@ static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
 
       bool extension_supported;
 #ifdef ALLEGRO_CFG_OPENGLES
-      extension_supported = display->ogl_extras->extension_list->ALLEGRO_GL_EXT_multisampled_render_to_texture;
+      (void)display;
+      extension_supported = al_have_opengl_extension("EXT_multisampled_render_to_texture");
 #else
       extension_supported = display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_multisample;
 #endif
 
       if (samples == 0 || !extension_supported)
          glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, gldepth, w, h);
+#if !defined ALLEGRO_ANDROID || defined ALLEGRO_CFG_OPENGLES3
       else
          glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT,
             samples, gldepth, w, h);
+#else
+      else {
+         return;
+      }
+#endif
 
       info->buffers.depth_buffer = rb;
       info->buffers.dw = w;
@@ -222,7 +230,7 @@ static void attach_depth_buffer(ALLEGRO_FBO_INFO *info)
 
 static void attach_multisample_buffer(ALLEGRO_FBO_INFO *info)
 {
-#ifndef ALLEGRO_RASPBERRYPI
+#if !defined ALLEGRO_RASPBERRYPI && (!defined ALLEGRO_ANDROID || defined ALLEGRO_CFG_OPENGLES3)
    ALLEGRO_BITMAP *b = info->owner;
    int samples = al_get_bitmap_samples(b);
 
@@ -282,6 +290,8 @@ static void attach_multisample_buffer(ALLEGRO_FBO_INFO *info)
       glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
    }
    #endif
+#else
+   (void)info;
 #endif
 }
 
@@ -605,14 +615,11 @@ static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
       /* Attach the texture. */
 #ifdef ALLEGRO_CFG_OPENGLES
       if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
-         bool extension_supported = display->ogl_extras->
-            extension_list->
-            ALLEGRO_GL_EXT_multisampled_render_to_texture;
-         if (al_get_bitmap_samples(bitmap) == 0 || !extension_supported) {
+         if (al_get_bitmap_samples(bitmap) == 0 || !al_have_opengl_extension("EXT_multisampled_render_to_texture")) {
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                GL_TEXTURE_2D, ogl_bitmap->texture, 0);
          }
-#ifndef ALLEGRO_IPHONE
+#if !defined ALLEGRO_IPHONE && (!defined ALLEGRO_ANDROID || defined ALLEGRO_CFG_OPENGLES3)
          else {
             glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER,
                GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ogl_bitmap->texture, 

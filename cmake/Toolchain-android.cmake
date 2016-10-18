@@ -30,7 +30,7 @@ find_program(CMAKE_MAKE_PROGRAM make)
 
 #setup build targets, mutually exclusive
 set(PossibleArmTargets
-  "x86;x86_64;armeabi;armeabi-v7a;armeabi-v7a with NEON")
+  "x86;x86_64;armeabi;armeabi-v7a;armeabi-v7a with NEON;arm64-v8a;mips;mips64")
 set(ARM_TARGETS "armeabi-v7a" CACHE STRING 
     "the arm targets for android, recommend armeabi-v7a 
     for floating point support and NEON.")
@@ -39,8 +39,26 @@ if(ARM_TARGETS STREQUAL "x86")
     set(ANDROID_ARCH "i686-linux-android")
 elseif(ARM_TARGETS STREQUAL "x86_64")
     set(ANDROID_ARCH "x86_64-linux-android")
-else()
+elseif(ARM_TARGETS STREQUAL "arm64-v8a")
+    set(ANDROID_ARCH "aarch64-linux-android")
+elseif(ARM_TARGETS STREQUAL "mips")
+    set(ANDROID_ARCH "mipsel-linux-android")
+elseif(ARM_TARGETS STREQUAL "mips64")
+    set(ANDROID_ARCH "mips64el-linux-android")
+elseif(ARM_TARGETS STREQUAL "armeabi")
     set(ANDROID_ARCH "arm-linux-androideabi")
+    set(ARMEABI true)
+    set(NEON false)
+elseif(ARM_TARGETS STREQUAL "armeabi-v7a")
+    set(ARMEABI true)
+    set(ANDROID_ARCH "arm-linux-androideabi")
+    set(NEON false)
+elseif(ARM_TARGETS STREQUAL "armeabi-v7a with NEON")
+    set(ARMEABI true)
+    set(ANDROID_ARCH "arm-linux-androideabi")
+    set(NEON true)
+else()
+    message(FATAL_ERROR "Unknown Android target ${ARM_TARGETS}")        
 endif()
 
 if(WIN32)
@@ -75,33 +93,10 @@ set(LIBRARY_OUTPUT_PATH_ROOT ${CMAKE_SOURCE_DIR} CACHE PATH
     android libs are installed to")
     
 #set these flags for client use
-if(ARM_TARGETS STREQUAL "armeabi")
-  set(ARMEABI true)
-  set(LIBRARY_OUTPUT_PATH ${LIBRARY_OUTPUT_PATH_ROOT}/libs/armeabi
-      CACHE PATH "path for android libs" FORCE)
-  set(CMAKE_INSTALL_PREFIX ${ANDROID_NDK_TOOLCHAIN_ROOT}/user/armeabi
-      CACHE STRING "path for installing" FORCE)
-  set(NEON false)
-elseif(ARM_TARGETS STREQUAL "x86")
-  set( LIBRARY_OUTPUT_PATH ${LIBRARY_OUTPUT_PATH_ROOT}/libs/x86
-       CACHE PATH "path for android libs" FORCE)
-  set(  CMAKE_INSTALL_PREFIX ${ANDROID_NDK_TOOLCHAIN_ROOT}/user/x86
-      CACHE STRING "path for installing" FORCE)
-elseif(ARM_TARGETS STREQUAL "x86_64")
-  set( LIBRARY_OUTPUT_PATH ${LIBRARY_OUTPUT_PATH_ROOT}/libs/x86_64
-       CACHE PATH "path for android libs" FORCE)
-  set(  CMAKE_INSTALL_PREFIX ${ANDROID_NDK_TOOLCHAIN_ROOT}/user/x86_64
-      CACHE STRING "path for installing" FORCE)
-else()
-  if(ARM_TARGETS STREQUAL "armeabi-v7a with NEON")
-    set(NEON true)
-  endif()
-  set(ARMEABI_V7A true)
-  set( LIBRARY_OUTPUT_PATH ${LIBRARY_OUTPUT_PATH_ROOT}/libs/armeabi-v7a 
-       CACHE PATH "path for android libs" FORCE)
-  set(  CMAKE_INSTALL_PREFIX ${ANDROID_NDK_TOOLCHAIN_ROOT}/user/armeabi-v7a
-      CACHE STRING "path for installing" FORCE)
-endif()
+set(LIBRARY_OUTPUT_PATH ${LIBRARY_OUTPUT_PATH_ROOT}/libs/${ARM_TARGETS}
+    CACHE PATH "path for android libs" FORCE)
+set(CMAKE_INSTALL_PREFIX ${ANDROID_NDK_TOOLCHAIN_ROOT}/user/${ARM_TARGETS}
+    CACHE STRING "path for installing" FORCE)
 
 # where is the target environment 
 SET(CMAKE_FIND_ROOT_PATH  ${ANDROID_NDK_TOOLCHAIN_ROOT}/bin ${ANDROID_NDK_TOOLCHAIN_ROOT}/arm-linux-androideabi ${ANDROID_NDK_TOOLCHAIN_ROOT}/sysroot ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_PREFIX}/share)
@@ -111,13 +106,9 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM ONLY)
 SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
-if(ARM_TARGETS STREQUAL "x86")
-  SET(CMAKE_CXX_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -Wno-psabi")
-  SET(CMAKE_C_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -Wno-psabi")
-elseif(ARM_TARGETS STREQUAL "x86_64")
-  SET(CMAKE_CXX_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -Wno-psabi")
-  SET(CMAKE_C_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -Wno-psabi")
-else()
+SET(CMAKE_CXX_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -Wno-psabi")
+SET(CMAKE_C_FLAGS "-DGL_GLEXT_PROTOTYPES -fPIC -DANDROID -Wno-psabi")
+if (ARMEABI)
   #Setup arm specific stuff
   #It is recommended to use the -mthumb compiler flag to force the generation
   #of 16-bit Thumb-1 instructions (the default being 32-bit ARM ones).

@@ -45,7 +45,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_raspberrypi_display_interface(void);
 void _al_raspberrypi_get_screen_info(int *dx, int *dy,
    int *screen_width, int *screen_height);
 
-bool _al_evdev_set_mouse_range(int x1, int y1, int x2, int y2);
+bool _al_evdev_set_mouse_range(int x1, int y1, int x2, int y2); // used by console mouse driver
+void _al_raspberrypi_get_mouse_scale_ratios(float *x, float *y); // used by X mouse driver
 
 ALLEGRO_MOUSE_DRIVER _al_mousedrv_linux_evdev;
 

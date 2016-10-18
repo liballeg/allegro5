@@ -19,7 +19,7 @@ public class Sensors implements SensorEventListener
       /* Only check for Accelerometers for now, not sure how we should utilize
        * other types.
        */
-      sensorManager = (SensorManager)context.getSystemService("sensor");
+      sensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
       sensors = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
    }
 

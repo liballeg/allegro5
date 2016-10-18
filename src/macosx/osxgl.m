@@ -267,8 +267,7 @@ void _al_osx_keyboard_was_installed(BOOL install) {
    NSRect *rc = [[array objectAtIndex:0] pointerValue];
    NSWindow *win = [[array objectAtIndex:1] pointerValue];
 
-   // Couldn't resist animating it!
-   [win setFrame:*rc display:YES animate:YES];
+   [win setFrame:*rc display:YES animate:NO];
 }
 @end
 
@@ -1033,14 +1032,7 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
       [win setFrameOrigin: origin];
    }
    else {
-      /* Center the window */
-      NSRect rc = [win frame];
-      NSRect sc = [[win screen] frame];
-      NSPoint origin;
-
-      origin.x = sc.origin.x + sc.size.width/2 - rc.size.width/2;
-      origin.y = sc.origin.y + sc.size.height/2 - rc.size.height/2;
-      [win setFrameOrigin: origin];
+      [win center];
    }
    [win makeKeyAndOrderFront:self];
    if (mask != NSBorderlessWindowMask) [win makeMainWindow];
@@ -1069,6 +1061,13 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
 #endif
       CGDisplayRelease(dpy->display_id);
       dpy->in_fullscreen = false;
+   }
+   else if (dpy->parent.flags & ALLEGRO_FULLSCREEN_WINDOW) {
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
+      if (dpy->win) {
+         [[dpy->win contentView] exitFullScreenModeWithOptions: nil];
+      }
+#endif
    }
    if (dpy->win) {
       // Destroy the containing window if there is one
@@ -1967,6 +1966,9 @@ static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h)
                                   waitUntilDone: YES];
 
    [pool drain];
+
+   clear_to_black(dpy->ctx);
+
    return acknowledge_resize_display_win(d);
 }
 

@@ -163,11 +163,13 @@ static void read_allegro_cfg(void)
 
 
 /*
+ * Can a binary with version a use a library with version b?
+ *
  * Let a = xa.ya.za.*
  * Let b = xb.yb.zb.*
  *
  * When a has the unstable bit, a is compatible with b if xa.ya.za = xb.yb.zb.
- * Otherwise, a is compatible with b if xa.ya = xb.yb.
+ * Otherwise, a is compatible with b if xa.ya = xb.yb and zb >= za.
  *
  * Otherwise a and b are incompatible.
  */
@@ -190,6 +192,9 @@ static bool compatible_versions(int a, int b)
       return false;
    }
    if (a_sub != b_sub) {
+      return false;
+   }
+   if (a_wip > b_wip) {
       return false;
    }
    return true;
@@ -277,7 +282,9 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
       active_sysdrv->vt->heartbeat_init();
 
    if (atexit_ptr && atexit_virgin) {
+#ifndef ALLEGRO_ANDROID
       atexit_ptr(al_uninstall_system);
+#endif
       atexit_virgin = false;
    }
 

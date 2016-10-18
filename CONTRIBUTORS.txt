@@ -16,6 +16,7 @@ Edgar Reynaldo
 ElectricSolstice
 Elias Pschernig
 Eric Botcazou
+Erich Erstu
 Evert Glebbeek
 gameovera
 George Foot

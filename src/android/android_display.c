@@ -664,7 +664,7 @@ static void android_flip_display(ALLEGRO_DISPLAY *dpy)
    /* Backup bitmaps created without ALLEGRO_NO_PRESERVE_TEXTURE that are
     * dirty, to system memory.
     */
-   _al_opengl_backup_dirty_bitmaps(dpy, true);
+   al_backup_dirty_bitmaps(dpy);
 }
 
 static void android_update_display_region(ALLEGRO_DISPLAY *dpy, int x, int y,

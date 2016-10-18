@@ -26,6 +26,7 @@
 
 #include "allegro5/allegro_font.h"
 #include "allegro5/internal/aintern_dtor.h"
+#include "allegro5/internal/aintern_font.h"
 #include "allegro5/internal/aintern_system.h"
 
 /* If you call this, you're probably making a mistake. */
@@ -402,6 +403,12 @@ int al_get_glyph_advance(const ALLEGRO_FONT *f, int codepoint1, int codepoint2)
    return f->vtable->get_glyph_advance(f, codepoint1, codepoint2);
 }
 
+/* Function: al_get_glyph
+ */
+bool al_get_glyph(const ALLEGRO_FONT *f, int prev_codepoint, int codepoint, ALLEGRO_GLYPH *glyph)
+{
+   return f->vtable->get_glyph(f, prev_codepoint, codepoint, glyph);
+};
 
 
 /* This helper function helps splitting an ustr in several delimited parts.

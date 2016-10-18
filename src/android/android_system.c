@@ -120,6 +120,8 @@ static void android_cleanup(bool uninstall_system)
       return;
    }
 
+   already_cleaned_up = true;
+
    if (uninstall_system) {
       /* I don't think android calls our atexit() stuff since we're in a shared lib
          so make sure al_uninstall_system is called */
@@ -129,8 +131,6 @@ static void android_cleanup(bool uninstall_system)
    finish_activity(_al_android_get_jnienv());
 
    (*javavm)->DetachCurrentThread(javavm);
-
-   already_cleaned_up = true;
 }
 
 static void *android_app_trampoline(ALLEGRO_THREAD *thr, void *arg)
@@ -285,7 +285,8 @@ JNI_FUNC(bool, AllegroActivity, nativeOnCreate, (JNIEnv *env, jobject obj))
 
 JNI_FUNC(void, AllegroActivity, nativeOnPause, (JNIEnv *env, jobject obj))
 {
-   (void)env; (void)obj;
+   (void)env;
+   (void)obj;
 
    ALLEGRO_DEBUG("pause activity\n");
 
@@ -293,12 +294,15 @@ JNI_FUNC(void, AllegroActivity, nativeOnPause, (JNIEnv *env, jobject obj))
 
    ALLEGRO_SYSTEM *sys = (void *)al_get_system_driver();
 
-   if(!system_data.system || !sys) {
+   if (!system_data.system || !sys) {
       ALLEGRO_DEBUG("no system driver");
       return;
    }
 
-   // ASSERT(sys != NULL);
+   if (!_al_vector_size(&sys->displays)) {
+      ALLEGRO_DEBUG("no display, not sending SWITCH_OUT event");
+      return;
+   }
 
    ALLEGRO_DISPLAY *display = *(ALLEGRO_DISPLAY**)_al_vector_ref(&sys->displays, 0);
 
@@ -312,10 +316,6 @@ JNI_FUNC(void, AllegroActivity, nativeOnPause, (JNIEnv *env, jobject obj))
          _al_event_source_emit_event(&display->es, &event);
       }
       _al_event_source_unlock(&display->es);
-
-      ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID*)display;
-      if (d->created)
-         _al_android_destroy_surface(env, d, false);
    }
 }
 
@@ -362,6 +362,7 @@ JNI_FUNC(void, AllegroActivity, nativeOnResume, (JNIEnv *env, jobject obj))
    }
 }
 
+/* NOTE: don't put any ALLEGRO_DEBUG in here! */
 JNI_FUNC(void, AllegroActivity, nativeOnDestroy, (JNIEnv *env, jobject obj))
 {
    (void)obj;
@@ -381,20 +382,17 @@ JNI_FUNC(void, AllegroActivity, nativeOnDestroy, (JNIEnv *env, jobject obj))
       "getMainReturned",
       "()Z"
    );
+
    if (!main_returned) {
-      android_cleanup(false);
-      return;
+      exit(0);
    }
 
-   ALLEGRO_DEBUG("destroy activity");
    if(!system_data.user_lib) {
-      ALLEGRO_DEBUG("user lib not loaded.");
       return;
    }
 
    system_data.user_main = NULL;
    if(dlclose(system_data.user_lib) != 0) {
-      ALLEGRO_ERROR("failed to unload user lib: %s", dlerror());
       return;
    }
 
@@ -465,11 +463,10 @@ JNI_FUNC(void, AllegroActivity, nativeSendJoystickConfigurationEvent, (JNIEnv *e
    _al_event_source_unlock(es);
 }
 
+/* NOTE: don't put any ALLEGRO_DEBUG in here! */
 static void finish_activity(JNIEnv *env)
 {
-   ALLEGRO_DEBUG("pre post");
    _jni_callVoidMethod(env, system_data.activity_object, "postFinish");
-   ALLEGRO_DEBUG("post post");
 }
 
 static ALLEGRO_SYSTEM *android_initialize(int flags)
@@ -649,6 +646,20 @@ void _al_register_system_interfaces(void)
    *add = _al_system_android_interface();
 
    /* TODO: add the non native activity driver */
+}
+
+/* Function: al_android_get_jni_env
+ */
+JNIEnv *al_android_get_jni_env(void)
+{
+   return _al_android_get_jnienv();
+}
+
+/* Function: al_android_get_activity
+ */
+jobject al_android_get_activity(void)
+{
+   return _al_android_activity_object();
 }
 
 /* vim: set sts=3 sw=3 et: */

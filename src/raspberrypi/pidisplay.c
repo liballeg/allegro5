@@ -30,6 +30,7 @@ static DISPMANX_ELEMENT_HANDLE_T cursor_element;
 static VC_RECT_T dst_rect;
 static VC_RECT_T src_rect;
 static bool cursor_added = false;
+static float mouse_scale_ratio_x = 1.0f, mouse_scale_ratio_y = 1.0f;
 
 struct ALLEGRO_DISPLAY_RASPBERRYPI_EXTRA {
 };
@@ -254,6 +255,12 @@ void _al_raspberrypi_get_screen_info(int *dx, int *dy,
    }
 }
 
+void _al_raspberrypi_get_mouse_scale_ratios(float *x, float *y)
+{
+	*x = mouse_scale_ratio_x;
+	*y = mouse_scale_ratio_y;
+}
+
 static bool pi_create_display(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_RASPBERRYPI *d = (void *)display;
@@ -329,6 +336,9 @@ static bool pi_create_display(ALLEGRO_DISPLAY *display)
    int dx, dy, screen_width, screen_height;
    _al_raspberrypi_get_screen_info(&dx, &dy, &screen_width, &screen_height);
 
+   mouse_scale_ratio_x = (float)display->w / screen_width;
+   mouse_scale_ratio_y = (float)display->h / screen_height;
+
    d->cursor_offset_x = dx;
    d->cursor_offset_y = dy;
 
@@ -374,6 +384,10 @@ static bool pi_create_display(ALLEGRO_DISPLAY *display)
 
    if (!eglMakeCurrent(egl_display, egl_window, egl_window, egl_context)) {
       return false;
+   }
+
+   if (!getenv("DISPLAY")) {
+      _al_evdev_set_mouse_range(0, 0, display->w-1, display->h-1);
    }
 
    return true;
@@ -608,7 +622,7 @@ static bool raspberrypi_wait_for_vsync(ALLEGRO_DISPLAY *display)
     return false;
 }
 
-void raspberrypi_flip_display(ALLEGRO_DISPLAY *disp)
+static void raspberrypi_flip_display(ALLEGRO_DISPLAY *disp)
 {
    eglSwapBuffers(egl_display, egl_window);
 
