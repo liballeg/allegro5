@@ -1152,6 +1152,11 @@ To return to drawing to a display, set the backbuffer of the display as the
 target bitmap, using [al_get_backbuffer]. As a convenience, you may also use
 [al_set_target_backbuffer].
 
+Each allegro bitmap maintains two transformation matrices associated with it for
+drawing onto the bitmap. There is a view matrix and a projection matrix. When you
+call al_set_target_bitmap, these will be made current for the bitmap, affecting
+global OpenGL and DirectX states depending on the driver in use.
+
 Each video bitmap is tied to a display. When a video bitmap is set to as the
 target bitmap, the display that the bitmap belongs to is automatically made
 "current" for the calling thread (if it is not current already).  Then drawing
