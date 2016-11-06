@@ -342,7 +342,11 @@ static bool osx_set_mouse_xy(ALLEGRO_DISPLAY *dpy_, int x, int y)
 
       CGPoint point_pos = CGPointMake(x, y);
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+#if __LP64__ || TARGET_OS_EMBEDDED || TARGET_OS_IPHONE || TARGET_OS_WIN32 || NS_BUILD_32_LIKE_64
       point_pos = [[window contentView] convertPointFromBacking: point_pos];
+#else
+      point_pos = NSPointToCGPoint([[window contentView] convertPointFromBacking: NSPointFromCGPoint(point_pos)]);
+#endif
 #endif
       pos.x = content.origin.x + point_pos.x;
       pos.y = rect.size.height - content.origin.y - content.size.height + point_pos.y;
