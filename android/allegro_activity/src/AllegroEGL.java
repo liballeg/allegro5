@@ -63,7 +63,7 @@ class AllegroEGL
 
       egl_Display = dpy;
 
-      Log.d(TAG, "egl_Init end");
+      Log.d(TAG, "egl_Init OpenGL ES " + egl_version[0] + "." + egl_version[1]);
       return true;
    }
 
@@ -213,12 +213,9 @@ class AllegroEGL
          return 0;
       }
 
-      Log.d(TAG, "EGL context created");
+      Log.d(TAG, "EGL context (OpenGL ES " + version + ") created");
 
       egl_Context = ctx;
-
-      Log.d(TAG, "egl_createContext end");
-
       return 1;
    }
 
