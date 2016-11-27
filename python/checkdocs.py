@@ -207,9 +207,10 @@ def parse_all_headers():
     for header in headers:
         p = subprocess.Popen(options.compiler + " -E -dD - " + includes,
             stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
-        p.stdin.write(bytes("#include <allegro5/allegro.h>\n" + open(header).read(), encoding="UTF-8"))
+        filename = "#include <allegro5/allegro.h>\n" + open(header).read()
+        p.stdin.write(filename.encode('utf-8'))
         p.stdin.close()
-        text = str(p.stdout.read(), encoding="UTF-8")
+        text = p.stdout.read().decode("utf-8")
         parse_header(text.splitlines(), header)
         #print("%d definitions in %s" % (n, header))
 
