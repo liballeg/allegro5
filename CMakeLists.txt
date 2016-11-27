@@ -147,7 +147,7 @@ option(WANT_MONOLITH "Include all addons in the main library" off)
 # Wrappers.
 #
 
-option(WANT_PYTHON_WRAPPER "Enable generation of the Python wrapper" on)
+option(WANT_PYTHON_WRAPPER "Enable generation of the Python wrapper" off)
 
 #
 # Documentation.
