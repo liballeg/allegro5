@@ -35,6 +35,10 @@ yourself (say, in case the Allegro developers did not include it yet), you
 can use the [al_have_opengl_extension] and
 [al_get_opengl_proc_address] functions instead.
 
+> *Note:* the exact extensions exposed depend on how Allegro was compiled. It
+is recommended to use [al_have_opengl_extension] and
+[al_get_opengl_proc_address] for the most stable experience.
+
 ## API: al_get_opengl_proc_address
 
 Helper to get the address of an OpenGL symbol

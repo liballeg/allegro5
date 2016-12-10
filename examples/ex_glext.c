@@ -2,6 +2,8 @@
  * Taken from AllegroGL.
  */
 
+#define ALLEGRO_UNSTABLE
+
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
