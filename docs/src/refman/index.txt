@@ -50,4 +50,5 @@ Addons
 * [Native dialogs addon](native_dialog.html)
 * [PhysicsFS addon](physfs.html)
 * [Primitives addon](primitives.html)
+* [Video streaming addon](video.html)
 
