@@ -144,6 +144,8 @@ jstring jdata = (* env)->NewStringUTF(env, "Hello Java!");
 
 Since: 5.2.2
 
+> *[Unstable API]:* This API is new and subject to refinement.
+
 ### API: al_android_get_activity
 
 Returns the Java Android activity used by Allegro. This is the same
@@ -151,6 +153,8 @@ object created by Android from the class you specify in your manifest
 and either an instance of AllegroActivity or a derived class.
 
 Since: 5.2.2
+
+> *[Unstable API]:* This API is new and subject to refinement.
 
 ## X11
 
