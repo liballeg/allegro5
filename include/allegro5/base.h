@@ -55,7 +55,7 @@
 
 #define ALLEGRO_VERSION          5
 #define ALLEGRO_SUB_VERSION      2
-#define ALLEGRO_WIP_VERSION      2
+#define ALLEGRO_WIP_VERSION      3
 
 #ifdef ALLEGRO_UNSTABLE
    #define ALLEGRO_UNSTABLE_BIT  1 << 31
@@ -73,9 +73,9 @@
  */
 #define ALLEGRO_RELEASE_NUMBER   0
 
-#define ALLEGRO_VERSION_STR      "5.2.2 (GIT)"
+#define ALLEGRO_VERSION_STR      "5.2.3 (GIT)"
 #define ALLEGRO_DATE_STR         "2016"
-#define ALLEGRO_DATE             20160731    /* yyyymmdd */
+#define ALLEGRO_DATE             20161211    /* yyyymmdd */
 #define ALLEGRO_VERSION_INT \
     ((ALLEGRO_VERSION << 24) | (ALLEGRO_SUB_VERSION << 16) | \
     (ALLEGRO_WIP_VERSION << 8) | ALLEGRO_RELEASE_NUMBER | \
