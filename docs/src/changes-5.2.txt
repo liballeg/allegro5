@@ -3,6 +3,86 @@
 These lists serve as summaries; the full histories are in the git repository.
 
 
+Changes from 5.2.1.1 to 5.2.2 (December 2016)
+=======================================
+
+The main developers this time were: Trent Gamblin, SiegeLord, Elias Pschernig.
+
+Core:
+
+  - Don't accumulate time in the timer while it is stopped.
+
+  - Use dynamic OpenGL ES checks, so binaries produced on newer platforms
+    don't crash on older ones.
+
+  - Destabilize the OpenGL extensions API (BREAKING CHANGE!).
+
+Raspberry Pi port:
+
+  - Add various optimizations.
+
+  - Fix `al_set_mouse_xy` under X.
+
+Android port:
+
+  - Fix buffer overrun and memory leak in the clipboard support.
+
+  - Add WANT_GLES3 to disable some of the newer features on platforms where they
+    aren't supported.
+
+  - Fix build in Android versions below 3.1.
+
+  - Fix a crash when activity is destroyed/paused.
+
+  - Allow building for android mips, arm64 and mips64.
+
+  - Add `al_android_get_jni_env` and `al_android_get_activity` utility
+    functions.
+
+  - Update manifest files for newer Android versions.
+
+Windows port:
+
+  - Handle keyboard input properly when Ctrl is pressed (Tobias Scheuer).
+
+Hurd port:
+
+  - Define a fallback PATH_MAX (Andreas Rönnquist).
+
+OSX port:
+
+  - Clear window to black when going in/out of fullscreen.
+
+  - Fix window centering when going out of FULLSCREEN_WINDOW mode.
+
+  - Fix OSX 10.12 build.
+
+  - Allow 32 bit builds on OSX (MarcusCalhoun-Lopez).
+
+Build system:
+
+  - Fix issues with building on GCC6 on Windows.
+
+  - Fix source directory littering while configuring the Android build.
+
+Python binding:
+
+  - Add support Python 3 (Gabriel Queiroz).
+
+Documentation:
+
+  - Document the behavior of `al_set_target_bitmap` with respect to
+    transformations (Edgar Reynaldo).
+
+  - Fix typo in `al_use_transform` docs (Ryan Roden-Corrent).
+
+Examples:
+
+  - Add kerning to the `al_get_glyph` example in ex_ttf.
+
+  - Various fixes in ex_camera (Erich Erstu).
+
+
 Changes from 5.2.1 to 5.2.1.1 (August 2016)
 =======================================
 
