@@ -506,8 +506,10 @@ See also: [al_create_bitmap]
 ### API: al_clone_bitmap
 
 Create a new bitmap with [al_create_bitmap], and copy the pixel data from the
-old bitmap across. If the new bitmap is a memory bitmap, its projection bitmap
-is reset to be orthographic.
+old bitmap across. The newly created bitmap will be created with the current
+new bitmap flags, and not the ones that were used to create the original
+bitmap.  If the new bitmap is a memory bitmap, its projection bitmap is reset
+to be orthographic.
 
 See also: [al_create_bitmap], [al_set_new_bitmap_format],
 [al_set_new_bitmap_flags], [al_convert_bitmap]
