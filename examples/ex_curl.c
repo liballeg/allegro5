@@ -417,6 +417,7 @@ int main(int argc, const char *argv[])
    }
 
    curl_global_cleanup();
+   al_destroy_display(display);
 
    close_log(wait_for_log);
 
