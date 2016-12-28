@@ -86,6 +86,19 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
       ALLEGRO_INFO("events thread spawned.\n");
    }
 
+   const char *binding = al_get_config_value(al_get_system_config(),
+         "keyboard", "toggle_mouse_grab_key");
+   if (binding) {
+      s->toggle_mouse_grab_keycode = _al_parse_key_binding(binding,
+         &s->toggle_mouse_grab_modifiers);
+      if (s->toggle_mouse_grab_keycode) {
+         ALLEGRO_DEBUG("Toggle mouse grab key: '%s'\n", binding);
+      }
+      else {
+         ALLEGRO_WARN("Cannot parse key binding '%s'\n", binding);
+      }
+   }
+
    return &s->system;
 }
 
@@ -133,27 +146,6 @@ static void xglx_shutdown_system(void)
 
 static ALLEGRO_DISPLAY_INTERFACE *xglx_get_display_driver(void)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-
-   /* Look up the toggle_mouse_grab_key binding.  This isn't such a great place
-    * to do it, but the config file is not available until after the system driver
-    * is initialised.
-    */
-   if (!system->toggle_mouse_grab_keycode) {
-      const char *binding = al_get_config_value(al_get_system_config(),
-         "keyboard", "toggle_mouse_grab_key");
-      if (binding) {
-         system->toggle_mouse_grab_keycode = _al_parse_key_binding(binding,
-            &system->toggle_mouse_grab_modifiers);
-         if (system->toggle_mouse_grab_keycode) {
-            ALLEGRO_DEBUG("Toggle mouse grab key: '%s'\n", binding);
-         }
-         else {
-            ALLEGRO_WARN("Cannot parse key binding '%s'\n", binding);
-         }
-      }
-   }
-
    return _al_display_xglx_driver();
 }
 
