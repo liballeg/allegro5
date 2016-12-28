@@ -53,6 +53,9 @@
 #include "allegro5/platform/aintunix.h"
 
 
+ALLEGRO_DEBUG_CHANNEL("keyboard")
+
+
 #define PREFIX_I                "al-ckey INFO: "
 #define PREFIX_W                "al-ckey WARNING: "
 #define PREFIX_E                "al-ckey ERROR: "
@@ -68,6 +71,10 @@ typedef struct ALLEGRO_KEYBOARD_LINUX
    int startup_kbmode;
    ALLEGRO_KEYBOARD_STATE state;
    unsigned int modifiers;
+   // Quit if Ctrl-Alt-Del is pressed.
+   bool three_finger_flag;
+   // Whether to let the LED lights if the .
+   bool key_led_flag;
 } ALLEGRO_KEYBOARD_LINUX;
 
 
@@ -356,6 +363,25 @@ static bool lkeybd_init_keyboard(void)
       //goto Error;
    }
 
+   the_keyboard.three_finger_flag = true;
+   the_keyboard.key_led_flag = true;
+
+   const char *value = al_get_config_value(al_get_system_config(),
+         "keyboard", "enable_three_finger_exit");
+   if (value) {
+      the_keyboard.three_finger_flag = !strncmp(value, "true", 4);
+   }
+   value = al_get_config_value(al_get_system_config(),
+         "keyboard", "enable_key_led_toggle");
+   if (value) {
+      the_keyboard.key_led_flag = !strncmp(value, "true", 4);
+   }
+
+   ALLEGRO_DEBUG("Three finger flag enabled: %s\n",
+      the_keyboard.three_finger_flag ? "true" : "false");
+   ALLEGRO_DEBUG("Key LED toggle enabled: %s\n",
+      the_keyboard.key_led_flag ? "true" : "false");
+
    /* Initialise the keyboard object for use as an event source. */
    _al_event_source_init(&the_keyboard.parent.es);
 
@@ -498,7 +524,7 @@ static void process_character(unsigned char ch)
       if (press) {
          if (flag & KB_MODIFIERS)
             the_keyboard.modifiers |= flag;
-         else if ((flag & KB_LED_FLAGS) && _al_key_led_flag)
+         else if ((flag & KB_LED_FLAGS) && the_keyboard.key_led_flag)
             the_keyboard.modifiers ^= flag;
       }
       else {
@@ -532,7 +558,7 @@ static void process_character(unsigned char ch)
    }
    
    /* three-finger salute for killing the program */
-   if ((_al_three_finger_flag)
+   if ((the_keyboard.three_finger_flag)
        && ((mycode == ALLEGRO_KEY_DELETE) || (mycode == ALLEGRO_KEY_END))
        && (the_keyboard.modifiers & ALLEGRO_KEYMOD_CTRL)
        && (the_keyboard.modifiers & ALLEGRO_KEYMOD_ALT))

@@ -53,11 +53,6 @@ AL_FUNC(bool,         al_key_down,           (const ALLEGRO_KEYBOARD_STATE *, in
 
 AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_keyboard_event_source, (void));
 
-
-/* TODO: use the config system */
-AL_VAR(bool, _al_three_finger_flag);
-AL_VAR(bool, _al_key_led_flag);
-
 #ifdef __cplusplus
    }
 #endif

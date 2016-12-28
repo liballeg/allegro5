@@ -33,12 +33,6 @@
 /* the active keyboard driver */
 static ALLEGRO_KEYBOARD_DRIVER *new_keyboard_driver = NULL;
 
-/* mode flags */
-/* TODO: use the config system for these */
-bool _al_three_finger_flag = true;
-bool _al_key_led_flag = true;
-
-
 
 /* Provide a default naming for the most common keys. Keys whose
  * mapping changes dependind on the layout aren't listed - it's up to

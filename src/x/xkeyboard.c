@@ -59,6 +59,8 @@ typedef struct ALLEGRO_KEYBOARD_XWIN
 {
    ALLEGRO_KEYBOARD parent;
    ALLEGRO_KEYBOARD_STATE state;
+   // Quit if Ctrl-Alt-Del is pressed.
+   bool three_finger_flag;
 } ALLEGRO_KEYBOARD_XWIN;
 
 
@@ -928,6 +930,16 @@ static bool xkeybd_init_keyboard(void)
 
    _al_event_source_init(&the_keyboard.parent.es);
 
+   the_keyboard.three_finger_flag = true;
+
+   const char *value = al_get_config_value(al_get_system_config(),
+         "keyboard", "enable_three_finger_exit");
+   if (value) {
+      the_keyboard.three_finger_flag = !strncmp(value, "true", 4);
+   }
+   ALLEGRO_DEBUG("Three finger flag enabled: %s\n",
+      the_keyboard.three_finger_flag ? "true" : "false");
+
    //_xwin_keydrv_set_leds(_key_shifts);
    
    /* Get the pid, which we use for the three finger salute */
@@ -1065,7 +1077,7 @@ static void handle_key_press(int mycode, int unichar, int filtered,
 #endif
 
    /* Exit by Ctrl-Alt-End.  */
-   if ((_al_three_finger_flag)
+   if ((the_keyboard.three_finger_flag)
        && ((mycode == ALLEGRO_KEY_DELETE) || (mycode == ALLEGRO_KEY_END))
        && (modifiers & ALLEGRO_KEYMOD_CTRL)
        && (modifiers & (ALLEGRO_KEYMOD_ALT | ALLEGRO_KEYMOD_ALTGR)))
