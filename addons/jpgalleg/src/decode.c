@@ -477,7 +477,7 @@ get_bits(int num_bits)
  *  Reads a string of bits from the input stream and returns a properly signed
  *  number given the category.
  */
-INLINE int
+static INLINE int
 get_value(int category)
 {
 	int result = get_bits(category);
