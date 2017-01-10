@@ -46,6 +46,10 @@ static gboolean create_gtk_file_dialog(gpointer data)
 
    _al_gtk_make_transient(display, window);
 
+   if (save)
+     gtk_file_chooser_set_do_overwrite_confirmation
+       (GTK_FILE_CHOOSER(window), true);
+
    if (fd->fc_initial_path) {
      if (fd->flags & ALLEGRO_FILECHOOSER_FILE_MUST_EXIST)
        gtk_file_chooser_set_filename
