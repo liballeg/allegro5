@@ -412,8 +412,15 @@ static void path_to_ustr(const ALLEGRO_PATH *path, int32_t delim,
  */
 const char *al_path_cstr(const ALLEGRO_PATH *path, char delim)
 {
+   return al_cstr(al_path_ustr(path, delim));
+}
+
+/* Function: al_path_ustr
+ */
+const ALLEGRO_USTR *al_path_ustr(const ALLEGRO_PATH *path, char delim)
+{
    path_to_ustr(path, delim, path->full_string);
-   return al_cstr(path->full_string);
+   return path->full_string;
 }
 
 
