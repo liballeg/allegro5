@@ -3,7 +3,8 @@ if(NOT ALLEGRO_LINK_WITH OR NOT PRIMITIVES_LINK_WITH OR NOT IMAGE_LINK_WITH)
     return()
 endif()
 
-set(EXAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/example)
+set(EXAMPLE_SRC ${CMAKE_CURRENT_SOURCE_DIR}/example)
+set(EXAMPLE_DIR ${CMAKE_CURRENT_BINARY_DIR}/example)
 set(EXAMPLE_APK ${CMAKE_CURRENT_SOURCE_DIR}/example/bin/example-debug.apk)
 
 set(EXAMPLE_SOURCES
@@ -16,6 +17,13 @@ set(EXAMPLE_SOURCES
     )
 
 add_custom_command(
+    OUTPUT ${EXAMPLE_SOURCES}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${EXAMPLE_SRC}
+    ${EXAMPLE_DIR}
+    )
+
+add_custom_command(
     OUTPUT ${EXAMPLE_DIR}/local.properties
     WORKING_DIRECTORY ${EXAMPLE_DIR}
     COMMAND ${ANDROID_UPDATE_COMMAND}
@@ -23,11 +31,11 @@ add_custom_command(
     )
 
 configure_file(
-    ${EXAMPLE_DIR}/localgen.properties.in
+    ${EXAMPLE_SRC}/localgen.properties.in
     ${EXAMPLE_DIR}/localgen.properties
     )
 configure_file(
-    ${EXAMPLE_DIR}/project.properties.in
+    ${EXAMPLE_SRC}/project.properties.in
     ${EXAMPLE_DIR}/project.properties
     @ONLY)
 
@@ -35,7 +43,7 @@ file(RELATIVE_PATH RELATIVE_LIB_DIR
     ${EXAMPLE_DIR}/jni ${LIBRARY_OUTPUT_PATH})
 append_lib_type_suffix(LIB_TYPE_SUFFIX)
 configure_file(
-    ${EXAMPLE_DIR}/jni/localgen.mk.in
+    ${EXAMPLE_SRC}/jni/localgen.mk.in
     ${EXAMPLE_DIR}/jni/localgen.mk
     )
 
