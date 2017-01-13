@@ -52,7 +52,7 @@ static gboolean create_gtk_file_dialog(gpointer data)
    }
 
    if (fd->fc_initial_path) {
-      if (fd->flags & ALLEGRO_FILECHOOSER_FILE_MUST_EXIST) {
+      if (fd->flags & ALLEGRO_FILECHOOSER_FILE_MUST_EXIST || ! save) {
          gtk_file_chooser_set_filename
             (GTK_FILE_CHOOSER(window),
              al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP));
