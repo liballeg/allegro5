@@ -585,7 +585,11 @@ ALLEGRO_MEMORY_BITMAP
     However, direct pixel access can be relatively quick compared to video bitmaps,
     which depend on the display driver in use.
     
-    *Note*: Allegro's software rendering routines are currently very unoptimised.
+    *Note*: Allegro's software rendering routines are currently somewhat
+    unoptimised.
+
+    *Note:* Combining ALLEGRO_VIDEO_BITMAP and ALLEGRO_MEMORY_BITMAP flags is
+    invalid.
 
 ALLEGRO_VIDEO_BITMAP
 :   Creates a bitmap that resides in the video card memory. These types of
@@ -599,6 +603,9 @@ ALLEGRO_VIDEO_BITMAP
     *Note:* Bitmaps created with this flag will be converted to memory
     bitmaps when the last display is destroyed. In most cases it is
     therefore easier to use the ALLEGRO_CONVERT_BITMAP flag instead.
+
+    *Note:* Combining ALLEGRO_VIDEO_BITMAP and ALLEGRO_MEMORY_BITMAP flags is
+    invalid.
 
 ALLEGRO_CONVERT_BITMAP
 :   This is the default. It will try to create a video bitmap and if
