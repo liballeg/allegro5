@@ -19,6 +19,7 @@ extern void call_pandoc(const char *input, const char *output,
     const char *extra_options);
 extern void make_single_doc(int argc, char *argv[]);
 extern void make_man_pages(int argc, char *argv[]);
+char *load_allegro5_cfg(void);
 
 #endif
 

@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 #include "dawk.h"
 #include "make_doc.h"
 
@@ -70,6 +71,11 @@ static void preprocess(void)
             d_printf("~~~~");
          }
          d_printf("\n[Source Code](%s)\n", source);
+      }
+      else if (d_match(line, "^__ALLEGRO_5_CFG")) {
+         char *allegro5_cfg = load_allegro5_cfg();
+         d_print(allegro5_cfg);
+         free(allegro5_cfg);
       }
       else {
          d_print(line);
