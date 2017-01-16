@@ -41,6 +41,30 @@ static snd_output_t *snd_output = NULL;
 static char *default_device = "default";
 static char *alsa_device = NULL;
 
+// TODO: Setting this to 256 causes (extreme, about than 10 seconds)
+// lag if the alsa device is really pulseaudio.
+//
+// pw: But there are calls later which expect this variable to be set an on
+// my machine (without PulseAudio) the driver doesn't work properly with
+// anything lower than 32.
+#define DEFAULT_BUFFER_SIZE   32
+#define MIN_BUFFER_SIZE       1
+
+static unsigned int get_buffer_size(const ALLEGRO_CONFIG *config)
+{
+   if (config) {
+      const char *val = al_get_config_value(config,
+         "alsa", "buffer_size");
+      if (val && val[0] != '\0') {
+         int n = atoi(val);
+         if (n < MIN_BUFFER_SIZE)
+            n = MIN_BUFFER_SIZE;
+         return n;
+      }
+   }
+
+   return DEFAULT_BUFFER_SIZE;
+}
 
 typedef struct ALSA_VOICE {
    unsigned int frame_size; /* in bytes */
@@ -564,13 +588,8 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
    ex_data->stop = true;
    ex_data->stopped = true;
    ex_data->reversed = false;
-   // TODO: Setting this to 256 causes (extreme, about than 10 seconds)
-   // lag if the alsa device is really pulseaudio.
-   //
-   // pw: But there are calls later which expect this variable to be set an on
-   // my machine (without PulseAudio) the driver doesn't work properly with
-   // anything lower than 32.
-   ex_data->frag_len = 32;
+
+   ex_data->frag_len = get_buffer_size(al_get_system_config());
 
    if (voice->depth == ALLEGRO_AUDIO_DEPTH_INT8)
       format = SND_PCM_FORMAT_S8;
