@@ -37,8 +37,9 @@ static void draw_lab(int l)
    example.lab[l] = al_create_bitmap(512, 512);
    ALLEGRO_LOCKED_REGION *rg = al_lock_bitmap(example.lab[l],
          ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
-   for (int y = 0; y < 512; y++) {
-      for (int x = 0; x < 512; x++) {
+   int x, y;
+   for (y = 0; y < 512; y++) {
+      for (x = 0; x < 512; x++) {
          float a = (x - 511.0 / 2) / (511.0 / 2);
          float b = (y - 511.0 / 2) / (511.0 / 2);
          float rf, gf, bf;
@@ -82,7 +83,8 @@ static void draw_range(int ci)
       bool found = false;
       int x = cx - r / 2;
       int y = cy - r / 2;
-      for (int i = 0; i < r * 4; i++) {
+      int i;
+      for (i = 0; i < r * 4; i++) {
          if (i < r) x++;
          else if (i < r * 2) y++;
          else if (i < r * 3) x--;
@@ -129,7 +131,8 @@ static void draw_axis(float x, float y, float a, float a2, float l,
       float tl, char const *label, int ticks,
       char const *numformat, float num1, float num2, float num) {
    al_draw_line(x, y, x + l * cos(a), y - l * sin(a), example.white, 1);
-   for (int i = 0; i < ticks; i++) {
+   int i;
+   for (i = 0; i < ticks; i++) {
       float x2 = x + l * cos(a) * i / (ticks - 1);
       float y2 = y - l * sin(a) * i / (ticks - 1);
       al_draw_line(x2, y2, x2 + tl * cos(a2), y2 - tl * sin(a2), example.white, 1);
@@ -149,7 +152,8 @@ static void redraw(void)
    int w = al_get_display_width(al_get_current_display());
    int h = al_get_display_height(al_get_current_display());
 
-   for (int ci = 0; ci < 2; ci++) {
+   int ci;
+   for (ci = 0; ci < 2; ci++) {
       int cx = w / 2 * ci;
    
       float l = example.color[ci].l;
@@ -246,7 +250,8 @@ static void update(void)
    if (example.mb == 1) example.mb = 3;
    if (example.mb == 2) example.mb = 0;
 
-   for (int ci = 0; ci < 2; ci++) {
+   int ci;
+   for (ci = 0; ci < 2; ci++) {
       example.color[ci].rgb = al_color_lab(example.color[ci].l,
          example.color[ci].a, example.color[ci].b);
       }
