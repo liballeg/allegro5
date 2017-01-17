@@ -97,7 +97,7 @@ static void draw_range(int ci)
             continue;
          }
          ALLEGRO_COLOR rgb = {rf, gf, bf, 1};
-         float d = al_color_distance_ciede2000_lab(rgb, example.color[ci].rgb);
+         float d = al_color_distance_ciede2000(rgb, example.color[ci].rgb);
          if (d <= 0.05) {
             if (d > 0.04) {
                al_draw_pixel(example.half_x * ci + example.left_x + x,
@@ -194,7 +194,7 @@ static void redraw(void)
    float da = example.color[0].a - example.color[1].a;
    db = example.color[0].b - example.color[1].b;
    float dlab = sqrt(da * da + db * db + dl * dl);
-   float d2000 = al_color_distance_ciede2000_lab(example.color[0].rgb,
+   float d2000 = al_color_distance_ciede2000(example.color[0].rgb,
       example.color[1].rgb);
    al_draw_textf(example.font, example.white, w / 2, h - 64,
       ALLEGRO_ALIGN_CENTER, "dRGB = %.2f", drgb);

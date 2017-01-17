@@ -75,7 +75,7 @@ ALLEGRO_COLOR_FUNC(void, al_color_xyy_to_rgb, (float x, float y, float y2,
 ALLEGRO_COLOR_FUNC(void, al_color_rgb_to_xyy, (float red, float green, float blue,
    float *x, float *y, float *y2));
 ALLEGRO_COLOR_FUNC(ALLEGRO_COLOR, al_color_xyy, (float x, float y, float y2));
-ALLEGRO_COLOR_FUNC(double, al_color_distance_ciede2000_lab, (ALLEGRO_COLOR c1, ALLEGRO_COLOR c2));
+ALLEGRO_COLOR_FUNC(double, al_color_distance_ciede2000, (ALLEGRO_COLOR c1, ALLEGRO_COLOR c2));
 ALLEGRO_COLOR_FUNC(void, al_color_lch_to_rgb, (float l, float c, float h,
     float *red, float *green, float *blue));
 ALLEGRO_COLOR_FUNC(void, al_color_rgb_to_lch, (float red, float green, float blue,

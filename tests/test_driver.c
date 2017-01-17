@@ -263,11 +263,14 @@ static bool get_bool(char const *value)
 static ALLEGRO_COLOR get_color(char const *value)
 {
    int r, g, b, a;
+   float rf, gf, bf;
 
    if (sscanf(value, "#%02x%02x%02x%02x", &r, &g, &b, &a) == 4)
       return al_map_rgba(r, g, b, a);
    if (sscanf(value, "#%02x%02x%02x", &r, &g, &b) == 3)
       return al_map_rgb(r, g, b);
+   if (sscanf(value, "%f/%f/%f", &rf, &gf, &bf) == 3)
+      return al_map_rgb_f(rf, gf, bf);
    return al_color_name(value);
 }
 
@@ -1440,6 +1443,11 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
          set_config_float(cfg, testname, lval, result);
          continue;
       }
+      if (SCANLVAL("round", 1)) {
+         int result  = round(F(0));
+         set_config_int(cfg, testname, lval, result);
+         continue;
+      }
 
       /* Dynamical variable initialisation, needed to properly initialize
        * variables (5.1)*/
@@ -1477,6 +1485,19 @@ static void do_test(ALLEGRO_CONFIG *cfg, char const *testname,
          set_config_int(cfg, testname, V(4), bbw);
          set_config_int(cfg, testname, V(5), bbh);
          set_config_int(cfg, testname, lval, ok);
+         continue;
+      }
+
+      if (SCANLVAL("al_color_distance_ciede2000", 2)) {
+         float d = al_color_distance_ciede2000(C(0), C(1));
+         set_config_float(cfg, testname, lval, d);
+         continue;
+      }
+      if (SCANLVAL("al_color_lab", 3)) {
+         ALLEGRO_COLOR rgb = al_color_lab(F(0), F(1), F(2));
+         char hex[100];
+         sprintf(hex, "%f/%f/%f", rgb.r, rgb.g, rgb.b);
+         al_set_config_value(cfg, testname, lval, hex);
          continue;
       }
 
@@ -1538,7 +1559,9 @@ static void sw_hw_test(ALLEGRO_CONFIG *cfg, char const *testname)
    int old_failed_tests = failed_tests;
    bool reliable;
    char const *hw_only_str = al_get_config_value(cfg, testname, "hw_only");
+   char const *sw_only_str = al_get_config_value(cfg, testname, "sw_only");
    bool hw_only = hw_only_str && get_bool(hw_only_str);
+   bool sw_only = sw_only_str && get_bool(sw_only_str);
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    if (!hw_only) {
@@ -1546,6 +1569,8 @@ static void sw_hw_test(ALLEGRO_CONFIG *cfg, char const *testname)
    }
 
    reliable = (failed_tests == old_failed_tests);
+
+   if (sw_only) return;
 
    if (display) {
       al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);

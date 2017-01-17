@@ -758,7 +758,7 @@ ALLEGRO_COLOR al_color_xyy(float x, float y, float y2)
 
 /* Function: al_color_distance_ciede2000
  */
-double al_color_distance_ciede2000_lab(ALLEGRO_COLOR color1,
+double al_color_distance_ciede2000(ALLEGRO_COLOR color1,
       ALLEGRO_COLOR color2) {
    /* For implementation details refer to e.g.
     * http://www.ece.rochester.edu/~gsharma/ciede2000/ciede2000noteCRNA.pdf

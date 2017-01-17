@@ -62,6 +62,7 @@ set(test_files
     ${CMAKE_CURRENT_SOURCE_DIR}/test_prim.ini
     ${CMAKE_CURRENT_SOURCE_DIR}/test_prim2.ini
     ${CMAKE_CURRENT_SOURCE_DIR}/test_convert.ini
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_ciede2000.ini
     )
 
 add_dependencies(test_driver copy_example_data)
