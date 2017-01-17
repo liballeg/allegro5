@@ -222,6 +222,153 @@ name describing it approximately.
 See also: [al_color_name_to_rgb], [al_color_name]
 
 
+## API: al_color_rgb_to_xyz
+
+Convert RGB values to XYZ color space.
+
+See also: [al_color_xyz], [al_color_xyz_to_rgb]
+
+
+## API: al_color_xyz
+
+Return an [ALLEGRO_COLOR] structure from XYZ values. The CIE 1931 XYZ
+color space consists of three components in the range 0..1. The Y
+component corresponds to luminance and the X and Z components define
+the color.
+
+> *Note:*
+>
+> The XYZ color space can represent more colors than are
+> visible in sRGB and therefore conversion may result in RGB values
+> outside of the 0..1 range.
+
+See also: [al_color_xyz_to_rgb], [al_color_rgb_to_xyz]
+
+
+## API: al_color_xyz_to_rgb
+
+Convert XYZ color values to RGB color space.
+
+See also: [al_color_xyz], [al_color_rgb_to_xyz]
+
+
+## API: al_color_rgb_to_xyy
+
+Convert RGB values to xyY color space.
+
+See also: [al_color_xyy], [al_color_xyy_to_rgb]
+
+
+## API: al_color_xyy
+
+Return an [ALLEGRO_COLOR] structure from xyY values. The Y component
+in the xyY color space is the same as the Y in XYZ.
+
+However the x and y values are computed from XYZ like this:
+
+~~~~c
+x = X / (X + Y + Z)
+y = Y / (X + Y + Z)
+~~~~
+
+See also: [al_color_xyy_to_rgb], [al_color_rgb_to_xyy]
+
+
+## API: al_color_xyy_to_rgb
+
+Convert xyY color values to RGB color space.
+
+See also: [al_color_xyy], [al_color_rgb_to_xyy]
+
+
+## API: al_color_rgb_to_lab
+
+Convert RGB values to L\*a\*b\* color space.
+
+See also: [al_color_lab], [al_color_lab_to_rgb]
+
+
+## API: al_color_lab
+
+Return an [ALLEGRO_COLOR] structure from CIE L\*a\*b\* values. The L\*
+component corresponds to luminance from 0..1. The a\* and b\* components
+are in the range -1..+1.
+
+> *Note:*
+>
+> The L\*a\*b\* color space can represent more colors than are
+> visible in sRGB and therefore conversion may result in RGB values
+> outside of the 0..1 range.
+
+> *Note:*
+> Sometimes the range of the components is multiplied by 100, so L
+> for example would be 0..100. In that case divide all components by
+> 100 before passing them to this function.
+
+See also: [al_color_lab_to_rgb], [al_color_rgb_to_lab]
+
+
+## API: al_color_lab_to_rgb
+
+Convert CIE L\*a\*b\* color values to RGB color space.
+
+See also: [al_color_lab], [al_color_rgb_to_lab]
+
+
+## API: al_color_rgb_to_lch
+
+Convert RGB values to CIE LCH color space. 
+
+See also: [al_color_lch], [al_color_lch_to_rgb]
+
+
+## API: al_color_lch
+
+Return an [ALLEGRO_COLOR] structure from CIE LCH values. LCH colors are
+very similar to HSL, with the same meaning of L and H and C
+corresponding to S. However LCH is more visually uniform.
+
+The CIE LCH color space is a cylindrical representation of the L\*a\*b\*
+color space. The L component is the same and C and H are computed like
+this:
+
+~~~~c
+C = sqrt(a * a + b * b)
+H = atan2(b, a)
+~~~~
+
+See also: [al_color_lch_to_rgb], [al_color_rgb_to_lch]
+
+
+## API: al_color_lch_to_rgb
+
+Convert CIE LCH color values to RGB color space.
+
+See also: [al_color_lch], [al_color_rgb_to_lch]
+
+
+## API: al_color_distance_ciede2000_lab
+
+This function computes the CIEDE2000 color difference between two
+RGB colors. This is a visually uniform color difference, unlike for
+example the RGB distance.
+
+When using the RGB distance (Euklidean distance between two RGB
+triplets), there can be color pairs with the same distance where the
+colors of one pair appear to be almost the same color, while the colors
+in the other pair look quite different. This is improved by using the
+L\*a\*b\* color space which was designed with perceptual uniformity in
+mind. However it still is not completely uniform. The CIEDE2000
+formula contains some additional transformations to fix that.
+
+The returned color distance is roughly in the range 0 (identical
+color) to 1 (completely different color) - but values greater than one
+are possible.
+
+> Note: This function uses [al_color_lab] internally which
+> defines the L component to be in the range 0..1 (and not 0..100 as is
+> sometimes seen).
+
 ## API: al_color_rgb_to_yuv
 
 Convert RGB values to YUV color space.

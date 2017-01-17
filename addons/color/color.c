@@ -173,6 +173,14 @@ static ColorName _al_color_names[] = {
 
 #define NUM_COLORS (sizeof(_al_color_names) / sizeof(ColorName))
 
+static double const Xn = 0.95047;
+static double const Yn = 1.00000;
+static double const Zn = 1.08883;
+static double const delta = 6.0 / 29;
+static double const delta2 = 6.0 / 29 * 6.0 / 29;
+static double const delta3 = 6.0 / 29 * 6.0 / 29 * 6.0 / 29;
+static double const tf7 = 1.0 / 4 / 4 / 4 / 4 / 4 / 4 / 4;
+
 static void assert_sorted_names(void)
 {
    /* In debug mode, check once that the array is sorted. */
@@ -573,6 +581,229 @@ ALLEGRO_COLOR al_color_html(char const *string)
 uint32_t al_get_allegro_color_version(void)
 {
    return ALLEGRO_VERSION_INT;
+}
+
+
+/* Converts from an sRGB color component to the linear value.
+ */
+static double srgba_gamma_to_linear(double x) {
+   double const a = 0.055;
+   if (x < 0.04045) return x / 12.92;
+   return pow((x + a) / (1 + a), 2.4);
+}
+
+
+/* Converts a linear color component back into sRGB.
+ */
+static double srgba_linear_to_gamma(double x) {
+   double const a = 0.055;
+   if (x < 0.0031308) return x * 12.92;
+   return pow(x, 1 / 2.4) * (1 + a) - a;
+}
+
+
+/* Function: al_color_xyz_to_rgb
+ */
+void al_color_xyz_to_rgb(float x, float y, float z,
+    float *red, float *green, float *blue)
+{
+   double r = 3.2406 * x + (- 1.5372 * y) + (- 0.4986 * z);
+   double g = - 0.9689 * x + 1.8758 * y + 0.0415 * z;
+   double b = 0.0557 * x + (- 0.2040 * y) + 1.0570 * z;
+   *red = srgba_linear_to_gamma(r);
+   *green = srgba_linear_to_gamma(g);
+   *blue = srgba_linear_to_gamma(b);
+}
+
+
+/* Function: al_color_rgb_to_xyz
+ */
+void al_color_rgb_to_xyz(float red, float green, float blue,
+   float *x, float *y, float *z)
+{
+   double r = srgba_gamma_to_linear(red);
+   double g = srgba_gamma_to_linear(green);
+   double b = srgba_gamma_to_linear(blue);
+   *x = r * 0.4124 + g * 0.3576 + b * 0.1805;
+   *y = r * 0.2126 + g * 0.7152 + b * 0.0722;
+   *z = r * 0.0193 + g * 0.1192 + b * 0.9505;
+}
+
+
+/* Function: al_color_xyz
+ */
+ALLEGRO_COLOR al_color_xyz(float x, float y, float z)
+{
+   float r, g, b;
+   al_color_xyz_to_rgb(x, y, z, &r, &g, &b);
+   return al_map_rgb_f(r, g, b);
+}
+
+
+static double cielab_f(double x) {
+   if (x > delta3) return pow(x, 1.0 / 3);
+   return 4.0 / 29 + x / delta2 / 3;
+}
+
+
+static double cielab_f_inv(double x) {
+   if (x > delta) return pow(x, 3);
+   return (x - 4.0 / 29) * 3 * delta2;
+}
+
+
+/* Function: al_color_lab_to_rgb
+ */
+void al_color_lab_to_rgb(float l, float a, float b,
+    float *red, float *green, float *blue)
+{
+   float x = Xn * cielab_f_inv((l + 0.16) / 1.16 + a / 5.00);
+   float y = Yn * cielab_f_inv((l + 0.16) / 1.16);
+   float z = Zn * cielab_f_inv((l + 0.16) / 1.16 - b / 2.00);
+   al_color_xyz_to_rgb(x, y, z, red, green, blue);
+}
+
+
+/* Function: al_color_rgb_to_lab
+ */
+void al_color_rgb_to_lab(float red, float green, float blue,
+   float *l, float *a, float *b)
+{
+   float x, y, z;
+   al_color_rgb_to_xyz(red, green, blue, &x, &y, &z);
+   x /= Xn;
+   y /= Yn;
+   z /= Zn;
+   *l = 1.16 * cielab_f(y) - 0.16;
+   *a = 5.00 * (cielab_f(x) - cielab_f(y));
+   *b = 2.00 * (cielab_f(y) - cielab_f(z));
+}
+
+
+/* Function: al_color_lab
+ */
+ALLEGRO_COLOR al_color_lab(float l, float a, float b)
+{
+   float r2, g2, b2;
+   al_color_lab_to_rgb(l, a, b, &r2, &g2, &b2);
+   return al_map_rgb_f(r2, g2, b2);
+}
+
+
+/* Function: al_color_lch_to_rgb
+ */
+void al_color_lch_to_rgb(float l, float c, float h,
+    float *red, float *green, float *blue)
+{
+   double a = c * cos(h);
+   double b = c * sin(h);
+   al_color_lab_to_rgb(l, a, b, red, green, blue);
+}
+
+
+/* Function: al_color_rgb_to_lch
+ */
+void al_color_rgb_to_lch(float red, float green, float blue,
+   float *l, float *c, float *h)
+{
+   float a, b;
+   al_color_rgb_to_lab(red, green, blue, l, &a, &b);
+   *c = sqrt(a * a + b * b);
+   *h = fmod(ALLEGRO_PI * 2 + atan2(b, a), ALLEGRO_PI * 2);
+}
+
+
+/* Function: al_color_lch
+ */
+ALLEGRO_COLOR al_color_lch(float l, float c, float h)
+{
+   float r, g, b;
+   al_color_lch_to_rgb(l, c, h, &r, &g, &b);
+   return al_map_rgb_f(r, g, b);
+}
+
+
+/* Function: al_color_xyy_to_rgb
+ */
+void al_color_xyy_to_rgb(float x, float y, float y2,
+    float *red, float *green, float *blue)
+{
+   double x2 = x * y / y2;
+   double z2 = (1 - y2 - x) * y / y2;
+   al_color_xyz_to_rgb(x2, y2, z2, red, green, blue);
+}
+
+
+/* Function: al_color_rgb_to_xyy
+ */
+void al_color_rgb_to_xyy(float red, float green, float blue,
+   float *x, float *y, float *y2)
+{
+   float x2, z2;
+   al_color_rgb_to_xyz(red, green, blue, &x2, y2, &z2);
+   *x = x2 / (x2 + *y2 + z2);
+   *y = *y2 / (x2 + *y2 + z2);
+}
+
+
+/* Function: al_color_xyy
+ */
+ALLEGRO_COLOR al_color_xyy(float x, float y, float y2)
+{
+   float r, g, b;
+   al_color_xyy_to_rgb(x, y, y2, &r, &g, &b);
+   return al_map_rgb_f(r, g, b);
+}
+
+
+/* Function: al_color_distance_ciede2000
+ */
+double al_color_distance_ciede2000_lab(ALLEGRO_COLOR color1,
+      ALLEGRO_COLOR color2) {
+   /* For implementation details refer to e.g.
+    * http://www.ece.rochester.edu/~gsharma/ciede2000/ciede2000noteCRNA.pdf
+    */
+   float l1, a1, b1, l2, a2, b2;
+   al_color_rgb_to_lab(color1.r, color1.g, color1.b, &l1, &a1, &b1);
+   al_color_rgb_to_lab(color2.r, color2.g, color2.b, &l2, &a2, &b2);
+   double pi = ALLEGRO_PI;
+   double dl = l1 - l2;
+   double ml = (l1 + l2) / 2;
+   double c1 = sqrt(a1 * a1 + b1 * b1);
+   double c2 = sqrt(a2 * a2 + b2 * b2);
+   double mc = (c1 + c2) / 2;
+   double fac = sqrt(pow(mc, 7) / (pow(mc, 7) + tf7));
+   double g = 0.5 * (1 - fac);
+   a1 *= 1 + g;
+   a2 *= 1 + g;
+   c1 = sqrt(a1 * a1 + b1 * b1);
+   c2 = sqrt(a2 * a2 + b2 * b2);
+   double dc = c2 - c1;
+   mc = (c1 + c2) / 2;
+   fac = sqrt(pow(mc, 7) / (pow(mc, 7) + tf7));
+   double h1 = fmod(2 * pi + atan2(b1, a1), 2 * pi);
+   double h2 = fmod(2 * pi + atan2(b2, a2), 2 * pi);
+   double dh = 0;
+   double mh = h1 + h2;
+   if (c1 * c2 != 0) {
+      dh = h2 - h1;
+      if (dh > pi) dh -= 2 * pi;
+      if (dh < - pi) dh += 2 * pi;
+      if (fabs(h1 - h2) <= pi) mh = (h1 + h2) / 2;
+      else if (h1 + h2 < 2 * pi) mh = (h1 + h2 + 2 * pi) / 2;
+      else mh = (h1 + h2 - 2 * pi) / 2;
+   }
+   dh = 2 * sqrt(c1 * c2) * sin(dh / 2);
+   double t = 1 - 0.17 * cos(mh - pi / 6) + 0.24 * cos(2 * mh) +
+         0.32 * cos(3 * mh + pi / 30) - 0.2 * cos(4 * mh - pi * 7 / 20);
+   double mls = pow(ml - 0.5, 2);
+   double sl = 1 + 1.5 * mls / sqrt(0.002 + mls);
+   double sc = 1 + 4.5 * mc;
+   double sh = 1 + 1.5 * mc * t;
+   double rt = - 2 * fac * sin(pi / 3 *
+         exp(-pow(mh / pi * 36 / 5 - 11, 2)));
+   return sqrt(pow(dl / sl, 2) + pow(dc / sc, 2) +
+         pow(dh / sh, 2) + rt * dc / sc * dh / sh);
 }
 
 /* vim: set sts=3 sw=3 et: */
