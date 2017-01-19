@@ -2,8 +2,6 @@
 #ifndef __al_included_allegro5_gl_ext_h
 #define __al_included_allegro5_gl_ext_h
 
-typedef struct ALLEGRO_OGL_EXT_LIST ALLEGRO_OGL_EXT_LIST;
-
 #if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
 
 /*
@@ -136,6 +134,10 @@ typedef struct ALLEGRO_OGL_EXT_API {
 #undef AGL_API
 #endif
 } ALLEGRO_OGL_EXT_API;
+
+#else
+
+typedef struct ALLEGRO_OGL_EXT_LIST ALLEGRO_OGL_EXT_LIST;
 
 #endif
 
