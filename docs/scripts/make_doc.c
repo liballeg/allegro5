@@ -158,7 +158,7 @@ static void load_prototypes(const char *filename)
 
 char *load_allegro5_cfg(void)
 {
-   FILE *f = fopen(allegro5_cfg_filename, "r");
+   FILE *f = fopen(allegro5_cfg_filename, "rb");
    if (!f) {
       d_abort("could not open file for reading: ", allegro5_cfg_filename);
    }
