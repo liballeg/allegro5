@@ -297,18 +297,24 @@ The touch input device registered a new touch.
 
 touch.display (ALLEGRO_DISPLAY)
 :   The display which was touched.
+
 touch.id (int)
 :   An identifier for this touch. If supported by the device it will
     stay the same for events from the same finger until the touch
     ends.
+
 touch.x (float)
 :   The x coordinate of the touch in pixels.
+
 touch.y (float)
 :   The y coordinate of the touch in pixels.
+
 touch.dx (float)
 :   Movement speed in pixels in x direction.
+
 touch.dy (float)
 :   Movement speed in pixels in y direction.
+
 touch.primary (bool)
 :   Whether this is the only/first touch or an additional touch.
 
