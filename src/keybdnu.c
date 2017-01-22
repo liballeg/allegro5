@@ -133,7 +133,7 @@ bool al_install_keyboard(void)
        _al_add_exit_func(al_uninstall_keyboard, "al_uninstall_keyboard");
        return true;
    }
-   
+
    return false;
 
    /*
@@ -242,6 +242,17 @@ void al_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
    ASSERT(ret_state);
 
    new_keyboard_driver->get_keyboard_state(ret_state);
+}
+
+
+
+/* Function: al_clear_keyboard_state
+ */
+void al_clear_keyboard_state(void)
+{
+   ASSERT(new_keyboard_driver);
+
+   new_keyboard_driver->clear_keyboard_state();
 }
 
 
