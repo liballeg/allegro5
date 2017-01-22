@@ -177,7 +177,10 @@ See also: [al_key_down], [al_clear_keyboard_state], [ALLEGRO_KEYBOARD_STATE]
 
 ## API: al_clear_keyboard_state
 
-Clear the state of the keyboard.  For most keyboard drivers Allegro
+Clear the state of the keyboard, emitting [ALLEGRO_EVENT_KEY_UP] for
+each currently pressed key.  The given display is regarded as the one
+which had the keyboard focus when the event occurred.  In case display
+is NULL no event is emitted.  For most keyboard drivers Allegro
 maintains its own state of the keyboard, which might get out of sync
 with the real one.  This function is intended to remedy such situation
 by resetting Allegro's keyboard state to a known default (no key
