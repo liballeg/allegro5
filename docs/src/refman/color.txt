@@ -7,6 +7,20 @@ Link with allegro_color.
  #include <allegro5/allegro_color.h>
 ~~~~
 
+When converting between color spaces, RGB colors are implicitly assumed
+to mean sRGB. sRGB is a standard which maps RGB colors (which specify
+red, green and blue values between an arbitrary minimum value of 0 and
+maximum value of 1) to absolute colors. sRGB is very close to RGB values
+on a monitor which has a gamma value of 2.2. This means that the
+brightness the monitor uses for a color component does not linearly
+correspond to its value. For example when the red component in a color
+is 0.5, the monitor will use a brightness of pow(0.5, 2.2) or about 22%.
+The reason is that human eyes can distinguish better between dark colors
+then between bright colors, and so when using sRGB (which improves
+upon the simple gamma function) a gradient from 0 to 1 will appear as
+a linear gradient from most dark to most bright.
+
+
 ## API: al_color_cmyk
 
 Return an [ALLEGRO_COLOR] structure from CMYK values (cyan, magenta, yellow,
@@ -236,11 +250,14 @@ color space consists of three components in the range 0..1. The Y
 component corresponds to luminance and the X and Z components define
 the color.
 
+RGB components are always assumed to be in sRGB space.
+
 > *Note:*
 >
 > The XYZ color space can represent more colors than are
 > visible in sRGB and therefore conversion may result in RGB values
-> outside of the 0..1 range.
+> outside of the 0..1 range. You can check for that case with
+> [al_is_color_valid].
 
 See also: [al_color_xyz_to_rgb], [al_color_rgb_to_xyz]
 
@@ -395,3 +412,11 @@ See also: [al_color_yuv], [al_color_rgb_to_yuv]
 Returns the (compiled) version of the addon, in the same format as
 [al_get_allegro_version].
 
+
+
+## API: al_is_color_valid
+
+Checks if all component of the color are between 0 and 1. Some of the
+color spaces in this addon support color spaces with more colors
+than can be represented in sRGB and when converted to RGB will result
+in invalid color components outside the 0..1 range.

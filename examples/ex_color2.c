@@ -42,15 +42,14 @@ static void draw_lab(int l)
       for (x = 0; x < 512; x++) {
          float a = (x - 511.0 / 2) / (511.0 / 2);
          float b = (y - 511.0 / 2) / (511.0 / 2);
-         float rf, gf, bf;
          b = -b;
-         al_color_lab_to_rgb(l / 511.0, a, b, &rf, &gf, &bf);
-         if (rf < 0 || rf > 1 || gf < 0 || gf > 1 || bf < 0 || bf > 1) {
-            rf = gf = bf = 0;
+         ALLEGRO_COLOR rgb = al_color_lab(l / 511.0, a, b);
+         if (!al_is_color_valid(rgb)) {
+            rgb = al_map_rgb_f(0, 0, 0);
          }
-         int red = 255 * rf;
-         int green = 255 * gf;
-         int blue = 255 * bf;
+         int red = 255 * rgb.r;
+         int green = 255 * rgb.g;
+         int blue = 255 * rgb.b;
 
          uint8_t *p = rg->data;
          p += rg->pitch * y;
@@ -70,13 +69,33 @@ static void draw_range(int ci)
    int cx = (example.color[ci].a * 511.0 / 2) + 511.0 / 2;
    int cy = (-example.color[ci].b * 511.0 / 2) + 511.0 / 2;
    int r = 2;
-   /*
-    * 1234561
-    * 6123412
-    * 5412123
-    * 432 234
-    * 3212145
-    * 2143216
+   /* Loop around the center in outward circles, starting with a 3 x 3
+    * rectangle, then 5 x 5, then 7 x 7, and so on.
+    * Each loop has four sides, top, right, bottom, left. For example
+    * these are the four loops for the 5 x 5 case:
+    * 1 2 3 4 .
+    * .       .
+    * .       .
+    * .       .
+    * . . . . .
+    * 
+    * o o o o 1
+    * .       2
+    * .       3
+    * .       4
+    * . . . . .
+    *
+    * o o o o o
+    * .       o
+    * .       o
+    * . 3 2 1 1
+    *
+    * o o o o o
+    * 4       o
+    * 3       o
+    * 2       o
+    * 1 o o o o
+    * 
     * 1654321
     */
    while (true) {

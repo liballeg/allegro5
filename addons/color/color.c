@@ -607,9 +607,9 @@ static double srgba_linear_to_gamma(double x) {
 void al_color_xyz_to_rgb(float x, float y, float z,
     float *red, float *green, float *blue)
 {
-   double r = 3.2406 * x + (- 1.5372 * y) + (- 0.4986 * z);
-   double g = - 0.9689 * x + 1.8758 * y + 0.0415 * z;
-   double b = 0.0557 * x + (- 0.2040 * y) + 1.0570 * z;
+   double r = 3.2406 * x + (-1.5372 * y) + (-0.4986 * z);
+   double g = -0.9689 * x + 1.8758 * y + 0.0415 * z;
+   double b = 0.0557 * x + (-0.2040 * y) + 1.0570 * z;
    *red = srgba_linear_to_gamma(r);
    *green = srgba_linear_to_gamma(g);
    *blue = srgba_linear_to_gamma(b);
@@ -788,7 +788,7 @@ double al_color_distance_ciede2000(ALLEGRO_COLOR color1,
    if (c1 * c2 != 0) {
       dh = h2 - h1;
       if (dh > pi) dh -= 2 * pi;
-      if (dh < - pi) dh += 2 * pi;
+      if (dh < -pi) dh += 2 * pi;
       if (fabs(h1 - h2) <= pi) mh = (h1 + h2) / 2;
       else if (h1 + h2 < 2 * pi) mh = (h1 + h2 + 2 * pi) / 2;
       else mh = (h1 + h2 - 2 * pi) / 2;
@@ -800,10 +800,18 @@ double al_color_distance_ciede2000(ALLEGRO_COLOR color1,
    double sl = 1 + 1.5 * mls / sqrt(0.002 + mls);
    double sc = 1 + 4.5 * mc;
    double sh = 1 + 1.5 * mc * t;
-   double rt = - 2 * fac * sin(pi / 3 *
+   double rt = -2 * fac * sin(pi / 3 *
          exp(-pow(mh / pi * 36 / 5 - 11, 2)));
    return sqrt(pow(dl / sl, 2) + pow(dc / sc, 2) +
          pow(dh / sh, 2) + rt * dc / sc * dh / sh);
+}
+
+/* Function al_color_is_valid
+ */
+bool al_is_color_valid(ALLEGRO_COLOR color)
+{
+   return color.r >= 0 && color.g >= 0 && color.b >= 0 &&
+      color.r <= 1 && color.g <= 1 && color.b <= 1;
 }
 
 /* vim: set sts=3 sw=3 et: */

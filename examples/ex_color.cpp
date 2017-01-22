@@ -138,8 +138,10 @@ void Prog::run()
                   al_color_rgb_to_hsv(v[0], v[1], v[2], v + 3, v + 4, v + 5);
                   al_color_rgb_to_hsl(v[0], v[1], v[2], v + 6, v + 7, v + 8);
                   al_color_rgb_to_yuv(v[0], v[1], v[2], v + 9, v + 10, v + 11);
+                  al_color_rgb_to_lch(v[0], v[1], v[2], v + 16, v + 17, v + 18);
                   v[3] /= 360;
                   v[6] /= 360;
+                  v[18] /= ALLEGRO_PI * 2;
                   break;
             }
          }
