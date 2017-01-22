@@ -454,7 +454,7 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, ALLEGRO_DISPLAY *display)
       * event was generated in response to that key press event. Events are
       * simultaneous if they are separated by less than 4 ms (a value that
       * worked well on one machine where this hack was needed).
-      * 
+      *
       * This is unnecessary on systems where XkbSetDetectableAutorepeat works.
       */
       if (XPending(event->display) > 0) {
@@ -653,7 +653,7 @@ static bool _al_xwin_get_keyboard_mapping(void)
     * though, and proper written programs will not hardcode such mappings.
     */
    ALLEGRO_CONFIG *c = al_get_system_config();
-   
+
    char const *key;
    ALLEGRO_CONFIG_ENTRY *it;
    key = al_get_first_config_entry(c, "xkeymap", &it);
@@ -729,7 +729,7 @@ static int x_keyboard_init(void)
    memcpy(key_names, _al_keyboard_common_names, sizeof key_names);
 
    _al_mutex_lock(&s->lock);
-   
+
    /* HACK: XkbSetDetectableAutoRepeat is broken in some versions of X.Org */
    Bool supported;
    XkbSetDetectableAutoRepeat(s->x11display, True, &supported);
@@ -840,7 +840,7 @@ static void x_keyboard_exit(void)
    if (!xkeyboard_installed)
       return;
    xkeyboard_installed = 0;
-   
+
    ALLEGRO_SYSTEM_XGLX *s = (void *)al_get_system_driver();
 
    _al_mutex_lock(&s->lock);
@@ -889,6 +889,7 @@ static ALLEGRO_KEYBOARD *xkeybd_get_keyboard(void);
 static bool xkeybd_set_keyboard_leds(int leds);
 static const char *xkeybd_keycode_to_name(int keycode);
 static void xkeybd_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state);
+static void xkeybd_clear_keyboard_state(void);
 
 
 
@@ -906,7 +907,8 @@ static ALLEGRO_KEYBOARD_DRIVER keydrv_xwin =
    xkeybd_get_keyboard,
    xkeybd_set_keyboard_leds,
    xkeybd_keycode_to_name,
-   xkeybd_get_keyboard_state
+   xkeybd_get_keyboard_state,
+   xkeybd_clear_keyboard_state
 };
 
 
@@ -941,7 +943,7 @@ static bool xkeybd_init_keyboard(void)
       the_keyboard.three_finger_flag ? "true" : "false");
 
    //_xwin_keydrv_set_leds(_key_shifts);
-   
+
    /* Get the pid, which we use for the three finger salute */
    main_pid = getpid();
 
@@ -1001,6 +1003,20 @@ static void xkeybd_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
    _al_event_source_lock(&the_keyboard.parent.es);
    {
       *ret_state = the_keyboard.state;
+   }
+   _al_event_source_unlock(&the_keyboard.parent.es);
+}
+
+
+
+/* xkeybd_get_keyboard_state:
+ *  Clear the current keyboard state, with any necessary locking.
+ */
+static void xkeybd_clear_keyboard_state(void)
+{
+   _al_event_source_lock(&the_keyboard.parent.es);
+   {
+      memset(&the_keyboard.state, 0, sizeof(the_keyboard.state));
    }
    _al_event_source_unlock(&the_keyboard.parent.es);
 }

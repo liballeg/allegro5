@@ -386,6 +386,11 @@ static void sdl_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
    ret_state->display = keyboard->display;
 }
 
+static void sdl_clear_keyboard_state(void)
+{
+   return;
+}
+
 ALLEGRO_KEYBOARD_DRIVER *_al_sdl_keyboard_driver(void)
 {
    if (vt)
@@ -402,5 +407,6 @@ ALLEGRO_KEYBOARD_DRIVER *_al_sdl_keyboard_driver(void)
    vt->set_keyboard_leds = sdl_set_keyboard_leds;
    vt->keycode_to_name = sdl_keycode_to_name;
    vt->get_keyboard_state = sdl_get_keyboard_state;
+   vt->clear_keyboard_state = sdl_clear_keyboard_state;
    return vt;
 }

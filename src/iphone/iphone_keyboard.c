@@ -39,6 +39,11 @@ static void iphone_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
     memset(ret_state, 0, sizeof *ret_state);
 }
 
+static void iphone_clear_keyboard_state(void)
+{
+    return;
+}
+
 static ALLEGRO_KEYBOARD_DRIVER iphone_keyboard_driver = {
     AL_ID('I','P','H','O'),
     "",
@@ -49,7 +54,8 @@ static ALLEGRO_KEYBOARD_DRIVER iphone_keyboard_driver = {
     iphone_get_keyboard,
     iphone_set_keyboard_leds,
     iphone_keycode_to_name,
-    iphone_get_keyboard_state
+    iphone_get_keyboard_state,
+    iphone_clear_keyboard_state
 };
 
 ALLEGRO_KEYBOARD_DRIVER *_al_get_iphone_keyboard_driver(void)
