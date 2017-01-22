@@ -73,7 +73,7 @@ typedef struct ALLEGRO_KEY_REPEAT_DATA {
 /* the one and only keyboard object */
 static ALLEGRO_KEYBOARD_XWIN the_keyboard;
 
-
+static int last_press_code = -1;
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XIM
 static XIM xim = NULL;
@@ -1016,6 +1016,7 @@ static void xkeybd_clear_keyboard_state(void)
 {
    _al_event_source_lock(&the_keyboard.parent.es);
    {
+      last_press_code = -1;
       memset(&the_keyboard.state, 0, sizeof(the_keyboard.state));
    }
    _al_event_source_unlock(&the_keyboard.parent.es);
@@ -1027,8 +1028,6 @@ static void xkeybd_clear_keyboard_state(void)
  *  Hook for the X event dispatcher to handle key presses.
  *  The caller must lock the X-display.
  */
-static int last_press_code = -1;
-
 static void handle_key_press(int mycode, int unichar, int filtered,
    unsigned int modifiers, ALLEGRO_DISPLAY *display)
 {
