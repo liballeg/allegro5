@@ -202,6 +202,20 @@ static void get_state(ALLEGRO_KEYBOARD_STATE *ret_state)
 
 
 
+/* clear_state:
+ *  Clear the keyboard state
+ */
+static void clear_state(void)
+{
+   _al_event_source_lock(&keyboard.es);
+   {
+      memset(&kbdstate, 0, sizeof(kbdstate));
+   }
+   _al_event_source_unlock(&keyboard.es);
+}
+
+
+
 static ALLEGRO_KEYBOARD_DRIVER keyboard_macosx =
 {
    KEYBOARD_MACOSX,
@@ -214,6 +228,7 @@ static ALLEGRO_KEYBOARD_DRIVER keyboard_macosx =
    NULL, // ALLEGRO_METHOD(bool, set_leds, (int leds));
    NULL, // ALLEGRO_METHOD(const char *, keycode_to_name, (int keycode));
    get_state,
+   clear_state,
 };
 
 
