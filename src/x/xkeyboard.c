@@ -754,12 +754,13 @@ static int x_keyboard_init(void)
       ALLEGRO_WARN("Could not set default locale.\n");
    }
 
-/* TODO: is this needed?
-   modifiers = XSetLocaleModifiers("@im=none");
+   /* By default never use an input method as we are not prepared to
+    * handle any of them. This is still enough to get composed keys.
+    */
+   char const *modifiers = XSetLocaleModifiers("@im=none");
    if (modifiers == NULL) {
       ALLEGRO_WARN("XSetLocaleModifiers failed.\n");
    }
-*/
 
    xim = XOpenIM(s->x11display, NULL, NULL, NULL);
    if (xim == NULL) {
