@@ -428,6 +428,11 @@ bool al_set_window_constraints(ALLEGRO_DISPLAY *display,
       return false;
    }
 
+    /* Cannot constrain if maximized. */
+   if (display->flags & ALLEGRO_MAXIMIZED) {
+      return false;
+   }
+
    if (display && display->vt && display->vt->set_window_constraints) {
       return display->vt->set_window_constraints(display, min_w, min_h,
          max_w, max_h);
