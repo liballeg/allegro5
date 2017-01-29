@@ -1278,7 +1278,12 @@ bool _al_win_set_window_constraints(ALLEGRO_DISPLAY *display,
    win_display->display.max_h = max_h;
 
    /* Resize so constraints can take effect. */
-   al_resize_display(display, display->w, display->h);
+   if (display->flags & ALLEGRO_MAXIMIZED) {
+      al_resize_display(display, display->max_w, display->max_h);
+   }
+   else {
+      al_resize_display(display, display->w, display->h);
+   }
 
    return true;
 }
