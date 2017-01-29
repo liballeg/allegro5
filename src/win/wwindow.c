@@ -898,20 +898,20 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          }
          break;
       case WM_SIZE:
-		  if (wParam == SIZE_RESTORED || wParam == SIZE_MAXIMIZED || wParam == SIZE_MINIMIZED) {
-			  /*
-			   * Delay the resize event so we don't get bogged down with them
-			   */
-			  if (!resize_postponed) {
-				  resize_postponed = true;
-				  _beginthread(postpone_thread_proc, 0, (void *)d);
-			  }
-			  d->flags &= ~ALLEGRO_MAXIMIZED;
-			  if (wParam == SIZE_MAXIMIZED) {
-				  d->flags |= ALLEGRO_MAXIMIZED;
-			  }
-		  }
-		  return 0;
+         if (wParam == SIZE_RESTORED || wParam == SIZE_MAXIMIZED || wParam == SIZE_MINIMIZED) {
+            /*
+             * Delay the resize event so we don't get bogged down with them
+             */
+            if (!resize_postponed) {
+               resize_postponed = true;
+               _beginthread(postpone_thread_proc, 0, (void *)d);
+            }
+            d->flags &= ~ALLEGRO_MAXIMIZED;
+            if (wParam == SIZE_MAXIMIZED) {
+               d->flags |= ALLEGRO_MAXIMIZED;
+            }
+         }
+         return 0;
       case WM_ENTERSIZEMOVE:
          /* DefWindowProc for WM_ENTERSIZEMOVE enters a modal loop, which also
           * ends up blocking the loop in d3d_display_thread_proc (which is
