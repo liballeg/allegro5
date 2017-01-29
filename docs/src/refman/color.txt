@@ -7,18 +7,27 @@ Link with allegro_color.
  #include <allegro5/allegro_color.h>
 ~~~~
 
-When converting between color spaces, RGB colors are implicitly assumed
-to mean sRGB. sRGB is a standard which maps RGB colors (which specify
-red, green and blue values between an arbitrary minimum value of 0 and
-maximum value of 1) to absolute colors. sRGB is very close to RGB values
-on a monitor which has a gamma value of 2.2. This means that the
-brightness the monitor uses for a color component does not linearly
-correspond to its value. For example when the red component in a color
-is 0.5, the monitor will use a brightness of pow(0.5, 2.2) or about 22%.
-The reason is that human eyes can distinguish better between dark colors
-then between bright colors, and so when using sRGB (which improves
-upon the simple gamma function) a gradient from 0 to 1 will appear as
-a linear gradient from most dark to most bright.
+When converting between certain color spaces, RGB colors are implicitly
+assumed to mean sRGB.
+
+sRGB is a standard which maps RGB colors to absolute colors. sRGB is
+very close to RGB values on a monitor which has a gamma value of 2.2.
+For example when the red component of a color is 0.5, the monitor will
+use a brightness of pow(0.5, 2.2) or about 22% - and not 50%. The reason
+is that human eyes can distinguish better between dark colors than
+between bright colors, and so if a pixel of the monitor is lit up to
+22% of its maximum power it already will appear at half brightness to a
+human eye.
+
+sRGB improves upon simple gamma correction by taking differences
+between the three color channels into account as well. In general, most
+monitors nowadays try to be close to the sRGB specification. And so if
+in an Allegro game you display something with color
+
+al_map_rgb_f(0.5, 0.5, 0,5)
+
+then it will appear at about half brightness (even though the actual
+brightness output of the monitor will be less than half).
 
 
 ## API: al_color_cmyk
@@ -315,12 +324,14 @@ are in the range -1..+1.
 >
 > The L\*a\*b\* color space can represent more colors than are
 > visible in sRGB and therefore conversion may result in RGB values
-> outside of the 0..1 range.
+> outside of the 0..1 range. You can check for that case with
+> [al_is_color_valid].
 
 > *Note:*
-> Sometimes the range of the components is multiplied by 100, so L
-> for example would be 0..100. In that case divide all components by
-> 100 before passing them to this function.
+
+> In some literature the range of L* is 0 to 100 and a* and b* are from
+> -100 to +100. In that case divide all components by 100 before passing
+> them to this function.
 
 See also: [al_color_lab_to_rgb], [al_color_rgb_to_lab]
 
@@ -343,7 +354,8 @@ See also: [al_color_lch], [al_color_lch_to_rgb]
 
 Return an [ALLEGRO_COLOR] structure from CIE LCH values. LCH colors are
 very similar to HSL, with the same meaning of L and H and C
-corresponding to S. However LCH is more visually uniform.
+corresponding to S. However LCH is more visually uniform. Furthermore,
+this function expects the angle for H in radians and not in degree.
 
 The CIE LCH color space is a cylindrical representation of the L\*a\*b\*
 color space. The L component is the same and C and H are computed like
@@ -371,9 +383,9 @@ RGB colors. This is a visually uniform color difference, unlike for
 example the RGB distance.
 
 When using the RGB distance (Euklidean distance between two RGB
-triplets), there can be color pairs with the same distance where the
+triplets) there can be color pairs with the same distance, where the
 colors of one pair appear to be almost the same color, while the colors
-in the other pair look quite different. This is improved by using the
+of the other pair look quite different. This is improved by using the
 L\*a\*b\* color space which was designed with perceptual uniformity in
 mind. However it still is not completely uniform. The CIEDE2000
 formula contains some additional transformations to fix that.
@@ -413,10 +425,9 @@ Returns the (compiled) version of the addon, in the same format as
 [al_get_allegro_version].
 
 
-
 ## API: al_is_color_valid
 
 Checks if all component of the color are between 0 and 1. Some of the
-color spaces in this addon support color spaces with more colors
+color conversions in this addon support color spaces with more colors
 than can be represented in sRGB and when converted to RGB will result
 in invalid color components outside the 0..1 range.
