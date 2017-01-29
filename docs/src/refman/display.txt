@@ -549,6 +549,17 @@ by the window environment.
 A value of 0 for any of the parameters indicates no constraint
 for that parameter.
 
+The specified display will be automatically resized to new sizes
+to conform constraints in next cases:
+
+* If the appropriate current display size (width or height) is less 
+    than the value of constraint. Applied to minimum constraints.
+* If the appropriate current display size (width or height) is greater
+    than the value of constraint. Applied to maximum constraints.
+
+
+2. 
+
 Since: 5.1.0
 
 See also: [al_get_window_constraints]
