@@ -1,5 +1,6 @@
 /*
  * Creating the maximized, resizable window.
+ * Press SPACE to change constraints.
  */
 
 #include <allegro5/allegro.h>
@@ -34,17 +35,14 @@ main(int argc, char **argv)
 	al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE
 		| ALLEGRO_MAXIMIZED);
 
-	display = al_create_display(DISPLAY_W, DISPLAY_H);
+	/* creating really small display */
+	display = al_create_display(10, 10);
 	if (!display) {
 		abort_example("Error creating display.\n");
 	}
 
-	/* this is should not be an issue */
-	ALLEGRO_MONITOR_INFO mi;
-	al_get_monitor_info(0, &mi);
-	int max_w = mi.x2 - mi.x1;
-	int max_h = mi.y2 - mi.y1;
-	al_set_window_constraints(display, DISPLAY_W, DISPLAY_H, max_w, max_h);
+	/* set lower limits for constraints only */
+	al_set_window_constraints(display, DISPLAY_W / 2, DISPLAY_H / 2, 0, 0);
 
 	if (!al_install_keyboard()) {
 		abort_example("Error installing keyboard.\n");
@@ -54,6 +52,10 @@ main(int argc, char **argv)
 	al_register_event_source(queue, al_get_keyboard_event_source());
 	al_register_event_source(queue, al_get_display_event_source(display));
 
+	ALLEGRO_COLOR color_1 = al_map_rgb(255, 127, 0);
+	ALLEGRO_COLOR color_2 = al_map_rgb(0, 255, 0);
+	ALLEGRO_COLOR *color = &color_1;
+	ALLEGRO_COLOR color_circle = al_map_rgb(127, 66, 255);
 
 	while (!done) {
 		ALLEGRO_EVENT event;
@@ -62,9 +64,9 @@ main(int argc, char **argv)
 			al_clear_to_color(al_map_rgb_f(0, 0, 0));
 			int x2 = al_get_display_width(display) - 10;
 			int y2 = al_get_display_height(display) - 10;
-			al_draw_filled_rectangle(10, 10, x2, y2, al_map_rgb(255, 127, 66));
-			al_draw_filled_circle(5, 5, 30, al_map_rgb(127, 66, 255));
-			al_draw_filled_circle(x2 + 5, y2 + 5, 30, al_map_rgb(127, 66, 255));
+			al_draw_filled_rectangle(10, 10, x2, y2, *color);
+			al_draw_filled_circle(5, 5, 30, color_circle);
+			al_draw_filled_circle(x2 + 5, y2 + 5, 30, color_circle);
 			al_flip_display();
 			redraw = false;
 		}
@@ -76,9 +78,27 @@ main(int argc, char **argv)
 				done = true;
 			break;
 
+		case ALLEGRO_EVENT_KEY_UP:
+			if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+				if (color == &color_1) {
+					al_set_window_constraints(display, 
+						0, 0,
+						DISPLAY_W, DISPLAY_H);
+					color = &color_2;
+				}
+				else {
+					al_set_window_constraints(display, 
+						DISPLAY_W / 2, DISPLAY_H / 2,
+						0, 0);
+					color = &color_1;
+				}
+				redraw = true;
+			}
+			break;
+
 		case ALLEGRO_EVENT_DISPLAY_RESIZE:
 			redraw = true;
-			al_acknowledge_resize(display);
+			al_acknowledge_resize(event.display.source);
 			break;
 
 		case ALLEGRO_EVENT_DISPLAY_CLOSE:

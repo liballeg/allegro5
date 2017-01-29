@@ -898,20 +898,20 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          }
          break;
       case WM_SIZE:
-         if (wParam == SIZE_RESTORED || wParam == SIZE_MAXIMIZED || wParam == SIZE_MINIMIZED) {
-            /*
-             * Delay the resize event so we don't get bogged down with them
-             */
-            if (!resize_postponed) {
-               resize_postponed = true;
-               _beginthread(postpone_thread_proc, 0, (void *)d);
-            }
-            d->flags &= ~ALLEGRO_MAXIMIZED;
-            if (wParam == SIZE_MAXIMIZED) {
-                d->flags |= ALLEGRO_MAXIMIZED;
-            }
-         }
-         return 0;
+		  if (wParam == SIZE_RESTORED || wParam == SIZE_MAXIMIZED || wParam == SIZE_MINIMIZED) {
+			  /*
+			   * Delay the resize event so we don't get bogged down with them
+			   */
+			  if (!resize_postponed) {
+				  resize_postponed = true;
+				  _beginthread(postpone_thread_proc, 0, (void *)d);
+			  }
+			  d->flags &= ~ALLEGRO_MAXIMIZED;
+			  if (wParam == SIZE_MAXIMIZED) {
+				  d->flags |= ALLEGRO_MAXIMIZED;
+			  }
+		  }
+		  return 0;
       case WM_ENTERSIZEMOVE:
          /* DefWindowProc for WM_ENTERSIZEMOVE enters a modal loop, which also
           * ends up blocking the loop in d3d_display_thread_proc (which is
@@ -1277,13 +1277,29 @@ bool _al_win_set_window_constraints(ALLEGRO_DISPLAY *display,
    win_display->display.max_w = max_w;
    win_display->display.max_h = max_h;
 
+   RECT cRect;
+   int w;
+   int h;
+
+   GetClientRect(win_display->window, &cRect);
+   w = cRect.right - cRect.left;
+   h = cRect.bottom - cRect.top;
+
+   if (min_w > 0 && w < min_w) {
+      w = min_w;
+   }
+   if (min_h > 0 && h < min_h) {
+      h = min_h;
+   }
+   if (max_w > 0 && w > max_w) {
+      w = max_w;
+   }
+   if (max_h > 0 && h > max_h) {
+      h = max_h;
+   }
+
    /* Resize so constraints can take effect. */
-   if (display->flags & ALLEGRO_MAXIMIZED) {
-      al_resize_display(display, display->max_w, display->max_h);
-   }
-   else {
-      al_resize_display(display, display->w, display->h);
-   }
+   al_resize_display(display, w, h);
 
    return true;
 }
