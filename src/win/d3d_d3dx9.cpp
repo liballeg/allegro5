@@ -106,7 +106,7 @@ bool _al_load_d3dx9_module()
       errno = 0;
       version = strtol(value, NULL, 10);
       if (errno) {
-         ALLEGRO_ERROR("Failed to override D3DX9 version. \"%s\" is not valid integer number.", value);
+         ALLEGRO_ERROR("Failed to override D3DX9 version. \"%s\" is not valid integer number.\n", value);
          return false;
       }
       else
@@ -118,7 +118,7 @@ bool _al_load_d3dx9_module()
       if (_imp_load_d3dx9_module_version((int)version))
          return true;
 
-   ALLEGRO_ERROR("Failed to load D3DX9 library. Library is not installed.");
+   ALLEGRO_ERROR("Failed to load D3DX9 library. Library is not installed.\n");
 
    return false;
 }

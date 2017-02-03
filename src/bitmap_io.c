@@ -212,7 +212,7 @@ ALLEGRO_BITMAP *al_load_bitmap_flags(const char *filename, int flags)
             ext);
    }
    else {
-      ALLEGRO_WARN("No handler for bitmap extensions %s - "
+      ALLEGRO_WARN("No handler for bitmap extension %s - "
          "therefore not trying to load %s.\n", ext, filename);
       ret = NULL;
    }
