@@ -264,6 +264,7 @@
 
 #define glStencilOpSeparate _al_glStencilOpSeparate
 #define glStencilFuncSeparate _al_glStencilFuncSeparate
+#define glStencilMaskSeparate _al_glStencilMaskSeparate
 
 #endif
 

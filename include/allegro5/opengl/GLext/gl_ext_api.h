@@ -263,6 +263,7 @@ AGL_API(void, DrawBuffers, (GLsizei n, const GLenum *))
 
 AGL_API(void, StencilOpSeparate,   (GLenum, GLenum, GLenum, GLenum))
 AGL_API(void, StencilFuncSeparate, (GLenum, GLenum, GLint,  GLuint))
+AGL_API(void, StencilMaskSeparate, (GLenum, GLuint))
 
 #endif
 
