@@ -6,6 +6,7 @@
  */
 
 #include <stdio.h>
+#define ALLEGRO_UNSTABLE
 #include <allegro5/allegro.h>
 
 #include "common.c"

@@ -189,6 +189,11 @@ pressed).  This is particularly useful in response to
 
 See also: [al_get_keyboard_state], [ALLEGRO_KEYBOARD_STATE]
 
+Since: 5.2.3
+
+> *[Unstable API]:* This is a new feature and the exact semantics are still
+being decided upon.
+
 ## API: al_key_down
 
 Return true if the key specified was held down in the state

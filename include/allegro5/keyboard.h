@@ -49,7 +49,9 @@ AL_FUNC(bool,         al_set_keyboard_leds,  (int leds));
 AL_FUNC(const char *, al_keycode_to_name, (int keycode));
 
 AL_FUNC(void,         al_get_keyboard_state, (ALLEGRO_KEYBOARD_STATE *ret_state));
+#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_SRC)
 AL_FUNC(void,         al_clear_keyboard_state, (ALLEGRO_DISPLAY *display));
+#endif
 AL_FUNC(bool,         al_key_down,           (const ALLEGRO_KEYBOARD_STATE *, int keycode));
 
 AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_keyboard_event_source, (void));
