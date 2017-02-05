@@ -93,6 +93,7 @@ static void lkeybd_exit_keyboard(void);
 static ALLEGRO_KEYBOARD *lkeybd_get_keyboard(void);
 static bool lkeybd_set_keyboard_leds(int leds);
 static void lkeybd_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state);
+static void lkeybd_clear_keyboard_state(void);
 
 static void process_new_data(void *unused);
 static void process_character(unsigned char ch);
@@ -115,7 +116,8 @@ static ALLEGRO_KEYBOARD_DRIVER keydrv_linux =
    lkeybd_get_keyboard,
    lkeybd_set_keyboard_leds,
    NULL, /* const char *keycode_to_name(int keycode) */
-   lkeybd_get_keyboard_state
+   lkeybd_get_keyboard_state,
+   lkeybd_clear_keyboard_state
 };
 
 
@@ -477,6 +479,20 @@ static void lkeybd_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
 
 
 
+/* lkeybd_clear_keyboard_state: [primary thread]
+ *  Clear the current keyboard state, with any necessary locking.
+ */
+static void lkeybd_clear_keyboard_state(void)
+{
+   _al_event_source_lock(&the_keyboard.parent.es);
+   {
+      memset(&the_keyboard.state, 0, sizeof(the_keyboard.state))
+   }
+   _al_event_source_unlock(&the_keyboard.parent.es);
+}
+
+
+
 /* process_new_data: [fdwatch thread]
  *  Process new data arriving in the keyboard's fd.
  */
@@ -556,7 +572,7 @@ static void process_character(unsigned char ch)
    else {
       handle_key_release(mycode);
    }
-   
+
    /* three-finger salute for killing the program */
    if ((the_keyboard.three_finger_flag)
        && ((mycode == ALLEGRO_KEY_DELETE) || (mycode == ALLEGRO_KEY_END))
@@ -580,11 +596,11 @@ static void handle_key_press(int mycode, unsigned int ascii)
    event_type = (_AL_KEYBOARD_STATE_KEY_DOWN(the_keyboard.state, mycode)
                  ? ALLEGRO_EVENT_KEY_CHAR
                  : ALLEGRO_EVENT_KEY_DOWN);
-   
+
    /* Maintain the key_down array. */
    _AL_KEYBOARD_STATE_SET_KEY_DOWN(the_keyboard.state, mycode);
 
-   /* Generate key press/repeat events if necessary. */   
+   /* Generate key press/repeat events if necessary. */
    if (!_al_event_source_needs_to_generate_event(&the_keyboard.parent.es))
       return;
 

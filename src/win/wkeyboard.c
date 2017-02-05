@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -55,7 +55,7 @@ static const unsigned char hw_to_mycode[256] =
    /* 0x38 */    ALLEGRO_KEY_8,           ALLEGRO_KEY_9,             0,                          0,
    /* 0x3C */    0,                       0,                         0,                          0,
    /* 0x40 */    0,                       ALLEGRO_KEY_A,             ALLEGRO_KEY_B,              ALLEGRO_KEY_C,
-   /* 0x44 */    ALLEGRO_KEY_D,           ALLEGRO_KEY_E,             ALLEGRO_KEY_F,              ALLEGRO_KEY_G,    
+   /* 0x44 */    ALLEGRO_KEY_D,           ALLEGRO_KEY_E,             ALLEGRO_KEY_F,              ALLEGRO_KEY_G,
    /* 0x48 */    ALLEGRO_KEY_H,           ALLEGRO_KEY_I,             ALLEGRO_KEY_J,              ALLEGRO_KEY_K,
    /* 0x4C */    ALLEGRO_KEY_L,           ALLEGRO_KEY_M,             ALLEGRO_KEY_N,              ALLEGRO_KEY_O,
    /* 0x50 */    ALLEGRO_KEY_P,           ALLEGRO_KEY_Q,             ALLEGRO_KEY_R,              ALLEGRO_KEY_S,
@@ -109,6 +109,7 @@ static const unsigned char hw_to_mycode[256] =
 static bool init_keyboard(void);
 static void exit_keyboard(void);
 static void get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state);
+static void clear_keyboard_state(void);
 static ALLEGRO_KEYBOARD *get_keyboard(void);
 
 
@@ -126,7 +127,8 @@ static ALLEGRO_KEYBOARD_DRIVER keyboard_winapi =
    get_keyboard,
    NULL, /* bool set_leds(int leds) */
    NULL, /* const char* keycode_to_name(int keycode)*/
-   get_keyboard_state
+   get_keyboard_state,
+   clear_keyboard_state,
 };
 
 
@@ -216,6 +218,17 @@ static void get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
 }
 
 
+
+/* clear_keyboard_state:
+ *  Clear the current keyboard state.
+ */
+static void clear_keyboard_state(void)
+{
+   memset(&the_state, 0, sizeof(the_state));
+}
+
+
+
 /* extkey_to_keycode:
  *  Given a VK code, returns the Allegro keycode for the corresponding extended
  *  key.  If no code is found, returns zero.
@@ -237,10 +250,10 @@ static int extkey_to_keycode(int vcode)
       case VK_RIGHT:    return ALLEGRO_KEY_RIGHT;
       case VK_DOWN:     return ALLEGRO_KEY_DOWN;
       case VK_SNAPSHOT: return ALLEGRO_KEY_PRINTSCREEN;
-      case VK_INSERT:   return ALLEGRO_KEY_INSERT;     
-      case VK_DELETE:   return ALLEGRO_KEY_DELETE;     
-      case VK_LWIN:     return ALLEGRO_KEY_LWIN;       
-      case VK_RWIN:     return ALLEGRO_KEY_RWIN;       
+      case VK_INSERT:   return ALLEGRO_KEY_INSERT;
+      case VK_DELETE:   return ALLEGRO_KEY_DELETE;
+      case VK_LWIN:     return ALLEGRO_KEY_LWIN;
+      case VK_RWIN:     return ALLEGRO_KEY_RWIN;
       case VK_APPS:     return ALLEGRO_KEY_MENU;
       case VK_DIVIDE:   return ALLEGRO_KEY_PAD_SLASH;
       case VK_NUMLOCK:  return ALLEGRO_KEY_NUMLOCK;
@@ -342,7 +355,7 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool extended,
          vcode = MapVirtualKey(scode, MAPVK_VSC_TO_VK_EX);
       my_code = hw_to_mycode[vcode];
    }
-   update_modifiers(my_code, true);   
+   update_modifiers(my_code, true);
 
    actual_repeat = repeated && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, my_code);
    _AL_KEYBOARD_STATE_SET_KEY_DOWN(the_state, my_code);
@@ -431,7 +444,7 @@ void _al_win_kbd_handle_key_release(int scode, int vcode, bool extended, ALLEGRO
    update_modifiers(my_code, false);
 
    _AL_KEYBOARD_STATE_CLEAR_KEY_DOWN(the_state, my_code);
-      
+
    /* Windows only sends a WM_KEYUP message for the Shift keys when
       both have been released. If one of the Shift keys is still reported
       as down, we need to release it as well. */
@@ -439,7 +452,7 @@ void _al_win_kbd_handle_key_release(int scode, int vcode, bool extended, ALLEGRO
       _al_win_kbd_handle_key_release(scode, VK_RSHIFT, extended, win_disp);
    else if (my_code == ALLEGRO_KEY_RSHIFT && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_LSHIFT))
       _al_win_kbd_handle_key_release(scode, VK_LSHIFT, extended, win_disp);
-   
+
    if (!_al_event_source_needs_to_generate_event(&the_keyboard.es))
       return;
 
