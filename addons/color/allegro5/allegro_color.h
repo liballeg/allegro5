@@ -60,6 +60,28 @@ ALLEGRO_COLOR_FUNC(ALLEGRO_COLOR, al_color_hsl, (float h, float s, float l));
 ALLEGRO_COLOR_FUNC(ALLEGRO_COLOR, al_color_hsv, (float h, float s, float v));
 ALLEGRO_COLOR_FUNC(ALLEGRO_COLOR, al_color_name, (char const *name));
 ALLEGRO_COLOR_FUNC(ALLEGRO_COLOR, al_color_html, (char const *string));
+ALLEGRO_COLOR_FUNC(void, al_color_xyz_to_rgb, (float x, float y, float z,
+    float *red, float *green, float *blue));
+ALLEGRO_COLOR_FUNC(void, al_color_rgb_to_xyz, (float red, float green, float blue,
+   float *x, float *y, float *z));
+ALLEGRO_COLOR_FUNC(ALLEGRO_COLOR, al_color_xyz, (float x, float y, float z));
+ALLEGRO_COLOR_FUNC(void, al_color_lab_to_rgb, (float l, float a, float b,
+    float *red, float *green, float *blue));
+ALLEGRO_COLOR_FUNC(void, al_color_rgb_to_lab, (float red, float green, float blue,
+   float *l, float *a, float *b));
+ALLEGRO_COLOR_FUNC(ALLEGRO_COLOR, al_color_lab, (float l, float a, float b));
+ALLEGRO_COLOR_FUNC(void, al_color_xyy_to_rgb, (float x, float y, float y2,
+    float *red, float *green, float *blue));
+ALLEGRO_COLOR_FUNC(void, al_color_rgb_to_xyy, (float red, float green, float blue,
+   float *x, float *y, float *y2));
+ALLEGRO_COLOR_FUNC(ALLEGRO_COLOR, al_color_xyy, (float x, float y, float y2));
+ALLEGRO_COLOR_FUNC(double, al_color_distance_ciede2000, (ALLEGRO_COLOR c1, ALLEGRO_COLOR c2));
+ALLEGRO_COLOR_FUNC(void, al_color_lch_to_rgb, (float l, float c, float h,
+    float *red, float *green, float *blue));
+ALLEGRO_COLOR_FUNC(void, al_color_rgb_to_lch, (float red, float green, float blue,
+   float *l, float *c, float *h));
+ALLEGRO_COLOR_FUNC(ALLEGRO_COLOR, al_color_lch, (float l, float c, float h));
+ALLEGRO_COLOR_FUNC(bool, al_is_color_valid, (ALLEGRO_COLOR colo));
 
 #ifdef __cplusplus
    }

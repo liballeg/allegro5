@@ -7,6 +7,29 @@ Link with allegro_color.
  #include <allegro5/allegro_color.h>
 ~~~~
 
+When converting between certain color spaces, RGB colors are implicitly
+assumed to mean sRGB.
+
+sRGB is a standard which maps RGB colors to absolute colors. sRGB is
+very close to RGB values on a monitor which has a gamma value of 2.2.
+For example when the red component of a color is 0.5, the monitor will
+use a brightness of pow(0.5, 2.2) or about 22% - and not 50%. The reason
+is that human eyes can distinguish better between dark colors than
+between bright colors, and so if a pixel of the monitor is lit up to
+22% of its maximum power it already will appear at half brightness to a
+human eye.
+
+sRGB improves upon simple gamma correction by taking differences
+between the three color channels into account as well. In general, most
+monitors nowadays try to be close to the sRGB specification. And so if
+in an Allegro game you display something with color
+
+al_map_rgb_f(0.5, 0.5, 0,5)
+
+then it will appear at about half brightness (even though the actual
+brightness output of the monitor will be less than half).
+
+
 ## API: al_color_cmyk
 
 Return an [ALLEGRO_COLOR] structure from CMYK values (cyan, magenta, yellow,
@@ -222,6 +245,159 @@ name describing it approximately.
 See also: [al_color_name_to_rgb], [al_color_name]
 
 
+## API: al_color_rgb_to_xyz
+
+Convert RGB values to XYZ color space.
+
+See also: [al_color_xyz], [al_color_xyz_to_rgb]
+
+
+## API: al_color_xyz
+
+Return an [ALLEGRO_COLOR] structure from XYZ values. The CIE 1931 XYZ
+color space consists of three components in the range 0..1. The Y
+component corresponds to luminance and the X and Z components define
+the color.
+
+RGB components are always assumed to be in sRGB space.
+
+> *Note:*
+>
+> The XYZ color space can represent more colors than are
+> visible in sRGB and therefore conversion may result in RGB values
+> outside of the 0..1 range. You can check for that case with
+> [al_is_color_valid].
+
+See also: [al_color_xyz_to_rgb], [al_color_rgb_to_xyz]
+
+
+## API: al_color_xyz_to_rgb
+
+Convert XYZ color values to RGB color space.
+
+See also: [al_color_xyz], [al_color_rgb_to_xyz]
+
+
+## API: al_color_rgb_to_xyy
+
+Convert RGB values to xyY color space.
+
+See also: [al_color_xyy], [al_color_xyy_to_rgb]
+
+
+## API: al_color_xyy
+
+Return an [ALLEGRO_COLOR] structure from xyY values. The Y component
+in the xyY color space is the same as the Y in XYZ.
+
+However the x and y values are computed from XYZ like this:
+
+~~~~c
+x = X / (X + Y + Z)
+y = Y / (X + Y + Z)
+~~~~
+
+See also: [al_color_xyy_to_rgb], [al_color_rgb_to_xyy]
+
+
+## API: al_color_xyy_to_rgb
+
+Convert xyY color values to RGB color space.
+
+See also: [al_color_xyy], [al_color_rgb_to_xyy]
+
+
+## API: al_color_rgb_to_lab
+
+Convert RGB values to L\*a\*b\* color space.
+
+See also: [al_color_lab], [al_color_lab_to_rgb]
+
+
+## API: al_color_lab
+
+Return an [ALLEGRO_COLOR] structure from CIE L\*a\*b\* values. The L\*
+component corresponds to luminance from 0..1. The a\* and b\* components
+are in the range -1..+1.
+
+> *Note:*
+>
+> The L\*a\*b\* color space can represent more colors than are
+> visible in sRGB and therefore conversion may result in RGB values
+> outside of the 0..1 range. You can check for that case with
+> [al_is_color_valid].
+
+> *Note:*
+
+> In some literature the range of L* is 0 to 100 and a* and b* are from
+> -100 to +100. In that case divide all components by 100 before passing
+> them to this function.
+
+See also: [al_color_lab_to_rgb], [al_color_rgb_to_lab]
+
+
+## API: al_color_lab_to_rgb
+
+Convert CIE L\*a\*b\* color values to RGB color space.
+
+See also: [al_color_lab], [al_color_rgb_to_lab]
+
+
+## API: al_color_rgb_to_lch
+
+Convert RGB values to CIE LCH color space. 
+
+See also: [al_color_lch], [al_color_lch_to_rgb]
+
+
+## API: al_color_lch
+
+Return an [ALLEGRO_COLOR] structure from CIE LCH values. LCH colors are
+very similar to HSL, with the same meaning of L and H and C
+corresponding to S. However LCH is more visually uniform. Furthermore,
+this function expects the angle for H in radians and not in degree.
+
+The CIE LCH color space is a cylindrical representation of the L\*a\*b\*
+color space. The L component is the same and C and H are computed like
+this:
+
+~~~~c
+C = sqrt(a * a + b * b)
+H = atan2(b, a)
+~~~~
+
+See also: [al_color_lch_to_rgb], [al_color_rgb_to_lch]
+
+
+## API: al_color_lch_to_rgb
+
+Convert CIE LCH color values to RGB color space.
+
+See also: [al_color_lch], [al_color_rgb_to_lch]
+
+
+## API: al_color_distance_ciede2000_lab
+
+This function computes the CIEDE2000 color difference between two
+RGB colors. This is a visually uniform color difference, unlike for
+example the RGB distance.
+
+When using the RGB distance (Euklidean distance between two RGB
+triplets) there can be color pairs with the same distance, where the
+colors of one pair appear to be almost the same color, while the colors
+of the other pair look quite different. This is improved by using the
+L\*a\*b\* color space which was designed with perceptual uniformity in
+mind. However it still is not completely uniform. The CIEDE2000
+formula contains some additional transformations to fix that.
+
+The returned color distance is roughly in the range 0 (identical
+color) to 1 (completely different color) - but values greater than one
+are possible.
+
+> Note: This function uses [al_color_lab] internally which
+> defines the L component to be in the range 0..1 (and not 0..100 as is
+> sometimes seen).
+
 ## API: al_color_rgb_to_yuv
 
 Convert RGB values to YUV color space.
@@ -248,3 +424,10 @@ See also: [al_color_yuv], [al_color_rgb_to_yuv]
 Returns the (compiled) version of the addon, in the same format as
 [al_get_allegro_version].
 
+
+## API: al_is_color_valid
+
+Checks if all component of the color are between 0 and 1. Some of the
+color conversions in this addon support color spaces with more colors
+than can be represented in sRGB and when converted to RGB will result
+in invalid color components outside the 0..1 range.
