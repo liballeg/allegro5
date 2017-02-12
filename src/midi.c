@@ -155,23 +155,43 @@ void lock_midi(MIDI *midi)
  */
 MIDI *load_midi(AL_CONST char *filename)
 {
+   PACKFILE *f;
+   MIDI *midi;
+   ASSERT(filename);
+
+   f = pack_fopen(filename, F_READ);
+   if (!f)
+      return NULL;
+
+   midi = load_midi_pf(f);
+
+   pack_fclose(f);
+
+   return midi;
+}
+
+
+
+/* load_midi_pf:
+ *  Reads a standard MIDI file from the packfile given, returning a MIDI
+ *  structure, or NULL on error.
+ *
+ *  If unsuccessful the offset into the file is unspecified, i.e. you must
+ *  either reset the offset to some known place or close the packfile. The
+ *  packfile is not closed by this function.
+ */
+MIDI *load_midi_pf(PACKFILE *fp)
+{
    int c;
    char buf[4];
    long data;
-   PACKFILE *fp;
    MIDI *midi;
    int num_tracks;
-   ASSERT(filename);
-
-   fp = pack_fopen(filename, F_READ);        /* open the file */
-   if (!fp)
-      return NULL;
+   ASSERT(fp);
 
    midi = _AL_MALLOC(sizeof(MIDI));              /* get some memory */
-   if (!midi) {
-      pack_fclose(fp);
+   if (!midi)
       return NULL;
-   }
 
    for (c=0; c<MIDI_TRACKS; c++) {
       midi->track[c].data = NULL;
@@ -230,13 +250,11 @@ MIDI *load_midi(AL_CONST char *filename)
 	 goto err;
    }
 
-   pack_fclose(fp);
    lock_midi(midi);
    return midi;
 
    /* oh dear... */
    err:
-   pack_fclose(fp);
    destroy_midi(midi);
    return NULL;
 }
