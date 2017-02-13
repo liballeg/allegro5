@@ -316,7 +316,8 @@ static void hlsl_destroy_shader(ALLEGRO_SHADER *shader)
 {
    ALLEGRO_SHADER_HLSL_S *hlsl_shader = (ALLEGRO_SHADER_HLSL_S *)shader;
 
-   hlsl_shader->hlsl_shader->Release();
+   if (hlsl_shader->hlsl_shader)
+      hlsl_shader->hlsl_shader->Release();
 
    _al_vector_find_and_delete(&shaders, &shader);
 
