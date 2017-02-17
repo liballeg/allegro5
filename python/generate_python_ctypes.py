@@ -168,7 +168,7 @@ class Allegro:
                 f.restype = self.get_type(ret)
             try:
                 f.argtypes = plist
-            except TypeError, e:
+            except TypeError as e:
                 print(e)
                 print(name)
                 print(plist)

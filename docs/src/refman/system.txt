@@ -210,10 +210,16 @@ from a few different locations, in this order:
 
 If multiple copies are found, then they are merged using [al_merge_config_into].
 
-The contents of this file are documented inside a prototypical allegro5.cfg
+The contents of this file are documented inside a prototypical `allegro5.cfg`
 that you can find in the root directory of the source distributions of Allegro.
+They are also reproduced below.
+
 Note that Allegro will not look into that file unless you make a copy of it and
 place it next to your executable!
+
+~~~~ini
+__ALLEGRO_5_CFG
+~~~~
 
 ## API: al_register_assert_handler
 

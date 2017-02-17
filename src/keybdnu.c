@@ -33,12 +33,6 @@
 /* the active keyboard driver */
 static ALLEGRO_KEYBOARD_DRIVER *new_keyboard_driver = NULL;
 
-/* mode flags */
-/* TODO: use the config system for these */
-bool _al_three_finger_flag = true;
-bool _al_key_led_flag = true;
-
-
 
 /* Provide a default naming for the most common keys. Keys whose
  * mapping changes dependind on the layout aren't listed - it's up to
@@ -139,7 +133,7 @@ bool al_install_keyboard(void)
        _al_add_exit_func(al_uninstall_keyboard, "al_uninstall_keyboard");
        return true;
    }
-   
+
    return false;
 
    /*
@@ -248,6 +242,39 @@ void al_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
    ASSERT(ret_state);
 
    new_keyboard_driver->get_keyboard_state(ret_state);
+}
+
+
+
+/* Function: al_clear_keyboard_state
+ */
+void al_clear_keyboard_state(ALLEGRO_DISPLAY *display)
+{
+   ASSERT(new_keyboard_driver);
+
+   if (display) {
+      ALLEGRO_EVENT_SOURCE *es = al_get_keyboard_event_source();
+      ALLEGRO_KEYBOARD_STATE ks; al_get_keyboard_state(&ks);
+      _al_event_source_lock(es);
+      if (_al_event_source_needs_to_generate_event(es)) {
+         int keycode;
+         for (keycode = ALLEGRO_KEY_A; keycode < ALLEGRO_KEY_MAX; keycode++) {
+            if (al_key_down(&ks, keycode)) {
+               ALLEGRO_EVENT event;
+               event.keyboard.type = ALLEGRO_EVENT_KEY_UP;
+               event.keyboard.timestamp = al_get_time();
+               event.keyboard.display = display;
+               event.keyboard.keycode = keycode;
+               event.keyboard.unichar = 0;
+               event.keyboard.modifiers = 0;
+               _al_event_source_emit_event(es, &event);
+            }
+         }
+      }
+      _al_event_source_unlock(es);
+   }
+
+   new_keyboard_driver->clear_keyboard_state();
 }
 
 

@@ -53,6 +53,9 @@
 #include "allegro5/platform/aintunix.h"
 
 
+ALLEGRO_DEBUG_CHANNEL("keyboard")
+
+
 #define PREFIX_I                "al-ckey INFO: "
 #define PREFIX_W                "al-ckey WARNING: "
 #define PREFIX_E                "al-ckey ERROR: "
@@ -68,6 +71,10 @@ typedef struct ALLEGRO_KEYBOARD_LINUX
    int startup_kbmode;
    ALLEGRO_KEYBOARD_STATE state;
    unsigned int modifiers;
+   // Quit if Ctrl-Alt-Del is pressed.
+   bool three_finger_flag;
+   // Whether to let the LED lights if the .
+   bool key_led_flag;
 } ALLEGRO_KEYBOARD_LINUX;
 
 
@@ -86,6 +93,7 @@ static void lkeybd_exit_keyboard(void);
 static ALLEGRO_KEYBOARD *lkeybd_get_keyboard(void);
 static bool lkeybd_set_keyboard_leds(int leds);
 static void lkeybd_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state);
+static void lkeybd_clear_keyboard_state(void);
 
 static void process_new_data(void *unused);
 static void process_character(unsigned char ch);
@@ -108,7 +116,8 @@ static ALLEGRO_KEYBOARD_DRIVER keydrv_linux =
    lkeybd_get_keyboard,
    lkeybd_set_keyboard_leds,
    NULL, /* const char *keycode_to_name(int keycode) */
-   lkeybd_get_keyboard_state
+   lkeybd_get_keyboard_state,
+   lkeybd_clear_keyboard_state
 };
 
 
@@ -356,6 +365,25 @@ static bool lkeybd_init_keyboard(void)
       //goto Error;
    }
 
+   the_keyboard.three_finger_flag = true;
+   the_keyboard.key_led_flag = true;
+
+   const char *value = al_get_config_value(al_get_system_config(),
+         "keyboard", "enable_three_finger_exit");
+   if (value) {
+      the_keyboard.three_finger_flag = !strncmp(value, "true", 4);
+   }
+   value = al_get_config_value(al_get_system_config(),
+         "keyboard", "enable_key_led_toggle");
+   if (value) {
+      the_keyboard.key_led_flag = !strncmp(value, "true", 4);
+   }
+
+   ALLEGRO_DEBUG("Three finger flag enabled: %s\n",
+      the_keyboard.three_finger_flag ? "true" : "false");
+   ALLEGRO_DEBUG("Key LED toggle enabled: %s\n",
+      the_keyboard.key_led_flag ? "true" : "false");
+
    /* Initialise the keyboard object for use as an event source. */
    _al_event_source_init(&the_keyboard.parent.es);
 
@@ -451,6 +479,20 @@ static void lkeybd_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
 
 
 
+/* lkeybd_clear_keyboard_state: [primary thread]
+ *  Clear the current keyboard state, with any necessary locking.
+ */
+static void lkeybd_clear_keyboard_state(void)
+{
+   _al_event_source_lock(&the_keyboard.parent.es);
+   {
+      memset(&the_keyboard.state, 0, sizeof(the_keyboard.state))
+   }
+   _al_event_source_unlock(&the_keyboard.parent.es);
+}
+
+
+
 /* process_new_data: [fdwatch thread]
  *  Process new data arriving in the keyboard's fd.
  */
@@ -498,7 +540,7 @@ static void process_character(unsigned char ch)
       if (press) {
          if (flag & KB_MODIFIERS)
             the_keyboard.modifiers |= flag;
-         else if ((flag & KB_LED_FLAGS) && _al_key_led_flag)
+         else if ((flag & KB_LED_FLAGS) && the_keyboard.key_led_flag)
             the_keyboard.modifiers ^= flag;
       }
       else {
@@ -530,9 +572,9 @@ static void process_character(unsigned char ch)
    else {
       handle_key_release(mycode);
    }
-   
+
    /* three-finger salute for killing the program */
-   if ((_al_three_finger_flag)
+   if ((the_keyboard.three_finger_flag)
        && ((mycode == ALLEGRO_KEY_DELETE) || (mycode == ALLEGRO_KEY_END))
        && (the_keyboard.modifiers & ALLEGRO_KEYMOD_CTRL)
        && (the_keyboard.modifiers & ALLEGRO_KEYMOD_ALT))
@@ -554,11 +596,11 @@ static void handle_key_press(int mycode, unsigned int ascii)
    event_type = (_AL_KEYBOARD_STATE_KEY_DOWN(the_keyboard.state, mycode)
                  ? ALLEGRO_EVENT_KEY_CHAR
                  : ALLEGRO_EVENT_KEY_DOWN);
-   
+
    /* Maintain the key_down array. */
    _AL_KEYBOARD_STATE_SET_KEY_DOWN(the_keyboard.state, mycode);
 
-   /* Generate key press/repeat events if necessary. */   
+   /* Generate key press/repeat events if necessary. */
    if (!_al_event_source_needs_to_generate_event(&the_keyboard.parent.es))
       return;
 

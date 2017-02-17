@@ -2,6 +2,7 @@
 #define __al_included_allegro5_path_h
 
 #include "allegro5/base.h"
+#include "allegro5/utf8.h"
 
 #ifdef __cplusplus
    extern "C" {
@@ -33,6 +34,7 @@ AL_FUNC(void, al_append_path_component, (ALLEGRO_PATH *path, const char *s));
 AL_FUNC(bool, al_join_paths, (ALLEGRO_PATH *path, const ALLEGRO_PATH *tail));
 AL_FUNC(bool, al_rebase_path, (const ALLEGRO_PATH *head, ALLEGRO_PATH *tail));
 AL_FUNC(const char*, al_path_cstr, (const ALLEGRO_PATH *path, char delim));
+AL_FUNC(const ALLEGRO_USTR*, al_path_ustr, (const ALLEGRO_PATH *path, char delim));
 AL_FUNC(void, al_destroy_path, (ALLEGRO_PATH *path));
 
 AL_FUNC(void, al_set_path_drive, (ALLEGRO_PATH *path, const char *drive));

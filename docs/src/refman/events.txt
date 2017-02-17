@@ -297,18 +297,24 @@ The touch input device registered a new touch.
 
 touch.display (ALLEGRO_DISPLAY)
 :   The display which was touched.
+
 touch.id (int)
 :   An identifier for this touch. If supported by the device it will
     stay the same for events from the same finger until the touch
     ends.
+
 touch.x (float)
 :   The x coordinate of the touch in pixels.
+
 touch.y (float)
 :   The y coordinate of the touch in pixels.
+
 touch.dx (float)
 :   Movement speed in pixels in x direction.
+
 touch.dy (float)
 :   Movement speed in pixels in y direction.
+
 touch.primary (bool)
 :   Whether this is the only/first touch or an additional touch.
 
@@ -429,8 +435,11 @@ display.source (ALLEGRO_DISPLAY *)
 
 ### ALLEGRO_EVENT_DISPLAY_SWITCH_OUT
 
-The window is no longer active, that is the user might have clicked into
-another window or "tabbed" away.
+The window is no longer active, that is the user might have clicked
+into another window or "tabbed" away.  In response to this event you
+might want to call [al_clear_keyboard_state] (possibly passing
+display.source as its argument) in order to prevent Allegro's keyboard
+state from getting out of sync.
 
 display.source (ALLEGRO_DISPLAY *)
 :   The display which was switched out of.
@@ -894,4 +903,3 @@ not use the data internally for anything; it is simply meant as a
 convenient way to associate your own data or objects with events.
 
 See also: [al_get_event_source_data]
-

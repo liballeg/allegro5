@@ -15,9 +15,9 @@
 
 #include "common.c"
 
-#define SLIDERS_COUNT 16
+#define SLIDERS_COUNT 19
 char const *names[] = {"R", "G", "B", "H", "S", "V", "H", "S", "L",
-    "Y", "U", "V", "C", "M", "Y", "K"};
+    "Y", "U", "V", "C", "M", "Y", "K", "L", "C", "H"};
 
 float clamp(float x)
 {
@@ -48,7 +48,7 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    d(Dialog(theme, display, 640, 480))
 {
    for (int i = 0; i < SLIDERS_COUNT; i++) {
-      int j = i < 12 ? i / 3 : 4;
+      int j = i < 12 ? i / 3 : i < 16 ? 4 : 5;
       sliders[i] = VSlider(1000, 1000);
       d.add(sliders[i], 8 + i * 32 + j * 16, 8, 15, 256);
       labels[i].set_text(names[i]);
@@ -76,29 +76,35 @@ void Prog::run()
          }
 
          if (keep != -1) {
-            int space = keep < 12 ? keep / 3 : 4;
+            int space = keep < 12 ? keep / 3 : keep < 16 ? 4 : 5;
             switch (space) {
                case 0:
                   al_color_rgb_to_hsv(v[0], v[1], v[2], v + 3, v + 4, v + 5);
                   al_color_rgb_to_hsl(v[0], v[1], v[2], v + 6, v + 7, v + 8);
                   al_color_rgb_to_cmyk(v[0], v[1], v[2], v + 12, v + 13, v + 14, v + 15);
                   al_color_rgb_to_yuv(v[0], v[1], v[2], v + 9, v + 10, v + 11);
+                  al_color_rgb_to_lch(v[0], v[1], v[2], v + 16, v + 17, v + 18);
                   v[3] /= 360;
                   v[6] /= 360;
+                  v[18] /= ALLEGRO_PI * 2;
                   break;
                case 1:
                   al_color_hsv_to_rgb(v[3] * 360, v[4], v[5], v + 0, v + 1, v + 2);
                   al_color_rgb_to_hsl(v[0], v[1], v[2], v + 6, v + 7, v + 8);
                   al_color_rgb_to_cmyk(v[0], v[1], v[2], v + 12, v + 13, v + 14, v + 15);
                   al_color_rgb_to_yuv(v[0], v[1], v[2], v + 9, v + 10, v + 11);
+                  al_color_rgb_to_lch(v[0], v[1], v[2], v + 16, v + 17, v + 18);
                   v[6] /= 360;
+                  v[18] /= ALLEGRO_PI * 2;
                   break;
                case 2:
                   al_color_hsl_to_rgb(v[6] * 360, v[7], v[8], v + 0, v + 1, v + 2);
                   al_color_rgb_to_hsv(v[0], v[1], v[2], v + 3, v + 4, v + 5);
                   al_color_rgb_to_cmyk(v[0], v[1], v[2], v + 12, v + 13, v + 14, v + 15);
                   al_color_rgb_to_yuv(v[0], v[1], v[2], v + 9, v + 10, v + 11);
+                  al_color_rgb_to_lch(v[0], v[1], v[2], v + 16, v + 17, v + 18);
                   v[3] /= 360;
+                  v[18] /= ALLEGRO_PI * 2;
                   break;
                case 3:
                   al_color_yuv_to_rgb(v[9], v[10], v[11], v + 0, v + 1, v + 2);
@@ -109,16 +115,33 @@ void Prog::run()
                   al_color_rgb_to_hsv(v[0], v[1], v[2], v + 3, v + 4, v + 5);
                   al_color_rgb_to_hsl(v[0], v[1], v[2], v + 6, v + 7, v + 8);
                   al_color_rgb_to_cmyk(v[0], v[1], v[2], v + 12, v + 13, v + 14, v + 15);
+                  al_color_rgb_to_lch(v[0], v[1], v[2], v + 16, v + 17, v + 18);
                   v[3] /= 360;
                   v[6] /= 360;
+                  v[18] /= ALLEGRO_PI * 2;
                   break;
                case 4:
                   al_color_cmyk_to_rgb(v[12], v[13], v[14], v[15], v + 0, v + 1, v + 2);
                   al_color_rgb_to_hsv(v[0], v[1], v[2], v + 3, v + 4, v + 5);
                   al_color_rgb_to_hsl(v[0], v[1], v[2], v + 6, v + 7, v + 8);
                   al_color_rgb_to_yuv(v[0], v[1], v[2], v + 9, v + 10, v + 11);
+                  al_color_rgb_to_lch(v[0], v[1], v[2], v + 16, v + 17, v + 18);
                   v[3] /= 360;
                   v[6] /= 360;
+                  v[18] /= ALLEGRO_PI * 2;
+                  break;
+               case 5:
+                  al_color_lch_to_rgb(v[16], v[17], v[18] * 2 * ALLEGRO_PI, v + 0, v + 1, v + 2);
+                  v[0] = clamp(v[0]);
+                  v[1] = clamp(v[1]);
+                  v[2] = clamp(v[2]);
+                  al_color_rgb_to_hsv(v[0], v[1], v[2], v + 3, v + 4, v + 5);
+                  al_color_rgb_to_hsl(v[0], v[1], v[2], v + 6, v + 7, v + 8);
+                  al_color_rgb_to_yuv(v[0], v[1], v[2], v + 9, v + 10, v + 11);
+                  al_color_rgb_to_lch(v[0], v[1], v[2], v + 16, v + 17, v + 18);
+                  v[3] /= 360;
+                  v[6] /= 360;
+                  v[18] /= ALLEGRO_PI * 2;
                   break;
             }
          }
@@ -176,7 +199,7 @@ int main(int argc, char *argv[])
    init_platform_specific();
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
-   display = al_create_display(640, 480);
+   display = al_create_display(720, 480);
    if (!display) {
       abort_example("Unable to create display\n");
    }

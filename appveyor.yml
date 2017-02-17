@@ -5,7 +5,7 @@ install:
   - mkdir deps
   - mkdir deps\include
   - mkdir deps\lib
-  - nuget install AllegroDeps -Version 1.4.0 -OutputDirectory deps -ExcludeVersion
+  - nuget install AllegroDeps -Version 1.5.0 -OutputDirectory deps -ExcludeVersion
   - ps: move deps\AllegroDeps\build\native\include\* deps\include -force
   - ps: move deps\AllegroDeps\build\native\v140\win32\deps\lib\* deps\lib -force
 

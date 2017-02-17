@@ -175,7 +175,7 @@ def parse_header(lines, filename):
                     if not fname in functions:
                         functions[fname] = line
                     n += 1
-            except AttributeError, e:
+            except AttributeError as e:
                 print("Cannot parse in " + filename)
                 print("Line is: " + line)
                 print(e)
@@ -207,9 +207,10 @@ def parse_all_headers():
     for header in headers:
         p = subprocess.Popen(options.compiler + " -E -dD - " + includes,
             stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
-        p.stdin.write("#include <allegro5/allegro.h>\n" + open(header).read())
+        filename = "#include <allegro5/allegro.h>\n" + open(header).read()
+        p.stdin.write(filename.encode('utf-8'))
         p.stdin.close()
-        text = p.stdout.read()
+        text = p.stdout.read().decode("utf-8")
         parse_header(text.splitlines(), header)
         #print("%d definitions in %s" % (n, header))
 

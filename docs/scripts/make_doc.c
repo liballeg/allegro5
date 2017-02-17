@@ -29,11 +29,12 @@
 #include "make_doc.h"
 
 
-dstr pandoc          = "pandoc";
-dstr pandoc_options  = "";
-dstr protos_file     = "protos";
-dstr to_format       = "html";
-bool raise_sections  = false;
+dstr pandoc                = "pandoc";
+dstr pandoc_options        = "";
+dstr protos_file           = "protos";
+dstr to_format             = "html";
+dstr allegro5_cfg_filename = "";
+bool raise_sections        = false;
 dstr tmp_preprocess_output;
 dstr tmp_pandoc_output;
 
@@ -88,6 +89,10 @@ static int process_options(int argc, char *argv[])
       }
       else if (streq(argv[i], "--to")) {
          d_assign(to_format, argv[i + 1]);
+         i += 2;
+      }
+      else if (streq(argv[i], "--allegro5_cfg")) {
+         d_assign(allegro5_cfg_filename, argv[i + 1]);
          i += 2;
       }
       else if (streq(argv[i], "--raise-sections")) {
@@ -148,6 +153,37 @@ static void load_prototypes(const char *filename)
    }
 
    d_close_input();
+}
+
+
+char *load_allegro5_cfg(void)
+{
+   FILE *f = fopen(allegro5_cfg_filename, "rb");
+   if (!f) {
+      d_abort("could not open file for reading: ", allegro5_cfg_filename);
+   }
+
+   if (fseek(f, 0, SEEK_END)) {
+      d_abort("could not seek to end: ", allegro5_cfg_filename);
+   }
+
+   long length = ftell(f);
+   if (length == -1) {
+      d_abort("could not tell length of file: ", allegro5_cfg_filename);
+   }
+
+   if (fseek(f, 0, SEEK_SET)) {
+      d_abort("could not seek back to beginning: ", allegro5_cfg_filename);
+   }
+   char *ret = malloc(length + 1);
+   size_t read_bytes = fread(ret, 1, length, f);
+   if (read_bytes != (size_t)length) {
+      d_abort("could not read file: ", allegro5_cfg_filename);
+   }
+   fclose(f);
+
+   ret[length] = '\0';
+   return ret;
 }
 
 

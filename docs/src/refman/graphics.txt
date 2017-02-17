@@ -506,8 +506,10 @@ See also: [al_create_bitmap]
 ### API: al_clone_bitmap
 
 Create a new bitmap with [al_create_bitmap], and copy the pixel data from the
-old bitmap across. If the new bitmap is a memory bitmap, its projection bitmap
-is reset to be orthographic.
+old bitmap across. The newly created bitmap will be created with the current
+new bitmap flags, and not the ones that were used to create the original
+bitmap.  If the new bitmap is a memory bitmap, its projection bitmap is reset
+to be orthographic.
 
 See also: [al_create_bitmap], [al_set_new_bitmap_format],
 [al_set_new_bitmap_flags], [al_convert_bitmap]
@@ -583,7 +585,11 @@ ALLEGRO_MEMORY_BITMAP
     However, direct pixel access can be relatively quick compared to video bitmaps,
     which depend on the display driver in use.
     
-    *Note*: Allegro's software rendering routines are currently very unoptimised.
+    *Note*: Allegro's software rendering routines are currently somewhat
+    unoptimised.
+
+    *Note:* Combining ALLEGRO_VIDEO_BITMAP and ALLEGRO_MEMORY_BITMAP flags is
+    invalid.
 
 ALLEGRO_VIDEO_BITMAP
 :   Creates a bitmap that resides in the video card memory. These types of
@@ -597,6 +603,9 @@ ALLEGRO_VIDEO_BITMAP
     *Note:* Bitmaps created with this flag will be converted to memory
     bitmaps when the last display is destroyed. In most cases it is
     therefore easier to use the ALLEGRO_CONVERT_BITMAP flag instead.
+
+    *Note:* Combining ALLEGRO_VIDEO_BITMAP and ALLEGRO_MEMORY_BITMAP flags is
+    invalid.
 
 ALLEGRO_CONVERT_BITMAP
 :   This is the default. It will try to create a video bitmap and if
@@ -1151,6 +1160,11 @@ the calling thread will draw to.
 To return to drawing to a display, set the backbuffer of the display as the
 target bitmap, using [al_get_backbuffer]. As a convenience, you may also use
 [al_set_target_backbuffer].
+
+Each allegro bitmap maintains two transformation matrices associated with it for
+drawing onto the bitmap. There is a view matrix and a projection matrix. When you
+call al_set_target_bitmap, these will be made current for the bitmap, affecting
+global OpenGL and DirectX states depending on the driver in use.
 
 Each video bitmap is tied to a display. When a video bitmap is set to as the
 target bitmap, the display that the bitmap belongs to is automatically made

@@ -59,6 +59,8 @@ typedef struct ALLEGRO_KEYBOARD_XWIN
 {
    ALLEGRO_KEYBOARD parent;
    ALLEGRO_KEYBOARD_STATE state;
+   // Quit if Ctrl-Alt-Del is pressed.
+   bool three_finger_flag;
 } ALLEGRO_KEYBOARD_XWIN;
 
 
@@ -71,7 +73,7 @@ typedef struct ALLEGRO_KEY_REPEAT_DATA {
 /* the one and only keyboard object */
 static ALLEGRO_KEYBOARD_XWIN the_keyboard;
 
-
+static int last_press_code = -1;
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XIM
 static XIM xim = NULL;
@@ -452,7 +454,7 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, ALLEGRO_DISPLAY *display)
       * event was generated in response to that key press event. Events are
       * simultaneous if they are separated by less than 4 ms (a value that
       * worked well on one machine where this hack was needed).
-      * 
+      *
       * This is unnecessary on systems where XkbSetDetectableAutorepeat works.
       */
       if (XPending(event->display) > 0) {
@@ -651,7 +653,7 @@ static bool _al_xwin_get_keyboard_mapping(void)
     * though, and proper written programs will not hardcode such mappings.
     */
    ALLEGRO_CONFIG *c = al_get_system_config();
-   
+
    char const *key;
    ALLEGRO_CONFIG_ENTRY *it;
    key = al_get_first_config_entry(c, "xkeymap", &it);
@@ -727,7 +729,7 @@ static int x_keyboard_init(void)
    memcpy(key_names, _al_keyboard_common_names, sizeof key_names);
 
    _al_mutex_lock(&s->lock);
-   
+
    /* HACK: XkbSetDetectableAutoRepeat is broken in some versions of X.Org */
    Bool supported;
    XkbSetDetectableAutoRepeat(s->x11display, True, &supported);
@@ -752,12 +754,13 @@ static int x_keyboard_init(void)
       ALLEGRO_WARN("Could not set default locale.\n");
    }
 
-/* TODO: is this needed?
-   modifiers = XSetLocaleModifiers("@im=none");
+   /* By default never use an input method as we are not prepared to
+    * handle any of them. This is still enough to get composed keys.
+    */
+   char const *modifiers = XSetLocaleModifiers("@im=none");
    if (modifiers == NULL) {
       ALLEGRO_WARN("XSetLocaleModifiers failed.\n");
    }
-*/
 
    xim = XOpenIM(s->x11display, NULL, NULL, NULL);
    if (xim == NULL) {
@@ -838,7 +841,7 @@ static void x_keyboard_exit(void)
    if (!xkeyboard_installed)
       return;
    xkeyboard_installed = 0;
-   
+
    ALLEGRO_SYSTEM_XGLX *s = (void *)al_get_system_driver();
 
    _al_mutex_lock(&s->lock);
@@ -887,6 +890,7 @@ static ALLEGRO_KEYBOARD *xkeybd_get_keyboard(void);
 static bool xkeybd_set_keyboard_leds(int leds);
 static const char *xkeybd_keycode_to_name(int keycode);
 static void xkeybd_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state);
+static void xkeybd_clear_keyboard_state(void);
 
 
 
@@ -904,7 +908,8 @@ static ALLEGRO_KEYBOARD_DRIVER keydrv_xwin =
    xkeybd_get_keyboard,
    xkeybd_set_keyboard_leds,
    xkeybd_keycode_to_name,
-   xkeybd_get_keyboard_state
+   xkeybd_get_keyboard_state,
+   xkeybd_clear_keyboard_state
 };
 
 
@@ -928,8 +933,18 @@ static bool xkeybd_init_keyboard(void)
 
    _al_event_source_init(&the_keyboard.parent.es);
 
+   the_keyboard.three_finger_flag = true;
+
+   const char *value = al_get_config_value(al_get_system_config(),
+         "keyboard", "enable_three_finger_exit");
+   if (value) {
+      the_keyboard.three_finger_flag = !strncmp(value, "true", 4);
+   }
+   ALLEGRO_DEBUG("Three finger flag enabled: %s\n",
+      the_keyboard.three_finger_flag ? "true" : "false");
+
    //_xwin_keydrv_set_leds(_key_shifts);
-   
+
    /* Get the pid, which we use for the three finger salute */
    main_pid = getpid();
 
@@ -995,12 +1010,25 @@ static void xkeybd_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
 
 
 
+/* xkeybd_get_keyboard_state:
+ *  Clear the current keyboard state, with any necessary locking.
+ */
+static void xkeybd_clear_keyboard_state(void)
+{
+   _al_event_source_lock(&the_keyboard.parent.es);
+   {
+      last_press_code = -1;
+      memset(&the_keyboard.state, 0, sizeof(the_keyboard.state));
+   }
+   _al_event_source_unlock(&the_keyboard.parent.es);
+}
+
+
+
 /* handle_key_press: [bgman thread]
  *  Hook for the X event dispatcher to handle key presses.
  *  The caller must lock the X-display.
  */
-static int last_press_code = -1;
-
 static void handle_key_press(int mycode, int unichar, int filtered,
    unsigned int modifiers, ALLEGRO_DISPLAY *display)
 {
@@ -1065,7 +1093,7 @@ static void handle_key_press(int mycode, int unichar, int filtered,
 #endif
 
    /* Exit by Ctrl-Alt-End.  */
-   if ((_al_three_finger_flag)
+   if ((the_keyboard.three_finger_flag)
        && ((mycode == ALLEGRO_KEY_DELETE) || (mycode == ALLEGRO_KEY_END))
        && (modifiers & ALLEGRO_KEYMOD_CTRL)
        && (modifiers & (ALLEGRO_KEYMOD_ALT | ALLEGRO_KEYMOD_ALTGR)))

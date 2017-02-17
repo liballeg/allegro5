@@ -46,9 +46,30 @@ static gboolean create_gtk_file_dialog(gpointer data)
 
    _al_gtk_make_transient(display, window);
 
+   if (save) {
+      gtk_file_chooser_set_do_overwrite_confirmation
+         (GTK_FILE_CHOOSER(window), true);
+   }
+
    if (fd->fc_initial_path) {
-      gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(window),
-         al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP));
+      if (fd->flags & ALLEGRO_FILECHOOSER_FILE_MUST_EXIST || ! save) {
+         gtk_file_chooser_set_filename
+            (GTK_FILE_CHOOSER(window),
+             al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP));
+      }
+      else {
+         ALLEGRO_PATH *dir_path = al_clone_path(fd->fc_initial_path);
+         al_set_path_filename(dir_path, NULL);
+
+         gtk_file_chooser_set_current_folder
+            (GTK_FILE_CHOOSER(window),
+             al_path_cstr(dir_path, ALLEGRO_NATIVE_PATH_SEP));
+         gtk_file_chooser_set_current_name
+            (GTK_FILE_CHOOSER(window),
+             al_get_path_filename(fd->fc_initial_path));
+
+         al_destroy_path(dir_path);
+      }
    }
 
    if (fd->flags & ALLEGRO_FILECHOOSER_MULTIPLE)

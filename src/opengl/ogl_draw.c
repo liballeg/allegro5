@@ -36,6 +36,22 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 #endif
 #endif
 
+static void try_const_color(ALLEGRO_DISPLAY *ogl_disp, ALLEGRO_COLOR *c)
+{
+   #ifdef ALLEGRO_CFG_OPENGLES
+      #ifndef ALLEGRO_CFG_OPENGLES2
+         return;
+      #endif
+      // Only OpenGL ES 2.0 has glBlendColor
+      if (ogl_disp->ogl_extras->ogl_info.version < _ALLEGRO_OPENGL_VERSION_2_0) {
+         return;
+      }
+   #else
+   (void)ogl_disp;
+   #endif
+   glBlendColor(c->r, c->g, c->b, c->a);
+}
+
 bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
 {
    int op, src_color, dst_color, op_alpha, src_alpha, dst_alpha;
@@ -75,11 +91,7 @@ bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
 #endif
 #endif
       glEnable(GL_BLEND);
-#if defined(ALLEGRO_CFG_OPENGLES2) || !defined(ALLEGRO_CFG_OPENGLES)
-   #ifndef ALLEGRO_ANDROID_HACK_X86_64
-      glBlendColor(const_color.r, const_color.g, const_color.b, const_color.a);
-   #endif
-#endif
+      try_const_color(ogl_disp, &const_color);
       glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
          blend_modes[src_alpha], blend_modes[dst_alpha]);
       if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
@@ -94,11 +106,7 @@ bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
    else {
       if (src_color == src_alpha && dst_color == dst_alpha) {
          glEnable(GL_BLEND);
-#if defined(ALLEGRO_CFG_OPENGLES2) || !defined(ALLEGRO_CFG_OPENGLES)
-   #ifndef ALLEGRO_ANDROID_HACK_X86_64
-         glBlendColor(const_color.r, const_color.g, const_color.b, const_color.a);
-   #endif
-#endif
+         try_const_color(ogl_disp, &const_color);
          glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
       }
       else {

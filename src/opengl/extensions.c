@@ -15,6 +15,7 @@
  *      Based on AllegroGL extensions management.
  */
 
+#include <ctype.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -97,6 +98,15 @@ static uint32_t parse_opengl_version(const char *s)
    int v[4] = {0, 0, 0, 0};
    int n;
    uint32_t ver;
+
+   /* For OpenGL ES version strings have the form:
+    * "OpenGL ES-<profile> <major>.<minor>"
+    * So for example: "OpenGL ES-CM 2.0". We simply skip any non-digit
+    * characters and then parse it like for normal OpenGL.
+    */
+   while (*p && !isdigit(*p)) {
+      p++;
+   }
 
    /* e.g. "4.0.0 Vendor blah blah" */
    for (n = 0; n < 4; n++) {

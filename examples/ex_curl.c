@@ -158,7 +158,6 @@ static bool fill_buffer(CURL_FILE *cf, size_t size)
    fd_set fdread;
    fd_set fdwrite;
    fd_set fdexcep;
-   int maxfd;
    struct timeval timeout;
    int rc;
 
@@ -170,6 +169,9 @@ static bool fill_buffer(CURL_FILE *cf, size_t size)
 
    /* Attempt to fill buffer. */
    do {
+      int maxfd = -1;
+      CURLMcode mc;
+
       FD_ZERO(&fdread);
       FD_ZERO(&fdwrite);
       FD_ZERO(&fdexcep);
@@ -179,29 +181,29 @@ static bool fill_buffer(CURL_FILE *cf, size_t size)
       timeout.tv_usec = 0;
 
       /* Get file descriptors from the transfers. */
-      curl_multi_fdset(multi_handle, &fdread, &fdwrite, &fdexcep, &maxfd);
+      mc = curl_multi_fdset(multi_handle, &fdread, &fdwrite, &fdexcep, &maxfd);
 
-      /* In a real-world program you OF COURSE check the return code of the
-       * function calls, *and* you make sure that maxfd is bigger than -1
-       * so that the call to select() below makes sense!
-       */
-      rc = select(maxfd + 1, &fdread, &fdwrite, &fdexcep, &timeout);
+      if(mc != CURLM_OK) {
+         abort_example("curl_multi_fdset() failed, code %d.\n", mc);
+      }
+
+      if (maxfd > -1) {
+         rc = select(maxfd + 1, &fdread, &fdwrite, &fdexcep, &timeout);
+      }
+      else {
+         al_rest(0.1);
+         rc = 0;
+      }
+
       switch (rc) {
          case -1:
             /* select error */
             break;
 
          case 0:
-            break;
-
          default:
             /* Timeout or readable/writable sockets. */
-            /* Note we *could* be more efficient and not wait for
-             * CURLM_CALL_MULTI_PERFORM to clear here and check it on
-             * re-entry but that gets messy.
-             */
-            while (curl_multi_perform(multi_handle, &cf->still_running) ==
-               CURLM_CALL_MULTI_PERFORM);
+            curl_multi_perform(multi_handle, &cf->still_running);
             break;
       }
    } while (cf->still_running && cf->buffer_pos < size);
@@ -352,13 +354,14 @@ static ALLEGRO_FILE_INTERFACE curl_file_vtable =
 };
 
 
-static void show_image(ALLEGRO_BITMAP *bmp)
+static void show_image(ALLEGRO_BITMAP *bmp, ALLEGRO_DISPLAY *disp)
 {
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_EVENT event;
 
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
+   al_register_event_source(queue, al_get_display_event_source(disp));
 
    while (true) {
       al_draw_bitmap(bmp, 0, 0, 0);
@@ -366,6 +369,9 @@ static void show_image(ALLEGRO_BITMAP *bmp)
       al_wait_for_event(queue, &event);
       if (event.type == ALLEGRO_EVENT_KEY_DOWN
             && event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+         break;
+      }
+      else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
          break;
       }
    }
@@ -379,6 +385,7 @@ int main(int argc, const char *argv[])
    const char *url;
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *bmp;
+   bool wait_for_log = true;
 
    if (argc > 1)
       url = argv[1];
@@ -404,13 +411,15 @@ int main(int argc, const char *argv[])
 
    bmp = al_load_bitmap(url);
    if (bmp) {
-      show_image(bmp);
+      show_image(bmp, display);
       al_destroy_bitmap(bmp);
+      wait_for_log = false;
    }
 
    curl_global_cleanup();
+   al_destroy_display(display);
 
-   close_log(true);
+   close_log(wait_for_log);
 
    return 0;
 }

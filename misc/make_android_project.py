@@ -111,7 +111,7 @@ def touch_manifest(options):
     activity = tree.find("./application/activity")
     activity.set("android:launchMode", "singleTask")
     activity.set("android:screenOrientation", "unspecified")
-    activity.set("android:configChanges", "screenLayout|uiMode|orientation")
+    activity.set("android:configChanges", "screenLayout|uiMode|orientation|screenSize")
     tree.write(filename, "utf-8", xml_declaration=True)
 
 def touch_strings(options):

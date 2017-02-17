@@ -1,3 +1,5 @@
+#define ALLEGRO_UNSTABLE
+
 #include <stdio.h>
 #include <math.h>
 #include <allegro5/allegro.h>

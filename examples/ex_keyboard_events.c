@@ -6,6 +6,7 @@
  */
 
 #include <stdio.h>
+#define ALLEGRO_UNSTABLE
 #include <allegro5/allegro.h>
 
 #include "common.c"
@@ -92,6 +93,11 @@ static void main_loop(void)
           */
          case ALLEGRO_EVENT_DISPLAY_CLOSE:
             return;
+
+         case ALLEGRO_EVENT_DISPLAY_SWITCH_OUT:
+            al_clear_keyboard_state(event.display.source);
+            log_printf("Cleared keyboard state\n");
+            break;
 
          /* We received an event of some type we don't know about.
           * Just ignore it.

@@ -20,6 +20,7 @@ typedef struct ALLEGRO_KEYBOARD_DRIVER
    AL_METHOD(bool, set_keyboard_leds, (int leds));
    AL_METHOD(const char *, keycode_to_name, (int keycode));
    AL_METHOD(void, get_keyboard_state, (ALLEGRO_KEYBOARD_STATE *ret_state));
+   AL_METHOD(void, clear_keyboard_state, (void));
 } ALLEGRO_KEYBOARD_DRIVER;
 
 
