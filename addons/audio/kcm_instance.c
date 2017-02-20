@@ -653,4 +653,34 @@ ALLEGRO_SAMPLE *al_get_sample(ALLEGRO_SAMPLE_INSTANCE *spl)
 }
 
 
+/* Function: al_set_sample_instance_channel_matrix
+ */
+bool al_set_sample_instance_channel_matrix(ALLEGRO_SAMPLE_INSTANCE *spl, const float *matrix)
+{
+   ASSERT(spl);
+   ASSERT(matrix);
+
+   if (spl->parent.u.ptr && spl->parent.is_voice) {
+      _al_set_error(ALLEGRO_GENERIC_ERROR,
+         "Could not set channel matrix of sample attached to voice");
+      return false;
+   }
+
+   if (spl->parent.u.mixer) {
+      ALLEGRO_MIXER *mixer = spl->parent.u.mixer;
+      size_t dst_chans = al_get_channel_count(mixer->ss.spl_data.chan_conf);
+      size_t src_chans = al_get_channel_count(spl->spl_data.chan_conf);
+      ASSERT(spl->matrix);
+
+      maybe_lock_mutex(spl->mutex);
+
+      memcpy(spl->matrix, matrix, dst_chans * src_chans * sizeof(float));
+
+      maybe_unlock_mutex(spl->mutex);
+   }
+
+   return true;
+}
+
+
 /* vim: set sts=3 sw=3 et: */

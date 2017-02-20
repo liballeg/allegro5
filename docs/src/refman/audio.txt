@@ -733,6 +733,39 @@ be stopped and detached from its parent.
 
 See also: [al_get_sample]
 
+### API: al_set_sample_instance_channel_matrix
+
+Set the matrix used to mix the channels coming from this instance into the
+mixer it is attached to. Normally Allegro derives the values of this matrix
+from the gain and pan settings, as well as the channel configurations of this
+instance and the mixer it is attached to, but this allows you override that
+default value. Note that if you do set gain or pan of this instance or the
+mixer it is attached to, you'll need to call this function again.
+
+The matrix has mixer channel rows and sample channel columns, and is row major.
+For example, if you have a stereo sample instance and want to mix it to a 5.1
+mixer you could use this code:
+
+~~~~c
+float matrix[] = {
+    0.5, 0.0, /* Half left to front left */
+    0.0, 0.5, /* Half right to front right */
+    0.5, 0.0, /* Half left to rear left */
+    0.0, 0.5, /* Half right to rear right */
+    0.1, 0.1, /* Mix left and right for center */
+    0.1, 0.1, /* Mix left and right for center */
+};
+
+al_set_sample_instance_channel_matrix(instance, matrix);
+~~~~
+
+Returns true on success, false on failure (e.g. if this is not attached to a
+mixer).
+
+Since: 5.2.3
+
+> *[Unstable API]:* New API.
+
 
 ## Mixer functions
 
@@ -1210,6 +1243,14 @@ Sets the loop points for the stream in seconds.
 Currently this can only be called on streams created with
 [al_load_audio_stream], [al_load_audio_stream_f] and the format-specific
 functions underlying those functions.
+
+### API: al_set_audio_stream_channel_matrix
+
+Like [al_set_sample_instance_channel_matrix] but for streams.
+
+Since: 5.2.3
+
+> *[Unstable API]:* New API.
 
 ## Audio file I/O
 
