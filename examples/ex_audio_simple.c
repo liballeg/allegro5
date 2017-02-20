@@ -86,7 +86,7 @@ Restart:
             i = (event.keyboard.unichar - '0' + 9) % 10;
             if (sample_data[i]) {
                log_printf("Playing %d\n",i);
-               if (!al_play_sample(sample_data[i], 1.0, 0.5, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL)) {
+               if (!al_play_sample(sample_data[i], 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL)) {
                   log_printf(
                      "al_play_sample_data failed, perhaps too many sounds\n");
                }
