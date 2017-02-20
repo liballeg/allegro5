@@ -810,7 +810,8 @@ See also: [al_get_default_mixer]
 
 Attaches the mixer passed as the first argument onto the mixer passed as the
 second argument. The first mixer (that is going to be attached) must not already
-be attached to anything. Both mixers must use the same frequency and audio depth.
+be attached to anything. Both mixers must use the same frequency, audio depth
+and channel configuration.
 
 Returns true on success, false on error.
 

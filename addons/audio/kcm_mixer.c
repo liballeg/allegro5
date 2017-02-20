@@ -815,6 +815,12 @@ bool al_attach_mixer_to_mixer(ALLEGRO_MIXER *stream, ALLEGRO_MIXER *mixer)
       return false;
    }
 
+   if (mixer->ss.spl_data.chan_conf != stream->ss.spl_data.chan_conf) {
+      _al_set_error(ALLEGRO_INVALID_OBJECT,
+         "Mixers of different channel configurations cannot be attached to one another");
+      return false;
+   }
+
    return al_attach_sample_instance_to_mixer(&stream->ss, mixer);
 }
 
