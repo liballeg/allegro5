@@ -96,8 +96,8 @@ static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
     *    sqrt(rgain^2 + lgain^2) = 1.0
     */
    if (pan != ALLEGRO_AUDIO_PAN_NONE) {
-      float rgain = gain * sqrt(( pan + 1.0f) / 2.0f);
-      float lgain = gain * sqrt((-pan + 1.0f) / 2.0f);
+      float rgain = sqrt(( pan + 1.0f) / 2.0f);
+      float lgain = sqrt((-pan + 1.0f) / 2.0f);
 
       /* I dunno what to do about >2 channels, so don't even try for now. */
       for (j = 0; j < src_chans; j++) {
