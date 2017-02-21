@@ -902,7 +902,7 @@ bool al_set_audio_stream_channel_matrix(ALLEGRO_AUDIO_STREAM *stream, const floa
 
    if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
       _al_set_error(ALLEGRO_GENERIC_ERROR,
-         "Could not set gain of stream attached to voice");
+         "Could not set channel matrix of stream attached to voice");
       return false;
    }
 
