@@ -167,7 +167,7 @@ Parameters:
 * r, g, b - If one of the recognized color names below is passed,
   the corresponding RGB values in the range 0..1 are written.
 
-The recognized names are:
+The 148 recognized names are:
 
 > aliceblue, antiquewhite, aqua, aquamarine, azure, beige, bisque,
 black, blanchedalmond, blue, blueviolet, brown, burlywood, cadetblue,
@@ -189,13 +189,18 @@ mediumvioletred, midnightblue, mintcream, mistyrose, moccasin,
 avajowhite, navy, oldlace, olive, olivedrab, orange, orangered,
 orchid, palegoldenrod, palegreen, paleturquoise, palevioletred,
 papayawhip, peachpuff, peru, pink, plum, powderblue, purple,
-purwablue, red, rosybrown, royalblue, saddlebrown, salmon,
+rebeccapurple, red, rosybrown, royalblue, saddlebrown, salmon,
 sandybrown, seagreen, seashell, sienna, silver, skyblue, slateblue,
 slategray, snow, springgreen, steelblue, tan, teal, thistle, tomato,
 turquoise, violet, wheat, white, whitesmoke, yellow, yellowgreen
 
-They are taken from
-<http://www.w3.org/TR/2010/PR-css3-color-20101028/#svg-color>.
+They are taken from CSS: <https://www.w3.org/TR/css-color-4/>
+
+Note that these 9 colors have two names and so there are only 139
+distinct colors: aqua = cyan, darkgray = darkgrey, darkslategray =
+darkslategrey, dimgray = dimgrey, fuchsia = purple, gray = grey,
+lightgray = lightgrey, lightslategray = lightslategrey, slategray =
+slategrey
 
 Returns:
 true if a name from the list above was passed, else false.
