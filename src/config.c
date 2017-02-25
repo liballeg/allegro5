@@ -408,9 +408,9 @@ static bool config_write_section(ALLEGRO_FILE *file,
                al_fputs(file, "# ");
             }
             al_fputs(file, al_cstr(e->key));
+            al_fputc(file, '\n');
+            *should_blank = false;
          }
-         al_fputc(file, '\n');
-         *should_blank = false;
       }
       else {
          al_fputs(file, al_cstr(e->key));
