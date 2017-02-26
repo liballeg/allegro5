@@ -63,14 +63,20 @@ AL_FUNC(void, al_register_assert_handler, (void (*handler)(char const *expr,
 
 AL_FUNC(void, al_register_trace_handler, (void (*handler)(char const *)));
 
-#ifdef NDEBUG
-   #define ALLEGRO_ASSERT(e)	((void)(0 && (e)))
+#ifdef __clang_analyzer__
+   /* Clang doesn't understand _al_user_assert_handler, so we simplify the
+    * definition for analysis purposes. */
+   #define ALLEGRO_ASSERT(e) assert(e)
 #else
-   #define ALLEGRO_ASSERT(e)                                                  \
-      ((e) ? (void) 0                                                         \
-      : (_al_user_assert_handler) ?                                           \
-         _al_user_assert_handler(#e, __FILE__, __LINE__, __func__)            \
-      : assert(e))
+   #ifdef NDEBUG
+      #define ALLEGRO_ASSERT(e)	((void)(0 && (e)))
+   #else
+      #define ALLEGRO_ASSERT(e)                                                  \
+         ((e) ? (void) 0                                                         \
+         : (_al_user_assert_handler) ?                                           \
+            _al_user_assert_handler(#e, __FILE__, __LINE__, __func__)            \
+         : assert(e))
+   #endif
 #endif
 
 /* Compile time assertions. */

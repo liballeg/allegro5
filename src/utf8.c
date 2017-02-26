@@ -261,6 +261,9 @@ bool al_ustr_prev(const ALLEGRO_USTR *us, int *pos)
    const unsigned char *data = (const unsigned char *) _al_bdata(us);
    int c;
 
+   if (!data)
+      return false;
+
    if (*pos <= 0)
       return false;
 
@@ -426,7 +429,11 @@ size_t al_ustr_insert_chr(ALLEGRO_USTR *us, int pos, int32_t c)
 
    sz = al_utf8_width(c);
    if (_al_binsertch(us, pos, sz, '\0') == _AL_BSTR_OK) {
-      return al_utf8_encode(_al_bdataofs(us, pos), c);
+      char* data = _al_bdataofs(us, pos);
+      if (data)
+         return al_utf8_encode(data, c);
+      else
+         return 0;
    }
 
    return 0;
@@ -620,10 +627,18 @@ size_t al_ustr_set_chr(ALLEGRO_USTR *us, int start_pos, int32_t c)
    else
       rc = _AL_BSTR_OK;
 
-   if (rc == _AL_BSTR_OK)
-      return al_utf8_encode(_al_bdataofs(us, start_pos), c);
-   else
+   if (rc == _AL_BSTR_OK) {
+      char* data = _al_bdataofs(us, start_pos);
+      if (data) {
+         return al_utf8_encode(data, c);
+      }
+      else {
+         return 0;
+      }
+   }
+   else {
       return 0;
+   }
 }
 
 

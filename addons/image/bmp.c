@@ -790,6 +790,9 @@ static bool read_bitfields_image(ALLEGRO_FILE *f, int flags,
                   tempconvert[i] = al_malloc(sizeof(int) * entries);
                   generate_scale_table(tempconvert[i], entries);
                }
+               else {
+                  tempconvert[i] = NULL;
+               }
             }
             else {
                tempconvert[i] = NULL;

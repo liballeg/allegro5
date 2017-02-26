@@ -4,14 +4,15 @@
 
 struct LevelState *BorrowState(struct Level *NewLev)
 {
-   struct LevelState *St =
-      (struct LevelState *)malloc(sizeof(struct LevelState));
+   struct LevelState *St;
    struct Object *O;
    int ObjCount;
 
-   if (!NewLev)
+   if (!NewLev) {
       return NULL;
+   }
 
+   St = (struct LevelState *)malloc(sizeof(struct LevelState));
    St->Length = (NewLev->TotalObjects + 31) >> 5;
    St->Data = (uint32_t *) malloc(sizeof(uint32_t) * St->Length);
    memset(St->Data, 0, sizeof(uint32_t) * St->Length);
