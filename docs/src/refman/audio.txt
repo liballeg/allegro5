@@ -64,6 +64,46 @@ Audio streams (see above) are similar to sample instances insofar as they respon
 to the same playback parameters and have to be attached to mixers or voices.
 A single audio stream can only be played once simultaneously.
 
+For example, consider the following configuration of the audio system.
+
+~~~~c
+ALLEGRO_VOICE* voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16,
+    ALLEGRO_CHANNEL_CONF_2);
+
+ALLEGRO_MIXER* mixer_1 = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
+    ALLEGRO_CHANNEL_CONF_2);
+ALLEGRO_MIXER* mixer_2 = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
+    ALLEGRO_CHANNEL_CONF_2);
+
+/* Load a stream, the stream starts in a playing state and just needs
+ * to be attached to actually output sound. */
+ALLEGRO_AUDIO_STREAM* stream = al_load_audio_stream("music.ogg", 4, 2048);
+
+/* The sample needs sample instances to output sound. */
+ALLEGRO_SAMPLE* sample = al_load_sample("sound.wav")
+ALLEGRO_SAMPLE_INSTANCE* instance_1 = al_create_sample_instance(sample);
+ALLEGRO_SAMPLE_INSTANCE* instance_2 = al_create_sample_instance(sample);
+
+/* Attach everything up (see diagram). */
+al_attach_mixer_to_voice(mixer_1, voice);
+al_attach_mixer_to_mixer(mixer_2, mixer_1);
+al_attach_audio_stream_to_mixer(stream, mixer_1);
+al_attach_sample_instance_to_mixer(instance_1, mixer_2);
+al_attach_sample_instance_to_mixer(instance_2, mixer_2);
+
+/* Play two copies of the sound simultaneously. */
+al_set_sample_instance_playing(instance_1, true);
+al_set_sample_instance_playing(instance_2, true);
+~~~~
+
+![*An example configuration of the audio system to play music and a
+sound.*](images/audio.png)
+
+Since we have two mixers, with the sample instances connected to a different
+mixer than the audio stream, you can control the volume of all the instances
+independently from the music by setting the gain of the mixer / stream. Having
+two sample instances lets you play two copies of the sample simultaneously.
+
 With this in mind, another look at [al_reserve_samples] and [al_play_sample] is
 due: What the former does internally is to create a specified number of sample
 instances that are "empty" at first, i.e. with no sample data set. When
