@@ -747,7 +747,7 @@ Windows, OSX, Android and IOS.
 ### API: al_get_clipboard_text
 
 This function returns a pointer to a string, allocated with [al_malloc] with
-the text contents of the clipboard if available. If not text is available on the
+the text contents of the clipboard if available. If no text is available on the
 clipboard then this function returns NULL. You must call [al_free] on the
 returned pointer when you don't need it anymore.
 
