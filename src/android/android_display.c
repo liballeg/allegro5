@@ -658,8 +658,15 @@ static void android_unset_current_display(ALLEGRO_DISPLAY *dpy)
 
 static void android_flip_display(ALLEGRO_DISPLAY *dpy)
 {
+   // Some Androids crash if you swap buffers with an fbo bound
+   // so temporarily change target to the backbuffer.
+   ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
+   al_set_target_backbuffer(dpy);
+
    _jni_callVoidMethod(_al_android_get_jnienv(),
       ((ALLEGRO_DISPLAY_ANDROID *)dpy)->surface_object, "egl_SwapBuffers");
+
+   al_set_target_bitmap(old_target);
 
    /* Backup bitmaps created without ALLEGRO_NO_PRESERVE_TEXTURE that are
     * dirty, to system memory.
