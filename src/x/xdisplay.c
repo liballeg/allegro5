@@ -500,6 +500,7 @@ LateError:
 
 static void set_initial_icon(Display *x11display, Window window)
 {
+#ifdef ALLEGRO_XWINDOWS_WITH_XPM
    XWMHints *wm_hints;
 
    if (x11_xpm == NULL)
@@ -512,6 +513,10 @@ static void set_initial_icon(Display *x11display, Window window)
       &wm_hints->icon_pixmap, &wm_hints->icon_mask, NULL);
 
    XSetWMHints(x11display, window, wm_hints);
+#else
+   (void)x11display;
+   (void)window;
+#endif
 }
 
 static bool xdpy_create_display_hook_default(ALLEGRO_DISPLAY *display,

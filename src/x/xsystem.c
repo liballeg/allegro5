@@ -25,13 +25,14 @@ ALLEGRO_DEBUG_CHANNEL("system")
 
 static ALLEGRO_SYSTEM_INTERFACE *xglx_vt;
 
-static bool x11_xpm_set = false;
-static int x11_xpm_rows = 0;
 char **x11_xpm = NULL;
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XPM
 #include <stdio.h>
 #include "icon.xpm"
+
+static bool x11_xpm_set;
+static int x11_xpm_rows;
 
 static char **bitmap_to_xpm(ALLEGRO_BITMAP *bitmap, int *nrows_ret)
 {
@@ -157,6 +158,7 @@ bool al_x_set_initial_icon(ALLEGRO_BITMAP *bitmap)
    x11_xpm_set = true;
    return true;
 #else
+   (void)bitmap;
    return false;
 #endif
 }
