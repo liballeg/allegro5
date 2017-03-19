@@ -287,6 +287,7 @@ void al_shutdown_video_addon(void)
       v = next;
    }
    video_inited = false;
+   handlers = NULL;
 }
 
 
