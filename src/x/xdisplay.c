@@ -425,7 +425,7 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
       }
    }
 
-   if (display->flags & ALLEGRO_MAXIMIZED) {
+   if (flags & ALLEGRO_MAXIMIZED) {
       _al_xwin_maximize(display, true);
    }
 
