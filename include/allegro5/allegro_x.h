@@ -30,6 +30,7 @@
  *  Public X-related API
  */
 AL_FUNC(XID, al_get_x_window_id, (ALLEGRO_DISPLAY *display));
+AL_FUNC(bool, al_x_set_initial_icon, (ALLEGRO_BITMAP *bitmap));
 
 
 #ifdef __cplusplus

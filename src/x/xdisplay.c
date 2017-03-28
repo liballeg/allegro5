@@ -18,6 +18,12 @@
 #include <X11/extensions/XInput2.h>
 #endif
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XPM
+#include <X11/xpm.h>
+#endif
+
+#include "xicon.h"
+
 ALLEGRO_DEBUG_CHANNEL("display")
 
 static ALLEGRO_DISPLAY_INTERFACE xdpy_vt;
@@ -492,6 +498,26 @@ LateError:
    return NULL;
 }
 
+static void set_initial_icon(Display *x11display, Window window)
+{
+#ifdef ALLEGRO_XWINDOWS_WITH_XPM
+   XWMHints *wm_hints;
+
+   if (x11_xpm == NULL)
+      return;
+
+   wm_hints = XAllocWMHints();
+
+   wm_hints->flags |= IconPixmapHint | IconMaskHint;
+   XpmCreatePixmapFromData(x11display, window, x11_xpm,
+      &wm_hints->icon_pixmap, &wm_hints->icon_mask, NULL);
+
+   XSetWMHints(x11display, window, wm_hints);
+#else
+   (void)x11display;
+   (void)window;
+#endif
+}
 
 static bool xdpy_create_display_hook_default(ALLEGRO_DISPLAY *display,
    int w, int h)
@@ -500,6 +526,8 @@ static bool xdpy_create_display_hook_default(ALLEGRO_DISPLAY *display,
    ALLEGRO_DISPLAY_XGLX *d = (ALLEGRO_DISPLAY_XGLX *)display;
    (void)w;
    (void)h;
+
+   set_initial_icon(system->x11display, d->window);
 
    XLockDisplay(system->x11display);
 
