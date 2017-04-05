@@ -24,8 +24,10 @@ environment variable. If you installed the SDK in $HOME/android-sdk, add
 $HOME/android-sdk/tools to your PATH.
 
 Once extracted you must run "android" (or android.bat on Windows) and install
-a version of the SDK. Allegro needs version 12 (3.1) so install that. You can
-use a higher version for your game later if you like.
+a version of the SDK. Allegro needs version 13 (3.1) of the SDK or higher to
+build. It can run on version 9 and up still though, if you include the
+correct uses-sdk fields in your manifest. See:
+https://developer.android.com/guide/topics/manifest/uses-sdk-element.html
 
 Also make sure the JAVA_HOME environment variable is set to your JDK
 directory (not always the case.)
