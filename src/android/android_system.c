@@ -316,6 +316,10 @@ JNI_FUNC(void, AllegroActivity, nativeOnPause, (JNIEnv *env, jobject obj))
          _al_event_source_emit_event(&display->es, &event);
       }
       _al_event_source_unlock(&display->es);
+
+      ALLEGRO_DISPLAY_ANDROID *d = (ALLEGRO_DISPLAY_ANDROID*)display;
+      if (d->created)
+         _al_android_destroy_surface(env, d, false);
    }
 }
 
