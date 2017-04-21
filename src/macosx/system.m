@@ -64,9 +64,9 @@ _AL_VECTOR _osx_threads = _AL_VECTOR_INITIALIZER(THREAD_AND_POOL *);
  */
 static void osx_tell_dock(void)
 {
-    ProcessSerialNumber psn = { 0, kCurrentProcess };
-    TransformProcessType(&psn, kProcessTransformToForegroundApplication);
-    [NSApplication sharedApplication];
+   ProcessSerialNumber psn = { 0, kCurrentProcess };
+   TransformProcessType(&psn, kProcessTransformToForegroundApplication);
+   [NSApplication sharedApplication];
 }
 
 
