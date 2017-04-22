@@ -66,7 +66,7 @@ static void osx_tell_dock(void)
 {
    ProcessSerialNumber psn = { 0, kCurrentProcess };
    TransformProcessType(&psn, kProcessTransformToForegroundApplication);
-   [NSApplication sharedApplication];
+   [[NSApplication sharedApplication] activateIgnoringOtherApps: YES];
 }
 
 
