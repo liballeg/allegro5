@@ -57,18 +57,15 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
    size_t i;
 
    if (!fragment_count) {
-      _al_set_error(ALLEGRO_INVALID_PARAM,
-         "Attempted to create stream with no buffers");
+      ALLEGRO_ERROR("Attempted to create stream with no buffers");
       return NULL;
    }
    if (!frag_samples) {
-      _al_set_error(ALLEGRO_INVALID_PARAM,
-          "Attempted to create stream with no buffer size");
+      ALLEGRO_ERROR("Attempted to create stream with no buffer size");
       return NULL;
    }
    if (!freq) {
-      _al_set_error(ALLEGRO_INVALID_PARAM,
-         "Attempted to create stream with no frequency");
+      ALLEGRO_ERROR("Attempted to create stream with no frequency");
       return NULL;
    }
 
@@ -78,8 +75,7 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
 
    stream = al_calloc(1, sizeof(*stream));
    if (!stream) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
-         "Out of memory allocating stream object");
+      ALLEGRO_ERROR("Out of memory allocating stream object");
       return NULL;
    }
 
@@ -104,8 +100,7 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
    if (!stream->used_bufs) {
       al_free(stream->used_bufs);
       al_free(stream);
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
-         "Out of memory allocating stream buffer pointers");
+      ALLEGRO_ERROR("Out of memory allocating stream buffer pointers");
       return NULL;
    }
    stream->pending_bufs = stream->used_bufs + fragment_count;
@@ -120,8 +115,7 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
    if (!stream->main_buffer) {
       al_free(stream->used_bufs);
       al_free(stream);
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
-         "Out of memory allocating stream buffer");
+      ALLEGRO_ERROR("Out of memory allocating stream buffer");
       return NULL;
    }
 
@@ -364,14 +358,12 @@ bool al_set_audio_stream_speed(ALLEGRO_AUDIO_STREAM *stream, float val)
    ASSERT(stream);
 
    if (val <= 0.0f) {
-      _al_set_error(ALLEGRO_INVALID_PARAM,
-         "Attempted to set stream speed to a zero or negative value");
+      ALLEGRO_ERROR("Attempted to set stream speed to a zero or negative value");
       return false;
    }
 
    if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
-         "Could not set voice playback speed");
+      ALLEGRO_ERROR("Could not set voice playback speed");
       return false;
    }
 
@@ -401,8 +393,7 @@ bool al_set_audio_stream_gain(ALLEGRO_AUDIO_STREAM *stream, float val)
    ASSERT(stream);
 
    if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
-         "Could not set gain of stream attached to voice");
+      ALLEGRO_ERROR("Could not set gain of stream attached to voice");
       return false;
    }
 
@@ -431,12 +422,11 @@ bool al_set_audio_stream_pan(ALLEGRO_AUDIO_STREAM *stream, float val)
    ASSERT(stream);
 
    if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
-         "Could not set gain of stream attached to voice");
+      ALLEGRO_ERROR("Could not set gain of stream attached to voice");
       return false;
    }
    if (val != ALLEGRO_AUDIO_PAN_NONE && (val < -1.0 || val > 1.0)) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR, "Invalid pan value");
+      ALLEGRO_ERROR("Invalid pan value");
       return false;
    }
 
@@ -479,7 +469,7 @@ bool al_set_audio_stream_playmode(ALLEGRO_AUDIO_STREAM *stream,
       return true;
    }
 
-   // XXX _al_set_error
+   ALLEGRO_ERROR("Invalid stream playmode selected!");
    return false;
 }
 
@@ -595,8 +585,7 @@ bool al_set_audio_stream_fragment(ALLEGRO_AUDIO_STREAM *stream, void *val)
       ret = true;
    }
    else {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
-         "Attempted to set a stream buffer with a full pending list");
+      ALLEGRO_ERROR("Attempted to set a stream buffer with a full pending list");
       ret = false;
    }
 
@@ -901,8 +890,7 @@ bool al_set_audio_stream_channel_matrix(ALLEGRO_AUDIO_STREAM *stream, const floa
    ASSERT(stream);
 
    if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
-         "Could not set channel matrix of stream attached to voice");
+      ALLEGRO_ERROR("Could not set channel matrix of stream attached to voice");
       return false;
    }
 

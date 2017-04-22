@@ -367,8 +367,7 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
       al_free(m->ss.spl_data.buffer.ptr);
       m->ss.spl_data.buffer.ptr = al_malloc(samples_l*maxc*al_get_audio_depth_size(m->ss.spl_data.depth));
       if (!m->ss.spl_data.buffer.ptr) {
-         _al_set_error(ALLEGRO_GENERIC_ERROR,
-            "Out of memory allocating mixer buffer");
+         ALLEGRO_ERROR("Out of memory allocating mixer buffer");
          m->ss.spl_data.len = 0;
          return;
       }
@@ -632,21 +631,19 @@ ALLEGRO_MIXER *al_create_mixer(unsigned int freq,
    }
 
    if (!freq) {
-      _al_set_error(ALLEGRO_INVALID_PARAM,
-         "Attempted to create mixer with no frequency");
+      ALLEGRO_ERROR("Attempted to create mixer with no frequency");
       return NULL;
    }
 
    if (depth != ALLEGRO_AUDIO_DEPTH_FLOAT32 &&
          depth != ALLEGRO_AUDIO_DEPTH_INT16) {
-      _al_set_error(ALLEGRO_INVALID_PARAM, "Unsupported mixer depth");
+      ALLEGRO_ERROR("Unsupported mixer depth");
       return NULL;
    }
 
    mixer = al_calloc(1, sizeof(ALLEGRO_MIXER));
    if (!mixer) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
-         "Out of memory allocating mixer object");
+      ALLEGRO_ERROR("Out of memory allocating mixer object");
       return NULL;
    }
 
@@ -697,8 +694,7 @@ bool al_attach_sample_instance_to_mixer(ALLEGRO_SAMPLE_INSTANCE *spl,
 
    /* Already referenced, do not attach. */
    if (spl->parent.u.ptr) {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
-         "Attempted to attach a sample that's already attached");
+      ALLEGRO_ERROR("Attempted to attach a sample that's already attached");
       return false;
    }
 
@@ -711,8 +707,7 @@ bool al_attach_sample_instance_to_mixer(ALLEGRO_SAMPLE_INSTANCE *spl,
       if (mixer->ss.mutex) {
          al_unlock_mutex(mixer->ss.mutex);
       }
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
-         "Out of memory allocating attachment pointers");
+      ALLEGRO_ERROR("Out of memory allocating attachment pointers");
       return false;
    }
    (*slot) = spl;
@@ -804,20 +799,17 @@ bool al_attach_mixer_to_mixer(ALLEGRO_MIXER *stream, ALLEGRO_MIXER *mixer)
    ASSERT(mixer != stream);
 
    if (mixer->ss.spl_data.frequency != stream->ss.spl_data.frequency) {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
-         "Attempted to attach a mixer with different frequencies");
+      ALLEGRO_ERROR("Attempted to attach a mixer with different frequencies");
       return false;
    }
 
    if (mixer->ss.spl_data.depth != stream->ss.spl_data.depth) {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
-         "Mixers of different audio depths cannot be attached to one another");
+      ALLEGRO_ERROR("Mixers of different audio depths cannot be attached to one another");
       return false;
    }
 
    if (mixer->ss.spl_data.chan_conf != stream->ss.spl_data.chan_conf) {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
-         "Mixers of different channel configurations cannot be attached to one another");
+      ALLEGRO_ERROR("Mixers of different channel configurations cannot be attached to one another");
       return false;
    }
 
@@ -924,8 +916,7 @@ bool al_set_mixer_frequency(ALLEGRO_MIXER *mixer, unsigned int val)
     * to anything.
     */
    if (mixer->ss.parent.u.ptr) {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
-            "Attempted to change the frequency of an attached mixer");
+      ALLEGRO_ERROR("Attempted to change the frequency of an attached mixer");
       return false;
    }
 
@@ -951,8 +942,7 @@ bool al_set_mixer_quality(ALLEGRO_MIXER *mixer, ALLEGRO_MIXER_QUALITY new_qualit
       ret = true;
    }
    else {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
-         "Attempted to change the quality of a mixer with attachments");
+      ALLEGRO_ERROR("Attempted to change the quality of a mixer with attachments");
       ret = false;
    }
 

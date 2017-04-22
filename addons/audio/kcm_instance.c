@@ -15,6 +15,8 @@
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_audio_cfg.h"
 
+ALLEGRO_DEBUG_CHANNEL("audio")
+
 
 static void maybe_lock_mutex(ALLEGRO_MUTEX *mutex)
 {
@@ -151,8 +153,7 @@ ALLEGRO_SAMPLE_INSTANCE *al_create_sample_instance(ALLEGRO_SAMPLE *sample_data)
 
    spl = al_calloc(1, sizeof(*spl));
    if (!spl) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
-         "Out of memory allocating sample object");
+      ALLEGRO_ERROR("Out of memory allocating sample object");
       return NULL;
    }
 
@@ -391,8 +392,7 @@ bool al_set_sample_instance_length(ALLEGRO_SAMPLE_INSTANCE *spl,
    ASSERT(spl);
 
    if (spl->is_playing) {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
-         "Attempted to change the length of a playing sample");
+      ALLEGRO_ERROR("Attempted to change the length of a playing sample");
       return false;
    }
 
@@ -409,14 +409,12 @@ bool al_set_sample_instance_speed(ALLEGRO_SAMPLE_INSTANCE *spl, float val)
    ASSERT(spl);
 
    if (fabsf(val) < (1.0f/64.0f)) {
-      _al_set_error(ALLEGRO_INVALID_PARAM,
-         "Attempted to set zero speed");
+      ALLEGRO_ERROR("Attempted to set zero speed");
       return false;
    }
 
    if (spl->parent.u.ptr && spl->parent.is_voice) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
-         "Could not set voice playback speed");
+      ALLEGRO_ERROR("Could not set voice playback speed");
       return false;
    }
 
@@ -450,8 +448,7 @@ bool al_set_sample_instance_gain(ALLEGRO_SAMPLE_INSTANCE *spl, float val)
    ASSERT(spl);
 
    if (spl->parent.u.ptr && spl->parent.is_voice) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
-         "Could not set gain of sample attached to voice");
+      ALLEGRO_ERROR("Could not set gain of sample attached to voice");
       return false;
    }
 
@@ -481,12 +478,11 @@ bool al_set_sample_instance_pan(ALLEGRO_SAMPLE_INSTANCE *spl, float val)
    ASSERT(spl);
 
    if (spl->parent.u.ptr && spl->parent.is_voice) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
-         "Could not set panning of sample attached to voice");
+      ALLEGRO_ERROR("Could not set panning of sample attached to voice");
       return false;
    }
    if (val != ALLEGRO_AUDIO_PAN_NONE && (val < -1.0 || val > 1.0)) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR, "Invalid pan value");
+      ALLEGRO_ERROR("Invalid pan value");
       return false;
    }
 
@@ -517,8 +513,7 @@ bool al_set_sample_instance_playmode(ALLEGRO_SAMPLE_INSTANCE *spl,
    ASSERT(spl);
 
    if (val < ALLEGRO_PLAYMODE_ONCE || val > ALLEGRO_PLAYMODE_BIDIR) {
-      _al_set_error(ALLEGRO_INVALID_PARAM,
-         "Invalid loop mode");
+      ALLEGRO_ERROR("Invalid loop mode");
       return false;
    }
 
@@ -661,8 +656,7 @@ bool al_set_sample_instance_channel_matrix(ALLEGRO_SAMPLE_INSTANCE *spl, const f
    ASSERT(matrix);
 
    if (spl->parent.u.ptr && spl->parent.is_voice) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
-         "Could not set channel matrix of sample attached to voice");
+      ALLEGRO_ERROR("Could not set channel matrix of sample attached to voice");
       return false;
    }
 

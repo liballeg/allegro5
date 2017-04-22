@@ -135,14 +135,13 @@ ALLEGRO_SAMPLE *al_create_sample(void *buf, unsigned int samples,
    ASSERT(buf);
 
    if (!freq) {
-      _al_set_error(ALLEGRO_INVALID_PARAM, "Invalid sample frequency");
+      ALLEGRO_ERROR("Invalid sample frequency");
       return NULL;
    }
 
    spl = al_calloc(1, sizeof(*spl));
    if (!spl) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
-         "Out of memory allocating sample data object");
+      ALLEGRO_ERROR("Out of memory allocating sample data object");
       return NULL;
    }
 

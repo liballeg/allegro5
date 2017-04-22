@@ -18,11 +18,6 @@
 
 ALLEGRO_DEBUG_CHANNEL("audio")
 
-void _al_set_error(int error, char* string)
-{
-   ALLEGRO_ERROR("%s (error code: %d)\n", string, error);
-}
-
 ALLEGRO_AUDIO_DRIVER *_al_kcm_driver = NULL;
 
 #if defined(ALLEGRO_CFG_KCM_OPENAL)
@@ -202,7 +197,7 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 
    /* check to see if a driver is already installed and running */
    if (_al_kcm_driver) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR, "A driver already running");
+      ALLEGRO_ERROR("A driver is already running");
       return false;
    }
 
@@ -259,7 +254,7 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
             return retVal;
 #endif
 
-         _al_set_error(ALLEGRO_INVALID_PARAM, "No audio driver can be used.");
+         ALLEGRO_ERROR("No audio driver can be used.");
          _al_kcm_driver = NULL;
          return false;
 
@@ -272,7 +267,7 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
             }
             return false;
          #else
-            _al_set_error(ALLEGRO_INVALID_PARAM, "Audio Queue driver not available on this platform");
+            ALLEGRO_ERROR("Audio Queue driver not available on this platform");
             return false;
          #endif
 
@@ -285,7 +280,7 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
             }
             return false;
          #else
-            _al_set_error(ALLEGRO_INVALID_PARAM, "OpenAL not available on this platform");
+            ALLEGRO_ERROR("OpenAL not available on this platform");
             return false;
          #endif
 
@@ -298,7 +293,7 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
             }
             return false;
          #else
-            _al_set_error(ALLEGRO_INVALID_PARAM, "OpenSL not available on this platform");
+            ALLEGRO_ERROR("OpenSL not available on this platform");
             return false;
          #endif
 
@@ -311,7 +306,7 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
             }
             return false;
          #else
-            _al_set_error(ALLEGRO_INVALID_PARAM, "ALSA not available on this platform");
+            ALLEGRO_ERROR("ALSA not available on this platform");
             return false;
          #endif
 
@@ -324,7 +319,7 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
             }
             return false;
          #else
-            _al_set_error(ALLEGRO_INVALID_PARAM, "OSS not available on this platform");
+            ALLEGRO_ERROR("OSS not available on this platform");
             return false;
          #endif
 
@@ -337,7 +332,7 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
             }
             return false;
          #else
-            _al_set_error(ALLEGRO_INVALID_PARAM, "PulseAudio not available on this platform");
+            ALLEGRO_ERROR("PulseAudio not available on this platform");
             return false;
          #endif
 
@@ -350,7 +345,7 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
             }
             return false;
          #else
-            _al_set_error(ALLEGRO_INVALID_PARAM, "DirectSound not available on this platform");
+            ALLEGRO_ERROR("DirectSound not available on this platform");
             return false;
          #endif
 
@@ -363,12 +358,12 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
             }
             return false;
          #else
-            _al_set_error(ALLEGRO_INVALID_PARAM, "SDL not available on this platform");
+            ALLEGRO_ERROR("SDL not available on this platform");
             return false;
          #endif
 
       default:
-         _al_set_error(ALLEGRO_INVALID_PARAM, "Invalid audio driver");
+         ALLEGRO_ERROR("Invalid audio driver");
          return false;
    }
 }
