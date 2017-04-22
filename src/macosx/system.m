@@ -59,20 +59,14 @@ static ALLEGRO_SYSTEM osx_system;
 _AL_VECTOR _osx_threads = _AL_VECTOR_INITIALIZER(THREAD_AND_POOL *);
 
 /* osx_tell_dock:
- *  Tell the dock about us; the origins of this hack are unknown, but it's
- *  currently the only way to make a Cocoa app to work when started from a
- *  console.
- *  For the future, (10.3 and above) investigate TranformProcessType in the
- *  HIServices framework.
+ *  Tell the dock about us; promote us from a console app to a graphical app
+ *  with dock icon and menu
  */
 static void osx_tell_dock(void)
 {
-   struct CPSProcessSerNum psn;
-
-   if ((!CPSGetCurrentProcess(&psn)) &&
-       (!CPSEnableForegroundOperation(&psn, 0x03, 0x3C, 0x2C, 0x1103)) &&
-       (!CPSSetFrontProcess(&psn)))
-      [NSApplication sharedApplication];
+   ProcessSerialNumber psn = { 0, kCurrentProcess };
+   TransformProcessType(&psn, kProcessTransformToForegroundApplication);
+   [[NSApplication sharedApplication] activateIgnoringOtherApps: YES];
 }
 
 
