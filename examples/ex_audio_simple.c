@@ -97,10 +97,19 @@ Restart:
           * For debugging race conditions on shutting down the audio.
           */
          if (event.keyboard.unichar == 'r') {
+            for (i = 0; i < argc && i < MAX_SAMPLE_DATA; i++) {
+               if (sample_data[i])
+                  al_destroy_sample(sample_data[i]);
+            }
             al_uninstall_audio();
             goto Restart;
          }
       }
+   }
+
+   for (i = 0; i < argc && i < MAX_SAMPLE_DATA; i++) {
+      if (sample_data[i])
+         al_destroy_sample(sample_data[i]);
    }
 
    /* Sample data and other objects will be automatically freed. */
