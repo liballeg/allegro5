@@ -728,6 +728,13 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                (Disables opening menus via the ALT key.) */
             return 0;
          }
+         /* This is used by WM_GETMINMAXINFO to set constraints. */
+         else if ((wParam & 0xfff0) == SC_MAXIMIZE) {
+            d->flags |= ALLEGRO_MAXIMIZED;
+         }
+         else if ((wParam & 0xfff0) == SC_RESTORE) {
+            d->flags &= ~ALLEGRO_MAXIMIZED;
+         }
          break;
       }
       case WM_PAINT: {
@@ -889,8 +896,16 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 
                wmin.x = (d->min_w > 0) ? d->min_w + total_border_width : p_info->ptMinTrackSize.x;
                wmin.y = (d->min_h > 0) ? d->min_h + total_border_height : p_info->ptMinTrackSize.y;
-               wmax.x = (d->max_w > 0) ? d->max_w + total_border_width : p_info->ptMaxTrackSize.x;
-               wmax.y = (d->max_h > 0) ? d->max_h + total_border_height : p_info->ptMaxTrackSize.y;
+
+               /* don't use max_w & max_h constraints when window maximized */
+               if (d->flags & ALLEGRO_MAXIMIZED) {
+                  wmax.x = p_info->ptMaxTrackSize.x;
+                  wmax.y = p_info->ptMaxTrackSize.y;
+               }
+               else {
+                  wmax.x = (d->max_w > 0) ? d->max_w + total_border_width : p_info->ptMaxTrackSize.x;
+                  wmax.y = (d->max_h > 0) ? d->max_h + total_border_height : p_info->ptMaxTrackSize.y;
+               }
 
                p_info->ptMinTrackSize = wmin;
                p_info->ptMaxTrackSize = wmax;
@@ -1272,14 +1287,14 @@ bool _al_win_set_window_constraints(ALLEGRO_DISPLAY *display,
    int min_w, int min_h, int max_w, int max_h)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
-   win_display->display.min_w = min_w;
-   win_display->display.min_h = min_h;
-   win_display->display.max_w = max_w;
-   win_display->display.max_h = max_h;
-
    RECT cRect;
    int w;
    int h;
+
+   display->min_w = min_w;
+   display->min_h = min_h;
+   display->max_w = max_w;
+   display->max_h = max_h;
 
    GetClientRect(win_display->window, &cRect);
    w = cRect.right - cRect.left;
@@ -1291,11 +1306,14 @@ bool _al_win_set_window_constraints(ALLEGRO_DISPLAY *display,
    if (min_h > 0 && h < min_h) {
       h = min_h;
    }
-   if (max_w > 0 && w > max_w) {
-      w = max_w;
-   }
-   if (max_h > 0 && h > max_h) {
-      h = max_h;
+   /* al_resize_display() should not use new values if window maximized */
+   if (!(display->flags & ALLEGRO_MAXIMIZED)) {
+      if (max_w > 0 && w > max_w) {
+         w = max_w;
+      }
+      if (max_h > 0 && h > max_h) {
+         h = max_h;
+      }
    }
 
    /* Resize so constraints can take effect. */
