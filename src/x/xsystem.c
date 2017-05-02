@@ -54,7 +54,7 @@ static char **bitmap_to_xpm(ALLEGRO_BITMAP *bitmap, int *nrows_ret)
 
    for (y = 0; y < h; y++) {
       for (x = 0; x < w; x++) {
-         uint32_t c = *((((char *)lr->data) + lr->pitch * y + x * 4));
+         uint32_t c = *(uint32_t *)((((char *)lr->data) + lr->pitch * y + x * 4));
          int alpha = (c >> 24) & 0xff;
          if (alpha != 255) {
                  c = 0;
