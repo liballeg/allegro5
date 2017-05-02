@@ -54,7 +54,7 @@ static char **bitmap_to_xpm(ALLEGRO_BITMAP *bitmap, int *nrows_ret)
 
    for (y = 0; y < h; y++) {
       for (x = 0; x < w; x++) {
-         uint32_t c = *((uint32_t *)(((char *)lr->data) + lr->pitch * y + x * 4));
+         uint32_t c = *((((char *)lr->data) + lr->pitch * y + x * 4));
          int alpha = (c >> 24) & 0xff;
          if (alpha != 255) {
                  c = 0;
@@ -62,14 +62,14 @@ static char **bitmap_to_xpm(ALLEGRO_BITMAP *bitmap, int *nrows_ret)
          int sz = _al_vector_size(&v);
          bool found = false;
          for (i = 0; i < sz; i++) {
-            if ((uint32_t)(*((uint32_t **)_al_vector_ref(&v, i))) == c) {
+            if (*((uint32_t *)_al_vector_ref(&v, i)) == c) {
                found = true;
                break;
             }
          }
          if (found == false) {
-            uint32_t **p = _al_vector_alloc_back(&v);
-            *p = (uint32_t *)c;
+            uint32_t *p = _al_vector_alloc_back(&v);
+            *p = c;
          }
       }
    }
@@ -88,7 +88,7 @@ static char **bitmap_to_xpm(ALLEGRO_BITMAP *bitmap, int *nrows_ret)
    xpm[1] = strdup("00000000\tc None");
 
    for (i = 0; i < ncolors; i++) {
-        uint32_t c = (uint32_t)(*((uint32_t **)_al_vector_ref(&v, i)));
+        uint32_t c = *((uint32_t *)_al_vector_ref(&v, i));
         int r = c & 0xff;
         int g = (c >> 8) & 0xff;
         int b = (c >> 16) & 0xff;
@@ -109,7 +109,7 @@ static char **bitmap_to_xpm(ALLEGRO_BITMAP *bitmap, int *nrows_ret)
                 }
                 else {
                    for (i = 0; i < (int)_al_vector_size(&v); i++) {
-                      uint32_t pixel2 = (uint32_t)(*((uint32_t **)_al_vector_ref(&v, i)));
+                      uint32_t pixel2 = *((uint32_t *)_al_vector_ref(&v, i));
                       if (pixel == pixel2)
                          break;
                    }
