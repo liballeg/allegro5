@@ -228,6 +228,9 @@ void _al_osx_keyboard_was_installed(BOOL install) {
 -(void) exitFullScreenWindowMode;
 -(void) finishExitingFullScreenWindowMode;
 -(void) maximize;
+-(NSRect) windowWillUseStandardFrame:
+   (NSWindow *) window
+   defaultFrame: (NSRect) newFrame;
 @end
 
 @implementation ALWindow
@@ -574,6 +577,16 @@ void _al_osx_mouse_was_installed(BOOL install) {
 #endif
    ALLEGRO_EVENT_SOURCE *es = &dpy->parent.es;
 
+   /* Restore max. constraints when the window has been un-maximized.
+    * Note: isZoomed will return false in FullScreen mode.
+    */
+   if (!(dpy_ptr->flags & ALLEGRO_FULLSCREEN_WINDOW) && ![window isZoomed]) {
+      NSSize max_size;
+      max_size.width = (dpy_ptr->max_w > 0) ? dpy_ptr->max_w : FLT_MAX;
+      max_size.height = (dpy_ptr->max_h > 0) ? dpy_ptr->max_h : FLT_MAX;
+      [window setContentMaxSize: max_size];
+   }
+
    _al_event_source_lock(es);
    if (_al_event_source_needs_to_generate_event(es)) {
       ALLEGRO_EVENT event;
@@ -591,14 +604,14 @@ void _al_osx_mouse_was_installed(BOOL install) {
 {
     (void)notification;
     ALLEGRO_DISPLAY *display = dpy_ptr;
-    display->flags |= ALLEGRO_MAXIMIZED;
+    display->flags |= ALLEGRO_FULLSCREEN_WINDOW;
 }
 
 -(void)windowWillExitFullScreen:(NSNotification *)notification
 {
     (void)notification;
     ALLEGRO_DISPLAY *display = dpy_ptr;
-    display->flags &= ~ALLEGRO_MAXIMIZED;
+    display->flags &= ~ALLEGRO_FULLSCREEN_WINDOW;
 }
 
 -(void) enterFullScreenWindowMode
@@ -621,6 +634,33 @@ void _al_osx_mouse_was_installed(BOOL install) {
 {
    ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
    [dpy->win performZoom: nil];
+}
+
+/* Called by NSWindow's zoom: method while determining the frame
+ * a window may be zoomed to.
+ * We use it to update max. constraints values when the window changes
+ * its maximized state.
+ */
+-(NSRect) windowWillUseStandardFrame:
+   (NSWindow *) window
+   defaultFrame: (NSRect) newFrame
+{
+   NSSize max_size;
+
+   if (dpy_ptr->flags & ALLEGRO_MAXIMIZED) {
+      max_size.width = FLT_MAX;
+      max_size.height = FLT_MAX;
+      newFrame.size.width = FLT_MAX;
+      newFrame.size.height = FLT_MAX;
+   }
+   else {
+      max_size.width = (dpy_ptr->max_w > 0) ? dpy_ptr->max_w : FLT_MAX;
+      max_size.height = (dpy_ptr->max_h > 0) ? dpy_ptr->max_h : FLT_MAX;
+   }
+
+   [window setContentMaxSize: max_size];
+
+   return newFrame;
 }
 
 -(void) exitFullScreenWindowMode
@@ -1009,6 +1049,14 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
     */
    [win setMinSize: NSMakeSize(MINIMUM_WIDTH / screen_scale_factor,
                                MINIMUM_HEIGHT / screen_scale_factor)];
+
+   /* Maximize the window and update its width & height information */
+   if (dpy->parent.flags & ALLEGRO_MAXIMIZED) {
+      [win setFrame: [screen visibleFrame] display: true animate: false];
+      NSRect content = [win contentRectForFrameRect: [win frame]];
+      dpy->parent.w = content.size.width;
+      dpy->parent.h = content.size.height;
+   }
 
    /* Place the window, respecting the location set by the user with
     * al_set_new_window_position().
@@ -1888,20 +1936,19 @@ static bool acknowledge_resize_display_win(ALLEGRO_DISPLAY *d)
    content = [window convertRectToBacking: content];
 #endif
 
-   int ow = d->w, oh = d->h;
+   /* At any moment when a window has been changed its size we either
+    * clear ALLEGRO_MAXIMIZED flag (e.g. resize was done by a human)
+    * or restore the flag back (at the end of live resize caused by zoom).
+    * Note: affects zoom:(id)sender (if you will debug it).
+    */
+   if (!(d->flags & ALLEGRO_FULLSCREEN_WINDOW) && ![window isZoomed])
+      d->flags &= ~ALLEGRO_MAXIMIZED;
+   else if (!(d->flags & ALLEGRO_MAXIMIZED))
+      d->flags |= ALLEGRO_MAXIMIZED;
+
    d->w = NSWidth(content);
    d->h = NSHeight(content);
 
-   if (d->w < ow || d->h < oh) {
-      /* In OSX there is no special "maximized" state, nor is there a specific maximized size.
-       * Instead each application can override the size it prefers as maximized size. Therefore
-       * you can maximize a window, and then resize it and it will still be maximized. Because
-       * determining whether a window is maximized is hard this heuristic works most of the
-       * time (except when you shrink a window and it still is maximized afterwards, which is
-       * very well possible).
-       */
-      d->flags &= ~ALLEGRO_MAXIMIZED;
-   }
    if (d->ogl_extras->backbuffer) {
       _al_ogl_resize_backbuffer(d->ogl_extras->backbuffer, d->w, d->h);
    }
@@ -1938,12 +1985,21 @@ static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h)
    if (d->min_h > 0 && h < d->min_h) {
       h = d->min_h;
    }
-   if (d->max_w > 0 && w > d->max_w) {
-      w = d->max_w;
+   /* Don't use max. constraints when a window is maximized. */
+   if (!(d->flags & ALLEGRO_MAXIMIZED)) {
+      if (d->max_w > 0 && w > d->max_w) {
+         w = d->max_w;
+      }
+      if (d->max_h > 0 && h > d->max_h) {
+         h = d->max_h;
+      }
    }
-   if (d->max_h > 0 && h > d->max_h) {
-      h = d->max_h;
-   }
+
+   /* Set new width & height values to content rectangle
+    * before calling 'set_frame' below.
+    */
+   content.size.width = w;
+   content.size.height = h;
 
    NSRect rc = [window frameRectForContentRect: content];
    rc.origin = current.origin;
@@ -2133,6 +2189,12 @@ static bool set_window_constraints(ALLEGRO_DISPLAY* display,
    }
    else {
      max_size.height = FLT_MAX;
+   }
+
+   /* Clear max. constraints when a window is maximized. */
+   if (display->flags & ALLEGRO_MAXIMIZED) {
+      max_size.width = FLT_MAX;
+      max_size.height = FLT_MAX;
    }
 
   [window setContentMaxSize:max_size];
