@@ -20,6 +20,7 @@
 #define ALLEGRO_FLI_H
 
 #include "base.h"
+#include "file.h"
 #include "palette.h"
 
 #ifdef __cplusplus
@@ -34,9 +35,11 @@ struct BITMAP;
 #define FLI_NOT_OPEN    -3
 
 AL_FUNC(int, play_fli, (AL_CONST char *filename, struct BITMAP *bmp, int loop, AL_METHOD(int, callback, (void))));
+AL_FUNC(int, play_fli_pf, (PACKFILE *pf, struct BITMAP *bmp, AL_METHOD(int, callback, (void))));
 AL_FUNC(int, play_memory_fli, (void *fli_data, struct BITMAP *bmp, int loop, AL_METHOD(int, callback, (void))));
 
 AL_FUNC(int, open_fli, (AL_CONST char *filename));
+AL_FUNC(int, open_fli_pf, (PACKFILE *pf));
 AL_FUNC(int, open_memory_fli, (void *fli_data));
 AL_FUNC(void, close_fli, (void));
 AL_FUNC(int, next_fli_frame, (int loop));

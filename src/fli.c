@@ -908,6 +908,24 @@ int play_fli(AL_CONST char *filename, BITMAP *bmp, int loop, int (*callback)(voi
 
 
 
+/* play_fli_pf:
+ *  Like play_fli(), but loads fli from the given packfile.
+ *  Automatic looping is currently not supported, because there is no way 
+ *  to rewind packfile without knowing how to reopen it.
+ */
+int play_fli_pf(PACKFILE *fp, BITMAP *bmp, int (*callback)(void))
+{
+   ASSERT(fp);
+   ASSERT(bmp);
+   
+   if (open_fli_pf(fp) != FLI_OK)
+      return FLI_ERROR;
+
+   return do_play_fli(bmp, 0, callback);
+}
+
+
+
 /* play_memory_fli:
  *  Like play_fli(), but for files which have already been loaded into 
  *  memory. Pass a pointer to the memory containing the FLI data.
@@ -1010,6 +1028,30 @@ int open_fli(AL_CONST char *filename)
 
 
 
+/* open_fli_pf:
+ *  Opens an FLI from packfile stream ready for playing.
+ */
+int open_fli_pf(PACKFILE *fp)
+{
+   ASSERT(fp);
+   
+   if (fli_status != FLI_NOT_OPEN)
+      return FLI_ERROR;
+
+   if (fli_filename) {
+      _AL_FREE(fli_filename);
+      fli_filename = NULL;
+   }
+
+   fli_file = fp;
+   if (!fli_file)
+      return FLI_ERROR;
+
+   return do_open_fli();
+}
+
+
+
 /* open_memory_fli:
  *  Like open_fli(), but for files which have already been loaded into 
  *  memory. Pass a pointer to the memory containing the FLI data.
@@ -1037,7 +1079,11 @@ void close_fli(void)
    remove_int(fli_timer_callback);
 
    if (fli_file) {
-      pack_fclose(fli_file);
+      /* if fli_filename is NULL this means that the packfile was 
+       * provided by external program.
+       */
+      if (fli_filename)
+         pack_fclose(fli_file);
       fli_file = NULL;
    }
 
@@ -1069,6 +1115,12 @@ void close_fli(void)
  */
 int next_fli_frame(int loop)
 {
+   /* looping is not supported if fli is read from custom packfile, 
+    * because it cannot be rewinded.
+    */
+   if (fli_file && fli_filename == NULL)
+      loop = 0;
+
    if (fli_status != FLI_OK)
       return fli_status;
 
