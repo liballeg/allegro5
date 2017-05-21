@@ -580,7 +580,9 @@ void _al_osx_mouse_was_installed(BOOL install) {
    /* Restore max. constraints when the window has been un-maximized.
     * Note: isZoomed will return false in FullScreen mode.
     */
-   if (!(dpy_ptr->flags & ALLEGRO_FULLSCREEN_WINDOW) && ![window isZoomed]) {
+   if (dpy_ptr->use_constraints &&
+      !(dpy_ptr->flags & ALLEGRO_FULLSCREEN_WINDOW) && ![window isZoomed])
+   {
       NSSize max_size;
       max_size.width = (dpy_ptr->max_w > 0) ? dpy_ptr->max_w : FLT_MAX;
       max_size.height = (dpy_ptr->max_h > 0) ? dpy_ptr->max_h : FLT_MAX;
@@ -647,18 +649,20 @@ void _al_osx_mouse_was_installed(BOOL install) {
 {
    NSSize max_size;
 
-   if (dpy_ptr->flags & ALLEGRO_MAXIMIZED) {
-      max_size.width = FLT_MAX;
-      max_size.height = FLT_MAX;
-      newFrame.size.width = FLT_MAX;
-      newFrame.size.height = FLT_MAX;
-   }
-   else {
-      max_size.width = (dpy_ptr->max_w > 0) ? dpy_ptr->max_w : FLT_MAX;
-      max_size.height = (dpy_ptr->max_h > 0) ? dpy_ptr->max_h : FLT_MAX;
-   }
+   if (dpy_ptr->use_constraints) {
+      if (dpy_ptr->flags & ALLEGRO_MAXIMIZED) {
+         max_size.width = FLT_MAX;
+         max_size.height = FLT_MAX;
+         newFrame.size.width = max_size.width;
+         newFrame.size.height = max_size.height;
+      }
+      else {
+         max_size.width = (dpy_ptr->max_w > 0) ? dpy_ptr->max_w : FLT_MAX;
+         max_size.height = (dpy_ptr->max_h > 0) ? dpy_ptr->max_h : FLT_MAX;
+      }
 
-   [window setContentMaxSize: max_size];
+      [window setContentMaxSize: max_size];
+   }
 
    return newFrame;
 }
@@ -1979,19 +1983,21 @@ static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h)
    w = _ALLEGRO_MAX(w, MINIMUM_WIDTH / scale_factor);
    h = _ALLEGRO_MAX(h, MINIMUM_HEIGHT / scale_factor);
 
-   if (d->min_w > 0 && w < d->min_w) {
-      w = d->min_w;
-   }
-   if (d->min_h > 0 && h < d->min_h) {
-      h = d->min_h;
-   }
-   /* Don't use max. constraints when a window is maximized. */
-   if (!(d->flags & ALLEGRO_MAXIMIZED)) {
-      if (d->max_w > 0 && w > d->max_w) {
-         w = d->max_w;
+   if (d->use_constraints) {
+      if (d->min_w > 0 && w < d->min_w) {
+         w = d->min_w;
       }
-      if (d->max_h > 0 && h > d->max_h) {
-         h = d->max_h;
+      if (d->min_h > 0 && h < d->min_h) {
+         h = d->min_h;
+      }
+      /* Don't use max. constraints when a window is maximized. */
+      if (!(d->flags & ALLEGRO_MAXIMIZED)) {
+         if (d->max_w > 0 && w > d->max_w) {
+            w = d->max_w;
+         }
+         if (d->max_h > 0 && h > d->max_h) {
+            h = d->max_h;
+         }
       }
    }
 
@@ -2142,15 +2148,6 @@ static void get_window_position(ALLEGRO_DISPLAY* display, int* px, int* py)
 static bool set_window_constraints(ALLEGRO_DISPLAY* display,
    int min_w, int min_h, int max_w, int max_h)
 {
-   ALLEGRO_DISPLAY_OSX_WIN* d = (ALLEGRO_DISPLAY_OSX_WIN*) display;
-   NSWindow* window = d->win;
-   float scale_factor = 1.0;
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
-   if ([window respondsToSelector:@selector(backingScaleFactor)]) {
-      scale_factor = [window backingScaleFactor];
-   }
-#endif
-
    if (min_w > 0 && min_w < MINIMUM_WIDTH) {
       min_w = MINIMUM_WIDTH;
    }
@@ -2163,46 +2160,7 @@ static bool set_window_constraints(ALLEGRO_DISPLAY* display,
    display->max_w = max_w;
    display->max_h = max_h;
 
-   NSSize min_size = [window contentMinSize];
-   NSSize max_size = [window contentMaxSize];
-
-   if (display->min_w > 0) {
-      min_size.width = display->min_w / scale_factor;
-   }
-   else {
-      min_size.width = MINIMUM_WIDTH / scale_factor;
-   }
-   if (display->min_h > 0) {
-      min_size.height = display->min_h / scale_factor;
-   }
-   else {
-      min_size.height = MINIMUM_HEIGHT / scale_factor;
-   }
-   if (display->max_w > 0) {
-      max_size.width = display->max_w / scale_factor;
-   }
-   else {
-      max_size.width = FLT_MAX;
-   }
-   if (display->max_h > 0) {
-      max_size.height = display->max_h / scale_factor;
-   }
-   else {
-     max_size.height = FLT_MAX;
-   }
-
-   /* Clear max. constraints when a window is maximized. */
-   if (display->flags & ALLEGRO_MAXIMIZED) {
-      max_size.width = FLT_MAX;
-      max_size.height = FLT_MAX;
-   }
-
-  [window setContentMaxSize:max_size];
-  [window setContentMinSize:min_size];
-
-  al_resize_display(display, display->w, display->h);
-
-  return true;
+   return true;
 }
 
 static bool get_window_constraints(ALLEGRO_DISPLAY* display,
@@ -2214,6 +2172,47 @@ static bool get_window_constraints(ALLEGRO_DISPLAY* display,
    *max_h = display->max_h;
 
    return true;
+}
+
+static void apply_window_constraints(ALLEGRO_DISPLAY *display,
+   bool onoff)
+{
+   ALLEGRO_DISPLAY_OSX_WIN* d = (ALLEGRO_DISPLAY_OSX_WIN*) display;
+   NSWindow* window = d->win;
+   float scale_factor = 1.0;
+   NSSize max_size;
+   NSSize min_size;
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+   if ([window respondsToSelector:@selector(backingScaleFactor)]) {
+      scale_factor = [window backingScaleFactor];
+   }
+#endif
+
+   if (onoff) {
+      min_size.width = display->min_w / scale_factor;
+      min_size.height = display->min_h / scale_factor;
+
+      if (display->max_w > 0)
+         max_size.width = display->max_w / scale_factor;
+      else
+         max_size.width = FLT_MAX;
+
+      if (display->max_h > 0)
+         max_size.height = display->max_h / scale_factor;
+      else
+         max_size.height = FLT_MAX;
+
+      al_resize_display(display, display->w, display->h);
+   }
+   else {
+      min_size.width = MINIMUM_WIDTH / scale_factor;
+      min_size.height = MINIMUM_HEIGHT / scale_factor;
+      max_size.width = FLT_MAX;
+      max_size.height = FLT_MAX;
+   }
+
+   [window setContentMaxSize:max_size];
+   [window setContentMinSize:min_size];
 }
 
 /* set_window_title:
@@ -2372,6 +2371,7 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void)
       vt->set_window_position = set_window_position;
       vt->get_window_constraints = get_window_constraints;
       vt->set_window_constraints = set_window_constraints;
+      vt->apply_window_constraints = apply_window_constraints;
       vt->set_window_title = set_window_title;
       vt->set_display_flag = set_display_flag;
       vt->set_icons = set_icons;
