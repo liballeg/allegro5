@@ -1245,10 +1245,19 @@ static void xdpy_apply_window_constraints(ALLEGRO_DISPLAY *display,
 {
    int posX;
    int posY;
-   (void)onoff;
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
 
-   al_get_window_position(display, &posX, &posY);
-   _al_xwin_set_size_hints(display, posX, posY);
+   _al_mutex_lock(&system->lock);
+
+   if (onoff) {
+      al_get_window_position(display, &posX, &posY);
+      _al_xwin_set_size_hints(display, posX, posY);
+   }
+   else {
+      _al_xwin_reset_size_hints(display);
+   }
+
+   _al_mutex_unlock(&system->lock);
    al_resize_display(display, display->w, display->h);
 }
 
