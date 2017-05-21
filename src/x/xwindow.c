@@ -48,7 +48,7 @@ void _al_xwin_set_size_hints(ALLEGRO_DISPLAY *d, int x_off, int y_off)
    }
 
    /* Constrain the window if needed. */
-   if (d->flags & ALLEGRO_RESIZABLE &&
+   if (d->use_constraints && (d->flags & ALLEGRO_RESIZABLE) &&
       (d->min_w > 0 || d->min_h > 0 || d->max_w > 0 || d->max_h > 0))
    {
       sizehints->flags |= PMinSize | PMaxSize | PBaseSize;
