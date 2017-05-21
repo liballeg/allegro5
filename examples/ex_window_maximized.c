@@ -23,6 +23,8 @@ static void
 draw_information(ALLEGRO_DISPLAY *display,
    ALLEGRO_FONT *font, ALLEGRO_COLOR color);
 
+static bool use_constraints;
+
 
 extern int
 main(int argc, char **argv)
@@ -30,9 +32,9 @@ main(int argc, char **argv)
    ALLEGRO_DISPLAY *display;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_FONT *font;
-
    bool done = false;
    bool redraw = true;
+   use_constraints = true;
 
    (void)argc;
    (void)argv;
@@ -71,6 +73,7 @@ main(int argc, char **argv)
 
    /* set lower limits for constraints only */
    al_set_window_constraints(display, DISPLAY_W / 2, DISPLAY_H / 2, 0, 0);
+   al_apply_window_constraints(display, use_constraints);
 
    if (!al_install_keyboard()) {
       abort_example("Error installing keyboard.\n");
@@ -91,19 +94,20 @@ main(int argc, char **argv)
    while (!done) {
       ALLEGRO_EVENT event;
 
-      if (redraw && al_is_event_queue_empty(queue)) {
-         al_clear_to_color(al_map_rgb_f(0, 0, 0));
+      if (redraw) {
+         redraw = false;
          int x2 = al_get_display_width(display) - 10;
          int y2 = al_get_display_height(display) - 10;
+         al_clear_to_color(al_map_rgb(0, 0, 0));
          al_draw_filled_rectangle(10, 10, x2, y2, *color);
          al_draw_filled_circle(5, 5, 30, color_circle);
          al_draw_filled_circle(x2 + 5, y2 + 5, 30, color_circle);
          draw_information(display, font, color_text);
          al_flip_display();
-         redraw = false;
       }
 
       al_wait_for_event(queue, &event);
+
       switch (event.type) {
       case ALLEGRO_EVENT_KEY_DOWN:
          if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
@@ -112,32 +116,38 @@ main(int argc, char **argv)
 
       case ALLEGRO_EVENT_KEY_UP:
          if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+            redraw = true;
+
             if (color == &color_1) {
-               al_set_window_constraints(display,
-                  0, 0,
-                  DISPLAY_W, DISPLAY_H);
+               al_set_window_constraints(display, 0, 0, DISPLAY_W, DISPLAY_H);
                color = &color_2;
             }
             else {
-               al_set_window_constraints(display,
-                  DISPLAY_W / 2, DISPLAY_H / 2,
-                  0, 0);
+               al_set_window_constraints(display, DISPLAY_W / 2, DISPLAY_H / 2, 0, 0);
                color = &color_1;
             }
+
+            al_apply_window_constraints(display, use_constraints);
+         }
+         else if (event.keyboard.keycode == ALLEGRO_KEY_ENTER) {
             redraw = true;
+            use_constraints = !use_constraints;
+            al_apply_window_constraints(display, use_constraints);
          }
          break;
 
       case ALLEGRO_EVENT_DISPLAY_RESIZE:
-         redraw = true;
          al_acknowledge_resize(event.display.source);
+         redraw = true;
          break;
 
       case ALLEGRO_EVENT_DISPLAY_CLOSE:
          done = true;
          break;
-      }
+      } /* switch (event.type) { */
    }
+
+   al_destroy_font(font);
 
    return 0;
 }
@@ -147,24 +157,25 @@ static void
 draw_information(ALLEGRO_DISPLAY *display,
    ALLEGRO_FONT *font, ALLEGRO_COLOR color)
 {
-   static int min_w, min_h, max_w, max_h;
-   static ALLEGRO_USTR *ustr;
+   int min_w, min_h, max_w, max_h;
 
+   al_draw_textf(font, color, 20, 20, 0, "Hotkeys:");
+   al_draw_textf(font, color, 30, 30, 0, "enabled/disable constraints: ENTER");
+   al_draw_textf(font, color, 30, 40, 0, "change constraints: SPACE");
 
-   ustr = al_ustr_newf("Resolution: %dx%d",
-      al_get_display_width(display), al_get_display_height(display));
-
-   al_draw_ustr(font, color, 20, 20, 0, ustr);
+   al_draw_textf(font, color, 20, 50, 0,
+      "Resolution: %dx%d",
+      al_get_display_width(display),
+      al_get_display_height(display));
 
    if (al_get_window_constraints(display, &min_w, &min_h, &max_w, &max_h)) {
-      al_ustr_truncate(ustr, 0);
-      al_ustr_appendf(ustr,
-         "min_w = %d min_h = %d max_w = %d max_h = %d",
-         min_w, min_h, max_w, max_h);
-      al_draw_ustr(font, color, 20, 30, 0, ustr);
+      al_draw_textf(font, color, 20, 60, 0, "Constraints: %s",
+         use_constraints ? "Enabled" : "Disabled");
+      al_draw_textf(font, color, 20, 70, 0, "min_w = %d min_h = %d",
+         min_w, min_h);
+      al_draw_textf(font, color, 20, 80, 0, "max_w = %d max_h = %d",
+         max_w, max_h);
    }
-
-   al_ustr_free(ustr);
 }
 
 /* vim: set sts=3 sw=3 et: */
