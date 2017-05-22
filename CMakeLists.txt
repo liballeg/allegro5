@@ -484,6 +484,10 @@ check_function_exists(fseeko ALLEGRO_HAVE_FSEEKO)
 check_function_exists(ftello ALLEGRO_HAVE_FTELLO)
 check_function_exists(strerror_r ALLEGRO_HAVE_STRERROR_R)
 check_function_exists(strerror_s ALLEGRO_HAVE_STRERROR_S)
+if(WIN32)
+    check_function_exists(_ftelli64 ALLEGRO_HAVE_FTELLI64)
+    check_function_exists(_fseeki64 ALLEGRO_HAVE_FSEEKI64)
+endif()
 
 check_type_size("_Bool" ALLEGRO_HAVE__BOOL)
 

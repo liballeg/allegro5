@@ -221,8 +221,10 @@ static int64_t file_stdio_ftell(ALLEGRO_FILE *f)
    USERDATA *userdata = get_userdata(f);
    int64_t ret;
 
-#ifdef ALLEGRO_HAVE_FTELLO
+#if defined(ALLEGRO_HAVE_FTELLO)
    ret = ftello(userdata->fp);
+#elif defined(ALLEGRO_HAVE_FTELLI64)
+   ret = _ftelli64(userdata->fp);
 #else
    ret = ftell(userdata->fp);
 #endif
@@ -247,8 +249,10 @@ static bool file_stdio_fseek(ALLEGRO_FILE *f, int64_t offset,
       case ALLEGRO_SEEK_END: whence = SEEK_END; break;
    }
 
-#ifdef ALLEGRO_HAVE_FSEEKO
+#if defined(ALLEGRO_HAVE_FSEEKO)
    rc = fseeko(userdata->fp, offset, whence);
+#elif defined(ALLEGRO_HAVE_FSEEKI64)
+   rc = _fseeki64(userdata->fp, offset, whence);
 #else
    rc = fseek(userdata->fp, offset, whence);
 #endif

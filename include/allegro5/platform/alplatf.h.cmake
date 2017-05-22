@@ -65,6 +65,8 @@
 #cmakedefine ALLEGRO_HAVE_STRERROR_R
 #cmakedefine ALLEGRO_HAVE_STRERROR_S
 #cmakedefine ALLEGRO_HAVE_VA_COPY
+#cmakedefine ALLEGRO_HAVE_FTELLI64
+#cmakedefine ALLEGRO_HAVE_FSEEKI64
 
 /* Define to 1 if procfs reveals argc and argv */
 #cmakedefine ALLEGRO_HAVE_PROCFS_ARGCV
