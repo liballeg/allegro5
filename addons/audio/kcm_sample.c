@@ -234,6 +234,8 @@ bool al_reserve_samples(int reserve_samples)
    else if (current_samples_count > reserve_samples) {
       /* We need to reserve fewer samples than currently are reserved. */
       while (current_samples_count-- > reserve_samples) {
+         ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&auto_samples, current_samples_count);
+         al_destroy_sample_instance(*slot);
          _al_vector_delete_at(&auto_samples, current_samples_count);
          _al_vector_delete_at(&auto_sample_ids, current_samples_count);
       }
