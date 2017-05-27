@@ -31,8 +31,13 @@ static ALLEGRO_VOICE *allegro_voice = NULL;
 static ALLEGRO_MIXER *allegro_mixer = NULL;
 static ALLEGRO_MIXER *default_mixer = NULL;
 
-static _AL_VECTOR auto_samples = _AL_VECTOR_INITIALIZER(ALLEGRO_SAMPLE_INSTANCE *);
-static _AL_VECTOR auto_sample_ids = _AL_VECTOR_INITIALIZER(int);
+
+typedef struct AUTO_SAMPLE {
+   ALLEGRO_SAMPLE_INSTANCE *instance;
+   int id;
+} AUTO_SAMPLE;
+
+static _AL_VECTOR auto_samples = _AL_VECTOR_INITIALIZER(AUTO_SAMPLE);
 
 
 static bool create_default_mixer(void);
@@ -217,15 +222,14 @@ bool al_reserve_samples(int reserve_samples)
    if (current_samples_count < reserve_samples) {
       /* We need to reserve more samples than currently are reserved. */
       for (i = 0; i < reserve_samples - current_samples_count; i++) {
-         ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_alloc_back(&auto_samples);
-         int *id = _al_vector_alloc_back(&auto_sample_ids);
-         *id = 0;
-         *slot = al_create_sample_instance(NULL);
-         if (!*slot) {
+         AUTO_SAMPLE *slot = _al_vector_alloc_back(&auto_samples);
+         slot->id = 0;
+         slot->instance = al_create_sample_instance(NULL);
+         if (!slot->instance) {
             ALLEGRO_ERROR("al_create_sample failed\n");
             goto Error;
          }
-         if (!al_attach_sample_instance_to_mixer(*slot, default_mixer)) {
+         if (!al_attach_sample_instance_to_mixer(slot->instance, default_mixer)) {
             ALLEGRO_ERROR("al_attach_mixer_to_sample failed\n");
             goto Error;
          }
@@ -234,10 +238,9 @@ bool al_reserve_samples(int reserve_samples)
    else if (current_samples_count > reserve_samples) {
       /* We need to reserve fewer samples than currently are reserved. */
       while (current_samples_count-- > reserve_samples) {
-         ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&auto_samples, current_samples_count);
-         al_destroy_sample_instance(*slot);
+         AUTO_SAMPLE *slot = _al_vector_ref(&auto_samples, current_samples_count);
+         al_destroy_sample_instance(slot->instance);
          _al_vector_delete_at(&auto_samples, current_samples_count);
-         _al_vector_delete_at(&auto_sample_ids, current_samples_count);
       }
    }
 
@@ -272,18 +275,17 @@ bool al_set_default_mixer(ALLEGRO_MIXER *mixer)
       /* Destroy all current sample instances, recreate them, and
        * attach them to the new mixer */
       for (i = 0; i < (int) _al_vector_size(&auto_samples); i++) {
-         ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&auto_samples, i);
-         int *id = _al_vector_ref(&auto_sample_ids, i);
+         AUTO_SAMPLE *slot = _al_vector_ref(&auto_samples, i);
 
-         *id = 0;
-         al_destroy_sample_instance(*slot);
+         slot->id = 0;
+         al_destroy_sample_instance(slot->instance);
 
-         *slot = al_create_sample_instance(NULL);
-         if (!*slot) {
+         slot->instance = al_create_sample_instance(NULL);
+         if (!slot->instance) {
             ALLEGRO_ERROR("al_create_sample failed\n");
             goto Error;
          }
-         if (!al_attach_sample_instance_to_mixer(*slot, default_mixer)) {
+         if (!al_attach_sample_instance_to_mixer(slot->instance, default_mixer)) {
             ALLEGRO_ERROR("al_attach_mixer_to_sample failed\n");
             goto Error;
          }
@@ -348,18 +350,15 @@ bool al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed,
    }
 
    for (i = 0; i < _al_vector_size(&auto_samples); i++) {
-      ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&auto_samples, i);
-      ALLEGRO_SAMPLE_INSTANCE *splinst = (*slot);
+      AUTO_SAMPLE *slot = _al_vector_ref(&auto_samples, i);
 
-      if (!al_get_sample_instance_playing(splinst)) {
-         int *id = _al_vector_ref(&auto_sample_ids, i);
-
-         if (!do_play_sample(splinst, spl, gain, pan, speed, loop))
+      if (!al_get_sample_instance_playing(slot->instance)) {
+         if (!do_play_sample(slot->instance, spl, gain, pan, speed, loop))
             break;
 
          if (ret_id != NULL) {
             ret_id->_index = (int) i;
-            ret_id->_id = *id = ++next_id;
+            ret_id->_id = slot->id = ++next_id;
          }
 
          return true;
@@ -398,18 +397,14 @@ static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *splinst,
  */
 void al_stop_sample(ALLEGRO_SAMPLE_ID *spl_id)
 {
-   int *id;
+   AUTO_SAMPLE *slot;
 
    ASSERT(spl_id->_id != -1);
    ASSERT(spl_id->_index < (int) _al_vector_size(&auto_samples));
-   ASSERT(spl_id->_index < (int) _al_vector_size(&auto_sample_ids));
 
-   id = _al_vector_ref(&auto_sample_ids, spl_id->_index);
-   if (*id == spl_id->_id) {
-      ALLEGRO_SAMPLE_INSTANCE **slot, *spl;
-      slot = _al_vector_ref(&auto_samples, spl_id->_index);
-      spl = (*slot);
-      al_stop_sample_instance(spl);
+   slot = _al_vector_ref(&auto_samples, spl_id->_index);
+   if (slot->id == spl_id->_id) {
+      al_stop_sample_instance(slot->instance);
    }
 }
 
@@ -421,9 +416,8 @@ void al_stop_samples(void)
    unsigned int i;
 
    for (i = 0; i < _al_vector_size(&auto_samples); i++) {
-      ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&auto_samples, i);
-      ALLEGRO_SAMPLE_INSTANCE *spl = (*slot);
-      al_stop_sample_instance(spl);
+      AUTO_SAMPLE *slot = _al_vector_ref(&auto_samples, i);
+      al_stop_sample_instance(slot->instance);
    }
 }
 
@@ -484,11 +478,10 @@ static void free_sample_vector(void)
    int j;
 
    for (j = 0; j < (int) _al_vector_size(&auto_samples); j++) {
-      ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&auto_samples, j);
-      al_destroy_sample_instance(*slot);
+      AUTO_SAMPLE *slot = _al_vector_ref(&auto_samples, j);
+      al_destroy_sample_instance(slot->instance);
    }
    _al_vector_free(&auto_samples);
-   _al_vector_free(&auto_sample_ids);
 }
 
 
