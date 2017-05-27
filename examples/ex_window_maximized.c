@@ -72,7 +72,8 @@ main(int argc, char **argv)
    }
 
    /* set lower limits for constraints only */
-   al_set_window_constraints(display, DISPLAY_W / 2, DISPLAY_H / 2, 0, 0);
+   if(!al_set_window_constraints(display, DISPLAY_W / 2, DISPLAY_H / 2, 0, 0))
+      abort_example("Unable to set window constraints.\n");
    al_apply_window_constraints(display, use_constraints);
 
    if (!al_install_keyboard()) {
@@ -119,11 +120,23 @@ main(int argc, char **argv)
             redraw = true;
 
             if (color == &color_1) {
-               al_set_window_constraints(display, 0, 0, DISPLAY_W, DISPLAY_H);
+               if (!al_set_window_constraints(display,
+                  0, 0,
+                  DISPLAY_W, DISPLAY_H))
+               {
+                  abort_example("Unable to set window constraints.\n");
+               }
+
                color = &color_2;
             }
             else {
-               al_set_window_constraints(display, DISPLAY_W / 2, DISPLAY_H / 2, 0, 0);
+               if (!al_set_window_constraints(display,
+                  DISPLAY_W / 2, DISPLAY_H / 2,
+                  0, 0))
+               {
+                  abort_example("Unable to set window constraints.\n");
+               }
+
                color = &color_1;
             }
 
