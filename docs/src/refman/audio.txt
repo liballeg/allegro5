@@ -339,10 +339,10 @@ Since: 5.1.8
 ### API: al_create_voice
 
 Creates a voice structure and allocates a voice from the digital sound driver.
-The passed frequency, sample format and channel configuration are used as a
-hint to what kind of data will be sent to the voice. However, the underlying
-sound driver is free to use non-matching values. For example, it may be the
-native format of the sound hardware.
+The passed frequency (in Hz), sample format and channel configuration are used
+as a hint to what kind of data will be sent to the voice. However, the
+underlying sound driver is free to use non-matching values. For example, it may
+be the native format of the sound hardware.
 
 If a mixer is attached to the voice, the mixer will handle the conversion of
 all its input streams to the voice format and care does not have to be taken
@@ -406,7 +406,7 @@ See also: [al_detach_voice]
 
 ### API: al_get_voice_frequency
 
-Return the frequency of the voice, e.g. 44100.
+Return the frequency of the voice (in Hz), e.g. 44100.
 
 ### API: al_get_voice_channels
 
@@ -532,7 +532,7 @@ See also: [ALLEGRO_AUDIO_DEPTH], [al_get_sample_channels],
 
 ### API: al_get_sample_frequency
 
-Return the frequency of the sample.
+Return the frequency (in Hz) of the sample.
 
 See also: [al_get_sample_channels], [al_get_sample_depth],
 [al_get_sample_length], [al_get_sample_data]
@@ -598,7 +598,7 @@ See also: [ALLEGRO_AUDIO_DEPTH].
 
 ### API: al_get_sample_instance_frequency
 
-Return the frequency of the sample instance's sample data.
+Return the frequency (in Hz) of the sample instance's sample data.
 
 ### API: al_get_sample_instance_length
 
@@ -812,7 +812,7 @@ Since: 5.2.3
 ### API: al_create_mixer
 
 Creates a mixer to attach sample instances, audio streams, or other mixers to.
-It will mix into a buffer at the requested frequency and channel count.
+It will mix into a buffer at the requested frequency (in Hz) and channel count.
 
 The only supported audio depths are ALLEGRO_AUDIO_DEPTH_FLOAT32
 and ALLEGRO_AUDIO_DEPTH_INT16 (not yet complete).
@@ -912,14 +912,14 @@ See also: [al_detach_audio_stream].
 
 ### API: al_get_mixer_frequency
 
-Return the mixer frequency.
+Return the mixer frequency (in Hz).
 
 See also: [al_set_mixer_frequency]
 
 ### API: al_set_mixer_frequency
 
-Set the mixer frequency.  This will only work if the mixer is not attached to
-anything.
+Set the mixer frequency (in Hz).  This will only work if the mixer is not
+attached to anything.
 
 Returns true on success, false on failure.
 
@@ -1086,7 +1086,7 @@ functions underlying those functions.
 
 ### API: al_get_audio_stream_frequency
 
-Return the stream frequency.
+Return the stream frequency (in Hz).
 
 ### API: al_get_audio_stream_channels
 
