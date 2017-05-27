@@ -216,7 +216,8 @@ Sample and stream playback mode.
 ### API: ALLEGRO_SAMPLE_ID
 
 An ALLEGRO_SAMPLE_ID represents a sample being played via [al_play_sample].
-It can be used to later stop the sample with [al_stop_sample].
+It can be used to later stop the sample with [al_stop_sample]. The underlying
+ALLEGRO_SAMPLE_INSTANCE can be extracted using [al_lock_sample_id].
 
 ### API: ALLEGRO_SAMPLE
 
@@ -316,7 +317,12 @@ successfully.
 
 Reserves a number of sample instances, attaching them to the default mixer.
 If no default mixer is set when this function is called, then it will create one
-and attach it to the default voice. If no default voice has been set, it, too, will be created.
+and attach it to the default voice. If no default voice has been set, it, too,
+will be created.
+
+If you call this function a second time with a smaller number of samples, then
+the excess internal sample instances will be destroyed causing some sounds to
+stop and some instances returned by [al_lock_sample_id] to be invalidated.
 
 This diagram illustrates the structures that are set up:
 
@@ -526,13 +532,47 @@ Parameters:
   an id representing the sample being played.
 
 See also: [ALLEGRO_PLAYMODE], [ALLEGRO_AUDIO_PAN_NONE], [ALLEGRO_SAMPLE_ID],
-[al_stop_sample], [al_stop_samples].
+[al_stop_sample], [al_stop_samples], [al_lock_sample_id].
 
 ### API: al_stop_sample
 
 Stop the sample started by [al_play_sample].
 
 See also: [al_stop_samples]
+
+### API: al_lock_sample_id
+
+Locks a [ALLEGRO_SAMPLE_ID], returning the underlying [ALLEGRO_SAMPLE_INSTANCE].
+This allows you to adjust the various properties of the instance (such as
+volume, pan, etc) while the sound is playing.
+
+This function will return `NULL` if the sound corresponding to the id is no
+longer playing.
+
+While locked, `ALLEGRO_SAMPLE_ID` will be unavailable to additional calls to
+[al_play_sample], even if the sound stops while locked. To put the
+`ALLEGRO_SAMPLE_ID` back into the pool for reuse, make sure to call
+`al_unlock_sample_id` when you're done with the instance.
+
+See also: [al_play_sample], [al_unlock_sample_id]
+
+Since: 5.2.3
+
+> *[Unstable API]:* New API.
+
+### API: al_unlock_sample_id
+
+Unlocks a [ALLEGRO_SAMPLE_ID], allowing future calls to [al_play_sample] to
+reuse it if possible. Note that after the id is unlocked, the
+[ALLEGRO_SAMPLE_INSTANCE] that was previously returned by [al_lock_sample_id]
+will possibly be playing a different sound, so you should only use it after
+locking the id again.
+
+See also: [al_play_sample], [al_lock_sample_id]
+
+Since: 5.2.3
+
+> *[Unstable API]:* New API.
 
 ### API: al_stop_samples
 
@@ -866,8 +906,9 @@ See also: [al_reserve_samples], [al_play_sample], [al_set_default_mixer],
 ### API: al_set_default_mixer
 
 Sets the default mixer. All samples started with [al_play_sample]
-will be stopped. If you are using your own mixer, this should be
-called before [al_reserve_samples].
+will be stopped and all sample instances returned by [al_lock_sample_id] will be
+invalidated. If you are using your own mixer, this should be called before
+[al_reserve_samples].
 
 Returns true on success, false on error.
 
@@ -879,7 +920,8 @@ See also: [al_reserve_samples], [al_play_sample], [al_get_default_mixer],
 Restores Allegro's default mixer and attaches it to the default voice. If the default
 mixer hasn't been created before, it will be created.
 If the default voice hasn't been set via [al_set_default_voice] or created before,
-it will also be created. All samples started with [al_play_sample] will be stopped.
+it will also be created. All samples started with [al_play_sample] will be stopped
+and all sample instances returned by [al_lock_sample_id] will be invalidated.
 
 Returns true on success, false on error.
 

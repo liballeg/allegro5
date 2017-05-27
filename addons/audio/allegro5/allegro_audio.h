@@ -367,6 +367,11 @@ ALLEGRO_KCM_AUDIO_FUNC(void, al_stop_samples, (void));
 ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_VOICE *, al_get_default_voice, (void));
 ALLEGRO_KCM_AUDIO_FUNC(void, al_set_default_voice, (ALLEGRO_VOICE *voice));
 
+#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_KCM_AUDIO_SRC)
+ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_SAMPLE_INSTANCE*, al_lock_sample_id, (ALLEGRO_SAMPLE_ID *spl_id));
+ALLEGRO_KCM_AUDIO_FUNC(void, al_unlock_sample_id, (ALLEGRO_SAMPLE_ID *spl_id));
+#endif
+
 /* File type handlers */
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_register_sample_loader, (const char *ext,
 	ALLEGRO_SAMPLE *(*loader)(const char *filename)));

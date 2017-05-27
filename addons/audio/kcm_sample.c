@@ -35,6 +35,7 @@ static ALLEGRO_MIXER *default_mixer = NULL;
 typedef struct AUTO_SAMPLE {
    ALLEGRO_SAMPLE_INSTANCE *instance;
    int id;
+   bool locked;
 } AUTO_SAMPLE;
 
 static _AL_VECTOR auto_samples = _AL_VECTOR_INITIALIZER(AUTO_SAMPLE);
@@ -225,6 +226,7 @@ bool al_reserve_samples(int reserve_samples)
          AUTO_SAMPLE *slot = _al_vector_alloc_back(&auto_samples);
          slot->id = 0;
          slot->instance = al_create_sample_instance(NULL);
+         slot->locked = false;
          if (!slot->instance) {
             ALLEGRO_ERROR("al_create_sample failed\n");
             goto Error;
@@ -279,6 +281,7 @@ bool al_set_default_mixer(ALLEGRO_MIXER *mixer)
 
          slot->id = 0;
          al_destroy_sample_instance(slot->instance);
+         slot->locked = false;
 
          slot->instance = al_create_sample_instance(NULL);
          if (!slot->instance) {
@@ -352,7 +355,7 @@ bool al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed,
    for (i = 0; i < _al_vector_size(&auto_samples); i++) {
       AUTO_SAMPLE *slot = _al_vector_ref(&auto_samples, i);
 
-      if (!al_get_sample_instance_playing(slot->instance)) {
+      if (!al_get_sample_instance_playing(slot->instance) && !slot->locked) {
          if (!do_play_sample(slot->instance, spl, gain, pan, speed, loop))
             break;
 
@@ -405,6 +408,40 @@ void al_stop_sample(ALLEGRO_SAMPLE_ID *spl_id)
    slot = _al_vector_ref(&auto_samples, spl_id->_index);
    if (slot->id == spl_id->_id) {
       al_stop_sample_instance(slot->instance);
+   }
+}
+
+
+/* Function: al_lock_sample_id
+ */
+ALLEGRO_SAMPLE_INSTANCE* al_lock_sample_id(ALLEGRO_SAMPLE_ID *spl_id)
+{
+   AUTO_SAMPLE *slot;
+
+   ASSERT(spl_id->_id != -1);
+   ASSERT(spl_id->_index < (int) _al_vector_size(&auto_samples));
+
+   slot = _al_vector_ref(&auto_samples, spl_id->_index);
+   if (slot->id == spl_id->_id) {
+      slot->locked = true;
+      return slot->instance;
+   }
+   return NULL;
+}
+
+
+/* Function: al_unlock_sample_id
+ */
+void al_unlock_sample_id(ALLEGRO_SAMPLE_ID *spl_id)
+{
+   AUTO_SAMPLE *slot;
+
+   ASSERT(spl_id->_id != -1);
+   ASSERT(spl_id->_index < (int) _al_vector_size(&auto_samples));
+
+   slot = _al_vector_ref(&auto_samples, spl_id->_index);
+   if (slot->id == spl_id->_id) {
+      slot->locked = false;
    }
 }
 
