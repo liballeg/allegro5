@@ -397,7 +397,6 @@ static int _dsound_load_voice(ALLEGRO_VOICE *voice, const void *_data)
    hr = device->CreateSoundBuffer(&ex_data->desc, &ex_data->ds_buffer, NULL);
    if (FAILED(hr)) {
       ALLEGRO_ERROR("CreateSoundBuffer failed\n");
-      al_free(ex_data);
       return 1;
    }
 
@@ -476,7 +475,6 @@ static int _dsound_start_voice(ALLEGRO_VOICE *voice)
       hr = device->CreateSoundBuffer(&ex_data->desc, &ex_data->ds_buffer, NULL);
       if (FAILED(hr)) {
          ALLEGRO_ERROR("CreateSoundBuffer failed: %s\n", ds_get_error(hr));
-         al_free(ex_data);
          return 1;
       }
 
