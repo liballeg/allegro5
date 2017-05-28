@@ -58,7 +58,6 @@ struct ALLEGRO_DISPLAY_INTERFACE
    void (*get_window_position)(ALLEGRO_DISPLAY *display, int *x, int *y);
    bool (*set_window_constraints)(ALLEGRO_DISPLAY *display, int min_w, int min_h, int max_w, int max_h);
    bool (*get_window_constraints)(ALLEGRO_DISPLAY *display,  int *min_w, int *min_h, int *max_w, int *max_h);
-   void (*apply_window_constraints)(ALLEGRO_DISPLAY *display, bool onoff);
    bool (*set_display_flag)(ALLEGRO_DISPLAY *display, int flag, bool onoff);
    void (*set_window_title)(ALLEGRO_DISPLAY *display, const char *title);
    
@@ -81,6 +80,9 @@ struct ALLEGRO_DISPLAY_INTERFACE
    char *(*get_clipboard_text)(ALLEGRO_DISPLAY *display);
    bool  (*set_clipboard_text)(ALLEGRO_DISPLAY *display, const char *text);
    bool  (*has_clipboard_text)(ALLEGRO_DISPLAY *display);
+
+   /* Issue #725 */
+   void (*apply_window_constraints)(ALLEGRO_DISPLAY *display, bool onoff);
 };
 
 
@@ -128,7 +130,6 @@ struct ALLEGRO_DISPLAY
    int w, h;
    int min_w, min_h;
    int max_w, max_h;
-   bool use_constraints;
 
    int backbuffer_format; /* ALLEGRO_PIXELFORMAT */
 
@@ -154,6 +155,9 @@ struct ALLEGRO_DISPLAY
 
    _AL_VECTOR display_invalidated_callbacks;
    _AL_VECTOR display_validated_callbacks;
+
+   /* Issue #725 */
+   bool use_constraints;
 };
 
 int  _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref);
