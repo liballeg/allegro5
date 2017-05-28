@@ -63,7 +63,8 @@ main(int argc, char **argv)
 #if defined(USE_GTK) && !defined(_WIN32)
       | ALLEGRO_GTK_TOPLEVEL
 #endif
-      | ALLEGRO_RESIZABLE | ALLEGRO_MAXIMIZED);
+      | ALLEGRO_RESIZABLE | ALLEGRO_MAXIMIZED
+      | ALLEGRO_GENERATE_EXPOSE_EVENTS);
 
    /* creating really small display */
    display = al_create_display(DISPLAY_W / 3, DISPLAY_H / 3);
@@ -87,7 +88,6 @@ main(int argc, char **argv)
    ALLEGRO_COLOR color_1 = al_map_rgb(255, 127, 0);
    ALLEGRO_COLOR color_2 = al_map_rgb(0, 255, 0);
    ALLEGRO_COLOR *color = &color_1;
-   ALLEGRO_COLOR color_circle = al_map_rgb(127, 66, 255);
    ALLEGRO_COLOR color_text = al_map_rgb(0, 0, 0);
 
    font = al_create_builtin_font();
@@ -95,14 +95,12 @@ main(int argc, char **argv)
    while (!done) {
       ALLEGRO_EVENT event;
 
-      if (redraw) {
+      if (redraw && al_is_event_queue_empty(queue)) {
          redraw = false;
          int x2 = al_get_display_width(display) - 10;
          int y2 = al_get_display_height(display) - 10;
          al_clear_to_color(al_map_rgb(0, 0, 0));
          al_draw_filled_rectangle(10, 10, x2, y2, *color);
-         al_draw_filled_circle(5, 5, 30, color_circle);
-         al_draw_filled_circle(x2 + 5, y2 + 5, 30, color_circle);
          draw_information(display, font, color_text);
          al_flip_display();
       }
@@ -151,6 +149,10 @@ main(int argc, char **argv)
 
       case ALLEGRO_EVENT_DISPLAY_RESIZE:
          al_acknowledge_resize(event.display.source);
+         redraw = true;
+         break;
+
+      case ALLEGRO_EVENT_DISPLAY_EXPOSE:
          redraw = true;
          break;
 
