@@ -529,7 +529,9 @@ Parameters:
 * speed - relative speed at which the sample is played; 1.0 is normal.
 * loop - ALLEGRO_PLAYMODE_ONCE, ALLEGRO_PLAYMODE_LOOP, or ALLEGRO_PLAYMODE_BIDIR
 * ret_id - if non-NULL the variable which this points to will be assigned
-  an id representing the sample being played.
+  an id representing the sample being played. If [al_play_sample] returns `false`,
+  then the contents of ret_id are invalid and must not be used as argument to
+  other functions.
 
 See also: [ALLEGRO_PLAYMODE], [ALLEGRO_AUDIO_PAN_NONE], [ALLEGRO_SAMPLE_ID],
 [al_stop_sample], [al_stop_samples], [al_lock_sample_id].
