@@ -118,6 +118,30 @@ still unstable and subject to change.
 
 ## Audio types
 
+Events sent by [al_get_audio_stream_event_source] or [al_get_audio_recorder_event_source].
+
+### API: ALLEGRO_AUDIO_EVENT_TYPE
+
+#### ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT
+
+Sent when a stream fragment is ready to be filled in. See [al_get_audio_stream_fragment].
+
+#### ALLEGRO_EVENT_AUDIO_STREAM_FINISHED
+
+Sent when a stream is finished.
+
+#### ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT
+
+Sent after a user-specified number of samples have been recorded. Convert this to
+[ALLEGRO_AUDIO_RECORDER_EVENT] via [al_get_audio_recorder_event].
+
+You must always check the values for the buffer and samples as they
+are not guaranteed to be exactly what was originally specified.
+
+Since: 5.1.1
+
+> *[Unstable API]:* The API may need a slight redesign.
+
 ### API: ALLEGRO_AUDIO_DEPTH
 
 Sample depth and type as well as signedness. Mixers only use 32-bit signed
@@ -239,7 +263,7 @@ with [al_get_available_audio_stream_fragments], or listen to events from the
 stream.
 
 You can register an audio stream event source to an event queue; see
-[al_get_audio_stream_event_source].  An ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT
+[al_get_audio_stream_event_source].  An [ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT]
 event is generated whenever a new fragment is ready.  When you receive an
 event, use [al_get_audio_stream_fragment] to obtain a pointer to the fragment
 to be filled. The size and format are determined by the parameters passed to
@@ -250,7 +274,7 @@ is provided. You must call [al_drain_audio_stream] when you're finished with
 supplying data to the stream.
 
 If the stream is created by [al_load_audio_stream] then it will also generate an
-ALLEGRO_EVENT_AUDIO_STREAM_FINISHED event if it reaches the end of the file and
+[ALLEGRO_EVENT_AUDIO_STREAM_FINISHED] event if it reaches the end of the file and
 is not set to loop.
 
 ### API: ALLEGRO_VOICE
@@ -1067,7 +1091,7 @@ See also: [al_drain_audio_stream].
 Retrieve the associated event source.
 
 See [al_get_audio_stream_fragment] for a description of the
-ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT event that audio streams emit.
+[ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT] event that audio streams emit.
 
 ### API: al_drain_audio_stream
 
@@ -1218,7 +1242,7 @@ buffer to [al_set_audio_stream_fragment].
 If the stream is not ready for new data, the function will return NULL.
 
 > *Note:* If you listen to events from the stream, an
-ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT event will be generated whenever a new
+[ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT] event will be generated whenever a new
 fragment is ready. However, getting an event is *not* a guarantee that
 [al_get_audio_stream_fragment] will not return NULL, so you still must check for it.
 
@@ -1536,17 +1560,6 @@ The following will be available depending on the event type:
 Since 5.1.1
 
 See also: [al_get_audio_recorder_event]
-
-> *[Unstable API]:* The API may need a slight redesign.
-
-### ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT
-
-Sent after a user-specified number of samples have been recorded. 
-
-You must always check the values for the buffer and samples as they
-are not guaranteed to be exactly what was originally specified.
-
-Since: 5.1.1
 
 > *[Unstable API]:* The API may need a slight redesign.
 

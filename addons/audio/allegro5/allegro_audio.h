@@ -38,19 +38,19 @@ extern "C" {
    #define ALLEGRO_KCM_AUDIO_FUNC      AL_FUNC
 #endif
 
-/* Internal, used to communicate with acodec. */
-/* Must be in 512 <= n < 1024 */
-#define _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE   (512)
-
-/* User event type emitted when a stream fragment is ready to be
- * refilled with more audio data.
- * Must be in 512 <= n < 1024
- *
+/* Enum: ALLEGRO_AUDIO_EVENT_TYPE
  */
-#define ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT  (513)
-#define ALLEGRO_EVENT_AUDIO_STREAM_FINISHED  (514)
-
-#define ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT       (515)
+enum ALLEGRO_AUDIO_EVENT_TYPE
+{
+   /* Internal, used to communicate with acodec. */
+   /* Must be in 512 <= n < 1024 */
+   _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE    = 512,
+   ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT   = 513,
+   ALLEGRO_EVENT_AUDIO_STREAM_FINISHED   = 514,
+#if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_KCM_AUDIO_SRC)
+   ALLEGRO_EVENT_AUDIO_RECORDER_FRAGMENT = 515,
+#endif
+};
 
 #if defined(ALLEGRO_UNSTABLE) || defined(ALLEGRO_INTERNAL_UNSTABLE) || defined(ALLEGRO_KCM_AUDIO_SRC)
 /* Type: ALLEGRO_AUDIO_RECORDER_EVENT
