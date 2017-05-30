@@ -56,7 +56,7 @@ int main(int argc, char **argv)
    max_h = 600;
    constr_min_w = constr_min_h = constr_max_w = constr_max_h = true;
 
-    if (!al_set_window_constraints(
+   if (!al_set_window_constraints(
           display,
           constr_min_w ? min_w : 0,
           constr_min_h ? min_h : 0,
@@ -64,6 +64,8 @@ int main(int argc, char **argv)
           constr_max_h ? max_h : 0)) {
       abort_example("Unable to set window constraints.\n");
    }
+
+   al_apply_window_constraints(display, true);
 
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_display_event_source(display));

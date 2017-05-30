@@ -182,6 +182,7 @@ void _al_win_set_window_position(HWND window, int x, int y);
 void _al_win_get_window_position(HWND window, int *x, int *y);
 bool _al_win_set_window_constraints(ALLEGRO_DISPLAY *display, int min_w, int min_h, int max_w, int max_h);
 bool _al_win_get_window_constraints(ALLEGRO_DISPLAY *display, int *min_w, int *min_h, int *max_w, int *max_h);
+void _al_win_apply_window_constraints(ALLEGRO_DISPLAY *display, bool onoff);
 void _al_win_set_window_frameless(ALLEGRO_DISPLAY *display, HWND window, bool frameless);
 bool _al_win_set_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff);
 void _al_win_set_window_title(ALLEGRO_DISPLAY *display, const char *title);

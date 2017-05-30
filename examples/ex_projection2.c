@@ -88,6 +88,7 @@ int main(int argc, char **argv)
       abort_example("Error creating display\n");
    }
    al_set_window_constraints(display, 256, 512, 0, 0);
+   al_apply_window_constraints(display, true);
    set_perspective_transform(al_get_backbuffer(display));
 
    /* This bitmap is a sub-bitmap of the display, and has a perspective transformation. */
