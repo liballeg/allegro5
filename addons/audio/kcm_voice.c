@@ -68,7 +68,7 @@ ALLEGRO_VOICE *al_create_voice(unsigned int freq,
    ALLEGRO_VOICE *voice = NULL;
 
    if (!freq) {
-      _al_set_error(ALLEGRO_INVALID_PARAM, "Invalid Voice Frequency");
+      ALLEGRO_ERROR("Invalid Voice Frequency");
       return NULL;
    }
 
@@ -132,17 +132,12 @@ bool al_attach_sample_instance_to_voice(ALLEGRO_SAMPLE_INSTANCE *spl,
    ASSERT(spl);
 
    if (voice->attached_stream) {
-      ALLEGRO_WARN(
-         "Attempted to attach to a voice that already has an attachment\n");
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
-         "Attempted to attach to a voice that already has an attachment");
+      ALLEGRO_ERROR("Attempted to attach to a voice that already has an attachment\n");
       return false;
    }
 
    if (spl->parent.u.ptr) {
-      ALLEGRO_WARN("Attempted to attach a sample that is already attached\n");
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
-         "Attempted to attach a sample that is already attached");
+      ALLEGRO_ERROR("Attempted to attach a sample that is already attached\n");
       return false;
    }
 
@@ -150,9 +145,7 @@ bool al_attach_sample_instance_to_voice(ALLEGRO_SAMPLE_INSTANCE *spl,
       voice->frequency != spl->spl_data.frequency ||
       voice->depth != spl->spl_data.depth)
    {
-      ALLEGRO_WARN("Sample settings do not match voice settings\n");
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
-         "Sample settings do not match voice settings");
+      ALLEGRO_ERROR("Sample settings do not match voice settings\n");
       return false;
    }
 
@@ -255,14 +248,12 @@ bool al_attach_audio_stream_to_voice(ALLEGRO_AUDIO_STREAM *stream,
    ASSERT(stream);
 
    if (voice->attached_stream) {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
-         "Attempted to attach to a voice that already has an attachment");
+      ALLEGRO_ERROR("Attempted to attach to a voice that already has an attachment");
       return false;
    }
 
    if (stream->spl.parent.u.ptr) {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
-         "Attempted to attach a stream that is already attached");
+      ALLEGRO_ERROR("Attempted to attach a stream that is already attached");
       return false;
    }
 
@@ -270,8 +261,7 @@ bool al_attach_audio_stream_to_voice(ALLEGRO_AUDIO_STREAM *stream,
       voice->frequency != stream->spl.spl_data.frequency ||
       voice->depth != stream->spl.spl_data.depth)
    {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
-         "Stream settings do not match voice settings");
+      ALLEGRO_ERROR("Stream settings do not match voice settings");
       return false;
    }
 
@@ -299,7 +289,7 @@ bool al_attach_audio_stream_to_voice(ALLEGRO_AUDIO_STREAM *stream,
       stream->spl.parent.u.voice = NULL;
       stream->spl.spl_read = NULL;
 
-      _al_set_error(ALLEGRO_GENERIC_ERROR, "Unable to start stream");
+      ALLEGRO_ERROR("Unable to start stream");
       ret = false;
    }
    else {

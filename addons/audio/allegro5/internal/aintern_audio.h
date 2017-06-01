@@ -353,15 +353,6 @@ extern void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
    ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc);
 
 
-typedef enum {
-   ALLEGRO_NO_ERROR       = 0,
-   ALLEGRO_INVALID_PARAM  = 1,
-   ALLEGRO_INVALID_OBJECT = 2,
-   ALLEGRO_GENERIC_ERROR  = 255
-} AL_ERROR_ENUM;
-
-extern void _al_set_error(int error, char* string);
-
 /* Supposedly internal */
 ALLEGRO_KCM_AUDIO_FUNC(void*, _al_kcm_feed_stream, (ALLEGRO_THREAD *self, void *vstream));
 
