@@ -1474,54 +1474,52 @@ static void *d3d_display_thread_proc(void *arg)
          continue;
       }
 
-      hr = d3d_display->device->TestCooperativeLevel();
+      if (d3d_display->device_lost) {
+         hr = d3d_display->device->TestCooperativeLevel();
 
-      if (hr == D3D_OK) {
-         d3d_display->device_lost = false;
-      }
-      else if (hr == D3DERR_DEVICELOST) {
-         /* device remains lost */
-         /* Set device_lost flag immediately.  This prevents a crash in
-          * the DrawPrimitiveUP call in d3d_flush_vertex_cache.
-          */
-         d3d_display->device_lost = true;
-         if (!lost_event_generated) {
-            ALLEGRO_DEBUG("D3DERR_DEVICELOST: d3d_display=%p\n", d3d_display);
-            lost_event_generated = true;
-            if (d3d_display->suppress_lost_events) {
-               ALLEGRO_DEBUG("DISPLAY_LOST event suppressed\n");
+         if (hr == D3D_OK) {
+            d3d_display->device_lost = false;
+         }
+         else if (hr == D3DERR_DEVICELOST) {
+            /* device remains lost */
+            if (!lost_event_generated) {
+               ALLEGRO_DEBUG("D3DERR_DEVICELOST: d3d_display=%p\n", d3d_display);
+               lost_event_generated = true;
+               if (d3d_display->suppress_lost_events) {
+                  ALLEGRO_DEBUG("DISPLAY_LOST event suppressed\n");
+               }
+               else {
+                  _al_event_source_lock(&al_display->es);
+                  if (_al_event_source_needs_to_generate_event(&al_display->es)) {
+                     ALLEGRO_EVENT event;
+                     memset(&event, 0, sizeof(event));
+                     event.display.type = ALLEGRO_EVENT_DISPLAY_LOST;
+                     event.display.timestamp = al_get_time();
+                     _al_event_source_emit_event(&al_display->es, &event);
+                  }
+                  _al_event_source_unlock(&al_display->es);
+                  al_rest(0.5); // give user time to respond
+               }
             }
-            else {
+         }
+         else if (hr == D3DERR_DEVICENOTRESET) {
+            if (_al_d3d_reset_device(d3d_display)) {
+               d3d_display->device_lost = false;
+               d3d_reset_state(d3d_display);
                _al_event_source_lock(&al_display->es);
                if (_al_event_source_needs_to_generate_event(&al_display->es)) {
                   ALLEGRO_EVENT event;
                   memset(&event, 0, sizeof(event));
-                  event.display.type = ALLEGRO_EVENT_DISPLAY_LOST;
+                  event.display.type = ALLEGRO_EVENT_DISPLAY_FOUND;
                   event.display.timestamp = al_get_time();
                   _al_event_source_emit_event(&al_display->es, &event);
                }
                _al_event_source_unlock(&al_display->es);
-               al_rest(0.5); // give user time to respond
-            }
-         }
-      }
-      else if (hr == D3DERR_DEVICENOTRESET) {
-         if (_al_d3d_reset_device(d3d_display)) {
-            d3d_display->device_lost = false;
-            d3d_reset_state(d3d_display);
-            _al_event_source_lock(&al_display->es);
-            if (_al_event_source_needs_to_generate_event(&al_display->es)) {
-               ALLEGRO_EVENT event;
-               memset(&event, 0, sizeof(event));
-               event.display.type = ALLEGRO_EVENT_DISPLAY_FOUND;
-               event.display.timestamp = al_get_time();
-               _al_event_source_emit_event(&al_display->es, &event);
-            }
-            _al_event_source_unlock(&al_display->es);
-            lost_event_generated = false;
-            d3d_call_callbacks(&al_display->display_validated_callbacks, al_display);
-            if (d3d_restore_callback) {
-               (*d3d_restore_callback)(al_display);
+               lost_event_generated = false;
+               d3d_call_callbacks(&al_display->display_validated_callbacks, al_display);
+               if (d3d_restore_callback) {
+                  (*d3d_restore_callback)(al_display);
+               }
             }
          }
       }
