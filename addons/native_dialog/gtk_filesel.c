@@ -52,23 +52,15 @@ static gboolean create_gtk_file_dialog(gpointer data)
    }
 
    if (fd->fc_initial_path) {
-      if (fd->flags & ALLEGRO_FILECHOOSER_FILE_MUST_EXIST || ! save) {
+      if (strcmp(al_get_path_filename(fd->fc_initial_path), "") != 0) {
          gtk_file_chooser_set_filename
             (GTK_FILE_CHOOSER(window),
              al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP));
       }
       else {
-         ALLEGRO_PATH *dir_path = al_clone_path(fd->fc_initial_path);
-         al_set_path_filename(dir_path, NULL);
-
          gtk_file_chooser_set_current_folder
             (GTK_FILE_CHOOSER(window),
-             al_path_cstr(dir_path, ALLEGRO_NATIVE_PATH_SEP));
-         gtk_file_chooser_set_current_name
-            (GTK_FILE_CHOOSER(window),
-             al_get_path_filename(fd->fc_initial_path));
-
-         al_destroy_path(dir_path);
+             al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP));
       }
    }
 
