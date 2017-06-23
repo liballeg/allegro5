@@ -64,8 +64,8 @@ class Allegro:
 
         ptype = re.sub(r"\bstruct|union\b", "", ptype)
         ptype = re.sub(r"\bconst\b", "", ptype)
-        ptype = re.sub(r"\extern\b", "", ptype)
-        ptype = re.sub(r"\__inline__\b", "", ptype)
+        ptype = re.sub(r"\bextern\b", "", ptype)
+        ptype = re.sub(r"\b__inline__\b", "", ptype)
         ptype = re.sub(r"\s+", "", ptype)
 
         if ptype.endswith("*"):
