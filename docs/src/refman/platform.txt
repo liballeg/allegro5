@@ -177,4 +177,4 @@ doesn't work and you need to use a .desktop file. But with this function
 you can set an icon before calling al_create_display. This works
 by setting the icon before XMapWindow.
 
-Since: 5.2.1.2
+Since: 5.2.3
