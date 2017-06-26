@@ -37,7 +37,7 @@ static jobject APK_openRead(const char *filename)
    JNIEnv *jnienv;
    jmethodID ctor;
    jstring str;
-   jobject is;
+   jobject is, ref;
    jboolean res;
 
    jnienv = _al_android_get_jnienv();
@@ -46,11 +46,11 @@ static jobject APK_openRead(const char *filename)
       "(L" ALLEGRO_ANDROID_PACKAGE_NAME_SLASH "/AllegroActivity;Ljava/lang/String;)V");
    str = (*jnienv)->NewStringUTF(jnienv, filename);
 
-   is = _jni_call(jnienv, jobject, NewObject, _al_android_apk_stream_class(),
+   ref = _jni_call(jnienv, jobject, NewObject, _al_android_apk_stream_class(),
       ctor, _al_android_activity_object(), str);
 
-   is = _jni_call(jnienv, jobject, NewGlobalRef, is);
-
+   is = _jni_call(jnienv, jobject, NewGlobalRef, ref);
+   _jni_callv(jnienv, DeleteLocalRef, ref);
    _jni_callv(jnienv, DeleteLocalRef, str);
 
    res = _jni_callBooleanMethodV(_al_android_get_jnienv(), is, "open", "()Z");
