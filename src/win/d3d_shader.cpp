@@ -239,6 +239,10 @@ static bool hlsl_attach_shader_source(ALLEGRO_SHADER *shader,
    full_source = al_ustr_newf("%s\n#line 1\n%s\n%s\n",
       vertex_source, pixel_source, technique_source);
 
+   // Release the shader if we already created it
+   if (hlsl_shader->hlsl_shader)
+      hlsl_shader->hlsl_shader->Release();
+
    DWORD ok = _al_imp_D3DXCreateEffect(
       al_get_d3d_device(display),
       al_cstr(full_source),
@@ -254,6 +258,7 @@ static bool hlsl_attach_shader_source(ALLEGRO_SHADER *shader,
    al_ustr_free(full_source);
 
    if (ok != D3D_OK) {
+      hlsl_shader->hlsl_shader = NULL;
       char *msg = (char *)errors->GetBufferPointer();
       if (shader->log) {
          al_ustr_truncate(shader->log, 0);
