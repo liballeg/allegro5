@@ -53,9 +53,6 @@ on Linux.
 
         ./misc/create_release_archives.sh 5.2.2.0
 
-    Typically for the first release we drop the release number, so rename the
-    archives accordingly.
-
 9.  Upload the source archives to github. Go to the releases tab, and make a
     new release with the tag you just created.
 
