@@ -52,15 +52,45 @@ static gboolean create_gtk_file_dialog(gpointer data)
    }
 
    if (fd->fc_initial_path) {
-      if (strcmp(al_get_path_filename(fd->fc_initial_path), "") != 0) {
-         gtk_file_chooser_set_filename
-            (GTK_FILE_CHOOSER(window),
-             al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP));
+      bool is_dir;
+      bool exists;
+      const char *path = al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP);
+
+      if (al_filename_exists(path)) {
+         exists = true;
+         ALLEGRO_FS_ENTRY *fs = al_create_fs_entry(path);
+         is_dir = al_get_fs_entry_mode(fs) & ALLEGRO_FILEMODE_ISDIR;
+         al_destroy_fs_entry(fs);
       }
       else {
+         exists = false;
+         is_dir = false;
+      }
+
+      if (is_dir) {
          gtk_file_chooser_set_current_folder
             (GTK_FILE_CHOOSER(window),
              al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP));
+      }
+      else if (exists) {
+         gtk_file_chooser_set_filename
+             (GTK_FILE_CHOOSER(window),
+              al_path_cstr(fd->fc_initial_path, ALLEGRO_NATIVE_PATH_SEP));
+      }
+      else {
+         ALLEGRO_PATH *dir_path = al_clone_path(fd->fc_initial_path);
+         if (dir_path) {
+            al_set_path_filename(dir_path, NULL);
+            gtk_file_chooser_set_current_folder
+               (GTK_FILE_CHOOSER(window),
+                al_path_cstr(dir_path, ALLEGRO_NATIVE_PATH_SEP));
+            if (save) {
+               gtk_file_chooser_set_current_name
+                  (GTK_FILE_CHOOSER(window),
+                   al_get_path_filename(fd->fc_initial_path));
+            }
+            al_destroy_path(dir_path);
+         }
       }
    }
 
