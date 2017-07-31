@@ -52,10 +52,104 @@ endif(SUPPORT_AUDIO)
 if(SUPPORT_FONT AND WANT_TTF)
     find_package(Freetype)
     if(FREETYPE_FOUND)
-        add_subdirectory(ttf)
-        set(SUPPORT_TTF 1 PARENT_SCOPE)
-        set(TTF_LINK_WITH ${TTF_LINK_WITH} PARENT_SCOPE)
-        list(APPEND ADDON_PKG_CONFIG_FILES allegro_ttf)
+        set(FREETYPE_TEST_SOURCE "
+            #include <ft2build.h>
+            #include FT_FREETYPE_H
+            int main(void) {
+                FT_Library ft;
+                FT_Open_Args args;
+                FT_Face face;
+                FT_Int32 ft_load_flags;
+                FT_Error e;
+                int ft_index;
+                FT_Init_FreeType(&ft);
+                FT_Open_Face(ft, &args, 0, &face);
+                return FT_Load_Glyph(face, ft_index, ft_load_flags);
+            }")
+
+        set(TTF_LIBRARIES ${FREETYPE_LIBRARIES})
+        set(TTF_INCLUDE_DIRECTORIES ${FREETYPE_INCLUDE_DIRS})
+
+        find_package(ZLIB)
+        find_package(BZip2)
+        find_package(PNG)
+        # TODO: HarfBuzz is another one of those libraries that needs this check.
+
+        set(TTF_LIBRARIES_NO_ZLIB ${TTF_LIBRARIES})
+        set(TTF_LIBRARIES_NO_BZIP2 ${TTF_LIBRARIES})
+        set(TTF_LIBRARIES_NO_PNG ${TTF_LIBRARIES})
+
+        set(TTF_INCLUDE_DIRECTORIES_NO_ZLIB ${TTF_INCLUDE_DIRECTORIES})
+        set(TTF_INCLUDE_DIRECTORIES_NO_BZIP2 ${TTF_INCLUDE_DIRECTORIES})
+        set(TTF_INCLUDE_DIRECTORIES_NO_PNG ${TTF_INCLUDE_DIRECTORIES})
+
+        if(ZLIB_FOUND)
+            list(APPEND TTF_LIBRARIES_NO_BZIP2 ${ZLIB_LIBRARIES})
+            list(APPEND TTF_LIBRARIES_NO_PNG ${ZLIB_LIBRARIES})
+
+            list(APPEND TTF_INCLUDE_DIRECTORIES_NO_BZIP2 ${ZLIB_INCLUDE_DIRECTORIES})
+            list(APPEND TTF_INCLUDE_DIRECTORIES_NO_PNG ${ZLIB_INCLUDE_DIRECTORIES})
+        endif()
+
+        if(BZIP2_FOUND)
+            list(APPEND TTF_LIBRARIES_NO_ZLIB ${BZIP2_LIBRARIES})
+            list(APPEND TTF_LIBRARIES_NO_PNG ${BZIP2_LIBRARIES})
+
+            list(APPEND TTF_INCLUDE_DIRECTORIES_NO_ZLIB ${BZIP2_INCLUDE_DIRECTORIES})
+            list(APPEND TTF_INCLUDE_DIRECTORIES_NO_PNG ${BZIP2_INCLUDE_DIRECTORIES})
+        endif()
+
+        if(PNG_FOUND)
+            list(APPEND TTF_LIBRARIES_NO_BZIP2 ${PNG_LIBRARIES})
+            list(APPEND TTF_LIBRARIES_NO_ZLIB ${PNG_LIBRARIES})
+
+            list(APPEND TTF_INCLUDE_DIRECTORIES_NO_BZIP2 ${PNG_INCLUDE_DIRECTORIES})
+            list(APPEND TTF_INCLUDE_DIRECTORIES_NO_ZLIB ${PNG_INCLUDE_DIRECTORIES})
+        endif()
+
+        # N.B. sometimes PNG will contain ZLib, so this will succeed
+        # while ZLib is actually required. This is harmless.
+        set(CMAKE_REQUIRED_INCLUDES ${TTF_INCLUDE_DIRECTORIES_NO_ZLIB})
+        set(CMAKE_REQUIRED_LIBRARIES ${TTF_LIBRARIES_NO_ZLIB})
+        check_c_source_compiles("${FREETYPE_TEST_SOURCE}" TTF_NO_ZLIB)
+
+        set(CMAKE_REQUIRED_INCLUDES ${TTF_INCLUDE_DIRECTORIES_NO_BZIP2})
+        set(CMAKE_REQUIRED_LIBRARIES ${TTF_LIBRARIES_NO_BZIP2})
+        check_c_source_compiles("${FREETYPE_TEST_SOURCE}" TTF_NO_BZIP2)
+
+        set(CMAKE_REQUIRED_INCLUDES ${TTF_INCLUDE_DIRECTORIES_NO_PNG})
+        set(CMAKE_REQUIRED_LIBRARIES ${TTF_LIBRARIES_NO_PNG})
+        check_c_source_compiles("${FREETYPE_TEST_SOURCE}" TTF_NO_PNG)
+
+        if(ZLIB_FOUND AND NOT TTF_NO_ZLIB)
+            list(APPEND TTF_LIBRARIES ${ZLIB_LIBRARIES})
+            list(APPEND TTF_INCLUDE_DIRECTORIES ${ZLIB_INCLUDE_DIRS})
+        endif()
+
+        if(BZIP2_FOUND AND NOT TTF_NO_BZIP2)
+            list(APPEND TTF_LIBRARIES ${BZIP2_LIBRARIES})
+            list(APPEND TTF_INCLUDE_DIRECTORIES ${BZIP2_INCLUDE_DIRS})
+        endif()
+
+        if(PNG_FOUND AND NOT TTF_NO_PNG)
+            list(APPEND TTF_LIBRARIES ${PNG_LIBRARIES})
+            list(APPEND TTF_INCLUDE_DIRECTORIES ${PNG_INCLUDE_DIRS})
+        endif()
+
+        set(CMAKE_REQUIRED_INCLUDES ${TTF_INCLUDE_DIRECTORIES})
+        set(CMAKE_REQUIRED_LIBRARIES ${TTF_LIBRARIES})
+        run_c_compile_test("${FREETYPE_TEST_SOURCE}" TTF_COMPILES)
+        set(CMAKE_REQUIRED_INCLUDES)
+        set(CMAKE_REQUIRED_LIBRARIES)
+
+        if(TTF_COMPILES)
+            add_subdirectory(ttf)
+            set(SUPPORT_TTF 1 PARENT_SCOPE)
+            set(TTF_LINK_WITH ${TTF_LINK_WITH} PARENT_SCOPE)
+            list(APPEND ADDON_PKG_CONFIG_FILES allegro_ttf)
+        else()
+            message(WARNING "FreeType doesn't compile. Disabling support.")
+        endif()
     else(FREETYPE_FOUND)
         message("WARNING: FreeType not found, disabling support.")
     endif(FREETYPE_FOUND)
