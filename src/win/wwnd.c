@@ -19,6 +19,7 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintwin.h"
+#include "wddraw.h"
 
 #ifndef SCAN_DEPEND
    #include <string.h>
