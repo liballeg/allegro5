@@ -481,6 +481,23 @@ static int win_get_num_video_adapters(void)
    return c;
 }
 
+static int win_find_nth_adapter_with_desktop(DISPLAY_DEVICE* pdd, int adapter)
+{
+   int count = 0;
+   int c = 0;
+
+   while (EnumDisplayDevices(NULL, count, pdd, 0)) {
+      if (pdd->StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP) {
+         if (c == adapter)
+            return true;
+         c++;
+      }
+      count++;
+   }
+
+   return false;
+}
+
 static bool win_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
    DISPLAY_DEVICE dd;
@@ -488,7 +505,7 @@ static bool win_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 
    memset(&dd, 0, sizeof(dd));
    dd.cb = sizeof(dd);
-   if (!EnumDisplayDevices(NULL, adapter, &dd, 0)) {
+   if (!win_find_nth_adapter_with_desktop(&dd, adapter)) {
       return false;
    }
 
