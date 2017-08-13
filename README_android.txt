@@ -8,7 +8,7 @@ Dependencies
 ============
 
 This port depends on having CMake, the Android SDK, and the Android NDK
-version r5b or better, JDK, and Apache ant. Python is required to build
+version r8c or better, JDK, and Apache ant. Python is required to build
 the examples.
 
 We assume you are building on Linux or otherwise a Unix-like system,
