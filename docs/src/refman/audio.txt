@@ -495,6 +495,17 @@ sample data structure is destroyed.  For portability (especially Windows),
 the buffer should have been allocated with [al_malloc].  Otherwise you should
 free the sample data yourself.
 
+A sample that is referred to by the `samples` parameter refers to a sequence
+channel intensities. E.g. if you're making a stereo sample with the `samples`
+set to 4, then the layout of the data in `buf` will be:
+
+~~~~
+LRLRLRLR
+~~~~
+
+Where L and R are the intensities for the left and right channels respectively.
+A single sample, then, refers to the LR pair in this example.
+
 To allocate a buffer of the correct size, you can use something like this:
 
 ~~~~c
@@ -1090,13 +1101,25 @@ Parameters:
     you usually will use fewer samples for one, so there always will be
     (small) fragments available to be filled with new data.
 
-* frag_samples - The size of a fragment in samples. See note below.
+* frag_samples - The size of a fragment in samples. See note and explanation
+    below.
 
 * freq - The frequency, in Hertz.
 
 * depth - Must be one of the values listed for [ALLEGRO_AUDIO_DEPTH].
 
 * chan_conf - Must be one of the values listed for [ALLEGRO_CHANNEL_CONF].
+
+A sample that is referred to by the *frag_samples* parameter refers to a
+sequence channel intensities. E.g. if you're making a stereo stream with the
+*frag_samples* set to 4, then the layout of the data in the fragment will be:
+
+~~~~
+LRLRLRLR
+~~~~
+
+Where L and R are the intensities for the left and right channels respectively.
+A single sample, then, refers to the LR pair in this example.
 
 The choice of *fragment_count*, *frag_samples* and *freq* directly influences
 the audio delay. The delay in seconds can be expressed as:
