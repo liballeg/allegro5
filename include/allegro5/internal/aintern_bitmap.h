@@ -6,6 +6,7 @@
 #include "allegro5/display.h"
 #include "allegro5/render_state.h"
 #include "allegro5/transformations.h"
+#include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_list.h"
 
 #ifdef __cplusplus
@@ -81,6 +82,10 @@ struct ALLEGRO_BITMAP
    ALLEGRO_TRANSFORM inverse_transform;
    bool              inverse_transform_dirty;
    ALLEGRO_TRANSFORM proj_transform;
+
+   /* Blender for this bitmap (if not set, use TLS) */
+   bool            use_bitmap_blender;
+   ALLEGRO_BLENDER blender;
 
    /* Shader applied to this bitmap.  Set this field with
     * _al_set_bitmap_shader_field to maintain invariants.
