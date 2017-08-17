@@ -513,6 +513,7 @@ static void set_initial_icon(Display *x11display, Window window)
       &wm_hints->icon_pixmap, &wm_hints->icon_mask, NULL);
 
    XSetWMHints(x11display, window, wm_hints);
+   XFree(wm_hints);
 #else
    (void)x11display;
    (void)window;
