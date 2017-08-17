@@ -423,6 +423,7 @@ static void flac_stream_close(ALLEGRO_AUDIO_STREAM *stream)
    _al_acodec_stop_feed_thread(stream);
 
    al_fclose(ff->fh);
+   al_free(ff->buffer);
    flac_close(ff);
 }
 
