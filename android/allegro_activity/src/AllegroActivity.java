@@ -14,6 +14,7 @@ import android.graphics.Rect;
 import android.util.Log;
 import android.view.Display;
 import android.view.SurfaceHolder;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
@@ -332,6 +333,9 @@ public class AllegroActivity extends Activity
       requestWindowFeature(Window.FEATURE_NO_TITLE);
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN);
+      if (android.os.Build.VERSION.SDK_INT >= 19) {
+         this.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+      }
 
       Log.d("AllegroActivity", "onCreate end");
    }
