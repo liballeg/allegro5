@@ -23,7 +23,6 @@ typedef struct ALLEGRO_DISPLAY_SDL
    SDL_GLContext context;
 } ALLEGRO_DISPLAY_SDL;
 
-typedef struct ALLEGRO_SYSTEM_INTERFACE ALLEGRO_SYSTEM_INTERFACE;
 ALLEGRO_SYSTEM_INTERFACE *_al_sdl_system_driver(void);
 ALLEGRO_DISPLAY_INTERFACE *_al_sdl_display_driver(void);
 ALLEGRO_KEYBOARD_DRIVER *_al_sdl_keyboard_driver(void);
