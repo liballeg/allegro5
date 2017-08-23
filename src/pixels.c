@@ -534,7 +534,7 @@ int _al_get_real_pixel_format(ALLEGRO_DISPLAY *display, int format)
       case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:
       case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:
          if (!try_display_format(display, &format))
-#if defined ALLEGRO_IPHONE || defined ALLEGRO_ANDROID // OPENGLES doesn't have ARGB_8888
+#if defined ALLEGRO_CFG_OPENGLES // OPENGLES doesn't have ARGB_8888
             format = ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE;
 #else
             format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
