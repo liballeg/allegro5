@@ -84,7 +84,7 @@ bool _al_opengl_set_blender(ALLEGRO_DISPLAY *ogl_disp)
     * support. Rather than not work on 20-25% of phones, we just don't support
     * separate blending on Android for now.
     */
-#ifdef ALLEGRO_ANDROID
+#if defined ALLEGRO_ANDROID && !defined ALLEGRO_CFG_OPENGLES3
    if (false) {
 #else
    if (ogl_disp->ogl_extras->ogl_info.version >= _ALLEGRO_OPENGL_VERSION_2_0) {
@@ -134,8 +134,10 @@ static void vert_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, vo
 #endif
    }
    else {
+#ifndef ALLEGRO_CFG_OPENGLES2
       glEnableClientState(GL_VERTEX_ARRAY);
       glVertexPointer(n, t, stride, v);
+#endif
    }
 }
 
@@ -149,7 +151,9 @@ static void vert_ptr_off(ALLEGRO_DISPLAY *display)
 #endif
    }
    else {
+#ifndef ALLEGRO_CFG_OPENGLES2
       glDisableClientState(GL_VERTEX_ARRAY);
+#endif
    }
 }
 
@@ -164,8 +168,10 @@ static void color_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, v
 #endif
    }
    else {
+#ifndef ALLEGRO_CFG_OPENGLES2
       glEnableClientState(GL_COLOR_ARRAY);
       glColorPointer(n, t, stride, v);
+#endif
    }
 }
 
@@ -179,7 +185,9 @@ static void color_ptr_off(ALLEGRO_DISPLAY *display)
 #endif
    }
    else {
+#ifndef ALLEGRO_CFG_OPENGLES2
       glDisableClientState(GL_COLOR_ARRAY);
+#endif
    }
 }
 
@@ -194,8 +202,10 @@ static void tex_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, voi
 #endif
    }
    else {
+#ifndef ALLEGRO_CFG_OPENGLES2
       glEnableClientState(GL_TEXTURE_COORD_ARRAY);
       glTexCoordPointer(n, t, stride, v);
+#endif
    }
 }
 
@@ -209,7 +219,9 @@ static void tex_ptr_off(ALLEGRO_DISPLAY *display)
 #endif
    }
    else {
+#ifndef ALLEGRO_CFG_OPENGLES2
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+#endif
    }
 }
 
@@ -397,8 +409,10 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
       color_ptr_on(disp, 4, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX),
          (char*)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, r));
 
+#ifndef ALLEGRO_CFG_OPENGLES2
       if (!(disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE))
          glDisableClientState(GL_NORMAL_ARRAY);
+#endif
    }
 
    glGetError(); /* clear error */
@@ -461,10 +475,12 @@ static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
       }
 #endif
    } else {
+#ifndef ALLEGRO_CFG_OPENGLES2
       glMatrixMode(GL_PROJECTION);
       glLoadMatrixf((float *)target->proj_transform.m);
       glMatrixMode(GL_MODELVIEW);
       glLoadMatrixf((float *)target->transform.m);
+#endif
    }
 
    if (target->parent) {

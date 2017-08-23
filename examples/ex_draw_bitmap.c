@@ -269,9 +269,6 @@ int main(int argc, char **argv)
    
    al_get_monitor_info(0, &info);
 
-   #if defined ALLEGRO_CFG_OPENGLES
-   al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
-   #endif
    al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS,
                              ALLEGRO_DISPLAY_ORIENTATION_ALL, ALLEGRO_SUGGEST);
    example.display = al_create_display(w, h);
