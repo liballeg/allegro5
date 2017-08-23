@@ -313,6 +313,9 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
    display->flags = flags;
    // FIXME: default? Is this the right place to set this?
    display->flags |= ALLEGRO_OPENGL;
+#ifdef ALLEGRO_CFG_OPENGLES2
+   display->flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
+#endif
 
    /* Store our initial virtual adapter, used by fullscreen and positioning
     * code.

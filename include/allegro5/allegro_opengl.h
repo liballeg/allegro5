@@ -28,12 +28,16 @@
 
 #if defined ALLEGRO_IPHONE
 
+#ifdef ALLEGRO_CFG_OPENGLES1
 #include <OpenGLES/ES1/gl.h>
 #include <OpenGLES/ES1/glext.h>
-#include <OpenGLES/ES2/gl.h>
-#include <OpenGLES/ES2/glext.h>
+#elif defined(ALLEGRO_CFG_OPENGLES3)
 #include <OpenGLES/ES3/gl.h>
 #include <OpenGLES/ES3/glext.h>
+#elif defined(ALLEGRO_CFG_OPENGLES2)
+#include <OpenGLES/ES2/gl.h>
+#include <OpenGLES/ES2/glext.h>
+#endif
 
 /* Apple defines OES versions for these - however the separated alpha ones
  * don't seem to work on the device and just crash.
@@ -51,7 +55,7 @@
 #define GL_FUNC_SUBTRACT GL_FUNC_SUBTRACT_OES
 #define GL_FUNC_REVERSE_SUBTRACT GL_FUNC_REVERSE_SUBTRACT_OES
 
-#elif defined ALLEGRO_MACOSX
+#elif defined(ALLEGRO_MACOSX)
 
 #include <OpenGL/OpenGL.h>
 #include <OpenGL/gl.h>
@@ -61,23 +65,15 @@
 #define GL_GLEXT_PROTOTYPES
 #endif
 
-#elif defined ALLEGRO_ANDROID || defined ALLEGRO_RASPBERRYPI
+#elif defined(ALLEGRO_CFG_OPENGLES1)
 
 #include <GLES/gl.h>
 #include <GLES/glext.h>
 
-#ifdef ALLEGRO_CFG_OPENGLES2
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
-#else
 #define GL_FUNC_ADD GL_FUNC_ADD_OES
 #define GL_FUNC_SUBTRACT GL_FUNC_SUBTRACT_OES
 #define GL_FUNC_REVERSE_SUBTRACT GL_FUNC_REVERSE_SUBTRACT_OES
-#endif
 
-#define GL_RGBA8 GL_RGBA8_OES
-
-#ifndef ALLEGRO_RASPBERRYPI
 #define GL_FRAMEBUFFER_BINDING_EXT GL_FRAMEBUFFER_BINDING_OES
 #define GL_FRAMEBUFFER_EXT GL_FRAMEBUFFER_OES
 #define GL_RENDERBUFFER_EXT GL_RENDERBUFFER_OES
@@ -87,19 +83,35 @@
 #define glGenerateMipmapEXT glGenerateMipmapOES
 #define glBindFramebufferEXT glBindFramebufferOES
 #define glDeleteFramebuffersEXT glDeleteFramebuffersOES
+#define GL_DEPTH_COMPONENT16 GL_DEPTH_COMPONENT16_OES
 #define GL_DEPTH_COMPONENT24 GL_DEPTH_COMPONENT24_OES
-#else
+#define GL_COLOR_ATTACHMENT0 GL_COLOR_ATTACHMENT0_OES
+#define GL_FRAMEBUFFER GL_FRAMEBUFFER_OES
+
+#elif defined(ALLEGRO_CFG_OPENGLES3)
+
+#include <GLES3/gl3.h>
+#include <GLES3/gl3ext.h>
+
+// TODO: should defines from GLES2 be there as well?
+// TODO: Also, how does it relate to src/opengl/ogl_helpers.h ?
+
+#define glRenderbufferStorageMultisampleEXT glRenderbufferStorageMultisample
+
+#elif defined(ALLEGRO_CFG_OPENGLES2)
+
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+
+#define GL_RGBA8 GL_RGBA8_OES
+
 #define GL_FRAMEBUFFER_BINDING_EXT GL_FRAMEBUFFER_BINDING
 #define GL_FRAMEBUFFER_EXT GL_FRAMEBUFFER
-#define glBlendEquation glBlendEquation
-#define glBlendFuncSeparate glBlendFuncSeparate
-#define glBlendEquationSeparate glBlendEquationSeparate
 #define glGenerateMipmapEXT glGenerateMipmap
 #define glBindFramebufferEXT glBindFramebuffer
 #define glDeleteFramebuffersEXT glDeleteFramebuffers
-#endif
 
-#else /* ALLEGRO_MACOSX */
+#else
 
 /* HACK: Prevent both Mesa and SGI's broken headers from screwing us */
 #define __glext_h_
@@ -108,7 +120,7 @@
 #undef  __glext_h_
 #undef  __glxext_h_
 
-#endif /* ALLEGRO_MACOSX */
+#endif
 
 #ifdef ALLEGRO_RASPBERRYPI
 #include <EGL/egl.h>

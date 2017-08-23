@@ -195,7 +195,7 @@ if(WANT_D3D AND D3DX9_FOUND)
     example(ex_d3d ex_d3d.cpp EXTRA_LIBS ${D3DX9_LIBRARY})
 endif()
 
-if(SUPPORT_OPENGL AND NOT IPHONE AND NOT ANDROID AND NOT ALLEGRO_RASPBERRYPI)
+if(SUPPORT_OPENGL AND NOT SUPPORT_OPENGLES)
     example(ex_gldepth ${FONT} ${IMAGE})
     example(ex_glext)
     example(ex_opengl)

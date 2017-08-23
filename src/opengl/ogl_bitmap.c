@@ -129,6 +129,7 @@ int _al_ogl_get_glformat(int format, int component)
       glformats[ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8][2] = GL_RED;
    }
    #else
+   // TODO: Check supported formats by various GLES versions
    static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
       /* Skip pseudo formats */
       {0, 0, 0},
