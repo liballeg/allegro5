@@ -10,6 +10,9 @@ typedef struct
 {
    ALLEGRO_SYSTEM system;
    ALLEGRO_MUTEX *mutex;
+   #ifdef __EMSCRIPTEN__
+      double timer_time;
+   #endif
 } ALLEGRO_SYSTEM_SDL;
 
 typedef struct ALLEGRO_DISPLAY_SDL

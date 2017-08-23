@@ -15,6 +15,7 @@
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/platform/allegro_internal_sdl.h"
+#include "allegro5/internal/aintern_timer.h"
 
 ALLEGRO_DEBUG_CHANNEL("SDL")
 
@@ -120,6 +121,12 @@ static void sdl_heartbeat(void)
             }
       }
    }
+#ifdef __EMSCRIPTEN__
+   double t = al_get_time();
+   double interval = t - s->timer_time;
+   _al_timer_thread_handle_tick(interval);
+   s->timer_time = t;
+#endif
    al_unlock_mutex(s->mutex);
 }
 
@@ -146,6 +153,10 @@ static void sdl_heartbeat_init(void)
     * once the system was created.
     */
    s->mutex = al_create_mutex();
+
+#ifdef __EMSCRIPTEN__
+   s->timer_time = al_get_time();
+#endif
 }
 
 static void sdl_shutdown_system(void)
