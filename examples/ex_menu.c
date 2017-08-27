@@ -156,7 +156,7 @@ int main(int argc, char **argv)
             dh *= 1.2 + 0.2 * cos(1.1 * t);
             al_draw_scaled_bitmap(bg, 0, 0, sw, sh,
                cx - dw/2, cy - dh/2, dw, dh, 0);
-	 }
+         }
          al_flip_display();
       }
 
