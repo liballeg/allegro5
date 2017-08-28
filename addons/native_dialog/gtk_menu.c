@@ -68,7 +68,7 @@ static bool make_menu_item_args(ARGS *args, ALLEGRO_MENU_ITEM *item, int i)
 static void menuitem_response(ALLEGRO_MENU_ITEM *menu_item)
 {
    if (menu_item->parent)
-      _al_emit_menu_event(menu_item->parent->display, menu_item->id);
+      _al_emit_menu_event(menu_item->parent->display, menu_item->unique_id);
 }
 
 /* [gtk thread] */

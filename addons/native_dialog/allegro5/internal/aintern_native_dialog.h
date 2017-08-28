@@ -64,10 +64,26 @@ struct ALLEGRO_MENU_ITEM
    ALLEGRO_MENU *popup;
    ALLEGRO_USTR *caption;
    ALLEGRO_BITMAP *icon;
-   
+
+   /* This id is unique. */
+   uint16_t unique_id;
+   /* This id is user provided, can be not unique. */
    uint16_t id;
+
    int flags;
    void *extra1, *extra2;
+};
+
+/* _AL_MENU_ID keeps track of menu / id pairs to help determine which
+ * menu belongs to an id.
+ */
+typedef struct _AL_MENU_ID _AL_MENU_ID;
+
+struct _AL_MENU_ID
+{
+   ALLEGRO_MENU *menu;
+   uint16_t unique_id;
+   uint16_t id;
 };
 
 struct ALLEGRO_MENU
@@ -85,16 +101,16 @@ struct ALLEGRO_MENU
 
 /* Platform implementation must call this when a menu item is clicked.
  *   display: the display associated with the menu
- *   id:      the user supplied menu id
+ *   unique_id: the unique id associated with the menu item
  *
  *  The function will find the appropriate ALLEGRO_MENU and emit the event.
  */
-extern bool _al_emit_menu_event(ALLEGRO_DISPLAY *display, uint16_t id);
+extern bool _al_emit_menu_event(ALLEGRO_DISPLAY *display, uint16_t unique_id);
 
 extern bool _al_walk_over_menu(ALLEGRO_MENU *menu, bool (*proc)
    (ALLEGRO_MENU *menu, ALLEGRO_MENU_ITEM *item, int index, void *extra),
    void *extra);
-ALLEGRO_MENU *_al_find_parent_menu_by_id(ALLEGRO_DISPLAY *display, uint16_t id);
+_AL_MENU_ID *_al_find_parent_menu_by_id(ALLEGRO_DISPLAY *display, uint16_t unique_id);
    
 /* Platform Specific Functions
  * ---------------------------
