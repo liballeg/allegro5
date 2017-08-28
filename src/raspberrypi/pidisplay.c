@@ -210,6 +210,8 @@ void _al_raspberrypi_get_screen_info(int *dx, int *dy,
             p2 += strlen("fbheight=");
             int w = atoi(p);
             int h = atoi(p2);
+            const ALLEGRO_FILE_INTERFACE *file_interface = al_get_new_file_interface();
+            al_set_standard_file_interface();
             ALLEGRO_CONFIG *cfg = al_load_config_file("/boot/config.txt");
             if (cfg) {
                const char *disable_overscan =
@@ -249,6 +251,7 @@ void _al_raspberrypi_get_screen_info(int *dx, int *dy,
             else {
                printf("Couldn't open /boot/config.txt\n");
             }
+            al_set_new_file_interface(file_interface);
          }
       }
       fclose(cmdline);
