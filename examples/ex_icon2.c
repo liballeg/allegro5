@@ -40,7 +40,7 @@ int main(int argc, char **argv)
       abort_example("icons.tga not found\n");
    }
 
-#ifdef ALLEGRO_UNIX
+#if defined(ALLEGRO_UNIX) && !defined(ALLEGRO_RASPBERRYPI)
    al_x_set_initial_icon(icons[0]);
 #endif
 
