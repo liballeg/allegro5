@@ -1,21 +1,15 @@
-
 SET(CMAKE_SYSTEM_NAME Linux)
 SET(CMAKE_SYSTEM_VERSION 1)
 
-#set path for android toolchain -- look
-
 set(ANDROID_NDK_TOOLCHAIN_ROOT "$ENV{ANDROID_NDK_TOOLCHAIN_ROOT}" CACHE PATH "Path to the Android NDK Standalone Toolchain" )
 
-message( STATUS "Selected Android toolchain: ${ANDROID_NDK_TOOLCHAIN_ROOT}" )
+message( STATUS "Selected Android NDK toolchain: ${ANDROID_NDK_TOOLCHAIN_ROOT}" )
 if(NOT EXISTS ${ANDROID_NDK_TOOLCHAIN_ROOT})
    set(ANDROID_NDK_TOOLCHAIN_ROOT "/opt/android-toolchain" CACHE PATH "Path to the Android NDK Standalone Toolchain" )
    message( STATUS "Using default path for toolchain ${ANDROID_NDK_TOOLCHAIN_ROOT}")
    message( STATUS "If you prefer to use a different location, please set the ANDROID_NDK_TOOLCHAIN_ROOT cmake variable.")
 endif()
-   
-#set(ANDROID_NDK_TOOLCHAIN_ROOT ${ANDROID_NDK_TOOLCHAIN_ROOT} CACHE PATH
-#    "root of the android ndk standalone toolchain" FORCE)
-    
+     
 if(NOT EXISTS ${ANDROID_NDK_TOOLCHAIN_ROOT})
   message(FATAL_ERROR
   "${ANDROID_NDK_TOOLCHAIN_ROOT} does not exist!

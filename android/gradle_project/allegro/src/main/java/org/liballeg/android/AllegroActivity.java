@@ -63,13 +63,14 @@ public class AllegroActivity extends Activity
 
    String getUserLibName()
    {
-      ApplicationInfo appInfo = getApplicationInfo();
-      String libDir = Reflect.getField(appInfo, "nativeLibraryDir");
-      /* Android < 2.3 doesn't have .nativeLibraryDir */
-      if (libDir == null) {
-         libDir = appInfo.dataDir + "/lib";
-      }
-      return libDir + "/" + userLibName;
+      //ApplicationInfo appInfo = getApplicationInfo();
+      //String libDir = Reflect.getField(appInfo, "nativeLibraryDir");
+      ///* Android < 2.3 doesn't have .nativeLibraryDir */
+      //if (libDir == null) {
+         //libDir = appInfo.dataDir + "/lib";
+      //}
+      //return libDir + "/" + userLibName;
+      return userLibName;
    }
 
    String getResourcesDir()

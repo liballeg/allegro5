@@ -33,8 +33,6 @@ endif(COMPILER_GCC_OR_CLANG)
 if(ANDROID)
     add_android_app(speed
         "${SPEED_SRCS}"
-        "${ALLEGRO_LINK_WITH};${AUDIO_LINK_WITH};${PRIMITIVES_LINK_WITH};${FONT_LINK_WITH}"
-        ""
         )
     return()
 endif(ANDROID)

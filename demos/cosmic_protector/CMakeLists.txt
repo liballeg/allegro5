@@ -70,10 +70,7 @@ if(ANDROID)
         "${DEMO_SFX}"
         )
     add_android_app(cosmic_protector
-        "${DEMO_SRCS};${ASSETS}"
-        "${ALLEGRO_LINK_WITH};${IMAGE_LINK_WITH};${FONT_LINK_WITH};${AUDIO_LINK_WITH};${ACODEC_LINK_WITH};${PRIMITIVES_LINK_WITH}"
-        ""
-        )
+        "${DEMO_SRCS};${ASSETS}")
     return()
 endif(ANDROID)
 
