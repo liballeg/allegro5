@@ -33,6 +33,7 @@ static gboolean create_gtk_file_dialog(gpointer data)
    ALLEGRO_DISPLAY *display = msg->display;
    ALLEGRO_NATIVE_DIALOG *fd = msg->dialog;
    bool save = fd->flags & ALLEGRO_FILECHOOSER_SAVE;
+   bool folder = fd->flags & ALLEGRO_FILECHOOSER_FOLDER;
    gint result;
 
    GtkWidget *window;
@@ -40,7 +41,7 @@ static gboolean create_gtk_file_dialog(gpointer data)
    window =
       gtk_file_chooser_dialog_new(al_cstr(fd->title),
                                   NULL,
-                                  save ? GTK_FILE_CHOOSER_ACTION_SAVE : GTK_FILE_CHOOSER_ACTION_OPEN,
+                                  save ? GTK_FILE_CHOOSER_ACTION_SAVE : folder ? GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER : GTK_FILE_CHOOSER_ACTION_OPEN,
                                   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                                   save ? GTK_STOCK_SAVE : GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
 
