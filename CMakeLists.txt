@@ -105,6 +105,8 @@ option(WANT_EMBED
 set(FRAMEWORK_INSTALL_PREFIX "/Library/Frameworks" CACHE STRING
     "Directory in which to install Mac OS X frameworks")
 
+option(PREFER_STATIC_DEPS "Whether to prefer static dependencies." off)
+
 #
 # Platforms and drivers.
 #
@@ -547,6 +549,12 @@ run_c_compile_test("
 # Sometimes we make use of those variables in this CMakeFile as well, but
 # generally that's just due to sloppiness.
 #
+
+if(PREFER_STATIC_DEPS)
+   set(CMAKE_FIND_LIBRARY_SUFFIXES "${CMAKE_STATIC_LIBRARY_SUFFIX}"
+                                   "${CMAKE_SHARED_LIBRARY_SUFFIX}"
+                                   "${CMAKE_SHARED_MODULE_SUFFIX}")
+endif()
 
 if(WANT_OPENGL)
     find_package(OpenGL)
