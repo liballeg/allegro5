@@ -127,6 +127,8 @@ dialog boxes usually have on the native system. If the `buttons` parameter is
 not NULL, you can instead specify the button text in a string, with buttons
 separated by a vertical bar (|).
 
+> *Note:* `buttons` parameter is currently unimplemented on Windows.
+
 The flags available are:
 
 ALLEGRO_MESSAGEBOX_WARN
