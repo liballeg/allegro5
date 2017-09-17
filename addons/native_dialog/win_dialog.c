@@ -337,7 +337,7 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    if (result == IDYES || result == IDOK)
       return 1;
    else
-      return 0;
+      return 2;
 }
 
 
