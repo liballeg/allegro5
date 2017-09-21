@@ -16,7 +16,7 @@ ALLEGRO_DEBUG_CHANNEL("image")
 
 
 double _al_png_screen_gamma = -1.0;
-int _al_png_compression_level = Z_BEST_COMPRESSION;
+int _al_png_compression_level = Z_DEFAULT_COMPRESSION;
 
 
 
