@@ -28,11 +28,6 @@ typedef struct PalEntry {
  */
 extern double _al_png_screen_gamma;
 
-/* Choose zlib compression level for saving file.
- * Default is Z_BEST_COMPRESSION.
- */
-extern int _al_png_compression_level;
-
 
 
 #endif
