@@ -15,25 +15,26 @@
 ALLEGRO_DEBUG_CHANNEL("image")
 
 
-double _al_png_screen_gamma = -1.0;
-
-
-
 /* get_gamma:
  *  Get screen gamma value one of three ways.
  */
 static double get_gamma(void)
 {
-   if (_al_png_screen_gamma == -1.0) {
+   double gamma = -1.0;
+   const char* config = al_get_config_value(al_get_system_config(), "image", "png_screen_gamma");
+   if (config) {
+      gamma = strtod(config, NULL);
+   }
+   if (gamma == -1.0) {
       /* Use the environment variable if available.
        * 2.2 is a good guess for PC monitors.
        * 1.1 is good for my laptop.
        */
       const char *gamma_str = getenv("SCREEN_GAMMA");
-      return (gamma_str) ? atof(gamma_str) : 2.2;
+      return (gamma_str) ? strtod(gamma_str, NULL) : 2.2;
    }
 
-   return _al_png_screen_gamma;
+   return gamma;
 }
 
 
@@ -145,9 +146,8 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr,
       png_set_gray_to_rgb(png_ptr);
 
    /* Optionally, tell libpng to handle the gamma correction for us. */
-   if (_al_png_screen_gamma != 0.0) {
-      screen_gamma = get_gamma();
-
+   screen_gamma = get_gamma();
+   if (screen_gamma != 0.0) {
       if (png_get_sRGB(png_ptr, info_ptr, &intent))
          png_set_gamma(png_ptr, screen_gamma, 0.45455);
       else {
