@@ -134,6 +134,7 @@ if (NOT IPHONE)
     option(WANT_IMAGE_JPG "Enable JPEG support in image addon" on)
     option(WANT_IMAGE_PNG "Enable PNG support in image addon" on)
 endif (NOT IPHONE)
+option(WANT_IMAGE_WEBP "Enable WebP support in image addon" on)
 
 option(WANT_TTF "Enable TTF addon" on)
 option(WANT_COLOR "Enable color addon" on)

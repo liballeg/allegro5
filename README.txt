@@ -103,6 +103,12 @@ These are the dependencies required for the addons:
   by using the native facilities on the respective operating systems,
   so libjpeg is not required.
 
+- libwebp, for WebP image support
+  Home page: <https://developers.google.com/speed/webp/>
+
+  On Android, WebP image support is available by using the native
+  facilities of the operating system, so libwebp is not required.
+
 - FreeType, for TrueType font support.
   Home page: <http://freetype.sourceforge.net/>
   Windows binaries: <http://gnuwin32.sourceforge.net/packages/freetype.htm>
