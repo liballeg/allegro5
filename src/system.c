@@ -142,6 +142,12 @@ static void read_allegro_cfg(void)
          al_merge_config_into(sys_config, temp);
          al_destroy_config(temp);
       }
+      al_set_path_filename(path, ".allegro5rc");
+      temp = al_load_config_file(al_path_cstr(path, '/'));
+      if (temp) {
+         al_merge_config_into(sys_config, temp);
+         al_destroy_config(temp);
+      }
       al_destroy_path(path);
    }
 #endif
