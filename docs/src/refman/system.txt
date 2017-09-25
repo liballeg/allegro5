@@ -206,6 +206,8 @@ from a few different locations, in this order:
 
 - *Unix only:* $HOME/allegro5rc
 
+- *Unix only:* $HOME/.allegro5rc
+
 - allegro5.cfg next to the executable
 
 If multiple copies are found, then they are merged using [al_merge_config_into].
