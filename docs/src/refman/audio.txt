@@ -1082,6 +1082,8 @@ Sets a post-processing filter function that's called after the attached
 streams have been mixed. The buffer's format will be whatever the mixer
 was created with. The sample count and user-data pointer is also passed.
 
+> *Note:* The callback is called from a dedicated audio thread.
+
 
 
 ## Stream functions
