@@ -165,8 +165,8 @@ static bool modaudio_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time)
    
    lib.duh_end_sigrenderer(df->sig);
    df->sig = lib.duh_start_sigrenderer(df->duh, 0, 2, time * 65536);
-   
-   return false;
+
+   return true;
 }
 
 static double modaudio_stream_get_position(ALLEGRO_AUDIO_STREAM *stream)
