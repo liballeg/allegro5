@@ -111,7 +111,7 @@ static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    size_t buf_size)
 {
    MOD_FILE *const df = stream->extra;
-   
+
    /* the mod files are stereo and 16-bit */
    const int sample_size = 4;
    size_t written;
@@ -123,20 +123,20 @@ static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
                                 stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE
                                 ? lib.dumb_it_callback_terminate : NULL, NULL);
    }
-   
+
    written = lib.duh_render(df->sig, 16, 0, 1.0, 65536.0 / 44100.0,
       buf_size / sample_size, data) * sample_size;
 
    /* Fill the remainder with silence */
    for (i = written; i < buf_size; ++i)
       ((char *)data)[i] = 0;
-   
+
    /* Check to see if a loop is set */
-   if (df->loop_start != -1 && 
+   if (df->loop_start != -1 &&
       df->loop_end < lib.duh_sigrenderer_get_position(df->sig)) {
          modaudio_stream_seek(stream, df->loop_start / 65536.0);
    }
-   
+
    return written;
 }
 
@@ -144,7 +144,7 @@ static void modaudio_stream_close(ALLEGRO_AUDIO_STREAM *stream)
 {
    MOD_FILE *const df = stream->extra;
    _al_acodec_stop_feed_thread(stream);
-      
+
    lib.duh_end_sigrenderer(df->sig);
    lib.unload_duh(df->duh);
    if (df->fh)
@@ -162,7 +162,7 @@ static bool modaudio_stream_rewind(ALLEGRO_AUDIO_STREAM *stream)
 static bool modaudio_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time)
 {
    MOD_FILE *const df = stream->extra;
-   
+
    lib.duh_end_sigrenderer(df->sig);
    df->sig = lib.duh_start_sigrenderer(df->duh, 0, 2, time * 65536);
 
@@ -185,10 +185,10 @@ static bool modaudio_stream_set_loop(ALLEGRO_AUDIO_STREAM *stream,
    double start, double end)
 {
    MOD_FILE *const df = stream->extra;
-   
+
    df->loop_start = start * 65536;
    df->loop_end = end * 65536;
-   
+
    return true;
 }
 
@@ -203,11 +203,11 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
    DUH *duh = NULL;
    DUMB_IT_SIGRENDERER *it_sig = NULL;
    int64_t start_pos = -1;
-   
+
    df = lib.dumbfile_open_ex(f, &dfs_f);
    if (!df)
       return NULL;
-      
+
    start_pos = al_ftell(f);
 
    duh = loader(df);
@@ -227,7 +227,7 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
    }
 
    stream = al_create_audio_stream(buffer_count, samples, 44100,
-      ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2); 
+      ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
 
    if (stream) {
       MOD_FILE *mf = al_malloc(sizeof(MOD_FILE));
@@ -341,10 +341,10 @@ static bool init_libdumb(void)
    dfs.getc = dfs_getc;
    dfs.getnc = dfs_getnc;
    dfs.close = dfs_close;
-   
+
    /* Set up DUMB's default I/O to go through Allegro... */
    lib.register_dumbfile_system(&dfs);
-   
+
    /* But we'll actually use them through this version: */
    dfs_f = dfs;
    dfs_f.open = NULL;
@@ -360,7 +360,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_mod_audio_stream(const char *filename,
    ALLEGRO_FILE *f;
    ALLEGRO_AUDIO_STREAM *stream;
    ASSERT(filename);
-              
+
    f = al_fopen(filename, "rb");
    if (!f)
       return NULL;
@@ -373,7 +373,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_mod_audio_stream(const char *filename,
    }
 
    ((MOD_FILE *)stream->extra)->fh = f;
-   
+
    return stream;
 }
 
@@ -383,20 +383,20 @@ ALLEGRO_AUDIO_STREAM *_al_load_it_audio_stream(const char *filename,
    ALLEGRO_FILE *f;
    ALLEGRO_AUDIO_STREAM *stream;
    ASSERT(filename);
-              
+
    f = al_fopen(filename, "rb");
    if (!f)
       return NULL;
 
    stream = _al_load_it_audio_stream_f(f, buffer_count, samples);
-   
+
    if (!stream) {
       al_fclose(f);
       return NULL;
    }
 
    ((MOD_FILE *)stream->extra)->fh = f;
-   
+
    return stream;
 }
 
@@ -406,7 +406,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_xm_audio_stream(const char *filename,
    ALLEGRO_FILE *f;
    ALLEGRO_AUDIO_STREAM *stream;
    ASSERT(filename);
-              
+
    f = al_fopen(filename, "rb");
    if (!f)
       return NULL;
@@ -419,7 +419,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_xm_audio_stream(const char *filename,
    }
 
    ((MOD_FILE *)stream->extra)->fh = f;
-   
+
    return stream;
 }
 
@@ -429,20 +429,20 @@ ALLEGRO_AUDIO_STREAM *_al_load_s3m_audio_stream(const char *filename,
    ALLEGRO_FILE *f;
    ALLEGRO_AUDIO_STREAM *stream;
    ASSERT(filename);
-              
+
    f = al_fopen(filename, "rb");
    if (!f)
       return NULL;
 
    stream = _al_load_s3m_audio_stream_f(f, buffer_count, samples);
-   
+
    if (!stream) {
       al_fclose(f);
       return NULL;
    }
-      
+
    ((MOD_FILE *)stream->extra)->fh = f;
-   
+
    return stream;
 }
 
