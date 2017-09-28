@@ -1,7 +1,7 @@
 Android
 =======
 
-This port should support Android 3.1 (Honeycomb) and above.
+This port should support Android 3.1 (Honeycomb, API level 13) and above.
 
 
 Dependencies
@@ -200,17 +200,32 @@ After loading, the `main` function in the library is finally called.
 Poking around in the android/example directory may help.
 
 
-Using Allegro in an Android project
-===================================
+Using Allegro in your game
+==========================
+
+If you build with examples or demos, look into your build folder for
+any of them, for example
+
+build/demos/speed
+
+It will have a folder called speed.project which is a gradle project
+ready to compile for Android. You can use it as a template for your
+own game code. (Either by opening it in Android Studio or by using
+commandline gradle to compile.)
+
+Read the next section if you would like to create an Android project
+using Allegro from scratch.
+
+
+Using Allegro in a new project
+==============================
 
 Start Android Studio.
 
-Note: Alternatively, you can read the next section on how to copy one
-of the Allegro examples as a template gradle project. Then edit any of
-the files mentioned below with any text editor instead of in Android
-Studio and run ./gradlew instead of rebuilding from within the IDE.
-Android Studio itself is not required for any of the steps -
-it just is usually more convenient to use when porting a game to Android.
+Note: Android Studio is not strictly required, you can edit the files mentioned
+below with any text editor instead of in Android Studio and run ./gradlew instead
+of rebuilding from within the IDE.
+Android Studio just is usually more convenient to use when porting a game to Android.
 
 On the welcome dialog, select "Start a new Android Studio project".
 
@@ -363,16 +378,3 @@ first Allegro program on Android!
 
 (The sample code will just flash your screen yellow and red with no way to quit, so you will have to force quit it.)
 
-
-Using Allegro without Android Studio
-====================================
-
-If you build with examples or demos, look into your build folder for
-any of those, for example
-
-build/demos/speed
-
-It will have a folder called speed.project which is a gradle project
-ready to compile for Android. You can use it as a template for your
-own game code. All the steps in the previous section will work exactly
-the same without Android Studio.
