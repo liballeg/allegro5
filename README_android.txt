@@ -30,7 +30,7 @@ Install the NDK
 
 The most simple way is again to use Android Studio. Create a new project
 with C++ support and it will ask you if you want to install the NDK and
-will then proceed to place it into ~/Android/ndk-bundle.
+will then proceed to place it into ~/Android/Sdk/ndk-bundle.
 
 Alternatively you can download the NDK and place anywhere you like.
 
@@ -52,10 +52,10 @@ If you do not want to distribute your game for all 6 supported Android
 architectures you can probably do it just for arm (most actual devices)
 amd x86_64 (the Android emulator).
 
-Assuming the NDK was extracted into $HOME/android-ndk run the following
+Assuming the NDK was extracted into ~/Android/Sdk/ndk-bundle run the following
 command:
 
-    python $HOME/android-ndk/build/tools/make_standalone_toolchain.py \
+    python ~/Android/Sdk/ndk-bundle/build/tools/make_standalone_toolchain.py \
         --api=15 -install-dir=$ANDROID_NDK_TOOLCHAIN_ROOT --arch=arm
 
 You can use any api 9 or higher but 15 is the lowest this was tested
@@ -138,12 +138,13 @@ repeat for each of the architectures you want to build for.
     cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-android.cmake
         -DCMAKE_BUILD_TYPE=Debug
         -DANDROID_TARGET=android-15
-        -DARM_TARGETS=x86_64
-        -G"MSYS Makefiles"
+        -DARM_TARGETS=arm
     make
     make install
 
-Where you can change ANDROID_TARGET to be something else if you want. This
+Under Windows append -G"MSYS Makefiles" to the cmake options.
+
+Change ANDROID_TARGETS to whichever architecture you are building for. This
 produces the normal Allegro native libraries (liballegro-*.so) as well as
 allegro-release.aar.
 
@@ -204,6 +205,13 @@ Using Allegro in an Android project
 
 Start Android Studio.
 
+Note: Alternatively, you can read the next section on how to copy one
+of the Allegro examples as a template gradle project. Then edit any of
+the files mentioned below with any text editor instead of in Android
+Studio and run ./gradlew instead of rebuilding from within the IDE.
+Android Studio itself is not required for any of the steps -
+it just is usually more convenient to use when porting a game to Android.
+
 On the welcome dialog, select "Start a new Android Studio project".
 
 On the "Create Android Project" screen, make sure to check the
@@ -223,10 +231,10 @@ You should be able to click the green arrow at the top and run your
 application. If not make sure to fix any problems in your Android
 Studio setup - usually it will prompt you to download any missing
 components like the NDK or (the special Android) CMake. After that you
-should be able to run your new Andrroid app, either in an emulator or on
+should be able to run your new Android app, either in an emulator or on
 a real device.
 
-The program we mpw have already shows how to mix native code and Java
+The program we now have already shows how to mix native code and Java
 code, it just does not use Allegro yet.
 
 Find MainActivity.java and adapt it to look like this (do not
@@ -330,17 +338,30 @@ include_directories($HOME/android-toolchain-arm/user/arm/include)
 
 Then add a line like this:
 
-target_link_libraries(native-lib ${ANDROID_NDK_TOOLCHAIN_ROOT}/user/lib/{ARCH}/liballegro.so)
+target_link_libraries(native-lib ${ANDROID_NDK_TOOLCHAIN_ROOT}/user/{ARCH}/lib/liballegro.so)
 
 For example:
 
 target_link_libraries(native-lib $HOME/android-toolchain-arm/user/arm/lib/liballegro.so)
+
+Finally, create these folders in your project:
+
+app/src/main/jniLibs/armeabi-v7a
+app/src/main/jniLibs/arm64-v8a
+app/src/main/jniLibs/x86
+app/src/main/jniLibs/x86_64
+app/src/main/jniLibs/mips
+app/src/main/jniLibs/mips64
+
+And copy the .so files in the corresponding folder for its architecture.
 
 You may have to use "Build->Refresh Linked C++ Projects" for Android
 Studio to pick up the CMakeLists.txt changes.
 
 Run the app again. If it worked, congratulations! You just ran your
 first Allegro program on Android!
+
+(The sample code will just flash your screen yellow and red with no way to quit, so you will have to force quit it.)
 
 
 Using Allegro without Android Studio
@@ -353,4 +374,5 @@ build/demos/speed
 
 It will have a folder called speed.project which is a gradle project
 ready to compile for Android. You can use it as a template for your
-own game code.
+own game code. All the steps in the previous section will work exactly
+the same without Android Studio.
