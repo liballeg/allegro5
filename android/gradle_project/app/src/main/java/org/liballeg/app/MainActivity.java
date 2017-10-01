@@ -34,6 +34,9 @@ public class MainActivity extends AllegroActivity {
         loadLibrary("allegro_audio");
         loadLibrary("allegro_acodec");
         loadLibrary("allegro_color");
+        loadLibrary("allegro_memfile");
+        loadLibrary("allegro_physfs");
+        loadLibrary("allegro_video");
     }
     public MainActivity() {
         super("libnative-lib.so");
