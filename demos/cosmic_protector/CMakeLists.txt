@@ -64,7 +64,7 @@ set(DEMO_ICON data/gfx/Icon.icns)
 if(ANDROID)
     add_copy_commands(
         "${CMAKE_CURRENT_SOURCE_DIR}"
-        "${CMAKE_CURRENT_BINARY_DIR}/cosmic_protector.project/assets"
+        "${CMAKE_CURRENT_BINARY_DIR}/cosmic_protector.project/app/src/main/assets"
         ASSETS
         "${DEMO_GFX}"
         "${DEMO_SFX}"

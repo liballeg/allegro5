@@ -29,7 +29,6 @@ function(add_android_app prog sources)
     get_property(JNI_LIBS GLOBAL PROPERTY JNI_LIBS)
     foreach(lib ${JNI_LIBS})
         set(jnilib ${PROJECT}/app/src/main/jniLibs/${ARM_TARGETS}/lib${lib}-debug.so)
-        message(STATUS ${jnilib})
         get_property(so TARGET ${lib} PROPERTY LOCATION)
         add_custom_command(
             OUTPUT ${jnilib}
@@ -56,7 +55,7 @@ function(add_android_app prog sources)
     # Build the application as a shared library.
     add_library(${prog} SHARED ${sources})
     set_target_properties(${prog} PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${PROJECT}/bin)
+        LIBRARY_OUTPUT_DIRECTORY ${PROJECT})
     target_link_libraries(${prog} ${JNI_LIBS})
 
     # Get the path of the application's shared object.

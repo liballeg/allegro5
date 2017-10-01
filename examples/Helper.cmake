@@ -77,7 +77,7 @@ function(example name)
         endif()
         add_copy_commands(
             "${CMAKE_CURRENT_SOURCE_DIR}/data"
-            "${CMAKE_CURRENT_BINARY_DIR}/${name}.project/assets/data"
+            "${CMAKE_CURRENT_BINARY_DIR}/${name}.project/app/src/main/assets/data"
             assets
             "${MYOPTS_DATA}"
             )
