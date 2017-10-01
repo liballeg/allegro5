@@ -56,7 +56,7 @@ Assuming the NDK was extracted into ~/Android/Sdk/ndk-bundle run the following
 command:
 
     python ~/Android/Sdk/ndk-bundle/build/tools/make_standalone_toolchain.py \
-        --api=15 -install-dir=$ANDROID_NDK_TOOLCHAIN_ROOT --arch=arm
+        --api=15 --install-dir=$ANDROID_NDK_TOOLCHAIN_ROOT --arch=arm
 
 You can use any api 9 or higher but 15 is the lowest this was tested
 with. 
