@@ -138,15 +138,27 @@ repeat for each of the architectures you want to build for.
     cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-android.cmake
         -DCMAKE_BUILD_TYPE=Debug
         -DANDROID_TARGET=android-15
-        -DARM_TARGETS=arm
+        -DARM_TARGETS=armeabi-v7a
     make
     make install
 
 Under Windows append -G"MSYS Makefiles" to the cmake options.
 
-Change ANDROID_TARGETS to whichever architecture you are building for. This
-produces the normal Allegro native libraries (liballegro-*.so) as well as
-allegro-release.aar.
+Change ANDROID_TARGETS to whichever architecture you are building for.
+The recognized architectures are:
+
+armeabi
+armeabi-v7a
+arm64-v8a
+x86
+x86_64
+mips
+mips64
+
+See here for more information: https://developer.android.com/ndk/guides/abis.html
+
+This produces the normal Allegro native libraries (liballegro-*.so) as
+well as allegro-release.aar.
 
 Run `make install` to install the headers into the toolchain directory
 and can be found when compiling Allegro code later.
