@@ -57,7 +57,7 @@ set(ALLEGRO_SRC_FILES
 set(ALLEGRO_SRC_WIN_FILES
     src/win/wclipboard.c
     src/win/whapall.c
-    src/win/whaptic.c
+    src/win/whapdrv.c
     src/win/whaptic.cpp
     src/win/whapxi.c
     src/win/wjoyall.c
