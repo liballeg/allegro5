@@ -84,14 +84,14 @@ int main(int argc, char **argv)
 
    /* This is loaded from assets in the apk. */
    al_android_set_apk_file_interface();
-   image = al_load_bitmap("alexlogo.png");
+   image = al_load_bitmap("data/alexlogo.png");
    if (!image) {
       ALLEGRO_DEBUG("failed to load alexlogo.png");
       return 1;
    }
  
    /* Copy the .png from the .apk into the user data area. */
-   ALLEGRO_FILE *fin = al_fopen("alexlogo.png", "rb");
+   ALLEGRO_FILE *fin = al_fopen("data/alexlogo.png", "rb");
    al_set_standard_file_interface();
    ALLEGRO_PATH *path = al_get_standard_path(ALLEGRO_USER_DATA_PATH);
    al_set_path_filename(path, "alexlogo.png");
