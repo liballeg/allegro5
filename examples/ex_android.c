@@ -1,7 +1,9 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
+#ifdef ALLEGRO_ANDROID
 #include <allegro5/allegro_android.h> /* al_android_set_apk_file_interface */
+#endif
 
 ALLEGRO_DEBUG_CHANNEL("main")
 
@@ -83,13 +85,16 @@ int main(int argc, char **argv)
    print_standard_paths();
 
    /* This is loaded from assets in the apk. */
+   #ifdef ALLEGRO_ANDROID
    al_android_set_apk_file_interface();
+   #endif
    image = al_load_bitmap("data/alexlogo.png");
    if (!image) {
       ALLEGRO_DEBUG("failed to load alexlogo.png");
       return 1;
    }
- 
+
+   #ifdef ALLEGRO_ANDROID
    /* Copy the .png from the .apk into the user data area. */
    ALLEGRO_FILE *fin = al_fopen("data/alexlogo.png", "rb");
    al_set_standard_file_interface();
@@ -110,6 +115,10 @@ int main(int argc, char **argv)
    image2 = al_load_bitmap(al_path_cstr(path, '/'));
 
    al_destroy_path(path);
+   #else
+   image2 = image;
+   #endif
+
 
    al_convert_mask_to_alpha(image, al_map_rgb(255,0,255));
    if (image2)
