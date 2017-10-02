@@ -19,9 +19,15 @@ Install the SDK
 
 
 The most simple way is to install Android Studio which by default will
-place a copy of the SDK into ~/Android/Sdk.
+place a copy of the SDK into ~/Android/Sdk. Set the ANDROID_HOME
+environment variable to point to it:
 
-Alternatively you can also download the command-line SDK tools.
+    export ANDROID_HOME=$HOME/Android/Sdk
+
+Alternatively you can also download the command-line SDK tools. In that
+case you will have to accept the licenses, for example like this:
+
+    ~/Android/Sdk/tools/bin/sdkmanager --licenses
 
 
 Install the NDK
