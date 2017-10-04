@@ -4,7 +4,7 @@ android {
     compileSdkVersion 26
     buildToolsVersion "26.0.0"
     defaultConfig {
-        applicationId "org.liballeg.app"
+        applicationId "org.liballeg.${APP_ID}"
         minSdkVersion 15
         targetSdkVersion 26
         versionCode 1

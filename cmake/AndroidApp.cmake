@@ -6,6 +6,7 @@ function(add_android_app prog sources)
     set(ANDROID_HOME $ENV{ANDROID_HOME})
     set(AAR ${PROJECT}/app/libs/allegro-release.aar)
     set(adb ${ANDROID_HOME}/platform-tools/adb)
+    set(APP_ID ${prog})
 
     configure_file(
         ${PROJECT_SOURCE}/settings.gradle
@@ -15,14 +16,20 @@ function(add_android_app prog sources)
         ${PROJECT_SOURCE}/local.properties
         ${PROJECT}/local.properties)
 
-    set(COPY_FILES
+    configure_file(
         ${PROJECT_SOURCE}/app/src/main/AndroidManifest.xml
+        ${PROJECT}/app/src/main/AndroidManifest.xml)
+
+    configure_file(
+        ${PROJECT_SOURCE}/app/build.gradle
+        ${PROJECT}/app/build.gradle)
+
+    set(COPY_FILES
         ${PROJECT_SOURCE}/gradle.properties
         ${PROJECT_SOURCE}/build.gradle
         ${PROJECT_SOURCE}/gradlew
         ${PROJECT_SOURCE}/gradle/wrapper/gradle-wrapper.jar
         ${PROJECT_SOURCE}/gradle/wrapper/gradle-wrapper.properties
-        ${PROJECT_SOURCE}/app/build.gradle
         ${PROJECT_SOURCE}/app/src/main/java/org/liballeg/app/MainActivity.java
         )
 
@@ -38,6 +45,8 @@ function(add_android_app prog sources)
     endforeach()
 
     list(APPEND COPIED_FILES ${PROJECT}/local.properties)
+    list(APPEND COPIED_FILES ${PROJECT}/app/src/main/AndroidManifest.xml)
+    list(APPEND COPIED_FILES ${PROJECT}/app/build.gradle)
 
     foreach(copy ${COPY_FILES})
         string(REPLACE "${PROJECT_SOURCE}/" "${PROJECT}/" target ${copy})
