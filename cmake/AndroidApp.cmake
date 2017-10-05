@@ -97,12 +97,12 @@ function(add_android_app prog sources)
     # Useful targets for testing.
     add_custom_target(install_${prog}
         DEPENDS ${prog}_apk
-        COMMAND ${adb} -d install -r ${apk_path}
+        COMMAND ${adb} install -r ${apk_path}
         )
 
     add_custom_target(run_${prog}
         DEPENDS install_${prog}
-        COMMAND ${adb} -d shell
-            'am start -a android.intent.action.MAIN -n org.liballeg.app/.MainActivity'
+        COMMAND ${adb} shell
+            'am start -a android.intent.action.MAIN -n org.liballeg.${APP_ID}/org.liballeg.app.MainActivity'
         )
 endfunction()
