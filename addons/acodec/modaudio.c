@@ -64,11 +64,9 @@ static void *dumb_dll = NULL;
  * dumb_ssize_t is a platform-independent signed size_t.
  * DUMB 0.9.3 expects long wherever dumb_off_t or dumb_ssize_t appear.
  */
-#ifndef dumb_off_t
-#define dumb_off_t long
-#endif
-#ifndef dumb_ssize_t
-#define dumb_ssize_t long
+#if (DUMB_MAJOR_VERSION) < 2
+typedef long dumb_off_t;
+typedef long dumb_ssize_t;
 #endif
 
 static struct
