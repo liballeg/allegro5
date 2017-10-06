@@ -141,6 +141,7 @@ if(WANT_MODAUDIO)
         set(CMAKE_REQUIRED_INCLUDES ${DUMB_INCLUDE_DIR})
         set(CMAKE_REQUIRED_LIBRARIES ${DUMB_LIBRARIES})
         run_c_compile_test("
+            #define _FILE_OFFSET_BITS 64
             #include <dumb.h>
             #if (DUMB_MAJOR_VERSION) == 1
                 #error libdumb 1.0 not supported, get >= 2.0 or 0.9.3

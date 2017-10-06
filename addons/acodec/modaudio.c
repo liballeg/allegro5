@@ -4,6 +4,7 @@
  */
 
 
+#define _FILE_OFFSET_BITS 64
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_acodec.h"
 #include "allegro5/allegro_audio.h"
@@ -63,10 +64,16 @@ static void *dumb_dll = NULL;
  * dumb_off_t is introduced in DUMB 2.0, it's a signed 64+ bit integer.
  * dumb_ssize_t is a platform-independent signed size_t.
  * DUMB 0.9.3 expects long wherever dumb_off_t or dumb_ssize_t appear.
+ *
+ * _al_dumb_size_t takes care of another, less documented, difference
+ * between the versions.
  */
 #if (DUMB_MAJOR_VERSION) < 2
 typedef long dumb_off_t;
 typedef long dumb_ssize_t;
+typedef long _al_dumb_size_t;
+#else
+typedef size_t _al_dumb_size_t;
 #endif
 
 static struct
@@ -124,7 +131,7 @@ static int dfs_getc(void *f)
    return al_fgetc(f);
 }
 
-static dumb_ssize_t dfs_getnc(char *ptr, size_t n, void *f)
+static dumb_ssize_t dfs_getnc(char *ptr, _al_dumb_size_t n, void *f)
 {
    return al_fread(f, ptr, n);
 }
@@ -422,11 +429,20 @@ static bool init_libdumb(void)
 }
 
 #if (DUMB_MAJOR_VERSION) >= 2
+
+static ALLEGRO_AUDIO_STREAM *load_dumb_audio_stream_f(ALLEGRO_FILE *f,
+   size_t buffer_count, unsigned int samples)
+{
+   if (!init_libdumb())
+      return NULL;
+   return modaudio_stream_init(f, buffer_count, samples);
+}
+
 /*
  * DUMB 2.0 figures out the file format for us.
  * Need only one loader from disk file and one loader from DUMBFILE.
  */
-ALLEGRO_AUDIO_STREAM *_al_load_dumb_audio_stream(const char *filename,
+static ALLEGRO_AUDIO_STREAM *load_dumb_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
    ALLEGRO_FILE *f;
@@ -437,7 +453,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_dumb_audio_stream(const char *filename,
    if (!f)
       return NULL;
 
-   stream = _al_load_dumb_audio_stream_f(f, buffer_count, samples);
+   stream = load_dumb_audio_stream_f(f, buffer_count, samples);
 
    if (!stream) {
       al_fclose(f);
@@ -447,14 +463,6 @@ ALLEGRO_AUDIO_STREAM *_al_load_dumb_audio_stream(const char *filename,
    ((MOD_FILE *)stream->extra)->fh = f;
 
    return stream;
-}
-
-ALLEGRO_AUDIO_STREAM *_al_load_dumb_audio_stream_f(ALLEGRO_FILE *f,
-   size_t buffer_count, unsigned int samples)
-{
-   if (!init_libdumb())
-      return NULL;
-   return modaudio_stream_init(f, buffer_count, samples);
 }
 
 #else
@@ -465,99 +473,8 @@ ALLEGRO_AUDIO_STREAM *_al_load_dumb_audio_stream_f(ALLEGRO_FILE *f,
  * then 4 loaders that take a DUMBFILE. The loaders from file are
  * all identical, except for the function called in the middle.
  */
-ALLEGRO_AUDIO_STREAM *_al_load_mod_audio_stream(const char *filename,
-   size_t buffer_count, unsigned int samples)
-{
-   ALLEGRO_FILE *f;
-   ALLEGRO_AUDIO_STREAM *stream;
-   ASSERT(filename);
 
-   f = al_fopen(filename, "rb");
-   if (!f)
-      return NULL;
-
-   stream = _al_load_mod_audio_stream_f(f, buffer_count, samples);
-
-   if (!stream) {
-      al_fclose(f);
-      return NULL;
-   }
-
-   ((MOD_FILE *)stream->extra)->fh = f;
-
-   return stream;
-}
-
-ALLEGRO_AUDIO_STREAM *_al_load_it_audio_stream(const char *filename,
-   size_t buffer_count, unsigned int samples)
-{
-   ALLEGRO_FILE *f;
-   ALLEGRO_AUDIO_STREAM *stream;
-   ASSERT(filename);
-
-   f = al_fopen(filename, "rb");
-   if (!f)
-      return NULL;
-
-   stream = _al_load_it_audio_stream_f(f, buffer_count, samples);
-
-   if (!stream) {
-      al_fclose(f);
-      return NULL;
-   }
-
-   ((MOD_FILE *)stream->extra)->fh = f;
-
-   return stream;
-}
-
-ALLEGRO_AUDIO_STREAM *_al_load_xm_audio_stream(const char *filename,
-   size_t buffer_count, unsigned int samples)
-{
-   ALLEGRO_FILE *f;
-   ALLEGRO_AUDIO_STREAM *stream;
-   ASSERT(filename);
-
-   f = al_fopen(filename, "rb");
-   if (!f)
-      return NULL;
-
-   stream = _al_load_xm_audio_stream_f(f, buffer_count, samples);
-
-   if (!stream) {
-      al_fclose(f);
-      return NULL;
-   }
-
-   ((MOD_FILE *)stream->extra)->fh = f;
-
-   return stream;
-}
-
-ALLEGRO_AUDIO_STREAM *_al_load_s3m_audio_stream(const char *filename,
-   size_t buffer_count, unsigned int samples)
-{
-   ALLEGRO_FILE *f;
-   ALLEGRO_AUDIO_STREAM *stream;
-   ASSERT(filename);
-
-   f = al_fopen(filename, "rb");
-   if (!f)
-      return NULL;
-
-   stream = _al_load_s3m_audio_stream_f(f, buffer_count, samples);
-
-   if (!stream) {
-      al_fclose(f);
-      return NULL;
-   }
-
-   ((MOD_FILE *)stream->extra)->fh = f;
-
-   return stream;
-}
-
-ALLEGRO_AUDIO_STREAM *_al_load_mod_audio_stream_f(ALLEGRO_FILE *f,
+static ALLEGRO_AUDIO_STREAM *load_mod_audio_stream_f(ALLEGRO_FILE *f,
    size_t buffer_count, unsigned int samples)
 {
    if (!init_libdumb())
@@ -565,7 +482,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_mod_audio_stream_f(ALLEGRO_FILE *f,
    return modaudio_stream_init(f, buffer_count, samples, lib.dumb_read_mod);
 }
 
-ALLEGRO_AUDIO_STREAM *_al_load_it_audio_stream_f(ALLEGRO_FILE *f,
+static ALLEGRO_AUDIO_STREAM *load_it_audio_stream_f(ALLEGRO_FILE *f,
    size_t buffer_count, unsigned int samples)
 {
    if (!init_libdumb())
@@ -573,7 +490,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_it_audio_stream_f(ALLEGRO_FILE *f,
    return modaudio_stream_init(f, buffer_count, samples, lib.dumb_read_it);
 }
 
-ALLEGRO_AUDIO_STREAM *_al_load_xm_audio_stream_f(ALLEGRO_FILE *f,
+static ALLEGRO_AUDIO_STREAM *load_xm_audio_stream_f(ALLEGRO_FILE *f,
    size_t buffer_count, unsigned int samples)
 {
    if (!init_libdumb())
@@ -581,13 +498,160 @@ ALLEGRO_AUDIO_STREAM *_al_load_xm_audio_stream_f(ALLEGRO_FILE *f,
    return modaudio_stream_init(f, buffer_count, samples, lib.dumb_read_xm);
 }
 
-ALLEGRO_AUDIO_STREAM *_al_load_s3m_audio_stream_f(ALLEGRO_FILE *f,
+static ALLEGRO_AUDIO_STREAM *load_s3m_audio_stream_f(ALLEGRO_FILE *f,
    size_t buffer_count, unsigned int samples)
 {
    if (!init_libdumb())
       return NULL;
    return modaudio_stream_init(f, buffer_count, samples, lib.dumb_read_s3m);
 }
+
+static ALLEGRO_AUDIO_STREAM *load_mod_audio_stream(const char *filename,
+   size_t buffer_count, unsigned int samples)
+{
+   ALLEGRO_FILE *f;
+   ALLEGRO_AUDIO_STREAM *stream;
+   ASSERT(filename);
+
+   f = al_fopen(filename, "rb");
+   if (!f)
+      return NULL;
+
+   stream = load_mod_audio_stream_f(f, buffer_count, samples);
+
+   if (!stream) {
+      al_fclose(f);
+      return NULL;
+   }
+
+   ((MOD_FILE *)stream->extra)->fh = f;
+
+   return stream;
+}
+
+static ALLEGRO_AUDIO_STREAM *load_it_audio_stream(const char *filename,
+   size_t buffer_count, unsigned int samples)
+{
+   ALLEGRO_FILE *f;
+   ALLEGRO_AUDIO_STREAM *stream;
+   ASSERT(filename);
+
+   f = al_fopen(filename, "rb");
+   if (!f)
+      return NULL;
+
+   stream = load_it_audio_stream_f(f, buffer_count, samples);
+
+   if (!stream) {
+      al_fclose(f);
+      return NULL;
+   }
+
+   ((MOD_FILE *)stream->extra)->fh = f;
+
+   return stream;
+}
+
+static ALLEGRO_AUDIO_STREAM *load_xm_audio_stream(const char *filename,
+   size_t buffer_count, unsigned int samples)
+{
+   ALLEGRO_FILE *f;
+   ALLEGRO_AUDIO_STREAM *stream;
+   ASSERT(filename);
+
+   f = al_fopen(filename, "rb");
+   if (!f)
+      return NULL;
+
+   stream = load_xm_audio_stream_f(f, buffer_count, samples);
+
+   if (!stream) {
+      al_fclose(f);
+      return NULL;
+   }
+
+   ((MOD_FILE *)stream->extra)->fh = f;
+
+   return stream;
+}
+
+static ALLEGRO_AUDIO_STREAM *load_s3m_audio_stream(const char *filename,
+   size_t buffer_count, unsigned int samples)
+{
+   ALLEGRO_FILE *f;
+   ALLEGRO_AUDIO_STREAM *stream;
+   ASSERT(filename);
+
+   f = al_fopen(filename, "rb");
+   if (!f)
+      return NULL;
+
+   stream = load_s3m_audio_stream_f(f, buffer_count, samples);
+
+   if (!stream) {
+      al_fclose(f);
+      return NULL;
+   }
+
+   ((MOD_FILE *)stream->extra)->fh = f;
+
+   return stream;
+}
+
 #endif // DUMB_MAJOR_VERSION
+
+bool _al_register_dumb_loaders(void)
+{
+   bool ret = true;
+#if (DUMB_MAJOR_VERSION) >= 2
+   /*
+    * DUMB 2.0 offers a single loader for at least 13 formats, see their
+    * readme. Amiga NoiseTracker isn't listed there, but it's DUMB-supported.
+    * It merely has no common extensions, see:
+    * https://github.com/kode54/dumb/issues/53
+    */
+   ret &= al_register_audio_stream_loader(".669", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".669", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".amf", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".amf", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".asy", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".asy", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".it", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".it", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".mod", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".mod", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".mtm", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".mtm", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".okt", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".okt", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".psm", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".psm", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".ptm", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".ptm", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".riff", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".riff", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".s3m", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".s3m", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".stm", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".stm", load_dumb_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".xm", load_dumb_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".xm", load_dumb_audio_stream_f);
+#else
+   /*
+    * DUMB 0.9.3 supported only these 4 formats and had no *_any loader.
+    * Avoid DUMB 1.0 because of versioning problems: dumb.h from git tag 1.0
+    * reports 0.9.3 in its version numbers.
+    */
+   ret &= al_register_audio_stream_loader(".xm", load_xm_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".xm", load_xm_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".it", load_it_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".it", load_it_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".mod", load_mod_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".mod", load_mod_audio_stream_f);
+   ret &= al_register_audio_stream_loader(".s3m", load_s3m_audio_stream);
+   ret &= al_register_audio_stream_loader_f(".s3m", load_s3m_audio_stream_f);
+#endif // DUMB_MAJOR_VERSION
+   return ret;
+}
 
 /* vim: set sts=3 sw=3 et: */

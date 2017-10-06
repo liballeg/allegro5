@@ -31,31 +31,8 @@ ALLEGRO_AUDIO_STREAM *_al_load_flac_audio_stream_f(ALLEGRO_FILE* f,
 #endif
 
 #ifdef ALLEGRO_CFG_ACODEC_MODAUDIO
-#include <dumb.h>
-#if (DUMB_MAJOR_VERSION) >= 2
-ALLEGRO_AUDIO_STREAM *_al_load_dumb_audio_stream(const char *filename,
-   size_t buffer_count, unsigned int samples);
-ALLEGRO_AUDIO_STREAM *_al_load_dumb_audio_stream_f(ALLEGRO_FILE *f,
-   size_t buffer_count, unsigned int samples);
-#else
-ALLEGRO_AUDIO_STREAM *_al_load_mod_audio_stream(const char *filename,
-   size_t buffer_count, unsigned int samples);
-ALLEGRO_AUDIO_STREAM *_al_load_it_audio_stream(const char *filename,
-   size_t buffer_count, unsigned int samples);
-ALLEGRO_AUDIO_STREAM *_al_load_xm_audio_stream(const char *filename,
-   size_t buffer_count, unsigned int samples);
-ALLEGRO_AUDIO_STREAM *_al_load_s3m_audio_stream(const char *filename,
-   size_t buffer_count, unsigned int samples);
-ALLEGRO_AUDIO_STREAM *_al_load_mod_audio_stream_f(ALLEGRO_FILE *f,
-   size_t buffer_count, unsigned int samples);
-ALLEGRO_AUDIO_STREAM *_al_load_it_audio_stream_f(ALLEGRO_FILE *f,
-   size_t buffer_count, unsigned int samples);
-ALLEGRO_AUDIO_STREAM *_al_load_xm_audio_stream_f(ALLEGRO_FILE *f,
-   size_t buffer_count, unsigned int samples);
-ALLEGRO_AUDIO_STREAM *_al_load_s3m_audio_stream_f(ALLEGRO_FILE *f,
-   size_t buffer_count, unsigned int samples);
-#endif // DUMB_MAJOR_VERSION
-#endif // ALLEGRO_CFG_ACODEC_MODAUDIO
+bool _al_register_dumb_loaders(void);
+#endif
 
 #ifdef ALLEGRO_CFG_ACODEC_VORBIS
 ALLEGRO_SAMPLE *_al_load_ogg_vorbis(const char *filename);
