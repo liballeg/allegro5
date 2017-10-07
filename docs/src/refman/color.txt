@@ -333,7 +333,7 @@ are in the range -1..+1.
 > [al_is_color_valid].
 
 > *Note:*
-
+>
 > In some literature the range of L* is 0 to 100 and a* and b* are from
 > -100 to +100. In that case divide all components by 100 before passing
 > them to this function.
@@ -403,6 +403,7 @@ are possible.
 > defines the L component to be in the range 0..1 (and not 0..100 as is
 > sometimes seen).
 
+
 ## API: al_color_rgb_to_yuv
 
 Convert RGB values to YUV color space.
@@ -432,7 +433,7 @@ Returns the (compiled) version of the addon, in the same format as
 
 ## API: al_is_color_valid
 
-Checks if all component of the color are between 0 and 1. Some of the
+Checks if all components of the color are between 0 and 1. Some of the
 color conversions in this addon support color spaces with more colors
 than can be represented in sRGB and when converted to RGB will result
 in invalid color components outside the 0..1 range.
