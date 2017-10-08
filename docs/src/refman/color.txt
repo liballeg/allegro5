@@ -254,6 +254,8 @@ See also: [al_color_name_to_rgb], [al_color_name]
 
 Convert RGB values to XYZ color space.
 
+Since: 5.2.3
+
 See also: [al_color_xyz], [al_color_xyz_to_rgb]
 
 
@@ -273,6 +275,8 @@ RGB components are always assumed to be in sRGB space.
 > outside of the 0..1 range. You can check for that case with
 > [al_is_color_valid].
 
+Since: 5.2.3
+
 See also: [al_color_xyz_to_rgb], [al_color_rgb_to_xyz]
 
 
@@ -280,12 +284,16 @@ See also: [al_color_xyz_to_rgb], [al_color_rgb_to_xyz]
 
 Convert XYZ color values to RGB color space.
 
+Since: 5.2.3
+
 See also: [al_color_xyz], [al_color_rgb_to_xyz]
 
 
 ## API: al_color_rgb_to_xyy
 
 Convert RGB values to xyY color space.
+
+Since: 5.2.3
 
 See also: [al_color_xyy], [al_color_xyy_to_rgb]
 
@@ -302,6 +310,8 @@ x = X / (X + Y + Z)
 y = Y / (X + Y + Z)
 ~~~~
 
+Since: 5.2.3
+
 See also: [al_color_xyy_to_rgb], [al_color_rgb_to_xyy]
 
 
@@ -309,12 +319,16 @@ See also: [al_color_xyy_to_rgb], [al_color_rgb_to_xyy]
 
 Convert xyY color values to RGB color space.
 
+Since: 5.2.3
+
 See also: [al_color_xyy], [al_color_rgb_to_xyy]
 
 
 ## API: al_color_rgb_to_lab
 
 Convert RGB values to L\*a\*b\* color space.
+
+Since: 5.2.3
 
 See also: [al_color_lab], [al_color_lab_to_rgb]
 
@@ -338,6 +352,8 @@ are in the range -1..+1.
 > -100 to +100. In that case divide all components by 100 before passing
 > them to this function.
 
+Since: 5.2.3
+
 See also: [al_color_lab_to_rgb], [al_color_rgb_to_lab]
 
 
@@ -345,12 +361,16 @@ See also: [al_color_lab_to_rgb], [al_color_rgb_to_lab]
 
 Convert CIE L\*a\*b\* color values to RGB color space.
 
+Since: 5.2.3
+
 See also: [al_color_lab], [al_color_rgb_to_lab]
 
 
 ## API: al_color_rgb_to_lch
 
 Convert RGB values to CIE LCH color space. 
+
+Since: 5.2.3
 
 See also: [al_color_lch], [al_color_lch_to_rgb]
 
@@ -371,12 +391,16 @@ C = sqrt(a * a + b * b)
 H = atan2(b, a)
 ~~~~
 
+Since: 5.2.3
+
 See also: [al_color_lch_to_rgb], [al_color_rgb_to_lch]
 
 
 ## API: al_color_lch_to_rgb
 
 Convert CIE LCH color values to RGB color space.
+
+Since: 5.2.3
 
 See also: [al_color_lch], [al_color_rgb_to_lch]
 
@@ -403,6 +427,7 @@ are possible.
 > defines the L component to be in the range 0..1 (and not 0..100 as is
 > sometimes seen).
 
+Since: 5.2.3
 
 ## API: al_color_rgb_to_yuv
 
@@ -437,3 +462,5 @@ Checks if all components of the color are between 0 and 1. Some of the
 color conversions in this addon support color spaces with more colors
 than can be represented in sRGB and when converted to RGB will result
 in invalid color components outside the 0..1 range.
+
+Since: 5.2.3

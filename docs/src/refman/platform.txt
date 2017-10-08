@@ -178,3 +178,5 @@ you can set an icon before calling al_create_display. This works
 by setting the icon before XMapWindow.
 
 Since: 5.2.3
+
+> *[Unstable API]:* New API.

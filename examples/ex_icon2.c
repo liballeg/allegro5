@@ -6,6 +6,7 @@
  *      and the big one for the alt-tab popup, for example.
  */
 
+#define ALLEGRO_UNSTABLE
 #include <allegro5/allegro.h>
 #include "allegro5/allegro_image.h"
 
