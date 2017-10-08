@@ -70,14 +70,12 @@ endforeach(data)
 if(ANDROID)
     add_copy_commands(
         "${CMAKE_CURRENT_SOURCE_DIR}"
-        "${CMAKE_CURRENT_BINARY_DIR}/skater.project/assets"
+        "${CMAKE_CURRENT_BINARY_DIR}/skater.project/app/src/main/assets"
         ASSETS
         "${SKATER_REL_DATA}"
         )
     add_android_app(skater
         "${DEMO_SRCS};${ASSETS}"
-        "${ALLEGRO_LINK_WITH};${AUDIO_LINK_WITH};${ACODEC_LINK_WITH};${FONT_LINK_WITH};${IMAGE_LINK_WITH};${PRIMITIVES_LINK_WITH}"
-        ""
         )
     return()
 endif()
