@@ -1,6 +1,13 @@
 set(PROJECT ${CMAKE_CURRENT_BINARY_DIR}/gradle_project)
 set(PROJECT_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/gradle_project)
-set(ALLEGRO_AAR ${LIBRARY_OUTPUT_PATH}/allegro-release.aar) 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+   set(AAR_NAME allegro-debug.aar)
+   set(ASSEMBLE assembleDebug)
+else()
+   set(AAR_NAME allegro-release.aar)
+   set(ASSEMBLE assembleRelease)
+endif()
+set(ALLEGRO_AAR ${LIBRARY_OUTPUT_PATH}/${AAR_NAME})
 set(ALLEGRO_AAR ${ALLEGRO_AAR} PARENT_SCOPE) 
 
 if (NOT EXISTS "$ENV{ANDROID_HOME}")
@@ -58,8 +65,8 @@ add_custom_command(
     OUTPUT ${ALLEGRO_AAR}
     DEPENDS ${COPIED_FILES}
     WORKING_DIRECTORY ${PROJECT}
-    COMMAND ./gradlew assembleRelease
-    COMMAND ${CMAKE_COMMAND} -E copy allegro/build/outputs/aar/allegro-release.aar ${ALLEGRO_AAR}
+    COMMAND ./gradlew ${ASSEMBLE}
+    COMMAND ${CMAKE_COMMAND} -E copy allegro/build/outputs/aar/${AAR_NAME} ${ALLEGRO_AAR}
     )
 
 add_custom_target(aar ALL

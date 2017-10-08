@@ -4,9 +4,15 @@ function(add_android_app prog sources)
     set(native "${PROJECT}/app/src/main/jniLibs/${ARM_TARGETS}/libnative-lib.so")
     set(GRADLE_PROJECT app)
     set(ANDROID_HOME $ENV{ANDROID_HOME})
-    set(AAR ${PROJECT}/app/libs/allegro-release.aar)
+    set(AAR ${PROJECT}/app/libs/allegro.aar)
     set(adb ${ANDROID_HOME}/platform-tools/adb)
     set(APP_ID ${prog})
+
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+       set(SUFFIX "-debug")
+    else()
+       set(SUFFIX "")
+    endif()
 
     configure_file(
         ${PROJECT_SOURCE}/settings.gradle
@@ -35,7 +41,7 @@ function(add_android_app prog sources)
 
     get_property(JNI_LIBS GLOBAL PROPERTY JNI_LIBS)
     foreach(lib ${JNI_LIBS})
-        set(jnilib ${PROJECT}/app/src/main/jniLibs/${ARM_TARGETS}/lib${lib}-debug.so)
+        set(jnilib ${PROJECT}/app/src/main/jniLibs/${ARM_TARGETS}/lib${lib}${SUFFIX}.so)
         get_property(so TARGET ${lib} PROPERTY LOCATION)
         add_custom_command(
             OUTPUT ${jnilib}
@@ -58,7 +64,8 @@ function(add_android_app prog sources)
         list(APPEND COPIED_FILES ${target})
     endforeach()
 
-    # The APK to output.
+    # The APK to output. We always build the examples in debug mode as
+    # a release version would need to be signed.
     set(apk_path "${PROJECT}/app/build/outputs/apk/debug/app-debug.apk")
 
     # Build the application as a shared library.
