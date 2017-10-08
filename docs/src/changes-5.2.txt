@@ -3,6 +3,169 @@
 These lists serve as summaries; the full histories are in the git repository.
 
 
+Changes from 5.2.2 to 5.2.3 (October 2017)
+==========================================
+
+The main developers this time were: Elias Pschernig, SiegeLord, Sebastian
+Krzyszkowiak, Vitaliy V. Tokarev, Simon Naarmann, Bruno Félix Rezende Ribeiro,
+Trent Gamblin).
+
+Core:
+
+  - Add `al_path_ustr` (Bruce Pascoe).
+
+  - Handle NULL sections more gracefully with the config API.
+
+  - Add missing `glStencilMaskSeparate prototype` (Aaron Bolyard).
+
+  - Add `al_clear_keyboard_state`.
+
+  - Don't add blank lines before config sections when writing them out.
+
+  - Fix `fs_stdio_read_directory` appending an extra slash.
+
+  - Fix `al_set_window_constraints` when the flag ALLEGRO_MAXIMIZED is set.
+
+  - Fix `al_set_clipping_rectangle` when out-of-bounds (Bruce Pascoe).
+
+  - Enable blocked locking of S3TC formats unconditionally.
+
+Raspberry Pi port:
+
+  - Set default file interface when attempting to read /boot/config.txt.
+
+Android port:
+
+  - Replace the old build system that used deprecated tools with a new
+    Gradle-based system.
+
+  - Work around crashes on some Androids when an FBO is bound during
+    `egl_SwapBuffers`.
+
+  - Fix LocalRef leak when opening files using APK interface.
+
+  - Remove -Wno-psabi switches from Toolchain-android.cmake.
+
+Linux port:
+
+  - Make three finger salute and LED toggle configurable.
+
+  - Fix KEY_CHAR events under X11 with compose key enabled.
+
+  - Fix clearing the `ALLEGRO_MAXIMIZED` flag under X11.
+
+  - Add `al_x_set_initial_icon`.
+
+  - Free wm_hints in `set_initial_icon`.
+
+  - Read Allegro system config from ~/.allegro5rc on Unix.
+
+Windows port:
+
+  - Make bitmap contents persist again after device loss.
+
+  - Add large file support for MSVC.
+
+  - Only test cooperative lavel if device is known to be lost.
+
+  - Don't leak the `D3DEffect` when attaching multiple sources.
+
+  - Fix `al_get_monitor_info` (Tobias Scheuer).
+
+OSX port:
+
+  - Various fixes for OSX 10.6.
+
+  - Fix some Bluetooth mice on OS X (Tom Bass).
+
+  - Fixed deprecation warning when starting OSX console app (Tom Bass).
+
+  - Fix OSX magic main with the LTO switch (Evert Glebbeek).
+
+Audio addon:
+
+  - Allow setting the buffer size for ALSA.
+
+  - Don't apply gain twice for sample instances and streams when pan is not
+    `ALLEGRO_PAN_NONE`.
+
+  - Disallow attaching mixers with different channel configurations.
+
+  - Add `al_set_sample_instance_channel_matrix` and
+    `al_set_audio_stream_channel_matrix`.
+
+  - Don't free the extra pointer in DirectSound if voice fails to play for some
+    reason.
+
+  - Add `al_lock_sample_id` and `al_unlock_sample_id`.
+
+  - For OpenAL, detach from buffers before deleting.
+
+  - Return true when seeking mod audio streams.
+
+Acodec addon:
+
+  - Free audio stream buffer in flac_stream_close.
+
+  - Add DUMB 2.0 support.
+
+Color addon:
+
+  - Add XYZ, xyY, Lab and LCH color spaces.
+
+  - Remove "purwablue" named color, add "rebeccablue".
+
+Native dialog addon:
+
+  - Improve save dialogs under GTK driver.
+
+  - Improved path behavior in GTK native file dialog ([bk]door.maus).
+
+  - Enable `ALLEGRO_FILECHOOSER_FOLDER` On Linux (Todd Cope).
+
+  - Use unique ids to identify menu items internally, fixing their event
+    sources.
+
+  - Make the native message box return 2 on Windows when cancel is pressed.
+
+Image addon:
+
+  - Set compression level to `Z_DEFAULT_COMPRESSION` in png saver by default.
+
+  - Make PNG, JPEG compression level configurable.
+
+  - Make PNG gamma value configurable.
+
+  - Add WebP support with libwebp.
+
+Video addon:
+
+  - Allow calling `al_init_video_addon` after `al_shutdown_video_addon` was
+    called.
+
+Build system:
+
+  - Detect and link optional FreeType dependencies.
+
+  - Add a CMake option to prefer static dependencies.
+
+  - Fix SDL platform build.
+
+Python binding:
+
+  - Fix some corrupted regexps in the generation script (verderten).
+
+Documentation:
+
+  - Lots of improvements as usual (Edgar Reynaldo, Mark Oates, twobit).
+
+Examples:
+
+  - Fix various issues with `ex_curl`.
+
+  - Fix memory leak in `ex_audio_simple` (Rm Beer).
+
+
 Changes from 5.2.1.1 to 5.2.2 (December 2016)
 =======================================
 
