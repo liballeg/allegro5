@@ -31,10 +31,17 @@ struct ALLEGRO_FS_ENTRY_APK
 static const ALLEGRO_FS_INTERFACE fs_apk_vtable;
 
 /* current working directory */
-/* We cannot use ALLEGRO_USTR because we have nowhere to free it. */
-static char fs_apk_cwd[1024] = "/";
+/* TODO: free this somewhere */
+static ALLEGRO_USTR *fs_apk_cwd_ustr;
 
 static ALLEGRO_FILE *fs_apk_open_file(ALLEGRO_FS_ENTRY *fse, const char *mode);
+
+static ALLEGRO_USTR *get_fake_cwd(void) {
+   if (!fs_apk_cwd_ustr) {
+      fs_apk_cwd_ustr = al_ustr_new("/");
+   }
+   return fs_apk_cwd_ustr;
+}
 
 static bool path_is_absolute(const char *path)
 {
@@ -57,7 +64,7 @@ static ALLEGRO_USTR *apply_cwd(const char *path)
       return al_ustr_new(path);
    }
 
-   us = al_ustr_new(fs_apk_cwd);
+   us = al_ustr_dup(get_fake_cwd());
    al_ustr_append_cstr(us, path);
    return us;
 }
@@ -86,19 +93,14 @@ static ALLEGRO_FS_ENTRY *fs_apk_create_entry(const char *path)
 
 static char *fs_apk_get_current_directory(void)
 {
-   size_t size = strlen(fs_apk_cwd) + 1;
-   char *s = al_malloc(size);
-   if (s) {
-      memcpy(s, fs_apk_cwd, size);
-   }
-   return s;
+   return al_cstr_dup(get_fake_cwd());
 }
 
 static bool fs_apk_change_directory(const char *path)
 {
    ALLEGRO_USTR *us;
-   bool ret;
-
+   ALLEGRO_USTR *cwd = get_fake_cwd();
+   
    /* Figure out which directory we are trying to change to. */
    if (path_is_absolute(path))
       us = al_ustr_new(path);
@@ -107,14 +109,11 @@ static bool fs_apk_change_directory(const char *path)
 
    ensure_trailing_slash(us);
 
-   if ((size_t) al_ustr_size(us) < sizeof(fs_apk_cwd)) {
-      al_ustr_to_buffer(us, fs_apk_cwd, sizeof(fs_apk_cwd));
-      ret = true;
-   }
+   al_ustr_assign(cwd, us);
 
    al_ustr_free(us);
 
-   return ret;
+   return true;
 }
 
 static bool fs_apk_remove_filename(const char *path)
