@@ -22,7 +22,8 @@
 #include "allegro5/internal/aintern_vector.h"
 
 #ifdef ALLEGRO_ANDROID
-#  include <android/log.h>
+#include <unistd.h>
+#include <android/log.h>
 #endif
 
 
@@ -320,7 +321,7 @@ void _al_trace_suffix(const char *msg, ...)
       }
       #ifdef ALLEGRO_ANDROID
       else {
-         (void)__android_log_print(ANDROID_LOG_INFO, "allegro",
+         (void)__android_log_print(ANDROID_LOG_INFO, "allegro", "%s",
             static_trace_buffer);
       }
       #endif
