@@ -555,6 +555,8 @@ if(PREFER_STATIC_DEPS)
 endif()
 
 if(WANT_OPENGL)
+    find_package(OpenGL)
+
     if(GL_BUILD_TYPE MATCHES "auto")
         set(GL_REAL_BUILD_TYPE ${GL_AUTO_BUILD_TYPE})
     else()
@@ -562,12 +564,14 @@ if(WANT_OPENGL)
     endif()
 
     if(GL_REAL_BUILD_TYPE MATCHES "gl$")
-        find_package(OpenGL)
         if(OPENGL_FOUND AND OPENGL_GLU_FOUND)
             set(SUPPORT_OPENGL 1)
             set(ALLEGRO_CFG_OPENGL 1)
             # We assume that the OpenGL library is not very old.
             set(ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE 1)
+            if(OPENGL_opengl_LIBRARY) # prefer GLVND if available
+                set(OPENGL_LIBRARIES ${OPENGL_opengl_LIBRARY} ${OPENGL_glu_LIBRARY})
+            endif()
             message("Using OpenGL")
         else(OPENGL_FOUND)
             if(GL_BUILD_TYPE MATCHES "auto")
@@ -672,9 +676,8 @@ endif(SUPPORT_X11 AND NOT SUPPORT_OPENGL)
 if(SUPPORT_X11)
     set(CMAKE_REQUIRED_LIBRARIES ${X11_LIBRARIES})
 
-    check_library_exists(GLX glXQueryVersion "" CAN_GLX)
-    if(CAN_GLX)
-        set(OPENGL_LIBRARIES "${OPENGL_LIBRARIES}" "/usr/lib/libGLX.so")
+    if (OpenGL_GLX_FOUND)
+        set(OPENGL_LIBRARIES "${OPENGL_LIBRARIES}" "${OPENGL_glx_LIBRARY}")
     endif()
 
     check_library_exists(Xcursor XcursorImageCreate "" CAN_XCURSOR)
