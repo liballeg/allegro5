@@ -31,17 +31,6 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
-SET(ALLEGRO_CFG_OPENGLES 1)
-SET(ALLEGRO_CFG_OPENGLES2 1)
-SET(ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE 1)
-
-SET(ALLEGRO_EXCLUDE_GLX 1)
-
-# XXX incorporate into FindOpenGLES/2
-set(OPENGL_LIBRARIES "/opt/vc/lib/libGLESv2.so;/opt/vc/lib/libEGL.so;/opt/vc/lib/libbcm_host.so")
-set(OPENGL_gl_LIBRARY "/opt/vc/lib/libGLESv2.so;/opt/vc/lib/libEGL.so;/opt/vc/lib/libbcm_host.so")
-set(OPENGL_glu_LIBRARY "")
-
 include_directories(
    "/opt/vc/include"
    "/opt/vc/include/interface/vcos/pthreads"
