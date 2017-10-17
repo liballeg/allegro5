@@ -183,8 +183,10 @@ char const *_al_gl_error_string(GLenum e)
       ERR(GL_INVALID_ENUM)
       ERR(GL_INVALID_VALUE)
       ERR(GL_INVALID_OPERATION)
+#ifndef ALLEGRO_CFG_OPENGLES2
       ERR(GL_STACK_OVERFLOW)
       ERR(GL_STACK_UNDERFLOW)
+#endif
       ERR(GL_OUT_OF_MEMORY)
 #ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       ERR(GL_INVALID_FRAMEBUFFER_OPERATION)
@@ -462,12 +464,14 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
          post_generate_mipmap = true;
       }
       else {
+#ifndef ALLEGRO_CFG_OPENGLES2
          glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
           e = glGetError();
           if (e) {
               ALLEGRO_ERROR("glTexParameteri for texture %d failed (%s).\n",
                             ogl_bitmap->texture, _al_gl_error_string(e));
           }
+#endif
       }
    }
 
