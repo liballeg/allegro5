@@ -745,6 +745,10 @@ void _al_copy_bitmap_data(
    width /= block_width;
    height /= block_height;
 
+   if ((src_ptr == dst_ptr) && (src_pitch == dst_pitch)) {
+      return;
+   }
+
    src_ptr += sy * src_pitch + sx * block_size;
    dst_ptr += dy * dst_pitch + dx * block_size;
 
