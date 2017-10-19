@@ -316,6 +316,9 @@ static ALLEGRO_DISPLAY_XGLX *xdpy_create_display_locked(
 #ifdef ALLEGRO_CFG_OPENGLES2
    display->flags |= ALLEGRO_PROGRAMMABLE_PIPELINE;
 #endif
+#ifdef ALLEGRO_CFG_OPENGLES
+   display->flags |= ALLEGRO_OPENGL_ES_PROFILE;
+#endif
 
    /* Store our initial virtual adapter, used by fullscreen and positioning
     * code.
