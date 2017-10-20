@@ -684,7 +684,7 @@ if(SUPPORT_X11)
         set(OPENGL_LIBRARIES "${OPENGL_LIBRARIES}" "${OPENGL_glx_LIBRARY}")
     endif()
 
-    if (NOT OPENGL_LIBRARIES MATCHES "(libGL\\.|libGLX\\.)")
+    if (NOT OPENGL_LIBRARIES MATCHES "(libGL\\.|libGLX\\.)" AND NOT ALLEGRO_EXCLUDE_GLX)
        message(FATAL_ERROR "X11 support currently requires GLX (set OPENGL_glx_LIBRARY and OpenGL_GLX_FOUND).")
     endif()
 
