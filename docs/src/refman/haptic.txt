@@ -214,7 +214,7 @@ data
 
     The field `data.condition.right_coef` and
     `data.condition.right_left_coef` must be filled in with a relative
-    coefficient, that will detemine how quickly the effect ramps up on the
+    coefficient, that will determine how quickly the effect ramps up on the
     right and left side. If set to 1.0, then the effect will be immediately
     at full intensity when outside of the dead band. If set to 0.0 the effect
     will not be felt at all.
@@ -393,7 +393,7 @@ exposed features across all of the platforms. Awaiting feedback from users.
 ## API: al_get_haptic_from_joystick
 
 If the joystick has haptic capabilities, returns the associated haptic device
-handle.  Otherwise returns NULL. It's neccesary to call this again every time
+handle.  Otherwise returns NULL. It's necessary to call this again every time
 the joystick configuration changes, such as through hot plugging. In that case,
 the old haptic device must be released using [al_release_haptic].
 
@@ -465,7 +465,7 @@ See also: [al_get_haptic_capabilities]
 
 Sets the gain of the haptic device if supported. Gain is much like volume for
 sound, it is as if every effect's intensity is multiplied by it. Gain is a
-value between 0.0 and 1.0. Returns true if set sucessfully, false if not.
+value between 0.0 and 1.0. Returns true if set successfully, false if not.
 Only works if [al_get_haptic_capabilities] returns a value that has
 [ALLEGRO_HAPTIC_GAIN][ALLEGRO_HAPTIC_CONSTANTS] set.  If not, this
 function returns false, and all
@@ -503,7 +503,7 @@ in between those two extremes will result in partial automatic
 centering. Some platforms do not support partial automatic 
 centering. If that is the case, a value of less than 0.5 will turn 
 it off, while a value equal to or higher to 0.5 will turn it on.
-Returns true if set sucessfully, false if not.
+Returns true if set successfully, false if not.
 Can only work if [al_get_haptic_capabilities] returns a value that has
 [ALLEGRO_HAPTIC_AUTOCENTER][ALLEGRO_HAPTIC_CONSTANTS] set.  If not, this
 function returns false.
@@ -584,7 +584,7 @@ The haptic effect will be played back loop times in sequence. If loop is less
 than or equal to 1, then the effect will be played once only.
 
 This function returns immediately and doesn't wait for the playback to
-finish. It returns true if the playback was started sucessfully or false if
+finish. It returns true if the playback was started successfully or false if
 not.
 
 Since: 5.1.8

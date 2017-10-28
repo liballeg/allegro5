@@ -523,7 +523,7 @@ See also: [ALLEGRO_EVENT_DISPLAY_HALT_DRAWING]
 
 This event is sent when a physical display is connected to the device
 Allegro runs on. Currently, on most platforms, Allegro supports only a single
-physical display. However, on iOS, a secondary physical display is suported.
+physical display. However, on iOS, a secondary physical display is supported.
 
 display.source (ALLEGRO_DISPLAY *)
 :   The display which was connected.
@@ -534,7 +534,7 @@ Since: 5.1.1
 
 This event is sent when a physical display is disconnected from the device
 Allegro runs on. Currently, on most platforms, Allegro supports only a single
-physical display. However, on iOS, a secondary physical display is suported.
+physical display. However, on iOS, a secondary physical display is supported.
 
 display.source (ALLEGRO_DISPLAY *)
 :   The display which was disconnected.

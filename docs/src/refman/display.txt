@@ -422,7 +422,7 @@ sub-bitmaps) as the source bitmap (e.g as the bitmap argument to
 [al_draw_bitmap]). Only untransformed operations are hardware
 accelerated. These consist of [al_draw_bitmap] and
 [al_draw_bitmap_region] when the current transformation is the identity.
-If the tranformation is not the identity, or some other drawing
+If the transformation is not the identity, or some other drawing
 operation is used, the call will be routed through the memory bitmap
 routines, which are slow. If you need those operations to be accelerated,
 then first copy a region of the backbuffer into a temporary bitmap (via

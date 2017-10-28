@@ -23,7 +23,7 @@ int main(int argc, char **argv)
 
     /* The first commandline argument can optionally specify an 
      * image to display instead of the default. Allegro's image
-     * addon suports BMP, DDS, PCX, TGA and can be compiled with
+     * addon supports BMP, DDS, PCX, TGA and can be compiled with
      * PNG and JPG support on all platforms. Additional formats
      * are supported by platform specific libraries and support for
      * image formats can also be added at runtime.

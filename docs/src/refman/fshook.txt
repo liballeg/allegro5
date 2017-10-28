@@ -258,7 +258,7 @@ which may exist on certain platforms and may signify the current and the
 parent directory. The `callback` will not be called for files
 or directories with such a name.
 
-Returns ALLEGRO_FOR_EACH_FS_ENTRY_OK if sucessful, or
+Returns ALLEGRO_FOR_EACH_FS_ENTRY_OK if successful, or
 ALLEGRO_FOR_EACH_FS_ENTRY_ERROR if something went wrong in
 processing the directory. In that case it will use [al_set_errno] to indicate
 the type of error which occurred. This function returns

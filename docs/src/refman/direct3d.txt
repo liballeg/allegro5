@@ -37,14 +37,14 @@ Returns whether the Direct3D device supports textures whose dimensions are not
 powers of two.
 
 *Returns:*
-True if device suports NPOT textures, false otherwise.
+True if device supports NPOT textures, false otherwise.
 
 ## API: al_have_d3d_non_square_texture_support
 
 Returns whether the Direct3D device supports textures that are not square.
 
 *Returns:*
-True if the Direct3D device suports non-square textures, false otherwise.
+True if the Direct3D device supports non-square textures, false otherwise.
 
 ## API: al_get_d3d_texture_size
 

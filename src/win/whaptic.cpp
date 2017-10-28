@@ -1364,7 +1364,7 @@ static bool whap_is_effect_playing(ALLEGRO_HAPTIC_EFFECT_ID *id)
        * see if the effect should still be playing.
        * Do this because in case GeteffectStatus fails, we can't
        * assume the sample isn't playing. In fact, if the play command
-       * was sucessful, it should still be playing as long as the play
+       * was successful, it should still be playing as long as the play
        * time has not passed.
        */
       return(al_get_time() < id->_end_time);
