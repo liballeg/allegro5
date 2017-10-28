@@ -15,7 +15,7 @@ before_install:
          sudo apt-get update;
          sudo apt-get install -y libvorbis-dev libtheora-dev libwebp-dev libphysfs-dev libopusfile-dev libdumb1-dev libflac-dev libpulse-dev libgtk2.0-dev pandoc libcurl4-nss-dev libenet-dev pulseaudio libasound2-dev libopenal-dev;
       elif [ `uname` = "Darwin" ]; then
-         brew install opusfile libvorbis webp freetype flac physfs dumb theora enet;
+         brew update && brew install opusfile libvorbis webp freetype flac physfs dumb theora enet;
       fi
 
 env:
