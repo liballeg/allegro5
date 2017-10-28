@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #
 # Run:
-#  python misc/make_resamplers.py | indent -kr -i3 -l0
+#  python2 misc/make_resamplers.py | indent -kr -i3 -l0
 
 import sys, re
 

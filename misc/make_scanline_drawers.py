@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #
 # Generate the routines to draw each scanline of a primitive.
 # Run:
-#  python misc/make_scanline_drawers.py | indent -kr -i3 -l0 > src/scanline_drawers.inc
+#  python2 misc/make_scanline_drawers.py | indent -kr -i3 -l0 > src/scanline_drawers.inc
 
 import sys, re
 
