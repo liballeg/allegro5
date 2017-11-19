@@ -377,6 +377,9 @@ bool al_init_font_addon(void)
    al_register_font_loader(".png", _al_load_bitmap_font);
    al_register_font_loader(".tga", _al_load_bitmap_font);
 
+   al_register_font_loader(".xml", _al_load_bmfont_xml);
+   al_register_font_loader(".fnt", _al_load_bmfont_xml);
+
    _al_add_exit_func(font_shutdown, "font_shutdown");
 
    font_inited = true;

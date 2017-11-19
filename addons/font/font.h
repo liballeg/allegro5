@@ -15,6 +15,8 @@ typedef struct ALLEGRO_FONT_COLOR_DATA
 
 ALLEGRO_FONT *_al_load_bitmap_font(const char *filename,
    int size, int flags);
+ALLEGRO_FONT *_al_load_bmfont_xml(const char *filename,
+   int size, int flags);
 
 
 #endif
