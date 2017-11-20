@@ -235,7 +235,8 @@ static int font_descent(const ALLEGRO_FONT *f) {
 
 static int get_kerning(BMFONT_CHAR *prev, int c) {
    if (!prev) return 0;
-   for (int i = 0; i < prev->kerning_pairs; i++) {
+   int i;
+   for (i = 0; i < prev->kerning_pairs; i++) {
       if (prev->kerning[i].second == c) {
          int a = prev->kerning[i].amount;
          return a;
@@ -347,12 +348,12 @@ static bool get_glyph (const ALLEGRO_FONT *f, int prev_codepoint,
 }
 
 static int char_length(const ALLEGRO_FONT *f, int ch) {
-   ALLEGRO_COLOR color = {};
+   ALLEGRO_COLOR color = {0, 0, 0, 0};
    return measure_char(f, color, ch, 0, 0, NULL);
 }
 
 static int text_length(const ALLEGRO_FONT *f, const ALLEGRO_USTR *text) {
-   ALLEGRO_COLOR color = {};
+   ALLEGRO_COLOR color = {0, 0, 0, 0};
    return each_character(f, color, text, 0, 0, NULL, measure_char);
 }
 
@@ -382,7 +383,8 @@ static int render(const ALLEGRO_FONT *f, ALLEGRO_COLOR color,
 }
 
 static void destroy_range(BMFONT_RANGE *range) {
-   for (int i = 0; i < range->count; i++) {
+   int i;
+   for (i = 0; i < range->count; i++) {
       BMFONT_CHAR *c = range->characters[i];
       al_free(c->kerning);
       al_free(c);
@@ -399,7 +401,8 @@ static void destroy(ALLEGRO_FONT *f) {
       range = next;
    }
 
-   for (int i = 0; i < data->pages_count; i++) {
+   int i;
+   for (i = 0; i < data->pages_count; i++) {
       al_destroy_bitmap(data->pages[i]);
    }
    al_free(data->pages);
@@ -410,7 +413,7 @@ static void destroy(ALLEGRO_FONT *f) {
 
 static void get_text_dimensions(const ALLEGRO_FONT *f,
       const ALLEGRO_USTR *text, int *bbx, int *bby, int *bbw, int *bbh) {
-   ALLEGRO_COLOR color = {};
+   ALLEGRO_COLOR color = {0, 0, 0, 0};
    ALLEGRO_GLYPH glyph;
    glyph.x = INT_MAX;
    glyph.y = INT_MAX;
@@ -477,7 +480,8 @@ ALLEGRO_FONT *_al_load_bmfont_xml(const char *filename, int size,
 
    _al_xml_parse(f, xml_callback, font);
 
-   for (int i = 0; i < data->kerning_pairs; i++) {
+   int i;
+   for (i = 0; i < data->kerning_pairs; i++) {
       BMFONT_KERNING *k = data->kerning + i;
       BMFONT_CHAR *c = find_codepoint(data, k->first);
       c->kerning_pairs++;
