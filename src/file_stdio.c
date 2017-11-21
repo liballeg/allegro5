@@ -33,6 +33,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_file.h"
 #include "allegro5/internal/aintern_wunicode.h"
+#include ALLEGRO_INTERNAL_HEADER
 
 #ifdef ALLEGRO_HAVE_SYS_STAT_H
 #include <sys/stat.h>

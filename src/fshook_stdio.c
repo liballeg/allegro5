@@ -26,6 +26,7 @@
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_wunicode.h"
+#include ALLEGRO_INTERNAL_HEADER
 
 ALLEGRO_DEBUG_CHANNEL("fshook")
 
