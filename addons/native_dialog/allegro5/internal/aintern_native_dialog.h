@@ -137,4 +137,8 @@ extern bool _al_show_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu);
 extern bool _al_hide_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu);
 extern bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu);
 
+/* Returns the height of the display taken up by the menu, so we can resize
+ * the display to compensate. Windows only at the moment.*/
+extern int _al_get_menu_display_height(void);
+
 #endif

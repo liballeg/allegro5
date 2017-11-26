@@ -723,6 +723,7 @@ bool al_set_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 {
    DISPLAY_MENU *dm = NULL;
    size_t i;
+   int menu_height = _al_get_menu_display_height();
 
    ASSERT(display);
 
@@ -741,11 +742,16 @@ bool al_set_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
       /* Removing the menu */
 
       if (!dm)
-         return false; 
+         return false;
 
       _al_hide_display_menu(display, dm->menu);
       _al_walk_over_menu(dm->menu, set_menu_display_r, NULL);
       _al_vector_delete_at(&display_menus, i);
+
+      if (menu_height > 0) {
+         display->extra_resize_height = 0;
+         al_resize_display(display, al_get_display_width(display), al_get_display_height(display));
+      }
    }
    else {
       /* Setting the menu. It must not currently be attached to any 
@@ -772,6 +778,15 @@ bool al_set_display_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
 
       if (!dm)
          dm = _al_vector_alloc_back(&display_menus);
+
+      if (menu_height > 0) {
+         /* Temporarily disable the constraints so we don't send a RESIZE_EVENT. */
+         bool old_constraints = display->use_constraints;
+         display->use_constraints = false;
+         display->extra_resize_height = menu_height;
+         al_resize_display(display, al_get_display_width(display), al_get_display_height(display));
+         display->use_constraints = old_constraints;
+      }
 
       dm->display = display;
       dm->menu = menu;
