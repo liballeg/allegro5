@@ -161,3 +161,8 @@ bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
     (void) menu;
     return false;
 }
+
+int _al_get_menu_display_height(void)
+{
+   return 0;
+}

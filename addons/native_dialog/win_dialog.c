@@ -878,4 +878,9 @@ bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
    return true;
 }
 
+int _al_get_menu_display_height(void)
+{
+   return GetSystemMetrics(SM_CYMENU);
+}
+
 /* vim: set sts=3 sw=3 et: */

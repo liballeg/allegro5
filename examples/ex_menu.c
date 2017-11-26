@@ -280,18 +280,6 @@ int main(int argc, char **argv)
       else if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
          al_acknowledge_resize(display);
          redraw = true;
-
-#ifdef ALLEGRO_WINDOWS
-         /* XXX The Windows implementation currently uses part of the client's
-          * height to render the window. This triggers a resize event, which
-          * can be trapped and used to compute the menu height, and then
-          * resize the display again to what we expect it to be.
-          */
-         if (event.display.source == display && windows_menu_height == 0) {
-            windows_menu_height = initial_height - al_get_display_height(display);
-            al_resize_display(display, initial_width, initial_height + windows_menu_height);
-         }
-#endif
       }
       else if (event.type == ALLEGRO_EVENT_TIMER) {
          redraw = true;

@@ -443,4 +443,9 @@ bool _al_show_popup_menu(ALLEGRO_DISPLAY *display, ALLEGRO_MENU *menu)
    return _al_gtk_wait_for_args(do_show_popup_menu, &args);
 }
 
+int _al_get_menu_display_height(void)
+{
+   return 0;
+}
+
 /* vim: set sts=3 sw=3 et: */
